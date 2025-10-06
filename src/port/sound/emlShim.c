@@ -31,6 +31,12 @@ enum {
     MATCH_BANK = (1 << 7),
 };
 
+struct LFO {
+    u32 state;
+    u16 speed;
+    u16 depth;
+};
+
 struct VWork {
     int voice_num;
     struct VId id;
@@ -43,6 +49,8 @@ struct VWork {
     s16 ph_pitch;
     s16 req_pitch;
     u32 freq;
+    u16 adsr1, adsr2;
+    struct LFO lfo_pitch, lfo_vol;
     struct list_head list;
 };
 
@@ -69,6 +77,9 @@ static const u16 NotePitchTable[] = {
     0x85E8, 0x85F8, 0x8607, 0x8617, 0x8626, 0x8636, 0x8645, 0x8655, 0x8664, 0x8674, 0x8683, 0x8693, 0x86A2, 0x86B2,
     0x86C1, 0x86D1, 0x86E0, 0x86F0, 0x8700, 0x870F, 0x871F, 0x872E, 0x873E, 0x874E, 0x875D, 0x876D, 0x877D, 0x878C
 };
+
+static void UpdateVolPanPitch(struct VWork* voice);
+static int gcVoices();
 
 // Note to pitch from ps2sdk
 static u16 sceSdNote2Pitch(u16 center_note, u16 center_fine, u16 note, short fine) {
@@ -125,16 +136,56 @@ static u16 sceSdNote2Pitch(u16 center_note, u16 center_fine, u16 note, short fin
     return (u16)ret;
 }
 
-static int gcVoices();
+static void InitLfo(struct LFO* lfo, u16 speed, u16 depth) {
+    lfo->state = 0;
+    lfo->speed = speed;
+    lfo->depth = depth;
+}
+
+static void MoveLFO(struct LFO* lfo) {
+    lfo->state += lfo->speed;
+}
+
+static short GetSquare(int state) {
+    int v1; // $v0
+
+    v1 = state & 0x3FF;
+    if (state < 0 && (state & 0x3FF) != 0)
+        v1 -= 1024;
+
+    if (v1 < 512)
+        return 0x7FFF;
+
+    if (v1 >= 1024)
+        return 0;
+
+    return -32767;
+}
+
+static int GetLfoVal(struct LFO* lfo) {
+    int ret;
+
+    ret = lfo->depth * GetSquare(lfo->state >> 8);
+    if (ret < 0) {
+        ret += 0x7fff;
+    }
+
+    return ret >> 15;
+}
+
 static void workTick() {
     struct VWork* i;
 
     list_for_each (i, &active_voices, list) {
         i->tick++;
+        MoveLFO(&i->lfo_pitch);
+        MoveLFO(&i->lfo_vol);
 
         if (i->kofftime && i->kofftime < i->tick) {
-            SPU_KeyOffVoice(i->voice_num);
+            SPU_VoiceKeyOff(i->voice_num);
         }
+
+        UpdateVolPanPitch(i);
     }
 
     gcVoices();
@@ -172,7 +223,7 @@ static int gcVoices() {
     SDL_LockMutex(soundLock);
 
     list_for_each_safe (i, n, &active_voices, list) {
-        if (SPU_VoiceGetVolume(i->voice_num) == 0) {
+        if (SPU_VoiceGetEnvLvl(i->voice_num) == 0) {
             list_remove(&i->list);
             list_insert(&free_voices, &i->list);
             numFreed++;
@@ -290,6 +341,30 @@ static int checkConditions(struct VId* id, CSE_REQP* match, u32 cond) {
     return 1;
 }
 
+static void UpdateVolPanPitch(struct VWork* voice) {
+    int volume, bankvol, pan, voll, volr, note, pitch;
+    struct SPUVConf conf;
+
+    bankvol = bankVolume[voice->id.bank & 0xf];
+    volume = (bankvol * voice->req_vol) / 0x3fff;
+    volume = (volume * voice->ph_vol) / 0x3fff;
+    volume = clamp(volume + GetLfoVal(&voice->lfo_vol), 0, 0x3fff);
+    pan = clamp((voice->ph_pan + voice->req_pan) - 64, 0, 127);
+    note = clamp(voice->ph_pitch + voice->req_pitch + GetLfoVal(&voice->lfo_pitch), -6000, 6000);
+    pitch = (voice->freq * sceSdNote2Pitch(0x3c, 0, note / 100 + 60, note % 100)) / 48000;
+
+    voll = 0x3fff * ((volume * (127 - pan)) / 127) / 0x3fff;
+    volr = 0x3fff * ((volume * pan) / 127) / 0x3fff;
+
+    conf.pitch = pitch;
+    conf.voll = voll;
+    conf.volr = volr;
+    conf.adsr1 = voice->adsr1;
+    conf.adsr2 = voice->adsr2;
+
+    SPU_VoiceSetConf(voice->voice_num, &conf);
+}
+
 static int doSeDrop(CSE_REQP* reqp) {
     u32 cond = makeConditions(reqp);
     struct VWork* i;
@@ -307,7 +382,7 @@ static int doSeDrop(CSE_REQP* reqp) {
                 continue;
             }
 
-            SPU_KeyOffVoice(i->voice_num);
+            SPU_VoiceKeyOff(i->voice_num);
         }
     }
 
@@ -352,25 +427,15 @@ void emlShimStartSound(CSE_SYS_PARAM_SNDSTART* param) {
     voice->ph_pitch = param->phdp.pitch;
     voice->req_pitch = param->reqp.pitch;
 
-    // From function UpdateVolPanPitch
-    bankvol = bankVolume[voice->id.bank & 0xf];
-    volume = (bankvol * voice->req_vol) / 0x3fff;
-    volume = clamp((volume * voice->ph_vol) / 0x3fff, 0, 0x3fff);
-    pan = clamp((voice->ph_pan + voice->req_pan) - 64, 0, 127);
-    note = clamp(voice->ph_pitch + voice->req_pitch, -6000, 6000);
-    pitch = (voice->freq * sceSdNote2Pitch(0x3c, 0, note / 100 + 60, note % 100)) / 48000;
+    voice->adsr1 = param->phdp.adsr1;
+    voice->adsr2 = param->phdp.adsr2;
 
-    voll = 0x3fff * ((volume * (127 - pan)) / 127) / 0x3fff;
-    volr = 0x3fff * ((volume * pan) / 127) / 0x3fff;
+    InitLfo(&voice->lfo_pitch, 0x6000, 0);
+    InitLfo(&voice->lfo_vol, 0x418, 0);
 
-    conf.ssa = param->phdp.s_addr >> 1;
-    conf.pitch = pitch;
-    conf.voll = voll;
-    conf.volr = volr;
-    conf.adsr1 = param->phdp.adsr1;
-    conf.adsr2 = param->phdp.adsr2;
+    UpdateVolPanPitch(voice);
 
-    SPU_StartVoice(voice->voice_num, &conf);
+    SPU_VoiceStart(voice->voice_num, param->phdp.s_addr >> 1);
 
     SDL_UnlockMutex(soundLock);
 }
@@ -383,7 +448,7 @@ void emlShimSeKeyOff(CSE_REQP* pReqp) {
 
     list_for_each (i, &active_voices, list) {
         if (checkConditions(&i->id, pReqp, cond)) {
-            SPU_KeyOffVoice(i->voice_num);
+            SPU_VoiceKeyOff(i->voice_num);
         }
     }
 
@@ -398,7 +463,7 @@ void emlShimSeStop(CSE_REQP* pReqp) {
 
     list_for_each (i, &active_voices, list) {
         if (checkConditions(&i->id, pReqp, cond)) {
-            SPU_StopVoice(i->voice_num);
+            SPU_VoiceStop(i->voice_num);
         }
     }
 
@@ -411,7 +476,7 @@ void emlShimSeStopAll() {
     SDL_LockMutex(soundLock);
 
     list_for_each (i, &active_voices, list) {
-        SPU_StopVoice(i->voice_num);
+        SPU_VoiceStop(i->voice_num);
     }
 
     SDL_UnlockMutex(soundLock);
@@ -428,6 +493,27 @@ void emlShimSysSetVolume(CSE_SYS_PARAM_BANKVOL* param) {
 
     for (int i = 0; i < 16; i++) {
         bankVolume[i] = (masterVolume * assignedBankVolume[i]) / 0x3fff;
+    }
+
+    SDL_UnlockMutex(soundLock);
+}
+
+void emlShimSeSetLfo(CSE_SYS_PARAM_LFO* param) {
+    u32 cond = makeConditions(&param->reqp);
+    struct VWork* i;
+
+    SDL_LockMutex(soundLock);
+
+    list_for_each (i, &active_voices, list) {
+        if (checkConditions(&i->id, &param->reqp, cond)) {
+            i->lfo_pitch.state = 0;
+            i->lfo_pitch.speed = param->pmd_speed;
+            i->lfo_pitch.depth = param->pmd_depth;
+
+            i->lfo_vol.state = 0;
+            i->lfo_vol.speed = param->amd_speed;
+            i->lfo_vol.depth = param->amd_depth;
+        }
     }
 
     SDL_UnlockMutex(soundLock);

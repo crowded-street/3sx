@@ -47,7 +47,11 @@ s32 mlSeSetLfo(CSE_REQP* pReqp, u16 pmd_speed, u16 pmd_depth, u16 amd_speed, u16
     param.pmd_depth = pmd_depth;
     param.amd_speed = amd_speed;
     param.amd_depth = amd_depth;
+#if defined(TARGET_PS2)
     mlRpcQueueSetData(1, &param, sizeof(CSE_SYS_PARAM_LFO));
+#else
+    emlShimSeSetLfo(&param);
+#endif
     return 0;
 }
 

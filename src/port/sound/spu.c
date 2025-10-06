@@ -248,39 +248,54 @@ static void SPU_VoiceTick(struct SPU_Voice* v, s32* output) {
     SPU_VoiceRunADSR(v);
 }
 
-int SPU_VoiceGetVolume(int vnum) {
+int SPU_VoiceGetEnvLvl(int vnum) {
     return voices[vnum].envx;
 }
 
-void SPU_KeyOffVoice(int vnum) {
+void SPU_VoiceKeyOff(int vnum) {
     if (voices[vnum].adsr_phase < ADSR_PHASE_RELEASE) {
         voices[vnum].adsr_phase = ADSR_PHASE_RELEASE;
         SPU_VoiceCacheADSR(&voices[vnum]);
     }
 }
 
-void SPU_StopVoice(int vnum) {
+void SPU_VoiceStop(int vnum) {
     voices[vnum].envx = 0;
     voices[vnum].adsr_phase = ADSR_PHASE_STOPPED;
     voices[vnum].run = false;
 }
 
-void SPU_StartVoice(int vnum, struct SPUVConf* conf) {
+void SPU_VoiceGetConf(int vnum, struct SPUVConf* conf) {
+    struct SPU_Voice* v = &voices[vnum];
+
+    conf->pitch = v->pitch;
+    conf->voll = v->voll;
+    conf->volr = v->volr;
+    conf->adsr1 = v->adsr1;
+    conf->adsr2 = v->adsr2;
+}
+
+void SPU_VoiceSetConf(int vnum, struct SPUVConf* conf) {
+    struct SPU_Voice* v = &voices[vnum];
+
+    v->pitch = conf->pitch;
+    v->voll = conf->voll << 1;
+    v->volr = conf->volr << 1;
+    v->adsr1 = conf->adsr1;
+    v->adsr2 = conf->adsr2;
+}
+
+void SPU_VoiceStart(int vnum, u32 start_addr) {
     struct SPU_Voice* v = &voices[vnum];
     u16 header;
 
-    v->ssa = conf->ssa;
-    v->lsa = conf->ssa;
-    v->pitch = conf->pitch;
+    v->ssa = start_addr;
+    v->lsa = start_addr;
     v->nax = v->ssa;
     v->run = true;
-    v->voll = conf->voll << 1;
-    v->volr = conf->volr << 1;
-
     v->envx = 0;
+
     v->adsr_counter = 0;
-    v->adsr1 = conf->adsr1;
-    v->adsr2 = conf->adsr2;
     v->adsr_phase = ADSR_PHASE_ATTACK;
     SPU_VoiceCacheADSR(v);
 
