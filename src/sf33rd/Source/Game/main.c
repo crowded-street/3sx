@@ -34,9 +34,10 @@
 #include "structs.h"
 
 #if defined(_WIN32)
+#include <windef.h> // including windows.h causes conflicts with the Polygon struct, so I just included the header where AllocConsole is and the Windows-specific typedefs that it requires.
+
 #include <ConsoleApi.h>
 #include <stdio.h>
-#include <windef.h> // including windows.h causes conflicts with the Polygon struct, so I just included the header where AllocConsole is and the Windows-specific typedefs that it requires.
 #endif
 
 #include <memory.h>
