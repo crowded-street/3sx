@@ -45,7 +45,6 @@
 #include "sf33rd/Source/Game/texgroup.h"
 #include "sf33rd/Source/Game/workuser.h"
 #include "sf33rd/Source/PS2/mc/savesub.h"
-#include "sf33rd/Source/PS2/reboot.h"
 #include "structs.h"
 
 void Default_Training_Option();
