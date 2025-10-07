@@ -1,5 +1,0 @@
-sceSifInitRebootNotify = 0x0010DF98; // type:func
-sceSifSetRebootNotifyBuffer = 0x0010DFC0; // type:func
-sceSifAddRebootNotifyHandler = 0x0010E040; // type:func
-sceSifRemoveRebootNotifyHandler = 0x0010E0F8; // type:func
-sceSifExecNotifyHandler = 0x0010E150; // type:func

@@ -1,4 +1,0 @@
-_kTLBException = 0x0010BC80; // type:func
-_xlaunch = 0x0010BD80; // size:0x0
-_kExitTLBHandler = 0x0010BDC0; // type:func
-_kDebugException = 0x0010BEC0; // type:func

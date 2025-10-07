@@ -1,9 +1,0 @@
-Copy_0010C460 = 0x0010C460; // type:func
-kCopy_0010C470 = 0x0010C470; // type:func
-setup_0010C4A0 = 0x0010C4A0; // type:func
-SetArg = 0x0010C4B0; // type:func
-TerminateLibrary = 0x0010C5C8; // type:func
-ExecPS2 = 0x0010C5D0; // type:func
-LoadExecPS2 = 0x0010C640; // type:func
-Exit = 0x0010C688; // type:func
-ExecOSD = 0x0010C6B0; // type:func

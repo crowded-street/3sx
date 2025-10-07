@@ -1,8 +1,0 @@
-sceGsResetGraph = 0x00100230; // type:func
-sceGsGetGParam = 0x001003C0; // type:func
-sceGsResetPath = 0x001003D0; // type:func
-sceGsSyncV = 0x00100438; // type:func
-sceGsSyncPath = 0x001004D0; // type:func
-sceGsSetDefLoadImage = 0x001007E8; // type:func
-sceGsExecLoadImage = 0x001009D0; // type:func
-sceGsSyncVCallback = 0x00100B50; // type:func

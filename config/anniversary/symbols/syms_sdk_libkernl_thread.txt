@@ -1,7 +1,0 @@
-topThread = 0x00103CA0; // type:func
-InitThread = 0x00103D78; // type:func
-iWakeupThread = 0x00103E50; // type:func
-iRotateThreadReadyQueue = 0x00103EE8; // type:func
-iSuspendThread = 0x00103F68; // type:func
-DelayThread = 0x00104000; // type:func
-_DelayThreadHandler = 0x001040C8; // type:func

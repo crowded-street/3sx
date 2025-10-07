@@ -1,6 +1,0 @@
-_asstbl_lv_A010 = 0x470CEA;
-adxb_def_km = 0x4A6AA6;
-adxps2_rt_ver2 = 0x4B4495;
-adxps2_rt_ver3 = 0x4B4496;
-adxps2_rt_ver4 = 0x4B4497;
-_end = 0x6EAF80;

@@ -1,9 +1,0 @@
-	}	>	main
-
-	.heap	:
-	{
-		#	to get the address for heap
-		end	= .;
-		_end	= .;
-	}	>	heap
-}

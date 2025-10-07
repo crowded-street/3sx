@@ -1,7 +1,0 @@
-func_0010012C = 0x10012C;
-func_00100158 = 0x100158;
-func_00101E84 = 0x101E84;
-func_00101F74 = 0x101F74;
-func_0010206C = 0x10206C;
-_kDebugException = 0x10BEC0;
-func_0010BFBC = 0x10BFBC;

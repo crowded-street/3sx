@@ -1,4 +1,0 @@
-sceSifResetIop = 0x0010B458; // type:func
-sceSifIsAliveIop = 0x0010B5B0; // type:func
-sceSifSyncIop = 0x0010B5D8; // type:func
-sceSifRebootIop = 0x0010B628; // type:func

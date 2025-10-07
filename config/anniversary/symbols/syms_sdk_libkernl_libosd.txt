@@ -1,6 +1,0 @@
-setup_0010C2E0 = 0x0010C2E0; // type:func
-Copy_0010C2F0 = 0x0010C2F0; // type:func
-kCopy_0010C300 = 0x0010C300; // type:func
-GetEntryAddress_0010C338 = 0x0010C338; // type:func
-PatchIsNeeded = 0x0010C348; // type:func
-InitExecPS2 = 0x0010C3B0; // type:func

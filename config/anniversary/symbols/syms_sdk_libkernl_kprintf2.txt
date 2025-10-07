@@ -1,8 +1,0 @@
-kputchar = 0x00104870; // type:func
-deci2Putchar = 0x001048B0; // type:func
-serialPutchar = 0x00104960; // type:func
-ftoi = 0x00104998; // type:func
-printfloat = 0x00104A30; // type:func
-_printf = 0x00104B98; // type:func
-kprintf = 0x00105190; // type:func
-scePrintf = 0x001051C8; // type:func

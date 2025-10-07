@@ -1,7 +1,0 @@
-QueueInit = 0x00104328; // type:func
-QueuePeekWriteDone = 0x00104350; // type:func
-QueuePeekReadDone = 0x00104390; // type:func
-sceTtyHandler = 0x001043D0; // type:func
-sceTtyWrite = 0x00104568; // type:func
-sceTtyRead = 0x001046E0; // type:func
-sceTtyInit = 0x001047B0; // type:func

@@ -1,2 +1,0 @@
-DIntr = 0x0010BFE0; // type:func
-EIntr = 0x0010C038; // type:func

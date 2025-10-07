@@ -1,6 +1,0 @@
-_sceSDC = 0x001037F0; // type:func
-SyncDCache = 0x00103898; // type:func
-iSyncDCache = 0x00103918; // type:func
-_sceIDC = 0x00103930; // type:func
-InvalidDCache = 0x001039D8; // type:func
-iInvalidDCache = 0x00103A58; // type:func

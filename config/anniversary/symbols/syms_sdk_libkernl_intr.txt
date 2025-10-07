@@ -1,9 +1,0 @@
-QueryIntrContext = 0x00103A70; // type:func
-DisableIntc = 0x00103A80; // type:func
-EnableIntc = 0x00103AE8; // type:func
-DisableDmac = 0x00103B50; // type:func
-EnableDmac = 0x00103BB8; // type:func
-iEnableIntc = 0x00103C20; // type:func
-iDisableIntc = 0x00103C40; // type:func
-iEnableDmac = 0x00103C60; // type:func
-iDisableDmac = 0x00103C80; // type:func

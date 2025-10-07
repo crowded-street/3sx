@@ -1,6 +1,0 @@
-_InitAlarm = 0x0010DBA8; // type:func
-AlarmHandler = 0x0010DBF8; // type:func
-SetTimerAlarm = 0x0010DC58; // type:func
-iSetTimerAlarm = 0x0010DD88; // type:func
-ReleaseTimerAlarm = 0x0010DE78; // type:func
-iReleaseTimerAlarm = 0x0010DF20; // type:func

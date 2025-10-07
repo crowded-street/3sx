@@ -1,5 +1,0 @@
-setup_0010C700 = 0x0010C700; // type:func
-Copy_0010C710 = 0x0010C710; // type:func
-kCopy_0010C720 = 0x0010C720; // type:func
-GetEntryAddress_0010C758 = 0x0010C758; // type:func
-InitAlarm = 0x0010C768; // type:func
