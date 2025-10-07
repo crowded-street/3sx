@@ -221,13 +221,13 @@ static int checkConditions(struct VId* id, CSE_REQP* match, u32 cond) {
         case MATCH_UNK:
             // nothing?
             break;
-        case MATCH_UNK2:
-            if ((id->bank & 0x80) != 0) {
+        case MATCH_BANK_SBIT:
+            if ((id->bank & 0x80) == 0) {
                 return 0;
             }
             break;
-        case MATCH_BANK_SBIT:
-            if ((id->bank & 0x80) == 0) {
+        case MATCH_UNK2:
+            if ((id->bank & 0x80) != 0) {
                 return 0;
             }
             break;
@@ -265,10 +265,38 @@ static int checkConditions(struct VId* id, CSE_REQP* match, u32 cond) {
     return 1;
 }
 
+static int doSeDrop(CSE_REQP* reqp) {
+    u32 cond = makeConditions(reqp);
+    struct VWork* i;
+    int ret = 1;
+
+    if (reqp->limit || (reqp->flags & 1) == 0) {
+        printf("Unimplemented voice count limit mode\n");
+        return ret;
+    }
+
+    list_for_each (i, &active_voices, list) {
+        if (checkConditions(&i->id, reqp, cond)) {
+            if (reqp->prio < i->id.prio) {
+                ret = 0;
+                continue;
+            }
+
+            SPU_KeyOffVoice(i->voice_num);
+        }
+    }
+
+    return ret;
+}
+
 void emlShimStartSound(CSE_SYS_PARAM_SNDSTART* param) {
     int volume, bankvol, pan, voll, volr, note, pitch;
     struct SPUVConf conf;
     struct VWork* voice;
+
+    if (!doSeDrop(&param->reqp)) {
+        return;
+    }
 
     voice = allocVoice();
     if (!voice) {
