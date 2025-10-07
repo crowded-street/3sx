@@ -14,7 +14,6 @@ void renewal_table_data(WORK_Other_JUDGE* ewk);
 
 void effect_00_move(WORK_Other_JUDGE* ewk) {
 
-
     u16 dip;
     u16 dip2;
 

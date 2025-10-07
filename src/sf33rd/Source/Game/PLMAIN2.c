@@ -27,7 +27,6 @@ void (*const plmain_b_lv_00[5])(PLW* wk);
 
 void Player_move_bonus(PLW* wk, u16 lv_data) {
 
-
     s16 i;
 
     if (wk->wu.operator) {
@@ -86,7 +85,6 @@ void Player_move_bonus(PLW* wk, u16 lv_data) {
 }
 
 void player_mvbs_0000(PLW* wk) {
-
 
     s16 i;
 

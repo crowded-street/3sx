@@ -13,7 +13,6 @@ void Setup_Eff70(WORK_Other* ewk);
 
 void effect_70_move(WORK_Other* ewk) {
 
-
     if (Suicide[0] == 1) {
         ewk->wu.routine_no[0] = 99;
         ewk->wu.disp_flag = 0;
@@ -118,7 +117,6 @@ s32 effect_70_init(s16 id) {
 }
 
 void Setup_Eff70(WORK_Other* ewk) {
-
 
     ewk->wu.be_flag = 1;
     ewk->wu.id = 70;

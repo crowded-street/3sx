@@ -14,7 +14,6 @@ const s16 c2quake_table[19] = { 0, 3, 3, 2, 2, 1, 1, 1, 0, 0, 0, -1, -1, -1, -2,
 
 void effect_J9_move(WORK_Other* ewk) {
 
-
     WORK* c2wk = (WORK*)ewk->my_master;
 
     switch (ewk->wu.routine_no[0]) {

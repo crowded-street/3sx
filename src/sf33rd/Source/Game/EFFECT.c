@@ -96,7 +96,6 @@ void effect_work_init() {
 
 void effect_work_quick_init() {
 
-
     s16 i;
 
     for (i = 0; i < 8; i += 1) {
@@ -490,7 +489,6 @@ s32 setup_bg_quake_x(s32 /* unused */, u8 data) {
 }
 
 s32 setup_bg_quake_y(s32 /* unused */, u8 data) {
-
 
     bg_w.quake_y_index = data;
     pp_screen_quake(bg_w.quake_y_index);

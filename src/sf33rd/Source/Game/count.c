@@ -52,7 +52,6 @@ void count_cont_init(u8 type) {
 
 void count_cont_main() {
 
-
     if (Bonus_Game_Flag) {
         return;
     }
@@ -96,7 +95,6 @@ void count_cont_main() {
 }
 
 void counter_control() {
-
 
     if (Counter_hi == 0) {
         if (No_Trans == 0) {

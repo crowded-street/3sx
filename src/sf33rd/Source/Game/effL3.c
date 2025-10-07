@@ -263,7 +263,6 @@ void effl3_kie(WORK_Other* ewk) {
 
 s32 effect_L3_init(PLW* oya) {
 
-
     WORK_Other* ewk;
     s16 ix;
     s16 i;

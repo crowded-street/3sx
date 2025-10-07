@@ -281,7 +281,6 @@ void remake_mvxy_PoGR(WORK* wk) {
 
 void check_body_touch() {
 
-
     PLW* p1w = &plw[0];
     PLW* p2w = &plw[1];
     s16 meri;
@@ -349,7 +348,6 @@ s16 meri_case_switch(s16 meri) {
 }
 
 void check_body_touch2() {
-
 
     PLW* hmw;
     PLW* cmw;
@@ -838,7 +836,6 @@ void set_hit_stop_hit_quake(WORK* wk) {
 
 void add_sp_arts_gauge_init(PLW* wk) {
 
-
     PLW* mwk;
     s16 asag;
 
@@ -857,7 +854,6 @@ void add_sp_arts_gauge_init(PLW* wk) {
 
 void add_sp_arts_gauge_guard(PLW* wk) {
 
-
     PLW* mwk;
     s16 asag;
 
@@ -875,7 +871,6 @@ void add_sp_arts_gauge_guard(PLW* wk) {
 }
 
 void add_sp_arts_gauge_hit_dm(PLW* wk) {
-
 
     PLW* emwk;
     s16 asag;
@@ -934,7 +929,6 @@ s16 cal_sa_gauge_waribiki(PLW* wk, s16 asag) {
 
 void add_sp_arts_gauge_paring(PLW* wk) {
 
-
     PLW* emwk;
     s16 asag;
 
@@ -966,7 +960,6 @@ void add_sp_arts_gauge_paring(PLW* wk) {
 
 void add_sp_arts_gauge_tokushu(PLW* wk) {
 
-
     s16 asag;
 
     if (wk->wu.work_id != 1) {
@@ -991,7 +984,6 @@ void add_sp_arts_gauge_tokushu(PLW* wk) {
 }
 
 void add_sp_arts_gauge_ukemi(PLW* wk) {
-
 
     s16 asag;
 
@@ -1018,7 +1010,6 @@ void add_sp_arts_gauge_ukemi(PLW* wk) {
 
 void add_sp_arts_gauge_nagenuke(PLW* wk) {
 
-
     s16 asag;
 
     if (wk->wu.work_id != 1) {
@@ -1043,7 +1034,6 @@ void add_sp_arts_gauge_nagenuke(PLW* wk) {
 }
 
 void add_sp_arts_gauge_maxbit(PLW* wk) {
-
 
     if (pcon_rno[0] != 1) {
         return;

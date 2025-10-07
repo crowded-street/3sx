@@ -37,7 +37,6 @@ const s16 effK4_char_sel_table[4][16] = {
 
 void effect_K4_move(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0]++;

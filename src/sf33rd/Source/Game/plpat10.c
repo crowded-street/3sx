@@ -14,7 +14,6 @@ void pl10_extra_attack(PLW* wk) {
 
 void Att_PL10_TOKUSHUKOUDOU(PLW* wk) {
 
-
     wk->scr_pos_set_flag = 0;
 
     switch (wk->wu.routine_no[3]) {
@@ -58,7 +57,6 @@ void Att_PL10_TOKUSHUKOUDOU(PLW* wk) {
 }
 
 void Att_PL10_MACH_SLIDE2(PLW* wk) {
-
 
     switch (wk->wu.routine_no[3]) {
     case 0:

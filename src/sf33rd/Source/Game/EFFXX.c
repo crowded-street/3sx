@@ -260,7 +260,6 @@ const void (*effmovejptbl[229])() = {
     effect_M8_move,
 };
 
-
 const s32 (*effinitjptbl[59])() = {
     NULL,
     effect_03_init,
@@ -322,4 +321,3 @@ const s32 (*effinitjptbl[59])() = {
     effect_M8_init,
     effect_F0_init,
 };
-

@@ -47,7 +47,6 @@ const u8* cjdr_defense_table[20];
 
 void Player_attack(PLW* wk) {
 
-
     wk->wu.next_z = wk->wu.my_priority;
     wk->running_f = 0;
     wk->py->flag = 0;
@@ -107,7 +106,6 @@ void Player_attack(PLW* wk) {
 
 void Attack_00000(PLW* wk) {
 
-
     wk->scr_pos_set_flag = 0;
 
     switch (wk->wu.routine_no[3]) {
@@ -134,7 +132,6 @@ void Attack_00000(PLW* wk) {
 }
 
 void Attack_01000(PLW* wk) {
-
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -170,7 +167,6 @@ void Attack_01000(PLW* wk) {
 }
 
 void Attack_02000(PLW* wk) {
-
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -213,7 +209,6 @@ void Attack_02000(PLW* wk) {
 }
 
 void Attack_03000(PLW* wk) {
-
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -402,7 +397,6 @@ case3:
 
 void Attack_04000(PLW* wk) {
 
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -427,7 +421,6 @@ void Attack_04000(PLW* wk) {
 }
 
 void Attack_05000(PLW* wk) {
-
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -475,7 +468,6 @@ void Attack_06000(PLW* wk) {
 
 void Attack_07000(PLW* wk) {
 
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -504,7 +496,6 @@ void Attack_07000(PLW* wk) {
 }
 
 void Attack_08000(PLW* wk) {
-
 
     s16 ixx;
 
@@ -566,7 +557,6 @@ void Attack_08000(PLW* wk) {
 
 void Attack_09000(PLW* wk) {
 
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -611,7 +601,6 @@ void Attack_09000(PLW* wk) {
 }
 
 void Attack_10000(PLW* wk) {
-
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -684,7 +673,6 @@ void Attack_10000(PLW* wk) {
 
 void Attack_14000(PLW* wk) {
 
-
     wk->scr_pos_set_flag = 0;
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -707,7 +695,6 @@ void Attack_14000(PLW* wk) {
 }
 
 void Attack_15000(PLW* wk) {
-
 
     switch (wk->wu.routine_no[3]) {
     case 0:

@@ -17,7 +17,6 @@ const u32 eff77_col_tbl[2] = { 0xFFFFFFFF, 0xFF000000 };
 
 void effect_77_move(WORK_Other* ewk) {
 
-
     s16 i;
     u16 bg;
     u16 mask;

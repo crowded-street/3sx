@@ -89,7 +89,6 @@ void effect_97_move(WORK_Other* ewk) {
 
 s32 effect_97_init(PLW* oya) {
 
-
     WORK_Other* ewk;
     s16 ix;
 

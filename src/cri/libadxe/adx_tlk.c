@@ -491,7 +491,6 @@ Sint32 ADXT_GetNumChan(ADXT adxt) {
     not_implemented(__func__);
 }
 
-
 INCLUDE_RODATA("asm/anniversary/nonmatchings/cri/libadxe/adx_tlk", D_0055B638);
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_tlk", ADXT_GetHdrLen);
 

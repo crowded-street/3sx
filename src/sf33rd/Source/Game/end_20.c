@@ -322,7 +322,6 @@ void sea_write() {
     not_implemented(__func__);
 }
 
-
 void sea_trans(u16 num, f64 arg2) {
     f32 suzi = arg2;
     Polygon poly[4];

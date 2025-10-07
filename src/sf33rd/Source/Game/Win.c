@@ -86,7 +86,6 @@ void Win_1st() {
 
 void Win_2nd() {
 
-
     Switch_Screen(0);
     M_No[0] += 1;
 
@@ -235,7 +234,6 @@ s32 Loser_Scene() {
 }
 
 void Lose_2nd() {
-
 
     Switch_Screen(0);
     M_No[0] += 1;

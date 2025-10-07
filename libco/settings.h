@@ -16,46 +16,46 @@
 /* #define LIBCO_NO_TIB */
 
 #if defined(LIBCO_C)
-  #if defined(LIBCO_MP)
-    #define thread_local __thread
-  #else
-    #define thread_local
-  #endif
+#if defined(LIBCO_MP)
+#define thread_local __thread
+#else
+#define thread_local
+#endif
 #endif
 
 #if __STDC_VERSION__ >= 201112L
-  #if !defined(_MSC_VER)
-    #include <stdalign.h>
-  #endif
+#if !defined(_MSC_VER)
+#include <stdalign.h>
+#endif
 #else
-  #define alignas(bytes)
+#define alignas(bytes)
 #endif
 
 #if defined(_MSC_VER)
-  #pragma section(".text")
-  #define section(name) __declspec(allocate(".text"))
+#pragma section(".text")
+#define section(name) __declspec(allocate(".text"))
 #elif defined(__APPLE__)
-  #define section(name) __attribute__((section("__TEXT,__" #name)))
+#define section(name) __attribute__((section("__TEXT,__" #name)))
 #else
-  #define section(name) __attribute__((section("." #name "#")))
+#define section(name) __attribute__((section("." #name "#")))
 #endif
 
 #if defined(__clang__)
-  #pragma clang diagnostic ignored "-Wparentheses"
+#pragma clang diagnostic ignored "-Wparentheses"
 
-  #if !defined(_MSC_VER)
-    /* placing code in section(text) does not mark it executable with Clang. */
-    #undef  LIBCO_MPROTECT
-    #define LIBCO_MPROTECT
-  #endif
+#if !defined(_MSC_VER)
+/* placing code in section(text) does not mark it executable with Clang. */
+#undef LIBCO_MPROTECT
+#define LIBCO_MPROTECT
+#endif
 #endif
 
 #if defined(__aarch64__)
-  /* NX also seems to be consistently set under non-Windows arm64  */
-  #if !defined(_MSC_VER)
-    #undef  LIBCO_MPROTECT
-    #define LIBCO_MPROTECT
-  #endif
+/* NX also seems to be consistently set under non-Windows arm64  */
+#if !defined(_MSC_VER)
+#undef LIBCO_MPROTECT
+#define LIBCO_MPROTECT
+#endif
 #endif
 
 /* if defined(LIBCO_C) */

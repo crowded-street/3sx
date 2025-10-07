@@ -34,7 +34,6 @@ void effect_F6_move(WORK_Other* ewk) {
 
 void efff6_move(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[2]) {
     case 0:
         ewk->wu.routine_no[2] += 1;
@@ -179,7 +178,6 @@ void efff6_move_common(WORK_Other* ewk) {
 
 void efff6_move01(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[2]) {
     case 0:
         ewk->wu.routine_no[2] += 1;
@@ -215,7 +213,6 @@ void efff6_move01(WORK_Other* ewk) {
 }
 
 s32 effect_F6_init(u8 typenum) {
-
 
     WORK_Other* ewk;
     s16 ix;

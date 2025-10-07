@@ -85,7 +85,6 @@ void end_600_move() {
 
 void end_600_0000() {
 
-
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
@@ -103,7 +102,6 @@ void end_600_0000() {
 }
 
 void end_600_1000() {
-
 
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -293,7 +291,6 @@ void end_601_move() {
 
 void end_601_0000() {
 
-
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
@@ -310,7 +307,6 @@ void end_601_0000() {
 }
 
 void end_601_1000() {
-
 
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -338,7 +334,6 @@ void end_601_1000() {
 }
 
 void end_601_2000() {
-
 
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -382,7 +377,6 @@ void end_601_2000() {
 }
 
 void end_601_3000() {
-
 
     switch (bgw_ptr->r_no_1) {
     case 0:

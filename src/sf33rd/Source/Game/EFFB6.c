@@ -308,7 +308,6 @@ const s8** zen_adrs[11] = { src_zen_comm, src_zen_hira, src_zen_kata, src_zen_ka
 
 void effect_B6_move(WORK_Other_CONN* ewk) {
 
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0]++;

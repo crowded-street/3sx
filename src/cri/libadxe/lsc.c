@@ -75,7 +75,6 @@ Sint32 LSC_EntryFname(LSC lsc) {
     not_implemented(__func__);
 }
 
-
 Sint32 LSC_EntryFileRange(LSC lsc, const Char8* fname, void* dir, Sint32 ofst, Sint32 fnsct) {
     LSC_STM* stm;
     Sint32 id;

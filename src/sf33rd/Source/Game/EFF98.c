@@ -27,7 +27,6 @@ void EFF98_WAIT(WORK_Other* ewk) {
 
 void EFF98_SLIDE_IN(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[1]) {
     case 0:
         if (--Order_Timer[ewk->wu.dir_old]) {
@@ -81,7 +80,6 @@ void EFF98_SLIDE_OUT(WORK_Other* /* unused */) {}
 
 void EFF98_SUDDENLY(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[1]) {
     case 0:
         if (--Order_Timer[ewk->wu.dir_old]) {
@@ -121,7 +119,6 @@ void EFF98_KILL(WORK_Other* ewk) {
 }
 
 s32 effect_98_init(s16 PL_id, s16 dir_old, s16 master_player, s16 Target_BG) {
-
 
     WORK_Other* ewk;
     s16 ix;

@@ -300,7 +300,6 @@ s32 check_full_gauge_attack2(PLW* wk, s8 always) {
 
 s16 check_super_arts_attack(PLW* wk) {
 
-
     s16 rnum = 0;
     s16 i;
 
@@ -506,7 +505,6 @@ s32 execute_super_arts(PLW* wk) {
 }
 
 s32 check_special_attack(PLW* wk) {
-
 
     s16 i;
     s16 j;
@@ -1175,7 +1173,6 @@ u16 decode_wst_data(PLW* wk, u16 cmd, s16 cmd_ex) {
 }
 
 s16 get_em_body_range(WORK* wk) {
-
 
     WORK* em;
     s16* dad;

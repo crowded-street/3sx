@@ -28,5 +28,4 @@ void flmwFlip(u32 /* unused */) {
     cseExecServer();
 
     SDLApp_EndFrame();
-
 }

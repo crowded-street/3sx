@@ -163,7 +163,6 @@ u16 cpu_algorithm(PLW* wk) {
 
 static u16 CPU_Sub(PLW* wk) {
 
-
     WORK* em = (WORK*)wk->wu.target_adrs;
 
     if (Allow_a_battle_f == 0 || pcon_dp_flag == 1) {
@@ -794,7 +793,6 @@ void Damage_1st(PLW* wk) {
             // TODO: Check if this behavior is consistent with final release of the Anniversary Collection PS2 build (If
             // not implement whatever change was made)
             CP_No[wk->wu.id][1] = *(((u8*)Get_Up_Action_Check_Data[wk->player_number][CP_No[wk->wu.id][1]]) + 5);
-
         }
 
         if (CP_No[wk->wu.id][1] != 0) {
@@ -918,7 +916,6 @@ void Damage_6th(PLW* wk) {
             if (Get_Up_Action_Check_Data[wk->player_number][CP_No[wk->wu.id][1] - 1][Area_Number[wk->wu.id]] == -1) {
 
                 CP_No[wk->wu.id][1] = *(((u8*)Get_Up_Action_Check_Data[wk->player_number][CP_No[wk->wu.id][1]]) + 5);
-
             }
 
             CP_No[wk->wu.id][2]++;

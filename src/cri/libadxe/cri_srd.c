@@ -177,13 +177,11 @@ void SRD_WaitComplete(SRD srd) {
     not_implemented(__func__);
 }
 
-
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/cri_srd", SRD_WaitCompleteVoid);
 
 void SRD_Break(SRD srd) {
     not_implemented(__func__);
 }
-
 
 Sint32 srd_check_dvd_error(SRD srd) {
     Sint32 cd_err;
@@ -421,7 +419,6 @@ INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/cri_srd", SRD_GetErrCode);
 void SRD_WaitForExecServer() {
     not_implemented(__func__);
 }
-
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/cri_srd", SRD_LockedForDvdExec);
 

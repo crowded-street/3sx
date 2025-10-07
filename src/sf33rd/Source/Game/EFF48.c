@@ -26,7 +26,6 @@ void effect_48_move(WORK_Other* ewk) {
 
 void eff48_0000(WORK_Other* ewk) {
 
-
     if (ewk->wu.old_rno[1] <= op_obj_disp) {
         ewk->wu.routine_no[1] = 0x63;
     }
@@ -54,7 +53,6 @@ void eff48_0000(WORK_Other* ewk) {
 }
 
 void eff48_1000(WORK_Other* ewk) {
-
 
     if (ewk->wu.old_rno[1] <= op_obj_disp) {
         ewk->wu.routine_no[1] = 0x63;
@@ -114,7 +112,6 @@ void eff48_1000(WORK_Other* ewk) {
 }
 
 s32 effect_48_init(s16 type) {
-
 
     WORK_Other* ewk;
     s16 ix;

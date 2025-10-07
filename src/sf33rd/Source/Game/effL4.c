@@ -15,7 +15,6 @@ const s16 effl4_data_tbl[24] = { 143, 96,  73, 9,  223, 120, 73, 10, 303, 104, 7
 
 void effect_L4_move(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0]++;
@@ -43,7 +42,6 @@ void effect_L4_move(WORK_Other* ewk) {
 }
 
 s32 effect_L4_init() {
-
 
     WORK_Other* ewk;
     s16 ix;

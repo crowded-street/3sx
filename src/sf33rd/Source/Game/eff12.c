@@ -31,7 +31,6 @@ const s16* scr_obj_data12[6] = { eff12_data_tbl0, eff12_data_tbl1, eff12_data_tb
 
 void effect_12_move(WORK_Other* ewk) {
 
-
     if (obr_no_disp_check()) {
         return;
     }
@@ -65,7 +64,6 @@ void effect_12_move(WORK_Other* ewk) {
 }
 
 s32 effect_12_init(s16 type) {
-
 
     WORK_Other* ewk;
     s16 ix;

@@ -22,7 +22,6 @@ s16 mes_timer;
 
 void effect_B8_move(WORK_Other_CONN* ewk) {
 
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.my_mts = 12;

@@ -217,7 +217,6 @@ void effect_C2_move(WORK_Other* ewk) {
 
 void effC2_main_process_first(WORK_Other* ewk, PLW* twk) {
 
-
     if (EXE_flag == 0 && Game_pause == 0) {
         switch (ewk->wu.direction + (twk->bs2_on_car * 2)) {
         case 0:
@@ -443,7 +442,6 @@ jump:
 
 void effC2_main_process_second(WORK_Other* ewk, PLW* twk) {
 
-
     if (EXE_flag == 0 && Game_pause == 0) {
         switch (ewk->wu.routine_no[1]) {
         case 0:
@@ -583,7 +581,6 @@ void effC2_main_process_second(WORK_Other* ewk, PLW* twk) {
 
 void c2_last_char_and_mvxy(WORK_Other* ewk) {
 
-
     s16 ix = c2_last_dir_select((PLW*)ewk->wu.target_adrs, &ewk->wu);
 
     set_char_move_init(&ewk->wu, 0, ewk->wu.dm_attlv + 92 + ix);
@@ -595,7 +592,6 @@ void c2_last_char_and_mvxy(WORK_Other* ewk) {
 }
 
 s16 c2_last_dir_select(PLW* wk, WORK* efw) {
-
 
     s16 ix = get_sel_hosei_tbl_ix(wk->player_number) + 1;
     s16* dad = efw->hosei_adrs[ix].hos_box;
@@ -670,7 +666,6 @@ void copy_rno(WORK* wk) {
 }
 
 void player_hosei_data(WORK_Other* ewk, s16 flag, s16 f2) {
-
 
     if (f2) {
         if (ewk->wu.type) {
@@ -886,7 +881,6 @@ void set_1st_Bonus_Game_result(WORK* wk) {
 }
 
 void set_bs2_floor(WORK_Other* wk) {
-
 
     PLW* em = (PLW*)((WORK*)wk->my_master)->target_adrs;
     s16* dad;

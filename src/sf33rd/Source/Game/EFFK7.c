@@ -13,7 +13,6 @@ s16 K7_mt0_rebirth_check(PLW* mwk);
 
 void effect_K7_move(WORK_Other* ewk) {
 
-
     PLW* mwk = (PLW*)ewk->my_master;
 
     switch (ewk->wu.routine_no[0]) {
@@ -55,7 +54,6 @@ void effect_K7_move(WORK_Other* ewk) {
 }
 
 void K7_move_type_0(WORK_Other* ewk, PLW* mwk) {
-
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -166,7 +164,6 @@ s16 K7_mt0_rebirth_check(PLW* mwk) {
 }
 
 void K7_muriyari_metamor_rebirth(PLW* wk) {
-
 
     if (wk->metamorphose == 0) {
         return;

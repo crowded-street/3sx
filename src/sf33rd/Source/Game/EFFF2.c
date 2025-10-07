@@ -19,7 +19,6 @@ const s16 efff2_timer_tbl[16] = { 60, 0, 40, 90, 20, 10, 8, 130, 1, 34, 50, 70, 
 
 void effect_F2_move(WORK_Other* ewk) {
 
-
     s16 work;
 
     if (ewk->wu.old_rno[6] < end_w.r_no_2) {
@@ -83,7 +82,6 @@ void effect_F2_move(WORK_Other* ewk) {
 }
 
 s32 effect_F2_init() {
-
 
     WORK_Other* ewk;
     s16 ix;

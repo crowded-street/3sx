@@ -46,7 +46,6 @@ void EFF40_EXIT(WORK_Other* ewk) {
 
 void EFF40_BACK(WORK_Other* ewk) {
 
-
     s16 ix;
 
     if (Menu_Cursor_Y[0] == Menu_Max && ewk->wu.rl_waza == ewk->master_priority) {
@@ -59,7 +58,6 @@ void EFF40_BACK(WORK_Other* ewk) {
 }
 
 void EFF40_ARROW(WORK_Other* ewk) {
-
 
     if (Menu_Cursor_Y[0] != Menu_Max) {
         set_char_move_init2(&ewk->wu, 0, 76, (ewk->master_priority / 2) + 1, 0);
@@ -78,7 +76,6 @@ void EFF40_ARROW(WORK_Other* ewk) {
 }
 
 s32 effect_40_init(s16 id, s16 type, s16 char_ix, s16 sync_bg, s16 master_player, s16 master_priority) {
-
 
     WORK_Other* ewk;
     s16 ix;

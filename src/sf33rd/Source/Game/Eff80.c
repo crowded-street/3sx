@@ -10,7 +10,6 @@
 
 void effect_80_move(WORK_Other* ewk) {
 
-
     WORK_Other* mwk = (WORK_Other*)ewk->my_master;
 
     if (mwk->wu.be_flag == 0) {
@@ -52,7 +51,6 @@ void effect_80_move(WORK_Other* ewk) {
 }
 
 s32 effect_80_init(WORK_Other* mwk, s16 PL_id, s16 Plate_id, s16 Target_BG) {
-
 
     WORK_Other* ewk;
     s16 ix;

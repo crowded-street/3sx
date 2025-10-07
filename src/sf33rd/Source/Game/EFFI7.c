@@ -28,7 +28,6 @@ const s16 ex_sign_data[69][4] = {
 
 void effect_I7_move(WORK_Other* ewk) {
 
-
     PLW* mwk = (PLW*)ewk->my_master;
 
     switch (ewk->wu.routine_no[0]) {

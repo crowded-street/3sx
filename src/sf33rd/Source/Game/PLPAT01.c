@@ -20,7 +20,6 @@ void pl01_extra_attack(PLW* wk) {
 
 void Att_PL01_DDT(PLW* wk) {
 
-
     PLW* twk = (PLW*)wk->wu.target_adrs;
 
     switch (wk->wu.routine_no[3]) {
@@ -63,7 +62,6 @@ void Att_PL01_DDT(PLW* wk) {
 }
 
 void Att_PL01_TOKUSHUKOUDOU(PLW* wk) {
-
 
     wk->scr_pos_set_flag = 0;
 

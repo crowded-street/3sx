@@ -390,7 +390,6 @@ void SCORE_PLUS(s8 PL, u32 PTS) {
 
 void combo_window_push(s8 PL, s8 KIND) {
 
-
     u32 score;
     s8 PLS;
     u32 Pts_Buff;

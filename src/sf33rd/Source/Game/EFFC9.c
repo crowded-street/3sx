@@ -26,7 +26,6 @@ u32* ag_char_table[];
 
 void effect_C9_move(WORK_Other* ewk) {
 
-
     s16 scrc;
 
     switch (ewk->wu.routine_no[0]) {

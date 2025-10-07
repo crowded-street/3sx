@@ -1,16 +1,18 @@
-#ifndef	_ADXT_H_INCLUDED
-#define	_ADXT_H_INCLUDED
+#ifndef _ADXT_H_INCLUDED
+#define _ADXT_H_INCLUDED
 /****************************************************************************/
 /*																			*/
-/*			$title$ ＡＤＸデータ再生 ライブラリ								*/
-/*					ADXT (ADX TALK) Library									*/
+/*			$title$ ＡＤＸデータ再生 ライブラリ */
+/*					ADXT (ADX TALK) Library
+ */
 /*																			*/
-/*				1997.2.25		written M.Oshimi							*/
+/*				1997.2.25		written M.Oshimi
+ */
 /*																			*/
 /****************************************************************************/
 
 /*	Version number of ADXT library 		*/
-#define	ADXT_VER	"8.34"
+#define ADXT_VER "8.34"
 
 #include "cri/ee/cri_xpt.h"
 #include "sj.h"
@@ -19,45 +21,47 @@
 /*	Stream Controller					*/
 #ifndef ADXSTM_DEFINED
 #define ADXSTM_DEFINED
-typedef	void	*ADXSTM;
+typedef void* ADXSTM;
 #endif
 
 /*	ストリームジョイントデコーダ		*/
 /*	Stream Joint decoder				*/
 #ifndef ADXSJD_DEFINED
 #define ADXSJD_DEFINED
-typedef void	*ADXSJD;
+typedef void* ADXSJD;
 #endif
 
 /*	オーディオレンダラ					*/
 /*	Audio Renderer						*/
 #ifndef ADXRNA_DEFINED
 #define ADXRNA_DEFINED
-typedef void	*ADXRNA;
+typedef void* ADXRNA;
 #endif
 
 #ifndef TRUE
-#define TRUE	1
+#define TRUE 1
 #endif
 #ifndef FALSE
-#define FALSE	0
+#define FALSE 0
 #endif
 
 /****************************************************************************/
-/*		定数マクロ															*/
-/*		MACRO CONSTANT														*/
+/*		定数マクロ
+ */
+/*		MACRO CONSTANT
+ */
 /****************************************************************************/
 
 /*	最大同時発音数						*/
 /*	Maximum number of ADXT handle		*/
 //	2001.09.14	S.Hosaka
 //	バンドル数を8->16
-//#define	ADXT_MAX_OBJ		(8)
-#define	ADXT_MAX_OBJ		(16)
+// #define	ADXT_MAX_OBJ		(8)
+#define ADXT_MAX_OBJ (16)
 
 /*	最大データサイズ					*/
 /*	Maximum data size					*/
-#define	ADXT_MAX_DATASIZE	(0x40000000)
+#define ADXT_MAX_DATASIZE (0x40000000)
 
 /*	入力バッファのエキストラ領域の大きさ	*/
 /*	Size of Extra area in input buffer		*/
@@ -65,273 +69,274 @@ typedef void	*ADXRNA;
 
 /*	ADX Talk の出力バッファの大きさ　（サンプル単位）	*/
 /*	Output buffer size of ADX Talk (unit:sample)		*/
-#define	ADXT_OBUF_SIZE	(0x2000)
+#define ADXT_OBUF_SIZE (0x2000)
 #define DECODE_AHX
 #ifdef DECODE_AHX
-#define	ADXT_OBUF_DIST	(0x2060)
+#define ADXT_OBUF_DIST (0x2060)
 #else
-#define	ADXT_OBUF_DIST	(0x2020)
+#define ADXT_OBUF_DIST (0x2020)
 #endif
 
 /*	最大サンプリング周波数				*/
 /*	Maximum sampling frequency			*/
-#define	ADXT_MAX_SFREQ	(48000)
+#define ADXT_MAX_SFREQ (48000)
 
 /*	ADX Talkの再生方式	(ADXT_CALC_WORKマクロで使用)		*/
 /*	Play method of ADX Talk (used 'ADXT_CALC_WORK' macro)	*/
-#define ADXT_PLY_MEM	(0)			/*	メモリからの再生					*/
-									/*	Play memory data					*/
-#define ADXT_PLY_STM	(1)			/*	CDからのストリーム再生				*/
-									/*	Stream play from CD-ROM				*/
+#define ADXT_PLY_MEM (0) /*	メモリからの再生					*/
+                         /*	Play memory data					*/
+#define ADXT_PLY_STM (1) /*	CDからのストリーム再生				*/
+                         /*	Stream play from CD-ROM				*/
 
-#define ADXT_CALC_IBUFSIZE0(nch, sfreq)	(25000*(nch)*((sfreq)/1000)/44)
+#define ADXT_CALC_IBUFSIZE0(nch, sfreq) (25000 * (nch) * ((sfreq) / 1000) / 44)
 
-#define ADXT_CALC_IBUFSIZE(nch, nstm, sfreq)	\
-	((ADXT_CALC_IBUFSIZE0(nch, sfreq)*((nstm)+1)+2048)/2048*2048+ADXT_IBUF_XLEN)
+#define ADXT_CALC_IBUFSIZE(nch, nstm, sfreq)                                                                           \
+    ((ADXT_CALC_IBUFSIZE0(nch, sfreq) * ((nstm) + 1) + 2048) / 2048 * 2048 + ADXT_IBUF_XLEN)
 
 #ifdef XPT_TGT_GC
-#define	ADXT_RNABUF_SIZE	(0x1000)
-#define ADXT_CALC_OBUFSIZE(nch)	\
-	( (ADXT_OBUF_DIST+ADXT_RNABUF_SIZE)*(nch)*sizeof(Sint16))
+#define ADXT_RNABUF_SIZE (0x1000)
+#define ADXT_CALC_OBUFSIZE(nch) ((ADXT_OBUF_DIST + ADXT_RNABUF_SIZE) * (nch) * sizeof(Sint16))
 #else
-#define ADXT_CALC_OBUFSIZE(nch)	\
-	( ADXT_OBUF_DIST*(nch)*sizeof(Sint16))
+#define ADXT_CALC_OBUFSIZE(nch) (ADXT_OBUF_DIST * (nch) * sizeof(Sint16))
 #endif
 
-#define ADXT_CALC_WORK(nch, stmflg, nstm, sfreq)	\
-	(ADXT_CALC_IBUFSIZE(nch, nstm, sfreq)*(stmflg) + ADXT_CALC_OBUFSIZE(nch) + 64)
+#define ADXT_CALC_WORK(nch, stmflg, nstm, sfreq)                                                                       \
+    (ADXT_CALC_IBUFSIZE(nch, nstm, sfreq) * (stmflg) + ADXT_CALC_OBUFSIZE(nch) + 64)
 
 /*	データ容量の計算		*/
 /*	Calc ADX Data size		*/
-#define	ADXT_CalcDataLen(sec, nch, sfreq)	((sec)*(nch)*(sfreq)*18/32 + 256)
+#define ADXT_CalcDataLen(sec, nch, sfreq) ((sec) * (nch) * (sfreq) * 18 / 32 + 256)
 
 /* AHXワーク領域サイズ		*/
 /* Work size of AHX 		*/
-#define ADXT_WORKSIZE_AHX	(12288)		/* 12KB */
+#define ADXT_WORKSIZE_AHX (12288) /* 12KB */
 
 /*	入力バッファへの読み込み量						*/
 /*	Number of sectors to read into the input buffer	*/
-#define ADXT_MAX_CDBSCT		(75)
-#define ADXT_MIN_CDBSCT		(65)
-#define ADXT_PREP_RDSCT		(25)
+#define ADXT_MAX_CDBSCT (75)
+#define ADXT_MIN_CDBSCT (65)
+#define ADXT_PREP_RDSCT (25)
 
 /*	$define$ ADX Talkの動作状態(ADXT_STAT_～)	*/
 /*	Status of ADX Talk							*/
-#define	ADXT_STAT_STOP		(0)		/*	停止中 								*/
-									/*	During standstill					*/
-#define ADXT_STAT_DECINFO	(1)		/*	ＡＤＸ のヘッダ情報取得中			*/
-									/*	Getting header information			*/
-#define ADXT_STAT_PREP		(2)		/*	再生準備中 							*/
-									/*	During play preparation				*/
-#define ADXT_STAT_PLAYING	(3)		/*	デコード＆再生中 					*/
-									/*	During decode and play				*/
-#define ADXT_STAT_DECEND	(4)		/*	デコード終了 						*/
-									/*	Decode end							*/
-#define ADXT_STAT_PLAYEND	(5)		/*	再生終了 							*/
-									/*	Play end							*/
-#define ADXT_STAT_ERROR		(6)		/*	読み込みエラー発生					*/
-									/*	Read-in error outbreak state		*/
+#define ADXT_STAT_STOP (0)    /*	停止中 								*/
+                              /*	During standstill					*/
+#define ADXT_STAT_DECINFO (1) /*	ＡＤＸ のヘッダ情報取得中			*/
+                              /*	Getting header information			*/
+#define ADXT_STAT_PREP (2)    /*	再生準備中 							*/
+                              /*	During play preparation				*/
+#define ADXT_STAT_PLAYING (3) /*	デコード＆再生中 					*/
+                              /*	During decode and play				*/
+#define ADXT_STAT_DECEND (4)  /*	デコード終了 						*/
+                              /*	Decode end							*/
+#define ADXT_STAT_PLAYEND (5) /*	再生終了 							*/
+                              /*	Play end							*/
+#define ADXT_STAT_ERROR (6)   /*	読み込みエラー発生					*/
+                              /*	Read-in error outbreak state		*/
 
 /*	$define$ ADX Talkのエラーコード　(ADXT_ERR_～)	*/
 /*	Error code of ADX Talk							*/
-#define	ADXT_ERR_OK			(0)		/*	正常 								*/
-									/*	Normality							*/
-#define ADXT_ERR_SHRTBUF	(-1)	/*	入力バッファエンプティ				*/
-									/*	The input buffer is empty			*/
-#define ADXT_ERR_SNDBLK		(-2)	/*	サウンドブロックエラー				*/
-									/*	Error of sound block				*/
+#define ADXT_ERR_OK (0)       /*	正常 								*/
+                              /*	Normality							*/
+#define ADXT_ERR_SHRTBUF (-1) /*	入力バッファエンプティ				*/
+                              /*	The input buffer is empty			*/
+#define ADXT_ERR_SNDBLK (-2)  /*	サウンドブロックエラー				*/
+                              /*	Error of sound block				*/
 
 /*	$define$ フィルタモード	(ADXT_FLTMODE_～)		*/
 /*	Filter mode										*/
-#define	ADXT_FLTMODE_CPU	(0)		/*	ＣＰＵによる展開モード				*/
-									/*	by CPU								*/
-#define	ADXT_FLTMODE_SCSP	(1)		/*	AICA-DSPによる展開モード			*/
-									/*	by AICA-DSP							*/
+#define ADXT_FLTMODE_CPU (0)  /*	ＣＰＵによる展開モード				*/
+                              /*	by CPU								*/
+#define ADXT_FLTMODE_SCSP (1) /*	AICA-DSPによる展開モード			*/
+                              /*	by AICA-DSP							*/
 
 /*	$define$ 再生モード	(ADXT_PMODE_～)				*/
 /*	Play mode										*/
-#define	ADXT_PMODE_FNAME	(0)		/*	ファイル名または FID による指定		*/
-									/*	Play specified file name or file ID	*/
-#define	ADXT_PMODE_AFS		(1)		/*	AFS による指定						*/
-									/*	Play specified AFS file				*/
-#define	ADXT_PMODE_MEM		(2)		/*	メモリ再生							*/
-									/*	Play data from memory				*/
-#define	ADXT_PMODE_SJ		(3)		/*	ストリームジョイント再生			*/
-									/*	Play data from StreamJoint			*/
-#define	ADXT_PMODE_SLFILE	(4)		/*	シームレス連続再生（ファイル）		*/
-									/*	Seamless continuous play from file	*/
+#define ADXT_PMODE_FNAME (0)  /*	ファイル名または FID による指定		*/
+                              /*	Play specified file name or file ID	*/
+#define ADXT_PMODE_AFS (1)    /*	AFS による指定						*/
+                              /*	Play specified AFS file				*/
+#define ADXT_PMODE_MEM (2)    /*	メモリ再生							*/
+                              /*	Play data from memory				*/
+#define ADXT_PMODE_SJ (3)     /*	ストリームジョイント再生			*/
+                              /*	Play data from StreamJoint			*/
+#define ADXT_PMODE_SLFILE (4) /*	シームレス連続再生（ファイル）		*/
+                              /*	Seamless continuous play from file	*/
 
 /*	$define$ エラーリカバーモード	(ADXT_RMODE_～)	*/
 /*	Mode of error recovery							*/
-#define	ADXT_RMODE_NOACT	(0)		/*	リカバー処理しない					*/
-									/*	Do not recover						*/
-#define	ADXT_RMODE_STOP		(1)		/*	自動停止							*/
-									/*	Automatic stop						*/
-#define	ADXT_RMODE_REPLAY	(2)		/*	自動再プレイ						*/
-									/*	Automatic replay					*/
+#define ADXT_RMODE_NOACT (0)  /*	リカバー処理しない					*/
+                              /*	Do not recover						*/
+#define ADXT_RMODE_STOP (1)   /*	自動停止							*/
+                              /*	Automatic stop						*/
+#define ADXT_RMODE_REPLAY (2) /*	自動再プレイ						*/
+                              /*	Automatic replay					*/
 
 /*	パンポットの設定値		*/
 /*	Panpot parameter		*/
-#define	ADXT_PAN_LEFT		(-15)
-#define	ADXT_PAN_CENTER		(0)
-#define	ADXT_PAN_RIGHT		(15)
-#define	ADXT_PAN_AUTO		(-128)	/*	MONO/STE によって自動的に切り替える	*/
-									/*	Changes automatically by data		*/
+#define ADXT_PAN_LEFT (-15)
+#define ADXT_PAN_CENTER (0)
+#define ADXT_PAN_RIGHT (15)
+#define ADXT_PAN_AUTO (-128) /*	MONO/STE によって自動的に切り替える	*/
+                             /*	Changes automatically by data		*/
 
 /*	ステレオ再生時のチャンネル番号		*/
 /*	Channel number playing stereo data	*/
 /*	ADXT_CH_L:left, ADXT_CH_R:right		*/
-#define	ADXT_CH_L			(0)
-#define	ADXT_CH_R			(1)
+#define ADXT_CH_L (0)
+#define ADXT_CH_R (1)
 
 /*	最大再生チャンネル数				*/
 /*	Maximum number of play channel		*/
-#define	ADXT_MAX_NCH		(2)
+#define ADXT_MAX_NCH (2)
 
 /*	サーバ関数の呼び出される頻度の規定値　60（回/秒）				*/
 /*	Default value of frequency called server function(times/sec)	*/
-#define ADXT_DEF_SVRFREQ	(60)
+#define ADXT_DEF_SVRFREQ (60)
 
 /*	Default value of output volume(dB)	*/
-#define	ADXT_DEF_OUTVOL		(0)
+#define ADXT_DEF_OUTVOL (0)
 
 /*	入力バッファの下限値 (エラー処理用、単位バイト）				*/
 /*	Minimum data in the input buffer(byte) (for coping with error)	*/
-#define	ADXT_MIN_BUFDATA	(64)
+#define ADXT_MIN_BUFDATA (64)
 
 /*	エラー判別時間　（単位:秒)			*/
 /*	Error distinction time(sec)			*/
-#define	ADXT_EWAIT_PLY		(5)
-#define	ADXT_EWAIT_NOTPLY	(20)
+#define ADXT_EWAIT_PLY (5)
+#define ADXT_EWAIT_NOTPLY (20)
 
 /*	インデックスの最大数				*/
 /*	Maximum number of index				*/
-#define	ADXT_MAX_IDX		(0xFFFF)
+#define ADXT_MAX_IDX (0xFFFF)
 
 /*	ADXフォーマットタイプ				*/
 /*	Format type of ADX					*/
-#define ADXT_FMT_ADX		(1)
-#define ADXT_FMT_AHX		(2)
+#define ADXT_FMT_ADX (1)
+#define ADXT_FMT_AHX (2)
 
 /****************************************************************************/
-/*		データ型															*/
-/*      Data type declaration												*/
+/*		データ型
+ */
+/*      Data type declaration */
 /****************************************************************************/
 
 /*	ADX Talk オブジェクト構造体		*/
 /*	Structure of ADX Talk object	*/
 typedef struct _adx_talk {
-	/* 0x00 */ Sint8	used;						/*	使用中か否か					*/
-	/* 0x01 */ Sint8	stat;						/*	動作状態						*/
-	/* 0x02 */ Sint8	pmode;						/*	再生モード						*/
-	/* 0x03 */ Sint8	maxnch;						/*	最大再生チャンネル数			*/
-	/* 0x04 */ ADXSJD	sjd;						/*	ADXストリームジョイントデコーダ	*/
-	/* 0x08 */ ADXSTM	stm;						/*	入力ストリームコントローラ		*/
-	/* 0x0C */ ADXRNA	rna;						/*	オーディオレンダラ				*/
-	/* 0x10 */ SJ		sjf;						/*	ファイル入力ストリームジョイント*/
-	/* 0x14 */ SJ		sji;						/*	入力ストリームジョイント		*/
-	/* 0x18 */ SJ		sjo[ADXT_MAX_NCH];			/*	出力ストリームジョイント		*/
-	/* 0x20 */ Sint8	*ibuf;						/*	入力バッファ					*/
-	/* 0x24 */ Sint32	ibuflen;					/*	入力バッファサイズ（バイト単位)	*/
-	/* 0x28 */ Sint32	ibufxlen;					/*	入力バッファエクストラサイズ	*/
-	/* 0x2C */ Sint16	*obuf;						/*	出力バッファ					*/
-	/* 0x30 */ Sint32	obufsize;					/*	出力バッファサイズ（サンプル）	*/
-	/* 0x34 */ Sint32	obufdist;					/*	出力バッファ間隔（サンプル）	*/
-	/* 0x00 */ Sint32	svrfreq;					/*	サーバ関数呼び出し頻度			*/
-	/* 0x3C */ Sint16	maxsct;						/*	入力バッファ内の最高セクタ数	*/
-	/* 0x3E */ Sint16	minsct;						/*	入力バッファ内の最低セクタ数	*/
-	/* 0x40 */ Sint16	outvol;						/*	出力ボリューム					*/
-	/* 0x42 */ Sint16	outpan[ADXT_MAX_NCH];		/*	出力パンポットの設定値			*/
-	/* 0x46 */ Sint16   unk46;
-	/* 0x00 */ Sint32	maxdecsmpl;					/*	最大デコードサンプル数			*/
-	/* 0x00 */ Sint32	lpcnt;						/*	ループカウンタ					*/
-	/* 0x00 */ Sint32	lp_skiplen;					/*	ループスキップバイト数			*/
-	/* 0x00 */ Sint32	trp;						/*	トランスポーズ量 (セント)		*/
-	/* 0x00 */ Sint32	wpos;						/*	メディア上の書き込み位置		*/
-	/* 0x00 */ Sint32	mofst;						/*	メディア上のオフセット			*/
-	/* 0x00 */ Sint16	ercode;						/*	エラーコード					*/
-	/* 0x00 */ Sint32	edecpos;					/*	エラー検出用デコード位置		*/
-	/* 0x00 */ Sint16	edeccnt;					/*	デコード位置カウンタ			*/
-	/* 0x00 */ Sint16	eshrtcnt;					/*	入力ﾊﾞｯﾌｧｴﾝﾌﾟﾃｨｰｶｳﾝﾀ			*/
-	/* 0x00 */ Sint8	lpflg;						/*	ループするか否か				*/
-	/* 0x00 */ Sint8	autorcvr;					/*	自動的にエラー復帰するか否か	*/
-	/* 0x00 */ Sint8	fltmode;					/*	フィルタモード					*/
-	/* 0x00 */ Sint8	execflag;					/*	サーバを実行するか否か			*/
-	/* 0x00 */ Sint8	pstwait_flag;				/*	音声出力開始待ちフラグ			*/
-	/* 0x00 */ Sint8	pstready_flag;				/*	音声出力準備完了フラグ			*/
-	/* 0x00 */ Sint8	pause_flag;					/*	一時停止フラグ					*/
-	/* 0x00 */ void	*amp;						/*	振幅抽出器						*/
-	/* 0x00 */ SJ		ampsji[ADXT_MAX_NCH];		/*	振幅抽出用入力SJ				*/
-	/* 0x00 */ SJ		ampsjo[ADXT_MAX_NCH];		/*	振幅抽出用出力SJ				*/
-	/* 0x00 */ Sint32	time_ofst;					/*	時刻のオフセット				*/
-	/* 0x00 */ Sint32	lesct;						/*	ループ再生時の最終セクタ番号	*/
-	/* 0x00 */ Sint32	trpnsmpl;					/*			トラップサンプル番号	*/
-	/* 0x00 */ void	*lsc;						/*	連結ストリームコントローラ		*/
-	/* 0x00 */ Sint8	lnkflg;						/*	連結再生フラグ					*/
-	/* 0x00 */ Sint8	rsv;						/*	予約							*/
-	/* 0x00 */ Sint16	rsv2;						/*	予約２							*/
-	/* 0x00 */ Uint32 tvofst;						/*	スタート時間オフセット			*/
-	/* 0x00 */ Uint32 svcnt;						/*	スタートV-Syncカウント			*/
-    										// 2001.11.14 oshimi
-	/* 0x00 */ Uint32 decofst;						/*	トータルデコードオフセット		*/
-	/* 0x00 */ #ifdef __EE__
-	/* 0x00 */ Sint32	flush_nsmpl;				/*	フラッシュ時に挿入したサンプル数	*/
-	/* 0x00 */ #endif
-	/* 0x00 */ Sint8  unkAC;
-	/* 0x00 */ Sint8  padAD[1];
+    /* 0x00 */ Sint8 used;                  /*	使用中か否か					*/
+    /* 0x01 */ Sint8 stat;                  /*	動作状態						*/
+    /* 0x02 */ Sint8 pmode;                 /*	再生モード						*/
+    /* 0x03 */ Sint8 maxnch;                /*	最大再生チャンネル数			*/
+    /* 0x04 */ ADXSJD sjd;                  /*	ADXストリームジョイントデコーダ	*/
+    /* 0x08 */ ADXSTM stm;                  /*	入力ストリームコントローラ		*/
+    /* 0x0C */ ADXRNA rna;                  /*	オーディオレンダラ				*/
+    /* 0x10 */ SJ sjf;                      /*	ファイル入力ストリームジョイント*/
+    /* 0x14 */ SJ sji;                      /*	入力ストリームジョイント		*/
+    /* 0x18 */ SJ sjo[ADXT_MAX_NCH];        /*	出力ストリームジョイント		*/
+    /* 0x20 */ Sint8* ibuf;                 /*	入力バッファ					*/
+    /* 0x24 */ Sint32 ibuflen;              /*	入力バッファサイズ（バイト単位)	*/
+    /* 0x28 */ Sint32 ibufxlen;             /*	入力バッファエクストラサイズ	*/
+    /* 0x2C */ Sint16* obuf;                /*	出力バッファ					*/
+    /* 0x30 */ Sint32 obufsize;             /*	出力バッファサイズ（サンプル）	*/
+    /* 0x34 */ Sint32 obufdist;             /*	出力バッファ間隔（サンプル）	*/
+    /* 0x00 */ Sint32 svrfreq;              /*	サーバ関数呼び出し頻度			*/
+    /* 0x3C */ Sint16 maxsct;               /*	入力バッファ内の最高セクタ数	*/
+    /* 0x3E */ Sint16 minsct;               /*	入力バッファ内の最低セクタ数	*/
+    /* 0x40 */ Sint16 outvol;               /*	出力ボリューム					*/
+    /* 0x42 */ Sint16 outpan[ADXT_MAX_NCH]; /*	出力パンポットの設定値			*/
+    /* 0x46 */ Sint16 unk46;
+    /* 0x00 */ Sint32 maxdecsmpl;       /*	最大デコードサンプル数			*/
+    /* 0x00 */ Sint32 lpcnt;            /*	ループカウンタ					*/
+    /* 0x00 */ Sint32 lp_skiplen;       /*	ループスキップバイト数			*/
+    /* 0x00 */ Sint32 trp;              /*	トランスポーズ量 (セント)		*/
+    /* 0x00 */ Sint32 wpos;             /*	メディア上の書き込み位置		*/
+    /* 0x00 */ Sint32 mofst;            /*	メディア上のオフセット			*/
+    /* 0x00 */ Sint16 ercode;           /*	エラーコード					*/
+    /* 0x00 */ Sint32 edecpos;          /*	エラー検出用デコード位置		*/
+    /* 0x00 */ Sint16 edeccnt;          /*	デコード位置カウンタ			*/
+    /* 0x00 */ Sint16 eshrtcnt;         /*	入力ﾊﾞｯﾌｧｴﾝﾌﾟﾃｨｰｶｳﾝﾀ			*/
+    /* 0x00 */ Sint8 lpflg;             /*	ループするか否か				*/
+    /* 0x00 */ Sint8 autorcvr;          /*	自動的にエラー復帰するか否か	*/
+    /* 0x00 */ Sint8 fltmode;           /*	フィルタモード					*/
+    /* 0x00 */ Sint8 execflag;          /*	サーバを実行するか否か			*/
+    /* 0x00 */ Sint8 pstwait_flag;      /*	音声出力開始待ちフラグ			*/
+    /* 0x00 */ Sint8 pstready_flag;     /*	音声出力準備完了フラグ			*/
+    /* 0x00 */ Sint8 pause_flag;        /*	一時停止フラグ					*/
+    /* 0x00 */ void* amp;               /*	振幅抽出器						*/
+    /* 0x00 */ SJ ampsji[ADXT_MAX_NCH]; /*	振幅抽出用入力SJ				*/
+    /* 0x00 */ SJ ampsjo[ADXT_MAX_NCH]; /*	振幅抽出用出力SJ				*/
+    /* 0x00 */ Sint32 time_ofst;        /*	時刻のオフセット				*/
+    /* 0x00 */ Sint32 lesct;            /*	ループ再生時の最終セクタ番号	*/
+    /* 0x00 */ Sint32 trpnsmpl;         /*			トラップサンプル番号	*/
+    /* 0x00 */ void* lsc;               /*	連結ストリームコントローラ		*/
+    /* 0x00 */ Sint8 lnkflg;            /*	連結再生フラグ					*/
+    /* 0x00 */ Sint8 rsv;               /*	予約							*/
+    /* 0x00 */ Sint16 rsv2;             /*	予約２							*/
+    /* 0x00 */ Uint32 tvofst;           /*	スタート時間オフセット			*/
+    /* 0x00 */ Uint32 svcnt;            /*	スタートV-Syncカウント			*/
+                                        // 2001.11.14 oshimi
+    /* 0x00 */ Uint32 decofst;          /*	トータルデコードオフセット		*/
+/* 0x00 */ #ifdef __EE__
+    /* 0x00 */ Sint32 flush_nsmpl; /*	フラッシュ時に挿入したサンプル数	*/
+                                   /* 0x00 */                                                                          \
+#endif
+    /* 0x00 */ Sint8 unkAC;
+    /* 0x00 */ Sint8 padAD[1];
     /* 0x00 */ Char8* unkB0;
     /* 0x00 */ Sint32 padB4;
     /* 0x00 */ Sint32 padB8;
     /* 0x00 */ Sint32 padBC;
     /* 0x00 */ Sint32 padC0;
 } ADX_TALK;
-typedef	ADX_TALK	*ADXT;
+typedef ADX_TALK* ADXT;
 
 /*	インデックスデータ	*/
 /*	Index data			*/
 typedef struct _adxt_idx {
-	Uint16 nidx;
-	Uint16 top;
+    Uint16 nidx;
+    Uint16 top;
 } ADXT_IDX;
 
 /*	スレッドパラメータ構造体		*/
 /*	Parameter structure of Thread Param	*/
 typedef struct {
-	int	prio_lock;		// Lock Thread priority
-	int	prio_safe;		// Safe Thread priority
-	int	prio_vsync;		// Vsync Thread priority
-	int	prio_main;		// Main Thread Normary priority
-	int	prio_mwidle;	// Middleware Idle Thread priority
+    int prio_lock;   // Lock Thread priority
+    int prio_safe;   // Safe Thread priority
+    int prio_vsync;  // Vsync Thread priority
+    int prio_main;   // Main Thread Normary priority
+    int prio_mwidle; // Middleware Idle Thread priority
 } ADXM_TPRM;
 
 /*	スレッドパラメータ構造体(拡張版)				*/
 /*	Parameter structure of Extended Thread Param	*/
 typedef struct {
-	int	prio_lock;		// Lock Thread priority
-	int	prio_safe;		// Safe Thread priority
-	int	prio_usrvsync;	// User Vsync Thread priority
-	int	prio_vsync;		// Vsync Thread priority
-	int	prio_main;		// Main Thread Normary priority
-	int	prio_mwidle;	// Middleware Idle Thread priority
-	int	prio_usridle;	// User Idle Thread priority
+    int prio_lock;     // Lock Thread priority
+    int prio_safe;     // Safe Thread priority
+    int prio_usrvsync; // User Vsync Thread priority
+    int prio_vsync;    // Vsync Thread priority
+    int prio_main;     // Main Thread Normary priority
+    int prio_mwidle;   // Middleware Idle Thread priority
+    int prio_usridle;  // User Idle Thread priority
 } ADXM_TPRM_EX;
 
 /*	ADXヘッダ情報構造体					*/
 /*	Parameter structure of ADX header	*/
 typedef struct {
-	Sint32 fmt;			// Format type (ADX/AHX)
-	Sint32 sfreq;		// Sampling rate
-	Sint32 nch;			// Number of channel
-	Sint32 bps;			// Number of bit per sample
-	Sint32 nsmpl;		// Total number of sample
-	Sint32 lptype;		// Loop type
-	Sint32 lpstart;		// Loop start position
-	Sint32 lpend;		// Loop end position
+    Sint32 fmt;     // Format type (ADX/AHX)
+    Sint32 sfreq;   // Sampling rate
+    Sint32 nch;     // Number of channel
+    Sint32 bps;     // Number of bit per sample
+    Sint32 nsmpl;   // Total number of sample
+    Sint32 lptype;  // Loop type
+    Sint32 lpstart; // Loop start position
+    Sint32 lpend;   // Loop end position
 } ADXHINFO;
 
 /****************************************************************************/
-/*		関数の宣言															*/
-/*      Function Declaration												*/
+/*		関数の宣言
+ */
+/*      Function Declaration */
 /****************************************************************************/
 
 #ifdef __cplusplus
@@ -409,9 +414,9 @@ void ADXT_CloseAllHandles(void);
  * [Outputs ] None
  * [Return  ] ADXT handle
  * [Function] Creates ADXT handle.
- * [Remarks ] You calculate size of working area used 'ADXT_CALC_WORK' macro. 
+ * [Remarks ] You calculate size of working area used 'ADXT_CALC_WORK' macro.
  */
-ADXT ADXT_Create(Sint32 maxnch, void *work, Sint32 worksize);
+ADXT ADXT_Create(Sint32 maxnch, void* work, Sint32 worksize);
 
 /* $func$ ADXTハンドル の消去
  * [書　式] void ADXT_Destroy(ADXT adxt);
@@ -460,7 +465,7 @@ void ADXT_StartAfs(ADXT adxt, Sint32 patid, Sint32 fid);
  * [Return  ] None
  * [Function] Starts to play ADX file when you specify file name.
  */
-void ADXT_StartFname(ADXT adxt, Char8 *fname);
+void ADXT_StartFname(ADXT adxt, Char8* fname);
 
 /* $func$ ストリームジョイントによる再生の開始
  * [書　式] void ADXT_StartSj(ADXT adxt, SJ sj);
@@ -492,7 +497,7 @@ void ADXT_StartSj(ADXT adxt, SJ sj);
  * [Return  ] None
  * [Function] Starts to play ADX data on memory when you specify address.
  */
-void ADXT_StartMem(ADXT adxt, void *adxdat);
+void ADXT_StartMem(ADXT adxt, void* adxdat);
 
 /* $func$ メモリ指定による再生の開始
  * [書　式] void ADXT_StartMem2(ADXT adxt, void *adxdat, Sint32 datlen);
@@ -510,7 +515,7 @@ void ADXT_StartMem(ADXT adxt, void *adxdat);
  * [Return  ] None
  * [Function] Starts to play ADX data on memory. Plays to specified length.
  */
-void ADXT_StartMem2(ADXT adxt, void *adxdat, Sint32 datlen);
+void ADXT_StartMem2(ADXT adxt, void* adxdat, Sint32 datlen);
 
 /* $func$ メモリ指定による再生の開始
  * [書　式] void ADXT_StartMemIdx(ADXT adxt, void *acx, Sint32 no);
@@ -528,7 +533,7 @@ void ADXT_StartMem2(ADXT adxt, void *adxdat, Sint32 datlen);
  * [Return  ] None
  * [Function] Starts to play a part of ACX data when you specify index number.
  */
-void ADXT_StartMemIdx(ADXT adxt, void *acx, Sint32 no);
+void ADXT_StartMemIdx(ADXT adxt, void* acx, Sint32 no);
 
 /* $func$ 再生の停止
  * [書　式] void ADXT_Stop(ADXT adxt);
@@ -578,7 +583,7 @@ Sint32 ADXT_GetStat(ADXT adxt);
  * [Return  ] None
  * [Function] Obtains play time by sample unit.
  */
-void ADXT_GetTime(ADXT adxt, Sint32 *ncount, Sint32 *tscale);
+void ADXT_GetTime(ADXT adxt, Sint32* ncount, Sint32* tscale);
 
 /* $func$ 実時間での再生時刻の取得
  * [書　式] Sint32 ADXT_GetTimeReal(ADXT adxt);
@@ -685,7 +690,7 @@ Sint32 ADXT_GetFmtBps(ADXT adxt);
  * [Outputs ] None
  * [Return  ] None
  * [Function] Sets panpot of specified channel number.
- *			 Sets automatically panpot by data, monoral or stereo, when you 
+ *			 Sets automatically panpot by data, monoral or stereo, when you
  *			 specified 'ADXT_PAN_AUTO'.
  */
 void ADXT_SetOutPan(ADXT adxt, Sint32 ch, Sint32 pan);
@@ -783,7 +788,7 @@ void ADXT_SetSvrFreq(ADXT adxt, Sint32 freq);
  * [Outputs ] None
  * [Return  ] None
  * [Function] Sets of the time of start sector to reload into input buffer.
- *			 Reads data from disc when a quantity of data in the input 
+ *			 Reads data from disc when a quantity of data in the input
  *			 buffer becomes less than 'time' [second].
  */
 void ADXT_SetReloadTime(ADXT adxt, float time, Sint32 nch, Sint32 sfreq);
@@ -803,7 +808,7 @@ void ADXT_SetReloadTime(ADXT adxt, float time, Sint32 nch, Sint32 sfreq);
  * [Outputs ] None
  * [Return  ] None
  * [Function] Sets of the number of start sector to reload into input buffer.
- *			 Reads data from disc when a quantity of data in the input 
+ *			 Reads data from disc when a quantity of data in the input
  *			 buffer becomes less than 'minsct' [sector].
  */
 void ADXT_SetReloadSct(ADXT adxt, Sint32 minsct);
@@ -887,7 +892,7 @@ Sint32 ADXT_IsIbufSafety(ADXT adxt);
  * [Function] Sets the method that recover from error.
  *			 ADXT_RMODE_NOACT : Does not recover
  *			 ADXT_RMODE_STOP  : Stops automatically
- *			 ADXT_RMODE_REPLAY: Replay from the top of a file automatically 
+ *			 ADXT_RMODE_REPLAY: Replay from the top of a file automatically
  *							    when data supply from CD-ROM broke off.
  *							    Other cases stop automatically.
  */
@@ -1087,7 +1092,7 @@ Sint32 ADXT_IsReadyPlayStart(ADXT adxt);
  *			  sw	: 1=pause, 0=continue
  * [Outputs ] None
  * [Return  ] None
- * [Function] Stops temporarily by a specified switch and release temporary 
+ * [Function] Stops temporarily by a specified switch and release temporary
  *			  standstill.
  */
 void ADXT_Pause(ADXT adxt, Sint32 sw);
@@ -1157,7 +1162,7 @@ void ADXT_SetFx(ADXT adxt, Sint32 fxch, Sint32 fxlvl);
  * [Return  ] None
  * [Function] Obtains the effect value.
  */
-void ADXT_GetFx(ADXT adxt, Sint32 *fxch, Sint32 *fxlvl);
+void ADXT_GetFx(ADXT adxt, Sint32* fxch, Sint32* fxlvl);
 
 /*	$func$ フィルタの設定
  * [書　式] void ADXT_SetFilter(ADXT adxt, Sint32 coff, Sint32 q);
@@ -1170,7 +1175,7 @@ void ADXT_GetFx(ADXT adxt, Sint32 *fxch, Sint32 *fxlvl);
  *  Set the filter
  * [Inputs  ] adxt	: ADXT handle
  *			  coff	: Cut off frequency
- *			  q		: 
+ *			  q		:
  * [Outputs ] None
  * [Return  ] None
  * [Function] Sets the filter.
@@ -1187,11 +1192,11 @@ void ADXT_SetFilter(ADXT adxt, Sint32 coff, Sint32 q);
  *  Get the filter value
  * [Inputs  ] adxt	: ADXT handle
  * [Outputs ] coff	: Cut off frequency
- *			  q		: 
+ *			  q		:
  * [Return  ] None
  * [Function] Obtains the filter value.
  */
-void ADXT_GetFilter(ADXT adxt, Sint32 *coff, Sint32 *q);
+void ADXT_GetFilter(ADXT adxt, Sint32* coff, Sint32* q);
 
 /*	$func$ トランスポーズの設定
  * [書　式] void ADXT_SetTranspose(ADXT adxt, Sint32 transps, Sint32 detune);
@@ -1225,24 +1230,16 @@ void ADXT_SetTranspose(ADXT adxt, Sint32 transps, Sint32 detune);
  * [Return  ] None
  * [Function] Obtains the amount of transpose.
  */
-void ADXT_GetTranspose(ADXT adxt, Sint32 *transps, Sint32 *detune);
+void ADXT_GetTranspose(ADXT adxt, Sint32* transps, Sint32* detune);
 
 /*	$func$ エラー関数の登録
  * [書　式] void ADXT_EntryErrFunc(void (*func)(void *obj, Sint8 *msg),
- *																void *obj);
- * [入　力] func	: エラー処理関数
- *			obj		: エラー処理関数の第1引数
- * [出　力] なし
- * [関数値] なし
- * [機　能] エラー処理関数を登録する。
- *  Entry error callback function
- * [Inputs  ] func	: Error handling function
- *			  obj	: First argument of error handling function
- * [Outputs ] None
- * [Return  ] None
- * [Function] Entry error callback function.
+ *																void
+ * *obj); [入　力] func	: エラー処理関数 obj		: エラー処理関数の第1引数 [出　力] なし [関数値] なし [機　能]
+ * エラー処理関数を登録する。 Entry error callback function [Inputs  ] func	: Error handling function obj	: First
+ * argument of error handling function [Outputs ] None [Return  ] None [Function] Entry error callback function.
  */
-void ADXT_EntryErrFunc(void (*func)(void *obj, Sint8 *msg), void *obj);
+void ADXT_EntryErrFunc(void (*func)(void* obj, Sint8* msg), void* obj);
 
 /*	$func$ 音声データの放棄
  * [書　式] Sint32 ADXT_DiscardSmpl(ADXT adxt, Sint32 nsmpl)
@@ -1264,7 +1261,7 @@ Sint32 ADXT_DiscardSmpl(ADXT adxt, Sint32 nsmpl);
 void ADXT_SetNumRetry(Sint32 num);
 
 /* ヘッダ情報の取得 */
-void ADXT_GetHdrInfo(Sint8 *buf, Sint32 bsize, ADXHINFO *hinfo);
+void ADXT_GetHdrInfo(Sint8* buf, Sint32 bsize, ADXHINFO* hinfo);
 
 /*	$func$ ファイル読み込みステータスの取得
  * [書　式] Sint32 ADXT_GetStatRead(ADXT adxt);
@@ -1276,20 +1273,19 @@ void ADXT_GetHdrInfo(Sint8 *buf, Sint32 bsize, ADXHINFO *hinfo);
 Sint32 ADXT_GetStatRead(ADXT adxt);
 
 /***
-*			フィルタ作成用コールバック
-*
-*			デコードする毎に登録された関数が呼び出される。
-*			(*user_flt_cbf)(void *obj, Sint32 ch, void *data, Sint32 dtlen);
-*			obj:	ADXT_EntryFltFunc関数の第３引数
-*			ch:		チャンネル番号　(0:左, 1:右)
-*			data:	展開されたデータ (ADXの場合は、16bitPCM)
-*			dtlen:	展開されたデータのバイト数
-*			※　振幅抽出機能とは共用できない。
-**/
+ *			フィルタ作成用コールバック
+ *
+ *			デコードする毎に登録された関数が呼び出される。
+ *			(*user_flt_cbf)(void *obj, Sint32 ch, void *data, Sint32 dtlen);
+ *			obj:	ADXT_EntryFltFunc関数の第３引数
+ *			ch:		チャンネル番号　(0:左, 1:右)
+ *			data:	展開されたデータ (ADXの場合は、16bitPCM)
+ *			dtlen:	展開されたデータのバイト数
+ *			※　振幅抽出機能とは共用できない。
+ **/
 
 /*	フィルタコールバック関数の登録	*/
-void ADXT_EntryFltFunc(ADXT adxt,
-		void (*f)(void *obj, Sint32 ch, void *data, Sint32 dtlen), void *obj);
+void ADXT_EntryFltFunc(ADXT adxt, void (*f)(void* obj, Sint32 ch, void* data, Sint32 dtlen), void* obj);
 
 /* $func$ デコードサンプル数の取得
  * [書　式] Sint32 ADXT_GetDecNumSmpl(ADXT adxt);
@@ -1310,16 +1306,16 @@ void ADXT_EntryFltFunc(ADXT adxt,
 Sint32 ADXT_GetDecNumSmpl(ADXT adxt);
 
 /***
-*		シームレス連続再生機能
-*
-*		・ループ設定の無い単純なADX データのみ連続再生可能
-*		・最大16ファイルまで登録可能
-*
-***/
+ *		シームレス連続再生機能
+ *
+ *		・ループ設定の無い単純なADX データのみ連続再生可能
+ *		・最大16ファイルまで登録可能
+ *
+ ***/
 
 /*	最大登録ファイル数									*/
 /*	Number of maximum files to entry 					*/
-#define	ADXT_MAX_ENTRY_FILES		(16)
+#define ADXT_MAX_ENTRY_FILES (16)
 
 /*	$func$ シームレス連続再生ファイルの登録
  * [書　式] void ADXT_EntryFname(ADXT adxt, Sint8 *fname)
@@ -1337,7 +1333,7 @@ Sint32 ADXT_GetDecNumSmpl(ADXT adxt);
  * [Function] Entry file for seamless continuous play.
  *			  You can only simple ADX data file without looping.
  */
-void ADXT_EntryFname(ADXT adxt, Char8 *fname);
+void ADXT_EntryFname(ADXT adxt, Char8* fname);
 
 /*	$func$ シームレス連続再生サブファイルの登録
  * [書　式] void ADXT_EntryAfs(ADXT adxt, Sint32 patid, Sint32 fid)
@@ -1404,7 +1400,7 @@ void ADXT_SetSeamlessLp(ADXT adxt, Sint32 flg);
  * [Return  ] None
  * [Function] Start seamless loop plaing your specified file (fname).
  */
-void ADXT_StartFnameLp(ADXT adxt, Char8 *fname);
+void ADXT_StartFnameLp(ADXT adxt, Char8* fname);
 
 /*	$func$ シームレス連続再生の解除
  * [書　式] void ADXT_ReleaseSeamless(ADXT adxt);
@@ -1444,17 +1440,17 @@ Sint32 ADXT_GetLnkSw(ADXT adxt);
 void ADXT_ResetEntry(ADXT adxt);
 
 /***
-*			振幅抽出機能
-***/
+ *			振幅抽出機能
+ ***/
 
 /*	振幅取得用作業領域の大きさの計算	*/
 Sint32 ADXT_CalcAmpWork(Sint32 maxnch);
 /*	振幅取得用作業領域の設定	*/
-void ADXT_SetAmpWork(ADXT adxt, void *work, Sint32 wksize);
+void ADXT_SetAmpWork(ADXT adxt, void* work, Sint32 wksize);
 /*	振幅の取得	*/
 Sint32 ADXT_GetAmplitude(ADXT adxt, Sint32 ch);
 /*	振幅の取得 (時刻オフセット指定付き)	*/
-Sint32 ADXT_GetAmplitude2(ADXT adxt, Sint32 ch, Sint32 msec, Sint32 *msec2);
+Sint32 ADXT_GetAmplitude2(ADXT adxt, Sint32 ch, Sint32 msec, Sint32* msec2);
 
 /*	ヘッダ情報の強制挿入	*/
 void ADXT_InsertHdrSfa(ADXT adxt, Sint32 nch, Sint32 sfreq, Sint32 nsmpl);
@@ -1462,8 +1458,8 @@ void ADXT_InsertHdrSfa(ADXT adxt, Sint32 nch, Sint32 sfreq, Sint32 nsmpl);
 void ADXT_SetTimeOfst(ADXT adxt, Sint32 ofst);
 
 /***
-*			Sofdec用拡張関数
-***/
+ *			Sofdec用拡張関数
+ ***/
 
 /*	V-Sync割り込み用関数			*/
 /*	Shinobi環境では、初期化時に割り込みに自動的に登録されるので、		*/
@@ -1475,40 +1471,40 @@ void ADXT_VsyncProc(void);
 void ADXT_SetTimeMode(Sint32 mode);
 
 /* ADXヘッダの判定 */
-Sint32 ADXT_IsHeader(Sint8 *adr, Sint32 siz, Sint32 *hdrsiz);
+Sint32 ADXT_IsHeader(Sint8* adr, Sint32 siz, Sint32* hdrsiz);
 
 /* ADX終了コードの判定 */
-Sint32 ADXT_IsEndcode(Sint8 *adr, Sint32 siz, Sint32 *endsiz);
+Sint32 ADXT_IsEndcode(Sint8* adr, Sint32 siz, Sint32* endsiz);
 /*
-	adr   ：終了判定ポインタ(ADXデータの36バイト境界)
-	siz   ：終了判定サイズ (判定に必要なサイズは高々数バイト
-			かもしれませんが、ファイルリードして、バッファに
-			蓄積されているサイズを入力します)
-	ndsiz：終了コードサイズ（フッタサイズ）
+        adr   ：終了判定ポインタ(ADXデータの36バイト境界)
+        siz   ：終了判定サイズ (判定に必要なサイズは高々数バイト
+                        かもしれませんが、ファイルリードして、バッファに
+                        蓄積されているサイズを入力します)
+        ndsiz：終了コードサイズ（フッタサイズ）
 */
 
 /* 無音データの強制挿入 */
 Sint32 ADXT_InsertSilence(ADXT adxt, Sint32 nch, Sint32 nsmpl);
 /*
-	nsmpl 　：挿入要求サンプル数 [sample/1ch]
-	関数値  ：挿入実行サンプル数 (0 ～ nsmpl)
-			  ADXT入力用SJに十分な空きがあれば nsmpl の端数を
-			  切り捨てた値が返る。
+        nsmpl 　：挿入要求サンプル数 [sample/1ch]
+        関数値  ：挿入実行サンプル数 (0 ～ nsmpl)
+                          ADXT入力用SJに十分な空きがあれば nsmpl の端数を
+                          切り捨てた値が返る。
 */
 
-/*			強制モノラル出力スイッチの設定	
+/*			強制モノラル出力スイッチの設定
 [書  式]	void ADXT_SetOutputMono(Sint32 flag);
 [引  数]	Sint32 flag		強制モノラル出力フラグ(OFF:0, ON:1)
-[戻り値]	なし					
+[戻り値]	なし
 [機  能]	ステレオデータを強制的にモノラルデータとして出力する。
-[備　考]	
+[備　考]
 */
 void ADXT_SetOutputMono(Sint32 flag);
 
 /***
-*		AHX 用関数
-*		Functions for AHX
-***/
+ *		AHX 用関数
+ *		Functions for AHX
+ ***/
 
 /*	$func$ AHXの組み込み
  * [書　式] void ADXT_AttachAhx(ADXT adxt, void *work, Sint32 worksize);
@@ -1526,7 +1522,7 @@ void ADXT_SetOutputMono(Sint32 flag);
  * [Return  ] None
  * [Function] Attach AHX, Use of AHX is attained.
  */
-void ADXT_AttachAhx(ADXT adxt, void *work, Sint32 worksize);
+void ADXT_AttachAhx(ADXT adxt, void* work, Sint32 worksize);
 
 /*	$func$ AHXの分離
  * [書　式] void ADXT_DetachAhx(ADXT adxt);
@@ -1542,37 +1538,37 @@ void ADXT_AttachAhx(ADXT adxt, void *work, Sint32 worksize);
  */
 void ADXT_DetachAhx(ADXT adxt);
 
-void ADXT_SetKeyString(ADXT adxt, Char8 *str);
-void ADXT_SetDefKeyString(Char8 *str);
+void ADXT_SetKeyString(ADXT adxt, Char8* str);
+void ADXT_SetDefKeyString(Char8* str);
 
-void ADXT_SetKeyString(ADXT adxt, Char8 *str);
-void ADXT_SetDefKeyString(Char8 *str);
+void ADXT_SetKeyString(ADXT adxt, Char8* str);
+void ADXT_SetDefKeyString(Char8* str);
 
 /***
-*		ADXマネージャ関数
-*		ADX Manager Functions
-***/
+ *		ADXマネージャ関数
+ *		ADX Manager Functions
+ ***/
 
 /*	ADXスレッドの初期化					*/
 /*	Initialization of ADX Thread 		*/
-void ADXM_SetupThrd(ADXM_TPRM *tprm);
+void ADXM_SetupThrd(ADXM_TPRM* tprm);
 /*	ADXスレッドの終了処理				*/
 /*	Termination of ADX Thread Extended 	*/
 void ADXM_ShutdownThrd(void);
 
 /*	ADXスレッドの初期化(拡張版)				*/
 /*	Initialization of ADX Thread Extended 	*/
-void ADXM_SetupThrdEx(ADXM_TPRM_EX *tprm);
+void ADXM_SetupThrdEx(ADXM_TPRM_EX* tprm);
 /*	ADXスレッドの終了処理(拡張版)			*/
 /*	Termination of ADX Thread Extended 		*/
 void ADXM_ShutdownThrdEx(void);
 
 /*	ユーザVSYNCスレッドへの関数登録				*/
 /*	Set callback function on UsrVsync Thread	*/
-void ADXM_SetCbUsrVsync(Bool (*func)(void *obj), void *obj);
+void ADXM_SetCbUsrVsync(Bool (*func)(void* obj), void* obj);
 /*	ユーザアイドルスレッドへの関数登録			*/
 /*	Set callback function on UsrIdle Thread		*/
-void ADXM_SetCbUsrIdle(Bool (*func)(void *obj), void *obj);
+void ADXM_SetCbUsrIdle(Bool (*func)(void* obj), void* obj);
 /*	ユーザアイドルサーバの区切り処理						*/
 /*	Execution UsrIdle Thread for termination of function	*/
 void ADXM_GotoUsrIdleBdr(void);
@@ -1584,9 +1580,9 @@ Sint32 ADXM_ExecSvrUsrVsync(void);
 Sint32 ADXM_ExecSvrUsrIdle(void);
 
 /*	エラー関数の登録								*/
-void ADXM_SetCbErr(void (*fn)(void *obj, Char8 *emsg), void *obj);
+void ADXM_SetCbErr(void (*fn)(void* obj, Char8* emsg), void* obj);
 /*	負荷測定用関数	*/
-void ADXM_SetCbSleepMwIdle(void (*fn)(void *), void *obj);
+void ADXM_SetCbSleepMwIdle(void (*fn)(void*), void* obj);
 /*	スレッド初期化が行われたか否かの判定	*/
 Bool ADXM_IsSetupThrd(void);
 
@@ -1607,8 +1603,8 @@ Sint32 ADXM_ExecVint(Sint32 arg);
 Sint32 ADXM_ExecMain(void);
 
 /***
-*		ADXM_SetupThrdを実行しないときに使用する関数
-***/
+ *		ADXM_SetupThrdを実行しないときに使用する関数
+ ***/
 /*	Vsync毎に呼び出す関数	*/
 Sint32 ADXM_ExecSvrVsync(void);
 /*	メインループ内で呼び出す関数	*/

@@ -15,7 +15,6 @@ void pl06_extra_attack(PLW* wk) {
 
 void Att_PL06_HASHIRI_NAGE(PLW* wk) {
 
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -130,7 +129,6 @@ void Att_PL06_HASHIRI_NAGE(PLW* wk) {
 }
 
 void Att_PL06_TOKUSHUKOUDOU(PLW* wk) {
-
 
     wk->scr_pos_set_flag = 0;
 

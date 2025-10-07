@@ -59,7 +59,6 @@ void effi6_line_move(WORK_Other* ewk) {
 
 s32 effect_I6_init(WORK_Other* oya) {
 
-
     WORK_Other* ewk;
     s16 ix;
 

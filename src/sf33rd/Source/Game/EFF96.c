@@ -9,7 +9,6 @@
 
 void effect_96_move(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0]++;

@@ -25,7 +25,6 @@ const s16 eff94_3000_tbl[4][3] = { { 328, 304, 0 }, { 288, 240, 1 }, { 280, 320,
 
 void effect_94_move(WORK_Other* ewk) {
 
-
     void (*const eff94_move_jp[5])(WORK_Other*) = {
         eff94_0000, eff94_1000, eff94_2000, eff94_3000, eff94_4000,
     };
@@ -59,7 +58,6 @@ void effect_94_move(WORK_Other* ewk) {
 
 void eff94_0000(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[2]) {
     case 0:
         if (bg_w.quake_y_index > 3) {
@@ -86,7 +84,6 @@ void eff94_0000(WORK_Other* ewk) {
 }
 
 void eff94_1000(WORK_Other* ewk) {
-
 
     switch (ewk->wu.routine_no[2]) {
     case 0:
@@ -169,7 +166,6 @@ void eff94_2000_0(WORK_Other* ewk) {
 
 void eff94_2000_1(WORK_Other* ewk) {
 
-
     s16 work;
 
     ewk->wu.routine_no[2]++;
@@ -197,7 +193,6 @@ void eff94_2000_1(WORK_Other* ewk) {
 }
 
 void eff94_2000_2(WORK_Other* ewk) {
-
 
     add_y_sub(ewk);
 
@@ -234,7 +229,6 @@ void eff94_3000(WORK_Other* ewk) {
 
 void eff94_3000_0(WORK_Other* ewk) {
 
-
     s16 work;
 
     ewk->wu.routine_no[2]++;
@@ -254,7 +248,6 @@ void eff94_3000_4(WORK_Other* ewk) {
 }
 
 void eff94_4000(WORK_Other* ewk) {
-
 
     switch (ewk->wu.routine_no[2]) {
     case 0:
@@ -287,7 +280,6 @@ void eff94_4000(WORK_Other* ewk) {
 }
 
 s32 effect_94_init(u8 type94) {
-
 
     WORK_Other* ewk;
     s16 ix;

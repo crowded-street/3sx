@@ -199,7 +199,6 @@ void Entry_01() {
 
 void Entry_01_Sub(s16 PL_id) {
 
-
     E_No[2] += 1;
     Request_G_No = 1;
     plw[PL_id].wu.operator = 1;

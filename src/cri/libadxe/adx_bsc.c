@@ -52,7 +52,6 @@ void SKG_GenerateKey(void*, Sint32, Sint16*, Sint16*, Sint16*) {
     not_implemented(__func__);
 }
 
-
 INCLUDE_RODATA("asm/anniversary/nonmatchings/cri/libadxe/adx_bsc", D_0055A170);
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_bsc", SKG_GetDefKey);
@@ -66,7 +65,6 @@ void ADXB_Init() {
 }
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_bsc", ADXB_Finish);
-
 
 void* adxb_DefGetWr(void* object, Sint32* arg1, Sint32* arg2, Sint32* arg3) {
     ADXB adxb = (ADXB)object;
@@ -475,7 +473,6 @@ void ADXB_EvokeExpandMono(ADXB adxb, Sint32 arg1) {
     not_implemented(__func__);
 }
 
-
 void ADXB_EvokeExpandSte(ADXB adxb, Sint32 arg1) {
     ADXPD adxpd = adxb->adxpd;
     ADXB_UNK* unk = &adxb->unk48;
@@ -492,7 +489,6 @@ void ADXB_EvokeExpandSte(ADXB adxb, Sint32 arg1) {
 void ADXB_EvokeExpandPl2(ADXB adxb, Sint32 arg1) {
     not_implemented(__func__);
 }
-
 
 void ADXB_EvokeDecode(ADXB adxb) {
     ADXB_UNK* unk = &adxb->unk48;
@@ -562,7 +558,6 @@ void ADXB_CopyExtraBufSte(void* arg0, Sint32 arg1, Sint32 arg2, Sint32 arg3) {
 void ADXB_CopyExtraBufMono(void* arg0, Sint32 arg1, Sint32 arg2, Sint32 arg3) {
     not_implemented(__func__);
 }
-
 
 void ADXB_EndDecode(ADXB adxb) {
     Sint32 s1, s2, sp0, s3, s0, _s0, _s1, v0, v1, temp_div;

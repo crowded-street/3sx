@@ -76,7 +76,6 @@ extern const s16 rw192[11];
 
 extern const bgrw_data_tbl_elem bgrw_data_tbl[20];
 
-
 extern const s32 stage03rw_data_tbl[13];
 extern const u8 stage03_flash_tbl[16];
 extern const s32 stage19rw_data_tbl[4];

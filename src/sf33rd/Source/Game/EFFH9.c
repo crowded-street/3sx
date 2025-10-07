@@ -18,7 +18,6 @@ void nokori_ball_effH9(WORK_Other_CONN* ewk, s16 num);
 
 void effect_H9_move(WORK_Other_CONN* ewk) {
 
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         switch (ewk->wu.routine_no[1]) {

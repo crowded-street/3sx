@@ -15,7 +15,6 @@ void pl07_extra_attack(PLW* wk) {
 
 void Att_PL07_SA2(PLW* wk) {
 
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -54,7 +53,6 @@ void Att_PL07_SA2(PLW* wk) {
 }
 
 void Att_PL07_AT1(PLW* wk) {
-
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -113,7 +111,6 @@ void Att_PL07_AT1(PLW* wk) {
 
 void Att_PL07_AT2(PLW* wk) {
 
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -153,7 +150,6 @@ void Att_PL07_AT2(PLW* wk) {
 
 void Att_PL07_AT3(PLW* wk) {
 
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -180,7 +176,6 @@ void Att_PL07_AT3(PLW* wk) {
 }
 
 void Att_PL07_SA3(PLW* wk) {
-
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -213,7 +208,6 @@ void Att_PL07_SA3(PLW* wk) {
 }
 
 void Att_PL07_TOKUSHUKOUDOU(PLW* wk) {
-
 
     switch (wk->wu.routine_no[3]) {
     case 0:

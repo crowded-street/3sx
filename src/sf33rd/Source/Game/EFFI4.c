@@ -13,7 +13,6 @@
 
 void effect_I4_move(WORK_Other* ewk) {
 
-
     if (obr_no_disp_check()) {
         return;
     }
@@ -50,7 +49,6 @@ void effect_I4_move(WORK_Other* ewk) {
 }
 
 void effect_i4_hit_sub(WORK_Other* ewk) {
-
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -139,7 +137,6 @@ void effi4_up_to_down(WORK_Other* ewk) {
 }
 
 s32 effect_I4_init() {
-
 
     WORK_Other* ewk;
     s16 ix;

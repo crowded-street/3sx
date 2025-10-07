@@ -17,7 +17,6 @@ void pl08_extra_attack(PLW* wk) {
 
 void Att_PL08_HEALING(PLW* wk) {
 
-
     u16 cpsw;
 
     wk->scr_pos_set_flag = 0;
@@ -68,7 +67,6 @@ void Att_PL08_HEALING(PLW* wk) {
 }
 
 void Att_PL08_TOKUSHUKOUDOU(PLW* wk) {
-
 
     wk->scr_pos_set_flag = 0;
 

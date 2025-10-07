@@ -6,7 +6,6 @@
 
 void player_at_vs_player_dm(s16 ix2, s16 ix) {
 
-
     PLW* as = (PLW*)q_hit_push[ix2];
     PLW* ds = (PLW*)q_hit_push[ix];
     s8 gddir;

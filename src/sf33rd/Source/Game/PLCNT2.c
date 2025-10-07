@@ -271,7 +271,6 @@ void move_player_work_bonus() {
 
 void move_P1_move_P2_bonus(s16* field_work) {
 
-
     Player_move_bonus(&plw[0], processed_lvbt(Convert_User_Setting(0)));
 
     if (set_field_hosei_flag(&plw[0], field_work[0], 1) != 0) {
@@ -290,7 +289,6 @@ void move_P1_move_P2_bonus(s16* field_work) {
 }
 
 void move_P2_move_P1_bonus(s16* field_work) {
-
 
     Player_move_bonus(&plw[1], processed_lvbt(Convert_User_Setting(1)));
 

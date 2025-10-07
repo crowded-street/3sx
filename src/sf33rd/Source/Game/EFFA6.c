@@ -78,7 +78,6 @@ s32 check2_A6_shortcut() {
 
 void effect_A6_move(WORK_Other_CONN* ewk) {
 
-
     WORK_Other* mwk;
 
     switch (ewk->wu.routine_no[0]) {

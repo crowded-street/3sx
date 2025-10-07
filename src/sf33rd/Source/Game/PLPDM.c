@@ -170,7 +170,6 @@ const u16 exdm_ix_data[2][20][5] = {
 
 void Player_damage(PLW* wk) {
 
-
     setup_damage_process_flags(wk);
 
     if (wk->wu.routine_no[3] == 0) {
@@ -224,7 +223,6 @@ void setup_damage_process_flags(PLW* wk) {
 
 void Damage_00000(PLW* wk) {
 
-
     wk->wu.next_z = 30;
 
     switch (wk->wu.routine_no[3]) {
@@ -250,7 +248,6 @@ void Damage_00000(PLW* wk) {
 }
 
 void Damage_01000(PLW* wk) {
-
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -297,7 +294,6 @@ void Damage_01000(PLW* wk) {
 
 void Damage_04000(PLW* wk) {
 
-
     wk->guard_flag = 0;
     wk->guard_chuu = guard_kind[wk->wu.routine_no[2] - 4];
     set_dm_hos_flag_grd(wk);
@@ -343,7 +339,6 @@ void Damage_04000(PLW* wk) {
     }
 }
 void Damage_07000(PLW* wk) {
-
 
     wk->guard_flag = 0;
     wk->guard_chuu = guard_kind[wk->wu.routine_no[2] - 4];
@@ -482,7 +477,6 @@ s32 remake_initial_speeds(WORK* wk) {
 
 void Damage_12000(PLW* wk) {
 
-
     set_dm_hos_flag_grd(wk);
 
     switch (wk->wu.routine_no[3]) {
@@ -545,7 +539,6 @@ void Damage_12000(PLW* wk) {
 
 void Damage_14000(PLW* wk) {
 
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -577,7 +570,6 @@ void Damage_14000(PLW* wk) {
 }
 
 void Damage_16000(PLW* wk) {
-
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -612,7 +604,6 @@ void Damage_16000(PLW* wk) {
 }
 
 void Damage_17000(PLW* wk) {
-
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -670,7 +661,6 @@ void Damage_17000(PLW* wk) {
 
 void Damage_18000(PLW* wk) {
 
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -715,7 +705,6 @@ void Damage_18000(PLW* wk) {
 
 void Damage_19000(PLW* wk) {
 
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -752,7 +741,6 @@ void Damage_19000(PLW* wk) {
 
 void Damage_20000(PLW* wk) {
 
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -783,7 +771,6 @@ void Damage_20000(PLW* wk) {
 }
 
 void Damage_21000(PLW* wk) {
-
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -817,7 +804,6 @@ void Damage_21000(PLW* wk) {
 
 void Damage_23000(PLW* wk) {
 
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -848,7 +834,6 @@ void Damage_23000(PLW* wk) {
 }
 
 void Damage_24000(PLW* wk) {
-
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -898,7 +883,6 @@ void Damage_24000(PLW* wk) {
 
 void Damage_25000(PLW* wk) {
 
-
     s16 i;
     s16 hok;
 
@@ -943,7 +927,6 @@ void Damage_25000(PLW* wk) {
 }
 
 void Damage_26000(PLW* wk) {
-
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -995,7 +978,6 @@ void Damage_26000(PLW* wk) {
 
 void Damage_27000(PLW* wk) {
 
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -1021,7 +1003,6 @@ void Damage_27000(PLW* wk) {
 
 void Damage_28000(PLW* wk) {
 
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -1045,7 +1026,6 @@ void Damage_28000(PLW* wk) {
 }
 
 void Damage_29000(PLW* wk) {
-
 
     PLW* twk = (PLW*)wk->wu.target_adrs;
     const u16* datadrs;
@@ -1106,7 +1086,6 @@ void Damage_29000(PLW* wk) {
 }
 
 void Damage_30000(PLW* wk) {
-
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -1230,7 +1209,6 @@ void Damage_31000(PLW* wk) {
 
 void first_flight_union(PLW* wk, s16 num, s16 dv) {
 
-
     jumping_union_process(&wk->wu, num);
 
     if (wk->wu.routine_no[3] != num) {
@@ -1285,7 +1263,6 @@ void first_TtktV_union(PLW* wk, s16 num, s16 dv) {
 
 void buttobi_chakuchi_cg_type_check(PLW* wk) {
 
-
     switch (wk->wu.cg_type) {
     case 9:
         break;
@@ -1337,7 +1314,6 @@ void buttobi_add_y_check(PLW* wk) {
 }
 
 void setup_smoke_type(PLW* wk) {
-
 
     s8* step_tbl;
     u8 ix;

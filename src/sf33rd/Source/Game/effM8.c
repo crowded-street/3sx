@@ -42,7 +42,6 @@ void effect_M8_move(WORK_Other* ewk) {
 
 void effm8_move_app(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[1]) {
     case 0:
         ewk->wu.routine_no[1]++;
@@ -89,7 +88,6 @@ void don_run_sub_m8(WORK_Other* ewk) {
 
 void effm8_move_win(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[1]) {
     case 0:
         ewk->wu.old_rno[0]--;
@@ -109,7 +107,6 @@ void effm8_move_win(WORK_Other* ewk) {
 }
 
 s32 effect_M8_init(WORK* oya, u8 data) {
-
 
     WORK_Other* ewk;
     s16 ix;

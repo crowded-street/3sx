@@ -163,7 +163,6 @@ typedef union {
 
 void get_okuri_time(WORK* ewk, WORK* mwk, MVJ* mvj) {
 
-
     GOTCP gotcp;
     ST st;
     s16 exc;
@@ -240,7 +239,6 @@ void get_okuri_time(WORK* ewk, WORK* mwk, MVJ* mvj) {
 }
 
 void K5_decode_new_hit_index(WORK* wk, MVJ* mvj, u16 mf) {
-
 
     s16 i;
     s16 t0;

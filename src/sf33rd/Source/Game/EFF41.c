@@ -40,7 +40,6 @@ void (*const eff41_main_process[2])() = { eff41_process_00, eff41_process_01 };
 
 void effect_41_move(WORK_Other* ewk) {
 
-
     PLW* mwk = (PLW*)ewk->my_master;
 
     switch (ewk->wu.routine_no[0]) {
@@ -168,7 +167,6 @@ void eff41_process_01(WORK_Other* ewk, PLW* mwk) {
 
 void gauge_minus(WORK_Other* ewk, PLW* mwk) {
 
-
     switch (sa_sign_data[ewk->wu.type][3]) {
     case 1:
         mwk->sa->saeff_ok = -1;
@@ -183,7 +181,6 @@ void gauge_minus(WORK_Other* ewk, PLW* mwk) {
 }
 
 s32 effect_41_init(PLW* wk, u8 data) {
-
 
     WORK_Other* ewk;
     s16 ix;

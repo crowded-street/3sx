@@ -126,7 +126,6 @@ const s16 hit_mark_hosei_table[108][2] = {
 
 void effect_02_move(WORK_Other* ewk) {
 
-
     const HMDT* tad;
     const EXPLEM* edt;
 

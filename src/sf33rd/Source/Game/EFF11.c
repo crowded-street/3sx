@@ -35,7 +35,6 @@ const s32 eff11_quake_speed_x_tbl[2][8] = { { 0xC000, 0xC000, 0xA000, 0xA000, 0x
 
 void effect_11_move(WORK_Other* ewk) {
 
-
     if (obr_no_disp_check()) {
         return;
     }
@@ -90,7 +89,6 @@ void eff11_quake_sub(WORK_Other* ewk) {
 }
 
 void quake_level_middle(WORK_Other* ewk) {
-
 
     switch (ewk->wu.routine_no[2]) {
     case 0:
@@ -277,7 +275,6 @@ void quake_level_large(WORK_Other* ewk) {
 }
 
 s32 effect_11_init() {
-
 
     WORK_Other* ewk;
     s16 ix;

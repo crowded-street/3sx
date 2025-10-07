@@ -15,7 +15,6 @@ const s16 effb0_data_tbl[8][2] = { { 656, 112 }, { 328, 96 },  { 352, 224 }, { 6
 
 void effect_B0_move(WORK_Other* ewk) {
 
-
     s16 work;
 
     if (ewk->wu.old_rno[6] < end_w.r_no_2) {
@@ -61,7 +60,6 @@ void effect_B0_move(WORK_Other* ewk) {
 }
 
 s32 effect_B0_init() {
-
 
     WORK_Other* ewk;
     s16 ix;

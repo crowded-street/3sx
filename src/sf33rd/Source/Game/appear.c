@@ -125,7 +125,6 @@ void Appear_00000(PLW* wk) {
 
 void Appear_01000(PLW* wk) {
 
-
     s16 work;
     s16 id_w;
 
@@ -186,7 +185,6 @@ void Appear_01000(PLW* wk) {
 }
 
 void Appear_03000(PLW* wk) {
-
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -789,7 +787,6 @@ void Appear_13000(PLW* wk) {
 
 void Appear_14000(PLW* wk) {
 
-
     s16 work;
     s16 id_w = wk->wu.id ^ 1;
 
@@ -985,7 +982,6 @@ void Appear_17000(PLW* wk) {
 }
 
 void Appear_18000(PLW* wk) {
-
 
     s16 work;
 
@@ -1239,7 +1235,6 @@ void Appear_22000(PLW* wk) {
 }
 
 void Appear_23000(PLW* wk) {
-
 
     s16 work;
     switch (wk->wu.routine_no[3]) {
@@ -1580,7 +1575,6 @@ void Appear_29000(PLW* wk) {
 
 void animal_decide(PLW* wk) {
 
-
     u8 work2;
     s16 work = random_16();
 
@@ -1605,7 +1599,6 @@ void animal_decide(PLW* wk) {
 }
 
 void don_appear_check(PLW* wk) {
-
 
     s16 id_w = wk->wu.id ^ 1;
     if (plw[id_w].player_number == 7) {
@@ -1667,7 +1660,6 @@ void Appear_31000(PLW* wk) {
 }
 
 void Appear_32000(PLW* wk) {
-
 
     s16 work;
     switch (wk->wu.routine_no[3]) {
@@ -1736,7 +1728,6 @@ void Appear_33000(PLW* wk) {
 }
 
 void Appear_34000(PLW* wk) {
-
 
     s16 work;
 

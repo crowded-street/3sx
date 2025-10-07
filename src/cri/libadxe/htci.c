@@ -4,20 +4,17 @@ int htCiSetFileSystem64(int enable) {
     not_implemented(__func__);
 }
 
-
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/htci", htCiGetFileSystem64);
 
 int htCiSetLockHost(int lock) {
     not_implemented(__func__);
 }
 
-
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/htci", htCiGetLockHost);
 
 void htCiGetInterface() {
     not_implemented(__func__);
 }
-
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/htci", htci_wait);
 

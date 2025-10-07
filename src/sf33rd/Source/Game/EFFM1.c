@@ -94,7 +94,6 @@ void effm1_move(WORK_Other* ewk) {
 
 s32 effect_M1_init(WORK* wk) {
 
-
     WORK_Other* ewk;
     s16 ix;
 

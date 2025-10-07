@@ -31,7 +31,6 @@ const s16 effK3_life_time[4] = { 24, 20, 16, 12 };
 
 void effect_K3_move(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0]++;

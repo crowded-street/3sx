@@ -277,7 +277,6 @@ void q_ldreq_texture_group(REQ* curr) {
                     ((uintptr_t*)cit)[i] = ldchd + ((u32*)ldchd)[i];
                 }
 
-
                 cit2 = &char_init_data[plid_data[plt_req[curr->id]]];
                 *cit2 = *cit;
 
@@ -291,7 +290,6 @@ void q_ldreq_texture_group(REQ* curr) {
                 if (curr->ix == 18) {
 
                     cit2->cbca[37] = cit2->cbca[3];
-
                 }
 
                 // Akuma specific code
@@ -394,7 +392,6 @@ void checkSelObjFileLoaded() {
 
 void purge_texture_group_of_this(u16 patnum) {
 
-
     purge_texture_group(obj_group_table[patnum]);
 }
 
@@ -433,7 +430,6 @@ void purge_player_texture(s16 id) {
 }
 
 s32 load_any_texture_patnum(u16 patnum, u8 kokey, u8 _unused) {
-
 
     return load_any_texture_grpnum(obj_group_table[patnum], kokey);
 }

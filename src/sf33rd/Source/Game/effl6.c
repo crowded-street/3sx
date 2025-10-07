@@ -40,7 +40,6 @@ void effect_L6_move(WORK_Other* ewk) {
 
 void effl6_flont(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[1]) {
     case 0:
         ewk->wu.routine_no[1]++;
@@ -84,7 +83,6 @@ void effl6_flont(WORK_Other* ewk) {
 
 void effl6_back(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[1]) {
     case 0:
         ewk->wu.routine_no[1]++;
@@ -127,7 +125,6 @@ void effl6_back(WORK_Other* ewk) {
 }
 
 s32 effect_L6_init(WORK* wk, u8 typel6) {
-
 
     s16 ix;
     WORK_Other* ewk;

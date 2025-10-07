@@ -21,7 +21,6 @@ const s16* flash_obj_data61[3] = { flash_0000, flash_0001, flash_0002 };
 
 void effect_60_move(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0]++;
@@ -69,7 +68,6 @@ void effect_60_move(WORK_Other* ewk) {
 }
 
 s32 effect_60_init(s16 type) {
-
 
     WORK_Other* ewk;
     s16 ix;

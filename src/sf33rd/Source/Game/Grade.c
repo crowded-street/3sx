@@ -224,7 +224,6 @@ void grade_check_work_round_init(s16 ix) {
 
 void grade_makeup_final_parameter(s16 ix, s16 pt) {
 
-
     renew_judge_final_work(ix, pt);
     judge_final[ix][pt].all_clear = (VS_Index[WINNER] < 10) ^ 1;
     judge_final[ix][pt].keizoku = Continue_Coin[ix];
@@ -380,7 +379,6 @@ void makeup_spp_frdat(s16 ix, s16 pt) {
 
 void grade_makeup_round_parameter(s16 ix) {
 
-
     s16 ix2 = (ix + 1) & 1;
 
     judge_item[ix][Play_Type].offence_total += get_offence_total(ix);
@@ -406,7 +404,6 @@ void backup_RO_PT() {
 
 void grade_makeup_round_para_dko() {
 
-
     s16 i;
 
     for (i = 0; i < 2; i++) {
@@ -422,7 +419,6 @@ void grade_makeup_round_para_dko() {
 
 void grade_makeup_judgement_gals() {
 
-
     s16 i;
 
     for (i = 0; i < 2; i++) {
@@ -436,7 +432,6 @@ void grade_makeup_judgement_gals() {
 }
 
 void grade_makeup_stage_parameter(s16 ix) {
-
 
     s16 i;
     s16 grade;
@@ -554,7 +549,6 @@ s32 rannyuu_Q_check(s16 ix) {
 }
 
 void grade_makeup_stage_para_com(s16 ix) {
-
 
     judge_com[ix].round = judge_item[ix][Play_Type].round;
 
@@ -993,7 +987,6 @@ void grade_add_quick_stand(s16 ix) {
 }
 
 void grade_add_nml_nage(WORK* wk) {
-
 
     s16 ix;
 

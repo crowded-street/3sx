@@ -6,7 +6,6 @@
 
 void effect_at_vs_effect_dm(s16 ix2, s16 ix) {
 
-
     WORK_Other* as = (WORK_Other*)q_hit_push[ix2];
     WORK_Other* ds = (WORK_Other*)q_hit_push[ix];
 

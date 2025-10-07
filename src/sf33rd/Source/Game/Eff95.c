@@ -18,7 +18,6 @@ const s16 eff95_data_tbl[10][4] = { { 0, 0, 0, 0 }, { 0, 0, 1, 1 }, { 2, 2, 3, 3
 
 void effect_95_move(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         if (!Continue_Count_Down[LOSER]) {
@@ -126,7 +125,6 @@ void effect_95_move(WORK_Other* ewk) {
 }
 
 s32 effect_95_init(s16 vital_new) {
-
 
     WORK_Other* ewk;
     s16 ix;

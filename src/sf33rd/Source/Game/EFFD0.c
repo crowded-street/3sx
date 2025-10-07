@@ -19,7 +19,6 @@ const s16 effd0_conter[9] = { 32, 40, 30, 48, 64, 16, 32, 36, 72 };
 
 void effect_D0_move(WORK_Other* ewk) {
 
-
     if (Exec_Wipe) {
         ewk->wu.no_death_attack = 1;
     }
@@ -132,7 +131,6 @@ void d0_speed_set(WORK* ewk, s16 num) {
 }
 
 s32 effect_D0_init(PLW* oya, s32 /* unused */) {
-
 
     WORK_Other* ewk;
     s16 ix;

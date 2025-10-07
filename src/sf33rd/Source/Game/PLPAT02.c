@@ -16,7 +16,6 @@ void pl02_extra_attack(PLW* wk) {
 
 void Att_DENJINHADOUKEN(PLW* wk) {
 
-
     s16 i;
     s16 lgix;
 
@@ -52,7 +51,6 @@ void Att_DENJINHADOUKEN(PLW* wk) {
 }
 
 void Att_PL02_TOKUSHUKOUDOU(PLW* wk) {
-
 
     wk->scr_pos_set_flag = 0;
 

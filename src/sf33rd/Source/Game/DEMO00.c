@@ -264,7 +264,6 @@ void Put_char(const f32* ptr, u32 indexG, u16 prio, s16 x, s16 y, f32 zx, f32 zy
         off_x = *ptr++;
         off_y = *ptr++;
 
-
         tex[0].x = tex[1].x = Frame_Zoom_X * (x + off_x * zx);
         tex[0].y = tex[2].y = Frame_Zoom_Y * (y + off_y * zy);
         tex[2].x = tex[3].x = Frame_Zoom_X * (x + (off_x * zx) + ((u32)*ptr++ * zx));

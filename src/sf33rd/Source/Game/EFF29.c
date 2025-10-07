@@ -15,7 +15,6 @@ const s16 eff29_vanish_time[8] = { 480, 600, 300, 240, 200, 340, 500, 360 };
 
 void effect_29_move(WORK_Other* ewk) {
 
-
     s16 work;
 
     if (obr_no_disp_check()) {
@@ -61,7 +60,6 @@ void effect_29_move(WORK_Other* ewk) {
 }
 
 s32 effect_29_init() {
-
 
     WORK_Other* ewk;
     s16 ix;

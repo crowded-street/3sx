@@ -13,7 +13,6 @@
 
 void effect_68_move(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0]++;
@@ -127,7 +126,6 @@ const s16 eff68_data_tbl[52] = { 2, 432, 192, 504, 180, 576, 172, 522, 160, 8,  
                                  3, 624, 192, 696, 180, 768, 172, 714, 160, 10, 11, 83, 40 };
 
 s32 effect_68_init() {
-
 
     WORK_Other* ewk;
     s16 ix;

@@ -129,7 +129,6 @@ s32 effect_D6_init(WORK_Other* wk, s16 dr, s16 sp, s16 dl, s16 acc) {
 
 void setup_hana_extra(WORK* wk, s16 num, s16 acc) {
 
-
     s16 i;
     s16 way = wk->direction * 4;
     s16 rnd_00 = random_16() & 3;

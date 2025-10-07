@@ -830,7 +830,6 @@ void Setup_Virtual_BG(s16 BG_INDEX, s16 X, s16 Y) {
 
 void BG_move() {
 
-
     s16 ix;
 
     for (ix = 0; ix < 4; ix++) {
@@ -873,7 +872,6 @@ s32 Check_PL_Load() {
 }
 
 void BG_Draw_System() {
-
 
     u8 i;
     u16 mask = 1 & 0xFFFF;

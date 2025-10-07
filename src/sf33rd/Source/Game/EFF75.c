@@ -31,7 +31,6 @@ void EFF75_SLIDE_IN(WORK_Other* /* unused */) {}
 
 void EFF75_CHAR_CHANGE(WORK_Other* ewk) {
 
-
     if (--Order_Timer[ewk->wu.dir_old] != 0) {
         return;
     }
@@ -43,7 +42,6 @@ void EFF75_CHAR_CHANGE(WORK_Other* ewk) {
 }
 
 void EFF75_SUDDENLY(WORK_Other* ewk) {
-
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -68,7 +66,6 @@ void EFF75_SUDDENLY(WORK_Other* ewk) {
 }
 
 s32 effect_75_init(s16 dir_old, s16 ID, s16 Target_BG) {
-
 
     WORK_Other* ewk;
     s16 ix;

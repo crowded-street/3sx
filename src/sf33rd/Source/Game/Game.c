@@ -526,7 +526,6 @@ void Game2_1() {
 
 void Game2_2() {
 
-
     s16 i;
 
     BG_Draw_System();

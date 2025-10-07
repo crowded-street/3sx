@@ -18,7 +18,6 @@
 
 #include <assert.h>
 
-
 #define LPVRAM_ERROR ((LPVram*)-1)
 
 #define ERR_STOP                                                                                                       \
@@ -227,7 +226,6 @@ s32 flPS2CreateTextureHandle(u32 th, u32 flag) {
     uintptr_t dma_ptr;
 
     SDLGameRenderer_CreateTexture(th);
-
 
     flCTNum += 1;
     return 1;
@@ -457,7 +455,6 @@ s32 flPS2CreatePaletteHandle(u32 ph, u32 flag) {
     uintptr_t dma_ptr;
 
     SDLGameRenderer_CreatePalette(ph);
-
 
     flPTNum += 1;
     return 1;
@@ -1001,7 +998,6 @@ s32 flUnlockTexture(u32 th) {
     int ret = flPS2UnlockTexture(lpflTexture);
     SDLGameRenderer_UnlockTexture(th);
     return ret;
-
 }
 
 s32 flUnlockPalette(u32 th) {
@@ -1018,7 +1014,6 @@ s32 flUnlockPalette(u32 th) {
     int ret = flPS2UnlockTexture(lpflPalette);
     SDLGameRenderer_UnlockPalette(th);
     return ret;
-
 }
 
 s32 flPS2UnlockTexture(FLTexture* lpflTexture) {
@@ -1257,7 +1252,6 @@ s32 flPS2ReloadTexture(s32 count, u32* texlist) {
 
     for (i = 0; i < count; i++) {
         th = texlist[i];
-
     }
 
     if (lpflKeep != NULL) {

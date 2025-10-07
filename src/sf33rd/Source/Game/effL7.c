@@ -47,7 +47,6 @@ void effect_L7_move(WORK_Other* ewk) {
 
 void effl7_move(WORK_Other* ewk) {
 
-
     WORK* oya_ptr = (WORK*)ewk->my_master;
 
     switch (ewk->wu.routine_no[1]) {
@@ -117,7 +116,6 @@ void effl7_move(WORK_Other* ewk) {
 
             fatal_error("This part needs debugging. Check the comment above for details.");
 
-
             if (ewk->wu.rl_flag) {
                 ewk->wu.mvxy.a[0].sp = 0x20000;
             } else {
@@ -149,7 +147,6 @@ void effl7_move(WORK_Other* ewk) {
 }
 
 s32 effect_L7_init(WORK* wk, s32 /* unused */) {
-
 
     WORK_Other* ewk;
     s16 ix;

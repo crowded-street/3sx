@@ -106,7 +106,6 @@ void Init_Task_1st(struct _TASK* task_ptr) {
                &save_w[0].extra_option.contents,
                sizeof(save_w[ix].extra_option.contents));
 
-
         Direction_Working[ix] = 0;
         Vital_Handicap[ix][0] = 7;
         Vital_Handicap[ix][1] = 7;

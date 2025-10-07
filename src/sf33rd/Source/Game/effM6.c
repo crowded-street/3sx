@@ -62,7 +62,6 @@ void effect_M6_move(WORK_Other* ewk) {
 
 s32 effect_M6_init(WORK_Other* oya) {
 
-
     WORK_Other* ewk;
     s16 ix;
 

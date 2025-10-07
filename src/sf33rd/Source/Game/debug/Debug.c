@@ -96,7 +96,6 @@ void Debug_1st(struct _TASK* task_ptr) {
 
 void Debug_2nd(struct _TASK* task_ptr) {
 
-
     u16 sw;
     s16 offset_y[4];
 

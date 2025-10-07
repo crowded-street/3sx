@@ -14,7 +14,6 @@ void pl03_extra_attack(PLW* wk) {
 
 void Att_PL03_TOKUSHUKOUDOU(PLW* wk) {
 
-
     wk->scr_pos_set_flag = 0;
 
     switch (wk->wu.routine_no[3]) {

@@ -71,7 +71,7 @@ typedef struct {
 /*	DVDファイルシステムのセットアップパラメータ構造体					*/
 /*	Parameter structure DVD setup function								*/
 typedef struct _adxps2_sprm_dvd {
-    Sint8 *rtdir;  /*	ルートディレクトリ名		*/
+    Sint8* rtdir;  /*	ルートディレクトリ名		*/
     Sint32 rdmode; /*	読み込みモード				*/
     Sint32 nrtry;  /*	リトライ回数(0:255回)		*/
     Sint32 speed;  /*	回転速度					*/
@@ -81,7 +81,7 @@ typedef struct _adxps2_sprm_dvd {
 /*	ホストファイルシステムのセットアップパラメータ構造体				*/
 /*	Parameter structure Host setup function								*/
 typedef struct _adxps2_sprm_host {
-    Sint8 *rtdir;  /*	ルートディレクトリ名		*/
+    Sint8* rtdir;  /*	ルートディレクトリ名		*/
     Sint32 rdmode; /*	読み込みモード				*/
     char pad[8];
 } ADXPS2_SPRM_HOST;
@@ -90,9 +90,9 @@ typedef struct _adxps2_sprm_host {
 /*	DVD/ホストファイルシステムのファイル情報キャッシュパラメータ構造体	*/
 /*	Parameter structure DVD/Host file cache								*/
 typedef struct _adxps2_fcprm {
-    Sint8 *flist;   /*	ファイルリストファイル名	*/
+    Sint8* flist;   /*	ファイルリストファイル名	*/
     Sint32 maxflen; /*	ファイル名の最大長			*/
-    Sint8 *fcbuf;   /*	ファイルキャッシュ領域		*/
+    Sint8* fcbuf;   /*	ファイルキャッシュ領域		*/
     Sint32 fcsize;  /*	ファイルキャッシュサイズ	*/
 } ADXPS2_FCPRM;
 
@@ -126,7 +126,7 @@ typedef struct {
  * [Function] Setup DVD file system.
  *			  This function shuld be called before ADXT_Init().
  */
-void ADXPS2_SetupDvdFs(ADXPS2_SPRM_DVD *sprmd);
+void ADXPS2_SetupDvdFs(ADXPS2_SPRM_DVD* sprmd);
 
 /* $func$ ホストファイルシステムのセットアップ
  * [書　式] void ADXT_SetupHostFs(ADXT_SPRM *sprm);
@@ -144,7 +144,7 @@ void ADXPS2_SetupDvdFs(ADXPS2_SPRM_DVD *sprmd);
  * [Function] Setup Host file system.
  * 			  This function shuld be called before ADXT_Init().
  */
-void ADXPS2_SetupHostFs(ADXPS2_SPRM_HOST *sprmh);
+void ADXPS2_SetupHostFs(ADXPS2_SPRM_HOST* sprmh);
 
 /* $func$ メモリファイルシステムのセットアップ
  * [書　式] void ADXPS2_SetupMemFs(void *sprm);
@@ -159,25 +159,25 @@ void ADXPS2_SetupHostFs(ADXPS2_SPRM_HOST *sprmh);
  * [Function] Setup Memory file system.
  * 			  This function shuld be called before ADXT_Init().
  */
-void ADXPS2_SetupMemFs(void *prm);
+void ADXPS2_SetupMemFs(void* prm);
 
 /*	ファイルポインタのキャッシング(DVD用)								*/
-Sint32 ADXPS2_LoadFcacheDvd(ADXPS2_FCPRM *fcprm);
+Sint32 ADXPS2_LoadFcacheDvd(ADXPS2_FCPRM* fcprm);
 
 /*	読み込みモードの設定(DVD用) */
-void ADXPS2_SetRdModeDvd(ADXPS2_SPRM_DVD *sprmd);
+void ADXPS2_SetRdModeDvd(ADXPS2_SPRM_DVD* sprmd);
 
 /*	ファイル情報キャッシュ存在の判定(DVD用)								*/
-Sint32 ADXPS2_IsExistFcacheDvd(Sint8 *fname);
+Sint32 ADXPS2_IsExistFcacheDvd(Sint8* fname);
 
 /*	ファイルオープンモードの設定(Host用)								*/
-void ADXPS2_SetRdModeHost(ADXPS2_SPRM_HOST *sprmh);
+void ADXPS2_SetRdModeHost(ADXPS2_SPRM_HOST* sprmh);
 
 /*	ファイルポインタのキャッシング(Host用)								*/
-Sint32 ADXPS2_LoadFcacheHost(ADXPS2_FCPRM *fcprm);
+Sint32 ADXPS2_LoadFcacheHost(ADXPS2_FCPRM* fcprm);
 
 /*	ファイル情報キャッシュ存在の判定(Host用)							*/
-Sint32 ADXPS2_IsExistFcacheHost(Sint8 *fname);
+Sint32 ADXPS2_IsExistFcacheHost(Sint8* fname);
 
 /*	デバッグ出力レベルの設定 */
 void ADXPS2_SetOutputDebugLevel(Sint32 lv);
@@ -198,7 +198,7 @@ void ADXPS2_ExecServer(void);
 /*** 以下、旧バージョン互換用 ***/
 /*	スレッドのセットアップ */
 /*	ADXサーバ関数をV-Sync割り込みで呼び出すためのスレッドの初期化		*/
-void ADXPS2_SetupThrd(ADXPS2_TPRM *tprm);
+void ADXPS2_SetupThrd(ADXPS2_TPRM* tprm);
 
 /*	スレッドのシャットダウン */
 void ADXPS2_ShutdownThrd(void);
@@ -239,7 +239,7 @@ int ADXPS2_ExecVint(int arg);
 /*	V-Sync待ち関数 */
 void ADXPS2_WaitVsync(void);
 /*	V-Sync毎に呼ばれる関数 */
-Bool ADXPS2_ExecServerEx(void *obj);
+Bool ADXPS2_ExecServerEx(void* obj);
 
 /* メインスレッドのスリープ */
 void ADXPS2_SleepMainThrd(void);

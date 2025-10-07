@@ -85,7 +85,6 @@ void effect_D7_move(WORK_Other* ewk) {
 
 void effD7_main_process(WORK_Other* ewk) {
 
-
     PLW* mwk = (PLW*)ewk->my_master;
 
     if (ewk->wu.hf.hit_flag) {
@@ -257,7 +256,6 @@ void effD7_main_process(WORK_Other* ewk) {
 
 void cal_speeds_to_me(WORK_Other* ewk, PLW* mwk) {
 
-
     s16 tx = mwk->wu.xyz[0].disp.pos;
     s16 ty = mwk->wu.xyz[1].disp.pos + 157;
 
@@ -265,7 +263,6 @@ void cal_speeds_to_me(WORK_Other* ewk, PLW* mwk) {
 }
 
 void cal_speeds_to_em(WORK_Other* ewk, PLW* twk) {
-
 
     s16 tx = twk->wu.position_x;
     s16 ty;

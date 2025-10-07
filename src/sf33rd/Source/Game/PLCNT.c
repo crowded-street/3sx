@@ -647,7 +647,6 @@ void plcnt_die() {
 
 void settle_type_00000() {
 
-
     switch (pcon_rno[2]) {
     case 0:
         plw[Winner_id].wu.dir_timer = 60;
@@ -778,7 +777,6 @@ void settle_type_30000() {
 
 void settle_type_40000() {
 
-
     switch (pcon_rno[2]) {
     case 0:
         plw[Winner_id].wkey_flag = 1;
@@ -888,7 +886,6 @@ void move_player_work() {
 
 void move_P1_move_P2() {
 
-
     if (plw[0].do_not_move == 0) {
         Player_move(&plw[0], processed_lvbt(Convert_User_Setting(0)));
     }
@@ -907,7 +904,6 @@ void move_P1_move_P2() {
 }
 
 void move_P2_move_P1() {
-
 
     if (plw[1].do_not_move == 0) {
         Player_move(&plw[1], processed_lvbt(Convert_User_Setting(1)));
@@ -970,7 +966,6 @@ void check_damage_hosei() {
 }
 
 void check_damage_hosei_nage(PLW* as, PLW* ds) {
-
 
     if (as->kind_of_catch) {
         if (ds->hosei_amari != 0) {
@@ -1321,7 +1316,6 @@ void set_player_shadow(PLW* wk) {
 
 void setup_other_data(PLW* wk) {
 
-
     s16 i;
 
     if (wk->player_number == 0) {
@@ -1373,7 +1367,6 @@ void clear_kizetsu_point(PLW* wk) {
 }
 
 void set_super_arts_status(s16 ix) {
-
 
     const SA_DATA* saptr;
 
@@ -1433,7 +1426,6 @@ s16 remake_sa_gauge_len(s16 ix, s16 gauge_len) {
 }
 
 void set_super_arts_status_dc(s16 ix) {
-
 
     const SA_DATA* saptr;
 

@@ -175,7 +175,6 @@ void fight_vanish(WORK_Other* ewk) {
 
 s32 effect_B3_init(WORK_Other* oya) {
 
-
     WORK_Other* ewk;
     s16 ix;
 

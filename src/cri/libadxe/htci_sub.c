@@ -43,7 +43,6 @@ Sint32 htci_is_bgn_host(const Char8* str) {
     return strcmp(copy, "host\0\0\0") == 0;
 }
 
-
 void htci_conv_fname(const Char8* flist, Char8* fname) {
     strlen_t len;
     Sint32 i;
@@ -63,7 +62,6 @@ void htci_conv_fname(const Char8* flist, Char8* fname) {
             (flist[0] != '\\') && (flist[0] != '/')) {
 
             strcat(fname, "/");
-
         }
     }
 
@@ -168,18 +166,15 @@ int htCiLoadFcache() {
     not_implemented(__func__);
 }
 
-
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/htci_sub", htCiIsExistFcache);
 
 int htCiSetOpenMode(int mode) {
     not_implemented(__func__);
 }
 
-
 int htCiSetRootDir(char* root) {
     not_implemented(__func__);
 }
-
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/htci_sub", htCiGetRootDir);
 

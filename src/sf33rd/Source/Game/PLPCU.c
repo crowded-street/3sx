@@ -30,7 +30,6 @@ void (*const plpcu_lv_00[4])(PLW*, PLW*);
 
 void Player_caught(PLW* wk) {
 
-
     PLW* emwk = (PLW*)wk->wu.dmg_adrs;
 
     setup_caught_process_flags(wk);
@@ -77,7 +76,6 @@ void Caught_00000(PLW* /* unused */, PLW* /* unused */) {}
 
 void Caught_01000(PLW* wk, PLW* emwk) {
 
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -123,7 +121,6 @@ void Caught_01000(PLW* wk, PLW* emwk) {
 }
 
 void Caught_02000(PLW* wk, PLW* emwk) {
-
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -243,7 +240,6 @@ s32 check_tsukamare_keizoku_check(PLW* wk, PLW* emwk) {
 
 void scdmd_12000(PLW* wk) {
 
-
     wk->dm_step_tbl = _dm_step_data[_select_hit_dsd[wk->wu.dm_impact][get_weight_point(&wk->wu)]];
 
     if (!wk->wu.dm_attribute) {
@@ -273,7 +269,6 @@ void scdmd_17000(PLW* wk) {
 }
 
 void scdmd_18000(PLW* wk) {
-
 
     setup_butt_own_data(&wk->wu);
     cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->wu.char_index][wk->wu.dm_attlv], wk->wu.xyz[1].disp.pos);

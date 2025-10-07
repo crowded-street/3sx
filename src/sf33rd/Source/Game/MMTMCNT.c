@@ -54,7 +54,6 @@ void Purge_com_player_from_mm() {
 
 void Purge_mmtm_area(s16 ix) {
 
-
     Purge_texcash_of_list(ix);
     Purge_memory_of_list(ix);
 }
@@ -70,7 +69,6 @@ void Purge_memory_of_list(s16 ix) {
 }
 
 void Purge_texcash_of_list(s16 ix) {
-
 
     s16 i;
 

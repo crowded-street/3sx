@@ -28,7 +28,6 @@ void key_thru(PLW* pl) {
 
 void cmd_data_set(PLW* /* unused */, s16 i) {
 
-
     u8* ptr3;
     u16* ptr4;
 

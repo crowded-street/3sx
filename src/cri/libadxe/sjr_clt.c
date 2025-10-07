@@ -11,7 +11,6 @@ Sint32 sjrmt_init_cnt = 0;
 intptr_t D_006C0240[64]; // sjr_rpc_rcv_buf
 intptr_t D_006C0140[52]; // sjr_rpc_snd_buf
 
-
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/sjr_clt", SJRBF_CreateRmt);
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/sjr_clt", SJMEM_CreateRmt);

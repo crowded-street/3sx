@@ -7,7 +7,6 @@
 
 #include <stdarg.h>
 
-
 // data
 void (*lsc_err_func)(void*, Char8*) = NULL;
 void* lsc_err_obj = NULL;

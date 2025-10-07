@@ -20,7 +20,6 @@ const s16 eff26_data_0000[1] = { 0 };
 
 void effect_26_move(WORK_Other* ewk) {
 
-
     WORK_Other* oya;
 
     if (obr_no_disp_check()) {
@@ -83,7 +82,6 @@ void eff26_00(WORK_Other* ewk) {
 
 void eff26_01(WORK_Other* ewk) {
 
-
     WORK_Other* oya = (WORK_Other*)ewk->my_master;
 
     switch (ewk->wu.routine_no[1]) {
@@ -124,7 +122,6 @@ void eff26_01(WORK_Other* ewk) {
 }
 
 void eff26_02(WORK_Other* ewk) {
-
 
     WORK_Other* oya = (WORK_Other*)ewk->my_master;
 
@@ -175,7 +172,6 @@ void eff26_02(WORK_Other* ewk) {
 }
 
 void eff26_03(WORK_Other* ewk) {
-
 
     WORK_Other* oya = (WORK_Other*)ewk->my_master;
 
@@ -238,7 +234,6 @@ void eff26_03(WORK_Other* ewk) {
 }
 
 void eff26_04(WORK_Other* ewk) {
-
 
     WORK_Other* oya = (WORK_Other*)ewk->my_master;
 
@@ -310,7 +305,6 @@ void eff26_04(WORK_Other* ewk) {
 }
 
 void eff26_05(WORK_Other* ewk) {
-
 
     WORK_Other* oya = (WORK_Other*)ewk->my_master;
 

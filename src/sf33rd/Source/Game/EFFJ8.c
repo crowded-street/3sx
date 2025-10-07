@@ -14,7 +14,6 @@
 
 void effect_J8_move(WORK_Other* ewk) {
 
-
     if (obr_no_disp_check()) {
         return;
     }
@@ -89,7 +88,6 @@ s16 dragonfly_l_move_2(WORK_Other* ewk) {
 
 s16 dragonfly_l_move_3(WORK_Other* ewk) {
 
-
     add_x_sub(ewk);
     add_y_sub(ewk);
 
@@ -109,7 +107,6 @@ s16 dragonfly_l_move_3(WORK_Other* ewk) {
 }
 
 s16 dragonfly_l_move_4(WORK_Other* ewk) {
-
 
     char_move(&ewk->wu);
     ewk->wu.dir_timer--;
@@ -199,7 +196,6 @@ s16 dragonfly_r_move_2(WORK_Other* ewk) {
 
 s16 dragonfly_r_move_3(WORK_Other* ewk) {
 
-
     add_x_sub(ewk);
     add_y_sub(ewk);
 
@@ -219,7 +215,6 @@ s16 dragonfly_r_move_3(WORK_Other* ewk) {
 }
 
 s16 dragonfly_r_move_4(WORK_Other* ewk) {
-
 
     char_move(&ewk->wu);
     ewk->wu.dir_timer--;
@@ -513,7 +508,6 @@ void dragonfly_move_next(WORK_Other* ewk) {
 }
 
 s32 effect_J8_init() {
-
 
     WORK_Other* ewk;
     s16 ix;

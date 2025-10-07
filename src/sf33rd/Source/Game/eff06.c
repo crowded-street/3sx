@@ -70,7 +70,6 @@ const s16* scr_obj_data6[22] = { st0000_data_tbl,  st0100_data_tbl,  st0200_data
 
 void effect_06_move(WORK_Other* ewk) {
 
-
     if (obr_no_disp_check()) {
         return;
     }
@@ -99,7 +98,6 @@ void effect_06_move(WORK_Other* ewk) {
 }
 
 s32 effect_06_init() {
-
 
     WORK_Other* ewk;
     s16 ix;

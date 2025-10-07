@@ -168,7 +168,6 @@ void Eff93_SLIDE_R_OUT(WORK_Other* ewk) {
 
 void Bg_Family_Set_Ex(s16 xx) {
 
-
     s16 pos_work_x;
     s16 pos_work_y;
 

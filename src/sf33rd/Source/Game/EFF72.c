@@ -12,7 +12,6 @@
 
 void effect_72_move(WORK_Other* ewk) {
 
-
     WORK_Other* oya;
 
     if (obr_no_disp_check()) {
@@ -50,7 +49,6 @@ void effect_72_move(WORK_Other* ewk) {
 }
 
 s32 effect_72_init(WORK_Other* oya, u8 type_id) {
-
 
     WORK_Other* ewk;
     s16 ix;

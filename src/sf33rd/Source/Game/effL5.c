@@ -100,7 +100,6 @@ void hukuromoji_move(WORK_Other* ewk) {
 
 s32 effect_L5_init(WORK_Other* oya) {
 
-
     WORK_Other* ewk;
     s16 ix;
 

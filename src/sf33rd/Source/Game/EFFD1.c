@@ -14,7 +14,6 @@ void fall_data_set(WORK_Other* ewk);
 
 void effect_D1_move(WORK_Other* ewk) {
 
-
     if (Exec_Wipe) {
         ewk->wu.no_death_attack = 1;
     }
@@ -133,7 +132,6 @@ void fall_data_set(WORK_Other* ewk) {
 }
 
 s32 effect_D1_init(WORK_Other* oya, s32 /* unused */) {
-
 
     WORK_Other* ewk;
     s16 ix;

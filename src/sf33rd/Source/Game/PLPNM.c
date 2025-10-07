@@ -71,7 +71,6 @@ void (*const normal_06[])(PLW* wk);
 
 void Player_normal(PLW* wk) {
 
-
     setup_normal_process_flags(wk);
 
     if (wk->wu.routine_no[3] == 0) {
@@ -513,7 +512,6 @@ void Normal_17000(PLW* wk) {
 
 void Normal_18000(PLW* wk) {
 
-
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority + 1;
     }
@@ -542,7 +540,6 @@ void Normal_18000(PLW* wk) {
 
 void Normal_18000_init_unit(PLW* wk, u8 ps) {
 
-
     ps = (ps - 14) / 2;
 
     if (ps > 8) {
@@ -555,7 +552,6 @@ void Normal_18000_init_unit(PLW* wk, u8 ps) {
 }
 
 void Normal_27000(PLW* wk) {
-
 
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority + 1;
@@ -574,7 +570,6 @@ void Normal_27000(PLW* wk) {
 }
 
 void Normal_31000(PLW* wk) {
-
 
     if (((WORK*)wk->wu.target_adrs)->cg_prio != 2) {
         wk->wu.next_z = 32;
@@ -752,7 +747,6 @@ void Normal_41000(PLW* wk) {
 
 void Normal_42000(PLW* wk) {
 
-
     const s16* dadr = nmPB_data[wk->wu.routine_no[2] - 42];
 
     if (((WORK*)wk->wu.target_adrs)->cg_prio != 2) {
@@ -819,7 +813,6 @@ void Normal_42000(PLW* wk) {
 
 void Normal_47000(PLW* wk) {
 
-
     const s16* datix = nmCE_data[wk->wu.routine_no[2] - 47];
 
     if (((WORK*)wk->wu.target_adrs)->cg_prio != 2) {
@@ -883,7 +876,6 @@ void Normal_47000(PLW* wk) {
 }
 
 void Normal_48000(PLW* wk) {
-
 
     wk->guard_flag = 3;
 
@@ -980,7 +972,6 @@ void Normal_51000(PLW* wk) {
 
 void Normal_52000(PLW* wk) {
 
-
     wk->guard_flag = 3;
 
     if (wk->the_same_players) {
@@ -1012,7 +1003,6 @@ void Normal_52000(PLW* wk) {
 }
 
 void Normal_53000(PLW* wk) {
-
 
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority + 1;
@@ -1112,7 +1102,6 @@ void Normal_55000(PLW* wk) {
 
 void make_nm55_init_sp(PLW* wk) {
 
-
     WORK* efw;
     s16* dad;
     s16 ix;
@@ -1169,7 +1158,6 @@ void Normal_56000(PLW* wk) {
 
 void nm56_char_select(PLW* wk) {
 
-
     WORK* efw;
     s16* dad;
     s16 ix;
@@ -1196,7 +1184,6 @@ void nm56_char_select(PLW* wk) {
 }
 
 void Normal_57000(PLW* wk) {
-
 
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority + 1;
@@ -1235,7 +1222,6 @@ void Normal_57000(PLW* wk) {
 }
 
 void nm57_dir_select(PLW* wk) {
-
 
     WORK* efw;
     s16* dad;

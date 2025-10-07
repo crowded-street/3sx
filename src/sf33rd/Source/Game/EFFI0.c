@@ -19,7 +19,6 @@ const s16 koishi_speed_y[5][8];
 
 void effect_I0_move(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0] += 1;
@@ -119,7 +118,6 @@ s32 setup_koishi_extra(WORK* wk, u8 num) {
     s16 spx;
     s16 spy;
     s16 nxy;
-
 
     dix = (s16*)koishi_app_area[random_16() & 7];
 

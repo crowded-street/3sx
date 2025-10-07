@@ -277,5 +277,4 @@ Sint32 ADX_DecodeFooter(Uint8*, Sint32, Sint16*) {
     not_implemented(__func__);
 }
 
-
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_dcd", ADX_CalcHdrInfoLen);

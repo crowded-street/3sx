@@ -36,16 +36,13 @@ void ADXB_ExecOneAc3(ADXB adxb) {
     not_implemented(__func__);
 }
 
-
 Sint32 ADXB_DecodeHeaderAc3(ADXB, void*, Sint32) {
     not_implemented(__func__);
 }
 
-
 Sint32 ADXB_CheckAc3(void*) {
     not_implemented(__func__);
 }
-
 
 void ADXB_SetAhxInSj(ADXB adxb, SJ sj) {
     if (adxb->unkB0 != 0) {
@@ -65,7 +62,6 @@ void ADXB_SetAhxDecSmpl(ADXB adxb, Sint32 samples) {
 void ADXB_ExecOneAhx(ADXB adxb) {
     not_implemented(__func__);
 }
-
 
 void ADXB_AhxTermSupply(ADXB adxb) {
     if (adxb->unkB0 != 0) {

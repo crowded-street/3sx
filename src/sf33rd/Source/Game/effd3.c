@@ -28,7 +28,6 @@ void effect_D3_move(WORK_Other* ewk) {
 
 void akebono_finish(WORK_Other* ewk) {
 
-
     s16 i;
     u16 bg;
     u16 mask;
@@ -130,7 +129,6 @@ void akebono_finish(WORK_Other* ewk) {
 }
 
 void syungoku_finish(WORK_Other* ewk) {
-
 
     s16 i;
     u16 bg;

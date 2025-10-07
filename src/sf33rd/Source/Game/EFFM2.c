@@ -50,7 +50,6 @@ void effect_M2_move(WORK_Other* ewk) {
 
 void effm2_move(WORK_Other* ewk) {
 
-
     WORK* oya_ptr = (WORK*)ewk->my_master;
 
     switch (ewk->wu.routine_no[1]) {
@@ -173,7 +172,6 @@ void effm2_move2(WORK_Other* ewk) {
 }
 
 s32 effect_M2_init(WORK* wk, u8 data) {
-
 
     WORK_Other* ewk;
     s16 ix;

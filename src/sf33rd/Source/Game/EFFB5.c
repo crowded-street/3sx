@@ -13,7 +13,6 @@ void current_name_move(WORK_Other* ewk, NAME_WK* np);
 
 void effect_B5_move(WORK_Other* ewk) {
 
-
     NAME_WK* np = (NAME_WK*)ewk->my_master;
 
     switch (ewk->wu.routine_no[0]) {
@@ -98,7 +97,6 @@ void effect_B5_move(WORK_Other* ewk) {
 }
 
 void current_name_move(WORK_Other* ewk, NAME_WK* np) {
-
 
     if (np->index != ewk->wu.old_rno[2]) {
         return;

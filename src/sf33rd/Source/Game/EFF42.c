@@ -31,7 +31,6 @@ void effect_42_move(WORK_Other* ewk) {
 
 void EFF42_SUDDENLY(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[6]) {
     case 0:
         if (--Order_Timer[ewk->wu.dir_old] != 0) {
@@ -65,7 +64,6 @@ void EFF42_SUDDENLY(WORK_Other* ewk) {
 }
 
 void EFF42_SLIDE_IN(WORK_Other* ewk) {
-
 
     if (Order[ewk->wu.dir_old] != 1) {
         ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
@@ -172,7 +170,6 @@ void EFF42_KILL(WORK_Other* ewk) {
 
 void EFF42_MOVE(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         if (--ewk->wu.dir_timer == 0) {
@@ -210,7 +207,6 @@ void Setup_Char_Index(WORK_Other* ewk) {
 }
 
 s32 effect_42_init(s16 type) {
-
 
     WORK_Other* ewk;
     s16 ix;

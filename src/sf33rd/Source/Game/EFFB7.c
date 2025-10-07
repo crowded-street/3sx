@@ -10,7 +10,6 @@
 
 void effect_B7_move(WORK_Other* ewk) {
 
-
     NAME_WK* np = (NAME_WK*)ewk->my_master;
 
     switch (ewk->wu.routine_no[0]) {

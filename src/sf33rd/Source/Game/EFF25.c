@@ -56,7 +56,6 @@ void effect_25_move(WORK_Other* ewk) {
 
 void eff25_00(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[1]) {
     case 0:
         if (eff_hit_flag[ewk->wu.type]) {
@@ -99,7 +98,6 @@ void eff25_00(WORK_Other* ewk) {
 }
 
 void eff25_02(WORK_Other* ewk) {
-
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -181,7 +179,6 @@ void eff25_04(WORK_Other* ewk) {
 }
 
 void eff25_06(WORK_Other* ewk) {
-
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -266,14 +263,12 @@ void eff25_08(WORK_Other* ewk) {
 
 void eff25_char_set(WORK_Other* ewk) {
 
-
     ewk->wu.routine_no[1]++;
     ewk->wu.disp_flag = 1;
     set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
 }
 
 void piece_set(WORK_Other* ewk) {
-
 
     if (!(ewk->wu.old_rno[2] & 1)) {
         return;
@@ -287,7 +282,6 @@ void piece_set(WORK_Other* ewk) {
 }
 
 s32 effect_25_init(s8 num) {
-
 
     WORK_Other* ewk;
     s16 ix;

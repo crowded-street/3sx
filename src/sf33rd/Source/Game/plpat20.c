@@ -15,7 +15,6 @@ void pl20_extra_attack(PLW* wk) {
 
 void Att_PL20_AT1(PLW* wk) {
 
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -79,7 +78,6 @@ void Att_PL20_AT1(PLW* wk) {
 }
 
 void Att_PL20_AT2(PLW* wk) {
-
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -150,7 +148,6 @@ void Att_PL20_AT2(PLW* wk) {
 
 void Att_PL20_AT3(PLW* wk) {
 
-
     PLW* emwk;
 
     switch (wk->wu.routine_no[3]) {
@@ -220,7 +217,6 @@ void Att_PL20_AT3(PLW* wk) {
 }
 
 void Att_PL20_TOKUSHUKOUDOU(PLW* wk) {
-
 
     wk->scr_pos_set_flag = 0;
 

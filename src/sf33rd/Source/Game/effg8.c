@@ -99,7 +99,6 @@ s16 effg8_range_check(WORK_Other* ewk) {
 
 s32 effect_G8_init() {
 
-
     WORK_Other* ewk;
     s16 ix;
     s16 i;

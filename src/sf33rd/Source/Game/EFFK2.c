@@ -225,7 +225,6 @@ void (*const effK2_main_process[9])();
 
 void effect_K2_move(WORK_Other* ewk) {
 
-
     DADD* hahen = (DADD*)ewk->wu.target_adrs;
     WORK* mwk = (WORK*)ewk->my_master;
 
@@ -346,7 +345,6 @@ void effK2_parts_move_type_0(WORK_Other* ewk, DADD*) {
 }
 
 void effK2_parts_move_type_1(WORK_Other* ewk, DADD* hahen) {
-
 
     switch (ewk->wu.routine_no[2]) {
     case 0:
@@ -563,7 +561,6 @@ void effK2_parts_move_type_7(WORK_Other* ewk, DADD* arg1) {
 }
 
 void effK2_parts_move_type_8(WORK_Other* ewk, DADD* hahen) {
-
 
     switch (ewk->wu.routine_no[2]) {
     case 0:

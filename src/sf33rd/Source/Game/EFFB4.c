@@ -15,7 +15,6 @@ const s16 s_mark_tbl[32] = { 0, 1, 0, 1, 0, 3, 0, 0, 0, 2, 4, 0, 0, 1, 0, 2,
 
 void effect_B4_move(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0]++;
@@ -56,7 +55,6 @@ void effect_B4_move(WORK_Other* ewk) {
 }
 
 s32 effect_B4_init(WORK_Other* oya) {
-
 
     WORK_Other* ewk;
     s16 ix;

@@ -42,7 +42,6 @@ void effect_H1_move(WORK_Other* ewk) {
 
 void eff_h1_move(WORK_Other* ewk) {
 
-
     s16 work;
 
     switch (ewk->wu.routine_no[1]) {
@@ -83,7 +82,6 @@ void eff_h1_move(WORK_Other* ewk) {
 }
 
 s32 effect_H1_init() {
-
 
     WORK_Other* ewk;
     s16 ix;

@@ -46,7 +46,6 @@ struct _adx_fs* adxf = NULL;
 
 u8 sf3ptinfo[3352 + 12];
 
-
 REQ q_ldreq[16];      // size: 0x280, address: 0x5E1DD0
 u8 ldreq_result[294]; // size: 0x126, address: 0x5E1CA0
 
@@ -86,7 +85,6 @@ s32 Setup_Directory_Record_Data() {
         begin_interrupt();
         ADXPS2_ExecVint(0);
         end_interrupt();
-
 
         ADXM_ExecMain();
     }
@@ -258,7 +256,6 @@ void waitVsyncDummy() {
     begin_interrupt();
     ADXPS2_ExecVint(0);
     end_interrupt();
-
 }
 
 s32 load_it_use_any_key2(u16 fnum, void** adrs, s16* key, u8 kokey, u8 group) {
@@ -379,7 +376,6 @@ void Push_LDREQ_Queue_Player(s16 id, s16 ix) {
 
 void Push_LDREQ_Queue_BG(s16 ix) {
 
-
     Push_LDREQ_Queue_Union(ix + 20);
     Push_LDREQ_Queue_Metamor();
 }
@@ -407,7 +403,6 @@ void Push_LDREQ_Queue_Union(s16 ix) {
 }
 
 void Push_LDREQ_Queue_Metamor() {
-
 
     switch ((My_char[0] == 0x12) + (My_char[1] == 0x12) * 2) {
     case 1:
@@ -545,7 +540,6 @@ s32 Check_LDREQ_Queue_Player(s16 id) {
 }
 
 s32 Check_LDREQ_Queue_BG(s16 ix) {
-
 
     return Check_LDREQ_Queue_Union(ix + 20);
 }

@@ -16,7 +16,6 @@ static CSE_SYSWORK cseSysWork __attribute__((aligned(16))); // size: 0x48, addre
 
 #include <assert.h>
 
-
 s32 cseInitSndDrv() {
     u32 i;
 
@@ -141,7 +140,6 @@ s32 cseSendBd2SpuWithId(void* ee_addr, u32 size, u32 bank, u32 id) {
         param.size = size;
 
         SPU_Upload(param.s_addr, ee_addr, size);
-
     }
 
     return 0;

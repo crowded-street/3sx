@@ -53,7 +53,6 @@ void BGM_Request(s16 Code) {
 
 void BGM_Request_Code_Check(u16 Code) {
 
-
     SsRequest_CC(Code);
 }
 

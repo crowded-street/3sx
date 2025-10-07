@@ -47,7 +47,6 @@ void bg0602() {
 
 void bg0602_init00() {
 
-
     bgw_ptr->r_no_1 = 0;
     bgw_ptr->r_no_0++;
     bgw_ptr->zuubun = 0;

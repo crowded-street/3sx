@@ -299,7 +299,6 @@ s16 exchange_current_colcd(WORK* wk) {
 
 s32 sort_push_request(WORK* wk) {
 
-
     if (wk->my_mts == 0) {
         return 0;
     }

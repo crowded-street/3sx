@@ -53,14 +53,12 @@ s32 mlSeStop(CSE_REQP* pReqp) {
 
     emlShimSeStop(pReqp);
     return 0;
-
 }
 
 s32 mlSeKeyoff(CSE_REQP* pReqp) {
 
     emlShimSeStop(pReqp);
     return 0;
-
 }
 
 s32 mlSeStopAll() {
@@ -68,7 +66,6 @@ s32 mlSeStopAll() {
 
     emlShimSeStopAll();
     return 0;
-
 }
 
 s32 mlSeInitSndDrv() {

@@ -79,7 +79,6 @@ void ADXAMP_SetSfreq(ADXAMP amp, Sint32 sfreq) {
     not_implemented(__func__);
 }
 
-
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_amp", ADXAMP_GetSfreq);
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_amp", ADXAMP_SetFrmLen);

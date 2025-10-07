@@ -199,7 +199,6 @@ void init_pulpul_work() {
 
 void init_pulpul_work2(s16 ix) {
 
-
     ppwork[ix].ok_dev = 0;
     ppwork[ix].id = ix;
     ppwork[ix].psix = 0;
@@ -274,7 +273,6 @@ void pp_vib_on(s16 id) {
 }
 
 void pulpul_request_again() {
-
 
     pulpul_request(0, vib_req[0][0]);
     pulpul_request(1, vib_req[1][0]);
@@ -476,7 +474,6 @@ s32 vibParamTrans(s32 id, PULPARA* prm) {
 
 void pp_screen_quake(s16 ix) {
 
-
     ix /= 3;
 
     if (ix > 0xA) {
@@ -530,18 +527,15 @@ void pp_pulpara_remake_dm_all(WORK* wk) {
 
 void pp_pulpara_guard(WORK* wk) {
 
-
     pulpul_request(wk->id, pp_guard_shock[pp_conv_kow(wk->dm_kind_of_waza)]);
 }
 
 void pp_pulpara_hit(WORK* wk) {
 
-
     pulpul_request(wk->id, pp_hit_shock[pp_conv_kow(wk->kind_of_waza)]);
 }
 
 void pp_pulpara_blocking(WORK* wk) {
-
 
     pulpul_request(wk->id, 0x20);
 
@@ -552,12 +546,10 @@ void pp_pulpara_blocking(WORK* wk) {
 
 void pp_pulpara_catch(WORK* wk) {
 
-
     pulpul_request(wk->id, 0x22);
 }
 
 void pp_pulpara_caught(WORK* wk) {
-
 
     pulpul_request(wk->id, 0x23);
 }
@@ -567,7 +559,6 @@ void pp_pulpara_remake_nm_move(s32 arg0) {
 }
 
 void pp_pulpara_shungokusatsu(WORK* wk) {
-
 
     pulpul_request(wk->id, 0x2E);
     pulpul_request((wk->id + 1) & 1, 0x2F);

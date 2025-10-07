@@ -16,7 +16,6 @@ void pl12_extra_attack(PLW* wk) {
 
 void Att_PL12_TOKUSHUKOUDOU(PLW* wk) {
 
-
     wk->scr_pos_set_flag = 0;
 
     switch (wk->wu.routine_no[3]) {
@@ -92,7 +91,6 @@ void Att_PL12_TOKUSHUKOUDOU(PLW* wk) {
 }
 
 void Att_PL12_BONUS_STAGE(PLW* wk) {
-
 
     wk->scr_pos_set_flag = 0;
 

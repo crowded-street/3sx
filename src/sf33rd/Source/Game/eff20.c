@@ -10,7 +10,6 @@
 
 void effect_20_move(WORK_Other* ewk) {
 
-
     WORK_Other* oya = (WORK_Other*)ewk->my_master;
 
     switch (ewk->wu.routine_no[1]) {
@@ -52,7 +51,6 @@ void effect_20_move(WORK_Other* ewk) {
 }
 
 s32 effect_20_init(WORK_Other* oya) {
-
 
     WORK_Other* ewk;
     s16 ix;

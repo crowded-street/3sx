@@ -37,7 +37,6 @@ const s16 dog24_x_data[8] = { 0, 0, 0, 6, 10, 16, 32, 40 };
 
 void effect_24_move(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0]++;
@@ -208,7 +207,6 @@ void eff24_sp_data_set(WORK_Other* ewk) {
 }
 
 s32 effect_24_init() {
-
 
     WORK_Other* ewk;
     s16 ix;

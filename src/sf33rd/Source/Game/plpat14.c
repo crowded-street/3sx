@@ -19,7 +19,6 @@ void pl14_extra_attack(PLW* wk) {
 
 void Att_PL14_AT1(PLW* wk) {
 
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -100,7 +99,6 @@ void Att_PL14_AT1(PLW* wk) {
 
 void Att_PL14_AT2(PLW* wk) {
 
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -148,7 +146,6 @@ void Att_PL14_AT2(PLW* wk) {
 }
 
 void Att_PL14_AT3(PLW* wk) {
-
 
     PLW* twk = (PLW*)wk->wu.target_adrs;
 
@@ -258,7 +255,6 @@ void Att_PL14_AT3(PLW* wk) {
 }
 
 void Att_PL14_TOKUSHUKOUDOU(PLW* wk) {
-
 
     wk->scr_pos_set_flag = 0;
 

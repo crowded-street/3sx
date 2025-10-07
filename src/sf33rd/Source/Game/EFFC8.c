@@ -13,7 +13,6 @@ const s32 effc8_data_tbl[4] = { 0x30000, 0x200, 0, -0x1800 };
 
 void effect_C8_move(WORK_Other* ewk) {
 
-
     PLW* oya_pl = (PLW*)ewk->my_master;
     s16 work;
     const s32* ptr;
@@ -100,7 +99,6 @@ void effect_C8_move(WORK_Other* ewk) {
 }
 
 s32 effect_C8_init(PLW* wk) {
-
 
     WORK_Other* ewk;
     s16 ix;

@@ -32,7 +32,6 @@ const s32 Pos_Z_Data_79[3] = { 0, 5, 10 };
 
 void effect_79_move(WORK_Other* ewk) {
 
-
     s16 xx;
     s16 arrived[2];
 
@@ -630,7 +629,6 @@ s32 Select_End_Sub_79(WORK_Other* ewk) {
 }
 
 s32 effect_79_init(s16 pl_id, s16 plate_id, s16 pos_id, s16 time, s16 Target_BG) {
-
 
     WORK_Other* ewk;
     s16 ix;

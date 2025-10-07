@@ -22,7 +22,6 @@ const s16* eff21_data_adrs[1] = { eff21_data_tbl_00 };
 
 void effect_21_move(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0]++;
@@ -58,7 +57,6 @@ void effect_21_move(WORK_Other* ewk) {
 }
 
 s32 effect_21_init(s16 sync_index) {
-
 
     WORK_Other* ewk;
     s16 ix;

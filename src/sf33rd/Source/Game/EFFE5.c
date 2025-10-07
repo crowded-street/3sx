@@ -46,7 +46,6 @@ void setup_illusion_data(WORK_Other* ewk, PLW* mwk);
 
 void effect_E5_move(WORK_Other* ewk) {
 
-
     PLW* mwk = (PLW*)ewk->my_master;
     s16 i;
 
@@ -177,7 +176,6 @@ void effect_E5_move(WORK_Other* ewk) {
 }
 
 void setup_illusion_data(WORK_Other* ewk, PLW* mwk) {
-
 
     const u16* tblh = after_image_data[mwk->image_data_index];
 

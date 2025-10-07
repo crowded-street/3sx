@@ -16,7 +16,6 @@ void (*const EFF74_Jmp_Tbl[5])();
 
 void effect_74_move(WORK_Other* ewk) {
 
-
     if (Menu_Suicide[ewk->master_player]) {
         push_effect_work(&ewk->wu);
         return;

@@ -144,7 +144,6 @@ void effe2_erase_or_die(WORK* wk);
 
 void effect_E2_move(WORK_Other* ewk) {
 
-
     PLW* mwk = (PLW*)ewk->my_master;
 
     ewk->wu.hit_stop = mwk->wu.hit_stop;

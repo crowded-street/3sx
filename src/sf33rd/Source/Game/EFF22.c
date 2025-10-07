@@ -67,7 +67,6 @@ const s32 snow_sp[4][12][4] = { { { 0x200, 0, -0x2000, 0 },
 
 void effect_22_move(WORK_Other* ewk) {
 
-
     const s32* ptr;
 
     if (obr_no_disp_check()) {
@@ -123,7 +122,6 @@ void effect_22_move(WORK_Other* ewk) {
 }
 
 s32 effect_22_init() {
-
 
     s16 ix;
     s16 i;

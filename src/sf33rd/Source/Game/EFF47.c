@@ -18,7 +18,6 @@ const s16 eff47_data_tbl[12] = { 16, 144, 50, -68, 122, 50, 24, 48, 30, -37, 70,
 
 void effect_47_move(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0]++;
@@ -58,7 +57,6 @@ void effect_47_move(WORK_Other* ewk) {
 }
 
 s32 effect_47_init(WORK* wk, s32 /* unused */) {
-
 
     WORK_Other* ewk;
     s16 ix;

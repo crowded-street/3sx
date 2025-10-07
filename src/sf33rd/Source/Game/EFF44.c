@@ -46,7 +46,6 @@ const s16* scr_obj_data44[10] = { eff44_data_tbl0, eff44_data_tbl1, eff44_data_t
 
 void effect_44_move(WORK_Other* ewk) {
 
-
     if (obr_no_disp_check()) {
         return;
     }
@@ -80,7 +79,6 @@ void effect_44_move(WORK_Other* ewk) {
 }
 
 s32 effect_44_init(s16 type) {
-
 
     WORK_Other* ewk;
     s16 ix;

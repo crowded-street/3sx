@@ -107,7 +107,6 @@ Sint32 ADXF_LoadPartitionFromAfsNw(Sint32 set_ptid, Sint32 rd_ptid, Sint32 rd_fl
     not_implemented(__func__);
 }
 
-
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_fs", ADXF_LoadPartitionFmgLongNw);
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_fs", ADXF_LoadPartitionFromAfsFmgLongNw);
@@ -120,7 +119,6 @@ Sint32 ADXF_LoadPtFromAfsNwEx(Sint32 set_ptid, Sint32 rd_ptid, Sint32 rd_flid, v
                               Sint32 tbsize) {
     not_implemented(__func__);
 }
-
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_fs", ADXF_LoadPtFmgLongNwEx);
 
@@ -358,11 +356,9 @@ Sint32 ADXF_GetPtStatEx(Sint32 ptid) {
     return stat;
 }
 
-
 Sint32 ADXF_GetPtinfoSize(Sint32 ptid) {
     not_implemented(__func__);
 }
-
 
 ADXF adxf_AllocAdxFs() {
     Sint32 i;
@@ -588,7 +584,6 @@ Sint32 ADXF_ReadSj(ADXF adxf, Sint32 nsct, SJ sj) {
     not_implemented(__func__);
 }
 
-
 Sint32 ADXF_ReadNw32(ADXF adxf, Sint32 nsct, void* buf) {
     SJ sj;
     SJ sjrbf;
@@ -783,7 +778,6 @@ Sint32 ADXF_Seek(ADXF adxf, Sint32 pos, Sint32 type) {
     not_implemented(__func__);
 }
 
-
 Sint32 ADXF_Tell(ADXF adxf) {
     if (adxf == NULL) {
         ADXERR_CallErrFunc1("E9040827:'adxf' is NULL.(ADXF_Tell)");
@@ -814,16 +808,13 @@ Sint32 ADXF_GetFsizeByte(ADXF adxf) {
     not_implemented(__func__);
 }
 
-
 Sint32 ADXF_GetNumReqSct(ADXF adxf, Sint32* seekpos) {
     not_implemented(__func__);
 }
 
-
 Sint32 ADXF_GetNumReadSct(ADXF adxf) {
     not_implemented(__func__);
 }
-
 
 Sint32 ADXF_GetStat(ADXF adxf) {
     if (adxf == NULL) {
@@ -923,10 +914,8 @@ void ADXF_SetReqRdSct(ADXF adxf, Sint32 nsct) {
     not_implemented(__func__);
 }
 
-
 Sint32 ADXF_GetStatRead(ADXF adxf) {
     not_implemented(__func__);
 }
-
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_fs", ADXF_GetFileSize);

@@ -34,7 +34,6 @@ void effect_86_move(WORK_Other* ewk) {
 
 void eff86_0000(WORK_Other* ewk) {
 
-
     s16 work;
 
     switch (ewk->wu.routine_no[2]) {
@@ -63,7 +62,6 @@ void eff86_0000(WORK_Other* ewk) {
 }
 
 s32 effect_86_init(s16 type86) {
-
 
     WORK_Other* ewk;
     s16 ix;

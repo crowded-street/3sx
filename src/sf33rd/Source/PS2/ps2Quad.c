@@ -381,6 +381,4 @@ void CP3toPS2DrawOff() {
     CP3toPS2DrawFlag = 0;
 }
 
-void CP3toPS2Draw() {
-
-}
+void CP3toPS2Draw() {}

@@ -135,7 +135,6 @@ typedef struct {
 #define DGET_T3_COMP() (0)
 #define DPUT_T3_COMP(x)
 
-
 /* GS Special */
 #define DGET_GS_CSR() (*GS_CSR)
 #define DGET_GS_SIGLBLID() (*GS_SIGLBLID)
@@ -153,6 +152,5 @@ typedef struct {
 #define DPUT_GS_CSR(x)
 #define DPUT_GS_IMR(x)
 #define DPUT_GS_BUSDIR(x)
-
 
 #endif

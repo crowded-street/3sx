@@ -1595,14 +1595,12 @@ void effe6_0033(WORK_Other* ewk) {
 
 void effe6_init_common(WORK_Other* ewk) {
 
-
     ewk->wu.routine_no[1]++;
     ewk->wu.disp_flag = 1;
     set_char_move_init2(&ewk->wu, 0, ewk->wu.old_rno[4], ewk->wu.char_index, 0);
 }
 
 s32 effect_E6_init(u8 char_num) {
-
 
     WORK_Other* ewk;
     s16 ix;
@@ -1657,7 +1655,6 @@ static const u16 END_COL[20] = {
 };
 
 void ending_obj_load() {
-
 
     make_texcash_work(12);
     load_any_texture_patnum(0x7F30, 23, 0);

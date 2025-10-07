@@ -16,7 +16,6 @@ const s16 plhos_data[20][3] = { { 2, 136, 4 }, { 40, 92, 3 },  { -4, 104, 2 },  
 
 void effect_C0_move(WORK_Other* ewk) {
 
-
     PLW* mwk = (PLW*)ewk->my_master;
     s16 i;
     s16 hok;

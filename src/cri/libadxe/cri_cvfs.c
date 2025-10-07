@@ -25,7 +25,6 @@ Char8 D_006BDDA8[0x10];
 CVFSNamedDevice D_006BDBA8[CVFS_DEVICE_MAX]; // cvfs_named_devices
 CVFSHandle D_006BDA68[CVFS_HANDLE_MAX];      // cvfs_handles
 
-
 // forward decls
 void getDevName(Char8* filename, Char8* device_name, const Char8* full_path);
 CVFSHandle* allocCvFsHn();

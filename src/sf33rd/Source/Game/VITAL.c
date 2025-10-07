@@ -41,7 +41,6 @@ void vital_cont_main() {
 
 void vital_control(u8 pl) {
 
-
     if (plw[pl].wu.vital_new < 0xA1) {
         if ((vit[pl].cyerw == plw[pl].wu.vital_new) && (vit[pl].cred == plw[pl].wu.vital_new) &&
             (vit[pl].ored != (plw[pl].wu.vital_new + 1))) {

@@ -1,6 +1,6 @@
 /* compress.c -- compress a memory buffer
  * Copyright (C) 1995-2002 Jean-loup Gailly.
- * For conditions of distribution and use, see copyright notice in zlib.h 
+ * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
 /* @(#) $Id$ */
@@ -18,12 +18,12 @@
    memory, Z_BUF_ERROR if there was not enough room in the output buffer,
    Z_STREAM_ERROR if the level parameter is invalid.
 */
-int ZEXPORT compress2 (dest, destLen, source, sourceLen, level)
-    Bytef *dest;
-    uLongf *destLen;
-    const Bytef *source;
-    uLong sourceLen;
-    int level;
+int ZEXPORT compress2(dest, destLen, source, sourceLen, level)
+Bytef* dest;
+uLongf* destLen;
+const Bytef* source;
+uLong sourceLen;
+int level;
 {
     z_stream stream;
     int err;
@@ -32,18 +32,21 @@ int ZEXPORT compress2 (dest, destLen, source, sourceLen, level)
     stream.avail_in = (uInt)sourceLen;
 #ifdef MAXSEG_64K
     /* Check for source > 64K on 16-bit machine: */
-    if ((uLong)stream.avail_in != sourceLen) return Z_BUF_ERROR;
+    if ((uLong)stream.avail_in != sourceLen)
+        return Z_BUF_ERROR;
 #endif
     stream.next_out = dest;
     stream.avail_out = (uInt)*destLen;
-    if ((uLong)stream.avail_out != *destLen) return Z_BUF_ERROR;
+    if ((uLong)stream.avail_out != *destLen)
+        return Z_BUF_ERROR;
 
     stream.zalloc = (alloc_func)0;
     stream.zfree = (free_func)0;
     stream.opaque = (voidpf)0;
 
     err = deflateInit(&stream, level);
-    if (err != Z_OK) return err;
+    if (err != Z_OK)
+        return err;
 
     err = deflate(&stream, Z_FINISH);
     if (err != Z_STREAM_END) {
@@ -58,11 +61,9 @@ int ZEXPORT compress2 (dest, destLen, source, sourceLen, level)
 
 /* ===========================================================================
  */
-int ZEXPORT compress (dest, destLen, source, sourceLen)
-    Bytef *dest;
-    uLongf *destLen;
-    const Bytef *source;
-    uLong sourceLen;
-{
-    return compress2(dest, destLen, source, sourceLen, Z_DEFAULT_COMPRESSION);
-}
+int ZEXPORT compress(dest, destLen, source, sourceLen)
+Bytef* dest;
+uLongf* destLen;
+const Bytef* source;
+uLong sourceLen;
+{ return compress2(dest, destLen, source, sourceLen, Z_DEFAULT_COMPRESSION); }

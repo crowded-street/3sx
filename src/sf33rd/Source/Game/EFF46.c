@@ -17,7 +17,6 @@ s16 eff46_appear_check(WORK_Other* ewk);
 
 void effect_46_move(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0]++;
@@ -119,7 +118,6 @@ s16 eff46_appear_check(WORK_Other* ewk) {
 }
 
 s32 effect_46_init(WORK* wk, s32 /* unused */) {
-
 
     WORK_Other* ewk;
     s16 ix;

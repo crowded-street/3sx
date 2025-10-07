@@ -4,9 +4,7 @@
 #include <stdarg.h>
 #include <stddef.h>
 
-
 void ExitHandler();
-
 
 #define WRITEBACK_DCACHE 0
 #define INVALIDATE_DCACHE 1

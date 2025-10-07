@@ -237,7 +237,6 @@ void fadeout_to_staff_roll() {
 
 void common_end_init00(s16 pl_num) {
 
-
     s16 i;
 
     Family_Init();
@@ -278,7 +277,6 @@ void common_end_init00(s16 pl_num) {
 
 void common_end_init01() {
 
-
     bg_w.scr_stop = 0;
     bg_w.frame_flag = 0;
     bg_w.bg_f_x = 9;
@@ -302,7 +300,6 @@ void common_end_init01() {
 
 void end_fam_set(s16 i) {
 
-
     s16 pos_work_x = bg_w.bgw[i].position_x;
     s16 pos_work_y = bg_w.bgw[i].position_y;
 
@@ -313,7 +310,6 @@ void end_fam_set(s16 i) {
 }
 
 void end_fam_set2() {
-
 
     s16 i;
     s16 pos_work_x;
@@ -351,7 +347,6 @@ void end_bg_pos_hosei2() {
 
 void end_scn_pos_set2() {
 
-
     s16 bg_no;
 
     for (bg_no = 0; bg_no < bg_w.scno; bg_no++) {
@@ -374,7 +369,6 @@ void end_reset_etc() {
 }
 
 void end_X_com01() {
-
 
     switch (bgw_ptr->r_no_1) {
     case 0:

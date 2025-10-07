@@ -87,7 +87,6 @@ void ADXT_Init() {
         ADXSJD_Init();
         ADXF_Init();
 
-
         LSC_Init();
         SVM_Init();
         ADXRNA_EntryErrFunc(adxini_rnaerr_cbfn, NULL);

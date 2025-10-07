@@ -12,7 +12,6 @@ const s16 g9_pos_hos[16] = { 0, 1, -1, 2, -2, 0, 3, -3, 1, -1, 2, -2, 4, 3, 0, 3
 
 void effect_G9_move(WORK_Other* ewk) {
 
-
     s16 rnd_ix;
 
     switch (ewk->wu.routine_no[0]) {

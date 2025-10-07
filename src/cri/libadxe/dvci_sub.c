@@ -27,7 +27,6 @@ Char8 dvg_fpath[128] = { 0 };
 // bss
 Sint8 D_006BE100[0x1000];
 
-
 void dvci_conv_fname(const Char8* fname, Char8* path) {
     Char8 first_char;
 
@@ -37,7 +36,6 @@ void dvci_conv_fname(const Char8* fname, Char8* path) {
     if ((first_char != '/') && (first_char != '\\')) {
 
         strcat(path, "\\");
-
     }
 
     strcat(path, fname);
@@ -98,7 +96,6 @@ Sint32 analysis_flist_003DC6A0(Sint8* fcbuf, Sint8* filelist_buf, Sint32 arg2, S
     dvg_flist_tbl.unkC = arg4;
     return 1;
 }
-
 
 Sint32 load_flist(Char8* flist, Sint8* buf) {
     sceCdlFILE fp;
@@ -257,7 +254,6 @@ Sint32 dvci_get_fstate(const Char8* fname, sceCdlFILE* fp) {
     return 0;
 }
 
-
 Sint32 dvCiLoadFcache(Char8* flist, Sint8* fcbuf, Sint32 fcsize, Sint32 maxflen) {
     Uint32 temp_lo;
     Sint32 temp;
@@ -280,7 +276,6 @@ Sint32 dvCiLoadFcache(Char8* flist, Sint8* fcbuf, Sint32 fcsize, Sint32 maxflen)
         if (dvg_ci_dbg_out_lv == 0) {
 
             scePrintf("DVCI: Invalidate filelist buffer pointer.\r\n", fcbuf);
-
         }
 
         return 0;
@@ -290,7 +285,6 @@ Sint32 dvCiLoadFcache(Char8* flist, Sint8* fcbuf, Sint32 fcsize, Sint32 maxflen)
         if (dvg_ci_dbg_out_lv == 0) {
 
             scePrintf("DVCI: Invalidate filelist buffer size.\r\n", fcsize);
-
         }
 
         return 0;
@@ -344,7 +338,6 @@ void dvCiSetRootDir(const Char8* dir) {
         }
     }
 }
-
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/dvci_sub", dvCiGetRootDir);
 

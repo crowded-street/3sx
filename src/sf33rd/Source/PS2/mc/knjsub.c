@@ -11,7 +11,6 @@
 
 #include <stdarg.h>
 
-
 #if !defined(TARGET_PS2)
 #include "port/sdl/sdl_message_renderer.h"
 #endif
@@ -477,7 +476,6 @@ void KnjPuts(const s8* str) {
         code = *(u8*)str;
         str++;
 
-
         if (code == 0) {
             break;
         }
@@ -493,7 +491,6 @@ void KnjPuts(const s8* str) {
 
             c = *(u8*)str;
             str++;
-
 
             if (c == 0) {
                 break;
@@ -1068,7 +1065,6 @@ s32 KnjCheckCode(const s8* str) {
 }
 
 static u32* make_env_pkt(u32* p, u32 /* unused */, u32 /* unused */) {
-
 
     return p;
 }

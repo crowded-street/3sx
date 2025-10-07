@@ -22,7 +22,6 @@
 #define TO_UV_256_NEG(val) (TO_UV_256(val))
 #define TO_UV_128(val) ((val) / 128.0f)
 
-
 typedef struct {
     // total size: 0x6
     s16 fade;      // offset 0x0, size 0x2
@@ -2259,7 +2258,6 @@ void dispSaveLoadTitle(void* ewk) {
     prm.t[3].t = TO_UV_128(36.0f);
 
     step_t = 36.0f;
-
 
     pos[0].x = -192.0f;
     pos[0].y = -12.0f;

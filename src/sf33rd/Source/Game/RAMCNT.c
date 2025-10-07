@@ -79,7 +79,6 @@ void Push_ramcnt_key_original(s16 key) {
 
 void Push_ramcnt_key_original_2(s16 key) {
 
-
     RCKeyWork* rwk = &rckey_work[key];
 
     if (rwk->use != 0) {

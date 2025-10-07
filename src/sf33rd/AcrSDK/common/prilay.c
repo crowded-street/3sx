@@ -5,7 +5,6 @@
 
 #include <stdarg.h>
 
-
 s8 plReportMessage[2048];
 void* (*plmalloc)(s32);
 void (*plfree)(void*);

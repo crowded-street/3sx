@@ -391,7 +391,6 @@ void name_work_init(s16 pl_id) {
 
 void rank_display_set(s16 pl_id) {
 
-
     u16 pos_x;
     u8 rank;
 

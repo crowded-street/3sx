@@ -19,7 +19,6 @@
 
 void effect_C5_move(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         if (!EXE_flag && !Game_pause) {
@@ -124,7 +123,6 @@ void effect_C5_move(WORK_Other* ewk) {
 }
 
 s32 effect_C5_init(PLW* oya, s16 reverse_f) {
-
 
     WORK_Other* ewk;
     s16 ix;

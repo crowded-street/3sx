@@ -30,7 +30,6 @@ const s16* scr_obj_data27[2] = { piece_0000, piece_0001 };
 
 void effect_27_move(WORK_Other* ewk) {
 
-
     WORK_Other* oya;
 
     if (obr_no_disp_check()) {
@@ -311,7 +310,6 @@ void eff27_08(WORK_Other* ewk) {
 
 void eff27_09(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[1]) {
     case 0:
         char_move(&ewk->wu);
@@ -366,7 +364,6 @@ void (*eff27_jp_tbl[11])(WORK_Other*) = { eff27_00, eff27_00, eff27_02, eff27_03
                                           eff27_06, eff27_06, eff27_07, eff27_08, eff27_09 };
 
 s32 effect_27_init(WORK_Other* oya, s16 type) {
-
 
     WORK_Other* ewk;
     s16 ix;

@@ -16,7 +16,6 @@ const s16 panel_pos_hosei[8][4][2] = {
 
 void effect_37_move(WORK_Other* ewk) {
 
-
     WORK* mwk = (WORK*)ewk->my_master;
     s16 ix;
 

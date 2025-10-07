@@ -44,7 +44,6 @@ void EFFK6_WAIT(WORK_Other* ewk) {
 
 void EFFK6_SLIDE_IN(WORK_Other* ewk) {
 
-
     s16 xx;
 
     if ((Order[ewk->wu.dir_old]) == 5) {
@@ -171,7 +170,6 @@ void EFFK6_SLIDE_OUT(WORK_Other* ewk) {
 
 void EFFK6_SUDDENLY(WORK_Other* ewk) {
 
-
     s16 xx;
 
     switch (ewk->wu.routine_no[1]) {
@@ -220,7 +218,6 @@ void EFFK6_KILL(WORK_Other* ewk) {
 
 void EFFK6_MOVE(WORK_Other* ewk) {
 
-
     if (Order[ewk->wu.dir_old] != 4) {
         ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
         ewk->wu.routine_no[1] = 0;
@@ -263,7 +260,6 @@ void EFFK6_MOVE(WORK_Other* ewk) {
 }
 
 s32 effect_K6_init(s16 PL_id, s16 dir_old, s16 dm_vital, s16 Target_BG) {
-
 
     WORK_Other* ewk;
     s16 ix;

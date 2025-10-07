@@ -8,5 +8,4 @@ void effect_82_move(WORK_Other* ewk);
 
 s32 effect_82_init(WORK* wk);
 
-
 #endif

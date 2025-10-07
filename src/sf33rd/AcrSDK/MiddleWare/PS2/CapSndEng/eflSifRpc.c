@@ -9,7 +9,6 @@
 
 #include <assert.h>
 
-
 // sbss
 struct _sif_client_data ScdComm;  // size: 0x28, address: 0x57B220
 struct _sif_client_data ScdStat;  // size: 0x28, address: 0x57B1F0

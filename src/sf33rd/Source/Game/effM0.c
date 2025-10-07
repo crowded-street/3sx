@@ -416,7 +416,6 @@ void don_run_set(WORK_Other* ewk) {
 
 s32 effect_M0_init(u8 pl_rl, u8 animal_type) {
 
-
     WORK_Other* ewk;
     s16 ix;
 

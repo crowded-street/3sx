@@ -20,7 +20,6 @@
 
 #include <stdarg.h>
 
-
 void flPS2DebugStrClear();
 static void flPS2DrawProbar();
 void flPS2LoadCheckFlush();

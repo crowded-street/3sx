@@ -26,5 +26,4 @@ typedef uint16_t u_short;
 typedef uint32_t u_int;
 typedef uint64_t u_long;
 
-
 #endif

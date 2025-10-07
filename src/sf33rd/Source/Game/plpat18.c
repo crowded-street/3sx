@@ -15,7 +15,6 @@ void pl18_extra_attack(PLW* wk) {
 
 void Att_PL18_NINGENBAKUDAN(PLW* wk) {
 
-
     wk->scr_pos_set_flag = 0;
 
     switch (wk->wu.routine_no[3]) {
@@ -74,7 +73,6 @@ void Att_PL18_NINGENBAKUDAN(PLW* wk) {
 }
 
 void Att_PL18_TOKUSHUKOUDOU(PLW* wk) {
-
 
     wk->scr_pos_set_flag = 0;
 

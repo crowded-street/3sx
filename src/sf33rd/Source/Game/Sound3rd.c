@@ -151,7 +151,6 @@ void Init_sound_system() {
 
     SDLADXSound_Init();
 
-
     system_init_level |= 2;
     cseInitSndDrv();
     system_init_level |= 1;
@@ -220,7 +219,6 @@ void Exit_sound_system() {
     if (system_init_level & 2) {
 
         SDLADXSound_Exit();
-
 
         system_init_level &= ~2;
     }
@@ -352,7 +350,6 @@ void sound_request_for_dc(SoundPatchConfig* rmc, s16 pan) {
 
 void BGM_Server() {
 
-
     if (!(system_init_level & 2)) {
         return;
     }
@@ -382,7 +379,6 @@ void BGM_Server() {
 
         SDLADXSound_Stop();
 
-
         bgm_seamless_clear();
         current_bgm = 0;
         bgm_exe.kind = 0;
@@ -392,16 +388,13 @@ void BGM_Server() {
 
         SDLADXSound_Stop();
 
-
         if ((bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0x4000) && (bgm_separate_check() != 0)) {
             bgm_exe.exIndex = bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0xFF;
             bgm_exe.exEntry = bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numStart;
 
-
             bgm_volume_setup(0);
 
             SDLADXSound_Pause(1);
-
 
             bgm_play_request(bgm_exe.exEntry, 0);
             bgm_exe.nowSeamless = 1;
@@ -414,20 +407,17 @@ void BGM_Server() {
 
             SDLADXSound_Pause(1);
 
-
             if (adx_NowOnMemoryType == sys_w.bgm_type) {
                 switch (bgm_exe.code) {
                 case 0x33:
 
                     SDLADXSound_StartMem(adx_VS, sizeof(adx_VS));
 
-
                     break;
 
                 case 0x39:
 
                     SDLADXSound_StartMem(adx_EmSel, sizeof(adx_EmSel));
-
 
                     break;
 
@@ -448,7 +438,6 @@ void BGM_Server() {
 
         SDLADXSound_Pause(0);
 
-
         bgm_exe.kind = 0;
         break;
 
@@ -462,7 +451,6 @@ void BGM_Server() {
 
                     SDLADXSound_Stop();
 
-
                     bgm_volume_setup(0);
                 }
 
@@ -472,7 +460,6 @@ void BGM_Server() {
                     bgm_exe.nowSeamless = 1;
 
                     SDLADXSound_StartSeamless();
-
                 }
             }
         } else {
@@ -505,7 +492,6 @@ void BGM_Server() {
         if (SDLADXSound_IsPaused()) {
             SDLADXSound_Pause(0);
         }
-
 
         current_bgm = bgm_exe.code;
         bgm_exe.kind = 0;
@@ -564,7 +550,6 @@ void BGM_Server() {
                     if (bgm_exe.nowSeamless == 0) {
 
                         SDLADXSound_Stop();
-
                     }
 
                     bgm_play_request(bgm_exe.exEntry, 0);
@@ -573,7 +558,6 @@ void BGM_Server() {
                         bgm_exe.nowSeamless = 1;
 
                         SDLADXSound_StartSeamless();
-
                     }
                 }
             } else {
@@ -605,7 +589,6 @@ void BGM_Server() {
             if (SDLADXSound_IsPaused()) {
                 SDLADXSound_Pause(0);
             }
-
 
             bgm_volume_setup(-0x7F);
             current_bgm = bgm_exe.code;
@@ -654,7 +637,6 @@ void BGM_Server() {
 
     if (bgm_exe.nowSeamless && (SDLADXSound_GetNumFiles() <= 0)) {
 
-
         bgm_exe.exEntry += 1;
 
         if (bgm_exe.exEntry > bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numEnd) {
@@ -685,7 +667,6 @@ void bgm_play_request(s32 filenum, s32 flag) {
     } else {
 
         SDLADXSound_StartAfs(bgm_table[sys_w.bgm_type][filenum].fnum);
-
     }
 }
 
@@ -698,7 +679,6 @@ void bgm_seamless_clear() {
 
     SDLADXSound_Stop();
     SDLADXSound_ResetEntry();
-
 }
 
 void bgm_volume_setup(s16 data) {
@@ -729,13 +709,11 @@ void bgm_volume_setup(s16 data) {
     }
 
     SDLADXSound_SetOutVol(adx_volume[bgm_vol_now]);
-
 }
 
 s32 adx_now_playing() {
 
     bgm_exe.state = SDLADXSound_GetStat();
-
 
     if ((bgm_exe.state == ADXT_STAT_PLAYING) || (bgm_exe.state == ADXT_STAT_DECEND)) {
         return 1;
@@ -747,7 +725,6 @@ s32 adx_now_playing() {
 s32 adx_now_playend() {
 
     bgm_exe.state = SDLADXSound_GetStat();
-
 
     if (bgm_exe.state == ADXT_STAT_PLAYEND) {
         return 1;
@@ -777,7 +754,6 @@ void SsAllNoteOff() {
 }
 
 void SsRequestPan(u16 reqNum, s16 start, s16 /* unused */, s32 /* unused */, s32 /* unused */) {
-
 
     SoundPatchConfig rmcode;
 
@@ -913,7 +889,6 @@ void SsRequest(u16 ReqNumber) {
 
 void SsRequest_CC(u16 num) {
 
-
     SoundPatchConfig rmcode;
 
     if (remake_sound_code_for_DC(num, &rmcode)) {
@@ -926,7 +901,6 @@ void SsRequest_CC(u16 num) {
 }
 
 void Standby_BGM(u16 num) {
-
 
     SoundPatchConfig rmcode;
 
@@ -960,7 +934,6 @@ void SsBgmOff() {
 }
 
 void SsBgmFadeIn(u16 ReqNumber, u16 FadeSpeed) {
-
 
     SoundPatchConfig rmcode;
     s32 fade_time = 0x8000 / FadeSpeed;

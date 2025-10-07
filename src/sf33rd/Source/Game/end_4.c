@@ -232,7 +232,6 @@ void end_401_1000() {
 
 void end_401_2000() {
 
-
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
@@ -268,7 +267,6 @@ void end_401_2000() {
             }
 
             Frame_Down(bg_w.center_x, bg_w.center_y, 1);
-
         }
 
         break;
@@ -279,7 +277,6 @@ void end_401_2000() {
 }
 
 void end_401_3000() {
-
 
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -312,7 +309,6 @@ void end_401_3000() {
             }
 
             Frame_Down(bg_w.center_x, bg_w.center_y, 1);
-
         }
 
         break;
@@ -323,7 +319,6 @@ void end_401_3000() {
 }
 
 void end_401_4000() {
-
 
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -357,7 +352,6 @@ void end_401_4000() {
             }
 
             Frame_Down(bg_w.center_x, bg_w.center_y, 1);
-
         }
 
         break;

@@ -89,7 +89,6 @@ void effect_D5_move(WORK_Other* ewk) {
 
 void effD5_main_process(WORK_Other* ewk) {
 
-
     s16 dsst;
 
     if (ewk->wu.hf.hit_flag) {

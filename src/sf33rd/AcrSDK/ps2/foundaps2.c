@@ -31,7 +31,6 @@
 
 #include <stdarg.h>
 
-
 // bss
 FLPS2State flPs2State;
 FLPS2DB flPs2Db[2];
@@ -153,7 +152,6 @@ s32 flInitialize(s32 /* unused */, s32 /* unused */) {
     flPS2SwapDBuff(0, 1);
     flPADInitialize();
     flPS2DebugInit();
-
 
     DPUT_T1_MODE(0x80);
     DPUT_T1_COUNT(0);

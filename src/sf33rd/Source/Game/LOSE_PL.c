@@ -37,7 +37,6 @@ void Lose_00000(PLW* wk) {
 
 void Lose_10000(PLW* wk) {
 
-
     if ((pcon_rno[0] == 2) && (pcon_rno[1] == 3)) {
         switch (wk->wu.routine_no[3]) {
         case 0:
@@ -80,7 +79,6 @@ void Lose_10000(PLW* wk) {
 
 void Lose_20000(PLW* wk) {
 
-
     s16 work;
 
     if ((pcon_rno[0] == 2) && (pcon_rno[1] == 3)) {
@@ -118,7 +116,6 @@ void Lose_20000(PLW* wk) {
 }
 
 void Lose_30000(PLW* wk) {
-
 
     if ((pcon_rno[0] == 2) && (pcon_rno[1] == 3)) {
         switch (wk->wu.routine_no[3]) {
@@ -195,7 +192,6 @@ void Normal_normal_Loser(PLW* wk) {
 
 void Judge_normal_loser(PLW* wk) {
 
-
     s16 work;
 
     switch (wk->wu.routine_no[3]) {
@@ -219,7 +215,6 @@ void Judge_normal_loser(PLW* wk) {
 }
 
 void meta_lose_pause(PLW* wk) {
-
 
     bg_app_stop = 1;
 

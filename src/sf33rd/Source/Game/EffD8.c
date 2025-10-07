@@ -23,7 +23,6 @@ const u8 D8_Priority_Data[4] = { 55, 55, 52, 53 };
 
 void effect_D8_move(WORK_Other* ewk) {
 
-
     s16 offset_x;
 
     ewk->wu.hit_quake += 1;
@@ -119,7 +118,6 @@ void effect_D8_move(WORK_Other* ewk) {
 }
 
 s32 effect_D8_init(s16 PL_id, s16 Type) {
-
 
     WORK_Other* ewk;
     s16 ix;

@@ -1220,7 +1220,6 @@ void Dir_Move_Sub_LR(u16 sw, s16 /* unused */) {
 
 void Setup_Next_Page(struct _TASK* task_ptr, u8 /* unused */) {
 
-
     s16 ix;
     s16 disp_index;
     s16 mode_type;
@@ -2312,7 +2311,6 @@ void Screen_Move_Sub_LR(u16 sw) {
 
 void Sound_Test(struct _TASK* task_ptr) {
 
-
     s16 char_index;
     s16 ix;
     u8 last_mode;
@@ -3203,7 +3201,6 @@ void Button_Config_in_Game(struct _TASK* task_ptr) {
 
 void Setup_Button_Sub(s16 x, s16 y, s16 master_player) {
 
-
     s16 ix;
     s16 s1;
 
@@ -3937,7 +3934,6 @@ void Exit_Replay_Save(struct _TASK* task_ptr) {
 }
 
 void Decide_PL(s16 PL_id) {
-
 
     plw[PL_id].wu.operator = 1;
     Operator_Status[PL_id] = 1;

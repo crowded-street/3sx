@@ -720,7 +720,6 @@ void nm_18000(PLW* wk) {
 
 void jumping_cg_type_check(PLW* wk) {
 
-
     if (wk->wu.pat_status < 32) {
         switch (wk->wu.cg_type) {
         case 0xFF:

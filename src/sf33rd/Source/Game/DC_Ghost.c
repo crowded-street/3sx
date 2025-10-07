@@ -92,7 +92,6 @@ void njScale(MTX* mtx, f32 x, f32 y, f32 z) {
         mtx->a[1][i] *= v0[1];
         mtx->a[2][i] *= v0[2];
     }
-
 }
 
 void njTranslate(MTX* mtx, f32 x, f32 y, f32 z) {
@@ -108,7 +107,6 @@ void njTranslate(MTX* mtx, f32 x, f32 y, f32 z) {
     translation_matrix.a[3][2] = z;
 
     matmul(mtx, &translation_matrix, mtx);
-
 }
 
 void njSetBackColor(u32 c0, u32 c1, u32 c2) {
@@ -137,7 +135,6 @@ void njCalcPoint(MTX* mtx, Vec3* ps, Vec3* pd) {
     pd->x = x * mtx->a[0][0] + y * mtx->a[1][0] + z * mtx->a[2][0] + w * mtx->a[3][0];
     pd->y = x * mtx->a[0][1] + y * mtx->a[1][1] + z * mtx->a[2][1] + w * mtx->a[3][1];
     pd->z = x * mtx->a[0][2] + y * mtx->a[1][2] + z * mtx->a[2][2] + w * mtx->a[3][2];
-
 }
 
 void njCalcPoints(MTX* mtx, Vec3* ps, Vec3* pd, s32 num) {

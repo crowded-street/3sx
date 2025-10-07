@@ -35,9 +35,9 @@
 #if !defined(TARGET_PS2)
 #include "port/sdl/sdl_app.h"
 #if defined(_WIN32)
-#include <windef.h> // including windows.h causes conflicts with the Polygon struct, so I just included the header where AllocConsole is and the Windows-specific typedefs that it requires.
 #include <ConsoleApi.h>
 #include <stdio.h>
+#include <windef.h> // including windows.h causes conflicts with the Polygon struct, so I just included the header where AllocConsole is and the Windows-specific typedefs that it requires.
 #endif
 #endif
 
@@ -96,7 +96,6 @@ void AcrMain() {
     while (is_running) {
         is_running = SDLApp_PollEvents();
         SDLApp_BeginFrame();
-
 
         initRenderState(0);
         mpp_w.ds_h[0] = mpp_w.ds_h[1];
@@ -262,7 +261,6 @@ void distributeScratchPadAddress() {
     dctex_linear = (s16*)dctex_linear_mem;
     texcash_melt_buffer = (u8*)texcash_melt_buffer_mem;
     tpu_free = (TexturePoolUsed*)tpu_free_mem;
-
 }
 
 void MaskScreenEdge() {

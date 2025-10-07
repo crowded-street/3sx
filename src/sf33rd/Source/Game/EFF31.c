@@ -14,7 +14,6 @@
 
 void effect_31_move(WORK_Other* ewk) {
 
-
     WORK* oya_ptr = (WORK*)ewk->my_master;
 
     switch (ewk->wu.routine_no[0]) {
@@ -85,7 +84,6 @@ void effect_31_move(WORK_Other* ewk) {
 }
 
 s32 effect_31_init(WORK* wk) {
-
 
     WORK_Other* ewk;
     s16 ix;

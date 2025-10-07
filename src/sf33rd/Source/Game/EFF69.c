@@ -33,7 +33,6 @@ void EFF69_WAIT(WORK_Other* ewk) {
 
 void EFF69_SLIDE_IN(WORK_Other* ewk) {
 
-
     if (Order[ewk->wu.dir_old] != 1) {
         ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
         ewk->wu.routine_no[1] = 0;
@@ -128,7 +127,6 @@ void EFF69_SLIDE_OUT(WORK_Other* ewk) {
 
 void EFF69_SUDDENLY(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[1]) {
     case 0:
         if (--Order_Timer[ewk->wu.dir_old]) {
@@ -150,7 +148,6 @@ void EFF69_SUDDENLY(WORK_Other* ewk) {
 }
 
 s32 effect_69_init(s16 dir_old) {
-
 
     WORK_Other* ewk;
     s16 ix;

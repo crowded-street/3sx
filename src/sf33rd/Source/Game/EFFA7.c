@@ -14,7 +14,6 @@
 
 void effect_A7_move(WORK_Other* ewk) {
 
-
     const HMDT* tad;
     const EXPLEM* edt;
 

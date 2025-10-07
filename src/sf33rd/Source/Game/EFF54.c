@@ -11,7 +11,6 @@ const s16 eff29_data_tbl[8] = { 687, 128, 82, 7, 415, 152, 79, 8 };
 
 void effect_54_move(WORK_Other* ewk) {
 
-
     WORK_Other* oya = (WORK_Other*)ewk->my_master;
 
     switch (ewk->wu.routine_no[0]) {
@@ -28,7 +27,6 @@ void effect_54_move(WORK_Other* ewk) {
 }
 
 s32 effect_54_init(WORK_Other* oya) {
-
 
     WORK_Other* ewk;
     s16 ix;

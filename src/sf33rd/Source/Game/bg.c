@@ -97,7 +97,6 @@ void Bg_Kakikae_Set() {
             rw_dat[i + 1].rwgbix = rwtbl_ptr->rwgbix;
             rw_dat[i + 1].rwd_ptr = rw_dat[i + 1].brw_ptr = rwtbl_ptr->rw_ptr;
 
-
             rw_dat[i + 1].rw_cnt = *rw_dat[i + 1].rwd_ptr++;
             rw_dat[i + 1].gbix = *rw_dat[i + 1].rwd_ptr++;
         }
@@ -127,7 +126,6 @@ void Bg_Kakikae_Set() {
         rw_dat[1].bg_num = rwtbl_ptr->bg_num;
         rw_dat[1].rwgbix = rwtbl_ptr->rwgbix;
         rw_dat[1].rwd_ptr = rw_dat[1].brw_ptr = rwtbl_ptr->rw_ptr;
-
 
         rw_dat[1].rw_cnt = *rw_dat[1].rwd_ptr++;
         rw_dat[1].gbix = *rw_dat[1].rwd_ptr++;
@@ -160,7 +158,6 @@ void Bg_Kakikae_Set() {
             rw_bg_flag[rw_dat[i].bg_num] = 1;
             rw_dat[i].rwgbix = rwtbl_ptr->rwgbix;
             rw_dat[i].rwd_ptr = rw_dat[i].brw_ptr = rwtbl_ptr->rw_ptr;
-
 
             rw_dat[i].rw_cnt = *rw_dat[i].rwd_ptr++;
             rw_dat[i].gbix = *rw_dat[i].rwd_ptr++;
@@ -241,7 +238,6 @@ void Bg_Close() {
 }
 
 void Bg_Texture_Load_EX() {
-
 
     void* loadAdrs;
     u32 loadSize;
@@ -370,7 +366,6 @@ void Bg_Texture_Load_EX() {
 
 void Bg_Texture_Load2(u8 type) {
 
-
     void* loadAdrs;
     u32 loadSize;
     s16 key;
@@ -434,7 +429,6 @@ void Bg_Texture_Load2(u8 type) {
 }
 
 void Bg_Texture_Load_Ending(s16 type) {
-
 
     void* loadAdrs;
     u32 loadSize;
@@ -1158,7 +1152,6 @@ void ppgCalScrPosition(s32 x, s32 y, s32 xs, s32 ys) {
     scrDrawPos[3].s = (f32)((x & 0x7F) + xs) / 128.0f;
     scrDrawPos[3].t = (f32)((y & 0x7F) + ys) / 128.0f;
 
-
     scrDrawPos[1].s = scrDrawPos[3].s;
     scrDrawPos[2].s = scrDrawPos[0].s;
     scrDrawPos[1].t = scrDrawPos[0].t;
@@ -1264,7 +1257,6 @@ void Zoom_Value_Set(u16 zadd) {
 
 void Frame_Up(u16 x, u16 y, u16 add) {
 
-
     if (zoom_add < 2) {
         scr_sc = 64.0f;
         return;
@@ -1276,7 +1268,6 @@ void Frame_Up(u16 x, u16 y, u16 add) {
 }
 
 void Frame_Down(u16 x, u16 y, u16 add) {
-
 
     if (zoom_add >= 0xFFC0) {
         scr_sc = 0.0009775171f;

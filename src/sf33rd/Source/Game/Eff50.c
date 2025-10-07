@@ -11,7 +11,6 @@
 
 void effect_50_move(WORK_Other* ewk) {
 
-
     WORK_Other* pwk;
     u16 sw;
 
@@ -97,7 +96,6 @@ void effect_50_move(WORK_Other* ewk) {
 }
 
 s32 effect_50_init(s16 PL_id, s16 Direction, s16 dm_vital) {
-
 
     WORK_Other* ewk;
     s16 ix;

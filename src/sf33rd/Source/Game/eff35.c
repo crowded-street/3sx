@@ -40,7 +40,6 @@ void effect_35_move(WORK_Other* ewk) {
 
 void eff35_0000(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[1]) {
     case 0:
         ewk->wu.old_rno[1]--;
@@ -65,7 +64,6 @@ void eff35_0000(WORK_Other* ewk) {
 }
 
 void eff35_0001(WORK_Other* ewk) {
-
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -149,7 +147,6 @@ void eff35_0001(WORK_Other* ewk) {
 
 void eff35_0002(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[1]) {
     case 0:
         if (Break_Into) {
@@ -196,7 +193,6 @@ void eff35_0002(WORK_Other* ewk) {
 }
 
 void eff35_0003(WORK_Other* ewk) {
-
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -280,7 +276,6 @@ void eff35_0003(WORK_Other* ewk) {
 
 void eff35_0004(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[1]) {
     case 0:
         ewk->wu.old_rno[1]--;
@@ -337,7 +332,6 @@ void eff35_0004(WORK_Other* ewk) {
 
 void eff35_0005(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[1]) {
     case 0:
         if (Break_Into) {
@@ -386,7 +380,6 @@ void eff35_0005(WORK_Other* ewk) {
 }
 
 void eff35_0006(WORK_Other* ewk) {
-
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -437,7 +430,6 @@ void eff35_0006(WORK_Other* ewk) {
 }
 
 s32 effect_35_init(s16 wait_timer, s16 c_type) {
-
 
     WORK_Other* ewk;
     s16 ix;

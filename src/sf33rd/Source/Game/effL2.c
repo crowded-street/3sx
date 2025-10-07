@@ -14,7 +14,6 @@ const s8 effl2_dir_tbl[2][16] = { { 0, 0, 0, 1, 2, 2, 3, 3, 4, 4, 4, 4, 4, 4, 4,
 
 void effect_L2_move(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0]++;
@@ -67,7 +66,6 @@ void effect_L2_move(WORK_Other* ewk) {
 
 void effl2_dir_check(WORK_Other* ewk) {
 
-
     s16 work = (plw[ewk->master_id].wu.xyz[0].disp.pos);
 
     work >>= 6;
@@ -80,7 +78,6 @@ void effl2_dir_check(WORK_Other* ewk) {
 }
 
 s32 effect_L2_init() {
-
 
     WORK_Other* ewk;
     s16 ix;

@@ -9,7 +9,6 @@
 
 void effect_43_move(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         if (--ewk->wu.dir_timer) {
@@ -36,7 +35,6 @@ void effect_43_move(WORK_Other* ewk) {
 }
 
 s32 effect_43_init(s16 Time, s16 Target_BG) {
-
 
     WORK_Other* ewk;
     s16 ix;

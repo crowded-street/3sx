@@ -941,7 +941,6 @@ void Sel_PL_2nd() {
 
 void Sel_PL_3rd() {
 
-
     if (Stop_Cursor[ID] != 0 || Face_Move != 0) {
         return;
     }

@@ -8,7 +8,6 @@
 
 void effect_67_move(WORK_Other_CONN* ewk) {
 
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         switch (ewk->wu.routine_no[1]) {
@@ -155,7 +154,6 @@ void effect_67_move(WORK_Other_CONN* ewk) {
 }
 
 s32 effect_67_init(s16 id, s16 X, s16 Y, s16 time0, s16 Char_Index, s16 Priority, s16 no, s16 col) {
-
 
     WORK_Other_CONN* ewk;
     s16 ix;

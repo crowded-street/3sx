@@ -72,7 +72,6 @@ void hit_check_main_process() {
 
 s16 set_judge_result() {
 
-
     s16 i;
     s16 rnum = 0;
 
@@ -158,7 +157,6 @@ void check_result_extra() {
 }
 
 void set_caught_status(s16 ix) {
-
 
     s16 ix2 = hs[ix].dm_me;
     PLW* as = (PLW*)q_hit_push[ix2];
@@ -394,7 +392,6 @@ void set_catch_hit_mark_pos(WORK* as, WORK* ds) {
 
 void set_struck_status(s16 ix) {
 
-
     WORK* as;
     WORK* ds;
     s16 ix2;
@@ -455,7 +452,6 @@ void cal_hit_mark_pos(WORK* as, WORK* ds, s16 ix2, s16 ix) {
 const s16 Dsas_dir_table[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0 };
 
 void plef_at_vs_player_damage_union(PLW* as, PLW* ds, s8 gddir) {
-
 
     ds->wu.dm_guard_success = -1;
 
@@ -577,7 +573,6 @@ set_paring_status:
 
 void dm_reaction_init_set(PLW* as, PLW* ds) {
 
-
     ds->wu.routine_no[2] = as->wu.att.reaction;
 
     if (ds->wu.routine_no[2] == 89 || ds->wu.routine_no[2] == 90) {
@@ -596,7 +591,6 @@ void dm_reaction_init_set(PLW* as, PLW* ds) {
 }
 
 void set_guard_status(PLW* as, PLW* ds) {
-
 
     if (as->wu.att.hs_you == 0 && as->wu.att.hs_me == 0) {
         ds->wu.routine_no[2] = ds->wu.old_rno[2];
@@ -923,7 +917,6 @@ s16 check_dm_att_blocking(WORK* as, WORK* ds, s16 dnum) {
 
 void set_damage_and_piyo(PLW* as, PLW* ds) {
 
-
     cal_damage_vitality(as, ds);
     ds->wu.dm_piyo = _add_piyo_gauge[as->player_number][as->wu.att.piyo];
     ds->wu.dm_piyo = ds->wu.dm_piyo * stun_gauge_omake[omop_stun_gauge_add[(ds->wu.id + 1) & 1]] / 32;
@@ -1021,7 +1014,6 @@ void same_dm_stop(WORK* as, WORK* ds) {
 
 s32 defense_sky(PLW* as, PLW* ds, s8 gddir) {
 
-
     s8 just_now;
     s8 attr_att;
     s8 abs;
@@ -1117,7 +1109,6 @@ void blocking_point_count_up(PLW* wk) {
 }
 
 s32 defense_ground(PLW* as, PLW* ds, s8 gddir) {
-
 
     s8 just_now;
     s8 attr_att;

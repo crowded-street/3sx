@@ -345,7 +345,6 @@ void adxsjd_decexec_start(ADXSJD sjd) {
     ADXB_Start(adxb);
 }
 
-
 void adxsjd_decexec_end(ADXSJD sjd) {
     ADXB adxb = sjd->adxb;
     SJ sji = sjd->sji;
@@ -388,7 +387,6 @@ void adxsjd_decexec_end(ADXSJD sjd) {
 void adxsjd_decexec_extra(ADXSJD sjd) {
     not_implemented(__func__);
 }
-
 
 void adxsjd_decode_exec(ADXSJD sjd) {
     ADXB adxb = sjd->adxb;
@@ -517,18 +515,15 @@ Sint32 ADXSJD_GetLpStartPos(ADXSJD sjd) {
     not_implemented(__func__);
 }
 
-
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_sjd", ADXSJD_GetLpStartOfst);
 
 Sint32 ADXSJD_GetLpEndPos(ADXSJD sjd) {
     not_implemented(__func__);
 }
 
-
 Sint32 ADXSJD_GetLpEndOfst(ADXSJD sjd) {
     not_implemented(__func__);
 }
-
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_sjd", ADXSJD_GetAinfLen);
 
@@ -557,7 +552,6 @@ INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_sjd", ADXSJD_GetFmtBps
 Sint32 ADXSJD_GetSpsdInfo(ADXSJD sjd) {
     not_implemented(__func__);
 }
-
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_sjd", ADXSJD_TakeSnapshot);
 

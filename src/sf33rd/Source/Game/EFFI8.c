@@ -92,7 +92,6 @@ void effect_I8_move(WORK_Other* ewk) {
 
 void effI8_main_process(WORK_Other* ewk) {
 
-
     PLW* mwk = (PLW*)ewk->my_master;
 
     if (ewk->wu.hf.hit_flag) {
@@ -278,7 +277,6 @@ void effI8_main_process(WORK_Other* ewk) {
 
 void cal_speeds_to_me_effI8(WORK_Other* ewk, PLW* mwk) {
 
-
     s16 tx = mwk->wu.xyz[0].disp.pos;
     s16 ty = cal_move_quantity3(&mwk->wu, ewk->wu.dir_timer) + 128;
 
@@ -286,7 +284,6 @@ void cal_speeds_to_me_effI8(WORK_Other* ewk, PLW* mwk) {
 }
 
 void cal_speeds_to_em_effI8(WORK_Other* ewk, PLW* twk) {
-
 
     s16 tx = twk->wu.position_x;
     s16 ty;
@@ -374,7 +371,6 @@ s32 effect_I8_init(PLW* wk, s16 top, const s16* sptr) {
 }
 
 void setup_effI8(PLW* wk, const BBBSTable* dadr) {
-
 
     s16 i;
     s16 ttime = 0;

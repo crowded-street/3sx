@@ -126,7 +126,6 @@ const s16 effm7_data_tbl[42] = {
 
 s32 effect_M7_init(PLW* oya) {
 
-
     WORK_Other* ewk;
     s16 ix;
     s16 i;

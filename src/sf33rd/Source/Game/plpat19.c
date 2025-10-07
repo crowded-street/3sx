@@ -25,7 +25,6 @@ void pl19_extra_attack(PLW* wk) {
 
 void Att_METAMORPHOSE(PLW* wk) {
 
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -65,7 +64,6 @@ const s16 dra_em_tall[20][2] = { { 24, 16 }, { 28, 16 }, { 16, 16 }, { 16, 16 },
                                  { 16, 16 }, { 16, 16 }, { 16, 16 }, { 24, 16 }, { 20, 16 }, { 20, 16 } };
 
 void Att_SA__D_R_A(PLW* wk) {
-
 
     PLW* emwk;
 
@@ -177,7 +175,6 @@ void Att_SA__D_R_A(PLW* wk) {
 
 void Att_EX__D_R_A(PLW* wk) {
 
-
     PLW* twk;
     s16 ex;
     s16 ey;
@@ -265,7 +262,6 @@ void Att_EX__D_R_A(PLW* wk) {
 
 void Att_KUUCHUUHISSATU(PLW* wk) {
 
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -324,7 +320,6 @@ void Att_KUUCHUUHISSATU(PLW* wk) {
 }
 
 void Att_AIRDASH(PLW* wk) {
-
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -424,7 +419,6 @@ s32 kabe_check3(PLW* wk) {
 
 void Att_pl19_TOKUSHUKOUDOU(PLW* wk) {
 
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -470,7 +464,6 @@ void Att_pl19_TOKUSHUKOUDOU(PLW* wk) {
 }
 
 void Att_AIR_A_X_E(PLW* wk) {
-
 
     switch (wk->wu.routine_no[3]) {
     case 0:

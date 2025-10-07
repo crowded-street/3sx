@@ -23,34 +23,34 @@
 /* NULL ポインタ型 */
 #ifndef NULL
 #ifdef __cplusplus
-#define NULL	(0)
+#define NULL (0)
 #else
-#define NULL	((void *)0)
+#define NULL ((void*)0)
 #endif
 #endif
 
 /* 論理定数１（偽、真） */
 #ifndef FALSE
-#define FALSE	(0)
+#define FALSE (0)
 #endif
 #ifndef TRUE
-#define TRUE	(1)
+#define TRUE (1)
 #endif
 
 /* 論理定数２（スイッチ） */
 #ifndef OFF
-#define OFF		(0)
+#define OFF (0)
 #endif
 #ifndef ON
-#define ON		(1)
+#define ON (1)
 #endif
-                                                                                                        
+
 /* 結果判定の定数（成功、失敗） */
 #ifndef OK
-#define OK		(0)			/* 成功 */
+#define OK (0) /* 成功 */
 #endif
 #ifndef NG
-#define NG		(-1)		/* 失敗 */
+#define NG (-1) /* 失敗 */
 #endif
 
 /*****************************************************************************
@@ -63,22 +63,22 @@
 
 #ifndef _TYPEDEF_Uint8
 #define _TYPEDEF_Uint8
-typedef unsigned char			Uint8;		/* 符号なし１バイト整数 */
+typedef unsigned char Uint8; /* 符号なし１バイト整数 */
 #endif
 
 #ifndef _TYPEDEF_Sint8
 #define _TYPEDEF_Sint8
-typedef /* signed */ char				Sint8;		/* 符号つき１バイト整数 */
+typedef /* signed */ char Sint8; /* 符号つき１バイト整数 */
 #endif
 
 #ifndef _TYPEDEF_Uint16
 #define _TYPEDEF_Uint16
-typedef unsigned short			Uint16;		/* 符号なし２バイト整数 */
+typedef unsigned short Uint16; /* 符号なし２バイト整数 */
 #endif
 
 #ifndef _TYPEDEF_Sint16
 #define _TYPEDEF_Sint16
-typedef signed short			Sint16;		/* 符号つき２バイト整数 */
+typedef signed short Sint16; /* 符号つき２バイト整数 */
 #endif
 
 /*****************************************************************************
@@ -89,22 +89,22 @@ typedef signed short			Sint16;		/* 符号つき２バイト整数 */
 
 #ifndef _TYPEDEF_Uint32
 #define _TYPEDEF_Uint32
-typedef unsigned int			Uint32;		/* 符号なし４バイト整数 */
+typedef unsigned int Uint32; /* 符号なし４バイト整数 */
 #endif
 
 #ifndef _TYPEDEF_Sint32
 #define _TYPEDEF_Sint32
-typedef signed int				Sint32;		/* 符号つき４バイト整数 */
+typedef signed int Sint32; /* 符号つき４バイト整数 */
 #endif
 
 #ifndef _TYPEDEF_Uint64
 #define _TYPEDEF_Uint64
-typedef unsigned long			Uint64;		/* 符号なし８バイト整数 */
+typedef unsigned long Uint64; /* 符号なし８バイト整数 */
 #endif
 
 #ifndef _TYPEDEF_Sint64
 #define _TYPEDEF_Sint64
-typedef signed long				Sint64;		/* 符号つき８バイト整数 */
+typedef signed long Sint64; /* 符号つき８バイト整数 */
 #endif
 
 // #ifndef _TYPEDEF_Uint128
@@ -117,92 +117,92 @@ typedef signed long				Sint64;		/* 符号つき８バイト整数 */
 // typedef int						Sint128 __attribute__ ((mode (TI)));
 // #endif
 
-#endif	/* endif XPT_TGT_EE */
+#endif /* endif XPT_TGT_EE */
 
 #ifdef XPT_TGT_GC
 
 #ifndef _TYPEDEF_Uint64
 #define _TYPEDEF_Uint64
-typedef unsigned long long		Uint64;		/* 符号なし８バイト整数 */
+typedef unsigned long long Uint64; /* 符号なし８バイト整数 */
 #endif
 
 #ifndef _TYPEDEF_Sint64
 #define _TYPEDEF_Sint64
-typedef signed long long		Sint64;		/* 符号つき８バイト整数 */
+typedef signed long long Sint64; /* 符号つき８バイト整数 */
 #endif
 
 #ifndef _TYPEDEF_Uint128
 #define _TYPEDEF_Uint128
-typedef struct {							/* 符号なし16バイト整数 */
-	Uint64	h;								/* 上位64ビット */
-	Uint64	l;								/* 下位64ビット */
+typedef struct { /* 符号なし16バイト整数 */
+    Uint64 h;    /* 上位64ビット */
+    Uint64 l;    /* 下位64ビット */
 } Uint128;
 #endif
 
 #ifndef _TYPEDEF_Sint128
 #define _TYPEDEF_Sint128
-typedef struct {							/* 符号つき16バイト整数 */
-	Uint64	h;								/* 上位64ビット */
-	Uint64	l;								/* 下位64ビット */
+typedef struct { /* 符号つき16バイト整数 */
+    Uint64 h;    /* 上位64ビット */
+    Uint64 l;    /* 下位64ビット */
 } Sint128;
 #endif
 
-#endif	/* endif XPT_TGT_GC */
+#endif /* endif XPT_TGT_GC */
 
 #if defined(XPT_TGT_XB) || defined(XPT_TGT_PC)
 
 #ifndef _TYPEDEF_Uint64
 #define _TYPEDEF_Uint64
-typedef unsigned __int64		Uint64;		/* 符号なし８バイト整数 */
+typedef unsigned __int64 Uint64; /* 符号なし８バイト整数 */
 #endif
 
 #ifndef _TYPEDEF_Sint64
 #define _TYPEDEF_Sint64
-typedef signed __int64			Sint64;		/* 符号つき８バイト整数 */
+typedef signed __int64 Sint64; /* 符号つき８バイト整数 */
 #endif
 
 #ifndef _TYPEDEF_Uint128
 #define _TYPEDEF_Uint128
-typedef struct {							/* 符号なし16バイト整数 */
-	Uint64	h;								/* 上位64ビット */
-	Uint64	l;								/* 下位64ビット */
+typedef struct { /* 符号なし16バイト整数 */
+    Uint64 h;    /* 上位64ビット */
+    Uint64 l;    /* 下位64ビット */
 } Uint128;
 #endif
 
 #ifndef _TYPEDEF_Sint128
 #define _TYPEDEF_Sint128
-typedef struct {							/* 符号つき16バイト整数 */
-	Sint64	h;								/* 上位64ビット */
-	Uint64	l;								/* 下位64ビット */
+typedef struct { /* 符号つき16バイト整数 */
+    Sint64 h;    /* 上位64ビット */
+    Uint64 l;    /* 下位64ビット */
 } Sint128;
 #endif
 
-#endif	/* endif XPT_TGT_XB, XPT_TGT_PC */
+#endif /* endif XPT_TGT_XB, XPT_TGT_PC */
 
 #ifdef XPT_TGT_IOP
 
 #ifndef _TYPEDEF_Uint32
 #define _TYPEDEF_Uint32
-typedef unsigned int			Uint32;		/* 符号なし４バイト整数 */
+typedef unsigned int Uint32; /* 符号なし４バイト整数 */
 #endif
 
 #ifndef _TYPEDEF_Sint32
 #define _TYPEDEF_Sint32
-typedef signed int				Sint32;		/* 符号つき４バイト整数 */
+typedef signed int Sint32; /* 符号つき４バイト整数 */
 #endif
 
-#endif	/* endif XPT_TGT_IOP */
+#endif /* endif XPT_TGT_IOP */
 
-#if	1	/* 他すべてのターゲット */
+#if 1 /* 他すべてのターゲット */
 
 #ifndef _TYPEDEF_Uint32
 #define _TYPEDEF_Uint32
-typedef unsigned int			Uint32;		/* 符号なし４バイト整数 */
+typedef unsigned int Uint32; /* 符号なし４バイト整数 */
 #endif
 
 #ifndef _TYPEDEF_Sint32
 #define _TYPEDEF_Sint32
-typedef signed int				Sint32;		/* 符号つき４バイト整数 */
+typedef signed int Sint32; /* 符号つき４バイト整数 */
 #endif
 
 #endif /* endif 他すべてのターゲット */
@@ -213,7 +213,7 @@ typedef signed int				Sint32;		/* 符号つき４バイト整数 */
 
 #ifndef _TYPEDEF_Float16
 #define _TYPEDEF_Float16
-typedef signed short			Float16;	/* ２バイト実数 */
+typedef signed short Float16; /* ２バイト実数 */
 #endif
 
 /* Mac環境でPowerPlant使用時はFloat32とFloat64がMacTypes.hで定義済み */
@@ -221,15 +221,15 @@ typedef signed short			Float16;	/* ２バイト実数 */
 
 #ifndef _TYPEDEF_Float32
 #define _TYPEDEF_Float32
-typedef float					Float32;	/* ４バイト実数 */
+typedef float Float32; /* ４バイト実数 */
 #endif
 
 #ifndef _TYPEDEF_Float64
 #define _TYPEDEF_Float64
-typedef double					Float64;	/* ８バイト実数 */
+typedef double Float64; /* ８バイト実数 */
 #endif
 
-#endif	/* endif __MACTYPES__ */
+#endif /* endif __MACTYPES__ */
 
 /*****************************************************************************
  * Fixed32 Bool Char8 に関しては共通
@@ -237,21 +237,20 @@ typedef double					Float64;	/* ８バイト実数 */
 
 #ifndef _TYPEDEF_Fixed32
 #define _TYPEDEF_Fixed32
-typedef signed long				Fixed32;	/* 固定小数点32ビット */
+typedef signed long Fixed32; /* 固定小数点32ビット */
 #endif
 
 #ifndef _TYPEDEF_Bool
 #define _TYPEDEF_Bool
-typedef Sint32					Bool;		/* 論理型（論理定数を値にとる） */
+typedef Sint32 Bool; /* 論理型（論理定数を値にとる） */
 #endif
 
 #ifndef _TYPEDEF_Char8
 #define _TYPEDEF_Char8
-typedef char					Char8;		/* 文字型 */
+typedef char Char8; /* 文字型 */
 #endif
 
-
 #endif
-#endif	/* CRI_XPTS_H */
+#endif /* CRI_XPTS_H */
 
 /* end of file */

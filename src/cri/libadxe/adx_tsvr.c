@@ -24,14 +24,12 @@ void adxt_trap_entry_lps(ADXT adxt) {
     not_implemented(__func__);
 }
 
-
 INCLUDE_RODATA("asm/anniversary/nonmatchings/cri/libadxe/adx_tsvr", D_0055BCD0);
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_tsvr", adxt_trap_entry);
 
 void adxt_eos_entry(ADXT adxt) {
     not_implemented(__func__);
 }
-
 
 void adxt_set_outpan(ADXT adxt) {
     Sint32 i;
@@ -104,7 +102,6 @@ void adxt_set_outpan(ADXT adxt) {
 void adxt_nlp_trap_entry(ADXT adxt) {
     not_implemented(__func__);
 }
-
 
 void adxt_stat_decinfo(ADXT adxt) {
     Sint32 transpose = 0;
@@ -294,7 +291,6 @@ void adxt_stat_playing(ADXT adxt) {
 void adxt_stat_decend(ADXT adxt) {
     not_implemented(__func__);
 }
-
 
 void adxt_stat_playend(ADXT adxt) {
     // Do nothing

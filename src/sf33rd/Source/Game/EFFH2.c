@@ -9,7 +9,6 @@ const s16 panel_guide[8][2] = { { 0, 6 }, { 0, 5 }, { 0, 4 }, { 0, 2 }, { 0, 0 }
 
 void effect_H2_move(WORK_Other* ewk) {
 
-
     WORK* mwk = (WORK*)ewk->my_master;
 
     switch (ewk->wu.routine_no[0]) {

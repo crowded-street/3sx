@@ -309,7 +309,6 @@ void set_credit_string(s32 t, s32 x, s32 y, s32 a, s8* s) {
 
 s32 staff_credits(u32 /* unused */) {
 
-
     s16 t;
     s16 x;
     s16 y;

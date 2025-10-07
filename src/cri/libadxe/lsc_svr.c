@@ -5,16 +5,13 @@ void lsc_StatWait(LSC lsc) {
     not_implemented(__func__);
 }
 
-
 void lsc_StatRead(LSC lsc) {
     not_implemented(__func__);
 }
 
-
 void lsc_StatEnd(LSC lsc) {
     not_implemented(__func__);
 }
-
 
 void lsc_ExecHndl(LSC lsc) {
     if ((lsc->unk4 == 1) || (lsc->stat != 2) || (lsc->num_stm <= 0)) {
@@ -35,4 +32,3 @@ void lsc_ExecHndl(LSC lsc) {
 
     lsc_StatWait(lsc);
 }
-

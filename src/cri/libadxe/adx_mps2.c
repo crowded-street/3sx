@@ -64,9 +64,7 @@ Sint32 adxm_cur_prio = 0;
 Sint32 adxm_cur_tid = 0;
 Sint32 adxm_main_prio_def = 0;
 
-
 void* _gp;
-
 
 // We have to declare adxt_vsync_cnt here instead of including adx_inis.h
 // because other parts of the code expect it to be non-volatile. Go figure
@@ -211,7 +209,6 @@ void adxm_fs_proc() {
 void adxm_mwidle_proc() {
     not_implemented(__func__);
 }
-
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_mps2", adxm_usridle_proc);
 

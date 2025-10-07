@@ -24,7 +24,6 @@ const s8 effect_19_l_tbl[16] = { 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1 
 
 void effect_19_move(WORK_Other* ewk) {
 
-
     if (obr_no_disp_check()) {
         return;
     }
@@ -141,7 +140,6 @@ void eff19_quake_sub(WORK_Other* ewk) {
 }
 
 s32 effect_19_init() {
-
 
     WORK_Other* ewk;
     s16 ix;

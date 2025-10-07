@@ -8,7 +8,6 @@
 
 #include <stdarg.h>
 
-
 typedef struct {
     void (*func)(void*);
     void* object;
@@ -47,7 +46,6 @@ SVMLockCallback svm_lock_callback;
 SVM_UNK D_006C04E0[8];
 SVMSVRCallback D_006C0360[8][6]; // svm_svr_callbacks
 // Uint8 D_006C0340[0x20];
-
 
 void svm_lock(Sint32 type) {
     if (svm_lock_callback.func == NULL) {

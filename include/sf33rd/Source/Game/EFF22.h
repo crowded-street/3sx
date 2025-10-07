@@ -11,5 +11,4 @@ void effect_22_move(WORK_Other* ewk);
 
 s32 effect_22_init();
 
-
 #endif

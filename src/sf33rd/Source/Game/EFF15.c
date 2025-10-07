@@ -30,7 +30,6 @@ void eff15_kemuri(WORK_Other* ewk) {
 
 void eff15_koishi(WORK_Other* ewk) {
 
-
     WORK* oya_ptr = (WORK*)ewk->my_master;
 
     switch (ewk->wu.routine_no[0]) {
@@ -99,7 +98,6 @@ void eff15_koishi(WORK_Other* ewk) {
 }
 
 s32 effect_15_init(WORK* wk, u8 data) {
-
 
     WORK_Other* ewk;
     s16 ix;

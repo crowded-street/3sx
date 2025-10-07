@@ -316,7 +316,6 @@ s16 get_my_trans_mode(s16 curr) {
 
 void make_texcash_work(s16 ix) {
 
-
     size_t memreq;
     u8* adrs;
     // For some reason page16 is reused later as a pointer.

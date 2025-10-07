@@ -34,7 +34,6 @@ static const f32 title00[25] = { 0.0f, 0.0f, 0.75f, 0.75f, -192.0f, -96.0f, 384.
                                  0.0f, 0.0f, 0.0f,  0.0f,  0.0f,    0.0f,   0.0f,   0.0f,   0.0f,
                                  0.0f, 0.0f, 0.0f,  0.0f,  0.0f,    0.0f,   0.0f };
 
-
 static ro_f32_ptr title[2] = { title00, title00 };
 
 const s16 optsr_tbl[59] = { 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53,
@@ -137,7 +136,6 @@ void TITLE_Init() {
 }
 
 s16 TITLE_Move(u16 type) {
-
 
     ppgSetupCurrentDataList(&ppgTitleList);
     setTexAdrsMode(0);
@@ -487,7 +485,6 @@ void opning_init_00000() {
 
 void opning_init_01000() {
 
-
     op_w.r_no_1++;
     Bg_Off_R(0xF);
     Bg_Off_W(0xF);
@@ -497,7 +494,6 @@ void opning_init_01000() {
 }
 
 void opning_init_02000() {
-
 
     op_w.free_work--;
 
@@ -2005,7 +2001,6 @@ void op_bg0_0000(s16 /* unused */) {
 
 void op_bg0_0001(s16 r_index) {
 
-
     switch (opw_ptr->r_no_0) {
     case 0:
         opw_ptr->r_no_0 += 1;
@@ -2213,7 +2208,6 @@ void op_bg0_0002(s16 r_index) {
 
 void op_bg0_0003(s16 r_index) {
 
-
     switch (opw_ptr->r_no_0) {
     case 0:
         opw_ptr->r_no_0 += 1;
@@ -2349,7 +2343,6 @@ const s16 op_bg0_0005_tbl[16] = { 0x0008, 0xFFF8, 0x0007, 0xFFF9, 0x0005, 0xFFFB
 
 void op_bg0_0005(s16 /* unused */) {
 
-
     switch (opw_ptr->r_no_0) {
     case 0:
         opw_ptr->r_no_0 += 1;
@@ -2399,7 +2392,6 @@ void op_bg0_0005(s16 /* unused */) {
 
 void op_bg0_0006(s16 /* unused */) {
 
-
     switch (opw_ptr->r_no_0) {
     case 0:
         opw_ptr->r_no_0 += 1;
@@ -2426,7 +2418,6 @@ void op_bg0_0006(s16 /* unused */) {
 }
 
 void op_bg0_0007(s16 /* unused */) {
-
 
     switch (opw_ptr->r_no_0) {
     case 0:
@@ -2461,7 +2452,6 @@ void op_bg0_0007(s16 /* unused */) {
 
 void op_bg0_0008(s16 /* unused */) {
 
-
     switch (opw_ptr->r_no_0) {
     case 0:
         opw_ptr->r_no_0 += 1;
@@ -2495,7 +2485,6 @@ void op_bg0_0008(s16 /* unused */) {
 
 void op_bg0_0010(s16 /* unused */) {
 
-
     switch (opw_ptr->r_no_0) {
     case 0:
         opw_ptr->r_no_0 += 1;
@@ -2525,7 +2514,6 @@ void op_bg0_0010(s16 /* unused */) {
 }
 
 void op_bg0_0011(s16 /* unused */) {
-
 
     switch (opw_ptr->r_no_0) {
     case 0:
@@ -2563,7 +2551,6 @@ void op_bg0_0011(s16 /* unused */) {
 }
 
 void op_bg0_0012(s16 /* unused */) {
-
 
     switch (opw_ptr->r_no_0) {
     case 0:
@@ -2629,7 +2616,6 @@ const s32 ot_bg0_0015_tbl[6] = { 0xFF00A0B0, 0xFF005888, 0xFF00A0B0, 0xFF005888,
 
 void op_bg0_0015(s16 r_index) {
 
-
     switch (opw_ptr->r_no_0) {
     case 0:
         opw_ptr->r_no_0 += 1;
@@ -2684,7 +2670,6 @@ void op_bg0_0015(s16 r_index) {
 }
 
 void op_bg0_0016(s16 /* unused */) {
-
 
     switch (opw_ptr->r_no_0) {
     case 0:
@@ -2769,7 +2754,6 @@ void op_bg1_0000(s16 /* unused */) {
 
 void op_bg1_0001(s16 r_index) {
 
-
     switch (opw_ptr->r_no_0) {
     case 0:
         opw_ptr->r_no_0 += 1;
@@ -2797,7 +2781,6 @@ void op_bg1_0001(s16 r_index) {
 }
 
 void op_bg1_0002(s16 r_index) {
-
 
     switch (opw_ptr->r_no_0) {
     case 0:
@@ -2838,7 +2821,6 @@ void op_bg1_0002(s16 r_index) {
 }
 
 void op_bg1_0003(s16 r_index) {
-
 
     switch (opw_ptr->r_no_0) {
     case 0:
@@ -3003,7 +2985,6 @@ void opening_title_00() {
 
 void opening_title_01() {
 
-
     s16 pos_work_x;
     s16 pos_work_y;
 
@@ -3031,14 +3012,12 @@ void opening_title_01() {
 
 void op_scrn_pos_set2(s16 bg_no) {
 
-
     s16 pos_x = bg_w.bgw[bg_no].wxy[0].disp.pos;
     s16 pos_y = bg_w.bgw[bg_no].xy[1].disp.pos;
     Scrn_Move_Set(bg_no, pos_x - bg_w.pos_offset, pos_y);
 }
 
 void Bg_Family_Set_op() {
-
 
     s16 pos_work_x;
     s16 pos_work_y;

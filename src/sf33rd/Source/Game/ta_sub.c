@@ -23,7 +23,6 @@ static s16 hit_check_subroutine_yu(WORK* tpl, WORK* tef, s16* hd1, s16* hd2);
 
 void sync_fam_set3(s16 my_fam) {
 
-
     s16 pos_work_x;
     s16 pos_work_y;
     s16 pos_x_w;

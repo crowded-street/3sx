@@ -76,7 +76,6 @@ void end_701_move() {
 
 void end_700_0000() {
 
-
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;

@@ -9,18 +9,15 @@ Sint32 ADX_DecodeMono4(Sint32, Sint32, Sint32, Sint16*, Sint16, Sint16, Sint16*,
     not_implemented(__func__);
 }
 
-
 Sint32 ADX_DecodeSte4AsMono(int32_t arg0, int32_t arg1, int32_t arg2, int32_t arg3, int arg4, int arg5, short arg6,
                             short arg7, int arg8, short arg9, short arg10) {
     not_implemented(__func__);
 }
 
-
 Sint32 ADX_DecodeSte4AsSte(int32_t arg0, int32_t arg1, int32_t arg2, int32_t arg3, int arg4, int arg5, short arg6,
                            short arg7, int arg8, short arg9, short arg10) {
     not_implemented(__func__);
 }
-
 
 void ADX_DecodeSte4(int32_t arg0, int32_t arg1, int32_t arg2, int32_t arg3, int arg4, int arg5, short arg6, short arg7,
                     int arg8, short arg9, short arg10) {

@@ -90,7 +90,6 @@ void EFF76_WAIT_BREAK_INTO(WORK_Other* ewk) {
 
 void EFF76_SLIDE_IN(WORK_Other* ewk) {
 
-
     if (Order[ewk->wu.dir_old] != 1) {
         ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
         ewk->wu.routine_no[1] = 0;
@@ -138,7 +137,6 @@ void EFF76_SLIDE_OUT(WORK_Other* /* unused */) {
 }
 
 void EFF76_SUDDENLY(WORK_Other* ewk) {
-
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -200,7 +198,6 @@ void EFF76_SUDDENLY(WORK_Other* ewk) {
 
 void EFF76_BEFORE(WORK_Other* ewk) {
 
-
     if (--Order_Timer[ewk->wu.dir_old] != 0) {
         return;
     }
@@ -245,7 +242,6 @@ void EFF76_SHIFT(WORK_Other* ewk) {
 
 s32 effect_76_init(s16 dir_old) {
 
-
     WORK_Other* ewk;
     s16 ix;
 
@@ -271,7 +267,6 @@ s32 effect_76_init(s16 dir_old) {
 }
 
 void Setup_Pos_76(WORK_Other* ewk) {
-
 
     s16 ix;
     u8 my_char;

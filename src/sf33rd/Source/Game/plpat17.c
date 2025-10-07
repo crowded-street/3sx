@@ -23,7 +23,6 @@ void pl17_extra_attack(PLW* wk) {
 
 void Att_PL17_AT1(PLW* wk) {
 
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -227,7 +226,6 @@ s32 kabe_check(WORK* wk) {
 
 void Att_PL17_AT2(PLW* wk) {
 
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -249,7 +247,6 @@ void Att_PL17_AT2(PLW* wk) {
 }
 
 void Att_PL17_TOKUSHUKOUDOU(PLW* wk) {
-
 
     wk->scr_pos_set_flag = 0;
 

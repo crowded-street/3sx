@@ -1033,7 +1033,6 @@ const u16 car_parts[7][8][18][2] = { { { { 0x7D10, 0x0000 },
 
 void effect_C3_move(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0]++;
@@ -1152,7 +1151,6 @@ void clear_parts_hit_data(WORK* wk) {
 }
 
 void effC3_main_process(WORK_Other* ewk) {
-
 
     if (ewk->wu.dir_old) {
         ewk->wu.routine_no[0] = 2;

@@ -175,7 +175,6 @@ void crow_fuss_move(WORK_Other* ewk) {
 
 s32 effect_78_init() {
 
-
     WORK_Other* ewk;
     s16 ix;
     s16 i;

@@ -267,7 +267,6 @@ void bg_chase_move() {
 
 void chase_start_check() {
 
-
     s16 work;
     s16 work2;
 
@@ -750,7 +749,6 @@ void bg_y_move_check() {
 
 void zoom_ud_check() {
 
-
     s16 work;
     s16 work2;
     s16 pos_w;
@@ -878,7 +876,6 @@ void suzi_sync_pos_set(WORK_Other* ewk) {
 
 void Bg_Family_Set() {
 
-
     s8 i;
     s16 x;
     s16 y;
@@ -895,7 +892,6 @@ void Bg_Family_Set() {
 
 void Bg_Family_Set_appoint(s32 num_of_bg) {
 
-
     s16 x = bg_w.bgw[num_of_bg].position_x;
     s16 y = bg_w.bgw[num_of_bg].position_y;
 
@@ -906,7 +902,6 @@ void Bg_Family_Set_appoint(s32 num_of_bg) {
 }
 
 void Bg_Family_Set_2() {
-
 
     s8 i;
     s16 x;
@@ -925,7 +920,6 @@ void Bg_Family_Set_2() {
 
 void Bg_Family_Set_2_appoint(s32 num_of_bg) {
 
-
     s16 x;
     s16 y;
 
@@ -939,7 +933,6 @@ void Bg_Family_Set_2_appoint(s32 num_of_bg) {
 }
 
 void ake_Family_Set2() {
-
 
     s16 x = bg_w.bgw[3].position_x;
     s16 y = bg_w.bgw[3].position_y;
@@ -1196,7 +1189,6 @@ void akebono_initialize() {
 }
 
 void bg_etc_write(s16 type) {
-
 
     u8 i;
 

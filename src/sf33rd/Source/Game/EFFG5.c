@@ -27,7 +27,6 @@ const s16 ase_delta_hosei[4][6] = { { -88, -96, -112, -80, -128, -88 },
 
 void effect_G5_move(WORK_Other* ewk) {
 
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0]++;
@@ -105,7 +104,6 @@ s32 effect_G5_init(WORK* wk, s16 dr, s16 sp, s16 dl) {
 }
 
 s32 setup_ase_extra(WORK* wk, u8 num) {
-
 
     s16 i;
     s16 way;

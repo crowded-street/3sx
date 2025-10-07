@@ -29,8 +29,6 @@
 #include "sf33rd/Source/Game/workuser.h"
 #include "structs.h"
 
-
-
 // sbss
 s8 Lv;
 s8 Rnd;
@@ -1453,7 +1451,6 @@ s32 Check_Exit_Guard(PLW* wk, s16 Option) {
 }
 
 void Short_Range_Attack(PLW* wk, s16 Reaction, u16 Lever_Data, s16 Next_Action, s16 Next_Menu) {
-
 
     u16 xx;
 
@@ -3753,7 +3750,6 @@ s32 Check_Landed(PLW* wk, s16 Reaction) {
 
 s32 Check_Dash_Hit(PLW* wk, u16 Tech_Number) {
 
-
     WORK_Other* tmw;
     WORK* em;
     s16 i;
@@ -3851,7 +3847,6 @@ void Jump_Init(PLW* wk, s16 Jump_Dir) {
 
 s32 Command_Type_00(PLW* wk, s16 Power_Level, u16 Tech_Number, s16 Ex_Shot) {
 
-
     if (Tech_Address[wk->wu.id][Tech_Index[wk->wu.id] + 4] != 0x1C) {
         Lever_Buff[wk->wu.id] = Tech_Address[wk->wu.id][Tech_Index[wk->wu.id] + 3] & 0x7FFF;
         Lever_Buff[wk->wu.id] = datacmd_conpanecmd(Lever_Buff[wk->wu.id]);
@@ -3915,7 +3910,6 @@ const u16 Rolling_Lv_Data[2][9] = {
 };
 
 s32 Command_Type_06(PLW* wk, s16 Power_Level, u16 Tech_Number, s16 Ex_Shot) {
-
 
     s16 xx;
 
@@ -4415,7 +4409,6 @@ s32 Check_Meoshi_Attack(PLW* wk, s16 Reaction, s16 Power_Level) {
 }
 
 s32 Get_Meoshi_Data(PLW* wk) {
-
 
     u16 lever;
     u16 shot;
@@ -4986,7 +4979,6 @@ void Next_Be_Flip(PLW* wk, s16 xx) {
 
 s32 Check_Diagonal_Shell(PLW* wk) {
 
-
     WORK_Other* tmw;
     WORK* em;
     s16 i;
@@ -5059,7 +5051,6 @@ s32 Check_Ignore_Shell2(WORK_Other* tmw) {
 
 s32 Check_Shell(PLW* wk) {
 
-
     WORK_Other* tmw;
     WORK* em;
     s16 i;
@@ -5125,7 +5116,6 @@ s32 Check_Shell(PLW* wk) {
     return 0;
 }
 s32 Check_Shell_Another_in_Flip(PLW* wk) {
-
 
     WORK_Other* tmw;
     WORK* em;

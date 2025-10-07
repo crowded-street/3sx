@@ -34,7 +34,6 @@ s16 select_hit_stop(s16 ms, s16 sb);
 
 void Player_move(PLW* wk, u16 lv_data) {
 
-
     s16 i;
 
     if (wk->wu.operator) {
@@ -100,7 +99,6 @@ u16 check_illegal_lever_data(u16 data) {
 }
 
 void player_mv_0000(PLW* wk) {
-
 
     s16 i;
 
@@ -173,7 +171,6 @@ void player_mv_0000(PLW* wk) {
 }
 
 void player_mv_1000(PLW* wk) {
-
 
     switch (appear_type) {
     case 0:
@@ -299,7 +296,6 @@ void player_mv_4000(PLW* wk) {
 }
 
 s16 check_hit_stop(PLW* wk) {
-
 
     s16 num;
     WORK* emwk = (WORK*)wk->wu.target_adrs;

@@ -138,4 +138,3 @@ INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_rnap", ADXRNA_GetStatP
 void ADXRNA_SetStmHdInfo(ADXRNA rna, Sint32) {
     not_implemented(__func__);
 }
-

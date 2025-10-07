@@ -1372,7 +1372,6 @@ void mlt_obj_trans_rgb_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
     }
 }
 
-
 void mlt_obj_trans_rgb(MultiTexture* mt, WORK* wk, s32 base_y) {
     u32* textbl;
     u16* trsbas;
@@ -1630,7 +1629,6 @@ s32 seqsStoreChip(f32 x, f32 y, s32 w, s32 h, s32 gix, s32 code, s32 attr, s32 a
 
     const f32 dx = 0;
     const f32 dy = 0;
-
 
     chip = &seqs_w.chip[seqs_w.sprTotal];
     chip->v[0].x = x;

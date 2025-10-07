@@ -15,7 +15,6 @@
 
 void effect_82_move(WORK_Other* ewk) {
 
-
     WORK* oya_ptr = (WORK*)ewk->my_master;
     s16 work;
 
@@ -81,7 +80,6 @@ void effect_82_move(WORK_Other* ewk) {
 }
 
 s32 effect_82_init(WORK* wk) {
-
 
     WORK_Other* ewk;
     s16 ix;

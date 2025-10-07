@@ -17,5 +17,4 @@ void eff24_sp_data_set(WORK_Other* ewk);
 
 s32 effect_24_init();
 
-
 #endif

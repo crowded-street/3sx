@@ -25,7 +25,6 @@ s32 Check_Break_Into_59(WORK_Other* ewk);
 
 void effect_59_move(WORK_Other* ewk) {
 
-
     WORK_Other* mwk = (WORK_Other*)ewk->my_master;
 
     if (mwk->wu.be_flag == 0) {
@@ -113,7 +112,6 @@ void Check_Under_Name(WORK_Other* ewk) {
 
 s32 effect_59_init(WORK_Other* mwk, s16 Synchro_BG, s16 ID, s16 direction) {
 
-
     WORK_Other* ewk;
     s16 ix;
 
@@ -169,7 +167,6 @@ s32 effect_59_init(WORK_Other* mwk, s16 Synchro_BG, s16 ID, s16 direction) {
 }
 
 s32 Check_Break_Into_59(WORK_Other* ewk) {
-
 
     if (ewk->wu.dm_vital != 4 || ewk->wu.routine_no[0] == 4) {
         return 0;

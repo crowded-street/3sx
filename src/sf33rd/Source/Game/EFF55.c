@@ -81,7 +81,6 @@ void effect_55_move(WORK_Other* ewk) {
 
 s32 effect_55_init() {
 
-
     WORK_Other* ewk;
     s16 ix;
 

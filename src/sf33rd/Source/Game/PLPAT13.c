@@ -20,7 +20,6 @@ void pl13_extra_attack(PLW* wk) {
 
 void Att_MOONSALT_KNEE_DROP2(PLW* wk) {
 
-
     PLW* twk;
     s16 ex;
     s16 ey;
@@ -72,7 +71,6 @@ void Att_MOONSALT_KNEE_DROP2(PLW* wk) {
 }
 
 void Att_PL13_TOKUSHUKOUDOU(PLW* wk) {
-
 
     wk->scr_pos_set_flag = 0;
 
