@@ -34,6 +34,8 @@ enum {
 struct VWork {
     int voice_num;
     struct VId id;
+    u32 tick;
+    u32 kofftime;
     s8 ph_pan;
     s8 req_pan;
     s16 ph_vol;
@@ -123,13 +125,28 @@ static u16 sceSdNote2Pitch(u16 center_note, u16 center_fine, u16 note, short fin
     return (u16)ret;
 }
 
+static int gcVoices();
+static void workTick() {
+    struct VWork* i;
+
+    list_for_each (i, &active_voices, list) {
+        i->tick++;
+
+        if (i->kofftime && i->kofftime < i->tick) {
+            SPU_KeyOffVoice(i->voice_num);
+        }
+    }
+
+    gcVoices();
+}
+
 void emlShimInit() {
     memset(vpool, 0, sizeof(vpool));
 
     list_init(&active_voices);
     list_init(&free_voices);
 
-    SPU_Init(NULL);
+    SPU_Init(workTick);
 
     SDL_LockMutex(soundLock);
 
@@ -318,6 +335,8 @@ void emlShimStartSound(CSE_SYS_PARAM_SNDSTART* param) {
     // This stuff is reverse engineered from CSELIB00.IRX
 
     // From function SeKeyOn
+    voice->tick = 0;
+    voice->kofftime = param->reqp.kofftime;
     voice->id.guid = param->reqp.guid;
     voice->id.attr = param->reqp.attr;
     voice->id.prio = param->reqp.prio;

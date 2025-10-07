@@ -58,6 +58,7 @@ struct SPU_Voice {
 
 SDL_Mutex* soundLock;
 
+static void (*timer_cb)();
 static SDL_AudioStream* stream;
 static struct SPU_Voice voices[VOICE_COUNT];
 static u16 ram[(2 * 1024 * 1024) >> 1];
@@ -288,6 +289,10 @@ void SPU_SDL_CB(void* user, SDL_AudioStream* stream, int additional_amount, int 
     u32 samples_amount = additional_amount / sizeof(s16);
     s16 out[2] = {};
 
+    // We need to run the eml callbaack at 250hz
+    // 48000 / 250 = 192
+    static int cb_timer = 192;
+
     // TODO consider redesigning this whole system, emlshim and spu should probably run
     // on the same thread, no locks would be needed in the SDL audio callback path
     SDL_LockMutex(soundLock);
@@ -295,13 +300,25 @@ void SPU_SDL_CB(void* user, SDL_AudioStream* stream, int additional_amount, int 
     for (u32 i = 0; i < samples_amount; i++) {
         SPU_Tick(out);
         SDL_PutAudioStreamData(stream, out, sizeof(out));
+        cb_timer--;
+        if (!cb_timer) {
+            timer_cb();
+            cb_timer = 192;
+        }
     }
 
     SDL_UnlockMutex(soundLock);
 }
 
-void SPU_Init() {
+static void nullcb() {}
+
+void SPU_Init(void (*cb)()) {
     SDL_AudioSpec spec;
+
+    timer_cb = cb;
+    if (!cb) {
+        timer_cb = nullcb;
+    }
 
     memset(voices, 0, sizeof(voices));
     soundLock = SDL_CreateMutex();
