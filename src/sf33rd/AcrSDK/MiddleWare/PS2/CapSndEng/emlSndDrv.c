@@ -64,7 +64,7 @@ s32 mlSeKeyoff(CSE_REQP* pReqp) {
 #if defined(TARGET_PS2)
     return SendSeChange(pReqp, 0x10000001);
 #else
-    emlShimSeStop(pReqp);
+    emlShimSeKeyOff(pReqp);
     return 0;
 #endif
 }

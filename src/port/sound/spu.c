@@ -245,8 +245,10 @@ int SPU_VoiceGetVolume(int vnum) {
 }
 
 void SPU_KeyOffVoice(int vnum) {
-    voices[vnum].adsr_phase = ADSR_PHASE_RELEASE;
-    SPU_VoiceCacheADSR(&voices[vnum]);
+    if (voices[vnum].adsr_phase < ADSR_PHASE_RELEASE) {
+        voices[vnum].adsr_phase = ADSR_PHASE_RELEASE;
+        SPU_VoiceCacheADSR(&voices[vnum]);
+    }
 }
 
 void SPU_StopVoice(int vnum) {
