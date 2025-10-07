@@ -31,9 +31,7 @@ void effect_F0_move(WORK_Other* ewk) {
 s32 effect_F0_init(WORK* wk) {
     WORK_Other* ewk;
     s16 ix;
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
+
 
     if ((ix = pull_effect_work(4)) == -1) {
         return -1;

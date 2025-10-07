@@ -9,9 +9,7 @@
 #include "sf33rd/Source/Game/workuser.h"
 
 void effect_20_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     WORK_Other* oya = (WORK_Other*)ewk->my_master;
 
@@ -54,9 +52,7 @@ void effect_20_move(WORK_Other* ewk) {
 }
 
 s32 effect_20_init(WORK_Other* oya) {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
+
 
     WORK_Other* ewk;
     s16 ix;

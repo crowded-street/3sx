@@ -27,24 +27,6 @@ void flmwFlip(u32 /* unused */) {
     ADXM_ExecMain();
     cseExecServer();
 
-#if defined(TARGET_PS2)
-    if (flPs2State.Irq_count <= flPs2State.FrameCount) {
-        flPs2State.Oddeven = (*GS_CSR >> 13) & 1;
-        flmwFlipSub();
-        sceGsSyncV(0);
-
-        while (flPS2CheckDbChangeFlag() != 0) {
-            // Wait
-        }
-    } else {
-        flmwFlipSub();
-        sceGsSyncV(0);
-
-        while (flPS2CheckDbChangeFlag() != 0) {
-            // Wait
-        }
-    }
-#else
     SDLApp_EndFrame();
-#endif
+
 }

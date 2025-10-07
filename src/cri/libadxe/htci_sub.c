@@ -43,12 +43,6 @@ Sint32 htci_is_bgn_host(const Char8* str) {
     return strcmp(copy, "host\0\0\0") == 0;
 }
 
-#if defined(TARGET_PS2)
-// Also used in htCiSetRootDir
-INCLUDE_RODATA("asm/anniversary/nonmatchings/cri/libadxe/htci_sub", D_0055D760);
-extern Char8 D_0055D760[];
-asm(".section .text");
-#endif
 
 void htci_conv_fname(const Char8* flist, Char8* fname) {
     strlen_t len;
@@ -67,11 +61,9 @@ void htci_conv_fname(const Char8* flist, Char8* fname) {
 
         if ((root_dir_last_char != '\\') && (root_dir_last_char != '/') && (root_dir_last_char != '\0') &&
             (flist[0] != '\\') && (flist[0] != '/')) {
-#if defined(TARGET_PS2)
-            strcat(fname, D_0055D760);
-#else
+
             strcat(fname, "/");
-#endif
+
         }
     }
 
@@ -171,31 +163,23 @@ INCLUDE_RODATA("asm/anniversary/nonmatchings/cri/libadxe/htci_sub", D_0055D858);
 INCLUDE_RODATA("asm/anniversary/nonmatchings/cri/libadxe/htci_sub", D_0055D888);
 INCLUDE_RODATA("asm/anniversary/nonmatchings/cri/libadxe/htci_sub", D_0055D8B8);
 INCLUDE_RODATA("asm/anniversary/nonmatchings/cri/libadxe/htci_sub", D_0055D8E0);
-#if defined(TARGET_PS2)
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/htci_sub", htCiLoadFcache);
-#else
+
 int htCiLoadFcache() {
     not_implemented(__func__);
 }
-#endif
+
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/htci_sub", htCiIsExistFcache);
 
-#if defined(TARGET_PS2)
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/htci_sub", htCiSetOpenMode);
-#else
 int htCiSetOpenMode(int mode) {
     not_implemented(__func__);
 }
-#endif
 
-#if defined(TARGET_PS2)
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/htci_sub", htCiSetRootDir);
-#else
+
 int htCiSetRootDir(char* root) {
     not_implemented(__func__);
 }
-#endif
+
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/htci_sub", htCiGetRootDir);
 

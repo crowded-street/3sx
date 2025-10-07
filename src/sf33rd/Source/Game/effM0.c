@@ -415,9 +415,7 @@ void don_run_set(WORK_Other* ewk) {
 }
 
 s32 effect_M0_init(u8 pl_rl, u8 animal_type) {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
+
 
     WORK_Other* ewk;
     s16 ix;

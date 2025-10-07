@@ -47,15 +47,11 @@ Sint32 SKG_Init() {
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_bsc", SKG_Finish);
 
-#if defined(TARGET_PS2)
-void SKG_GenerateKey(void*, Sint32, Sint16*, Sint16*, Sint16*);
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_bsc", SKG_GenerateKey);
-#else
 // Never called
 void SKG_GenerateKey(void*, Sint32, Sint16*, Sint16*, Sint16*) {
     not_implemented(__func__);
 }
-#endif
+
 
 INCLUDE_RODATA("asm/anniversary/nonmatchings/cri/libadxe/adx_bsc", D_0055A170);
 
@@ -69,15 +65,8 @@ void ADXB_Init() {
     memset(&adxb_obj, 0, sizeof(adxb_obj));
 }
 
-#if defined(TARGET_PS2)
-void ADXB_Finish() {
-    ADXPD_Finish();
-    SKG_Finish();
-    memset(&adxb_obj, 0, sizeof(adxb_obj));
-}
-#else
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_bsc", ADXB_Finish);
-#endif
+
 
 void* adxb_DefGetWr(void* object, Sint32* arg1, Sint32* arg2, Sint32* arg3) {
     ADXB adxb = (ADXB)object;
@@ -482,13 +471,10 @@ Sint32 ADXB_GetDecNumSmpl(ADXB adxb) {
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_bsc", ADXB_GetAdxpd);
 
-#if defined(TARGET_PS2)
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_bsc", ADXB_EvokeExpandMono);
-#else
 void ADXB_EvokeExpandMono(ADXB adxb, Sint32 arg1) {
     not_implemented(__func__);
 }
-#endif
+
 
 void ADXB_EvokeExpandSte(ADXB adxb, Sint32 arg1) {
     ADXPD adxpd = adxb->adxpd;
@@ -503,13 +489,10 @@ void ADXB_EvokeExpandSte(ADXB adxb, Sint32 arg1) {
     ADXPD_Start(adxpd);
 }
 
-#if defined(TARGET_PS2)
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_bsc", ADXB_EvokeExpandPl2);
-#else
 void ADXB_EvokeExpandPl2(ADXB adxb, Sint32 arg1) {
     not_implemented(__func__);
 }
-#endif
+
 
 void ADXB_EvokeDecode(ADXB adxb) {
     ADXB_UNK* unk = &adxb->unk48;
@@ -576,13 +559,10 @@ void ADXB_CopyExtraBufSte(void* arg0, Sint32 arg1, Sint32 arg2, Sint32 arg3) {
     memcpy2(arg0 + (arg2 * 2), arg0 + ((arg2 + arg1) * 2), arg3);
 }
 
-#if defined(TARGET_PS2)
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_bsc", ADXB_CopyExtraBufMono);
-#else
 void ADXB_CopyExtraBufMono(void* arg0, Sint32 arg1, Sint32 arg2, Sint32 arg3) {
     not_implemented(__func__);
 }
-#endif
+
 
 void ADXB_EndDecode(ADXB adxb) {
     Sint32 s1, s2, sp0, s3, s0, _s0, _s1, v0, v1, temp_div;

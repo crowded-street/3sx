@@ -390,9 +390,7 @@ void name_work_init(s16 pl_id) {
 }
 
 void rank_display_set(s16 pl_id) {
-#if defined(TARGET_PS2)
-    void scfont_sqput(u32 x, u16 y, u8 atr, u8 page, u32 cx1, u8 cy1, u8 cx2, u8 cy2, u16 priority);
-#endif
+
 
     u16 pos_x;
     u8 rank;

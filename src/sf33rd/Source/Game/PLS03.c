@@ -299,9 +299,7 @@ s32 check_full_gauge_attack2(PLW* wk, s8 always) {
 }
 
 s16 check_super_arts_attack(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_super_arts_status_dc(s32 ix);
-#endif
+
 
     s16 rnum = 0;
     s16 i;
@@ -508,10 +506,7 @@ s32 execute_super_arts(PLW* wk) {
 }
 
 s32 check_special_attack(PLW* wk) {
-#if defined(TARGET_PS2)
-    s32 shell_live_check(PLW * wk, s32 wix);
-    void grade_add_command_waza(s32 ix);
-#endif
+
 
     s16 i;
     s16 j;
@@ -1180,9 +1175,7 @@ u16 decode_wst_data(PLW* wk, u16 cmd, s16 cmd_ex) {
 }
 
 s16 get_em_body_range(WORK* wk) {
-#if defined(TARGET_PS2)
-    s16 get_sel_hosei_tbl_ix(s32 plnum);
-#endif
+
 
     WORK* em;
     s16* dad;

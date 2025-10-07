@@ -143,9 +143,7 @@ void effE2_sort_push(WORK* ewk, WORK* mwk);
 void effe2_erase_or_die(WORK* wk);
 
 void effect_E2_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     PLW* mwk = (PLW*)ewk->my_master;
 

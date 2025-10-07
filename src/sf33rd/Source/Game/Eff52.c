@@ -33,9 +33,7 @@ void EFF52_WAIT(WORK_Other* ewk) {
 }
 
 void EFF52_SUDDENLY(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init2(WORK * wk, s32 koc, s32 index, s32 ip, s32 scf);
-#endif
+
 
     s16 x;
 
@@ -75,9 +73,7 @@ void EFF52_SUDDENLY(WORK_Other* ewk) {
 }
 
 void EFF52_SLIDE_IN(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init2(WORK * wk, s32 koc, s32 index, s32 ip, s32 scf);
-#endif
+
 
     if (Order[ewk->wu.dir_old] == 4) {
         ewk->wu.routine_no[0] = 4;
@@ -172,9 +168,7 @@ void EFF52_KILL(WORK_Other* ewk) {
 }
 
 s32 effect_52_init(s16 PL_id, s16 dir_old) {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
+
 
     WORK_Other* ewk;
     s16 ix;

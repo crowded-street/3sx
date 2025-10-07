@@ -85,9 +85,7 @@ void Win_1st() {
 }
 
 void Win_2nd() {
-#if defined(TARGET_PS2)
-    s32 effect_B8_init(s32 WIN_PL_NO, s16 timer);
-#endif
+
 
     Switch_Screen(0);
     M_No[0] += 1;
@@ -237,9 +235,7 @@ s32 Loser_Scene() {
 }
 
 void Lose_2nd() {
-#if defined(TARGET_PS2)
-    s32 effect_B8_init(s32 WIN_PL_NO, s16 timer);
-#endif
+
 
     Switch_Screen(0);
     M_No[0] += 1;

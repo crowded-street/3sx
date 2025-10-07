@@ -45,9 +45,7 @@ s32 check_new_after_image(WORK_Other* ewk, PLW* mwk);
 void setup_illusion_data(WORK_Other* ewk, PLW* mwk);
 
 void effect_E5_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    s32 effect_E8_init(WORK_Other * ek, PLW * mk, s32 data);
-#endif
+
 
     PLW* mwk = (PLW*)ewk->my_master;
     s16 i;
@@ -179,9 +177,7 @@ void effect_E5_move(WORK_Other* ewk) {
 }
 
 void setup_illusion_data(WORK_Other* ewk, PLW* mwk) {
-#if defined(TARGET_PS2)
-    void push_color_trans_req(s32 from_col, s32 to_col);
-#endif
+
 
     const u16* tblh = after_image_data[mwk->image_data_index];
 

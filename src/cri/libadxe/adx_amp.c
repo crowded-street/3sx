@@ -75,13 +75,10 @@ INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_amp", ADXAMP_ExecServe
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_amp", ADXAMP_GetExtractNumSmpl);
 
-#if defined(TARGET_PS2)
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_amp", ADXAMP_SetSfreq);
-#else
 void ADXAMP_SetSfreq(ADXAMP amp, Sint32 sfreq) {
     not_implemented(__func__);
 }
-#endif
+
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_amp", ADXAMP_GetSfreq);
 

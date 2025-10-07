@@ -95,9 +95,7 @@ void effect_work_init() {
 }
 
 void effect_work_quick_init() {
-#if defined(TARGET_PS2)
-    void effect_work_list_init(s32 lix, s16 iid);
-#endif
+
 
     s16 i;
 
@@ -367,9 +365,7 @@ void clear_my_shell_ix(WORK* wk) {
 }
 
 void setup_shell_hit_stop(WORK* wk, s16 tm, s16 fl) {
-#if defined(TARGET_PS2)
-    s32 get_my_shell_ix(WORK * wk, s32 ix, WORK * *tmw);
-#endif
+
     WORK* tmw;
     s32 i;
 
@@ -494,9 +490,7 @@ s32 setup_bg_quake_x(s32 /* unused */, u8 data) {
 }
 
 s32 setup_bg_quake_y(s32 /* unused */, u8 data) {
-#if defined(TARGET_PS2)
-    void pp_screen_quake(s32);
-#endif
+
 
     bg_w.quake_y_index = data;
     pp_screen_quake(bg_w.quake_y_index);

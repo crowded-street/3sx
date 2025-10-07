@@ -252,9 +252,6 @@ void* adxsjd_get_wr(ADXSJD sjd, ptrdiff_t* arg1, Sint32* arg2, Sint32* arg3) {
 
 #define READ_MAGIC(ptr) ((((Uint8*)(ptr))[1] | ((Uint16*)(ptr))[0] << 8) & 0xFFFF)
 
-#if defined(TARGET_PS2)
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_sjd", adxsjd_decexec_start);
-#else
 // Needs testing
 void adxsjd_decexec_start(ADXSJD sjd) {
     ADXB adxb = sjd->adxb;
@@ -347,7 +344,7 @@ void adxsjd_decexec_start(ADXSJD sjd) {
     ADXB_EntryData(adxb, sjd->unk14.data, sjd->unk14.len);
     ADXB_Start(adxb);
 }
-#endif
+
 
 void adxsjd_decexec_end(ADXSJD sjd) {
     ADXB adxb = sjd->adxb;
@@ -388,13 +385,10 @@ void adxsjd_decexec_end(ADXSJD sjd) {
     ADXB_Reset(adxb);
 }
 
-#if defined(TARGET_PS2)
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_sjd", adxsjd_decexec_extra);
-#else
 void adxsjd_decexec_extra(ADXSJD sjd) {
     not_implemented(__func__);
 }
-#endif
+
 
 void adxsjd_decode_exec(ADXSJD sjd) {
     ADXB adxb = sjd->adxb;
@@ -519,31 +513,22 @@ Sint32 ADXSJD_GetNumLoop(ADXSJD sjd) {
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_sjd", ADXSJD_GetLpInsNsmpl);
 
-#if defined(TARGET_PS2)
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_sjd", ADXSJD_GetLpStartPos);
-#else
 Sint32 ADXSJD_GetLpStartPos(ADXSJD sjd) {
     not_implemented(__func__);
 }
-#endif
+
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_sjd", ADXSJD_GetLpStartOfst);
 
-#if defined(TARGET_PS2)
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_sjd", ADXSJD_GetLpEndPos);
-#else
 Sint32 ADXSJD_GetLpEndPos(ADXSJD sjd) {
     not_implemented(__func__);
 }
-#endif
 
-#if defined(TARGET_PS2)
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_sjd", ADXSJD_GetLpEndOfst);
-#else
+
 Sint32 ADXSJD_GetLpEndOfst(ADXSJD sjd) {
     not_implemented(__func__);
 }
-#endif
+
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_sjd", ADXSJD_GetAinfLen);
 
@@ -569,13 +554,10 @@ INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_sjd", ADXSJD_GetHdrLen
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_sjd", ADXSJD_GetFmtBps);
 
-#if defined(TARGET_PS2)
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_sjd", ADXSJD_GetSpsdInfo);
-#else
 Sint32 ADXSJD_GetSpsdInfo(ADXSJD sjd) {
     not_implemented(__func__);
 }
-#endif
+
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_sjd", ADXSJD_TakeSnapshot);
 

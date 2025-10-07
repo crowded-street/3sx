@@ -18,11 +18,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#if defined(TARGET_PS2)
-#include "mw_stdarg.h"
-#else
 #include <stdarg.h>
-#endif
+
 
 void flPS2DebugStrClear();
 static void flPS2DrawProbar();

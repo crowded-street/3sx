@@ -91,9 +91,7 @@ void effect_I8_move(WORK_Other* ewk) {
 }
 
 void effI8_main_process(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    s32 check_ball_mizushibuki(s32 xx, s32 yy);
-#endif
+
 
     PLW* mwk = (PLW*)ewk->my_master;
 
@@ -279,9 +277,7 @@ void effI8_main_process(WORK_Other* ewk) {
 }
 
 void cal_speeds_to_me_effI8(WORK_Other* ewk, PLW* mwk) {
-#if defined(TARGET_PS2)
-    void cal_speeds_effD7(WORK_Other * ewk, s32 tm, s32 tx, s32 ty, s32 ysp);
-#endif
+
 
     s16 tx = mwk->wu.xyz[0].disp.pos;
     s16 ty = cal_move_quantity3(&mwk->wu, ewk->wu.dir_timer) + 128;
@@ -290,9 +286,7 @@ void cal_speeds_to_me_effI8(WORK_Other* ewk, PLW* mwk) {
 }
 
 void cal_speeds_to_em_effI8(WORK_Other* ewk, PLW* twk) {
-#if defined(TARGET_PS2)
-    void cal_speeds_effD7(WORK_Other * ewk, s32 tm, s32 tx, s32 ty, s32 ysp);
-#endif
+
 
     s16 tx = twk->wu.position_x;
     s16 ty;
@@ -380,9 +374,7 @@ s32 effect_I8_init(PLW* wk, s16 top, const s16* sptr) {
 }
 
 void setup_effI8(PLW* wk, const BBBSTable* dadr) {
-#if defined(TARGET_PS2)
-    s32 effect_I8_init(PLW * wk, s32 top, const s16* sptr);
-#endif
+
 
     s16 i;
     s16 ttime = 0;

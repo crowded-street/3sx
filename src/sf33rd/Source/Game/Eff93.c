@@ -167,10 +167,7 @@ void Eff93_SLIDE_R_OUT(WORK_Other* ewk) {
 }
 
 void Bg_Family_Set_Ex(s16 xx) {
-#if defined(TARGET_PS2)
-    void Scrn_Move_Set(s32 bgnm, s32 x, s32 y);
-    void Family_Set_W(s32 fmnm, s32 x, s32 y);
-#endif
+
 
     s16 pos_work_x;
     s16 pos_work_y;

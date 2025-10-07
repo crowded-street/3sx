@@ -64,9 +64,7 @@ const u16 hitmark_color[128];
 const col_file_data color_file[161];
 
 void q_ldreq_color_data(REQ* curr) {
-#if defined(TARGET_PS2)
-    void init_trans_color_ram(s32 id, s32 key, u32 type, u32 data);
-#endif
+
 
     col_file_data* cfn;
     s32 err;
@@ -175,9 +173,7 @@ s32 cseMemMapSetPhdAddr(u32 bank, void* addr) {
 }
 
 void load_any_color(u16 ix, u8 kokey) {
-#if defined(TARGET_PS2)
-    void init_trans_color_ram(s16 id, s32 key, u32 type, u32 data);
-#endif
+
 
     col_file_data* cfn;
     s16 key;
@@ -209,9 +205,7 @@ void set_hitmark_color() {
 }
 
 void init_trans_color_ram(s16 id, s16 key, u8 type, u16 data) {
-#if defined(TARGET_PS2)
-    void metamor_color_store(s32 wkid);
-#endif
+
 
     u16* ldadrs;
     u16* tradrs;

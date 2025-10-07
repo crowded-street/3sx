@@ -11,59 +11,7 @@
 INCLUDE_RODATA("asm/anniversary/nonmatchings/cri/libadxe/adx_mps2", D_0055AA98);
 
 // data
-#if defined(TARGET_PS2)
-extern Char8* volatile adxps2_build;
-extern Sint32 adxm_init_level;
-extern Sint32 adxm_init_ex;
-extern Sint32 adxm_save_tprm[12];
-extern Sint32 adxm_lock_level;
-extern Sint32 volatile adxm_goto_border_flag;
-extern Sint32 volatile adxm_vsyncproc_exec_flag;
-extern Sint32 volatile adxm_usrvsyncproc_exec_flag;
-extern Sint32 volatile adxm_fsproc_exec_flag;
-extern Sint32 volatile adxm_mwidleproc_exec_flag;
-extern Sint32 adxm_usridleproc_exec_flag;
-extern Sint32 volatile adxm_waiting_main_th_flag;
-extern Sint64 adxm_safe_cnt;
-extern Sint64 adxm_usrvsync_cnt;
-extern Sint64 volatile adxm_vsync_cnt;
-extern Sint64 volatile adxm_fs_cnt;
-extern Sint64 volatile adxm_mwidle_cnt;
-extern Sint64 adxm_usridle_cnt;
-extern Sint64 adxm_vint_cnt;
-extern Sint32 volatile adxm_id_safe;
-extern Sint32 volatile adxm_id_usrvsync;
-extern Sint32 volatile adxm_id_vsync;
-extern Sint32 volatile adxm_id_fs;
-extern Sint32 volatile adxm_id_main;
-extern Sint32 volatile adxm_id_mwidle;
-extern Sint32 volatile adxm_id_usridle;
-extern Sint64 volatile adxm_safe_loop;
-extern Sint64 volatile adxm_safe_exit;
-extern Sint64 volatile adxm_usrvsync_loop;
-extern Sint64 volatile adxm_usrvsync_exit;
-extern Sint64 volatile adxm_vsync_loop;
-extern Sint64 volatile adxm_vsync_exit;
-extern Sint64 volatile adxm_fs_loop;
-extern Sint64 volatile adxm_fs_exit;
-extern Sint64 volatile adxm_mwidle_loop;
-extern Sint64 volatile adxm_mwidle_exit;
-extern Sint64 volatile adxm_usridle_loop;
-extern Sint64 volatile adxm_usridle_exit;
-extern Sint32 adxps2_exec_svr;
-extern Sint32 volatile adxps2_exec_vint;
-extern Sint32 (*adxm_old_cbf)(Sint32 arg);
-extern Uint16 adxm_debug_bgcl;
-extern Sint32 adxm_stack_safe[0x200];
-extern Sint32 adxm_stack_usrvsync[0x400];
-extern Sint32 adxm_stack_vsync[0x400];
-extern Sint32 adxm_stack_fs[0x400];
-extern Sint32 adxm_stack_mwidle[0x800];
-extern Sint32 adxm_stack_usridle[0x800];
-extern Sint32 adxm_cur_prio;
-extern Sint32 adxm_cur_tid;
-extern Sint32 adxm_main_prio_def;
-#else
+
 Char8* volatile adxps2_build = "\nADXPS2 Ver.2.46 Build:Sep 18 2003 10:00:02\n";
 Sint32 adxm_init_level = 0;
 Sint32 adxm_init_ex = 0;
@@ -115,13 +63,10 @@ Sint32 adxm_stack_usridle[0x800] = { 0 };
 Sint32 adxm_cur_prio = 0;
 Sint32 adxm_cur_tid = 0;
 Sint32 adxm_main_prio_def = 0;
-#endif
 
-#if defined(TARGET_PS2)
-extern void* _gp;
-#else
+
 void* _gp;
-#endif
+
 
 // We have to declare adxt_vsync_cnt here instead of including adx_inis.h
 // because other parts of the code expect it to be non-volatile. Go figure
@@ -262,15 +207,11 @@ void adxm_fs_proc() {
     ExitDeleteThread();
 }
 
-#if defined(TARGET_PS2)
-void adxm_mwidle_proc();
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_mps2", adxm_mwidle_proc);
-#else
 // Never actually called
 void adxm_mwidle_proc() {
     not_implemented(__func__);
 }
-#endif
+
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_mps2", adxm_usridle_proc);
 

@@ -71,13 +71,10 @@ void LSC_SetStmHndl(LSC lsc, ADXSTM stm) {
     lsc->stm_hndl = stm;
 }
 
-#if defined(TARGET_PS2)
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/lsc", LSC_EntryFname);
-#else
 Sint32 LSC_EntryFname(LSC lsc) {
     not_implemented(__func__);
 }
-#endif
+
 
 Sint32 LSC_EntryFileRange(LSC lsc, const Char8* fname, void* dir, Sint32 ofst, Sint32 fnsct) {
     LSC_STM* stm;

@@ -67,10 +67,7 @@ void effect_36_move(WORK_Other* ewk) {
 }
 
 void eff36_move00(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void push_color_trans_req(s32 from_col, s32 to_col);
-    void set_char_move_init2(WORK * wk, s16 koc, s32 index, s32 ip, s16 scf);
-#endif
+
 
     switch (ewk->wu.routine_no[2]) {
     case 0:
@@ -100,10 +97,7 @@ void eff36_move00(WORK_Other* ewk) {
 }
 
 void eff36_move01(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void push_color_trans_req(s32 from_col, s32 to_col);
-    void set_char_move_init2(WORK * wk, s16 koc, s32 index, s32 ip, s16 scf);
-#endif
+
 
     switch (ewk->wu.routine_no[2]) {
     case 0:
@@ -125,10 +119,7 @@ void eff36_move01(WORK_Other* ewk) {
 }
 
 void eff36_move02(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void push_color_trans_req(s32 from_col, s32 to_col);
-    void set_char_move_init2(WORK * wk, s16 koc, s32 index, s32 ip, s16 scf);
-#endif
+
 
     switch (ewk->wu.routine_no[2]) {
     case 0:
@@ -153,10 +144,7 @@ void eff36_move02(WORK_Other* ewk) {
 }
 
 void eff36_move03(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void push_color_trans_req(s32 from_col, s32 to_col);
-    void set_char_move_init2(WORK * wk, s16 koc, s32 index, s32 ip, s16 scf);
-#endif
+
 
     switch (ewk->wu.routine_no[2]) {
     case 0:
@@ -183,10 +171,7 @@ void eff36_move03(WORK_Other* ewk) {
 const s16 eff36_04_tbl[4] = { 0, 5, 9, 13 };
 
 void eff36_move04(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void push_color_trans_req(s32 from_col, s32 to_col);
-    void set_char_move_init2(WORK * wk, s16 koc, s32 index, s32 ip, s16 scf);
-#endif
+
 
     switch (ewk->wu.routine_no[2]) {
     case 0:
@@ -256,10 +241,7 @@ void eff36_move04(WORK_Other* ewk) {
 }
 
 void eff36_move05(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void push_color_trans_req(s32 from_col, s32 to_col);
-    void set_char_move_init2(WORK * wk, s16 koc, s32 index, s32 ip, s16 scf);
-#endif
+
 
     switch (ewk->wu.routine_no[2]) {
     case 0:
@@ -288,10 +270,7 @@ void eff36_move05(WORK_Other* ewk) {
 }
 
 void eff36_move06(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void push_color_trans_req(s32 from_col, s32 to_col);
-    void set_char_move_init2(WORK * wk, s16 koc, s32 index, s32 ip, s16 scf);
-#endif
+
 
     switch (ewk->wu.routine_no[2]) {
     case 0:
@@ -348,9 +327,7 @@ const s16 eff36_data_tbl[29][9] = { { 0, 1, 512, 128, 73, 5, 1, 41, 42 },   { 0,
                                     { 0, 6, 488, 120, 66, 11, 1, 91, 92 } };
 
 s32 effect_36_init(u8 typenum) {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
+
 
     WORK_Other* ewk;
     s16 ix;

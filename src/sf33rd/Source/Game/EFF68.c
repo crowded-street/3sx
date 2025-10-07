@@ -12,9 +12,7 @@
 #include "sf33rd/Source/Game/workuser.h"
 
 void effect_68_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -129,9 +127,7 @@ const s16 eff68_data_tbl[52] = { 2, 432, 192, 504, 180, 576, 172, 522, 160, 8,  
                                  3, 624, 192, 696, 180, 768, 172, 714, 160, 10, 11, 83, 40 };
 
 s32 effect_68_init() {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
+
 
     WORK_Other* ewk;
     s16 ix;

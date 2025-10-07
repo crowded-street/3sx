@@ -940,10 +940,7 @@ void Sel_PL_2nd() {
 }
 
 void Sel_PL_3rd() {
-#if defined(TARGET_PS2)
-    void Push_LDREQ_Queue_Player(s32 id, s16 ix);
-    void grade_check_work_1st_init(s32 ix, s32 ix2);
-#endif
+
 
     if (Stop_Cursor[ID] != 0 || Face_Move != 0) {
         return;

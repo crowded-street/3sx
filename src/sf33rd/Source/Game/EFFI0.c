@@ -18,9 +18,7 @@ const s16 koishi_speed_x[5][8];
 const s16 koishi_speed_y[5][8];
 
 void effect_I0_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -121,9 +119,7 @@ s32 setup_koishi_extra(WORK* wk, u8 num) {
     s16 spx;
     s16 spy;
     s16 nxy;
-#if defined(TARGET_PS2)
-    s32 effect_I0_init(WORK * wk, s32 hsx, s32 hsy, s32 spx, s32 spy, s32 nxy);
-#endif
+
 
     dix = (s16*)koishi_app_area[random_16() & 7];
 

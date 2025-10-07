@@ -7,13 +7,10 @@ Char8* volatile sjrmt_build = "\nSJRMT Ver 1.01 Build:Sep 18 2003 09:59:53\n";
 Sint32 sjrmt_init_cnt = 0;
 
 // bss
-#if defined(TARGET_PS2)
-extern intptr_t D_006C0240[64];
-extern intptr_t D_006C0140[52];
-#else
+
 intptr_t D_006C0240[64]; // sjr_rpc_rcv_buf
 intptr_t D_006C0140[52]; // sjr_rpc_snd_buf
-#endif
+
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/sjr_clt", SJRBF_CreateRmt);
 

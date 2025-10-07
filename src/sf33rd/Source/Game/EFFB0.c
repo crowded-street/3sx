@@ -14,9 +14,7 @@ const s16 effb0_data_tbl[8][2] = { { 656, 112 }, { 328, 96 },  { 352, 224 }, { 6
                                    { 344, 128 }, { 640, 224 }, { 336, 176 }, { 672, 72 } };
 
 void effect_B0_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     s16 work;
 
@@ -63,9 +61,7 @@ void effect_B0_move(WORK_Other* ewk) {
 }
 
 s32 effect_B0_init() {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
+
 
     WORK_Other* ewk;
     s16 ix;

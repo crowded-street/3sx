@@ -231,10 +231,7 @@ void end_401_1000() {
 }
 
 void end_401_2000() {
-#if defined(TARGET_PS2)
-    void Frame_Up(u32 x, u32 y, u16 add);
-    void Frame_Down(u32 x, u32 y, u16 add, u32 /* unused */);
-#endif
+
 
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -270,11 +267,8 @@ void end_401_2000() {
                 break;
             }
 
-#if defined(TARGET_PS2)
-            Frame_Down(bg_w.center_x, bg_w.center_y, 1, 1);
-#else
             Frame_Down(bg_w.center_x, bg_w.center_y, 1);
-#endif
+
         }
 
         break;
@@ -285,10 +279,7 @@ void end_401_2000() {
 }
 
 void end_401_3000() {
-#if defined(TARGET_PS2)
-    void Frame_Up(u32 x, u32 y, u16 add);
-    void Frame_Down(u32 x, u32 y, u16 add, u32 /* unused */);
-#endif
+
 
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -319,11 +310,9 @@ void end_401_3000() {
                 end_w.timer = 0;
                 break;
             }
-#if defined(TARGET_PS2)
-            Frame_Down(bg_w.center_x, bg_w.center_y, 1, 1);
-#else
+
             Frame_Down(bg_w.center_x, bg_w.center_y, 1);
-#endif
+
         }
 
         break;
@@ -334,10 +323,7 @@ void end_401_3000() {
 }
 
 void end_401_4000() {
-#if defined(TARGET_PS2)
-    void Frame_Up(u32 x, u32 y, u16 add);
-    void Frame_Down(u32 x, u32 y, u16 add, u32 /* unused */);
-#endif
+
 
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -370,11 +356,8 @@ void end_401_4000() {
                 break;
             }
 
-#if defined(TARGET_PS2)
-            Frame_Down(bg_w.center_x, bg_w.center_y, 1, 1);
-#else
             Frame_Down(bg_w.center_x, bg_w.center_y, 1);
-#endif
+
         }
 
         break;

@@ -16,9 +16,7 @@ void pl08_extra_attack(PLW* wk) {
 }
 
 void Att_PL08_HEALING(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     u16 cpsw;
 
@@ -70,10 +68,7 @@ void Att_PL08_HEALING(PLW* wk) {
 }
 
 void Att_PL08_TOKUSHUKOUDOU(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void grade_add_personal_action(s32 ix);
-#endif
+
 
     wk->scr_pos_set_flag = 0;
 

@@ -9,11 +9,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#if defined(TARGET_PS2)
-#include "mw_stdarg.h"
-#else
 #include <stdarg.h>
-#endif
+
 
 #if !defined(TARGET_PS2)
 #include "port/sdl/sdl_message_renderer.h"
@@ -476,12 +473,10 @@ void KnjPuts(const s8* str) {
     pp = kw->pack_cur;
 
     while (1) {
-#if defined(TARGET_PS2)
-        code = *((u8*)str)++;
-#else
+
         code = *(u8*)str;
         str++;
-#endif
+
 
         if (code == 0) {
             break;
@@ -495,12 +490,10 @@ void KnjPuts(const s8* str) {
         }
 
         if (((code >= 0x80) && (code <= 0x9F)) || ((code >= 0xE0) && (code < 0x100))) {
-#if defined(TARGET_PS2)
-            c = *((u8*)str)++;
-#else
+
             c = *(u8*)str;
             str++;
-#endif
+
 
             if (c == 0) {
                 break;
@@ -1075,21 +1068,7 @@ s32 KnjCheckCode(const s8* str) {
 }
 
 static u32* make_env_pkt(u32* p, u32 /* unused */, u32 /* unused */) {
-#if defined(TARGET_PS2)
-    u32 qwc = 3;
 
-    *p++ = qwc | 0x10000000;
-    *p++ = 0;
-    *p++ = 0;
-    *p++ = qwc | 0x51000000;
-
-    *((u64*)p)++ = SCE_GIF_SET_TAG(qwc - 1, 1, 0, 0, SCE_GIF_PACKED, 1);
-    *((u64*)p)++ = SCE_GIF_PACKED_AD;
-    *((u64*)p)++ = SCE_GS_SET_ALPHA_1(0, 1, 0, 1, 0);
-    *((u64*)p)++ = SCE_GS_ALPHA_1;
-    *((u64*)p)++ = SCE_GS_SET_TEST_1(0, 0, 0, 0, 0, 0, 1, 1);
-    *((u64*)p)++ = SCE_GS_TEST_1;
-#endif
 
     return p;
 }

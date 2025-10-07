@@ -29,9 +29,7 @@ const s16 piece_0001[57] = { 2, 8492, 14,  80, 70, 51, 1, 0, 2, 32, 32, 2,  0, 0
 const s16* scr_obj_data27[2] = { piece_0000, piece_0001 };
 
 void effect_27_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     WORK_Other* oya;
 
@@ -312,9 +310,7 @@ void eff27_08(WORK_Other* ewk) {
 }
 
 void eff27_09(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -370,9 +366,7 @@ void (*eff27_jp_tbl[11])(WORK_Other*) = { eff27_00, eff27_00, eff27_02, eff27_03
                                           eff27_06, eff27_06, eff27_07, eff27_08, eff27_09 };
 
 s32 effect_27_init(WORK_Other* oya, s16 type) {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
+
 
     WORK_Other* ewk;
     s16 ix;

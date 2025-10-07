@@ -173,25 +173,17 @@ void srd_wait_hst(SRD srd) {
     }
 }
 
-#if defined(TARGET_PS2)
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/cri_srd", SRD_WaitComplete);
-#else
 void SRD_WaitComplete(SRD srd) {
     not_implemented(__func__);
 }
-#endif
+
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/cri_srd", SRD_WaitCompleteVoid);
 
-#if defined(TARGET_PS2)
-INCLUDE_RODATA("asm/anniversary/nonmatchings/cri/libadxe/cri_srd", D_0055CAF8);
-INCLUDE_RODATA("asm/anniversary/nonmatchings/cri/libadxe/cri_srd", D_0055CB18);
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/cri_srd", SRD_Break);
-#else
 void SRD_Break(SRD srd) {
     not_implemented(__func__);
 }
-#endif
+
 
 Sint32 srd_check_dvd_error(SRD srd) {
     Sint32 cd_err;
@@ -426,14 +418,10 @@ INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/cri_srd", SRD_GetDevTypeNo
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/cri_srd", SRD_GetErrCode);
 
-#if defined(TARGET_PS2)
-INCLUDE_RODATA("asm/anniversary/nonmatchings/cri/libadxe/cri_srd", D_0055CBD8);
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/cri_srd", SRD_WaitForExecServer);
-#else
 void SRD_WaitForExecServer() {
     not_implemented(__func__);
 }
-#endif
+
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/cri_srd", SRD_LockedForDvdExec);
 

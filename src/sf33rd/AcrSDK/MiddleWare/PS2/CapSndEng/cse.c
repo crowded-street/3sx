@@ -14,12 +14,8 @@
 
 static CSE_SYSWORK cseSysWork __attribute__((aligned(16))); // size: 0x48, address: 0x57B260
 
-#if defined(TARGET_PS2)
-void __assert(const s8* file, s32 line, const s8* expr);
-#define assert(e) (__assert("cse.c", 0, "0"))
-#else
 #include <assert.h>
-#endif
+
 
 s32 cseInitSndDrv() {
     u32 i;
@@ -41,9 +37,7 @@ s32 cseInitSndDrv() {
 s32 cseExecServer() {
     if (cseSysWork.InitializeFlag == 1) {
         mlTsbExecServer();
-#if defined(TARGET_PS2)
-        mlRpcQueueSend();
-#endif
+
         cseSysWork.Counter++;
         return 0;
     }
@@ -145,11 +139,9 @@ s32 cseSendBd2SpuWithId(void* ee_addr, u32 size, u32 bank, u32 id) {
         param.e_addr = (uintptr_t)ee_addr;
         param.s_addr = mlMemMapGetBankAddr(bank);
         param.size = size;
-#if defined(TARGET_PS2)
-        mlRpcQueueSetData(3, &param, sizeof(CSE_SPUID_PARAM));
-#else
+
         SPU_Upload(param.s_addr, ee_addr, size);
-#endif
+
     }
 
     return 0;

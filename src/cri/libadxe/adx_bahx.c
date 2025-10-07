@@ -32,29 +32,20 @@ void ADXB_Ac3TermSupply(ADXB adxb) {
     }
 }
 
-#if defined(TARGET_PS2)
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_bahx", ADXB_ExecOneAc3);
-#else
 void ADXB_ExecOneAc3(ADXB adxb) {
     not_implemented(__func__);
 }
-#endif
 
-#if defined(TARGET_PS2)
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_bahx", ADXB_DecodeHeaderAc3);
-#else
+
 Sint32 ADXB_DecodeHeaderAc3(ADXB, void*, Sint32) {
     not_implemented(__func__);
 }
-#endif
 
-#if defined(TARGET_PS2)
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_bahx", ADXB_CheckAc3);
-#else
+
 Sint32 ADXB_CheckAc3(void*) {
     not_implemented(__func__);
 }
-#endif
+
 
 void ADXB_SetAhxInSj(ADXB adxb, SJ sj) {
     if (adxb->unkB0 != 0) {
@@ -71,13 +62,10 @@ void ADXB_SetAhxDecSmpl(ADXB adxb, Sint32 samples) {
     adxb->ahx_dec_frames = samples / 96;
 }
 
-#if defined(TARGET_PS2)
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_bahx", ADXB_ExecOneAhx);
-#else
 void ADXB_ExecOneAhx(ADXB adxb) {
     not_implemented(__func__);
 }
-#endif
+
 
 void ADXB_AhxTermSupply(ADXB adxb) {
     if (adxb->unkB0 != 0) {

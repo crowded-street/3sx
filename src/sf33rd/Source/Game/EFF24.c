@@ -36,9 +36,7 @@ const s32 eff24_quake_speed_x_tbl[4][8] = { { 0x1200, 0x1200, 0x1400, 0x1400, 0x
 const s16 dog24_x_data[8] = { 0, 0, 0, 6, 10, 16, 32, 40 };
 
 void effect_24_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -209,12 +207,8 @@ void eff24_sp_data_set(WORK_Other* ewk) {
     ewk->wu.old_rno[0] &= 1;
 }
 
-#if defined(TARGET_PS2)
-s32 effect_24_init(s32 /* unused */) {
-    s16 get_my_trans_mode(s32 curr);
-#else
 s32 effect_24_init() {
-#endif
+
 
     WORK_Other* ewk;
     s16 ix;

@@ -9,9 +9,7 @@
 #include "sf33rd/Source/Game/ta_sub.h"
 
 void effect_B7_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init2(WORK * wk, s32 koc, s32 index, s32 ip, s32 scf);
-#endif
+
 
     NAME_WK* np = (NAME_WK*)ewk->my_master;
 

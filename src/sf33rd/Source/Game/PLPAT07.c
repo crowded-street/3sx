@@ -14,10 +14,7 @@ void pl07_extra_attack(PLW* wk) {
 }
 
 void Att_PL07_SA2(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void setup_mvxy_data(WORK * wk, u32 ix);
-#endif
+
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -57,10 +54,7 @@ void Att_PL07_SA2(PLW* wk) {
 }
 
 void Att_PL07_AT1(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void setup_mvxy_data(WORK * wk, u32 ix);
-#endif
+
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -118,10 +112,7 @@ void Att_PL07_AT1(PLW* wk) {
 }
 
 void Att_PL07_AT2(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void setup_mvxy_data(WORK * wk, u32 ix);
-#endif
+
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -161,9 +152,7 @@ void Att_PL07_AT2(PLW* wk) {
 }
 
 void Att_PL07_AT3(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -191,10 +180,7 @@ void Att_PL07_AT3(PLW* wk) {
 }
 
 void Att_PL07_SA3(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void setup_mvxy_data(WORK * wk, u32 ix);
-#endif
+
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -227,11 +213,7 @@ void Att_PL07_SA3(PLW* wk) {
 }
 
 void Att_PL07_TOKUSHUKOUDOU(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void setup_mvxy_data(WORK * wk, u32 ix);
-    void grade_add_personal_action(s32 ix);
-#endif
+
 
     switch (wk->wu.routine_no[3]) {
     case 0:

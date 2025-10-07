@@ -93,13 +93,10 @@ void AcrMain() {
     appSetupBasePriority();
     MemcardInit();
 
-#if defined(TARGET_PS2)
-    while (1) {
-#else
     while (is_running) {
         is_running = SDLApp_PollEvents();
         SDLApp_BeginFrame();
-#endif
+
 
         initRenderState(0);
         mpp_w.ds_h[0] = mpp_w.ds_h[1];
@@ -261,15 +258,11 @@ u8 tpu_free_mem[0x2000];
 #endif
 
 void distributeScratchPadAddress() {
-#if defined(TARGET_PS2)
-    dctex_linear = (s16*)(SPR + 0x800);
-    texcash_melt_buffer = (u8*)(SPR + 0x1000);
-    tpu_free = (TexturePoolUsed*)(SPR + 0x2000);
-#else
+
     dctex_linear = (s16*)dctex_linear_mem;
     texcash_melt_buffer = (u8*)texcash_melt_buffer_mem;
     tpu_free = (TexturePoolUsed*)tpu_free_mem;
-#endif
+
 }
 
 void MaskScreenEdge() {

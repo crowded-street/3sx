@@ -1,32 +1,23 @@
 #include "common.h"
 
-#if defined(TARGET_PS2)
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/htci", htCiSetFileSystem64);
-#else
 int htCiSetFileSystem64(int enable) {
     not_implemented(__func__);
 }
-#endif
+
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/htci", htCiGetFileSystem64);
 
-#if defined(TARGET_PS2)
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/htci", htCiSetLockHost);
-#else
 int htCiSetLockHost(int lock) {
     not_implemented(__func__);
 }
-#endif
+
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/htci", htCiGetLockHost);
 
-#if defined(TARGET_PS2)
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/htci", htCiGetInterface);
-#else
 void htCiGetInterface() {
     not_implemented(__func__);
 }
-#endif
+
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/htci", htci_wait);
 

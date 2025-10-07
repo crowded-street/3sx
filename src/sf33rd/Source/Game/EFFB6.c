@@ -307,9 +307,7 @@ const s8** zen_adrs[11] = { src_zen_comm, src_zen_hira, src_zen_kata, src_zen_ka
                             src_zen_kan3, src_zen_kan4, src_zen_kan5, src_zen_kan6, src_zen_kan7 };
 
 void effect_B6_move(WORK_Other_CONN* ewk) {
-#if defined(TARGET_PS2)
-    void get_message_conn_data(WORK_Other_CONN * ewk, s32 kind, s32 pl, s32 msg);
-#endif
+
 
     switch (ewk->wu.routine_no[0]) {
     case 0:

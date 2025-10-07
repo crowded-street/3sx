@@ -94,9 +94,7 @@ const PLEF plef_data[165] = { { 0, 0, -1, 0, 1, 0, 0, 1, 0, 0, 0 },       { 13, 
                               { 44, 1, -1, 0, 0, 32, 1, 1, 1, 0, 58 } };
 
 void effect_03_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     switch (ewk->wu.routine_no[0]) {
     case 0:

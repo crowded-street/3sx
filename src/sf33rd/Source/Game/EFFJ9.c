@@ -13,9 +13,7 @@ s16 get_c2_quake(WORK* c2wk);
 const s16 c2quake_table[19] = { 0, 3, 3, 2, 2, 1, 1, 1, 0, 0, 0, -1, -1, -1, -2, -2, -3, -3, 0 };
 
 void effect_J9_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void player_hosei_data(WORK_Other * ewk, s32 flag);
-#endif
+
 
     WORK* c2wk = (WORK*)ewk->my_master;
 
@@ -62,11 +60,8 @@ void effect_J9_move(WORK_Other* ewk) {
             break;
         }
 
-#if defined(TARGET_PS2)
-        player_hosei_data(ewk, c2wk->dir_timer);
-#else
         player_hosei_data(ewk, c2wk->dir_timer, 0);
-#endif
+
         effJ9_trans(&ewk->wu);
         break;
 

@@ -27,11 +27,6 @@ Char8 dvg_fpath[128] = { 0 };
 // bss
 Sint8 D_006BE100[0x1000];
 
-#if defined(TARGET_PS2)
-// Used in dvci_conv_fname and dvCiSetRootDir
-INCLUDE_RODATA("asm/anniversary/nonmatchings/cri/libadxe/dvci_sub", D_0055D280);
-extern Char8 D_0055D280[];
-#endif
 
 void dvci_conv_fname(const Char8* fname, Char8* path) {
     Char8 first_char;
@@ -40,11 +35,9 @@ void dvci_conv_fname(const Char8* fname, Char8* path) {
     first_char = fname[0];
 
     if ((first_char != '/') && (first_char != '\\')) {
-#if defined(TARGET_PS2)
-        strcat(path, D_0055D280);
-#else
+
         strcat(path, "\\");
-#endif
+
     }
 
     strcat(path, fname);
@@ -96,10 +89,6 @@ Sint32 dvci_stricmp(const Char8* a, const Char8* b) {
     return 0;
 }
 
-#if defined(TARGET_PS2)
-Sint32 analysis_flist_003DC6A0(Sint8*, Sint8*, Sint32, Sint32, Sint32);
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/dvci_sub", analysis_flist_003DC6A0);
-#else
 // This is a kludge, not a decompilation
 Sint32 analysis_flist_003DC6A0(Sint8* fcbuf, Sint8* filelist_buf, Sint32 arg2, Sint32 arg3, Sint32 arg4) {
     strcpy(fcbuf + 0x140, "SF33RD.AFS");
@@ -109,7 +98,7 @@ Sint32 analysis_flist_003DC6A0(Sint8* fcbuf, Sint8* filelist_buf, Sint32 arg2, S
     dvg_flist_tbl.unkC = arg4;
     return 1;
 }
-#endif
+
 
 Sint32 load_flist(Char8* flist, Sint8* buf) {
     sceCdlFILE fp;
@@ -268,14 +257,6 @@ Sint32 dvci_get_fstate(const Char8* fname, sceCdlFILE* fp) {
     return 0;
 }
 
-#if defined(TARGET_PS2)
-// Also used in dvCiSetFcache
-INCLUDE_RODATA("asm/anniversary/nonmatchings/cri/libadxe/dvci_sub", D_0055D340);
-extern Char8 D_0055D340[];
-// Also used in dvCiSetFcache
-INCLUDE_RODATA("asm/anniversary/nonmatchings/cri/libadxe/dvci_sub", D_0055D370);
-extern Char8 D_0055D370[];
-#endif
 
 Sint32 dvCiLoadFcache(Char8* flist, Sint8* fcbuf, Sint32 fcsize, Sint32 maxflen) {
     Uint32 temp_lo;
@@ -297,11 +278,9 @@ Sint32 dvCiLoadFcache(Char8* flist, Sint8* fcbuf, Sint32 fcsize, Sint32 maxflen)
 
     if (fcbuf == NULL) {
         if (dvg_ci_dbg_out_lv == 0) {
-#if defined(TARGET_PS2)
-            scePrintf(D_0055D340, fcbuf);
-#else
+
             scePrintf("DVCI: Invalidate filelist buffer pointer.\r\n", fcbuf);
-#endif
+
         }
 
         return 0;
@@ -309,11 +288,9 @@ Sint32 dvCiLoadFcache(Char8* flist, Sint8* fcbuf, Sint32 fcsize, Sint32 maxflen)
 
     if (fcsize == 0) {
         if (dvg_ci_dbg_out_lv == 0) {
-#if defined(TARGET_PS2)
-            scePrintf(D_0055D370, fcsize);
-#else
+
             scePrintf("DVCI: Invalidate filelist buffer size.\r\n", fcsize);
-#endif
+
         }
 
         return 0;
@@ -346,9 +323,6 @@ void dvCiSetRdMode(Sint32 trycount, Sint32 spindlctrl, Sint32 datapattern, Sint3
     dvg_ci_rdmode = rdmode;
 }
 
-#if defined(TARGET_PS2)
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/dvci_sub", dvCiSetRootDir);
-#else
 // Matches on decomp.me but breaks here
 void dvCiSetRootDir(const Char8* dir) {
     Char8 last_char;
@@ -370,7 +344,7 @@ void dvCiSetRootDir(const Char8* dir) {
         }
     }
 }
-#endif
+
 
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/dvci_sub", dvCiGetRootDir);
 

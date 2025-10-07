@@ -61,9 +61,7 @@ void effect_M6_move(WORK_Other* ewk) {
 }
 
 s32 effect_M6_init(WORK_Other* oya) {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
+
 
     WORK_Other* ewk;
     s16 ix;

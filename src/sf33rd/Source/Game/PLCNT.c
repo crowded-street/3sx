@@ -646,10 +646,7 @@ void plcnt_die() {
 }
 
 void settle_type_00000() {
-#if defined(TARGET_PS2)
-    s16 nekorobi_check(s32 ix);
-    s16 footwork_check(s32 ix);
-#endif
+
 
     switch (pcon_rno[2]) {
     case 0:
@@ -780,10 +777,7 @@ void settle_type_30000() {
 }
 
 void settle_type_40000() {
-#if defined(TARGET_PS2)
-    s16 nekorobi_check(s32 ix);
-    s16 footwork_check(s32 ix);
-#endif
+
 
     switch (pcon_rno[2]) {
     case 0:
@@ -893,10 +887,7 @@ void move_player_work() {
 }
 
 void move_P1_move_P2() {
-#if defined(TARGET_PS2)
-    void Player_move(PLW * wk, u32 lv_data);
-    s32 set_field_hosei_flag(PLW * pl, s32 pos, s16 ix);
-#endif
+
 
     if (plw[0].do_not_move == 0) {
         Player_move(&plw[0], processed_lvbt(Convert_User_Setting(0)));
@@ -916,10 +907,7 @@ void move_P1_move_P2() {
 }
 
 void move_P2_move_P1() {
-#if defined(TARGET_PS2)
-    void Player_move(PLW * wk, u32 lv_data);
-    s32 set_field_hosei_flag(PLW * pl, s32 pos, s16 ix);
-#endif
+
 
     if (plw[1].do_not_move == 0) {
         Player_move(&plw[1], processed_lvbt(Convert_User_Setting(1)));
@@ -982,9 +970,7 @@ void check_damage_hosei() {
 }
 
 void check_damage_hosei_nage(PLW* as, PLW* ds) {
-#if defined(TARGET_PS2)
-    s32 set_field_hosei_flag(PLW * pl, s32 pos, s16 ix);
-#endif
+
 
     if (as->kind_of_catch) {
         if (ds->hosei_amari != 0) {
@@ -1334,9 +1320,7 @@ void set_player_shadow(PLW* wk) {
 }
 
 void setup_other_data(PLW* wk) {
-#if defined(TARGET_PS2)
-    s32 effect_01_init(WORK * wk, u32 koolc);
-#endif
+
 
     s16 i;
 
@@ -1389,10 +1373,7 @@ void clear_kizetsu_point(PLW* wk) {
 }
 
 void set_super_arts_status(s16 ix) {
-#if defined(TARGET_PS2)
-    s16 remake_sa_store_max(s32 ix, s32 store_max);
-    s16 remake_sa_gauge_len(s32 ix, s32 gauge_len);
-#endif
+
 
     const SA_DATA* saptr;
 
@@ -1452,10 +1433,7 @@ s16 remake_sa_gauge_len(s16 ix, s16 gauge_len) {
 }
 
 void set_super_arts_status_dc(s16 ix) {
-#if defined(TARGET_PS2)
-    s16 remake_sa_store_max(s32 ix, s32 store_max);
-    s16 remake_sa_gauge_len(s32 ix, s32 gauge_len);
-#endif
+
 
     const SA_DATA* saptr;
 

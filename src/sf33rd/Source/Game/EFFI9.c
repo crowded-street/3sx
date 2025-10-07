@@ -9,9 +9,7 @@ void push_image_buff(WORK_Other* wk, ImageBuff* image_buff);
 void init_image_buff(WORK_Other* wk, ImageBuff* image_buff);
 
 void effect_I9_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    s32 effect_J0_init(WORK_Other * ek, WORK_Other * mk, s32 data);
-#endif
+
 
     WORK* sub_w = (WORK*)ewk->wu.target_adrs;
     ImageBuff* image_buff = (ImageBuff*)sub_w + 9;

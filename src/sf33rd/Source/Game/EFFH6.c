@@ -268,9 +268,7 @@ void effect_H6_move(WORK_Other* ewk) {
 }
 
 s32 effect_H6_init(s16 timer, s8* str, s16 X, s16 Y, s16 Original_Color, s32 /* unused */) {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
+
 
     WORK_Other_CONN* ewk;
     s16 i;

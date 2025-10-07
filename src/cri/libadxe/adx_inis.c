@@ -87,9 +87,6 @@ void ADXT_Init() {
         ADXSJD_Init();
         ADXF_Init();
 
-#if defined(TARGET_PS2)
-        ADXRNA_Init();
-#endif
 
         LSC_Init();
         SVM_Init();

@@ -14,10 +14,7 @@ void pl06_extra_attack(PLW* wk) {
 }
 
 void Att_PL06_HASHIRI_NAGE(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void setup_mvxy_data(WORK * wk, u32 ix);
-#endif
+
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -133,10 +130,7 @@ void Att_PL06_HASHIRI_NAGE(PLW* wk) {
 }
 
 void Att_PL06_TOKUSHUKOUDOU(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void grade_add_personal_action(s32 ix);
-#endif
+
 
     wk->scr_pos_set_flag = 0;
 

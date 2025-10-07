@@ -53,10 +53,7 @@ void Purge_com_player_from_mm() {
 }
 
 void Purge_mmtm_area(s16 ix) {
-#if defined(TARGET_PS2)
-    void Purge_memory_of_list(s32 ix);
-    void Purge_texcash_of_list(s32 ix);
-#endif
+
 
     Purge_texcash_of_list(ix);
     Purge_memory_of_list(ix);
@@ -73,9 +70,7 @@ void Purge_memory_of_list(s16 ix) {
 }
 
 void Purge_texcash_of_list(s16 ix) {
-#if defined(TARGET_PS2)
-    void purge_texcash_work(s32 ix);
-#endif
+
 
     s16 i;
 

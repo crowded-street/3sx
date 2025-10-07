@@ -27,9 +27,7 @@ const s16 ex_sign_data[69][4] = {
 };
 
 void effect_I7_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     PLW* mwk = (PLW*)ewk->my_master;
 

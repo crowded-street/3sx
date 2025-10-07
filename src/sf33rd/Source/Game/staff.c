@@ -308,10 +308,7 @@ void set_credit_string(s32 t, s32 x, s32 y, s32 a, s8* s) {
 }
 
 s32 staff_credits(u32 /* unused */) {
-#if defined(TARGET_PS2)
-    void Scrn_Move_Set(s8 bgnm, s32 x, s32 y);
-    void Family_Set_R(s8 fmnm, s32 x, s32 y);
-#endif
+
 
     s16 t;
     s16 x;

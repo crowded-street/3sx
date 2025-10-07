@@ -80,9 +80,7 @@ void effect_99_move(WORK_Other_CONN* ewk) {
 }
 
 s32 effect_99_init(s16 id, s16 type, s16 char_offset, s16 letter_index, s16 pos_index, s16 master_player) {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
+
 
     WORK_Other_CONN* ewk;
     s16 ix;

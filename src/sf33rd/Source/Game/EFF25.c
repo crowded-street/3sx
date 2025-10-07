@@ -55,9 +55,7 @@ void effect_25_move(WORK_Other* ewk) {
 }
 
 void eff25_00(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -101,9 +99,7 @@ void eff25_00(WORK_Other* ewk) {
 }
 
 void eff25_02(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -185,9 +181,7 @@ void eff25_04(WORK_Other* ewk) {
 }
 
 void eff25_06(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -271,9 +265,7 @@ void eff25_08(WORK_Other* ewk) {
 }
 
 void eff25_char_set(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     ewk->wu.routine_no[1]++;
     ewk->wu.disp_flag = 1;
@@ -281,9 +273,7 @@ void eff25_char_set(WORK_Other* ewk) {
 }
 
 void piece_set(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    s32 effect_27_init(WORK_Other * oya, s32 type);
-#endif
+
 
     if (!(ewk->wu.old_rno[2] & 1)) {
         return;
@@ -297,9 +287,7 @@ void piece_set(WORK_Other* ewk) {
 }
 
 s32 effect_25_init(s8 num) {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
+
 
     WORK_Other* ewk;
     s16 ix;

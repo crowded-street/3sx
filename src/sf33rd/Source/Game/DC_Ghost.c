@@ -87,29 +87,12 @@ void njScale(MTX* mtx, f32 x, f32 y, f32 z) {
         mtx = &cmtx;
     }
 
-#if defined(TARGET_PS2)
-    __asm__ __volatile__("lqc2       vf8,  0x0(%0) \n"
-                         "lqc2       $vf4, 0x0(%1) \n"
-                         "lqc2       $vf5, 0x10(%1) \n"
-                         "lqc2       $vf6, 0x20(%1) \n"
-                         "lqc2       $vf7, 0x30(%1) \n"
-                         "vmulx.xyzw $vf4, $vf4, $vf8x \n"
-                         "vmuly.xyzw $vf5, $vf5, $vf8y \n"
-                         "vmulz.xyzw $vf6, $vf6, $vf8z \n"
-                         "sqc2       $vf4, 0x0(%1) \n"
-                         "sqc2       $vf5, 0x10(%1) \n"
-                         "sqc2       $vf6, 0x20(%1) \n"
-                         "sqc2       $vf7, 0x30(%1) \n"
-                         :
-                         : "r"(v0), "r"(mtx)
-                         : "memory");
-#else
     for (int i = 0; i < 4; i++) {
         mtx->a[0][i] *= v0[0];
         mtx->a[1][i] *= v0[1];
         mtx->a[2][i] *= v0[2];
     }
-#endif
+
 }
 
 void njTranslate(MTX* mtx, f32 x, f32 y, f32 z) {
@@ -117,30 +100,6 @@ void njTranslate(MTX* mtx, f32 x, f32 y, f32 z) {
         mtx = &cmtx;
     }
 
-#if defined(TARGET_PS2)
-    __asm__ __volatile__("mfc1       $t0, %1 \n"
-                         "mfc1       $t1, %3 \n"
-                         "pextlw     $t0, $t1, $t0 \n"
-
-                         "mfc1       $t1, %2 \n"
-                         "pextlw     $t0, $t1, $t0 \n"
-
-                         "qmtc2      $t0, $vf8 \n"
-                         "vmove.w    $vf8, $vf0 \n"
-
-                         "lqc2       $vf4, 0x0(%0) \n"
-                         "lqc2       $vf5, 0x10(%0) \n"
-                         "lqc2       $vf6, 0x20(%0) \n"
-                         "lqc2       $vf7, 0x30(%0) \n"
-                         "vmulax.xyzw $ACC, $vf4, $vf8x \n"
-                         "vmadday.xyzw $ACC, $vf5, $vf8y \n"
-                         "vmaddaz.xyzw $ACC, $vf6, $vf8z \n"
-                         "vmaddw.xyzw $vf9, $vf7, $vf8w \n"
-                         "sqc2       $vf9, 0x30(%0) \n"
-                         :
-                         : "r"(mtx), "f"(x), "f"(y), "f"(z)
-                         : "t0", "t1", "memory");
-#else
     MTX translation_matrix;
 
     njUnitMatrix(&translation_matrix);
@@ -149,7 +108,7 @@ void njTranslate(MTX* mtx, f32 x, f32 y, f32 z) {
     translation_matrix.a[3][2] = z;
 
     matmul(mtx, &translation_matrix, mtx);
-#endif
+
 }
 
 void njSetBackColor(u32 c0, u32 c1, u32 c2) {
@@ -170,30 +129,6 @@ void njCalcPoint(MTX* mtx, Vec3* ps, Vec3* pd) {
         mtx = &cmtx;
     }
 
-#if defined(TARGET_PS2)
-    v0[0] = ps->x;
-    v0[1] = ps->y;
-    v0[2] = ps->z;
-    v0[3] = 1.0f;
-
-    __asm__ __volatile__("lqc2    $vf8, 0(%1) \n"
-                         "lqc2    $vf4, 0(%0) \n"
-                         "lqc2    $vf5, 0x10(%0) \n"
-                         "lqc2    $vf6, 0x20(%0) \n"
-                         "lqc2    $vf7, 0x30(%0) \n"
-                         "vmulax.xyz $ACC, $vf4, $vf8x \n"
-                         "vmadday.xyz $ACC, $vf5, $vf8y \n"
-                         "vmaddaz.xyz $ACC, $vf6, $vf8z \n"
-                         "vmaddw.xyz $vf9, $vf7, $vf8w \n"
-                         "sqc2 $vf9, 0(%1) \n"
-                         :
-                         : "r"(mtx), "r"(v0), "f"(pd)
-                         : "memory");
-
-    pd->x = v0[0];
-    pd->y = v0[1];
-    pd->z = v0[2];
-#else
     f32 x = ps->x;
     f32 y = ps->y;
     f32 z = ps->z;
@@ -202,7 +137,7 @@ void njCalcPoint(MTX* mtx, Vec3* ps, Vec3* pd) {
     pd->x = x * mtx->a[0][0] + y * mtx->a[1][0] + z * mtx->a[2][0] + w * mtx->a[3][0];
     pd->y = x * mtx->a[0][1] + y * mtx->a[1][1] + z * mtx->a[2][1] + w * mtx->a[3][1];
     pd->z = x * mtx->a[0][2] + y * mtx->a[1][2] + z * mtx->a[2][2] + w * mtx->a[3][2];
-#endif
+
 }
 
 void njCalcPoints(MTX* mtx, Vec3* ps, Vec3* pd, s32 num) {

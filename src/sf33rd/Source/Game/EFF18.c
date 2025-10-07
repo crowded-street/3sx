@@ -25,9 +25,7 @@ void effect_18_move(WORK_Other_CONN* ewk) {
 }
 
 s32 effect_18_init(s16 disp_index, s16 cursor_id, s16 sync_bg, s16 master_player) {
-#if defined(TARGET_PS2)
-    void get_message_conn_data(WORK_Other_CONN * ewk, s32 kind, s32 pl, s32 msg);
-#endif
+
 
     WORK_Other_CONN* ewk;
     s16 ix;

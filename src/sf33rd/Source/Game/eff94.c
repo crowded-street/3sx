@@ -24,9 +24,7 @@ const s8 eff94_2000_1_tbl[16] = { 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1
 const s16 eff94_3000_tbl[4][3] = { { 328, 304, 0 }, { 288, 240, 1 }, { 280, 320, 0 }, { 352, 264, 1 } };
 
 void effect_94_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     void (*const eff94_move_jp[5])(WORK_Other*) = {
         eff94_0000, eff94_1000, eff94_2000, eff94_3000, eff94_4000,
@@ -60,9 +58,7 @@ void effect_94_move(WORK_Other* ewk) {
 }
 
 void eff94_0000(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     switch (ewk->wu.routine_no[2]) {
     case 0:
@@ -90,9 +86,7 @@ void eff94_0000(WORK_Other* ewk) {
 }
 
 void eff94_1000(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     switch (ewk->wu.routine_no[2]) {
     case 0:
@@ -174,9 +168,7 @@ void eff94_2000_0(WORK_Other* ewk) {
 }
 
 void eff94_2000_1(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     s16 work;
 
@@ -205,9 +197,7 @@ void eff94_2000_1(WORK_Other* ewk) {
 }
 
 void eff94_2000_2(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     add_y_sub(ewk);
 
@@ -243,9 +233,7 @@ void eff94_3000(WORK_Other* ewk) {
 }
 
 void eff94_3000_0(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     s16 work;
 
@@ -266,9 +254,7 @@ void eff94_3000_4(WORK_Other* ewk) {
 }
 
 void eff94_4000(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     switch (ewk->wu.routine_no[2]) {
     case 0:
@@ -301,9 +287,7 @@ void eff94_4000(WORK_Other* ewk) {
 }
 
 s32 effect_94_init(u8 type94) {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
+
 
     WORK_Other* ewk;
     s16 ix;

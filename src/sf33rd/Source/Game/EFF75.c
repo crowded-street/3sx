@@ -30,9 +30,7 @@ void EFF75_WAIT(WORK_Other* ewk) {
 void EFF75_SLIDE_IN(WORK_Other* /* unused */) {}
 
 void EFF75_CHAR_CHANGE(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init2(WORK * wk, s32 koc, s32 index, s32 ip, s32 scf);
-#endif
+
 
     if (--Order_Timer[ewk->wu.dir_old] != 0) {
         return;
@@ -45,9 +43,7 @@ void EFF75_CHAR_CHANGE(WORK_Other* ewk) {
 }
 
 void EFF75_SUDDENLY(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init2(WORK * wk, s32 koc, s32 index, s32 ip, s32 scf);
-#endif
+
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -72,9 +68,7 @@ void EFF75_SUDDENLY(WORK_Other* ewk) {
 }
 
 s32 effect_75_init(s16 dir_old, s16 ID, s16 Target_BG) {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
+
 
     WORK_Other* ewk;
     s16 ix;

@@ -18,9 +18,7 @@ const s32 effd0_data_tbl[9][4] = { { 0x4000, -0x800, -0x6000, -0x400 }, { -0x400
 const s16 effd0_conter[9] = { 32, 40, 30, 48, 64, 16, 32, 36, 72 };
 
 void effect_D0_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     if (Exec_Wipe) {
         ewk->wu.no_death_attack = 1;
@@ -134,9 +132,7 @@ void d0_speed_set(WORK* ewk, s16 num) {
 }
 
 s32 effect_D0_init(PLW* oya, s32 /* unused */) {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
+
 
     WORK_Other* ewk;
     s16 ix;

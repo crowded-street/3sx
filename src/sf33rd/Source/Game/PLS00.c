@@ -719,9 +719,7 @@ void nm_18000(PLW* wk) {
 }
 
 void jumping_cg_type_check(PLW* wk) {
-#if defined(TARGET_PS2)
-    void clear_chainex_check(s32 ix);
-#endif
+
 
     if (wk->wu.pat_status < 32) {
         switch (wk->wu.cg_type) {

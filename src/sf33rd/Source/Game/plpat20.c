@@ -14,11 +14,7 @@ void pl20_extra_attack(PLW* wk) {
 }
 
 void Att_PL20_AT1(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void setup_mvxy_data(WORK * wk, u32 ix);
-    void add_to_mvxy_data(WORK * wk, u32 ix);
-#endif
+
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -83,10 +79,7 @@ void Att_PL20_AT1(PLW* wk) {
 }
 
 void Att_PL20_AT2(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void setup_mvxy_data(WORK * wk, u32 ix);
-#endif
+
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -156,11 +149,7 @@ void Att_PL20_AT2(PLW* wk) {
 }
 
 void Att_PL20_AT3(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void setup_mvxy_data(WORK * wk, u32 ix);
-    void add_to_mvxy_data(WORK * wk, u32 ix);
-#endif
+
 
     PLW* emwk;
 
@@ -231,10 +220,7 @@ void Att_PL20_AT3(PLW* wk) {
 }
 
 void Att_PL20_TOKUSHUKOUDOU(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void grade_add_personal_action(s32 ix);
-#endif
+
 
     wk->scr_pos_set_flag = 0;
 

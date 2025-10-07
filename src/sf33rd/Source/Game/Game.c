@@ -525,9 +525,7 @@ void Game2_1() {
 }
 
 void Game2_2() {
-#if defined(TARGET_PS2)
-    void Bg_On_R(s32 s_prm);
-#endif
+
 
     s16 i;
 

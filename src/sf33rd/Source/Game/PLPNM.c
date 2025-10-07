@@ -70,9 +70,7 @@ void (*const normal_05[])(PLW* wk);
 void (*const normal_06[])(PLW* wk);
 
 void Player_normal(PLW* wk) {
-#if defined(TARGET_PS2)
-    void clear_chainex_check(s32 ix);
-#endif
+
 
     setup_normal_process_flags(wk);
 
@@ -514,10 +512,7 @@ void Normal_17000(PLW* wk) {
 }
 
 void Normal_18000(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void setup_mvxy_data(WORK * wk, u32 ix);
-#endif
+
 
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority + 1;
@@ -546,10 +541,7 @@ void Normal_18000(PLW* wk) {
 }
 
 void Normal_18000_init_unit(PLW* wk, u8 ps) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void setup_mvxy_data(WORK * wk, u32 ix);
-#endif
+
 
     ps = (ps - 14) / 2;
 
@@ -563,9 +555,7 @@ void Normal_18000_init_unit(PLW* wk, u8 ps) {
 }
 
 void Normal_27000(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority + 1;
@@ -584,9 +574,7 @@ void Normal_27000(PLW* wk) {
 }
 
 void Normal_31000(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     if (((WORK*)wk->wu.target_adrs)->cg_prio != 2) {
         wk->wu.next_z = 32;
@@ -763,11 +751,7 @@ void Normal_41000(PLW* wk) {
 }
 
 void Normal_42000(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void setup_mvxy_data(WORK * wk, u32 ix);
-    s32 effect_G6_init(WORK * wk, u32 dat);
-#endif
+
 
     const s16* dadr = nmPB_data[wk->wu.routine_no[2] - 42];
 
@@ -834,12 +818,7 @@ void Normal_42000(PLW* wk) {
 }
 
 void Normal_47000(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void setup_mvxy_data(WORK * wk, u32 ix);
-    s32 effect_G6_init(WORK * wk, u32 dat);
-    void grade_add_grap_def(s32 ix);
-#endif
+
 
     const s16* datix = nmCE_data[wk->wu.routine_no[2] - 47];
 
@@ -904,9 +883,7 @@ void Normal_47000(PLW* wk) {
 }
 
 void Normal_48000(PLW* wk) {
-#if defined(TARGET_PS2)
-    s32 effect_G6_init(WORK * wk, u32 dat);
-#endif
+
 
     wk->guard_flag = 3;
 
@@ -1002,9 +979,7 @@ void Normal_51000(PLW* wk) {
 }
 
 void Normal_52000(PLW* wk) {
-#if defined(TARGET_PS2)
-    void remake_sankaku_tobi_mvxy(WORK * wk, u32 kabe);
-#endif
+
 
     wk->guard_flag = 3;
 
@@ -1037,10 +1012,7 @@ void Normal_52000(PLW* wk) {
 }
 
 void Normal_53000(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void setup_mvxy_data(WORK * wk, u32 ix);
-#endif
+
 
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority + 1;
@@ -1139,10 +1111,7 @@ void Normal_55000(PLW* wk) {
 }
 
 void make_nm55_init_sp(PLW* wk) {
-#if defined(TARGET_PS2)
-    s16 get_sel_hosei_tbl_ix(s32 plnum);
-    s16 check_work_position_bonus(WORK * hm, s32 tx);
-#endif
+
 
     WORK* efw;
     s16* dad;
@@ -1199,11 +1168,7 @@ void Normal_56000(PLW* wk) {
 }
 
 void nm56_char_select(PLW* wk) {
-#if defined(TARGET_PS2)
-    s16 get_sel_hosei_tbl_ix(s32 plnum);
-    s16 check_work_position_bonus(WORK * hm, s32 tx);
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     WORK* efw;
     s16* dad;
@@ -1231,9 +1196,7 @@ void nm56_char_select(PLW* wk) {
 }
 
 void Normal_57000(PLW* wk) {
-#if defined(TARGET_PS2)
-    s32 effect_G6_init(WORK * wk, u32 dat);
-#endif
+
 
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority + 1;
@@ -1272,10 +1235,7 @@ void Normal_57000(PLW* wk) {
 }
 
 void nm57_dir_select(PLW* wk) {
-#if defined(TARGET_PS2)
-    s16 get_sel_hosei_tbl_ix(s32 plnum);
-    s16 check_work_position_bonus(WORK * hm, s32 tx);
-#endif
+
 
     WORK* efw;
     s16* dad;

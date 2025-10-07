@@ -90,9 +90,7 @@ s32 effect_J4_init(u8 data2) {
 }
 
 s32 setup_sa_shadow(u8 /* unused */, u8 data) {
-#if defined(TARGET_PS2)
-    s32 effect_J4_init(u32 data2);
-#endif
+
 
     if (test_flag) {
         return -1;

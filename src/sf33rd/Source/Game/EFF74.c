@@ -15,9 +15,7 @@ const s16 EFF74_Pos_Data[3][2][2] = { { { 0, 148 }, { 0, 116 } },
 void (*const EFF74_Jmp_Tbl[5])();
 
 void effect_74_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init2(WORK * wk, s32 koc, s32 index, s32 ip, s32 scf);
-#endif
+
 
     if (Menu_Suicide[ewk->master_player]) {
         push_effect_work(&ewk->wu);

@@ -27,9 +27,7 @@ void key_thru(PLW* pl) {
 }
 
 void cmd_data_set(PLW* /* unused */, s16 i) {
-#if defined(TARGET_PS2)
-    void make_red_blocking_time(s32 id, s32 ix, s32 num);
-#endif
+
 
     u8* ptr3;
     u16* ptr4;

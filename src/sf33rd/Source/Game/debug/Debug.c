@@ -95,9 +95,7 @@ void Debug_1st(struct _TASK* task_ptr) {
 }
 
 void Debug_2nd(struct _TASK* task_ptr) {
-#if defined(TARGET_PS2)
-    void Debug_Menu_Disp(s16, s16);
-#endif
+
 
     u16 sw;
     s16 offset_y[4];

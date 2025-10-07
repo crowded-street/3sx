@@ -198,9 +198,7 @@ void Entry_01() {
 }
 
 void Entry_01_Sub(s16 PL_id) {
-#if defined(TARGET_PS2)
-    void grade_check_work_1st_init(s32 ix, s32 ix2);
-#endif
+
 
     E_No[2] += 1;
     Request_G_No = 1;

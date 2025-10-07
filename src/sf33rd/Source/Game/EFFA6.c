@@ -77,9 +77,7 @@ s32 check2_A6_shortcut() {
 }
 
 void effect_A6_move(WORK_Other_CONN* ewk) {
-#if defined(TARGET_PS2)
-    void get_message_conn_data(WORK_Other_CONN * ewk, s32 kind, s32 pl, s32 msg);
-#endif
+
 
     WORK_Other* mwk;
 

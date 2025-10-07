@@ -105,36 +105,7 @@ typedef struct {
  */
 
 /* TIMER */
-#if defined(TARGET_PS2)
-#define DGET_T0_MODE() (*T0_MODE)
-#define DPUT_T0_MODE(x) (*T0_MODE = (x))
-#define DGET_T0_COUNT() (*T0_COUNT)
-#define DPUT_T0_COUNT(x) (*T0_COUNT = (x))
-#define DGET_T0_COMP() (*T0_COMP)
-#define DPUT_T0_COMP(x) (*T0_COMP = (x))
-#define DGET_T0_HOLD() (*T0_HOLD)
-#define DPUT_T0_HOLD(x) (*T0_HOLD = (x))
-#define DGET_T1_MODE() (*T1_MODE)
-#define DPUT_T1_MODE(x) (*T1_MODE = (x))
-#define DGET_T1_COUNT() (*T1_COUNT)
-#define DPUT_T1_COUNT(x) (*T1_COUNT = (x))
-#define DGET_T1_COMP() (*T1_COMP)
-#define DPUT_T1_COMP(x) (*T1_COMP = (x))
-#define DGET_T1_HOLD() (*T1_HOLD)
-#define DPUT_T1_HOLD(x) (*T1_HOLD = (x))
-#define DGET_T2_MODE() (*T2_MODE)
-#define DPUT_T2_MODE(x) (*T2_MODE = (x))
-#define DGET_T2_COUNT() (*T2_COUNT)
-#define DPUT_T2_COUNT(x) (*T2_COUNT = (x))
-#define DGET_T2_COMP() (*T2_COMP)
-#define DPUT_T2_COMP(x) (*T2_COMP = (x))
-#define DGET_T3_MODE() (*T3_MODE)
-#define DPUT_T3_MODE(x) (*T3_MODE = (x))
-#define DGET_T3_COUNT() (*T3_COUNT)
-#define DPUT_T3_COUNT(x) (*T3_COUNT = (x))
-#define DGET_T3_COMP() (*T3_COMP)
-#define DPUT_T3_COMP(x) (*T3_COMP = (x))
-#else
+
 #define DGET_T0_MODE() (0)
 #define DPUT_T0_MODE(x)
 #define DGET_T0_COUNT() (0)
@@ -163,27 +134,12 @@ typedef struct {
 #define DPUT_T3_COUNT(x)
 #define DGET_T3_COMP() (0)
 #define DPUT_T3_COMP(x)
-#endif
+
 
 /* GS Special */
 #define DGET_GS_CSR() (*GS_CSR)
 #define DGET_GS_SIGLBLID() (*GS_SIGLBLID)
 
-#if defined(TARGET_PS2)
-#define DPUT_GS_PMODE(x) (*GS_PMODE = (x))
-#define DPUT_GS_SMODE2(x) (*GS_SMODE2 = (x))
-#define DPUT_GS_DISPFB1(x) (*GS_DISPFB1 = (x))
-#define DPUT_GS_DISPLAY1(x) (*GS_DISPLAY1 = (x))
-#define DPUT_GS_DISPFB2(x) (*GS_DISPFB2 = (x))
-#define DPUT_GS_DISPLAY2(x) (*GS_DISPLAY2 = (x))
-#define DPUT_GS_EXTBUF(x) (*GS_EXTBUF = (x))
-#define DPUT_GS_EXTDATA(x) (*GS_EXTDATA = (x))
-#define DPUT_GS_EXTWRITE(x) (*GS_EXTWRITE = (x))
-#define DPUT_GS_BGCOLOR(x) (*GS_BGCOLOR = (x))
-#define DPUT_GS_CSR(x) (*GS_CSR = (x))
-#define DPUT_GS_IMR(x) (*GS_IMR = (x))
-#define DPUT_GS_BUSDIR(x) (*GS_BUSDIR = (x))
-#else
 #define DPUT_GS_PMODE(x)
 #define DPUT_GS_SMODE2(x)
 #define DPUT_GS_DISPFB1(x)
@@ -197,6 +153,6 @@ typedef struct {
 #define DPUT_GS_CSR(x)
 #define DPUT_GS_IMR(x)
 #define DPUT_GS_BUSDIR(x)
-#endif
+
 
 #endif

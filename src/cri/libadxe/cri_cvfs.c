@@ -20,17 +20,11 @@ void (*cvfs_errfn)(void*, const Char8*) = NULL;
 void* cvfs_errobj = NULL;
 Sint32 cvfs_init_cnt = 0;
 
-#if defined(TARGET_PS2)
-extern Char8 D_006BDDB8[0x148];
-extern Char8 D_006BDDA8[0x10];
-extern CVFSNamedDevice D_006BDBA8[CVFS_DEVICE_MAX]; // cvfs_named_devices
-extern CVFSHandle D_006BDA68[CVFS_HANDLE_MAX];      // cvfs_handles
-#else
 Char8 D_006BDDB8[0x148];
 Char8 D_006BDDA8[0x10];
 CVFSNamedDevice D_006BDBA8[CVFS_DEVICE_MAX]; // cvfs_named_devices
 CVFSHandle D_006BDA68[CVFS_HANDLE_MAX];      // cvfs_handles
-#endif
+
 
 // forward decls
 void getDevName(Char8* filename, Char8* device_name, const Char8* full_path);

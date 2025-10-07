@@ -88,10 +88,7 @@ void effect_D5_move(WORK_Other* ewk) {
 }
 
 void effD5_main_process(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    s16 cal_attdir_flip(s32 dir);
-    void setup_hana_extra(WORK * wk, s32 num, s32 acc);
-#endif
+
 
     s16 dsst;
 

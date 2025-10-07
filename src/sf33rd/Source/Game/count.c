@@ -51,9 +51,7 @@ void count_cont_init(u8 type) {
 }
 
 void count_cont_main() {
-#if defined(TARGET_PS2)
-    void counter_write(s32 atr);
-#endif
+
 
     if (Bonus_Game_Flag) {
         return;
@@ -98,9 +96,7 @@ void count_cont_main() {
 }
 
 void counter_control() {
-#if defined(TARGET_PS2)
-    void counter_write(s32 atr);
-#endif
+
 
     if (Counter_hi == 0) {
         if (No_Trans == 0) {

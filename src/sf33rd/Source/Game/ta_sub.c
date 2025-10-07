@@ -22,10 +22,7 @@ s32 eff_hit_check_sub2(WORK_Other* ewk, PLW* pl, s16 where_type);
 static s16 hit_check_subroutine_yu(WORK* tpl, WORK* tef, s16* hd1, s16* hd2);
 
 void sync_fam_set3(s16 my_fam) {
-#if defined(TARGET_PS2)
-    void Scrn_Move_Set(s32 bgnm, s32 x, s32 y);
-    void Family_Set_W(s32 fmnm, s32 x, s32 y);
-#endif
+
 
     s16 pos_work_x;
     s16 pos_work_y;

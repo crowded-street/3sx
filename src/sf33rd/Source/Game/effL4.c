@@ -14,9 +14,7 @@ const s16 effl4_data_tbl[24] = { 143, 96,  73, 9,  223, 120, 73, 10, 303, 104, 7
                                  367, 112, 73, 12, 399, 144, 73, 13, 487, 120, 73, 14 };
 
 void effect_L4_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -45,9 +43,7 @@ void effect_L4_move(WORK_Other* ewk) {
 }
 
 s32 effect_L4_init() {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
+
 
     WORK_Other* ewk;
     s16 ix;

@@ -41,10 +41,7 @@ void pl09_extra_attack(PLW* wk) {
 }
 
 void Att_SP_YAGYOUDAMA(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void setup_mvxy_data(WORK * wk, u32 ix);
-#endif
+
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -102,10 +99,7 @@ void Att_SP_YAGYOUDAMA(PLW* wk) {
 }
 
 s32 set_tenguiwa(PLW* wk, u8 data) {
-#if defined(TARGET_PS2)
-    s32 effect_13_init(WORK * wk, const u32 data);
-    s32 get_my_shell_ix(WORK * wk, s32 ix, WORK * *tmw);
-#endif
+
 
     s16 i;
     s16 j;
@@ -177,10 +171,7 @@ s32 set_tenguiwa(PLW* wk, u8 data) {
 }
 
 void Att_PL09_TOKUSHUKOUDOU(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void grade_add_personal_action(s32 ix);
-#endif
+
 
     wk->scr_pos_set_flag = 0;
 
@@ -235,9 +226,7 @@ void Att_PL09_TOKUSHUKOUDOU(PLW* wk) {
 }
 
 void Att_JINNCHUUWATARI_EX(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -282,10 +271,7 @@ void Att_JINNCHUUWATARI_EX(PLW* wk) {
 }
 
 void mvxy_table_reader(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void setup_mvxy_data(WORK * wk, u32 ix);
-#endif
+
 
     PLW* twk = (PLW*)wk->wu.target_adrs;
     const s16* curr_kop = &homing_kop[wk->pl09_dat_index][0];
@@ -354,9 +340,7 @@ void mvxy_table_reader(PLW* wk) {
 }
 
 void Att_PL09_EX_TENGUIWA(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     wk->scr_pos_set_flag = 0;
 
@@ -376,10 +360,7 @@ void Att_PL09_EX_TENGUIWA(PLW* wk) {
 }
 
 void Att_PL09_EX_KISHINRIKI(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void setup_mvxy_data(WORK * wk, u32 ix);
-#endif
+
 
     switch (wk->wu.routine_no[3]) {
     case 0:

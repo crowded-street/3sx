@@ -83,9 +83,7 @@ void end_d00_move() {
 }
 
 void end_d00_1000() {
-#if defined(TARGET_PS2)
-    void Bg_On_W(u32 s_prm);
-#endif
+
 
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -176,9 +174,7 @@ void end_d00_3000() {
 }
 
 void end_d00_4000() {
-#if defined(TARGET_PS2)
-    void Bg_On_W(u32 s_prm);
-#endif
+
 
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -210,9 +206,7 @@ void end_d00_4000() {
 }
 
 void end_d00_6000() {
-#if defined(TARGET_PS2)
-    void Bg_On_W(u32 s_prm);
-#endif
+
 
     switch (bgw_ptr->r_no_1) {
     case 0:

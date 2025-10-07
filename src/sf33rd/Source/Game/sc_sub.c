@@ -18,15 +18,10 @@
 #include "sf33rd/Source/PS2/ps2Quad.h"
 #include "structs.h"
 
-#if defined(TARGET_PS2)
-#define TO_UV_256(val) ((0.5f + (val)) / 256.0f)
-#define TO_UV_256_NEG(val) (((val) - 0.5f) / 256.0f)
-#define TO_UV_128(val) ((0.5f + (val)) / 128.0f)
-#else
 #define TO_UV_256(val) ((val) / 256.0f)
 #define TO_UV_256_NEG(val) (TO_UV_256(val))
 #define TO_UV_128(val) ((val) / 128.0f)
-#endif
+
 
 typedef struct {
     // total size: 0x6
@@ -2263,11 +2258,8 @@ void dispSaveLoadTitle(void* ewk) {
     prm.t[0].t = TO_UV_128(0.0f);
     prm.t[3].t = TO_UV_128(36.0f);
 
-#if defined(TARGET_PS2)
-    step_t = 36.5f;
-#else
     step_t = 36.0f;
-#endif
+
 
     pos[0].x = -192.0f;
     pos[0].y = -12.0f;

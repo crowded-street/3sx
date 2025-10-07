@@ -45,9 +45,7 @@ void EFF40_EXIT(WORK_Other* ewk) {
 }
 
 void EFF40_BACK(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init2(WORK * wk, s16 koc, s32 index, s32 ip, s32 scf);
-#endif
+
 
     s16 ix;
 
@@ -61,10 +59,7 @@ void EFF40_BACK(WORK_Other* ewk) {
 }
 
 void EFF40_ARROW(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void set_char_move_init2(WORK * wk, s16 koc, s32 index, s32 ip, s32 scf);
-#endif
+
 
     if (Menu_Cursor_Y[0] != Menu_Max) {
         set_char_move_init2(&ewk->wu, 0, 76, (ewk->master_priority / 2) + 1, 0);
@@ -83,11 +78,7 @@ void EFF40_ARROW(WORK_Other* ewk) {
 }
 
 s32 effect_40_init(s16 id, s16 type, s16 char_ix, s16 sync_bg, s16 master_player, s16 master_priority) {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void set_char_move_init2(WORK * wk, s16 koc, s32 index, s32 ip, s32 scf);
-#endif
+
 
     WORK_Other* ewk;
     s16 ix;

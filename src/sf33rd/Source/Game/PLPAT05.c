@@ -13,10 +13,7 @@ void pl05_extra_attack(PLW* wk) {
 }
 
 void Att_PL05_TOKUSHUKOUDOU(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void grade_add_personal_action(s32 ix);
-#endif
+
 
     wk->scr_pos_set_flag = 0;
 

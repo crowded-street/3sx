@@ -20,26 +20,18 @@ Sint32 adxt_dbg_nch = 0;
 Sint32 adxt_dbg_ndt = 0;
 Sint32 adxt_dbg_rna_ndata = 0;
 
-#if defined(TARGET_PS2)
-void adxt_trap_entry_lps(ADXT adxt);
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_tsvr", adxt_trap_entry_lps);
-#else
 void adxt_trap_entry_lps(ADXT adxt) {
     not_implemented(__func__);
 }
-#endif
+
 
 INCLUDE_RODATA("asm/anniversary/nonmatchings/cri/libadxe/adx_tsvr", D_0055BCD0);
 INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_tsvr", adxt_trap_entry);
 
-#if defined(TARGET_PS2)
-void adxt_eos_entry(ADXT adxt);
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_tsvr", adxt_eos_entry);
-#else
 void adxt_eos_entry(ADXT adxt) {
     not_implemented(__func__);
 }
-#endif
+
 
 void adxt_set_outpan(ADXT adxt) {
     Sint32 i;
@@ -109,14 +101,10 @@ void adxt_set_outpan(ADXT adxt) {
     }
 }
 
-#if defined(TARGET_PS2)
-void adxt_nlp_trap_entry(ADXT adxt);
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_tsvr", adxt_nlp_trap_entry);
-#else
 void adxt_nlp_trap_entry(ADXT adxt) {
     not_implemented(__func__);
 }
-#endif
+
 
 void adxt_stat_decinfo(ADXT adxt) {
     Sint32 transpose = 0;
@@ -303,13 +291,10 @@ void adxt_stat_playing(ADXT adxt) {
     }
 }
 
-#if defined(TARGET_PS2)
-INCLUDE_ASM("asm/anniversary/nonmatchings/cri/libadxe/adx_tsvr", adxt_stat_decend);
-#else
 void adxt_stat_decend(ADXT adxt) {
     not_implemented(__func__);
 }
-#endif
+
 
 void adxt_stat_playend(ADXT adxt) {
     // Do nothing

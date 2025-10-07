@@ -48,9 +48,7 @@ void EFF38_WAIT(WORK_Other* ewk) {
 }
 
 void EFF38_SUDDENLY(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init2(WORK * wk, s32 koc, s32 index, s32 ip, s32 scf);
-#endif
+
 
     if (--Order_Timer[ewk->wu.dir_old] == 0) {
         ewk->wu.disp_flag = 1;
@@ -62,9 +60,7 @@ void EFF38_SUDDENLY(WORK_Other* ewk) {
 }
 
 void EFF38_SLIDE_IN(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init2(WORK * wk, s32 koc, s32 index, s32 ip, s32 scf);
-#endif
+
 
     u16 cut = Cut_Cut_Sub(3);
 
@@ -300,9 +296,7 @@ s32 Move_Y_Sub_38(WORK_Other* ewk, s16 Target_Y) {
 }
 
 void EFF38_MOVE(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init2(WORK * wk, s32 koc, s32 index, s32 ip, s32 scf);
-#endif
+
 
     if (Order[ewk->wu.dir_old] != 5) {
         ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
@@ -350,9 +344,7 @@ void EFF38_MOVE(WORK_Other* ewk) {
 }
 
 s32 effect_38_init(s16 PL_id, s16 dir_old, s16 Your_Char, s16 Play_Status, s16 Target_BG) {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
+
 
     WORK_Other* ewk;
     s16 ix;

@@ -262,9 +262,7 @@ void effl3_kie(WORK_Other* ewk) {
 }
 
 s32 effect_L3_init(PLW* oya) {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
+
 
     WORK_Other* ewk;
     s16 ix;

@@ -24,9 +24,7 @@ void Check_Under_Name(WORK_Other* ewk);
 s32 Check_Break_Into_59(WORK_Other* ewk);
 
 void effect_59_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init2(WORK * wk, s16 koc, s32 index, s32 ip, s16 scf);
-#endif
+
 
     WORK_Other* mwk = (WORK_Other*)ewk->my_master;
 
@@ -114,9 +112,7 @@ void Check_Under_Name(WORK_Other* ewk) {
 }
 
 s32 effect_59_init(WORK_Other* mwk, s16 Synchro_BG, s16 ID, s16 direction) {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
+
 
     WORK_Other* ewk;
     s16 ix;
@@ -173,9 +169,7 @@ s32 effect_59_init(WORK_Other* mwk, s16 Synchro_BG, s16 ID, s16 direction) {
 }
 
 s32 Check_Break_Into_59(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init2(WORK * wk, s16 koc, s32 index, s32 ip, s16 scf);
-#endif
+
 
     if (ewk->wu.dm_vital != 4 || ewk->wu.routine_no[0] == 4) {
         return 0;

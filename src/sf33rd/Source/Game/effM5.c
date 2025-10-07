@@ -18,9 +18,7 @@
 #include "sf33rd/Source/Game/workuser.h"
 
 void effect_M5_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -126,9 +124,7 @@ void effect_M5_move(WORK_Other* ewk) {
 }
 
 s32 effect_M5_init(PLW* oya) {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
+
 
     WORK_Other* ewk;
     s16 ix;

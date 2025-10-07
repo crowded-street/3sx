@@ -25,9 +25,7 @@ const u8 ag_sel_table[22][4][4];
 u32* ag_char_table[];
 
 void effect_C9_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    s32 effect_37_init(WORK * wk, u32 gal, u32 ohen);
-#endif
+
 
     s16 scrc;
 

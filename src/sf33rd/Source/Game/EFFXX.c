@@ -218,9 +218,6 @@ void effect_dummy_move() {
     // Do nothing
 }
 
-#if defined(TARGET_PS2)
-INCLUDE_RODATA("asm/anniversary/nonmatchings/sf33rd/Source/Game/EFFXX", effmovejptbl);
-#else
 const void (*effmovejptbl[229])() = {
     effect_00_move,    effect_01_move,    effect_02_move,    effect_03_move,    effect_04_move,    effect_05_move,
     effect_06_move,    effect_07_move,    effect_08_move,    effect_09_move,    effect_10_move,    effect_11_move,
@@ -262,11 +259,8 @@ const void (*effmovejptbl[229])() = {
     effect_M2_move,    effect_M3_move,    effect_dummy_move, effect_M5_move,    effect_M6_move,    effect_M7_move,
     effect_M8_move,
 };
-#endif
 
-#if defined(TARGET_PS2)
-INCLUDE_RODATA("asm/anniversary/nonmatchings/sf33rd/Source/Game/EFFXX", effinitjptbl);
-#else
+
 const s32 (*effinitjptbl[59])() = {
     NULL,
     effect_03_init,
@@ -328,4 +322,4 @@ const s32 (*effinitjptbl[59])() = {
     effect_M8_init,
     effect_F0_init,
 };
-#endif
+

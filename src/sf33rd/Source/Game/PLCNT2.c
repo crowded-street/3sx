@@ -270,10 +270,7 @@ void move_player_work_bonus() {
 }
 
 void move_P1_move_P2_bonus(s16* field_work) {
-#if defined(TARGET_PS2)
-    void Player_move_bonus(PLW * wk, u32 lv_data);
-    s32 set_field_hosei_flag(PLW * pl, s32 pos, s16 ix);
-#endif
+
 
     Player_move_bonus(&plw[0], processed_lvbt(Convert_User_Setting(0)));
 
@@ -293,10 +290,7 @@ void move_P1_move_P2_bonus(s16* field_work) {
 }
 
 void move_P2_move_P1_bonus(s16* field_work) {
-#if defined(TARGET_PS2)
-    void Player_move_bonus(PLW * wk, u32 lv_data);
-    s32 set_field_hosei_flag(PLW * pl, s32 pos, s16 ix);
-#endif
+
 
     Player_move_bonus(&plw[1], processed_lvbt(Convert_User_Setting(1)));
 

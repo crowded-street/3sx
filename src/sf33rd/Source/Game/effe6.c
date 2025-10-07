@@ -1594,9 +1594,7 @@ void effe6_0033(WORK_Other* ewk) {
 }
 
 void effe6_init_common(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init2(WORK * wk, s16 koc, s32 index, s32 ip, s16 scf);
-#endif
+
 
     ewk->wu.routine_no[1]++;
     ewk->wu.disp_flag = 1;
@@ -1604,9 +1602,7 @@ void effe6_init_common(WORK_Other* ewk) {
 }
 
 s32 effect_E6_init(u8 char_num) {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
+
 
     WORK_Other* ewk;
     s16 ix;
@@ -1661,10 +1657,7 @@ static const u16 END_COL[20] = {
 };
 
 void ending_obj_load() {
-#if defined(TARGET_PS2)
-    s32 load_any_texture_patnum(u32 patnum, u8 kokey, u8 /* unused */);
-    void load_any_color(u32 ix, u8 kokey);
-#endif
+
 
     make_texcash_work(12);
     load_any_texture_patnum(0x7F30, 23, 0);

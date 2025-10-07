@@ -30,11 +30,9 @@ extern void* pRecvBuf;                                   // size: 0x4, address: 
 extern u32 SendBufSize;                                  // size: 0x4, address: 0x57B1A4
 extern u32 RecvBufSize;                                  // size: 0x4, address: 0x57B1A0
 extern CSE_RPCBUFF RpcBuff __attribute__((aligned(64))); // size: 0xC0, address: 0x6EA140
-#if defined(TARGET_PS2)
-extern u8 ThMonSendBuf[THMONSENDBUF_MAX] __attribute__((section(".bss"))); // size: 0x10, address: 0x6EA100
-#else
+
 extern u8 ThMonSendBuf[THMONSENDBUF_MAX]; // size: 0x10, address: 0x6EA100
-#endif
+
 extern u8 ThMonRecvBuf[THMONRECVBUF_MAX] __attribute__((aligned(256))); // size: 0x400, address: 0x6E9D00
 
 s32 flSifRpcInit();

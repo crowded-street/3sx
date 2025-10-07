@@ -33,9 +33,7 @@ void check_omop_vital(PLW* wk);
 s16 select_hit_stop(s16 ms, s16 sb);
 
 void Player_move(PLW* wk, u16 lv_data) {
-#if defined(TARGET_PS2)
-    u16 check_illegal_lever_data(u32 data);
-#endif
+
 
     s16 i;
 
@@ -102,10 +100,7 @@ u16 check_illegal_lever_data(u16 data) {
 }
 
 void player_mv_0000(PLW* wk) {
-#if defined(TARGET_PS2)
-    void setup_vitality(WORK * wk, s32 pno);
-    void metamor_color_restore(s32 wkid);
-#endif
+
 
     s16 i;
 
@@ -178,9 +173,7 @@ void player_mv_0000(PLW* wk) {
 }
 
 void player_mv_1000(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_super_arts_status(s32 ix);
-#endif
+
 
     switch (appear_type) {
     case 0:
@@ -306,9 +299,7 @@ void player_mv_4000(PLW* wk) {
 }
 
 s16 check_hit_stop(PLW* wk) {
-#if defined(TARGET_PS2)
-    s16 select_hit_stop(s32 ms, s32 sb);
-#endif
+
 
     s16 num;
     WORK* emwk = (WORK*)wk->wu.target_adrs;

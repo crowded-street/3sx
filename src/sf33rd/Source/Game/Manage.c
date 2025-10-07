@@ -1718,9 +1718,7 @@ void Be_Continue() {
 }
 
 void Disp_Winner() {
-#if defined(TARGET_PS2)
-    s32 effect_56_init(u32 type, u8 kill);
-#endif
+
 
     if (Play_Type == 1) {
         effect_56_init(My_char[Winner_id] + 7, 1);

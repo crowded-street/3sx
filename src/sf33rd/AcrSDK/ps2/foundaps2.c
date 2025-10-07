@@ -29,11 +29,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if defined(TARGET_PS2)
-#include "mw_stdarg.h"
-#else
 #include <stdarg.h>
-#endif
+
 
 // bss
 FLPS2State flPs2State;
@@ -157,14 +154,6 @@ s32 flInitialize(s32 /* unused */, s32 /* unused */) {
     flPADInitialize();
     flPS2DebugInit();
 
-#if defined(TARGET_PS2)
-    // This loop waits until we're on an even frame
-    while (1) {
-        if ((flPs2State.Oddeven = sceGsSyncV(0)) == 0) {
-            break;
-        }
-    }
-#endif
 
     DPUT_T1_MODE(0x80);
     DPUT_T1_COUNT(0);

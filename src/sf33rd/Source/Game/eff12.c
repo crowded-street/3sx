@@ -30,9 +30,7 @@ const s16* scr_obj_data12[6] = { eff12_data_tbl0, eff12_data_tbl1, eff12_data_tb
                                  eff12_data_tbl3, eff12_data_tbl4, eff12_data_tbl5 };
 
 void effect_12_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
+
 
     if (obr_no_disp_check()) {
         return;
@@ -67,9 +65,7 @@ void effect_12_move(WORK_Other* ewk) {
 }
 
 s32 effect_12_init(s16 type) {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
+
 
     WORK_Other* ewk;
     s16 ix;
