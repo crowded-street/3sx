@@ -1,4 +1,4 @@
-# 3sx
+# 3SX
 
 A port of the greatest fighting game of all time for modern platforms.
 
