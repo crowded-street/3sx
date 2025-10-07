@@ -1,5 +1,6 @@
 #include "sf33rd/Source/Game/main.h"
 #include "common.h"
+#include "port/sdl/sdl_app.h"
 #include "sf33rd/AcrSDK/common/mlPAD.h"
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/AcrSDK/ps2/flps2etc.h"
@@ -32,13 +33,10 @@
 #include "sf33rd/Source/PS2/ps2Quad.h"
 #include "structs.h"
 
-#if !defined(TARGET_PS2)
-#include "port/sdl/sdl_app.h"
 #if defined(_WIN32)
-#include <windef.h> // including windows.h causes conflicts with the Polygon struct, so I just included the header where AllocConsole is and the Windows-specific typedefs that it requires.
 #include <ConsoleApi.h>
 #include <stdio.h>
-#endif
+#include <windef.h> // including windows.h causes conflicts with the Polygon struct, so I just included the header where AllocConsole is and the Windows-specific typedefs that it requires.
 #endif
 
 #include <memory.h>
@@ -59,11 +57,10 @@ void cpInitTask();
 void cpReadyTask(u16 num, void* func_adrs);
 void cpExitTask(u16 num);
 
-void AcrMain() {
+int main() {
     u16 sw_buff;
     u32 sysinfodisp;
 
-#if !defined(TARGET_PS2)
     int is_running = 1;
 
 #if defined(_WIN32)
@@ -78,8 +75,6 @@ void AcrMain() {
 #endif
 
     SDLApp_Init();
-#endif
-
     flInitialize(flPs2State.DispWidth, flPs2State.DispHeight);
     flSetRenderState(FLRENDER_BACKCOLOR, 0);
     flSetDebugMode(0);
@@ -93,14 +88,9 @@ void AcrMain() {
     appSetupBasePriority();
     MemcardInit();
 
-#if defined(TARGET_PS2)
-    while (1) {
-#else
     while (is_running) {
         is_running = SDLApp_PollEvents();
         SDLApp_BeginFrame();
-#endif
-
         initRenderState(0);
         mpp_w.ds_h[0] = mpp_w.ds_h[1];
         mpp_w.ds_v[0] = mpp_w.ds_v[1];
@@ -249,27 +239,18 @@ void AcrMain() {
         BGM_Server();
     }
 
-#if !defined(TARGET_PS2)
     SDLApp_Quit();
-#endif
+    return 0;
 }
 
-#if !defined(TARGET_PS2)
 u8 dctex_linear_mem[0x800];
 u8 texcash_melt_buffer_mem[0x1000];
 u8 tpu_free_mem[0x2000];
-#endif
 
 void distributeScratchPadAddress() {
-#if defined(TARGET_PS2)
-    dctex_linear = (s16*)(SPR + 0x800);
-    texcash_melt_buffer = (u8*)(SPR + 0x1000);
-    tpu_free = (TexturePoolUsed*)(SPR + 0x2000);
-#else
     dctex_linear = (s16*)dctex_linear_mem;
     texcash_melt_buffer = (u8*)texcash_melt_buffer_mem;
     tpu_free = (TexturePoolUsed*)tpu_free_mem;
-#endif
 }
 
 void MaskScreenEdge() {
