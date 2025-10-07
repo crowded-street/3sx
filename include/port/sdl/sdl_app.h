@@ -6,5 +6,6 @@ void SDLApp_Quit();
 int SDLApp_PollEvents();
 void SDLApp_BeginFrame();
 void SDLApp_EndFrame();
+void SDLApp_Exit();
 
 #endif

@@ -1,5 +1,6 @@
 #include "sf33rd/Source/Game/menu.h"
 #include "common.h"
+#include "port/sdl/sdl_app.h"
 #include "sf33rd/Source/Game/DIR_DATA.h"
 #include "sf33rd/Source/Game/EFF10.h"
 #include "sf33rd/Source/Game/EFF45.h"
@@ -525,13 +526,9 @@ void toSelectGame(struct _TASK* task_ptr) {
         break;
 
     default:
-        jmpRebootProgram();
+        SDLApp_Exit();
         break;
     }
-}
-
-void jmpRebootProgram() {
-    Reboot_Program("cdrom0:\\SLUS_209.49;1");
 }
 
 void imgSelectGameButton() {

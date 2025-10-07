@@ -307,3 +307,9 @@ void SDLApp_EndFrame() {
     note_frame_end_time();
     update_fps();
 }
+
+void SDLApp_Exit() {
+    SDL_Event quit_event;
+    quit_event.type = SDL_EVENT_QUIT;
+    SDL_PushEvent(&quit_event);
+}
