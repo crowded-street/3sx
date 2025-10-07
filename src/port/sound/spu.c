@@ -56,8 +56,9 @@ struct SPU_Voice {
     u32 decRPos, decWPos, decLeft;
 };
 
+SDL_Mutex* soundLock;
+
 static SDL_AudioStream* stream;
-static SDL_Mutex* spuLock;
 static struct SPU_Voice voices[VOICE_COUNT];
 static u16 ram[(2 * 1024 * 1024) >> 1];
 static s16 adpcm_coefs[5][2] = {
@@ -258,8 +259,6 @@ void SPU_StartVoice(int vnum, struct SPUVConf* conf) {
     struct SPU_Voice* v = &voices[vnum];
     u16 header;
 
-    SDL_LockMutex(spuLock);
-
     v->ssa = conf->ssa;
     v->lsa = conf->ssa;
     v->pitch = conf->pitch;
@@ -281,28 +280,29 @@ void SPU_StartVoice(int vnum, struct SPUVConf* conf) {
     }
 
     v->nax = (v->nax + 1) & 0xfffff;
-    SDL_UnlockMutex(spuLock);
 }
 
 void SPU_SDL_CB(void* user, SDL_AudioStream* stream, int additional_amount, int total_amount) {
     u32 samples_amount = additional_amount / sizeof(s16);
     s16 out[2] = {};
 
-    SDL_LockMutex(spuLock);
+    // TODO consider redesigning this whole system, emlshim and spu should probably run
+    // on the same thread, no locks would be needed in the SDL audio callback path
+    SDL_LockMutex(soundLock);
 
     for (u32 i = 0; i < samples_amount; i++) {
         SPU_Tick(out);
         SDL_PutAudioStreamData(stream, out, sizeof(out));
     }
 
-    SDL_UnlockMutex(spuLock);
+    SDL_UnlockMutex(soundLock);
 }
 
 void SPU_Init() {
     SDL_AudioSpec spec;
 
     memset(voices, 0, sizeof(voices));
-    spuLock = SDL_CreateMutex();
+    soundLock = SDL_CreateMutex();
 
     spec.channels = 2;
     spec.format = SDL_AUDIO_S16;
@@ -317,11 +317,11 @@ void SPU_Init() {
 }
 
 void SPU_Upload(u32 dst, void* src, u32 size) {
-    SDL_LockMutex(spuLock);
+    SDL_LockMutex(soundLock);
 
     memcpy(&ram[dst >> 1], src, size);
 
-    SDL_UnlockMutex(spuLock);
+    SDL_UnlockMutex(soundLock);
 }
 
 void SPU_Tick(s16* output) {

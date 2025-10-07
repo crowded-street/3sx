@@ -2,6 +2,7 @@
 #define SPU_H_
 
 #include "common.h"
+#include <SDL3/SDL_mutex.h>
 
 struct SPUVConf {
     u32 ssa;
@@ -11,6 +12,7 @@ struct SPUVConf {
 };
 
 void SPU_Init();
+extern SDL_Mutex* soundLock;
 void SPU_Upload(u32 dst, void* src, u32 size);
 void SPU_Tick(s16* output);
 void SPU_StartVoice(int vnum, struct SPUVConf* conf);

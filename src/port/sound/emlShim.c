@@ -124,12 +124,14 @@ static u16 sceSdNote2Pitch(u16 center_note, u16 center_fine, u16 note, short fin
 }
 
 void emlShimInit() {
-    SPU_Init();
-
     memset(vpool, 0, sizeof(vpool));
 
     list_init(&active_voices);
     list_init(&free_voices);
+
+    SPU_Init(NULL);
+
+    SDL_LockMutex(soundLock);
 
     masterVolume = 0x3fff;
     for (int i = 0; i < 16; i++) {
@@ -142,11 +144,15 @@ void emlShimInit() {
         list_init(&vpool[i].list);
         list_insert(&free_voices, &vpool[i].list);
     }
+
+    SDL_UnlockMutex(soundLock);
 }
 
 static int gcVoices() {
     struct VWork *i, *n;
     int numFreed = 0;
+
+    SDL_LockMutex(soundLock);
 
     list_for_each_safe (i, n, &active_voices, list) {
         if (SPU_VoiceGetVolume(i->voice_num) == 0) {
@@ -155,6 +161,8 @@ static int gcVoices() {
             numFreed++;
         }
     }
+
+    SDL_UnlockMutex(soundLock);
 
     return numFreed;
 }
@@ -294,13 +302,16 @@ void emlShimStartSound(CSE_SYS_PARAM_SNDSTART* param) {
     struct SPUVConf conf;
     struct VWork* voice;
 
+    SDL_LockMutex(soundLock);
     if (!doSeDrop(&param->reqp)) {
+        SDL_UnlockMutex(soundLock);
         return;
     }
 
     voice = allocVoice();
     if (!voice) {
         printf("no free voices!\n");
+        SDL_UnlockMutex(soundLock);
         return;
     }
 
@@ -341,39 +352,55 @@ void emlShimStartSound(CSE_SYS_PARAM_SNDSTART* param) {
     conf.adsr2 = param->phdp.adsr2;
 
     SPU_StartVoice(voice->voice_num, &conf);
+
+    SDL_UnlockMutex(soundLock);
 }
 
 void emlShimSeKeyOff(CSE_REQP* pReqp) {
     u32 cond = makeConditions(pReqp);
     struct VWork* i;
 
+    SDL_LockMutex(soundLock);
+
     list_for_each (i, &active_voices, list) {
         if (checkConditions(&i->id, pReqp, cond)) {
             SPU_KeyOffVoice(i->voice_num);
         }
     }
+
+    SDL_UnlockMutex(soundLock);
 }
 
 void emlShimSeStop(CSE_REQP* pReqp) {
     u32 cond = makeConditions(pReqp);
     struct VWork* i;
 
+    SDL_LockMutex(soundLock);
+
     list_for_each (i, &active_voices, list) {
         if (checkConditions(&i->id, pReqp, cond)) {
             SPU_StopVoice(i->voice_num);
         }
     }
+
+    SDL_UnlockMutex(soundLock);
 }
 
 void emlShimSeStopAll() {
     struct VWork* i;
 
+    SDL_LockMutex(soundLock);
+
     list_for_each (i, &active_voices, list) {
         SPU_StopVoice(i->voice_num);
     }
+
+    SDL_UnlockMutex(soundLock);
 }
 
 void emlShimSysSetVolume(CSE_SYS_PARAM_BANKVOL* param) {
+    SDL_LockMutex(soundLock);
+
     if (param->bank == 0xff) {
         masterVolume = param->vol ? (param->vol * 0x3fff) / 0x7f : 0;
     } else {
@@ -383,4 +410,6 @@ void emlShimSysSetVolume(CSE_SYS_PARAM_BANKVOL* param) {
     for (int i = 0; i < 16; i++) {
         bankVolume[i] = (masterVolume * assignedBankVolume[i]) / 0x3fff;
     }
+
+    SDL_LockMutex(soundLock);
 }
