@@ -234,15 +234,15 @@ void SDLPad_HandleGamepadAxisMotionEvent(SDL_GamepadAxisEvent* event) {
     switch (event->axis) {
     case SDL_GAMEPAD_AXIS_LEFTX:
         state->left_stick_x = event->value;
-        // Convert to dpad if above deadzone
-        state->dpad_left = (event->value < -ANALOG_STICK_DEADZONE);
-        state->dpad_right = (event->value > ANALOG_STICK_DEADZONE);
+        // Convert to dpad if above deadzone (OR with existing state to avoid overwriting button presses)
+        state->dpad_left = state->dpad_left || (event->value < -ANALOG_STICK_DEADZONE);
+        state->dpad_right = state->dpad_right || (event->value > ANALOG_STICK_DEADZONE);
         break;
     case SDL_GAMEPAD_AXIS_LEFTY:
         state->left_stick_y = event->value;
-        // Convert to dpad if above deadzone
-        state->dpad_up = (event->value < -ANALOG_STICK_DEADZONE);
-        state->dpad_down = (event->value > ANALOG_STICK_DEADZONE);
+        // Convert to dpad if above deadzone (OR with existing state to avoid overwriting button presses)
+        state->dpad_up = state->dpad_up || (event->value < -ANALOG_STICK_DEADZONE);
+        state->dpad_down = state->dpad_down || (event->value > ANALOG_STICK_DEADZONE);
         break;
     case SDL_GAMEPAD_AXIS_RIGHTX:
         state->right_stick_x = event->value;
