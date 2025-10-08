@@ -119,11 +119,12 @@ if(APPLE)
     )
 elseif(WIN32)
     target_link_libraries(3sx PRIVATE
-        ${FFMPEG_ROOT}/lib/avcodec.lib
-        ${FFMPEG_ROOT}/lib/avformat.lib
-        ${FFMPEG_ROOT}/lib/avutil.lib
-        ${FFMPEG_ROOT}/lib/swresample.lib
-        ${SDL3_ROOT}/lib/SDL3.lib
+        ${FFMPEG_ROOT}/lib/libavcodec.dll.a
+        ${FFMPEG_ROOT}/lib/libavformat.dll.a
+        ${FFMPEG_ROOT}/lib/libavutil.dll.a
+        ${FFMPEG_ROOT}/lib/libswresample.dll.a
+        ${SDL3_ROOT}/lib/libSDL3.dll.a
+		dbghelp
     )
 elseif(UNIX)
     target_link_libraries(3sx PRIVATE
@@ -154,16 +155,22 @@ if(APPLE)
     )
 elseif(WIN32)
     install(TARGETS 3sx
+		RUNTIME_DEPENDENCY_SET deps
         RUNTIME DESTINATION bin
     )
 
-    file(GLOB FFMPEG_DLLS "${FFMPEG_ROOT}/bin/*.dll")
-
-    install(FILES
-        ${FFMPEG_DLLS}
-        ${SDL3_ROOT}/bin/SDL3.dll
-        DESTINATION bin
-    )
+    execute_process(COMMAND cygpath -m /mingw64/bin
+		OUTPUT_VARIABLE binPath
+		OUTPUT_STRIP_TRAILING_WHITESPACE
+	)
+	
+	# automatically copies all the dependent DLLS, and ignores the system ones because they aren't necessary
+	install(RUNTIME_DEPENDENCY_SET deps
+		DIRECTORIES ${binPath} "${FFMPEG_ROOT}/bin" "${SDL3_ROOT}/bin"
+		PRE_EXCLUDE_REGEXES "^api"
+		POST_EXCLUDE_REGEXES ".*system32/.*\\.dll"
+		DESTINATION bin
+	)
 elseif(UNIX)
     install(TARGETS 3sx
         RUNTIME DESTINATION bin

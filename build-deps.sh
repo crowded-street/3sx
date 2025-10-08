@@ -10,6 +10,9 @@ mkdir -p "$THIRD_PARTY"
 OS="$(uname -s)"
 echo "Detected OS: $OS"
 
+echo "Using cmake from: $(which cmake)"
+cmake --version
+
 # -----------------------------
 # FFmpeg
 # -----------------------------
@@ -67,8 +70,8 @@ else
                 --disable-static --enable-shared \
                 --enable-avcodec --enable-avformat --enable-avutil --enable-swresample \
                 --enable-decoder=adpcm_adx --enable-parser=adx --enable-muxer=adx \
-                --extra-cflags="-IC:/msys64/mingw64/include" \
-                --extra-ldflags="-LC:/msys64/mingw64/lib"
+                --extra-cflags="-I/mingw64/include" \
+                --extra-ldflags="-L/mingw64/lib"
             ;;
         *)
             echo "Unsupported OS: $OS"
@@ -115,7 +118,6 @@ else
             ;;
         MINGW*|MSYS*|CYGWIN*)
             cmake .. \
-                -G "MinGW Makefiles" \
                 -DCMAKE_INSTALL_PREFIX="$SDL_BUILD" \
                 -DBUILD_SHARED_LIBS=ON
             ;;
