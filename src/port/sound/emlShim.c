@@ -430,5 +430,5 @@ void emlShimSysSetVolume(CSE_SYS_PARAM_BANKVOL* param) {
         bankVolume[i] = (masterVolume * assignedBankVolume[i]) / 0x3fff;
     }
 
-    SDL_LockMutex(soundLock);
+    SDL_UnlockMutex(soundLock);
 }
