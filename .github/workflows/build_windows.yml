@@ -11,37 +11,43 @@ jobs:
         runs-on: windows-latest
 
         defaults:
-          run:
-            shell: msys2 {0}
+            run:
+                shell: msys2 {0}
 
         steps:
           - uses: msys2/setup-msys2@v2
             with:
-              update: true
-              msystem: MINGW64
-              install: >-
-                make
-                mingw-w64-x86_64-cmake
-                mingw-w64-x86_64-ninja
-                mingw-w64-x86_64-nasm
-                mingw-w64-x86_64-clang
-                mingw-w64-x86_64-headers-git
+                update: true
+                msystem: MINGW64
+                install: >-
+                    make
+                    mingw-w64-x86_64-cmake
+                    mingw-w64-x86_64-ninja
+                    mingw-w64-x86_64-nasm
+                    mingw-w64-x86_64-clang
+                    mingw-w64-x86_64-headers-git
 
           - name: Checkout repository
             uses: actions/checkout@v4
+
+          - name: Cache dependencies
+            uses: actions/cache@v4
+            with:
+                path: third_party
+                key: ${{ runner.os }}-deps-${{ hashFiles('build-deps.sh') }}
 
           - name: Build dependencies
             run: sh build-deps.sh
 
           - name: Build for Windows
             run: |
-              set -o pipefail
+                set -o pipefail
 
-              CC=clang CXX=clang++ cmake -B build \
-                -DCMAKE_BUILD_TYPE=Release \
-                -DMSYS2_LOCATION=${{ steps.msys2.outputs.msys2-location }}
+                CC=clang CXX=clang++ cmake -B build \
+                    -DCMAKE_BUILD_TYPE=Release \
+                    -DMSYS2_LOCATION=${{ steps.msys2.outputs.msys2-location }}
 
-              cmake --build build --parallel 2>&1 | tee build.log
+                cmake --build build --parallel 2>&1 | tee build.log
 
           - name: Upload build log
             if: always()

@@ -82,6 +82,10 @@ else
     make -j$(nproc)
     make install
     echo "FFmpeg installed to $FFMPEG_BUILD"
+
+    cd ../..
+    rm -rf "$FFMPEG"
+    rm "$FFMPEG.tar.xz"
 fi
 
 # -----------------------------
@@ -126,6 +130,10 @@ else
     cmake --build . -j$(nproc)
     cmake --install .
     echo "SDL3 installed to $SDL_BUILD"
+
+    cd ../..
+    rm -rf "$SDL"
+    rm "$SDL.tar.gz"
 fi
 
 echo "All dependencies installed successfully in $THIRD_PARTY"
