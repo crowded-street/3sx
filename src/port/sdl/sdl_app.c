@@ -3,9 +3,11 @@
 #include "port/float_clamp.h"
 #include "port/sdk_threads.h"
 #include "port/sdl/sdl_adx_sound.h"
+#include "port/sdl/sdl_debug_overlay.h"
 #include "port/sdl/sdl_game_renderer.h"
 #include "port/sdl/sdl_message_renderer.h"
 #include "port/sdl/sdl_pad.h"
+#include "port/sdl/sdl_settings.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "sf33rd/Source/Game/main.h"
 
@@ -19,8 +21,6 @@ int ADXPS2_ExecVint(int mode);
 
 static const char* app_name = "Street Fighter III: 3rd Strike";
 static const float display_target_ratio = 4.0 / 3.0;
-static const int window_default_width = 640;
-static const int window_default_height = (int)(window_default_width / display_target_ratio);
 static const double target_fps = 59.59949;
 static const Uint64 target_frame_time_ns = 1000000000.0 / target_fps;
 
@@ -38,6 +38,8 @@ static Uint64 frame_counter = 0;
 static bool should_save_screenshot = false;
 static Uint64 last_mouse_motion_time = 0;
 static const int mouse_hide_delay_ms = 2000; // 2 seconds
+
+static SDLSettings settings = { 0 };
 
 static void create_screen_texture() {
     if (screen_texture != NULL) {
@@ -61,9 +63,12 @@ int SDLApp_Init() {
         return 1;
     }
 
+    // Load settings early to get window size
+    SDLSettings_Load(&settings, "config.ini");
+
     if (!SDL_CreateWindowAndRenderer(app_name,
-                                     window_default_width,
-                                     window_default_height,
+                                     settings.video.window_width,
+                                     settings.video.window_height,
                                      SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY,
                                      &window,
                                      &renderer)) {
@@ -79,11 +84,16 @@ int SDLApp_Init() {
     // Initialize game renderer
     SDLGameRenderer_Init(renderer);
 
+    // Apply fullscreen setting
+    if (settings.video.fullscreen) {
+        SDL_SetWindowFullscreen(window, true);
+    }
+
     // Initialize screen texture
     create_screen_texture();
 
-    // Initialize pads
-    SDLPad_Init();
+    // Initialize pads with loaded input config
+    SDLPad_Init(&settings.input);
 
     return 0;
 }
@@ -267,11 +277,8 @@ void SDLApp_EndFrame() {
         save_texture(screen_texture, "screenshot_screen.bmp");
     }
 
-    // Render metrics
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
-    SDL_SetRenderScale(renderer, 2, 2);
-    SDL_RenderDebugTextFormat(renderer, 8, 8, "FPS: %.3f", fps);
-    SDL_SetRenderScale(renderer, 1, 1);
+    // Render debug overlays
+    SDLDebugOverlay_Render(renderer, fps, settings.debug.show_fps, settings.debug.show_inputs);
 
     SDL_RenderPresent(renderer);
 

@@ -1,30 +1,36 @@
 #ifndef SDL_PAD_H
 #define SDL_PAD_H
 
+#include "port/sdl/sdl_input_config.h"
+
 #include <SDL3/SDL.h>
 
 #include <stdbool.h>
 
 typedef struct SDLPad_ButtonState {
-    bool south;
-    bool east;
-    bool west;
-    bool north;
-    bool back;
-    bool start;
-    bool left_stick;
-    bool right_stick;
-    bool left_shoulder;
-    bool right_shoulder;
-    Sint16 left_trigger;
-    Sint16 right_trigger;
     bool dpad_up;
     bool dpad_down;
     bool dpad_left;
     bool dpad_right;
+    bool north;
+    bool south;
+    bool east;
+    bool west;
+    bool back;
+    bool start;
+    bool left_shoulder;
+    bool right_shoulder;
+    Sint16 left_trigger;
+    Sint16 right_trigger;
+    bool l3;
+    bool r3;
+    Sint16 left_stick_x;
+    Sint16 left_stick_y;
+    Sint16 right_stick_x;
+    Sint16 right_stick_y;
 } SDLPad_ButtonState;
 
-void SDLPad_Init();
+void SDLPad_Init(const SDLInputConfig* input_config);
 void SDLPad_HandleGamepadDeviceEvent(SDL_GamepadDeviceEvent* event);
 void SDLPad_HandleGamepadButtonEvent(SDL_GamepadButtonEvent* event);
 void SDLPad_HandleGamepadAxisMotionEvent(SDL_GamepadAxisEvent* event);
