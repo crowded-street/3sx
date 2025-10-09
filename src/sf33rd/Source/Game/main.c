@@ -33,6 +33,8 @@
 #include "sf33rd/Source/PS2/ps2Quad.h"
 #include "structs.h"
 
+#include "port/resources.h"
+
 #if defined(_WIN32)
 #include <windef.h> // including windows.h causes conflicts with the Polygon struct, so I just included the header where AllocConsole is and the Windows-specific typedefs that it requires.
 
@@ -48,6 +50,8 @@ s32 system_init_level;
 MPP mpp_w;
 
 static bool is_game_initialized = false;
+static bool are_resources_checked = false;
+static bool is_running_resource_flow = false;
 
 // forward decls
 static void game_init();
@@ -65,6 +69,48 @@ void cpInitTask();
 void cpReadyTask(u16 num, void* func_adrs);
 void cpExitTask(u16 num);
 
+/// @brief Makes sure resources are present.
+/// @return `true` if resources are present and execution can proceed, `false` otherwise.
+static bool run_resource_flow() {
+    if (are_resources_checked) {
+        return true;
+    }
+
+    if (!is_running_resource_flow) {
+        are_resources_checked = Resources_CheckIfPresent();
+    
+        if (are_resources_checked) {
+            return true;
+        }
+
+        is_running_resource_flow = true;
+    }
+
+    are_resources_checked = Resources_RunResourceCopyingFlow();
+
+    if (are_resources_checked) {
+        // Cleanup
+        is_running_resource_flow = false;
+    }
+
+    return are_resources_checked;
+}
+
+static void step() {
+    if (!run_resource_flow()) {
+        return;
+    }
+
+    if (!is_game_initialized) {
+        game_init();
+        is_game_initialized = true;
+    }
+
+    if (is_game_initialized) {
+        game_step();
+    }
+}
+
 int main() {
     bool is_running = true;
 
@@ -74,16 +120,7 @@ int main() {
     while (is_running) {
         is_running = SDLApp_PollEvents();
         SDLApp_BeginFrame();
-
-        if (!is_game_initialized) {
-            game_init();
-            is_game_initialized = true;
-        }
-
-        if (is_game_initialized) {
-            game_step();
-        }
-
+        step();
         SDLApp_EndFrame();
     }
 
