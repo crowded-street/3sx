@@ -1,6 +1,11 @@
 #include "port/resources.h"
+#include "port/sdl/sdl_app.h"
 
 #include <SDL3/SDL.h>
+
+// FIXME: This should be in sdl_app.h, but we can't declare it there 
+//        because of conflicts with CRI types
+extern SDL_Window* window;
 
 typedef enum FlowState { INIT, DIALOG_OPENED, COPY_ERROR, COPY_SUCCESS } ResourceCopyingFlowState;
 
@@ -74,9 +79,9 @@ bool Resources_RunResourceCopyingFlow() {
                                  "Resources are missing",
                                  "3SX needs resources from a copy of \"Street Fighter III: 3rd Strike\" to run. Choose "
                                  "a location with the game files in the next dialog",
-                                 NULL);
+                                 window);
         flow_state = DIALOG_OPENED;
-        SDL_ShowOpenFolderDialog(open_folder_dialog_callback, NULL, NULL, NULL, false);
+        SDL_ShowOpenFolderDialog(open_folder_dialog_callback, NULL, window, NULL, false);
         break;
 
     case DIALOG_OPENED:
@@ -87,16 +92,16 @@ bool Resources_RunResourceCopyingFlow() {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
                                  "Invalid directory",
                                  "The directory you provided doesn't contain the required files",
-                                 NULL);
+                                 window);
         flow_state = DIALOG_OPENED;
-        SDL_ShowOpenFolderDialog(open_folder_dialog_callback, NULL, NULL, NULL, false);
+        SDL_ShowOpenFolderDialog(open_folder_dialog_callback, NULL, window, NULL, false);
         break;
 
     case COPY_SUCCESS:
         char* resources_path = Resources_GetPath(NULL);
         char* message = NULL;
         SDL_asprintf(&message, "You can find them at:\n%s", resources_path);
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Resources copied successfully", message, NULL);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Resources copied successfully", message, window);
         SDL_free(resources_path);
         SDL_free(message);
         flow_state = INIT;

@@ -24,7 +24,7 @@ static const int window_default_height = (int)(window_default_width / display_ta
 static const double target_fps = 59.59949;
 static const Uint64 target_frame_time_ns = 1000000000.0 / target_fps;
 
-static SDL_Window* window = NULL;
+SDL_Window* window = NULL;
 static SDL_Renderer* renderer = NULL;
 static SDL_Texture* screen_texture = NULL;
 
