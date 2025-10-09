@@ -50,10 +50,10 @@ int scePad2Read(int socket_number, scePad2ButtonState* data) {
     data->sw0.bits.r3 = !button_state.right_stick;
     data->sw0.bits.select = !button_state.back;
     data->sw0.bits.start = !button_state.start;
-    data->sw0.bits.left = !button_state.dpad_left;
-    data->sw0.bits.right = !button_state.dpad_right;
-    data->sw0.bits.up = !button_state.dpad_up;
-    data->sw0.bits.down = !button_state.dpad_down;
+    data->sw0.bits.left = !button_state.left;
+    data->sw0.bits.right = !button_state.right;
+    data->sw0.bits.up = !button_state.up;
+    data->sw0.bits.down = !button_state.down;
 
     data->sw1.bits.l1 = !button_state.left_shoulder;
     data->sw1.bits.r1 = !button_state.right_shoulder;
@@ -78,10 +78,10 @@ int scePad2Read(int socket_number, scePad2ButtonState* data) {
     data->circleP = button_state.east ? 0xFF : 0;
     data->squareP = button_state.west ? 0xFF : 0;
     data->triangleP = button_state.north ? 0xFF : 0;
-    data->upP = button_state.dpad_up ? 0xFF : 0;
-    data->downP = button_state.dpad_down ? 0xFF : 0;
-    data->leftP = button_state.dpad_left ? 0xFF : 0;
-    data->rightP = button_state.dpad_right ? 0xFF : 0;
+    data->upP = button_state.up ? 0xFF : 0;
+    data->downP = button_state.down ? 0xFF : 0;
+    data->leftP = button_state.left ? 0xFF : 0;
+    data->rightP = button_state.right ? 0xFF : 0;
 
     return sizeof(scePad2ButtonState);
 }

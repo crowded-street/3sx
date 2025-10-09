@@ -18,10 +18,10 @@ typedef struct SDLPad_ButtonState {
     bool right_shoulder;
     Sint16 left_trigger;
     Sint16 right_trigger;
-    bool dpad_up;
-    bool dpad_down;
-    bool dpad_left;
-    bool dpad_right;
+    bool up;
+    bool down;
+    bool left;
+    bool right;
 } SDLPad_ButtonState;
 
 void SDLPad_Init();

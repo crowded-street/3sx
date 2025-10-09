@@ -3,6 +3,7 @@
 #include <SDL3/SDL.h>
 
 #define INPUT_SOURCES_MAX 2
+#define JOYSTICK_DEADZONE 8000
 
 typedef enum SDLPad_InputType { SDLPAD_INPUT_NONE = 0, SDLPAD_INPUT_GAMEPAD, SDLPAD_INPUT_KEYBOARD } SDLPad_InputType;
 
@@ -151,19 +152,19 @@ void SDLPad_HandleGamepadButtonEvent(SDL_GamepadButtonEvent* event) {
         break;
 
     case SDL_GAMEPAD_BUTTON_DPAD_UP:
-        state->dpad_up = event->down;
+        state->up = event->down;
         break;
 
     case SDL_GAMEPAD_BUTTON_DPAD_DOWN:
-        state->dpad_down = event->down;
+        state->down = event->down;
         break;
 
     case SDL_GAMEPAD_BUTTON_DPAD_LEFT:
-        state->dpad_left = event->down;
+        state->left = event->down;
         break;
 
     case SDL_GAMEPAD_BUTTON_DPAD_RIGHT:
-        state->dpad_right = event->down;
+        state->right = event->down;
         break;
     }
 }
@@ -185,6 +186,48 @@ void SDLPad_HandleGamepadAxisMotionEvent(SDL_GamepadAxisEvent* event) {
     case SDL_GAMEPAD_AXIS_RIGHT_TRIGGER:
         state->right_trigger = event->value;
         break;
+
+    case SDL_GAMEPAD_AXIS_LEFTX:
+        if (event->value < -JOYSTICK_DEADZONE) {
+            state->left = true;
+            state->right = false;
+        } else if (event->value > JOYSTICK_DEADZONE) {
+            state->right = true;
+            state->left = false;
+        } else {
+            // Stick is neutral - clear direction only if d-pad button isn't held
+            if (input_sources[index].type == SDLPAD_INPUT_GAMEPAD) {
+                SDL_Gamepad* gamepad = input_sources[index].gamepad.gamepad;
+                if (!SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_LEFT)) {
+                    state->left = false;
+                }
+                if (!SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_RIGHT)) {
+                    state->right = false;
+                }
+            }
+        }
+        break;
+
+    case SDL_GAMEPAD_AXIS_LEFTY:
+        if (event->value < -JOYSTICK_DEADZONE) {
+            state->up = true;
+            state->down = false;
+        } else if (event->value > JOYSTICK_DEADZONE) {
+            state->down = true;
+            state->up = false;
+        } else {
+            // Stick is neutral - clear direction only if d-pad button isn't held
+            if (input_sources[index].type == SDLPAD_INPUT_GAMEPAD) {
+                SDL_Gamepad* gamepad = input_sources[index].gamepad.gamepad;
+                if (!SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_UP)) {
+                    state->up = false;
+                }
+                if (!SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_DOWN)) {
+                    state->down = false;
+                }
+            }
+        }
+        break;
     }
 }
 
@@ -193,19 +236,19 @@ void SDLPad_HandleKeyboardEvent(SDL_KeyboardEvent* event) {
 
     switch (event->key) {
     case SDLK_W:
-        state->dpad_up = event->down;
+        state->up = event->down;
         break;
 
     case SDLK_A:
-        state->dpad_left = event->down;
+        state->left = event->down;
         break;
 
     case SDLK_S:
-        state->dpad_down = event->down;
+        state->down = event->down;
         break;
 
     case SDLK_D:
-        state->dpad_right = event->down;
+        state->right = event->down;
         break;
 
     case SDLK_I:
