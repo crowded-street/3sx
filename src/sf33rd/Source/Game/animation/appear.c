@@ -2,6 +2,7 @@
  * @file appear.c
  * Character Appear Animation
  */
+
 #include "sf33rd/Source/Game/animation/appear.h"
 #include "common.h"
 #include "sf33rd/Source/Game/CALDIR.h"

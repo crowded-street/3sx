@@ -2,6 +2,7 @@
  * @file app_data.c
  * Character Appear Data
  */
+
 #include "sf33rd/Source/Game/animation/app_data.h"
 #include "common.h"
 
