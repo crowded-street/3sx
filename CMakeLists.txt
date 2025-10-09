@@ -13,6 +13,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 # ======================================
 
 include_directories(
+    ${PROJECT_SOURCE_DIR}/src
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/include/sdk
     ${PROJECT_SOURCE_DIR}/include/cri
