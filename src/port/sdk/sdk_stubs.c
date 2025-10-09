@@ -1,6 +1,7 @@
 #if !defined(TARGET_PS2)
 
 #include "common.h"
+#include "port/resources.h"
 #include "types.h"
 
 #include <eekernel.h>
@@ -12,6 +13,8 @@
 #include <libvu0.h>
 #include <sif.h>
 #include <sifrpc.h>
+
+#include <SDL3/SDL.h>
 
 #include <fcntl.h>
 #include <stdarg.h>
@@ -57,11 +60,13 @@ int sceCdRead(u_int lsn, u_int sectors, void* buf, sceCdRMode* mode) {
         // need to read from buf
         return 1;
     } else if ((lsn >= AFS_START_LSN) && (lsn < AFS_END_LSN)) {
+        char* afs_path = Resources_GetPath("SF33RD.AFS");
         const int file_offset = (lsn - AFS_START_LSN) * 2048;
-        const int fd = open("rom/THIRD/SF33RD.AFS", O_RDONLY);
+        const int fd = open(afs_path, O_RDONLY);
         lseek(fd, file_offset, SEEK_SET);
         read(fd, buf, sectors * 2048);
         close(fd);
+        SDL_free(afs_path);
     } else {
         fatal_error("Can't handle lsn %u", lsn);
     }
@@ -70,7 +75,6 @@ int sceCdRead(u_int lsn, u_int sectors, void* buf, sceCdRMode* mode) {
 }
 
 int sceCdSync(int mode) {
-    // printf("[SDK] sceCdSync(mode: %d)\n", mode);
     return 0;
 }
 
@@ -90,76 +94,50 @@ int sceCdLayerSearchFile(sceCdlFILE* fp, const char* name, int layer) {
 
 // sifdev
 
-static bool starts_with(const char* prefix, const char* str) {
-    return strncmp(prefix, str, strlen(prefix)) == 0;
-}
+static int sce_to_unix_flags(int flags) {
+    int result = 0;
 
-static void convert_filename(char* dest, const char* src) {
-    const char device_name[] = "cdrom0:";
-
-    if (starts_with(device_name, src)) {
-        // Skip device name
-        src += strlen(device_name);
-    } else {
-        fatal_error("Can't handle filename: %s.", src);
-    }
-
-    // FIXME: Figure out a way to package resources with the executable
-    //        instead of relying on relative paths
-    strcpy(dest, "rom");
-    strcat(dest, src);
-
-    for (; *dest; dest++) {
-        // Convert \ to /
-        if (*dest == '\\') {
-            *dest = '/';
-        }
-
-        // Remove ;1 from the end
-        if (*dest == ';') {
-            *dest = '\0';
-            break;
-        }
-    }
-}
-
-int sceOpen(const char* filename, int flag, ...) {
-    // Convert SCE flags to Unix flags
-    int _flag = 0;
-
-    switch (flag & 0xF) {
+    switch (flags & 0xF) {
     case SCE_RDONLY:
-        _flag = O_RDONLY;
+        result = O_RDONLY;
         break;
 
     case SCE_WRONLY:
-        _flag = O_WRONLY;
+        result = O_WRONLY;
         break;
 
     case SCE_RDWR:
-        _flag = O_RDWR;
+        result = O_RDWR;
         break;
     }
 
-    if (flag & SCE_APPEND) {
-        _flag |= O_APPEND;
+    if (flags & SCE_APPEND) {
+        result |= O_APPEND;
     }
 
-    if (flag & SCE_CREAT) {
-        _flag |= O_CREAT;
+    if (flags & SCE_CREAT) {
+        result |= O_CREAT;
     }
 
-    if (flag & SCE_TRUNC) {
-        _flag |= O_TRUNC;
+    if (flags & SCE_TRUNC) {
+        result |= O_TRUNC;
     }
 
-    // Convert filenames
-    // Example: cdrom0:\THIRD\IOP\FONT8_8.TM2;1 -> rom/THIRD/IOP/FONT8_8.TM2
-    char converted_filename[2048];
-    memset(converted_filename, 0, sizeof(converted_filename));
-    convert_filename(converted_filename, filename);
+    return result;
+}
 
-    return open(converted_filename, _flag, 0644);
+int sceOpen(const char* filename, int flag, ...) {
+    const char expected_path[] = "cdrom0:\\THIRD\\IOP\\FONT8_8.TM2;1";
+
+    if (strcmp(filename, expected_path) != 0) {
+        fatal_error("Unexpected path: %s", filename);
+    }
+
+    char* font_path = Resources_GetPath("FONT8_8.TM2");
+    const int flags = sce_to_unix_flags(flag);
+    const int result = open(font_path, flags, 0644);
+    SDL_free(font_path);
+    return result;
 }
 
 int sceClose(int fd) {
