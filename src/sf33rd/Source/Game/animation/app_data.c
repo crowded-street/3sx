@@ -1,4 +1,8 @@
-#include "sf33rd/Source/Game/app_data.h"
+/**
+ * @file app_data.c
+ * Character Appear Data
+ */
+#include "sf33rd/Source/Game/animation/app_data.h"
 #include "common.h"
 
 const s8 app_type_tbl[20][20][22] = {

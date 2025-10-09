@@ -36,8 +36,9 @@
 #include "sf33rd/Source/Game/main.h"
 #include "sf33rd/Source/Game/texcash.h"
 #include "sf33rd/Source/Game/texgroup.h"
-#include "sf33rd/Source/Game/win_pl.h"
 #include "sf33rd/Source/Game/workuser.h"
+
+#include "sf33rd/Source/Game/animation/win_pl.h"
 
 void pli_0000();
 void pli_1000();

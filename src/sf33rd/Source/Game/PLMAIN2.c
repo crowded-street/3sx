@@ -10,10 +10,11 @@
 #include "sf33rd/Source/Game/PLS00.h"
 #include "sf33rd/Source/Game/PLS01.h"
 #include "sf33rd/Source/Game/PLS02.h"
-#include "sf33rd/Source/Game/appear.h"
 #include "sf33rd/Source/Game/bg_sub.h"
 #include "sf33rd/Source/Game/meta_col.h"
 #include "sf33rd/Source/Game/workuser.h"
+
+#include "sf33rd/Source/Game/animation/appear.h"
 
 void player_mvbs_0000(PLW* wk);
 void player_mvbs_1000(PLW* wk);

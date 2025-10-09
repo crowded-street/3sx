@@ -4,7 +4,6 @@
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/SLOWF.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
-#include "sf33rd/Source/Game/appear.h"
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/bg_data.h"
 #include "sf33rd/Source/Game/bg_sub.h"
@@ -12,6 +11,8 @@
 #include "sf33rd/Source/Game/eff06.h"
 #include "sf33rd/Source/Game/ta_sub.h"
 #include "sf33rd/Source/Game/workuser.h"
+
+#include "sf33rd/Source/Game/animation/appear.h"
 
 void BG090() {
     bgw_ptr = &bg_w.bgw[1];

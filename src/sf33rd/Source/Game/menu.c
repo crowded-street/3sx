@@ -31,7 +31,6 @@
 #include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/VM_SUB.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
-#include "sf33rd/Source/Game/appear.h"
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/bg_data.h"
 #include "sf33rd/Source/Game/bg_sub.h"
@@ -46,6 +45,8 @@
 #include "sf33rd/Source/Game/workuser.h"
 #include "sf33rd/Source/PS2/mc/savesub.h"
 #include "structs.h"
+
+#include "sf33rd/Source/Game/animation/appear.h"
 
 void Default_Training_Option();
 void Dummy_Move_Sub(struct _TASK* task_ptr, s16 PL_id, s16 id, s16 type, s16 max);

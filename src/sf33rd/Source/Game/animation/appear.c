@@ -1,4 +1,8 @@
-#include "sf33rd/Source/Game/appear.h"
+/**
+ * @file appear.c
+ * Character Appear Animation
+ */
+#include "sf33rd/Source/Game/animation/appear.h"
 #include "common.h"
 #include "sf33rd/Source/Game/CALDIR.h"
 #include "sf33rd/Source/Game/CHARSET.h"
@@ -14,7 +18,6 @@
 #include "sf33rd/Source/Game/SE.h"
 #include "sf33rd/Source/Game/Sound3rd.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
-#include "sf33rd/Source/Game/app_data.h"
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/bg_data.h"
 #include "sf33rd/Source/Game/eff97.h"
@@ -23,6 +26,8 @@
 #include "sf33rd/Source/Game/effM7.h"
 #include "sf33rd/Source/Game/ta_sub.h"
 #include "sf33rd/Source/Game/workuser.h"
+
+#include "sf33rd/Source/Game/animation/app_data.h"
 
 s8 Appear_car_stop[] = { 0, 0 };
 s8 Appear_hv[] = { 0, 0 };

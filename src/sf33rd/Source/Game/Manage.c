@@ -20,7 +20,6 @@
 #include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/aboutspr.h"
-#include "sf33rd/Source/Game/appear.h"
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/bg_data.h"
 #include "sf33rd/Source/Game/bg_sub.h"
@@ -37,6 +36,8 @@
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/ta_sub.h"
 #include "sf33rd/Source/Game/workuser.h"
+
+#include "sf33rd/Source/Game/animation/appear.h"
 
 void Game_Manage_1st();
 void Clear_1Stage_Work();

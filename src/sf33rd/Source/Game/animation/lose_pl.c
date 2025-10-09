@@ -1,4 +1,8 @@
-#include "sf33rd/Source/Game/LOSE_PL.h"
+/**
+ * @file lose_pl.c
+ * Losing Character Animations
+ */
+#include "sf33rd/Source/Game/animation/lose_pl.h"
 #include "common.h"
 #include "sf33rd/Source/Game/CHARSET.h"
 #include "sf33rd/Source/Game/EFFC1.h"

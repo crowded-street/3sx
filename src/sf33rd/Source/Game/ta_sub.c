@@ -1,15 +1,16 @@
 #include "sf33rd/Source/Game/ta_sub.h"
 #include "common.h"
 #include "sf33rd/Source/Game/HITCHECK.h"
-#include "sf33rd/Source/Game/LOSE_PL.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/bg_data.h"
 #include "sf33rd/Source/Game/bg_sub.h"
-#include "sf33rd/Source/Game/win_pl.h"
 #include "sf33rd/Source/Game/workuser.h"
 #include "structs.h"
+
+#include "sf33rd/Source/Game/animation/lose_pl.h"
+#include "sf33rd/Source/Game/animation/win_pl.h"
 
 // sdata
 s16 eff_hit_data[4][4] = { { -67, 59, 13, 29 }, { 31, 95, 24, 15 }, { 4, 123, 28, 15 }, { 20, 15, 67, 37 } };

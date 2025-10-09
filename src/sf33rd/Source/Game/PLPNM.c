@@ -3,16 +3,17 @@
 #include "sf33rd/Source/Game/EFFG6.h"
 #include "sf33rd/Source/Game/EFFI3.h"
 #include "sf33rd/Source/Game/Grade.h"
-#include "sf33rd/Source/Game/LOSE_PL.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/PLPDM.h"
 #include "sf33rd/Source/Game/PLS00.h"
 #include "sf33rd/Source/Game/PLS01.h"
 #include "sf33rd/Source/Game/PLS02.h"
 #include "sf33rd/Source/Game/PulPul.h"
-#include "sf33rd/Source/Game/appear.h"
-#include "sf33rd/Source/Game/win_pl.h"
 #include "sf33rd/Source/Game/workuser.h"
+
+#include "sf33rd/Source/Game/animation/appear.h"
+#include "sf33rd/Source/Game/animation/lose_pl.h"
+#include "sf33rd/Source/Game/animation/win_pl.h"
 
 void Player_normal(PLW* wk);
 void setup_normal_process_flags(PLW* wk);

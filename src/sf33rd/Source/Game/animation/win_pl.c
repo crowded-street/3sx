@@ -1,4 +1,8 @@
-#include "sf33rd/Source/Game/win_pl.h"
+/**
+ * @file win_pl.c
+ * Winning Character Animation
+ */
+#include "sf33rd/Source/Game/animation/win_pl.h"
 #include "common.h"
 #include "sf33rd/Source/Game/CHARSET.h"
 #include "sf33rd/Source/Game/EFF30.h"
