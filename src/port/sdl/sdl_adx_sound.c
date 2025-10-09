@@ -421,7 +421,7 @@ void SDLADXSound_StartMem(void* buf, size_t size) {
     SDLADXSound_Stop();
 
     ADXTrack* track = alloc_track();
-    track_init(track, -1, buf, size, true);
+    track_init(track, -1, buf, size, false);
 }
 
 int SDLADXSound_GetNumFiles() {
