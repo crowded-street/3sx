@@ -125,9 +125,9 @@ static void hide_cursor_if_needed() {
     }
 }
 
-int SDLApp_PollEvents() {
+bool SDLApp_PollEvents() {
     SDL_Event event;
-    int continue_running = 1;
+    bool continue_running = true;
 
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
@@ -161,7 +161,7 @@ int SDLApp_PollEvents() {
             break;
 
         case SDL_EVENT_QUIT:
-            continue_running = 0;
+            continue_running = false;
             break;
         }
     }
@@ -236,9 +236,11 @@ void SDLApp_EndFrame() {
     SDLADXSound_ProcessTracks();
 
     // Run PS2 interrupts. Necessary for CRI to run its logic
-    begin_interrupt();
-    ADXPS2_ExecVint(0);
-    end_interrupt();
+    if (get_game_initialized()) {
+        begin_interrupt();
+        ADXPS2_ExecVint(0);
+        end_interrupt();
+    }
 
     // Render
 

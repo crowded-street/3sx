@@ -41,12 +41,19 @@
 #endif
 
 #include <memory.h>
+#include <stdbool.h>
 
 // sbss
 s32 system_init_level;
 MPP mpp_w;
 
+static bool is_game_initialized = false;
+
 // forward decls
+static void game_init();
+static void game_step();
+static void init_windows_console();
+
 void distributeScratchPadAddress();
 void MaskScreenEdge();
 void appCopyKeyData();
@@ -59,11 +66,36 @@ void cpReadyTask(u16 num, void* func_adrs);
 void cpExitTask(u16 num);
 
 int main() {
-    u16 sw_buff;
-    u32 sysinfodisp;
+    bool is_running = true;
 
-    int is_running = 1;
+    init_windows_console();
+    SDLApp_Init();
 
+    while (is_running) {
+        is_running = SDLApp_PollEvents();
+        SDLApp_BeginFrame();
+
+        if (!is_game_initialized) {
+            game_init();
+            is_game_initialized = true;
+        }
+
+        if (is_game_initialized) {
+            game_step();
+        }
+
+        SDLApp_EndFrame();
+    }
+
+    SDLApp_Quit();
+    return 0;
+}
+
+bool get_game_initialized() {
+    return is_game_initialized;
+}
+
+static void init_windows_console() {
 #if defined(_WIN32)
     // attaches to an existing console for printouts. Works with windows CMD but not MSYS2
     if (AttachConsole(ATTACH_PARENT_PROCESS) == 0) {
@@ -74,8 +106,9 @@ int main() {
     freopen("CONOUT$", "w", stdout);
     freopen("CONOUT$", "w", stderr);
 #endif
+}
 
-    SDLApp_Init();
+static void game_init() {
     flInitialize(flPs2State.DispWidth, flPs2State.DispHeight);
     flSetRenderState(FLRENDER_BACKCOLOR, 0);
     flSetDebugMode(0);
@@ -88,160 +121,155 @@ int main() {
     ppgMakeConvTableTexDC();
     appSetupBasePriority();
     MemcardInit();
+}
 
-    while (is_running) {
-        is_running = SDLApp_PollEvents();
-        SDLApp_BeginFrame();
-        initRenderState(0);
-        mpp_w.ds_h[0] = mpp_w.ds_h[1];
-        mpp_w.ds_v[0] = mpp_w.ds_v[1];
-        mpp_w.ds_h[1] = 100;
-        mpp_w.ds_v[1] = 100;
-        mpp_w.vprm.x0 = 0.0f;
-        mpp_w.vprm.y0 = 0.0f;
-        mpp_w.vprm.x1 = (mpp_w.ds_h[0] * 384) / 100.0f;
-        mpp_w.vprm.y1 = (mpp_w.ds_v[0] * 224) / 100.0f;
-        mpp_w.vprm.ne = -1.0f;
-        mpp_w.vprm.fa = 1.0f;
+static void game_step() {
+    initRenderState(0);
+    mpp_w.ds_h[0] = mpp_w.ds_h[1];
+    mpp_w.ds_v[0] = mpp_w.ds_v[1];
+    mpp_w.ds_h[1] = 100;
+    mpp_w.ds_v[1] = 100;
+    mpp_w.vprm.x0 = 0.0f;
+    mpp_w.vprm.y0 = 0.0f;
+    mpp_w.vprm.x1 = (mpp_w.ds_h[0] * 384) / 100.0f;
+    mpp_w.vprm.y1 = (mpp_w.ds_v[0] * 224) / 100.0f;
+    mpp_w.vprm.ne = -1.0f;
+    mpp_w.vprm.fa = 1.0f;
 
-        appViewSetItems(&mpp_w.vprm);
-        appViewMatrix();
-        flAdjustScreen(X_Adjust + Correct_X[0], Y_Adjust + Correct_Y[0]);
-        setBackGroundColor(0xFF000000);
+    appViewSetItems(&mpp_w.vprm);
+    appViewMatrix();
+    flAdjustScreen(X_Adjust + Correct_X[0], Y_Adjust + Correct_Y[0]);
+    setBackGroundColor(0xFF000000);
 
-        if (Debug_w[0x43]) {
-            setBackGroundColor(0xFF0000FF);
-        }
+    if (Debug_w[0x43]) {
+        setBackGroundColor(0xFF0000FF);
+    }
 
-        appSetupTempPriority();
+    appSetupTempPriority();
 
-        flPADGetALL();
-        keyConvert();
+    flPADGetALL();
+    keyConvert();
 
-        if (((Usage == 7) || (Usage == 2)) && !test_flag) {
-            if (mpp_w.sysStop) {
-                if (mpp_w.sysStop == 1) {
-                    sysSLOW = 1;
+    if (((Usage == 7) || (Usage == 2)) && !test_flag) {
+        if (mpp_w.sysStop) {
+            if (mpp_w.sysStop == 1) {
+                sysSLOW = 1;
 
-                    switch (io_w.data[1].sw_new) {
-                    case 0x2000:
-                        mpp_w.sysStop = 0;
-                        // fallthrough
+                switch (io_w.data[1].sw_new) {
+                case 0x2000:
+                    mpp_w.sysStop = 0;
+                    // fallthrough
 
-                    case 0x80:
+                case 0x80:
+                    Slow_Timer = 1;
+                    break;
+
+                default:
+                    switch (io_w.data[1].sw & 0x880) {
+                    case 0x880:
+                        if ((sysFF = Debug_w[1]) == 0) {
+                            sysFF = 1;
+                        }
+
+                        sysSLOW = 1;
                         Slow_Timer = 1;
+
                         break;
 
-                    default:
-                        switch (io_w.data[1].sw & 0x880) {
-                        case 0x880:
-                            if ((sysFF = Debug_w[1]) == 0) {
-                                sysFF = 1;
+                    case 0x800:
+                        if (Slow_Timer == 0) {
+                            if ((Slow_Timer = Debug_w[0]) == 0) {
+                                Slow_Timer = 1;
                             }
 
-                            sysSLOW = 1;
-                            Slow_Timer = 1;
-
-                            break;
-
-                        case 0x800:
-                            if (Slow_Timer == 0) {
-                                if ((Slow_Timer = Debug_w[0]) == 0) {
-                                    Slow_Timer = 1;
-                                }
-
-                                sysFF = 1;
-                            }
-
-                            break;
-
-                        default:
-                            Slow_Timer = 2;
-
-                            break;
+                            sysFF = 1;
                         }
 
                         break;
+
+                    default:
+                        Slow_Timer = 2;
+
+                        break;
                     }
+
+                    break;
                 }
-            } else if (io_w.data[1].sw_new & 0x2000) {
-                mpp_w.sysStop = 1;
             }
+        } else if (io_w.data[1].sw_new & 0x2000) {
+            mpp_w.sysStop = 1;
         }
-
-        Interrupt_Flag = 0;
-
-        if ((Play_Mode != 3 && Play_Mode != 1) || (Game_pause != 0x81)) {
-            p1sw_1 = p1sw_0;
-            p2sw_1 = p2sw_0;
-            p3sw_1 = p3sw_0;
-            p4sw_1 = p4sw_0;
-            p1sw_0 = p1sw_buff;
-            p2sw_0 = p2sw_buff;
-            p3sw_0 = p3sw_buff;
-            p4sw_0 = p4sw_buff;
-
-            if ((task[3].condition == 1) && (Mode_Type == 4) && (Play_Mode == 1)) {
-                sw_buff = p2sw_0;
-                p2sw_0 = p1sw_0;
-                p1sw_0 = sw_buff;
-            }
-        }
-
-        appCopyKeyData();
-        render_start();
-
-        mpp_w.inGame = 0;
-
-        njUserMain();
-        MaskScreenEdge();
-        seqsBeforeProcess();
-        njdp2d_draw();
-        seqsAfterProcess();
-
-        if (Debug_w[6] == 0) {
-            CP3toPS2Draw();
-        }
-
-        KnjFlush();
-        render_end();
-
-        sysinfodisp = 0;
-
-        if (Debug_w[2] == 2) {
-            sysinfodisp = 3;
-        }
-
-        if (Debug_w[2] == 1) {
-            sysinfodisp = 2;
-        }
-
-        switch (mpp_w.sysStop) {
-        case 2:
-            sysinfodisp = 0;
-            break;
-
-        case 1:
-            sysinfodisp &= ~2;
-            break;
-        }
-
-        flSetDebugMode(sysinfodisp);
-        disp_effect_work();
-        flFlip(0);
-
-        Interrupt_Flag = 1;
-        Interrupt_Timer += 1;
-        Record_Timer += 1;
-
-        Scrn_Renew();
-        Irl_Family();
-        Irl_Scrn();
-        BGM_Server();
     }
 
-    SDLApp_Quit();
-    return 0;
+    Interrupt_Flag = 0;
+
+    if ((Play_Mode != 3 && Play_Mode != 1) || (Game_pause != 0x81)) {
+        p1sw_1 = p1sw_0;
+        p2sw_1 = p2sw_0;
+        p3sw_1 = p3sw_0;
+        p4sw_1 = p4sw_0;
+        p1sw_0 = p1sw_buff;
+        p2sw_0 = p2sw_buff;
+        p3sw_0 = p3sw_buff;
+        p4sw_0 = p4sw_buff;
+
+        if ((task[3].condition == 1) && (Mode_Type == 4) && (Play_Mode == 1)) {
+            const u16 sw_buff = p2sw_0;
+            p2sw_0 = p1sw_0;
+            p1sw_0 = sw_buff;
+        }
+    }
+
+    appCopyKeyData();
+    render_start();
+
+    mpp_w.inGame = 0;
+
+    njUserMain();
+    MaskScreenEdge();
+    seqsBeforeProcess();
+    njdp2d_draw();
+    seqsAfterProcess();
+
+    if (Debug_w[6] == 0) {
+        CP3toPS2Draw();
+    }
+
+    KnjFlush();
+    render_end();
+
+    u32 sysinfodisp = 0;
+
+    if (Debug_w[2] == 2) {
+        sysinfodisp = 3;
+    }
+
+    if (Debug_w[2] == 1) {
+        sysinfodisp = 2;
+    }
+
+    switch (mpp_w.sysStop) {
+    case 2:
+        sysinfodisp = 0;
+        break;
+
+    case 1:
+        sysinfodisp &= ~2;
+        break;
+    }
+
+    flSetDebugMode(sysinfodisp);
+    disp_effect_work();
+    flFlip(0);
+
+    Interrupt_Flag = 1;
+    Interrupt_Timer += 1;
+    Record_Timer += 1;
+
+    Scrn_Renew();
+    Irl_Family();
+    Irl_Scrn();
+    BGM_Server();
 }
 
 u8 dctex_linear_mem[0x800];
