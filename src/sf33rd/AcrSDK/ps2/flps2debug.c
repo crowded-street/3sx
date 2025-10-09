@@ -24,6 +24,10 @@
 #include <stdarg.h>
 #endif
 
+#if !defined(TARGET_PS2)
+#include "port/sdl/sdl_game_renderer.h"
+#endif
+
 void flPS2DebugStrClear();
 static void flPS2DrawProbar();
 void flPS2LoadCheckFlush();
@@ -97,6 +101,8 @@ void flPS2DebugStrDisp() {
     u64 miptbp1;
     u64 miptbp2;
     u64 rgbaq;
+    
+    //I think i'm gonna just work around all of this just in hopes that keeping this, will make that shit doesn't break, even if the PS2 adjacent portion doesn't do anything.
 
     buff_ptr = flPS2GetSystemBuffAdrs(flDebugStrHan);
     colold = 0;
@@ -169,6 +175,16 @@ void flPS2DebugStrDisp() {
             *work_ptr++ = SCE_GS_SET_UV(u2 * 16, v2 * 16);
             *work_ptr++ = SCE_GS_SET_XYZ2(
                 (flPs2State.D2dOffsetX + x2) * 16, (flPs2State.D2dOffsetY + y2) * 16, (u32)flPs2State.ZBuffMax);
+                
+            SDLGameRenderer_Sprite CharQuad = {
+        		{{x1, y1, -flPs2State.ZBuffMax},
+        		{x2, y1, -flPs2State.ZBuffMax},
+        		{x1, y2, -flPs2State.ZBuffMax}, 
+        		{x2, y2, -flPs2State.ZBuffMax}}, 
+        		{{u1, v1},{u2, v1},{u1, v2},{u2, v2}}, flhDebugStr
+    		};
+    		
+    		SDLGameRenderer_DrawSprite(&CharQuad, col);
 
             *work_ptr++ = 0;
             buff_ptr++;
@@ -366,89 +382,69 @@ void flPS2DispSystemInfo(s32 x, s32 y) {
     flPS2LoadCheckFlush();
 }
 
+
 static void flPS2DrawProbar() {
-    u32 work;
-    s16 x;
-    s16 y;
-    u64* data_ptr;
-    u32 i;
-    u32 keep_y;
-    u32 col;
-
-    static u64 LoadProbar_data[8] = { 0x70000003,
-                                      0x0,
-                                      SCE_GIF_SET_TAG(1, 1, 0, 0, SCE_GIF_REGLIST, 4),
-                                      SCE_GS_PRIM | SCE_GS_RGBAQ << 4 | SCE_GS_XYZ2 << 8 | SCE_GS_XYZ2 << 12,
-                                      SCE_GS_SET_PRIM(SCE_GS_PRIM_SPRITE, 0, 0, 2, 0, 0, 2, 0, 0),
-                                      0x0,
-                                      0x0,
-                                      0x0 };
-
-    static u64 DrawProbar_data[17] = { 0x70000008,
-                                       0x0,
-                                       SCE_GIF_SET_TAG(2, 1, 0, 0, SCE_GIF_PACKED, 1),
-                                       SCE_GIF_PACKED_AD,
-                                       0x3000F,
-                                       SCE_GS_TEST_2,
-                                       0x0,
-                                       SCE_GS_SCISSOR_2,
-                                       SCE_GIF_SET_TAG(1, 1, 0, 0, SCE_GIF_REGLIST, 7),
-                                       SCE_GS_PRIM | SCE_GS_RGBAQ << 4 | SCE_GS_XYZ2 << 8 | SCE_GS_XYZ2 << 12 |
-                                           SCE_GS_RGBAQ << 16 | SCE_GS_XYZ2 << 20 | SCE_GS_XYZ2 << 24,
-                                       SCE_GS_SET_PRIM(SCE_GS_PRIM_SPRITE, 0, 0, 2, 0, 0, 2, 0, 0),
-                                       SCE_GS_SET_RGBAQ(0xFF, 0, 0, 0xFF, 1),
-                                       0x0,
-                                       0x0,
-                                       SCE_GS_SET_RGBAQ(0, 0, 0xFF, 0xFF, 1),
-                                       0x0,
-                                       0x0 };
-
-    data_ptr = (u64*)SPR;
-    flPS2_Mem_move16_16A(&DrawProbar_data, (void*)SPR, 9);
-    *(data_ptr + 6) = SCE_GS_SET_SCISSOR_2(0, flWidth - 1, 0, flHeight - 1);
+    u32 work, x1, y1, x2, y2, i, keep_y, col;
+    
+    return; // We return early since it's unnecessary to do all of this as "work" variable will always end up as 0 without working DGET_T0_COUNT timer implementation.
+    
+/*
     work = (flDebugTrueTime[3] * 2) / (flPs2State.FrameCount + 1);
-    x = flPS2ConvScreenX(0);
-    y = flPS2ConvScreenY(0);
-    *(data_ptr + 12) =
-        SCE_GS_SET_XYZ2((flPs2State.D2dOffsetX + x) * 16, (flPs2State.D2dOffsetY + y) * 16, (u32)flPs2State.ZBuffMax);
-    x = flPS2ConvScreenX(8);
-    y = flPS2ConvScreenY(work);
-    *(data_ptr + 13) =
-        SCE_GS_SET_XYZ2((flPs2State.D2dOffsetX + x) * 16, (flPs2State.D2dOffsetY + y) * 16, (u32)flPs2State.ZBuffMax);
+    x1 = flPS2ConvScreenX(0);
+    y1 = flPS2ConvScreenY(0);
+    x2 = flPS2ConvScreenX(8);
+    y2 = flPS2ConvScreenY(work);
+
+    SDLGameRenderer_Vertex redQuad[4] = {
+        {{x1, y1, -flPs2State.ZBuffMax, 1.0f}, 0xFFFF0000, {0.0f, 0.0f}},
+        {{x2, y1, -flPs2State.ZBuffMax, 1.0f}, 0xFFFF0000, {0.0f, 0.0f}},
+        {{x1, y2, -flPs2State.ZBuffMax, 1.0f}, 0xFFFF0000, {0.0f, 0.0f}},
+        {{x2, y2, -flPs2State.ZBuffMax, 1.0f}, 0xFFFF0000, {0.0f, 0.0f}},
+    };
+
+    SDLGameRenderer_DrawSolidQuad(redQuad);
+
     work = (flDebugEndRenderTime * 2) / (flPs2State.FrameCount + 1);
-    x = flPS2ConvScreenX(8);
-    y = flPS2ConvScreenY(0);
-    *(data_ptr + 15) =
-        SCE_GS_SET_XYZ2((flPs2State.D2dOffsetX + x) * 16, (flPs2State.D2dOffsetY + y) * 16, (u32)flPs2State.ZBuffMax);
-    x = flPS2ConvScreenX(16);
-    y = flPS2ConvScreenY(work);
-    *(data_ptr + 16) =
-        SCE_GS_SET_XYZ2((flPs2State.D2dOffsetX + x) * 16, (flPs2State.D2dOffsetY + y) * 16, (u32)flPs2State.ZBuffMax);
-    flPS2psAddQueue((QWORD*)data_ptr);
+    x1 = flPS2ConvScreenX(8);
+    y1 = flPS2ConvScreenY(0);
+    x2 = flPS2ConvScreenX(16);
+    y2 = flPS2ConvScreenY(work);
+
+    SDLGameRenderer_Vertex blueQuad[4] = {
+        {{x1, y1, -flPs2State.ZBuffMax, 1.0f}, 0xFF0000FF, {0.0f, 0.0f}},
+        {{x2, y1, -flPs2State.ZBuffMax, 1.0f}, 0xFF0000FF, {0.0f, 0.0f}},
+        {{x1, y2, -flPs2State.ZBuffMax, 1.0f}, 0xFF0000FF, {0.0f, 0.0f}},
+        {{x2, y2, -flPs2State.ZBuffMax, 1.0f}, 0xFF0000FF, {0.0f, 0.0f}},
+    };
+
+    SDLGameRenderer_DrawSolidQuad(blueQuad);
 
     if (!flLoadCheckCtr) {
-        return;
+    	return;
     }
 
-    flPS2_Mem_move16_16A(&LoadProbar_data, (void*)SPR, 4);
-    i = 0;
+    x1 = flPS2ConvScreenX(16);
+    x2 = flPS2ConvScreenX(24);
+    
     keep_y = 0;
 
-    do {
+    for (i = 0; i < flLoadCheckCtr; i++) {
         col = flPS2ConvColor(flLoadCheckColor[i], 1);
-        *(data_ptr + 5) = SCE_GS_SET_RGBAQ((col >> 16) & 0xFF, (col >> 8) & 0xFF, col & 0xFF, (col >> 0x18) & 0xFF, 1);
-        x = flPS2ConvScreenX(16);
-        y = flPS2ConvScreenY(keep_y);
-        *(data_ptr + 6) = SCE_GS_SET_XYZ2(
-            (flPs2State.D2dOffsetX + x) * 16, (flPs2State.D2dOffsetY + y) * 16, (u32)flPs2State.ZBuffMax);
-        x = flPS2ConvScreenX(24);
+
+        y1 = 0 + flPS2ConvScreenY(keep_y);
         keep_y += (flLoadCheckTime[i] * 2) / (flPs2State.FrameCount + 1);
-        y = flPS2ConvScreenY(keep_y);
-        *(data_ptr + 7) = SCE_GS_SET_XYZ2(
-            (flPs2State.D2dOffsetX + x) * 16, (flPs2State.D2dOffsetY + y) * 16, (u32)flPs2State.ZBuffMax);
-        flPS2psAddQueue((QWORD*)data_ptr);
-        i += 1;
-    } while (i < (u32)flLoadCheckCtr);
+        y2 = 0 + flPS2ConvScreenY(keep_y);
+
+        SDLGameRenderer_Vertex loadQuad[4] = {
+            {{x1, y1, -flPs2State.ZBuffMax, 1.0f}, col, {0.0f, 0.0f}},
+            {{x2, y1, -flPs2State.ZBuffMax, 1.0f}, col, {0.0f, 0.0f}},
+            {{x1, y2, -flPs2State.ZBuffMax, 1.0f}, col, {0.0f, 0.0f}},
+            {{x2, y2, -flPs2State.ZBuffMax, 1.0f}, col, {0.0f, 0.0f}},
+        };
+
+        SDLGameRenderer_DrawSolidQuad(loadQuad);
+    }
+*/
 }
 
 void flPS2LoadCheckFlush() {
