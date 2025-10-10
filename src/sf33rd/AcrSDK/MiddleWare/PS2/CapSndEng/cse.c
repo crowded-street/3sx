@@ -77,6 +77,8 @@ s32 cseTsbRequest(u16 bank, u16 code, s32 NumArgSets, ...) {
 }
 
 s32 cseCheckVTransStatus(u32 vtrans_check_type) {
+    return 0;
+
     CSE_RPCQUEUE_RESULT param;
     CSE_VTRANS_RESULT* pResult;
     u32 numReqInQueue;
