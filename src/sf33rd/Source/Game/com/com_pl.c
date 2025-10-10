@@ -168,10 +168,6 @@ u16 cpu_algorithm(PLW* wk) {
 }
 
 static u16 CPU_Sub(PLW* wk) {
-#if defined(TARGET_PS2)
-    u16 check_illegal_lever_data(u32 data);
-#endif
-
     WORK* em = (WORK*)wk->wu.target_adrs;
 
     if (Allow_a_battle_f == 0 || pcon_dp_flag == 1) {
@@ -798,13 +794,10 @@ void Damage_1st(PLW* wk) {
         CP_No[wk->wu.id][2] = 0;
 
         if (Get_Up_Action_Check_Data[wk->player_number][CP_No[wk->wu.id][1] - 1][Area_Number[wk->wu.id]] == -1) {
-#if defined(TARGET_PS2)
-            CP_No[wk->wu.id][1] = Get_Up_Action_Check_Data[wk->player_number][CP_No[wk->wu.id][1]][5];
-#else
-            // TODO: Check if this behavior is consistent with final release of the Anniversary Collection PS2 build (If
-            // not implement whatever change was made)
+            // TODO: Check if this behavior is consistent with final release of the Anniversary Collection PS2 build
+            // (If not implement whatever change was made)
+            // This might also be a cause of PS2/Arcade disrepancy
             CP_No[wk->wu.id][1] = *(((u8*)Get_Up_Action_Check_Data[wk->player_number][CP_No[wk->wu.id][1]]) + 5);
-#endif
         }
 
         if (CP_No[wk->wu.id][1] != 0) {
@@ -926,11 +919,10 @@ void Damage_6th(PLW* wk) {
 
         if (wk->wu.cg_type == 12) {
             if (Get_Up_Action_Check_Data[wk->player_number][CP_No[wk->wu.id][1] - 1][Area_Number[wk->wu.id]] == -1) {
-#if defined(TARGET_PS2)
-                CP_No[wk->wu.id][1] = Get_Up_Action_Check_Data[wk->player_number][CP_No[wk->wu.id][1]][5];
-#else
+                // TODO: Check if this behavior is consistent with final release of the Anniversary Collection PS2 build
+                // (If not implement whatever change was made)
+                // This might also be a cause of PS2/Arcade disrepancy
                 CP_No[wk->wu.id][1] = *(((u8*)Get_Up_Action_Check_Data[wk->player_number][CP_No[wk->wu.id][1]]) + 5);
-#endif
             }
 
             CP_No[wk->wu.id][2]++;
