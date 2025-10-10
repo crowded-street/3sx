@@ -65,7 +65,7 @@ int scePad2Read(int socket_number, scePad2ButtonState* data) {
     data->sw1.bits.triangle = !button_state.north;
 
     // This sets stick positions
-    // Map SDL stick values (-32768 to 32767) to PS2 format (0x00 to 0xFF, center at 0x7F)
+    // Map SDL stick values (-32768 to 32767) to PS2 format (0x00 to 0xFF, center at 0x80)
     data->lJoyH = (button_state.left_stick_x + 32768) / 256;
     data->lJoyV = (button_state.left_stick_y + 32768) / 256;
     data->rJoyH = (button_state.right_stick_x + 32768) / 256;
