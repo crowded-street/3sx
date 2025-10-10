@@ -49,7 +49,12 @@ void Init_Task(struct _TASK* task_ptr) {
 void Init_Task_1st(struct _TASK* task_ptr) {
     s16 ix;
 
+#if defined(MEMCARD_DISABLED)
+    task_ptr->r_no[0] = 2;
+#else
     task_ptr->r_no[0] = 1;
+#endif
+
     init_texcash_1st();
     Init_texgrplds_work();
     Init_load_on_memory_data();

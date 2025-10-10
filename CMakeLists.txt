@@ -50,6 +50,11 @@ target_compile_definitions(3sx PRIVATE
     _POSIX_C_SOURCE
 )
 
+# Feature toggles
+target_compile_definitions(3sx PRIVATE
+    MEMCARD_DISABLED
+)
+
 target_compile_options(3sx PRIVATE
     -Wall
     -Werror
