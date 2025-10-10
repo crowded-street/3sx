@@ -37,24 +37,25 @@ const Permission Permission_PL_Data = { { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 
 void Init_Task_1st(struct _TASK* task_ptr);
 void Init_Task_Aload(struct _TASK* task_ptr);
+void Init_Task_Wait(struct _TASK* task_ptr);
 void Init_Task_2nd(struct _TASK* task_ptr);
 void Init_Task_End(struct _TASK* task_ptr);
 void Setup_Difficult_V();
 
 void Init_Task(struct _TASK* task_ptr) {
     void (*Main_Jmp_Tbl[])() = { Init_Task_1st, Init_Task_Aload, Init_Task_2nd, Init_Task_End };
+
+    #if defined(MEMCARD_DISABLED)
+    Main_Jmp_Tbl[1] = Init_Task_Wait;
+    #endif
+
     Main_Jmp_Tbl[task_ptr->r_no[0]](task_ptr);
 }
 
 void Init_Task_1st(struct _TASK* task_ptr) {
     s16 ix;
 
-#if defined(MEMCARD_DISABLED)
-    task_ptr->r_no[0] = 2;
-#else
     task_ptr->r_no[0] = 1;
-#endif
-
     init_texcash_1st();
     Init_texgrplds_work();
     Init_load_on_memory_data();
@@ -170,6 +171,16 @@ void Init_Task_Aload(struct _TASK* task_ptr) {
 
     case 10:
         break;
+    }
+}
+
+/// Adds a 30 frame delay before proceeding.
+void Init_Task_Wait(struct _TASK* task_ptr) {
+    task_ptr->r_no[1] += 1;
+
+    if (task_ptr->r_no[1] >= 30) {
+        task_ptr->r_no[0] += 1;
+        task_ptr->r_no[1] = 0;
     }
 }
 
