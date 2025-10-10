@@ -46,7 +46,6 @@ target_compile_definitions(3sx PRIVATE
     $<$<CONFIG:Debug>:DEBUG>
     $<$<CONFIG:Release>:RELEASE>
     TARGET_SDL3
-    SOUND_DISABLED
     XPT_TGT_EE
     _POSIX_C_SOURCE
 )
