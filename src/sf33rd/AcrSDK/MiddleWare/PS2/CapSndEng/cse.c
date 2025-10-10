@@ -82,3 +82,25 @@ s32 cseSendBd2SpuWithId(void* ee_addr, u32 size, u32 bank, u32 id) {
 u32 cseGetIdStoredBd(u32 bank) {
     return cseSysWork.SpuBankId[bank & 0xF];
 }
+
+s32 cseMemMapSetPhdAddr(u32 bank, void* addr) {
+    return mlMemMapSetPhdAddr(bank, addr);
+}
+
+s32 cseTsbSetBankAddr(u32 bank, SoundEvent* addr) {
+    return mlTsbSetBankAddr(bank, addr);
+}
+
+s32 cseSeStopAll() {
+    mlTsbStopAll();
+    mlSeStopAll();
+    return 0;
+}
+
+s32 cseSysSetMasterVolume(s32 vol) {
+    return mlSysSetMasterVolume(vol);
+}
+
+s32 cseSysSetMono(u32 mono_sw) {
+    return mlSysSetMono(mono_sw);
+}

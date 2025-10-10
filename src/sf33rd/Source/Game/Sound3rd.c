@@ -222,12 +222,6 @@ void spu_all_off() {
     }
 }
 
-s32 cseSeStopAll() {
-    mlTsbStopAll();
-    mlSeStopAll();
-    return 0;
-}
-
 void sound_bgm_off() {
     if ((system_init_level & 2) && (adx_now_playing() != 0)) {
         SsBgmOff();
@@ -243,19 +237,11 @@ void setSeVolume() {
     }
 }
 
-s32 cseSysSetMasterVolume(s32 vol) {
-    return mlSysSetMasterVolume(vol);
-}
-
 void setupSoundMode() {
     if (system_init_level & 2) {
         cseSysSetMono(sys_w.sound_mode);
         ADXT_SetOutputMono(sys_w.sound_mode);
     }
-}
-
-s32 cseSysSetMono(u32 mono_sw) {
-    return mlSysSetMono(mono_sw);
 }
 
 void sound_request_for_dc(SoundPatchConfig* rmc, s16 pan) {

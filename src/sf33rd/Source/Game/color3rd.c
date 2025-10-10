@@ -166,14 +166,6 @@ void q_ldreq_color_data(REQ* curr) {
     }
 }
 
-s32 cseTsbSetBankAddr(u32 bank, SoundEvent* addr) {
-    return mlTsbSetBankAddr(bank, addr);
-}
-
-s32 cseMemMapSetPhdAddr(u32 bank, void* addr) {
-    return mlMemMapSetPhdAddr(bank, addr);
-}
-
 void load_any_color(u16 ix, u8 kokey) {
 #if defined(TARGET_PS2)
     void init_trans_color_ram(s16 id, s32 key, u32 type, u32 data);
