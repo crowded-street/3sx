@@ -55,7 +55,8 @@ static bool is_running_resource_flow = false;
 
 // forward decls
 static void game_init();
-static void game_step();
+static void game_step_0();
+static void game_step_1();
 static void init_windows_console();
 
 void distributeScratchPadAddress();
@@ -78,7 +79,7 @@ static bool run_resource_flow() {
 
     if (!is_running_resource_flow) {
         are_resources_checked = Resources_CheckIfPresent();
-    
+
         if (are_resources_checked) {
             return true;
         }
@@ -96,7 +97,7 @@ static bool run_resource_flow() {
     return are_resources_checked;
 }
 
-static void step() {
+static void step_0() {
     if (!run_resource_flow()) {
         return;
     }
@@ -107,8 +108,16 @@ static void step() {
     }
 
     if (is_game_initialized) {
-        game_step();
+        game_step_0();
     }
+}
+
+static void step_1() {
+    if (!run_resource_flow() || !is_game_initialized) {
+        return;
+    }
+
+    game_step_1();
 }
 
 int main() {
@@ -120,8 +129,9 @@ int main() {
     while (is_running) {
         is_running = SDLApp_PollEvents();
         SDLApp_BeginFrame();
-        step();
+        step_0();
         SDLApp_EndFrame();
+        step_1();
     }
 
     SDLApp_Quit();
@@ -160,7 +170,7 @@ static void game_init() {
     MemcardInit();
 }
 
-static void game_step() {
+static void game_step_0() {
     initRenderState(0);
     mpp_w.ds_h[0] = mpp_w.ds_h[1];
     mpp_w.ds_v[0] = mpp_w.ds_v[1];
@@ -298,7 +308,9 @@ static void game_step() {
     flSetDebugMode(sysinfodisp);
     disp_effect_work();
     flFlip(0);
+}
 
+static void game_step_1() {
     Interrupt_Flag = 1;
     Interrupt_Timer += 1;
     Record_Timer += 1;
