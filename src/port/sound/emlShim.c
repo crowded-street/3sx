@@ -371,7 +371,7 @@ static int doSeDrop(CSE_REQP* reqp) {
     int ret = 1;
 
     if (reqp->limit || (reqp->flags & 1) == 0) {
-        printf("Unimplemented voice count limit mode\n");
+        printf("Unimplemented voice count limit mode. limit=%d, flags=0x%x\n", reqp->limit, reqp->flags);
         return ret;
     }
 
@@ -517,4 +517,8 @@ void emlShimSeSetLfo(CSE_SYS_PARAM_LFO* param) {
     }
 
     SDL_UnlockMutex(soundLock);
+}
+
+void emlShimSysSetMono(CSE_SYS_PARAM_MONO* param) {
+    // I'll implement this if someone asks really nicely, but really?
 }

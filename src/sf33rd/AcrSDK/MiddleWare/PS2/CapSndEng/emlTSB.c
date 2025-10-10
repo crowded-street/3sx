@@ -3,6 +3,7 @@
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/emlSndDrv.h"
 
 #include <memory.h>
+#include <stdio.h>
 
 // sbss
 SoundEvent* gpTsb[TSB_MAX] __attribute__((aligned(16))); // size: 0x40, address: 0x57B2C0

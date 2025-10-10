@@ -160,25 +160,7 @@ void Init_sound_system() {
 }
 
 s32 sndCheckVTransStatus(s32 type) {
-    s32 rnum = 0;
-
-    switch (type) {
-    case 0:
-        if (cseCheckVTransStatus(0) >= 0) {
-            rnum = 1;
-        }
-
-        break;
-
-    case 1:
-        if (cseCheckVTransStatus(1) >= 0) {
-            rnum = 1;
-        }
-
-        break;
-    }
-
-    return rnum;
+    return 1;
 }
 
 void sndInitialLoad() {
