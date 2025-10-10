@@ -3,7 +3,6 @@
 #include "sf33rd/Source/Game/CALDIR.h"
 #include "sf33rd/Source/Game/CHARSET.h"
 #include "sf33rd/Source/Game/CMD_MAIN.h"
-#include "sf33rd/Source/Game/Com_Pl.h"
 #include "sf33rd/Source/Game/EFFECT.h"
 #include "sf33rd/Source/Game/HITCHECK.h"
 #include "sf33rd/Source/Game/PLCNT.h"
@@ -22,6 +21,7 @@
 #include "sf33rd/Source/Game/workuser.h"
 
 #include "sf33rd/Source/Game/animation/appear.h"
+#include "sf33rd/Source/Game/com/com_pl.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 
 void plmv_1010(PLW* wk);

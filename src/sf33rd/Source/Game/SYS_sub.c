@@ -2,7 +2,6 @@
 #include "common.h"
 #include "sf33rd/AcrSDK/common/mlPAD.h"
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
-#include "sf33rd/Source/Game/COM_DATU.h"
 #include "sf33rd/Source/Game/Com_Data.h"
 #include "sf33rd/Source/Game/EFFB8.h"
 #include "sf33rd/Source/Game/EFFECT.h"
@@ -29,6 +28,8 @@
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/workuser.h"
 #include <memory.h>
+
+#include "sf33rd/Source/Game/com/com_datu.h"
 
 u8 Candidate_Buff[16];
 
