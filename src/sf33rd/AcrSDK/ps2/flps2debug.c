@@ -24,9 +24,7 @@
 #include <stdarg.h>
 #endif
 
-#if !defined(TARGET_PS2)
 #include "port/sdl/sdl_game_renderer.h"
-#endif
 
 void flPS2DebugStrClear();
 static void flPS2DrawProbar();
@@ -176,15 +174,19 @@ void flPS2DebugStrDisp() {
             *work_ptr++ = SCE_GS_SET_XYZ2(
                 (flPs2State.D2dOffsetX + x2) * 16, (flPs2State.D2dOffsetY + y2) * 16, (u32)flPs2State.ZBuffMax);
                 
-            SDLGameRenderer_Sprite CharQuad = {
-        		{{x1, y1, -flPs2State.ZBuffMax},
-        		{x2, y1, -flPs2State.ZBuffMax},
-        		{x1, y2, -flPs2State.ZBuffMax}, 
-        		{x2, y2, -flPs2State.ZBuffMax}}, 
-        		{{u1, v1},{u2, v1},{u1, v2},{u2, v2}}, flhDebugStr
-    		};
-    		
-    		SDLGameRenderer_DrawSprite(&CharQuad, col);
+            const float _u1 = (float)u1 / 128;
+            const float _v1 = (float)v1 / 64;
+            const float _u2 = (float)u2 / 128;
+            const float _v2 = (float)v2 / 64;
+
+            SDLGameRenderer_Sprite CharQuad = { { { x1, y1, -flPs2State.ZBuffMax },
+                                                  { x2, y1, -flPs2State.ZBuffMax },
+                                                  { x1, y2, -flPs2State.ZBuffMax },
+                                                  { x2, y2, -flPs2State.ZBuffMax } },
+                                                { { _u1, _v1 }, { _u2, _v1 }, { _u1, _v2 }, { _u2, _v2 } },
+                                                flhDebugStr };
+
+            SDLGameRenderer_DrawSprite(&CharQuad, col);
 
             *work_ptr++ = 0;
             buff_ptr++;
@@ -257,16 +259,6 @@ s32 flPrintColor(u32 color) {
     u8 g = (color >> 8) & 0xFF;
     u8 b = (color) & 0xFF;
     u8 a = (color >> 24) & 0xFF;
-
-    r >>= 1;
-    g >>= 1;
-    b >>= 1;
-
-    if (a == 0xFF) {
-        a = 0x80;
-    } else {
-        a >>= 1;
-    }
 
     flDebugStrCol = (a << 24) | (r << 16) | (g << 8) | b;
     return 1;
