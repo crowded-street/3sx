@@ -38,15 +38,11 @@ const Permission Permission_PL_Data = { { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 void Init_Task_1st(struct _TASK* task_ptr);
 void Init_Task_Aload(struct _TASK* task_ptr);
 void Init_Task_2nd(struct _TASK* task_ptr);
-void Init_Task_Test1(struct _TASK* task_ptr);
-void Init_Task_Test2(struct _TASK* task_ptr);
 void Init_Task_End(struct _TASK* task_ptr);
 void Setup_Difficult_V();
 
 void Init_Task(struct _TASK* task_ptr) {
-    void (*Main_Jmp_Tbl[6])() = { Init_Task_1st, Init_Task_Aload, Init_Task_2nd,
-                                  Init_Task_End, Init_Task_Test1, Init_Task_Test2 };
-
+    void (*Main_Jmp_Tbl[6])() = { Init_Task_1st, Init_Task_Aload, Init_Task_2nd, Init_Task_End };
     Main_Jmp_Tbl[task_ptr->r_no[0]](task_ptr);
 }
 
@@ -181,106 +177,6 @@ void Init_Task_2nd(struct _TASK* task_ptr) {
     Setup_Disp_Size(0);
     Screen_Zoom_X = Keep_Zoom_X;
     CP3toPS2DrawOn();
-}
-
-void Init_Task_Test1(struct _TASK* task_ptr) {
-    u16 sw;
-
-    switch (task_ptr->r_no[1]) {
-    case 0:
-        task_ptr->r_no[1] += 1;
-        task_ptr->timer = 1800;
-        Test_Cursor = 1;
-        /* fallthrough */
-
-    case 1:
-        sw = ~p1sw_1 & p1sw_0;
-
-        if (--task_ptr->timer <= 0) {
-            sw = 0x100;
-            Test_Cursor = 1;
-        }
-
-        switch (sw) {
-        case 1:
-            Test_Cursor -= 1;
-
-            if (Test_Cursor < 0) {
-                Test_Cursor = 0;
-            } else {
-                SE_cursor_move();
-            }
-
-            break;
-
-        case 2:
-            Test_Cursor += 1;
-
-            if (Test_Cursor > 2) {
-                Test_Cursor = 2;
-            } else {
-                SE_cursor_move();
-            }
-
-            break;
-
-        case 0x100:
-            if (Test_Cursor == 0) {
-                task_ptr->r_no[0] = 4;
-                task_ptr->r_no[1] = 0;
-            } else {
-                task_ptr->r_no[1] += 1;
-            }
-
-            SE_selected();
-            break;
-        }
-
-        break;
-
-    case 2:
-        if (Test_Cursor == 2) {
-            Turbo = 0;
-            Screen_PAL = 0;
-            Warning_Init();
-        } else {
-            Turbo = 5;
-            Turbo_Timer = 1;
-            Screen_PAL = 8;
-            Warning_Init();
-        }
-
-        task_ptr->r_no[0] = 1;
-        return;
-    }
-
-    Pal_Cursor_Put(Test_Cursor);
-    Put_Warning(2);
-}
-
-void Init_Task_Test2(struct _TASK* task_ptr) {
-    switch (task_ptr->r_no[1]) {
-    case 0:
-        task_ptr->r_no[1] += 1;
-        task_ptr->timer = 300;
-        Turbo = 0;
-        Screen_PAL = 0;
-        Warning_Init();
-        return;
-
-    case 1:
-        if (--task_ptr->timer <= 0) {
-            task_ptr->r_no[0] = 3;
-            task_ptr->r_no[1] = 0;
-            Screen_PAL = 8;
-            Warning_Init();
-            return;
-        }
-
-    default:
-        Put_Warning(3);
-        return;
-    }
 }
 
 void Init_Task_End(struct _TASK* task_ptr) {
