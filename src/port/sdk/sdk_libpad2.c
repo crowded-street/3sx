@@ -50,10 +50,10 @@ int scePad2Read(int socket_number, scePad2ButtonState* data) {
     data->sw0.bits.r3 = !button_state.right_stick;
     data->sw0.bits.select = !button_state.back;
     data->sw0.bits.start = !button_state.start;
-    data->sw0.bits.left = !button_state.left;
-    data->sw0.bits.right = !button_state.right;
-    data->sw0.bits.up = !button_state.up;
-    data->sw0.bits.down = !button_state.down;
+    data->sw0.bits.left = !button_state.dpad_left;
+    data->sw0.bits.right = !button_state.dpad_right;
+    data->sw0.bits.up = !button_state.dpad_up;
+    data->sw0.bits.down = !button_state.dpad_down;
 
     data->sw1.bits.l1 = !button_state.left_shoulder;
     data->sw1.bits.r1 = !button_state.right_shoulder;
@@ -65,12 +65,11 @@ int scePad2Read(int socket_number, scePad2ButtonState* data) {
     data->sw1.bits.triangle = !button_state.north;
 
     // This sets stick positions
-    // (Sticks are not supported yet, that's why we just set positions to neutral)
-
-    data->lJoyH = 0x7F;
-    data->lJoyV = 0x7F;
-    data->rJoyH = 0x7F;
-    data->rJoyV = 0x7F;
+    // Map SDL stick values (-32768 to 32767) to PS2 format (0x00 to 0xFF, center at 0x7F)
+    data->lJoyH = (button_state.left_stick_x + 32768) / 256;
+    data->lJoyV = (button_state.left_stick_y + 32768) / 256;
+    data->rJoyH = (button_state.right_stick_x + 32768) / 256;
+    data->rJoyV = (button_state.right_stick_y + 32768) / 256;
 
     // This sets button pressure
 
@@ -78,10 +77,10 @@ int scePad2Read(int socket_number, scePad2ButtonState* data) {
     data->circleP = button_state.east ? 0xFF : 0;
     data->squareP = button_state.west ? 0xFF : 0;
     data->triangleP = button_state.north ? 0xFF : 0;
-    data->upP = button_state.up ? 0xFF : 0;
-    data->downP = button_state.down ? 0xFF : 0;
-    data->leftP = button_state.left ? 0xFF : 0;
-    data->rightP = button_state.right ? 0xFF : 0;
+    data->upP = button_state.dpad_up ? 0xFF : 0;
+    data->downP = button_state.dpad_down ? 0xFF : 0;
+    data->leftP = button_state.dpad_left ? 0xFF : 0;
+    data->rightP = button_state.dpad_right ? 0xFF : 0;
 
     return sizeof(scePad2ButtonState);
 }
