@@ -224,7 +224,7 @@ void SDLPad_HandleKeyboardEvent(SDL_KeyboardEvent* event) {
         state->west = event->down;
         break;
 
-    case SDLK_SEMICOLON:
+    case SDLK_P:
         state->left_shoulder = event->down;
         break;
 
@@ -232,7 +232,7 @@ void SDLPad_HandleKeyboardEvent(SDL_KeyboardEvent* event) {
         state->right_shoulder = event->down;
         break;
 
-    case SDLK_P:
+    case SDLK_SEMICOLON:
         state->left_trigger = event->down ? SDL_MAX_SINT16 : 0;
         break;
 
