@@ -1,6 +1,6 @@
 /**
  * @file active10.c
- * COM Active: Yun
+ * COM Active: Yang
  */
 
 #include "sf33rd/Source/Game/com/active/active10.h"

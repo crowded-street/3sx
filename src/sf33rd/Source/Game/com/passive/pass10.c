@@ -1,6 +1,6 @@
 /**
  * @file pass10.c
- * COM Passive: Yun
+ * COM Passive: Yang
  */
 
 #include "sf33rd/Source/Game/com/passive/pass10.h"

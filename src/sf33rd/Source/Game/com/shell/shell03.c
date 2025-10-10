@@ -1,6 +1,6 @@
 /**
  * @file shell03.c
- * COM Shell: Yun, Hugo, Elena, Oro, Yun
+ * COM Shell: Yun, Hugo, Elena, Oro, Yang
  */
 
 #include "sf33rd/Source/Game/com/shell/shell03.h"
