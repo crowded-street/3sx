@@ -42,7 +42,7 @@ void Init_Task_End(struct _TASK* task_ptr);
 void Setup_Difficult_V();
 
 void Init_Task(struct _TASK* task_ptr) {
-    void (*Main_Jmp_Tbl[6])() = { Init_Task_1st, Init_Task_Aload, Init_Task_2nd, Init_Task_End };
+    void (*Main_Jmp_Tbl[])() = { Init_Task_1st, Init_Task_Aload, Init_Task_2nd, Init_Task_End };
     Main_Jmp_Tbl[task_ptr->r_no[0]](task_ptr);
 }
 
