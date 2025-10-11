@@ -2959,4 +2959,16 @@ typedef struct {
     s16 chix; // offset 0x6, size 0x2
 } GillEffData;
 
+typedef union {
+    struct {
+        // total size: 0x4
+        s32 xx; // offset 0x0, size 0x4
+    } s;        // offset 0x0, size 0x4
+    struct {
+        // total size: 0x4
+        s16 xl; // offset 0x0, size 0x2
+        s16 xh; // offset 0x2, size 0x2
+    } o;        // offset 0x0, size 0x4
+} SEA_WORK;
+
 #endif
