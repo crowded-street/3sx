@@ -791,10 +791,8 @@ void Damage_1st(PLW* wk) {
         CP_No[wk->wu.id][1] = Get_Up_Data[wk->player_number][emLevelRemake(Lv, 4, 0)][Rnd] + 1;
         CP_No[wk->wu.id][2] = 0;
 
-        if (Get_Up_Action_Check_Data[wk->player_number][CP_No[wk->wu.id][1] - 1][Area_Number[wk->wu.id]] == 255) {
-            // TODO: Check if this behavior is consistent with final release of the Anniversary Collection PS2 build (If
-            // not implement whatever change was made)
-            CP_No[wk->wu.id][1] = Get_Up_Action_Check_Data[wk->player_number][CP_No[wk->wu.id][1] + 1][0];
+        if (Get_Up_Action_Check_Data[wk->player_number][CP_No[wk->wu.id][1] - 1][Area_Number[wk->wu.id]] == -1) {
+            CP_No[wk->wu.id][1] = Get_Up_Action_Check_Data[wk->player_number][CP_No[wk->wu.id][1]][4];
         }
 
         if (CP_No[wk->wu.id][1] != 0) {
@@ -915,8 +913,8 @@ void Damage_6th(PLW* wk) {
         }
 
         if (wk->wu.cg_type == 12) {
-            if (Get_Up_Action_Check_Data[wk->player_number][CP_No[wk->wu.id][1] - 1][Area_Number[wk->wu.id]] == 255) {
-                CP_No[wk->wu.id][1] = Get_Up_Action_Check_Data[wk->player_number][CP_No[wk->wu.id][1] + 1][0];
+            if (Get_Up_Action_Check_Data[wk->player_number][CP_No[wk->wu.id][1] - 1][Area_Number[wk->wu.id]] == -1) {
+                CP_No[wk->wu.id][1] = Get_Up_Action_Check_Data[wk->player_number][CP_No[wk->wu.id][1]][4];
             }
 
             CP_No[wk->wu.id][2]++;
