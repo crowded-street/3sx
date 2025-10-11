@@ -109,8 +109,6 @@ void sceVprintf(const char* fmt, va_list ap);
 int sceSnprintf(char* buffer, size_t count, const char* fmt, ...);
 int sceVsnprintf(char* buffer, size_t count, const char* fmt, va_list ap);
 
-void LoadExecPS2(const char* filename, int num_args, char* args[]) __attribute__((noreturn));
-
 int DIntr();
 int EIntr();
 

@@ -61,25 +61,16 @@ target_compile_options(3sx PRIVATE
     -Wpointer-to-int-cast
     -Wno-macro-redefined
     -Wno-deprecated-non-prototype
-    -Wno-missing-braces
-    -Wno-self-assign
-    -Wno-format
-    -Wno-tautological-constant-out-of-range-compare
     -Wno-tautological-overlap-compare
-    -Wno-gcc-compat
-    -Wno-unknown-pragmas
     -Wno-c2x-extensions
-    -Wno-unused-value
     -Wno-unused-variable
     -Wno-unused-but-set-variable
-    -Wno-unused-comparison
     -Wno-unused-function
     -Wno-int-to-pointer-cast
     -Wno-int-conversion
     -Wno-incompatible-pointer-types
     -Wno-incompatible-function-pointer-types
     -Wno-pointer-sign
-    -Wno-shift-count-overflow
 )
 
 target_link_libraries(3sx PRIVATE

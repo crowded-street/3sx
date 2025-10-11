@@ -123,7 +123,6 @@ void effect_95_move(WORK_Other* ewk) {
 
     ewk->wu.position_x = ewk->wu.xyz[0].disp.pos & 0xFFFF;
     ewk->wu.position_y = ewk->wu.xyz[1].disp.pos & 0xFFFF;
-    ewk->wu.position_z;
     sort_push_request4(&ewk->wu);
 }
 

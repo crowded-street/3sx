@@ -1,7 +1,7 @@
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/eflSpuMap.h"
 #include "common.h"
 
-#include <eekernel.h>
+#include <stdio.h>
 #include <string.h>
 
 // bss
@@ -53,10 +53,10 @@ s32 flSpuMapChgPage(u32 page) {
         CurrMap.BankSize[i] = pPage->BankSize[i];
 
         if (CurrMap.BankSize[i] + CurrMap.BankAddr[i] > 0x1FFFFF) {
-            scePrintf("[EE]");
-            scePrintf("(ERR)");
+            printf("[EE]");
+            printf("(ERR)");
             // "Address has changed\n"
-            scePrintf("アドレスが変\n");
+            printf("アドレスが変\n");
             return -1;
         }
 

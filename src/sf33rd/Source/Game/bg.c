@@ -1456,13 +1456,9 @@ void Irl_Scrn() {
 
     for (i = 0; i < 8; i++) {
         bg_prm[i].bg_h_shift = scrn_adgjust_x + bg_pos[i].scr_x_buff.word_pos.h;
-        bg_prm[i].bg_h_shift;
         end_prm[i].bg_h_shift = scrn_adgjust_x + fm_pos[i].scr_x_buff.word_pos.h;
-        end_prm[i].bg_h_shift;
         bg_prm[i].bg_v_shift = bg_pos[i].scr_y_buff.word_pos.h - scrn_adgjust_y;
-        bg_prm[i].bg_v_shift;
         end_prm[i].bg_v_shift = fm_pos[i].scr_y_buff.word_pos.h - scrn_adgjust_y;
-        end_prm[i].bg_v_shift;
     }
 }
 

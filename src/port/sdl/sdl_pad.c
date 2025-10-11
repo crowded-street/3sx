@@ -213,38 +213,38 @@ void SDLPad_HandleKeyboardEvent(SDL_KeyboardEvent* event) {
         break;
 
     case SDLK_J:
-        state->west = event->down;
-        break;
-
-    case SDLK_K:
         state->south = event->down;
         break;
 
-    case SDLK_L:
+    case SDLK_K:
         state->east = event->down;
         break;
 
-    case SDLK_Q:
+    case SDLK_U:
+        state->west = event->down;
+        break;
+
+    case SDLK_P:
         state->left_shoulder = event->down;
         break;
 
-    case SDLK_E:
+    case SDLK_O:
         state->right_shoulder = event->down;
         break;
 
-    case SDLK_1:
+    case SDLK_SEMICOLON:
         state->left_trigger = event->down ? SDL_MAX_SINT16 : 0;
         break;
 
-    case SDLK_3:
+    case SDLK_L:
         state->right_trigger = event->down ? SDL_MAX_SINT16 : 0;
         break;
 
-    case SDLK_2:
+    case SDLK_9:
         state->left_stick = event->down;
         break;
 
-    case SDLK_4:
+    case SDLK_0:
         state->right_stick = event->down;
         break;
 

@@ -50,8 +50,6 @@ void ADXERR_CallErrFunc2(Sint8* arg0, Sint8* arg1) {
     SVM_CallErr(adxerr_msg);
 }
 
-#pragma divbyzerocheck
-
 void ADXERR_ItoA(Sint32 value, Sint8* str, strlen_t base) {
     Sint32 i;
     strlen_t len;

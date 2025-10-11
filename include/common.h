@@ -43,17 +43,13 @@ __asm__(".include \"include/cri_macro.inc\"\n");
 
 #endif
 
-#if !defined(TARGET_PS2)
-
 #ifndef __dead2
 #define __dead2 __attribute__((__noreturn__))
 #endif
 
-void fatal_error(const s8* fmt, ...) __dead2;
-void not_implemented(const s8* func) __dead2;
+__dead2 void fatal_error(const s8* fmt, ...);
+__dead2 void not_implemented(const s8* func);
 void debug_print(const char* fmt, ...);
-
-#endif
 
 #define LO_16_BITS(val) (val & 0xFFFF)
 #define HI_16_BITS(val) ((val & 0xFFFF0000) >> 16)

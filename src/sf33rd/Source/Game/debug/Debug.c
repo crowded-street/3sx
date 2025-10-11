@@ -320,7 +320,7 @@ u16 Debug_Menu_Shot() {
 void Check_Check_Screen() {
     s16 ix;
 
-    if ((test_flag) || (Debug_w[70] != 240)) {
+    if ((test_flag) || (Debug_w[70] != -16)) {
         return;
     }
 
@@ -551,8 +551,6 @@ void Disp_Mode(PLW* wk) {
         } else {
             x = 1;
         }
-
-        "%3d";
 
         flPrintL(x, offset_y + 16, "%3X", Control_Time);
         flPrintL(x + 1, offset_y + 17, cpu_data[CP_No[wk->wu.id][0]]);

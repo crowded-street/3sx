@@ -932,14 +932,11 @@ void SA_Term(PLW* wk, u16 SA0, u16 SA1, u16 SA2, u16 Term_No) {
 
     if ((xx[plw[wk->wu.id].sa->kind_of_arts] == -1) || plw[wk->wu.id].metamorphose) {
         CP_Index[wk->wu.id][0]++;
-    }
-
-    else if ((plw[wk->wu.id].sa->ok) || (plw[wk->wu.id].sa->mp)) {
+    } else if ((plw[wk->wu.id].sa->ok) || (plw[wk->wu.id].sa->mp)) {
         Disposal_Again[wk->wu.id] = 1;
-        // Term_No is unsigned however
-        if ((Term_No != -1) || (Term_No != 0)) {
-            switch (wk->player_number) {
 
+        if ((Term_No != 0xFFFF) || (Term_No != 0)) {
+            switch (wk->player_number) {
             case 2:
                 if (SA_Range_Check(wk, 1, Term_No) != 0) {
                     return;

@@ -16,6 +16,8 @@
 
 #ifndef SEGA_XPT_H
 
+#include <inttypes.h>
+
 /*****************************************************************************
  * 定数マクロ
  *****************************************************************************/
@@ -99,12 +101,12 @@ typedef signed int				Sint32;		/* 符号つき４バイト整数 */
 
 #ifndef _TYPEDEF_Uint64
 #define _TYPEDEF_Uint64
-typedef unsigned long			Uint64;		/* 符号なし８バイト整数 */
+typedef uint64_t			Uint64;		/* 符号なし８バイト整数 */
 #endif
 
 #ifndef _TYPEDEF_Sint64
 #define _TYPEDEF_Sint64
-typedef signed long				Sint64;		/* 符号つき８バイト整数 */
+typedef int64_t				Sint64;		/* 符号つき８バイト整数 */
 #endif
 
 // #ifndef _TYPEDEF_Uint128

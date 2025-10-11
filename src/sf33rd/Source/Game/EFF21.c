@@ -99,7 +99,7 @@ s32 effect_21_init(s16 sync_index) {
         ewk->wu.sync_suzi = *data_ptr++;
         ewk->wu.mvxy.a[0].sp = eff21_sp_tbl[*data_ptr][0];
         ewk->wu.mvxy.a[1].sp = eff21_sp_tbl[*data_ptr][1];
-        *data_ptr++;
+        data_ptr++;
         ewk->wu.char_table[0] = char_add[bg_w.bg_index];
         ewk->wu.xyz[0].disp.pos = ewk->wu.old_rno[0];
         ewk->wu.xyz[1].disp.pos = ewk->wu.old_rno[2];

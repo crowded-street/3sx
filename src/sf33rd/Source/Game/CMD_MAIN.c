@@ -305,7 +305,7 @@ void check_3() {
             waza_ptr->uni0.tame.shot_flag |= w_flag;
         }
 
-        *shot_cnt_adrs++;
+        shot_cnt_adrs++;
 
         if ((chk_pl->shot_down & w_flag) && (waza_ptr->uni0.tame.shot_flag2 & w_flag)) {
             waza_ptr->shot_ok++;
@@ -507,7 +507,7 @@ void check_7() {
             waza_ptr->uni0.tame.shot_flag |= w_flag;
         }
 
-        *shot_cnt_adrs++;
+        shot_cnt_adrs++;
 
         if (chk_pl->shot_down & w_flag && waza_ptr->uni0.tame.shot_flag2 & w_flag) {
             waza_ptr->shot_ok += 1;
@@ -1689,7 +1689,7 @@ void sw_pick_up() {
             *cnt_address1 = 0;
         }
 
-        *cnt_address1++;
+        cnt_address1++;
         sw_work *= 2;
     }
 
@@ -1700,7 +1700,7 @@ void sw_pick_up() {
             *cnt_address1 = 0;
         }
 
-        *cnt_address1++;
+        cnt_address1++;
     }
 
     wcp[cmd_id].sw_new = chk_pl->sw_new;

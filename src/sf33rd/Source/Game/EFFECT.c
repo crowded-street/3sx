@@ -58,7 +58,7 @@ void disp_effect_work() {
         px += 5;
         py = 14;
 
-        for (curr_ix; curr_ix != -1; curr_ix = next_ix) {
+        for (; curr_ix != -1; curr_ix = next_ix) {
             if (py > 49) {
                 py = 14;
                 px += 3;

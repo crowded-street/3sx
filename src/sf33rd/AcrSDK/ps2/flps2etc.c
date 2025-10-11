@@ -80,7 +80,7 @@ s32 flFileRead(s8* filename, void* buf, s32 len) {
 
     ADXM_Lock();
     fd = sceOpen(temp, SCE_RDONLY);
-    printf("flFileRead: \"%s\" (fd = %d)\n", &temp, fd);
+    printf("flFileRead: \"%s\" (fd = %d)\n", temp, fd);
 
     if (fd < 0) {
         ADXM_Unlock();

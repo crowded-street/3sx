@@ -296,7 +296,8 @@ void move_pulpul_work() {
     move_pulpul(&ppwork[0]);
     move_pulpul(&ppwork[1]);
 
-    test_flag == 0;
+    // This is a comparison to zero in the decomp. Might be a programmer error
+    test_flag = 0;
 }
 
 s32 chkVibUnit(s32 port) {

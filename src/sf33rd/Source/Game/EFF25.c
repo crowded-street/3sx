@@ -338,7 +338,7 @@ s32 effect_25_init(s8 num) {
         effect_26_init(ewk, *data_ptr);
     }
 
-    *data_ptr++;
+    data_ptr++;
     ewk->wu.char_table[0] = char_add[bg_w.bg_index];
     suzi_offset_set(ewk);
     ewk->wu.my_mts = 7;

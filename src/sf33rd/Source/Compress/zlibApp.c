@@ -33,12 +33,10 @@ void zlib_Initialize(void* tempAdrs, s32 tempSize) {
 }
 
 void* zlib_Malloc(void* opaque, u32 items, u32 size) {
-    opaque = opaque;
     return mmAlloc(&zlib.mobj, size * items, 0);
 }
 
 void zlib_Free(void* opaque, void* adrs) {
-    opaque = opaque;
     mmFree(&zlib.mobj, (u8*)adrs);
 }
 

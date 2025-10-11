@@ -14,7 +14,7 @@
 
 #define BACKTRACE_MAX 100
 
-void fatal_error(const s8* fmt, ...) __dead2 {
+void fatal_error(const s8* fmt, ...) {
     va_list args;
     va_start(args, fmt);
 
@@ -51,7 +51,7 @@ void fatal_error(const s8* fmt, ...) __dead2 {
     abort();
 }
 
-void not_implemented(const s8* func) __dead2 {
+void not_implemented(const s8* func) {
     fatal_error("Function not implemented: %s\n", func);
 }
 

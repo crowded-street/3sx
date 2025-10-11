@@ -514,9 +514,7 @@ s32 flPS2DmaInterrupt(s32 ch) {
 
     dma_ptr = &flPs2VIF1Control;
 
-    if (ch != 1) {
-        dma_ptr;
-    } else {
+    if (ch == 1) {
         dma_chcr = *dma_chcr_adrs[dma_ptr->channel_id];
         if (!(dma_chcr & 0x100)) {
             if ((dma_chcr & 0xC) == 4) {

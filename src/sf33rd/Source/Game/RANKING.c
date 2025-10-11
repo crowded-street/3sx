@@ -34,7 +34,7 @@ s32 Ranking() {
     Ranking_X = 0;
     main_jmp_tbl[D_No[0]]();
     BG_Draw_System();
-    if ((Check_Exit_Check() == 0) && (Debug_w[24] == 0xFF)) {
+    if ((Check_Exit_Check() == 0) && (Debug_w[24] == -1)) {
         Ranking_X = 0;
     }
     return Ranking_X;
@@ -78,14 +78,14 @@ void Ranking_00_2nd() {
         base_y_pos = 40;
         switch (Rank_Type) {
         case 10:
-            if (Ranking_Data[10].cpu_grade == 0xFF) {
+            if (Ranking_Data[10].cpu_grade == -1) {
                 Char_Index = 0;
             } else {
                 Char_Index = Ranking_Data[10].cpu_grade;
             }
             break;
         case 15:
-            if (Ranking_Data[15].grade == 0xFF) {
+            if (Ranking_Data[15].grade == -1) {
                 Char_Index = 0;
             } else {
                 Char_Index = Ranking_Data[15].grade;
@@ -277,14 +277,14 @@ void Ranking_01_2nd() {
     base_y_pos = 40;
     switch (Rank_Type) {
     case 0:
-        if (Ranking_Data[10].cpu_grade == 0xFF) {
+        if (Ranking_Data[10].cpu_grade == -1) {
             Char_Index = 0;
         } else {
             Char_Index = Ranking_Data[10].cpu_grade;
         }
         break;
     case 5:
-        if (Ranking_Data[15].grade == 0xFF) {
+        if (Ranking_Data[15].grade == -1) {
             Char_Index = 0;
         } else {
             Char_Index = Ranking_Data[15].grade;
@@ -388,7 +388,7 @@ void Setup_grade(s16 y) {
 
     switch (Rank_Type) {
     case 0:
-        if ((Ranking_Data[Rank].cpu_grade) == 0xFF) {
+        if (Ranking_Data[Rank].cpu_grade == -1) {
             Char_Index = 0;
         } else {
             Char_Index = Ranking_Data[Rank].cpu_grade;
@@ -396,21 +396,21 @@ void Setup_grade(s16 y) {
         break;
 
     case 5:
-        if ((Ranking_Data[Rank].grade) == 0xFF) {
+        if (Ranking_Data[Rank].grade == -1) {
             Char_Index = 0;
         } else {
             Char_Index = Ranking_Data[Rank].grade;
         }
         /* fallthrough */
     case 10:
-        if ((Ranking_Data[Rank].cpu_grade) == 0xFF) {
+        if (Ranking_Data[Rank].cpu_grade == -1) {
             Char_Index = 0;
         } else {
             Char_Index = Ranking_Data[Rank].cpu_grade;
         }
         /* fallthrough */
     case 15:
-        if ((Ranking_Data[Rank].grade) == 0xFF) {
+        if (Ranking_Data[Rank].grade == -1) {
             Char_Index = 0;
         } else {
             Char_Index = Ranking_Data[Rank].grade;
@@ -437,9 +437,8 @@ void Setup_Name(s16 y) {
     Name_Sub(0, y);
     Name_Sub(1, y);
     Name_Sub(2, y);
-    if (Rank_Type == 0) {
-        Rank_Pos_X;
-    } else {
+
+    if (Rank_Type != 0) {
         Rank_Pos_X += 16;
     }
 

@@ -532,7 +532,7 @@ s32 msgCheckCodeSize(u8 data) {
         return 2;
     }
 
-    if (data >= 224 && data < 256) {
+    if (data >= 224) {
         return 2;
     }
 

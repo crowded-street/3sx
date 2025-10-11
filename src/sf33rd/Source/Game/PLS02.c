@@ -97,9 +97,10 @@ const s16 dir32_grddm[32] = { 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 39, 39
 const u8 convert_saishin_lvdir[2][16] = { { 0, 0, 0, 0, 1, 1, 1, 0, 2, 2, 2, 0, 0, 0, 0, 0 },
                                           { 0, 0, 0, 0, 2, 2, 2, 0, 1, 1, 1, 0, 0, 0, 0, 0 } };
 
-const s16 dead_voice_table[20][2] = { 864, 865, 928, 929, 512, 513, 608, 609, 896, 897, 800, 801, 832, 833,
-                                      352, 353, 672, 673, 576, 577, 640, 641, 384, 385, 480, 481, 736, 737,
-                                      704, 705, 416, 417, 448, 449, 768, 769, 960, 961, 544, 545 };
+const s16 dead_voice_table[20][2] = { { 864, 865 }, { 928, 929 }, { 512, 513 }, { 608, 609 }, { 896, 897 },
+                                      { 800, 801 }, { 832, 833 }, { 352, 353 }, { 672, 673 }, { 576, 577 },
+                                      { 640, 641 }, { 384, 385 }, { 480, 481 }, { 736, 737 }, { 704, 705 },
+                                      { 416, 417 }, { 448, 449 }, { 768, 769 }, { 960, 961 }, { 544, 545 } };
 
 void add_to_mvxy_data(WORK* wk, u16 ix) {
     s16* adrs;
@@ -594,7 +595,7 @@ s16 check_work_position(WORK* p1, WORK* p2) {
 s32 random_32() {
     Random_ix32++;
 
-    if (Debug_w[0x3B] == 0xE0) {
+    if (Debug_w[0x3B] == -32) {
         Random_ix32 = 0;
     }
 
@@ -605,7 +606,7 @@ s32 random_32() {
 s32 random_16() {
     Random_ix16++;
 
-    if (Debug_w[0x3B] == 0xE0) {
+    if (Debug_w[0x3B] == -32) {
         Random_ix16 = 0;
     }
 
@@ -616,7 +617,7 @@ s32 random_16() {
 s32 random_32_ex() {
     Random_ix32_ex++;
 
-    if (Debug_w[0x3B] == 0xE0) {
+    if (Debug_w[0x3B] == -32) {
         Random_ix32_ex = 0;
     }
 
@@ -627,7 +628,7 @@ s32 random_32_ex() {
 s32 random_16_ex() {
     Random_ix16_ex++;
 
-    if (Debug_w[0x3B] == 0xE0) {
+    if (Debug_w[0x3B] == -32) {
         Random_ix16_ex = 0;
     }
 
@@ -642,7 +643,7 @@ s32 random_32_com() {
 
     Random_ix32_com++;
 
-    if (Debug_w[0x3B] == 0xE0) {
+    if (Debug_w[0x3B] == -32) {
         Random_ix32_com = 0;
     }
 
@@ -657,7 +658,7 @@ s32 random_16_com() {
 
     Random_ix16_com++;
 
-    if (Debug_w[0x3B] == 0xE0) {
+    if (Debug_w[0x3B] == -32) {
         Random_ix16_com = 0;
     }
 
@@ -672,7 +673,7 @@ s32 random_32_ex_com() {
 
     Random_ix32_ex_com++;
 
-    if (Debug_w[0x3B] == 0xE0) {
+    if (Debug_w[0x3B] == -32) {
         Random_ix32_ex_com = 0;
     }
 
@@ -687,7 +688,7 @@ s32 random_16_ex_com() {
 
     Random_ix16_ex_com++;
 
-    if (Debug_w[0x3B] == 0xE0) {
+    if (Debug_w[0x3B] == -32) {
         Random_ix16_ex_com = 0;
     }
 
@@ -698,7 +699,7 @@ s32 random_16_ex_com() {
 s32 random_16_bg() {
     Random_ix16_bg++;
 
-    if (Debug_w[0x3B] == 0xE0) {
+    if (Debug_w[0x3B] == -32) {
         Random_ix16_bg = 0;
     }
 

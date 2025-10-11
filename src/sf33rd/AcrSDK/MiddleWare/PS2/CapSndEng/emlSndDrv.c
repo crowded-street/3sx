@@ -4,19 +4,16 @@
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/emlMemMap.h"
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/emlRefPhd.h"
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/emlRpcQueue.h"
-
-#if !defined(TARGET_PS2)
 #include "port/sound/emlShim.h"
-#endif
-
-#include <eekernel.h>
 
 s32 mlSysSetMono(u32 mono_sw) {
     CSE_SYS_PARAM_MONO param = {};
 
     param.cmd = 0x10000007;
     param.mono = mono_sw & 1;
-    mlRpcQueueSetData(1, &param, sizeof(CSE_SYS_PARAM_MONO));
+
+    emlShimSysSetMono(&param);
+
     return 0;
 }
 
@@ -30,11 +27,9 @@ s32 mlSysSetBankVolume(s32 bank, s32 vol) {
     param.cmd = 0x10000009;
     param.bank = bank == 0xFF ? bank : bank & 0xF;
     param.vol = vol & 0x7F;
-#if defined(TARGET_PS2)
-    mlRpcQueueSetData(1, &param, sizeof(CSE_SYS_PARAM_BANKVOL));
-#else
+
     emlShimSysSetVolume(&param);
-#endif
+
     return 0;
 }
 
@@ -47,48 +42,32 @@ s32 mlSeSetLfo(CSE_REQP* pReqp, u16 pmd_speed, u16 pmd_depth, u16 amd_speed, u16
     param.pmd_depth = pmd_depth;
     param.amd_speed = amd_speed;
     param.amd_depth = amd_depth;
-#if defined(TARGET_PS2)
-    mlRpcQueueSetData(1, &param, sizeof(CSE_SYS_PARAM_LFO));
-#else
+
     emlShimSeSetLfo(&param);
-#endif
     return 0;
 }
 
 s32 mlSeStop(CSE_REQP* pReqp) {
-#if defined(TARGET_PS2)
-    return SendSeChange(pReqp, 0x10000002);
-#else
     emlShimSeStop(pReqp);
     return 0;
-#endif
 }
 
 s32 mlSeKeyoff(CSE_REQP* pReqp) {
-#if defined(TARGET_PS2)
-    return SendSeChange(pReqp, 0x10000001);
-#else
     emlShimSeKeyOff(pReqp);
     return 0;
-#endif
 }
 
 s32 mlSeStopAll() {
     CSE_REQP reqp = {};
-#if defined(TARGET_PS2)
-    return SendSeChange(&reqp, 0x10000002);
-#else
+
     emlShimSeStopAll();
+
     return 0;
-#endif
 }
 
 s32 mlSeInitSndDrv() {
-#if defined(TARGET_PS2)
-    flSifRpcSend(0x309, NULL, 0);
-#else
     emlShimInit();
-#endif
+
     return 0;
 }
 
@@ -98,11 +77,9 @@ s32 StartSound(CSE_PHDP* pPHDP, CSE_REQP* pREQP) {
     param.cmd = 0x10000000;
     param.phdp = *pPHDP;
     param.reqp = *pREQP;
-#if defined(TARGET_PS2)
-    mlRpcQueueSetData(1, &param, sizeof(CSE_SYS_PARAM_SNDSTART));
-#else
+
     emlShimStartSound(&param);
-#endif
+
     return 0;
 }
 
@@ -152,29 +129,4 @@ s32 CheckReqFlags(CSE_REQP* pReqp) {
     }
 
     return 0;
-}
-
-s32 SendSeChange(CSE_REQP* pReqp, s32 cmd) {
-    CSE_SYS_PARAM_SECHANGE param = {};
-
-    switch (cmd) {
-    default:
-        scePrintf("[EE]");
-        scePrintf("(DBG)");
-        scePrintf(" : Match UNKNOWN Command!?\n");
-        return -1;
-
-    case 0x10000003:
-    case 0x10000002:
-    case 0x10000001:
-        param.cmd = cmd;
-        param.reqp = *pReqp;
-
-        if (CheckReqFlags(&param.reqp) == -1) {
-            return -1;
-        }
-
-        mlRpcQueueSetData(1, &param, sizeof(CSE_SYS_PARAM_SECHANGE));
-        return 0;
-    }
 }

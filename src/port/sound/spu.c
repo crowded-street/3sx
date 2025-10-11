@@ -308,8 +308,8 @@ void SPU_VoiceStart(int vnum, u32 start_addr) {
 }
 
 void SPU_SDL_CB(void* user, SDL_AudioStream* stream, int additional_amount, int total_amount) {
-    u32 samples_amount = additional_amount / sizeof(s16);
-    s16 out[2] = {};
+    u32 samples_per_channel = (additional_amount / sizeof(s16)) >> 1;
+    static s16 outbuf[4096] = {};
 
     // We need to run the eml callbaack at 250hz
     // 48000 / 250 = 192
@@ -319,14 +319,22 @@ void SPU_SDL_CB(void* user, SDL_AudioStream* stream, int additional_amount, int 
     // on the same thread, no locks would be needed in the SDL audio callback path
     SDL_LockMutex(soundLock);
 
-    for (u32 i = 0; i < samples_amount; i++) {
-        SPU_Tick(out);
-        SDL_PutAudioStreamData(stream, out, sizeof(out));
-        cb_timer--;
-        if (!cb_timer) {
-            timer_cb();
-            cb_timer = 192;
+    while (samples_per_channel) {
+        u32 batch_count = min(samples_per_channel, 4096);
+        s16* p = outbuf;
+        for (int i = 0; i < batch_count; i++) {
+            SPU_Tick(p);
+            p += 2;
+
+            cb_timer--;
+            if (!cb_timer) {
+                timer_cb();
+                cb_timer = 192;
+            }
         }
+
+        SDL_PutAudioStreamData(stream, outbuf, (batch_count * sizeof(s16)) << 1);
+        samples_per_channel -= batch_count;
     }
 
     SDL_UnlockMutex(soundLock);

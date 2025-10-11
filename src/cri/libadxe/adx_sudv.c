@@ -19,13 +19,6 @@ void adxps2_err_dvd(void* obj, const Char8* fmt) {
 }
 
 void ADXPS2_SetupDvdFs(ADXPS2_SPRM_DVD* sprmd) {
-    adxps2_rt_ver0;
-    adxps2_rt_ver1;
-    adxps2_rt_ver2;
-    adxps2_rt_ver3;
-    adxps2_rt_ver4;
-    adxps2_rt_ver5;
-
     cvFsEntryErrFunc(adxps2_err_dvd, NULL);
     cvFsAddDev("CDV", dvCiGetInterface, 0);
     cvFsSetDefDev("CDV");

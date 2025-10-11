@@ -158,8 +158,6 @@ void njSetBackColor(u32 c0, u32 c1, u32 c2) {
 }
 
 void njColorBlendingMode(s32 target, s32 mode) {
-    target = target;
-    mode = mode;
     flSetRenderState(FLRENDER_ALPHABLENDMODE, 0x32);
 }
 
@@ -361,12 +359,11 @@ void njDrawPolygon2D(PAL_CURSOR* p, s32 /* unused */, f32 pri, u32 attr) {
 }
 
 void njSetPaletteBankNumG(u32 globalIndex, s32 bank) {
-    globalIndex = globalIndex;
     ppgSetupCurrentPaletteNumber(0, bank);
 }
 
 void njSetPaletteMode(u32 mode) {
-    mode = mode;
+    // Do nothing
 }
 
 void njSetPaletteData(s32 offset, s32 count, void* data) {

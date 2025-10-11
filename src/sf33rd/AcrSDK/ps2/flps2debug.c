@@ -221,7 +221,7 @@ s32 flPrintL(s32 posi_x, s32 posi_y, const s8* format, ...) {
     for (i = 0; i < len; i++) {
         code = str[i];
 
-        if ((code >= 0x10) && (code < 0x80) && (code != ' ')) {
+        if ((code >= 0x10) && (code != ' ')) {
             buff_ptr->x = posi_x * 8;
             buff_ptr->y = posi_y * 8;
             buff_ptr->code = code;

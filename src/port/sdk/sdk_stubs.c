@@ -375,10 +375,6 @@ void sceDmaRecvN(sceDmaChan* d, void* addr, int size) {
 
 // eekernel
 
-void LoadExecPS2(const char* filename, int num_args, char* args[]) __attribute__((noreturn)) {
-    not_implemented(__func__);
-}
-
 int DIntr() {
     not_implemented(__func__);
 }

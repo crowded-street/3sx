@@ -6,14 +6,10 @@
 #include <eestruct.h>
 #include <libgraph.h>
 
+#include <inttypes.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
-
-#if defined(TARGET_PS2)
-#include "mw_stdarg.h"
-#else
-#include <stdarg.h>
-#endif
 
 #if !defined(TARGET_PS2)
 #include "port/sdl/sdl_message_renderer.h"
@@ -390,7 +386,7 @@ void KnjInit(u32 type, uintptr_t adrs, u32 disp_max, u32 top_dbp) {
     kw->pack_idx = 0;
     kw->pack_cur = kw->pack_fnt[0];
     kw->mem_size = adrs - kw->font_adrs;
-    printf("KnjInit: adrs=0x%X size=0x%X\n", kw->font_adrs, kw->mem_size);
+    printf("KnjInit: adrs=0x%" PRIXPTR " size=0x%X\n", kw->font_adrs, kw->mem_size);
     kw->dispw = kw->fontw;
     kw->disph = kw->fonth;
     kw->x = 0;

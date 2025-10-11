@@ -1918,7 +1918,7 @@ void sc_ram_to_vram(s8 sc_num) {
 
     sc_tbl_ptr = (uintptr_t*)sc_ram_vram_tbl[sc_num];
     sc_pos_ptr = (u8*)*sc_tbl_ptr;
-    *sc_tbl_ptr++;
+    sc_tbl_ptr++;
     sc_uv_ptr = (u8*)*sc_tbl_ptr;
     loop = *sc_uv_ptr++;
 
@@ -1945,7 +1945,7 @@ void sc_ram_to_vram_opc(s8 sc_num, s8 x, s8 y, u16 atr) {
     ppgSetupCurrentDataList(&ppgScrList);
     sc_tbl_ptr = (uintptr_t*)sc_ram_vram_tbl[sc_num];
     sc_pos_ptr = (u8*)*sc_tbl_ptr;
-    *sc_tbl_ptr++;
+    sc_tbl_ptr++;
     sc_uv_ptr = (u8*)*sc_tbl_ptr;
     loop = *sc_uv_ptr++;
 

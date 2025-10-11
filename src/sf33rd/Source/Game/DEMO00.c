@@ -370,11 +370,11 @@ void Put_Warning(s16 type) {
 void Pal_Cursor_Put(s16 type) {
     PAL_CURSOR_TBL pal_cursor_tbl[3] = {
         { { { 48.0f, 64.0f }, { 48.0f, 99.0f }, { 144.0f, 99.0f }, { 144.0f, 64.0f } },
-          { 0xA0FF0000, 0xA0FF0000, 0xA0FF0000, 0xA0FF0000 } },
+          { { 0xA0FF0000 }, { 0xA0FF0000 }, { 0xA0FF0000 }, { 0xA0FF0000 } } },
         { { { 48.0f, 296.0f }, { 48.0f, 332.0f }, { 286.0f, 332.0f }, { 286.0f, 296.0f } },
-          { 0xA0FF0000, 0xA0FF0000, 0xA0FF0000, 0xA0FF0000 } },
+          { { 0xA0FF0000 }, { 0xA0FF0000 }, { 0xA0FF0000 }, { 0xA0FF0000 } } },
         { { { 48.0f, 379.0f }, { 48.0f, 415.0f }, { 286.0f, 415.0f }, { 286.0f, 379.0f } },
-          { 0xA0FF0000, 0xA0FF0000, 0xA0FF0000, 0xA0FF0000 } }
+          { { 0xA0FF0000 }, { 0xA0FF0000 }, { 0xA0FF0000 }, { 0xA0FF0000 } } }
     };
 
     f32 pal_alpha_tbl[4] = { 255.0f, 48.0f, 178.5f, 48.0f };

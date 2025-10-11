@@ -1159,7 +1159,6 @@ s32 ppgSetupTexChunk_3rd(Texture* tch, s32 ixNum, u32 attribute) {
         while (1) {}
     }
 
-    (bits.desc & 0x20) > 0;
     unused_s5 = 0;
     ppgChangeDataEndian(mltAdrs, mltSize, ppg->pixel & 4, ppg->formARGB == 0x8888, bits.bitdepth, unused_s5);
     bits.ptr = mltAdrs;

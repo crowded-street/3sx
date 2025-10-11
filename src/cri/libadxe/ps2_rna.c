@@ -427,8 +427,6 @@ end:
 void PS2RNA_Init() {
     intptr_t snd_buf[3];
 
-    *ps2rna_build;
-
     if (ps2rna_init_cnt == 0) {
         SJRMT_Init();
         SJX_Init();

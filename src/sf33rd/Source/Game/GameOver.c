@@ -25,7 +25,7 @@ s16 Game_Over() {
     Scene_Cut = Cut_Cut_Loser();
     GameOver_Jmp_Tbl[GO_No[0]]();
 
-    if ((Check_Exit_Check() == 0) && (Debug_w[0x18] == 0xFF)) {
+    if ((Check_Exit_Check() == 0) && (Debug_w[0x18] == -1)) {
         GAME_OVER_X = 0;
     }
 

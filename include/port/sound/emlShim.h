@@ -5,6 +5,7 @@
 
 void emlShimInit();
 void emlShimSysSetVolume(CSE_SYS_PARAM_BANKVOL* param);
+void emlShimSysSetMono(CSE_SYS_PARAM_MONO* param);
 void emlShimStartSound(CSE_SYS_PARAM_SNDSTART* param);
 void emlShimSeKeyOff(CSE_REQP* pReqp);
 void emlShimSeStop(CSE_REQP* pReqp);
