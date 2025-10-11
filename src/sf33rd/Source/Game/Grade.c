@@ -1,12 +1,13 @@
 #include "sf33rd/Source/Game/Grade.h"
 #include "common.h"
 #include "sf33rd/Source/Game/CALDIR.h"
-#include "sf33rd/Source/Game/Com_Sub.h"
 #include "sf33rd/Source/Game/EFFECT.h"
 #include "sf33rd/Source/Game/HITCHECK.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/workuser.h"
+
+#include "sf33rd/Source/Game/com/com_sub.h"
 
 // sbss
 JudgeGals judge_gals[2];

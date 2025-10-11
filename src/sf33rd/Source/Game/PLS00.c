@@ -1,11 +1,12 @@
 #include "sf33rd/Source/Game/PLS00.h"
 #include "common.h"
 #include "sf33rd/Source/Game/CHARSET.h"
-#include "sf33rd/Source/Game/Com_Pl.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/PLPDM.h"
 #include "sf33rd/Source/Game/PLS01.h"
 #include "sf33rd/Source/Game/PLS03.h"
+
+#include "sf33rd/Source/Game/com/com_pl.h"
 
 void nm_01000(PLW* wk);
 void nm_09000(PLW* wk);
