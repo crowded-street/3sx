@@ -320,6 +320,11 @@ void q_ldreq_texture_group(REQ* curr) {
                     for (loop = 1; loop < count; loop++) {
                         trsptr[loop] = trsptr[loop + 1];
                     }
+                    
+                    // Remove Gouki's throwable box from all collisions 0x5A to 0x5D
+                    for (int i = 0x5A; i <= 0x5D; i++) {
+                        cit2->hiit[i].cuix = 0;
+                    }
                 }
             }
 
