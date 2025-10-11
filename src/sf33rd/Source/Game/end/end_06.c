@@ -85,10 +85,6 @@ void end_600_move() {
 }
 
 void end_600_0000() {
-#if defined(TARGET_PS2)
-    void Bg_On_W(u32 s_prm);
-#endif
-
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
@@ -106,10 +102,6 @@ void end_600_0000() {
 }
 
 void end_600_1000() {
-#if defined(TARGET_PS2)
-    void Bg_On_W(u32 s_prm);
-#endif
-
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
@@ -173,11 +165,13 @@ void end_600_2000() {
             bgw_ptr->free++;
             bgw_ptr->free &= 7;
             bgw_ptr->xy[0].disp.pos = end_6_pos[end_w.r_no_2][0] + end_600_2000_tbl[bgw_ptr->free][1];
-#if defined(TARGET_PS2)
-            bgw_ptr->xy[1].disp.pos = end_6_pos[end_w.r_no_2][1] + end_600_2000_tbl[bgw_ptr->free][2];
-#else
+
+            // TODO: Check if this is correct. Original PS2 matching line is:
+            // bgw_ptr->xy[1].disp.pos = end_6_pos[end_w.r_no_2][1] + end_600_2000_tbl[bgw_ptr->free][2];
+            // Original dev could have counted this as 1-indexed.
+            // Makes much more sense that above would be 0 and below would be 1.
             bgw_ptr->xy[1].disp.pos = end_6_pos[end_w.r_no_2][1] - end_600_2000_tbl[bgw_ptr->free + 1][0];
-#endif
+
             bgw_ptr->abs_x = end_600_2000_tbl[bgw_ptr->free][0] + 0x200;
             bgw_ptr->abs_y = end_600_2000_tbl[bgw_ptr->free][1];
         }
@@ -192,11 +186,13 @@ void end_600_2000() {
             bgw_ptr->free++;
             bgw_ptr->free &= 7;
             bgw_ptr->xy[0].disp.pos = end_6_pos[end_w.r_no_2][0] + end_600_2000_tbl[bgw_ptr->free][1];
-#if defined(TARGET_PS2)
-            bgw_ptr->xy[1].disp.pos = end_6_pos[end_w.r_no_2][1] + end_600_2000_tbl[bgw_ptr->free][2];
-#else
+
+            // TODO: Check if this is correct. Original PS2 matching line is:
+            // bgw_ptr->xy[1].disp.pos = end_6_pos[end_w.r_no_2][1] + end_600_2000_tbl[bgw_ptr->free][2];
+            // Original dev could have counted this as 1-indexed.
+            // Makes much more sense that above would be 0 and below would be 1.
             bgw_ptr->xy[1].disp.pos = end_6_pos[end_w.r_no_2][1] - end_600_2000_tbl[bgw_ptr->free + 1][0];
-#endif
+
             bgw_ptr->abs_x = end_600_2000_tbl[bgw_ptr->free][0] + 0x200;
             bgw_ptr->abs_y = end_600_2000_tbl[bgw_ptr->free][1];
         }
@@ -301,10 +297,6 @@ void end_601_move() {
 }
 
 void end_601_0000() {
-#if defined(TARGET_PS2)
-    void Bg_On_W(u32 s_prm);
-#endif
-
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
@@ -321,10 +313,6 @@ void end_601_0000() {
 }
 
 void end_601_1000() {
-#if defined(TARGET_PS2)
-    void Bg_On_W(u32 s_prm);
-#endif
-
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
@@ -351,10 +339,6 @@ void end_601_1000() {
 }
 
 void end_601_2000() {
-#if defined(TARGET_PS2)
-    void Bg_Off_W(u32 s_prm);
-#endif
-
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
@@ -382,11 +366,13 @@ void end_601_2000() {
             bgw_ptr->free++;
             bgw_ptr->free &= 7;
             bgw_ptr->xy[0].disp.pos = end_6_pos[end_w.r_no_2][0] - end_600_2000_tbl[bgw_ptr->free][1];
-#if defined(TARGET_PS2)
-            bgw_ptr->xy[1].disp.pos = end_6_pos[end_w.r_no_2][1] - end_600_2000_tbl[bgw_ptr->free][2];
-#else
+
+            // TODO: Check if this is correct. Original PS2 matching line is:
+            // bgw_ptr->xy[1].disp.pos = end_6_pos[end_w.r_no_2][1] - end_600_2000_tbl[bgw_ptr->free][2];
+            // Original dev could have counted this as 1-indexed.
+            // Makes much more sense that above would be 0 and below would be 1.
             bgw_ptr->xy[1].disp.pos = end_6_pos[end_w.r_no_2][1] - end_600_2000_tbl[bgw_ptr->free + 1][0];
-#endif
+
             bgw_ptr->abs_x = 0x200 - end_600_2000_tbl[bgw_ptr->free][0];
             bgw_ptr->abs_y = -end_600_2000_tbl[bgw_ptr->free][1];
         }
@@ -399,10 +385,6 @@ void end_601_2000() {
 }
 
 void end_601_3000() {
-#if defined(TARGET_PS2)
-    void Bg_On_W(u32 s_prm);
-#endif
-
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;

@@ -152,10 +152,6 @@ void end_1000_1000() {
 }
 
 void end_1000_2000() {
-#if defined(TARGET_PS2)
-    void Bg_On_W(u32 s_prm);
-#endif
-
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
