@@ -15,10 +15,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#if defined(_WIN32)
-#include <malloc.h> // for _aligned_malloc / _aligned_free
-#endif
-
 #define SAMPLE_RATE 48000
 #define N_CHANNELS 2
 #define BYTES_PER_SAMPLE 2
@@ -106,14 +102,8 @@ static void pipeline_destroy(ADXDecoderPipeline* pipeline) {
 
 static void* load_file(int file_id, int* size) {
     const unsigned int file_size = fsGetFileSize(file_id);
-    const size_t buff_size = (file_size + 2048 - 1) & ~(2048 - 1); // sceCdRead reads data in 2048-byte chunks
-    const size_t alignment = 64;                                   // ADXF requires buff to be aligned to 64
-
-#if defined(_WIN32)
-    void* buff = _aligned_malloc(buff_size, alignment);
-#else
-    void* buff = aligned_alloc(alignment, buff_size);
-#endif
+    const size_t buff_size = (file_size + 2048 - 1) & ~(2048 - 1); // AFS reads data in 2048-byte chunks
+    void* buff = malloc(buff_size);
 
     REQ req;
     req.fnum = file_id;
@@ -339,11 +329,7 @@ static void track_destroy(ADXTrack* track) {
     loop_info_destroy(&track->loop_info);
 
     if (track->should_free_data_after_use) {
-#if defined(_WIN32)
-        _aligned_free(track->data);
-#else
         free(track->data);
-#endif
     }
 
     SDL_zerop(track);

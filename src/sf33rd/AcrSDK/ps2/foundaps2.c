@@ -128,7 +128,6 @@ u32 flLoadCheckColor[20];
 
 // forward decls
 static s32 system_work_init();
-static s32 system_hard_init();
 static void flPS2VramFullClear();
 static void flPS2InitRenderBuff(u32 fbdepth, u32 zbdepth, u32 inter_mode, u32 video_mode, u32 dispw);
 static void flPS2SwapDBuff(s32 dbi, s32 irq_type);
@@ -136,10 +135,6 @@ static void flPS2DrawPreparation();
 
 s32 flInitialize(s32 /* unused */, s32 /* unused */) {
     if (system_work_init() == 0) {
-        return 0;
-    }
-
-    if (system_hard_init() == 0) {
         return 0;
     }
 
@@ -196,56 +191,6 @@ s32 system_work_init() {
     flPTNum = 0;
     flClayNum = 0;
     flPS2FlipCancelFlag = 0;
-
-    return 1;
-}
-
-s32 system_hard_init() {
-#if !defined(TARGET_PS2)
-    // This is PS2-specific hardware initialization code, which means we can omit it for non-PS2 systems
-    return 1;
-#endif
-
-    s32 i;
-
-    sceSifInitRpc(0);
-    sceSifInitIopHeap();
-    sceCdInit(SCECdINIT);
-    sceCdMmode(SCECdDVD);
-
-    while (1) {
-        if (sceSifRebootIop("cdrom0:\\THIRD\\IOP\\IOPRP280.IMG;1") != 0) {
-            break;
-        }
-    }
-
-    while (1) {
-        if (sceSifSyncIop() != 0) {
-            break;
-        }
-    }
-
-    sceSifInitRpc(0);
-    sceSifInitIopHeap();
-    sceCdInit(SCECdINIT);
-    sceCdMmode(SCECdDVD);
-    sceFsReset();
-    flPS2IopModuleLoad("cdrom0:\\THIRD\\IOP\\MODULES\\SIO2MAN.IRX;1", 0, NULL, 0);
-    flPS2PADModuleInit();
-    flPS2IopModuleLoad("cdrom0:\\THIRD\\IOP\\MODULES\\MCMAN.IRX;1", 0, NULL, 0);
-    flPS2IopModuleLoad("cdrom0:\\THIRD\\IOP\\MODULES\\MCSERV.IRX;1", 0, NULL, 0);
-    flPS2IopModuleLoad("cdrom0:\\THIRD\\IOP\\MODULES\\LIBSD.IRX;1", 0, NULL, 0);
-    flPS2IopModuleLoad("cdrom0:\\THIRD\\IOP\\MOD_MW\\CSELIB00.IRX;1", 0, NULL, 0);
-    sceGsResetPath();
-    sceDmaReset(1);
-
-    for (i = 0; i < 10; i++) {
-        flPs2State.DmaChan[i] = sceDmaGetChan(i);
-    }
-
-    sceVpu0Reset();
-    flPs2VIF1Control.channel_id = 1;
-    flPS2DmaInitControl(&flPs2VIF1Control, 0x1000, flPS2DmaInterrupt);
 
     return 1;
 }
