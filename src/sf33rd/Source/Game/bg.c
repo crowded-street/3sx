@@ -15,9 +15,10 @@
 #include "sf33rd/Source/Game/bg_data.h"
 #include "sf33rd/Source/Game/color3rd.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
-#include "sf33rd/Source/Game/end_data.h"
 #include "sf33rd/Source/Game/workuser.h"
 #include "structs.h"
+
+#include "sf33rd/Source/Game/end/end_data.h"
 
 // sbss
 Vertex scrDrawPos[4];

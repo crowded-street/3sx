@@ -43,7 +43,7 @@
 #include "sf33rd/Source/Game/count.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect_init.h"
-#include "sf33rd/Source/Game/end_main.h"
+#include "sf33rd/Source/Game/end/end_main.h"
 #include "sf33rd/Source/Game/main.h"
 #include "sf33rd/Source/Game/menu.h"
 #include "sf33rd/Source/Game/op_sub.h"

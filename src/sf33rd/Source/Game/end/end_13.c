@@ -5,9 +5,10 @@
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/bg_data.h"
 #include "sf33rd/Source/Game/effe6.h"
-#include "sf33rd/Source/Game/end_data.h"
-#include "sf33rd/Source/Game/end_main.h"
 #include "sf33rd/Source/Game/sc_sub.h"
+
+#include "sf33rd/Source/Game/end/end_data.h"
+#include "sf33rd/Source/Game/end/end_main.h"
 
 void end_d00_move();
 void end_d01_move();
