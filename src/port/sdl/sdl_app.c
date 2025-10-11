@@ -1,6 +1,5 @@
 #include "port/sdl/sdl_app.h"
 #include "common.h"
-#include "port/float_clamp.h"
 #include "port/sdl/sdl_adx_sound.h"
 #include "port/sdl/sdl_game_renderer.h"
 #include "port/sdl/sdl_message_renderer.h"

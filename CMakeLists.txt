@@ -16,10 +16,7 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/src
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/include/sdk
-    ${PROJECT_SOURCE_DIR}/include/cri
-    ${PROJECT_SOURCE_DIR}/include/cri/ee
     ${PROJECT_SOURCE_DIR}/zlib
-    ${PROJECT_SOURCE_DIR}/libco
 )
 
 # ======================================
@@ -27,15 +24,12 @@ include_directories(
 # ======================================
 
 file(GLOB_RECURSE GAME_SRC src/sf33rd/*.c)
-file(GLOB_RECURSE CRI_SRC src/cri/*.c)
 file(GLOB_RECURSE BIN2OBJ_SRC src/bin2obj/*.c)
 file(GLOB_RECURSE PORT_SRC src/port/*.c)
 file(GLOB_RECURSE ZLIB_SRC zlib/*.c)
 
-add_subdirectory(libco)
-
 add_executable(3sx MACOSX_BUNDLE
-    ${GAME_SRC} ${CRI_SRC} ${BIN2OBJ_SRC} ${PORT_SRC} ${ZLIB_SRC}
+    ${GAME_SRC} ${BIN2OBJ_SRC} ${PORT_SRC} ${ZLIB_SRC}
 )
 
 # ======================================
@@ -46,7 +40,6 @@ target_compile_definitions(3sx PRIVATE
     $<$<CONFIG:Debug>:DEBUG>
     $<$<CONFIG:Release>:RELEASE>
     TARGET_SDL3
-    XPT_TGT_EE
     _POSIX_C_SOURCE
 )
 
@@ -74,7 +67,6 @@ target_compile_options(3sx PRIVATE
 )
 
 target_link_libraries(3sx PRIVATE
-    libco
     m
 )
 

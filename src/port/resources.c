@@ -3,10 +3,6 @@
 
 #include <SDL3/SDL.h>
 
-// FIXME: This should be in sdl_app.h, but we can't declare it there 
-//        because of conflicts with CRI types
-extern SDL_Window* window;
-
 typedef enum FlowState { INIT, DIALOG_OPENED, COPY_ERROR, COPY_SUCCESS } ResourceCopyingFlowState;
 
 static ResourceCopyingFlowState flow_state = INIT;

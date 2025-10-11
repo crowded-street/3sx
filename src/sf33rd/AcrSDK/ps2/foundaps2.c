@@ -14,8 +14,6 @@
 #include "sf33rd/AcrSDK/ps2/ps2PAD.h"
 #include "structs.h"
 
-#include "port/sdk_threads.h"
-
 #include <eekernel.h>
 #include <libcdvd.h>
 #include <libdma.h>

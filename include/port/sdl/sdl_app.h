@@ -1,7 +1,9 @@
 #ifndef SDL_APP_H
 #define SDL_APP_H
 
-#include <stdbool.h>
+#include <SDL3/SDL.h>
+
+extern SDL_Window* window;
 
 int SDLApp_Init();
 void SDLApp_Quit();

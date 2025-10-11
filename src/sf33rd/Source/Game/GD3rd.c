@@ -12,7 +12,6 @@
 #include "structs.h"
 
 #include "port/io/afs.h"
-#include "port/sdk_threads.h"
 
 typedef struct {
     u8 type;
