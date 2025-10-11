@@ -1,4 +1,4 @@
-#include "sf33rd/Source/Game/DEMO00.h"
+#include "sf33rd/Source/Game/demo/demo00.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "sf33rd/Source/Common/MemMan.h"

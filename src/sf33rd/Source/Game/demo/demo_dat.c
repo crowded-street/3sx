@@ -1,4 +1,4 @@
-#include "sf33rd/Source/Game/Demo_Dat.h"
+#include "sf33rd/Source/Game/demo/demo_dat.h"
 #include "common.h"
 
 const u16 Sel_PL_Data_00[64] = { 32800, 8,     32799, 8,     32818, 1,     32780, 8,     32778, 8,     32782,

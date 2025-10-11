@@ -1,5 +1,4 @@
 #include "sf33rd/Source/Game/init3rd.h"
-#include "sf33rd/Source/Game/DEMO00.h"
 #include "sf33rd/Source/Game/DIR_DATA.h"
 #include "sf33rd/Source/Game/EFFECT.h"
 #include "sf33rd/Source/Game/Entry.h"
@@ -24,6 +23,8 @@
 #include "sf33rd/Source/PS2/ps2Quad.h"
 #include "structs.h"
 
+#include "sf33rd/Source/Game/demo/demo00.h"
+
 #if !defined(TARGET_PS2)
 #include <string.h>
 #endif
@@ -45,9 +46,9 @@ void Setup_Difficult_V();
 void Init_Task(struct _TASK* task_ptr) {
     void (*Main_Jmp_Tbl[])() = { Init_Task_1st, Init_Task_Aload, Init_Task_2nd, Init_Task_End };
 
-    #if defined(MEMCARD_DISABLED)
+#if defined(MEMCARD_DISABLED)
     Main_Jmp_Tbl[1] = Init_Task_Wait;
-    #endif
+#endif
 
     Main_Jmp_Tbl[task_ptr->r_no[0]](task_ptr);
 }

@@ -2,7 +2,6 @@
 #include "common.h"
 #include "sf33rd/Source/Game/Com_Data.h"
 #include "sf33rd/Source/Game/DC_Ghost.h"
-#include "sf33rd/Source/Game/Demo_Dat.h"
 #include "sf33rd/Source/Game/EFF38.h"
 #include "sf33rd/Source/Game/EFF42.h"
 #include "sf33rd/Source/Game/EFF58.h"
@@ -43,6 +42,8 @@
 #include "sf33rd/Source/Game/menu.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/workuser.h"
+
+#include "sf33rd/Source/Game/demo/demo_dat.h"
 
 void Switch_Work();
 void Sel_PL_Control();

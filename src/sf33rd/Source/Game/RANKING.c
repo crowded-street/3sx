@@ -1,6 +1,5 @@
 #include "sf33rd/Source/Game/RANKING.h"
 #include "common.h"
-#include "sf33rd/Source/Game/DEMO02.h"
 #include "sf33rd/Source/Game/EFF58.h"
 #include "sf33rd/Source/Game/EFF67.h"
 #include "sf33rd/Source/Game/Eff76.h"
@@ -18,6 +17,8 @@
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/texcash.h"
 #include "sf33rd/Source/Game/workuser.h"
+
+#include "sf33rd/Source/Game/demo/demo02.h"
 
 // sbss
 RANK_DATA Present_Data[2];
