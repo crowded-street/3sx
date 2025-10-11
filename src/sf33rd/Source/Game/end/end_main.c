@@ -1,3 +1,8 @@
+/**
+ * @file end_main.c
+ * Ending Movie Controller
+ */
+
 #include "sf33rd/Source/Game/end/end_main.h"
 #include "common.h"
 #include "sf33rd/Source/Game/EFFECT.h"

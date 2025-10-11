@@ -1,3 +1,8 @@
+/**
+ * @file end_10.c
+ * Yang's Ending
+ */
+
 #include "common.h"
 #include "sf33rd/Source/Game/EFFF9.h"
 #include "sf33rd/Source/Game/SE.h"

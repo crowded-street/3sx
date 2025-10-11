@@ -1,3 +1,8 @@
+/**
+ * @file end_14.c
+ * Akuma/Gouki's Ending
+ */
+
 #include "sf33rd/Source/Game/end/end_14.h"
 #include "common.h"
 #include "sf33rd/Source/Game/EFFF9.h"

@@ -1,3 +1,8 @@
+/**
+ * @file end_20.c
+ * Remy's Ending
+ */
+
 #include "common.h"
 #include "sf33rd/Source/Common/PPGFile.h"
 #include "sf33rd/Source/Common/PPGWork.h"

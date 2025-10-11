@@ -1,3 +1,8 @@
+/**
+ * @file end_04.c
+ * Dudley's Ending
+ */
+
 #include "common.h"
 #include "sf33rd/Source/Game/EFFF9.h"
 #include "sf33rd/Source/Game/EFFH1.h"

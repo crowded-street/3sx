@@ -1,3 +1,8 @@
+/**
+ * @file end_07.c
+ * Ibuki's Ending
+ */
+
 #include "common.h"
 #include "sf33rd/Source/Game/EFFB0.h"
 #include "sf33rd/Source/Game/EFFF9.h"

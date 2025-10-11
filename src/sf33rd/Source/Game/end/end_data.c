@@ -1,3 +1,8 @@
+/**
+ * @file end_data.c
+ * Ending Data
+ */
+
 #include "sf33rd/Source/Game/end/end_data.h"
 #include "common.h"
 

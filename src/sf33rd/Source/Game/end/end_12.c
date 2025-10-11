@@ -1,3 +1,8 @@
+/**
+ * @file end_12.c
+ * Sean's Ending
+ */
+
 #include "common.h"
 #include "sf33rd/Source/Game/EFFF2.h"
 #include "sf33rd/Source/Game/EFFF9.h"
