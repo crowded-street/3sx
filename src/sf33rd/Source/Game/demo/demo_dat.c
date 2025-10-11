@@ -1,3 +1,8 @@
+/**
+ * @file demo_dat.c
+ * Demo Data
+ */
+
 #include "sf33rd/Source/Game/demo/demo_dat.h"
 #include "common.h"
 

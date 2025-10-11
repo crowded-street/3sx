@@ -1,3 +1,8 @@
+/**
+ * @file demo02.c
+ * Demo Sequence 2
+ */
+
 #include "common.h"
 #include "sf33rd/Source/Game/Game.h"
 #include "sf33rd/Source/Game/Grade.h"

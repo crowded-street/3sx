@@ -1,3 +1,8 @@
+/**
+ * @file demo00.c
+ * Demo Sequence 0
+ */
+
 #include "sf33rd/Source/Game/demo/demo00.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"

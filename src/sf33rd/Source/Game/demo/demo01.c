@@ -1,3 +1,8 @@
+/**
+ * @file demo01.c
+ * Demo Sequence 1
+ */
+
 #include "common.h"
 #include "sf33rd/Source/Game/DC_Ghost.h"
 #include "sf33rd/Source/Game/GD3rd.h"
