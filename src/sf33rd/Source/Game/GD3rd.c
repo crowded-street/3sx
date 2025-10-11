@@ -12,9 +12,9 @@
 #include "sf33rd/Source/Game/workuser.h"
 #include "structs.h"
 
+#include "port/io/afs.h"
 #include "port/sdk_threads.h"
 
-#include <cri_mw.h>
 #include <libcdvd.h>
 #include <libgraph.h>
 
@@ -36,19 +36,8 @@ typedef struct {
 
 typedef void (*LDREQ_Process_Func)(REQ*);
 
-u16 DskDrvErrBe;
-u16 DskDrvErrType;
-u16 DskDrvErrRetry;
-PS2CDReadMode ps2CdReadMode;
 s16 plt_req[2]; // size: 0x4, address: 0x579084
 u8 ldreq_break;
-struct _adx_fs* adxf = NULL;
-
-#if defined(TARGET_PS2)
-u8 sf3ptinfo[3352];
-#else
-u8 sf3ptinfo[3352 + 12];
-#endif
 
 REQ q_ldreq[16];      // size: 0x280, address: 0x5E1DD0
 u8 ldreq_result[294]; // size: 0x126, address: 0x5E1CA0
@@ -56,6 +45,8 @@ u8 ldreq_result[294]; // size: 0x126, address: 0x5E1CA0
 const u8 lpr_wrdata[3] = { 0x03, 0xC0, 0x3C }; // size: 0x3, address: 0x51FCF0
 const u8 lpc_seldat[2] = { 10, 11 };           // size: 0x2, address: 0x51FCF8
 const u8 lpt_seldat[4] = { 3, 4, 5, 0 };       // size: 0x4, address: 0x51FD00
+
+static AFSHandle afs_handle = AFS_NONE;
 
 s32 Push_LDREQ_Queue(REQ* ldreq);
 void Push_LDREQ_Queue_Metamor();
@@ -70,89 +61,6 @@ s8* ldreq_process_name[];
 const LDREQ_TBL ldreq_tbl[294];
 const s16 ldreq_ix[43][2];
 
-s32 Setup_Directory_Record_Data() {
-    DskDrvErrBe = 0;
-    DskDrvErrType = 0xFFFF;
-    DskDrvErrRetry = 0;
-
-    ADXF_LoadPartitionNw(0, "SF33RD.AFS", NULL, sf3ptinfo);
-
-    while (1) {
-        if (ADXF_GetPtStat(0) == ADXF_STAT_READEND) {
-            break;
-        }
-
-#if defined(TARGET_PS2)
-        sceGsSyncV(0);
-#else
-        // CRI relies on VSync interrupts to execute its file system server.
-        // On modern platforms we don't call the VSync interrupt handler until
-        // we get to the main loop. That's why we have to emulate the interrupt
-        // manually like this.
-        begin_interrupt();
-        ADXPS2_ExecVint(0);
-        end_interrupt();
-#endif
-
-        ADXM_ExecMain();
-    }
-
-    ps2CdReadMode.trycount = 64;
-    ps2CdReadMode.spindlctrl = 1;
-    ps2CdReadMode.datapattern = 0;
-    ps2CdReadMode.pad = 0;
-    return 1;
-}
-
-void fsUpdateDiskDriveError() {
-    s32 chkNext = 0;
-
-    switch (sceCdGetDiskType()) {
-    case SCECdNODISC:
-        DskDrvErrType = 1;
-        break;
-
-    case SCECdDETCT:
-        DskDrvErrType = 5;
-        break;
-
-    default:
-        DskDrvErrType = 2;
-        break;
-
-    case SCECdPS2CD:
-    case SCECdPS2CDDA:
-    case SCECdPS2DVD:
-        chkNext = 1;
-        break;
-    }
-
-    if (chkNext == 0) {
-        return;
-    }
-
-    switch (sceCdGetError()) {
-    case SCECdErNO:
-        DskDrvErrType = 0xFFFF;
-        break;
-
-    default:
-        DskDrvErrType = 5;
-        break;
-
-    case SCECdErCUD:
-    case SCECdErIPI:
-    case SCECdErILI:
-    case SCECdErREAD:
-        DskDrvErrType = 4;
-        break;
-
-    case SCECdErTRMOPN:
-        DskDrvErrType = 0;
-        break;
-    }
-}
-
 s32 fsOpen(REQ* req) {
     if (req->fnum >= AFS_FILE_COUNT) {
         return 0;
@@ -162,15 +70,11 @@ s32 fsOpen(REQ* req) {
         return 0;
     }
 
-    if (adxf != NULL) {
-        ADXF_Close(adxf);
+    if (afs_handle != AFS_NONE) {
+        AFS_Close(afs_handle);
     }
 
-    adxf = ADXF_OpenAfs(0, req->fnum);
-
-    if (adxf == NULL) {
-        return 0;
-    }
+    afs_handle = AFS_Open(req->fnum);
 
     req->info.number = 1;
     req->info.size = appFileSizes[req->fnum];
@@ -178,8 +82,8 @@ s32 fsOpen(REQ* req) {
 }
 
 void fsClose(REQ* /* unused */) {
-    ADXF_Close(adxf);
-    adxf = NULL;
+    AFS_Close(afs_handle);
+    afs_handle = AFS_NONE;
 }
 
 u32 fsGetFileSize(u16 fnum) {
@@ -195,44 +99,46 @@ u32 fsCalSectorSize(u32 size) {
 }
 
 s32 fsCansel(REQ* /* unused */) {
-    if (adxf != NULL && ADXF_GetStat(adxf) == ADXF_STAT_READING) {
-        ADXF_StopNw(adxf);
+    if ((afs_handle != AFS_NONE) && (AFS_GetState(afs_handle) == AFS_READ_STATE_READING)) {
+        AFS_Stop(afs_handle);
     }
 
     return 1;
 }
 
 s32 fsCheckCommandExecuting() {
-    if (adxf == NULL) {
+    if (afs_handle == AFS_NONE) {
         return 0;
     }
 
-    if (ADXF_GetStat(adxf) == ADXF_STAT_READING || ADXF_GetStat(adxf) == ADXF_STAT_ERROR) {
+    switch (AFS_GetState(afs_handle)) {
+    case AFS_READ_STATE_READING:
+    case AFS_READ_STATE_ERROR:
         return 1;
-    }
 
-    return 0;
+    case AFS_READ_STATE_IDLE:
+    case AFS_READ_STATE_FINISHED:
+        return 0;
+    }
 }
 
 s32 fsRequestFileRead(REQ* /* unused */, u32 sec, void* buff) {
-    ADXF_ReadNw(adxf, sec, buff);
+    AFS_Read(afs_handle, sec, buff);
     return 1;
 }
 
 s32 fsCheckFileReaded(REQ* /* unused */) {
-    s32 rnum = ADXF_GetStat(adxf);
-    fsUpdateDiskDriveError();
-
-    if (rnum == ADXF_STAT_ERROR) {
-        DskDrvErrBe = 1;
+    switch (AFS_GetState(afs_handle)) {
+    case AFS_READ_STATE_ERROR:
         return 2;
-    }
 
-    if (rnum == ADXF_STAT_READING) {
+    case AFS_READ_STATE_READING:
         return 0;
-    }
 
-    return 1;
+    case AFS_READ_STATE_IDLE:
+    case AFS_READ_STATE_FINISHED:
+        return 1;
+    }
 }
 
 s32 fsFileReadSync(REQ* req, u32 sec, void* buff) {
@@ -258,16 +164,8 @@ s32 fsFileReadSync(REQ* req, u32 sec, void* buff) {
 }
 
 void waitVsyncDummy() {
-    ADXM_ExecMain();
+    AFS_RunServer();
     cseExecServer();
-
-#if defined(TARGET_PS2)
-    sceGsSyncV(0);
-#else
-    begin_interrupt();
-    ADXPS2_ExecVint(0);
-    end_interrupt();
-#endif
 }
 
 s32 load_it_use_any_key2(u16 fnum, void** adrs, s16* key, u8 kokey, u8 group) {

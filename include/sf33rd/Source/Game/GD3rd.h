@@ -8,7 +8,6 @@ extern s16 plt_req[2];
 extern const u8 lpr_wrdata[3];
 extern const u8 lpt_seldat[4];
 
-s32 Setup_Directory_Record_Data();
 s32 fsOpen(REQ* req);
 void fsClose(REQ* /* unused */);
 u32 fsGetFileSize(u16 fnum);
@@ -29,7 +28,6 @@ void Check_LDREQ_Queue();
 s32 Check_LDREQ_Clear();
 s32 Check_LDREQ_Queue_Player(s16 id);
 void Push_LDREQ_Queue_Direct(s16 ix, s16 id);
-s32 Setup_Directory_Record_Data();
 void Push_LDREQ_Queue_Player(s16 id, s16 ix);
 void Push_LDREQ_Queue_BG(s16 ix);
 s32 Check_LDREQ_Queue_BG(s16 ix);

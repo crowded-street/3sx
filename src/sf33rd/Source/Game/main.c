@@ -33,7 +33,10 @@
 #include "sf33rd/Source/PS2/ps2Quad.h"
 #include "structs.h"
 
+#include "port/io/afs.h"
 #include "port/resources.h"
+
+#include <SDL3/SDL.h>
 
 #if defined(_WIN32)
 #include <windef.h> // including windows.h causes conflicts with the Polygon struct, so I just included the header where AllocConsole is and the Windows-specific typedefs that it requires.
@@ -97,17 +100,25 @@ static bool run_resource_flow() {
     return are_resources_checked;
 }
 
+static void afs_init() {
+    char* file_path = Resources_GetPath("SF33RD.AFS");
+    AFS_Init(file_path);
+    SDL_free(file_path);
+}
+
 static void step_0() {
     if (!run_resource_flow()) {
         return;
     }
 
     if (!is_game_initialized) {
+        afs_init();
         game_init();
         is_game_initialized = true;
     }
 
     if (is_game_initialized) {
+        AFS_RunServer();
         game_step_0();
     }
 }
@@ -134,6 +145,7 @@ int main() {
         step_1();
     }
 
+    AFS_Finish();
     SDLApp_Quit();
     return 0;
 }
@@ -451,7 +463,6 @@ void njUserInit() {
 
     Init_sound_system();
     Init_bgm_work();
-    Setup_Directory_Record_Data();
     sndInitialLoad();
     cpInitTask();
     cpReadyTask(INIT_TASK_NUM, Init_Task);
