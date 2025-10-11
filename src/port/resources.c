@@ -1,5 +1,6 @@
 #include "port/resources.h"
 #include "port/sdl/sdl_app.h"
+#include "port/port.h"
 
 #include <SDL3/SDL.h>
 
@@ -53,7 +54,7 @@ static void open_folder_dialog_callback(void* userdata, const char* const* filel
 }
 
 char* Resources_GetPath(const char* file_path) {
-    char* base = SDL_GetPrefPath("CrowdedStreet", "3SX");
+    char* base = SDL_GetPrefPath(PORT_ORG_NAME, PORT_APP_NAME);
     char* full_path = NULL;
 
     if (file_path == NULL) {
