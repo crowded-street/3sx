@@ -14,39 +14,27 @@
 #include "port/io/afs.h"
 #include "port/sdk_threads.h"
 
-#include <libcdvd.h>
-#include <libgraph.h>
-
 typedef struct {
-    // total size: 0x4
-    u8 trycount;    // offset 0x0, size 0x1
-    u8 spindlctrl;  // offset 0x1, size 0x1
-    u8 datapattern; // offset 0x2, size 0x1
-    u8 pad;         // offset 0x3, size 0x1
-} PS2CDReadMode;
-
-typedef struct {
-    // total size: 0x4
-    u8 type;  // offset 0x0, size 0x1
-    u8 ix;    // offset 0x1, size 0x1
-    u8 frre;  // offset 0x2, size 0x1
-    u8 kokey; // offset 0x3, size 0x1
+    u8 type;
+    u8 ix;
+    u8 frre;
+    u8 kokey;
 } LDREQ_TBL;
 
 typedef void (*LDREQ_Process_Func)(REQ*);
 
-s16 plt_req[2]; // size: 0x4, address: 0x579084
+const u8 lpr_wrdata[3] = { 0x03, 0xC0, 0x3C };
+const u8 lpc_seldat[2] = { 10, 11 };
+const u8 lpt_seldat[4] = { 3, 4, 5, 0 };
+
+s16 plt_req[2];
 u8 ldreq_break;
-
-REQ q_ldreq[16];      // size: 0x280, address: 0x5E1DD0
-u8 ldreq_result[294]; // size: 0x126, address: 0x5E1CA0
-
-const u8 lpr_wrdata[3] = { 0x03, 0xC0, 0x3C }; // size: 0x3, address: 0x51FCF0
-const u8 lpc_seldat[2] = { 10, 11 };           // size: 0x2, address: 0x51FCF8
-const u8 lpt_seldat[4] = { 3, 4, 5, 0 };       // size: 0x4, address: 0x51FD00
+REQ q_ldreq[16];
+u8 ldreq_result[294];
 
 static AFSHandle afs_handle = AFS_NONE;
 
+// forward decls
 s32 Push_LDREQ_Queue(REQ* ldreq);
 void Push_LDREQ_Queue_Metamor();
 void q_ldreq_error(REQ* curr);
@@ -54,7 +42,6 @@ void disp_ldreq_status();
 void Push_LDREQ_Queue_Union(s16 ix);
 s32 Check_LDREQ_Queue_Union(s16 ix);
 
-// forward decls
 const LDREQ_Process_Func ldreq_process[6];
 s8* ldreq_process_name[];
 const LDREQ_TBL ldreq_tbl[294];
@@ -279,10 +266,6 @@ void Push_LDREQ_Queue_Player(s16 id, s16 ix) {
 }
 
 void Push_LDREQ_Queue_BG(s16 ix) {
-#if defined(TARGET_PS2)
-    void Push_LDREQ_Queue_Union(s32 ix);
-#endif
-
     Push_LDREQ_Queue_Union(ix + 20);
     Push_LDREQ_Queue_Metamor();
 }
@@ -310,10 +293,6 @@ void Push_LDREQ_Queue_Union(s16 ix) {
 }
 
 void Push_LDREQ_Queue_Metamor() {
-#if defined(TARGET_PS2)
-    void Push_LDREQ_Queue_Direct(s32 ix, s16 id);
-#endif
-
     switch ((My_char[0] == 0x12) + (My_char[1] == 0x12) * 2) {
     case 1:
         Push_LDREQ_Queue_Direct(My_char[1] + 0xD4, 0);
@@ -450,10 +429,6 @@ s32 Check_LDREQ_Queue_Player(s16 id) {
 }
 
 s32 Check_LDREQ_Queue_BG(s16 ix) {
-#if defined(TARGET_PS2)
-    s32 Check_LDREQ_Queue_Union(s32 ix);
-#endif
-
     return Check_LDREQ_Queue_Union(ix + 20);
 }
 
@@ -491,18 +466,12 @@ void q_ldreq_error(REQ* curr) {
     flLogOut("Q_LDREQ_ERROR : ロード処理の指定に誤りがあります。\n");
 }
 
-const LDREQ_Process_Func ldreq_process[6] = {
-    // size: 0x18, address: 0x51FE30
-    q_ldreq_error, q_ldreq_texture_group, q_ldreq_color_data, q_ldreq_color_data, q_ldreq_color_data, q_ldreq_color_data
-};
+const LDREQ_Process_Func ldreq_process[6] = { q_ldreq_error,      q_ldreq_texture_group, q_ldreq_color_data,
+                                              q_ldreq_color_data, q_ldreq_color_data,    q_ldreq_color_data };
 
-s8* ldreq_process_name[] = {
-    // size: 0x18, address: 0x573AB0
-    "EMP", "TEX", "COL", "SCR", "SND", "KNJ",
-};
+s8* ldreq_process_name[] = { "EMP", "TEX", "COL", "SCR", "SND", "KNJ" };
 
 const LDREQ_TBL ldreq_tbl[294] = {
-    // size: 0x0, address: 0x51FE80
     {
         0x1,
         0x1,
@@ -2269,15 +2238,14 @@ const LDREQ_TBL ldreq_tbl[294] = {
     },
 };
 
-const s16 ldreq_ix[43][2] = {
-    // size: 0xAC, address: 0x520320
-    { 0x0000, 0x0005 }, { 0x0005, 0x0003 }, { 0x000A, 0x0004 }, { 0x000F, 0x0004 }, { 0x0013, 0x0003 },
-    { 0x0019, 0x0005 }, { 0x001E, 0x0004 }, { 0x0023, 0x0005 }, { 0x0028, 0x0003 }, { 0x002D, 0x0004 },
-    { 0x0032, 0x0003 }, { 0x0037, 0x0004 }, { 0x003C, 0x0004 }, { 0x0041, 0x0004 }, { 0x0046, 0x0004 },
-    { 0x004B, 0x0004 }, { 0x0050, 0x0003 }, { 0x0055, 0x0003 }, { 0x005A, 0x0003 }, { 0x005F, 0x0004 },
-    { 0x0064, 0x0005 }, { 0x0069, 0x0003 }, { 0x006E, 0x0003 }, { 0x0073, 0x0003 }, { 0x0078, 0x0003 },
-    { 0x007D, 0x0003 }, { 0x0082, 0x0003 }, { 0x0087, 0x0003 }, { 0x008C, 0x0003 }, { 0x0091, 0x0003 },
-    { 0x0096, 0x0003 }, { 0x009B, 0x0003 }, { 0x00A0, 0x0003 }, { 0x00A5, 0x0003 }, { 0x00AA, 0x0003 },
-    { 0x00AF, 0x0003 }, { 0x00B4, 0x0003 }, { 0x00B9, 0x0003 }, { 0x00BE, 0x0003 }, { 0x00C3, 0x0003 },
-    { 0x00C8, 0x0005 }, { 0x00CE, 0x0004 }, { 0x0016, 0x0003 },
-};
+const s16 ldreq_ix[43][2] = { { 0x0000, 0x0005 }, { 0x0005, 0x0003 }, { 0x000A, 0x0004 }, { 0x000F, 0x0004 },
+                              { 0x0013, 0x0003 }, { 0x0019, 0x0005 }, { 0x001E, 0x0004 }, { 0x0023, 0x0005 },
+                              { 0x0028, 0x0003 }, { 0x002D, 0x0004 }, { 0x0032, 0x0003 }, { 0x0037, 0x0004 },
+                              { 0x003C, 0x0004 }, { 0x0041, 0x0004 }, { 0x0046, 0x0004 }, { 0x004B, 0x0004 },
+                              { 0x0050, 0x0003 }, { 0x0055, 0x0003 }, { 0x005A, 0x0003 }, { 0x005F, 0x0004 },
+                              { 0x0064, 0x0005 }, { 0x0069, 0x0003 }, { 0x006E, 0x0003 }, { 0x0073, 0x0003 },
+                              { 0x0078, 0x0003 }, { 0x007D, 0x0003 }, { 0x0082, 0x0003 }, { 0x0087, 0x0003 },
+                              { 0x008C, 0x0003 }, { 0x0091, 0x0003 }, { 0x0096, 0x0003 }, { 0x009B, 0x0003 },
+                              { 0x00A0, 0x0003 }, { 0x00A5, 0x0003 }, { 0x00AA, 0x0003 }, { 0x00AF, 0x0003 },
+                              { 0x00B4, 0x0003 }, { 0x00B9, 0x0003 }, { 0x00BE, 0x0003 }, { 0x00C3, 0x0003 },
+                              { 0x00C8, 0x0005 }, { 0x00CE, 0x0004 }, { 0x0016, 0x0003 } };
