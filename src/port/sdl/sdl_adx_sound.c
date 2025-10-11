@@ -454,18 +454,22 @@ void SDLADXSound_SetOutVol(int volume) {
     SDL_SetAudioStreamGain(stream, gain);
 }
 
-int SDLADXSound_GetStat() {
+void ADX_SetMono(bool mono) {
+    // FIXME: Do we really need this?
+}
+
+ADXState SDLADXSound_GetState() {
     if (!has_tracks) {
-        return 0; // ADXT_STAT_STOP
+        return ADX_STATE_STOP;
     }
 
     if (stream_is_empty()) {
-        return 5; // ADXT_STAT_PLAYEND
+        return ADX_STATE_PLAYEND;
     } else {
         if (SDLADXSound_IsPaused()) {
-            return 0; // ADXT_STAT_STOP
+            return ADX_STATE_STOP;
         } else {
-            return 3; // ADXT_STAT_PLAYING
+            return ADX_STATE_PLAYING;
         }
     }
 }

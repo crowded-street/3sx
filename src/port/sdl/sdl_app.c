@@ -1,7 +1,6 @@
 #include "port/sdl/sdl_app.h"
 #include "common.h"
 #include "port/float_clamp.h"
-#include "port/sdk_threads.h"
 #include "port/sdl/sdl_adx_sound.h"
 #include "port/sdl/sdl_game_renderer.h"
 #include "port/sdl/sdl_message_renderer.h"
@@ -12,10 +11,6 @@
 #include <SDL3/SDL.h>
 
 #define FRAME_END_TIMES_MAX 30
-
-// We can't include cri_mw.h because it leads to conflicts
-// with SDL types
-int ADXPS2_ExecVint(int mode);
 
 static const char* app_name = "Street Fighter III: 3rd Strike";
 static const float display_target_ratio = 4.0 / 3.0;
@@ -234,13 +229,6 @@ static void save_texture(SDL_Texture* texture, const char* filename) {
 void SDLApp_EndFrame() {
     // Run sound processing
     SDLADXSound_ProcessTracks();
-
-    // Run PS2 interrupts. Necessary for CRI to run its logic
-    if (get_game_initialized()) {
-        begin_interrupt();
-        ADXPS2_ExecVint(0);
-        end_interrupt();
-    }
 
     // Render
 

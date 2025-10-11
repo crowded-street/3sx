@@ -18,8 +18,6 @@
 extern MPP mpp_w;
 extern s32 system_init_level;
 
-bool get_game_initialized();
-
 void cpInitTask();
 void cpReadyTask(u16 num, void* func_adrs);
 void cpExitTask(u16 num);

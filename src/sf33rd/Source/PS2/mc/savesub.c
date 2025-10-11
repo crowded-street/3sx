@@ -18,9 +18,9 @@
 #include "sf33rd/Source/PS2/mc/mcsub.h"
 #include "sf33rd/Source/PS2/mc/msgsub.h"
 
-#include <tim2.h>
+#include "port/io/afs.h"
 
-#include <cri/cri_adxf.h>
+#include <tim2.h>
 
 #include <inttypes.h>
 #include <math.h>
@@ -91,9 +91,9 @@ static void load_data(s32 fnum, void* adrs) {
     s32 nsct;
     _save_work* save = &SaveWork;
 
-    save->adxf = ADXF_OpenAfs(0, fnum);
+    save->afs_handle = AFS_Open(fnum);
 
-    if (save->adxf == NULL) {
+    if (save->afs_handle == AFS_NONE) {
         printf("file open error.(%d)\n", fnum);
 
         while (1) {
@@ -101,27 +101,27 @@ static void load_data(s32 fnum, void* adrs) {
         }
     }
 
-    nsct = ADXF_GetFsizeSct(save->adxf);
+    nsct = AFS_GetSectorCount(save->afs_handle);
     printf("load_data: fnum=%d adrs=0x%" PRIXPTR " size=0x%X\n", fnum, (uintptr_t)adrs, nsct << 11);
-    ADXF_ReadNw(save->adxf, nsct, adrs);
+    AFS_Read(save->afs_handle, nsct, adrs);
 }
 
 static s32 load_busy_ck() {
     s32 stat;
     _save_work* save = &SaveWork;
 
-    if (save->adxf == NULL) {
+    if (save->afs_handle == AFS_NONE) {
         return 0;
     }
 
-    stat = ADXF_GetStat(save->adxf);
+    stat = AFS_GetState(save->afs_handle);
 
-    if (stat == ADXF_STAT_READING) {
+    if (stat == AFS_READ_STATE_READING) {
         return 1;
     }
 
-    ADXF_Close(save->adxf);
-    save->adxf = NULL;
+    AFS_Close(save->afs_handle);
+    save->afs_handle = AFS_NONE;
 
     return 0;
 }

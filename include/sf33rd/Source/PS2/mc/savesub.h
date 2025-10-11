@@ -5,7 +5,7 @@
 #include "structs.h"
 #include "types.h"
 
-#include <cri/cri_adxf.h>
+#include "port/io/afs.h"
 
 typedef struct _sub_info {
     // total size: 0x10
@@ -49,7 +49,7 @@ typedef struct _save_work {
     u8* ico_adrs;                     // offset 0x38, size 0x4
     u8* dat_adrs;                     // offset 0x3C, size 0x4
     u8* exp_adrs;                     // offset 0x40, size 0x4
-    struct _adx_fs* adxf;             // offset 0x44, size 0x4
+    AFSHandle afs_handle;             // offset 0x44, size 0x4
     s32 avail_size;                   // offset 0x48, size 0x4
     s8 sel_slot_no;                   // offset 0x4C, size 0x1
     s8 sel_slot_max;                  // offset 0x4D, size 0x1

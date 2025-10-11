@@ -292,3 +292,9 @@ AFSReadState AFS_GetState(AFSHandle handle) {
     ReadRequest* request = &requests[handle];
     return request->state;
 }
+
+unsigned int AFS_GetSectorCount(AFSHandle handle) {
+    ReadRequest* request = &requests[handle];
+    const unsigned int size = afs.entries[request->file_num].size;
+    return (size + 2048 - 1) / 2048;
+}

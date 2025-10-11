@@ -14,7 +14,6 @@
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "structs.h"
 
-#include <cri_mw.h>
 #include <libgraph.h>
 #include <sifdev.h>
 
@@ -78,18 +77,15 @@ s32 flFileRead(s8* filename, void* buf, s32 len) {
     strupr(p);
     strcat(temp, ";1");
 
-    ADXM_Lock();
     fd = sceOpen(temp, SCE_RDONLY);
     printf("flFileRead: \"%s\" (fd = %d)\n", temp, fd);
 
     if (fd < 0) {
-        ADXM_Unlock();
         return 0;
     }
 
     sceRead(fd, buf, len);
     sceClose(fd);
-    ADXM_Unlock();
     return 1;
 }
 
@@ -103,16 +99,13 @@ s32 flFileWrite(s8* filename, void* buf, s32 len) {
     strcat(temp, filename);
     strupr(p);
     strcat(temp, ";1");
-    ADXM_Lock();
 
     if ((fd = sceOpen(temp, SCE_WRONLY | SCE_CREAT | SCE_TRUNC)) < 0) {
-        ADXM_Unlock();
         return 0;
     }
 
     sceWrite(fd, buf, len);
     sceClose(fd);
-    ADXM_Unlock();
     return 1;
 }
 
@@ -126,17 +119,14 @@ s32 flFileAppend(s8* filename, void* buf, ssize_t len) {
     strcat(temp, filename);
     strupr(p);
     strcat(temp, ";1");
-    ADXM_Lock();
 
     if ((fd = sceOpen(temp, SCE_WRONLY)) < 0) {
-        ADXM_Unlock();
         return 0;
     }
 
     sceLseek(fd, 0, 2);
     sceWrite(fd, buf, (s32)len);
     sceClose(fd);
-    ADXM_Unlock();
     return 1;
 }
 
@@ -151,16 +141,13 @@ s32 flFileLength(s8* filename) {
     strcat(temp, filename);
     strupr(p);
     strcat(temp, ";1");
-    ADXM_Lock();
 
     if ((fd = sceOpen(temp, SCE_RDONLY)) < 0) {
-        ADXM_Unlock();
         return 0;
     }
 
     length = sceLseek(fd, 0, SCE_SEEK_END);
     sceClose(fd);
-    ADXM_Unlock();
     return length;
 }
 

@@ -25,5 +25,6 @@ void AFS_Read(AFSHandle handle, int sectors, void* buf);
 void AFS_Stop(AFSHandle handle);
 void AFS_Close(AFSHandle handle);
 AFSReadState AFS_GetState(AFSHandle handle);
+unsigned int AFS_GetSectorCount(AFSHandle handle);
 
 #endif

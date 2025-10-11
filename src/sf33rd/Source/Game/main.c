@@ -150,10 +150,6 @@ int main() {
     return 0;
 }
 
-bool get_game_initialized() {
-    return is_game_initialized;
-}
-
 static void init_windows_console() {
 #if defined(_WIN32)
     // attaches to an existing console for printouts. Works with windows CMD but not MSYS2

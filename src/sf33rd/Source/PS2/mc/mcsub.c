@@ -3,8 +3,6 @@
 
 #include <libmc.h>
 
-#include <cri/cri_adxt.h>
-
 #include <stdio.h>
 #include <string.h>
 
@@ -688,10 +686,7 @@ void McActInit(s32 file_type, s32 file_no) {
 
 void McActMain() {
     memcard_work* mw = &MemcardWork;
-
-    ADXM_Lock();
     mc_act_jmp[mw->act_no](mw);
-    ADXM_Unlock();
 }
 
 void McActStopSet() {

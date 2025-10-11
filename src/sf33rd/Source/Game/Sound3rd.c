@@ -1,7 +1,6 @@
 #include "sf33rd/Source/Game/Sound3rd.h"
 #include "common.h"
 #include "port/sdl/sdl_adx_sound.h"
-#include "sf33rd/AcrSDK/MiddleWare/PS2/ADX/flADX.h"
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/cse.h"
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/emlMemMap.h"
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/emlSndDrv.h"
@@ -21,7 +20,6 @@
 #include "sf33rd/Source/Game/workuser.h"
 #include "sf33rd/Source/PS2/cseDataFiles/CSEData.h"
 #include "structs.h"
-#include <cri/ee/cri_mw.h>
 
 #define ADX_STM_WORK_SIZE 252388
 
@@ -35,7 +33,6 @@ s16 bgm_half_down;
 s16 current_bgm;
 s16 bgm_seamless_always;
 BGMFade bgm_fade;
-ADXT adxt;
 BGMExecution bgm_exe;
 BGMRequest bgm_req;
 s8* sdbd[3];
@@ -142,11 +139,7 @@ void Init_sound_system() {
     bgm_seamless_always = 0;
     sys_w.sound_mode = 0;
     sys_w.bgm_type = 0;
-    flAdxInitialize(NULL, "\\THIRD\\");
-
-    ADXT_Init();
     SDLADXSound_Init();
-
     system_init_level |= 2;
     cseInitSndDrv();
     system_init_level |= 1;
@@ -240,7 +233,7 @@ void setSeVolume() {
 void setupSoundMode() {
     if (system_init_level & 2) {
         cseSysSetMono(sys_w.sound_mode);
-        ADXT_SetOutputMono(sys_w.sound_mode);
+        ADX_SetMono(sys_w.sound_mode);
     }
 }
 
@@ -648,9 +641,9 @@ void bgm_volume_setup(s16 data) {
 }
 
 s32 adx_now_playing() {
-    bgm_exe.state = SDLADXSound_GetStat();
+    bgm_exe.state = SDLADXSound_GetState();
 
-    if ((bgm_exe.state == ADXT_STAT_PLAYING) || (bgm_exe.state == ADXT_STAT_DECEND)) {
+    if (bgm_exe.state == ADX_STATE_PLAYING) {
         return 1;
     }
 
@@ -658,9 +651,9 @@ s32 adx_now_playing() {
 }
 
 s32 adx_now_playend() {
-    bgm_exe.state = SDLADXSound_GetStat();
+    bgm_exe.state = SDLADXSound_GetState();
 
-    if (bgm_exe.state == ADXT_STAT_PLAYEND) {
+    if (bgm_exe.state == ADX_STATE_PLAYEND) {
         return 1;
     }
 

@@ -1,6 +1,5 @@
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "common.h"
-#include "sf33rd/AcrSDK/MiddleWare/PS2/ADX/flADX.h"
 #include "sf33rd/AcrSDK/MiddleWare/PS2/acrmw.h"
 #include "sf33rd/AcrSDK/common/fbms.h"
 #include "sf33rd/AcrSDK/common/memfound.h"
@@ -136,7 +135,6 @@ static void flPS2VramFullClear();
 static void flPS2InitRenderBuff(u32 fbdepth, u32 zbdepth, u32 inter_mode, u32 video_mode, u32 dispw);
 static void flPS2SwapDBuff(s32 dbi, s32 irq_type);
 static void flPS2DrawPreparation();
-void flPS2VSyncCallback();
 
 s32 flInitialize(s32 /* unused */, s32 /* unused */) {
     if (system_work_init() == 0) {
@@ -239,7 +237,6 @@ s32 system_hard_init() {
     flPS2IopModuleLoad("cdrom0:\\THIRD\\IOP\\MODULES\\MCMAN.IRX;1", 0, NULL, 0);
     flPS2IopModuleLoad("cdrom0:\\THIRD\\IOP\\MODULES\\MCSERV.IRX;1", 0, NULL, 0);
     flPS2IopModuleLoad("cdrom0:\\THIRD\\IOP\\MODULES\\LIBSD.IRX;1", 0, NULL, 0);
-    flAdxModuleInit();
     flPS2IopModuleLoad("cdrom0:\\THIRD\\IOP\\MOD_MW\\CSELIB00.IRX;1", 0, NULL, 0);
     sceGsResetPath();
     sceDmaReset(1);
@@ -253,20 +250,6 @@ s32 system_hard_init() {
     flPS2DmaInitControl(&flPs2VIF1Control, 0x1000, flPS2DmaInterrupt);
 
     return 1;
-}
-
-void flPS2VSyncCallback() {
-    flPs2State.Irq_count += 1;
-
-    if ((flPs2State.Irq_count > flPs2State.FrameCount) && (flPs2State.Db_change_enable == 1)) {
-        flPs2State.FrameCount = flPs2State.FrameCountNext;
-        flPs2State.Db_change_enable = 0;
-        flPs2State.Dbi ^= 1;
-        flPS2SwapDBuff(flPs2State.Dbi, 0);
-    }
-
-    flmwVSyncCallback();
-    ExitHandler();
 }
 
 u32 flPS2CheckDbChangeFlag() {
@@ -659,7 +642,6 @@ void flPS2InitRenderBuff(u32 fbdepth, u32 zbdepth, u32 inter_mode, u32 video_mod
     ds->acr_prmodecont.I64[1] = SCE_GS_PRMODECONT;
     ds->acr_dimx.I64[0] = SCE_GS_SET_DIMX(4, 2, 5, 3, 0, 6, 1, 7, 5, 3, 4, 2, 1, 7, 0, 6);
     ds->acr_dimx.I64[1] = SCE_GS_DIMX;
-    sceGsSyncVCallback((s32 (*)(s32))flPS2VSyncCallback);
 }
 
 void flPS2SwapDBuff(s32 dbi, s32 irq_type) {
