@@ -1,5 +1,6 @@
 #include "port/sdl/sdl_app.h"
 #include "common.h"
+#include "port/config.h"
 #include "port/float_clamp.h"
 #include "port/sdk_threads.h"
 #include "port/sdl/sdl_adx_sound.h"
@@ -19,8 +20,6 @@ int ADXPS2_ExecVint(int mode);
 
 static const char* app_name = "Street Fighter III: 3rd Strike";
 static const float display_target_ratio = 4.0 / 3.0;
-static const int window_default_width = 640;
-static const int window_default_height = (int)(window_default_width / display_target_ratio);
 static const double target_fps = 59.59949;
 static const Uint64 target_frame_time_ns = 1000000000.0 / target_fps;
 
@@ -39,6 +38,8 @@ static bool should_save_screenshot = false;
 static Uint64 last_mouse_motion_time = 0;
 static const int mouse_hide_delay_ms = 2000; // 2 seconds
 
+static Config app_config = {0};
+
 static void create_screen_texture() {
     if (screen_texture != NULL) {
         SDL_DestroyTexture(screen_texture);
@@ -52,6 +53,9 @@ static void create_screen_texture() {
 }
 
 int SDLApp_Init() {
+    // Load config from file (will use defaults if file doesn't exist)
+    Config_Load(&app_config);
+
     SDL_SetAppMetadata(app_name, "0.1", NULL);
     SDL_SetHint(SDL_HINT_VIDEO_WAYLAND_PREFER_LIBDECOR, "1");
     SDL_SetHint(SDL_HINT_NO_SIGNAL_HANDLERS, "1");
@@ -61,10 +65,15 @@ int SDLApp_Init() {
         return 1;
     }
 
+    SDL_WindowFlags window_flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
+    if (app_config.fullscreen) {
+        window_flags |= SDL_WINDOW_FULLSCREEN;
+    }
+
     if (!SDL_CreateWindowAndRenderer(app_name,
-                                     window_default_width,
-                                     window_default_height,
-                                     SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY,
+                                     app_config.width,
+                                     app_config.height,
+                                     window_flags,
                                      &window,
                                      &renderer)) {
         SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
