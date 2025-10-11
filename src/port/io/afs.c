@@ -169,6 +169,18 @@ void AFS_Finish() {
     SDL_zero(afs);
 }
 
+unsigned int AFS_GetFileCount() {
+    return afs.entry_count;
+}
+
+unsigned int AFS_GetSize(int file_num) {
+    if ((file_num < 0) || (file_num >= afs.entry_count)) {
+        return 0;
+    }
+
+    return afs.entries[file_num].size;
+}
+
 // AFS reading
 
 void AFS_RunServer() {

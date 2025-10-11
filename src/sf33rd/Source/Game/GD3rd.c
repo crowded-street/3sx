@@ -3,7 +3,6 @@
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/cse.h"
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
-#include "sf33rd/Source/Common/FileSizeAFS.h"
 #include "sf33rd/Source/Game/RAMCNT.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/color3rd.h"
@@ -62,11 +61,7 @@ const LDREQ_TBL ldreq_tbl[294];
 const s16 ldreq_ix[43][2];
 
 s32 fsOpen(REQ* req) {
-    if (req->fnum >= AFS_FILE_COUNT) {
-        return 0;
-    }
-
-    if (appFileSizes[req->fnum] == 0) {
+    if (req->fnum >= AFS_GetFileCount()) {
         return 0;
     }
 
@@ -77,7 +72,6 @@ s32 fsOpen(REQ* req) {
     afs_handle = AFS_Open(req->fnum);
 
     req->info.number = 1;
-    req->info.size = appFileSizes[req->fnum];
     return 1;
 }
 
@@ -87,11 +81,11 @@ void fsClose(REQ* /* unused */) {
 }
 
 u32 fsGetFileSize(u16 fnum) {
-    if (fnum >= AFS_FILE_COUNT) {
+    if (fnum >= AFS_GetFileCount()) {
         return 0;
     }
 
-    return appFileSizes[fnum];
+    return AFS_GetSize(fnum);
 }
 
 u32 fsCalSectorSize(u32 size) {
@@ -164,7 +158,7 @@ s32 fsFileReadSync(REQ* req, u32 sec, void* buff) {
 }
 
 void waitVsyncDummy() {
-    AFS_RunServer();
+    AFS_RunServer(); // FIXME: Ideally we should only call this from the main loop
     cseExecServer();
 }
 
@@ -172,7 +166,7 @@ s32 load_it_use_any_key2(u16 fnum, void** adrs, s16* key, u8 kokey, u8 group) {
     u32 size;
     u32 err;
 
-    if (fnum >= AFS_FILE_COUNT) {
+    if (fnum >= AFS_GetFileCount()) {
         flLogOut("ファイルナンバーに異常があります。ファイル番号：%d\n", fnum);
         while (1) {}
     }

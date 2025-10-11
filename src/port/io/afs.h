@@ -16,6 +16,8 @@ typedef int AFSHandle;
 
 bool AFS_Init(const char* file_path);
 void AFS_Finish();
+unsigned int AFS_GetFileCount();
+unsigned int AFS_GetSize(int file_num);
 
 void AFS_RunServer();
 AFSHandle AFS_Open(int file_num);
