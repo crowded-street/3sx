@@ -33,6 +33,10 @@
 #include "sf33rd/Source/PS2/ps2Quad.h"
 #include "structs.h"
 
+#if defined(DEBUG)
+#include "sf33rd/Source/Game/debug/debug_config.h"
+#endif
+
 #include "port/io/afs.h"
 #include "port/resources.h"
 
@@ -164,6 +168,10 @@ static void init_windows_console() {
 }
 
 static void game_init() {
+#if defined(DEBUG)
+    DebugConfig_Init();
+#endif
+
     flInitialize(flPs2State.DispWidth, flPs2State.DispHeight);
     flSetRenderState(FLRENDER_BACKCOLOR, 0);
     flSetDebugMode(0);
