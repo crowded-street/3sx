@@ -1,3 +1,8 @@
+/**
+ * @file ex_data.c
+ * Extra Option Menu Data
+ */
+
 #include "common.h"
 
 const u8 Ex_Menu_Max_Data[4][8] = {
