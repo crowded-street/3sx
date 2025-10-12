@@ -1,3 +1,8 @@
+/**
+ * @file pulpul.c
+ * Vibration
+ */
+
 #include "sf33rd/Source/Game/io/pulpul.h"
 #include "common.h"
 #include "sdk/libvib.h"

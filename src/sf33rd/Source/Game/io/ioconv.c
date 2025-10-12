@@ -1,3 +1,8 @@
+/**
+ * @file ioconv.c
+ * Input Conversion and Processing
+ */
+
 #include "sf33rd/Source/Game/io/ioconv.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/common/mlPAD.h"

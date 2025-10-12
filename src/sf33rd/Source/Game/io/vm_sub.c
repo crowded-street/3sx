@@ -1,3 +1,8 @@
+/**
+ * @file vm_sub.c
+ * Subroutines to configure memory card file operations
+ */
+
 #include "sf33rd/Source/Game/io/vm_sub.h"
 #include "common.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
