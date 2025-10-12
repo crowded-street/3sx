@@ -1,4 +1,4 @@
-#include "sf33rd/Source/Game/OPENING.h"
+#include "sf33rd/Source/Game/opening/opening.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
@@ -22,12 +22,12 @@
 #include "sf33rd/Source/Game/color3rd.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect_init.h"
-#include "sf33rd/Source/Game/op_sub.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/texcash.h"
 #include "sf33rd/Source/Game/workuser.h"
 
 #include "sf33rd/Source/Game/demo/demo00.h"
+#include "sf33rd/Source/Game/opening/op_sub.h"
 
 typedef const f32* ro_f32_ptr;
 
