@@ -135,7 +135,7 @@ const u16* remy[8] = { plXXtxt0, pl19txt1, pl19txt2, pl19txt3, pl19txt4, pl19txt
 void* txt_no_tbl[20] = { gill, alex, ryu,  yun,   dudley, necro, hugo,   ibuki, elena,  oro,
                          yang, ken,  sean, urien, gouki,  chun,  makoto, q,     twelve, remy };
 
-s32* efff9_txt_no_adrs;
+u16** efff9_txt_no_adrs;
 u16* efff9_txt_scene_adrs;
 s16 efff9_suicide;
 s16 efff9_PL_NO;
@@ -274,7 +274,7 @@ s32 Rewrite_End_Message(u16 mes_no) {
     efff9_suicide = 1;
     efff9_txt_point = 2;
     efff9_txt_no_adrs = txt_no_tbl[efff9_PL_NO];
-    efff9_txt_scene_adrs = (u16*)efff9_txt_no_adrs[mes_no];
+    efff9_txt_scene_adrs = efff9_txt_no_adrs[mes_no];
     efff9_message = efff9_txt_scene_adrs[0];
     ewk->wu.old_rno[3] = efff9_txt_scene_adrs[1];
     mes_already = efff9_message;
@@ -294,7 +294,7 @@ s32 Rewrite() {
     ewk->master_player = efff9_PL_NO;
     efff9_suicide = 1;
     efff9_txt_no_adrs = txt_no_tbl[efff9_PL_NO];
-    efff9_txt_scene_adrs = (u16*)efff9_txt_no_adrs[keep_mes_no];
+    efff9_txt_scene_adrs = efff9_txt_no_adrs[keep_mes_no];
     efff9_message = efff9_txt_scene_adrs[efff9_txt_point];
     ewk->wu.old_rno[3] = efff9_txt_scene_adrs[efff9_txt_point + 1];
     efff9_txt_point += 2;
