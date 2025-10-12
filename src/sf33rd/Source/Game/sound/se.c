@@ -1,3 +1,8 @@
+/**
+ * @file se.c
+ * Sound Effect and Background Music Request Handler
+ */
+
 #include "sf33rd/Source/Game/sound/se.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"

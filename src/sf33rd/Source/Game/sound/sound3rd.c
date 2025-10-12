@@ -1,3 +1,8 @@
+/**
+ * @file sound3rd.c
+ * Main Sound System Controller
+ */
+
 #include "sf33rd/Source/Game/sound/sound3rd.h"
 #include "common.h"
 #include "port/sdl/sdl_adx_sound.h"
