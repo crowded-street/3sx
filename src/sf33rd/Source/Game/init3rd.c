@@ -1,5 +1,4 @@
 #include "sf33rd/Source/Game/init3rd.h"
-#include "sf33rd/Source/Game/DIR_DATA.h"
 #include "sf33rd/Source/Game/EFFECT.h"
 #include "sf33rd/Source/Game/Entry.h"
 #include "sf33rd/Source/Game/GD3rd.h"
@@ -23,6 +22,7 @@
 #include "structs.h"
 
 #include "sf33rd/Source/Game/demo/demo00.h"
+#include "sf33rd/Source/Game/menu/dir_data.h"
 #include "sf33rd/Source/Game/sound/sound3rd.h"
 
 #if !defined(TARGET_PS2)

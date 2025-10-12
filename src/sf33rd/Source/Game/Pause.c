@@ -6,10 +6,10 @@
 #include "sf33rd/Source/Game/Reset.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/main.h"
-#include "sf33rd/Source/Game/menu.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/workuser.h"
 
+#include "sf33rd/Source/Game/menu/menu.h"
 #include "sf33rd/Source/Game/sound/sound3rd.h"
 
 // sbss
