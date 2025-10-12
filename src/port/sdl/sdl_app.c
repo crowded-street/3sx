@@ -262,11 +262,13 @@ void SDLApp_EndFrame() {
         save_texture(screen_texture, "screenshot_screen.bmp");
     }
 
+#if defined(DEBUG)
     // Render metrics
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
     SDL_SetRenderScale(renderer, 2, 2);
     SDL_RenderDebugTextFormat(renderer, 8, 8, "FPS: %.3f", fps);
     SDL_SetRenderScale(renderer, 1, 1);
+#endif
 
     SDL_RenderPresent(renderer);
 
