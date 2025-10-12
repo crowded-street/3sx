@@ -9,12 +9,13 @@
 #include "sf33rd/Source/Game/PLS02.h"
 #include "sf33rd/Source/Game/PLS03.h"
 #include "sf33rd/Source/Game/Pow_Pow.h"
-#include "sf33rd/Source/Game/PulPul.h"
 #include "sf33rd/Source/Game/SLOWF.h"
 #include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/workuser.h"
+
+#include "sf33rd/Source/Game/io/pulpul.h"
 
 void check_nagenuke(PLW* wk, PLW* tk);
 static s32 cat07_running_check(WORK* wk);

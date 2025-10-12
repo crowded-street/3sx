@@ -2,9 +2,7 @@
 #include "sf33rd/Source/Game/DIR_DATA.h"
 #include "sf33rd/Source/Game/EFFECT.h"
 #include "sf33rd/Source/Game/Entry.h"
-#include "sf33rd/Source/Game/GD3rd.h"
 #include "sf33rd/Source/Game/Game.h"
-#include "sf33rd/Source/Game/PulPul.h"
 #include "sf33rd/Source/Game/Reset.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/SYS_sub2.h"
@@ -24,6 +22,8 @@
 #include "structs.h"
 
 #include "sf33rd/Source/Game/demo/demo00.h"
+#include "sf33rd/Source/Game/io/gd3rd.h"
+#include "sf33rd/Source/Game/io/pulpul.h"
 
 #if !defined(TARGET_PS2)
 #include <string.h>

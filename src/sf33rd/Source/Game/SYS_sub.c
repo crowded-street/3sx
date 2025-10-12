@@ -8,13 +8,11 @@
 #include "sf33rd/Source/Game/EX_DATA.h"
 #include "sf33rd/Source/Game/Eff93.h"
 #include "sf33rd/Source/Game/Entry.h"
-#include "sf33rd/Source/Game/GD3rd.h"
 #include "sf33rd/Source/Game/Game.h"
 #include "sf33rd/Source/Game/Grade.h"
 #include "sf33rd/Source/Game/MMTMCNT.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/PLS02.h"
-#include "sf33rd/Source/Game/PulPul.h"
 #include "sf33rd/Source/Game/RANKING.h"
 #include "sf33rd/Source/Game/SYS_sub2.h"
 #include "sf33rd/Source/Game/Sound3rd.h"
@@ -30,6 +28,8 @@
 #include <memory.h>
 
 #include "sf33rd/Source/Game/com/com_datu.h"
+#include "sf33rd/Source/Game/io/gd3rd.h"
+#include "sf33rd/Source/Game/io/pulpul.h"
 
 u8 Candidate_Buff[16];
 

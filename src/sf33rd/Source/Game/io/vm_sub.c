@@ -1,8 +1,8 @@
-#include "sf33rd/Source/Game/VM_SUB.h"
+#include "sf33rd/Source/Game/io/vm_sub.h"
 #include "common.h"
-#include "sf33rd/Source/Game/VM_DATA.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
-#include "sf33rd/Source/Game/vm.h"
+#include "sf33rd/Source/Game/io/vm.h"
+#include "sf33rd/Source/Game/io/vm_data.h"
 
 u8 VM_Access_Request(u8 Request, u8 Drive) {
     vm_w.Request = Request;
