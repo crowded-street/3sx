@@ -43,7 +43,34 @@ static int input_source_index_from_joystick_id(SDL_JoystickID id) {
     return -1;
 }
 
+static void setup_keyboard() {
+    for (int i = 0; i < SDL_arraysize(input_sources); i++) {
+        SDLPad_InputSource* input_source = &input_sources[i];
+
+        if (input_source->type == SDLPAD_INPUT_NONE) {
+            input_source->type = SDLPAD_INPUT_KEYBOARD;
+            connected_input_sources += 1;
+            break;
+        }
+    }
+}
+
+static void remove_keyboard() {
+    for (int i = 0; i < SDL_arraysize(input_sources); i++) {
+        SDLPad_InputSource* input_source = &input_sources[i];
+
+        if (input_source->type == SDLPAD_INPUT_KEYBOARD) {
+            input_source->type = SDLPAD_INPUT_NONE;
+            connected_input_sources -= 1;
+            break;
+        }
+    }
+}
+
 static void handle_gamepad_added_event(SDL_GamepadDeviceEvent* event) {
+    // Remove keyboard to potentially make space for the new gamepad
+    remove_keyboard();
+
     if (connected_input_sources >= INPUT_SOURCES_MAX) {
         return;
     }
@@ -63,6 +90,9 @@ static void handle_gamepad_added_event(SDL_GamepadDeviceEvent* event) {
     }
 
     connected_input_sources += 1;
+
+    // Setup keyboard again, if there's a free slot
+    setup_keyboard();
 }
 
 static void handle_gamepad_removed_event(SDL_GamepadDeviceEvent* event) {
@@ -77,11 +107,13 @@ static void handle_gamepad_removed_event(SDL_GamepadDeviceEvent* event) {
     input_source->type = SDLPAD_INPUT_NONE;
     memset(&button_state[index], 0, sizeof(SDLPad_ButtonState));
     connected_input_sources -= 1;
+
+    // Setup keyboard in the newly freed slot
+    setup_keyboard();
 }
 
 void SDLPad_Init() {
-    input_sources[0].type = SDLPAD_INPUT_KEYBOARD;
-    connected_input_sources += 1;
+    setup_keyboard();
 }
 
 void SDLPad_HandleGamepadDeviceEvent(SDL_GamepadDeviceEvent* event) {
