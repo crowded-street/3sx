@@ -2945,7 +2945,6 @@ void opening_title() {
     switch (op_w.r_no_1) {
     case 0:
         op_w.r_no_1 += 1;
-        opening_title_00();
         break;
 
     case 1:
@@ -2961,10 +2960,6 @@ void opening_title() {
     case 2:
         break;
     }
-}
-
-void opening_title_00() {
-    // Do nothing
 }
 
 void opening_title_01() {
