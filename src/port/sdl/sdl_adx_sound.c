@@ -181,9 +181,10 @@ static void loop_info_init(ADXLoopInfo* info, const uint8_t* data) {
 
     switch (version) {
     case 3:
-        info->looping_enabled = AV_RB32(data + 0x18);
+        const Uint16 loop_enabled_16 = AV_RB16(data + 0x16);
 
-        if (info->looping_enabled) {
+        if (loop_enabled_16 == 1) {
+            info->looping_enabled = true;
             info->start_sample = AV_RB32(data + 0x1C);
             info->end_sample = AV_RB32(data + 0x24);
         }
@@ -191,9 +192,10 @@ static void loop_info_init(ADXLoopInfo* info, const uint8_t* data) {
         break;
 
     case 4:
-        info->looping_enabled = AV_RB32(data + 0x24);
+        const Uint32 loop_enabled_32 = AV_RB32(data + 0x24);
 
-        if (info->looping_enabled) {
+        if (loop_enabled_32 == 1) {
+            info->looping_enabled = true;
             info->start_sample = AV_RB32(data + 0x28);
             info->end_sample = AV_RB32(data + 0x30);
         }
@@ -407,7 +409,7 @@ void SDLADXSound_StartMem(void* buf, size_t size) {
     SDLADXSound_Stop();
 
     ADXTrack* track = alloc_track();
-    track_init(track, -1, buf, size, false);
+    track_init(track, -1, buf, size, true);
 }
 
 int SDLADXSound_GetNumFiles() {
