@@ -1210,7 +1210,7 @@ void nm56_char_select(PLW* wk) {
     s16* dad;
     s16 ix;
 
-    efw = (WORK*)wk->wu.target_adrs[203];
+    efw = (WORK*)((WORK*)wk->wu.target_adrs)->my_effadrs;
     ix = get_sel_hosei_tbl_ix(wk->player_number) + 1;
     dad = efw->hosei_adrs[ix].hos_box;
     setup_mvxy_data(&wk->wu, 17);
@@ -1282,7 +1282,7 @@ void nm57_dir_select(PLW* wk) {
     s16* dad;
     s16 ix;
 
-    efw = (WORK*)wk->wu.target_adrs[203];
+    efw = (WORK*)((WORK*)wk->wu.target_adrs)->my_effadrs;
     ix = get_sel_hosei_tbl_ix(wk->player_number) + 1;
     dad = (s16*)efw->hosei_adrs[ix].hos_box;
     wk->wu.rl_flag = 1;

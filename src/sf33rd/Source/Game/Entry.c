@@ -11,12 +11,13 @@
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect_init.h"
-#include "sf33rd/Source/Game/end_data.h"
 #include "sf33rd/Source/Game/main.h"
 #include "sf33rd/Source/Game/n_input.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/workuser.h"
 #include "structs.h"
+
+#include "sf33rd/Source/Game/ending/end_data.h"
 
 u8 letter_stack[40];
 u8 letter_counter;

@@ -30,7 +30,6 @@
 #include "sf33rd/Source/Game/eff14.h"
 #include "sf33rd/Source/Game/eff35.h"
 #include "sf33rd/Source/Game/effb2.h"
-#include "sf33rd/Source/Game/end_main.h"
 #include "sf33rd/Source/Game/main.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/ta_sub.h"
@@ -38,6 +37,7 @@
 
 #include "sf33rd/Source/Game/animation/appear.h"
 #include "sf33rd/Source/Game/menu/menu.h"
+#include "sf33rd/Source/Game/ending/end_main.h"
 
 void Game_Manage_1st();
 void Clear_1Stage_Work();

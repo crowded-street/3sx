@@ -15,9 +15,10 @@
 #include "sf33rd/Source/Game/bg_data.h"
 #include "sf33rd/Source/Game/color3rd.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
-#include "sf33rd/Source/Game/end_data.h"
 #include "sf33rd/Source/Game/workuser.h"
 #include "structs.h"
+
+#include "sf33rd/Source/Game/ending/end_data.h"
 
 // sbss
 Vertex scrDrawPos[4];
@@ -193,7 +194,6 @@ void Bg_Kakikae_Set() {
 
 void Ed_Kakikae_Set(s16 type) {
     u8 i;
-    const u32* rwtbl_ptr;
     s8 rw;
 
     rw_num = 0;
@@ -205,18 +205,18 @@ void Ed_Kakikae_Set(s16 type) {
     switch (type) {
     case 14:
         for (i = 0; i < 20; i++) {
-            rwtbl_ptr = &gedrw_data_tbl[i][0];
-            rw_dat[i].rwgbix = *rwtbl_ptr++;
-            rw_dat[i].rwd_ptr = rw_dat[i].brw_ptr = (s16*)rwtbl_ptr[0];
+            const gedrw_data* gedrw_data_ptr = &gedrw_data_tbl[i];
+            rw_dat[i].rwgbix = gedrw_data_ptr->rwgbix;
+            rw_dat[i].rwd_ptr = rw_dat[i].brw_ptr = gedrw_data_ptr->rw_ptr;
         }
 
         break;
 
     case 15:
         for (i = 0; i < 16; i++) {
-            rwtbl_ptr = &cedrw_data_tbl[i][0];
-            rw_dat[i].rwgbix = *rwtbl_ptr++;
-            rw_dat[i].rwd_ptr = rw_dat[i].brw_ptr = (s16*)rwtbl_ptr[0];
+            const cedrw_data* cedrw_data_ptr = &cedrw_data_tbl[i];
+            rw_dat[i].rwgbix = cedrw_data_ptr->rwgbix;
+            rw_dat[i].rwd_ptr = rw_dat[i].brw_ptr = cedrw_data_ptr->rw_ptr;
         }
 
         break;
@@ -226,12 +226,12 @@ void Ed_Kakikae_Set(s16 type) {
             rw = edrw_num[type][0];
 
             for (i = 0; i < edrw_num[type][1]; i++) {
+                const edrw_data* edrw_data_ptr = &edrw_data_tbl[rw + i];
                 rw_num += 1;
-                rwtbl_ptr = &edrw_data_tbl[rw + i][0];
-                rw_dat[i].bg_num = *rwtbl_ptr++;
+                rw_dat[i].bg_num = edrw_data_ptr->bg_num;
                 rw_bg_flag[rw_dat[i].bg_num] = 1;
-                rw_dat[i].rwgbix = *rwtbl_ptr++;
-                rw_dat[i].rwd_ptr = rw_dat[i].brw_ptr = (s16*)rwtbl_ptr[0];
+                rw_dat[i].rwgbix = edrw_data_ptr->rwgbix;
+                rw_dat[i].rwd_ptr = rw_dat[i].brw_ptr = edrw_data_ptr->rw_ptr;
                 rw_dat[i].rw_cnt = *rw_dat[i].rwd_ptr++;
                 rw_dat[i].gbix = *rw_dat[i].rwd_ptr++;
             }

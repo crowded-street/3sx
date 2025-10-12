@@ -40,6 +40,10 @@
 
 #include "sf33rd/Source/Game/animation/win_pl.h"
 
+#if defined(DEBUG)
+#include "sf33rd/Source/Game/debug/debug_config.h"
+#endif
+
 void pli_0000();
 void pli_1000();
 void move_player_work();
@@ -558,28 +562,32 @@ void pli_1000() {
     ca_check_flag = 1;
 }
 
-void pli_0002() {}
+void pli_0002() {
+    // Do nothing
+}
 
 void plcnt_move() {
     if (time_over_check() != 0) {
         return;
     }
 
-    if (Debug_w[0x1B]) {
+#if defined(DEBUG)
+    if (debug_config.player_1_invincible) {
         plw[0].wu.dm_vital = 0;
     }
 
-    if (Debug_w[0x1C]) {
+    if (debug_config.player_2_invincible) {
         plw[1].wu.dm_vital = 0;
     }
 
-    if (Debug_w[0x19]) {
+    if (debug_config.player_1_one_hit_ko) {
         plw[0].wu.vital_new = 0;
     }
 
-    if (Debug_w[0x1A]) {
+    if (debug_config.player_2_one_hit_ko) {
         plw[1].wu.vital_new = 0;
     }
+#endif
 
     if (No_Death) {
         plw[0].wu.dm_vital = plw[1].wu.dm_vital = 0;

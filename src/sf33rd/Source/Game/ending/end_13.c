@@ -1,3 +1,8 @@
+/**
+ * @file end_13.c
+ * Urien's Ending
+ */
+
 #include "common.h"
 #include "sf33rd/Source/Game/EFFF9.h"
 #include "sf33rd/Source/Game/SE.h"
@@ -5,9 +10,10 @@
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/bg_data.h"
 #include "sf33rd/Source/Game/effe6.h"
-#include "sf33rd/Source/Game/end_data.h"
-#include "sf33rd/Source/Game/end_main.h"
 #include "sf33rd/Source/Game/sc_sub.h"
+
+#include "sf33rd/Source/Game/ending/end_data.h"
+#include "sf33rd/Source/Game/ending/end_main.h"
 
 void end_d00_move();
 void end_d01_move();
@@ -83,10 +89,6 @@ void end_d00_move() {
 }
 
 void end_d00_1000() {
-#if defined(TARGET_PS2)
-    void Bg_On_W(u32 s_prm);
-#endif
-
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
@@ -176,10 +178,6 @@ void end_d00_3000() {
 }
 
 void end_d00_4000() {
-#if defined(TARGET_PS2)
-    void Bg_On_W(u32 s_prm);
-#endif
-
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
@@ -210,10 +208,6 @@ void end_d00_4000() {
 }
 
 void end_d00_6000() {
-#if defined(TARGET_PS2)
-    void Bg_On_W(u32 s_prm);
-#endif
-
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;

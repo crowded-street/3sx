@@ -64,13 +64,11 @@ int scePad2Read(int socket_number, scePad2ButtonState* data) {
     data->sw1.bits.square = !button_state.west;
     data->sw1.bits.triangle = !button_state.north;
 
-    // This sets stick positions
-    // (Sticks are not supported yet, that's why we just set positions to neutral)
-
-    data->lJoyH = 0x7F;
-    data->lJoyV = 0x7F;
-    data->rJoyH = 0x7F;
-    data->rJoyV = 0x7F;
+    // Map SDL stick values (-32768 to 32767) to PS2 format (0x00 to 0xFF, center at 0x7F)
+    data->lJoyH = (button_state.left_stick_x + 32768) * 255 / 65535;
+    data->lJoyV = (button_state.left_stick_y + 32768) * 255 / 65535;
+    data->rJoyH = (button_state.right_stick_x + 32768) * 255 / 65535;
+    data->rJoyV = (button_state.right_stick_y + 32768) * 255 / 65535;
 
     // This sets button pressure
 

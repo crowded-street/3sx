@@ -4,9 +4,10 @@
 #include "sf33rd/Source/Game/CHARSET.h"
 #include "sf33rd/Source/Game/EFFECT.h"
 #include "sf33rd/Source/Game/aboutspr.h"
-#include "sf33rd/Source/Game/end_data.h"
 #include "sf33rd/Source/Game/ta_sub.h"
 #include "sf33rd/Source/Game/texcash.h"
+
+#include "sf33rd/Source/Game/ending/end_data.h"
 
 void effect_G7_move(WORK_Other* ewk) {
     if (ewk->wu.old_rno[0] < end_w.r_no_2) {

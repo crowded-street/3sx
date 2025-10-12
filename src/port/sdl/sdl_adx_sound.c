@@ -1,5 +1,6 @@
 #include "port/sdl/sdl_adx_sound.h"
 #include "common.h"
+#include "port/io/afs.h"
 #include "sf33rd/Source/Game/GD3rd.h"
 
 #include <SDL3/SDL.h>
@@ -101,17 +102,16 @@ static void pipeline_destroy(ADXDecoderPipeline* pipeline) {
 }
 
 static void* load_file(int file_id, int* size) {
+    // FIXME: Remove dependency on GD3rd.h
     const unsigned int file_size = fsGetFileSize(file_id);
+    *size = file_size;
     const size_t buff_size = (file_size + 2048 - 1) & ~(2048 - 1); // AFS reads data in 2048-byte chunks
     void* buff = malloc(buff_size);
 
-    REQ req;
-    req.fnum = file_id;
-    fsOpen(&req);
-    req.size = file_size;
-    *size = req.size;
-    req.sect = fsCalSectorSize(req.size);
-    fsFileReadSync(&req, req.sect, buff);
+    AFSHandle handle = AFS_Open(file_id);
+    AFS_ReadSync(handle, fsCalSectorSize(file_size), buff);
+    AFS_Close(handle);
+
     return buff;
 }
 
@@ -181,9 +181,10 @@ static void loop_info_init(ADXLoopInfo* info, const uint8_t* data) {
 
     switch (version) {
     case 3:
-        info->looping_enabled = AV_RB32(data + 0x18);
+        const Uint16 loop_enabled_16 = AV_RB16(data + 0x16);
 
-        if (info->looping_enabled) {
+        if (loop_enabled_16 == 1) {
+            info->looping_enabled = true;
             info->start_sample = AV_RB32(data + 0x1C);
             info->end_sample = AV_RB32(data + 0x24);
         }
@@ -191,9 +192,10 @@ static void loop_info_init(ADXLoopInfo* info, const uint8_t* data) {
         break;
 
     case 4:
-        info->looping_enabled = AV_RB32(data + 0x24);
+        const Uint32 loop_enabled_32 = AV_RB32(data + 0x24);
 
-        if (info->looping_enabled) {
+        if (loop_enabled_32 == 1) {
+            info->looping_enabled = true;
             info->start_sample = AV_RB32(data + 0x28);
             info->end_sample = AV_RB32(data + 0x30);
         }
@@ -407,7 +409,7 @@ void SDLADXSound_StartMem(void* buf, size_t size) {
     SDLADXSound_Stop();
 
     ADXTrack* track = alloc_track();
-    track_init(track, -1, buf, size, false);
+    track_init(track, -1, buf, size, true);
 }
 
 int SDLADXSound_GetNumFiles() {

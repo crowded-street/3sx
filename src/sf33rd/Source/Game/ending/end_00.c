@@ -1,3 +1,8 @@
+/**
+ * @file end_00.c
+ * Gill's Ending
+ */
+
 #include "common.h"
 #include "sf33rd/Source/Game/EFFF9.h"
 #include "sf33rd/Source/Game/SE.h"
@@ -5,10 +10,11 @@
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/bg_data.h"
 #include "sf33rd/Source/Game/effe6.h"
-#include "sf33rd/Source/Game/end_data.h"
-#include "sf33rd/Source/Game/end_main.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/workuser.h"
+
+#include "sf33rd/Source/Game/ending/end_data.h"
+#include "sf33rd/Source/Game/ending/end_main.h"
 
 void end_000_move();
 void end_001_move();

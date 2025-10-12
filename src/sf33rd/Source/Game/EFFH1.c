@@ -6,9 +6,10 @@
 #include "sf33rd/Source/Game/PLS02.h"
 #include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/bg.h"
-#include "sf33rd/Source/Game/end_data.h"
 #include "sf33rd/Source/Game/ta_sub.h"
 #include "sf33rd/Source/Game/texcash.h"
+
+#include "sf33rd/Source/Game/ending/end_data.h"
 
 void eff_h1_move(WORK_Other* ewk);
 

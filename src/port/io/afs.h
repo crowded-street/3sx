@@ -22,6 +22,7 @@ unsigned int AFS_GetSize(int file_num);
 void AFS_RunServer();
 AFSHandle AFS_Open(int file_num);
 void AFS_Read(AFSHandle handle, int sectors, void* buf);
+void AFS_ReadSync(AFSHandle handle, int sectors, void* buf);
 void AFS_Stop(AFSHandle handle);
 void AFS_Close(AFSHandle handle);
 AFSReadState AFS_GetState(AFSHandle handle);

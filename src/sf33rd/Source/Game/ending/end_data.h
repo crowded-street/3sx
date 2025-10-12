@@ -4,6 +4,19 @@
 #include "structs.h"
 #include "types.h"
 
+typedef struct edrw_data {
+    u8 bg_num;
+    s16 rwgbix;
+    const s16* rw_ptr;
+} edrw_data;
+
+typedef struct gedrw_data {
+    s16 rwgbix;
+    const s16* rw_ptr;
+} gedrw_data;
+
+typedef gedrw_data cedrw_data;
+
 extern const u16* ending_map_tbl[][3];
 
 extern const u8 end_use_scr[];
@@ -15,9 +28,9 @@ extern const u32 bgtex_ending_gbix[][6];
 extern const u8 ending_use_family[];
 extern const u8 ending_rewrite_scr[];
 extern const s8 edrw_num[20][2];
-extern const u32 edrw_data_tbl[][3];
-extern const u32 gedrw_data_tbl[][2];
-extern const u32 cedrw_data_tbl[][2];
+extern const edrw_data edrw_data_tbl[];
+extern const gedrw_data gedrw_data_tbl[];
+extern const cedrw_data cedrw_data_tbl[];
 extern const s32 gouki_end_nosekae[2][16];
 
 extern s8 staff_r_no;

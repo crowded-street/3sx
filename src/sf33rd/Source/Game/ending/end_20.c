@@ -1,3 +1,8 @@
+/**
+ * @file end_20.c
+ * Remy's Ending
+ */
+
 #include "common.h"
 #include "sf33rd/Source/Common/PPGFile.h"
 #include "sf33rd/Source/Common/PPGWork.h"
@@ -10,8 +15,8 @@
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/bg_data.h"
 #include "sf33rd/Source/Game/effe6.h"
-#include "sf33rd/Source/Game/end_data.h"
-#include "sf33rd/Source/Game/end_main.h"
+#include "sf33rd/Source/Game/ending/end_data.h"
+#include "sf33rd/Source/Game/ending/end_main.h"
 
 void end_2000_move();
 void end_2001_move();
@@ -318,13 +323,26 @@ void end_2001_0005() {
     }
 }
 
-#if defined(TARGET_PS2)
-INCLUDE_ASM("asm/anniversary/nonmatchings/sf33rd/Source/Game/end_20", sea_write);
-#else
 void sea_write() {
-    not_implemented(__func__);
+    u16 j;
+    u16 k;
+    SEA_WORK work;
+
+    e_line_step = 64;
+
+    for (j = 0; j < 512; j++) {
+        k = ls_cnt1 + (j * 4) & 0xFF;
+        work.s.xx = e_line_step * rate_256_table[k][0] >> 4;
+
+        if (No_Trans) {
+            continue;
+        }
+
+        sea_trans(j, (f32)work.o.xh);
+    }
+
+    ls_cnt1 = (ls_cnt1 + 2) & 0x1FF;
 }
-#endif
 
 void sea_trans(u16 num, f64 arg2) {
     f32 suzi = arg2;

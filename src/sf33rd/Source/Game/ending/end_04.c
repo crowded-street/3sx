@@ -1,3 +1,8 @@
+/**
+ * @file end_04.c
+ * Dudley's Ending
+ */
+
 #include "common.h"
 #include "sf33rd/Source/Game/EFFF9.h"
 #include "sf33rd/Source/Game/EFFH1.h"
@@ -5,8 +10,8 @@
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/bg_data.h"
 #include "sf33rd/Source/Game/effe6.h"
-#include "sf33rd/Source/Game/end_data.h"
-#include "sf33rd/Source/Game/end_main.h"
+#include "sf33rd/Source/Game/ending/end_data.h"
+#include "sf33rd/Source/Game/ending/end_main.h"
 
 void end_400_move();
 void end_401_move();
@@ -231,11 +236,6 @@ void end_401_1000() {
 }
 
 void end_401_2000() {
-#if defined(TARGET_PS2)
-    void Frame_Up(u32 x, u32 y, u16 add);
-    void Frame_Down(u32 x, u32 y, u16 add, u32 /* unused */);
-#endif
-
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
@@ -270,11 +270,7 @@ void end_401_2000() {
                 break;
             }
 
-#if defined(TARGET_PS2)
-            Frame_Down(bg_w.center_x, bg_w.center_y, 1, 1);
-#else
             Frame_Down(bg_w.center_x, bg_w.center_y, 1);
-#endif
         }
 
         break;
@@ -285,11 +281,6 @@ void end_401_2000() {
 }
 
 void end_401_3000() {
-#if defined(TARGET_PS2)
-    void Frame_Up(u32 x, u32 y, u16 add);
-    void Frame_Down(u32 x, u32 y, u16 add, u32 /* unused */);
-#endif
-
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
@@ -319,11 +310,8 @@ void end_401_3000() {
                 end_w.timer = 0;
                 break;
             }
-#if defined(TARGET_PS2)
-            Frame_Down(bg_w.center_x, bg_w.center_y, 1, 1);
-#else
+
             Frame_Down(bg_w.center_x, bg_w.center_y, 1);
-#endif
         }
 
         break;
@@ -334,11 +322,6 @@ void end_401_3000() {
 }
 
 void end_401_4000() {
-#if defined(TARGET_PS2)
-    void Frame_Up(u32 x, u32 y, u16 add);
-    void Frame_Down(u32 x, u32 y, u16 add, u32 /* unused */);
-#endif
-
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
@@ -370,11 +353,7 @@ void end_401_4000() {
                 break;
             }
 
-#if defined(TARGET_PS2)
-            Frame_Down(bg_w.center_x, bg_w.center_y, 1, 1);
-#else
             Frame_Down(bg_w.center_x, bg_w.center_y, 1);
-#endif
         }
 
         break;

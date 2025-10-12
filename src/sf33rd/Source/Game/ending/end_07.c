@@ -1,3 +1,8 @@
+/**
+ * @file end_07.c
+ * Ibuki's Ending
+ */
+
 #include "common.h"
 #include "sf33rd/Source/Game/EFFB0.h"
 #include "sf33rd/Source/Game/EFFF9.h"
@@ -5,8 +10,8 @@
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/bg_data.h"
 #include "sf33rd/Source/Game/effe6.h"
-#include "sf33rd/Source/Game/end_data.h"
-#include "sf33rd/Source/Game/end_main.h"
+#include "sf33rd/Source/Game/ending/end_data.h"
+#include "sf33rd/Source/Game/ending/end_main.h"
 
 void end_700_move();
 void end_701_move();
@@ -75,10 +80,6 @@ void end_701_move() {
 }
 
 void end_700_0000() {
-#if defined(TARGET_PS2)
-    void Bg_On_W(u32 s_prm);
-#endif
-
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
