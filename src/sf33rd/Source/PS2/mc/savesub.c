@@ -9,10 +9,10 @@
 #include "sf33rd/Source/Game/SYS_sub2.h"
 #endif
 
-#include "sf33rd/Source/Game/Sound3rd.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/main.h"
 #include "sf33rd/Source/Game/sc_sub.h"
+#include "sf33rd/Source/Game/sound/sound3rd.h"
 #include "sf33rd/Source/Game/workuser.h"
 #include "sf33rd/Source/PS2/mc/knjsub.h"
 #include "sf33rd/Source/PS2/mc/mcsub.h"

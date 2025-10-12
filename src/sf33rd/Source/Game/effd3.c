@@ -3,7 +3,6 @@
 #include "sf33rd/Source/Game/EFFECT.h"
 #include "sf33rd/Source/Game/Manage.h"
 #include "sf33rd/Source/Game/PLCNT.h"
-#include "sf33rd/Source/Game/SE.h"
 #include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/bg_data.h"
@@ -13,6 +12,8 @@
 #include "sf33rd/Source/Game/effg8.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/workuser.h"
+
+#include "sf33rd/Source/Game/sound/se.h"
 
 // forward declarations
 const s16 ake_timer_tbl[13];

@@ -5,12 +5,12 @@
 
 #include "common.h"
 #include "sf33rd/Source/Game/EFFF9.h"
-#include "sf33rd/Source/Game/SE.h"
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/bg_data.h"
 #include "sf33rd/Source/Game/effe6.h"
 #include "sf33rd/Source/Game/ending/end_data.h"
 #include "sf33rd/Source/Game/ending/end_main.h"
+#include "sf33rd/Source/Game/sound/se.h"
 
 void end_200_move();
 void end_201_move();

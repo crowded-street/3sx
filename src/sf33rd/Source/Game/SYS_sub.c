@@ -17,7 +17,6 @@
 #include "sf33rd/Source/Game/PulPul.h"
 #include "sf33rd/Source/Game/RANKING.h"
 #include "sf33rd/Source/Game/SYS_sub2.h"
-#include "sf33rd/Source/Game/Sound3rd.h"
 #include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/bg.h"
@@ -30,6 +29,7 @@
 #include <memory.h>
 
 #include "sf33rd/Source/Game/com/com_datu.h"
+#include "sf33rd/Source/Game/sound/sound3rd.h"
 
 u8 Candidate_Buff[16];
 

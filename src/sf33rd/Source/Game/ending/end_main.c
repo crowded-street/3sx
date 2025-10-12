@@ -9,7 +9,6 @@
 #include "sf33rd/Source/Game/EFFF9.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/SYS_sub2.h"
-#include "sf33rd/Source/Game/Sound3rd.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/bg_data.h"
@@ -41,6 +40,7 @@
 #include "sf33rd/Source/Game/ending/end_19.h"
 #include "sf33rd/Source/Game/ending/end_20.h"
 #include "sf33rd/Source/Game/ending/end_data.h"
+#include "sf33rd/Source/Game/sound/sound3rd.h"
 
 void normal_ending(s16 pl_num);
 void end_main_move(s16 pl_num);
