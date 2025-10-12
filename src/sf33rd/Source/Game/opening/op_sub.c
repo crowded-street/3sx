@@ -1,3 +1,8 @@
+/**
+ * @file op_sub.c
+ * Opening Subroutines
+ */
+
 #include "sf33rd/Source/Game/opening/op_sub.h"
 #include "common.h"
 #include "sf33rd/Source/Common/PPGFile.h"
