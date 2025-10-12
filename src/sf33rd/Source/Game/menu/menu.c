@@ -1,7 +1,6 @@
-#include "sf33rd/Source/Game/menu.h"
+#include "sf33rd/Source/Game/menu/menu.h"
 #include "common.h"
 #include "port/sdl/sdl_app.h"
-#include "sf33rd/Source/Game/DIR_DATA.h"
 #include "sf33rd/Source/Game/EFF10.h"
 #include "sf33rd/Source/Game/EFF45.h"
 #include "sf33rd/Source/Game/EFF57.h"
@@ -10,7 +9,6 @@
 #include "sf33rd/Source/Game/EFFA0.h"
 #include "sf33rd/Source/Game/EFFA3.h"
 #include "sf33rd/Source/Game/EFFECT.h"
-#include "sf33rd/Source/Game/EX_DATA.h"
 #include "sf33rd/Source/Game/Entry.h"
 #include "sf33rd/Source/Game/GD3rd.h"
 #include "sf33rd/Source/Game/Game.h"
@@ -47,6 +45,8 @@
 #include "structs.h"
 
 #include "sf33rd/Source/Game/animation/appear.h"
+#include "sf33rd/Source/Game/menu/dir_data.h"
+#include "sf33rd/Source/Game/menu/ex_data.h"
 
 void Default_Training_Option();
 void Dummy_Move_Sub(struct _TASK* task_ptr, s16 PL_id, s16 id, s16 type, s16 max);

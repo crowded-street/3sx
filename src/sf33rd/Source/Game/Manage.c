@@ -32,12 +32,12 @@
 #include "sf33rd/Source/Game/effb2.h"
 #include "sf33rd/Source/Game/end_main.h"
 #include "sf33rd/Source/Game/main.h"
-#include "sf33rd/Source/Game/menu.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/ta_sub.h"
 #include "sf33rd/Source/Game/workuser.h"
 
 #include "sf33rd/Source/Game/animation/appear.h"
+#include "sf33rd/Source/Game/menu/menu.h"
 
 void Game_Manage_1st();
 void Clear_1Stage_Work();

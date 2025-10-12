@@ -42,7 +42,6 @@
 #include "sf33rd/Source/Game/effect_init.h"
 #include "sf33rd/Source/Game/end_main.h"
 #include "sf33rd/Source/Game/main.h"
-#include "sf33rd/Source/Game/menu.h"
 #include "sf33rd/Source/Game/op_sub.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/sel_pl.h"
@@ -56,6 +55,7 @@
 #include "sf33rd/Source/Game/demo/demo00.h"
 #include "sf33rd/Source/Game/demo/demo01.h"
 #include "sf33rd/Source/Game/demo/demo02.h"
+#include "sf33rd/Source/Game/menu/menu.h"
 
 void Wait_Auto_Load(struct _TASK* /* unused */);
 void Loop_Demo(struct _TASK* /* unused */);

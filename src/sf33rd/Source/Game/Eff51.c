@@ -1,12 +1,13 @@
 #include "sf33rd/Source/Game/Eff51.h"
 #include "common.h"
-#include "sf33rd/Source/Game/DIR_DATA.h"
 #include "sf33rd/Source/Game/EFFECT.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/texcash.h"
 #include "sf33rd/Source/Game/workuser.h"
+
+#include "sf33rd/Source/Game/menu/dir_data.h"
 
 void Setup_Letter_51(WORK_Other_CONN* ewk);
 
