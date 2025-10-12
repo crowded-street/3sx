@@ -1,5 +1,6 @@
 #include "port/sdl/sdl_adx_sound.h"
 #include "common.h"
+#include "port/io/afs.h"
 #include "sf33rd/Source/Game/GD3rd.h"
 
 #include <SDL3/SDL.h>
@@ -101,17 +102,16 @@ static void pipeline_destroy(ADXDecoderPipeline* pipeline) {
 }
 
 static void* load_file(int file_id, int* size) {
+    // FIXME: Remove dependency on GD3rd.h
     const unsigned int file_size = fsGetFileSize(file_id);
+    *size = file_size;
     const size_t buff_size = (file_size + 2048 - 1) & ~(2048 - 1); // AFS reads data in 2048-byte chunks
     void* buff = malloc(buff_size);
 
-    REQ req;
-    req.fnum = file_id;
-    fsOpen(&req);
-    req.size = file_size;
-    *size = req.size;
-    req.sect = fsCalSectorSize(req.size);
-    fsFileReadSync(&req, req.sect, buff);
+    AFSHandle handle = AFS_Open(file_id);
+    AFS_ReadSync(handle, fsCalSectorSize(file_size), buff);
+    AFS_Close(handle);
+
     return buff;
 }
 

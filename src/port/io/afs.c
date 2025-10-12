@@ -1,4 +1,5 @@
 #include "port/io/afs.h"
+#include "common.h"
 #include <SDL3/SDL.h>
 #include <stdio.h>
 
@@ -10,6 +11,9 @@
 #define AFS_MAX_NAME_LENGTH 32
 
 #define AFS_MAX_READ_REQUESTS 100
+
+// Uncomment this to enable debug prints
+// #define AFS_DEBUG
 
 typedef struct AFSEntry {
     unsigned int offset;
@@ -184,44 +188,65 @@ unsigned int AFS_GetSize(int file_num) {
 
 // AFS reading
 
+static void process_asyncio_outcome(const SDL_AsyncIOOutcome* outcome) {
+    ReadRequest* request = (ReadRequest*)outcome->userdata;
+
+#if defined(AFS_DEBUG)
+    printf("📂 %d: request complete (type = %d, result = %d, offset = 0x%llX, requested = 0x%llX, transferred = "
+           "0x%llX)\n",
+           request->index,
+           outcome->type,
+           outcome->result,
+           outcome->offset,
+           outcome->bytes_requested,
+           outcome->bytes_transferred);
+#endif
+
+    switch (outcome->type) {
+    case SDL_ASYNCIO_TASK_READ:
+        switch (outcome->result) {
+        case SDL_ASYNCIO_COMPLETE:
+            request->state = AFS_READ_STATE_FINISHED;
+            break;
+
+        case SDL_ASYNCIO_CANCELED:
+            request->state = AFS_READ_STATE_IDLE;
+            break;
+
+        case SDL_ASYNCIO_FAILURE:
+            request->state = AFS_READ_STATE_ERROR;
+            break;
+        }
+
+        break;
+
+    case SDL_ASYNCIO_TASK_CLOSE:
+        request->state = AFS_READ_STATE_IDLE;
+        break;
+
+    case SDL_ASYNCIO_TASK_WRITE:
+        // Do nothing
+        break;
+    }
+
+#if defined(AFS_DEBUG)
+    printf("📂 %d: new state = %d\n", request->index, request->state);
+#endif
+
+    request->asyncio = NULL;
+}
+
 void AFS_RunServer() {
     SDL_AsyncIOOutcome outcome;
 
     while (SDL_GetAsyncIOResult(asyncio_queue, &outcome)) {
-        ReadRequest* request = (ReadRequest*)outcome.userdata;
-
-        switch (outcome.type) {
-        case SDL_ASYNCIO_TASK_READ:
-            switch (outcome.result) {
-            case SDL_ASYNCIO_COMPLETE:
-                request->state = AFS_READ_STATE_FINISHED;
-                break;
-
-            case SDL_ASYNCIO_CANCELED:
-                request->state = AFS_READ_STATE_IDLE;
-                break;
-
-            case SDL_ASYNCIO_FAILURE:
-                request->state = AFS_READ_STATE_ERROR;
-                break;
-            }
-
-            break;
-
-        case SDL_ASYNCIO_TASK_CLOSE:
-            request->state = AFS_READ_STATE_IDLE;
-            break;
-
-        case SDL_ASYNCIO_TASK_WRITE:
-            // Do nothing
-            break;
-        }
-
-        request->asyncio = NULL;
+        process_asyncio_outcome(&outcome);
     }
 }
 
 AFSHandle AFS_Open(int file_num) {
+    AFSHandle retval = AFS_NONE;
+
     for (int i = 0; i < SDL_arraysize(requests); i++) {
         ReadRequest* request = &requests[i];
 
@@ -234,13 +259,22 @@ AFSHandle AFS_Open(int file_num) {
         request->index = i;
         request->state = AFS_READ_STATE_IDLE;
         request->initialized = true;
-        return i;
+        retval = i;
+        break;
     }
 
-    return AFS_NONE;
+#if defined(AFS_DEBUG)
+    printf("📂 %d: open (file_num = %d, filename = %s)\n", retval, file_num, afs.entries[file_num].name);
+#endif
+
+    return retval;
 }
 
 void AFS_Read(AFSHandle handle, int sectors, void* buf) {
+#if defined(AFS_DEBUG)
+    printf("📂 %d: read (sectors = %d, bytes = 0x%X)\n", handle, sectors, sectors * 2048);
+#endif
+
     ReadRequest* request = &requests[handle];
     const Uint64 offset = afs.entries[request->file_num].offset + request->sector * 2048;
 
@@ -264,7 +298,31 @@ void AFS_Read(AFSHandle handle, int sectors, void* buf) {
     request->sector += sectors;
 }
 
+void AFS_ReadSync(AFSHandle handle, int sectors, void* buf) {
+#if defined(AFS_DEBUG)
+    printf("📂 %d: read sync\n", handle);
+#endif
+
+    AFS_Read(handle, sectors, buf);
+
+    SDL_AsyncIOOutcome outcome;
+
+    while (SDL_WaitAsyncIOResult(asyncio_queue, &outcome, -1)) {
+        process_asyncio_outcome(&outcome);
+
+        ReadRequest* request = (ReadRequest*)outcome.userdata;
+
+        if (request->index == handle) {
+            break;
+        }
+    }
+}
+
 void AFS_Stop(AFSHandle handle) {
+#if defined(AFS_DEBUG)
+    printf("📂 %d: stop\n", handle);
+#endif
+
     ReadRequest* request = &requests[handle];
 
     if (request->asyncio != NULL) {
@@ -274,6 +332,10 @@ void AFS_Stop(AFSHandle handle) {
 }
 
 void AFS_Close(AFSHandle handle) {
+#if defined(AFS_DEBUG)
+    printf("📂 %d: close\n", handle);
+#endif
+
     ReadRequest* request = &requests[handle];
     AFS_Stop(handle);
     SDL_zerop(request);
@@ -281,6 +343,11 @@ void AFS_Close(AFSHandle handle) {
 
 AFSReadState AFS_GetState(AFSHandle handle) {
     ReadRequest* request = &requests[handle];
+
+#if defined(AFS_DEBUG)
+    printf("📂 %d: get state (%d)\n", handle, request->state);
+#endif
+
     return request->state;
 }
 

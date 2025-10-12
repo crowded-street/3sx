@@ -122,25 +122,9 @@ s32 fsCheckFileReaded(REQ* /* unused */) {
 }
 
 s32 fsFileReadSync(REQ* req, u32 sec, void* buff) {
-    s32 rnum = fsRequestFileRead(req, sec, buff);
-
-    if (rnum == 0) {
-        return 0;
-    }
-
-    while (1) {
-        rnum = fsCheckFileReaded(req);
-
-        if (rnum == 1) {
-            return 1;
-        }
-
-        if (rnum == 2) {
-            return 0;
-        }
-
-        waitVsyncDummy();
-    }
+    AFS_ReadSync(afs_handle, sec, buff);
+    const s32 rnum = fsCheckFileReaded(req);
+    return (rnum == 1) ? 1 : 0;
 }
 
 void waitVsyncDummy() {
