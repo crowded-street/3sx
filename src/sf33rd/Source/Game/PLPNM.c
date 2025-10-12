@@ -83,7 +83,6 @@ void Player_normal(PLW* wk) {
 
     check_my_tk_power_off(wk, (PLW*)wk->wu.target_adrs);
     check_em_tk_power_off(wk, (PLW*)wk->wu.target_adrs);
-    pp_pulpara_remake_nm_move(wk);
     plpnm_lv_00[wk->wu.routine_no[2]](wk);
 
     if (wk->wu.cg_prio) {

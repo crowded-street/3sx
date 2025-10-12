@@ -544,10 +544,6 @@ void pp_pulpara_caught(WORK* wk) {
     pulpul_request(wk->id, 0x23);
 }
 
-void pp_pulpara_remake_nm_move(s32 arg0) {
-    // do nothing
-}
-
 void pp_pulpara_shungokusatsu(WORK* wk) {
     pulpul_request(wk->id, 0x2E);
     pulpul_request((wk->id + 1) & 1, 0x2F);
