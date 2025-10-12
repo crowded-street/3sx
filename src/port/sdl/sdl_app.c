@@ -95,14 +95,20 @@ static void set_screenshot_flag_if_needed(SDL_KeyboardEvent* event) {
 }
 
 static void handle_fullscreen_toggle(SDL_KeyboardEvent* event) {
-    if ((event->key == SDLK_F11) && event->down && !event->repeat) {
-        const SDL_WindowFlags flags = SDL_GetWindowFlags(window);
+    const bool is_alt_enter = (event->key == SDLK_RETURN) && (event->mod & SDL_KMOD_ALT);
+    const bool is_f11 = (event->key == SDLK_F11);
+    const bool correct_key = (is_alt_enter || is_f11);
 
-        if (flags & SDL_WINDOW_FULLSCREEN) {
-            SDL_SetWindowFullscreen(window, false);
-        } else {
-            SDL_SetWindowFullscreen(window, true);
-        }
+    if (!correct_key || !event->down || event->repeat) {
+        return;
+    }
+
+    const SDL_WindowFlags flags = SDL_GetWindowFlags(window);
+
+    if (flags & SDL_WINDOW_FULLSCREEN) {
+        SDL_SetWindowFullscreen(window, false);
+    } else {
+        SDL_SetWindowFullscreen(window, true);
     }
 }
 
