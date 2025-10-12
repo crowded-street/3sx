@@ -6,7 +6,7 @@
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/workuser.h"
 
-#include "sf33rd/Source/Game/end/end_data.h"
+#include "sf33rd/Source/Game/ending/end_data.h"
 
 void effect_E9_move(WORK_Other* ewk) {
     PAL_CURSOR ita;

@@ -3,7 +3,7 @@
  * Akuma/Gouki's Ending
  */
 
-#include "sf33rd/Source/Game/end/end_14.h"
+#include "sf33rd/Source/Game/ending/end_14.h"
 #include "common.h"
 #include "sf33rd/Source/Game/EFFF9.h"
 #include "sf33rd/Source/Game/SE.h"
@@ -13,8 +13,8 @@
 #include "sf33rd/Source/Game/effe6.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 
-#include "sf33rd/Source/Game/end/end_data.h"
-#include "sf33rd/Source/Game/end/end_main.h"
+#include "sf33rd/Source/Game/ending/end_data.h"
+#include "sf33rd/Source/Game/ending/end_main.h"
 
 void end_e00_move();
 void end_e01_move();

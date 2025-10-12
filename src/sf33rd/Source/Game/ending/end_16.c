@@ -12,8 +12,8 @@
 #include "sf33rd/Source/Game/effe6.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 
-#include "sf33rd/Source/Game/end/end_data.h"
-#include "sf33rd/Source/Game/end/end_main.h"
+#include "sf33rd/Source/Game/ending/end_data.h"
+#include "sf33rd/Source/Game/ending/end_main.h"
 
 void end_1600_move();
 

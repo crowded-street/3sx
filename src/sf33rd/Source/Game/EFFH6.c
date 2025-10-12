@@ -7,7 +7,7 @@
 #include "sf33rd/Source/Game/texcash.h"
 #include "sf33rd/Source/Game/workuser.h"
 
-#include "sf33rd/Source/Game/end/end_data.h"
+#include "sf33rd/Source/Game/ending/end_data.h"
 
 s16 roll_rate_t;
 s16 roll_rate;

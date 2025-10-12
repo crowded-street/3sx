@@ -3,7 +3,7 @@
  * Ending Data
  */
 
-#include "sf33rd/Source/Game/end/end_data.h"
+#include "sf33rd/Source/Game/ending/end_data.h"
 #include "common.h"
 
 // sbss

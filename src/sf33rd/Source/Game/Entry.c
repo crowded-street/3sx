@@ -17,7 +17,7 @@
 #include "sf33rd/Source/Game/workuser.h"
 #include "structs.h"
 
-#include "sf33rd/Source/Game/end/end_data.h"
+#include "sf33rd/Source/Game/ending/end_data.h"
 
 u8 letter_stack[40];
 u8 letter_counter;

@@ -7,7 +7,7 @@
 #include "sf33rd/Source/Game/ta_sub.h"
 #include "sf33rd/Source/Game/texcash.h"
 
-#include "sf33rd/Source/Game/end/end_data.h"
+#include "sf33rd/Source/Game/ending/end_data.h"
 
 const s16 effb0_timer_tbl[8] = { 60, 30, 120, 150, 8, 20, 10, 90 };
 

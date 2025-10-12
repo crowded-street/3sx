@@ -18,7 +18,7 @@
 #include "sf33rd/Source/Game/workuser.h"
 #include "structs.h"
 
-#include "sf33rd/Source/Game/end/end_data.h"
+#include "sf33rd/Source/Game/ending/end_data.h"
 
 // sbss
 Vertex scrDrawPos[4];

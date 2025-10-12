@@ -12,8 +12,8 @@
 #include "sf33rd/Source/Game/texgroup.h"
 #include "sf33rd/Source/Game/workuser.h"
 
-#include "sf33rd/Source/Game/end/end_00.h"
-#include "sf33rd/Source/Game/end/end_data.h"
+#include "sf33rd/Source/Game/ending/end_00.h"
+#include "sf33rd/Source/Game/ending/end_data.h"
 
 void effe6_0000(WORK_Other* ewk);
 void effe6_0001(WORK_Other* ewk);

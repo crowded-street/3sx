@@ -37,7 +37,7 @@
 #include "sf33rd/Source/Game/workuser.h"
 
 #include "sf33rd/Source/Game/animation/appear.h"
-#include "sf33rd/Source/Game/end/end_main.h"
+#include "sf33rd/Source/Game/ending/end_main.h"
 
 void Game_Manage_1st();
 void Clear_1Stage_Work();
