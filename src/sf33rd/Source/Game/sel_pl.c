@@ -39,11 +39,11 @@
 #include "sf33rd/Source/Game/bg_data.h"
 #include "sf33rd/Source/Game/bg_sub.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
-#include "sf33rd/Source/Game/menu.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/workuser.h"
 
 #include "sf33rd/Source/Game/demo/demo_dat.h"
+#include "sf33rd/Source/Game/menu/menu.h"
 
 void Switch_Work();
 void Sel_PL_Control();

@@ -1,7 +1,11 @@
-#include "sf33rd/Source/Game/menu.h"
+/**
+ * @file menu.c
+ * Menus
+ */
+
+#include "sf33rd/Source/Game/menu/menu.h"
 #include "common.h"
 #include "port/sdl/sdl_app.h"
-#include "sf33rd/Source/Game/DIR_DATA.h"
 #include "sf33rd/Source/Game/EFF10.h"
 #include "sf33rd/Source/Game/EFF45.h"
 #include "sf33rd/Source/Game/EFF57.h"
@@ -10,7 +14,6 @@
 #include "sf33rd/Source/Game/EFFA0.h"
 #include "sf33rd/Source/Game/EFFA3.h"
 #include "sf33rd/Source/Game/EFFECT.h"
-#include "sf33rd/Source/Game/EX_DATA.h"
 #include "sf33rd/Source/Game/Entry.h"
 #include "sf33rd/Source/Game/GD3rd.h"
 #include "sf33rd/Source/Game/Game.h"
@@ -47,6 +50,8 @@
 #include "structs.h"
 
 #include "sf33rd/Source/Game/animation/appear.h"
+#include "sf33rd/Source/Game/menu/dir_data.h"
+#include "sf33rd/Source/Game/menu/ex_data.h"
 
 void Default_Training_Option();
 void Dummy_Move_Sub(struct _TASK* task_ptr, s16 PL_id, s16 id, s16 type, s16 max);
@@ -1216,10 +1221,6 @@ void Dir_Move_Sub_LR(u16 sw, s16 /* unused */) {
 }
 
 void Setup_Next_Page(struct _TASK* task_ptr, u8 /* unused */) {
-#if defined(TARGET_PS2)
-    s32 effect_18_init(s32 disp_index, s32 cursor_id, s16 sync_bg, s16 master_player);
-#endif
-
     s16 ix;
     s16 disp_index;
     s16 mode_type;
@@ -1882,10 +1883,6 @@ void Button_Config_Sub(s16 PL_id) {
 }
 
 void Button_Move_Sub_LR(u16 sw, s16 cursor_id) {
-#if defined(TARGET_PS2)
-    void pulpul_stop2(s32 ix);
-    void pp_vib_on(s32 id);
-#endif
     s16 max;
 
     switch (Menu_Cursor_Y[cursor_id]) {
@@ -2313,10 +2310,6 @@ void Screen_Move_Sub_LR(u16 sw) {
 }
 
 void Sound_Test(struct _TASK* task_ptr) {
-#if defined(TARGET_PS2)
-    void setSeVolume(u8);
-#endif
-
     s16 char_index;
     s16 ix;
     u8 last_mode;
@@ -3206,10 +3199,6 @@ void Button_Config_in_Game(struct _TASK* task_ptr) {
 }
 
 void Setup_Button_Sub(s16 x, s16 y, s16 master_player) {
-#if defined(TARGET_PS2)
-    s32 effect_10_init(s16 id, u8 Type, u32 Type_in_Type, u32 dir_step, u32 Death_Type, s32 pos_x, s32 pos_y);
-#endif
-
     s16 ix;
     s16 s1;
 
@@ -3943,10 +3932,6 @@ void Exit_Replay_Save(struct _TASK* task_ptr) {
 }
 
 void Decide_PL(s16 PL_id) {
-#if defined(TARGET_PS2)
-    void grade_check_work_1st_init(s32 ix, s32 ix2);
-#endif
-
     plw[PL_id].wu.operator = 1;
     Operator_Status[PL_id] = 1;
     Champion = PL_id;

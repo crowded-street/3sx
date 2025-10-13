@@ -1,3 +1,8 @@
+/**
+ * @file dir_data.c
+ * System Direction (Dipswitch) Menu Data
+ */
+
 #include "common.h"
 #include "structs.h"
 

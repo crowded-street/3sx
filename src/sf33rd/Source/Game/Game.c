@@ -41,7 +41,6 @@
 #include "sf33rd/Source/Game/effect_init.h"
 #include "sf33rd/Source/Game/ending/end_main.h"
 #include "sf33rd/Source/Game/main.h"
-#include "sf33rd/Source/Game/menu.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/sel_pl.h"
 #include "sf33rd/Source/Game/spgauge.h"
@@ -54,6 +53,7 @@
 #include "sf33rd/Source/Game/demo/demo00.h"
 #include "sf33rd/Source/Game/demo/demo01.h"
 #include "sf33rd/Source/Game/demo/demo02.h"
+#include "sf33rd/Source/Game/menu/menu.h"
 #include "sf33rd/Source/Game/opening/op_sub.h"
 #include "sf33rd/Source/Game/opening/opening.h"
 

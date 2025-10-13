@@ -7,9 +7,10 @@
 #include "sf33rd/Source/Game/Sound3rd.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/main.h"
-#include "sf33rd/Source/Game/menu.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/workuser.h"
+
+#include "sf33rd/Source/Game/menu/menu.h"
 
 // sbss
 u8 PAUSE_X;
