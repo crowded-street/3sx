@@ -1,3 +1,8 @@
+/**
+ * @file eff77.c
+ * TODO: identify what this effect does
+ */
+
 #include "sf33rd/Source/Game/effect/eff77.h"
 #include "common.h"
 #include "sf33rd/Source/Game/PLCNT.h"

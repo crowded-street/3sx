@@ -1,3 +1,8 @@
+/**
+ * @file eff14.c
+ * TODO: identify what this effect does
+ */
+
 #include "sf33rd/Source/Game/effect/eff14.h"
 #include "common.h"
 #include "sf33rd/Source/Game/Manage.h"

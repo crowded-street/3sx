@@ -1,3 +1,8 @@
+/**
+ * @file eff44.c
+ * TODO: identify what this effect does
+ */
+
 #include "sf33rd/Source/Game/effect/eff44.h"
 #include "common.h"
 #include "sf33rd/Source/Game/CHARSET.h"

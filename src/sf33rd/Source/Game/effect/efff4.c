@@ -1,3 +1,8 @@
+/**
+ * @file efff4.c
+ * TODO: identify what this effect does
+ */
+
 #include "sf33rd/Source/Game/effect/efff4.h"
 #include "common.h"
 

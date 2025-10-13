@@ -1,3 +1,8 @@
+/**
+ * @file effl1.c
+ * TODO: identify what this effect does
+ */
+
 #include "sf33rd/Source/Game/effect/effl1.h"
 #include "common.h"
 #include "sf33rd/Source/Game/Grade.h"

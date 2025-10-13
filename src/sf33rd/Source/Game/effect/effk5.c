@@ -1,3 +1,8 @@
+/**
+ * @file effk5.c
+ * TODO: identify what this effect does
+ */
+
 #include "sf33rd/Source/Game/effect/effk5.h"
 #include "common.h"
 #include "sf33rd/Source/Game/CALDIR.h"

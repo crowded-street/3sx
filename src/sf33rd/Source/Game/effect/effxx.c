@@ -1,3 +1,8 @@
+/**
+ * @file effxx.c
+ * Effect Move and Init Jumptables
+ */
+
 // Uncomment once effmovejptbl is fully decompiled
 // #include "sf33rd/Source/Game/effect/effxx.h"
 #include "common.h"

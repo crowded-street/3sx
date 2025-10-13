@@ -1,3 +1,8 @@
+/**
+ * @file effd4.c
+ * TODO: identify what this effect does
+ */
+
 #include "sf33rd/Source/Game/effect/effd4.h"
 #include "common.h"
 #include "sf33rd/Source/Game/SLOWF.h"

@@ -1,3 +1,8 @@
+/**
+ * @file effa0.c
+ * TODO: identify what this effect does
+ */
+
 #include "sf33rd/Source/Game/effect/effa0.h"
 #include "common.h"
 #include "sf33rd/Source/Game/aboutspr.h"

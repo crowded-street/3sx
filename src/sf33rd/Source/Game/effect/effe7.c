@@ -1,3 +1,8 @@
+/**
+ * @file effe7.c
+ * TODO: identify what this effect does
+ */
+
 #include "sf33rd/Source/Game/effect/effe7.h"
 #include "common.h"
 #include "sf33rd/Source/Game/PLCNT.h"

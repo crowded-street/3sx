@@ -1,3 +1,8 @@
+/**
+ * @file eff13.c
+ * TODO: identify what this effect does
+ */
+
 #include "sf33rd/Source/Game/effect/eff13.h"
 #include "common.h"
 #include "sf33rd/Source/Game/CALDIR.h"

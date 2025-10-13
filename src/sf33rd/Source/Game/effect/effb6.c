@@ -1,3 +1,8 @@
+/**
+ * @file effb6.c
+ * TODO: identify what this effect does
+ */
+
 #include "sf33rd/Source/Game/effect/effb6.h"
 #include "common.h"
 #include "sf33rd/Source/Game/Message3rd/C_USA/msgTable_usa.h"

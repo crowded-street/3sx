@@ -1,3 +1,8 @@
+/**
+ * @file effi9.c
+ * TODO: identify what this effect does
+ */
+
 #include "sf33rd/Source/Game/effect/effi9.h"
 #include "common.h"
 #include "sf33rd/Source/Game/SLOWF.h"

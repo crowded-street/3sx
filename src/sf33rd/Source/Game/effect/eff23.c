@@ -1,3 +1,8 @@
+/**
+ * @file eff23.c
+ * TODO: identify what this effect does
+ */
+
 #include "sf33rd/Source/Game/effect/eff23.h"
 #include "common.h"
 #include "sf33rd/Source/Game/Sel_Data.h"

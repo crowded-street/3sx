@@ -1,3 +1,8 @@
+/**
+ * @file eff36.c
+ * TODO: identify what this effect does
+ */
+
 #include "bin2obj/char_table.h"
 #include "common.h"
 #include "sf33rd/Source/Game/CHARSET.h"

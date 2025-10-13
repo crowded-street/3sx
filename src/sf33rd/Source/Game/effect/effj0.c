@@ -1,3 +1,8 @@
+/**
+ * @file effj0.c
+ * TODO: identify what this effect does
+ */
+
 #include "sf33rd/Source/Game/effect/effj0.h"
 #include "common.h"
 #include "sf33rd/Source/Game/SLOWF.h"

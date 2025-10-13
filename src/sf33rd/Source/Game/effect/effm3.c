@@ -1,3 +1,8 @@
+/**
+ * @file effm3.c
+ * TODO: identify what this effect does
+ */
+
 #include "sf33rd/Source/Game/effect/effm3.h"
 #include "common.h"
 #include "sf33rd/Source/Game/PLS02.h"

@@ -1,3 +1,8 @@
+/**
+ * @file effa6.c
+ * TODO: identify what this effect does
+ */
+
 #include "sf33rd/Source/Game/effect/effa6.h"
 #include "common.h"
 #include "sf33rd/Source/Game/Next_CPU.h"

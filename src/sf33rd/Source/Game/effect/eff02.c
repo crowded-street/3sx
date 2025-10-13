@@ -1,3 +1,8 @@
+/**
+ * @file eff02.c
+ * TODO: identify what this effect does
+ */
+
 #include "sf33rd/Source/Game/effect/eff02.h"
 #include "bin2obj/char_table.h"
 #include "common.h"

@@ -1,3 +1,8 @@
+/**
+ * @file effd3.c
+ * TODO: identify what this effect does
+ */
+
 #include "sf33rd/Source/Game/effect/effd3.h"
 #include "common.h"
 #include "sf33rd/Source/Game/Manage.h"

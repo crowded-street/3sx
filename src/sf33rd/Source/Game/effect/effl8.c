@@ -1,3 +1,8 @@
+/**
+ * @file effl8.c
+ * TODO: identify what this effect does
+ */
+
 #include "sf33rd/Source/Game/effect/effl8.h"
 #include "common.h"
 #include "sf33rd/Source/Game/color3rd.h"

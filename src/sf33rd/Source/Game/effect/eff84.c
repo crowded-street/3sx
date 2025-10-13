@@ -1,3 +1,8 @@
+/**
+ * @file eff84.c
+ * TODO: identify what this effect does
+ */
+
 #include "sf33rd/Source/Game/effect/eff84.h"
 #include "common.h"
 #include "sf33rd/Source/Game/PLS02.h"

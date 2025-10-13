@@ -1,3 +1,8 @@
+/**
+ * @file effect.c
+ * Main Effect Functions
+ */
+
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
