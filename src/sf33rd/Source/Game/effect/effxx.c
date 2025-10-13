@@ -238,7 +238,7 @@ const void (*effmovejptbl[229])() = {
     effect_66_move,    effect_67_move,    effect_68_move,    effect_69_move,    effect_70_move,    effect_71_move,
     effect_72_move,    effect_73_move,    effect_74_move,    effect_75_move,    effect_76_move,    effect_77_move,
     effect_78_move,    effect_79_move,    effect_80_move,    effect_81_move,    effect_82_move,    effect_83_move,
-    effect_84_move,    effect_85_move,    effect_86_move,    effect_87_move,    effect_dummy_move, effect_dummy_move,
+    effect_84_move,    effect_85_move,    effect_86_move,    effect_dummy_move, effect_dummy_move, effect_dummy_move,
     effect_90_move,    effect_91_move,    effect_92_move,    effect_93_move,    effect_94_move,    effect_95_move,
     effect_96_move,    effect_97_move,    effect_98_move,    effect_99_move,    effect_A0_move,    effect_A1_move,
     effect_A2_move,    effect_A3_move,    effect_dummy_move, effect_A5_move,    effect_A6_move,    effect_A7_move,
