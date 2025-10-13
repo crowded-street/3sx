@@ -81,7 +81,6 @@ void op_bg2_0000();
 void op_bg2_0001();
 void op_bg2_0002();
 void op_bg2_0003();
-void opening_title_00();
 void opening_title_01();
 
 #endif // OPENING_H
