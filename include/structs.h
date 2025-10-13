@@ -1640,32 +1640,31 @@ typedef struct {
 } UNK_Data;
 
 typedef struct {
-    // total size: 0x64
-    u32* nmca;        // offset 0x0, size 0x4
-    u32* dmca;        // offset 0x4, size 0x4
-    u32* btca;        // offset 0x8, size 0x4
-    u32* caca;        // offset 0xC, size 0x4
-    u32* cuca;        // offset 0x10, size 0x4
-    u32* atca;        // offset 0x14, size 0x4
-    u32* saca;        // offset 0x18, size 0x4
-    u32* exca;        // offset 0x1C, size 0x4
-    u32* cbca;        // offset 0x20, size 0x4
-    u32* yuca;        // offset 0x24, size 0x4
-    s16* stxy;        // offset 0x28, size 0x4
-    s16* mvxy;        // offset 0x2C, size 0x4
-    u32* sernd;       // offset 0x30, size 0x4
-    UNK_8* ovct;      // offset 0x34, size 0x4
-    UNK_9* ovix;      // offset 0x38, size 0x4
-    CatchTable* rict; // offset 0x3C, size 0x4
-    UNK_0* hiit;      // offset 0x40, size 0x4
-    UNK_1* boda;      // offset 0x44, size 0x4
-    UNK_2* hana;      // offset 0x48, size 0x4
-    UNK_3* cata;      // offset 0x4C, size 0x4
-    UNK_4* caua;      // offset 0x50, size 0x4
-    UNK_5* atta;      // offset 0x54, size 0x4
-    UNK_6* hosa;      // offset 0x58, size 0x4
-    UNK_7* atit;      // offset 0x5C, size 0x4
-    UNK_Data* prot;   // offset 0x60, size 0x4
+    u32* nmca;
+    u32* dmca;
+    u32* btca;
+    u32* caca;
+    u32* cuca;
+    u32* atca;
+    u32* saca;
+    u32* exca;
+    u32* cbca;
+    u32* yuca;
+    s16* stxy;
+    s16* mvxy;
+    u32* sernd;
+    UNK_8* ovct;
+    UNK_9* ovix;
+    CatchTable* rict;
+    UNK_0* hiit;
+    UNK_1* boda;
+    UNK_2* hana;
+    UNK_3* cata;
+    UNK_4* caua;
+    UNK_5* atta;
+    UNK_6* hosa;
+    UNK_7* atit;
+    UNK_Data* prot;
 } CharInitData;
 
 typedef struct {
@@ -1854,7 +1853,7 @@ typedef struct {
 typedef struct {
     // total size: 0x14
     u16 num_of_1st; // offset 0x0, size 0x2
-    u16 apfn;       // offset 0x2, size 0x2
+    s16 apfn;       // offset 0x2, size 0x2
     s16 conv;       // offset 0x4, size 0x2
     s16 ix1st;      // offset 0x6, size 0x2
     u32 use;        // offset 0x8, size 0x4
