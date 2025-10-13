@@ -23,6 +23,7 @@ typedef union SDLPad_InputSource {
 
 static SDLPad_InputSource input_sources[INPUT_SOURCES_MAX] = { 0 };
 static int connected_input_sources = 0;
+static int keyboard_index = -1;
 static SDLPad_ButtonState button_state[INPUT_SOURCES_MAX] = { 0 };
 
 static int input_source_index_from_joystick_id(SDL_JoystickID id) {
@@ -44,11 +45,16 @@ static int input_source_index_from_joystick_id(SDL_JoystickID id) {
 }
 
 static void setup_keyboard() {
+    if (keyboard_index >= 0) {
+        return;
+    }
+
     for (int i = 0; i < SDL_arraysize(input_sources); i++) {
         SDLPad_InputSource* input_source = &input_sources[i];
 
         if (input_source->type == SDLPAD_INPUT_NONE) {
             input_source->type = SDLPAD_INPUT_KEYBOARD;
+            keyboard_index = i;
             connected_input_sources += 1;
             break;
         }
@@ -56,11 +62,16 @@ static void setup_keyboard() {
 }
 
 static void remove_keyboard() {
+    if (keyboard_index < 0) {
+        return;
+    }
+
     for (int i = 0; i < SDL_arraysize(input_sources); i++) {
         SDLPad_InputSource* input_source = &input_sources[i];
 
         if (input_source->type == SDLPAD_INPUT_KEYBOARD) {
             input_source->type = SDLPAD_INPUT_NONE;
+            keyboard_index = -1;
             connected_input_sources -= 1;
             break;
         }
@@ -237,7 +248,11 @@ void SDLPad_HandleGamepadAxisMotionEvent(SDL_GamepadAxisEvent* event) {
 }
 
 void SDLPad_HandleKeyboardEvent(SDL_KeyboardEvent* event) {
-    SDLPad_ButtonState* state = &button_state[0];
+    if (keyboard_index < 0) {
+        return;
+    }
+
+    SDLPad_ButtonState* state = &button_state[keyboard_index];
 
     switch (event->key) {
     case SDLK_W:

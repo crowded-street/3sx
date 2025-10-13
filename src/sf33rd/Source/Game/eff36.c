@@ -2,12 +2,12 @@
 #include "common.h"
 #include "sf33rd/Source/Game/CHARSET.h"
 #include "sf33rd/Source/Game/EFFECT.h"
-#include "sf33rd/Source/Game/OPENING.h"
 #include "sf33rd/Source/Game/color3rd.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/ta_sub.h"
 #include "sf33rd/Source/Game/texcash.h"
 
+#include "sf33rd/Source/Game/opening/opening.h"
 #include "sf33rd/Source/Game/sound/se.h"
 
 // forward decls

@@ -1,15 +1,21 @@
-#include "sf33rd/Source/Game/op_sub.h"
+/**
+ * @file op_sub.c
+ * Opening Subroutines
+ */
+
+#include "sf33rd/Source/Game/opening/op_sub.h"
 #include "common.h"
 #include "sf33rd/Source/Common/PPGFile.h"
 #include "sf33rd/Source/Common/PPGWork.h"
 #include "sf33rd/Source/Game/DC_Ghost.h"
 #include "sf33rd/Source/Game/MTRANS.h"
-#include "sf33rd/Source/Game/OPENING.h"
 #include "sf33rd/Source/Game/RAMCNT.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/color3rd.h"
 #include "sf33rd/Source/Game/texcash.h"
+
+#include "sf33rd/Source/Game/opening/opening.h"
 
 void TexRelease(u32 G_Num) {
     if (G_Num == 601) {
