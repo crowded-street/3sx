@@ -5,7 +5,6 @@
 #include "sf33rd/Source/Game/Com_Data.h"
 #include "sf33rd/Source/Game/EFFB8.h"
 #include "sf33rd/Source/Game/EFFECT.h"
-#include "sf33rd/Source/Game/EX_DATA.h"
 #include "sf33rd/Source/Game/Eff93.h"
 #include "sf33rd/Source/Game/Entry.h"
 #include "sf33rd/Source/Game/Game.h"
@@ -22,7 +21,6 @@
 #include "sf33rd/Source/Game/bg_sub.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/main.h"
-#include "sf33rd/Source/Game/menu.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/workuser.h"
 #include <memory.h>
@@ -30,6 +28,8 @@
 #include "sf33rd/Source/Game/com/com_datu.h"
 #include "sf33rd/Source/Game/io/gd3rd.h"
 #include "sf33rd/Source/Game/io/pulpul.h"
+#include "sf33rd/Source/Game/menu/ex_data.h"
+#include "sf33rd/Source/Game/menu/menu.h"
 
 u8 Candidate_Buff[16];
 

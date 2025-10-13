@@ -1,5 +1,4 @@
 #include "sf33rd/Source/Game/init3rd.h"
-#include "sf33rd/Source/Game/DIR_DATA.h"
 #include "sf33rd/Source/Game/EFFECT.h"
 #include "sf33rd/Source/Game/Entry.h"
 #include "sf33rd/Source/Game/Game.h"
@@ -24,6 +23,7 @@
 #include "sf33rd/Source/Game/demo/demo00.h"
 #include "sf33rd/Source/Game/io/gd3rd.h"
 #include "sf33rd/Source/Game/io/pulpul.h"
+#include "sf33rd/Source/Game/menu/dir_data.h"
 
 #if !defined(TARGET_PS2)
 #include <string.h>

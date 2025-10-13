@@ -1,12 +1,13 @@
 #include "sf33rd/Source/Game/EFFC4.h"
 #include "common.h"
 #include "sf33rd/Source/Game/EFFECT.h"
-#include "sf33rd/Source/Game/EX_DATA.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/texcash.h"
 #include "sf33rd/Source/Game/workuser.h"
+
+#include "sf33rd/Source/Game/menu/ex_data.h"
 
 void Setup_Letter_C4(WORK_Other_CONN* ewk);
 
