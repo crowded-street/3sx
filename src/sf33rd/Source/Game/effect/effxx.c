@@ -228,7 +228,7 @@ const void (*effmovejptbl[229])() = {
     effect_06_move,    effect_07_move,    effect_08_move,    effect_09_move,    effect_10_move,    effect_11_move,
     effect_12_move,    effect_13_move,    effect_14_move,    effect_15_move,    effect_16_move,    effect_17_move,
     effect_18_move,    effect_19_move,    effect_20_move,    effect_21_move,    effect_22_move,    effect_23_move,
-    effect_24_move,    effect_25_move,    effect_26_move,    effect_27_move,    effect_28_move,    effect_29_move,
+    effect_24_move,    effect_25_move,    effect_26_move,    effect_27_move,    effect_dummy_move, effect_29_move,
     effect_30_move,    effect_31_move,    effect_32_move,    effect_33_move,    effect_34_move,    effect_35_move,
     effect_36_move,    effect_37_move,    effect_38_move,    effect_39_move,    effect_40_move,    effect_41_move,
     effect_42_move,    effect_43_move,    effect_44_move,    effect_45_move,    effect_46_move,    effect_47_move,
