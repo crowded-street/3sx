@@ -13,7 +13,7 @@
 #include "sf33rd/Source/Game/PLS02.h"
 #include "sf33rd/Source/Game/PLS03.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
-#include "sf33rd/Source/Game/bg.h"
+#include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/cmd_data.h"
 #include "sf33rd/Source/Game/vs_shell.h"
 #include "sf33rd/Source/Game/workuser.h"

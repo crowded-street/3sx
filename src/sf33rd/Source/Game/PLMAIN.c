@@ -15,7 +15,7 @@
 #include "sf33rd/Source/Game/PLS01.h"
 #include "sf33rd/Source/Game/PLS02.h"
 #include "sf33rd/Source/Game/SysDir.h"
-#include "sf33rd/Source/Game/bg_sub.h"
+#include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/meta_col.h"
 #include "sf33rd/Source/Game/spgauge.h"
 #include "sf33rd/Source/Game/workuser.h"

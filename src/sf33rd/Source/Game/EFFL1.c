@@ -5,7 +5,7 @@
 #include "sf33rd/Source/Game/EffM3.h"
 #include "sf33rd/Source/Game/Grade.h"
 #include "sf33rd/Source/Game/aboutspr.h"
-#include "sf33rd/Source/Game/bg.h"
+#include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/workuser.h"
 
 void effL1_trans(WORK* ewk);

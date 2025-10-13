@@ -8,7 +8,7 @@
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
-#include "sf33rd/Source/Game/bg.h"
+#include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/debug/Deb_Data.h"
 #include "sf33rd/Source/Game/debug/Debug_ID.h"
 #include "sf33rd/Source/Game/debug/Nakai.h"

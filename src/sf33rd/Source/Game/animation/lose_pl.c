@@ -10,7 +10,7 @@
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/PLS02.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
-#include "sf33rd/Source/Game/bg_data.h"
+#include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/workuser.h"
 
 s16 lose_rno[3];

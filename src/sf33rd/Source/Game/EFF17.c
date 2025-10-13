@@ -3,7 +3,7 @@
 #include "common.h"
 #include "sf33rd/Source/Game/EFFECT.h"
 #include "sf33rd/Source/Game/aboutspr.h"
-#include "sf33rd/Source/Game/bg.h"
+#include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/workuser.h"
 
 void effect_17_move(WORK_Other* ewk) {

@@ -8,7 +8,7 @@
 #include "sf33rd/Source/Game/PLPATUNI.h"
 #include "sf33rd/Source/Game/PLS01.h"
 #include "sf33rd/Source/Game/PLS02.h"
-#include "sf33rd/Source/Game/bg_sub.h"
+#include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/effl8.h"
 #include "sf33rd/Source/Game/workuser.h"
 

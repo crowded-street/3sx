@@ -5,7 +5,7 @@
 #include "sf33rd/Source/Game/Next_CPU.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/aboutspr.h"
-#include "sf33rd/Source/Game/bg.h"
+#include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/workuser.h"
 
 s16 effa6_pos_x_1p;

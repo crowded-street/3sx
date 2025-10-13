@@ -5,7 +5,7 @@
 #include "sf33rd/Source/Game/Se_Data.h"
 #include "sf33rd/Source/Game/Sound3rd.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
-#include "sf33rd/Source/Game/bg_sub.h"
+#include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/workuser.h"
 #include "structs.h"

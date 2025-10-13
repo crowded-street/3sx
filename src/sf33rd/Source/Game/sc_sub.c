@@ -12,7 +12,7 @@
 #include "sf33rd/Source/Game/RAMCNT.h"
 #include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
-#include "sf33rd/Source/Game/bg_data.h"
+#include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/sc_data.h"
 #include "sf33rd/Source/Game/workuser.h"
 #include "sf33rd/Source/PS2/ps2Quad.h"

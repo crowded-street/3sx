@@ -3,7 +3,7 @@
 #include "sf33rd/Source/Game/EFF56.h"
 #include "sf33rd/Source/Game/EFFECT.h"
 #include "sf33rd/Source/Game/PLS02.h"
-#include "sf33rd/Source/Game/bg.h"
+#include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/workuser.h"
 
 const u8 Time_Data[5] = { 80, 90, 50, 50, 50 };

@@ -1,4 +1,4 @@
-#include "sf33rd/Source/Game/bg_data.h"
+#include "sf33rd/Source/Game/stage/bg_data.h"
 #include "common.h"
 #include "structs.h"
 

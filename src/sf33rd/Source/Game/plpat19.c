@@ -10,7 +10,7 @@
 #include "sf33rd/Source/Game/PLPATUNI.h"
 #include "sf33rd/Source/Game/PLS01.h"
 #include "sf33rd/Source/Game/PLS02.h"
-#include "sf33rd/Source/Game/bg.h"
+#include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/cmd_data.h"
 #include "sf33rd/Source/Game/workuser.h"
 

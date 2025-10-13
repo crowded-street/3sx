@@ -7,7 +7,7 @@
 #include "sf33rd/Source/Game/Grade.h"
 #include "sf33rd/Source/Game/SLOWF.h"
 #include "sf33rd/Source/Game/aboutspr.h"
-#include "sf33rd/Source/Game/bg.h"
+#include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/color3rd.h"
 #include "sf33rd/Source/Game/workuser.h"
 
