@@ -1,7 +1,5 @@
 #include "common.h"
 #include "sf33rd/Source/Game/CHARSET.h"
-#include "sf33rd/Source/Game/EFFG6.h"
-#include "sf33rd/Source/Game/EFFI3.h"
 #include "sf33rd/Source/Game/Grade.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/PLPDM.h"
@@ -9,6 +7,8 @@
 #include "sf33rd/Source/Game/PLS01.h"
 #include "sf33rd/Source/Game/PLS02.h"
 #include "sf33rd/Source/Game/PulPul.h"
+#include "sf33rd/Source/Game/effect/effg6.h"
+#include "sf33rd/Source/Game/effect/effi3.h"
 #include "sf33rd/Source/Game/workuser.h"
 
 #include "sf33rd/Source/Game/animation/appear.h"

@@ -1,8 +1,5 @@
 #include "sf33rd/Source/Game/RANKING.h"
 #include "common.h"
-#include "sf33rd/Source/Game/EFF58.h"
-#include "sf33rd/Source/Game/EFF67.h"
-#include "sf33rd/Source/Game/Eff76.h"
 #include "sf33rd/Source/Game/GD3rd.h"
 #include "sf33rd/Source/Game/Game.h"
 #include "sf33rd/Source/Game/MMTMCNT.h"
@@ -15,6 +12,9 @@
 #include "sf33rd/Source/Game/bg_data.h"
 #include "sf33rd/Source/Game/bg_sub.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
+#include "sf33rd/Source/Game/effect/eff58.h"
+#include "sf33rd/Source/Game/effect/eff67.h"
+#include "sf33rd/Source/Game/effect/eff76.h"
 #include "sf33rd/Source/Game/texcash.h"
 #include "sf33rd/Source/Game/workuser.h"
 

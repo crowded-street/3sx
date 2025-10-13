@@ -1,8 +1,8 @@
 #include "sf33rd/Source/Game/BBBSCOM2.h"
 #include "common.h"
-#include "sf33rd/Source/Game/EFF16.h"
-#include "sf33rd/Source/Game/EFFC2.h"
 #include "sf33rd/Source/Game/PLCNT.h"
+#include "sf33rd/Source/Game/effect/eff16.h"
+#include "sf33rd/Source/Game/effect/effc2.h"
 #include "sf33rd/Source/Game/texcash.h"
 #include "sf33rd/Source/Game/workuser.h"
 

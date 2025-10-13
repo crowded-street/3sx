@@ -1,14 +1,14 @@
 #include "sf33rd/Source/Game/bg010.h"
 #include "common.h"
-#include "sf33rd/Source/Game/EFF07.h"
-#include "sf33rd/Source/Game/EFF11.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/bg_data.h"
 #include "sf33rd/Source/Game/bg_sub.h"
-#include "sf33rd/Source/Game/eff05.h"
-#include "sf33rd/Source/Game/eff06.h"
+#include "sf33rd/Source/Game/effect/eff05.h"
+#include "sf33rd/Source/Game/effect/eff06.h"
+#include "sf33rd/Source/Game/effect/eff07.h"
+#include "sf33rd/Source/Game/effect/eff11.h"
 #include "sf33rd/Source/Game/ta_sub.h"
 
 void BG010() {

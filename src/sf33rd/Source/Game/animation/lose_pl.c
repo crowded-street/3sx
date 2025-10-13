@@ -6,11 +6,11 @@
 #include "sf33rd/Source/Game/animation/lose_pl.h"
 #include "common.h"
 #include "sf33rd/Source/Game/CHARSET.h"
-#include "sf33rd/Source/Game/EFFC1.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/PLS02.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/bg_data.h"
+#include "sf33rd/Source/Game/effect/effc1.h"
 #include "sf33rd/Source/Game/workuser.h"
 
 s16 lose_rno[3];

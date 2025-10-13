@@ -2,9 +2,6 @@
 #include "common.h"
 #include "sf33rd/Source/Game/CALDIR.h"
 #include "sf33rd/Source/Game/CHARSET.h"
-#include "sf33rd/Source/Game/EFFI3.h"
-#include "sf33rd/Source/Game/EFFK7.h"
-#include "sf33rd/Source/Game/EFFL0.h"
 #include "sf33rd/Source/Game/Grade.h"
 #include "sf33rd/Source/Game/PLPAT.h"
 #include "sf33rd/Source/Game/PLPATUNI.h"
@@ -12,6 +9,9 @@
 #include "sf33rd/Source/Game/PLS02.h"
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/cmd_data.h"
+#include "sf33rd/Source/Game/effect/effi3.h"
+#include "sf33rd/Source/Game/effect/effk7.h"
+#include "sf33rd/Source/Game/effect/effl0.h"
 #include "sf33rd/Source/Game/workuser.h"
 
 s32 kabe_check3(PLW* wk);

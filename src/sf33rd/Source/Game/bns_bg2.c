@@ -5,9 +5,9 @@
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/bg_data.h"
 #include "sf33rd/Source/Game/bg_sub.h"
-#include "sf33rd/Source/Game/eff05.h"
-#include "sf33rd/Source/Game/eff12.h"
-#include "sf33rd/Source/Game/eff35.h"
+#include "sf33rd/Source/Game/effect/eff05.h"
+#include "sf33rd/Source/Game/effect/eff12.h"
+#include "sf33rd/Source/Game/effect/eff35.h"
 #include "sf33rd/Source/Game/workuser.h"
 
 void Bonus_bg2() {

@@ -1,8 +1,6 @@
 #include "sf33rd/Source/Game/CHARSET.h"
 #include "common.h"
 #include "sf33rd/Source/Game/CMD_MAIN.h"
-#include "sf33rd/Source/Game/EFFECT.h"
-#include "sf33rd/Source/Game/EFFXX.h"
 #include "sf33rd/Source/Game/Grade.h"
 #include "sf33rd/Source/Game/HITCHECK.h"
 #include "sf33rd/Source/Game/PLCNT.h"
@@ -12,6 +10,8 @@
 #include "sf33rd/Source/Game/Se_Data.h"
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/cmd_data.h"
+#include "sf33rd/Source/Game/effect/effect.h"
+#include "sf33rd/Source/Game/effect/effxx.h"
 #include "sf33rd/Source/Game/workuser.h"
 
 #define LO_2_BYTES(_val) (((s16*)&_val)[0])

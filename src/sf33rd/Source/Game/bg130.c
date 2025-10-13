@@ -5,7 +5,7 @@
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/bg_data.h"
 #include "sf33rd/Source/Game/bg_sub.h"
-#include "sf33rd/Source/Game/eff05.h"
+#include "sf33rd/Source/Game/effect/eff05.h"
 #include "sf33rd/Source/Game/ta_sub.h"
 
 void BG130() {

@@ -3,7 +3,6 @@
 #include "sf33rd/Source/Game/BBBSCOM.h"
 #include "sf33rd/Source/Game/BBBSCOM2.h"
 #include "sf33rd/Source/Game/CMD_MAIN.h"
-#include "sf33rd/Source/Game/EFFECT.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/PLMAIN.h"
 #include "sf33rd/Source/Game/PLPNM.h"
@@ -11,6 +10,7 @@
 #include "sf33rd/Source/Game/PLS01.h"
 #include "sf33rd/Source/Game/PLS02.h"
 #include "sf33rd/Source/Game/bg_sub.h"
+#include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/meta_col.h"
 #include "sf33rd/Source/Game/workuser.h"
 

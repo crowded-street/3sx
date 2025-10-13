@@ -2,14 +2,14 @@
 #include "common.h"
 #include "sf33rd/Source/Game/CALDIR.h"
 #include "sf33rd/Source/Game/CHARSET.h"
-#include "sf33rd/Source/Game/EFFI3.h"
 #include "sf33rd/Source/Game/Grade.h"
 #include "sf33rd/Source/Game/PLPAT.h"
 #include "sf33rd/Source/Game/PLPATUNI.h"
 #include "sf33rd/Source/Game/PLS01.h"
 #include "sf33rd/Source/Game/PLS02.h"
 #include "sf33rd/Source/Game/bg_sub.h"
-#include "sf33rd/Source/Game/effl8.h"
+#include "sf33rd/Source/Game/effect/effi3.h"
+#include "sf33rd/Source/Game/effect/effl8.h"
 #include "sf33rd/Source/Game/workuser.h"
 
 void set_kabe_move_spd(WORK* wk, s16 tm);
