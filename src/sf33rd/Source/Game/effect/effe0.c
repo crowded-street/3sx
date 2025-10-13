@@ -13,10 +13,6 @@
 void Setup_Char_E0(WORK_Other* ewk);
 
 void effect_E0_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         if (Ck_Range_Out_S(ewk, ewk->wu.my_family - 1, 64)) {
@@ -120,11 +116,6 @@ void Setup_Char_E0(WORK_Other* ewk) {
 }
 
 s32 effect_E0_init(s16 Direction, s16 dm_vital, s16 Pos_Type) {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-    void set_char_move_init2(WORK * wk, s32 koc, s32 index, s32 ip, s32 scf);
-#endif
-
     WORK_Other* ewk;
     s16 ix;
 

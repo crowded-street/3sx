@@ -216,12 +216,6 @@ void effect_C2_move(WORK_Other* ewk) {
 }
 
 void effC2_main_process_first(WORK_Other* ewk, PLW* twk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void player_hosei_data(WORK_Other * ewk, s32 flag, s16 f2);
-    void effc2_parts_work_chain_check(s32 flag);
-#endif
-
     if (EXE_flag == 0 && Game_pause == 0) {
         switch (ewk->wu.direction + (twk->bs2_on_car * 2)) {
         case 0:
@@ -446,10 +440,6 @@ jump:
 }
 
 void effC2_main_process_second(WORK_Other* ewk, PLW* twk) {
-#if defined(TARGET_PS2)
-    void player_hosei_data(WORK_Other * ewk, s32 flag, s16 f2);
-#endif
-
     if (EXE_flag == 0 && Game_pause == 0) {
         switch (ewk->wu.routine_no[1]) {
         case 0:
@@ -588,10 +578,6 @@ void effC2_main_process_second(WORK_Other* ewk, PLW* twk) {
 }
 
 void c2_last_char_and_mvxy(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
-
     s16 ix = c2_last_dir_select((PLW*)ewk->wu.target_adrs, &ewk->wu);
 
     set_char_move_init(&ewk->wu, 0, ewk->wu.dm_attlv + 92 + ix);
@@ -603,11 +589,6 @@ void c2_last_char_and_mvxy(WORK_Other* ewk) {
 }
 
 s16 c2_last_dir_select(PLW* wk, WORK* efw) {
-#if defined(TARGET_PS2)
-    s16 get_sel_hosei_tbl_ix(s32 plnum);
-    s16 check_work_position_bonus(WORK * hm, s32 tx);
-#endif
-
     s16 ix = get_sel_hosei_tbl_ix(wk->player_number) + 1;
     s16* dad = efw->hosei_adrs[ix].hos_box;
 
@@ -681,10 +662,6 @@ void copy_rno(WORK* wk) {
 }
 
 void player_hosei_data(WORK_Other* ewk, s16 flag, s16 f2) {
-#if defined(TARGET_PS2)
-    s16 get_sel_hosei_tbl_ix(s32 plnum);
-#endif
-
     if (f2) {
         if (ewk->wu.type) {
             ewk->wu.cg_ja.hoix = get_sel_hosei_tbl_ix(ewk->master_player) + 1 + ((flag == 1) * 2);
@@ -899,10 +876,6 @@ void set_1st_Bonus_Game_result(WORK* wk) {
 }
 
 void set_bs2_floor(WORK_Other* wk) {
-#if defined(TARGET_PS2)
-    void player_hosei_data(WORK_Other * ewk, s32 flag, s16 f2);
-#endif
-
     PLW* em = (PLW*)((WORK*)wk->my_master)->target_adrs;
     s16* dad;
 

@@ -45,10 +45,6 @@ const s16* scr_obj_data44[10] = { eff44_data_tbl0, eff44_data_tbl1, eff44_data_t
                                   eff44_data_tbl5, eff44_data_tbl6, eff44_data_tbl7, eff44_data_tbl8, eff44_data_tbl9 };
 
 void effect_44_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
-
     if (obr_no_disp_check()) {
         return;
     }
@@ -82,10 +78,6 @@ void effect_44_move(WORK_Other* ewk) {
 }
 
 s32 effect_44_init(s16 type) {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
-
     WORK_Other* ewk;
     s16 ix;
     s16 lp_cnt = scr_obj_num44[type];

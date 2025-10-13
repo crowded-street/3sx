@@ -14,10 +14,6 @@
 #include "sf33rd/Source/Game/workuser.h"
 
 void effect_C1_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
-
     WORK* oya_ptr = (WORK*)ewk->my_master;
     s16 work;
 

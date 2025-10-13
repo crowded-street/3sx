@@ -41,10 +41,6 @@ void effect_M8_move(WORK_Other* ewk) {
 }
 
 void effm8_move_app(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
-
     switch (ewk->wu.routine_no[1]) {
     case 0:
         ewk->wu.routine_no[1]++;
@@ -90,10 +86,6 @@ void don_run_sub_m8(WORK_Other* ewk) {
 }
 
 void effm8_move_win(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
-
     switch (ewk->wu.routine_no[1]) {
     case 0:
         ewk->wu.old_rno[0]--;
@@ -113,10 +105,6 @@ void effm8_move_win(WORK_Other* ewk) {
 }
 
 s32 effect_M8_init(WORK* oya, u8 data) {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
-
     WORK_Other* ewk;
     s16 ix;
     s16 i;

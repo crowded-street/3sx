@@ -12,11 +12,6 @@
 void Setup_Eff70(WORK_Other* ewk);
 
 void effect_70_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void set_char_move_init2(WORK * wk, s32 koc, s32 index, s32 ip, s32 scf);
-#endif
-
     if (Suicide[0] == 1) {
         ewk->wu.routine_no[0] = 99;
         ewk->wu.disp_flag = 0;
@@ -121,10 +116,6 @@ s32 effect_70_init(s16 id) {
 }
 
 void Setup_Eff70(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
-
     ewk->wu.be_flag = 1;
     ewk->wu.id = 70;
     ewk->wu.work_id = 16;

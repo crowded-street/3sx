@@ -17,10 +17,6 @@ void effH9_trans(WORK* ewk);
 void nokori_ball_effH9(WORK_Other_CONN* ewk, s16 num);
 
 void effect_H9_move(WORK_Other_CONN* ewk) {
-#if defined(TARGET_PS2)
-    void nokori_ball_effH9(WORK_Other_CONN * ewk, s32 num);
-#endif
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         switch (ewk->wu.routine_no[1]) {

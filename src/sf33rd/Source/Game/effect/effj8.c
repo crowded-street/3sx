@@ -13,10 +13,6 @@
 #include "sf33rd/Source/Game/workuser.h"
 
 void effect_J8_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
-
     if (obr_no_disp_check()) {
         return;
     }
@@ -90,10 +86,6 @@ s16 dragonfly_l_move_2(WORK_Other* ewk) {
 }
 
 s16 dragonfly_l_move_3(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
-
     add_x_sub(ewk);
     add_y_sub(ewk);
 
@@ -113,10 +105,6 @@ s16 dragonfly_l_move_3(WORK_Other* ewk) {
 }
 
 s16 dragonfly_l_move_4(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
-
     char_move(&ewk->wu);
     ewk->wu.dir_timer--;
 
@@ -204,10 +192,6 @@ s16 dragonfly_r_move_2(WORK_Other* ewk) {
 }
 
 s16 dragonfly_r_move_3(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
-
     add_x_sub(ewk);
     add_y_sub(ewk);
 
@@ -227,10 +211,6 @@ s16 dragonfly_r_move_3(WORK_Other* ewk) {
 }
 
 s16 dragonfly_r_move_4(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
-
     char_move(&ewk->wu);
     ewk->wu.dir_timer--;
 
@@ -523,10 +503,6 @@ void dragonfly_move_next(WORK_Other* ewk) {
 }
 
 s32 effect_J8_init() {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
-
     WORK_Other* ewk;
     s16 ix;
     s16 i;

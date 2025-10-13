@@ -20,10 +20,6 @@ const s16 flash_0002[10] = { 0, 2, 300, 431, 64, 83, 2, 0, 0, 2 };
 const s16* flash_obj_data61[3] = { flash_0000, flash_0001, flash_0002 };
 
 void effect_60_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0]++;
@@ -71,10 +67,6 @@ void effect_60_move(WORK_Other* ewk) {
 }
 
 s32 effect_60_init(s16 type) {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
-
     WORK_Other* ewk;
     s16 ix;
     const s16* data_ptr;

@@ -12,10 +12,6 @@
 void current_name_move(WORK_Other* ewk, NAME_WK* np);
 
 void effect_B5_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init2(WORK * wk, s32 koc, s32 index, s32 ip, s32 scf);
-#endif
-
     NAME_WK* np = (NAME_WK*)ewk->my_master;
 
     switch (ewk->wu.routine_no[0]) {
@@ -100,10 +96,6 @@ void effect_B5_move(WORK_Other* ewk) {
 }
 
 void current_name_move(WORK_Other* ewk, NAME_WK* np) {
-#if defined(TARGET_PS2)
-    void set_char_move_init2(WORK * wk, s32 koc, s32 index, s32 ip, s32 scf);
-#endif
-
     if (np->index != ewk->wu.old_rno[2]) {
         return;
     }

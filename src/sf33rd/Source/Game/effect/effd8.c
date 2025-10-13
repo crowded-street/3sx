@@ -22,11 +22,6 @@ const u8 D8_Priority_Data[4] = { 55, 55, 52, 53 };
 // Funcs
 
 void effect_D8_move(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void set_char_move_init2(WORK * wk, s16 koc, s32 index, s32 ip, s16 scf);
-#endif
-
     s16 offset_x;
 
     ewk->wu.hit_quake += 1;
@@ -122,10 +117,6 @@ void effect_D8_move(WORK_Other* ewk) {
 }
 
 s32 effect_D8_init(s16 PL_id, s16 Type) {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
-
     WORK_Other* ewk;
     s16 ix;
     s16 offset_x;

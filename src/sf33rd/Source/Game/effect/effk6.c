@@ -43,10 +43,6 @@ void EFFK6_WAIT(WORK_Other* ewk) {
 }
 
 void EFFK6_SLIDE_IN(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init2(WORK * wk, s16 koc, s32 index, s32 ip, s16 scf);
-#endif
-
     s16 xx;
 
     if ((Order[ewk->wu.dir_old]) == 5) {
@@ -172,10 +168,6 @@ void EFFK6_SLIDE_OUT(WORK_Other* ewk) {
 }
 
 void EFFK6_SUDDENLY(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init2(WORK * wk, s16 koc, s32 index, s32 ip, s16 scf);
-#endif
-
     s16 xx;
 
     switch (ewk->wu.routine_no[1]) {
@@ -223,10 +215,6 @@ void EFFK6_KILL(WORK_Other* ewk) {
 }
 
 void EFFK6_MOVE(WORK_Other* ewk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init2(WORK * wk, s16 koc, s32 index, s32 ip, s16 scf);
-#endif
-
     if (Order[ewk->wu.dir_old] != 4) {
         ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
         ewk->wu.routine_no[1] = 0;
@@ -269,11 +257,6 @@ void EFFK6_MOVE(WORK_Other* ewk) {
 }
 
 s32 effect_K6_init(s16 PL_id, s16 dir_old, s16 dm_vital, s16 Target_BG) {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-    void set_char_move_init2(WORK * wk, s16 koc, s32 index, s32 ip, s16 scf);
-#endif
-
     WORK_Other* ewk;
     s16 ix;
 
