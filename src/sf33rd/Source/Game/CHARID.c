@@ -73,6 +73,18 @@ const CharInitData char_init_data_ex[2] = { { _ef13_char_table,
 void set_char_base_data(WORK* wk) {
     CharInitData* cdat = &char_init_data[wk->charset_id];
     const CharInitData2* cdat2 = &char_init_data2[wk->charset_id];
+    s32 i;
+
+    // Restore CharInitData to Arcade
+    switch (wk->charset_id) {
+    case 14: // Akuma/Gouki
+        // Remove throwable box from 6MP
+        for (i = 0x5A; i <= 0x5D; i++) {
+            cdat->hiit[i].cuix = 0;
+        }
+
+        break;
+    }
 
     wk->char_table[0] = cdat->nmca;
     wk->char_table[1] = cdat->dmca;
