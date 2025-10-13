@@ -5,10 +5,10 @@
 #include "sf33rd/Source/Game/EFF60.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
+#include "sf33rd/Source/Game/eff05.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
-#include "sf33rd/Source/Game/eff05.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 
 void BG060() {
@@ -46,10 +46,6 @@ void bg0602() {
 }
 
 void bg0602_init00() {
-#if defined(TARGET_PS2)
-    s32 effect_24_init();
-#endif
-
     bgw_ptr->r_no_1 = 0;
     bgw_ptr->r_no_0++;
     bgw_ptr->zuubun = 0;
