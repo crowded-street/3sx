@@ -1,3 +1,8 @@
+/**
+ * @file bg_060.c
+ * Home Sweet Home, Germany
+ */
+
 #include "sf33rd/Source/Game/stage/bg060.h"
 #include "common.h"
 #include "sf33rd/Source/Game/EFF24.h"

@@ -1,3 +1,8 @@
+/**
+ * @file bg_180.c
+ * Mosque, Russia
+ */
+
 #include "sf33rd/Source/Game/stage/bg180.h"
 #include "common.h"
 #include "sf33rd/Source/Game/EFF22.h"

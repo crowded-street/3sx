@@ -1,3 +1,8 @@
+/**
+ * @file bg_150.c
+ * Chinese Restaurant, China
+ */
+
 #include "sf33rd/Source/Game/stage/bg150.h"
 #include "common.h"
 #include "sf33rd/Source/Game/EFF25.h"
@@ -6,13 +11,13 @@
 #include "sf33rd/Source/Game/EFFI4.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
-#include "sf33rd/Source/Game/stage/bg.h"
-#include "sf33rd/Source/Game/stage/bg_data.h"
-#include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/eff05.h"
 #include "sf33rd/Source/Game/eff06.h"
 #include "sf33rd/Source/Game/eff12.h"
 #include "sf33rd/Source/Game/eff94.h"
+#include "sf33rd/Source/Game/stage/bg.h"
+#include "sf33rd/Source/Game/stage/bg_data.h"
+#include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 
 void BG150() {

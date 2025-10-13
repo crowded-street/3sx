@@ -1,3 +1,8 @@
+/**
+ * @file bg.c
+ * Background/Stage logic
+ */
+
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"

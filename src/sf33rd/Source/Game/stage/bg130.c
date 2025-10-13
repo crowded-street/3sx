@@ -1,11 +1,16 @@
+/**
+ * @file bg_130.c
+ * Ormeca Ruins, Mexico
+ */
+
 #include "sf33rd/Source/Game/stage/bg130.h"
 #include "common.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
+#include "sf33rd/Source/Game/eff05.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
-#include "sf33rd/Source/Game/eff05.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 
 void BG130() {

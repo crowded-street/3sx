@@ -1,14 +1,19 @@
+/**
+ * @file bg_120.c
+ * Santos Harbor, Brazil
+ */
+
 #include "sf33rd/Source/Game/stage/bg120.h"
 #include "common.h"
 #include "sf33rd/Source/Game/EFF55.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
-#include "sf33rd/Source/Game/stage/bg.h"
-#include "sf33rd/Source/Game/stage/bg_data.h"
-#include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/eff05.h"
 #include "sf33rd/Source/Game/eff06.h"
 #include "sf33rd/Source/Game/eff12.h"
+#include "sf33rd/Source/Game/stage/bg.h"
+#include "sf33rd/Source/Game/stage/bg_data.h"
+#include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 
 void BG120() {

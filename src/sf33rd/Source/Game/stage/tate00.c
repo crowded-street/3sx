@@ -1,3 +1,8 @@
+/**
+ * @file tate00.c
+ * Main Background and Stage Animation Controller
+ */
+
 #include "sf33rd/Source/Game/stage/tate00.h"
 #include "common.h"
 #include "sf33rd/Source/Game/stage/bg.h"

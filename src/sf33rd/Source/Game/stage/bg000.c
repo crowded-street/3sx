@@ -1,3 +1,8 @@
+/**
+ * @file bg_000.c
+ * Gill Stage, Unknown
+ */
+
 #include "sf33rd/Source/Game/stage/bg000.h"
 #include "common.h"
 #include "sf33rd/Source/Game/EFF44.h"
@@ -5,10 +10,10 @@
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/aboutspr.h"
+#include "sf33rd/Source/Game/eff06.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
-#include "sf33rd/Source/Game/eff06.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 #include "sf33rd/Source/Game/texcash.h"
 

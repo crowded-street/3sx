@@ -1,3 +1,8 @@
+/**
+ * @file ta_sub.c
+ * subroutines for the background (TATE) system
+ */
+
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 #include "common.h"
 #include "sf33rd/Source/Game/HITCHECK.h"

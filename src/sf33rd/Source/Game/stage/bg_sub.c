@@ -1,3 +1,8 @@
+/**
+ * @file bg_sub.c
+ * Stage Subroutines
+ */
+
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "common.h"
 #include "sf33rd/Source/Game/PLCNT.h"
