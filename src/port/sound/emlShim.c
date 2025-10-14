@@ -365,26 +365,84 @@ static void UpdateVolPanPitch(struct VWork* voice) {
     SPU_VoiceSetConf(voice->voice_num, &conf);
 }
 
-static int doSeDrop(CSE_REQP* reqp) {
+static int getCategoryVoiceNum(CSE_REQP* reqp) {
     u32 cond = makeConditions(reqp);
     struct VWork* i;
-    int ret = 1;
-
-    if (reqp->limit || (reqp->flags & 1) == 0) {
-        printf("Unimplemented voice count limit mode. limit=%d, flags=0x%x\n", reqp->limit, reqp->flags);
-        return ret;
-    }
+    int count = 0;
 
     list_for_each (i, &active_voices, list) {
         if (checkConditions(&i->id, reqp, cond)) {
-            if (reqp->prio < i->id.prio) {
-                ret = 0;
+            count++;
+        }
+    }
+
+    return count;
+}
+
+static struct VWork* getLowestPrioWk(CSE_REQP* reqp) {
+    u32 cond = makeConditions(reqp);
+    struct VWork* lowest = NULL;
+    struct VWork* i;
+
+    list_for_each (i, &active_voices, list) {
+        if (checkConditions(&i->id, reqp, cond)) {
+            if (!lowest) {
+                lowest = i;
                 continue;
             }
 
-            SPU_VoiceKeyOff(i->voice_num);
+            if (i->id.prio < lowest->id.prio) {
+                lowest = i;
+                continue;
+            }
+
+            if (i->id.prio == lowest->id.prio && lowest->tick < i->tick) {
+                lowest = i;
+                continue;
+            }
         }
     }
+
+    return lowest;
+}
+
+static int doSeDrop(CSE_REQP* reqp) {
+    int count = getCategoryVoiceNum(reqp);
+    u32 cond = makeConditions(reqp);
+    struct VWork* v;
+    int ret = 1;
+
+    if (reqp->limit) {
+        if (count >= reqp->limit) {
+            for (int i = 0; i < count + 1 - reqp->limit; i++) {
+                v = getLowestPrioWk(reqp);
+                if (v) {
+                    if ((reqp->flags & 1) && reqp->prio < v->id.prio) {
+                        ret = 0;
+                        break;
+                    }
+
+                    SPU_VoiceStop(v->voice_num);
+                    ret = 1;
+                }
+            }
+        }
+    } else if (reqp->flags & 1) {
+        list_for_each (v, &active_voices, list) {
+            if (checkConditions(&v->id, reqp, cond)) {
+                if (reqp->prio < v->id.prio) {
+                    ret = 0;
+                    continue;
+                }
+
+                SPU_VoiceKeyOff(v->voice_num);
+            }
+        }
+    } else {
+        ret = 1;
+    }
+
+    gcVoices();
 
     return ret;
 }
