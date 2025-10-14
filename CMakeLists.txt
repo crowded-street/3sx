@@ -48,15 +48,40 @@ target_compile_definitions(3sx PRIVATE
     MEMCARD_DISABLED
 )
 
+if(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_COMPILER_ID STREQUAL "AppleClang")
+    set(DISABLED_WARNINGS
+        -Wpointer-to-int-cast
+        -Wno-deprecated-non-prototype
+        -Wno-tautological-overlap-compare
+        -Wno-c2x-extensions
+        -Wno-incompatible-pointer-types
+        -Wno-pointer-sign
+    )
+elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    set(DISABLED_WARNINGS
+        -Wno-unused-but-set-variable
+        -Wno-pointer-sign
+        -Wno-parentheses
+        -Wno-incompatible-pointer-types
+        -Wno-discarded-qualifiers
+        -Wno-format-overflow
+        -Wno-comment
+        -Wno-maybe-uninitialized
+        -Wno-array-bounds
+        -Wno-aggressive-loop-optimizations
+        -Wno-stringop-overflow
+        -Wno-restrict
+        -Wno-stringop-truncation
+    )
+endif()
+
 target_compile_options(3sx PRIVATE
     -Wall
     -Werror
-    -Wpointer-to-int-cast
-    -Wno-deprecated-non-prototype
-    -Wno-tautological-overlap-compare
-    -Wno-c2x-extensions
-    -Wno-incompatible-pointer-types
-    -Wno-pointer-sign
+
+    -fno-strict-aliasing
+
+    ${DISABLED_WARNINGS}
 )
 
 target_link_libraries(3sx PRIVATE
