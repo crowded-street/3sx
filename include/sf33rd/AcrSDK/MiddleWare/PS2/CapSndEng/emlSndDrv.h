@@ -53,9 +53,6 @@ s32 mlSeStop(CSE_REQP* pReqp);
 s32 mlSeKeyoff(CSE_REQP* pReqp);
 s32 mlSeStopAll();
 s32 mlSeInitSndDrv();
-static s32 StartSound(CSE_PHDP* pPHDP, CSE_REQP* pREQP);
 s32 PlaySe(CSE_REQP* pReqp, u16 bank, u16 prog);
-static s32 CheckReqFlags(CSE_REQP* pReqp);
-static s32 SendSeChange(CSE_REQP* pReqp, s32 cmd);
 
 #endif

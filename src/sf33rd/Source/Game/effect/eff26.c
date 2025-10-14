@@ -24,7 +24,13 @@ const s16 eff26_num[1] = { 1 };
 const s16 eff26_data_0000[1] = { 0 };
 
 void effect_26_move(WORK_Other* ewk) {
+<<<<<<< HEAD:src/sf33rd/Source/Game/effect/eff26.c
     WORK_Other* oya;
+=======
+#if defined(TARGET_PS2)
+    void set_char_move_init(WORK * wk, s16 koc, s32 index);
+#endif
+>>>>>>> upstream/main:src/sf33rd/Source/Game/EFF26.c
 
     if (obr_no_disp_check()) {
         return;
@@ -35,8 +41,6 @@ void effect_26_move(WORK_Other* ewk) {
         ewk->wu.disp_flag = 0;
         return;
     }
-
-    oya = (WORK_Other*)ewk->my_master;
 
     switch (ewk->wu.routine_no[0]) {
     case 0:

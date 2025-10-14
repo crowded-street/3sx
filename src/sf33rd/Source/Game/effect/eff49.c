@@ -7,13 +7,19 @@
 #include "bin2obj/char_table.h"
 #include "common.h"
 #include "sf33rd/Source/Game/CHARSET.h"
+<<<<<<< HEAD:src/sf33rd/Source/Game/effect/eff49.c
 #include "sf33rd/Source/Game/Sound3rd.h"
+=======
+#include "sf33rd/Source/Game/EFFECT.h"
+>>>>>>> upstream/main:src/sf33rd/Source/Game/EFF49.c
 #include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/bg_sub.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/texcash.h"
 #include "sf33rd/Source/Game/workuser.h"
+
+#include "sf33rd/Source/Game/sound/sound3rd.h"
 
 u8 Setup_Char_49(WORK_Other* ewk);
 

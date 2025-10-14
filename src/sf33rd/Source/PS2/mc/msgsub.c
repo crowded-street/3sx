@@ -80,15 +80,11 @@ s32 FormStrDisp(s32 x, s32 y, const s8* str, s32 len) {
 
 static const s8* str_tag_get(const s8* src, s8* dst) {
     u8 c;
-    const s8* src0;
-    s8* dst0;
 
     if (*src != '<') {
         return NULL;
     }
 
-    src0 = src;
-    dst0 = dst;
     src++;
 
     while (1) {

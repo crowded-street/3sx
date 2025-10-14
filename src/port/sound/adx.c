@@ -1,4 +1,4 @@
-#include "port/sdl/sdl_adx_sound.h"
+#include "port/sound/adx.h"
 #include "common.h"
 #include "port/io/afs.h"
 #include "sf33rd/Source/Game/io/gd3rd.h"
@@ -344,7 +344,7 @@ static ADXTrack* alloc_track() {
     return &tracks[index];
 }
 
-void SDLADXSound_ProcessTracks() {
+void ADX_ProcessTracks() {
     const int first_track_index_old = first_track_index;
     const int num_tracks_old = num_tracks;
 
@@ -369,18 +369,18 @@ void SDLADXSound_ProcessTracks() {
     }
 }
 
-void SDLADXSound_Init() {
+void ADX_Init() {
     const SDL_AudioSpec spec = { .format = SDL_AUDIO_S16, .channels = N_CHANNELS, .freq = SAMPLE_RATE };
     stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, NULL, NULL);
 }
 
-void SDLADXSound_Exit() {
-    SDLADXSound_Stop();
+void ADX_Exit() {
+    ADX_Stop();
     SDL_DestroyAudioStream(stream);
 }
 
-void SDLADXSound_Stop() {
-    SDLADXSound_Pause(true);
+void ADX_Stop() {
+    ADX_Pause(true);
     SDL_ClearAudioStream(stream);
 
     for (int i = 0; i < num_tracks; i++) {
@@ -393,11 +393,11 @@ void SDLADXSound_Stop() {
     has_tracks = false;
 }
 
-int SDLADXSound_IsPaused() {
+int ADX_IsPaused() {
     return SDL_AudioStreamDevicePaused(stream);
 }
 
-void SDLADXSound_Pause(int pause) {
+void ADX_Pause(int pause) {
     if (pause) {
         SDL_PauseAudioStreamDevice(stream);
     } else {
@@ -405,38 +405,38 @@ void SDLADXSound_Pause(int pause) {
     }
 }
 
-void SDLADXSound_StartMem(void* buf, size_t size) {
-    SDLADXSound_Stop();
+void ADX_StartMem(void* buf, size_t size) {
+    ADX_Stop();
 
     ADXTrack* track = alloc_track();
     track_init(track, -1, buf, size, true);
 }
 
-int SDLADXSound_GetNumFiles() {
+int ADX_GetNumFiles() {
     return num_tracks;
 }
 
-void SDLADXSound_EntryAfs(int file_id) {
+void ADX_EntryAfs(int file_id) {
     ADXTrack* track = alloc_track();
     track_init(track, file_id, NULL, 0, false);
 }
 
-void SDLADXSound_StartSeamless() {
-    SDLADXSound_Pause(false);
+void ADX_StartSeamless() {
+    ADX_Pause(false);
 }
 
-void SDLADXSound_ResetEntry() {
+void ADX_ResetEntry() {
     // ResetEntry is always called after Stop, so we don't need to do anything here
 }
 
-void SDLADXSound_StartAfs(int file_id) {
-    SDLADXSound_Stop();
+void ADX_StartAfs(int file_id) {
+    ADX_Stop();
 
     ADXTrack* track = alloc_track();
     track_init(track, file_id, NULL, 0, true);
 }
 
-void SDLADXSound_SetOutVol(int volume) {
+void ADX_SetOutVol(int volume) {
     // Convert volume (dB * 10) to linear gain
     const float gain = powf(10.0f, volume / 200.0f);
     SDL_SetAudioStreamGain(stream, gain);
@@ -446,7 +446,7 @@ void ADX_SetMono(bool mono) {
     // FIXME: Do we really need this?
 }
 
-ADXState SDLADXSound_GetState() {
+ADXState ADX_GetState() {
     if (!has_tracks) {
         return ADX_STATE_STOP;
     }
@@ -454,7 +454,7 @@ ADXState SDLADXSound_GetState() {
     if (stream_is_empty()) {
         return ADX_STATE_PLAYEND;
     } else {
-        if (SDLADXSound_IsPaused()) {
+        if (ADX_IsPaused()) {
             return ADX_STATE_STOP;
         } else {
             return ADX_STATE_PLAYING;

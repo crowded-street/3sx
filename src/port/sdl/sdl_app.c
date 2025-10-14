@@ -1,6 +1,6 @@
 #include "port/sdl/sdl_app.h"
 #include "common.h"
-#include "port/sdl/sdl_adx_sound.h"
+#include "port/sound/adx.h"
 #include "port/sdl/sdl_game_renderer.h"
 #include "port/sdl/sdl_message_renderer.h"
 #include "port/sdl/sdl_pad.h"
@@ -233,7 +233,7 @@ static void save_texture(SDL_Texture* texture, const char* filename) {
 
 void SDLApp_EndFrame() {
     // Run sound processing
-    SDLADXSound_ProcessTracks();
+    ADX_ProcessTracks();
 
     // Render
 

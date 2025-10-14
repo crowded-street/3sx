@@ -16,7 +16,6 @@
 
 // FIXME: reimplement using SDL apis
 s32 flPrintL(s32 posi_x, s32 posi_y, const s8* format, ...) {
-    s8* va_ptr;
     s8 code;
     s8 str[512];
     strlen_t len;
@@ -77,12 +76,10 @@ s32 flPrintColor(u32 color) {
 void flPS2SystemError(s32 error_level, s8* format, ...) {
     va_list args;
     s8 str[512];
-    strlen_t len;
 
     flFlip(0);
     va_start(args, format);
     vsprintf(str, format, args);
-    len = strlen(str);
 
     while (1) {
         flPrintL(10, 20, "%s", str);

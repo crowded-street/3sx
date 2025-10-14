@@ -52,7 +52,14 @@ void effect_L7_move(WORK_Other* ewk) {
 }
 
 void effl7_move(WORK_Other* ewk) {
+<<<<<<< HEAD:src/sf33rd/Source/Game/effect/effl7.c
     WORK* oya_ptr = (WORK*)ewk->my_master;
+=======
+#if defined(TARGET_PS2)
+    void set_char_move_init(WORK * wk, s16 koc, s32 index);
+    void set_char_move_init2(WORK * wk, s16 koc, s16 index, s16 ip);
+#endif
+>>>>>>> upstream/main:src/sf33rd/Source/Game/effL7.c
 
     switch (ewk->wu.routine_no[1]) {
     case 0:

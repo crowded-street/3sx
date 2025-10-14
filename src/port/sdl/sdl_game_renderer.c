@@ -274,9 +274,8 @@ void SDLGameRenderer_EndFrame() {
 
 void SDLGameRenderer_UnlockPalette(unsigned int ph) {
     const int palette_handle = ph;
-    if ((palette_handle > 0) && (palette_handle < FL_PALETTE_MAX)) {
-        const FLTexture* fl_palette = &flPalette[palette_handle - 1];
 
+    if ((palette_handle > 0) && (palette_handle < FL_PALETTE_MAX)) {
         SDLGameRenderer_DestroyPalette(palette_handle);
         SDLGameRenderer_CreatePalette(ph << 16);
     }
@@ -284,9 +283,8 @@ void SDLGameRenderer_UnlockPalette(unsigned int ph) {
 
 void SDLGameRenderer_UnlockTexture(unsigned int th) {
     const int texture_handle = th;
-    if ((texture_handle > 0) && (texture_handle < FL_TEXTURE_MAX)) {
-        const FLTexture* fl_texture = &flTexture[texture_handle - 1];
 
+    if ((texture_handle > 0) && (texture_handle < FL_TEXTURE_MAX)) {
         SDLGameRenderer_DestroyTexture(texture_handle);
         SDLGameRenderer_CreateTexture(th);
     }

@@ -91,7 +91,6 @@ static void flPS2InitRenderBuff() {
 }
 
 s32 flLogOut(s8* format, ...) {
-    s8* va_ptr;
     s8 str[2048];
     s8* lp;
     static s32 bflLogOutFirst = 1;

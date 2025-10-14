@@ -5,6 +5,9 @@
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/emlRpcQueue.h"
 #include "port/sound/emlShim.h"
 
+// Forward decld
+static s32 StartSound(CSE_PHDP* pPHDP, CSE_REQP* pREQP);
+
 s32 mlSysSetMono(u32 mono_sw) {
     CSE_SYS_PARAM_MONO param = {};
 
@@ -57,16 +60,12 @@ s32 mlSeKeyoff(CSE_REQP* pReqp) {
 }
 
 s32 mlSeStopAll() {
-    CSE_REQP reqp = {};
-
     emlShimSeStopAll();
-
     return 0;
 }
 
 s32 mlSeInitSndDrv() {
     emlShimInit();
-
     return 0;
 }
 
@@ -100,31 +99,6 @@ s32 PlaySe(CSE_REQP* pReqp, u16 bank, u16 prog) {
             CalcPhdParam(&phdp, &PhdPAddr, pReqp->note, mlMemMapGetBankAddr(bank));
             StartSound(&phdp, pReqp);
         }
-    }
-
-    return 0;
-}
-
-s32 CheckReqFlags(CSE_REQP* pReqp) {
-    if (pReqp->flags & 1) {
-        pReqp->prio &= 0x7F;
-    } else {
-        pReqp->flags |= 1;
-        pReqp->prio = 0x7F;
-    }
-
-    if (pReqp->flags & 0x20) {
-        if (!(pReqp->flags & 0xE)) {
-            return -1;
-        }
-    }
-
-    else if (pReqp->flags & 0x40) {
-        return -1;
-    }
-
-    if (pReqp->flags & 0x10) {
-        pReqp->note &= 0x7F;
     }
 
     return 0;

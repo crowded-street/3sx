@@ -383,8 +383,6 @@ void effc2_parts_work_chain_check(s16 flag) {
     WORK* adr2;
     WORK* adr3;
     s16 wix = search_effect_index(1, 0, 0x7B);
-    s16 bff;
-    s16 bhf;
     s16 bf[4];
     s16 bh[4];
 
@@ -427,7 +425,6 @@ jump:
         return;
     }
 
-    bff = bhf = 0;
     adr0 = (WORK*)frw[adr1->before];
     adr3 = (WORK*)frw[adr2->behind];
     bf[1] = adr1->before;
@@ -881,7 +878,14 @@ void set_1st_Bonus_Game_result(WORK* wk) {
 }
 
 void set_bs2_floor(WORK_Other* wk) {
+<<<<<<< HEAD:src/sf33rd/Source/Game/effect/effc2.c
     PLW* em = (PLW*)((WORK*)wk->my_master)->target_adrs;
+=======
+#if defined(TARGET_PS2)
+    void player_hosei_data(WORK_Other * ewk, s32 flag, s16 f2);
+#endif
+
+>>>>>>> upstream/main:src/sf33rd/Source/Game/EFFC2.c
     s16* dad;
 
     player_hosei_data(wk, wk->wu.dir_timer, 1);

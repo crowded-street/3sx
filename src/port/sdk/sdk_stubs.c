@@ -15,37 +15,38 @@
 
 // sifdev
 
-static int sce_to_unix_flags(int flags) {
-    int result = 0;
+// Right now the func is unused, but might come in handy later
+// static int sce_to_unix_flags(int flags) {
+//     int result = 0;
 
-    switch (flags & 0xF) {
-    case SCE_RDONLY:
-        result = O_RDONLY;
-        break;
+//     switch (flags & 0xF) {
+//     case SCE_RDONLY:
+//         result = O_RDONLY;
+//         break;
 
-    case SCE_WRONLY:
-        result = O_WRONLY;
-        break;
+//     case SCE_WRONLY:
+//         result = O_WRONLY;
+//         break;
 
-    case SCE_RDWR:
-        result = O_RDWR;
-        break;
-    }
+//     case SCE_RDWR:
+//         result = O_RDWR;
+//         break;
+//     }
 
-    if (flags & SCE_APPEND) {
-        result |= O_APPEND;
-    }
+//     if (flags & SCE_APPEND) {
+//         result |= O_APPEND;
+//     }
 
-    if (flags & SCE_CREAT) {
-        result |= O_CREAT;
-    }
+//     if (flags & SCE_CREAT) {
+//         result |= O_CREAT;
+//     }
 
-    if (flags & SCE_TRUNC) {
-        result |= O_TRUNC;
-    }
+//     if (flags & SCE_TRUNC) {
+//         result |= O_TRUNC;
+//     }
 
-    return result;
-}
+//     return result;
+// }
 
 int sceOpen(const char* filename, int flag, ...) {
     fatal_error("Unhandled path: %s", filename);

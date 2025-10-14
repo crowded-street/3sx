@@ -1873,13 +1873,6 @@ void waza_compel_all_init(PLW* pl) {
 
 void waza_compel_all_init2(PLW* pl) {
     s16 j;
-    s32* adrs;
-
-    if (cmd_sel[pl->wu.id]) {
-        adrs = pl_CMD[pl->player_number];
-    } else {
-        adrs = pl_cmd[pl->player_number];
-    }
 
     for (j = 0; j < 56; j++) {
         if (wcp[pl->wu.id].waza_flag[j] != -1) {

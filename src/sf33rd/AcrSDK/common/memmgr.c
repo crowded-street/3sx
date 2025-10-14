@@ -214,11 +214,6 @@ void* plmemCompact(MEM_MGR* memmgr) {
     MEM_BLOCK* next_block;
     u8* data_ptr;
 
-    s32 temp_s2;
-    s32 temp_s2_2;
-    s32 temp_s2_3;
-    s32 temp_s2_4;
-
     if (memmgr->blocklist == MEM_NULL_HANDLE) {
         memmgr->memnow = memmgr->memptr;
         return memmgr->memnow;

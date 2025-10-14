@@ -64,7 +64,6 @@ void Debug_Task(struct _TASK* task_ptr) {
 void Debug_Init(struct _TASK* task_ptr) {
     u8* ptr;
     u16 ix;
-    u8* assignement_var;
 
     task_ptr->r_no[0] += 1;
     Debug_Index = 0;
@@ -72,7 +71,7 @@ void Debug_Init(struct _TASK* task_ptr) {
     ptr = (u8*)NAKAI_debug_data;
     Debug_Index = NAKAI_debug_data[72];
 
-    for (ix = 0; ix < 72; assignement_var = ptr++) {
+    for (ix = 0; ix < 72; ptr++) {
         Debug_w[ix] = *ptr;
         ix += 1;
     }
@@ -83,14 +82,6 @@ void Debug_Init(struct _TASK* task_ptr) {
 }
 
 void Debug_1st(struct _TASK* task_ptr) {
-    struct _TASK* ptr;
-    u16 sw;
-
-    if (0) {
-        sw = 0;
-        ptr = task_ptr;
-    }
-
     sysFF = 1;
     return;
 }
@@ -142,14 +133,11 @@ void Debug_Menu_Disp(u32 /* unused */, u32 /* unused */) {
     s16 i;
     s16 x;
     s16 y;
-    s16 assignment_var;
-    s16 assignment_var2;
-    s16 assignment_var3;
 
     side = 0;
     ix = 0;
     x = 1;
-    assignment_var = y = 3;
+    y = 3;
 
     for (; side < 3;) {
         for (i = 0; i < 24;) {
@@ -163,12 +151,12 @@ void Debug_Menu_Disp(u32 /* unused */, u32 /* unused */) {
             flPrintL(x + 18, y, "%2X", Debug_w[ix]);
             i += 1;
             y += 2;
-            assignment_var2 = ix++;
+            ix++;
         }
 
         y = 3;
         side += 1;
-        assignment_var3 = x += 21;
+        x += 21;
     }
 
     flPrintColor(COLOR_WHITE);

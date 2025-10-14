@@ -3,7 +3,6 @@
 
 #include "types.h"
 
-#define NULL 0
 #define REINTERPRET_AS_U32(_num) (*(u32*)&(_num))
 #define BOOL(_expr) ((_expr) ? 1 : 0)
 #define SPR 0x70000000

@@ -6,7 +6,11 @@
 #include "bin2obj/char_table.h"
 #include "common.h"
 #include "sf33rd/Source/Game/CHARSET.h"
+<<<<<<< HEAD:src/sf33rd/Source/Game/effect/eff36.c
 #include "sf33rd/Source/Game/SE.h"
+=======
+#include "sf33rd/Source/Game/EFFECT.h"
+>>>>>>> upstream/main:src/sf33rd/Source/Game/eff36.c
 #include "sf33rd/Source/Game/color3rd.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/effect.h"
@@ -14,6 +18,7 @@
 #include "sf33rd/Source/Game/texcash.h"
 
 #include "sf33rd/Source/Game/opening/opening.h"
+#include "sf33rd/Source/Game/sound/se.h"
 
 // forward decls
 void eff36_move00(WORK_Other* ewk);

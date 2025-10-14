@@ -1,8 +1,6 @@
 #include "common.h"
-#include "sf33rd/Source/Game/SE.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/Sel_Data.h"
-#include "sf33rd/Source/Game/Sound3rd.h"
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/bg_data.h"
 #include "sf33rd/Source/Game/bg_sub.h"
@@ -10,6 +8,9 @@
 #include "sf33rd/Source/Game/effect/effect_init.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/workuser.h"
+
+#include "sf33rd/Source/Game/sound/se.h"
+#include "sf33rd/Source/Game/sound/sound3rd.h"
 
 u8 GAME_OVER_X; // size: 0x1, address: 0x579078
 
@@ -91,11 +92,6 @@ void GameOver_1st() {
 }
 
 void GameOver_2nd() {
-    s16 temp_v1_3;
-    s16 temp_v1_4;
-    s8 temp_v1_2;
-    u32 temp_v1;
-
     switch (GO_No[1]) {
     case 0:
         GO_No[1] += 1;

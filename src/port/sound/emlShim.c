@@ -390,8 +390,6 @@ static int doSeDrop(CSE_REQP* reqp) {
 }
 
 void emlShimStartSound(CSE_SYS_PARAM_SNDSTART* param) {
-    int volume, bankvol, pan, voll, volr, note, pitch;
-    struct SPUVConf conf;
     struct VWork* voice;
 
     SDL_LockMutex(soundLock);

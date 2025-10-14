@@ -16,13 +16,17 @@
 #include "sf33rd/Source/Game/workuser.h"
 
 void effect_72_move(WORK_Other* ewk) {
+<<<<<<< HEAD:src/sf33rd/Source/Game/effect/eff72.c
     WORK_Other* oya;
+=======
+#if defined(TARGET_PS2)
+    void set_char_move_init(WORK * wk, s16 koc, s32 index);
+#endif
+>>>>>>> upstream/main:src/sf33rd/Source/Game/EFF72.c
 
     if (obr_no_disp_check()) {
         return;
     }
-
-    oya = (WORK_Other*)ewk->my_master;
 
     switch (ewk->wu.routine_no[0]) {
     case 0:

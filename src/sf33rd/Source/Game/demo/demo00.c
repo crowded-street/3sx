@@ -14,7 +14,6 @@
 #include "sf33rd/Source/Game/MTRANS.h"
 #include "sf33rd/Source/Game/RAMCNT.h"
 #include "sf33rd/Source/Game/SYS_sub2.h"
-#include "sf33rd/Source/Game/Sound3rd.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/texgroup.h"
@@ -24,6 +23,7 @@
 #include "sf33rd/Source/Game/io/gd3rd.h"
 #include "sf33rd/Source/Game/opening/op_sub.h"
 #include "sf33rd/Source/Game/opening/opening.h"
+#include "sf33rd/Source/Game/sound/sound3rd.h"
 
 void CAPLOGO_Init();
 s16 CAPLOGO_Move(u16 type);
@@ -308,7 +308,6 @@ void Warning_Init() {
 // FIXME: When is this ever called?
 void Put_Warning(s16 type) {
     Polygon tex[4];
-    f32 video_y = 16.0f;
 
     tex[0].col = tex[1].col = tex[2].col = tex[3].col = 0xFFFFFFFF;
 

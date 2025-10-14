@@ -11,7 +11,6 @@
 #include "sf33rd/Source/Game/HITCHECK.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/PLS02.h"
-#include "sf33rd/Source/Game/SE.h"
 #include "sf33rd/Source/Game/SLOWF.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/aboutspr.h"
@@ -26,6 +25,7 @@
 #include "sf33rd/Source/Game/workuser.h"
 
 #include "sf33rd/Source/Game/animation/appear.h"
+#include "sf33rd/Source/Game/sound/se.h"
 
 const s16 eff09_data[2][9] = { { 0, 2, 8492, 832, 192, 10, 0, 1, 0 }, { 19, 2, 8492, 528, 108, 78, 1, 0, 0 } };
 
@@ -783,7 +783,13 @@ void eff09_11000(WORK_Other* ewk) {
 }
 
 void eff09_12000(WORK_Other* ewk) {
+<<<<<<< HEAD:src/sf33rd/Source/Game/effect/eff09.c
     WORK* oya_ptr = (WORK*)ewk->my_master;
+=======
+#if defined(TARGET_PS2)
+    void set_char_move_init(WORK * wk, s16 koc, s32 index);
+#endif
+>>>>>>> upstream/main:src/sf33rd/Source/Game/EFF09.c
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -1138,13 +1144,17 @@ void eff09_18000(WORK_Other* ewk) {
 }
 
 void eff09_19000(WORK_Other* ewk) {
+<<<<<<< HEAD:src/sf33rd/Source/Game/effect/eff09.c
     WORK* oya_ptr;
+=======
+#if defined(TARGET_PS2)
+    void set_char_move_init(WORK * wk, s16 koc, s32 index);
+#endif
+>>>>>>> upstream/main:src/sf33rd/Source/Game/EFF09.c
 
     if (obr_no_disp_check()) {
         return;
     }
-
-    oya_ptr = (WORK*)ewk->my_master;
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -1542,7 +1552,13 @@ void eff09_24000(WORK_Other* ewk) {
 }
 
 void eff09_25000(WORK_Other* ewk) {
+<<<<<<< HEAD:src/sf33rd/Source/Game/effect/eff09.c
     WORK* oya_ptr = (WORK*)ewk->my_master;
+=======
+#if defined(TARGET_PS2)
+    void set_char_move_init(WORK * wk, s16 koc, s32 index);
+#endif
+>>>>>>> upstream/main:src/sf33rd/Source/Game/EFF09.c
 
     switch (ewk->wu.routine_no[1]) {
     case 0:

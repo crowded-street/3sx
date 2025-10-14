@@ -3,10 +3,8 @@
 #include "sf33rd/Source/Game/Grade.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/Pause.h"
-#include "sf33rd/Source/Game/SE.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/SYS_sub2.h"
-#include "sf33rd/Source/Game/Sound3rd.h"
 #include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/aboutspr.h"
@@ -38,6 +36,8 @@
 #include "sf33rd/Source/Game/ending/end_main.h"
 #include "sf33rd/Source/Game/io/pulpul.h"
 #include "sf33rd/Source/Game/menu/menu.h"
+#include "sf33rd/Source/Game/sound/se.h"
+#include "sf33rd/Source/Game/sound/sound3rd.h"
 
 void Game_Manage_1st();
 void Clear_1Stage_Work();
@@ -923,7 +923,6 @@ void Game_Manage_8_1() {
 }
 
 void Game_Manage_81_0() {
-    s16 ix;
     s16 time;
     s16 pos_id;
     s16 pos_id2;
@@ -932,7 +931,6 @@ void Game_Manage_81_0() {
     C_No[2]++;
     C_Timer = 20;
     Forbid_Break = -1;
-    ix = 0;
     pos_id = 0;
     pos_id2 = 0;
     time = 1;

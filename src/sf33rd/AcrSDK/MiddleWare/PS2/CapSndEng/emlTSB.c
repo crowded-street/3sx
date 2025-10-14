@@ -5,11 +5,18 @@
 #include <memory.h>
 #include <stdio.h>
 
-// sbss
-SoundEvent* gpTsb[TSB_MAX] __attribute__((aligned(16))); // size: 0x40, address: 0x57B2C0
+// Forward decls
+static s32 mlTsbKeyOn(SoundEvent* pTSB, CSE_REQP* pReqp, u32 bank, u32 prog);
+static void mlTsbSetToReqp(CSE_REQP* pReqp, SoundEvent* pTSB, u16 bank);
+static s32 mlTsbInitEchoWork();
+static s32 mlTsbMoveEchoWork();
+static CSE_ECHOWORK* mlTsbPickupEchoWork(u32 index);
+static s32 mlTsbCreateEcho(u32 bank, u32 code, s32* pRtpc);
+static s32 mlTsbStopEcho(u32 bank, u32 code);
+static s32 mlTsbStopEchoAll();
 
-// bss
-CSE_ECHOWORK EchoWork[ECHOWORK_MAX]; // size: 0x380, address: 0x6EABC0
+SoundEvent* gpTsb[TSB_MAX];
+CSE_ECHOWORK EchoWork[ECHOWORK_MAX];
 
 s32 mlTsbInit() {
     mlTsbInitEchoWork();

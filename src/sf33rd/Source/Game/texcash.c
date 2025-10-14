@@ -238,7 +238,6 @@ void texture_cash_update() {
 #if defined(TARGET_PS2)
     void search_texcash_free_area(s32 ix);
 #endif
-    PatternState* mc;
     s16 i;
     s16 num;
 

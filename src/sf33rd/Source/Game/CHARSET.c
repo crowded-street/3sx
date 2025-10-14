@@ -6,7 +6,6 @@
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/PLS02.h"
 #include "sf33rd/Source/Game/PLS03.h"
-#include "sf33rd/Source/Game/Se_Data.h"
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/cmd_data.h"
 #include "sf33rd/Source/Game/effect/effect.h"
@@ -14,6 +13,7 @@
 #include "sf33rd/Source/Game/workuser.h"
 
 #include "sf33rd/Source/Game/io/pulpul.h"
+#include "sf33rd/Source/Game/sound/se_data.h"
 
 #define LO_2_BYTES(_val) (((s16*)&_val)[0])
 #define HI_2_BYTES(_val) (((s16*)&_val)[1])
@@ -2765,19 +2765,16 @@ void check_cgd_patdat2(WORK* wk) {
 
 void set_new_attnum(WORK* wk) {
     s16 aag_sw;
-    uintptr_t dspadrs;
     static u16 att_req;
 
     wk->renew_attack = wk->cg_att_ix;
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunsequenced"
+    att_req += 1;
+    att_req &= 0x7FFF;
 
-    if ((att_req = (++att_req & 0x7FFF)) == 0) {
-        att_req++;
+    if (att_req == 0) {
+        att_req += 1;
     }
-
-#pragma clang diagnostic pop
 
     aag_sw = 0;
 
@@ -2797,7 +2794,6 @@ void set_new_attnum(WORK* wk) {
     }
 
     wk->att = *(wk->att_ix_table + wk->cg_att_ix);
-    dspadrs = (uintptr_t)(wk->att_ix_table + wk->cg_att_ix);
     wk->zu_flag = wk->att.level & 0x80;
     wk->jump_att_flag = wk->att.level & 0x40;
     wk->at_attribute = (wk->att.level >> 4) & 3;

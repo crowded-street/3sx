@@ -9,10 +9,10 @@
 #include "sf33rd/Source/Game/SYS_sub2.h"
 #endif
 
-#include "sf33rd/Source/Game/Sound3rd.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/main.h"
 #include "sf33rd/Source/Game/sc_sub.h"
+#include "sf33rd/Source/Game/sound/sound3rd.h"
 #include "sf33rd/Source/Game/workuser.h"
 #include "sf33rd/Source/PS2/mc/knjsub.h"
 #include "sf33rd/Source/PS2/mc/mcsub.h"
@@ -192,7 +192,6 @@ s32 SaveMove() {
 static void save_sw_get(_save_work* save) {
     u16 i;
     u16 sw;
-    u16 temp_a1;
 
     save->sw = save->tr = save->rp = 0;
 
@@ -220,27 +219,11 @@ static void save_sw_get(_save_work* save) {
 }
 
 static void save_move_init(_save_work* save) {
-    s32 knj_type;
     s32 fnum;
 
     switch (save->r_no_1) {
     case 0:
         if (load_busy_ck() != 0) {
-            break;
-        }
-
-        switch (MsgLanguage) {
-        default:
-        case 0:
-            knj_type = 4;
-            break;
-
-        case 1:
-            knj_type = 8;
-            break;
-
-        case 2:
-            knj_type = 12;
             break;
         }
 
@@ -2274,13 +2257,11 @@ static void save_slot_trans(_save_work* save) {
 
 static void save_file_trans(_save_work* save) {
     static s8* week_str[] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
-    s8** tbl0 = GetMemCardMsg(1);
     s32 xs;
     s32 ys;
     s32 tx;
     s32 ty;
     s32 i;
-    s32 no;
     s32 top;
     s32 max;
     u32 val;
@@ -2307,7 +2288,6 @@ static void save_file_trans(_save_work* save) {
     tx = (xs / 2) * 8;
     ty = 160;
 
-    no = save->sel_slot_no;
     top = save->sel_file_top;
     max = save->sel_file_max;
 

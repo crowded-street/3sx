@@ -530,7 +530,6 @@ void mlt_obj_trans_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
     }
 
     {
-        s32 size;
         s32 code;
         s32 wh;
         s32 dw;
@@ -563,7 +562,6 @@ void mlt_obj_trans_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
             dw = (texptr->wh & 0xE0) >> 2;
             dh = (texptr->wh & 0x1C) * 2;
             wh = (texptr->wh & 3) + 1;
-            size = (wh * wh) << 6;
             cc.parts.offset = trsptr->code;
 
             switch (wh) {
@@ -911,7 +909,6 @@ void mlt_obj_trans_cp3_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
     }
 
     {
-        s32 size;
         s32 code;
         s32 wh;
         s32 dw;
@@ -945,7 +942,6 @@ void mlt_obj_trans_cp3_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
             dw = (texptr->wh & 0xE0) >> 2;
             dh = (texptr->wh & 0x1C) * 2;
             wh = (texptr->wh & 3) + 1;
-            size = (wh * wh) << 6;
             attr = trsptr->attr;
             palt = (attr & 0x1FF) + palo;
             attr = (attr ^ flip) & 0xC000;
@@ -1295,7 +1291,6 @@ void mlt_obj_trans_rgb_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
     }
 
     {
-        s32 size;
         s32 code;
         s32 attr;
         s32 palt;
@@ -1326,7 +1321,6 @@ void mlt_obj_trans_rgb_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
             dw = (texptr->wh & 0xE0) >> 2;
             dh = (texptr->wh & 0x1C) * 2;
             wh = (texptr->wh & 3) + 1;
-            size = (wh * wh) << 6;
             attr = trsptr->attr;
             palt = (attr & 0x1FF) + palo;
             attr = (attr ^ flip) & 0xC000;
@@ -2208,8 +2202,6 @@ void mlt_obj_melt2(MultiTexture* mt, u16 cg_number) {
     s32 wh;
     s32 dd;
 
-    u16* spA4;
-
     ppgSetupCurrentDataList(&mt->texList);
     grplds = &texgrplds[obj_group_table[cg_number]];
 
@@ -2269,7 +2261,6 @@ void mlt_obj_melt2(MultiTexture* mt, u16 cg_number) {
             }
 
             count -= 1;
-            spA4 = (u16*)trsptr++;
         }
     }
 

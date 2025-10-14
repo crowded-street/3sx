@@ -52,17 +52,10 @@ target_compile_options(3sx PRIVATE
     -Wall
     -Werror
     -Wpointer-to-int-cast
-    -Wno-macro-redefined
     -Wno-deprecated-non-prototype
     -Wno-tautological-overlap-compare
     -Wno-c2x-extensions
-    -Wno-unused-variable
-    -Wno-unused-but-set-variable
-    -Wno-unused-function
-    -Wno-int-to-pointer-cast
-    -Wno-int-conversion
     -Wno-incompatible-pointer-types
-    -Wno-incompatible-function-pointer-types
     -Wno-pointer-sign
 )
 

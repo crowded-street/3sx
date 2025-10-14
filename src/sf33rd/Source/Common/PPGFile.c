@@ -236,7 +236,6 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix
     u32 sx;
     u32 sy;
     u32 ppgw;
-    u32 ppgh;
     u16* phan;
     u16 palhan;
     u16 texhan;
@@ -293,7 +292,6 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix
             ppgwf = ppg->width;
             ppgw = ppg->width;
             ppghf = ppg->height;
-            ppgh = ppg->height;
             pxs = pos[3].x - pos[0].x;
             pys = pos[3].y - pos[0].y;
             sadd = 0.5f / pxs;

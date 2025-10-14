@@ -2,7 +2,6 @@
 #include "common.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/Reset.h"
-#include "sf33rd/Source/Game/Sound3rd.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/effect/eff66.h"
 #include "sf33rd/Source/Game/main.h"
@@ -11,6 +10,7 @@
 
 #include "sf33rd/Source/Game/io/pulpul.h"
 #include "sf33rd/Source/Game/menu/menu.h"
+#include "sf33rd/Source/Game/sound/sound3rd.h"
 
 // sbss
 u8 PAUSE_X;
@@ -66,8 +66,6 @@ void Pause_Check(struct _TASK* task_ptr) {
 }
 
 void Pause_Move(struct _TASK* task_ptr) {
-    u16 sw = ~PLsw[Pause_ID][1] & PLsw[Pause_ID][0];
-
     if (Exit_Menu) {
         Exit_Pause(task_ptr);
     }

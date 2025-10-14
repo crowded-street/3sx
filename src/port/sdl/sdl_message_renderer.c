@@ -10,7 +10,6 @@ static const int canvas_height = 448;
 static SDL_Renderer* _renderer = NULL;
 static SDL_Texture* knjsub_texture = NULL;
 static SDL_Palette* knjsub_palette = NULL;
-static int knjsub_palette_count = 0;
 
 static const SDL_Color knjsub_palette_colors[4] = {
     { .r = 255, .g = 255, .b = 255, .a = 0 },

@@ -14,6 +14,10 @@ void (*scr_x_mv_jp[35])() = { scr_10_20,   scr_10_21,   scr_10_22,   scr_x_dummy
                               scr_x_dummy, scr_x_dummy, scr_x_dummy, scr_x_dummy, scr_x_dummy, scr_x_dummy, scr_x_dummy,
                               scr_x_dummy, scr_x_dummy, scr_x_dummy, scr_x_dummy, scr_12_20,   scr_12_21,   scr_12_22 };
 
+// Forward decls
+static s16 remake_x_mvstep(s16 mvstep);
+static s32 suzi_offset_set_sub(WORK_Other* ewk);
+
 void check_cg_zoom() {
     s16 i;
     s16 zoom_wk;
