@@ -96,7 +96,9 @@ s32 fsCheckCommandExecuting() {
         return 0;
     }
 
-    switch (AFS_GetState(afs_handle)) {
+    const AFSReadState state = AFS_GetState(afs_handle);
+
+    switch (state) {
     case AFS_READ_STATE_READING:
     case AFS_READ_STATE_ERROR:
         return 1;
@@ -104,6 +106,9 @@ s32 fsCheckCommandExecuting() {
     case AFS_READ_STATE_IDLE:
     case AFS_READ_STATE_FINISHED:
         return 0;
+
+    default:
+        fatal_error("Unhandled AFS state: %d", state);
     }
 }
 
@@ -113,7 +118,9 @@ s32 fsRequestFileRead(REQ* /* unused */, u32 sec, void* buff) {
 }
 
 s32 fsCheckFileReaded(REQ* /* unused */) {
-    switch (AFS_GetState(afs_handle)) {
+    const AFSReadState state = AFS_GetState(afs_handle);
+
+    switch (state) {
     case AFS_READ_STATE_ERROR:
         return 2;
 
@@ -123,6 +130,9 @@ s32 fsCheckFileReaded(REQ* /* unused */) {
     case AFS_READ_STATE_IDLE:
     case AFS_READ_STATE_FINISHED:
         return 1;
+
+    default:
+        fatal_error("Unhandled AFS state: %d", state);
     }
 }
 
