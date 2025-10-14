@@ -3,7 +3,6 @@
 #include "sf33rd/AcrSDK/common/mlPAD.h"
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/Source/Game/EFFECT.h"
-#include "sf33rd/Source/Game/IOConv.h"
 #include "sf33rd/Source/Game/MTRANS.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
@@ -16,6 +15,8 @@
 #include "sf33rd/Source/Game/main.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/workuser.h"
+
+#include "sf33rd/Source/Game/io/ioconv.h"
 
 #define COLOR_WHITE 0xFFFFFFFF
 #define COLOR_YELLOW 0xFFFFFF00

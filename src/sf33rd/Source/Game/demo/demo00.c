@@ -11,7 +11,6 @@
 #include "sf33rd/Source/Common/PPGWork.h"
 #include "sf33rd/Source/Game/AcrUtil.h"
 #include "sf33rd/Source/Game/DC_Ghost.h"
-#include "sf33rd/Source/Game/GD3rd.h"
 #include "sf33rd/Source/Game/MTRANS.h"
 #include "sf33rd/Source/Game/RAMCNT.h"
 #include "sf33rd/Source/Game/SYS_sub2.h"
@@ -22,6 +21,7 @@
 #include "sf33rd/Source/Game/workuser.h"
 #include "structs.h"
 
+#include "sf33rd/Source/Game/io/gd3rd.h"
 #include "sf33rd/Source/Game/opening/op_sub.h"
 #include "sf33rd/Source/Game/opening/opening.h"
 
@@ -40,8 +40,6 @@ s16 picon_no;
 f32 picon_level;
 
 s32 Warning() {
-    setTexAdrsMode(0);
-    setFilterMode(1);
     Next_Demo = 0;
 
     switch (D_No[1]) {
@@ -116,8 +114,6 @@ s32 Warning() {
 }
 
 s32 CAPCOM_Logo() {
-    setTexAdrsMode(0);
-    setFilterMode(0);
     ppgSetupCurrentDataList(&ppgCapLogoList);
     Next_Demo = 0;
 
@@ -309,6 +305,7 @@ void Warning_Init() {
     picon_no = 0;
 }
 
+// FIXME: When is this ever called?
 void Put_Warning(s16 type) {
     Polygon tex[4];
     f32 video_y = 16.0f;

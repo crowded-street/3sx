@@ -21,7 +21,6 @@
 #include "sf33rd/Source/Game/PLS00.h"
 #include "sf33rd/Source/Game/PLS01.h"
 #include "sf33rd/Source/Game/PLS02.h"
-#include "sf33rd/Source/Game/PulPul.h"
 #include "sf33rd/Source/Game/plpat10.h"
 #include "sf33rd/Source/Game/plpat14.h"
 #include "sf33rd/Source/Game/plpat16.h"
@@ -30,6 +29,8 @@
 #include "sf33rd/Source/Game/plpat19.h"
 #include "sf33rd/Source/Game/plpat20.h"
 #include "sf33rd/Source/Game/workuser.h"
+
+#include "sf33rd/Source/Game/io/pulpul.h"
 
 s16 ja_nmj_rno_change(WORK* wk);
 void Attack_07000(PLW* wk);

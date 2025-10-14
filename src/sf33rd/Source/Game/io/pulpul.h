@@ -39,7 +39,6 @@ void pp_pulpara_hit(WORK* wk);
 void pp_pulpara_blocking(WORK* wk);
 void pp_pulpara_catch(WORK* wk);
 void pp_pulpara_caught(WORK* wk);
-void pp_pulpara_remake_nm_move();
 void pp_pulpara_shungokusatsu(WORK* wk);
 
 #endif

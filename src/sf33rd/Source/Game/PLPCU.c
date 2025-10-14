@@ -11,7 +11,7 @@
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/PLPDM.h"
 #include "sf33rd/Source/Game/PLS02.h"
-#include "sf33rd/Source/Game/PulPul.h"
+#include "sf33rd/Source/Game/io/pulpul.h"
 
 void setup_caught_process_flags(PLW* wk);
 void caught_cg_type_check(PLW* wk, PLW* emwk);

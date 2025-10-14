@@ -1,6 +1,5 @@
 #include "sf33rd/Source/PS2/mc/knjsub.h"
 #include "common.h"
-#include "sf33rd/AcrSDK/ps2/flps2dma.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 
 #include <eestruct.h>
@@ -599,11 +598,6 @@ void KnjFlush() {
             while (1) {
                 // Do Nothing
             }
-        }
-
-        if (kw->dcur != 0) {
-            ptr = (uintptr_t)kw->pack_top[kw->pack_idx];
-            flPS2DmaAddQueue2(0, (ptr & 0xFFFFFFF) | 0x40000000, ptr, &flPs2VIF1Control);
         }
 
         kw->pack_idx ^= 1;

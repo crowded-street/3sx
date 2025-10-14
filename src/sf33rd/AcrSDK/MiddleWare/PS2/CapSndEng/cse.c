@@ -1,7 +1,6 @@
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/cse.h"
 #include "common.h"
 #include "port/sound/spu.h"
-#include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/eflSifRpc.h"
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/emlMemMap.h"
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/emlRpcQueue.h"
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/emlSndDrv.h"

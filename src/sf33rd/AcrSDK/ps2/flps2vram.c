@@ -4,24 +4,15 @@
 #include "sf33rd/AcrSDK/common/plcommon.h"
 #include "sf33rd/AcrSDK/common/prilay.h"
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
-#include "sf33rd/AcrSDK/ps2/flps2dma.h"
 #include "sf33rd/AcrSDK/ps2/flps2etc.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 
-#if !defined(TARGET_PS2)
 #include "port/sdl/sdl_game_renderer.h"
-#endif
 
 #include <libgraph.h>
 
-#include <memory.h>
-
-#if defined(TARGET_PS2)
-void __assert(const s8* file, s32 line, const s8* expr);
-#define assert(e) (__assert("flps2vram.c", 0, "0"))
-#else
 #include <assert.h>
-#endif
+#include <memory.h>
 
 #define LPVRAM_ERROR ((LPVram*)-1)
 
@@ -38,49 +29,15 @@ s32 flPS2AddVramList(LPVram* lpVram, FLTexture* lpflTexture);
 s32 flPS2RewriteVramList(LPVram* lpVram, FLTexture* lpflTexture);
 LPVram* flPS2SearchVramChange(FLTexture* lpflTexture, u32* lpflhTexture, s32 tex_num);
 LPVram* flPS2SearchVramSpace(u32 size, u32 align);
-static void flPS2VramTrans(FLTexture* lpflTexture);
-s32 flPS2DeleteAllVramList();
 s32 flPS2DeleteVramList(FLTexture* lpflTexture);
 s32 flPS2LockTexture(Rect* /* unused */, FLTexture* lpflTexture, plContext* lpcontext, u32 flag, s32 /* unused */);
 s32 flPS2UnlockTexture(FLTexture*);
-s32 flPS2ReloadTexture(s32 count, u32* texlist);
 static void Conv4to32(s32 width, s32 height, u8* p_input, u8* p_output);
 static void PageConv4to32(u8* p_input, u8* p_output, s32 p_page_w);
 static void BlockConv4to32(u8* p_input, u8* p_output, s32 p_page_w);
 static void Conv8to32(s32 width, s32 height, u8* p_input, u8* p_output);
 static void PageConv8to32(u8* p_input, u8* p_output, s32 p_page_w);
 static void BlockConv8to32(u8* p_input, u8* p_output, s32 p_page_w);
-
-u16 flPS2GetStaticVramArea(u32 size) {
-    s32 lp0;
-    u32 block_size;
-    VRAMBlockHeader* lpVramStatic;
-
-    if (flVramStaticNum >= 3) {
-        flPS2SystemError(0, "ERROR flPS2GetStaticVramArea flpsvram.c");
-        return 0;
-    }
-
-    flPS2DeleteAllVramList();
-    block_size = (size + 256 - 1) / 256;
-    block_size = (block_size + 0x1F) & ~0x1F;
-    lpVramStatic = flVramStatic;
-
-    for (lp0 = 0; lp0 < 3; lp0++) {
-        if (lpVramStatic->be_flag == 0) {
-            break;
-        }
-
-        lpVramStatic++;
-    }
-
-    lpVramStatic->be_flag = 1;
-    lpVramStatic->tbp = flPs2State.TextureStartAdrs;
-    lpVramStatic->block_size = block_size;
-    flVramStaticNum += 1;
-    flPs2State.TextureStartAdrs += block_size;
-    return lpVramStatic->tbp;
-}
 
 u32 flCreateTextureHandle(plContext* bits, u32 flag) {
     FLTexture* lpflTexture;
@@ -101,7 +58,6 @@ u32 flCreateTextureHandle(plContext* bits, u32 flag) {
         }
 
         lpflTexture->mem_handle = flPS2GetSystemMemoryHandle(lpflTexture->size, 2);
-        flCTNum += 1;
     } else {
         flPS2ConvertTextureFromContext(bits, lpflTexture, 0);
         flPS2CreateTextureHandle(th, flag);
@@ -226,158 +182,8 @@ s32 flPS2GetTextureInfoFromContext(plContext* bits, s32 bnum, u32 th, u32 flag) 
 }
 
 s32 flPS2CreateTextureHandle(u32 th, u32 flag) {
-    FLTexture* lpflTexture = &flTexture[LO_16_BITS(th) - 1];
-    u32 dma_size;
-    uintptr_t dma_ptr;
-
-#if defined(TARGET_PS2)
-    while (1) {
-        switch (flag) {
-        case 1:
-        case 4:
-            break;
-
-        case 5:
-        case 2:
-        case 3:
-        default:
-            if (flPS2GetVramFreeArea(&th, 1) == 0) {
-                lpflTexture->flag = 4;
-                flag = 4;
-                continue;
-            }
-
-            flPS2VramTrans(lpflTexture);
-            dma_size = flPS2VIF1CalcEndLoadImageSize(lpflTexture->size);
-            dma_ptr = flPS2GetSystemTmpBuff(dma_size, 0x10);
-            flPS2VIF1MakeEndLoadImage(dma_ptr, 1);
-            flPS2DmaAddQueue2(0, dma_ptr & 0xFFFFFFF, dma_ptr, &flPs2VIF1Control);
-            break;
-        }
-
-        break;
-    }
-#else
     SDLGameRenderer_CreateTexture(th);
-#endif
-
-    flCTNum += 1;
     return 1;
-}
-
-void flPS2VramTrans(FLTexture* lpflTexture) {
-    uintptr_t pixel_ptr;
-    u32 dma_size;
-    uintptr_t dma_ptr;
-    s32 lp0;
-    s32 dw;
-    s32 dh;
-    s32 tex_size;
-    s32 tbp;
-    uintptr_t last_tag;
-
-    pixel_ptr = (uintptr_t)flPS2GetSystemBuffAdrs(lpflTexture->mem_handle);
-    dw = lpflTexture->width;
-    dh = lpflTexture->height;
-
-    for (lp0 = 0; lp0 < lpflTexture->tex_num; lp0++) {
-        switch (lpflTexture->format) {
-        case SCE_GS_PSMT4:
-            tex_size = (dw * dh) >> 1;
-            break;
-
-        case SCE_GS_PSMT8:
-            tex_size = dw * dh;
-            break;
-
-        case SCE_GS_PSMCT16:
-            tex_size = dw * dh * 2;
-            break;
-
-        case SCE_GS_PSMCT24:
-            tex_size = dw * dh * 4;
-            break;
-
-        case SCE_GS_PSMCT32:
-            tex_size = dw * dh * 4;
-            break;
-        }
-
-        dma_size = flPS2VIF1CalcLoadImageSize(tex_size);
-        dma_ptr = flPS2GetSystemTmpBuff(dma_size, 0x10);
-        tbp = flPS2GetVramTransAdrs(lpflTexture, lp0);
-
-        if (lpflTexture->dma_type == 0) {
-            last_tag = flPS2VIF1MakeLoadImage(
-                dma_ptr, 1, pixel_ptr, tex_size, tbp, dw / 64, lpflTexture->format, 0, 0, dw, dh);
-        } else {
-            last_tag = flPS2VIF1MakeLoadImage(dma_ptr,
-                                              1,
-                                              pixel_ptr,
-                                              tex_size,
-                                              tbp,
-                                              lpflTexture->dma_width / 64,
-                                              0,
-                                              0,
-                                              0,
-                                              lpflTexture->dma_width,
-                                              lpflTexture->dma_height);
-        }
-
-        flPS2DmaAddQueue2(0, (dma_ptr & 0xFFFFFFF) | 0x10000000, last_tag, &flPs2VIF1Control);
-        dw >>= 1;
-        dh >>= 1;
-        pixel_ptr += tex_size;
-    }
-}
-
-s32 flPS2GetVramTransAdrs(FLTexture* lpflTexture, s32 bnum) {
-    s32 lp0;
-    s32 dw;
-    s32 dh;
-    s32 tbp;
-    s32 tex_size;
-
-    if (lpflTexture->tex_num <= bnum) {
-        return -1;
-    }
-
-    dw = lpflTexture->width;
-    dh = lpflTexture->height;
-    tbp = lpflTexture->tbp;
-
-    for (lp0 = 0; lp0 < bnum; lp0++) {
-        switch (lpflTexture->format) {
-        default:
-            return -1;
-
-        case 20:
-            tex_size = (dw * dh) >> 1;
-            break;
-
-        case 19:
-            tex_size = dw * dh;
-            break;
-
-        case 2:
-            tex_size = dw * dh * 2;
-            break;
-
-        case 1:
-            tex_size = dw * dh * 4;
-            break;
-
-        case 0:
-            tex_size = dw * dh * 4;
-            break;
-        }
-
-        tbp += (tex_size + 0xFF) / 256;
-        dw >>= 1;
-        dh >>= 1;
-    }
-
-    return tbp;
 }
 
 u32 flPS2GetTextureHandle() {
@@ -415,7 +221,6 @@ u32 flCreatePaletteHandle(plContext* lpcontext, u32 flag) {
         }
 
         lpflPalette->mem_handle = flPS2GetSystemMemoryHandle(lpflPalette->size, 2);
-        flPTNum += 1;
     } else {
         if (lpcontext->width == 256) {
             flPS2ConvertTextureFromContext(lpcontext, lpflPalette, 1);
@@ -484,42 +289,7 @@ s32 flPS2GetPaletteInfoFromContext(plContext* bits, u32 ph, u32 flag) {
 }
 
 s32 flPS2CreatePaletteHandle(u32 ph, u32 flag) {
-    FLTexture* lpflPalette = &flPalette[HI_16_BITS(ph) - 1];
-    u32 dma_size;
-    uintptr_t dma_ptr;
-
-#if defined(TARGET_PS2)
-    while (1) {
-        switch (flag) {
-        case 1:
-        case 4:
-            break;
-
-        default:
-        case 5:
-        case 2:
-        case 3:
-            if (!flPS2GetVramFreeArea(&ph, 1)) {
-                lpflPalette->flag = 4;
-                flag = 4;
-                continue;
-            }
-
-            flPS2VramTrans(lpflPalette);
-            dma_size = flPS2VIF1CalcEndLoadImageSize(lpflPalette->size);
-            dma_ptr = flPS2GetSystemTmpBuff(dma_size, 0x10);
-            flPS2VIF1MakeEndLoadImage(dma_ptr, 1);
-            flPS2DmaAddQueue2(0, dma_ptr & 0x0FFFFFFF, dma_ptr, &flPs2VIF1Control);
-            break;
-        }
-
-        break;
-    }
-#else
     SDLGameRenderer_CreatePalette(ph);
-#endif
-
-    flPTNum += 1;
     return 1;
 }
 
@@ -542,23 +312,18 @@ u32 flPS2GetPaletteHandle() {
 s32 flReleaseTextureHandle(u32 texture_handle) {
     FLTexture* lpflTexture = &flTexture[texture_handle - 1];
 
-    if ((texture_handle == 0) || (texture_handle >= 0x101) || (lpflTexture->be_flag == 0)) {
+    if ((texture_handle == 0) || (texture_handle > FL_TEXTURE_MAX) || (lpflTexture->be_flag == 0)) {
         flPS2SystemError(0, "ERROR flReleaseTextureHandle flps2vram.c");
     }
 
-#if !defined(TARGET_PS2)
     SDLGameRenderer_DestroyTexture(texture_handle);
-#endif
-
-    flPS2DmaTerminate();
-    flPS2DeleteVramList(lpflTexture);
+    flPS2DeleteVramList(lpflTexture); // FIXME: we don't really need to keep track of vram
 
     if (lpflTexture->mem_handle != 0) {
         flPS2ReleaseSystemMemory(lpflTexture->mem_handle);
     }
 
     flMemset(lpflTexture, 0, sizeof(FLTexture));
-    flCTNum -= 1;
     return 1;
 }
 
@@ -569,19 +334,14 @@ s32 flReleasePaletteHandle(u32 palette_handle) {
         flPS2SystemError(0, "ERROR flReleasePaletteHandle flps2vram.c");
     }
 
-#if !defined(TARGET_PS2)
     SDLGameRenderer_DestroyPalette(palette_handle);
-#endif
-
-    flPS2DmaTerminate();
-    flPS2DeleteVramList(lpflPalette);
+    flPS2DeleteVramList(lpflPalette); // FIXME: we don't really need to keep track of vram
 
     if (lpflPalette->mem_handle != 0) {
         flPS2ReleaseSystemMemory(lpflPalette->mem_handle);
     }
 
     flMemset(lpflPalette, 0, sizeof(FLTexture));
-    flPTNum -= 1;
     return 1;
 }
 
@@ -641,15 +401,7 @@ s32 flPS2LockTexture(Rect* /* unused */, FLTexture* lpflTexture, plContext* lpco
         if (lpflTexture->mem_handle == 0) {
             buff_ptr1 = mflTemporaryUse(lpflTexture->size * 2);
             buff_ptr = buff_ptr1 + lpflTexture->size;
-            flPS2StoreImageB((uintptr_t)buff_ptr1,
-                             lpflTexture->size,
-                             lpflTexture->tbp,
-                             lpflTexture->width / 64,
-                             lpflTexture->format,
-                             0,
-                             0,
-                             lpflTexture->width,
-                             lpflTexture->height);
+            // Loading an image from VRAM used to be here
         } else {
             buff_ptr = mflTemporaryUse(lpflTexture->size);
             buff_ptr1 = flPS2GetSystemBuffAdrs(lpflTexture->mem_handle);
@@ -786,15 +538,7 @@ s32 flPS2LockTexture(Rect* /* unused */, FLTexture* lpflTexture, plContext* lpco
         buff_ptr = mflTemporaryUse(lpflTexture->size);
 
         if (lpflTexture->mem_handle == 0) {
-            flPS2StoreImageB((uintptr_t)buff_ptr,
-                             lpflTexture->size,
-                             lpflTexture->tbp,
-                             lpflTexture->width / 64,
-                             lpflTexture->format,
-                             0,
-                             0,
-                             lpflTexture->width,
-                             lpflTexture->height);
+            // Loading an image from VRAM used to be here
         } else {
             buff_ptr1 = flPS2GetSystemBuffAdrs(lpflTexture->mem_handle);
             flMemcpy(buff_ptr, buff_ptr1, lpflTexture->size);
@@ -1058,14 +802,9 @@ s32 flUnlockTexture(u32 th) {
         return 0;
     }
 
-  
-#if defined(TARGET_PS2)
-    return flPS2UnlockTexture(lpflTexture);
-#else
-    int ret = flPS2UnlockTexture(lpflTexture);
+    const s32 ret = flPS2UnlockTexture(lpflTexture);
     SDLGameRenderer_UnlockTexture(th);
     return ret;
-#endif
 }
 
 s32 flUnlockPalette(u32 th) {
@@ -1079,13 +818,9 @@ s32 flUnlockPalette(u32 th) {
         return 0;
     }
 
-#if defined(TARGET_PS2)
-    return flPS2UnlockTexture(lpflPalette);
-#else
-    int ret = flPS2UnlockTexture(lpflPalette);
+    const s32 ret = flPS2UnlockTexture(lpflPalette);
     SDLGameRenderer_UnlockPalette(th);
     return ret;
-#endif
 }
 
 s32 flPS2UnlockTexture(FLTexture* lpflTexture) {
@@ -1263,119 +998,9 @@ s32 flPS2UnlockTexture(FLTexture* lpflTexture) {
             flPS2DeleteVramList(lpflTexture);
             return 1;
         }
-
-        dma_size = flPS2VIF1CalcLoadImageSize(lpflTexture->size);
-        dma_ptr = flPS2GetSystemTmpBuff(dma_size, 0x10);
-
-        if (lpflTexture->dma_type == 0) {
-            last_tag = flPS2VIF1MakeLoadImage(dma_ptr,
-                                              1,
-                                              trans_ptr,
-                                              lpflTexture->size,
-                                              lpflTexture->tbp,
-                                              lpflTexture->width / 64,
-                                              lpflTexture->format,
-                                              0,
-                                              0,
-                                              lpflTexture->width,
-                                              lpflTexture->height);
-        } else {
-            last_tag = flPS2VIF1MakeLoadImage(dma_ptr,
-                                              1,
-                                              trans_ptr,
-                                              lpflTexture->size,
-                                              lpflTexture->tbp,
-                                              lpflTexture->dma_width / 64,
-                                              0,
-                                              0,
-                                              0,
-                                              lpflTexture->dma_width,
-                                              lpflTexture->dma_height);
-        }
-
-        flPS2DmaAddQueue2(0, (dma_ptr & 0xFFFFFFF) | 0x10000000, last_tag, &flPs2VIF1Control);
-        dma_size = flPS2VIF1CalcEndLoadImageSize(lpflTexture->size);
-        dma_ptr = flPS2GetSystemTmpBuff(dma_size, 0x10);
-        flPS2VIF1MakeEndLoadImage(dma_ptr, 1);
-        flPS2DmaAddQueue2(0, dma_ptr & 0xFFFFFFF, dma_ptr, &flPs2VIF1Control);
-        flDebugRTNum += 1;
     }
 
     return 1;
-}
-
-void flReloadTexture(s32 count, u32* texlist) {
-    flPS2ReloadTexture(count, texlist);
-}
-
-s32 flPS2ReloadTexture(s32 count, u32* texlist) {
-    LPVram* lpVram;
-    FLTexture* lpflTexture;
-    FLTexture* lpflKeep;
-    u32 th;
-    s32 i;
-    s32 j;
-    u32 dma_size;
-    uintptr_t dma_ptr;
-    s32 trans_ctr;
-
-    lpflKeep = NULL;
-    trans_ctr = 0;
-
-    for (i = 0; i < count; i++) {
-        th = texlist[i];
-
-#if defined(TARGET_PS2)
-        for (j = 0; j < 2; j++) {
-            if (j == 0) {
-                if (LO_16_BITS(th) && (LO_16_BITS(th) < FL_TEXTURE_MAX)) {
-                    lpflTexture = &flTexture[LO_16_BITS(th) - 1];
-                } else {
-                    continue;
-                }
-            } else {
-                if ((HI_16_BITS(th) != 0) && (HI_16_BITS(th) < FL_PALETTE_MAX)) {
-                    lpflTexture = &flPalette[HI_16_BITS(th) - 1];
-                } else {
-                    continue;
-                }
-            }
-
-            if (lpflTexture->vram_on_flag == 0) {
-                if ((lpVram = flPS2SearchVramSpace(lpflTexture->block_size, lpflTexture->block_align)) !=
-                    LPVRAM_ERROR) {
-                    if (flPS2AddVramList(lpVram, lpflTexture) == 0) {
-                        flLogOut("Not Reload Texture @flReloadTexture");
-                        assert(0);
-                    }
-                } else {
-                    while ((lpVram = flPS2SearchVramChange(lpflTexture, texlist, count)) == LPVRAM_ERROR) {
-                        flPS2SystemError(0, "ERROR flPS2ReloadTexture flps2vram.c");
-                    }
-
-                    if (flPS2RewriteVramList(lpVram, lpflTexture) == 0) {
-                        flLogOut("Not Reload Texture @flReloadTexture");
-                        assert(0);
-                    }
-                }
-
-                flPS2VramTrans(lpflTexture);
-                lpflKeep = lpflTexture;
-                trans_ctr += 1;
-                flDebugRTNum += 1;
-            }
-        }
-#endif
-    }
-
-    if (lpflKeep != NULL) {
-        dma_size = flPS2VIF1CalcEndLoadImageSize(0);
-        dma_ptr = flPS2GetSystemTmpBuff(dma_size, 0x10);
-        flPS2VIF1MakeEndLoadImage(dma_ptr, 1);
-        flPS2DmaAddQueue2(0, dma_ptr & 0xFFFFFFF, dma_ptr, &flPs2VIF1Control);
-    }
-
-    return trans_ctr;
 }
 
 s16 flPS2GetTextureBuffWidth(s16 width) {
@@ -1984,14 +1609,12 @@ void BlockConv8to32(u8* p_input, u8* p_output, s32 p_page_w) {
 void flPS2VramInit() {
     s32 i;
 
-    flCTH = 1;
     flVramStaticNum = 0;
 
     for (i = 0; i < VRAM_BLOCK_HEADER_SIZE; i++) {
         flMemset(&flVramStatic[i], 0, sizeof(VRAMBlockHeader));
     }
 
-    flVramNum = 0;
     flVramList = NULL;
 
     for (i = 0; i < VRAM_CONTROL_SIZE; i++) {
@@ -2009,7 +1632,6 @@ LPVram* flPS2PullVramWork(LPVram* /* unused */, s32 /* unused */)
 
     for (i = 0; i < VRAM_CONTROL_SIZE; i++) {
         if (flVramControl[i].tbp == 0) {
-            flVramNum += 1;
             return &flVramControl[i];
         }
     }
@@ -2040,7 +1662,6 @@ void flPS2PushVramWork(LPVram* lpVram) {
     }
 
     flMemset(lpVram, 0, sizeof(LPVram));
-    flVramNum -= 1;
 }
 
 void flPS2ChainVramWork(LPVram* lpParent, LPVram* lpVram) {
@@ -2160,14 +1781,6 @@ s32 flPS2RewriteVramList(LPVram* lpVram, FLTexture* lpflTexture) {
     lpVram->flag = lpflTexture->flag;
     lpVram->block_size = lpflTexture->block_size;
     lpVram->block_align = lpflTexture->block_align;
-    return 1;
-}
-
-s32 flPS2DeleteAllVramList() {
-    while (flVramList != NULL) {
-        flPS2PushVramWork(flVramList);
-    }
-
     return 1;
 }
 

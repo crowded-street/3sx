@@ -1,4 +1,9 @@
-#include "sf33rd/Source/Game/GD3rd.h"
+/**
+ * @file gd3rd.c
+ * AFS file reading
+ */
+
+#include "sf33rd/Source/Game/io/gd3rd.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/cse.h"
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"

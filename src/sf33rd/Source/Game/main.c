@@ -13,8 +13,6 @@
 #include "sf33rd/Source/Game/AcrUtil.h"
 #include "sf33rd/Source/Game/DC_Ghost.h"
 #include "sf33rd/Source/Game/EFFECT.h"
-#include "sf33rd/Source/Game/GD3rd.h"
-#include "sf33rd/Source/Game/IOConv.h"
 #include "sf33rd/Source/Game/MTRANS.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/RAMCNT.h"
@@ -32,6 +30,9 @@
 #include "sf33rd/Source/PS2/mc/mcsub.h"
 #include "sf33rd/Source/PS2/ps2Quad.h"
 #include "structs.h"
+
+#include "sf33rd/Source/Game/io/gd3rd.h"
+#include "sf33rd/Source/Game/io/ioconv.h"
 
 #if defined(DEBUG)
 #include "sf33rd/Source/Game/debug/debug_config.h"
@@ -67,7 +68,6 @@ static void game_step_1();
 static void init_windows_console();
 
 void distributeScratchPadAddress();
-void MaskScreenEdge();
 void appCopyKeyData();
 u8* mppMalloc(u32 size);
 void njUserInit();
@@ -172,9 +172,8 @@ static void game_init() {
     DebugConfig_Init();
 #endif
 
-    flInitialize(flPs2State.DispWidth, flPs2State.DispHeight);
+    flInitialize();
     flSetRenderState(FLRENDER_BACKCOLOR, 0);
-    flSetDebugMode(0);
     system_init_level = 0;
     ppgWorkInitializeApprication();
     distributeScratchPadAddress();
@@ -187,21 +186,11 @@ static void game_init() {
 }
 
 static void game_step_0() {
-    initRenderState(0);
     mpp_w.ds_h[0] = mpp_w.ds_h[1];
     mpp_w.ds_v[0] = mpp_w.ds_v[1];
     mpp_w.ds_h[1] = 100;
     mpp_w.ds_v[1] = 100;
-    mpp_w.vprm.x0 = 0.0f;
-    mpp_w.vprm.y0 = 0.0f;
-    mpp_w.vprm.x1 = (mpp_w.ds_h[0] * 384) / 100.0f;
-    mpp_w.vprm.y1 = (mpp_w.ds_v[0] * 224) / 100.0f;
-    mpp_w.vprm.ne = -1.0f;
-    mpp_w.vprm.fa = 1.0f;
 
-    appViewSetItems(&mpp_w.vprm);
-    appViewMatrix();
-    flAdjustScreen(X_Adjust + Correct_X[0], Y_Adjust + Correct_Y[0]);
     setBackGroundColor(0xFF000000);
 
     if (Debug_w[0x43]) {
@@ -284,44 +273,14 @@ static void game_step_0() {
     }
 
     appCopyKeyData();
-    render_start();
 
     mpp_w.inGame = 0;
 
     njUserMain();
-    MaskScreenEdge();
     seqsBeforeProcess();
     njdp2d_draw();
     seqsAfterProcess();
-
-    if (Debug_w[6] == 0) {
-        CP3toPS2Draw();
-    }
-
     KnjFlush();
-    render_end();
-
-    u32 sysinfodisp = 0;
-
-    if (Debug_w[2] == 2) {
-        sysinfodisp = 3;
-    }
-
-    if (Debug_w[2] == 1) {
-        sysinfodisp = 2;
-    }
-
-    switch (mpp_w.sysStop) {
-    case 2:
-        sysinfodisp = 0;
-        break;
-
-    case 1:
-        sysinfodisp &= ~2;
-        break;
-    }
-
-    flSetDebugMode(sysinfodisp);
     disp_effect_work();
     flFlip(0);
 }
@@ -345,31 +304,6 @@ void distributeScratchPadAddress() {
     dctex_linear = (s16*)dctex_linear_mem;
     texcash_melt_buffer = (u8*)texcash_melt_buffer_mem;
     tpu_free = (TexturePoolUsed*)tpu_free_mem;
-}
-
-void MaskScreenEdge() {
-    VPRM prm;
-    f32 pos[8];
-
-    appViewGetItems(&prm);
-
-    if (prm.x1 < 384.0f) {
-        pos[0] = pos[4] = mpp_w.vprm.x1;
-        pos[2] = pos[6] = 384.0f;
-        pos[1] = pos[3] = mpp_w.vprm.y0;
-        pos[5] = pos[7] = 224.0f;
-
-        njdp2d_sort(pos, PrioBase[0], (0xFF << 24), 0);
-    }
-
-    if (prm.y1 < 224.0f) {
-        pos[0] = pos[4] = mpp_w.vprm.x0;
-        pos[2] = pos[6] = 384.0f;
-        pos[1] = pos[3] = mpp_w.vprm.y1;
-        pos[5] = pos[7] = 224.0f;
-
-        njdp2d_sort(pos, PrioBase[0], (0xFF << 24), 0);
-    }
 }
 
 s32 mppGetFavoritePlayerNumber() {
@@ -413,14 +347,6 @@ void njUserInit() {
     mpp_w.language = 0;
     mpp_w.langload = -1;
     mpp_w.pal50Hz = 0;
-    mpp_w.vprm.x0 = 0.0f;
-    mpp_w.vprm.y0 = 0.0f;
-    mpp_w.vprm.x1 = 384.0f;
-    mpp_w.vprm.y1 = 224.0f;
-    mpp_w.vprm.ne = -1.0f;
-    mpp_w.vprm.fa = 1.0f;
-    appViewSetItems(&mpp_w.vprm);
-    appViewMatrix();
     mmSystemInitialize();
     flGetFrame(&mpp_w.fmsFrame);
     seqsInitialize(mppMalloc(seqsGetUseMemorySize()));

@@ -16,10 +16,11 @@
 #include "sf33rd/Source/Game/PLS02.h"
 #include "sf33rd/Source/Game/PLS03.h"
 #include "sf33rd/Source/Game/Pow_Pow.h"
-#include "sf33rd/Source/Game/PulPul.h"
 #include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/cmb_win.h"
 #include "sf33rd/Source/Game/workuser.h"
+
+#include "sf33rd/Source/Game/io/pulpul.h"
 
 // bss
 HS hs[32];

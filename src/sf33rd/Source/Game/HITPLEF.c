@@ -3,7 +3,7 @@
 #include "sf33rd/Source/Game/EFF02.h"
 #include "sf33rd/Source/Game/HITCHECK.h"
 #include "sf33rd/Source/Game/Pow_Pow.h"
-#include "sf33rd/Source/Game/PulPul.h"
+#include "sf33rd/Source/Game/io/pulpul.h"
 
 void player_at_vs_effect_dm(s16 ix2, s16 ix) {
 #if defined(TARGET_PS2)

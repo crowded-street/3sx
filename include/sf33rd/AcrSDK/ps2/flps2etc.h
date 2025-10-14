@@ -4,7 +4,6 @@
 #include "structs.h"
 #include "types.h"
 
-void flPS2IopModuleLoad(s8* fname, s32 args, s8* argp, s32 type);
 s32 flFileRead(s8* filename, void* buf, s32 len);
 s32 flFileWrite(s8* filename, void* buf, s32 len);
 s32 flFileAppend(s8* filename, void* buf, ssize_t len);

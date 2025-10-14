@@ -20,14 +20,12 @@
 #include "sf33rd/Source/Game/Eff99.h"
 #include "sf33rd/Source/Game/EffD8.h"
 #include "sf33rd/Source/Game/EffK6.h"
-#include "sf33rd/Source/Game/GD3rd.h"
 #include "sf33rd/Source/Game/Grade.h"
 #include "sf33rd/Source/Game/MMTMCNT.h"
 #include "sf33rd/Source/Game/MTRANS.h"
 #include "sf33rd/Source/Game/Next_CPU.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/PLS02.h"
-#include "sf33rd/Source/Game/PulPul.h"
 #include "sf33rd/Source/Game/SE.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/SYS_sub2.h"
@@ -43,6 +41,8 @@
 #include "sf33rd/Source/Game/workuser.h"
 
 #include "sf33rd/Source/Game/demo/demo_dat.h"
+#include "sf33rd/Source/Game/io/gd3rd.h"
+#include "sf33rd/Source/Game/io/pulpul.h"
 #include "sf33rd/Source/Game/menu/menu.h"
 
 void Switch_Work();

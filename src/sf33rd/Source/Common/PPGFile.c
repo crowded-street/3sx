@@ -140,7 +140,6 @@ void ppgWriteQuadOnly(Vertex* pos, u32 col, u32 texCode) {
     s32 i;
 
     flSetRenderState(FLRENDER_TEXSTAGE0, texCode);
-    ps2SeqsRenderQuadInit_A();
 
     for (i = 0; i < 4; i++) {
         prm.v[i] = ((_Vertex*)pos)[i].v;
@@ -148,14 +147,12 @@ void ppgWriteQuadOnly(Vertex* pos, u32 col, u32 texCode) {
     }
 
     ps2SeqsRenderQuad_A(&prm, col);
-    ps2SeqsRenderQuadEnd();
 }
 
 void ppgWriteQuadOnly2(Vertex* pos, u32 col, u32 texCode) {
     Sprite prm;
 
     flSetRenderState(FLRENDER_TEXSTAGE0, texCode);
-    ps2SeqsRenderQuadInit_A();
 
     prm.v[0] = ((_Vertex*)pos)[0].v;
     prm.t[0] = ((_Vertex*)pos)[0].t;
@@ -163,7 +160,6 @@ void ppgWriteQuadOnly2(Vertex* pos, u32 col, u32 texCode) {
     prm.t[3] = ((_Vertex*)pos)[3].t;
 
     ps2SeqsRenderQuad_A2(&prm, col);
-    ps2SeqsRenderQuadEnd();
 }
 
 s32 ppgWriteQuadWithST_B(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix) {

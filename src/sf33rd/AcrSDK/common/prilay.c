@@ -10,8 +10,6 @@
 #endif
 
 s8 plReportMessage[2048];
-void* (*plmalloc)(s32);
-void (*plfree)(void*);
 
 s32 plReport(s8* format, ...) {
     s8* va_ptr;
