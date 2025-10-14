@@ -14,13 +14,7 @@
 #include "sf33rd/Source/Game/ta_sub.h"
 
 void effect_B7_move(WORK_Other* ewk) {
-<<<<<<< HEAD:src/sf33rd/Source/Game/effect/effb7.c
     NAME_WK* np = (NAME_WK*)ewk->my_master;
-=======
-#if defined(TARGET_PS2)
-    void set_char_move_init2(WORK * wk, s32 koc, s32 index, s32 ip, s32 scf);
-#endif
->>>>>>> upstream/main:src/sf33rd/Source/Game/EFFB7.c
 
     switch (ewk->wu.routine_no[0]) {
     case 0:

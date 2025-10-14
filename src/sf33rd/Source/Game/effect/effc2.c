@@ -878,14 +878,7 @@ void set_1st_Bonus_Game_result(WORK* wk) {
 }
 
 void set_bs2_floor(WORK_Other* wk) {
-<<<<<<< HEAD:src/sf33rd/Source/Game/effect/effc2.c
     PLW* em = (PLW*)((WORK*)wk->my_master)->target_adrs;
-=======
-#if defined(TARGET_PS2)
-    void player_hosei_data(WORK_Other * ewk, s32 flag, s16 f2);
-#endif
-
->>>>>>> upstream/main:src/sf33rd/Source/Game/EFFC2.c
     s16* dad;
 
     player_hosei_data(wk, wk->wu.dir_timer, 1);

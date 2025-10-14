@@ -18,13 +18,7 @@
 const s16 WinLoseID[2][2];
 
 void effect_33_move(WORK_Other* ewk) {
-<<<<<<< HEAD:src/sf33rd/Source/Game/effect/eff33.c
     WORK* oya_ptr = (WORK*)ewk->my_master;
-=======
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
->>>>>>> upstream/main:src/sf33rd/Source/Game/EFF33.c
 
     switch (ewk->wu.routine_no[0]) {
     case 0:

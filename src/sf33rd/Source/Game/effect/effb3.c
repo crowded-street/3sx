@@ -7,11 +7,6 @@
 #include "bin2obj/char_table.h"
 #include "common.h"
 #include "sf33rd/Source/Game/CHARSET.h"
-<<<<<<< HEAD:src/sf33rd/Source/Game/effect/effb3.c
-#include "sf33rd/Source/Game/SE.h"
-=======
-#include "sf33rd/Source/Game/EFFECT.h"
->>>>>>> upstream/main:src/sf33rd/Source/Game/effb3.c
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/effect/effb2.h"
 #include "sf33rd/Source/Game/effect/effb9.h"

@@ -8,11 +8,6 @@
 #include "common.h"
 #include "sf33rd/Source/Game/CALDIR.h"
 #include "sf33rd/Source/Game/CHARSET.h"
-<<<<<<< HEAD:src/sf33rd/Source/Game/effect/eff82.c
-#include "sf33rd/Source/Game/SE.h"
-=======
-#include "sf33rd/Source/Game/EFFECT.h"
->>>>>>> upstream/main:src/sf33rd/Source/Game/EFF82.c
 #include "sf33rd/Source/Game/SLOWF.h"
 #include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/bg.h"

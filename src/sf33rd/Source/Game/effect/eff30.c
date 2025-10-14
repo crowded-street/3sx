@@ -18,13 +18,7 @@
 #include "sf33rd/Source/Game/workuser.h"
 
 void effect_30_move(WORK_Other* ewk) {
-<<<<<<< HEAD:src/sf33rd/Source/Game/effect/eff30.c
     WORK* oya_ptr = (WORK*)ewk->my_master;
-=======
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
->>>>>>> upstream/main:src/sf33rd/Source/Game/EFF30.c
 
     switch (ewk->wu.routine_no[0]) {
     case 0:

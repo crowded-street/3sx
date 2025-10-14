@@ -5,11 +5,6 @@
 
 #include "sf33rd/Source/Game/effect/eff58.h"
 #include "common.h"
-<<<<<<< HEAD:src/sf33rd/Source/Game/effect/eff58.c
-#include "sf33rd/Source/Game/SE.h"
-=======
-#include "sf33rd/Source/Game/EFFECT.h"
->>>>>>> upstream/main:src/sf33rd/Source/Game/EFF58.c
 #include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/bg.h"
