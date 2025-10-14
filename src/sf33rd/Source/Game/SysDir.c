@@ -80,7 +80,7 @@ void init_omop() {
     omop_spmv_ng_table2[0] |= 0x400000;
     omop_spmv_ng_table2[0] |= 0x800000;
 
-    if (Mode_Type == 2) {
+    if (Mode_Type == MODE_NETWORK) {
         get_system_direction_parameter((DirData*)&system_dir[2]);
         get_extra_option_parameter(&save_w[2].extra_option);
     } else if (Demo_Flag == 0) {

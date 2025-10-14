@@ -172,7 +172,7 @@ void Win_3rd() {
                 My_char[1] = Debug_w[0x1E] - 1;
             }
 
-            if (Mode_Type == 0) {
+            if (Mode_Type == MODE_ARCADE) {
                 Push_LDREQ_Queue_Player(Winner_id, My_char[Winner_id]);
             }
         }
@@ -201,7 +201,7 @@ void Win_5th() {
             M_Timer = 9;
             M_No[1] += 1;
 
-            if (Mode_Type == 0) {
+            if (Mode_Type == MODE_ARCADE) {
                 SsBgmFadeOut(0x1000);
             }
         }
@@ -291,13 +291,13 @@ void Lose_3rd() {
 }
 
 void Setup_Wins_OBJ() {
-    if (Mode_Type == 1) {
+    if (Mode_Type == MODE_VERSUS) {
         WGJ_Win = VS_Win_Record[Winner_id];
     } else {
         WGJ_Win = Win_Record[Winner_id];
     }
 
-    if ((WGJ_Win == 0) || (Mode_Type == 2)) {
+    if ((WGJ_Win == 0) || (Mode_Type == MODE_NETWORK)) {
         return;
     }
 

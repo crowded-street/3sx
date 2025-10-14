@@ -307,7 +307,18 @@ extern u8 Play_Game;
 extern s8 Menu_Cursor_Move;
 extern u8 flash_win_type[2][4];
 extern u8 sync_win_type[2][4];
-extern u8 Mode_Type;
+
+typedef enum ModeType {
+    MODE_ARCADE,
+    MODE_VERSUS,
+    MODE_NETWORK,
+    MODE_NORMAL_TRAINING,
+    MODE_PARRY_TRAINING,
+    MODE_REPLAY,
+} ModeType;
+
+extern ModeType Mode_Type;
+
 extern s8 Menu_Page;
 extern s8 Menu_Max;
 extern u8 reset_NG_flag;

@@ -474,7 +474,7 @@ void grade_makeup_stage_parameter(s16 ix) {
     s16 bs;
     s16 qc;
 
-    if ((Mode_Type != 5) && (Mode_Type != 1) && (Round_Operator[ix] == 0)) {
+    if ((Mode_Type != 5) && (Mode_Type != MODE_VERSUS) && (Round_Operator[ix] == 0)) {
         grade_makeup_stage_para_com(ix);
         return;
     }

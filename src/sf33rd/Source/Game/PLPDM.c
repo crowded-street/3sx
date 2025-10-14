@@ -1599,7 +1599,7 @@ void subtract_dm_vital(PLW* wk) {
         }
     }
 
-    if (Mode_Type == 3 && (Training_ID != wk->wu.id)) {
+    if (Mode_Type == MODE_NORMAL_TRAINING && (Training_ID != wk->wu.id)) {
         Training_Damage_Set(wk->wu.dm_vital, wk->wu.dm_piyo, wk->wu.kezurare_flag);
     }
 
@@ -1660,7 +1660,7 @@ void subtract_dm_vital_aiuchi(PLW* wk) {
 
     pp_pulpara_remake_dm_all(&wk->wu);
 
-    if (Mode_Type == 3 && (Training_ID != wk->wu.id)) {
+    if (Mode_Type == MODE_NORMAL_TRAINING && (Training_ID != wk->wu.id)) {
         Training_Damage_Set(wk->wu.dm_vital, wk->wu.dm_piyo, wk->wu.kezurare_flag);
     }
 

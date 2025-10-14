@@ -41,7 +41,7 @@ s32 Check_Play_Status(s16 PL_id);
 void Pause_Task(struct _TASK* task_ptr) {
     void (*Main_Jmp_Tbl[4])(struct _TASK*) = { Pause_Check, Pause_Move, Pause_Sleep, Pause_Die };
 
-    if (!nowSoftReset() && Mode_Type != 2 && Mode_Type != 3 && Mode_Type != 4) {
+    if (!nowSoftReset() && Mode_Type != MODE_NETWORK && Mode_Type != MODE_NORMAL_TRAINING && Mode_Type != MODE_PARRY_TRAINING) {
         Main_Jmp_Tbl[task_ptr->r_no[0]](task_ptr);
         Flash_Pause(task_ptr);
     }
@@ -257,7 +257,7 @@ void Setup_Come_Out(struct _TASK* task_ptr) {
 }
 
 s32 Check_Play_Status(s16 PL_id) {
-    if (Mode_Type != 1) {
+    if (Mode_Type != MODE_VERSUS) {
         return Round_Operator[PL_id];
     }
 

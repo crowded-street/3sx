@@ -263,7 +263,7 @@ void Score_Sub() {
     s32 assign2;
     s8 assign3;
 
-    if (Mode_Type == 3 || Mode_Type == 4) {
+    if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
         return;
     }
 
@@ -272,7 +272,7 @@ void Score_Sub() {
     }
 
     for (PL_id = 0; PL_id < 2; PL_id++) {
-        if ((Mode_Type != 1 && Mode_Type != 5) && plw[PL_id].wu.operator == 0) {
+        if ((Mode_Type != MODE_VERSUS && Mode_Type != MODE_REPLAY) && plw[PL_id].wu.operator == 0) {
             continue;
         }
 
@@ -314,7 +314,7 @@ void Disp_Win_Record() {
     }
 
     switch (Mode_Type) {
-    case 0:
+    case MODE_ARCADE:
         if (Play_Type == 1) {
             if (Win_Record[0] != 0 || Win_Record[1] != 0) {
                 if (Win_Record[0]) {
@@ -342,8 +342,8 @@ void Disp_Win_Record() {
         Disp_Win_Record_Sub(Win_Record[PL_id], zz);
         break;
 
-    case 1:
-    case 2:
+    case MODE_VERSUS:
+    case MODE_NETWORK:
         if (VS_Win_Record[0] > 0) {
             Disp_Win_Record_Sub(VS_Win_Record[0], 5);
         }
@@ -352,6 +352,10 @@ void Disp_Win_Record() {
             Disp_Win_Record_Sub(VS_Win_Record[1], 43);
         }
 
+        break;
+
+    default:
+        // Do nothing
         break;
     }
 }
@@ -758,7 +762,7 @@ void cpRevivalTask() {
 s32 Check_Menu_Task() {
     struct _TASK* task_ptr = &task[3];
 
-    if (Mode_Type == 3 || Mode_Type == 4) {
+    if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
         if (task[3].r_no[0] == 7 && task[3].r_no[1] == 7) {
             return 1;
         }
@@ -1023,7 +1027,7 @@ void Reset_Sub0() {
     Play_Game = 0;
     Forbid_Break = 0;
     Extra_Break = 0;
-    Mode_Type = 0;
+    Mode_Type = MODE_ARCADE;
     Present_Mode = 1;
     Play_Mode = 0;
     Replay_Status[0] = 0;
@@ -1057,7 +1061,7 @@ void Check_Replay() {
         Condense_Buff[1] = 0xFFFF;
         memset(&Replay_w, 0, sizeof(Replay_w));
 
-        if (Mode_Type == 3 || Mode_Type == 4) {
+        if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
             for (ix = 0; ix < 0x1C1E; ix++) {
                 Replay_w.io_unit.key_buff[0][ix] = 0xF000;
                 Replay_w.io_unit.key_buff[1][ix] = 0xF000;

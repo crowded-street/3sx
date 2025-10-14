@@ -14,7 +14,7 @@ void effect_E4_move(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        if (mwk->wu.E4_work_index != ewk->wu.myself || ewk->wu.dead_f != 0 || (Mode_Type != 3 && Mode_Type != 4)) {
+        if (mwk->wu.E4_work_index != ewk->wu.myself || ewk->wu.dead_f != 0 || (Mode_Type != MODE_NORMAL_TRAINING && Mode_Type != MODE_PARRY_TRAINING)) {
             ewk->wu.routine_no[0] = 2;
             break;
         }
@@ -25,7 +25,7 @@ void effect_E4_move(WORK_Other* ewk) {
 
         mwk->init_E4_flag = 0;
 
-        if (Mode_Type != 4) {
+        if (Mode_Type != MODE_PARRY_TRAINING) {
             break;
         }
 

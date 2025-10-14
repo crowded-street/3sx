@@ -597,7 +597,7 @@ void plcnt_move() {
         plw[0].wu.dm_vital = plw[1].wu.dm_vital = 0;
     }
 
-    if (Mode_Type == 3 && Training->contents[0][1][3] == 0) {
+    if (Mode_Type == MODE_NORMAL_TRAINING && Training->contents[0][1][3] == 0) {
         plw[0].wu.dm_nodeathattack = 1;
         plw[1].wu.dm_nodeathattack = 1;
     }
@@ -1245,7 +1245,7 @@ void setup_base_and_other_data() {
     poison_flag[0] = 0;
     poison_flag[1] = 0;
 
-    if (Mode_Type == 3 || Mode_Type == 4) {
+    if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
         effect_E3_init(&plw[0]);
         effect_E3_init(&plw[1]);
         effect_E4_init(&plw[0]);
