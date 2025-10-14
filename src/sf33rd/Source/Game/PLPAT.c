@@ -20,6 +20,7 @@
 #include "sf33rd/Source/Game/PLS00.h"
 #include "sf33rd/Source/Game/PLS01.h"
 #include "sf33rd/Source/Game/PLS02.h"
+#include "sf33rd/Source/Game/effect/effg6.h"
 #include "sf33rd/Source/Game/plpat10.h"
 #include "sf33rd/Source/Game/plpat14.h"
 #include "sf33rd/Source/Game/plpat16.h"
