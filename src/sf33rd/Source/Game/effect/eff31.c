@@ -18,8 +18,6 @@
 #include "sf33rd/Source/Game/workuser.h"
 
 void effect_31_move(WORK_Other* ewk) {
-    WORK* oya_ptr = (WORK*)ewk->my_master;
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0]++;

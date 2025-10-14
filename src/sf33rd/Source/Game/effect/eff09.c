@@ -783,8 +783,6 @@ void eff09_11000(WORK_Other* ewk) {
 }
 
 void eff09_12000(WORK_Other* ewk) {
-    WORK* oya_ptr = (WORK*)ewk->my_master;
-
     switch (ewk->wu.routine_no[1]) {
     case 0:
         ewk->wu.routine_no[1]++;
@@ -1138,8 +1136,6 @@ void eff09_18000(WORK_Other* ewk) {
 }
 
 void eff09_19000(WORK_Other* ewk) {
-    WORK* oya_ptr;
-
     if (obr_no_disp_check()) {
         return;
     }
@@ -1540,8 +1536,6 @@ void eff09_24000(WORK_Other* ewk) {
 }
 
 void eff09_25000(WORK_Other* ewk) {
-    WORK* oya_ptr = (WORK*)ewk->my_master;
-
     switch (ewk->wu.routine_no[1]) {
     case 0:
         ewk->wu.routine_no[1]++;

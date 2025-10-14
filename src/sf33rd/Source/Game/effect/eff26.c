@@ -24,8 +24,6 @@ const s16 eff26_num[1] = { 1 };
 const s16 eff26_data_0000[1] = { 0 };
 
 void effect_26_move(WORK_Other* ewk) {
-    WORK_Other* oya;
-
     if (obr_no_disp_check()) {
         return;
     }
