@@ -581,7 +581,6 @@ void KnjPrintf(const s8* fmt, ...) {
 void KnjFlush() {
     u32* pp;
     u32 psize;
-    uintptr_t ptr;
     _kanji_w* kw = &kanji_w;
 
     if (KnjUseCheck() != 0) {
@@ -915,7 +914,6 @@ static s32 is_unicode_han(_kanji_w* kw, u32 index) {
 }
 
 static void unicode_puts(_kanji_w* kw, const s8* str) {
-    s32 x;
     const u8* str_buf;
     u32 code;
     u32 index;
@@ -924,7 +922,6 @@ static void unicode_puts(_kanji_w* kw, const s8* str) {
     u32 han_f;
 
     str_buf = (const u8*)str;
-    x = kw->x;
     pp = kw->pack_cur;
 
     while (1) {
@@ -1085,33 +1082,6 @@ static u32* make_env_pkt(u32* p, u32 /* unused */, u32 /* unused */) {
 }
 
 static u32* make_img_pkt(u32* p, u32* img, u32 dbp, u32 dbw, u32 dbsm, u32 dsax, u32 dsay, u32 rrw, u32 rrh) {
-    s32 nw;
-    s32 pw;
-    s32 md;
-
-    md = dbsm & 7;
-    pw = 8;
-
-    if (md == 0) {
-        pw = 8;
-    }
-
-    if (md == 1) {
-        pw = 6;
-    }
-
-    if (md == 2) {
-        pw = 4;
-    }
-
-    if (md == 3) {
-        pw = 2;
-    }
-
-    if (md == 4) {
-        pw = 1;
-    }
-
 #if !defined(TARGET_PS2)
     SDLMessageRenderer_CreateTexture(rrw, rrh, img, dbsm);
 #else
@@ -1175,7 +1145,6 @@ static u32* make_fnt_pkt(_kanji_w* kw, u32* p, u32* img, u32 han_f) {
     u32 v1;
     u32 xs;
     u32 ys;
-    u32 m;
 
     p = make_img_pkt(p, img, kw->fdbp, 1, SCE_GS_PSMT4, 0, 0, kw->fontw, kw->fonth);
     p = make_fbg_pkt(kw, p, img, han_f);
@@ -1196,7 +1165,6 @@ static u32* make_fnt_pkt(_kanji_w* kw, u32* p, u32* img, u32 han_f) {
     y1 = y0 + ys;
     u1 = ((kw->fontw * 16) >> han_f);
     v1 = kw->fonth * 16;
-    m = ((kw->dispw == kw->fontw) && (kw->disph == kw->fonth)) ? 0 : 1;
 
 #if !defined(TARGET_PS2)
     SDLMessageRenderer_DrawTexture(x0, y0, x1, y1, 0, 0, u1, v1, kw->color);
@@ -1242,7 +1210,6 @@ static u32* make_fbg_pkt(_kanji_w* kw, u32* p, u32* /* unused */, u32 han_f) {
     u32 v1;
     u32 xs;
     u32 ys;
-    u32 m;
 
     if (kw->bg_mode == 0) {
         return p;
@@ -1265,7 +1232,6 @@ static u32* make_fbg_pkt(_kanji_w* kw, u32* p, u32* /* unused */, u32 han_f) {
     y1 = y0 + ys;
     u1 = ((kw->fontw * 16) >> han_f);
     v1 = kw->fonth * 16;
-    m = ((kw->dispw == kw->fontw) && (kw->disph == kw->fonth)) ? 0 : 1;
 
 #if !defined(TARGET_PS2)
     SDLMessageRenderer_DrawTexture(x0, y0, x1, y1, 8, 8, u1 + 8, v1 + 8, kw->bg_color);

@@ -6,7 +6,6 @@
 #define U16_AT(_ptr, _offset) (((u16*)_ptr)[_offset])
 
 s32 plBMPSetContextFromImage(plContext* dst, void* bmp) {
-    u8* lpsrc;
     u8* lp;
     s32 i;
 
@@ -23,8 +22,6 @@ s32 plBMPSetContextFromImage(plContext* dst, void* bmp) {
     lp += 0xA;
     i = U16_AT(lp, 0);
     i |= U16_AT(lp, 1) << 0x10;
-
-    lpsrc = (u8*)bmp + i;
 
     lp += 8;
     i = U16_AT(lp, 0);

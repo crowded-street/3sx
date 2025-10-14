@@ -52,8 +52,6 @@ void effl7_move(WORK_Other* ewk) {
     void set_char_move_init2(WORK * wk, s16 koc, s16 index, s16 ip);
 #endif
 
-    WORK* oya_ptr = (WORK*)ewk->my_master;
-
     switch (ewk->wu.routine_no[1]) {
     case 0:
         ewk->wu.routine_no[1] += 1;

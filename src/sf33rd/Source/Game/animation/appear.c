@@ -16,8 +16,6 @@
 #include "sf33rd/Source/Game/EFFM1.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/PLS02.h"
-#include "sf33rd/Source/Game/SE.h"
-#include "sf33rd/Source/Game/Sound3rd.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
@@ -29,6 +27,8 @@
 #include "sf33rd/Source/Game/workuser.h"
 
 #include "sf33rd/Source/Game/animation/app_data.h"
+#include "sf33rd/Source/Game/sound/se.h"
+#include "sf33rd/Source/Game/sound/sound3rd.h"
 
 s8 Appear_car_stop[] = { 0, 0 };
 s8 Appear_hv[] = { 0, 0 };
@@ -131,9 +131,6 @@ void Appear_00000(PLW* wk) {
 
 void Appear_01000(PLW* wk) {
     s16 work;
-    s16 id_w;
-
-    id_w = wk->wu.id ^ 1;
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -868,10 +865,6 @@ void Appear_15000(PLW* wk) {
 }
 
 void Appear_16000(PLW* wk) {
-    s16 id_w;
-
-    id_w = wk->wu.id ^ 1;
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -1606,15 +1599,12 @@ void don_appear_check(PLW* wk) {
 }
 
 void Appear_30000(PLW* wk) {
-    s16 work;
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
         wk->wu.disp_flag = 1;
         bg_app_stop = 1;
-        work = random_16();
-        work &= 3;
+        random_16(); // Although the result is unused, I'm keeping the call, because it changes RNG state
         appear_data_set(wk, (APPEAR_DATA*)appear_data + 24);
         set_char_move_init(&wk->wu, 9, 0xE);
         break;

@@ -2,11 +2,12 @@
 #include "common.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/PLMAIN.h"
-#include "sf33rd/Source/Game/SE.h"
 #include "sf33rd/Source/Game/SLOWF.h"
 #include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/workuser.h"
+
+#include "sf33rd/Source/Game/sound/se.h"
 
 typedef struct {
     // total size: 0x34

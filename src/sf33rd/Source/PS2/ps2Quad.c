@@ -44,8 +44,6 @@ typedef struct {
     TexCoord t;
 } _VecUnk;
 
-static s32 FilterMode;
-
 void ps2QuadTexture(VecUnk* ptr, u32 num);
 void ps2QuadSolid(VecUnk* ptr, u32 num);
 

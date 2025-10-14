@@ -13,8 +13,6 @@ void effect_B7_move(WORK_Other* ewk) {
     void set_char_move_init2(WORK * wk, s32 koc, s32 index, s32 ip, s32 scf);
 #endif
 
-    NAME_WK* np = (NAME_WK*)ewk->my_master;
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0]++;

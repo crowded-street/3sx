@@ -5051,7 +5051,6 @@ s32 Check_Shell(PLW* wk) {
     WORK* em;
     s16 i;
     s16 xx;
-    s16 zz;
 
     if (Shell_Ignore_Timer[wk->wu.id]) {
         Shell_Ignore_Timer[wk->wu.id]--;
@@ -5083,8 +5082,6 @@ s32 Check_Shell(PLW* wk) {
             }
             if (Check_Ignore_Shell(tmw) == 0) {
                 xx = Compute_Hit_Time(wk, tmw);
-
-                zz = Ck_Distance_XX(wk->wu.xyz[0].disp.pos, tmw->wu.xyz[0].disp.pos);
 
                 if (Decide_Shell_Guard(wk, tmw) != 0) {
                     return 0;
@@ -5593,8 +5590,6 @@ const Term_Tbl_t ETC_Term_Tbl[10] = { ETC_Term_0000, ETC_Term_0001, ETC_Term_000
                                       ETC_Term_0005, ETC_Term_0006, ETC_Term_0007, ETC_Term_0008, ETC_Term_0009 };
 
 void Check_BOSS(PLW* wk, u32 Next_Action, u16 Next_Menu) {
-    WORK* em = (WORK*)wk->wu.target_adrs;
-
     if (Break_Into_CPU == 1) {
         Disposal_Again[wk->wu.id] = 1;
         CP_Index[wk->wu.id][0]++;
@@ -5611,8 +5606,6 @@ void Check_BOSS(PLW* wk, u32 Next_Action, u16 Next_Menu) {
 }
 
 void Check_BOSS_EX(PLW* wk, u32 Next_Action, u16 Next_Menu) {
-    WORK* em = (WORK*)wk->wu.target_adrs;
-
     if (Break_Into_CPU != 1) {
         Disposal_Again[wk->wu.id] = 1;
         CP_Index[wk->wu.id][0]++;

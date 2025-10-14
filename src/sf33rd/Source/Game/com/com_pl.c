@@ -139,7 +139,6 @@ void Pattern_Insurance(PLW* wk, s16 Kind_Of_Insurance, s16 Forced_Number);
 const u16 Correct_Lv_Data[16] = { 0, 1, 2, 2, 4, 5, 6, 5, 8, 9, 10, 9, 8, 5, 10, 0 };
 
 u16 cpu_algorithm(PLW* wk) {
-    WORK* em = (WORK*)wk->wu.target_adrs;
     u16 sw = CPU_Sub(wk);
 
     if (Play_Mode == 1 && Replay_Status[wk->wu.id] != 99) {
@@ -367,7 +366,6 @@ void Com_Before_Passive(PLW* wk) {
 
 void Com_Guard(PLW* wk) {
     WORK* em;
-    u16 xx;
 
     if (Check_Damage(wk)) {
         return;
@@ -387,8 +385,6 @@ void Com_Guard(PLW* wk) {
     }
 
     em = (WORK*)wk->wu.target_adrs;
-    xx = Hit_Range_Data[em->hit_range];
-    xx += Com_Width_Data[wk->wu.id];
 
     if (Ck_Exit_Guard(wk, em)) {
         Check_Guard_Type(wk, em);
@@ -416,13 +412,11 @@ void Com_Guard(PLW* wk) {
 
 static s32 Check_Counter_Attack(PLW* wk) {
     s16 xx;
-    WORK* em;
 
     if (Area_Number[wk->wu.id] >= 3) {
         return 0;
     }
 
-    em = (WORK*)wk->wu.target_adrs;
     xx = Type_of_Attack[wk->wu.id] & 0xF8;
 
     if (xx == 8) {
@@ -479,7 +473,6 @@ static s16 Check_Hamari(PLW* wk) {
 
 void Com_Guard_VS_Shell(PLW* wk) {
     WORK_Other* tmw;
-    WORK* em = (WORK*)wk->wu.target_adrs;
 
     if (Check_Caught(wk)) {
         return;
@@ -1241,13 +1234,9 @@ void Flip_1st(PLW* wk) {
 }
 
 void Flip_2nd(PLW* wk) {
-    PLW* em;
-
     if (PL_Damage_Data[wk->wu.routine_no[2]] != 0) {
         return;
     }
-
-    em = (PLW*)wk->wu.target_adrs;
 
     if (Check_Flip_Attack(wk) != 0) {
         if (Select_Passive(wk) == -1) {

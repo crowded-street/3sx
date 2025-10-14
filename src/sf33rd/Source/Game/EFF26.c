@@ -23,8 +23,6 @@ void effect_26_move(WORK_Other* ewk) {
     void set_char_move_init(WORK * wk, s16 koc, s32 index);
 #endif
 
-    WORK_Other* oya;
-
     if (obr_no_disp_check()) {
         return;
     }
@@ -34,8 +32,6 @@ void effect_26_move(WORK_Other* ewk) {
         ewk->wu.disp_flag = 0;
         return;
     }
-
-    oya = (WORK_Other*)ewk->my_master;
 
     switch (ewk->wu.routine_no[0]) {
     case 0:

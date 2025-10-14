@@ -427,7 +427,6 @@ s32 msgConvertObjNum(u8* moji, s32* spc, s32* hz, u16* num, u8 hzSel) {
     s32 i;
     s32 j;
     s32 rnum;
-    s32 mjix = 0;
 
     if (hzSel != 0) {
         tmpstr[0] = moji[0];

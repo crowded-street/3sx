@@ -7,9 +7,10 @@
 #include "sf33rd/Source/Game/EFFECT.h"
 #include "sf33rd/Source/Game/PLS02.h"
 #include "sf33rd/Source/Game/SLOWF.h"
-#include "sf33rd/Source/Game/Se_Data.h"
 #include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/workuser.h"
+
+#include "sf33rd/Source/Game/sound/se_data.h"
 
 void disp_effK2(WORK* wk, WORK* mk, DADD* hk);
 void set_next_next_y(WORK* wk, u8 flag);

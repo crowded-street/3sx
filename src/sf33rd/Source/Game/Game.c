@@ -19,11 +19,9 @@
 #include "sf33rd/Source/Game/PLCNT3.h"
 #include "sf33rd/Source/Game/RANKING.h"
 #include "sf33rd/Source/Game/Reset.h"
-#include "sf33rd/Source/Game/SE.h"
 #include "sf33rd/Source/Game/SLOWF.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/SYS_sub2.h"
-#include "sf33rd/Source/Game/Sound3rd.h"
 #include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/stage/tate00.h"
 #include "sf33rd/Source/Game/VITAL.h"
@@ -56,6 +54,8 @@
 #include "sf33rd/Source/Game/menu/menu.h"
 #include "sf33rd/Source/Game/opening/op_sub.h"
 #include "sf33rd/Source/Game/opening/opening.h"
+#include "sf33rd/Source/Game/sound/se.h"
+#include "sf33rd/Source/Game/sound/sound3rd.h"
 
 void Wait_Auto_Load(struct _TASK* /* unused */);
 void Loop_Demo(struct _TASK* /* unused */);

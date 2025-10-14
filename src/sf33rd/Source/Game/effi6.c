@@ -40,8 +40,6 @@ void effect_I6_move(WORK_Other* ewk) {
 }
 
 void effi6_line_move(WORK_Other* ewk) {
-    WORK_Other* oya_ptr = (WORK_Other*)ewk->my_master;
-
     switch (ewk->wu.routine_no[1]) {
     case 0:
         ewk->wu.routine_no[1] += 1;

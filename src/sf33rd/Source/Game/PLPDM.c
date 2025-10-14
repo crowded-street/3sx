@@ -426,7 +426,6 @@ void Damage_07000(PLW* wk) {
 
 s32 remake_initial_speeds(WORK* wk) {
     s16 ix;
-    s16 ix2;
     s32 ay = wk->mvxy.a[1].sp;
     s32 dy = wk->mvxy.d[1].sp;
 
@@ -436,7 +435,6 @@ s32 remake_initial_speeds(WORK* wk) {
 
     setup_butt_own_data(wk);
     ix = dir32_guard_air[cal_move_dir_forecast(wk, 5)];
-    ix2 = ris_data_table[ix][wk->dm_attlv];
 
     if (wk->dm_attlv) {
         switch (ix) {

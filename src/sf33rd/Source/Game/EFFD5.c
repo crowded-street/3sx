@@ -10,9 +10,10 @@
 #include "sf33rd/Source/Game/PLS01.h"
 #include "sf33rd/Source/Game/PLS02.h"
 #include "sf33rd/Source/Game/SLOWF.h"
-#include "sf33rd/Source/Game/Se_Data.h"
 #include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/workuser.h"
+
+#include "sf33rd/Source/Game/sound/se_data.h"
 
 void effD5_main_process(WORK_Other* ewk);
 void cal_speeds(WORK_Other* ewk, PLW* /* unused */, PLW* twk);

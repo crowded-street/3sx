@@ -67,11 +67,6 @@ s32 flPS2SetTextureRegister(u32 th, u64* texA, u64* tex1, u64* tex0, u64* clamp,
                             u32 render_ope) {
     FLTexture* lpflTexture;
     FLTexture* lpflPalette;
-    s16 dbw;
-    s32 lp0;
-    s32 dw;
-    s32 mip_tbp[MIP_TBP_SIZE];
-    s32 mip_dbw[MIP_DBW_SIZE];
 
 #if !defined(TARGET_PS2)
     SDLGameRenderer_SetTexture(th);

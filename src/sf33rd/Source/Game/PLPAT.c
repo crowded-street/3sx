@@ -331,9 +331,6 @@ s16 ja_nmj_rno_change(WORK* wk) {
 }
 
 void check_ja_nmj_dummy_RTNM(PLW* wk) {
-    s32 temp_a0;
-    u8 temp_v1;
-
     if (wk->wu.xyz[1].disp.pos <= 0) {
         wk->ja_nmj_rno = 0;
         return;

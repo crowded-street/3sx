@@ -17,8 +17,6 @@ void effect_31_move(WORK_Other* ewk) {
     void set_char_move_init(WORK * wk, s16 koc, s32 index);
 #endif
 
-    WORK* oya_ptr = (WORK*)ewk->my_master;
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0]++;

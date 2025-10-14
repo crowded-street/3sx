@@ -10,30 +10,18 @@
 #include "sf33rd/Source/Game/texcash.h"
 #include "sf33rd/Source/Game/workuser.h"
 
-void eff15_kemuri(WORK_Other* ewk);
 void eff15_koishi(WORK_Other* ewk);
 
 void effect_15_move(WORK_Other* ewk) {
     if (ewk->wu.type) {
         eff15_koishi(ewk);
-    } else {
-        eff15_kemuri(ewk);
     }
-}
-
-void eff15_kemuri(WORK_Other* ewk) {
-    WORK* oya_ptr;
-
-    (void)ewk;
-    (void)oya_ptr;
 }
 
 void eff15_koishi(WORK_Other* ewk) {
 #if defined(TARGET_PS2)
     void set_char_move_init(WORK * wk, s16 koc, s32 index);
 #endif
-
-    WORK* oya_ptr = (WORK*)ewk->my_master;
 
     switch (ewk->wu.routine_no[0]) {
     case 0:

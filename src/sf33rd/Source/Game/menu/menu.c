@@ -24,11 +24,9 @@
 #include "sf33rd/Source/Game/Pause.h"
 #include "sf33rd/Source/Game/RAMCNT.h"
 #include "sf33rd/Source/Game/Reset.h"
-#include "sf33rd/Source/Game/SE.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/SYS_sub2.h"
 #include "sf33rd/Source/Game/Saver.h"
-#include "sf33rd/Source/Game/Sound3rd.h"
 #include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/stage/bg.h"
@@ -52,6 +50,8 @@
 #include "sf33rd/Source/Game/io/vm_sub.h"
 #include "sf33rd/Source/Game/menu/dir_data.h"
 #include "sf33rd/Source/Game/menu/ex_data.h"
+#include "sf33rd/Source/Game/sound/se.h"
+#include "sf33rd/Source/Game/sound/sound3rd.h"
 
 void Default_Training_Option();
 void Dummy_Move_Sub(struct _TASK* task_ptr, s16 PL_id, s16 id, s16 type, s16 max);
@@ -546,9 +546,6 @@ void Training_Mode(struct _TASK* task_ptr) {
     s16 char_index;
     s16 PL_id;
 
-    s16 unused_s4;
-    s16 unused_s3;
-
     switch (task_ptr->r_no[2]) {
     case 0:
         Menu_in_Sub(task_ptr);
@@ -560,7 +557,7 @@ void Training_Mode(struct _TASK* task_ptr) {
         effect_04_init(1, 5, 0, 0x48);
 
         ix = 0;
-        unused_s4 = char_index = 0x35;
+        char_index = 0x35;
 
         while (ix < 3) {
             effect_61_init(0, ix + 0x50, 0, 1, char_index, ix, 0x7047);
@@ -568,7 +565,7 @@ void Training_Mode(struct _TASK* task_ptr) {
             Order_Dir[ix + 0x50] = 4;
             Order_Timer[ix + 0x50] = ix + 0x14;
             ix++;
-            unused_s3 = char_index++;
+            char_index++;
         }
 
         Menu_Cursor_Move = 3;
@@ -647,11 +644,6 @@ void Option_Select(struct _TASK* task_ptr) {
     s16 ix;
     s16 char_index;
 
-    s16 unused_s5;
-    s16 unused_s4;
-    s16 unused_s3;
-    s16 unused_s2;
-
     switch (task_ptr->r_no[2]) {
     case 0:
         Menu_in_Sub(task_ptr);
@@ -667,7 +659,7 @@ void Option_Select(struct _TASK* task_ptr) {
             effect_04_init(1, 4, 0, 0x48);
 
             ix = 0;
-            unused_s5 = char_index = 0x2F;
+            char_index = 0x2F;
 
             while (ix < 6) {
                 effect_61_init(0, ix + 0x50, 0, 1, char_index, ix, 0x7047);
@@ -675,7 +667,7 @@ void Option_Select(struct _TASK* task_ptr) {
                 Order_Dir[ix + 0x50] = 4;
                 Order_Timer[ix + 0x50] = ix + 0x14;
                 ix++;
-                unused_s4 = char_index++;
+                char_index++;
             }
 
             Menu_Cursor_Move = 6;
@@ -685,7 +677,7 @@ void Option_Select(struct _TASK* task_ptr) {
         effect_04_init(1, 1, 0, 0x48);
 
         ix = 0;
-        unused_s3 = char_index = 7;
+        char_index = 7;
 
         while (ix < 7) {
             effect_61_init(0, ix + 0x50, 0, 1, char_index, ix, 0x7047);
@@ -693,7 +685,7 @@ void Option_Select(struct _TASK* task_ptr) {
             Order_Dir[ix + 0x50] = 4;
             Order_Timer[ix + 0x50] = ix + 0x14;
             ix++;
-            unused_s2 = char_index++;
+            char_index++;
         }
 
         Menu_Cursor_Move = 7;
@@ -785,9 +777,6 @@ void System_Direction(struct _TASK* task_ptr) {
     s16 ix;
     s16 char_index;
 
-    s16 unused_s3;
-    s16 unused_s2;
-
     switch (task_ptr->r_no[2]) {
     case 0:
         Menu_in_Sub(task_ptr);
@@ -806,7 +795,7 @@ void System_Direction(struct _TASK* task_ptr) {
         Order_Timer[0x61] = 0x14;
 
         ix = 0;
-        unused_s3 = char_index = 0x2B;
+        char_index = 0x2B;
 
         while (ix < 4) {
             effect_61_init(0, ix + 0x50, 0, 1, char_index, ix + 1, 0x7047);
@@ -814,7 +803,7 @@ void System_Direction(struct _TASK* task_ptr) {
             Order_Dir[ix + 0x50] = 4;
             Order_Timer[ix + 0x50] = ix + 0x15;
             ix++;
-            unused_s2 = char_index++;
+            char_index++;
         }
 
         Menu_Cursor_Move = 4;
@@ -3007,7 +2996,6 @@ void In_Game(struct _TASK* task_ptr) {
 
 void Menu_Select(struct _TASK* task_ptr) {
     s16 ix;
-    s16 oldy;
 
     if (Check_Pad_in_Pause(task_ptr) != 0) {
         return;
@@ -3043,7 +3031,6 @@ void Menu_Select(struct _TASK* task_ptr) {
         break;
 
     case 2:
-        oldy = Menu_Cursor_Y[0];
         IO_Result = MC_Move_Sub(Check_Menu_Lever(Pause_ID, 0), 0, 2, 0xFF);
         switch (IO_Result) {
 
@@ -3161,8 +3148,6 @@ s32 Yes_No_Cursor_Move_Sub(struct _TASK* task_ptr) {
 }
 
 void Button_Config_in_Game(struct _TASK* task_ptr) {
-    s16 ix;
-
     if (Check_Pad_in_Pause(task_ptr) != 0) {
         Order[0x8A] = 3;
         Order_Timer[0x8A] = 1;

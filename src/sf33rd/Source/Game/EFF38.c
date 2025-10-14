@@ -183,8 +183,6 @@ void EFF38_KILL(WORK_Other* ewk) {
 }
 
 void EFF38_SHIFT(WORK_Other* ewk) {
-    u16 cut = Cut_Cut_Sub(3);
-
     switch (ewk->wu.routine_no[1]) {
     case 0:
         if (--Order_Timer[ewk->wu.dir_old] != 0) {

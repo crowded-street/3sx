@@ -1,5 +1,10 @@
+/**
+ * @file se_data.c
+ * Sound Effect Data and Dispatch Table
+ */
+
 #include "common.h"
-#include "sf33rd/Source/Game/SE.h"
+#include "sf33rd/Source/Game/sound/se.h"
 #include "structs.h"
 
 const u16 sdcode_conv[1024] = {

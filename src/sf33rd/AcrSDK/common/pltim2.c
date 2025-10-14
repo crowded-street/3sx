@@ -351,7 +351,6 @@ u8* GetTim2PictureData(u8* lpFile, s32 /* unused */, s32 Mipmap) {
     u8* lpImage;
     u8* lpTim2FileHead;
     u8* lpTim2PictureHead;
-    u8* lpTim2MipmapHead;
     u8* lpTim2MipmapSubHead[7];
     u32 pixel_size;
 
@@ -362,8 +361,6 @@ u8* GetTim2PictureData(u8* lpFile, s32 /* unused */, s32 Mipmap) {
     lpData += header_size;
 
     if (lpTim2PictureHead[0x11] > 1) {
-        lpTim2MipmapHead = lpData;
-
         for (lp0 = 0; lp0 < lpTim2PictureHead[0x11] - 1; lp0++) {
             lpTim2MipmapSubHead[lp0] = (u8*)((uintptr_t)lpData + (lp0 << 2) + 0x10);
         }
@@ -405,7 +402,6 @@ u8* GetTim2ClutData(u8* lpFile, s32 /* unused */) {
     u8* lpClut;
     u8* lpTim2FileHead;
     u8* lpTim2PictureHead;
-    u8* lpTim2MipmapHead;
     u8* lpTim2MipmapSubHead[7];
 
     lpTim2FileHead = lpFile;
@@ -415,8 +411,6 @@ u8* GetTim2ClutData(u8* lpFile, s32 /* unused */) {
     lpData += header_size;
 
     if (lpTim2PictureHead[0x11] > 1) {
-        lpTim2MipmapHead = lpData;
-
         for (lp0 = 0; lp0 < lpTim2PictureHead[0x11]; lp0++) {
             lpTim2MipmapSubHead[lp0] = (u8*)((uintptr_t)lpData + (lp0 << 2) + 0x10);
         }

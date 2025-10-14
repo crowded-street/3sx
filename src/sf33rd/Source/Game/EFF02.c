@@ -5,12 +5,12 @@
 #include "sf33rd/Source/Game/EFFECT.h"
 #include "sf33rd/Source/Game/PLS02.h"
 #include "sf33rd/Source/Game/SLOWF.h"
-#include "sf33rd/Source/Game/Se_Data.h"
 #include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/workuser.h"
 
 #include "sf33rd/Source/Game/io/pulpul.h"
+#include "sf33rd/Source/Game/sound/se_data.h"
 
 void urian_guard_se_check(WORK_Other* ewk, PLW* twk, u16 oto);
 

@@ -522,11 +522,9 @@ void flPS2ConvertAlpha(void* lpPtr, s32 width, s32 height) {
     s32 y;
     u8* ptr = lpPtr;
     u8 alpha;
-    u32 color;
 
     for (y = 0; y < height; y++) {
         for (x = 0; x < width; x++) {
-            color = ((u32*)ptr)[0] & 0x00FFFFFF;
             alpha = ptr[3];
 
             if (alpha == 255) {

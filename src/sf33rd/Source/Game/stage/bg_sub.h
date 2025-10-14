@@ -49,7 +49,4 @@ void akebono_initialize();
 void bg_etc_write(s16 type);
 s32 Ck_Range_Out_S(WORK_Other* ewk, s16 BG_No, s16 R);
 
-static s16 remake_x_mvstep(s16 mvstep);
-static s32 suzi_offset_set_sub(WORK_Other* ewk);
-
 #endif // BG_SUB_H
