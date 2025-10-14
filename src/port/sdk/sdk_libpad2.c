@@ -5,15 +5,6 @@
 
 #include <string.h>
 
-int scePad2Init(int mode) {
-    // Do nothing
-    return 1;
-}
-
-int scePad2End(void) {
-    not_implemented(__func__);
-}
-
 int scePad2GetState(int socket_number) {
     return SDLPad_IsGamepadConnected(socket_number) ? scePad2StateStable : scePad2StateNoLink;
 }
@@ -82,14 +73,6 @@ int scePad2Read(int socket_number, scePad2ButtonState* data) {
     data->rightP = button_state.dpad_right ? 0xFF : 0;
 
     return sizeof(scePad2ButtonState);
-}
-
-int scePad2CreateSocket(scePad2SocketParam* socket, void* addr) {
-    return socket->port;
-}
-
-int scePad2DeleteSocket(int) {
-    not_implemented(__func__);
 }
 
 int sceVibGetProfile(int socket_number, unsigned char* profile) {

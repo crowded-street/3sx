@@ -4,6 +4,8 @@
 #include "sf33rd/AcrSDK/ps2/ps2PAD.h"
 #include "structs.h"
 
+#include <SDL3/SDL.h>
+
 const u8 fllever_flip_data[4][16] = {
     { 0x00, 0x01, 0x02, 0x00, 0x04, 0x05, 0x06, 0x00, 0x08, 0x09, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00 },
     { 0x00, 0x01, 0x02, 0x00, 0x08, 0x09, 0x0A, 0x00, 0x04, 0x05, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00 },
@@ -24,27 +26,6 @@ u8 NumOfValidPads;
 
 FLPAD flpad_root[2];
 FLPAD flpad_conf[2];
-
-void flpad_ram_clear(u32* adrs_int, s32 xx) {
-    s32 i;
-    s32 surr;
-    s8* adrs_char;
-
-    surr = xx % 4U;
-    xx /= 4;
-
-    for (i = 0; i < xx; i++) {
-        *(adrs_int++) = 0;
-    }
-
-    if (surr != 0) {
-        adrs_char = (s8*)adrs_int;
-
-        for (i = 0; i < surr; i++) {
-            *(adrs_char++) = 0;
-        }
-    }
-}
 
 s32 flPADInitialize() {
     s32 i;
@@ -67,8 +48,8 @@ void flPADDestroy() {
 }
 
 void flPADWorkClear() {
-    flpad_ram_clear((u32*)flpad_root, sizeof(flpad_root));
-    flpad_ram_clear((u32*)flpad_conf, sizeof(flpad_conf));
+    SDL_zeroa(flpad_root);
+    SDL_zeroa(flpad_conf);
 }
 
 void flPADConfigSet(const FLPAD_CONFIG* adrs, s32 padnum) {

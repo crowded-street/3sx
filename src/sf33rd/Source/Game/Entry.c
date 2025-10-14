@@ -1,6 +1,5 @@
 #include "sf33rd/Source/Game/Entry.h"
 #include "common.h"
-#include "sf33rd/Source/Game/GD3rd.h"
 #include "sf33rd/Source/Game/Grade.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/RANKING.h"
@@ -18,6 +17,7 @@
 #include "structs.h"
 
 #include "sf33rd/Source/Game/ending/end_data.h"
+#include "sf33rd/Source/Game/io/gd3rd.h"
 
 u8 letter_stack[40];
 u8 letter_counter;

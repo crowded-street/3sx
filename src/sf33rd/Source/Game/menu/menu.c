@@ -7,7 +7,6 @@
 #include "common.h"
 #include "port/sdl/sdl_app.h"
 #include "sf33rd/Source/Game/Entry.h"
-#include "sf33rd/Source/Game/GD3rd.h"
 #include "sf33rd/Source/Game/Game.h"
 #include "sf33rd/Source/Game/Grade.h"
 #include "sf33rd/Source/Game/MMTMCNT.h"
@@ -15,7 +14,6 @@
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/PLS02.h"
 #include "sf33rd/Source/Game/Pause.h"
-#include "sf33rd/Source/Game/PulPul.h"
 #include "sf33rd/Source/Game/RAMCNT.h"
 #include "sf33rd/Source/Game/Reset.h"
 #include "sf33rd/Source/Game/SE.h"
@@ -24,7 +22,6 @@
 #include "sf33rd/Source/Game/Saver.h"
 #include "sf33rd/Source/Game/Sound3rd.h"
 #include "sf33rd/Source/Game/SysDir.h"
-#include "sf33rd/Source/Game/VM_SUB.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/bg_data.h"
@@ -50,6 +47,9 @@
 #include "structs.h"
 
 #include "sf33rd/Source/Game/animation/appear.h"
+#include "sf33rd/Source/Game/io/gd3rd.h"
+#include "sf33rd/Source/Game/io/pulpul.h"
+#include "sf33rd/Source/Game/io/vm_sub.h"
 #include "sf33rd/Source/Game/menu/dir_data.h"
 #include "sf33rd/Source/Game/menu/ex_data.h"
 

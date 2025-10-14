@@ -182,8 +182,6 @@ s32 set_conn_sprite(WORK_Other_CONN* wk, s16 bsy) {
     dmwk_moji.my_mts = wk->wu.my_mts;
     dmwk_moji.my_mr_flag = wk->wu.my_mr_flag;
     dmwk_moji.my_mr = wk->wu.my_mr;
-    dmwk_moji.my_roll_flag = wk->wu.my_roll_flag;
-    dmwk_moji.my_roll = wk->wu.my_roll;
     dmwk_moji.rl_flag = wk->wu.rl_flag;
     dmwk_moji.cg_flip = 0;
 
@@ -212,10 +210,10 @@ void Mtrans_use_trans_mode(WORK* wk, s16 bsy) {
                  wk->my_mts);
         return;
     }
+
     if (!No_Trans) {
-        setTexAdrsMode(1);
-        setFilterMode(0);
         wk->current_colcd &= 0x1FF;
+
         if (wk->my_col_mode & 0x400) {
             wk->my_clear_level = 0x90;
         }

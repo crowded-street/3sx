@@ -9,6 +9,8 @@
 #include "sf33rd/Source/Game/ending/end_data.h"
 #include "sf33rd/Source/Game/workuser.h"
 
+#include <string.h>
+
 s16 roll_rate2;
 s16 roll_rate_t2;
 s16 roll_stop;

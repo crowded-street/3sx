@@ -1,7 +1,7 @@
 #include "port/sdl/sdl_adx_sound.h"
 #include "common.h"
 #include "port/io/afs.h"
-#include "sf33rd/Source/Game/GD3rd.h"
+#include "sf33rd/Source/Game/io/gd3rd.h"
 
 #include <SDL3/SDL.h>
 

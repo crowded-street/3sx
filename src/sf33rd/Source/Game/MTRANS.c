@@ -1515,18 +1515,6 @@ void mlt_obj_matrix(WORK* wk, s32 base_y) {
     if (wk->my_mr_flag) {
         njScale(NULL, (1.0f / 64.0f) * (wk->my_mr.size.x + 1), (1.0f / 64.0f) * (wk->my_mr.size.y + 1), 1.0f);
     }
-
-    if (wk->my_roll_flag) {
-        njScale(NULL, 0.6f, 7.0f / 15.0f, 1.0f);
-
-        if (!wk->rl_flag) {
-            njRotateZ(0, -wk->my_roll.now);
-        } else {
-            njRotateZ(0, wk->my_roll.now);
-        }
-
-        njScale(NULL, 5.0f / 3.0f, 15.0f / 7.0f, 1.0f);
-    }
 }
 
 void appSetupBasePriority() {
@@ -1607,8 +1595,6 @@ void seqsAfterProcess() {
             seqs_w.sprMax = seqs_w.sprTotal;
         }
 
-        ps2SeqsRenderQuadInit_A();
-
         for (i = 0; i < seqs_w.sprTotal; i++) {
             if (seqs_w.up[seqs_w.chip[i].id]) {
                 val = seqs_w.chip[i].texCode;
@@ -1621,8 +1607,6 @@ void seqsAfterProcess() {
                 ps2SeqsRenderQuad_Ax(&seqs_w.chip[i]);
             }
         }
-
-        ps2SeqsRenderQuadEnd();
     }
 }
 

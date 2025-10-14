@@ -10,6 +10,8 @@
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/workuser.h"
 
+#include <string.h>
+
 // bss
 CMST_BUFF cmst_buff[2][5];
 

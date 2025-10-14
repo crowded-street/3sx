@@ -1,15 +1,21 @@
-#include "sf33rd/Source/Game/PulPul.h"
+/**
+ * @file pulpul.c
+ * Vibration
+ */
+
+#include "sf33rd/Source/Game/io/pulpul.h"
 #include "common.h"
 #include "sdk/libvib.h"
 #include "sf33rd/AcrSDK/common/mlPAD.h"
 #include "sf33rd/AcrSDK/ps2/ps2PAD.h"
-#include "sf33rd/Source/Game/GD3rd.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/debug/OBJTEST.h"
 #include "sf33rd/Source/Game/debug/OTESTDAT.h"
 #include "sf33rd/Source/Game/workuser.h"
+
+#include "sf33rd/Source/Game/io/gd3rd.h"
 
 // local declarations
 
@@ -198,10 +204,6 @@ void init_pulpul_work() {
 }
 
 void init_pulpul_work2(s16 ix) {
-#if defined(TARGET_PS2)
-    s32 init_pulpul_round2();
-#endif
-
     ppwork[ix].ok_dev = 0;
     ppwork[ix].id = ix;
     ppwork[ix].psix = 0;
@@ -237,9 +239,6 @@ void pulpul_stop2(s16 ix) {
 }
 
 void pulpul_request(s16 id, s16 ix) {
-#if defined(TARGET_PS2)
-    s32 pulpul_req_copy();
-#endif
     PULREQ* adr;
 
     if (vib_sel[id] == 0) {
@@ -270,9 +269,6 @@ void pulpul_req_copy(s16 id, PULREQ* adr) {
 }
 
 void pp_vib_on(s16 id) {
-#if defined(TARGET_PS2)
-    s32 pulpul_req_copy();
-#endif
     PULREQ* adr;
 
     adr = &pulreq[3];
@@ -280,10 +276,6 @@ void pp_vib_on(s16 id) {
 }
 
 void pulpul_request_again() {
-#if defined(TARGET_PS2)
-    s32 pulpul_request();
-#endif
-
     pulpul_request(0, vib_req[0][0]);
     pulpul_request(1, vib_req[1][0]);
 }
@@ -308,10 +300,6 @@ s32 chkVibUnit(s32 port) {
 }
 
 void move_pulpul(PPWORK* wk) {
-#if defined(TARGET_PS2)
-    s32 pulpul_request();
-    s32 pulpul_pdVibMxStart();
-#endif
     s32 i;
     s32 index;
     s32 data;
@@ -487,10 +475,6 @@ s32 vibParamTrans(s32 id, PULPARA* prm) {
 }
 
 void pp_screen_quake(s16 ix) {
-#if defined(TARGET_PS2)
-    s32 pulpul_request();
-#endif
-
     ix /= 3;
 
     if (ix > 0xA) {
@@ -534,10 +518,6 @@ void pp_pulpara_remake_at() {
 }
 
 void pp_pulpara_remake_dm_all(WORK* wk) {
-#if defined(TARGET_PS2)
-    s32 pp_conv_kow();
-    s32 pulpul_request();
-#endif
     s16 ix;
 
     ix = pp_conv_kow(wk->dm_kind_of_waza);
@@ -546,29 +526,14 @@ void pp_pulpara_remake_dm_all(WORK* wk) {
 }
 
 void pp_pulpara_guard(WORK* wk) {
-#if defined(TARGET_PS2)
-    s32 pp_conv_kow();
-    s32 pulpul_request();
-#endif
-
     pulpul_request(wk->id, pp_guard_shock[pp_conv_kow(wk->dm_kind_of_waza)]);
 }
 
 void pp_pulpara_hit(WORK* wk) {
-#if defined(TARGET_PS2)
-    s32 pp_conv_kow();
-    s32 pulpul_request();
-#endif
-
     pulpul_request(wk->id, pp_hit_shock[pp_conv_kow(wk->kind_of_waza)]);
 }
 
 void pp_pulpara_blocking(WORK* wk) {
-#if defined(TARGET_PS2)
-    s32 pp_conv_kow();
-    s32 pulpul_request();
-#endif
-
     pulpul_request(wk->id, 0x20);
 
     if (((s16*)wk->dmg_adrs)[3] == 1) {
@@ -577,30 +542,14 @@ void pp_pulpara_blocking(WORK* wk) {
 }
 
 void pp_pulpara_catch(WORK* wk) {
-#if defined(TARGET_PS2)
-    s32 pulpul_request();
-#endif
-
     pulpul_request(wk->id, 0x22);
 }
 
 void pp_pulpara_caught(WORK* wk) {
-#if defined(TARGET_PS2)
-    s32 pulpul_request();
-#endif
-
     pulpul_request(wk->id, 0x23);
 }
 
-void pp_pulpara_remake_nm_move(s32 arg0) {
-    // do nothing
-}
-
 void pp_pulpara_shungokusatsu(WORK* wk) {
-#if defined(TARGET_PS2)
-    s32 pulpul_request();
-#endif
-
     pulpul_request(wk->id, 0x2E);
     pulpul_request((wk->id + 1) & 1, 0x2F);
 }

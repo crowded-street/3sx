@@ -1,7 +1,6 @@
 #include "sf33rd/Source/Game/Next_CPU.h"
 #include "common.h"
 #include "sf33rd/Source/Game/Com_Data.h"
-#include "sf33rd/Source/Game/GD3rd.h"
 #include "sf33rd/Source/Game/Grade.h"
 #include "sf33rd/Source/Game/MMTMCNT.h"
 #include "sf33rd/Source/Game/PLCNT.h"
@@ -32,6 +31,8 @@
 #include "sf33rd/Source/Game/effect/effk6.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/workuser.h"
+
+#include "sf33rd/Source/Game/io/gd3rd.h"
 
 void Next_CPU_1st();
 void Next_CPU_2nd();
