@@ -248,8 +248,12 @@ static void SPU_VoiceTick(struct SPU_Voice* v, s32* output) {
     SPU_VoiceRunADSR(v);
 }
 
-int SPU_VoiceGetEnvLvl(int vnum) {
-    return voices[vnum].envx;
+bool SPU_VoiceIsFinished(int vnum) {
+    if (voices[vnum].envx == 0 && voices[vnum].adsr_phase != ADSR_PHASE_ATTACK) {
+        return true;
+    }
+
+    return false;
 }
 
 void SPU_VoiceKeyOff(int vnum) {

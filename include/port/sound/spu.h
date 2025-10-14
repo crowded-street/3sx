@@ -18,7 +18,7 @@ void SPU_Tick(s16* output);
 void SPU_VoiceStart(int vnum, u32 start_addr);
 void SPU_VoiceGetConf(int vnum, struct SPUVConf* conf);
 void SPU_VoiceSetConf(int vnum, struct SPUVConf* conf);
-int SPU_VoiceGetEnvLvl(int vnum);
+bool SPU_VoiceIsFinished(int vnum);
 void SPU_VoiceKeyOff(int vnum);
 void SPU_VoiceStop(int vnum);
 
