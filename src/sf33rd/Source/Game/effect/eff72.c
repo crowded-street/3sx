@@ -16,8 +16,6 @@
 #include "sf33rd/Source/Game/workuser.h"
 
 void effect_72_move(WORK_Other* ewk) {
-    WORK_Other* oya;
-
     if (obr_no_disp_check()) {
         return;
     }
