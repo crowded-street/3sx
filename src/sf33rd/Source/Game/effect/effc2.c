@@ -878,7 +878,6 @@ void set_1st_Bonus_Game_result(WORK* wk) {
 }
 
 void set_bs2_floor(WORK_Other* wk) {
-    PLW* em = (PLW*)((WORK*)wk->my_master)->target_adrs;
     s16* dad;
 
     player_hosei_data(wk, wk->wu.dir_timer, 1);

@@ -52,8 +52,6 @@ void effect_L7_move(WORK_Other* ewk) {
 }
 
 void effl7_move(WORK_Other* ewk) {
-    WORK* oya_ptr = (WORK*)ewk->my_master;
-
     switch (ewk->wu.routine_no[1]) {
     case 0:
         ewk->wu.routine_no[1] += 1;
