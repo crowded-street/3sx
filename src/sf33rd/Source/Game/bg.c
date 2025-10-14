@@ -6,7 +6,6 @@
 #include "sf33rd/Source/Common/PPGWork.h"
 #include "sf33rd/Source/Game/AcrUtil.h"
 #include "sf33rd/Source/Game/DC_Ghost.h"
-#include "sf33rd/Source/Game/GD3rd.h"
 #include "sf33rd/Source/Game/MTRANS.h"
 #include "sf33rd/Source/Game/PLS02.h"
 #include "sf33rd/Source/Game/RAMCNT.h"
@@ -19,6 +18,7 @@
 #include "structs.h"
 
 #include "sf33rd/Source/Game/ending/end_data.h"
+#include "sf33rd/Source/Game/io/gd3rd.h"
 
 // sbss
 Vertex scrDrawPos[4];
@@ -597,7 +597,6 @@ void scr_trans(u8 bgnm) {
     u32 vtxColor;
     s32 suzi_pos;
 
-    setFilterMode(0);
     njUnitMatrix(0);
     njScale(0, 1.0f, -1.0f, 1.0f);
     njTranslate(0, 0.0f, -1024.0f, 0.0f);

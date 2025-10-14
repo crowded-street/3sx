@@ -1,6 +1,5 @@
 #include "sf33rd/Source/Game/Reset.h"
 #include "sf33rd/Source/Game/EFFECT.h"
-#include "sf33rd/Source/Game/GD3rd.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/sc_sub.h"
@@ -8,6 +7,7 @@
 #include "sf33rd/Source/Game/workuser.h"
 #include "structs.h"
 
+#include "sf33rd/Source/Game/io/gd3rd.h"
 #include "sf33rd/Source/Game/sound/sound3rd.h"
 
 u8 Reset_Status[2];

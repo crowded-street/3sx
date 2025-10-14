@@ -7,9 +7,7 @@
 #include "sf33rd/AcrSDK/common/plcommon.h"
 #include "sf33rd/AcrSDK/common/plpic.h"
 #include "sf33rd/AcrSDK/common/pltim2.h"
-#include "sf33rd/AcrSDK/ps2/flps2d3d.h"
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
-#include "sf33rd/AcrSDK/ps2/flps2dma.h"
 #include "sf33rd/AcrSDK/ps2/flps2vram.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "structs.h"
@@ -45,26 +43,6 @@ u32 flCreateTextureFromBMP(s8* bmp_file, u32 flag);
 u32 flCreateTextureFromBMP_mem(void* mem, u32 flag);
 u32 flCreateTextureFromPIC(s8* pic_file, u32 flag);
 u32 flCreateTextureFromPIC_mem(void* mem, u32 flag);
-
-void flPS2IopModuleLoad(s8* fname, s32 args, s8* argp, s32 type) {
-    s32 lp0;
-
-    if (type == 0) {
-        do {
-
-        } while (sceSifLoadModule(fname, args, argp) < 0);
-
-        return;
-    }
-
-    for (lp0 = 0; lp0 < type; lp0++) {
-        if (sceSifLoadModule(fname, args, argp) > 0) {
-            return;
-        }
-    }
-
-    printf("Can't load module %s", fname);
-}
 
 s32 flFileRead(s8* filename, void* buf, s32 len) {
     s32 fd;
@@ -151,6 +129,7 @@ s32 flFileLength(s8* filename) {
     return length;
 }
 
+// FIXME: use memset instead
 void flMemset(void* dst, u32 pat, s32 size) {
     s32 i;
     u8* now = dst;
@@ -160,6 +139,7 @@ void flMemset(void* dst, u32 pat, s32 size) {
     }
 }
 
+// FIXME: use memcpy instead
 void flMemcpy(void* dst, void* src, s32 size) {
     s32 i;
     s8* now[2];
@@ -201,57 +181,10 @@ u32 flPS2GetSystemMemoryHandle(s32 len, s32 type) {
         }
     }
 
-    flDebugSysMem[handle - 1] = type;
-    flDebugSysMemHandleNum += 1;
-
-    switch (type) {
-    case 1:
-        flDebugSysMemEtc += len;
-        break;
-
-    case 2:
-        flDebugSysMemTexture += len;
-        break;
-
-    case 3:
-        flDebugSysMemClay += len;
-        break;
-
-    case 4:
-        flDebugSysMemMotion += len;
-        break;
-    }
-
     return handle;
 }
 
 void flPS2ReleaseSystemMemory(u32 handle) {
-    s32 type;
-    u32 len;
-
-    type = flDebugSysMem[handle - 1];
-    flDebugSysMem[handle - 1] = 0;
-    flDebugSysMemHandleNum -= 1;
-    len = sysmemblock[handle - 1].len;
-
-    switch (type) {
-    case 1:
-        flDebugSysMemEtc -= len;
-        break;
-
-    case 2:
-        flDebugSysMemTexture -= len;
-        break;
-
-    case 3:
-        flDebugSysMemClay -= len;
-        break;
-
-    case 4:
-        flDebugSysMemMotion -= len;
-        break;
-    }
-
     mflRelease(handle);
 }
 
@@ -260,9 +193,7 @@ void* flPS2GetSystemBuffAdrs(u32 handle) {
 }
 
 void flCompact() {
-    flPS2DmaTerminate();
     mflCompact();
-    flPS2ClayRetouchMaterialTag();
 }
 
 void flPS2SystemTmpBuffInit() {
@@ -304,7 +235,6 @@ uintptr_t flPS2GetSystemTmpBuff(s32 len, s32 align) {
     new_now = now + len;
 
     if (flPs2State.SystemTmpBuffEndAdrs < new_now) {
-        flPS2DmaWait();
         flPS2SystemError(0, "ERROR flPS2GetSystemTmpBuff flps2etc.c");
         now = flPs2State.SystemTmpBuffStartAdrs;
         new_now = now + len;

@@ -5,7 +5,8 @@
 #include "sf33rd/AcrSDK/ps2/flps2etc.h"
 #include "structs.h"
 
-#include <libdbc.h>
+#include <SDL3/SDL.h>
+
 #include <libpad2.h>
 #include <libvib.h>
 
@@ -13,8 +14,6 @@
 
 #define PI 3.14159275f
 
-// sdata
-static s32 MtapPort = 0xFFFFFFFF;
 static u32 ps2pad_hard_to_soft_ds2[16][2] = { { 4096, 1 }, { 16384, 1 }, { 32768, 1 }, { 8192, 1 },
                                               { 64, 2 },   { 32, 2 },    { 2, 3 },     { 1, 3 },
                                               { 128, 2 },  { 16, 2 },    { 8, 3 },     { 4, 3 },
@@ -28,13 +27,7 @@ static u8 ps2pad_an_rm_map[12] = { 2, 3, 1, 0, 6, 5, 11, 10, 7, 4, 9, 8 };
 static PS2PAD_CONFIG ps2PadShotConf_Basic = { 1, 1, 1, 0 };
 static u8 etclever_wrong_data[16] = { 0, 1, 2, 0, 4, 5, 6, 4, 8, 9, 10, 8, 0, 1, 2, 0 };
 
-// bss
-
 u32 ps2pad_hard_to_soft[2][16][2];
-__int128 pad_dma_buf[2][16];
-
-// sbss
-
 TARPAD tarpad_root[2];
 PS2Slot ps2slot[2];
 PS2PAD_CONFIG ps2pad_config[2];
@@ -43,31 +36,17 @@ PS2PAD_STATE ps2pad_backup[2];
 PS2PAD_STATE ps2pad_clear;
 u8 flPadFixedAnalogSelectSwitch[2];
 u8 flPadFASS[2];
-s32 MtapSlotMax;
 
 static s32 PADRead_for_PS2(s32 i);
 static void update_pad_stick_dir(PAD_STICK* st, s16 depth);
 static u8 lever_analog_to_digital(PAD_STICK* st);
 static void PADReadSub(s32 i);
 s32 flPADShockSet(s32 pad_id, u32 level, u32 time);
-static s32 PADDeviceInit();
 static void ps2PADWorkClear();
 static void PADPortOpen(s32 port, s32 slot, PS2Slot* adrs);
-static void PADDeviceDestroy();
-
-s32 flPS2PADModuleInit() {
-    flPS2IopModuleLoad("cdrom0:\\THIRD\\IOP\\MODULES\\DBCMAN.IRX;1", 0, NULL, 0);
-    flPS2IopModuleLoad("cdrom0:\\THIRD\\IOP\\MODULES\\SIO2D.IRX;1", 0, NULL, 0);
-    flPS2IopModuleLoad("cdrom0:\\THIRD\\IOP\\MODULES\\PAD2\\DS2U_D.IRX;1", 0, NULL, 0);
-    return 1;
-}
 
 s32 tarPADInit() {
     s32 i;
-
-    if (PADDeviceInit() == 0) {
-        return 0;
-    }
 
     ps2PADWorkClear();
     ps2pad_clear.pad_buffer[0] = 0xFF;
@@ -80,20 +59,10 @@ s32 tarPADInit() {
         ps2slot[i].port = 0;
         ps2slot[i].slot = 0;
         ps2slot[i].vib = 0;
-        ps2slot[i].buff = pad_dma_buf[i];
     }
 
-    if (MtapPort == -1) {
-        PADPortOpen(0, 0, &ps2slot[0]);
-        PADPortOpen(1, 0, &ps2slot[1]);
-    } else {
-        for (i = 0; i < MtapSlotMax; i++) {
-            PADPortOpen(MtapPort, i, &ps2slot[i]);
-        }
-        if (MtapSlotMax < 2) {
-            PADPortOpen((MtapPort + 1) & 1, 0, &ps2slot[i]);
-        }
-    }
+    PADPortOpen(0, 0, &ps2slot[0]);
+    PADPortOpen(1, 0, &ps2slot[1]);
 
     for (i = 0; i < 2; i++) {
         ps2pad_config[i] = ps2PadShotConf_Basic;
@@ -107,7 +76,6 @@ s32 tarPADInit() {
 
 void tarPADDestroy() {
     ps2PADWorkClear();
-    PADDeviceDestroy();
 }
 
 void flPADConfigSetACRtoXX(s32 padnum, s16 a, s16 b, s16 c) {
@@ -140,10 +108,10 @@ void tarPADRead() {
 }
 
 void ps2PADWorkClear() {
-    flpad_ram_clear((u32*)tarpad_root, sizeof(tarpad_root));
-    flpad_ram_clear((u32*)ps2pad_state, sizeof(ps2pad_state));
-    flpad_ram_clear((u32*)ps2pad_backup, sizeof(ps2pad_backup));
-    flpad_ram_clear((u32*)&ps2pad_clear, sizeof(ps2pad_clear));
+    SDL_zeroa(tarpad_root);
+    SDL_zeroa(ps2pad_state);
+    SDL_zeroa(ps2pad_backup);
+    SDL_zero(ps2pad_clear);
 }
 
 static s32 PADRead_for_PS2(s32 i) {
@@ -306,45 +274,13 @@ u8 lever_analog_to_digital(PAD_STICK* st) {
     return ps2lever_analog_to_digital[(u32)(st->ang / 22.5f)];
 }
 
-s32 PADDeviceInit() {
-    if (sceDbcInit() != 1) {
-        return 0;
-    }
-
-    if (scePad2Init(0) != 1) {
-        return 0;
-    }
-
-    return 1;
-}
-
+// FIXME: this doesn't actually open anything, better remove it entirely
 void PADPortOpen(s32 port, s32 slot, PS2Slot* adrs) {
-    scePad2SocketParam param;
-
-    param.option = 2;
-    param.port = port;
-    param.slot = slot;
-    param.number = 0;
-
-    if ((adrs->socket_id = scePad2CreateSocket(&param, adrs->buff)) >= 0) {
-        adrs->state = 1;
-        adrs->phase = 0;
-        adrs->port = port;
-        adrs->slot = slot;
-    }
-}
-
-void PADDeviceDestroy() {
-    s32 i;
-
-    for (i = 0; i < 2; i++) {
-        if (ps2slot[i].state != 0) {
-            scePad2DeleteSocket(ps2slot[i].socket_id);
-        }
-    }
-
-    scePad2End();
-    sceDbcEnd();
+    adrs->socket_id = port;
+    adrs->state = 1;
+    adrs->phase = 0;
+    adrs->port = port;
+    adrs->slot = slot;
 }
 
 void PADReadSub(s32 i) {

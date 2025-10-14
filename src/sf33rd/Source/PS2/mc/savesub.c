@@ -244,7 +244,8 @@ static void save_move_init(_save_work* save) {
             break;
         }
 
-        KnjInit(knj_type, (uintptr_t)save->fnt_adrs, 0x200, flPs2State.ZBuffAdrs);
+        fatal_error("Not implemented");
+        // KnjInit(knj_type, (uintptr_t)save->fnt_adrs, 0x200, flPs2State.ZBuffAdrs);
         load_data(icon_fnum[save->file_type], save->ico_adrs);
         save->r_no_1 += 1;
         /* fallthrough */

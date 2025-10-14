@@ -13,7 +13,6 @@
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/Source/Common/PPGFile.h"
 #include "sf33rd/Source/Game/EFFECT.h"
-#include "sf33rd/Source/Game/GD3rd.h"
 #include "sf33rd/Source/Game/RAMCNT.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
@@ -24,6 +23,7 @@
 #include "sf33rd/Source/PS2/cseDataFiles/CSEData.h"
 #include "structs.h"
 
+#include "sf33rd/Source/Game/io/gd3rd.h"
 #include "sf33rd/Source/Game/sound/se.h"
 #include "sf33rd/Source/Game/sound/se_data.h"
 

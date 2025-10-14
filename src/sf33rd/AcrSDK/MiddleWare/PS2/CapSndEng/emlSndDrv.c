@@ -1,6 +1,5 @@
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/emlSndDrv.h"
 #include "common.h"
-#include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/eflSifRpc.h"
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/emlMemMap.h"
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/emlRefPhd.h"
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/emlRpcQueue.h"

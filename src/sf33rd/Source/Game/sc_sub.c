@@ -7,7 +7,6 @@
 #include "sf33rd/Source/Game/AcrUtil.h"
 #include "sf33rd/Source/Game/DC_Ghost.h"
 #include "sf33rd/Source/Game/Eff76.h"
-#include "sf33rd/Source/Game/GD3rd.h"
 #include "sf33rd/Source/Game/MTRANS.h"
 #include "sf33rd/Source/Game/RAMCNT.h"
 #include "sf33rd/Source/Game/SysDir.h"
@@ -17,6 +16,8 @@
 #include "sf33rd/Source/Game/workuser.h"
 #include "sf33rd/Source/PS2/ps2Quad.h"
 #include "structs.h"
+
+#include "sf33rd/Source/Game/io/gd3rd.h"
 
 #if defined(TARGET_PS2)
 #define TO_UV_256(val) ((0.5f + (val)) / 256.0f)
@@ -209,7 +210,6 @@ void SSPutStr(u16 x, u16 y, u8 atr, const s8* str) {
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    setFilterMode(0);
     njColorBlendingMode(0, 1);
     scrscrntex[0].col = scrscrntex[3].col = 0xFFFFFFFF;
     scrscrntex[0].z = scrscrntex[3].z = PrioBase[2];
@@ -239,7 +239,6 @@ s32 SSPutStrPro(u16 flag, u16 x, u16 y, u8 atr, u32 vtxcol, s8* str) {
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    setFilterMode(0);
     njColorBlendingMode(0, 1);
     scrscrntex[0].col = scrscrntex[3].col = vtxcol;
     scrscrntex[0].z = scrscrntex[3].z = PrioBase[2];
@@ -309,7 +308,6 @@ void SSPutStr2(u16 x, u16 y, u8 atr, const s8* str) {
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    setFilterMode(0);
     njColorBlendingMode(0, 1);
     scrscrntex[0].col = scrscrntex[3].col = -1;
     scrscrntex[0].z = scrscrntex[3].z = PrioBase[1];
@@ -362,7 +360,6 @@ void SSPutStr_Bigger(u16 x, u16 y, u8 atr, s8* str, f32 sc, u8 gr, u16 priority)
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    setFilterMode(0);
     njColorBlendingMode(0, 1);
 
     for (i = 0; i < 4; i++) {
@@ -404,7 +401,6 @@ void SSPutDec(u16 x, u16 y, u8 atr, u8 dec, u8 size) {
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    setFilterMode(0);
     njColorBlendingMode(0, 1);
     scrscrntex[0].col = scrscrntex[3].col = -1;
     scrscrntex[0].z = scrscrntex[3].z = PrioBase[2];
@@ -461,7 +457,6 @@ void SSPutDec3(u16 x, u16 y, u8 atr, s16 dec, u8 size, u8 gr, u16 priority) {
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    setFilterMode(0);
     njColorBlendingMode(0, 1);
 
     for (i = 0; i < 4; i++) {
@@ -518,7 +513,6 @@ void scfont_put(u16 x, u16 y, u8 atr, u8 page, u8 cx, u8 cy, u16 priority) {
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    setFilterMode(0);
     njColorBlendingMode(0, 1);
     scrscrntex[0].col = scrscrntex[3].col = -1;
     scrscrntex[0].z = scrscrntex[3].z = PrioBase[priority];
@@ -569,7 +563,6 @@ void scfont_sqput(u16 x, u16 y, u8 atr, u8 page, u8 cx1, u8 cy1, u8 cx2, u8 cy2,
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    setFilterMode(0);
     njColorBlendingMode(0, 1);
 
     scrscrntex[0].col = scrscrntex[3].col = -1;
@@ -642,7 +635,6 @@ void scfont_sqput3(u16 x, u16 y, u8 atr, u8 page, u16 cx1, u16 cy1, u16 cx2, u16
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    setFilterMode(0);
     njColorBlendingMode(0, 1);
 
     for (i = 0; i < 4; i++) {
@@ -691,7 +683,6 @@ void vital_put(u8 Pl_Num, s8 atr, s16 vital, u8 kind, u16 priority) {
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    setFilterMode(0);
 
     if (vital == -1) {
         vital = 0;
@@ -733,7 +724,6 @@ void silver_vital_put(u8 Pl_Num) {
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    setFilterMode(0);
     scrscrntex[0].z = scrscrntex[3].z = PrioBase[2];
     njSetPaletteBankNumG(0, 9);
     scrscrntex[0].u = 224.0f / 256.0f;
@@ -840,7 +830,6 @@ void stun_put(u8 Pl_Num, u8 stun) {
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    setFilterMode(0);
     scrscrntex[0].z = scrscrntex[3].z = PrioBase[4];
     njSetPaletteBankNumG(0, 10);
     scrscrntex[0].u = 0.0f;
@@ -1173,7 +1162,6 @@ void SF3_logo(u8 step) {
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    setFilterMode(0);
     njColorBlendingMode(0, 1);
     njSetPaletteBankNumG(0, 29);
     pos[0].z = pos[1].z = pos[2].z = pos[3].z = PrioBase[2];
@@ -1433,7 +1421,6 @@ void hnc_set(u8 num, u8 atr) {
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    setFilterMode(0);
     scrscrntex[0].z = scrscrntex[3].z = PrioBase[2];
     njSetPaletteBankNumG(1, atr & 0x3F);
     njColorBlendingMode(0, 1);
@@ -1469,7 +1456,6 @@ void hnc_wipeinit(u8 atr) {
     u8 k;
 
     ppgSetupCurrentDataList(&ppgScrList);
-    setFilterMode(0);
     Hnc_Num = 0;
     scrscrntex[0].z = scrscrntex[1].z = scrscrntex[2].z = scrscrntex[3].z = PrioBase[2];
     njSetPaletteBankNumG(1, atr & 0x3F);
@@ -1506,8 +1492,7 @@ s32 hnc_wipeout(u8 atr) {
 
     if (!No_Trans) {
         ppgSetupCurrentDataList(&ppgScrList);
-        setFilterMode(0);
-        njSetPaletteBankNumG(1, atr & 0x3F);
+            njSetPaletteBankNumG(1, atr & 0x3F);
         njColorBlendingMode(0, 1);
         vtx[0].z = vtx[1].z = vtx[2].z = vtx[3].z = PrioBase[2];
         vtx[0].col = vtx[1].col = vtx[2].col = vtx[3].col = -1;
@@ -1827,7 +1812,6 @@ void silver_stun_put(u8 Pl_Num, s16 len) {
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    setFilterMode(0);
     scrscrntex[0].z = scrscrntex[3].z = PrioBase[3];
     njSetPaletteBankNumG(0, 1);
 
@@ -1862,7 +1846,6 @@ void overwrite_panel(u32 color, u8 priority) {
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    setFilterMode(0);
     njColorBlendingMode(0, 1);
     panel_pc.p = panel_p;
     panel_pc.col = panel_col;
@@ -2191,7 +2174,6 @@ void dispButtonImage(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, s32 ix) {
         return;
     }
 
-    setFilterMode(0);
     oricol.color = -1;
     oricol.argb.a = (0xFF - cl);
     prm.texCode = ppgGetUsingTextureHandle(&ppgScrTex, 5) | (ppgGetUsingPaletteHandle(&ppgScrPalShot, 0) << 0x10);
@@ -2207,9 +2189,7 @@ void dispButtonImage(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, s32 ix) {
     prm.t[0].t = scrnAddTex1UV[ix][1] / 128.0f;
     prm.t[3].t = (scrnAddTex1UV[ix][1] + scrnAddTex1UV[ix][3]) / 128.0f;
     flSetRenderState(FLRENDER_TEXSTAGE0, prm.texCode);
-    ps2SeqsRenderQuadInit_A();
     ps2SeqsRenderQuad_A2(&prm, oricol.color);
-    ps2SeqsRenderQuadEnd();
 }
 
 void dispButtonImage2(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, s32 ix) {
@@ -2220,7 +2200,6 @@ void dispButtonImage2(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, s32 ix) {
         return;
     }
 
-    setFilterMode(0);
     oricol.color = -1;
     oricol.argb.a = (0xFF - cl);
     prm.texCode = ppgGetUsingTextureHandle(&ppgScrTex, 5) | (ppgGetUsingPaletteHandle(&ppgScrPalShot, 0) << 0x10);
@@ -2234,9 +2213,7 @@ void dispButtonImage2(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, s32 ix) {
     prm.t[0].t = scrnAddTex1UV[ix][1] / 128.0f;
     prm.t[3].t = (scrnAddTex1UV[ix][1] + scrnAddTex1UV[ix][3]) / 128.0f;
     flSetRenderState(FLRENDER_TEXSTAGE0, prm.texCode);
-    ps2SeqsRenderQuadInit_A();
     ps2SeqsRenderQuad_A2(&prm, oricol.color);
-    ps2SeqsRenderQuadEnd();
 }
 
 void dispSaveLoadTitle(void* ewk) {
@@ -2251,7 +2228,6 @@ void dispSaveLoadTitle(void* ewk) {
         return;
     }
 
-    setFilterMode(0);
     wk = (WORK*)ewk;
     mlt_obj_matrix(wk, 0);
     oricol.color = -1;
@@ -2278,9 +2254,7 @@ void dispSaveLoadTitle(void* ewk) {
     for (i = 0; i < 3; i++) {
         njCalcPoint(NULL, (Vec3*)&pos[0], &prm.v[0]);
         njCalcPoint(NULL, (Vec3*)&pos[1], &prm.v[3]);
-        ps2SeqsRenderQuadInit_A();
         ps2SeqsRenderQuad_A2(&prm, oricol.color);
-        ps2SeqsRenderQuadEnd();
         step_t += 36.0f;
         prm.t[0].t = prm.t[3].t;
         prm.t[3].t = step_t / 128.0f;

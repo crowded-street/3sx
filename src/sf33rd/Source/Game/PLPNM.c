@@ -8,12 +8,12 @@
 #include "sf33rd/Source/Game/PLS00.h"
 #include "sf33rd/Source/Game/PLS01.h"
 #include "sf33rd/Source/Game/PLS02.h"
-#include "sf33rd/Source/Game/PulPul.h"
 #include "sf33rd/Source/Game/workuser.h"
 
 #include "sf33rd/Source/Game/animation/appear.h"
 #include "sf33rd/Source/Game/animation/lose_pl.h"
 #include "sf33rd/Source/Game/animation/win_pl.h"
+#include "sf33rd/Source/Game/io/pulpul.h"
 
 void Player_normal(PLW* wk);
 void setup_normal_process_flags(PLW* wk);
@@ -83,7 +83,6 @@ void Player_normal(PLW* wk) {
 
     check_my_tk_power_off(wk, (PLW*)wk->wu.target_adrs);
     check_em_tk_power_off(wk, (PLW*)wk->wu.target_adrs);
-    pp_pulpara_remake_nm_move(wk);
     plpnm_lv_00[wk->wu.routine_no[2]](wk);
 
     if (wk->wu.cg_prio) {

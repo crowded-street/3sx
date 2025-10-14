@@ -1,6 +1,5 @@
 #include "sf33rd/Source/Game/cmb_win.h"
 #include "common.h"
-#include "gcc/memory.h"
 #include "sf33rd/Source/Game/EFFECT.h"
 #include "sf33rd/Source/Game/Grade.h"
 #include "sf33rd/Source/Game/PLCNT.h"
@@ -10,6 +9,7 @@
 #include "sf33rd/Source/Game/workuser.h"
 
 #include "sf33rd/Source/Game/sound/sound3rd.h"
+#include <string.h>
 
 // bss
 CMST_BUFF cmst_buff[2][5];

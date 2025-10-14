@@ -44,7 +44,6 @@ static void open_folder_dialog_callback(void* userdata, const char* const* filel
     const char* rom_path = filelist[0];
     bool success = true;
     success &= copy_file(rom_path, "THIRD/SF33RD.AFS", "SF33RD.AFS");
-    success &= copy_file(rom_path, "THIRD/IOP/FONT8_8.TM2", "FONT8_8.TM2");
     flow_state = success ? COPY_SUCCESS : COPY_ERROR;
 }
 
@@ -64,8 +63,7 @@ char* Resources_GetPath(const char* file_path) {
 
 bool Resources_CheckIfPresent() {
     const bool afs_present = check_if_file_present("SF33RD.AFS");
-    const bool debug_font_present = check_if_file_present("FONT8_8.TM2");
-    return afs_present && debug_font_present;
+    return afs_present;
 }
 
 bool Resources_RunResourceCopyingFlow() {

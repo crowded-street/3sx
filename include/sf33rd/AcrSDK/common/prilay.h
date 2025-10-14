@@ -5,9 +5,6 @@
 #include "structs.h"
 #include "types.h"
 
-extern void* (*plmalloc)(s32);
-extern void (*plfree)(void*);
-
 s32 plReport(s8* format, ...);
 void plMemset(void* dst, u32 pat, s32 size);
 void plMemmove(void* dst, void* src, s32 size);

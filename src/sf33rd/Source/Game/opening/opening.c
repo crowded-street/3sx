@@ -13,7 +13,6 @@
 #include "sf33rd/Source/Game/AcrUtil.h"
 #include "sf33rd/Source/Game/DC_Ghost.h"
 #include "sf33rd/Source/Game/EFFE1.h"
-#include "sf33rd/Source/Game/GD3rd.h"
 #include "sf33rd/Source/Game/MTRANS.h"
 #include "sf33rd/Source/Game/RAMCNT.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
@@ -30,6 +29,7 @@
 #include "sf33rd/Source/Game/workuser.h"
 
 #include "sf33rd/Source/Game/demo/demo00.h"
+#include "sf33rd/Source/Game/io/gd3rd.h"
 #include "sf33rd/Source/Game/opening/op_sub.h"
 #include "sf33rd/Source/Game/sound/se.h"
 #include "sf33rd/Source/Game/sound/sound3rd.h"
@@ -143,8 +143,6 @@ void TITLE_Init() {
 
 s16 TITLE_Move(u16 type) {
     ppgSetupCurrentDataList(&ppgTitleList);
-    setTexAdrsMode(0);
-    setFilterMode(0);
 
     switch (type) {
     case 0:
@@ -289,8 +287,6 @@ void OPBG_Trans() {
         return;
     }
 
-    setTexAdrsMode(1);
-    setFilterMode(0);
     ppgSetupCurrentDataList(&ppgOpnBgList);
     Scrn_Renew();
     Irl_Family();

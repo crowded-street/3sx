@@ -2,13 +2,13 @@
 #include "common.h"
 #include "sf33rd/Source/Game/EFF66.h"
 #include "sf33rd/Source/Game/PLCNT.h"
-#include "sf33rd/Source/Game/PulPul.h"
 #include "sf33rd/Source/Game/Reset.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/main.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/workuser.h"
 
+#include "sf33rd/Source/Game/io/pulpul.h"
 #include "sf33rd/Source/Game/menu/menu.h"
 #include "sf33rd/Source/Game/sound/sound3rd.h"
 

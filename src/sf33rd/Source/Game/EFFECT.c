@@ -3,10 +3,11 @@
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/Source/Game/EFFXX.h"
 #include "sf33rd/Source/Game/PLCNT.h"
-#include "sf33rd/Source/Game/PulPul.h"
 #include "sf33rd/Source/Game/bg.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/workuser.h"
+
+#include "sf33rd/Source/Game/io/pulpul.h"
 
 s16 frwctr;
 s16 frwctr_min;

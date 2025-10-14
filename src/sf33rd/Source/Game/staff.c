@@ -1,6 +1,5 @@
 #include "sf33rd/Source/Game/staff.h"
 #include "common.h"
-#include "gcc/string.h"
 #include "sf33rd/Source/Game/EFFH6.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/bg.h"
@@ -9,6 +8,7 @@
 
 #include "sf33rd/Source/Game/sound/se.h"
 #include "sf33rd/Source/Game/sound/sound3rd.h"
+#include <string.h>
 
 s16 roll_rate2;
 s16 roll_rate_t2;
