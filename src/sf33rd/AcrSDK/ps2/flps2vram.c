@@ -18,18 +18,9 @@
     while (1) {}
 
 static s32 flPS2ConvertTextureFromContext(plContext* lpcontext, FLTexture* lpflTexture, u32 type);
-s16 flPS2GetTextureBuffWidth(s16 width);
 u32 flPS2GetTextureSize(u32 format, s32 dw, s32 dh, s32 bnum);
-s16 flPS2GetTextureVramBlock(FLTexture* lpflTexture);
-static s16 flPS2GetPaletteVramBlock(FLTexture* lpflTexture);
 s32 flPS2LockTexture(Rect* /* unused */, FLTexture* lpflTexture, plContext* lpcontext, u32 flag, s32 /* unused */);
 s32 flPS2UnlockTexture(FLTexture*);
-static void Conv4to32(s32 width, s32 height, u8* p_input, u8* p_output);
-static void PageConv4to32(u8* p_input, u8* p_output, s32 p_page_w);
-static void BlockConv4to32(u8* p_input, u8* p_output, s32 p_page_w);
-static void Conv8to32(s32 width, s32 height, u8* p_input, u8* p_output);
-static void PageConv8to32(u8* p_input, u8* p_output, s32 p_page_w);
-static void BlockConv8to32(u8* p_input, u8* p_output, s32 p_page_w);
 
 u32 flCreateTextureHandle(plContext* bits, u32 flag) {
     FLTexture* lpflTexture;
@@ -91,7 +82,6 @@ s32 flPS2GetTextureInfoFromContext(plContext* bits, s32 bnum, u32 th, u32 flag) 
     lpflTexture->desc = bits->desc;
     lpflTexture->width = bits->width;
     lpflTexture->height = bits->height;
-    lpflTexture->dma_type = 0;
     lpflTexture->mem_handle = 0;
     lpflTexture->lock_ptr = 0;
     lpflTexture->lock_flag = 0;
@@ -143,8 +133,6 @@ s32 flPS2GetTextureInfoFromContext(plContext* bits, s32 bnum, u32 th, u32 flag) 
         return 0;
     }
 
-    lpflTexture->tw = flPS2GetTextureBuffWidth(lpflTexture->width);
-
     switch (bits->height) {
     case 1024:
     case 512:
@@ -159,9 +147,6 @@ s32 flPS2GetTextureInfoFromContext(plContext* bits, s32 bnum, u32 th, u32 flag) 
         return 0;
     }
 
-    lpflTexture->th = flPS2GetTextureBuffWidth(lpflTexture->height);
-    lpflTexture->block_size = flPS2GetTextureVramBlock(lpflTexture);
-    lpflTexture->block_align = 0x20;
     lpflTexture->size =
         flPS2GetTextureSize(lpflTexture->format, lpflTexture->width, lpflTexture->height, lpflTexture->tex_num);
     return 1;
@@ -254,15 +239,10 @@ s32 flPS2GetPaletteInfoFromContext(plContext* bits, u32 ph, u32 flag) {
     lpflPalette->desc = bits->desc;
     lpflPalette->flag = flag;
     lpflPalette->be_flag = 1;
-    lpflPalette->tw = flPS2GetTextureBuffWidth(lpflPalette->width);
-    lpflPalette->th = flPS2GetTextureBuffWidth(lpflPalette->height);
-    lpflPalette->dma_type = 0;
     lpflPalette->mem_handle = 0;
     lpflPalette->lock_ptr = 0;
     lpflPalette->lock_flag = 0;
     lpflPalette->tex_num = 1;
-    lpflPalette->block_size = flPS2GetPaletteVramBlock(lpflPalette);
-    lpflPalette->block_align = 1;
     lpflPalette->size =
         flPS2GetTextureSize(lpflPalette->format, lpflPalette->width, lpflPalette->height, lpflPalette->tex_num);
     return 1;
@@ -960,22 +940,6 @@ s32 flPS2UnlockTexture(FLTexture* lpflTexture) {
     return 1;
 }
 
-s16 flPS2GetTextureBuffWidth(s16 width) {
-    s32 i = 1;
-
-    while (1) {
-        if ((1 << i) >= width) {
-            return i;
-        }
-
-        i += 1;
-
-        if (i > 10) {
-            return 1;
-        }
-    }
-}
-
 u32 flPS2GetTextureSize(u32 format, s32 dw, s32 dh, s32 bnum) {
     u32 tex_size;
     s32 lp0;
@@ -1010,72 +974,6 @@ u32 flPS2GetTextureSize(u32 format, s32 dw, s32 dh, s32 bnum) {
     return tex_size;
 }
 
-s16 flPS2GetTextureVramBlock(FLTexture* lpflTexture) {
-    s16 vram_block;
-    s16 w;
-    s16 h;
-    s16 dw;
-    s16 dh;
-    s32 lp0;
-
-    switch (lpflTexture->format) {
-    case 0:
-    case 1:
-        w = 0x40;
-        h = 0x20;
-        break;
-
-    case 2:
-    case 10:
-        w = 0x40;
-        h = 0x40;
-        break;
-
-    case 19:
-        w = 0x80;
-        h = 0x40;
-        break;
-
-    case 20:
-        w = 0x80;
-        h = 0x80;
-        break;
-    }
-
-    dw = lpflTexture->width;
-    dh = lpflTexture->height;
-    vram_block = 0;
-
-    for (lp0 = 0; lp0 < lpflTexture->tex_num; lp0++) {
-        vram_block += ((dw + w - 1) / w) * ((dh + h - 1) / h) << 5;
-        dw >>= 1;
-        dh >>= 1;
-    }
-
-    return vram_block;
-}
-
-s16 flPS2GetPaletteVramBlock(FLTexture* lpflPalette) {
-    s16 vram_block;
-
-    if (lpflPalette->height == 1) {
-        vram_block = 2;
-    } else {
-        switch (lpflPalette->format) {
-        case 0:
-        case 1:
-            vram_block = 4;
-            break;
-
-        case 2:
-            vram_block = 4;
-            break;
-        }
-    }
-
-    return vram_block;
-}
-
 s32 flPS2ConvertTextureFromContext(plContext* lpcontext, FLTexture* lpflTexture, u32 type) {
     s32 lp0;
     s32 dw;
@@ -1103,27 +1001,13 @@ s32 flPS2ConvertTextureFromContext(plContext* lpcontext, FLTexture* lpflTexture,
 
         case SCE_GS_PSMT4:
             tex_size = (dw * dh) >> 1;
-
-            if (lpflTexture->dma_type == 0) {
-                flMemcpy(dst_ptr, lpcontext->ptr, lpflTexture->size);
-            } else {
-                tcon.ptr = mflTemporaryUse(tex_size);
-                flMemcpy(tcon.ptr, lpcontext->ptr, tex_size);
-                flPS2Conv4_8_32(dw, dh, tcon.ptr, dst_ptr, 0);
-            }
+            flMemcpy(dst_ptr, lpcontext->ptr, lpflTexture->size);
 
             break;
 
         case SCE_GS_PSMT8:
             tex_size = dw * dh;
-
-            if (lpflTexture->dma_type == 0) {
-                flMemcpy(dst_ptr, lpcontext->ptr, lpflTexture->size);
-            } else {
-                tcon.ptr = mflTemporaryUse(tex_size);
-                flMemcpy(tcon.ptr, lpcontext->ptr, tex_size);
-                flPS2Conv4_8_32(dw, dh, tcon.ptr, dst_ptr, 1);
-            }
+            flMemcpy(dst_ptr, lpcontext->ptr, lpflTexture->size);
 
             break;
 
@@ -1302,263 +1186,4 @@ s32 flPS2ConvertContext(plContext* lpSrc, plContext* lpDst, u32 direction, u32 t
     }
 
     return 1;
-}
-
-// data
-
-static s32 column_tbl4[2][128] = {
-    { 0,   260, 8,   268, 16,  276, 24,  284, 1,   261, 9,   269, 17,  277, 25,  285, 2,   262, 10,  270, 18,  278,
-      26,  286, 3,   263, 11,  271, 19,  279, 27,  287, 4,   256, 12,  264, 20,  272, 28,  280, 5,   257, 13,  265,
-      21,  273, 29,  281, 6,   258, 14,  266, 22,  274, 30,  282, 7,   259, 15,  267, 23,  275, 31,  283, 128, 388,
-      136, 396, 144, 404, 152, 412, 129, 389, 137, 397, 145, 405, 153, 413, 130, 390, 138, 398, 146, 406, 154, 414,
-      131, 391, 139, 399, 147, 407, 155, 415, 132, 384, 140, 392, 148, 400, 156, 408, 133, 385, 141, 393, 149, 401,
-      157, 409, 134, 386, 142, 394, 150, 402, 158, 410, 135, 387, 143, 395, 151, 403, 159, 411 },
-    { 4,   256, 12,  264, 20,  272, 28,  280, 5,   257, 13,  265, 21,  273, 29,  281, 6,   258, 14,  266, 22,  274,
-      30,  282, 7,   259, 15,  267, 23,  275, 31,  283, 0,   260, 8,   268, 16,  276, 24,  284, 1,   261, 9,   269,
-      17,  277, 25,  285, 2,   262, 10,  270, 18,  278, 26,  286, 3,   263, 11,  271, 19,  279, 27,  287, 132, 384,
-      140, 392, 148, 400, 156, 408, 133, 385, 141, 393, 149, 401, 157, 409, 134, 386, 142, 394, 150, 402, 158, 410,
-      135, 387, 143, 395, 151, 403, 159, 411, 128, 388, 136, 396, 144, 404, 152, 412, 129, 389, 137, 397, 145, 405,
-      153, 413, 130, 390, 138, 398, 146, 406, 154, 414, 131, 391, 139, 399, 147, 407, 155, 415 }
-};
-
-static s32 column_tbl8[2][64] = {
-    { 0,   260, 8,   268, 1,   261, 9,   269, 2,   262, 10,  270, 3,   263, 11,  271, 4,   256, 12,  264, 5,   257,
-      13,  265, 6,   258, 14,  266, 7,   259, 15,  267, 128, 388, 136, 396, 129, 389, 137, 397, 130, 390, 138, 398,
-      131, 391, 139, 399, 132, 384, 140, 392, 133, 385, 141, 393, 134, 386, 142, 394, 135, 387, 143, 395 },
-    { 4,   256, 12,  264, 5,   257, 13,  265, 6,   258, 14,  266, 7,   259, 15,  267, 0,   260, 8,   268, 1,   261,
-      9,   269, 2,   262, 10,  270, 3,   263, 11,  271, 132, 384, 140, 392, 133, 385, 141, 393, 134, 386, 142, 394,
-      135, 387, 143, 395, 128, 388, 136, 396, 129, 389, 137, 397, 130, 390, 138, 398, 131, 391, 139, 399 }
-};
-
-// sdata
-
-static s32 idx32_h[32] = { 0, 1, 0, 1, 2, 3, 2, 3, 0, 1, 0, 1, 2, 3, 2, 3,
-                           4, 5, 4, 5, 6, 7, 6, 7, 4, 5, 4, 5, 6, 7, 6, 7 };
-
-static s32 idx32_v[32] = { 0, 0, 1, 1, 0, 0, 1, 1, 2, 2, 3, 3, 2, 2, 3, 3,
-                           0, 0, 1, 1, 0, 0, 1, 1, 2, 2, 3, 3, 2, 2, 3, 3 };
-
-static s32 block_table4[32] = { 0,  2,  8,  10, 1,  3,  9,  11, 4,  6,  12, 14, 5,  7,  13, 15,
-                                16, 18, 24, 26, 17, 19, 25, 27, 20, 22, 28, 30, 21, 23, 29, 31 };
-
-static s32 block_table8[32] = { 0, 1, 4,  5,  16, 17, 20, 21, 2,  3,  6,  7,  18, 19, 22, 23,
-                                8, 9, 12, 13, 24, 25, 28, 29, 10, 11, 14, 15, 26, 27, 30, 31 };
-
-static s32* clm_tbl4_ptr[4] = { column_tbl4[0], column_tbl4[1], column_tbl4[0], column_tbl4[1] };
-static s32* clm_tbl8_ptr[4] = { column_tbl8[0], column_tbl8[1], column_tbl8[0], column_tbl8[1] };
-
-s32 flPS2Conv4_8_32(s32 width, s32 height, u8* p_input, u8* p_output, s32 n_bit) {
-    switch (n_bit) {
-    case 0:
-        Conv4to32(width, height, p_input, p_output);
-        return 0;
-
-    case 1:
-        Conv8to32(width, height, p_input, p_output);
-        return 0;
-
-    default:
-        return -1;
-    }
-}
-
-static void Conv4to32(s32 width, s32 height, u8* p_input, u8* p_output) {
-    s32 i;
-    s32 j;
-    s32 k;
-    s32 n_page_h;
-    s32 n_page_w;
-    s32 p_page_w;
-    s32 n_input_width;
-    s32 n_output_width;
-    s32 n_input_height;
-    s32 n_output_height;
-    u8* pi0;
-    u8* pi1;
-    u8* po;
-    u8 input_page[8192];
-
-    n_page_w = p_page_w = (width - 1) / 128 + 1;
-    n_page_h = (height - 1) / 128 + 1;
-    n_input_width = 0x40;
-    n_output_width = 0x100;
-    n_input_height = 0x80;
-    n_output_height = 0x20;
-
-    for (i = 0; i < n_page_h; i++) {
-        for (j = 0; j < n_page_w; j++) {
-            pi0 = p_input + (n_input_width * n_input_height * i * n_page_w) + (j * n_input_width);
-            pi1 = input_page;
-
-            for (k = 0; k < n_input_height; k++) {
-                memcpy(pi1, pi0, n_input_width);
-                pi0 += n_input_width * n_page_w;
-                pi1 += n_input_width;
-            }
-
-            po = p_output + (n_output_width * n_output_height * i * n_page_w) + (j * n_output_width);
-            PageConv4to32(input_page, po, p_page_w);
-        }
-    }
-}
-
-void PageConv4to32(u8* p_input, u8* p_output, s32 p_page_w) {
-    s32 i;
-    s32 j;
-    s32 nb;
-    s32* tbl;
-    u8* pi;
-    u8* po;
-    s32 n_width = 4;
-    s32 n_height = 8;
-    s32 i_size = 0x40;
-    s32 o_size = 0x100;
-
-    tbl = block_table4;
-
-    for (i = 0; i < n_height; i++) {
-        for (j = 0; j < n_width; j++) {
-            nb = *tbl++;
-            pi = p_input + (i * 0x10 * i_size) + (j * 0x10);
-            po = p_output + (idx32_v[nb] * 8 * o_size * p_page_w) + (idx32_h[nb] << 5);
-            BlockConv4to32(pi, po, p_page_w);
-        }
-    }
-}
-
-static void BlockConv4to32(u8* p_input, u8* p_output, s32 p_page_w) {
-    s32 i;
-    s32 j;
-    s32 k;
-    s32 cno;
-    s32** pTbl;
-    s32* tbl;
-    u8* pIn;
-    u8* pOut;
-    u8 ld;
-    u8 ud;
-
-    pIn = p_input;
-    pOut = p_output;
-    pTbl = clm_tbl4_ptr;
-
-    for (k = 0; k < 4; k++) {
-        tbl = *pTbl++;
-
-        for (i = 0; i < 2; i++) {
-            for (j = 0; j < 0x20; j++) {
-                cno = *tbl++;
-
-                if (!(cno & 1)) {
-                    ld = pIn[cno / 2] & 0xF;
-                } else {
-                    ld = (pIn[cno / 2] & 0xF0) >> 4;
-                }
-
-                cno = *tbl++;
-
-                if (!(cno & 1)) {
-                    ud = (pIn[cno / 2] & 0xF) * 0x10;
-                } else {
-                    ud = pIn[cno / 2] & 0xF0;
-                }
-
-                *pOut++ = ld | ud;
-            }
-
-            pOut += (p_page_w << 8) - 0x20;
-        }
-
-        pIn += 0x100;
-    }
-}
-
-static void Conv8to32(s32 width, s32 height, u8* p_input, u8* p_output) {
-    s32 i;
-    s32 j;
-    s32 k;
-    s32 n_page_h;
-    s32 n_page_w;
-    s32 p_page_w;
-    s32 n_input_width;
-    s32 n_output_width;
-    s32 n_input_height;
-    s32 n_output_height;
-    u8* pi0;
-    u8* pi1;
-    u8* po;
-    u8 input_page[8192];
-
-    p_page_w = n_page_w = (width - 1) / 128 + 1;
-    n_page_h = (height - 1) / 64 + 1;
-    n_input_width = 0x80;
-    n_output_width = 0x100;
-    n_input_height = 0x40;
-    n_output_height = 0x20;
-
-    for (i = 0; i < n_page_h; i++) {
-        for (j = 0; j < n_page_w; j++) {
-            pi0 = p_input + (n_input_width * n_input_height * i * n_page_w) + (j * n_input_width);
-            pi1 = input_page;
-
-            for (k = 0; k < n_input_height; k++) {
-                memcpy(pi1, pi0, n_input_width);
-                pi0 += n_input_width * n_page_w;
-                pi1 += n_input_width;
-            }
-
-            po = p_output + (n_output_width * n_output_height * i * n_page_w) + (j * n_output_width);
-            PageConv8to32(input_page, po, p_page_w);
-        }
-    }
-}
-
-static void PageConv8to32(u8* p_input, u8* p_output, s32 p_page_w) {
-    s32 i;
-    s32 j;
-    s32 nb;
-    s32* tbl;
-    u8* pi;
-    u8* po;
-    s32 n_width = 8;
-    s32 n_height = 4;
-    s32 i_size = 0x80;
-    s32 o_size = 0x100;
-
-    tbl = block_table8;
-
-    for (i = 0; i < n_height; i++) {
-        for (j = 0; j < n_width; j++) {
-            nb = *tbl++;
-            pi = p_input + (i * 0x10 * i_size) + (j * 0x10);
-            po = p_output + (idx32_v[nb] * 8 * o_size * p_page_w) + (idx32_h[nb] << 5);
-            BlockConv8to32(pi, po, p_page_w);
-        }
-    }
-}
-
-void BlockConv8to32(u8* p_input, u8* p_output, s32 p_page_w) {
-    s32 i;
-    s32 j;
-    s32 k;
-    s32** pTbl;
-    s32* tbl;
-    u8* pIn = p_input;
-    u8* pOut = p_output;
-
-    pTbl = clm_tbl8_ptr;
-
-    for (k = 0; k < 4; k++) {
-        tbl = *pTbl++;
-
-        for (i = 0; i < 2; i++) {
-            for (j = 0; j < 0x20; j++) {
-                *pOut++ = pIn[*tbl++];
-            }
-
-            pOut += (p_page_w << 8) - 0x20;
-        }
-
-        pIn += 0x200;
-    }
 }

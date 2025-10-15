@@ -66,7 +66,6 @@ s32 flPS2SendTextureRegister(u32 th) {
 s32 flPS2SetTextureRegister(u32 th, u64* texA, u64* tex1, u64* tex0, u64* clamp, u64* miptbp1, u64* miptbp2,
                             u32 render_ope) {
     FLTexture* lpflTexture;
-    FLTexture* lpflPalette;
 
 #if !defined(TARGET_PS2)
     SDLGameRenderer_SetTexture(th);
@@ -81,34 +80,8 @@ s32 flPS2SetTextureRegister(u32 th, u64* texA, u64* tex1, u64* tex0, u64* clamp,
         flPS2SystemError(0, "ERROR flPS2SetTextureRegister flps2render.c 1");
     }
 
-    if (lpflTexture->tbp == 0) {
-        return 0;
-    }
-
-    if (lpflTexture->vram_on_flag == 0) {
-        flPS2SystemError(0, "ERROR flPS2SetTextureRegister flps2render.c 1");
-    }
-
-    if (lpflTexture->tbp > 0 && lpflTexture->tbp < flPs2State.TextureStartAdrs) {
-        flPS2SystemError(0, "ERROR flPS2SetTextureRegister flps2render.c 1");
-    }
-
     if (lpflTexture->desc & 0x4) {
-        lpflPalette = &flPalette[HI_16_BITS(th) - 1];
-
         if (!HI_16_BITS(th) || HI_16_BITS(th) > FL_PALETTE_MAX) {
-            flPS2SystemError(0, "ERROR flPS2SetTextureRegister flps2render.c 2");
-        }
-
-        if (lpflPalette->tbp == 0) {
-            return 0;
-        }
-
-        if (lpflPalette->vram_on_flag == 0) {
-            flPS2SystemError(0, "ERROR flPS2SetTextureRegister flps2render.c 2");
-        }
-
-        if (lpflPalette->tbp > 0 && lpflPalette->tbp < flPs2State.TextureStartAdrs) {
             flPS2SystemError(0, "ERROR flPS2SetTextureRegister flps2render.c 2");
         }
     }

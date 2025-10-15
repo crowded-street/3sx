@@ -330,25 +330,13 @@ u32 flCreateTextureFromApx_mem(void* mem, u32 flag) {
         case 0:
             tex_size = dw * dh >> 1;
             src = plAPXGetPixelAddressFromImage(mem, lp0);
-
-            if (lpflTexture->dma_type == 0) {
-                flMemcpy(dst, src, tex_size);
-            } else {
-                flPS2Conv4_8_32(dw, dh, src, dst, 0);
-            }
-
+            flMemcpy(dst, src, tex_size);
             break;
 
         case 1:
             tex_size = dw * dh;
             src = plAPXGetPixelAddressFromImage(mem, lp0);
-
-            if (lpflTexture->dma_type == 0) {
-                flMemcpy(dst, src, tex_size);
-            } else {
-                flPS2Conv4_8_32(dw, dh, src, dst, 1);
-            }
-
+            flMemcpy(dst, src, tex_size);
             break;
 
         case 2:
@@ -451,24 +439,14 @@ u32 flCreateTextureFromTim2_mem(void* mem, u32 flag) {
         case 0:
             tex_size = dw * dh >> 1;
             src = plTIM2GetPixelAddressFromImage(mem, lp0);
-
-            if (lpflTexture->dma_type == 0) {
-                flMemcpy(dst, src, tex_size);
-            } else {
-                flPS2Conv4_8_32(dw, dh, src, dst, 0);
-            }
+            flMemcpy(dst, src, tex_size);
 
             break;
 
         case 1:
             tex_size = dw * dh;
             src = plTIM2GetPixelAddressFromImage(mem, lp0);
-
-            if (lpflTexture->dma_type == 0) {
-                flMemcpy(dst, src, tex_size);
-            } else {
-                flPS2Conv4_8_32(dw, dh, src, dst, 1);
-            }
+            flMemcpy(dst, src, tex_size);
 
             break;
 

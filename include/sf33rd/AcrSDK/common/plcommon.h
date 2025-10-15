@@ -36,22 +36,13 @@ typedef struct {
     u32 desc;           // offset 0x4, size 0x4
     u32 size;           // offset 0x8, size 0x4
     u32 bitdepth;       // offset 0xC, size 0x4
-    s16 block_size;     // offset 0x10, size 0x2
-    s16 block_align;    // offset 0x12, size 0x2
-    s16 tbp;            // offset 0x14, size 0x2
-    s16 tw;             // offset 0x16, size 0x2
-    s16 th;             // offset 0x18, size 0x2
     s16 width;          // offset 0x1A, size 0x2
     s16 height;         // offset 0x1C, size 0x2
     u32 format;         // offset 0x20, size 0x4
     u32 mem_handle;     // offset 0x24, size 0x4
-    s16 dma_width;      // offset 0x28, size 0x2
-    s16 dma_height;     // offset 0x2A, size 0x2
     uintptr_t lock_ptr; // offset 0x2C, size 0x4
     u32 tex_num;        // offset 0x30, size 0x4
     s8 be_flag;         // offset 0x34, size 0x1
-    s8 vram_on_flag;    // offset 0x35, size 0x1
-    s8 dma_type;        // offset 0x36, size 0x1
     u8 lock_flag;       // offset 0x37, size 0x1
     void* wkVram;       // offset 0x38, size 0x4
 } FLTexture;
