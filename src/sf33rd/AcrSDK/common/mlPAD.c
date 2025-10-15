@@ -6,6 +6,8 @@
 
 #include <SDL3/SDL.h>
 
+#include <math.h>
+
 const u8 fllever_flip_data[4][16] = {
     { 0x00, 0x01, 0x02, 0x00, 0x04, 0x05, 0x06, 0x00, 0x08, 0x09, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00 },
     { 0x00, 0x01, 0x02, 0x00, 0x08, 0x09, 0x0A, 0x00, 0x04, 0x05, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00 },
@@ -198,7 +200,7 @@ void flPADACRConf() {
 void padconf_setup_depth(u8* deps, u8 num, u32 iodat) {
     s32 i;
 
-    for (i = 0; i < 0x10; i++) {
+    for (i = 0; i < 16; i++) {
         if (iodat & flpad_io_map[i]) {
             if (deps[i] < num) {
                 deps[i] = num;
@@ -210,8 +212,6 @@ void padconf_setup_depth(u8* deps, u8 num, u32 iodat) {
         }
     }
 }
-
-f64 atan2(f64, f64);
 
 void flupdate_pad_stick_dir(PAD_STICK* st) {
     f32 radian;
@@ -240,7 +240,7 @@ void flupdate_pad_button_data(FLPAD* pad, u32 data) {
 void flupdate_pad_on_cnt(FLPAD* pad) {
     s16 i;
 
-    for (i = 0; i < 0x18; i++) {
+    for (i = 0; i < 24; i++) {
         if (pad->sw & flpad_io_map[i]) {
             if (pad->rpsw[i].ctr.press != 0xFF) {
                 pad->rpsw[i].ctr.press += 1;
@@ -255,7 +255,7 @@ void flPADSetRepeatSw(FLPAD* pad, u32 IOdata, u8 ctr, u8 times) {
     s32 i;
     u8 cmpctr;
 
-    for (i = 0; i < 0x18; i++) {
+    for (i = 0; i < 24; i++) {
         if (IOdata & flpad_io_map[i]) {
             if (pad->rpsw[i].ctr.sw_up >= times) {
                 pad->rpsw[i].ctr.sw_up = times - 1;
