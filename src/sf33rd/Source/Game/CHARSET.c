@@ -9,10 +9,10 @@
 #include "sf33rd/Source/Game/cmd_data.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/effect/effxx.h"
-#include "sf33rd/Source/Game/workuser.h"
-
 #include "sf33rd/Source/Game/io/pulpul.h"
 #include "sf33rd/Source/Game/sound/se_data.h"
+#include "sf33rd/Source/Game/stage/bg.h"
+#include "sf33rd/Source/Game/workuser.h"
 
 #define LO_2_BYTES(_val) (((s16*)&_val)[0])
 #define HI_2_BYTES(_val) (((s16*)&_val)[1])
