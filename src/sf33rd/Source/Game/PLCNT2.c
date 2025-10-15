@@ -1,7 +1,6 @@
 #include "sf33rd/Source/Game/PLCNT2.h"
 #include "common.h"
 #include "sf33rd/Source/Game/CMD_MAIN.h"
-#include "sf33rd/Source/Game/EFFECT.h"
 #include "sf33rd/Source/Game/HITCHECK.h"
 #include "sf33rd/Source/Game/Manage.h"
 #include "sf33rd/Source/Game/PLCNT.h"
@@ -11,6 +10,7 @@
 #include "sf33rd/Source/Game/PLS02.h"
 #include "sf33rd/Source/Game/SLOWF.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
+#include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/workuser.h"
 

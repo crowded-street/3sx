@@ -2,7 +2,6 @@
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 
-#include <eestruct.h>
 #include <libgraph.h>
 
 #include <inttypes.h>
@@ -10,9 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#if !defined(TARGET_PS2)
 #include "port/sdl/sdl_message_renderer.h"
-#endif
 
 typedef struct _rgba {
     // total size: 0x4
@@ -1062,60 +1059,12 @@ s32 KnjCheckCode(const s8* str) {
 }
 
 static u32* make_env_pkt(u32* p, u32 /* unused */, u32 /* unused */) {
-#if defined(TARGET_PS2)
-    u32 qwc = 3;
-
-    *p++ = qwc | 0x10000000;
-    *p++ = 0;
-    *p++ = 0;
-    *p++ = qwc | 0x51000000;
-
-    *((u64*)p)++ = SCE_GIF_SET_TAG(qwc - 1, 1, 0, 0, SCE_GIF_PACKED, 1);
-    *((u64*)p)++ = SCE_GIF_PACKED_AD;
-    *((u64*)p)++ = SCE_GS_SET_ALPHA_1(0, 1, 0, 1, 0);
-    *((u64*)p)++ = SCE_GS_ALPHA_1;
-    *((u64*)p)++ = SCE_GS_SET_TEST_1(0, 0, 0, 0, 0, 0, 1, 1);
-    *((u64*)p)++ = SCE_GS_TEST_1;
-#endif
 
     return p;
 }
 
 static u32* make_img_pkt(u32* p, u32* img, u32 dbp, u32 dbw, u32 dbsm, u32 dsax, u32 dsay, u32 rrw, u32 rrh) {
-#if !defined(TARGET_PS2)
     SDLMessageRenderer_CreateTexture(rrw, rrh, img, dbsm);
-#else
-    nw = rrw * rrh * pw / 32;
-
-    if ((rrw * rrh * pw) % 32) {
-        nw += 1;
-    }
-
-    *p++ = 0x10000007;
-    *p++ = 0;
-    *p++ = 0;
-    *p++ = 0x51000007;
-
-    *((u64*)p)++ = SCE_GIF_SET_TAG(5, 0, 0, 0, SCE_GIF_PACKED, 1);
-    *((u64*)p)++ = SCE_GIF_PACKED_AD;
-    *((u64*)p)++ = 0;
-    *((u64*)p)++ = SCE_GS_TEXFLUSH;
-    *((u64*)p)++ = SCE_GS_SET_BITBLTBUF(0, 0, 0, dbp, dbw, dbsm);
-    *((u64*)p)++ = SCE_GS_BITBLTBUF;
-    *((u64*)p)++ = SCE_GS_SET_TRXPOS(0, 0, dsax, dsay, 0);
-    *((u64*)p)++ = SCE_GS_TRXPOS;
-    *((u64*)p)++ = SCE_GS_SET_TRXREG(rrw, rrh);
-    *((u64*)p)++ = SCE_GS_TRXREG;
-    *((u64*)p)++ = 0;
-    *((u64*)p)++ = SCE_GS_TRXDIR;
-    *((u64*)p)++ = SCE_GIF_SET_TAG(nw, SCE_GS_TRUE, SCE_GS_FALSE, 0, SCE_GIF_IMAGE, 0);
-    *((u64*)p)++ = 0;
-
-    *p++ = DMAref | nw; // transfer size
-    *p++ = (u32)img;    // transfer addr
-    *p++ = 0;
-    *p++ = nw | 0x51000000;
-#endif
 
     return p;
 }
@@ -1166,33 +1115,7 @@ static u32* make_fnt_pkt(_kanji_w* kw, u32* p, u32* img, u32 han_f) {
     u1 = ((kw->fontw * 16) >> han_f);
     v1 = kw->fonth * 16;
 
-#if !defined(TARGET_PS2)
     SDLMessageRenderer_DrawTexture(x0, y0, x1, y1, 0, 0, u1, v1, kw->color);
-#else
-    *p++ = 0x10000008;
-    *p++ = 0;
-    *p++ = 0;
-    *p++ = 0x51000008;
-
-    *((u64*)p)++ = SCE_GIF_SET_TAG(3, 0, 0, 0, SCE_GIF_PACKED, 1);
-    *((u64*)p)++ = SCE_GIF_PACKED_AD;
-    *((u64*)p)++ = 0;
-    *((u64*)p)++ = SCE_GS_TEXFLUSH;
-    *((u64*)p)++ =
-        SCE_GS_SET_TEX0_1(kw->fdbp, 1, SCE_GS_PSMT4, 5, 5, 1, 0, (kw->pdbp + kw->palet), SCE_GS_PSMCT32, 0, 0, 1);
-    *((u64*)p)++ = SCE_GS_TEX0_1;
-    *((u64*)p)++ = SCE_GS_SET_TEX1_1(0, 0, m, m, 0, 0, 0);
-    *((u64*)p)++ = SCE_GS_TEX1_1;
-    *((u64*)p)++ = SCE_GIF_SET_TAG(1, 1, 0, 0, SCE_GIF_REGLIST, 6);
-    *((u64*)p)++ =
-        SCE_GS_PRIM | SCE_GS_RGBAQ << 4 | SCE_GS_UV << 8 | SCE_GS_XYZ2 << 12 | SCE_GS_UV << 16 | SCE_GS_XYZ2 << 20;
-    *((u64*)p)++ = SCE_GS_SET_PRIM(SCE_GS_PRIM_SPRITE, 0, 1, 0, 1, 0, 1, 0, 0);
-    *((u64*)p)++ = kw->color;
-    *((u64*)p)++ = SCE_GS_SET_UV(0, 0);
-    *((u64*)p)++ = SCE_GS_SET_XYZ2(x0, y0, kw->z);
-    *((u64*)p)++ = SCE_GS_SET_UV(u1, v1);
-    *((u64*)p)++ = SCE_GS_SET_XYZ2(x1, y1, kw->z);
-#endif
 
     return p;
 }
@@ -1233,33 +1156,7 @@ static u32* make_fbg_pkt(_kanji_w* kw, u32* p, u32* /* unused */, u32 han_f) {
     u1 = ((kw->fontw * 16) >> han_f);
     v1 = kw->fonth * 16;
 
-#if !defined(TARGET_PS2)
     SDLMessageRenderer_DrawTexture(x0, y0, x1, y1, 8, 8, u1 + 8, v1 + 8, kw->bg_color);
-#else
-    *p++ = 0x10000008;
-    *p++ = 0;
-    *p++ = 0;
-    *p++ = 0x51000008;
-
-    *((u64*)p)++ = SCE_GIF_SET_TAG(3, 0, 0, 0, SCE_GIF_PACKED, 1);
-    *((u64*)p)++ = SCE_GIF_PACKED_AD;
-    *((u64*)p)++ = 0;
-    *((u64*)p)++ = SCE_GS_TEXFLUSH;
-    *((u64*)p)++ =
-        SCE_GS_SET_TEX0(kw->fdbp, 1, SCE_GS_PSMT4, 5, 5, 1, 0, (kw->pdbp + kw->palet), SCE_GS_PSMCT32, 0, 0, 1);
-    *((u64*)p)++ = SCE_GS_TEX0_1;
-    *((u64*)p)++ = SCE_GS_SET_TEX1(0, 0, m, m, 0, 0, 0);
-    *((u64*)p)++ = SCE_GS_TEX1_1;
-    *((u64*)p)++ = SCE_GIF_SET_TAG(1, 1, 0, 0, SCE_GIF_REGLIST, 6);
-    *((u64*)p)++ =
-        SCE_GS_PRIM | SCE_GS_RGBAQ << 4 | SCE_GS_UV << 8 | SCE_GS_XYZ2 << 12 | SCE_GS_UV << 16 | SCE_GS_XYZ2 << 20;
-    *((u64*)p)++ = SCE_GS_SET_PRIM(SCE_GS_PRIM_SPRITE, 0, 1, 0, 1, 0, 1, 0, 0);
-    *((u64*)p)++ = kw->bg_color;
-    *((u64*)p)++ = SCE_GS_SET_UV(8, 8);
-    *((u64*)p)++ = SCE_GS_SET_XYZ(x0, y0, kw->z - 1);
-    *((u64*)p)++ = SCE_GS_SET_UV(u1 + 8, v1 + 8);
-    *((u64*)p)++ = SCE_GS_SET_XYZ(x1, y1, kw->z - 1);
-#endif
 
     return p;
 }

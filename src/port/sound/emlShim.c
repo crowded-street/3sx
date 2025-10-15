@@ -223,7 +223,7 @@ static int gcVoices() {
     SDL_LockMutex(soundLock);
 
     list_for_each_safe (i, n, &active_voices, list) {
-        if (SPU_VoiceGetEnvLvl(i->voice_num) == 0) {
+        if (SPU_VoiceIsFinished(i->voice_num)) {
             list_remove(&i->list);
             list_insert(&free_voices, &i->list);
             numFreed++;

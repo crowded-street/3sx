@@ -4,13 +4,13 @@
 #include "common.h"
 #include "sf33rd/Source/Game/CALDIR.h"
 #include "sf33rd/Source/Game/CHARSET.h"
-#include "sf33rd/Source/Game/EFFA7.h"
-#include "sf33rd/Source/Game/EFFD9.h"
-#include "sf33rd/Source/Game/EFFE2.h"
 #include "sf33rd/Source/Game/MTRANS.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/PLPDM.h"
 #include "sf33rd/Source/Game/PLS02.h"
+#include "sf33rd/Source/Game/effect/effa7.h"
+#include "sf33rd/Source/Game/effect/effd9.h"
+#include "sf33rd/Source/Game/effect/effe2.h"
 #include "sf33rd/Source/Game/io/pulpul.h"
 
 void setup_caught_process_flags(PLW* wk);

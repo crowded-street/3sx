@@ -5,20 +5,13 @@
 
 #include "sf33rd/Source/Game/ending/end_main.h"
 #include "common.h"
-#include "sf33rd/Source/Game/EFFECT.h"
-#include "sf33rd/Source/Game/EFFF9.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/SYS_sub2.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
-#include "sf33rd/Source/Game/stage/bg.h"
-#include "sf33rd/Source/Game/stage/bg_data.h"
-#include "sf33rd/Source/Game/effe6.h"
-#include "sf33rd/Source/Game/effe9.h"
-#include "sf33rd/Source/Game/n_input.h"
-#include "sf33rd/Source/Game/sc_sub.h"
-#include "sf33rd/Source/Game/staff.h"
-#include "sf33rd/Source/Game/workuser.h"
-
+#include "sf33rd/Source/Game/effect/effe6.h"
+#include "sf33rd/Source/Game/effect/effe9.h"
+#include "sf33rd/Source/Game/effect/effect.h"
+#include "sf33rd/Source/Game/effect/efff9.h"
 #include "sf33rd/Source/Game/ending/end_00.h"
 #include "sf33rd/Source/Game/ending/end_01.h"
 #include "sf33rd/Source/Game/ending/end_02.h"
@@ -40,7 +33,13 @@
 #include "sf33rd/Source/Game/ending/end_19.h"
 #include "sf33rd/Source/Game/ending/end_20.h"
 #include "sf33rd/Source/Game/ending/end_data.h"
+#include "sf33rd/Source/Game/n_input.h"
+#include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/sound/sound3rd.h"
+#include "sf33rd/Source/Game/staff.h"
+#include "sf33rd/Source/Game/stage/bg.h"
+#include "sf33rd/Source/Game/stage/bg_data.h"
+#include "sf33rd/Source/Game/workuser.h"
 
 void normal_ending(s16 pl_num);
 void end_main_move(s16 pl_num);

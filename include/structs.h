@@ -760,33 +760,17 @@ typedef struct {
 } WORK_Other_JUDGE;
 
 typedef struct {
-    u32 DisplayMode;
     s32 DispWidth;
     s32 DispHeight;
-    u32 ZBuffForm;
-    u32 ZBuffPageX;
-    u32 ZBuffPageY;
     f32 ZBuffMax;
     u32 TextureStartAdrs;
-    s32 Db_change_enable;
-    s8 pad64[0xC];
-    sceGsDBuffDc Db;
     u32 FrameClearColor;
-    s32 DrawDisable;
     u32 SystemStatus;
     s32 SystemIndex;
     uintptr_t SystemTmpBuffStartAdrs;
     uintptr_t SystemTmpBuffEndAdrs;
     uintptr_t SystemTmpBuffNow;
     u32 SystemTmpBuffHandle[2];
-    u64 RenderTESTStatus1;
-    u64 RenderTESTStatus2;
-    u64 RenderZBUFStatus1;
-    u64 RenderZBUFStatus2;
-    u64 RenderSCISSORStatus1;
-    s32 RenderSCISSORValue1[4];
-    u64 RenderSCISSORStatus2;
-    s32 RenderSCISSORValue2[4];
 } FLPS2State;
 
 typedef struct {
@@ -2025,26 +2009,6 @@ typedef struct {
     u32 vprofile;  // offset 0x10, size 0x4
     u32 vib_timer; // offset 0x14, size 0x4
 } PS2Slot;
-
-typedef struct {
-    // total size: 0x1C
-    uintptr_t parent;   // offset 0x0, size 0x4
-    uintptr_t child;    // offset 0x4, size 0x4
-    FLTexture* tex_ptr; // offset 0x8, size 0x4
-    u32 desc;           // offset 0xC, size 0x4
-    u32 flag;           // offset 0x10, size 0x4
-    s16 tbp;            // offset 0x14, size 0x2
-    s16 block_size;     // offset 0x16, size 0x2
-    s16 block_align;    // offset 0x18, size 0x2
-    u16 dummy;          // offset 0x1A, size 0x2
-} LPVram;
-
-typedef struct {
-    // total size: 0x8
-    s16 be_flag;    // offset 0x0, size 0x2
-    s16 tbp;        // offset 0x2, size 0x2
-    u32 block_size; // offset 0x4, size 0x4
-} VRAMBlockHeader;
 
 typedef struct {
     // total size: 0x4C

@@ -3,16 +3,6 @@
 #include "sf33rd/Source/Game/CHARID.h"
 #include "sf33rd/Source/Game/CHARSET.h"
 #include "sf33rd/Source/Game/CMD_MAIN.h"
-#include "sf33rd/Source/Game/EFF00.h"
-#include "sf33rd/Source/Game/EFF01.h"
-#include "sf33rd/Source/Game/EFF33.h"
-#include "sf33rd/Source/Game/EFFC9.h"
-#include "sf33rd/Source/Game/EFFE4.h"
-#include "sf33rd/Source/Game/EFFE5.h"
-#include "sf33rd/Source/Game/EFFECT.h"
-#include "sf33rd/Source/Game/EFFJ7.h"
-#include "sf33rd/Source/Game/EFFK5.h"
-#include "sf33rd/Source/Game/EFFK7.h"
 #include "sf33rd/Source/Game/Grade.h"
 #include "sf33rd/Source/Game/HITCHECK.h"
 #include "sf33rd/Source/Game/Manage.h"
@@ -30,8 +20,18 @@
 #include "sf33rd/Source/Game/color3rd.h"
 #include "sf33rd/Source/Game/count.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
-#include "sf33rd/Source/Game/effd3.h"
-#include "sf33rd/Source/Game/effe3.h"
+#include "sf33rd/Source/Game/effect/eff00.h"
+#include "sf33rd/Source/Game/effect/eff01.h"
+#include "sf33rd/Source/Game/effect/eff33.h"
+#include "sf33rd/Source/Game/effect/effc9.h"
+#include "sf33rd/Source/Game/effect/effd3.h"
+#include "sf33rd/Source/Game/effect/effe3.h"
+#include "sf33rd/Source/Game/effect/effe4.h"
+#include "sf33rd/Source/Game/effect/effe5.h"
+#include "sf33rd/Source/Game/effect/effect.h"
+#include "sf33rd/Source/Game/effect/effj7.h"
+#include "sf33rd/Source/Game/effect/effk5.h"
+#include "sf33rd/Source/Game/effect/effk7.h"
 #include "sf33rd/Source/Game/main.h"
 #include "sf33rd/Source/Game/texcash.h"
 #include "sf33rd/Source/Game/texgroup.h"
@@ -597,7 +597,7 @@ void plcnt_move() {
         plw[0].wu.dm_vital = plw[1].wu.dm_vital = 0;
     }
 
-    if (Mode_Type == 3 && Training->contents[0][1][3] == 0) {
+    if (Mode_Type == MODE_NORMAL_TRAINING && Training->contents[0][1][3] == 0) {
         plw[0].wu.dm_nodeathattack = 1;
         plw[1].wu.dm_nodeathattack = 1;
     }
@@ -1245,7 +1245,7 @@ void setup_base_and_other_data() {
     poison_flag[0] = 0;
     poison_flag[1] = 0;
 
-    if (Mode_Type == 3 || Mode_Type == 4) {
+    if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
         effect_E3_init(&plw[0]);
         effect_E3_init(&plw[1]);
         effect_E4_init(&plw[0]);

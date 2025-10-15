@@ -4,12 +4,6 @@
 #include "common.h"
 #include "sf33rd/Source/Game/CALDIR.h"
 #include "sf33rd/Source/Game/CHARSET.h"
-#include "sf33rd/Source/Game/EFFA7.h"
-#include "sf33rd/Source/Game/EFFD9.h"
-#include "sf33rd/Source/Game/EFFE2.h"
-#include "sf33rd/Source/Game/EFFECT.h"
-#include "sf33rd/Source/Game/EFFG6.h"
-#include "sf33rd/Source/Game/EFFI3.h"
 #include "sf33rd/Source/Game/Grade.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/PLPCA.h"
@@ -20,6 +14,12 @@
 #include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/cmb_win.h"
+#include "sf33rd/Source/Game/effect/effa7.h"
+#include "sf33rd/Source/Game/effect/effd9.h"
+#include "sf33rd/Source/Game/effect/effe2.h"
+#include "sf33rd/Source/Game/effect/effect.h"
+#include "sf33rd/Source/Game/effect/effg6.h"
+#include "sf33rd/Source/Game/effect/effi3.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/workuser.h"
 
@@ -1599,7 +1599,7 @@ void subtract_dm_vital(PLW* wk) {
         }
     }
 
-    if (Mode_Type == 3 && (Training_ID != wk->wu.id)) {
+    if (Mode_Type == MODE_NORMAL_TRAINING && (Training_ID != wk->wu.id)) {
         Training_Damage_Set(wk->wu.dm_vital, wk->wu.dm_piyo, wk->wu.kezurare_flag);
     }
 
@@ -1660,7 +1660,7 @@ void subtract_dm_vital_aiuchi(PLW* wk) {
 
     pp_pulpara_remake_dm_all(&wk->wu);
 
-    if (Mode_Type == 3 && (Training_ID != wk->wu.id)) {
+    if (Mode_Type == MODE_NORMAL_TRAINING && (Training_ID != wk->wu.id)) {
         Training_Damage_Set(wk->wu.dm_vital, wk->wu.dm_piyo, wk->wu.kezurare_flag);
     }
 

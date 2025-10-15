@@ -1,13 +1,12 @@
 #include "sf33rd/Source/Game/Grade.h"
 #include "common.h"
 #include "sf33rd/Source/Game/CALDIR.h"
-#include "sf33rd/Source/Game/EFFECT.h"
 #include "sf33rd/Source/Game/HITCHECK.h"
 #include "sf33rd/Source/Game/PLCNT.h"
+#include "sf33rd/Source/Game/com/com_sub.h"
+#include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/workuser.h"
-
-#include "sf33rd/Source/Game/com/com_sub.h"
 
 // sbss
 JudgeGals judge_gals[2];
@@ -474,7 +473,7 @@ void grade_makeup_stage_parameter(s16 ix) {
     s16 bs;
     s16 qc;
 
-    if ((Mode_Type != 5) && (Mode_Type != 1) && (Round_Operator[ix] == 0)) {
+    if ((Mode_Type != 5) && (Mode_Type != MODE_VERSUS) && (Round_Operator[ix] == 0)) {
         grade_makeup_stage_para_com(ix);
         return;
     }

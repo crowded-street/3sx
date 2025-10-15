@@ -7,7 +7,7 @@
 #include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
-#include "sf33rd/Source/Game/effect_init.h"
+#include "sf33rd/Source/Game/effect/effect_init.h"
 #include "sf33rd/Source/Game/main.h"
 #include "sf33rd/Source/Game/n_input.h"
 #include "sf33rd/Source/Game/sc_sub.h"

@@ -2,7 +2,7 @@
 #include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/Sel_Data.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
-#include "sf33rd/Source/Game/effect_init.h"
+#include "sf33rd/Source/Game/effect/effect_init.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"

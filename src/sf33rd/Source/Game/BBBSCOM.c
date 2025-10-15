@@ -1,13 +1,13 @@
 #include "sf33rd/Source/Game/BBBSCOM.h"
 #include "common.h"
-#include "sf33rd/Source/Game/EFF16.h"
-#include "sf33rd/Source/Game/EFFB1.h"
-#include "sf33rd/Source/Game/EFFH0.h"
-#include "sf33rd/Source/Game/EFFH9.h"
-#include "sf33rd/Source/Game/EFFI8.h"
 #include "sf33rd/Source/Game/Grade.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
+#include "sf33rd/Source/Game/effect/eff16.h"
+#include "sf33rd/Source/Game/effect/effb1.h"
+#include "sf33rd/Source/Game/effect/effh0.h"
+#include "sf33rd/Source/Game/effect/effh9.h"
+#include "sf33rd/Source/Game/effect/effi8.h"
 #include "sf33rd/Source/Game/workuser.h"
 
 const s32 bbbs_jump_level[4][2];

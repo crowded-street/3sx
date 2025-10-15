@@ -5,7 +5,6 @@
 #include "structs.h"
 #include "types.h"
 
-s32 flPS2Conv4_8_32(s32 width, s32 height, u8* p_input, u8* p_output, s32 n_bit);
 s32 flPS2ConvertContext(plContext* lpSrc, plContext* lpDst, u32 direction, u32 type);
 u32 flPS2GetPaletteHandle();
 s32 flPS2CreatePaletteHandle(u32 ph, u32 flag);

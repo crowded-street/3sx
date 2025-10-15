@@ -12,11 +12,11 @@
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "structs.h"
 
+#include <fcntl.h>
 #include <libgraph.h>
-#include <sifdev.h>
-
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 #if !defined(TARGET_PS2) && !defined(_WIN32)
 #include <ctype.h>
@@ -49,21 +49,23 @@ s32 flFileRead(s8* filename, void* buf, s32 len) {
     s8 temp[2048];
     s8* p;
 
+    fatal_error("Unhandled path: %s", filename);
+
     strcpy(temp, "cdrom0:\\THIRD\\");
     p = strlen(temp) + temp;
     strcat(temp, filename);
     strupr(p);
     strcat(temp, ";1");
 
-    fd = sceOpen(temp, SCE_RDONLY);
+    fd = open(temp, O_RDONLY);
     printf("flFileRead: \"%s\" (fd = %d)\n", temp, fd);
 
     if (fd < 0) {
         return 0;
     }
 
-    sceRead(fd, buf, len);
-    sceClose(fd);
+    read(fd, buf, len);
+    close(fd);
     return 1;
 }
 
@@ -78,12 +80,12 @@ s32 flFileWrite(s8* filename, void* buf, s32 len) {
     strupr(p);
     strcat(temp, ";1");
 
-    if ((fd = sceOpen(temp, SCE_WRONLY | SCE_CREAT | SCE_TRUNC)) < 0) {
+    if ((fd = open(temp, O_WRONLY | O_CREAT | O_TRUNC)) < 0) {
         return 0;
     }
 
-    sceWrite(fd, buf, len);
-    sceClose(fd);
+    write(fd, buf, len);
+    close(fd);
     return 1;
 }
 
@@ -98,13 +100,13 @@ s32 flFileAppend(s8* filename, void* buf, ssize_t len) {
     strupr(p);
     strcat(temp, ";1");
 
-    if ((fd = sceOpen(temp, SCE_WRONLY)) < 0) {
+    if ((fd = open(temp, O_WRONLY)) < 0) {
         return 0;
     }
 
-    sceLseek(fd, 0, 2);
-    sceWrite(fd, buf, (s32)len);
-    sceClose(fd);
+    lseek(fd, 0, 2);
+    write(fd, buf, (s32)len);
+    close(fd);
     return 1;
 }
 
@@ -120,12 +122,12 @@ s32 flFileLength(s8* filename) {
     strupr(p);
     strcat(temp, ";1");
 
-    if ((fd = sceOpen(temp, SCE_RDONLY)) < 0) {
+    if ((fd = open(temp, O_RDONLY)) < 0) {
         return 0;
     }
 
-    length = sceLseek(fd, 0, SCE_SEEK_END);
-    sceClose(fd);
+    length = lseek(fd, 0, SEEK_END);
+    close(fd);
     return length;
 }
 
@@ -328,25 +330,13 @@ u32 flCreateTextureFromApx_mem(void* mem, u32 flag) {
         case 0:
             tex_size = dw * dh >> 1;
             src = plAPXGetPixelAddressFromImage(mem, lp0);
-
-            if (lpflTexture->dma_type == 0) {
-                flMemcpy(dst, src, tex_size);
-            } else {
-                flPS2Conv4_8_32(dw, dh, src, dst, 0);
-            }
-
+            flMemcpy(dst, src, tex_size);
             break;
 
         case 1:
             tex_size = dw * dh;
             src = plAPXGetPixelAddressFromImage(mem, lp0);
-
-            if (lpflTexture->dma_type == 0) {
-                flMemcpy(dst, src, tex_size);
-            } else {
-                flPS2Conv4_8_32(dw, dh, src, dst, 1);
-            }
-
+            flMemcpy(dst, src, tex_size);
             break;
 
         case 2:
@@ -449,24 +439,14 @@ u32 flCreateTextureFromTim2_mem(void* mem, u32 flag) {
         case 0:
             tex_size = dw * dh >> 1;
             src = plTIM2GetPixelAddressFromImage(mem, lp0);
-
-            if (lpflTexture->dma_type == 0) {
-                flMemcpy(dst, src, tex_size);
-            } else {
-                flPS2Conv4_8_32(dw, dh, src, dst, 0);
-            }
+            flMemcpy(dst, src, tex_size);
 
             break;
 
         case 1:
             tex_size = dw * dh;
             src = plTIM2GetPixelAddressFromImage(mem, lp0);
-
-            if (lpflTexture->dma_type == 0) {
-                flMemcpy(dst, src, tex_size);
-            } else {
-                flPS2Conv4_8_32(dw, dh, src, dst, 1);
-            }
+            flMemcpy(dst, src, tex_size);
 
             break;
 

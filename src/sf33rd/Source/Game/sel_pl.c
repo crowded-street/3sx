@@ -2,24 +2,6 @@
 #include "common.h"
 #include "sf33rd/Source/Game/Com_Data.h"
 #include "sf33rd/Source/Game/DC_Ghost.h"
-#include "sf33rd/Source/Game/EFF38.h"
-#include "sf33rd/Source/Game/EFF42.h"
-#include "sf33rd/Source/Game/EFF58.h"
-#include "sf33rd/Source/Game/EFF66.h"
-#include "sf33rd/Source/Game/EFF69.h"
-#include "sf33rd/Source/Game/EFF70.h"
-#include "sf33rd/Source/Game/EFF75.h"
-#include "sf33rd/Source/Game/EFFA5.h"
-#include "sf33rd/Source/Game/Eff39.h"
-#include "sf33rd/Source/Game/Eff43.h"
-#include "sf33rd/Source/Game/Eff50.h"
-#include "sf33rd/Source/Game/Eff52.h"
-#include "sf33rd/Source/Game/Eff76.h"
-#include "sf33rd/Source/Game/Eff79.h"
-#include "sf33rd/Source/Game/Eff93.h"
-#include "sf33rd/Source/Game/Eff99.h"
-#include "sf33rd/Source/Game/EffD8.h"
-#include "sf33rd/Source/Game/EffK6.h"
 #include "sf33rd/Source/Game/Grade.h"
 #include "sf33rd/Source/Game/MMTMCNT.h"
 #include "sf33rd/Source/Game/MTRANS.h"
@@ -35,6 +17,24 @@
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
+#include "sf33rd/Source/Game/effect/eff38.h"
+#include "sf33rd/Source/Game/effect/eff39.h"
+#include "sf33rd/Source/Game/effect/eff42.h"
+#include "sf33rd/Source/Game/effect/eff43.h"
+#include "sf33rd/Source/Game/effect/eff50.h"
+#include "sf33rd/Source/Game/effect/eff52.h"
+#include "sf33rd/Source/Game/effect/eff58.h"
+#include "sf33rd/Source/Game/effect/eff66.h"
+#include "sf33rd/Source/Game/effect/eff69.h"
+#include "sf33rd/Source/Game/effect/eff70.h"
+#include "sf33rd/Source/Game/effect/eff75.h"
+#include "sf33rd/Source/Game/effect/eff76.h"
+#include "sf33rd/Source/Game/effect/eff79.h"
+#include "sf33rd/Source/Game/effect/eff93.h"
+#include "sf33rd/Source/Game/effect/eff99.h"
+#include "sf33rd/Source/Game/effect/effa5.h"
+#include "sf33rd/Source/Game/effect/effd8.h"
+#include "sf33rd/Source/Game/effect/effk6.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/workuser.h"
 
@@ -161,7 +161,7 @@ s16 Select_Player() {
 }
 
 void Switch_Work() {
-    if (Mode_Type != 3 && Mode_Type != 4) {
+    if (Mode_Type != MODE_NORMAL_TRAINING && Mode_Type != MODE_PARRY_TRAINING) {
         return;
     }
 
@@ -280,7 +280,7 @@ void Sel_PL_Cont_1st() {
 void Check_Use_Gill() {
     s16 ix;
 
-    if (Mode_Type == 2) {
+    if (Mode_Type == MODE_NETWORK) {
         return;
     }
 
@@ -820,7 +820,7 @@ void PL_Sel_2nd() {
             Cursor_Timer[ID2] = 40;
             Go_Away_Red_Lines();
 
-            if (Mode_Type == 3 || Mode_Type == 4) {
+            if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
                 S_No[3] = 1;
                 break;
             }
@@ -1077,7 +1077,7 @@ void Sel_PL_5th() {
 
     SP_No[ID][0]++;
 
-    if (Mode_Type == 3 || Mode_Type == 4) {
+    if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
         S_No[3] = 1;
     }
 
@@ -1547,7 +1547,7 @@ void Exit_1st() {
     Order_Timer[8] = 1;
     Setup_Training_Difficulty();
 
-    if (Mode_Type == 1 && save_w[Present_Mode].Handicap != 0) {
+    if (Mode_Type == MODE_VERSUS && save_w[Present_Mode].Handicap != 0) {
         Exit_No = 7;
     } else {
         Exit_No++;
@@ -2008,7 +2008,7 @@ s32 Check_Boss(s16 PL_id) {
 u8 Setup_Battle_Country() {
     s16 Rnd32;
 
-    if (Mode_Type == 1) {
+    if (Mode_Type == MODE_VERSUS) {
         if (VS_Stage == 20) {
             Rnd32 = random_32();
             return Random_Stage_Data[1][Rnd32];

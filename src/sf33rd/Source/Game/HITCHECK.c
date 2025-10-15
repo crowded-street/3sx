@@ -4,8 +4,6 @@
 #include "common.h"
 #include "sf33rd/Source/Game/CHARSET.h"
 #include "sf33rd/Source/Game/CMD_MAIN.h"
-#include "sf33rd/Source/Game/EFF02.h"
-#include "sf33rd/Source/Game/EFFECT.h"
 #include "sf33rd/Source/Game/Grade.h"
 #include "sf33rd/Source/Game/HITEFEF.h"
 #include "sf33rd/Source/Game/HITEFPL.h"
@@ -18,6 +16,8 @@
 #include "sf33rd/Source/Game/Pow_Pow.h"
 #include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/cmb_win.h"
+#include "sf33rd/Source/Game/effect/eff02.h"
+#include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/workuser.h"
 
 #include "sf33rd/Source/Game/io/pulpul.h"

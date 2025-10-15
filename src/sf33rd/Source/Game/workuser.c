@@ -1,3 +1,4 @@
+#include "sf33rd/Source/Game/workuser.h"
 #include "common.h"
 #include "sf33rd/Source/Game/cmd_data.h"
 #include "structs.h"
@@ -146,7 +147,7 @@ s8 Jump_Pass_Timer[2][4];
 s8 sa_gauge_flash[2];
 s8 Receive_Flag[2];
 s8 Disposal_Again[2];
-s8 BGM_Vol;
+volatile s8 BGM_Vol;
 u8 Used_char[2];
 s8 Break_Com[2][20];
 s8 aiuchi_flag;
@@ -305,7 +306,7 @@ u8 Play_Game;
 s8 Menu_Cursor_Move;
 u8 flash_win_type[2][4];
 u8 sync_win_type[2][4];
-u8 Mode_Type;
+ModeType Mode_Type;
 s8 Menu_Page;
 s8 Menu_Max;
 u8 reset_NG_flag;
@@ -434,7 +435,7 @@ u16 vital_stop_flag[2];
 u16 gauge_stop_flag[2];
 s16 Lamp_Timer;
 s16 Cont_Timer;
-const u16* Demo_Ptr[2];
+u16* Demo_Ptr[2];
 s16 Plate_X[2][3];
 s16 Plate_Y[2][3];
 u16 Demo_Timer[2];

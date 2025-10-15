@@ -797,7 +797,7 @@ void setup_vitality(WORK* wk, s16 pno) {
     wk->vitality = wk->vital_new = wk->vital_old = Max_vitality;
     wk->dm_vital = 0;
 
-    if (Mode_Type != 0) {
+    if (Mode_Type != MODE_ARCADE) {
         wk->vital_new = wk->vital_new * (Vital_Handicap[Present_Mode][wk->id] + 1) / 8;
         wk->vital_old = wk->vital_new;
     }

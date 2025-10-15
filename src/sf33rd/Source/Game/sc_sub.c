@@ -6,13 +6,13 @@
 #include "sf33rd/Source/Common/PPGWork.h"
 #include "sf33rd/Source/Game/AcrUtil.h"
 #include "sf33rd/Source/Game/DC_Ghost.h"
-#include "sf33rd/Source/Game/Eff76.h"
 #include "sf33rd/Source/Game/MTRANS.h"
 #include "sf33rd/Source/Game/RAMCNT.h"
 #include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
-#include "sf33rd/Source/Game/stage/bg_data.h"
+#include "sf33rd/Source/Game/effect/eff76.h"
 #include "sf33rd/Source/Game/sc_data.h"
+#include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/workuser.h"
 #include "sf33rd/Source/PS2/ps2Quad.h"
 #include "structs.h"
@@ -1492,7 +1492,7 @@ s32 hnc_wipeout(u8 atr) {
 
     if (!No_Trans) {
         ppgSetupCurrentDataList(&ppgScrList);
-            njSetPaletteBankNumG(1, atr & 0x3F);
+        njSetPaletteBankNumG(1, atr & 0x3F);
         njColorBlendingMode(0, 1);
         vtx[0].z = vtx[1].z = vtx[2].z = vtx[3].z = PrioBase[2];
         vtx[0].col = vtx[1].col = vtx[2].col = vtx[3].col = -1;

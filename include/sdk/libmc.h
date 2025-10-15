@@ -1,10 +1,6 @@
 #ifndef _LIBMC_H_
 #define _LIBMC_H_
 
-#ifndef SCE_STM_R
-#include <sifdev.h>
-#endif
-
 #define sceMcFuncNoCardInfo (1)
 #define sceMcFuncNoOpen (2)
 #define sceMcFuncNoClose (3)

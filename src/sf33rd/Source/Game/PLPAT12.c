@@ -1,12 +1,12 @@
 #include "sf33rd/Source/Game/PLPAT12.h"
 #include "common.h"
 #include "sf33rd/Source/Game/CHARSET.h"
-#include "sf33rd/Source/Game/EFFD7.h"
 #include "sf33rd/Source/Game/Grade.h"
 #include "sf33rd/Source/Game/PLPAT.h"
 #include "sf33rd/Source/Game/PLPATUNI.h"
 #include "sf33rd/Source/Game/PLS01.h"
 #include "sf33rd/Source/Game/PLS02.h"
+#include "sf33rd/Source/Game/effect/effd7.h"
 
 void (*const pl12_exatt_table[18])(PLW*);
 

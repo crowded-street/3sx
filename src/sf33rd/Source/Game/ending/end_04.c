@@ -4,9 +4,9 @@
  */
 
 #include "common.h"
-#include "sf33rd/Source/Game/EFFF9.h"
-#include "sf33rd/Source/Game/EFFH1.h"
-#include "sf33rd/Source/Game/effe6.h"
+#include "sf33rd/Source/Game/effect/effe6.h"
+#include "sf33rd/Source/Game/effect/efff9.h"
+#include "sf33rd/Source/Game/effect/effh1.h"
 #include "sf33rd/Source/Game/ending/end_data.h"
 #include "sf33rd/Source/Game/ending/end_main.h"
 #include "sf33rd/Source/Game/sound/se.h"
