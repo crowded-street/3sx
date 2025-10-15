@@ -6,11 +6,11 @@
 #include "sf33rd/Source/Game/io/ioconv.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/common/mlPAD.h"
+#include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/main.h"
 #include "sf33rd/Source/Game/workuser.h"
-#include "structs.h"
 
 IO io_w;
 

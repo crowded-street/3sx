@@ -293,10 +293,11 @@ void move_pulpul_work() {
 }
 
 s32 chkVibUnit(s32 port) {
-    if (((flpad_adr)[0][port].kind == 0) || ((flpad_adr)[0][port].kind) == 0x8000)
+    if ((flpad_adr[0][port].kind == 0) || (flpad_adr[0][port].kind == 0x8000)) {
         return 0;
+    }
 
-    return (flpad_adr)[0][port].conn.gc.etc1;
+    return flpad_adr[0][port].conn.vib;
 }
 
 void move_pulpul(PPWORK* wk) {

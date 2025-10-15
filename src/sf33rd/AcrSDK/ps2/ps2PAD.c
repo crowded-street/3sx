@@ -3,7 +3,6 @@
 #include "sf33rd/AcrSDK/common/mlPAD.h"
 #include "sf33rd/AcrSDK/ps2/flPADUSR.h"
 #include "sf33rd/AcrSDK/ps2/flps2etc.h"
-#include "structs.h"
 
 #include <SDL3/SDL.h>
 
@@ -13,6 +12,50 @@
 #include <math.h>
 
 #define PI 3.14159275f
+
+// depth contains button depths in the following order:
+// - Right
+// - Left
+// - Up
+// - Down
+// - Triangle
+// - Circle
+// - Cross
+// - Square
+// - L1
+// - R1
+// - L2
+// - R2
+
+typedef union {
+    u8 pad_buffer[32];
+    struct {
+        u8 ng;
+        u8 kind;
+        u16 sw;
+        union {
+            struct {
+                s16 x;
+                s16 y;
+            } gun;
+            struct {
+                u8 r_ax;
+                u8 r_ay;
+                u8 l_ax;
+                u8 l_ay;
+            } stick;
+        } pos;
+        u8 depth[12]; // FIXME: remove depth handling
+        u8 free[12];
+    } ix;
+} PS2PAD_STATE;
+
+typedef struct {
+    s16 abut_on;
+    s16 ast1_on;
+    s16 ast2_on;
+    u16 free;
+} PS2PAD_CONFIG;
 
 static u32 ps2pad_hard_to_soft_ds2[16][2] = { { 4096, 1 }, { 16384, 1 }, { 32768, 1 }, { 8192, 1 },
                                               { 64, 2 },   { 32, 2 },    { 2, 3 },     { 1, 3 },
@@ -66,8 +109,8 @@ s32 tarPADInit() {
 
     for (i = 0; i < 2; i++) {
         ps2pad_config[i] = ps2PadShotConf_Basic;
-        tarpad_root[i].conn.gc.vib = ps2slot[i].port;
-        tarpad_root[i].conn.gc.etc0 = ps2slot[i].slot;
+        tarpad_root[i].conn.port = ps2slot[i].port;
+        tarpad_root[i].conn.slot = ps2slot[i].slot;
         flPadFixedAnalogSelectSwitch[i] = flPadFASS[i] = 0;
     }
 
@@ -93,7 +136,7 @@ void tarPADRead() {
     for (i = 0; i < 2; i++) {
         if (PADRead_for_PS2(i) != 0) {
             pad = &tarpad_root[i];
-            pad->conn.gc.etc1 = ps2slot[i].vib;
+            pad->conn.vib = ps2slot[i].vib;
             pad->sw = (pad->sw & 0xFFF0) | (etclever_wrong_data[pad->sw & 0xF]);
             update_pad_stick_dir(&pad->stick[0], ps2pad_config[i].ast1_on);
             update_pad_stick_dir(&pad->stick[1], ps2pad_config[i].ast2_on);

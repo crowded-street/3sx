@@ -45,35 +45,6 @@ typedef struct {
     u8 useChar[20];
 } MPP;
 
-typedef struct {
-    // total size: 0xC
-    s16 x;   // offset 0x0, size 0x2
-    s16 y;   // offset 0x2, size 0x2
-    s16 pow; // offset 0x4, size 0x2
-    s16 ang; // offset 0x6, size 0x2
-    f32 rad; // offset 0x8, size 0x4
-} PAD_STICK;
-
-typedef struct {
-    // total size: 0x34
-    u8 state;           // offset 0x0, size 0x1
-    u8 anstate;         // offset 0x1, size 0x1
-    u16 kind;           // offset 0x2, size 0x2
-    u32 sw;             // offset 0x4, size 0x4
-    u32 sw_old;         // offset 0x8, size 0x4
-    u32 sw_new;         // offset 0xC, size 0x4
-    u32 sw_off;         // offset 0x10, size 0x4
-    u32 sw_chg;         // offset 0x14, size 0x4
-    u32 sw_repeat;      // offset 0x18, size 0x4
-    PAD_STICK stick[2]; // offset 0x1C, size 0x18
-} IOPad;
-
-typedef struct {
-    // total size: 0x6C
-    IOPad data[2]; // offset 0x0, size 0x68
-    u16 sw[2];     // offset 0x68, size 0x4
-} IO;
-
 struct _TASK {
     // total size: 0x14
     void (*func_adrs)();     // offset 0x0, size 0x4
@@ -1069,135 +1040,6 @@ typedef struct {
     s32 align;         // offset 0x14, size 0x4
 } FL_FMS;
 
-typedef union {
-    u32 etc; // offset 0x0, size 0x4
-    struct /* @anon1 */ {
-        // total size: 0x4
-        u8 vib;  // offset 0x0, size 0x1
-        u8 etc0; // offset 0x1, size 0x1
-        u8 etc1; // offset 0x2, size 0x1
-        u8 etc2; // offset 0x3, size 0x1
-    } gc;        // offset 0x0, size 0x4
-    struct /* @anon4 */ {
-        // total size: 0x4
-        u8 port; // offset 0x0, size 0x1
-        u8 slot; // offset 0x1, size 0x1
-        u8 vib;  // offset 0x2, size 0x1
-        u8 etc;  // offset 0x3, size 0x1
-    } ps;        // offset 0x0, size 0x4
-    struct /* @anon6 */ {
-        // total size: 0x4
-        u8 socket1; // offset 0x0, size 0x1
-        u8 socket2; // offset 0x1, size 0x1
-        u16 etc;    // offset 0x2, size 0x2
-    } dc;           // offset 0x0, size 0x4
-    struct /* @anon8 */ {
-        // total size: 0x4
-        void* handle; // offset 0x0, size 0x4
-    } xbox;           // offset 0x0, size 0x4
-} PAD_CONN;
-
-typedef struct {
-    // total size: 0x10
-    u8 pow[16]; // offset 0x0, size 0x10
-} PAD_ANSHOT;
-
-typedef struct {
-    // total size: 0x88
-    u8 state;           // offset 0x0, size 0x1
-    u8 anstate;         // offset 0x1, size 0x1
-    u16 kind;           // offset 0x2, size 0x2
-    PAD_CONN conn;      // offset 0x4, size 0x4
-    u32 sw;             // offset 0x8, size 0x4
-    u32 sw_old;         // offset 0xC, size 0x4
-    u32 sw_new;         // offset 0x10, size 0x4
-    u32 sw_off;         // offset 0x14, size 0x4
-    u32 sw_chg;         // offset 0x18, size 0x4
-    PAD_ANSHOT anshot;  // offset 0x1C, size 0x10
-    PAD_STICK stick[2]; // offset 0x2C, size 0x18
-    u32 sw_repeat;      // offset 0x44, size 0x4
-    union /* @anon9 */ {
-        u16 work; // offset 0x0, size 0x2
-        struct /* @anon10 */ {
-            // total size: 0x2
-            u8 press; // offset 0x0, size 0x1
-            u8 sw_up; // offset 0x1, size 0x1
-        } ctr;        // offset 0x0, size 0x2
-    } rpsw[32];       // offset 0x48, size 0x40
-} FLPAD;
-
-typedef struct {
-    // total size: 0x34
-    u8 state;           // offset 0x0, size 0x1
-    u8 anstate;         // offset 0x1, size 0x1
-    u16 kind;           // offset 0x2, size 0x2
-    PAD_CONN conn;      // offset 0x4, size 0x4
-    u32 sw;             // offset 0x8, size 0x4
-    PAD_ANSHOT anshot;  // offset 0xC, size 0x10
-    PAD_STICK stick[2]; // offset 0x1C, size 0x18
-} TARPAD;
-
-typedef struct {
-    // total size: 0x2C
-    u8 conf_sw[32]; // offset 0x0, size 0x20
-    u8 flip_lever;  // offset 0x20, size 0x1
-    u8 flip_ast1;   // offset 0x21, size 0x1
-    u8 flip_ast2;   // offset 0x22, size 0x1
-    u8 free;        // offset 0x23, size 0x1
-    s16 abut_on;    // offset 0x24, size 0x2
-    s16 ast1_on;    // offset 0x26, size 0x2
-    s16 ast2_on;    // offset 0x28, size 0x2
-    u16 free2;      // offset 0x2A, size 0x2
-} FLPAD_CONFIG;
-
-typedef struct {
-    // total size: 0x8
-    s16 abut_on; // offset 0x0, size 0x2
-    s16 ast1_on; // offset 0x2, size 0x2
-    s16 ast2_on; // offset 0x4, size 0x2
-    u16 free;    // offset 0x6, size 0x2
-} PS2PAD_CONFIG;
-
-typedef union {
-    u8 pad_buffer[32]; // offset 0x0, size 0x20
-    struct {
-        // total size: 0x20
-        u8 ng;   // offset 0x0, size 0x1
-        u8 kind; // offset 0x1, size 0x1
-        u16 sw;  // offset 0x2, size 0x2
-        union {
-            struct /* @anon7 */ {
-                // total size: 0x4
-                s16 x; // offset 0x0, size 0x2
-                s16 y; // offset 0x2, size 0x2
-            } gun;     // offset 0x0, size 0x4
-            struct {
-                // total size: 0x4
-                u8 r_ax; // offset 0x0, size 0x1
-                u8 r_ay; // offset 0x1, size 0x1
-                u8 l_ax; // offset 0x2, size 0x1
-                u8 l_ay; // offset 0x3, size 0x1
-            } stick;     // offset 0x0, size 0x4
-        } pos;           // offset 0x4, size 0x4
-        u8 depth[12];    // offset 0x8, size 0xC
-        u8 free[12];     // offset 0x14, size 0xC
-    } ix;                // offset 0x0, size 0x20
-} PS2PAD_STATE;
-
-// depth contains button depths in the following order:
-// - Right
-// - Left
-// - Up
-// - Down
-// - Triangle
-// - Circle
-// - Cross
-// - Square
-// - L1
-// - R1
-// - L2
-// - R2
-
 typedef struct {
     // total size: 0xC
     u8 order;    // offset 0x0, size 0x1
@@ -1994,21 +1836,6 @@ typedef struct {
     s16 rwgbix;         // offset 0xE, size 0x2
     s16 gbix;           // offset 0x10, size 0x2
 } RW_DATA;
-
-typedef struct {
-    // total size: 0x18
-    u8 state;      // offset 0x0, size 0x1
-    u8 phase;      // offset 0x1, size 0x1
-    u8 port;       // offset 0x2, size 0x1
-    u8 slot;       // offset 0x3, size 0x1
-    u8 kind;       // offset 0x4, size 0x1
-    u8 vib;        // offset 0x5, size 0x1
-    u8 socket_id;  // offset 0x6, size 0x1
-    u8 pad_id;     // offset 0x7, size 0x1
-    u32 bprofile;  // offset 0xC, size 0x4
-    u32 vprofile;  // offset 0x10, size 0x4
-    u32 vib_timer; // offset 0x14, size 0x4
-} PS2Slot;
 
 typedef struct {
     // total size: 0x4C

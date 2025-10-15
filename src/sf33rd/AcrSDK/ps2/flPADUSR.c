@@ -1,5 +1,5 @@
+#include "sf33rd/AcrSDK/ps2/flPADUSR.h"
 #include "common.h"
-#include "structs.h"
 
 const FLPAD_CONFIG fltpad_config_basic = {
     .conf_sw = { 0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15,
