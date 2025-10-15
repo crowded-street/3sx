@@ -2011,26 +2011,6 @@ typedef struct {
 } PS2Slot;
 
 typedef struct {
-    // total size: 0x1C
-    uintptr_t parent;   // offset 0x0, size 0x4
-    uintptr_t child;    // offset 0x4, size 0x4
-    FLTexture* tex_ptr; // offset 0x8, size 0x4
-    u32 desc;           // offset 0xC, size 0x4
-    u32 flag;           // offset 0x10, size 0x4
-    s16 tbp;            // offset 0x14, size 0x2
-    s16 block_size;     // offset 0x16, size 0x2
-    s16 block_align;    // offset 0x18, size 0x2
-    u16 dummy;          // offset 0x1A, size 0x2
-} LPVram;
-
-typedef struct {
-    // total size: 0x8
-    s16 be_flag;    // offset 0x0, size 0x2
-    s16 tbp;        // offset 0x2, size 0x2
-    u32 block_size; // offset 0x4, size 0x4
-} VRAMBlockHeader;
-
-typedef struct {
     // total size: 0x4C
     s16 offence_total;  // offset 0x0, size 0x2
     s16 defence_total;  // offset 0x2, size 0x2

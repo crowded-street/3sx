@@ -14,22 +14,14 @@
 #include <assert.h>
 #include <memory.h>
 
-#define LPVRAM_ERROR ((LPVram*)-1)
-
 #define ERR_STOP                                                                                                       \
     while (1) {}
 
 static s32 flPS2ConvertTextureFromContext(plContext* lpcontext, FLTexture* lpflTexture, u32 type);
-s32 flPS2GetVramFreeArea(u32* lpflhTexture, s32 tex_num);
 s16 flPS2GetTextureBuffWidth(s16 width);
 u32 flPS2GetTextureSize(u32 format, s32 dw, s32 dh, s32 bnum);
 s16 flPS2GetTextureVramBlock(FLTexture* lpflTexture);
 static s16 flPS2GetPaletteVramBlock(FLTexture* lpflTexture);
-s32 flPS2AddVramList(LPVram* lpVram, FLTexture* lpflTexture);
-s32 flPS2RewriteVramList(LPVram* lpVram, FLTexture* lpflTexture);
-LPVram* flPS2SearchVramChange(FLTexture* lpflTexture, u32* lpflhTexture, s32 tex_num);
-LPVram* flPS2SearchVramSpace(u32 size, u32 align);
-s32 flPS2DeleteVramList(FLTexture* lpflTexture);
 s32 flPS2LockTexture(Rect* /* unused */, FLTexture* lpflTexture, plContext* lpcontext, u32 flag, s32 /* unused */);
 s32 flPS2UnlockTexture(FLTexture*);
 static void Conv4to32(s32 width, s32 height, u8* p_input, u8* p_output);
@@ -51,12 +43,6 @@ u32 flCreateTextureHandle(plContext* bits, u32 flag) {
     flPS2GetTextureInfoFromContext(bits, 1, th, flag);
 
     if (bits->ptr == NULL) {
-        if (flPS2GetVramFreeArea(&th, 1) == 0) {
-            flLogOut("Coundn't allocate texture. Need to call Compact function. @flCreateTextureHandle");
-            assert(0);
-            return 0;
-        }
-
         lpflTexture->mem_handle = flPS2GetSystemMemoryHandle(lpflTexture->size, 2);
     } else {
         flPS2ConvertTextureFromContext(bits, lpflTexture, 0);
@@ -214,12 +200,6 @@ u32 flCreatePaletteHandle(plContext* lpcontext, u32 flag) {
     flPS2GetPaletteInfoFromContext(lpcontext, ph, flag);
 
     if (lpcontext->ptr == NULL) {
-        if (flPS2GetVramFreeArea(&ph, 1) == 0) {
-            flLogOut("Coundn't allocate texture. Need to call Compact function. @flCreatePaletteHandle");
-            assert(0);
-            return 0;
-        }
-
         lpflPalette->mem_handle = flPS2GetSystemMemoryHandle(lpflPalette->size, 2);
     } else {
         if (lpcontext->width == 256) {
@@ -317,7 +297,6 @@ s32 flReleaseTextureHandle(u32 texture_handle) {
     }
 
     SDLGameRenderer_DestroyTexture(texture_handle);
-    flPS2DeleteVramList(lpflTexture); // FIXME: we don't really need to keep track of vram
 
     if (lpflTexture->mem_handle != 0) {
         flPS2ReleaseSystemMemory(lpflTexture->mem_handle);
@@ -335,7 +314,6 @@ s32 flReleasePaletteHandle(u32 palette_handle) {
     }
 
     SDLGameRenderer_DestroyPalette(palette_handle);
-    flPS2DeleteVramList(lpflPalette); // FIXME: we don't really need to keep track of vram
 
     if (lpflPalette->mem_handle != 0) {
         flPS2ReleaseSystemMemory(lpflPalette->mem_handle);
@@ -824,24 +802,19 @@ s32 flUnlockPalette(u32 th) {
 }
 
 s32 flPS2UnlockTexture(FLTexture* lpflTexture) {
-    uintptr_t trans_ptr;
     u8* buff_ptr;
     u8* buff_ptr1;
     plContext src;
     plContext dst;
-
-    trans_ptr = (uintptr_t)NULL;
 
     switch (lpflTexture->lock_flag & 3) {
     case 0:
         if (lpflTexture->mem_handle != 0) {
             buff_ptr = flPS2GetSystemBuffAdrs(lpflTexture->mem_handle);
             buff_ptr1 = (u8*)lpflTexture->lock_ptr;
-            trans_ptr = (uintptr_t)buff_ptr;
         } else {
             buff_ptr = mflTemporaryUse(lpflTexture->size);
             buff_ptr1 = (u8*)lpflTexture->lock_ptr;
-            trans_ptr = (uintptr_t)buff_ptr;
         }
 
         src.desc = lpflTexture->desc;
@@ -971,31 +944,18 @@ s32 flPS2UnlockTexture(FLTexture* lpflTexture) {
             buff_ptr = flPS2GetSystemBuffAdrs(lpflTexture->mem_handle);
             buff_ptr1 = (u8*)lpflTexture->lock_ptr;
             flMemcpy(buff_ptr, buff_ptr1, lpflTexture->size);
-            trans_ptr = (uintptr_t)buff_ptr;
         } else {
             buff_ptr = (u8*)lpflTexture->lock_ptr;
-            trans_ptr = (uintptr_t)buff_ptr;
         }
 
         break;
 
     case 2:
-        trans_ptr = lpflTexture->lock_ptr;
-        break;
-
     case 3:
-        trans_ptr = lpflTexture->lock_ptr;
         break;
     }
 
     lpflTexture->desc &= ~2;
-
-    if (trans_ptr != 0) {
-        if (lpflTexture->flag == 1 || lpflTexture->flag == 4) {
-            flPS2DeleteVramList(lpflTexture);
-            return 1;
-        }
-    }
 
     return 1;
 }
@@ -1601,425 +1561,4 @@ void BlockConv8to32(u8* p_input, u8* p_output, s32 p_page_w) {
 
         pIn += 0x200;
     }
-}
-
-void flPS2VramInit() {
-    s32 i;
-
-    flVramStaticNum = 0;
-
-    for (i = 0; i < VRAM_BLOCK_HEADER_SIZE; i++) {
-        flMemset(&flVramStatic[i], 0, sizeof(VRAMBlockHeader));
-    }
-
-    flVramList = NULL;
-
-    for (i = 0; i < VRAM_CONTROL_SIZE; i++) {
-        flMemset(&flVramControl[i], 0, sizeof(LPVram));
-    }
-}
-
-#if defined(TARGET_PS2)
-LPVram* flPS2PullVramWork()
-#else
-LPVram* flPS2PullVramWork(LPVram* /* unused */, s32 /* unused */)
-#endif
-{
-    s32 i;
-
-    for (i = 0; i < VRAM_CONTROL_SIZE; i++) {
-        if (flVramControl[i].tbp == 0) {
-            return &flVramControl[i];
-        }
-    }
-
-    return NULL;
-}
-
-void flPS2PushVramWork(LPVram* lpVram) {
-    LPVram* lpParent = (LPVram*)lpVram->parent;
-    LPVram* lpChild = (LPVram*)lpVram->child;
-
-    if (lpParent != 0) {
-        lpParent->child = (uintptr_t)lpChild;
-    } else if (lpChild != 0) {
-        flVramList = (LPVram*)lpChild;
-    } else {
-        flVramList = NULL;
-    }
-
-    if (lpChild != 0) {
-        lpChild->parent = (uintptr_t)lpParent;
-    }
-
-    if (lpVram->tex_ptr != NULL) {
-        lpVram->tex_ptr->vram_on_flag = 0;
-        lpVram->tex_ptr->wkVram = NULL;
-        lpVram->tex_ptr->flag = 4;
-    }
-
-    flMemset(lpVram, 0, sizeof(LPVram));
-}
-
-void flPS2ChainVramWork(LPVram* lpParent, LPVram* lpVram) {
-    LPVram* lpChild = NULL;
-
-    if (lpParent != NULL) {
-        lpChild = (LPVram*)lpParent->child;
-        lpParent->child = (uintptr_t)lpVram;
-    } else if (flVramList == NULL) {
-        flVramList = lpVram;
-    } else {
-        lpChild = flVramList;
-        flVramList = lpVram;
-    }
-
-    lpVram->parent = (uintptr_t)lpParent;
-    lpVram->child = (uintptr_t)lpChild;
-
-    if (lpChild != 0) {
-        lpChild->parent = (uintptr_t)lpVram;
-    }
-}
-
-s16 flPS2GetVramSize() {
-    LPVram* lpVram = flVramList;
-    s16 size = 0;
-
-    while (lpVram != NULL) {
-        if (lpVram->tbp == 0) {
-            flPS2SystemError(0, "ERROR flPS2GetVramSize flps2vram.c 1");
-        }
-
-        size += lpVram->block_size;
-        lpVram = (LPVram*)lpVram->child;
-    }
-
-    return size;
-}
-
-s32 flPS2AddVramList(LPVram* lpVram, FLTexture* lpflTexture) {
-    s16 next_tbp;
-    LPVram* lpVramNew;
-
-    if (lpVram == NULL) {
-        if ((lpVramNew = flPS2PullVramWork(flVramControl, VRAM_CONTROL_SIZE)) == NULL) {
-            return 0;
-        }
-
-        flPS2ChainVramWork(lpVram, lpVramNew);
-        next_tbp = flPs2State.TextureStartAdrs;
-    } else {
-        if ((lpVramNew = flPS2PullVramWork(flVramControl, VRAM_CONTROL_SIZE)) == NULL) {
-            return 0;
-        }
-
-        flPS2ChainVramWork(lpVram, lpVramNew);
-        // Should probably use an alignment macro here
-        next_tbp =
-            ~(lpflTexture->block_align - 1) & (lpflTexture->block_align - 1 + (lpVram->tbp + lpVram->block_size));
-    }
-
-    if ((next_tbp >= 0) && (next_tbp < flPs2State.TextureStartAdrs)) {
-        flPS2SystemError(0, "ERROR flPS2AddVramList flps2vram.c 1");
-    }
-
-    if (next_tbp >= 0x4000) {
-        flPS2SystemError(0, "ERROR flPS2AddVramList flps2vram.c 2");
-    }
-
-    lpflTexture->tbp = next_tbp;
-    lpflTexture->vram_on_flag = 1;
-    lpflTexture->wkVram = lpVramNew;
-    lpVramNew->tex_ptr = lpflTexture;
-    lpVramNew->desc = lpflTexture->desc;
-    lpVramNew->flag = lpflTexture->flag;
-    lpVramNew->tbp = next_tbp;
-    lpVramNew->block_size = lpflTexture->block_size;
-    lpVramNew->block_align = lpflTexture->block_align;
-    return 1;
-}
-
-s32 flPS2RewriteVramList(LPVram* lpVram, FLTexture* lpflTexture) {
-    LPVram* lpVramNext;
-
-    if (lpVram == NULL) {
-        if ((lpVram = flPS2PullVramWork(flVramControl, VRAM_CONTROL_SIZE)) == NULL) {
-            return 0;
-        }
-
-        flPS2ChainVramWork(NULL, lpVram);
-        lpVram->tbp = flPs2State.TextureStartAdrs;
-    } else if (lpVram->child != 0) {
-        lpVramNext = (LPVram*)lpVram->child;
-
-        while ((lpVramNext->tbp - lpVram->tbp) < lpflTexture->block_size) {
-            flPS2PushVramWork((LPVram*)lpVramNext);
-
-            if (lpVram->child == 0) {
-                break;
-            }
-
-            lpVramNext = (LPVram*)lpVram->child;
-        }
-    }
-
-    if (lpVram->tex_ptr != NULL) {
-        lpVram->tex_ptr->vram_on_flag = 0;
-        lpVram->tex_ptr->wkVram = NULL;
-        lpVram->tex_ptr->flag = 4;
-    }
-
-    lpflTexture->tbp = lpVram->tbp;
-    lpflTexture->vram_on_flag = 1;
-    lpflTexture->wkVram = lpVram;
-    lpVram->tex_ptr = lpflTexture;
-    lpVram->desc = lpflTexture->desc;
-    lpVram->flag = lpflTexture->flag;
-    lpVram->block_size = lpflTexture->block_size;
-    lpVram->block_align = lpflTexture->block_align;
-    return 1;
-}
-
-s32 flPS2DeleteVramList(FLTexture* lpflTexture) {
-    if (lpflTexture->vram_on_flag) {
-        flPS2PushVramWork(lpflTexture->wkVram);
-    }
-
-    return 1;
-}
-
-void flPS2PurgeTextureFromVRAM(u32 th) {
-    FLTexture* lpflTexture = &flTexture[th - 1];
-
-    if (th > FL_TEXTURE_MAX) {
-        ERR_STOP;
-    }
-
-    if (!lpflTexture->be_flag) {
-        ERR_STOP;
-    }
-
-    if (lpflTexture->vram_on_flag) {
-        flPS2PushVramWork(lpflTexture->wkVram);
-    }
-}
-
-void flPS2PurgePaletteFromVRAM(u32 ph) {
-    FLTexture* lpflPalette = &flPalette[ph - 1];
-
-    if (ph > FL_PALETTE_MAX) {
-        ERR_STOP;
-    }
-
-    if (!lpflPalette->be_flag) {
-        ERR_STOP;
-    }
-
-    if (lpflPalette->vram_on_flag) {
-        flPS2PushVramWork(lpflPalette->wkVram);
-    }
-}
-
-s32 flPS2GetVramFreeArea(u32* lpflhTexture, s32 tex_num) {
-    LPVram* lpVram;
-    FLTexture* lpflTexture;
-    FLTexture* lpflPalette;
-    u32 th;
-    s32 i;
-
-    for (i = 0; i < tex_num; i++) {
-        th = *lpflhTexture++;
-
-        if (LO_16_BITS(th)) {
-            lpflTexture = &flTexture[LO_16_BITS(th) - 1];
-
-            if (lpflTexture->vram_on_flag == 0) {
-                if ((lpVram = flPS2SearchVramSpace(lpflTexture->block_size, lpflTexture->block_align)) ==
-                    LPVRAM_ERROR) {
-                    return 0;
-                }
-
-                if (flPS2AddVramList(lpVram, lpflTexture) == 0) {
-                    return 0;
-                }
-            }
-        }
-
-        if (HI_16_BITS(th) != 0) {
-            lpflPalette = &flPalette[HI_16_BITS(th) - 1];
-
-            if (lpflPalette->vram_on_flag == 0) {
-                if ((lpVram = flPS2SearchVramSpace(lpflPalette->block_size, lpflPalette->block_align)) ==
-                    LPVRAM_ERROR) {
-                    return 0;
-                }
-
-                if (flPS2AddVramList(lpVram, lpflPalette) == 0) {
-                    return 0;
-                }
-            }
-        }
-    }
-
-    return 1;
-}
-
-LPVram* flPS2SearchVramSpace(u32 size, u32 align) {
-    LPVram* lpVram = flVramList;
-    LPVram* lpChild;
-    u32 next_tbp;
-
-    if (lpVram == NULL) {
-        return NULL;
-    }
-
-    if ((lpVram->tbp != flPs2State.TextureStartAdrs) && ((lpVram->tbp - flPs2State.TextureStartAdrs) >= size)) {
-        return NULL;
-    }
-
-    while (1) {
-        lpChild = (LPVram*)lpVram->child;
-        next_tbp = lpVram->tbp + lpVram->block_size;
-        next_tbp = ~(align - 1) & (next_tbp + (align - 1)); // Should probably use an alignment macro here
-
-        if (lpChild == 0) {
-            if ((lpVram->tbp + lpVram->block_size) >= 0x4000) {
-                return LPVRAM_ERROR;
-            }
-
-            if ((next_tbp + size) >= 0x4000) {
-                return LPVRAM_ERROR;
-            }
-
-            return lpVram;
-        }
-
-        if ((next_tbp < lpChild->tbp) && ((lpChild->tbp - next_tbp) >= size)) {
-            return lpVram;
-        }
-
-        lpVram = (LPVram*)lpChild;
-    }
-}
-
-LPVram* flPS2SearchVramChange(FLTexture* lpflTexture, u32* lpflhTexture, s32 tex_num) {
-    s32 i;
-    LPVram* lpVram;
-    LPVram* lpVramNext;
-    LPVram* lpVramKeep;
-    LPVram* lpVramOld;
-    FLTexture* lpPs2tex;
-    u32 th;
-    s32 loop_num = 0;
-    u32 next_tbp;
-
-    while (1) {
-        lpVram = flVramList;
-
-        if (lpVram == NULL) {
-            return NULL;
-        }
-
-        while (1) {
-            if ((loop_num != 0) || (lpVram->flag == 1) || (lpVram->flag == 4)) {
-                for (i = 0; i < tex_num; i++) {
-                    th = lpflhTexture[i];
-
-                    if (LO_16_BITS(th)) {
-                        lpPs2tex = &flTexture[LO_16_BITS(th) - 1];
-
-                        if (lpPs2tex == lpVram->tex_ptr) {
-                            goto block_38;
-                        }
-                    }
-
-                    if (HI_16_BITS(th)) {
-                        lpPs2tex = &flPalette[HI_16_BITS(th) - 1];
-
-                        if (lpPs2tex == lpVram->tex_ptr) {
-                            goto block_38;
-                        }
-                    }
-                }
-
-                next_tbp = ~(lpflTexture->block_align - 1) & (lpVram->tbp + (lpflTexture->block_align - 1));
-
-                if (lpVram->tbp == next_tbp) {
-                    if (lpVram->child == 0) {
-                        if ((0x4000 - next_tbp) >= lpflTexture->block_size) {
-                            return lpVram;
-                        }
-
-                        goto block_38;
-                    }
-
-                    lpVramKeep = lpVram;
-                    lpVramNext = (LPVram*)lpVram->child;
-
-                    while ((lpVramNext->tbp - next_tbp) < lpflTexture->block_size) {
-                        lpVram = lpVramNext;
-
-                        if ((loop_num == 0) && (lpVram->flag != 1)) {
-                            if (lpVram->flag != 4) {
-                                goto block_38;
-                            }
-                        }
-
-                        for (i = 0; i < tex_num; i++) {
-                            th = lpflhTexture[i];
-
-                            if (LO_16_BITS(th)) {
-                                lpPs2tex = &flTexture[LO_16_BITS(th) - 1];
-
-                                if (lpPs2tex == lpVram->tex_ptr) {
-                                    goto block_38;
-                                }
-                            }
-
-                            if (HI_16_BITS(th)) {
-                                lpPs2tex = &flPalette[HI_16_BITS(th) - 1];
-
-                                if (lpPs2tex == lpVram->tex_ptr) {
-                                    goto block_38;
-                                }
-                            }
-                        }
-
-                        if (lpVram->child == 0) {
-                            if ((0x4000 - next_tbp) < lpflTexture->block_size) {
-                                goto block_38;
-                            }
-
-                            return lpVramKeep;
-                        }
-
-                        lpVramNext = (LPVram*)lpVram->child;
-                    }
-
-                    return lpVramKeep;
-                }
-            }
-
-        block_38:
-            lpVramOld = lpVram;
-            lpVram = (LPVram*)lpVram->child;
-
-            if (lpVram == NULL) {
-                break;
-            }
-        }
-
-        if ((0x4000 - (lpVramOld->tbp + lpVramOld->block_size)) >= lpflTexture->block_size) {
-            return (LPVram*)1;
-        }
-
-        if (loop_num != 0) {
-            break;
-        }
-
-        loop_num += 1;
-    }
-
-    return LPVRAM_ERROR;
 }

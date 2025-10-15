@@ -19,7 +19,6 @@
 #include <string.h>
 
 FLPS2State flPs2State;
-LPVram flVramControl[VRAM_CONTROL_SIZE];
 FLTexture flTexture[256];
 FLTexture flPalette[1088];
 s32 flWidth;
@@ -27,8 +26,6 @@ s32 flHeight;
 u32 flSystemRenderOperation;
 FL_FMS flFMS;
 FLPS2VIF1Control flPs2VIF1Control;
-LPVram* flVramList;
-VRAMBlockHeader flVramStatic[3];
 s32 flVramStaticNum;
 u32 flDebugStrHan;
 u32 flDebugStrCol;
@@ -54,7 +51,6 @@ static s32 system_work_init() {
     void* temp;
 
     flMemset(&flPs2State, 0, sizeof(FLPS2State));
-    flPS2VramInit();
     temp = malloc(0x01800000);
 
     if (temp == NULL) {

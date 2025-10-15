@@ -200,7 +200,7 @@ void ppgPurgeTextureFromVRAM(Texture* tex) {
     for (i = 0; i < tex->total; i++) {
         th = tex->handle[i].b16[0];
         if (th != 0) {
-            flPS2PurgeTextureFromVRAM(th);
+            // TODO do something here?
         }
     }
 }
@@ -212,7 +212,7 @@ void ppgPurgePaletteFromVRAM(Palette* pal) {
     for (i = 0; i < pal->total; i++) {
         ph = pal->handle[i];
         if (ph != 0) {
-            flPS2PurgePaletteFromVRAM(ph);
+            // TODO do something here?
         }
     }
 }

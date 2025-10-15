@@ -14,8 +14,6 @@ extern u32 flDebugStrCtr;
 extern u32 flDebugStrCol;
 extern u32 flDebugStrHan;
 extern s32 flVramStaticNum;
-extern VRAMBlockHeader flVramStatic[VRAM_BLOCK_HEADER_SIZE];
-extern LPVram* flVramList;
 extern FLPS2VIF1Control flPs2VIF1Control;
 extern FL_FMS flFMS;
 extern u32 flSystemRenderOperation;
@@ -23,7 +21,6 @@ extern s32 flHeight;
 extern s32 flWidth;
 extern FLTexture flPalette[FL_PALETTE_MAX];
 extern FLTexture flTexture[FL_TEXTURE_MAX];
-extern LPVram flVramControl[VRAM_CONTROL_SIZE];
 extern FLPS2State flPs2State;
 
 s32 flInitialize();
