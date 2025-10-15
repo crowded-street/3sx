@@ -6,6 +6,7 @@
 #include "sf33rd/Source/Game/menu/menu.h"
 #include "common.h"
 #include "port/sdl/sdl_app.h"
+#include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Game/Entry.h"
 #include "sf33rd/Source/Game/Game.h"
 #include "sf33rd/Source/Game/Grade.h"
@@ -481,11 +482,11 @@ void toSelectGame(struct _TASK* task_ptr) {
     case 3:
         imgSelectGameButton();
         sw = (~plsw_01[0] & plsw_00[0]) | (~plsw_01[1] & plsw_00[1]); // potential macro
-        sw &= 0x300;
+        sw &= (SWK_SOUTH | SWK_EAST);
 
         if (sw != 0) {
-            if (sw != 0x300) {
-                if (sw & 0x100) {
+            if (sw != (SWK_SOUTH | SWK_EAST)) {
+                if (sw & SWK_SOUTH) {
                     task_ptr->free[0] = 1;
                 }
 
@@ -2842,7 +2843,7 @@ u16 MC_Move_Sub(u16 sw, s16 cursor_id, s16 menu_max, s16 cansel_menu) {
     }
 
     switch (sw) {
-    case 0x1:
+    case SWK_UP:
         Menu_Cursor_Y[cursor_id] -= 1;
 
         if (Menu_Cursor_Y[cursor_id] < 0) {
@@ -2854,9 +2855,9 @@ u16 MC_Move_Sub(u16 sw, s16 cursor_id, s16 menu_max, s16 cansel_menu) {
         }
 
         SE_cursor_move();
-        return IO_Result = 1;
+        return IO_Result = SWK_UP;
 
-    case 0x2:
+    case SWK_DOWN:
         Menu_Cursor_Y[cursor_id] += 1;
 
         if (Menu_Cursor_Y[cursor_id] > menu_max) {
@@ -2868,37 +2869,37 @@ u16 MC_Move_Sub(u16 sw, s16 cursor_id, s16 menu_max, s16 cansel_menu) {
         }
 
         SE_cursor_move();
-        return IO_Result = 2;
+        return IO_Result = SWK_DOWN;
 
-    case 0x10:
-        return IO_Result = 0x10;
+    case SWK_WEST:
+        return IO_Result = SWK_WEST;
 
-    case 0x100:
-        return IO_Result = 0x100;
+    case SWK_SOUTH:
+        return IO_Result = SWK_SOUTH;
 
-    case 0x200:
-        return IO_Result = 0x200;
+    case SWK_EAST:
+        return IO_Result = SWK_EAST;
 
-    case 0x400:
-        return IO_Result = 0x400;
+    case SWK_RIGHT_TRIGGER:
+        return IO_Result = SWK_RIGHT_TRIGGER;
 
-    case 0x4000:
-        return IO_Result = 0x4000;
+    case SWK_START:
+        return IO_Result = SWK_START;
 
     default:
         return IO_Result = 0;
 
-    case 0x20:
-        return IO_Result = 0x20;
+    case SWK_NORTH:
+        return IO_Result = SWK_NORTH;
 
-    case 0x40:
-        return IO_Result = 0x40;
+    case SWK_RIGHT_SHOULDER:
+        return IO_Result = SWK_RIGHT_SHOULDER;
 
-    case 0x80:
-        return IO_Result = 0x80;
+    case SWK_LEFT_SHOULDER:
+        return IO_Result = SWK_LEFT_SHOULDER;
 
-    case 0x800:
-        return IO_Result = 0x800;
+    case SWK_LEFT_TRIGGER:
+        return IO_Result = SWK_LEFT_TRIGGER;
     }
 }
 
@@ -2951,13 +2952,13 @@ u16 Check_Menu_Lever(u8 PL_id, s16 type) {
         sw = ~PLsw[PL_id][1] & PLsw[PL_id][0];
     }
 
-    lever = plsw_00[PL_id] & 0xF;
+    lever = plsw_00[PL_id] & SWK_DIRECTIONS;
 
-    if (sw & 0x4FF0) {
+    if (sw & (SWK_ATTACKS | SWK_START)) {
         return sw;
     }
 
-    sw &= 0xF;
+    sw &= SWK_DIRECTIONS;
 
     if (sw) {
         return sw;
@@ -2974,7 +2975,7 @@ u16 Check_Menu_Lever(u8 PL_id, s16 type) {
             Deley_Shot_No[PL_id] = 2;
         }
 
-        if (lever & 3) {
+        if (lever & (SWK_UP | SWK_DOWN)) {
             ix = 0;
         } else {
             ix = 3;
@@ -4115,7 +4116,7 @@ s32 Pause_Check_Tr(s16 PL_id) {
 
     sw = ~(PLsw[PL_id][1]) & PLsw[PL_id][0];
 
-    if (sw & 0x4000) {
+    if (sw & SWK_START) {
         Pause_ID = PL_id;
         return 1;
     }
@@ -4202,23 +4203,23 @@ s32 Pause_in_Normal_Tr(struct _TASK* task_ptr) {
         if (Pause_Down) {
             IO_Result = MC_Move_Sub(Check_Menu_Lever(Pause_ID, 0), 0, 2, 0xFF);
         } else {
-            sw = ~(PLsw[Pause_ID][1]) & PLsw[Pause_ID][0];
+            sw = ~PLsw[Pause_ID][1] & PLsw[Pause_ID][0];
 
-            if (sw & 0xFF0) {
-                IO_Result = 0x10;
+            if (sw & SWK_ATTACKS) {
+                IO_Result = SWK_WEST;
             } else {
                 return 3;
             }
         }
 
         switch (IO_Result) {
-        case 0x200:
+        case SWK_EAST:
             task_ptr->r_no[2] = 0;
             Menu_Suicide[0] = 1;
             SE_selected();
             break;
 
-        case 0x100:
+        case SWK_SOUTH:
             switch (Menu_Cursor_Y[0]) {
             case 0:
                 task_ptr->r_no[2] = 0;
@@ -4268,9 +4269,10 @@ s32 Pause_1st_Sub(struct _TASK* task_ptr) {
         SSPutStr2(18, 14, 9, "TO PAUSE MENU");
     }
 
-    if (sw & 0x4000) {
-        if (((Mode_Type == MODE_NORMAL_TRAINING) || (Mode_Type == MODE_PARRY_TRAINING)) && (Check_Pause_Term_Tr(Pause_ID ^ 1) != 0) &&
-            plw[Pause_ID ^ 1].wu.operator && (Interface_Type[Pause_ID ^ 1] == 0)) {
+    if (sw & SWK_START) {
+        if (((Mode_Type == MODE_NORMAL_TRAINING) || (Mode_Type == MODE_PARRY_TRAINING)) &&
+            (Check_Pause_Term_Tr(Pause_ID ^ 1) != 0) && plw[Pause_ID ^ 1].wu.operator &&
+            (Interface_Type[Pause_ID ^ 1] == 0)) {
             Pause_ID = Pause_ID ^ 1;
             return 0;
         }
@@ -4281,7 +4283,7 @@ s32 Pause_1st_Sub(struct _TASK* task_ptr) {
         return 1;
     }
 
-    if (sw & 0x100) {
+    if (sw & SWK_SOUTH) {
         task_ptr->r_no[2] += 1;
         Cursor_Y_Pos[0][0] = 0;
         SE_selected();

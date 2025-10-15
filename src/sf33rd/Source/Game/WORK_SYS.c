@@ -55,8 +55,6 @@ s32 Zoom_Base_Position_X;
 s32 Zoom_Base_Position_Y;
 s32 Zoom_Base_Position_Z;
 
-// bss
-
 MTX BgMATRIX[9];
 struct _TASK task[11];
 struct _REP_GAME_INFOR Rep_Game_Infor[11];

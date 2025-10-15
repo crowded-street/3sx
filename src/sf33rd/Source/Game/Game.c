@@ -1,5 +1,6 @@
 #include "sf33rd/Source/Game/Game.h"
 #include "common.h"
+#include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Common/PPGWork.h"
 #include "sf33rd/Source/Game/BBBSCOM.h"
 #include "sf33rd/Source/Game/Continue.h"
@@ -447,7 +448,7 @@ void Game2_0() {
         Play_Mode = 3;
         All_Clear_Timer();
         break;
-    
+
     default:
         // Do nothing
         break;
@@ -1773,9 +1774,9 @@ s16 Ck_Coin() {
     case 0:
         PL_id = -1;
 
-        if (~p1sw_1 & p1sw_0 & 0x4000) {
+        if (~p1sw_1 & p1sw_0 & SWK_START) {
             PL_id = 0;
-        } else if (~p2sw_1 & p2sw_0 & 0x4000) {
+        } else if (~p2sw_1 & p2sw_0 & SWK_START) {
             PL_id = 1;
         }
 

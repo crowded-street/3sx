@@ -230,14 +230,14 @@ s32 Debug_Menu_Lever() {
     u16 lever;
     u16 ix;
 
-    lever = io_w.data[1].sw & 0xF;
+    lever = io_w.data[1].sw & SWK_DIRECTIONS;
     sw = io_w.data[1].sw_new;
 
-    if (sw & 0x130) {
+    if (sw & (SWK_WEST | SWK_NORTH | SWK_SOUTH)) {
         return sw;
     }
 
-    sw &= 0xF;
+    sw &= SWK_DIRECTIONS;
 
     if (sw) {
         return sw;
@@ -254,10 +254,10 @@ s32 Debug_Menu_Lever() {
             Deley_Debug_No = 2;
         }
 
-        if (lever & 3) {
+        if (lever & (SWK_UP | SWK_DOWN)) {
             ix = 0;
         } else {
-            ix = 3 & 0xFFFF;
+            ix = 3;
         }
 
         Deley_Debug_Timer = Debug_Deley_Time[Deley_Debug_No + ix];
@@ -273,18 +273,18 @@ u16 Debug_Menu_Shot() {
     u16 sw;
     u16 shot;
 
-    shot = io_w.data[1].sw & 0x130;
+    shot = io_w.data[1].sw & (SWK_WEST | SWK_NORTH | SWK_SOUTH);
     sw = io_w.data[1].sw_new;
 
-    if (sw & 16) {
+    if (sw & SWK_WEST) {
         return sw;
     }
 
-    if (sw & 32) {
+    if (sw & SWK_NORTH) {
         return sw;
     }
 
-    if (sw & 256) {
+    if (sw & SWK_SOUTH) {
         return sw;
     }
 
@@ -315,14 +315,14 @@ void Check_Check_Screen() {
 
     switch (check_screen_S) {
     case 0:
-        if (~(p1sw_1) & (p1sw_0) & 0x40) {
+        if (~p1sw_1 & p1sw_0 & SWK_RIGHT_SHOULDER) {
             check_screen_S += 1;
         }
 
         break;
 
     case 1:
-        if (~(p1sw_1) & (p1sw_0) & 0x40) {
+        if (~p1sw_1 & p1sw_0 & SWK_RIGHT_SHOULDER) {
             check_screen_S += 1;
             check_time_S = 10;
         } else {
@@ -356,7 +356,7 @@ void Check_Check_Screen() {
 
     switch (check_screen_L) {
     case 0:
-        if (~(p1sw_1) & (p1sw_0) & 0x400) {
+        if (~p1sw_1 & p1sw_0 & SWK_RIGHT_TRIGGER) {
             check_screen_L += 1;
             return;
         }
@@ -364,7 +364,7 @@ void Check_Check_Screen() {
         break;
 
     case 1:
-        if (~(p1sw_1) & (p1sw_0) & 0x400) {
+        if (~p1sw_1 & p1sw_0 & SWK_RIGHT_TRIGGER) {
             check_screen_L += 1;
             check_time_L = 10;
             return;

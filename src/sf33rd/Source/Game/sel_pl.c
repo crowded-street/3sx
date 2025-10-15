@@ -1,5 +1,6 @@
 #include "sf33rd/Source/Game/sel_pl.h"
 #include "common.h"
+#include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Game/Com_Data.h"
 #include "sf33rd/Source/Game/DC_Ghost.h"
 #include "sf33rd/Source/Game/Grade.h"
@@ -1008,19 +1009,19 @@ u16 Deley_Shot_Sub(s16 PL_id) {
     }
 
     lever = Disposal_Of_Diagonal(sw);
-    sw &= 0xFF0;
+    sw &= SWK_ATTACKS;
 
     switch (Deley_Shot_No[PL_id]) {
     case 0:
-        if (!(sw & 0xFF0)) {
+        if (!(sw & SWK_ATTACKS)) {
             break;
         }
 
-        if (sw == 0x250) {
-            return lever | 0x250;
+        if (sw == (SWK_WEST | SWK_RIGHT_SHOULDER | SWK_EAST)) {
+            return lever | (SWK_WEST | SWK_RIGHT_SHOULDER | SWK_EAST);
         }
 
-        if (sw & 0x4520) {
+        if (sw & (SWK_NORTH | SWK_SOUTH | SWK_RIGHT_TRIGGER | SWK_START)) {
             return sw | lever;
         }
 
@@ -1037,8 +1038,8 @@ u16 Deley_Shot_Sub(s16 PL_id) {
             return lever | Color7[PL_id];
         }
 
-        if (Color7[PL_id] == 0x250) {
-            return lever | 0x250;
+        if (Color7[PL_id] == (SWK_WEST | SWK_RIGHT_SHOULDER | SWK_EAST)) {
+            return lever | (SWK_WEST | SWK_RIGHT_SHOULDER | SWK_EAST);
         }
 
         break;
@@ -1086,28 +1087,30 @@ void Sel_PL_5th() {
     }
 }
 
-void Sel_PL_6th() {}
+void Sel_PL_6th() {
+    // Do nothing
+}
 
 u16 Disposal_Of_Diagonal(u16 sw) {
-    sw = sw & 0xF;
+    sw &= SWK_DIRECTIONS;
 
-    if (sw == 1) {
-        return 1;
+    if (sw == SWK_UP) {
+        return SWK_UP;
     }
 
-    if (sw == 2) {
-        return 2;
+    if (sw == SWK_DOWN) {
+        return SWK_DOWN;
     }
 
-    if (sw == 9) {
-        return 1;
+    if (sw == (SWK_UP | SWK_RIGHT)) {
+        return SWK_UP;
     }
 
-    if (sw == 6) {
-        return 2;
+    if (sw == (SWK_DOWN | SWK_LEFT)) {
+        return SWK_DOWN;
     }
 
-    return sw &= 0xC;
+    return sw &= (SWK_LEFT | SWK_RIGHT);
 }
 
 void Sel_PL_Sub(s16 PL_id, u16 sw) {
@@ -1118,7 +1121,7 @@ void Sel_PL_Sub(s16 PL_id, u16 sw) {
     }
 
     if (Time_Over) {
-        sw = 16;
+        sw = SWK_WEST;
     }
 
     if (sw == 0) {
@@ -1128,16 +1131,16 @@ void Sel_PL_Sub(s16 PL_id, u16 sw) {
     if ((Cursor_Timer[PL_id] -= 1) == 0) {
         Cursor_Timer[PL_id] = 1;
 
-        if (sw & 8) {
+        if (sw & SWK_RIGHT) {
             Cursor_Timer[PL_id] = 5;
             Sel_PL_Sub_CR(PL_id);
-        } else if (sw & 4) {
+        } else if (sw & SWK_LEFT) {
             Cursor_Timer[PL_id] = 5;
             Sel_PL_Sub_CL(PL_id);
-        } else if (sw & 1) {
+        } else if (sw & SWK_UP) {
             Cursor_Timer[PL_id] = 5;
             Sel_PL_Sub_CU(PL_id);
-        } else if (sw & 2) {
+        } else if (sw & SWK_DOWN) {
             Cursor_Timer[PL_id] = 5;
             Sel_PL_Sub_CD(PL_id);
         }
@@ -1147,7 +1150,7 @@ void Sel_PL_Sub(s16 PL_id, u16 sw) {
         Sound_SE(ID + 96);
     }
 
-    if (!(sw & 0xFF0)) {
+    if (!(sw & SWK_ATTACKS)) {
         return;
     }
 
@@ -1326,7 +1329,7 @@ void Auto_Repeat_Sub(s16 PL_id) {
 
     switch (Auto_No[PL_id]) {
     case 0:
-        if (sw & 8) {
+        if (sw & SWK_RIGHT) {
             Auto_No[PL_id] = 1;
             Auto_Cursor[PL_id] = 8;
             Auto_Timer[PL_id] = Repeat_Time_Data[0];
@@ -1334,7 +1337,7 @@ void Auto_Repeat_Sub(s16 PL_id) {
             break;
         }
 
-        if (sw & 4) {
+        if (sw & SWK_LEFT) {
             Auto_No[PL_id] = 1;
             Auto_Cursor[PL_id] = 4;
             Auto_Timer[PL_id] = Repeat_Time_Data[0];
@@ -1342,7 +1345,7 @@ void Auto_Repeat_Sub(s16 PL_id) {
             break;
         }
 
-        if (sw & 1) {
+        if (sw & SWK_UP) {
             Auto_No[PL_id] = 1;
             Auto_Cursor[PL_id] = 1;
             Auto_Timer[PL_id] = Repeat_Time_Data[0];
@@ -1350,7 +1353,7 @@ void Auto_Repeat_Sub(s16 PL_id) {
             break;
         }
 
-        if (sw & 2) {
+        if (sw & SWK_DOWN) {
             Auto_No[PL_id] = 1;
             Auto_Cursor[PL_id] = 2;
             Auto_Timer[PL_id] = Repeat_Time_Data[0];
@@ -1376,19 +1379,19 @@ void Auto_Repeat_Sub(s16 PL_id) {
             Auto_Index[PL_id] = 2;
         }
 
-        if (sw & 8) {
+        if (sw & SWK_RIGHT) {
             Sel_PL_Sub_CR(PL_id);
         }
 
-        if (sw & 4) {
+        if (sw & SWK_LEFT) {
             Sel_PL_Sub_CL(PL_id);
         }
 
-        if (sw & 1) {
+        if (sw & SWK_UP) {
             Sel_PL_Sub_CU(PL_id);
         }
 
-        if (sw & 2) {
+        if (sw & SWK_DOWN) {
             Sel_PL_Sub_CD(PL_id);
         }
 
@@ -1411,12 +1414,12 @@ u16 Auto_Repeat_Sub_Wife(s16 PL_id) {
 
     switch (Auto_No[PL_id]) {
     case 0:
-        if (sw & 1) {
+        if (sw & SWK_UP) {
             Auto_No[PL_id] = 1;
             Auto_Cursor[PL_id] = 1;
             Auto_Timer[PL_id] = Repeat_Time_Data_Wife[0];
             Auto_Index[PL_id] = 1;
-        } else if (sw & 2) {
+        } else if (sw & SWK_DOWN) {
             Auto_No[PL_id] = 1;
             Auto_Cursor[PL_id] = 2;
             Auto_Timer[PL_id] = Repeat_Time_Data_Wife[0];
@@ -1426,7 +1429,9 @@ u16 Auto_Repeat_Sub_Wife(s16 PL_id) {
         break;
 
     case 1:
-        if (sw &= Auto_Cursor[PL_id]) {
+        sw &= Auto_Cursor[PL_id];
+
+        if (sw) {
             if (Auto_Timer[PL_id] -= 1) {
                 break;
             }
@@ -1437,12 +1442,12 @@ u16 Auto_Repeat_Sub_Wife(s16 PL_id) {
                 Auto_Index[PL_id] = 2;
             }
 
-            if (sw & 1) {
-                return 1;
+            if (sw & SWK_UP) {
+                return SWK_UP;
             }
 
-            if (sw & 2) {
-                return 2;
+            if (sw & SWK_DOWN) {
+                return SWK_DOWN;
             }
 
             break;
@@ -1475,16 +1480,16 @@ void Sel_Arts_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
     }
 
     if (Time_Over) {
-        sw = 16;
+        sw = SWK_WEST;
     }
 
-    lever_sw = sw & 0xF;
+    lever_sw = sw & SWK_DIRECTIONS;
 
     if (lever_sw == 0) {
         sw |= Auto_Repeat_Sub_Wife(PL_id);
     }
 
-    if (sw & 2) {
+    if (sw & SWK_DOWN) {
         Sound_SE(ID + 96);
         Moving_Plate[PL_id] = 2;
         Moving_Plate_Counter[PL_id] = 3;
@@ -1495,7 +1500,7 @@ void Sel_Arts_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
         }
     }
 
-    if (sw & 1) {
+    if (sw & SWK_UP) {
         Sound_SE(ID + 96);
         Moving_Plate[PL_id] = 1;
         Moving_Plate_Counter[PL_id] = 3;
@@ -1506,7 +1511,7 @@ void Sel_Arts_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
         }
     }
 
-    if (sw & 0xFF0) {
+    if (sw & SWK_ATTACKS) {
         Stop_Cursor[ID] = 1;
         Slide_Type = PL_id;
         Sel_Arts_Complete[PL_id] = 1;
@@ -1803,7 +1808,7 @@ void Handicap_2() {
         sw = ~p2sw_1 & p2sw_0;
     }
 
-    if (sw & 0x200 && Decide_Stage == 0) {
+    if (sw & SWK_EAST && Decide_Stage == 0) {
         SP_No[ID2][2] = 0;
         SE_selected();
         Order[ID2 + 139] = 5;
@@ -1812,7 +1817,7 @@ void Handicap_2() {
         return;
     }
 
-    if (SP_No[(ID2) ^ 1][2] == 0) {
+    if (SP_No[ID2 ^ 1][2] == 0) {
         SP_No[ID2][2] = 2;
         Order[122] = 2;
         Order_Timer[122] = 1;
@@ -1883,43 +1888,43 @@ void Handicap_Vital_Select(s16 PL_id) {
 u16 Handicap_Vital_Move_Sub(u16 sw, s16 PL_id) {
     if (PL_id == 0) {
         switch (sw) {
-        case 4:
+        case SWK_LEFT:
             if ((Vital_Handicap[Present_Mode][PL_id] += 1) > 7) {
                 Vital_Handicap[Present_Mode][PL_id] = 7;
             } else {
                 SE_dir_cursor_move();
             }
 
-            return 4;
+            return SWK_LEFT;
 
-        case 8:
+        case SWK_RIGHT:
             if ((Vital_Handicap[Present_Mode][PL_id] -= 1) < 0) {
                 Vital_Handicap[Present_Mode][PL_id] = 0;
             } else {
                 SE_dir_cursor_move();
             }
 
-            return 8;
+            return SWK_RIGHT;
         }
     } else {
         switch (sw) {
-        case 4:
+        case SWK_LEFT:
             if ((Vital_Handicap[Present_Mode][PL_id] -= 1) < 0) {
                 Vital_Handicap[Present_Mode][PL_id] = 0;
             } else {
                 SE_dir_cursor_move();
             }
 
-            return 4;
+            return SWK_LEFT;
 
-        case 8:
+        case SWK_RIGHT:
             if ((Vital_Handicap[Present_Mode][PL_id] += 1) > 7) {
                 Vital_Handicap[Present_Mode][PL_id] = 7;
             } else {
                 SE_dir_cursor_move();
             }
 
-            return 8;
+            return SWK_RIGHT;
         }
     }
 
@@ -1934,7 +1939,7 @@ void Handicap_Stage_Select(s16 PL_id) {
 
 void Handicap_Stage_Move_Sub(u16 sw) {
     switch (sw) {
-    case 4:
+    case SWK_LEFT:
         if ((VS_Stage -= 1) < 0) {
             VS_Stage = 20;
         }
@@ -1946,7 +1951,7 @@ void Handicap_Stage_Move_Sub(u16 sw) {
         SE_dir_cursor_move();
         break;
 
-    case 8:
+    case SWK_RIGHT:
         if ((VS_Stage += 1) > 20) {
             VS_Stage = 0;
         }

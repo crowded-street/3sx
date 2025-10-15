@@ -5,6 +5,7 @@
 
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "common.h"
+#include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Game/CMD_MAIN.h"
 #include "sf33rd/Source/Game/Com_Data.h"
 #include "sf33rd/Source/Game/HITCHECK.h"
@@ -4002,28 +4003,34 @@ void Check_Store_Lever(PLW* wk, u16 Tech_Number, s16 Next_Action, s16 Next_Menu)
 
 s32 Check_Store_Direction(PLW* wk, u16 lever, s16 time) {
     if (wk->wu.rl_waza) {
-        if (lever & 0xC) {
-            lever ^= 0xC;
+        if (lever & (SWK_LEFT | SWK_RIGHT)) {
+            lever ^= (SWK_LEFT | SWK_RIGHT);
         }
     }
 
     switch (lever) {
-    case 2:
+    case SWK_DOWN:
         if (time <= Lever_Store[wk->wu.id][0]) {
             return 1;
         }
+
         break;
-    case 8:
+
+    case SWK_RIGHT:
         if (time <= Lever_Store[wk->wu.id][1]) {
             return 1;
         }
+
         break;
-    case 4:
+
+    case SWK_LEFT:
         if (time <= Lever_Store[wk->wu.id][2]) {
             return 1;
         }
+
         break;
     }
+
     return 0;
 }
 

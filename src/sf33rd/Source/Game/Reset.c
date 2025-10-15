@@ -1,4 +1,5 @@
 #include "sf33rd/Source/Game/Reset.h"
+#include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/effect/effect.h"
@@ -139,7 +140,7 @@ void Check_Reset_IO(struct _TASK* /* unused */, s16 PL_id) {
         plsw = PLsw[PL_id][0];
     }
 
-    sw = plsw & 0xC000;
+    sw = plsw & (SWK_START | SWK_BACK);
 
     if (sw == 0) {
         Reset_Status[PL_id] = 0;
@@ -148,26 +149,26 @@ void Check_Reset_IO(struct _TASK* /* unused */, s16 PL_id) {
 
     switch (Reset_Status[PL_id]) {
     case 0:
-        if (sw == 0xC000) {
+        if (sw == (SWK_START | SWK_BACK)) {
             Reset_Status[PL_id] = 0x63;
             break;
         }
 
-        if (sw & 0x4000) {
+        if (sw & SWK_START) {
             Reset_Status[PL_id] = 0x62;
         }
 
         break;
 
     case 0x62:
-        if (!(sw & 0x4000)) {
+        if (!(sw & SWK_START)) {
             Reset_Status[PL_id] = 0;
         }
 
         break;
 
     default:
-        if (plsw != 0xC000) {
+        if (plsw != (SWK_START | SWK_BACK)) {
             Reset_Status[PL_id] = 0;
         }
 

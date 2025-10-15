@@ -102,37 +102,37 @@ u16 Convert_User_Setting(s16 PL_id) {
         sw = p2sw_0;
     }
 
-    answer = sw & 0x400F;
+    answer = sw & (SWK_DIRECTIONS | SWK_START);
 
-    if (sw & 0x10) {
+    if (sw & SWK_WEST) {
         answer |= Convert_Data[save_w[Present_Mode].Pad_Infor[PL_id].Shot[0]];
     }
 
-    if (sw & 0x20) {
+    if (sw & SWK_NORTH) {
         answer |= Convert_Data[save_w[Present_Mode].Pad_Infor[PL_id].Shot[1]];
     }
 
-    if (sw & 0x40) {
+    if (sw & SWK_RIGHT_SHOULDER) {
         answer |= Convert_Data[save_w[Present_Mode].Pad_Infor[PL_id].Shot[2]];
     }
 
-    if (sw & 0x80) {
+    if (sw & SWK_LEFT_SHOULDER) {
         answer |= Convert_Data[save_w[Present_Mode].Pad_Infor[PL_id].Shot[3]];
     }
 
-    if (sw & 0x100) {
+    if (sw & SWK_SOUTH) {
         answer |= Convert_Data[save_w[Present_Mode].Pad_Infor[PL_id].Shot[4]];
     }
 
-    if (sw & 0x200) {
+    if (sw & SWK_EAST) {
         answer |= Convert_Data[save_w[Present_Mode].Pad_Infor[PL_id].Shot[5]];
     }
 
-    if (sw & 0x400) {
+    if (sw & SWK_RIGHT_TRIGGER) {
         answer |= Convert_Data[save_w[Present_Mode].Pad_Infor[PL_id].Shot[6]];
     }
 
-    if (sw & 0x800) {
+    if (sw & SWK_LEFT_TRIGGER) {
         answer |= Convert_Data[save_w[Present_Mode].Pad_Infor[PL_id].Shot[7]];
     }
 

@@ -1,5 +1,6 @@
 #include "sf33rd/Source/Game/Pause.h"
 #include "common.h"
+#include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/Reset.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
@@ -41,7 +42,8 @@ s32 Check_Play_Status(s16 PL_id);
 void Pause_Task(struct _TASK* task_ptr) {
     void (*Main_Jmp_Tbl[4])(struct _TASK*) = { Pause_Check, Pause_Move, Pause_Sleep, Pause_Die };
 
-    if (!nowSoftReset() && Mode_Type != MODE_NETWORK && Mode_Type != MODE_NORMAL_TRAINING && Mode_Type != MODE_PARRY_TRAINING) {
+    if (!nowSoftReset() && Mode_Type != MODE_NETWORK && Mode_Type != MODE_NORMAL_TRAINING &&
+        Mode_Type != MODE_PARRY_TRAINING) {
         Main_Jmp_Tbl[task_ptr->r_no[0]](task_ptr);
         Flash_Pause(task_ptr);
     }
@@ -50,8 +52,8 @@ void Pause_Task(struct _TASK* task_ptr) {
 void Pause_Check(struct _TASK* task_ptr) {
     PAUSE_X = 0;
 
-    if (Check_Pause_Term(~(PLsw[0][1]) & (PLsw[0][0]), 0) == 0) {
-        Check_Pause_Term(~(PLsw[1][1]) & (PLsw[1][0]), 1);
+    if (Check_Pause_Term(~PLsw[0][1] & PLsw[0][0], 0) == 0) {
+        Check_Pause_Term(~PLsw[1][1] & PLsw[1][0], 1);
     }
 
     switch (PAUSE_X) {
@@ -155,7 +157,7 @@ s32 Check_Pause_Term(u16 sw, u8 PL_id) {
         return 0;
     }
 
-    if (sw & 0x4000) {
+    if (sw & SWK_START) {
         Pause_Type = 1;
         return PAUSE_X = 1;
     }
@@ -177,7 +179,7 @@ s32 Check_Pause_Term(u16 sw, u8 PL_id) {
 void Exit_Pause(struct _TASK* task_ptr) {
     u8 ix;
 
-    if (Present_Mode != 3 && Check_Pause_Term(0, (Pause_ID ^ 1))) {
+    if (Present_Mode != 3 && Check_Pause_Term(0, Pause_ID ^ 1)) {
         Exit_Menu = 0;
         return;
     }

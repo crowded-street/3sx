@@ -1,5 +1,6 @@
 #include "sf33rd/Source/Game/Next_CPU.h"
 #include "common.h"
+#include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Game/Com_Data.h"
 #include "sf33rd/Source/Game/Grade.h"
 #include "sf33rd/Source/Game/MMTMCNT.h"
@@ -1072,16 +1073,16 @@ void Sel_CPU_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
     }
 
     if (Time_Over) {
-        sw = 16;
+        sw = SWK_WEST;
     }
 
     if (VS_Index[PL_id] >= 8) {
-        sw = 16;
+        sw = SWK_WEST;
     }
 
-    lever_sw = sw & 3;
+    lever_sw = sw & (SWK_UP | SWK_DOWN);
 
-    if (lever_sw & 2) {
+    if (lever_sw & SWK_DOWN) {
         if (Temporary_EM[Player_id] == 2) {
             return;
         }
@@ -1092,7 +1093,7 @@ void Sel_CPU_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
         Temporary_EM[Player_id] = 2;
     }
 
-    if (lever_sw & 1) {
+    if (lever_sw & SWK_UP) {
         if (Temporary_EM[Player_id] == 1) {
             return;
         }
@@ -1103,7 +1104,7 @@ void Sel_CPU_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
         Temporary_EM[Player_id] = 1;
     }
 
-    if (sw & 0xFF0) {
+    if (sw & SWK_ATTACKS) {
         Sel_EM_Complete[PL_id] = 1;
         EM_id = EM_List[Player_id][Temporary_EM[Player_id] - 1];
         My_char[COM_id] = EM_id;
