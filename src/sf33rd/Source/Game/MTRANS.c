@@ -2261,6 +2261,7 @@ void mlt_obj_melt2(MultiTexture* mt, u16 cg_number) {
             }
 
             count -= 1;
+            trsptr++;
         }
     }
 

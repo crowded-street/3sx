@@ -285,7 +285,7 @@ void Mode_Select(struct _TASK* task_ptr) {
         FadeOut(1, 0xFF, 8);
         task_ptr->r_no[2] += 1;
         task_ptr->timer = 5;
-        Mode_Type = 0;
+        Mode_Type = MODE_ARCADE;
         Present_Mode = 1;
 
         if (task[1].condition != 1) {
@@ -375,17 +375,17 @@ void Mode_Select(struct _TASK* task_ptr) {
             switch (Menu_Cursor_Y[0]) {
             case 0:
                 G_No[2] += 1;
-                Mode_Type = 0;
+                Mode_Type = MODE_ARCADE;
                 task_ptr->r_no[0] = 5;
                 cpExitTask(SAVER_TASK_NUM);
-                Decide_PL(PL_id);
+                Decide_PL(PL_id); // character selection?
                 break;
 
             case 1:
                 Setup_VS_Mode(task_ptr);
                 G_No[1] = 0xC;
                 G_No[2] = 1;
-                Mode_Type = 1;
+                Mode_Type = MODE_VERSUS;
                 cpExitTask(MENU_TASK_NUM);
                 break;
 
@@ -619,10 +619,10 @@ void Training_Mode(struct _TASK* task_ptr) {
         Decide_ID = PL_id;
 
         if (Menu_Cursor_Y[0] == 0) {
-            Mode_Type = 3;
+            Mode_Type = MODE_NORMAL_TRAINING;
             Present_Mode = 4;
         } else {
-            Mode_Type = 4;
+            Mode_Type = MODE_PARRY_TRAINING;
             Present_Mode = 5;
         }
 
@@ -1462,7 +1462,7 @@ void Load_Replay_Sub(struct _TASK* task_ptr) {
         FadeOut(0, 0xFF, 8);
         setup_pos_remake_key(5);
         Play_Type = 1;
-        Mode_Type = 5;
+        Mode_Type = MODE_REPLAY;
         Present_Mode = 3;
         Bonus_Game_Flag = 0;
 
@@ -3015,12 +3015,13 @@ void Menu_Select(struct _TASK* task_ptr) {
         Menu_Suicide[2] = 0;
         effect_10_init(0, 0, 0, 0, 0, 0x14, 0xC);
         effect_10_init(0, 0, 2, 2, 0, 0x16, 0x10);
+
         switch (Mode_Type) {
-        case 1:
+        case MODE_VERSUS:
             effect_10_init(0, 0, 1, 5, 0, 0x10, 0xE);
             break;
 
-        case 5:
+        case MODE_REPLAY:
             effect_10_init(0, 0, 1, 4, 0, 0x15, 0xE);
             break;
 
@@ -3028,6 +3029,7 @@ void Menu_Select(struct _TASK* task_ptr) {
             effect_10_init(0, 0, 1, 1, 0, 0x11, 0xE);
             break;
         }
+
         break;
 
     case 2:
@@ -3051,9 +3053,9 @@ void Menu_Select(struct _TASK* task_ptr) {
 
             case 1:
                 SE_selected();
-                switch (Mode_Type) {
 
-                case 1:
+                switch (Mode_Type) {
+                case MODE_VERSUS:
                     task_ptr->r_no[1] = 3;
                     task_ptr->r_no[2] = 0;
                     task_ptr->r_no[3] = 0;
@@ -3067,7 +3069,7 @@ void Menu_Select(struct _TASK* task_ptr) {
                     BGM_Stop();
                     break;
 
-                case 5:
+                case MODE_REPLAY:
                     task_ptr->r_no[0] = 0xC;
                     task_ptr->r_no[1] = 0;
                     break;
@@ -3078,10 +3080,11 @@ void Menu_Select(struct _TASK* task_ptr) {
                     Menu_Suicide[2] = 1;
                     Menu_Suicide[3] = 0;
                     task_ptr->r_no[1]++;
-                    task_ptr->r_no[2] = 0U;
+                    task_ptr->r_no[2] = 0;
                     task[4].r_no[2] = 3;
                     break;
                 }
+
                 break;
 
             case 2:
@@ -3094,8 +3097,10 @@ void Menu_Select(struct _TASK* task_ptr) {
                 SE_selected();
                 break;
             }
+
             break;
         }
+
         break;
 
     case 3:
@@ -3599,7 +3604,7 @@ void VS_Result(struct _TASK* task_ptr) {
             Setup_VS_Mode(task_ptr);
             G_No[1] = 12;
             G_No[2] = 1;
-            Mode_Type = 1;
+            Mode_Type = MODE_VERSUS;
             break;
         }
 
@@ -4078,7 +4083,7 @@ void Next_Be_Tr_Menu(struct _TASK* task_ptr) {
 }
 
 s32 Check_Pause_Term_Tr(s16 PL_id) {
-    if (Mode_Type == 4) {
+    if (Mode_Type == MODE_PARRY_TRAINING) {
         if (PL_id == Champion) {
             return 1;
         }
@@ -4264,7 +4269,7 @@ s32 Pause_1st_Sub(struct _TASK* task_ptr) {
     }
 
     if (sw & 0x4000) {
-        if (((Mode_Type == 3) || (Mode_Type == 4)) && (Check_Pause_Term_Tr(Pause_ID ^ 1) != 0) &&
+        if (((Mode_Type == MODE_NORMAL_TRAINING) || (Mode_Type == MODE_PARRY_TRAINING)) && (Check_Pause_Term_Tr(Pause_ID ^ 1) != 0) &&
             plw[Pause_ID ^ 1].wu.operator && (Interface_Type[Pause_ID ^ 1] == 0)) {
             Pause_ID = Pause_ID ^ 1;
             return 0;
@@ -4426,7 +4431,7 @@ void Training_Init(struct _TASK* task_ptr) {
     Demo_Time_Stop = 0;
     Disp_Cockpit = 0;
 
-    if (Mode_Type == 3) {
+    if (Mode_Type == MODE_NORMAL_TRAINING) {
         control_player = Champion;
         control_pl_rno = 0x63;
     } else {
@@ -4730,7 +4735,7 @@ void Button_Exit_Check_in_Tr(struct _TASK* task_ptr, s16 PL_id) {
         task_ptr->r_no[2] = 0;
         task_ptr->r_no[3] = 0;
 
-        if (Mode_Type == 3) {
+        if (Mode_Type == MODE_NORMAL_TRAINING) {
             task_ptr->r_no[1] = 1;
         } else {
             task_ptr->r_no[1] = 2;
@@ -4854,7 +4859,7 @@ void Training_Option(struct _TASK* task_ptr) {
 }
 
 void Training_Disp_Sub(struct _TASK* task_ptr) {
-    if (Mode_Type == 3) {
+    if (Mode_Type == MODE_NORMAL_TRAINING) {
         task_ptr->r_no[1] = 1;
         Training_Index = 0;
         return;

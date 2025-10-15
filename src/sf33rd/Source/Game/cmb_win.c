@@ -445,7 +445,7 @@ void combo_window_push(s8 PL, s8 KIND) {
 
         SCORE_PLUS(PLS, score);
 
-        if (Mode_Type == 1) {
+        if (Mode_Type == MODE_VERSUS) {
             Score_Sub();
         } else if (plw[PLS].wu.operator) {
             Score_Sub();
@@ -459,7 +459,7 @@ void combo_window_push(s8 PL, s8 KIND) {
         cmst_buff[PL][cst_write[PL]].hit_low = (u8)hit_num - (cmst_buff[PL][cst_write[PL]].hit_hi * 10);
         cmst_buff[PL][cst_write[PL]].kind = KIND;
 
-        if (Mode_Type == 1) {
+        if (Mode_Type == MODE_VERSUS) {
             cmst_buff[PL][cst_write[PL]].pts_flag = 1;
         } else if (Mode_Type == 5) {
             cmst_buff[PL][cst_write[PL]].pts_flag = 1;
@@ -541,7 +541,7 @@ void combo_window_trans(s8 PL) {
     s8 PLS;
 
     if (cmb_stock[PL] != 0) {
-        if (Mode_Type == 3 && Training_ID == PL) {
+        if (Mode_Type == MODE_NORMAL_TRAINING && Training_ID == PL) {
             cmb_stock[PL]--;
             return;
         }
@@ -630,7 +630,7 @@ void combo_window_trans(s8 PL) {
 
                     SCORE_PLUS(PLS, cmst_buff[PL][cst_read[PL]].pts);
 
-                    if (Mode_Type == 1) {
+                    if (Mode_Type == MODE_VERSUS) {
                         Score_Sub();
                         return;
                     }

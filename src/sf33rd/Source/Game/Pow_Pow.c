@@ -67,7 +67,7 @@ void Additinal_Score_DM(WORK_Other* wk, u16 ix) {
         Score[id][2] = 99999900;
     }
 
-    if ((Mode_Type != 1) && (Mode_Type != 5)) {
+    if ((Mode_Type != MODE_VERSUS) && (Mode_Type != MODE_REPLAY)) {
         if (!plw[id].wu.operator) {
             return;
         }

@@ -304,7 +304,7 @@ void Game01() {
         S_No[3] = 0;
         SsBgmHalfVolume(0);
 
-        if (Mode_Type == 0) {
+        if (Mode_Type == MODE_ARCADE) {
             BGM_Request(53);
         } else {
             BGM_Request(66);
@@ -313,7 +313,7 @@ void Game01() {
         Break_Into = 0;
         Stop_Combo = 0;
 
-        if (Mode_Type != 2) {
+        if (Mode_Type != MODE_NETWORK) {
             Random_ix32 = Interrupt_Timer;
             Random_ix32_ex = Interrupt_Timer;
         } else {
@@ -419,13 +419,13 @@ void Game2_0() {
     System_all_clear_Level_B();
 
     switch (Mode_Type) {
-    case 0:
+    case MODE_ARCADE:
         Play_Mode = 0;
         Replay_Status[0] = 0;
         Replay_Status[1] = 0;
         break;
 
-    case 1:
+    case MODE_VERSUS:
         for (ix = 0; ix < 2; ix++) {
             if (save_w[1].Partner_Type[ix]) {
                 plw[ix].wu.operator = 0;
@@ -433,19 +433,23 @@ void Game2_0() {
             }
         }
 
-        cpExitTask(1);
+        cpExitTask(ENTRY_TASK_NUM);
         /* fallthrough */
 
-    case 2:
+    case MODE_NETWORK:
         Play_Mode = 1;
         All_Clear_Random_ix();
         All_Clear_Timer();
         All_Clear_ETC();
         break;
 
-    case 5:
+    case MODE_REPLAY:
         Play_Mode = 3;
         All_Clear_Timer();
+        break;
+    
+    default:
+        // Do nothing
         break;
     }
 
@@ -703,7 +707,7 @@ void Game03() {
     case 0:
         if (Winner_Scene() != 0) {
             switch (Mode_Type) {
-            case 1:
+            case MODE_VERSUS:
                 G_No[2] += 1;
                 Rep_Game_Infor[10].play_type = 1;
                 Rep_Game_Infor[10].winner = Winner_id;
@@ -719,7 +723,7 @@ void Game03() {
 
                 break;
 
-            case 2:
+            case MODE_NETWORK:
                 G_No[2] = 3;
                 Rep_Game_Infor[10].play_type = 2;
                 Rep_Game_Infor[10].winner = Winner_id;
@@ -728,7 +732,7 @@ void Game03() {
                 Switch_Screen_Init(0);
                 break;
 
-            case 5:
+            case MODE_REPLAY:
                 G_No[2] = 5;
                 cpReadyTask(MENU_TASK_NUM, Menu_Task);
                 task[3].r_no[0] = 8;
@@ -1838,7 +1842,7 @@ void Before_Select_Sub() {
     Round_Level = 3;
     Time_in_Time = 60;
 
-    if (Mode_Type != 2) {
+    if (Mode_Type != MODE_NETWORK) {
         xx = system_timer;
         Random_ix16 = xx & 0x3F;
         Random_ix32 = xx & 0x7F;

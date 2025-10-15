@@ -265,7 +265,7 @@ static void game_step_0() {
         p3sw_0 = p3sw_buff;
         p4sw_0 = p4sw_buff;
 
-        if ((task[3].condition == 1) && (Mode_Type == 4) && (Play_Mode == 1)) {
+        if ((task[3].condition == 1) && (Mode_Type == MODE_PARRY_TRAINING) && (Play_Mode == 1)) {
             const u16 sw_buff = p2sw_0;
             p2sw_0 = p1sw_0;
             p1sw_0 = sw_buff;
@@ -413,7 +413,7 @@ s32 njUserMain() {
     if (sys_w.disp.now == sys_w.disp.new) {
         cpLoopTask();
 
-        if ((Game_pause != 0x81) && (Mode_Type == 1) && (Play_Mode == 1)) {
+        if ((Game_pause != 0x81) && (Mode_Type == MODE_VERSUS) && (Play_Mode == 1)) {
             if ((plw[0].wu.operator == 0) && (CPU_Rec[0] == 0) && (Replay_Status[0] == 1)) {
                 p1sw_0 = 0;
 

@@ -33,7 +33,7 @@ void effect_D8_move(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        if (((Mode_Type == 3) || (Mode_Type == 4)) && (ewk->master_id == New_Challenger) && (S_No[3] < 2)) {
+        if (((Mode_Type == MODE_NORMAL_TRAINING) || (Mode_Type == MODE_PARRY_TRAINING)) && (ewk->master_id == New_Challenger) && (S_No[3] < 2)) {
             return;
         }
 

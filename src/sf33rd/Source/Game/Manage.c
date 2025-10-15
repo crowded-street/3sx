@@ -218,8 +218,8 @@ void Game_Manage_1st() {
     grade_check_work_stage_init(0);
     grade_check_work_stage_init(1);
 
-    if (Mode_Type == 3 || Mode_Type == 4) {
-        cpReadyTask(3, Menu_Task);
+    if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
+        cpReadyTask(MENU_TASK_NUM, Menu_Task);
         task[3].r_no[0] = 7;
         plw[New_Challenger].wu.operator = 0;
         Operator_Status[New_Challenger] = 0;
@@ -228,8 +228,8 @@ void Game_Manage_1st() {
         return;
     }
 
-    if (Mode_Type != 2) {
-        cpReadyTask(4, Pause_Task);
+    if (Mode_Type != MODE_NETWORK) {
+        cpReadyTask(PAUSE_TASK_NUM, Pause_Task);
         setup_pos_remake_key(3);
     }
 }
@@ -287,7 +287,7 @@ s32 Wait_Seek_Time() {
 
     switch (Play_Mode) {
     case 1:
-        if (Mode_Type != 2) {
+        if (Mode_Type != MODE_NETWORK) {
             for (ix = 0; ix < 2; ix++) {
                 for (ix2 = 0; ix2 < 3; ix2++) {
                     Separate_Area[ix][ix2] = 0;
@@ -304,11 +304,11 @@ s32 Wait_Seek_Time() {
         return 1;
 
     case 3:
-        if (Mode_Type == 3) {
+        if (Mode_Type == MODE_NORMAL_TRAINING) {
             return 1;
         }
 
-        if (Mode_Type == 4) {
+        if (Mode_Type == MODE_PARRY_TRAINING) {
             return 1;
         }
 
@@ -339,7 +339,7 @@ void Game_Manage_2_1() {
             break;
         }
 
-        if (Mode_Type == 3 || Mode_Type == 4) {
+        if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
             C_No[2]++;
             break;
         }
@@ -440,7 +440,7 @@ void Game_Manage_2_4() {
         FadeOut(0, 0xFF, 8);
         Disp_Cockpit = 1;
 
-        if (Mode_Type == 3 || Mode_Type == 4) {
+        if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
             Score[0][2] = 0;
             Score[1][2] = 0;
             Game_pause = 0;
@@ -515,7 +515,7 @@ void Game_Manage_3rd() {
 }
 
 void setFinishType() {
-    if (Play_Type == 0 && Mode_Type == 0 && PL_Wins[Winner_id] >= save_w[Present_Mode].Battle_Number[Play_Type] &&
+    if (Play_Type == 0 && Mode_Type == MODE_ARCADE && PL_Wins[Winner_id] >= save_w[Present_Mode].Battle_Number[Play_Type] &&
         VS_Index[Winner_id] > 8 && plw[Winner_id].wu.operator != 0 && E_Number[Loser_id][0] != 2) {
         E_Number[Loser_id][0] = 99;
     }
@@ -573,7 +573,7 @@ void Game_Manage_4th() {
     default:
         SsRequest(143);
 
-        if (plw[0].wu.vital_new != plw[1].wu.vital_new || Mode_Type == 3 || Mode_Type == 4) {
+        if (plw[0].wu.vital_new != plw[1].wu.vital_new || Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
             C_No[0] = 6;
             Round_Result |= 1;
             setFinishType();
@@ -707,7 +707,7 @@ void Game_Manage_6th() {
         pcon_rno[2] = 0;
         grade_makeup_round_para_dko();
 
-        if (Mode_Type != 3 && Mode_Type != 4 && omop_cockpit) {
+        if (Mode_Type != MODE_NORMAL_TRAINING && Mode_Type != MODE_PARRY_TRAINING && omop_cockpit) {
             effect_58_init(6, 1, Winner_id + 100);
             effect_92_init(0, PL_Wins[0] - 1);
             effect_92_init(1, PL_Wins[1] - 1);
@@ -721,7 +721,7 @@ void Game_Manage_6th() {
             break;
         }
 
-        if (Mode_Type == 3 || Mode_Type == 4) {
+        if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
             C_No[0] = 12;
             End_Training = 1;
             break;
@@ -751,7 +751,7 @@ void Game_Manage_7_0() {
     C_Timer = 1;
     grade_makeup_round_parameter(Winner_id);
 
-    if (Mode_Type != 3 && Mode_Type != 4 && omop_cockpit) {
+    if (Mode_Type != MODE_NORMAL_TRAINING && Mode_Type != MODE_PARRY_TRAINING && omop_cockpit) {
         effect_58_init(6, 1, Winner_id + 100);
         effect_92_init(Winner_id, PL_Wins[Winner_id] - 1);
     }
@@ -813,7 +813,7 @@ void Game_Manage_7_3() {
 
     Message_Suicide[1] = 1;
 
-    if (Mode_Type == 3 || Mode_Type == 4) {
+    if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
         C_No[0] = 12;
         End_Training = 1;
         return;
@@ -890,7 +890,7 @@ void Game_Manage_8_0() {
     Quick_Entry();
     Stop_Update_Score = 1;
 
-    if (Round_Operator[Winner_id] != 0 || Mode_Type == 1 || Mode_Type == 5) {
+    if (Round_Operator[Winner_id] != 0 || Mode_Type == MODE_VERSUS || Mode_Type == 5) {
         Pool_Score(Winner_id);
 
         if (PL_Wins[Winner_id] >= save_w[Present_Mode].Battle_Number[Play_Type] + 1) {
@@ -1132,7 +1132,7 @@ void Game_Manage_10th() {
             appear_type = 1;
             Continue_Coin2[WINNER] = 0;
 
-            if (Mode_Type == 1 || Mode_Type == 5 || Round_Operator[WINNER]) {
+            if (Mode_Type == MODE_VERSUS || Mode_Type == 5 || Round_Operator[WINNER]) {
                 G_No[1] = 3;
                 G_No[2] = 0;
                 G_No[3] = 0;
@@ -1171,7 +1171,7 @@ void Game_Manage_10th() {
 }
 
 void Check_Naming(s16 PL_id) {
-    if (Mode_Type != 0) {
+    if (Mode_Type != MODE_ARCADE) {
         return;
     }
 
@@ -1326,7 +1326,7 @@ void Setup_Win_Mark() {
 }
 
 void Check_Perfect(s16 PL_id) {
-    if (Mode_Type == 3 || Mode_Type == 4) {
+    if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
         return;
     }
 
@@ -1578,7 +1578,7 @@ void Ck_Win_Record() {
     }
 
     switch (Mode_Type) {
-    case 0:
+    case MODE_ARCADE:
         if (Play_Type == 1) {
             Win_Record[Loser_id] = 0;
 
@@ -1591,11 +1591,15 @@ void Ck_Win_Record() {
 
         break;
 
-    case 1:
+    case MODE_VERSUS:
         if (++VS_Win_Record[Winner_id] > 999) {
             VS_Win_Record[Winner_id] = 999;
         }
 
+        break;
+
+    default:
+        // Do nothing
         break;
     }
 }
@@ -1621,7 +1625,7 @@ void Update_Level_Control() {
 }
 
 s32 Judge_Next_Disposal() {
-    if (Mode_Type == 3 || Mode_Type == 4) {
+    if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
         return 0;
     }
 
@@ -1651,7 +1655,7 @@ void Quick_Entry() {
     if (plw[LOSER].wu.operator) {
         Loser_Sub();
 
-        if (Mode_Type != 0) {
+        if (Mode_Type != MODE_ARCADE) {
             plw[LOSER].wu.operator = 1;
         }
 
@@ -1703,7 +1707,7 @@ void Loser_Sub() {
 }
 
 void Be_Continue() {
-    if (Mode_Type != 0) {
+    if (Mode_Type != MODE_ARCADE) {
         return;
     }
 
@@ -1827,7 +1831,7 @@ void Judge_Winner() {
 }
 
 s32 Check_Disp_Winner() {
-    if (Mode_Type == 3 || Mode_Type == 4) {
+    if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
         return Disp_Win_Name = 0;
     }
 
