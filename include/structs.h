@@ -760,33 +760,17 @@ typedef struct {
 } WORK_Other_JUDGE;
 
 typedef struct {
-    u32 DisplayMode;
     s32 DispWidth;
     s32 DispHeight;
-    u32 ZBuffForm;
-    u32 ZBuffPageX;
-    u32 ZBuffPageY;
     f32 ZBuffMax;
     u32 TextureStartAdrs;
-    s32 Db_change_enable;
-    s8 pad64[0xC];
-    sceGsDBuffDc Db;
     u32 FrameClearColor;
-    s32 DrawDisable;
     u32 SystemStatus;
     s32 SystemIndex;
     uintptr_t SystemTmpBuffStartAdrs;
     uintptr_t SystemTmpBuffEndAdrs;
     uintptr_t SystemTmpBuffNow;
     u32 SystemTmpBuffHandle[2];
-    u64 RenderTESTStatus1;
-    u64 RenderTESTStatus2;
-    u64 RenderZBUFStatus1;
-    u64 RenderZBUFStatus2;
-    u64 RenderSCISSORStatus1;
-    s32 RenderSCISSORValue1[4];
-    u64 RenderSCISSORStatus2;
-    s32 RenderSCISSORValue2[4];
 } FLPS2State;
 
 typedef struct {
