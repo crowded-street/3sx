@@ -2,7 +2,6 @@
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 
-#include <eestruct.h>
 #include <libgraph.h>
 
 #include <inttypes.h>
@@ -10,9 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#if !defined(TARGET_PS2)
 #include "port/sdl/sdl_message_renderer.h"
-#endif
 
 typedef struct _rgba {
     // total size: 0x4
