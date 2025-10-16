@@ -29,11 +29,6 @@ void pl00_extra_attack(PLW* wk) {
 }
 
 void Att_MOONSALT_KNEE_DROP(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void setup_mvxy_data(WORK * wk, u32 ix);
-#endif
-
     PLW* twk;
     s16 ex;
     s16 ey;
@@ -85,11 +80,6 @@ void Att_MOONSALT_KNEE_DROP(PLW* wk) {
 }
 
 void Att_RESURRECTION(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    s16 get_life_add_point(u32 num, s32 ori_add);
-#endif
-
     wk->scr_pos_set_flag = 0;
 
     switch (wk->wu.routine_no[3]) {
@@ -149,11 +139,6 @@ s16 get_life_add_point(u8 num, s16 ori_add) {
 }
 
 void Att_PL00_TOKUSHUKOUDOU(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void grade_add_personal_action(s32 ix);
-#endif
-
     wk->scr_pos_set_flag = 0;
 
     switch (wk->wu.routine_no[3]) {
@@ -202,11 +187,6 @@ void Att_PL00_TOKUSHUKOUDOU(PLW* wk) {
 }
 
 void Att_JYOUKA(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void Bg_Y_Sitei(u8 on_off, s32 pos);
-#endif
-
     s16 x1;
     s16 y1;
 

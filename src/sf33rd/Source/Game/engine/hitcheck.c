@@ -71,11 +71,6 @@ void hit_check_main_process() {
 }
 
 s16 set_judge_result() {
-#if defined(TARGET_PS2)
-    void set_caught_status(s32 ix);
-    void set_struck_status(s32 ix);
-#endif
-
     s16 i;
     s16 rnum = 0;
 
@@ -161,14 +156,6 @@ void check_result_extra() {
 }
 
 void set_caught_status(s16 ix) {
-#if defined(TARGET_PS2)
-    void setup_saishin_lvdir(PLW * ds, s32 gddir);
-    s32 effect_02_init(WORK * wk, s32 dmgp, s32 mkst, s32 dmrl);
-    s32 defense_sky(PLW * as, PLW * ds, s32 gddir);
-    s32 defense_ground(PLW * as, PLW * ds, s32 gddir);
-    void check_guard_miss(WORK * as, PLW * ds, s32 gddir);
-#endif
-
     s16 ix2 = hs[ix].dm_me;
     PLW* as = (PLW*)q_hit_push[ix2];
     PLW* ds = (PLW*)q_hit_push[ix];
@@ -402,13 +389,6 @@ void set_catch_hit_mark_pos(WORK* as, WORK* ds) {
 }
 
 void set_struck_status(s16 ix) {
-#if defined(TARGET_PS2)
-    void effect_at_vs_effect_dm(s32 ix2, s32 ix);
-    void effect_at_vs_player_dm(s32 ix2, s32 ix);
-    void player_at_vs_effect_dm(s32 ix2, s32 ix);
-    void player_at_vs_player_dm(s32 ix2, s32 ix);
-#endif
-
     WORK* as;
     WORK* ds;
     s16 ix2;
@@ -469,21 +449,6 @@ void cal_hit_mark_pos(WORK* as, WORK* ds, s16 ix2, s16 ix) {
 const s16 Dsas_dir_table[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0 };
 
 void plef_at_vs_player_damage_union(PLW* as, PLW* ds, s8 gddir) {
-#if defined(TARGET_PS2)
-    s32 defense_sky(PLW * as, PLW * ds, s32 gddir);
-    s16 get_sky_sp_damage(u32 ix);
-    s16 get_sky_nm_damage(u32 ix);
-    s32 defense_ground(PLW * as, PLW * ds, s32 gddir);
-    u8 check_head_damage(s32 ix);
-    s16 get_kagami_damage(u32 ix);
-    s16 get_kind_of_head_dm(s32 dir, s32 drl);
-    s16 get_grd_hand_damage(u32 ix);
-    u8 check_trunk_damage(s32 ix);
-    s16 get_kind_of_trunk_dm(s32 dir, s32 drl);
-    void check_guard_miss(WORK * as, PLW * ds, s32 gddir);
-    s32 effect_02_init(WORK * wk, s32 dmgp, s32 mkst, s32 dmrl);
-#endif
-
     ds->wu.dm_guard_success = -1;
 
     if (ds->guard_flag == 3 || as->wu.att.guard == 0 || ds->py->flag != 0) {
@@ -603,10 +568,6 @@ set_paring_status:
 }
 
 void dm_reaction_init_set(PLW* as, PLW* ds) {
-#if defined(TARGET_PS2)
-    s16 change_damage_attribute(PLW * as, u32 atr, u32 ix);
-#endif
-
     ds->wu.routine_no[2] = as->wu.att.reaction;
 
     if (ds->wu.routine_no[2] == 89 || ds->wu.routine_no[2] == 90) {
@@ -625,11 +586,6 @@ void dm_reaction_init_set(PLW* as, PLW* ds) {
 }
 
 void set_guard_status(PLW* as, PLW* ds) {
-#if defined(TARGET_PS2)
-    s32 effect_02_init(WORK * wk, s32 dmgp, s32 mkst, s32 dmrl);
-    void grade_add_guard_success(s32 ix);
-#endif
-
     if (as->wu.att.hs_you == 0 && as->wu.att.hs_me == 0) {
         ds->wu.routine_no[2] = ds->wu.old_rno[2];
     } else {
@@ -954,10 +910,6 @@ s16 check_dm_att_blocking(WORK* as, WORK* ds, s16 dnum) {
 }
 
 void set_damage_and_piyo(PLW* as, PLW* ds) {
-#if defined(TARGET_PS2)
-    s16 remake_score_index(s32 dmv);
-#endif
-
     cal_damage_vitality(as, ds);
     ds->wu.dm_piyo = _add_piyo_gauge[as->player_number][as->wu.att.piyo];
     ds->wu.dm_piyo = ds->wu.dm_piyo * stun_gauge_omake[omop_stun_gauge_add[(ds->wu.id + 1) & 1]] / 32;
@@ -1054,10 +1006,6 @@ void same_dm_stop(WORK* as, WORK* ds) {
 }
 
 s32 defense_sky(PLW* as, PLW* ds, s8 gddir) {
-#if defined(TARGET_PS2)
-    s32 check_normal_attack(s16 waza);
-#endif
-
     s8 just_now;
     s8 attr_att;
     s8 abs;
@@ -1153,10 +1101,6 @@ void blocking_point_count_up(PLW* wk) {
 }
 
 s32 defense_ground(PLW* as, PLW* ds, s8 gddir) {
-#if defined(TARGET_PS2)
-    s32 check_normal_attack(u32 waza);
-#endif
-
     s8 just_now;
     s8 attr_att;
     s8 abs;

@@ -124,10 +124,6 @@ void check_nagenuke(PLW* wk, PLW* tk) {
 void Catch_00000(PLW* /* unused */) {}
 
 void Catch_01000(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init_ca(PLW * wk, s16 koc, s32 index);
-#endif
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -142,10 +138,6 @@ void Catch_01000(PLW* wk) {
 }
 
 void Catch_02000(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init_ca(PLW * wk, s16 koc, s32 index);
-#endif
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -160,11 +152,6 @@ void Catch_02000(PLW* wk) {
 }
 
 void Catch_03000(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init_ca(PLW * wk, s16 koc, s32 index);
-    void setup_mvxy_data(WORK * wk, u32 ix);
-#endif
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -184,11 +171,6 @@ void Catch_03000(PLW* wk) {
 }
 
 void Catch_04000(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init_ca(PLW * wk, s16 koc, s32 index);
-    void setup_mvxy_data(WORK * wk, u32 ix);
-#endif
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -235,12 +217,6 @@ void Catch_04000(PLW* wk) {
 }
 
 void Catch_05000(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init_ca(PLW * wk, s16 koc, s32 index);
-    void add_to_mvxy_data(WORK * wk, u32 ix);
-    void setup_mvxy_data(WORK * wk, u32 ix);
-#endif
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -298,10 +274,6 @@ void Catch_05000(PLW* wk) {
 }
 
 void Catch_06000(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init_ca(PLW * wk, s16 koc, s32 index);
-#endif
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -327,12 +299,6 @@ void Catch_06000(PLW* wk) {
 }
 
 void Catch_07000(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init_ca(PLW * wk, s16 koc, s32 index);
-    void add_to_mvxy_data(WORK * wk, u32 ix);
-    void setup_mvxy_data(WORK * wk, u32 ix);
-#endif
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -398,10 +364,6 @@ void Catch_07000(PLW* wk) {
 }
 
 s32 cat07_running_check(WORK* wk) {
-#if defined(TARGET_PS2)
-    void setup_mvxy_data(WORK * wk, u32 ix);
-#endif
-
     if (wk->xyz[0].disp.pos < (bg_w.bgw[1].l_limit2 - 64) || wk->xyz[0].disp.pos > (bg_w.bgw[1].r_limit2 + 64)) {
         char_move_cmja(wk);
         setup_mvxy_data(wk, wk->mvxy.index);
@@ -414,10 +376,6 @@ s32 cat07_running_check(WORK* wk) {
 }
 
 void Catch_08000(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init_ca(PLW * wk, s16 koc, s32 index);
-#endif
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -487,10 +445,6 @@ void subtract_cu_vital(PLW* wk) {
 }
 
 void catch_cg_type_check(PLW* wk) {
-#if defined(TARGET_PS2)
-    s32 effect_02_init(WORK * wk, s8 dmgp, s8 mkst, s32 dmrl);
-#endif
-
     PLW* emwk = (PLW*)wk->wu.hit_adrs;
 
     switch (wk->wu.cg_type) {
@@ -554,10 +508,6 @@ void catch_cg_type_check(PLW* wk) {
 }
 
 void set_char_move_init_ca(PLW* wk, s16 koc, s16 index) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s32 koc, s32 index);
-#endif
-
     set_char_move_init(&wk->wu, koc, index);
     wk->cat_break_ok_timer = wk->wu.cmyd.koc >> 8;
     wk->wu.cmyd.koc &= 0xFF;

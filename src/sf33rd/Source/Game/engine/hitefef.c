@@ -5,11 +5,6 @@
 #include "sf33rd/Source/Game/engine/pow_pow.h"
 
 void effect_at_vs_effect_dm(s16 ix2, s16 ix) {
-#if defined(TARGET_PS2)
-    void cal_hit_mark_pos(WORK * as, WORK * ds, s32 ix2, s32 ix);
-    s32 effect_02_init(WORK * wk, s32 dmgp, s32 mkst, s32 dmrl);
-#endif
-
     WORK_Other* as = (WORK_Other*)q_hit_push[ix2];
     WORK_Other* ds = (WORK_Other*)q_hit_push[ix];
 

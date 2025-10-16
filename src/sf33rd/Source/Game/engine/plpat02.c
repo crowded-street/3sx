@@ -15,10 +15,6 @@ void pl02_extra_attack(PLW* wk) {
 }
 
 void Att_DENJINHADOUKEN(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-#endif
-
     s16 i;
     s16 lgix;
 
@@ -54,11 +50,6 @@ void Att_DENJINHADOUKEN(PLW* wk) {
 }
 
 void Att_PL02_TOKUSHUKOUDOU(PLW* wk) {
-#if defined(TARGET_PS2)
-    void set_char_move_init(WORK * wk, s16 koc, s32 index);
-    void grade_add_personal_action(s32 ix);
-#endif
-
     wk->scr_pos_set_flag = 0;
 
     switch (wk->wu.routine_no[3]) {
