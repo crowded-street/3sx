@@ -132,6 +132,10 @@ elseif(WIN32)
         ${SDL3_ROOT}/lib/libSDL3.dll.a
 		dbghelp
     )
+    target_link_options(3sx PRIVATE
+        --for-linker
+        --pdb=3sx.pdb
+    )
 elseif(UNIX)
     target_link_libraries(3sx PRIVATE
         ${FFMPEG_ROOT}/lib/libavcodec.so
@@ -177,6 +181,11 @@ elseif(WIN32)
 		POST_EXCLUDE_REGEXES ".*system32/.*\\.dll"
 		DESTINATION bin
 	)
+
+    install(FILES
+        "build/3sx.pdb"
+        DESTINATION bin
+    )
 elseif(UNIX)
     install(TARGETS 3sx
         RUNTIME DESTINATION bin
