@@ -81,16 +81,10 @@ void setup_bonus_car_parts() {
 }
 
 void setup_dma_group(u16 num, u32 /* unused */) {
-#if defined(TARGET_PS2)
-    s32 load_any_texture_patnum(u32 patnum, u8 kokey, u8 _unused);
-#endif
     load_any_texture_patnum(num, 2, 0);
 }
 
 void reset_dma_group(u16 num) {
-#if defined(TARGET_PS2)
-    void purge_texture_group_of_this(u32 patnum);
-#endif
     purge_texture_group_of_this(num);
 }
 
@@ -266,9 +260,6 @@ void Mtrans_use_trans_mode(WORK* wk, s16 bsy) {
 }
 
 s16 exchange_current_colcd(WORK* wk) {
-#if defined(TARGET_PS2)
-    void push_color_trans_req(s32 from_col, s32 to_col);
-#endif
     WORK* mwk;
     s16 col;
 
@@ -302,11 +293,6 @@ s16 exchange_current_colcd(WORK* wk) {
 }
 
 s32 sort_push_request(WORK* wk) {
-#if defined(TARGET_PS2)
-    void shadow_setup(WORK * wk, s32 bsy);
-    void Mtrans_use_trans_mode(WORK * wk, s32 bsy);
-#endif
-
     if (wk->my_mts == 0) {
         return 0;
     }
@@ -348,9 +334,6 @@ s32 sort_push_request(WORK* wk) {
 }
 
 s32 sort_push_request2(WORK_Other* wk) {
-#if defined(TARGET_PS2)
-    void set_judge_area_sprite(WORK_Other_JUDGE * wk, s32 bsy);
-#endif
     if (wk->wu.disp_flag == 0) {
         return 1;
     }
@@ -359,9 +342,6 @@ s32 sort_push_request2(WORK_Other* wk) {
 }
 
 s32 sort_push_request3(WORK* wk) {
-#if defined(TARGET_PS2)
-    s32 set_conn_sprite(WORK_Other_CONN * wk, s32 bsy);
-#endif
     if (wk->my_mts == 0) {
         return 0;
     }
@@ -442,9 +422,6 @@ s32 sort_push_request8(WORK* wk) {
 }
 
 s32 sort_push_requestA(WORK* wk) {
-#if defined(TARGET_PS2)
-    void draw_box(f64 arg0, f64 arg1, f64 arg2, f64 arg3, u32 col, u32 attr, s32 prio);
-#endif
     PAL_CURSOR_COL oricol;
     s16 i;
     s16 mf;
@@ -519,9 +496,6 @@ s32 sort_push_requestA(WORK* wk) {
 }
 
 s32 sort_push_requestB(WORK* wk) {
-#if defined(TARGET_PS2)
-    void draw_box(f64 arg0, f64 arg1, f64 arg2, f64 arg3, u32 col, u32 attr, s32 prio);
-#endif
     PAL_CURSOR_COL oricol;
     s16 i;
     s16 mf;
@@ -602,10 +576,6 @@ void shadow_setup(WORK* wk, s16 bsy) {
 }
 
 void shadow_drawing(WORK* wk, s16 bsy) {
-#if defined(TARGET_PS2)
-    s8 get_kage_width(s32 cpy);
-    void Mtrans_use_trans_mode(WORK * wk, s32 bsy);
-#endif
     s16 shadow;
 
     if (!Debug_w[0x23]) {
