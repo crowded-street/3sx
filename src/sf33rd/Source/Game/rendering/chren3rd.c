@@ -1,3 +1,8 @@
+/**
+ * @file chren3rd.c
+ * Character Renderer
+ */
+
 #include "common.h"
 
 const u8 obj_group_table[37664] = {

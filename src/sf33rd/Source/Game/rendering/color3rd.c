@@ -1,3 +1,8 @@
+/**
+ * @file color3rd.c
+ * Loading, conversion, and hardware-upload of color palettes
+ */
+
 #include "sf33rd/Source/Game/rendering/color3rd.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/cse.h"

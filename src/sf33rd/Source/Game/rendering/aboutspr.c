@@ -1,3 +1,8 @@
+/**
+ * @file aboutspr.c
+ * Sprite, Shadow, and Debug rendering utilities
+ */
+
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"

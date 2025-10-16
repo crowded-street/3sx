@@ -1,3 +1,8 @@
+/**
+ * @file texgroup.c
+ * Texture Group Manager and Loader
+ */
+
 #include "sf33rd/Source/Game/rendering/texgroup.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"

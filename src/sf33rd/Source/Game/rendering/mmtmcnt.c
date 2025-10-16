@@ -1,3 +1,8 @@
+/**
+ * @file mmtmcnt.c
+ * Main Memory and Texture Memory Control
+ */
+
 #include "sf33rd/Source/Game/rendering/mmtmcnt.h"
 #include "common.h"
 #include "sf33rd/Source/Game/RAMCNT.h"

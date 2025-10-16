@@ -1,3 +1,8 @@
+/**
+ * @file mtrans.c
+ * Main Graphics Rendering and Transformation Engine
+ */
+
 #include "sf33rd/Source/Game/rendering/mtrans.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/flps2render.h"

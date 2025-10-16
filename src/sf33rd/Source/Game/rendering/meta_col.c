@@ -1,3 +1,8 @@
+/**
+ * @file meta_col.c
+ * Palette-swapping and color-changing effects for Resurrection/X.C.O.P.Y.
+ */
+
 #include "sf33rd/Source/Game/rendering/meta_col.h"
 #include "common.h"
 #include "sf33rd/Source/Game/rendering/color3rd.h"

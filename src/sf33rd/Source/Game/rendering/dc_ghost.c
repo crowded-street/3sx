@@ -1,3 +1,8 @@
+/**
+ * @file dc_ghost.c
+ * Compatibility Layer for Sega Dreamcast's Ninja SDK
+ */
+
 #include "sf33rd/Source/Game/rendering/dc_ghost.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/flps2render.h"
