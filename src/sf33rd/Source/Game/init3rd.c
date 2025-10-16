@@ -129,7 +129,7 @@ void Init_Task_1st(struct _TASK* task_ptr) {
     Setup_Limit_Time();
     Keep_Zoom_X = Screen_Zoom_X;
     Reset_Bootrom = 1;
-    cpReadyTask(RESET_TASK_NUM, Reset_Task);
+    cpReadyTask(TASK_RESET, Reset_Task);
     Switch_Type = 0;
     Reset_Status[0] = 0;
     Reset_Status[1] = 0;
@@ -194,16 +194,16 @@ void Init_Task_2nd(struct _TASK* task_ptr) {
 }
 
 void Init_Task_End(struct _TASK* task_ptr) {
-    cpReadyTask(GAME_TASK_NUM, Game_Task);
+    cpReadyTask(TASK_GAME, Game_Task);
     task_ptr->r_no[0] += 1;
     task_ptr->r_no[1] = 0;
     G_No[0] = 1;
-    cpReadyTask(ENTRY_TASK_NUM, Entry_Task);
+    cpReadyTask(TASK_ENTRY, Entry_Task);
 
     if (Usage == 7) {
-        cpReadyTask(DEBUG_TASK_NUM, Debug_Task);
+        cpReadyTask(TASK_DEBUG, Debug_Task);
     }
 
-    cpExitTask(0);
+    cpExitTask(TASK_INIT);
     Forbid_Reset = 0;
 }

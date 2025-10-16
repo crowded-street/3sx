@@ -223,8 +223,8 @@ void Game_Manage_1st() {
     grade_check_work_stage_init(1);
 
     if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
-        cpReadyTask(MENU_TASK_NUM, Menu_Task);
-        task[3].r_no[0] = 7;
+        cpReadyTask(TASK_MENU, Menu_Task);
+        task[TASK_MENU].r_no[0] = 7;
         plw[New_Challenger].wu.operator = 0;
         Operator_Status[New_Challenger] = 0;
         Lever_LR[0] = 0;
@@ -233,7 +233,7 @@ void Game_Manage_1st() {
     }
 
     if (Mode_Type != MODE_NETWORK) {
-        cpReadyTask(PAUSE_TASK_NUM, Pause_Task);
+        cpReadyTask(TASK_PAUSE, Pause_Task);
         setup_pos_remake_key(3);
     }
 }
@@ -353,7 +353,7 @@ void Game_Manage_2_1() {
         break;
 
     case 1:
-        if (task[3].r_no[0] == 10) {
+        if (task[TASK_MENU].r_no[0] == 10) {
             C_No[1]++;
             C_No[2] = 0;
         }
@@ -1057,7 +1057,7 @@ void Game_Manage_9th() {
             C_No[0]++;
             C_No[1] = 0;
             C_Timer = 75;
-            cpExitTask(4);
+            cpExitTask(TASK_PAUSE);
 
             if (Play_Type != 1 && Round_Operator[WINNER] && Battle_Q[WINNER]) {
                 C_No[0] = 10;
@@ -2022,7 +2022,7 @@ void Game_Manage_12_2() {
         C_No[1] = 4;
     }
 
-    cpExitTask(4);
+    cpExitTask(TASK_PAUSE);
 }
 
 void Game_Manage_12_3() {

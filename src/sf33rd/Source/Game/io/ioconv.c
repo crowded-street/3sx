@@ -35,7 +35,7 @@ void keyConvert() {
     if ((save_w[Present_Mode].extra_option.contents[0][4]) && mpp_w.inGame && (Game_pause == 0)) {
         repeat_on = 1;
 
-        if ((task[3].condition == 1) && (task[3].r_no[0] != 10)) {
+        if ((task[TASK_MENU].condition == 1) && (task[TASK_MENU].r_no[0] != 10)) {
             repeat_on = 0;
         }
     }

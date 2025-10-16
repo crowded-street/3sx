@@ -73,8 +73,6 @@ void njUserInit();
 s32 njUserMain();
 void cpLoopTask();
 void cpInitTask();
-void cpReadyTask(u16 num, void* func_adrs);
-void cpExitTask(u16 num);
 
 /// @brief Makes sure resources are present.
 /// @return `true` if resources are present and execution can proceed, `false` otherwise.
@@ -264,7 +262,7 @@ static void game_step_0() {
         p3sw_0 = p3sw_buff;
         p4sw_0 = p4sw_buff;
 
-        if ((task[3].condition == 1) && (Mode_Type == MODE_PARRY_TRAINING) && (Play_Mode == 1)) {
+        if ((task[TASK_MENU].condition == 1) && (Mode_Type == MODE_PARRY_TRAINING) && (Play_Mode == 1)) {
             const u16 sw_buff = p2sw_0;
             p2sw_0 = p1sw_0;
             p1sw_0 = sw_buff;
@@ -394,7 +392,7 @@ void njUserInit() {
     Init_bgm_work();
     sndInitialLoad();
     cpInitTask();
-    cpReadyTask(INIT_TASK_NUM, Init_Task);
+    cpReadyTask(TASK_INIT, Init_Task);
 }
 
 s32 njUserMain() {
@@ -487,8 +485,8 @@ void cpInitTask() {
     memset(&task, 0, sizeof(task));
 }
 
-void cpReadyTask(u16 num, void* func_adrs) {
-    struct _TASK* task_ptr = task + num;
+void cpReadyTask(TaskID num, void* func_adrs) {
+    struct _TASK* task_ptr = &task[num];
 
     memset(task_ptr, 0, sizeof(struct _TASK));
 
@@ -496,8 +494,8 @@ void cpReadyTask(u16 num, void* func_adrs) {
     task_ptr->condition = 2;
 }
 
-void cpExitTask(u16 num) {
-    struct _TASK* task_ptr = task + num;
+void cpExitTask(TaskID num) {
+    struct _TASK* task_ptr = &task[num];
 
     task_ptr->condition = 0;
 

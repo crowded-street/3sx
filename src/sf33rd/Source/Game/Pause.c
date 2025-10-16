@@ -200,8 +200,8 @@ void Exit_Pause(struct _TASK* task_ptr) {
     Menu_Suicide[2] = 1;
     Menu_Suicide[3] = 1;
     pulpul_request_again();
-    cpExitTask(6);
-    cpExitTask(3);
+    cpExitTask(TASK_SAVER);
+    cpExitTask(TASK_MENU);
     SsBgmHalfVolume(0);
 }
 
@@ -216,8 +216,8 @@ void Setup_Pause(struct _TASK* task_ptr) {
     task_ptr->free[0] = 1;
     Stock_Turbo_Timer = Turbo_Timer;
     Stock_Process_Counter = Process_Counter;
-    cpReadyTask(3U, Menu_Task);
-    task[3].r_no[0] = 1;
+    cpReadyTask(TASK_MENU, Menu_Task);
+    task[TASK_MENU].r_no[0] = 1;
     Exit_Menu = 0;
 
     for (ix = 0; ix < 4; ix++) {
@@ -242,8 +242,8 @@ void Setup_Come_Out(struct _TASK* task_ptr) {
     task_ptr->free[0] = 1;
     Stock_Turbo_Timer = Turbo_Timer;
     Stock_Process_Counter = Process_Counter;
-    cpReadyTask(3, Menu_Task);
-    task[3].r_no[0] = 1;
+    cpReadyTask(TASK_MENU, Menu_Task);
+    task[TASK_MENU].r_no[0] = 1;
     Exit_Menu = 0;
 
     for (ix = 0; ix < 4; ix++) {

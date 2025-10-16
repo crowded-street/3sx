@@ -759,10 +759,10 @@ void cpRevivalTask() {
 }
 
 s32 Check_Menu_Task() {
-    struct _TASK* task_ptr = &task[3];
+    struct _TASK* task_ptr = &task[TASK_MENU];
 
     if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
-        if (task[3].r_no[0] == 7 && task[3].r_no[1] == 7) {
+        if (task[TASK_MENU].r_no[0] == 7 && task[TASK_MENU].r_no[1] == 7) {
             return 1;
         }
 
@@ -991,12 +991,12 @@ void Soft_Reset_Sub() {
     sound_all_off();
     SsBgmHalfVolume(0);
 
-    if (task[5].condition == 0) {
-        cpReadyTask(5, Game_Task);
+    if (task[TASK_GAME].condition == 0) {
+        cpReadyTask(TASK_GAME, Game_Task);
     }
 
-    if (Usage == 7 && task[9].condition == 0) {
-        cpReadyTask(9, Debug_Task);
+    if (Usage == 7 && task[TASK_DEBUG].condition == 0) {
+        cpReadyTask(TASK_DEBUG, Debug_Task);
     }
 
     Next_Title_Sub();
@@ -1007,9 +1007,9 @@ void Soft_Reset_Sub() {
     init_pulpul_work();
     pp_operator_check_flag(1);
     Init_Load_Request_Queue_1st();
-    cpExitTask(3);
-    cpExitTask(6);
-    cpExitTask(4);
+    cpExitTask(TASK_MENU);
+    cpExitTask(TASK_SAVER);
+    cpExitTask(TASK_PAUSE);
     setup_pos_remake_key(2);
     Reset_Sub0();
     task->r_no[0] = 1;
@@ -1262,9 +1262,9 @@ void Replay(s16 PL_id) {
         Replay_Status[1] = 2;
 
         if (Mode_Type == 5) {
-            cpExitTask(4);
-            cpReadyTask(3, Menu_Task);
-            task[3].r_no[0] = 13;
+            cpExitTask(TASK_PAUSE);
+            cpReadyTask(TASK_MENU, Menu_Task);
+            task[TASK_MENU].r_no[0] = 13;
         }
 
         Demo_Time_Stop = 1;

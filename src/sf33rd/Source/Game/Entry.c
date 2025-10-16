@@ -636,7 +636,7 @@ void Entry_08_2nd() {
 
 void Entry_10() {
     if ((E_Number[0][0] == 0x63) && (E_Number[1][0] == 0x63)) {
-        cpExitTask(1);
+        cpExitTask(TASK_ENTRY);
         return;
     }
 
@@ -1410,7 +1410,7 @@ void Break_Into_05(s16 PL_id) {
     }
 
     Stop_Update_Score = 1;
-    cpExitTask(4);
+    cpExitTask(TASK_PAUSE);
 }
 
 void Break_Into_07(s16 PL_id) {

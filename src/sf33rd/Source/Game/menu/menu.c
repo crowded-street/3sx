@@ -272,7 +272,7 @@ void Menu_Init(struct _TASK* task_ptr) {
         setup_pos_remake_key(0);
     }
 
-    cpReadyTask(SAVER_TASK_NUM, Saver_Task);
+    cpReadyTask(TASK_SAVER, Saver_Task);
 }
 
 void Mode_Select(struct _TASK* task_ptr) {
@@ -288,12 +288,12 @@ void Mode_Select(struct _TASK* task_ptr) {
         Mode_Type = MODE_ARCADE;
         Present_Mode = 1;
 
-        if (task[1].condition != 1) {
+        if (task[TASK_ENTRY].condition != 1) {
             E_No[0] = 1;
             E_No[1] = 2;
             E_No[2] = 2;
             E_No[3] = 0;
-            cpReadyTask(ENTRY_TASK_NUM, Entry_Task);
+            cpReadyTask(TASK_ENTRY, Entry_Task);
         }
 
         Menu_Common_Init();
@@ -377,8 +377,8 @@ void Mode_Select(struct _TASK* task_ptr) {
                 G_No[2] += 1;
                 Mode_Type = MODE_ARCADE;
                 task_ptr->r_no[0] = 5;
-                cpExitTask(SAVER_TASK_NUM);
-                Decide_PL(PL_id); // character selection?
+                cpExitTask(TASK_SAVER);
+                Decide_PL(PL_id);
                 break;
 
             case 1:
@@ -386,7 +386,7 @@ void Mode_Select(struct _TASK* task_ptr) {
                 G_No[1] = 0xC;
                 G_No[2] = 1;
                 Mode_Type = MODE_VERSUS;
-                cpExitTask(MENU_TASK_NUM);
+                cpExitTask(TASK_MENU);
                 break;
 
             case 2:
@@ -417,8 +417,8 @@ void Mode_Select(struct _TASK* task_ptr) {
 
 void Setup_VS_Mode(struct _TASK* task_ptr) {
     task_ptr->r_no[0] = 5;
-    cpExitTask(SAVER_TASK_NUM);
-    plw->wu.operator = 1;
+    cpExitTask(TASK_SAVER);
+    plw[0].wu.operator = 1;
     plw[1].wu.operator = 1;
     Operator_Status[0] = 1;
     Operator_Status[1] = 1;
@@ -629,12 +629,12 @@ void Training_Mode(struct _TASK* task_ptr) {
         Setup_VS_Mode(task_ptr);
         G_No[2] += 1;
         task_ptr->r_no[0] = 5;
-        cpExitTask(SAVER_TASK_NUM);
+        cpExitTask(TASK_SAVER);
         Champion = PL_id;
         Pause_ID = PL_id;
         Training_ID = PL_id;
         New_Challenger = PL_id ^ 1;
-        cpExitTask(ENTRY_TASK_NUM);
+        cpExitTask(TASK_ENTRY);
 
         break;
     }
@@ -1452,7 +1452,7 @@ void Load_Replay_Sub(struct _TASK* task_ptr) {
     case 0:
         task_ptr->r_no[3] += 1;
         Rep_Game_Infor[0xA] = Replay_w.game_infor;
-        cpExitTask(ENTRY_TASK_NUM);
+        cpExitTask(TASK_ENTRY);
         Play_Mode = 3;
         break;
 
@@ -1489,7 +1489,7 @@ void Load_Replay_Sub(struct _TASK* task_ptr) {
         save_w[3].Pad_Infor[1] = Replay_w.mini_save_w.Pad_Infor[1];
         save_w[3].Pad_Infor[0].Vibration = 0;
         save_w[3].Pad_Infor[1].Vibration = 0;
-        cpExitTask(SAVER_TASK_NUM);
+        cpExitTask(TASK_SAVER);
         break;
 
     case 2:
@@ -1590,7 +1590,7 @@ void Load_Replay_Sub(struct _TASK* task_ptr) {
             }
 
             task_ptr->r_no[2] = 0;
-            cpExitTask(MENU_TASK_NUM);
+            cpExitTask(TASK_MENU);
         }
 
         break;
@@ -3064,8 +3064,8 @@ void Menu_Select(struct _TASK* task_ptr) {
                         Menu_Suicide[ix] = 1;
                     }
 
-                    cpExitTask(SAVER_TASK_NUM);
-                    cpExitTask(PAUSE_TASK_NUM);
+                    cpExitTask(TASK_SAVER);
+                    cpExitTask(TASK_PAUSE);
                     BGM_Stop();
                     break;
 
@@ -3081,7 +3081,7 @@ void Menu_Select(struct _TASK* task_ptr) {
                     Menu_Suicide[3] = 0;
                     task_ptr->r_no[1]++;
                     task_ptr->r_no[2] = 0;
-                    task[4].r_no[2] = 3;
+                    task[TASK_PAUSE].r_no[2] = 3;
                     break;
                 }
 
@@ -3237,8 +3237,8 @@ void Return_Pause_Sub(struct _TASK* task_ptr) {
     Menu_Suicide[1] = 0;
     Menu_Suicide[2] = 0;
     Menu_Suicide[3] = 1;
-    task[4].r_no[2] = 2;
-    task[4].free[0] = 1;
+    task[TASK_PAUSE].r_no[2] = 2;
+    task[TASK_PAUSE].free[0] = 1;
     task_ptr->r_no[1] = 1;
     task_ptr->r_no[2] = 1;
     Cursor_Y_Pos[0][0] = 1;
@@ -3250,7 +3250,7 @@ void Return_Pause_Sub(struct _TASK* task_ptr) {
 s32 Check_Pad_in_Pause(struct _TASK* task_ptr) {
     if (Interface_Type[Pause_ID] == 0) {
         task_ptr->r_no[1] = 4;
-        task[4].r_no[2] = 4;
+        task[TASK_PAUSE].r_no[2] = 4;
         Menu_Suicide[0] = 1;
         Menu_Suicide[1] = 1;
         Menu_Suicide[2] = 0;
@@ -3442,8 +3442,8 @@ void Disp_Auto_Save2(struct _TASK* task_ptr) {
 void DAS2_4th(struct _TASK* task_ptr) {
     if (SaveMove() <= 0) {
         G_No[2] = 6;
-        cpExitTask(MENU_TASK_NUM);
-        task[1].condition = 1;
+        cpExitTask(TASK_MENU);
+        task[TASK_ENTRY].condition = 1;
     }
 }
 
@@ -4399,14 +4399,14 @@ void Reset_Replay(struct _TASK* task_ptr) {
         Suicide[0] = 1;
         Suicide[6] = 1;
         judge_flag = 0;
-        cpExitTask(4);
+        cpExitTask(TASK_PAUSE);
         break;
 
     default:
         Switch_Screen(0);
 
         if (--task_ptr->timer == 0) {
-            cpExitTask(3);
+            cpExitTask(TASK_MENU);
         }
 
         break;
@@ -5227,7 +5227,7 @@ void Character_Change(struct _TASK* task_ptr) {
                     Operator_Status[ix] = 1;
                 }
 
-                cpExitTask(MENU_TASK_NUM);
+                cpExitTask(TASK_MENU);
             }
             break;
         }

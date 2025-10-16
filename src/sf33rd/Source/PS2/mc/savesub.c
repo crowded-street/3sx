@@ -184,7 +184,7 @@ s32 SaveMove() {
     save_move_jmp[save->r_no_0](save);
     McActMain();
     save_msg_trans(save);
-    task[SAVER_TASK_NUM].timer = 0;
+    task[TASK_SAVER].timer = 0;
 
     return save->return_code;
 }
