@@ -249,7 +249,7 @@ void Appear_04000(PLW* wk) {
             return;
         }
 
-        add_y_sub(&wk->wu);
+        add_x_sub(&wk->wu);
         add_y_sub(&wk->wu);
         break;
 
