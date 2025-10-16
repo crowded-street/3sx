@@ -11,7 +11,7 @@
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/rendering/texcash.h"
-#include "sf33rd/Source/Game/staff.h"
+#include "sf33rd/Source/Game/screen/staff.h"
 
 s16 roll_rate_t;
 s16 roll_rate;

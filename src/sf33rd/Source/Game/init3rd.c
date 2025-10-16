@@ -1,5 +1,4 @@
 #include "sf33rd/Source/Game/init3rd.h"
-#include "sf33rd/Source/Game/Entry.h"
 #include "sf33rd/Source/Game/Game.h"
 #include "sf33rd/Source/Game/Reset.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
@@ -17,6 +16,7 @@
 #include "sf33rd/Source/Game/rendering/texcash.h"
 #include "sf33rd/Source/Game/rendering/texgroup.h"
 #include "sf33rd/Source/Game/sc_sub.h"
+#include "sf33rd/Source/Game/screen/entry.h"
 #include "sf33rd/Source/Game/sound/sound3rd.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"

@@ -1,4 +1,4 @@
-#include "sf33rd/Source/Game/RANKING.h"
+#include "sf33rd/Source/Game/screen/ranking.h"
 #include "common.h"
 #include "sf33rd/Source/Game/Game.h"
 #include "sf33rd/Source/Game/SYS_sub.h"

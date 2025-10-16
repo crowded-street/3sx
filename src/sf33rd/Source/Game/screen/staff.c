@@ -1,4 +1,4 @@
-#include "sf33rd/Source/Game/staff.h"
+#include "sf33rd/Source/Game/screen/staff.h"
 #include "common.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/effect/effh6.h"

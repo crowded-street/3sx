@@ -1,4 +1,4 @@
-#include "sf33rd/Source/Game/n_input.h"
+#include "sf33rd/Source/Game/screen/n_input.h"
 #include "common.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/ending/end_data.h"

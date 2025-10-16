@@ -34,10 +34,10 @@
 #include "sf33rd/Source/Game/ending/end_20.h"
 #include "sf33rd/Source/Game/ending/end_data.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
-#include "sf33rd/Source/Game/n_input.h"
 #include "sf33rd/Source/Game/sc_sub.h"
+#include "sf33rd/Source/Game/screen/n_input.h"
+#include "sf33rd/Source/Game/screen/staff.h"
 #include "sf33rd/Source/Game/sound/sound3rd.h"
-#include "sf33rd/Source/Game/staff.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
 

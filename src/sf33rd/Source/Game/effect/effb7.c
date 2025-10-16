@@ -8,8 +8,8 @@
 #include "common.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/charset.h"
-#include "sf33rd/Source/Game/n_input.h"
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
+#include "sf33rd/Source/Game/screen/n_input.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 
