@@ -6,11 +6,11 @@
 #include "sf33rd/Source/Game/effect/effc0.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
-#include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/charset.h"
 #include "sf33rd/Source/Game/engine/slowf.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/rendering/aboutspr.h"
 
 const s16 hok_table_ef[8] = { 1, 1, 2, 2, 3, 3, 3, 3 };
 

@@ -1,6 +1,6 @@
-#include "sf33rd/Source/Game/meta_col.h"
+#include "sf33rd/Source/Game/rendering/meta_col.h"
 #include "common.h"
-#include "sf33rd/Source/Game/color3rd.h"
+#include "sf33rd/Source/Game/rendering/color3rd.h"
 
 // bss
 u16 hi_meta[2][2][64];          // size: 0x200, address: 0x5E3B50

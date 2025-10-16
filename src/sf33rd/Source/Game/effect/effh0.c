@@ -5,9 +5,9 @@
 
 #include "sf33rd/Source/Game/effect/effh0.h"
 #include "common.h"
-#include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 
 const CONN bbbs_nando_small[2][2] = { { { 176, -16, 0, 32490 }, { 132, -16, 0, 32489 } },

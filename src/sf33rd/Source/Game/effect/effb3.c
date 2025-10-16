@@ -10,10 +10,10 @@
 #include "sf33rd/Source/Game/effect/effb9.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/charset.h"
+#include "sf33rd/Source/Game/rendering/texcash.h"
 #include "sf33rd/Source/Game/sound/se.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
-#include "sf33rd/Source/Game/texcash.h"
 #include "structs.h"
 
 // sbss

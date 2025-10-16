@@ -6,14 +6,14 @@
 #include "sf33rd/Source/Game/effect/effl4.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
-#include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/charset.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/slowf.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/rendering/aboutspr.h"
+#include "sf33rd/Source/Game/rendering/texcash.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
-#include "sf33rd/Source/Game/texcash.h"
 
 const s16 effl4_data_tbl[24] = { 143, 96,  73, 9,  223, 120, 73, 10, 303, 104, 73, 11,
                                  367, 112, 73, 12, 399, 144, 73, 13, 487, 120, 73, 14 };

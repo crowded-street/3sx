@@ -5,14 +5,14 @@
 
 #include "sf33rd/Source/Game/effect/eff06.h"
 #include "common.h"
-#include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/effect/eff05.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/charset.h"
+#include "sf33rd/Source/Game/rendering/aboutspr.h"
+#include "sf33rd/Source/Game/rendering/texcash.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
-#include "sf33rd/Source/Game/texcash.h"
 
 const s16 scr_obj_num6[22] = { 1, 6, 4, 0, 3, 1, 0, 2, 8, 3, 0, 4, 3, 0, 1, 1, 4, 0, 1, 1, 0, 0 };
 

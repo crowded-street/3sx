@@ -5,9 +5,9 @@
 
 #include "sf33rd/Source/Game/effect/eff16.h"
 #include "common.h"
-#include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 
 const u32 bunkai_table[8] = { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000 };

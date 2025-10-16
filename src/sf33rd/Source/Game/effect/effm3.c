@@ -5,10 +5,10 @@
 
 #include "sf33rd/Source/Game/effect/effm3.h"
 #include "common.h"
-#include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/pls02.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 
 const s16 M3_bahn_data[5] = { 16, 10, 78, 0, -512 };

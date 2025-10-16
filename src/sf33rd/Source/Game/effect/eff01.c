@@ -5,10 +5,10 @@
 
 #include "sf33rd/Source/Game/effect/eff01.h"
 #include "common.h"
-#include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/slowf.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/rendering/aboutspr.h"
 
 const s16 parts_colmd_table[2] = { 0x4000, 0x0 };
 

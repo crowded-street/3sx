@@ -5,10 +5,10 @@
 
 #include "sf33rd/Source/Game/effect/effj0.h"
 #include "common.h"
-#include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/slowf.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/rendering/aboutspr.h"
 
 void effect_J0_move(WORK_Other* ewk) {
     WORK_Other* mwk = (WORK_Other*)ewk->my_master;

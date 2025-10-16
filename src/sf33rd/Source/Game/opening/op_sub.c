@@ -7,13 +7,13 @@
 #include "common.h"
 #include "sf33rd/Source/Common/PPGFile.h"
 #include "sf33rd/Source/Common/PPGWork.h"
-#include "sf33rd/Source/Game/DC_Ghost.h"
-#include "sf33rd/Source/Game/MTRANS.h"
 #include "sf33rd/Source/Game/RAMCNT.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
-#include "sf33rd/Source/Game/aboutspr.h"
-#include "sf33rd/Source/Game/color3rd.h"
-#include "sf33rd/Source/Game/texcash.h"
+#include "sf33rd/Source/Game/rendering/aboutspr.h"
+#include "sf33rd/Source/Game/rendering/color3rd.h"
+#include "sf33rd/Source/Game/rendering/dc_ghost.h"
+#include "sf33rd/Source/Game/rendering/mtrans.h"
+#include "sf33rd/Source/Game/rendering/texcash.h"
 
 #include "sf33rd/Source/Game/opening/opening.h"
 

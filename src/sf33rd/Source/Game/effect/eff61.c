@@ -6,11 +6,11 @@
 #include "sf33rd/Source/Game/effect/eff61.h"
 #include "common.h"
 #include "sf33rd/Source/Game/Sel_Data.h"
-#include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/rendering/aboutspr.h"
+#include "sf33rd/Source/Game/rendering/texcash.h"
 #include "sf33rd/Source/Game/stage/bg.h"
-#include "sf33rd/Source/Game/texcash.h"
 
 void EFF61_WAIT(WORK_Other_CONN* ewk);
 void EFF61_SLIDE_IN(WORK_Other_CONN* ewk);

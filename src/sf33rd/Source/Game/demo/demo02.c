@@ -5,7 +5,6 @@
 
 #include "common.h"
 #include "sf33rd/Source/Game/Game.h"
-#include "sf33rd/Source/Game/MMTMCNT.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
@@ -13,6 +12,7 @@
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/pls02.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/rendering/mmtmcnt.h"
 #include "sf33rd/Source/Game/sound/se.h"
 #include "sf33rd/Source/Game/sound/sound3rd.h"
 #include "sf33rd/Source/Game/stage/bg.h"

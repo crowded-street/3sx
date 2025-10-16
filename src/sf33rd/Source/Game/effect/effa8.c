@@ -6,12 +6,12 @@
 #include "sf33rd/Source/Game/effect/effa8.h"
 #include "common.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
-#include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/rendering/aboutspr.h"
+#include "sf33rd/Source/Game/rendering/texcash.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/stage/bg.h"
-#include "sf33rd/Source/Game/texcash.h"
 
 void Setup_A8_Sub(WORK_Other_CONN* ewk);
 

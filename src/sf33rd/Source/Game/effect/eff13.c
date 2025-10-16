@@ -5,7 +5,6 @@
 
 #include "sf33rd/Source/Game/effect/eff13.h"
 #include "common.h"
-#include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/effect/eff00.h"
 #include "sf33rd/Source/Game/effect/eff96.h"
 #include "sf33rd/Source/Game/effect/effect.h"
@@ -20,6 +19,7 @@
 #include "sf33rd/Source/Game/engine/slowf.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/io/pulpul.h"
+#include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 

@@ -7,7 +7,6 @@
 #include "bin2obj/buttobi.h"
 #include "bin2obj/etc.h"
 #include "common.h"
-#include "sf33rd/Source/Game/MTRANS.h"
 #include "sf33rd/Source/Game/effect/effa7.h"
 #include "sf33rd/Source/Game/effect/effd9.h"
 #include "sf33rd/Source/Game/effect/effe2.h"
@@ -17,6 +16,7 @@
 #include "sf33rd/Source/Game/engine/plpdm.h"
 #include "sf33rd/Source/Game/engine/pls02.h"
 #include "sf33rd/Source/Game/io/pulpul.h"
+#include "sf33rd/Source/Game/rendering/mtrans.h"
 
 void setup_caught_process_flags(PLW* wk);
 void caught_cg_type_check(PLW* wk, PLW* emwk);

@@ -6,12 +6,12 @@
 #include "sf33rd/Source/Game/effect/eff04.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
-#include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/charset.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/rendering/aboutspr.h"
+#include "sf33rd/Source/Game/rendering/texcash.h"
 #include "sf33rd/Source/Game/stage/bg.h"
-#include "sf33rd/Source/Game/texcash.h"
 
 const s16 EFF04_Cursor_Data[7][7][2] = {
     { { 16, 156 }, { 32, 135 }, { 48, 114 }, { 64, 93 }, { 80, 72 }, { 96, 51 }, { 112, 30 } },

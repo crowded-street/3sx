@@ -5,7 +5,6 @@
 
 #include "sf33rd/Source/Game/effect/effe5.h"
 #include "common.h"
-#include "sf33rd/Source/Game/color3rd.h"
 #include "sf33rd/Source/Game/effect/effe7.h"
 #include "sf33rd/Source/Game/effect/effe8.h"
 #include "sf33rd/Source/Game/effect/effect.h"
@@ -14,6 +13,7 @@
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/slowf.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/rendering/color3rd.h"
 
 const u16 after_image_data[39][10] = {
     { 28, 14, 5, 3, 0, 80, 8, 0, 1, 4 },   { 24, 11, 6, 2, 0, 4, 10, 0, 1, 4 },  { 28, 18, 4, 2, 0, 80, 8, 0, 1, 4 },

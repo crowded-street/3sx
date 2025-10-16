@@ -1,8 +1,8 @@
 #include "sf33rd/Source/Common/PPGWork.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/flps2vram.h"
-#include "sf33rd/Source/Game/aboutspr.h"
-#include "sf33rd/Source/Game/color3rd.h"
+#include "sf33rd/Source/Game/rendering/aboutspr.h"
+#include "sf33rd/Source/Game/rendering/color3rd.h"
 
 // sbss
 

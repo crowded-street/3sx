@@ -6,9 +6,9 @@
 #include "sf33rd/Source/Game/effect/eff62.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
-#include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/effect/effect.h"
-#include "sf33rd/Source/Game/texcash.h"
+#include "sf33rd/Source/Game/rendering/aboutspr.h"
+#include "sf33rd/Source/Game/rendering/texcash.h"
 
 const s16 EFF62_Correct_Data[1][2] = { { 0, 0 } };
 

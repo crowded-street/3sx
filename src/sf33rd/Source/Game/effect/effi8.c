@@ -6,7 +6,6 @@
 #include "sf33rd/Source/Game/effect/effi8.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
-#include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/effect/eff03.h"
 #include "sf33rd/Source/Game/effect/effd7.h"
 #include "sf33rd/Source/Game/effect/effect.h"
@@ -19,6 +18,7 @@
 #include "sf33rd/Source/Game/engine/pow_pow.h"
 #include "sf33rd/Source/Game/engine/slowf.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/sound/se_data.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 

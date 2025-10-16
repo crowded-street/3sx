@@ -6,11 +6,11 @@
 #include "sf33rd/Source/Game/effect/effe2.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
-#include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/charset.h"
 #include "sf33rd/Source/Game/engine/slowf.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/rendering/aboutspr.h"
 
 const s16 flames_stand[20][4][4] = { { { 1, -32, -16, 18 }, { 1, 16, 16, 57 }, { 3, 16, 24, 18 }, { 3, -16, 16, 18 } },
                                      { { 1, 32, -16, 57 }, { 2, 0, 0, 18 }, { 3, 32, 8, 18 }, { 3, -16, 16, 18 } },

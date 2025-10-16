@@ -6,13 +6,13 @@
 #include "sf33rd/Source/Game/effect/eff22.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
-#include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/charset.h"
 #include "sf33rd/Source/Game/engine/slowf.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/rendering/aboutspr.h"
+#include "sf33rd/Source/Game/rendering/texcash.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
-#include "sf33rd/Source/Game/texcash.h"
 
 const s16 snow_pos_tbl[12][2] = { { 112, 416 }, { 176, 256 }, { 216, 384 }, { 288, 448 }, { 368, 288 }, { 448, 384 },
                                   { 512, 240 }, { 576, 432 }, { 640, 328 }, { 704, 488 }, { 816, 256 }, { 880, 384 } };

@@ -4,7 +4,7 @@
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "sf33rd/Source/Common/MemMan.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
-#include "sf33rd/Source/Game/texgroup.h"
+#include "sf33rd/Source/Game/rendering/texgroup.h"
 
 #define ERR_STOP                                                                                                       \
     while (1) {}
