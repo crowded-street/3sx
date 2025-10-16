@@ -22,7 +22,6 @@
 #include "sf33rd/Source/Game/io/gd3rd.h"
 #include "sf33rd/Source/Game/opening/op_sub.h"
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
-#include "sf33rd/Source/Game/rendering/acrutil.h"
 #include "sf33rd/Source/Game/rendering/color3rd.h"
 #include "sf33rd/Source/Game/rendering/dc_ghost.h"
 #include "sf33rd/Source/Game/rendering/mtrans.h"

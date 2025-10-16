@@ -9,7 +9,6 @@
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "sf33rd/Source/Common/PPGFile.h"
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
-#include "sf33rd/Source/Game/rendering/acrutil.h"
 #include "sf33rd/Source/Game/rendering/color3rd.h"
 #include "sf33rd/Source/PS2/ps2Quad.h"
 #include "structs.h"

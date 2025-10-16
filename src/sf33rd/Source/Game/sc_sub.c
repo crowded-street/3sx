@@ -10,7 +10,6 @@
 #include "sf33rd/Source/Game/effect/eff76.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/io/gd3rd.h"
-#include "sf33rd/Source/Game/rendering/acrutil.h"
 #include "sf33rd/Source/Game/rendering/dc_ghost.h"
 #include "sf33rd/Source/Game/rendering/mtrans.h"
 #include "sf33rd/Source/Game/sc_data.h"
