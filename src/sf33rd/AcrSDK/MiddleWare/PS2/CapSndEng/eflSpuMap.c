@@ -6,13 +6,13 @@
 
 // bss
 
-CURRMAP CurrMap; // size: 0x88, address: 0x6EA200
+CURRMAP CurrMap;
 
 // sbss
 
-PSPUMAP* pSpuMap; // size: 0x4, address: 0x57B250
-u32 CurrPage;     // size: 0x4, address: 0x57B24C
-u32 SpuTopAddr;   // size: 0x4, address: 0x57B248
+PSPUMAP* pSpuMap;
+u32 CurrPage;
+u32 SpuTopAddr;
 
 s32 flSpuMapInit(PSPUMAP* pMap) {
     u32 i;

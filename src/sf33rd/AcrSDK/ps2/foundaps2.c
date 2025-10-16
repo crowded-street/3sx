@@ -25,7 +25,6 @@ s32 flWidth;
 s32 flHeight;
 u32 flSystemRenderOperation;
 FL_FMS flFMS;
-FLPS2VIF1Control flPs2VIF1Control;
 s32 flVramStaticNum;
 u32 flDebugStrHan;
 u32 flDebugStrCol;

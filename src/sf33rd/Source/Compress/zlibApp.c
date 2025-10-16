@@ -9,16 +9,15 @@ struct internal_state {
 #include "zlib.h"
 
 typedef struct {
-    // total size: 0x78
-    struct z_stream_s info; // offset 0x0, size 0x48
-    s32 state;              // offset 0x48, size 0x4
-    _MEMMAN_OBJ mobj;       // offset 0x4C, size 0x2C
+    struct z_stream_s info;
+    s32 state;
+    _MEMMAN_OBJ mobj;
 } ZLIB;
 
-ZLIB zlib; // size: 0x78, address: 0x57A780
+ZLIB zlib;
 
 void* zlib_Malloc(void*, u32, u32);
-void zlib_Free(void*, void*); // size: 0x0, address: 0x3B77C0
+void zlib_Free(void*, void*);
 
 void zlib_Initialize(void* tempAdrs, s32 tempSize) {
     if (tempAdrs == NULL) {

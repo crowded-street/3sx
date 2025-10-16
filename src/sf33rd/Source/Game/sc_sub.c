@@ -29,18 +29,16 @@
 #endif
 
 typedef struct {
-    // total size: 0x6
-    s16 fade;      // offset 0x0, size 0x2
-    s16 fade_kind; // offset 0x2, size 0x2
-    u8 fade_prio;  // offset 0x4, size 0x1
+    s16 fade;
+    s16 fade_kind;
+    u8 fade_prio;
 } FadeData;
 
 typedef struct {
-    // total size: 0x4
-    u8 atr;  // offset 0x0, size 0x1
-    u8 page; // offset 0x1, size 0x1
-    u8 cx;   // offset 0x2, size 0x1
-    u8 cy;   // offset 0x3, size 0x1
+    u8 atr;
+    u8 page;
+    u8 cx;
+    u8 cy;
 } SAFrame;
 
 // sdata

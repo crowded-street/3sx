@@ -2,16 +2,15 @@
 #include "common.h"
 
 typedef struct {
-    // total size: 0x68
-    u32 magic;   // offset 0x0, size 0x4
-    f32 ver;     // offset 0x4, size 0x4
-    u8 comm[80]; // offset 0x8, size 0x50
-    u32 id;      // offset 0x58, size 0x4
-    u16 w;       // offset 0x5C, size 0x2
-    u16 h;       // offset 0x5E, size 0x2
-    f32 ratio;   // offset 0x60, size 0x4
-    u16 fields;  // offset 0x64, size 0x2
-    u16 pad;     // offset 0x66, size 0x2
+    u32 magic;
+    f32 ver;
+    u8 comm[80];
+    u32 id;
+    u16 w;
+    u16 h;
+    f32 ratio;
+    u16 fields;
+    u16 pad;
 } plPICHeader;
 
 #define U32_AT(_ptr, _offset)                                                                                          \

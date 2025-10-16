@@ -6,8 +6,8 @@
 
 extern s16 op_obj_disp;
 extern s8 op_scrn_end;
-extern s16 title_tex_flag; // size: 0x2, address: 0x579464
-extern s16 op_timer0;      // size: 0x2, address: 0x579468
+extern s16 title_tex_flag;
+extern s16 op_timer0;
 extern OP_W op_w;
 
 void TITLE_Init();

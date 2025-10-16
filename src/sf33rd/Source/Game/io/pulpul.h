@@ -9,7 +9,7 @@
 
 extern s16 vib_req[2][2];
 extern u8 pulpul_scene;
-extern PPWORK ppwork[2]; // size: 0x68, address: 0x579610
+extern PPWORK ppwork[2];
 extern PULREQ pulreq[];
 extern PULPARA pulpara[];
 

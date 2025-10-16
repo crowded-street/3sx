@@ -9,7 +9,7 @@
 #include <assert.h>
 #include <stdio.h>
 
-static CSE_SYSWORK cseSysWork __attribute__((aligned(16))); // size: 0x48, address: 0x57B260
+static CSE_SYSWORK cseSysWork __attribute__((aligned(16)));
 
 s32 cseInitSndDrv() {
     u32 i;

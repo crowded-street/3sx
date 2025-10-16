@@ -4,7 +4,7 @@
 #include "structs.h"
 #include "types.h"
 
-extern f32 PrioBase[128]; // size: 0x200, address: 0x5E3F50
+extern f32 PrioBase[128];
 
 void appSetupBasePriority();
 void appSetupTempPriority();

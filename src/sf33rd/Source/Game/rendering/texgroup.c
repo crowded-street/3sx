@@ -18,15 +18,14 @@
 #include <stdlib.h>
 
 typedef struct {
-    // total size: 0x8
-    s16 x;    // offset 0x0, size 0x2
-    s16 y;    // offset 0x2, size 0x2
-    u16 attr; // offset 0x4, size 0x2
-    u16 code; // offset 0x6, size 0x2
+    s16 x;
+    s16 y;
+    u16 attr;
+    u16 code;
 } TexGroup_UNK_0;
 
-u8 omSelObjNowOnMemoryType = 0xFF; // size: 0x1, address: 0x574414
-TEX_GRP_LD texgrplds[100];         // size: 0x4B0, address: 0x6B49D0
+u8 omSelObjNowOnMemoryType = 0xFF;
+TEX_GRP_LD texgrplds[100];
 
 const TexGroupData texgrpdat[100] = { { 0, -1, 0, 0, 0, 0, 0 },
                                       { 0, 1460 /* pl00.bin */, 0, 1, 3040072, 210820, 0x2CF158 },     // Gill (0)

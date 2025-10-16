@@ -4,7 +4,7 @@
 
 // sbss
 
-void* PhdAddr[PHDADDR_MAX]; // size: 0x40, address: 0x57B160
+void* PhdAddr[PHDADDR_MAX];
 
 s32 mlMemMapInit(void* pSpuMemMap) {
     s32 result;

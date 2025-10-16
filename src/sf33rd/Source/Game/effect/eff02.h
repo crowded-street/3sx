@@ -5,25 +5,23 @@
 #include "types.h"
 
 typedef struct {
-    // total size: 0xC
-    u16 se;    // offset 0x0, size 0x2
-    u8 hits;   // offset 0x2, size 0x1
-    u8 deff;   // offset 0x3, size 0x1
-    u8 kezu;   // offset 0x4, size 0x1
-    u8 fsin;   // offset 0x5, size 0x1
-    u8 status; // offset 0x6, size 0x1
-    u8 quake;  // offset 0x7, size 0x1
-    u8 dir;    // offset 0x8, size 0x1
-    u8 col;    // offset 0x9, size 0x1
-    u8 myhix;  // offset 0xA, size 0x1
-    u8 emhix;  // offset 0xB, size 0x1
+    u16 se;
+    u8 hits;
+    u8 deff;
+    u8 kezu;
+    u8 fsin;
+    u8 status;
+    u8 quake;
+    u8 dir;
+    u8 col;
+    u8 myhix;
+    u8 emhix;
 } HMDT;
 
 typedef struct {
-    // total size: 0x6
-    u16 chix; // offset 0x0, size 0x2
-    s16 hx;   // offset 0x2, size 0x2
-    s16 hy;   // offset 0x4, size 0x2
+    u16 chix;
+    s16 hx;
+    s16 hy;
 } EXPLEM;
 
 extern const s16 hit_mark_dir_table[16];

@@ -5,44 +5,39 @@
 #include "types.h"
 
 typedef struct {
-    // total size: 0xC
-    u32 cmd;  // offset 0x0, size 0x4
-    u32 guid; // offset 0x4, size 0x4
-    u8 mono;  // offset 0x8, size 0x1
+    u32 cmd; 
+    u32 guid;
+    u8 mono; 
 } CSE_SYS_PARAM_MONO;
 
 typedef struct {
-    // total size: 0xC
-    u32 cmd;  // offset 0x0, size 0x4
-    u32 guid; // offset 0x4, size 0x4
-    u8 bank;  // offset 0x8, size 0x1
-    u8 vol;   // offset 0x9, size 0x1
+    u32 cmd; 
+    u32 guid;
+    u8 bank; 
+    u8 vol;  
 } CSE_SYS_PARAM_BANKVOL;
 
 typedef struct {
-    // total size: 0x2C
-    u32 cmd;       // offset 0x0, size 0x4
-    u32 guid;      // offset 0x4, size 0x4
-    CSE_REQP reqp; // offset 0x8, size 0x1C
-    u16 pmd_speed; // offset 0x24, size 0x2
-    u16 pmd_depth; // offset 0x26, size 0x2
-    u16 amd_speed; // offset 0x28, size 0x2
-    u16 amd_depth; // offset 0x2A, size 0x2
+    u32 cmd;      
+    u32 guid;     
+    CSE_REQP reqp;
+    u16 pmd_speed;
+    u16 pmd_depth;
+    u16 amd_speed;
+    u16 amd_depth;
 } CSE_SYS_PARAM_LFO;
 
 typedef struct {
-    // total size: 0x38
-    u32 cmd;       // offset 0x0, size 0x4
-    u32 guid;      // offset 0x4, size 0x4
-    CSE_REQP reqp; // offset 0x8, size 0x1C
-    CSE_PHDP phdp; // offset 0x24, size 0x14
+    u32 cmd;      
+    u32 guid;     
+    CSE_REQP reqp;
+    CSE_PHDP phdp;
 } CSE_SYS_PARAM_SNDSTART;
 
 typedef struct {
-    // total size: 0x24
-    u32 cmd;       // offset 0x0, size 0x4
-    u32 guid;      // offset 0x4, size 0x4
-    CSE_REQP reqp; // offset 0x8, size 0x1C
+    u32 cmd;      
+    u32 guid;     
+    CSE_REQP reqp;
 } CSE_SYS_PARAM_SECHANGE;
 
 s32 mlSysSetMono(u32 mono_sw);

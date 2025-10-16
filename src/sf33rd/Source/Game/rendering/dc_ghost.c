@@ -25,18 +25,16 @@ typedef struct {
 
 // `col` needs to be `uintptr_t` because it sometimes stores a pointer to `WORK`
 typedef struct {
-    // total size: 0x3C
-    Vec3 v[4];     // offset 0x0, size 0x30
-    uintptr_t col; // offset 0x30, size 0x4
-    u32 type;      // offset 0x34, size 0x4
-    s32 next;      // offset 0x38, size 0x4
+    Vec3 v[4];
+    uintptr_t col;
+    u32 type;
+    s32 next;
 } NJDP2D_PRIM;
 
 typedef struct {
-    // total size: 0x1774
-    s16 ix1st;             // offset 0x0, size 0x2
-    s16 total;             // offset 0x2, size 0x2
-    NJDP2D_PRIM prim[100]; // offset 0x4, size 0x1770
+    s16 ix1st;
+    s16 total;
+    NJDP2D_PRIM prim[100];
 } NJDP2D_W;
 
 NJDP2D_W njdp2d_w;

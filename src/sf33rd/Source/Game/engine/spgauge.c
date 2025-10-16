@@ -14,36 +14,35 @@
 #include "sf33rd/Source/Game/sound/se.h"
 
 typedef struct {
-    // total size: 0x34
-    const u16* spgtbl_ptr;  // offset 0x0, size 0x4
-    const u16* spgptbl_ptr; // offset 0x4, size 0x4
-    s16 current_spg;        // offset 0x8, size 0x2
-    s16 old_spg;            // offset 0xA, size 0x2
-    s16 spgcol_number;      // offset 0xC, size 0x2
-    s16 spg_level;          // offset 0xE, size 0x2
-    s16 spg_maxlevel;       // offset 0x10, size 0x2
-    s16 spg_len;            // offset 0x12, size 0x2
-    s16 spg_dotlen;         // offset 0x14, size 0x2
-    s16 flag;               // offset 0x16, size 0x2
-    s16 flag2;              // offset 0x18, size 0x2
-    s16 level_flag;         // offset 0x1A, size 0x2
-    s16 timer;              // offset 0x1C, size 0x2
-    s16 timer2;             // offset 0x1E, size 0x2
-    s8 kind;                // offset 0x20, size 0x1
-    s8 max;                 // offset 0x21, size 0x1
-    s8 max_old;             // offset 0x22, size 0x1
-    s8 max_rno;             // offset 0x23, size 0x1
-    s8 time;                // offset 0x24, size 0x1
-    s8 time_rno;            // offset 0x25, size 0x1
-    s16 gauge_flash_time;   // offset 0x26, size 0x2
-    s16 gauge_flash_col;    // offset 0x28, size 0x2
-    u16 mchar;              // offset 0x2A, size 0x2
-    u16 mass_len;           // offset 0x2C, size 0x2
-    s8 sa_flag;             // offset 0x2E, size 0x1
-    s8 ex_flag;             // offset 0x2F, size 0x1
-    s8 no_chgcol;           // offset 0x30, size 0x1
-    s8 time_no_clear;       // offset 0x31, size 0x1
-    s8 sa_mukou;            // offset 0x32, size 0x1
+    const u16* spgtbl_ptr;
+    const u16* spgptbl_ptr;
+    s16 current_spg;
+    s16 old_spg;
+    s16 spgcol_number;
+    s16 spg_level;
+    s16 spg_maxlevel;
+    s16 spg_len;
+    s16 spg_dotlen;
+    s16 flag;
+    s16 flag2;
+    s16 level_flag;
+    s16 timer;
+    s16 timer2;
+    s8 kind;
+    s8 max;
+    s8 max_old;
+    s8 max_rno;
+    s8 time;
+    s8 time_rno;
+    s16 gauge_flash_time;
+    s16 gauge_flash_col;
+    u16 mchar;
+    u16 mass_len;
+    s8 sa_flag;
+    s8 ex_flag;
+    s8 no_chgcol;
+    s8 time_no_clear;
+    s8 sa_mukou;
 } SPG_DAT;
 
 // sbss

@@ -21,16 +21,30 @@
 #include "sf33rd/Source/Game/animation/appear.h"
 #include "sf33rd/Source/Game/count.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
+#include "sf33rd/Source/Game/effect/eff04.h"
 #include "sf33rd/Source/Game/effect/eff10.h"
+#include "sf33rd/Source/Game/effect/eff18.h"
+#include "sf33rd/Source/Game/effect/eff23.h"
+#include "sf33rd/Source/Game/effect/eff38.h"
+#include "sf33rd/Source/Game/effect/eff39.h"
+#include "sf33rd/Source/Game/effect/eff40.h"
+#include "sf33rd/Source/Game/effect/eff43.h"
 #include "sf33rd/Source/Game/effect/eff45.h"
+#include "sf33rd/Source/Game/effect/eff51.h"
 #include "sf33rd/Source/Game/effect/eff57.h"
+#include "sf33rd/Source/Game/effect/eff58.h"
 #include "sf33rd/Source/Game/effect/eff61.h"
+#include "sf33rd/Source/Game/effect/eff63.h"
+#include "sf33rd/Source/Game/effect/eff64.h"
 #include "sf33rd/Source/Game/effect/eff66.h"
+#include "sf33rd/Source/Game/effect/eff75.h"
 #include "sf33rd/Source/Game/effect/eff91.h"
 #include "sf33rd/Source/Game/effect/effa0.h"
 #include "sf33rd/Source/Game/effect/effa3.h"
+#include "sf33rd/Source/Game/effect/effa8.h"
+#include "sf33rd/Source/Game/effect/effc4.h"
 #include "sf33rd/Source/Game/effect/effect.h"
-#include "sf33rd/Source/Game/effect/effect_init.h"
+#include "sf33rd/Source/Game/effect/effk6.h"
 #include "sf33rd/Source/Game/engine/grade.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/pls02.h"
@@ -176,9 +190,8 @@ s32 VS_Result_Select_Sub(struct _TASK* task_ptr, s16 PL_id);
 typedef void (*MenuFunc)(struct _TASK*);
 
 typedef struct {
-    // total size: 0x8
-    s16 pos_x; // offset 0x0, size 0x2
-    s8* menu;  // offset 0x4, size 0x4
+    s16 pos_x;
+    s8* menu;
 } LetterData;
 
 const MenuFunc Menu_Jmp_Tbl[14] = {

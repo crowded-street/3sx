@@ -17,15 +17,14 @@
 #include "structs.h"
 
 typedef struct {
-    // total size: 0x18
-    s32 p16;       // offset 0x0, size 0x4
-    s32 p32;       // offset 0x4, size 0x4
-    s32 gix;       // offset 0x8, size 0x4
-    s16 life16;    // offset 0xC, size 0x2
-    s16 life32;    // offset 0xE, size 0x2
-    s16 type;      // offset 0x10, size 0x2
-    u16 mode;      // offset 0x12, size 0x2
-    u32 attribute; // offset 0x14, size 0x4
+    s32 p16;
+    s32 p32;
+    s32 gix;
+    s16 life16;
+    s16 life32;
+    s16 type;
+    u16 mode;
+    u32 attribute;
 } MTSBase;
 
 // sdata

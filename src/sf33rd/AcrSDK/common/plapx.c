@@ -2,17 +2,16 @@
 #include "common.h"
 
 typedef struct {
-    // total size: 0x20
-    u32 FileSize;    // offset 0x0, size 0x4
-    u32 PixelSize;   // offset 0x4, size 0x4
-    u32 ClutSize;    // offset 0x8, size 0x4
-    u16 PixelBit;    // offset 0xC, size 0x2
-    u16 PixelWidth;  // offset 0xE, size 0x2
-    u16 PixelHeight; // offset 0x10, size 0x2
-    u16 MipmapNum;   // offset 0x12, size 0x2
-    u16 ClutBit;     // offset 0x14, size 0x2
-    u16 ClutNum;     // offset 0x16, size 0x2
-    u32 Reserved[2]; // offset 0x18, size 0x8
+    u32 FileSize;
+    u32 PixelSize;
+    u32 ClutSize;
+    u16 PixelBit;
+    u16 PixelWidth;
+    u16 PixelHeight;
+    u16 MipmapNum;
+    u16 ClutBit;
+    u16 ClutNum;
+    u32 Reserved[2];
 } APXFileHeader;
 
 static APXFileHeader* GetAPXFileHeader(void* lpbas);

@@ -4,8 +4,8 @@
 #include "structs.h"
 #include "types.h"
 
-extern TexturePoolUsed* tpu_free; // size: 0x4, address: 0x579A8C
-extern u8* texcash_melt_buffer;   // size: 0x4, address: 0x579A90
+extern TexturePoolUsed* tpu_free;
+extern u8* texcash_melt_buffer;
 
 void disp_texcash_free_area();
 void init_texcash_1st();

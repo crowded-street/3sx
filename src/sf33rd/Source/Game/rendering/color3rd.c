@@ -19,37 +19,34 @@
 #include "sf33rd/Source/Game/sound/sound3rd.h"
 
 typedef struct {
-    // total size: 0x1C00
-    u16 col[2][28][64]; // offset 0x0, size 0x1C00
+    u16 col[2][28][64];
 } COL;
 
 typedef struct {
-    // total size: 0x8
-    u16 data; // offset 0x0, size 0x2
-    u16 type; // offset 0x2, size 0x2
-    u16 apfn; // offset 0x4, size 0x2
-    u16 free; // offset 0x6, size 0x2
+    u16 data;
+    u16 type;
+    u16 apfn;
+    u16 free;
 } col_file_data;
 
 typedef struct {
-    // total size: 0x1000
-    u16 col[2][16][64]; // offset 0x0, size 0x1000
+    u16 col[2][16][64];
 } COL_x1000;
 
 typedef struct {
-    u16 col[64]; // offset 0x0, size 0x80
+    u16 col[64];
 } COL_x80;
 
 typedef struct {
-    u16 col[3][64]; // offset 0x0, size 0x180
+    u16 col[3][64];
 } COL_x180;
 
 typedef struct {
-    u16 col[2][64]; // offset 0x0, size 0x100
+    u16 col[2][64];
 } COL_x100;
 
 typedef struct {
-    u16 col[20][16][16]; // offset 0x0, size 0x2800
+    u16 col[20][16][16];
 } COL_x2800;
 
 // bss
