@@ -95,7 +95,7 @@ void effm2_move(WORK_Other* ewk) {
 
     case 2:
         char_move(&ewk->wu);
-        add_x_sub(ewk);
+        add_x_sub(&ewk->wu);
 
         if (!range_x_check3(ewk, 64)) {
             ewk->wu.routine_no[0] = 99;
@@ -145,7 +145,7 @@ void effm2_move2(WORK_Other* ewk) {
 
     case 1:
         char_move(&ewk->wu);
-        add_x_sub(ewk);
+        add_x_sub(&ewk->wu);
         dis_w = oya_ptr->xyz[0].disp.pos - ewk->wu.xyz[0].disp.pos;
 
         if (dis_w < 0) {

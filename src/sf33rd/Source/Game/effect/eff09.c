@@ -237,8 +237,8 @@ void eff09_2000(WORK_Other* ewk) {
     case 1:
         if (!EXE_flag && !Game_pause) {
             char_move(&ewk->wu);
-            add_x_sub(ewk);
-            add_y_sub(ewk);
+            add_x_sub(&ewk->wu);
+            add_y_sub(&ewk->wu);
 
             if (ewk->wu.xyz[0].disp.pos >= 785 || ewk->wu.xyz[0].disp.pos < 240) {
                 ewk->wu.routine_no[1] = 99;
@@ -289,8 +289,8 @@ void eff09_2000(WORK_Other* ewk) {
                 ewk->wu.routine_no[1]++;
                 ewk->wu.disp_flag = 0;
             } else {
-                add_x_sub(ewk);
-                add_y_sub(ewk);
+                add_x_sub(&ewk->wu);
+                add_y_sub(&ewk->wu);
             }
         }
 
@@ -390,7 +390,7 @@ void eff09_3000(WORK_Other* ewk) {
             if (ewk->wu.old_rno[0] <= 0) {
                 ewk->wu.routine_no[1]++;
             } else {
-                add_y_sub(ewk);
+                add_y_sub(&ewk->wu);
             }
 
             char_move(&ewk->wu);
@@ -455,7 +455,7 @@ void eff09_4000(WORK_Other* ewk) {
     case 1:
         if (!EXE_flag && !Game_pause) {
             char_move(&ewk->wu);
-            add_x_sub(ewk);
+            add_x_sub(&ewk->wu);
             ewk->wu.old_rno[0]--;
 
             if (ewk->wu.old_rno[0] <= 0) {
@@ -585,8 +585,8 @@ void eff09_7000(WORK_Other* ewk) {
         }
 
         char_move(&ewk->wu);
-        add_x_sub(ewk);
-        add_y_sub(ewk);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
         suzi_sync_pos_set(ewk);
         sort_push_request(&ewk->wu);
         break;
@@ -744,7 +744,7 @@ void eff09_11000(WORK_Other* ewk) {
     case 1:
         if (!EXE_flag && !Game_pause) {
             char_move(&ewk->wu);
-            add_x_sub(ewk);
+            add_x_sub(&ewk->wu);
             ewk->wu.old_rno[0]--;
 
             if (ewk->wu.old_rno[0] <= 0) {
@@ -758,7 +758,7 @@ void eff09_11000(WORK_Other* ewk) {
         break;
 
     case 2:
-        add_x_sub(ewk);
+        add_x_sub(&ewk->wu);
 
         if (oya_ptr->rl_flag) {
             if (oya_ptr->xyz[0].disp.pos > ewk->wu.xyz[0].disp.pos) {
@@ -804,8 +804,8 @@ void eff09_12000(WORK_Other* ewk) {
 
     case 1:
         char_move(&ewk->wu);
-        add_x_sub(ewk);
-        add_y_sub(ewk);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
 
         if (ewk->wu.xyz[1].disp.pos < 56) {
             ewk->wu.routine_no[1]++;
@@ -827,8 +827,8 @@ void eff09_12000(WORK_Other* ewk) {
         }
 
         char_move(&ewk->wu);
-        add_x_sub(ewk);
-        add_y_sub(ewk);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
         suzi_sync_pos_set(ewk);
         sort_push_request(&ewk->wu);
         break;
@@ -875,8 +875,8 @@ void eff09_13000(WORK_Other* ewk) {
     case 2:
         if (!EXE_flag && !Game_pause) {
             char_move(&ewk->wu);
-            add_x_sub(ewk);
-            add_y_sub(ewk);
+            add_x_sub(&ewk->wu);
+            add_y_sub(&ewk->wu);
 
             if (ewk->wu.xyz[0].disp.pos < bg_w.bgw[1].pos_x_work - 240 ||
                 ewk->wu.xyz[0].disp.pos > bg_w.bgw[1].pos_x_work + 240 || ewk->wu.xyz[1].disp.pos > 512) {
@@ -1115,8 +1115,8 @@ void eff09_18000(WORK_Other* ewk) {
             if (ewk->wu.old_rno[0] <= 0) {
                 ewk->wu.routine_no[1]++;
             } else {
-                add_x_sub2(ewk);
-                add_y_sub2(ewk);
+                add_x_sub2(&ewk->wu);
+                add_y_sub2(&ewk->wu);
             }
         }
 
@@ -1155,8 +1155,8 @@ void eff09_19000(WORK_Other* ewk) {
     case 1:
     case 2:
         if (!EXE_flag && !Game_pause) {
-            add_x_sub(ewk);
-            add_y_sub(ewk);
+            add_x_sub(&ewk->wu);
+            add_y_sub(&ewk->wu);
 
             if (ewk->wu.xyz[1].disp.pos < 64) {
                 ewk->wu.xyz[1].cal = 0x3F0000;
@@ -1173,8 +1173,8 @@ void eff09_19000(WORK_Other* ewk) {
 
     case 3:
         if (!EXE_flag && !Game_pause) {
-            add_x_sub(ewk);
-            add_y_sub(ewk);
+            add_x_sub(&ewk->wu);
+            add_y_sub(&ewk->wu);
 
             if (ewk->wu.xyz[1].disp.pos < 64) {
                 ewk->wu.routine_no[1]++;
@@ -1298,8 +1298,8 @@ void eff09_21000(WORK_Other* ewk) {
                 ewk->wu.routine_no[1]++;
                 set_char_move_init(&ewk->wu, 0, 58);
             } else {
-                add_x_sub(ewk);
-                add_y_sub(ewk);
+                add_x_sub(&ewk->wu);
+                add_y_sub(&ewk->wu);
             }
         }
 
@@ -1436,7 +1436,7 @@ void eff09_23000(WORK_Other* ewk) {
     case 3:
         if (!EXE_flag && !Game_pause) {
             char_move(&ewk->wu);
-            add_x_sub(ewk);
+            add_x_sub(&ewk->wu);
 
             if (range_x_check3(ewk, 64) == 0) {
                 ewk->wu.routine_no[1]++;
@@ -1514,7 +1514,7 @@ void eff09_24000(WORK_Other* ewk) {
     case 3:
         if (!EXE_flag && !Game_pause) {
             char_move(&ewk->wu);
-            add_x_sub(ewk);
+            add_x_sub(&ewk->wu);
 
             if (ewk->wu.type == 34) {
                 if (range_x_check3(ewk, 176) == 0) {
@@ -1562,8 +1562,8 @@ void eff09_25000(WORK_Other* ewk) {
     case 1:
         if (!EXE_flag && !Game_pause) {
             char_move(&ewk->wu);
-            add_x_sub(ewk);
-            add_y_sub(ewk);
+            add_x_sub(&ewk->wu);
+            add_y_sub(&ewk->wu);
 
             if (range_x_check3(ewk, 16) == 0) {
                 ewk->wu.routine_no[1]++;
@@ -1698,8 +1698,8 @@ void eff09_27000(WORK_Other* ewk) {
 
     case 1:
         if (!EXE_flag && !Game_pause) {
-            add_x_sub(ewk);
-            add_y_sub(ewk);
+            add_x_sub(&ewk->wu);
+            add_y_sub(&ewk->wu);
 
             if (ewk->wu.xyz[1].disp.pos < -8) {
                 ewk->wu.routine_no[1]++;
@@ -1721,7 +1721,7 @@ void eff09_27000(WORK_Other* ewk) {
     case 2:
         if (!EXE_flag && !Game_pause) {
             char_move(&ewk->wu);
-            add_x_sub(ewk);
+            add_x_sub(&ewk->wu);
 
             if (range_x_check3(ewk, 36) == 0) {
                 ewk->wu.routine_no[1]++;

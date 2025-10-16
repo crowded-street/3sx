@@ -46,8 +46,8 @@ void effect_D1_move(WORK_Other* ewk) {
                 ewk->wu.my_priority = ewk->wu.position_z = 20;
             }
 
-            add_x_sub(ewk);
-            add_y_sub(ewk);
+            add_x_sub(&ewk->wu);
+            add_y_sub(&ewk->wu);
         }
 
         pl_eff_trans_entry(ewk);
@@ -64,8 +64,8 @@ void effect_D1_move(WORK_Other* ewk) {
             ewk->wu.old_rno[0]--;
 
             if (ewk->wu.old_rno[0] != 0) {
-                add_x_sub(ewk);
-                add_y_sub(ewk);
+                add_x_sub(&ewk->wu);
+                add_y_sub(&ewk->wu);
             } else {
                 ewk->wu.routine_no[0]++;
             }

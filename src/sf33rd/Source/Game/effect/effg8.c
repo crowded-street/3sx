@@ -62,8 +62,8 @@ void effect_G8_move(WORK_Other* ewk) {
         /* fallthrough */
 
     case 3:
-        add_x_sub(ewk);
-        add_y_sub(ewk);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
 
         if (effg8_range_check(ewk)) {
             ewk->wu.routine_no[0] = 99;

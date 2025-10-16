@@ -142,24 +142,24 @@ s32 range_y_check(WORK_Other* ewk) {
     return 1;
 }
 
-void add_x_sub(WORK_Other* ewk) {
-    ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
-    ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
+void add_x_sub(WORK* wk) {
+    wk->xyz[0].cal += wk->mvxy.a[0].sp;
+    wk->mvxy.a[0].sp += wk->mvxy.d[0].sp;
 }
 
-void add_x_sub2(WORK_Other* ewk) {
-    ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
-    ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
+void add_x_sub2(WORK* wk) {
+    wk->xyz[0].cal += wk->mvxy.a[0].sp;
+    wk->mvxy.a[0].sp += wk->mvxy.d[0].sp;
 }
 
-void add_y_sub(WORK_Other* ewk) {
-    ewk->wu.xyz[1].cal += ewk->wu.mvxy.a[1].sp;
-    ewk->wu.mvxy.a[1].sp += ewk->wu.mvxy.d[1].sp;
+void add_y_sub(WORK* wk) {
+    wk->xyz[1].cal += wk->mvxy.a[1].sp;
+    wk->mvxy.a[1].sp += wk->mvxy.d[1].sp;
 }
 
-void add_y_sub2(WORK_Other* ewk) {
-    ewk->wu.xyz[1].cal += ewk->wu.mvxy.a[1].sp;
-    ewk->wu.mvxy.a[1].sp += ewk->wu.mvxy.d[1].sp;
+void add_y_sub2(WORK* wk) {
+    wk->xyz[1].cal += wk->mvxy.a[1].sp;
+    wk->mvxy.a[1].sp += wk->mvxy.d[1].sp;
 }
 
 s32 obr_no_disp_check() {

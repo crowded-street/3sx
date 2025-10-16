@@ -75,8 +75,8 @@ void dragonfly_l_move_1(WORK_Other* ewk) {
 
 s16 dragonfly_l_move_2(WORK_Other* ewk) {
     char_move(&ewk->wu);
-    add_x_sub(ewk);
-    add_y_sub(ewk);
+    add_x_sub(&ewk->wu);
+    add_y_sub(&ewk->wu);
 
     if (ewk->wu.xyz[0].disp.pos <= bg_w.bgw[1].l_limit2 - bg_w.pos_offset - 24) {
         dragonfly_stop_timer(ewk);
@@ -91,8 +91,8 @@ s16 dragonfly_l_move_2(WORK_Other* ewk) {
 }
 
 s16 dragonfly_l_move_3(WORK_Other* ewk) {
-    add_x_sub(ewk);
-    add_y_sub(ewk);
+    add_x_sub(&ewk->wu);
+    add_y_sub(&ewk->wu);
 
     if (ewk->wu.xyz[0].disp.pos <= bg_w.bgw[1].l_limit2 - bg_w.pos_offset - 24) {
         dragonfly_stop_timer(ewk);
@@ -181,8 +181,8 @@ void dragonfly_r_move_1(WORK_Other* ewk) {
 
 s16 dragonfly_r_move_2(WORK_Other* ewk) {
     char_move(&ewk->wu);
-    add_x_sub(ewk);
-    add_y_sub(ewk);
+    add_x_sub(&ewk->wu);
+    add_y_sub(&ewk->wu);
 
     if (ewk->wu.xyz[0].disp.pos > bg_w.bgw[1].r_limit2 + bg_w.pos_offset + 24) {
         dragonfly_stop_timer(ewk);
@@ -197,8 +197,8 @@ s16 dragonfly_r_move_2(WORK_Other* ewk) {
 }
 
 s16 dragonfly_r_move_3(WORK_Other* ewk) {
-    add_x_sub(ewk);
-    add_y_sub(ewk);
+    add_x_sub(&ewk->wu);
+    add_y_sub(&ewk->wu);
 
     if (ewk->wu.xyz[0].disp.pos >= bg_w.bgw[1].r_limit2 + bg_w.pos_offset + 24) {
         dragonfly_stop_timer(ewk);
@@ -308,8 +308,8 @@ void dragonfly_move_0000(WORK_Other* ewk) {
             break;
         }
 
-        add_x_sub(ewk);
-        add_y_sub(ewk);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
         break;
     }
 }
@@ -409,8 +409,8 @@ void dragonfly_move_0004(WORK_Other* ewk) {
             break;
         }
 
-        add_x_sub(ewk);
-        add_y_sub(ewk);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
         break;
     }
 }

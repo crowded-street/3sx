@@ -39,8 +39,8 @@ void effect_47_move(WORK_Other* ewk) {
                 ewk->wu.disp_flag = 0;
             } else {
                 char_move(&ewk->wu);
-                add_x_sub(ewk);
-                add_y_sub(ewk);
+                add_x_sub(&ewk->wu);
+                add_y_sub(&ewk->wu);
             }
         }
 

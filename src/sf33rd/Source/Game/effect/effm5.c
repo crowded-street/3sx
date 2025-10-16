@@ -48,7 +48,7 @@ void effect_M5_move(WORK_Other* ewk) {
                     SsRequestPan(0x135, 0x40, 0x40, 0, 2);
                 }
             } else {
-                add_x_sub(ewk);
+                add_x_sub(&ewk->wu);
             }
         }
 
@@ -101,7 +101,7 @@ void effect_M5_move(WORK_Other* ewk) {
             if (ewk->wu.old_rno[0] < 0) {
                 ewk->wu.routine_no[0]++;
             } else {
-                add_x_sub(ewk);
+                add_x_sub(&ewk->wu);
             }
         }
 

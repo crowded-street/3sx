@@ -77,10 +77,10 @@ void eff46_move(WORK_Other* ewk) {
 
     case 2:
         char_move(&ewk->wu);
-        add_x_sub(ewk);
+        add_x_sub(&ewk->wu);
 
         if (ewk->wu.xyz[1].disp.pos >= ewk->wu.old_rno[0]) {
-            add_y_sub(ewk);
+            add_y_sub(&ewk->wu);
         }
 
         if (!range_x_check3(ewk, 64)) {

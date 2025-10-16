@@ -79,8 +79,8 @@ void eff24_quake_sub(WORK_Other* ewk) {
         break;
 
     case 1:
-        add_x_sub(ewk);
-        add_y_sub(ewk);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
 
         if (ewk->wu.xyz[1].disp.pos < ewk->wu.old_rno[2]) {
             ewk->wu.routine_no[1]++;
@@ -92,8 +92,8 @@ void eff24_quake_sub(WORK_Other* ewk) {
         break;
 
     case 2:
-        add_x_sub(ewk);
-        add_y_sub(ewk);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
         ewk->wu.old_rno[5]--;
 
         if (ewk->wu.old_rno[5] > 0) {
@@ -126,7 +126,7 @@ void eff24_quake_sub(WORK_Other* ewk) {
 
     case 3:
         char_move(&ewk->wu);
-        add_x_sub(ewk);
+        add_x_sub(&ewk->wu);
         ewk->wu.old_rno[5]--;
 
         if (ewk->wu.old_rno[5] > 0) {
@@ -138,7 +138,7 @@ void eff24_quake_sub(WORK_Other* ewk) {
 
     case 4:
         char_move(&ewk->wu);
-        add_x_sub(ewk);
+        add_x_sub(&ewk->wu);
 
         if (ewk->wu.cg_type) {
             ewk->wu.routine_no[1] = 0;

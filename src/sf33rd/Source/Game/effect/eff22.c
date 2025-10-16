@@ -107,8 +107,8 @@ void effect_22_move(WORK_Other* ewk) {
 
     case 2:
         if (!EXE_flag && !Game_pause) {
-            add_x_sub(ewk);
-            add_y_sub(ewk);
+            add_x_sub(&ewk->wu);
+            add_y_sub(&ewk->wu);
 
             if (ewk->wu.xyz[1].disp.pos <= 23) {
                 ewk->wu.routine_no[0] = 1;

@@ -87,8 +87,8 @@ void eff27_00(WORK_Other* ewk) {
             char_move(&ewk->wu);
         }
 
-        add_x_sub(ewk);
-        add_y_sub(ewk);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
 
         if (ewk->wu.xyz[1].disp.pos < ewk->wu.old_rno[1]) {
             ewk->wu.routine_no[1]++;
@@ -110,8 +110,8 @@ void eff27_02(WORK_Other* ewk) {
         char_move(&ewk->wu);
     }
 
-    add_x_sub(ewk);
-    add_y_sub(ewk);
+    add_x_sub(&ewk->wu);
+    add_y_sub(&ewk->wu);
 
     ewk->wu.old_rno[1]--;
 
@@ -127,8 +127,8 @@ void eff27_03(WORK_Other* ewk) {
             char_move(&ewk->wu);
         }
 
-        add_x_sub(ewk);
-        add_y_sub(ewk);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
 
         if (ewk->wu.xyz[1].disp.pos < ewk->wu.old_rno[1]) {
             char_move_z(&ewk->wu);
@@ -143,8 +143,8 @@ void eff27_03(WORK_Other* ewk) {
             char_move(&ewk->wu);
         }
 
-        add_x_sub(ewk);
-        add_y_sub(ewk);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
 
         if (ewk->wu.xyz[1].disp.pos <= ewk->wu.old_rno[2]) {
             ewk->wu.routine_no[1]++;
@@ -169,8 +169,8 @@ void eff27_04(WORK_Other* ewk) {
             char_move(&ewk->wu);
         }
 
-        add_x_sub(ewk);
-        add_y_sub(ewk);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
 
         if (ewk->wu.xyz[1].disp.pos < ewk->wu.old_rno[1]) {
             char_move_z(&ewk->wu);
@@ -201,8 +201,8 @@ void eff27_05(WORK_Other* ewk) {
             char_move(&ewk->wu);
         }
 
-        add_x_sub(ewk);
-        add_y_sub(ewk);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
 
         if (ewk->wu.xyz[1].disp.pos < ewk->wu.old_rno[1]) {
             char_move_z(&ewk->wu);
@@ -256,8 +256,8 @@ void eff27_07(WORK_Other* ewk) {
             char_move(&ewk->wu);
         }
 
-        add_x_sub(ewk);
-        add_y_sub(ewk);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
 
         if (ewk->wu.xyz[1].disp.pos < ewk->wu.old_rno[1]) {
             char_move_z(&ewk->wu);
@@ -272,8 +272,8 @@ void eff27_07(WORK_Other* ewk) {
             char_move(&ewk->wu);
         }
 
-        add_x_sub(ewk);
-        add_y_sub(ewk);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
 
         if (ewk->wu.xyz[1].disp.pos <= ewk->wu.old_rno[2]) {
             ewk->wu.routine_no[1]++;

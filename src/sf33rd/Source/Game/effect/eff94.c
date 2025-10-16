@@ -119,8 +119,8 @@ void eff94_1000(WORK_Other* ewk) {
 
     case 2:
         char_move(&ewk->wu);
-        add_x_sub(ewk);
-        add_y_sub(ewk);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
 
         if (ewk->wu.xyz[1].disp.pos < 11) {
             ewk->wu.routine_no[2]++;
@@ -194,7 +194,7 @@ void eff94_2000_1(WORK_Other* ewk) {
 }
 
 void eff94_2000_2(WORK_Other* ewk) {
-    add_y_sub(ewk);
+    add_y_sub(&ewk->wu);
 
     if (ewk->wu.xyz[1].disp.pos < 17) {
         ewk->wu.routine_no[2]++;

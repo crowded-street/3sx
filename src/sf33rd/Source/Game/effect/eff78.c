@@ -107,8 +107,8 @@ void crow_fuss_move(WORK_Other* ewk) {
             ewk->wu.dir_timer = 4;
             set_char_move_init(&ewk->wu, 0, ewk->wu.old_rno[0] + 2);
         } else {
-            add_x_sub(ewk);
-            add_y_sub(ewk);
+            add_x_sub(&ewk->wu);
+            add_y_sub(&ewk->wu);
         }
 
         break;
@@ -139,8 +139,8 @@ void crow_fuss_move(WORK_Other* ewk) {
 
     case 5:
         ewk->wu.dir_timer--;
-        add_x_sub(ewk);
-        add_y_sub(ewk);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
         char_move(&ewk->wu);
 
         if (ewk->wu.cg_type == 2) {
@@ -158,8 +158,8 @@ void crow_fuss_move(WORK_Other* ewk) {
             ewk->wu.xyz[1].disp.pos = ewk->wu.old_rno[2];
             set_char_move_init(&ewk->wu, 0, ewk->wu.old_rno[0] + 4);
         } else {
-            add_x_sub(ewk);
-            add_y_sub(ewk);
+            add_x_sub(&ewk->wu);
+            add_y_sub(&ewk->wu);
         }
 
         break;

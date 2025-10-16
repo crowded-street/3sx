@@ -64,8 +64,8 @@ void effect_F2_move(WORK_Other* ewk) {
         break;
 
     case 3:
-        add_x_sub(ewk);
-        add_y_sub(ewk);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
 
         if (ewk->wu.xyz[1].disp.pos < 256) {
             ewk->wu.routine_no[1] = 0;

@@ -81,7 +81,7 @@ void effm8_move_app(WORK_Other* ewk) {
 
 void don_run_sub_m8(WORK_Other* ewk) {
     char_move(&ewk->wu);
-    add_x_sub(ewk);
+    add_x_sub(&ewk->wu);
 
     if (!range_x_check3(ewk, 56)) {
         ewk->wu.routine_no[1]++;

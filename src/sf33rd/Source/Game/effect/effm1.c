@@ -90,7 +90,7 @@ void effm1_move(WORK_Other* ewk) {
         }
 
         char_move(&ewk->wu);
-        add_x_sub(ewk);
+        add_x_sub(&ewk->wu);
         suzi_sync_pos_set(ewk);
         sort_push_request(&ewk->wu);
         break;

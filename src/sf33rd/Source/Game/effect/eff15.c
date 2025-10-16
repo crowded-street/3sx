@@ -51,8 +51,8 @@ void eff15_koishi(WORK_Other* ewk) {
     case 1:
         if (!EXE_flag && !Game_pause) {
             char_move(&ewk->wu);
-            add_x_sub(ewk);
-            add_y_sub(ewk);
+            add_x_sub(&ewk->wu);
+            add_y_sub(&ewk->wu);
 
             if (ewk->wu.xyz[1].disp.pos < ewk->wu.old_rno[2]) {
                 ewk->wu.routine_no[0]++;

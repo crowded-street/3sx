@@ -74,7 +74,7 @@ void effl3_0000(WORK_Other* ewk) {
 
     case 1:
         char_move(&ewk->wu);
-        add_x_sub(ewk);
+        add_x_sub(&ewk->wu);
 
         if (ewk->wu.rl_flag) {
             if (ewk->wu.xyz[0].disp.pos > ewk->wu.old_rno[0]) {
@@ -132,13 +132,13 @@ void effl3_0001(WORK_Other* ewk) {
             break;
         }
 
-        add_x_sub(ewk);
-        add_y_sub(ewk);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
         break;
 
     case 2:
         char_move(&ewk->wu);
-        add_y_sub(ewk);
+        add_y_sub(&ewk->wu);
 
         if (ewk->wu.xyz[1].disp.pos < ewk->wu.old_rno[1]) {
             ewk->wu.routine_no[2]++;
@@ -206,7 +206,7 @@ void effl3_tobi(WORK_Other* ewk) {
         break;
 
     case 2:
-        add_y_sub(ewk);
+        add_y_sub(&ewk->wu);
         char_move(&ewk->wu);
 
         if (ewk->wu.cg_type != 2) {
@@ -229,8 +229,8 @@ void effl3_tobi(WORK_Other* ewk) {
         break;
 
     case 3:
-        add_x_sub(ewk);
-        add_y_sub(ewk);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
 
         if (!range_x_check3(ewk, 208)) {
             ewk->wu.routine_no[0] = 99;

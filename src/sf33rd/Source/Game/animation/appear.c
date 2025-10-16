@@ -249,8 +249,8 @@ void Appear_04000(PLW* wk) {
             return;
         }
 
-        add_x_sub((WORK_Other*)wk);
-        add_y_sub((WORK_Other*)wk);
+        add_y_sub(&wk->wu);
+        add_y_sub(&wk->wu);
         break;
 
     case 3:
@@ -308,7 +308,7 @@ void Appear_05000(PLW* wk) {
             return;
         }
 
-        add_x_sub((WORK_Other*)&wk->wu);
+        add_x_sub(&wk->wu);
         break;
 
     case 3:
@@ -392,8 +392,8 @@ void Appear_06000(PLW* wk) {
             set_char_move_init(&wk->wu, 9, 0x10);
             Appear_end++;
         } else {
-            add_x_sub((WORK_Other*)&wk->wu);
-            add_y_sub((WORK_Other*)&wk->wu);
+            add_x_sub(&wk->wu);
+            add_y_sub(&wk->wu);
         }
         break;
 
@@ -497,7 +497,7 @@ void Appear_07000(PLW* wk) {
         case 2:
         case 3:
             char_move(&wk->wu);
-            add_y_sub((WORK_Other*)wk);
+            add_y_sub(&wk->wu);
             if (wk->wu.xyz[1].disp.pos < 0) {
                 wk->wu.xyz[1].disp.pos = wk->wu.position_y = 0;
                 wk->wu.xyz[1].disp.low = 0;
@@ -605,7 +605,7 @@ void Appear_09000(PLW* wk) {
 
     case 3:
         char_move(&wk->wu);
-        add_y_sub((WORK_Other*)&wk->wu);
+        add_y_sub(&wk->wu);
 
         if (wk->wu.xyz[1].disp.pos <= 0) {
             wk->wu.routine_no[3]++;
@@ -646,7 +646,7 @@ void Appear_10000(PLW* wk) {
 
     case 1:
         char_move(&wk->wu);
-        add_x_sub((WORK_Other*)&wk->wu);
+        add_x_sub(&wk->wu);
 
         if (wk->wu.id) {
             if (!(wk->wu.xyz[0].disp.pos <= bg_w.bgw[1].pos_x_work + 0x58)) {
@@ -729,8 +729,8 @@ void Appear_12000(PLW* wk) {
             return;
         }
 
-        add_x_sub((WORK_Other*)&wk->wu);
-        add_y_sub((WORK_Other*)&wk->wu);
+        add_x_sub(&wk->wu);
+        add_y_sub(&wk->wu);
         return;
 
     case 2:
@@ -761,7 +761,7 @@ void Appear_13000(PLW* wk) {
 
     case 2:
         char_move(&wk->wu);
-        add_y_sub((WORK_Other*)&wk->wu);
+        add_y_sub(&wk->wu);
 
         if (wk->wu.xyz[1].disp.pos < 0) {
             wk->wu.routine_no[3]++;
@@ -1050,8 +1050,8 @@ void Appear_18000(PLW* wk) {
             return;
         }
 
-        add_x_sub((WORK_Other*)&wk->wu);
-        add_y_sub((WORK_Other*)&wk->wu);
+        add_x_sub(&wk->wu);
+        add_y_sub(&wk->wu);
         return;
 
     case 3:
@@ -1135,8 +1135,8 @@ void Appear_19000(PLW* wk) {
             return;
         }
 
-        add_x_sub((WORK_Other*)&wk->wu);
-        add_y_sub((WORK_Other*)&wk->wu);
+        add_x_sub(&wk->wu);
+        add_y_sub(&wk->wu);
         break;
 
     case 3:
@@ -1316,8 +1316,8 @@ void Appear_26000(PLW* wk) {
     case 2:
         char_move(&wk->wu);
         appear_work[wk->wu.id]--;
-        add_x_sub((WORK_Other*)wk);
-        add_y_sub((WORK_Other*)wk);
+        add_x_sub(&wk->wu);
+        add_y_sub(&wk->wu);
 
         if (wk->wu.xyz[1].disp.pos < 0x41) {
             wk->wu.routine_no[3]++;
@@ -1350,8 +1350,8 @@ void Appear_26000(PLW* wk) {
             set_char_move_init2(&wk->wu, 9, 0x10, 3, 0);
             wk->wu.xyz[1].cal = 0;
         } else {
-            add_x_sub((WORK_Other*)wk);
-            add_y_sub((WORK_Other*)wk);
+            add_x_sub(&wk->wu);
+            add_y_sub(&wk->wu);
         }
 
         break;
@@ -1513,7 +1513,7 @@ void Appear_29000(PLW* wk) {
 
     case 2:
         char_move(&wk->wu);
-        add_x_sub((WORK_Other*)&wk->wu);
+        add_x_sub(&wk->wu);
 
         if (wk->wu.id) {
             if (!(wk->wu.xyz[0].disp.pos <= (bg_w.bgw[1].pos_x_work + 0x58))) {
@@ -1546,8 +1546,8 @@ void Appear_29000(PLW* wk) {
             set_char_move_init2(&wk->wu, 9, 0xb, 5, 0);
             wk->wu.xyz[1].disp.pos = 0;
         } else {
-            add_x_sub((WORK_Other*)&wk->wu);
-            add_y_sub((WORK_Other*)&wk->wu);
+            add_x_sub(&wk->wu);
+            add_y_sub(&wk->wu);
         }
 
         break;
@@ -1700,8 +1700,8 @@ void Appear_33000(PLW* wk) {
             return;
         }
 
-        add_x_sub((WORK_Other*)wk);
-        add_y_sub((WORK_Other*)wk);
+        add_x_sub(&wk->wu);
+        add_y_sub(&wk->wu);
         break;
 
     case 2:
@@ -1796,7 +1796,7 @@ void Appear_36000(PLW* wk) {
             set_char_move_init2(&wk->wu, 9, 0x11, 0x0A, 0);
             wk->wu.next_z = wk->wu.my_priority;
         } else {
-            add_x_sub((WORK_Other*)wk);
+            add_x_sub(&wk->wu);
         }
 
         break;
@@ -1899,7 +1899,7 @@ void Appear_37000(PLW* wk) {
             wk->wu.routine_no[3] = 0;
             Appear_end++;
         } else {
-            add_x_sub((WORK_Other*)&wk->wu);
+            add_x_sub(&wk->wu);
         }
 
         break;

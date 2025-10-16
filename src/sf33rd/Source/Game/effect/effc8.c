@@ -78,8 +78,8 @@ void effect_C8_move(WORK_Other* ewk) {
 
     case 3:
         if (!EXE_flag && !Game_pause) {
-            add_x_sub(ewk);
-            add_y_sub(ewk);
+            add_x_sub(&ewk->wu);
+            add_y_sub(&ewk->wu);
             char_move(&ewk->wu);
 
             if (ewk->wu.cg_type) {

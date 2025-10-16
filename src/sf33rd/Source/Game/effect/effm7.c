@@ -90,7 +90,7 @@ void effm7_move(WORK_Other* ewk) {
         break;
 
     case 4:
-        add_y_sub(ewk);
+        add_y_sub(&ewk->wu);
         char_move(&ewk->wu);
 
         if (ewk->wu.cg_type != 2) {
@@ -111,8 +111,8 @@ void effm7_move(WORK_Other* ewk) {
         break;
 
     case 5:
-        add_x_sub(ewk);
-        add_y_sub(ewk);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
 
         if (!range_x_check3(ewk, 208)) {
             ewk->wu.routine_no[0] = 99;

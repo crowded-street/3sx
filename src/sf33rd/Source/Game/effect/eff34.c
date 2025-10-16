@@ -81,7 +81,7 @@ void effect_34_move(WORK_Other* ewk) {
 
         if (ewk->wu.old_rno[0]--) {
             char_move(&ewk->wu);
-            add_x_sub(ewk);
+            add_x_sub(&ewk->wu);
             suzi_sync_pos_set(ewk);
             sort_push_request(&ewk->wu);
             break;

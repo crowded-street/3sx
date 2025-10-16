@@ -242,7 +242,7 @@ void eff35_0003(WORK_Other* ewk) {
         }
 
         if (!EXE_flag && !Game_pause) {
-            add_x_sub(ewk);
+            add_x_sub(&ewk->wu);
         }
 
         if (ewk->wu.type == 2) {
