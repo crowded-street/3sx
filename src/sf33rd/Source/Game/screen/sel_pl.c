@@ -1,3 +1,8 @@
+/**
+ * @file sel_pl.c
+ * Character/Super Art selection screen
+ */
+
 #include "sf33rd/Source/Game/screen/sel_pl.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/common/pad.h"

@@ -1,3 +1,8 @@
+/**
+ * @file gameover.c
+ * Game Over screen
+ */
+
 #include "common.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/debug/Debug.h"

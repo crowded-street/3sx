@@ -1,3 +1,8 @@
+/**
+ * @file next_cpu.c
+ * Next CPU character selection
+ */
+
 #include "sf33rd/Source/Game/screen/next_cpu.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/common/pad.h"

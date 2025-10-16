@@ -1,3 +1,8 @@
+/**
+ * @file sel_data.c
+ * Character Select Screen Data
+ */
+
 #include "common.h"
 
 const s8 Face_Cursor_Data[3][8] = { { -1, 1, 12, 7, 5, 13, 14, -1 },

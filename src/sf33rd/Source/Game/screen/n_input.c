@@ -1,3 +1,8 @@
+/**
+ * @file n_input.c
+ * High Score Name Entry Screen
+ */
+
 #include "sf33rd/Source/Game/screen/n_input.h"
 #include "common.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"

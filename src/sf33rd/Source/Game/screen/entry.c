@@ -1,3 +1,8 @@
+/**
+ * @file entry.c
+ * Manages all the screens
+ */
+
 #include "sf33rd/Source/Game/screen/entry.h"
 #include "common.h"
 #include "sf33rd/Source/Game/Reset.h"

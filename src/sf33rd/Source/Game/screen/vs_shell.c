@@ -1,3 +1,8 @@
+/**
+ * @file vs_shell.c
+ * Tilemap data for the animated background of the VS screen
+ */
+
 #include "types.h"
 
 const u8 VS_Shell_Active_Data[20][4][8][16] = { { { { 0, 0, 0, 0, 0, 0, 0, 0, 6, 2, 3, 4, 5, 8, 9, 9 },

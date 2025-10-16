@@ -1,3 +1,8 @@
+/**
+ * @file win.c
+ * Win Screen
+ */
+
 #include "common.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/SYS_sub2.h"

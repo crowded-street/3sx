@@ -1,3 +1,8 @@
+/**
+ * @file continue.c
+ * Manages the "Continue" screen, countdown, and player input.
+ */
+
 #include "common.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/effect_init.h"

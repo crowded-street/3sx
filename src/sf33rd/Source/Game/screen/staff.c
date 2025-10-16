@@ -1,3 +1,8 @@
+/**
+ * @file staff.c
+ * Staff credits roll
+ */
+
 #include "sf33rd/Source/Game/screen/staff.h"
 #include "common.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
