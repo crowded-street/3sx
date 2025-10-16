@@ -430,7 +430,6 @@ void init_app_10000() {
 
             if (plw[1].wu.operator) {
                 mpp_w.useChar[My_char[1]]++;
-                return;
             }
         }
 

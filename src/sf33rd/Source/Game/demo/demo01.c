@@ -87,7 +87,6 @@ s16 Title_At_a_Dash() {
 
     switch (D_No[1]) {
     case 0:
-        mpp_w.ctrDemo = 0;
         D_No[1] += 1;
         D_Timer = 30;
 

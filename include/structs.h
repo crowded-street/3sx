@@ -4,6 +4,7 @@
 #include "sf33rd/AcrSDK/common/plcommon.h"
 #include "types.h"
 #include <libgraph.h>
+#include <stdbool.h>
 
 typedef struct {
     // total size: 0x4
@@ -30,18 +31,12 @@ typedef struct {
 typedef struct {
     FMS_FRAME fmsFrame;
     u8* ramcntBuff;
-    s8 ds_h[2];
-    s8 ds_v[2];
-    s8 sysStop;
-    s8 initTrainingData;
-    s8 inGame;
-    s8 ctrDemo;
+    bool sysStop;
+    bool initTrainingData;
+    bool inGame;
     s8 language;
-    s8 langload;
-    s8 cutAnalogStickData;
-    s8 useAnalogStickData;
-    s8 pal50Hz;
-    u32 hanFbTex;
+    bool cutAnalogStickData;
+    bool useAnalogStickData;
     u8 useChar[20];
 } MPP;
 

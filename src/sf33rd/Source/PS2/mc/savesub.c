@@ -2035,7 +2035,7 @@ static void load_data_set_system(_save_work* save) {
     se_level = sw->SE_Level;
 
     if (mpp_w.cutAnalogStickData) {
-        mpp_w.cutAnalogStickData = 0;
+        mpp_w.cutAnalogStickData = false;
         save_w[Present_Mode].AnalogStick = 0;
         save_w[4].AnalogStick = 0;
         save_w[5].AnalogStick = 0;

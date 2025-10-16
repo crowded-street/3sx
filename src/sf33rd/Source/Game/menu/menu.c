@@ -549,7 +549,7 @@ void Training_Mode(struct _TASK* task_ptr) {
     switch (task_ptr->r_no[2]) {
     case 0:
         Menu_in_Sub(task_ptr);
-        mpp_w.initTrainingData = 1;
+        mpp_w.initTrainingData = true;
         effect_57_init(0x6F, 0xB, 0, 0x3F, 2);
         Order[0x6F] = 1;
         Order_Dir[0x6F] = 8;
@@ -5240,10 +5240,11 @@ void Default_Training_Data(s32 flag) {
     s16 ix3;
 
     if (flag == 0) {
-        if (mpp_w.initTrainingData == 0) {
+        if (!mpp_w.initTrainingData) {
             return;
         }
-        mpp_w.initTrainingData = 0;
+
+        mpp_w.initTrainingData = false;
     }
 
     for (ix = 0; ix < 2; ix++) {

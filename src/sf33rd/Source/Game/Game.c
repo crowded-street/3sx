@@ -494,7 +494,7 @@ void Game2_0() {
 }
 
 void Game2_1() {
-    mpp_w.inGame = 1;
+    mpp_w.inGame = true;
 
     if (Game_pause != 0x81) {
         Game_timer += 1;
@@ -1387,7 +1387,7 @@ void Game09() {
 s16 Bonus_Sub() {
     s16 x;
 
-    mpp_w.inGame = 1;
+    mpp_w.inGame = true;
     Scene_Cut = Cut_Cut_Cut();
     Bonus_Game_Complete = 0;
 

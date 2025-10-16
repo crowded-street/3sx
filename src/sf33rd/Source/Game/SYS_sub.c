@@ -529,12 +529,12 @@ void Game_Data_Init() {
     s32 ix;
 
     Setup_Default_Game_Option();
-    mpp_w.cutAnalogStickData = 0;
+    mpp_w.cutAnalogStickData = false;
 
     if ((flpad_adr[0][0].sw & 0x330) == 0x330) {
-        mpp_w.cutAnalogStickData = 1;
+        mpp_w.cutAnalogStickData = true;
     } else if ((flpad_adr[0][1].sw & 0x330) == 0x330) {
-        mpp_w.cutAnalogStickData = 1;
+        mpp_w.cutAnalogStickData = true;
     }
 
     if (mpp_w.cutAnalogStickData) {

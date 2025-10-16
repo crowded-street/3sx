@@ -183,11 +183,6 @@ static void game_init() {
 }
 
 static void game_step_0() {
-    mpp_w.ds_h[0] = mpp_w.ds_h[1];
-    mpp_w.ds_v[0] = mpp_w.ds_v[1];
-    mpp_w.ds_h[1] = 100;
-    mpp_w.ds_v[1] = 100;
-
     setBackGroundColor(0xFF000000);
 
     if (Debug_w[0x43]) {
@@ -201,52 +196,49 @@ static void game_step_0() {
 
     if (((Usage == 7) || (Usage == 2)) && !test_flag) {
         if (mpp_w.sysStop) {
-            if (mpp_w.sysStop == 1) {
-                sysSLOW = 1;
+            sysSLOW = 1;
 
-                switch (io_w.data[1].sw_new) {
-                case SWK_LEFT_STICK:
-                    mpp_w.sysStop = 0;
-                    // fallthrough
+            switch (io_w.data[1].sw_new) {
+            case SWK_LEFT_STICK:
+                mpp_w.sysStop = false;
+                // fallthrough
 
-                case SWK_LEFT_SHOULDER:
+            case SWK_LEFT_SHOULDER:
+                Slow_Timer = 1;
+                break;
+
+            default:
+                switch (io_w.data[1].sw & (SWK_LEFT_SHOULDER | SWK_LEFT_TRIGGER)) {
+                case SWK_LEFT_SHOULDER | SWK_LEFT_TRIGGER:
+                    if ((sysFF = Debug_w[1]) == 0) {
+                        sysFF = 1;
+                    }
+
+                    sysSLOW = 1;
                     Slow_Timer = 1;
+
                     break;
 
-                default:
-                    switch (io_w.data[1].sw & (SWK_LEFT_SHOULDER | SWK_LEFT_TRIGGER)) {
-                    case SWK_LEFT_SHOULDER | SWK_LEFT_TRIGGER:
-                        if ((sysFF = Debug_w[1]) == 0) {
-                            sysFF = 1;
+                case SWK_LEFT_TRIGGER:
+                    if (Slow_Timer == 0) {
+                        if ((Slow_Timer = Debug_w[0]) == 0) {
+                            Slow_Timer = 1;
                         }
 
-                        sysSLOW = 1;
-                        Slow_Timer = 1;
-
-                        break;
-
-                    case SWK_LEFT_TRIGGER:
-                        if (Slow_Timer == 0) {
-                            if ((Slow_Timer = Debug_w[0]) == 0) {
-                                Slow_Timer = 1;
-                            }
-
-                            sysFF = 1;
-                        }
-
-                        break;
-
-                    default:
-                        Slow_Timer = 2;
-
-                        break;
+                        sysFF = 1;
                     }
 
                     break;
+
+                default:
+                    Slow_Timer = 2;
+                    break;
                 }
+
+                break;
             }
         } else if (io_w.data[1].sw_new & SWK_LEFT_STICK) {
-            mpp_w.sysStop = 1;
+            mpp_w.sysStop = true;
         }
     }
 
@@ -271,7 +263,7 @@ static void game_step_0() {
 
     appCopyKeyData();
 
-    mpp_w.inGame = 0;
+    mpp_w.inGame = false;
 
     njUserMain();
     seqsBeforeProcess();
@@ -338,12 +330,9 @@ void njUserInit() {
     u32 size;
 
     sysFF = 1;
-    mpp_w.sysStop = 0;
-    mpp_w.inGame = 0;
-    mpp_w.ctrDemo = 0;
+    mpp_w.sysStop = false;
+    mpp_w.inGame = false;
     mpp_w.language = 0;
-    mpp_w.langload = -1;
-    mpp_w.pal50Hz = 0;
     mmSystemInitialize();
     flGetFrame(&mpp_w.fmsFrame);
     seqsInitialize(mppMalloc(seqsGetUseMemorySize()));
@@ -362,9 +351,6 @@ void njUserInit() {
     SA_Zoom_Y = 0.0f;
     Disp_Size_H = 100;
     Disp_Size_V = 100;
-    mpp_w.ds_h[0] = mpp_w.ds_h[1] = Disp_Size_H;
-    mpp_w.ds_v[0] = mpp_w.ds_v[1] = Disp_Size_V;
-    Country = 0;
     Country = 4;
     Screen_PAL = 0;
     Turbo = 0;

@@ -162,7 +162,7 @@ void Init_Task_Aload(struct _TASK* task_ptr) {
         if (SaveMove() <= 0) {
             task_ptr->r_no[0] += 1;
             task_ptr->r_no[1] = 0;
-            mpp_w.cutAnalogStickData = 0;
+            mpp_w.cutAnalogStickData = false;
             Forbid_Reset = 1;
         }
 

@@ -119,8 +119,8 @@ void Debug_2nd(struct _TASK* task_ptr) {
 
     Debug_Menu_Disp(offset_y[1], offset_y[2]);
 
-    if (io_w.data[1].sw_new & 0x1000) {
-        mpp_w.sysStop = 1;
+    if (io_w.data[1].sw_new & SWK_RIGHT_STICK) {
+        mpp_w.sysStop = true;
         task_ptr->r_no[0] = 1;
         cpRevivalTask();
     }
