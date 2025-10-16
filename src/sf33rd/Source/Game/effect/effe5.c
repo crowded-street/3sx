@@ -232,7 +232,6 @@ s32 effect_E5_init(PLW* wk) {
     }
 
     ewk = (WORK_Other*)frw[ix];
-    wk->illusion_work = &ewk->wu;
     ewk->wu.be_flag = 1;
     ewk->wu.id = 145;
     ewk->wu.work_id = 16;

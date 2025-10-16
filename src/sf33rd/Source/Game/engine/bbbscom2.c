@@ -21,7 +21,7 @@ void bbbs_com_execute2(PLW* wk) {
 
             Bonus_Stage_RNO[0] = 1;
             Bonus_Stage_RNO[1] = 0;
-            wk->zettai_muteki_flag = 1;
+            wk->zettai_muteki_flag = true;
 
             break;
         }

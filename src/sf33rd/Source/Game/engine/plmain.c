@@ -117,8 +117,8 @@ void player_mv_0000(PLW* wk) {
     wk->wu.hit_quake = wk->wu.dm_quake = 0;
     wk->tsukamarenai_flag = 0;
     wk->zuru_timer = 0;
-    wk->zuru_flag = 0;
-    wk->tsukami_f = wk->tsukamare_f = 0;
+    wk->zuru_flag = false;
+    wk->tsukami_f = wk->tsukamare_f = false;
     clear_kizetsu_point(wk);
     wk->ukemi_ok_timer = 0;
     wk->uot_cd_ok_flag = 0;
@@ -282,9 +282,9 @@ void player_mv_4000(PLW* wk) {
         }
 
         if (wk->zuru_timer < 0) {
-            wk->zuru_flag = 1;
+            wk->zuru_flag = true;
         } else {
-            wk->zuru_flag = 0;
+            wk->zuru_flag = false;
         }
 
         check_omop_vital(wk);

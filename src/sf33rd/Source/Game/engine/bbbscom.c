@@ -33,7 +33,7 @@ void bbbs_com_execute(PLW* wk) {
             Bonus_Stage_RNO[1] = 2;
         }
 
-        wk->zettai_muteki_flag = 1;
+        wk->zettai_muteki_flag = true;
         effect_B1_init(wk, 0);
         effect_B1_init(wk, 1);
         effect_16_init(wk, 0);

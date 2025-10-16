@@ -548,7 +548,10 @@ typedef struct {
 
     s16 zuru_timer;
     u16 zuru_ix_counter;
-    u8 zuru_flag; // invulnerability/cheating?
+
+    // Invulnerability?
+    bool zuru_flag;
+
     s8 tsukamarenai_flag;
     u8 kizetsu_kow;
     u8 micchaku_flag;
@@ -559,10 +562,10 @@ typedef struct {
     s16 tsukami_num;
 
     /// Flag that's set if the player is throwing the opponent.
-    s8 tsukami_f;
+    bool tsukami_f;
 
     /// Flag that's set if the player is being thrown by the opponent.
-    s8 tsukamare_f;
+    bool tsukamare_f;
 
     s8 kind_of_catch;
     u8 old_gdflag;
@@ -576,7 +579,7 @@ typedef struct {
     s8 scr_pos_set_flag;
     s8 hoshi_flag;
     s8 the_same_players;
-    s8* dm_step_tbl;
+    const s8* dm_step_tbl;
     s8 running_f;
     s8 cancel_timer;
     s8 jpdir;
@@ -600,7 +603,6 @@ typedef struct {
     u8 sa_stop_lvdir;
     u8 sa_stop_flag;
     u8 kezurijini_flag;
-    WORK* illusion_work;
     s16 image_setup_flag;
     s16 image_data_index;
     u8 caution_flag;
@@ -630,7 +632,10 @@ typedef struct {
     u8 meoshi_jump_flag;
     s16 cmd_request;
     s16 rl_save;
-    u8 zettai_muteki_flag; // invulnerability/cheating?
+
+    // Invulnerability during bonus games
+    bool zettai_muteki_flag;
+
     u8 do_not_move;
     u16 just_sa_stop_timer;
     s16 total_att_hit_ok;
@@ -664,7 +669,6 @@ typedef struct {
     u8 init_E4_flag;
     u16 pl09_dat_index;
     s16 reserv_add_y;
-    u8 pt_free[20];
 } PLW;
 
 typedef struct {

@@ -56,8 +56,8 @@ void Player_attack(PLW* wk) {
     wk->py->flag = 0;
     wk->guard_flag = 3;
     wk->guard_chuu = 0;
-    wk->tsukami_f = 0;
-    wk->tsukamare_f = 0;
+    wk->tsukami_f = false;
+    wk->tsukamare_f = false;
     wk->scr_pos_set_flag = 1;
     wk->dm_hos_flag = 0;
     wk->ukemi_success = 0;

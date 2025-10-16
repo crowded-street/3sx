@@ -56,8 +56,8 @@ void check_cg_zoom() {
             plw[i].wu.scr_mv_x = plw[i].wu.xyz[0].disp.pos;
             plw[i].wu.scr_mv_y = plw[i].wu.xyz[1].disp.pos;
         } else if (plw[i].tsukamare_f) {
-            plw[i].wu.scr_mv_x = plw[i + 1 & 1].wu.xyz[0].disp.pos;
-            plw[i].wu.scr_mv_y = plw[i + 1 & 1].wu.xyz[1].disp.pos;
+            plw[i].wu.scr_mv_x = plw[(i + 1) & 1].wu.xyz[0].disp.pos;
+            plw[i].wu.scr_mv_y = plw[(i + 1) & 1].wu.xyz[1].disp.pos;
         }
     }
 

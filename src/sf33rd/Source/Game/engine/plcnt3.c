@@ -33,11 +33,11 @@ s32 Player_control_bonus2() {
         set_quake(&plw[0]);
         set_quake(&plw[1]);
 
-        if (plw[0].zuru_flag == 0 && plw[0].zettai_muteki_flag == 0) {
+        if (!plw[0].zuru_flag && !plw[0].zettai_muteki_flag) {
             hit_push_request(&plw[0].wu);
         }
 
-        if (plw[1].zuru_flag == 0 && plw[1].zettai_muteki_flag == 0) {
+        if (!plw[1].zuru_flag && !plw[1].zettai_muteki_flag) {
             hit_push_request(&plw[1].wu);
         }
 

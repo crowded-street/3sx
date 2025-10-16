@@ -318,8 +318,8 @@ void set_caught_status(s16 ix) {
     }
 
     as->tsukami_num = ds->player_number;
-    as->tsukami_f = 1;
-    ds->tsukamare_f = 1;
+    as->tsukami_f = true;
+    ds->tsukamare_f = true;
     ds->wu.routine_no[1] = 3;
     ds->wu.routine_no[2] = as->wu.att.ng_type;
     ds->wu.routine_no[3] = 0;
