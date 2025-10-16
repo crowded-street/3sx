@@ -2265,7 +2265,7 @@ void Game_Manage_12_8() {
             break;
 
         case 2:
-            if (C_Timer < 11 && Scene_Cut != 0) {
+            if (C_Timer < 11 && Scene_Cut) {
                 C_Timer = 1;
             }
 

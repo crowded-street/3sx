@@ -4,6 +4,8 @@
 #include "structs.h"
 #include "types.h"
 
+#include <stdbool.h>
+
 extern const struct _SAVE_W Game_Default_Data;
 
 void Switch_Screen_Init(s32 /* unused */);
@@ -18,7 +20,7 @@ void Clear_Flash_No();
 
 /// @brief Check if a player wants to skip an animation
 /// @return `true` if animation should be skipped, `false` otherwise
-s32 Cut_Cut_Cut();
+bool Cut_Cut_Cut();
 
 void Score_Sub();
 void Disp_Win_Record();
@@ -54,8 +56,7 @@ void System_all_clear_Level_B();
 s16 Cut_Cut_C_Timer();
 void Switch_Priority_76();
 s32 Cut_Cut_Sub(s16 xx);
-s32 Cut_Cut_Loser();
-void njWaitVSync_with_N();
+bool Cut_Cut_Loser();
 void Soft_Reset_Sub();
 void Check_Replay();
 void Check_Replay_Status(s16 PL_id, u8 Status);

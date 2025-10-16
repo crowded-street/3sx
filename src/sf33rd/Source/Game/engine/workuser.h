@@ -4,6 +4,8 @@
 #include "sf33rd/Source/Game/engine/cmd_data.h"
 #include "types.h"
 
+#include <stdbool.h>
+
 // bss
 extern u8 Order[148];
 extern u8 Order_Timer[148];
@@ -226,7 +228,7 @@ extern u8 Battle_Q[2];
 extern u8 EM_History[2][10];
 
 // Go faster during a non-gameplay animation
-extern u8 Scene_Cut;
+extern bool Scene_Cut;
 
 extern u8 GO_No[4];
 extern u8 Aborigine;

@@ -233,20 +233,20 @@ void Clear_Flash_No() {
     Personal_Disp_Flag = 0;
 }
 
-s32 Cut_Cut_Cut() {
+bool Cut_Cut_Cut() {
     if (Demo_Flag == 0) {
-        return 0;
+        return false;
     }
 
-    if (plw[0].wu.operator && (p1sw_0 & 0xFF0)) {
-        return 1;
+    if (plw[0].wu.operator && (p1sw_0 & SWK_ATTACKS)) {
+        return true;
     }
 
-    if (plw[1].wu.operator && (p2sw_0 & 0xFF0)) {
-        return 1;
+    if (plw[1].wu.operator && (p2sw_0 & SWK_ATTACKS)) {
+        return true;
     }
 
-    return 0;
+    return false;
 }
 
 void Score_Sub() {
@@ -959,27 +959,27 @@ s32 Cut_Cut_Sub(s16 xx) {
         return 1;
     }
 
-    if (plw[0].wu.operator && (p1sw_0 & 0xFF0)) {
+    if (plw[0].wu.operator && (p1sw_0 & SWK_ATTACKS)) {
         return xx;
     }
 
-    if (plw[1].wu.operator && (p2sw_0 & 0xFF0)) {
+    if (plw[1].wu.operator && (p2sw_0 & SWK_ATTACKS)) {
         return xx;
     }
 
     return 1;
 }
 
-s32 Cut_Cut_Loser() {
-    if (Round_Operator[0] && (p1sw_0 & 0xFF0)) {
-        return 1;
+bool Cut_Cut_Loser() {
+    if (Round_Operator[0] && (p1sw_0 & SWK_ATTACKS)) {
+        return true;
     }
 
-    if (Round_Operator[1] && (p2sw_0 & 0xFF0)) {
-        return 1;
+    if (Round_Operator[1] && (p2sw_0 & SWK_ATTACKS)) {
+        return true;
     }
 
-    return 0;
+    return false;
 }
 
 void njWaitVSync_with_N() {
