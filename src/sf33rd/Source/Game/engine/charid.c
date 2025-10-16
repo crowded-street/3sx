@@ -1,3 +1,8 @@
+/**
+ * @file charid.c
+ * Data tables and functions for initializing character properties
+ */
+
 #include "sf33rd/Source/Game/engine/charid.h"
 #include "bin2obj/char_table.h"
 #include "common.h"

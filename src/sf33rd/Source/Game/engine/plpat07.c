@@ -1,3 +1,8 @@
+/**
+ * @file plpat07.c
+ * Ibuki Attacks
+ */
+
 #include "sf33rd/Source/Game/engine/plpat07.h"
 #include "common.h"
 #include "sf33rd/Source/Game/engine/charset.h"

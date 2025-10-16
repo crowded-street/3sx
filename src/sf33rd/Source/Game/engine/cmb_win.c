@@ -1,3 +1,8 @@
+/**
+ * @file cmb_win.c
+ * Manages in-game combo detection, scoring, and HUD display
+ */
+
 #include "sf33rd/Source/Game/engine/cmb_win.h"
 #include "common.h"
 #include "sf33rd/Source/Game/SYS_sub.h"

@@ -1,3 +1,8 @@
+/**
+ * @file pow_pow.c
+ * Damage Calculation
+ */
+
 #include "sf33rd/Source/Game/engine/pow_pow.h"
 #include "common.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"

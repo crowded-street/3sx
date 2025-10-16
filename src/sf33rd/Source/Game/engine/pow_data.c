@@ -1,3 +1,8 @@
+/**
+ * @file pow_data.c
+ * Damage Calculation data
+ */
+
 #include "common.h"
 
 const u16 Power_Data[256] = {

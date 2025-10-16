@@ -1,3 +1,8 @@
+/**
+ * @file plpat00.c
+ * Gill Attacks
+ */
+
 #include "sf33rd/Source/Game/engine/plpat00.h"
 #include "common.h"
 #include "sf33rd/Source/Game/effect/effi3.h"

@@ -1,3 +1,8 @@
+/**
+ * @file bbbscom2.c
+ * "Crush the Car!" Bonus Stage
+ */
+
 #include "sf33rd/Source/Game/engine/bbbscom2.h"
 #include "common.h"
 #include "sf33rd/Source/Game/effect/eff16.h"

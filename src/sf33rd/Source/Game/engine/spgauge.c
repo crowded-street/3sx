@@ -1,3 +1,8 @@
+/**
+ * @file spgauge.c
+ * Super Art Gauge Controller
+ */
+
 #include "sf33rd/Source/Game/engine/spgauge.h"
 #include "common.h"
 #include "sf33rd/Source/Game/SysDir.h"

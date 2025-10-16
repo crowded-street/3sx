@@ -1,3 +1,8 @@
+/**
+ * @file plpat17.c
+ * Makoto Attacks
+ */
+
 #include "sf33rd/Source/Game/engine/plpat17.h"
 #include "common.h"
 #include "sf33rd/Source/Game/effect/effi3.h"

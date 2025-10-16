@@ -1,3 +1,8 @@
+/**
+ * @file plpat02.c
+ * Ryu Attacks
+ */
+
 #include "sf33rd/Source/Game/engine/plpat02.h"
 #include "common.h"
 #include "sf33rd/Source/Game/engine/charset.h"

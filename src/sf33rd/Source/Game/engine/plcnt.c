@@ -1,3 +1,8 @@
+/**
+ * @file plcnt.c
+ * Character Controller
+ */
+
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "common.h"
 #include "sf33rd/Source/Game/SYS_sub.h"

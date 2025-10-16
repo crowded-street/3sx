@@ -1,3 +1,8 @@
+/**
+ * @file plmain.c
+ * Player Character's Core Gameplay Logic
+ */
+
 #include "sf33rd/Source/Game/engine/plmain.h"
 #include "common.h"
 #include "sf33rd/Source/Game/SysDir.h"

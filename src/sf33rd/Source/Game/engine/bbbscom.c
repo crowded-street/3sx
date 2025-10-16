@@ -1,3 +1,8 @@
+/**
+ * @file bbbscom.c
+ * "Parry/Block the Ball!" Bonus Stage
+ */
+
 #include "sf33rd/Source/Game/engine/bbbscom.h"
 #include "common.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"

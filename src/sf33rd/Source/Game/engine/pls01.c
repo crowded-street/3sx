@@ -1,3 +1,8 @@
+/**
+ * @file pls01.c
+ * Player Utility and Common Mechanics Library
+ */
+
 #include "sf33rd/Source/Game/engine/pls01.h"
 #include "common.h"
 #include "sf33rd/Source/Game/SysDir.h"

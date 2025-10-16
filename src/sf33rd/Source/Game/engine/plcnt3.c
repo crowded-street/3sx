@@ -1,3 +1,8 @@
+/**
+ * @file plcnt3.c
+ * Player Controller for the "Crush the Car!" Bonus Stage
+ */
+
 #include "sf33rd/Source/Game/engine/plcnt3.h"
 #include "common.h"
 #include "sf33rd/Source/Game/engine/hitcheck.h"

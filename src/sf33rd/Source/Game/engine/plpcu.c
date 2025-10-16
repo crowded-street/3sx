@@ -1,3 +1,8 @@
+/**
+ * @file plpcu.c
+ * Player Caught/Grabbed Controller
+ */
+
 #include "sf33rd/Source/Game/engine/plpcu.h"
 #include "bin2obj/buttobi.h"
 #include "bin2obj/etc.h"

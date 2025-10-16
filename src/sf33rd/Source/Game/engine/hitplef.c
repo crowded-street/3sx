@@ -1,3 +1,8 @@
+/**
+ * @file hitplef.c
+ * Hit Player vs Effect
+ */
+
 #include "sf33rd/Source/Game/engine/hitplef.h"
 #include "common.h"
 #include "sf33rd/Source/Game/effect/eff02.h"

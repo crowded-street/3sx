@@ -1,3 +1,8 @@
+/**
+ * @file caldir.c
+ * Direction and Motion Calculation Library
+ */
+
 #include "sf33rd/Source/Game/engine/caldir.h"
 #include "common.h"
 

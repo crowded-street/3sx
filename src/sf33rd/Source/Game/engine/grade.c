@@ -1,3 +1,8 @@
+/**
+ * @file grade.c
+ * Grading logic
+ */
+
 #include "sf33rd/Source/Game/engine/grade.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"

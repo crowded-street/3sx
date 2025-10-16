@@ -1,3 +1,8 @@
+/**
+ * @file getup.c
+ * Data that defines how each character gets up
+ */
+
 #include "sf33rd/Source/Game/engine/getup.h"
 #include "common.h"
 

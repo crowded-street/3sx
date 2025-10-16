@@ -1,3 +1,8 @@
+/**
+ * @file plcnt2.c
+ * Player Controller for Bonus Stages
+ */
+
 #include "sf33rd/Source/Game/engine/plcnt2.h"
 #include "common.h"
 #include "sf33rd/Source/Game/SYS_sub.h"

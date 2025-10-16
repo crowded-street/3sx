@@ -1,3 +1,8 @@
+/**
+ * @file plpat20.c
+ * Remy Attacks
+ */
+
 #include "sf33rd/Source/Game/engine/plpat20.h"
 #include "common.h"
 #include "sf33rd/Source/Game/engine/charset.h"

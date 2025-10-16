@@ -1,3 +1,8 @@
+/**
+ * @file plpat14.c
+ * Akuma/Gouki Attacks
+ */
+
 #include "sf33rd/Source/Game/engine/plpat14.h"
 #include "common.h"
 #include "sf33rd/Source/Game/engine/charset.h"

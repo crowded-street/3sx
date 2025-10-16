@@ -1,3 +1,8 @@
+/**
+ * @file plpatuni.c
+ * Various Attacks
+ */
+
 #include "sf33rd/Source/Game/engine/plpatuni.h"
 #include "common.h"
 #include "sf33rd/Source/Game/engine/caldir.h"

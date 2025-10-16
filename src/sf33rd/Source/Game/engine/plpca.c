@@ -1,3 +1,8 @@
+/**
+ * @file plpca.c
+ * Player Catch/Grab Controller
+ */
+
 #include "sf33rd/Source/Game/engine/plpca.h"
 #include "common.h"
 #include "sf33rd/Source/Game/SysDir.h"

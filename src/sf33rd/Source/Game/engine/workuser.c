@@ -1,3 +1,8 @@
+/**
+ * @file workuser.c
+ * Global Game State Variables
+ */
+
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "common.h"
 #include "sf33rd/Source/Game/engine/cmd_data.h"

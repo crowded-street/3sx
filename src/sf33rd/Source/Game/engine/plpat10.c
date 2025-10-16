@@ -1,3 +1,8 @@
+/**
+ * @file plpat10.c
+ * Yang Attacks
+ */
+
 #include "sf33rd/Source/Game/engine/plpat10.h"
 #include "common.h"
 #include "sf33rd/Source/Game/engine/charset.h"

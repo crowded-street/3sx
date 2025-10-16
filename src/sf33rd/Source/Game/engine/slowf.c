@@ -1,3 +1,8 @@
+/**
+ * @file slowf.c
+ * Slow-Motion Controller
+ */
+
 #include "sf33rd/Source/Game/engine/slowf.h"
 #include "common.h"
 #include "sf33rd/Source/Game/engine/workuser.h"

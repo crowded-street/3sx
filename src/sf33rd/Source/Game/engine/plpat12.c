@@ -1,3 +1,8 @@
+/**
+ * @file plpat12.c
+ * Sean Attacks
+ */
+
 #include "sf33rd/Source/Game/engine/plpat12.h"
 #include "common.h"
 #include "sf33rd/Source/Game/effect/effd7.h"

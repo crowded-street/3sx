@@ -1,3 +1,8 @@
+/**
+ * @file hitefpl.c
+ * Hit Effect vs Player
+ */
+
 #include "sf33rd/Source/Game/engine/hitefpl.h"
 #include "bin2obj/gauge.h"
 #include "common.h"

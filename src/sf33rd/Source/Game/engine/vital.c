@@ -1,3 +1,8 @@
+/**
+ * @file vital.c
+ * Vitality Bars
+ */
+
 #include "sf33rd/Source/Game/engine/vital.h"
 #include "common.h"
 #include "sf33rd/Source/Game/SysDir.h"

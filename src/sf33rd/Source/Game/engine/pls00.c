@@ -1,3 +1,8 @@
+/**
+ * @file pls00.c
+ * Player State Dispatcher and Input Processor
+ */
+
 #include "sf33rd/Source/Game/engine/pls00.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_pl.h"

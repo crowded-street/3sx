@@ -1,3 +1,8 @@
+/**
+ * @file hitplpl.c
+ * Hit Player vs Player
+ */
+
 #include "sf33rd/Source/Game/engine/hitplpl.h"
 #include "common.h"
 #include "sf33rd/Source/Game/engine/hitcheck.h"

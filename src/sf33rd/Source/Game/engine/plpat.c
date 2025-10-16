@@ -1,3 +1,8 @@
+/**
+ * @file plpat.c
+ * Player Attack Controller
+ */
+
 #include "sf33rd/Source/Game/engine/plpat.h"
 #include "common.h"
 #include "sf33rd/Source/Game/effect/effg6.h"

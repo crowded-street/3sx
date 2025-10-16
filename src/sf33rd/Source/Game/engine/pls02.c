@@ -1,3 +1,8 @@
+/**
+ * @file pls02.c
+ * Player System Utilities and Damage Scaling
+ */
+
 #include "sf33rd/Source/Game/engine/pls02.h"
 #include "bin2obj/gauge.h"
 #include "common.h"

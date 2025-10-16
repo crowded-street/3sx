@@ -1,3 +1,8 @@
+/**
+ * @file cmd_main.c
+ * Command Input Parser
+ */
+
 #include "sf33rd/Source/Game/engine/cmd_main.h"
 #include "common.h"
 #include "sf33rd/Source/Game/SysDir.h"

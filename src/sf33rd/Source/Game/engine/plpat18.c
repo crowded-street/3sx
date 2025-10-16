@@ -1,3 +1,8 @@
+/**
+ * @file plpat18.c
+ * Q Attacks
+ */
+
 #include "sf33rd/Source/Game/engine/plpat18.h"
 #include "common.h"
 #include "sf33rd/Source/Game/engine/charset.h"

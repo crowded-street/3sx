@@ -1,3 +1,8 @@
+/**
+ * @file manage.c
+ * Engine management
+ */
+
 #include "sf33rd/Source/Game/engine/manage.h"
 #include "common.h"
 #include "sf33rd/Source/Game/Pause.h"

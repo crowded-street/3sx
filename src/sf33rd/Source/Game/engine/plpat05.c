@@ -1,3 +1,8 @@
+/**
+ * @file plpat05.c
+ * Necro Attacks
+ */
+
 #include "sf33rd/Source/Game/engine/plpat05.h"
 #include "common.h"
 #include "sf33rd/Source/Game/engine/charset.h"

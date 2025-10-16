@@ -1,3 +1,8 @@
+/**
+ * @file stun.c
+ * Stun Gauge Controller
+ */
+
 #include "sf33rd/Source/Game/engine/stun.h"
 #include "common.h"
 #include "sf33rd/Source/Game/SysDir.h"

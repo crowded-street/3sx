@@ -1,3 +1,8 @@
+/**
+ * @file charset.c
+ * The interpreter for character animation and logic scripts
+ */
+
 #include "sf33rd/Source/Game/engine/charset.h"
 #include "common.h"
 #include "sf33rd/Source/Game/effect/effect.h"

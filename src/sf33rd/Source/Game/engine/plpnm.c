@@ -1,3 +1,8 @@
+/**
+ * @file plpnm.c
+ * Player Normal Move and State Controller
+ */
+
 #include "common.h"
 #include "sf33rd/Source/Game/animation/appear.h"
 #include "sf33rd/Source/Game/animation/lose_pl.h"

@@ -1,3 +1,8 @@
+/**
+ * @file plpat04.c
+ * Dudley Attacks
+ */
+
 #include "sf33rd/Source/Game/engine/plpat04.h"
 #include "common.h"
 #include "sf33rd/Source/Game/engine/charset.h"

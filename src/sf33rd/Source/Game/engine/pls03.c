@@ -1,3 +1,8 @@
+/**
+ * @file pls03.c
+ * Player Special Attack and Super Art Execution
+ */
+
 #include "sf33rd/Source/Game/engine/pls03.h"
 #include "bin2obj/asstbl.h"
 #include "common.h"

@@ -1,3 +1,8 @@
+/**
+ * @file plpdm.c
+ * Player Damage and Hit Reaction Controller
+ */
+
 #include "sf33rd/Source/Game/engine/plpdm.h"
 #include "bin2obj/buttobi.h"
 #include "bin2obj/etc.h"

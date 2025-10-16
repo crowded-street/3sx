@@ -1,3 +1,8 @@
+/**
+ * @file hitcheck.c
+ * Hitcheck functions
+ */
+
 #include "sf33rd/Source/Game/engine/hitcheck.h"
 #include "bin2obj/exchange.h"
 #include "bin2obj/gauge.h"

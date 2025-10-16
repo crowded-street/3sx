@@ -1,3 +1,8 @@
+/**
+ * @file plmain2.c
+ * Player Character's Core Gameplay Logic for Bonus Stages
+ */
+
 #include "sf33rd/Source/Game/engine/plmain2.h"
 #include "common.h"
 #include "sf33rd/Source/Game/animation/appear.h"

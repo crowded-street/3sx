@@ -1,3 +1,8 @@
+/**
+ * @file plpat16.c
+ * Chun-Li Attacks
+ */
+
 #include "sf33rd/Source/Game/engine/plpat16.h"
 #include "common.h"
 #include "sf33rd/Source/Game/engine/charset.h"
