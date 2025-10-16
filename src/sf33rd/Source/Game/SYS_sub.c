@@ -1860,10 +1860,6 @@ void Clear_Break_Com(s16 PL_id) {
     }
 }
 
-void Check_Off_Vib() {
-    // Do nothing
-}
-
 s32 Flash_Violent(WORK_Other* /* unused */, s32 /* unused */) {
     return 1;
 }

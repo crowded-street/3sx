@@ -140,7 +140,6 @@ void Game_Task(struct _TASK* task_ptr) {
         seqsAfterProcess();
         texture_cash_update();
         move_pulpul_work();
-        Check_Off_Vib();
         Check_LDREQ_Queue();
     }
 

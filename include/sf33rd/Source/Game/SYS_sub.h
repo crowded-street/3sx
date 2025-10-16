@@ -78,7 +78,6 @@ void Initialize_EM_Candidate(s16 PL_id);
 void Check_Same_CPU(s16 PL_id);
 void All_Clear_Suicide();
 void Clear_Break_Com(s16 PL_id);
-void Check_Off_Vib();
 void njWaitVSync_with_N();
 void Meltw(u16* s, u16* d, s32 file_ptr);
 void cpRevivalTask();
