@@ -5,7 +5,7 @@
 
 #include "sf33rd/Source/Game/effect/effd3.h"
 #include "common.h"
-#include "sf33rd/Source/Game/aboutspr.h"
+#include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/effect/eff20.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/effect/effg8.h"

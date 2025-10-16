@@ -12,7 +12,7 @@
 #include "sf33rd/Source/Game/sound/se.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
-#include "sf33rd/Source/Game/texcash.h"
+#include "sf33rd/Source/Game/rendering/texcash.h"
 #include "structs.h"
 
 // Forward decls

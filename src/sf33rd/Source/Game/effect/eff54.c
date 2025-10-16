@@ -10,7 +10,7 @@
 #include "sf33rd/Source/Game/engine/charset.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
-#include "sf33rd/Source/Game/texcash.h"
+#include "sf33rd/Source/Game/rendering/texcash.h"
 
 const s16 eff29_data_tbl[8] = { 687, 128, 82, 7, 415, 152, 79, 8 };
 

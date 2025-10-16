@@ -11,7 +11,7 @@
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/slowf.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
-#include "sf33rd/Source/Game/meta_col.h"
+#include "sf33rd/Source/Game/rendering/meta_col.h"
 
 void K7_move_type_0(WORK_Other* ewk, PLW* mwk);
 s16 K7_mt0_rebirth_check(PLW* mwk);

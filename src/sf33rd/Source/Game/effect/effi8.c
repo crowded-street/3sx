@@ -6,7 +6,7 @@
 #include "sf33rd/Source/Game/effect/effi8.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
-#include "sf33rd/Source/Game/aboutspr.h"
+#include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/effect/eff03.h"
 #include "sf33rd/Source/Game/effect/effd7.h"
 #include "sf33rd/Source/Game/effect/effect.h"

@@ -5,7 +5,7 @@
 
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 #include "common.h"
-#include "sf33rd/Source/Game/aboutspr.h"
+#include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/animation/lose_pl.h"
 #include "sf33rd/Source/Game/animation/win_pl.h"
 #include "sf33rd/Source/Game/engine/hitcheck.h"

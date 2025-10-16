@@ -25,7 +25,7 @@
 #include "sf33rd/Source/Game/engine/pls02.h"
 #include "sf33rd/Source/Game/engine/spgauge.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
-#include "sf33rd/Source/Game/meta_col.h"
+#include "sf33rd/Source/Game/rendering/meta_col.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 
 void plmv_1010(PLW* wk);

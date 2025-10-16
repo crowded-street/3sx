@@ -9,7 +9,7 @@
 #include "sf33rd/Source/Game/RANKING.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/Sel_Data.h"
-#include "sf33rd/Source/Game/aboutspr.h"
+#include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/eff57.h"
 #include "sf33rd/Source/Game/effect/effa6.h"
@@ -20,7 +20,7 @@
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
-#include "sf33rd/Source/Game/texcash.h"
+#include "sf33rd/Source/Game/rendering/texcash.h"
 
 void effect_76_move(WORK_Other* ewk);
 void EFF76_WAIT(WORK_Other* ewk);

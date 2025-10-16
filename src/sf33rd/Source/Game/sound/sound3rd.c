@@ -15,7 +15,7 @@
 #include "sf33rd/Source/Game/RAMCNT.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
-#include "sf33rd/Source/Game/color3rd.h"
+#include "sf33rd/Source/Game/rendering/color3rd.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/workuser.h"

@@ -5,7 +5,7 @@
 
 #include "sf33rd/Source/Game/effect/effj7.h"
 #include "common.h"
-#include "sf33rd/Source/Game/color3rd.h"
+#include "sf33rd/Source/Game/rendering/color3rd.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/slowf.h"
 #include "sf33rd/Source/Game/engine/workuser.h"

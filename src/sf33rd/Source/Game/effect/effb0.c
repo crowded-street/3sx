@@ -11,7 +11,7 @@
 #include "sf33rd/Source/Game/engine/charset.h"
 #include "sf33rd/Source/Game/engine/pls02.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
-#include "sf33rd/Source/Game/texcash.h"
+#include "sf33rd/Source/Game/rendering/texcash.h"
 
 const s16 effb0_timer_tbl[8] = { 60, 30, 120, 150, 8, 20, 10, 90 };
 

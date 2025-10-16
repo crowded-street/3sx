@@ -9,7 +9,7 @@
 #include "sf33rd/Source/Game/effect/effc2.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
-#include "sf33rd/Source/Game/texcash.h"
+#include "sf33rd/Source/Game/rendering/texcash.h"
 
 void bbbs_com_execute2(PLW* wk) {
     switch (Bonus_Stage_RNO[0]) {

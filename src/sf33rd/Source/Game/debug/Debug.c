@@ -2,7 +2,7 @@
 #include "common.h"
 #include "sf33rd/AcrSDK/common/mlPAD.h"
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
-#include "sf33rd/Source/Game/MTRANS.h"
+#include "sf33rd/Source/Game/rendering/mtrans.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/debug/Deb_Data.h"

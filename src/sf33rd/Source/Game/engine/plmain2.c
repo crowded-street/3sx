@@ -17,7 +17,7 @@
 #include "sf33rd/Source/Game/engine/pls01.h"
 #include "sf33rd/Source/Game/engine/pls02.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
-#include "sf33rd/Source/Game/meta_col.h"
+#include "sf33rd/Source/Game/rendering/meta_col.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 
 void player_mvbs_0000(PLW* wk);

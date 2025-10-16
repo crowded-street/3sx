@@ -10,7 +10,7 @@
 #include "sf33rd/Source/Game/SYS_sub2.h"
 #include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
-#include "sf33rd/Source/Game/aboutspr.h"
+#include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/animation/appear.h"
 #include "sf33rd/Source/Game/count.h"
 #include "sf33rd/Source/Game/debug/Debug.h"

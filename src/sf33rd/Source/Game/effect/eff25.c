@@ -5,7 +5,7 @@
 
 #include "sf33rd/Source/Game/effect/eff25.h"
 #include "common.h"
-#include "sf33rd/Source/Game/aboutspr.h"
+#include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/effect/eff05.h"
 #include "sf33rd/Source/Game/effect/eff26.h"
 #include "sf33rd/Source/Game/effect/eff27.h"
@@ -16,7 +16,7 @@
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
-#include "sf33rd/Source/Game/texcash.h"
+#include "sf33rd/Source/Game/rendering/texcash.h"
 
 const s16 eff25_data_0000[16] = { 0, 2, 300, 160, 32, 71, 6, 0, 0, 0, 6, 6, 66, 9, 0, -1 };
 

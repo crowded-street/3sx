@@ -6,7 +6,7 @@
 #include "sf33rd/Source/Game/effect/eff58.h"
 #include "common.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
-#include "sf33rd/Source/Game/aboutspr.h"
+#include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/sc_sub.h"

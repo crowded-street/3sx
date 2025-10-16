@@ -2,7 +2,7 @@
 #include "common.h"
 #include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Game/Com_Data.h"
-#include "sf33rd/Source/Game/MMTMCNT.h"
+#include "sf33rd/Source/Game/rendering/mmtmcnt.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/SYS_sub2.h"
 #include "sf33rd/Source/Game/Sel_Data.h"

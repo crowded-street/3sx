@@ -3,13 +3,13 @@
  * TODO: identify what this effect does
  */
 
-#include "sf33rd/Source/Game/effect/eff09.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
+#include "sf33rd/Source/Game/effect/eff09.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
-#include "sf33rd/Source/Game/aboutspr.h"
+#include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/animation/appear.h"
-#include "sf33rd/Source/Game/color3rd.h"
+#include "sf33rd/Source/Game/rendering/color3rd.h"
 #include "sf33rd/Source/Game/effect/effb4.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/caldir.h"
@@ -24,7 +24,7 @@
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
-#include "sf33rd/Source/Game/texcash.h"
+#include "sf33rd/Source/Game/rendering/texcash.h"
 
 const s16 eff09_data[2][9] = { { 0, 2, 8492, 832, 192, 10, 0, 1, 0 }, { 19, 2, 8492, 528, 108, 78, 1, 0, 0 } };
 

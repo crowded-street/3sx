@@ -5,7 +5,7 @@
 
 #include "common.h"
 #include "sf33rd/Source/Game/Game.h"
-#include "sf33rd/Source/Game/MMTMCNT.h"
+#include "sf33rd/Source/Game/rendering/mmtmcnt.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/debug/Debug.h"

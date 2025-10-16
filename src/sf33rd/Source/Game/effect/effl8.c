@@ -5,7 +5,7 @@
 
 #include "sf33rd/Source/Game/effect/effl8.h"
 #include "common.h"
-#include "sf33rd/Source/Game/color3rd.h"
+#include "sf33rd/Source/Game/rendering/color3rd.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 
 u32 spmv_ng_save[2];
