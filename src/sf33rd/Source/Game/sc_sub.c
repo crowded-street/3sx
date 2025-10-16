@@ -908,8 +908,8 @@ s32 WipeOut(u8 type) {
             dmylim = WipeLimit;
         }
 
-        wipe_pc.p = &wipe_p[0];
-        wipe_pc.col = &wipe_col[0];
+        wipe_pc.p = wipe_p;
+        wipe_pc.col = wipe_col;
         wipe_pc.tex = 0;
         wipe_pc.num = 4;
         wipe_col[0].color = wipe_col[1].color = wipe_col[2].color = wipe_col[3].color = 0xFF000000;

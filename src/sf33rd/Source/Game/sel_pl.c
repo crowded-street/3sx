@@ -608,7 +608,7 @@ void OBJ_1st() {
         return;
     }
 
-    *SO_No = 2;
+    SO_No[0] = 2;
     effect_75_init(42, 3, 2);
     Order[42] = 3;
     Order_Timer[42] = 1;
