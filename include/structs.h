@@ -543,138 +543,133 @@ typedef struct {
 } AS;
 
 typedef struct {
-    // total size: 0x46C
-    WORK wu;           // offset 0x0, size 0x388
-    WORK_CP* cp;       // offset 0x388, size 0x4
-    u32 spmv_ng_flag;  // offset 0x38C, size 0x4
-    u32 spmv_ng_flag2; // offset 0x390, size 0x4
+    WORK wu;
+    WORK_CP* cp;
+    u32 spmv_ng_flag;
+    u32 spmv_ng_flag2;
 
     /// Number of the character that the player controls.
-    /// offset 0x394, size 0x2
     s16 player_number;
 
-    s16 zuru_timer;       // offset 0x396, size 0x2
-    u16 zuru_ix_counter;  // offset 0x398, size 0x2
-    u8 zuru_flag;         // offset 0x39A, size 0x1
-    s8 tsukamarenai_flag; // offset 0x39B, size 0x1
-    u8 kizetsu_kow;       // offset 0x39C, size 0x1
-    u8 micchaku_flag;     // offset 0x39D, size 0x1
-    u8 hos_fi_flag;       // offset 0x39E, size 0x1
-    u8 hos_em_flag;       // offset 0x39F, size 0x1
+    s16 zuru_timer;
+    u16 zuru_ix_counter;
+    u8 zuru_flag; // invulnerability/cheating?
+    s8 tsukamarenai_flag;
+    u8 kizetsu_kow;
+    u8 micchaku_flag;
+    u8 hos_fi_flag;
+    u8 hos_em_flag;
 
     /// Number of the character the player is throwing.
-    /// offset 0x3A0, size 0x2
     s16 tsukami_num;
 
     /// Flag that's set if the player is throwing the opponent.
-    /// offset 0x3A2, size 0x1
     s8 tsukami_f;
 
     /// Flag that's set if the player is being thrown by the opponent.
-    /// offset 0x3A3, size 0x1
     s8 tsukamare_f;
 
-    s8 kind_of_catch;       // offset 0x3A4, size 0x1
-    u8 old_gdflag;          // offset 0x3A5, size 0x1
-    u8 guard_flag;          // offset 0x3A6, size 0x1
-    u8 guard_chuu;          // offset 0x3A7, size 0x1
-    s16 dm_ix;              // offset 0x3A8, size 0x2
-    s16 hosei_amari;        // offset 0x3AA, size 0x2
-    s8 dm_hos_flag;         // offset 0x3AC, size 0x1
-    u8 dm_point;            // offset 0x3AD, size 0x1
-    s16 muriyari_ugoku;     // offset 0x3AE, size 0x2
-    s8 scr_pos_set_flag;    // offset 0x3B0, size 0x1
-    s8 hoshi_flag;          // offset 0x3B1, size 0x1
-    s8 the_same_players;    // offset 0x3B2, size 0x1
-    s8* dm_step_tbl;        // offset 0x3B4, size 0x4
-    s8 running_f;           // offset 0x3B8, size 0x1
-    s8 cancel_timer;        // offset 0x3B9, size 0x1
-    s8 jpdir;               // offset 0x3BA, size 0x1
-    s8 jptim;               // offset 0x3BB, size 0x1
-    s16 current_attack;     // offset 0x3BC, size 0x2
-    const AS* as;           // offset 0x3C0, size 0x4
-    SA_WORK* sa;            // offset 0x3C4, size 0x4
-    ComboType* cb;          // offset 0x3C8, size 0x4
-    PiyoriType* py;         // offset 0x3CC, size 0x4
-    s8 wkey_flag;           // offset 0x3D0, size 0x1
-    s8 dead_flag;           // offset 0x3D1, size 0x1
-    s16 ukemi_ok_timer;     // offset 0x3D2, size 0x2
-    s16 backup_ok_timer;    // offset 0x3D4, size 0x2
-    s8 uot_cd_ok_flag;      // offset 0x3D6, size 0x1
-    s8 ukemi_success;       // offset 0x3D7, size 0x1
-    s16 old_pos_data[8];    // offset 0x3D8, size 0x10
-    s16 move_distance;      // offset 0x3E8, size 0x2
-    s16 move_power;         // offset 0x3EA, size 0x2
-    s16 sa_stop_sai;        // offset 0x3EC, size 0x2
-    u8 saishin_lvdir;       // offset 0x3EE, size 0x1
-    u8 sa_stop_lvdir;       // offset 0x3EF, size 0x1
-    u8 sa_stop_flag;        // offset 0x3F0, size 0x1
-    u8 kezurijini_flag;     // offset 0x3F1, size 0x1
-    WORK* illusion_work;    // offset 0x3F4, size 0x4
-    s16 image_setup_flag;   // offset 0x3F8, size 0x2
-    s16 image_data_index;   // offset 0x3FA, size 0x2
-    u8 caution_flag;        // offset 0x3FC, size 0x1
-    u8 tc_1st_flag;         // offset 0x3FD, size 0x1
-    ComboType* rp;          // offset 0x400, size 0x4
-    s16 bullet_hcnt;        // offset 0x404, size 0x2
-    s16 bhcnt_timer;        // offset 0x406, size 0x2
-    s8 cat_break_ok_timer;  // offset 0x408, size 0x1
-    s8 cat_break_reserve;   // offset 0x409, size 0x1
-    s8 hazusenai_flag;      // offset 0x40A, size 0x1
-    s8 hurimukenai_flag;    // offset 0x40B, size 0x1
-    u8 tk_success;          // offset 0x40C, size 0x1
-    u8 resurrection_resv;   // offset 0x40D, size 0x1
-    s16 tk_dageki;          // offset 0x40E, size 0x2
-    s16 tk_nage;            // offset 0x410, size 0x2
-    s16 tk_kizetsu;         // offset 0x412, size 0x2
-    s16 tk_konjyou;         // offset 0x414, size 0x2
-    s16 utk_dageki;         // offset 0x416, size 0x2
-    s16 utk_nage;           // offset 0x418, size 0x2
-    s16 utk_kizetsu;        // offset 0x41A, size 0x2
-    u8 atemi_flag;          // offset 0x41C, size 0x1
-    u8 atemi_point;         // offset 0x41D, size 0x1
-    s16 dm_vital_backup;    // offset 0x41E, size 0x2
-    u8 dm_refrect;          // offset 0x420, size 0x1
-    u8 dm_vital_use;        // offset 0x421, size 0x1
-    u8 exdm_ix;             // offset 0x422, size 0x1
-    u8 meoshi_jump_flag;    // offset 0x423, size 0x1
-    s16 cmd_request;        // offset 0x424, size 0x2
-    s16 rl_save;            // offset 0x426, size 0x2
-    u8 zettai_muteki_flag;  // offset 0x428, size 0x1
-    u8 do_not_move;         // offset 0x429, size 0x1
-    u16 just_sa_stop_timer; // offset 0x42A, size 0x2
-    s16 total_att_hit_ok;   // offset 0x42C, size 0x2
-    u8 sa_healing;          // offset 0x42E, size 0x1
-    u8 auto_guard;          // offset 0x42F, size 0x1
-    u8 hsjp_ok;             // offset 0x430, size 0x1
-    u8 high_jump_flag;      // offset 0x431, size 0x1
-    s16 att_plus;           // offset 0x432, size 0x2
-    s16 def_plus;           // offset 0x434, size 0x2
-    s8 bs2_on_car;          // offset 0x436, size 0x1
-    s8 bs2_area_car;        // offset 0x437, size 0x1
-    s8 bs2_over_car;        // offset 0x438, size 0x1
-    s8 bs2_area_car2;       // offset 0x439, size 0x1
-    s8 bs2_over_car2;       // offset 0x43A, size 0x1
-    u8 micchaku_wall_time;  // offset 0x43B, size 0x1
-    u8 extra_jump;          // offset 0x43C, size 0x1
-    u8 air_jump_ok_time;    // offset 0x43D, size 0x1
-    s16 waku_ram_index;     // offset 0x43E, size 0x2
-    u16 permited_koa;       // offset 0x440, size 0x2
-    u8 ja_nmj_rno;          // offset 0x442, size 0x1
-    u8 ja_nmj_cnt;          // offset 0x443, size 0x1
-    u8 kind_of_blocking;    // offset 0x444, size 0x1
-    u8 metamorphose;        // offset 0x445, size 0x1
-    s16 metamor_index;      // offset 0x446, size 0x2
-    u8 metamor_over;        // offset 0x448, size 0x1
-    u8 gill_ccch_go;        // offset 0x449, size 0x1
-    u8 renew_attchar;       // offset 0x44A, size 0x1
-    s16 omop_vital_timer;   // offset 0x44C, size 0x2
-    s16 sfwing_pos;         // offset 0x44E, size 0x2
-    u8 init_E3_flag;        // offset 0x450, size 0x1
-    u8 init_E4_flag;        // offset 0x451, size 0x1
-    u16 pl09_dat_index;     // offset 0x452, size 0x2
-    s16 reserv_add_y;       // offset 0x454, size 0x2
-    u8 pt_free[20];         // offset 0x456, size 0x14
+    s8 kind_of_catch;
+    u8 old_gdflag;
+    u8 guard_flag;
+    u8 guard_chuu;
+    s16 dm_ix;
+    s16 hosei_amari;
+    s8 dm_hos_flag;
+    u8 dm_point;
+    s16 muriyari_ugoku;
+    s8 scr_pos_set_flag;
+    s8 hoshi_flag;
+    s8 the_same_players;
+    s8* dm_step_tbl;
+    s8 running_f;
+    s8 cancel_timer;
+    s8 jpdir;
+    s8 jptim;
+    s16 current_attack;
+    const AS* as;
+    SA_WORK* sa;
+    ComboType* cb;
+    PiyoriType* py;
+    s8 wkey_flag;
+    s8 dead_flag;
+    s16 ukemi_ok_timer;
+    s16 backup_ok_timer;
+    s8 uot_cd_ok_flag;
+    s8 ukemi_success;
+    s16 old_pos_data[8];
+    s16 move_distance;
+    s16 move_power;
+    s16 sa_stop_sai;
+    u8 saishin_lvdir;
+    u8 sa_stop_lvdir;
+    u8 sa_stop_flag;
+    u8 kezurijini_flag;
+    WORK* illusion_work;
+    s16 image_setup_flag;
+    s16 image_data_index;
+    u8 caution_flag;
+    u8 tc_1st_flag;
+    ComboType* rp;
+    s16 bullet_hcnt;
+    s16 bhcnt_timer;
+    s8 cat_break_ok_timer;
+    s8 cat_break_reserve;
+    s8 hazusenai_flag;
+    s8 hurimukenai_flag;
+    u8 tk_success;
+    u8 resurrection_resv;
+    s16 tk_dageki;
+    s16 tk_nage;
+    s16 tk_kizetsu;
+    s16 tk_konjyou;
+    s16 utk_dageki;
+    s16 utk_nage;
+    s16 utk_kizetsu;
+    u8 atemi_flag;
+    u8 atemi_point;
+    s16 dm_vital_backup;
+    u8 dm_refrect;
+    u8 dm_vital_use;
+    u8 exdm_ix;
+    u8 meoshi_jump_flag;
+    s16 cmd_request;
+    s16 rl_save;
+    u8 zettai_muteki_flag; // invulnerability/cheating?
+    u8 do_not_move;
+    u16 just_sa_stop_timer;
+    s16 total_att_hit_ok;
+    u8 sa_healing;
+    u8 auto_guard;
+    u8 hsjp_ok;
+    u8 high_jump_flag;
+    s16 att_plus;
+    s16 def_plus;
+    s8 bs2_on_car;
+    s8 bs2_area_car;
+    s8 bs2_over_car;
+    s8 bs2_area_car2;
+    s8 bs2_over_car2;
+    u8 micchaku_wall_time;
+    u8 extra_jump;
+    u8 air_jump_ok_time;
+    s16 waku_ram_index;
+    u16 permited_koa;
+    u8 ja_nmj_rno;
+    u8 ja_nmj_cnt;
+    u8 kind_of_blocking;
+    u8 metamorphose;
+    s16 metamor_index;
+    u8 metamor_over;
+    u8 gill_ccch_go;
+    u8 renew_attchar;
+    s16 omop_vital_timer;
+    s16 sfwing_pos;
+    u8 init_E3_flag;
+    u8 init_E4_flag;
+    u16 pl09_dat_index;
+    s16 reserv_add_y;
+    u8 pt_free[20];
 } PLW;
 
 typedef struct {

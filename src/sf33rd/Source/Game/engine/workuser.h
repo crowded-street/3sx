@@ -176,7 +176,6 @@ extern s8 Auto_Cursor[2];
 extern s8 Auto_No[2];
 extern s8 Auto_Index[2];
 extern s8 Auto_Timer[2];
-extern s8 ID2;
 extern s8 Explosion;
 extern s8 Introduce_Break_Into[2];
 extern s8 gouki_wins;
@@ -225,7 +224,10 @@ extern s8 Temporary_EM[2];
 extern s8 OK_Moving_SA_Plate[2];
 extern u8 Battle_Q[2];
 extern u8 EM_History[2][10];
+
+// Go faster during a non-gameplay animation
 extern u8 Scene_Cut;
+
 extern u8 GO_No[4];
 extern u8 Aborigine;
 extern u8 Continue_Count_Down[2];
@@ -249,8 +251,13 @@ extern u8 PT_backup;
 extern u8 E_Number[2][4];
 extern u8 E_No[4];
 extern u8 C_No[4];
+
+// Character select routine indices
 extern u8 S_No[4];
+
+// Game routine indices
 extern u8 G_No[4];
+
 extern u8 D_No[4];
 extern u8 M_No[4];
 extern u8 Exit_No;
@@ -275,7 +282,10 @@ extern u8 CP_No[2][4];
 extern u8 CP_Index[2][8];
 extern u8 Gap_Timer;
 extern u8 Message_Suicide[4];
+
+// Whether or not battle UI is displayed
 extern u8 Disp_Cockpit;
+
 extern s8 Select_Arts[2];
 extern u8 Lamp_No;
 extern u8 Lamp_Index;
@@ -369,7 +379,13 @@ extern s16 Move_Super_Arts[2];
 extern s16 Battle_Country;
 extern s16 Face_Status;
 extern s16 Unit_Of_Timer;
+
+// ID of the player currently operated on during player selection routines
 extern s16 ID;
+
+// ID of the player currently operated on during player selection routines (similar to `ID`)
+extern s8 ID2;
+
 extern s16 mes_already;
 extern s16 Timer_00[2];
 extern s16 Timer_01[2];

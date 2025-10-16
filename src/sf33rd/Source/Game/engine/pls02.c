@@ -285,6 +285,7 @@ void remake_mvxy_PoGR(WORK* wk) {
     }
 }
 
+/// Check player push box collision and push them if needed
 void check_body_touch() {
     PLW* p1w = &plw[0];
     PLW* p2w = &plw[1];
