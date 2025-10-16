@@ -18,21 +18,20 @@
 #include "sf33rd/Source/Game/SYS_sub2.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/aboutspr.h"
-#include "sf33rd/Source/Game/stage/bg.h"
-#include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/color3rd.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
+#include "sf33rd/Source/Game/demo/demo00.h"
 #include "sf33rd/Source/Game/effect/effe1.h"
 #include "sf33rd/Source/Game/effect/effect_init.h"
-#include "sf33rd/Source/Game/sc_sub.h"
-#include "sf33rd/Source/Game/texcash.h"
-#include "sf33rd/Source/Game/workuser.h"
-
-#include "sf33rd/Source/Game/demo/demo00.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/io/gd3rd.h"
 #include "sf33rd/Source/Game/opening/op_sub.h"
+#include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/sound/se.h"
 #include "sf33rd/Source/Game/sound/sound3rd.h"
+#include "sf33rd/Source/Game/stage/bg.h"
+#include "sf33rd/Source/Game/stage/bg_data.h"
+#include "sf33rd/Source/Game/texcash.h"
 
 typedef const f32* ro_f32_ptr;
 

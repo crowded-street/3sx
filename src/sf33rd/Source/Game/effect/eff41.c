@@ -6,15 +6,15 @@
 #include "sf33rd/Source/Game/effect/eff41.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
-#include "sf33rd/Source/Game/CHARSET.h"
-#include "sf33rd/Source/Game/Grade.h"
-#include "sf33rd/Source/Game/SLOWF.h"
 #include "sf33rd/Source/Game/aboutspr.h"
-#include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/color3rd.h"
 #include "sf33rd/Source/Game/effect/effd9.h"
 #include "sf33rd/Source/Game/effect/effect.h"
-#include "sf33rd/Source/Game/workuser.h"
+#include "sf33rd/Source/Game/engine/charset.h"
+#include "sf33rd/Source/Game/engine/grade.h"
+#include "sf33rd/Source/Game/engine/slowf.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/stage/bg.h"
 
 void eff41_process_00(WORK_Other* ewk, PLW* mwk);
 void eff41_process_01(WORK_Other* ewk, PLW* mwk);

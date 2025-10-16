@@ -8,7 +8,7 @@
 #include "sf33rd/Source/Game/BCD.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/effect.h"
-#include "sf33rd/Source/Game/workuser.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 
 s32 Check_Sleep_A5(WORK_Other* ewk);
 

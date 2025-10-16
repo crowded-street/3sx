@@ -5,20 +5,19 @@
 #include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/SYS_sub2.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
-#include "sf33rd/Source/Game/stage/bg.h"
-#include "sf33rd/Source/Game/stage/bg_data.h"
-#include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
+#include "sf33rd/Source/Game/demo/demo02.h"
 #include "sf33rd/Source/Game/effect/eff58.h"
 #include "sf33rd/Source/Game/effect/eff67.h"
 #include "sf33rd/Source/Game/effect/eff76.h"
-#include "sf33rd/Source/Game/texcash.h"
-#include "sf33rd/Source/Game/workuser.h"
-
-#include "sf33rd/Source/Game/demo/demo02.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/io/gd3rd.h"
 #include "sf33rd/Source/Game/sound/se.h"
 #include "sf33rd/Source/Game/sound/sound3rd.h"
+#include "sf33rd/Source/Game/stage/bg.h"
+#include "sf33rd/Source/Game/stage/bg_data.h"
+#include "sf33rd/Source/Game/stage/bg_sub.h"
+#include "sf33rd/Source/Game/texcash.h"
 
 // sbss
 RANK_DATA Present_Data[2];

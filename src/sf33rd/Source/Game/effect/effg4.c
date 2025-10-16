@@ -6,11 +6,11 @@
 #include "sf33rd/Source/Game/effect/effg4.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
-#include "sf33rd/Source/Game/CHARSET.h"
-#include "sf33rd/Source/Game/SLOWF.h"
 #include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/effect/effect.h"
-#include "sf33rd/Source/Game/workuser.h"
+#include "sf33rd/Source/Game/engine/charset.h"
+#include "sf33rd/Source/Game/engine/slowf.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 
 const GillEffData gill_eff_data[54] = {
     { 0, 0, -1, 92 },      { 0, 0, -1, 93 },      { 6, -10, -1, 94 },    { 12, -1, -1, 95 },    { -6, -1, -1, 96 },

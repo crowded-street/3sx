@@ -5,9 +5,9 @@
 
 #include "sf33rd/Source/Game/effect/effl0.h"
 #include "common.h"
-#include "sf33rd/Source/Game/SLOWF.h"
 #include "sf33rd/Source/Game/effect/effect.h"
-#include "sf33rd/Source/Game/workuser.h"
+#include "sf33rd/Source/Game/engine/slowf.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 
 void effect_L0_move(WORK_Other* ewk) {
     PLW* mwk = (PLW*)ewk->my_master;

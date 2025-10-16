@@ -5,13 +5,6 @@
 
 #include "sf33rd/Source/Game/effect/effc2.h"
 #include "common.h"
-#include "sf33rd/Source/Game/CHARID.h"
-#include "sf33rd/Source/Game/CHARSET.h"
-#include "sf33rd/Source/Game/HITCHECK.h"
-#include "sf33rd/Source/Game/PLMAIN.h"
-#include "sf33rd/Source/Game/PLS02.h"
-#include "sf33rd/Source/Game/Pow_Pow.h"
-#include "sf33rd/Source/Game/SLOWF.h"
 #include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/effect/eff00.h"
 #include "sf33rd/Source/Game/effect/effc3.h"
@@ -19,7 +12,14 @@
 #include "sf33rd/Source/Game/effect/effj9.h"
 #include "sf33rd/Source/Game/effect/effk2.h"
 #include "sf33rd/Source/Game/effect/effk4.h"
-#include "sf33rd/Source/Game/workuser.h"
+#include "sf33rd/Source/Game/engine/charid.h"
+#include "sf33rd/Source/Game/engine/charset.h"
+#include "sf33rd/Source/Game/engine/hitcheck.h"
+#include "sf33rd/Source/Game/engine/plmain.h"
+#include "sf33rd/Source/Game/engine/pls02.h"
+#include "sf33rd/Source/Game/engine/pow_pow.h"
+#include "sf33rd/Source/Game/engine/slowf.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 
 const BS2 bs2_data_table[8] = { { 0, 70, 400, 8492, 30, 66 }, { 0, 60, 0, 8492, 29, 65 },
                                 { 0, 50, 0, 8492, 29, 65 },   { 0, 0, 300, 8492, 28, 64 },

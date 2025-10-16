@@ -5,9 +5,6 @@
 
 #include "sf33rd/Source/Game/animation/win_pl.h"
 #include "common.h"
-#include "sf33rd/Source/Game/CHARSET.h"
-#include "sf33rd/Source/Game/PLCNT.h"
-#include "sf33rd/Source/Game/PLS02.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/effect/eff30.h"
 #include "sf33rd/Source/Game/effect/eff31.h"
@@ -18,10 +15,13 @@
 #include "sf33rd/Source/Game/effect/effl3.h"
 #include "sf33rd/Source/Game/effect/effl6.h"
 #include "sf33rd/Source/Game/effect/effm2.h"
+#include "sf33rd/Source/Game/engine/charset.h"
+#include "sf33rd/Source/Game/engine/plcnt.h"
+#include "sf33rd/Source/Game/engine/pls02.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
-#include "sf33rd/Source/Game/workuser.h"
 
 void Win_00000(PLW* wk);
 void Win_01000(PLW* wk);

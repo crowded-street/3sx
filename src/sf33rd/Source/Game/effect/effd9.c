@@ -5,9 +5,9 @@
 
 #include "sf33rd/Source/Game/effect/effd9.h"
 #include "common.h"
-#include "sf33rd/Source/Game/SLOWF.h"
 #include "sf33rd/Source/Game/effect/effect.h"
-#include "sf33rd/Source/Game/workuser.h"
+#include "sf33rd/Source/Game/engine/slowf.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 
 const s16 coltbl_000_1P[10] = { 1, 8192, 2, 8193, 1, 8195, 2, 8193, 0, 0 };
 const s16 coltbl_000_2P[10] = { 1, 8208, 2, 8209, 1, 8211, 2, 8209, 0, 0 };

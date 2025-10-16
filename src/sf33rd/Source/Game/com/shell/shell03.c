@@ -6,7 +6,7 @@
 #include "sf33rd/Source/Game/com/shell/shell03.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
-#include "sf33rd/Source/Game/workuser.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 
 void (*const Shell03_Tbl[11])(PLW*);
 

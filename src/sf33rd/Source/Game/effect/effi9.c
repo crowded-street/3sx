@@ -5,10 +5,10 @@
 
 #include "sf33rd/Source/Game/effect/effi9.h"
 #include "common.h"
-#include "sf33rd/Source/Game/SLOWF.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/effect/effj0.h"
-#include "sf33rd/Source/Game/workuser.h"
+#include "sf33rd/Source/Game/engine/slowf.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 
 void push_image_buff(WORK_Other* wk, ImageBuff* image_buff);
 void init_image_buff(WORK_Other* wk, ImageBuff* image_buff);

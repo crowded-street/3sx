@@ -2,16 +2,16 @@
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "sf33rd/Source/Game/AcrUtil.h"
-#include "sf33rd/Source/Game/CHARID.h"
 #include "sf33rd/Source/Game/DC_Ghost.h"
 #include "sf33rd/Source/Game/MTRANS.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
-#include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/color3rd.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/effect.h"
+#include "sf33rd/Source/Game/engine/charid.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/texgroup.h"
-#include "sf33rd/Source/Game/workuser.h"
 
 // bss
 MultiTexture mts[24]; // size: 0x960, address: 0x6B4070

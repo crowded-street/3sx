@@ -6,7 +6,6 @@
 // Uncomment once effmovejptbl is fully decompiled
 // #include "sf33rd/Source/Game/effect/effxx.h"
 #include "common.h"
-#include "sf33rd/Source/Game/PLPAT09.h"
 #include "sf33rd/Source/Game/effect/eff00.h"
 #include "sf33rd/Source/Game/effect/eff01.h"
 #include "sf33rd/Source/Game/effect/eff02.h"
@@ -211,6 +210,7 @@
 #include "sf33rd/Source/Game/effect/effm6.h"
 #include "sf33rd/Source/Game/effect/effm7.h"
 #include "sf33rd/Source/Game/effect/effm8.h"
+#include "sf33rd/Source/Game/engine/plpat09.h"
 
 s32 effect_dummy_init() {
     return -1;

@@ -12,18 +12,17 @@
 #include "sf33rd/Source/Game/AcrUtil.h"
 #include "sf33rd/Source/Game/DC_Ghost.h"
 #include "sf33rd/Source/Game/MTRANS.h"
-#include "sf33rd/Source/Game/PLS02.h"
 #include "sf33rd/Source/Game/RAMCNT.h"
-#include "sf33rd/Source/Game/SLOWF.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/color3rd.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
-#include "sf33rd/Source/Game/stage/bg_data.h"
-#include "sf33rd/Source/Game/workuser.h"
-#include "structs.h"
-
 #include "sf33rd/Source/Game/ending/end_data.h"
+#include "sf33rd/Source/Game/engine/pls02.h"
+#include "sf33rd/Source/Game/engine/slowf.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/io/gd3rd.h"
+#include "sf33rd/Source/Game/stage/bg_data.h"
+#include "structs.h"
 
 // sbss
 Vertex scrDrawPos[4];

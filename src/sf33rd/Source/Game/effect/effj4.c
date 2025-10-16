@@ -5,12 +5,12 @@
 
 #include "sf33rd/Source/Game/effect/effj4.h"
 #include "common.h"
-#include "sf33rd/Source/Game/PLCNT.h"
-#include "sf33rd/Source/Game/SLOWF.h"
 #include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/effect/effect.h"
+#include "sf33rd/Source/Game/engine/plcnt.h"
+#include "sf33rd/Source/Game/engine/slowf.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
-#include "sf33rd/Source/Game/workuser.h"
 
 void effect_J4_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {

@@ -6,14 +6,14 @@
 #include "sf33rd/Source/Game/effect/eff73.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
-#include "sf33rd/Source/Game/CHARSET.h"
-#include "sf33rd/Source/Game/PLS02.h"
-#include "sf33rd/Source/Game/SLOWF.h"
 #include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/effect/effect.h"
+#include "sf33rd/Source/Game/engine/charset.h"
+#include "sf33rd/Source/Game/engine/pls02.h"
+#include "sf33rd/Source/Game/engine/slowf.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
-#include "sf33rd/Source/Game/workuser.h"
 
 const s32 eff73_sp_tbl[4][3] = {
     { 0x28000, -0x18000, -0x800 }, { 0x10000, 0x8000, 0x20000 }, { -0x4000, 0x0, 0x0 }, { -0x10000, 0x8000, 0x28000 }

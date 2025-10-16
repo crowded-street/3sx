@@ -6,12 +6,12 @@
 #include "sf33rd/Source/Game/effect/eff74.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
-#include "sf33rd/Source/Game/CHARSET.h"
 #include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/effect/eff57.h"
 #include "sf33rd/Source/Game/effect/effect.h"
+#include "sf33rd/Source/Game/engine/charset.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/stage/bg.h"
-#include "sf33rd/Source/Game/workuser.h"
 
 const s16 EFF74_Pos_Data[3][2][2] = { { { 0, 148 }, { 0, 116 } },
                                       { { -48, 104 }, { 48, 104 } },

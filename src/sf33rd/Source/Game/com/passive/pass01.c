@@ -6,7 +6,7 @@
 #include "sf33rd/Source/Game/com/passive/pass01.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
-#include "sf33rd/Source/Game/workuser.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 
 void (*const Passive01_Tbl[176])();
 

@@ -5,13 +5,13 @@
 
 #include "sf33rd/Source/Game/effect/effe4.h"
 #include "common.h"
-#include "sf33rd/Source/Game/PLCNT.h"
-#include "sf33rd/Source/Game/PLMAIN.h"
 #include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/effect/effect.h"
-#include "sf33rd/Source/Game/spgauge.h"
-#include "sf33rd/Source/Game/workuser.h"
+#include "sf33rd/Source/Game/engine/plcnt.h"
+#include "sf33rd/Source/Game/engine/plmain.h"
+#include "sf33rd/Source/Game/engine/spgauge.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 
 void effect_E4_move(WORK_Other* ewk) {
     PLW* mwk = (PLW*)ewk->my_master;
@@ -19,7 +19,8 @@ void effect_E4_move(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        if (mwk->wu.E4_work_index != ewk->wu.myself || ewk->wu.dead_f != 0 || (Mode_Type != MODE_NORMAL_TRAINING && Mode_Type != MODE_PARRY_TRAINING)) {
+        if (mwk->wu.E4_work_index != ewk->wu.myself || ewk->wu.dead_f != 0 ||
+            (Mode_Type != MODE_NORMAL_TRAINING && Mode_Type != MODE_PARRY_TRAINING)) {
             ewk->wu.routine_no[0] = 2;
             break;
         }

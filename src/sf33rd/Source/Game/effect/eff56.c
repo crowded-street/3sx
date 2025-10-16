@@ -6,9 +6,9 @@
 #include "sf33rd/Source/Game/effect/eff56.h"
 #include "common.h"
 #include "sf33rd/Source/Game/effect/effect.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/stage/bg.h"
-#include "sf33rd/Source/Game/workuser.h"
 
 const u8* ci_pointer;
 u8 ci_col;

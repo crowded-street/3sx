@@ -1,7 +1,7 @@
 #include "sf33rd/Source/Game/MMTMCNT.h"
 #include "common.h"
-#include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/RAMCNT.h"
+#include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/texcash.h"
 #include "sf33rd/Source/Game/texgroup.h"
 

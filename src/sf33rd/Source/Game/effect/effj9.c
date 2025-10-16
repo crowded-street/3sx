@@ -5,12 +5,12 @@
 
 #include "sf33rd/Source/Game/effect/effj9.h"
 #include "common.h"
-#include "sf33rd/Source/Game/CHARID.h"
-#include "sf33rd/Source/Game/CHARSET.h"
 #include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/effect/eff00.h"
 #include "sf33rd/Source/Game/effect/effc2.h"
 #include "sf33rd/Source/Game/effect/effect.h"
+#include "sf33rd/Source/Game/engine/charid.h"
+#include "sf33rd/Source/Game/engine/charset.h"
 
 void effJ9_trans(WORK* wk);
 s16 get_c2_quake(WORK* c2wk);

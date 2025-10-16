@@ -5,14 +5,13 @@
 
 #include "sf33rd/Source/Game/effect/effk7.h"
 #include "common.h"
-#include "sf33rd/Source/Game/CHARSET.h"
-#include "sf33rd/Source/Game/PLCNT.h"
-#include "sf33rd/Source/Game/SLOWF.h"
-#include "sf33rd/Source/Game/effect/effect.h"
-#include "sf33rd/Source/Game/meta_col.h"
-#include "sf33rd/Source/Game/workuser.h"
-
 #include "sf33rd/Source/Game/com/com_pl.h"
+#include "sf33rd/Source/Game/effect/effect.h"
+#include "sf33rd/Source/Game/engine/charset.h"
+#include "sf33rd/Source/Game/engine/plcnt.h"
+#include "sf33rd/Source/Game/engine/slowf.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/meta_col.h"
 
 void K7_move_type_0(WORK_Other* ewk, PLW* mwk);
 s16 K7_mt0_rebirth_check(PLW* mwk);

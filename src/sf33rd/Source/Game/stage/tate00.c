@@ -5,6 +5,7 @@
 
 #include "sf33rd/Source/Game/stage/tate00.h"
 #include "common.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg000.h"
 #include "sf33rd/Source/Game/stage/bg010.h"
@@ -27,7 +28,6 @@
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/stage/bns_bg2.h"
 #include "sf33rd/Source/Game/stage/bonus_bg.h"
-#include "sf33rd/Source/Game/workuser.h"
 
 void (*ta_move_tbl[22])() = { BG000, BG010, BG020, BG030, BG040, BG050, BG060, BG070, BG080, BG090,    BG100,
                               BG010, BG120, BG130, BG140, BG150, BG160, BG180, BG180, BG190, Bonus_bg, Bonus_bg2 };

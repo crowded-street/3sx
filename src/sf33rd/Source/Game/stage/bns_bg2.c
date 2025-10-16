@@ -5,15 +5,15 @@
 
 #include "sf33rd/Source/Game/stage/bns_bg2.h"
 #include "common.h"
-#include "sf33rd/Source/Game/PLCNT.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/effect/eff05.h"
 #include "sf33rd/Source/Game/effect/eff12.h"
 #include "sf33rd/Source/Game/effect/eff35.h"
+#include "sf33rd/Source/Game/engine/plcnt.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
-#include "sf33rd/Source/Game/workuser.h"
 
 void Bonus_bg2() {
     bgw_ptr = &bg_w.bgw[1];

@@ -5,11 +5,6 @@
 
 #include "sf33rd/Source/Game/effect/effc3.h"
 #include "common.h"
-#include "sf33rd/Source/Game/CHARID.h"
-#include "sf33rd/Source/Game/CHARSET.h"
-#include "sf33rd/Source/Game/HITCHECK.h"
-#include "sf33rd/Source/Game/PLMAIN.h"
-#include "sf33rd/Source/Game/SLOWF.h"
 #include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/effect/eff00.h"
 #include "sf33rd/Source/Game/effect/effc2.h"
@@ -17,7 +12,12 @@
 #include "sf33rd/Source/Game/effect/effk2.h"
 #include "sf33rd/Source/Game/effect/effk3.h"
 #include "sf33rd/Source/Game/effect/effk4.h"
-#include "sf33rd/Source/Game/workuser.h"
+#include "sf33rd/Source/Game/engine/charid.h"
+#include "sf33rd/Source/Game/engine/charset.h"
+#include "sf33rd/Source/Game/engine/hitcheck.h"
+#include "sf33rd/Source/Game/engine/plmain.h"
+#include "sf33rd/Source/Game/engine/slowf.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 
 void bs2_display_C3(WORK* wk);
 void set_display_car_parts(WORK_Other* wk);

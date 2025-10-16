@@ -6,9 +6,9 @@
 #include "sf33rd/Source/Game/effect/eff67.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
-#include "sf33rd/Source/Game/CHARSET.h"
 #include "sf33rd/Source/Game/aboutspr.h"
 #include "sf33rd/Source/Game/effect/effect.h"
+#include "sf33rd/Source/Game/engine/charset.h"
 #include "sf33rd/Source/Game/texcash.h"
 
 void effect_67_move(WORK_Other_CONN* ewk) {

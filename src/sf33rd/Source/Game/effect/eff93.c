@@ -5,11 +5,11 @@
 
 #include "sf33rd/Source/Game/effect/eff93.h"
 #include "common.h"
-#include "sf33rd/Source/Game/CALDIR.h"
 #include "sf33rd/Source/Game/effect/effect.h"
+#include "sf33rd/Source/Game/engine/caldir.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
-#include "sf33rd/Source/Game/workuser.h"
 
 typedef void (*Eff93_Jmp_Tbl_t)(WORK_Other* ewk);
 

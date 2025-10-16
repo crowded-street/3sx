@@ -5,11 +5,11 @@
 
 #include "sf33rd/Source/Game/effect/eff84.h"
 #include "common.h"
-#include "sf33rd/Source/Game/PLS02.h"
 #include "sf33rd/Source/Game/effect/eff56.h"
 #include "sf33rd/Source/Game/effect/effect.h"
+#include "sf33rd/Source/Game/engine/pls02.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/stage/bg.h"
-#include "sf33rd/Source/Game/workuser.h"
 
 const u8 Time_Data[5] = { 80, 90, 50, 50, 50 };
 

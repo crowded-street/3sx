@@ -6,7 +6,7 @@
 #include "sf33rd/Source/Game/com/active/active03.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
-#include "sf33rd/Source/Game/workuser.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 
 void (*const Pattern03_Tbl[72])();
 

@@ -5,10 +5,10 @@
 
 #include "sf33rd/Source/Game/effect/effg6.h"
 #include "common.h"
-#include "sf33rd/Source/Game/SLOWF.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/effect/effg9.h"
-#include "sf33rd/Source/Game/workuser.h"
+#include "sf33rd/Source/Game/engine/slowf.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 
 const s16 effg6_data[230][8] = { { 46, 0, 0, 0, -32, 32, 515, 31 },       { 46, 0, 0, 0, -64, 40, 515, 31 },
                                  { 46, 0, 0, 0, -128, 48, 515, 30 },      { 46, 0, 0, 0, -192, 64, 515, 30 },

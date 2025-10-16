@@ -11,13 +11,12 @@
 #include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/effect/eff76.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/io/gd3rd.h"
 #include "sf33rd/Source/Game/sc_data.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
-#include "sf33rd/Source/Game/workuser.h"
 #include "sf33rd/Source/PS2/ps2Quad.h"
 #include "structs.h"
-
-#include "sf33rd/Source/Game/io/gd3rd.h"
 
 #if defined(TARGET_PS2)
 #define TO_UV_256(val) ((0.5f + (val)) / 256.0f)

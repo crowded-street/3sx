@@ -6,17 +6,9 @@
 #include "sf33rd/Source/Game/com/com_pl.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
-#include "sf33rd/Source/Game/CMD_MAIN.h"
 #include "sf33rd/Source/Game/Com_Data.h"
-#include "sf33rd/Source/Game/Getup.h"
-#include "sf33rd/Source/Game/PLCNT.h"
-#include "sf33rd/Source/Game/PLMAIN.h"
-#include "sf33rd/Source/Game/PLS02.h"
 #include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
-#include "sf33rd/Source/Game/cmd_data.h"
-#include "sf33rd/Source/Game/workuser.h"
-
 #include "sf33rd/Source/Game/com/active/active00.h"
 #include "sf33rd/Source/Game/com/active/active01.h"
 #include "sf33rd/Source/Game/com/active/active02.h"
@@ -71,6 +63,13 @@
 #include "sf33rd/Source/Game/com/shell/shell13.h"
 #include "sf33rd/Source/Game/com/shell/shell14.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
+#include "sf33rd/Source/Game/engine/cmd_data.h"
+#include "sf33rd/Source/Game/engine/cmd_main.h"
+#include "sf33rd/Source/Game/engine/getup.h"
+#include "sf33rd/Source/Game/engine/plcnt.h"
+#include "sf33rd/Source/Game/engine/plmain.h"
+#include "sf33rd/Source/Game/engine/pls02.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 
 void Main_Program(PLW* wk);
 

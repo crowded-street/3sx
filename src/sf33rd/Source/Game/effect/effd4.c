@@ -5,10 +5,10 @@
 
 #include "sf33rd/Source/Game/effect/effd4.h"
 #include "common.h"
-#include "sf33rd/Source/Game/SLOWF.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/effect/effg3.h"
-#include "sf33rd/Source/Game/workuser.h"
+#include "sf33rd/Source/Game/engine/slowf.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 
 static s32 distance2speed(WORK_Other* ewk, WORK* wk, s32 dir);
 

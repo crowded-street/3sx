@@ -6,11 +6,10 @@
 #include "sf33rd/Source/Game/com/ck_pass.h"
 #include "common.h"
 #include "sf33rd/Source/Game/Com_Data.h"
-#include "sf33rd/Source/Game/PLS02.h"
 #include "sf33rd/Source/Game/WORK_SYS.h"
-#include "sf33rd/Source/Game/workuser.h"
-
 #include "sf33rd/Source/Game/com/com_sub.h"
+#include "sf33rd/Source/Game/engine/pls02.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 
 static s32 Check_PL_Unit_AS(PLW* wk);
 static s32 Check_PL_Unit_A(PLW* wk);
