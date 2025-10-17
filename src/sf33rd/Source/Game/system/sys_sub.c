@@ -833,10 +833,6 @@ void Setup_Virtual_BG(s16 BG_INDEX, s16 X, s16 Y) {
 }
 
 void BG_move() {
-#if defined(TARGET_PS2)
-    void bg_pos_hosei_sub2(s32 bg_no);
-#endif
-
     s16 ix;
 
     for (ix = 0; ix < 4; ix++) {
@@ -879,10 +875,6 @@ s32 Check_PL_Load() {
 }
 
 void BG_Draw_System() {
-#if defined(TARGET_PS2)
-    void scr_trans(u32 bgnm);
-#endif
-
     u8 i;
     u16 mask = 1 & 0xFFFF;
     u16 s2;
