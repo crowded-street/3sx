@@ -1010,7 +1010,6 @@ void Soft_Reset_Sub() {
     cpExitTask(TASK_MENU);
     cpExitTask(TASK_SAVER);
     cpExitTask(TASK_PAUSE);
-    setup_pos_remake_key(2);
     Reset_Sub0();
     task->r_no[0] = 1;
     task->r_no[1] = 0;

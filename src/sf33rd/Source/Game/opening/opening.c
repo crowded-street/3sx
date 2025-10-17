@@ -1845,7 +1845,6 @@ void op_116_move() {
         op_w.r_no_2 += 1;
         op_work_clear();
         op_w.index = 91;
-        setup_pos_remake_key(2);
         op_bg_move(91);
         effect_36_init(17);
         effect_36_init(28);

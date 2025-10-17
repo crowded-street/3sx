@@ -64,7 +64,6 @@ void Ending_init() {
     end_no_cut = 0;
     staff_r_no = 0;
     end_staff_flag = 0;
-    setup_pos_remake_key(6);
 }
 
 s8 Ending_main(s16 pl_num) {
@@ -172,7 +171,6 @@ void normal_ending(s16 pl_num) {
 
     case 8:
         if (end_fade_complete()) {
-            setup_pos_remake_key(7);
             end_w.r_no_0++;
             end_no_cut = 0;
             Bg_Close();

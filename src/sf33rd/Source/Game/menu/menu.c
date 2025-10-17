@@ -282,7 +282,6 @@ void Menu_Init(struct _TASK* task_ptr) {
         Order_Timer[0x4E] = 1;
         effect_57_init(0x4E, 0, 0, 0x45, fade_on);
         load_any_texture_patnum(0x7F30, 0xC, 0);
-        setup_pos_remake_key(0);
     }
 
     cpReadyTask(TASK_SAVER, Saver_Task);
@@ -1473,7 +1472,6 @@ void Load_Replay_Sub(struct _TASK* task_ptr) {
         task_ptr->r_no[3] += 1;
         FadeInit();
         FadeOut(0, 0xFF, 8);
-        setup_pos_remake_key(5);
         Play_Type = 1;
         Mode_Type = MODE_REPLAY;
         Present_Mode = 3;

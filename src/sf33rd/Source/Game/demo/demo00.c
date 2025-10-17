@@ -124,7 +124,6 @@ s32 CAPCOM_Logo() {
 
     case 1:
         D_No[1] += 1;
-        setup_pos_remake_key(1);
         Standby_BGM(67);
         CAPLOGO_Init();
         Push_LDREQ_Queue_Direct(0x16, 2);

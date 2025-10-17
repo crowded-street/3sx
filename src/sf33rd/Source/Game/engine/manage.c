@@ -234,7 +234,6 @@ void Game_Manage_1st() {
 
     if (Mode_Type != MODE_NETWORK) {
         cpReadyTask(TASK_PAUSE, Pause_Task);
-        setup_pos_remake_key(3);
     }
 }
 

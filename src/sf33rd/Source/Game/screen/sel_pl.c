@@ -279,7 +279,6 @@ void Sel_PL_Cont_1st() {
     pulpul_stop();
     pp_operator_check_flag(1);
     effect_58_init(6, 20, 157);
-    setup_pos_remake_key(5);
 }
 
 void Check_Use_Gill() {

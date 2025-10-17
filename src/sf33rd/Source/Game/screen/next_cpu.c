@@ -149,7 +149,6 @@ void Next_CPU_1st() {
     Cut_Scroll = 2;
     effect_58_init(13, 1, 3);
     effect_58_init(16, 5, 2);
-    setup_pos_remake_key(5);
 }
 
 void Next_CPU_2nd() {
@@ -550,7 +549,6 @@ void After_Bonus_1st() {
     Setup_BG(1, 0x200, 0);
     Setup_BG(3, 0x2C0, 0);
     Unsubstantial_BG[0] = 1;
-    setup_pos_remake_key(5);
 }
 
 void After_Bonus_2nd() {
@@ -642,8 +640,6 @@ void Select_CPU_1st() {
     if (VS_Index[Player_id] >= 8) {
         Push_LDREQ_Queue_Direct(9, 2);
     }
-
-    setup_pos_remake_key(5);
 }
 
 void Select_CPU_2nd() {
@@ -871,7 +867,6 @@ void Next_Bonus_1st() {
     Cut_Scroll = 2;
     effect_58_init(13, 1, 3);
     effect_58_init(16, 5, 2);
-    setup_pos_remake_key(5);
 }
 
 void Next_Bonus_2nd() {
@@ -981,7 +976,6 @@ void Next_Q_1st() {
     Purge_com_player_from_mm();
     Make_texcash_of_list(7);
     Push_LDREQ_Queue_Player(COM_id, 17);
-    setup_pos_remake_key(5);
 }
 
 void Next_Q_2nd() {

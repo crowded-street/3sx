@@ -492,7 +492,6 @@ void Game2_0() {
     bg_work_clear();
     win_lose_work_clear();
     player_face_init();
-    setup_pos_remake_key(3);
 }
 
 void Game2_1() {
@@ -1620,7 +1619,6 @@ void Loop_Demo(struct _TASK* /* unused */) {
         if (Ranking() != 0) {
             Switch_Screen(1);
             Loop_Demo_Sub();
-            setup_pos_remake_key(3);
             return;
         }
 
@@ -1744,7 +1742,6 @@ void Next_Title_Sub() {
     Insert_Y = 23;
     Before_Select_Sub();
     cpReadyTask(TASK_ENTRY, Entry_Task);
-    setup_pos_remake_key(2);
 }
 
 void Time_Control() {

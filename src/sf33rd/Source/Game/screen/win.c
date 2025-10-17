@@ -89,7 +89,6 @@ void Win_1st() {
     }
 
     pulpul_stop();
-    setup_pos_remake_key(5);
 }
 
 void Win_2nd() {
