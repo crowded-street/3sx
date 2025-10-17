@@ -21,11 +21,10 @@
 #define CODE_1(val) ((val & 0x38) << 0xA) + ((val & 7) << 5)
 
 typedef struct {
-    // total size: 0x34
-    PPGDataList* cur; // offset 0x0, size 0x4
-    u16 hanPal;       // offset 0x4, size 0x2
-    u16 hanTex;       // offset 0x6, size 0x2
-    _MEMMAN_OBJ mm;   // offset 0x8, size 0x2C
+    PPGDataList* cur;
+    u16 hanPal;
+    u16 hanTex;
+    _MEMMAN_OBJ mm;
 } PPG_W;
 
 typedef struct {
@@ -983,7 +982,7 @@ s32 ppgSetupTexChunk_1st(Texture* tch, u8* adrs, ssize_t size, s32 ixNum1st, s32
     tch->offset = NULL;
     tch->srcAdrs = adrs;
     tch->srcSize = size;
-    tch->handle = (TextureHandle*)ppgMallocF(ixNums * 4);
+    tch->handle = (TextureHandle*)ppgMallocF(ixNums * sizeof(TextureHandle));
 
     if (tch->handle == NULL) {
         flLogOut("テクスチャハンドル記憶領域が確保できませんでした。\n"); // Failed to allocate texture handle memory.

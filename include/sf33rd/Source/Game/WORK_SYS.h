@@ -70,7 +70,7 @@ extern u16 PLsw[2][2];
 
 extern u8 Screen_PAL;
 extern BG_POS bg_pos[8];
-extern BG_POS fm_pos[8];
+extern FM_POS fm_pos[8];
 extern BackgroundParameters bg_prm[8];
 extern s32 sca_x;
 extern s32 sca_y;

@@ -21,7 +21,6 @@
 #include "sf33rd/Source/Game/init3rd.h"
 #include "sf33rd/Source/Game/io/gd3rd.h"
 #include "sf33rd/Source/Game/io/ioconv.h"
-#include "sf33rd/Source/Game/rendering/acrutil.h"
 #include "sf33rd/Source/Game/rendering/color3rd.h"
 #include "sf33rd/Source/Game/rendering/dc_ghost.h"
 #include "sf33rd/Source/Game/rendering/mtrans.h"
@@ -183,10 +182,10 @@ static void game_init() {
 }
 
 static void game_step_0() {
-    setBackGroundColor(0xFF000000);
+    flSetRenderState(FLRENDER_BACKCOLOR, 0xFF000000);
 
     if (Debug_w[0x43]) {
-        setBackGroundColor(0xFF0000FF);
+        flSetRenderState(FLRENDER_BACKCOLOR, 0xFF0000FF);
     }
 
     appSetupTempPriority();

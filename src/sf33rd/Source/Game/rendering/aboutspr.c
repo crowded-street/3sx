@@ -11,7 +11,6 @@
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/charid.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
-#include "sf33rd/Source/Game/rendering/acrutil.h"
 #include "sf33rd/Source/Game/rendering/color3rd.h"
 #include "sf33rd/Source/Game/rendering/dc_ghost.h"
 #include "sf33rd/Source/Game/rendering/mtrans.h"
@@ -19,10 +18,10 @@
 #include "sf33rd/Source/Game/stage/bg_data.h"
 
 // bss
-MultiTexture mts[24]; // size: 0x960, address: 0x6B4070
+MultiTexture mts[24];
 MTS_OK mts_ok[24];
-WORK dmwk_moji; // size: 0x388, address: 0x6B3BC0
-WORK dmwk_kage; // size: 0x388, address: 0x6B3830
+WORK dmwk_moji;
+WORK dmwk_kage;
 
 // first part of rodata
 const u16 effk8k9_pattern[18] = { 0x9020, 0x9021, 0x9022, 0x9023, 0x9024, 0x9025, 0x9026, 0x9027, 0x9029,

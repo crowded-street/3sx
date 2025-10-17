@@ -13,33 +13,29 @@
 // Types
 
 typedef struct {
-    // total size: 0x8
-    s16 data[4]; // offset 0x0, size 0x8
+    s16 data[4];
 } K5Data;
 
 typedef struct {
-    // total size: 0x34
-    u16 index;        // offset 0x0, size 0x2
-    u16 rno;          // offset 0x2, size 0x2
-    Reg32SpReal a[4]; // offset 0x4, size 0x10
-    Reg32SpReal d[4]; // offset 0x14, size 0x10
-    Reg32CalPos r[4]; // offset 0x24, size 0x10
+    u16 index;
+    u16 rno;
+    Reg32SpReal a[4];
+    Reg32SpReal d[4];
+    Reg32CalPos r[4];
 } MVJ;
 
 typedef union {
-    u32 swi; // offset 0x0, size 0x4
+    u32 swi;
     struct {
-        // total size: 0x4
-        u16 l; // offset 0x0, size 0x2
-        u16 h; // offset 0x2, size 0x2
-    } sws;     // offset 0x0, size 0x4
+        u16 l;
+        u16 h;
+    } sws;
     struct {
-        // total size: 0x4
-        u8 ll; // offset 0x0, size 0x1
-        u8 l;  // offset 0x1, size 0x1
-        u8 h;  // offset 0x2, size 0x1
-        u8 hh; // offset 0x3, size 0x1
-    } swc;     // offset 0x0, size 0x4
+        u8 ll;
+        u8 l;
+        u8 h;
+        u8 hh;
+    } swc;
 } MVSW;
 
 // Data
@@ -161,9 +157,9 @@ void K5_main_process(WORK* ewk, WORK* mwk, MVJ* mvj) {
 }
 
 typedef union {
-    u32* cpl; // offset 0x0, size 0x4
-    u16* cps; // offset 0x0, size 0x4
-    u8* cpc;  // offset 0x0, size 0x4
+    u32* cpl;
+    u16* cps;
+    u8* cpc;
 } GOTCP;
 
 void get_okuri_time(WORK* ewk, WORK* mwk, MVJ* mvj) {

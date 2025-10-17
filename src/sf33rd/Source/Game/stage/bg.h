@@ -4,11 +4,11 @@
 #include "structs.h"
 #include "types.h"
 
-extern s32 bgPalCodeOffset[8];   // size: 0x20, address: 0x578AA0
-extern u16 Screen_Switch_Buffer; // size: 0x2, address: 0x578B60
-extern u16 Screen_Switch;        // size: 0x2, address: 0x578B64
+extern s32 bgPalCodeOffset[8];
+extern u16 Screen_Switch_Buffer;
+extern u16 Screen_Switch;
 
-extern BG bg_w; // size: 0x428, address: 0x595830
+extern BG bg_w;
 extern u8 bg_disp_off;
 
 void Bg_TexInit();
