@@ -73,7 +73,7 @@ void Additinal_Score_DM(WORK_Other* wk, u16 ix) {
     }
 
     if ((Mode_Type != MODE_VERSUS) && (Mode_Type != MODE_REPLAY)) {
-        if (!plw[id].wu.operator) {
+        if (!gs.plw[id].wu.operator) {
             return;
         }
 

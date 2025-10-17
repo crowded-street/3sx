@@ -54,9 +54,9 @@ s32 home_visitor_check(PLW* wk) {
     hv_type = 0;
 
     if (wk->wu.id) {
-        pl_num = plw[0].player_number;
+        pl_num = gs.plw[0].player_number;
     } else {
-        pl_num = plw[1].player_number;
+        pl_num = gs.plw[1].player_number;
     }
 
     if (Play_Type) {
@@ -101,9 +101,9 @@ void appear_data_init_set(PLW* wk) {
     if (bg_w.area) {
         ap_work = 0;
     } else if (Appear_hv[wk->wu.id]) {
-        ap_work = app_type_tbl2[wk->player_number][plw[id_work].player_number][bg_w.stage];
+        ap_work = app_type_tbl2[wk->player_number][gs.plw[id_work].player_number][bg_w.stage];
     } else {
-        ap_work = app_type_tbl[wk->player_number][plw[id_work].player_number][bg_w.stage];
+        ap_work = app_type_tbl[wk->player_number][gs.plw[id_work].player_number][bg_w.stage];
     }
 
     dtbl = (APPEAR_DATA*)&appear_data[ap_work];
@@ -452,7 +452,7 @@ void Appear_07000(PLW* wk) {
         wk->wu.disp_flag = 1;
         bg_app_stop = 1;
 
-        if (plw[wk->wu.id ^ 1].player_number == 12 && bg_w.stage == 12 && bg_w.area == 0) {
+        if (gs.plw[wk->wu.id ^ 1].player_number == 12 && bg_w.stage == 12 && bg_w.area == 0) {
             wk->wu.routine_no[4] = 1;
             set_char_move_init(&wk->wu, 9, 17);
             wk->wu.routine_no[3] = 3;
@@ -562,7 +562,7 @@ void Appear_08000(PLW* wk) {
 }
 
 s32 sean_appear_check(PLW* wk, s16 id) {
-    if (plw[id].player_number == 12 && bg_w.stage == 12) {
+    if (gs.plw[id].player_number == 12 && bg_w.stage == 12) {
         return 1;
     }
 
@@ -898,11 +898,11 @@ s16 gill_appear_check() {
 
     id_w = -1;
 
-    if (plw[0].player_number == 0) {
+    if (gs.plw[0].player_number == 0) {
         id_w = 1;
     }
 
-    if (plw[1].player_number == 0) {
+    if (gs.plw[1].player_number == 0) {
         id_w = 0;
     }
 
@@ -984,7 +984,7 @@ void Appear_18000(PLW* wk) {
         wk->wu.routine_no[3]++;
         wk->wu.disp_flag = 1;
 
-        if (plw[0].player_number == 8 && plw[1].player_number == 8) {
+        if (gs.plw[0].player_number == 8 && gs.plw[1].player_number == 8) {
             Appear_free[wk->wu.id] = 0;
 
             if (wk->wu.id) {
@@ -1409,7 +1409,7 @@ void Appear_28000(PLW* wk) {
         break;
 
     case 3:
-        if (plw[id_w].wu.routine_no[3] >= 3) {
+        if (gs.plw[id_w].wu.routine_no[3] >= 3) {
             wk->wu.routine_no[3]++;
             appear_work[wk->wu.id] = 20;
         }
@@ -1592,7 +1592,7 @@ void animal_decide(PLW* wk) {
 void don_appear_check(PLW* wk) {
     s16 id_w = wk->wu.id ^ 1;
 
-    if (plw[id_w].player_number == 7) {
+    if (gs.plw[id_w].player_number == 7) {
         effect_M0_init(wk->wu.rl_flag, 6);
     }
 }
@@ -1760,11 +1760,11 @@ void Appear_36000(PLW* wk) {
     case 1:
         char_move(&wk->wu);
 
-        if (plw[id_w].wu.cmwk[0] == 3) {
+        if (gs.plw[id_w].wu.cmwk[0] == 3) {
             wk->wu.routine_no[3]++;
             set_char_move_init(&wk->wu, 9, 0x11);
             app_counter[wk->wu.id] = 0x10;
-            wk->wu.next_z = plw[id_w].wu.my_priority;
+            wk->wu.next_z = gs.plw[id_w].wu.my_priority;
         }
 
         break;
@@ -1784,7 +1784,7 @@ void Appear_36000(PLW* wk) {
             }
         }
 
-        wk->wu.next_z = plw[id_w].wu.my_priority;
+        wk->wu.next_z = gs.plw[id_w].wu.my_priority;
         break;
 
     case 3:
@@ -1864,7 +1864,7 @@ void Appear_37000(PLW* wk) {
         if (wk->wu.cg_type == 9) {
             wk->wu.routine_no[3]++;
             wk->wu.cmwk[0] = 3;
-            wk->wu.next_z = plw[id_w].wu.my_priority;
+            wk->wu.next_z = gs.plw[id_w].wu.my_priority;
         }
 
         break;
@@ -1885,7 +1885,7 @@ void Appear_37000(PLW* wk) {
 
             wk->wu.next_z = wk->wu.my_priority;
         } else {
-            wk->wu.next_z = plw[id_w].wu.my_priority;
+            wk->wu.next_z = gs.plw[id_w].wu.my_priority;
         }
 
         break;

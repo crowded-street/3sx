@@ -42,12 +42,12 @@ void effm7_move(WORK_Other* ewk) {
         ewk->wu.routine_no[1]++;
         ewk->wu.disp_flag = 1;
         id_w = ewk->master_id ^ 1;
-        ewk->wu.rl_flag ^= plw[id_w].wu.rl_flag;
+        ewk->wu.rl_flag ^= gs.plw[id_w].wu.rl_flag;
 
-        if (plw[id_w].wu.rl_flag) {
-            ewk->wu.xyz[0].disp.pos = plw[id_w].wu.xyz[0].disp.pos - ewk->wu.xyz[0].disp.pos;
+        if (gs.plw[id_w].wu.rl_flag) {
+            ewk->wu.xyz[0].disp.pos = gs.plw[id_w].wu.xyz[0].disp.pos - ewk->wu.xyz[0].disp.pos;
         } else {
-            ewk->wu.xyz[0].disp.pos = plw[id_w].wu.xyz[0].disp.pos + ewk->wu.xyz[0].disp.pos;
+            ewk->wu.xyz[0].disp.pos = gs.plw[id_w].wu.xyz[0].disp.pos + ewk->wu.xyz[0].disp.pos;
         }
 
         set_char_move_init(&ewk->wu, 0, 0);
@@ -153,9 +153,9 @@ s32 effect_M7_init(PLW* oya) {
         ewk->wu.my_col_mode = 0x4200;
         ewk->wu.my_col_code = oya->wu.id ? 8 : 0;
         ewk->wu.xyz[0].disp.pos = *data_ptr++;
-        ewk->wu.xyz[1].cal = plw[em_id].wu.xyz[1].cal;
+        ewk->wu.xyz[1].cal = gs.plw[em_id].wu.xyz[1].cal;
         ewk->wu.xyz[1].disp.pos += *(s16*)data_ptr++;
-        ewk->wu.position_z = plw[em_id].wu.my_priority;
+        ewk->wu.position_z = gs.plw[em_id].wu.my_priority;
         ewk->wu.position_z += *(s16*)data_ptr++;
         ewk->wu.my_priority = ewk->wu.position_z;
         ewk->wu.rl_flag = *data_ptr++;

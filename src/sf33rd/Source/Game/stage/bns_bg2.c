@@ -49,7 +49,7 @@ void bns11_init00() {
     effect_05_init();
     effect_12_init(4);
 
-    if (!plw->wu.operator) {
+    if (!gs.plw->wu.operator) {
         effect_35_init(2, 1);
     } else {
         effect_35_init(2, 0);

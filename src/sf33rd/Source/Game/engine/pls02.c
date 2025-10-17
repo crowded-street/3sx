@@ -287,8 +287,8 @@ void remake_mvxy_PoGR(WORK* wk) {
 
 /// Check player push box collision and push them if needed
 void check_body_touch() {
-    PLW* p1w = &plw[0];
-    PLW* p2w = &plw[1];
+    PLW* p1w = &gs.plw[0];
+    PLW* p2w = &gs.plw[1];
     s16 meri;
 
     if (p1w->wu.h_hos->hos_box[0] != 0 && p2w->wu.h_hos->hos_box[0] != 0) {
@@ -364,12 +364,12 @@ void check_body_touch2() {
     s16 dad2[4];
     s16 dad3[4];
 
-    if (plw->wu.operator) {
-        hmw = &plw[0];
-        cmw = &plw[1];
+    if (gs.plw->wu.operator) {
+        hmw = &gs.plw[0];
+        cmw = &gs.plw[1];
     } else {
-        hmw = &plw[1];
-        cmw = &plw[0];
+        hmw = &gs.plw[1];
+        cmw = &gs.plw[0];
     }
 
     if (!saishin_bs2_on_car(hmw)) {
@@ -435,10 +435,10 @@ s32 check_be_car_object() {
         return 1;
     }
 
-    if (plw[0].wu.operator) {
-        com = &plw[1];
+    if (gs.plw[0].wu.operator) {
+        com = &gs.plw[1];
     } else {
-        com = &plw[0];
+        com = &gs.plw[0];
     }
 
     if (com->wu.routine_no[0] <= 0) {
@@ -1145,12 +1145,12 @@ void setup_lvdir_after_autodir(PLW* wk) {
 
 void dead_voice_request() {
     if (dead_voice_flag) {
-        if (plw[0].dead_flag) {
-            dead_voice_request2(&plw[0]);
+        if (gs.plw[0].dead_flag) {
+            dead_voice_request2(&gs.plw[0]);
         }
 
-        if (plw[1].dead_flag) {
-            dead_voice_request2(&plw[1]);
+        if (gs.plw[1].dead_flag) {
+            dead_voice_request2(&gs.plw[1]);
         }
     }
 

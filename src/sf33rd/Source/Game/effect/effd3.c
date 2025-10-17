@@ -145,8 +145,8 @@ void syungoku_finish(WORK_Other* ewk) {
         akebono_flag = 1;
         Extra_Break = 1;
         Sound_SE(126);
-        plw[0].wu.disp_flag = 0;
-        plw[1].wu.disp_flag = 0;
+        gs.plw[0].wu.disp_flag = 0;
+        gs.plw[1].wu.disp_flag = 0;
         Pause_Hit_Marks = 1;
         bg = ake_bg_off[bg_w.stage];
         mask = 1 & 0xFFFF;
@@ -185,8 +185,8 @@ void syungoku_finish(WORK_Other* ewk) {
         if (ewk->wu.old_rno[0]) {
             ewk->wu.routine_no[0] += 1;
             akebono_flag = 0;
-            plw[0].wu.disp_flag = 1;
-            plw[1].wu.disp_flag = 1;
+            gs.plw[0].wu.disp_flag = 1;
+            gs.plw[1].wu.disp_flag = 1;
             Pause_Hit_Marks = 0;
             bg = ake_bg_off[bg_w.stage];
             mask = 1 & 0xFFFF;

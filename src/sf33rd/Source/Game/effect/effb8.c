@@ -95,7 +95,7 @@ s32 effect_B8_init(s8 WIN_PL_NO, s16 timer) {
     u16 mes_no;
 
     test_in = 0;
-    wk = &plw[WIN_PL_NO];
+    wk = &gs.plw[WIN_PL_NO];
 
     if ((ix = pull_effect_work(4)) == -1) {
         return -1;

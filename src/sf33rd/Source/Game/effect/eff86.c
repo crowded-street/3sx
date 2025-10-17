@@ -44,10 +44,10 @@ void eff86_0000(WORK_Other* ewk) {
     case 0:
         ewk->wu.routine_no[2]++;
         ewk->wu.disp_flag = 1;
-        work = plw[0].wu.position_x + plw[1].wu.position_x;
+        work = gs.plw[0].wu.position_x + gs.plw[1].wu.position_x;
         work >>= 1;
         ewk->wu.xyz[0].disp.pos = work;
-        work = plw[1].wu.position_y + plw[1].wu.position_y;
+        work = gs.plw[1].wu.position_y + gs.plw[1].wu.position_y;
         work >>= 1;
         ewk->wu.xyz[1].disp.pos = work + 92;
         set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);

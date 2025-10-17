@@ -1196,7 +1196,7 @@ void Setup_PL_Color(s16 PL_id, u16 sw) {
 
     sw_new = 0;
 
-    if (plw[PL_id ^ 1].wu.operator == 0) {
+    if (gs.plw[PL_id ^ 1].wu.operator == 0) {
         id_0 = -1;
         id_1 = 1;
     } else {
@@ -1208,7 +1208,7 @@ void Setup_PL_Color(s16 PL_id, u16 sw) {
         id_0 = 127;
     }
 
-    if (plw[PL_id].wu.operator != 0 && My_char[PL_id] == 0) {
+    if (gs.plw[PL_id].wu.operator != 0 && My_char[PL_id] == 0) {
         sw_new = 0;
     } else {
         if (Debug_w[53]) {
@@ -1585,11 +1585,11 @@ void Check_Auto_Cut() {
 }
 
 s32 Auto_Cut_Sub() {
-    if (plw[0].wu.operator && ~p1sw_1 & p1sw_0 & 0xFF0) {
+    if (gs.plw[0].wu.operator && ~p1sw_1 & p1sw_0 & 0xFF0) {
         return 1;
     }
 
-    if (plw[1].wu.operator && ~p2sw_1 & p2sw_0 & 0xFF0) {
+    if (gs.plw[1].wu.operator && ~p2sw_1 & p2sw_0 & 0xFF0) {
         return 1;
     }
 

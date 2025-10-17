@@ -567,10 +567,10 @@ void Disp_Random() {
         flPrintL(14, offset_y + 33, "%4X", Random_ix32);
         flPrintL(14, offset_y + 34, "%4X", Random_ix16_ex);
         flPrintL(14, offset_y + 35, "%4X", Random_ix32_ex);
-        flPrintL(20, offset_y + 32, "%4X", plw->wu.position_x);
-        flPrintL(20, offset_y + 33, "%4X", plw->wu.position_y);
-        flPrintL(20, offset_y + 34, "%4X", plw[1].wu.position_x);
-        flPrintL(20, offset_y + 35, "%4X", plw[1].wu.position_y);
+        flPrintL(20, offset_y + 32, "%4X", gs.plw[0].wu.position_x);
+        flPrintL(20, offset_y + 33, "%4X", gs.plw[0].wu.position_y);
+        flPrintL(20, offset_y + 34, "%4X", gs.plw[1].wu.position_x);
+        flPrintL(20, offset_y + 35, "%4X", gs.plw[1].wu.position_y);
         flPrintL(26, offset_y + 32, "%4X", Turbo_Timer);
         flPrintL(26, offset_y + 33, "%4X", players_timer);
         flPrintL(26, offset_y + 34, "%4X", system_timer);

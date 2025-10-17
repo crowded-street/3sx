@@ -47,8 +47,8 @@ void effect_77_move(WORK_Other* ewk) {
         }
 
         ewk->wu.routine_no[0]++;
-        plw[0].wu.disp_flag = 0;
-        plw[1].wu.disp_flag = 0;
+        gs.plw[0].wu.disp_flag = 0;
+        gs.plw[1].wu.disp_flag = 0;
 
         if (ewk->wu.type == 0) {
             Extra_Break = 1;
@@ -107,8 +107,8 @@ void effect_77_move(WORK_Other* ewk) {
             if (ewk->wu.old_rno[0] <= 0) {
                 sa_pa_flag = 0;
                 ewk->wu.routine_no[0]++;
-                plw[0].wu.disp_flag = 1;
-                plw[1].wu.disp_flag = 1;
+                gs.plw[0].wu.disp_flag = 1;
+                gs.plw[1].wu.disp_flag = 1;
                 overwrite_panel(eff77_col_tbl[ewk->wu.old_rno[1]], 0x46);
                 bg = ake_bg_off[bg_w.stage];
                 mask = 1;

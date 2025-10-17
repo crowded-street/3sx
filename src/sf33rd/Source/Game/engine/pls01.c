@@ -32,11 +32,11 @@ const s16 dir32_sel_tbl[2][32] = {
 const s16 chcgp_hos[20] = { 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1 };
 
 s32 sa_stop_check() {
-    if (plw[0].sa_stop_flag != 0) {
+    if (gs.plw[0].sa_stop_flag != 0) {
         return 1;
     }
 
-    if (plw[1].sa_stop_flag != 0) {
+    if (gs.plw[1].sa_stop_flag != 0) {
         return 1;
     }
 

@@ -198,7 +198,7 @@ void Main_Program(PLW* wk) {
 
     Ck_Distance(wk);
     Area_Number[wk->wu.id] = Ck_Area(wk);
-    Attack_Flag[wk->wu.id] = plw[wk->wu.id ^ 1].caution_flag;
+    Attack_Flag[wk->wu.id] = gs.plw[wk->wu.id ^ 1].caution_flag;
     Check_At_Count(wk);
     Disposal_Again[wk->wu.id] = 0;
     Com_Jmp_Tbl[CP_No[wk->wu.id][0]](wk);
@@ -830,7 +830,7 @@ void Damage_2nd(PLW* wk) {
         return;
     }
 
-    if (Receive_Flag[wk->wu.id] != 0 && plw[wk->wu.id].uot_cd_ok_flag != 0) {
+    if (Receive_Flag[wk->wu.id] != 0 && gs.plw[wk->wu.id].uot_cd_ok_flag != 0) {
         Lever_Buff[wk->wu.id] = 2;
     }
 
@@ -934,9 +934,9 @@ void Damage_6th(PLW* wk) {
                 CP_Index[wk->wu.id][0] = Get_Up_Action_Tech_Data[wk->player_number][Lv][0];
                 CP_Index[wk->wu.id][7] = 8;
 
-                if (plw[wk->wu.id].sa->ok &&
-                    Arts_Super_Name_Data[wk->player_number][plw[wk->wu.id].sa->kind_of_arts] != -1) {
-                    CP_Index[wk->wu.id][0] = Arts_Super_Name_Data[wk->player_number][plw[wk->wu.id].sa->kind_of_arts];
+                if (gs.plw[wk->wu.id].sa->ok &&
+                    Arts_Super_Name_Data[wk->player_number][gs.plw[wk->wu.id].sa->kind_of_arts] != -1) {
+                    CP_Index[wk->wu.id][0] = Arts_Super_Name_Data[wk->player_number][gs.plw[wk->wu.id].sa->kind_of_arts];
                 }
             }
         }
@@ -1658,7 +1658,7 @@ s32 Command_Attack_SP(PLW* wk, s8 Pl_Number, s16 Tech_Number, s16 Power_Level) {
     default:
         Rapid_Sub(wk);
 
-        if (wk->wu.routine_no[1] == 0 && plw[wk->wu.id].caution_flag == 0) {
+        if (wk->wu.routine_no[1] == 0 && gs.plw[wk->wu.id].caution_flag == 0) {
             return 1;
         }
     }

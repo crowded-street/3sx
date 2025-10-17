@@ -167,7 +167,7 @@ s32 Check_Pause_Term(u16 sw, u8 PL_id) {
             Pause_Type = 2;
             return PAUSE_X = 2;
         }
-    } else if (Interface_Type[PL_id] == 0 && plw[PL_id].wu.operator) {
+    } else if (Interface_Type[PL_id] == 0 && gs.plw[PL_id].wu.operator) {
         Pause_Type = 2;
         return PAUSE_X = 2;
     }

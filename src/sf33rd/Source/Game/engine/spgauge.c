@@ -285,7 +285,7 @@ void sag_bug_fix(s32 side) {
 }
 
 void spgauge_control(s8 Spg_Num) {
-    if (sa_gauge_flash[Spg_Num] != 0 && plw[Spg_Num].sa->ex == -1) {
+    if (sa_gauge_flash[Spg_Num] != 0 && gs.plw[Spg_Num].sa->ex == -1) {
         spgauge_sound_request(Spg_Num);
 
         if (Conclusion_Flag != 0) {
@@ -314,7 +314,7 @@ void spgauge_control(s8 Spg_Num) {
             time_flag[Spg_Num] = 0;
         }
 
-        if (plw[Spg_Num].sa->store == plw[Spg_Num].sa->store_max && spg_dat[Spg_Num].max_old == 0 &&
+        if (gs.plw[Spg_Num].sa->store == gs.plw[Spg_Num].sa->store_max && spg_dat[Spg_Num].max_old == 0 &&
             spg_dat[Spg_Num].max == 0) {
             spg_dat[Spg_Num].max = 1;
         } else {
@@ -329,7 +329,7 @@ void spgauge_control(s8 Spg_Num) {
         spg_dat[Spg_Num].kind = 0;
         spg_dat[Spg_Num].no_chgcol = 0;
 
-        if (plw[Spg_Num].sa->ok == -1 || plw[Spg_Num].sa->mp == -1) {
+        if (gs.plw[Spg_Num].sa->ok == -1 || gs.plw[Spg_Num].sa->mp == -1) {
             spg_dat[Spg_Num].sa_flag = 1;
             spg_dat[Spg_Num].timer = 51;
 
@@ -338,7 +338,7 @@ void spgauge_control(s8 Spg_Num) {
                     spg_dat[Spg_Num].time_no_clear = 1;
                 }
 
-                if (My_char[Spg_Num] == 0 && ((plw[Spg_Num].sa->ok) == -1)) {
+                if (My_char[Spg_Num] == 0 && ((gs.plw[Spg_Num].sa->ok) == -1)) {
                     spg_dat[Spg_Num].sa_mukou = 0;
                 } else {
                     spg_dat[Spg_Num].sa_mukou = 1;
@@ -358,15 +358,15 @@ void spgauge_control(s8 Spg_Num) {
         sast_control(Spg_Num);
     }
 
-    if ((plw[Spg_Num].sa->ex != 0 || spg_dat[Spg_Num].ex_flag == 1 || spg_dat[Spg_Num].sa_flag == 1) && !Game_pause) {
+    if ((gs.plw[Spg_Num].sa->ex != 0 || spg_dat[Spg_Num].ex_flag == 1 || spg_dat[Spg_Num].sa_flag == 1) && !Game_pause) {
         sagauge_color_chenge(Spg_Num);
     }
 
-    if (spg_dat[Spg_Num].current_spg != plw[Spg_Num].sa->gauge.s.h || spg_dat[Spg_Num].max != 0) {
+    if (spg_dat[Spg_Num].current_spg != gs.plw[Spg_Num].sa->gauge.s.h || spg_dat[Spg_Num].max != 0) {
         if (spg_dat[Spg_Num].max) {
             spg_dat[Spg_Num].current_spg = spg_dat[Spg_Num].spg_dotlen;
         } else {
-            spg_dat[Spg_Num].current_spg = plw[Spg_Num].sa->gauge.s.h;
+            spg_dat[Spg_Num].current_spg = gs.plw[Spg_Num].sa->gauge.s.h;
         }
 
         if (max2[Spg_Num] != 1 && spg_dat[Spg_Num].max == 0 && spg_dat[Spg_Num].flag == 0 &&
@@ -411,16 +411,16 @@ void wipe_check() {
         }
 
     } else {
-        if (spg_dat[0].time_no_clear == 1 || plw[0].sa->ok == -1) {
-            plw[0].sa->ok = 0;
+        if (spg_dat[0].time_no_clear == 1 || gs.plw[0].sa->ok == -1) {
+            gs.plw[0].sa->ok = 0;
             time_clear[0] = 1;
-            spg_dat[0].spg_level = plw[0].sa->store;
+            spg_dat[0].spg_level = gs.plw[0].sa->store;
         }
 
-        if (spg_dat[1].time_no_clear == 1 || plw[1].sa->ok == -1) {
-            plw[1].sa->ok = 0;
+        if (spg_dat[1].time_no_clear == 1 || gs.plw[1].sa->ok == -1) {
+            gs.plw[1].sa->ok = 0;
             time_clear[1] = 1;
-            spg_dat[1].spg_level = plw[1].sa->store;
+            spg_dat[1].spg_level = gs.plw[1].sa->store;
         }
     }
 }
@@ -428,7 +428,7 @@ void wipe_check() {
 void satime_ko_after_clear(s8 Stpl_Num) {
     spg_dat[Stpl_Num].max = 0;
 
-    if (plw[Stpl_Num].sa->store == spg_dat[Stpl_Num].spg_maxlevel) {
+    if (gs.plw[Stpl_Num].sa->store == spg_dat[Stpl_Num].spg_maxlevel) {
         spg_dat[Stpl_Num].max_old = 1;
         spg_dat[Stpl_Num].max_rno = 2;
     } else {
@@ -440,8 +440,8 @@ void satime_ko_after_clear(s8 Stpl_Num) {
     spg_dat[Stpl_Num].timer2 = 2;
     spg_dat[Stpl_Num].time_rno = 5;
     spg_dat[Stpl_Num].time_no_clear = 0;
-    plw[Stpl_Num].sa->gauge.s.h = spg_dat[Stpl_Num].current_spg = plw[Stpl_Num].sa->bacckup_g_h;
-    plw[Stpl_Num].sa->bacckup_g_h = 0;
+    gs.plw[Stpl_Num].sa->gauge.s.h = spg_dat[Stpl_Num].current_spg = gs.plw[Stpl_Num].sa->bacckup_g_h;
+    gs.plw[Stpl_Num].sa->bacckup_g_h = 0;
 }
 
 void sa_time_moji_send() {
@@ -479,7 +479,7 @@ void samoji_control(s8 Stpl_Num) {
         max2[Stpl_Num] = 0;
         max_rno2[Stpl_Num] = 1;
         sa_moji_trans(Stpl_Num, 0, 1);
-        spg_dat[Stpl_Num].spg_level = plw[Stpl_Num].sa->store;
+        spg_dat[Stpl_Num].spg_level = gs.plw[Stpl_Num].sa->store;
         sa_stock_trans(spg_dat[Stpl_Num].spg_level, 1, Stpl_Num);
         sa_waku_trans(Stpl_Num, 1);
         sagauge_color_chenge(Stpl_Num);
@@ -531,13 +531,13 @@ void sast_control(s8 Stpl_Num) {
     if (spg_dat[Stpl_Num].time) {
         switch (spg_dat[Stpl_Num].time_rno) {
         case 0:
-            if (plw[Stpl_Num].sa->ok == -1) {
+            if (gs.plw[Stpl_Num].sa->ok == -1) {
                 spg_dat[Stpl_Num].time_rno = 1;
             } else {
-                if (plw[Stpl_Num].sa->store > spg_dat[Stpl_Num].spg_level) {
+                if (gs.plw[Stpl_Num].sa->store > spg_dat[Stpl_Num].spg_level) {
                     spg_dat[Stpl_Num].current_spg = spg_dat[Stpl_Num].spg_dotlen;
                     sa_gauge_trans(Stpl_Num);
-                    spg_dat[Stpl_Num].spg_level = plw[Stpl_Num].sa->store;
+                    spg_dat[Stpl_Num].spg_level = gs.plw[Stpl_Num].sa->store;
                     sa_stock_trans(spg_dat[Stpl_Num].spg_level, col, Stpl_Num);
                 }
 
@@ -551,7 +551,7 @@ void sast_control(s8 Stpl_Num) {
             spg_dat[Stpl_Num].timer--;
 
             if ((!spg_dat[Stpl_Num].sa_mukou || spg_dat[Stpl_Num].timer != 0) &&
-                (spg_dat[Stpl_Num].spg_level == plw[Stpl_Num].sa->store)) {
+                (spg_dat[Stpl_Num].spg_level == gs.plw[Stpl_Num].sa->store)) {
                 spg_dat[Stpl_Num].timer2--;
 
                 if (spg_dat[Stpl_Num].kind == 0) {
@@ -587,7 +587,7 @@ void sast_control(s8 Stpl_Num) {
             goto jump;
 
         case 2:
-            if (spg_dat[Stpl_Num].current_spg > 0 && plw[Stpl_Num].sa->ok == -1) {
+            if (spg_dat[Stpl_Num].current_spg > 0 && gs.plw[Stpl_Num].sa->ok == -1) {
                 if (spg_dat[Stpl_Num].current_spg != spg_dat[Stpl_Num].old_spg) {
                     sa_gauge_trans(Stpl_Num);
                 }
@@ -630,7 +630,7 @@ void sast_control(s8 Stpl_Num) {
                 break;
             }
 
-            if (plw[Stpl_Num].sa->store == plw[Stpl_Num].sa->store_max) {
+            if (gs.plw[Stpl_Num].sa->store == gs.plw[Stpl_Num].sa->store_max) {
                 max2[Stpl_Num] = 1;
             }
 
@@ -650,7 +650,7 @@ void sast_control(s8 Stpl_Num) {
         jump:
             time_operate[Stpl_Num] = 0;
             sast_color_chenge(Stpl_Num);
-            spg_dat[Stpl_Num].spg_level = plw[Stpl_Num].sa->store;
+            spg_dat[Stpl_Num].spg_level = gs.plw[Stpl_Num].sa->store;
             sa_stock_trans(spg_dat[Stpl_Num].spg_level, col, Stpl_Num);
             sa_waku_trans(Stpl_Num, col);
 
@@ -697,10 +697,10 @@ void sast_control(s8 Stpl_Num) {
 
     switch (spg_dat[Stpl_Num].max_rno) {
     case 0:
-        if (plw[Stpl_Num].sa->store > spg_dat[Stpl_Num].spg_level) {
+        if (gs.plw[Stpl_Num].sa->store > spg_dat[Stpl_Num].spg_level) {
             spg_dat[Stpl_Num].current_spg = spg_dat[Stpl_Num].spg_dotlen;
             sa_gauge_trans(Stpl_Num);
-            spg_dat[Stpl_Num].spg_level = plw[Stpl_Num].sa->store;
+            spg_dat[Stpl_Num].spg_level = gs.plw[Stpl_Num].sa->store;
             sa_stock_trans(spg_dat[Stpl_Num].spg_level, col, Stpl_Num);
         }
 
@@ -730,7 +730,7 @@ void sast_control(s8 Stpl_Num) {
             return;
         }
 
-        if (plw[Stpl_Num].sa->store == plw[Stpl_Num].sa->store_max) {
+        if (gs.plw[Stpl_Num].sa->store == gs.plw[Stpl_Num].sa->store_max) {
             max2[Stpl_Num] = 1;
         }
 
@@ -749,7 +749,7 @@ void sast_control(s8 Stpl_Num) {
         }
 
         sast_color_chenge(Stpl_Num);
-        spg_dat[Stpl_Num].spg_level = plw[Stpl_Num].sa->store;
+        spg_dat[Stpl_Num].spg_level = gs.plw[Stpl_Num].sa->store;
         sa_stock_trans(spg_dat[Stpl_Num].spg_level, col, Stpl_Num);
         sa_waku_trans(Stpl_Num, col);
 
@@ -791,7 +791,7 @@ void sast_control(s8 Stpl_Num) {
 }
 
 void sast_color_chenge(s8 Stpl_Num) {
-    if (plw[Stpl_Num].sa->gauge_type == 1 && plw[Stpl_Num].sa->ok == -1) {
+    if (gs.plw[Stpl_Num].sa->gauge_type == 1 && gs.plw[Stpl_Num].sa->ok == -1) {
         col = 1;
 
         if (Stpl_Num == 0) {
@@ -801,7 +801,7 @@ void sast_color_chenge(s8 Stpl_Num) {
         }
 
         return;
-    } else if (plw[Stpl_Num].sa->store) {
+    } else if (gs.plw[Stpl_Num].sa->store) {
         col = 1;
 
         if (Stpl_Num == 0) {
@@ -960,20 +960,20 @@ void sa_gauge_trans(s8 pl_kind) {
 }
 
 void spgauge_sound_request(s8 Stpl_Num) {
-    if (plw[Stpl_Num].sa->store > spg_dat[Stpl_Num].spg_level) {
+    if (gs.plw[Stpl_Num].sa->store > spg_dat[Stpl_Num].spg_level) {
         Sound_SE(Stpl_Num + 107);
     }
 }
 
 void spgauge_work_clear(s8 Stpl_Num) {
-    plw[Stpl_Num].sa->gauge.s.h = spg_dat[Stpl_Num].current_spg = plw[Stpl_Num].sa->bacckup_g_h;
-    plw[Stpl_Num].sa->bacckup_g_h = 0;
+    gs.plw[Stpl_Num].sa->gauge.s.h = spg_dat[Stpl_Num].current_spg = gs.plw[Stpl_Num].sa->bacckup_g_h;
+    gs.plw[Stpl_Num].sa->bacckup_g_h = 0;
     spg_dat[Stpl_Num].old_spg = spg_dat[Stpl_Num].current_spg;
     spg_dat[Stpl_Num].flag = 0;
     spg_dat[Stpl_Num].flag2 = 0;
     spg_dat[Stpl_Num].level_flag = 0;
 
-    if (plw[Stpl_Num].sa->store) {
+    if (gs.plw[Stpl_Num].sa->store) {
         spg_dat[Stpl_Num].timer = 0;
         spg_dat[Stpl_Num].time_rno = 5;
     } else {

@@ -76,8 +76,8 @@ void Lose_10000(PLW* wk) {
         }
     }
 
-    if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1) != 0) {
-        set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
+    if (set_field_hosei_flag(&gs.plw[wk->wu.id], scrr, 1) != 0) {
+        set_field_hosei_flag(&gs.plw[wk->wu.id], scrl, 0);
     }
 }
 
@@ -113,8 +113,8 @@ void Lose_20000(PLW* wk) {
         break;
     }
 
-    if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1) != 0) {
-        set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
+    if (set_field_hosei_flag(&gs.plw[wk->wu.id], scrr, 1) != 0) {
+        set_field_hosei_flag(&gs.plw[wk->wu.id], scrl, 0);
     }
 }
 
@@ -159,8 +159,8 @@ void Lose_30000(PLW* wk) {
         }
     }
 
-    if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1) != 0) {
-        set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
+    if (set_field_hosei_flag(&gs.plw[wk->wu.id], scrr, 1) != 0) {
+        set_field_hosei_flag(&gs.plw[wk->wu.id], scrl, 0);
     }
 }
 
@@ -186,8 +186,8 @@ void Normal_normal_Loser(PLW* wk) {
         break;
     }
 
-    if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1) != 0) {
-        set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
+    if (set_field_hosei_flag(&gs.plw[wk->wu.id], scrr, 1) != 0) {
+        set_field_hosei_flag(&gs.plw[wk->wu.id], scrl, 0);
     }
 }
 
@@ -209,8 +209,8 @@ void Judge_normal_loser(PLW* wk) {
         break;
     }
 
-    if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1) != 0) {
-        set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
+    if (set_field_hosei_flag(&gs.plw[wk->wu.id], scrr, 1) != 0) {
+        set_field_hosei_flag(&gs.plw[wk->wu.id], scrl, 0);
     }
 }
 
@@ -233,7 +233,7 @@ void meta_lose_pause(PLW* wk) {
         break;
     }
 
-    if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1) != 0) {
-        set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
+    if (set_field_hosei_flag(&gs.plw[wk->wu.id], scrr, 1) != 0) {
+        set_field_hosei_flag(&gs.plw[wk->wu.id], scrl, 0);
     }
 }

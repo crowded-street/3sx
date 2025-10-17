@@ -2448,7 +2448,7 @@ u16 check_xcopy_filter_se_req(WORK* wk) {
             return voif;
         }
 
-        if (plw[HI_2_BYTES(WK_AS_PLW->spmv_ng_flag)].metamorphose == 0) {
+        if (gs.plw[HI_2_BYTES(WK_AS_PLW->spmv_ng_flag)].metamorphose == 0) {
             return voif;
         }
 

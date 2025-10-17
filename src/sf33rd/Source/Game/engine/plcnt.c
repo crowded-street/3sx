@@ -75,7 +75,6 @@ void clear_super_arts_point(PLW* wk);
 void set_scrrrl();
 
 // bss
-PLW plw[2];
 ComboType combo_type[2]; // FIXME: move to PLW instead?
 ZanzouTableEntry zanzou_table[2][48];
 ComboType remake_power[2]; // FIXME: move to PLW instead?
@@ -377,19 +376,19 @@ void Player_control() {
     player_main_process[pcon_rno[0]]();
     check_body_touch();
     check_damage_hosei();
-    set_quake(&plw[0]);
-    set_quake(&plw[1]);
+    set_quake(&gs.plw[0]);
+    set_quake(&gs.plw[1]);
 
-    if (!plw[0].zuru_flag && !plw[0].zettai_muteki_flag) {
-        hit_push_request(&plw[0].wu);
+    if (!gs.plw[0].zuru_flag && !gs.plw[0].zettai_muteki_flag) {
+        hit_push_request(&gs.plw[0].wu);
     }
 
-    if (!plw[1].zuru_flag && !plw[1].zettai_muteki_flag) {
-        hit_push_request(&plw[1].wu);
+    if (!gs.plw[1].zuru_flag && !gs.plw[1].zettai_muteki_flag) {
+        hit_push_request(&gs.plw[1].wu);
     }
 
-    add_next_position(&plw[0]);
-    add_next_position(&plw[1]);
+    add_next_position(&gs.plw[0]);
+    add_next_position(&gs.plw[1]);
     check_cg_zoom();
 
 end:
@@ -401,13 +400,13 @@ end:
 void reqPlayerDraw() {
     if (Debug_w[15] == 0) {
         move_effect_work(6);
-        sort_push_request(&plw[0].wu);
-        sort_push_request(&plw[1].wu);
+        sort_push_request(&gs.plw[0].wu);
+        sort_push_request(&gs.plw[1].wu);
     }
 }
 
 void plcnt_init() {
-    plw[0].reserv_add_y = plw[1].reserv_add_y = 0;
+    gs.plw[0].reserv_add_y = gs.plw[1].reserv_add_y = 0;
     appear_initalize[appear_type]();
     move_player_work();
 }
@@ -421,14 +420,14 @@ void init_app_10000() {
         round_slow_flag = 0;
         dead_voice_flag = 0;
         another_bg[0] = another_bg[1] = 0;
-        plw[0].scr_pos_set_flag = plw[1].scr_pos_set_flag = 1;
+        gs.plw[0].scr_pos_set_flag = gs.plw[1].scr_pos_set_flag = 1;
 
         if (Play_Type == 0) {
-            if (plw[0].wu.operator) {
+            if (gs.plw[0].wu.operator) {
                 mpp_w.useChar[My_char[0]]++;
             }
 
-            if (plw[1].wu.operator) {
+            if (gs.plw[1].wu.operator) {
                 mpp_w.useChar[My_char[1]]++;
             }
         }
@@ -442,13 +441,13 @@ void init_app_10000() {
     case 2:
         pcon_rno[1] = 3;
 
-        if (plw[0].wu.operator) {
+        if (gs.plw[0].wu.operator) {
             paring_ctr_vs[0][0] = paring_ctr_ori[0];
         } else {
             paring_ctr_vs[0][0] = 0;
         }
 
-        if (plw[1].wu.operator) {
+        if (gs.plw[1].wu.operator) {
             paring_ctr_vs[0][1] = paring_ctr_ori[1];
             return;
         }
@@ -475,12 +474,12 @@ void init_app_20000() {
         another_bg[0] = another_bg[1] = 0;
 
         for (i = 0; i < 8; i++) {
-            plw[0].wu.routine_no[i] = plw[1].wu.routine_no[i] = 0;
+            gs.plw[0].wu.routine_no[i] = gs.plw[1].wu.routine_no[i] = 0;
         }
 
         setup_any_data();
-        plw[0].do_not_move = plw[1].do_not_move = 0;
-        plw[0].scr_pos_set_flag = plw[1].scr_pos_set_flag = 1;
+        gs.plw[0].do_not_move = gs.plw[1].do_not_move = 0;
+        gs.plw[0].scr_pos_set_flag = gs.plw[1].scr_pos_set_flag = 1;
         break;
 
     case 1:
@@ -499,18 +498,18 @@ void init_app_30000() {
         dead_voice_flag = 0;
 
         for (i = 1; i < 8; i++) {
-            plw[0].wu.routine_no[i] = plw[1].wu.routine_no[i] = 0;
+            gs.plw[0].wu.routine_no[i] = gs.plw[1].wu.routine_no[i] = 0;
         }
 
-        plw[0].wu.routine_no[0] = plw[1].wu.routine_no[0] = 1;
+        gs.plw[0].wu.routine_no[0] = gs.plw[1].wu.routine_no[0] = 1;
         another_bg[0] = another_bg[1] = 0;
-        plw[0].do_not_move = plw[1].do_not_move = 0;
-        K7_muriyari_metamor_rebirth(&plw[0]);
-        K7_muriyari_metamor_rebirth(&plw[1]);
+        gs.plw[0].do_not_move = gs.plw[1].do_not_move = 0;
+        K7_muriyari_metamor_rebirth(&gs.plw[0]);
+        K7_muriyari_metamor_rebirth(&gs.plw[1]);
         break;
 
     case 1:
-        if (plw[0].wu.routine_no[0] != 3 || plw[1].wu.routine_no[0] != 3) {
+        if (gs.plw[0].wu.routine_no[0] != 3 || gs.plw[1].wu.routine_no[0] != 3) {
             break;
         }
 
@@ -518,19 +517,19 @@ void init_app_30000() {
         pcon_rno[1] = 3;
         pcon_rno[2] = 1;
         setup_EJG_index();
-        effect_C9_init(plw, 0);
-        effect_C9_init(plw, 1);
-        effect_C9_init(plw, 2);
+        effect_C9_init(gs.plw, 0);
+        effect_C9_init(gs.plw, 1);
+        effect_C9_init(gs.plw, 2);
         load_any_color(0x3F, 0);
         load_any_texture_patnum(0x71E0, 0xE, 0);
         effect_work_kill(4, 0xD9);
 
-        if (plw[0].player_number == 6) {
-            effect_33_init(&plw[0].wu);
+        if (gs.plw[0].player_number == 6) {
+            effect_33_init(&gs.plw[0].wu);
         }
 
-        if (plw[1].player_number == 6) {
-            effect_33_init(&plw[1].wu);
+        if (gs.plw[1].player_number == 6) {
+            effect_33_init(&gs.plw[1].wu);
         }
 
         break;
@@ -540,17 +539,17 @@ void init_app_30000() {
 void pli_0000() {
     pcon_rno[1]++;
     round_slow_flag = 0;
-    work_init_zero((s32*)&plw[0], sizeof(PLW));
-    work_init_zero((s32*)&plw[1], sizeof(PLW));
+    work_init_zero((s32*)&gs.plw[0], sizeof(PLW));
+    work_init_zero((s32*)&gs.plw[1], sizeof(PLW));
     setup_base_and_other_data();
 }
 
 void pli_1000() {
-    if (plw[0].wu.routine_no[0] != 3) {
+    if (gs.plw[0].wu.routine_no[0] != 3) {
         return;
     }
 
-    if (plw[1].wu.routine_no[0] != 3) {
+    if (gs.plw[1].wu.routine_no[0] != 3) {
         return;
     }
 
@@ -560,8 +559,8 @@ void pli_1000() {
 
     pcon_rno[0] = 1;
     pcon_rno[1] = 0;
-    plw[0].wu.routine_no[0] = 4;
-    plw[1].wu.routine_no[0] = 4;
+    gs.plw[0].wu.routine_no[0] = 4;
+    gs.plw[1].wu.routine_no[0] = 4;
     ca_check_flag = 1;
 }
 
@@ -576,51 +575,51 @@ void plcnt_move() {
 
 #if defined(DEBUG)
     if (debug_config.player_1_invincible) {
-        plw[0].wu.dm_vital = 0;
+        gs.plw[0].wu.dm_vital = 0;
     }
 
     if (debug_config.player_2_invincible) {
-        plw[1].wu.dm_vital = 0;
+        gs.plw[1].wu.dm_vital = 0;
     }
 
     if (debug_config.player_1_one_hit_ko) {
-        plw[0].wu.vital_new = 0;
+        gs.plw[0].wu.vital_new = 0;
     }
 
     if (debug_config.player_2_one_hit_ko) {
-        plw[1].wu.vital_new = 0;
+        gs.plw[1].wu.vital_new = 0;
     }
 #endif
 
     if (No_Death) {
-        plw[0].wu.dm_vital = plw[1].wu.dm_vital = 0;
+        gs.plw[0].wu.dm_vital = gs.plw[1].wu.dm_vital = 0;
     }
 
     if (Break_Into) {
-        plw[0].wu.dm_vital = plw[1].wu.dm_vital = 0;
+        gs.plw[0].wu.dm_vital = gs.plw[1].wu.dm_vital = 0;
     }
 
     if (Mode_Type == MODE_NORMAL_TRAINING && Training->contents[0][1][3] == 0) {
-        plw[0].wu.dm_nodeathattack = 1;
-        plw[1].wu.dm_nodeathattack = 1;
+        gs.plw[0].wu.dm_nodeathattack = 1;
+        gs.plw[1].wu.dm_nodeathattack = 1;
     }
 
     move_player_work();
 
     if (aiuchi_flag) {
-        subtract_dm_vital_aiuchi(&plw[0]);
-        subtract_dm_vital_aiuchi(&plw[1]);
+        subtract_dm_vital_aiuchi(&gs.plw[0]);
+        subtract_dm_vital_aiuchi(&gs.plw[1]);
 
-        if ((plw[0].dead_flag != 0) && (plw[1].dead_flag != 0)) {
-            plw[0].wu.hit_stop = plw[1].wu.hit_stop = 2;
-            plw[0].wu.dm_stop = plw[1].wu.dm_stop = 0;
-            plw[0].wu.hit_quake = plw[1].wu.hit_quake = 4;
-            plw[0].wu.dm_quake = plw[1].wu.dm_quake = 0;
-        } else if ((plw[0].dead_flag != 0) || (plw[1].dead_flag != 0)) {
-            plw[0].wu.hit_stop = plw[1].wu.hit_stop = 4;
-            plw[0].wu.dm_stop = plw[1].wu.dm_stop = 0;
-            plw[0].wu.hit_quake = plw[1].wu.hit_quake = 8;
-            plw[0].wu.dm_quake = plw[1].wu.dm_quake = 0;
+        if ((gs.plw[0].dead_flag != 0) && (gs.plw[1].dead_flag != 0)) {
+            gs.plw[0].wu.hit_stop = gs.plw[1].wu.hit_stop = 2;
+            gs.plw[0].wu.dm_stop = gs.plw[1].wu.dm_stop = 0;
+            gs.plw[0].wu.hit_quake = gs.plw[1].wu.hit_quake = 4;
+            gs.plw[0].wu.dm_quake = gs.plw[1].wu.dm_quake = 0;
+        } else if ((gs.plw[0].dead_flag != 0) || (gs.plw[1].dead_flag != 0)) {
+            gs.plw[0].wu.hit_stop = gs.plw[1].wu.hit_stop = 4;
+            gs.plw[0].wu.dm_stop = gs.plw[1].wu.dm_stop = 0;
+            gs.plw[0].wu.hit_quake = gs.plw[1].wu.hit_quake = 8;
+            gs.plw[0].wu.dm_quake = gs.plw[1].wu.dm_quake = 0;
         }
     }
 
@@ -635,7 +634,7 @@ void plcnt_move() {
             }
         }
 
-        if ((plw[0].kezurijini_flag == 1) || (plw[1].kezurijini_flag == 1)) {
+        if ((gs.plw[0].kezurijini_flag == 1) || (gs.plw[1].kezurijini_flag == 1)) {
             Round_Result |= 0x200;
         }
 
@@ -648,30 +647,30 @@ void plcnt_move() {
 }
 
 void plcnt_die() {
-    plw[0].wu.dm_vital = plw[1].wu.dm_vital = 0;
+    gs.plw[0].wu.dm_vital = gs.plw[1].wu.dm_vital = 0;
     settle_process[pcon_rno[1]]();
     move_player_work();
 
     if (pcon_rno[1] == 3) {
-        plw[0].scr_pos_set_flag = plw[1].scr_pos_set_flag = 0;
+        gs.plw[0].scr_pos_set_flag = gs.plw[1].scr_pos_set_flag = 0;
     }
 }
 
 void settle_type_00000() {
     switch (pcon_rno[2]) {
     case 0:
-        plw[Winner_id].wu.dir_timer = 60;
+        gs.plw[Winner_id].wu.dir_timer = 60;
         pcon_rno[2]++;
         /* fallthrough */
 
     case 1:
         if (nekorobi_check(Loser_id)) {
             pcon_rno[2]++;
-            plw[Winner_id].wkey_flag = 1;
+            gs.plw[Winner_id].wkey_flag = 1;
         }
 
-        if (--plw[Winner_id].wu.dir_timer == 0) {
-            plw[Winner_id].wkey_flag = 1;
+        if (--gs.plw[Winner_id].wu.dir_timer == 0) {
+            gs.plw[Winner_id].wkey_flag = 1;
         }
 
         break;
@@ -680,20 +679,20 @@ void settle_type_00000() {
         if (footwork_check(Winner_id)) {
             grade_set_round_result(Winner_id + 0);
             pcon_rno[2]++;
-            plw[Winner_id].wu.routine_no[2] = 40;
-            plw[Winner_id].wu.routine_no[3] = 0;
-            plw[Loser_id].wu.routine_no[1] = 0;
-            plw[Loser_id].wu.routine_no[2] = 41;
-            plw[Loser_id].wu.routine_no[3] = 0;
-            plw[0].wu.cg_type = plw[1].wu.cg_type = 0;
-            plw[0].image_setup_flag = plw[1].image_setup_flag = 0;
+            gs.plw[Winner_id].wu.routine_no[2] = 40;
+            gs.plw[Winner_id].wu.routine_no[3] = 0;
+            gs.plw[Loser_id].wu.routine_no[1] = 0;
+            gs.plw[Loser_id].wu.routine_no[2] = 41;
+            gs.plw[Loser_id].wu.routine_no[3] = 0;
+            gs.plw[0].wu.cg_type = gs.plw[1].wu.cg_type = 0;
+            gs.plw[0].image_setup_flag = gs.plw[1].image_setup_flag = 0;
             complete_victory_pause();
         }
 
         break;
 
     case 3:
-        if (plw[Winner_id].wu.routine_no[3] == 9) {
+        if (gs.plw[Winner_id].wu.routine_no[3] == 9) {
             pcon_rno[2]++;
         }
 
@@ -713,7 +712,7 @@ void settle_type_10000() {
     case 1:
         complete_victory_pause();
         pcon_rno[2]++;
-        plw[0].image_setup_flag = plw[1].image_setup_flag = 0;
+        gs.plw[0].image_setup_flag = gs.plw[1].image_setup_flag = 0;
         break;
     }
 }
@@ -721,8 +720,8 @@ void settle_type_10000() {
 void settle_type_20000() {
     switch (pcon_rno[2]) {
     case 0:
-        plw[0].wkey_flag = plw[1].wkey_flag = 1;
-        plw[0].image_setup_flag = plw[1].image_setup_flag = 0;
+        gs.plw[0].wkey_flag = gs.plw[1].wkey_flag = 1;
+        gs.plw[0].image_setup_flag = gs.plw[1].image_setup_flag = 0;
         pcon_rno[2]++;
         /* fallthrough */
 
@@ -736,22 +735,22 @@ void settle_type_20000() {
     case 2:
         complete_victory_pause();
 
-        if (plw[0].wu.vital_new == plw[1].wu.vital_new) {
+        if (gs.plw[0].wu.vital_new == gs.plw[1].wu.vital_new) {
             pcon_rno[2] = 4;
             return;
         }
 
         grade_set_round_result(Winner_id + 0);
-        plw[Winner_id].wu.routine_no[2] = 40;
-        plw[Loser_id].wu.routine_no[2] = 41;
-        plw[0].wu.routine_no[1] = plw[1].wu.routine_no[1] = 0;
-        plw[0].wu.routine_no[3] = plw[1].wu.routine_no[3] = 0;
-        plw[0].wu.cg_type = plw[1].wu.cg_type = 0;
+        gs.plw[Winner_id].wu.routine_no[2] = 40;
+        gs.plw[Loser_id].wu.routine_no[2] = 41;
+        gs.plw[0].wu.routine_no[1] = gs.plw[1].wu.routine_no[1] = 0;
+        gs.plw[0].wu.routine_no[3] = gs.plw[1].wu.routine_no[3] = 0;
+        gs.plw[0].wu.cg_type = gs.plw[1].wu.cg_type = 0;
         pcon_rno[2]++;
         break;
 
     case 3:
-        if ((plw[0].wu.routine_no[3] == 9) && (plw[1].wu.routine_no[3] == 9)) {
+        if ((gs.plw[0].wu.routine_no[3] == 9) && (gs.plw[1].wu.routine_no[3] == 9)) {
             pcon_rno[2]++;
         }
 
@@ -766,10 +765,10 @@ void settle_type_30000() {
 
     case 1:
         if ((Event_Judge_Gals == -1) && Complete_Judgement) {
-            plw[Winner_id].wu.routine_no[2] = 40;
-            plw[Loser_id].wu.routine_no[2] = 41;
-            plw[0].wu.routine_no[3] = plw[1].wu.routine_no[3] = 0;
-            plw[0].wu.cg_type = plw[1].wu.cg_type = 0;
+            gs.plw[Winner_id].wu.routine_no[2] = 40;
+            gs.plw[Loser_id].wu.routine_no[2] = 41;
+            gs.plw[0].wu.routine_no[3] = gs.plw[1].wu.routine_no[3] = 0;
+            gs.plw[0].wu.cg_type = gs.plw[1].wu.cg_type = 0;
             grade_set_round_result(Winner_id + 0);
             complete_victory_pause();
             pcon_rno[2]++;
@@ -778,7 +777,7 @@ void settle_type_30000() {
         break;
 
     case 2:
-        if ((plw[0].wu.routine_no[3] == 9) && (plw[1].wu.routine_no[3] == 9)) {
+        if ((gs.plw[0].wu.routine_no[3] == 9) && (gs.plw[1].wu.routine_no[3] == 9)) {
             pcon_rno[2]++;
         }
 
@@ -789,7 +788,7 @@ void settle_type_30000() {
 void settle_type_40000() {
     switch (pcon_rno[2]) {
     case 0:
-        plw[Winner_id].wkey_flag = 1;
+        gs.plw[Winner_id].wkey_flag = 1;
         pcon_rno[2]++;
         /* fallthrough */
 
@@ -799,15 +798,15 @@ void settle_type_40000() {
         case 2:
             if (footwork_check(Winner_id)) {
                 pcon_rno[2]++;
-                plw[Winner_id].wu.routine_no[2] = 40;
-                plw[Winner_id].wu.routine_no[3] = 0;
-                plw[Loser_id].wu.routine_no[1] = 0;
-                plw[Loser_id].wu.routine_no[2] = 41;
-                plw[Loser_id].wu.routine_no[3] = 0;
-                plw[Winner_id].wu.cg_type = 0;
+                gs.plw[Winner_id].wu.routine_no[2] = 40;
+                gs.plw[Winner_id].wu.routine_no[3] = 0;
+                gs.plw[Loser_id].wu.routine_no[1] = 0;
+                gs.plw[Loser_id].wu.routine_no[2] = 41;
+                gs.plw[Loser_id].wu.routine_no[3] = 0;
+                gs.plw[Winner_id].wu.cg_type = 0;
                 grade_set_round_result(Winner_id + 0);
-                plw[0].image_setup_flag = plw[1].image_setup_flag = 0;
-                plw[Winner_id].wu.dir_timer = 60;
+                gs.plw[0].image_setup_flag = gs.plw[1].image_setup_flag = 0;
+                gs.plw[Winner_id].wu.dir_timer = 60;
                 set_conclusion_slow();
                 return;
             }
@@ -816,7 +815,7 @@ void settle_type_40000() {
         break;
 
     case 3:
-        if (--plw[Winner_id].wu.dir_timer <= 0) {
+        if (--gs.plw[Winner_id].wu.dir_timer <= 0) {
             complete_victory_pause();
             pcon_rno[2]++;
         }
@@ -824,7 +823,7 @@ void settle_type_40000() {
         break;
 
     case 4:
-        if (plw[Winner_id].wu.routine_no[3] == 9) {
+        if (gs.plw[Winner_id].wu.routine_no[3] == 9) {
             pcon_rno[2]++;
         }
 
@@ -833,22 +832,22 @@ void settle_type_40000() {
 }
 
 void move_player_work() {
-    if (plw[0].reserv_add_y) {
-        plw[0].wu.xyz[1].disp.pos += plw[0].reserv_add_y;
-        plw[0].reserv_add_y = 0;
+    if (gs.plw[0].reserv_add_y) {
+        gs.plw[0].wu.xyz[1].disp.pos += gs.plw[0].reserv_add_y;
+        gs.plw[0].reserv_add_y = 0;
     }
 
-    if (plw[1].reserv_add_y) {
-        plw[1].wu.xyz[1].disp.pos += plw[1].reserv_add_y;
-        plw[1].reserv_add_y = 0;
+    if (gs.plw[1].reserv_add_y) {
+        gs.plw[1].wu.xyz[1].disp.pos += gs.plw[1].reserv_add_y;
+        gs.plw[1].reserv_add_y = 0;
     }
 
-    ichikannkei = check_work_position(&plw[0].wu, &plw[1].wu);
-    set_rl_waza(&plw[0]);
-    set_rl_waza(&plw[1]);
+    ichikannkei = check_work_position(&gs.plw[0].wu, &gs.plw[1].wu);
+    set_rl_waza(&gs.plw[0]);
+    set_rl_waza(&gs.plw[1]);
     Timer_Freeze = 0;
 
-    switch (plw[0].tsukami_f + (plw[1].tsukami_f * 2)) {
+    switch (gs.plw[0].tsukami_f + (gs.plw[1].tsukami_f * 2)) {
     case 1:
         move_P1_move_P2();
         break;
@@ -858,7 +857,7 @@ void move_player_work() {
         break;
 
     default:
-        switch (plw[0].wu.operator + (plw[1].wu.operator * 2)) {
+        switch (gs.plw[0].wu.operator + (gs.plw[1].wu.operator * 2)) {
         case 1:
             move_P1_move_P2();
             break;
@@ -868,7 +867,7 @@ void move_player_work() {
             break;
 
         default:
-            switch ((plw[0].wu.routine_no[1] == 4) + ((plw[1].wu.routine_no[1] == 4) * 2)) {
+            switch ((gs.plw[0].wu.routine_no[1] == 4) + ((gs.plw[1].wu.routine_no[1] == 4) * 2)) {
             case 1:
                 move_P1_move_P2();
                 break;
@@ -895,38 +894,38 @@ void move_player_work() {
 }
 
 void move_P1_move_P2() {
-    if (plw[0].do_not_move == 0) {
-        Player_move(&plw[0], processed_lvbt(Convert_User_Setting(0)));
+    if (gs.plw[0].do_not_move == 0) {
+        Player_move(&gs.plw[0], processed_lvbt(Convert_User_Setting(0)));
     }
 
-    if (bg_app_stop == 0 && bg_app == 0 && set_field_hosei_flag(&plw[0], scrr, 1) != 0) {
-        set_field_hosei_flag(&plw[0], scrl, 0);
+    if (bg_app_stop == 0 && bg_app == 0 && set_field_hosei_flag(&gs.plw[0], scrr, 1) != 0) {
+        set_field_hosei_flag(&gs.plw[0], scrl, 0);
     }
 
-    if (plw[1].do_not_move == 0) {
-        Player_move(&plw[1], processed_lvbt(Convert_User_Setting(1)));
+    if (gs.plw[1].do_not_move == 0) {
+        Player_move(&gs.plw[1], processed_lvbt(Convert_User_Setting(1)));
     }
 
-    if (bg_app_stop == 0 && bg_app == 0 && set_field_hosei_flag(&plw[1], scrr, 1) != 0) {
-        set_field_hosei_flag(&plw[1], scrl, 0);
+    if (bg_app_stop == 0 && bg_app == 0 && set_field_hosei_flag(&gs.plw[1], scrr, 1) != 0) {
+        set_field_hosei_flag(&gs.plw[1], scrl, 0);
     }
 }
 
 void move_P2_move_P1() {
-    if (plw[1].do_not_move == 0) {
-        Player_move(&plw[1], processed_lvbt(Convert_User_Setting(1)));
+    if (gs.plw[1].do_not_move == 0) {
+        Player_move(&gs.plw[1], processed_lvbt(Convert_User_Setting(1)));
     }
 
-    if (bg_app_stop == 0 && bg_app == 0 && set_field_hosei_flag(&plw[1], scrr, 1) != 0) {
-        set_field_hosei_flag(&plw[1], scrl, 0);
+    if (bg_app_stop == 0 && bg_app == 0 && set_field_hosei_flag(&gs.plw[1], scrr, 1) != 0) {
+        set_field_hosei_flag(&gs.plw[1], scrl, 0);
     }
 
-    if (plw[0].do_not_move == 0) {
-        Player_move(&plw[0], processed_lvbt(Convert_User_Setting(0)));
+    if (gs.plw[0].do_not_move == 0) {
+        Player_move(&gs.plw[0], processed_lvbt(Convert_User_Setting(0)));
     }
 
-    if (bg_app_stop == 0 && bg_app == 0 && set_field_hosei_flag(&plw[0], scrr, 1) != 0) {
-        set_field_hosei_flag(&plw[0], scrl, 0);
+    if (bg_app_stop == 0 && bg_app == 0 && set_field_hosei_flag(&gs.plw[0], scrr, 1) != 0) {
+        set_field_hosei_flag(&gs.plw[0], scrl, 0);
     }
 }
 
@@ -939,38 +938,38 @@ void store_player_after_image_data() {
     }
 
     for (i = 0; i < 2; i++) {
-        zanzou_table[i]->pos_x = plw[i].wu.position_x;
-        zanzou_table[i]->pos_y = plw[i].wu.position_y;
-        zanzou_table[i]->pos_z = plw[i].wu.position_z;
-        zanzou_table[i]->cg_num = plw[i].wu.cg_number;
-        zanzou_table[i]->renew = plw[i].wu.renew_attack;
-        zanzou_table[i]->hit_ix = plw[i].wu.cg_hit_ix;
-        zanzou_table[i]->flip = plw[i].wu.rl_flag;
-        zanzou_table[i]->cg_flp = plw[i].wu.cg_flip;
-        zanzou_table[i]->kowaza = plw[i].wu.kind_of_waza;
+        zanzou_table[i]->pos_x = gs.plw[i].wu.position_x;
+        zanzou_table[i]->pos_y = gs.plw[i].wu.position_y;
+        zanzou_table[i]->pos_z = gs.plw[i].wu.position_z;
+        zanzou_table[i]->cg_num = gs.plw[i].wu.cg_number;
+        zanzou_table[i]->renew = gs.plw[i].wu.renew_attack;
+        zanzou_table[i]->hit_ix = gs.plw[i].wu.cg_hit_ix;
+        zanzou_table[i]->flip = gs.plw[i].wu.rl_flag;
+        zanzou_table[i]->cg_flp = gs.plw[i].wu.cg_flip;
+        zanzou_table[i]->kowaza = gs.plw[i].wu.kind_of_waza;
     }
 }
 
 void check_damage_hosei() {
-    plw[0].muriyari_ugoku = plw[0].hosei_amari;
-    plw[1].muriyari_ugoku = plw[1].hosei_amari;
+    gs.plw[0].muriyari_ugoku = gs.plw[0].hosei_amari;
+    gs.plw[1].muriyari_ugoku = gs.plw[1].hosei_amari;
 
-    if (plw[0].tsukami_f && plw[1].tsukamare_f) {
-        check_damage_hosei_nage(&plw[0], &plw[1]);
-    } else if (plw[1].tsukami_f && plw[0].tsukamare_f) {
-        check_damage_hosei_nage(&plw[1], &plw[0]);
+    if (gs.plw[0].tsukami_f && gs.plw[1].tsukamare_f) {
+        check_damage_hosei_nage(&gs.plw[0], &gs.plw[1]);
+    } else if (gs.plw[1].tsukami_f && gs.plw[0].tsukamare_f) {
+        check_damage_hosei_nage(&gs.plw[1], &gs.plw[0]);
     } else {
-        switch ((plw[0].hosei_amari != 0) + ((plw[1].hosei_amari != 0) * 2)) {
+        switch ((gs.plw[0].hosei_amari != 0) + ((gs.plw[1].hosei_amari != 0) * 2)) {
         case 1:
-            check_damage_hosei_dageki(&plw[0], &plw[1]);
+            check_damage_hosei_dageki(&gs.plw[0], &gs.plw[1]);
             break;
         case 2:
-            check_damage_hosei_dageki(&plw[1], &plw[0]);
+            check_damage_hosei_dageki(&gs.plw[1], &gs.plw[0]);
             break;
         }
     }
 
-    plw[0].hosei_amari = plw[1].hosei_amari = 0;
+    gs.plw[0].hosei_amari = gs.plw[1].hosei_amari = 0;
 }
 
 void check_damage_hosei_nage(PLW* as, PLW* ds) {
@@ -1007,7 +1006,7 @@ s32 time_over_check() {
         Winner_id = 0;
         Loser_id = 1;
 
-        if (plw[0].wu.vital_new < plw[1].wu.vital_new) {
+        if (gs.plw[0].wu.vital_new < gs.plw[1].wu.vital_new) {
             Winner_id = 1;
             Loser_id = 0;
         }
@@ -1020,7 +1019,7 @@ s32 time_over_check() {
             request_center_message(2);
         }
 
-        plw[0].wu.dm_vital = plw[1].wu.dm_vital = 0;
+        gs.plw[0].wu.dm_vital = gs.plw[1].wu.dm_vital = 0;
         Round_Result |= 1;
         return 1;
     }
@@ -1029,11 +1028,11 @@ s32 time_over_check() {
 }
 
 s32 will_die() {
-    if (plw[0].wu.dm_vital > plw[0].wu.vital_new) {
+    if (gs.plw[0].wu.dm_vital > gs.plw[0].wu.vital_new) {
         return 0;
     }
 
-    if (plw[1].wu.dm_vital > plw[1].wu.vital_new) {
+    if (gs.plw[1].wu.dm_vital > gs.plw[1].wu.vital_new) {
         return 0;
     }
 
@@ -1050,7 +1049,7 @@ void setup_settle_rno(s16 kos) {
 
 void settle_check() {
     while (1) {
-        switch ((plw[0].dead_flag) + (plw[1].dead_flag * 2)) {
+        switch ((gs.plw[0].dead_flag) + (gs.plw[1].dead_flag * 2)) {
         case 1:
             if (1) {
                 Winner_id = 1;
@@ -1063,9 +1062,9 @@ void settle_check() {
                 Loser_id = 1;
             }
 
-            if (check_sa_resurrection(&plw[Loser_id]) == 0) {
+            if (check_sa_resurrection(&gs.plw[Loser_id]) == 0) {
                 setup_gouki_wins();
-                Round_Result |= plw[Loser_id].wu.dm_koa;
+                Round_Result |= gs.plw[Loser_id].wu.dm_koa;
 
                 if ((Round_Result & 0x800) && gouki_wins) {
                     Forbid_Break = -1;
@@ -1087,7 +1086,7 @@ void settle_check() {
             break;
 
         case 3:
-            if ((check_sa_resurrection(&plw[0]) == 0) && (check_sa_resurrection(&plw[1]) == 0)) {
+            if ((check_sa_resurrection(&gs.plw[0]) == 0) && (check_sa_resurrection(&gs.plw[1]) == 0)) {
                 Conclusion_Flag = 1;
                 Conclusion_Type = 1;
                 setup_settle_rno(1);
@@ -1139,7 +1138,7 @@ s32 check_sa_type_rebirth(PLW* wk) {
 s16 nekorobi_check(s8 ix) {
     s16 rnum = 0;
 
-    if ((plw[ix].wu.routine_no[1] == 1) && (plw[ix].wu.routine_no[2] == 0) && (plw[ix].wu.routine_no[3] > 2)) {
+    if ((gs.plw[ix].wu.routine_no[1] == 1) && (gs.plw[ix].wu.routine_no[2] == 0) && (gs.plw[ix].wu.routine_no[3] > 2)) {
         rnum = 1;
     }
 
@@ -1149,7 +1148,7 @@ s16 nekorobi_check(s8 ix) {
 s16 footwork_check(s8 ix) {
     s16 rnum = 0;
 
-    if (plw[ix].wu.routine_no[1] == 0 && plw[ix].wu.routine_no[2] == 1) {
+    if (gs.plw[ix].wu.routine_no[1] == 0 && gs.plw[ix].wu.routine_no[2] == 1) {
         rnum = 1;
     }
 
@@ -1179,7 +1178,7 @@ void add_next_position(PLW* wk) {
 void setup_gouki_wins() {
     gouki_wins = 0;
 
-    if (plw[Winner_id].player_number == 14) {
+    if (gs.plw[Winner_id].player_number == 14) {
         gouki_wins = 1;
     }
 }
@@ -1200,52 +1199,52 @@ void setup_base_and_other_data() {
     make_texcash_work(3);
     make_texcash_work(4);
     make_texcash_work(6);
-    plw[0].wu.my_mts = 3;
-    plw[1].wu.my_mts = 4;
-    set_base_data(&plw[0], 0);
-    set_base_data(&plw[1], 1);
-    plw[0].sa = &super_arts[0];
-    plw[1].sa = &super_arts[1];
-    plw[0].py = &piyori_type[0];
-    plw[1].py = &piyori_type[1];
-    setup_other_data(&plw[0]);
-    setup_other_data(&plw[1]);
+    gs.plw[0].wu.my_mts = 3;
+    gs.plw[1].wu.my_mts = 4;
+    set_base_data(&gs.plw[0], 0);
+    set_base_data(&gs.plw[1], 1);
+    gs.plw[0].sa = &super_arts[0];
+    gs.plw[1].sa = &super_arts[1];
+    gs.plw[0].py = &piyori_type[0];
+    gs.plw[1].py = &piyori_type[1];
+    setup_other_data(&gs.plw[0]);
+    setup_other_data(&gs.plw[1]);
     effect_work_list_init(6, 0xC5);
-    plw[0].gill_ccch_go = plw[1].gill_ccch_go = 0;
-    effect_J7_init(&plw[0]);
-    effect_J7_init(&plw[1]);
-    effect_E5_init(&plw[0]);
-    effect_E5_init(&plw[1]);
+    gs.plw[0].gill_ccch_go = gs.plw[1].gill_ccch_go = 0;
+    effect_J7_init(&gs.plw[0]);
+    effect_J7_init(&gs.plw[1]);
+    effect_E5_init(&gs.plw[0]);
+    effect_E5_init(&gs.plw[1]);
 
-    if (plw[0].wu.my_priority == plw[1].wu.my_priority) {
-        plw[0].the_same_players = plw[1].the_same_players = 1;
+    if (gs.plw[0].wu.my_priority == gs.plw[1].wu.my_priority) {
+        gs.plw[0].the_same_players = gs.plw[1].the_same_players = 1;
     }
 
     poison_flag[0] = 0;
     poison_flag[1] = 0;
 
     if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
-        effect_E3_init(&plw[0]);
-        effect_E3_init(&plw[1]);
-        effect_E4_init(&plw[0]);
-        effect_E4_init(&plw[1]);
+        effect_E3_init(&gs.plw[0]);
+        effect_E3_init(&gs.plw[1]);
+        effect_E4_init(&gs.plw[0]);
+        effect_E4_init(&gs.plw[1]);
     }
 }
 
 void setup_any_data() {
-    set_base_data_tiny(&plw[0]);
-    set_base_data_tiny(&plw[1]);
-    setup_other_data(&plw[0]);
-    setup_other_data(&plw[1]);
+    set_base_data_tiny(&gs.plw[0]);
+    set_base_data_tiny(&gs.plw[1]);
+    setup_other_data(&gs.plw[0]);
+    setup_other_data(&gs.plw[1]);
     effect_work_list_init(6, 0xC5);
-    plw[0].gill_ccch_go = plw[1].gill_ccch_go = 0;
-    effect_J7_init(&plw[0]);
-    effect_J7_init(&plw[1]);
-    effect_E5_init(&plw[0]);
-    effect_E5_init(&plw[1]);
+    gs.plw[0].gill_ccch_go = gs.plw[1].gill_ccch_go = 0;
+    effect_J7_init(&gs.plw[0]);
+    effect_J7_init(&gs.plw[1]);
+    effect_E5_init(&gs.plw[0]);
+    effect_E5_init(&gs.plw[1]);
 
-    if (plw[0].wu.my_priority == plw[1].wu.my_priority) {
-        plw[0].the_same_players = plw[1].the_same_players = 1;
+    if (gs.plw[0].wu.my_priority == gs.plw[1].wu.my_priority) {
+        gs.plw[0].the_same_players = gs.plw[1].the_same_players = 1;
     }
 }
 
@@ -1259,7 +1258,7 @@ void set_base_data(PLW* wk, s16 ix) {
     wk->wu.charset_id = plid_data[My_char[ix]];
     wk->wkey_flag = wk->dead_flag = 0;
     set_char_base_data(&wk->wu);
-    wk->wu.target_adrs = (u32*)&plw[(ix + 1) & 1];
+    wk->wu.target_adrs = (u32*)&gs.plw[(ix + 1) & 1];
     wk->player_number = My_char[ix];
     wk->wu.hit_adrs = wk->wu.target_adrs;
     wk->wu.dmg_adrs = wk->wu.target_adrs;
@@ -1471,11 +1470,11 @@ void clear_super_arts_point(PLW* wk) {
 s16 check_combo_end(s16 ix) {
     s16 rnum;
 
-    if (plw[ix].py->flag) {
+    if (gs.plw[ix].py->flag) {
         return 1;
     }
 
-    if (plw[ix].tsukamare_f) {
+    if (gs.plw[ix].tsukamare_f) {
         return 1;
     }
 
@@ -1483,25 +1482,25 @@ s16 check_combo_end(s16 ix) {
         return 0;
     }
 
-    if (plw[ix].wu.cg_ja.boix == 0 && plw[ix].wu.cg_ja.cuix == 0 && plw[ix].wu.pat_status == 38) {
+    if (gs.plw[ix].wu.cg_ja.boix == 0 && gs.plw[ix].wu.cg_ja.cuix == 0 && gs.plw[ix].wu.pat_status == 38) {
         return 0;
     }
 
-    if (plw[ix].zuru_flag) {
+    if (gs.plw[ix].zuru_flag) {
         return 0;
     }
 
-    if (plw[ix].wu.routine_no[1] != 1 && plw[ix].wu.routine_no[1] != 3) {
+    if (gs.plw[ix].wu.routine_no[1] != 1 && gs.plw[ix].wu.routine_no[1] != 3) {
         return 0;
     }
 
-    if (plw[ix].old_gdflag != plw[ix].guard_flag) {
-        if (plw[ix].guard_flag == 0) {
+    if (gs.plw[ix].old_gdflag != gs.plw[ix].guard_flag) {
+        if (gs.plw[ix].guard_flag == 0) {
             rnum = 0;
         } else {
             rnum = 1;
         }
-    } else if (plw[ix].guard_flag == 0) {
+    } else if (gs.plw[ix].guard_flag == 0) {
         rnum = 0;
     } else {
         rnum = 1;

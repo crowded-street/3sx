@@ -30,7 +30,7 @@ void effect_C6_move(WORK_Other* ewk) {
             if (oya->wu.routine_no[0] >= 2) {
                 ewk->wu.routine_no[0]++;
 
-                if (plw[oya->master_id ^ 1].player_number == 16) {
+                if (gs.plw[oya->master_id ^ 1].player_number == 16) {
                     set_char_move_init(&ewk->wu, 0, 19);
                 } else {
                     set_char_move_init(&ewk->wu, 0, 11);

@@ -6,6 +6,12 @@
 
 #include <stdbool.h>
 
+typedef struct GameState {
+    PLW plw[2];
+} GameState;
+
+extern GameState gs;
+
 // bss
 extern u8 Order[148];
 extern u8 Order_Timer[148];

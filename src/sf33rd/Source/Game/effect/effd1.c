@@ -103,7 +103,7 @@ void fall_data_set(WORK_Other* ewk) {
 
     ewk->wu.old_rno[0] = 44;
     id_work = oya_ef->master_id ^ 1;
-    pos_work = plw[oya_ef->master_id].wu.xyz[0].disp.pos - plw[id_work].wu.xyz[0].disp.pos;
+    pos_work = gs.plw[oya_ef->master_id].wu.xyz[0].disp.pos - gs.plw[id_work].wu.xyz[0].disp.pos;
     ewk->wu.old_rno[2] = -8;
 
     if (ewk->wu.rl_flag) {

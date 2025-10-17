@@ -930,9 +930,9 @@ void SA_Term(PLW* wk, u16 SA0, u16 SA1, u16 SA2, u16 Term_No) {
     xx[2] = SA2;
     Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
 
-    if ((xx[plw[wk->wu.id].sa->kind_of_arts] == -1) || plw[wk->wu.id].metamorphose) {
+    if ((xx[gs.plw[wk->wu.id].sa->kind_of_arts] == -1) || gs.plw[wk->wu.id].metamorphose) {
         CP_Index[wk->wu.id][0]++;
-    } else if ((plw[wk->wu.id].sa->ok) || (plw[wk->wu.id].sa->mp)) {
+    } else if ((gs.plw[wk->wu.id].sa->ok) || (gs.plw[wk->wu.id].sa->mp)) {
         Disposal_Again[wk->wu.id] = 1;
 
         if ((Term_No != 0xFFFF) || (Term_No != 0)) {
@@ -942,21 +942,21 @@ void SA_Term(PLW* wk, u16 SA0, u16 SA1, u16 SA2, u16 Term_No) {
                     return;
                 }
                 DENJIN_Check(wk, SA2, (u16*)&xx[2], Term_No);
-                Next_Another_Menu(wk, 2, xx[plw[wk->wu.id].sa->kind_of_arts]);
+                Next_Another_Menu(wk, 2, xx[gs.plw[wk->wu.id].sa->kind_of_arts]);
                 return;
 
             case 11:
                 if (SA_Range_Check(wk, 1, Term_No) != 0) {
                     return;
                 }
-                Next_Another_Menu(wk, 2, xx[plw[wk->wu.id].sa->kind_of_arts]);
+                Next_Another_Menu(wk, 2, xx[gs.plw[wk->wu.id].sa->kind_of_arts]);
                 return;
 
             case 1:
                 if (SA_Range_Check(wk, 1, Term_No) != 0) {
                     return;
                 }
-                Next_Another_Menu(wk, 2, xx[plw[wk->wu.id].sa->kind_of_arts]);
+                Next_Another_Menu(wk, 2, xx[gs.plw[wk->wu.id].sa->kind_of_arts]);
                 return;
 
             case 5:
@@ -967,18 +967,18 @@ void SA_Term(PLW* wk, u16 SA0, u16 SA1, u16 SA2, u16 Term_No) {
                 if (SA_Range_Check(wk, 1, Term_No) != 0) {
                     return;
                 }
-                Next_Another_Menu(wk, 2, xx[plw[wk->wu.id].sa->kind_of_arts]);
+                Next_Another_Menu(wk, 2, xx[gs.plw[wk->wu.id].sa->kind_of_arts]);
                 return;
 
             case 6:
                 if (SA_Range_Check(wk, 0, Term_No) != 0) {
                     return;
                 }
-                Next_Another_Menu(wk, 2, xx[plw[wk->wu.id].sa->kind_of_arts]);
+                Next_Another_Menu(wk, 2, xx[gs.plw[wk->wu.id].sa->kind_of_arts]);
                 return;
 
             case 8:
-                if ((plw[wk->wu.id].sa->kind_of_arts == 2) && (plw[wk->wu.id].wu.vital_new <= (Max_vitality / 2))) {
+                if ((gs.plw[wk->wu.id].sa->kind_of_arts == 2) && (gs.plw[wk->wu.id].wu.vital_new <= (Max_vitality / 2))) {
                     break;
                 }
                 CP_Index[wk->wu.id][0]++;
@@ -986,7 +986,7 @@ void SA_Term(PLW* wk, u16 SA0, u16 SA1, u16 SA2, u16 Term_No) {
 
             case 9:
                 YAGYOU_Check(wk, &xx[1], Term_No);
-                Next_Another_Menu(wk, 2, xx[plw[wk->wu.id].sa->kind_of_arts]);
+                Next_Another_Menu(wk, 2, xx[gs.plw[wk->wu.id].sa->kind_of_arts]);
                 return;
 
             case 14:
@@ -996,23 +996,23 @@ void SA_Term(PLW* wk, u16 SA0, u16 SA1, u16 SA2, u16 Term_No) {
                 if (SA_Range_Check(wk, 2, Term_No) != 0) {
                     return;
                 }
-                Next_Another_Menu(wk, 2, xx[plw[wk->wu.id].sa->kind_of_arts]);
+                Next_Another_Menu(wk, 2, xx[gs.plw[wk->wu.id].sa->kind_of_arts]);
                 return;
 
             default:
-                Next_Another_Menu(wk, 2, xx[plw[wk->wu.id].sa->kind_of_arts]);
+                Next_Another_Menu(wk, 2, xx[gs.plw[wk->wu.id].sa->kind_of_arts]);
                 return;
             }
         }
 
-        Next_Another_Menu(wk, 2, xx[plw[wk->wu.id].sa->kind_of_arts]);
+        Next_Another_Menu(wk, 2, xx[gs.plw[wk->wu.id].sa->kind_of_arts]);
     } else {
         CP_Index[wk->wu.id][0]++;
     }
 }
 
 s32 DENJIN_Check(PLW* wk, u16 SA2, u16* xx, u16 Term_No) {
-    if (plw[wk->wu.id].sa->kind_of_arts != 2) {
+    if (gs.plw[wk->wu.id].sa->kind_of_arts != 2) {
         return 0;
     }
 
@@ -1025,7 +1025,7 @@ s32 DENJIN_Check(PLW* wk, u16 SA2, u16* xx, u16 Term_No) {
 const u8 YAGYOU_Data[0x10] = { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3 };
 
 s32 YAGYOU_Check(PLW* wk, s16* xx, u16 Term_No) {
-    if (plw[wk->wu.id].sa->kind_of_arts != 1) {
+    if (gs.plw[wk->wu.id].sa->kind_of_arts != 1) {
         return 0;
     }
 
@@ -1038,7 +1038,7 @@ s32 YAGYOU_Check(PLW* wk, s16* xx, u16 Term_No) {
 }
 
 s32 SA_Range_Check(PLW* wk, s16 SA_No, u16 Range) {
-    if (SA_No != plw[wk->wu.id].sa->kind_of_arts) {
+    if (SA_No != gs.plw[wk->wu.id].sa->kind_of_arts) {
         return 0;
     }
 
@@ -1059,7 +1059,7 @@ s32 SA_Range_Check(PLW* wk, s16 SA_No, u16 Range) {
 }
 
 void Check_SA(PLW* wk, s16 Next_Action, s16 Next_Menu) {
-    if (plw[wk->wu.id].sa->ok) {
+    if (gs.plw[wk->wu.id].sa->ok) {
         CP_Index[wk->wu.id][0]++;
     } else {
         CP_No[wk->wu.id][0] = Next_Action;
@@ -1070,7 +1070,7 @@ void Check_SA(PLW* wk, s16 Next_Action, s16 Next_Menu) {
 }
 
 void Check_EX(PLW* wk, s16 Next_Action, s16 Next_Menu) {
-    if (plw[wk->wu.id].sa->ex) {
+    if (gs.plw[wk->wu.id].sa->ex) {
         CP_Index[wk->wu.id][0]++;
     } else {
         CP_No[wk->wu.id][0] = Next_Action;
@@ -2831,7 +2831,7 @@ void Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16
 
     case 3:
         Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-        if (plw[wk->wu.id].tsukami_f) {
+        if (gs.plw[wk->wu.id].tsukami_f) {
             break;
         }
         if (((wk->wu.cg_type) == 0x40) || (wk->wu.routine_no[1] == 0)) {
@@ -3179,12 +3179,12 @@ s32 Check_Rapid_End(PLW* wk) {
     case 2:
         switch (Rapid_No[wk->wu.id][3]) {
         case 0:
-            if (plw[wk->wu.id].caution_flag) {
+            if (gs.plw[wk->wu.id].caution_flag) {
                 Rapid_No[wk->wu.id][3]++;
             }
             break;
         case 1:
-            if (plw[wk->wu.id].caution_flag == 0) {
+            if (gs.plw[wk->wu.id].caution_flag == 0) {
                 Rapid_No[wk->wu.id][0] = 0;
                 return 1;
             }
@@ -3870,7 +3870,7 @@ s32 Command_Type_00(PLW* wk, s16 Power_Level, u16 Tech_Number, s16 Ex_Shot) {
         }
         Tech_Index[wk->wu.id] = 7;
 
-        if ((plw[wk->wu.id].sa->ex) && ((Ex_Shot == 0x70) || (Ex_Shot == 0x700))) {
+        if ((gs.plw[wk->wu.id].sa->ex) && ((Ex_Shot == 0x70) || (Ex_Shot == 0x700))) {
             Lever_Buff[wk->wu.id] |= Ex_Shot;
         } else {
             Lever_Buff[wk->wu.id] |= renbanshot_conpaneshot(Tech_Address[wk->wu.id], Power_Level);
@@ -4285,10 +4285,10 @@ void Reaction_Sub(PLW* wk, s16 Reaction, s16 Power_Level) {
         break;
 
     case 11:
-        if (plw[wk->wu.id].caution_flag) {
+        if (gs.plw[wk->wu.id].caution_flag) {
             break;
         }
-        if (plw[wk->wu.id].tsukami_f) {
+        if (gs.plw[wk->wu.id].tsukami_f) {
             break;
         }
 
@@ -4365,10 +4365,10 @@ void Reaction_Sub(PLW* wk, s16 Reaction, s16 Power_Level) {
 
     default:
 
-        if (plw[wk->wu.id].caution_flag) {
+        if (gs.plw[wk->wu.id].caution_flag) {
             break;
         }
-        if (plw[wk->wu.id].tsukami_f) {
+        if (gs.plw[wk->wu.id].tsukami_f) {
             break;
         }
 
@@ -4520,18 +4520,18 @@ s32 Check_SA_Active(PLW* wk, s16* pl_id) {
         return 0;
     }
     if (My_char[wk->wu.id] == 9) {
-        if (plw[wk->wu.id].sa->kind_of_arts == 0) {
+        if (gs.plw[wk->wu.id].sa->kind_of_arts == 0) {
             return *pl_id = 3;
         }
         return *pl_id = 2;
     }
-    if ((My_char[wk->wu.id] == 3) && (plw[wk->wu.id].sa->kind_of_arts == 2)) {
+    if ((My_char[wk->wu.id] == 3) && (gs.plw[wk->wu.id].sa->kind_of_arts == 2)) {
         return *pl_id = 1;
     }
-    if ((My_char[wk->wu.id] == 0xA) && (plw[wk->wu.id].sa->kind_of_arts == 2)) {
+    if ((My_char[wk->wu.id] == 0xA) && (gs.plw[wk->wu.id].sa->kind_of_arts == 2)) {
         return *pl_id = 1;
     }
-    if ((My_char[wk->wu.id] == 0x11) && (plw[wk->wu.id].sa->kind_of_arts == 2)) {
+    if ((My_char[wk->wu.id] == 0x11) && (gs.plw[wk->wu.id].sa->kind_of_arts == 2)) {
         return *pl_id = 4;
     }
     return 0;
@@ -4712,11 +4712,11 @@ void Setup_Random(PLW* wk) {
 }
 
 s32 Check_Dramatic(PLW* wk, s16 PL_id) {
-    if (plw[wk->wu.id].sa->ok) {
+    if (gs.plw[wk->wu.id].sa->ok) {
         return Rnd | 8;
     }
 
-    if ((plw[PL_id].wu.vital_new <= 0x30) || (plw[PL_id ^ 1].wu.vital_new <= 0x30)) {
+    if ((gs.plw[PL_id].wu.vital_new <= 0x30) || (gs.plw[PL_id ^ 1].wu.vital_new <= 0x30)) {
         return Rnd | 8;
     }
     return Rnd;
@@ -4842,7 +4842,7 @@ s32 Check_Makoto(PLW* wk) {
     if (wk->sa->ok != -1) {
         return 0;
     }
-    if (plw[wk->wu.id].sa->kind_of_arts == 2) {
+    if (gs.plw[wk->wu.id].sa->kind_of_arts == 2) {
         return 1;
     }
 
@@ -4895,7 +4895,7 @@ s32 Setup_EM_Rank_Index(PLW* wk) {
 s32 Flip_Term_Correct(PLW* wk) {
     s16 xx = 0;
 
-    if (plw[wk->wu.id].wu.vital_new < 0x31) {
+    if (gs.plw[wk->wu.id].wu.vital_new < 0x31) {
         xx += 1;
     }
     if ((PL_Wins[wk->wu.id]) < (PL_Wins[wk->wu.id ^ 1])) {
@@ -5586,7 +5586,7 @@ s32 Check_SHINRYU(PLW* wk) {
     if (My_char[em->wu.id] != 0xB) {
         return 0;
     }
-    if (plw[em->wu.id].sa->kind_of_arts != 1) {
+    if (gs.plw[em->wu.id].sa->kind_of_arts != 1) {
         return 0;
     }
     return 1;
@@ -5666,14 +5666,14 @@ s32 ETC_Term_0001(PLW* wk, WORK* em) {
     if (My_char[wk->wu.id] != 9) {
         return 1;
     }
-    if (plw[wk->wu.id].sa->kind_of_arts) {
+    if (gs.plw[wk->wu.id].sa->kind_of_arts) {
         return 1;
     }
     return 0;
 }
 
 s32 ETC_Term_0002(PLW* wk, WORK* em) {
-    if (plw[wk->wu.id].wu.vital_new < 0x31) {
+    if (gs.plw[wk->wu.id].wu.vital_new < 0x31) {
         return 1;
     }
     return 0;
@@ -5690,14 +5690,14 @@ s32 ETC_Term_0004(PLW* wk, WORK* em) {
     if (em->vital_new >= 0x50) {
         return 0;
     }
-    if (plw[wk->wu.id].wu.vital_new < 0x78) {
+    if (gs.plw[wk->wu.id].wu.vital_new < 0x78) {
         return 0;
     }
     return 1;
 }
 
 s32 ETC_Term_0005(PLW* wk, WORK* em) {
-    if (em->vital_new < plw[wk->wu.id].wu.vital_new) {
+    if (em->vital_new < gs.plw[wk->wu.id].wu.vital_new) {
         return 1;
     }
     return 0;
@@ -5723,7 +5723,7 @@ s32 ETC_Term_0006(PLW* wk, WORK* em) {
 }
 
 s32 ETC_Term_0007(PLW* wk, WORK* em) {
-    if (plw[wk->wu.id].sa->kind_of_arts == 2) {
+    if (gs.plw[wk->wu.id].sa->kind_of_arts == 2) {
         return 1;
     }
 
@@ -5731,7 +5731,7 @@ s32 ETC_Term_0007(PLW* wk, WORK* em) {
 }
 
 s32 ETC_Term_0008(PLW* wk, WORK* em) {
-    if (plw[wk->wu.id].sa->kind_of_arts == 1) {
+    if (gs.plw[wk->wu.id].sa->kind_of_arts == 1) {
         return 1;
     }
 
@@ -5739,7 +5739,7 @@ s32 ETC_Term_0008(PLW* wk, WORK* em) {
 }
 
 s32 ETC_Term_0009(PLW* wk, WORK* em) {
-    if (plw[wk->wu.id].sa->kind_of_arts == 0) {
+    if (gs.plw[wk->wu.id].sa->kind_of_arts == 0) {
         return 1;
     }
 

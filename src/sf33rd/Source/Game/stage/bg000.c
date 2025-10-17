@@ -11,6 +11,7 @@
 #include "sf33rd/Source/Game/effect/eff44.h"
 #include "sf33rd/Source/Game/effect/eff60.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/rendering/texcash.h"
 #include "sf33rd/Source/Game/stage/bg.h"
@@ -57,7 +58,7 @@ void bg0001_init00() {
         return;
     }
 
-    if (plw->player_number == 0) {
+    if (gs.plw->player_number == 0) {
         bgw_ptr->u_line = 0;
         bgw_ptr->xy[0].cal += bgw_ptr->speed_x * 0xE0;
         bgw_ptr->old_pos_x = bgw_ptr->hos_xy[0].cal = bgw_ptr->wxy[0].cal = bgw_ptr->xy[0].cal;
@@ -88,7 +89,7 @@ void bg0000_init00() {
 
     bg_app = 1;
 
-    if (plw->player_number == 0) {
+    if (gs.plw->player_number == 0) {
         bgw_ptr->u_line = 0;
         bgw_ptr->xy[0].cal += bgw_ptr->speed_x * 0xE0;
         bgw_ptr->old_pos_x = bgw_ptr->hos_xy[0].cal = bgw_ptr->wxy[0].cal = bgw_ptr->xy[0].cal;

@@ -45,28 +45,28 @@ void vital_cont_main() {
 }
 
 void vital_control(u8 pl) {
-    if (plw[pl].wu.vital_new < 0xA1) {
-        if ((vit[pl].cyerw == plw[pl].wu.vital_new) && (vit[pl].cred == plw[pl].wu.vital_new) &&
-            (vit[pl].ored != (plw[pl].wu.vital_new + 1))) {
+    if (gs.plw[pl].wu.vital_new < 0xA1) {
+        if ((vit[pl].cyerw == gs.plw[pl].wu.vital_new) && (vit[pl].cred == gs.plw[pl].wu.vital_new) &&
+            (vit[pl].ored != (gs.plw[pl].wu.vital_new + 1))) {
             if (No_Trans == 0) {
                 vital_parts_allwrite(pl);
             }
             return;
         }
 
-        if (vit[pl].cred < plw[pl].wu.vital_new) {
-            vit[pl].cred = plw[pl].wu.vital_new;
+        if (vit[pl].cred < gs.plw[pl].wu.vital_new) {
+            vit[pl].cred = gs.plw[pl].wu.vital_new;
         }
 
-        vit[pl].cyerw = plw[pl].wu.vital_new;
+        vit[pl].cyerw = gs.plw[pl].wu.vital_new;
 
-        if (plw[pl].wu.vital_new < 0) {
+        if (gs.plw[pl].wu.vital_new < 0) {
             vit[pl].cyerw = 0;
         }
 
-        if (plw[pl].wu.vital_new == 0xA0) {
+        if (gs.plw[pl].wu.vital_new == 0xA0) {
             vit[pl].colnum = 1;
-        } else if (plw[pl].wu.vital_new < 0x31) {
+        } else if (gs.plw[pl].wu.vital_new < 0x31) {
             vit[pl].colnum = 3;
         } else {
             vit[pl].colnum = 2;
@@ -79,8 +79,8 @@ void vital_control(u8 pl) {
         vit[pl].ored = vit[pl].cred;
         vit[pl].cred--;
 
-        if (vit[pl].cred < plw[pl].wu.vital_new) {
-            vit[pl].cred = plw[pl].wu.vital_new;
+        if (vit[pl].cred < gs.plw[pl].wu.vital_new) {
+            vit[pl].cred = gs.plw[pl].wu.vital_new;
         }
     }
 }

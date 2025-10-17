@@ -8,6 +8,8 @@
 #include "sf33rd/Source/Game/engine/cmd_data.h"
 #include "structs.h"
 
+GameState gs = { 0 };
+
 // bss
 u8 Order[148];
 u8 Order_Timer[148];

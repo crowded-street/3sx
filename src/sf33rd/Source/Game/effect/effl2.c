@@ -69,7 +69,7 @@ void effect_L2_move(WORK_Other* ewk) {
 }
 
 void effl2_dir_check(WORK_Other* ewk) {
-    s16 work = (plw[ewk->master_id].wu.xyz[0].disp.pos);
+    s16 work = (gs.plw[ewk->master_id].wu.xyz[0].disp.pos);
 
     work >>= 6;
     work &= 15;
@@ -113,7 +113,7 @@ s32 effect_L2_init() {
     ewk->wu.cgromtype = 1;
     ewk->wu.disp_flag = 1;
     ewk->wu.my_family = 2;
-    ewk->my_master = (u32*)&plw[oya_id];
+    ewk->my_master = (u32*)&gs.plw[oya_id];
     ewk->wu.my_col_mode = 0x4200;
     ewk->wu.my_mts = 7;
     ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);

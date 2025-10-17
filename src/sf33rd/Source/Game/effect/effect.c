@@ -554,8 +554,8 @@ void setup_shadow_of_the_Effy(WORK* wk) {
 }
 
 void set_init_A4_flag() {
-    plw[0].init_E3_flag = 1;
-    plw[1].init_E3_flag = 1;
-    plw[0].init_E4_flag = 1;
-    plw[1].init_E4_flag = 1;
+    gs.plw[0].init_E3_flag = 1;
+    gs.plw[1].init_E3_flag = 1;
+    gs.plw[0].init_E4_flag = 1;
+    gs.plw[1].init_E4_flag = 1;
 }

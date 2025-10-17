@@ -10,6 +10,7 @@
 #include "sf33rd/Source/Game/effect/effh2.h"
 #include "sf33rd/Source/Game/engine/charset.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
 
 const s16 panel_pos_hosei[8][4][2] = {
@@ -29,9 +30,9 @@ void effect_37_move(WORK_Other* ewk) {
         ewk->wu.disp_flag = 0;
         ewk->wu.my_col_mode = 0x4200;
         ewk->wu.my_col_code = (ewk->wu.type == 1) + 0x28;
-        set_char_move_init2(&ewk->wu, 0, 0, plw[ewk->wu.type].player_number + 1, 0);
+        set_char_move_init2(&ewk->wu, 0, 0, gs.plw[ewk->wu.type].player_number + 1, 0);
 
-        if (plw[0].player_number == plw[1].player_number) {
+        if (gs.plw[0].player_number == gs.plw[1].player_number) {
             effect_H2_init(&ewk->wu, ewk->wu.charset_id, ewk->wu.type);
             break;
         }

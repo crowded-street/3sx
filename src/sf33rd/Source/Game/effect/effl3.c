@@ -298,14 +298,14 @@ s32 effect_L3_init(PLW* oya) {
         ewk->wu.type = i;
         ewk->wu.xyz[0].disp.pos = bg_w.bgw[1].wxy[0].disp.pos;
         ewk->wu.xyz[0].disp.pos += *(s16*)data_ptr++;
-        ewk->wu.xyz[1].disp.pos = plw[id_w].wu.xyz[1].disp.pos;
+        ewk->wu.xyz[1].disp.pos = gs.plw[id_w].wu.xyz[1].disp.pos;
         ewk->wu.xyz[1].disp.pos += *(s16*)data_ptr++;
-        ewk->wu.position_z = plw[id_w].wu.position_z;
+        ewk->wu.position_z = gs.plw[id_w].wu.position_z;
         ewk->wu.position_z += *(s16*)data_ptr++;
         ewk->wu.my_priority = ewk->wu.position_z;
         ewk->wu.rl_flag = *data_ptr++;
         ewk->wu.kage_char = *data_ptr++;
-        ewk->wu.old_rno[0] = plw[id_w].wu.xyz[0].disp.pos;
+        ewk->wu.old_rno[0] = gs.plw[id_w].wu.xyz[0].disp.pos;
         ewk->wu.old_rno[0] += *(s16*)data_ptr++;
         ewk->wu.old_rno[1] = *data_ptr++;
         ewk->wu.routine_no[1] = *data_ptr++;

@@ -30,19 +30,19 @@ s32 Player_control_bonus2() {
             check_damage_hosei_bonus();
         }
 
-        set_quake(&plw[0]);
-        set_quake(&plw[1]);
+        set_quake(&gs.plw[0]);
+        set_quake(&gs.plw[1]);
 
-        if (!plw[0].zuru_flag && !plw[0].zettai_muteki_flag) {
-            hit_push_request(&plw[0].wu);
+        if (!gs.plw[0].zuru_flag && !gs.plw[0].zettai_muteki_flag) {
+            hit_push_request(&gs.plw[0].wu);
         }
 
-        if (!plw[1].zuru_flag && !plw[1].zettai_muteki_flag) {
-            hit_push_request(&plw[1].wu);
+        if (!gs.plw[1].zuru_flag && !gs.plw[1].zettai_muteki_flag) {
+            hit_push_request(&gs.plw[1].wu);
         }
 
-        add_next_position(plw);
-        add_next_position(&plw[1]);
+        add_next_position(gs.plw);
+        add_next_position(&gs.plw[1]);
         check_cg_zoom();
     }
 
@@ -59,11 +59,11 @@ s32 Player_control_bonus2() {
 
 void plcnt_b2_move() {
     if (No_Death) {
-        plw[0].wu.dm_vital = plw[1].wu.dm_vital = 0;
+        gs.plw[0].wu.dm_vital = gs.plw[1].wu.dm_vital = 0;
     }
 
     if (Break_Into) {
-        plw[0].wu.dm_vital = plw[1].wu.dm_vital = 0;
+        gs.plw[0].wu.dm_vital = gs.plw[1].wu.dm_vital = 0;
     }
 
     move_player_work_bonus();
@@ -83,12 +83,12 @@ void plcnt_b2_move() {
 }
 
 void plcnt_b2_die() {
-    plw[0].wu.dm_vital = plw[1].wu.dm_vital = 0;
+    gs.plw[0].wu.dm_vital = gs.plw[1].wu.dm_vital = 0;
 
     switch (pcon_rno[2]) {
     case 0:
-        plw[0].wkey_flag = plw[1].wkey_flag = 1;
-        plw[0].image_setup_flag = plw[1].image_setup_flag = 0;
+        gs.plw[0].wkey_flag = gs.plw[1].wkey_flag = 1;
+        gs.plw[0].image_setup_flag = gs.plw[1].image_setup_flag = 0;
         pcon_rno[2]++;
         /* fallthrough */
 
@@ -102,28 +102,28 @@ void plcnt_b2_die() {
     case 2:
         complete_victory_pause();
 
-        if (plw[0].wu.operator) {
-            plw[0].wu.routine_no[1] = 0;
-            plw[0].wu.routine_no[2] = 40;
-            plw[0].wu.routine_no[3] = 0;
+        if (gs.plw[0].wu.operator) {
+            gs.plw[0].wu.routine_no[1] = 0;
+            gs.plw[0].wu.routine_no[2] = 40;
+            gs.plw[0].wu.routine_no[3] = 0;
         } else {
-            plw[0].wu.routine_no[3] = 9;
+            gs.plw[0].wu.routine_no[3] = 9;
         }
 
-        if (plw[1].wu.operator) {
-            plw[1].wu.routine_no[1] = 0;
-            plw[1].wu.routine_no[2] = 40;
-            plw[1].wu.routine_no[3] = 0;
+        if (gs.plw[1].wu.operator) {
+            gs.plw[1].wu.routine_no[1] = 0;
+            gs.plw[1].wu.routine_no[2] = 40;
+            gs.plw[1].wu.routine_no[3] = 0;
         } else {
-            plw[1].wu.routine_no[3] = 9;
+            gs.plw[1].wu.routine_no[3] = 9;
         }
 
-        plw[0].wu.cg_type = plw[1].wu.cg_type = 0;
+        gs.plw[0].wu.cg_type = gs.plw[1].wu.cg_type = 0;
         pcon_rno[2]++;
         break;
 
     case 3:
-        if ((plw[0].wu.routine_no[3] == 9) && (plw[1].wu.routine_no[3] == 9)) {
+        if ((gs.plw[0].wu.routine_no[3] == 9) && (gs.plw[1].wu.routine_no[3] == 9)) {
             pcon_rno[2]++;
         }
 

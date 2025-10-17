@@ -248,12 +248,12 @@ void eff09_2000(WORK_Other* ewk) {
 
             if (ewk->master_id) {
                 sw_work = p2sw_0;
-                hit_pl = &plw[0];
-                pl_hit_ptr = &plw[0].wu.h_bod->body_dm[0][0];
+                hit_pl = &gs.plw[0];
+                pl_hit_ptr = &gs.plw[0].wu.h_bod->body_dm[0][0];
             } else {
                 sw_work = p1sw_0;
-                hit_pl = &plw[1];
-                pl_hit_ptr = &plw[1].wu.h_bod->body_dm[0][0];
+                hit_pl = &gs.plw[1];
+                pl_hit_ptr = &gs.plw[1].wu.h_bod->body_dm[0][0];
             }
 
             sean_ball_move(ewk, sw_work);
@@ -267,7 +267,7 @@ void eff09_2000(WORK_Other* ewk) {
                 work = random_16();
                 work &= 7;
                 add_super_arts_gauge(
-                    plw[ewk->master_id].sa, plw[ewk->master_id].wu.id, 1, plw[ewk->master_id].metamorphose);
+                    gs.plw[ewk->master_id].sa, gs.plw[ewk->master_id].wu.id, 1, gs.plw[ewk->master_id].metamorphose);
                 break;
             }
 
@@ -309,7 +309,7 @@ void eff09_2000(WORK_Other* ewk) {
 }
 
 void sean_ball_move(WORK_Other* ewk, u16 sw_work) {
-    if (!plw[ewk->master_id].wu.operator) {
+    if (!gs.plw[ewk->master_id].wu.operator) {
         return;
     }
 
@@ -1277,13 +1277,13 @@ void eff09_21000(WORK_Other* ewk) {
         } else {
             ewk->wu.old_rno[0] = 64;
 
-            if (plw[Winner_id].wu.rl_flag) {
-                arrive_x = plw[Winner_id].wu.xyz[0].disp.pos + 28;
+            if (gs.plw[Winner_id].wu.rl_flag) {
+                arrive_x = gs.plw[Winner_id].wu.xyz[0].disp.pos + 28;
             } else {
-                arrive_x = plw[Winner_id].wu.xyz[0].disp.pos - 28;
+                arrive_x = gs.plw[Winner_id].wu.xyz[0].disp.pos - 28;
             }
 
-            arrive_y = plw[Winner_id].wu.xyz[1].disp.pos + 162;
+            arrive_y = gs.plw[Winner_id].wu.xyz[1].disp.pos + 162;
         }
 
         cal_all_speed_data(&ewk->wu, ewk->wu.old_rno[0], arrive_x, arrive_y, 2, 2);
@@ -1313,7 +1313,7 @@ void eff09_21000(WORK_Other* ewk) {
             if (ewk->wu.cg_type) {
                 ewk->wu.routine_no[1]++;
                 ewk->wu.disp_flag = 0;
-                plw[Winner_id].wu.cmwk[0] = 1;
+                gs.plw[Winner_id].wu.cmwk[0] = 1;
             }
         }
 

@@ -70,7 +70,7 @@ s32 effect_20_init(WORK_Other* oya) {
     ewk->wu.work_id = 16;
     ewk->wu.my_priority = 0x40;
     ewk->wu.cgromtype = 1;
-    ewk->wu.rl_flag = plw[Winner_id].wu.rl_flag;
+    ewk->wu.rl_flag = gs.plw[Winner_id].wu.rl_flag;
     ewk->wu.my_col_mode = 0x4200;
     ewk->wu.char_table[0] = _etc2_char_table;
     ewk->wu.my_family = 8;

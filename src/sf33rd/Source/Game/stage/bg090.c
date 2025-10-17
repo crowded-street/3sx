@@ -126,7 +126,7 @@ void bg_fam0900() {
 void bg090_demo_check() {
     s16 pos_w;
 
-    if ((plw->player_number != 9) && (plw[1].player_number != 9)) {
+    if ((gs.plw->player_number != 9) && (gs.plw[1].player_number != 9)) {
         bgw_ptr->r_no_0 = 2;
         return;
     }
@@ -152,11 +152,11 @@ void demo90_base() {
     case 0:
         chk_pl = 0;
 
-        if (plw->player_number == 9 && plw[1].player_number == 9) {
+        if (gs.plw->player_number == 9 && gs.plw[1].player_number == 9) {
             if (Appear_hv[0]) {
                 chk_pl = 1;
             }
-        } else if (plw[1].player_number == 9) {
+        } else if (gs.plw[1].player_number == 9) {
             chk_pl = 1;
         }
 

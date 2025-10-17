@@ -62,15 +62,15 @@ void stngauge_cont_main() {
 
 void stngauge_control(u8 pl) {
     if (!sdat[pl].proccess_dead) {
-        if (plw[pl].dead_flag) {
+        if (gs.plw[pl].dead_flag) {
             sdat[pl].proccess_dead = 1;
             sdat[pl].cstn = 0;
             return;
         }
 
-        if (((plw[pl].wu.routine_no[1] == 1) && (plw[pl].wu.routine_no[2] == 0x19) &&
-             (plw[pl].wu.routine_no[3] != 0)) ||
-            (plw[pl].py->flag == 1)) {
+        if (((gs.plw[pl].wu.routine_no[1] == 1) && (gs.plw[pl].wu.routine_no[2] == 0x19) &&
+             (gs.plw[pl].wu.routine_no[3] != 0)) ||
+            (gs.plw[pl].py->flag == 1)) {
             sdat[pl].sflag = 1;
 
             if (sdat[pl].osflag == 0) {
@@ -112,7 +112,7 @@ void stngauge_control(u8 pl) {
             sdat[pl].osflag = sdat[pl].sflag;
             sdat[pl].g_or_s = 0;
             sdat[pl].stimer = 2;
-            sdat[pl].cstn = plw[pl].py->now.quantity.h;
+            sdat[pl].cstn = gs.plw[pl].py->now.quantity.h;
             sdat[pl].osflag = sdat[pl].sflag;
 
             if (No_Trans == 0) {
@@ -121,8 +121,8 @@ void stngauge_control(u8 pl) {
             return;
         }
 
-        if (sdat[pl].cstn != plw[pl].py->now.quantity.h) {
-            sdat[pl].cstn = plw[pl].py->now.quantity.h;
+        if (sdat[pl].cstn != gs.plw[pl].py->now.quantity.h) {
+            sdat[pl].cstn = gs.plw[pl].py->now.quantity.h;
         }
 
         if (No_Trans == 0) {

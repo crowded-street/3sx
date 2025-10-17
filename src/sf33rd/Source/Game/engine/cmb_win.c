@@ -130,9 +130,9 @@ void combo_control(s8 PL) {
             reversal_continue_check(PL);
         }
 
-        if (!paring_check(PL) && plw[PL].cb->total) {
+        if (!paring_check(PL) && gs.plw[PL].cb->total) {
             if (first_attack == 0) {
-                first_attack = plw[PL].wu.id + 1;
+                first_attack = gs.plw[PL].wu.id + 1;
                 combo_window_push(PL, 4);
                 return;
             }
@@ -143,7 +143,7 @@ void combo_control(s8 PL) {
 
             if (cmb_flag != 0) {
                 return;
-            } else if (plw[PL].cb->total == 1) {
+            } else if (gs.plw[PL].cb->total == 1) {
                 training_disp_data_set(PL, 1);
                 super_arts_finish_check(PL);
                 combo_hensuu_clear(PL);
@@ -165,7 +165,7 @@ void check_and_set_combo(s8 PL) {
         PLS = 0;
     }
 
-    hit_num = plw[PL].cb->total;
+    hit_num = gs.plw[PL].cb->total;
 
     if (hit_num > 99) {
         hit_num = 99;
@@ -186,26 +186,26 @@ void check_and_set_combo(s8 PL) {
 }
 
 void combo_hensuu_clear(s8 PL) {
-    work_init_zero((s32*)plw[PL].cb, sizeof(ComboType));
+    work_init_zero((s32*)gs.plw[PL].cb, sizeof(ComboType));
     combo_rp_clear_check(PL);
     memset(calc_hit[PL], 0, sizeof(calc_hit[0]));
     memset(score_calc[PL], 0, sizeof(score_calc[0]));
     bonus_pts[PL] = 0;
-    plw[PL].cb->total = 0;
+    gs.plw[PL].cb->total = 0;
     hit_num = 0;
     tr_data[PL].total_damage = 0;
 }
 
 void combo_rp_clear_check(s8 PL) {
-    if (plw[PL].wu.routine_no[1] != 1 || plw[PL].wu.routine_no[2] != 17 || plw[PL].wu.routine_no[3] == 0 ||
-        plw[PL].wu.routine_no[3] == 3) {
-        work_init_zero((s32*)plw[PL].rp, sizeof(ComboType));
+    if (gs.plw[PL].wu.routine_no[1] != 1 || gs.plw[PL].wu.routine_no[2] != 17 || gs.plw[PL].wu.routine_no[3] == 0 ||
+        gs.plw[PL].wu.routine_no[3] == 3) {
+        work_init_zero((s32*)gs.plw[PL].rp, sizeof(ComboType));
     }
 }
 
 void super_arts_finish_check(s8 PL) {
     if (arts_finish_check2(PL) != 0) {
-        if ((plw[PL].cb->new_dm & 0x3F) < 48) {
+        if ((gs.plw[PL].cb->new_dm & 0x3F) < 48) {
             sa_kind = 2;
         } else {
             sa_kind = 3;
@@ -216,7 +216,7 @@ void super_arts_finish_check(s8 PL) {
 }
 
 void super_arts_last_check(s8 PL) {
-    if ((plw[PL].cb->new_dm & 0x3F) >= 0x20) {
+    if ((gs.plw[PL].cb->new_dm & 0x3F) >= 0x20) {
         sarts_finish_flag[PL] = 1;
     } else {
         sarts_finish_flag[PL] = 0;
@@ -226,7 +226,7 @@ void super_arts_last_check(s8 PL) {
 }
 
 void first_attack_pts_check(s8 PL) {
-    if (first_attack - 1 == plw[PL].wu.id) {
+    if (first_attack - 1 == gs.plw[PL].wu.id) {
         first_attack = 3;
         bonus_pts[PL] += 2;
     }
@@ -239,8 +239,8 @@ s32 reversal_check(s8 PL) {
         return 0;
     }
 
-    if (plw[PL].wu.routine_no[1] == 4 && plw[PL].wu.old_rno[1] == 1 && pcon_dp_flag == 0 &&
-        plw[PL].wu.routine_no[2] >= 0x10) {
+    if (gs.plw[PL].wu.routine_no[1] == 4 && gs.plw[PL].wu.old_rno[1] == 1 && pcon_dp_flag == 0 &&
+        gs.plw[PL].wu.routine_no[2] >= 0x10) {
         rever_attack[PL] = 1;
 
         if (PL == 0) {
@@ -258,7 +258,7 @@ s32 reversal_check(s8 PL) {
 }
 
 void reversal_continue_check(s8 PL) {
-    if (plw[PL].wu.routine_no[1] != 4) {
+    if (gs.plw[PL].wu.routine_no[1] != 4) {
         rever_attack[PL] = 0;
     } else {
         return;
@@ -290,7 +290,7 @@ s32 paring_check(s8 PL) {
 }
 
 void hit_combo_check(s8 PL) {
-    s32* sa_ptr = (s32*)plw[PL].cb->kind_of[4][0];
+    s32* sa_ptr = (s32*)gs.plw[PL].cb->kind_of[4][0];
     s8 lpx;
 
     for (lpx = 0; lpx < 20; lpx++) {
@@ -325,7 +325,7 @@ s32 arts_finish_check(s8 PL) {
 }
 
 s32 arts_finish_check2(u8 PL) {
-    if (Conclusion_Flag && Conclusion_Type == 0 && Loser_id == PL && (plw[PL].cb->new_dm & 0x3F) >= 32) {
+    if (Conclusion_Flag && Conclusion_Type == 0 && Loser_id == PL && (gs.plw[PL].cb->new_dm & 0x3F) >= 32) {
         return 1;
     }
 
@@ -343,7 +343,7 @@ u32 SCORE_CALCULATION(s8 PL) {
     u32 score;
     s8 last;
 
-    k_ptr = plw[PL].cb->kind_of[0][0];
+    k_ptr = gs.plw[PL].cb->kind_of[0][0];
     c_ptr = &calc_hit[PL][1];
     s_ptr = score_calc[PL];
 
@@ -447,7 +447,7 @@ void combo_window_push(s8 PL, s8 KIND) {
 
         if (Mode_Type == MODE_VERSUS) {
             Score_Sub();
-        } else if (plw[PLS].wu.operator) {
+        } else if (gs.plw[PLS].wu.operator) {
             Score_Sub();
         }
 
@@ -463,7 +463,7 @@ void combo_window_push(s8 PL, s8 KIND) {
             cmst_buff[PL][cst_write[PL]].pts_flag = 1;
         } else if (Mode_Type == 5) {
             cmst_buff[PL][cst_write[PL]].pts_flag = 1;
-        } else if (plw[PLS].wu.operator) {
+        } else if (gs.plw[PLS].wu.operator) {
             cmst_buff[PL][cst_write[PL]].pts_flag = 1;
         } else {
             cmst_buff[PL][cst_write[PL]].pts_flag = 0;
@@ -635,7 +635,7 @@ void combo_window_trans(s8 PL) {
                         return;
                     }
 
-                    if (plw[PLS].wu.operator) {
+                    if (gs.plw[PLS].wu.operator) {
                         Score_Sub();
                         return;
                     }

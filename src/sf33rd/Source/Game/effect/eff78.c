@@ -56,7 +56,7 @@ s32 crow_fuss_check(WORK_Other* ewk) {
         ewk->wu.routine_no[1] = 0;
         ewk->wu.direction = 0;
 
-        work = plw[0].wu.xyz[0].disp.pos + plw[1].wu.xyz[0].disp.pos;
+        work = gs.plw[0].wu.xyz[0].disp.pos + gs.plw[1].wu.xyz[0].disp.pos;
         work >>= 1;
         work = ewk->wu.xyz[0].disp.pos - work;
 

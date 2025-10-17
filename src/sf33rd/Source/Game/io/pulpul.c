@@ -410,7 +410,7 @@ s32 pulpul_pdVibMxStart(PPWORK* wk, s32 arg1, s32 arg2, PULPARA* param) {
             return 1;
         }
 
-        if ((wk->opck) && (plw[wk->id].wu.operator == 0)) {
+        if ((wk->opck) && (gs.plw[wk->id].wu.operator == 0)) {
             return 1;
         }
 

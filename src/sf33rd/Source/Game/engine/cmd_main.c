@@ -10,6 +10,7 @@
 #include "sf33rd/Source/Game/engine/hitcheck.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/pls01.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 
 void (*chk_move_jp[28])() = { check_init, check_0,  check_1,  check_2,  check_3,  check_4,  check_5,
                               check_6,    check_7,  check_7,  check_9,  check_10, check_11, check_12,
@@ -1744,9 +1745,9 @@ void dash_flag_clear(s16 pl_id) {
     intptr_t* adrs;
 
     if (cmd_sel[pl_id]) {
-        adrs = pl_CMD[plw[pl_id].player_number];
+        adrs = pl_CMD[gs.plw[pl_id].player_number];
     } else {
-        adrs = pl_cmd[plw[pl_id].player_number];
+        adrs = pl_cmd[gs.plw[pl_id].player_number];
     }
 
     waza_compel_init(pl_id, 0, adrs);
@@ -1757,9 +1758,9 @@ void hi_jump_flag_clear(s16 pl_id) {
     intptr_t* adrs;
 
     if (cmd_sel[pl_id]) {
-        adrs = pl_CMD[plw[pl_id].player_number];
+        adrs = pl_CMD[gs.plw[pl_id].player_number];
     } else {
-        adrs = pl_cmd[plw[pl_id].player_number];
+        adrs = pl_cmd[gs.plw[pl_id].player_number];
     }
 
     waza_compel_init(pl_id, 2, adrs);
@@ -1769,9 +1770,9 @@ void waza_flag_clear_only_1(s16 pl_id, s16 wznum) {
     intptr_t* adrs;
 
     if (cmd_sel[pl_id]) {
-        adrs = pl_CMD[plw[pl_id].player_number];
+        adrs = pl_CMD[gs.plw[pl_id].player_number];
     } else {
-        adrs = pl_cmd[plw[pl_id].player_number];
+        adrs = pl_cmd[gs.plw[pl_id].player_number];
     }
 
     waza_compel_init(pl_id, wznum, adrs);

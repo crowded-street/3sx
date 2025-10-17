@@ -233,12 +233,12 @@ s16 eff_hit_check(WORK_Other* ewk, s16 type) {
     if (!EXE_obroll) {
         if (type) {
             if (pcon_dp_flag) {
-                eff_hit_flag[ewk->wu.type] += eff_hit_check_sub(ewk, &plw[0]);
-                eff_hit_flag[ewk->wu.type] += eff_hit_check_sub(ewk, &plw[1]);
+                eff_hit_flag[ewk->wu.type] += eff_hit_check_sub(ewk, &gs.plw[0]);
+                eff_hit_flag[ewk->wu.type] += eff_hit_check_sub(ewk, &gs.plw[1]);
             }
         } else {
-            eff_hit_flag[ewk->wu.type] += eff_hit_check_sub(ewk, &plw[0]);
-            eff_hit_flag[ewk->wu.type] += eff_hit_check_sub(ewk, &plw[1]);
+            eff_hit_flag[ewk->wu.type] += eff_hit_check_sub(ewk, &gs.plw[0]);
+            eff_hit_flag[ewk->wu.type] += eff_hit_check_sub(ewk, &gs.plw[1]);
         }
     }
 
@@ -272,12 +272,12 @@ s16 eff_hit_check2(WORK_Other* ewk, s16 type, s16 where_type) {
     if (!EXE_obroll) {
         if (type) {
             if (pcon_dp_flag) {
-                eff_hit_flag[ewk->wu.type] += eff_hit_check_sub2(ewk, &plw[0], where_type);
-                eff_hit_flag[ewk->wu.type] += eff_hit_check_sub2(ewk, &plw[1], where_type);
+                eff_hit_flag[ewk->wu.type] += eff_hit_check_sub2(ewk, &gs.plw[0], where_type);
+                eff_hit_flag[ewk->wu.type] += eff_hit_check_sub2(ewk, &gs.plw[1], where_type);
             }
         } else {
-            eff_hit_flag[ewk->wu.type] += eff_hit_check_sub2(ewk, &plw[0], where_type);
-            eff_hit_flag[ewk->wu.type] += eff_hit_check_sub2(ewk, &plw[1], where_type);
+            eff_hit_flag[ewk->wu.type] += eff_hit_check_sub2(ewk, &gs.plw[0], where_type);
+            eff_hit_flag[ewk->wu.type] += eff_hit_check_sub2(ewk, &gs.plw[1], where_type);
         }
     }
 

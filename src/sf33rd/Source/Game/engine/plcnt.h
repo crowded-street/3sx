@@ -49,7 +49,6 @@ extern char no_sa[2];
 extern ComboType combo_type[2];
 extern ComboType remake_power[2];
 
-extern PLW plw[2];
 extern ZanzouTableEntry zanzou_table[2][48];
 
 extern const s16** kizetsu_timer_table[];

@@ -7,6 +7,7 @@
 #include "common.h"
 #include "sf33rd/Source/Game/RAMCNT.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/rendering/texcash.h"
 #include "sf33rd/Source/Game/rendering/texgroup.h"
 
@@ -48,11 +49,11 @@ const u8 mto_list[9][24] = { { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
                              { 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
 
 void Purge_com_player_from_mm() {
-    if (plw[0].wu.operator == 0) {
+    if (gs.plw[0].wu.operator == 0) {
         purge_player_texture(0);
     }
 
-    if (plw[1].wu.operator == 0) {
+    if (gs.plw[1].wu.operator == 0) {
         purge_player_texture(1);
     }
 }

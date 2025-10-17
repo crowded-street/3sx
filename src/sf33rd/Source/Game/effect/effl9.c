@@ -77,7 +77,7 @@ s32 effect_L9_init(WORK_Other* oya, u8 ten_type) {
     if (ewk->wu.type) {
         ewk->wu.char_index = 53;
 
-        if (plw[Winner_id].wu.rl_flag) {
+        if (gs.plw[Winner_id].wu.rl_flag) {
             ewk->wu.xyz[0].disp.pos = 191;
         } else {
             ewk->wu.xyz[0].disp.pos = 192;

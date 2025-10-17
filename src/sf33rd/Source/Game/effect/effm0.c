@@ -87,10 +87,10 @@ void animal_init(WORK_Other* ewk) {
         break;
 
     case 6:
-        if (plw->player_number == 7) {
-            ewk->wu.my_col_code = plw->wu.my_col_code;
+        if (gs.plw->player_number == 7) {
+            ewk->wu.my_col_code = gs.plw->wu.my_col_code;
         } else {
-            ewk->wu.my_col_code = plw[1].wu.my_col_code;
+            ewk->wu.my_col_code = gs.plw[1].wu.my_col_code;
         }
 
         ewk->wu.kage_flag = 1;
