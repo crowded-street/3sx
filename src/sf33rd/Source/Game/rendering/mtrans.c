@@ -20,6 +20,8 @@
 #include "sf33rd/Source/PS2/ps2Quad.h"
 #include "structs.h"
 
+#include <SDL3/SDL.h>
+
 #define PRIO_BASE_SIZE 128
 
 // sbss
@@ -453,7 +455,7 @@ void mlt_obj_trans_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
             cp->cg.code = cc.code;
             cp->x16 = 0;
             cp->x32 = 0;
-            work_init_zero((s32*)&cp->map, sizeof(PatternMap));
+            SDL_zero(cp->map);
             cc.parts.group = i;
 
             while (count--) {
@@ -828,7 +830,7 @@ void mlt_obj_trans_cp3_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
             cp->cg.code = cc.code;
             cp->x16 = 0;
             cp->x32 = 0;
-            work_init_zero((s32*)&cp->map, sizeof(PatternMap));
+            SDL_zero(cp->map);
             cc.parts.group = i;
 
             while (count--) {
@@ -1215,7 +1217,7 @@ void mlt_obj_trans_rgb_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
             cp->cg.code = cc.code;
             cp->x16 = 0;
             cp->x32 = 0;
-            work_init_zero((s32*)&cp->map, sizeof(PatternMap));
+            SDL_zero(cp->map);
             cc.parts.group = i;
 
             while (count--) {

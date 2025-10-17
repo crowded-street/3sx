@@ -13,6 +13,8 @@
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 
+#include <SDL3/SDL.h>
+
 // sbss
 JudgeGals judge_gals[2];
 JudgeCom judge_com[2];
@@ -147,8 +149,8 @@ const s16 grade_t_table[32][2] = { { 0, 20 },       { 75, 20 },     { 150, 20 },
 void grade_check_work_1st_init(s16 ix, s16 ix2) {
     s16 i;
 
-    work_init_zero((s32*)&judge_item[ix][ix2], sizeof(GradeData));
-    work_init_zero((s32*)&judge_final[ix][ix2], sizeof(GradeFinalData));
+    SDL_zero(judge_item[ix][ix2]);
+    SDL_zero(judge_final[ix][ix2]);
 
     for (i = 0; i < 16; i++) {
         judge_final[ix][ix2].vs_cpu_result[i] = -1;

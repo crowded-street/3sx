@@ -13,6 +13,9 @@
 #include "sf33rd/Source/Game/sc_data.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/sound/sound3rd.h"
+
+#include <SDL3/SDL.h>
+
 #include <string.h>
 
 // bss
@@ -61,10 +64,10 @@ void combo_cont_init() {
         cmb_calc_now[i] = 0;
         cst_read[i] = 0;
         cst_write[i] = 0;
-        work_init_zero((s32*)&combo_type[i], sizeof(ComboType));
-        work_init_zero((s32*)&remake_power[i], sizeof(ComboType));
-        memset(calc_hit[i], 0, sizeof(calc_hit[0]));
-        memset(score_calc[i], 0, sizeof(score_calc[0]));
+        SDL_zero(combo_type[i]);
+        SDL_zero(remake_power[i]);
+        SDL_zeroa(calc_hit[i]);
+        SDL_zeroa(score_calc[i]);
     }
 
     first_attack = 0;
@@ -72,7 +75,7 @@ void combo_cont_init() {
     sa_kind = 0;
     cmb_all_stock[0] = 0;
     last_hit_time = 0;
-    memset(&cmst_buff, 0, sizeof(cmst_buff));
+    SDL_zero(cmst_buff);
 }
 
 void combo_cont_main() {
@@ -186,10 +189,10 @@ void check_and_set_combo(s8 PL) {
 }
 
 void combo_hensuu_clear(s8 PL) {
-    work_init_zero((s32*)gs.plw[PL].cb, sizeof(ComboType));
+    SDL_zerop(gs.plw[PL].cb);
     combo_rp_clear_check(PL);
-    memset(calc_hit[PL], 0, sizeof(calc_hit[0]));
-    memset(score_calc[PL], 0, sizeof(score_calc[0]));
+    SDL_zeroa(calc_hit[PL]);
+    SDL_zeroa(score_calc[PL]);
     bonus_pts[PL] = 0;
     gs.plw[PL].cb->total = 0;
     hit_num = 0;
@@ -199,7 +202,7 @@ void combo_hensuu_clear(s8 PL) {
 void combo_rp_clear_check(s8 PL) {
     if (gs.plw[PL].wu.routine_no[1] != 1 || gs.plw[PL].wu.routine_no[2] != 17 || gs.plw[PL].wu.routine_no[3] == 0 ||
         gs.plw[PL].wu.routine_no[3] == 3) {
-        work_init_zero((s32*)gs.plw[PL].rp, sizeof(ComboType));
+        SDL_zerop(gs.plw[PL].rp);
     }
 }
 

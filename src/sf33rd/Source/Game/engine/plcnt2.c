@@ -19,6 +19,8 @@
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 
+#include <SDL3/SDL.h>
+
 void setup_bs_scrrrl_bs();
 void setup_bs_scrrrl_bs2();
 void move_P1_move_P2_bonus(s16* field_work);
@@ -71,8 +73,7 @@ void plcnt_b_init() {
     switch (pcon_rno[1]) {
     case 0:
         pcon_rno[1] = 2;
-        work_init_zero((s32*)&gs.plw[0], sizeof(PLW));
-        work_init_zero((s32*)&gs.plw[1], sizeof(PLW));
+        SDL_zeroa(gs.plw);
         setup_base_and_other_data();
         pcon_dp_flag = 0;
         round_slow_flag = 0;

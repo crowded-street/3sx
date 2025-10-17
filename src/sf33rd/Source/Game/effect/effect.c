@@ -13,6 +13,8 @@
 #include "sf33rd/Source/Game/io/pulpul.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 
+#include <SDL3/SDL.h>
+
 s16 frwctr;
 s16 frwctr_min;
 s16 head_ix[8];
@@ -81,7 +83,7 @@ void effect_work_init() {
     WORK* c_addr;
     s16 i;
 
-    work_init_zero((s32*)frw, sizeof(frw));
+    SDL_zeroa(frw);
 
     for (i = 0; i < EFFECT_MAX; i++) {
         frwctr = (EFFECT_MAX - 1) - i;
@@ -248,7 +250,8 @@ void push_effect_work(WORK* wkhd) {
         break;
     }
 
-    work_init_zero((s32*)frw[qix], sizeof(frw[0]));
+    SDL_zeroa(frw[qix]);
+
     c_addr->before = c_addr->behind = -1;
     frwque[frwctr++] = qix;
     c_addr->myself = qix;
@@ -276,27 +279,6 @@ void effect_work_kill(s16 index, s16 kill_id) {
         }
 
         aix = c_addr->behind;
-    }
-}
-
-void work_init_zero(s32* adrs_int, s32 xx) {
-    s32 i;
-    s32 surr;
-    s8* adrs_char;
-
-    surr = (u32)xx % 4;
-    xx /= 4;
-
-    for (i = 0; i < xx; i++) {
-        *adrs_int++ = 0;
-    }
-
-    if (surr != 0) {
-        adrs_char = (s8*)adrs_int;
-
-        for (i = 0; i < surr; i++) {
-            *adrs_char++ = 0;
-        }
     }
 }
 

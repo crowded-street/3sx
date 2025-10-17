@@ -26,6 +26,8 @@
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/io/pulpul.h"
 
+#include <SDL3/SDL.h>
+
 // bss
 HS hs[32];
 
@@ -1904,7 +1906,7 @@ void clear_hit_queue() {
         q_hit_push[i] = 0;
     }
 
-    work_init_zero((s32*)hs, sizeof(hs));
+    SDL_zeroa(hs);
 }
 
 s16 change_damage_attribute(PLW* as, u16 atr, u16 ix) {

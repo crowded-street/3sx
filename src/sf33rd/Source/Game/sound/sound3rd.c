@@ -26,6 +26,8 @@
 #include "sf33rd/Source/PS2/cseDataFiles/CSEData.h"
 #include "structs.h"
 
+#include <SDL3/SDL.h>
+
 #define ADX_STM_WORK_SIZE 252388
 
 // sbss
@@ -205,8 +207,8 @@ void Exit_sound_system() {
 }
 
 void Init_bgm_work() {
-    work_init_zero((s32*)&bgm_exe, sizeof(BGMExecution));
-    work_init_zero((s32*)&bgm_req, sizeof(BGMRequest));
+    SDL_zero(bgm_exe);
+    SDL_zero(bgm_req);
 }
 
 void sound_all_off() {

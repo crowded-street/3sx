@@ -48,6 +48,8 @@
 #include "sf33rd/Source/Game/debug/debug_config.h"
 #endif
 
+#include <SDL3/SDL.h>
+
 void pli_0000();
 void pli_1000();
 void move_player_work();
@@ -539,8 +541,7 @@ void init_app_30000() {
 void pli_0000() {
     pcon_rno[1]++;
     round_slow_flag = 0;
-    work_init_zero((s32*)&gs.plw[0], sizeof(PLW));
-    work_init_zero((s32*)&gs.plw[1], sizeof(PLW));
+    SDL_zeroa(gs.plw);
     setup_base_and_other_data();
 }
 

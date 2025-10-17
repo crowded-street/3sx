@@ -21,7 +21,6 @@ void effect_work_quick_init();
 void effect_work_kill_mod_plcol();
 void push_effect_work(WORK* wkhd);
 s16 pull_effect_work(s16 index);
-void work_init_zero(s32* adrs_int, s32 xx);
 void effect_work_list_init(s16 lix, s16 iid);
 s16 search_effect_index(s16 index, s16 flag, s16 tid);
 void effect_work_kill(s16 index, s16 kill_id);
