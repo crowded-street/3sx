@@ -1,7 +1,6 @@
 #include "sf33rd/Source/Common/PPGFile.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/common/plcommon.h"
-#include "sf33rd/AcrSDK/ps2/flps2asm.h"
 #include "sf33rd/AcrSDK/ps2/flps2render.h"
 #include "sf33rd/AcrSDK/ps2/flps2vram.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
@@ -10,6 +9,8 @@
 #include "sf33rd/Source/Compress/zlibApp.h"
 #include "sf33rd/Source/PS2/ps2Quad.h"
 #include "structs.h"
+
+#include <SDL3/SDL.h>
 
 #define MAGIC_TO_INT(str) ((str[0] << 0x18) | (str[1] << 0x10) | (str[2] << 0x8) | (str[3]))
 #define REVERT_U32(val)                                                                                                \
@@ -950,7 +951,7 @@ s32 ppgRenewTexChunkSeqs(Texture* tch) {
             flLockTexture(NULL, tch->handle[i].b16[0], &bits, 3);
             dstRam = bits.ptr;
             srcRam = (s32*)(tch->srcAdrs + tch->srcSize * i);
-            flPS2_Mem_move64(srcRam, dstRam, tch->srcSize >> 6);
+            SDL_memmove(dstRam, srcRam, tch->srcSize);
             flUnlockTexture(tch->handle[i].b16[0]);
         }
     }
