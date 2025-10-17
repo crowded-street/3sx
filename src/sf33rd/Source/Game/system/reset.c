@@ -1,3 +1,8 @@
+/**
+ * @file reset.c
+ * Game Reset
+ */
+
 #include "sf33rd/Source/Game/system/reset.h"
 #include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Game/effect/effect.h"

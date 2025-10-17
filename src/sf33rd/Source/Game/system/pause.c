@@ -1,3 +1,8 @@
+/**
+ * @file pause.c
+ * Game Pause
+ */
+
 #include "sf33rd/Source/Game/system/pause.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/common/pad.h"

@@ -1,3 +1,8 @@
+/**
+ * @file sys_sub2.c
+ * Display Config and Screen Adjustment Utilities
+ */
+
 #include "sf33rd/Source/Game/system/sys_sub2.h"
 #include "common.h"
 #include "sf33rd/Source/Game/system/work_sys.h"

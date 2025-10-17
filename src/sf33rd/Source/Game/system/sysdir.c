@@ -1,3 +1,8 @@
+/**
+ * @file sysdir.c
+ * System Direction (Dipswitch)/Extra Options
+ */
+
 #include "sf33rd/Source/Game/system/sysdir.h"
 #include "common.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"

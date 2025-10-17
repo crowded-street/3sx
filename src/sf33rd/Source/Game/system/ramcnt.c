@@ -1,3 +1,8 @@
+/**
+ * @file ramcnt.c
+ * RAM Control
+ */
+
 #include "sf33rd/Source/Game/system/ramcnt.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"

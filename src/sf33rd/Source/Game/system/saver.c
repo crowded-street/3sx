@@ -1,3 +1,8 @@
+/**
+ * @file saver.c
+ * Screensaver
+ */
+
 #include "sf33rd/Source/Game/system/saver.h"
 #include "common.h"
 #include "sf33rd/Source/Game/engine/workuser.h"

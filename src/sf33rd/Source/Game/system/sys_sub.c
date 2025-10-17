@@ -1,3 +1,8 @@
+/**
+ * @file sys_sub.c
+ * System State and Management Hub
+ */
+
 #include "sf33rd/Source/Game/system/sys_sub.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/common/mlPAD.h"

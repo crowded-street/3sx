@@ -1,3 +1,8 @@
+/**
+ * @file work_sys.c
+ * Global System State Variables
+ */
+
 #include "common.h"
 #include "structs.h"
 
