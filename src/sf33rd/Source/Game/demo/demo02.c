@@ -5,8 +5,6 @@
 
 #include "common.h"
 #include "sf33rd/Source/Game/Game.h"
-#include "sf33rd/Source/Game/SYS_sub.h"
-#include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/engine/grade.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
@@ -16,6 +14,8 @@
 #include "sf33rd/Source/Game/sound/se.h"
 #include "sf33rd/Source/Game/sound/sound3rd.h"
 #include "sf33rd/Source/Game/stage/bg.h"
+#include "sf33rd/Source/Game/system/sys_sub.h"
+#include "sf33rd/Source/Game/system/sysdir.h"
 
 void Demo00();
 void Demo01();

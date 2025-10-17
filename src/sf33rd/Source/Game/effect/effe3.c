@@ -5,13 +5,13 @@
 
 #include "sf33rd/Source/Game/effect/effe3.h"
 #include "common.h"
-#include "sf33rd/Source/Game/SysDir.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/plmain.h"
 #include "sf33rd/Source/Game/engine/spgauge.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/system/sysdir.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 
 void effect_E3_move(WORK_Other* ewk) {
     PLW* mwk = (PLW*)ewk->my_master;

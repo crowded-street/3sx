@@ -6,7 +6,6 @@
 #include "sf33rd/Source/Game/effect/eff76.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
-#include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/eff57.h"
 #include "sf33rd/Source/Game/effect/effa6.h"
@@ -21,6 +20,7 @@
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
+#include "sf33rd/Source/Game/system/sys_sub.h"
 
 void effect_76_move(WORK_Other* ewk);
 void EFF76_WAIT(WORK_Other* ewk);

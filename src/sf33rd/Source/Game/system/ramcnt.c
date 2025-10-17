@@ -1,4 +1,4 @@
-#include "sf33rd/Source/Game/RAMCNT.h"
+#include "sf33rd/Source/Game/system/ramcnt.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"

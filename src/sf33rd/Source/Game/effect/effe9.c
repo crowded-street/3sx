@@ -5,12 +5,12 @@
 
 #include "sf33rd/Source/Game/effect/effe9.h"
 #include "common.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/ending/end_data.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/rendering/dc_ghost.h"
 #include "sf33rd/Source/Game/rendering/mtrans.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 
 void effect_E9_move(WORK_Other* ewk) {
     PAL_CURSOR ita;

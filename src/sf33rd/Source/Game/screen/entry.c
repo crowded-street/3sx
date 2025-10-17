@@ -5,9 +5,6 @@
 
 #include "sf33rd/Source/Game/screen/entry.h"
 #include "common.h"
-#include "sf33rd/Source/Game/Reset.h"
-#include "sf33rd/Source/Game/SYS_sub.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/effa2.h"
 #include "sf33rd/Source/Game/ending/end_data.h"
@@ -21,6 +18,9 @@
 #include "sf33rd/Source/Game/screen/ranking.h"
 #include "sf33rd/Source/Game/sound/se.h"
 #include "sf33rd/Source/Game/sound/sound3rd.h"
+#include "sf33rd/Source/Game/system/reset.h"
+#include "sf33rd/Source/Game/system/sys_sub.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 #include "structs.h"
 
 u8 letter_stack[40];

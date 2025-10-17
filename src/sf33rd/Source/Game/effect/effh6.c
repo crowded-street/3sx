@@ -5,13 +5,13 @@
 
 #include "sf33rd/Source/Game/effect/effh6.h"
 #include "common.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/ending/end_data.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/rendering/texcash.h"
 #include "sf33rd/Source/Game/screen/staff.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 
 s16 roll_rate_t;
 s16 roll_rate;

@@ -2,8 +2,6 @@
 #include "common.h"
 #include "sf33rd/AcrSDK/common/mlPAD.h"
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
-#include "sf33rd/Source/Game/SYS_sub.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/debug/Deb_Data.h"
 #include "sf33rd/Source/Game/debug/Debug_ID.h"
 #include "sf33rd/Source/Game/debug/Nakai.h"
@@ -16,6 +14,8 @@
 #include "sf33rd/Source/Game/rendering/mtrans.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/stage/bg.h"
+#include "sf33rd/Source/Game/system/sys_sub.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 
 #define COLOR_WHITE 0xFFFFFFFF
 #define COLOR_YELLOW 0xFFFFFF00

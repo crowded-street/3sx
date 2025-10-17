@@ -7,7 +7,6 @@
 #include "bin2obj/buttobi.h"
 #include "bin2obj/etc.h"
 #include "common.h"
-#include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/effect/effa7.h"
 #include "sf33rd/Source/Game/effect/effd9.h"
 #include "sf33rd/Source/Game/effect/effe2.h"
@@ -28,6 +27,7 @@
 #include "sf33rd/Source/Game/io/pulpul.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/stage/bg.h"
+#include "sf33rd/Source/Game/system/sysdir.h"
 
 #include <SDL3/SDL.h>
 

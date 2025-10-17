@@ -6,7 +6,6 @@
 #include "sf33rd/Source/Game/sound/se.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/animation/appear.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
@@ -14,6 +13,7 @@
 #include "sf33rd/Source/Game/sound/se_data.h"
 #include "sf33rd/Source/Game/sound/sound3rd.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 #include "structs.h"
 
 #define SDEB_SIZE 8

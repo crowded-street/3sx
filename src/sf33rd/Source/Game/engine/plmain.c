@@ -5,7 +5,6 @@
 
 #include "sf33rd/Source/Game/engine/plmain.h"
 #include "common.h"
-#include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/animation/appear.h"
 #include "sf33rd/Source/Game/com/com_pl.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
@@ -27,6 +26,7 @@
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/rendering/meta_col.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
+#include "sf33rd/Source/Game/system/sysdir.h"
 
 void plmv_1010(PLW* wk);
 void plmv_1020(PLW* wk, s16 step);

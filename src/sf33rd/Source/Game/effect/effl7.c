@@ -6,7 +6,6 @@
 #include "sf33rd/Source/Game/effect/effl7.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/animation/win_pl.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/caldir.h"
@@ -18,6 +17,7 @@
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 
 // forward declaration
 const s16 effl7_data_tbl[16];

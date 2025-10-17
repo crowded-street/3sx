@@ -1,12 +1,9 @@
-#include "sf33rd/Source/Game/SYS_sub.h"
+#include "sf33rd/Source/Game/system/sys_sub.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/common/mlPAD.h"
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/Source/Game/Com_Data.h"
 #include "sf33rd/Source/Game/Game.h"
-#include "sf33rd/Source/Game/SYS_sub2.h"
-#include "sf33rd/Source/Game/SysDir.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/com/com_datu.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/eff93.h"
@@ -28,6 +25,9 @@
 #include "sf33rd/Source/Game/sound/sound3rd.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
+#include "sf33rd/Source/Game/system/sys_sub2.h"
+#include "sf33rd/Source/Game/system/sysdir.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 #include <memory.h>
 
 u8 Candidate_Buff[16];

@@ -5,13 +5,13 @@
 
 #include "sf33rd/Source/Game/engine/spgauge.h"
 #include "common.h"
-#include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/plmain.h"
 #include "sf33rd/Source/Game/engine/slowf.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/sound/se.h"
+#include "sf33rd/Source/Game/system/sysdir.h"
 
 typedef struct {
     const u16* spgtbl_ptr;
@@ -358,7 +358,8 @@ void spgauge_control(s8 Spg_Num) {
         sast_control(Spg_Num);
     }
 
-    if ((gs.plw[Spg_Num].sa->ex != 0 || spg_dat[Spg_Num].ex_flag == 1 || spg_dat[Spg_Num].sa_flag == 1) && !Game_pause) {
+    if ((gs.plw[Spg_Num].sa->ex != 0 || spg_dat[Spg_Num].ex_flag == 1 || spg_dat[Spg_Num].sa_flag == 1) &&
+        !Game_pause) {
         sagauge_color_chenge(Spg_Num);
     }
 

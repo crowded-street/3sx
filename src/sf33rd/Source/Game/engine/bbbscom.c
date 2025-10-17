@@ -5,7 +5,6 @@
 
 #include "sf33rd/Source/Game/engine/bbbscom.h"
 #include "common.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/effect/eff16.h"
 #include "sf33rd/Source/Game/effect/effb1.h"
 #include "sf33rd/Source/Game/effect/effh0.h"
@@ -14,6 +13,7 @@
 #include "sf33rd/Source/Game/engine/grade.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 
 const s32 bbbs_jump_level[4][2];
 

@@ -5,7 +5,6 @@
 
 #include "sf33rd/Source/Game/effect/eff63.h"
 #include "common.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/effect/eff61.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
@@ -13,6 +12,7 @@
 #include "sf33rd/Source/Game/rendering/texcash.h"
 #include "sf33rd/Source/Game/screen/sel_data.h"
 #include "sf33rd/Source/Game/stage/bg.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 
 void EFF63_WAIT(WORK_Other_CONN* ewk);
 void EFF63_SLIDE_IN(WORK_Other_CONN* ewk);

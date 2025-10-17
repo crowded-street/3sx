@@ -6,10 +6,10 @@
 #include "sf33rd/Source/Game/engine/hitefpl.h"
 #include "bin2obj/gauge.h"
 #include "common.h"
-#include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/engine/hitcheck.h"
 #include "sf33rd/Source/Game/engine/pls02.h"
 #include "sf33rd/Source/Game/engine/pow_pow.h"
+#include "sf33rd/Source/Game/system/sysdir.h"
 
 void setup_dm_rl_pldm(WORK* as, WORK* ds);
 

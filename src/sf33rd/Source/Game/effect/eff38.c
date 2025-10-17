@@ -6,7 +6,6 @@
 #include "sf33rd/Source/Game/effect/eff38.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
-#include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/caldir.h"
 #include "sf33rd/Source/Game/engine/charset.h"
@@ -17,6 +16,7 @@
 #include "sf33rd/Source/Game/screen/sel_data.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
+#include "sf33rd/Source/Game/system/sys_sub.h"
 
 void EFF38_WAIT(WORK_Other* ewk);
 void EFF38_SUDDENLY(WORK_Other* ewk);

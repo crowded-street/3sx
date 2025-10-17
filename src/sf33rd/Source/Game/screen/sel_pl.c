@@ -7,10 +7,6 @@
 #include "common.h"
 #include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Game/Com_Data.h"
-#include "sf33rd/Source/Game/SYS_sub.h"
-#include "sf33rd/Source/Game/SYS_sub2.h"
-#include "sf33rd/Source/Game/SysDir.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/demo/demo_dat.h"
 #include "sf33rd/Source/Game/effect/eff38.h"
@@ -49,6 +45,10 @@
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
+#include "sf33rd/Source/Game/system/sys_sub.h"
+#include "sf33rd/Source/Game/system/sys_sub2.h"
+#include "sf33rd/Source/Game/system/sysdir.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 
 void Switch_Work();
 void Sel_PL_Control();

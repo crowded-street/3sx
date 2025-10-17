@@ -5,7 +5,6 @@
 
 #include "sf33rd/Source/Game/engine/plcnt2.h"
 #include "common.h"
-#include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/cmd_main.h"
 #include "sf33rd/Source/Game/engine/hitcheck.h"
@@ -18,6 +17,7 @@
 #include "sf33rd/Source/Game/engine/slowf.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
+#include "sf33rd/Source/Game/system/sys_sub.h"
 
 #include <SDL3/SDL.h>
 
@@ -317,7 +317,8 @@ void check_damage_hosei_bonus() {
 
     switch ((gs.plw[0].hosei_amari != 0) + ((gs.plw[1].hosei_amari != 0) * 2)) {
     case 1:
-        if ((!gs.plw[0].tsukami_f || gs.plw[0].kind_of_catch != 1) && (gs.plw[0].tsukamare_f | gs.plw[0].dm_hos_flag) == 0) {
+        if ((!gs.plw[0].tsukami_f || gs.plw[0].kind_of_catch != 1) &&
+            (gs.plw[0].tsukamare_f | gs.plw[0].dm_hos_flag) == 0) {
             break;
         }
 
@@ -327,7 +328,8 @@ void check_damage_hosei_bonus() {
         break;
 
     case 2:
-        if ((!gs.plw[1].tsukami_f || gs.plw[1].kind_of_catch != 1) && (gs.plw[1].tsukamare_f | gs.plw[1].dm_hos_flag) == 0) {
+        if ((!gs.plw[1].tsukami_f || gs.plw[1].kind_of_catch != 1) &&
+            (gs.plw[1].tsukamare_f | gs.plw[1].dm_hos_flag) == 0) {
             break;
         }
 

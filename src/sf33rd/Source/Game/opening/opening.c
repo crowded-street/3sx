@@ -10,10 +10,6 @@
 #include "sf33rd/Source/Common/MemMan.h"
 #include "sf33rd/Source/Common/PPGFile.h"
 #include "sf33rd/Source/Common/PPGWork.h"
-#include "sf33rd/Source/Game/RAMCNT.h"
-#include "sf33rd/Source/Game/SYS_sub.h"
-#include "sf33rd/Source/Game/SYS_sub2.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/demo/demo00.h"
 #include "sf33rd/Source/Game/effect/eff36.h"
@@ -34,6 +30,10 @@
 #include "sf33rd/Source/Game/sound/sound3rd.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
+#include "sf33rd/Source/Game/system/ramcnt.h"
+#include "sf33rd/Source/Game/system/sys_sub.h"
+#include "sf33rd/Source/Game/system/sys_sub2.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 
 typedef const f32* ro_f32_ptr;
 

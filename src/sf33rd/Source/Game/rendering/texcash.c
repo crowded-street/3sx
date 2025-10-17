@@ -7,13 +7,13 @@
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/Source/Common/PPGFile.h"
-#include "sf33rd/Source/Game/RAMCNT.h"
-#include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/rendering/mtrans.h"
 #include "sf33rd/Source/Game/stage/bg.h"
+#include "sf33rd/Source/Game/system/ramcnt.h"
+#include "sf33rd/Source/Game/system/sys_sub.h"
 #include "structs.h"
 
 #include <SDL3/SDL.h>

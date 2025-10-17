@@ -5,9 +5,6 @@
 
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "common.h"
-#include "sf33rd/Source/Game/SYS_sub.h"
-#include "sf33rd/Source/Game/SysDir.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/animation/win_pl.h"
 #include "sf33rd/Source/Game/count.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
@@ -43,6 +40,9 @@
 #include "sf33rd/Source/Game/rendering/texgroup.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
+#include "sf33rd/Source/Game/system/sys_sub.h"
+#include "sf33rd/Source/Game/system/sysdir.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 
 #if defined(DEBUG)
 #include "sf33rd/Source/Game/debug/debug_config.h"

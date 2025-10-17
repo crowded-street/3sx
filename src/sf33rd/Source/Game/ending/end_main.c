@@ -5,9 +5,6 @@
 
 #include "sf33rd/Source/Game/ending/end_main.h"
 #include "common.h"
-#include "sf33rd/Source/Game/SYS_sub.h"
-#include "sf33rd/Source/Game/SYS_sub2.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/effect/effe6.h"
 #include "sf33rd/Source/Game/effect/effe9.h"
 #include "sf33rd/Source/Game/effect/effect.h"
@@ -40,6 +37,9 @@
 #include "sf33rd/Source/Game/sound/sound3rd.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
+#include "sf33rd/Source/Game/system/sys_sub.h"
+#include "sf33rd/Source/Game/system/sys_sub2.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 
 void normal_ending(s16 pl_num);
 void end_main_move(s16 pl_num);

@@ -6,7 +6,6 @@
 #include "sf33rd/Source/Game/engine/pls03.h"
 #include "bin2obj/asstbl.h"
 #include "common.h"
-#include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/charset.h"
 #include "sf33rd/Source/Game/engine/cmd_main.h"
@@ -15,6 +14,7 @@
 #include "sf33rd/Source/Game/engine/pls02.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/io/pulpul.h"
+#include "sf33rd/Source/Game/system/sysdir.h"
 
 // Forward decls
 

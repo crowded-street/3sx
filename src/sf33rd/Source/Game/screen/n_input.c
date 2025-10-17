@@ -5,10 +5,10 @@
 
 #include "sf33rd/Source/Game/screen/n_input.h"
 #include "common.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/ending/end_data.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/sc_sub.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 
 void Name_Scs_Input_init();
 void Name_Scs_Input_comm();

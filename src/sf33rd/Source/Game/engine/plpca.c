@@ -5,7 +5,6 @@
 
 #include "sf33rd/Source/Game/engine/plpca.h"
 #include "common.h"
-#include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/effect/eff02.h"
 #include "sf33rd/Source/Game/engine/charset.h"
 #include "sf33rd/Source/Game/engine/grade.h"
@@ -20,6 +19,7 @@
 #include "sf33rd/Source/Game/io/pulpul.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/stage/bg.h"
+#include "sf33rd/Source/Game/system/sysdir.h"
 
 void check_nagenuke(PLW* wk, PLW* tk);
 static s32 cat07_running_check(WORK* wk);

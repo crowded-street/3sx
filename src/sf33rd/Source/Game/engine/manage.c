@@ -5,11 +5,6 @@
 
 #include "sf33rd/Source/Game/engine/manage.h"
 #include "common.h"
-#include "sf33rd/Source/Game/Pause.h"
-#include "sf33rd/Source/Game/SYS_sub.h"
-#include "sf33rd/Source/Game/SYS_sub2.h"
-#include "sf33rd/Source/Game/SysDir.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/animation/appear.h"
 #include "sf33rd/Source/Game/count.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
@@ -42,6 +37,11 @@
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
+#include "sf33rd/Source/Game/system/pause.h"
+#include "sf33rd/Source/Game/system/sys_sub.h"
+#include "sf33rd/Source/Game/system/sys_sub2.h"
+#include "sf33rd/Source/Game/system/sysdir.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 
 void Game_Manage_1st();
 void Clear_1Stage_Work();

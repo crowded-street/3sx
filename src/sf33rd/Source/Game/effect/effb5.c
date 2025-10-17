@@ -6,13 +6,13 @@
 #include "sf33rd/Source/Game/effect/effb5.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
-#include "sf33rd/Source/Game/SYS_sub.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/charset.h"
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/screen/n_input.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
+#include "sf33rd/Source/Game/system/sys_sub.h"
 
 void current_name_move(WORK_Other* ewk, NAME_WK* np);
 

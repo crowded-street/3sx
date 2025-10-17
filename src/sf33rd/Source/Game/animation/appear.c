@@ -5,7 +5,6 @@
 
 #include "sf33rd/Source/Game/animation/appear.h"
 #include "common.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/animation/app_data.h"
 #include "sf33rd/Source/Game/effect/eff09.h"
 #include "sf33rd/Source/Game/effect/eff15.h"
@@ -28,6 +27,7 @@
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 
 s8 Appear_car_stop[] = { 0, 0 };
 s8 Appear_hv[] = { 0, 0 };

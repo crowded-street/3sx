@@ -3,7 +3,7 @@
 #include "sf33rd/AcrSDK/ps2/flps2etc.h"
 #include "sf33rd/AcrSDK/ps2/flps2render.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 #include "structs.h"
 
 #include "port/sdl/sdl_game_renderer.h"

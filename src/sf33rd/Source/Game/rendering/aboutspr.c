@@ -6,7 +6,6 @@
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/charid.h"
@@ -16,6 +15,7 @@
 #include "sf33rd/Source/Game/rendering/mtrans.h"
 #include "sf33rd/Source/Game/rendering/texgroup.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 
 // bss
 MultiTexture mts[24];

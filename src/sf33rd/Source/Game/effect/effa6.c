@@ -5,13 +5,13 @@
 
 #include "sf33rd/Source/Game/effect/effa6.h"
 #include "common.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/effect/effb6.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/screen/next_cpu.h"
 #include "sf33rd/Source/Game/stage/bg.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 
 s16 effa6_pos_x_1p;
 s16 effa6_pos_y_1p;

@@ -11,12 +11,12 @@
 #include "sf33rd/AcrSDK/common/plcommon.h"
 #include "sf33rd/AcrSDK/ps2/flps2vram.h"
 #include "sf33rd/Source/Common/PPGFile.h"
-#include "sf33rd/Source/Game/RAMCNT.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/io/gd3rd.h"
 #include "sf33rd/Source/Game/rendering/dc_ghost.h"
 #include "sf33rd/Source/Game/rendering/meta_col.h"
 #include "sf33rd/Source/Game/sound/sound3rd.h"
+#include "sf33rd/Source/Game/system/ramcnt.h"
 
 typedef struct {
     u16 col[2][28][64];

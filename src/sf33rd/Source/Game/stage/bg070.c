@@ -5,7 +5,6 @@
 
 #include "sf33rd/Source/Game/stage/bg070.h"
 #include "common.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/effect/eff06.h"
 #include "sf33rd/Source/Game/effect/eff94.h"
 #include "sf33rd/Source/Game/effect/effj8.h"
@@ -14,6 +13,7 @@
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 
 void BG070() {
     bgw_ptr = &bg_w.bgw[1];

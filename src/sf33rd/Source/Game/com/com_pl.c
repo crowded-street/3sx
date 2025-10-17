@@ -7,8 +7,6 @@
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/Source/Game/Com_Data.h"
-#include "sf33rd/Source/Game/SYS_sub.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/com/active/active00.h"
 #include "sf33rd/Source/Game/com/active/active01.h"
 #include "sf33rd/Source/Game/com/active/active02.h"
@@ -70,6 +68,8 @@
 #include "sf33rd/Source/Game/engine/plmain.h"
 #include "sf33rd/Source/Game/engine/pls02.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/system/sys_sub.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 
 void Main_Program(PLW* wk);
 
@@ -936,7 +936,8 @@ void Damage_6th(PLW* wk) {
 
                 if (gs.plw[wk->wu.id].sa->ok &&
                     Arts_Super_Name_Data[wk->player_number][gs.plw[wk->wu.id].sa->kind_of_arts] != -1) {
-                    CP_Index[wk->wu.id][0] = Arts_Super_Name_Data[wk->player_number][gs.plw[wk->wu.id].sa->kind_of_arts];
+                    CP_Index[wk->wu.id][0] =
+                        Arts_Super_Name_Data[wk->player_number][gs.plw[wk->wu.id].sa->kind_of_arts];
                 }
             }
         }

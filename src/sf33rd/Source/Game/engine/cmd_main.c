@@ -5,12 +5,12 @@
 
 #include "sf33rd/Source/Game/engine/cmd_main.h"
 #include "common.h"
-#include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/engine/cmd_data.h"
 #include "sf33rd/Source/Game/engine/hitcheck.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/pls01.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/system/sysdir.h"
 
 void (*chk_move_jp[28])() = { check_init, check_0,  check_1,  check_2,  check_3,  check_4,  check_5,
                               check_6,    check_7,  check_7,  check_9,  check_10, check_11, check_12,

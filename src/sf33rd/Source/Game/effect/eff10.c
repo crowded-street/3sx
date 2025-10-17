@@ -5,10 +5,10 @@
 
 #include "sf33rd/Source/Game/effect/eff10.h"
 #include "common.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/sc_sub.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 
 const u8 Contents_Check_Data[8] = { 0, 0, 1, 1, 0, 0, 0, 0 };
 

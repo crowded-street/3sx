@@ -5,9 +5,9 @@
 
 #include "sf33rd/Source/Game/io/vm_sub.h"
 #include "common.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/io/vm.h"
 #include "sf33rd/Source/Game/io/vm_data.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 
 u8 VM_Access_Request(u8 Request, u8 Drive) {
     vm_w.Request = Request;

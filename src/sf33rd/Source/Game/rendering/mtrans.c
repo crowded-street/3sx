@@ -8,7 +8,6 @@
 #include "sf33rd/AcrSDK/ps2/flps2render.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "sf33rd/Source/Common/PPGFile.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
@@ -17,6 +16,7 @@
 #include "sf33rd/Source/Game/rendering/dc_ghost.h"
 #include "sf33rd/Source/Game/rendering/texcash.h"
 #include "sf33rd/Source/Game/rendering/texgroup.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/PS2/ps2Quad.h"
 #include "structs.h"
 

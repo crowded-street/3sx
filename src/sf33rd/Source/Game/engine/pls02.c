@@ -7,8 +7,6 @@
 #include "bin2obj/gauge.h"
 #include "common.h"
 #include "sf33rd/Source/Game/Com_Data.h"
-#include "sf33rd/Source/Game/SysDir.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/engine/caldir.h"
 #include "sf33rd/Source/Game/engine/charid.h"
@@ -18,6 +16,8 @@
 #include "sf33rd/Source/Game/engine/pls01.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/sound/se_data.h"
+#include "sf33rd/Source/Game/system/sysdir.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 #include "structs.h"
 
 void read_adrs_store_mvxy(WORK* wk, s16* adrs);

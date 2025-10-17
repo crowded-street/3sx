@@ -3,11 +3,6 @@
 #include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Common/PPGWork.h"
 #include "sf33rd/Source/Game/Flash_LP.h"
-#include "sf33rd/Source/Game/Reset.h"
-#include "sf33rd/Source/Game/SYS_sub.h"
-#include "sf33rd/Source/Game/SYS_sub2.h"
-#include "sf33rd/Source/Game/SysDir.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/count.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/demo/demo00.h"
@@ -57,6 +52,11 @@
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 #include "sf33rd/Source/Game/stage/tate00.h"
+#include "sf33rd/Source/Game/system/reset.h"
+#include "sf33rd/Source/Game/system/sys_sub.h"
+#include "sf33rd/Source/Game/system/sys_sub2.h"
+#include "sf33rd/Source/Game/system/sysdir.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 #include "structs.h"
 
 void Wait_Auto_Load(struct _TASK* /* unused */);

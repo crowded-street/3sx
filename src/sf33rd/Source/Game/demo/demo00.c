@@ -9,9 +9,6 @@
 #include "sf33rd/Source/Common/MemMan.h"
 #include "sf33rd/Source/Common/PPGFile.h"
 #include "sf33rd/Source/Common/PPGWork.h"
-#include "sf33rd/Source/Game/RAMCNT.h"
-#include "sf33rd/Source/Game/SYS_sub2.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/io/gd3rd.h"
 #include "sf33rd/Source/Game/opening/op_sub.h"
@@ -21,6 +18,9 @@
 #include "sf33rd/Source/Game/rendering/texgroup.h"
 #include "sf33rd/Source/Game/sc_sub.h"
 #include "sf33rd/Source/Game/sound/sound3rd.h"
+#include "sf33rd/Source/Game/system/ramcnt.h"
+#include "sf33rd/Source/Game/system/sys_sub2.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 #include "structs.h"
 
 void CAPLOGO_Init();

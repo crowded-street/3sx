@@ -9,8 +9,6 @@
 #include "sf33rd/Source/Common/MemMan.h"
 #include "sf33rd/Source/Common/PPGFile.h"
 #include "sf33rd/Source/Common/PPGWork.h"
-#include "sf33rd/Source/Game/RAMCNT.h"
-#include "sf33rd/Source/Game/WORK_SYS.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/ending/end_data.h"
 #include "sf33rd/Source/Game/engine/pls02.h"
@@ -21,6 +19,8 @@
 #include "sf33rd/Source/Game/rendering/dc_ghost.h"
 #include "sf33rd/Source/Game/rendering/mtrans.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
+#include "sf33rd/Source/Game/system/ramcnt.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 #include "structs.h"
 
 // sbss

@@ -7,7 +7,6 @@
 #include "bin2obj/exchange.h"
 #include "bin2obj/gauge.h"
 #include "common.h"
-#include "sf33rd/Source/Game/SysDir.h"
 #include "sf33rd/Source/Game/effect/eff02.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/charset.h"
@@ -25,6 +24,7 @@
 #include "sf33rd/Source/Game/engine/pow_pow.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/io/pulpul.h"
+#include "sf33rd/Source/Game/system/sysdir.h"
 
 #include <SDL3/SDL.h>
 
