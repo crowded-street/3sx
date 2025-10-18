@@ -1,3 +1,8 @@
+/**
+ * @file com_data.c
+ * COM Data
+ */
+
 #include "common.h"
 
 // data
