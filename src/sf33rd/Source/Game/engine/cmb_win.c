@@ -65,7 +65,7 @@ void combo_cont_init() {
         cst_read[i] = 0;
         cst_write[i] = 0;
         SDL_zero(gs.plw[i].combo_type);
-        SDL_zero(remake_power[i]);
+        SDL_zero(gs.plw[i].remake_power);
         SDL_zeroa(calc_hit[i]);
         SDL_zeroa(score_calc[i]);
     }
@@ -202,7 +202,7 @@ void combo_hensuu_clear(s8 PL) {
 void combo_rp_clear_check(s8 PL) {
     if (gs.plw[PL].wu.routine_no[1] != 1 || gs.plw[PL].wu.routine_no[2] != 17 || gs.plw[PL].wu.routine_no[3] == 0 ||
         gs.plw[PL].wu.routine_no[3] == 3) {
-        SDL_zerop(gs.plw[PL].rp);
+        SDL_zero(gs.plw[PL].remake_power);
     }
 }
 

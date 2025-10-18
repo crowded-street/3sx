@@ -883,7 +883,7 @@ void Damage_25000(PLW* wk) {
         wk->py->time = kizetsu_timer_table[(wk->kizetsu_kow & 0xF8) / 8][(wk->kizetsu_kow & 7) / 2][random_16()];
         wk->zuru_timer = 0;
         wk->zuru_ix_counter = 0;
-        SDL_zerop(wk->rp);
+        SDL_zero(wk->remake_power);
         check_em_tk_power_off(wk, (PLW*)wk->wu.target_adrs);
         grade_add_em_stun((wk->wu.id + 1) & 1);
         break;

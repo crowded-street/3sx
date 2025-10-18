@@ -46,7 +46,6 @@ extern char cmd_sel[2];
 extern s8 vib_sel[2];
 extern s16 sag_inc_timer[2];
 extern char no_sa[2];
-extern ComboType remake_power[2];
 
 extern ZanzouTableEntry zanzou_table[2][48];
 

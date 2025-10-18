@@ -1369,9 +1369,9 @@ void add_combo_work(PLW* as, PLW* ds) {
     kow[as->wu.kind_of_waza]++;
     cal[(as->wu.kind_of_waza & 120) / 8]++;
     ds->combo_type.total++;
-    kow = &ds->rp->kind_of[0][0][0];
+    kow = &ds->remake_power.kind_of[0][0][0];
     kow[as->wu.kind_of_waza]++;
-    ds->rp->total++;
+    ds->remake_power.total++;
 }
 
 void nise_combo_work(PLW* as, PLW* ds, s16 num) {
@@ -1386,9 +1386,9 @@ void nise_combo_work(PLW* as, PLW* ds, s16 num) {
         kow[as->wu.kind_of_waza]++;
         cal[(as->wu.kind_of_waza & 120) / 8]++;
         ds->combo_type.total++;
-        kow = &ds->rp->kind_of[0][0][0];
+        kow = &ds->remake_power.kind_of[0][0][0];
         kow[as->wu.kind_of_waza]++;
-        ds->rp->total++;
+        ds->remake_power.total++;
     }
 }
 
@@ -1404,7 +1404,7 @@ void cal_combo_waribiki(PLW* as, PLW* ds) {
         return;
     }
 
-    if (ds->rp->total == 0) {
+    if (ds->remake_power.total == 0) {
         return;
     }
 
@@ -1413,8 +1413,8 @@ void cal_combo_waribiki(PLW* as, PLW* ds) {
 
     for (i = 0; i < 9; i++) {
         for (j = 0; j < 4; j++) {
-            k = ds->rp->kind_of[i][j][0];
-            k += ds->rp->kind_of[i][j][1];
+            k = ds->remake_power.kind_of[i][j][0];
+            k += ds->remake_power.kind_of[i][j][1];
 
             if (k) {
                 tbl.ixl += k * koatt->step[i][j] * 256;

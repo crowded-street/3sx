@@ -1217,7 +1217,7 @@ s16 get_grade_ix(s16 pts) {
 }
 
 void check_guard_miss(WORK* as, PLW* ds, s8 gddir) {
-    if (ds->rp->total) {
+    if (ds->remake_power.total) {
         return;
     }
 
