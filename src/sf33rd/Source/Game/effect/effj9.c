@@ -106,7 +106,7 @@ s32 effect_J9_init(WORK_Other* wk, u8 data) {
     ewk->wu.work_id = 16;
     ewk->wu.type = data;
     ewk->wu.my_mts = 14;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->master_player = wk->master_player;
     ewk->master_id = wk->master_id;
     ewk->master_work_id = wk->master_work_id;

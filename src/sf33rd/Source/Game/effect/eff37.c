@@ -93,7 +93,7 @@ s32 effect_37_init(WORK* wk, u8 gal, u8 ohen) {
     ewk->wu.work_id = 16;
     ewk->wu.charset_id = gal;
     ewk->wu.type = ohen;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->wu.rl_waza = wk->rl_flag;
     ewk->wu.cgromtype = 1;
     ewk->wu.my_family = 2;

@@ -431,7 +431,7 @@ s32 get_cal_work(WORK* wk) {
     }
 
     fwk = (WORK*)frw[ix];
-    wk->target_adrs = (u32*)fwk;
+    wk->target_adrs = fwk;
     fwk->be_flag = 1;
     fwk->id = 0xCD;
     return 0;
@@ -465,7 +465,7 @@ s32 effect_K5_init(PLW* wk) {
     ewk->wu.be_flag = 1;
     ewk->wu.id = 0xCD;
     ewk->wu.work_id = 0x10;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     wk->waku_ram_index = ewk->wu.myself;
     return 0;
 }

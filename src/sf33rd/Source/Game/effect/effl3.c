@@ -289,7 +289,7 @@ s32 effect_L3_init(PLW* oya) {
         ewk->wu.be_flag = 1;
         ewk->wu.id = 213;
         ewk->wu.work_id = 16;
-        ewk->my_master = (u32*)oya;
+        ewk->my_master = oya;
         ewk->master_id = oya->wu.id;
         ewk->wu.cgromtype = 1;
         ewk->wu.my_family = 2;

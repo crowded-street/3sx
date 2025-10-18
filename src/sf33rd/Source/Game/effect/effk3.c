@@ -132,7 +132,7 @@ s32 effect_K3_init(WORK_Other* wk) {
     ewk->wu.cgromtype = wk->wu.cgromtype;
     ewk->wu.my_col_mode = wk->wu.my_col_mode;
     ewk->wu.my_col_code = wk->wu.my_col_code;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->wu.dm_dir = wk->wu.dm_dir;
     ewk->wu.dm_attlv = wk->wu.dm_attlv;
     ewk->master_player = wk->master_player;

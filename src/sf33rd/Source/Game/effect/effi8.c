@@ -364,8 +364,8 @@ s32 effect_I8_init(PLW* wk, s16 top, const s16* sptr) {
     ewk->wu.dir_step = sptr[1];
     ewk->wu.dir_old = sptr[2];
     ewk->wu.next_x = sptr[3];
-    ewk->my_master = (u32*)wk;
-    ewk->wu.target_adrs = (u32*)wk->wu.target_adrs;
+    ewk->my_master = wk;
+    ewk->wu.target_adrs = wk->wu.target_adrs;
     ewk->master_work_id = wk->wu.work_id;
     ewk->master_id = wk->wu.id;
     ewk->wu.position_z = ewk->wu.xyz[2].disp.pos = 0x1C;

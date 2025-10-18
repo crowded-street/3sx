@@ -296,7 +296,7 @@ s32 effect_E3_init(PLW* wk) {
     ewk->wu.be_flag = 1;
     ewk->wu.id = 143;
     ewk->wu.work_id = 16;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->master_work_id = wk->wu.work_id;
     ewk->master_id = wk->wu.id;
     ewk->master_player = wk->player_number;

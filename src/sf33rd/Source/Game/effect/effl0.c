@@ -77,7 +77,7 @@ s32 effect_L0_init(WORK* wk, s16 data) {
     }
 
     ewk = (WORK_Other*)frw[ix];
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->wu.be_flag = 1;
     ewk->wu.id = 210;
     ewk->wu.dir_timer = data;

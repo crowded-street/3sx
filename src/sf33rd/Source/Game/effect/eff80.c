@@ -71,7 +71,7 @@ s32 effect_80_init(WORK_Other* mwk, s16 PL_id, s16 Plate_id, s16 Target_BG) {
     *ewk->wu.char_table = _sel_pl_char_table;
     ewk->master_id = PL_id;
     ewk->master_player = Plate_id;
-    ewk->my_master = (u32*)mwk;
+    ewk->my_master = mwk;
     ewk->wu.my_mts = 13;
     ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
     ewk->wu.char_index = 7;

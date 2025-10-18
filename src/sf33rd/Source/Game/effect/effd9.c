@@ -148,7 +148,7 @@ s32 effect_D9_init(PLW* wk, u8 data) {
     ewk->wu.dm_attribute = wk->wu.dm_attribute;
     ewk->wu.type = wk->wu.pat_status;
     ewk->wu.total_paring = wk->wu.kind_of_waza;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->master_id = wk->wu.id;
     ewk->master_work_id = wk->wu.work_id;
     ewk->master_player = wk->player_number;

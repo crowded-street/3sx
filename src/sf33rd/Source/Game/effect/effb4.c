@@ -71,7 +71,7 @@ s32 effect_B4_init(WORK_Other* oya) {
     ewk->wu.id = 114;
     ewk->wu.work_id = 16;
     ewk->wu.cgromtype = 1;
-    ewk->my_master = (u32*)oya;
+    ewk->my_master = oya;
     ewk->master_id = 0;
     ewk->wu.my_col_mode = 0;
     ewk->wu.my_col_code = 0x20;

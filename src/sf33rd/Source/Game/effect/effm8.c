@@ -133,7 +133,7 @@ s32 effect_M8_init(WORK* oya, u8 data) {
         ewk->wu.work_id = 16;
         ewk->wu.cgromtype = 1;
         ewk->wu.disp_flag = 0;
-        ewk->my_master = (u32*)oya;
+        ewk->my_master = oya;
         ewk->master_id = oya->id;
         ewk->wu.type = 1;
         ewk->wu.my_family = 2;
@@ -178,7 +178,7 @@ s32 effect_M8_init(WORK* oya, u8 data) {
             ewk->wu.work_id = 16;
             ewk->wu.cgromtype = 1;
             ewk->wu.disp_flag = 0;
-            ewk->my_master = (u32*)oya;
+            ewk->my_master = oya;
             ewk->master_id = oya->id;
             ewk->wu.type = 1;
             ewk->wu.my_family = 2;
@@ -223,7 +223,7 @@ s32 effect_M8_init(WORK* oya, u8 data) {
         ewk->wu.work_id = 16;
         ewk->wu.cgromtype = 1;
         ewk->wu.disp_flag = 0;
-        ewk->my_master = (u32*)oya;
+        ewk->my_master = oya;
         ewk->master_id = oya->id;
         ewk->wu.type = 0;
         ewk->wu.my_family = 2;

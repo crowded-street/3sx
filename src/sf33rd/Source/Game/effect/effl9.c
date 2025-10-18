@@ -57,7 +57,7 @@ s32 effect_L9_init(WORK_Other* oya, u8 ten_type) {
     }
 
     ewk = (WORK_Other*)frw[ix];
-    ewk->my_master = (u32*)oya;
+    ewk->my_master = oya;
     ewk->master_id = oya->wu.id;
     ewk->wu.type = ten_type;
     ewk->wu.be_flag = 1;

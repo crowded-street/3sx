@@ -410,7 +410,7 @@ s32 effect_26_init(WORK_Other* oya, s16 type26) {
         ewk->wu.be_flag = 1;
         ewk->wu.id = 26;
         ewk->wu.work_id = 16;
-        ewk->my_master = (u32*)oya;
+        ewk->my_master = oya;
         ewk->wu.cgromtype = 1;
         ewk->wu.rl_flag = 0;
         ewk->wu.my_col_mode = 0x4200;

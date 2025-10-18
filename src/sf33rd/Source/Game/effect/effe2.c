@@ -308,8 +308,8 @@ s32 effect_E2_init(PLW* wk, const s16* data, s16 color_code, u8 ff) {
     ewk->wu.blink_timing = wk->wu.blink_timing;
     ewk->wu.old_pos[2] = -1;
     ewk->wu.char_index = data[3];
-    ewk->my_master = (u32*)wk;
-    ewk->wu.target_adrs = (u32*)wk;
+    ewk->my_master = wk;
+    ewk->wu.target_adrs = wk;
     ewk->master_id = wk->wu.id;
     ewk->master_work_id = wk->wu.work_id;
     ewk->master_player = wk->player_number;

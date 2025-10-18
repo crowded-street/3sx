@@ -102,7 +102,7 @@ s32 effect_I9_init(WORK_Other* wk, s16 total, s16 interval, s16 life) {
     ewk->wu.my_col_code = wk->wu.my_col_code;
     ewk->wu.extra_col = wk->wu.current_colcd;
     ewk->wu.cg_number = wk->wu.cg_number;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->master_work_id = wk->wu.work_id;
     ewk->master_id = wk->wu.id;
     ewk->master_player = wk->master_player;
@@ -117,6 +117,6 @@ s32 effect_I9_init(WORK_Other* wk, s16 total, s16 interval, s16 life) {
     }
 
     sub_w = (WORK*)frw[ix2];
-    ewk->wu.target_adrs = (u32*)sub_w;
+    ewk->wu.target_adrs = sub_w;
     return 0;
 }

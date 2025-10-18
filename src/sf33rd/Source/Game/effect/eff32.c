@@ -103,7 +103,7 @@ s32 effect_32_init(WORK* wk) {
     ewk->wu.my_col_mode = wk->my_col_mode;
     ewk->wu.my_col_code = wk->my_col_code + 1;
     ewk->wu.my_family = wk->my_family;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->wu.target_adrs = wk->target_adrs;
     ewk->wu.rl_flag = wk->rl_flag;
     twk = (PLW*)wk->target_adrs;

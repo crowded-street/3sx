@@ -196,7 +196,7 @@ s32 effect_K7_init(PLW* wk) {
     ewk->wu.id = 207;
     ewk->wu.work_id = 16;
     ewk->wu.type = 0;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     wk->metamor_index = ewk->wu.myself;
     ewk->wu.my_col_mode = 0x4200;
     ewk->wu.my_col_code = 0x2000;

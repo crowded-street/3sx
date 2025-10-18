@@ -5104,7 +5104,7 @@ s32 Check_Shell(PLW* wk) {
                 CP_Index[wk->wu.id][2] = 0;
                 CP_Index[wk->wu.id][3] = 0;
 
-                Shell_Address[wk->wu.id] = (u32*)tmw;
+                Shell_Address[wk->wu.id] = tmw;
 
                 Guard_or_Jump_VS_Shell(wk, tmw, xx);
 
@@ -5151,7 +5151,7 @@ s32 Check_Shell_Another_in_Flip(PLW* wk) {
 
         xx = Compute_Hit_Time(wk, tmw);
 
-        Shell_Address[wk->wu.id] = (u32*)tmw;
+        Shell_Address[wk->wu.id] = tmw;
 
         break;
     }

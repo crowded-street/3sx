@@ -1794,8 +1794,8 @@ s32 effect_09_init2(WORK* wk, u8 data) {
 
     ewk = (WORK_Other*)frw[ix];
     ewk->wu.type = data;
-    ewk->my_master = (u32*)wk;
-    ewk->wu.target_adrs = (u32*)wk->target_adrs;
+    ewk->my_master = wk;
+    ewk->wu.target_adrs = wk->target_adrs;
     ewk->wu.be_flag = 1;
     ewk->wu.id = 9;
     ewk->wu.work_id = 16;

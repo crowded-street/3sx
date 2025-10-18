@@ -685,7 +685,7 @@ s32 effect_K2_init(WORK_Other* wk, u32* dad) {
     ewk->master_id = wk->master_id;
     ewk->master_work_id = wk->wu.id;
     ewk->wu.dir_old = 0;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->wu.target_adrs = dad;
     ewk->wu.hit_adrs = wk->wu.target_adrs;
     ewk->wu.xyz[0].disp.pos = 448;

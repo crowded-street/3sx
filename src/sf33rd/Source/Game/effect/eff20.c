@@ -63,7 +63,7 @@ s32 effect_20_init(WORK_Other* oya) {
     }
 
     ewk = (WORK_Other*)frw[ix];
-    ewk->my_master = (u32*)oya;
+    ewk->my_master = oya;
     ewk->master_id = oya->wu.id;
     ewk->wu.be_flag = 1;
     ewk->wu.id = 20;

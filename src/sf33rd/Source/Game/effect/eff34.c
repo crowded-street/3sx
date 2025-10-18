@@ -118,7 +118,7 @@ s32 effect_34_init(WORK* wk, s32 /* unused */) {
     ewk->wu.my_col_mode = wk->my_col_mode;
     ewk->wu.my_col_code = wk->my_col_code + 1;
     ewk->wu.my_family = wk->my_family;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->wu.rl_flag = wk->rl_flag;
     ewk->wu.xyz[0].disp.pos = wk->xyz[0].disp.pos;
     ewk->wu.xyz[0].disp.pos += wk->rl_flag ? -48 : 48;

@@ -238,8 +238,8 @@ void set_caught_status(s16 ix) {
         }
     }
 
-    as->wu.hit_adrs = (u32*)ds;
-    ds->wu.dmg_adrs = (u32*)as;
+    as->wu.hit_adrs = ds;
+    ds->wu.dmg_adrs = as;
     as->wu.hit_work_id = ds->wu.work_id;
     ds->wu.dmg_work_id = as->wu.work_id;
     ds->dm_point = 1;
@@ -408,8 +408,8 @@ void set_struck_status(s16 ix) {
 
     as = q_hit_push[ix2];
     ds = q_hit_push[ix];
-    as->hit_adrs = (u32*)ds;
-    ds->dmg_adrs = (u32*)as;
+    as->hit_adrs = ds;
+    ds->dmg_adrs = as;
     as->hit_work_id = ds->work_id;
     ds->dmg_work_id = as->work_id;
 

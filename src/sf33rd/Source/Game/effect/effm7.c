@@ -147,7 +147,7 @@ s32 effect_M7_init(PLW* oya) {
         ewk->wu.work_id = 16;
         ewk->wu.cgromtype = 1;
         ewk->wu.disp_flag = 0;
-        ewk->my_master = (u32*)oya;
+        ewk->my_master = oya;
         ewk->master_id = oya->wu.id;
         ewk->wu.my_family = 2;
         ewk->wu.my_col_mode = 0x4200;

@@ -77,7 +77,7 @@ s32 effect_I3_init(WORK* wk, u8 tix) {
     ewk->wu.be_flag = 1;
     ewk->wu.id = 183;
     ewk->wu.work_id = 16;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->wu.type = tix;
     ewk->wu.cg_type = wk->cg_type;
     ewk->wu.hit_stop = wk->hit_stop;

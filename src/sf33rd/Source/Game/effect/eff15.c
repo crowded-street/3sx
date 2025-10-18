@@ -106,7 +106,7 @@ s32 effect_15_init(WORK* wk, u8 data) {
     ewk->wu.my_col_mode = 0x4200;
     ewk->wu.my_col_code = 0x2020;
     ewk->wu.my_family = wk->my_family;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->wu.rl_flag = 0;
     ewk->wu.xyz[0].disp.pos = 629;
     ewk->wu.xyz[1].disp.pos = 340;

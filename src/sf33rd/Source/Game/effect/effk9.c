@@ -61,7 +61,7 @@ s32 effect_K9_init(WORK* wk, u8 data) {
     }
 
     ewk = (WORK_Other*)frw[ix];
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->wu.be_flag = 1;
     ewk->wu.id = 209;
     ewk->wu.type = data;

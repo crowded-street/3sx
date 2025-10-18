@@ -190,7 +190,7 @@ s32 effect_00_init(WORK* wk) {
     ewk->wu.id = 0;
     ewk->wu.work_id = 128;
     ewk->wu.my_family = wk->my_family;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->master_work_id = wk->work_id;
     ewk->master_id = wk->id;
     wk->waku_work_index = ewk->wu.myself;

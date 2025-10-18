@@ -88,8 +88,8 @@ s32 effect_J0_init(WORK_Other* ek, WORK_Other* mk, s16 data) {
     ewk->wu.my_col_mode = mk->wu.my_col_mode;
     ewk->wu.my_col_code = mk->wu.my_col_code;
     ewk->wu.extra_col = mk->wu.current_colcd;
-    ewk->my_master = (u32*)mk;
-    ewk->wu.target_adrs = (u32*)ek;
+    ewk->my_master = mk;
+    ewk->wu.target_adrs = ek;
     ewk->master_id = mk->wu.id;
     ewk->master_player = mk->master_player;
     ewk->wu.dir_timer = ek->wu.dir_timer;

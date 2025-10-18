@@ -357,7 +357,7 @@ s32 effect_D7_init(PLW* wk) {
     ewk->wu.dm_vital = wk->wu.my_col_code;
     ewk->wu.my_mts = 14;
     ewk->wu.shell_ix[0] = wk->tk_success;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->wu.target_adrs = wk->wu.target_adrs;
     ewk->master_work_id = wk->wu.work_id;
     ewk->master_id = wk->wu.id;

@@ -21,7 +21,7 @@ void effect_L8_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0] += 1;
-        ewk->wu.hit_adrs = (u32*)pl17_0_00;
+        ewk->wu.hit_adrs = pl17_0_00;
         ewk->wu.step_xy_table = (s16*)ColorRAM[(ewk->master_id == 1) * 16];
         ewk->wu.move_xy_table = ewk->wu.step_xy_table + 512;
         save_old_color_data(save_old_col_ptr, ewk->wu.step_xy_table);
@@ -100,7 +100,7 @@ s32 effect_L8_init(PLW* wk) {
     ewk->wu.be_flag = 1;
     ewk->wu.id = 218;
     ewk->wu.work_id = 16;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->master_id = wk->wu.id;
     ewk->master_work_id = wk->wu.work_id;
     ewk->master_player = wk->player_number;

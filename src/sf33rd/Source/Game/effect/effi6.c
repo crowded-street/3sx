@@ -73,7 +73,7 @@ s32 effect_I6_init(WORK_Other* oya) {
     ewk->wu.id = 0xBA;
     ewk->wu.work_id = 0x10;
     ewk->wu.cgromtype = 1;
-    ewk->my_master = (u32*)oya;
+    ewk->my_master = oya;
     ewk->wu.my_family = 4;
     ewk->wu.my_col_code = 0x52;
     ewk->wu.my_priority = ewk->wu.position_z = 10;

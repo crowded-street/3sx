@@ -129,7 +129,7 @@ s32 effect_59_init(WORK_Other* mwk, s16 Synchro_BG, s16 ID, s16 direction) {
     ewk->wu.my_col_code = 0x2000;
     ewk->wu.my_family = Synchro_BG;
     *ewk->wu.char_table = _sel_pl_char_table;
-    ewk->my_master = (u32*)mwk;
+    ewk->my_master = mwk;
     ewk->wu.char_index = 19;
     ewk->wu.dir_step = ID;
     ewk->wu.dm_vital = ID;

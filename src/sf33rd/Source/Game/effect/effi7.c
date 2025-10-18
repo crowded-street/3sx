@@ -117,7 +117,7 @@ s32 effect_I7_init(PLW* wk, u8 data) {
     ewk->wu.my_mts = 14;
     ewk->wu.my_family = wk->wu.my_family;
     ewk->wu.cgromtype = 1;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->master_work_id = wk->wu.work_id;
     ewk->master_id = wk->wu.id;
     *ewk->wu.char_table = _plef_char_table;

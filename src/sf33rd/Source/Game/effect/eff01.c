@@ -218,7 +218,7 @@ s32 effect_01_init(WORK* wk, u8 koolc) {
     ewk->wu.type = koolc;
     ewk->wu.my_family = wk->my_family;
     ewk->wu.blink_timing = wk->blink_timing;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->master_work_id = wk->work_id;
     ewk->master_id = wk->id;
     ewk->wu.my_mts = wk->my_mts;

@@ -239,7 +239,7 @@ s32 effect_E5_init(PLW* wk) {
     ewk->wu.cgromtype = wk->wu.cgromtype;
     ewk->wu.my_col_mode = wk->wu.my_col_mode;
     ewk->wu.my_col_code = wk->wu.my_col_code;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->master_work_id = wk->wu.work_id;
     ewk->master_id = wk->wu.id;
     ewk->master_player = wk->player_number;
@@ -264,8 +264,8 @@ void effect_e7_e8_init_union(WORK_Other* nwk, WORK_Other* ek, PLW* mk) {
     nwk->wu.dmcal_d = ek->wu.dmcal_d;
     nwk->wu.dmcal_m = ek->wu.dmcal_m;
     nwk->wu.blink_timing = mk->wu.blink_timing;
-    nwk->wu.target_adrs = (u32*)ek;
-    nwk->my_master = (u32*)mk;
+    nwk->wu.target_adrs = ek;
+    nwk->my_master = mk;
     nwk->master_work_id = mk->wu.work_id;
     nwk->master_id = mk->wu.id;
     nwk->wu.hit_ix_table = mk->wu.hit_ix_table;

@@ -77,7 +77,7 @@ s32 effect_H2_init(WORK* wk, u8 gal, u8 ohen) {
     ewk->wu.charset_id = gal;
     ewk->wu.type = ohen;
     ewk->wu.rl_flag = 0;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->wu.cgromtype = 1;
     ewk->wu.my_family = 2;
     ewk->wu.position_z = wk->position_z - 1;

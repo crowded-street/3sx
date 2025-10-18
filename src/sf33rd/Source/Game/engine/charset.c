@@ -227,6 +227,7 @@ void char_move_cmms2(WORK* wk) {
     setupCharTableData(wk, 0, 1);
 
     if (now_cgd > wk->cgd_type) {
+        // FIXME: this will break if the layout of WORK changes
         to_ram = (u32*)&wk->cg_wca_ix;
 
         for (i = 0; i < (now_cgd - wk->cgd_type); i++) {

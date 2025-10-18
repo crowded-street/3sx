@@ -115,7 +115,7 @@ s32 effect_L5_init(WORK_Other* oya) {
     ewk->wu.be_flag = 1;
     ewk->wu.id = 0xD7;
     ewk->wu.work_id = 0x10;
-    ewk->my_master = (u32*)oya;
+    ewk->my_master = oya;
     ewk->wu.my_family = 4;
     ewk->wu.my_mts = 0xE;
     ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);

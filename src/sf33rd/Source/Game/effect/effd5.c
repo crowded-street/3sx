@@ -238,7 +238,7 @@ s32 effect_D5_init(WORK* wk, s32 /* unused */) {
     ewk->wu.my_mts = 14;
     ewk->wu.rl_flag = wk->rl_flag;
     ewk->wu.dm_vital = wk->my_col_code + 6;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->wu.target_adrs = wk->target_adrs;
     ewk->master_work_id = wk->work_id;
     ewk->master_id = wk->id;

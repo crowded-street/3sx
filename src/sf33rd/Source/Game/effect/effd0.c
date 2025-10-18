@@ -148,7 +148,7 @@ s32 effect_D0_init(PLW* oya, s32 /* unused */) {
     ewk->wu.work_id = 16;
     ewk->wu.cgromtype = 1;
     ewk->wu.disp_flag = 0;
-    ewk->my_master = (u32*)oya;
+    ewk->my_master = oya;
     ewk->wu.my_family = 2;
     ewk->wu.char_index = 14;
     ewk->wu.my_col_mode = 0x4200;

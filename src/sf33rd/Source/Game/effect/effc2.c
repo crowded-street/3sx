@@ -913,13 +913,13 @@ s32 effect_C2_init(WORK* wk, u8 data) {
     ewk->wu.id = 0x7A;
     ewk->wu.type = data;
     ewk->wu.my_mts = 5;
-    ewk->my_master = (u32*)wk;
-    ewk->wu.target_adrs = (u32*)wk->target_adrs;
+    ewk->my_master = wk;
+    ewk->wu.target_adrs = wk->target_adrs;
     ewk->master_player = ((PLW*)wk)->player_number;
     ewk->master_id = wk->id;
     ewk->master_work_id = wk->work_id;
-    wk->my_effadrs = (u32*)ewk;
-    ewk->wu.my_effadrs = (u32*)ewk;
+    wk->my_effadrs = ewk;
+    ewk->wu.my_effadrs = ewk;
     effect_C2_move(ewk);
     return 0;
 }

@@ -1854,7 +1854,7 @@ s32 effect_13_init(WORK* wk, u8 data) {
     ewk->wu.old_rno[7] = wk->my_col_code;
     ewk->wu.weight_level = wk->weight_level;
     ewk->wu.rl_waza = Round_num;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
 
     if (wk->work_id == 1) {
         ewk->master_player = ((PLW*)wk)->player_number;
@@ -1872,7 +1872,7 @@ s32 effect_13_init(WORK* wk, u8 data) {
 
     ewk->wu.xyz[0] = wk->xyz[0];
     ewk->wu.xyz[1] = wk->xyz[1];
-    ewk->wu.my_effadrs = (u32*)&tama_data[data];
+    ewk->wu.my_effadrs = &tama_data[data];
 
     if (wk->work_id == 1) {
         ewk->wu.floor = ((PLW*)wk)->metamorphose;

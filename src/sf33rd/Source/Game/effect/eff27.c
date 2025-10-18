@@ -383,7 +383,7 @@ s32 effect_27_init(WORK_Other* oya, s16 type) {
         }
 
         ewk = (WORK_Other*)frw[ix];
-        ewk->my_master = (u32*)oya;
+        ewk->my_master = oya;
         ewk->wu.be_flag = 1;
         ewk->wu.id = 0x1B;
         ewk->wu.work_id = 0x10;

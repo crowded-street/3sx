@@ -233,7 +233,7 @@ s32 effect_A6_init(WORK_Other* mwk) {
     ewk->wu.dir_old = mwk->wu.dir_old;
     ewk->wu.routine_no[6] = 60;
     ewk->master_player = My_char[Player_id];
-    ewk->my_master = (u32*)mwk;
+    ewk->my_master = mwk;
 
     switch (ewk->wu.dir_old) {
     case 0x43:

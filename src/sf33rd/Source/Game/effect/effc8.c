@@ -121,7 +121,7 @@ s32 effect_C8_init(PLW* wk) {
     ewk->wu.my_priority = ewk->wu.position_z = 20;
     *ewk->wu.char_table = _etc_char_table;
     ewk->wu.my_col_code = wk->wu.my_col_code;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->wu.position_x = ewk->wu.xyz[0].disp.pos = wk->wu.xyz[0].disp.pos;
     ewk->wu.position_y = ewk->wu.xyz[1].disp.pos = wk->wu.xyz[1].disp.pos;
     ewk->wu.xyz[0].disp.low = ewk->wu.xyz[1].disp.low = 0;

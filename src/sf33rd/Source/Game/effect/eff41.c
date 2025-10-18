@@ -203,7 +203,7 @@ s32 effect_41_init(PLW* wk, u8 data) {
     ewk->wu.work_id = 16;
     ewk->wu.my_mts = 15;
     ewk->wu.my_family = wk->wu.my_family;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->master_work_id = wk->wu.work_id;
     ewk->master_id = wk->wu.id;
     *ewk->wu.char_table = _plef_char_table;

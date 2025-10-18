@@ -46,7 +46,7 @@ s32 effect_F0_init(WORK* wk) {
     ewk->wu.id = 150;
     ewk->wu.work_id = 16;
     ewk->wu.my_family = wk->my_family;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->master_work_id = wk->work_id;
     ewk->master_id = wk->id;
     ewk->wu.cgromtype = wk->cgromtype;

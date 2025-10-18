@@ -106,7 +106,7 @@ s32 effect_C7_init(PLW* wk, u8 data) {
     ewk->wu.my_col_mode = 0x4200;
     ewk->wu.my_col_code = 0x2020;
     ewk->wu.my_family = wk->wu.my_family;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->master_id = wk->wu.id;
     ewk->master_work_id = wk->wu.work_id;
     ewk->master_player = wk->player_number;

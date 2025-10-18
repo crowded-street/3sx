@@ -68,7 +68,7 @@ s32 effect_72_init(WORK_Other* oya, u8 type_id) {
     ewk->wu.cgromtype = 1;
     ewk->wu.rl_flag = 0;
     ewk->wu.my_col_mode = 0x4200;
-    ewk->my_master = (u32*)oya;
+    ewk->my_master = oya;
     ewk->wu.my_family = 2;
     ewk->wu.my_col_code = 8492;
     ewk->wu.my_mts = 7;

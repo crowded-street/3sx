@@ -195,7 +195,7 @@ s32 effect_M2_init(WORK* wk, u8 data) {
     ewk->wu.be_flag = 1;
     ewk->wu.id = 222;
     ewk->wu.cgromtype = 1;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->wu.rl_flag = wk->rl_flag;
     ewk->wu.type = data;
     ewk->wu.work_id = 16;

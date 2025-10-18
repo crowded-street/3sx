@@ -1233,9 +1233,9 @@ s32 effect_C3_init(WORK_Other* wk, s16 data) {
     ewk->wu.id = 123;
     ewk->wu.type = data;
     ewk->wu.my_mts = 5;
-    ewk->my_master = (u32*)wk->my_master;
+    ewk->my_master = wk->my_master;
     ewk->wu.target_adrs = wk->wu.target_adrs;
-    ewk->wu.my_effadrs = (u32*)wk;
+    ewk->wu.my_effadrs = wk;
     ewk->master_player = wk->master_player;
     ewk->master_id = wk->master_id;
     ewk->master_work_id = wk->master_work_id;

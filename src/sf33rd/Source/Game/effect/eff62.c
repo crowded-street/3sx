@@ -41,7 +41,7 @@ s32 effect_62_init(WORK_Other* mwk, s16 ID) {
     ewk->wu.work_id = 16;
     ewk->wu.my_col_code = 0x2000;
     *ewk->wu.char_table = _sel_pl_char_table;
-    ewk->my_master = (u32*)mwk;
+    ewk->my_master = mwk;
     ewk->wu.dm_vital = ID;
     ewk->wu.my_family = mwk->wu.my_family;
     ewk->wu.vital_new = EFF62_Correct_Data[ID][0];

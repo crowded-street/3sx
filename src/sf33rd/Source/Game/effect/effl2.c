@@ -113,7 +113,7 @@ s32 effect_L2_init() {
     ewk->wu.cgromtype = 1;
     ewk->wu.disp_flag = 1;
     ewk->wu.my_family = 2;
-    ewk->my_master = (u32*)&gs.plw[oya_id];
+    ewk->my_master = &gs.plw[oya_id];
     ewk->wu.my_col_mode = 0x4200;
     ewk->wu.my_mts = 7;
     ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);

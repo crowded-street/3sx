@@ -101,7 +101,7 @@ s32 effect_G4_init(WORK* wk, u8 data) {
         ewk->wu.type++;
     }
 
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->master_work_id = wk->work_id;
     ewk->master_id = wk->id;
     ewk->wu.xyz[0].disp.pos = wk->position_x;

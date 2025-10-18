@@ -223,7 +223,7 @@ s32 effect_03_init(WORK* wk, u8 data) {
     ewk->wu.cgromtype = wk->cgromtype;
     ewk->wu.my_col_mode = wk->my_col_mode;
     ewk->wu.my_col_code = wk->my_col_code;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
 
     if (wk->work_id == 1) {
         ewk->master_work_id = wk->work_id;

@@ -345,7 +345,7 @@ s32 effect_02_init(WORK* wk, s8 dmgp, s8 mkst, s8 dmrl) {
     ewk->wu.weight_level = 0;
 
     if (wk->work_id == 1) {
-        ewk->my_master = (u32*)wk;
+        ewk->my_master = wk;
         ewk->master_id = wk->id;
         ewk->master_work_id = wk->work_id;
         ewk->wu.target_adrs = wk->target_adrs;
@@ -354,7 +354,7 @@ s32 effect_02_init(WORK* wk, s8 dmgp, s8 mkst, s8 dmrl) {
         ewk->wu.weight_level = 1;
     } else {
         dwk = (WORK_Other*)wk;
-        ewk->my_master = (u32*)dwk->my_master;
+        ewk->my_master = dwk->my_master;
         ewk->master_id = dwk->master_id;
         ewk->master_work_id = dwk->master_work_id;
         ewk->wu.target_adrs = ((WORK*)dwk->my_master)->target_adrs;

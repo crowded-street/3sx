@@ -229,7 +229,7 @@ s32 effect_G6_init(WORK* wk, u8 dat) {
     ewk->wu.old_rno[1] = wk->routine_no[1];
     ewk->wu.old_rno[2] = wk->routine_no[2];
     ewk->wu.dm_vital = wk->dm_count_up;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->master_work_id = wk->work_id;
     ewk->master_id = wk->id;
     ewk->wu.blink_timing = wk->blink_timing;

@@ -105,7 +105,7 @@ s32 effect_B8_init(s8 WIN_PL_NO, s16 timer) {
     ewk->wu.routine_no[0] = 0;
     wk_set(ewk);
     mes_timer = timer;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->master_work_id = wk->wu.work_id;
     ewk->master_id = wk->wu.id;
     ewk->master_player = My_char[wk->wu.id];

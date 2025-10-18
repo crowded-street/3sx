@@ -1257,7 +1257,7 @@ void set_base_data(PLW* wk, s16 ix) {
     wk->wu.charset_id = plid_data[My_char[ix]];
     wk->wkey_flag = wk->dead_flag = 0;
     set_char_base_data(&wk->wu);
-    wk->wu.target_adrs = (u32*)&gs.plw[(ix + 1) & 1];
+    wk->wu.target_adrs = &gs.plw[(ix + 1) & 1];
     wk->player_number = My_char[ix];
     wk->wu.hit_adrs = wk->wu.target_adrs;
     wk->wu.dmg_adrs = wk->wu.target_adrs;

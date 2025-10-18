@@ -98,7 +98,7 @@ s32 effect_C0_init(PLW* wk, s32 /* unused */) {
     ewk->wu.position_x = wk->wu.position_x;
     ewk->wu.position_y = wk->wu.position_y;
     ewk->wu.position_z = wk->wu.position_z - 4;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->master_work_id = wk->wu.work_id;
     ewk->master_id = wk->wu.id;
     *ewk->wu.char_table = _plef_char_table;

@@ -88,7 +88,7 @@ s32 effect_J6_init(WORK_Other* oya) {
     }
 
     ewk = (WORK_Other*)frw[ix];
-    ewk->my_master = (u32*)oya;
+    ewk->my_master = oya;
     ewk->wu.be_flag = 1;
     ewk->wu.id = 196;
     ewk->wu.work_id = 16;

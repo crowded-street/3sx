@@ -194,10 +194,10 @@ s32 effect_A7_init(PLW* wk) {
     ewk->wu.xyz[0].disp.pos = ewk->wu.position_x = wk->wu.xyz[0].disp.pos;
     ewk->wu.xyz[1].disp.pos = ewk->wu.position_y = wk->wu.xyz[1].disp.pos;
     ewk->wu.xyz[2].disp.pos = 26;
-    ewk->my_master = (u32*)wk->wu.target_adrs;
+    ewk->my_master = wk->wu.target_adrs;
     ewk->master_id = twk->wu.id;
     ewk->master_work_id = twk->wu.work_id;
-    ewk->wu.target_adrs = (u32*)wk;
+    ewk->wu.target_adrs = wk;
     ewk->wu.my_col_code = twk->wu.my_col_code + 1;
     ewk->master_player = ewk->wu.dir_timer = twk->player_number;
     ewk->wu.blink_timing = ewk->master_id;

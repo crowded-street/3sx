@@ -121,7 +121,7 @@ s32 effect_50_init(s16 PL_id, s16 Direction, s16 dm_vital) {
     ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
 
     if (dm_vital == 0) {
-        Synchro_Address[ewk->master_id][ewk->wu.direction - 1] = (u32*)ewk;
+        Synchro_Address[ewk->master_id][ewk->wu.direction - 1] = ewk;
     }
 
     ewk->wu.xyz[0].disp.pos = Plate_Pos_Data_79[Play_Type][ewk->master_id][0][0];

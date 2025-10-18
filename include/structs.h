@@ -209,9 +209,9 @@ typedef struct {
     s16 id;
     s8 rl_flag;
     s8 rl_waza;
-    u32* target_adrs;
-    u32* hit_adrs;
-    u32* dmg_adrs;
+    void* target_adrs;
+    void* hit_adrs;
+    void* dmg_adrs;
 
     /// Index of the struct that is in front of this one in the list.
     s16 before;
@@ -428,7 +428,7 @@ typedef struct {
     u8 dm_kind_of_waza;
     s16 attpow;
     s16 defpow;
-    u32* my_effadrs;
+    void* my_effadrs;
     s16 shell_ix[8];
     s16 hm_dm_side;
     s16 extra_col;
@@ -647,7 +647,7 @@ typedef struct {
 
 typedef struct {
     WORK wu;
-    u32* my_master;
+    void* my_master;
     s16 master_work_id;
     s16 master_id;
     s16 master_player;

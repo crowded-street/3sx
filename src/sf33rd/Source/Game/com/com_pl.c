@@ -1375,7 +1375,7 @@ static s32 Check_Shell_Flip(PLW* wk) {
 
         res = 1;
         shell = (WORK*)Shell_Address[wk->wu.id];
-        wk->wu.dmg_adrs = (u32*)shell;
+        wk->wu.dmg_adrs = shell;
     }
 
     Rnd = random_32_com();

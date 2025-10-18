@@ -138,7 +138,7 @@ s32 effect_46_init(WORK* wk, s32 /* unused */) {
     ewk->wu.my_col_mode = wk->my_col_mode;
     ewk->wu.my_col_code = wk->my_col_code + 6;
     ewk->wu.my_family = wk->my_family;
-    ewk->my_master = (u32*)wk;
+    ewk->my_master = wk;
     ewk->wu.rl_flag = wk->rl_flag;
 
     if (wk->id) {
