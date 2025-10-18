@@ -910,11 +910,11 @@ void add_sp_arts_gauge_hit_dm(PLW* wk) {
 s16 cal_sa_gauge_waribiki(PLW* wk, s16 asag) {
     s16 num;
 
-    if (wk->cb->total < 2) {
+    if (wk->combo_type.total < 2) {
         return asag;
     }
 
-    num = 32 - (wk->cb->total - 1) * 2;
+    num = 32 - (wk->combo_type.total - 1) * 2;
 
     if (num <= 0) {
         num = 1;

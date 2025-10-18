@@ -561,7 +561,7 @@ typedef struct {
     s16 current_attack;
     const AS* as;
     SA_WORK* sa;
-    ComboType* cb;
+    ComboType combo_type;
     PiyoriType* py;
     s8 wkey_flag;
     s8 dead_flag;
