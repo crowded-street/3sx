@@ -6,7 +6,7 @@
 #include "sf33rd/Source/Game/engine/pls02.h"
 #include "bin2obj/gauge.h"
 #include "common.h"
-#include "sf33rd/Source/Game/Com_Data.h"
+#include "sf33rd/Source/Game/com/com_data.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/engine/caldir.h"
 #include "sf33rd/Source/Game/engine/charid.h"

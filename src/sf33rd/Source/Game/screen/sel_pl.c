@@ -6,7 +6,7 @@
 #include "sf33rd/Source/Game/screen/sel_pl.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/common/pad.h"
-#include "sf33rd/Source/Game/Com_Data.h"
+#include "sf33rd/Source/Game/com/com_data.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/demo/demo_dat.h"
 #include "sf33rd/Source/Game/effect/eff38.h"
