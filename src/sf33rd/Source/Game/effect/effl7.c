@@ -107,16 +107,7 @@ void effl7_move(WORK_Other* ewk) {
 
         if (ewk->wu.cg_type == 0xFF) {
             ewk->wu.routine_no[1] += 1;
-
-            // The original programmers managed to call a func that accepts 5 args with just 4.
-            // This means that register t0 has some garbage that was stored there previously
-            // by a different func.
-            //
-            // To match the original behavior run the game in PCSX2, set a breakpoing at
-            // 0x234efc and note the value of t0. If it's 0, call set_char_move_init2
-            // with 0 in the last arg. If it's non-zero, call with 1.
-            // Original line: set_char_move_init2(&ewk->wu, 0, 0, 3);
-            fatal_error("This part needs debugging. Check the comment above for details.");
+            set_char_move_init2(&ewk->wu, 0, 0, 3, 1);
 
             if (ewk->wu.rl_flag) {
                 ewk->wu.mvxy.a[0].sp = 0x20000;
