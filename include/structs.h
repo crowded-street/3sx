@@ -2037,11 +2037,6 @@ typedef struct {
 } ScoreRankingEntry;
 
 typedef struct {
-    s8 contents[10][7];
-    u16 sum;
-} DirData;
-
-typedef struct {
     u8 max_hitcombo;
     u8 new_max_flag;
     u8 frash_flag;

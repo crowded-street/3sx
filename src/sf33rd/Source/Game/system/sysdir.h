@@ -40,7 +40,7 @@ extern u8 chainex_check[2][36];
 void init_omop();
 u32 sag_ikinari_max();
 void get_extra_option_parameter(_EXTRA_OPTION* omop_extra);
-void get_system_direction_parameter(DirData* sysdir_data);
+void get_system_direction_parameter(SystemDir* sysdir_data);
 u32 check_use_all_SA();
 u32 check_without_SA();
 

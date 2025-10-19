@@ -86,16 +86,16 @@ void init_omop() {
     omop_spmv_ng_table2[0] |= 0x800000;
 
     if (Mode_Type == MODE_NETWORK) {
-        get_system_direction_parameter((DirData*)&system_dir[2]);
+        get_system_direction_parameter(&system_dir[2]);
         get_extra_option_parameter(&save_w[2].extra_option);
     } else if (Demo_Flag == 0) {
-        get_system_direction_parameter((DirData*)&system_dir[0]);
+        get_system_direction_parameter(&system_dir[0]);
         get_extra_option_parameter(&save_w->extra_option);
     } else {
         if (Direction_Working[Present_Mode]) {
-            get_system_direction_parameter((DirData*)&system_dir[Present_Mode]);
+            get_system_direction_parameter(&system_dir[Present_Mode]);
         } else {
-            get_system_direction_parameter((DirData*)&system_dir[0]);
+            get_system_direction_parameter(&system_dir[0]);
         }
 
         get_extra_option_parameter(&save_w[Present_Mode].extra_option);
@@ -170,7 +170,7 @@ void get_extra_option_parameter(_EXTRA_OPTION* omop_extra) {
     omop_dokidoki = 0;
 }
 
-void get_system_direction_parameter(DirData* sysdir_data) {
+void get_system_direction_parameter(SystemDir* sysdir_data) {
     if (sysdir_data->contents[0][0] == 0) {
         omop_spmv_ng_table[0] |= 0x300;
     }

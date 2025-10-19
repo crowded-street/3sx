@@ -1,6 +1,6 @@
 /**
  * @file eff51.c
- * TODO: identify what this effect does
+ * TODO: System Direction selected values
  */
 
 #include "sf33rd/Source/Game/effect/eff51.h"
