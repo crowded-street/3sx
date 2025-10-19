@@ -73,19 +73,19 @@ static s8* msgSYSDIR_044[1] = { "" };
 static s8* msgSYSDIR_045[1] = { "" };
 static s8* msgSYSDIR_046[1] = { "" };
 static s8* msgSYSDIR_047[1] = { "" };
-static s8* msgSYSDIR_048[1] = { "LEAP ATTACK...................." };
-static s8* msgSYSDIR_049[2] = { "Enable/Disable the ability to perform the", "Leap Attack." };
-static s8* msgSYSDIR_050[1] = { "LEAP ATTACK CONTROLS..........." };
+static s8* msgSYSDIR_048[1] = { "UNIVERSAL OVERHEAD............." };
+static s8* msgSYSDIR_049[2] = { "Enable/Disable the ability to perform a", "Unversal Overhead attack." };
+static s8* msgSYSDIR_050[1] = { "UNIVERSAL OVERHEAD CONTROLS...." };
 static s8* msgSYSDIR_051[2] = {
-    "Change the command of the Leap Attack to   ",
+    "Change the command of the Unversal Overhead to",
     "\"^D^D+button\" which was used in \"2nd Impact.\"",
 };
-static s8* msgSYSDIR_052[1] = { "PERSONAL ACTION................" };
-static s8* msgSYSDIR_053[2] = { "Enable/Disable the ability to perform the", "Personal Action." };
-static s8* msgSYSDIR_054[1] = { "PERSONAL ACTION AFTER KO......." };
+static s8* msgSYSDIR_052[1] = { "TAUNT.........................." };
+static s8* msgSYSDIR_053[2] = { "Enable/Disable the ability to perform a Taunt.", "" };
+static s8* msgSYSDIR_054[1] = { "TAUNT AFTER KO................." };
 static s8* msgSYSDIR_055[2] = {
     "Enable/Disable the ability to perform a",
-    "Personal Action after a knock out.",
+    "Taunt after a knock out.",
 };
 static s8* msgSYSDIR_056[1] = { "" };
 static s8* msgSYSDIR_057[1] = { "" };
