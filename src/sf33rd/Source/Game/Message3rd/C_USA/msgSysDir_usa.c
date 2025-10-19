@@ -1,36 +1,45 @@
 #include "sf33rd/Source/Game/Message3rd/C_USA/msgSysDir_usa.h"
 #include "common.h"
 
+/**
+ * Notes:
+ * Each string is a different line
+ * most lines are about 40 characters
+ * If replacing an entry that initially had 2 lines, it has to have a second line, even if it isn't used.
+ * In-game the text is centered in the box where it's rendered, so shorter strings won't line up properly.
+ * Spaces after the last non-space character seem to be ignored
+ */
+
 static s8* msgSYSDIR_000[1] = { "GROUND PARRYING................" };
-static s8* msgSYSDIR_001[2] = { "Enable/Disable the ability to perform", "parrying on ground." };
+static s8* msgSYSDIR_001[2] = { "Enable/Disable the ability to perform", "a parry on the ground." };
 static s8* msgSYSDIR_002[1] = { "ANTI-AIR PARRYING.............." };
-static s8* msgSYSDIR_003[2] = { "Enable/Disable the ability to perform", "anti-air parrying." };
+static s8* msgSYSDIR_003[2] = { "Enable/Disable the ability to perform", "an anti-air parry." };
 static s8* msgSYSDIR_004[1] = { "AIR PARRYING..................." };
-static s8* msgSYSDIR_005[2] = { "Enable/Disable the ability to perform", "parrying in air." };
+static s8* msgSYSDIR_005[2] = { "Enable/Disable the ability to perform", "a parry in the air." };
 static s8* msgSYSDIR_006[1] = { "PARRYING COMMAND INPUT TIME...." };
-static s8* msgSYSDIR_007[2] = { "Adjust the command input time that is", "necessary to parry." };
+static s8* msgSYSDIR_007[2] = { "Adjust the parry window timing.", "" };
 static s8* msgSYSDIR_008[1] = { "GUARD PARRYING................." };
-static s8* msgSYSDIR_009[2] = { "Enable/Disable the ability to perform", "Guard Parrying." };
+static s8* msgSYSDIR_009[2] = { "Enable/Disable the ability to perform", "a Red Parry." };
 static s8* msgSYSDIR_010[1] = { "GUARD PARRYING C. INPUT TIME..." };
-static s8* msgSYSDIR_011[2] = { "Adjust the command input time that is", "necessary to Guard Parry." };
+static s8* msgSYSDIR_011[2] = { "Adjust the Red Parry window timing.", "" };
 static s8* msgSYSDIR_012[1] = { "GUARD.........................." };
 static s8* msgSYSDIR_013[1] = { "Enable/Disable the ability to Guard." };
 static s8* msgSYSDIR_014[1] = { "ABSOLUTE GUARD................." };
 static s8* msgSYSDIR_015[2] = {
     "Choose \"ON\" to automatically keep guarding",
-    "attacks after you guard the first attack.",
+    "attacks after you start guarding.",
 };
 static s8* msgSYSDIR_016[1] = { "GUARD DISTANCE................." };
-static s8* msgSYSDIR_017[2] = { "Adjust the distance that a character", "responds to an attack and guard." };
+static s8* msgSYSDIR_017[2] = { "Adjust the proximity guard distance.", "" };
 static s8* msgSYSDIR_018[1] = { "GUARD DAMAGE..................." };
 static s8* msgSYSDIR_019[2] = {
-    "Choose \"ON\" to receive damage when you",
-    "guard a Super Move or a Super Arts.",
+    "Choose \"ON\" to enable chip damage",
+    "when blocking a Special Move or Super Art.",
 };
 static s8* msgSYSDIR_020[1] = { "KO WHILE GUARDING.............." };
 static s8* msgSYSDIR_021[2] = {
     "Decide whether or not fighters can be knocked",
-    "out by damage sustained while guarding.",
+    "out by chip damage.",
 };
 static s8* msgSYSDIR_022[1] = { "" };
 static s8* msgSYSDIR_023[1] = { "" };
@@ -52,11 +61,11 @@ static s8* msgSYSDIR_035[1] = { "" };
 static s8* msgSYSDIR_036[1] = { "THROW.........................." };
 static s8* msgSYSDIR_037[1] = { "Enable/Disable the ability to throw." };
 static s8* msgSYSDIR_038[1] = { "GRAPPLE DEFENSE................" };
-static s8* msgSYSDIR_039[2] = { "Enable/Disable the ability to perform", "Grapple Defense." };
+static s8* msgSYSDIR_039[2] = { "Enable/Disable the ability to tech throws.", "" };
 static s8* msgSYSDIR_040[1] = { "GRAPPLE DEFENSE CONTROLS......." };
 static s8* msgSYSDIR_041[2] = {
-    "While holding the direction pad up or down,",
-    "you can't perform a Grapple Defense.",
+    "Enable/Disable the ability to tech throws",
+    "when holding up or down.",
 };
 static s8* msgSYSDIR_042[1] = { "" };
 static s8* msgSYSDIR_043[1] = { "" };
@@ -82,38 +91,38 @@ static s8* msgSYSDIR_056[1] = { "" };
 static s8* msgSYSDIR_057[1] = { "" };
 static s8* msgSYSDIR_058[1] = { "" };
 static s8* msgSYSDIR_059[1] = { "" };
-static s8* msgSYSDIR_060[1] = { "SUPER ARTS....................." };
-static s8* msgSYSDIR_061[2] = { "Enable/Disable the ability to perform the", "Super Arts." };
-static s8* msgSYSDIR_062[1] = { "SUPER MOVE....................." };
-static s8* msgSYSDIR_063[2] = { "Enable/Disable the ability to perform a", "Super Move." };
+static s8* msgSYSDIR_060[1] = { "SUPER ART......................" };
+static s8* msgSYSDIR_061[2] = { "Enable/Disable the ability to perform a", "Super Art." };
+static s8* msgSYSDIR_062[1] = { "SPECIAL MOVE..................." };
+static s8* msgSYSDIR_063[2] = { "Enable/Disable the ability to perform a", "Special Move." };
 static s8* msgSYSDIR_064[1] = { "EX MOVE........................" };
 static s8* msgSYSDIR_065[2] = { "Enable/Disable the ability to perform an", "EX Move." };
 static s8* msgSYSDIR_066[1] = { "EX MOVE ENERGY REQUIREMENT....." };
-static s8* msgSYSDIR_067[2] = { "Adjust the amount of the gauge energy", "required to perform an EX Move." };
+static s8* msgSYSDIR_067[2] = { "Adjust the amount of S.A. gauge", "required to perform an EX Move." };
 static s8* msgSYSDIR_068[1] = { "" };
 static s8* msgSYSDIR_069[1] = { "" };
 static s8* msgSYSDIR_070[1] = { "" };
 static s8* msgSYSDIR_071[1] = { "" };
 static s8* msgSYSDIR_072[1] = { "TARGET COMBO..................." };
-static s8* msgSYSDIR_073[2] = { "Enable/Disable the ability to perform the", "Target Combo." };
-static s8* msgSYSDIR_074[1] = { "SUPER MOVE/SUPER ARTS CANCEL..." };
-static s8* msgSYSDIR_075[2] = { "Enable/Disable the ability to cancel your", "Super Move or Super Arts." };
-static s8* msgSYSDIR_076[1] = { "SUPER ARTS CANCEL.............." };
-static s8* msgSYSDIR_077[2] = { "Enable/Disable the ability to cancel your", "Super Arts." };
+static s8* msgSYSDIR_073[2] = { "Enable/Disable the ability to perform a", "Target Combo." };
+static s8* msgSYSDIR_074[1] = { "SPECIAL MOVE/SUPER ART CANCEL.." };
+static s8* msgSYSDIR_075[2] = { "Enable/Disable the ability to cancel into", "Special Moves or Super Arts." };
+static s8* msgSYSDIR_076[1] = { "SUPER ART CANCEL..............." };
+static s8* msgSYSDIR_077[2] = { "Enable/Disable the ability to cancel into a", "Super Art." };
 static s8* msgSYSDIR_078[1] = { "HIGH-JUMP CANCEL..............." };
-static s8* msgSYSDIR_079[2] = { "Enable/Disable the ability to cancel your", "High-Jump." };
+static s8* msgSYSDIR_079[2] = { "Enable/Disable the ability to cancel into a", "High-Jump." }; //assumed meaning. I'm not good enough to do HJCs.
 static s8* msgSYSDIR_080[1] = { "HIGH-JUMP CANCEL TYPE.........." };
 static s8* msgSYSDIR_081[2] = {
     "Change the High-Jump type to \"2nd Impact\"   ",
-    "style which can be canceled by a Super Move.",
+    "style which can be canceled by a Special Move.",
 };
 static s8* msgSYSDIR_082[1] = { "" };
 static s8* msgSYSDIR_083[1] = { "" };
 static s8* msgSYSDIR_084[1] = { "AIR GUARD......................" };
-static s8* msgSYSDIR_085[2] = { "Enable/Disable the ability to perform Air", "Guard." };
+static s8* msgSYSDIR_085[2] = { "Enable/Disable the ability to Guard", "in the air." };
 static s8* msgSYSDIR_086[1] = { "AUTO AIR RECOVERY.............." };
 static s8* msgSYSDIR_087[2] = {
-    "When blown away by an attack, the character",
+    "When blown away by an attack, the character", //Revise this to reflect what it actually does in game.
     "will automatically recover.",
 };
 static s8* msgSYSDIR_088[1] = { "KNOCK DOWNS FROM AIR..........." };
@@ -124,12 +133,12 @@ static s8* msgSYSDIR_089[2] = {
 static s8* msgSYSDIR_090[1] = { "EXTREME GUARD DAMAGE..........." };
 static s8* msgSYSDIR_091[2] = {
     "Choose \"ON\" to allow every attack to inflict",
-    "Guard Damage when it is blocked.",
+    "Chip Damage when it is blocked.",
 };
 static s8* msgSYSDIR_092[1] = { "S.A. GAUGE MAX START..........." };
 static s8* msgSYSDIR_093[2] = {
     "If choose \"ON,\" the game will start with",
-    "your Super Arts Gauge at MAX.",
+    "the Super Arts Gauge at MAX.",
 };
 static s8* msgSYSDIR_094[1] = { "S.A. GAUGE ROUND RESET........." };
 static s8* msgSYSDIR_095[2] = {
@@ -137,22 +146,22 @@ static s8* msgSYSDIR_095[2] = {
     "reset at the beginning of each round.",
 };
 static s8* msgSYSDIR_096[1] = { "GROUND CHAIN COMBO............." };
-static s8* msgSYSDIR_097[2] = { "Enable/Disable the ability to perform Chain", "Combos on the ground." };
+static s8* msgSYSDIR_097[2] = { "Enable/Disable the ability to perform Chain", "Combos on the ground. (GG Style)" }; //Meaning: chain normals into others of higher strength
 static s8* msgSYSDIR_098[1] = { "AIR CHAIN COMBO................" };
-static s8* msgSYSDIR_099[2] = { "Enable/Disable to perform Chain Combos in", "air." };
+static s8* msgSYSDIR_099[2] = { "Enable/Disable to perform Chain Combos in", "the air. (GG Style)" };
 static s8* msgSYSDIR_100[1] = { "CANCEL NORMAL MOVES............" };
-static s8* msgSYSDIR_101[2] = { "All of your normal moves will be able", "to be canceled!" };
+static s8* msgSYSDIR_101[2] = { "All of your normal moves will be able", "to be canceled into Special Moves!" };
 static s8* msgSYSDIR_102[1] = { "HIGH JUMP FROM ALL MOVES......." };
 static s8* msgSYSDIR_103[2] = {
-    "Enable the ability to perform a high jump and",
-    "cancel any move in progress.",
+    "Enable the ability to High-Jump cancel",
+    "any move.",
 };
 static s8* msgSYSDIR_104[1] = { "DASH FROM ALL MOVES............" };
-static s8* msgSYSDIR_105[2] = { "Enable the ability to perform a dash and", "cancel any move in progress." };
-static s8* msgSYSDIR_106[1] = { "SUPER M. TO SUPER M. CANCEL...." };
+static s8* msgSYSDIR_105[2] = { "Enable the ability to dash-cancel any move.", "" };
+static s8* msgSYSDIR_106[1] = { "SPECIAL TO SPECIAL CANCEL......" };
 static s8* msgSYSDIR_107[2] = {
-    "Chose \"ON\" to be able to cancel a Super",
-    "Move with a Super Move or Super Arts.",
+    "Choose \"ON\" to be able to cancel Specials",
+    "with other Specials or Super Arts.",
 };
 static s8* msgSYSDIR_108[1] = { "ALL SUPER ARTS................." };
 static s8* msgSYSDIR_109[2] = {
@@ -162,12 +171,12 @@ static s8* msgSYSDIR_109[2] = {
 static s8* msgSYSDIR_110[1] = { "SUPER A. TO SUPER A. CANCEL...." };
 static s8* msgSYSDIR_111[2] = {
     "If you choose \"ON,\" you'll be able to",
-    "cancel a Super Arts with a Super Arts.",
+    "cancel a Super Art with another Super Art.",
 };
 static s8* msgSYSDIR_112[1] = { "AIR COMBO SKILL................" };
-static s8* msgSYSDIR_113[1] = { "Adjust how easily you can perform Air Combos." };
-static s8* msgSYSDIR_114[1] = { "MISSED MOVE S.A. GAUGE BUILD..." };
-static s8* msgSYSDIR_115[2] = { "Decide whether the S.A. Gauge builds when", "an attempted move misses." };
+static s8* msgSYSDIR_113[1] = { "Adjust how easily you can perform Air Combos." }; //Presumably this has something to do with juggle counter values, so being vague here is fine IMO.
+static s8* msgSYSDIR_114[1] = { "WHIFFED MOVE S.A. GAUGE BUILD.." };
+static s8* msgSYSDIR_115[2] = { "Decide whether the S.A. Gauge builds", "when moves are whiffed." };
 static s8* msgSYSDIR_200[1] = { "Return to the previous page." };
 static s8* msgSYSDIR_201[1] = { "Exit this mode and return to the Menu Screen." };
 static s8* msgSYSDIR_202[1] = { "Proceed to the next page." };
