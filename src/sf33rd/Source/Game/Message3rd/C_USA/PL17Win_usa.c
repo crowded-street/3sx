@@ -21,14 +21,22 @@ static s8* msgWinPL17_16P[1] = { "" };
 static s8* msgWinPL17_17P[1] = { "" };
 static s8* msgWinPL17_18P[1] = { "" };
 static s8* msgWinPL17_19P[1] = { "" };
-static s8* msgWinPL17_20P[1] = { "" };
-static s8* msgWinPL17_21P[1] = { "" };
-static s8* msgWinPL17_22P[1] = { "" };
-static s8* msgWinPL17_23P[1] = { "" };
-static s8* msgWinPL17_24P[1] = { "" };
-static s8* msgWinPL17_25P[1] = { "" };
-static s8* msgWinPL17_26P[1] = { "" };
-static s8* msgWinPL17_27P[1] = { "" };
+static s8* msgWinPL17_20P[2] = { "   !.........                                   ",
+                                 "   (No!)                                        " };
+static s8* msgWinPL17_21P[2] = { "   ?!.........                                  ",
+                                 "   (Seriously?!)                                " };
+static s8* msgWinPL17_22P[2] = { "   .....................                        ",
+                                 "   (Leave.)                                     " };
+static s8* msgWinPL17_23P[2] = { "   .....................                        ",
+                                 "   (Bye.)                                       " };
+static s8* msgWinPL17_24P[2] = { "   .........                                    ",
+                                 "   (Done.)                                      " };
+static s8* msgWinPL17_25P[2] = { "   .........!                                   ",
+                                 "   (Never!)                                     " };
+static s8* msgWinPL17_26P[2] = { "   ?.........                                   ",
+                                 "   (Yes?)                                       " };
+static s8* msgWinPL17_27P[2] = { "   .........?                                   ",
+                                 "   (Again?)                                     " };
 
 static s8** msgWinAdrPL17[28] = {
     msgWinPL17_00P, msgWinPL17_01P, msgWinPL17_02P, msgWinPL17_03P, msgWinPL17_04P, msgWinPL17_05P, msgWinPL17_06P,
@@ -38,7 +46,7 @@ static s8** msgWinAdrPL17[28] = {
 };
 
 static s8 msgWinCtrPL17[28] = {
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2,
 };
 
 MessageTable pl17win_usa_tbl = { msgWinAdrPL17, msgWinCtrPL17 };
