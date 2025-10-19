@@ -18,7 +18,7 @@ static s8* msgSYSDIR_004[1] = { "AIR PARRYING..................." };
 static s8* msgSYSDIR_005[2] = { "Enable/Disable the ability to perform", "a parry in the air." };
 static s8* msgSYSDIR_006[1] = { "PARRYING COMMAND INPUT TIME...." };
 static s8* msgSYSDIR_007[2] = { "Adjust the parry window timing.", "" };
-static s8* msgSYSDIR_008[1] = { "GUARD PARRYING................." };
+static s8* msgSYSDIR_008[1] = { "RED PARRYING................." };
 static s8* msgSYSDIR_009[2] = { "Enable/Disable the ability to perform", "a Red Parry." };
 static s8* msgSYSDIR_010[1] = { "GUARD PARRYING C. INPUT TIME..." };
 static s8* msgSYSDIR_011[2] = { "Adjust the Red Parry window timing.", "" };
@@ -60,9 +60,9 @@ static s8* msgSYSDIR_034[1] = { "" };
 static s8* msgSYSDIR_035[1] = { "" };
 static s8* msgSYSDIR_036[1] = { "THROW.........................." };
 static s8* msgSYSDIR_037[1] = { "Enable/Disable the ability to throw." };
-static s8* msgSYSDIR_038[1] = { "GRAPPLE DEFENSE................" };
+static s8* msgSYSDIR_038[1] = { "THROW TECH....................." };
 static s8* msgSYSDIR_039[2] = { "Enable/Disable the ability to tech throws.", "" };
-static s8* msgSYSDIR_040[1] = { "GRAPPLE DEFENSE CONTROLS......." };
+static s8* msgSYSDIR_040[1] = { "THROW TECH CONTROLS............" };
 static s8* msgSYSDIR_041[2] = {
     "Enable/Disable the ability to tech throws",
     "when holding up or down.",
