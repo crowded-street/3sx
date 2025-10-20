@@ -638,7 +638,7 @@ void Damage_17000(PLW* wk) {
             char_move_wca(&wk->wu);
         }
 
-        if (!(wk->spmv_ng_flag & 0x200000) && wk->wu.mvxy.a[1].real.h < -2) {
+        if (!(wk->spmv_ng_flag & DIP_AUTO_AIR_RECOVERY_DISABLED) && wk->wu.mvxy.a[1].real.h < -2) {
             wk->wu.routine_no[1] = 0;
             wk->wu.routine_no[2] = 23;
             wk->wu.routine_no[3] = 1;
@@ -1266,8 +1266,8 @@ void buttobi_chakuchi_cg_type_check(PLW* wk) {
         break;
 
     case 5:
-        if (!(wk->spmv_ng_flag2 & 0x200) && wk->ukemi_success && (wk->dead_flag == 0) && (wk->py->flag == 0) &&
-            (wk->wu.vital_new > 0) && (gs.pcon_dp_flag == 0)) {
+        if (!(wk->spmv_ng_flag2 & DIP2_QUICK_STAND_DISABLED) && wk->ukemi_success && (wk->dead_flag == 0) &&
+            (wk->py->flag == 0) && (wk->wu.vital_new > 0) && (gs.pcon_dp_flag == 0)) {
             wk->wu.routine_no[2] = oki_select_table2[wk->wu.rl_waza + (wk->wu.rl_flag * 2)];
             wk->wu.routine_no[3] = 0;
             add_sp_arts_gauge_ukemi(wk);
@@ -1585,7 +1585,7 @@ void get_damage_reaction_data(PLW* wk) {
         wk->wu.routine_no[2] = 91;
     }
 
-    if (!(((PLW*)wk->wu.target_adrs)->spmv_ng_flag & 0x2000000) && wk->wu.routine_no[2] == 88) {
+    if (!(((PLW*)wk->wu.target_adrs)->spmv_ng_flag & DIP_AIR_KNOCKDOWNS_DISABLED) && wk->wu.routine_no[2] == 88) {
         wk->wu.routine_no[2] = 91;
     }
 

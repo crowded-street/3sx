@@ -154,19 +154,22 @@ void player_mv_0000(PLW* wk) {
         metamor_color_restore(wk->wu.id);
     }
 
-    switch (wk->spmv_ng_flag2 & 0x60000) {
-    case 0x40000:
+    switch (wk->spmv_ng_flag2 & (DIP2_SA_GAUGE_ROUND_RESET_DISABLED | DIP2_SA_GAUGE_MAX_START_DISABLED)) {
+    case DIP2_SA_GAUGE_MAX_START_DISABLED:
         clear_super_arts_point(wk);
         spgauge_cont_init();
         break;
 
-    case 0x20000:
-        if (Round_num == 0) {
-        case 0:
-            demo_set_sa_full(wk->sa);
-            spgauge_cont_demo_init();
+    case DIP2_SA_GAUGE_ROUND_RESET_DISABLED:
+        if (Round_num != 0) {
+            break;
         }
 
+        /* fallthrough */
+
+    case 0:
+        demo_set_sa_full(wk->sa);
+        spgauge_cont_demo_init();
         break;
     }
 

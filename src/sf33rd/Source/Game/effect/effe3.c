@@ -163,7 +163,7 @@ void effect_E3_move(WORK_Other* ewk) {
                     break;
                 }
 
-                switch (mwk->spmv_ng_flag2 & 0x200) {
+                switch (mwk->spmv_ng_flag2 & DIP2_QUICK_STAND_DISABLED) {
                 case 0:
                     goto sw1_case_0;
 

@@ -11,6 +11,7 @@
 #include "sf33rd/Source/Game/engine/plpdm.h"
 #include "sf33rd/Source/Game/engine/pls01.h"
 #include "sf33rd/Source/Game/engine/pls03.h"
+#include "sf33rd/Source/Game/system/sysdir.h"
 
 void nm_01000(PLW* wk);
 void nm_09000(PLW* wk);
@@ -652,7 +653,7 @@ void nm_17000(PLW* wk) {
         return;
     }
 
-    if (!(wk->spmv_ng_flag & 0x800000) && wk->high_jump_flag) {
+    if (!(wk->spmv_ng_flag & DIP_HIGH_JUMP_2ND_IMPACT_STYLE_ENABLED) && wk->high_jump_flag) {
         return;
     }
 
@@ -1534,7 +1535,7 @@ void process_damage(PLW* wk) {
     s32 csw;
 
     if (wk->wu.routine_no[3] == 0) {
-        if (!(wk->spmv_ng_flag & 0x1000000)) {
+        if (!(wk->spmv_ng_flag & DIP_SEMI_AUTO_PARRY_DISABLED)) {
             csw = 0;
 
             switch (wk->wu.routine_no[2]) {
@@ -1815,7 +1816,7 @@ s32 check_cg_cancel_data(PLW* wk) {
     }
 
     if (wk->wu.meoshi_hit_flag != 0) {
-        if (wk->spmv_ng_flag2 & 0x40) {
+        if (wk->spmv_ng_flag2 & DIP2_SPECIAL_MOVE_SUPER_ART_CANCEL_DISABLED) {
             if (wk->wu.routine_no[1] == 4) {
                 switch (wk->player_number) {
                 case 7:
@@ -1844,7 +1845,7 @@ s32 check_cg_cancel_data(PLW* wk) {
             }
         }
 
-        if ((wk->spmv_ng_flag2 & 0x80) && (wk->wu.kind_of_waza & 0xF8)) {
+        if ((wk->spmv_ng_flag2 & DIP2_SUPER_ART_CANCEL_DISABLED) && (wk->wu.kind_of_waza & 0xF8)) {
             wk->wu.cg_cancel &= 0xBF;
         }
 
@@ -1896,7 +1897,7 @@ s32 check_cg_cancel_data(PLW* wk) {
         return 1;
     }
 
-    if ((wk->wu.cg_cancel & 1) && !(wk->spmv_ng_flag & 0x400000) && (check_hijump_only(wk) != 0)) {
+    if ((wk->wu.cg_cancel & 1) && !(wk->spmv_ng_flag & DIP_HIGH_JUMP_CANCEL_DISABLED) && (check_hijump_only(wk) != 0)) {
         wk->high_jump_flag = 1;
         return 1;
     }

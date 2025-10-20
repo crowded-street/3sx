@@ -32,6 +32,7 @@
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/screen/vs_shell.h"
 #include "sf33rd/Source/Game/stage/bg.h"
+#include "sf33rd/Source/Game/system/sysdir.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "structs.h"
 
@@ -597,7 +598,7 @@ void Provoke(PLW* wk, s16 Lever) {
             break;
         }
 
-        if (wk->spmv_ng_flag & 1) {
+        if (wk->spmv_ng_flag & DIP_TAUNT_DISABLED) {
             Next_Be_Free(wk);
             break;
         }

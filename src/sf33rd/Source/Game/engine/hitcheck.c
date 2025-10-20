@@ -599,7 +599,7 @@ void set_guard_status(PLW* as, PLW* ds) {
         ds->wu.routine_no[1] = 1;
         ds->wu.routine_no[3] = 0;
 
-        if (ds->spmv_ng_flag & 0x1000000) {
+        if (ds->spmv_ng_flag & DIP_SEMI_AUTO_PARRY_DISABLED) {
             effect_02_init(&as->wu, ds->dm_point, 2, ds->wu.dm_rl);
         }
 
@@ -756,7 +756,7 @@ void hit_pattern_extdat_check(WORK* as) {
     }
 
     if (as->work_id == 1) {
-        if ((((PLW*)as)->spmv_ng_flag2 & 1) && as->cg_cancel & 8 && !(as->kow & 0xF8)) {
+        if ((((PLW*)as)->spmv_ng_flag2 & DIP2_TARGET_COMBO_DISABLED) && as->cg_cancel & 8 && !(as->kow & 0xF8)) {
             if (as->kow & 6) {
                 as->cg_cancel &= 0xF7;
                 as->cg_meoshi = 0;
@@ -768,22 +768,27 @@ void hit_pattern_extdat_check(WORK* as) {
             }
         }
 
-        if (!(((PLW*)as)->spmv_ng_flag2 & 8) && as->kow & 0x60) {
+        if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_SA_TO_SA_CANCEL_DISABLED) && as->kow & 0x60) {
             as->cg_cancel |= 0x40;
         }
 
-        if (!(((PLW*)as)->spmv_ng_flag2 & 2) && !(as->kow & 0x60) && as->kow & 0xF8) {
+        if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_SPECIAL_TO_SPECIAL_CANCEL_DISABLED) && !(as->kow & 0x60) &&
+            as->kow & 0xF8) {
             as->cg_cancel |= 0x60;
         }
 
-        if (!(((PLW*)as)->spmv_ng_flag2 & 4) && !(as->kow & 0xF8)) {
+        if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_ALL_NORMALS_CANCELLABLE_DISABLED) && !(as->kow & 0xF8)) {
             switch (plpat_rno_filter[as->routine_no[2]]) {
             case 9:
-                if (as->routine_no[3] == 1) {
-                case 1:
-                case 2:
-                    as->cg_cancel |= 0x60;
+                if (as->routine_no[3] != 1) {
+                    break;
                 }
+
+                /* fallthrough */
+
+            case 1:
+            case 2:
+                as->cg_cancel |= 0x60;
                 break;
             }
         }
@@ -791,45 +796,46 @@ void hit_pattern_extdat_check(WORK* as) {
         if (!(as->kow & 0xF8) && as->routine_no[1] == 4 && as->routine_no[2] < 0x10) {
             switch (plpat_rno_filter[as->routine_no[2]]) {
             case 9:
-                if (as->routine_no[3] == 1) {
-                case 1:
-                    if (!(((PLW*)as)->spmv_ng_flag2 & 0x1000000)) {
-                        as->cg_cancel |= 1;
-                    }
+                if (as->routine_no[3] != 1) {
+                    break;
+                }
 
-                    if (!(((PLW*)as)->spmv_ng_flag2 & 0x2000000)) {
-                        as->cg_cancel |= 2;
-                    }
+                /* fallthrough */
 
-                    if (!(((PLW*)as)->spmv_ng_flag2 & 0x100000)) {
-                        i = 0;
+            case 1:
+                if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_ALL_MOVES_CANCELLABLE_BY_HIGH_JUMP_DISABLED)) {
+                    as->cg_cancel |= 1;
+                }
 
-                        if (((PLW*)as)->player_number == 4) {
-                            as->cg_meoshi = chain_hidou_nm_ground_table[as->kow & 7];
-                            as->cg_cancel |= 8;
-                            return;
-                        }
+                if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_ALL_MOVES_CANCELLABLE_BY_DASH_DISABLED)) {
+                    as->cg_cancel |= 2;
+                }
 
+                if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_GROUND_CHAIN_COMBO_DISABLED)) {
+                    i = 0;
+
+                    if (((PLW*)as)->player_number == 4) {
+                        as->cg_meoshi = chain_hidou_nm_ground_table[as->kow & 7];
+                        as->cg_cancel |= 8;
+                    } else {
                         as->cg_meoshi = i | chain_normal_ground_table[as->kow & 7];
                         as->cg_cancel |= 8;
-                        return;
                     }
                 }
 
                 break;
 
             case 2:
-                if (!(((PLW*)as)->spmv_ng_flag2 & 0x200000) && !hikusugi_check(as)) {
+                if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_AIR_CHAIN_COMBO_DISABLED) && !hikusugi_check(as)) {
                     i = 0;
 
                     if (((PLW*)as)->player_number == 7) {
                         as->cg_meoshi = chain_hidou_nm_air_table[as->kow & 7];
                         as->cg_cancel |= 8;
-                        return;
+                    } else {
+                        as->cg_meoshi = i | chain_normal_air_table[as->kow & 7];
+                        as->cg_cancel |= 8;
                     }
-
-                    as->cg_meoshi = i | chain_normal_air_table[as->kow & 7];
-                    as->cg_cancel |= 8;
                 }
 
                 break;
@@ -851,7 +857,7 @@ s16 check_dm_att_guard(WORK* as, WORK* ds, s16 kom) {
         curr_id = ((WORK_Other*)as)->master_id;
     }
 
-    if (!(gs.plw[curr_id].spmv_ng_flag & 0x8000)) {
+    if (!(gs.plw[curr_id].spmv_ng_flag & DIP_CHIP_DAMAGE_ENABLED)) {
         as->kezuri_pow = 0;
     }
 
@@ -865,7 +871,7 @@ s16 check_dm_att_guard(WORK* as, WORK* ds, s16 kom) {
             }
 
             if (ds->dm_vital > ds->vital_new) {
-                if (as->no_death_attack || (gs.plw[curr_id].spmv_ng_flag2 & 0x10000000)) {
+                if (as->no_death_attack || (gs.plw[curr_id].spmv_ng_flag2 & DIP2_CHIP_DAMAGE_KO_DISABLED)) {
                     ds->dm_vital = ds->vital_new;
                 } else {
                     ds->dm_guard_success = ds->routine_no[2];
@@ -1018,8 +1024,8 @@ s32 defense_sky(PLW* as, PLW* ds, s8 gddir) {
     s8 abs;
     s8 ags;
 
-    abs = (ds->spmv_ng_flag & 0x80) == 0;
-    ags = (ds->spmv_ng_flag & 0x40) == 0;
+    abs = (ds->spmv_ng_flag & DIP_AUTO_PARRY_DISABLED) == 0;
+    ags = (ds->spmv_ng_flag & DIP_AUTO_GUARD_DISABLED) == 0;
 
     if (ds->dead_flag) {
         ds->guard_flag = 3;
@@ -1034,7 +1040,8 @@ s32 defense_sky(PLW* as, PLW* ds, s8 gddir) {
 
     if (ds->py->flag == 0 && !(ds->guard_flag & 2) && as->wu.att.guard & 4) {
         if (just_now) {
-            if (!(ds->spmv_ng_flag & 0x1000) && (ds->cp->waza_flag[5] >= grdb2[ds->wu.id][attr_att] || abs)) {
+            if (!(ds->spmv_ng_flag & DIP_RED_PARRY_DISABLED) &&
+                (ds->cp->waza_flag[5] >= grdb2[ds->wu.id][attr_att] || abs)) {
                 blocking_point_count_up(ds);
                 as->wu.hf.hit.player = 0x80;
                 ds->wu.routine_no[2] = 0x22;
@@ -1045,7 +1052,7 @@ s32 defense_sky(PLW* as, PLW* ds, s8 gddir) {
 
                 return 0;
             }
-        } else if (!(ds->spmv_ng_flag & 0x400) && ((ds->cp->waza_flag[5] != 0) || abs)) {
+        } else if (!(ds->spmv_ng_flag & DIP_AIR_PARRY_DISABLED) && ((ds->cp->waza_flag[5] != 0) || abs)) {
             blocking_point_count_up(ds);
             as->wu.hf.hit.player = 0x80;
             ds->wu.routine_no[2] = 0x22;
@@ -1066,12 +1073,12 @@ s32 defense_sky(PLW* as, PLW* ds, s8 gddir) {
         return 2;
     }
 
-    if (ds->spmv_ng_flag & 32) {
+    if (ds->spmv_ng_flag & DIP_AIR_GUARD_DISABLED) {
         return 2;
     }
 
     if (!ds->auto_guard && !ags) {
-        if ((ds->spmv_ng_flag & 0x2000) || !just_now) {
+        if ((ds->spmv_ng_flag & DIP_ABSOLUTE_GUARD_DISABLED) || !just_now) {
             if (!(ds->saishin_lvdir & gddir)) {
                 return 2;
             }
@@ -1113,8 +1120,8 @@ s32 defense_ground(PLW* as, PLW* ds, s8 gddir) {
     s8 abs;
     s8 ags;
 
-    abs = (ds->spmv_ng_flag & 0x80) == 0;
-    ags = (ds->spmv_ng_flag & 0x40) == 0;
+    abs = (ds->spmv_ng_flag & DIP_AUTO_PARRY_DISABLED) == 0;
+    ags = (ds->spmv_ng_flag & DIP_AUTO_GUARD_DISABLED) == 0;
 
     if (ds->dead_flag) {
         ds->guard_flag = 3;
@@ -1130,7 +1137,8 @@ s32 defense_ground(PLW* as, PLW* ds, s8 gddir) {
     if (ds->py->flag == 0 && !(ds->guard_flag & 2) && as->wu.att.guard & 3) {
         if (as->wu.att.guard & 2) {
             if (just_now) {
-                if (!(ds->spmv_ng_flag & 0x1000) && ((ds->cp->waza_flag[3] >= grdb[ds->wu.id][attr_att][0]) || abs)) {
+                if (!(ds->spmv_ng_flag & DIP_RED_PARRY_DISABLED) &&
+                    ((ds->cp->waza_flag[3] >= grdb[ds->wu.id][attr_att][0]) || abs)) {
                     blocking_point_count_up(ds);
                     as->wu.hf.hit.player = 64;
 
@@ -1146,9 +1154,9 @@ s32 defense_ground(PLW* as, PLW* ds, s8 gddir) {
 
                     return 0;
                 }
-            } else if (!(ds->spmv_ng_flag & 0x100)) {
+            } else if (!(ds->spmv_ng_flag & DIP_UNKNOWN_8)) {
                 if (as->wu.jump_att_flag) {
-                    if (!(ds->spmv_ng_flag & 0x800) && (ds->cp->waza_flag[12] != 0 || abs)) {
+                    if (!(ds->spmv_ng_flag & DIP_ANTI_AIR_PARRY_DISABLED) && (ds->cp->waza_flag[12] != 0 || abs)) {
                         blocking_point_count_up(ds);
                         as->wu.hf.hit.player = 64;
 
@@ -1185,7 +1193,8 @@ s32 defense_ground(PLW* as, PLW* ds, s8 gddir) {
 
         if (as->wu.att.guard & 1) {
             if (just_now) {
-                if (!(ds->spmv_ng_flag & 0x1000) && (!(ds->cp->waza_flag[4] < grdb[ds->wu.id][attr_att][1]) || abs)) {
+                if (!(ds->spmv_ng_flag & DIP_RED_PARRY_DISABLED) &&
+                    (!(ds->cp->waza_flag[4] < grdb[ds->wu.id][attr_att][1]) || abs)) {
                     blocking_point_count_up(ds);
                     as->wu.hf.hit.player = 64;
                     ds->wu.routine_no[2] = 33;
@@ -1196,9 +1205,9 @@ s32 defense_ground(PLW* as, PLW* ds, s8 gddir) {
 
                     return 0;
                 }
-            } else if (!(ds->spmv_ng_flag & 0x200)) {
+            } else if (!(ds->spmv_ng_flag & DIP_UNKNOWN_9)) {
                 if (as->wu.jump_att_flag) {
-                    if (!(ds->spmv_ng_flag & 0x800) && (ds->cp->waza_flag[4] != 0 || abs)) {
+                    if (!(ds->spmv_ng_flag & DIP_ANTI_AIR_PARRY_DISABLED) && (ds->cp->waza_flag[4] != 0 || abs)) {
                         blocking_point_count_up(ds);
                         as->wu.hf.hit.player = 64;
                         ds->wu.routine_no[2] = 33;
@@ -1232,11 +1241,11 @@ s32 defense_ground(PLW* as, PLW* ds, s8 gddir) {
         return 2;
     }
 
-    if (ds->spmv_ng_flag & 0x10) {
+    if (ds->spmv_ng_flag & DIP_GUARD_DISABLED) {
         return 2;
     }
 
-    if (!ds->auto_guard && !ags && (ds->spmv_ng_flag & 0x2000 || !just_now)) {
+    if (!ds->auto_guard && !ags && (ds->spmv_ng_flag & DIP_ABSOLUTE_GUARD_DISABLED || !just_now)) {
         if (!(ds->saishin_lvdir & gddir)) {
             return 2;
         }

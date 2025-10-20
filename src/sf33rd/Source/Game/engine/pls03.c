@@ -56,7 +56,7 @@ s32 check_full_gauge_attack(PLW* wk, s8 always) {
     }
 
     if (((Bonus_Game_Flag == 0x14) && (wk->bs2_on_car)) || (wk->wu.xyz[1].disp.pos <= 0)) {
-        if (wk->spmv_ng_flag & 0x40000000) {
+        if (wk->spmv_ng_flag & DIP_UNKNOWN_30) {
             return 0;
         }
 
@@ -72,7 +72,7 @@ s32 check_full_gauge_attack(PLW* wk, s8 always) {
             return 0;
         }
 
-        if ((wk->spmv_ng_flag2 & 0x800000) && (chainex_check[wk->wu.id][wk->sa->exsa_g_ix - 20])) {
+        if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && (chainex_check[wk->wu.id][wk->sa->exsa_g_ix - 20])) {
             return 0;
         }
 
@@ -114,7 +114,7 @@ s32 check_full_gauge_attack(PLW* wk, s8 always) {
         return 0;
     }
 
-    if (wk->spmv_ng_flag & 0x80000000) {
+    if (wk->spmv_ng_flag & DIP_UNKNOWN_31) {
         return 0;
     }
 
@@ -130,7 +130,7 @@ s32 check_full_gauge_attack(PLW* wk, s8 always) {
         return 0;
     }
 
-    if ((wk->spmv_ng_flag2 & 0x800000) && chainex_check[wk->wu.id][wk->sa->exsa_a_ix - 20]) {
+    if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && chainex_check[wk->wu.id][wk->sa->exsa_a_ix - 20]) {
         return 0;
     }
 
@@ -187,7 +187,7 @@ s32 check_full_gauge_attack2(PLW* wk, s8 always) {
     }
 
     if (((Bonus_Game_Flag == 0x14) && (wk->bs2_on_car)) || (wk->wu.xyz[1].disp.pos <= 0)) {
-        if (wk->spmv_ng_flag & 0x40000000) {
+        if (wk->spmv_ng_flag & DIP_UNKNOWN_30) {
             return 0;
         }
 
@@ -203,7 +203,7 @@ s32 check_full_gauge_attack2(PLW* wk, s8 always) {
             return 0;
         }
 
-        if ((wk->spmv_ng_flag2 & 0x800000) && (chainex_check[wk->wu.id][wk->sa->exs2_g_ix - 20])) {
+        if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && (chainex_check[wk->wu.id][wk->sa->exs2_g_ix - 20])) {
             return 0;
         }
 
@@ -245,7 +245,7 @@ s32 check_full_gauge_attack2(PLW* wk, s8 always) {
         return 0;
     }
 
-    if (wk->spmv_ng_flag & 0x80000000) {
+    if (wk->spmv_ng_flag & DIP_UNKNOWN_31) {
         return 0;
     }
 
@@ -261,7 +261,7 @@ s32 check_full_gauge_attack2(PLW* wk, s8 always) {
         return 0;
     }
 
-    if ((wk->spmv_ng_flag2 & 0x800000) && (chainex_check[wk->wu.id][wk->sa->exs2_a_ix - 20])) {
+    if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && (chainex_check[wk->wu.id][wk->sa->exs2_a_ix - 20])) {
         return 0;
     }
 
@@ -346,7 +346,7 @@ s32 check_super_arts_attack_dc(PLW* wk) {
     }
 
     if (((Bonus_Game_Flag == 0x14) && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
-        if (wk->spmv_ng_flag & 0x40000000) {
+        if (wk->spmv_ng_flag & DIP_UNKNOWN_30) {
             return 0;
         }
 
@@ -358,7 +358,7 @@ s32 check_super_arts_attack_dc(PLW* wk) {
             return 0;
         }
 
-        if ((wk->spmv_ng_flag2 & 0x800000) && (chainex_check[wk->wu.id][wk->sa->nmsa_g_ix - 20])) {
+        if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && (chainex_check[wk->wu.id][wk->sa->nmsa_g_ix - 20])) {
             return 0;
         }
 
@@ -399,7 +399,7 @@ s32 check_super_arts_attack_dc(PLW* wk) {
         return 0;
     }
 
-    if (wk->spmv_ng_flag & 0x80000000) {
+    if (wk->spmv_ng_flag & DIP_UNKNOWN_31) {
         return 0;
     }
 
@@ -411,7 +411,7 @@ s32 check_super_arts_attack_dc(PLW* wk) {
         return 0;
     }
 
-    if ((wk->spmv_ng_flag2 & 0x800000) && (chainex_check[wk->wu.id][wk->sa->nmsa_a_ix - 20])) {
+    if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && (chainex_check[wk->wu.id][wk->sa->nmsa_a_ix - 20])) {
         return 0;
     }
 
@@ -462,7 +462,7 @@ s32 execute_super_arts(PLW* wk) {
     }
 
     if (((Bonus_Game_Flag == 0x14) && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
-        if (wk->spmv_ng_flag & 0x40000000) {
+        if (wk->spmv_ng_flag & DIP_UNKNOWN_30) {
             return 0;
         }
 
@@ -485,7 +485,7 @@ s32 execute_super_arts(PLW* wk) {
         return 1;
     }
 
-    if (wk->spmv_ng_flag & 0x80000000) {
+    if (wk->spmv_ng_flag & DIP_UNKNOWN_31) {
         return 0;
     }
 
@@ -527,7 +527,7 @@ s32 check_special_attack(PLW* wk) {
         conpane = (u16*)wk->cp;
 
         for (i = 28; i < 38; i++) {
-            if ((wk->spmv_ng_flag2 & 0x400000) && chainex_check[wk->wu.id][i - 20]) {
+            if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_22) && chainex_check[wk->wu.id][i - 20]) {
                 continue;
             }
 
@@ -561,7 +561,7 @@ s32 check_special_attack(PLW* wk) {
                         continue;
                     }
 
-                    if ((wk->cp->btix[i] & 0x200) && (wk->spmv_ng_flag & 0x10000000)) {
+                    if ((wk->cp->btix[i] & 0x200) && (wk->spmv_ng_flag & DIP_UNKNOWN_28)) {
                         continue;
                     }
 
@@ -575,14 +575,14 @@ s32 check_special_attack(PLW* wk) {
                         }
 
                         if (wk->cp->btix[i] & 0x400) {
-                            if ((wk->spmv_ng_flag2 & 0x1000) || (wk->sa->ex != 1)) {
+                            if ((wk->spmv_ng_flag2 & DIP2_EX_MOVE_DISABLED) || (wk->sa->ex != 1)) {
                                 continue;
                             }
 
                             wk->sa->ex = -1;
                         }
                     }
-                } else if (wk->spmv_ng_flag & 0x10000000) {
+                } else if (wk->spmv_ng_flag & DIP_UNKNOWN_28) {
                     continue;
                 }
 
@@ -601,14 +601,15 @@ s32 check_special_attack(PLW* wk) {
         return 0;
     }
 
-    if ((wk->spmv_ng_flag2 & 2) && (wk->wu.mvxy.a[1].sp > 0) && (wk->wu.xyz[1].disp.pos < 32)) {
+    if ((wk->spmv_ng_flag2 & DIP2_SPECIAL_TO_SPECIAL_CANCEL_DISABLED) && (wk->wu.mvxy.a[1].sp > 0) &&
+        (wk->wu.xyz[1].disp.pos < 32)) {
         return 0;
     }
 
     conpane = (u16*)wk->cp;
 
     for (i = 46; i < 56; i++) {
-        if ((wk->spmv_ng_flag2 & 0x400000) && chainex_check[wk->wu.id][i - 20]) {
+        if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_22) && chainex_check[wk->wu.id][i - 20]) {
             continue;
         }
 
@@ -643,7 +644,7 @@ s32 check_special_attack(PLW* wk) {
                         continue;
                     }
 
-                    if ((wk->cp->btix[i] & 0x200) && (wk->spmv_ng_flag & 0x20000000)) {
+                    if ((wk->cp->btix[i] & 0x200) && (wk->spmv_ng_flag & DIP_UNKNOWN_29)) {
                         continue;
                     }
 
@@ -657,14 +658,14 @@ s32 check_special_attack(PLW* wk) {
                         }
 
                         if (wk->cp->btix[i] & 0x400) {
-                            if ((wk->spmv_ng_flag2 & 0x1000) || (wk->sa->ex != 1)) {
+                            if ((wk->spmv_ng_flag2 & DIP2_EX_MOVE_DISABLED) || (wk->sa->ex != 1)) {
                                 continue;
                             }
 
                             wk->sa->ex = -1;
                         }
                     }
-                } else if (wk->spmv_ng_flag & 0x20000000) {
+                } else if (wk->spmv_ng_flag & DIP_UNKNOWN_29) {
                     continue;
                 }
 
@@ -711,7 +712,7 @@ void chainex_spat_cancel_kidou(WORK* wk) {
 }
 
 s32 check_leap_attack(PLW* wk) {
-    if (wk->spmv_ng_flag2 & 0x10) {
+    if (wk->spmv_ng_flag2 & DIP2_UNIVERSAL_OVERHEAD_DISABLED) {
         return 0;
     }
 
@@ -721,7 +722,7 @@ s32 check_leap_attack(PLW* wk) {
 
     wk->permited_koa |= 0x200;
 
-    if (wk->spmv_ng_flag2 & 0x20) {
+    if (wk->spmv_ng_flag2 & DIP2_UNIVERSAL_OVERHEAD_DEFAULT_INPUT_ENABLED) {
         if (wk->cp->ca25 == 0) {
             return 0;
         }
@@ -879,11 +880,11 @@ s16 hikusugi_check(WORK* wk) {
 }
 
 s32 check_chouhatsu(PLW* wk) {
-    if (wk->spmv_ng_flag & 1) {
+    if (wk->spmv_ng_flag & DIP_TAUNT_DISABLED) {
         return 0;
     }
 
-    if ((wk->spmv_ng_flag & 2) && gs.pcon_dp_flag) {
+    if ((wk->spmv_ng_flag & DIP_TAUNT_AFTER_KO_DISABLED) && gs.pcon_dp_flag) {
         return 0;
     }
 
@@ -916,7 +917,7 @@ s32 check_chouhatsu(PLW* wk) {
 }
 
 s32 check_nagenuke_cmd(PLW* wk) {
-    if (wk->spmv_ng_flag2 & 0x400) {
+    if (wk->spmv_ng_flag2 & DIP2_THROW_BREAK_DISABLED) {
         return 0;
     }
 
@@ -924,7 +925,7 @@ s32 check_nagenuke_cmd(PLW* wk) {
         return 1;
     }
 
-    if ((wk->spmv_ng_flag2 & 0x800) && (wk->cp->sw_lvbt & 3)) {
+    if ((wk->spmv_ng_flag2 & DIP2_THROW_BREAK_LOCKOUT_ENABLED) && (wk->cp->sw_lvbt & 3)) {
         return 0;
     }
 
@@ -949,7 +950,7 @@ s32 check_catch_attack(PLW* wk) {
         return 0;
     }
 
-    if (wk->spmv_ng_flag2 & 0x100) {
+    if (wk->spmv_ng_flag2 & DIP2_THROW_DISABLED) {
         return 0;
     }
 

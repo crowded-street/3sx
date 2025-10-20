@@ -1109,7 +1109,7 @@ s32 check_sa_resurrection(PLW* wk) {
 }
 
 s32 check_sa_type_rebirth(PLW* wk) {
-    if ((wk->spmv_ng_flag & 0x40000000) || (wk->spmv_ng_flag & 0x80000000)) {
+    if ((wk->spmv_ng_flag & DIP_UNKNOWN_30) || (wk->spmv_ng_flag & DIP_UNKNOWN_31)) {
         return 0;
     }
 

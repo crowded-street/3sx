@@ -207,7 +207,7 @@ s8 saishin_bs2_on_car(PLW* wk) {
 }
 
 s32 check_air_jump(PLW* wk) {
-    if (wk->spmv_ng_flag & 0x80000) {
+    if (wk->spmv_ng_flag & DIP_UNKNOWN_19) {
         return 0;
     }
 
@@ -239,7 +239,7 @@ s32 check_air_jump(PLW* wk) {
 }
 
 s32 check_sankaku_tobi(PLW* wk) {
-    if (wk->spmv_ng_flag & 0x40000) {
+    if (wk->spmv_ng_flag & DIP_UNKNOWN_18) {
         return 0;
     }
 
@@ -345,7 +345,7 @@ s16 check_F_R_dash(PLW* wk) {
     while (1) {
         switch (num) {
         case 1:
-            if (!(wk->spmv_ng_flag & 4)) {
+            if (!(wk->spmv_ng_flag & DIP_FORWARD_DASH_DISABLED)) {
                 wk->wu.routine_no[1] = 0;
                 wk->wu.routine_no[2] = 5;
                 wk->wu.routine_no[3] = 0;
@@ -391,11 +391,11 @@ s32 check_jump_ready(PLW* wk) {
         return 0;
     }
 
-    if (!(wk->spmv_ng_flag & 0x20000) && wk->cp->waza_flag[2] != 0) {
+    if (!(wk->spmv_ng_flag & DIP_HIGH_JUMP_DISABLED) && wk->cp->waza_flag[2] != 0) {
         wk->wu.routine_no[2] = 17;
         grade_add_command_waza(wk->wu.id);
     } else {
-        if (wk->spmv_ng_flag & 0x10000) {
+        if (wk->spmv_ng_flag & DIP_JUMP_DISABLED) {
             return 0;
         }
 
@@ -409,7 +409,7 @@ s32 check_jump_ready(PLW* wk) {
 }
 
 s32 check_hijump_only(PLW* wk) {
-    if (wk->spmv_ng_flag & 0x20000) {
+    if (wk->spmv_ng_flag & DIP_HIGH_JUMP_DISABLED) {
         return 0;
     }
 
@@ -555,7 +555,7 @@ s32 check_stand_up(PLW* wk) {
 }
 
 s32 check_defense_lever(PLW* wk) {
-    if (wk->spmv_ng_flag & 0x10) {
+    if (wk->spmv_ng_flag & DIP_GUARD_DISABLED) {
         return 0;
     }
 

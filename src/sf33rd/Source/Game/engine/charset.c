@@ -18,6 +18,7 @@
 #include "sf33rd/Source/Game/io/pulpul.h"
 #include "sf33rd/Source/Game/sound/se_data.h"
 #include "sf33rd/Source/Game/stage/bg.h"
+#include "sf33rd/Source/Game/system/sysdir.h"
 
 #define LO_2_BYTES(_val) (((s16*)&_val)[0])
 #define HI_2_BYTES(_val) (((s16*)&_val)[1])
@@ -917,8 +918,8 @@ s32 comm_if_s(WORK* wk, UNK11* ctc) {
 
     shdat = get_comm_if_shot(wk);
 
-    if (wk->work_id == 1 && ((PLW*)wk)->player_number == 16 && ((PLW*)wk)->spmv_ng_flag & 2 && my_shdat == 0x440 &&
-        gs.pcon_dp_flag) {
+    if (wk->work_id == 1 && ((PLW*)wk)->player_number == 16 && ((PLW*)wk)->spmv_ng_flag & DIP_TAUNT_AFTER_KO_DISABLED &&
+        my_shdat == 0x440 && gs.pcon_dp_flag) {
         shdat = 0;
     }
 
@@ -2359,7 +2360,7 @@ void check_cgd_patdat(WORK* wk) {
     }
 
     if (wk->work_id == 1) {
-        if ((WK_AS_PLW->spmv_ng_flag2 & 1) && (wk->cg_cancel & 8) && !(wk->kow & 0xF8)) {
+        if ((WK_AS_PLW->spmv_ng_flag2 & DIP2_TARGET_COMBO_DISABLED) && (wk->cg_cancel & 8) && !(wk->kow & 0xF8)) {
             if (wk->kow & 6) {
                 wk->cg_cancel &= 0xF7;
                 wk->cg_meoshi = 0;
@@ -2371,7 +2372,7 @@ void check_cgd_patdat(WORK* wk) {
             }
         }
 
-        if (WK_AS_PLW->spmv_ng_flag2 & 8) {
+        if (WK_AS_PLW->spmv_ng_flag2 & DIP2_SA_TO_SA_CANCEL_DISABLED) {
             if (wk->kow & 0x60) {
                 wk->cg_cancel &= 0xBF;
             }
@@ -2379,7 +2380,8 @@ void check_cgd_patdat(WORK* wk) {
             wk->meoshi_hit_flag = 1;
         }
 
-        if (!(WK_AS_PLW->spmv_ng_flag2 & 2) && !(wk->kow & 0x60) && (wk->kow & 0xF8) && (wk->cg_cancel & 0x40)) {
+        if (!(WK_AS_PLW->spmv_ng_flag2 & DIP2_SPECIAL_TO_SPECIAL_CANCEL_DISABLED) && !(wk->kow & 0x60) &&
+            (wk->kow & 0xF8) && (wk->cg_cancel & 0x40)) {
             wk->cg_cancel |= 0x60;
         }
 
@@ -2393,15 +2395,15 @@ void check_cgd_patdat(WORK* wk) {
                 /* fallthrough */
 
             case 1:
-                if (!(WK_AS_PLW->spmv_ng_flag2 & 0x01000000)) {
+                if (!(WK_AS_PLW->spmv_ng_flag2 & DIP2_ALL_MOVES_CANCELLABLE_BY_HIGH_JUMP_DISABLED)) {
                     wk->cg_cancel |= 1;
                 }
 
-                if (!(WK_AS_PLW->spmv_ng_flag2 & 0x02000000)) {
+                if (!(WK_AS_PLW->spmv_ng_flag2 & DIP2_ALL_MOVES_CANCELLABLE_BY_DASH_DISABLED)) {
                     wk->cg_cancel |= 2;
                 }
 
-                if (!(WK_AS_PLW->spmv_ng_flag2 & 0x100000)) {
+                if (!(WK_AS_PLW->spmv_ng_flag2 & DIP2_GROUND_CHAIN_COMBO_DISABLED)) {
                     if (WK_AS_PLW->player_number == 4) {
                         wk->cg_meoshi = chain_hidou_nm_ground_table[wk->kow & 7];
                         wk->cg_cancel |= 8;
@@ -2416,7 +2418,7 @@ void check_cgd_patdat(WORK* wk) {
                 break;
 
             case 2:
-                if (!(WK_AS_PLW->spmv_ng_flag2 & 0x200000) && !hikusugi_check(wk)) {
+                if (!(WK_AS_PLW->spmv_ng_flag2 & DIP2_AIR_CHAIN_COMBO_DISABLED) && !hikusugi_check(wk)) {
                     if (WK_AS_PLW->player_number == 7) {
                         wk->cg_meoshi = chain_hidou_nm_air_table[wk->kow & 7];
                         wk->cg_cancel |= 8;
@@ -2570,7 +2572,7 @@ void set_new_attnum(WORK* wk) {
         add_sp_arts_gauge_init((PLW*)wk);
     }
 
-    if ((wk->work_id == 1) && !(WK_AS_PLW->spmv_ng_flag & 0x4000)) {
+    if ((wk->work_id == 1) && !(WK_AS_PLW->spmv_ng_flag & DIP_EXTREME_CHIP_DAMAGE_DISABLED)) {
         setup_metamor_kezuri(wk);
     }
 }

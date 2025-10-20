@@ -846,11 +846,11 @@ void add_sp_arts_gauge_init(PLW* wk) {
     if (wk->wu.work_id != 1) {
         mwk = (PLW*)wk->cp;
 
-        if ((mwk->wu.work_id == 1) && !(mwk->spmv_ng_flag2 & 0x20000000)) {
+        if ((mwk->wu.work_id == 1) && !(mwk->spmv_ng_flag2 & DIP2_WHIFFED_NORMALS_BUILD_SA_GAUGE_DISABLED)) {
             asag = _add_arts_gauge[mwk->player_number][wk->wu.add_arts_point][0];
             add_super_arts_gauge(mwk->sa, mwk->wu.id, asag, mwk->metamorphose);
         }
-    } else if (!(wk->spmv_ng_flag2 & 0x20000000)) {
+    } else if (!(wk->spmv_ng_flag2 & DIP2_WHIFFED_NORMALS_BUILD_SA_GAUGE_DISABLED)) {
         asag = _add_arts_gauge[wk->player_number][wk->wu.add_arts_point][0];
         add_super_arts_gauge(wk->sa, wk->wu.id, asag, wk->metamorphose);
     }
@@ -1129,7 +1129,7 @@ void setup_saishin_lvdir(PLW* ds, s8 gddir) {
         ds->saishin_lvdir = convert_saishin_lvdir[0][ds->cp->sw_lvbt & 0xC];
     }
 
-    if (!(ds->spmv_ng_flag & 0x2000) && (ds->guard_chuu != 0) && ((ds->guard_chuu) < 5)) {
+    if (!(ds->spmv_ng_flag & DIP_ABSOLUTE_GUARD_DISABLED) && (ds->guard_chuu != 0) && ((ds->guard_chuu) < 5)) {
         ds->saishin_lvdir = gddir;
     }
 }
