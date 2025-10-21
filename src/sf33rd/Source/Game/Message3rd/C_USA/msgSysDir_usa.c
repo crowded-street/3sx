@@ -10,17 +10,17 @@
  * Spaces after the last non-space character seem to be ignored
  */
 
-static s8* msgSYSDIR_000[1] = { "GROUND PARRYING................" };
+static s8* msgSYSDIR_000[1] = { "GROUND PARRY..................." };
 static s8* msgSYSDIR_001[2] = { "Enable/Disable the ability to perform", "a parry on the ground." };
-static s8* msgSYSDIR_002[1] = { "ANTI-AIR PARRYING.............." };
+static s8* msgSYSDIR_002[1] = { "ANTI-AIR PARRY................." };
 static s8* msgSYSDIR_003[2] = { "Enable/Disable the ability to perform", "an anti-air parry." };
-static s8* msgSYSDIR_004[1] = { "AIR PARRYING..................." };
+static s8* msgSYSDIR_004[1] = { "AIR PARRY......................" };
 static s8* msgSYSDIR_005[2] = { "Enable/Disable the ability to perform", "a parry in the air." };
-static s8* msgSYSDIR_006[1] = { "PARRYING COMMAND INPUT TIME...." };
+static s8* msgSYSDIR_006[1] = { "PARRY COMMAND INPUT TIME......." };
 static s8* msgSYSDIR_007[2] = { "Adjust the parry window timing.", "" };
-static s8* msgSYSDIR_008[1] = { "RED PARRYING................." };
+static s8* msgSYSDIR_008[1] = { "RED PARRY...................." };
 static s8* msgSYSDIR_009[2] = { "Enable/Disable the ability to perform", "a Red Parry." };
-static s8* msgSYSDIR_010[1] = { "GUARD PARRYING C. INPUT TIME..." };
+static s8* msgSYSDIR_010[1] = { "RED PARRY C. INPUT TIME........" };
 static s8* msgSYSDIR_011[2] = { "Adjust the Red Parry window timing.", "" };
 static s8* msgSYSDIR_012[1] = { "GUARD.........................." };
 static s8* msgSYSDIR_013[1] = { "Enable/Disable the ability to Guard." };
@@ -74,10 +74,10 @@ static s8* msgSYSDIR_045[1] = { "" };
 static s8* msgSYSDIR_046[1] = { "" };
 static s8* msgSYSDIR_047[1] = { "" };
 static s8* msgSYSDIR_048[1] = { "UNIVERSAL OVERHEAD............." };
-static s8* msgSYSDIR_049[2] = { "Enable/Disable the ability to perform a", "Unversal Overhead attack." };
+static s8* msgSYSDIR_049[2] = { "Enable/Disable the ability to perform a", "Universal Overhead attack." };
 static s8* msgSYSDIR_050[1] = { "UNIVERSAL OVERHEAD CONTROLS...." };
 static s8* msgSYSDIR_051[2] = {
-    "Change the command of the Unversal Overhead to",
+    "Change the command of the Universal Overhead to",
     "\"^D^D+button\" which was used in \"2nd Impact.\"",
 };
 static s8* msgSYSDIR_052[1] = { "TAUNT.........................." };
@@ -92,11 +92,11 @@ static s8* msgSYSDIR_057[1] = { "" };
 static s8* msgSYSDIR_058[1] = { "" };
 static s8* msgSYSDIR_059[1] = { "" };
 static s8* msgSYSDIR_060[1] = { "SUPER ART......................" };
-static s8* msgSYSDIR_061[2] = { "Enable/Disable the ability to perform a", "Super Art." };
+static s8* msgSYSDIR_061[2] = { "Enable/Disable the ability to perform", "Super Arts." };
 static s8* msgSYSDIR_062[1] = { "SPECIAL MOVE..................." };
-static s8* msgSYSDIR_063[2] = { "Enable/Disable the ability to perform a", "Special Move." };
+static s8* msgSYSDIR_063[2] = { "Enable/Disable the ability to perform", "Special Moves." };
 static s8* msgSYSDIR_064[1] = { "EX MOVE........................" };
-static s8* msgSYSDIR_065[2] = { "Enable/Disable the ability to perform an", "EX Move." };
+static s8* msgSYSDIR_065[2] = { "Enable/Disable the ability to perform", "EX Moves." };
 static s8* msgSYSDIR_066[1] = { "EX MOVE ENERGY REQUIREMENT....." };
 static s8* msgSYSDIR_067[2] = { "Adjust the amount of S.A. gauge", "required to perform an EX Move." };
 static s8* msgSYSDIR_068[1] = { "" };
@@ -146,9 +146,9 @@ static s8* msgSYSDIR_095[2] = {
     "reset at the beginning of each round.",
 };
 static s8* msgSYSDIR_096[1] = { "GROUND CHAIN COMBO............." };
-static s8* msgSYSDIR_097[2] = { "Enable/Disable the ability to perform Chain", "Combos on the ground. (GG Style)" }; //Meaning: chain normals into others of higher strength
+static s8* msgSYSDIR_097[2] = { "Enable/Disable the ability to perform Chain", "Combos on the ground." }; //Meaning: chain normals into others of higher strength
 static s8* msgSYSDIR_098[1] = { "AIR CHAIN COMBO................" };
-static s8* msgSYSDIR_099[2] = { "Enable/Disable to perform Chain Combos in", "the air. (GG Style)" };
+static s8* msgSYSDIR_099[2] = { "Enable/Disable to perform Chain Combos in", "the air." };
 static s8* msgSYSDIR_100[1] = { "CANCEL NORMAL MOVES............" };
 static s8* msgSYSDIR_101[2] = { "All of your normal moves will be able", "to be canceled into Special Moves!" };
 static s8* msgSYSDIR_102[1] = { "HIGH JUMP FROM ALL MOVES......." };
