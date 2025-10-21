@@ -15,3 +15,7 @@ Find instructions on [how to build](docs/building.md) the project and other usef
 Join `Crowded Street` server on Discord to discuss the project, report bugs or share your ideas!
 
 [![Join the Discord](https://dcbadge.limes.pink/api/server/https://discord.gg/wqs6BqYr8C)](https://discord.gg/wqs6BqYr8C)
+
+## Licenses
+
+Uses [GekkoNet](https://github.com/HeatXD/GekkoNet) for P2P rollback netcode.

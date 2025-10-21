@@ -1,0 +1,22 @@
+name: Main Build & Release
+
+on:
+  push:
+    branches:
+      - main
+      
+permissions:
+  contents: write
+  pages: write
+  id-token: write  
+  
+jobs:
+  unix:
+    uses: ./.github/workflows/unix.yml
+
+  windows:
+    uses: ./.github/workflows/windows.yml
+
+  release:
+    needs: [unix, windows]
+    uses: ./.github/workflows/release.yml

@@ -1,0 +1,11 @@
+<Project>
+   <PropertyGroup>
+      <VcpkgRoot>D:\DEV\VCPKG\vcpkg</VcpkgRoot>
+      <VcpkgML>$(VcpkgRoot)\installed\x64-windows\lib\manual-link</VcpkgML>
+   </PropertyGroup>
+
+	<Target Name="ShowProperties" BeforeTargets="Build">
+		<Message Importance="high" Text="VcpkgRoot: $(VcpkgRoot)" />
+		<Message Importance="high" Text="VcpkgML: $(VcpkgML)" />
+	</Target>
+</Project>

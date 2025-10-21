@@ -1,12 +1,17 @@
 cmake_minimum_required(VERSION 3.24)
 project(3sx LANGUAGES C)
 
+# So that GekkoNet builds as a static lib
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+
 # ======================================
 # Options and platform setup
 # ======================================
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
+
+add_subdirectory(GekkoNet)
 
 # ======================================
 # Include directories
@@ -17,6 +22,7 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/include/sdk
     ${PROJECT_SOURCE_DIR}/zlib
+    ${PROJECT_SOURCE_DIR}/GekkoNet/GekkoLib/include
 )
 
 # ======================================
@@ -86,6 +92,7 @@ target_compile_options(3sx PRIVATE
 
 target_link_libraries(3sx PRIVATE
     m
+    GekkoNet
 )
 
 set_target_properties(3sx PROPERTIES

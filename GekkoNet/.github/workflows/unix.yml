@@ -1,0 +1,45 @@
+name: Unix Build
+
+on:
+  workflow_call:
+
+permissions:
+  contents: write
+
+jobs:
+  build-unix:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        build_type: [static, shared]
+        asio: [with_asio, no_asio]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: |
+          cmake -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_SHARED_LIBS=${{ matrix.build_type == 'shared' && 'ON' || 'OFF' }} \
+            -DNO_ASIO_BUILD=${{ matrix.asio == 'no_asio' && 'ON' || 'OFF' }}
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Package
+        run: |
+          pkg_dir="package/${{ matrix.os }}"
+          mkdir -p "$pkg_dir"/{lib,include}
+          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+            find build -type f \( -name "*.a" -o -name "*.so" \) -exec cp {} "$pkg_dir/lib/" \;
+          else
+            find build -type f \( -name "*.a" -o -name "*.dylib" \) -exec cp {} "$pkg_dir/lib/" \;
+          fi
+          cp GekkoLib/include/gekkonet.h "$pkg_dir/include/" || true
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.asio }}
+          path: package/
