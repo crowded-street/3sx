@@ -5,7 +5,7 @@
  * Notes:
  * Each string is a different line
  * most lines are about 40 characters
- * If replacing an entry that initially had 2 lines, it has to have a second line, even if it isn't used.
+ * If replacing an entry that initially had 2 lines, find the number at the same index in msgSysDirCtr and change it from 2 to 1.
  * In-game the text is centered in the box where it's rendered, so shorter strings won't line up properly.
  * Spaces after the last non-space character seem to be ignored
  */
@@ -17,11 +17,11 @@ static s8* msgSYSDIR_003[2] = { "Enable/Disable the ability to perform", "an ant
 static s8* msgSYSDIR_004[1] = { "AIR PARRY......................" };
 static s8* msgSYSDIR_005[2] = { "Enable/Disable the ability to perform", "a parry in the air." };
 static s8* msgSYSDIR_006[1] = { "PARRY COMMAND INPUT TIME......." };
-static s8* msgSYSDIR_007[2] = { "Adjust the parry window timing.", "" };
+static s8* msgSYSDIR_007[2] = { "Adjust the parry window timing." };
 static s8* msgSYSDIR_008[1] = { "RED PARRY...................." };
 static s8* msgSYSDIR_009[2] = { "Enable/Disable the ability to perform", "a Red Parry." };
 static s8* msgSYSDIR_010[1] = { "RED PARRY C. INPUT TIME........" };
-static s8* msgSYSDIR_011[2] = { "Adjust the Red Parry window timing.", "" };
+static s8* msgSYSDIR_011[2] = { "Adjust the Red Parry window timing."};
 static s8* msgSYSDIR_012[1] = { "GUARD.........................." };
 static s8* msgSYSDIR_013[1] = { "Enable/Disable the ability to Guard." };
 static s8* msgSYSDIR_014[1] = { "ABSOLUTE GUARD................." };
@@ -30,7 +30,7 @@ static s8* msgSYSDIR_015[2] = {
     "attacks after you start guarding.",
 };
 static s8* msgSYSDIR_016[1] = { "GUARD DISTANCE................." };
-static s8* msgSYSDIR_017[2] = { "Adjust the proximity guard distance.", "" };
+static s8* msgSYSDIR_017[1] = { "Adjust the proximity guard distance." };
 static s8* msgSYSDIR_018[1] = { "GUARD DAMAGE..................." };
 static s8* msgSYSDIR_019[2] = {
     "Choose \"ON\" to enable chip damage",
@@ -61,7 +61,7 @@ static s8* msgSYSDIR_035[1] = { "" };
 static s8* msgSYSDIR_036[1] = { "THROW.........................." };
 static s8* msgSYSDIR_037[1] = { "Enable/Disable the ability to throw." };
 static s8* msgSYSDIR_038[1] = { "THROW TECH....................." };
-static s8* msgSYSDIR_039[2] = { "Enable/Disable the ability to tech throws.", "" };
+static s8* msgSYSDIR_039[1] = { "Enable/Disable the ability to tech throws." };
 static s8* msgSYSDIR_040[1] = { "THROW TECH CONTROLS............" };
 static s8* msgSYSDIR_041[2] = {
     "Enable/Disable the ability to tech throws",
@@ -81,7 +81,7 @@ static s8* msgSYSDIR_051[2] = {
     "\"^D^D+button\" which was used in \"2nd Impact.\"",
 };
 static s8* msgSYSDIR_052[1] = { "TAUNT.........................." };
-static s8* msgSYSDIR_053[2] = { "Enable/Disable the ability to perform a Taunt.", "" };
+static s8* msgSYSDIR_053[1] = { "Enable/Disable the ability to perform a Taunt." };
 static s8* msgSYSDIR_054[1] = { "TAUNT AFTER KO................." };
 static s8* msgSYSDIR_055[2] = {
     "Enable/Disable the ability to perform a",
@@ -157,7 +157,7 @@ static s8* msgSYSDIR_103[2] = {
     "any move.",
 };
 static s8* msgSYSDIR_104[1] = { "DASH FROM ALL MOVES............" };
-static s8* msgSYSDIR_105[2] = { "Enable the ability to dash-cancel any move.", "" };
+static s8* msgSYSDIR_105[1] = { "Enable the ability to dash-cancel any move." };
 static s8* msgSYSDIR_106[1] = { "SPECIAL TO SPECIAL CANCEL......" };
 static s8* msgSYSDIR_107[2] = {
     "Choose \"ON\" to be able to cancel Specials",
@@ -201,10 +201,10 @@ static s8** msgSysDirAdr[119] = {
     msgSYSDIR_112, msgSYSDIR_113, msgSYSDIR_114, msgSYSDIR_115, msgSYSDIR_200, msgSYSDIR_201, msgSYSDIR_202
 };
 
-static s8 msgSysDirCtr[119] = { 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 1, 1, 2, 1, 2, 1, 2, 1, 2, 1, 1,
-                                1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1,
-                                1, 2, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 1, 2, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1,
+static s8 msgSysDirCtr[119] = { 1, 2, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 1,
+                                1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1,
+                                1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1,
                                 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 1, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2,
-                                1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1 };
+                                1, 2, 1, 2, 1, 2, 1, 2, 1, 1, 1, 2, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1 };
 
 MessageTable msgSysDirTbl_usa = { msgSysDirAdr, msgSysDirCtr };
