@@ -1255,7 +1255,7 @@ void Replay(s16 PL_id) {
         Replay_Status[0] = 2;
         Replay_Status[1] = 2;
 
-        if (Mode_Type == 5) {
+        if (Mode_Type == MODE_REPLAY) {
             cpExitTask(TASK_PAUSE);
             cpReadyTask(TASK_MENU, Menu_Task);
             task[TASK_MENU].r_no[0] = 13;

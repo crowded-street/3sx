@@ -395,7 +395,7 @@ void Mode_Select(struct _TASK* task_ptr) {
 
             case 1:
                 Setup_VS_Mode(task_ptr);
-                G_No[1] = 0xC;
+                G_No[1] = 12;
                 G_No[2] = 1;
                 Mode_Type = MODE_VERSUS;
                 cpExitTask(TASK_MENU);
@@ -5441,7 +5441,7 @@ void Back_to_Mode_Select(struct _TASK* task_ptr) {
 
     FadeOut(1, 0xFF, 8);
     G_No[0] = 2;
-    G_No[1] = 0xC;
+    G_No[1] = 12;
     G_No[2] = 0;
     G_No[3] = 0;
     E_No[0] = 1;

@@ -238,7 +238,7 @@ void Check_Back_Demo() {
         return;
     }
 
-    TexRelease(0x259);
+    TexRelease(601);
     title_tex_flag = 0;
     Next_Demo_Loop();
     effect_work_init();
@@ -1547,7 +1547,7 @@ void Loop_Demo(struct _TASK* /* unused */) {
         D_No[1] = 0;
         D_No[2] = 0;
         D_No[3] = 0;
-        E_No[1] = 0x63;
+        E_No[1] = 99;
         Demo_PL_Index = 0;
         Demo_Stage_Index = 0;
         Select_Demo_Index = 0;
@@ -1633,7 +1633,7 @@ void Loop_Demo(struct _TASK* /* unused */) {
             Purge_mmtm_area(6);
             Game_pause = 0;
             G_No[1] = 1;
-            E_No[1] = 0x63;
+            E_No[1] = 99;
             return;
         }
 
@@ -1659,7 +1659,7 @@ void Next_Demo_Loop() {
     D_No[2] = 0;
     D_No[3] = 0;
     E_No[0] = 0;
-    E_No[1] = 0x63;
+    E_No[1] = 99;
     E_No[2] = 0;
     E_No[3] = 0;
     Demo_PL_Index = 0;
@@ -1691,7 +1691,7 @@ void Loop_Demo_Sub() {
 void Next_Title_Sub() {
     s16 ix;
 
-    if (G_No[1] != 0x63) {
+    if (G_No[1] != 99) {
         SsAllNoteOff();
     }
 
@@ -1699,7 +1699,7 @@ void Next_Title_Sub() {
         SsRequest(106);
     }
 
-    TexRelease(0x258);
+    TexRelease(600);
     TexRelease_OP();
     System_all_clear_Level_B();
     Purge_mmtm_area(6);

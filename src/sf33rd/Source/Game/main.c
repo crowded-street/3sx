@@ -17,6 +17,7 @@
 #include "sf33rd/Source/Game/init3rd.h"
 #include "sf33rd/Source/Game/io/gd3rd.h"
 #include "sf33rd/Source/Game/io/ioconv.h"
+#include "sf33rd/Source/Game/menu/menu.h"
 #include "sf33rd/Source/Game/rendering/color3rd.h"
 #include "sf33rd/Source/Game/rendering/dc_ghost.h"
 #include "sf33rd/Source/Game/rendering/mtrans.h"
@@ -68,6 +69,7 @@ void distributeScratchPadAddress();
 void appCopyKeyData();
 u8* mppMalloc(u32 size);
 void njUserInit();
+void njUserMain();
 void njUserMain();
 void cpLoopTask();
 void cpInitTask();
