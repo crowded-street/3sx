@@ -21,7 +21,11 @@ const s8* Menu_Letter_Data[66] = { "ARCADE",
                                    "VERSUS",
                                    "TRAINING",
                                    "SYSTEM DIRECTION",
+#if defined(NETPLAY_ENABLED)
+                                   "NETWORK",
+#else
                                    "REPLAY",
+#endif
                                    "OPTION",
                                    "EXIT GAME",
                                    "GAME OPTION",

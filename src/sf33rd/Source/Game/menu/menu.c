@@ -230,12 +230,20 @@ void Setup_Pad_or_Stick() {
     plsw_01[1] = PLsw[1][1];
 }
 
+static void Network_Select(struct _TASK* task_ptr) {
+    // TODO: implement
+}
+
 void After_Title(struct _TASK* task_ptr) {
     void (*AT_Jmp_Tbl[21])() = { Menu_Init,        Mode_Select,   Option_Select, Option_Select,  Training_Mode,
                                  System_Direction, Load_Replay,   Option_Select, toSelectGame,   Game_Option,
                                  Button_Config,    Screen_Adjust, Sound_Test,    Memory_Card,    Extra_Option,
                                  Option_Select,    VS_Result,     Save_Replay,   Direction_Menu, Save_Direction,
                                  Load_Direction };
+
+#if defined(NETPLAY_ENABLED)
+    AT_Jmp_Tbl[6] = Network_Select;
+#endif
 
     AT_Jmp_Tbl[task_ptr->r_no[1]](task_ptr);
 }
@@ -401,9 +409,15 @@ void Mode_Select(struct _TASK* task_ptr) {
                 cpExitTask(TASK_MENU);
                 break;
 
+            case 4:
+#if defined(NETPLAY_ENABLED)
+                break;
+#else
+                /* fallthrough */
+#endif
+
             case 2:
             case 3:
-            case 4:
             case 5:
             case 6:
                 task_ptr->r_no[2] += 1;
