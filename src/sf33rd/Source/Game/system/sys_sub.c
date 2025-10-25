@@ -1008,10 +1008,10 @@ void Soft_Reset_Sub() {
     cpExitTask(TASK_SAVER);
     cpExitTask(TASK_PAUSE);
     Reset_Sub0();
-    task->r_no[0] = 1;
-    task->r_no[1] = 0;
-    task->r_no[2] = 0;
-    task->r_no[3] = 0;
+    task[TASK_INIT].r_no[0] = 1;
+    task[TASK_INIT].r_no[1] = 0;
+    task[TASK_INIT].r_no[2] = 0;
+    task[TASK_INIT].r_no[3] = 0;
     vm_w.Request = 0;
     vm_w.Access = 0;
 }

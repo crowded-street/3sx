@@ -45,6 +45,7 @@
 #include "sf33rd/Source/Game/main.h"
 #include "sf33rd/Source/Game/menu/dir_data.h"
 #include "sf33rd/Source/Game/menu/ex_data.h"
+#include "sf33rd/Source/Game/netplay.h"
 #include "sf33rd/Source/Game/rendering/color3rd.h"
 #include "sf33rd/Source/Game/rendering/mmtmcnt.h"
 #include "sf33rd/Source/Game/rendering/texgroup.h"
@@ -230,20 +231,12 @@ void Setup_Pad_or_Stick() {
     plsw_01[1] = PLsw[1][1];
 }
 
-static void Network_Select(struct _TASK* task_ptr) {
-    // TODO: implement
-}
-
 void After_Title(struct _TASK* task_ptr) {
     void (*AT_Jmp_Tbl[21])() = { Menu_Init,        Mode_Select,   Option_Select, Option_Select,  Training_Mode,
                                  System_Direction, Load_Replay,   Option_Select, toSelectGame,   Game_Option,
                                  Button_Config,    Screen_Adjust, Sound_Test,    Memory_Card,    Extra_Option,
                                  Option_Select,    VS_Result,     Save_Replay,   Direction_Menu, Save_Direction,
                                  Load_Direction };
-
-#if defined(NETPLAY_ENABLED)
-    AT_Jmp_Tbl[6] = Network_Select;
-#endif
 
     AT_Jmp_Tbl[task_ptr->r_no[1]](task_ptr);
 }
@@ -411,6 +404,7 @@ void Mode_Select(struct _TASK* task_ptr) {
 
             case 4:
 #if defined(NETPLAY_ENABLED)
+                Netplay_Begin();
                 break;
 #else
                 /* fallthrough */
@@ -2989,7 +2983,9 @@ u16 Check_Menu_Lever(u8 PL_id, s16 type) {
     return 0;
 }
 
-void Suspend_Menu(struct _TASK* /* unused */) {}
+void Suspend_Menu(struct _TASK* /* unused */) {
+    // Do nothing
+}
 
 void In_Game(struct _TASK* task_ptr) {
     void (*In_Game_Jmp_Tbl[5])() = { Menu_Init, Menu_Select, Button_Config_in_Game, Character_Change, Pad_Come_Out };

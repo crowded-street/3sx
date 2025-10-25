@@ -244,6 +244,7 @@ void Check_Back_Demo() {
     effect_work_init();
 }
 
+/// Screen transition to character select
 void Game12() {
     void (*Game12_Jmp_Tbl[3])() = { Game12_0, Game12_1, Game12_2 };
 
@@ -270,17 +271,22 @@ void Game12_1() {
 }
 
 void Game12_2() {
-    if (Switch_Screen(1) != 0) {
-        G_No[1] = 1;
-        G_No[2] = 0;
-        G_No[3] = 0;
-        Control_Time = 481;
-        Cover_Timer = 23;
-        effect_work_init();
-        cpExitTask(TASK_MENU);
+    if (!Switch_Screen(1)) {
+        // Transition is still running, can't proceed
+        return;
     }
+
+    // Proceed to character select
+    G_No[1] = 1;
+    G_No[2] = 0;
+    G_No[3] = 0;
+    Control_Time = 481;
+    Cover_Timer = 23;
+    effect_work_init();
+    cpExitTask(TASK_MENU);
 }
 
+/// Character select
 void Game01() {
     BG_Draw_System();
     Basic_Sub();
@@ -1710,12 +1716,12 @@ void Next_Title_Sub() {
         G_No[ix] = 0;
         E_No[ix] = 0;
         D_No[ix] = 0;
-        task->r_no[ix] = 0;
+        task[TASK_INIT].r_no[ix] = 0;
     }
 
     G_No[0] = 2;
     E_No[0] = 1;
-    task->r_no[0] = 1;
+    task[TASK_INIT].r_no[0] = 1;
     Demo_Flag = 1;
     Game_pause = 0;
     judge_flag = 0;

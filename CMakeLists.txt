@@ -94,6 +94,7 @@ target_compile_options(3sx PRIVATE
 target_link_libraries(3sx PRIVATE
     m
     GekkoNet
+    stdc++
 )
 
 set_target_properties(3sx PROPERTIES

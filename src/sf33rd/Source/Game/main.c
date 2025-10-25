@@ -18,6 +18,7 @@
 #include "sf33rd/Source/Game/io/gd3rd.h"
 #include "sf33rd/Source/Game/io/ioconv.h"
 #include "sf33rd/Source/Game/menu/menu.h"
+#include "sf33rd/Source/Game/netplay.h"
 #include "sf33rd/Source/Game/rendering/color3rd.h"
 #include "sf33rd/Source/Game/rendering/dc_ghost.h"
 #include "sf33rd/Source/Game/rendering/mtrans.h"
@@ -132,11 +133,21 @@ static void step_1() {
     game_step_1();
 }
 
-int main() {
+int main(int argc, char* argv[]) {
     bool is_running = true;
 
     init_windows_console();
     SDLApp_Init();
+
+    int player = 0;
+
+    if (argc > 1) {
+        player = SDL_atoi(argv[1]);
+    } else {
+        player = 1;
+    }
+
+    Netplay_SetPlayer(player);
 
     while (is_running) {
         is_running = SDLApp_PollEvents();
@@ -266,6 +277,8 @@ static void game_step_0() {
     appCopyKeyData();
 
     mpp_w.inGame = false;
+
+    Netplay_Run();
 
     njUserMain();
     seqsBeforeProcess();
