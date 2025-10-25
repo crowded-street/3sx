@@ -992,7 +992,7 @@ void Soft_Reset_Sub() {
         cpReadyTask(TASK_GAME, Game_Task);
     }
 
-    if (Usage == 7 && task[TASK_DEBUG].condition == 0) {
+    if (task[TASK_DEBUG].condition == 0) {
         cpReadyTask(TASK_DEBUG, Debug_Task);
     }
 

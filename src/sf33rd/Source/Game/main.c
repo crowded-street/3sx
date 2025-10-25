@@ -192,7 +192,7 @@ static void game_step_0() {
     flPADGetALL();
     keyConvert();
 
-    if (((Usage == 7) || (Usage == 2)) && !test_flag) {
+    if (!test_flag) {
         if (mpp_w.sysStop) {
             sysSLOW = 1;
 

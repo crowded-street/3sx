@@ -61,7 +61,7 @@ s32 Warning() {
         break;
 
     case 6:
-        if ((Usage == 7) && (((p1sw_0 & 0x4FF0) | (p2sw_0 & 0x4FF0)) != 0)) {
+        if (((p1sw_0 & 0x4FF0) | (p2sw_0 & 0x4FF0)) != 0) {
             D_Timer = 2;
             D_No[1] = 7;
             FadeInit();

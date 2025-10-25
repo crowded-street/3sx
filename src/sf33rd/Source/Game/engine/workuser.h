@@ -159,7 +159,6 @@ extern s8 PP_Priority[2][3];
 extern s8 OK_Priority[2];
 extern u8 Stock_My_char[2];
 extern s8 Stock_Player_Color[2];
-extern u8 Usage;
 extern s8 Music_Fade;
 extern s8 Stop_SG;
 extern s8 Operator_Status[2];

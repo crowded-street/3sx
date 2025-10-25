@@ -100,7 +100,7 @@ void Entry_Task(struct _TASK* /* unused */) {
 
     ff = 1;
 
-    if ((Usage == 7) && !Turbo) {
+    if (!Turbo) {
         ff = sysFF;
     }
 

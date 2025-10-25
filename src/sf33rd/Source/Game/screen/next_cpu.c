@@ -1529,7 +1529,7 @@ s8 Check_Bonus_Stage() {
 }
 
 s8 Check_Bonus_Type() {
-    if (Usage == 7 && Debug_w[0x2E] != 0) {
+    if (Debug_w[0x2E] != 0) {
         if (Debug_w[0x2E] == 1) {
             Completion_Bonus[Player_id][0] = 0;
             return 20;

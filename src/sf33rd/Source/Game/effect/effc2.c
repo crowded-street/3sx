@@ -74,15 +74,12 @@ void setup_prio_ix(WORK_Other* c2wk);
 void setup_vital_bonus2(WORK* wk);
 void setup_parts_break(WORK* wk);
 void setup_parts_break2(WORK* wk);
-void bs2_status_disp(WORK_Other* /* unused */);
 void bs2_score_add_next(WORK* wk);
 void set_1st_Bonus_Game_result(WORK* wk);
 void set_bs2_floor(WORK_Other* wk);
 void send_to_shizumi_guai(WORK* wk);
 
 void effect_C2_move(WORK_Other* ewk) {
-    bs2_status_disp(ewk);
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0]++;
@@ -830,12 +827,6 @@ void setup_parts_break2(WORK* wk) {
     }
 
     wk->cmwk[0] = j;
-}
-
-void bs2_status_disp(WORK_Other* /* unused */) {
-    if (Usage == 7) {
-        return;
-    }
 }
 
 s32 check_parts_break_level(WORK* wk) {

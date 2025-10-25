@@ -110,7 +110,7 @@ void Game_Task(struct _TASK* task_ptr) {
     init_color_trans_req();
     ff = Process_Counter;
 
-    if ((Usage == 7) && !Turbo) {
+    if (!Turbo) {
         ff = sysFF;
     }
 

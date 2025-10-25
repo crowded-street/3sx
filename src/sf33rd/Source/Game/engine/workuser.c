@@ -128,7 +128,6 @@ s8 PP_Priority[2][3];
 s8 OK_Priority[2];
 u8 Stock_My_char[2];
 s8 Stock_Player_Color[2];
-u8 Usage;
 s8 Music_Fade;
 s8 Stop_SG;
 s8 Operator_Status[2];
