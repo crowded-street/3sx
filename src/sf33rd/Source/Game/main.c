@@ -351,7 +351,6 @@ void njUserInit() {
     Disp_Size_V = 100;
     Country = 4;
     Screen_PAL = 0;
-    Turbo = 0;
 
     if (Country == 0) {
         while (1) {}
@@ -439,13 +438,6 @@ void cpLoopTask() {
     }
 
     Process_Counter = 1;
-
-    if (Turbo && (Game_pause != 0x81)) {
-        if (--Turbo_Timer == 0) {
-            Turbo_Timer = Turbo;
-            Process_Counter = 2;
-        }
-    }
 
     for (current_task_num = 0; current_task_num < 11; current_task_num++) {
         switch (task_ptr->condition) {

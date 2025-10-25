@@ -108,20 +108,11 @@ void Game_Task(struct _TASK* task_ptr) {
     void (*Main_Jmp_Tbl[3])(struct _TASK*) = { Wait_Auto_Load, Loop_Demo, Game };
 
     init_color_trans_req();
-    ff = Process_Counter;
-
-    if (!Turbo) {
-        ff = sysFF;
-    }
+    ff = sysFF;
 
     for (ix = 0; ix < ff; ix++) {
         if (ix == ff - 1) {
             No_Trans = 0;
-
-            if (Turbo != 0 && (Process_Counter > 1) && (Turbo_Timer != 5)) {
-                Play_Game = 0;
-                break;
-            }
         } else {
             No_Trans = 1;
         }

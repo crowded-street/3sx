@@ -98,11 +98,7 @@ void Entry_Task(struct _TASK* /* unused */) {
         return;
     }
 
-    ff = 1;
-
-    if (!Turbo) {
-        ff = sysFF;
-    }
+    ff = sysFF;
 
     for (ix = 0; ix < ff; ix++) {
         if (ix == (ff - 1)) {
