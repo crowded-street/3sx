@@ -38,7 +38,6 @@ u16 p4sw_buff;
 u32 Interrupt_Timer;
 s8 Gill_Appear_Flag;
 u16 PLsw[2][2];
-u8 Screen_PAL;
 BG_POS bg_pos[8];
 FM_POS fm_pos[8];
 BackgroundParameters bg_prm[8];

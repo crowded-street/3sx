@@ -63,7 +63,6 @@ extern s8 Gill_Appear_Flag;
 /// `PLsw[i][0]` holds current inputs for controller `i`. `PLsw[i][1]` – previous button presses
 extern u16 PLsw[2][2];
 
-extern u8 Screen_PAL;
 extern BG_POS bg_pos[8];
 extern FM_POS fm_pos[8];
 extern BackgroundParameters bg_prm[8];

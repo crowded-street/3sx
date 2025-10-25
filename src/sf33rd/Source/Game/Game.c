@@ -705,11 +705,7 @@ void Game03() {
                 Switch_Screen_Init(0);
 
                 if (Country == 3) {
-                    if (Screen_PAL == 8) {
-                        Rep_Game_Infor[10].play_type = 3;
-                    } else {
-                        Rep_Game_Infor[10].play_type = 4;
-                    }
+                    Rep_Game_Infor[10].play_type = 4;
                 }
 
                 break;

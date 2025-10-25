@@ -348,7 +348,6 @@ void njUserInit() {
     Disp_Size_H = 100;
     Disp_Size_V = 100;
     Country = 4;
-    Screen_PAL = 0;
 
     if (Country == 0) {
         while (1) {}
