@@ -74,8 +74,6 @@ extern s32 sca_y;
 extern f32 scr_sc;
 extern f32 Screen_Zoom_X;
 extern f32 Screen_Zoom_Y;
-extern f32 SA_Zoom_X;
-extern f32 SA_Zoom_Y;
 extern f32 Frame_Zoom_X;
 extern f32 Frame_Zoom_Y;
 extern s32 Zoom_Base_Position_X;

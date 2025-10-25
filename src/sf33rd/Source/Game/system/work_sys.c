@@ -49,8 +49,6 @@ s32 sca_y;
 f32 scr_sc;
 f32 Screen_Zoom_X;
 f32 Screen_Zoom_Y;
-f32 SA_Zoom_X;
-f32 SA_Zoom_Y;
 f32 Frame_Zoom_X;
 f32 Frame_Zoom_Y;
 s32 Zoom_Base_Position_X;

@@ -345,8 +345,6 @@ void njUserInit() {
     }
 
     Interrupt_Timer = 0;
-    SA_Zoom_X = 0.0f;
-    SA_Zoom_Y = 0.0f;
     Disp_Size_H = 100;
     Disp_Size_V = 100;
     Country = 4;
@@ -361,8 +359,8 @@ void njUserInit() {
     Setup_Disp_Size(0);
     Correct_X[0] = 0;
     Correct_Y[0] = 0;
-    Frame_Zoom_X = Screen_Zoom_X + SA_Zoom_X;
-    Frame_Zoom_Y = Screen_Zoom_Y + SA_Zoom_Y;
+    Frame_Zoom_X = Screen_Zoom_X;
+    Frame_Zoom_Y = Screen_Zoom_Y;
     Zoom_Base_Position_X = 0;
     Zoom_Base_Position_Y = 0;
     Zoom_Base_Position_Z = 0;
@@ -386,8 +384,8 @@ s32 njUserMain() {
     Check_Replay_Status(0, Replay_Status[0]);
     Check_Replay_Status(1, Replay_Status[1]);
 
-    Frame_Zoom_X = Screen_Zoom_X + SA_Zoom_X;
-    Frame_Zoom_Y = Screen_Zoom_Y + SA_Zoom_Y;
+    Frame_Zoom_X = Screen_Zoom_X;
+    Frame_Zoom_Y = Screen_Zoom_Y;
 
     if (sys_w.disp.now == sys_w.disp.new) {
         cpLoopTask();
