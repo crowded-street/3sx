@@ -192,6 +192,7 @@ static void game_step_0() {
     flPADGetALL();
     keyConvert();
 
+#if defined(DEBUG)
     if (!test_flag) {
         if (mpp_w.sysStop) {
             sysSLOW = 1;
@@ -239,6 +240,7 @@ static void game_step_0() {
             mpp_w.sysStop = true;
         }
     }
+#endif
 
     Interrupt_Flag = 0;
 
@@ -399,6 +401,7 @@ void njUserMain() {
 void cpLoopTask() {
     disp_ramcnt_free_area();
 
+#if defined(DEBUG)
     if (sysSLOW) {
         if (--Slow_Timer == 0) {
             sysSLOW = 0;
@@ -407,6 +410,7 @@ void cpLoopTask() {
             Game_pause |= 0x80;
         }
     }
+#endif
 
     for (int i = 0; i < 11; i++) {
         struct _TASK* task_ptr = &task[i];
