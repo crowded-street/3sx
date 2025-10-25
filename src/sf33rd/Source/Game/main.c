@@ -356,7 +356,6 @@ void njUserInit() {
         while (1) {}
     }
 
-    Turbo_Timer = 1;
     Screen_Zoom_X = 1.0f;
     Screen_Zoom_Y = 1.0f;
     Setup_Disp_Size(0);

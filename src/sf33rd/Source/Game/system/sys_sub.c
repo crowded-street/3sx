@@ -1038,7 +1038,6 @@ void Check_Replay() {
 
     switch (Play_Mode) {
     case 1:
-        Turbo_Timer = 1;
         Replay_Status[0] = 1;
         Replay_Status[1] = 1;
 
@@ -1075,7 +1074,6 @@ void Check_Replay() {
         break;
 
     case 3:
-        Turbo_Timer = 1;
         Replay_Status[0] = 3;
         Replay_Status[1] = 3;
         CP_No[0][0] = 0;
