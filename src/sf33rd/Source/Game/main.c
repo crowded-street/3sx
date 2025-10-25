@@ -68,7 +68,7 @@ void distributeScratchPadAddress();
 void appCopyKeyData();
 u8* mppMalloc(u32 size);
 void njUserInit();
-s32 njUserMain();
+void njUserMain();
 void cpLoopTask();
 void cpInitTask();
 
@@ -356,9 +356,6 @@ void njUserInit() {
 
     Frame_Zoom_X = 1.0f;
     Frame_Zoom_Y = 1.0f;
-    sys_w.disp.now = sys_w.disp.new = 1;
-    sys_w.pause = 0;
-    sys_w.reset = 0;
 
     Init_sound_system();
     Init_bgm_work();
@@ -367,7 +364,7 @@ void njUserInit() {
     cpReadyTask(TASK_INIT, Init_Task);
 }
 
-s32 njUserMain() {
+void njUserMain() {
     CPU_Time_Lag[0] = 0;
     CPU_Time_Lag[1] = 0;
     CPU_Rec[0] = 0;
@@ -379,37 +376,31 @@ s32 njUserMain() {
     Frame_Zoom_X = 1.0f;
     Frame_Zoom_Y = 1.0f;
 
-    if (sys_w.disp.now == sys_w.disp.new) {
-        cpLoopTask();
+    cpLoopTask();
 
-        if ((Game_pause != 0x81) && (Mode_Type == MODE_VERSUS) && (Play_Mode == 1)) {
-            if ((gs.plw[0].wu.operator == 0) && (CPU_Rec[0] == 0) && (Replay_Status[0] == 1)) {
-                p1sw_0 = 0;
+    if ((Game_pause != 0x81) && (Mode_Type == MODE_VERSUS) && (Play_Mode == 1)) {
+        if ((gs.plw[0].wu.operator == 0) && (CPU_Rec[0] == 0) && (Replay_Status[0] == 1)) {
+            p1sw_0 = 0;
 
-                Check_Replay_Status(0, 1);
+            Check_Replay_Status(0, 1);
 
-                if (Debug_w[0x21]) {
-                    flPrintColor(0xFFFFFFFF);
-                    flPrintL(0x10, 0xA, "FAKE REC! PL1");
-                }
-            }
-
-            if ((gs.plw[1].wu.operator == 0) && (CPU_Rec[1] == 0) && (Replay_Status[1] == 1)) {
-                p2sw_0 = 0;
-
-                Check_Replay_Status(1, 1);
-
-                if (Debug_w[0x21]) {
-                    flPrintColor(0xFFFFFFFF);
-                    flPrintL(0x10, 0xA, "FAKE REC!     PL2");
-                }
+            if (Debug_w[0x21]) {
+                flPrintColor(0xFFFFFFFF);
+                flPrintL(0x10, 0xA, "FAKE REC! PL1");
             }
         }
-    } else {
-        sys_w.disp.now = sys_w.disp.new;
-    }
 
-    return sys_w.gd_error;
+        if ((gs.plw[1].wu.operator == 0) && (CPU_Rec[1] == 0) && (Replay_Status[1] == 1)) {
+            p2sw_0 = 0;
+
+            Check_Replay_Status(1, 1);
+
+            if (Debug_w[0x21]) {
+                flPrintColor(0xFFFFFFFF);
+                flPrintL(0x10, 0xA, "FAKE REC!     PL2");
+            }
+        }
+    }
 }
 
 void cpLoopTask() {

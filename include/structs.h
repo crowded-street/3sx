@@ -47,28 +47,15 @@ struct _TASK {
     u8 free[4];
 };
 
-struct _disp {
-    u16 size_x;
-    u16 size_y;
-    u16 now;
-    u16 new;
-    s32 cable;
-};
-
 typedef enum {
     BGM_ARRANGED,
     BGM_ORIGINAL
 } BgmType;
 
 struct _SYSTEM_W {
-    struct _disp disp;
-    s32 pause;
-    s32 gd_error;
-    s32 reset;
     u8 sound_mode;
     u8 screen_mode;
     BgmType bgm_type;
-    u8 dummy;
 };
 
 typedef struct {
