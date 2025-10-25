@@ -1215,8 +1215,6 @@ void Pause_Family_On() {
 void Zoomf_Init() {
     zoom_add = 64;
     scr_sc = 1.0f;
-    sca_x = 0;
-    sca_y = 1023;
     scrn_adgjust_x = 0;
     scrn_adgjust_y = 0;
 }

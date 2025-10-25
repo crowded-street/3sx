@@ -42,8 +42,6 @@ u8 Screen_PAL;
 BG_POS bg_pos[8];
 FM_POS fm_pos[8];
 BackgroundParameters bg_prm[8];
-s32 sca_x;
-s32 sca_y;
 f32 scr_sc;
 
 MTX BgMATRIX[9];

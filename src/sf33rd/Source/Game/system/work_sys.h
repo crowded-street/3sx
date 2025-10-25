@@ -67,8 +67,6 @@ extern u8 Screen_PAL;
 extern BG_POS bg_pos[8];
 extern FM_POS fm_pos[8];
 extern BackgroundParameters bg_prm[8];
-extern s32 sca_x;
-extern s32 sca_y;
 extern f32 scr_sc;
 
 extern struct _SAVE_W save_w[6];
