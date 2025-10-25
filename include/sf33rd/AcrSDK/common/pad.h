@@ -16,8 +16,8 @@ typedef enum SWKey {
     SWK_EAST = 1 << 9,
     SWK_RIGHT_TRIGGER = 1 << 10,
     SWK_LEFT_TRIGGER = 1 << 11,
-    SWK_RIGHT_STICK = 1 << 12,
-    SWK_LEFT_STICK = 1 << 13,
+    SWK_LEFT_STICK = 1 << 12,
+    SWK_RIGHT_STICK = 1 << 13,
     SWK_START = 1 << 14,
     SWK_BACK = 1 << 15,
 } SWKey;
