@@ -33,7 +33,6 @@ extern u16 p4sw_0;
 /// Player 4 previous inputs (unused)
 extern u16 p4sw_1;
 
-extern u8 Process_Counter;
 extern u32 system_timer;
 extern u8 Interface_Type[2];
 extern s32 X_Adjust;

@@ -437,8 +437,6 @@ void cpLoopTask() {
         }
     }
 
-    Process_Counter = 1;
-
     for (current_task_num = 0; current_task_num < 11; current_task_num++) {
         switch (task_ptr->condition) {
         case 1:

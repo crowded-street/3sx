@@ -21,7 +21,6 @@ u16 p3sw_0;
 u16 p3sw_1;
 u16 p4sw_0;
 u16 p4sw_1;
-u8 Process_Counter;
 u32 system_timer;
 u8 Interface_Type[2];
 s32 X_Adjust;
