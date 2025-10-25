@@ -771,12 +771,6 @@ void Option_Select(struct _TASK* task_ptr) {
         Y_Adjust_Buff[0] = Y_Adjust;
         Y_Adjust_Buff[1] = Y_Adjust;
         Y_Adjust_Buff[2] = Y_Adjust;
-        Correct_X[1] = Correct_X[0];
-        Correct_X[2] = Correct_X[0];
-        Correct_X[3] = Correct_X[0];
-        Correct_Y[1] = Correct_Y[0];
-        Correct_Y[2] = Correct_Y[0];
-        Correct_Y[3] = Correct_Y[0];
         break;
 
     default:
@@ -2058,12 +2052,6 @@ void Screen_Adjust(struct _TASK* task_ptr) {
     Y_Adjust = Y_Adjust_Buff[0];
     Y_Adjust_Buff[0] = Y_Adjust_Buff[1];
     Y_Adjust_Buff[1] = Y_Adjust_Buff[2];
-    Correct_X[0] = Correct_X[1];
-    Correct_X[1] = Correct_X[2];
-    Correct_X[2] = Correct_X[3];
-    Correct_Y[0] = Correct_Y[1];
-    Correct_Y[1] = Correct_Y[2];
-    Correct_Y[2] = Correct_Y[3];
 
     switch (task_ptr->r_no[2]) {
     case 0:
@@ -2155,12 +2143,6 @@ void Screen_Exit_Check(struct _TASK* task_ptr, s16 PL_id) {
         SE_selected();
         Menu_Suicide[1] = 0;
         Menu_Suicide[2] = 1;
-        Correct_X[0] = Correct_X[3];
-        Correct_X[1] = Correct_X[3];
-        Correct_X[2] = Correct_X[3];
-        Correct_Y[0] = Correct_Y[3];
-        Correct_Y[1] = Correct_Y[3];
-        Correct_Y[2] = Correct_Y[3];
         X_Adjust = X_Adjust_Buff[2];
         Y_Adjust = Y_Adjust_Buff[2];
         Return_Option_Mode_Sub(task_ptr);
@@ -2185,7 +2167,6 @@ void Screen_Exit_Check(struct _TASK* task_ptr, s16 PL_id) {
         Y_Adjust_Buff[2] = 0;
         Disp_Size_H = 100;
         Disp_Size_V = 100;
-        Setup_Disp_Size(0);
         sys_w.screen_mode = 1;
     }
 }
@@ -2226,7 +2207,6 @@ void Screen_Move_Sub_LR(u16 sw) {
                 flag = 1;
             }
 
-            Setup_Disp_Size(1);
             break;
 
         case 3:
@@ -2238,7 +2218,6 @@ void Screen_Move_Sub_LR(u16 sw) {
                 flag = 1;
             }
 
-            Setup_Disp_Size(1);
             break;
 
         case 4:
@@ -2279,7 +2258,6 @@ void Screen_Move_Sub_LR(u16 sw) {
                 flag = 1;
             }
 
-            Setup_Disp_Size(1);
             break;
 
         case 3:
@@ -2291,7 +2269,6 @@ void Screen_Move_Sub_LR(u16 sw) {
                 flag = 1;
             }
 
-            Setup_Disp_Size(1);
             break;
 
         case 4:

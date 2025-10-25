@@ -354,9 +354,6 @@ void njUserInit() {
         while (1) {}
     }
 
-    Setup_Disp_Size(0);
-    Correct_X[0] = 0;
-    Correct_Y[0] = 0;
     Frame_Zoom_X = 1.0f;
     Frame_Zoom_Y = 1.0f;
     sys_w.disp.now = sys_w.disp.new = 1;

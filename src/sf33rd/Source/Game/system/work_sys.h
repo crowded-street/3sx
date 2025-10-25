@@ -42,8 +42,6 @@ extern s32 Y_Adjust_Buff[3];
 extern u8 Disp_Size_H;
 extern u8 Disp_Size_V;
 extern u8 No_Trans;
-extern s16 Correct_X[4];
-extern s16 Correct_Y[4];
 extern u8 Interrupt_Flag;
 
 /// Controller 1 inputs

@@ -2052,7 +2052,6 @@ static void load_data_set_system(_save_work* save) {
     Y_Adjust = sw->Adjust_Y;
 
     dspwhUnpack(sw->Screen_Size, &Disp_Size_H, &Disp_Size_V);
-    Setup_Disp_Size(0);
 
     sys_w.screen_mode = sw->Screen_Mode;
 

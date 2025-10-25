@@ -185,7 +185,6 @@ void Init_Task_2nd(struct _TASK* task_ptr) {
     }
 
     task_ptr->r_no[0] += 1;
-    Setup_Disp_Size(0);
 }
 
 void Init_Task_End(struct _TASK* task_ptr) {
