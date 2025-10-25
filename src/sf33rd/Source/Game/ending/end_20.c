@@ -353,10 +353,10 @@ void sea_trans(u16 num, f64 arg2) {
     poly[2].u = poly[3].u = 1.0f;
     poly[0].v = poly[2].v = num / 512.0f;
     poly[1].v = poly[3].v = (num + 1) / 512.0f;
-    poly[0].x = poly[1].x = (-64.0f + suzi) * Frame_Zoom_X;
-    poly[2].x = poly[3].x = (448.0f + suzi) * Frame_Zoom_X;
-    poly[0].y = poly[2].y = (32.0f + num) * Frame_Zoom_Y;
-    poly[1].y = poly[3].y = (32.0f + (num + 1)) * Frame_Zoom_Y;
+    poly[0].x = poly[1].x = (-64.0f + suzi);
+    poly[2].x = poly[3].x = (448.0f + suzi);
+    poly[0].y = poly[2].y = (32.0f + num);
+    poly[1].y = poly[3].y = (32.0f + (num + 1));
     poly[0].z = poly[1].z = poly[2].z = poly[3].z = PrioBase[84];
     njDrawTexture(poly, 4, 228, 0);
 }

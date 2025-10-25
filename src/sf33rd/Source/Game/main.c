@@ -354,9 +354,6 @@ void njUserInit() {
         while (1) {}
     }
 
-    Frame_Zoom_X = 1.0f;
-    Frame_Zoom_Y = 1.0f;
-
     Init_sound_system();
     Init_bgm_work();
     sndInitialLoad();
@@ -372,9 +369,6 @@ void njUserMain() {
 
     Check_Replay_Status(0, Replay_Status[0]);
     Check_Replay_Status(1, Replay_Status[1]);
-
-    Frame_Zoom_X = 1.0f;
-    Frame_Zoom_Y = 1.0f;
 
     cpLoopTask();
 

@@ -566,7 +566,6 @@ void scr_trans(u8 bgnm) {
     njScale(0, 1.0f, -1.0f, 1.0f);
     njTranslate(0, 0.0f, -224.0f, 0.0f);
     njScale(0, 1.0f / scr_sc, 1.0f / scr_sc, 1.0f);
-    njScale(0, 1.0f / Frame_Zoom_X, 1.0f / Frame_Zoom_Y, 1.0f);
     point[0].x = 0.0f;
     point[0].y = 0.0f;
     point[0].z = 00.f;
@@ -598,7 +597,6 @@ void scr_trans(u8 bgnm) {
     }
 
     njUnitMatrix(0);
-    njScale(0, Frame_Zoom_X, Frame_Zoom_Y, 1.0);
     njScale(0, scr_sc, scr_sc, 1.0);
     njTranslate(0, 0, 224.0, 0);
     njScale(0, 1.0, -1.0, 1.0);
@@ -1191,7 +1189,6 @@ void scr_trans_sub2(s32 x, s32 y, s32 suzi) {
 
 void scr_calc(u8 bgnm) {
     njUnitMatrix(NULL);
-    njScale(NULL, Frame_Zoom_X, Frame_Zoom_Y, 1.0f);
     njScale(NULL, scr_sc, scr_sc, 1.0f);
     njTranslate(NULL, 0.0f, 224.0f, 0.0f);
     njScale(NULL, 1.0f, -1.0f, 1.0f);
@@ -1201,7 +1198,6 @@ void scr_calc(u8 bgnm) {
 
 void scr_calc2(u8 bgnm) {
     njUnitMatrix(NULL);
-    njScale(NULL, Frame_Zoom_X, Frame_Zoom_Y, 1.0f);
     njScale(NULL, scr_sc, scr_sc, 1.0f);
     njTranslate(NULL, 0.0f, 224.0f, 0.0f);
     njScale(NULL, 1.0f, -1.0f, 1.0f);
@@ -1211,7 +1207,6 @@ void scr_calc2(u8 bgnm) {
 
 void Pause_Family_On() {
     njUnitMatrix(0);
-    njScale(0, Frame_Zoom_X, Frame_Zoom_Y, 1);
     njTranslate(0, 0, 224, 0);
     njScale(0, 1, -1, 1);
     njGetMatrix(&BgMATRIX[8]);

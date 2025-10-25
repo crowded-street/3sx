@@ -70,8 +70,6 @@ extern BackgroundParameters bg_prm[8];
 extern s32 sca_x;
 extern s32 sca_y;
 extern f32 scr_sc;
-extern f32 Frame_Zoom_X;
-extern f32 Frame_Zoom_Y;
 
 extern struct _SAVE_W save_w[6];
 extern Permission permission_player[6];

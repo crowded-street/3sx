@@ -54,10 +54,10 @@ void put_chr2(OPTW* optw) {
         return;
     }
 
-    tex[0].x = Frame_Zoom_X * ((s32)optw->off_x * optw->zx);
-    tex[0].y = Frame_Zoom_Y * ((s32)optw->off_y * optw->zy);
-    tex[3].x = Frame_Zoom_X * ((optw->off_x + 0x100) * optw->zx);
-    tex[3].y = Frame_Zoom_Y * ((optw->off_y + 0x100) * optw->zy);
+    tex[0].x = ((s32)optw->off_x * optw->zx);
+    tex[0].y = ((s32)optw->off_y * optw->zy);
+    tex[3].x = ((optw->off_x + 0x100) * optw->zx);
+    tex[3].y = ((optw->off_y + 0x100) * optw->zy);
     tex[0].z = tex[3].z = PrioBase[optw->prio];
     ppgWriteQuadUseTrans(tex, optw->col.full, NULL, optw->g_no, -1, optw->hv, 300);
 }
