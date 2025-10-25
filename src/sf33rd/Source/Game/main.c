@@ -397,8 +397,6 @@ void njUserMain() {
 }
 
 void cpLoopTask() {
-    struct _TASK* task_ptr = task;
-
     disp_ramcnt_free_area();
 
     if (sysSLOW) {
@@ -410,7 +408,9 @@ void cpLoopTask() {
         }
     }
 
-    for (current_task_num = 0; current_task_num < 11; current_task_num++) {
+    for (int i = 0; i < 11; i++) {
+        struct _TASK* task_ptr = &task[i];
+
         switch (task_ptr->condition) {
         case 1:
             task_ptr->func_adrs(task_ptr);
@@ -423,8 +423,6 @@ void cpLoopTask() {
         case 3:
             break;
         }
-
-        task_ptr += 1;
     }
 }
 

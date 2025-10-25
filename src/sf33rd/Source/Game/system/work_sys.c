@@ -8,7 +8,6 @@
 
 // sbss
 
-u32 current_task_num;
 struct _SYSTEM_W sys_w;
 struct _VM_W vm_w;
 TrainingData Training[3];

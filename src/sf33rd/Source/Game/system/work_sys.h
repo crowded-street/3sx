@@ -4,7 +4,6 @@
 #include "structs.h"
 #include "types.h"
 
-extern u32 current_task_num;
 extern struct _SYSTEM_W sys_w;
 extern struct _VM_W vm_w;
 extern _EXTRA_OPTION ck_ex_option;
