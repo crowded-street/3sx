@@ -76,9 +76,6 @@ extern f32 Screen_Zoom_X;
 extern f32 Screen_Zoom_Y;
 extern f32 Frame_Zoom_X;
 extern f32 Frame_Zoom_Y;
-extern s32 Zoom_Base_Position_X;
-extern s32 Zoom_Base_Position_Y;
-extern s32 Zoom_Base_Position_Z;
 
 extern struct _SAVE_W save_w[6];
 extern Permission permission_player[6];

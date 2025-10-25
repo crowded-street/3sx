@@ -51,9 +51,6 @@ f32 Screen_Zoom_X;
 f32 Screen_Zoom_Y;
 f32 Frame_Zoom_X;
 f32 Frame_Zoom_Y;
-s32 Zoom_Base_Position_X;
-s32 Zoom_Base_Position_Y;
-s32 Zoom_Base_Position_Z;
 
 MTX BgMATRIX[9];
 struct _TASK task[11];

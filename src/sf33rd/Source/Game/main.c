@@ -361,9 +361,6 @@ void njUserInit() {
     Correct_Y[0] = 0;
     Frame_Zoom_X = Screen_Zoom_X;
     Frame_Zoom_Y = Screen_Zoom_Y;
-    Zoom_Base_Position_X = 0;
-    Zoom_Base_Position_Y = 0;
-    Zoom_Base_Position_Z = 0;
     sys_w.disp.now = sys_w.disp.new = 1;
     sys_w.pause = 0;
     sys_w.reset = 0;
