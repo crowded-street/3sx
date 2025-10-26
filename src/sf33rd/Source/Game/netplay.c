@@ -19,10 +19,12 @@
 
 #include <stdio.h>
 
-typedef struct Inputs {
-    u16 current_inputs;
-    u16 previous_inputs;
-} Inputs;
+// FIXME: We shouldn't need yet another struct for state
+typedef struct SavedState {
+    GameState gs;
+    u16 p1sw_1;
+    u16 p2sw_1;
+} SavedState;
 
 typedef enum SessionState {
     SESSION_IDLE,
@@ -66,8 +68,8 @@ static void configure_gekko() {
     SDL_zero(config);
 
     config.num_players = 2;
-    config.input_size = sizeof(Inputs);
-    config.state_size = sizeof(GameState);
+    config.input_size = sizeof(u16);
+    config.state_size = sizeof(SavedState);
     config.max_spectators = 0;
     config.input_prediction_window = 10;
     // config.desync_detection = true;
@@ -90,23 +92,28 @@ static void configure_gekko() {
     }
 }
 
-static Inputs get_inputs() {
+static u16 get_inputs() {
     // The game doesn't differentiate between controllers and players.
     // That's why we OR the inputs of both local controllers together to get
     // local inputs.
-    Inputs inputs;
-    inputs.current_inputs = p1sw_0 | p2sw_0;
-    inputs.previous_inputs = p1sw_1 | p2sw_1;
+    u16 inputs = 0;
+    inputs = p1sw_buff | p2sw_buff;
     return inputs;
 }
 
 static void save_state(GekkoGameEvent* event) {
-    *event->data.save.state_len = sizeof(GameState);
-    SDL_memcpy(event->data.save.state, &gs, sizeof(GameState));
+    *event->data.save.state_len = sizeof(SavedState);
+    SavedState* dest = (SavedState*)event->data.save.state;
+    SDL_memcpy(&dest->gs, &gs, sizeof(GameState));
+    dest->p1sw_1 = p1sw_1;
+    dest->p2sw_1 = p2sw_1;
 }
 
 static void load_state(GekkoGameEvent* event) {
-    SDL_memcpy(&gs, event->data.load.state, sizeof(GameState));
+    const SavedState* src = (SavedState*)event->data.load.state;
+    SDL_memcpy(&gs, &src->gs, sizeof(GameState));
+    p1sw_1 = src->p1sw_1;
+    p2sw_1 = src->p2sw_1;
 }
 
 static bool game_ready_to_run_character_select() {
@@ -133,11 +140,9 @@ static void step_game(bool render) {
 }
 
 static void advance_game(GekkoGameEvent* event, bool last_advance) {
-    const Inputs* inputs = (Inputs*)event->data.adv.inputs;
-    p1sw_0 = inputs[0].current_inputs;
-    p1sw_1 = inputs[0].previous_inputs;
-    p2sw_0 = inputs[1].current_inputs;
-    p2sw_1 = inputs[1].previous_inputs;
+    const u16* inputs = (u16*)event->data.adv.inputs;
+    p1sw_0 = inputs[0];
+    p2sw_0 = inputs[1];
 
     step_game(last_advance);
 }
@@ -145,7 +150,7 @@ static void advance_game(GekkoGameEvent* event, bool last_advance) {
 static void process_session() {
     gekko_network_poll(session);
 
-    Inputs local_inputs = get_inputs();
+    u16 local_inputs = get_inputs();
     gekko_add_local_input(session, player_handle, &local_inputs);
 
     int session_event_count = 0;
@@ -157,6 +162,7 @@ static void process_session() {
         switch (event->type) {
         case PlayerSyncing:
             printf("🔴 player syncing\n");
+            // FIXME: Show status to the player
             break;
 
         case PlayerConnected:
@@ -165,6 +171,7 @@ static void process_session() {
 
         case PlayerDisconnected:
             printf("🔴 player disconnected\n");
+            // FIXME: Handle disconnection
             break;
 
         case SessionStarted:
