@@ -88,10 +88,10 @@ void effect_D8_move(WORK_Other* ewk) {
             Sel_PL_Complete[ewk->master_id] = -0x8000;
 
             if (Select_Start[ewk->master_id] == 0) {
-                Select_Timer = 32;
+                Select_Timer = 0x20;
             }
 
-            Unit_Of_Timer = 50;
+            Unit_Of_Timer = 60;
             ewk->wu.char_index += 1;
             set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
         }

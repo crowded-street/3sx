@@ -251,12 +251,12 @@ void Sel_PL_Cont_1st() {
     Setup_Cursor_Y();
 
     if (Present_Mode == 4 || Present_Mode == 5) {
-        Select_Timer = 32;
+        Select_Timer = 0x20;
     } else {
-        Select_Timer = 48;
+        Select_Timer = 0x30;
     }
 
-    Unit_Of_Timer = 50;
+    Unit_Of_Timer = 60;
     Setup_Face_ID();
     Setup_1st_Play_Type();
     Setup_Face_Sub();
