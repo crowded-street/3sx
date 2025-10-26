@@ -44,6 +44,7 @@ add_executable(3sx MACOSX_BUNDLE
 
 target_compile_definitions(3sx PRIVATE
     $<$<CONFIG:Debug>:DEBUG>
+    $<$<CONFIG:Debug>:NETPLAY_ENABLED>
     $<$<CONFIG:Release>:RELEASE>
     TARGET_SDL3
     _POSIX_C_SOURCE
@@ -52,7 +53,6 @@ target_compile_definitions(3sx PRIVATE
 # Feature toggles
 target_compile_definitions(3sx PRIVATE
     MEMCARD_DISABLED
-    NETPLAY_ENABLED
 )
 
 if(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_COMPILER_ID STREQUAL "AppleClang")
