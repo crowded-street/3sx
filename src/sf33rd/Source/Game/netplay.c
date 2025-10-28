@@ -19,11 +19,11 @@
 
 #include <stdio.h>
 
+#define INPUT_HISTORY_MAX 120
+
 // FIXME: We shouldn't need yet another struct for state
 typedef struct SavedState {
     GameState gs;
-    u16 p1sw_1;
-    u16 p2sw_1;
 } SavedState;
 
 typedef enum SessionState {
@@ -39,6 +39,7 @@ static unsigned short remote_port = 0;
 static int player_number = 0;
 static int player_handle = 0;
 static SessionState session_state = SESSION_IDLE;
+static u16 input_history[2][INPUT_HISTORY_MAX] = { 0 };
 
 static void setup_vs_mode() {
     // This is pretty much a copy of logic from menu.c
@@ -101,19 +102,23 @@ static u16 get_inputs() {
     return inputs;
 }
 
+static void note_input(u16 input, int player, int frame) {
+    input_history[player][frame % INPUT_HISTORY_MAX] = input;
+}
+
+static u16 recall_input(int player, int frame) {
+    return input_history[player][frame % INPUT_HISTORY_MAX];
+}
+
 static void save_state(GekkoGameEvent* event) {
     *event->data.save.state_len = sizeof(SavedState);
     SavedState* dest = (SavedState*)event->data.save.state;
     SDL_memcpy(&dest->gs, &gs, sizeof(GameState));
-    dest->p1sw_1 = p1sw_1;
-    dest->p2sw_1 = p2sw_1;
 }
 
 static void load_state(GekkoGameEvent* event) {
     const SavedState* src = (SavedState*)event->data.load.state;
     SDL_memcpy(&gs, &src->gs, sizeof(GameState));
-    p1sw_1 = src->p1sw_1;
-    p2sw_1 = src->p2sw_1;
 }
 
 static bool game_ready_to_run_character_select() {
@@ -139,10 +144,29 @@ static void step_game(bool render) {
     Check_LDREQ_Queue();
 }
 
+static void check_input(int player, int frame) {
+    const u16 prev_inputs = (player == 0) ? p1sw_1 : p2sw_1;
+    const u16 prev_history = input_history[player][(frame - 1) % INPUT_HISTORY_MAX];
+
+    if (prev_history != prev_inputs) {
+        printf("⚠️ input mismatch on frame %d for player %d. expected: 0x%X, actual 0x%X\n", frame, player, prev_history, prev_inputs);
+    }
+}
+
 static void advance_game(GekkoGameEvent* event, bool last_advance) {
     const u16* inputs = (u16*)event->data.adv.inputs;
+    const int frame = event->data.adv.frame;
     p1sw_0 = inputs[0];
     p2sw_0 = inputs[1];
+
+    p1sw_1 = recall_input(0, frame - 1);
+    p2sw_1 = recall_input(1, frame - 1);
+
+    note_input(inputs[0], 0, frame);
+    note_input(inputs[1], 1, frame);
+
+    check_input(0, frame);
+    check_input(1, frame);
 
     step_game(last_advance);
 }
