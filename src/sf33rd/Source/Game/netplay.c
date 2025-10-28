@@ -40,6 +40,8 @@ static int player_number = 0;
 static int player_handle = 0;
 static SessionState session_state = SESSION_IDLE;
 static u16 input_history[2][INPUT_HISTORY_MAX] = { 0 };
+static float frames_behind = 0;
+static int frame_skip_timer = 0;
 
 static void setup_vs_mode() {
     // This is pretty much a copy of logic from menu.c
@@ -125,6 +127,10 @@ static bool game_ready_to_run_character_select() {
     return G_No[1] == 1;
 }
 
+static bool need_to_catch_up() {
+    return frames_behind >= 1;
+}
+
 static void step_game(bool render) {
     if (render) {
         init_color_trans_req();
@@ -172,6 +178,8 @@ static void advance_game(GekkoGameEvent* event, bool last_advance) {
 }
 
 static void process_session() {
+    frames_behind = -gekko_frames_ahead(session);
+
     gekko_network_poll(session);
 
     u16 local_inputs = get_inputs();
@@ -249,6 +257,26 @@ static void process_events() {
     }
 }
 
+static void step_logic() {
+    process_session();
+    process_events();
+}
+
+static void run_netplay() {
+    step_logic();
+
+    if (need_to_catch_up() && (frame_skip_timer == 0)) {
+        step_logic();
+        frame_skip_timer = 60; // Allow skipping a frame roughly every second
+    }
+
+    frame_skip_timer -= 1;
+
+    if (frame_skip_timer < 0) {
+        frame_skip_timer = 0;
+    }
+}
+
 void Netplay_SetPlayer(int player) {
     if (player == 1) {
         local_port = 50000;
@@ -279,13 +307,8 @@ void Netplay_Run() {
         break;
 
     case SESSION_CONNECTING:
-        process_session();
-        process_events();
-        break;
-
     case SESSION_RUNNING:
-        process_session();
-        process_events();
+        run_netplay();
         break;
 
     case SESSION_IDLE:
