@@ -25,11 +25,6 @@
 // Uncomment to enable packet drops
 // #define LOSSY_ADAPTER
 
-// FIXME: We shouldn't need yet another struct for state
-typedef struct SavedState {
-    GameState gs;
-} SavedState;
-
 typedef enum SessionState {
     SESSION_IDLE,
     SESSION_TRANSITIONING,
@@ -105,7 +100,7 @@ static void configure_gekko() {
 
     config.num_players = 2;
     config.input_size = sizeof(u16);
-    config.state_size = sizeof(SavedState);
+    config.state_size = sizeof(GameState);
     config.max_spectators = 0;
     config.input_prediction_window = 10;
     // config.desync_detection = true;
@@ -113,12 +108,12 @@ static void configure_gekko() {
     gekko_create(&session);
     gekko_start(session, &config);
 
-    #if defined(LOSSY_ADAPTER)
+#if defined(LOSSY_ADAPTER)
     configure_lossy_adapter();
     gekko_net_adapter_set(session, &lossy_adapter);
-    #else
+#else
     gekko_net_adapter_set(session, gekko_default_adapter(local_port));
-    #endif
+#endif
 
     printf("starting a session for player %d at port %hu\n", player_number, local_port);
 
@@ -153,14 +148,14 @@ static u16 recall_input(int player, int frame) {
 }
 
 static void save_state(GekkoGameEvent* event) {
-    *event->data.save.state_len = sizeof(SavedState);
-    SavedState* dest = (SavedState*)event->data.save.state;
-    SDL_memcpy(&dest->gs, &gs, sizeof(GameState));
+    *event->data.save.state_len = sizeof(GameState);
+    GameState* dst = (GameState*)event->data.save.state;
+    SDL_memcpy(dst, &gs, sizeof(GameState));
 }
 
 static void load_state(GekkoGameEvent* event) {
-    const SavedState* src = (SavedState*)event->data.load.state;
-    SDL_memcpy(&gs, &src->gs, sizeof(GameState));
+    const GameState* src = (GameState*)event->data.load.state;
+    SDL_memcpy(&gs, src, sizeof(GameState));
 }
 
 static bool game_ready_to_run_character_select() {
