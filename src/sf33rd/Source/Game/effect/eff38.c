@@ -107,8 +107,8 @@ void EFF38_SLIDE_IN(WORK_Other* ewk) {
 void Exit_Slide_in_38(WORK_Other* ewk) {
     ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
 
-    if (--Select_Start[ewk->master_id] < 0) {
-        Select_Start[ewk->master_id] = 0;
+    if (--gs.Select_Start[ewk->master_id] < 0) {
+        gs.Select_Start[ewk->master_id] = 0;
     }
 
     ewk->wu.routine_no[1] = 0;
@@ -217,8 +217,8 @@ void EFF38_SHIFT(WORK_Other* ewk) {
             ewk->wu.routine_no[1] = 0;
             ewk->wu.routine_no[6] = 0;
 
-            if (--Select_Start[ewk->master_id] < 0) {
-                Select_Start[ewk->master_id] = 0;
+            if (--gs.Select_Start[ewk->master_id] < 0) {
+                gs.Select_Start[ewk->master_id] = 0;
             }
         }
 

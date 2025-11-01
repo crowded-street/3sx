@@ -63,7 +63,7 @@ void EFF52_SUDDENLY(WORK_Other* ewk) {
         ewk->wu.routine_no[6]++;
 
     case 2:
-        if (Select_Start[ewk->master_id] != 0) {
+        if (gs.Select_Start[ewk->master_id] != 0) {
             break;
         }
 

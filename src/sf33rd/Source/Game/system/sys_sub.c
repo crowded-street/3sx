@@ -178,7 +178,7 @@ void Clear_Personal_Data(s16 PL_id) {
     Last_My_char[PL_id] = -1;
     Last_My_char2[PL_id] = -1;
     Last_Selected_EM[PL_id] = 1;
-    Select_Start[PL_id] = 0;
+    gs.Select_Start[PL_id] = 0;
     paring_ctr_vs[0][PL_id] = 0;
     Straight_Counter[PL_id] = 0;
     Straight_Flag[PL_id] = 0;

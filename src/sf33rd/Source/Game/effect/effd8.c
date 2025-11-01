@@ -87,7 +87,7 @@ void effect_D8_move(WORK_Other* ewk) {
             ewk->wu.routine_no[0] += 1;
             gs.Sel_PL_Complete[ewk->master_id] = -0x8000;
 
-            if (Select_Start[ewk->master_id] == 0) {
+            if (gs.Select_Start[ewk->master_id] == 0) {
                 gs.Select_Timer = 0x20;
             }
 

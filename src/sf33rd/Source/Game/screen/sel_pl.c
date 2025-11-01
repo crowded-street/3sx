@@ -671,7 +671,7 @@ void OBJ_2nd() {
     Order_Dir[42] = 3;
     Order[Aborigine + 11] = 4;
     Order_Timer[Aborigine + 11] = 1;
-    Select_Start[Aborigine] = 2;
+    gs.Select_Start[Aborigine] = 2;
     effect_38_init(gs.New_Challenger, gs.New_Challenger + 11, 127, 1, 2);
     Order[gs.New_Challenger + 11] = 1;
     Order_Timer[gs.New_Challenger + 11] = 1;
@@ -896,7 +896,7 @@ void Sel_PL_1st() {
     Auto_Cursor[ID] = 0;
     Moving_Plate[ID] = 0;
     Moving_Plate_Counter[ID] = 0;
-    Select_Start[ID] = 2;
+    gs.Select_Start[ID] = 2;
     Select_Arts[ID] = -1;
 
     if (ID == 1) {
@@ -913,7 +913,7 @@ void Sel_PL_1st() {
 
     if (gs.Sel_PL_Complete[ID]) {
         SP_No[ID][0] = 3;
-        Select_Start[ID] = 3;
+        gs.Select_Start[ID] = 3;
         Select_Arts[ID] = 3;
         Stop_Cursor[ID] = 1;
         paring_ctr_vs[0][ID] = 0;
@@ -925,7 +925,7 @@ void Sel_PL_1st() {
 }
 
 void Sel_PL_2nd() {
-    if (Select_Start[ID] > 0) {
+    if (gs.Select_Start[ID] > 0) {
         return;
     }
 

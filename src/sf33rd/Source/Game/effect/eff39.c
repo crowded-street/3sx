@@ -111,8 +111,8 @@ void EFF39_SLIDE_IN(WORK_Other* ewk) {
                 ewk->wu.routine_no[6] = 0;
                 ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
 
-                if (--Select_Start[ewk->master_id] < 0) {
-                    Select_Start[ewk->master_id] = 0;
+                if (--gs.Select_Start[ewk->master_id] < 0) {
+                    gs.Select_Start[ewk->master_id] = 0;
                 }
             }
 
@@ -125,8 +125,8 @@ void EFF39_SLIDE_IN(WORK_Other* ewk) {
             ewk->wu.routine_no[6] = 0;
             ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
 
-            if (--Select_Start[ewk->master_id] < 0) {
-                Select_Start[ewk->master_id] = 0;
+            if (--gs.Select_Start[ewk->master_id] < 0) {
+                gs.Select_Start[ewk->master_id] = 0;
             }
         }
 

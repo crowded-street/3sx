@@ -249,7 +249,6 @@ u8 M_No[4];
 u8 Exit_No;
 u8 SP_No[2][4];
 u8 Face_No[2];
-s8 Select_Start[2];
 s8 Stop_Cursor[2];
 u8 Training_Index;
 u8 Connect_Status;
