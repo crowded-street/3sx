@@ -324,7 +324,7 @@ void check_cm_extended_code(WORK* wk) {
 
         if (cpc->code >= 0x100) {
             check_cgd_patdat(wk);
-            return;
+            break;
         }
 
         if (decode_chcmd[cpc->code](wk, cpc) == 0) {

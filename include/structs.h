@@ -293,6 +293,7 @@ typedef struct {
     s16 now_koc;
     s16 char_index;
     s16 current_colcd;
+
     s16 cgd_type;
     u8 pat_status;
     u8 kind_of_waza;
@@ -300,6 +301,7 @@ typedef struct {
     u8 total_paring;
     u8 total_att_set;
     u8 sp_tech_id;
+
     u8 cg_type;
     u8 cg_ctr;
     u16 cg_se;
@@ -316,6 +318,7 @@ typedef struct {
     u16 cg_add_xy;
     u8 cg_next_ix;
     u8 cg_status;
+
     s16 cg_wca_ix;
     s16 cg_jphos;
     u16 cg_meoshi;

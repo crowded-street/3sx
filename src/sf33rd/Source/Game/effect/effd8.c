@@ -108,8 +108,8 @@ void effect_D8_move(WORK_Other* ewk) {
         return;
     }
 
-    ewk->wu.position_x = ewk->wu.xyz[0].disp.pos & 0xFFFF;
-    ewk->wu.position_y = ewk->wu.xyz[1].disp.pos & 0xFFFF;
+    ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
+    ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
 
     if (ewk->wu.direction == 0) {
         if (ewk->wu.hit_quake & 1) {
