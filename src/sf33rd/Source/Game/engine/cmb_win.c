@@ -390,9 +390,9 @@ void SCORE_PLUS(s8 PL, u32 PTS) {
         Score[PL][2] = 99999900;
     }
 
-    Score[PL][Play_Type] += PTS;
-    if (Score[PL][Play_Type] >= 99999900) {
-        Score[PL][Play_Type] = 99999900;
+    Score[PL][gs.Play_Type] += PTS;
+    if (Score[PL][gs.Play_Type] >= 99999900) {
+        Score[PL][gs.Play_Type] = 99999900;
     }
 }
 

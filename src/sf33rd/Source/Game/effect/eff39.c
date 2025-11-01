@@ -269,5 +269,5 @@ s32 effect_39_init(s16 PL_id, s16 dir_old, s16 Your_Char, s16 Target_BG, s16 Opt
 }
 
 s32 Get_Pos39(WORK_Other* ewk, s16 Who, s16 Get_Type) {
-    return Name_Pos_Data[ewk->master_id][Play_Type][Who][Get_Type];
+    return Name_Pos_Data[ewk->master_id][gs.Play_Type][Who][Get_Type];
 }

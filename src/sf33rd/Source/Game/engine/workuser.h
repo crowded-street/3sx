@@ -68,6 +68,7 @@ typedef struct GameState {
     s8 Time_Stop;
     s8 Suicide[8];
     s8 Complete_Face;
+    u8 Play_Type;
 } GameState;
 
 extern GameState gs;
@@ -326,7 +327,6 @@ extern u8 Game_pause;
 extern u8 Game_difficulty;
 extern u8 Pause;
 extern u8 Pause_ID;
-extern u8 Play_Type;
 extern u8 Exit_Menu;
 extern u8 Conclusion_Flag;
 extern u8 CP_No[2][4];

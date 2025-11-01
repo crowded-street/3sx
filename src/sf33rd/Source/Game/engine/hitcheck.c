@@ -340,7 +340,7 @@ void set_caught_status(s16 ix) {
     as->wu.cmwk[0xF]++;
     ds->wu.dm_count_up++;
     hit_pattern_extdat_check(&as->wu);
-    paring_ctr_vs[Play_Type][ds->wu.id] = 0;
+    paring_ctr_vs[gs.Play_Type][ds->wu.id] = 0;
     paring_counter[ds->wu.id] = 0;
     paring_bonus_r[ds->wu.id] = 0;
     pp_pulpara_hit(&as->wu);
@@ -561,7 +561,7 @@ void plef_at_vs_player_damage_union(PLW* as, PLW* ds, s8 gddir) {
         ds->atemi_flag = 0;
     }
 
-    paring_ctr_vs[Play_Type][ds->wu.id] = 0;
+    paring_ctr_vs[gs.Play_Type][ds->wu.id] = 0;
     paring_counter[ds->wu.id] = 0;
     paring_bonus_r[ds->wu.id] = 0;
     return;
@@ -704,13 +704,13 @@ void set_paring_status(PLW* as, PLW* ds) {
 
         if (Bonus_Game_Flag == 0 && ds->spmv_ng_flag & 0x80) {
             paring_bonus_r[ds->wu.id] = 1;
-            paring_ctr_vs[Play_Type][ds->wu.id]++;
+            paring_ctr_vs[gs.Play_Type][ds->wu.id]++;
 
-            if (paring_ctr_vs[Play_Type][ds->wu.id] > 39) {
-                paring_ctr_vs[Play_Type][ds->wu.id] = 39;
+            if (paring_ctr_vs[gs.Play_Type][ds->wu.id] > 39) {
+                paring_ctr_vs[gs.Play_Type][ds->wu.id] = 39;
             }
 
-            paring_counter[ds->wu.id] = parisucc_pts[Play_Type][paring_ctr_vs[Play_Type][ds->wu.id] - 1];
+            paring_counter[ds->wu.id] = parisucc_pts[gs.Play_Type][paring_ctr_vs[gs.Play_Type][ds->wu.id] - 1];
         }
 
         as->wu.cmwk[8]++;

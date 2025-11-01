@@ -260,7 +260,6 @@ u8 Game_pause;
 u8 Game_difficulty;
 u8 Pause;
 u8 Pause_ID;
-u8 Play_Type;
 u8 Exit_Menu;
 u8 Conclusion_Flag;
 u8 CP_No[2][4];

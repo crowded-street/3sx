@@ -84,7 +84,7 @@ void Win_1st() {
     Setup_BG(1, 0x200, 0);
     Setup_BG(3, 0x2C0, 0);
 
-    if (Play_Type == 0) {
+    if (gs.Play_Type == 0) {
         Last_Selected_EM[Winner_id] = 1;
     }
 
@@ -128,7 +128,7 @@ void Win_2nd() {
     Order_Timer[0x38] = 1;
     effect_76_init(0x38);
 
-    WGJ_Score = Continue_Coin[Winner_id] + Score[Winner_id][Play_Type];
+    WGJ_Score = Continue_Coin[Winner_id] + Score[Winner_id][gs.Play_Type];
     WGJ_Win = Win_Record[Winner_id];
 
     effect_L1_init(1);

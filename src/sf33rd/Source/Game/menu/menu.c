@@ -1474,7 +1474,7 @@ void Load_Replay_Sub(struct _TASK* task_ptr) {
         task_ptr->r_no[3] += 1;
         FadeInit();
         FadeOut(0, 0xFF, 8);
-        Play_Type = 1;
+        gs.Play_Type = 1;
         Mode_Type = MODE_REPLAY;
         Present_Mode = 3;
         Bonus_Game_Flag = 0;

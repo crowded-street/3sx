@@ -67,10 +67,10 @@ void EFFK6_SLIDE_IN(WORK_Other* ewk) {
 
         if (ewk->wu.dir_old == 27 || ewk->wu.dir_old == 28) {
             xx = ID_of_Face[gs.Cursor_Y[ewk->master_id]][gs.Cursor_X[ewk->master_id]];
-            Setup_1st_PosK6(ewk, xx, Play_Type);
+            Setup_1st_PosK6(ewk, xx, gs.Play_Type);
         } else {
             xx = ewk->wu.dir_step;
-            Setup_1st_PosK6(ewk, xx, Play_Type);
+            Setup_1st_PosK6(ewk, xx, gs.Play_Type);
 
             if (ewk->wu.direction == 25 && xx != 0) {
                 ewk->wu.xyz[0].disp.pos += 8;
@@ -241,9 +241,9 @@ void EFFK6_MOVE(WORK_Other* ewk) {
         if (ewk->wu.dir_step != ID_of_Face[gs.Cursor_Y[ewk->master_id]][gs.Cursor_X[ewk->master_id]]) {
             ewk->wu.dir_step = ID_of_Face[gs.Cursor_Y[ewk->master_id]][gs.Cursor_X[ewk->master_id]];
             ewk->wu.xyz[0].disp.pos =
-                bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + Get_PosK6(ewk, ewk->wu.dir_step, 0, Play_Type);
+                bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + Get_PosK6(ewk, ewk->wu.dir_step, 0, gs.Play_Type);
             ewk->wu.xyz[1].disp.pos =
-                bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + Get_PosK6(ewk, ewk->wu.dir_step, 1, Play_Type);
+                bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + Get_PosK6(ewk, ewk->wu.dir_step, 1, gs.Play_Type);
 
             if (ewk->wu.direction == 19) {
                 set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, (ewk->wu.dir_step) + 1, 0);
@@ -368,7 +368,7 @@ void Setup_CharK6(WORK_Other* ewk, s16 dm_vital) {
 
     case 31:
         ewk->wu.char_index = 15;
-        x = Play_Type & 1;
+        x = gs.Play_Type & 1;
         ewk->wu.dir_step = ewk->master_id + (x * 2);
         ewk->wu.position_z = 71;
         break;

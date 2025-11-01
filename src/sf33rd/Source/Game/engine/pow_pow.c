@@ -14,7 +14,7 @@ void cal_damage_vitality(PLW* as, PLW* ds) {
     s16 yy;
     s16 power = Power_Data[xx];
 
-    if (Play_Type == 1) {
+    if (gs.Play_Type == 1) {
         yy = Pow_Control_Data_1[0][3];
     } else {
         yy = Pow_Control_Data_1[0][Round_Level];
@@ -36,7 +36,7 @@ void cal_damage_vitality_eff(WORK_Other* as, PLW* ds) {
     s16 yy;
     s16 power = Power_Data[xx];
 
-    if (Play_Type == 1) {
+    if (gs.Play_Type == 1) {
         yy = Pow_Control_Data_1[0][3];
     } else {
         yy = Pow_Control_Data_1[0][Round_Level];
@@ -77,16 +77,16 @@ void Additinal_Score_DM(WORK_Other* wk, u16 ix) {
             return;
         }
 
-        Score[id][Play_Type] += Score_Data[ix];
+        Score[id][gs.Play_Type] += Score_Data[ix];
 
-        if (Score[id][Play_Type] >= 99999900) {
-            Score[id][Play_Type] = 99999900;
+        if (Score[id][gs.Play_Type] >= 99999900) {
+            Score[id][gs.Play_Type] = 99999900;
         }
     } else {
-        Score[id][Play_Type] += Score_Data[ix];
+        Score[id][gs.Play_Type] += Score_Data[ix];
 
-        if (Score[id][Play_Type] >= 99999900) {
-            Score[id][Play_Type] = 99999900;
+        if (Score[id][gs.Play_Type] >= 99999900) {
+            Score[id][gs.Play_Type] = 99999900;
         }
     }
 }

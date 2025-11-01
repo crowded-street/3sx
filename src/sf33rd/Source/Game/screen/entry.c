@@ -1381,7 +1381,7 @@ void Break_Into_05(s16 PL_id) {
     E_Number[New_Challenger][2] = 0;
     E_Number[New_Challenger][3] = 0;
 
-    if ((Play_Type == 0) && (Conclusion_Flag != 0) && (gs.plw[Champion].wu.operator == 0)) {
+    if ((gs.Play_Type == 0) && (Conclusion_Flag != 0) && (gs.plw[Champion].wu.operator == 0)) {
         E_Timer = 1;
 
         if (LOSER != New_Challenger) {

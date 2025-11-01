@@ -59,7 +59,7 @@ void effect_D8_move(WORK_Other* ewk) {
             ewk->wu.vital_new = gs.Cursor_X[ewk->master_id];
             ewk->wu.vital_old = gs.Cursor_Y[ewk->master_id];
 
-            if (Play_Type == 1) {
+            if (gs.Play_Type == 1) {
                 offset_x = Setup_Face_Offset_X(99);
             } else {
                 offset_x = Setup_Face_Offset_X(Play_Type_1st);

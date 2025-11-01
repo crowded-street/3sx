@@ -1071,7 +1071,7 @@ void add_super_arts_gauge(SA_WORK* wk, s16 ix, s16 asag, u8 mf) {
             (wk->store != wk->store_max)) {
             asag = asag * 0x78 / 100;
 
-            if (save_w[Present_Mode].Battle_Number[Play_Type] == 0) {
+            if (save_w[Present_Mode].Battle_Number[gs.Play_Type] == 0) {
                 asag = asag * 0x96 / 100;
             }
 

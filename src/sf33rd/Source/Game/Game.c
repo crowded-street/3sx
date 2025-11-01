@@ -386,9 +386,9 @@ void Game01() {
             }
 
             if ((gs.plw[0].wu.operator != 0) && (gs.plw[1].wu.operator != 0)) {
-                Play_Type = 1;
+                gs.Play_Type = 1;
             } else {
-                Play_Type = 0;
+                gs.Play_Type = 0;
             }
         }
 
