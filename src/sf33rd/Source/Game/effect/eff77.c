@@ -97,7 +97,7 @@ void effect_77_move(WORK_Other* ewk) {
         /* fallthrough */
 
     case 3:
-        if (Suicide[6]) {
+        if (gs.Suicide[6]) {
             ewk->wu.old_rno[0] = 0;
         }
 

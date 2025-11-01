@@ -54,7 +54,7 @@ void effect_33_move(WORK_Other* ewk) {
 
     case 3:
         if (!EXE_flag && !Game_pause) {
-            if (ewk->wu.dead_f == 1 || Suicide[0] != 0) {
+            if (ewk->wu.dead_f == 1 || gs.Suicide[0] != 0) {
                 ewk->wu.disp_flag = 0;
                 ewk->wu.routine_no[0]++;
                 break;

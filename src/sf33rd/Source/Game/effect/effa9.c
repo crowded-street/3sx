@@ -35,7 +35,7 @@ void effect_A9_move(WORK_Other* ewk) {
         break;
 
     case 2:
-        if (Ck_Range_Out_S(ewk, ewk->wu.my_family - 1, ewk->wu.vital_new) || Suicide[3] != 0) {
+        if (Ck_Range_Out_S(ewk, ewk->wu.my_family - 1, ewk->wu.vital_new) || gs.Suicide[3] != 0) {
             ewk->wu.disp_flag = 0;
             ewk->wu.routine_no[0] = 99;
             break;
@@ -71,7 +71,7 @@ void effect_A9_move(WORK_Other* ewk) {
         break;
 
     case 4:
-        if (Ck_Range_Out_S(ewk, ewk->wu.my_family - 1, ewk->wu.vital_new) || Suicide[3] != 0) {
+        if (Ck_Range_Out_S(ewk, ewk->wu.my_family - 1, ewk->wu.vital_new) || gs.Suicide[3] != 0) {
             ewk->wu.disp_flag = 0;
             ewk->wu.routine_no[0] = 99;
         }

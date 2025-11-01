@@ -221,7 +221,7 @@ void Ranking_01_1st() {
     Make_texcash_of_list(2);
     make_texcash_work(14);
     D_No[1]++;
-    Suicide[0] = 0;
+    gs.Suicide[0] = 0;
     Present_Rank[0] = 99;
     Present_Rank[1] = 99;
     Ranking_Sub();

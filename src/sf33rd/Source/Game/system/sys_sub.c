@@ -1840,7 +1840,7 @@ void All_Clear_Suicide() {
     s16 ix;
 
     for (ix = 0; ix < 8; ix++) {
-        Suicide[ix] = 0;
+        gs.Suicide[ix] = 0;
     }
 
     for (ix = 0; ix < 4; ix++) {

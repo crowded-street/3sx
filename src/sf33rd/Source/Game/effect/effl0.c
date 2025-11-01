@@ -19,7 +19,7 @@ void effect_L0_move(WORK_Other* ewk) {
         /* fallthrough */
 
     case 1:
-        if (ewk->wu.dead_f == 0 && Suicide[0] == 0) {
+        if (ewk->wu.dead_f == 0 && gs.Suicide[0] == 0) {
             if (Game_pause || EXE_flag) {
                 break;
             }

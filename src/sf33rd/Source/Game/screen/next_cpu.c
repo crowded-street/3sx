@@ -145,7 +145,7 @@ void Next_CPU_1st() {
     Rnd = random_16() & 3;
     effect_58_init(6, 10, EM_Select_Voice_Data[Rnd]);
     Next_Step = 0;
-    Suicide[2] = 1;
+    gs.Suicide[2] = 1;
     Cut_Scroll = 2;
     effect_58_init(13, 1, 3);
     effect_58_init(16, 5, 2);
@@ -309,7 +309,7 @@ void Next_CPU_4th_0_Sub() {
     Setup_BG(1, bg_w.bgw[1].wxy[0].disp.pos + 512, bg_w.bgw[1].wxy[1].disp.pos);
     Setup_BG(3, bg_w.bgw[3].wxy[0].disp.pos, bg_w.bgw[3].wxy[1].disp.pos);
     Setup_VS_OBJ(0);
-    Suicide[0] = 1;
+    gs.Suicide[0] = 1;
     FadeInit();
 }
 
@@ -361,7 +361,7 @@ void Next_CPU_5th() {
         Setup_BG(1, bg_w.bgw[1].wxy[0].disp.pos, bg_w.bgw[1].wxy[1].disp.pos);
         Setup_BG(3, bg_w.bgw[3].wxy[0].disp.pos, bg_w.bgw[3].wxy[1].disp.pos);
         Setup_VS_OBJ(1);
-        Suicide[0] = 1;
+        gs.Suicide[0] = 1;
         Next_Step = 0;
         Order[67] = 1;
         Order_Timer[67] = 10;
@@ -406,7 +406,7 @@ void Next_CPU_5th() {
             FadeIn(0, 4, 8);
             SC_No[1]++;
             Forbid_Break = 0;
-            Suicide[3] = 1;
+            gs.Suicide[3] = 1;
             effect_43_init(1, 0);
             BGM_Request(0x33);
             S_Timer = 0xb2;
@@ -862,7 +862,7 @@ void Next_Bonus_1st() {
     Order_Timer[56] = 1;
     Rnd = random_16() & 3;
     effect_58_init(6, 10, EM_Select_Voice_Data[Rnd]);
-    Suicide[2] = 1;
+    gs.Suicide[2] = 1;
     Next_Step = 0;
     Cut_Scroll = 2;
     effect_58_init(13, 1, 3);

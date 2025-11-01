@@ -66,6 +66,7 @@ typedef struct GameState {
     s8 Cursor_Timer[2];
     SelectTimerState select_timer_state;
     s8 Time_Stop;
+    s8 Suicide[8];
 } GameState;
 
 extern GameState gs;
@@ -291,7 +292,6 @@ extern s8 Last_Selected_EM[2];
 extern u8 Q_Country;
 extern u8 Continue_Cut[2];
 extern u8 Introduce_Boss[2][2];
-extern s8 Suicide[8];
 extern u8 Final_Play_Type[2];
 extern s8 Rank_In[2][4];
 extern s8 Request_Disp_Rank[2][4];

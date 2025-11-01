@@ -172,7 +172,7 @@ void effect_58_move(WORK_Other* ewk) {
             break;
 
         case 15:
-            Suicide[ewk->wu.direction] = 1;
+            gs.Suicide[ewk->wu.direction] = 1;
             ewk->wu.routine_no[0]++;
             break;
 

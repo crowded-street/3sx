@@ -302,7 +302,7 @@ void effect_79_move(WORK_Other* ewk) {
         break;
 
     case 9:
-        if (!Suicide[0]) {
+        if (!gs.Suicide[0]) {
             break;
         }
 

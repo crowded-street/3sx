@@ -48,7 +48,7 @@ void effect_B8_move(WORK_Other_CONN* ewk) {
         break;
 
     case 1:
-        if (Suicide[2] == 1) {
+        if (gs.Suicide[2] == 1) {
             ewk->wu.disp_flag = 0;
             ewk->wu.routine_no[0] = 3;
             break;
@@ -69,7 +69,7 @@ void effect_B8_move(WORK_Other_CONN* ewk) {
         break;
 
     case 2:
-        if (Suicide[2] == 1) {
+        if (gs.Suicide[2] == 1) {
             ewk->wu.disp_flag = 0;
             ewk->wu.routine_no[0]++;
             break;

@@ -366,7 +366,7 @@ void Mode_Select(struct _TASK* task_ptr) {
     case 2:
         if (FadeIn(1, 0x19, 8) != 0) {
             task_ptr->r_no[2] += 1;
-            Suicide[3] = 0;
+            gs.Suicide[3] = 0;
         }
 
         break;
@@ -600,7 +600,7 @@ void Training_Mode(struct _TASK* task_ptr) {
     case 2:
         if (FadeIn(1, 0x19, 8) != 0) {
             task_ptr->r_no[2] += 1;
-            Suicide[3] = 0;
+            gs.Suicide[3] = 0;
         }
 
         break;
@@ -721,7 +721,7 @@ void Option_Select(struct _TASK* task_ptr) {
     case 2:
         if (FadeIn(1, 0x19, 8) != 0) {
             task_ptr->r_no[2] += 1;
-            Suicide[3] = 0;
+            gs.Suicide[3] = 0;
         }
 
         break;
@@ -831,7 +831,7 @@ void System_Direction(struct _TASK* task_ptr) {
     case 2:
         if (FadeIn(1, 0x19, 8) != 0) {
             task_ptr->r_no[2] += 1;
-            Suicide[3] = 0;
+            gs.Suicide[3] = 0;
         }
 
         break;
@@ -1718,7 +1718,7 @@ void Game_Option(struct _TASK* task_ptr) {
     case 2:
         if (FadeIn(1, 0x19, 8) != 0) {
             task_ptr->r_no[2] += 1;
-            Suicide[3] = 0;
+            gs.Suicide[3] = 0;
         }
 
         break;
@@ -1854,7 +1854,7 @@ void Button_Config(struct _TASK* task_ptr) {
     case 2:
         if (FadeIn(1, 0x19, 8) != 0) {
             task_ptr->r_no[2] += 1;
-            Suicide[3] = 0;
+            gs.Suicide[3] = 0;
         }
 
         break;
@@ -2104,7 +2104,7 @@ void Screen_Adjust(struct _TASK* task_ptr) {
     case 2:
         if (FadeIn(1, 0x19, 8) != 0) {
             task_ptr->r_no[2] += 1;
-            Suicide[3] = 0;
+            gs.Suicide[3] = 0;
         }
 
         break;
@@ -2380,7 +2380,7 @@ void Sound_Test(struct _TASK* task_ptr) {
     case 2:
         if (FadeIn(1, 0x19, 8) != 0) {
             task_ptr->r_no[2] += 1;
-            Suicide[3] = 0;
+            gs.Suicide[3] = 0;
         }
 
         break;
@@ -2591,7 +2591,7 @@ void Memory_Card(struct _TASK* task_ptr) {
     case 2:
         if (FadeIn(1, 0x19, 8) != 0) {
             task_ptr->r_no[2] += 1;
-            Suicide[3] = 0;
+            gs.Suicide[3] = 0;
         }
 
         break;
@@ -3564,7 +3564,7 @@ void VS_Result(struct _TASK* task_ptr) {
     case 3:
         if (FadeIn(1, 25, 8)) {
             task_ptr->r_no[2]++;
-            Suicide[3] = 0;
+            gs.Suicide[3] = 0;
         }
 
         break;
@@ -4335,8 +4335,8 @@ void Reset_Training(struct _TASK* task_ptr) {
         BGM_Timer[0] = 1;
         G_Timer = 10;
         Cover_Timer = 5;
-        Suicide[0] = 1;
-        Suicide[6] = 1;
+        gs.Suicide[0] = 1;
+        gs.Suicide[6] = 1;
         judge_flag = 0;
         Lever_LR[0] = 0;
         Lever_LR[1] = 0;
@@ -4394,8 +4394,8 @@ void Reset_Replay(struct _TASK* task_ptr) {
         Cover_Timer = 5;
         effect_work_kill_mod_plcol();
         move_effect_work(6);
-        Suicide[0] = 1;
-        Suicide[6] = 1;
+        gs.Suicide[0] = 1;
+        gs.Suicide[6] = 1;
         judge_flag = 0;
         cpExitTask(TASK_PAUSE);
         break;

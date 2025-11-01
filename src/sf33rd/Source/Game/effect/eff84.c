@@ -14,7 +14,7 @@
 const u8 Time_Data[5] = { 80, 90, 50, 50, 50 };
 
 void effect_84_move(WORK_Other* ewk) {
-    if (Suicide[0]) {
+    if (gs.Suicide[0]) {
         push_effect_work(&ewk->wu);
         return;
     }

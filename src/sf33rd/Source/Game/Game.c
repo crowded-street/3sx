@@ -622,7 +622,7 @@ void Game2_5() {
         count_cont_init(1);
         Score[0][2] = 0;
         Score[1][2] = 0;
-        Suicide[0] = 1;
+        gs.Suicide[0] = 1;
         Game_pause = 0;
         gs.pcon_rno[0] = 0;
         gs.pcon_rno[1] = 0;
@@ -1224,7 +1224,7 @@ void Game08() {
         if (Check_Fade_Complete_SP() != 0) {
             G_No[2] += 1;
             G_Timer = 10;
-            Suicide[4] = 1;
+            gs.Suicide[4] = 1;
         }
 
         break;
@@ -1363,7 +1363,7 @@ void Game09() {
 
         if (--G_Timer == 0) {
             Cover_Timer = 24;
-            Suicide[0] = 1;
+            gs.Suicide[0] = 1;
             System_all_clear_Level_B();
             G_No[1] = 10;
             G_No[2] = 0;

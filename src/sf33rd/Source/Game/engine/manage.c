@@ -364,8 +364,8 @@ void Game_Manage_2_1() {
 void Game_Manage_2_2() {
     s16 ix;
 
-    Suicide[0] = 0;
-    Suicide[6] = 0;
+    gs.Suicide[0] = 0;
+    gs.Suicide[6] = 0;
 
     for (ix = 0; ix < 4; ix++) {
         Message_Suicide[ix] = 0;
@@ -641,7 +641,7 @@ void Game_Manage_5_4() {
     if (Switch_Screen(0)) {
         C_No[1]++;
         Cover_Timer = 5;
-        Suicide[6] = 1;
+        gs.Suicide[6] = 1;
         judge_flag = 1;
         effect_J4_init(0xFF);
         compel_bg_init_position();
@@ -1030,7 +1030,7 @@ void Game_Manage_8_2() {
     }
 
     Disp_Cockpit = 0;
-    Suicide[2] = 1;
+    gs.Suicide[2] = 1;
     gauge_stop_flag[0] = 1;
     gauge_stop_flag[1] = 1;
     C_No[0]++;
@@ -1100,8 +1100,8 @@ void Game_Manage_9th() {
             Cover_Timer = 5;
             C_No[0] = 1;
             C_No[1] = C_No[2] = C_No[3] = 0;
-            Suicide[0] = 1;
-            Suicide[6] = 1;
+            gs.Suicide[0] = 1;
+            gs.Suicide[6] = 1;
             judge_flag = 0;
         }
 
@@ -1936,9 +1936,9 @@ void Game_Manage_12th() {
 void Game_Manage_12_0() {
     s16 ix;
 
-    Suicide[0] = 0;
-    Suicide[6] = 0;
-    Suicide[5] = 0;
+    gs.Suicide[0] = 0;
+    gs.Suicide[6] = 0;
+    gs.Suicide[5] = 0;
 
     if (effect_84_init()) {
         return;
@@ -2184,7 +2184,7 @@ void Game_Manage_12_4() {
             C_No[3] = 0;
             C_Timer = 10;
             Forbid_Break = 0;
-            Suicide[5] = 1;
+            gs.Suicide[5] = 1;
             Check_Fade_Out_BGM(546);
         }
 
@@ -2341,7 +2341,7 @@ void Game_Manage_12_8() {
             C_No[3] = 0;
             C_Timer = 10;
             Forbid_Break = 0;
-            Suicide[5] = -128;
+            gs.Suicide[5] = -128;
             Check_Fade_Out_BGM(546);
         }
 
@@ -2393,15 +2393,15 @@ void Disp_Bonus_Perfect() {
 void Flash_Bonus_Perfect() {
     switch (PB_Status) {
     case 1:
-        Suicide[5] = 1;
+        gs.Suicide[5] = 1;
         break;
 
     case 2:
-        Suicide[5] = 1;
+        gs.Suicide[5] = 1;
         break;
 
     case 3:
-        Suicide[5] = 1;
+        gs.Suicide[5] = 1;
         break;
     }
 }
@@ -2516,7 +2516,7 @@ s16 Check_Time_Over() {
         if (--C_Timer == 0) {
             C_No[2]++;
             Game_pause = 0;
-            Suicide[5] = 1;
+            gs.Suicide[5] = 1;
         }
 
         break;

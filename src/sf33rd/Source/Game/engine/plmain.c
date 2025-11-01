@@ -689,7 +689,7 @@ void sag_union(PLW* wk) {
                     wk->sa->gauge.i -= wk->sa->dtm * wk->sa->dtm_mul;
                 }
 
-                if (wk->sa->gauge.s.h <= 0 || Suicide[6] != 0) {
+                if (wk->sa->gauge.s.h <= 0 || gs.Suicide[6] != 0) {
                     wk->sa->gauge.i = 0;
                     wk->sa->ok = 0;
                     wk->sa->sa_rno = 0;

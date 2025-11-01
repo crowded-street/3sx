@@ -1604,7 +1604,7 @@ void Exit_3rd() {
 
     Exit_No++;
     S_No[1] = 0;
-    Suicide[3] = 1;
+    gs.Suicide[3] = 1;
 
     if (VS_Index[Player_id] >= 9) {
         EM_Rank = 1;
@@ -1619,7 +1619,7 @@ void Exit_4th() {
     FadeIn(0, 4, 8);
     Exit_No++;
     Forbid_Break = 0;
-    Suicide[0] = 1;
+    gs.Suicide[0] = 1;
     Menu_Suicide[0] = 1;
     bgPalCodeOffset[0] = 144;
     BGM_Request(51);

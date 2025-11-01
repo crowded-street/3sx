@@ -58,7 +58,7 @@ void Continue_1st() {
         Order_Timer[0x38] = 1;
         effect_58_init(0xC, 1, 3);
         effect_58_init(0xC, 1, 1);
-        Suicide[2] = 1;
+        gs.Suicide[2] = 1;
         effect_58_init(0x10, 5, 2);
 
         break;

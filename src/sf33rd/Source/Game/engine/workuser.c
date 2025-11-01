@@ -232,7 +232,6 @@ s8 Last_Selected_EM[2];
 u8 Q_Country;
 u8 Continue_Cut[2];
 u8 Introduce_Boss[2][2];
-s8 Suicide[8];
 u8 Final_Play_Type[2];
 s8 Rank_In[2][4];
 s8 Request_Disp_Rank[2][4];

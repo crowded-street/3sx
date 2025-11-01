@@ -114,8 +114,8 @@ void GameOver_2nd() {
         if (FadeOut(1, 8, 8) != 0) {
             GO_No[1] += 1;
             Cover_Timer = 5;
-            Suicide[3] = 1;
-            Suicide[2] = 0;
+            gs.Suicide[3] = 1;
+            gs.Suicide[2] = 0;
 
             if (Break_Com[WINNER][0]) {
                 Setup_BG(0, 0x200, 0);

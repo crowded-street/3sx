@@ -60,7 +60,7 @@ void effect_H6_move(WORK_Other* ewk) {
                 break;
             }
 
-            if (Suicide[4]) {
+            if (gs.Suicide[4]) {
                 ewk->wu.routine_no[0] = 2;
             }
 
@@ -250,7 +250,7 @@ void effect_H6_move(WORK_Other* ewk) {
             break;
         }
 
-        if (Suicide[4]) {
+        if (gs.Suicide[4]) {
             ewk->wu.routine_no[0] = 2;
         }
 
