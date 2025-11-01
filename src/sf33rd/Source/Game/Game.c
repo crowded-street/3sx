@@ -298,10 +298,10 @@ void Game01() {
     case 0:
         Switch_Screen(1);
         G_No[2] += 1;
-        S_No[0] = 0;
-        S_No[1] = 0;
-        S_No[2] = 0;
-        S_No[3] = 0;
+        gs.S_No[0] = 0;
+        gs.S_No[1] = 0;
+        gs.S_No[2] = 0;
+        gs.S_No[3] = 0;
         SsBgmHalfVolume(0);
 
         if (Mode_Type == MODE_ARCADE) {

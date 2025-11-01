@@ -71,6 +71,9 @@ typedef struct GameState {
     u8 Play_Type;
     s16 Sel_PL_Complete[2];
     s8 New_Challenger;
+
+    // Character select routine indices
+    u8 S_No[4];
 } GameState;
 
 extern GameState gs;
@@ -307,9 +310,6 @@ extern u8 PT_backup;
 extern u8 E_Number[2][4];
 extern u8 E_No[4];
 extern u8 C_No[4];
-
-// Character select routine indices
-extern u8 S_No[4];
 
 // Game routine indices
 extern u8 G_No[4];

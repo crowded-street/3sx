@@ -243,7 +243,6 @@ u8 PT_backup;
 u8 E_Number[2][4];
 u8 E_No[4];
 u8 C_No[4];
-u8 S_No[4];
 u8 G_No[4];
 u8 D_No[4];
 u8 M_No[4];

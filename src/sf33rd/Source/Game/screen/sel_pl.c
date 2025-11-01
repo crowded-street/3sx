@@ -170,7 +170,7 @@ void Switch_Work() {
         return;
     }
 
-    switch (S_No[3]) {
+    switch (gs.S_No[3]) {
     case 0:
         if (Champion) {
             p1sw_0 = 0;
@@ -181,7 +181,7 @@ void Switch_Work() {
         break;
 
     case 1:
-        S_No[3]++;
+        gs.S_No[3]++;
         Default_Training_Data(0);
         Record_Data_Tr = 0;
         Training_Disp_Work_Clear();
@@ -212,7 +212,7 @@ void Switch_Work() {
 void Sel_PL_Control() {
     void (*Sel_PL_Cont_Tbl[4])() = { Sel_PL_Cont_1st, Sel_PL_Cont_2nd, Sel_PL_Cont_3rd, Sel_PL_Cont_4th };
     Setup_Select_Status();
-    Sel_PL_Cont_Tbl[S_No[0]]();
+    Sel_PL_Cont_Tbl[gs.S_No[0]]();
     Face_Control();
     OBJ_Control();
     ID2 = 0;
@@ -226,7 +226,7 @@ void Sel_PL_Cont_1st() {
     s16 xx;
 
     Switch_Screen(1);
-    S_No[0]++;
+    gs.S_No[0]++;
     All_Clear_Suicide();
     SsBgmHalfVolume(0);
     Face_No[0] = 0;
@@ -305,7 +305,7 @@ void Check_Use_Gill() {
 void Sel_PL_Cont_2nd() {
     Switch_Screen(1);
     Switch_Screen_Init(1);
-    S_No[0]++;
+    gs.S_No[0]++;
     Request_E_No = 1;
     Clear_Flash_No();
 }
@@ -315,7 +315,7 @@ void Sel_PL_Cont_3rd() {
         return;
     }
 
-    S_No[0]++;
+    gs.S_No[0]++;
     Forbid_Break = 0;
 
     if (G_No[1] != 1) {
@@ -822,7 +822,7 @@ void PL_Sel_2nd() {
             Go_Away_Red_Lines();
 
             if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
-                S_No[3] = 1;
+                gs.S_No[3] = 1;
                 break;
             }
 
@@ -1074,7 +1074,7 @@ void Sel_PL_5th() {
     SP_No[ID][0]++;
 
     if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
-        S_No[3] = 1;
+        gs.S_No[3] = 1;
     }
 
     if (gs.plw[0].wu.operator == 0 || gs.plw[1].wu.operator == 0) {
@@ -1564,7 +1564,7 @@ void Exit_1st() {
 void Exit_2nd() {
     s16 xx;
 
-    S_No[1] = 0;
+    gs.S_No[1] = 0;
 
     if (Select_Status[0] == 3) {
         Exit_No = 3;
@@ -1603,7 +1603,7 @@ void Exit_3rd() {
     }
 
     Exit_No++;
-    S_No[1] = 0;
+    gs.S_No[1] = 0;
     gs.Suicide[3] = 1;
 
     if (VS_Index[Player_id] >= 9) {
