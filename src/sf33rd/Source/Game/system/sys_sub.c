@@ -1150,7 +1150,7 @@ void Get_Replay_Header() {
     Random_ix32_ex_com = Random_ix32_ex;
     Random_ix16_bg = Random_ix16;
     Champion = Replay_w.champion;
-    New_Challenger = Champion ^ 1;
+    gs.New_Challenger = Champion ^ 1;
     Control_Time = Replay_w.Control_Time_Buff;
     save_w[Present_Mode].Difficulty = Replay_w.Difficulty;
 }

@@ -672,9 +672,9 @@ void OBJ_2nd() {
     Order[Aborigine + 11] = 4;
     Order_Timer[Aborigine + 11] = 1;
     Select_Start[Aborigine] = 2;
-    effect_38_init(New_Challenger, New_Challenger + 11, 127, 1, 2);
-    Order[New_Challenger + 11] = 1;
-    Order_Timer[New_Challenger + 11] = 1;
+    effect_38_init(gs.New_Challenger, gs.New_Challenger + 11, 127, 1, 2);
+    Order[gs.New_Challenger + 11] = 1;
+    Order_Timer[gs.New_Challenger + 11] = 1;
     Go_Away_Red_Lines();
     Order[Aborigine + 31] = 5;
     Order_Timer[Aborigine + 31] = 1;
@@ -2022,9 +2022,9 @@ u8 Setup_Battle_Country() {
         return Random_Stage_Data[0][Rnd32];
     }
 
-    if (My_char[New_Challenger] == 17) {
+    if (My_char[gs.New_Challenger] == 17) {
         return My_char[Champion];
     }
 
-    return My_char[New_Challenger];
+    return My_char[gs.New_Challenger];
 }

@@ -723,7 +723,7 @@ void Game03() {
                 Rep_Game_Infor[10].play_type = 2;
                 Rep_Game_Infor[10].winner = Winner_id;
                 Champion = Winner_id;
-                New_Challenger = Loser_id;
+                gs.New_Challenger = Loser_id;
                 Switch_Screen_Init(0);
                 break;
 

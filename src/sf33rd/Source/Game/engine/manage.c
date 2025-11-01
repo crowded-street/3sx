@@ -225,8 +225,8 @@ void Game_Manage_1st() {
     if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
         cpReadyTask(TASK_MENU, Menu_Task);
         task[TASK_MENU].r_no[0] = 7;
-        gs.plw[New_Challenger].wu.operator = 0;
-        Operator_Status[New_Challenger] = 0;
+        gs.plw[gs.New_Challenger].wu.operator = 0;
+        Operator_Status[gs.New_Challenger] = 0;
         Lever_LR[0] = 0;
         Lever_LR[1] = 0;
         return;

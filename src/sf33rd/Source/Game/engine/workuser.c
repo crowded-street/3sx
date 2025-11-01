@@ -51,7 +51,6 @@ s8 request_message;
 s8 judge_flag;
 s8 WINNER;
 s8 LOSER;
-s8 New_Challenger;
 s8 Champion;
 s8 Fade_Half_Flag;
 s8 Reserve_Cut;

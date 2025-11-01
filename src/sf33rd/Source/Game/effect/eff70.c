@@ -111,7 +111,7 @@ s32 effect_70_init(s16 id) {
     ewk->wu.dir_step = id;
     ewk->wu.dir_timer = 10;
 
-    if (permission_player[Present_Mode].ok[id] == 0) {
+    if (permission_player[Present_Mode].ok[id] == 0) { // FIXME: Should this be moved to GameState?
         ewk->wu.my_bright_type = 1;
         ewk->wu.my_bright_level = 7;
         ewk->wu.my_clear_level = 80;

@@ -35,7 +35,7 @@ void effect_E3_move(WORK_Other* ewk) {
             break;
         }
 
-        if (mwk->wu.id == New_Challenger && Training[0].contents[0][0][0] != 4) {
+        if (mwk->wu.id == gs.New_Challenger && Training[0].contents[0][0][0] != 4) {
             vib_sel[mwk->wu.id] = 0;
         }
 
@@ -59,7 +59,7 @@ void effect_E3_move(WORK_Other* ewk) {
         ewk->wu.vitality = 0;
         ewk->wu.dir_timer = 0;
 
-        if (mwk->wu.id == New_Challenger) {
+        if (mwk->wu.id == gs.New_Challenger) {
             mwk->py->now.quantity.h = 0;
 
             if (ewk->wu.direction == 0) {
@@ -140,7 +140,7 @@ void effect_E3_move(WORK_Other* ewk) {
             break;
         }
 
-        if (New_Challenger != mwk->wu.id) {
+        if (gs.New_Challenger != mwk->wu.id) {
             break;
         }
 

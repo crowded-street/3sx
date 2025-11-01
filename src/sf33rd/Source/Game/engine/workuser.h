@@ -70,6 +70,7 @@ typedef struct GameState {
     s8 Complete_Face;
     u8 Play_Type;
     s16 Sel_PL_Complete[2];
+    s8 New_Challenger;
 } GameState;
 
 extern GameState gs;
@@ -115,7 +116,6 @@ extern s8 request_message;
 extern s8 judge_flag;
 extern s8 WINNER;
 extern s8 LOSER;
-extern s8 New_Challenger;
 extern s8 Champion;
 extern s8 Fade_Half_Flag;
 extern s8 Reserve_Cut;
