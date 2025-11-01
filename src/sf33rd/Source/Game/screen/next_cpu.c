@@ -1204,7 +1204,7 @@ void Setup_PL_Color(s16 PL_id, u16 sw) {
         id_1 = My_char[PL_id ^ 1];
     }
 
-    if (Sel_PL_Complete[PL_id ^ 1] == 0) {
+    if (gs.Sel_PL_Complete[PL_id ^ 1] == 0) {
         id_0 = 127;
     }
 

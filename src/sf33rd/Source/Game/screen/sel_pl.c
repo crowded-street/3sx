@@ -497,7 +497,7 @@ void Face_2nd() {
         return;
     }
 
-    if (Sel_PL_Complete[Aborigine]) {
+    if (gs.Sel_PL_Complete[Aborigine]) {
         Face_MV_Time = 5;
         Face_No[0]++;
 
@@ -765,7 +765,7 @@ void PL_Sel_1st() {
     s16 ret;
     s16 ret2;
 
-    if (Sel_PL_Complete[ID2] == -0x8000) {
+    if (gs.Sel_PL_Complete[ID2] == -0x8000) {
         SP_No[ID2][1] = 2;
         Push_LDREQ_Queue_Player(ID2, My_char[ID2]);
         ret = check_use_all_SA();
@@ -808,7 +808,7 @@ void PL_Sel_2nd() {
 
     switch (SP_No[ID2][3]) {
     case 0:
-        if (!Sel_PL_Complete[ID2]) {
+        if (!gs.Sel_PL_Complete[ID2]) {
             break;
         }
 
@@ -911,7 +911,7 @@ void Sel_PL_1st() {
         Free_Ptr[0] = Voice_Random_Data[1][Rnd];
     }
 
-    if (Sel_PL_Complete[ID]) {
+    if (gs.Sel_PL_Complete[ID]) {
         SP_No[ID][0] = 3;
         Select_Start[ID] = 3;
         Select_Arts[ID] = 3;
@@ -957,7 +957,7 @@ void Sel_PL_3rd() {
         Sel_PL_Sub(0, Deley_Shot_Sub(0));
     }
 
-    if (Sel_PL_Complete[ID] >= 0) {
+    if (gs.Sel_PL_Complete[ID] >= 0) {
         return;
     }
 
@@ -1111,7 +1111,7 @@ u16 Disposal_Of_Diagonal(u16 sw) {
 void Sel_PL_Sub(s16 PL_id, u16 sw) {
     Cursor_Move[PL_id] = 0;
 
-    if (Sel_PL_Complete[PL_id]) {
+    if (gs.Sel_PL_Complete[PL_id]) {
         return;
     }
 
@@ -1149,7 +1149,7 @@ void Sel_PL_Sub(s16 PL_id, u16 sw) {
         return;
     }
 
-    Sel_PL_Complete[PL_id] = 1;
+    gs.Sel_PL_Complete[PL_id] = 1;
     My_char[PL_id] = ID_of_Face[gs.Cursor_Y[PL_id]][gs.Cursor_X[PL_id]];
 
     if (Last_My_char2[PL_id] != My_char[PL_id]) {

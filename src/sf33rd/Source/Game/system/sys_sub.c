@@ -169,7 +169,7 @@ void Clear_Personal_Data(s16 PL_id) {
     Arts_Y[PL_id] = 0;
     Continue_Count[PL_id] = 0;
     Continue_Coin2[PL_id] = 0;
-    Sel_PL_Complete[PL_id] = 0;
+    gs.Sel_PL_Complete[PL_id] = 0;
     Sel_Arts_Complete[PL_id] = 0;
     Sel_EM_Complete[PL_id] = 0;
     Personal_Continue_Flag[PL_id] = 0;

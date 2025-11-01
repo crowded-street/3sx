@@ -69,7 +69,7 @@ void effect_D8_move(WORK_Other* ewk) {
             set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, (ewk->wu.cg_ix / ewk->wu.cgd_type) + 1, 0);
         }
 
-        if (Sel_PL_Complete[ewk->master_id]) {
+        if (gs.Sel_PL_Complete[ewk->master_id]) {
             ewk->wu.routine_no[0] += 1;
             ewk->wu.dir_timer = 20;
             ewk->wu.char_index += 1;
@@ -85,7 +85,7 @@ void effect_D8_move(WORK_Other* ewk) {
             char_move(&ewk->wu);
         } else {
             ewk->wu.routine_no[0] += 1;
-            Sel_PL_Complete[ewk->master_id] = -0x8000;
+            gs.Sel_PL_Complete[ewk->master_id] = -0x8000;
 
             if (Select_Start[ewk->master_id] == 0) {
                 gs.Select_Timer = 0x20;

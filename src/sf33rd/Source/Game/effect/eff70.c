@@ -50,7 +50,7 @@ void effect_70_move(WORK_Other* ewk) {
         /* fallthrough */
 
     case 2:
-        if (gs.Play_Type == 1 && Sel_PL_Complete[0] & 0x8000 && Sel_PL_Complete[1] & 0x8000) {
+        if (gs.Play_Type == 1 && gs.Sel_PL_Complete[0] & 0x8000 && gs.Sel_PL_Complete[1] & 0x8000) {
             ewk->wu.routine_no[0]++;
             ewk->wu.dir_timer = 30;
         }

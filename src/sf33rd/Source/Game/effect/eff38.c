@@ -304,7 +304,7 @@ void EFF38_MOVE(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (Sel_PL_Complete[ewk->master_id] || gs.plw[ewk->master_id].wu.operator == 0) {
+        if (gs.Sel_PL_Complete[ewk->master_id] || gs.plw[ewk->master_id].wu.operator == 0) {
             ewk->wu.routine_no[1] = 2;
         } else {
             ewk->wu.routine_no[1]++;
@@ -329,7 +329,7 @@ void EFF38_MOVE(WORK_Other* ewk) {
             set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
         }
 
-        if (Sel_PL_Complete[ewk->master_id]) {
+        if (gs.Sel_PL_Complete[ewk->master_id]) {
             ewk->wu.routine_no[1]++;
         }
 

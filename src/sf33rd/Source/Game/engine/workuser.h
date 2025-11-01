@@ -69,6 +69,7 @@ typedef struct GameState {
     s8 Suicide[8];
     s8 Complete_Face;
     u8 Play_Type;
+    s16 Sel_PL_Complete[2];
 } GameState;
 
 extern GameState gs;
@@ -423,7 +424,6 @@ extern s16 ENTRY_X;
 extern s16 C_Timer;
 extern s16 S_Timer;
 extern s16 Flash_Complete[2];
-extern s16 Sel_PL_Complete[2];
 extern s16 Sel_Arts_Complete[2];
 extern s16 Arts_Y[2];
 extern s16 Move_Super_Arts[2];

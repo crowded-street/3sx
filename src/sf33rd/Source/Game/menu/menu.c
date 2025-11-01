@@ -3483,9 +3483,9 @@ void VS_Result(struct _TASK* task_ptr) {
         task_ptr->r_no[1] = 16;
         task_ptr->r_no[2] = 1;
         task_ptr->r_no[3] = 0;
-        Sel_PL_Complete[0] = 0;
+        gs.Sel_PL_Complete[0] = 0;
         Sel_Arts_Complete[0] = 0;
-        Sel_PL_Complete[1] = 0;
+        gs.Sel_PL_Complete[1] = 0;
         Sel_Arts_Complete[1] = 0;
         Clear_Flash_Init(4);
         break;
@@ -5219,7 +5219,7 @@ void Character_Change(struct _TASK* task_ptr) {
                 G_No[3] = 0;
 
                 for (ix = 0; ix < 2; ix++) {
-                    Sel_PL_Complete[ix] = 0;
+                    gs.Sel_PL_Complete[ix] = 0;
                     Sel_Arts_Complete[ix] = 0;
                     gs.plw[ix].wu.operator = 1;
                     Operator_Status[ix] = 1;

@@ -1699,7 +1699,7 @@ s32 Check_Entry_Again() {
 void Loser_Sub() {
     gs.plw[LOSER].wu.operator = 0;
     Operator_Status[LOSER] = 0;
-    Sel_PL_Complete[LOSER] = 0;
+    gs.Sel_PL_Complete[LOSER] = 0;
     Sel_Arts_Complete[LOSER] = 0;
 
     if (gs.Play_Type == 0) {

@@ -342,7 +342,6 @@ s16 ENTRY_X;
 s16 C_Timer;
 s16 S_Timer;
 s16 Flash_Complete[2];
-s16 Sel_PL_Complete[2];
 s16 Sel_Arts_Complete[2];
 s16 Arts_Y[2];
 s16 Move_Super_Arts[2];
