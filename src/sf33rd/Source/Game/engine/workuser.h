@@ -67,6 +67,7 @@ typedef struct GameState {
     SelectTimerState select_timer_state;
     s8 Time_Stop;
     s8 Suicide[8];
+    s8 Complete_Face;
 } GameState;
 
 extern GameState gs;
@@ -269,7 +270,6 @@ extern u8 Stage_Time_Finish[2];
 extern u8 Bonus_Type;
 extern s8 Completion_Bonus[2][2];
 extern s8 ichikannkei;
-extern s8 Complete_Face;
 extern u8 Plate_Disposal_No[2][3];
 extern u8 SO_No[2];
 extern u8 Disp_Command_Name[2][3];

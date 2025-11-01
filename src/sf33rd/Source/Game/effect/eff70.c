@@ -40,7 +40,7 @@ void effect_70_move(WORK_Other* ewk) {
         char_move(&ewk->wu);
 
         if (ewk->wu.cg_type) {
-            Complete_Face--;
+            gs.Complete_Face--;
             ewk->wu.routine_no[0]++;
             ewk->wu.char_index = 0;
             set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);

@@ -209,7 +209,6 @@ u8 Stage_Time_Finish[2];
 u8 Bonus_Type;
 s8 Completion_Bonus[2][2];
 s8 ichikannkei;
-s8 Complete_Face;
 u8 Plate_Disposal_No[2][3];
 u8 SO_No[2];
 u8 Disp_Command_Name[2][3];

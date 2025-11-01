@@ -349,7 +349,7 @@ void Setup_1st_Play_Type() {
 void Setup_Face_Sub() {
     s16 x;
 
-    Complete_Face = 19;
+    gs.Complete_Face = 19;
 
     for (x = 1; x < 20; x++) {
         effect_70_init(x);

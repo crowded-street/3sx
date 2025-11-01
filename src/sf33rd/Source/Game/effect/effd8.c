@@ -38,7 +38,7 @@ void effect_D8_move(WORK_Other* ewk) {
             return;
         }
 
-        if (Complete_Face <= 0) {
+        if (gs.Complete_Face <= 0) {
             ewk->wu.routine_no[0] += 1;
             ewk->wu.dir_timer = 10;
         }
