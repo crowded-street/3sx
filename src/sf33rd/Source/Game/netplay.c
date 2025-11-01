@@ -1,5 +1,6 @@
 #include "sf33rd/Source/Game/netplay.h"
 #include "sf33rd/Source/Game/Game.h"
+#include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/grade.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/io/gd3rd.h"
@@ -10,6 +11,8 @@
 #include "sf33rd/Source/Game/rendering/texcash.h"
 #include "sf33rd/Source/Game/system/sys_sub.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
+#include "sf33rd/utils/djb2_hash.h"
+#include "sf33rd/utils/effect_work_hash.h"
 #include "types.h"
 
 #include <stdbool.h>
@@ -31,6 +34,21 @@ typedef enum SessionState {
     SESSION_CONNECTING,
     SESSION_RUNNING,
 } SessionState;
+
+typedef struct EffectState {
+    s16 frwctr;
+    s16 frwctr_min;
+    s16 head_ix[8];
+    s16 tail_ix[8];
+    s16 exec_tm[8];
+    uintptr_t frw[EFFECT_MAX][448];
+    s16 frwque[EFFECT_MAX];
+} EffectState;
+
+typedef struct State {
+    GameState gs;
+    EffectState es;
+} State;
 
 static GekkoSession* session = NULL;
 static unsigned short local_port = 0;
@@ -100,7 +118,7 @@ static void configure_gekko() {
 
     config.num_players = 2;
     config.input_size = sizeof(u16);
-    config.state_size = sizeof(GameState);
+    config.state_size = sizeof(State);
     config.max_spectators = 0;
     config.input_prediction_window = 10;
 
@@ -159,31 +177,54 @@ static u16 recall_input(int player, int frame) {
 }
 
 #if defined(DEBUG)
-static unsigned int djb2_hash(const uint8_t* data, size_t len) {
-    unsigned int hash = 5381;
+static uint32_t update_hash_with_effects(uint32_t hash, const EffectState* state) {
+    hash = djb2_update(hash, state->frwctr);
+    hash = djb2_update(hash, state->frwctr_min);
+    hash = djb2_updatea(hash, state->head_ix);
+    hash = djb2_updatea(hash, state->tail_ix);
+    hash = djb2_updatea(hash, state->exec_tm);
+    hash = djb2_updatea(hash, state->frwque);
+    hash = update_hash_with_effect_work(hash, state->frw);
+    return hash;
+}
 
-    for (size_t i = 0; i < len; i++) {
-        hash *= 33;
-        hash += data[i];
-    }
-
+static uint32_t calculate_checksum(const State* state) {
+    uint32_t hash = djb2_init();
+    hash = djb2_update(hash, state->gs);
+    hash = update_hash_with_effects(hash, &state->es);
     return hash;
 }
 #endif
 
 static void save_state(GekkoGameEvent* event) {
-    *event->data.save.state_len = sizeof(GameState);
-    GameState* dst = (GameState*)event->data.save.state;
-    SDL_memcpy(dst, &gs, sizeof(GameState));
+    *event->data.save.state_len = sizeof(State);
+    State* dst = (State*)event->data.save.state;
+    SDL_memcpy(&dst->gs, &gs, sizeof(gs));
+
+    SDL_memcpy(&dst->es.frw, frw, sizeof(frw));
+    SDL_memcpy(&dst->es.exec_tm, exec_tm, sizeof(exec_tm));
+    SDL_memcpy(&dst->es.frwque, frwque, sizeof(frwque));
+    SDL_memcpy(&dst->es.head_ix, head_ix, sizeof(head_ix));
+    SDL_memcpy(&dst->es.tail_ix, tail_ix, sizeof(tail_ix));
+    dst->es.frwctr = frwctr;
+    dst->es.frwctr_min = frwctr_min;
 
 #if defined(DEBUG)
-    *event->data.save.checksum = djb2_hash(&gs, sizeof(GameState));
+    *event->data.save.checksum = calculate_checksum(dst);
 #endif
 }
 
 static void load_state(GekkoGameEvent* event) {
-    const GameState* src = (GameState*)event->data.load.state;
-    SDL_memcpy(&gs, src, sizeof(GameState));
+    const State* src = (State*)event->data.load.state;
+    SDL_memcpy(&gs, &src->gs, sizeof(gs));
+
+    SDL_memcpy(frw, &src->es.frw, sizeof(frw));
+    SDL_memcpy(exec_tm, &src->es.exec_tm, sizeof(exec_tm));
+    SDL_memcpy(frwque, &src->es.frwque, sizeof(frwque));
+    SDL_memcpy(head_ix, &src->es.head_ix, sizeof(head_ix));
+    SDL_memcpy(tail_ix, &src->es.tail_ix, sizeof(tail_ix));
+    frwctr = src->es.frwctr;
+    frwctr_min = src->es.frwctr_min;
 }
 
 static bool game_ready_to_run_character_select() {
