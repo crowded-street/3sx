@@ -324,7 +324,9 @@ void Sel_PL_Cont_3rd() {
     }
 }
 
-void Sel_PL_Cont_4th() {}
+void Sel_PL_Cont_4th() {
+    // Do nothing
+}
 
 void Setup_Face_ID() {
     s16 x;
@@ -340,10 +342,9 @@ void Setup_Face_ID() {
 void Setup_1st_Play_Type() {
     if (gs.Play_Type == 1) {
         Play_Type_1st = 99;
-        return;
+    } else {
+        Play_Type_1st = Aborigine;
     }
-
-    Play_Type_1st = Aborigine;
 }
 
 void Setup_Face_Sub() {
