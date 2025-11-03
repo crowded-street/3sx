@@ -60,6 +60,12 @@ static u16 input_history[2][INPUT_HISTORY_MAX] = { 0 };
 static float frames_behind = 0;
 static int frame_skip_timer = 0;
 
+#if defined(DEBUG)
+#define STATE_BUFFER_MAX 20
+
+static State state_buffer[STATE_BUFFER_MAX] = { 0 };
+#endif
+
 #if defined(LOSSY_ADAPTER)
 static GekkoNetAdapter* base_adapter = NULL;
 static GekkoNetAdapter lossy_adapter = { 0 };
@@ -196,6 +202,57 @@ static uint32_t calculate_checksum(const State* state) {
 }
 #endif
 
+#if defined(DEBUG)
+static void dump_state(int frame) {
+    State copy;
+    SDL_memcpy(&copy, &state_buffer[frame % STATE_BUFFER_MAX], sizeof(State));
+
+    for (int i = 0; i < EFFECT_MAX; i++) {
+        WORK* work = (WORK*)copy.es.frw[i];
+        work->target_adrs = NULL;
+        work->hit_adrs = NULL;
+        work->dmg_adrs = NULL;
+        work->suzi_offset = NULL;
+        SDL_zeroa(work->char_table);
+        work->se_random_table = NULL;
+        work->step_xy_table = NULL;
+        work->move_xy_table = NULL;
+        work->overlap_char_tbl = NULL;
+        work->olc_ix_table = NULL;
+        work->rival_catch_tbl = NULL;
+        work->curr_rca = NULL;
+        work->set_char_ad = NULL;
+        work->hit_ix_table = NULL;
+        work->body_adrs = NULL;
+        work->h_bod = NULL;
+        work->hand_adrs = NULL;
+        work->h_han = NULL;
+        work->dumm_adrs = NULL;
+        work->h_dumm = NULL;
+        work->catch_adrs = NULL;
+        work->h_cat = NULL;
+        work->caught_adrs = NULL;
+        work->h_cau = NULL;
+        work->attack_adrs = NULL;
+        work->h_att = NULL;
+        work->h_eat = NULL;
+        work->hosei_adrs = NULL;
+        work->h_hos = NULL;
+        work->att_ix_table = NULL;
+        work->my_effadrs = NULL;
+
+        WORK_Other* work_big = (WORK_Other*)copy.es.frw[i];
+        work_big->my_master = NULL;
+    }
+
+    char filename[100];
+    SDL_snprintf(filename, sizeof(filename), "states/%d_%d", player_handle, frame);
+
+    SDL_IOStream* io = SDL_IOFromFile(filename, "w");
+    SDL_WriteIO(io, &copy, sizeof(State));
+}
+#endif
+
 static void save_state(GekkoGameEvent* event) {
     *event->data.save.state_len = sizeof(State);
     State* dst = (State*)event->data.save.state;
@@ -211,6 +268,11 @@ static void save_state(GekkoGameEvent* event) {
 
 #if defined(DEBUG)
     *event->data.save.checksum = calculate_checksum(dst);
+    const int frame = event->data.save.frame;
+
+    if (frame >= 0) {
+        SDL_memcpy(&state_buffer[frame % STATE_BUFFER_MAX], dst, sizeof(State));
+    }
 #endif
 }
 
@@ -308,7 +370,12 @@ static void process_session() {
             break;
 
         case DesyncDetected:
-            printf("⚠️ desync detected at frame %d\n", event->data.desynced.frame);
+            const int frame = event->data.desynced.frame;
+            printf("⚠️ desync detected at frame %d\n", frame);
+
+#if defined(DEBUG)
+            dump_state(frame);
+#endif
             break;
 
         case EmptySessionEvent:
