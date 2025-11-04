@@ -1,5 +1,6 @@
 #include "port/sdl/sdl_app.h"
 #include "common.h"
+#include "port/config.h"
 #include "port/sdl/sdl_debug_text.h"
 #include "port/sdl/sdl_game_renderer.h"
 #include "port/sdl/sdl_message_renderer.h"
@@ -14,8 +15,8 @@
 
 static const char* app_name = "Street Fighter III: 3rd Strike";
 static const float display_target_ratio = 4.0 / 3.0;
-static const int window_default_width = 640;
-static const int window_default_height = (int)(window_default_width / display_target_ratio);
+static const int window_min_width = 384;
+static const int window_min_height = (int)(window_min_width / display_target_ratio);
 static const double target_fps = 59.59949;
 static const Uint64 target_frame_time_ns = 1000000000.0 / target_fps;
 
@@ -47,6 +48,8 @@ static void create_screen_texture() {
 }
 
 int SDLApp_Init() {
+    Config_Init();
+
     SDL_SetAppMetadata(app_name, "0.1", NULL);
     SDL_SetHint(SDL_HINT_VIDEO_WAYLAND_PREFER_LIBDECOR, "1");
     SDL_SetHint(SDL_HINT_NO_SIGNAL_HANDLERS, "1");
@@ -56,12 +59,25 @@ int SDLApp_Init() {
         return 1;
     }
 
-    if (!SDL_CreateWindowAndRenderer(app_name,
-                                     window_default_width,
-                                     window_default_height,
-                                     SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY,
-                                     &window,
-                                     &renderer)) {
+    SDL_WindowFlags window_flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
+
+    if (Config_GetBool(CFG_KEY_FULLSCREEN)) {
+        window_flags |= SDL_WINDOW_FULLSCREEN;
+    }
+
+    int window_width = Config_GetInt(CFG_KEY_WINDOW_WIDTH);
+
+    if (window_width < window_min_width) {
+        window_width = window_min_width;
+    }
+
+    int window_height = Config_GetInt(CFG_KEY_WINDOW_HEIGHT);
+
+    if (window_height < window_min_height) {
+        window_height = window_min_height;
+    }
+
+    if (!SDL_CreateWindowAndRenderer(app_name, window_width, window_height, window_flags, &window, &renderer)) {
         SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
         return 1;
     }
@@ -89,6 +105,7 @@ int SDLApp_Init() {
 }
 
 void SDLApp_Quit() {
+    Config_Destroy();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
