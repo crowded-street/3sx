@@ -6,6 +6,7 @@
 #define CFG_KEY_FULLSCREEN "fullscreen"
 #define CFG_KEY_WINDOW_WIDTH "window-width"
 #define CFG_KEY_WINDOW_HEIGHT "window-height"
+#define CFG_KEY_SCALEMODE "scale-mode"
 
 /// Initialize config system
 void Config_Init();

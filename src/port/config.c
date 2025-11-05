@@ -30,6 +30,7 @@ static const ConfigEntry default_entries[] = {
     { .key = CFG_KEY_FULLSCREEN, .type = CFG_BOOL, .value.b = true },
     { .key = CFG_KEY_WINDOW_WIDTH, .type = CFG_INT, .value.i = 640 },
     { .key = CFG_KEY_WINDOW_HEIGHT, .type = CFG_INT, .value.i = 480 },
+    { .key = CFG_KEY_SCALEMODE, .type = CFG_STRING, .value.s = "soft-linear" },
 };
 
 static ConfigEntry entries[CONFIG_ENTRIES_MAX] = { 0 };
