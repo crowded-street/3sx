@@ -157,7 +157,7 @@ void Clear_Personal_Data(s16 PL_id) {
     Introduce_Boss[PL_id][0] = 0;
     Introduce_Boss[PL_id][1] = 0;
     Introduce_Break_Into[PL_id] = 0;
-    Score[PL_id][0] = 0;
+    gs.Score[PL_id][0] = 0;
     Stock_Score[PL_id] = 0;
     Stage_Stock_Score[PL_id] = 0;
     Continue_Coin[PL_id] = 0;
@@ -284,7 +284,7 @@ void Score_Sub() {
         if (Stop_Update_Score) {
             Score_Buff = Keep_Score[PL_id];
         } else {
-            Score_Buff = Score[PL_id][gs.Play_Type];
+            Score_Buff = gs.Score[PL_id][gs.Play_Type];
             Score_Buff += Continue_Coin[PL_id];
             Keep_Score[PL_id] = Score_Buff;
         }
@@ -445,7 +445,7 @@ void Setup_Final_Grade() {
         Final_Result_id = LOSER;
         WGJ_Target = LOSER;
         WGJ_Win = Win_Record[LOSER];
-        WGJ_Score = Continue_Coin[LOSER] + Score[LOSER][0];
+        WGJ_Score = Continue_Coin[LOSER] + gs.Score[LOSER][0];
     }
 }
 
@@ -1448,7 +1448,7 @@ s32 Check_Ranking(s16 PL_id) {
     Present_Data[PL_id].name[2] = 25;
     Present_Data[PL_id].player = Stock_My_char[PL_id];
     Present_Data[PL_id].player_color = Stock_Player_Color[PL_id];
-    Present_Data[PL_id].score = Continue_Coin[PL_id] + Score[PL_id][0];
+    Present_Data[PL_id].score = Continue_Coin[PL_id] + gs.Score[PL_id][0];
     Present_Data[PL_id].wins = Stock_Win_Record[PL_id];
     Present_Data[PL_id].cpu_grade = judge_final[PL_id]->vs_cpu_grade[12];
     Present_Data[PL_id].grade = Best_Grade[PL_id];

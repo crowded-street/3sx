@@ -11,7 +11,6 @@
 GameState gs = { 0 };
 
 // sbss
-u32 Score[2][3];
 const_s16_arr Tech_Address[2];
 u32 Complete_Bonus;
 void* Shell_Address[2];

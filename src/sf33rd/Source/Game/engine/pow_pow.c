@@ -66,10 +66,10 @@ void Additinal_Score_DM(WORK_Other* wk, u16 ix) {
         id = wk->master_id;
     }
 
-    Score[id][2] += Score_Data[ix];
+    gs.Score[id][2] += Score_Data[ix];
 
-    if (Score[id][2] >= 99999900) {
-        Score[id][2] = 99999900;
+    if (gs.Score[id][2] >= 99999900) {
+        gs.Score[id][2] = 99999900;
     }
 
     if ((Mode_Type != MODE_VERSUS) && (Mode_Type != MODE_REPLAY)) {
@@ -77,16 +77,16 @@ void Additinal_Score_DM(WORK_Other* wk, u16 ix) {
             return;
         }
 
-        Score[id][gs.Play_Type] += Score_Data[ix];
+        gs.Score[id][gs.Play_Type] += Score_Data[ix];
 
-        if (Score[id][gs.Play_Type] >= 99999900) {
-            Score[id][gs.Play_Type] = 99999900;
+        if (gs.Score[id][gs.Play_Type] >= 99999900) {
+            gs.Score[id][gs.Play_Type] = 99999900;
         }
     } else {
-        Score[id][gs.Play_Type] += Score_Data[ix];
+        gs.Score[id][gs.Play_Type] += Score_Data[ix];
 
-        if (Score[id][gs.Play_Type] >= 99999900) {
-            Score[id][gs.Play_Type] = 99999900;
+        if (gs.Score[id][gs.Play_Type] >= 99999900) {
+            gs.Score[id][gs.Play_Type] = 99999900;
         }
     }
 }

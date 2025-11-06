@@ -343,7 +343,7 @@ void makeup_final_grade(s16 ix, s16 pt) {
 void grade_final_grade_bonus() {
     u32 bonus_point = grade_t_table[judge_final[WGJ_Target][Final_Play_Type[WGJ_Target]].grade][1];
     bonus_point *= 0x64;
-    Score[WGJ_Target][Final_Play_Type[WGJ_Target]] += bonus_point;
+    gs.Score[WGJ_Target][Final_Play_Type[WGJ_Target]] += bonus_point;
 }
 
 void makeup_spp_frdat(s16 ix, s16 pt) {

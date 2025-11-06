@@ -620,8 +620,8 @@ void Game2_5() {
         stngauge_work_clear();
         combo_cont_init();
         count_cont_init(1);
-        Score[0][2] = 0;
-        Score[1][2] = 0;
+        gs.Score[0][2] = 0;
+        gs.Score[1][2] = 0;
         gs.Suicide[0] = 1;
         Game_pause = 0;
         gs.pcon_rno[0] = 0;
@@ -671,10 +671,10 @@ void Game01_Sub() {
     Stop_Update_Score = 0;
     vital_cont_init();
     count_cont_init(0);
-    Score[0][1] = 0;
-    Score[0][2] = 0;
-    Score[1][1] = 0;
-    Score[1][2] = 0;
+    gs.Score[0][1] = 0;
+    gs.Score[0][2] = 0;
+    gs.Score[1][1] = 0;
+    gs.Score[1][2] = 0;
     PL_Wins[0] = 0;
     PL_Wins[1] = 0;
     combo_cont_init();
@@ -1207,7 +1207,7 @@ void Game08() {
         WGJ_Target = WINNER;
         WGJ_Win = Win_Record[WINNER];
         grade_final_grade_bonus();
-        WGJ_Score = Continue_Coin[WINNER] + Score[WINNER][0];
+        WGJ_Score = Continue_Coin[WINNER] + gs.Score[WINNER][0];
         Purge_mmtm_area(6);
         cpExitTask(TASK_MENU);
         cpExitTask(TASK_PAUSE);

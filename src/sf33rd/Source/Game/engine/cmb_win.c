@@ -385,14 +385,14 @@ u32 SCORE_CALCULATION(s8 PL) {
 }
 
 void SCORE_PLUS(s8 PL, u32 PTS) {
-    Score[PL][2] += PTS;
-    if (Score[PL][2] >= 99999900) {
-        Score[PL][2] = 99999900;
+    gs.Score[PL][2] += PTS;
+    if (gs.Score[PL][2] >= 99999900) {
+        gs.Score[PL][2] = 99999900;
     }
 
-    Score[PL][gs.Play_Type] += PTS;
-    if (Score[PL][gs.Play_Type] >= 99999900) {
-        Score[PL][gs.Play_Type] = 99999900;
+    gs.Score[PL][gs.Play_Type] += PTS;
+    if (gs.Score[PL][gs.Play_Type] >= 99999900) {
+        gs.Score[PL][gs.Play_Type] = 99999900;
     }
 }
 

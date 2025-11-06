@@ -200,7 +200,7 @@ void Game_Manage_1st() {
     if (gs.Play_Type == 0) {
         Control_Time = SC_Personal_Time[Player_id];
         paring_ctr_ori[Player_id] = paring_ctr_vs[0][Player_id] = 0;
-        Stage_Stock_Score[Player_id] = Score[Player_id][0];
+        Stage_Stock_Score[Player_id] = gs.Score[Player_id][0];
         Request_Disp_Rank[COM_id][0] = -1;
         Request_Disp_Rank[COM_id][1] = -1;
         Request_Disp_Rank[COM_id][2] = -1;
@@ -398,8 +398,8 @@ void Game_Manage_2_2() {
     sag_inc_timer[0] = sag_inc_timer[1] = 0;
     CP_No[0][0] = 0;
     CP_No[1][0] = 0;
-    Stock_Score[0] = Score[0][0];
-    Stock_Score[1] = Score[1][0];
+    Stock_Score[0] = gs.Score[0][0];
+    Stock_Score[1] = gs.Score[1][0];
     grade_check_work_round_init(0);
     grade_check_work_round_init(1);
 }
@@ -444,8 +444,8 @@ void Game_Manage_2_4() {
         Disp_Cockpit = 1;
 
         if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
-            Score[0][2] = 0;
-            Score[1][2] = 0;
+            gs.Score[0][2] = 0;
+            gs.Score[1][2] = 0;
             Game_pause = 0;
             gs.pcon_rno[0] = 0;
             gs.pcon_rno[1] = 0;
@@ -1252,13 +1252,13 @@ s32 Check_Ending_Sub() {
 
 void Additional_Bonus(s16 PL_id) {
     Complete_Bonus = Setup_Comp_Bonus();
-    Score[PL_id][gs.Play_Type] += Perfect_Bonus[Winner_id];
-    Score[PL_id][gs.Play_Type] += Vital_Bonus[Winner_id];
-    Score[PL_id][gs.Play_Type] += Time_Bonus[Winner_id];
-    Score[PL_id][gs.Play_Type] += Complete_Bonus;
+    gs.Score[PL_id][gs.Play_Type] += Perfect_Bonus[Winner_id];
+    gs.Score[PL_id][gs.Play_Type] += Vital_Bonus[Winner_id];
+    gs.Score[PL_id][gs.Play_Type] += Time_Bonus[Winner_id];
+    gs.Score[PL_id][gs.Play_Type] += Complete_Bonus;
 
-    if (Score[PL_id][gs.Play_Type] >= 99999900) {
-        Score[PL_id][gs.Play_Type] = 99999900;
+    if (gs.Score[PL_id][gs.Play_Type] >= 99999900) {
+        gs.Score[PL_id][gs.Play_Type] = 99999900;
     }
 }
 
@@ -1388,7 +1388,7 @@ void Update_VS_Data() {
             return;
         }
 
-        Score[LOSER][0] = Stage_Stock_Score[LOSER];
+        gs.Score[LOSER][0] = Stage_Stock_Score[LOSER];
         SC_Personal_Time[LOSER] = Control_Time;
         Win_Record[LOSER] = 0;
         Straight_Counter[LOSER] = 0;
@@ -1396,7 +1396,7 @@ void Update_VS_Data() {
         return;
     }
 
-    Score[Loser_id][0] = Stock_Score[Loser_id];
+    gs.Score[Loser_id][0] = Stock_Score[Loser_id];
 }
 
 void BGM_Fade_Sub() {
@@ -1971,7 +1971,7 @@ void Game_Manage_12_0() {
         Message_Suicide[ix] = 0;
     }
 
-    Stock_Score[Player_id] = Score[Player_id][0];
+    Stock_Score[Player_id] = gs.Score[Player_id][0];
 
     if (Bonus_Type == 20) {
         C_No[1] = 6;
@@ -2099,7 +2099,7 @@ void Game_Manage_12_4() {
                 Bonus_Game_result = 1;
             } else {
                 Bonus_Score += 1000;
-                Score[Player_id][0] += 1000;
+                gs.Score[Player_id][0] += 1000;
                 Disp_Score_Buff[0] = Bonus_Score;
                 Sound_SE(100);
             }
@@ -2149,15 +2149,15 @@ void Game_Manage_12_4() {
                 C_Timer = 40;
 
                 if (PB_Status & 1) {
-                    Score[Player_id][0] += Ball_Perfect_PTS[0][Bonus_Stage_Level];
+                    gs.Score[Player_id][0] += Ball_Perfect_PTS[0][Bonus_Stage_Level];
                 }
 
                 if (PB_Status & 2) {
-                    Score[Player_id][0] += Ball_Perfect_PTS[1][Bonus_Stage_Level];
+                    gs.Score[Player_id][0] += Ball_Perfect_PTS[1][Bonus_Stage_Level];
                 }
 
-                if (Score[Player_id][0] >= 99999900) {
-                    Score[Player_id][0] = 99999900;
+                if (gs.Score[Player_id][0] >= 99999900) {
+                    gs.Score[Player_id][0] = 99999900;
                 }
 
                 Flash_Bonus_Perfect();
@@ -2283,7 +2283,7 @@ void Game_Manage_12_8() {
         if (Bonus_Cut_Sub() == 0 && --C_Timer == 0) {
             C_No[2]++;
             C_Timer = 20;
-            Score[Player_id][0] += Bonus_Score;
+            gs.Score[Player_id][0] += Bonus_Score;
             effect_08_init(7, 0, 1, 15, 0);
             Disp_Score_Buff[0] = Bonus_Score;
             effect_14_init(0, 35, 11, 15);
@@ -2311,7 +2311,7 @@ void Game_Manage_12_8() {
                 C_Timer = 30;
                 C_Timer = 3;
                 Bonus_Score += 1000;
-                Score[Player_id][0] += 1000;
+                gs.Score[Player_id][0] += 1000;
                 Disp_Score_Buff[0] = Bonus_Score;
                 Sound_SE(100);
                 break;
@@ -2319,7 +2319,7 @@ void Game_Manage_12_8() {
 
             C_Timer = 3;
             Bonus_Score += 1000;
-            Score[Player_id][0] += 1000;
+            gs.Score[Player_id][0] += 1000;
             Disp_Score_Buff[0] = Bonus_Score;
             Sound_SE(100);
         }
@@ -2420,7 +2420,7 @@ u32 Setup_Final_Score(s16 Type) {
             xx += Ball_Perfect_PTS[1][Bonus_Stage_Level];
         }
 
-        xx += Score[Player_id][0];
+        xx += gs.Score[Player_id][0];
 
         if (xx >= 99999900) {
             xx = 99999900;
@@ -2446,7 +2446,7 @@ u32 Setup_Final_Score(s16 Type) {
     Bonus_Score = xx;
     xx += gs.Counter_hi * 1000;
     Bonus_Score_Plus = xx;
-    xx += Score[Player_id][0];
+    xx += gs.Score[Player_id][0];
 
     if (xx >= 99999900) {
         xx = 99999900;
@@ -2459,10 +2459,10 @@ s32 Bonus_Cut_Sub() {
     if (gs.Scene_Cut) {
         Sound_SE(100);
         Bonus_Game_result = 0;
-        Score[Player_id][0] = Final_Bonus_Score;
+        gs.Score[Player_id][0] = Final_Bonus_Score;
 
-        if (Score[Player_id][0] >= 99999900) {
-            Score[Player_id][0] = 99999900;
+        if (gs.Score[Player_id][0] >= 99999900) {
+            gs.Score[Player_id][0] = 99999900;
         }
 
         if (Disp_Bonus_Contents == 0) {
