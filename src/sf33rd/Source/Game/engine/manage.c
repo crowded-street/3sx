@@ -2444,7 +2444,7 @@ u32 Setup_Final_Score(s16 Type) {
 
     gs.Bonus_Score = xx;
     xx += gs.Counter_hi * 1000;
-    Bonus_Score_Plus = xx;
+    gs.Bonus_Score_Plus = xx;
     xx += gs.Score[Player_id][0];
 
     if (xx >= 99999900) {
@@ -2484,7 +2484,7 @@ s32 Bonus_Cut_Sub() {
         bcounter_down(1);
 
         if (Disp_Bonus_Contents == 0) {
-            Disp_Score_Buff[0] = Bonus_Score_Plus;
+            Disp_Score_Buff[0] = gs.Bonus_Score_Plus;
             effect_14_init(0, 35, 11, 15);
         }
 
