@@ -15,7 +15,6 @@ const_s16_arr Tech_Address[2];
 void* Shell_Address[2];
 void* Synchro_Address[2][2];
 
-u32 Perfect_Bonus[2];
 u32 Keep_Score[2];
 u32 Disp_Score_Buff[2];
 s8 Winner_id;
