@@ -14,7 +14,6 @@ GameState gs = { 0 };
 const_s16_arr Tech_Address[2];
 void* Shell_Address[2];
 
-u32 Final_Bonus_Score;
 void* Synchro_Address[2][2];
 u32 WGJ_Score;
 u32 Bonus_Score_Plus;

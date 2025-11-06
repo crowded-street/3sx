@@ -2010,7 +2010,7 @@ void Game_Manage_12_2() {
     Completion_Bonus[Player_id][1] = -128;
     Stock_Bonus_Game_Result = Bonus_Game_result;
     gs.Bonus_Score = 0;
-    Final_Bonus_Score = Setup_Final_Score(21);
+    gs.Final_Bonus_Score = Setup_Final_Score(21);
     effect_58_init(6, 10, 169);
     grade_makeup_bonus_parameter(Player_id);
 
@@ -2236,7 +2236,7 @@ void Game_Manage_12_7() {
     Allow_a_battle_f = 0;
     Forbid_Break = -1;
     Completion_Bonus[Player_id][0] = -128;
-    Final_Bonus_Score = Setup_Final_Score(20);
+    gs.Final_Bonus_Score = Setup_Final_Score(20);
     grade_makeup_bonus_parameter(Player_id);
     effect_58_init(6, 10, 169);
 }
@@ -2458,7 +2458,7 @@ s32 Bonus_Cut_Sub() {
     if (gs.Scene_Cut) {
         Sound_SE(100);
         Bonus_Game_result = 0;
-        gs.Score[Player_id][0] = Final_Bonus_Score;
+        gs.Score[Player_id][0] = gs.Final_Bonus_Score;
 
         if (gs.Score[Player_id][0] >= 99999900) {
             gs.Score[Player_id][0] = 99999900;
