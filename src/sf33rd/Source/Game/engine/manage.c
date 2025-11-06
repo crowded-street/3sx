@@ -398,8 +398,8 @@ void Game_Manage_2_2() {
     sag_inc_timer[0] = sag_inc_timer[1] = 0;
     CP_No[0][0] = 0;
     CP_No[1][0] = 0;
-    Stock_Score[0] = gs.Score[0][0];
-    Stock_Score[1] = gs.Score[1][0];
+    gs.Stock_Score[0] = gs.Score[0][0];
+    gs.Stock_Score[1] = gs.Score[1][0];
     grade_check_work_round_init(0);
     grade_check_work_round_init(1);
 }
@@ -1396,7 +1396,7 @@ void Update_VS_Data() {
         return;
     }
 
-    gs.Score[Loser_id][0] = Stock_Score[Loser_id];
+    gs.Score[Loser_id][0] = gs.Stock_Score[Loser_id];
 }
 
 void BGM_Fade_Sub() {
@@ -1971,7 +1971,7 @@ void Game_Manage_12_0() {
         Message_Suicide[ix] = 0;
     }
 
-    Stock_Score[Player_id] = gs.Score[Player_id][0];
+    gs.Stock_Score[Player_id] = gs.Score[Player_id][0];
 
     if (Bonus_Type == 20) {
         C_No[1] = 6;
