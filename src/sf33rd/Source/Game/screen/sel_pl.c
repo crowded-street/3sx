@@ -145,7 +145,7 @@ const u8 Repeat_Time_Data_Wife[3] = { 1, 1, 1 };
 s16 Select_Player() {
     SEL_PL_X = 0;
 
-    if (Break_Into) {
+    if (gs.Break_Into) {
         return 0;
     }
 

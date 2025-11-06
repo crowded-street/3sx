@@ -167,7 +167,7 @@ void Entry_01() {
     case 0:
         E_No[2] += 1;
         E_No[1] = 1;
-        Break_Into = 0;
+        gs.Break_Into = 0;
         break;
 
     case 1:
@@ -1357,7 +1357,7 @@ void Break_Into_02(s16 /* unused */) {
 }
 
 void Break_Into_04(s16 /* unused */) {
-    Break_Into = 1;
+    gs.Break_Into = 1;
     E_No[1] += 1;
     E_No[2] = 0;
     E_Timer = 150;
@@ -1372,7 +1372,7 @@ void Break_Into_04(s16 /* unused */) {
 }
 
 void Break_Into_05(s16 PL_id) {
-    Break_Into = 1;
+    gs.Break_Into = 1;
     Stop_Combo = 1;
     E_No[1] += 1;
     E_No[2] = 0;
@@ -1419,7 +1419,7 @@ void Break_Into_07(s16 PL_id) {
 
     E_No[1] += 1;
     E_No[2] = 0;
-    Break_Into = 1;
+    gs.Break_Into = 1;
 }
 
 void Break_Into_08(s16 PL_id) {
@@ -1433,7 +1433,7 @@ void Break_Into_08(s16 PL_id) {
         return;
     }
 
-    Break_Into = 1;
+    gs.Break_Into = 1;
     E_No[1] += 1;
     E_No[2] = 0;
 
@@ -1456,7 +1456,7 @@ void Break_Into_09(s16 PL_id) {
         return;
     }
 
-    Break_Into = 1;
+    gs.Break_Into = 1;
     E_No[1] += 1;
     E_No[2] = 0;
     Champion = gs.New_Challenger;
@@ -1473,7 +1473,7 @@ void Break_Into_10(s16 PL_id) {
         return;
     }
 
-    Break_Into = 1;
+    gs.Break_Into = 1;
     E_No[1] += 1;
     E_No[2] = 0;
     Champion = gs.New_Challenger;

@@ -55,7 +55,7 @@ void SelectTimer_Run() {
         return;
     }
 
-    if (Break_Into) {
+    if (gs.Break_Into) {
         return;
     }
 

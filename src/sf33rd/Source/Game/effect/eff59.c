@@ -174,7 +174,7 @@ s32 Check_Break_Into_59(WORK_Other* ewk) {
         return 0;
     }
 
-    if (Break_Into) {
+    if (gs.Break_Into) {
         ewk->wu.routine_no[0] = 4;
         ewk->wu.my_family = 1;
         ewk->wu.position_z = 8;

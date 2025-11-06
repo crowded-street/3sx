@@ -63,7 +63,7 @@ void count_cont_main() {
         return;
     }
 
-    if (Break_Into) {
+    if (gs.Break_Into) {
         counter_write(gs.counter_color);
         return;
     }
@@ -192,7 +192,7 @@ void bcount_cont_init() {
 }
 
 void bcount_cont_main() {
-    if (Break_Into != 0 || sa_stop_check() || gs.Time_Stop != 0 || Allow_a_battle_f == 0) {
+    if (gs.Break_Into != 0 || sa_stop_check() || gs.Time_Stop != 0 || Allow_a_battle_f == 0) {
         return;
     }
 

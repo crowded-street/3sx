@@ -166,7 +166,7 @@ void effect_B2_move(WORK_Other* ewk) {
 }
 
 s32 b3_Break_Into_check(WORK_Other* ewk) {
-    if (Break_Into) {
+    if (gs.Break_Into) {
         ewk->wu.routine_no[0] = 99;
         return 1;
     } else {

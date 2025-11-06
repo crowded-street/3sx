@@ -63,7 +63,7 @@ void Init_Task_1st(struct _TASK* task_ptr) {
     effect_work_init();
     Max_vitality = 160;
     reset_NG_flag = 0;
-    Break_Into = 0;
+    gs.Break_Into = 0;
     Forbid_Break = 0;
     Extra_Break = 0;
     Demo_Flag = 0;

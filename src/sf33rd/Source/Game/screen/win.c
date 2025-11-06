@@ -40,7 +40,7 @@ s32 Winner_Scene() {
         Win_1st, Win_2nd, Win_3rd, Win_4th, Win_5th, Win_6th,
     };
 
-    if (Break_Into) {
+    if (gs.Break_Into) {
         return 0;
     }
 
@@ -232,7 +232,7 @@ s32 Loser_Scene() {
         WIN_X = 0;
     }
 
-    if (Break_Into) {
+    if (gs.Break_Into) {
         return 0;
     }
 

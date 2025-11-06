@@ -99,7 +99,7 @@ void effect_95_move(WORK_Other* ewk) {
             }
         }
 
-        if (Break_Into) {
+        if (gs.Break_Into) {
             ewk->wu.routine_no[0] = 2;
         }
 

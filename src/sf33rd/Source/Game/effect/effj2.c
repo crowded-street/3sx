@@ -39,7 +39,7 @@ void effect_J2_move(WORK_Other_CONN* ewk) {
         break;
 
     case 1:
-        if (ewk->wu.dead_f == 1 || Break_Into || --ewk->wu.dir_timer <= 0) {
+        if (ewk->wu.dead_f == 1 || gs.Break_Into || --ewk->wu.dir_timer <= 0) {
             ewk->wu.disp_flag = 0;
             ewk->wu.routine_no[0] = 2;
         } else {

@@ -152,7 +152,7 @@ s32 Game_Management() {
                                          Game_Manage_9th, Game_Manage_10th, Game_Manage_11th, Game_Manage_12th,
                                          Game_Manage_13th };
 
-    if (Break_Into) {
+    if (gs.Break_Into) {
         return 0;
     }
 

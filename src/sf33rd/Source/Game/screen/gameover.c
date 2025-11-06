@@ -37,7 +37,7 @@ s16 Game_Over() {
         GAME_OVER_X = 0;
     }
 
-    if (Break_Into) {
+    if (gs.Break_Into) {
         return 0;
     }
 

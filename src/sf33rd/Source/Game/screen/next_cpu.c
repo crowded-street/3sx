@@ -88,7 +88,7 @@ s16 Next_CPU() {
                                    Next_CPU_5th,   Next_CPU_6th,   Next_Bonus_1st,     Next_Bonus_2nd,
                                    Next_Bonus_3rd, Next_Bonus_End, Wait_Load_Complete, Wait_Load_Complete2 };
 
-    if (Break_Into) {
+    if (gs.Break_Into) {
         return 0;
     }
 
@@ -525,7 +525,7 @@ s32 After_Bonus() {
                                       Next_CPU_3rd,    Next_CPU_4th,    Wait_Load_Complete2, Next_Bonus_End,
                                       Next_Bonus_End,  Next_Bonus_End,  Wait_Load_Complete3 };
 
-    if (Break_Into) {
+    if (gs.Break_Into) {
         return 0;
     }
 
@@ -595,7 +595,7 @@ void After_Bonus_2nd() {
 s16 Select_CPU_First() {
     void (*Select_CPU_First_Tbl[4])() = { Select_CPU_1st, Select_CPU_2nd, Select_CPU_3rd, Select_CPU_4th };
 
-    if (Break_Into) {
+    if (gs.Break_Into) {
         return 0;
     }
 
@@ -951,7 +951,7 @@ s16 Next_Q() {
         Next_Q_1st, Next_Q_2nd, Next_Q_3rd, Wait_Load_Complete, Wait_Load_Complete, Next_CPU_6th
     };
 
-    if (Break_Into) {
+    if (gs.Break_Into) {
         return 0;
     }
 

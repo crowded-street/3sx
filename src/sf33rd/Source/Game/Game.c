@@ -310,7 +310,7 @@ void Game01() {
             BGM_Request(66);
         }
 
-        Break_Into = 0;
+        gs.Break_Into = 0;
         Stop_Combo = 0;
 
         if (Mode_Type != MODE_NETWORK) {
@@ -933,7 +933,7 @@ void Game06() {
     BG_Draw_System();
     Basic_Sub_Ex();
 
-    if (!Break_Into) {
+    if (!gs.Break_Into) {
         switch (G_No[2]) {
         case 0:
             G_No[2] += 1;

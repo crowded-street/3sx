@@ -62,7 +62,7 @@ void plcnt_b2_move() {
         gs.plw[0].wu.dm_vital = gs.plw[1].wu.dm_vital = 0;
     }
 
-    if (Break_Into) {
+    if (gs.Break_Into) {
         gs.plw[0].wu.dm_vital = gs.plw[1].wu.dm_vital = 0;
     }
 

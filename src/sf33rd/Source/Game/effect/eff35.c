@@ -70,7 +70,7 @@ void eff35_0000(WORK_Other* ewk) {
 void eff35_0001(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (Break_Into) {
+        if (gs.Break_Into) {
             ewk->wu.routine_no[1] = 4;
             break;
         }
@@ -89,7 +89,7 @@ void eff35_0001(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (Break_Into) {
+        if (gs.Break_Into) {
             ewk->wu.routine_no[1] = 4;
             break;
         }
@@ -105,7 +105,7 @@ void eff35_0001(WORK_Other* ewk) {
         break;
 
     case 2:
-        if (Break_Into) {
+        if (gs.Break_Into) {
             ewk->wu.routine_no[1] = 4;
             break;
         }
@@ -121,7 +121,7 @@ void eff35_0001(WORK_Other* ewk) {
         break;
 
     case 3:
-        if (Break_Into) {
+        if (gs.Break_Into) {
             ewk->wu.routine_no[1] = 4;
             break;
         }
@@ -151,7 +151,7 @@ void eff35_0001(WORK_Other* ewk) {
 void eff35_0002(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (Break_Into) {
+        if (gs.Break_Into) {
             ewk->wu.routine_no[1] = 4;
             break;
         }
@@ -168,7 +168,7 @@ void eff35_0002(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (Break_Into) {
+        if (gs.Break_Into) {
             ewk->wu.routine_no[1] = 4;
             break;
         }
@@ -202,7 +202,7 @@ void eff35_0003(WORK_Other* ewk) {
         /* fallthrough */
 
     case 1:
-        if (Break_Into) {
+        if (gs.Break_Into) {
             ewk->wu.routine_no[1] = 99;
             break;
         }
@@ -236,7 +236,7 @@ void eff35_0003(WORK_Other* ewk) {
         break;
 
     case 2:
-        if (Break_Into) {
+        if (gs.Break_Into) {
             ewk->wu.routine_no[1] = 99;
             break;
         }
@@ -333,7 +333,7 @@ void eff35_0004(WORK_Other* ewk) {
 void eff35_0005(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (Break_Into) {
+        if (gs.Break_Into) {
             ewk->wu.routine_no[1] = 4;
             break;
         }
@@ -350,7 +350,7 @@ void eff35_0005(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (Break_Into) {
+        if (gs.Break_Into) {
             ewk->wu.routine_no[1] = 4;
             break;
         }
@@ -381,7 +381,7 @@ void eff35_0005(WORK_Other* ewk) {
 void eff35_0006(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (Break_Into) {
+        if (gs.Break_Into) {
             ewk->wu.routine_no[1] = 4;
             break;
         }
@@ -398,7 +398,7 @@ void eff35_0006(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (Break_Into) {
+        if (gs.Break_Into) {
             ewk->wu.routine_no[1] = 4;
             break;
         }
