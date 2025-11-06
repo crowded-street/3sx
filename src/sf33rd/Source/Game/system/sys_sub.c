@@ -167,7 +167,7 @@ void Clear_Personal_Data(s16 PL_id) {
     VS_Index[PL_id] = 0;
     Used_char[PL_id] = 0xFF;
     Arts_Y[PL_id] = 0;
-    Continue_Count[PL_id] = 0;
+    gs.Continue_Count[PL_id] = 0;
     Continue_Coin2[PL_id] = 0;
     gs.Sel_PL_Complete[PL_id] = 0;
     Sel_Arts_Complete[PL_id] = 0;
@@ -208,7 +208,7 @@ s16 Check_Count_Cut(s16 PL_id, s16 Limit) {
 
     Continue_Cut[PL_id] = 0;
 
-    if (Continue_Count[PL_id] >= (Limit)) {
+    if (gs.Continue_Count[PL_id] >= (Limit)) {
         return 0;
     }
 

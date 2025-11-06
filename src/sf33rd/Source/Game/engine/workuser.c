@@ -15,7 +15,6 @@ const_s16_arr Tech_Address[2];
 void* Shell_Address[2];
 void* Synchro_Address[2][2];
 
-s8 Continue_Count[2];
 s8 Personal_Continue_Flag[2];
 s8 Personal_Disp_Flag;
 s8 win_pause_go;

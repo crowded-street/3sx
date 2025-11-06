@@ -33,8 +33,8 @@ void effect_95_move(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (ewk->wu.dmcal_m != (Continue_Count[LOSER])) {
-            if (!(ewk->wu.dmcal_m = Continue_Count[LOSER])) {
+        if (ewk->wu.dmcal_m != (gs.Continue_Count[LOSER])) {
+            if (!(ewk->wu.dmcal_m = gs.Continue_Count[LOSER])) {
                 if (Continue_Cut[gs.Loser_id]) {
                     ewk->wu.routine_no[0] = 3;
                     ewk->wu.dir_step = 0;
@@ -45,7 +45,7 @@ void effect_95_move(WORK_Other* ewk) {
                     ewk->wu.dir_step = 9;
                     set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
                 }
-            } else if (Continue_Count[LOSER] < 0) {
+            } else if (gs.Continue_Count[LOSER] < 0) {
                 ewk->wu.routine_no[0] = 3;
                 ewk->wu.dir_step = 0;
                 set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
@@ -147,7 +147,7 @@ s32 effect_95_init(s16 vital_new) {
     ewk->wu.vital_new = vital_new;
     ewk->wu.my_family = 2;
     ewk->wu.char_index = 85;
-    ewk->wu.dmcal_m = Continue_Count[LOSER];
+    ewk->wu.dmcal_m = gs.Continue_Count[LOSER];
     ewk->wu.xyz[1].disp.pos = bg_w.bgw[1].wxy[1].disp.pos + 152;
     ewk->wu.position_z = 15;
 

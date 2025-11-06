@@ -1715,7 +1715,7 @@ void Be_Continue() {
     }
 
     Continue_Count_Down[LOSER] = 0;
-    Continue_Count[LOSER] = 9;
+    gs.Continue_Count[LOSER] = 9;
     E_Number[LOSER][0] = 5;
     E_Number[LOSER][0] = 5;
     E_Number[LOSER][1] = 0;

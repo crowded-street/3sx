@@ -1017,7 +1017,7 @@ s32 Credit_Continue_2P() {
 void Entry_Continue_Sub(s16 PL_id) {
     if ((Continue_Count_Down[PL_id] == 0) && save_w[1].extra_option.contents[3][5]) {
         SSPutStr(DE_X[PL_id], 0, 9, "     CONTINUE?");
-        Disp_Personal_Count(PL_id, Continue_Count[PL_id]);
+        Disp_Personal_Count(PL_id, gs.Continue_Count[PL_id]);
     }
 
     switch (E_Number[PL_id][1]) {
@@ -1037,7 +1037,7 @@ void Entry_Continue_Sub(s16 PL_id) {
             break;
         }
 
-        if (--Continue_Count[PL_id] >= 0) {
+        if (--gs.Continue_Count[PL_id] >= 0) {
             Personal_Timer[PL_id] = 60;
             return;
         }
@@ -1437,7 +1437,7 @@ void Break_Into_08(s16 PL_id) {
     E_No[1] += 1;
     E_No[2] = 0;
 
-    if (Continue_Count[PL_id ^ 1] >= 0) {
+    if (gs.Continue_Count[PL_id ^ 1] >= 0) {
         E_Timer = 60;
         return;
     }

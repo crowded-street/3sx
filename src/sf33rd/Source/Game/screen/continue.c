@@ -87,7 +87,7 @@ void Continue_1st() {
 }
 
 void Continue_2nd() {
-    if (Continue_Count[LOSER] < 0) {
+    if (gs.Continue_Count[LOSER] < 0) {
         Cont_No[0] += 1;
     }
 }
