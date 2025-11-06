@@ -113,7 +113,6 @@ extern const_s16_arr Tech_Address[2];
 extern void* Shell_Address[2];
 extern void* Synchro_Address[2][2]; // FIXME: should this be serialized?
 
-extern s8 Personal_Continue_Flag[2];
 extern s8 Personal_Disp_Flag;
 extern s8 win_pause_go;
 extern s8 request_message;
