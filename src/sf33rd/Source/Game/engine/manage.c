@@ -482,7 +482,7 @@ void Game_Manage_2_4() {
         C_No[0]++;
         C_No[1] = 0;
         C_No[2] = 0;
-        Allow_a_battle_f = 1;
+        gs.Allow_a_battle_f = 1;
         vital_inc_timer = 50;
         vital_dec_timer = 40;
         sag_inc_timer[0] = sag_inc_timer[1] = 0;
@@ -512,7 +512,7 @@ void Game_Manage_3rd() {
 
     C_No[0]++;
     Forbid_Break = -1;
-    Allow_a_battle_f = 0;
+    gs.Allow_a_battle_f = 0;
     count_end = 1;
     Check_Conclusion_Type();
 }
@@ -1990,7 +1990,7 @@ void Game_Manage_12_1() {
         C_No[1]++;
         C_No[2] = 0;
         C_No[3] = 0;
-        Allow_a_battle_f = 1;
+        gs.Allow_a_battle_f = 1;
         Disp_Bonus_Contents = 0;
     }
 }
@@ -2005,7 +2005,7 @@ void Game_Manage_12_2() {
     C_No[1]++;
     C_No[2] = 0;
     C_Timer = 30;
-    Allow_a_battle_f = 0;
+    gs.Allow_a_battle_f = 0;
     Forbid_Break = -1;
     Completion_Bonus[Player_id][1] = -128;
     Stock_Bonus_Game_Result = Bonus_Game_result;
@@ -2233,7 +2233,7 @@ void Game_Manage_12_7() {
     C_No[2] = 0;
     C_No[3] = 0;
     C_Timer = 30;
-    Allow_a_battle_f = 0;
+    gs.Allow_a_battle_f = 0;
     Forbid_Break = -1;
     Completion_Bonus[Player_id][0] = -128;
     gs.Final_Bonus_Score = Setup_Final_Score(20);

@@ -98,7 +98,7 @@ void plcnt_b_init() {
             break;
         }
 
-        if (!Allow_a_battle_f) {
+        if (!gs.Allow_a_battle_f) {
             break;
         }
 

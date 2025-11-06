@@ -58,7 +58,7 @@ void count_cont_main() {
         return;
     }
 
-    if (Allow_a_battle_f == 0 || Demo_Time_Stop != 0) {
+    if (gs.Allow_a_battle_f == 0 || Demo_Time_Stop != 0) {
         counter_write(gs.counter_color);
         return;
     }
@@ -192,7 +192,7 @@ void bcount_cont_init() {
 }
 
 void bcount_cont_main() {
-    if (gs.Break_Into != 0 || sa_stop_check() || gs.Time_Stop != 0 || Allow_a_battle_f == 0) {
+    if (gs.Break_Into != 0 || sa_stop_check() || gs.Time_Stop != 0 || gs.Allow_a_battle_f == 0) {
         return;
     }
 
@@ -221,7 +221,7 @@ void bcounter_control() {
 
     if (gs.Counter_hi == 0) {
         gs.math_counter_hi = gs.math_counter_low = 0;
-        Allow_a_battle_f = 0;
+        gs.Allow_a_battle_f = 0;
         gs.Time_Over = true;
     }
 }

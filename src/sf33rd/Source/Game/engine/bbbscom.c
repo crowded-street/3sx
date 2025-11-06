@@ -20,7 +20,7 @@ const s32 bbbs_jump_level[4][2];
 void bbbs_com_execute(PLW* wk) {
     switch (Bonus_Stage_RNO[0]) {
     case 0:
-        if (Allow_a_battle_f == 0) {
+        if (gs.Allow_a_battle_f == 0) {
             break;
         }
 
@@ -120,7 +120,7 @@ void bbbs_com_execute(PLW* wk) {
         case 5:
             if (--wk->wu.dir_timer < 1) {
                 Bonus_Stage_RNO[1] = 6;
-                Allow_a_battle_f = 0;
+                gs.Allow_a_battle_f = 0;
             }
 
             break;
@@ -128,7 +128,7 @@ void bbbs_com_execute(PLW* wk) {
         case 6:
             Bonus_Stage_RNO[0] = 2;
             Bonus_Stage_RNO[1] = 0;
-            Allow_a_battle_f = 0;
+            gs.Allow_a_battle_f = 0;
             break;
         }
 

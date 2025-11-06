@@ -15,7 +15,7 @@ void bbbs_com_execute2(PLW* wk) {
     switch (Bonus_Stage_RNO[0]) {
     case 0:
         if (Bonus_Stage_RNO[1]) {
-            if (!Allow_a_battle_f) {
+            if (!gs.Allow_a_battle_f) {
                 break;
             }
 
@@ -49,7 +49,7 @@ void bbbs_com_execute2(PLW* wk) {
         if (((WORK*)wk->wu.my_effadrs)->routine_no[0] == 2 && ((WORK*)wk->wu.my_effadrs)->routine_no[1] == 9) {
             Bonus_Stage_RNO[0] = 2;
             Bonus_Stage_RNO[1] = 0;
-            Allow_a_battle_f = 0;
+            gs.Allow_a_battle_f = 0;
             gs.pcon_dp_flag = true;
         }
 

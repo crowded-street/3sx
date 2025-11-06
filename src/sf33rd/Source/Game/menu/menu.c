@@ -3945,7 +3945,7 @@ void Wait_Pause_in_Tr(struct _TASK* task_ptr) {
 
     switch (task_ptr->r_no[1]) {
     case 0:
-        if (Allow_a_battle_f) {
+        if (gs.Allow_a_battle_f) {
             task_ptr->r_no[1]++;
 
             if (Present_Mode == 4) {
@@ -3960,7 +3960,7 @@ void Wait_Pause_in_Tr(struct _TASK* task_ptr) {
         /* fallthrough */
 
     case 1:
-        if (Allow_a_battle_f == 0 || Extra_Break != 0) {
+        if (gs.Allow_a_battle_f == 0 || Extra_Break != 0) {
             return;
         }
 
@@ -4071,7 +4071,7 @@ void Next_Be_Tr_Menu(struct _TASK* task_ptr) {
     task_ptr->r_no[1] = 0;
     task_ptr->r_no[2] = 0;
     task_ptr->r_no[3] = 0;
-    Allow_a_battle_f = 0;
+    gs.Allow_a_battle_f = 0;
 
     for (ix = 0; ix < 4; ix++) {
         Menu_Suicide[ix] = 1;
@@ -5716,7 +5716,7 @@ void End_Replay_Menu(struct _TASK* task_ptr) {
 
     switch (task_ptr->r_no[1]) {
     case 0:
-        if (Allow_a_battle_f == 0) {
+        if (gs.Allow_a_battle_f == 0) {
             break;
         }
 

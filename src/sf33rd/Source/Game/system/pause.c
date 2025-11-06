@@ -140,7 +140,7 @@ s32 Check_Pause_Term(u16 sw, u8 PL_id) {
         return 0;
     }
 
-    if (Allow_a_battle_f == 0 || Extra_Break != 0) {
+    if (gs.Allow_a_battle_f == 0 || Extra_Break != 0) {
         return 0;
     }
 

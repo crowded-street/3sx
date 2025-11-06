@@ -541,7 +541,7 @@ void pli_1000() {
         return;
     }
 
-    if (!Allow_a_battle_f) {
+    if (!gs.Allow_a_battle_f) {
         return;
     }
 

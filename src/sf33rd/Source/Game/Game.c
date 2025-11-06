@@ -482,7 +482,7 @@ void Game2_0() {
         Keep_Grade[1] = grade_get_my_grade(1) + 1;
     }
 
-    Allow_a_battle_f = 0;
+    gs.Allow_a_battle_f = 0;
     Time_in_Time = 60;
     init_slow_flag();
     clear_hit_queue();
@@ -566,7 +566,7 @@ void Game2_2() {
         Keep_Grade[1] = grade_get_my_grade(1) + 1;
     }
 
-    Allow_a_battle_f = 0;
+    gs.Allow_a_battle_f = 0;
     Time_in_Time = 60;
     init_slow_flag();
     effect_work_quick_init();
@@ -1272,7 +1272,7 @@ void Game09() {
         G_No[2] += 1;
         G_Timer = 19;
         Round_num = 0;
-        Allow_a_battle_f = 0;
+        gs.Allow_a_battle_f = 0;
         Time_in_Time = 60;
         init_slow_flag();
         clear_hit_queue();
@@ -1742,7 +1742,7 @@ void Next_Title_Sub() {
 void Time_Control() {
     count_cont_main();
 
-    if ((Allow_a_battle_f == 0) || (Demo_Time_Stop != 0) || (Bonus_Game_Flag != 0)) {
+    if ((gs.Allow_a_battle_f == 0) || (Demo_Time_Stop != 0) || (Bonus_Game_Flag != 0)) {
         return;
     }
 
@@ -1799,7 +1799,7 @@ void Before_Select_Sub() {
 
     Request_G_No = 0;
     Request_E_No = 0;
-    Allow_a_battle_f = 0;
+    gs.Allow_a_battle_f = 0;
     Bonus_Type = 0;
 
     if (Demo_Flag == 0) {
