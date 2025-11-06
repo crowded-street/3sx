@@ -46,7 +46,7 @@ void effect_14_move(WORK_Other* ewk) {
         break;
     }
 
-    Disp_Digit16x24(Disp_Score_Buff[ewk->wu.type], ewk->wu.position_x, ewk->wu.position_y, ewk->wu.my_col_code);
+    Disp_Digit16x24(gs.Disp_Score_Buff[ewk->wu.type], ewk->wu.position_x, ewk->wu.position_y, ewk->wu.my_col_code);
 }
 
 s32 effect_14_init(s16 id, s16 x, s16 y, s16 atr) {

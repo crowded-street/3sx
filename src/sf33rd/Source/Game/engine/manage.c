@@ -2071,7 +2071,7 @@ void Game_Manage_12_4() {
             C_No[2]++;
             C_Timer = 20;
             effect_08_init(7, 0, 1, 15, 0);
-            Disp_Score_Buff[0] = gs.Bonus_Score;
+            gs.Disp_Score_Buff[0] = gs.Bonus_Score;
             effect_14_init(0, 35, 11, 15);
         }
 
@@ -2099,7 +2099,7 @@ void Game_Manage_12_4() {
             } else {
                 gs.Bonus_Score += 1000;
                 gs.Score[Player_id][0] += 1000;
-                Disp_Score_Buff[0] = gs.Bonus_Score;
+                gs.Disp_Score_Buff[0] = gs.Bonus_Score;
                 Sound_SE(100);
             }
 
@@ -2284,7 +2284,7 @@ void Game_Manage_12_8() {
             C_Timer = 20;
             gs.Score[Player_id][0] += gs.Bonus_Score;
             effect_08_init(7, 0, 1, 15, 0);
-            Disp_Score_Buff[0] = gs.Bonus_Score;
+            gs.Disp_Score_Buff[0] = gs.Bonus_Score;
             effect_14_init(0, 35, 11, 15);
 
             if (Bonus_Game_result == 0) {
@@ -2311,7 +2311,7 @@ void Game_Manage_12_8() {
                 C_Timer = 3;
                 gs.Bonus_Score += 1000;
                 gs.Score[Player_id][0] += 1000;
-                Disp_Score_Buff[0] = gs.Bonus_Score;
+                gs.Disp_Score_Buff[0] = gs.Bonus_Score;
                 Sound_SE(100);
                 break;
             }
@@ -2319,7 +2319,7 @@ void Game_Manage_12_8() {
             C_Timer = 3;
             gs.Bonus_Score += 1000;
             gs.Score[Player_id][0] += 1000;
-            Disp_Score_Buff[0] = gs.Bonus_Score;
+            gs.Disp_Score_Buff[0] = gs.Bonus_Score;
             Sound_SE(100);
         }
 
@@ -2366,22 +2366,22 @@ void Disp_Bonus_Perfect() {
     switch (PB_Status) {
     case 1:
         effect_08_init(6, 0, 5, 15, 0);
-        Disp_Score_Buff[0] = Ball_Perfect_PTS[0][Bonus_Stage_Level];
+        gs.Disp_Score_Buff[0] = Ball_Perfect_PTS[0][Bonus_Stage_Level];
         effect_14_init(0, 35, 15, 15);
         break;
 
     case 2:
         effect_08_init(6, 0, 5, 26, 1);
-        Disp_Score_Buff[1] = Ball_Perfect_PTS[1][Bonus_Stage_Level];
+        gs.Disp_Score_Buff[1] = Ball_Perfect_PTS[1][Bonus_Stage_Level];
         effect_14_init(1, 35, 15, 26);
         break;
 
     case 3:
         effect_08_init(6, 0, 5, 15, 0);
-        Disp_Score_Buff[0] = Ball_Perfect_PTS[0][Bonus_Stage_Level];
+        gs.Disp_Score_Buff[0] = Ball_Perfect_PTS[0][Bonus_Stage_Level];
         effect_14_init(0, 35, 15, 15);
         effect_08_init(6, 0, 9, 26, 1);
-        Disp_Score_Buff[1] = Ball_Perfect_PTS[1][Bonus_Stage_Level];
+        gs.Disp_Score_Buff[1] = Ball_Perfect_PTS[1][Bonus_Stage_Level];
         effect_14_init(1, 35, 19, 26);
         break;
     }
@@ -2470,7 +2470,7 @@ s32 Bonus_Cut_Sub() {
 
         if (Bonus_Type == 21) {
             if (Disp_Bonus_Contents == 0) {
-                Disp_Score_Buff[0] = Stock_Bonus_Game_Result * 1000;
+                gs.Disp_Score_Buff[0] = Stock_Bonus_Game_Result * 1000;
                 effect_14_init(0, 35, 11, 15);
             }
 
@@ -2484,7 +2484,7 @@ s32 Bonus_Cut_Sub() {
         bcounter_down(1);
 
         if (Disp_Bonus_Contents == 0) {
-            Disp_Score_Buff[0] = gs.Bonus_Score_Plus;
+            gs.Disp_Score_Buff[0] = gs.Bonus_Score_Plus;
             effect_14_init(0, 35, 11, 15);
         }
 
