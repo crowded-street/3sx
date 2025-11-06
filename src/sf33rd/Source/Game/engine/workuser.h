@@ -92,6 +92,8 @@ typedef struct GameState {
     u32 Perfect_Bonus[2];
     u32 Keep_Score[2];
     u32 Disp_Score_Buff[2];
+    s8 Winner_id;
+    s8 Loser_id;
 } GameState;
 
 extern GameState gs;
@@ -101,8 +103,6 @@ extern const_s16_arr Tech_Address[2];
 extern void* Shell_Address[2];
 extern void* Synchro_Address[2][2]; // FIXME: should this be serialized?
 
-extern s8 Winner_id;
-extern s8 Loser_id;
 extern s8 Break_Into;
 extern u8 My_char[2];
 extern u8 Allow_a_battle_f;

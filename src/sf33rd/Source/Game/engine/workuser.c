@@ -15,8 +15,6 @@ const_s16_arr Tech_Address[2];
 void* Shell_Address[2];
 void* Synchro_Address[2][2];
 
-s8 Winner_id;
-s8 Loser_id;
 s8 Break_Into;
 u8 My_char[2];
 u8 Allow_a_battle_f;

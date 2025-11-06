@@ -35,7 +35,7 @@ void effect_95_move(WORK_Other* ewk) {
     case 1:
         if (ewk->wu.dmcal_m != (Continue_Count[LOSER])) {
             if (!(ewk->wu.dmcal_m = Continue_Count[LOSER])) {
-                if (Continue_Cut[Loser_id]) {
+                if (Continue_Cut[gs.Loser_id]) {
                     ewk->wu.routine_no[0] = 3;
                     ewk->wu.dir_step = 0;
                     set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);

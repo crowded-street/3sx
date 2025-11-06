@@ -385,7 +385,7 @@ void Setup_Pos_76(WORK_Other* ewk) {
     case 0x37:
     case 0x55:
         if (ewk->wu.dir_old == 0x37) {
-            my_char = My_char[Winner_id];
+            my_char = My_char[gs.Winner_id];
         } else {
             my_char = Ranking_Data[gs.Order_Dir[ewk->wu.dir_old]].player;
         }
@@ -472,8 +472,8 @@ void Setup_Char_76(WORK_Other* ewk) {
         ewk->wu.my_col_code = 0x1FF;
         ewk->wu.my_clear_level = 0x80;
         ewk->wu.char_index = 9;
-        ewk->wu.dir_step = My_char[Winner_id] + 0x15;
-        ewk->wu.dir_step += chkNameAkuma(My_char[Winner_id], 6);
+        ewk->wu.dir_step = My_char[gs.Winner_id] + 0x15;
+        ewk->wu.dir_step += chkNameAkuma(My_char[gs.Winner_id], 6);
         break;
 
     case 0x2D:
@@ -529,7 +529,7 @@ void Setup_Char_76(WORK_Other* ewk) {
         ewk->wu.direction = 3;
 
         if (ewk->wu.dir_old == 0x37) {
-            ewk->wu.dir_step = My_char[Winner_id];
+            ewk->wu.dir_step = My_char[gs.Winner_id];
         } else {
             ewk->wu.dir_step = Ranking_Data[gs.Order_Dir[ewk->wu.dir_old]].player;
             ewk->wu.direction = 7;
@@ -551,8 +551,8 @@ void Setup_Char_76(WORK_Other* ewk) {
 
     case 0x35:
         ewk->wu.char_index = 9;
-        ewk->wu.dir_step = My_char[Winner_id];
-        ewk->wu.dir_step += chkNameAkuma(My_char[Winner_id], 6);
+        ewk->wu.dir_step = My_char[gs.Winner_id];
+        ewk->wu.dir_step += chkNameAkuma(My_char[gs.Winner_id], 6);
         Setup_Color_76(ewk);
         break;
 
@@ -618,13 +618,13 @@ s16 Check_Range_Out(WORK_Other* ewk) {
 }
 
 void Setup_Color_76(WORK_Other* ewk) {
-    ewk->wu.my_col_code = Victory_Color_Data[My_char[Winner_id]] + 0x2000;
-    ewk->wu.my_col_code = Victory_Color_Data[My_char[Winner_id]] + 0x2090;
+    ewk->wu.my_col_code = Victory_Color_Data[My_char[gs.Winner_id]] + 0x2000;
+    ewk->wu.my_col_code = Victory_Color_Data[My_char[gs.Winner_id]] + 0x2090;
 }
 
 void Setup_Color_L1(WORK_Other* ewk) {
-    ewk->wu.my_col_code = Victory_Color_Data[My_char[Winner_id]];
-    ewk->wu.my_col_code = Victory_Color_Data[My_char[Winner_id]] + 0x90;
+    ewk->wu.my_col_code = Victory_Color_Data[My_char[gs.Winner_id]];
+    ewk->wu.my_col_code = Victory_Color_Data[My_char[gs.Winner_id]] + 0x90;
 }
 
 s32 chkNameAkuma(s32 plnum, s32 rnum) {

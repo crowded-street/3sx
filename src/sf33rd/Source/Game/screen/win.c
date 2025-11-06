@@ -79,13 +79,13 @@ void Win_1st() {
     Make_texcash_of_list(4);
     load_any_texture_patnum(0x7F30, 0xC, 0);
     Setup_BG(0, 0x200, 0);
-    bg_etc_write(PL_Color_Data[My_char[Winner_id]]);
+    bg_etc_write(PL_Color_Data[My_char[gs.Winner_id]]);
     Setup_BG(2, 0x300, 0);
     Setup_BG(1, 0x200, 0);
     Setup_BG(3, 0x2C0, 0);
 
     if (gs.Play_Type == 0) {
-        Last_Selected_EM[Winner_id] = 1;
+        Last_Selected_EM[gs.Winner_id] = 1;
     }
 
     pulpul_stop();
@@ -128,8 +128,8 @@ void Win_2nd() {
     gs.Order_Timer[0x38] = 1;
     effect_76_init(0x38);
 
-    gs.WGJ_Score = Continue_Coin[Winner_id] + gs.Score[Winner_id][gs.Play_Type];
-    WGJ_Win = Win_Record[Winner_id];
+    gs.WGJ_Score = Continue_Coin[gs.Winner_id] + gs.Score[gs.Winner_id][gs.Play_Type];
+    WGJ_Win = Win_Record[gs.Winner_id];
 
     effect_L1_init(1);
     effect_L1_init(2);
@@ -175,7 +175,7 @@ void Win_3rd() {
             }
 
             if (Mode_Type == MODE_ARCADE) {
-                Push_LDREQ_Queue_Player(Winner_id, My_char[Winner_id]);
+                Push_LDREQ_Queue_Player(gs.Winner_id, My_char[gs.Winner_id]);
             }
         }
 
@@ -290,9 +290,9 @@ void Lose_3rd() {
 
 void Setup_Wins_OBJ() {
     if (Mode_Type == MODE_VERSUS) {
-        WGJ_Win = VS_Win_Record[Winner_id];
+        WGJ_Win = VS_Win_Record[gs.Winner_id];
     } else {
-        WGJ_Win = Win_Record[Winner_id];
+        WGJ_Win = Win_Record[gs.Winner_id];
     }
 
     if ((WGJ_Win == 0) || (Mode_Type == MODE_NETWORK)) {

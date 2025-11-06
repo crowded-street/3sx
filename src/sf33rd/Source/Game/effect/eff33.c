@@ -44,7 +44,7 @@ void effect_33_move(WORK_Other* ewk) {
     case 2:
         if (!EXE_flag && !Game_pause) {
             ewk->wu.routine_no[0]++;
-            ewk->wu.char_index = WinLoseID[ewk->master_id][Winner_id] + 10;
+            ewk->wu.char_index = WinLoseID[ewk->master_id][gs.Winner_id] + 10;
             set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
         }
 

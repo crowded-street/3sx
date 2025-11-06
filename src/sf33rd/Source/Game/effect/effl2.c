@@ -32,7 +32,7 @@ void effect_L2_move(WORK_Other* ewk) {
                 ewk->wu.routine_no[0]++;
                 ewk->wu.old_rno[0] = 0;
 
-                if (Winner_id != ewk->master_id) {
+                if (gs.Winner_id != ewk->master_id) {
                     set_char_move_init(&ewk->wu, 0, 2);
                 } else {
                     set_char_move_init(&ewk->wu, 0, 1);

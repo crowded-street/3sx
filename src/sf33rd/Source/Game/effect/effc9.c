@@ -196,7 +196,7 @@ void setup_EJG_index() {
     }
 
     if (gra > 5) {
-        if (Winner_id) {
+        if (gs.Winner_id) {
             EJG_index[0] = 1;
             EJG_index[1] = 1;
             EJG_index[2] = 1;
@@ -209,7 +209,7 @@ void setup_EJG_index() {
         }
     } else {
         for (i = 0; i < 4; i++) {
-            EJG_index[i] = sel_ejg_ix_table[Winner_id][Game_timer & 1][i];
+            EJG_index[i] = sel_ejg_ix_table[gs.Winner_id][Game_timer & 1][i];
         }
     }
 }

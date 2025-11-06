@@ -320,7 +320,7 @@ void hit_combo_check(s8 PL) {
 }
 
 s32 arts_finish_check(s8 PL) {
-    if (Conclusion_Flag && Conclusion_Type == 0 && Loser_id == PL && sarts_finish_flag[PL]) {
+    if (Conclusion_Flag && Conclusion_Type == 0 && gs.Loser_id == PL && sarts_finish_flag[PL]) {
         return 1;
     }
 
@@ -328,7 +328,7 @@ s32 arts_finish_check(s8 PL) {
 }
 
 s32 arts_finish_check2(u8 PL) {
-    if (Conclusion_Flag && Conclusion_Type == 0 && Loser_id == PL && (gs.plw[PL].combo_type.new_dm & 0x3F) >= 32) {
+    if (Conclusion_Flag && Conclusion_Type == 0 && gs.Loser_id == PL && (gs.plw[PL].combo_type.new_dm & 0x3F) >= 32) {
         return 1;
     }
 

@@ -626,8 +626,8 @@ void plcnt_move() {
             Round_Result |= 0x200;
         }
 
-        if (Winner_id != Loser_id) {
-            grade_store_vitality(Winner_id + 0);
+        if (gs.Winner_id != gs.Loser_id) {
+            grade_store_vitality(gs.Winner_id + 0);
         }
     }
 
@@ -647,31 +647,31 @@ void plcnt_die() {
 void settle_type_00000() {
     switch (gs.pcon_rno[2]) {
     case 0:
-        gs.plw[Winner_id].wu.dir_timer = 60;
+        gs.plw[gs.Winner_id].wu.dir_timer = 60;
         gs.pcon_rno[2]++;
         /* fallthrough */
 
     case 1:
-        if (nekorobi_check(Loser_id)) {
+        if (nekorobi_check(gs.Loser_id)) {
             gs.pcon_rno[2]++;
-            gs.plw[Winner_id].wkey_flag = 1;
+            gs.plw[gs.Winner_id].wkey_flag = 1;
         }
 
-        if (--gs.plw[Winner_id].wu.dir_timer == 0) {
-            gs.plw[Winner_id].wkey_flag = 1;
+        if (--gs.plw[gs.Winner_id].wu.dir_timer == 0) {
+            gs.plw[gs.Winner_id].wkey_flag = 1;
         }
 
         break;
 
     case 2:
-        if (footwork_check(Winner_id)) {
-            grade_set_round_result(Winner_id + 0);
+        if (footwork_check(gs.Winner_id)) {
+            grade_set_round_result(gs.Winner_id + 0);
             gs.pcon_rno[2]++;
-            gs.plw[Winner_id].wu.routine_no[2] = 40;
-            gs.plw[Winner_id].wu.routine_no[3] = 0;
-            gs.plw[Loser_id].wu.routine_no[1] = 0;
-            gs.plw[Loser_id].wu.routine_no[2] = 41;
-            gs.plw[Loser_id].wu.routine_no[3] = 0;
+            gs.plw[gs.Winner_id].wu.routine_no[2] = 40;
+            gs.plw[gs.Winner_id].wu.routine_no[3] = 0;
+            gs.plw[gs.Loser_id].wu.routine_no[1] = 0;
+            gs.plw[gs.Loser_id].wu.routine_no[2] = 41;
+            gs.plw[gs.Loser_id].wu.routine_no[3] = 0;
             gs.plw[0].wu.cg_type = gs.plw[1].wu.cg_type = 0;
             gs.plw[0].image_setup_flag = gs.plw[1].image_setup_flag = 0;
             complete_victory_pause();
@@ -680,7 +680,7 @@ void settle_type_00000() {
         break;
 
     case 3:
-        if (gs.plw[Winner_id].wu.routine_no[3] == 9) {
+        if (gs.plw[gs.Winner_id].wu.routine_no[3] == 9) {
             gs.pcon_rno[2]++;
         }
 
@@ -728,9 +728,9 @@ void settle_type_20000() {
             return;
         }
 
-        grade_set_round_result(Winner_id + 0);
-        gs.plw[Winner_id].wu.routine_no[2] = 40;
-        gs.plw[Loser_id].wu.routine_no[2] = 41;
+        grade_set_round_result(gs.Winner_id + 0);
+        gs.plw[gs.Winner_id].wu.routine_no[2] = 40;
+        gs.plw[gs.Loser_id].wu.routine_no[2] = 41;
         gs.plw[0].wu.routine_no[1] = gs.plw[1].wu.routine_no[1] = 0;
         gs.plw[0].wu.routine_no[3] = gs.plw[1].wu.routine_no[3] = 0;
         gs.plw[0].wu.cg_type = gs.plw[1].wu.cg_type = 0;
@@ -753,11 +753,11 @@ void settle_type_30000() {
 
     case 1:
         if ((Event_Judge_Gals == -1) && Complete_Judgement) {
-            gs.plw[Winner_id].wu.routine_no[2] = 40;
-            gs.plw[Loser_id].wu.routine_no[2] = 41;
+            gs.plw[gs.Winner_id].wu.routine_no[2] = 40;
+            gs.plw[gs.Loser_id].wu.routine_no[2] = 41;
             gs.plw[0].wu.routine_no[3] = gs.plw[1].wu.routine_no[3] = 0;
             gs.plw[0].wu.cg_type = gs.plw[1].wu.cg_type = 0;
-            grade_set_round_result(Winner_id + 0);
+            grade_set_round_result(gs.Winner_id + 0);
             complete_victory_pause();
             gs.pcon_rno[2]++;
         }
@@ -776,12 +776,12 @@ void settle_type_30000() {
 void settle_type_40000() {
     switch (gs.pcon_rno[2]) {
     case 0:
-        gs.plw[Winner_id].wkey_flag = 1;
+        gs.plw[gs.Winner_id].wkey_flag = 1;
         gs.pcon_rno[2] += 1;
         /* fallthrough */
 
     case 1:
-        if (nekorobi_check(Loser_id) == 0) {
+        if (nekorobi_check(gs.Loser_id) == 0) {
             break;
         }
 
@@ -789,24 +789,24 @@ void settle_type_40000() {
         /* fallthrough */
 
     case 2:
-        if (footwork_check(Winner_id)) {
+        if (footwork_check(gs.Winner_id)) {
             gs.pcon_rno[2]++;
-            gs.plw[Winner_id].wu.routine_no[2] = 40;
-            gs.plw[Winner_id].wu.routine_no[3] = 0;
-            gs.plw[Loser_id].wu.routine_no[1] = 0;
-            gs.plw[Loser_id].wu.routine_no[2] = 41;
-            gs.plw[Loser_id].wu.routine_no[3] = 0;
-            gs.plw[Winner_id].wu.cg_type = 0;
-            grade_set_round_result(Winner_id + 0);
+            gs.plw[gs.Winner_id].wu.routine_no[2] = 40;
+            gs.plw[gs.Winner_id].wu.routine_no[3] = 0;
+            gs.plw[gs.Loser_id].wu.routine_no[1] = 0;
+            gs.plw[gs.Loser_id].wu.routine_no[2] = 41;
+            gs.plw[gs.Loser_id].wu.routine_no[3] = 0;
+            gs.plw[gs.Winner_id].wu.cg_type = 0;
+            grade_set_round_result(gs.Winner_id + 0);
             gs.plw[0].image_setup_flag = gs.plw[1].image_setup_flag = 0;
-            gs.plw[Winner_id].wu.dir_timer = 60;
+            gs.plw[gs.Winner_id].wu.dir_timer = 60;
             set_conclusion_slow();
         }
 
         break;
 
     case 3:
-        if (--gs.plw[Winner_id].wu.dir_timer <= 0) {
+        if (--gs.plw[gs.Winner_id].wu.dir_timer <= 0) {
             complete_victory_pause();
             gs.pcon_rno[2] += 1;
         }
@@ -814,7 +814,7 @@ void settle_type_40000() {
         break;
 
     case 4:
-        if (gs.plw[Winner_id].wu.routine_no[3] == 9) {
+        if (gs.plw[gs.Winner_id].wu.routine_no[3] == 9) {
             gs.pcon_rno[2] += 1;
         }
 
@@ -994,12 +994,12 @@ void check_damage_hosei_dageki(PLW* w1, PLW* w2) {
 
 s32 time_over_check() {
     if ((will_die() != 0) && (gs.round_timer == 0)) {
-        Winner_id = 0;
-        Loser_id = 1;
+        gs.Winner_id = 0;
+        gs.Loser_id = 1;
 
         if (gs.plw[0].wu.vital_new < gs.plw[1].wu.vital_new) {
-            Winner_id = 1;
-            Loser_id = 0;
+            gs.Winner_id = 1;
+            gs.Loser_id = 0;
         }
 
         Conclusion_Flag = 1;
@@ -1042,18 +1042,18 @@ void settle_check() {
     while (1) {
         switch ((gs.plw[0].dead_flag) + (gs.plw[1].dead_flag * 2)) {
         case 1:
-            Winner_id = 1;
-            Loser_id = 0;
+            gs.Winner_id = 1;
+            gs.Loser_id = 0;
             goto jump;
 
         case 2:
-            Winner_id = 0;
-            Loser_id = 1;
+            gs.Winner_id = 0;
+            gs.Loser_id = 1;
 
         jump:
-            if (check_sa_resurrection(&gs.plw[Loser_id]) == 0) {
+            if (check_sa_resurrection(&gs.plw[gs.Loser_id]) == 0) {
                 setup_gouki_wins();
-                Round_Result |= gs.plw[Loser_id].wu.dm_koa;
+                Round_Result |= gs.plw[gs.Loser_id].wu.dm_koa;
 
                 if ((Round_Result & 0x800) && gouki_wins) {
                     Forbid_Break = -1;
@@ -1167,7 +1167,7 @@ void add_next_position(PLW* wk) {
 void setup_gouki_wins() {
     gouki_wins = 0;
 
-    if (gs.plw[Winner_id].player_number == 14) {
+    if (gs.plw[gs.Winner_id].player_number == 14) {
         gouki_wins = 1;
     }
 }

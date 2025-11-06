@@ -426,7 +426,7 @@ s32 Button_Cut_EX(s16* Timer, s16 Limit_Time) {
 
 s32 Setup_Target_PL() {
     if (gs.Play_Type == 1) {
-        return Winner_id;
+        return gs.Winner_id;
     }
 
     if (Round_Operator[0]) {

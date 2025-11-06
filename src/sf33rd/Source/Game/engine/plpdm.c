@@ -1637,7 +1637,7 @@ s32 setup_kuzureochi(PLW* wk) {
         return 0;
     }
 
-    if (gs.pcon_dp_flag && Conclusion_Type != 1 && wk->wu.id == Winner_id) {
+    if (gs.pcon_dp_flag && Conclusion_Type != 1 && wk->wu.id == gs.Winner_id) {
         wk->wu.vital_new = 0;
         return 0;
     }

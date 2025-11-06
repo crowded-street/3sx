@@ -234,7 +234,7 @@ void effL1_w_win_init(WORK_Other_CONN* ewk) {
 void effL1_w_grade_init(WORK_Other_CONN* ewk) {
     s16 i;
 
-    ewk->wu.direction = grade_get_my_grade((s32)Winner_id);
+    ewk->wu.direction = grade_get_my_grade((s32)gs.Winner_id);
 
     for (i = 0; i < 4; i++) {
         ewk->conn[i] = gj_grade[ewk->wu.direction][i];
@@ -288,7 +288,7 @@ void effL1_w_score_init(WORK_Other_CONN* ewk) {
 void effL1_w_graph_init(WORK_Other_CONN* ewk) {
     s16 i;
 
-    ewk->wu.direction = grade_get_my_point_percentage((s32)Winner_id, (s16)(ewk->wu.type - 3));
+    ewk->wu.direction = grade_get_my_point_percentage((s32)gs.Winner_id, (s16)(ewk->wu.type - 3));
 
     if (ewk->wu.direction) {
         ewk->wu.direction /= 2;

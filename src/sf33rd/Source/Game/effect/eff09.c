@@ -375,7 +375,7 @@ void eff09_3000(WORK_Other* ewk) {
             break;
         }
 
-        Sound_SE((Winner_id * 0x300) + 0x136);
+        Sound_SE((gs.Winner_id * 0x300) + 0x136);
         ewk->wu.routine_no[1]++;
         ewk->wu.disp_flag = 1;
         ewk->wu.old_rno[0] = 96;
@@ -402,7 +402,7 @@ void eff09_3000(WORK_Other* ewk) {
 
     case 2:
         if (Exec_Wipe) {
-            Sound_SE((Winner_id * 0x300) + 0x130);
+            Sound_SE((gs.Winner_id * 0x300) + 0x130);
         }
 
         if (!EXE_flag && !Game_pause) {
@@ -1277,13 +1277,13 @@ void eff09_21000(WORK_Other* ewk) {
         } else {
             ewk->wu.old_rno[0] = 64;
 
-            if (gs.plw[Winner_id].wu.rl_flag) {
-                arrive_x = gs.plw[Winner_id].wu.xyz[0].disp.pos + 28;
+            if (gs.plw[gs.Winner_id].wu.rl_flag) {
+                arrive_x = gs.plw[gs.Winner_id].wu.xyz[0].disp.pos + 28;
             } else {
-                arrive_x = gs.plw[Winner_id].wu.xyz[0].disp.pos - 28;
+                arrive_x = gs.plw[gs.Winner_id].wu.xyz[0].disp.pos - 28;
             }
 
-            arrive_y = gs.plw[Winner_id].wu.xyz[1].disp.pos + 162;
+            arrive_y = gs.plw[gs.Winner_id].wu.xyz[1].disp.pos + 162;
         }
 
         cal_all_speed_data(&ewk->wu, ewk->wu.old_rno[0], arrive_x, arrive_y, 2, 2);
@@ -1313,7 +1313,7 @@ void eff09_21000(WORK_Other* ewk) {
             if (ewk->wu.cg_type) {
                 ewk->wu.routine_no[1]++;
                 ewk->wu.disp_flag = 0;
-                gs.plw[Winner_id].wu.cmwk[0] = 1;
+                gs.plw[gs.Winner_id].wu.cmwk[0] = 1;
             }
         }
 
