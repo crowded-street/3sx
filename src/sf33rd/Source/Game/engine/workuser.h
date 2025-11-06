@@ -80,13 +80,13 @@ typedef struct GameState {
     u8 Order_Timer[148];
     u8 Order_Dir[148];
     u32 Score[2][3];
+    u32 Complete_Bonus;
 } GameState;
 
 extern GameState gs;
 
 // sbss
 extern const_s16_arr Tech_Address[2];
-extern u32 Complete_Bonus;
 extern void* Shell_Address[2];
 extern u32 Stock_Score[2];
 extern u32 Vital_Bonus[2];

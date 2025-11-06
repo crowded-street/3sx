@@ -975,7 +975,7 @@ void Game_Manage_81_0() {
     effect_76_init(75);
     gs.Order[80] = 0;
     gs.Order_Dir[80] = 1;
-    effect_G0_init(80, time, Complete_Bonus, pos_id2);
+    effect_G0_init(80, time, gs.Complete_Bonus, pos_id2);
 }
 
 void Game_Manage_81_1() {
@@ -1251,11 +1251,11 @@ s32 Check_Ending_Sub() {
 }
 
 void Additional_Bonus(s16 PL_id) {
-    Complete_Bonus = Setup_Comp_Bonus();
+    gs.Complete_Bonus = Setup_Comp_Bonus();
     gs.Score[PL_id][gs.Play_Type] += Perfect_Bonus[Winner_id];
     gs.Score[PL_id][gs.Play_Type] += Vital_Bonus[Winner_id];
     gs.Score[PL_id][gs.Play_Type] += Time_Bonus[Winner_id];
-    gs.Score[PL_id][gs.Play_Type] += Complete_Bonus;
+    gs.Score[PL_id][gs.Play_Type] += gs.Complete_Bonus;
 
     if (gs.Score[PL_id][gs.Play_Type] >= 99999900) {
         gs.Score[PL_id][gs.Play_Type] = 99999900;
