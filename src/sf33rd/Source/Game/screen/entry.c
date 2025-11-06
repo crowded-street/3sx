@@ -432,7 +432,7 @@ void Entry_06_2nd() {
         E_No[1] = 0;
         E_No[2] = 0;
         E_No[3] = 0;
-        Fade_Flag = 0;
+        gs.Fade_Flag = 0;
 
         if (E_07_Flag[0]) {
             gs.plw[0].wu.operator = 1;

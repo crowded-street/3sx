@@ -1415,8 +1415,8 @@ void Setup_Net_Random_ix() {
 }
 
 s32 Request_Fade(u16 fade_code) {
-    if (Fade_Flag == 0) {
-        Fade_Flag = 1;
+    if (gs.Fade_Flag == 0) {
+        gs.Fade_Flag = 1;
         Fade_R_No0 = Fade_R_No1 = 0;
         Fade_Number = fade_code;
         Forbid_Break = 1;
@@ -1429,11 +1429,11 @@ s32 Request_Fade(u16 fade_code) {
 
 s32 Check_Fade_Complete_SP() {
     fade_cont_main();
-    return Fade_Flag ^ 1;
+    return gs.Fade_Flag ^ 1;
 }
 
 s32 Check_Fade_Complete() {
-    if (Fade_Flag) {
+    if (gs.Fade_Flag) {
         fade_cont_main();
         return 0;
     }

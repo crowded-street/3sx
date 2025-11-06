@@ -216,7 +216,7 @@ void Game_Manage_1st() {
     eff_hit_flag_clear();
     Check_Stage_BGM();
     Pause_Family_On();
-    Fade_Flag = 0;
+    gs.Fade_Flag = 0;
     Clear_Flash_No();
     seraph_flag = 0;
     grade_check_work_stage_init(0);

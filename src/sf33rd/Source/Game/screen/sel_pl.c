@@ -234,7 +234,7 @@ void Sel_PL_Cont_1st() {
     SO_No[0] = 0;
     SO_No[1] = 0;
     Exit_No = 0;
-    Fade_Flag = 0;
+    gs.Fade_Flag = 0;
     judge_flag = 0;
     Game_pause = 0;
 

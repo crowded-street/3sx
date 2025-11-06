@@ -178,7 +178,7 @@ void end_000_0001() {
     case 5:
         if (!bgw_ptr->free--) {
             bgw_ptr->r_no_1++;
-            Fade_Flag = 0;
+            gs.Fade_Flag = 0;
             bgw_ptr->free = 300;
         }
 

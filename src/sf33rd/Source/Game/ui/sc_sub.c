@@ -1971,7 +1971,7 @@ void fade_cont_main() {
     }
 
     if (flag == 1) {
-        Fade_Flag = 0;
+        gs.Fade_Flag = 0;
     }
 }
 
