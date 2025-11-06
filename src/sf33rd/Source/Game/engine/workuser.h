@@ -87,6 +87,7 @@ typedef struct GameState {
     u32 Stage_Stock_Score[2];
     u32 Bonus_Score;
     u32 Final_Bonus_Score;
+    u32 WGJ_Score;
 } GameState;
 
 extern GameState gs;
@@ -94,9 +95,8 @@ extern GameState gs;
 // sbss
 extern const_s16_arr Tech_Address[2];
 extern void* Shell_Address[2];
+extern void* Synchro_Address[2][2]; // FIXME: should this be serialized?
 
-extern void* Synchro_Address[2][2];
-extern u32 WGJ_Score;
 extern u32 Bonus_Score_Plus;
 extern u32 Perfect_Bonus[2];
 extern u32 Keep_Score[2];

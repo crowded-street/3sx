@@ -445,7 +445,7 @@ void Setup_Final_Grade() {
         Final_Result_id = LOSER;
         WGJ_Target = LOSER;
         WGJ_Win = Win_Record[LOSER];
-        WGJ_Score = Continue_Coin[LOSER] + gs.Score[LOSER][0];
+        gs.WGJ_Score = Continue_Coin[LOSER] + gs.Score[LOSER][0];
     }
 }
 

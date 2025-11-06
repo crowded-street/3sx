@@ -274,7 +274,7 @@ void effL1_k_grade_init(WORK_Other_CONN* ewk) {
 void effL1_w_score_init(WORK_Other_CONN* ewk) {
     s16 i;
 
-    effL1_suuchi_bunkai_sub(ewk, WGJ_Score);
+    effL1_suuchi_bunkai_sub(ewk, gs.WGJ_Score);
     ewk->num_of_conn = 8;
 
     for (i = 0; i < 8; i++) {
@@ -483,7 +483,7 @@ void effL1_f_kz_spp_init(WORK_Other_CONN* ewk) {
 void effL1_f_score_init(WORK_Other_CONN* ewk) {
     s16 i;
 
-    effL1_suuchi_bunkai_sub(ewk, WGJ_Score);
+    effL1_suuchi_bunkai_sub(ewk, gs.WGJ_Score);
     ewk->num_of_conn = 10;
 
     for (i = 0; i < 10; i++) {

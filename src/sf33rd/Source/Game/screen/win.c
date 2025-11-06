@@ -128,7 +128,7 @@ void Win_2nd() {
     gs.Order_Timer[0x38] = 1;
     effect_76_init(0x38);
 
-    WGJ_Score = Continue_Coin[Winner_id] + gs.Score[Winner_id][gs.Play_Type];
+    gs.WGJ_Score = Continue_Coin[Winner_id] + gs.Score[Winner_id][gs.Play_Type];
     WGJ_Win = Win_Record[Winner_id];
 
     effect_L1_init(1);

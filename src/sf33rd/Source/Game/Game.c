@@ -1207,7 +1207,7 @@ void Game08() {
         WGJ_Target = WINNER;
         WGJ_Win = Win_Record[WINNER];
         grade_final_grade_bonus();
-        WGJ_Score = Continue_Coin[WINNER] + gs.Score[WINNER][0];
+        gs.WGJ_Score = Continue_Coin[WINNER] + gs.Score[WINNER][0];
         Purge_mmtm_area(6);
         cpExitTask(TASK_MENU);
         cpExitTask(TASK_PAUSE);
