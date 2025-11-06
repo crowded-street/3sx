@@ -319,7 +319,7 @@ void Setup_Pos_76(WORK_Other* ewk) {
             bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + Pos_Data_76[ewk->wu.dir_old - 0x2B][1];
         ewk->wu.position_z = Pos_Data_76[ewk->wu.dir_old - 0x2B][2];
 
-        if (Order_Dir[ewk->wu.dir_old] == 4) {
+        if (gs.Order_Dir[ewk->wu.dir_old] == 4) {
             ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + 64;
             ewk->wu.mvxy.a[0].sp = -0x100000;
             ewk->wu.mvxy.d[0].sp = 0;
@@ -338,7 +338,7 @@ void Setup_Pos_76(WORK_Other* ewk) {
             bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + Pos_Data_76[ewk->wu.dir_old - 0x2B][1];
         ewk->wu.position_z = Pos_Data_76[ewk->wu.dir_old - 0x2B][2];
 
-        if (Order_Dir[ewk->wu.dir_old] == 4) {
+        if (gs.Order_Dir[ewk->wu.dir_old] == 4) {
             ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + 32;
             ewk->wu.mvxy.a[0].sp = -0x100000;
             ewk->wu.mvxy.d[0].sp = 0;
@@ -387,7 +387,7 @@ void Setup_Pos_76(WORK_Other* ewk) {
         if (ewk->wu.dir_old == 0x37) {
             my_char = My_char[Winner_id];
         } else {
-            my_char = Ranking_Data[Order_Dir[ewk->wu.dir_old]].player;
+            my_char = Ranking_Data[gs.Order_Dir[ewk->wu.dir_old]].player;
         }
 
         ewk->wu.xyz[0].disp.pos = bg_w.bgw[0].wxy[0].disp.pos + Bust_Pos_Data_76[my_char][0] - 48;
@@ -426,10 +426,10 @@ void Setup_Pos_76(WORK_Other* ewk) {
         ewk->wu.my_mts = 14;
         ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
         ewk->wu.hit_quake =
-            bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + Compute_Pos_Data_76[ix][Order_Dir[ewk->wu.dir_old]][0];
+            bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + Compute_Pos_Data_76[ix][gs.Order_Dir[ewk->wu.dir_old]][0];
         ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake + 0x1A0;
         ewk->wu.xyz[1].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos +
-                                  Compute_Pos_Data_76[ix][Order_Dir[ewk->wu.dir_old]][1] + base_y_pos;
+                                  Compute_Pos_Data_76[ix][gs.Order_Dir[ewk->wu.dir_old]][1] + base_y_pos;
         ewk->wu.position_z = Compute_Pos_Data_76[ix][ewk->wu.dir_old - 0x4A][2];
         ewk->wu.mvxy.a[0].sp = -0x18000;
         ewk->wu.mvxy.d[0].sp = -0x28000;
@@ -531,7 +531,7 @@ void Setup_Char_76(WORK_Other* ewk) {
         if (ewk->wu.dir_old == 0x37) {
             ewk->wu.dir_step = My_char[Winner_id];
         } else {
-            ewk->wu.dir_step = Ranking_Data[Order_Dir[ewk->wu.dir_old]].player;
+            ewk->wu.dir_step = Ranking_Data[gs.Order_Dir[ewk->wu.dir_old]].player;
             ewk->wu.direction = 7;
         }
 

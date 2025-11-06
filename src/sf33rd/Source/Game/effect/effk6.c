@@ -145,7 +145,7 @@ void EFFK6_SLIDE_OUT(WORK_Other* ewk) {
             ewk->wu.routine_no[1]++;
         }
 
-        if (Order_Dir[ewk->wu.dir_old] == 4) {
+        if (gs.Order_Dir[ewk->wu.dir_old] == 4) {
             ewk->wu.mvxy.a[0].sp = -0xF0000;
             ewk->wu.mvxy.d[0].sp = 0;
         } else {

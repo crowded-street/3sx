@@ -56,7 +56,7 @@ void effect_G0_move(WORK_Other* ewk) {
             if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
                 ewk->wu.routine_no[1]++;
                 ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
-                Order_Dir[ewk->wu.dir_old] = 0;
+                gs.Order_Dir[ewk->wu.dir_old] = 0;
             }
 
             break;

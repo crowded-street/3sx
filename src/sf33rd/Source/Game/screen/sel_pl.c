@@ -577,36 +577,36 @@ void OBJ_1st() {
         effect_52_init(Aborigine, 37);
         gs.Order[37] = 1;
         gs.Order_Timer[37] = 30;
-        Order_Dir[37] = 0;
+        gs.Order_Dir[37] = 0;
         effect_K6_init(Aborigine, Aborigine + 31, 31, 2);
         gs.Order[Aborigine + 31] = 1;
         gs.Order_Timer[Aborigine + 31] = 35;
-        Order_Dir[Aborigine + 31] = 0;
+        gs.Order_Dir[Aborigine + 31] = 0;
         effect_K6_init(Aborigine, Aborigine + 25, 25, 2);
         gs.Order[Aborigine + 25] = 1;
         gs.Order_Timer[Aborigine + 25] = 35;
-        Order_Dir[Aborigine + 25] = 0;
+        gs.Order_Dir[Aborigine + 25] = 0;
         gs.Order[0] = 1;
         gs.Order_Timer[0] = 40;
-        Order_Dir[0] = 4;
+        gs.Order_Dir[0] = 4;
         gs.Order[1] = 1;
         gs.Order_Timer[1] = 45;
-        Order_Dir[1] = 4;
+        gs.Order_Dir[1] = 4;
         gs.Order[3] = 1;
         gs.Order_Timer[3] = 45;
-        Order_Dir[3] = 4;
+        gs.Order_Dir[3] = 4;
         effect_39_init(Aborigine, Aborigine + 13, 127, 2, 1);
         gs.Order[Aborigine + 13] = 1;
         gs.Order_Timer[Aborigine + 13] = 35;
-        Order_Dir[Aborigine + 13] = 0;
+        gs.Order_Dir[Aborigine + 13] = 0;
         effect_42_init(5);
         gs.Order[5] = 1;
         gs.Order_Timer[5] = 45;
-        Order_Dir[5] = 4;
+        gs.Order_Dir[5] = 4;
         effect_42_init(6);
         gs.Order[6] = 1;
         gs.Order_Timer[6] = 45;
-        Order_Dir[6] = 4;
+        gs.Order_Dir[6] = 4;
         return;
     }
 
@@ -614,7 +614,7 @@ void OBJ_1st() {
     effect_75_init(42, 3, 2);
     gs.Order[42] = 3;
     gs.Order_Timer[42] = 1;
-    Order_Dir[42] = 3;
+    gs.Order_Dir[42] = 3;
     effect_38_init(0, 11, 127, 1, 2);
     gs.Order[11] = 1;
     gs.Order_Timer[11] = 86;
@@ -624,7 +624,7 @@ void OBJ_1st() {
     effect_K6_init(0, 33, 31, 2);
     gs.Order[33] = 1;
     gs.Order_Timer[33] = 86;
-    Order_Dir[33] = 0;
+    gs.Order_Dir[33] = 0;
     effect_52_init(0, 38);
     gs.Order[38] = 3;
     gs.Order_Timer[38] = 30;
@@ -637,21 +637,21 @@ void OBJ_1st() {
     effect_K6_init(1, 34, 31, 2);
     gs.Order[34] = 1;
     gs.Order_Timer[34] = 86;
-    Order_Dir[34] = 0;
+    gs.Order_Dir[34] = 0;
     effect_52_init(1, 39);
     gs.Order[39] = 3;
     gs.Order_Timer[39] = 30;
     effect_39_init(0, 15, 127, 2, 0);
     gs.Order[15] = 1;
     gs.Order_Timer[15] = 86;
-    Order_Dir[15] = 0;
+    gs.Order_Dir[15] = 0;
     effect_39_init(1, 16, 127, 2, 0);
     gs.Order[16] = 1;
     gs.Order_Timer[16] = 86;
-    Order_Dir[16] = 0;
+    gs.Order_Dir[16] = 0;
     gs.Order[4] = 3;
     gs.Order_Timer[4] = 86;
-    Order_Dir[4] = 255;
+    gs.Order_Dir[4] = 255;
     effect_42_init(7);
     gs.Order[7] = 0;
     gs.Order_Timer[7] = 86;
@@ -669,7 +669,7 @@ void OBJ_2nd() {
     effect_75_init(42, 3, 2);
     gs.Order[42] = 3;
     gs.Order_Timer[42] = 1;
-    Order_Dir[42] = 3;
+    gs.Order_Dir[42] = 3;
     gs.Order[Aborigine + 11] = 4;
     gs.Order_Timer[Aborigine + 11] = 1;
     gs.Select_Start[Aborigine] = 2;
@@ -690,30 +690,30 @@ void OBJ_2nd() {
     effect_K6_init(0, 33, 31, 2);
     gs.Order[33] = 1;
     gs.Order_Timer[33] = 1;
-    Order_Dir[33] = 0;
+    gs.Order_Dir[33] = 0;
     effect_K6_init(0, 27, 25, 2);
     gs.Order[27] = 1;
     gs.Order_Timer[27] = 1;
-    Order_Dir[27] = 0;
+    gs.Order_Dir[27] = 0;
     effect_39_init(0, 15, 127, 2, 0);
     gs.Order[15] = 1;
     gs.Order_Timer[15] = 1;
-    Order_Dir[15] = 0;
+    gs.Order_Dir[15] = 0;
     effect_K6_init(1, 34, 31, 2);
     gs.Order[34] = 1;
     gs.Order_Timer[34] = 1;
-    Order_Dir[34] = 0;
+    gs.Order_Dir[34] = 0;
     effect_K6_init(1, 28, 25, 2);
     gs.Order[28] = 1;
     gs.Order_Timer[28] = 1;
-    Order_Dir[28] = 0;
+    gs.Order_Dir[28] = 0;
     effect_39_init(1, 16, 127, 2, 0);
     gs.Order[16] = 1;
     gs.Order_Timer[16] = 1;
-    Order_Dir[16] = 0;
+    gs.Order_Dir[16] = 0;
     gs.Order[4] = 3;
     gs.Order_Timer[4] = 1;
-    Order_Dir[4] = 255;
+    gs.Order_Dir[4] = 255;
     effect_42_init(7);
     gs.Order[7] = 0;
     gs.Order_Timer[7] = 1;
@@ -736,22 +736,22 @@ void Setup_EFF69() {
 void Go_Away_Red_Lines() {
     gs.Order[0] = 2;
     gs.Order_Timer[0] = 1;
-    Order_Dir[0] = 8;
+    gs.Order_Dir[0] = 8;
     gs.Order[2] = 2;
     gs.Order_Timer[2] = 1;
-    Order_Dir[2] = 8;
+    gs.Order_Dir[2] = 8;
     gs.Order[1] = 2;
     gs.Order_Timer[1] = 1;
-    Order_Dir[1] = 8;
+    gs.Order_Dir[1] = 8;
     gs.Order[3] = 2;
     gs.Order_Timer[3] = 1;
-    Order_Dir[3] = 8;
+    gs.Order_Dir[3] = 8;
     gs.Order[5] = 2;
     gs.Order[6] = 2;
     gs.Order_Timer[5] = 1;
     gs.Order_Timer[6] = 1;
-    Order_Dir[5] = 8;
-    Order_Dir[6] = 8;
+    gs.Order_Dir[5] = 8;
+    gs.Order_Dir[6] = 8;
 }
 
 void Player_Select_Control() {
@@ -1162,12 +1162,12 @@ void Sel_PL_Sub(s16 PL_id, u16 sw) {
     Last_Selected_ID = PL_id;
     gs.Order[1] = 2;
     gs.Order_Timer[1] = 1;
-    Order_Dir[1] = 8;
+    gs.Order_Dir[1] = 8;
 
     if (Select_Status[0] != 3) {
         gs.Order[2] = 1;
         gs.Order_Timer[2] = 10;
-        Order_Dir[2] = 4;
+        gs.Order_Dir[2] = 4;
     }
 
     Sound_SE(ID + 98);
@@ -1658,7 +1658,7 @@ void Exit_4th() {
     effect_43_init(2, 2);
     gs.Order[42] = 2;
     gs.Order_Timer[42] = 1;
-    Order_Dir[42] = 5;
+    gs.Order_Dir[42] = 5;
 }
 
 void Exit_5th() {

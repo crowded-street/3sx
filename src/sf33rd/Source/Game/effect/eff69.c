@@ -53,7 +53,7 @@ void EFF69_SLIDE_IN(WORK_Other* ewk) {
         ewk->wu.disp_flag = 1;
         Setup_Clear_OBJ(ewk);
 
-        if (Order_Dir[ewk->wu.dir_old] == 4) {
+        if (gs.Order_Dir[ewk->wu.dir_old] == 4) {
             ewk->wu.mvxy.a[0].sp = -0x100000;
             ewk->wu.mvxy.d[0].sp = 0;
         } else {
@@ -102,7 +102,7 @@ void EFF69_SLIDE_OUT(WORK_Other* ewk) {
             ewk->wu.routine_no[1]++;
         }
 
-        if (Order_Dir[ewk->wu.dir_old] == 4) {
+        if (gs.Order_Dir[ewk->wu.dir_old] == 4) {
             ewk->wu.mvxy.a[0].sp = -0x100000;
             ewk->wu.mvxy.d[0].sp = -0x8000;
         } else {

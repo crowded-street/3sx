@@ -85,7 +85,7 @@ void EFF42_SLIDE_IN(WORK_Other* ewk) {
         ewk->wu.hit_quake = Pos_Data_69[ewk->wu.dir_old][0] + 512;
         ewk->wu.xyz[1].disp.pos = Pos_Data_69[ewk->wu.dir_old][1] + 0;
 
-        if (Order_Dir[ewk->wu.dir_old] == 4) {
+        if (gs.Order_Dir[ewk->wu.dir_old] == 4) {
             ewk->wu.xyz[0].disp.pos = 800;
             ewk->wu.mvxy.a[0].sp = -0x100000;
             ewk->wu.mvxy.d[0].sp = 0;
@@ -127,7 +127,7 @@ void EFF42_SLIDE_OUT(WORK_Other* ewk) {
 
         ewk->wu.routine_no[6]++;
 
-        if (Order_Dir[ewk->wu.dir_old] == 4) {
+        if (gs.Order_Dir[ewk->wu.dir_old] == 4) {
             ewk->wu.mvxy.a[0].sp = -0x100000;
             ewk->wu.mvxy.d[0].sp = -0x8000;
         } else {

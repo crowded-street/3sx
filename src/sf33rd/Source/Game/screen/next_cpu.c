@@ -365,11 +365,11 @@ void Next_CPU_5th() {
         Next_Step = 0;
         gs.Order[67] = 1;
         gs.Order_Timer[67] = 10;
-        Order_Dir[67] = 8;
+        gs.Order_Dir[67] = 8;
         effect_76_init(67);
         gs.Order[68] = 1;
         gs.Order_Timer[68] = 10;
-        Order_Dir[68] = 4;
+        gs.Order_Dir[68] = 4;
         effect_76_init(68);
         break;
 
@@ -774,7 +774,7 @@ void Select_CPU_3rd() {
         effect_75_init(42, 3, 2);
         gs.Order[42] = 3;
         gs.Order_Timer[42] = 1;
-        Order_Dir[42] = 3;
+        gs.Order_Dir[42] = 3;
         Target_BG_X[3] = bg_w.bgw[3].wxy[0].disp.pos + 480;
         Offset_BG_X[3] = 0;
 
@@ -782,11 +782,11 @@ void Select_CPU_3rd() {
             SC_No[1] = 5;
             gs.Order[67] = 1;
             gs.Order_Timer[67] = 10;
-            Order_Dir[67] = 8;
+            gs.Order_Dir[67] = 8;
             effect_76_init(67);
             gs.Order[68] = 1;
             gs.Order_Timer[68] = 10;
-            Order_Dir[68] = 4;
+            gs.Order_Dir[68] = 4;
             effect_76_init(68);
         }
 
@@ -1497,7 +1497,7 @@ void Setup_VS_OBJ(s16 Option) {
 
     gs.Order[42] = 3;
     gs.Order_Timer[42] = 1;
-    Order_Dir[42] = 5;
+    gs.Order_Dir[42] = 5;
 
     if (Option == 0) {
         effect_43_init(1, 0);

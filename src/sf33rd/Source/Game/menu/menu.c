@@ -337,7 +337,7 @@ void Mode_Select(struct _TASK* task_ptr) {
 
         effect_57_init(0x64, 0, 0, 0x3F, 2);
         gs.Order[0x64] = 1;
-        Order_Dir[0x64] = 8;
+        gs.Order_Dir[0x64] = 8;
         gs.Order_Timer[0x64] = 1;
         Menu_Suicide[0] = 0;
         effect_04_init(0, 0, 0, 0x48);
@@ -345,7 +345,7 @@ void Mode_Select(struct _TASK* task_ptr) {
         for (ix = 0; ix < loop_counter; ix++) {
             effect_61_init(0, ix + 0x50, 0, 0, (u32)ix, ix, 0x7047);
             gs.Order[ix + 0x50] = 1;
-            Order_Dir[ix + 0x50] = 4;
+            gs.Order_Dir[ix + 0x50] = 4;
             gs.Order_Timer[ix + 0x50] = ix + 0x14;
         }
 
@@ -355,7 +355,7 @@ void Mode_Select(struct _TASK* task_ptr) {
     case 1:
         if (Menu_Sub_case1(task_ptr) != 0) {
             gs.Order[0x4E] = 2;
-            Order_Dir[0x4E] = 0;
+            gs.Order_Dir[0x4E] = 0;
             gs.Order_Timer[0x4E] = 1;
             checkAdxFileLoaded();
             checkSelObjFileLoaded();
@@ -572,7 +572,7 @@ void Training_Mode(struct _TASK* task_ptr) {
         mpp_w.initTrainingData = true;
         effect_57_init(0x6F, 0xB, 0, 0x3F, 2);
         gs.Order[0x6F] = 1;
-        Order_Dir[0x6F] = 8;
+        gs.Order_Dir[0x6F] = 8;
         gs.Order_Timer[0x6F] = 1;
         effect_04_init(1, 5, 0, 0x48);
 
@@ -582,7 +582,7 @@ void Training_Mode(struct _TASK* task_ptr) {
         while (ix < 3) {
             effect_61_init(0, ix + 0x50, 0, 1, char_index, ix, 0x7047);
             gs.Order[ix + 0x50] = 1;
-            Order_Dir[ix + 0x50] = 4;
+            gs.Order_Dir[ix + 0x50] = 4;
             gs.Order_Timer[ix + 0x50] = ix + 0x14;
             ix++;
             char_index++;
@@ -668,11 +668,11 @@ void Option_Select(struct _TASK* task_ptr) {
     case 0:
         Menu_in_Sub(task_ptr);
         gs.Order[0x4E] = 2;
-        Order_Dir[0x4E] = 0;
+        gs.Order_Dir[0x4E] = 0;
         gs.Order_Timer[0x4E] = 1;
         effect_57_init(0x4F, 1, 0, 0x3F, 2);
         gs.Order[0x4F] = 1;
-        Order_Dir[0x4F] = 8;
+        gs.Order_Dir[0x4F] = 8;
         gs.Order_Timer[0x4F] = 1;
 
         if (save_w[Present_Mode].Extra_Option == 0) {
@@ -684,7 +684,7 @@ void Option_Select(struct _TASK* task_ptr) {
             while (ix < 6) {
                 effect_61_init(0, ix + 0x50, 0, 1, char_index, ix, 0x7047);
                 gs.Order[ix + 0x50] = 1;
-                Order_Dir[ix + 0x50] = 4;
+                gs.Order_Dir[ix + 0x50] = 4;
                 gs.Order_Timer[ix + 0x50] = ix + 0x14;
                 ix++;
                 char_index++;
@@ -702,7 +702,7 @@ void Option_Select(struct _TASK* task_ptr) {
         while (ix < 7) {
             effect_61_init(0, ix + 0x50, 0, 1, char_index, ix, 0x7047);
             gs.Order[ix + 0x50] = 1;
-            Order_Dir[ix + 0x50] = 4;
+            gs.Order_Dir[ix + 0x50] = 4;
             gs.Order_Timer[ix + 0x50] = ix + 0x14;
             ix++;
             char_index++;
@@ -795,17 +795,17 @@ void System_Direction(struct _TASK* task_ptr) {
     case 0:
         Menu_in_Sub(task_ptr);
         gs.Order[0x4E] = 2;
-        Order_Dir[0x4E] = 3;
+        gs.Order_Dir[0x4E] = 3;
         gs.Order_Timer[0x4E] = 1;
         effect_57_init(0x6D, 0xA, 0, 0x3F, 2);
         gs.Order[0x6D] = 1;
-        Order_Dir[0x6D] = 8;
+        gs.Order_Dir[0x6D] = 8;
         gs.Order_Timer[0x6D] = 1;
         effect_04_init(1, 3, 0, 0x48);
         Convert_Buff[3][0][0] = Direction_Working[1];
         effect_64_init(0x61U, 0, 1, 0xA, 0, 0x7047, 0xB, 3, 0);
         gs.Order[0x61] = 1;
-        Order_Dir[0x61] = 4;
+        gs.Order_Dir[0x61] = 4;
         gs.Order_Timer[0x61] = 0x14;
 
         ix = 0;
@@ -814,7 +814,7 @@ void System_Direction(struct _TASK* task_ptr) {
         while (ix < 4) {
             effect_61_init(0, ix + 0x50, 0, 1, char_index, ix + 1, 0x7047);
             gs.Order[ix + 0x50] = 1;
-            Order_Dir[ix + 0x50] = 4;
+            gs.Order_Dir[ix + 0x50] = 4;
             gs.Order_Timer[ix + 0x50] = ix + 0x15;
             ix++;
             char_index++;
@@ -1241,10 +1241,10 @@ void Setup_Next_Page(struct _TASK* task_ptr, u8 /* unused */) {
         mode_type = 1;
         Menu_Max = Ex_Page_Data[Menu_Page];
         save_w[1].extra_option.contents[Menu_Page][Menu_Max] = 1;
-        Order_Dir[0x4E] = 1;
+        gs.Order_Dir[0x4E] = 1;
         effect_57_init(0x4E, 1, 0, 0x45, 0);
         gs.Order[0x73] = 3;
-        Order_Dir[0x73] = 8;
+        gs.Order_Dir[0x73] = 8;
         gs.Order_Timer[0x73] = 1;
         effect_57_init(0x73, 6, 0, 0x3F, 2);
         effect_66_init(0x5C, 0x27, 2, 0, 0x47, 0xB, 0);
@@ -1269,7 +1269,7 @@ void Setup_Next_Page(struct _TASK* task_ptr, u8 /* unused */) {
         gs.Order[0x5B] = 3;
         gs.Order_Timer[0x5B] = 1;
         gs.Order[0x4E] = 5;
-        Order_Dir[0x4E] = 3;
+        gs.Order_Dir[0x4E] = 3;
         effect_57_init(0x4E, 0, 0, 0x45, 0);
         effect_66_init(0x5C, 0x15, 2, 0, 0x47, 0xB, 0);
         gs.Order[0x5C] = 3;
@@ -1543,7 +1543,7 @@ void Load_Replay_Sub(struct _TASK* task_ptr) {
         effect_75_init(0x2A, 3, 0);
         gs.Order[0x2A] = 3;
         gs.Order_Timer[0x2A] = 1;
-        Order_Dir[0x2A] = 5;
+        gs.Order_Dir[0x2A] = 5;
         break;
 
     case 3:
@@ -1686,17 +1686,17 @@ void Game_Option(struct _TASK* task_ptr) {
         gs.Order[0x4F] = 4;
         gs.Order_Timer[0x4F] = 1;
         gs.Order[0x4E] = 2;
-        Order_Dir[0x4E] = 2;
+        gs.Order_Dir[0x4E] = 2;
         gs.Order_Timer[0x4E] = 1;
         effect_57_init(0x6A, 7, 0, 0x3F, 2);
         gs.Order[0x6A] = 1;
-        Order_Dir[0x6A] = 8;
+        gs.Order_Dir[0x6A] = 8;
         gs.Order_Timer[0x6A] = 1;
 
         for (ix = 0, unused_s3 = char_index = 0x19; ix < 0xC; ix++, unused_s2 = char_index++) {
             effect_61_init(0, ix + 0x50, 0, 2, char_index, ix, 0x70A7);
             gs.Order[ix + 0x50] = 1;
-            Order_Dir[ix + 0x50] = 4;
+            gs.Order_Dir[ix + 0x50] = 4;
             gs.Order_Timer[ix + 0x50] = ix + 0x14;
         }
 
@@ -1705,7 +1705,7 @@ void Game_Option(struct _TASK* task_ptr) {
         for (ix = 0; ix < 0xA; ix++) {
             effect_64_init(ix + 0x5D, 0, 2, Setup_Index_64[ix], ix, 0x70A7, ix + 1, 0, 0);
             gs.Order[ix + 0x5D] = 1;
-            Order_Dir[ix + 0x5D] = 4;
+            gs.Order_Dir[ix + 0x5D] = 4;
             gs.Order_Timer[ix + 0x5D] = ix + 0x14;
         }
 
@@ -1801,21 +1801,21 @@ void Button_Config(struct _TASK* task_ptr) {
         gs.Order[0x4F] = 4;
         gs.Order_Timer[0x4F] = 1;
         gs.Order[0x4E] = 2;
-        Order_Dir[0x4E] = 2;
+        gs.Order_Dir[0x4E] = 2;
         gs.Order_Timer[0x4E] = 1;
         effect_57_init(0x6B, 2, 0, 0x3F, 2);
         gs.Order[0x6B] = 1;
-        Order_Dir[0x6B] = 8;
+        gs.Order_Dir[0x6B] = 8;
         gs.Order_Timer[0x6B] = 1;
 
         for (ix = 0; ix < 12; ix++) {
             effect_23_init(0, ix + 0x50, 0, 2, 2, ix, 0x70A7, ix + 9, 1);
             gs.Order[ix + 0x50] = 1;
-            Order_Dir[ix + 0x50] = 4;
+            gs.Order_Dir[ix + 0x50] = 4;
             gs.Order_Timer[ix + 0x50] = ix + 0x14;
             effect_23_init(1, ix + 0x5C, 0, 2, 3, ix, 0x70A7, ix + 9, 1);
             gs.Order[ix + 0x5C] = 1;
-            Order_Dir[ix + 0x5C] = 4;
+            gs.Order_Dir[ix + 0x5C] = 4;
             gs.Order_Timer[ix + 0x5C] = ix + 0x14;
         }
 
@@ -1828,22 +1828,22 @@ void Button_Config(struct _TASK* task_ptr) {
 
             effect_23_init(0, ix + 0x78, 0, 2, disp_index, ix, 0x70A7, ix, 0);
             gs.Order[ix + 0x78] = 1;
-            Order_Dir[ix + 0x78] = 4;
+            gs.Order_Dir[ix + 0x78] = 4;
             gs.Order_Timer[ix + 0x78] = ix + 0x14;
             effect_23_init(1, ix + 0x81, 0, 2, disp_index, ix, 0x70A7, ix, 0);
             gs.Order[ix + 0x81] = 1;
-            Order_Dir[ix + 0x81] = 4;
+            gs.Order_Dir[ix + 0x81] = 4;
             gs.Order_Timer[ix + 0x81] = ix + 0x14;
         }
 
         Menu_Cursor_Move = 0x22;
         effect_66_init(0x8A, 7, 2, 0, -1, -1, -0x7FFF);
         gs.Order[0x8A] = 1;
-        Order_Dir[0x8A] = 4;
+        gs.Order_Dir[0x8A] = 4;
         gs.Order_Timer[0x8A] = 0x14;
         effect_66_init(0x8B, 8, 2, 0, -1, -1, -0x7FFF);
         gs.Order[0x8B] = 1;
-        Order_Dir[0x8B] = 4;
+        gs.Order_Dir[0x8B] = 4;
         gs.Order_Timer[0x8B] = 0x14;
         break;
 
@@ -2073,24 +2073,24 @@ void Screen_Adjust(struct _TASK* task_ptr) {
         gs.Order[0x4F] = 4;
         gs.Order_Timer[0x4F] = 1;
         gs.Order[0x4E] = 2;
-        Order_Dir[0x4E] = 2;
+        gs.Order_Dir[0x4E] = 2;
         gs.Order_Timer[0x4E] = 1;
         effect_57_init(0x65, 3, 0, 0x3F, 2);
         gs.Order[0x65] = 1;
-        Order_Dir[0x65] = 8;
+        gs.Order_Dir[0x65] = 8;
         gs.Order_Timer[0x65] = 1;
 
         for (ix = 0; ix < 5; ix++) {
             effect_63_init(ix + 0x66, 0, 2, ix, ix);
             gs.Order[ix + 0x66] = 1;
-            Order_Dir[ix + 0x66] = 4;
+            gs.Order_Dir[ix + 0x66] = 4;
             gs.Order_Timer[ix + 0x66] = ix + 0x14;
         }
 
         for (ix = 0, unused_s3 = char_index = 0xE; ix < 7; ix++, unused_s2 = char_index++) {
             effect_61_init(0, ix + 0x50, 0, 2, char_index, ix, 0x7047);
             gs.Order[ix + 0x50] = 1;
-            Order_Dir[ix + 0x50] = 4;
+            gs.Order_Dir[ix + 0x50] = 4;
             gs.Order_Timer[ix + 0x50] = ix + 0x14;
         }
 
@@ -2330,11 +2330,11 @@ void Sound_Test(struct _TASK* task_ptr) {
         gs.Order[0x4F] = 4;
         gs.Order_Timer[0x4F] = 1;
         gs.Order[0x4E] = 2;
-        Order_Dir[0x4E] = 2;
+        gs.Order_Dir[0x4E] = 2;
         gs.Order_Timer[0x4E] = 1;
         effect_57_init(0x72, 4, 0, 0x3F, 2);
         gs.Order[0x72] = 1;
-        Order_Dir[0x72] = 8;
+        gs.Order_Dir[0x72] = 8;
         gs.Order_Timer[0x72] = 1;
         effect_04_init(2, 6, 2, 0x48);
 
@@ -2343,19 +2343,19 @@ void Sound_Test(struct _TASK* task_ptr) {
 
             for (ix = 0; ix < 4; ix++) {
                 gs.Order[ix + 0x57] = 1;
-                Order_Dir[ix + 0x57] = 4;
+                gs.Order_Dir[ix + 0x57] = 4;
                 gs.Order_Timer[ix + 0x57] = ix + 0x14;
                 effect_64_init(ix + 0x57, 0, 2, ixSoundMenuItem[ix] + 1, ix, 0x7047, ix + 0xC, 3, 1);
             }
         }
 
-        Order_Dir[0x78] = 0;
+        gs.Order_Dir[0x78] = 0;
         effect_A8_init(0, 0x78, 0, 2, 5, 0x70A7, 0);
-        Order_Dir[0x79] = 1;
+        gs.Order_Dir[0x79] = 1;
         effect_A8_init(0, 0x79, 0, 2, 5, 0x70A7, 1);
         effect_A8_init(3, 0x7A, 0, 2, 5, 0x70A7, 3);
         Convert_Buff[3][1][5] = 0;
-        Order_Dir[0x7B] = 0;
+        gs.Order_Dir[0x7B] = 0;
         effect_A8_init(2, 0x7B, 0, 2, 5, 0x70A7, 2);
 
         {
@@ -2365,7 +2365,7 @@ void Sound_Test(struct _TASK* task_ptr) {
             for (ix = 0, unused_s3 = char_index = 0x3B; ix < 7; ix++, unused_s2 = char_index++) {
                 effect_61_init(0, ix + 0x50, 0, 2, char_index, ix, 0x7047);
                 gs.Order[ix + 0x50] = 1;
-                Order_Dir[ix + 0x50] = 4;
+                gs.Order_Dir[ix + 0x50] = 4;
                 gs.Order_Timer[ix + 0x50] = ix + 0x14;
             }
         }
@@ -2420,13 +2420,13 @@ void Sound_Test(struct _TASK* task_ptr) {
             BGM_Request_Code_Check(0x41);
         }
 
-        Order_Dir[0x7B] = Convert_Buff[3][1][5];
+        gs.Order_Dir[0x7B] = Convert_Buff[3][1][5];
         Setup_Sound_Mode(last_mode);
         Save_Game_Data();
 
         if (Menu_Cursor_Y[0] == 5) {
             if (IO_Result == 0x100) {
-                SsRequest((u16)Order_Dir[0x7B] + 1);
+                SsRequest((u16)gs.Order_Dir[0x7B] + 1);
                 Convert_Buff[3][1][7] = 1;
                 return;
             }
@@ -2558,24 +2558,24 @@ void Memory_Card(struct _TASK* task_ptr) {
         gs.Order[0x4F] = 4;
         gs.Order_Timer[0x4F] = 1;
         gs.Order[0x4E] = 2;
-        Order_Dir[0x4E] = 4;
+        gs.Order_Dir[0x4E] = 4;
         gs.Order_Timer[0x4E] = 1;
         effect_57_init(0x69, 5, 0, 0x3F, 2);
         gs.Order[0x69] = 1;
-        Order_Dir[0x69] = 8;
+        gs.Order_Dir[0x69] = 8;
         gs.Order_Timer[0x69] = 1;
 
         for (ix = 0, unused_s3 = char_index = 0x15; ix < 4; ix++, unused_s2 = char_index++) {
             effect_61_init(0, ix + 0x50, 1, 2, char_index, ix, 0x7047);
             gs.Order[ix + 0x50] = 1;
-            Order_Dir[ix + 0x50] = 4;
+            gs.Order_Dir[ix + 0x50] = 4;
             gs.Order_Timer[ix + 0x50] = ix + 0x14;
         }
 
         Menu_Cursor_Move = 4;
         effect_64_init(0x61, 1, 2, 0, 2, 0x7047, 0, 3, 0);
         gs.Order[0x61] = 1;
-        Order_Dir[0x61] = 4;
+        gs.Order_Dir[0x61] = 4;
         gs.Order_Timer[0x61] = 0x18;
         effect_66_init(0x8A, 8, 2, 1, -1, -1, -0x7FF5);
         gs.Order[0x8A] = 3;
@@ -3399,7 +3399,7 @@ void DAS_1st(struct _TASK* task_ptr) {
     task_ptr->r_no[1]++;
     task_ptr->timer = 5;
     gs.Order[0x4E] = 2;
-    Order_Dir[0x4E] = 0;
+    gs.Order_Dir[0x4E] = 0;
     gs.Order_Timer[0x4E] = 1;
     effect_66_init(0x8A, 8, 0, 0, -1, -1, -0x7FFD);
     gs.Order[0x8A] = 3;
@@ -3502,7 +3502,7 @@ void VS_Result(struct _TASK* task_ptr) {
         Menu_Cursor_X[0] = 0;
         Menu_Cursor_X[1] = 0;
         gs.Order[78] = 2;
-        Order_Dir[78] = 0;
+        gs.Order_Dir[78] = 0;
         gs.Order_Timer[78] = 1;
         effect_66_init(91, 12, 0, 0, 71, 9, 0);
         gs.Order[91] = 3;
@@ -3803,7 +3803,7 @@ void Save_Replay(struct _TASK* task_ptr) {
             SaveInit(2, 1);
         }
         gs.Order[0x4E] = 2;
-        Order_Dir[0x4E] = 0;
+        gs.Order_Dir[0x4E] = 0;
         gs.Order_Timer[0x4E] = 1;
         break;
 
@@ -3847,7 +3847,7 @@ void Setup_Save_Replay_2nd(struct _TASK* task_ptr, s16 arg1) {
 void Setup_Replay_Sub(s16 /* unused */, s16 type, s16 char_type, s16 master_player) {
     effect_57_init(type, char_type, 0, 63, 2);
     gs.Order[type] = 1;
-    Order_Dir[type] = 8;
+    gs.Order_Dir[type] = 8;
     gs.Order_Timer[type] = 1;
     effect_66_init(138, 8, master_player, 0, -1, -1, -0x7FF4);
     gs.Order[138] = 3;
@@ -5368,7 +5368,7 @@ void After_Replay(struct _TASK* task_ptr) {
             Setup_BG(1, 512, 0);
             effect_57_init(110, 9, 0, 63, 999);
             gs.Order[110] = 3;
-            Order_Dir[110] = 8;
+            gs.Order_Dir[110] = 8;
             gs.Order_Timer[110] = 1;
             Setup_File_Property(1, 0xFF);
             SaveInit(2, 1);

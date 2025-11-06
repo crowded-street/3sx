@@ -10,8 +10,6 @@
 
 GameState gs = { 0 };
 
-u8 Order_Dir[148];
-
 // sbss
 u32 Score[2][3];
 const_s16_arr Tech_Address[2];

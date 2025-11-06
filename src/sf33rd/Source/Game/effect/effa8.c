@@ -189,7 +189,7 @@ void effect_A8_move(WORK_Other_CONN* ewk) {
         sort_push_request3(&ewk->wu);
 
         if (ewk->wu.disp_flag) {
-            if (Order_Dir[ewk->wu.dir_old]) {
+            if (gs.Order_Dir[ewk->wu.dir_old]) {
                 dispButtonImage(-87, 25, 68, 22, 17, 0, 4);
             } else {
                 dispButtonImage(-23, 0, 68, 22, 17, 0, 5);
@@ -258,7 +258,7 @@ void Setup_A8_Sub(WORK_Other_CONN* ewk) {
         offset_x = 14;
     }
 
-    ptr = (u8*)Letter_Data_A8[sys_w.bgm_type][Order_Dir[ewk->wu.dir_old] + ewk->master_id];
+    ptr = (u8*)Letter_Data_A8[sys_w.bgm_type][gs.Order_Dir[ewk->wu.dir_old] + ewk->master_id];
     ix = 0;
     x = 0;
 

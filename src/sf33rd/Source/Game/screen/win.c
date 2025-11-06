@@ -120,7 +120,7 @@ void Win_2nd() {
     effect_76_init(0x2C);
 
     gs.Order[0x2D] = 1;
-    Order_Dir[0x2D] = 4;
+    gs.Order_Dir[0x2D] = 4;
     gs.Order_Timer[0x2D] = 0x1E;
     effect_76_init(0x2D);
 
@@ -260,7 +260,7 @@ void Lose_2nd() {
     effect_76_init(0x39);
 
     gs.Order[0x2D] = 1;
-    Order_Dir[0x2D] = 4;
+    gs.Order_Dir[0x2D] = 4;
     gs.Order_Timer[0x2D] = 30;
     effect_76_init(0x2D);
 

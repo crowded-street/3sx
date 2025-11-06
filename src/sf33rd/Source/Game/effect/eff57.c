@@ -103,7 +103,7 @@ void EFF57_CHAR_CHANGE(WORK_Other* ewk) {
     if (--gs.Order_Timer[ewk->wu.dir_old] == 0) {
         ewk->wu.routine_no[0] = 0;
         gs.Order[ewk->wu.dir_old] = 0;
-        ewk->wu.dir_step = Order_Dir[ewk->wu.dir_old];
+        ewk->wu.dir_step = gs.Order_Dir[ewk->wu.dir_old];
         set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
     }
 }
@@ -120,7 +120,7 @@ void EFF57_WALL(WORK_Other* ewk) {
         ewk->wu.xyz[0].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + 0;
         ewk->wu.xyz[1].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + 16;
         ewk->wu.position_z = 78;
-        ewk->wu.dir_step = Order_Dir[ewk->wu.dir_old];
+        ewk->wu.dir_step = gs.Order_Dir[ewk->wu.dir_old];
         set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
         break;
 

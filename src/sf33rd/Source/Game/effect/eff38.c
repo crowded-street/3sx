@@ -135,7 +135,7 @@ void EFF38_SLIDE_OUT(WORK_Other* ewk) {
         if (--gs.Order_Timer[ewk->wu.dir_old] == 0) {
             ewk->wu.routine_no[6]++;
 
-            if (Order_Dir[ewk->wu.dir_old] == 8) {
+            if (gs.Order_Dir[ewk->wu.dir_old] == 8) {
                 ewk->wu.mvxy.a[0].sp = 0xF0000;
                 ewk->wu.mvxy.d[0].sp = 0x8000;
             } else {

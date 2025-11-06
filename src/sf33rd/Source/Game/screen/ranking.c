@@ -74,7 +74,7 @@ void Ranking_00_2nd() {
     if (Rank_Type >= 10) {
         gs.Order[85] = 3;
         gs.Order_Timer[85] = 1;
-        Order_Dir[85] = (u8)Rank_Type;
+        gs.Order_Dir[85] = (u8)Rank_Type;
         effect_76_init(85);
         effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 128, bg_w.bgw[0].xy[1].disp.pos + 80, 180, 10, 35, 5, 0);
         effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 120, bg_w.bgw[0].xy[1].disp.pos + 40, 180, 13, 35, 5, 0);
@@ -272,7 +272,7 @@ void Ranking_01_2nd() {
     }
     gs.Order[85] = 1;
     gs.Order_Timer[85] = 180;
-    Order_Dir[85] = Rank_Type + 10;
+    gs.Order_Dir[85] = Rank_Type + 10;
     effect_76_init(85);
     effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 512, bg_w.bgw[0].xy[1].disp.pos + 80, 180, 10, 35, 0, 0);
     effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 504, bg_w.bgw[0].xy[1].disp.pos + 40, 180, 13, 35, 0, 0);

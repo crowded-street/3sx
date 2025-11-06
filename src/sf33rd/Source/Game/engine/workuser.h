@@ -78,12 +78,10 @@ typedef struct GameState {
     s8 Select_Start[2];
     u8 Order[148];
     u8 Order_Timer[148];
+    u8 Order_Dir[148];
 } GameState;
 
 extern GameState gs;
-
-// bss
-extern u8 Order_Dir[148];
 
 // sbss
 extern u32 Score[2][3];
