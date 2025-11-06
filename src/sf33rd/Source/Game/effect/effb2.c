@@ -245,7 +245,7 @@ s32 effect_B2_init() {
         break;
 
     case 1:
-        if (Round_num == 2) {
+        if (gs.Round_num == 2) {
             ewk->wu.type = 1;
         } else {
             ewk->wu.type = 0;
@@ -254,7 +254,7 @@ s32 effect_B2_init() {
         break;
 
     case 2:
-        if (Round_num == 4) {
+        if (gs.Round_num == 4) {
             ewk->wu.type = 1;
         } else {
             ewk->wu.type = 0;
@@ -263,7 +263,7 @@ s32 effect_B2_init() {
         break;
 
     case 3:
-        if (Round_num == 6) {
+        if (gs.Round_num == 6) {
             ewk->wu.type = 1;
         } else {
             ewk->wu.type = 0;

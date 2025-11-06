@@ -88,7 +88,7 @@ s32 effect_B9_init(WORK_Other* oya) {
         ewk->wu.xyz[1].disp.pos = 0x90;
     } else {
         ewk->wu.old_rno[0] = 3;
-        ewk->wu.char_index = Round_num + 1;
+        ewk->wu.char_index = gs.Round_num + 1;
         ewk->wu.xyz[0].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].position_x + bg_w.pos_offset;
         ewk->wu.xyz[0].disp.pos += 0x70;
         ewk->wu.xyz[1].disp.pos = 0x90;

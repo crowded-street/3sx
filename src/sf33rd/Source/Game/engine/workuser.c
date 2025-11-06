@@ -15,8 +15,6 @@ const_s16_arr Tech_Address[2];
 void* Shell_Address[2];
 void* Synchro_Address[2][2];
 
-u8 Round_num;
-s8 Complete_Judgement;
 s8 Fade_Flag;
 s8 Super_Arts[2];
 s8 Forbid_Break;

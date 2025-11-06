@@ -470,7 +470,7 @@ void Game2_0() {
     C_No[3] = 0;
     G_No[2] = 6;
     G_Timer = 10;
-    Round_num = 0;
+    gs.Round_num = 0;
     Keep_Grade[0] = 0;
     Keep_Grade[1] = 0;
 
@@ -554,7 +554,7 @@ void Game2_2() {
     C_No[2] = 0;
     C_No[3] = 0;
     G_Timer = 10;
-    Round_num = 0;
+    gs.Round_num = 0;
     Keep_Grade[0] = 0;
     Keep_Grade[1] = 0;
 
@@ -1271,7 +1271,7 @@ void Game09() {
         C_No[3] = 0;
         G_No[2] += 1;
         G_Timer = 19;
-        Round_num = 0;
+        gs.Round_num = 0;
         gs.Allow_a_battle_f = 0;
         Time_in_Time = 60;
         init_slow_flag();

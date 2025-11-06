@@ -4438,7 +4438,7 @@ void Training_Init(struct _TASK* task_ptr) {
         control_pl_rno = 0;
     }
 
-    Round_num = 0;
+    gs.Round_num = 0;
     PL_Wins[0] = 0;
     PL_Wins[1] = 0;
     Play_Mode = 0;

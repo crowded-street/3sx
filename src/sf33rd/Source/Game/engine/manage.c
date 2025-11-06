@@ -391,7 +391,7 @@ void Game_Manage_2_2() {
         Stop_SG = 0;
     }
 
-    Complete_Judgement = 0;
+    gs.Complete_Judgement = 0;
     Music_Fade = 0;
     Pause_Hit_Marks = 0;
     count_end = 0;
@@ -431,7 +431,7 @@ void Game_Manage_2_3() {
 void Game_Manage_2_4() {
     switch (C_No[2]) {
     case 0:
-        if (Round_num) {
+        if (gs.Round_num) {
             C_No[2] = 3;
             return;
         }
@@ -689,7 +689,7 @@ void Game_Manage_5_7() {
     C_No[1] = 7;
     C_Timer = 30;
     Fade_Half_Flag = 1;
-    Complete_Judgement = 1;
+    gs.Complete_Judgement = 1;
     Round_Result |= 0x8000;
     win_type[gs.Winner_id][PL_Wins[gs.Winner_id]] = 6;
     setFinishType();
@@ -734,7 +734,7 @@ void Game_Manage_6th() {
 
         C_No[0] = 7;
         C_No[1] = 0;
-        Round_num++;
+        gs.Round_num++;
         Quick_Entry();
         break;
     }
@@ -891,7 +891,7 @@ void Game_Manage_8th() {
 }
 
 void Game_Manage_8_0() {
-    Round_num++;
+    gs.Round_num++;
     Quick_Entry();
     Stop_Update_Score = 1;
 
@@ -904,20 +904,18 @@ void Game_Manage_8_0() {
             grade_makeup_stage_parameter(WINNER);
             grade_makeup_stage_parameter(LOSER);
             Check_Break_Into_CPU(WINNER);
-            return;
+        } else {
+            C_No[1] = 3;
+            C_Timer = 1;
         }
-
+    } else {
         C_No[1] = 3;
-        C_Timer = 1;
-        return;
-    }
+        C_Timer = 30;
 
-    C_No[1] = 3;
-    C_Timer = 30;
-
-    if (PL_Wins[gs.Winner_id] >= save_w[Present_Mode].Battle_Number[gs.Play_Type] + 1) {
-        grade_makeup_stage_parameter(WINNER);
-        grade_makeup_stage_parameter(LOSER);
+        if (PL_Wins[gs.Winner_id] >= save_w[Present_Mode].Battle_Number[gs.Play_Type] + 1) {
+            grade_makeup_stage_parameter(WINNER);
+            grade_makeup_stage_parameter(LOSER);
+        }
     }
 }
 
@@ -1446,11 +1444,11 @@ void BGM_Control() {
         BGM_No[0] = 0;
 
         if (gs.Play_Type == 0 && EM_id == 17) {
-            Stage_BGM(17, Round_num);
-            break;
+            Stage_BGM(17, gs.Round_num);
+        } else {
+            Stage_BGM(bg_w.stage, gs.Round_num);
         }
 
-        Stage_BGM(bg_w.stage, Round_num);
         break;
 
     case 3:
@@ -1476,31 +1474,31 @@ void Setup_BGM_Fade_In(s16 Time) {
 
 void Check_Stage_BGM() {
     if (gs.Play_Type == 1) {
-        Stage_BGM(bg_w.stage, Round_num);
+        Stage_BGM(bg_w.stage, gs.Round_num);
         return;
     }
 
     switch (EM_id) {
     case 1:
         if (gs.My_char[Player_id] != 0) {
-            Stage_BGM(bg_w.stage, Round_num);
+            Stage_BGM(bg_w.stage, gs.Round_num);
         }
 
         /* fallthrough */
 
     case 0:
         if (Introduce_Boss[Player_id][1] & 0x80) {
-            Stage_BGM(bg_w.stage, Round_num);
+            Stage_BGM(bg_w.stage, gs.Round_num);
         }
 
         break;
 
     case 17:
-        Stage_BGM(17, Round_num);
+        Stage_BGM(17, gs.Round_num);
         break;
 
     default:
-        Stage_BGM(bg_w.stage, Round_num);
+        Stage_BGM(bg_w.stage, gs.Round_num);
         break;
     }
 }
@@ -1959,7 +1957,7 @@ void Game_Manage_12_0() {
         Stop_SG = 0;
     }
 
-    Complete_Judgement = 0;
+    gs.Complete_Judgement = 0;
     Music_Fade = 0;
     Round_Operator[0] = gs.plw[0].wu.operator;
     Round_Operator[1] = gs.plw[1].wu.operator;

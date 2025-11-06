@@ -1853,7 +1853,7 @@ s32 effect_13_init(WORK* wk, u8 data) {
     ewk->wu.my_col_mode = wk->my_col_mode;
     ewk->wu.old_rno[7] = wk->my_col_code;
     ewk->wu.weight_level = wk->weight_level;
-    ewk->wu.rl_waza = Round_num;
+    ewk->wu.rl_waza = gs.Round_num;
     ewk->my_master = wk;
 
     if (wk->work_id == 1) {

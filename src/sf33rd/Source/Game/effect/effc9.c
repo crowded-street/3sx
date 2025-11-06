@@ -175,7 +175,7 @@ s32 effect_C9_init(PLW* arg0, u8 data) {
     ewk->wu.id = 129;
     ewk->wu.work_id = 16;
     ewk->wu.type = data;
-    ewk->wu.charset_id = ag_sel_table[bg_w.stage][Round_num & 3][data];
+    ewk->wu.charset_id = ag_sel_table[bg_w.stage][gs.Round_num & 3][data];
     ewk->wu.cgromtype = 1;
     ewk->wu.my_family = 2;
     ewk->wu.my_col_mode = 0x4200;

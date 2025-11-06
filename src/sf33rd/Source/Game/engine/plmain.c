@@ -161,7 +161,7 @@ void player_mv_0000(PLW* wk) {
         break;
 
     case DIP2_SA_GAUGE_ROUND_RESET_DISABLED:
-        if (Round_num != 0) {
+        if (gs.Round_num != 0) {
             break;
         }
 

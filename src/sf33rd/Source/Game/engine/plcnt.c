@@ -752,7 +752,7 @@ void settle_type_30000() {
         break;
 
     case 1:
-        if ((Event_Judge_Gals == -1) && Complete_Judgement) {
+        if ((Event_Judge_Gals == -1) && gs.Complete_Judgement) {
             gs.plw[gs.Winner_id].wu.routine_no[2] = 40;
             gs.plw[gs.Loser_id].wu.routine_no[2] = 41;
             gs.plw[0].wu.routine_no[3] = gs.plw[1].wu.routine_no[3] = 0;
