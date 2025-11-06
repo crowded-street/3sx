@@ -1,4 +1,5 @@
-#include "sf33rd/Source/Game/netplay.h"
+#include "netplay/netplay.h"
+#include "netplay/game_state.h"
 #include "sf33rd/Source/Game/Game.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/grade.h"
@@ -46,7 +47,8 @@ typedef struct EffectState {
 } EffectState;
 
 typedef struct State {
-    GameState gs;
+    GameState gs; // FIXME: merge two GameState structs together
+    _GameState _gs;
     EffectState es;
 } State;
 
@@ -253,18 +255,26 @@ static void dump_state(int frame) {
 }
 #endif
 
+#define SDL_copya(dst, src) SDL_memcpy(dst, src, sizeof(src))
+
 static void save_state(GekkoGameEvent* event) {
     *event->data.save.state_len = sizeof(State);
     State* dst = (State*)event->data.save.state;
     SDL_memcpy(&dst->gs, &gs, sizeof(gs));
 
-    SDL_memcpy(&dst->es.frw, frw, sizeof(frw));
-    SDL_memcpy(&dst->es.exec_tm, exec_tm, sizeof(exec_tm));
-    SDL_memcpy(&dst->es.frwque, frwque, sizeof(frwque));
-    SDL_memcpy(&dst->es.head_ix, head_ix, sizeof(head_ix));
-    SDL_memcpy(&dst->es.tail_ix, tail_ix, sizeof(tail_ix));
-    dst->es.frwctr = frwctr;
-    dst->es.frwctr_min = frwctr_min;
+    // _GameState
+    _GameState* _gs = &dst->_gs;
+    GameState_Save(_gs);
+
+    // EffectState
+    EffectState* es = &dst->es;
+    SDL_copya(es->frw, frw);
+    SDL_copya(es->exec_tm, exec_tm);
+    SDL_copya(es->frwque, frwque);
+    SDL_copya(es->head_ix, head_ix);
+    SDL_copya(es->tail_ix, tail_ix);
+    es->frwctr = frwctr;
+    es->frwctr_min = frwctr_min;
 
 #if defined(DEBUG)
     *event->data.save.checksum = calculate_checksum(dst);
@@ -280,13 +290,19 @@ static void load_state(GekkoGameEvent* event) {
     const State* src = (State*)event->data.load.state;
     SDL_memcpy(&gs, &src->gs, sizeof(gs));
 
-    SDL_memcpy(frw, &src->es.frw, sizeof(frw));
-    SDL_memcpy(exec_tm, &src->es.exec_tm, sizeof(exec_tm));
-    SDL_memcpy(frwque, &src->es.frwque, sizeof(frwque));
-    SDL_memcpy(head_ix, &src->es.head_ix, sizeof(head_ix));
-    SDL_memcpy(tail_ix, &src->es.tail_ix, sizeof(tail_ix));
-    frwctr = src->es.frwctr;
-    frwctr_min = src->es.frwctr_min;
+    // _GameState
+    const _GameState* _gs = &src->_gs;
+    GameState_Load(_gs);
+
+    // EffectState
+    const EffectState* es = &src->es;
+    SDL_copya(frw, es->frw);
+    SDL_copya(exec_tm, es->exec_tm);
+    SDL_copya(frwque, es->frwque);
+    SDL_copya(head_ix, es->head_ix);
+    SDL_copya(tail_ix, es->tail_ix);
+    frwctr = es->frwctr;
+    frwctr_min = es->frwctr_min;
 }
 
 static bool game_ready_to_run_character_select() {

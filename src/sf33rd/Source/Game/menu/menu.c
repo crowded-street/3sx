@@ -5,6 +5,7 @@
 
 #include "sf33rd/Source/Game/menu/menu.h"
 #include "common.h"
+#include "netplay/netplay.h"
 #include "port/sdl/sdl_app.h"
 #include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Game/Game.h"
@@ -45,7 +46,6 @@
 #include "sf33rd/Source/Game/main.h"
 #include "sf33rd/Source/Game/menu/dir_data.h"
 #include "sf33rd/Source/Game/menu/ex_data.h"
-#include "sf33rd/Source/Game/netplay.h"
 #include "sf33rd/Source/Game/rendering/color3rd.h"
 #include "sf33rd/Source/Game/rendering/mmtmcnt.h"
 #include "sf33rd/Source/Game/rendering/texgroup.h"

@@ -80,23 +80,25 @@ typedef struct GameState {
 
 extern GameState gs;
 
-// bss
+// MARK: - Non-serializable
+
+extern const_s16_arr Tech_Address[2];
+extern void* Shell_Address[2];
+extern void* Synchro_Address[2][2];
+
+// MARK: - Serialized
+
 extern u8 Order[148];
 extern u8 Order_Timer[148];
 extern u8 Order_Dir[148];
-
-// sbss
 extern u32 Score[2][3];
-extern const_s16_arr Tech_Address[2];
 extern u32 Complete_Bonus;
-extern void* Shell_Address[2];
 extern u32 Stock_Score[2];
 extern u32 Vital_Bonus[2];
 extern u32 Time_Bonus[2];
 extern u32 Stage_Stock_Score[2];
 extern u32 Bonus_Score;
 extern u32 Final_Bonus_Score;
-extern void* Synchro_Address[2][2];
 extern u32 WGJ_Score;
 extern u32 Bonus_Score_Plus;
 extern u32 Perfect_Bonus[2];
@@ -114,9 +116,12 @@ extern s8 Super_Arts[2];
 extern s8 Forbid_Break;
 extern s8 Request_Break[2];
 extern s8 Continue_Count[2];
-extern s8 Personal_Continue_Flag[2];
-extern s8 Personal_Disp_Flag;
-extern s8 win_pause_go;
+
+// MARK: - Unhandled
+
+extern s8 Personal_Continue_Flag[2]; // FIXME: remove
+extern s8 Personal_Disp_Flag; // FIXME: remove
+extern s8 win_pause_go; // FIXME: remove
 extern s8 request_message;
 extern s8 judge_flag;
 extern s8 WINNER;

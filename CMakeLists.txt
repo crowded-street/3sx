@@ -29,13 +29,11 @@ include_directories(
 # Source collection
 # ======================================
 
-file(GLOB_RECURSE GAME_SRC src/sf33rd/*.c)
-file(GLOB_RECURSE BIN2OBJ_SRC src/bin2obj/*.c)
-file(GLOB_RECURSE PORT_SRC src/port/*.c)
+file(GLOB_RECURSE GAME_SRC src/*.c)
 file(GLOB_RECURSE ZLIB_SRC zlib/*.c)
 
 add_executable(3sx MACOSX_BUNDLE
-    ${GAME_SRC} ${BIN2OBJ_SRC} ${PORT_SRC} ${ZLIB_SRC}
+    ${GAME_SRC} ${ZLIB_SRC}
 )
 
 # ======================================
