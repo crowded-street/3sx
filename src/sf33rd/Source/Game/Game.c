@@ -994,7 +994,7 @@ void Game06() {
                 grade_check_work_1st_init(LOSER, 0);
                 grade_check_work_1st_init(LOSER, 1);
 
-                if (Request_Break[0] != 0 || Request_Break[1] != 0) {
+                if (gs.Request_Break[0] != 0 || gs.Request_Break[1] != 0) {
                     Request_Break_Sub(0);
                     Request_Break_Sub(1);
                     G_No[1] = 1;
@@ -1072,7 +1072,7 @@ void Game06() {
 }
 
 void Request_Break_Sub(s16 PL_id) {
-    if ((Request_Break[PL_id] != 0) && (Ck_Break_Into(0, 0, PL_id) != 0)) {
+    if ((gs.Request_Break[PL_id] != 0) && (Ck_Break_Into(0, 0, PL_id) != 0)) {
         gs.plw[PL_id].wu.operator = 1;
         Operator_Status[PL_id] = 1;
     }

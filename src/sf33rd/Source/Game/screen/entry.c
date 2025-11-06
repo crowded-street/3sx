@@ -766,7 +766,7 @@ void Entry_Main_Sub(s16 PL_id, s16 Jump_Index) {
             Break_Into_Sub(PL_id, Jump_Index);
         }
 
-        if (Request_Break[PL_id]) {
+        if (gs.Request_Break[PL_id]) {
             E_Number[PL_id][0] = 0;
             E_Number[PL_id][1] = 0;
             E_Number[PL_id][2] = 0;
@@ -896,7 +896,7 @@ void Naming_Cut_Sub_1P() {
     if (!Naming_Cut[0] && (Ck_Break_Into_SP(p1sw_0, p1sw_1, 0) != 0)) {
         Game_pause = 0;
         Naming_Cut[0] = 1;
-        Request_Break[0] = 1;
+        gs.Request_Break[0] = 1;
     }
 }
 
@@ -904,7 +904,7 @@ void Naming_Cut_Sub_2P() {
     if (!Naming_Cut[1] && (Ck_Break_Into_SP(p2sw_0, p2sw_1, 1) != 0)) {
         Game_pause = 0;
         Naming_Cut[1] = 1;
-        Request_Break[1] = 1;
+        gs.Request_Break[1] = 1;
     }
 }
 
@@ -953,7 +953,7 @@ void Loser_Scene_Sub(s16 PL_id, s16 Jump_Index) {
 }
 
 s32 Loser_Sub_1P() {
-    if ((Ck_Break_Into(p1sw_0, p1sw_1, 0) == 0) && !Request_Break[0]) {
+    if ((Ck_Break_Into(p1sw_0, p1sw_1, 0) == 0) && !gs.Request_Break[0]) {
         if (LOSER == 0) {
             if (save_w[1].extra_option.contents[3][5]) {
                 SSPutStr(DE_X[0], 0, 9, "     CONTINUE?");
@@ -967,7 +967,7 @@ s32 Loser_Sub_1P() {
 }
 
 s32 Loser_Sub_2P() {
-    if ((Ck_Break_Into(p2sw_0, p2sw_1, 1) == 0) && !Request_Break[1]) {
+    if ((Ck_Break_Into(p2sw_0, p2sw_1, 1) == 0) && !gs.Request_Break[1]) {
         if (LOSER == 1) {
             if (save_w[1].extra_option.contents[3][5]) {
                 SSPutStr(DE_X[1], 0, 9, "     CONTINUE?");
@@ -982,7 +982,7 @@ s32 Loser_Sub_2P() {
 
 s32 Credit_Sub_1P() {
     if (Ck_Break_Into(p1sw_0, p1sw_1, 0) == 0) {
-        if (Request_Break[0]) {
+        if (gs.Request_Break[0]) {
             Flash_Please(0);
         } else {
             Flash_Start(0);
@@ -994,7 +994,7 @@ s32 Credit_Sub_1P() {
 
 s32 Credit_Sub_2P() {
     if (Ck_Break_Into(p2sw_0, p2sw_1, 1) == 0) {
-        if (Request_Break[1]) {
+        if (gs.Request_Break[1]) {
             Flash_Please(1);
         } else {
             Flash_Start(1);
@@ -1296,11 +1296,11 @@ void Break_Into_Sub(s16 PL_id, s16 Jump_Index) {
 }
 
 s32 Ck_Break_Into(u16 Sw_0, u16 Sw_1, s16 PL_id) {
-    if ((E_No[0] != 10) && Request_Break[PL_id ^ 1]) {
+    if ((E_No[0] != 10) && gs.Request_Break[PL_id ^ 1]) {
         return 0;
     }
 
-    if (Request_Break[PL_id]) {
+    if (gs.Request_Break[PL_id]) {
         if (gs.Forbid_Break || Extra_Break) {
             return 0;
         }
@@ -1308,7 +1308,7 @@ s32 Ck_Break_Into(u16 Sw_0, u16 Sw_1, s16 PL_id) {
         Game_pause = 1;
         gs.New_Challenger = PL_id;
         Champion = gs.New_Challenger ^ 1;
-        Request_Break[PL_id] = 0;
+        gs.Request_Break[PL_id] = 0;
         return ENTRY_X = 1;
     }
 
@@ -1319,7 +1319,7 @@ s32 Ck_Break_Into(u16 Sw_0, u16 Sw_1, s16 PL_id) {
     Continue_Score_Sub(PL_id);
 
     if (gs.Forbid_Break || Extra_Break) {
-        Request_Break[PL_id] = 1;
+        gs.Request_Break[PL_id] = 1;
     } else {
         Game_pause = 1;
         gs.New_Challenger = PL_id;

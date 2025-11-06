@@ -188,7 +188,7 @@ void Clear_Personal_Data(s16 PL_id) {
     E_Number[PL_id][2] = 0;
     E_Number[PL_id][3] = 0;
     E_07_Flag[PL_id] = 0;
-    Request_Break[PL_id] = 0;
+    gs.Request_Break[PL_id] = 0;
 
     if (PL_id == 0) {
         gs.Cursor_X[0] = permission_player[Present_Mode].cursor_infor[0].first_x;

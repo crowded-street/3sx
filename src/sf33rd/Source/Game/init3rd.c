@@ -76,8 +76,8 @@ void Init_Task_1st(struct _TASK* task_ptr) {
     Pause_Down = 0;
     Disp_Attack_Data = 0;
     seraph_flag = 0;
-    Request_Break[0] = 0;
-    Request_Break[1] = 0;
+    gs.Request_Break[0] = 0;
+    gs.Request_Break[1] = 0;
     DE_X[0] = 2;
     DE_X[1] = 0x1B;
     No_Trans = 0;

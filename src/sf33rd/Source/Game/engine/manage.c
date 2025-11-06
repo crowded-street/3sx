@@ -1011,7 +1011,7 @@ void Game_Manage_81_3() {
 }
 
 void Game_Manage_8_2() {
-    if (Request_Break[gs.Winner_id ^ 1]) {
+    if (gs.Request_Break[gs.Winner_id ^ 1]) {
         C_Timer = 1;
     }
 
