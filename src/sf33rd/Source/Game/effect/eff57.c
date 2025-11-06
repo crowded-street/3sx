@@ -19,8 +19,8 @@
 void (*const EFF57_Jmp_Tbl[6])();
 
 void effect_57_move(WORK_Other* ewk) {
-    if (ewk->wu.routine_no[0] != Order[ewk->wu.dir_old]) {
-        ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
+    if (ewk->wu.routine_no[0] != gs.Order[ewk->wu.dir_old]) {
+        ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old];
         ewk->wu.routine_no[1] = 0;
     }
 
@@ -42,14 +42,14 @@ void effect_57_move(WORK_Other* ewk) {
 }
 
 void EFF57_WAIT(WORK_Other* ewk) {
-    if ((ewk->wu.routine_no[0] = Order[ewk->wu.dir_old])) {
+    if ((ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old])) {
         ewk->wu.routine_no[1] = 0;
     }
 }
 
 void EFF57_SLIDE_IN(WORK_Other* ewk) {
-    if (Order[ewk->wu.dir_old] != 1) {
-        ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
+    if (gs.Order[ewk->wu.dir_old] != 1) {
+        ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old];
         ewk->wu.routine_no[1] = 0;
         return;
     }
@@ -77,8 +77,8 @@ void EFF57_SLIDE_IN(WORK_Other* ewk) {
 
         if (0 < ewk->wu.mvxy.a[0].sp) {
             if (ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
-                if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
-                    Order[ewk->wu.dir_old] = 0;
+                if (gs.Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
+                    gs.Order[ewk->wu.dir_old] = 0;
                 }
 
                 ewk->wu.routine_no[0] = 0;
@@ -86,8 +86,8 @@ void EFF57_SLIDE_IN(WORK_Other* ewk) {
             }
         } else {
             if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
-                if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
-                    Order[ewk->wu.dir_old] = 0;
+                if (gs.Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
+                    gs.Order[ewk->wu.dir_old] = 0;
                 }
 
                 ewk->wu.routine_no[0] = 0;
@@ -102,7 +102,7 @@ void EFF57_SLIDE_IN(WORK_Other* ewk) {
 void EFF57_CHAR_CHANGE(WORK_Other* ewk) {
     if (--Order_Timer[ewk->wu.dir_old] == 0) {
         ewk->wu.routine_no[0] = 0;
-        Order[ewk->wu.dir_old] = 0;
+        gs.Order[ewk->wu.dir_old] = 0;
         ewk->wu.dir_step = Order_Dir[ewk->wu.dir_old];
         set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
     }
@@ -126,7 +126,7 @@ void EFF57_WALL(WORK_Other* ewk) {
 
     default:
         ewk->wu.routine_no[0] = 0;
-        Order[ewk->wu.dir_old] = 0;
+        gs.Order[ewk->wu.dir_old] = 0;
         break;
     }
 }
@@ -137,7 +137,7 @@ void EFF57_SUDDENLY(WORK_Other* ewk) {
     }
 
     ewk->wu.routine_no[0] = 0;
-    Order[ewk->wu.dir_old] = 0;
+    gs.Order[ewk->wu.dir_old] = 0;
     ewk->wu.disp_flag = 1;
     ewk->wu.xyz[0].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + 0;
     ewk->wu.xyz[1].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + 236;

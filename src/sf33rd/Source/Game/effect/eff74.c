@@ -25,7 +25,7 @@ void effect_74_move(WORK_Other* ewk) {
         return;
     }
 
-    if (Order[ewk->wu.dir_old] == 4) {
+    if (gs.Order[ewk->wu.dir_old] == 4) {
         ewk->wu.routine_no[0] = 4;
     }
 
@@ -45,7 +45,7 @@ void effect_74_move(WORK_Other* ewk) {
 }
 
 void EFF74_WAIT(WORK_Other* ewk) {
-    if ((ewk->wu.routine_no[0] = Order[ewk->wu.dir_old])) {
+    if ((ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old])) {
         ewk->wu.routine_no[1] = 0;
     }
 }
@@ -87,7 +87,7 @@ void EFF74_SUDDENLY(WORK_Other* ewk) {
 
     default:
         ewk->wu.routine_no[0] = 0;
-        Order[ewk->wu.dir_old] = 0;
+        gs.Order[ewk->wu.dir_old] = 0;
         break;
     }
 }

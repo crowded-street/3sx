@@ -42,7 +42,7 @@ void effect_K6_move(WORK_Other* ewk) {
 }
 
 void EFFK6_WAIT(WORK_Other* ewk) {
-    if ((ewk->wu.routine_no[0] = Order[ewk->wu.dir_old])) {
+    if ((ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old])) {
         ewk->wu.routine_no[1] = 0;
     }
 }
@@ -50,7 +50,7 @@ void EFFK6_WAIT(WORK_Other* ewk) {
 void EFFK6_SLIDE_IN(WORK_Other* ewk) {
     s16 xx;
 
-    if ((Order[ewk->wu.dir_old]) == 5) {
+    if ((gs.Order[ewk->wu.dir_old]) == 5) {
         ewk->wu.routine_no[0] = 5;
         ewk->wu.routine_no[1] = 0;
         return;
@@ -92,14 +92,14 @@ void EFFK6_SLIDE_IN(WORK_Other* ewk) {
 
         if (0 < ewk->wu.mvxy.a[0].sp) {
             if (ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
-                if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
-                    Order[ewk->wu.dir_old] = 0;
+                if (gs.Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
+                    gs.Order[ewk->wu.dir_old] = 0;
                 }
 
                 ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
 
                 if (ewk->wu.dir_old < 31) {
-                    Order[ewk->wu.dir_old] = 4;
+                    gs.Order[ewk->wu.dir_old] = 4;
                     ewk->wu.routine_no[0] = 4;
                     ewk->wu.routine_no[6] = 0;
                     break;
@@ -112,14 +112,14 @@ void EFFK6_SLIDE_IN(WORK_Other* ewk) {
         }
 
         if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
-            if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
-                Order[ewk->wu.dir_old] = 0;
+            if (gs.Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
+                gs.Order[ewk->wu.dir_old] = 0;
             }
 
             ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
 
             if (ewk->wu.dir_old < 31) {
-                Order[ewk->wu.dir_old] = 4;
+                gs.Order[ewk->wu.dir_old] = 4;
                 ewk->wu.routine_no[0] = 4;
                 ewk->wu.routine_no[6] = 0;
                 break;
@@ -191,14 +191,14 @@ void EFFK6_SUDDENLY(WORK_Other* ewk) {
 
     default:
         if (ewk->wu.dir_old == 27 || ewk->wu.dir_old == 28) {
-            Order[ewk->wu.dir_old] = 4;
+            gs.Order[ewk->wu.dir_old] = 4;
             ewk->wu.routine_no[0] = 4;
             ewk->wu.routine_no[6] = 0;
             break;
         }
 
         ewk->wu.routine_no[0] = 0;
-        Order[ewk->wu.dir_old] = 0;
+        gs.Order[ewk->wu.dir_old] = 0;
         break;
     }
 }
@@ -220,8 +220,8 @@ void EFFK6_KILL(WORK_Other* ewk) {
 }
 
 void EFFK6_MOVE(WORK_Other* ewk) {
-    if (Order[ewk->wu.dir_old] != 4) {
-        ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
+    if (gs.Order[ewk->wu.dir_old] != 4) {
+        ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old];
         ewk->wu.routine_no[1] = 0;
         ewk->wu.routine_no[6] = 0;
         return;

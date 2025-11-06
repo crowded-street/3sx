@@ -27,7 +27,7 @@ void effect_75_move(WORK_Other* ewk) {
 }
 
 void EFF75_WAIT(WORK_Other* ewk) {
-    if ((ewk->wu.routine_no[0] = Order[ewk->wu.dir_old])) {
+    if ((ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old])) {
         ewk->wu.routine_no[1] = 0;
     }
 }
@@ -40,7 +40,7 @@ void EFF75_CHAR_CHANGE(WORK_Other* ewk) {
     }
 
     ewk->wu.routine_no[0] = 0;
-    Order[ewk->wu.dir_old] = 0;
+    gs.Order[ewk->wu.dir_old] = 0;
     ewk->wu.dir_step = Order_Dir[ewk->wu.dir_old];
     set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
 }
@@ -63,7 +63,7 @@ void EFF75_SUDDENLY(WORK_Other* ewk) {
 
     default:
         ewk->wu.routine_no[0] = 0;
-        Order[ewk->wu.dir_old] = 0;
+        gs.Order[ewk->wu.dir_old] = 0;
         break;
     }
 }

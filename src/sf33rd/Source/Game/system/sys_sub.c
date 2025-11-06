@@ -949,7 +949,7 @@ s16 Cut_Cut_C_Timer() {
 }
 
 void Switch_Priority_76() {
-    Order[56] = 7;
+    gs.Order[56] = 7;
     Order_Timer[56] = 1;
 }
 

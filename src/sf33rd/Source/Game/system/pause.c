@@ -222,7 +222,7 @@ void Setup_Pause(struct _TASK* task_ptr) {
         Menu_Suicide[ix] = 0;
     }
 
-    Order[0x8A] = 3;
+    gs.Order[0x8A] = 3;
     Order_Timer[0x8A] = 1;
     effect_66_init(0x8A, 9, 2, 7, -1, -1, -0x3FFC);
     SsBgmHalfVolume(1);
@@ -246,7 +246,7 @@ void Setup_Come_Out(struct _TASK* task_ptr) {
         Menu_Suicide[(ix)] = 0;
     }
 
-    Order[0x8A] = 3;
+    gs.Order[0x8A] = 3;
     Order_Timer[0x8A] = 1;
     effect_66_init(0x8A, 9, 2, 7, -1, -1, -0x3FFC);
     SsBgmHalfVolume(1);

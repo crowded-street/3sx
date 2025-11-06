@@ -137,14 +137,14 @@ void effect_61_move(WORK_Other_CONN* ewk) {
 }
 
 void EFF61_WAIT(WORK_Other_CONN* ewk) {
-    if ((ewk->wu.routine_no[0] = Order[ewk->wu.dir_old])) {
+    if ((ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old])) {
         ewk->wu.routine_no[1] = 0;
     }
 }
 
 void EFF61_SLIDE_IN(WORK_Other_CONN* ewk) {
-    if (Order[ewk->wu.dir_old] != 1) {
-        ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
+    if (gs.Order[ewk->wu.dir_old] != 1) {
+        ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old];
         ewk->wu.routine_no[1] = 0;
         return;
     }
@@ -175,8 +175,8 @@ void EFF61_SLIDE_IN(WORK_Other_CONN* ewk) {
             break;
         }
 
-        if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
-            Order[ewk->wu.dir_old] = 0;
+        if (gs.Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
+            gs.Order[ewk->wu.dir_old] = 0;
         }
 
         ewk->wu.routine_no[0] = 0;
@@ -211,7 +211,7 @@ void EFF61_SUDDENLY(WORK_Other_CONN* ewk) {
 
     default:
         ewk->wu.routine_no[0] = 0;
-        Order[ewk->wu.dir_old] = 0;
+        gs.Order[ewk->wu.dir_old] = 0;
         break;
     }
 }

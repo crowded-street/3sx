@@ -54,7 +54,7 @@ void Continue_1st() {
         effect_A9_init(0x37, 0, 0x13, 0);
         BGM_Request(58);
         effect_76_init(0x38);
-        Order[0x38] = 3;
+        gs.Order[0x38] = 3;
         Order_Timer[0x38] = 1;
         effect_58_init(0xC, 1, 3);
         effect_58_init(0xC, 1, 1);
@@ -119,23 +119,23 @@ void Setup_Continue_OBJ() {
     effect_95_init(2);
 
     effect_76_init(0x3B);
-    Order[0x3B] = 3;
+    gs.Order[0x3B] = 3;
     Order_Timer[0x3B] = 1;
 
     effect_76_init(0x3C);
-    Order[0x3C] = 3;
+    gs.Order[0x3C] = 3;
     Order_Timer[0x3C] = 1;
 
     effect_76_init(0x3D);
-    Order[0x3D] = 3;
+    gs.Order[0x3D] = 3;
     Order_Timer[0x3D] = 1;
 
     effect_76_init(0x3E);
-    Order[0x3E] = 3;
+    gs.Order[0x3E] = 3;
     Order_Timer[0x3E] = 1;
 
     effect_76_init(0x3F);
-    Order[0x3F] = 3;
+    gs.Order[0x3F] = 3;
     Order_Timer[0x3F] = 1;
 }
 

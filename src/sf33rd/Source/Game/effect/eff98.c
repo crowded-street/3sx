@@ -25,7 +25,7 @@ void effect_98_move(WORK_Other* ewk) {
 }
 
 void EFF98_WAIT(WORK_Other* ewk) {
-    if ((ewk->wu.routine_no[0] = Order[ewk->wu.dir_old])) {
+    if ((ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old])) {
         ewk->wu.routine_no[1] = 0;
     }
 }
@@ -66,12 +66,12 @@ void EFF98_SLIDE_IN(WORK_Other* ewk) {
 
         if (0 < ewk->wu.mvxy.a[0].sp) {
             if (ewk->wu.vital_new <= ewk->wu.xyz[0].disp.pos) {
-                Order[ewk->wu.dir_old] = 0;
+                gs.Order[ewk->wu.dir_old] = 0;
                 ewk->wu.routine_no[0] = 0;
                 ewk->wu.xyz[0].disp.pos = ewk->wu.vital_new;
             }
         } else if (ewk->wu.vital_new >= ewk->wu.xyz[0].disp.pos) {
-            Order[ewk->wu.dir_old] = 0;
+            gs.Order[ewk->wu.dir_old] = 0;
             ewk->wu.routine_no[0] = 0;
             ewk->wu.xyz[0].disp.pos = ewk->wu.vital_new;
         }
@@ -100,7 +100,7 @@ void EFF98_SUDDENLY(WORK_Other* ewk) {
 
     default:
         ewk->wu.routine_no[0] = 0;
-        Order[ewk->wu.dir_old] = 0;
+        gs.Order[ewk->wu.dir_old] = 0;
         break;
     }
 }

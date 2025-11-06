@@ -72,7 +72,7 @@ void Ranking_00_2nd() {
     Rank_Pos_Y = bg_w.bgw[0].xy[1].disp.pos + 160;
 
     if (Rank_Type >= 10) {
-        Order[85] = 3;
+        gs.Order[85] = 3;
         Order_Timer[85] = 1;
         Order_Dir[85] = (u8)Rank_Type;
         effect_76_init(85);
@@ -270,7 +270,7 @@ void Ranking_01_2nd() {
         Rank_X = 0;
         Flash_Rank_Time = 0;
     }
-    Order[85] = 1;
+    gs.Order[85] = 1;
     Order_Timer[85] = 180;
     Order_Dir[85] = Rank_Type + 10;
     effect_76_init(85);

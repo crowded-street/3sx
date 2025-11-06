@@ -42,8 +42,8 @@ void effect_66_move(WORK_Other* ewk) {
         return;
     }
 
-    if (ewk->wu.routine_no[0] != Order[ewk->wu.dir_old]) {
-        ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
+    if (ewk->wu.routine_no[0] != gs.Order[ewk->wu.dir_old]) {
+        ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old];
         ewk->wu.routine_no[1] = 0;
     }
 
@@ -73,7 +73,7 @@ void effect_66_move(WORK_Other* ewk) {
 }
 
 void EFF66_WAIT(WORK_Other* ewk) {
-    if ((ewk->wu.routine_no[0] = Order[ewk->wu.dir_old])) {
+    if ((ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old])) {
         ewk->wu.routine_no[1] = 0;
     }
 }
@@ -81,14 +81,14 @@ void EFF66_WAIT(WORK_Other* ewk) {
 void EFF66_SUSPEND(WORK_Other* ewk) {
     ewk->wu.disp_flag = 0;
 
-    if ((ewk->wu.routine_no[0] = Order[ewk->wu.dir_old])) {
+    if ((ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old])) {
         ewk->wu.routine_no[1] = 0;
     }
 }
 
 void EFF66_SLIDE_IN(WORK_Other* ewk) {
-    if (Order[ewk->wu.dir_old] != 1) {
-        ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
+    if (gs.Order[ewk->wu.dir_old] != 1) {
+        ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old];
         ewk->wu.routine_no[1] = 0;
         return;
     }
@@ -117,8 +117,8 @@ void EFF66_SLIDE_IN(WORK_Other* ewk) {
         ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
 
         if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
-            if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
-                Order[ewk->wu.dir_old] = 0;
+            if (gs.Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
+                gs.Order[ewk->wu.dir_old] = 0;
             }
 
             ewk->wu.routine_no[0] = 0;
@@ -130,8 +130,8 @@ void EFF66_SLIDE_IN(WORK_Other* ewk) {
 }
 
 void EFF66_BOWAN(WORK_Other* ewk) {
-    if (ewk->wu.routine_no[0] != Order[ewk->wu.dir_old]) {
-        ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
+    if (ewk->wu.routine_no[0] != gs.Order[ewk->wu.dir_old]) {
+        ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old];
         ewk->wu.routine_no[1] = 0;
         return;
     }
@@ -179,7 +179,7 @@ void EFF66_FLASH(WORK_Other* ewk) {
         ewk->wu.my_clear_level = Flash_Data_66[ewk->wu.dmcal_m];
 
         if (++ewk->wu.dmcal_m > 13) {
-            Order[ewk->wu.dir_old] = 0;
+            gs.Order[ewk->wu.dir_old] = 0;
             ewk->wu.routine_no[0] = 0;
         } else {
             ewk->wu.dir_timer = 1;
@@ -197,7 +197,7 @@ void EFF66_SUDDENLY(WORK_Other* ewk) {
 
     default:
         ewk->wu.routine_no[0] = 0;
-        Order[ewk->wu.dir_old] = 0;
+        gs.Order[ewk->wu.dir_old] = 0;
         break;
     }
 }

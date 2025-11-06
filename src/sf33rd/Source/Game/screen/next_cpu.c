@@ -135,7 +135,7 @@ void Next_CPU_1st() {
 
     if (G_No[1] == 5) {
         BGM_Request(57);
-        Order[56] = 3;
+        gs.Order[56] = 3;
         Order_Timer[56] = 1;
     }
 
@@ -363,11 +363,11 @@ void Next_CPU_5th() {
         Setup_VS_OBJ(1);
         gs.Suicide[0] = 1;
         Next_Step = 0;
-        Order[67] = 1;
+        gs.Order[67] = 1;
         Order_Timer[67] = 10;
         Order_Dir[67] = 8;
         effect_76_init(67);
-        Order[68] = 1;
+        gs.Order[68] = 1;
         Order_Timer[68] = 10;
         Order_Dir[68] = 4;
         effect_76_init(68);
@@ -560,10 +560,10 @@ void After_Bonus_2nd() {
         Make_texcash_of_list(7);
         SC_No[1]++;
         effect_76_init(55);
-        Order[55] = 3;
+        gs.Order[55] = 3;
         Order_Timer[55] = 1;
         effect_76_init(56);
-        Order[56] = 3;
+        gs.Order[56] = 3;
         Order_Timer[56] = 1;
         /* fallthrough */
 
@@ -630,7 +630,7 @@ void Select_CPU_1st() {
         }
 
         effect_76_init(66);
-        Order[66] = 3;
+        gs.Order[66] = 3;
         Order_Timer[66] = 1;
     }
 
@@ -648,13 +648,13 @@ void Select_CPU_2nd() {
     switch (SC_No[1]) {
     case 0:
         SC_No[1]++;
-        Order[Aborigine + 13] = 5;
+        gs.Order[Aborigine + 13] = 5;
         Order_Timer[Aborigine + 13] = 1;
-        Order[Aborigine + 31] = 5;
+        gs.Order[Aborigine + 31] = 5;
         Order_Timer[Aborigine + 31] = 1;
-        Order[Aborigine + 25] = 5;
+        gs.Order[Aborigine + 25] = 5;
         Order_Timer[Aborigine + 25] = 1;
-        Order[37] = 4;
+        gs.Order[37] = 4;
         Order_Timer[37] = 1;
         Rnd = random_16() & 3;
         effect_58_init(6, 10, EM_Select_Voice_Data[Rnd]);
@@ -759,20 +759,20 @@ void Select_CPU_3rd() {
 
     case 4:
         SC_No[1] = 6;
-        Order[Player_id + 11] = 4;
+        gs.Order[Player_id + 11] = 4;
         Order_Timer[Player_id + 11] = 5;
         effect_38_init(COM_id, COM_id + 11, My_char[COM_id], 1, 2);
-        Order[COM_id + 11] = 1;
+        gs.Order[COM_id + 11] = 1;
         Order_Timer[COM_id + 11] = 1;
 
         if (check_use_all_SA() == 0 && check_without_SA() == 0 && EM_id != 0) {
             effect_98_init(COM_id, COM_id + 0x28, Super_Arts[COM_id], 2);
-            Order[COM_id + 40] = 1;
+            gs.Order[COM_id + 40] = 1;
             Order_Timer[COM_id + 40] = 1;
         }
 
         effect_75_init(42, 3, 2);
-        Order[42] = 3;
+        gs.Order[42] = 3;
         Order_Timer[42] = 1;
         Order_Dir[42] = 3;
         Target_BG_X[3] = bg_w.bgw[3].wxy[0].disp.pos + 480;
@@ -780,11 +780,11 @@ void Select_CPU_3rd() {
 
         if (8 <= VS_Index[Player_id] && Check_EM_Speech()) {
             SC_No[1] = 5;
-            Order[67] = 1;
+            gs.Order[67] = 1;
             Order_Timer[67] = 10;
             Order_Dir[67] = 8;
             effect_76_init(67);
-            Order[68] = 1;
+            gs.Order[68] = 1;
             Order_Timer[68] = 10;
             Order_Dir[68] = 4;
             effect_76_init(68);
@@ -858,7 +858,7 @@ void Next_Bonus_1st() {
     Setup_History_OBJ();
     Setup_Next_Stage(60);
     BGM_Request(57);
-    Order[56] = 3;
+    gs.Order[56] = 3;
     Order_Timer[56] = 1;
     Rnd = random_16() & 3;
     effect_58_init(6, 10, EM_Select_Voice_Data[Rnd]);
@@ -1387,8 +1387,8 @@ void Setup_Regular_OBJ(s16 PL_id) {
         effect_A9_init(16, 5, 10, 0);
         effect_42_init(9);
         effect_42_init(10);
-        Order[9] = 0;
-        Order[10] = 0;
+        gs.Order[9] = 0;
+        gs.Order[10] = 0;
         Order_Timer[9] = 1;
         Order_Timer[10] = 1;
         return;
@@ -1467,35 +1467,35 @@ void Setup_History_OBJ() {
 
 void Setup_VS_OBJ(s16 Option) {
     effect_38_init(0, 11, My_char[0], 1, 0);
-    Order[11] = 3;
+    gs.Order[11] = 3;
     Order_Timer[11] = 1;
     effect_38_init(1, 12, My_char[1], 1, 0);
-    Order[12] = 3;
+    gs.Order[12] = 3;
     Order_Timer[12] = 1;
     effect_K6_init(0, 35, 35, 0);
-    Order[35] = 3;
+    gs.Order[35] = 3;
     Order_Timer[35] = 1;
     effect_K6_init(1, 36, 35, 0);
-    Order[36] = 3;
+    gs.Order[36] = 3;
     Order_Timer[36] = 1;
     effect_39_init(0, 17, My_char[0], 0, 0);
-    Order[17] = 3;
+    gs.Order[17] = 3;
     Order_Timer[17] = 1;
     effect_39_init(1, 18, My_char[1], 0, 0);
-    Order[18] = 3;
+    gs.Order[18] = 3;
     Order_Timer[18] = 1;
     effect_K6_init(0, 29, 29, 0);
-    Order[29] = 3;
+    gs.Order[29] = 3;
     Order_Timer[29] = 1;
     effect_K6_init(1, 30, 29, 0);
-    Order[30] = 3;
+    gs.Order[30] = 3;
     Order_Timer[30] = 1;
 
     if (My_char[0] != 20) {
         effect_75_init(42, 3, 0);
     }
 
-    Order[42] = 3;
+    gs.Order[42] = 3;
     Order_Timer[42] = 1;
     Order_Dir[42] = 5;
 

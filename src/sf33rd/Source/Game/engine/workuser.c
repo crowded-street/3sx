@@ -11,7 +11,6 @@
 GameState gs = { 0 };
 
 // bss
-u8 Order[148];
 u8 Order_Timer[148];
 u8 Order_Dir[148];
 

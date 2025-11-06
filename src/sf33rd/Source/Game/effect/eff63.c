@@ -50,7 +50,7 @@ void effect_63_move(WORK_Other_CONN* ewk) {
 }
 
 void EFF63_WAIT(WORK_Other_CONN* ewk) {
-    if ((ewk->wu.routine_no[0] = Order[ewk->wu.dir_old])) {
+    if ((ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old])) {
         ewk->wu.routine_no[1] = 0;
     }
 
@@ -58,8 +58,8 @@ void EFF63_WAIT(WORK_Other_CONN* ewk) {
 }
 
 void EFF63_SLIDE_IN(WORK_Other_CONN* ewk) {
-    if (Order[ewk->wu.dir_old] != 1) {
-        ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
+    if (gs.Order[ewk->wu.dir_old] != 1) {
+        ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old];
         ewk->wu.routine_no[1] = 0;
         return;
     }
@@ -87,8 +87,8 @@ void EFF63_SLIDE_IN(WORK_Other_CONN* ewk) {
 
         if (0 < ewk->wu.mvxy.a[0].sp) {
             if (ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
-                if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
-                    Order[ewk->wu.dir_old] = 0;
+                if (gs.Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
+                    gs.Order[ewk->wu.dir_old] = 0;
                 }
 
                 ewk->wu.routine_no[0] = 0;
@@ -99,8 +99,8 @@ void EFF63_SLIDE_IN(WORK_Other_CONN* ewk) {
         }
 
         if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
-            if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
-                Order[ewk->wu.dir_old] = 0;
+            if (gs.Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
+                gs.Order[ewk->wu.dir_old] = 0;
             }
 
             ewk->wu.routine_no[0] = 0;

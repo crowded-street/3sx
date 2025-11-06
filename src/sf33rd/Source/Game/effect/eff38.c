@@ -46,7 +46,7 @@ void effect_38_move(WORK_Other* ewk) {
 }
 
 void EFF38_WAIT(WORK_Other* ewk) {
-    if ((ewk->wu.routine_no[0] = Order[ewk->wu.dir_old])) {
+    if ((ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old])) {
         ewk->wu.routine_no[1] = 0;
         ewk->wu.routine_no[6] = 0;
     }
@@ -55,7 +55,7 @@ void EFF38_WAIT(WORK_Other* ewk) {
 void EFF38_SUDDENLY(WORK_Other* ewk) {
     if (--Order_Timer[ewk->wu.dir_old] == 0) {
         ewk->wu.disp_flag = 1;
-        Order[ewk->wu.dir_old] = 0;
+        gs.Order[ewk->wu.dir_old] = 0;
         ewk->wu.routine_no[0] = 0;
         ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
         set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
@@ -67,7 +67,7 @@ void EFF38_SLIDE_IN(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[6]) {
     case 0:
-        if (Order[ewk->wu.dir_old] != 1) {
+        if (gs.Order[ewk->wu.dir_old] != 1) {
             if (ewk->master_id == 0) {
                 ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos - 128;
                 ewk->wu.xyz[1].disp.pos = ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + 32;
@@ -76,7 +76,7 @@ void EFF38_SLIDE_IN(WORK_Other* ewk) {
                 ewk->wu.xyz[1].disp.pos = ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos - 32;
             }
 
-            Order[ewk->wu.dir_old] = 1;
+            gs.Order[ewk->wu.dir_old] = 1;
             break;
         }
 
@@ -114,19 +114,19 @@ void Exit_Slide_in_38(WORK_Other* ewk) {
     ewk->wu.routine_no[1] = 0;
     ewk->wu.routine_no[6] = 0;
 
-    if (Order[ewk->wu.dir_old] != 1) {
-        ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
+    if (gs.Order[ewk->wu.dir_old] != 1) {
+        ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old];
         return;
     }
 
     if (ewk->wu.vital_old == 0x7F) {
         ewk->wu.routine_no[0] = 5;
-        Order[ewk->wu.dir_old] = 5;
+        gs.Order[ewk->wu.dir_old] = 5;
         return;
     }
 
     ewk->wu.routine_no[0] = 0;
-    Order[ewk->wu.dir_old] = 0;
+    gs.Order[ewk->wu.dir_old] = 0;
 }
 
 void EFF38_SLIDE_OUT(WORK_Other* ewk) {
@@ -213,7 +213,7 @@ void EFF38_SHIFT(WORK_Other* ewk) {
     case 1:
         if (Shift_38(ewk)) {
             ewk->wu.routine_no[0] = 5;
-            Order[ewk->wu.dir_old] = 5;
+            gs.Order[ewk->wu.dir_old] = 5;
             ewk->wu.routine_no[1] = 0;
             ewk->wu.routine_no[6] = 0;
 
@@ -295,8 +295,8 @@ s32 Move_Y_Sub_38(WORK_Other* ewk, s16 Target_Y) {
 }
 
 void EFF38_MOVE(WORK_Other* ewk) {
-    if (Order[ewk->wu.dir_old] != 5) {
-        ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
+    if (gs.Order[ewk->wu.dir_old] != 5) {
+        ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old];
         ewk->wu.routine_no[1] = 0;
         ewk->wu.routine_no[6] = 0;
         return;

@@ -42,7 +42,7 @@ void effect_39_move(WORK_Other* ewk) {
 }
 
 void EFF39_WAIT(WORK_Other* ewk) {
-    if ((ewk->wu.routine_no[0] = Order[ewk->wu.dir_old])) {
+    if ((ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old])) {
         ewk->wu.routine_no[1] = 0;
         ewk->wu.routine_no[6] = 0;
     }
@@ -54,7 +54,7 @@ void EFF39_SUDDENLY(WORK_Other* ewk) {
     }
 
     ewk->wu.disp_flag = 1;
-    Order[ewk->wu.dir_old] = 0;
+    gs.Order[ewk->wu.dir_old] = 0;
     ewk->wu.routine_no[0] = 0;
     ewk->wu.routine_no[6] = 0;
     ewk->wu.xyz[0].disp.pos =
@@ -65,7 +65,7 @@ void EFF39_SUDDENLY(WORK_Other* ewk) {
 }
 
 void EFF39_SLIDE_IN(WORK_Other* ewk) {
-    if (Order[ewk->wu.dir_old] == 5) {
+    if (gs.Order[ewk->wu.dir_old] == 5) {
         ewk->wu.routine_no[0] = 5;
         ewk->wu.routine_no[1] = 0;
         return;
@@ -107,7 +107,7 @@ void EFF39_SLIDE_IN(WORK_Other* ewk) {
         if (0 < ewk->wu.mvxy.a[0].sp) {
             if (ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
                 ewk->wu.routine_no[0] = 4;
-                Order[ewk->wu.dir_old] = 4;
+                gs.Order[ewk->wu.dir_old] = 4;
                 ewk->wu.routine_no[6] = 0;
                 ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
 
@@ -121,7 +121,7 @@ void EFF39_SLIDE_IN(WORK_Other* ewk) {
 
         if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
             ewk->wu.routine_no[0] = 4;
-            Order[ewk->wu.dir_old] = 4;
+            gs.Order[ewk->wu.dir_old] = 4;
             ewk->wu.routine_no[6] = 0;
             ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
 
@@ -191,8 +191,8 @@ void EFF39_KILL(WORK_Other* ewk) {
 }
 
 void EFF39_MOVE(WORK_Other* ewk) {
-    if (Order[ewk->wu.dir_old] != 4) {
-        ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
+    if (gs.Order[ewk->wu.dir_old] != 4) {
+        ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old];
         ewk->wu.routine_no[1] = 0;
         ewk->wu.routine_no[6] = 0;
         return;

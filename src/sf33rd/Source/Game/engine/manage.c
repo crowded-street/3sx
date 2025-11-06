@@ -939,41 +939,41 @@ void Game_Manage_81_0() {
     pos_id = 0;
     pos_id2 = 0;
     time = 1;
-    Order[74] = 1;
+    gs.Order[74] = 1;
     Order_Timer[74] = time;
     Order_Dir[74] = pos_id++;
     effect_76_init(74);
     time += 5;
 
     if (Perfect_Flag) {
-        Order[76] = 1;
+        gs.Order[76] = 1;
         Order_Timer[76] = time;
         Order_Dir[76] = pos_id++;
         effect_76_init(76);
-        Order[81] = 0;
+        gs.Order[81] = 0;
         effect_G0_init(81, time, Perfect_Bonus[Winner_id], pos_id2++);
         time += 5;
     }
 
-    Order[78] = 1;
+    gs.Order[78] = 1;
     Order_Timer[78] = time;
     Order_Dir[78] = pos_id++;
     effect_76_init(78);
-    Order[83] = 0;
+    gs.Order[83] = 0;
     effect_G0_init(83, time, Vital_Bonus[Winner_id], pos_id2++);
     time += 5;
-    Order[79] = 1;
+    gs.Order[79] = 1;
     Order_Timer[79] = time;
     Order_Dir[79] = pos_id++;
     effect_76_init(79);
-    Order[84] = 0;
+    gs.Order[84] = 0;
     effect_G0_init(84, time, Time_Bonus[Winner_id], pos_id2++);
     time += 5;
-    Order[75] = 1;
+    gs.Order[75] = 1;
     Order_Timer[75] = time;
     Order_Dir[75] = pos_id++;
     effect_76_init(75);
-    Order[80] = 0;
+    gs.Order[80] = 0;
     Order_Dir[80] = 1;
     effect_G0_init(80, time, Complete_Bonus, pos_id2);
 }
@@ -997,10 +997,10 @@ void Game_Manage_81_2() {
     C_No[2]++;
     Stop_Update_Score = 0;
     Order_Dir[80] = 1;
-    Order[81] = 1;
-    Order[83] = 1;
-    Order[84] = 1;
-    Order[80] = 1;
+    gs.Order[81] = 1;
+    gs.Order[83] = 1;
+    gs.Order[84] = 1;
+    gs.Order[80] = 1;
     Sound_SE(100);
 }
 

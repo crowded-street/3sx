@@ -62,7 +62,7 @@ void effect_G0_move(WORK_Other* ewk) {
             break;
 
         case 1:
-            switch (Order[ewk->wu.dir_old]) {
+            switch (gs.Order[ewk->wu.dir_old]) {
             case 0:
                 break;
 
@@ -141,7 +141,7 @@ void Flash_G0(WORK_Other_CONN* ewk) {
         }
 
         if (--ewk->wu.vital_new == 0) {
-            Order[ewk->wu.dir_old] = 0;
+            gs.Order[ewk->wu.dir_old] = 0;
             ewk->wu.routine_no[1] = 0;
             ewk->wu.routine_no[2] = 0;
             break;

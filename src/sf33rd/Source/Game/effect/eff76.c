@@ -66,36 +66,36 @@ void effect_76_move(WORK_Other* ewk) {
 
 void EFF76_WAIT(WORK_Other* ewk) {
     if (Check_Range_Out(ewk)) {
-        Order[ewk->wu.dir_old] = 4;
+        gs.Order[ewk->wu.dir_old] = 4;
         ewk->wu.routine_no[0] = 4;
         ewk->wu.routine_no[1] = 0;
         Order_Timer[ewk->wu.dir_old] = 1;
     } else if (gs.Suicide[ewk->wu.direction] != 0) {
-        Order[ewk->wu.dir_old] = 4;
+        gs.Order[ewk->wu.dir_old] = 4;
         ewk->wu.routine_no[0] = 4;
         ewk->wu.routine_no[1] = 1;
         Order_Timer[ewk->wu.dir_old] = 1;
         ewk->wu.disp_flag = 0;
-    } else if ((ewk->wu.routine_no[0] = Order[ewk->wu.dir_old])) {
+    } else if ((ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old])) {
         ewk->wu.routine_no[1] = 0;
     }
 }
 
 void EFF76_WAIT_BREAK_INTO(WORK_Other* ewk) {
     if (gs.Suicide[ewk->wu.direction] != 0) {
-        Order[ewk->wu.dir_old] = 4;
+        gs.Order[ewk->wu.dir_old] = 4;
         ewk->wu.routine_no[0] = 4;
         ewk->wu.routine_no[1] = 1;
         Order_Timer[ewk->wu.dir_old] = 1;
         ewk->wu.disp_flag = 0;
-    } else if ((ewk->wu.routine_no[0] = Order[ewk->wu.dir_old])) {
+    } else if ((ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old])) {
         ewk->wu.routine_no[1] = 0;
     }
 }
 
 void EFF76_SLIDE_IN(WORK_Other* ewk) {
-    if (Order[ewk->wu.dir_old] != 1) {
-        ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
+    if (gs.Order[ewk->wu.dir_old] != 1) {
+        ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old];
         ewk->wu.routine_no[1] = 0;
         return;
     }
@@ -116,16 +116,16 @@ void EFF76_SLIDE_IN(WORK_Other* ewk) {
 
         if (0 < ewk->wu.mvxy.a[0].sp) {
             if (ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
-                if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
-                    Order[ewk->wu.dir_old] = 0;
+                if (gs.Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
+                    gs.Order[ewk->wu.dir_old] = 0;
                 }
 
                 ewk->wu.routine_no[0] = 0;
                 ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
             }
         } else if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
-            if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
-                Order[ewk->wu.dir_old] = 0;
+            if (gs.Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
+                gs.Order[ewk->wu.dir_old] = 0;
             }
 
             ewk->wu.routine_no[0] = 0;
@@ -168,7 +168,7 @@ void EFF76_SUDDENLY(WORK_Other* ewk) {
 
         default:
             ewk->wu.routine_no[0] = 0;
-            Order[ewk->wu.dir_old] = 0;
+            gs.Order[ewk->wu.dir_old] = 0;
             break;
         }
 
@@ -181,7 +181,7 @@ void EFF76_SUDDENLY(WORK_Other* ewk) {
             ewk->wu.xyz[0].disp.pos = bg_w.bgw[0].wxy[0].disp.pos;
             ewk->wu.xyz[1].disp.pos = bg_w.bgw[0].wxy[1].disp.pos + Pos_Cont_Data_76[ewk->wu.dir_old - 59][1];
             ewk->wu.routine_no[0] = 0;
-            Order[ewk->wu.dir_old] = 0;
+            gs.Order[ewk->wu.dir_old] = 0;
         }
 
         break;
@@ -192,7 +192,7 @@ void EFF76_SUDDENLY(WORK_Other* ewk) {
             ewk->wu.xyz[0].disp.pos = bg_w.bgw[3].wxy[0].disp.pos - 8;
             ewk->wu.xyz[1].disp.pos = bg_w.bgw[3].wxy[1].disp.pos + Pos_Data_76[ewk->wu.dir_old - 43][1];
             ewk->wu.routine_no[0] = 0;
-            Order[ewk->wu.dir_old] = 0;
+            gs.Order[ewk->wu.dir_old] = 0;
         }
 
         break;
@@ -209,7 +209,7 @@ void EFF76_BEFORE(WORK_Other* ewk) {
     ewk->wu.position_z = 8;
     ewk->wu.routine_no[0] = 0;
     ewk->wu.routine_no[1] = 0;
-    Order[ewk->wu.dir_old] = 0;
+    gs.Order[ewk->wu.dir_old] = 0;
     set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
 }
 
@@ -234,7 +234,7 @@ void EFF76_SHIFT(WORK_Other* ewk) {
 
         if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
             ewk->wu.routine_no[0] = 0;
-            Order[ewk->wu.dir_old] = 0;
+            gs.Order[ewk->wu.dir_old] = 0;
             ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
         }
 
@@ -402,7 +402,7 @@ void Setup_Pos_76(WORK_Other* ewk) {
         }
         ewk->wu.xyz[1].disp.pos = bg_w.bgw[0].wxy[1].disp.pos + Bust_Pos_Data_76[my_char][1] - 32;
 
-        if (Order[ewk->wu.dir_old] == 1) {
+        if (gs.Order[ewk->wu.dir_old] == 1) {
             ewk->wu.xyz[0].disp.pos = bg_w.bgw[0].wxy[0].disp.pos + Bust_Pos_Data_76[my_char][0] + 384;
         }
 

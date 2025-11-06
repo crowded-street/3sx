@@ -572,39 +572,39 @@ void OBJ_1st() {
     if (Select_Status[0] != 3) {
         SO_No[0] = 1;
         effect_38_init(Aborigine, Aborigine + 11, 127, 0, 2);
-        Order[Aborigine + 11] = 1;
+        gs.Order[Aborigine + 11] = 1;
         Order_Timer[Aborigine + 11] = 35;
         effect_52_init(Aborigine, 37);
-        Order[37] = 1;
+        gs.Order[37] = 1;
         Order_Timer[37] = 30;
         Order_Dir[37] = 0;
         effect_K6_init(Aborigine, Aborigine + 31, 31, 2);
-        Order[Aborigine + 31] = 1;
+        gs.Order[Aborigine + 31] = 1;
         Order_Timer[Aborigine + 31] = 35;
         Order_Dir[Aborigine + 31] = 0;
         effect_K6_init(Aborigine, Aborigine + 25, 25, 2);
-        Order[Aborigine + 25] = 1;
+        gs.Order[Aborigine + 25] = 1;
         Order_Timer[Aborigine + 25] = 35;
         Order_Dir[Aborigine + 25] = 0;
-        Order[0] = 1;
+        gs.Order[0] = 1;
         Order_Timer[0] = 40;
         Order_Dir[0] = 4;
-        Order[1] = 1;
+        gs.Order[1] = 1;
         Order_Timer[1] = 45;
         Order_Dir[1] = 4;
-        Order[3] = 1;
+        gs.Order[3] = 1;
         Order_Timer[3] = 45;
         Order_Dir[3] = 4;
         effect_39_init(Aborigine, Aborigine + 13, 127, 2, 1);
-        Order[Aborigine + 13] = 1;
+        gs.Order[Aborigine + 13] = 1;
         Order_Timer[Aborigine + 13] = 35;
         Order_Dir[Aborigine + 13] = 0;
         effect_42_init(5);
-        Order[5] = 1;
+        gs.Order[5] = 1;
         Order_Timer[5] = 45;
         Order_Dir[5] = 4;
         effect_42_init(6);
-        Order[6] = 1;
+        gs.Order[6] = 1;
         Order_Timer[6] = 45;
         Order_Dir[6] = 4;
         return;
@@ -612,51 +612,51 @@ void OBJ_1st() {
 
     SO_No[0] = 2;
     effect_75_init(42, 3, 2);
-    Order[42] = 3;
+    gs.Order[42] = 3;
     Order_Timer[42] = 1;
     Order_Dir[42] = 3;
     effect_38_init(0, 11, 127, 1, 2);
-    Order[11] = 1;
+    gs.Order[11] = 1;
     Order_Timer[11] = 86;
     effect_38_init(1, 12, 127, 1, 2);
-    Order[12] = 1;
+    gs.Order[12] = 1;
     Order_Timer[12] = 86;
     effect_K6_init(0, 33, 31, 2);
-    Order[33] = 1;
+    gs.Order[33] = 1;
     Order_Timer[33] = 86;
     Order_Dir[33] = 0;
     effect_52_init(0, 38);
-    Order[38] = 3;
+    gs.Order[38] = 3;
     Order_Timer[38] = 30;
     effect_K6_init(0, 27, 25, 2);
-    Order[27] = 3;
+    gs.Order[27] = 3;
     Order_Timer[27] = 86;
     effect_K6_init(1, 28, 25, 2);
-    Order[28] = 3;
+    gs.Order[28] = 3;
     Order_Timer[28] = 86;
     effect_K6_init(1, 34, 31, 2);
-    Order[34] = 1;
+    gs.Order[34] = 1;
     Order_Timer[34] = 86;
     Order_Dir[34] = 0;
     effect_52_init(1, 39);
-    Order[39] = 3;
+    gs.Order[39] = 3;
     Order_Timer[39] = 30;
     effect_39_init(0, 15, 127, 2, 0);
-    Order[15] = 1;
+    gs.Order[15] = 1;
     Order_Timer[15] = 86;
     Order_Dir[15] = 0;
     effect_39_init(1, 16, 127, 2, 0);
-    Order[16] = 1;
+    gs.Order[16] = 1;
     Order_Timer[16] = 86;
     Order_Dir[16] = 0;
-    Order[4] = 3;
+    gs.Order[4] = 3;
     Order_Timer[4] = 86;
     Order_Dir[4] = 255;
     effect_42_init(7);
-    Order[7] = 0;
+    gs.Order[7] = 0;
     Order_Timer[7] = 86;
     effect_42_init(8);
-    Order[8] = 0;
+    gs.Order[8] = 0;
     Order_Timer[8] = 86;
 }
 
@@ -667,58 +667,58 @@ void OBJ_2nd() {
 
     SO_No[0]++;
     effect_75_init(42, 3, 2);
-    Order[42] = 3;
+    gs.Order[42] = 3;
     Order_Timer[42] = 1;
     Order_Dir[42] = 3;
-    Order[Aborigine + 11] = 4;
+    gs.Order[Aborigine + 11] = 4;
     Order_Timer[Aborigine + 11] = 1;
     gs.Select_Start[Aborigine] = 2;
     effect_38_init(gs.New_Challenger, gs.New_Challenger + 11, 127, 1, 2);
-    Order[gs.New_Challenger + 11] = 1;
+    gs.Order[gs.New_Challenger + 11] = 1;
     Order_Timer[gs.New_Challenger + 11] = 1;
     Go_Away_Red_Lines();
-    Order[Aborigine + 31] = 5;
+    gs.Order[Aborigine + 31] = 5;
     Order_Timer[Aborigine + 31] = 1;
-    Order[Aborigine + 19] = 5;
+    gs.Order[Aborigine + 19] = 5;
     Order_Timer[Aborigine + 19] = 1;
-    Order[Aborigine + 25] = 5;
+    gs.Order[Aborigine + 25] = 5;
     Order_Timer[Aborigine + 25] = 1;
-    Order[Aborigine + 13] = 5;
+    gs.Order[Aborigine + 13] = 5;
     Order_Timer[Aborigine + 13] = 1;
-    Order[37] = 4;
+    gs.Order[37] = 4;
     Order_Timer[37] = 1;
     effect_K6_init(0, 33, 31, 2);
-    Order[33] = 1;
+    gs.Order[33] = 1;
     Order_Timer[33] = 1;
     Order_Dir[33] = 0;
     effect_K6_init(0, 27, 25, 2);
-    Order[27] = 1;
+    gs.Order[27] = 1;
     Order_Timer[27] = 1;
     Order_Dir[27] = 0;
     effect_39_init(0, 15, 127, 2, 0);
-    Order[15] = 1;
+    gs.Order[15] = 1;
     Order_Timer[15] = 1;
     Order_Dir[15] = 0;
     effect_K6_init(1, 34, 31, 2);
-    Order[34] = 1;
+    gs.Order[34] = 1;
     Order_Timer[34] = 1;
     Order_Dir[34] = 0;
     effect_K6_init(1, 28, 25, 2);
-    Order[28] = 1;
+    gs.Order[28] = 1;
     Order_Timer[28] = 1;
     Order_Dir[28] = 0;
     effect_39_init(1, 16, 127, 2, 0);
-    Order[16] = 1;
+    gs.Order[16] = 1;
     Order_Timer[16] = 1;
     Order_Dir[16] = 0;
-    Order[4] = 3;
+    gs.Order[4] = 3;
     Order_Timer[4] = 1;
     Order_Dir[4] = 255;
     effect_42_init(7);
-    Order[7] = 0;
+    gs.Order[7] = 0;
     Order_Timer[7] = 1;
     effect_42_init(8);
-    Order[8] = 0;
+    gs.Order[8] = 0;
     Order_Timer[8] = 1;
 }
 
@@ -728,26 +728,26 @@ void Setup_EFF69() {
     s16 xx;
 
     for (xx = 0; xx < 5; xx++) {
-        Order[xx] = 0;
+        gs.Order[xx] = 0;
         effect_69_init(xx);
     }
 }
 
 void Go_Away_Red_Lines() {
-    Order[0] = 2;
+    gs.Order[0] = 2;
     Order_Timer[0] = 1;
     Order_Dir[0] = 8;
-    Order[2] = 2;
+    gs.Order[2] = 2;
     Order_Timer[2] = 1;
     Order_Dir[2] = 8;
-    Order[1] = 2;
+    gs.Order[1] = 2;
     Order_Timer[1] = 1;
     Order_Dir[1] = 8;
-    Order[3] = 2;
+    gs.Order[3] = 2;
     Order_Timer[3] = 1;
     Order_Dir[3] = 8;
-    Order[5] = 2;
-    Order[6] = 2;
+    gs.Order[5] = 2;
+    gs.Order[6] = 2;
     Order_Timer[5] = 1;
     Order_Timer[6] = 1;
     Order_Dir[5] = 8;
@@ -1160,12 +1160,12 @@ void Sel_PL_Sub(s16 PL_id, u16 sw) {
 
     Last_My_char2[PL_id] = My_char[PL_id];
     Last_Selected_ID = PL_id;
-    Order[1] = 2;
+    gs.Order[1] = 2;
     Order_Timer[1] = 1;
     Order_Dir[1] = 8;
 
     if (Select_Status[0] != 3) {
-        Order[2] = 1;
+        gs.Order[2] = 1;
         Order_Timer[2] = 10;
         Order_Dir[2] = 4;
     }
@@ -1540,10 +1540,10 @@ void Exit_1st() {
     }
 
     Go_Away_Red_Lines();
-    Order[4] = 4;
+    gs.Order[4] = 4;
     Order_Timer[4] = 1;
-    Order[7] = 4;
-    Order[8] = 4;
+    gs.Order[7] = 4;
+    gs.Order[8] = 4;
     Order_Timer[7] = 1;
     Order_Timer[8] = 1;
     Setup_Training_Difficulty();
@@ -1629,34 +1629,34 @@ void Exit_4th() {
 
     if (Select_Status[0] != 3) {
         effect_K6_init(0, 35, 35, 2);
-        Order[35] = 3;
+        gs.Order[35] = 3;
         Order_Timer[35] = 1;
         effect_K6_init(1, 36, 35, 2);
-        Order[36] = 3;
+        gs.Order[36] = 3;
         Order_Timer[36] = 1;
         effect_39_init(0, 17, My_char[0], 2, 0);
-        Order[17] = 3;
+        gs.Order[17] = 3;
         Order_Timer[17] = 1;
         effect_39_init(1, 18, My_char[1], 2, 0);
-        Order[18] = 3;
+        gs.Order[18] = 3;
         Order_Timer[18] = 1;
         effect_K6_init(0, 29, 29, 2);
-        Order[29] = 3;
+        gs.Order[29] = 3;
         Order_Timer[29] = 1;
         effect_K6_init(1, 30, 29, 2);
-        Order[30] = 3;
+        gs.Order[30] = 3;
         Order_Timer[30] = 1;
     } else if (Win_Record[Champion]) {
         effect_76_init(72);
-        Order[72] = 3;
+        gs.Order[72] = 3;
         Order_Timer[72] = 1;
         effect_76_init(73);
-        Order[73] = 3;
+        gs.Order[73] = 3;
         Order_Timer[73] = 1;
     }
 
     effect_43_init(2, 2);
-    Order[42] = 2;
+    gs.Order[42] = 2;
     Order_Timer[42] = 1;
     Order_Dir[42] = 5;
 }
@@ -1716,31 +1716,31 @@ void Handicap_1st() {
     SP_No[0][2] = 0;
     SP_No[1][2] = 0;
     effect_66_init(138, 31, 0, 2, -1, -1, -0x7FF8);
-    Order[138] = 3;
+    gs.Order[138] = 3;
     Order_Timer[138] = 1;
     effect_66_init(139, 35, 0, 2, 71, 20, 0);
-    Order[139] = 5;
+    gs.Order[139] = 5;
     effect_66_init(140, 36, 0, 2, 71, 20, 0);
-    Order[140] = 5;
+    gs.Order[140] = 5;
     effect_66_init(141, 37, 0, 2, 71, 21, 0);
-    Order[141] = 5;
+    gs.Order[141] = 5;
     effect_66_init(91, 28, 0, 2, 71, 15, 0);
-    Order[91] = 3;
+    gs.Order[91] = 3;
     Order_Timer[91] = 1;
     effect_66_init(92, 29, 0, 2, 71, 16, 0);
-    Order[92] = 3;
+    gs.Order[92] = 3;
     Order_Timer[92] = 1;
     effect_66_init(93, 30, 0, 2, 71, 17, 0);
-    Order[93] = 3;
+    gs.Order[93] = 3;
     Order_Timer[93] = 1;
     effect_66_init(120, 32, 0, 2, 71, 18, 0);
-    Order[120] = 2;
+    gs.Order[120] = 2;
     Order_Timer[120] = 1;
     effect_66_init(121, 33, 0, 2, 71, 18, 0);
-    Order[121] = 2;
+    gs.Order[121] = 2;
     Order_Timer[121] = 1;
     effect_66_init(122, 34, 0, 2, 71, 19, 0);
-    Order[122] = 5;
+    gs.Order[122] = 5;
     effect_99_init(0, 0, 0x7047, 0, 0, 0);
     effect_99_init(1, 0, 0x7047, 1, 1, 0);
     effect_99_init(255, 1, 0x7047, 2, 2, 0);
@@ -1778,8 +1778,8 @@ void Handicap_1() {
     }
 
     SE_selected();
-    Order[ID2 + 120] = 5;
-    Order[ID2 + 139] = 6;
+    gs.Order[ID2 + 120] = 5;
+    gs.Order[ID2 + 139] = 6;
     Order_Timer[ID2 + 139] = 1;
 
     if (SP_No[ID2 ^ 1][2] == 2) {
@@ -1790,7 +1790,7 @@ void Handicap_1() {
     SP_No[ID2][2] = 2;
 
     if (SP_No[ID2 ^ 1][2] < 3) {
-        Order[122] = 2;
+        gs.Order[122] = 2;
         Order_Timer[122] = 1;
     }
 }
@@ -1807,15 +1807,15 @@ void Handicap_2() {
     if (sw & SWK_EAST && Decide_Stage == 0) {
         SP_No[ID2][2] = 0;
         SE_selected();
-        Order[ID2 + 139] = 5;
-        Order[ID2 + 120] = 2;
+        gs.Order[ID2 + 139] = 5;
+        gs.Order[ID2 + 120] = 2;
         Order_Timer[ID2 + 120] = 1;
         return;
     }
 
     if (SP_No[ID2 ^ 1][2] == 0) {
         SP_No[ID2][2] = 2;
-        Order[122] = 2;
+        gs.Order[122] = 2;
         Order_Timer[122] = 1;
     }
 }
@@ -1828,9 +1828,9 @@ void Handicap_3() {
     if (IO_Result & 0x100) {
         SP_No[ID2][2]++;
         SE_selected();
-        Order[141] = 6;
+        gs.Order[141] = 6;
         Order_Timer[141] = 1;
-        Order[122] = 5;
+        gs.Order[122] = 5;
         Decide_Stage = 1;
         return;
     }
@@ -1838,9 +1838,9 @@ void Handicap_3() {
     if (IO_Result & 0x200 && Decide_Stage == 0) {
         SP_No[ID2][2] = 0;
         SE_selected();
-        Order[122] = 5;
-        Order[ID2 + 139] = 5;
-        Order[ID2 + 120] = 2;
+        gs.Order[122] = 5;
+        gs.Order[ID2 + 139] = 5;
+        gs.Order[ID2 + 120] = 2;
         Order_Timer[ID2 + 120] = 1;
     }
 

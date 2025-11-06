@@ -25,7 +25,7 @@ void Setup_Char_Index(WORK_Other* ewk);
 void (*const EFF42_Jmp_Tbl[5])();
 
 void effect_42_move(WORK_Other* ewk) {
-    EFF42_Jmp_Tbl[Order[ewk->wu.dir_old]](ewk);
+    EFF42_Jmp_Tbl[gs.Order[ewk->wu.dir_old]](ewk);
 
     if (ewk->wu.be_flag != 0) {
         ewk->wu.position_x = ewk->wu.xyz[0].disp.pos & 0xFFFF;
@@ -47,7 +47,7 @@ void EFF42_SUDDENLY(WORK_Other* ewk) {
             ewk->wu.xyz[1].disp.pos = bg_w.bgw[3].wxy[1].disp.pos + Pos_Data_69[ewk->wu.dir_old][1];
         } else {
             ewk->wu.disp_flag = 1;
-            Order[ewk->wu.dir_old] = 3;
+            gs.Order[ewk->wu.dir_old] = 3;
             ewk->wu.routine_no[6] = 0;
             ewk->wu.xyz[0].disp.pos = Pos_Data_69[ewk->wu.dir_old][0] + 512;
             ewk->wu.xyz[1].disp.pos = Pos_Data_69[ewk->wu.dir_old][1] + 0;
@@ -60,7 +60,7 @@ void EFF42_SUDDENLY(WORK_Other* ewk) {
         if (!Ck_Range_Out_S(ewk, ewk->wu.my_family - 1, 32)) {
             ewk->wu.disp_flag = 1;
             ewk->wu.routine_no[6] = 0;
-            Order[ewk->wu.dir_old] = 3;
+            gs.Order[ewk->wu.dir_old] = 3;
         }
 
         break;
@@ -68,8 +68,8 @@ void EFF42_SUDDENLY(WORK_Other* ewk) {
 }
 
 void EFF42_SLIDE_IN(WORK_Other* ewk) {
-    if (Order[ewk->wu.dir_old] != 1) {
-        ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
+    if (gs.Order[ewk->wu.dir_old] != 1) {
+        ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old];
         ewk->wu.routine_no[1] = 0;
         return;
     }
@@ -104,12 +104,12 @@ void EFF42_SLIDE_IN(WORK_Other* ewk) {
 
         if (0 < ewk->wu.mvxy.a[0].sp) {
             if (ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
-                Order[ewk->wu.dir_old] = 3;
+                gs.Order[ewk->wu.dir_old] = 3;
                 ewk->wu.routine_no[6] = 0;
                 ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
             }
         } else if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
-            Order[ewk->wu.dir_old] = 3;
+            gs.Order[ewk->wu.dir_old] = 3;
             ewk->wu.routine_no[6] = 0;
             ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
         }
