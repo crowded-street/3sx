@@ -282,11 +282,11 @@ void Score_Sub() {
         }
 
         if (Stop_Update_Score) {
-            Score_Buff = Keep_Score[PL_id];
+            Score_Buff = gs.Keep_Score[PL_id];
         } else {
             Score_Buff = gs.Score[PL_id][gs.Play_Type];
             Score_Buff += Continue_Coin[PL_id];
-            Keep_Score[PL_id] = Score_Buff;
+            gs.Keep_Score[PL_id] = Score_Buff;
         }
 
         for (i = 7, xx = 10000000, assign1 = First_Digit = -1; i > 0; i--, assign2 = xx /= 10) {
