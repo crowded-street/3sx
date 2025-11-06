@@ -15,7 +15,6 @@ const_s16_arr Tech_Address[2];
 void* Shell_Address[2];
 void* Synchro_Address[2][2];
 
-u8 My_char[2];
 u8 Allow_a_battle_f;
 u8 Round_num;
 s8 Complete_Judgement;

@@ -1482,7 +1482,7 @@ void Load_Replay_Sub(struct _TASK* task_ptr) {
         for (ix = 0; ix < 2; ix++) {
             gs.plw[ix].wu.operator = Replay_w.game_infor.player_infor[ix].player_type;
             Operator_Status[ix] = Replay_w.game_infor.player_infor[ix].player_type;
-            My_char[ix] = Replay_w.game_infor.player_infor[ix].my_char;
+            gs.My_char[ix] = Replay_w.game_infor.player_infor[ix].my_char;
             Super_Arts[ix] = Replay_w.game_infor.player_infor[ix].sa;
             Player_Color[ix] = Replay_w.game_infor.player_infor[ix].color;
             Vital_Handicap[3][ix] = Replay_w.game_infor.Vital_Handicap[ix];
@@ -1515,10 +1515,10 @@ void Load_Replay_Sub(struct _TASK* task_ptr) {
         bg_etc_write(2);
         bg_w.bgw[0].wxy[0].disp.pos += 0x200;
         Setup_BG(0, bg_w.bgw[0].wxy[0].disp.pos, bg_w.bgw[0].wxy[1].disp.pos);
-        effect_38_init(0, 0xB, My_char[0], 1, 0);
+        effect_38_init(0, 0xB, gs.My_char[0], 1, 0);
         gs.Order[0xB] = 3;
         gs.Order_Timer[0xB] = 1;
-        effect_38_init(1, 0xC, My_char[1], 1, 0);
+        effect_38_init(1, 0xC, gs.My_char[1], 1, 0);
         gs.Order[0xC] = 3;
         gs.Order_Timer[0xC] = 1;
         effect_K6_init(0, 0x23, 0x23, 0);
@@ -1527,10 +1527,10 @@ void Load_Replay_Sub(struct _TASK* task_ptr) {
         effect_K6_init(1, 0x24, 0x23, 0);
         gs.Order[0x24] = 3;
         gs.Order_Timer[0x24] = 1;
-        effect_39_init(0, 0x11, My_char[0], 0, 0);
+        effect_39_init(0, 0x11, gs.My_char[0], 0, 0);
         gs.Order[0x11] = 3;
         gs.Order_Timer[0x11] = 1;
-        effect_39_init(1, 0x12, My_char[1], 0, 0);
+        effect_39_init(1, 0x12, gs.My_char[1], 0, 0);
         gs.Order[0x12] = 3;
         gs.Order_Timer[0x12] = 1;
         effect_K6_init(0, 0x1D, 0x1D, 0);
@@ -1554,8 +1554,8 @@ void Load_Replay_Sub(struct _TASK* task_ptr) {
             bgPalCodeOffset[0] = 0x90;
             BGM_Request(51);
             Purge_memory_of_kind_of_key(0xC);
-            Push_LDREQ_Queue_Player(0, My_char[0]);
-            Push_LDREQ_Queue_Player(1, My_char[1]);
+            Push_LDREQ_Queue_Player(0, gs.My_char[0]);
+            Push_LDREQ_Queue_Player(1, gs.My_char[1]);
             Push_LDREQ_Queue_BG((u16)bg_w.stage);
         }
 
@@ -4544,8 +4544,8 @@ void Normal_Training(struct _TASK* task_ptr) {
                 Training[0].contents[0][1][3] = Menu_Cursor_Y[0];
                 init_omop();
                 set_init_A4_flag();
-                setup_vitality(&gs.plw[0].wu, My_char[0] + 0);
-                setup_vitality(&gs.plw[1].wu, My_char[1] + 0);
+                setup_vitality(&gs.plw[0].wu, gs.My_char[0] + 0);
+                setup_vitality(&gs.plw[1].wu, gs.My_char[1] + 0);
                 Setup_Training_Difficulty();
                 Training_Cursor = Menu_Cursor_Y[0];
                 break;

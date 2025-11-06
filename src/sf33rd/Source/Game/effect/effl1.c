@@ -266,7 +266,7 @@ void effL1_k_grade_init(WORK_Other_CONN* ewk) {
         ewk->conn[i] = gj_loser[i];
     }
 
-    ewk->conn[0].chr = gj_loser_face[My_char[kakushi_ix]];
+    ewk->conn[0].chr = gj_loser_face[gs.My_char[kakushi_ix]];
     ewk->conn[1].chr += ewk->wu.direction;
     ewk->wu.position_x -= 384;
 }

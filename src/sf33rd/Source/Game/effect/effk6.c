@@ -391,7 +391,7 @@ s16 Setup_K6_Index(WORK_Other* ewk) {
 
     case 29:
     case 30:
-        return My_char[ewk->master_id];
+        return gs.My_char[ewk->master_id];
 
     default:
         return ewk->wu.dir_step;

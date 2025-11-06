@@ -1109,7 +1109,7 @@ void Setup_Replay_Header() {
     Rep_Game_Infor[10].Vital_Handicap[1] = Vital_Handicap[Present_Mode][1];
 
     for (ix = 0; ix < 2; ix++) {
-        Rep_Game_Infor[10].player_infor[ix].my_char = My_char[ix];
+        Rep_Game_Infor[10].player_infor[ix].my_char = gs.My_char[ix];
         Rep_Game_Infor[10].player_infor[ix].sa = Super_Arts[ix];
         Rep_Game_Infor[10].player_infor[ix].color = Player_Color[ix];
         Rep_Game_Infor[10].player_infor[ix].player_type = gs.plw[ix].wu.operator;
@@ -1685,10 +1685,10 @@ void Initialize_EM_Candidate(s16 PL_id) {
         EM_Candidate[PL_id][1][ix] = Check_EM_Buff(ix, ok_urien);
     }
 
-    EM_Candidate[PL_id][0][8] = Middle_Class_Boss_Data[My_char[PL_id]];
-    EM_Candidate[PL_id][1][8] = Middle_Class_Boss_Data[My_char[PL_id]];
+    EM_Candidate[PL_id][0][8] = Middle_Class_Boss_Data[gs.My_char[PL_id]];
+    EM_Candidate[PL_id][1][8] = Middle_Class_Boss_Data[gs.My_char[PL_id]];
 
-    if (My_char[PL_id] != 0) {
+    if (gs.My_char[PL_id] != 0) {
         EM_Candidate[PL_id][0][9] = 0;
         EM_Candidate[PL_id][1][9] = 0;
     } else {
@@ -1703,11 +1703,11 @@ void Setup_Candidate_Buff(s16 PL_id) {
     s16 s2;
 
     for (em = 0, s2 = ix = 1; ix <= 19; ix++) {
-        if (My_char[PL_id] == 0 && ix == 1) {
+        if (gs.My_char[PL_id] == 0 && ix == 1) {
             continue;
         }
 
-        if (ix == My_char[PL_id]) {
+        if (ix == gs.My_char[PL_id]) {
             continue;
         }
 
@@ -1715,7 +1715,7 @@ void Setup_Candidate_Buff(s16 PL_id) {
             continue;
         }
 
-        if (ix == Middle_Class_Boss_Data[My_char[PL_id]]) {
+        if (ix == Middle_Class_Boss_Data[gs.My_char[PL_id]]) {
             continue;
         }
 
@@ -1815,7 +1815,7 @@ void Check_Same_CPU(s16 PL_id) {
         return;
     }
 
-    if (Last_My_char[PL_id] == My_char[PL_id]) {
+    if (Last_My_char[PL_id] == gs.My_char[PL_id]) {
         return;
     }
 
@@ -1832,8 +1832,8 @@ void Check_Same_CPU(s16 PL_id) {
         EM_Candidate[PL_id][1][ix] = Check_EM_Buff(ix, ok_urien);
     }
 
-    EM_Candidate[PL_id][0][8] = Middle_Class_Boss_Data[My_char[PL_id]];
-    EM_Candidate[PL_id][1][8] = Middle_Class_Boss_Data[My_char[PL_id]];
+    EM_Candidate[PL_id][0][8] = Middle_Class_Boss_Data[gs.My_char[PL_id]];
+    EM_Candidate[PL_id][1][8] = Middle_Class_Boss_Data[gs.My_char[PL_id]];
 }
 
 void All_Clear_Suicide() {

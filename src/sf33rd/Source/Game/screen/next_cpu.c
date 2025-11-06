@@ -172,22 +172,22 @@ void Next_CPU_3rd() {
         SC_No[2] = 0;
 
         if (Debug_w[0x1D]) {
-            My_char[0] = Debug_w[0x1D] - 1;
+            gs.My_char[0] = Debug_w[0x1D] - 1;
         }
 
         if (Debug_w[0x1E]) {
-            My_char[1] = Debug_w[0x1E] - 1;
+            gs.My_char[1] = Debug_w[0x1E] - 1;
         }
 
-        Push_LDREQ_Queue_Player(COM_id, My_char[COM_id]);
+        Push_LDREQ_Queue_Player(COM_id, gs.My_char[COM_id]);
         Setup_Next_Fighter();
 
         if (Debug_w[0x1D]) {
-            My_char[0] = Debug_w[0x1D] - 1;
+            gs.My_char[0] = Debug_w[0x1D] - 1;
         }
 
         if (Debug_w[0x1E]) {
-            My_char[1] = Debug_w[0x1E] - 1;
+            gs.My_char[1] = Debug_w[0x1E] - 1;
         }
 
         if (VS_Index[Player_id] < 8) {
@@ -447,7 +447,7 @@ u8 Check_EM_Speech() {
         return 0;
     }
 
-    return Boss_Speech_Data[My_char[Player_id]][VS_Index[Player_id] - 8];
+    return Boss_Speech_Data[gs.My_char[Player_id]][VS_Index[Player_id] - 8];
 }
 
 void Next_CPU_6th() {
@@ -701,22 +701,22 @@ void Select_CPU_3rd() {
         SC_No[1]++;
 
         if (Debug_w[29]) {
-            My_char[0] = Debug_w[29] - 1;
+            gs.My_char[0] = Debug_w[29] - 1;
         }
 
         if (Debug_w[30]) {
-            My_char[1] = Debug_w[30] - 1;
+            gs.My_char[1] = Debug_w[30] - 1;
         }
 
-        Push_LDREQ_Queue_Player(COM_id, My_char[COM_id]);
+        Push_LDREQ_Queue_Player(COM_id, gs.My_char[COM_id]);
         Setup_Next_Fighter();
 
         if (Debug_w[29]) {
-            My_char[0] = Debug_w[29] - 1;
+            gs.My_char[0] = Debug_w[29] - 1;
         }
 
         if (Debug_w[30]) {
-            My_char[1] = Debug_w[30] - 1;
+            gs.My_char[1] = Debug_w[30] - 1;
         }
 
         if (VS_Index[Player_id] < 8) {
@@ -761,7 +761,7 @@ void Select_CPU_3rd() {
         SC_No[1] = 6;
         gs.Order[Player_id + 11] = 4;
         gs.Order_Timer[Player_id + 11] = 5;
-        effect_38_init(COM_id, COM_id + 11, My_char[COM_id], 1, 2);
+        effect_38_init(COM_id, COM_id + 11, gs.My_char[COM_id], 1, 2);
         gs.Order[COM_id + 11] = 1;
         gs.Order_Timer[COM_id + 11] = 1;
 
@@ -912,7 +912,7 @@ void Next_Bonus_2nd() {
 void Next_Bonus_3rd() {
     switch (SC_No[1]) {
     case 0:
-        My_char[COM_id] = Bonus_Type;
+        gs.My_char[COM_id] = Bonus_Type;
         Next_CPU_4th_0_Sub();
         break;
 
@@ -1105,7 +1105,7 @@ void Sel_CPU_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
     if (sw & SWK_ATTACKS) {
         Sel_EM_Complete[PL_id] = 1;
         EM_id = EM_List[Player_id][Temporary_EM[Player_id] - 1];
-        My_char[COM_id] = EM_id;
+        gs.My_char[COM_id] = EM_id;
         gs.Time_Stop = 2;
 
         if (VS_Index[PL_id] < 8) {
@@ -1118,7 +1118,7 @@ void Sel_CPU_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
 }
 
 void Setup_EM_List() {
-    if (My_char[Player_id] == 0) {
+    if (gs.My_char[Player_id] == 0) {
         EM_Candidate[Player_id][0][9] = 1;
         EM_Candidate[Player_id][1][9] = 1;
     } else {
@@ -1133,7 +1133,7 @@ void Setup_EM_List() {
 void Setup_Next_Fighter() {
     paring_counter[COM_id] = 0;
     paring_bonus_r[COM_id] = 0;
-    My_char[COM_id] = EM_id;
+    gs.My_char[COM_id] = EM_id;
 
     if (EM_id == 17) {
         Battle_Country = Q_Country;
@@ -1141,7 +1141,7 @@ void Setup_Next_Fighter() {
     } else {
         Battle_Country = EM_id;
 
-        if (My_char[Player_id] == 0 && EM_id == 1) {
+        if (gs.My_char[Player_id] == 0 && EM_id == 1) {
             Battle_Country = 0;
         }
 
@@ -1200,15 +1200,15 @@ void Setup_PL_Color(s16 PL_id, u16 sw) {
         id_0 = -1;
         id_1 = 1;
     } else {
-        id_0 = My_char[PL_id];
-        id_1 = My_char[PL_id ^ 1];
+        id_0 = gs.My_char[PL_id];
+        id_1 = gs.My_char[PL_id ^ 1];
     }
 
     if (gs.Sel_PL_Complete[PL_id ^ 1] == 0) {
         id_0 = 127;
     }
 
-    if (gs.plw[PL_id].wu.operator != 0 && My_char[PL_id] == 0) {
+    if (gs.plw[PL_id].wu.operator != 0 && gs.My_char[PL_id] == 0) {
         sw_new = 0;
     } else {
         if (Debug_w[53]) {
@@ -1219,7 +1219,7 @@ void Setup_PL_Color(s16 PL_id, u16 sw) {
             }
         }
 
-        if (save_w[Present_Mode].PL_Color[PL_id][My_char[PL_id]]) {
+        if (save_w[Present_Mode].PL_Color[PL_id][gs.My_char[PL_id]]) {
             if (PL_id == 0) {
                 sw_new = p1sw_0;
             } else {
@@ -1228,7 +1228,7 @@ void Setup_PL_Color(s16 PL_id, u16 sw) {
         }
     }
 
-    if (My_char[PL_id] == 0) {
+    if (gs.My_char[PL_id] == 0) {
         switch (sw) {
         case 16:
         case 32:
@@ -1466,10 +1466,10 @@ void Setup_History_OBJ() {
 }
 
 void Setup_VS_OBJ(s16 Option) {
-    effect_38_init(0, 11, My_char[0], 1, 0);
+    effect_38_init(0, 11, gs.My_char[0], 1, 0);
     gs.Order[11] = 3;
     gs.Order_Timer[11] = 1;
-    effect_38_init(1, 12, My_char[1], 1, 0);
+    effect_38_init(1, 12, gs.My_char[1], 1, 0);
     gs.Order[12] = 3;
     gs.Order_Timer[12] = 1;
     effect_K6_init(0, 35, 35, 0);
@@ -1478,10 +1478,10 @@ void Setup_VS_OBJ(s16 Option) {
     effect_K6_init(1, 36, 35, 0);
     gs.Order[36] = 3;
     gs.Order_Timer[36] = 1;
-    effect_39_init(0, 17, My_char[0], 0, 0);
+    effect_39_init(0, 17, gs.My_char[0], 0, 0);
     gs.Order[17] = 3;
     gs.Order_Timer[17] = 1;
-    effect_39_init(1, 18, My_char[1], 0, 0);
+    effect_39_init(1, 18, gs.My_char[1], 0, 0);
     gs.Order[18] = 3;
     gs.Order_Timer[18] = 1;
     effect_K6_init(0, 29, 29, 0);
@@ -1491,7 +1491,7 @@ void Setup_VS_OBJ(s16 Option) {
     gs.Order[30] = 3;
     gs.Order_Timer[30] = 1;
 
-    if (My_char[0] != 20) {
+    if (gs.My_char[0] != 20) {
         effect_75_init(42, 3, 0);
     }
 
@@ -1516,14 +1516,14 @@ s8 Check_Bonus_Stage() {
     bg_w.area = 0;
 
     if (Bonus_Type == 21) {
-        My_char[COM_id] = 0xC;
+        gs.My_char[COM_id] = 0xC;
     } else {
-        My_char[COM_id] = My_char[Player_id];
+        gs.My_char[COM_id] = gs.My_char[Player_id];
     }
 
     Setup_Com_Color();
     Setup_PL_Color(COM_id, Com_Color_Shot);
-    Push_LDREQ_Queue_Player(COM_id, My_char[COM_id]);
+    Push_LDREQ_Queue_Player(COM_id, gs.My_char[COM_id]);
     Push_LDREQ_Queue_BG(Bonus_Type + 0);
     return Completion_Bonus[Player_id][Bonus_Type - 20] = 1;
 }

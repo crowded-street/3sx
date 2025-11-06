@@ -330,8 +330,8 @@ void Ranking_01_2nd() {
         Setup_Demo_PL();
         Setup_Demo_Arts();
         Setup_Demo_Stage();
-        Push_LDREQ_Queue_Player(0, My_char[0]);
-        Push_LDREQ_Queue_Player(1, My_char[1]);
+        Push_LDREQ_Queue_Player(0, gs.My_char[0]);
+        Push_LDREQ_Queue_Player(1, gs.My_char[1]);
         Push_LDREQ_Queue_BG((s32)bg_w.stage);
     }
 }

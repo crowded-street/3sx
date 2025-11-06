@@ -258,15 +258,15 @@ const s8 Demo_Stage_Play_Data[4][2] = { { 15, 19 }, { 11, 18 }, { 2, 16 }, { 12,
 const s8 Demo_PL_Data[4] = { 0, 1, 0, 1 };
 
 void Setup_Demo_PL() {
-    My_char[0] = Demo_PL_Play_Data[Demo_PL_Index][0];
-    My_char[1] = Demo_PL_Play_Data[Demo_PL_Index][1];
+    gs.My_char[0] = Demo_PL_Play_Data[Demo_PL_Index][0];
+    gs.My_char[1] = Demo_PL_Play_Data[Demo_PL_Index][1];
 
     if (Debug_w[0x1D]) {
-        My_char[0] = Debug_w[0x1D] - 1;
+        gs.My_char[0] = Debug_w[0x1D] - 1;
     }
 
     if (Debug_w[0x1E]) {
-        My_char[1] = Debug_w[0x1E] - 1;
+        gs.My_char[1] = Debug_w[0x1E] - 1;
     }
 
     init_omop();

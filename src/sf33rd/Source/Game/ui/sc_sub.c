@@ -1114,8 +1114,8 @@ void player_name() {
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    pl1 = My_char[0];
-    pl2 = My_char[1];
+    pl1 = gs.My_char[0];
+    pl2 = gs.My_char[1];
     pl1 += chkNameAkuma(pl1, 6);
     pl2 += chkNameAkuma(pl2, 6);
     scfont_sqput(6, 3, 1, 1, Player_Name_Pos_TBL[pl1][0], Player_Name_Pos_TBL[pl1][1], 5, 1, 2);
@@ -1326,18 +1326,18 @@ void player_face() {
     ppgSetupCurrentDataList(&ppgScrListFace);
     scfont_sqput_face(0,
                       3,
-                      Player_Color[0] + (My_char[0] * 13),
+                      Player_Color[0] + (gs.My_char[0] * 13),
                       0,
-                      Face_Pos_TBL[My_char[0]][0],
-                      Face_Pos_TBL[My_char[0]][1],
+                      Face_Pos_TBL[gs.My_char[0]][0],
+                      Face_Pos_TBL[gs.My_char[0]][1],
                       5,
                       3,
                       2);
 
-    if (My_char[1] == 0) {
+    if (gs.My_char[1] == 0) {
         scfont_sqput_face(0x2B,
                           3,
-                          (Player_Color[1] + (My_char[1] * 13)) | 0x8000,
+                          (Player_Color[1] + (gs.My_char[1] * 13)) | 0x8000,
                           0,
                           Face_Pos_TBL[20][0],
                           Face_Pos_TBL[20][1],
@@ -1347,10 +1347,10 @@ void player_face() {
     } else {
         scfont_sqput_face(0x2B,
                           3,
-                          (Player_Color[1] + (My_char[1] * 13)) | 0x8000,
+                          (Player_Color[1] + (gs.My_char[1] * 13)) | 0x8000,
                           0,
-                          Face_Pos_TBL[My_char[1]][0],
-                          Face_Pos_TBL[My_char[1]][1],
+                          Face_Pos_TBL[gs.My_char[1]][0],
+                          Face_Pos_TBL[gs.My_char[1]][1],
                           5,
                           3,
                           2);
@@ -1871,12 +1871,12 @@ void sa_fullstock_trans(s16 St_Num, s16 Spg_Col, s8 Stpl_Num) {
 
 void sa_number_write(s8 Stpl_Num, u16 x) {
     if (Stpl_Num == 0) {
-        if (My_char[0] == 0) {
+        if (gs.My_char[0] == 0) {
             scfont_sqput2(x, 26, 14, 0, 2, 27, 2, 2, 2);
         } else {
             scfont_sqput2(x, 26, 14, 0, 2, (Super_Arts[0] * 2) + 21, 2, 2, 2);
         }
-    } else if (My_char[1] == 0) {
+    } else if (gs.My_char[1] == 0) {
         scfont_sqput2(x, 26, 142, 1, 2, 27, 2, 2, 2);
     } else {
         scfont_sqput2(x, 26, 142, 1, 2, (Super_Arts[1] * 2) + 21, 2, 2, 2);

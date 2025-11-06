@@ -351,11 +351,11 @@ void Game01() {
             set_hitmark_color();
 
             if (Debug_w[0x1D]) {
-                My_char[0] = Debug_w[0x1D] - 1;
+                gs.My_char[0] = Debug_w[0x1D] - 1;
             }
 
             if (Debug_w[0x1E]) {
-                My_char[1] = Debug_w[0x1E] - 1;
+                gs.My_char[1] = Debug_w[0x1E] - 1;
             }
 
             Purge_texcash_of_list(3);
@@ -1286,9 +1286,9 @@ void Game09() {
         win_lose_work_clear();
 
         if (Bonus_Game_Flag == 0x15) {
-            My_char[COM_id] = 12;
+            gs.My_char[COM_id] = 12;
         } else {
-            My_char[COM_id] = My_char[Player_id];
+            gs.My_char[COM_id] = gs.My_char[Player_id];
         }
 
         break;

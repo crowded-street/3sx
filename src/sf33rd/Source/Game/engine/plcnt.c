@@ -413,11 +413,11 @@ void init_app_10000() {
 
         if (gs.Play_Type == 0) {
             if (gs.plw[0].wu.operator) {
-                mpp_w.useChar[My_char[0]]++;
+                mpp_w.useChar[gs.My_char[0]]++;
             }
 
             if (gs.plw[1].wu.operator) {
-                mpp_w.useChar[My_char[1]]++;
+                mpp_w.useChar[gs.My_char[1]]++;
             }
         }
 
@@ -1244,11 +1244,11 @@ void set_base_data(PLW* wk, s16 ix) {
     wk->wu.id = ix;
     wk->wu.work_id = 1;
     wk->wu.operator = Operator_Status[ix];
-    wk->wu.charset_id = plid_data[My_char[ix]];
+    wk->wu.charset_id = plid_data[gs.My_char[ix]];
     wk->wkey_flag = wk->dead_flag = 0;
     set_char_base_data(&wk->wu);
     wk->wu.target_adrs = &gs.plw[(ix + 1) & 1];
-    wk->player_number = My_char[ix];
+    wk->player_number = gs.My_char[ix];
     wk->wu.hit_adrs = wk->wu.target_adrs;
     wk->wu.dmg_adrs = wk->wu.target_adrs;
     cmd_init(wk);
@@ -1282,8 +1282,8 @@ void set_base_data_metamorphose(PLW* wk, s16 dmid) {
 }
 
 void set_base_data_tiny(PLW* wk) {
-    wk->wu.charset_id = plid_data[My_char[wk->wu.id]];
-    wk->player_number = My_char[wk->wu.id];
+    wk->wu.charset_id = plid_data[gs.My_char[wk->wu.id]];
+    wk->player_number = gs.My_char[wk->wu.id];
     set_char_base_data(&wk->wu);
 
     if (wk->wu.id) {
@@ -1331,7 +1331,7 @@ void clear_chainex_check(s16 ix) {
 }
 
 void set_kizetsu_status(s16 ix) {
-    s16 plnum = My_char[ix];
+    s16 plnum = gs.My_char[ix];
 
     gs.piyori_type[ix].flag = 0;
     gs.piyori_type[ix].time = 0;
@@ -1361,9 +1361,9 @@ void set_super_arts_status(s16 ix) {
     const SA_DATA* saptr;
 
     if (cmd_sel[ix] || no_sa[ix]) {
-        saptr = &super_arts_DATA[My_char[ix]][Super_Arts[ix]];
+        saptr = &super_arts_DATA[gs.My_char[ix]][Super_Arts[ix]];
     } else {
-        saptr = &super_arts_data[My_char[ix]][Super_Arts[ix]];
+        saptr = &super_arts_data[gs.My_char[ix]][Super_Arts[ix]];
     }
 
     gs.super_arts[ix].kind_of_arts = Super_Arts[ix];
@@ -1419,9 +1419,9 @@ void set_super_arts_status_dc(s16 ix) {
     const SA_DATA* saptr;
 
     if (cmd_sel[ix] || no_sa[ix]) {
-        saptr = &super_arts_DATA[My_char[ix]][Super_Arts[ix]];
+        saptr = &super_arts_DATA[gs.My_char[ix]][Super_Arts[ix]];
     } else {
-        saptr = &super_arts_data[My_char[ix]][Super_Arts[ix]];
+        saptr = &super_arts_data[gs.My_char[ix]][Super_Arts[ix]];
     }
 
     gs.super_arts[ix].kind_of_arts = Super_Arts[ix];

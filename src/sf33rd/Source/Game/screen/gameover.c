@@ -119,7 +119,7 @@ void GameOver_2nd() {
 
             if (Break_Com[WINNER][0]) {
                 Setup_BG(0, 0x200, 0);
-                bg_etc_write(PL_Color_Data[My_char[gs.Winner_id]]);
+                bg_etc_write(PL_Color_Data[gs.My_char[gs.Winner_id]]);
             }
 
             Setup_Result_OBJ();

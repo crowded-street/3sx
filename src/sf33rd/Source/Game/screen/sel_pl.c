@@ -768,7 +768,7 @@ void PL_Sel_1st() {
 
     if (gs.Sel_PL_Complete[ID2] == -0x8000) {
         SP_No[ID2][1] = 2;
-        Push_LDREQ_Queue_Player(ID2, My_char[ID2]);
+        Push_LDREQ_Queue_Player(ID2, gs.My_char[ID2]);
         ret = check_use_all_SA();
         ret2 = check_without_SA();
         ret |= ret2;
@@ -777,7 +777,7 @@ void PL_Sel_1st() {
             return;
         }
 
-        if (My_char[ID2] == 0) {
+        if (gs.My_char[ID2] == 0) {
             return;
         }
 
@@ -789,14 +789,14 @@ void PL_Sel_1st() {
         effect_50_init(ID2, 2, 1);
 
         if (Debug_w[29]) {
-            My_char[0] = Debug_w[29] - 1;
+            gs.My_char[0] = Debug_w[29] - 1;
         }
 
         if (!Debug_w[30]) {
             return;
         }
 
-        My_char[1] = Debug_w[30] - 1;
+        gs.My_char[1] = Debug_w[30] - 1;
         return;
     }
 
@@ -817,7 +817,7 @@ void PL_Sel_2nd() {
         ret2 = check_without_SA();
         ret |= ret2;
 
-        if (ret != 0 || My_char[ID2] == 0) {
+        if (ret != 0 || gs.My_char[ID2] == 0) {
             SP_No[ID2][3]++;
             gs.Cursor_Timer[ID2] = 40;
             Go_Away_Red_Lines();
@@ -848,11 +848,11 @@ void PL_Sel_2nd() {
         SP_No[ID2][3] = 0;
         Setup_ID();
 
-        if (Used_char[ID2] != My_char[ID2]) {
+        if (Used_char[ID2] != gs.My_char[ID2]) {
             Last_Player_id = ID2;
         }
 
-        Used_char[ID2] = My_char[ID2];
+        Used_char[ID2] = gs.My_char[ID2];
         break;
     }
 }
@@ -963,14 +963,14 @@ void Sel_PL_3rd() {
     }
 
     if (Debug_w[29]) {
-        My_char[0] = Debug_w[29] - 1;
+        gs.My_char[0] = Debug_w[29] - 1;
     }
 
     if (Debug_w[30]) {
-        My_char[1] = Debug_w[30] - 1;
+        gs.My_char[1] = Debug_w[30] - 1;
     }
 
-    Push_LDREQ_Queue_Player(ID, My_char[ID]);
+    Push_LDREQ_Queue_Player(ID, gs.My_char[ID]);
     SP_No[ID][0]++;
     Stop_Cursor[ID] = 1;
     Auto_No[ID] = 0;
@@ -1151,14 +1151,14 @@ void Sel_PL_Sub(s16 PL_id, u16 sw) {
     }
 
     gs.Sel_PL_Complete[PL_id] = 1;
-    My_char[PL_id] = ID_of_Face[gs.Cursor_Y[PL_id]][gs.Cursor_X[PL_id]];
+    gs.My_char[PL_id] = ID_of_Face[gs.Cursor_Y[PL_id]][gs.Cursor_X[PL_id]];
 
-    if (Last_My_char2[PL_id] != My_char[PL_id]) {
+    if (Last_My_char2[PL_id] != gs.My_char[PL_id]) {
         Arts_Y[ID] = Super_Arts[ID] = Last_Super_Arts[ID] = 0;
         Introduce_Boss[ID][0] = 0;
     }
 
-    Last_My_char2[PL_id] = My_char[PL_id];
+    Last_My_char2[PL_id] = gs.My_char[PL_id];
     Last_Selected_ID = PL_id;
     gs.Order[1] = 2;
     gs.Order_Timer[1] = 1;
@@ -1516,11 +1516,11 @@ void Sel_Arts_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
         Sound_SE(*Free_Ptr[PL_id]++);
         Setup_ID();
 
-        if (Used_char[PL_id] != My_char[PL_id]) {
+        if (Used_char[PL_id] != gs.My_char[PL_id]) {
             Last_Player_id = PL_id;
         }
 
-        Used_char[PL_id] = My_char[PL_id];
+        Used_char[PL_id] = gs.My_char[PL_id];
     }
 }
 
@@ -1569,8 +1569,8 @@ void Exit_2nd() {
 
     if (Select_Status[0] == 3) {
         Exit_No = 3;
-        Last_My_char[0] = My_char[0];
-        Last_My_char[1] = My_char[1];
+        Last_My_char[0] = gs.My_char[0];
+        Last_My_char[1] = gs.My_char[1];
         Battle_Country = Setup_Battle_Country();
         bg_w.stage = Battle_Country;
         bg_w.area = 0;
@@ -1590,7 +1590,7 @@ void Exit_2nd() {
     }
 
     Exit_No++;
-    Last_My_char[Player_id] = My_char[Player_id];
+    Last_My_char[Player_id] = gs.My_char[Player_id];
     gs.Time_Stop = 2;
 
     for (xx = 0; xx < 4; xx++) {
@@ -1634,10 +1634,10 @@ void Exit_4th() {
         effect_K6_init(1, 36, 35, 2);
         gs.Order[36] = 3;
         gs.Order_Timer[36] = 1;
-        effect_39_init(0, 17, My_char[0], 2, 0);
+        effect_39_init(0, 17, gs.My_char[0], 2, 0);
         gs.Order[17] = 3;
         gs.Order_Timer[17] = 1;
-        effect_39_init(1, 18, My_char[1], 2, 0);
+        effect_39_init(1, 18, gs.My_char[1], 2, 0);
         gs.Order[18] = 3;
         gs.Order_Timer[18] = 1;
         effect_K6_init(0, 29, 29, 2);
@@ -2018,14 +2018,14 @@ u8 Setup_Battle_Country() {
         return VS_Stage;
     }
 
-    if (My_char[0] == 17 && My_char[1] == 17) {
+    if (gs.My_char[0] == 17 && gs.My_char[1] == 17) {
         Rnd32 = random_32();
         return Random_Stage_Data[0][Rnd32];
     }
 
-    if (My_char[gs.New_Challenger] == 17) {
-        return My_char[Champion];
+    if (gs.My_char[gs.New_Challenger] == 17) {
+        return gs.My_char[Champion];
     }
 
-    return My_char[gs.New_Challenger];
+    return gs.My_char[gs.New_Challenger];
 }

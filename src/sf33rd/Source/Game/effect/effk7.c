@@ -171,8 +171,8 @@ void K7_muriyari_metamor_rebirth(PLW* wk) {
         return;
     }
 
-    wk->player_number = My_char[wk->wu.id];
-    wk->wu.charset_id = plid_data[My_char[wk->wu.id]];
+    wk->player_number = gs.My_char[wk->wu.id];
+    wk->wu.charset_id = plid_data[gs.My_char[wk->wu.id]];
     set_base_data_metamorphose(wk, wk->wu.id);
     metamor_color_restore(wk->wu.id);
     wk->metamor_over = 0;

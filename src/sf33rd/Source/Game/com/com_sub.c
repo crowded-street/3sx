@@ -1638,7 +1638,7 @@ s32 Check_Term_Sub(PLW* wk, s16 Distance, s16 Range) {
 const s16 Correct_VS_Air_Data[0x14] = { 0, 0x20, 0, 0, 0, 0x20, 0x20, 0, 0x20, 0, 0, 0, 0, 0x20, 0, 0, 0, 0, 0, 0 };
 
 s32 Correct_Unit_PL(PLW* wk) {
-    return Correct_VS_Air_Data[My_char[Player_id]];
+    return Correct_VS_Air_Data[gs.My_char[Player_id]];
 }
 
 s32 Check_Term_Sub_Y(PLW* wk, s16 Distance, s16 Range) {
@@ -2427,7 +2427,7 @@ s32 Check_Term_ABS_Distance(PLW* wk) {
         return 1;
     }
 
-    if (My_char[wk->wu.id] == 5) {
+    if (gs.My_char[wk->wu.id] == 5) {
         return 0;
     }
 
@@ -3878,7 +3878,7 @@ s32 Command_Type_00(PLW* wk, s16 Power_Level, u16 Tech_Number, s16 Ex_Shot) {
             Lever_Buff[wk->wu.id] |= renbanshot_conpaneshot(Tech_Address[wk->wu.id], Power_Level);
         }
 
-        if ((My_char[wk->wu.id] == 2) && ((Tech_Number) == 0x8015) && (Power_Level != 8)) {
+        if ((gs.My_char[wk->wu.id] == 2) && ((Tech_Number) == 0x8015) && (Power_Level != 8)) {
             CP_Index[wk->wu.id][0]++;
             Lever_LR[wk->wu.id] = Lever_Buff[wk->wu.id] & 0xFF0;
 
@@ -3917,7 +3917,7 @@ s32 Command_Type_06(PLW* wk, s16 Power_Level, u16 Tech_Number, s16 Ex_Shot) {
     xx = 0;
 
     if (Tech_Number & 0x8000) {
-        if ((My_char[wk->wu.id] == 6) && (Super_Arts[wk->wu.id] == 0)) {
+        if ((gs.My_char[wk->wu.id] == 6) && (Super_Arts[wk->wu.id] == 0)) {
             xx = 1;
         }
     }
@@ -4084,7 +4084,7 @@ s32 Select_Reflection_Time(PLW* wk) {
     if ((Break_Into_CPU == 1) || (Break_Into_CPU == 2)) {
         return zz = Reflection_Speed_Unit_Data[17][Lv][xx];
     }
-    return zz = Reflection_Speed_Unit_Data[My_char[wk->wu.id]][Lv][xx];
+    return zz = Reflection_Speed_Unit_Data[gs.My_char[wk->wu.id]][Lv][xx];
 }
 
 s32 Setup_Lv04(s16 xx) {
@@ -4521,19 +4521,19 @@ s32 Check_SA_Active(PLW* wk, s16* pl_id) {
     if (wk->sa->ok != -1) {
         return 0;
     }
-    if (My_char[wk->wu.id] == 9) {
+    if (gs.My_char[wk->wu.id] == 9) {
         if (gs.plw[wk->wu.id].sa->kind_of_arts == 0) {
             return *pl_id = 3;
         }
         return *pl_id = 2;
     }
-    if ((My_char[wk->wu.id] == 3) && (gs.plw[wk->wu.id].sa->kind_of_arts == 2)) {
+    if ((gs.My_char[wk->wu.id] == 3) && (gs.plw[wk->wu.id].sa->kind_of_arts == 2)) {
         return *pl_id = 1;
     }
-    if ((My_char[wk->wu.id] == 0xA) && (gs.plw[wk->wu.id].sa->kind_of_arts == 2)) {
+    if ((gs.My_char[wk->wu.id] == 0xA) && (gs.plw[wk->wu.id].sa->kind_of_arts == 2)) {
         return *pl_id = 1;
     }
-    if ((My_char[wk->wu.id] == 0x11) && (gs.plw[wk->wu.id].sa->kind_of_arts == 2)) {
+    if ((gs.My_char[wk->wu.id] == 0x11) && (gs.plw[wk->wu.id].sa->kind_of_arts == 2)) {
         return *pl_id = 4;
     }
     return 0;
@@ -5378,7 +5378,7 @@ s32 VS_Jump_Term(PLW* wk, WORK* em, s16* xx) {
         return 0;
     }
 
-    switch (My_char[em->id]) {
+    switch (gs.My_char[em->id]) {
     case 1:
         if (Check_F_Cross_Chop(wk, em, 0xF) != 0) {
             return *xx = 3;
@@ -5585,7 +5585,7 @@ s32 Check_SHINRYU(PLW* wk) {
     if (em->sa->ok != -1) {
         return 0;
     }
-    if (My_char[em->wu.id] != 0xB) {
+    if (gs.My_char[em->wu.id] != 0xB) {
         return 0;
     }
     if (gs.plw[em->wu.id].sa->kind_of_arts != 1) {
@@ -5665,7 +5665,7 @@ s32 ETC_Term_0001(PLW* wk, WORK* em) {
     if (wk->sa->ok != -1) {
         return 1;
     }
-    if (My_char[wk->wu.id] != 9) {
+    if (gs.My_char[wk->wu.id] != 9) {
         return 1;
     }
     if (gs.plw[wk->wu.id].sa->kind_of_arts) {

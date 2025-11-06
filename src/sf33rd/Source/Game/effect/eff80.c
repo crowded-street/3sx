@@ -75,6 +75,6 @@ s32 effect_80_init(WORK_Other* mwk, s16 PL_id, s16 Plate_id, s16 Target_BG) {
     ewk->wu.my_mts = 13;
     ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
     ewk->wu.char_index = 7;
-    ewk->wu.dir_step = Plate_id + (My_char[PL_id] * 3) + (PL_id * 60);
+    ewk->wu.dir_step = Plate_id + (gs.My_char[PL_id] * 3) + (PL_id * 60);
     return 0;
 }

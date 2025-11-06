@@ -65,7 +65,7 @@ void win_player(PLW* wk) {
                                      Win_06000, Win_07000, Win_08000, Win_09000, Win_10000, Win_11000,
                                      Win_12000, Win_13000, Win_14000, Win_15000 };
 
-    if (My_char[wk->wu.id] != wk->player_number) {
+    if (gs.My_char[wk->wu.id] != wk->player_number) {
         meta_win_pause(wk);
         return;
     }

@@ -699,26 +699,26 @@ void sag_union(PLW* wk) {
                     break;
                 }
 
-                if (My_char[wk->wu.id] == 3) {
+                if (gs.My_char[wk->wu.id] == 3) {
                     addSAAttribute(&wk->wu.kind_of_waza, &wk->wu.at_koa);
                 }
 
-                if (My_char[wk->wu.id] == 10) {
+                if (gs.My_char[wk->wu.id] == 10) {
                     wk->wu.kind_of_waza |= 32;
                     wk->wu.at_koa = 128;
                 }
 
-                if (My_char[wk->wu.id] == 16) {
+                if (gs.My_char[wk->wu.id] == 16) {
                     wk->wu.kind_of_waza |= 32;
                     wk->wu.at_koa = 128;
                 }
 
-                if (My_char[wk->wu.id] == 18) {
+                if (gs.My_char[wk->wu.id] == 18) {
                     wk->wu.kind_of_waza |= 32;
                     wk->wu.at_koa = 128;
                 }
 
-                if ((My_char[wk->wu.id] == 9) && (wk->sa->kind_of_arts == 2)) {
+                if ((gs.My_char[wk->wu.id] == 9) && (wk->sa->kind_of_arts == 2)) {
                     wk->wu.att.dipsw |= 0x10;
                 }
 

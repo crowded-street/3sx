@@ -202,7 +202,7 @@ void init_trans_color_ram(s16 id, s16 key, u8 type, u16 data) {
     switch (type) {
     case 1:
         plcol[id] = (COL*)Get_ramcnt_address(key);
-        if (My_char[id] == 0) {
+        if (gs.My_char[id] == 0) {
             for (i = 0; i < 64; i++) {
                 ColorRAM[id * 16][i] = palConvSrcToRam(plcol[id]->col[0][Player_Color[id]][i]);
                 ColorRAM[(id * 16) + 8][i] = palConvSrcToRam(plcol[id]->col[1][Player_Color[id]][i]);
@@ -282,7 +282,7 @@ void init_trans_color_ram(s16 id, s16 key, u8 type, u16 data) {
             metamor_color_store(0);
             metamor_color_store(1);
         } else {
-            if ((My_char[(id + 1) & 1]) == 0) {
+            if ((gs.My_char[(id + 1) & 1]) == 0) {
                 for (i = 0; i < 64; i++) {
                     hi_meta[id][0][i] = dadr->col[0][Player_Color[id]][i];
                     hi_meta[id][1][i] = dadr->col[1][Player_Color[id]][i];
@@ -361,8 +361,8 @@ void init_trans_color_ram(s16 id, s16 key, u8 type, u16 data) {
         tradrs = (u16*)&ColorRAM[41];
 
         for (i = 0; i < 16; i++) {
-            ldadrs[i] = palConvSrcToRam(adrs->col[My_char[0]][Player_Color[0]][i]);
-            tradrs[i] = palConvSrcToRam(adrs->col[My_char[1]][Player_Color[1]][i]);
+            ldadrs[i] = palConvSrcToRam(adrs->col[gs.My_char[0]][Player_Color[0]][i]);
+            tradrs[i] = palConvSrcToRam(adrs->col[gs.My_char[1]][Player_Color[1]][i]);
         }
 
         Push_ramcnt_key(key);

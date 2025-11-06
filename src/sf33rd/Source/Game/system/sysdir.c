@@ -112,8 +112,8 @@ void init_omop() {
         get_extra_option_parameter(&save_w[Present_Mode].extra_option);
     }
 
-    omop_spmv_ng_table[0] |= sysdir_base_move[My_char[0]];
-    omop_spmv_ng_table[1] |= sysdir_base_move[My_char[1]];
+    omop_spmv_ng_table[0] |= sysdir_base_move[gs.My_char[0]];
+    omop_spmv_ng_table[1] |= sysdir_base_move[gs.My_char[1]];
     cmd_sel[0] = (omop_spmv_ng_table[0] & DIP2_ALL_SUPER_ARTS_AVAILABLE_DISABLED) == 0;
     cmd_sel[1] = (omop_spmv_ng_table[1] & DIP2_ALL_SUPER_ARTS_AVAILABLE_DISABLED) == 0;
     no_sa[0] = (omop_spmv_ng_table[0] & (DIP_UNKNOWN_30 | DIP_UNKNOWN_31)) != 0;

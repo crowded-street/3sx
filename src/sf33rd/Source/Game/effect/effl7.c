@@ -144,7 +144,7 @@ s32 effect_L7_init(WORK* wk, s32 /* unused */) {
     s16 ix;
     s16 kind_w;
 
-    if ((wk->work_id == 1) && (((PLW*)wk)->player_number != My_char[wk->id])) {
+    if ((wk->work_id == 1) && (((PLW*)wk)->player_number != gs.My_char[wk->id])) {
         return 0;
     }
 

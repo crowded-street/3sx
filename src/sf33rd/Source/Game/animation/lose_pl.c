@@ -23,7 +23,7 @@ const s16 meta_lose_tbl[20] = { 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 
 void lose_player(PLW* wk) {
     void (*lose_jp_tbl[4])(PLW*) = { Lose_00000, Lose_10000, Lose_20000, Lose_30000 };
 
-    if (My_char[wk->wu.id] != wk->player_number) {
+    if (gs.My_char[wk->wu.id] != wk->player_number) {
         meta_lose_pause(wk);
         return;
     }

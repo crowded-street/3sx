@@ -502,7 +502,7 @@ s32 effect_J7_init(PLW* wk) {
         return 0;
     }
 
-    if (My_char[wk->wu.id] != 0) {
+    if (gs.My_char[wk->wu.id] != 0) {
         return 0;
     }
 

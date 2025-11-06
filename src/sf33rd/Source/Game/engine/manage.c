@@ -487,7 +487,7 @@ void Game_Manage_2_4() {
         vital_dec_timer = 40;
         sag_inc_timer[0] = sag_inc_timer[1] = 0;
 
-        if (gs.Play_Type == 0 && (EM_id == 0 || (My_char[Player_id] == 0 && EM_id == 1)) &&
+        if (gs.Play_Type == 0 && (EM_id == 0 || (gs.My_char[Player_id] == 0 && EM_id == 1)) &&
             !(Introduce_Boss[Player_id][1] & 0x80)) {
             Introduce_Boss[Player_id][1] |= 128;
             Check_Stage_BGM();
@@ -1208,13 +1208,13 @@ s32 Check_Ending() {
         Break_Com[WINNER][0] = 1;
         Extra_Break = 0;
         Pause_ID = WINNER;
-        End_PL = My_char[WINNER];
+        End_PL = gs.My_char[WINNER];
         gs.plw[WINNER].wu.operator = 0;
         Operator_Status[WINNER] = 0;
         SsBgmControl(0, 0);
         Control_Time = 481;
         Ending_init();
-        Stock_My_char[WINNER] = My_char[WINNER];
+        Stock_My_char[WINNER] = gs.My_char[WINNER];
         Stock_Player_Color[WINNER] = Player_Color[WINNER];
 
         if (Direction_Working[Present_Mode]) {
@@ -1223,11 +1223,11 @@ s32 Check_Ending() {
 
         if (Check_Extra_Setting() == 0) {
             for (xx = 1; xx < 5; xx++) {
-                save_w[xx].PL_Color[0][My_char[WINNER]] = 1;
-                save_w[xx].PL_Color[1][My_char[WINNER]] = 1;
+                save_w[xx].PL_Color[0][gs.My_char[WINNER]] = 1;
+                save_w[xx].PL_Color[1][gs.My_char[WINNER]] = 1;
             }
 
-            if (My_char[WINNER] == 0) {
+            if (gs.My_char[WINNER] == 0) {
                 save_w[Present_Mode].Extra_Option = 1;
             }
         }
@@ -1349,7 +1349,7 @@ void Update_VS_Data() {
     if (PL_Wins[gs.Winner_id] >= save_w[Present_Mode].Battle_Number[gs.Play_Type] + 1) {
         WINNER = gs.Winner_id;
         LOSER = gs.Loser_id;
-        Stock_My_char[LOSER] = My_char[LOSER];
+        Stock_My_char[LOSER] = gs.My_char[LOSER];
         Stock_Player_Color[LOSER] = Player_Color[LOSER];
 
         if (gs.Play_Type != 0) {
@@ -1482,7 +1482,7 @@ void Check_Stage_BGM() {
 
     switch (EM_id) {
     case 1:
-        if (My_char[Player_id] != 0) {
+        if (gs.My_char[Player_id] != 0) {
             Stage_BGM(bg_w.stage, Round_num);
         }
 
@@ -1727,7 +1727,7 @@ void Be_Continue() {
 
 void Disp_Winner() {
     if (gs.Play_Type == 1) {
-        effect_56_init(My_char[gs.Winner_id] + 7, 1);
+        effect_56_init(gs.My_char[gs.Winner_id] + 7, 1);
         SsRequest(141);
         return;
     }

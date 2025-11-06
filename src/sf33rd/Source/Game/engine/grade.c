@@ -507,7 +507,7 @@ void grade_makeup_stage_parameter(s16 ix) {
                 judge_final[ix][gs.Play_Type].vs_cpu_grade[15] = grade;
                 judge_final[ix][gs.Play_Type].vs_cpu_player[15] = judge_final[ix][gs.Play_Type].vcr_ix;
             } else {
-                plnum = old_my_char_check(My_char[(ix + 1) & 1], 0);
+                plnum = old_my_char_check(gs.My_char[(ix + 1) & 1], 0);
                 judge_final[ix][gs.Play_Type].vs_cpu_result[judge_final[ix][gs.Play_Type].vcr_ix] = point;
                 judge_final[ix][gs.Play_Type].vs_cpu_grade[judge_final[ix][gs.Play_Type].vcr_ix] = grade;
                 judge_final[ix][gs.Play_Type].vs_cpu_player[judge_final[ix][gs.Play_Type].vcr_ix] = plnum;
@@ -542,7 +542,7 @@ void grade_makeup_stage_parameter(s16 ix) {
 }
 
 s32 rannyuu_Q_check(s16 ix) {
-    if ((Round_Operator[ix] == 0) && (My_char[ix] == 17)) {
+    if ((Round_Operator[ix] == 0) && (gs.My_char[ix] == 17)) {
         return 1;
     }
 

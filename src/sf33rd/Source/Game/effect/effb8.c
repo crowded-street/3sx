@@ -108,11 +108,11 @@ s32 effect_B8_init(s8 WIN_PL_NO, s16 timer) {
     ewk->my_master = wk;
     ewk->master_work_id = wk->wu.work_id;
     ewk->master_id = wk->wu.id;
-    ewk->master_player = My_char[wk->wu.id];
-    test_pl_no = My_char[wk->wu.id];
+    ewk->master_player = gs.My_char[wk->wu.id];
+    test_pl_no = gs.My_char[wk->wu.id];
 
     if (effb8_normal_or_senyou()) {
-        mes_no = My_char[wk->wu.id ^ 1] + 0;
+        mes_no = gs.My_char[wk->wu.id ^ 1] + 0;
 
         if (old_mes_no_pl == mes_no) {
             mes_no = effb8_sel_1_by_8();

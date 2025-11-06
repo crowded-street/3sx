@@ -79,7 +79,7 @@ void Win_1st() {
     Make_texcash_of_list(4);
     load_any_texture_patnum(0x7F30, 0xC, 0);
     Setup_BG(0, 0x200, 0);
-    bg_etc_write(PL_Color_Data[My_char[gs.Winner_id]]);
+    bg_etc_write(PL_Color_Data[gs.My_char[gs.Winner_id]]);
     Setup_BG(2, 0x300, 0);
     Setup_BG(1, 0x200, 0);
     Setup_BG(3, 0x2C0, 0);
@@ -167,15 +167,15 @@ void Win_3rd() {
             effect_58_init(0xE, 0x14, 2);
 
             if (Debug_w[0x1D]) {
-                My_char[0] = Debug_w[0x1D] - 1;
+                gs.My_char[0] = Debug_w[0x1D] - 1;
             }
 
             if (Debug_w[0x1E]) {
-                My_char[1] = Debug_w[0x1E] - 1;
+                gs.My_char[1] = Debug_w[0x1E] - 1;
             }
 
             if (Mode_Type == MODE_ARCADE) {
-                Push_LDREQ_Queue_Player(gs.Winner_id, My_char[gs.Winner_id]);
+                Push_LDREQ_Queue_Player(gs.Winner_id, gs.My_char[gs.Winner_id]);
             }
         }
 

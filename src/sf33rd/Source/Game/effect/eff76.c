@@ -296,8 +296,8 @@ void Setup_Pos_76(WORK_Other* ewk) {
         break;
 
     case 0x41:
-        ewk->wu.xyz[0].disp.pos = bg_w.bgw[0].wxy[0].disp.pos + Bust_Pos_Data_76[My_char[Final_Result_id]][0];
-        ewk->wu.xyz[1].disp.pos = bg_w.bgw[0].wxy[1].disp.pos + Bust_Pos_Data_76[My_char[Final_Result_id]][1];
+        ewk->wu.xyz[0].disp.pos = bg_w.bgw[0].wxy[0].disp.pos + Bust_Pos_Data_76[gs.My_char[Final_Result_id]][0];
+        ewk->wu.xyz[1].disp.pos = bg_w.bgw[0].wxy[1].disp.pos + Bust_Pos_Data_76[gs.My_char[Final_Result_id]][1];
         ewk->wu.position_z = 72;
         break;
 
@@ -351,11 +351,11 @@ void Setup_Pos_76(WORK_Other* ewk) {
         break;
 
     case 0x48:
-        ix = chkNameAkuma(My_char[Champion], 9);
+        ix = chkNameAkuma(gs.My_char[Champion], 9);
         ewk->wu.xyz[0].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos +
-                                  Name_Cover_Pos_Data[Champion][1][My_char[Champion] + ix][0];
+                                  Name_Cover_Pos_Data[Champion][1][gs.My_char[Champion] + ix][0];
         ewk->wu.xyz[1].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos +
-                                  Name_Cover_Pos_Data[Champion][1][My_char[Champion] + ix][1];
+                                  Name_Cover_Pos_Data[Champion][1][gs.My_char[Champion] + ix][1];
         ewk->wu.position_z = 70;
 
         if (Champion == 0) {
@@ -367,11 +367,11 @@ void Setup_Pos_76(WORK_Other* ewk) {
         break;
 
     case 0x49:
-        ix = chkNameAkuma(My_char[Champion], 9);
+        ix = chkNameAkuma(gs.My_char[Champion], 9);
         ewk->wu.xyz[0].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos +
-                                  Name_Cover_Pos_Data[Champion][1][My_char[Champion] + ix][0];
+                                  Name_Cover_Pos_Data[Champion][1][gs.My_char[Champion] + ix][0];
         ewk->wu.xyz[1].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos +
-                                  Name_Cover_Pos_Data[Champion][1][My_char[Champion] + ix][1] - 2;
+                                  Name_Cover_Pos_Data[Champion][1][gs.My_char[Champion] + ix][1] - 2;
         ewk->wu.position_z = 69;
 
         if (Champion == 0) {
@@ -385,7 +385,7 @@ void Setup_Pos_76(WORK_Other* ewk) {
     case 0x37:
     case 0x55:
         if (ewk->wu.dir_old == 0x37) {
-            my_char = My_char[gs.Winner_id];
+            my_char = gs.My_char[gs.Winner_id];
         } else {
             my_char = Ranking_Data[gs.Order_Dir[ewk->wu.dir_old]].player;
         }
@@ -472,8 +472,8 @@ void Setup_Char_76(WORK_Other* ewk) {
         ewk->wu.my_col_code = 0x1FF;
         ewk->wu.my_clear_level = 0x80;
         ewk->wu.char_index = 9;
-        ewk->wu.dir_step = My_char[gs.Winner_id] + 0x15;
-        ewk->wu.dir_step += chkNameAkuma(My_char[gs.Winner_id], 6);
+        ewk->wu.dir_step = gs.My_char[gs.Winner_id] + 0x15;
+        ewk->wu.dir_step += chkNameAkuma(gs.My_char[gs.Winner_id], 6);
         break;
 
     case 0x2D:
@@ -529,7 +529,7 @@ void Setup_Char_76(WORK_Other* ewk) {
         ewk->wu.direction = 3;
 
         if (ewk->wu.dir_old == 0x37) {
-            ewk->wu.dir_step = My_char[gs.Winner_id];
+            ewk->wu.dir_step = gs.My_char[gs.Winner_id];
         } else {
             ewk->wu.dir_step = Ranking_Data[gs.Order_Dir[ewk->wu.dir_old]].player;
             ewk->wu.direction = 7;
@@ -541,7 +541,7 @@ void Setup_Char_76(WORK_Other* ewk) {
         ewk->wu.my_family = 1;
         ewk->wu.my_col_code = 0x90;
         ewk->wu.char_index = 2;
-        ewk->wu.dir_step = My_char[Final_Result_id];
+        ewk->wu.dir_step = gs.My_char[Final_Result_id];
         ewk->wu.direction = 0;
         break;
 
@@ -551,8 +551,8 @@ void Setup_Char_76(WORK_Other* ewk) {
 
     case 0x35:
         ewk->wu.char_index = 9;
-        ewk->wu.dir_step = My_char[gs.Winner_id];
-        ewk->wu.dir_step += chkNameAkuma(My_char[gs.Winner_id], 6);
+        ewk->wu.dir_step = gs.My_char[gs.Winner_id];
+        ewk->wu.dir_step += chkNameAkuma(gs.My_char[gs.Winner_id], 6);
         Setup_Color_76(ewk);
         break;
 
@@ -618,13 +618,13 @@ s16 Check_Range_Out(WORK_Other* ewk) {
 }
 
 void Setup_Color_76(WORK_Other* ewk) {
-    ewk->wu.my_col_code = Victory_Color_Data[My_char[gs.Winner_id]] + 0x2000;
-    ewk->wu.my_col_code = Victory_Color_Data[My_char[gs.Winner_id]] + 0x2090;
+    ewk->wu.my_col_code = Victory_Color_Data[gs.My_char[gs.Winner_id]] + 0x2000;
+    ewk->wu.my_col_code = Victory_Color_Data[gs.My_char[gs.Winner_id]] + 0x2090;
 }
 
 void Setup_Color_L1(WORK_Other* ewk) {
-    ewk->wu.my_col_code = Victory_Color_Data[My_char[gs.Winner_id]];
-    ewk->wu.my_col_code = Victory_Color_Data[My_char[gs.Winner_id]] + 0x90;
+    ewk->wu.my_col_code = Victory_Color_Data[gs.My_char[gs.Winner_id]];
+    ewk->wu.my_col_code = Victory_Color_Data[gs.My_char[gs.Winner_id]] + 0x90;
 }
 
 s32 chkNameAkuma(s32 plnum, s32 rnum) {

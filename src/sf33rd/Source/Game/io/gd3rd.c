@@ -291,13 +291,13 @@ void Push_LDREQ_Queue_Union(s16 ix) {
 }
 
 void Push_LDREQ_Queue_Metamor() {
-    switch ((My_char[0] == 0x12) + (My_char[1] == 0x12) * 2) {
+    switch ((gs.My_char[0] == 0x12) + (gs.My_char[1] == 0x12) * 2) {
     case 1:
-        Push_LDREQ_Queue_Direct(My_char[1] + 0xD4, 0);
+        Push_LDREQ_Queue_Direct(gs.My_char[1] + 0xD4, 0);
         break;
 
     case 2:
-        Push_LDREQ_Queue_Direct(My_char[0] + 0xD4, 1);
+        Push_LDREQ_Queue_Direct(gs.My_char[0] + 0xD4, 1);
         break;
 
     case 3:

@@ -1149,7 +1149,7 @@ s32 comm_sajp(WORK* wk, UNK11* ctc) {
     PLW* pwk;
 
     if (wk->work_id == 1) {
-        if (My_char[wk->id] != 18 && ((PLW*)wk)->sa->kind_of_arts == ctc->koc && ((PLW*)wk)->sa->ok == -1) {
+        if (gs.My_char[wk->id] != 18 && ((PLW*)wk)->sa->kind_of_arts == ctc->koc && ((PLW*)wk)->sa->ok == -1) {
             return decord_if_jump(wk, ctc, ctc->ix);
         }
     } else {

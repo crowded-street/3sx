@@ -259,7 +259,7 @@ s32 my_rose_live_check(PLW* wk) {
     WORK_Other* twk;
     s16 ix;
 
-    if (wk->player_number != My_char[wk->wu.id]) {
+    if (wk->player_number != gs.My_char[wk->wu.id]) {
         return 1;
     }
 
