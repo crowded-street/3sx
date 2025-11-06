@@ -62,7 +62,7 @@ const u16 Convert_Data[12] = { 16, 32, 64, 256, 512, 1024, 272, 544, 1088, 112, 
 
 void Switch_Screen_Init(s32 /* unused */) {
     WipeInit();
-    Forbid_Break = 1;
+    gs.Forbid_Break = 1;
     Exec_Wipe = 1;
     Gap_Timer = 4;
     Stop_SG = 1;
@@ -1022,7 +1022,7 @@ void Reset_Sub0() {
     Pause = 0;
     Game_pause = 0;
     Play_Game = 0;
-    Forbid_Break = 0;
+    gs.Forbid_Break = 0;
     Extra_Break = 0;
     Mode_Type = MODE_ARCADE;
     Present_Mode = 1;
@@ -1419,7 +1419,7 @@ s32 Request_Fade(u16 fade_code) {
         gs.Fade_Flag = 1;
         Fade_R_No0 = Fade_R_No1 = 0;
         Fade_Number = fade_code;
-        Forbid_Break = 1;
+        gs.Forbid_Break = 1;
         fade_cont_init();
         return 1;
     }
@@ -1438,7 +1438,7 @@ s32 Check_Fade_Complete() {
         return 0;
     }
 
-    Forbid_Break = 1;
+    gs.Forbid_Break = 1;
     return 1;
 }
 

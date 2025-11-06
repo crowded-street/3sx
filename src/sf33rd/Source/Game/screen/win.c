@@ -156,7 +156,7 @@ void Win_3rd() {
         if (Switch_Screen_Revival(1) != 0) {
             M_No[0] += 1;
             M_Timer = 90;
-            Forbid_Break = -1;
+            gs.Forbid_Break = -1;
             Ignore_Entry[LOSER] = 0;
             Target_BG_X[2] = bg_w.bgw[2].wxy[0].disp.pos - 384;
             Offset_BG_X[2] = 0;
@@ -188,7 +188,7 @@ void Win_4th() {
         M_No[0] += 1;
         M_No[1] = 0;
         M_Timer = 0xAA;
-        Forbid_Break = 0;
+        gs.Forbid_Break = 0;
     }
 }
 
@@ -280,7 +280,7 @@ void Lose_3rd() {
         if (Switch_Screen_Revival(1) != 0) {
             M_No[0] += 1;
             M_Timer = 90;
-            Forbid_Break = -1;
+            gs.Forbid_Break = -1;
             Ignore_Entry[LOSER] = 0;
         }
 

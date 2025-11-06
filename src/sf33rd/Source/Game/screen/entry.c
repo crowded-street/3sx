@@ -798,7 +798,7 @@ void Entry_Main_Sub(s16 PL_id, s16 Jump_Index) {
             break;
 
         case 2:
-            if (Forbid_Break != 1) {
+            if (gs.Forbid_Break != 1) {
                 if (PL_id == 0) {
                     Naming_Cut_Sub_1P();
                 } else {
@@ -1301,7 +1301,7 @@ s32 Ck_Break_Into(u16 Sw_0, u16 Sw_1, s16 PL_id) {
     }
 
     if (Request_Break[PL_id]) {
-        if (Forbid_Break || Extra_Break) {
+        if (gs.Forbid_Break || Extra_Break) {
             return 0;
         }
 
@@ -1318,7 +1318,7 @@ s32 Ck_Break_Into(u16 Sw_0, u16 Sw_1, s16 PL_id) {
 
     Continue_Score_Sub(PL_id);
 
-    if (Forbid_Break || Extra_Break) {
+    if (gs.Forbid_Break || Extra_Break) {
         Request_Break[PL_id] = 1;
     } else {
         Game_pause = 1;

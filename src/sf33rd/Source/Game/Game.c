@@ -988,7 +988,7 @@ void Game06() {
         case 4:
             if (Switch_Screen(1) != 0) {
                 Cover_Timer = 24;
-                Forbid_Break = 0;
+                gs.Forbid_Break = 0;
                 Clear_Flash_No();
                 Clear_Personal_Data(LOSER);
                 grade_check_work_1st_init(LOSER, 0);
@@ -1161,7 +1161,7 @@ s32 Disp_Ranking() {
 
         if (Switch_Screen_Revival(1) != 0) {
             G_No[3] += 1;
-            Forbid_Break = 0;
+            gs.Forbid_Break = 0;
         }
 
         break;
@@ -1329,7 +1329,7 @@ void Game09() {
 
         if (Switch_Screen_Revival(1) != 0) {
             G_No[2] += 1;
-            Forbid_Break = 0;
+            gs.Forbid_Break = 0;
         }
 
         break;

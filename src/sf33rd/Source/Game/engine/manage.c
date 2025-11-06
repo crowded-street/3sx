@@ -376,7 +376,7 @@ void Game_Manage_2_2() {
     }
 
     C_No[1]++;
-    Forbid_Break = 0;
+    gs.Forbid_Break = 0;
     Extra_Break = 0;
     Complete_Victory = 0;
     Conclusion_Flag = 0;
@@ -438,7 +438,7 @@ void Game_Manage_2_4() {
 
         C_No[2]++;
         C_Timer = 3;
-        Forbid_Break = 1;
+        gs.Forbid_Break = 1;
         FadeInit();
         FadeOut(0, 0xFF, 8);
         Disp_Cockpit = 1;
@@ -471,7 +471,7 @@ void Game_Manage_2_4() {
 
     case 2:
         C_No[2]++;
-        Forbid_Break = 0;
+        gs.Forbid_Break = 0;
         break;
 
     case 3:
@@ -511,7 +511,7 @@ void Game_Manage_3rd() {
     }
 
     C_No[0]++;
-    Forbid_Break = -1;
+    gs.Forbid_Break = -1;
     gs.Allow_a_battle_f = 0;
     count_end = 1;
     Check_Conclusion_Type();
@@ -933,7 +933,7 @@ void Game_Manage_81_0() {
     Check_Fade_Out_BGM(546);
     C_No[2]++;
     C_Timer = 20;
-    Forbid_Break = -1;
+    gs.Forbid_Break = -1;
     pos_id = 0;
     pos_id2 = 0;
     time = 1;
@@ -1024,7 +1024,7 @@ void Game_Manage_8_2() {
     }
 
     if (Check_Entry_Again()) {
-        Forbid_Break = 0;
+        gs.Forbid_Break = 0;
     }
 
     Disp_Cockpit = 0;
@@ -1647,7 +1647,7 @@ void Quick_Entry() {
     s8 grade;
 
     if (Check_Entry_Again()) {
-        Forbid_Break = 0;
+        gs.Forbid_Break = 0;
         Extra_Break = 0;
     }
 
@@ -1872,7 +1872,7 @@ s32 Check_BI_Grade(s16 PL_id) {
 void Game_Manage_11th() {
     switch (C_No[1]) {
     case 0:
-        Forbid_Break = -1;
+        gs.Forbid_Break = -1;
         C_No[1]++;
         EM_Rank = 2;
         Q_Country = Battle_Country;
@@ -2004,7 +2004,7 @@ void Game_Manage_12_2() {
     C_No[2] = 0;
     C_Timer = 30;
     gs.Allow_a_battle_f = 0;
-    Forbid_Break = -1;
+    gs.Forbid_Break = -1;
     Completion_Bonus[Player_id][1] = -128;
     Stock_Bonus_Game_Result = Bonus_Game_result;
     gs.Bonus_Score = 0;
@@ -2180,7 +2180,7 @@ void Game_Manage_12_4() {
             C_No[2] = 0;
             C_No[3] = 0;
             C_Timer = 10;
-            Forbid_Break = 0;
+            gs.Forbid_Break = 0;
             gs.Suicide[5] = 1;
             Check_Fade_Out_BGM(546);
         }
@@ -2232,7 +2232,7 @@ void Game_Manage_12_7() {
     C_No[3] = 0;
     C_Timer = 30;
     gs.Allow_a_battle_f = 0;
-    Forbid_Break = -1;
+    gs.Forbid_Break = -1;
     Completion_Bonus[Player_id][0] = -128;
     gs.Final_Bonus_Score = Setup_Final_Score(20);
     grade_makeup_bonus_parameter(Player_id);
@@ -2337,7 +2337,7 @@ void Game_Manage_12_8() {
             C_No[2] = 0;
             C_No[3] = 0;
             C_Timer = 10;
-            Forbid_Break = 0;
+            gs.Forbid_Break = 0;
             gs.Suicide[5] = -128;
             Check_Fade_Out_BGM(546);
         }

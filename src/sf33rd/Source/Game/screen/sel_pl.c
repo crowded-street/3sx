@@ -316,7 +316,7 @@ void Sel_PL_Cont_3rd() {
     }
 
     gs.S_No[0]++;
-    Forbid_Break = 0;
+    gs.Forbid_Break = 0;
 
     if (G_No[1] != 1) {
         // This is a comparison to zero in the decomp. Might be a programmer error
@@ -1619,7 +1619,7 @@ void Exit_4th() {
     FadeInit();
     FadeIn(0, 4, 8);
     Exit_No++;
-    Forbid_Break = 0;
+    gs.Forbid_Break = 0;
     gs.Suicide[0] = 1;
     Menu_Suicide[0] = 1;
     bgPalCodeOffset[0] = 144;

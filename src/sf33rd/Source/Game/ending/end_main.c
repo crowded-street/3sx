@@ -98,7 +98,7 @@ void normal_ending(s16 pl_num) {
         if (Switch_Screen_Revival(1)) {
             end_w.r_no_0++;
             Ignore_Entry[LOSER] = 0;
-            Forbid_Break = -1;
+            gs.Forbid_Break = -1;
         }
 
         break;
@@ -118,7 +118,7 @@ void normal_ending(s16 pl_num) {
             end_fade_flag = 0;
         }
 
-        Forbid_Break = -1;
+        gs.Forbid_Break = -1;
         break;
 
     case 4:
@@ -128,7 +128,7 @@ void normal_ending(s16 pl_num) {
             end_w.r_no_0++;
         }
 
-        Forbid_Break = -1;
+        gs.Forbid_Break = -1;
         break;
 
     case 5:
@@ -153,7 +153,7 @@ void normal_ending(s16 pl_num) {
             Bg_Off_W(0xF);
         }
 
-        Forbid_Break = -1;
+        gs.Forbid_Break = -1;
         break;
 
     case 6:
@@ -166,7 +166,7 @@ void normal_ending(s16 pl_num) {
         overwrite_panel(0xFF000000, 0x12);
         Request_Fade(6);
         end_no_cut = 1;
-        Forbid_Break = -1;
+        gs.Forbid_Break = -1;
         break;
 
     case 8:
@@ -176,7 +176,7 @@ void normal_ending(s16 pl_num) {
             Bg_Close();
         }
 
-        Forbid_Break = -1;
+        gs.Forbid_Break = -1;
         break;
 
     case 9:
@@ -235,7 +235,7 @@ void end_main_move(s16 pl_num) {
 void fadeout_to_staff_roll() {
     Request_Fade(7);
     end_no_cut = 1;
-    Forbid_Break = -1;
+    gs.Forbid_Break = -1;
 }
 
 void common_end_init00(s16 pl_num) {
@@ -390,7 +390,7 @@ void end_fade_bgm() {
 
 s16 end_fade_complete() {
     if (Check_Fade_Complete()) {
-        Forbid_Break = -1;
+        gs.Forbid_Break = -1;
         return 1;
     }
 

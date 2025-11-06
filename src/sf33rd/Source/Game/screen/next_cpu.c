@@ -297,7 +297,7 @@ void Next_CPU_4th() {
 void Next_CPU_4th_0_Sub() {
     FadeIn(0, 4, 8);
     SC_No[1]++;
-    Forbid_Break = 0;
+    gs.Forbid_Break = 0;
     bgPalCodeOffset[0] = 144;
     BGM_Request(51);
     S_Timer = 178;
@@ -386,7 +386,7 @@ void Next_CPU_5th() {
     case 4:
         if (Switch_Screen_Revival(1) != 0) {
             SC_No[1]++;
-            Forbid_Break = 0;
+            gs.Forbid_Break = 0;
         }
 
         break;
@@ -405,7 +405,7 @@ void Next_CPU_5th() {
             FadeInit();
             FadeIn(0, 4, 8);
             SC_No[1]++;
-            Forbid_Break = 0;
+            gs.Forbid_Break = 0;
             gs.Suicide[3] = 1;
             effect_43_init(1, 0);
             BGM_Request(0x33);
@@ -584,7 +584,7 @@ void After_Bonus_2nd() {
             SC_No[1] = 0;
             S_Timer = 30;
             BGM_Request(57);
-            Forbid_Break = 0;
+            gs.Forbid_Break = 0;
             Ignore_Entry[LOSER] = 0;
         }
 
@@ -1013,7 +1013,7 @@ void Next_Q_2nd() {
             SC_No[0]++;
             SC_No[1] = 0;
             S_Timer = 10;
-            Forbid_Break = 0;
+            gs.Forbid_Break = 0;
             Ignore_Entry[LOSER] = 0;
         }
 
@@ -1034,7 +1034,7 @@ void Next_Q_3rd() {
         FadeInit();
         FadeIn(0, 4, 8);
         SC_No[1]++;
-        Forbid_Break = 0;
+        gs.Forbid_Break = 0;
         effect_43_init(1, 0);
         bgPalCodeOffset[0] = 144;
         BGM_Request(51);

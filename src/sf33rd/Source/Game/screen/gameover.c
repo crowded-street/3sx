@@ -106,7 +106,7 @@ void GameOver_2nd() {
 
     case 1:
         GO_No[1] += 1;
-        Forbid_Break = 0;
+        gs.Forbid_Break = 0;
         FadeInit();
         return;
 
@@ -136,7 +136,7 @@ void GameOver_2nd() {
 
         if (--Cover_Timer == 0) {
             GO_No[1] += 1;
-            Forbid_Break = -1;
+            gs.Forbid_Break = -1;
             FadeInit();
             return;
         }
@@ -145,7 +145,7 @@ void GameOver_2nd() {
 
     case 4:
         if (FadeIn(1, 8, 8) != 0) {
-            Forbid_Break = 0;
+            gs.Forbid_Break = 0;
             BGM_Request(54);
             Ignore_Entry[LOSER] = 0;
 

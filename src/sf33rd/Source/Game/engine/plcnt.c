@@ -1056,7 +1056,7 @@ void settle_check() {
                 Round_Result |= gs.plw[gs.Loser_id].wu.dm_koa;
 
                 if ((Round_Result & 0x800) && gouki_wins) {
-                    Forbid_Break = -1;
+                    gs.Forbid_Break = -1;
                     Shin_Gouki_BGM = 1;
                     Control_Music_Fade(0x96);
                     setup_settle_rno(4);
