@@ -1874,12 +1874,12 @@ void sa_number_write(s8 Stpl_Num, u16 x) {
         if (gs.My_char[0] == 0) {
             scfont_sqput2(x, 26, 14, 0, 2, 27, 2, 2, 2);
         } else {
-            scfont_sqput2(x, 26, 14, 0, 2, (Super_Arts[0] * 2) + 21, 2, 2, 2);
+            scfont_sqput2(x, 26, 14, 0, 2, (gs.Super_Arts[0] * 2) + 21, 2, 2, 2);
         }
     } else if (gs.My_char[1] == 0) {
         scfont_sqput2(x, 26, 142, 1, 2, 27, 2, 2, 2);
     } else {
-        scfont_sqput2(x, 26, 142, 1, 2, (Super_Arts[1] * 2) + 21, 2, 2, 2);
+        scfont_sqput2(x, 26, 142, 1, 2, (gs.Super_Arts[1] * 2) + 21, 2, 2, 2);
     }
 }
 

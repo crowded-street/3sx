@@ -1361,12 +1361,12 @@ void set_super_arts_status(s16 ix) {
     const SA_DATA* saptr;
 
     if (cmd_sel[ix] || no_sa[ix]) {
-        saptr = &super_arts_DATA[gs.My_char[ix]][Super_Arts[ix]];
+        saptr = &super_arts_DATA[gs.My_char[ix]][gs.Super_Arts[ix]];
     } else {
-        saptr = &super_arts_data[gs.My_char[ix]][Super_Arts[ix]];
+        saptr = &super_arts_data[gs.My_char[ix]][gs.Super_Arts[ix]];
     }
 
-    gs.super_arts[ix].kind_of_arts = Super_Arts[ix];
+    gs.super_arts[ix].kind_of_arts = gs.Super_Arts[ix];
     gs.super_arts[ix].nmsa_g_ix = saptr->nmsa_g_ix;
     gs.super_arts[ix].exsa_g_ix = saptr->exsa_g_ix;
     gs.super_arts[ix].exs2_g_ix = saptr->exs2_g_ix;
@@ -1419,12 +1419,12 @@ void set_super_arts_status_dc(s16 ix) {
     const SA_DATA* saptr;
 
     if (cmd_sel[ix] || no_sa[ix]) {
-        saptr = &super_arts_DATA[gs.My_char[ix]][Super_Arts[ix]];
+        saptr = &super_arts_DATA[gs.My_char[ix]][gs.Super_Arts[ix]];
     } else {
-        saptr = &super_arts_data[gs.My_char[ix]][Super_Arts[ix]];
+        saptr = &super_arts_data[gs.My_char[ix]][gs.Super_Arts[ix]];
     }
 
-    gs.super_arts[ix].kind_of_arts = Super_Arts[ix];
+    gs.super_arts[ix].kind_of_arts = gs.Super_Arts[ix];
     gs.super_arts[ix].nmsa_g_ix = saptr->nmsa_g_ix;
     gs.super_arts[ix].exsa_g_ix = saptr->exsa_g_ix;
     gs.super_arts[ix].exs2_g_ix = saptr->exs2_g_ix;

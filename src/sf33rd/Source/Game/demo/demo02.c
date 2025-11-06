@@ -273,8 +273,8 @@ void Setup_Demo_PL() {
 }
 
 void Setup_Demo_Arts() {
-    Super_Arts[0] = Arts_Rnd_Demo_Data[random_16() & 7];
-    Super_Arts[1] = Arts_Rnd_Demo_Data[random_16() & 7];
+    gs.Super_Arts[0] = Arts_Rnd_Demo_Data[random_16() & 7];
+    gs.Super_Arts[1] = Arts_Rnd_Demo_Data[random_16() & 7];
     Player_Color[0] = 0;
     Player_Color[1] = 0;
 }

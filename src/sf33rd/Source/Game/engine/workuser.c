@@ -15,7 +15,6 @@ const_s16_arr Tech_Address[2];
 void* Shell_Address[2];
 void* Synchro_Address[2][2];
 
-s8 Super_Arts[2];
 s8 Forbid_Break;
 s8 Request_Break[2];
 s8 Continue_Count[2];

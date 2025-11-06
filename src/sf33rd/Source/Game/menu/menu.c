@@ -1483,7 +1483,7 @@ void Load_Replay_Sub(struct _TASK* task_ptr) {
             gs.plw[ix].wu.operator = Replay_w.game_infor.player_infor[ix].player_type;
             Operator_Status[ix] = Replay_w.game_infor.player_infor[ix].player_type;
             gs.My_char[ix] = Replay_w.game_infor.player_infor[ix].my_char;
-            Super_Arts[ix] = Replay_w.game_infor.player_infor[ix].sa;
+            gs.Super_Arts[ix] = Replay_w.game_infor.player_infor[ix].sa;
             Player_Color[ix] = Replay_w.game_infor.player_infor[ix].color;
             Vital_Handicap[3][ix] = Replay_w.game_infor.Vital_Handicap[ix];
         }

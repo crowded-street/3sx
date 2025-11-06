@@ -766,7 +766,7 @@ void Select_CPU_3rd() {
         gs.Order_Timer[COM_id + 11] = 1;
 
         if (check_use_all_SA() == 0 && check_without_SA() == 0 && EM_id != 0) {
-            effect_98_init(COM_id, COM_id + 0x28, Super_Arts[COM_id], 2);
+            effect_98_init(COM_id, COM_id + 0x28, gs.Super_Arts[COM_id], 2);
             gs.Order[COM_id + 40] = 1;
             gs.Order_Timer[COM_id + 40] = 1;
         }
@@ -1154,10 +1154,10 @@ void Setup_Next_Fighter() {
 
     Push_LDREQ_Queue_BG(bg_w.stage + 0);
     bg_w.area = 0;
-    Super_Arts[COM_id] = Stock_Com_Arts[Player_id] = Setup_Com_Arts();
+    gs.Super_Arts[COM_id] = Stock_Com_Arts[Player_id] = Setup_Com_Arts();
 
     if (Debug_w[32]) {
-        Super_Arts[COM_id] = bg_w.stage = Debug_w[32] - 1;
+        gs.Super_Arts[COM_id] = bg_w.stage = Debug_w[32] - 1;
     }
 
     Setup_Com_Color();

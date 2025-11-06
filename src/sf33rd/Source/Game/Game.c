@@ -1809,8 +1809,8 @@ void Before_Select_Sub() {
         Control_Time = 481;
     }
 
-    Super_Arts[0] = 0;
-    Super_Arts[1] = 0;
+    gs.Super_Arts[0] = 0;
+    gs.Super_Arts[1] = 0;
     Exec_Wipe = 0;
     gs.Fade_Flag = 0;
     Stock_Com_Color[0] = -1;

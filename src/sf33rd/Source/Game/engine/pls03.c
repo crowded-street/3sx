@@ -310,7 +310,7 @@ s16 check_super_arts_attack(PLW* wk) {
     if (cmd_sel[wk->wu.id]) {
         if (wk->sa->ok != -1) {
             for (i = 0; i < 3; i++) {
-                Super_Arts[wk->wu.id] = i;
+                gs.Super_Arts[wk->wu.id] = i;
                 set_super_arts_status_dc(wk->wu.id);
                 rnum = check_super_arts_attack_dc(wk);
 

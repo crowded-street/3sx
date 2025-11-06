@@ -870,9 +870,9 @@ void PL_Sel_5th() {}
 void Setup_Plates(s8 PL_id, s16 Time) {
     Move_Super_Arts[PL_id] = 3;
     Select_Arts[PL_id] = 3;
-    effect_79_init(PL_id, 0, Arts_Y_Data[Super_Arts[PL_id]][0], Time, 2);
-    effect_79_init(PL_id, 1, Arts_Y_Data[Super_Arts[PL_id]][1], Time, 2);
-    effect_79_init(PL_id, 2, Arts_Y_Data[Super_Arts[PL_id]][2], Time, 2);
+    effect_79_init(PL_id, 0, Arts_Y_Data[gs.Super_Arts[PL_id]][0], Time, 2);
+    effect_79_init(PL_id, 1, Arts_Y_Data[gs.Super_Arts[PL_id]][1], Time, 2);
+    effect_79_init(PL_id, 2, Arts_Y_Data[gs.Super_Arts[PL_id]][2], Time, 2);
 }
 
 void Sel_PL() {
@@ -922,7 +922,7 @@ void Sel_PL_1st() {
         return;
     }
 
-    Arts_Y[ID] = Super_Arts[ID] = Last_Super_Arts[ID];
+    Arts_Y[ID] = gs.Super_Arts[ID] = Last_Super_Arts[ID];
 }
 
 void Sel_PL_2nd() {
@@ -1154,7 +1154,7 @@ void Sel_PL_Sub(s16 PL_id, u16 sw) {
     gs.My_char[PL_id] = ID_of_Face[gs.Cursor_Y[PL_id]][gs.Cursor_X[PL_id]];
 
     if (Last_My_char2[PL_id] != gs.My_char[PL_id]) {
-        Arts_Y[ID] = Super_Arts[ID] = Last_Super_Arts[ID] = 0;
+        Arts_Y[ID] = gs.Super_Arts[ID] = Last_Super_Arts[ID] = 0;
         Introduce_Boss[ID][0] = 0;
     }
 
@@ -1511,7 +1511,7 @@ void Sel_Arts_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
         Stop_Cursor[ID] = 1;
         Slide_Type = PL_id;
         Sel_Arts_Complete[PL_id] = 1;
-        Last_Super_Arts[PL_id] = Super_Arts[PL_id] = Arts_Y[PL_id];
+        Last_Super_Arts[PL_id] = gs.Super_Arts[PL_id] = Arts_Y[PL_id];
         Sound_SE(ID + 98);
         Sound_SE(*Free_Ptr[PL_id]++);
         Setup_ID();

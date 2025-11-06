@@ -1110,7 +1110,7 @@ void Setup_Replay_Header() {
 
     for (ix = 0; ix < 2; ix++) {
         Rep_Game_Infor[10].player_infor[ix].my_char = gs.My_char[ix];
-        Rep_Game_Infor[10].player_infor[ix].sa = Super_Arts[ix];
+        Rep_Game_Infor[10].player_infor[ix].sa = gs.Super_Arts[ix];
         Rep_Game_Infor[10].player_infor[ix].color = Player_Color[ix];
         Rep_Game_Infor[10].player_infor[ix].player_type = gs.plw[ix].wu.operator;
         Rep_Game_Infor[10].Vital_Handicap[ix] = Vital_Handicap[Present_Mode][ix];

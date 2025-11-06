@@ -3917,7 +3917,7 @@ s32 Command_Type_06(PLW* wk, s16 Power_Level, u16 Tech_Number, s16 Ex_Shot) {
     xx = 0;
 
     if (Tech_Number & 0x8000) {
-        if ((gs.My_char[wk->wu.id] == 6) && (Super_Arts[wk->wu.id] == 0)) {
+        if ((gs.My_char[wk->wu.id] == 6) && (gs.Super_Arts[wk->wu.id] == 0)) {
             xx = 1;
         }
     }
