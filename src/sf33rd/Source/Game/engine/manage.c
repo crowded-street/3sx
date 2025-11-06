@@ -241,7 +241,7 @@ void Clear_1Stage_Work() {
     s16 xx;
 
     for (xx = 0; xx < 2; xx++) {
-        Vital_Bonus[xx] = 0;
+        gs.Vital_Bonus[xx] = 0;
         Time_Bonus[xx] = 0;
         Perfect_Bonus[xx] = 0;
         Perfect_Counter[xx] = 0;
@@ -960,7 +960,7 @@ void Game_Manage_81_0() {
     gs.Order_Dir[78] = pos_id++;
     effect_76_init(78);
     gs.Order[83] = 0;
-    effect_G0_init(83, time, Vital_Bonus[Winner_id], pos_id2++);
+    effect_G0_init(83, time, gs.Vital_Bonus[Winner_id], pos_id2++);
     time += 5;
     gs.Order[79] = 1;
     gs.Order_Timer[79] = time;
@@ -1253,7 +1253,7 @@ s32 Check_Ending_Sub() {
 void Additional_Bonus(s16 PL_id) {
     gs.Complete_Bonus = Setup_Comp_Bonus();
     gs.Score[PL_id][gs.Play_Type] += Perfect_Bonus[Winner_id];
-    gs.Score[PL_id][gs.Play_Type] += Vital_Bonus[Winner_id];
+    gs.Score[PL_id][gs.Play_Type] += gs.Vital_Bonus[Winner_id];
     gs.Score[PL_id][gs.Play_Type] += Time_Bonus[Winner_id];
     gs.Score[PL_id][gs.Play_Type] += gs.Complete_Bonus;
 
@@ -1751,14 +1751,13 @@ void Pool_Score(s16 PL_id) {
 
     Score_Buff = gs.plw[PL_id].wu.vital_new * 100 / Max_vitality;
     Score_Buff *= 500;
-    Vital_Bonus[Winner_id] += Score_Buff;
+    gs.Vital_Bonus[Winner_id] += Score_Buff;
 
     if (save_w[Present_Mode].Time_Limit == -1) {
         Time_Bonus[Winner_id] = 0;
-        return;
+    } else {
+        Time_Bonus[Winner_id] += gs.round_timer * 300;
     }
-
-    Time_Bonus[Winner_id] += gs.round_timer * 300;
 }
 
 s32 Check_Break_Into_CPU(s16 PL_id) {
