@@ -2009,7 +2009,7 @@ void Game_Manage_12_2() {
     Forbid_Break = -1;
     Completion_Bonus[Player_id][1] = -128;
     Stock_Bonus_Game_Result = Bonus_Game_result;
-    Bonus_Score = 0;
+    gs.Bonus_Score = 0;
     Final_Bonus_Score = Setup_Final_Score(21);
     effect_58_init(6, 10, 169);
     grade_makeup_bonus_parameter(Player_id);
@@ -2071,7 +2071,7 @@ void Game_Manage_12_4() {
             C_No[2]++;
             C_Timer = 20;
             effect_08_init(7, 0, 1, 15, 0);
-            Disp_Score_Buff[0] = Bonus_Score;
+            Disp_Score_Buff[0] = gs.Bonus_Score;
             effect_14_init(0, 35, 11, 15);
         }
 
@@ -2081,7 +2081,7 @@ void Game_Manage_12_4() {
         if (Bonus_Cut_Sub() == 0 && --C_Timer == 0) {
             C_No[2]++;
             C_Timer = 1;
-            Bonus_Score = 0;
+            gs.Bonus_Score = 0;
         }
 
         break;
@@ -2097,9 +2097,9 @@ void Game_Manage_12_4() {
             if (Bonus_Game_result == 0) {
                 Bonus_Game_result = 1;
             } else {
-                Bonus_Score += 1000;
+                gs.Bonus_Score += 1000;
                 gs.Score[Player_id][0] += 1000;
-                Disp_Score_Buff[0] = Bonus_Score;
+                Disp_Score_Buff[0] = gs.Bonus_Score;
                 Sound_SE(100);
             }
 
@@ -2282,9 +2282,9 @@ void Game_Manage_12_8() {
         if (Bonus_Cut_Sub() == 0 && --C_Timer == 0) {
             C_No[2]++;
             C_Timer = 20;
-            gs.Score[Player_id][0] += Bonus_Score;
+            gs.Score[Player_id][0] += gs.Bonus_Score;
             effect_08_init(7, 0, 1, 15, 0);
-            Disp_Score_Buff[0] = Bonus_Score;
+            Disp_Score_Buff[0] = gs.Bonus_Score;
             effect_14_init(0, 35, 11, 15);
 
             if (Bonus_Game_result == 0) {
@@ -2309,17 +2309,17 @@ void Game_Manage_12_8() {
                 C_No[2]++;
                 C_Timer = 30;
                 C_Timer = 3;
-                Bonus_Score += 1000;
+                gs.Bonus_Score += 1000;
                 gs.Score[Player_id][0] += 1000;
-                Disp_Score_Buff[0] = Bonus_Score;
+                Disp_Score_Buff[0] = gs.Bonus_Score;
                 Sound_SE(100);
                 break;
             }
 
             C_Timer = 3;
-            Bonus_Score += 1000;
+            gs.Bonus_Score += 1000;
             gs.Score[Player_id][0] += 1000;
-            Disp_Score_Buff[0] = Bonus_Score;
+            Disp_Score_Buff[0] = gs.Bonus_Score;
             Sound_SE(100);
         }
 
@@ -2442,7 +2442,7 @@ u32 Setup_Final_Score(s16 Type) {
         break;
     }
 
-    Bonus_Score = xx;
+    gs.Bonus_Score = xx;
     xx += gs.Counter_hi * 1000;
     Bonus_Score_Plus = xx;
     xx += gs.Score[Player_id][0];
