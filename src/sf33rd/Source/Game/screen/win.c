@@ -96,36 +96,36 @@ void Win_2nd() {
     M_No[0] += 1;
 
     gs.Order[0x37] = 1;
-    Order_Timer[0x37] = 1;
+    gs.Order_Timer[0x37] = 1;
     effect_76_init(0x37);
 
     gs.Order[0x35] = 3;
-    Order_Timer[0x35] = 1;
+    gs.Order_Timer[0x35] = 1;
     effect_76_init(0x35);
 
     gs.Order[0x34] = 3;
-    Order_Timer[0x34] = 1;
+    gs.Order_Timer[0x34] = 1;
     effect_76_init(0x34);
 
     gs.Order[0x2B] = 3;
-    Order_Timer[0x2B] = 1;
+    gs.Order_Timer[0x2B] = 1;
     effect_76_init(0x2B);
 
     gs.Order[0x3A] = 3;
-    Order_Timer[0x3A] = 1;
+    gs.Order_Timer[0x3A] = 1;
     effect_76_init(0x3A);
 
     gs.Order[0x2C] = 3;
-    Order_Timer[0x2C] = 1;
+    gs.Order_Timer[0x2C] = 1;
     effect_76_init(0x2C);
 
     gs.Order[0x2D] = 1;
     Order_Dir[0x2D] = 4;
-    Order_Timer[0x2D] = 0x1E;
+    gs.Order_Timer[0x2D] = 0x1E;
     effect_76_init(0x2D);
 
     gs.Order[0x38] = 6;
-    Order_Timer[0x38] = 1;
+    gs.Order_Timer[0x38] = 1;
     effect_76_init(0x38);
 
     WGJ_Score = Continue_Coin[Winner_id] + Score[Winner_id][gs.Play_Type];
@@ -244,24 +244,24 @@ void Lose_2nd() {
     M_No[0] += 1;
 
     gs.Order[0x37] = 1;
-    Order_Timer[0x37] = 1;
+    gs.Order_Timer[0x37] = 1;
     effect_76_init(0x37);
 
     gs.Order[0x40] = 3;
-    Order_Timer[0x40] = 1;
+    gs.Order_Timer[0x40] = 1;
     effect_76_init(0x40);
 
     gs.Order[0x36] = 3;
-    Order_Timer[0x36] = 1;
+    gs.Order_Timer[0x36] = 1;
     effect_76_init(0x36);
 
     gs.Order[0x39] = 3;
-    Order_Timer[0x39] = 1;
+    gs.Order_Timer[0x39] = 1;
     effect_76_init(0x39);
 
     gs.Order[0x2D] = 1;
     Order_Dir[0x2D] = 4;
-    Order_Timer[0x2D] = 30;
+    gs.Order_Timer[0x2D] = 30;
     effect_76_init(0x2D);
 
     effect_B8_init(WINNER, 0x3C);
@@ -304,18 +304,18 @@ void Setup_Wins_OBJ() {
     if (WGJ_Win > 1) {
         effect_76_init(0x2F);
         gs.Order[0x2F] = 3;
-        Order_Timer[0x2F] = 1;
+        gs.Order_Timer[0x2F] = 1;
 
         effect_76_init(0x31);
         gs.Order[0x31] = 3;
-        Order_Timer[0x31] = 1;
+        gs.Order_Timer[0x31] = 1;
     } else {
         effect_76_init(0x2E);
         gs.Order[0x2E] = 3;
-        Order_Timer[0x2E] = 1;
+        gs.Order_Timer[0x2E] = 1;
 
         effect_76_init(0x30);
         gs.Order[0x30] = 3;
-        Order_Timer[0x30] = 1;
+        gs.Order_Timer[0x30] = 1;
     }
 }

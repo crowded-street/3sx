@@ -69,12 +69,12 @@ void EFF76_WAIT(WORK_Other* ewk) {
         gs.Order[ewk->wu.dir_old] = 4;
         ewk->wu.routine_no[0] = 4;
         ewk->wu.routine_no[1] = 0;
-        Order_Timer[ewk->wu.dir_old] = 1;
+        gs.Order_Timer[ewk->wu.dir_old] = 1;
     } else if (gs.Suicide[ewk->wu.direction] != 0) {
         gs.Order[ewk->wu.dir_old] = 4;
         ewk->wu.routine_no[0] = 4;
         ewk->wu.routine_no[1] = 1;
-        Order_Timer[ewk->wu.dir_old] = 1;
+        gs.Order_Timer[ewk->wu.dir_old] = 1;
         ewk->wu.disp_flag = 0;
     } else if ((ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old])) {
         ewk->wu.routine_no[1] = 0;
@@ -86,7 +86,7 @@ void EFF76_WAIT_BREAK_INTO(WORK_Other* ewk) {
         gs.Order[ewk->wu.dir_old] = 4;
         ewk->wu.routine_no[0] = 4;
         ewk->wu.routine_no[1] = 1;
-        Order_Timer[ewk->wu.dir_old] = 1;
+        gs.Order_Timer[ewk->wu.dir_old] = 1;
         ewk->wu.disp_flag = 0;
     } else if ((ewk->wu.routine_no[0] = gs.Order[ewk->wu.dir_old])) {
         ewk->wu.routine_no[1] = 0;
@@ -102,7 +102,7 @@ void EFF76_SLIDE_IN(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (!--Order_Timer[ewk->wu.dir_old]) {
+        if (!--gs.Order_Timer[ewk->wu.dir_old]) {
             ewk->wu.routine_no[1]++;
             ewk->wu.disp_flag = 1;
             set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
@@ -143,7 +143,7 @@ void EFF76_SLIDE_OUT(WORK_Other* /* unused */) {
 void EFF76_SUDDENLY(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old] == 0) {
+        if (--gs.Order_Timer[ewk->wu.dir_old] == 0) {
             ewk->wu.routine_no[1]++;
             ewk->wu.disp_flag = 0;
         }
@@ -200,7 +200,7 @@ void EFF76_SUDDENLY(WORK_Other* ewk) {
 }
 
 void EFF76_BEFORE(WORK_Other* ewk) {
-    if (--Order_Timer[ewk->wu.dir_old] != 0) {
+    if (--gs.Order_Timer[ewk->wu.dir_old] != 0) {
         return;
     }
 
@@ -218,7 +218,7 @@ void EFF76_SHIFT(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old] == 0) {
+        if (--gs.Order_Timer[ewk->wu.dir_old] == 0) {
             ewk->wu.routine_no[1]++;
             ewk->wu.hit_quake = ewk->wu.xyz[0].disp.pos - 160;
             ewk->wu.mvxy.a[0].sp = -0x60000;

@@ -66,7 +66,7 @@ void EFF63_SLIDE_IN(WORK_Other_CONN* ewk) {
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old]) {
+        if (--gs.Order_Timer[ewk->wu.dir_old]) {
             break;
         }
 

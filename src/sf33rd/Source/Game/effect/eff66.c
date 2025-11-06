@@ -95,7 +95,7 @@ void EFF66_SLIDE_IN(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old]) {
+        if (--gs.Order_Timer[ewk->wu.dir_old]) {
             break;
         }
 
@@ -203,7 +203,7 @@ void EFF66_SUDDENLY(WORK_Other* ewk) {
 }
 
 void Setup_Pos_66(WORK_Other* ewk) {
-    if (--Order_Timer[ewk->wu.dir_old]) {
+    if (--gs.Order_Timer[ewk->wu.dir_old]) {
         return;
     }
 

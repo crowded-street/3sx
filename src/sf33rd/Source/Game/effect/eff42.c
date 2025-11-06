@@ -37,7 +37,7 @@ void effect_42_move(WORK_Other* ewk) {
 void EFF42_SUDDENLY(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[6]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old] != 0) {
+        if (--gs.Order_Timer[ewk->wu.dir_old] != 0) {
             break;
         }
 
@@ -76,7 +76,7 @@ void EFF42_SLIDE_IN(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[6]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old] != 0) {
+        if (--gs.Order_Timer[ewk->wu.dir_old] != 0) {
             break;
         }
 
@@ -121,7 +121,7 @@ void EFF42_SLIDE_IN(WORK_Other* ewk) {
 void EFF42_SLIDE_OUT(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[6]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old] != 0) {
+        if (--gs.Order_Timer[ewk->wu.dir_old] != 0) {
             break;
         }
 
@@ -157,7 +157,7 @@ void EFF42_SLIDE_OUT(WORK_Other* ewk) {
 void EFF42_KILL(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old] == 0) {
+        if (--gs.Order_Timer[ewk->wu.dir_old] == 0) {
             ewk->wu.routine_no[1] += 1;
             ewk->wu.disp_flag = 0;
         }

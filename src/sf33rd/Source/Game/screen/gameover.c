@@ -67,7 +67,7 @@ void GameOver_1st() {
         if (Break_Com[WINNER][0]) {
             effect_76_init(0x38);
             gs.Order[0x38] = 3;
-            Order_Timer[0x38] = 1;
+            gs.Order_Timer[0x38] = 1;
             return;
         }
 
@@ -125,7 +125,7 @@ void GameOver_2nd() {
             Setup_Result_OBJ();
             effect_76_init(0x41);
             gs.Order[0x41] = 3;
-            Order_Timer[0x41] = 1;
+            gs.Order_Timer[0x41] = 1;
             return;
         }
 
@@ -203,11 +203,11 @@ void GameOver_3rd() {
 void Setup_Result_OBJ() {
     effect_76_init(0x32);
     gs.Order[0x32] = 3;
-    Order_Timer[0x32] = 1;
+    gs.Order_Timer[0x32] = 1;
 
     effect_76_init(0x33);
     gs.Order[0x33] = 3;
-    Order_Timer[0x33] = 1;
+    gs.Order_Timer[0x33] = 1;
 
     effect_L1_init(7);
     effect_L1_init(8);

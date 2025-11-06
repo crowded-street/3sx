@@ -42,7 +42,7 @@ void EFF52_SUDDENLY(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[6]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old] != 0) {
+        if (--gs.Order_Timer[ewk->wu.dir_old] != 0) {
             break;
         }
 
@@ -70,7 +70,7 @@ void EFF52_SUDDENLY(WORK_Other* ewk) {
         gs.Order[ewk->wu.dir_old] = 4;
         ewk->wu.routine_no[0] = 4;
         ewk->wu.routine_no[1] = 0;
-        Order_Timer[ewk->wu.dir_old] = 1;
+        gs.Order_Timer[ewk->wu.dir_old] = 1;
         break;
     }
 }
@@ -84,7 +84,7 @@ void EFF52_SLIDE_IN(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[6]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old] == 0) {
+        if (--gs.Order_Timer[ewk->wu.dir_old] == 0) {
             ewk->wu.routine_no[6]++;
             ewk->wu.disp_flag = 1;
             set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
@@ -119,7 +119,7 @@ void EFF52_SLIDE_OUT(WORK_Other* ewk) {
     case 0:
         if (ewk->wu.disp_flag == 0) {
             ewk->wu.routine_no[1] = 99;
-        } else if (--Order_Timer[ewk->wu.dir_old]) {
+        } else if (--gs.Order_Timer[ewk->wu.dir_old]) {
             break;
         } else {
             ewk->wu.routine_no[6]++;
@@ -155,7 +155,7 @@ void EFF52_SLIDE_OUT(WORK_Other* ewk) {
 void EFF52_KILL(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old] == 0) {
+        if (--gs.Order_Timer[ewk->wu.dir_old] == 0) {
             ewk->wu.routine_no[1]++;
             ewk->wu.disp_flag = 0;
         }
@@ -188,7 +188,7 @@ s32 effect_52_init(s16 PL_id, s16 dir_old) {
     ewk->wu.my_mts = 13;
     ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
     ewk->wu.dir_old = dir_old;
-    ewk->wu.dir_timer = Order_Timer[dir_old];
+    ewk->wu.dir_timer = gs.Order_Timer[dir_old];
     ewk->wu.rl_flag = PL_id;
     ewk->wu.position_z = 74;
     Setup_Char_52(ewk);

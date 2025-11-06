@@ -58,7 +58,7 @@ void EFFK6_SLIDE_IN(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old]) {
+        if (--gs.Order_Timer[ewk->wu.dir_old]) {
             break;
         }
 
@@ -138,7 +138,7 @@ void EFFK6_SLIDE_OUT(WORK_Other* ewk) {
         if (ewk->wu.disp_flag == 0) {
             ewk->wu.routine_no[1] = 99;
         } else {
-            if (--Order_Timer[ewk->wu.dir_old]) {
+            if (--gs.Order_Timer[ewk->wu.dir_old]) {
                 break;
             }
 
@@ -177,7 +177,7 @@ void EFFK6_SUDDENLY(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old]) {
+        if (--gs.Order_Timer[ewk->wu.dir_old]) {
             break;
         }
 
@@ -206,7 +206,7 @@ void EFFK6_SUDDENLY(WORK_Other* ewk) {
 void EFFK6_KILL(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old] == 0) {
+        if (--gs.Order_Timer[ewk->wu.dir_old] == 0) {
             ewk->wu.routine_no[1]++;
             ewk->wu.disp_flag = 0;
         }

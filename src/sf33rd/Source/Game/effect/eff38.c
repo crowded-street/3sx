@@ -53,7 +53,7 @@ void EFF38_WAIT(WORK_Other* ewk) {
 }
 
 void EFF38_SUDDENLY(WORK_Other* ewk) {
-    if (--Order_Timer[ewk->wu.dir_old] == 0) {
+    if (--gs.Order_Timer[ewk->wu.dir_old] == 0) {
         ewk->wu.disp_flag = 1;
         gs.Order[ewk->wu.dir_old] = 0;
         ewk->wu.routine_no[0] = 0;
@@ -80,7 +80,7 @@ void EFF38_SLIDE_IN(WORK_Other* ewk) {
             break;
         }
 
-        if (--Order_Timer[ewk->wu.dir_old] == 0) {
+        if (--gs.Order_Timer[ewk->wu.dir_old] == 0) {
             ewk->wu.routine_no[6]++;
             ewk->wu.disp_flag = 1;
             set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
@@ -132,7 +132,7 @@ void Exit_Slide_in_38(WORK_Other* ewk) {
 void EFF38_SLIDE_OUT(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[6]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old] == 0) {
+        if (--gs.Order_Timer[ewk->wu.dir_old] == 0) {
             ewk->wu.routine_no[6]++;
 
             if (Order_Dir[ewk->wu.dir_old] == 8) {
@@ -166,7 +166,7 @@ void EFF38_SLIDE_OUT(WORK_Other* ewk) {
 void EFF38_KILL(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old] == 0) {
+        if (--gs.Order_Timer[ewk->wu.dir_old] == 0) {
             ewk->wu.routine_no[1]++;
             ewk->wu.disp_flag = 0;
         }
@@ -182,7 +182,7 @@ void EFF38_KILL(WORK_Other* ewk) {
 void EFF38_SHIFT(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old] != 0) {
+        if (--gs.Order_Timer[ewk->wu.dir_old] != 0) {
             break;
         }
 

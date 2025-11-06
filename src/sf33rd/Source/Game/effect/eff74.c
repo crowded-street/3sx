@@ -55,7 +55,7 @@ void EFF74_SUDDENLY(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old]) {
+        if (--gs.Order_Timer[ewk->wu.dir_old]) {
             break;
         }
 

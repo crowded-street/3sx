@@ -56,7 +56,7 @@ void EFF57_SLIDE_IN(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old]) {
+        if (--gs.Order_Timer[ewk->wu.dir_old]) {
             break;
         }
 
@@ -100,7 +100,7 @@ void EFF57_SLIDE_IN(WORK_Other* ewk) {
 }
 
 void EFF57_CHAR_CHANGE(WORK_Other* ewk) {
-    if (--Order_Timer[ewk->wu.dir_old] == 0) {
+    if (--gs.Order_Timer[ewk->wu.dir_old] == 0) {
         ewk->wu.routine_no[0] = 0;
         gs.Order[ewk->wu.dir_old] = 0;
         ewk->wu.dir_step = Order_Dir[ewk->wu.dir_old];
@@ -111,7 +111,7 @@ void EFF57_CHAR_CHANGE(WORK_Other* ewk) {
 void EFF57_WALL(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old]) {
+        if (--gs.Order_Timer[ewk->wu.dir_old]) {
             break;
         }
 
@@ -132,7 +132,7 @@ void EFF57_WALL(WORK_Other* ewk) {
 }
 
 void EFF57_SUDDENLY(WORK_Other* ewk) {
-    if (--Order_Timer[ewk->wu.dir_old] != 0) {
+    if (--gs.Order_Timer[ewk->wu.dir_old] != 0) {
         return;
     }
 
@@ -152,7 +152,7 @@ void EFF57_SUDDENLY(WORK_Other* ewk) {
 }
 
 void EFF57_KILL(WORK_Other* ewk) {
-    if (--Order_Timer[ewk->wu.dir_old] == 0) {
+    if (--gs.Order_Timer[ewk->wu.dir_old] == 0) {
         push_effect_work(&ewk->wu);
     }
 }

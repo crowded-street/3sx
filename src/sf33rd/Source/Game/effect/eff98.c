@@ -33,7 +33,7 @@ void EFF98_WAIT(WORK_Other* ewk) {
 void EFF98_SLIDE_IN(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old]) {
+        if (--gs.Order_Timer[ewk->wu.dir_old]) {
             break;
         }
 
@@ -85,7 +85,7 @@ void EFF98_SLIDE_OUT(WORK_Other* /* unused */) {}
 void EFF98_SUDDENLY(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old]) {
+        if (--gs.Order_Timer[ewk->wu.dir_old]) {
             break;
         }
 
@@ -108,7 +108,7 @@ void EFF98_SUDDENLY(WORK_Other* ewk) {
 void EFF98_KILL(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old] == 0) {
+        if (--gs.Order_Timer[ewk->wu.dir_old] == 0) {
             ewk->wu.routine_no[1]++;
             ewk->wu.disp_flag = 0;
         }
