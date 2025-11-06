@@ -235,7 +235,6 @@ void Setup_Play_Type() {
 void Clear_Flash_No() {
     F_No0[0] = F_No1[0] = F_No2[0] = F_No3[0] = 0;
     F_No0[1] = F_No1[1] = F_No2[1] = F_No3[1] = 0;
-    Personal_Disp_Flag = 0;
 }
 
 bool Cut_Cut_Cut() {
