@@ -1,6 +1,0 @@
-# Start the game in fullscreen mode
-fullscreen = true
-
-# Window size is only used when `fullscreen` is `false`
-window-width = 640
-window-height = 480 

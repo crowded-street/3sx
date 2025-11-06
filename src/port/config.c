@@ -100,12 +100,40 @@ static ConfigEntry* find_entry(const char* key) {
     }
 }
 
-static void copy_config(const char* dst_path) {
-    const char* base_path = Paths_GetBasePath();
-    char* src_path;
-    SDL_asprintf(&src_path, "%sconfig", base_path);
-    SDL_CopyFile(src_path, dst_path);
-    SDL_free(src_path);
+static void print_io(SDL_IOStream* io, const char* string) {
+    SDL_WriteIO(io, string, SDL_strlen(string));
+}
+
+static void print_config_entry_to_io(SDL_IOStream* io, const ConfigEntry* entry) {
+    print_io(io, entry->key);
+    print_io(io, " = ");
+
+    switch (entry->type) {
+    case CFG_BOOL:
+        print_io(io, entry->value.b ? "true" : "false");
+        break;
+
+    case CFG_INT:
+        char str[32];
+        SDL_itoa(entry->value.i, str, 10);
+        print_io(io, str);
+        break;
+
+    case CFG_STRING:
+        print_io(io, entry->value.s);
+        break;
+    }
+}
+
+static void dump_defaults(const char* dst_path) {
+    SDL_IOStream* io = SDL_IOFromFile(dst_path, "w");
+    print_io(io,
+             "# For the full list of settings see https://github.com/crowded-street/3sx/blob/main/docs/config.md\n\n");
+
+    for (int i = 0; i < SDL_arraysize(default_entries); i++) {
+        print_config_entry_to_io(io, &default_entries[i]);
+        print_io(io, "\n");
+    }
 }
 
 void Config_Init() {
@@ -116,8 +144,8 @@ void Config_Init() {
     FILE* f = fopen(config_path, "r");
 
     if (f == NULL) {
-        // Config doesn't exist. Copy from resources
-        copy_config(config_path);
+        // Config doesn't exist. Dump defaults
+        dump_defaults(config_path);
         SDL_free(config_path);
         return;
     }
