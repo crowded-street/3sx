@@ -15,7 +15,6 @@ const_s16_arr Tech_Address[2];
 void* Shell_Address[2];
 void* Synchro_Address[2][2];
 
-s8 win_pause_go;
 s8 request_message;
 s8 judge_flag;
 s8 WINNER;
