@@ -159,7 +159,7 @@ void Clear_Personal_Data(s16 PL_id) {
     Introduce_Break_Into[PL_id] = 0;
     gs.Score[PL_id][0] = 0;
     gs.Stock_Score[PL_id] = 0;
-    Stage_Stock_Score[PL_id] = 0;
+    gs.Stage_Stock_Score[PL_id] = 0;
     Continue_Coin[PL_id] = 0;
     Win_Record[PL_id] = 0;
     VS_Win_Record[PL_id] = 0;

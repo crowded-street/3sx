@@ -84,6 +84,7 @@ typedef struct GameState {
     u32 Stock_Score[2];
     u32 Vital_Bonus[2];
     u32 Time_Bonus[2];
+    u32 Stage_Stock_Score[2];
 } GameState;
 
 extern GameState gs;
@@ -91,7 +92,7 @@ extern GameState gs;
 // sbss
 extern const_s16_arr Tech_Address[2];
 extern void* Shell_Address[2];
-extern u32 Stage_Stock_Score[2];
+
 extern u32 Bonus_Score;
 extern u32 Final_Bonus_Score;
 extern void* Synchro_Address[2][2];

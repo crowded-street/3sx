@@ -1393,7 +1393,7 @@ void Break_Into_05(s16 PL_id) {
         E_Timer = 150;
 
         if (Conclusion_Flag == 0) {
-            gs.Score[Champion][0] = Stage_Stock_Score[Champion];
+            gs.Score[Champion][0] = gs.Stage_Stock_Score[Champion];
         }
 
         effect_A2_init(0);

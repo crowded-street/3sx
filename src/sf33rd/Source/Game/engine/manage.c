@@ -200,7 +200,7 @@ void Game_Manage_1st() {
     if (gs.Play_Type == 0) {
         Control_Time = SC_Personal_Time[Player_id];
         paring_ctr_ori[Player_id] = paring_ctr_vs[0][Player_id] = 0;
-        Stage_Stock_Score[Player_id] = gs.Score[Player_id][0];
+        gs.Stage_Stock_Score[Player_id] = gs.Score[Player_id][0];
         Request_Disp_Rank[COM_id][0] = -1;
         Request_Disp_Rank[COM_id][1] = -1;
         Request_Disp_Rank[COM_id][2] = -1;
@@ -1388,7 +1388,7 @@ void Update_VS_Data() {
             return;
         }
 
-        gs.Score[LOSER][0] = Stage_Stock_Score[LOSER];
+        gs.Score[LOSER][0] = gs.Stage_Stock_Score[LOSER];
         SC_Personal_Time[LOSER] = Control_Time;
         Win_Record[LOSER] = 0;
         Straight_Counter[LOSER] = 0;

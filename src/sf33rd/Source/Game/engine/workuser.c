@@ -13,7 +13,7 @@ GameState gs = { 0 };
 // sbss
 const_s16_arr Tech_Address[2];
 void* Shell_Address[2];
-u32 Stage_Stock_Score[2];
+
 u32 Bonus_Score;
 u32 Final_Bonus_Score;
 void* Synchro_Address[2][2];
