@@ -175,7 +175,7 @@ void Game_Manage_1st() {
 
     win_pause_go = 0;
     appear_work_clear();
-    gs.win_sp_flag = 0;
+    win_sp_flag = 0;
     BGM_No[1] = 0;
     BGM_No[0] = 0;
     Appear_Q = 0;
@@ -414,7 +414,7 @@ void Game_Manage_2_3() {
     }
 
     appear_work_clear();
-    gs.win_sp_flag = 0;
+    win_sp_flag = 0;
 
     if (pcon_rno[0] != 0) {
         return;

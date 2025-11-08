@@ -84,6 +84,7 @@ AppearanceType appear_type;
 s16 pcon_rno[4];
 bool round_slow_flag;
 bool pcon_dp_flag;
+u8 win_sp_flag;
 
 UNK_1 rambod[2];            // FIXME: this is used in effects, might not be serializable
 UNK_2 ramhan[2];            // FIXME: this is used in effects, might not be serializable

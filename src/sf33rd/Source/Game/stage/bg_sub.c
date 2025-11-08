@@ -1051,7 +1051,7 @@ void bg_work_clear() {
     bg_w.bg_r_1 = 0;
     bg_w.bg_r_2 = 0;
     bg_w.compel_flag = 0;
-    gs.win_sp_flag = 0;
+    win_sp_flag = 0;
     bg_stop = 0;
     akebono_flag = 0;
     aku_flag = 0;

@@ -50,6 +50,7 @@ extern s16 pcon_rno[4];
 extern bool round_slow_flag;
 
 extern bool pcon_dp_flag;
+extern u8 win_sp_flag;
 
 // MARK: - Unhandled
 

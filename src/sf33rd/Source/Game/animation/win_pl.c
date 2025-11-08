@@ -181,7 +181,7 @@ void jijii_nebukuro(PLW* wk) {
 
         if (wk->wu.xyz[1].disp.pos > 256) {
             win_rno[1]++;
-            gs.win_sp_flag = 2;
+            win_sp_flag = 2;
             set_char_move_init(&wk->wu, 9, 40);
             wk->wu.xyz[1].disp.pos = 200;
         }
