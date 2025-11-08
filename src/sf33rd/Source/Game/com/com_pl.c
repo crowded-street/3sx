@@ -168,7 +168,7 @@ u16 cpu_algorithm(PLW* wk) {
 static u16 CPU_Sub(PLW* wk) {
     WORK* em = (WORK*)wk->wu.target_adrs;
 
-    if (Allow_a_battle_f == 0 || gs.pcon_dp_flag) {
+    if (Allow_a_battle_f == 0 || pcon_dp_flag) {
         return 0;
     }
 

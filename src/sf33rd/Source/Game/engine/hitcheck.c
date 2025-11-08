@@ -1673,7 +1673,7 @@ void attack_hit_check() {
                     }
 
                     if (lp2 == 10) {
-                        if (!(mad->att.dipsw & 64) || sad->kind_of_waza & 0x60 || gs.pcon_dp_flag ||
+                        if (!(mad->att.dipsw & 64) || sad->kind_of_waza & 0x60 || pcon_dp_flag ||
                             sad->pat_status == 0x26) {
                             continue;
                         }

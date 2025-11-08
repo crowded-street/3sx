@@ -83,6 +83,7 @@ PiyoriType piyori_type[2];
 AppearanceType appear_type;
 s16 pcon_rno[4];
 bool round_slow_flag;
+bool pcon_dp_flag;
 
 UNK_1 rambod[2];            // FIXME: this is used in effects, might not be serializable
 UNK_2 ramhan[2];            // FIXME: this is used in effects, might not be serializable
@@ -350,7 +351,7 @@ void Player_control() {
         if (Game_pause || EXE_flag) {
             goto end;
         } else {
-            if (!gs.pcon_dp_flag) {
+            if (!pcon_dp_flag) {
                 if (--vital_inc_timer > 50) {
                     vital_inc_timer = 50;
                 }
@@ -412,7 +413,7 @@ void init_app_10000() {
     case 0:
         pli_0000();
         pcon_rno[1] = 2;
-        gs.pcon_dp_flag = false;
+        pcon_dp_flag = false;
         round_slow_flag = false;
         gs.dead_voice_flag = false;
         another_bg[0] = another_bg[1] = 0;
@@ -466,7 +467,7 @@ void init_app_20000() {
         pcon_rno[1]++;
         round_slow_flag = false;
         gs.dead_voice_flag = false;
-        gs.pcon_dp_flag = false;
+        pcon_dp_flag = false;
         another_bg[0] = another_bg[1] = 0;
 
         for (i = 0; i < 8; i++) {
@@ -1042,7 +1043,7 @@ void setup_settle_rno(s16 kos) {
     pcon_rno[1] = kos;
     pcon_rno[2] = 0;
     ca_check_flag = 0;
-    gs.pcon_dp_flag = true;
+    pcon_dp_flag = true;
 }
 
 void settle_check() {

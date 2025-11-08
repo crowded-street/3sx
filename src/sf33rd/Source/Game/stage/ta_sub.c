@@ -232,7 +232,7 @@ void pl_eff_trans_entry(WORK_Other* ewk) {
 s16 eff_hit_check(WORK_Other* ewk, s16 type) {
     if (!EXE_obroll) {
         if (type) {
-            if (gs.pcon_dp_flag) {
+            if (pcon_dp_flag) {
                 eff_hit_flag[ewk->wu.type] += eff_hit_check_sub(ewk, &plw[0]);
                 eff_hit_flag[ewk->wu.type] += eff_hit_check_sub(ewk, &plw[1]);
             }
@@ -271,7 +271,7 @@ s32 eff_hit_check_sub(WORK_Other* ewk, PLW* pl) {
 s16 eff_hit_check2(WORK_Other* ewk, s16 type, s16 where_type) {
     if (!EXE_obroll) {
         if (type) {
-            if (gs.pcon_dp_flag) {
+            if (pcon_dp_flag) {
                 eff_hit_flag[ewk->wu.type] += eff_hit_check_sub2(ewk, &plw[0], where_type);
                 eff_hit_flag[ewk->wu.type] += eff_hit_check_sub2(ewk, &plw[1], where_type);
             }

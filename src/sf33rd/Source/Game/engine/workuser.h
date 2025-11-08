@@ -8,7 +8,6 @@
 #include <stdbool.h>
 
 typedef struct GameState {
-    bool pcon_dp_flag;
     u8 win_sp_flag;
 
     /// `true` if death SFX playback needs to be requested

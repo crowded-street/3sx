@@ -152,7 +152,7 @@ s16 K7_mt0_rebirth_check(PLW* mwk) {
 
     switch (mwk->wu.routine_no[1]) {
     case 0:
-        if (gs.pcon_dp_flag) {
+        if (pcon_dp_flag) {
             if (mwk->wu.routine_no[2] == 1 && mwk->wu.routine_no[3] != 0) {
                 num = 1;
             }

@@ -75,7 +75,7 @@ void plcnt_b_init() {
         pcon_rno[1] = 2;
         SDL_zeroa(plw);
         setup_base_and_other_data();
-        gs.pcon_dp_flag = false;
+        pcon_dp_flag = false;
         round_slow_flag = false;
         gs.dead_voice_flag = false;
         another_bg[0] = another_bg[1] = 0;

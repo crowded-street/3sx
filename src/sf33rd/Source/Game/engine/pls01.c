@@ -171,7 +171,7 @@ s32 saishin_bs2_area_car(PLW* wk) {
     wk->bs2_area_car2 = 0;
     wk->bs2_over_car2 = 0;
 
-    if (gs.pcon_dp_flag) {
+    if (pcon_dp_flag) {
         return 1;
     }
 

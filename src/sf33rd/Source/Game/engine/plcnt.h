@@ -49,6 +49,8 @@ extern s16 pcon_rno[4];
 /// `true` if the game has been slowed down at round end
 extern bool round_slow_flag;
 
+extern bool pcon_dp_flag;
+
 // MARK: - Unhandled
 
 extern UNK_1 rambod[2];

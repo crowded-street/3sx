@@ -13,6 +13,7 @@ typedef struct _GameState {
     AppearanceType appear_type;
     s16 pcon_rno[4];
     bool round_slow_flag;
+    bool pcon_dp_flag;
     u8 Order[148];
     u8 Order_Timer[148];
     u8 Order_Dir[148];

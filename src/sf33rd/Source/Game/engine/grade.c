@@ -1098,7 +1098,7 @@ void grade_set_round_result(s16 ix) {
 }
 
 void grade_add_personal_action(s16 ix) {
-    if (!gs.pcon_dp_flag) {
+    if (!pcon_dp_flag) {
         judge_item[ix][gs.Play_Type].personal_act++;
 
         if (judge_item[ix][gs.Play_Type].personal_act > 3) {

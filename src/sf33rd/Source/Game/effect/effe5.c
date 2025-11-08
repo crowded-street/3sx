@@ -103,7 +103,7 @@ void effect_E5_move(WORK_Other* ewk) {
             (ewk->wu.dir_old & 0x10 && mwk->wu.routine_no[1] != 4 && mwk->wu.routine_no[1] != 2) ||
             (ewk->wu.dir_old & 0x20 && ewk->wu.total_att_set != ((WORK*)mwk->wu.target_adrs)->kind_of_waza) ||
             (ewk->wu.dir_old & 0x40 && ewk->wu.total_paring != mwk->wu.kind_of_waza) ||
-            (ewk->wu.dir_old & 0x80 && gs.pcon_dp_flag) || !mwk->image_setup_flag) {
+            (ewk->wu.dir_old & 0x80 && pcon_dp_flag) || !mwk->image_setup_flag) {
             mwk->image_setup_flag = 0;
         jump:
             ewk->wu.routine_no[0] = ewk->wu.routine_no[1] = ewk->wu.routine_no[2] = 0;

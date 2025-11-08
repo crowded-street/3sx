@@ -43,7 +43,7 @@ void effect_J4_move(WORK_Other* ewk) {
             goto jump;
         }
 
-        if (Game_pause == 129 && !gs.pcon_dp_flag) {
+        if (Game_pause == 129 && !pcon_dp_flag) {
             break;
         }
 

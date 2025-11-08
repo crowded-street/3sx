@@ -46,7 +46,7 @@ void Att_PL08_HEALING(PLW* wk) {
             }
         }
 
-        if (!gs.pcon_dp_flag) {
+        if (!pcon_dp_flag) {
             switch (wk->wu.cg_type) {
             case 24:
                 wk->wu.vital_new += 3;

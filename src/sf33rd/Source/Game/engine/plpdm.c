@@ -889,7 +889,7 @@ void Damage_25000(PLW* wk) {
         break;
 
     case 1:
-        if ((gs.pcon_dp_flag != 0) && (wk->py->time > 48)) {
+        if ((pcon_dp_flag != 0) && (wk->py->time > 48)) {
             wk->py->time = 48;
         }
 
@@ -1267,7 +1267,7 @@ void buttobi_chakuchi_cg_type_check(PLW* wk) {
 
     case 5:
         if (!(wk->spmv_ng_flag2 & DIP2_QUICK_STAND_DISABLED) && wk->ukemi_success && (wk->dead_flag == 0) &&
-            (wk->py->flag == 0) && (wk->wu.vital_new > 0) && (gs.pcon_dp_flag == 0)) {
+            (wk->py->flag == 0) && (wk->wu.vital_new > 0) && (pcon_dp_flag == 0)) {
             wk->wu.routine_no[2] = oki_select_table2[wk->wu.rl_waza + (wk->wu.rl_flag * 2)];
             wk->wu.routine_no[3] = 0;
             add_sp_arts_gauge_ukemi(wk);
@@ -1637,7 +1637,7 @@ s32 setup_kuzureochi(PLW* wk) {
         return 0;
     }
 
-    if (gs.pcon_dp_flag && Conclusion_Type != 1 && wk->wu.id == Winner_id) {
+    if (pcon_dp_flag && Conclusion_Type != 1 && wk->wu.id == Winner_id) {
         wk->wu.vital_new = 0;
         return 0;
     }

@@ -50,7 +50,7 @@ void bbbs_com_execute2(PLW* wk) {
             Bonus_Stage_RNO[0] = 2;
             Bonus_Stage_RNO[1] = 0;
             Allow_a_battle_f = 0;
-            gs.pcon_dp_flag = true;
+            pcon_dp_flag = true;
         }
 
         wk->wu.xyz[0].disp.pos = 468;

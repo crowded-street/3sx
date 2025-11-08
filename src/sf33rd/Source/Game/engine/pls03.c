@@ -51,7 +51,7 @@ s32 check_full_gauge_attack(PLW* wk, s8 always) {
         return 0;
     }
 
-    if (gs.pcon_dp_flag) {
+    if (pcon_dp_flag) {
         return 0;
     }
 
@@ -182,7 +182,7 @@ s32 check_full_gauge_attack2(PLW* wk, s8 always) {
         return 0;
     }
 
-    if (gs.pcon_dp_flag) {
+    if (pcon_dp_flag) {
         return 0;
     }
 
@@ -337,7 +337,7 @@ s32 check_super_arts_attack_dc(PLW* wk) {
         return 0;
     }
 
-    if (gs.pcon_dp_flag) {
+    if (pcon_dp_flag) {
         return 0;
     }
 
@@ -457,7 +457,7 @@ s32 execute_super_arts(PLW* wk) {
         wk->permited_koa |= 1;
     }
 
-    if ((wk->sa->gauge_type != 3) && gs.pcon_dp_flag) {
+    if ((wk->sa->gauge_type != 3) && pcon_dp_flag) {
         return 0;
     }
 
@@ -519,7 +519,7 @@ s32 check_special_attack(PLW* wk) {
         wk->permited_koa |= 2;
     }
 
-    if (gs.pcon_dp_flag) {
+    if (pcon_dp_flag) {
         return 0;
     }
 
@@ -716,7 +716,7 @@ s32 check_leap_attack(PLW* wk) {
         return 0;
     }
 
-    if (gs.pcon_dp_flag) {
+    if (pcon_dp_flag) {
         return 0;
     }
 
@@ -884,7 +884,7 @@ s32 check_chouhatsu(PLW* wk) {
         return 0;
     }
 
-    if ((wk->spmv_ng_flag & DIP_TAUNT_AFTER_KO_DISABLED) && gs.pcon_dp_flag) {
+    if ((wk->spmv_ng_flag & DIP_TAUNT_AFTER_KO_DISABLED) && pcon_dp_flag) {
         return 0;
     }
 
@@ -946,7 +946,7 @@ const u8 nml_catch_h2_ok[2][20] = { { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16
 s32 check_catch_attack(PLW* wk) {
     s16 kos;
 
-    if (gs.pcon_dp_flag) {
+    if (pcon_dp_flag) {
         return 0;
     }
 

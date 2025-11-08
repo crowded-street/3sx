@@ -1067,7 +1067,7 @@ void add_super_arts_gauge(SA_WORK* wk, s16 ix, s16 asag, u8 mf) {
             return;
         }
 
-        if (!gs.pcon_dp_flag && !Bonus_Game_Flag && (sa_gauge_omake[omop_sa_gauge_ix[ix]] != 0) && (asag > 0) &&
+        if (!pcon_dp_flag && !Bonus_Game_Flag && (sa_gauge_omake[omop_sa_gauge_ix[ix]] != 0) && (asag > 0) &&
             (wk->store != wk->store_max)) {
             asag = asag * 0x78 / 100;
 
