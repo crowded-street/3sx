@@ -172,7 +172,6 @@ void Clear_Personal_Data(s16 PL_id) {
     Sel_PL_Complete[PL_id] = 0;
     Sel_Arts_Complete[PL_id] = 0;
     Sel_EM_Complete[PL_id] = 0;
-    Personal_Continue_Flag[PL_id] = 0;
     Last_Player_id = -1;
     Last_Super_Arts[PL_id] = 0;
     Last_My_char[PL_id] = -1;
@@ -236,7 +235,6 @@ void Setup_Play_Type() {
 void Clear_Flash_No() {
     F_No0[0] = F_No1[0] = F_No2[0] = F_No3[0] = 0;
     F_No0[1] = F_No1[1] = F_No2[1] = F_No3[1] = 0;
-    Personal_Disp_Flag = 0;
 }
 
 bool Cut_Cut_Cut() {

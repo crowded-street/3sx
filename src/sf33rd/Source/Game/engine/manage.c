@@ -173,7 +173,6 @@ void Game_Manage_1st() {
         C_No[0] = 1;
     }
 
-    win_pause_go = 0;
     appear_work_clear();
     win_sp_flag = 0;
     BGM_No[1] = 0;

@@ -71,9 +71,6 @@ extern s8 Select_Start[2];
 
 // MARK: - Unhandled
 
-extern s8 Personal_Continue_Flag[2]; // FIXME: remove
-extern s8 Personal_Disp_Flag;        // FIXME: remove
-extern s8 win_pause_go;              // FIXME: remove
 extern s8 request_message;
 extern s8 judge_flag;
 extern s8 WINNER;
