@@ -17,6 +17,7 @@ typedef struct _GameState {
     u8 win_sp_flag;
     bool dead_voice_flag;
     bool Scene_Cut;
+    bool Time_Over;
     u8 Order[148];
     u8 Order_Timer[148];
     u8 Order_Dir[148];

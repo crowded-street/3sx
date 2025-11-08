@@ -8,8 +8,6 @@
 #include <stdbool.h>
 
 typedef struct GameState {
-    bool Time_Over;
-
     // Round timer
 
     s8 round_timer;
@@ -85,6 +83,8 @@ extern s8 Continue_Count[2];
 
 /// Go faster during a non-gameplay animation
 extern bool Scene_Cut;
+
+extern bool Time_Over;
 
 // MARK: - Unhandled
 

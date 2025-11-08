@@ -514,7 +514,7 @@ void effC2_main_process_second(WORK_Other* ewk, PLW* twk) {
         case 1:
             switch (ewk->wu.routine_no[2]) {
             case 0:
-                if (gs.Time_Over) {
+                if (Time_Over) {
                     ewk->wu.dm_vital = 0;
                 }
 
@@ -750,7 +750,7 @@ void c3_new_damage(WORK* wk) {
     s16 ix;
     s16 brlv;
 
-    if (gs.Time_Over) {
+    if (Time_Over) {
         wk->dm_vital = 0;
     }
 

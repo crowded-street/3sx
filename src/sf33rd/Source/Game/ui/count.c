@@ -222,7 +222,7 @@ void bcounter_control() {
     if (gs.Counter_hi == 0) {
         gs.math_counter_hi = gs.math_counter_low = 0;
         Allow_a_battle_f = 0;
-        gs.Time_Over = true;
+        Time_Over = true;
     }
 }
 

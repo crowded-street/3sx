@@ -11,6 +11,7 @@
 GameState gs = { 0 };
 
 bool Scene_Cut;
+bool Time_Over;
 
 // bss
 u8 Order[148];

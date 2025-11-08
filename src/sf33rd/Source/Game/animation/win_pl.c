@@ -1528,7 +1528,7 @@ void bonus_game_win_pause(PLW* wk) {
 
         if (Bonus_Game_Flag == 20) {
             if (wk->wu.operator) {
-                if (gs.Time_Over) {
+                if (Time_Over) {
                     set_char_move_init(&wk->wu, 9, 67);
                 } else {
                     set_char_move_init(&wk->wu, 9, 65);

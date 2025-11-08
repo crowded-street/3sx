@@ -95,7 +95,7 @@ s16 Next_CPU() {
     SEL_CPU_X = 0;
     Scene_Cut = Cut_Cut_Cut();
     Next_CPU_Tbl[SC_No[0]]();
-    gs.Time_Over = false;
+    Time_Over = false;
 
     if (Check_Exit_Check() == 0 && Debug_w[0x18] == -1) {
         SEL_CPU_X = 0;
@@ -532,7 +532,7 @@ s32 After_Bonus() {
     SEL_CPU_X = 0;
     Scene_Cut = Cut_Cut_Cut();
     After_Bonus_Tbl[SC_No[0]]();
-    gs.Time_Over = false;
+    Time_Over = false;
     return SEL_CPU_X;
 }
 
@@ -601,7 +601,7 @@ s16 Select_CPU_First() {
 
     SEL_CPU_X = 0;
     Select_CPU_First_Tbl[SC_No[0]]();
-    gs.Time_Over = false;
+    Time_Over = false;
     return SEL_CPU_X;
 }
 
@@ -963,7 +963,7 @@ s16 Next_Q() {
         SEL_CPU_X = 0;
     }
 
-    gs.Time_Over = false;
+    Time_Over = false;
     return SEL_CPU_X;
 }
 
@@ -1070,7 +1070,7 @@ void Sel_CPU_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
         return;
     }
 
-    if (gs.Time_Over) {
+    if (Time_Over) {
         sw = SWK_WEST;
     }
 

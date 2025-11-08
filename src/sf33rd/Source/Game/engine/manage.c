@@ -1976,7 +1976,7 @@ void Game_Manage_12_0() {
     if (Bonus_Type == 20) {
         C_No[1] = 6;
         gs.Time_Stop = 1;
-        gs.Time_Over = false;
+        Time_Over = false;
         Exit_No = 0;
         gs.Unit_Of_Timer = 0;
         setup_bonus_car_parts();
@@ -2502,7 +2502,7 @@ s16 Check_Time_Over() {
 
     switch (C_No[2]) {
     case 0:
-        if (gs.Time_Over) {
+        if (Time_Over) {
             C_No[2]++;
             C_Timer = 60;
             request_center_message(2);

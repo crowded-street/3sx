@@ -95,7 +95,7 @@ void SelectTimer_Run() {
             gs.select_timer_state.timer -= 1;
 
             if (gs.select_timer_state.timer == 0) {
-                gs.Time_Over = true;
+                Time_Over = true;
                 gs.select_timer_state.step = 3;
             }
         }
@@ -104,7 +104,7 @@ void SelectTimer_Run() {
 
     case 3:
         check_sleep();
-        gs.Time_Over = true;
+        Time_Over = true;
 
         if (gs.Select_Timer) {
             gs.select_timer_state.step = 1;

@@ -156,7 +156,7 @@ s16 Select_Player() {
     Sel_PL();
     ID = 1;
     Sel_PL();
-    gs.Time_Over = false;
+    Time_Over = false;
 
     if (Check_Exit_Check() == 0 && Debug_w[24] == -1) {
         SEL_PL_X = 0;
@@ -267,7 +267,7 @@ void Sel_PL_Cont_1st() {
     Face_Move = 0;
     Break_Into_CPU = 0;
     Explosion = 0;
-    gs.Time_Over = false;
+    Time_Over = false;
     Move_Super_Arts[0] = 0;
     Move_Super_Arts[1] = 0;
     Flash_Complete[0] = 0;
@@ -1116,7 +1116,7 @@ void Sel_PL_Sub(s16 PL_id, u16 sw) {
         return;
     }
 
-    if (gs.Time_Over) {
+    if (Time_Over) {
         sw = SWK_WEST;
     }
 
@@ -1475,7 +1475,7 @@ void Sel_Arts_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
         return;
     }
 
-    if (gs.Time_Over) {
+    if (Time_Over) {
         sw = SWK_WEST;
     }
 
