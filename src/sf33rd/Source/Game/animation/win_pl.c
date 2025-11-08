@@ -75,7 +75,7 @@ void win_player(PLW* wk) {
         return;
     }
 
-    if (gs.pcon_rno[0] == 2 && gs.pcon_rno[1] == 3) {
+    if (pcon_rno[0] == 2 && pcon_rno[1] == 3) {
         Judge_normal_winner(wk);
         return;
     }

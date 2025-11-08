@@ -431,7 +431,7 @@ two:
 s32 check_be_car_object() {
     PLW* com;
 
-    if (gs.pcon_rno[0] == 0) {
+    if (pcon_rno[0] == 0) {
         return 1;
     }
 
@@ -1032,7 +1032,7 @@ void add_sp_arts_gauge_nagenuke(PLW* wk) {
 }
 
 void add_sp_arts_gauge_maxbit(PLW* wk) {
-    if (gs.pcon_rno[0] != 1) {
+    if (pcon_rno[0] != 1) {
         return;
     }
 

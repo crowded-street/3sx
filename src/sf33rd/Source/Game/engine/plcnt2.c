@@ -36,10 +36,10 @@ void plcnt_b_die();
 void (*const player_bonus_process[3])() = { plcnt_b_init, plcnt_b_move, plcnt_b_die };
 
 s32 Player_control_bonus() {
-    if (((gs.pcon_rno[0] + gs.pcon_rno[1]) == 0) || (!Game_pause && !EXE_flag)) {
+    if (((pcon_rno[0] + pcon_rno[1]) == 0) || (!Game_pause && !EXE_flag)) {
         players_timer++;
         players_timer &= 0x7FFF;
-        player_bonus_process[gs.pcon_rno[0]]();
+        player_bonus_process[pcon_rno[0]]();
         check_body_touch();
         check_damage_hosei_bonus();
         set_quake(&plw[0]);
@@ -62,7 +62,7 @@ s32 Player_control_bonus() {
         store_player_after_image_data();
     }
 
-    if (gs.pcon_rno[0] == 2 && gs.pcon_rno[1] == 0 && gs.pcon_rno[2] == 2) {
+    if (pcon_rno[0] == 2 && pcon_rno[1] == 0 && pcon_rno[2] == 2) {
         return 1;
     }
 
@@ -70,9 +70,9 @@ s32 Player_control_bonus() {
 }
 
 void plcnt_b_init() {
-    switch (gs.pcon_rno[1]) {
+    switch (pcon_rno[1]) {
     case 0:
-        gs.pcon_rno[1] = 2;
+        pcon_rno[1] = 2;
         SDL_zeroa(plw);
         setup_base_and_other_data();
         gs.pcon_dp_flag = false;
@@ -102,8 +102,8 @@ void plcnt_b_init() {
             break;
         }
 
-        gs.pcon_rno[0] = 1;
-        gs.pcon_rno[1] = 0;
+        pcon_rno[0] = 1;
+        pcon_rno[1] = 0;
         plw[0].wu.routine_no[0] = 4;
         plw[1].wu.routine_no[0] = 4;
         ca_check_flag = 1;
@@ -111,7 +111,7 @@ void plcnt_b_init() {
         break;
 
     case 2:
-        gs.pcon_rno[1] = 3;
+        pcon_rno[1] = 3;
 
         if (plw[0].wu.operator) {
             paring_ctr_vs[0][0] = paring_ctr_ori[0];
@@ -128,7 +128,7 @@ void plcnt_b_init() {
         break;
 
     case 3:
-        gs.pcon_rno[1] = 1;
+        pcon_rno[1] = 1;
         pli_0002();
         break;
     }
@@ -165,23 +165,23 @@ void plcnt_b_move() {
     }
 
     if (Bonus_Stage_RNO[0] == 2) {
-        gs.pcon_rno[0] = 2;
+        pcon_rno[0] = 2;
     }
 }
 
 void plcnt_b_die() {
     plw[0].wu.dm_vital = plw[1].wu.dm_vital = 0;
 
-    switch (gs.pcon_rno[2]) {
+    switch (pcon_rno[2]) {
     case 0:
         plw[0].wkey_flag = plw[1].wkey_flag = 1;
         plw[0].image_setup_flag = plw[1].image_setup_flag = 0;
-        gs.pcon_rno[2]++;
+        pcon_rno[2]++;
         /* fallthrough */
 
     case 1:
         if (footwork_check_bns(0) && footwork_check_bns(1)) {
-            gs.pcon_rno[2]++;
+            pcon_rno[2]++;
         }
 
         break;
@@ -193,12 +193,12 @@ void plcnt_b_die() {
         plw[0].wu.routine_no[1] = plw[1].wu.routine_no[1] = 0;
         plw[0].wu.routine_no[3] = plw[1].wu.routine_no[3] = 0;
         plw[0].wu.cg_type = plw[1].wu.cg_type = 0;
-        gs.pcon_rno[2]++;
+        pcon_rno[2]++;
         break;
 
     case 3:
         if ((plw[0].wu.routine_no[3] == 9) && (plw[1].wu.routine_no[3] == 9)) {
-            gs.pcon_rno[2]++;
+            pcon_rno[2]++;
         }
 
         break;

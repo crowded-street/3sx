@@ -289,7 +289,7 @@ void eff35_0004(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (gs.pcon_rno[0] == 2 && gs.pcon_rno[2] >= 3) {
+        if (pcon_rno[0] == 2 && pcon_rno[2] >= 3) {
             if (Bonus_Game_result >= 10 || Bonus_Game_ex_result >= 10) {
                 ewk->wu.routine_no[1]++;
             } else {

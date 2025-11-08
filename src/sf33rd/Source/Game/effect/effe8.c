@@ -73,7 +73,7 @@ void effect_E8_move(WORK_Other* ewk) {
         break;
 
     case 2:
-        if (gs.pcon_rno[0] != 2) {
+        if (pcon_rno[0] != 2) {
             mtwk = (WORK*)mwk->wu.target_adrs;
 
             if (mtwk->routine_no[0] == 4 && mtwk->routine_no[1] == 1 && mtwk->routine_no[3] < 2) {

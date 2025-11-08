@@ -908,7 +908,7 @@ void grade_add_clean_hits(WORK_Other* wk) {
     WORK* mwk;
     s16 ix;
 
-    if (gs.pcon_rno[0] != 0) {
+    if (pcon_rno[0] != 0) {
         ix = wk->wu.id;
 
         if (wk->wu.work_id != 1) {
@@ -927,7 +927,7 @@ void grade_add_att_renew(WORK_Other* wk) {
     WORK* mwk;
     s16 ix;
 
-    if (gs.pcon_rno[0] != 0) {
+    if (pcon_rno[0] != 0) {
         ix = wk->wu.id;
 
         if (wk->wu.work_id != 1) {

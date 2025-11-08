@@ -41,6 +41,9 @@ extern PiyoriType piyori_type[2];
 
 extern AppearanceType appear_type;
 
+/// Player controller routine indices
+extern s16 pcon_rno[4];
+
 // MARK: - Unhandled
 
 extern UNK_1 rambod[2];

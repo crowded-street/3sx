@@ -32,7 +32,7 @@ void lose_player(PLW* wk) {
 }
 
 void Lose_00000(PLW* wk) {
-    if ((gs.pcon_rno[0] == 2) && (gs.pcon_rno[1] == 3)) {
+    if ((pcon_rno[0] == 2) && (pcon_rno[1] == 3)) {
         Judge_normal_loser(wk);
         return;
     }
@@ -41,7 +41,7 @@ void Lose_00000(PLW* wk) {
 }
 
 void Lose_10000(PLW* wk) {
-    if ((gs.pcon_rno[0] == 2) && (gs.pcon_rno[1] == 3)) {
+    if ((pcon_rno[0] == 2) && (pcon_rno[1] == 3)) {
         switch (wk->wu.routine_no[3]) {
         case 0:
             wk->wu.routine_no[3]++;
@@ -57,7 +57,7 @@ void Lose_10000(PLW* wk) {
             char_move(&wk->wu);
             break;
         }
-    } else if ((gs.pcon_rno[1] == 0) || (gs.pcon_rno[1] == 4)) {
+    } else if ((pcon_rno[1] == 0) || (pcon_rno[1] == 4)) {
         return;
     } else {
         switch (wk->wu.routine_no[3]) {
@@ -84,7 +84,7 @@ void Lose_10000(PLW* wk) {
 void Lose_20000(PLW* wk) {
     s16 work;
 
-    if ((gs.pcon_rno[0] == 2) && (gs.pcon_rno[1] == 3)) {
+    if ((pcon_rno[0] == 2) && (pcon_rno[1] == 3)) {
         Judge_normal_loser(wk);
         return;
     }
@@ -98,7 +98,7 @@ void Lose_20000(PLW* wk) {
             effect_C1_init(&wk->wu);
         }
 
-        if ((gs.pcon_rno[1] != 0) && (gs.pcon_rno[1] != 4)) {
+        if ((pcon_rno[1] != 0) && (pcon_rno[1] != 4)) {
             lose_rno[0] = lose_rno[1] = lose_rno[2] = 0;
             work = random_16();
             work &= 7;
@@ -119,7 +119,7 @@ void Lose_20000(PLW* wk) {
 }
 
 void Lose_30000(PLW* wk) {
-    if ((gs.pcon_rno[0] == 2) && (gs.pcon_rno[1] == 3)) {
+    if ((pcon_rno[0] == 2) && (pcon_rno[1] == 3)) {
         switch (wk->wu.routine_no[3]) {
         case 0:
             wk->wu.routine_no[3]++;
@@ -138,7 +138,7 @@ void Lose_30000(PLW* wk) {
             break;
         }
 
-    } else if ((gs.pcon_rno[1] == 0) || (gs.pcon_rno[1] == 4)) {
+    } else if ((pcon_rno[1] == 0) || (pcon_rno[1] == 4)) {
         return;
     } else {
         switch (wk->wu.routine_no[3]) {
@@ -167,7 +167,7 @@ void Lose_30000(PLW* wk) {
 void Normal_normal_Loser(PLW* wk) {
     s16 work;
 
-    if ((gs.pcon_rno[1] == 0) || (gs.pcon_rno[1] == 4)) {
+    if ((pcon_rno[1] == 0) || (pcon_rno[1] == 4)) {
         return;
     }
 
@@ -217,7 +217,7 @@ void Judge_normal_loser(PLW* wk) {
 void meta_lose_pause(PLW* wk) {
     bg_app_stop = 1;
 
-    if ((gs.pcon_rno[1] == 0) || (gs.pcon_rno[1] == 4)) {
+    if ((pcon_rno[1] == 0) || (pcon_rno[1] == 4)) {
         return;
     }
 

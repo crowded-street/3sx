@@ -11,6 +11,7 @@ typedef struct _GameState {
     SA_WORK super_arts[2];
     PiyoriType piyori_type[2];
     AppearanceType appear_type;
+    s16 pcon_rno[4];
     u8 Order[148];
     u8 Order_Timer[148];
     u8 Order_Dir[148];

@@ -8,9 +8,6 @@
 #include <stdbool.h>
 
 typedef struct GameState {
-    /// Player controller routine indices
-    s16 pcon_rno[4];
-
     /// `true` if the game has been slowed down at round end
     bool round_slow_flag;
 
