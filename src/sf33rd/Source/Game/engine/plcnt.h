@@ -25,6 +25,9 @@ extern const s16** kizetsu_timer_table[];
 
 extern PLW plw[2];
 
+/// Afterimage data
+extern ZanzouTableEntry zanzou_table[2][48];
+
 // MARK: - Unhandled
 
 extern UNK_1 rambod[2];

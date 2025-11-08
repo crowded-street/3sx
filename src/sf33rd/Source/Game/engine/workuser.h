@@ -15,9 +15,6 @@ typedef enum AppearanceType {
 } AppearanceType;
 
 typedef struct GameState {
-    /// Afterimage data
-    ZanzouTableEntry zanzou_table[2][48];
-
     SA_WORK super_arts[2];
 
     /// Stun data

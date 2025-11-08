@@ -280,8 +280,8 @@ void effect_e7_e8_init_union(WORK_Other* nwk, WORK_Other* ek, PLW* mk) {
 }
 
 void get_attdata_of_illusion(WORK_Other* ewk) {
-    ewk->wu.cg_hit_ix = gs.zanzou_table[ewk->master_id][ewk->wu.type].hit_ix;
-    ewk->wu.cg_att_ix = gs.zanzou_table[ewk->master_id][ewk->wu.type].renew;
+    ewk->wu.cg_hit_ix = zanzou_table[ewk->master_id][ewk->wu.type].hit_ix;
+    ewk->wu.cg_att_ix = zanzou_table[ewk->master_id][ewk->wu.type].renew;
     ewk->wu.xyz[0].disp.pos = ewk->wu.position_x;
     ewk->wu.xyz[1].disp.pos = ewk->wu.position_y;
     ewk->wu.xyz[2].disp.pos = ewk->wu.position_z;
@@ -299,7 +299,7 @@ void get_attdata_of_illusion(WORK_Other* ewk) {
     ewk->wu.att.piyo = 0;
     ewk->wu.att.hs_you = 0;
     ewk->wu.add_arts_point = 0;
-    ewk->wu.kind_of_waza = gs.zanzou_table[ewk->master_id][ewk->wu.type].kowaza;
+    ewk->wu.kind_of_waza = zanzou_table[ewk->master_id][ewk->wu.type].kowaza;
     ewk->wu.at_koa = acatkoa_table[ewk->wu.kind_of_waza];
 
     if (ewk->wu.cg_hit_ix) {

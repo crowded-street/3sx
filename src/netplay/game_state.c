@@ -8,6 +8,7 @@
 
 void GameState_Save(_GameState* dst) {
     GS_SAVE(plw);
+    GS_SAVE(zanzou_table);
     GS_SAVE(Order);
     GS_SAVE(Order_Timer);
     GS_SAVE(Order_Dir);
@@ -42,6 +43,7 @@ void GameState_Save(_GameState* dst) {
 
 void GameState_Load(const _GameState* src) {
     GS_LOAD(plw);
+    GS_LOAD(zanzou_table);
     GS_LOAD(Order);
     GS_LOAD(Order_Timer);
     GS_LOAD(Order_Dir);

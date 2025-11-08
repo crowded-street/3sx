@@ -77,6 +77,7 @@ void clear_super_arts_point(PLW* wk);
 void set_scrrrl();
 
 PLW plw[2];
+ZanzouTableEntry zanzou_table[2][48];
 
 // sbss
 UNK_1 rambod[2];            // FIXME: this is used in effects, might not be serializable
@@ -926,20 +927,20 @@ void store_player_after_image_data() {
     s16 i;
 
     for (i = 47; i > 0; i--) {
-        gs.zanzou_table[0][i] = gs.zanzou_table[0][i - 1];
-        gs.zanzou_table[1][i] = gs.zanzou_table[1][i - 1];
+        zanzou_table[0][i] = zanzou_table[0][i - 1];
+        zanzou_table[1][i] = zanzou_table[1][i - 1];
     }
 
     for (i = 0; i < 2; i++) {
-        gs.zanzou_table[i]->pos_x = plw[i].wu.position_x;
-        gs.zanzou_table[i]->pos_y = plw[i].wu.position_y;
-        gs.zanzou_table[i]->pos_z = plw[i].wu.position_z;
-        gs.zanzou_table[i]->cg_num = plw[i].wu.cg_number;
-        gs.zanzou_table[i]->renew = plw[i].wu.renew_attack;
-        gs.zanzou_table[i]->hit_ix = plw[i].wu.cg_hit_ix;
-        gs.zanzou_table[i]->flip = plw[i].wu.rl_flag;
-        gs.zanzou_table[i]->cg_flp = plw[i].wu.cg_flip;
-        gs.zanzou_table[i]->kowaza = plw[i].wu.kind_of_waza;
+        zanzou_table[i]->pos_x = plw[i].wu.position_x;
+        zanzou_table[i]->pos_y = plw[i].wu.position_y;
+        zanzou_table[i]->pos_z = plw[i].wu.position_z;
+        zanzou_table[i]->cg_num = plw[i].wu.cg_number;
+        zanzou_table[i]->renew = plw[i].wu.renew_attack;
+        zanzou_table[i]->hit_ix = plw[i].wu.cg_hit_ix;
+        zanzou_table[i]->flip = plw[i].wu.rl_flag;
+        zanzou_table[i]->cg_flp = plw[i].wu.cg_flip;
+        zanzou_table[i]->kowaza = plw[i].wu.kind_of_waza;
     }
 }
 
