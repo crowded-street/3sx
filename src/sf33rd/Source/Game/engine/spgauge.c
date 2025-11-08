@@ -102,9 +102,9 @@ void spgauge_cont_init() {
         spg_dat[lpy].old_spg = 0;
         spg_dat[lpy].spgtbl_ptr = spgauge_puttbl[lpy];
         spg_dat[lpy].spg_level = 0;
-        spg_dat[lpy].spg_maxlevel = gs.super_arts[lpy].store_max;
-        spg_dat[lpy].spg_len = gs.super_arts[lpy].gauge_len / 8;
-        spg_dat[lpy].spg_dotlen = gs.super_arts[lpy].gauge_len;
+        spg_dat[lpy].spg_maxlevel = super_arts[lpy].store_max;
+        spg_dat[lpy].spg_len = super_arts[lpy].gauge_len / 8;
+        spg_dat[lpy].spg_dotlen = super_arts[lpy].gauge_len;
         spg_dat[lpy].flag = 0;
         spg_dat[lpy].flag2 = 0;
         spg_dat[lpy].level_flag = 0;
@@ -125,7 +125,7 @@ void spgauge_cont_init() {
         sa_gauge_flash[lpy] = 0;
         spg_dat[lpy].spgptbl_ptr = spgauge_postbl[lpy];
 
-        if (gs.super_arts[lpy].gauge_type == 1) {
+        if (super_arts[lpy].gauge_type == 1) {
             spg_dat[lpy].time = 1;
             time_flag[lpy] = 1;
         } else {
@@ -173,14 +173,14 @@ void spgauge_cont_demo_init() {
     Sa_frame_Clear();
 
     for (lpy = 0; lpy < 2; lpy++) {
-        demo_set_sa_full(&gs.super_arts[lpy]);
-        spg_dat[lpy].current_spg = gs.super_arts[lpy].gauge_len;
-        spg_dat[lpy].old_spg = gs.super_arts[lpy].gauge_len;
+        demo_set_sa_full(&super_arts[lpy]);
+        spg_dat[lpy].current_spg = super_arts[lpy].gauge_len;
+        spg_dat[lpy].old_spg = super_arts[lpy].gauge_len;
         spg_dat[lpy].spgtbl_ptr = spgauge_puttbl[lpy];
-        spg_dat[lpy].spg_level = gs.super_arts[lpy].store;
-        spg_dat[lpy].spg_maxlevel = gs.super_arts[lpy].store_max;
-        spg_dat[lpy].spg_len = gs.super_arts[lpy].gauge_len / 8;
-        spg_dat[lpy].spg_dotlen = gs.super_arts[lpy].gauge_len;
+        spg_dat[lpy].spg_level = super_arts[lpy].store;
+        spg_dat[lpy].spg_maxlevel = super_arts[lpy].store_max;
+        spg_dat[lpy].spg_len = super_arts[lpy].gauge_len / 8;
+        spg_dat[lpy].spg_dotlen = super_arts[lpy].gauge_len;
         spg_dat[lpy].flag = 1;
         spg_dat[lpy].flag2 = 0;
         spg_dat[lpy].level_flag = 0;
@@ -201,7 +201,7 @@ void spgauge_cont_demo_init() {
         sa_gauge_flash[lpy] = 0;
         spg_dat[lpy].spgptbl_ptr = spgauge_postbl[lpy];
 
-        if (gs.super_arts[lpy].gauge_type == 1) {
+        if (super_arts[lpy].gauge_type == 1) {
             spg_dat[lpy].time = 1;
             time_flag[lpy] = 1;
         } else {
@@ -306,7 +306,7 @@ void spgauge_control(s8 Spg_Num) {
     } else if (sast_now[Spg_Num] == 0 && spg_dat[Spg_Num].flag2 == 0 && sa_gauge_flash[Spg_Num] != 0) {
         spgauge_sound_request(Spg_Num);
 
-        if (gs.super_arts[Spg_Num].gt2 == 1) {
+        if (super_arts[Spg_Num].gt2 == 1) {
             spg_dat[Spg_Num].time = 1;
             time_flag[Spg_Num] = 1;
         } else {
@@ -929,7 +929,7 @@ void sa_gauge_trans(s8 pl_kind) {
     spg_work = 0;
     spg_number = 0;
     sa_char_ptr = *spgauge_puttbl;
-    len = gs.super_arts[pl_kind].gauge_len / 8;
+    len = super_arts[pl_kind].gauge_len / 8;
 
     for (i = 0; i < len; i++) {
         spg_work += 8;
@@ -1046,9 +1046,9 @@ void tr_spgauge_cont_init(s8 pl) {
     spg_dat[pl].old_spg = 0;
     spg_dat[pl].spgtbl_ptr = spgauge_puttbl[pl];
     spg_dat[pl].spg_level = 0;
-    spg_dat[pl].spg_maxlevel = gs.super_arts[pl].store_max;
-    spg_dat[pl].spg_len = gs.super_arts[pl].gauge_len / 8;
-    spg_dat[pl].spg_dotlen = gs.super_arts[pl].gauge_len;
+    spg_dat[pl].spg_maxlevel = super_arts[pl].store_max;
+    spg_dat[pl].spg_len = super_arts[pl].gauge_len / 8;
+    spg_dat[pl].spg_dotlen = super_arts[pl].gauge_len;
     spg_dat[pl].flag = 0;
     spg_dat[pl].flag2 = 0;
     spg_dat[pl].level_flag = 0;
@@ -1069,7 +1069,7 @@ void tr_spgauge_cont_init(s8 pl) {
     sa_gauge_flash[pl] = 0;
     spg_dat[pl].spgptbl_ptr = spgauge_postbl[pl];
 
-    if (gs.super_arts[pl].gauge_type == 1) {
+    if (super_arts[pl].gauge_type == 1) {
         spg_dat[pl].time = 1;
         time_flag[pl] = 1;
     } else {
@@ -1112,14 +1112,14 @@ void tr_spgauge_cont_init(s8 pl) {
 
 void tr_spgauge_cont_init2(s8 pl) {
     Sa_frame_Clear2(pl);
-    demo_set_sa_full(&gs.super_arts[pl]);
-    spg_dat[pl].current_spg = gs.super_arts[pl].gauge_len;
-    spg_dat[pl].old_spg = gs.super_arts[pl].gauge_len;
+    demo_set_sa_full(&super_arts[pl]);
+    spg_dat[pl].current_spg = super_arts[pl].gauge_len;
+    spg_dat[pl].old_spg = super_arts[pl].gauge_len;
     spg_dat[pl].spgtbl_ptr = spgauge_puttbl[pl];
-    spg_dat[pl].spg_level = gs.super_arts[pl].store;
-    spg_dat[pl].spg_maxlevel = gs.super_arts[pl].store_max;
-    spg_dat[pl].spg_len = gs.super_arts[pl].gauge_len / 8;
-    spg_dat[pl].spg_dotlen = gs.super_arts[pl].gauge_len;
+    spg_dat[pl].spg_level = super_arts[pl].store;
+    spg_dat[pl].spg_maxlevel = super_arts[pl].store_max;
+    spg_dat[pl].spg_len = super_arts[pl].gauge_len / 8;
+    spg_dat[pl].spg_dotlen = super_arts[pl].gauge_len;
     spg_dat[pl].flag = 1;
     spg_dat[pl].flag2 = 0;
     spg_dat[pl].level_flag = 0;
@@ -1140,7 +1140,7 @@ void tr_spgauge_cont_init2(s8 pl) {
     sa_gauge_flash[pl] = 0;
     spg_dat[pl].spgptbl_ptr = spgauge_postbl[pl];
 
-    if (gs.super_arts[pl].gauge_type == 1) {
+    if (super_arts[pl].gauge_type == 1) {
         spg_dat[pl].time = 1;
         time_flag[pl] = 1;
     } else {

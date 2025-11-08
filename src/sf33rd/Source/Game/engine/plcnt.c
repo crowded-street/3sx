@@ -78,6 +78,7 @@ void set_scrrrl();
 
 PLW plw[2];
 ZanzouTableEntry zanzou_table[2][48];
+SA_WORK super_arts[2];
 
 // sbss
 UNK_1 rambod[2];            // FIXME: this is used in effects, might not be serializable
@@ -1195,8 +1196,8 @@ void setup_base_and_other_data() {
     plw[1].wu.my_mts = 4;
     set_base_data(&plw[0], 0);
     set_base_data(&plw[1], 1);
-    plw[0].sa = &gs.super_arts[0];
-    plw[1].sa = &gs.super_arts[1];
+    plw[0].sa = &super_arts[0];
+    plw[1].sa = &super_arts[1];
     plw[0].py = &gs.piyori_type[0];
     plw[1].py = &gs.piyori_type[1];
     setup_other_data(&plw[0]);
@@ -1369,25 +1370,25 @@ void set_super_arts_status(s16 ix) {
         saptr = &super_arts_data[My_char[ix]][Super_Arts[ix]];
     }
 
-    gs.super_arts[ix].kind_of_arts = Super_Arts[ix];
-    gs.super_arts[ix].nmsa_g_ix = saptr->nmsa_g_ix;
-    gs.super_arts[ix].exsa_g_ix = saptr->exsa_g_ix;
-    gs.super_arts[ix].exs2_g_ix = saptr->exs2_g_ix;
-    gs.super_arts[ix].nmsa_a_ix = saptr->nmsa_a_ix;
-    gs.super_arts[ix].exsa_a_ix = saptr->exsa_a_ix;
-    gs.super_arts[ix].exs2_a_ix = saptr->exs2_a_ix;
-    gs.super_arts[ix].ex4th_full = saptr->ex4th_full;
-    gs.super_arts[ix].gauge_type = saptr->gauge_type;
-    gs.super_arts[ix].gt2 = saptr->gauge_type;
-    gs.super_arts[ix].gauge_len = remake_sa_gauge_len(ix, saptr->gauge_len);
-    gs.super_arts[ix].store_max = remake_sa_store_max(ix, saptr->store_max);
-    gs.super_arts[ix].dtm = saptr->dtm;
-    gs.super_arts[ix].dtm_mul = 1;
-    gs.super_arts[ix].store = 0;
-    gs.super_arts[ix].gauge.s.h = 0;
-    gs.super_arts[ix].gauge.s.l = -1;
-    gs.super_arts[ix].sa_rno = 0;
-    gs.super_arts[ix].ok = 0;
+    super_arts[ix].kind_of_arts = Super_Arts[ix];
+    super_arts[ix].nmsa_g_ix = saptr->nmsa_g_ix;
+    super_arts[ix].exsa_g_ix = saptr->exsa_g_ix;
+    super_arts[ix].exs2_g_ix = saptr->exs2_g_ix;
+    super_arts[ix].nmsa_a_ix = saptr->nmsa_a_ix;
+    super_arts[ix].exsa_a_ix = saptr->exsa_a_ix;
+    super_arts[ix].exs2_a_ix = saptr->exs2_a_ix;
+    super_arts[ix].ex4th_full = saptr->ex4th_full;
+    super_arts[ix].gauge_type = saptr->gauge_type;
+    super_arts[ix].gt2 = saptr->gauge_type;
+    super_arts[ix].gauge_len = remake_sa_gauge_len(ix, saptr->gauge_len);
+    super_arts[ix].store_max = remake_sa_store_max(ix, saptr->store_max);
+    super_arts[ix].dtm = saptr->dtm;
+    super_arts[ix].dtm_mul = 1;
+    super_arts[ix].store = 0;
+    super_arts[ix].gauge.s.h = 0;
+    super_arts[ix].gauge.s.l = -1;
+    super_arts[ix].sa_rno = 0;
+    super_arts[ix].ok = 0;
 }
 
 s16 remake_sa_store_max(s16 ix, s16 store_max) {
@@ -1427,19 +1428,19 @@ void set_super_arts_status_dc(s16 ix) {
         saptr = &super_arts_data[My_char[ix]][Super_Arts[ix]];
     }
 
-    gs.super_arts[ix].kind_of_arts = Super_Arts[ix];
-    gs.super_arts[ix].nmsa_g_ix = saptr->nmsa_g_ix;
-    gs.super_arts[ix].exsa_g_ix = saptr->exsa_g_ix;
-    gs.super_arts[ix].exs2_g_ix = saptr->exs2_g_ix;
-    gs.super_arts[ix].nmsa_a_ix = saptr->nmsa_a_ix;
-    gs.super_arts[ix].exsa_a_ix = saptr->exsa_a_ix;
-    gs.super_arts[ix].exs2_a_ix = saptr->exs2_a_ix;
-    gs.super_arts[ix].ex4th_full = saptr->ex4th_full;
-    gs.super_arts[ix].gauge_type = saptr->gauge_type;
-    gs.super_arts[ix].gauge_len = remake_sa_gauge_len(ix, saptr->gauge_len);
-    gs.super_arts[ix].store_max = remake_sa_store_max(ix, saptr->store_max);
-    gs.super_arts[ix].dtm = saptr->dtm;
-    gs.super_arts[ix].dtm_mul = 1;
+    super_arts[ix].kind_of_arts = Super_Arts[ix];
+    super_arts[ix].nmsa_g_ix = saptr->nmsa_g_ix;
+    super_arts[ix].exsa_g_ix = saptr->exsa_g_ix;
+    super_arts[ix].exs2_g_ix = saptr->exs2_g_ix;
+    super_arts[ix].nmsa_a_ix = saptr->nmsa_a_ix;
+    super_arts[ix].exsa_a_ix = saptr->exsa_a_ix;
+    super_arts[ix].exs2_a_ix = saptr->exs2_a_ix;
+    super_arts[ix].ex4th_full = saptr->ex4th_full;
+    super_arts[ix].gauge_type = saptr->gauge_type;
+    super_arts[ix].gauge_len = remake_sa_gauge_len(ix, saptr->gauge_len);
+    super_arts[ix].store_max = remake_sa_store_max(ix, saptr->store_max);
+    super_arts[ix].dtm = saptr->dtm;
+    super_arts[ix].dtm_mul = 1;
 }
 
 void clear_super_arts_point(PLW* wk) {

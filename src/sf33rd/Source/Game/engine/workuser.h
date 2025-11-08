@@ -15,8 +15,6 @@ typedef enum AppearanceType {
 } AppearanceType;
 
 typedef struct GameState {
-    SA_WORK super_arts[2];
-
     /// Stun data
     PiyoriType piyori_type[2];
 

@@ -28,6 +28,8 @@ extern PLW plw[2];
 /// Afterimage data
 extern ZanzouTableEntry zanzou_table[2][48];
 
+extern SA_WORK super_arts[2];
+
 // MARK: - Unhandled
 
 extern UNK_1 rambod[2];

@@ -7,6 +7,7 @@
 typedef struct _GameState {
     PLW plw[2];
     ZanzouTableEntry zanzou_table[2][48];
+    SA_WORK super_arts[2];
     u8 Order[148];
     u8 Order_Timer[148];
     u8 Order_Dir[148];
