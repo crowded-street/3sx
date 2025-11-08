@@ -1745,9 +1745,9 @@ void dash_flag_clear(s16 pl_id) {
     intptr_t* adrs;
 
     if (cmd_sel[pl_id]) {
-        adrs = pl_CMD[gs.plw[pl_id].player_number];
+        adrs = pl_CMD[plw[pl_id].player_number];
     } else {
-        adrs = pl_cmd[gs.plw[pl_id].player_number];
+        adrs = pl_cmd[plw[pl_id].player_number];
     }
 
     waza_compel_init(pl_id, 0, adrs);
@@ -1758,9 +1758,9 @@ void hi_jump_flag_clear(s16 pl_id) {
     intptr_t* adrs;
 
     if (cmd_sel[pl_id]) {
-        adrs = pl_CMD[gs.plw[pl_id].player_number];
+        adrs = pl_CMD[plw[pl_id].player_number];
     } else {
-        adrs = pl_cmd[gs.plw[pl_id].player_number];
+        adrs = pl_cmd[plw[pl_id].player_number];
     }
 
     waza_compel_init(pl_id, 2, adrs);
@@ -1770,9 +1770,9 @@ void waza_flag_clear_only_1(s16 pl_id, s16 wznum) {
     intptr_t* adrs;
 
     if (cmd_sel[pl_id]) {
-        adrs = pl_CMD[gs.plw[pl_id].player_number];
+        adrs = pl_CMD[plw[pl_id].player_number];
     } else {
-        adrs = pl_cmd[gs.plw[pl_id].player_number];
+        adrs = pl_cmd[plw[pl_id].player_number];
     }
 
     waza_compel_init(pl_id, wznum, adrs);

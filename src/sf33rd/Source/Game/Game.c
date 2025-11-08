@@ -371,21 +371,21 @@ void Game01() {
                 E_No[3] = 0;
             } else {
                 Demo_Time_Stop = 1;
-                gs.plw[0].wu.operator = 0;
+                plw[0].wu.operator = 0;
                 Operator_Status[0] = 0;
-                gs.plw[1].wu.operator = 0;
+                plw[1].wu.operator = 0;
                 Operator_Status[1] = 0;
             }
 
-            if (gs.plw[0].wu.operator != 0) {
+            if (plw[0].wu.operator != 0) {
                 Sel_Arts_Complete[0] = -1;
             }
 
-            if (gs.plw[1].wu.operator != 0) {
+            if (plw[1].wu.operator != 0) {
                 Sel_Arts_Complete[1] = -1;
             }
 
-            if ((gs.plw[0].wu.operator != 0) && (gs.plw[1].wu.operator != 0)) {
+            if ((plw[0].wu.operator != 0) && (plw[1].wu.operator != 0)) {
                 gs.Play_Type = 1;
             } else {
                 gs.Play_Type = 0;
@@ -428,7 +428,7 @@ void Game2_0() {
     case MODE_VERSUS:
         for (ix = 0; ix < 2; ix++) {
             if (save_w[1].Partner_Type[ix]) {
-                gs.plw[ix].wu.operator = 0;
+                plw[ix].wu.operator = 0;
                 Operator_Status[ix] = 0;
             }
         }
@@ -1073,7 +1073,7 @@ void Game06() {
 
 void Request_Break_Sub(s16 PL_id) {
     if ((Request_Break[PL_id] != 0) && (Ck_Break_Into(0, 0, PL_id) != 0)) {
-        gs.plw[PL_id].wu.operator = 1;
+        plw[PL_id].wu.operator = 1;
         Operator_Status[PL_id] = 1;
     }
 }
@@ -1239,8 +1239,8 @@ void Game08() {
             E_No[3] = 0;
             Clear_Personal_Data(0);
             Clear_Personal_Data(1);
-            gs.plw[0].wu.operator = 0;
-            gs.plw[1].wu.operator = 0;
+            plw[0].wu.operator = 0;
+            plw[1].wu.operator = 0;
             Operator_Status[0] = 0;
             Operator_Status[1] = 0;
             Last_Player_id = Player_Number = -1;
@@ -1779,10 +1779,10 @@ s16 Ck_Coin() {
         ToneDown(0xFF, 0);
         Request_LDREQ_Break();
         G_No[3] = 1;
-        gs.plw[PL_id].wu.operator = 1;
+        plw[PL_id].wu.operator = 1;
         Operator_Status[PL_id] = 1;
         Champion = PL_id;
-        gs.plw[PL_id ^ 1].wu.operator = 0;
+        plw[PL_id ^ 1].wu.operator = 0;
         Operator_Status[PL_id ^ 1] = 0;
         return 0;
 

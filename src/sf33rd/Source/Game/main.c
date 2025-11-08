@@ -389,7 +389,7 @@ void njUserMain() {
     cpLoopTask();
 
     if ((Game_pause != 0x81) && (Mode_Type == MODE_VERSUS) && (Play_Mode == 1)) {
-        if ((gs.plw[0].wu.operator == 0) && (CPU_Rec[0] == 0) && (Replay_Status[0] == 1)) {
+        if ((plw[0].wu.operator == 0) && (CPU_Rec[0] == 0) && (Replay_Status[0] == 1)) {
             p1sw_0 = 0;
 
             Check_Replay_Status(0, 1);
@@ -400,7 +400,7 @@ void njUserMain() {
             }
         }
 
-        if ((gs.plw[1].wu.operator == 0) && (CPU_Rec[1] == 0) && (Replay_Status[1] == 1)) {
+        if ((plw[1].wu.operator == 0) && (CPU_Rec[1] == 0) && (Replay_Status[1] == 1)) {
             p2sw_0 = 0;
 
             Check_Replay_Status(1, 1);

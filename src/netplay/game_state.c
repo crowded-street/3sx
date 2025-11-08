@@ -1,4 +1,5 @@
 #include "netplay/game_state.h"
+#include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 
 #include <SDL3/SDL.h>
@@ -6,6 +7,7 @@
 #define GS_SAVE(member) SDL_memcpy(&dst->member, &member, sizeof(member))
 
 void GameState_Save(_GameState* dst) {
+    GS_SAVE(plw);
     GS_SAVE(Order);
     GS_SAVE(Order_Timer);
     GS_SAVE(Order_Dir);
@@ -39,6 +41,7 @@ void GameState_Save(_GameState* dst) {
 #define GS_LOAD(member) SDL_memcpy(&member, &src->member, sizeof(member))
 
 void GameState_Load(const _GameState* src) {
+    GS_LOAD(plw);
     GS_LOAD(Order);
     GS_LOAD(Order_Timer);
     GS_LOAD(Order_Dir);

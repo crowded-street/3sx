@@ -228,7 +228,7 @@ void Finish_SE() {
         return;
     }
 
-    wk = &gs.plw[Winner_id];
+    wk = &plw[Winner_id];
 
     if (Code) {
         Code += (wk->wu.id * 0x300);

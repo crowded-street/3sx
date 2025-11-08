@@ -1,9 +1,11 @@
 #ifndef NETPLAY_GAME_STATE_H
 #define NETPLAY_GAME_STATE_H
 
+#include "structs.h"
 #include "types.h"
 
 typedef struct _GameState {
+    PLW plw[2];
     u8 Order[148];
     u8 Order_Timer[148];
     u8 Order_Dir[148];

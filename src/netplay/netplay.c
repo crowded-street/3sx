@@ -3,6 +3,7 @@
 #include "sf33rd/Source/Game/Game.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/grade.h"
+#include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/io/gd3rd.h"
 #include "sf33rd/Source/Game/io/pulpul.h"
@@ -92,8 +93,8 @@ static void setup_vs_mode() {
     // This is pretty much a copy of logic from menu.c
     task[TASK_MENU].r_no[0] = 5; // go to idle routine (doing nothing)
     cpExitTask(TASK_SAVER);
-    gs.plw[0].wu.operator = 1;
-    gs.plw[1].wu.operator = 1;
+    plw[0].wu.operator = 1;
+    plw[1].wu.operator = 1;
     Operator_Status[0] = 1;
     Operator_Status[1] = 1;
     grade_check_work_1st_init(0, 0);

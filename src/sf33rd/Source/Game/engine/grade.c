@@ -811,7 +811,7 @@ s16 get_tech_pts_total(s16 ix) {
 
     point += grade_t_command_waza[i][1];
 
-    switch (gs.plw[ix].sa->store_max) {
+    switch (plw[ix].sa->store_max) {
     case 1:
         for (i = 0; i < 5; i++) {
             if (judge_item[ix][gs.Play_Type].sa_exec < grade_t_sa_stock_1[i + 1][0]) {
@@ -1031,7 +1031,7 @@ void grade_add_super_arts(s16 ix, s16 num) {
 }
 
 void grade_store_vitality(s16 ix) {
-    judge_item[ix][gs.Play_Type].vitality = gs.plw[ix].wu.vital_new;
+    judge_item[ix][gs.Play_Type].vitality = plw[ix].wu.vital_new;
 }
 
 void grade_add_blocking(PLW* wk) {
@@ -1108,13 +1108,13 @@ void grade_add_personal_action(s16 ix) {
 }
 
 void grade_check_tairyokusa() {
-    s16 vwork = gs.plw[1].wu.vital_new - gs.plw[0].wu.vital_new;
+    s16 vwork = plw[1].wu.vital_new - plw[0].wu.vital_new;
 
     if (vwork > 0 && judge_item[0][gs.Play_Type].tairyokusa < vwork) {
         judge_item[0][gs.Play_Type].tairyokusa = vwork;
     }
 
-    vwork = gs.plw[0].wu.vital_new - gs.plw[1].wu.vital_new;
+    vwork = plw[0].wu.vital_new - plw[1].wu.vital_new;
 
     if (vwork > 0 && judge_item[1][gs.Play_Type].tairyokusa < vwork) {
         judge_item[1][gs.Play_Type].tairyokusa = vwork;
@@ -1124,7 +1124,7 @@ void grade_check_tairyokusa() {
 void grade_add_onaji_waza(s16 ix) {
     s16 num;
 
-    num = gs.plw[ix].wu.char_index + ((gs.plw[ix].wu.now_koc == 5) * 0xF0);
+    num = plw[ix].wu.char_index + ((plw[ix].wu.now_koc == 5) * 0xF0);
     if (num < 0x180) {
         if (ji_sat[ix][num] != 0xFF) {
             ji_sat[ix][num]++;

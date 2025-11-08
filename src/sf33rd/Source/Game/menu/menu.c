@@ -438,8 +438,8 @@ void Mode_Select(struct _TASK* task_ptr) {
 void Setup_VS_Mode(struct _TASK* task_ptr) {
     task_ptr->r_no[0] = 5;
     cpExitTask(TASK_SAVER);
-    gs.plw[0].wu.operator = 1;
-    gs.plw[1].wu.operator = 1;
+    plw[0].wu.operator = 1;
+    plw[1].wu.operator = 1;
     Operator_Status[0] = 1;
     Operator_Status[1] = 1;
     grade_check_work_1st_init(0, 0);
@@ -1480,7 +1480,7 @@ void Load_Replay_Sub(struct _TASK* task_ptr) {
         Bonus_Game_Flag = 0;
 
         for (ix = 0; ix < 2; ix++) {
-            gs.plw[ix].wu.operator = Replay_w.game_infor.player_infor[ix].player_type;
+            plw[ix].wu.operator = Replay_w.game_infor.player_infor[ix].player_type;
             Operator_Status[ix] = Replay_w.game_infor.player_infor[ix].player_type;
             My_char[ix] = Replay_w.game_infor.player_infor[ix].my_char;
             Super_Arts[ix] = Replay_w.game_infor.player_infor[ix].sa;
@@ -1594,11 +1594,11 @@ void Load_Replay_Sub(struct _TASK* task_ptr) {
             E_No[2] = 0;
             E_No[3] = 0;
 
-            if (gs.plw->wu.operator != 0) {
+            if (plw->wu.operator != 0) {
                 Sel_Arts_Complete[0] = -1;
             }
 
-            if (gs.plw[1].wu.operator != 0) {
+            if (plw[1].wu.operator != 0) {
                 Sel_Arts_Complete[1] = -1;
             }
 
@@ -3665,7 +3665,7 @@ s32 VS_Result_Select_Sub(struct _TASK* task_ptr, s16 PL_id) {
 u16 After_VS_Move_Sub(u16 sw, s16 cursor_id, s16 menu_max) {
     s16 skip;
 
-    if (gs.plw[0].wu.operator == 0 || gs.plw[1].wu.operator == 0) {
+    if (plw[0].wu.operator == 0 || plw[1].wu.operator == 0) {
         skip = 1;
     } else {
         skip = 99;
@@ -3920,10 +3920,10 @@ void Exit_Replay_Save(struct _TASK* task_ptr) {
 }
 
 void Decide_PL(s16 PL_id) {
-    gs.plw[PL_id].wu.operator = 1;
+    plw[PL_id].wu.operator = 1;
     Operator_Status[PL_id] = 1;
     Champion = PL_id;
-    gs.plw[PL_id ^ 1].wu.operator = 0;
+    plw[PL_id ^ 1].wu.operator = 0;
     Operator_Status[PL_id ^ 1] = 0;
 
     if (Continue_Coin[PL_id] == 0) {
@@ -4107,7 +4107,7 @@ s32 Check_Pause_Term_Tr(s16 PL_id) {
 s32 Pause_Check_Tr(s16 PL_id) {
     u16 sw;
 
-    if (gs.plw[PL_id].wu.operator == 0) {
+    if (plw[PL_id].wu.operator == 0) {
         return 0;
     }
 
@@ -4268,7 +4268,7 @@ s32 Pause_1st_Sub(struct _TASK* task_ptr) {
 
     if (sw & SWK_START) {
         if (((Mode_Type == MODE_NORMAL_TRAINING) || (Mode_Type == MODE_PARRY_TRAINING)) &&
-            (Check_Pause_Term_Tr(Pause_ID ^ 1) != 0) && gs.plw[Pause_ID ^ 1].wu.operator &&
+            (Check_Pause_Term_Tr(Pause_ID ^ 1) != 0) && plw[Pause_ID ^ 1].wu.operator &&
             (Interface_Type[Pause_ID ^ 1] == 0)) {
             Pause_ID = Pause_ID ^ 1;
             return 0;
@@ -4507,7 +4507,7 @@ void Normal_Training(struct _TASK* task_ptr) {
                 Training_Disp_Work_Clear();
                 CP_No[0][0] = 0;
                 CP_No[1][0] = 0;
-                gs.plw[gs.New_Challenger].wu.operator = 1;
+                plw[gs.New_Challenger].wu.operator = 1;
                 Operator_Status[gs.New_Challenger] = 1;
                 Setup_NTr_Data(Menu_Cursor_Y[0]);
                 count_cont_init(0);
@@ -4530,7 +4530,7 @@ void Normal_Training(struct _TASK* task_ptr) {
 
                 case 3:
                     control_pl_rno = 99;
-                    gs.plw[gs.New_Challenger].wu.operator = 0;
+                    plw[gs.New_Challenger].wu.operator = 0;
                     Operator_Status[gs.New_Challenger] = 0;
                     break;
 
@@ -4544,8 +4544,8 @@ void Normal_Training(struct _TASK* task_ptr) {
                 Training[0].contents[0][1][3] = Menu_Cursor_Y[0];
                 init_omop();
                 set_init_A4_flag();
-                setup_vitality(&gs.plw[0].wu, My_char[0] + 0);
-                setup_vitality(&gs.plw[1].wu, My_char[1] + 0);
+                setup_vitality(&plw[0].wu, My_char[0] + 0);
+                setup_vitality(&plw[1].wu, My_char[1] + 0);
                 Setup_Training_Difficulty();
                 Training_Cursor = Menu_Cursor_Y[0];
                 break;
@@ -4950,9 +4950,9 @@ void Blocking_Training(struct _TASK* task_ptr) {
         Training_Index = 1;
         x = 112;
         y = 72;
-        gs.plw[0].wu.operator = 1;
+        plw[0].wu.operator = 1;
         Operator_Status[0] = 1;
-        gs.plw[1].wu.operator = 1;
+        plw[1].wu.operator = 1;
         Operator_Status[1] = 1;
 
         for (ix = 0; ix < 6; ix++, s2 = y += 16) {
@@ -5142,7 +5142,7 @@ void Blocking_Tr_Option(struct _TASK* task_ptr) {
         task_ptr->r_no[3] = 0;
         Training[0] = Training[2];
 
-        gs.plw[gs.New_Challenger].wu.operator = 1;
+        plw[gs.New_Challenger].wu.operator = 1;
         Operator_Status[gs.New_Challenger] = 1;
 
         switch (Training[0].contents[1][0][0]) {
@@ -5221,7 +5221,7 @@ void Character_Change(struct _TASK* task_ptr) {
                 for (ix = 0; ix < 2; ix++) {
                     gs.Sel_PL_Complete[ix] = 0;
                     Sel_Arts_Complete[ix] = 0;
-                    gs.plw[ix].wu.operator = 1;
+                    plw[ix].wu.operator = 1;
                     Operator_Status[ix] = 1;
                 }
 
