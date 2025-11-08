@@ -1,6 +1,7 @@
 #ifndef NETPLAY_GAME_STATE_H
 #define NETPLAY_GAME_STATE_H
 
+#include "sf33rd/Source/Game/engine/plcnt.h"
 #include "structs.h"
 #include "types.h"
 
@@ -9,6 +10,7 @@ typedef struct _GameState {
     ZanzouTableEntry zanzou_table[2][48];
     SA_WORK super_arts[2];
     PiyoriType piyori_type[2];
+    AppearanceType appear_type;
     u8 Order[148];
     u8 Order_Timer[148];
     u8 Order_Dir[148];

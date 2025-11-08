@@ -1582,7 +1582,7 @@ void Load_Replay_Sub(struct _TASK* task_ptr) {
         if (Switch_Screen(0) != 0) {
             Game01_Sub();
             Cover_Timer = 5;
-            gs.appear_type = APPEAR_TYPE_ANIMATED;
+            appear_type = APPEAR_TYPE_ANIMATED;
             set_hitmark_color();
             Purge_texcash_of_list(3);
             Make_texcash_of_list(3);

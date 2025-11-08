@@ -11,6 +11,7 @@ void GameState_Save(_GameState* dst) {
     GS_SAVE(zanzou_table);
     GS_SAVE(super_arts);
     GS_SAVE(piyori_type);
+    GS_SAVE(appear_type);
     GS_SAVE(Order);
     GS_SAVE(Order_Timer);
     GS_SAVE(Order_Dir);
@@ -48,6 +49,7 @@ void GameState_Load(const _GameState* src) {
     GS_LOAD(zanzou_table);
     GS_LOAD(super_arts);
     GS_LOAD(piyori_type);
+    GS_LOAD(appear_type);
     GS_LOAD(Order);
     GS_LOAD(Order_Timer);
     GS_LOAD(Order_Dir);

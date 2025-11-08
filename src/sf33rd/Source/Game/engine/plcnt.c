@@ -80,6 +80,7 @@ PLW plw[2];
 ZanzouTableEntry zanzou_table[2][48];
 SA_WORK super_arts[2];
 PiyoriType piyori_type[2];
+AppearanceType appear_type;
 
 // sbss
 UNK_1 rambod[2];            // FIXME: this is used in effects, might not be serializable
@@ -401,7 +402,7 @@ void reqPlayerDraw() {
 
 void plcnt_init() {
     plw[0].reserv_add_y = plw[1].reserv_add_y = 0;
-    appear_initalize[gs.appear_type]();
+    appear_initalize[appear_type]();
     move_player_work();
 }
 

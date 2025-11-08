@@ -42,7 +42,7 @@ void Demo00() {
         G_No[2] = 0;
         Game_pause = 0;
         Conclusion_Flag = 0;
-        gs.appear_type = APPEAR_TYPE_ANIMATED;
+        appear_type = APPEAR_TYPE_ANIMATED;
         Control_Time = 0x800;
         Round_Level = 7;
         Weak_PL = random_16() & 1;

@@ -177,7 +177,7 @@ void player_mv_0000(PLW* wk) {
 }
 
 void player_mv_1000(PLW* wk) {
-    switch (gs.appear_type) {
+    switch (appear_type) {
     case APPEAR_TYPE_NON_ANIMATED:
         plmv_1010(wk);
 

@@ -18,6 +18,13 @@ typedef struct {
     s32 dtm;
 } SA_DATA;
 
+typedef enum AppearanceType {
+    APPEAR_TYPE_NON_ANIMATED,
+    APPEAR_TYPE_ANIMATED,
+    APPEAR_TYPE_UNKNOWN_2, // FIXME: document
+    APPEAR_TYPE_UNKNOWN_3, // FIXME: document
+} AppearanceType;
+
 extern const s8 plid_data[20];
 extern const s16** kizetsu_timer_table[];
 
@@ -31,6 +38,8 @@ extern ZanzouTableEntry zanzou_table[2][48];
 
 /// Stun data
 extern PiyoriType piyori_type[2];
+
+extern AppearanceType appear_type;
 
 // MARK: - Unhandled
 

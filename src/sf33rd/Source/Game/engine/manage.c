@@ -451,7 +451,7 @@ void Game_Manage_2_4() {
             gs.pcon_rno[1] = 0;
             gs.pcon_rno[2] = 0;
             gs.pcon_rno[3] = 0;
-            gs.appear_type = APPEAR_TYPE_NON_ANIMATED;
+            appear_type = APPEAR_TYPE_NON_ANIMATED;
             erase_extra_plef_work();
             compel_bg_init_position();
             win_lose_work_clear();
@@ -649,7 +649,7 @@ void Game_Manage_5_4() {
         gs.pcon_rno[1] = 0;
         gs.pcon_rno[2] = 0;
         gs.pcon_rno[3] = 0;
-        gs.appear_type = APPEAR_TYPE_UNKNOWN_3;
+        appear_type = APPEAR_TYPE_UNKNOWN_3;
     }
 }
 
@@ -1134,7 +1134,7 @@ void Game_Manage_10th() {
             gs.pcon_rno[1] = 0;
             gs.pcon_rno[2] = 0;
             gs.pcon_rno[3] = 0;
-            gs.appear_type = APPEAR_TYPE_ANIMATED;
+            appear_type = APPEAR_TYPE_ANIMATED;
             Continue_Coin2[WINNER] = 0;
 
             if (Mode_Type == MODE_VERSUS || Mode_Type == 5 || Round_Operator[WINNER]) {
