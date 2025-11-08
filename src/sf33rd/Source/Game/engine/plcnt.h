@@ -52,6 +52,9 @@ extern bool round_slow_flag;
 extern bool pcon_dp_flag;
 extern u8 win_sp_flag;
 
+/// `true` if death SFX playback needs to be requested
+extern bool dead_voice_flag;
+
 // MARK: - Unhandled
 
 extern UNK_1 rambod[2];

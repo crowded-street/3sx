@@ -422,7 +422,7 @@ void subtract_cu_vital(PLW* wk) {
             if (wk->wu.vital_new < 0) {
                 wk->wu.vital_new = -1;
                 wk->dead_flag = 1;
-                gs.dead_voice_flag = true;
+                dead_voice_flag = true;
 
                 if (!round_slow_flag) {
                     set_conclusion_slow();

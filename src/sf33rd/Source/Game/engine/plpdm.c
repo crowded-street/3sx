@@ -1462,7 +1462,7 @@ void subtract_dm_vital(PLW* wk) {
         if (wk->wu.vital_new < 0) {
             wk->wu.vital_new = -1;
             wk->dead_flag = 1;
-            gs.dead_voice_flag = true;
+            dead_voice_flag = true;
 
             if (wk->wu.dm_guard_success != -1) {
                 wk->kezurijini_flag = 1;
@@ -1538,7 +1538,7 @@ void subtract_dm_vital_aiuchi(PLW* wk) {
         if (wk->wu.vital_new < 0) {
             wk->wu.vital_new = -1;
             wk->dead_flag = 1;
-            gs.dead_voice_flag = true;
+            dead_voice_flag = true;
 
             if (wk->wu.dm_guard_success != -1) {
                 wk->kezurijini_flag = 1;

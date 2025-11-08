@@ -16,6 +16,7 @@ void GameState_Save(_GameState* dst) {
     GS_SAVE(round_slow_flag);
     GS_SAVE(pcon_dp_flag);
     GS_SAVE(win_sp_flag);
+    GS_SAVE(dead_voice_flag);
     GS_SAVE(Order);
     GS_SAVE(Order_Timer);
     GS_SAVE(Order_Dir);
@@ -58,6 +59,7 @@ void GameState_Load(const _GameState* src) {
     GS_LOAD(round_slow_flag);
     GS_LOAD(pcon_dp_flag);
     GS_LOAD(win_sp_flag);
+    GS_LOAD(dead_voice_flag);
     GS_LOAD(Order);
     GS_LOAD(Order_Timer);
     GS_LOAD(Order_Dir);
