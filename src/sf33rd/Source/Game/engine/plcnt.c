@@ -1003,7 +1003,7 @@ void check_damage_hosei_dageki(PLW* w1, PLW* w2) {
 }
 
 s32 time_over_check() {
-    if ((will_die() != 0) && (gs.round_timer == 0)) {
+    if ((will_die() != 0) && (round_timer == 0)) {
         Winner_id = 0;
         Loser_id = 1;
 

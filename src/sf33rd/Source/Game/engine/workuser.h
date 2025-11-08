@@ -8,18 +8,6 @@
 #include <stdbool.h>
 
 typedef struct GameState {
-    // Round timer
-
-    s8 round_timer;
-    s8 flash_timer;
-    s8 flash_r_num;
-    s8 flash_col;
-    s8 math_counter_hi;
-    s8 math_counter_low;
-    u8 counter_color;
-    bool mugen_flag;
-    s8 hoji_counter;
-
     s8 Counter_hi;
     s8 Counter_low;
     s16 Unit_Of_Timer;

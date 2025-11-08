@@ -1758,7 +1758,7 @@ void Pool_Score(s16 PL_id) {
         return;
     }
 
-    Time_Bonus[Winner_id] += gs.round_timer * 300;
+    Time_Bonus[Winner_id] += round_timer * 300;
 }
 
 s32 Check_Break_Into_CPU(s16 PL_id) {

@@ -18,6 +18,17 @@ typedef struct _GameState {
     bool dead_voice_flag;
     bool Scene_Cut;
     bool Time_Over;
+
+    s8 round_timer;
+    s8 flash_timer;
+    s8 flash_r_num;
+    s8 flash_col;
+    s8 math_counter_hi;
+    s8 math_counter_low;
+    u8 counter_color;
+    bool mugen_flag;
+    s8 hoji_counter;
+
     u8 Order[148];
     u8 Order_Timer[148];
     u8 Order_Dir[148];

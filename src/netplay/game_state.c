@@ -1,6 +1,7 @@
 #include "netplay/game_state.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/ui/count.h"
 
 #include <SDL3/SDL.h>
 
@@ -19,6 +20,15 @@ void GameState_Save(_GameState* dst) {
     GS_SAVE(dead_voice_flag);
     GS_SAVE(Scene_Cut);
     GS_SAVE(Time_Over);
+    GS_SAVE(round_timer);
+    GS_SAVE(flash_timer);
+    GS_SAVE(flash_r_num);
+    GS_SAVE(flash_col);
+    GS_SAVE(math_counter_hi);
+    GS_SAVE(math_counter_low);
+    GS_SAVE(counter_color);
+    GS_SAVE(mugen_flag);
+    GS_SAVE(hoji_counter);
     GS_SAVE(Order);
     GS_SAVE(Order_Timer);
     GS_SAVE(Order_Dir);
@@ -64,6 +74,15 @@ void GameState_Load(const _GameState* src) {
     GS_LOAD(dead_voice_flag);
     GS_LOAD(Scene_Cut);
     GS_LOAD(Time_Over);
+    GS_LOAD(round_timer);
+    GS_LOAD(flash_timer);
+    GS_LOAD(flash_r_num);
+    GS_LOAD(flash_col);
+    GS_LOAD(math_counter_hi);
+    GS_LOAD(math_counter_low);
+    GS_LOAD(counter_color);
+    GS_LOAD(mugen_flag);
+    GS_LOAD(hoji_counter);
     GS_LOAD(Order);
     GS_LOAD(Order_Timer);
     GS_LOAD(Order_Dir);
