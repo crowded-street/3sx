@@ -1251,7 +1251,7 @@ void eff09_21000(WORK_Other* ewk) {
     s16 arrive_x;
     s16 arrive_y;
 
-    if (gs.Suicide[0]) {
+    if (Suicide[0]) {
         ewk->wu.routine_no[1] = 99;
     }
 

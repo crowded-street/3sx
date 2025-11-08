@@ -25,7 +25,7 @@ const s16 effl7_data_tbl[16];
 void effect_L7_move(WORK_Other* ewk) {
     WORK* oya_ptr = (WORK*)ewk->my_master;
 
-    if (gs.Suicide[0] || (ewk->wu.dead_f)) {
+    if (Suicide[0] || (ewk->wu.dead_f)) {
         ewk->wu.routine_no[0] = 1;
         ewk->wu.disp_flag = 0;
     }

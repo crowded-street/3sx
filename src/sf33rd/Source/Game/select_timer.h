@@ -11,6 +11,8 @@ typedef struct SelectTimerState {
     int timer;
 } SelectTimerState;
 
+extern SelectTimerState select_timer_state;
+
 void SelectTimer_Init();
 void SelectTimer_Finish();
 void SelectTimer_Run();

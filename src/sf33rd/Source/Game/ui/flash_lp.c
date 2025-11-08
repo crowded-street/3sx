@@ -48,7 +48,7 @@ void Flash_Lamp() {
         }
     }
 
-    for (ix = 0; ix <= save_w[Present_Mode].Battle_Number[gs.Play_Type]; ix++) {
+    for (ix = 0; ix <= save_w[Present_Mode].Battle_Number[Play_Type]; ix++) {
         mark = flash_win_type[0][ix];
 
         if (flash_win_type[0][ix] == 0) {

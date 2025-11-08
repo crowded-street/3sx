@@ -176,14 +176,14 @@ void EFF42_MOVE(WORK_Other* ewk) {
     case 0:
         if (--ewk->wu.dir_timer == 0) {
             ewk->wu.routine_no[0]++;
-            gs.Time_Stop = 0;
+            Time_Stop = 0;
         }
 
         break;
 
     case 1:
-        if (ewk->wu.rl_waza != gs.Select_Timer) {
-            ewk->wu.rl_waza = gs.Select_Timer;
+        if (ewk->wu.rl_waza != Select_Timer) {
+            ewk->wu.rl_waza = Select_Timer;
             Setup_Char_Index(ewk);
             set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
         }
@@ -193,7 +193,7 @@ void EFF42_MOVE(WORK_Other* ewk) {
 }
 
 void Setup_Char_Index(WORK_Other* ewk) {
-    s16 xx = gs.Select_Timer & (s8)ewk->wu.routine_no[7];
+    s16 xx = Select_Timer & (s8)ewk->wu.routine_no[7];
 
     xx &= 0xFF;
 
@@ -227,7 +227,7 @@ s32 effect_42_init(s16 type) {
     ewk->wu.my_col_code = 0x2090;
     ewk->wu.my_family = 3;
     ewk->wu.dir_timer = 10;
-    ewk->wu.rl_waza = gs.Select_Timer;
+    ewk->wu.rl_waza = Select_Timer;
     *ewk->wu.char_table = _sel_pl_char_table;
     ewk->wu.dir_old = type;
     ewk->wu.my_mts = 13;
@@ -245,7 +245,7 @@ s32 effect_42_init(s16 type) {
     switch (type) {
     case 5:
         ewk->wu.routine_no[7] = 240;
-        ix = gs.Select_Timer & 0xF0;
+        ix = Select_Timer & 0xF0;
         ix >>= 4;
         ewk->wu.dir_step = ix;
         break;
@@ -257,7 +257,7 @@ s32 effect_42_init(s16 type) {
 
     case 7:
         ewk->wu.routine_no[7] = 240;
-        ix = gs.Select_Timer & 0xF0;
+        ix = Select_Timer & 0xF0;
         ix >>= 4;
         ewk->wu.dir_step = ix + 10;
         break;
@@ -269,7 +269,7 @@ s32 effect_42_init(s16 type) {
 
     case 9:
         ewk->wu.routine_no[7] = 240;
-        ix = gs.Select_Timer & 0xF0;
+        ix = Select_Timer & 0xF0;
         ix >>= 4;
         ewk->wu.dir_step = ix + 10;
         ewk->wu.my_family = 4;

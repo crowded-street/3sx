@@ -1,13 +1,14 @@
 #include "netplay/game_state.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/select_timer.h"
 #include "sf33rd/Source/Game/ui/count.h"
 
 #include <SDL3/SDL.h>
 
 #define GS_SAVE(member) SDL_memcpy(&dst->member, &member, sizeof(member))
 
-void GameState_Save(_GameState* dst) {
+void GameState_Save(GameState* dst) {
     GS_SAVE(plw);
     GS_SAVE(zanzou_table);
     GS_SAVE(super_arts);
@@ -29,6 +30,7 @@ void GameState_Save(_GameState* dst) {
     GS_SAVE(counter_color);
     GS_SAVE(mugen_flag);
     GS_SAVE(hoji_counter);
+    GS_SAVE(select_timer_state);
     GS_SAVE(Order);
     GS_SAVE(Order_Timer);
     GS_SAVE(Order_Dir);
@@ -57,11 +59,27 @@ void GameState_Save(_GameState* dst) {
     GS_SAVE(Forbid_Break);
     GS_SAVE(Request_Break);
     GS_SAVE(Continue_Count);
+    GS_SAVE(Counter_hi);
+    GS_SAVE(Counter_low);
+    GS_SAVE(Unit_Of_Timer);
+    GS_SAVE(Select_Timer);
+    GS_SAVE(Cursor_X);
+    GS_SAVE(Cursor_Y);
+    GS_SAVE(Cursor_Y_Pos);
+    GS_SAVE(Cursor_Timer);
+    GS_SAVE(Time_Stop);
+    GS_SAVE(Suicide);
+    GS_SAVE(Complete_Face);
+    GS_SAVE(Play_Type);
+    GS_SAVE(Sel_PL_Complete);
+    GS_SAVE(New_Challenger);
+    GS_SAVE(S_No);
+    GS_SAVE(Select_Start);
 }
 
 #define GS_LOAD(member) SDL_memcpy(&member, &src->member, sizeof(member))
 
-void GameState_Load(const _GameState* src) {
+void GameState_Load(const GameState* src) {
     GS_LOAD(plw);
     GS_LOAD(zanzou_table);
     GS_LOAD(super_arts);
@@ -83,6 +101,7 @@ void GameState_Load(const _GameState* src) {
     GS_LOAD(counter_color);
     GS_LOAD(mugen_flag);
     GS_LOAD(hoji_counter);
+    GS_LOAD(select_timer_state);
     GS_LOAD(Order);
     GS_LOAD(Order_Timer);
     GS_LOAD(Order_Dir);
@@ -111,4 +130,20 @@ void GameState_Load(const _GameState* src) {
     GS_LOAD(Forbid_Break);
     GS_LOAD(Request_Break);
     GS_LOAD(Continue_Count);
+    GS_LOAD(Counter_hi);
+    GS_LOAD(Counter_low);
+    GS_LOAD(Unit_Of_Timer);
+    GS_LOAD(Select_Timer);
+    GS_LOAD(Cursor_X);
+    GS_LOAD(Cursor_Y);
+    GS_LOAD(Cursor_Y_Pos);
+    GS_LOAD(Cursor_Timer);
+    GS_LOAD(Time_Stop);
+    GS_LOAD(Suicide);
+    GS_LOAD(Complete_Face);
+    GS_LOAD(Play_Type);
+    GS_LOAD(Sel_PL_Complete);
+    GS_LOAD(New_Challenger);
+    GS_LOAD(S_No);
+    GS_LOAD(Select_Start);
 }

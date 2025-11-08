@@ -34,11 +34,11 @@ void effect_D8_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
         if (((Mode_Type == MODE_NORMAL_TRAINING) || (Mode_Type == MODE_PARRY_TRAINING)) &&
-            (ewk->master_id == gs.New_Challenger) && (gs.S_No[3] < 2)) {
+            (ewk->master_id == New_Challenger) && (S_No[3] < 2)) {
             return;
         }
 
-        if (gs.Complete_Face <= 0) {
+        if (Complete_Face <= 0) {
             ewk->wu.routine_no[0] += 1;
             ewk->wu.dir_timer = 10;
         }
@@ -55,11 +55,11 @@ void effect_D8_move(WORK_Other* ewk) {
         break;
 
     case 2:
-        if ((ewk->wu.vital_new != gs.Cursor_X[ewk->master_id]) || (ewk->wu.vital_old != gs.Cursor_Y[ewk->master_id])) {
-            ewk->wu.vital_new = gs.Cursor_X[ewk->master_id];
-            ewk->wu.vital_old = gs.Cursor_Y[ewk->master_id];
+        if ((ewk->wu.vital_new != Cursor_X[ewk->master_id]) || (ewk->wu.vital_old != Cursor_Y[ewk->master_id])) {
+            ewk->wu.vital_new = Cursor_X[ewk->master_id];
+            ewk->wu.vital_old = Cursor_Y[ewk->master_id];
 
-            if (gs.Play_Type == 1) {
+            if (Play_Type == 1) {
                 offset_x = Setup_Face_Offset_X(99);
             } else {
                 offset_x = Setup_Face_Offset_X(Play_Type_1st);
@@ -69,7 +69,7 @@ void effect_D8_move(WORK_Other* ewk) {
             set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, (ewk->wu.cg_ix / ewk->wu.cgd_type) + 1, 0);
         }
 
-        if (gs.Sel_PL_Complete[ewk->master_id]) {
+        if (Sel_PL_Complete[ewk->master_id]) {
             ewk->wu.routine_no[0] += 1;
             ewk->wu.dir_timer = 20;
             ewk->wu.char_index += 1;
@@ -85,13 +85,13 @@ void effect_D8_move(WORK_Other* ewk) {
             char_move(&ewk->wu);
         } else {
             ewk->wu.routine_no[0] += 1;
-            gs.Sel_PL_Complete[ewk->master_id] = -0x8000;
+            Sel_PL_Complete[ewk->master_id] = -0x8000;
 
-            if (gs.Select_Start[ewk->master_id] == 0) {
-                gs.Select_Timer = 0x20;
+            if (Select_Start[ewk->master_id] == 0) {
+                Select_Timer = 0x20;
             }
 
-            gs.Unit_Of_Timer = 60;
+            Unit_Of_Timer = 60;
             ewk->wu.char_index += 1;
             set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
         }
@@ -140,8 +140,8 @@ s32 effect_D8_init(s16 PL_id, s16 Type) {
     ewk->wu.char_table[0] = _sel_pl_char_table;
     ewk->wu.char_index = (Type * 3) + 43;
     ewk->master_id = PL_id;
-    ewk->wu.vital_new = gs.Cursor_X[ewk->master_id];
-    ewk->wu.vital_old = gs.Cursor_Y[ewk->master_id];
+    ewk->wu.vital_new = Cursor_X[ewk->master_id];
+    ewk->wu.vital_old = Cursor_Y[ewk->master_id];
     ewk->wu.position_z = D8_Priority_Data[Type];
     ewk->wu.direction = Type;
     ewk->wu.hit_quake = 0;
@@ -153,7 +153,7 @@ s32 effect_D8_init(s16 PL_id, s16 Type) {
 }
 
 void Setup_EffD8_Pos(WORK_Other* ewk, s16 /* unused */) {
-    s16 xx = ID_of_Face[gs.Cursor_Y[ewk->master_id]][gs.Cursor_X[ewk->master_id]];
+    s16 xx = ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]];
     ewk->wu.xyz[0].disp.pos = Face_Pos_Data[xx][0] + 512;
     ewk->wu.xyz[1].disp.pos = Face_Pos_Data[xx][1] + 0;
 }

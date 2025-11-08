@@ -124,8 +124,8 @@ s32 effect_50_init(s16 PL_id, s16 Direction, s16 dm_vital) {
         Synchro_Address[ewk->master_id][ewk->wu.direction - 1] = ewk;
     }
 
-    ewk->wu.xyz[0].disp.pos = Plate_Pos_Data_79[gs.Play_Type][ewk->master_id][0][0];
-    ewk->wu.xyz[1].disp.pos = Plate_Pos_Data_79[gs.Play_Type][ewk->master_id][0][1];
+    ewk->wu.xyz[0].disp.pos = Plate_Pos_Data_79[Play_Type][ewk->master_id][0][0];
+    ewk->wu.xyz[1].disp.pos = Plate_Pos_Data_79[Play_Type][ewk->master_id][0][1];
 
     if (dm_vital == 1) {
         ewk->wu.char_index = 31;

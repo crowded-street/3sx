@@ -70,7 +70,7 @@ void EFF76_WAIT(WORK_Other* ewk) {
         ewk->wu.routine_no[0] = 4;
         ewk->wu.routine_no[1] = 0;
         Order_Timer[ewk->wu.dir_old] = 1;
-    } else if (gs.Suicide[ewk->wu.direction] != 0) {
+    } else if (Suicide[ewk->wu.direction] != 0) {
         Order[ewk->wu.dir_old] = 4;
         ewk->wu.routine_no[0] = 4;
         ewk->wu.routine_no[1] = 1;
@@ -82,7 +82,7 @@ void EFF76_WAIT(WORK_Other* ewk) {
 }
 
 void EFF76_WAIT_BREAK_INTO(WORK_Other* ewk) {
-    if (gs.Suicide[ewk->wu.direction] != 0) {
+    if (Suicide[ewk->wu.direction] != 0) {
         Order[ewk->wu.dir_old] = 4;
         ewk->wu.routine_no[0] = 4;
         ewk->wu.routine_no[1] = 1;

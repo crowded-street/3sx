@@ -12,14 +12,14 @@
 #include "sf33rd/Source/Game/system/sys_sub.h"
 
 void effect_14_move(WORK_Other* ewk) {
-    if (gs.Suicide[5] & 0x80) {
+    if (Suicide[5] & 0x80) {
         push_effect_work(&ewk->wu);
         return;
     }
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        if (gs.Suicide[5] & 1) {
+        if (Suicide[5] & 1) {
             if (PB_Status & 3) {
                 ewk->wu.routine_no[0]++;
                 ewk->wu.dir_timer = 1;

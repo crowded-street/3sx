@@ -162,7 +162,7 @@ void effect_L1_move(WORK_Other_CONN* ewk) {
         break;
 
     case 1:
-        if (ewk->wu.dead_f == 1 || gs.Suicide[2] != 0) {
+        if (ewk->wu.dead_f == 1 || Suicide[2] != 0) {
             ewk->wu.routine_no[0] = 2;
             ewk->wu.type = 0;
             ewk->wu.disp_flag = 0;
@@ -356,12 +356,12 @@ void effL1_f_stage_p_init(WORK_Other_CONN* ewk) {
 
     for (i = 0; i < 10; i++) {
         ewk->conn[i] = gj_f_stage_p[i];
-        ewk->conn[i].chr += judge_final[WGJ_Target][gs.Play_Type].fr_sort_data[i][0];
+        ewk->conn[i].chr += judge_final[WGJ_Target][Play_Type].fr_sort_data[i][0];
     }
 
     ewk->conn[i] = gj_f_stage_p[i];
 
-    if (judge_final[WGJ_Target][gs.Play_Type].vs_cpu_result[15] != -1) {
+    if (judge_final[WGJ_Target][Play_Type].vs_cpu_result[15] != -1) {
         ewk->num_of_conn = 11;
     } else {
         ewk->num_of_conn = 10;
@@ -374,12 +374,12 @@ void effL1_f_stage_r_init(WORK_Other_CONN* ewk) {
 
     for (i = 0; i < 22; i++) {
         ewk->conn[i] = gj_f_stage_r[i];
-        ewk->conn[i].chr += judge_final[WGJ_Target][gs.Play_Type].fr_sort_data[i / 2][(i & 1) + 1];
+        ewk->conn[i].chr += judge_final[WGJ_Target][Play_Type].fr_sort_data[i / 2][(i & 1) + 1];
     }
 
-    ewk->num_of_conn = judge_final[WGJ_Target][gs.Play_Type].fr_ix * 2;
+    ewk->num_of_conn = judge_final[WGJ_Target][Play_Type].fr_ix * 2;
 
-    if (judge_final[WGJ_Target][gs.Play_Type].vs_cpu_result[15] == -1) {
+    if (judge_final[WGJ_Target][Play_Type].vs_cpu_result[15] == -1) {
         ewk->conn[18].nx = ewk->conn[20].nx;
         ewk->conn[18].ny = ewk->conn[20].ny;
         ewk->conn[19].nx = ewk->conn[21].nx;
@@ -410,16 +410,16 @@ void effL1_f_mk_spp_init(WORK_Other_CONN* ewk) {
     s16 i;
     s16 k = 0;
 
-    if (judge_final[WGJ_Target][gs.Play_Type].vs_cpu_result[15] == -1) {
+    if (judge_final[WGJ_Target][Play_Type].vs_cpu_result[15] == -1) {
         for (i = 0; i < 10; i++) {
-            if (judge_final[WGJ_Target][gs.Play_Type].fr_sort_data[i][3]) {
+            if (judge_final[WGJ_Target][Play_Type].fr_sort_data[i][3]) {
                 ewk->conn[k] = gj_f_mk_spp[i];
                 k++;
             }
         }
     } else {
         for (i = 0; i < 11; i++) {
-            if (judge_final[WGJ_Target][gs.Play_Type].fr_sort_data[i][3]) {
+            if (judge_final[WGJ_Target][Play_Type].fr_sort_data[i][3]) {
                 ewk->conn[k] = gj_f_mk_spp_Q[i];
                 k++;
             }
@@ -445,7 +445,7 @@ void effL1_f_mk_all_init(WORK_Other_CONN* ewk) {
         ewk->conn[i] = gj_f_mk_all[i];
     }
 
-    if (judge_final[WGJ_Target][gs.Play_Type].all_clear) {
+    if (judge_final[WGJ_Target][Play_Type].all_clear) {
         ewk->conn[4].nx -= 4;
         ewk->conn[5].nx -= 6;
         ewk->conn[5].chr++;
@@ -455,7 +455,7 @@ void effL1_f_mk_all_init(WORK_Other_CONN* ewk) {
 void effL1_f_kz_cont_init(WORK_Other_CONN* ewk) {
     s16 i;
 
-    effL1_suuchi_bunkai_sub(ewk, judge_final[WGJ_Target][gs.Play_Type].keizoku);
+    effL1_suuchi_bunkai_sub(ewk, judge_final[WGJ_Target][Play_Type].keizoku);
     ewk->num_of_conn = 7;
 
     for (i = 0; i < 7; i++) {
@@ -469,7 +469,7 @@ void effL1_f_kz_cont_init(WORK_Other_CONN* ewk) {
 void effL1_f_kz_spp_init(WORK_Other_CONN* ewk) {
     s16 i;
 
-    effL1_suuchi_bunkai_sub(ewk, judge_final[WGJ_Target][gs.Play_Type].sp_point);
+    effL1_suuchi_bunkai_sub(ewk, judge_final[WGJ_Target][Play_Type].sp_point);
     ewk->num_of_conn = 8;
 
     for (i = 0; i < 8; i++) {

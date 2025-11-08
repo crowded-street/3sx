@@ -89,7 +89,7 @@ void Init_Task_1st(struct _TASK* task_ptr) {
     for (ix = 0; ix < 4; ix++) {
         G_No[ix] = 0;
         E_No[ix] = 0;
-        gs.S_No[ix] = 0;
+        S_No[ix] = 0;
         Unsubstantial_BG[ix] = 0;
     }
 

@@ -115,7 +115,7 @@ void Next_CPU_1st() {
     bg_mvxy.d[0].sp = 0;
     Sel_EM_Complete[Player_id] = 0;
     Temporary_EM[Player_id] = Last_Selected_EM[Player_id];
-    gs.Select_Timer = 0x20;
+    Select_Timer = 0x20;
     Setup_EM_List();
 
     if (VS_Index[Player_id] == 0) {
@@ -139,13 +139,13 @@ void Next_CPU_1st() {
         Order_Timer[56] = 1;
     }
 
-    gs.Time_Stop = 1;
-    gs.Unit_Of_Timer = 60;
+    Time_Stop = 1;
+    Unit_Of_Timer = 60;
     SelectTimer_Init();
     Rnd = random_16() & 3;
     effect_58_init(6, 10, EM_Select_Voice_Data[Rnd]);
     Next_Step = 0;
-    gs.Suicide[2] = 1;
+    Suicide[2] = 1;
     Cut_Scroll = 2;
     effect_58_init(13, 1, 3);
     effect_58_init(16, 5, 2);
@@ -309,7 +309,7 @@ void Next_CPU_4th_0_Sub() {
     Setup_BG(1, bg_w.bgw[1].wxy[0].disp.pos + 512, bg_w.bgw[1].wxy[1].disp.pos);
     Setup_BG(3, bg_w.bgw[3].wxy[0].disp.pos, bg_w.bgw[3].wxy[1].disp.pos);
     Setup_VS_OBJ(0);
-    gs.Suicide[0] = 1;
+    Suicide[0] = 1;
     FadeInit();
 }
 
@@ -361,7 +361,7 @@ void Next_CPU_5th() {
         Setup_BG(1, bg_w.bgw[1].wxy[0].disp.pos, bg_w.bgw[1].wxy[1].disp.pos);
         Setup_BG(3, bg_w.bgw[3].wxy[0].disp.pos, bg_w.bgw[3].wxy[1].disp.pos);
         Setup_VS_OBJ(1);
-        gs.Suicide[0] = 1;
+        Suicide[0] = 1;
         Next_Step = 0;
         Order[67] = 1;
         Order_Timer[67] = 10;
@@ -406,7 +406,7 @@ void Next_CPU_5th() {
             FadeIn(0, 4, 8);
             SC_No[1]++;
             Forbid_Break = 0;
-            gs.Suicide[3] = 1;
+            Suicide[3] = 1;
             effect_43_init(1, 0);
             BGM_Request(0x33);
             S_Timer = 0xb2;
@@ -609,7 +609,7 @@ void Select_CPU_1st() {
     SC_No[0]++;
     Sel_EM_Complete[Player_id] = 0;
     Temporary_EM[Player_id] = Last_Selected_EM[Player_id];
-    gs.Select_Timer = 0x20;
+    Select_Timer = 0x20;
     Setup_EM_List();
     Target_BG_X[3] = bg_w.bgw[3].wxy[0].disp.pos + 458;
     Offset_BG_X[3] = 0;
@@ -675,7 +675,7 @@ void NC_Cut_Sub() {
     if (Next_Step) {
         SC_No[0]++;
         SC_No[1] = 0;
-        gs.Time_Stop = 0;
+        Time_Stop = 0;
     }
 }
 
@@ -862,7 +862,7 @@ void Next_Bonus_1st() {
     Order_Timer[56] = 1;
     Rnd = random_16() & 3;
     effect_58_init(6, 10, EM_Select_Voice_Data[Rnd]);
-    gs.Suicide[2] = 1;
+    Suicide[2] = 1;
     Next_Step = 0;
     Cut_Scroll = 2;
     effect_58_init(13, 1, 3);
@@ -1106,7 +1106,7 @@ void Sel_CPU_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
         Sel_EM_Complete[PL_id] = 1;
         EM_id = EM_List[Player_id][Temporary_EM[Player_id] - 1];
         My_char[COM_id] = EM_id;
-        gs.Time_Stop = 2;
+        Time_Stop = 2;
 
         if (VS_Index[PL_id] < 8) {
             Sound_SE(ID + 98);
@@ -1204,7 +1204,7 @@ void Setup_PL_Color(s16 PL_id, u16 sw) {
         id_1 = My_char[PL_id ^ 1];
     }
 
-    if (gs.Sel_PL_Complete[PL_id ^ 1] == 0) {
+    if (Sel_PL_Complete[PL_id ^ 1] == 0) {
         id_0 = 127;
     }
 

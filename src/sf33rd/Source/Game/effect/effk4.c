@@ -53,7 +53,7 @@ void effect_K4_move(WORK_Other* ewk) {
         /* fallthrough */
 
     case 1:
-        if (ewk->wu.dead_f == 1 || gs.Suicide[0] != 0) {
+        if (ewk->wu.dead_f == 1 || Suicide[0] != 0) {
             ewk->wu.disp_flag = 0;
             ewk->wu.routine_no[0] = 2;
             break;

@@ -32,7 +32,7 @@ void effect_M3_move(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (ewk->wu.dead_f == 1 || gs.Suicide[2] != 0) {
+        if (ewk->wu.dead_f == 1 || Suicide[2] != 0) {
             ewk->wu.disp_flag = 0;
             ewk->wu.type = 0;
             ewk->wu.routine_no[0] = 2;

@@ -63,7 +63,7 @@ void EFF52_SUDDENLY(WORK_Other* ewk) {
         ewk->wu.routine_no[6]++;
 
     case 2:
-        if (gs.Select_Start[ewk->master_id] != 0) {
+        if (Select_Start[ewk->master_id] != 0) {
             break;
         }
 
@@ -205,7 +205,7 @@ void Setup_Char_52(WORK_Other* ewk) {
     }
 
     ewk->wu.char_index = 18;
-    ewk->wu.dir_step = ID_of_Face[gs.Cursor_Y[ewk->master_id]][gs.Cursor_X[ewk->master_id]];
+    ewk->wu.dir_step = ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]];
     ix = chkNameAkuma(ewk->wu.dir_step, 6);
     ewk->wu.dm_vital = Pattern_Data_52[ewk->wu.dir_step + ix][0];
     ewk->wu.direction = Pattern_Data_52[ewk->wu.dir_step + ix][1];

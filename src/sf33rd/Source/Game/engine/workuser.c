@@ -8,10 +8,24 @@
 #include "sf33rd/Source/Game/engine/cmd_data.h"
 #include "structs.h"
 
-GameState gs = { 0 };
-
 bool Scene_Cut;
 bool Time_Over;
+s8 Counter_hi;
+s8 Counter_low;
+s16 Unit_Of_Timer;
+s8 Select_Timer;
+s8 Cursor_X[2];
+s8 Cursor_Y[2];
+s8 Cursor_Y_Pos[2][4];
+s8 Cursor_Timer[2];
+s8 Time_Stop;
+s8 Suicide[8];
+s8 Complete_Face;
+u8 Play_Type;
+s16 Sel_PL_Complete[2];
+s8 New_Challenger;
+u8 S_No[4];
+s8 Select_Start[2];
 
 // bss
 u8 Order[148];

@@ -169,7 +169,7 @@ void Clear_Personal_Data(s16 PL_id) {
     Arts_Y[PL_id] = 0;
     Continue_Count[PL_id] = 0;
     Continue_Coin2[PL_id] = 0;
-    gs.Sel_PL_Complete[PL_id] = 0;
+    Sel_PL_Complete[PL_id] = 0;
     Sel_Arts_Complete[PL_id] = 0;
     Sel_EM_Complete[PL_id] = 0;
     Personal_Continue_Flag[PL_id] = 0;
@@ -178,7 +178,7 @@ void Clear_Personal_Data(s16 PL_id) {
     Last_My_char[PL_id] = -1;
     Last_My_char2[PL_id] = -1;
     Last_Selected_EM[PL_id] = 1;
-    gs.Select_Start[PL_id] = 0;
+    Select_Start[PL_id] = 0;
     paring_ctr_vs[0][PL_id] = 0;
     Straight_Counter[PL_id] = 0;
     Straight_Flag[PL_id] = 0;
@@ -191,11 +191,11 @@ void Clear_Personal_Data(s16 PL_id) {
     Request_Break[PL_id] = 0;
 
     if (PL_id == 0) {
-        gs.Cursor_X[0] = permission_player[Present_Mode].cursor_infor[0].first_x;
-        gs.Cursor_Y[0] = permission_player[Present_Mode].cursor_infor[0].first_y;
+        Cursor_X[0] = permission_player[Present_Mode].cursor_infor[0].first_x;
+        Cursor_Y[0] = permission_player[Present_Mode].cursor_infor[0].first_y;
     } else {
-        gs.Cursor_X[1] = permission_player[Present_Mode].cursor_infor[1].first_x;
-        gs.Cursor_Y[1] = permission_player[Present_Mode].cursor_infor[1].first_y;
+        Cursor_X[1] = permission_player[Present_Mode].cursor_infor[1].first_x;
+        Cursor_Y[1] = permission_player[Present_Mode].cursor_infor[1].first_y;
     }
 
     for (xx = 0; xx < 10; xx++) {
@@ -227,9 +227,9 @@ void Disp_Personal_Count(s16 PL_id, s8 counter) {
 
 void Setup_Play_Type() {
     if (Operator_Status[0] & 0x7F && Operator_Status[1] & 0x7F) {
-        gs.Play_Type = 1;
+        Play_Type = 1;
     } else {
-        gs.Play_Type = 0;
+        Play_Type = 0;
     }
 }
 
@@ -284,7 +284,7 @@ void Score_Sub() {
         if (Stop_Update_Score) {
             Score_Buff = Keep_Score[PL_id];
         } else {
-            Score_Buff = Score[PL_id][gs.Play_Type];
+            Score_Buff = Score[PL_id][Play_Type];
             Score_Buff += Continue_Coin[PL_id];
             Keep_Score[PL_id] = Score_Buff;
         }
@@ -320,7 +320,7 @@ void Disp_Win_Record() {
 
     switch (Mode_Type) {
     case MODE_ARCADE:
-        if (gs.Play_Type == 1) {
+        if (Play_Type == 1) {
             if (Win_Record[0] != 0 || Win_Record[1] != 0) {
                 if (Win_Record[0]) {
                     PL_id = 0;
@@ -425,7 +425,7 @@ s32 Button_Cut_EX(s16* Timer, s16 Limit_Time) {
 }
 
 s32 Setup_Target_PL() {
-    if (gs.Play_Type == 1) {
+    if (Play_Type == 1) {
         return Winner_id;
     }
 
@@ -1150,7 +1150,7 @@ void Get_Replay_Header() {
     Random_ix32_ex_com = Random_ix32_ex;
     Random_ix16_bg = Random_ix16;
     Champion = Replay_w.champion;
-    gs.New_Challenger = Champion ^ 1;
+    New_Challenger = Champion ^ 1;
     Control_Time = Replay_w.Control_Time_Buff;
     save_w[Present_Mode].Difficulty = Replay_w.Difficulty;
 }
@@ -1840,7 +1840,7 @@ void All_Clear_Suicide() {
     s16 ix;
 
     for (ix = 0; ix < 8; ix++) {
-        gs.Suicide[ix] = 0;
+        Suicide[ix] = 0;
     }
 
     for (ix = 0; ix < 4; ix++) {

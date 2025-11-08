@@ -126,7 +126,7 @@ void effect_A6_move(WORK_Other_CONN* ewk) {
             }
         }
 
-        if (gs.Suicide[3]) {
+        if (Suicide[3]) {
             ewk->wu.routine_no[0] = 1;
             break;
         }

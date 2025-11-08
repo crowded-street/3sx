@@ -421,7 +421,7 @@ void init_app_10000() {
         another_bg[0] = another_bg[1] = 0;
         plw[0].scr_pos_set_flag = plw[1].scr_pos_set_flag = 1;
 
-        if (gs.Play_Type == 0) {
+        if (Play_Type == 0) {
             if (plw[0].wu.operator) {
                 mpp_w.useChar[My_char[0]]++;
             }

@@ -260,7 +260,7 @@ void effect_02_move(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (ewk->wu.dead_f == 1 || gs.Suicide[6] != 0) {
+        if (ewk->wu.dead_f == 1 || Suicide[6] != 0) {
             ewk->wu.disp_flag = 0;
             ewk->wu.routine_no[0]++;
             break;

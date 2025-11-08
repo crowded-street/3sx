@@ -298,10 +298,10 @@ void Game01() {
     case 0:
         Switch_Screen(1);
         G_No[2] += 1;
-        gs.S_No[0] = 0;
-        gs.S_No[1] = 0;
-        gs.S_No[2] = 0;
-        gs.S_No[3] = 0;
+        S_No[0] = 0;
+        S_No[1] = 0;
+        S_No[2] = 0;
+        S_No[3] = 0;
         SsBgmHalfVolume(0);
 
         if (Mode_Type == MODE_ARCADE) {
@@ -386,9 +386,9 @@ void Game01() {
             }
 
             if ((plw[0].wu.operator != 0) && (plw[1].wu.operator != 0)) {
-                gs.Play_Type = 1;
+                Play_Type = 1;
             } else {
-                gs.Play_Type = 0;
+                Play_Type = 0;
             }
         }
 
@@ -622,7 +622,7 @@ void Game2_5() {
         count_cont_init(1);
         Score[0][2] = 0;
         Score[1][2] = 0;
-        gs.Suicide[0] = 1;
+        Suicide[0] = 1;
         Game_pause = 0;
         pcon_rno[0] = 0;
         pcon_rno[1] = 0;
@@ -723,7 +723,7 @@ void Game03() {
                 Rep_Game_Infor[10].play_type = 2;
                 Rep_Game_Infor[10].winner = Winner_id;
                 Champion = Winner_id;
-                gs.New_Challenger = Loser_id;
+                New_Challenger = Loser_id;
                 Switch_Screen_Init(0);
                 break;
 
@@ -773,8 +773,8 @@ void Game03() {
             Request_E_No = 0;
             cpReadyTask(TASK_MENU, Menu_Task);
             task[TASK_MENU].r_no[1] = 16;
-            gs.Cursor_Y_Pos[0][0] = 0;
-            gs.Cursor_Y_Pos[1][0] = 0;
+            Cursor_Y_Pos[0][0] = 0;
+            Cursor_Y_Pos[1][0] = 0;
             G_Timer = 4;
         }
 
@@ -1224,7 +1224,7 @@ void Game08() {
         if (Check_Fade_Complete_SP() != 0) {
             G_No[2] += 1;
             G_Timer = 10;
-            gs.Suicide[4] = 1;
+            Suicide[4] = 1;
         }
 
         break;
@@ -1363,7 +1363,7 @@ void Game09() {
 
         if (--G_Timer == 0) {
             Cover_Timer = 24;
-            gs.Suicide[0] = 1;
+            Suicide[0] = 1;
             System_all_clear_Level_B();
             G_No[1] = 10;
             G_No[2] = 0;

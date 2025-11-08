@@ -88,7 +88,7 @@ void effect_G0_move(WORK_Other* ewk) {
 }
 
 void Check_Die_G0(WORK_Other_CONN* ewk) {
-    if (gs.Suicide[2]) {
+    if (Suicide[2]) {
         ewk->wu.disp_flag = 0;
         ewk->wu.type = 0;
         ewk->wu.routine_no[0] = 2;

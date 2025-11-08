@@ -4903,7 +4903,7 @@ s32 Flip_Term_Correct(PLW* wk) {
     if ((PL_Wins[wk->wu.id]) < (PL_Wins[wk->wu.id ^ 1])) {
         xx += 2;
     }
-    if (gs.Counter_hi < 0xF) {
+    if (Counter_hi < 0xF) {
         xx += 1;
     }
     if (Check_Makoto(wk) != 0) {

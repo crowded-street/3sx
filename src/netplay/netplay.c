@@ -48,8 +48,7 @@ typedef struct EffectState {
 } EffectState;
 
 typedef struct State {
-    GameState gs; // FIXME: merge two GameState structs together
-    _GameState _gs;
+    GameState gs;
     EffectState es;
 } State;
 
@@ -261,11 +260,10 @@ static void dump_state(int frame) {
 static void save_state(GekkoGameEvent* event) {
     *event->data.save.state_len = sizeof(State);
     State* dst = (State*)event->data.save.state;
-    SDL_memcpy(&dst->gs, &gs, sizeof(gs));
 
-    // _GameState
-    _GameState* _gs = &dst->_gs;
-    GameState_Save(_gs);
+    // GameState
+    GameState* gs = &dst->gs;
+    GameState_Save(gs);
 
     // EffectState
     EffectState* es = &dst->es;
@@ -289,11 +287,10 @@ static void save_state(GekkoGameEvent* event) {
 
 static void load_state(GekkoGameEvent* event) {
     const State* src = (State*)event->data.load.state;
-    SDL_memcpy(&gs, &src->gs, sizeof(gs));
 
-    // _GameState
-    const _GameState* _gs = &src->_gs;
-    GameState_Load(_gs);
+    // GameState
+    const GameState* gs = &src->gs;
+    GameState_Load(gs);
 
     // EffectState
     const EffectState* es = &src->es;

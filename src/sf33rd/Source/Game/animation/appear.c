@@ -59,7 +59,7 @@ s32 home_visitor_check(PLW* wk) {
         pl_num = plw[1].player_number;
     }
 
-    if (gs.Play_Type) {
+    if (Play_Type) {
         if (Champion == wk->wu.id && wk->player_number == pl_num && pl_num != 8) {
             hv_type = 1;
         }
@@ -910,7 +910,7 @@ s16 gill_appear_check() {
         return 1;
     }
 
-    if (gs.Play_Type == 1) {
+    if (Play_Type == 1) {
         return 1;
     }
 

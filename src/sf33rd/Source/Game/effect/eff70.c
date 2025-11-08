@@ -17,7 +17,7 @@
 void Setup_Eff70(WORK_Other* ewk);
 
 void effect_70_move(WORK_Other* ewk) {
-    if (gs.Suicide[0] == 1) {
+    if (Suicide[0] == 1) {
         ewk->wu.routine_no[0] = 99;
         ewk->wu.disp_flag = 0;
         return;
@@ -40,7 +40,7 @@ void effect_70_move(WORK_Other* ewk) {
         char_move(&ewk->wu);
 
         if (ewk->wu.cg_type) {
-            gs.Complete_Face--;
+            Complete_Face--;
             ewk->wu.routine_no[0]++;
             ewk->wu.char_index = 0;
             set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
@@ -50,7 +50,7 @@ void effect_70_move(WORK_Other* ewk) {
         /* fallthrough */
 
     case 2:
-        if (gs.Play_Type == 1 && gs.Sel_PL_Complete[0] & 0x8000 && gs.Sel_PL_Complete[1] & 0x8000) {
+        if (Play_Type == 1 && Sel_PL_Complete[0] & 0x8000 && Sel_PL_Complete[1] & 0x8000) {
             ewk->wu.routine_no[0]++;
             ewk->wu.dir_timer = 30;
         }

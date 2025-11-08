@@ -35,7 +35,7 @@ void effect_E4_move(WORK_Other* ewk) {
             break;
         }
 
-        if (Training->contents[1][1][3] == 0 || mwk->wu.id == gs.New_Challenger) {
+        if (Training->contents[1][1][3] == 0 || mwk->wu.id == New_Challenger) {
             vib_sel[mwk->wu.id] = 0;
         }
 
@@ -43,7 +43,7 @@ void effect_E4_move(WORK_Other* ewk) {
         mwk->spmv_ng_flag &= 0xFFFEFFFF;
         num = 0;
 
-        if (gs.New_Challenger == mwk->wu.id) {
+        if (New_Challenger == mwk->wu.id) {
             num = Training->contents[1][0][1];
         } else {
             num = Training->contents[1][0][3];
@@ -78,7 +78,7 @@ void effect_E4_move(WORK_Other* ewk) {
             break;
         }
 
-        if (mwk->wu.id == gs.New_Challenger || Training->contents[1][0][2] == 0) {
+        if (mwk->wu.id == New_Challenger || Training->contents[1][0][2] == 0) {
             mwk->spmv_ng_flag |= 0x80;
         } else {
             mwk->spmv_ng_flag &= ~0x80;

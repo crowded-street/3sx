@@ -1362,7 +1362,7 @@ void player_face() {
     scfont_put(42, 3, 129, 0, 0, 19, 2);
     scfont_put(42, 4, 129, 0, 0, 20, 2);
 
-    if (gs.Play_Type == 0) {
+    if (Play_Type == 0) {
         return;
     }
 

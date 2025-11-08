@@ -288,12 +288,12 @@ void Entry_03_2nd() {
             E_No[1] = 0;
             E_No[2] = 0;
             E_No[3] = 0;
-            plw[gs.New_Challenger].wu.operator = 1;
-            Operator_Status[gs.New_Challenger] = 1;
+            plw[New_Challenger].wu.operator = 1;
+            Operator_Status[New_Challenger] = 1;
             Sel_Arts_Complete[Champion] = -1;
 
-            if (Continue_Coin[gs.New_Challenger] == 0) {
-                grade_check_work_1st_init(gs.New_Challenger, 0);
+            if (Continue_Coin[New_Challenger] == 0) {
+                grade_check_work_1st_init(New_Challenger, 0);
             }
         }
 
@@ -364,11 +364,11 @@ void Entry_04_2nd() {
             E_No[2] = 0;
             E_No[3] = 0;
             Game_pause = 0;
-            plw[gs.New_Challenger].wu.operator = 1;
-            Operator_Status[gs.New_Challenger] = 1;
+            plw[New_Challenger].wu.operator = 1;
+            Operator_Status[New_Challenger] = 1;
 
-            if (Continue_Coin[gs.New_Challenger] == 0) {
-                grade_check_work_1st_init(gs.New_Challenger, 0);
+            if (Continue_Coin[New_Challenger] == 0) {
+                grade_check_work_1st_init(New_Challenger, 0);
             }
         }
 
@@ -1306,8 +1306,8 @@ s32 Ck_Break_Into(u16 Sw_0, u16 Sw_1, s16 PL_id) {
         }
 
         Game_pause = 1;
-        gs.New_Challenger = PL_id;
-        Champion = gs.New_Challenger ^ 1;
+        New_Challenger = PL_id;
+        Champion = New_Challenger ^ 1;
         Request_Break[PL_id] = 0;
         return ENTRY_X = 1;
     }
@@ -1322,8 +1322,8 @@ s32 Ck_Break_Into(u16 Sw_0, u16 Sw_1, s16 PL_id) {
         Request_Break[PL_id] = 1;
     } else {
         Game_pause = 1;
-        gs.New_Challenger = PL_id;
-        Champion = gs.New_Challenger ^ 1;
+        New_Challenger = PL_id;
+        Champion = New_Challenger ^ 1;
         return ENTRY_X = 1;
     }
 
@@ -1335,25 +1335,25 @@ s32 Ck_Break_Into_SP(u16 Sw_0, u16 Sw_1, s16 PL_id) {
         return 0;
     }
 
-    gs.New_Challenger = PL_id;
-    Champion = gs.New_Challenger ^ 1;
+    New_Challenger = PL_id;
+    Champion = New_Challenger ^ 1;
     return ENTRY_X = 1;
 }
 
 void Break_Into_02(s16 /* unused */) {
-    plw[gs.New_Challenger].wu.operator = 1;
-    Operator_Status[gs.New_Challenger] = 1;
-    E_Number[gs.New_Challenger][0] = 0;
-    E_Number[gs.New_Challenger][1] = 0;
-    E_Number[gs.New_Challenger][2] = 0;
-    E_Number[gs.New_Challenger][3] = 0;
+    plw[New_Challenger].wu.operator = 1;
+    Operator_Status[New_Challenger] = 1;
+    E_Number[New_Challenger][0] = 0;
+    E_Number[New_Challenger][1] = 0;
+    E_Number[New_Challenger][2] = 0;
+    E_Number[New_Challenger][3] = 0;
 
-    if (Continue_Coin[gs.New_Challenger] == 0) {
-        grade_check_work_1st_init(gs.New_Challenger, 0);
+    if (Continue_Coin[New_Challenger] == 0) {
+        grade_check_work_1st_init(New_Challenger, 0);
     }
 
-    gs.Select_Timer = 0x30;
-    gs.Unit_Of_Timer = 60;
+    Select_Timer = 0x30;
+    Unit_Of_Timer = 60;
 }
 
 void Break_Into_04(s16 /* unused */) {
@@ -1361,10 +1361,10 @@ void Break_Into_04(s16 /* unused */) {
     E_No[1] += 1;
     E_No[2] = 0;
     E_Timer = 150;
-    E_Number[gs.New_Challenger][0] = 0;
-    E_Number[gs.New_Challenger][1] = 0;
-    E_Number[gs.New_Challenger][2] = 0;
-    E_Number[gs.New_Challenger][3] = 0;
+    E_Number[New_Challenger][0] = 0;
+    E_Number[New_Challenger][1] = 0;
+    E_Number[New_Challenger][2] = 0;
+    E_Number[New_Challenger][3] = 0;
     effect_A2_init(0);
     sound_all_off();
     Sound_SE(0xB6);
@@ -1376,15 +1376,15 @@ void Break_Into_05(s16 PL_id) {
     Stop_Combo = 1;
     E_No[1] += 1;
     E_No[2] = 0;
-    E_Number[gs.New_Challenger][0] = 0;
-    E_Number[gs.New_Challenger][1] = 0;
-    E_Number[gs.New_Challenger][2] = 0;
-    E_Number[gs.New_Challenger][3] = 0;
+    E_Number[New_Challenger][0] = 0;
+    E_Number[New_Challenger][1] = 0;
+    E_Number[New_Challenger][2] = 0;
+    E_Number[New_Challenger][3] = 0;
 
-    if ((gs.Play_Type == 0) && (Conclusion_Flag != 0) && (plw[Champion].wu.operator == 0)) {
+    if ((Play_Type == 0) && (Conclusion_Flag != 0) && (plw[Champion].wu.operator == 0)) {
         E_Timer = 1;
 
-        if (LOSER != gs.New_Challenger) {
+        if (LOSER != New_Challenger) {
             E_No[3] = 0xFF;
         } else {
             E_No[3] = 0;
@@ -1407,10 +1407,10 @@ void Break_Into_05(s16 PL_id) {
 }
 
 void Break_Into_07(s16 PL_id) {
-    E_Number[gs.New_Challenger][0] = 0;
-    E_Number[gs.New_Challenger][1] = 0;
-    E_Number[gs.New_Challenger][2] = 0;
-    E_Number[gs.New_Challenger][3] = 0;
+    E_Number[New_Challenger][0] = 0;
+    E_Number[New_Challenger][1] = 0;
+    E_Number[New_Challenger][2] = 0;
+    E_Number[New_Challenger][3] = 0;
     E_07_Flag[PL_id] = 1;
 
     if (E_07_Flag[0] != 0 && E_07_Flag[1] != 0) {
@@ -1423,10 +1423,10 @@ void Break_Into_07(s16 PL_id) {
 }
 
 void Break_Into_08(s16 PL_id) {
-    E_Number[gs.New_Challenger][0] = 0;
-    E_Number[gs.New_Challenger][1] = 0;
-    E_Number[gs.New_Challenger][2] = 0;
-    E_Number[gs.New_Challenger][3] = 0;
+    E_Number[New_Challenger][0] = 0;
+    E_Number[New_Challenger][1] = 0;
+    E_Number[New_Challenger][2] = 0;
+    E_Number[New_Challenger][3] = 0;
     E_07_Flag[PL_id] = 1;
 
     if (E_07_Flag[0] != 0 && E_07_Flag[1] != 0) {
@@ -1446,10 +1446,10 @@ void Break_Into_08(s16 PL_id) {
 }
 
 void Break_Into_09(s16 PL_id) {
-    E_Number[gs.New_Challenger][0] = 0;
-    E_Number[gs.New_Challenger][1] = 0;
-    E_Number[gs.New_Challenger][2] = 0;
-    E_Number[gs.New_Challenger][3] = 0;
+    E_Number[New_Challenger][0] = 0;
+    E_Number[New_Challenger][1] = 0;
+    E_Number[New_Challenger][2] = 0;
+    E_Number[New_Challenger][3] = 0;
     E_07_Flag[PL_id] = 1;
 
     if (E_07_Flag[0] != 0 && E_07_Flag[1] != 0) {
@@ -1459,14 +1459,14 @@ void Break_Into_09(s16 PL_id) {
     Break_Into = 1;
     E_No[1] += 1;
     E_No[2] = 0;
-    Champion = gs.New_Challenger;
+    Champion = New_Challenger;
 }
 
 void Break_Into_10(s16 PL_id) {
-    E_Number[gs.New_Challenger][0] = 0;
-    E_Number[gs.New_Challenger][1] = 0;
-    E_Number[gs.New_Challenger][2] = 0;
-    E_Number[gs.New_Challenger][3] = 0;
+    E_Number[New_Challenger][0] = 0;
+    E_Number[New_Challenger][1] = 0;
+    E_Number[New_Challenger][2] = 0;
+    E_Number[New_Challenger][3] = 0;
     E_07_Flag[PL_id] = 1;
 
     if (E_07_Flag[0] != 0 && E_07_Flag[1] != 0) {
@@ -1476,7 +1476,7 @@ void Break_Into_10(s16 PL_id) {
     Break_Into = 1;
     E_No[1] += 1;
     E_No[2] = 0;
-    Champion = gs.New_Challenger;
+    Champion = New_Challenger;
 }
 
 void Continue_Score_Sub(s16 PL_id) {

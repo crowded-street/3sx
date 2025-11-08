@@ -239,7 +239,7 @@ s32 effect_B2_init() {
     bg_w.bgw[3].position_y = 0;
     Bg_Family_Set_appoint(3);
 
-    switch (save_w[Present_Mode].Battle_Number[gs.Play_Type]) {
+    switch (save_w[Present_Mode].Battle_Number[Play_Type]) {
     case 0:
         ewk->wu.type = 0;
         break;
