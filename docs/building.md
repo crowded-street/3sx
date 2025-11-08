@@ -4,7 +4,7 @@
 
 ### Windows
 
-1. Install [MSYS2](https://https://www.msys2.org/).
+1. Install [MSYS2](https://www.msys2.org/).
 	* Steps after #4 on the official instructions can be skipped.
 2. Launch the MinGW64 shell (there should be a start menu entry for it).
 3. Install the required packages:
