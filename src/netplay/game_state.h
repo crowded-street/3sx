@@ -12,6 +12,7 @@ typedef struct _GameState {
     PiyoriType piyori_type[2];
     AppearanceType appear_type;
     s16 pcon_rno[4];
+    bool round_slow_flag;
     u8 Order[148];
     u8 Order_Timer[148];
     u8 Order_Dir[148];

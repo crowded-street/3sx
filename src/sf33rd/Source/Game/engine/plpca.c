@@ -424,9 +424,9 @@ void subtract_cu_vital(PLW* wk) {
                 wk->dead_flag = 1;
                 gs.dead_voice_flag = true;
 
-                if (!gs.round_slow_flag) {
+                if (!round_slow_flag) {
                     set_conclusion_slow();
-                    gs.round_slow_flag = true;
+                    round_slow_flag = true;
                 }
             } else if (wk->py->flag == 0) {
                 wk->py->now.quantity.h += wk->wu.dm_piyo;

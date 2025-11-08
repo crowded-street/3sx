@@ -82,6 +82,7 @@ SA_WORK super_arts[2];
 PiyoriType piyori_type[2];
 AppearanceType appear_type;
 s16 pcon_rno[4];
+bool round_slow_flag;
 
 UNK_1 rambod[2];            // FIXME: this is used in effects, might not be serializable
 UNK_2 ramhan[2];            // FIXME: this is used in effects, might not be serializable
@@ -412,7 +413,7 @@ void init_app_10000() {
         pli_0000();
         pcon_rno[1] = 2;
         gs.pcon_dp_flag = false;
-        gs.round_slow_flag = false;
+        round_slow_flag = false;
         gs.dead_voice_flag = false;
         another_bg[0] = another_bg[1] = 0;
         plw[0].scr_pos_set_flag = plw[1].scr_pos_set_flag = 1;
@@ -463,7 +464,7 @@ void init_app_20000() {
     switch (pcon_rno[1]) {
     case 0:
         pcon_rno[1]++;
-        gs.round_slow_flag = false;
+        round_slow_flag = false;
         gs.dead_voice_flag = false;
         gs.pcon_dp_flag = false;
         another_bg[0] = another_bg[1] = 0;
@@ -489,7 +490,7 @@ void init_app_30000() {
     switch (pcon_rno[1]) {
     case 0:
         pcon_rno[1]++;
-        gs.round_slow_flag = false;
+        round_slow_flag = false;
         gs.dead_voice_flag = false;
 
         for (i = 1; i < 8; i++) {
@@ -533,7 +534,7 @@ void init_app_30000() {
 
 void pli_0000() {
     pcon_rno[1]++;
-    gs.round_slow_flag = false;
+    round_slow_flag = false;
     SDL_zeroa(plw);
     setup_base_and_other_data();
 }

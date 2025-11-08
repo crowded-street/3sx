@@ -93,7 +93,7 @@ void Att_RESURRECTION(PLW* wk) {
         wk->wu.direction = 0;
         reset_mvxy_data(&wk->wu);
         set_char_move_init(&wk->wu, 5, wk->as->char_ix);
-        gs.round_slow_flag = false;
+        round_slow_flag = false;
         wk->resurrection_resv = 0;
         break;
 

@@ -4,6 +4,8 @@
 #include "structs.h"
 #include "types.h"
 
+#include <stdbool.h>
+
 typedef struct {
     u8 nmsa_g_ix;
     u8 exsa_g_ix;
@@ -43,6 +45,9 @@ extern AppearanceType appear_type;
 
 /// Player controller routine indices
 extern s16 pcon_rno[4];
+
+/// `true` if the game has been slowed down at round end
+extern bool round_slow_flag;
 
 // MARK: - Unhandled
 

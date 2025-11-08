@@ -1468,9 +1468,9 @@ void subtract_dm_vital(PLW* wk) {
                 wk->kezurijini_flag = 1;
             }
 
-            if (!gs.round_slow_flag) {
+            if (!round_slow_flag) {
                 set_conclusion_slow();
-                gs.round_slow_flag = true;
+                round_slow_flag = true;
             }
         } else if (wk->py->flag == 0) {
             wk->py->now.quantity.h += wk->wu.dm_piyo;
@@ -1544,9 +1544,9 @@ void subtract_dm_vital_aiuchi(PLW* wk) {
                 wk->kezurijini_flag = 1;
             }
 
-            if (!gs.round_slow_flag) {
+            if (!round_slow_flag) {
                 set_conclusion_slow();
-                gs.round_slow_flag = true;
+                round_slow_flag = true;
             }
         } else if (wk->py->flag == 0) {
             wk->py->now.quantity.h += wk->wu.dm_piyo;
