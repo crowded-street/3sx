@@ -401,7 +401,7 @@ void Game01() {
 void Game02() {
     void (*Game02_Jmp_Tbl[8])() = { Game2_0, Game2_1, Game2_2, Game2_3, Game2_4, Game2_5, Game2_6, Game2_7 };
 
-    gs.Scene_Cut = Cut_Cut_Cut();
+    Scene_Cut = Cut_Cut_Cut();
     Game02_Jmp_Tbl[G_No[2]]();
     BG_move_Ex(3);
 }
@@ -1384,7 +1384,7 @@ s16 Bonus_Sub() {
     s16 x;
 
     mpp_w.inGame = true;
-    gs.Scene_Cut = Cut_Cut_Cut();
+    Scene_Cut = Cut_Cut_Cut();
     Bonus_Game_Complete = 0;
 
     if (Game_pause != 0x81) {

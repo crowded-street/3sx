@@ -45,7 +45,7 @@ s32 Winner_Scene() {
     }
 
     WIN_X = 0;
-    gs.Scene_Cut = Cut_Cut_Cut();
+    Scene_Cut = Cut_Cut_Cut();
     Win_Jmp_Tbl[M_No[0]]();
 
     if ((Check_Exit_Check() == 0) && (Debug_w[0x18] == -1)) {
@@ -195,7 +195,7 @@ void Win_4th() {
 void Win_5th() {
     switch (M_No[1]) {
     case 0:
-        if (gs.Scene_Cut) {
+        if (Scene_Cut) {
             M_Timer = 9;
         }
 
@@ -225,7 +225,7 @@ s32 Loser_Scene() {
     void (*Lose_Jmp_Tbl[6])() = { Win_1st, Lose_2nd, Lose_3rd, Win_4th, Win_5th, Win_6th };
 
     WIN_X = 0;
-    gs.Scene_Cut = Cut_Cut_Loser();
+    Scene_Cut = Cut_Cut_Loser();
     Lose_Jmp_Tbl[M_No[0]]();
 
     if ((Check_Exit_Check() == 0) && (Debug_w[0x18] == -1)) {

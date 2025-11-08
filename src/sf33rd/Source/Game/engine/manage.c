@@ -853,7 +853,7 @@ void Game_Manage_7_5() {
 }
 
 void Game_Manage_7_6() {
-    if (gs.Scene_Cut) {
+    if (Scene_Cut) {
         C_Timer = 1;
     }
 
@@ -986,7 +986,7 @@ void Game_Manage_81_1() {
 }
 
 void Game_Manage_81_2() {
-    if (gs.Scene_Cut) {
+    if (Scene_Cut) {
         C_Timer = 1;
     }
 
@@ -1017,7 +1017,7 @@ void Game_Manage_8_2() {
         C_Timer = 1;
     }
 
-    if (gs.Scene_Cut) {
+    if (Scene_Cut) {
         C_Timer = 1;
     }
 
@@ -1039,7 +1039,7 @@ void Game_Manage_8_2() {
 }
 
 void Game_Manage_8_3() {
-    if (gs.Scene_Cut) {
+    if (Scene_Cut) {
         C_Timer = 1;
     }
 
@@ -1072,7 +1072,7 @@ void Game_Manage_9th() {
         break;
 
     case 1:
-        if (gs.Scene_Cut) {
+        if (Scene_Cut) {
             C_Timer = 1;
         }
 
@@ -2203,7 +2203,7 @@ void Game_Manage_12_5() {
         break;
 
     case 1:
-        if (gs.Scene_Cut) {
+        if (Scene_Cut) {
             C_Timer = 1;
         }
 
@@ -2264,7 +2264,7 @@ void Game_Manage_12_8() {
             break;
 
         case 2:
-            if (C_Timer < 11 && gs.Scene_Cut) {
+            if (C_Timer < 11 && Scene_Cut) {
                 C_Timer = 1;
             }
 
@@ -2456,7 +2456,7 @@ u32 Setup_Final_Score(s16 Type) {
 }
 
 s32 Bonus_Cut_Sub() {
-    if (gs.Scene_Cut) {
+    if (Scene_Cut) {
         Sound_SE(100);
         Bonus_Game_result = 0;
         Score[Player_id][0] = Final_Bonus_Score;

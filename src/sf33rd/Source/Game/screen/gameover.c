@@ -30,7 +30,7 @@ s16 Game_Over() {
     void (*GameOver_Jmp_Tbl[3])() = { GameOver_1st, GameOver_2nd, GameOver_3rd };
 
     GAME_OVER_X = 0;
-    gs.Scene_Cut = Cut_Cut_Loser();
+    Scene_Cut = Cut_Cut_Loser();
     GameOver_Jmp_Tbl[GO_No[0]]();
 
     if ((Check_Exit_Check() == 0) && (Debug_w[0x18] == -1)) {
@@ -83,7 +83,7 @@ void GameOver_1st() {
         break;
 
     case 2:
-        if (gs.Scene_Cut) {
+        if (Scene_Cut) {
             G_Timer = 1;
         }
         // fallthrough
@@ -180,7 +180,7 @@ void GameOver_2nd() {
         break;
 
     case 7:
-        if (gs.Scene_Cut) {
+        if (Scene_Cut) {
             G_Timer = 1;
         }
         /* fallthrough */

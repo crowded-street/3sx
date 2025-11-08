@@ -93,7 +93,7 @@ s16 Next_CPU() {
     }
 
     SEL_CPU_X = 0;
-    gs.Scene_Cut = Cut_Cut_Cut();
+    Scene_Cut = Cut_Cut_Cut();
     Next_CPU_Tbl[SC_No[0]]();
     gs.Time_Over = false;
 
@@ -237,7 +237,7 @@ void Next_CPU_3rd() {
     case 3:
         switch (SC_No[2]) {
         case 0:
-            if (gs.Scene_Cut) {
+            if (Scene_Cut) {
                 S_Timer = 9;
             }
 
@@ -276,7 +276,7 @@ void Next_CPU_4th() {
         break;
 
     default:
-        if (gs.Scene_Cut) {
+        if (Scene_Cut) {
             S_Timer = 1;
         }
 
@@ -430,7 +430,7 @@ void Next_CPU_5th() {
         break;
 
     default:
-        if (gs.Scene_Cut) {
+        if (Scene_Cut) {
             S_Timer = 1;
         }
 
@@ -530,7 +530,7 @@ s32 After_Bonus() {
     }
 
     SEL_CPU_X = 0;
-    gs.Scene_Cut = Cut_Cut_Cut();
+    Scene_Cut = Cut_Cut_Cut();
     After_Bonus_Tbl[SC_No[0]]();
     gs.Time_Over = false;
     return SEL_CPU_X;
@@ -747,7 +747,7 @@ void Select_CPU_3rd() {
         break;
 
     case 3:
-        if (gs.Scene_Cut) {
+        if (Scene_Cut) {
             S_Timer = 1;
         }
 
@@ -817,7 +817,7 @@ void Select_CPU_3rd() {
     case 7:
         switch (SC_No[2]) {
         case 0:
-            if (gs.Scene_Cut) {
+            if (Scene_Cut) {
                 S_Timer = 9;
             }
 
@@ -886,7 +886,7 @@ void Next_Bonus_2nd() {
     case 1:
         switch (SC_No[2]) {
         case 0:
-            if (gs.Scene_Cut) {
+            if (Scene_Cut) {
                 S_Timer = 9;
             }
 
@@ -925,7 +925,7 @@ void Next_Bonus_3rd() {
         break;
 
     default:
-        if (gs.Scene_Cut) {
+        if (Scene_Cut) {
             S_Timer = 1;
         }
 
@@ -956,7 +956,7 @@ s16 Next_Q() {
     }
 
     SEL_CPU_X = 0;
-    gs.Scene_Cut = Cut_Cut_Cut();
+    Scene_Cut = Cut_Cut_Cut();
     Next_Q_Tbl[SC_No[0]]();
 
     if (Check_Exit_Check() == 0 && Debug_w[0x18] == -1) {
@@ -1047,7 +1047,7 @@ void Next_Q_3rd() {
         return;
 
     default:
-        if (gs.Scene_Cut) {
+        if (Scene_Cut) {
             S_Timer = 1;
         }
 

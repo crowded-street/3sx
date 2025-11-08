@@ -8,9 +8,6 @@
 #include <stdbool.h>
 
 typedef struct GameState {
-    /// Go faster during a non-gameplay animation
-    bool Scene_Cut;
-
     bool Time_Over;
 
     // Round timer
@@ -86,11 +83,14 @@ extern s8 Forbid_Break;
 extern s8 Request_Break[2];
 extern s8 Continue_Count[2];
 
+/// Go faster during a non-gameplay animation
+extern bool Scene_Cut;
+
 // MARK: - Unhandled
 
 extern s8 Personal_Continue_Flag[2]; // FIXME: remove
-extern s8 Personal_Disp_Flag; // FIXME: remove
-extern s8 win_pause_go; // FIXME: remove
+extern s8 Personal_Disp_Flag;        // FIXME: remove
+extern s8 win_pause_go;              // FIXME: remove
 extern s8 request_message;
 extern s8 judge_flag;
 extern s8 WINNER;
