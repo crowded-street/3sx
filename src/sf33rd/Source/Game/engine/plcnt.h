@@ -24,11 +24,13 @@ extern const s16** kizetsu_timer_table[];
 // MARK: - Serialized
 
 extern PLW plw[2];
+extern SA_WORK super_arts[2];
 
 /// Afterimage data
 extern ZanzouTableEntry zanzou_table[2][48];
 
-extern SA_WORK super_arts[2];
+/// Stun data
+extern PiyoriType piyori_type[2];
 
 // MARK: - Unhandled
 

@@ -23,7 +23,7 @@ void stngauge_cont_init() {
         sdat[i].osflag = 0;
         sdat[i].g_or_s = 0;
         sdat[i].stimer = 2;
-        sdat[i].slen = (gs.piyori_type[i].genkai / 8);
+        sdat[i].slen = (piyori_type[i].genkai / 8);
         sdat[i].proccess_dead = 0;
 
         if (omop_st_bar_disp[i]) {
@@ -74,7 +74,7 @@ void stngauge_control(u8 pl) {
             sdat[pl].sflag = 1;
 
             if (sdat[pl].osflag == 0) {
-                sdat[pl].cstn = gs.piyori_type[pl].genkai;
+                sdat[pl].cstn = piyori_type[pl].genkai;
             }
 
             if (!EXE_flag && !Game_pause) {

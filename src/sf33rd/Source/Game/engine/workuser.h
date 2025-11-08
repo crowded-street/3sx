@@ -15,9 +15,6 @@ typedef enum AppearanceType {
 } AppearanceType;
 
 typedef struct GameState {
-    /// Stun data
-    PiyoriType piyori_type[2];
-
     AppearanceType appear_type;
 
     /// Player controller routine indices

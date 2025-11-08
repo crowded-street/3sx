@@ -79,6 +79,7 @@ void set_scrrrl();
 PLW plw[2];
 ZanzouTableEntry zanzou_table[2][48];
 SA_WORK super_arts[2];
+PiyoriType piyori_type[2];
 
 // sbss
 UNK_1 rambod[2];            // FIXME: this is used in effects, might not be serializable
@@ -1198,8 +1199,8 @@ void setup_base_and_other_data() {
     set_base_data(&plw[1], 1);
     plw[0].sa = &super_arts[0];
     plw[1].sa = &super_arts[1];
-    plw[0].py = &gs.piyori_type[0];
-    plw[1].py = &gs.piyori_type[1];
+    plw[0].py = &piyori_type[0];
+    plw[1].py = &piyori_type[1];
     setup_other_data(&plw[0]);
     setup_other_data(&plw[1]);
     effect_work_list_init(6, 0xC5);
@@ -1337,19 +1338,19 @@ void clear_chainex_check(s16 ix) {
 void set_kizetsu_status(s16 ix) {
     s16 plnum = My_char[ix];
 
-    gs.piyori_type[ix].flag = 0;
-    gs.piyori_type[ix].time = 0;
-    gs.piyori_type[ix].now.timer = 0;
-    gs.piyori_type[ix].store = 0;
-    gs.piyori_type[ix].recover = pl_nr_piyo_tbl[plnum];
-    gs.piyori_type[ix].genkai = pl_piyo_tbl[plnum] + stun_gauge_len_omake[omop_stun_gauge_len[ix]];
+    piyori_type[ix].flag = 0;
+    piyori_type[ix].time = 0;
+    piyori_type[ix].now.timer = 0;
+    piyori_type[ix].store = 0;
+    piyori_type[ix].recover = pl_nr_piyo_tbl[plnum];
+    piyori_type[ix].genkai = pl_piyo_tbl[plnum] + stun_gauge_len_omake[omop_stun_gauge_len[ix]];
 
-    if (gs.piyori_type[ix].genkai < 56) {
-        gs.piyori_type[ix].genkai = 56;
+    if (piyori_type[ix].genkai < 56) {
+        piyori_type[ix].genkai = 56;
     }
 
-    if (gs.piyori_type[ix].genkai > 72) {
-        gs.piyori_type[ix].genkai = 72;
+    if (piyori_type[ix].genkai > 72) {
+        piyori_type[ix].genkai = 72;
     }
 }
 
