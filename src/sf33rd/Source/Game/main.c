@@ -255,8 +255,6 @@ static void game_step_0() {
     }
 #endif
 
-    Interrupt_Flag = 0;
-
     if ((Play_Mode != 3 && Play_Mode != 1) || (Game_pause != 0x81)) {
         p1sw_1 = p1sw_0;
         p2sw_1 = p2sw_0;
@@ -290,7 +288,6 @@ static void game_step_0() {
 }
 
 static void game_step_1() {
-    Interrupt_Flag = 1;
     Interrupt_Timer += 1;
     Record_Timer += 1;
 

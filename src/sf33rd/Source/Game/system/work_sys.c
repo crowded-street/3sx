@@ -29,7 +29,6 @@ s32 Y_Adjust_Buff[3];
 u8 Disp_Size_H;
 u8 Disp_Size_V;
 u8 No_Trans;
-u8 Interrupt_Flag;
 u16 p1sw_buff;
 u16 p2sw_buff;
 u16 p3sw_buff;

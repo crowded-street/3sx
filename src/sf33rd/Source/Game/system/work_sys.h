@@ -41,7 +41,6 @@ extern s32 Y_Adjust_Buff[3];
 extern u8 Disp_Size_H;
 extern u8 Disp_Size_V;
 extern u8 No_Trans;
-extern u8 Interrupt_Flag;
 
 /// Controller 1 inputs
 extern u16 p1sw_buff;
