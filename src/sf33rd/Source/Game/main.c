@@ -330,6 +330,7 @@ s32 mppGetFavoritePlayerNumber() {
 }
 
 void appCopyKeyData() {
+    // FIXME: Should PLsw be saved/restored too?
     PLsw[0][1] = PLsw[0][0];
     PLsw[1][1] = PLsw[1][0];
     PLsw[0][0] = p1sw_buff;

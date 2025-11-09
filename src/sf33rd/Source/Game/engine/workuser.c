@@ -159,7 +159,7 @@ s8 Jump_Pass_Timer[2][4];
 s8 sa_gauge_flash[2];
 s8 Receive_Flag[2];
 s8 Disposal_Again[2];
-volatile s8 BGM_Vol;
+s8 BGM_Vol;
 u8 Used_char[2];
 s8 Break_Com[2][20];
 s8 aiuchi_flag;

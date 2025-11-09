@@ -109,6 +109,8 @@ static void setup_vs_mode() {
 
     // Stop game task. We'll run game logic manually
     task[TASK_GAME].condition = 3;
+
+    E_Timer = 0; // E_Timer can have different values depending on when the session was initiated
 }
 
 #if defined(LOSSY_ADAPTER)

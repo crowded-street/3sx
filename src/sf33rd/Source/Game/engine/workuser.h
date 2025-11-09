@@ -7,11 +7,26 @@
 
 #include <stdbool.h>
 
+typedef enum ModeType {
+    MODE_ARCADE,
+    MODE_VERSUS,
+    MODE_NETWORK,
+    MODE_NORMAL_TRAINING,
+    MODE_PARRY_TRAINING,
+    MODE_REPLAY,
+} ModeType;
+
 // MARK: - Non-serializable
 
 extern const_s16_arr Tech_Address[2];
 extern void* Shell_Address[2];
 extern void* Synchro_Address[2][2];
+
+// MARK: - Unhandled
+
+extern const u8* Free_Ptr[2];
+extern u8* Lag_Ptr;
+extern u16* Demo_Ptr[2];
 
 // MARK: - Serialized
 
@@ -68,8 +83,6 @@ extern s8 New_Challenger;
 extern u8 S_No[4];
 
 extern s8 Select_Start[2];
-
-// MARK: - Unhandled
 
 extern s8 request_message;
 extern s8 judge_flag;
@@ -169,7 +182,7 @@ extern s8 Jump_Pass_Timer[2][4];
 extern s8 sa_gauge_flash[2];
 extern s8 Receive_Flag[2];
 extern s8 Disposal_Again[2];
-extern volatile s8 BGM_Vol;
+extern s8 BGM_Vol;
 extern u8 Used_char[2];
 extern s8 Break_Com[2][20];
 extern s8 aiuchi_flag;
@@ -235,7 +248,6 @@ extern u8 Plate_Disposal_No[2][3];
 extern u8 SO_No[2];
 extern u8 Disp_Command_Name[2][3];
 extern u8 SC_No[4];
-extern const u8* Free_Ptr[2];
 extern u8 BGM_No[2];
 extern u8 BGM_Timer[2];
 extern u8 EM_List[2][2];
@@ -324,18 +336,7 @@ extern u8 Play_Game;
 extern s8 Menu_Cursor_Move;
 extern u8 flash_win_type[2][4];
 extern u8 sync_win_type[2][4];
-
-typedef enum ModeType {
-    MODE_ARCADE,
-    MODE_VERSUS,
-    MODE_NETWORK,
-    MODE_NORMAL_TRAINING,
-    MODE_PARRY_TRAINING,
-    MODE_REPLAY,
-} ModeType;
-
 extern ModeType Mode_Type;
-
 extern s8 Menu_Page;
 extern s8 Menu_Max;
 extern u8 reset_NG_flag;
@@ -358,7 +359,6 @@ extern u8 Reset_Bootrom;
 extern u8 Decide_ID;
 extern s8 Training_Cursor;
 extern s8 Lag_Timer;
-extern u8* Lag_Ptr;
 extern u8 CPU_Time_Lag[2];
 extern u8 Forbid_Reset;
 extern u8 CPU_Rec[2];
@@ -468,7 +468,6 @@ extern u16 vital_stop_flag[2];
 extern u16 gauge_stop_flag[2];
 extern s16 Lamp_Timer;
 extern s16 Cont_Timer;
-extern u16* Demo_Ptr[2];
 extern s16 Plate_X[2][3];
 extern s16 Plate_Y[2][3];
 extern u16 Demo_Timer[2];
