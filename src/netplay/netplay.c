@@ -14,7 +14,6 @@
 #include "sf33rd/Source/Game/system/sys_sub.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/utils/djb2_hash.h"
-#include "sf33rd/utils/effect_work_hash.h"
 #include "types.h"
 
 #include <stdbool.h>
@@ -187,73 +186,91 @@ static u16 recall_input(int player, int frame) {
 }
 
 #if defined(DEBUG)
-static uint32_t update_hash_with_effects(uint32_t hash, const EffectState* state) {
-    hash = djb2_update(hash, state->frwctr);
-    hash = djb2_update(hash, state->frwctr_min);
-    hash = djb2_updatea(hash, state->head_ix);
-    hash = djb2_updatea(hash, state->tail_ix);
-    hash = djb2_updatea(hash, state->exec_tm);
-    hash = djb2_updatea(hash, state->frwque);
-    hash = update_hash_with_effect_work(hash, state->frw);
-    return hash;
-}
-
 static uint32_t calculate_checksum(const State* state) {
     uint32_t hash = djb2_init();
-    hash = djb2_update(hash, state->gs);
-    hash = update_hash_with_effects(hash, &state->es);
+    hash = djb2_updatep(hash, state);
     return hash;
 }
-#endif
 
-#if defined(DEBUG)
-static void dump_state(int frame) {
-    State copy;
-    SDL_memcpy(&copy, &state_buffer[frame % STATE_BUFFER_MAX], sizeof(State));
+/// Zero out all pointers in WORK for dumping
+static void clean_work_pointers(WORK* work) {
+    work->target_adrs = NULL;
+    work->hit_adrs = NULL;
+    work->dmg_adrs = NULL;
+    work->suzi_offset = NULL;
+    SDL_zeroa(work->char_table);
+    work->se_random_table = NULL;
+    work->step_xy_table = NULL;
+    work->move_xy_table = NULL;
+    work->overlap_char_tbl = NULL;
+    work->olc_ix_table = NULL;
+    work->rival_catch_tbl = NULL;
+    work->curr_rca = NULL;
+    work->set_char_ad = NULL;
+    work->hit_ix_table = NULL;
+    work->body_adrs = NULL;
+    work->h_bod = NULL;
+    work->hand_adrs = NULL;
+    work->h_han = NULL;
+    work->dumm_adrs = NULL;
+    work->h_dumm = NULL;
+    work->catch_adrs = NULL;
+    work->h_cat = NULL;
+    work->caught_adrs = NULL;
+    work->h_cau = NULL;
+    work->attack_adrs = NULL;
+    work->h_att = NULL;
+    work->h_eat = NULL;
+    work->hosei_adrs = NULL;
+    work->h_hos = NULL;
+    work->att_ix_table = NULL;
+    work->my_effadrs = NULL;
+}
+
+static void clean_plw_pointers(PLW* plw) {
+    clean_work_pointers(&plw->wu);
+    plw->cp = NULL;
+    plw->dm_step_tbl = NULL;
+    plw->as = NULL;
+    plw->sa = NULL;
+    plw->py = NULL;
+}
+
+static void clean_state_pointers(State* state) {
+    for (int i = 0; i < 2; i++) {
+        clean_plw_pointers(&state->gs.plw[i]);
+    }
 
     for (int i = 0; i < EFFECT_MAX; i++) {
-        WORK* work = (WORK*)copy.es.frw[i];
-        work->target_adrs = NULL;
-        work->hit_adrs = NULL;
-        work->dmg_adrs = NULL;
-        work->suzi_offset = NULL;
-        SDL_zeroa(work->char_table);
-        work->se_random_table = NULL;
-        work->step_xy_table = NULL;
-        work->move_xy_table = NULL;
-        work->overlap_char_tbl = NULL;
-        work->olc_ix_table = NULL;
-        work->rival_catch_tbl = NULL;
-        work->curr_rca = NULL;
-        work->set_char_ad = NULL;
-        work->hit_ix_table = NULL;
-        work->body_adrs = NULL;
-        work->h_bod = NULL;
-        work->hand_adrs = NULL;
-        work->h_han = NULL;
-        work->dumm_adrs = NULL;
-        work->h_dumm = NULL;
-        work->catch_adrs = NULL;
-        work->h_cat = NULL;
-        work->caught_adrs = NULL;
-        work->h_cau = NULL;
-        work->attack_adrs = NULL;
-        work->h_att = NULL;
-        work->h_eat = NULL;
-        work->hosei_adrs = NULL;
-        work->h_hos = NULL;
-        work->att_ix_table = NULL;
-        work->my_effadrs = NULL;
+        WORK* work = (WORK*)state->es.frw[i];
+        clean_work_pointers(work);
 
-        WORK_Other* work_big = (WORK_Other*)copy.es.frw[i];
+        WORK_Other* work_big = (WORK_Other*)state->es.frw[i];
         work_big->my_master = NULL;
     }
+}
+
+/// Save state in state buffer.
+/// @return Pointer to state as it has been saved.
+static const State* note_state(const State* state, int frame) {
+    if (frame < 0) {
+        frame += STATE_BUFFER_MAX;
+    }
+
+    State* dst = &state_buffer[frame % STATE_BUFFER_MAX];
+    SDL_memcpy(dst, state, sizeof(State));
+    clean_state_pointers(dst);
+    return dst;
+}
+
+static void dump_state(int frame) {
+    State* src = &state_buffer[frame % STATE_BUFFER_MAX];
 
     char filename[100];
     SDL_snprintf(filename, sizeof(filename), "states/%d_%d", player_handle, frame);
 
     SDL_IOStream* io = SDL_IOFromFile(filename, "w");
-    SDL_WriteIO(io, &copy, sizeof(State));
+    SDL_WriteIO(io, src, sizeof(State));
 }
 #endif
 
@@ -278,12 +295,9 @@ static void save_state(GekkoGameEvent* event) {
     es->frwctr_min = frwctr_min;
 
 #if defined(DEBUG)
-    *event->data.save.checksum = calculate_checksum(dst);
     const int frame = event->data.save.frame;
-
-    if (frame >= 0) {
-        SDL_memcpy(&state_buffer[frame % STATE_BUFFER_MAX], dst, sizeof(State));
-    }
+    const State* saved_state = note_state(dst, frame);
+    *event->data.save.checksum = calculate_checksum(saved_state);
 #endif
 }
 
