@@ -1684,15 +1684,12 @@ void Exit_6th() {
         return;
     }
 
-    if (!adx_now_playend()) {
-        return;
-    }
-
     if (!sndCheckVTransStatus(0)) {
         return;
     }
 
-    if (Scene_Cut) {
+    // We shouldn't skip VS screen in network mode, because that can lead to IO race conditions
+    if (Scene_Cut && (Mode_Type != MODE_NETWORK)) {
         Exit_Timer = 1;
     }
 
