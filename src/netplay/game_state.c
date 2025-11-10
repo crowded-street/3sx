@@ -466,9 +466,32 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(Random_ix16_bg);
     GS_SAVE(Opening_Now);
 
+    // cmd_data
+
     GS_SAVE(wcp);
     GS_SAVE(t_pl_lvr);
     GS_SAVE(waza_work);
+
+    // cmb_win
+
+    GS_SAVE(cmst_buff);
+    GS_SAVE(old_cmb_flag);
+    GS_SAVE(cmb_stock);
+    GS_SAVE(first_attack);
+    GS_SAVE(rever_attack);
+    GS_SAVE(paring_attack);
+    GS_SAVE(bonus_pts);
+    GS_SAVE(hit_num);
+    GS_SAVE(sa_kind);
+    GS_SAVE(end_flag);
+    GS_SAVE(calc_hit);
+    GS_SAVE(score_calc);
+    GS_SAVE(cmb_all_stock);
+    GS_SAVE(sarts_finish_flag);
+    GS_SAVE(last_hit_time);
+    GS_SAVE(cmb_calc_now);
+    GS_SAVE(cst_read);
+    GS_SAVE(cst_write);
 }
 
 #define GS_LOAD(member) SDL_memcpy(&member, &src->member, sizeof(member))
@@ -931,7 +954,30 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(Random_ix16_bg);
     GS_LOAD(Opening_Now);
 
+    // cmd_data
+
     GS_LOAD(wcp);
     GS_LOAD(t_pl_lvr);
     GS_LOAD(waza_work);
+
+    // cmb_win
+
+    GS_LOAD(cmst_buff);
+    GS_LOAD(old_cmb_flag);
+    GS_LOAD(cmb_stock);
+    GS_LOAD(first_attack);
+    GS_LOAD(rever_attack);
+    GS_LOAD(paring_attack);
+    GS_LOAD(bonus_pts);
+    GS_LOAD(hit_num);
+    GS_LOAD(sa_kind);
+    GS_LOAD(end_flag);
+    GS_LOAD(calc_hit);
+    GS_LOAD(score_calc);
+    GS_LOAD(cmb_all_stock);
+    GS_LOAD(sarts_finish_flag);
+    GS_LOAD(last_hit_time);
+    GS_LOAD(cmb_calc_now);
+    GS_LOAD(cst_read);
+    GS_LOAD(cst_write);
 }

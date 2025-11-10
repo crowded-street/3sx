@@ -3,28 +3,46 @@
 
 #include "types.h"
 
+typedef struct {
+    s16 x_pos_num;
+    s8 routine_num;
+    u8 hit_hi;
+    u8 hit_low;
+    s8 kind;
+    u32 pts;
+    s8 pts_digit[4];
+    s8 pts_flag;
+    s8 first_digit;
+    u8 move[2];
+    u8 x_posnum[2];
+    s16 timer[2];
+} CMST_BUFF;
+
 extern const u8 cmb_pos_tbl[2][21];
 extern const u8 cmb_window_move_tbl[7];
 extern const u8 cmb_window_time_tbl[7];
 extern const u16 combo_score_tbl[12][2];
 
-extern u8 cst_write[2];
-extern u8 cst_read[2];
-extern s8 cmb_calc_now[];
-extern s8 last_hit_time;
-extern s8 sarts_finish_flag[2];
-extern s8 cmb_all_stock[];
-extern s16 score_calc[2][12];
-extern s16 calc_hit[2][10];
-extern u8 end_flag[2];
-extern u8 sa_kind;
-extern s16 hit_num;
-extern s8 bonus_pts[2];
-extern s8 paring_attack[2];
-extern s8 rever_attack[2];
-extern s8 first_attack;
-extern s8 cmb_stock[2];
+// MARK: - Serialized
+
+extern CMST_BUFF cmst_buff[2][5];
 extern s16 old_cmb_flag[2];
+extern s8 cmb_stock[2];
+extern s8 first_attack;
+extern s8 rever_attack[2];
+extern s8 paring_attack[2];
+extern s8 bonus_pts[2];
+extern s16 hit_num;
+extern u8 sa_kind;
+extern u8 end_flag[2];
+extern s16 calc_hit[2][10];
+extern s16 score_calc[2][12];
+extern s8 cmb_all_stock[1];
+extern s8 sarts_finish_flag[2];
+extern s8 last_hit_time;
+extern s8 cmb_calc_now[2];
+extern u8 cst_read[2];
+extern u8 cst_write[2];
 
 void combo_cont_init();
 void combo_cont_main();

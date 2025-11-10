@@ -2108,21 +2108,6 @@ typedef union {
 } MS;
 
 typedef struct {
-    s16 x_pos_num;
-    s8 routine_num;
-    u8 hit_hi;
-    u8 hit_low;
-    s8 kind;
-    u32 pts;
-    s8 pts_digit[4];
-    s8 pts_flag;
-    s8 first_digit;
-    u8 move[2];
-    u8 x_posnum[2];
-    s16 timer[2];
-} CMST_BUFF;
-
-typedef struct {
     union {
         u16 results;
         struct {
