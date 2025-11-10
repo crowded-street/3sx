@@ -271,6 +271,7 @@ static void dump_state(int frame) {
 
     SDL_IOStream* io = SDL_IOFromFile(filename, "w");
     SDL_WriteIO(io, src, sizeof(State));
+    SDL_CloseIO(io);
 }
 #endif
 
