@@ -245,9 +245,10 @@ void Damage_00000(PLW* wk) {
             wk->wu.routine_no[3]++;
         }
 
-        /* fallthrough */
+        break;
 
     case 2:
+        // Do nothing
         break;
     }
 }

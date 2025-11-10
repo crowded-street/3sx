@@ -1319,14 +1319,12 @@ void setup_dm_rl(WORK* as, WORK* ds) {
     if (pw) {
         if (pw > 0) {
             ds->dm_rl = 1;
-            return;
+        } else {
+            ds->dm_rl = 0;
         }
-
-        ds->dm_rl = 0;
-        return;
+    } else {
+        ds->dm_rl = as->rl_flag;
     }
-
-    ds->dm_rl = as->rl_flag;
 }
 
 void dm_status_copy(WORK* as, WORK* ds) {

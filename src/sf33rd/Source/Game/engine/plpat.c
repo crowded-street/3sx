@@ -101,10 +101,9 @@ void Player_attack(PLW* wk) {
     if (wk->wu.cg_prio) {
         if (wk->wu.cg_prio == 1) {
             wk->wu.next_z += 4;
-            return;
+        } else {
+            wk->wu.next_z -= 4;
         }
-
-        wk->wu.next_z -= 4;
     }
 }
 
