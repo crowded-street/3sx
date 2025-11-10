@@ -239,6 +239,10 @@ static void clean_plw_pointers(PLW* plw) {
 static void clean_state_pointers(State* state) {
     for (int i = 0; i < 2; i++) {
         clean_plw_pointers(&state->gs.plw[i]);
+
+        for (int j = 0; j < 56; j++) {
+            state->gs.waza_work[i][j].w_ptr = NULL;
+        }
     }
 
     for (int i = 0; i < EFFECT_MAX; i++) {

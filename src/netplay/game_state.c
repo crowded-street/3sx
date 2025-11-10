@@ -465,6 +465,10 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(Random_ix32_ex_com);
     GS_SAVE(Random_ix16_bg);
     GS_SAVE(Opening_Now);
+
+    GS_SAVE(wcp);
+    GS_SAVE(t_pl_lvr);
+    GS_SAVE(waza_work);
 }
 
 #define GS_LOAD(member) SDL_memcpy(&member, &src->member, sizeof(member))
@@ -926,4 +930,8 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(Random_ix32_ex_com);
     GS_LOAD(Random_ix16_bg);
     GS_LOAD(Opening_Now);
+
+    GS_LOAD(wcp);
+    GS_LOAD(t_pl_lvr);
+    GS_LOAD(waza_work);
 }

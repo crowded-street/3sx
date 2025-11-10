@@ -468,6 +468,10 @@ typedef struct GameState {
     s16 Random_ix32_ex_com;
     s16 Random_ix16_bg;
     s16 Opening_Now;
+
+    WORK_CP wcp[2];
+    T_PL_LVR t_pl_lvr[2];
+    WAZA_WORK waza_work[2][56];
 } GameState;
 
 void GameState_Save(GameState* dst);

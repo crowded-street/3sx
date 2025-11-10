@@ -12,6 +12,8 @@
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/system/sysdir.h"
 
+#include <SDL3/SDL.h>
+
 void (*chk_move_jp[28])() = { check_init, check_0,  check_1,  check_2,  check_3,  check_4,  check_5,
                               check_6,    check_7,  check_7,  check_9,  check_10, check_11, check_12,
                               check_13,   check_14, check_15, check_16, check_16, check_18, check_19,
@@ -72,20 +74,15 @@ void cmd_data_set(PLW* /* unused */, s16 i) {
 void cmd_init(PLW* pl) {
     s16 i;
     s16 j;
-    s32* ptr;
 
     cmd_id = pl->wu.id;
     pl->cp = &wcp[cmd_id];
-    ptr = (s32*)&waza_work[cmd_id][0];
 
-    for (i = 0; i < 56; i++) {
-        for (j = 0; j < 6; j++) {
-            *ptr++ = 0;
-        }
-    }
+    SDL_zeroa(waza_work[cmd_id]);
 
     for (i = 0; i < 56; i++) {
         wcp[cmd_id].waza_flag[i] = 0;
+
         for (j = 0; j < 4; j++) {
             wcp[cmd_id].waza_r[i][j] = 0;
         }
