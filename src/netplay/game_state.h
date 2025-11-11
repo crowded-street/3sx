@@ -5,6 +5,7 @@
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/select_timer.h"
+#include "sf33rd/Source/Game/stage/bg.h"
 #include "structs.h"
 #include "types.h"
 
@@ -496,6 +497,10 @@ typedef struct GameState {
     s8 cmb_calc_now[2];
     u8 cst_read[2];
     u8 cst_write[2];
+
+    // bg
+
+    BG bg_w;
 } GameState;
 
 void GameState_Save(GameState* dst);

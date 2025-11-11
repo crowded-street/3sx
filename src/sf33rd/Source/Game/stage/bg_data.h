@@ -1,7 +1,7 @@
 #ifndef BG_DATA_H
 #define BG_DATA_H
 
-#include "structs.h"
+#include "sf33rd/Source/Game/stage/bg.h"
 #include "types.h"
 
 typedef struct {

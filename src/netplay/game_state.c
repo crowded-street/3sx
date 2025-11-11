@@ -492,6 +492,10 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(cmb_calc_now);
     GS_SAVE(cst_read);
     GS_SAVE(cst_write);
+
+    // bg
+
+    GS_SAVE(bg_w);
 }
 
 #define GS_LOAD(member) SDL_memcpy(&member, &src->member, sizeof(member))
@@ -980,4 +984,8 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(cmb_calc_now);
     GS_LOAD(cst_read);
     GS_LOAD(cst_write);
+
+    // bg
+
+    GS_LOAD(bg_w);
 }

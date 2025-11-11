@@ -252,6 +252,17 @@ static void clean_state_pointers(State* state) {
         WORK_Other* work_big = (WORK_Other*)state->es.frw[i];
         work_big->my_master = NULL;
     }
+
+    for (int i = 0; i < SDL_arraysize(state->gs.bg_w.bgw); i++) {
+        state->gs.bg_w.bgw[i].bg_address = NULL;
+        state->gs.bg_w.bgw[i].suzi_adrs = NULL;
+        state->gs.bg_w.bgw[i].start_suzi = NULL;
+        state->gs.bg_w.bgw[i].suzi_adrs2 = NULL;
+        state->gs.bg_w.bgw[i].start_suzi2 = NULL;
+        state->gs.bg_w.bgw[i].deff_rl = NULL;
+        state->gs.bg_w.bgw[i].deff_plus = NULL;
+        state->gs.bg_w.bgw[i].deff_minus = NULL;
+    }
 }
 
 /// Save state in state buffer.
