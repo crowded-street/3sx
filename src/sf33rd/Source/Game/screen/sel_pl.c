@@ -1624,7 +1624,7 @@ void Exit_4th() {
     Menu_Suicide[0] = 1;
     bgPalCodeOffset[0] = 144;
     BGM_Request(51);
-    Exit_Timer = 180;
+    Exit_Timer = 240;
     effect_58_init(17, 2, 0);
 
     if (Select_Status[0] != 3) {
