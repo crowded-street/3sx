@@ -5,6 +5,10 @@
 
 extern const u16 acatkoa_table[];
 
+// MARK: - Serialized
+
+extern u16 att_req;
+
 void setupCharTableData(WORK* wk, s32 clr, s32 info);
 void char_move_cmhs(PLW* wk);
 void char_move(WORK* wk);

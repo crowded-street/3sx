@@ -501,6 +501,10 @@ typedef struct GameState {
     // bg
 
     BG bg_w;
+
+    // charset
+
+    u16 att_req;
 } GameState;
 
 void GameState_Save(GameState* dst);

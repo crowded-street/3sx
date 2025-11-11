@@ -1,4 +1,5 @@
 #include "netplay/game_state.h"
+#include "sf33rd/Source/Game/engine/charset.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/select_timer.h"
@@ -496,6 +497,10 @@ void GameState_Save(GameState* dst) {
     // bg
 
     GS_SAVE(bg_w);
+
+    // charset
+
+    GS_SAVE(att_req);
 }
 
 #define GS_LOAD(member) SDL_memcpy(&member, &src->member, sizeof(member))
@@ -988,4 +993,8 @@ void GameState_Load(const GameState* src) {
     // bg
 
     GS_LOAD(bg_w);
+
+    // charset
+
+    GS_LOAD(att_req);
 }

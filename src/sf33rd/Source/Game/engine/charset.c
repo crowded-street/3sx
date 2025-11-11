@@ -24,6 +24,8 @@
 #define HI_2_BYTES(_val) (((s16*)&_val)[1])
 #define WK_AS_PLW ((PLW*)wk)
 
+u16 att_req = 0;
+
 extern s32 (*const decode_chcmd[125])();
 extern s32 (*const decode_if_lever[16])();
 extern const s16 jphos_table[16];
@@ -2524,7 +2526,6 @@ void check_cgd_patdat2(WORK* wk) {
 
 void set_new_attnum(WORK* wk) {
     s16 aag_sw;
-    static u16 att_req;
 
     wk->renew_attack = wk->cg_att_ix;
 
