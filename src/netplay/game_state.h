@@ -505,6 +505,12 @@ typedef struct GameState {
     // charset
 
     u16 att_req;
+
+    // slowf
+
+    s16 SLOW_timer;
+    s16 SLOW_flag;
+    s16 EXE_flag;
 } GameState;
 
 void GameState_Save(GameState* dst);

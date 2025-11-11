@@ -1,6 +1,7 @@
 #include "netplay/game_state.h"
 #include "sf33rd/Source/Game/engine/charset.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
+#include "sf33rd/Source/Game/engine/slowf.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/select_timer.h"
 #include "sf33rd/Source/Game/ui/count.h"
@@ -501,6 +502,12 @@ void GameState_Save(GameState* dst) {
     // charset
 
     GS_SAVE(att_req);
+
+    // slowf
+
+    GS_SAVE(SLOW_timer);
+    GS_SAVE(SLOW_flag);
+    GS_SAVE(EXE_flag);
 }
 
 #define GS_LOAD(member) SDL_memcpy(&member, &src->member, sizeof(member))
@@ -997,4 +1004,10 @@ void GameState_Load(const GameState* src) {
     // charset
 
     GS_LOAD(att_req);
+
+    // slowf
+
+    GS_LOAD(SLOW_timer);
+    GS_LOAD(SLOW_flag);
+    GS_LOAD(EXE_flag);
 }
