@@ -451,7 +451,7 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(Plate_X);
     GS_SAVE(Plate_Y);
     // GS_SAVE(Demo_Timer);
-    GS_SAVE(Condense_Buff);
+    // GS_SAVE(Condense_Buff);
     GS_SAVE(Keep_Grade);
     GS_SAVE(IO_Result);
     GS_SAVE(VS_Win_Record);
@@ -943,7 +943,7 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(Plate_X);
     GS_LOAD(Plate_Y);
     // GS_LOAD(Demo_Timer);
-    GS_LOAD(Condense_Buff);
+    // GS_LOAD(Condense_Buff);
     GS_LOAD(Keep_Grade);
     GS_LOAD(IO_Result);
     GS_LOAD(VS_Win_Record);
