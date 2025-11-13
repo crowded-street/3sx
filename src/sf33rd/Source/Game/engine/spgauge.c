@@ -13,39 +13,6 @@
 #include "sf33rd/Source/Game/system/sysdir.h"
 #include "sf33rd/Source/Game/ui/sc_sub.h"
 
-typedef struct {
-    const u16* spgtbl_ptr;
-    const u16* spgptbl_ptr;
-    s16 current_spg;
-    s16 old_spg;
-    s16 spgcol_number;
-    s16 spg_level;
-    s16 spg_maxlevel;
-    s16 spg_len;
-    s16 spg_dotlen;
-    s16 flag;
-    s16 flag2;
-    s16 level_flag;
-    s16 timer;
-    s16 timer2;
-    s8 kind;
-    s8 max;
-    s8 max_old;
-    s8 max_rno;
-    s8 time;
-    s8 time_rno;
-    s16 gauge_flash_time;
-    s16 gauge_flash_col;
-    u16 mchar;
-    u16 mass_len;
-    s8 sa_flag;
-    s8 ex_flag;
-    s8 no_chgcol;
-    s8 time_no_clear;
-    s8 sa_mukou;
-} SPG_DAT;
-
-// sbss
 s8 Old_Stop_SG;
 s8 Exec_Wipe_F;
 s8 time_clear[2];

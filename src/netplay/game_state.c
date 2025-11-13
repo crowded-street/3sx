@@ -525,6 +525,24 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(judge_final);
     GS_SAVE(judge_item);
     GS_SAVE(ji_sat);
+
+    // spgauge
+
+    GS_SAVE(Old_Stop_SG);
+    GS_SAVE(Exec_Wipe_F);
+    GS_SAVE(time_clear);
+    GS_SAVE(spg_number);
+    GS_SAVE(spg_work);
+    GS_SAVE(spg_offset);
+    GS_SAVE(time_num);
+    GS_SAVE(time_timer);
+    GS_SAVE(time_flag);
+    GS_SAVE(col);
+    GS_SAVE(time_operate);
+    GS_SAVE(sast_now);
+    GS_SAVE(max2);
+    GS_SAVE(max_rno2);
+    GS_SAVE(spg_dat);
 }
 
 #define GS_LOAD(member) SDL_memcpy(&member, &src->member, sizeof(member))
@@ -1044,4 +1062,22 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(judge_final);
     GS_LOAD(judge_item);
     GS_LOAD(ji_sat);
+
+    // spgauge
+
+    GS_LOAD(Old_Stop_SG);
+    GS_LOAD(Exec_Wipe_F);
+    GS_LOAD(time_clear);
+    GS_LOAD(spg_number);
+    GS_LOAD(spg_work);
+    GS_LOAD(spg_offset);
+    GS_LOAD(time_num);
+    GS_LOAD(time_timer);
+    GS_LOAD(time_flag);
+    GS_LOAD(col);
+    GS_LOAD(time_operate);
+    GS_LOAD(sast_now);
+    GS_LOAD(max2);
+    GS_LOAD(max_rno2);
+    GS_LOAD(spg_dat);
 }

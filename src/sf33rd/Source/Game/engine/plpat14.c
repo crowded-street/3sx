@@ -12,7 +12,7 @@
 #include "sf33rd/Source/Game/engine/pls01.h"
 #include "sf33rd/Source/Game/engine/pls02.h"
 
-s8 stop_count[2];
+s8 stop_count[2]; // FIXME: This is pretty much unused. Remove?
 
 const s16 pl14_HYAKKI_dat[20] = { 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 7, 6, 6, 4, 6, 14, 15, 16, 17, 18 };
 
