@@ -5,6 +5,7 @@
 #include "sf33rd/Source/Game/engine/grade.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/spgauge.h"
+#include "sf33rd/Source/Game/engine/stun.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/select_timer.h"
 #include "sf33rd/Source/Game/stage/bg.h"
@@ -548,6 +549,10 @@ typedef struct GameState {
     s8 max2[2];
     s8 max_rno2[2];
     SPG_DAT spg_dat[2];
+
+    // stun
+
+    SDAT sdat[2];
 } GameState;
 
 void GameState_Save(GameState* dst);

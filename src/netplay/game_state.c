@@ -543,6 +543,10 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(max2);
     GS_SAVE(max_rno2);
     GS_SAVE(spg_dat);
+
+    // stun
+
+    GS_SAVE(sdat);
 }
 
 #define GS_LOAD(member) SDL_memcpy(&member, &src->member, sizeof(member))
@@ -1080,4 +1084,8 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(max2);
     GS_LOAD(max_rno2);
     GS_LOAD(spg_dat);
+
+    // stun
+
+    GS_LOAD(sdat);
 }
