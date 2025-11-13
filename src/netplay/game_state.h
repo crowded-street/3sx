@@ -6,6 +6,7 @@
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/spgauge.h"
 #include "sf33rd/Source/Game/engine/stun.h"
+#include "sf33rd/Source/Game/engine/vital.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/select_timer.h"
 #include "sf33rd/Source/Game/stage/bg.h"
@@ -553,6 +554,10 @@ typedef struct GameState {
     // stun
 
     SDAT sdat[2];
+
+    // vital
+
+    VIT vit[2];
 } GameState;
 
 void GameState_Save(GameState* dst);

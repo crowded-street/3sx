@@ -547,6 +547,10 @@ void GameState_Save(GameState* dst) {
     // stun
 
     GS_SAVE(sdat);
+
+    // vital
+
+    GS_SAVE(vit);
 }
 
 #define GS_LOAD(member) SDL_memcpy(&member, &src->member, sizeof(member))
@@ -1088,4 +1092,8 @@ void GameState_Load(const GameState* src) {
     // stun
 
     GS_LOAD(sdat);
+
+    // vital
+
+    GS_LOAD(vit);
 }

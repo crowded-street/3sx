@@ -18,9 +18,9 @@ void vital_cont_init() {
     u8 i;
 
     for (i = 0; i < 2; i++) {
-        vit[i].cyerw = 0xA0;
-        vit[i].cred = 0xA0;
-        vit[i].ored = 0xA0;
+        vit[i].cyerw = 160;
+        vit[i].cred = 160;
+        vit[i].ored = 160;
         vit[i].colnum = 1;
         gauge_stop_flag[i] = 0;
         vital_stop_flag[i] = 0;
@@ -45,7 +45,7 @@ void vital_cont_main() {
 }
 
 void vital_control(u8 pl) {
-    if (plw[pl].wu.vital_new < 0xA1) {
+    if (plw[pl].wu.vital_new < 161) {
         if ((vit[pl].cyerw == plw[pl].wu.vital_new) && (vit[pl].cred == plw[pl].wu.vital_new) &&
             (vit[pl].ored != (plw[pl].wu.vital_new + 1))) {
             if (No_Trans == 0) {
@@ -64,9 +64,9 @@ void vital_control(u8 pl) {
             vit[pl].cyerw = 0;
         }
 
-        if (plw[pl].wu.vital_new == 0xA0) {
+        if (plw[pl].wu.vital_new == 160) {
             vit[pl].colnum = 1;
-        } else if (plw[pl].wu.vital_new < 0x31) {
+        } else if (plw[pl].wu.vital_new < 49) {
             vit[pl].colnum = 3;
         } else {
             vit[pl].colnum = 2;
@@ -86,7 +86,7 @@ void vital_control(u8 pl) {
 }
 
 void vital_parts_allwrite(u8 Pl_Num) {
-    scfont_sqput((Pl_Num * 27), 2, 1, 0, Pl_Num, (Pl_Num + 30), 21, 1, 5);
+    scfont_sqput(Pl_Num * 27, 2, 1, 0, Pl_Num, Pl_Num + 30, 21, 1, 5);
 
     if (omop_vt_bar_disp[Pl_Num] == 0) {
         silver_vital_put(Pl_Num);

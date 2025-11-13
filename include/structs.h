@@ -2066,13 +2066,6 @@ typedef struct {
 } TAMA;
 
 typedef struct {
-    s16 cyerw;
-    s16 cred;
-    s16 ored;
-    s8 colnum;
-} VIT;
-
-typedef struct {
     s16 timer;
     s16 jmplv;
     s16 kosuu;
