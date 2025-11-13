@@ -2,6 +2,7 @@
 #define NETPLAY_GAME_STATE_H
 
 #include "sf33rd/Source/Game/engine/cmb_win.h"
+#include "sf33rd/Source/Game/engine/grade.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/select_timer.h"
@@ -511,6 +512,15 @@ typedef struct GameState {
     s16 SLOW_timer;
     s16 SLOW_flag;
     s16 EXE_flag;
+
+    // grade
+
+    JudgeGals judge_gals[2];
+    JudgeCom judge_com[2];
+    s16 last_judge_dada[2][5];
+    GradeFinalData judge_final[2][2];
+    GradeData judge_item[2][2];
+    u8 ji_sat[2][384];
 } GameState;
 
 void GameState_Save(GameState* dst);

@@ -508,6 +508,15 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(SLOW_timer);
     GS_SAVE(SLOW_flag);
     GS_SAVE(EXE_flag);
+
+    // grade
+
+    GS_SAVE(judge_gals);
+    GS_SAVE(judge_com);
+    GS_SAVE(last_judge_dada);
+    GS_SAVE(judge_final);
+    GS_SAVE(judge_item);
+    GS_SAVE(ji_sat);
 }
 
 #define GS_LOAD(member) SDL_memcpy(&member, &src->member, sizeof(member))
@@ -1010,4 +1019,13 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(SLOW_timer);
     GS_LOAD(SLOW_flag);
     GS_LOAD(EXE_flag);
+
+    // grade
+
+    GS_LOAD(judge_gals);
+    GS_LOAD(judge_com);
+    GS_LOAD(last_judge_dada);
+    GS_LOAD(judge_final);
+    GS_LOAD(judge_item);
+    GS_LOAD(ji_sat);
 }

@@ -4,11 +4,31 @@
 #include "structs.h"
 #include "types.h"
 
+typedef struct {
+    s16 offence_total;
+    s16 defence_total;
+    s16 tech_pts_total;
+    s16 ex_point_total;
+    s16 grade;
+} JudgeGals;
+
+typedef struct {
+    s16 offence_total;
+    s16 defence_total;
+    s16 tech_pts_total;
+    s16 ex_point_total;
+    s16 round;
+    s16 grade;
+} JudgeCom;
+
+// MARK: - Serialized
+
 extern JudgeGals judge_gals[2];
 extern JudgeCom judge_com[2];
-
+extern s16 last_judge_dada[2][5];
 extern GradeFinalData judge_final[2][2];
 extern GradeData judge_item[2][2];
+extern u8 ji_sat[2][384];
 
 void grade_check_work_1st_init(s16 ix, s16 ix2);
 void grade_check_work_stage_init(s16 ix);
