@@ -227,6 +227,7 @@ static void clean_work_pointers(WORK* work) {
     work->my_effadrs = NULL;
 
     work->current_colcd = 0;
+    work->colcd = 0;
 }
 
 static void clean_plw_pointers(PLW* plw) {
