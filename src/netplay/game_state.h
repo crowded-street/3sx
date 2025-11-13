@@ -4,6 +4,7 @@
 #include "sf33rd/Source/Game/engine/cmb_win.h"
 #include "sf33rd/Source/Game/engine/grade.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
+#include "sf33rd/Source/Game/engine/spgauge.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/select_timer.h"
 #include "sf33rd/Source/Game/stage/bg.h"
@@ -529,6 +530,24 @@ typedef struct GameState {
     GradeFinalData judge_final[2][2];
     GradeData judge_item[2][2];
     u8 ji_sat[2][384];
+
+    // spgauge
+
+    s8 Old_Stop_SG;
+    s8 Exec_Wipe_F;
+    s8 time_clear[2];
+    s16 spg_number;
+    s16 spg_work;
+    s16 spg_offset;
+    s8 time_num;
+    s8 time_timer;
+    s8 time_flag[2];
+    s16 col;
+    s8 time_operate[2];
+    s8 sast_now[2];
+    s8 max2[2];
+    s8 max_rno2[2];
+    SPG_DAT spg_dat[2];
 } GameState;
 
 void GameState_Save(GameState* dst);
