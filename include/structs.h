@@ -2073,23 +2073,6 @@ typedef struct {
 } VIT;
 
 typedef struct {
-    s16 offence_total;
-    s16 defence_total;
-    s16 tech_pts_total;
-    s16 ex_point_total;
-    s16 grade;
-} JudgeGals;
-
-typedef struct {
-    s16 offence_total;
-    s16 defence_total;
-    s16 tech_pts_total;
-    s16 ex_point_total;
-    s16 round;
-    s16 grade;
-} JudgeCom;
-
-typedef struct {
     s16 cstn;
     s8 sflag;
     s8 osflag;
