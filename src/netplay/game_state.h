@@ -11,16 +11,6 @@
 #include "types.h"
 
 typedef struct GameState {
-    PLW plw[2];
-    ZanzouTableEntry zanzou_table[2][48];
-    SA_WORK super_arts[2];
-    PiyoriType piyori_type[2];
-    AppearanceType appear_type;
-    s16 pcon_rno[4];
-    bool round_slow_flag;
-    bool pcon_dp_flag;
-    u8 win_sp_flag;
-    bool dead_voice_flag;
     bool Scene_Cut;
     bool Time_Over;
 
@@ -471,6 +461,24 @@ typedef struct GameState {
     s16 Random_ix32_ex_com;
     s16 Random_ix16_bg;
     s16 Opening_Now;
+
+    // plcnt
+
+    PLW plw[2];
+    ZanzouTableEntry zanzou_table[2][48];
+    SA_WORK super_arts[2];
+    PiyoriType piyori_type[2];
+    AppearanceType appear_type;
+    s16 pcon_rno[4];
+    bool round_slow_flag;
+    bool pcon_dp_flag;
+    u8 win_sp_flag;
+    bool dead_voice_flag;
+    UNK_1 rambod[2];
+    UNK_2 ramhan[2];
+    u16 vital_inc_timer;
+    u16 vital_dec_timer;
+    s16 sag_inc_timer[2];
 
     // cmd_data
 

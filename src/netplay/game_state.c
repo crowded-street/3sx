@@ -11,16 +11,6 @@
 #define GS_SAVE(member) SDL_memcpy(&dst->member, &member, sizeof(member))
 
 void GameState_Save(GameState* dst) {
-    GS_SAVE(plw);
-    GS_SAVE(zanzou_table);
-    GS_SAVE(super_arts);
-    GS_SAVE(piyori_type);
-    GS_SAVE(appear_type);
-    GS_SAVE(pcon_rno);
-    GS_SAVE(round_slow_flag);
-    GS_SAVE(pcon_dp_flag);
-    GS_SAVE(win_sp_flag);
-    GS_SAVE(dead_voice_flag);
     GS_SAVE(Scene_Cut);
     GS_SAVE(Time_Over);
     GS_SAVE(round_timer);
@@ -468,6 +458,24 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(Random_ix16_bg);
     GS_SAVE(Opening_Now);
 
+    // plcnt
+
+    GS_SAVE(plw);
+    GS_SAVE(zanzou_table);
+    GS_SAVE(super_arts);
+    GS_SAVE(piyori_type);
+    GS_SAVE(appear_type);
+    GS_SAVE(pcon_rno);
+    GS_SAVE(round_slow_flag);
+    GS_SAVE(pcon_dp_flag);
+    GS_SAVE(win_sp_flag);
+    GS_SAVE(dead_voice_flag);
+    GS_SAVE(rambod);
+    GS_SAVE(ramhan);
+    GS_SAVE(vital_inc_timer);
+    GS_SAVE(vital_dec_timer);
+    GS_SAVE(sag_inc_timer);
+
     // cmd_data
 
     GS_SAVE(wcp);
@@ -522,16 +530,6 @@ void GameState_Save(GameState* dst) {
 #define GS_LOAD(member) SDL_memcpy(&member, &src->member, sizeof(member))
 
 void GameState_Load(const GameState* src) {
-    GS_LOAD(plw);
-    GS_LOAD(zanzou_table);
-    GS_LOAD(super_arts);
-    GS_LOAD(piyori_type);
-    GS_LOAD(appear_type);
-    GS_LOAD(pcon_rno);
-    GS_LOAD(round_slow_flag);
-    GS_LOAD(pcon_dp_flag);
-    GS_LOAD(win_sp_flag);
-    GS_LOAD(dead_voice_flag);
     GS_LOAD(Scene_Cut);
     GS_LOAD(Time_Over);
     GS_LOAD(round_timer);
@@ -978,6 +976,24 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(Random_ix32_ex_com);
     GS_LOAD(Random_ix16_bg);
     GS_LOAD(Opening_Now);
+
+    // plcnt
+
+    GS_LOAD(plw);
+    GS_LOAD(zanzou_table);
+    GS_LOAD(super_arts);
+    GS_LOAD(piyori_type);
+    GS_LOAD(appear_type);
+    GS_LOAD(pcon_rno);
+    GS_LOAD(round_slow_flag);
+    GS_LOAD(pcon_dp_flag);
+    GS_LOAD(win_sp_flag);
+    GS_LOAD(dead_voice_flag);
+    GS_LOAD(rambod);
+    GS_LOAD(ramhan);
+    GS_LOAD(vital_inc_timer);
+    GS_LOAD(vital_dec_timer);
+    GS_LOAD(sag_inc_timer);
 
     // cmd_data
 

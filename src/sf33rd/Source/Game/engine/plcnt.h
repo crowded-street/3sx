@@ -55,17 +55,18 @@ extern u8 win_sp_flag;
 /// `true` if death SFX playback needs to be requested
 extern bool dead_voice_flag;
 
-// MARK: - Unhandled
-
 extern UNK_1 rambod[2];
 extern UNK_2 ramhan[2];
-extern u32 omop_spmv_ng_table[2];
-extern u32 omop_spmv_ng_table2[2];
 extern u16 vital_inc_timer;
 extern u16 vital_dec_timer;
+extern s16 sag_inc_timer[2];
+
+// MARK: - Unhandled
+
+extern u32 omop_spmv_ng_table[2];
+extern u32 omop_spmv_ng_table2[2];
 extern char cmd_sel[2];
 extern s8 vib_sel[2];
-extern s16 sag_inc_timer[2];
 extern char no_sa[2];
 
 void Player_control();
