@@ -1069,10 +1069,10 @@ void add_super_arts_gauge(SA_WORK* wk, s16 ix, s16 asag, u8 mf) {
 
         if (!pcon_dp_flag && !Bonus_Game_Flag && (sa_gauge_omake[omop_sa_gauge_ix[ix]] != 0) && (asag > 0) &&
             (wk->store != wk->store_max)) {
-            asag = asag * 0x78 / 100;
+            asag = asag * 120 / 100;
 
             if (save_w[Present_Mode].Battle_Number[Play_Type] == 0) {
-                asag = asag * 0x96 / 100;
+                asag = asag * 150 / 100;
             }
 
             asag = asag * sa_gauge_omake[omop_sa_gauge_ix[ix]] / 32;
