@@ -87,8 +87,8 @@ bool pcon_dp_flag;
 u8 win_sp_flag;
 bool dead_voice_flag;
 
-UNK_1 rambod[2];            // FIXME: this is used in effects, might not be serializable
-UNK_2 ramhan[2];            // FIXME: this is used in effects, might not be serializable
+UNK_1 rambod[2];
+UNK_2 ramhan[2];
 u32 omop_spmv_ng_table[2];  // FIXME: might not be necessary to put in GameState
 u32 omop_spmv_ng_table2[2]; // FIXME: might not be necessary to put in GameState
 u16 vital_inc_timer;
