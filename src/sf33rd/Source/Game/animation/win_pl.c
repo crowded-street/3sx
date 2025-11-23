@@ -54,7 +54,6 @@ void bonus_game_win_pause(PLW* wk);
 void meta_win_pause(PLW* wk);
 
 s16 win_rno[2];
-s16 a_rno;
 s16 win_free[2];
 s16 poison_flag[2];
 

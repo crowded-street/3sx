@@ -1,4 +1,5 @@
 #include "netplay/game_state.h"
+#include "sf33rd/Source/Game/animation/win_pl.h"
 #include "sf33rd/Source/Game/engine/charset.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/slowf.h"
@@ -551,6 +552,12 @@ void GameState_Save(GameState* dst) {
     // vital
 
     GS_SAVE(vit);
+
+    // win_pl
+
+    GS_SAVE(win_free);
+    GS_SAVE(win_rno);
+    GS_SAVE(poison_flag);
 }
 
 #define GS_LOAD(member) SDL_memcpy(&member, &src->member, sizeof(member))
@@ -1096,4 +1103,10 @@ void GameState_Load(const GameState* src) {
     // vital
 
     GS_LOAD(vit);
+
+    // win_pl
+
+    GS_LOAD(win_free);
+    GS_LOAD(win_rno);
+    GS_LOAD(poison_flag);
 }

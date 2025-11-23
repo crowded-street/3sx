@@ -361,7 +361,6 @@ s32 compel_dead_check(WORK_Other* ewk) {
 }
 
 void win_lose_work_clear() {
-    a_rno = 0;
     lose_rno[2] = 0;
     win_rno[0] = 0;
     win_free[0] = 0;

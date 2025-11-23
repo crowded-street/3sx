@@ -558,6 +558,12 @@ typedef struct GameState {
     // vital
 
     VIT vit[2];
+
+    // win_pl
+
+    s16 win_free[2];
+    s16 win_rno[2];
+    s16 poison_flag[2];
 } GameState;
 
 void GameState_Save(GameState* dst);

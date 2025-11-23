@@ -4,8 +4,9 @@
 #include "structs.h"
 #include "types.h"
 
+// MARK: - Serialized
+
 extern s16 win_free[2];
-extern s16 a_rno;
 extern s16 win_rno[2];
 extern s16 poison_flag[2];
 
