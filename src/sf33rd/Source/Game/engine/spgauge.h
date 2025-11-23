@@ -37,21 +37,21 @@ typedef struct {
 
 // MARK: - Serialized
 
-s8 Old_Stop_SG;
-s8 Exec_Wipe_F;
-s8 time_clear[2];
-s16 spg_number;
-s16 spg_work;
-s16 spg_offset;
-s8 time_num;
-s8 time_timer;
-s8 time_flag[2];
-s16 col;
-s8 time_operate[2];
-s8 sast_now[2];
-s8 max2[2];
-s8 max_rno2[2];
-SPG_DAT spg_dat[2];
+extern s8 Old_Stop_SG;
+extern s8 Exec_Wipe_F;
+extern s8 time_clear[2];
+extern s16 spg_number;
+extern s16 spg_work;
+extern s16 spg_offset;
+extern s8 time_num;
+extern s8 time_timer;
+extern s8 time_flag[2];
+extern s16 col;
+extern s8 time_operate[2];
+extern s8 sast_now[2];
+extern s8 max2[2];
+extern s8 max_rno2[2];
+extern SPG_DAT spg_dat[2];
 
 void spgauge_cont_init();
 void spgauge_cont_main();
