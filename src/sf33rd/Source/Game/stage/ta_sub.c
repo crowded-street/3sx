@@ -16,10 +16,8 @@
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "structs.h"
 
-// sdata
 s16 eff_hit_data[4][4] = { { -67, 59, 13, 29 }, { 31, 95, 24, 15 }, { 4, 123, 28, 15 }, { 20, 15, 67, 37 } };
 
-// sbss
 s16 eff_hit_flag[11];
 
 s32 eff_hit_check_sub(WORK_Other* ewk, PLW* pl);
@@ -259,8 +257,7 @@ s32 eff_hit_check_sub(WORK_Other* ewk, PLW* pl) {
             return 0;
         }
 
-        if (hit_check_subroutine(
-                &pl->wu, &ewk->wu, &pl_hit_eff[pl->player_number][0], &eff_hit_data[ewk->wu.type][0])) {
+        if (hit_check_subroutine(&pl->wu, &ewk->wu, pl_hit_eff[pl->player_number], eff_hit_data[ewk->wu.type])) {
             return 1;
         }
     }

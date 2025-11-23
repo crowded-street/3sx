@@ -564,6 +564,10 @@ typedef struct GameState {
     s16 win_free[2];
     s16 win_rno[2];
     s16 poison_flag[2];
+
+    // ta_sub
+
+    s16 eff_hit_flag[11];
 } GameState;
 
 void GameState_Save(GameState* dst);

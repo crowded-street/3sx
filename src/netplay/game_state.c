@@ -5,6 +5,7 @@
 #include "sf33rd/Source/Game/engine/slowf.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/select_timer.h"
+#include "sf33rd/Source/Game/stage/ta_sub.h"
 #include "sf33rd/Source/Game/ui/count.h"
 
 #include <SDL3/SDL.h>
@@ -558,6 +559,10 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(win_free);
     GS_SAVE(win_rno);
     GS_SAVE(poison_flag);
+
+    // ta_sub
+
+    GS_SAVE(eff_hit_flag);
 }
 
 #define GS_LOAD(member) SDL_memcpy(&member, &src->member, sizeof(member))
@@ -1109,4 +1114,8 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(win_free);
     GS_LOAD(win_rno);
     GS_LOAD(poison_flag);
+
+    // ta_sub
+
+    GS_LOAD(eff_hit_flag);
 }

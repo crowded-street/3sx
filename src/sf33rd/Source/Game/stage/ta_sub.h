@@ -4,6 +4,8 @@
 #include "structs.h"
 #include "types.h"
 
+// MARK: - Serialized
+
 extern s16 eff_hit_flag[11];
 
 void sync_fam_set3(s16 my_fam);
