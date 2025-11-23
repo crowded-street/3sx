@@ -13,9 +13,6 @@
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 
-s16 lose_rno[3];
-s16 lose_free[2];
-
 const s16 loser_type_tbl[20] = { 0, 0, 0, 0, 0, 2, 0, 0, 1, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0 };
 
 const s16 meta_lose_tbl[20] = { 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 28, 24, 24, 24, 24, 24, 24 };
@@ -45,7 +42,6 @@ void Lose_10000(PLW* wk) {
         switch (wk->wu.routine_no[3]) {
         case 0:
             wk->wu.routine_no[3]++;
-            lose_rno[0] = lose_rno[1] = lose_rno[2] = 0;
             wk->wu.char_index = random_16();
             wk->wu.char_index &= 3;
             set_char_move_init(&wk->wu, 9, wk->wu.char_index + 0x38);
@@ -63,7 +59,6 @@ void Lose_10000(PLW* wk) {
         switch (wk->wu.routine_no[3]) {
         case 0:
             wk->wu.routine_no[3]++;
-            lose_rno[0] = lose_rno[1] = lose_rno[2] = 0;
             wk->wu.char_index = random_16();
             wk->wu.char_index &= 7;
             set_char_move_init(&wk->wu, 9, wk->wu.char_index + 0x18);
@@ -99,7 +94,6 @@ void Lose_20000(PLW* wk) {
         }
 
         if ((pcon_rno[1] != 0) && (pcon_rno[1] != 4)) {
-            lose_rno[0] = lose_rno[1] = lose_rno[2] = 0;
             work = random_16();
             work &= 7;
             set_char_move_init(&wk->wu, 9, work + 0x18);
@@ -123,12 +117,13 @@ void Lose_30000(PLW* wk) {
         switch (wk->wu.routine_no[3]) {
         case 0:
             wk->wu.routine_no[3]++;
-            lose_rno[0] = lose_rno[1] = lose_rno[2] = 0;
+
             if (Country != 1) {
                 set_char_move_init(&wk->wu, 9, 0x3A);
             } else {
                 set_char_move_init(&wk->wu, 9, 0x38);
             }
+
             break;
 
         default:
@@ -144,12 +139,13 @@ void Lose_30000(PLW* wk) {
         switch (wk->wu.routine_no[3]) {
         case 0:
             wk->wu.routine_no[3]++;
-            lose_rno[0] = lose_rno[1] = lose_rno[2] = 0;
+
             if (Country != 1) {
                 set_char_move_init(&wk->wu, 9, 0x1C);
             } else {
                 set_char_move_init(&wk->wu, 9, 0x18);
             }
+
             break;
 
         case 1:
@@ -174,7 +170,6 @@ void Normal_normal_Loser(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
-        lose_rno[0] = lose_rno[1] = lose_rno[2] = 0;
         work = random_16();
         work &= 7;
         set_char_move_init(&wk->wu, 9, work + 0x18);

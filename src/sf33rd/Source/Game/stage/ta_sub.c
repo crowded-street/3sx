@@ -361,15 +361,10 @@ s32 compel_dead_check(WORK_Other* ewk) {
 }
 
 void win_lose_work_clear() {
-    lose_rno[2] = 0;
     win_rno[0] = 0;
     win_free[0] = 0;
-    lose_rno[0] = 0;
-    lose_free[0] = 0;
     win_rno[1] = 0;
     win_free[1] = 0;
-    lose_rno[1] = 0;
-    lose_free[1] = 0;
 }
 
 void cal_bg_speed_data_x(s16 bg_num, s16 tm, s16 unk) {
