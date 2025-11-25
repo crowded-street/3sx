@@ -139,15 +139,11 @@ int main(int argc, char* argv[]) {
     init_windows_console();
     SDLApp_Init();
 
-    int player = 0;
-
-    if (argc > 1) {
-        player = SDL_atoi(argv[1]);
-    } else {
-        player = 1;
+    if (argc >= 3) {
+        const int player = SDL_atoi(argv[1]);
+        const char* ip = argv[2];
+        Netplay_SetParams(player, ip);
     }
-
-    Netplay_SetPlayer(player);
 
     while (is_running) {
         is_running = SDLApp_PollEvents();

@@ -54,6 +54,7 @@ typedef struct State {
 static GekkoSession* session = NULL;
 static unsigned short local_port = 0;
 static unsigned short remote_port = 0;
+static const char* remote_ip = NULL;
 static int player_number = 0;
 static int player_handle = 0;
 static SessionState session_state = SESSION_IDLE;
@@ -148,7 +149,7 @@ static void configure_gekko() {
     printf("starting a session for player %d at port %hu\n", player_number, local_port);
 
     char remote_address_str[100];
-    SDL_snprintf(remote_address_str, sizeof(remote_address_str), "127.0.0.1:%hu", remote_port);
+    SDL_snprintf(remote_address_str, sizeof(remote_address_str), "%s:%hu", remote_ip, remote_port);
     GekkoNetAddress remote_address = { .data = remote_address_str, .size = strlen(remote_address_str) };
 
     if (player_number == 0) {
@@ -494,15 +495,26 @@ static void run_netplay() {
     }
 }
 
-void Netplay_SetPlayer(int player) {
-    if (player == 1) {
-        local_port = 50000;
-        remote_port = 50001;
-        player_number = 0;
+void Netplay_SetParams(int player, const char* ip) {
+    SDL_assert(player == 1 || player == 2);
+    player_number = player - 1;
+    remote_ip = ip;
+
+    if (SDL_strcmp(ip, "127.0.0.1") == 0) {
+        switch (player_number) {
+        case 0:
+            local_port = 50000;
+            remote_port = 50001;
+            break;
+
+        case 1:
+            local_port = 50001;
+            remote_port = 50000;
+            break;
+        }
     } else {
-        local_port = 50001;
+        local_port = 50000;
         remote_port = 50000;
-        player_number = 1;
     }
 }
 

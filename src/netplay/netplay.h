@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-void Netplay_SetPlayer(int player);
+void Netplay_SetParams(int player, const char* ip);
 void Netplay_Begin();
 void Netplay_Run();
 
