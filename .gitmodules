@@ -1,0 +1,3 @@
+[submodule "GekkoNet"]
+	path = GekkoNet
+	url = https://github.com/HeatXD/GekkoNet
