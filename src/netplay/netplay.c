@@ -369,7 +369,7 @@ static void step_game(bool render) {
     Check_LDREQ_Queue();
 }
 
-static void advance_game(GekkoGameEvent* event, bool last_advance) {
+static void advance_game(GekkoGameEvent* event, bool render) {
     const u16* inputs = (u16*)event->data.adv.inputs;
     const int frame = event->data.adv.frame;
     p1sw_0 = inputs[0];
@@ -381,7 +381,7 @@ static void advance_game(GekkoGameEvent* event, bool last_advance) {
     note_input(inputs[0], 0, frame);
     note_input(inputs[1], 1, frame);
 
-    step_game(last_advance);
+    step_game(render);
 }
 
 static void process_session() {
@@ -440,20 +440,9 @@ static void process_session() {
     }
 }
 
-static int get_last_advance_index(GekkoGameEvent** events, int event_count) {
-    for (int i = event_count - 1; i >= 0; i--) {
-        if (events[i]->type == AdvanceEvent) {
-            return i;
-        }
-    }
-
-    return -1;
-}
-
-static void process_events() {
+static void process_events(bool drawing_allowed) {
     int game_event_count = 0;
     GekkoGameEvent** game_events = gekko_update_session(session, &game_event_count);
-    const int last_advance_index = get_last_advance_index(game_events, game_event_count);
 
     for (int i = 0; i < game_event_count; i++) {
         const GekkoGameEvent* event = game_events[i];
@@ -464,8 +453,7 @@ static void process_events() {
             break;
 
         case AdvanceEvent:
-            const bool last_advance = (i == last_advance_index);
-            advance_game(event, last_advance);
+            advance_game(event, drawing_allowed && !event->data.adv.rolling_back);
             break;
 
         case SaveEvent:
@@ -479,16 +467,17 @@ static void process_events() {
     }
 }
 
-static void step_logic() {
+static void step_logic(bool drawing_allowed) {
     process_session();
-    process_events();
+    process_events(drawing_allowed);
 }
 
 static void run_netplay() {
-    step_logic();
+    const bool catch_up = need_to_catch_up() && (frame_skip_timer == 0);
+    step_logic(!catch_up);
 
-    if (need_to_catch_up() && (frame_skip_timer == 0)) {
-        step_logic();
+    if (catch_up) {
+        step_logic(true);
         frame_skip_timer = 60; // Allow skipping a frame roughly every second
     }
 
