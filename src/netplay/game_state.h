@@ -568,6 +568,12 @@ typedef struct GameState {
     // ta_sub
 
     s16 eff_hit_flag[11];
+
+    // eff56
+
+    const u8* ci_pointer;
+    u8 ci_col;
+    u8 ci_timer;
 } GameState;
 
 void GameState_Save(GameState* dst);

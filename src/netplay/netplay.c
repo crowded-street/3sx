@@ -270,6 +270,8 @@ static void clean_state_pointers(State* state) {
         state->gs.bg_w.bgw[i].deff_plus = NULL;
         state->gs.bg_w.bgw[i].deff_minus = NULL;
     }
+
+    state->gs.ci_pointer = NULL;
 }
 
 /// Save state in state buffer.
