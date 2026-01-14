@@ -45,8 +45,9 @@ class DWARFParser:
         self.__parse_typedefs(lines)
         self.__parse_structs(lines)
 
-    def find_member(self, struct_name: str, offset: int) -> list[str]:
+    def find_member(self, struct_name: str, offset: int) -> tuple[list[str], dict]:
         path: list[str] = []
+        metadata: dict = {}
         struct = self.struct_name_to_struct.get(struct_name)
 
         while struct:
@@ -76,12 +77,15 @@ class DWARFParser:
                 for index in indices:
                     path_component += f"[{index}]"
 
+                    if member.name == "frw":
+                        metadata["effect_index"] = index
+
                 flat_index = offset // elem_size
                 offset -= flat_index * elem_size
 
             path.append(path_component)
 
-        return path
+        return (path, metadata)
     
     def __split_typename(self, typename: str) -> tuple[str, list[int]]:
         name_end: int | None = None
@@ -262,6 +266,21 @@ def find_state_pairs() -> list[tuple[Path, Path, int]]:
 
     return pairs
 
+def effect_offset(parser: DWARFParser, index: int) -> int:
+    offset = 0
+
+    state_struct = parser.struct_name_to_struct.get("State")
+    es_member = next(m for m in state_struct.members if m.name == "es")
+    offset += es_member.location
+
+    effect_state_struct = parser.struct_name_to_struct.get("EffectState")
+    frw_member = next(m for m in effect_state_struct.members if m.name == "frw")
+    offset += frw_member.location
+
+    offset += 448 * 8 * index
+
+    return offset
+
 def compare_states(parser: DWARFParser):
     pairs = find_state_pairs()
 
@@ -276,12 +295,27 @@ def compare_states(parser: DWARFParser):
             byte2 = pl2_state[i]
 
             if byte1 != byte2:
-                path = ".".join(parser.find_member("State", i))
-                print(f"{frame}: mismatch at byte 0x{i:X} (0x{byte1:X} vs 0x{byte2:X}). Path: {path}")
+                path_components, metadata = parser.find_member("State", i)
+                path = ".".join(path_components)
+
+                effect_id = None
+
+                if "effect_index" in metadata:
+                    eff_offset = effect_offset(parser, metadata["effect_index"])
+                    eff_id_offset = eff_offset + 8
+                    effect_id = int.from_bytes(pl1_state[eff_id_offset:eff_id_offset+2], "little", signed=True)
+
+                message = f"{frame}: mismatch at byte 0x{i:X} (0x{byte1:X} vs 0x{byte2:X}). Path: {path}"
+
+                if effect_id != None:
+                    message += f", effect: {effect_id}"
+
+                print(message)
 
 def main():
     if len(sys.argv) != 2:
         print("Usage: python3 compare_states.py <path_to_obj_file>")
+        return
 
     parser = DWARFParser()
     parser.parse_object(Path(sys.argv[1]))
