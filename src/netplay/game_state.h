@@ -581,6 +581,11 @@ typedef struct GameState {
     const u8* ci_pointer;
     u8 ci_col;
     u8 ci_timer;
+
+    // effb2
+
+    s16 rf_b2_flag;
+    s16 b2_curr_no;
 } GameState;
 
 void GameState_Save(GameState* dst);

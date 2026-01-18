@@ -1,6 +1,7 @@
 #include "netplay/game_state.h"
 #include "sf33rd/Source/Game/animation/win_pl.h"
 #include "sf33rd/Source/Game/effect/eff56.h"
+#include "sf33rd/Source/Game/effect/effb2.h"
 #include "sf33rd/Source/Game/engine/charset.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/slowf.h"
@@ -580,6 +581,11 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(ci_pointer);
     GS_SAVE(ci_col);
     GS_SAVE(ci_timer);
+
+    // effb2
+
+    GS_SAVE(rf_b2_flag);
+    GS_SAVE(b2_curr_no);
 }
 
 #define GS_LOAD(member) SDL_memcpy(&member, &src->member, sizeof(member))
@@ -1148,4 +1154,9 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(ci_pointer);
     GS_LOAD(ci_col);
     GS_LOAD(ci_timer);
+
+    // effb2
+
+    GS_LOAD(rf_b2_flag);
+    GS_LOAD(b2_curr_no);
 }

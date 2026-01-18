@@ -229,7 +229,7 @@ s32 effect_B2_init() {
 
     ewk = (WORK_Other*)frw[ix];
     ewk->wu.be_flag = 1;
-    ewk->wu.id = 0x70;
+    ewk->wu.id = 112;
     ewk->wu.work_id = 0x10;
     ewk->wu.my_family = 4;
     bg_w.bgw[3].xy[0].cal = bg_w.bgw[3].wxy[0].cal = 0x100000;
