@@ -10,6 +10,7 @@
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/ui/count.h"
+#include "sf33rd/Source/Game/ui/sc_sub.h"
 
 #include <SDL3/SDL.h>
 
@@ -568,6 +569,11 @@ void GameState_Save(GameState* dst) {
     // ta_sub
 
     GS_SAVE(eff_hit_flag);
+
+    // sc_sub
+
+    GS_SAVE(FadeLimit);
+    GS_SAVE(WipeLimit);
 
     // eff56
 
@@ -1131,6 +1137,11 @@ void GameState_Load(const GameState* src) {
     // ta_sub
 
     GS_LOAD(eff_hit_flag);
+
+    // sc_sub
+
+    GS_LOAD(FadeLimit);
+    GS_LOAD(WipeLimit);
 
     // eff56
 

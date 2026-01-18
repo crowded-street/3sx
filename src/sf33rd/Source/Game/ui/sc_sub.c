@@ -26,19 +26,6 @@
 #define TO_UV_256_NEG(val) (TO_UV_256(val))
 #define TO_UV_128(val) ((val) / 128.0f)
 
-typedef struct {
-    s16 fade;
-    s16 fade_kind;
-    u8 fade_prio;
-} FadeData;
-
-typedef struct {
-    u8 atr;
-    u8 page;
-    u8 cx;
-    u8 cy;
-} SAFrame;
-
 // sdata
 u8 ascProData[128] = { 0, 18, 0, 0, 0,  0, 0,  0,  0,  0, 0,  0, 0, 0,  0,  0,  0, 0, 0,  0,  0,  0,  0, 0,  0, 0,
                        0, 0,  0, 0, 0,  0, 34, 19, 18, 0, 0,  0, 0, 34, 34, 34, 1, 1, 34, 1,  34, 0,  0, 18, 0, 0,
@@ -1042,10 +1029,6 @@ s32 FadeIn(u8 type, u8 step, u8 priority) {
     Alpha = 0;
     flag = 0;
 
-    if (No_Trans) {
-        return 0;
-    }
-
     njColorBlendingMode(0, 1);
     fade_pc.p = fade_p;
     fade_pc.col = fade_col;
@@ -1067,7 +1050,9 @@ s32 FadeIn(u8 type, u8 step, u8 priority) {
         fade_col[i].color = Alpha;
     }
 
-    njDrawPolygon2D(&fade_pc, 4, PrioBase[priority], 0x60);
+    if (!No_Trans) {
+        njDrawPolygon2D(&fade_pc, 4, PrioBase[priority], 0x60);
+    }
 
     if (flag) {
         return 1;

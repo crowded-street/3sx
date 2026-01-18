@@ -571,6 +571,11 @@ typedef struct GameState {
 
     s16 eff_hit_flag[11];
 
+    // sc_sub
+
+    u8 FadeLimit;
+    u8 WipeLimit;
+
     // eff56
 
     const u8* ci_pointer;

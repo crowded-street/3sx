@@ -1,7 +1,33 @@
 #ifndef SC_SUB_H
 #define SC_SUB_H
 
+#include "structs.h"
 #include "types.h"
+
+typedef struct {
+    s16 fade;
+    s16 fade_kind;
+    u8 fade_prio;
+} FadeData;
+
+typedef struct {
+    u8 atr;
+    u8 page;
+    u8 cx;
+    u8 cy;
+} SAFrame;
+
+// MARK: - Unhandled
+
+extern SAFrame sa_frame[3][48];
+extern Polygon scrscrntex[4];
+extern s16 Hnc_Num;
+extern FadeData fd_dat;
+
+// MARK: - Serialized
+
+extern u8 FadeLimit;
+extern u8 WipeLimit;
 
 void Scrscreen_Init();
 void Sa_frame_Clear();
