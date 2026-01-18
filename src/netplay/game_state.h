@@ -586,6 +586,37 @@ typedef struct GameState {
     s16 appear_work[2];
     s16 Appear_end;
 
+    // bg_data
+
+    s16 y_sitei_pos;
+    u8 y_sitei_flag;
+    u8 c_number;
+    u8 c_kakikae;
+    u8 g_number[2];
+    u8 g_kakikae[2];
+    u8 nosekae;
+    s16 scrn_adgjust_y;
+    s16 scrn_adgjust_x;
+    u16 zoom_add;
+    s16 ls_cnt1;
+    s8 bg_app;
+    s8 sa_pa_flag;
+    s8 aku_flag;
+    s8 seraph_flag;
+    s8 akebono_flag;
+    MVXY bg_mvxy;
+    s16 chase_time_y;
+    s16 chase_time_x;
+    s16 chase_y;
+    s16 chase_x;
+    s8 demo_car_flag[2];
+    Ideal_W ideal_w;
+    s8 bg_app_stop;
+    s16 bg_stop;
+    s16 base_y_pos;
+    s32 etcBgPalCnvTable[7];
+    u8 etcBgGixCnvTable[7][16];
+
     // eff56
 
     const u8* ci_pointer;

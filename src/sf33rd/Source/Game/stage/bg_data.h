@@ -94,6 +94,13 @@ extern const s8 quake_y_tbl[130];
 extern const u16* bg_map_tbl[][3];
 extern const u16* bg_map_tbl2[];
 
+// MARK: - Unhandled
+
+extern const u16* scr_bcm[4];
+extern BGW* bgw_ptr;
+
+// MARK: - Serialized
+
 extern s16 y_sitei_pos;
 extern u8 y_sitei_flag;
 extern u8 c_number;
@@ -101,7 +108,6 @@ extern u8 c_kakikae;
 extern u8 g_number[2];
 extern u8 g_kakikae[2];
 extern u8 nosekae;
-extern const u16* scr_bcm[4];
 extern s16 scrn_adgjust_y;
 extern s16 scrn_adgjust_x;
 extern u16 zoom_add;
@@ -118,7 +124,6 @@ extern s16 chase_y;
 extern s16 chase_x;
 extern s8 demo_car_flag[2];
 extern Ideal_W ideal_w;
-extern BGW* bgw_ptr;
 extern s8 bg_app_stop;
 extern s16 bg_stop;
 extern s16 base_y_pos;
