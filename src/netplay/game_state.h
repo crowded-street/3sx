@@ -596,6 +596,16 @@ typedef struct GameState {
 
     s16 rf_b2_flag;
     s16 b2_curr_no;
+
+    // effb8
+
+    s16 test_pl_no;
+    s16 test_mes_no;
+    s16 test_in;
+    s16 old_mes_no2;
+    s16 old_mes_no3;
+    s16 old_mes_no_pl;
+    s16 mes_timer;
 } GameState;
 
 void GameState_Save(GameState* dst);

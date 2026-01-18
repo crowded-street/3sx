@@ -3,6 +3,7 @@
 #include "sf33rd/Source/Game/animation/win_pl.h"
 #include "sf33rd/Source/Game/effect/eff56.h"
 #include "sf33rd/Source/Game/effect/effb2.h"
+#include "sf33rd/Source/Game/effect/effb8.h"
 #include "sf33rd/Source/Game/engine/charset.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/slowf.h"
@@ -597,6 +598,16 @@ void GameState_Save(GameState* dst) {
 
     GS_SAVE(rf_b2_flag);
     GS_SAVE(b2_curr_no);
+
+    // effb8
+
+    GS_SAVE(test_pl_no);
+    GS_SAVE(test_mes_no);
+    GS_SAVE(test_in);
+    GS_SAVE(old_mes_no2);
+    GS_SAVE(old_mes_no3);
+    GS_SAVE(old_mes_no_pl);
+    GS_SAVE(mes_timer);
 }
 
 #define GS_LOAD(member) SDL_memcpy(&member, &src->member, sizeof(member))
@@ -1180,4 +1191,14 @@ void GameState_Load(const GameState* src) {
 
     GS_LOAD(rf_b2_flag);
     GS_LOAD(b2_curr_no);
+
+    // effb8
+
+    GS_LOAD(test_pl_no);
+    GS_LOAD(test_mes_no);
+    GS_LOAD(test_in);
+    GS_LOAD(old_mes_no2);
+    GS_LOAD(old_mes_no3);
+    GS_LOAD(old_mes_no_pl);
+    GS_LOAD(mes_timer);
 }
