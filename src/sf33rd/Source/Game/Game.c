@@ -108,14 +108,19 @@ void Game_Task(struct _TASK* task_ptr) {
 
     void (*Main_Jmp_Tbl[3])(struct _TASK*) = { Wait_Auto_Load, Loop_Demo, Game };
 
-    init_color_trans_req();
+    if (!No_Trans) {
+        init_color_trans_req();
+    }
+
     ff = sysFF;
 
     for (ix = 0; ix < ff; ix++) {
-        if (ix == ff - 1) {
-            No_Trans = 0;
-        } else {
-            No_Trans = 1;
+        if (!No_Trans) {
+            if (ix == ff - 1) {
+                No_Trans = 0;
+            } else {
+                No_Trans = 1;
+            }
         }
 
         Play_Game = 0;
@@ -710,6 +715,7 @@ void Game03() {
 
         switch (Mode_Type) {
         case MODE_VERSUS:
+        case MODE_NETWORK:
             G_No[2] += 1;
             Rep_Game_Infor[10].play_type = 1;
             Rep_Game_Infor[10].winner = Winner_id;
@@ -721,14 +727,14 @@ void Game03() {
 
             break;
 
-        case MODE_NETWORK:
-            G_No[2] = 3;
-            Rep_Game_Infor[10].play_type = 2;
-            Rep_Game_Infor[10].winner = Winner_id;
-            Champion = Winner_id;
-            New_Challenger = Loser_id;
-            Switch_Screen_Init(0);
-            break;
+            // case MODE_NETWORK:
+            // G_No[2] = 3;
+            // Rep_Game_Infor[10].play_type = 2;
+            // Rep_Game_Infor[10].winner = Winner_id;
+            // Champion = Winner_id;
+            // New_Challenger = Loser_id;
+            // Switch_Screen_Init(0);
+            // break;
 
         case MODE_REPLAY:
             G_No[2] = 5;

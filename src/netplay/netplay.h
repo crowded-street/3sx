@@ -6,5 +6,6 @@
 void Netplay_SetParams(int player, const char* ip);
 void Netplay_Begin();
 void Netplay_Run();
+bool Netplay_IsRunning();
 
 #endif

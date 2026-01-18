@@ -102,10 +102,12 @@ void Entry_Task(struct _TASK* /* unused */) {
     ff = sysFF;
 
     for (ix = 0; ix < ff; ix++) {
-        if (ix == (ff - 1)) {
-            No_Trans = 0;
-        } else {
-            No_Trans = 1;
+        if (!No_Trans) {
+            if (ix == (ff - 1)) {
+                No_Trans = 0;
+            } else {
+                No_Trans = 1;
+            }
         }
 
         letter_counter = 0;

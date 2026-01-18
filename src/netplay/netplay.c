@@ -9,6 +9,7 @@
 #include "sf33rd/Source/Game/io/pulpul.h"
 #include "sf33rd/Source/Game/main.h"
 #include "sf33rd/Source/Game/rendering/color3rd.h"
+#include "sf33rd/Source/Game/rendering/dc_ghost.h"
 #include "sf33rd/Source/Game/rendering/mtrans.h"
 #include "sf33rd/Source/Game/rendering/texcash.h"
 #include "sf33rd/Source/Game/system/sys_sub.h"
@@ -118,9 +119,6 @@ static void setup_vs_mode() {
     G_No[2] = 1;
     Mode_Type = MODE_NETWORK;
     cpExitTask(TASK_MENU);
-
-    // Stop game task. We'll run game logic manually
-    task[TASK_GAME].condition = 3;
 
     E_Timer = 0; // E_Timer can have different values depending on when the session was initiated
 
@@ -293,6 +291,10 @@ static void clean_state_pointers(State* state) {
     }
 
     state->gs.ci_pointer = NULL;
+
+    for (int i = 0; i < SDL_arraysize(state->gs.task); i++) {
+        state->gs.task[i].func_adrs = NULL;
+    }
 }
 
 /// Save state in state buffer.
@@ -355,9 +357,7 @@ static void save_state(GekkoGameEvent* event) {
 #endif
 }
 
-static void load_state(GekkoGameEvent* event) {
-    const State* src = (State*)event->data.load.state;
-
+static void load_state(const State* src) {
     // GameState
     const GameState* gs = &src->gs;
     GameState_Load(gs);
@@ -373,6 +373,11 @@ static void load_state(GekkoGameEvent* event) {
     frwctr_min = es->frwctr_min;
 }
 
+static void load_state_from_event(GekkoGameEvent* event) {
+    const State* src = (State*)event->data.load.state;
+    load_state(src);
+}
+
 static bool game_ready_to_run_character_select() {
     return G_No[1] == 1;
 }
@@ -382,32 +387,22 @@ static bool need_to_catch_up() {
 }
 
 static void step_game(bool render) {
-    if (render) {
-        init_color_trans_req();
-    }
-
     No_Trans = !render;
-    Play_Game = 0;
 
-    init_texcash_before_process();
+    njUserMain();
     seqsBeforeProcess();
-
-    Game();
-
+    njdp2d_draw();
     seqsAfterProcess();
-    texture_cash_update();
-    move_pulpul_work();
-    Check_LDREQ_Queue();
 }
 
 static void advance_game(GekkoGameEvent* event, bool render) {
     const u16* inputs = (u16*)event->data.adv.inputs;
     const int frame = event->data.adv.frame;
-    p1sw_0 = inputs[0];
-    p2sw_0 = inputs[1];
 
-    p1sw_1 = recall_input(0, frame - 1);
-    p2sw_1 = recall_input(1, frame - 1);
+    p1sw_0 = PLsw[0][0] = inputs[0];
+    p2sw_0 = PLsw[1][0] = inputs[1];
+    p1sw_1 = PLsw[0][1] = recall_input(0, frame - 1);
+    p2sw_1 = PLsw[1][1] = recall_input(1, frame - 1);
 
     note_input(inputs[0], 0, frame);
     note_input(inputs[1], 1, frame);
@@ -480,7 +475,7 @@ static void process_events(bool drawing_allowed) {
 
         switch (event->type) {
         case LoadEvent:
-            load_state(event);
+            load_state_from_event(event);
             break;
 
         case AdvanceEvent:
@@ -568,4 +563,8 @@ void Netplay_Run() {
         // Do nothing
         break;
     }
+}
+
+bool Netplay_IsRunning() {
+    return session_state != SESSION_IDLE;
 }

@@ -3,6 +3,7 @@
 #include "sf33rd/AcrSDK/ps2/flps2etc.h"
 #include "sf33rd/AcrSDK/ps2/flps2render.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 
 #include <libgraph.h>
 
@@ -130,6 +131,10 @@ static void destroy_textures() {
 }
 
 static void push_render_task(RenderTask* task) {
+    if (No_Trans) {
+        printf("⚠️ Requesting a render task when no rendering is allowed is a programmer error!\n");
+    }
+
     memcpy(&render_tasks[render_task_count], task, sizeof(RenderTask));
     render_task_count += 1;
 }
