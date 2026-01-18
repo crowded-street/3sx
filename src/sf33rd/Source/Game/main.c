@@ -71,7 +71,6 @@ void appCopyKeyData();
 u8* mppMalloc(u32 size);
 void njUserInit();
 void njUserMain();
-void njUserMain();
 void cpLoopTask();
 void cpInitTask();
 

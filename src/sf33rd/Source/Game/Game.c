@@ -704,110 +704,117 @@ void Game03() {
 
     switch (G_No[2]) {
     case 0:
-        if (Winner_Scene() != 0) {
-            switch (Mode_Type) {
-            case MODE_VERSUS:
-                G_No[2] += 1;
-                Rep_Game_Infor[10].play_type = 1;
-                Rep_Game_Infor[10].winner = Winner_id;
-                Switch_Screen_Init(0);
+        if (!Winner_Scene()) {
+            break;
+        }
 
-                if (Country == 3) {
-                    Rep_Game_Infor[10].play_type = 4;
-                }
+        switch (Mode_Type) {
+        case MODE_VERSUS:
+            G_No[2] += 1;
+            Rep_Game_Infor[10].play_type = 1;
+            Rep_Game_Infor[10].winner = Winner_id;
+            Switch_Screen_Init(0);
 
-                break;
-
-            case MODE_NETWORK:
-                G_No[2] = 3;
-                Rep_Game_Infor[10].play_type = 2;
-                Rep_Game_Infor[10].winner = Winner_id;
-                Champion = Winner_id;
-                New_Challenger = Loser_id;
-                Switch_Screen_Init(0);
-                break;
-
-            case MODE_REPLAY:
-                G_No[2] = 5;
-                cpReadyTask(TASK_MENU, Menu_Task);
-                task[TASK_MENU].r_no[0] = 8;
-                break;
-
-            default:
-                G_No[1] = 5;
-                G_No[2] = 0;
-                G_No[3] = 0;
-                E_No[0] = 9;
-                E_No[1] = 0;
-                E_No[2] = 0;
-                E_No[3] = 0;
-
-                if (Battle_Q[WINNER]) {
-                    G_No[1] = 0xB;
-                    G_No[2] = 3;
-                    G_No[3] = 0;
-                }
-
-                Cover_Timer = 24;
-
-                if (Round_Operator[LOSER]) {
-                    E_Number[LOSER][0] = 1;
-                    E_Number[LOSER][1] = 0;
-                    E_Number[LOSER][2] = 0;
-                    E_Number[LOSER][3] = 0;
-                }
-
-                break;
+            if (Country == 3) {
+                Rep_Game_Infor[10].play_type = 4;
             }
+
+            break;
+
+        case MODE_NETWORK:
+            G_No[2] = 3;
+            Rep_Game_Infor[10].play_type = 2;
+            Rep_Game_Infor[10].winner = Winner_id;
+            Champion = Winner_id;
+            New_Challenger = Loser_id;
+            Switch_Screen_Init(0);
+            break;
+
+        case MODE_REPLAY:
+            G_No[2] = 5;
+            cpReadyTask(TASK_MENU, Menu_Task);
+            task[TASK_MENU].r_no[0] = 8;
+            break;
+
+        default:
+            G_No[1] = 5;
+            G_No[2] = 0;
+            G_No[3] = 0;
+            E_No[0] = 9;
+            E_No[1] = 0;
+            E_No[2] = 0;
+            E_No[3] = 0;
+
+            if (Battle_Q[WINNER]) {
+                G_No[1] = 11;
+                G_No[2] = 3;
+                G_No[3] = 0;
+            }
+
+            Cover_Timer = 24;
+
+            if (Round_Operator[LOSER]) {
+                E_Number[LOSER][0] = 1;
+                E_Number[LOSER][1] = 0;
+                E_Number[LOSER][2] = 0;
+                E_Number[LOSER][3] = 0;
+            }
+
+            break;
         }
 
         break;
 
     case 1:
-        if (Switch_Screen(1) != 0) {
-            G_No[2] += 1;
-            E_No[0] = 1;
-            E_No[1] = 2;
-            E_No[2] = 2;
-            E_No[3] = 0;
-            Request_E_No = 0;
-            cpReadyTask(TASK_MENU, Menu_Task);
-            task[TASK_MENU].r_no[1] = 16;
-            Cursor_Y_Pos[0][0] = 0;
-            Cursor_Y_Pos[1][0] = 0;
-            G_Timer = 4;
+        if (!Switch_Screen(1)) {
+            break;
         }
 
+        G_No[2] += 1;
+        E_No[0] = 1;
+        E_No[1] = 2;
+        E_No[2] = 2;
+        E_No[3] = 0;
+        Request_E_No = 0;
+        cpReadyTask(TASK_MENU, Menu_Task);
+        task[TASK_MENU].r_no[1] = 16;
+        Cursor_Y_Pos[0][0] = 0;
+        Cursor_Y_Pos[1][0] = 0;
+        G_Timer = 4;
         break;
 
     case 2:
         Switch_Screen(1);
 
-        if (--G_Timer == 0) {
-            Cover_Timer = 10;
-            G_No[1] = 12;
-            G_No[2] = 0;
-            G_No[3] = 0;
+        if (--G_Timer) {
+            break;
         }
+
+        Cover_Timer = 10;
+        G_No[1] = 12;
+        G_No[2] = 0;
+        G_No[3] = 0;
 
         break;
 
     case 3:
-        if (Switch_Screen(1) != 0) {
-            G_No[2] += 1;
-            task[7].r_no[0] = 1;
-            G_Timer = 4;
+        if (!Switch_Screen(1)) {
+            break;
         }
 
+        G_No[2] += 1;
+        task[7].r_no[0] = 1;
+        G_Timer = 4;
         break;
 
     case 4:
         Switch_Screen(1);
 
-        if (--G_Timer == 0) {
-            // Do nothing
+        if (--G_Timer) {
+            break;
         }
 
+        // Do nothing
         break;
 
     case 5:
