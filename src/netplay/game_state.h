@@ -576,6 +576,16 @@ typedef struct GameState {
     u8 FadeLimit;
     u8 WipeLimit;
 
+    // appear
+
+    s8 Appear_car_stop[2];
+    s8 Appear_hv[2];
+    s8 Appear_free[2];
+    s8 Appear_flag[2];
+    s16 app_counter[2];
+    s16 appear_work[2];
+    s16 Appear_end;
+
     // eff56
 
     const u8* ci_pointer;

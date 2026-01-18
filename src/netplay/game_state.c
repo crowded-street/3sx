@@ -1,4 +1,5 @@
 #include "netplay/game_state.h"
+#include "sf33rd/Source/Game/animation/appear.h"
 #include "sf33rd/Source/Game/animation/win_pl.h"
 #include "sf33rd/Source/Game/effect/eff56.h"
 #include "sf33rd/Source/Game/effect/effb2.h"
@@ -576,6 +577,16 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(FadeLimit);
     GS_SAVE(WipeLimit);
 
+    // appear
+
+    GS_SAVE(Appear_car_stop);
+    GS_SAVE(Appear_hv);
+    GS_SAVE(Appear_free);
+    GS_SAVE(Appear_flag);
+    GS_SAVE(app_counter);
+    GS_SAVE(appear_work);
+    GS_SAVE(Appear_end);
+
     // eff56
 
     GS_SAVE(ci_pointer);
@@ -1148,6 +1159,16 @@ void GameState_Load(const GameState* src) {
 
     GS_LOAD(FadeLimit);
     GS_LOAD(WipeLimit);
+
+    // appear
+
+    GS_LOAD(Appear_car_stop);
+    GS_LOAD(Appear_hv);
+    GS_LOAD(Appear_free);
+    GS_LOAD(Appear_flag);
+    GS_LOAD(app_counter);
+    GS_LOAD(appear_work);
+    GS_LOAD(Appear_end);
 
     // eff56
 
