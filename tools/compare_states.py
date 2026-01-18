@@ -264,7 +264,7 @@ def find_state_pairs() -> list[tuple[Path, Path, int]]:
 
         pairs.append((file1, file2, int(frame)))
 
-    return pairs
+    return sorted(pairs, key=lambda x: x[2])
 
 def effect_offset(parser: DWARFParser, index: int) -> int:
     offset = 0
