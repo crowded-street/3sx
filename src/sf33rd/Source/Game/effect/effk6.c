@@ -1,6 +1,6 @@
 /**
  * @file effk6.c
- * TODO: identify what this effect does
+ * "1P"/"2P" in character select
  */
 
 #include "sf33rd/Source/Game/effect/effk6.h"

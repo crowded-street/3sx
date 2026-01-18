@@ -1,6 +1,6 @@
 /**
  * @file eff52.c
- * TODO: identify what this effect does
+ * Sliding border around character name in character select
  */
 
 #include "sf33rd/Source/Game/effect/eff52.h"

@@ -1,6 +1,6 @@
 /**
  * @file effd8.c
- * TODO: identify what this effect does
+ * Selection circle in character select
  */
 
 #include "sf33rd/Source/Game/effect/effd8.h"

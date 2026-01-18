@@ -1,6 +1,6 @@
 /**
  * @file eff38.c
- * TODO: identify what this effect does
+ * Large character portraits in character select
  */
 
 #include "sf33rd/Source/Game/effect/eff38.h"

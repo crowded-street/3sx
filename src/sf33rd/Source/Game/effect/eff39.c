@@ -1,6 +1,6 @@
 /**
  * @file eff39.c
- * TODO: identify what this effect does
+ * Character names in character select
  */
 
 #include "sf33rd/Source/Game/effect/eff39.h"
