@@ -8,6 +8,7 @@
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/select_timer.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/ui/count.h"
 
 #include <SDL3/SDL.h>
@@ -451,6 +452,7 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(Keep_Grade);
     GS_SAVE(IO_Result);
     GS_SAVE(VS_Win_Record);
+    GS_SAVE(PLsw);
     GS_SAVE(plsw_00);
     GS_SAVE(plsw_01);
     GS_SAVE(Flash_Synchro);
@@ -1012,6 +1014,7 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(Keep_Grade);
     GS_LOAD(IO_Result);
     GS_LOAD(VS_Win_Record);
+    GS_LOAD(PLsw);
     GS_LOAD(plsw_00);
     GS_LOAD(plsw_01);
     GS_LOAD(Flash_Synchro);
