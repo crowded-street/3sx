@@ -129,6 +129,7 @@ static void setup_vs_mode() {
     Deley_Shot_Timer[1] = 15;
     Random_ix16 = 0;
     Random_ix32 = 0;
+    Clear_Flash_Init(4);
 
     clean_input_buffers();
 }
