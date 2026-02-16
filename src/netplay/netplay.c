@@ -63,6 +63,7 @@ static SessionState session_state = SESSION_IDLE;
 static u16 input_history[2][INPUT_HISTORY_MAX] = { 0 };
 static float frames_behind = 0;
 static int frame_skip_timer = 0;
+static int transition_ready_frames = 0;
 
 #if defined(DEBUG)
 #define STATE_BUFFER_MAX 20
@@ -546,15 +547,30 @@ void Netplay_SetParams(int player, const char* ip) {
 
 void Netplay_Begin() {
     setup_vs_mode();
+
+    SDL_zeroa(input_history);
+    frames_behind = 0;
+    frame_skip_timer = 0;
+    transition_ready_frames = 0;
+
     session_state = SESSION_TRANSITIONING;
 }
 
 void Netplay_Run() {
     switch (session_state) {
     case SESSION_TRANSITIONING:
-        if (!game_ready_to_run_character_select()) {
-            step_game(true);
+        if (game_ready_to_run_character_select()) {
+            transition_ready_frames += 1;
         } else {
+            transition_ready_frames = 0;
+            // Keep both peers in a deterministic pre-session state by
+            // ignoring local controller input while transitioning into
+            // character select.
+            clean_input_buffers();
+            step_game(true);
+        }
+
+        if (transition_ready_frames >= 2) {
             configure_gekko();
             session_state = SESSION_CONNECTING;
         }
