@@ -253,6 +253,8 @@ static void clean_work_pointers(WORK* work) {
 
     work->current_colcd = 0;
     work->colcd = 0;
+    work->extra_col = 0;
+    work->extra_col_2 = 0;
 }
 
 static void clean_plw_pointers(PLW* plw) {
