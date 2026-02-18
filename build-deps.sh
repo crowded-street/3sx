@@ -92,7 +92,7 @@ fi
 # SDL3
 # -----------------------------
 
-SDL="SDL3-3.2.24"
+SDL="SDL3-3.4.0"
 SDL_DIR="$THIRD_PARTY/sdl3"
 SDL_BUILD="$SDL_DIR/build"
 
