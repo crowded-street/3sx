@@ -9,6 +9,7 @@
 #include "sf33rd/Source/Game/game.h"
 #include "sf33rd/Source/Game/io/gd3rd.h"
 #include "sf33rd/Source/Game/io/pulpul.h"
+#include "sf33rd/Source/Game/menu/menu.h"
 #include "sf33rd/Source/Game/rendering/color3rd.h"
 #include "sf33rd/Source/Game/rendering/dc_ghost.h"
 #include "sf33rd/Source/Game/rendering/mtrans.h"
@@ -430,6 +431,16 @@ static void advance_game(GekkoGameEvent* event, bool render) {
     step_game(render);
 }
 
+static void handle_disconnection() {
+    if (session_state == SESSION_EXITING || session_state == SESSION_IDLE) {
+        return;
+    }
+
+    clean_input_buffers();
+    Soft_Reset_Sub();
+    session_state = SESSION_EXITING;
+}
+
 static void process_session() {
     frames_behind = -gekko_frames_ahead(session);
 
@@ -456,7 +467,7 @@ static void process_session() {
 
         case PlayerDisconnected:
             printf("🔴 player disconnected\n");
-            // FIXME: Handle disconnection
+            handle_disconnection();
             break;
 
         case SessionStarted:
