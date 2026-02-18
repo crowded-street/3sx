@@ -3,6 +3,8 @@
 
 #include <SDL3/SDL.h>
 
+#define TARGET_FPS 59.59949
+
 extern SDL_Window* window;
 
 int SDLApp_Init();

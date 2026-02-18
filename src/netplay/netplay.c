@@ -1,6 +1,7 @@
 #include "netplay/netplay.h"
 #include "main.h"
 #include "netplay/game_state.h"
+#include "port/sdl/sdl_app.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/grade.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
@@ -26,6 +27,10 @@
 #include <stdlib.h>
 
 #define INPUT_HISTORY_MAX 120
+#define FRAME_SKIP_TIMER_MAX 60 // Allow skipping a frame roughly every second
+#define STATS_UPDATE_TIMER_MAX 60
+#define DELAY_FRAMES 1
+#define PLAYER_COUNT 2
 
 // Uncomment to enable packet drops
 // #define LOSSY_ADAPTER
@@ -64,6 +69,10 @@ static u16 input_history[2][INPUT_HISTORY_MAX] = { 0 };
 static float frames_behind = 0;
 static int frame_skip_timer = 0;
 static int transition_ready_frames = 0;
+
+static int stats_update_timer = 0;
+static int frame_max_rollback = 0;
+static NetworkStats network_stats = { 0 };
 
 #if defined(DEBUG)
 #define STATE_BUFFER_MAX 20
@@ -148,7 +157,7 @@ static void configure_gekko() {
     GekkoConfig config;
     SDL_zero(config);
 
-    config.num_players = 2;
+    config.num_players = PLAYER_COUNT;
     config.input_size = sizeof(u16);
     config.state_size = sizeof(State);
     config.max_spectators = 0;
@@ -177,12 +186,15 @@ static void configure_gekko() {
     SDL_snprintf(remote_address_str, sizeof(remote_address_str), "%s:%hu", remote_ip, remote_port);
     GekkoNetAddress remote_address = { .data = remote_address_str, .size = strlen(remote_address_str) };
 
-    if (player_number == 0) {
-        player_handle = gekko_add_actor(session, LocalPlayer, NULL);
-        gekko_add_actor(session, RemotePlayer, &remote_address);
-    } else {
-        gekko_add_actor(session, RemotePlayer, &remote_address);
-        player_handle = gekko_add_actor(session, LocalPlayer, NULL);
+    for (int i = 0; i < PLAYER_COUNT; i++) {
+        const bool is_local_player = (i == player_number);
+
+        if (is_local_player) {
+            player_handle = gekko_add_actor(session, LocalPlayer, NULL);
+            gekko_set_local_delay(session, player_handle, DELAY_FRAMES);
+        } else {
+            gekko_add_actor(session, RemotePlayer, &remote_address);
+        }
     }
 }
 
@@ -423,10 +435,6 @@ static void process_session() {
 
     gekko_network_poll(session);
 
-    // GekkoNetworkStats stats;
-    // gekko_network_stats(session, (player_handle == 0) ? 1 : 0, &stats);
-    // printf("🛜 ping: %hu, avg ping: %.2f, jitter: %.2f\n", stats.last_ping, stats.avg_ping, stats.jitter);
-
     u16 local_inputs = get_inputs();
     gekko_add_local_input(session, player_handle, &local_inputs);
 
@@ -477,6 +485,7 @@ static void process_session() {
 static void process_events(bool drawing_allowed) {
     int game_event_count = 0;
     GekkoGameEvent** game_events = gekko_update_session(session, &game_event_count);
+    int frames_rolled_back = 0;
 
     for (int i = 0; i < game_event_count; i++) {
         const GekkoGameEvent* event = game_events[i];
@@ -487,7 +496,9 @@ static void process_events(bool drawing_allowed) {
             break;
 
         case AdvanceEvent:
-            advance_game(event, drawing_allowed && !event->data.adv.rolling_back);
+            const bool rolling_back = event->data.adv.rolling_back;
+            advance_game(event, drawing_allowed && !rolling_back);
+            frames_rolled_back += rolling_back ? 1 : 0;
             break;
 
         case SaveEvent:
@@ -499,6 +510,8 @@ static void process_events(bool drawing_allowed) {
             break;
         }
     }
+
+    frame_max_rollback = SDL_max(frame_max_rollback, frames_rolled_back);
 }
 
 static void step_logic(bool drawing_allowed) {
@@ -506,20 +519,47 @@ static void step_logic(bool drawing_allowed) {
     process_events(drawing_allowed);
 }
 
+static void update_network_stats() {
+    if (stats_update_timer == 0) {
+        GekkoNetworkStats net_stats;
+        gekko_network_stats(session, player_handle ^ 1, &net_stats);
+
+        network_stats.ping = net_stats.avg_ping;
+        network_stats.delay = DELAY_FRAMES;
+
+        if (frame_max_rollback < network_stats.rollback) {
+            // Don't decrease the reading by more than a frame to account for
+            // the opponent not pressing buttons for 1-2 seconds
+            network_stats.rollback -= 1;
+        } else {
+            network_stats.rollback = frame_max_rollback;
+        }
+
+        frame_max_rollback = 0;
+        stats_update_timer = STATS_UPDATE_TIMER_MAX;
+    }
+
+    stats_update_timer -= 1;
+    stats_update_timer = SDL_max(stats_update_timer, 0);
+}
+
 static void run_netplay() {
+    // Step
+
     const bool catch_up = need_to_catch_up() && (frame_skip_timer == 0);
     step_logic(!catch_up);
 
     if (catch_up) {
         step_logic(true);
-        frame_skip_timer = 60; // Allow skipping a frame roughly every second
+        frame_skip_timer = FRAME_SKIP_TIMER_MAX;
     }
 
     frame_skip_timer -= 1;
+    frame_skip_timer = SDL_max(frame_skip_timer, 0);
 
-    if (frame_skip_timer < 0) {
-        frame_skip_timer = 0;
-    }
+    // Update stats
+
+    update_network_stats();
 }
 
 void Netplay_SetParams(int player, const char* ip) {
@@ -586,12 +626,13 @@ void Netplay_Run() {
         if (session != NULL) {
             // cleanup session and then return to idle
             gekko_destroy(&session);
+
+#ifndef LOSSY_ADAPTER
             // also cleanup default socket.
-            #ifndef LOSSY_ADAPTER
             gekko_default_adapter_destroy();
-            #endif
-            
+#endif
         }
+
         session_state = SESSION_IDLE;
         break;
 
@@ -606,4 +647,8 @@ bool Netplay_IsRunning() {
 
 void Netplay_HandleMenuExit() {
     session_state = SESSION_EXITING;
+}
+
+void Netplay_GetNetworkStats(NetworkStats* stats) {
+    SDL_copyp(stats, &network_stats);
 }

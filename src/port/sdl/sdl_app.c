@@ -24,8 +24,7 @@ static const char* app_name = "Street Fighter III: 3rd Strike";
 static const float display_target_ratio = 4.0 / 3.0;
 static const int window_min_width = 384;
 static const int window_min_height = (int)(window_min_width / display_target_ratio);
-static const double target_fps = 59.59949;
-static const Uint64 target_frame_time_ns = 1000000000.0 / target_fps;
+static const Uint64 target_frame_time_ns = 1000000000.0 / TARGET_FPS;
 
 SDL_Window* window = NULL;
 static SDL_Renderer* renderer = NULL;
