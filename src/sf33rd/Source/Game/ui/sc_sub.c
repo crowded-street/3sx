@@ -120,7 +120,7 @@ const u8 ascProData[128] = {
     0x00, // Y
     0x00, // Z
     0x11, // [
-    0x00, // \
+    0x00, // backslash
     0x11, // ]
     0x01, // ^
     0x00, // _
@@ -334,7 +334,7 @@ void SSPutStr(u16 x, u16 y, u8 atr, const s8* str) {
     }
 }
 
-s32 SSPutStrPro(u16 flag, u16 x, u16 y, u8 atr, u32 vtxcol, s8* str) {
+s32 SSPutStrPro(u16 flag, u16 x, u16 y, u8 atr, u32 vtxcol, const char* str) {
     s32 usex;
     s16 step;
 
@@ -361,7 +361,7 @@ s32 SSPutStrPro(u16 flag, u16 x, u16 y, u8 atr, u32 vtxcol, s8* str) {
             step = SSPutStrTexInputPro(x, y + 2, *str);
         }
 
-        str += 1;
+        str++;
         x += step;
         njDrawSprite(scrscrntex, 4, 1, 1);
     }

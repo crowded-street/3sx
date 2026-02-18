@@ -1,6 +1,7 @@
 #include "port/sdl/sdl_app.h"
 #include "common.h"
 #include "port/config.h"
+#include "port/sdl/netstats_renderer.h"
 #include "port/sdl/sdl_debug_text.h"
 #include "port/sdl/sdl_game_renderer.h"
 #include "port/sdl/sdl_message_renderer.h"
@@ -135,14 +136,11 @@ int SDLApp_Init() {
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-    // Initialize message renderer
+    // Initialize rendering subsystems
     SDLMessageRenderer_Initialize(renderer);
-
-    // Initialize game renderer
     SDLGameRenderer_Init(renderer);
 
 #if defined(DEBUG)
-    // Initialize debug text renderer
     SDLDebugText_Initialize(renderer);
 #endif
 
@@ -347,6 +345,9 @@ void SDLApp_EndFrame() {
 
     // Render
 
+    // This should come before SDLGameRenderer_RenderFrame,
+    // because NetstatsRenderer uses the existing SFIII rendering pipeline
+    NetstatsRenderer_Render();
     SDLGameRenderer_RenderFrame();
 
     if (should_save_screenshot) {
