@@ -3613,9 +3613,7 @@ void VS_Result(struct _TASK* task_ptr) {
 
     case 7:
     default:
-        if (Netplay_IsRunning()) {
-            Netplay_HandleMenuExit();
-        }
+        Netplay_HandleMenuExit();
 
         if (Exit_Sub(task_ptr, 0, 0)) {
             System_all_clear_Level_B();

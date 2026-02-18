@@ -5,7 +5,7 @@
 #include <SDL3/SDL.h>
 
 void NetstatsRenderer_Render() {
-    if (!Netplay_IsRunning()) {
+    if (Netplay_GetSessionState() != NETPLAY_SESSION_RUNNING) {
         return;
     }
 

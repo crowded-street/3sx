@@ -36,14 +36,6 @@
 // Uncomment to enable packet drops
 // #define LOSSY_ADAPTER
 
-typedef enum SessionState {
-    SESSION_IDLE,
-    SESSION_TRANSITIONING,
-    SESSION_CONNECTING,
-    SESSION_RUNNING,
-    SESSION_EXITING,
-} SessionState;
-
 typedef struct EffectState {
     s16 frwctr;
     s16 frwctr_min;
@@ -65,7 +57,7 @@ static unsigned short remote_port = 0;
 static const char* remote_ip = NULL;
 static int player_number = 0;
 static int player_handle = 0;
-static SessionState session_state = SESSION_IDLE;
+static NetplaySessionState session_state = NETPLAY_SESSION_IDLE;
 static u16 input_history[2][INPUT_HISTORY_MAX] = { 0 };
 static float frames_behind = 0;
 static int frame_skip_timer = 0;
@@ -432,13 +424,13 @@ static void advance_game(GekkoGameEvent* event, bool render) {
 }
 
 static void handle_disconnection() {
-    if (session_state == SESSION_EXITING || session_state == SESSION_IDLE) {
+    if (session_state == NETPLAY_SESSION_EXITING || session_state == NETPLAY_SESSION_IDLE) {
         return;
     }
 
     clean_input_buffers();
     Soft_Reset_Sub();
-    session_state = SESSION_EXITING;
+    session_state = NETPLAY_SESSION_EXITING;
 }
 
 static void process_session() {
@@ -472,7 +464,7 @@ static void process_session() {
 
         case SessionStarted:
             printf("🔴 session started\n");
-            session_state = SESSION_RUNNING;
+            session_state = NETPLAY_SESSION_RUNNING;
             break;
 
         case DesyncDetected:
@@ -604,12 +596,12 @@ void Netplay_Begin() {
     frame_skip_timer = 0;
     transition_ready_frames = 0;
 
-    session_state = SESSION_TRANSITIONING;
+    session_state = NETPLAY_SESSION_TRANSITIONING;
 }
 
 void Netplay_Run() {
     switch (session_state) {
-    case SESSION_TRANSITIONING:
+    case NETPLAY_SESSION_TRANSITIONING:
         if (game_ready_to_run_character_select()) {
             transition_ready_frames += 1;
         } else {
@@ -623,17 +615,17 @@ void Netplay_Run() {
 
         if (transition_ready_frames >= 2) {
             configure_gekko();
-            session_state = SESSION_CONNECTING;
+            session_state = NETPLAY_SESSION_CONNECTING;
         }
 
         break;
 
-    case SESSION_CONNECTING:
-    case SESSION_RUNNING:
+    case NETPLAY_SESSION_CONNECTING:
+    case NETPLAY_SESSION_RUNNING:
         run_netplay();
         break;
 
-    case SESSION_EXITING:
+    case NETPLAY_SESSION_EXITING:
         if (session != NULL) {
             // cleanup session and then return to idle
             gekko_destroy(&session);
@@ -644,20 +636,31 @@ void Netplay_Run() {
 #endif
         }
 
-        session_state = SESSION_IDLE;
+        session_state = NETPLAY_SESSION_IDLE;
         break;
 
-    case SESSION_IDLE:
+    case NETPLAY_SESSION_IDLE:
         break;
     }
 }
 
-bool Netplay_IsRunning() {
-    return session_state != SESSION_IDLE;
+NetplaySessionState Netplay_GetSessionState() {
+    return session_state;
 }
 
 void Netplay_HandleMenuExit() {
-    session_state = SESSION_EXITING;
+    switch (session_state) {
+    case NETPLAY_SESSION_IDLE:
+    case NETPLAY_SESSION_EXITING:
+        // Do nothing
+        break;
+
+    case NETPLAY_SESSION_TRANSITIONING:
+    case NETPLAY_SESSION_CONNECTING:
+    case NETPLAY_SESSION_RUNNING:
+        session_state = NETPLAY_SESSION_EXITING;
+        break;
+    }
 }
 
 void Netplay_GetNetworkStats(NetworkStats* stats) {

@@ -271,7 +271,7 @@ static void game_step_0() {
 
     mpp_w.inGame = false;
 
-    if (Netplay_IsRunning()) {
+    if (Netplay_GetSessionState() != NETPLAY_SESSION_IDLE) {
         Netplay_Run();
     } else {
         njUserMain();
