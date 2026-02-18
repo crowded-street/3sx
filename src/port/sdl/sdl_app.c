@@ -378,12 +378,12 @@ void SDLApp_EndFrame() {
     SDLDebugText_Render();
 
     // Render metrics
-    int window_width;
-    SDL_GetRenderOutputSize(renderer, &window_width, NULL);
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
-    SDL_SetRenderScale(renderer, 2, 2);
-    SDL_RenderDebugTextFormat(renderer, (window_width / 2) - 88, 2, "FPS: %.3f", fps);
-    SDL_SetRenderScale(renderer, 1, 1);
+    // int window_width;
+    // SDL_GetRenderOutputSize(renderer, &window_width, NULL);
+    // SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+    // SDL_SetRenderScale(renderer, 2, 2);
+    // SDL_RenderDebugTextFormat(renderer, (window_width / 2) - 88, 2, "FPS: %.3f", fps);
+    // SDL_SetRenderScale(renderer, 1, 1);
 #endif
 
     SDL_RenderPresent(renderer);
