@@ -6,6 +6,7 @@
 #include "sf33rd/Source/Game/rendering/texgroup.h"
 #include "common.h"
 #include "main.h"
+#include "port/char_data.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "sf33rd/Source/Game/engine/charid.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
@@ -278,12 +279,13 @@ void q_ldreq_texture_group(REQ* curr) {
                     ((uintptr_t*)cit)[i] = ldchd + ((u32*)ldchd)[i];
                 }
 
-                cit2 = &char_init_data[plid_data[plt_req[curr->id]]];
+                const s16 character_id = plt_req[curr->id];
+                cit2 = &char_init_data[plid_data[character_id]];
                 *cit2 = *cit;
 
                 free(cit);
 
-                parabora_own_table[plt_req[curr->id]] = cit2->prot;
+                parabora_own_table[character_id] = cit2->prot;
 
                 // Q specific code
                 if (curr->ix == 18) {
@@ -307,6 +309,8 @@ void q_ldreq_texture_group(REQ* curr) {
                         trsptr[loop] = trsptr[loop + 1];
                     }
                 }
+
+                CharData_ApplyFixups(cit2, character_id);
             }
 
             *curr->result |= lpr_wrdata[curr->id];
