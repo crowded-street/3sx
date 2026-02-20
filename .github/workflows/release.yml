@@ -156,5 +156,5 @@ jobs:
           else
             gh release create "${TAG_NAME}" release-assets/* \
               --title "Release ${TAG_NAME}" \
-              --notes "Automated macOS + Windows release for commit ${{ github.sha }}."
+              --notes "Automated release for commit ${{ github.sha }}."
           fi
