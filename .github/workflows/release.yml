@@ -33,7 +33,7 @@ jobs:
           set -euo pipefail
           cpack -G DragNDrop --config build/CPackConfig.cmake
 
-          DMG_PATH="$(find build -maxdepth 1 -type f -name '*.dmg' | head -n 1)"
+          DMG_PATH="$(find . -maxdepth 1 -type f -name '*.dmg' | head -n 1)"
           if [ -z "${DMG_PATH}" ]; then
             echo "No .dmg package found in build/"
             exit 1
