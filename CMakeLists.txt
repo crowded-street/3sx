@@ -101,6 +101,8 @@ set_target_properties(3sx PROPERTIES
 
 if(APPLE)
     set_target_properties(3sx PROPERTIES
+        OUTPUT_NAME "3SX"
+        MACOSX_BUNDLE_BUNDLE_NAME "3SX"
         INSTALL_RPATH "@executable_path/../Frameworks"
     )
 elseif(UNIX AND NOT APPLE)
