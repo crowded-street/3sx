@@ -128,8 +128,8 @@ include_directories(
 )
 
 target_link_libraries(3sx PRIVATE
-    "${LIBCDIO_ROOT}/lib/libcdio.a"
     "${LIBCDIO_ROOT}/lib/libiso9660.a"
+    "${LIBCDIO_ROOT}/lib/libcdio.a"
 )
 
 if(APPLE)
