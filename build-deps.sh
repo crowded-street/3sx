@@ -136,4 +136,46 @@ else
     rm "$SDL.tar.gz"
 fi
 
+# -----------------------------
+# libcdio
+# -----------------------------
+
+LIBCDIO_VERSION="2.3.0"
+LIBCDIO="libcdio-$LIBCDIO_VERSION"
+LIBCDIO_DIR="$THIRD_PARTY/libcdio"
+LIBCDIO_BUILD="$LIBCDIO_DIR/build"
+
+if [ -d "$LIBCDIO_DIR" ]; then
+    echo "libcdio already built at $LIBCDIO_BUILD"
+else
+    echo "Building libcdio..."
+    mkdir -p "$LIBCDIO_DIR"
+    cd "$LIBCDIO_DIR"
+
+    if [ ! -d "$LIBCDIO" ]; then
+        curl -L -O "https://github.com/libcdio/libcdio/releases/download/$LIBCDIO_VERSION/$LIBCDIO.tar.gz"
+        tar xf "$LIBCDIO.tar.gz"
+    fi
+
+    cd "$LIBCDIO"
+
+    mkdir -p build
+    cd build
+
+    sh ../configure MAKE=make \
+        --prefix=$LIBCDIO_BUILD \
+        --enable-static \
+        --disable-shared \
+        --disable-cxx \
+        --disable-example-progs
+
+    make
+    make install
+    echo "libcdio installed to $LIBCDIO_BUILD"
+
+    cd ../..
+    rm -rf "$LIBCDIO"
+    rm "$LIBCDIO.tar.gz"
+fi
+
 echo "All dependencies installed successfully in $THIRD_PARTY"

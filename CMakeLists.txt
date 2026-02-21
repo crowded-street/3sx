@@ -91,6 +91,7 @@ target_compile_options(3sx PRIVATE
 
 target_link_libraries(3sx PRIVATE
     m
+    iconv
     GekkoNet
     stdc++
 )
@@ -118,10 +119,17 @@ endif()
 set(THIRD_PARTY_DIR "${CMAKE_SOURCE_DIR}/third_party")
 set(FFMPEG_ROOT "${THIRD_PARTY_DIR}/ffmpeg/build")
 set(SDL3_ROOT "${THIRD_PARTY_DIR}/sdl3/build")
+set(LIBCDIO_ROOT "${THIRD_PARTY_DIR}/libcdio/build")
 
 include_directories(
     ${FFMPEG_ROOT}/include
     ${SDL3_ROOT}/include
+    ${LIBCDIO_ROOT}/include
+)
+
+target_link_libraries(3sx PRIVATE
+    "${LIBCDIO_ROOT}/lib/libcdio.a"
+    "${LIBCDIO_ROOT}/lib/libiso9660.a"
 )
 
 if(APPLE)
