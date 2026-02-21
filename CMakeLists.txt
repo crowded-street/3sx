@@ -91,10 +91,15 @@ target_compile_options(3sx PRIVATE
 
 target_link_libraries(3sx PRIVATE
     m
-    iconv
     GekkoNet
     stdc++
 )
+
+if(APPLE OR WIN32)
+    target_link_libraries(3sx PRIVATE
+        iconv
+    )
+endif()
 
 set_target_properties(3sx PROPERTIES
     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake/Info.plist"
