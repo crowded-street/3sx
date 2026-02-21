@@ -207,18 +207,7 @@ def read_array(path: Path, field: str, offset: int, length: int, little_endian: 
 
     return result
 
-def main():
-    if len(sys.argv) < 5:
-        print("Incorrect number of arguments")
-        print("Usage: python3 compare_char_data.py <decrypted rom path> <unpacked afs path> <character> <field>")
-        return
-    
-    rom_path = Path(sys.argv[1])
-    afs_path = Path(sys.argv[2])
-    char_name = sys.argv[3]
-    field = sys.argv[4]
-
-    character = char_name_to_id[char_name]
+def analyze_and_print(rom_path: Path, afs_path: Path, character: int, field: str):
     array_info = calculate_array_info(afs_path, character)
     cps3_array_offsets = calculate_cps3_array_offsets(rom_path, character)
 
@@ -275,6 +264,32 @@ def main():
         print(f"Non-matching: {mismatch_count}")
     else:
         print("All elements match ✅")
+
+def main():
+    if len(sys.argv) < 5:
+        print("Incorrect number of arguments")
+        print("Usage: python3 compare_char_data.py <decrypted rom path> <unpacked afs path> <character> <field>")
+        return
+    
+    rom_path = Path(sys.argv[1])
+    afs_path = Path(sys.argv[2])
+    char_name = sys.argv[3]
+    field = sys.argv[4]
+    
+    if char_name == "all":
+        is_first = True
+
+        for name in char_name_to_id.keys():
+            if not is_first:
+                print()
+
+            is_first = False
+            print(name + ":")
+            character = char_name_to_id[name]
+            analyze_and_print(rom_path, afs_path, character, field)
+    else:
+        character = char_name_to_id[char_name]
+        analyze_and_print(rom_path, afs_path, character, field)
 
 if __name__ == "__main__":
     main()
