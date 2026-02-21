@@ -1,0 +1,49 @@
+3SX Third-Party Notices
+========================
+
+This product includes third-party software components.
+
+libcdio / libiso9660
+--------------------
+Project: libcdio
+Upstream: https://github.com/libcdio/libcdio
+
+3SX links against:
+- libcdio
+- libiso9660
+
+License: GNU General Public License, version 3 or later (GPLv3+), as provided by the libcdio project.
+
+Copyright:
+- Copyright (C) libcdio contributors.
+
+The source code for libcdio and its license notices are available from the upstream project above.
+
+SDL3
+----
+Project: SDL3
+Upstream: https://github.com/libsdl-org/SDL
+
+3SX links against:
+- SDL3
+
+License: zlib license, as provided by the SDL project.
+
+Copyright:
+- Copyright (C) SDL contributors.
+
+FFmpeg
+------
+Project: FFmpeg
+Upstream: https://ffmpeg.org
+
+3SX links against:
+- libavcodec
+- libavformat
+- libavutil
+- libswresample
+
+License: GNU Lesser General Public License (LGPL), version 2.1 or later, as provided by the FFmpeg project build configuration and linked binaries.
+
+Copyright:
+- Copyright (C) FFmpeg contributors.

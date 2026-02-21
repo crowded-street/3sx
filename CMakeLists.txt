@@ -168,6 +168,11 @@ endif()
 # Installation
 # ======================================
 
+set(PROJECT_LICENSE_FILES
+    "${CMAKE_SOURCE_DIR}/LICENSE"
+    "${CMAKE_SOURCE_DIR}/THIRD_PARTY_NOTICES.txt"
+)
+
 if(APPLE)
     install(TARGETS 3sx
         RUNTIME DESTINATION bin
@@ -180,6 +185,11 @@ if(APPLE)
         ${FFMPEG_DYLIBS}
         ${SDL3_ROOT}/lib/libSDL3.0.dylib
         DESTINATION 3SX.app/Contents/Frameworks
+    )
+
+    install(FILES
+        ${PROJECT_LICENSE_FILES}
+        DESTINATION 3SX.app/Contents/Resources/licenses
     )
 elseif(WIN32)
     install(TARGETS 3sx
@@ -204,6 +214,11 @@ elseif(WIN32)
         "build/3sx.pdb"
         DESTINATION bin
     )
+
+    install(FILES
+        ${PROJECT_LICENSE_FILES}
+        DESTINATION bin/licenses
+    )
 elseif(UNIX)
     install(TARGETS 3sx
         RUNTIME DESTINATION bin
@@ -215,6 +230,11 @@ elseif(UNIX)
         ${FFMPEG_SO}
         ${SDL3_ROOT}/lib/libSDL3.so
         DESTINATION lib
+    )
+
+    install(FILES
+        ${PROJECT_LICENSE_FILES}
+        DESTINATION share/3sx/licenses
     )
 endif()
 
