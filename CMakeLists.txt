@@ -95,12 +95,6 @@ target_link_libraries(3sx PRIVATE
     stdc++
 )
 
-if(APPLE OR WIN32)
-    target_link_libraries(3sx PRIVATE
-        iconv
-    )
-endif()
-
 set_target_properties(3sx PROPERTIES
     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake/Info.plist"
 )
@@ -144,6 +138,7 @@ if(APPLE)
         ${FFMPEG_ROOT}/lib/libavutil.dylib
         ${FFMPEG_ROOT}/lib/libswresample.dylib
         ${SDL3_ROOT}/lib/libSDL3.0.dylib
+        iconv
     )
 elseif(WIN32)
     target_link_libraries(3sx PRIVATE
@@ -152,6 +147,7 @@ elseif(WIN32)
         ${FFMPEG_ROOT}/lib/libavutil.dll.a
         ${FFMPEG_ROOT}/lib/libswresample.dll.a
         ${SDL3_ROOT}/lib/libSDL3.dll.a
+        iconv
 		dbghelp
     )
     target_link_options(3sx PRIVATE
