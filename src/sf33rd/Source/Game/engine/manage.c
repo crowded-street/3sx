@@ -424,7 +424,12 @@ void Game_Manage_2_3() {
     }
 
     C_No[1]++;
-    effect_B2_init();
+
+    if (Is_Training_Mode(Mode_Type)) {
+        Next_Step = 1;
+    } else {
+        effect_B2_init();
+    }
 }
 
 void Game_Manage_2_4() {
@@ -442,7 +447,7 @@ void Game_Manage_2_4() {
         FadeOut(0, 0xFF, 8);
         Disp_Cockpit = 1;
 
-        if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
+        if (Is_Training_Mode(Mode_Type)) {
             Score[0][2] = 0;
             Score[1][2] = 0;
             Game_pause = 0;
@@ -492,7 +497,7 @@ void Game_Manage_2_4() {
             Check_Stage_BGM();
         }
 
-        if (Demo_Flag == 0) {
+        if (Demo_Flag == 0 && !Is_Training_Mode(Mode_Type)) {
             effect_58_init(10, 60, 0);
         }
 
