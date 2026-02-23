@@ -101,6 +101,11 @@ static s16 Bonus_Sub();
 s16 Ck_Coin();
 void Loop_Demo_Sub();
 void Before_Select_Sub();
+static void Set_Appear_Type_For_Mode();
+
+static void Set_Appear_Type_For_Mode() {
+    appear_type = Is_Training_Mode(Mode_Type) ? APPEAR_TYPE_NON_ANIMATED : APPEAR_TYPE_ANIMATED;
+}
 
 void Game_Task(struct _TASK* task_ptr) {
     s16 ix;
@@ -352,7 +357,7 @@ void Game01() {
         if (Switch_Screen(0) != 0) {
             Game01_Sub();
             Cover_Timer = 5;
-            appear_type = APPEAR_TYPE_ANIMATED;
+            Set_Appear_Type_For_Mode();
             set_hitmark_color();
 
             if (Debug_w[0x1D]) {
@@ -578,7 +583,7 @@ void Game2_2() {
     win_lose_work_clear();
     player_face_init();
     Game01_Sub();
-    appear_type = APPEAR_TYPE_ANIMATED;
+    Set_Appear_Type_For_Mode();
     TATE00();
 
     for (i = 0; i < 3; i++) {

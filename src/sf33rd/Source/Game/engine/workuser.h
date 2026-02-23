@@ -16,6 +16,10 @@ typedef enum ModeType {
     MODE_REPLAY,
 } ModeType;
 
+static inline bool Is_Training_Mode(ModeType mode) {
+    return mode == MODE_NORMAL_TRAINING || mode == MODE_PARRY_TRAINING;
+}
+
 // MARK: - Non-serializable
 
 extern const_s16_arr Tech_Address[2];
