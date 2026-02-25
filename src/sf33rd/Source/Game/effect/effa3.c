@@ -111,10 +111,10 @@ void effect_A3_move(WORK_Other* ewk) {
     }
 
     if (ewk->master_priority == 99) {
-        zoom = 1.4f;
+        zoom = 1.0f;
         color = 10;
     } else {
-        zoom = 1.2f;
+        zoom = 1.0f;
     }
 
     if (ewk->wu.type < 22) {
