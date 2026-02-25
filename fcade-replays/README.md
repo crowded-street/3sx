@@ -29,9 +29,8 @@ Each output directory contains:
 
 - `frames.bin`: concatenated protocol frames (`u32be length + payload`)
 - `summary.json`: parsed per-message metadata
-- `msg_XXXX_minus12.bin`: compressed state chunk payload for `type=-12`
-- `msg_XXXX_minus12.decompressed.bin`: zlib output when decompression succeeds
-- `msg_XXXX_minus13.bin`: raw record body for `type=-13`
+- `savestate`: first decompressed `type=-12` payload
+- `inputs`: all `type=-13` record bodies concatenated in receive order
 
 ## Notes
 

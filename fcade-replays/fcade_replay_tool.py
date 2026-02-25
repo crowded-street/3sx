@@ -220,6 +220,8 @@ def download_replay(
 
     frames_bin = out_dir / "frames.bin"
     summary_json = out_dir / "summary.json"
+    inputs_path = out_dir / "inputs"
+    savestate_path = out_dir / "savestate"
 
     messages: list[dict] = []
     count = 0
@@ -246,7 +248,8 @@ def download_replay(
         handshake_messages = do_handshake(sock, target.token, send_delay_ms=send_delay_ms)
         idle_hits = 0
 
-        with frames_bin.open("wb") as fw:
+        with frames_bin.open("wb") as fw, inputs_path.open("wb") as inputs_f:
+            savestate_written = False
             for payload in handshake_messages:
                 fw.write(_u32be(len(payload)))
                 fw.write(payload)
@@ -277,14 +280,23 @@ def download_replay(
                 msg_type = info.get("type")
                 if msg_type == -12:
                     chunk = payload[8:]
-                    (out_dir / f"msg_{count:04d}_minus12.bin").write_bytes(chunk)
                     try:
                         raw = zlib.decompress(chunk)
-                        (out_dir / f"msg_{count:04d}_minus12.decompressed.bin").write_bytes(raw)
+                        if not savestate_written:
+                            savestate_path.write_bytes(raw)
+                            savestate_written = True
                     except Exception:
                         pass
                 elif msg_type == -13:
-                    (out_dir / f"msg_{count:04d}_minus13.bin").write_bytes(payload[12:])
+                    body = payload[12:]
+                    expected = info.get("expected_body_len")
+                    if isinstance(expected, int) and expected >= 0 and len(body) >= expected:
+                        inputs_f.write(body[:expected])
+                        if len(body) != expected:
+                            info["inputs_trailer_len"] = len(body) - expected
+                    else:
+                        # Fallback if fields are missing/corrupt: preserve prior behavior.
+                        inputs_f.write(body)
 
                 count += 1
 
