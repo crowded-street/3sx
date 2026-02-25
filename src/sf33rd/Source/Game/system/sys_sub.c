@@ -34,6 +34,7 @@
 #include "sf33rd/Source/Game/system/sysdir.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/ui/sc_sub.h"
+#include "port/button_config.h"
 #include <memory.h>
 
 u8 Candidate_Buff[16];
@@ -547,6 +548,7 @@ void Game_Data_Init() {
         }
     }
 
+    ButtonConfig_Load();
     Ranking_Init();
     Copy_Save_w();
 }
@@ -601,6 +603,8 @@ void Save_Game_Data() {
     save_w[1].BGM_Level = Convert_Buff[3][1][1];
     save_w[1].SE_Level = Convert_Buff[3][1][2];
     save_w[1].BgmType = Convert_Buff[3][1][3];
+
+    ButtonConfig_Save();
 }
 
 void Copy_Save_w() {
