@@ -46,8 +46,24 @@ void setup_metamor_kezuri(WORK* wk);
 void set_char_move_init(WORK* wk, s16 koc, s16 index) {
     wk->now_koc = koc;
     wk->char_index = index;
-    wk->set_char_ad = &wk->char_table[koc][wk->char_table[koc][index] / 4];
+
+#if defined(CPS3)
+    wk->set_char_ad = (u32*)wk->char_table[koc][index];
+
+    const u32* src = wk->set_char_ad;
+    u32* dst = (u32*)&wk->cg_ctr;
+
+    for (int i = 0; i < 6; i++) {
+        dst[i] = 0;
+    }
+
+    dst[-1] = src[-1];
+    dst[-2] = src[-2];
+#else
+    wk->set_char_ad = &wk->char_table[koc][wk->char_table[koc][index] / sizeof(u32)];
     setupCharTableData(wk, 1, 1);
+#endif
+
     wk->cg_ix = -wk->cgd_type;
     wk->cg_ctr = 1;
     wk->cg_next_ix = 0;
@@ -58,24 +74,27 @@ void set_char_move_init(WORK* wk, s16 koc, s16 index) {
     wk->cmoa.pat = 1;
     wk->cmwk[8] = 0;
     wk->cmwk[15] = 0;
+
+#if !defined(CPS3)
     wk->kow = wk->kind_of_waza;
+#endif
 
     if (wk->work_id & 0xF) {
         wk->at_koa = acatkoa_table[wk->kind_of_waza];
     }
 
     if (wk->work_id == 1) {
-        ((PLW*)wk)->tc_1st_flag = 0;
+        ((PLW*)wk)->tc_1st_flag = 0; // TODO: Confirm CPS3 match
 
         if (wk->now_koc == 4 || wk->now_koc == 5) {
             grade_add_onaji_waza(wk->id);
         }
 
-        ((PLW*)wk)->ja_nmj_rno = 0;
+        ((PLW*)wk)->ja_nmj_rno = 0; // TODO: Confirm CPS3 match
         pp_pulpara_remake_at_init(wk);
     }
 
-    wk->K5_init_flag = 1;
+    wk->K5_init_flag = 1; // TODO: Confirm CPS3 match
     char_move(wk);
 }
 
@@ -107,6 +126,7 @@ void set_char_move_init2(WORK* wk, s16 koc, s16 index, s16 ip, s16 scf) {
     u8 pst;
     u8 kow;
 
+#if !defined(CPS3)
     if (index < 0) {
         index = 0;
     }
@@ -114,13 +134,30 @@ void set_char_move_init2(WORK* wk, s16 koc, s16 index, s16 ip, s16 scf) {
     if (ip <= 0) {
         ip = 1;
     }
+#endif
 
     pst = wk->pat_status;
     kow = wk->kind_of_waza;
     wk->now_koc = koc;
     wk->char_index = index;
+
+#if defined(CPS3)
+    wk->set_char_ad = (u32*)wk->char_table[koc][index];
+
+    const u32* src = wk->set_char_ad;
+    u32* dst = (u32*)&wk->cg_ctr;
+
+    for (int i = 0; i < 6; i++) {
+        dst[i] = 0;
+    }
+
+    dst[-1] = src[-1];
+    dst[-2] = src[-2];
+#else
     wk->set_char_ad = wk->char_table[koc] + (wk->char_table[koc][index] / 4);
     setupCharTableData(wk, 1, 1);
+#endif
+
     wk->cg_ix = (ip - 1) * wk->cgd_type - wk->cgd_type;
     wk->cg_ctr = 1;
     wk->cg_next_ix = 0;
@@ -137,14 +174,16 @@ void set_char_move_init2(WORK* wk, s16 koc, s16 index, s16 ip, s16 scf) {
         wk->pat_status = pst;
         wk->kind_of_waza = kow;
     } else {
+#if !defined(CPS3)
         wk->kow = wk->kind_of_waza;
+#endif
     }
 
     if (wk->work_id & 0xF) {
         wk->at_koa = acatkoa_table[wk->kind_of_waza];
     }
 
-    wk->K5_init_flag = 1;
+    wk->K5_init_flag = 1; // TODO: Confirm CPS3 match
     char_move(wk);
 }
 
@@ -153,15 +192,33 @@ void exset_char_move_init(WORK* wk, s16 koc, s16 index) {
 
     wk->now_koc = koc;
     wk->char_index = index;
+
+#if defined(CPS3)
+    wk->set_char_ad = (u32*)wk->char_table[koc][index];
+#else
     wk->set_char_ad = &wk->char_table[koc][wk->char_table[koc][index] / 4];
+#endif
+
     now_ctr = wk->cg_ctr;
+
+#if defined(CPS3)
+    u32* dst = (u32*)&wk->cg_ctr;
+    const u32* src = wk->set_char_ad + wk->cg_ix;
+
+    for (int i = 0; i < wk->cgd_type; i++) {
+        dst[i] = src[i];
+    }
+
+#else
     setupCharTableData(wk, 0, 0);
+#endif
+
     wk->cg_ctr = now_ctr;
     wk->cmoa.koc = wk->now_koc;
     wk->cmoa.ix = wk->char_index;
     wk->cmoa.pat = 1;
-    wk->K5_init_flag = 1;
-    check_cgd_patdat2(wk);
+    wk->K5_init_flag = 1;  // TODO: Confirm CPS3 match
+    check_cgd_patdat2(wk); // TODO: Confirm CPS3 match
 }
 
 void char_move_z(WORK* wk) {
@@ -170,7 +227,7 @@ void char_move_z(WORK* wk) {
     }
 
     wk->cg_ctr = 1;
-    wk->K5_init_flag = 1;
+    wk->K5_init_flag = 1; // TODO: Confirm CPS3 match
     char_move(wk);
 }
 
@@ -207,10 +264,28 @@ void char_move_cmja(WORK* wk) {
     set_char_move_init2(wk, wk->cmja.koc, wk->cmja.ix, wk->cmja.pat, 0);
 }
 
+#if defined(CPS3)
+void char_move_cmj2(WORK* wk) {
+    setup_comm_back(wk);
+    set_char_move_init2(wk, wk->cmj2.koc, wk->cmj2.ix, wk->cmj2.pat, 0);
+}
+
+void char_move_cmj3(WORK* wk) {
+    setup_comm_back(wk);
+    set_char_move_init2(wk, wk->cmj3.koc, wk->cmj3.ix, wk->cmj3.pat, 0);
+}
+#endif
+
 void char_move_cmj4(WORK* wk) {
     setup_comm_back(wk);
     set_char_move_init2(wk, wk->cmj4.koc, wk->cmj4.ix, wk->cmj4.pat, 0);
 }
+
+#if defined(CPS3)
+void char_move_cmoa(WORK* wk) {
+    set_char_move_init2(wk, wk->cmoa.koc, wk->cmoa.ix, wk->cmoa.pat, 0);
+}
+#endif
 
 void char_move_cmms(WORK* wk) {
     setup_comm_back(wk);
@@ -226,8 +301,19 @@ void char_move_cmms2(WORK* wk) {
     now_cgd = wk->cgd_type;
     wk->now_koc = wk->cmms.koc;
     wk->char_index = wk->cmms.ix;
+
+#if defined(CPS3)
+    wk->set_char_ad = (u32*)wk->char_table[wk->now_koc][wk->char_index];
+
+    const u32* src = wk->set_char_ad;
+    u32* dst = wk->cg_ctr;
+
+    dst[-1] = src[-1];
+    dst[-2] = src[-2];
+#else
     wk->set_char_ad = &wk->char_table[wk->now_koc][wk->char_table[wk->now_koc][wk->char_index] / 4];
     setupCharTableData(wk, 0, 1);
+#endif
 
     if (now_cgd > wk->cgd_type) {
         // FIXME: this will break if the layout of WORK changes
@@ -243,7 +329,10 @@ void char_move_cmms2(WORK* wk) {
     wk->cg_next_ix = 0;
     wk->old_cgnum = 0;
     wk->cg_wca_ix = 0;
+
+#if !defined(CPS3)
     wk->kow = wk->kind_of_waza;
+#endif
 }
 
 s32 char_move_cmms3(PLW* wk) {
@@ -258,13 +347,28 @@ s32 char_move_cmms3(PLW* wk) {
     now_cgd = wk->wu.cgd_type;
     wk->wu.now_koc = wk->wu.cmms.koc;
     wk->wu.char_index = wk->wu.cmms.ix;
+
+#if defined(CPS3)
+    wk->wu.set_char_ad = (u32*)wk->wu.char_table[wk->wu.now_koc][wk->wu.char_index];
+
+    const u32* src = wk->wu.set_char_ad;
+    u32* dst = wk - wu.cg_ctr;
+
+    dst[-1] = src[-1];
+    dst[-2] = src[-2];
+#else
     wk->wu.set_char_ad = &wk->wu.char_table[wk->wu.now_koc][wk->wu.char_table[wk->wu.now_koc][wk->wu.char_index] / 4];
     setupCharTableData(&wk->wu, 0, 1);
+#endif
+
     wk->wu.cg_ix = wk->wu.cmms.pat * wk->wu.cgd_type - wk->wu.cgd_type;
+
+#if !defined(CPS3)
     wk->wu.kow = wk->wu.kind_of_waza;
+#endif
 
     while (1) {
-        cpc = (UNK11*)&wk->wu.set_char_ad[wk->wu.cg_ix];
+        cpc = (UNK11*)(wk->wu.set_char_ad + wk->wu.cg_ix);
 
         if (cpc->code >= 0x100) {
             break;
@@ -412,24 +516,22 @@ s32 comm_if_l(WORK* wk, UNK11* ctc) {
     if (!(my_lvdat & 0x7FFF)) {
         if (lvdat == 0) {
             return decord_if_jump(wk, ctc, ctc->ix);
+        } else {
+            return decord_if_jump(wk, ctc, ctc->pat);
         }
-
-        return decord_if_jump(wk, ctc, ctc->pat);
-    }
-
-    if (my_lvdat & 0x8000) {
+    } else if (my_lvdat & 0x8000) {
         if (lvdat == (my_lvdat & 0xF)) {
             return decord_if_jump(wk, ctc, ctc->ix);
+        } else {
+            return decord_if_jump(wk, ctc, ctc->pat);
         }
-
-        return decord_if_jump(wk, ctc, ctc->pat);
+    } else {
+        if (lvdat & my_lvdat) {
+            return decord_if_jump(wk, ctc, ctc->ix);
+        } else {
+            return decord_if_jump(wk, ctc, ctc->pat);
+        }
     }
-
-    if (lvdat & my_lvdat) {
-        return decord_if_jump(wk, ctc, ctc->ix);
-    }
-
-    return decord_if_jump(wk, ctc, ctc->pat);
 }
 
 s32 comm_djmp(WORK* wk, UNK11* ctc) {
@@ -438,12 +540,12 @@ s32 comm_djmp(WORK* wk, UNK11* ctc) {
     if ((ldir = get_comm_djmp_lever_dir((PLW*)wk))) {
         if (ldir == 1) {
             return decord_if_jump(wk, ctc, ctc->ix);
+        } else {
+            return decord_if_jump(wk, ctc, ctc->pat);
         }
-
-        return decord_if_jump(wk, ctc, ctc->pat);
+    } else {
+        return decord_if_jump(wk, ctc, ctc->koc);
     }
-
-    return decord_if_jump(wk, ctc, ctc->koc);
 }
 
 s32 comm_for(WORK* wk, UNK11* ctc) {
@@ -460,14 +562,12 @@ s32 comm_for(WORK* wk, UNK11* ctc) {
 }
 
 s32 comm_nex(WORK* wk, UNK11* ctc) {
-    if (wk->cmlp.code) {
-        if (--wk->cmlp.code > 0) {
-            set_char_move_init2(wk, wk->cmlp.koc, wk->cmlp.ix, wk->cmlp.pat, 1);
-            return 0;
-        }
+    if (wk->cmlp.code && --wk->cmlp.code > 0) {
+        set_char_move_init2(wk, wk->cmlp.koc, wk->cmlp.ix, wk->cmlp.pat, 1);
+        return 0;
+    } else {
+        return 1;
     }
-
-    return 1;
 }
 
 s32 comm_for2(WORK* wk, UNK11* ctc) {
@@ -487,9 +587,9 @@ s32 comm_nex2(WORK* wk, UNK11* ctc) {
     if (wk->cml2.code && --wk->cml2.code > 0) {
         set_char_move_init2(wk, wk->cml2.koc, wk->cml2.ix, wk->cml2.pat, 1);
         return 0;
+    } else {
+        return 1;
     }
-
-    return 1;
 }
 
 s32 comm_rja(WORK* wk, UNK11* ctc) {
@@ -610,7 +710,7 @@ s32 comm_ydat(WORK* wk, UNK11* ctc) {
     return 1;
 }
 
-s32 comm_mpos(WORK* wk, UNK11* ctc) {
+s32 comm_mpos(WORK* wk, UNK11* ctc) { // TODO: Confirm CPS3 match
     wk->att.hit_mark = ctc->koc;
     wk->hit_mark_x = ctc->ix;
     wk->hit_mark_y = ctc->pat;
@@ -631,6 +731,7 @@ s32 comm_care(WORK* wk, UNK11* ctc) {
     return 1;
 }
 
+// Player set XY
 s32 comm_psxy(WORK* wk, UNK11* ctc) {
     WORK* emwk;
 
@@ -655,6 +756,7 @@ s32 comm_psxy(WORK* wk, UNK11* ctc) {
     return 1;
 }
 
+// Player set X
 s32 comm_ps_x(WORK* wk, UNK11* ctc) {
     WORK* emwk;
 
@@ -676,12 +778,14 @@ s32 comm_ps_x(WORK* wk, UNK11* ctc) {
     return 1;
 }
 
+// Player set Y
 s32 comm_ps_y(WORK* wk, UNK11* ctc) {
     WORK* emwk;
 
     if (wk->work_id == 1) {
         switch (ctc->koc) {
         case 0:
+            // CPS3 compares to 21 here
             if (bg_w.stage == 20 && ((PLW*)wk)->bs2_on_car && ctc->pat < bs2_floor[2]) {
                 wk->xyz[1].disp.pos = bs2_floor[2];
             } else {
@@ -701,26 +805,27 @@ s32 comm_ps_y(WORK* wk, UNK11* ctc) {
         }
 
         return 1;
+    } else {
+        switch (ctc->koc) {
+        case 0:
+            wk->xyz[1].disp.pos = ctc->pat;
+            break;
+
+        case 2:
+            wk->xyz[1].disp.pos = ctc->pat;
+            /* fallthrough */
+
+        default:
+            emwk = (WORK*)wk->target_adrs;
+            emwk->xyz[1].disp.pos = ctc->pat;
+            break;
+        }
+
+        return 1;
     }
-
-    switch (ctc->koc) {
-    case 0:
-        wk->xyz[1].disp.pos = ctc->pat;
-        break;
-
-    case 2:
-        wk->xyz[1].disp.pos = ctc->pat;
-        /* fallthrough */
-
-    default:
-        emwk = (WORK*)wk->target_adrs;
-        emwk->xyz[1].disp.pos = ctc->pat;
-        break;
-    }
-
-    return 1;
 }
 
+// Player add XY
 s32 comm_paxy(WORK* wk, UNK11* ctc) {
     WORK* emwk;
 
@@ -761,6 +866,7 @@ s32 comm_paxy(WORK* wk, UNK11* ctc) {
     return 1;
 }
 
+// Player add X
 s32 comm_pa_x(WORK* wk, UNK11* ctc) {
     WORK* emwk;
 
@@ -798,6 +904,7 @@ s32 comm_pa_x(WORK* wk, UNK11* ctc) {
     return 1;
 }
 
+// Player add Y
 s32 comm_pa_y(WORK* wk, UNK11* ctc) {
     WORK* emwk;
 
@@ -835,9 +942,9 @@ s32 comm_rngc(WORK* wk, UNK11* ctc) {
 
     if (rngdat > ctc->koc) {
         return decord_if_jump(wk, ctc, ctc->pat);
+    } else {
+        return decord_if_jump(wk, ctc, ctc->ix);
     }
-
-    return decord_if_jump(wk, ctc, ctc->ix);
 }
 
 s32 comm_mxyt(WORK* wk, UNK11* ctc) {
@@ -853,9 +960,9 @@ s32 comm_mxyt(WORK* wk, UNK11* ctc) {
 s32 comm_pjmp(WORK* wk, UNK11* ctc) {
     if (random_32() < ctc->koc) {
         return decord_if_jump(wk, ctc, ctc->ix);
+    } else {
+        return decord_if_jump(wk, ctc, ctc->pat);
     }
-
-    return decord_if_jump(wk, ctc, ctc->pat);
 }
 
 s32 comm_hjmp(WORK* wk, UNK11* ctc) {
@@ -876,11 +983,13 @@ s32 comm_hjmp(WORK* wk, UNK11* ctc) {
     return 1;
 }
 
+// Clear hit flag
 s32 comm_hclr(WORK* wk, UNK11* /* unused */) {
     wk->hf.hit_flag = 0;
     return 1;
 }
 
+// Move command forward
 s32 comm_ixfw(WORK* wk, UNK11* ctc) {
     if (test_flag == 0 || ixbfw_cut == 0) {
         wk->cg_ix += (ctc->pat - 1) * wk->cgd_type;
@@ -889,6 +998,7 @@ s32 comm_ixfw(WORK* wk, UNK11* ctc) {
     return 1;
 }
 
+// Move command backward
 s32 comm_ixbw(WORK* wk, UNK11* ctc) {
     if ((test_flag == 0) || (ixbfw_cut == 0)) {
         wk->cg_ix -= (ctc->pat + 1) * wk->cgd_type;

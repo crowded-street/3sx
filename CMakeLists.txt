@@ -51,6 +51,7 @@ target_compile_definitions(3sx PRIVATE
 # Feature toggles
 target_compile_definitions(3sx PRIVATE
     MEMCARD_DISABLED
+    # CPS3
 )
 
 if(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_COMPILER_ID STREQUAL "AppleClang")
