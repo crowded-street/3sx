@@ -1122,10 +1122,9 @@ void grade_check_tairyokusa() {
 }
 
 void grade_add_onaji_waza(s16 ix) {
-    s16 num;
+    s16 num = plw[ix].wu.char_index + ((plw[ix].wu.now_koc == 5) * 0xF0);
 
-    num = plw[ix].wu.char_index + ((plw[ix].wu.now_koc == 5) * 0xF0);
-    if (num < 0x180) {
+    if (num < sizeof(ji_sat[0])) {
         if (ji_sat[ix][num] != 0xFF) {
             ji_sat[ix][num]++;
         }
