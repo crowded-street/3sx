@@ -123,6 +123,32 @@ static void handle_gamepad_removed_event(SDL_GamepadDeviceEvent* event) {
     setup_keyboard();
 }
 
+static void get_keyboard_state(SDLPad_ButtonState* state) {
+    SDL_zero(*state);
+
+    const bool* keys = SDL_GetKeyboardState(NULL);
+    state->dpad_up = keys[SDL_SCANCODE_W];
+    state->dpad_left = keys[SDL_SCANCODE_A];
+    state->dpad_down = keys[SDL_SCANCODE_S];
+    state->dpad_right = keys[SDL_SCANCODE_D];
+    state->north = keys[SDL_SCANCODE_I];
+    state->south = keys[SDL_SCANCODE_J];
+    state->east = keys[SDL_SCANCODE_K];
+    state->west = keys[SDL_SCANCODE_U];
+    state->left_shoulder = keys[SDL_SCANCODE_P];
+    state->right_shoulder = keys[SDL_SCANCODE_O];
+    state->left_trigger = keys[SDL_SCANCODE_SEMICOLON] ? SDL_MAX_SINT16 : 0;
+    state->right_trigger = keys[SDL_SCANCODE_L] ? SDL_MAX_SINT16 : 0;
+    state->left_stick = keys[SDL_SCANCODE_9];
+    state->right_stick = keys[SDL_SCANCODE_0];
+    state->back = keys[SDL_SCANCODE_BACKSPACE];
+    state->start = keys[SDL_SCANCODE_RETURN];
+
+#if defined(DEBUG)
+    state->right_stick |= keys[SDL_SCANCODE_TAB];
+#endif
+}
+
 void SDLPad_Init() {
     setup_keyboard();
 }
@@ -247,92 +273,16 @@ void SDLPad_HandleGamepadAxisMotionEvent(SDL_GamepadAxisEvent* event) {
     }
 }
 
-void SDLPad_HandleKeyboardEvent(SDL_KeyboardEvent* event) {
-    if (keyboard_index < 0) {
-        return;
-    }
-
-    SDLPad_ButtonState* state = &button_state[keyboard_index];
-
-    switch (event->key) {
-    case SDLK_W:
-        state->dpad_up = event->down;
-        break;
-
-    case SDLK_A:
-        state->dpad_left = event->down;
-        break;
-
-    case SDLK_S:
-        state->dpad_down = event->down;
-        break;
-
-    case SDLK_D:
-        state->dpad_right = event->down;
-        break;
-
-    case SDLK_I:
-        state->north = event->down;
-        break;
-
-    case SDLK_J:
-        state->south = event->down;
-        break;
-
-    case SDLK_K:
-        state->east = event->down;
-        break;
-
-    case SDLK_U:
-        state->west = event->down;
-        break;
-
-    case SDLK_P:
-        state->left_shoulder = event->down;
-        break;
-
-    case SDLK_O:
-        state->right_shoulder = event->down;
-        break;
-
-    case SDLK_SEMICOLON:
-        state->left_trigger = event->down ? SDL_MAX_SINT16 : 0;
-        break;
-
-    case SDLK_L:
-        state->right_trigger = event->down ? SDL_MAX_SINT16 : 0;
-        break;
-
-    case SDLK_9:
-        state->left_stick = event->down;
-        break;
-
-    case SDLK_0:
-        state->right_stick = event->down;
-        break;
-
-    case SDLK_BACKSPACE:
-        state->back = event->down;
-        break;
-
-    case SDLK_RETURN:
-        state->start = event->down;
-        break;
-
-#if defined(DEBUG)
-    case SDLK_TAB:
-        state->right_stick = event->down;
-        break;
-#endif
-    }
-}
-
 bool SDLPad_IsGamepadConnected(int id) {
     return input_sources[id].type != SDLPAD_INPUT_NONE;
 }
 
 void SDLPad_GetButtonState(int id, SDLPad_ButtonState* state) {
-    memcpy(state, &button_state[id], sizeof(SDLPad_ButtonState));
+    if (id == keyboard_index) {
+        get_keyboard_state(state);
+    } else {
+        SDL_memcpy(state, &button_state[id], sizeof(SDLPad_ButtonState));
+    }
 }
 
 void SDLPad_RumblePad(int id, bool low_freq_enabled, Uint8 high_freq_rumble) {

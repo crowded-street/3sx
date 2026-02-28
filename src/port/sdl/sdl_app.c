@@ -222,7 +222,6 @@ bool SDLApp_PollEvents() {
         case SDL_EVENT_KEY_UP:
             set_screenshot_flag_if_needed(&event.key);
             handle_fullscreen_toggle(&event.key);
-            SDLPad_HandleKeyboardEvent(&event.key);
             break;
 
         case SDL_EVENT_MOUSE_MOTION:
