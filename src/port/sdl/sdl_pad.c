@@ -1,4 +1,5 @@
 #include "port/sdl/sdl_pad.h"
+#include "port/config/keymap.h"
 
 #include <SDL3/SDL.h>
 
@@ -123,26 +124,43 @@ static void handle_gamepad_removed_event(SDL_GamepadDeviceEvent* event) {
     setup_keyboard();
 }
 
-static void get_keyboard_state(SDLPad_ButtonState* state) {
-    SDL_zero(*state);
+static bool any_pressed(const bool* keys, KeymapButton button) {
+    bool result = false;
+    const SDL_Scancode* codes = Keymap_GetScancodes(button);
 
+    for (int i = 0; i < KEYMAP_CODES_PER_BUTTON; i++) {
+        const SDL_Scancode code = codes[i];
+
+        if (code == SDL_SCANCODE_UNKNOWN) {
+            break;
+        }
+
+        result = result || keys[code];    
+    }
+
+    return result;
+}
+
+static void get_keyboard_state(SDLPad_ButtonState* state) {
+    SDL_zerop(state);
     const bool* keys = SDL_GetKeyboardState(NULL);
-    state->dpad_up = keys[SDL_SCANCODE_W];
-    state->dpad_left = keys[SDL_SCANCODE_A];
-    state->dpad_down = keys[SDL_SCANCODE_S];
-    state->dpad_right = keys[SDL_SCANCODE_D];
-    state->north = keys[SDL_SCANCODE_I];
-    state->west = keys[SDL_SCANCODE_U];
-    state->south = keys[SDL_SCANCODE_J];
-    state->east = keys[SDL_SCANCODE_K];
-    state->left_shoulder = keys[SDL_SCANCODE_P];
-    state->right_shoulder = keys[SDL_SCANCODE_O];
-    state->left_trigger = keys[SDL_SCANCODE_SEMICOLON] ? SDL_MAX_SINT16 : 0;
-    state->right_trigger = keys[SDL_SCANCODE_L] ? SDL_MAX_SINT16 : 0;
-    state->left_stick = keys[SDL_SCANCODE_9];
-    state->right_stick = keys[SDL_SCANCODE_0];
-    state->back = keys[SDL_SCANCODE_BACKSPACE];
-    state->start = keys[SDL_SCANCODE_RETURN];
+
+    state->dpad_up = any_pressed(keys, KEYMAP_BUTTON_UP);
+    state->dpad_left = any_pressed(keys, KEYMAP_BUTTON_LEFT);
+    state->dpad_down = any_pressed(keys, KEYMAP_BUTTON_DOWN);
+    state->dpad_right = any_pressed(keys, KEYMAP_BUTTON_RIGHT);
+    state->north = any_pressed(keys, KEYMAP_BUTTON_NORTH);
+    state->west = any_pressed(keys, KEYMAP_BUTTON_WEST);
+    state->south = any_pressed(keys, KEYMAP_BUTTON_SOUTH);
+    state->east = any_pressed(keys, KEYMAP_BUTTON_EAST);
+    state->left_shoulder = any_pressed(keys, KEYMAP_BUTTON_LEFT_SHOULDER);
+    state->right_shoulder = any_pressed(keys, KEYMAP_BUTTON_RIGHT_SHOULDER);
+    state->left_trigger = any_pressed(keys, KEYMAP_BUTTON_LEFT_TRIGGER) ? SDL_MAX_SINT16 : 0;
+    state->right_trigger = any_pressed(keys, KEYMAP_BUTTON_RIGHT_TRIGGER) ? SDL_MAX_SINT16 : 0;
+    state->left_stick = any_pressed(keys, KEYMAP_BUTTON_LEFT_STICK);
+    state->right_stick = any_pressed(keys, KEYMAP_BUTTON_RIGHT_STICK);
+    state->back = any_pressed(keys, KEYMAP_BUTTON_BACK);
+    state->start = any_pressed(keys, KEYMAP_BUTTON_START);
 
 #if defined(DEBUG)
     state->right_stick |= keys[SDL_SCANCODE_TAB];

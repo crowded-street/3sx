@@ -1,6 +1,7 @@
 #include "port/sdl/sdl_app.h"
 #include "common.h"
 #include "port/config/config.h"
+#include "port/config/keymap.h"
 #include "port/sdl/netplay_screen.h"
 #include "port/sdl/netstats_renderer.h"
 #include "port/sdl/sdl_debug_text.h"
@@ -101,6 +102,7 @@ static void init_scalemode() {
 
 int SDLApp_Init() {
     Config_Init();
+    Keymap_Init();
     init_scalemode();
 
     SDL_SetAppMetadata(app_name, "0.1", NULL);
