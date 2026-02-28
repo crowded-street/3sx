@@ -1,4 +1,5 @@
-#include "port/config.h"
+#include "port/config/config.h"
+#include "port/config/dict.h"
 #include "port/paths.h"
 
 #include <stdbool.h>
@@ -35,27 +36,6 @@ static const ConfigEntry default_entries[] = {
 
 static ConfigEntry entries[CONFIG_ENTRIES_MAX] = { 0 };
 static int entry_count = 0;
-
-static void trim(char* string) {
-    char* p = string;
-
-    // Trim leading
-    while (SDL_isspace((unsigned char)*p)) {
-        p++;
-    }
-
-    if (p != string) {
-        SDL_memmove(string, p, SDL_strlen(p) + 1);
-    }
-
-    // Trim trailing
-    char* end = string + SDL_strlen(string);
-
-    while ((end > string) && SDL_isspace((unsigned char)end[-1])) {
-        end--;
-        *end = '\0';
-    }
-}
 
 static bool is_int(const char* string) {
     for (int i = 0; i < SDL_strlen(string); i++) {
@@ -137,6 +117,33 @@ static void dump_defaults(const char* dst_path) {
     }
 }
 
+static bool dict_iterator(const char* key, const char* value) {
+    if (entry_count == CONFIG_ENTRIES_MAX) {
+        printf("⚠️ Reached max config entry count (%d), skipping the rest\n", CONFIG_ENTRIES_MAX);
+        return false;
+    }
+
+    ConfigEntry* entry = &entries[entry_count];
+    entry->key = SDL_strdup(key);
+
+    const bool is_true = SDL_strcmp(value, "true") == 0;
+    const bool is_false = SDL_strcmp(value, "false") == 0;
+
+    if (is_true || is_false) {
+        entry->type = CFG_BOOL;
+        entry->value.b = is_true;
+    } else if (is_int(value)) {
+        entry->type = CFG_INT;
+        entry->value.i = SDL_atoi(value);
+    } else {
+        entry->type = CFG_STRING;
+        entry->value.s = SDL_strdup(value);
+    }
+
+    entry_count += 1;
+    return true;
+}
+
 void Config_Init() {
     const char* pref_path = Paths_GetPrefPath();
     char* config_path;
@@ -152,63 +159,8 @@ void Config_Init() {
     }
 
     SDL_free(config_path);
-
-    char line[256];
-
-    while (fgets(line, sizeof(line), f)) {
-        // Remove newline
-        line[strcspn(line, "\r\n")] = '\0';
-
-        char* p = line;
-
-        // Skip leading whitespace
-        while (SDL_isspace((unsigned char)*p)) {
-            p++;
-        }
-
-        // Skip empty/comment lines
-        if (*p == '\0' || *p == '#') {
-            continue;
-        }
-
-        char key[128];
-        char value[128];
-
-        if (sscanf(p, "%127[^=]=%127s", key, value) != 2) {
-            continue;
-        }
-
-        trim(key);
-        trim(value);
-
-        if (SDL_strlen(key) == 0 || SDL_strlen(value) == 0) {
-            continue;
-        }
-
-        if (entry_count == CONFIG_ENTRIES_MAX) {
-            printf("⚠️ Reached max config entry count (%d), skipping the rest\n", CONFIG_ENTRIES_MAX);
-            break;
-        }
-
-        ConfigEntry* entry = &entries[entry_count];
-        entry->key = SDL_strdup(key);
-
-        const bool is_true = SDL_strcmp(value, "true") == 0;
-        const bool is_false = SDL_strcmp(value, "false") == 0;
-
-        if (is_true || is_false) {
-            entry->type = CFG_BOOL;
-            entry->value.b = is_true;
-        } else if (is_int(value)) {
-            entry->type = CFG_INT;
-            entry->value.i = SDL_atoi(value);
-        } else {
-            entry->type = CFG_STRING;
-            entry->value.s = SDL_strdup(value);
-        }
-
-        entry_count += 1;
-    }
+    Dict_Read(f, dict_iterator);
+    fclose(f);
 }
 
 void Config_Destroy() {
