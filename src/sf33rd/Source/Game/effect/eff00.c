@@ -7,7 +7,9 @@
 #include "common.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/effect.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
+#include "sf33rd/Source/Game/system/sys_sub.h"
 
 const u16 jdb[16] = { 0x8000, 0x80FF, 0xBC00, 0xBCFF, 0x8300, 0x83FF, 0xBF00, 0xBFFF,
                       0xC000, 0xC0FF, 0xFC00, 0xFCFF, 0xC300, 0xC3FF, 0xFF00, 0xFFFF };
@@ -16,6 +18,10 @@ s32 get_dip_modoki(s16 from, s8 fl);
 s32 get_dip_modoki2(s16 from, s8 fl);
 void renewal_table_address(WORK_Other_JUDGE* ewk, WORK* twk);
 void renewal_table_data(WORK_Other_JUDGE* ewk);
+
+static bool Is_Training_Hitbox_Display_Active() {
+    return Mode_Type == MODE_NORMAL_TRAINING && Is_Training_Hitbox_Display_Enabled();
+}
 
 void effect_00_move(WORK_Other_JUDGE* ewk) {
     u16 dip;
@@ -87,13 +93,14 @@ void effect_00_move(WORK_Other_JUDGE* ewk) {
 
 s32 get_dip_modoki(s16 from, s8 fl) {
     s16 rnum = 0;
+    bool training_hitbox = Is_Training_Hitbox_Display_Active() && from == DEBUG_DISP_PLAYER_TYPE;
 
-    rnum += (Debug_w[from] != 0) << 12;
+    rnum += ((Debug_w[from] != 0) || training_hitbox) << 12;
     rnum += (Debug_w[from + 5] != 0) << 13;
 
     if (fl) {
-        rnum += (Debug_w[from + 1] != 0) << 8;
-        rnum += (Debug_w[from + 2] != 0) << 9;
+        rnum += ((Debug_w[from + 1] != 0) || training_hitbox) << 8;
+        rnum += ((Debug_w[from + 2] != 0) || training_hitbox) << 9;
         rnum += (Debug_w[from + 3] != 0) << 10;
         rnum += (Debug_w[from + 4] != 0) << 11;
     }
@@ -177,7 +184,7 @@ s32 effect_00_init(WORK* wk) {
     WORK_Other_JUDGE* ewk;
     s16 ix;
 
-    if (Debug_w[18] == 0 && Debug_w[23] == 0) {
+    if (Debug_w[18] == 0 && Debug_w[23] == 0 && !Is_Training_Hitbox_Display_Active()) {
         return 0;
     }
 

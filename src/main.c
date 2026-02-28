@@ -139,9 +139,15 @@ int main(int argc, char* argv[]) {
     SDLApp_Init();
 
     if (argc >= 3) {
-        const int player = SDL_atoi(argv[1]);
-        const char* ip = argv[2];
-        Netplay_SetParams(player, ip);
+        const int first_arg = SDL_atoi(argv[1]);
+        if (first_arg == 1 || first_arg == 2) {
+            // Direct P2P path: ./3sx <player> <ip>
+            Netplay_SetParams(first_arg, argv[2]);
+        } else {
+            // Matchmaking path: ./3sx <server_ip> <server_port>
+            const int port = SDL_atoi(argv[2]);
+            Netplay_SetMatchmakingParams(argv[1], port);
+        }
     }
 
     while (is_running) {
@@ -273,11 +279,16 @@ static void game_step_0() {
 
     if (Netplay_GetSessionState() != NETPLAY_SESSION_IDLE) {
         Netplay_Run();
+        // Flush the 2D polygon buffer each frame when the game's normal render
+        // loop isn't running, preventing the 100-item limit from overflowing.
+        njdp2d_draw();
     } else {
         njUserMain();
         seqsBeforeProcess();
         njdp2d_draw();
         seqsAfterProcess();
+        Netplay_TickMatchmaking();
+        Netplay_TickDirectP2P();
     }
 
     KnjFlush();

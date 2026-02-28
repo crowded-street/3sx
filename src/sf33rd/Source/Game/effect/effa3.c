@@ -42,7 +42,7 @@ s8* Letter_Data_A3[23][8] = {
       NULL,
       NULL },
     { "NORMAL", "MAX START", "INFINITY", "MAXIMUM", NULL, NULL, NULL, NULL },
-    { "OFF", "ON", NULL, NULL, NULL, NULL, NULL, NULL },
+    { "OFF", "DATA", "DATA+HITBOXES", NULL, NULL, NULL, NULL, NULL },
     { "$ *", "$ **", "$ ***", "$ ****", NULL, NULL, NULL, NULL },
     { "$ *", "$ **", "$ ***", "$ ****", "$ *****", "$ ******", "$ *******", "$ ********" },
     { "DUMMY RECORDING",

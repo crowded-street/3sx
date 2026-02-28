@@ -6,6 +6,7 @@
 #include "sf33rd/Source/Game/system/sys_sub.h"
 #include "common.h"
 #include "main.h"
+#include "netplay/netplay.h"
 #include "sf33rd/AcrSDK/common/mlPAD.h"
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/Source/Game/com/com_data.h"
@@ -37,6 +38,7 @@
 #include <memory.h>
 
 u8 Candidate_Buff[16];
+static bool training_hitbox_display_enabled;
 
 // forward decls
 void Disp_Win_Record_Sub(u16 win_record, s16 zz);
@@ -235,6 +237,14 @@ void Setup_Play_Type() {
 void Clear_Flash_No() {
     F_No0[0] = F_No1[0] = F_No2[0] = F_No3[0] = 0;
     F_No0[1] = F_No1[1] = F_No2[1] = F_No3[1] = 0;
+}
+
+void Set_Training_Hitbox_Display(bool enabled) {
+    training_hitbox_display_enabled = enabled;
+}
+
+bool Is_Training_Hitbox_Display_Enabled() {
+    return training_hitbox_display_enabled;
 }
 
 bool Cut_Cut_Cut() {
@@ -988,6 +998,10 @@ void Soft_Reset_Sub() {
     sound_all_off();
     SsBgmHalfVolume(0);
 
+    if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
+        Set_Training_Hitbox_Display(false);
+    }
+
     if (task[TASK_GAME].condition == 0) {
         cpReadyTask(TASK_GAME, Game_Task);
     }
@@ -1004,6 +1018,7 @@ void Soft_Reset_Sub() {
     init_pulpul_work();
     pp_operator_check_flag(1);
     Init_Load_Request_Queue_1st();
+    Netplay_CancelMatchmaking();
     cpExitTask(TASK_MENU);
     cpExitTask(TASK_SAVER);
     cpExitTask(TASK_PAUSE);

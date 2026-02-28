@@ -1,4 +1,5 @@
 #include "sf33rd/Source/Game/select_timer.h"
+#include "constants.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "types.h"
@@ -75,7 +76,7 @@ void SelectTimer_Run() {
             break;
         }
 
-        Unit_Of_Timer = 60;
+        Unit_Of_Timer = UNIT_OF_TIMER_MAX;
         bcdext = 0;
         Select_Timer = sbcd(1, Select_Timer);
 
@@ -91,7 +92,7 @@ void SelectTimer_Run() {
 
         if (Select_Timer) {
             select_timer_state.step = 1;
-            Unit_Of_Timer = 60;
+            Unit_Of_Timer = UNIT_OF_TIMER_MAX;
         } else {
             select_timer_state.timer -= 1;
 
@@ -109,7 +110,7 @@ void SelectTimer_Run() {
 
         if (Select_Timer) {
             select_timer_state.step = 1;
-            Unit_Of_Timer = 60;
+            Unit_Of_Timer = UNIT_OF_TIMER_MAX;
         }
 
         break;

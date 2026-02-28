@@ -5,6 +5,7 @@
 
 #include "sf33rd/Source/Game/screen/entry.h"
 #include "common.h"
+#include "constants.h"
 #include "main.h"
 #include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
@@ -1355,7 +1356,7 @@ void Break_Into_02(s16 /* unused */) {
     }
 
     Select_Timer = 0x30;
-    Unit_Of_Timer = 60;
+    Unit_Of_Timer = UNIT_OF_TIMER_MAX;
 }
 
 void Break_Into_04(s16 /* unused */) {

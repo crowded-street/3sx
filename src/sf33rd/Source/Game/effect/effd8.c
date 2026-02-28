@@ -6,6 +6,7 @@
 #include "sf33rd/Source/Game/effect/effd8.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
+#include "constants.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/charset.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
@@ -91,7 +92,7 @@ void effect_D8_move(WORK_Other* ewk) {
                 Select_Timer = 0x20;
             }
 
-            Unit_Of_Timer = 60;
+            Unit_Of_Timer = UNIT_OF_TIMER_MAX;
             ewk->wu.char_index += 1;
             set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
         }
