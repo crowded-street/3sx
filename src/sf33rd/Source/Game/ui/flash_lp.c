@@ -10,6 +10,7 @@
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/ui/sc_data.h"
 #include "sf33rd/Source/Game/ui/sc_sub.h"
+#include "port/config.h"
 
 const u8 Lamp_Flash_Data[2][2] = { { 0x07, 0x6F }, { 0x1E, 0x03 } };
 
@@ -58,7 +59,7 @@ void Flash_Lamp() {
         }
 
         if (flash_win_type[0][ix] == sync_win_type[0][ix]) {
-            scfont_sqput(vmark_tbl[ix], 4, color, 0, mark * 2, 26, 2, 1, 2);
+            scfont_sqput(vmark_tbl[ix], 4, color, 0, mark * 2, 26, 2, 1, Config_GetHUDShift(2));
         }
 
         mark = flash_win_type[1][ix];
@@ -71,7 +72,7 @@ void Flash_Lamp() {
         }
 
         if (flash_win_type[1][ix] == sync_win_type[1][ix]) {
-            scfont_sqput(vmark_tbl[ix2p], 4, color, 0, mark * 2, 26, 2, 1, 2);
+            scfont_sqput(vmark_tbl[ix2p], 4, color, 0, mark * 2, 26, 2, 1, Config_GetHUDShift(2));
         }
     }
 }

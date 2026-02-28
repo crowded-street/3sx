@@ -1,5 +1,6 @@
 #include "port/config.h"
 #include "port/paths.h"
+#include "constants.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -31,6 +32,7 @@ static const ConfigEntry default_entries[] = {
     { .key = CFG_KEY_WINDOW_WIDTH, .type = CFG_INT, .value.i = 640 },
     { .key = CFG_KEY_WINDOW_HEIGHT, .type = CFG_INT, .value.i = 480 },
     { .key = CFG_KEY_SCALEMODE, .type = CFG_STRING, .value.s = "soft-linear" },
+    { .key = CFG_DRAW_PLAYER_ABOVE_HUD, .type = CFG_BOOL, .value.b = true },
 };
 
 static ConfigEntry entries[CONFIG_ENTRIES_MAX] = { 0 };
@@ -253,4 +255,11 @@ const char* Config_GetString(const char* key) {
     }
 
     return entry->value.s;
+}
+
+int Config_GetHUDShift(int val) {
+    if (Config_GetBool(CFG_DRAW_PLAYER_ABOVE_HUD)) {
+        return val + HUD_SHIFT;
+    }
+    else return val;
 }
