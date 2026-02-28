@@ -209,15 +209,6 @@ bool SDLApp_PollEvents() {
             SDLPad_HandleGamepadDeviceEvent(&event.gdevice);
             break;
 
-        case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
-        case SDL_EVENT_GAMEPAD_BUTTON_UP:
-            SDLPad_HandleGamepadButtonEvent(&event.gbutton);
-            break;
-
-        case SDL_EVENT_GAMEPAD_AXIS_MOTION:
-            SDLPad_HandleGamepadAxisMotionEvent(&event.gaxis);
-            break;
-
         case SDL_EVENT_KEY_DOWN:
         case SDL_EVENT_KEY_UP:
             set_screenshot_flag_if_needed(&event.key);

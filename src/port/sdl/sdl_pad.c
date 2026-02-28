@@ -132,9 +132,9 @@ static void get_keyboard_state(SDLPad_ButtonState* state) {
     state->dpad_down = keys[SDL_SCANCODE_S];
     state->dpad_right = keys[SDL_SCANCODE_D];
     state->north = keys[SDL_SCANCODE_I];
+    state->west = keys[SDL_SCANCODE_U];
     state->south = keys[SDL_SCANCODE_J];
     state->east = keys[SDL_SCANCODE_K];
-    state->west = keys[SDL_SCANCODE_U];
     state->left_shoulder = keys[SDL_SCANCODE_P];
     state->right_shoulder = keys[SDL_SCANCODE_O];
     state->left_trigger = keys[SDL_SCANCODE_SEMICOLON] ? SDL_MAX_SINT16 : 0;
@@ -147,6 +147,32 @@ static void get_keyboard_state(SDLPad_ButtonState* state) {
 #if defined(DEBUG)
     state->right_stick |= keys[SDL_SCANCODE_TAB];
 #endif
+}
+
+static void get_gamepad_state(int id, SDLPad_ButtonState* state) {
+    const SDL_Gamepad* pad = input_sources[id].gamepad.gamepad;
+
+    state->dpad_up = SDL_GetGamepadButton(pad, SDL_GAMEPAD_BUTTON_DPAD_UP);
+    state->dpad_left = SDL_GetGamepadButton(pad, SDL_GAMEPAD_BUTTON_DPAD_LEFT);
+    state->dpad_down = SDL_GetGamepadButton(pad, SDL_GAMEPAD_BUTTON_DPAD_DOWN);
+    state->dpad_right = SDL_GetGamepadButton(pad, SDL_GAMEPAD_BUTTON_DPAD_RIGHT);
+    state->north = SDL_GetGamepadButton(pad, SDL_GAMEPAD_BUTTON_NORTH);
+    state->west = SDL_GetGamepadButton(pad, SDL_GAMEPAD_BUTTON_WEST);
+    state->south = SDL_GetGamepadButton(pad, SDL_GAMEPAD_BUTTON_SOUTH);
+    state->east = SDL_GetGamepadButton(pad, SDL_GAMEPAD_BUTTON_EAST);
+    state->left_shoulder = SDL_GetGamepadButton(pad, SDL_GAMEPAD_BUTTON_LEFT_SHOULDER);
+    state->right_shoulder = SDL_GetGamepadButton(pad, SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER);
+    state->left_stick = SDL_GetGamepadButton(pad, SDL_GAMEPAD_BUTTON_LEFT_STICK);
+    state->right_stick = SDL_GetGamepadButton(pad, SDL_GAMEPAD_BUTTON_RIGHT_STICK);
+    state->back = SDL_GetGamepadButton(pad, SDL_GAMEPAD_BUTTON_BACK);
+    state->start = SDL_GetGamepadButton(pad, SDL_GAMEPAD_BUTTON_START);
+
+    state->left_trigger = SDL_GetGamepadAxis(pad, SDL_GAMEPAD_AXIS_LEFT_TRIGGER);
+    state->right_trigger = SDL_GetGamepadAxis(pad, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER);
+    state->left_stick_x = SDL_GetGamepadAxis(pad, SDL_GAMEPAD_AXIS_LEFTX);
+    state->left_stick_y = SDL_GetGamepadAxis(pad, SDL_GAMEPAD_AXIS_LEFTY);
+    state->right_stick_x = SDL_GetGamepadAxis(pad, SDL_GAMEPAD_AXIS_RIGHTX);
+    state->right_stick_y = SDL_GetGamepadAxis(pad, SDL_GAMEPAD_AXIS_RIGHTY);
 }
 
 void SDLPad_Init() {
@@ -169,110 +195,6 @@ void SDLPad_HandleGamepadDeviceEvent(SDL_GamepadDeviceEvent* event) {
     }
 }
 
-void SDLPad_HandleGamepadButtonEvent(SDL_GamepadButtonEvent* event) {
-    const int index = input_source_index_from_joystick_id(event->which);
-
-    if (index < 0) {
-        return;
-    }
-
-    SDLPad_ButtonState* state = &button_state[index];
-
-    switch (event->button) {
-    case SDL_GAMEPAD_BUTTON_SOUTH:
-        state->south = event->down;
-        break;
-
-    case SDL_GAMEPAD_BUTTON_EAST:
-        state->east = event->down;
-        break;
-
-    case SDL_GAMEPAD_BUTTON_WEST:
-        state->west = event->down;
-        break;
-
-    case SDL_GAMEPAD_BUTTON_NORTH:
-        state->north = event->down;
-        break;
-
-    case SDL_GAMEPAD_BUTTON_BACK:
-        state->back = event->down;
-        break;
-
-    case SDL_GAMEPAD_BUTTON_START:
-        state->start = event->down;
-        break;
-
-    case SDL_GAMEPAD_BUTTON_LEFT_STICK:
-        state->left_stick = event->down;
-        break;
-
-    case SDL_GAMEPAD_BUTTON_RIGHT_STICK:
-        state->right_stick = event->down;
-        break;
-
-    case SDL_GAMEPAD_BUTTON_LEFT_SHOULDER:
-        state->left_shoulder = event->down;
-        break;
-
-    case SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER:
-        state->right_shoulder = event->down;
-        break;
-
-    case SDL_GAMEPAD_BUTTON_DPAD_UP:
-        state->dpad_up = event->down;
-        break;
-
-    case SDL_GAMEPAD_BUTTON_DPAD_DOWN:
-        state->dpad_down = event->down;
-        break;
-
-    case SDL_GAMEPAD_BUTTON_DPAD_LEFT:
-        state->dpad_left = event->down;
-        break;
-
-    case SDL_GAMEPAD_BUTTON_DPAD_RIGHT:
-        state->dpad_right = event->down;
-        break;
-    }
-}
-
-void SDLPad_HandleGamepadAxisMotionEvent(SDL_GamepadAxisEvent* event) {
-    const int index = input_source_index_from_joystick_id(event->which);
-
-    if (index < 0) {
-        return;
-    }
-
-    SDLPad_ButtonState* state = &button_state[index];
-
-    switch (event->axis) {
-    case SDL_GAMEPAD_AXIS_LEFT_TRIGGER:
-        state->left_trigger = event->value;
-        break;
-
-    case SDL_GAMEPAD_AXIS_RIGHT_TRIGGER:
-        state->right_trigger = event->value;
-        break;
-
-    case SDL_GAMEPAD_AXIS_LEFTX:
-        state->left_stick_x = event->value;
-        break;
-
-    case SDL_GAMEPAD_AXIS_LEFTY:
-        state->left_stick_y = event->value;
-        break;
-
-    case SDL_GAMEPAD_AXIS_RIGHTX:
-        state->right_stick_x = event->value;
-        break;
-
-    case SDL_GAMEPAD_AXIS_RIGHTY:
-        state->right_stick_y = event->value;
-        break;
-    }
-}
-
 bool SDLPad_IsGamepadConnected(int id) {
     return input_sources[id].type != SDLPAD_INPUT_NONE;
 }
@@ -281,7 +203,7 @@ void SDLPad_GetButtonState(int id, SDLPad_ButtonState* state) {
     if (id == keyboard_index) {
         get_keyboard_state(state);
     } else {
-        SDL_memcpy(state, &button_state[id], sizeof(SDLPad_ButtonState));
+        get_gamepad_state(id, state);
     }
 }
 
