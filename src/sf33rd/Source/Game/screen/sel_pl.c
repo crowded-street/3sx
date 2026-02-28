@@ -5,6 +5,7 @@
 
 #include "sf33rd/Source/Game/screen/sel_pl.h"
 #include "common.h"
+#include "constants.h"
 #include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Game/com/com_data.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
@@ -256,7 +257,7 @@ void Sel_PL_Cont_1st() {
         Select_Timer = 0x30;
     }
 
-    Unit_Of_Timer = 60;
+    Unit_Of_Timer = UNIT_OF_TIMER_MAX;
     Setup_Face_ID();
     Setup_1st_Play_Type();
     Setup_Face_Sub();

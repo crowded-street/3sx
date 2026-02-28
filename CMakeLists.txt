@@ -1,17 +1,12 @@
 cmake_minimum_required(VERSION 3.24)
 project(3sx LANGUAGES C)
 
-# So that GekkoNet builds as a static lib
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-
 # ======================================
 # Options and platform setup
 # ======================================
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
-
-add_subdirectory(GekkoNet)
 
 # ======================================
 # Include directories
@@ -22,7 +17,6 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/include/sdk
     ${PROJECT_SOURCE_DIR}/zlib
-    ${PROJECT_SOURCE_DIR}/GekkoNet/GekkoLib/include
 )
 
 # ======================================
@@ -46,11 +40,15 @@ target_compile_definitions(3sx PRIVATE
     $<$<CONFIG:Release>:RELEASE>
     TARGET_SDL3
     _POSIX_C_SOURCE
+    # GekkoNet is a pre-built static lib; these were previously propagated by its cmake target
+    GEKKONET_STATIC
+    GEKKONET_NO_ASIO
 )
 
 # Feature toggles
 target_compile_definitions(3sx PRIVATE
     MEMCARD_DISABLED
+    # CPS3
 )
 
 if(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_COMPILER_ID STREQUAL "AppleClang")
@@ -89,12 +87,6 @@ target_compile_options(3sx PRIVATE
     ${DISABLED_WARNINGS}
 )
 
-target_link_libraries(3sx PRIVATE
-    m
-    GekkoNet
-    stdc++
-)
-
 set_target_properties(3sx PROPERTIES
     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake/Info.plist"
 )
@@ -116,19 +108,28 @@ endif()
 # ======================================
 
 set(THIRD_PARTY_DIR "${CMAKE_SOURCE_DIR}/third_party")
-set(FFMPEG_ROOT "${THIRD_PARTY_DIR}/ffmpeg/build")
-set(SDL3_ROOT "${THIRD_PARTY_DIR}/sdl3/build")
-set(LIBCDIO_ROOT "${THIRD_PARTY_DIR}/libcdio/build")
+
+set(FFMPEG_ROOT    "${THIRD_PARTY_DIR}/ffmpeg/build")
+set(SDL3_ROOT      "${THIRD_PARTY_DIR}/sdl3/build")
+set(LIBCDIO_ROOT   "${THIRD_PARTY_DIR}/libcdio/build")
+set(GEKKONET_ROOT  "${THIRD_PARTY_DIR}/GekkoNet/build")
+set(SDL3_NET_ROOT  "${THIRD_PARTY_DIR}/SDL_net/build")
 
 include_directories(
     ${FFMPEG_ROOT}/include
     ${SDL3_ROOT}/include
     ${LIBCDIO_ROOT}/include
+    ${GEKKONET_ROOT}/include
+    ${SDL3_NET_ROOT}/include
 )
 
 target_link_libraries(3sx PRIVATE
+    m
     "${LIBCDIO_ROOT}/lib/libiso9660.a"
     "${LIBCDIO_ROOT}/lib/libcdio.a"
+    "${GEKKONET_ROOT}/lib/libGekkoNet.a"
+    "${SDL3_NET_ROOT}/lib/libSDL3_net.a"
+    stdc++
 )
 
 if(APPLE)
@@ -149,6 +150,8 @@ elseif(WIN32)
         ${SDL3_ROOT}/lib/libSDL3.dll.a
         iconv
 		dbghelp
+        ws2_32
+        iphlpapi
     )
     target_link_options(3sx PRIVATE
         --for-linker
@@ -201,7 +204,7 @@ elseif(WIN32)
 		OUTPUT_VARIABLE binPath
 		OUTPUT_STRIP_TRAILING_WHITESPACE
 	)
-	
+
 	# automatically copies all the dependent DLLS, and ignores the system ones because they aren't necessary
 	install(RUNTIME_DEPENDENCY_SET deps
 		DIRECTORIES ${binPath} "${FFMPEG_ROOT}/bin" "${SDL3_ROOT}/bin"

@@ -2,6 +2,7 @@
 #include "common.h"
 #include "port/config.h"
 #include "port/sdl/netstats_renderer.h"
+#include "port/sdl/netplay_screen.h"
 #include "port/sdl/sdl_debug_text.h"
 #include "port/sdl/sdl_game_renderer.h"
 #include "port/sdl/sdl_message_renderer.h"
@@ -347,6 +348,7 @@ void SDLApp_EndFrame() {
 
     // This should come before SDLGameRenderer_RenderFrame,
     // because NetstatsRenderer uses the existing SFIII rendering pipeline
+    NetplayScreen_Render();
     NetstatsRenderer_Render();
     SDLGameRenderer_RenderFrame();
 

@@ -137,6 +137,68 @@ else
 fi
 
 # -----------------------------
+# GekkoNet
+# -----------------------------
+
+GEKKONET_REF="7be848c"
+GEKKONET_DIR="$THIRD_PARTY/GekkoNet"
+GEKKONET_BUILD="$GEKKONET_DIR/build"
+
+if [ -d "$GEKKONET_BUILD" ]; then
+    echo "GekkoNet already built at $GEKKONET_BUILD"
+else
+    echo "Building GekkoNet @ $GEKKONET_REF..."
+
+    GEKKONET_SRC=$(mktemp -d)
+    git clone https://github.com/HeatXD/GekkoNet.git "$GEKKONET_SRC"
+    git -C "$GEKKONET_SRC" -c advice.detachedHead=false checkout "$GEKKONET_REF"
+
+    cmake -S "$GEKKONET_SRC" -B "$GEKKONET_SRC/cmake-build" \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DNO_ASIO_BUILD=ON \
+        -DBUILD_SHARED_LIBS=OFF
+
+    cmake --build "$GEKKONET_SRC/cmake-build" -j$(nproc)
+
+    mkdir -p "$GEKKONET_BUILD/include" "$GEKKONET_BUILD/lib"
+    cp -r "$GEKKONET_SRC/GekkoLib/include/." "$GEKKONET_BUILD/include/"
+    find "$GEKKONET_SRC" -name "*.a" -exec cp {} "$GEKKONET_BUILD/lib/libGekkoNet.a" \;
+
+    rm -rf "$GEKKONET_SRC"
+    echo "GekkoNet installed to $GEKKONET_BUILD"
+fi
+
+# -----------------------------
+# SDL3_net
+# -----------------------------
+
+SDL3_NET_REF="92022dc"
+SDL3_NET_DIR="$THIRD_PARTY/SDL_net"
+SDL3_NET_BUILD="$SDL3_NET_DIR/build"
+
+if [ -d "$SDL3_NET_BUILD" ]; then
+    echo "SDL3_net already built at $SDL3_NET_BUILD"
+else
+    echo "Building SDL3_net @ $SDL3_NET_REF..."
+
+    SDL3_NET_SRC=$(mktemp -d)
+    git clone https://github.com/libsdl-org/SDL_net.git "$SDL3_NET_SRC"
+    git -C "$SDL3_NET_SRC" -c advice.detachedHead=false checkout "$SDL3_NET_REF"
+
+    cmake -S "$SDL3_NET_SRC" -B "$SDL3_NET_SRC/cmake-build" \
+        -DCMAKE_INSTALL_PREFIX="$SDL3_NET_BUILD" \
+        -DCMAKE_PREFIX_PATH="$SDL_BUILD" \
+        -DBUILD_SHARED_LIBS=OFF \
+        -DSDLNET_INSTALL=ON
+
+    cmake --build "$SDL3_NET_SRC/cmake-build" -j$(nproc)
+    cmake --install "$SDL3_NET_SRC/cmake-build"
+
+    rm -rf "$SDL3_NET_SRC"
+    echo "SDL3_net installed to $SDL3_NET_BUILD"
+fi
+
+# -----------------------------
 # libcdio
 # -----------------------------
 

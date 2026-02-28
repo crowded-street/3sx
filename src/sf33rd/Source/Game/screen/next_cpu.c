@@ -5,6 +5,7 @@
 
 #include "sf33rd/Source/Game/screen/next_cpu.h"
 #include "common.h"
+#include "constants.h"
 #include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Game/com/com_data.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
@@ -140,7 +141,7 @@ void Next_CPU_1st() {
     }
 
     Time_Stop = 1;
-    Unit_Of_Timer = 60;
+    Unit_Of_Timer = UNIT_OF_TIMER_MAX;
     SelectTimer_Init();
     Rnd = random_16() & 3;
     effect_58_init(6, 10, EM_Select_Voice_Data[Rnd]);

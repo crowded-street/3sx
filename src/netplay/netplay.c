@@ -1,6 +1,8 @@
 #include "netplay/netplay.h"
 #include "main.h"
 #include "netplay/game_state.h"
+#include "netplay/matchmaking.h"
+#include "netplay/sdl_net_adapter.h"
 #include "port/sdl/sdl_app.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/grade.h"
@@ -23,6 +25,7 @@
 
 #include "gekkonet.h"
 #include <SDL3/SDL.h>
+#include <SDL3_net/SDL_net.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,6 +61,12 @@ static const char* remote_ip = NULL;
 static int player_number = 0;
 static int player_handle = 0;
 static NetplaySessionState session_state = NETPLAY_SESSION_IDLE;
+static char matched_ip[64];
+static const char* matchmaking_server_ip = NULL;
+static int matchmaking_server_port = 9000;
+static bool matchmaking_pending = false;
+static bool direct_p2p_pending = false;
+static NET_DatagramSocket* p2p_sock = NULL;
 static u16 input_history[2][INPUT_HISTORY_MAX] = { 0 };
 static float frames_behind = 0;
 static int frame_skip_timer = 0;
@@ -106,9 +115,9 @@ static void clean_input_buffers() {
 }
 
 static void setup_vs_mode() {
-    // This is pretty much a copy of logic from menu.c
     task[TASK_MENU].r_no[0] = 5; // go to idle routine (doing nothing)
     cpExitTask(TASK_SAVER);
+
     plw[0].wu.operator = 1;
     plw[1].wu.operator = 1;
     Operator_Status[0] = 1;
@@ -138,8 +147,8 @@ static void setup_vs_mode() {
 }
 
 #if defined(LOSSY_ADAPTER)
-static void configure_lossy_adapter() {
-    base_adapter = gekko_default_adapter(local_port);
+static void configure_lossy_adapter(NET_DatagramSocket* sock) {
+    base_adapter = SDLNetAdapter_Create(sock);
     lossy_adapter.send_data = LossyAdapter_SendData;
     lossy_adapter.receive_data = base_adapter->receive_data;
     lossy_adapter.free_data = base_adapter->free_data;
@@ -166,11 +175,23 @@ static void configure_gekko() {
         printf("Session is already running! probably incorrect.\n");
     }
 
+    NET_DatagramSocket* mm_sock = Matchmaking_GetSocket();
+    NET_DatagramSocket* active_sock;
+    if (mm_sock != NULL) {
+        // Matchmaking path: reuse the socket that was registered with the server.
+        active_sock = mm_sock;
+    } else {
+        // Direct P2P path: create a dedicated UDP socket on local_port.
+        NET_Init();
+        p2p_sock = NET_CreateDatagramSocket(NULL, local_port);
+        active_sock = p2p_sock;
+    }
+
 #if defined(LOSSY_ADAPTER)
-    configure_lossy_adapter();
+    configure_lossy_adapter(active_sock);
     gekko_net_adapter_set(session, &lossy_adapter);
 #else
-    gekko_net_adapter_set(session, gekko_default_adapter(local_port));
+    gekko_net_adapter_set(session, SDLNetAdapter_Create(active_sock));
 #endif
 
     printf("starting a session for player %d at port %hu\n", player_number, local_port);
@@ -588,7 +609,19 @@ void Netplay_SetParams(int player, const char* ip) {
     }
 }
 
-void Netplay_Begin() {
+void Netplay_BeginDirectP2P() {
+    if (remote_ip == NULL) {
+        return;
+    }
+    direct_p2p_pending = true;
+}
+
+void Netplay_TickDirectP2P() {
+    if (!direct_p2p_pending) {
+        return;
+    }
+
+    direct_p2p_pending = false;
     setup_vs_mode();
 
     SDL_zeroa(input_history);
@@ -599,6 +632,61 @@ void Netplay_Begin() {
     session_state = NETPLAY_SESSION_TRANSITIONING;
 }
 
+void Netplay_SetMatchmakingParams(const char* server_ip, int server_port) {
+    matchmaking_server_ip = server_ip;
+    matchmaking_server_port = server_port;
+}
+
+void Netplay_BeginMatchmaking() {
+    if (matchmaking_server_ip == NULL) {
+        return;
+    }
+    // session_state stays IDLE so the menu keeps running normally.
+    // setup_vs_mode() and the session transition happen in Netplay_TickMatchmaking.
+    Matchmaking_Start(matchmaking_server_ip, matchmaking_server_port, 9001);
+    matchmaking_pending = true;
+}
+
+void Netplay_TickMatchmaking() {
+    if (!matchmaking_pending) {
+        return;
+    }
+
+    Matchmaking_Run();
+
+    const MatchmakingState mm = Matchmaking_GetState();
+
+    if (mm == MATCHMAKING_MATCHED) {
+        const MatchResult* r = Matchmaking_GetResult();
+        player_number = r->player - 1;
+        SDL_strlcpy(matched_ip, r->ip, sizeof(matched_ip));
+        remote_ip = matched_ip;
+        remote_port = (unsigned short)r->remote_port;
+        SDL_zeroa(input_history);
+        frames_behind = 0;
+        frame_skip_timer = 0;
+        transition_ready_frames = 0;
+        matchmaking_pending = false;
+        setup_vs_mode();
+        session_state = NETPLAY_SESSION_TRANSITIONING;
+    } else if (mm == MATCHMAKING_ERROR) {
+        matchmaking_pending = false;
+        Soft_Reset_Sub();
+    }
+}
+
+bool Netplay_IsMatchmakingPending() {
+    // Returns false once matched so cancel is ignored during the display countdown.
+    return matchmaking_pending && Matchmaking_GetState() != MATCHMAKING_MATCHED;
+}
+
+void Netplay_CancelMatchmaking() {
+    if (Matchmaking_GetState() != MATCHMAKING_IDLE) {
+        Matchmaking_Reset();
+    }
+    matchmaking_pending = false;
+}
+
 void Netplay_Run() {
     switch (session_state) {
     case NETPLAY_SESSION_TRANSITIONING:
@@ -606,9 +694,6 @@ void Netplay_Run() {
             transition_ready_frames += 1;
         } else {
             transition_ready_frames = 0;
-            // Keep both peers in a deterministic pre-session state by
-            // ignoring local controller input while transitioning into
-            // character select.
             clean_input_buffers();
             step_game(true);
         }
@@ -627,15 +712,17 @@ void Netplay_Run() {
 
     case NETPLAY_SESSION_EXITING:
         if (session != NULL) {
-            // cleanup session and then return to idle
             gekko_destroy(&session);
-
-#ifndef LOSSY_ADAPTER
-            // also cleanup default socket.
-            gekko_default_adapter_destroy();
-#endif
+            SDLNetAdapter_Destroy();
         }
 
+        if (p2p_sock != NULL) {
+            NET_DestroyDatagramSocket(p2p_sock);
+            p2p_sock = NULL;
+            NET_Quit();
+        }
+
+        Netplay_CancelMatchmaking();
         session_state = NETPLAY_SESSION_IDLE;
         break;
 
@@ -649,10 +736,11 @@ NetplaySessionState Netplay_GetSessionState() {
 }
 
 void Netplay_HandleMenuExit() {
+    Netplay_CancelMatchmaking();
+
     switch (session_state) {
     case NETPLAY_SESSION_IDLE:
     case NETPLAY_SESSION_EXITING:
-        // Do nothing
         break;
 
     case NETPLAY_SESSION_TRANSITIONING:
