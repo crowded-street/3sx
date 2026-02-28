@@ -13,6 +13,7 @@
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/ui/sc_data.h"
 #include "sf33rd/Source/Game/ui/sc_sub.h"
+#include "constants.h"
 
 s8 round_timer;
 s8 flash_timer;
@@ -152,18 +153,18 @@ void counter_write(u8 atr) {
     if (omop_cockpit != 0) {
         if (omop_round_timer == 0) {
             for (i = 0; i < 4; i++) {
-                scfont_sqput(i + 22, 1, 9, 2, 31, 2, 1, 3, 2);
+                scfont_sqput(i + 22, 1, 9, 2, 31, 2, 1, 3, 2 + PRIORITY_SHIFT);
             }
         } else if (!mugen_flag) {
-            scfont_sqput(22, 0, atr, 2, math_counter_hi << 1, 2, 2, 4, 2);
-            scfont_sqput(24, 0, atr, 2, math_counter_low << 1, 2, 2, 4, 2);
+            scfont_sqput(22, 0, atr, 2, math_counter_hi << 1, 2, 2, 4, 2 + PRIORITY_SHIFT);
+            scfont_sqput(24, 0, atr, 2, math_counter_low << 1, 2, 2, 4, 2 + PRIORITY_SHIFT);
         } else {
-            scfont_sqput(22, 0, 4, 2, 28, 28, 4, 4, 2);
+            scfont_sqput(22, 0, 4, 2, 28, 28, 4, 4, 2 + PRIORITY_SHIFT);
         }
 
-        scfont_sqput(21, 1, 9, 0, 12, 6, 1, 4, 2);
-        scfont_sqput(26, 1, 137, 0, 12, 6, 1, 4, 2);
-        scfont_sqput(22, 4, 9, 0, 3, 18, 4, 1, 2);
+        scfont_sqput(21, 1, 9, 0, 12, 6, 1, 4, 2 + PRIORITY_SHIFT);
+        scfont_sqput(26, 1, 137, 0, 12, 6, 1, 4, 2 + PRIORITY_SHIFT);
+        scfont_sqput(22, 4, 9, 0, 3, 18, 4, 1, 2 + PRIORITY_SHIFT);
     }
 }
 
