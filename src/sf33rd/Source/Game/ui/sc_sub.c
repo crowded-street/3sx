@@ -1730,13 +1730,13 @@ void nw_set(u8 PL_num, u8 atr) {
     scfont_sqput(nwdata_tbl[PL_num][5], 9, atr, 2, 17, 22, 13, 4, 2);
 }
 
-void score8x16_put(u16 x, u16 y, u8 atr, u8 chr) {
+void score8x16_put(u16 x, u16 y, u8 atr, u8 chr, u8 priority) {
     if (No_Trans) {
         return;
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    scfont_sqput(x, y, atr, 0, chr, 6, 1, 2, TopHUD);
+    scfont_sqput(x, y, atr, 0, chr, 6, 1, 2, priority);
 }
 
 void score16x24_put(u16 x, u16 y, u8 atr, u8 chr) {
@@ -1832,7 +1832,7 @@ void combo_pts_set(u8 pl, u8 x, u8 num, s8* pts, s8 digit) {
 
     if (pl == 0) {
         for (i = digit, assign1 = j = 1; i >= 0; i--, j++, assign2 = x += 1) {
-            score8x16_put(x, 10, 8, pts[i]);
+            score8x16_put(x, 10, 8, pts[i], 2);
 
             if (num - j == 0) {
                 return;
@@ -1843,13 +1843,13 @@ void combo_pts_set(u8 pl, u8 x, u8 num, s8* pts, s8 digit) {
             return;
         }
 
-        score8x16_put(x, 10, 8, 0);
+        score8x16_put(x, 10, 8, 0, 2);
 
         if (num < digit + 2) {
             return;
         }
 
-        score8x16_put(x + 1, 10, 8, 0);
+        score8x16_put(x + 1, 10, 8, 0, 2);
 
         if (num < digit + 3) {
             return;
@@ -1871,16 +1871,16 @@ void combo_pts_set(u8 pl, u8 x, u8 num, s8* pts, s8 digit) {
         }
 
         if (num > 2) {
-            score8x16_put(x - 2, 10, 8, 0);
+            score8x16_put(x - 2, 10, 8, 0, 2);
         }
 
         if (num > 3) {
-            score8x16_put(x - 3, 10, 8, 0);
+            score8x16_put(x - 3, 10, 8, 0, 2);
         }
 
         if (num > 4) {
             for (i = 0; i <= digit; i++, assign3 = x -= 1) {
-                score8x16_put(x - 4, 10, 8, pts[i]);
+                score8x16_put(x - 4, 10, 8, pts[i], 2);
 
                 if (num - i == 0) {
                     break;

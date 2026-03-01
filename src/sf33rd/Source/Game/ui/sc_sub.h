@@ -74,7 +74,7 @@ void hnc_wipeinit(u8 atr);
 s32 hnc_wipeout(u8 atr);
 void ci_set(u8 type, u8 atr);
 void nw_set(u8 PL_num, u8 atr);
-void score8x16_put(u16 x, u16 y, u8 atr, u8 chr);
+void score8x16_put(u16 x, u16 y, u8 atr, u8 chr, u8 priority);
 void score16x24_put(u16 x, u16 y, u8 atr, u8 chr);
 void combo_message_set(u8 pl, u8 kind, u8 x, u8 num, u8 hi, u8 low);
 void combo_pts_set(u8 pl, u8 x, u8 num, s8* pts, s8 digit);
