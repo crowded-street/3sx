@@ -180,7 +180,7 @@ static void loop_info_init(ADXLoopInfo* info, const uint8_t* data) {
     const uint8_t version = data[0x12];
 
     switch (version) {
-    case 3:
+    case 3: {
         const Uint16 loop_enabled_16 = AV_RB16(data + 0x16);
 
         if (loop_enabled_16 == 1) {
@@ -190,8 +190,9 @@ static void loop_info_init(ADXLoopInfo* info, const uint8_t* data) {
         }
 
         break;
+    }
 
-    case 4:
+    case 4: {
         const Uint32 loop_enabled_32 = AV_RB32(data + 0x24);
 
         if (loop_enabled_32 == 1) {
@@ -201,6 +202,7 @@ static void loop_info_init(ADXLoopInfo* info, const uint8_t* data) {
         }
 
         break;
+    }
 
     default:
         fatal_error("Unhandled ADX version: %d", version);

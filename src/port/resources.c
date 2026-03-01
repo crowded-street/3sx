@@ -125,7 +125,7 @@ bool Resources_RunResourceCopyingFlow() {
         open_dialog();
         break;
 
-    case COPY_SUCCESS:
+    case COPY_SUCCESS: {
         char* resources_path = Resources_GetPath(NULL);
         char* message = NULL;
         SDL_asprintf(&message, "You can find them at:\n%s", resources_path);
@@ -134,6 +134,7 @@ bool Resources_RunResourceCopyingFlow() {
         SDL_free(message);
         flow_state = INIT;
         return true;
+    }
     }
 
     return false;

@@ -488,7 +488,7 @@ static void process_session() {
             session_state = NETPLAY_SESSION_RUNNING;
             break;
 
-        case GekkoDesyncDetected:
+        case GekkoDesyncDetected: {
             const int frame = event->data.desynced.frame;
             printf("⚠️ desync detected at frame %d\n", frame);
 
@@ -496,6 +496,7 @@ static void process_session() {
             dump_saved_state(frame);
 #endif
             break;
+        }
 
         case GekkoEmptySessionEvent:
         case GekkoSpectatorPaused:
@@ -519,11 +520,12 @@ static void process_events(bool drawing_allowed) {
             load_state_from_event(event);
             break;
 
-        case GekkoAdvanceEvent:
+        case GekkoAdvanceEvent: {
             const bool rolling_back = event->data.adv.rolling_back;
             advance_game(event, drawing_allowed && !rolling_back);
             frames_rolled_back += rolling_back ? 1 : 0;
             break;
+        }
 
         case GekkoSaveEvent:
             save_state(event);

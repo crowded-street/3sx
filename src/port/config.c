@@ -114,11 +114,12 @@ static void print_config_entry_to_io(SDL_IOStream* io, const ConfigEntry* entry)
         print_io(io, entry->value.b ? "true" : "false");
         break;
 
-    case CFG_INT:
+    case CFG_INT: {
         char str[32];
         SDL_itoa(entry->value.i, str, 10);
         print_io(io, str);
         break;
+    }
 
     case CFG_STRING:
         print_io(io, entry->value.s);
