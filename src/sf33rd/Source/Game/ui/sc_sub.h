@@ -29,6 +29,13 @@ extern FadeData fd_dat;
 extern u8 FadeLimit;
 extern u8 WipeLimit;
 
+extern int TopHUD;
+extern int TopHUDShadow;
+extern int TopHUDFace;
+extern int TopHUDVital;
+
+void HUD_Shift_Init();
+
 void Scrscreen_Init();
 void Sa_frame_Clear();
 void Sa_frame_Clear2(u8 pl);
