@@ -11,7 +11,6 @@
 #include "sf33rd/Source/Game/system/sysdir.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/ui/sc_sub.h"
-#include "port/config.h"
 
 VIT vit[2];
 
@@ -87,14 +86,14 @@ void vital_control(u8 pl) {
 }
 
 void vital_parts_allwrite(u8 Pl_Num) {
-    scfont_sqput(Pl_Num * 27, 2, 1, 0, Pl_Num, Pl_Num + 30, 21, 1, Config_GetHUDShift(5));
+    scfont_sqput(Pl_Num * 27, 2, 1, 0, Pl_Num, Pl_Num + 30, 21, 1, TopHUDVital);
 
     if (omop_vt_bar_disp[Pl_Num] == 0) {
         silver_vital_put(Pl_Num);
         return;
     }
 
-    vital_put(Pl_Num, vit[Pl_Num].colnum, vit[Pl_Num].cyerw, 0, Config_GetHUDShift(2));
-    vital_put(Pl_Num, 1, vit[Pl_Num].cred, 1, Config_GetHUDShift(3));
+    vital_put(Pl_Num, vit[Pl_Num].colnum, vit[Pl_Num].cyerw, 0, TopHUD);
+    vital_put(Pl_Num, 1, vit[Pl_Num].cred, 1, TopHUDShadow);
     vital_base_put(Pl_Num);
 }
