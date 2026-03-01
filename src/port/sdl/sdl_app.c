@@ -1,8 +1,9 @@
 #include "port/sdl/sdl_app.h"
 #include "common.h"
-#include "port/config.h"
-#include "port/sdl/netstats_renderer.h"
+#include "port/config/config.h"
+#include "port/config/keymap.h"
 #include "port/sdl/netplay_screen.h"
+#include "port/sdl/netstats_renderer.h"
 #include "port/sdl/sdl_debug_text.h"
 #include "port/sdl/sdl_game_renderer.h"
 #include "port/sdl/sdl_message_renderer.h"
@@ -101,6 +102,7 @@ static void init_scalemode() {
 
 int SDLApp_Init() {
     Config_Init();
+    Keymap_Init();
     init_scalemode();
 
     SDL_SetAppMetadata(app_name, "0.1", NULL);
@@ -209,20 +211,10 @@ bool SDLApp_PollEvents() {
             SDLPad_HandleGamepadDeviceEvent(&event.gdevice);
             break;
 
-        case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
-        case SDL_EVENT_GAMEPAD_BUTTON_UP:
-            SDLPad_HandleGamepadButtonEvent(&event.gbutton);
-            break;
-
-        case SDL_EVENT_GAMEPAD_AXIS_MOTION:
-            SDLPad_HandleGamepadAxisMotionEvent(&event.gaxis);
-            break;
-
         case SDL_EVENT_KEY_DOWN:
         case SDL_EVENT_KEY_UP:
             set_screenshot_flag_if_needed(&event.key);
             handle_fullscreen_toggle(&event.key);
-            SDLPad_HandleKeyboardEvent(&event.key);
             break;
 
         case SDL_EVENT_MOUSE_MOTION:

@@ -34,6 +34,63 @@ const u32 judge_area_attr[17][2] = { { 0x7FFFDFFF, 0x60 }, { 0x7FFFCFFF, 0x60 },
                                      { 0x7F00AFFF, 0x60 }, { 0x7F009FFF, 0x60 }, { 0x7FFFFFFF, 0x40 },
                                      { 0x7FFFFFFF, 0x20 }, { 0x7FFFFFFF, 0x60 } };
 
+static const u32 HURTBOX_OUTLINE_COLOR = 0xFF0000FF;
+static const u32 HITBOX_OUTLINE_COLOR = 0xFFFF0000;
+static const u32 BOX_FILL_ALPHA = 0x33000000;
+
+static u8 get_judge_highlight_alpha(s16 fade_cja) {
+    if (fade_cja & 0x80) {
+        return (u8)(0xC0 - (fade_cja & 0x7F));
+    }
+
+    return (u8)(fade_cja + 0x40);
+}
+
+static u32 set_color_alpha(u32 color, u8 alpha) {
+    return (color & 0xFFFFFF) | ((u32)alpha << 24);
+}
+
+static u32 get_judge_outline_color(s16 index) {
+    // 0..9 are hurt/catch/caught, 10..13 are attack, others use fallback.
+    if (index >= 10 && index <= 13) {
+        return HITBOX_OUTLINE_COLOR;
+    }
+
+    if (index >= 0 && index <= 9) {
+        return HURTBOX_OUTLINE_COLOR;
+    }
+
+    return 0xFFFFFFFF;
+}
+
+static void draw_hit_judge_box(f32 px, f32 py, f32 sx, f32 sy, u32 fill_col, u32 outline_col, u32 attr) {
+    f32 thickness_sx;
+    f32 thickness_sy;
+
+    if (sx < 0.0f) {
+        px += sx;
+        sx = -sx;
+    }
+
+    if (sy < 0.0f) {
+        py += sy;
+        sy = -sy;
+    }
+
+    if (sx <= 0.0f || sy <= 0.0f) {
+        return;
+    }
+
+    thickness_sx = (sx < 1.0f) ? sx : 1.0f;
+    thickness_sy = (sy < 1.0f) ? sy : 1.0f;
+
+    draw_hit_judge_line(px, py, sx, sy, fill_col, attr);
+    draw_hit_judge_line(px, py, sx, thickness_sy, outline_col, attr);
+    draw_hit_judge_line(px, py + sy - thickness_sy, sx, thickness_sy, outline_col, attr);
+    draw_hit_judge_line(px, py, thickness_sx, sy, outline_col, attr);
+    draw_hit_judge_line(px + sx - thickness_sx, py, thickness_sx, sy, outline_col, attr);
+}
+
 void Init_load_on_memory_data() {
     copy_char_base_data();
     load_any_color(0x9C, 0x18);
@@ -93,38 +150,41 @@ void reset_dma_group(u16 num) {
 }
 
 void set_judge_area_sprite(WORK_Other_JUDGE* wk, s16 bsy) {
-    PAL_CURSOR_COL oricol;
     s16 i;
-    s16 mf;
+    s16 mirror_factor;
+    u8 highlight_alpha;
+    bool is_selected;
+    u32 outline_col;
+    u32 fill_col;
 
     mlt_obj_matrix(&wk->wu, bsy);
 
     if (wk->wu.rl_flag) {
-        mf = -1;
+        mirror_factor = -1;
     } else {
-        mf = 1;
+        mirror_factor = 1;
     }
 
     for (i = 0; i < 15; i++) {
         if (wk->ja_disp_bit & (1 << i)) {
-            oricol.color = judge_area_attr[i][0];
-            if (wk->ja_disp_bit & (1 << i)) {
-                oricol.argb.a += 0x40;
-            }
-            if (i == (wk->curr_ja - 1)) {
-                if (wk->fade_cja & 0x80) {
-                    oricol.argb.a = (0xC0 - (wk->fade_cja & 0x7F));
-                } else {
-                    oricol.argb.a = (wk->fade_cja + 0x40);
-                }
+            outline_col = get_judge_outline_color(i);
+            fill_col = (outline_col & 0xFFFFFF) | BOX_FILL_ALPHA;
+            // Flash the currently selected judge slot using curr_ja/fade_cja.
+            is_selected = wk->curr_ja > 0 && i == (wk->curr_ja - 1);
+
+            if (is_selected) {
+                highlight_alpha = get_judge_highlight_alpha(wk->fade_cja);
+                fill_col = set_color_alpha(fill_col, highlight_alpha);
+                outline_col = set_color_alpha(outline_col, highlight_alpha);
             }
 
-            draw_hit_judge_line((float)(wk->jx[i][0] * mf),
-                                (float)(wk->jx[i][2]),
-                                (float)(wk->jx[i][1] * mf),
-                                (float)(wk->jx[i][3]),
-                                oricol.color,
-                                judge_area_attr[i][1]);
+            draw_hit_judge_box(wk->jx[i][0] * mirror_factor,
+                               wk->jx[i][2],
+                               wk->jx[i][1] * mirror_factor,
+                               wk->jx[i][3],
+                               fill_col,
+                               outline_col,
+                               judge_area_attr[i][1]);
         }
     }
     if (wk->ja_disp_bit & 0x8000) {
@@ -134,20 +194,12 @@ void set_judge_area_sprite(WORK_Other_JUDGE* wk, s16 bsy) {
     }
 }
 
-void draw_hit_judge_line(f64 arg0, f64 arg1, f64 arg2, f64 arg3, u32 col, u32 attr) {
-    f32 px;
-    f32 py;
-    f32 sx;
-    f32 sy;
+void draw_hit_judge_line(f32 px, f32 py, f32 sx, f32 sy, u32 col, u32 attr) {
     Vec3 point[2];
     PAL_CURSOR line;
     PAL_CURSOR_P xy[4];
     PAL_CURSOR_COL cc[4];
 
-    px = arg0;
-    py = arg1;
-    sx = arg2;
-    sy = arg3;
     point[0].x = px;
     point[0].y = py;
     point[0].z = 0.0f;
