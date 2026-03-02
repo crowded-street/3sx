@@ -96,12 +96,12 @@ s32 get_dip_modoki(s16 from, s8 fl) {
     bool training_hitbox = Is_Training_Hitbox_Display_Active() && from == DEBUG_DISP_PLAYER_TYPE;
 
     rnum += ((Debug_w[from] != 0) || training_hitbox) << 12;
-    rnum += (Debug_w[from + 5] != 0) << 13;
+    rnum += ((Debug_w[from + 5] != 0) || training_hitbox) << 13;
 
     if (fl) {
         rnum += ((Debug_w[from + 1] != 0) || training_hitbox) << 8;
         rnum += ((Debug_w[from + 2] != 0) || training_hitbox) << 9;
-        rnum += (Debug_w[from + 3] != 0) << 10;
+        rnum += ((Debug_w[from + 3] != 0) || training_hitbox) << 10;
         rnum += (Debug_w[from + 4] != 0) << 11;
     }
 
