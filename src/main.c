@@ -32,6 +32,7 @@
 #include "sf33rd/Source/PS2/mc/knjsub.h"
 #include "sf33rd/Source/PS2/mc/mcsub.h"
 #include "structs.h"
+#include "test/test_runner.h"
 
 #if defined(DEBUG)
 #include "sf33rd/Source/Game/debug/debug_config.h"
@@ -92,6 +93,12 @@ static void read_args(int argc, const char* argv[]) {
         OPT_STRING(0, "matchmaking-ip", &configuration.netplay.matchmaking_ip, "Matchmaking server IP.", NULL, 0, 0),
         OPT_INTEGER(
             0, "matchmaking-port", &configuration.netplay.matchmaking_port, "Matchmaking server port.", NULL, 0, 0),
+
+#if defined(DEBUG)
+        OPT_GROUP("Test runner"),
+        OPT_BOOLEAN(0, "test-enable", &configuration.test.enabled, "Enable test runner.", NULL, 0, 0),
+        OPT_STRING(0, "test-states", &configuration.test.states_path, "Path to states.", NULL, 0, 0),
+#endif
 
         OPT_END(),
     };
@@ -268,8 +275,13 @@ static void game_step_0() {
 
     appSetupTempPriority();
 
-    flPADGetALL();
-    keyConvert();
+    if (configuration.test.enabled) {
+        TestRunner_Prologue();
+    } else {
+        // Don't accept normal input during testing
+        flPADGetALL();
+        keyConvert();
+    }
 
 #if defined(DEBUG)
     if (!test_flag) {
@@ -369,6 +381,10 @@ static void game_step_1() {
     Irl_Family();
     Irl_Scrn();
     BGM_Server();
+
+    if (configuration.test.enabled) {
+        TestRunner_Epilogue();
+    }
 }
 
 u8 dctex_linear_mem[0x800];
