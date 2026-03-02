@@ -162,6 +162,11 @@ s32 Check_Pause_Term(u16 sw, u8 PL_id) {
         return PAUSE_X = 1;
     }
 
+    // This skips checking controller connection status during gameplay testing
+    if (configuration.test.enabled) {
+        return 0;
+    }
+
     if (Present_Mode == 3) {
         if (Interface_Type[Decide_ID] == 0) {
             Pause_ID = Decide_ID;

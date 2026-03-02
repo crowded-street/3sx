@@ -274,13 +274,11 @@ static void game_step_0() {
     }
 
     appSetupTempPriority();
+    flPADGetALL();
+    keyConvert();
 
     if (configuration.test.enabled) {
         TestRunner_Prologue();
-    } else {
-        // Don't accept normal input during testing
-        flPADGetALL();
-        keyConvert();
     }
 
 #if defined(DEBUG)
