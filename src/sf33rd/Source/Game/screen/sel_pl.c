@@ -864,9 +864,13 @@ void PL_Sel_3rd() {
     }
 }
 
-void PL_Sel_4th() {}
+void PL_Sel_4th() {
+    // Do nothing
+}
 
-void PL_Sel_5th() {}
+void PL_Sel_5th() {
+    // Do nothing
+}
 
 void Setup_Plates(s8 PL_id, s16 Time) {
     Move_Super_Arts[PL_id] = 3;
