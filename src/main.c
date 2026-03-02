@@ -40,21 +40,23 @@
 #include "port/io/afs.h"
 #include "port/resources.h"
 
+#include "argparse/argparse.h"
 #include <SDL3/SDL.h>
 
 #if defined(_WIN32)
 #include <windef.h> // including windows.h causes conflicts with the Polygon struct, so I just included the header where AllocConsole is and the Windows-specific typedefs that it requires.
 
 #include <ConsoleApi.h>
-#include <stdio.h>
 #endif
 
 #include <memory.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-// sbss
 s32 system_init_level;
 MPP mpp_w;
+Configuration configuration = { 0 };
 
 static bool is_game_initialized = false;
 static bool are_resources_checked = false;
@@ -73,6 +75,74 @@ void njUserInit();
 void njUserMain();
 void cpLoopTask();
 void cpInitTask();
+
+static void read_args(int argc, const char* argv[]) {
+    struct argparse_option options[] = {
+        OPT_HELP(),
+
+        OPT_GROUP("Netplay"),
+        OPT_INTEGER(0,
+                    "p2p-local-player",
+                    &configuration.netplay.p2p_local_player,
+                    "Number of the local player (1 or 2).",
+                    NULL,
+                    0,
+                    0),
+        OPT_STRING(0, "p2p-remote-ip", &configuration.netplay.p2p_remote_ip, "Remote player IP.", NULL, 0, 0),
+        OPT_STRING(0, "matchmaking-ip", &configuration.netplay.matchmaking_ip, "Matchmaking server IP.", NULL, 0, 0),
+        OPT_INTEGER(
+            0, "matchmaking-port", &configuration.netplay.matchmaking_port, "Matchmaking server port.", NULL, 0, 0),
+
+        OPT_END(),
+    };
+
+    struct argparse argparse;
+    argparse_init(&argparse, options, NULL, 0);
+    argparse_parse(&argparse, argc, argv);
+}
+
+static void error_out(const char* error) {
+    fprintf(stderr, "%s Exiting.\n", error);
+    exit(1);
+}
+
+static void verify_args() {
+    const NetplayConfiguration* netplay = &configuration.netplay;
+    const bool p2p_specified = netplay->p2p_local_player > 0 || netplay->p2p_remote_ip != NULL;
+    const bool matchmaking_specified = netplay->matchmaking_ip != NULL || netplay->matchmaking_port != 0;
+
+    if (p2p_specified && matchmaking_specified) {
+        error_out("Can't specify P2P and matchmaking at the same time.");
+    }
+
+    if (p2p_specified) {
+        if (netplay->p2p_local_player != 1 && netplay->p2p_local_player != 2) {
+            error_out("Local player must be 1 or 2.");
+        }
+
+        if (netplay->p2p_remote_ip == NULL) {
+            error_out("You must specify --p2p-remote-ip.");
+        }
+    }
+
+    if (matchmaking_specified) {
+        if (netplay->matchmaking_ip == NULL) {
+            error_out("You must specify --matchmaking-ip.");
+        }
+
+        if (netplay->matchmaking_port == 0) {
+            error_out("You must specify --matchmaking-port.");
+        }
+    }
+}
+
+static void set_netplay_params() {
+    if (configuration.netplay.p2p_remote_ip != NULL) {
+        Netplay_SetParams(configuration.netplay.p2p_local_player, configuration.netplay.p2p_remote_ip);
+    } else if (configuration.netplay.matchmaking_ip != NULL) {
+        Netplay_SetMatchmakingParams(configuration.netplay.matchmaking_ip, configuration.netplay.matchmaking_port);
+    }
+}
 
 /// @brief Makes sure resources are present.
 /// @return `true` if resources are present and execution can proceed, `false` otherwise.
@@ -132,23 +202,12 @@ static void step_1() {
     game_step_1();
 }
 
-int main(int argc, char* argv[]) {
+static int loop() {
     bool is_running = true;
 
     init_windows_console();
     SDLApp_Init();
-
-    if (argc >= 3) {
-        const int first_arg = SDL_atoi(argv[1]);
-        if (first_arg == 1 || first_arg == 2) {
-            // Direct P2P path: ./3sx <player> <ip>
-            Netplay_SetParams(first_arg, argv[2]);
-        } else {
-            // Matchmaking path: ./3sx <server_ip> <server_port>
-            const int port = SDL_atoi(argv[2]);
-            Netplay_SetMatchmakingParams(argv[1], port);
-        }
-    }
+    set_netplay_params();
 
     while (is_running) {
         is_running = SDLApp_PollEvents();
@@ -161,6 +220,12 @@ int main(int argc, char* argv[]) {
     AFS_Finish();
     SDLApp_Quit();
     return 0;
+}
+
+int main(int argc, const char* argv[]) {
+    read_args(argc, argv);
+    verify_args();
+    return loop();
 }
 
 static void init_windows_console() {
