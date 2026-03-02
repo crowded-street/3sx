@@ -37,7 +37,7 @@ const u32 judge_area_attr[17][2] = { { 0x7FFFDFFF, 0x60 }, { 0x7FFFCFFF, 0x60 },
 static const u32 HURTBOX_OUTLINE_COLOR = 0xFF0000FF;
 static const u32 HITBOX_OUTLINE_COLOR = 0xFFFF0000;
 static const u32 THROW_HITBOX_OUTLINE_COLOR = 0xFFFF00FF;
-static const u32 THROW_HURTBOX_OUTLINE_COLOR = 0xFF00FFFF;
+static const u32 THROW_HURTBOX_OUTLINE_COLOR = 0xFF00FF00;
 static const u32 BOX_FILL_ALPHA = 0x33000000;
 
 static u8 get_judge_highlight_alpha(s16 fade_cja) {
