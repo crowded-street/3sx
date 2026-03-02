@@ -32,7 +32,7 @@ s8* Letter_Data_A3[23][8] = {
     { "STAND", "CROUCH", "JUMP", "CPU", "HUMAN", NULL, NULL, NULL },
     { "AUTO GUARD", "NO GUARD", "ALL GUARD", "PARRYING", "RANDOM GUARD", "RANDOM PARRYING", "ALL RANDOM", NULL },
     { "OFF", "ON", "RANDOM", NULL, NULL, NULL, NULL, NULL },
-    { "OFF", "ON", NULL, NULL, NULL, NULL, NULL, NULL },
+    { "OFF", "1-HIT STUN", "NO STUN GAIN", NULL, NULL, NULL, NULL, NULL },
     { "S.A.GAUGE$.............",
       "ATTACK DATA$...........",
       "DAMAGE$................$L    $H",
