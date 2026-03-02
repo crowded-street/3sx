@@ -36,6 +36,8 @@ const u32 judge_area_attr[17][2] = { { 0x7FFFDFFF, 0x60 }, { 0x7FFFCFFF, 0x60 },
 
 static const u32 HURTBOX_OUTLINE_COLOR = 0xFF0000FF;
 static const u32 HITBOX_OUTLINE_COLOR = 0xFFFF0000;
+static const u32 THROW_HITBOX_OUTLINE_COLOR = 0xFFFF00FF;
+static const u32 THROW_HURTBOX_OUTLINE_COLOR = 0xFF00FFFF;
 static const u32 BOX_FILL_ALPHA = 0x33000000;
 
 static u8 get_judge_highlight_alpha(s16 fade_cja) {
@@ -51,12 +53,20 @@ static u32 set_color_alpha(u32 color, u8 alpha) {
 }
 
 static u32 get_judge_outline_color(s16 index) {
-    // 0..9 are hurt/catch/caught, 10..13 are attack, others use fallback.
+    // 8 is catch (throw hit), 9 is caught (throw hurt), 10..13 are attack.
     if (index >= 10 && index <= 13) {
         return HITBOX_OUTLINE_COLOR;
     }
 
-    if (index >= 0 && index <= 9) {
+    if (index == 8) {
+        return THROW_HITBOX_OUTLINE_COLOR;
+    }
+
+    if (index == 9) {
+        return THROW_HURTBOX_OUTLINE_COLOR;
+    }
+
+    if (index >= 0 && index <= 7) {
         return HURTBOX_OUTLINE_COLOR;
     }
 
