@@ -259,7 +259,7 @@ void effect_E3_move(WORK_Other* ewk) {
         }
 
         switch (Training[0].contents[0][0][3]) {
-        case 1:
+        case 1: // 1-hit stun
             if ((mwk->wu.routine_no[1] == 1 && mwk->guard_chuu == 0) || mwk->wu.routine_no[1] == 3) {
                 ewk->wu.vitality = 1;
                 ewk->wu.dir_step = 20;
@@ -276,7 +276,7 @@ void effect_E3_move(WORK_Other* ewk) {
             }
             break;
 
-        case 2:
+        case 2: // No stun
             mwk->py->now.quantity.h = 0;
             break;
         }
