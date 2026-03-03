@@ -9,8 +9,10 @@
 #include <stdio.h>
 
 #define MY_CHAR_OFFSET 0x11387
+#define ALLOW_A_BATTLE_F_OFFSET 0x11389
 #define SUPER_ARTS_OFFSET 0x1138B
 #define GAME_ROUTINE_OFFSET 0x15438
+#define C_NO_OFFSET 0x154A6
 #define P1SW_OFFSET 0x6AA8C
 #define P2SW_OFFSET 0x6AA90
 
@@ -48,7 +50,8 @@ typedef enum Phase {
     PHASE_CHARACTER_SELECT_TRANSITION,
     PHASE_CHARACTER_SELECT,
     PHASE_GAME_TRANSITION,
-    PHASE_GAME,
+    PHASE_ROUND_TRANSITION,
+    PHASE_ROUND,
 } Phase;
 
 static const Uint8 character_to_cursor[20][2] = { { 7, 1 }, { 1, 0 }, { 5, 2 }, { 6, 1 }, { 3, 2 }, { 4, 0 }, { 1, 2 },
@@ -78,6 +81,13 @@ static void mash_button(SWKey button, int player) {
 static void tap_button(SWKey button, int player) {
     u16* dst = player ? &p2sw_buff : &p1sw_buff;
     *dst |= button;
+}
+
+static u8 read_u8(SDL_IOStream* io, Sint64 offset) {
+    u8 result;
+    SDL_SeekIO(io, offset, SDL_IO_SEEK_SET);
+    SDL_ReadIO(io, &result, 1);
+    return result;
 }
 
 static u16 read_u16(SDL_IOStream* io, Sint64 offset) {
@@ -110,7 +120,10 @@ static void initialize_data() {
     char* path = SDL_malloc(path_max_len);
     SDL_strlcpy(path, base_path, path_max_len);
     char filename[64];
-    bool in_game_prev = false;
+
+    bool in_round = false;
+    bool in_round_prev = false;
+    bool allow_battle_prev = false;
     bool did_set_char_data = false;
 
     for (int frame_num = 0;; frame_num++) {
@@ -124,13 +137,21 @@ static void initialize_data() {
             break;
         }
 
-        const u16 routine = read_u16(io, GAME_ROUTINE_OFFSET);
-        const bool in_game = (routine == 2);
+        const bool allow_battle = read_u8(io, ALLOW_A_BATTLE_F_OFFSET);
+        const u16 c_no_0 = read_u16(io, C_NO_OFFSET);
+        const u16 c_no_1 = read_u16(io, C_NO_OFFSET + 2);
+        const bool round_just_started = (c_no_0 == 1) && (c_no_1 == 4);
+
+        if (round_just_started) {
+            in_round = true;
+        } else if (allow_battle_prev && !allow_battle) {
+            in_round = false;
+        }
 
         // Read character and SA indices until we get to game.
         // This ensures we read the latest data
 
-        if (in_game && !did_set_char_data) {
+        if (in_round && !did_set_char_data) {
             SDL_SeekIO(io, MY_CHAR_OFFSET, SDL_IO_SEEK_SET);
             SDL_ReadIO(io, characters, 2);
 
@@ -142,15 +163,16 @@ static void initialize_data() {
 
         // Parse inputs
 
-        if (in_game) {
+        if (in_round && in_round_prev) {
             inputs[inputs_index][0] = read_input_buff(io, P1SW_OFFSET);
             inputs[inputs_index][1] = read_input_buff(io, P2SW_OFFSET);
             inputs_index += 1;
-        } else if (in_game_prev) {
+        } else if (in_round_prev) {
             stop = true;
         }
 
-        in_game_prev = in_game;
+        in_round_prev = in_round;
+        allow_battle_prev = allow_battle;
         SDL_CloseIO(io);
 
         if (stop) {
@@ -256,16 +278,23 @@ void TestRunner_Prologue() {
 
     case PHASE_GAME_TRANSITION:
         if (G_No[1] == 2) {
-            phase = PHASE_GAME;
+            phase = PHASE_ROUND_TRANSITION;
         } else {
             // This skips the VS animation
             mash_button(SWK_ATTACKS, 0);
+        }
+        
+        break;
+
+    case PHASE_ROUND_TRANSITION:
+        if (C_No[0] != 1 || C_No[1] != 4) {
             break;
         }
 
+        phase = PHASE_ROUND;
         // fallthrough
 
-    case PHASE_GAME:
+    case PHASE_ROUND:
         p1sw_buff = inputs[inputs_index][0];
         p2sw_buff = inputs[inputs_index][1];
         inputs_index += 1;
