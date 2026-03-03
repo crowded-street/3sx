@@ -1,6 +1,8 @@
 /**
  * @file effb2.c
- * TODO: identify what this effect does
+ * Round-start announcer controller for the "ROUND" then "FIGHT" sequence.
+ * It coordinates child effects, color cycling, and signals `Next_Step` when
+ * intro presentation is done.
  */
 
 #include "sf33rd/Source/Game/effect/effb2.h"

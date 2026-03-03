@@ -101,8 +101,6 @@ static s16 Bonus_Sub();
 s16 Ck_Coin();
 void Loop_Demo_Sub();
 void Before_Select_Sub();
-static void Set_Appear_Type_For_Mode();
-
 static void Set_Appear_Type_For_Mode() {
     appear_type = Is_Training_Mode(Mode_Type) ? APPEAR_TYPE_NON_ANIMATED : APPEAR_TYPE_ANIMATED;
 }

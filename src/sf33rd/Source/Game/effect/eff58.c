@@ -1,6 +1,8 @@
 /**
  * @file eff58.c
- * TODO: identify what this effect does
+ * Shared timed transition effect dispatcher.
+ * Depending on `id`, it performs screen wipes, tone fades, background
+ * movement, audio requests, and logo presentation sequencing.
  */
 
 #include "sf33rd/Source/Game/effect/eff58.h"
