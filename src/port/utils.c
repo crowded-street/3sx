@@ -2,8 +2,8 @@
 
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
-#include <dbghelp.h>
 #include <windows.h>
+#include <dbghelp.h>
 #define SYMBOL_NAME_MAX 256
 #else
 #include <execinfo.h>
