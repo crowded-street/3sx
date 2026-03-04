@@ -16,6 +16,7 @@
 #include <string.h>
 
 #define NTH_BYTE(value, n) ((((value >> n * 8) & 0xFF) << n * 8))
+#define NJDP2D_PRIM_MAX 200
 
 typedef struct {
     Vertex v;
@@ -33,7 +34,7 @@ typedef struct {
 typedef struct {
     s16 ix1st;
     s16 total;
-    NJDP2D_PRIM prim[100];
+    NJDP2D_PRIM prim[NJDP2D_PRIM_MAX];
 } NJDP2D_W;
 
 NJDP2D_W njdp2d_w;
@@ -198,7 +199,7 @@ void njdp2d_sort(f32* pos, f32 pri, uintptr_t col, s32 flag) {
     s32 ix = njdp2d_w.total;
     s32 prev;
 
-    if (ix >= 100) {
+    if (ix >= NJDP2D_PRIM_MAX) {
         // The 2D polygon display request has exceeded the buffer\n
         flLogOut("２Ｄポリゴンの表示要求がバッファをオーバーしました\n");
         return;
