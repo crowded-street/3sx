@@ -21,7 +21,7 @@
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/ui/sc_data.h"
 #include "structs.h"
-#include "port/config.h"
+#include "port/config/config.h"
 #include "constants.h"
 
 #define TO_UV_256(val) ((val) / 256.0f)
