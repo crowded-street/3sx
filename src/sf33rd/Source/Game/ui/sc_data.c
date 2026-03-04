@@ -7,11 +7,7 @@
 #include "common.h"
 #include "structs.h"
 
-// sbss
-
 TrainingData2 tr_data[2];
-
-// rodata
 
 const u8 nwdata_tbl[21][6] = { { 16, 28, 10, 13, 2, 24 }, { 0, 8, 13, 11, 3, 25 },   { 13, 8, 10, 13, 3, 24 },
                                { 0, 12, 10, 13, 3, 24 },  { 10, 12, 16, 10, 3, 27 }, { 0, 16, 16, 10, 3, 27 },

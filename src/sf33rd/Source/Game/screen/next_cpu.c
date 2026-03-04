@@ -80,7 +80,6 @@ s8 Check_Bonus_Type();
 void Setup_Next_Stage(s16 dir_step);
 void Check_Auto_Cut();
 
-// sbss
 u8 SEL_CPU_X;
 s16 Start_X;
 

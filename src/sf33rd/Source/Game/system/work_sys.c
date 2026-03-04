@@ -6,8 +6,6 @@
 #include "common.h"
 #include "structs.h"
 
-// sbss
-
 struct _SYSTEM_W sys_w;
 struct _VM_W vm_w;
 TrainingData Training[3];

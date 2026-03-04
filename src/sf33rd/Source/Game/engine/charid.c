@@ -7,10 +7,7 @@
 #include "bin2obj/char_table.h"
 #include "common.h"
 
-// bss
 CharInitData char_init_data[23];
-
-// sbss
 UNK_Data* parabora_own_table[20];
 
 const CharInitData2 char_init_data2[23] = {

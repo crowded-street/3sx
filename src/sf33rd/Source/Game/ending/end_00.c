@@ -26,12 +26,10 @@ void end_000_0004();
 
 void end_001_0004();
 
-// sbss
 u8 fade_prio;
 s16 gill_quake_flag;
 s16 gill_quake_flag2;
 
-// rodata
 const s16 timer_0_tbl[5] = { 720, 1140, 720, 720, 960 };
 
 const s16 gill_time[10] = { 120, 120, 300, 420, 120, 90, 30, 180, 60, 1 };

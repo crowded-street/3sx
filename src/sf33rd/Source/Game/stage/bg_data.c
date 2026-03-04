@@ -7,8 +7,6 @@
 #include "common.h"
 #include "structs.h"
 
-// sbss
-
 s16 base_y_pos;
 s16 bg_stop;
 s8 bg_app_stop;
@@ -37,8 +35,6 @@ u8 c_kakikae;
 u8 c_number;
 u8 y_sitei_flag;
 s16 y_sitei_pos;
-
-// rodata
 
 const u8 use_scr[22] = { 2, 2, 3, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2, 2, 2 };
 
@@ -567,7 +563,6 @@ const s8 quake_y_tbl[130] = { 0,  -1,  1,  -2,  2,  -2,  2,  -3,  3,  -3,  3,  -
                               15, -15, 15, -15, 15, -15, 15, -15, 15, -15, 15, -15, 15, -15, 15, -15, 15, -15, 15, -15,
                               15, -15, 15, -15, 15, -15, 15, -15, 15, -15 };
 
-// data
 const u16* bg_map_tbl[22][3] = { { stage000_map, stage001_map, NULL },
                                  { stage010_map, NULL, NULL },
                                  { stage020_map, stage021_map, stage022_map },
@@ -591,7 +586,6 @@ const u16* bg_map_tbl[22][3] = { { stage000_map, stage001_map, NULL },
                                  { bonus010_map, bonus011_map, NULL },
                                  { bonus020_map, NULL, NULL } };
 
-// sdata
 const u16* bg_map_tbl2[7] = { win_lose_map, rank_map, select_map, win_lose_map, win_lose_map, win_lose_map, rank_map };
 
 s32 etcBgPalCnvTable[7] = { 0, 43, 0, 33, -13, 37, 44 };

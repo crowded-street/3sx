@@ -18,12 +18,8 @@
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 
-// rodata
-
 const s16 effb2_sound_tbl[4] = { 0x80, 0x82, 0x84, 0x86 };
 const s16 fight_col_move_tbl[18] = { 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 0 };
-
-// sbss
 
 s16 b2_curr_no = 0;
 s16 rf_b2_flag = 0;

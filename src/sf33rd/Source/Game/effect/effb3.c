@@ -16,8 +16,6 @@
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 #include "structs.h"
 
-// sbss
-
 WORK_Other* oya_adrs = NULL;
 
 // Forward decls

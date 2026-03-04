@@ -3,10 +3,7 @@
 #include "sf33rd/Source/Game/debug/OTESTDAT.h"
 #include "sf33rd/Source/Game/io/pulpul.h"
 
-// sbss
 PPWORK_SUB_SUB ot_pulreq_xx[OT_PULREQ_XX_MAX];
-
-// bss
 PULREQ ot_pulreq[OT_PULREQ_MAX];
 PULPARA ot_pulpara[OT_PULPARA_MAX];
 

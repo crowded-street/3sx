@@ -63,8 +63,6 @@ const PPWORK_SUB_SUB pulreq_44[3];
 const PPWORK_SUB_SUB pulreq_xx[6];
 const PPWORK_SUB_SUB pulreq_x2[7];
 
-// data
-
 PULPARA pulpara[PULPARA_MAX] = {
     { 0, 0, 0, 0 },       { 3, 0, 0, 0 },       { 3, 0, 7, 0 },    { 2, 0, 1, 0x24 },    { 2, 0, 1, 0x2C },
     { 2, 0, 1, 0x20 },    { 2, 0, 1, 0x2A },    { 2, 0, 2, 0x1C }, { 2, 0, 1, 0x28 },    { 2, 0, 2, 0x18 },
@@ -93,10 +91,7 @@ PULREQ pulreq[PULREQ_MAX] = {
     { 1, 0, pulreq_x2 },
 };
 
-// sdata
 static u16 pulpul_level[8] = { 0, 0x40, 0x50, 0x60, 0x70, 0x80, 0x90, 0xA0 };
-
-// rodata
 
 const u16 comm_quay_pulpul[11] = { 0x28, 0x29, 0x29, 0x2A, 0x2A, 0x2A, 0x2B, 0x2B, 0x2B, 0x2B, 0x2C };
 
@@ -189,8 +184,6 @@ const PPWORK_SUB_SUB pulreq_xx[6] = {
 const PPWORK_SUB_SUB pulreq_x2[7] = {
     { 0x31, 0x1E }, { 0x32, 0x32 }, { 0x33, 0x46 }, { 0x34, 0x5A }, { 0x35, 0x78 }, { -1, 3 }, { 0, 0 },
 };
-
-// sbss
 
 PPWORK ppwork[2];
 PUL pul[2];

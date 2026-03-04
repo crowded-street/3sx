@@ -21,8 +21,6 @@
 void Setup_EffD8_Pos(WORK_Other* ewk, s16 /* unused */);
 s32 Setup_Face_Offset_X(s16 x);
 
-// Data
-
 const u8 D8_Priority_Data[4] = { 55, 55, 52, 53 };
 
 // Funcs

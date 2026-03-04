@@ -201,12 +201,10 @@ const MenuFunc Menu_Jmp_Tbl[14] = {
     Training_Menu, After_Replay, Disp_Auto_Save2, Wait_Pause_in_Tr,  Reset_Training, Reset_Replay, End_Replay_Menu,
 };
 
-// sbss
 u8 r_no_plus;
 u8 control_player;
 u8 control_pl_rno;
 
-// rodata
 extern const LetterData training_letter_data[6];
 
 void Menu_Task(struct _TASK* task_ptr) {

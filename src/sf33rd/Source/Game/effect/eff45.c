@@ -21,7 +21,6 @@ s16 Centering_Sub(WORK_Other_CONN* ewk, s16 dot_type);
 void Check_Pig_Pig(WORK_Other_CONN* ewk);
 void Convert_16_10_2(WORK_Other_CONN* ewk, u16 target);
 
-// sbss
 MessageData Message_Data[4];
 
 void (*const EFF45_Jmp_Tbl[3])() = { EFF45_DISP, EFF45_CHANGE, EFF45_SUSPEND };

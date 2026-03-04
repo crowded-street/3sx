@@ -6,8 +6,6 @@
 #include "sf33rd/Source/Game/ending/end_data.h"
 #include "common.h"
 
-// sbss
-
 END_W end_w;
 s16 e_line_step;
 s8 end_etc_flag;
@@ -18,8 +16,6 @@ s8 end_staff_flag;
 s16 end_fade_timer;
 s8 end_name_cut[2];
 s8 staff_r_no;
-
-// rodata
 
 const u8 end_use_scr[20] = { 2, 1, 3, 2, 3, 2, 2, 2, 1, 1, 3, 2, 2, 2, 3, 1, 3, 1, 2, 2 };
 

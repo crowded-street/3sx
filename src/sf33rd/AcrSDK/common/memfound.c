@@ -2,10 +2,7 @@
 #include "common.h"
 #include "sf33rd/AcrSDK/common/memmgr.h"
 
-// bss
 MEM_BLOCK sysmemblock[4096];
-
-// sbss
 MEM_MGR sysmemmgr;
 
 void mflInit(void* mem_ptr, s32 memsize, s32 memalign) {

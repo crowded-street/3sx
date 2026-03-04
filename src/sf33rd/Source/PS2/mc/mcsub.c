@@ -79,10 +79,7 @@ static act_jmp_ptr mc_act_jmp[11] = { mc_act_stop,   mc_act_check,  mc_act_exist
                                       mc_act_save0,  mc_act_save,   mc_act_format, mc_act_unformat,
                                       mc_act_delete, mc_act_remove, mc_act_list };
 
-// bss
 memcard_work MemcardWork;
-
-// sbss
 sceMcTblGetDir mc_dir;
 s8 mc_path[64];
 

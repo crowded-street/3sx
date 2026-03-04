@@ -27,12 +27,10 @@ s8 New_Challenger;
 u8 S_No[4];
 s8 Select_Start[2];
 
-// bss
 u8 Order[148];
 u8 Order_Timer[148];
 u8 Order_Dir[148];
 
-// sbss
 u32 Score[2][3];
 const_s16_arr Tech_Address[2];
 u32 Complete_Bonus;

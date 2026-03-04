@@ -38,8 +38,6 @@ typedef union {
     } swc;
 } MVSW;
 
-// Data
-
 const s16 lookup_index[10] = { 0, 0, 0, 0, 1, 1, 1, 1, 0xFFFF, 0xFFFF };
 
 const s8 k5_exc_check[125] = { 1, 2, 0, 2, 2, 2, 2, 1, 1, 1, 2, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1,

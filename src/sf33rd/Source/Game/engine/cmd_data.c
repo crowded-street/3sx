@@ -7,14 +7,9 @@
 #include "structs.h"
 #include "types.h"
 
-// bss
-
 WORK_CP wcp[2];
 T_PL_LVR t_pl_lvr[2];
 WAZA_WORK waza_work[2][56];
-
-// sbss
-
 s16 cmd_id;
 s16* cmd_tbl_ptr;
 u16 sw_work;
@@ -22,8 +17,6 @@ T_PL_LVR* chk_pl;
 s16 waza_type[2];
 WAZA_WORK* waza_ptr;
 PLW* cmd_pl;
-
-// rodata
 
 const s16 ukemi_time_tbl[17] = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 7 };
 
@@ -781,8 +774,6 @@ const u16 chk22_tbl[8] = { 1, 9, 8, 10, 2, 6, 4, 5 };
 
 const s16 lever_gacha_tbl[16] = { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4 };
 
-// data
-
 const_s16_arr p0_cmd[56] = { pc_cmd_00, pc_cmd_01, pc_cmd_02, pc_cmd_03, pc_cmd_04, pc_cmd_05, pc_cmd_06, pc_cmd_07,
                              pc_cmd_08, pc_cmd_09, pc_cmd_10, pc_cmd_11, pc_cmd_12, pc_cmd_13, pc_cmd_14, pc_cmd_15,
                              dm_cmd_xx, dm_cmd_xx, dm_cmd_xx, dm_cmd_xx, p0_cmd_20, p0_cmd_21, p0_cmd_22, dm_cmd_xx,
@@ -1112,8 +1103,6 @@ const_s16_arr p14_CMD[56] = { pc_cmd_00,  pc_cmd_01,  pc_cmd_02,  pc_cmd_03,  pc
                               dm_cmd_xx,  dm_cmd_xx,  dm_cmd_xx,  dm_cmd_xx,  dm_cmd_xx, dm_cmd_xx, dm_cmd_xx,
                               dm_cmd_xx,  dm_cmd_xx,  dm_cmd_xx,  dm_cmd_xx,  dm_cmd_xx, dm_cmd_xx, dm_cmd_xx,
                               dm_cmd_xx,  dm_cmd_xx,  dm_cmd_xx,  dm_cmd_xx,  dm_cmd_xx, dm_cmd_xx, dm_cmd_xx };
-
-// sdata
 
 void* pl_cmd[20] = { p0_cmd, p1_cmd, p2_cmd, p3_cmd, p4_cmd, p5_cmd,  p6_cmd,  p7_cmd,  p8_cmd,  p9_cmd,
                      pA_cmd, pB_cmd, pC_cmd, pD_cmd, pE_cmd, p10_cmd, p11_cmd, p12_cmd, p13_cmd, p14_cmd };

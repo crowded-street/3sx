@@ -17,7 +17,6 @@
 #define COLOR_WHITE 0xFFFFFFFF
 #define COLOR_YELLOW 0xFFFFFF00
 
-// sbss
 bool debug_menu_active;
 u8 Debug_ID;
 s8 Debug_Index;
@@ -581,5 +580,4 @@ void Disp_Random() {
     }
 }
 
-// sdata
 s8* cpu_data[16] = { "", "FR", "AC", "BF", "FW", "BP", "PS", "GD", "SH", "SG", "DM", "FL", "FP", "CT", "WL", "CH" };

@@ -31,15 +31,11 @@ typedef struct {
     s8 up[24];
 } SpriteChipSet;
 
-// sbss
 s32 curr_bright;
 SpriteChipSet seqs_w;
-
-// bss
 f32 PrioBase[PRIO_BASE_SIZE];
 f32 PrioBaseOriginal[PRIO_BASE_SIZE];
 
-// rodata
 static const u16 flptbl[4] = { 0x0000, 0x8000, 0x4000, 0xC000 };
 
 static const u32 bright_type[4][16] = { { 0x00FFFFFF,

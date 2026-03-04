@@ -6,13 +6,11 @@
 
 #include <stdio.h>
 
-// sdata
 static void* msg_table_ptr[2] = { MessageTableJPN, MessageTableENG };
 
 static u32 str_col_tbl[8] = { 0x00000000, 0x00000080, 0x00008000, 0x00008080,
                               0x00800000, 0x00800080, 0x00808000, 0x00808080 };
 
-// sbss
 s32 MsgLanguage;
 
 // forward decls

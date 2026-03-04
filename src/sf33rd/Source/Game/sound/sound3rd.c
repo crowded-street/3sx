@@ -30,7 +30,6 @@
 
 #define ADX_STM_WORK_SIZE 252388
 
-// sbss
 s16 se_level;
 s16 bgm_level;
 s16 bgm_vol_mix;
@@ -43,13 +42,10 @@ BGMFade bgm_fade;
 BGMExecution bgm_exe;
 BGMRequest bgm_req;
 s8* sdbd[3];
-
-// bss
 u8 adx_VS[198954];
 u8 adx_EmSel[391168];
 s8 adx_stm_work[ADX_STM_WORK_SIZE];
 
-// data
 BGMTableEntry bgm_tableDC[68] = {
     { 0, 0, 0 },         { 16384, 58, 572 },  { 16385, 64, 588 },  { 16386, 64, 598 },  { 16387, 60, 616 },
     { 16388, 60, 642 },  { 16389, 60, 653 },  { 16390, 72, 681 },  { 16391, 72, 695 },  { 16392, 72, 716 },
@@ -109,7 +105,6 @@ BGMExecutionData bgm_exdataAC[32] = {
     { 535, 543, 536, 0 }, { 545, 554, 547, 0 }
 };
 
-// sdata
 SoundEvent* cseTSBDataTable[21] = { TSB_SE,   TSB_PL00, TSB_PL01, TSB_PL02, TSB_PL03, TSB_PL04, TSB_PL05,
                                     TSB_PL06, TSB_PL07, TSB_PL08, TSB_PL09, TSB_PL10, TSB_PL11, TSB_PL12,
                                     TSB_PL13, TSB_PL14, TSB_PL15, TSB_PL16, TSB_PL17, TSB_PL18, TSB_PL19 };

@@ -28,10 +28,7 @@
 
 #include <SDL3/SDL.h>
 
-// bss
 HS hs[32];
-
-// sbss
 s16 grdb[2][2][2];
 s16 grdb2[2][2];
 s16* dmdat_adrs[16];

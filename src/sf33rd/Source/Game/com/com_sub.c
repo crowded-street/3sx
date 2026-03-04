@@ -36,7 +36,6 @@
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "structs.h"
 
-// sbss
 s8 Lv;
 s8 Rnd;
 
@@ -4554,7 +4553,6 @@ void Setup_Follow(PLW* wk, s16 Follow_Type) {
     Timer_00[wk->wu.id]++;
 }
 
-// sdata
 typedef const _anon6* const_anon6_p;
 
 static const_anon6_p Follow_Menu_1st_Unit_Data[13] = {

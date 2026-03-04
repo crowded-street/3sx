@@ -4,8 +4,6 @@
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/rendering/color3rd.h"
 
-// sbss
-
 Texture ppgBgTex[4];
 PPGDataList ppgBgList[4];
 

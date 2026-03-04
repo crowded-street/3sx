@@ -24,7 +24,6 @@
 #include <stdio.h>
 #include <string.h>
 
-// sdata
 s16 icon_fnum[3] = { 83, 84, 85 };
 s16 data_fnum[3] = { 87, -1, 88 };
 s16 font_fnum[3] = { 80, 81, 82 };
@@ -34,10 +33,7 @@ s8* pl_name[20] = {
     "YAN", "KEN", "SEN", "URN", "AKM", "CHN", "MAK", " Q ", "TWE", "REM",
 };
 
-// bss
 _save_work SaveWork;
-
-// sbss
 
 static u32 AutoMcSlot;
 static u32 LastMcSlot;

@@ -17,13 +17,11 @@
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 
-// bss
 MultiTexture mts[24];
 MTS_OK mts_ok[24];
 WORK dmwk_moji;
 WORK dmwk_kage;
 
-// first part of rodata
 const u16 effk8k9_pattern[18] = { 0x9020, 0x9021, 0x9022, 0x9023, 0x9024, 0x9025, 0x9026, 0x9027, 0x9029,
                                   0x902A, 0x902B, 0x902C, 0x902D, 0x902E, 0x9030, 0x9032, 0x9034, 0x9036 };
 

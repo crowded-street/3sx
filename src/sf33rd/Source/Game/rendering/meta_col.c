@@ -7,11 +7,9 @@
 #include "common.h"
 #include "sf33rd/Source/Game/rendering/color3rd.h"
 
-// bss
 u16 hi_meta[2][2][64];
 u16 metamor_original[2][5][64];
 
-// rodata
 const s16 mcs_sel_tbl[2] = { 0x1F8, 0x1FC };
 
 void metamor_color_trans(s16 wkid) {

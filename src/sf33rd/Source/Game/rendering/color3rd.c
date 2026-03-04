@@ -49,12 +49,9 @@ typedef struct {
     u16 col[20][16][16];
 } COL_x2800;
 
-// bss
 u16 colPalBuffDC[1024];
 u16 ColorRAM[512][64];
 Col3rd_W col3rd_w;
-
-// sbss
 COL* plcol[2];
 PixelFormat palFormRam;
 PixelFormat palFormSrc;
@@ -565,7 +562,6 @@ void palConvRowTim2CI8Clut(u16* src, u16* dst, s32 size) {
     }
 }
 
-// rodata
 const u16 hitmark_color[128] = {
     0,     64478, 64408, 64338, 64268, 64200, 64068, 63942, 63808, 58332, 52186, 54104, 51988, 47888, 41740, 49424,
     64478, 58270, 54174, 49950, 45662, 43550, 43486, 41310, 64478, 64346, 64214, 64148, 64016, 63884, 63752, 61506,

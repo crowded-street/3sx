@@ -2,8 +2,6 @@
 #include "common.h"
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/eflSpuMap.h"
 
-// sbss
-
 void* PhdAddr[PHDADDR_MAX];
 
 s32 mlMemMapInit(void* pSpuMemMap) {

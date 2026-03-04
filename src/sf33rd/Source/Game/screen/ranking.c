@@ -24,10 +24,7 @@
 #include "sf33rd/Source/Game/system/sys_sub2.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 
-// sbss
 RANK_DATA Present_Data[2];
-
-// bss
 RANK_DATA Ranking_Data[20];
 
 // forward declaration

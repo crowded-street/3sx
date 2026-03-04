@@ -33,7 +33,6 @@ void all_flash_display(s16 pl_id);
 void (*Name_Jmp_scs[8])() = { Name_Scs_Input_init, Name_Scs_Input_comm, Name_Input_wait,    Name_Scs_Input_comm,
                               Name_Input_wait,     Name_Scs_Input_comm, Name_Scs_Input_end, Name_Scs_Finish };
 
-// sbss
 NAME_WK name_wk[2];
 NAME_WK* name_ptr;
 s16 Name_Input_f;

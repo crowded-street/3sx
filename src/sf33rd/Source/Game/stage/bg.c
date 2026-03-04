@@ -23,7 +23,6 @@
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "structs.h"
 
-// sbss
 Vertex scrDrawPos[4];
 Polygon bgpoly[4];
 u8 bg_priority[4];
@@ -45,7 +44,6 @@ const u32* rw3col_ptr;
 u8 bg_disp_off;
 s32 bgPalCodeOffset[8];
 
-// bss
 BG bg_w;
 RW_DATA rw_dat[20];
 

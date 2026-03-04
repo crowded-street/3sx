@@ -18,10 +18,7 @@
 
 #include <string.h>
 
-// bss
 CMST_BUFF cmst_buff[2][5];
-
-// sbss
 s16 old_cmb_flag[2];
 s8 cmb_stock[2];
 s8 first_attack;

@@ -15,12 +15,9 @@
 
 #include <SDL3/SDL.h>
 
-// sbss
 JudgeGals judge_gals[2];
 JudgeCom judge_com[2];
 s16 last_judge_dada[2][5];
-
-// bss
 GradeData judge_item[2][2];
 GradeFinalData judge_final[2][2];
 u8 ji_sat[2][384];
