@@ -11,14 +11,18 @@ typedef struct NetplayConfiguration {
     int matchmaking_port;
 } NetplayConfiguration;
 
+#if defined(DEBUG)
 typedef struct TestRunnerConfiguration {
     bool enabled;
     const char* states_path;
 } TestRunnerConfiguration;
+#endif
 
 typedef struct Configuration {
     NetplayConfiguration netplay;
+#if defined(DEBUG)
     TestRunnerConfiguration test;
+#endif
 } Configuration;
 
 typedef enum TaskID {

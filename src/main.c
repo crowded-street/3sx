@@ -277,9 +277,11 @@ static void game_step_0() {
     flPADGetALL();
     keyConvert();
 
+#if defined(DEBUG)
     if (configuration.test.enabled) {
         TestRunner_Prologue();
     }
+#endif
 
 #if defined(DEBUG)
     if (!test_flag) {
@@ -380,9 +382,11 @@ static void game_step_1() {
     Irl_Scrn();
     BGM_Server();
 
+#if defined(DEBUG)
     if (configuration.test.enabled) {
         TestRunner_Epilogue();
     }
+#endif
 }
 
 u8 dctex_linear_mem[0x800];

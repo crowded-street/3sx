@@ -1,3 +1,5 @@
+#if defined(DEBUG)
+
 #include "test/test_runner.h"
 #include "main.h"
 #include "port/utils.h"
@@ -368,3 +370,5 @@ void TestRunner_Epilogue() {
 
     frame += 1;
 }
+
+#endif
