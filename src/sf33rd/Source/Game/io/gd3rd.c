@@ -5,6 +5,7 @@
 
 #include "sf33rd/Source/Game/io/gd3rd.h"
 #include "common.h"
+#include "port/utils.h"
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/cse.h"
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"

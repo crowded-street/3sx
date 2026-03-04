@@ -1,20 +1,23 @@
-#include "common.h"
+#include "port/utils.h"
 
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
-#include <windows.h>
 #include <dbghelp.h>
+#include <windows.h>
 #define SYMBOL_NAME_MAX 256
 #else
 #include <execinfo.h>
+#include <signal.h>
+#include <unistd.h>
 #endif
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #define BACKTRACE_MAX 100
 
-void fatal_error(const s8* fmt, ...) {
+void fatal_error(const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
 
@@ -51,7 +54,7 @@ void fatal_error(const s8* fmt, ...) {
     abort();
 }
 
-void not_implemented(const s8* func) {
+void not_implemented(const char* func) {
     fatal_error("Function not implemented: %s\n", func);
 }
 
@@ -62,5 +65,19 @@ void debug_print(const char* fmt, ...) {
     vfprintf(stdout, fmt, args);
     fprintf(stdout, "\n");
     va_end(args);
+#endif
+}
+
+void stop_if(bool condition) {
+#if defined(DEBUG)
+    if (!condition) {
+        return;
+    }
+
+#if defined(_WIN32)
+    __debugbreak();
+#else
+    raise(SIGSTOP);
+#endif
 #endif
 }

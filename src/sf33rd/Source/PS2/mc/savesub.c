@@ -1,5 +1,6 @@
 #include "sf33rd/Source/PS2/mc/savesub.h"
 #include "common.h"
+#include "port/utils.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "sf33rd/Source/Game/engine/pls02.h"
 #include "sf33rd/Source/Game/system/ramcnt.h"

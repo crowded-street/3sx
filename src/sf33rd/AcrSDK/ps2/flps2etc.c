@@ -1,5 +1,6 @@
 #include "sf33rd/AcrSDK/ps2/flps2etc.h"
 #include "common.h"
+#include "port/utils.h"
 #include "sf33rd/AcrSDK/common/fbms.h"
 #include "sf33rd/AcrSDK/common/memfound.h"
 #include "sf33rd/AcrSDK/common/plapx.h"

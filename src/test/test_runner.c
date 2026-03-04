@@ -1,6 +1,8 @@
 #include "test/test_runner.h"
 #include "main.h"
+#include "port/utils.h"
 #include "sf33rd/AcrSDK/common/pad.h"
+#include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 
@@ -13,12 +15,15 @@
 #define SUPER_ARTS_OFFSET 0x1138B
 #define GAME_ROUTINE_OFFSET 0x15438
 #define C_NO_OFFSET 0x154A6
+#define PLW_OFFSET 0x68C6C
 #define P1SW_OFFSET 0x6AA8C
 #define P2SW_OFFSET 0x6AA90
 
-#define REPLAY_FRAMES_MAX 3 * 100 * 60
+#define PLW_SIZE 0x498
+#define WORK_XYZ_OFFSET 0x64
+#define WORK_VITAL_NEW_OFFSET 0x9E
 
-#define SWAP16(val) ((val << 8) | (val >> 8))
+#define REPLAY_FRAMES_MAX 3 * 100 * 60
 
 typedef enum Character {
     CHAR_GILL = 0,
@@ -54,6 +59,11 @@ typedef enum Phase {
     PHASE_ROUND,
 } Phase;
 
+typedef struct Position {
+    s16 x;
+    s16 y;
+} Position;
+
 static const Uint8 character_to_cursor[20][2] = { { 7, 1 }, { 1, 0 }, { 5, 2 }, { 6, 1 }, { 3, 2 }, { 4, 0 }, { 1, 2 },
                                                   { 3, 0 }, { 2, 2 }, { 4, 2 }, { 0, 1 }, { 0, 2 }, { 2, 0 }, { 5, 0 },
                                                   { 6, 0 }, { 3, 1 }, { 2, 1 }, { 4, 1 }, { 1, 1 }, { 5, 1 } };
@@ -62,10 +72,11 @@ static Uint64 frame = 0;
 static Phase phase = PHASE_INIT;
 static int char_select_phase = 0;
 static int wait_timer = 0;
-static Sint8 characters[2] = { -1, -1 };
-static Sint8 super_arts[2] = { -1, -1 };
+static Sint8 selected_characters[2] = { -1, -1 };
+static Sint8 selected_super_arts[2] = { -1, -1 };
 static u16 inputs[REPLAY_FRAMES_MAX][2] = { 0 };
 static int inputs_index = 0;
+static int comparison_index = 0;
 
 static void set_cursor(Character character, int player) {
     Cursor_X[player] = character_to_cursor[character][0];
@@ -93,8 +104,29 @@ static u8 read_u8(SDL_IOStream* io, Sint64 offset) {
 static u16 read_u16(SDL_IOStream* io, Sint64 offset) {
     u16 result;
     SDL_SeekIO(io, offset, SDL_IO_SEEK_SET);
-    SDL_ReadIO(io, &result, 2);
-    return SWAP16(result);
+    SDL_ReadIO(io, &result, sizeof(result));
+    return SDL_Swap16(result);
+}
+
+static s16 read_s16(SDL_IOStream* io, Sint64 offset) {
+    return (s16)read_u16(io, offset);
+}
+
+static Sint64 calc_plw_offset(int player) {
+    return PLW_OFFSET + player * PLW_SIZE;
+}
+
+static Position read_position(SDL_IOStream* io, int player) {
+    const Sint64 xyz_offset = calc_plw_offset(player) + WORK_XYZ_OFFSET;
+    const Sint64 x_offset = xyz_offset;
+    const Sint64 y_offset = x_offset + sizeof(XY);
+
+    return (Position) { .x = read_s16(io, x_offset), .y = read_s16(io, y_offset) };
+}
+
+static Position get_position(int player) {
+    const XY* xyz = plw[player].wu.xyz;
+    return (Position) { .x = xyz[0].disp.pos, .y = xyz[1].disp.pos };
 }
 
 static u16 read_input_buff(SDL_IOStream* io, Sint64 offset) {
@@ -113,25 +145,24 @@ static u16 read_input_buff(SDL_IOStream* io, Sint64 offset) {
     return buff;
 }
 
-static void initialize_data() {
+static const char* ram_path(int index) {
     const char* base_path = configuration.test.states_path;
-    const size_t base_len = SDL_strlen(base_path);
-    const size_t path_max_len = SDL_strlen(base_path) + 64;
-    char* path = SDL_malloc(path_max_len);
-    SDL_strlcpy(path, base_path, path_max_len);
-    char filename[64];
+    const char* result = NULL;
+    SDL_asprintf(&result, "%s/frame_%08d.ram", base_path, index);
+    return result;
+}
 
+static void initialize_data() {
     bool in_round = false;
     bool in_round_prev = false;
     bool allow_battle_prev = false;
     bool did_set_char_data = false;
 
     for (int frame_num = 0;; frame_num++) {
+        const char* path = ram_path(frame_num);
         bool stop = false;
-        path[base_len] = '\0';
-        SDL_snprintf(filename, sizeof(filename), "/frame_%08d.ram", frame_num);
-        SDL_strlcat(path, filename, path_max_len);
         SDL_IOStream* io = SDL_IOFromFile(path, "rb");
+        SDL_free(path);
 
         if (io == NULL) {
             break;
@@ -153,10 +184,10 @@ static void initialize_data() {
 
         if (in_round && !did_set_char_data) {
             SDL_SeekIO(io, MY_CHAR_OFFSET, SDL_IO_SEEK_SET);
-            SDL_ReadIO(io, characters, 2);
+            SDL_ReadIO(io, selected_characters, 2);
 
             SDL_SeekIO(io, SUPER_ARTS_OFFSET, SDL_IO_SEEK_SET);
-            SDL_ReadIO(io, super_arts, 2);
+            SDL_ReadIO(io, selected_super_arts, 2);
 
             did_set_char_data = true;
         }
@@ -167,6 +198,10 @@ static void initialize_data() {
             inputs[inputs_index][0] = read_input_buff(io, P1SW_OFFSET);
             inputs[inputs_index][1] = read_input_buff(io, P2SW_OFFSET);
             inputs_index += 1;
+
+            if (comparison_index == 0) {
+                comparison_index = frame_num;
+            }
         } else if (in_round_prev) {
             stop = true;
         }
@@ -180,12 +215,10 @@ static void initialize_data() {
         }
     }
 
-    SDL_free(path);
-
     // There's no Shin Akuma in PS2 version, which is why we have to decrement character numbers after Akuma
     for (int i = 0; i < 2; i++) {
-        if (characters[i] > CHAR_AKUMA) {
-            characters[i] -= 1;
+        if (selected_characters[i] > CHAR_AKUMA) {
+            selected_characters[i] -= 1;
         }
     }
 
@@ -215,10 +248,10 @@ void TestRunner_Prologue() {
 
     case PHASE_MENU:
         if (G_No[1] == 1 && G_No[2] == 2) {
-            Last_My_char2[0] = characters[0];
-            Last_My_char2[1] = characters[1];
-            Last_Super_Arts[0] = super_arts[0];
-            Last_Super_Arts[1] = super_arts[1];
+            Last_My_char2[0] = selected_characters[0];
+            Last_My_char2[1] = selected_characters[1];
+            Last_Super_Arts[0] = selected_super_arts[0];
+            Last_Super_Arts[1] = selected_super_arts[1];
             phase = PHASE_CHARACTER_SELECT_TRANSITION;
             wait_timer = 60;
             break;
@@ -239,8 +272,8 @@ void TestRunner_Prologue() {
     case PHASE_CHARACTER_SELECT:
         switch (char_select_phase) {
         case 0:
-            set_cursor(characters[0], 0);
-            set_cursor(characters[1], 1);
+            set_cursor(selected_characters[0], 0);
+            set_cursor(selected_characters[1], 1);
             tap_button(SWK_START, 1);
             wait_timer = 20;
             char_select_phase = 1;
@@ -283,7 +316,7 @@ void TestRunner_Prologue() {
             // This skips the VS animation
             mash_button(SWK_ATTACKS, 0);
         }
-        
+
         break;
 
     case PHASE_ROUND_TRANSITION:
@@ -303,5 +336,35 @@ void TestRunner_Prologue() {
 }
 
 void TestRunner_Epilogue() {
+    switch (phase) {
+    case PHASE_ROUND:
+        const char* path = ram_path(comparison_index);
+        SDL_IOStream* io = SDL_IOFromFile(path, "rb");
+        SDL_free(path);
+
+        if (io == NULL) {
+            break;
+        }
+
+        for (int i = 0; i < 2; i++) {
+            const Position pos_3sx = get_position(i);
+            const Position pos_cps3 = read_position(io, i);
+            stop_if(pos_3sx.x != pos_cps3.x);
+            stop_if(pos_3sx.y != pos_cps3.y);
+
+            const s16 vital_new_3sx = plw[i].wu.vital_new;
+            const s16 vital_new_cps3 = read_s16(io, calc_plw_offset(i) + WORK_VITAL_NEW_OFFSET);
+            stop_if(vital_new_3sx != vital_new_cps3);
+        }
+
+        SDL_CloseIO(io);
+        comparison_index += 1;
+        break;
+
+    default:
+        // Do nothing
+        break;
+    }
+
     frame += 1;
 }
