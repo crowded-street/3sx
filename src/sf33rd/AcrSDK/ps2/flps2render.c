@@ -66,11 +66,7 @@ s32 flPS2SendTextureRegister(u32 th) {
 s32 flPS2SetTextureRegister(u32 th, u64* texA, u64* tex1, u64* tex0, u64* clamp, u64* miptbp1, u64* miptbp2,
                             u32 render_ope) {
     FLTexture* lpflTexture;
-
-#if !defined(TARGET_PS2)
     SDLGameRenderer_SetTexture(th);
-    // return;
-#endif
 
     // FIXME: make sure these checks are made in SDLGameRenderer_SetTexture
 

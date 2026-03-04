@@ -46,10 +46,6 @@ void effect_L4_move(WORK_Other* ewk) {
 }
 
 s32 effect_L4_init() {
-#if defined(TARGET_PS2)
-    s16 get_my_trans_mode(s32 curr);
-#endif
-
     WORK_Other* ewk;
     s16 ix;
     s16 i;

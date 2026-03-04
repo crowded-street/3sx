@@ -11,10 +11,7 @@
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
 
 #include <string.h>
-
-#if !defined(TARGET_PS2)
 #include <strings.h>
-#endif
 
 void get_message_conn_data(WORK_Other_CONN* ewk, s16 kind, s16 pl, s16 msg);
 s32 msgConvertObjNum(u8* moji, s32* spc, s32* hz, u16* num, u8 hzSel);

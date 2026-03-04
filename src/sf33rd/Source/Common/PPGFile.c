@@ -314,10 +314,8 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix
                 tadd = 1.0f / (16.0f * ppghf);
             }
 
-#if !defined(TARGET_PS2)
             sadd = 0;
             tadd = 0;
-#endif
 
             qvtx[0].z = pos[0].z;
             qvtx[3].z = pos[3].z;

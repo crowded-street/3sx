@@ -1,13 +1,9 @@
 #include "sf33rd/AcrSDK/common/prilay.h"
 #include "common.h"
 #include "structs.h"
-#include <stdio.h>
 
-#if defined(TARGET_PS2)
-#include "mw_stdarg.h"
-#else
 #include <stdarg.h>
-#endif
+#include <stdio.h>
 
 s8 plReportMessage[2048];
 

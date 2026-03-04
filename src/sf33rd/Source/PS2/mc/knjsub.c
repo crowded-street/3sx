@@ -465,12 +465,8 @@ void KnjPuts(const s8* str) {
     pp = kw->pack_cur;
 
     while (1) {
-#if defined(TARGET_PS2)
-        code = *((u8*)str)++;
-#else
         code = *(u8*)str;
         str++;
-#endif
 
         if (code == 0) {
             break;
@@ -484,12 +480,8 @@ void KnjPuts(const s8* str) {
         }
 
         if (((code >= 0x80) && (code <= 0x9F)) || ((code >= 0xE0) && (code < 0x100))) {
-#if defined(TARGET_PS2)
-            c = *((u8*)str)++;
-#else
             c = *(u8*)str;
             str++;
-#endif
 
             if (c == 0) {
                 break;

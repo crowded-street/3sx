@@ -23,7 +23,7 @@ void flPS2DebugInit() {
 s32 flPrintL(s32 posi_x, s32 posi_y, const s8* format, ...) {
     s8 code;
     s8 str[512];
-    strlen_t len;
+    size_t len;
     s32 i;
     RenderBuffer* buff_ptr;
 

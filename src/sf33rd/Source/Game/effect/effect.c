@@ -220,11 +220,9 @@ void push_effect_work(WORK* wkhd) {
     qix = wkhd->myself;
     c_addr = (WORK*)frw[qix];
 
-#if !defined(TARGET_PS2)
     if (qix < 0 || qix >= 128) {
         fatal_error("qix is out of range");
     }
-#endif
 
     switch ((qix == head_ix[lix]) + (qix == tail_ix[lix]) * 2) {
     case 0:

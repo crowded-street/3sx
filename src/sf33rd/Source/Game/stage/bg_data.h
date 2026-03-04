@@ -73,13 +73,7 @@ extern const u32 rw31col[4];
 extern const s16 rw190[26];
 extern const s16 rw191[11];
 extern const s16 rw192[11];
-
-#if defined(TARGET_PS2)
-extern const u32 bgrw_data_tbl[20][3];
-#else
 extern const bgrw_data_tbl_elem bgrw_data_tbl[20];
-#endif
-
 extern const s32 stage03rw_data_tbl[13];
 extern const u8 stage03_flash_tbl[16];
 extern const s32 stage19rw_data_tbl[4];
