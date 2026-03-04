@@ -85,6 +85,9 @@ target_compile_options(3sx PRIVATE
     -fno-strict-aliasing
 
     ${DISABLED_WARNINGS}
+
+    $<$<CONFIG:Debug>:-Wno-unused-function>
+    $<$<CONFIG:Debug>:-Wno-unused-variable>
 )
 
 set_target_properties(3sx PROPERTIES
