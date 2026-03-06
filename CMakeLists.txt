@@ -159,8 +159,8 @@ elseif(WIN32)
         iphlpapi
     )
     target_link_options(3sx PRIVATE
-        --for-linker
-        --pdb=3sx.pdb
+        "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:--for-linker>"
+        "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:--pdb=3sx.pdb>"
     )
 elseif(UNIX)
     target_link_libraries(3sx PRIVATE
@@ -219,7 +219,7 @@ elseif(WIN32)
 	)
 
     install(FILES
-        "build/3sx.pdb"
+        "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:${CMAKE_CURRENT_BINARY_DIR}/3sx.pdb>"
         DESTINATION bin
     )
 

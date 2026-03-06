@@ -44,8 +44,10 @@
 #include "argparse/argparse.h"
 #include <SDL3/SDL.h>
 
-#if _WIN32
-#include <windef.h> // including windows.h causes conflicts with the Polygon struct, so I just included the header where AllocConsole is and the Windows-specific typedefs that it requires.
+#if _WIN32 && DEBUG
+// Including windows.h causes conflicts with the Polygon struct, so I just included the header where 
+// AllocConsole is and the Windows-specific typedefs that it requires.
+#include <windef.h>
 
 #include <ConsoleApi.h>
 #endif
@@ -67,7 +69,10 @@ static bool is_running_resource_flow = false;
 static void game_init();
 static void game_step_0();
 static void game_step_1();
+
+#if _WIN32 && DEBUG
 static void init_windows_console();
+#endif
 
 void distributeScratchPadAddress();
 void appCopyKeyData();
@@ -212,7 +217,10 @@ static void step_1() {
 static int loop() {
     bool is_running = true;
 
+#if _WIN32 && DEBUG
     init_windows_console();
+#endif
+
     SDLApp_Init();
     set_netplay_params();
 
@@ -235,8 +243,8 @@ int main(int argc, const char* argv[]) {
     return loop();
 }
 
+#if _WIN32 && DEBUG
 static void init_windows_console() {
-#if _WIN32
     // attaches to an existing console for printouts. Works with windows CMD but not MSYS2
     if (AttachConsole(ATTACH_PARENT_PROCESS) == 0) {
         // if fails, then allocate a new console
@@ -245,8 +253,8 @@ static void init_windows_console() {
     freopen("CONIN$", "r", stdin);
     freopen("CONOUT$", "w", stdout);
     freopen("CONOUT$", "w", stderr);
-#endif
 }
+#endif
 
 static void game_init() {
 #if DEBUG
