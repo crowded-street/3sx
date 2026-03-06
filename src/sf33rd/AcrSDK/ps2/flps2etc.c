@@ -19,7 +19,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#if !defined(_WIN32)
+#ifndef _WIN32
 #include <ctype.h>
 
 s8* strupr(s8* s) {

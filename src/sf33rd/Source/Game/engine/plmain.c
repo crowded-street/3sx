@@ -41,7 +41,7 @@ s16 select_hit_stop(s16 ms, s16 sb);
 void Player_move(PLW* wk, u16 lv_data) { // 🟡
     s16 i;
 
-#if defined(CPS3)
+#if CPS3
     if (DAT_02016b6c == -1) {
         wk->cp->sw_lvbt = processed_lvbt(FUN_06092294(wk->wu.id));
     } else {
@@ -112,7 +112,7 @@ void Player_move(PLW* wk, u16 lv_data) { // 🟡
     plmain_lv_00[wk->wu.routine_no[0]](wk);
 }
 
-#if !defined(CPS3)
+#if !CPS3
 u16 check_illegal_lever_data(u16 data) { // 🔴
     u16 lever = data & 0xF;
 
@@ -140,7 +140,7 @@ void player_mv_0000(PLW* wk) { // 🟡
     wk->tsukami_f = wk->tsukamare_f = false;
     clear_kizetsu_point(wk);
 
-#if defined(CPS3)
+#if CPS3
     DAT_20281a8[wk->wu.id] = 0; // TODO: figure out what this does
 #endif
 
@@ -174,7 +174,7 @@ void player_mv_0000(PLW* wk) { // 🟡
     clear_tk_flags(wk);
     wk->wu.routine_no[0] = 1;
 
-#if defined(CPS3)
+#if CPS3
     if (wk->player_number == CHAR_ELENA) {
         FUN_06107d24(wk); // No-op function
     }
@@ -183,7 +183,7 @@ void player_mv_0000(PLW* wk) { // 🟡
     wk->wu.routine_no[6] = 0;
     wk->wu.cmwk[0] = 0;
 
-#if !defined(CPS3)
+#if !CPS3
     wk->omop_vital_timer = 40;
 
     if (wk->player_number == CHAR_TWELVE) {
@@ -250,7 +250,7 @@ void player_mv_1000(PLW* wk) { // 🟡
 
     Player_normal(wk);
 
-#if !defined(CPS3)
+#if !CPS3
     about_gauge_process(wk);
 #endif
 }
@@ -277,7 +277,7 @@ void plmv_1020(PLW* wk, s16 step) { // 🟡
         wk->wu.xyz[1].disp.pos = 0;
     }
 
-#if !defined(CPS3)
+#if !CPS3
     about_gauge_process(wk);
 #endif
 }
@@ -295,7 +295,7 @@ void player_mv_2000(PLW* wk) { // 🟡
 
     Player_normal(wk);
 
-#if !defined(CPS3)
+#if !CPS3
     about_gauge_process(wk);
 #endif
 }
@@ -307,7 +307,7 @@ void player_mv_3000(PLW* wk) { // 🟡
         Player_normal(wk);
     }
 
-#if !defined(CPS3)
+#if !CPS3
     about_gauge_process(wk);
 #endif
 }
@@ -337,7 +337,7 @@ void player_mv_4000(PLW* wk) { // 🟡
             wk->zuru_flag = false;
         }
 
-#if !defined(CPS3)
+#if !CPS3
         check_omop_vital(wk);
 #endif
     }
@@ -460,7 +460,7 @@ void look_after_timers(PLW* wk) { // 🟢
         }
     }
 
-#if defined(DEBUG)
+#if DEBUG
     if (Debug_w[9]) {
         if (wk->sa->nmsa_g_ix != 0) {
             wk->cp->waza_flag[wk->sa->nmsa_g_ix] = 9;
@@ -494,7 +494,7 @@ void about_gauge_process(PLW* wk) { // 🟡
     sag_union(wk);
     mpg_union(wk);
 
-#if !defined(CPS3)
+#if !CPS3
     add_sp_arts_gauge_maxbit(wk);
 #endif
 }
@@ -529,7 +529,7 @@ void mpg_union(PLW* wk) { // 🟡
                 wk->sa->gauge.i = 0;
             }
 
-#if !defined(CPS3)
+#if !CPS3
             sag_bug_fix(wk->wu.id);
 #endif
 
@@ -537,7 +537,7 @@ void mpg_union(PLW* wk) { // 🟡
             wk->sa->mp_rno = 0;
             wk->sa->mp = 0;
 
-#if !defined(CPS3)
+#if !CPS3
             sag_inc_timer[wk->wu.id] = 20;
 #endif
             break;
@@ -571,7 +571,7 @@ void mpg_union(PLW* wk) { // 🟡
 void eag_union(PLW* wk) { // 🟡
     switch (wk->sa->ex_rno) {
     case 0:
-#if defined(CPS3)
+#if CPS3
         if (wk->player_number == CHAR_AKUMA || wk->player_number == CHAR_SHIN_AKUMA) {
 #else
         if (wk->player_number == CHAR_AKUMA || wk->player_number == CHAR_GILL) {
@@ -588,7 +588,7 @@ void eag_union(PLW* wk) { // 🟡
         break;
 
     case 1:
-#if defined(CPS3)
+#if CPS3
         if (wk->player_number == CHAR_AKUMA || wk->player_number == CHAR_SHIN_AKUMA) {
 #else
         if (wk->player_number == CHAR_AKUMA || wk->player_number == CHAR_GILL) {
@@ -621,14 +621,14 @@ void eag_union(PLW* wk) { // 🟡
             }
         }
 
-#if !defined(CPS3)
+#if !CPS3
         sag_bug_fix(wk->wu.id);
 #endif
 
         wk->sa->ex_rno = 0;
         wk->sa->ex = 0;
 
-#if !defined(CPS3)
+#if !CPS3
         sag_inc_timer[wk->wu.id] = 20;
 #endif
 
@@ -643,7 +643,7 @@ void eag_union(PLW* wk) { // 🟡
     }
 }
 
-#if defined(CPS3)
+#if CPS3
 void sag_union_0(PLW* wk) {
     switch (wk->sa->sa_rno) {
     case 0:
@@ -1045,14 +1045,14 @@ void sag_union_ps2(PLW* wk) {
 #endif
 
 void sag_union(PLW* wk) { // 🟡
-#if defined(CPS3)
+#if CPS3
     sag_union_jump_table[wk->sa->gauge_type](wk);
 #else
     sag_union_ps2(wk);
 #endif
 }
 
-#if !defined(CPS3)
+#if !CPS3
 void addSAAttribute(u8* kow, u16* koa) { // 🔴
     switch (*kow & 0x78) {
     case 0:
@@ -1076,7 +1076,7 @@ void demo_set_sa_full(SA_WORK* sa) { // 🟡
     sa->store = sa->store_max;
     sa->id_arts++;
 
-#if defined(CPS3)
+#if CPS3
     if (sa->gauge_type == 1) {
         sa->gauge.s.h = sa->gauge_len;
         sa->dtm_mul = 1;
@@ -1127,7 +1127,7 @@ void (*const plmain_lv_00[5])(PLW* wk) = {
 
 void (*const plmain_lv_02[5])(PLW* wk) = { Player_normal, Player_damage, Player_catch, Player_caught, Player_attack };
 
-#if defined(CPS3)
+#if CPS3
 void (*const sag_union_jump_table[4])(PLW* wk) = { sag_union_0, sag_union_1, sag_union_0, sag_union_3 };
 #else
 

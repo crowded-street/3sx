@@ -62,7 +62,7 @@ void Debug_Init(struct _TASK* task_ptr) {
     Debug_Index = 0;
     Debug_Pause = 0;
 
-#if defined(DEBUG)
+#if DEBUG
     // Initialize debug configuration to defaults
     DebugConfig_Init();
 #endif
@@ -79,7 +79,7 @@ void Debug_1st(struct _TASK* task_ptr) {
 }
 
 void Debug_2nd(struct _TASK* task_ptr) {
-#if defined(DEBUG)
+#if DEBUG
     // Check for toggle: right stick click to show/hide debug menu
     if ((io_w.data[0].sw_new & SWK_RIGHT_STICK) || (io_w.data[1].sw_new & SWK_RIGHT_STICK)) {
         debug_menu_active = !debug_menu_active;
@@ -120,7 +120,7 @@ void Debug_2nd(struct _TASK* task_ptr) {
 }
 
 void Debug_Menu_Disp(u32 /* unused */, u32 /* unused */) {
-#if defined(DEBUG)
+#if DEBUG
     s16 side;
     s16 ix;
     s16 i;

@@ -235,7 +235,7 @@ void Setup_Pad_or_Stick() {
 void After_Title(struct _TASK* task_ptr) {
     void (*AT_Jmp_Tbl[21])() = { Menu_Init,        Mode_Select,    Option_Select,  Option_Select, Training_Mode,
                                  System_Direction,
-#if defined(NETPLAY_ENABLED)
+#if NETPLAY_ENABLED
                                  Netplay_Menu,
 #else
                                  Load_Replay,
@@ -294,7 +294,7 @@ void Menu_Init(struct _TASK* task_ptr) {
     cpReadyTask(TASK_SAVER, Saver_Task);
 }
 
-#if defined(NETPLAY_ENABLED)
+#if NETPLAY_ENABLED
 // Returns true while matchmaking is pending, consuming input to cancel.
 // Caller should skip normal menu logic when this returns true.
 static bool check_netplay_cancelled() {
@@ -1421,7 +1421,7 @@ void Load_Direction(struct _TASK* task_ptr) {
     }
 }
 
-#if defined(NETPLAY_ENABLED)
+#if NETPLAY_ENABLED
 void Netplay_Menu(struct _TASK* task_ptr) {
     s16 ix;
     s16 char_index;

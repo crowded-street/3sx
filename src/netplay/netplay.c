@@ -76,7 +76,7 @@ static int stats_update_timer = 0;
 static int frame_max_rollback = 0;
 static NetworkStats network_stats = { 0 };
 
-#if defined(DEBUG)
+#if DEBUG
 #define STATE_BUFFER_MAX 20
 
 static State state_buffer[STATE_BUFFER_MAX] = { 0 };
@@ -165,7 +165,7 @@ static void configure_gekko() {
     config.max_spectators = 0;
     config.input_prediction_window = 10;
 
-#if defined(DEBUG)
+#if DEBUG
     config.desync_detection = true;
 #endif
 
@@ -237,7 +237,7 @@ static u16 recall_input(int player, int frame) {
     return input_history[player][frame % INPUT_HISTORY_MAX];
 }
 
-#if defined(DEBUG)
+#if DEBUG
 static uint32_t calculate_checksum(const State* state) {
     uint32_t hash = djb2_init();
     hash = djb2_updatep(hash, state);
@@ -384,7 +384,7 @@ static void save_state(GekkoGameEvent* event) {
 
     gather_state(dst);
 
-#if defined(DEBUG)
+#if DEBUG
     const int frame = event->data.save.frame;
     const State* saved_state = note_state(dst, frame);
     *event->data.save.checksum = calculate_checksum(saved_state);
@@ -492,7 +492,7 @@ static void process_session() {
             const int frame = event->data.desynced.frame;
             printf("⚠️ desync detected at frame %d\n", frame);
 
-#if defined(DEBUG)
+#if DEBUG
             dump_saved_state(frame);
 #endif
             break;

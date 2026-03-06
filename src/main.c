@@ -34,7 +34,7 @@
 #include "structs.h"
 #include "test/test_runner.h"
 
-#if defined(DEBUG)
+#if DEBUG
 #include "sf33rd/Source/Game/debug/debug_config.h"
 #endif
 
@@ -44,7 +44,7 @@
 #include "argparse/argparse.h"
 #include <SDL3/SDL.h>
 
-#if defined(_WIN32)
+#if _WIN32
 #include <windef.h> // including windows.h causes conflicts with the Polygon struct, so I just included the header where AllocConsole is and the Windows-specific typedefs that it requires.
 
 #include <ConsoleApi.h>
@@ -94,7 +94,7 @@ static void read_args(int argc, const char* argv[]) {
         OPT_INTEGER(
             0, "matchmaking-port", &configuration.netplay.matchmaking_port, "Matchmaking server port.", NULL, 0, 0),
 
-#if defined(DEBUG)
+#if DEBUG
         OPT_GROUP("Test runner"),
         OPT_BOOLEAN(0, "test-enable", &configuration.test.enabled, "Enable test runner.", NULL, 0, 0),
         OPT_STRING(0, "test-states", &configuration.test.states_path, "Path to states.", NULL, 0, 0),
@@ -236,7 +236,7 @@ int main(int argc, const char* argv[]) {
 }
 
 static void init_windows_console() {
-#if defined(_WIN32)
+#if _WIN32
     // attaches to an existing console for printouts. Works with windows CMD but not MSYS2
     if (AttachConsole(ATTACH_PARENT_PROCESS) == 0) {
         // if fails, then allocate a new console
@@ -249,7 +249,7 @@ static void init_windows_console() {
 }
 
 static void game_init() {
-#if defined(DEBUG)
+#if DEBUG
     DebugConfig_Init();
 #endif
 
@@ -277,13 +277,13 @@ static void game_step_0() {
     flPADGetALL();
     keyConvert();
 
-#if defined(DEBUG)
+#if DEBUG
     if (configuration.test.enabled) {
         TestRunner_Prologue();
     }
 #endif
 
-#if defined(DEBUG)
+#if DEBUG
     if (!test_flag) {
         if (mpp_w.sysStop) {
             sysSLOW = 1;
@@ -382,7 +382,7 @@ static void game_step_1() {
     Irl_Scrn();
     BGM_Server();
 
-#if defined(DEBUG)
+#if DEBUG
     if (configuration.test.enabled) {
         TestRunner_Epilogue();
     }
@@ -506,7 +506,7 @@ void njUserMain() {
 void cpLoopTask() {
     disp_ramcnt_free_area();
 
-#if defined(DEBUG)
+#if DEBUG
     if (sysSLOW) {
         if (--Slow_Timer == 0) {
             sysSLOW = 0;

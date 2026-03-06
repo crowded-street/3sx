@@ -162,7 +162,7 @@ static void get_keyboard_state(SDLPad_ButtonState* state) {
     state->back = any_pressed(keys, KEYMAP_BUTTON_BACK);
     state->start = any_pressed(keys, KEYMAP_BUTTON_START);
 
-#if defined(DEBUG)
+#if DEBUG
     state->right_stick |= keys[SDL_SCANCODE_TAB];
 #endif
 }

@@ -1,4 +1,4 @@
-#if defined(DEBUG)
+#if DEBUG
 
 #ifndef TEST_RUNNER_H
 #define TEST_RUNNER_H

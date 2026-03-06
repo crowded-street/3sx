@@ -11,7 +11,7 @@ typedef struct NetplayConfiguration {
     int matchmaking_port;
 } NetplayConfiguration;
 
-#if defined(DEBUG)
+#if DEBUG
 typedef struct TestRunnerConfiguration {
     bool enabled;
     const char* states_path;
@@ -20,7 +20,7 @@ typedef struct TestRunnerConfiguration {
 
 typedef struct Configuration {
     NetplayConfiguration netplay;
-#if defined(DEBUG)
+#if DEBUG
     TestRunnerConfiguration test;
 #endif
 } Configuration;

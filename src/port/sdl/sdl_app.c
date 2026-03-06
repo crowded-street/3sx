@@ -143,7 +143,7 @@ int SDLApp_Init() {
     SDLMessageRenderer_Initialize(renderer);
     SDLGameRenderer_Init(renderer);
 
-#if defined(DEBUG)
+#if DEBUG
     SDLDebugText_Initialize(renderer);
 #endif
 
@@ -367,7 +367,7 @@ void SDLApp_EndFrame() {
         save_texture(screen_texture, "screenshot_screen.bmp");
     }
 
-#if defined(DEBUG)
+#if DEBUG
     // Render debug text
     SDLDebugText_Render();
 

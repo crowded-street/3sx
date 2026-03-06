@@ -1,7 +1,7 @@
 #include "sf33rd/Source/Game/debug/debug_config.h"
 #include "common.h"
 
-#if defined(DEBUG)
+#if DEBUG
 
 const DEBUG_STR_DAT debug_string_data[72] = { { .max = 255, .name = "SLOW" },
                                               { .max = 10, .name = "FAST" },

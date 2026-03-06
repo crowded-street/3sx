@@ -45,7 +45,7 @@
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/ui/count.h"
 
-#if defined(DEBUG)
+#if DEBUG
 #include "sf33rd/Source/Game/debug/debug_config.h"
 #endif
 
@@ -311,7 +311,7 @@ const s16 pl_piyo_tbl[NUM_CHARS] = {
     64, // Sean
     64, // Urien
     56, // Akuma
-#if defined(CPS3)
+#if CPS3
     56, // Shin Akuma
 #endif
     64, // Chun-Li
@@ -337,7 +337,7 @@ const s32 pl_nr_piyo_tbl[NUM_CHARS] = {
     2849, // Sean
     3120, // Urien
     2849, // Akuma
-#if defined(CPS3)
+#if CPS3
     2978, // Shin Akuma
 #endif
     2978, // Chun-Li
@@ -619,7 +619,7 @@ void plcnt_move() {
         return;
     }
 
-#if defined(DEBUG)
+#if DEBUG
     if (DebugConfig_Get(DEBUG_PLAYER_1_INVINCIBLE)) {
         plw[0].wu.dm_vital = 0;
     }

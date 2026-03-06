@@ -37,9 +37,11 @@ add_executable(3sx MACOSX_BUNDLE
 target_compile_definitions(3sx PRIVATE
     $<$<CONFIG:Debug>:DEBUG>
     $<$<CONFIG:Debug>:NETPLAY_ENABLED>
+
     $<$<CONFIG:Release>:RELEASE>
-    TARGET_SDL3
+
     _POSIX_C_SOURCE
+
     # GekkoNet is a pre-built static lib; these were previously propagated by its cmake target
     GEKKONET_STATIC
     GEKKONET_NO_ASIO

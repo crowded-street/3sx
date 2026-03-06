@@ -5,7 +5,7 @@
 
 #include <SDL3/SDL.h>
 
-#if defined(DEBUG)
+#if DEBUG
 
 static SDL_Renderer* debug_renderer = NULL;
 

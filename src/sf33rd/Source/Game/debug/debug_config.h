@@ -97,7 +97,7 @@ typedef struct {
     s8 values[DEBUG_OPTION_COUNT];
 } DebugConfig;
 
-#if defined(DEBUG)
+#if DEBUG
 
 /// @brief Global debug configuration state (only available in debug builds)
 extern DebugConfig debug_config;

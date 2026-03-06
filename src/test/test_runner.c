@@ -1,4 +1,4 @@
-#if defined(DEBUG)
+#if DEBUG
 
 #include "test/test_runner.h"
 #include "constants.h"
