@@ -154,27 +154,27 @@ void counter_write(u8 atr) {
     if (omop_cockpit != 0) {
         if (omop_round_timer == 0) {
             for (i = 0; i < 4; i++) {
-                scfont_sqput(i + 22, 1, 9, 2, 31, 2, 1, 3, 2);
+                scfont_sqput(i + 22, 1, 9, 2, 31, 2, 1, 3, TopHUDPriority);
             }
         } else if (!mugen_flag) {
-            scfont_sqput(22, 0, atr, 2, math_counter_hi << 1, 2, 2, 4, 2);
-            scfont_sqput(24, 0, atr, 2, math_counter_low << 1, 2, 2, 4, 2);
+            scfont_sqput(22, 0, atr, 2, math_counter_hi << 1, 2, 2, 4, TopHUDPriority);
+            scfont_sqput(24, 0, atr, 2, math_counter_low << 1, 2, 2, 4, TopHUDPriority);
         } else {
-            scfont_sqput(22, 0, 4, 2, 28, 28, 4, 4, 2);
+            scfont_sqput(22, 0, 4, 2, 28, 28, 4, 4, TopHUDPriority);
         }
 
-        scfont_sqput(21, 1, 9, 0, 12, 6, 1, 4, 2);
-        scfont_sqput(26, 1, 137, 0, 12, 6, 1, 4, 2);
-        scfont_sqput(22, 4, 9, 0, 3, 18, 4, 1, 2);
+        scfont_sqput(21, 1, 9, 0, 12, 6, 1, 4, TopHUDPriority);
+        scfont_sqput(26, 1, 137, 0, 12, 6, 1, 4, TopHUDPriority);
+        scfont_sqput(22, 4, 9, 0, 3, 18, 4, 1, TopHUDPriority);
     }
 }
 
 void bcounter_write() {
     if (!No_Trans) {
-        scfont_put(21, 4, 0x8F, 2, 20, 6, 2);
-        scfont_sqput(22, 2, 15, 2, math_counter_hi << 1, 6, 2, 3, 2);
-        scfont_sqput(24, 2, 15, 2, math_counter_low << 1, 6, 2, 3, 2);
-        scfont_put(26, 4, 15, 2, 20, 6, 2);
+        scfont_put(21, 4, 0x8F, 2, 20, 6, TopHUDPriority);
+        scfont_sqput(22, 2, 15, 2, math_counter_hi << 1, 6, 2, 3, TopHUDPriority);
+        scfont_sqput(24, 2, 15, 2, math_counter_low << 1, 6, 2, 3, TopHUDPriority);
+        scfont_put(26, 4, 15, 2, 20, 6, TopHUDPriority);
     }
 }
 

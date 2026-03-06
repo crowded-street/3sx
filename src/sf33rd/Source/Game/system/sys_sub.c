@@ -313,7 +313,7 @@ void Score_Sub() {
         }
 
         for (i = Coin_Message_Data[3][PL_id] - First_Digit, j = First_Digit; j >= 0; j--, assign3 = i++) {
-            score8x16_put(i, 0, 8, Digit[j]);
+            score8x16_put(i, 0, 8, Digit[j], TopHUDPriority);
         }
     }
 }

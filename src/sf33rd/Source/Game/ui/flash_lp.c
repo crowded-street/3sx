@@ -58,7 +58,7 @@ void Flash_Lamp() {
         }
 
         if (flash_win_type[0][ix] == sync_win_type[0][ix]) {
-            scfont_sqput(vmark_tbl[ix], 4, color, 0, mark * 2, 26, 2, 1, 2);
+            scfont_sqput(vmark_tbl[ix], 4, color, 0, mark * 2, 26, 2, 1, TopHUDPriority);
         }
 
         mark = flash_win_type[1][ix];
@@ -71,7 +71,7 @@ void Flash_Lamp() {
         }
 
         if (flash_win_type[1][ix] == sync_win_type[1][ix]) {
-            scfont_sqput(vmark_tbl[ix2p], 4, color, 0, mark * 2, 26, 2, 1, 2);
+            scfont_sqput(vmark_tbl[ix2p], 4, color, 0, mark * 2, 26, 2, 1, TopHUDPriority);
         }
     }
 }

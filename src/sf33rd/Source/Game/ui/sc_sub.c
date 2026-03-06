@@ -21,6 +21,8 @@
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/ui/sc_data.h"
 #include "structs.h"
+#include "port/config/config.h"
+#include "constants.h"
 
 #define TO_UV_256(val) ((val) / 256.0f)
 #define TO_UV_256_NEG(val) (TO_UV_256(val))
@@ -165,11 +167,31 @@ u8 FadeLimit;
 s16 Hnc_Num;
 FadeData fd_dat;
 
+int TopHUDPriority;
+int TopHUDShadowPriority;
+int TopHUDFacePriority;
+int TopHUDVitalPriority;
+
 // forward decls
 s32 SSGetDrawSizePro(const s8* str);
 s16 SSPutStrTexInputPro(u16 x, u16 y, u16 ix);
 void face_base_put();
 void silver_stun_put(u8 Pl_Num, s16 len);
+
+void HUD_Shift_Init() {
+    if (Config_GetBool(CFG_DRAW_PLAYERS_ABOVE_HUD)) {
+        TopHUDPriority = 2 + HUD_SHIFT;
+        TopHUDShadowPriority = 3 + HUD_SHIFT;
+        TopHUDFacePriority = 4 + HUD_SHIFT;
+        TopHUDVitalPriority = 5 + HUD_SHIFT;
+    }
+    else {
+        TopHUDPriority = 2;
+        TopHUDShadowPriority = 3;
+        TopHUDFacePriority = 4;
+        TopHUDVitalPriority = 5;
+    }
+}
 
 void Scrscreen_Init() {
     void* loadAdrs;
@@ -316,7 +338,7 @@ void SSPutStr(u16 x, u16 y, u8 atr, const s8* str) {
     ppgSetupCurrentDataList(&ppgScrList);
     njColorBlendingMode(0, 1);
     scrscrntex[0].col = scrscrntex[3].col = 0xFFFFFFFF;
-    scrscrntex[0].z = scrscrntex[3].z = PrioBase[2];
+    scrscrntex[0].z = scrscrntex[3].z = PrioBase[TopHUDPriority];
     njSetPaletteBankNumG(1, atr & 0x3F);
     x = x * 8;
     y = y * 8;
@@ -828,7 +850,7 @@ void silver_vital_put(u8 Pl_Num) {
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    scrscrntex[0].z = scrscrntex[3].z = PrioBase[2];
+    scrscrntex[0].z = scrscrntex[3].z = PrioBase[TopHUDPriority];
     njSetPaletteBankNumG(0, 9);
     scrscrntex[0].u = 224.0f / 256.0f;
     scrscrntex[3].u = 232.0f / 256.0f;
@@ -878,7 +900,7 @@ void vital_base_put(u8 Pl_Num) {
     pos[1].y = pos[0].y;
     pos[2].x = pos[0].x;
     pos[2].y = pos[3].y;
-    njDrawPolygon2D(&vtx, 4, PrioBase[4], 96);
+    njDrawPolygon2D(&vtx, 4, PrioBase[TopHUDFacePriority], 96);
 }
 
 void spgauge_base_put(u8 Pl_Num, s16 len) {
@@ -934,7 +956,7 @@ void stun_put(u8 Pl_Num, u8 stun) {
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    scrscrntex[0].z = scrscrntex[3].z = PrioBase[4];
+    scrscrntex[0].z = scrscrntex[3].z = PrioBase[TopHUDFacePriority];
     njSetPaletteBankNumG(0, 10);
     scrscrntex[0].u = 0.0f;
     scrscrntex[3].u = 8.0f / 256.0f;
@@ -983,7 +1005,7 @@ void stun_base_put(u8 Pl_Num, s16 len) {
     pos[1].y = pos[0].y;
     pos[2].x = pos[0].x;
     pos[2].y = pos[3].y;
-    njDrawPolygon2D(&vtx, 4, PrioBase[4], 96);
+    njDrawPolygon2D(&vtx, 4, PrioBase[TopHUDFacePriority], 96);
 }
 
 void WipeInit() {
@@ -1225,8 +1247,8 @@ void player_name() {
     pl2 = My_char[1];
     pl1 += chkNameAkuma(pl1, 6);
     pl2 += chkNameAkuma(pl2, 6);
-    scfont_sqput(6, 3, 1, 1, Player_Name_Pos_TBL[pl1][0], Player_Name_Pos_TBL[pl1][1], 5, 1, 2);
-    scfont_sqput(37, 3, 1, 1, Player_Name_Pos_TBL[pl2][0], Player_Name_Pos_TBL[pl2][1], 5, 1, 2);
+    scfont_sqput(6, 3, 1, 1, Player_Name_Pos_TBL[pl1][0], Player_Name_Pos_TBL[pl1][1], 5, 1, TopHUDPriority);
+    scfont_sqput(37, 3, 1, 1, Player_Name_Pos_TBL[pl2][0], Player_Name_Pos_TBL[pl2][1], 5, 1, TopHUDPriority);
 }
 
 void stun_mark_write(u8 Pl_Num, s16 Len) {
@@ -1243,7 +1265,7 @@ void stun_mark_write(u8 Pl_Num, s16 Len) {
     ppgSetupCurrentDataList(&ppgScrList);
     tlen = Len - 7;
     scfont_sqput(
-        smark_pos_tbl[tlen][Pl_Num], 3, 10, 0, (smark_kind_tbl[tlen] * 4) + 1, 2, smark_kind_tbl[tlen] + 4, 1, 2);
+        smark_pos_tbl[tlen][Pl_Num], 3, 10, 0, (smark_kind_tbl[tlen] * 4) + 1, 2, smark_kind_tbl[tlen] + 4, 1, TopHUDPriority);
 }
 
 void max_mark_write(s8 Pl_Num, u8 Gauge_Len, u8 Mchar, u8 Mass_Len) {
@@ -1439,7 +1461,7 @@ void player_face() {
                       Face_Pos_TBL[My_char[0]][1],
                       5,
                       3,
-                      2);
+                      TopHUDPriority);
 
     if (My_char[1] == 0) {
         scfont_sqput_face(0x2B,
@@ -1450,7 +1472,7 @@ void player_face() {
                           Face_Pos_TBL[20][1],
                           5,
                           3,
-                          2);
+                          TopHUDPriority);
     } else {
         scfont_sqput_face(0x2B,
                           3,
@@ -1460,14 +1482,14 @@ void player_face() {
                           Face_Pos_TBL[My_char[1]][1],
                           5,
                           3,
-                          2);
+                          TopHUDPriority);
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    scfont_put(5, 3, 1, 0, 0, 19, 2);
-    scfont_put(5, 4, 1, 0, 0, 20, 2);
-    scfont_put(42, 3, 129, 0, 0, 19, 2);
-    scfont_put(42, 4, 129, 0, 0, 20, 2);
+    scfont_put(5, 3, 1, 0, 0, 19, TopHUDPriority);
+    scfont_put(5, 4, 1, 0, 0, 20, TopHUDPriority);
+    scfont_put(42, 3, 129, 0, 0, 19, TopHUDPriority);
+    scfont_put(42, 4, 129, 0, 0, 20, TopHUDPriority);
 
     if (Play_Type == 0) {
         return;
@@ -1480,9 +1502,9 @@ void player_face() {
     grade_tmp = Keep_Grade[Champion] - 1;
 
     if (grade_tmp < 0x18) {
-        scfont_sqput((Champion * 41) + 1, 1, 27, 2, Grade_Pos_TBL[grade_tmp][0], Grade_Pos_TBL[grade_tmp][1], 5, 1, 2);
+        scfont_sqput((Champion * 41) + 1, 1, 27, 2, Grade_Pos_TBL[grade_tmp][0], Grade_Pos_TBL[grade_tmp][1], 5, 1, TopHUDPriority);
     } else {
-        scfont_sqput((Champion * 41) + 1, 1, 28, 2, Grade_Pos_TBL[grade_tmp][0], Grade_Pos_TBL[grade_tmp][1], 5, 1, 2);
+        scfont_sqput((Champion * 41) + 1, 1, 28, 2, Grade_Pos_TBL[grade_tmp][0], Grade_Pos_TBL[grade_tmp][1], 5, 1, TopHUDPriority);
     }
 }
 
@@ -1507,12 +1529,12 @@ void face_base_put() {
     pos[1].y = pos[0].y;
     pos[2].x = pos[0].x;
     pos[2].y = pos[3].y;
-    njDrawPolygon2D(&vtx, 4, PrioBase[4], 0x60);
+    njDrawPolygon2D(&vtx, 4, PrioBase[TopHUDFacePriority], 0x60);
     pos[0].x = 348.8f;
     pos[3].x = 377.6f;
     pos[1].x = pos[3].x;
     pos[2].x = pos[0].x;
-    njDrawPolygon2D(&vtx, 4, PrioBase[4], 0x60);
+    njDrawPolygon2D(&vtx, 4, PrioBase[TopHUDFacePriority], 0x60);
 }
 
 void hnc_set(u8 num, u8 atr) {
@@ -1523,7 +1545,7 @@ void hnc_set(u8 num, u8 atr) {
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    scrscrntex[0].z = scrscrntex[3].z = PrioBase[2];
+    scrscrntex[0].z = scrscrntex[3].z = PrioBase[TopHUDPriority];
     njSetPaletteBankNumG(1, atr & 0x3F);
     njColorBlendingMode(0, 1);
 
@@ -1707,13 +1729,13 @@ void nw_set(u8 PL_num, u8 atr) {
     scfont_sqput(nwdata_tbl[PL_num][5], 9, atr, 2, 17, 22, 13, 4, 2);
 }
 
-void score8x16_put(u16 x, u16 y, u8 atr, u8 chr) {
+void score8x16_put(u16 x, u16 y, u8 atr, u8 chr, u8 priority) {
     if (No_Trans) {
         return;
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    scfont_sqput(x, y, atr, 0, chr, 6, 1, 2, 2);
+    scfont_sqput(x, y, atr, 0, chr, 6, 1, 2, priority);
 }
 
 void score16x24_put(u16 x, u16 y, u8 atr, u8 chr) {
@@ -1809,7 +1831,7 @@ void combo_pts_set(u8 pl, u8 x, u8 num, s8* pts, s8 digit) {
 
     if (pl == 0) {
         for (i = digit, assign1 = j = 1; i >= 0; i--, j++, assign2 = x += 1) {
-            score8x16_put(x, 10, 8, pts[i]);
+            score8x16_put(x, 10, 8, pts[i], 2);
 
             if (num - j == 0) {
                 return;
@@ -1820,13 +1842,13 @@ void combo_pts_set(u8 pl, u8 x, u8 num, s8* pts, s8 digit) {
             return;
         }
 
-        score8x16_put(x, 10, 8, 0);
+        score8x16_put(x, 10, 8, 0, 2);
 
         if (num < digit + 2) {
             return;
         }
 
-        score8x16_put(x + 1, 10, 8, 0);
+        score8x16_put(x + 1, 10, 8, 0, 2);
 
         if (num < digit + 3) {
             return;
@@ -1848,16 +1870,16 @@ void combo_pts_set(u8 pl, u8 x, u8 num, s8* pts, s8 digit) {
         }
 
         if (num > 2) {
-            score8x16_put(x - 2, 10, 8, 0);
+            score8x16_put(x - 2, 10, 8, 0, 2);
         }
 
         if (num > 3) {
-            score8x16_put(x - 3, 10, 8, 0);
+            score8x16_put(x - 3, 10, 8, 0, 2);
         }
 
         if (num > 4) {
             for (i = 0; i <= digit; i++, assign3 = x -= 1) {
-                score8x16_put(x - 4, 10, 8, pts[i]);
+                score8x16_put(x - 4, 10, 8, pts[i], 2);
 
                 if (num - i == 0) {
                     break;
@@ -1888,20 +1910,20 @@ void stun_gauge_waku_write(s16 p1len, s16 p2len) {
     ppgSetupCurrentDataList(&ppgScrList);
 
     if (omop_st_bar_disp[0]) {
-        scfont_sqput(21 - p1len, 3, 10, 0, 12 - p1len, p1len + 1, p1len, 1, 3);
+        scfont_sqput(21 - p1len, 3, 10, 0, 12 - p1len, p1len + 1, p1len, 1, TopHUDShadowPriority);
     } else {
         silver_stun_put(0, p1len);
     }
 
-    scfont_sqput(11, 3, 1, 0, 2, p1len + 1, 10 - p1len, 1, 3);
+    scfont_sqput(11, 3, 1, 0, 2, p1len + 1, 10 - p1len, 1, TopHUDShadowPriority);
 
     if (omop_st_bar_disp[1]) {
-        scfont_sqput(27, 3, 10, 0, 2, p2len + 12, p2len, 1, 3);
+        scfont_sqput(27, 3, 10, 0, 2, p2len + 12, p2len, 1, TopHUDShadowPriority);
     } else {
         silver_stun_put(1, p2len);
     }
 
-    scfont_sqput(p2len + 27, 3, 1, 0, p2len + 2, p2len + 12, 10 - p2len, 1, 3);
+    scfont_sqput(p2len + 27, 3, 1, 0, p2len + 2, p2len + 12, 10 - p2len, 1, TopHUDShadowPriority);
 }
 
 void silver_stun_put(u8 Pl_Num, s16 len) {
@@ -1910,7 +1932,7 @@ void silver_stun_put(u8 Pl_Num, s16 len) {
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    scrscrntex[0].z = scrscrntex[3].z = PrioBase[3];
+    scrscrntex[0].z = scrscrntex[3].z = PrioBase[TopHUDShadowPriority];
     njSetPaletteBankNumG(0, 1);
 
     scrscrntex[0].u = 240.0f / 256.0f;

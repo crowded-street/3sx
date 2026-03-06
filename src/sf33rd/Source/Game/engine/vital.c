@@ -86,14 +86,14 @@ void vital_control(u8 pl) {
 }
 
 void vital_parts_allwrite(u8 Pl_Num) {
-    scfont_sqput(Pl_Num * 27, 2, 1, 0, Pl_Num, Pl_Num + 30, 21, 1, 5);
+    scfont_sqput(Pl_Num * 27, 2, 1, 0, Pl_Num, Pl_Num + 30, 21, 1, TopHUDVitalPriority);
 
     if (omop_vt_bar_disp[Pl_Num] == 0) {
         silver_vital_put(Pl_Num);
         return;
     }
 
-    vital_put(Pl_Num, vit[Pl_Num].colnum, vit[Pl_Num].cyerw, 0, 2);
-    vital_put(Pl_Num, 1, vit[Pl_Num].cred, 1, 3);
+    vital_put(Pl_Num, vit[Pl_Num].colnum, vit[Pl_Num].cyerw, 0, TopHUDPriority);
+    vital_put(Pl_Num, 1, vit[Pl_Num].cred, 1, TopHUDShadowPriority);
     vital_base_put(Pl_Num);
 }

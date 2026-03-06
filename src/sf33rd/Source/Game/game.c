@@ -622,6 +622,7 @@ void Game2_5() {
         Switch_Screen(0);
         G_No[3] += 1;
         Stop_Update_Score = 0;
+        HUD_Shift_Init();
         vital_cont_init();
         count_cont_init(0);
         stngauge_cont_init();
@@ -677,6 +678,7 @@ void Game2_7() {
 void Game01_Sub() {
     Disp_Cockpit = 0;
     Stop_Update_Score = 0;
+    HUD_Shift_Init();
     vital_cont_init();
     count_cont_init(0);
     Score[0][1] = 0;
