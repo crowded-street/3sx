@@ -90,10 +90,9 @@ void Player_normal(PLW* wk) {
 
         if (wk->wu.cg_prio == 1) {
             wk->wu.next_z++;
-            return;
+        } else {
+            wk->wu.next_z -= 3;
         }
-
-        wk->wu.next_z -= 3;
     }
 }
 

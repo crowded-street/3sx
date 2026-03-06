@@ -340,7 +340,7 @@ s32 get_vs_shell_adrs(WORK* wk, s16 id, s16 ix, WORK_Other** tmw) {
     return 0;
 }
 
-void clear_my_shell_ix(WORK* wk) {
+void clear_my_shell_ix(WORK* wk) { // 🟢
     s32 i;
 
     for (i = 0; i < 8; i += 1) {

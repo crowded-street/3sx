@@ -1880,6 +1880,6 @@ void waza_compel_all_init2(PLW* pl) {
     }
 }
 
-u16 processed_lvbt(u16 lv_data) {
+u16 processed_lvbt(u16 lv_data) { // 🟡
     return lv_data & 0xFFF;
 }

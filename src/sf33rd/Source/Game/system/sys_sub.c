@@ -60,7 +60,7 @@ void Setup_Candidate_Buff(s16 PL_id);
 s16 Check_EM_Buff(s16 ix, s16 ok_urien);
 s32 Check_EM_Sub(s16 ix, s16 ok_urien, s16 Rnd);
 
-const u16 Convert_Data[12] = { 16, 32, 64, 256, 512, 1024, 272, 544, 1088, 112, 1792, 0 };
+const u16 Convert_Data[12] = { 0x10, 0x20, 0x40, 0x100, 0x200, 0x400, 0x110, 0x220, 0x440, 0x70, 0x700, 0 };
 
 void Switch_Screen_Init(s32 /* unused */) {
     WipeInit();

@@ -1,6 +1,7 @@
 #if defined(DEBUG)
 
 #include "test/test_runner.h"
+#include "constants.h"
 #include "main.h"
 #include "port/utils.h"
 #include "sf33rd/AcrSDK/common/pad.h"
@@ -30,29 +31,6 @@
 #define WORK_VITAL_NEW_OFFSET 0x9E
 
 #define REPLAY_FRAMES_MAX 3 * 100 * 60
-
-typedef enum Character {
-    CHAR_GILL = 0,
-    CHAR_ALEX = 1,
-    CHAR_RYU = 2,
-    CHAR_YUN = 3,
-    CHAR_DUDLEY = 4,
-    CHAR_NECRO = 5,
-    CHAR_HUGO = 6,
-    CHAR_IBUKI = 7,
-    CHAR_ELENA = 8,
-    CHAR_ORO = 9,
-    CHAR_YANG = 10,
-    CHAR_KEN = 11,
-    CHAR_SEAN = 12,
-    CHAR_URIEN = 13,
-    CHAR_AKUMA = 14,
-    CHAR_CHUNLI = 15,
-    CHAR_MAKOTO = 16,
-    CHAR_Q = 17,
-    CHAR_TWELVE = 18,
-    CHAR_REMY = 19,
-} Character;
 
 typedef enum Phase {
     PHASE_INIT,

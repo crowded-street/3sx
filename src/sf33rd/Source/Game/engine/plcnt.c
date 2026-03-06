@@ -5,6 +5,7 @@
 
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "common.h"
+#include "constants.h"
 #include "main.h"
 #include "sf33rd/Source/Game/animation/win_pl.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
@@ -294,10 +295,57 @@ const SA_DATA super_arts_DATA[20][4] = { { { 20, 24, 25, 0, 0, 0, 0, 3, 120, 2, 
                                            { 21, 0, 0, 0, 0, 0, 0, 0, 120, 2, 65536 },
                                            { 0, 0, 0, 0, 0, 0, 0, 0, 64, 1, 65536 } } };
 
-const s16 pl_piyo_tbl[20] = { 72, 72, 64, 64, 72, 64, 72, 64, 64, 72, 64, 64, 64, 64, 56, 64, 64, 72, 64, 56 };
+const s16 pl_piyo_tbl[NUM_CHARS] = {
+    72, // Gill
+    72, // Alex
+    64, // Ryu
+    64, // Yun
+    72, // Dudley
+    64, // Necro
+    72, // Hugo
+    64, // Ibuki
+    64, // Elena
+    72, // Oro
+    64, // Yang
+    64, // Ken
+    64, // Sean
+    64, // Urien
+    56, // Akuma
+#if defined(CPS3)
+    56, // Shin Akuma
+#endif
+    64, // Chun-Li
+    64, // Makoto
+    72, // Q
+    64, // Twelve
+    56, // Remy
+};
 
-const s32 pl_nr_piyo_tbl[20] = { 3276, 2849, 2978, 2730, 2978, 2849, 3120, 2730, 2978, 2730,
-                                 2730, 2978, 2849, 3120, 2849, 2978, 3276, 2978, 2849, 3120 };
+const s32 pl_nr_piyo_tbl[NUM_CHARS] = {
+    3276, // Gill
+    2849, // Alex
+    2978, // Ryu
+    2730, // Yun
+    2978, // Dudley
+    2849, // Necro
+    3120, // Hugo
+    2730, // Ibuki
+    2978, // Elena
+    2730, // Oro
+    2730, // Yang
+    2978, // Ken
+    2849, // Sean
+    3120, // Urien
+    2849, // Akuma
+#if defined(CPS3)
+    2978, // Shin Akuma
+#endif
+    2978, // Chun-Li
+    3276, // Makoto
+    2978, // Q
+    2849, // Twelve
+    3120, // Remy
+};
 
 const s16 tsuujyou_dageki_00[16] = { 150, 150, 130, 130, 130, 110, 110, 110, 110, 110, 90, 90, 90, 90, 90, 90 };
 const s16 tsuujyou_dageki_01[16] = { 150, 150, 150, 150, 130, 130, 130, 130, 110, 110, 110, 110, 90, 90, 90, 90 };
@@ -1359,7 +1407,7 @@ void set_kizetsu_status(s16 ix) {
     }
 }
 
-void clear_kizetsu_point(PLW* wk) {
+void clear_kizetsu_point(PLW* wk) { // 🟢
     wk->py->flag = 0;
     wk->py->time = 0;
     wk->py->now.timer = 0;

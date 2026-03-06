@@ -1031,7 +1031,8 @@ void add_sp_arts_gauge_nagenuke(PLW* wk) {
     add_super_arts_gauge(wk->sa, wk->wu.id, asag, wk->metamorphose);
 }
 
-void add_sp_arts_gauge_maxbit(PLW* wk) {
+#if !defined(CPS3)
+void add_sp_arts_gauge_maxbit(PLW* wk) { // 🔴
     if (pcon_rno[0] != 1) {
         return;
     }
@@ -1060,6 +1061,7 @@ void add_sp_arts_gauge_maxbit(PLW* wk) {
         add_super_arts_gauge(wk->sa, wk->wu.id, 1, wk->metamorphose);
     }
 }
+#endif
 
 void add_super_arts_gauge(SA_WORK* wk, s16 ix, s16 asag, u8 mf) {
     if (!test_flag && !mf) {

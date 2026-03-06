@@ -283,11 +283,9 @@ void check_extra_jump_timer(PLW* wk) {
         if (wk->micchaku_wall_time > 8) {
             wk->micchaku_wall_time = 8;
         }
-
-        return;
+    } else {
+        wk->micchaku_wall_time = 0;
     }
-
-    wk->micchaku_wall_time = 0;
 }
 
 void remake_sankaku_tobi_mvxy(WORK* wk, u8 kabe) {
