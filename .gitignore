@@ -11,6 +11,7 @@ __pycache__
 # IDEs
 
 .vscode
+.cache
 
 # Project
 
