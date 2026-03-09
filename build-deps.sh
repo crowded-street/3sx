@@ -240,4 +240,43 @@ else
     rm "$LIBCDIO.tar.gz"
 fi
 
+# -----------------------------
+# minizip-ng
+# -----------------------------
+
+MINIZIP_NG_TAG="4.1.0"
+MINIZIP_NG_DIR="$THIRD_PARTY/minizip-ng"
+MINIZIP_NG_BUILD="$MINIZIP_NG_DIR/build"
+
+if [ -d "$MINIZIP_NG_BUILD" ]; then
+    echo "minizip-ng already built at $MINIZIP_NG_BUILD"
+else
+    echo "Building minizip-ng @ $MINIZIP_NG_BUILD..."
+
+    mkdir -p "$MINIZIP_NG_BUILD"
+    MINIZIP_NG_SRC=$(mktemp -d)
+    git clone --branch "$MINIZIP_NG_TAG" --single-branch https://github.com/zlib-ng/minizip-ng "$MINIZIP_NG_SRC"
+
+    cmake -S "$MINIZIP_NG_SRC" -B "$MINIZIP_NG_SRC/cmake-build" \
+        -DCMAKE_INSTALL_PREFIX="$MINIZIP_NG_BUILD" \
+        -DMZ_COMPAT=OFF \
+        -DMZ_ZLIB_FLAVOR=zlib \
+        -DMZ_BZIP2=OFF \
+        -DMZ_LZMA=OFF \
+        -DMZ_PPMD=OFF \
+        -DMZ_ZSTD=OFF \
+        -DMZ_LIBCOMP=OFF \
+        -DMZ_PKCRYPT=OFF \
+        -DMZ_WZAES=OFF \
+        -DMZ_OPENSSL=OFF \
+        -DMZ_LIBBSD=OFF \
+        -DMZ_DECOMPRESS_ONLY=ON
+
+    cmake --build "$MINIZIP_NG_SRC/cmake-build" -j$(nproc)
+    cmake --install "$MINIZIP_NG_SRC/cmake-build"
+
+    rm -rf "$MINIZIP_NG_SRC"
+    echo "minizip-ng installed to $MINIZIP_NG_BUILD"
+fi
+
 echo "All dependencies installed successfully in $THIRD_PARTY"

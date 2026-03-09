@@ -16,6 +16,14 @@ Join `Crowded Street` server on Discord to discuss the project, report bugs or s
 
 [![Join the Discord](https://dcbadge.limes.pink/api/server/https://discord.gg/wqs6BqYr8C)](https://discord.gg/wqs6BqYr8C)
 
-## Licenses
+## Acknowledgments
 
-Uses [GekkoNet](https://github.com/HeatXD/GekkoNet) for P2P rollback netcode.
+This project uses:
+- [GekkoNet](https://github.com/HeatXD/GekkoNet) for P2P rollback netcode
+- [FFmpeg](https://ffmpeg.org) for ADX playback
+- [SDL3](https://github.com/libsdl-org/SDL) for window management, input handling, sound output and rendering
+- SDL_net for P2P connections
+- [libcdio / libiso9660](https://github.com/libcdio/libcdio) for .iso file reading
+- [zlib](https://zlib.net) for file decompression
+- [argparse](https://github.com/cofyc/argparse) for parsing CLI arguments
+- [minizip-ng](https://github.com/zlib-ng/minizip-ng) for unzipping

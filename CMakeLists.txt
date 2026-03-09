@@ -113,11 +113,12 @@ endif()
 set(THIRD_PARTY_DIR "${CMAKE_SOURCE_DIR}/third_party")
 find_package(ZLIB REQUIRED)
 
-set(FFMPEG_ROOT    "${THIRD_PARTY_DIR}/ffmpeg/build")
-set(SDL3_ROOT      "${THIRD_PARTY_DIR}/sdl3/build")
-set(LIBCDIO_ROOT   "${THIRD_PARTY_DIR}/libcdio/build")
-set(GEKKONET_ROOT  "${THIRD_PARTY_DIR}/GekkoNet/build")
-set(SDL3_NET_ROOT  "${THIRD_PARTY_DIR}/SDL_net/build")
+set(FFMPEG_ROOT     "${THIRD_PARTY_DIR}/ffmpeg/build")
+set(SDL3_ROOT       "${THIRD_PARTY_DIR}/sdl3/build")
+set(LIBCDIO_ROOT    "${THIRD_PARTY_DIR}/libcdio/build")
+set(GEKKONET_ROOT   "${THIRD_PARTY_DIR}/GekkoNet/build")
+set(SDL3_NET_ROOT   "${THIRD_PARTY_DIR}/SDL_net/build")
+set(MINIZIP_NG_ROOT "${THIRD_PARTY_DIR}/minizip-ng/build")
 
 include_directories(
     ${FFMPEG_ROOT}/include
@@ -125,6 +126,7 @@ include_directories(
     ${LIBCDIO_ROOT}/include
     ${GEKKONET_ROOT}/include
     ${SDL3_NET_ROOT}/include
+    ${MINIZIP_NG_ROOT}/include
 )
 
 target_link_libraries(3sx PRIVATE
@@ -134,7 +136,8 @@ target_link_libraries(3sx PRIVATE
     "${LIBCDIO_ROOT}/lib/libcdio.a"
     "${GEKKONET_ROOT}/lib/libGekkoNet.a"
     "${SDL3_NET_ROOT}/lib/libSDL3_net.a"
-    stdc++
+    "${MINIZIP_NG_ROOT}/lib/libminizip-ng.a"
+    stdc++ # For GekkoNet
 )
 
 if(APPLE)

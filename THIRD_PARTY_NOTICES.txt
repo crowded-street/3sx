@@ -86,3 +86,16 @@ License: MIT License, as provided by Yecheng Fu.
 
 Copyright:
 - Copyright (C) Yecheng Fu.
+
+minizip-ng
+------
+Project: minizip-ng
+Upstream: https://github.com/zlib-ng/minizip-ng
+
+3SX links against:
+- libminizip-ng
+
+License: zlib license, as provided by Nathan Moinvaziri.
+
+Copyright:
+- Copyright (C) Nathan Moinvaziri.
