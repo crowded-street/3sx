@@ -131,12 +131,12 @@ include_directories(
 
 target_link_libraries(3sx PRIVATE
     m
-    ZLIB::ZLIB
     "${LIBCDIO_ROOT}/lib/libiso9660.a"
     "${LIBCDIO_ROOT}/lib/libcdio.a"
     "${GEKKONET_ROOT}/lib/libGekkoNet.a"
     "${SDL3_NET_ROOT}/lib/libSDL3_net.a"
     "${MINIZIP_NG_ROOT}/lib/libminizip-ng.a"
+    ZLIB::ZLIB
     stdc++ # For GekkoNet
 )
 
