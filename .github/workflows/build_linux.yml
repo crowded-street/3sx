@@ -23,8 +23,7 @@ jobs:
           - name: Install dependencies
             run: |
                 sudo apt update
-                sudo apt install -y $(cat tools/requirements-ubuntu-sdl3.txt)
-                sudo apt install -y clang curl nasm
+                sudo apt install -y $(cat tools/requirements-ubuntu.txt)
                 ./build-deps.sh
             shell: bash
 

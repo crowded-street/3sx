@@ -13,23 +13,19 @@ jobs:
                 shell: msys2 {0}
 
         steps:
-          - uses: msys2/setup-msys2@v2
+          - id: msys2
+            uses: msys2/setup-msys2@v2
             with:
                 update: true
                 msystem: MINGW64
-                install: >-
-                    make
-                    mingw-w64-x86_64-cmake
-                    mingw-w64-x86_64-ninja
-                    mingw-w64-x86_64-nasm
-                    mingw-w64-x86_64-clang
-                    mingw-w64-x86_64-headers-git
-                    mingw-w64-x86_64-git
 
           - name: Checkout repository
             uses: actions/checkout@v4
             with:
                 submodules: true
+
+          - name: Install MSYS2 packages
+            run: tr -d '\r' < tools/requirements-windows.txt | xargs pacman -S --needed --noconfirm
 
           - name: Cache dependencies
             uses: actions/cache@v4

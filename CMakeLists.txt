@@ -16,7 +16,6 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/src
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/include/sdk
-    ${PROJECT_SOURCE_DIR}/zlib
 )
 
 # ======================================
@@ -24,10 +23,9 @@ include_directories(
 # ======================================
 
 file(GLOB_RECURSE GAME_SRC src/*.c)
-file(GLOB_RECURSE ZLIB_SRC zlib/*.c)
 
 add_executable(3sx MACOSX_BUNDLE
-    ${GAME_SRC} ${ZLIB_SRC}
+    ${GAME_SRC}
 )
 
 # ======================================
@@ -113,6 +111,7 @@ endif()
 # ======================================
 
 set(THIRD_PARTY_DIR "${CMAKE_SOURCE_DIR}/third_party")
+find_package(ZLIB REQUIRED)
 
 set(FFMPEG_ROOT    "${THIRD_PARTY_DIR}/ffmpeg/build")
 set(SDL3_ROOT      "${THIRD_PARTY_DIR}/sdl3/build")
@@ -130,6 +129,7 @@ include_directories(
 
 target_link_libraries(3sx PRIVATE
     m
+    ZLIB::ZLIB
     "${LIBCDIO_ROOT}/lib/libiso9660.a"
     "${LIBCDIO_ROOT}/lib/libcdio.a"
     "${GEKKONET_ROOT}/lib/libGekkoNet.a"

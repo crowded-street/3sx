@@ -10,7 +10,7 @@
 3. Install the required packages:
 
     ```bash
-    pacman -S make mingw-w64-x86_64-cmake mingw-w64-x86_64-ninja mingw-w64-x86_64-nasm mingw-w64-x86_64-clang mingw-w64-x86_64-headers-git mingw-w64-x86_64-git
+    pacman -S --needed $(cat tools/requirements-windows.txt)
     ```
 
 ### Linux
@@ -19,8 +19,7 @@
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y $(cat tools/requirements-ubuntu-sdl3.txt)
-sudo apt-get install -y clang curl nasm
+sudo apt-get install -y $(cat tools/requirements-ubuntu.txt)
 ```
 
 ### macOS

@@ -32,6 +32,19 @@ License: zlib license, as provided by the SDL project.
 Copyright:
 - Copyright (C) SDL contributors.
 
+zlib
+----
+Project: zlib
+Upstream: https://zlib.net
+
+3SX links against:
+- zlib
+
+License: zlib license, as provided by the zlib project.
+
+Copyright:
+- Copyright (C) Jean-loup Gailly and Mark Adler.
+
 FFmpeg
 ------
 Project: FFmpeg

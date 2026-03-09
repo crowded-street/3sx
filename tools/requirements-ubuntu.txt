@@ -4,6 +4,7 @@ make
 pkg-config 
 cmake 
 ninja-build
+zlib1g-dev
 gnome-desktop-testing 
 libasound2-dev 
 libpulse-dev
@@ -32,3 +33,6 @@ libpipewire-0.3-dev
 libwayland-dev
 libdecor-0-dev
 liburing-dev
+clang
+curl
+nasm
