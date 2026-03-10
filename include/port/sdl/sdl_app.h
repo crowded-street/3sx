@@ -5,8 +5,6 @@
 
 #define TARGET_FPS 59.59949
 
-extern SDL_Window* window;
-
 int SDLApp_PreInit();
 int SDLApp_FullInit();
 void SDLApp_Quit();

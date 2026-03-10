@@ -1,6 +1,5 @@
 #include "port/resources.h"
 #include "port/paths.h"
-#include "port/sdl/sdl_app.h"
 
 #include <SDL3/SDL.h>
 #include <cdio/iso9660.h>
@@ -8,6 +7,26 @@
 typedef enum FlowState { INIT, DIALOG_OPENED, COPY_ERROR, COPY_SUCCESS } ResourceCopyingFlowState;
 
 static ResourceCopyingFlowState flow_state = INIT;
+static SDL_Window* dialog_owner_window = NULL;
+
+static void create_dialog_parent_window() {
+    if (dialog_owner_window != NULL) {
+        return;
+    }
+
+    dialog_owner_window = SDL_CreateWindow("3SX", 1, 1, SDL_WINDOW_HIDDEN);
+    SDL_ShowWindow(dialog_owner_window);
+    SDL_RaiseWindow(dialog_owner_window);
+}
+
+static void destroy_dialog_owner_window() {
+    if (dialog_owner_window == NULL) {
+        return;
+    }
+
+    SDL_DestroyWindow(dialog_owner_window);
+    dialog_owner_window = NULL;
+}
 
 static bool file_exists(const char* path) {
     SDL_PathInfo path_info;
@@ -83,7 +102,7 @@ static void open_file_dialog_callback(void* userdata, const char* const* filelis
 static void open_dialog() {
     flow_state = DIALOG_OPENED;
     const SDL_DialogFileFilter filter = { .name = "Game iso", .pattern = "iso" };
-    SDL_ShowOpenFileDialog(open_file_dialog_callback, NULL, window, &filter, 1, NULL, false);
+    SDL_ShowOpenFileDialog(open_file_dialog_callback, NULL, dialog_owner_window, &filter, 1, NULL, false);
 }
 
 char* Resources_GetPath(const char* file_path) {
@@ -107,11 +126,12 @@ bool Resources_CheckIfPresent() {
 bool Resources_RunResourceCopyingFlow() {
     switch (flow_state) {
     case INIT:
+        create_dialog_parent_window();
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION,
                                  "Resources are missing",
                                  "3SX needs resources from a copy of \"Street Fighter III: 3rd Strike\" to run. Choose "
                                  "the iso in the next dialog",
-                                 window);
+                                 dialog_owner_window);
         open_dialog();
         break;
 
@@ -120,8 +140,10 @@ bool Resources_RunResourceCopyingFlow() {
         break;
 
     case COPY_ERROR:
-        SDL_ShowSimpleMessageBox(
-            SDL_MESSAGEBOX_ERROR, "Invalid iso", "The iso you provided doesn't contain the required files", window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+                                 "Invalid iso",
+                                 "The iso you provided doesn't contain the required files",
+                                 dialog_owner_window);
         open_dialog();
         break;
 
@@ -129,9 +151,11 @@ bool Resources_RunResourceCopyingFlow() {
         char* resources_path = Resources_GetPath(NULL);
         char* message = NULL;
         SDL_asprintf(&message, "You can find them at:\n%s", resources_path);
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Resources copied successfully", message, window);
+        SDL_ShowSimpleMessageBox(
+            SDL_MESSAGEBOX_INFORMATION, "Resources copied successfully", message, dialog_owner_window);
         SDL_free(resources_path);
         SDL_free(message);
+        destroy_dialog_owner_window();
         flow_state = INIT;
         return true;
     }

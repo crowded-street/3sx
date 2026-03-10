@@ -398,6 +398,19 @@ static void game_step_1() {
 #endif
 }
 
+static bool sdl_poll_helper() {
+    SDL_Event event;
+    bool continue_running = true;
+
+    while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_EVENT_QUIT) {
+            continue_running = false;
+        }
+    }
+
+    return continue_running;
+}
+
 static int loop() {
     bool is_running = true;
 
@@ -416,7 +429,12 @@ static int loop() {
             break;
 
         case MAIN_PHASE_COPYING_RESOURCES:
-            SDL_PumpEvents();
+            is_running = sdl_poll_helper();
+
+            if (!is_running) {
+                break;
+            }
+
             SDL_Delay(128);
 
             const bool resource_flow_ended = Resources_RunResourceCopyingFlow();
