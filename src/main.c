@@ -183,6 +183,14 @@ static bool run_resource_flow() {
     return are_resources_checked;
 }
 
+/// @brief Checks game assets are present prior to initializing the renderer.
+static void init_game_assets() {
+    while (!run_resource_flow()) {
+        SDL_PumpEvents();
+        SDL_Delay(128);
+    }
+}
+
 static void afs_init() {
     char* file_path = Resources_GetPath("SF33RD.AFS");
     AFS_Init(file_path);
@@ -221,6 +229,7 @@ static int loop() {
     init_windows_console();
 #endif
 
+    init_game_assets();
     SDLApp_Init();
     set_netplay_params();
 
