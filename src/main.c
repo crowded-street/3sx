@@ -57,30 +57,26 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+typedef enum MainPhase {
+    MAIN_PHASE_INIT,
+    MAIN_PHASE_COPYING_RESOURCES,
+    MAIN_PHASE_INITIALIZED,
+} MainPhase;
+
 s32 system_init_level;
 MPP mpp_w;
 Configuration configuration = { 0 };
 
-static bool is_game_initialized = false;
-static bool are_resources_checked = false;
-static bool is_running_resource_flow = false;
+static u8 dctex_linear_mem[0x800];
+static u8 texcash_melt_buffer_mem[0x1000];
+static u8 tpu_free_mem[0x2000];
+static MainPhase phase = MAIN_PHASE_INIT;
 
-// forward decls
-static void game_init();
-static void game_step_0();
-static void game_step_1();
+static u8* mppMalloc(u32 size) {
+    return flAllocMemory(size);
+}
 
-#if _WIN32 && DEBUG
-static void init_windows_console();
-#endif
-
-void distributeScratchPadAddress();
-void appCopyKeyData();
-u8* mppMalloc(u32 size);
-void njUserInit();
-void njUserMain();
-void cpLoopTask();
-void cpInitTask();
+// Initialization
 
 static void set_netplay_params() {
     if (configuration.netplay.p2p_remote_ip != NULL) {
@@ -90,106 +86,54 @@ static void set_netplay_params() {
     }
 }
 
-/// @brief Makes sure resources are present.
-/// @return `true` if resources are present and execution can proceed, `false` otherwise.
-static bool run_resource_flow() {
-    if (are_resources_checked) {
-        return true;
-    }
-
-    if (!is_running_resource_flow) {
-        are_resources_checked = Resources_CheckIfPresent();
-
-        if (are_resources_checked) {
-            return true;
-        }
-
-        is_running_resource_flow = true;
-    }
-
-    are_resources_checked = Resources_RunResourceCopyingFlow();
-
-    if (are_resources_checked) {
-        // Cleanup
-        is_running_resource_flow = false;
-    }
-
-    return are_resources_checked;
+static void cpInitTask() {
+    memset(&task, 0, sizeof(task));
 }
 
-static void afs_init() {
-    char* file_path = Resources_GetPath("SF33RD.AFS");
-    AFS_Init(file_path);
-    SDL_free(file_path);
-}
+static void njUserInit() {
+    s32 i;
+    u32 size;
 
-static void step_0() {
-    if (!run_resource_flow()) {
-        return;
+    sysFF = 1;
+    mpp_w.sysStop = false;
+    mpp_w.inGame = false;
+    mpp_w.language = 0;
+    mmSystemInitialize();
+    flGetFrame(&mpp_w.fmsFrame);
+    seqsInitialize(mppMalloc(seqsGetUseMemorySize()));
+    ppg_Initialize(mppMalloc(0x60000), 0x60000);
+    zlib_Initialize(mppMalloc(0x10000), 0x10000);
+    size = flGetSpace();
+    mpp_w.ramcntBuff = mppMalloc(size);
+    Init_ram_control_work(mpp_w.ramcntBuff, size);
+
+    for (i = 0; i < 0x14; i++) {
+        mpp_w.useChar[i] = 0;
     }
 
-    if (!is_game_initialized) {
-        afs_init();
-        game_init();
-        is_game_initialized = true;
+    Interrupt_Timer = 0;
+    Disp_Size_H = 100;
+    Disp_Size_V = 100;
+    Country = 4;
+
+    if (Country == 0) {
+        while (1) {}
     }
 
-    if (is_game_initialized) {
-        AFS_RunServer();
-        game_step_0();
-    }
+    Init_sound_system();
+    Init_bgm_work();
+    sndInitialLoad();
+    cpInitTask();
+    cpReadyTask(TASK_INIT, Init_Task);
 }
 
-static void step_1() {
-    if (!run_resource_flow() || !is_game_initialized) {
-        return;
-    }
-
-    game_step_1();
+static void distributeScratchPadAddress() {
+    dctex_linear = (s16*)dctex_linear_mem;
+    texcash_melt_buffer = (u8*)texcash_melt_buffer_mem;
+    tpu_free = (TexturePoolUsed*)tpu_free_mem;
 }
 
-static int loop() {
-    bool is_running = true;
-
-#if _WIN32 && DEBUG
-    init_windows_console();
-#endif
-
-    SDLApp_Init();
-    set_netplay_params();
-
-    while (is_running) {
-        is_running = SDLApp_PollEvents();
-        SDLApp_BeginFrame();
-        step_0();
-        SDLApp_EndFrame();
-        step_1();
-    }
-
-    AFS_Finish();
-    SDLApp_Quit();
-    return 0;
-}
-
-int main(int argc, const char* argv[]) {
-    read_args(argc, argv, &configuration);
-    return loop();
-}
-
-#if _WIN32 && DEBUG
-static void init_windows_console() {
-    // attaches to an existing console for printouts. Works with windows CMD but not MSYS2
-    if (AttachConsole(ATTACH_PARENT_PROCESS) == 0) {
-        // if fails, then allocate a new console
-        AllocConsole();
-    }
-    freopen("CONIN$", "r", stdin);
-    freopen("CONOUT$", "w", stdout);
-    freopen("CONOUT$", "w", stderr);
-}
-#endif
-
-static void game_init() {
+static void sf3_init() {
 #if DEBUG
     DebugConfig_Init();
 #endif
@@ -207,12 +151,184 @@ static void game_init() {
     MemcardInit();
 }
 
+static void afs_init() {
+    char* file_path = Resources_GetPath("SF33RD.AFS");
+    AFS_Init(file_path);
+    SDL_free(file_path);
+}
+
+#if _WIN32 && DEBUG
+static void init_windows_console() {
+    // attaches to an existing console for printouts. Works with windows CMD but not MSYS2
+    if (AttachConsole(ATTACH_PARENT_PROCESS) == 0) {
+        // if fails, then allocate a new console
+        AllocConsole();
+    }
+    freopen("CONIN$", "r", stdin);
+    freopen("CONOUT$", "w", stdout);
+    freopen("CONOUT$", "w", stderr);
+}
+#endif
+
+static void initialize_game() {
+    SDLApp_FullInit();
+
+#if _WIN32 && DEBUG
+    init_windows_console();
+#endif
+
+    set_netplay_params();
+    afs_init();
+    sf3_init();
+}
+
+static void cleanup() {
+    AFS_Finish();
+    SDLApp_Quit();
+}
+
+// Iteration
+
+static void cpLoopTask() {
+#if DEBUG
+    disp_ramcnt_free_area();
+
+    if (sysSLOW) {
+        if (--Slow_Timer == 0) {
+            sysSLOW = 0;
+            Game_pause &= 0x7F;
+        } else {
+            Game_pause |= 0x80;
+        }
+    }
+#endif
+
+    for (int i = 0; i < 11; i++) {
+        struct _TASK* task_ptr = &task[i];
+
+        switch (task_ptr->condition) {
+        case 1:
+            task_ptr->func_adrs(task_ptr);
+            break;
+
+        case 2:
+            task_ptr->condition = 1;
+            break;
+
+        case 3:
+            break;
+        }
+    }
+}
+
+static void appCopyKeyData() {
+    // FIXME: Should PLsw be saved/restored too?
+    PLsw[0][1] = PLsw[0][0];
+    PLsw[1][1] = PLsw[1][0];
+    PLsw[0][0] = p1sw_buff;
+    PLsw[1][0] = p2sw_buff;
+}
+
+void njUserMain() {
+    CPU_Time_Lag[0] = 0;
+    CPU_Time_Lag[1] = 0;
+    CPU_Rec[0] = 0;
+    CPU_Rec[1] = 0;
+
+    Check_Replay_Status(0, Replay_Status[0]);
+    Check_Replay_Status(1, Replay_Status[1]);
+
+    cpLoopTask();
+
+    if ((Game_pause != 0x81) && (Mode_Type == MODE_VERSUS) && (Play_Mode == 1)) {
+        if ((plw[0].wu.operator == 0) && (CPU_Rec[0] == 0) && (Replay_Status[0] == 1)) {
+            p1sw_0 = 0;
+
+            Check_Replay_Status(0, 1);
+
+            if (Debug_w[0x21]) {
+                flPrintColor(0xFFFFFFFF);
+                flPrintL(0x10, 0xA, "FAKE REC! PL1");
+            }
+        }
+
+        if ((plw[1].wu.operator == 0) && (CPU_Rec[1] == 0) && (Replay_Status[1] == 1)) {
+            p2sw_0 = 0;
+
+            Check_Replay_Status(1, 1);
+
+            if (Debug_w[0x21]) {
+                flPrintColor(0xFFFFFFFF);
+                flPrintL(0x10, 0xA, "FAKE REC!     PL2");
+            }
+        }
+    }
+}
+
+#if DEBUG
+static void configure_slow_timer() {
+    if (test_flag) {
+        return;
+    }
+
+    if (mpp_w.sysStop) {
+        sysSLOW = 1;
+
+        switch (io_w.data[1].sw_new) {
+        case SWK_LEFT_STICK:
+            mpp_w.sysStop = false;
+            // fallthrough
+
+        case SWK_LEFT_SHOULDER:
+            Slow_Timer = 1;
+            break;
+
+        default:
+            switch (io_w.data[1].sw & (SWK_LEFT_SHOULDER | SWK_LEFT_TRIGGER)) {
+            case SWK_LEFT_SHOULDER | SWK_LEFT_TRIGGER:
+                if ((sysFF = Debug_w[1]) == 0) {
+                    sysFF = 1;
+                }
+
+                sysSLOW = 1;
+                Slow_Timer = 1;
+
+                break;
+
+            case SWK_LEFT_TRIGGER:
+                if (Slow_Timer == 0) {
+                    if ((Slow_Timer = Debug_w[0]) == 0) {
+                        Slow_Timer = 1;
+                    }
+
+                    sysFF = 1;
+                }
+
+                break;
+
+            default:
+                Slow_Timer = 2;
+                break;
+            }
+
+            break;
+        }
+    } else if (io_w.data[1].sw_new & SWK_LEFT_STICK) {
+        mpp_w.sysStop = true;
+    }
+}
+#endif
+
 static void game_step_0() {
+    AFS_RunServer();
+
     flSetRenderState(FLRENDER_BACKCOLOR, 0xFF000000);
 
+#if DEBUG
     if (Debug_w[0x43]) {
         flSetRenderState(FLRENDER_BACKCOLOR, 0xFF0000FF);
     }
+#endif
 
     appSetupTempPriority();
     flPADGetALL();
@@ -222,56 +338,8 @@ static void game_step_0() {
     if (configuration.test.enabled) {
         TestRunner_Prologue();
     }
-#endif
 
-#if DEBUG
-    if (!test_flag) {
-        if (mpp_w.sysStop) {
-            sysSLOW = 1;
-
-            switch (io_w.data[1].sw_new) {
-            case SWK_LEFT_STICK:
-                mpp_w.sysStop = false;
-                // fallthrough
-
-            case SWK_LEFT_SHOULDER:
-                Slow_Timer = 1;
-                break;
-
-            default:
-                switch (io_w.data[1].sw & (SWK_LEFT_SHOULDER | SWK_LEFT_TRIGGER)) {
-                case SWK_LEFT_SHOULDER | SWK_LEFT_TRIGGER:
-                    if ((sysFF = Debug_w[1]) == 0) {
-                        sysFF = 1;
-                    }
-
-                    sysSLOW = 1;
-                    Slow_Timer = 1;
-
-                    break;
-
-                case SWK_LEFT_TRIGGER:
-                    if (Slow_Timer == 0) {
-                        if ((Slow_Timer = Debug_w[0]) == 0) {
-                            Slow_Timer = 1;
-                        }
-
-                        sysFF = 1;
-                    }
-
-                    break;
-
-                default:
-                    Slow_Timer = 2;
-                    break;
-                }
-
-                break;
-            }
-        } else if (io_w.data[1].sw_new & SWK_LEFT_STICK) {
-            mpp_w.sysStop = true;
-        }
-    }
+    configure_slow_timer();
 #endif
 
     if ((Play_Mode != 3 && Play_Mode != 1) || (Game_pause != 0x81)) {
@@ -330,14 +398,58 @@ static void game_step_1() {
 #endif
 }
 
-u8 dctex_linear_mem[0x800];
-u8 texcash_melt_buffer_mem[0x1000];
-u8 tpu_free_mem[0x2000];
+static int loop() {
+    bool is_running = true;
 
-void distributeScratchPadAddress() {
-    dctex_linear = (s16*)dctex_linear_mem;
-    texcash_melt_buffer = (u8*)texcash_melt_buffer_mem;
-    tpu_free = (TexturePoolUsed*)tpu_free_mem;
+    while (is_running) {
+        switch (phase) {
+        case MAIN_PHASE_INIT:
+            SDLApp_PreInit();
+
+            if (Resources_CheckIfPresent()) {
+                initialize_game();
+                phase = MAIN_PHASE_INITIALIZED;
+            } else {
+                phase = MAIN_PHASE_COPYING_RESOURCES;
+            }
+
+            break;
+
+        case MAIN_PHASE_COPYING_RESOURCES:
+            SDL_PumpEvents();
+            SDL_Delay(128);
+
+            const bool resource_flow_ended = Resources_RunResourceCopyingFlow();
+
+            if (resource_flow_ended) {
+                initialize_game();
+                phase = MAIN_PHASE_INITIALIZED;
+            }
+
+            break;
+
+        case MAIN_PHASE_INITIALIZED:
+            is_running = SDLApp_PollEvents();
+
+            if (!is_running) {
+                break;
+            }
+
+            SDLApp_BeginFrame();
+            game_step_0();
+            SDLApp_EndFrame();
+            game_step_1();
+            break;
+        }
+    }
+
+    cleanup();
+    return 0;
+}
+
+int main(int argc, const char* argv[]) {
+    read_args(argc, argv, &configuration);
+    return loop();
 }
 
 s32 mppGetFavoritePlayerNumber() {
@@ -345,9 +457,11 @@ s32 mppGetFavoritePlayerNumber() {
     s32 max = 1;
     s32 num = 0;
 
+#if DEBUG
     if (Debug_w[0x2D]) {
         return Debug_w[0x2D] - 1;
     }
+#endif
 
     for (i = 0; i < 0x14; i++) {
         if (max <= mpp_w.useChar[i]) {
@@ -359,126 +473,7 @@ s32 mppGetFavoritePlayerNumber() {
     return num;
 }
 
-void appCopyKeyData() {
-    // FIXME: Should PLsw be saved/restored too?
-    PLsw[0][1] = PLsw[0][0];
-    PLsw[1][1] = PLsw[1][0];
-    PLsw[0][0] = p1sw_buff;
-    PLsw[1][0] = p2sw_buff;
-}
-
-u8* mppMalloc(u32 size) {
-    return flAllocMemory(size);
-}
-
-void njUserInit() {
-    s32 i;
-    u32 size;
-
-    sysFF = 1;
-    mpp_w.sysStop = false;
-    mpp_w.inGame = false;
-    mpp_w.language = 0;
-    mmSystemInitialize();
-    flGetFrame(&mpp_w.fmsFrame);
-    seqsInitialize(mppMalloc(seqsGetUseMemorySize()));
-    ppg_Initialize(mppMalloc(0x60000), 0x60000);
-    zlib_Initialize(mppMalloc(0x10000), 0x10000);
-    size = flGetSpace();
-    mpp_w.ramcntBuff = mppMalloc(size);
-    Init_ram_control_work(mpp_w.ramcntBuff, size);
-
-    for (i = 0; i < 0x14; i++) {
-        mpp_w.useChar[i] = 0;
-    }
-
-    Interrupt_Timer = 0;
-    Disp_Size_H = 100;
-    Disp_Size_V = 100;
-    Country = 4;
-
-    if (Country == 0) {
-        while (1) {}
-    }
-
-    Init_sound_system();
-    Init_bgm_work();
-    sndInitialLoad();
-    cpInitTask();
-    cpReadyTask(TASK_INIT, Init_Task);
-}
-
-void njUserMain() {
-    CPU_Time_Lag[0] = 0;
-    CPU_Time_Lag[1] = 0;
-    CPU_Rec[0] = 0;
-    CPU_Rec[1] = 0;
-
-    Check_Replay_Status(0, Replay_Status[0]);
-    Check_Replay_Status(1, Replay_Status[1]);
-
-    cpLoopTask();
-
-    if ((Game_pause != 0x81) && (Mode_Type == MODE_VERSUS) && (Play_Mode == 1)) {
-        if ((plw[0].wu.operator == 0) && (CPU_Rec[0] == 0) && (Replay_Status[0] == 1)) {
-            p1sw_0 = 0;
-
-            Check_Replay_Status(0, 1);
-
-            if (Debug_w[0x21]) {
-                flPrintColor(0xFFFFFFFF);
-                flPrintL(0x10, 0xA, "FAKE REC! PL1");
-            }
-        }
-
-        if ((plw[1].wu.operator == 0) && (CPU_Rec[1] == 0) && (Replay_Status[1] == 1)) {
-            p2sw_0 = 0;
-
-            Check_Replay_Status(1, 1);
-
-            if (Debug_w[0x21]) {
-                flPrintColor(0xFFFFFFFF);
-                flPrintL(0x10, 0xA, "FAKE REC!     PL2");
-            }
-        }
-    }
-}
-
-void cpLoopTask() {
-    disp_ramcnt_free_area();
-
-#if DEBUG
-    if (sysSLOW) {
-        if (--Slow_Timer == 0) {
-            sysSLOW = 0;
-            Game_pause &= 0x7F;
-        } else {
-            Game_pause |= 0x80;
-        }
-    }
-#endif
-
-    for (int i = 0; i < 11; i++) {
-        struct _TASK* task_ptr = &task[i];
-
-        switch (task_ptr->condition) {
-        case 1:
-            task_ptr->func_adrs(task_ptr);
-            break;
-
-        case 2:
-            task_ptr->condition = 1;
-            break;
-
-        case 3:
-            break;
-        }
-    }
-}
-
-void cpInitTask() {
-    memset(&task, 0, sizeof(task));
-}
+// Tasks
 
 void cpReadyTask(TaskID num, void* func_adrs) {
     struct _TASK* task_ptr = &task[num];

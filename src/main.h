@@ -20,10 +20,9 @@ extern MPP mpp_w;
 extern s32 system_init_level;
 extern Configuration configuration;
 
-void cpInitTask();
 void cpReadyTask(TaskID num, void* func_adrs);
 void cpExitTask(TaskID num);
 s32 mppGetFavoritePlayerNumber();
-void njUserMain();
+void njUserMain(); // FIXME: This shouldn't be public
 
 #endif

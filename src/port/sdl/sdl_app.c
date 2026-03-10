@@ -100,20 +100,7 @@ static void init_scalemode() {
     }
 }
 
-int SDLApp_Init() {
-    Config_Init();
-    Keymap_Init();
-    init_scalemode();
-
-    SDL_SetAppMetadata(app_name, "0.1", NULL);
-    SDL_SetHint(SDL_HINT_VIDEO_WAYLAND_PREFER_LIBDECOR, "1");
-    SDL_SetHint(SDL_HINT_NO_SIGNAL_HANDLERS, "1");
-
-    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD)) {
-        SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
-        return 1;
-    }
-
+static bool init_window() {
     SDL_WindowFlags window_flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
 
     if (Config_GetBool(CFG_KEY_FULLSCREEN)) {
@@ -134,10 +121,40 @@ int SDLApp_Init() {
 
     if (!SDL_CreateWindowAndRenderer(app_name, window_width, window_height, window_flags, &window, &renderer)) {
         SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
-        return 1;
+        return false;
     }
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    return true;
+}
+
+int SDLApp_PreInit() {
+    SDL_SetAppMetadata(app_name, "0.1", NULL);
+    SDL_SetHint(SDL_HINT_VIDEO_WAYLAND_PREFER_LIBDECOR, "1");
+    SDL_SetHint(SDL_HINT_NO_SIGNAL_HANDLERS, "1");
+
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
+        SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
+        return 1;
+    }
+
+    return 0;
+}
+
+int SDLApp_FullInit() {
+    Config_Init();
+    Keymap_Init();
+    init_scalemode();
+
+    if (!SDL_Init(SDL_INIT_AUDIO | SDL_INIT_GAMEPAD)) {
+        SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
+        return 1;
+    }
+
+    if (!init_window()) {
+        SDL_Log("Couldn't initialize SDL window: %s", SDL_GetError());
+        return 1;
+    }
 
     // Initialize rendering subsystems
     SDLMessageRenderer_Initialize(renderer);
