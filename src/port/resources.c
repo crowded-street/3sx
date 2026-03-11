@@ -146,7 +146,7 @@ bool Resources_Check() {
     sha256_init(&sha);
 
     const size_t chunk_size = 10 * 1024;
-    void * buf = SDL_malloc(chunk_size);
+    void* buf = SDL_malloc(chunk_size);
     SDL_IOStream* io = SDL_IOFromFile(afs_path, "rb");
     size_t bytes_read = 0;
 
