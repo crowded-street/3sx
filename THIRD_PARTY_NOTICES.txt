@@ -99,3 +99,13 @@ License: zlib license, as provided by Nathan Moinvaziri.
 
 Copyright:
 - Copyright (C) Nathan Moinvaziri.
+
+SHA-256
+------
+Project: SHA-256
+Upstream: https://github.com/983/SHA-256
+
+License: Unlicense license, as provided by 983.
+
+Copyright:
+- Copyright (C) 983.

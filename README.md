@@ -27,3 +27,4 @@ This project uses:
 - [zlib](https://zlib.net) for file decompression
 - [argparse](https://github.com/cofyc/argparse) for parsing CLI arguments
 - [minizip-ng](https://github.com/zlib-ng/minizip-ng) for unzipping
+- [SHA-256 implementation by 983](https://github.com/983/SHA-256) for checksum calculation
