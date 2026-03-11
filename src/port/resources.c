@@ -82,8 +82,10 @@ static void open_file_dialog_callback(void* userdata, const char* const* filelis
     uint64_t bytes_remaining = stat->total_size;
     lsn_t current_lsn = stat->lsn;
 
+#if CHECKSUM
     sha256 sha;
     sha256_init(&sha);
+#endif
 
     while (bytes_remaining > 0) {
         const uint64_t bytes_to_read = SDL_min(sizeof(buffer), bytes_remaining);
@@ -91,7 +93,10 @@ static void open_file_dialog_callback(void* userdata, const char* const* filelis
 
         const long bytes_read = iso9660_iso_seek_read(iso, buffer, current_lsn, sectors_to_read);
         SDL_WriteIO(dst_io, buffer, bytes_read);
+
+#if CHECKSUM
         sha256_append(&sha, buffer, bytes_read);
+#endif
 
         bytes_remaining -= bytes_read;
         current_lsn += sectors_to_read;
@@ -101,6 +106,7 @@ static void open_file_dialog_callback(void* userdata, const char* const* filelis
     iso9660_close(iso);
     SDL_CloseIO(dst_io);
 
+#if CHECKSUM
     char hex[SHA256_HEX_SIZE];
     sha256_finalize_hex(&sha, hex);
 
@@ -111,6 +117,9 @@ static void open_file_dialog_callback(void* userdata, const char* const* filelis
         flow_state = COPY_ERROR;
         SDL_RemovePath(dst_path);
     }
+#else
+    flow_state = COPY_SUCCESS;
+#endif
 
     SDL_free(dst_path);
 }
@@ -142,6 +151,7 @@ bool Resources_Check() {
         return false;
     }
 
+#if CHECKSUM
     sha256 sha;
     sha256_init(&sha);
 
@@ -171,6 +181,9 @@ bool Resources_Check() {
     } else {
         return false;
     }
+#else
+    return true;
+#endif
 }
 
 bool Resources_RunResourceCopyingFlow() {

@@ -37,6 +37,7 @@ target_compile_definitions(3sx PRIVATE
     $<$<CONFIG:Debug>:NETPLAY_ENABLED>
 
     $<$<CONFIG:Release>:RELEASE>
+    $<$<CONFIG:Release>:CHECKSUM>
 
     _POSIX_C_SOURCE
 
