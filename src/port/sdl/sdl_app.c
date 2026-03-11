@@ -32,6 +32,7 @@ static const Uint64 target_frame_time_ns = 1000000000.0 / TARGET_FPS;
 SDL_Window* window = NULL;
 static SDL_Renderer* renderer = NULL;
 static SDL_Texture* screen_texture = NULL;
+static SDL_Texture* scanline_overlay_texture = NULL;
 static ScaleMode scale_mode = SCALEMODE_SOFT_LINEAR;
 
 static Uint64 frame_deadline = 0;
@@ -44,6 +45,11 @@ static Uint64 frame_counter = 0;
 static bool should_save_screenshot = false;
 static Uint64 last_mouse_motion_time = 0;
 static const int mouse_hide_delay_ms = 2000; // 2 seconds
+
+static int scanline_percentage = 0;
+static int cached_scanline_rect_w = -1;
+static int cached_scanline_rect_h = -1;
+static int cached_scanline_percentage = -1;
 
 static SDL_ScaleMode screen_texture_scale_mode() {
     switch (scale_mode) {
@@ -100,10 +106,21 @@ static void init_scalemode() {
     }
 }
 
+static void init_scanlines() {
+    const int raw_scanlines = Config_GetInt(CFG_KEY_SCANLINES);
+
+    if (raw_scanlines < 0) {
+        return;
+    }
+
+    scanline_percentage = SDL_clamp(raw_scanlines, 0, 100);
+}
+
 int SDLApp_Init() {
     Config_Init();
     Keymap_Init();
     init_scalemode();
+    init_scanlines();
 
     SDL_SetAppMetadata(app_name, "0.1", NULL);
     SDL_SetHint(SDL_HINT_VIDEO_WAYLAND_PREFER_LIBDECOR, "1");
@@ -158,6 +175,7 @@ int SDLApp_Init() {
 
 void SDLApp_Quit() {
     Config_Destroy();
+    SDL_DestroyTexture(scanline_overlay_texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
@@ -185,6 +203,96 @@ static void handle_fullscreen_toggle(SDL_KeyboardEvent* event) {
     } else {
         SDL_SetWindowFullscreen(window, true);
     }
+}   
+
+static bool scanline_cache_matches(int rect_w, int rect_h) {
+    return (scanline_overlay_texture != NULL)
+        && (cached_scanline_rect_w == rect_w)
+        && (cached_scanline_rect_h == rect_h)
+        && (cached_scanline_percentage == scanline_percentage);
+}
+
+static bool update_scanline_overlay_texture(SDL_FRect game_rect) {
+    const int rect_w = (int)game_rect.w;
+    const int rect_h = (int)game_rect.h;
+
+    if (scanline_cache_matches(rect_w, rect_h)) {
+        return true;
+    }
+
+    SDL_DestroyTexture(scanline_overlay_texture);
+    
+    scanline_overlay_texture = SDL_CreateTexture(
+        renderer,
+        SDL_PIXELFORMAT_ARGB32,
+        SDL_TEXTUREACCESS_TARGET,
+        rect_w,
+        rect_h
+    );
+
+    if (scanline_overlay_texture == NULL) {
+        SDL_Log("Couldn't create scanline overlay texture: %s", SDL_GetError());
+        return false;
+    }
+
+    SDL_SetTextureBlendMode(scanline_overlay_texture, SDL_BLENDMODE_BLEND);
+
+    SDL_Texture* old_target = SDL_GetRenderTarget(renderer);
+    SDL_SetRenderTarget(renderer, scanline_overlay_texture);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+    SDL_RenderClear(renderer);
+
+    const float strength = scanline_percentage / 100.0f;
+    const float row_height = game_rect.h / 224.0f;
+
+    // Precompute alpha per screen row to avoid doing expensive calculations for every pixel.
+    Uint8* alpha_table = SDL_malloc(rect_h);
+    for (int y = 0; y < rect_h; y++) {
+        const float t = SDL_fmodf((y + 0.5f) / row_height, 1.0f);
+        const float dy = t - 0.5f;
+        const float Y = dy * dy;
+        const float YY = Y * Y;
+        const float scan_weight = SDL_clamp(1.45f - 6.0f * (Y - 2.05f * YY), 0.0f, 1.45f);
+        const float darkness = (1.45f - scan_weight) / 1.45f * strength;
+        alpha_table[y] = (Uint8)(darkness * 255.0f + 0.5f);
+    }
+
+    SDL_FRect* rects = SDL_malloc(rect_h * sizeof(SDL_FRect));
+    for (int a = 1; a < 256; a++) {
+        int count = 0;
+        for (int y = 0; y < rect_h; y++) {
+            if (alpha_table[y] == (Uint8)a) {
+                rects[count++] = (SDL_FRect){ 0.0f, (float)y, (float)rect_w, 1.0f };
+            }
+        }
+        if (count > 0) {
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, (Uint8)a);
+            SDL_RenderFillRects(renderer, rects, count);
+        }
+    }
+
+    SDL_free(rects);
+    SDL_free(alpha_table);
+
+    SDL_SetRenderTarget(renderer, old_target);
+
+    cached_scanline_rect_w = rect_w;
+    cached_scanline_rect_h = rect_h;
+    cached_scanline_percentage = scanline_percentage;
+
+    return true;
+}
+
+static void render_scanlines(SDL_FRect game_rect) {
+    if (scanline_percentage == 0) {
+        return;
+    }
+
+    if (!update_scanline_overlay_texture(game_rect)) {
+        return;
+    }
+
+    SDL_RenderTexture(renderer, scanline_overlay_texture, NULL, &game_rect);
 }
 
 static void handle_mouse_motion() {
@@ -362,6 +470,11 @@ void SDLApp_EndFrame() {
     // Render screen texture to screen
     SDL_SetRenderTarget(renderer, NULL);
     SDL_RenderTexture(renderer, screen_texture, NULL, NULL);
+
+    // Apply scanlines using a cached overlay texture.
+    int win_w, win_h;
+    SDL_GetRenderOutputSize(renderer, &win_w, &win_h);
+    render_scanlines(get_letterbox_rect(win_w, win_h));
 
     if (should_save_screenshot) {
         save_texture(screen_texture, "screenshot_screen.bmp");

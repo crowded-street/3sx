@@ -28,6 +28,10 @@ Possible values:
 - `integer`: Produces a pixel-perfect image, but requires a 4K display (⚠️ WARNING: the image is gonna be cropped if your display resolution is smaller than 2688x2016)
 - `square-pixels`: The internal buffer is scaled up by an integer (whole number) factor. Use this if you play on a CRT
 
+### `scanlines`
+
+Defines the strength of the scanline filter (from values `0` to `100`). `0` means the filter is disabled.
+
 ### `draw-players-above-hud`
 
 Allow characters to render in front of the top HUD similar to Street Fighter IV. May introduce visual abnormalities on certain stages.
