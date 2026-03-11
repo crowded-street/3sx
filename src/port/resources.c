@@ -75,7 +75,7 @@ static void open_file_dialog_callback(void* userdata, const char* const* filelis
     }
 
     create_resources_directory();
-    char* dst_path = Resources_GetPath("SF33RD.AFS");
+    const char* dst_path = Resources_GetAFSPath();
     SDL_IOStream* dst_io = SDL_IOFromFile(dst_path, "wb");
 
     uint8_t buffer[BUFFER_SIZE];
@@ -120,8 +120,6 @@ static void open_file_dialog_callback(void* userdata, const char* const* filelis
 #else
     flow_state = COPY_SUCCESS;
 #endif
-
-    SDL_free(dst_path);
 }
 
 static void open_dialog() {
