@@ -419,7 +419,7 @@ static int loop() {
         case MAIN_PHASE_INIT:
             SDLApp_PreInit();
 
-            if (Resources_CheckIfPresent()) {
+            if (Resources_Check()) {
                 initialize_game();
                 phase = MAIN_PHASE_INITIALIZED;
             } else {
