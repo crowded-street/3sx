@@ -86,6 +86,7 @@ else
     cd ../..
     rm -rf "$FFMPEG"
     rm "$FFMPEG.tar.xz"
+    cd "$ROOT_DIR"
 fi
 
 # -----------------------------
@@ -134,6 +135,7 @@ else
     cd ../..
     rm -rf "$SDL"
     rm "$SDL.tar.gz"
+    cd "$ROOT_DIR"
 fi
 
 # -----------------------------
@@ -238,6 +240,7 @@ else
     cd ../..
     rm -rf "$LIBCDIO"
     rm "$LIBCDIO.tar.gz"
+    cd "$ROOT_DIR"
 fi
 
 # -----------------------------
