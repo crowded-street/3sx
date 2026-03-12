@@ -161,6 +161,7 @@ elseif(WIN32)
         ${FFMPEG_ROOT}/lib/libswresample.dll.a
         ${SDL3_ROOT}/lib/libSDL3.dll.a
         iconv
+        bcrypt
 		dbghelp
         ws2_32
         iphlpapi
