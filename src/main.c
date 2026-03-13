@@ -429,7 +429,7 @@ static int loop() {
                 break;
             }
 
-            SDL_Delay(128);
+            SDL_Delay(16);
 
             const bool resource_flow_ended = Resources_RunResourceCopyingFlow();
 
