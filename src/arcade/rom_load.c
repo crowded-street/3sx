@@ -32,9 +32,11 @@ static Uint8 read_byte(SDL_IOStream* src) {
     return result;
 }
 
-static void* decrypt(SDL_IOStream* simms[4]) {
+static void* decrypt(SDL_IOStream* simms[4], size_t* size) {
     const Sint64 simm_size = SDL_GetIOSize(simms[0]);
-    SDL_IOStream* dst = SDL_IOFromDynamicMem();
+    const size_t buf_size = simm_size * 4;
+    void* buf = SDL_malloc(buf_size);
+    SDL_IOStream* dst = SDL_IOFromMem(buf, buf_size);
 
     for (int i = 0; i < simm_size; i++) {
         const Uint8 b0 = read_byte(simms[0]);
@@ -45,13 +47,13 @@ static void* decrypt(SDL_IOStream* simms[4]) {
         SDL_WriteIO(dst, &decrypted, sizeof(Uint32));
     }
 
-    const SDL_PropertiesID props = SDL_GetIOProperties(dst);
-    void* buf = SDL_GetPointerProperty(props, SDL_PROP_IOSTREAM_DYNAMIC_MEMORY_POINTER, NULL);
     SDL_CloseIO(dst);
+
+    *size = buf_size;
     return buf;
 }
 
-void* Rom_Load(const char* path) {
+void* Rom_Load(const char* path, size_t* size) {
     void* stream = mz_stream_os_create();
     mz_stream_open(stream, path, MZ_OPEN_MODE_READ);
 
@@ -85,7 +87,7 @@ void* Rom_Load(const char* path) {
         err = mz_zip_goto_next_entry(zip);
     }
 
-    void* result = decrypt(simms);
+    void* result = decrypt(simms, size);
 
     // Cleanup
 
