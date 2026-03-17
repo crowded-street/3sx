@@ -142,10 +142,7 @@ void q_ldreq_texture_group(REQ* curr) {
     uintptr_t ldchd;
     s32 err;
     s16 i;
-    u16* trsbas;
-    TexGroup_UNK_0* trsptr;
-    s16 count;
-    s16 loop;
+
 
     bsd = &texgrpdat[curr->ix];
 

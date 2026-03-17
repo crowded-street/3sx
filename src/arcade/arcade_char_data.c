@@ -64,8 +64,9 @@ int SDLCALL compare(const void* lhs, const void* rhs) {
 }
 
 static const void* read_char_table(SDL_IOStream* rom, Location location, Character character) {
-    void* result = SDL_malloc(location.size);
-    SDL_memset(result, 0, location.size);
+    // Over-allocate to absorb trailing writes from the script parsing loop.
+    void* result = SDL_malloc(location.size + 24);
+    SDL_memset(result, 0, location.size + 24);
 
     // Read script offsets
     Uint32* offsets = result;
@@ -194,8 +195,7 @@ static const void* read_s16_array(SDL_IOStream* rom, Location location) {
     Sint16* result = SDL_malloc(location.size);
 
     for (int i = 0; i < location.size / 2; i++) {
-        SDL_ReadS16BE(rom, result);
-        result++;
+        SDL_ReadS16BE(rom, &result[i]);
     }
 
     return result;
@@ -206,8 +206,7 @@ static const void* read_u16_array(SDL_IOStream* rom, Location location) {
     Uint16* result = SDL_malloc(location.size);
 
     for (int i = 0; i < location.size / 2; i++) {
-        SDL_ReadU16BE(rom, result);
-        result++;
+        SDL_ReadU16BE(rom, &result[i]);
     }
 
     return result;
