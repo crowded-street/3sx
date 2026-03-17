@@ -1,4 +1,5 @@
 #include "main.h"
+#include "arcade/arcade_char_data.h"
 #include "args.h"
 #include "common.h"
 #include "configuration.h"
@@ -172,6 +173,7 @@ static void initialize_game() {
 #endif
 
     set_netplay_params();
+    ArcadeCharData_Init();
     AFS_Init(Resources_GetAFSPath());
     sf3_init();
 }

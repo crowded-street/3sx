@@ -4,9 +4,11 @@
  */
 
 #include "sf33rd/Source/Game/rendering/texgroup.h"
+#include "arcade/arcade_char_data.h"
 #include "common.h"
 #include "main.h"
 #include "port/char_data.h"
+#include "port/config/config.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "sf33rd/Source/Game/engine/charid.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
@@ -15,6 +17,8 @@
 #include "sf33rd/Source/Game/rendering/texcash.h"
 #include "sf33rd/Source/Game/system/ramcnt.h"
 #include "structs.h"
+
+#include <SDL3/SDL.h>
 
 #include <stdlib.h>
 
@@ -134,8 +138,6 @@ s32 load_any_texture_grpnum(u8 grp, u8 kokey);
 
 void q_ldreq_texture_group(REQ* curr) {
     const TexGroupData* bsd;
-    CharInitData* cit;
-    CharInitData* cit2;
     uintptr_t ldadr;
     uintptr_t ldchd;
     s32 err;
@@ -273,44 +275,43 @@ void q_ldreq_texture_group(REQ* curr) {
                 // Because 25 is the number of members in CharInitData struct, `i` goes
                 // to 25 too.
 
-                cit = (CharInitData*)malloc(sizeof(CharInitData));
-
-                for (i = 0; i < 25; i++) {
-                    ((uintptr_t*)cit)[i] = ldchd + ((u32*)ldchd)[i];
-                }
-
                 const s16 character_id = plt_req[curr->id];
-                cit2 = &char_init_data[plid_data[character_id]];
-                *cit2 = *cit;
+                CharInitData* dst = &char_init_data[plid_data[character_id]];
 
-                free(cit);
-
-                parabora_own_table[character_id] = cit2->prot;
-
-                // Q specific code
-                if (curr->ix == 18) {
-                    cit2->cbca[37] = cit2->cbca[3];
-                }
-
-                // Akuma specific code
-                if (curr->ix == 15) {
-                    trsbas = (u16*)(((u32*)texgrplds[15].trans_table)[166] + texgrplds[15].trans_table);
-                    count = *trsbas;
-                    count -= 1;
-                    trsbas[0] = count;
-                    trsbas += 1;
-                    trsptr = (TexGroup_UNK_0*)trsbas;
-                    trsptr[0].x += trsptr[1].x;
-                    trsptr[0].y += trsptr[1].y;
-                    trsptr[0].attr = trsptr[1].attr;
-                    trsptr[0].code = trsptr[1].code;
-
-                    for (loop = 1; loop < count; loop++) {
-                        trsptr[loop] = trsptr[loop + 1];
+                if (Config_GetBool(CFG_ARCADE_BALANCE)) {
+                    SDL_copyp(dst, ArcadeCharData_Get(character_id));
+                } else {
+                    for (i = 0; i < 25; i++) {
+                        ((uintptr_t*)dst)[i] = ldchd + ((u32*)ldchd)[i];
                     }
                 }
 
-                CharData_ApplyFixups(cit2, character_id);
+                parabora_own_table[character_id] = dst->prot;
+
+                // Q specific code
+                // if (curr->ix == 18) {
+                //     cit2->cbca[37] = cit2->cbca[3];
+                // }
+
+                // // Akuma specific code
+                // if (curr->ix == 15) {
+                //     trsbas = (u16*)(((u32*)texgrplds[15].trans_table)[166] + texgrplds[15].trans_table);
+                //     count = *trsbas;
+                //     count -= 1;
+                //     trsbas[0] = count;
+                //     trsbas += 1;
+                //     trsptr = (TexGroup_UNK_0*)trsbas;
+                //     trsptr[0].x += trsptr[1].x;
+                //     trsptr[0].y += trsptr[1].y;
+                //     trsptr[0].attr = trsptr[1].attr;
+                //     trsptr[0].code = trsptr[1].code;
+
+                //     for (loop = 1; loop < count; loop++) {
+                //         trsptr[loop] = trsptr[loop + 1];
+                //     }
+                // }
+
+                // CharData_ApplyFixups(cit2, character_id);
             }
 
             *curr->result |= lpr_wrdata[curr->id];
