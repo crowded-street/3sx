@@ -7,7 +7,6 @@
 #include "arcade/arcade_char_data.h"
 #include "common.h"
 #include "main.h"
-#include "port/char_data.h"
 #include "port/config/config.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "sf33rd/Source/Game/engine/charid.h"
@@ -308,8 +307,6 @@ void q_ldreq_texture_group(REQ* curr) {
                             trsptr[loop] = trsptr[loop + 1];
                         }
                     }
-
-                    CharData_ApplyFixups(dst, character_id);
                 }
 
                 parabora_own_table[character_id] = dst->prot;
