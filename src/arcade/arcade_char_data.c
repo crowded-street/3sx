@@ -278,6 +278,12 @@ static const void* read_ovct(SDL_IOStream* rom, Location location, Character cha
         SDL_ReadU16BE(rom, &element->parts_nix);
         SDL_ReadU16BE(rom, &element->parts_char);
 
+        // CPS3 Ken overlap data stores this in a form that decodes to 0 with the generic path,
+        // but gameplay/rendering expects it enabled (matches PS2 char data behavior).
+        if (character == CHAR_KEN && element->parts_mts == 0) {
+            element->parts_mts = 1;
+        }
+
         element->parts_char = remap_cg_number(element->parts_char, character);
     }
 
