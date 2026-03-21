@@ -59,8 +59,6 @@ int SDLCALL compare(const void* lhs, const void* rhs) {
     } else {
         return 0;
     }
-
-    // return *a - *b;
 }
 
 static Uint16 remap_cg_number(Uint16 value, Character character) {
@@ -71,7 +69,7 @@ static Uint16 remap_cg_number(Uint16 value, Character character) {
     int adjusted = (int)value + cg_number_offsets[character];
 
     // Makoto has a separate high cg-number bank that maps with an additional shift on PS2.
-    if (character == 16 && value >= 0xA000) {
+    if (character == CHAR_MAKOTO && value >= 0xA000) {
         adjusted -= 0x45F8;
     }
 
@@ -308,6 +306,7 @@ static const void* read_catch_table(SDL_IOStream* rom, Location location) {
     return result;
 }
 
+#if DEBUG
 static void dump(const void* buf, const char* name, size_t length, Character character) {
     char* path;
     SDL_asprintf(&path, "dump/%s_pl%02d", name, character);
@@ -347,6 +346,7 @@ static void dump_data(CharInitData* data, Character character) {
     dump(data->atit, "atit", locations->atit.size, character);
     dump(data->prot, "prot", locations->prot.size, character);
 }
+#endif
 
 void ArcadeCharData_Init() {
     const char* rom_path = Resources_GetPath("sfiii3nr1.zip");
@@ -389,7 +389,9 @@ void ArcadeCharData_Init() {
         dst->atit = read_u8_array(io, locations->atit);
         dst->prot = read_s16_array(io, locations->prot);
 
+#if DEBUG
         dump_data(dst, character);
+#endif
     }
 
     initialized = true;
