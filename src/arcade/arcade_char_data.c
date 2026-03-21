@@ -64,7 +64,7 @@ int SDLCALL compare(const void* lhs, const void* rhs) {
 }
 
 static Uint16 remap_cg_number(Uint16 value, Character character) {
-    if (value < 0x800) {
+    if (value < 0x400) {
         return value;
     }
 
