@@ -31,3 +31,7 @@ Possible values:
 ### `draw-players-above-hud`
 
 Allow characters to render in front of the top HUD similar to Street Fighter IV. May introduce visual abnormalities on certain stages.
+
+### `arcade-balance` (experimental)
+
+Enables arcade balance instead of PS2 balance (work in progress). Requires `sfiii3nr1.zip` to be present in `resources` directory.
