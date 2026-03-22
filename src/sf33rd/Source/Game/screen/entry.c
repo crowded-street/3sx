@@ -155,14 +155,14 @@ void Disp_00_0() {
         return;
     }
 
-    SSPutStr(15, Insert_Y, 9, "PRESS START BUTTON");
+    SSPutStr(15, Insert_Y, 9, "PRESS START BUTTON", 2);
 
     if (!(G_No[1] == 3 || G_No[1] == 5)) {
         return;
     }
 
-    SSPutStr(5, 0, 9, "PRESS 1P START");
-    SSPutStr(30, 0, 9, "PRESS 2P START");
+    SSPutStr(5, 0, 9, "PRESS 1P START", 2);
+    SSPutStr(30, 0, 9, "PRESS 2P START", 2);
 }
 
 void Entry_01() {
@@ -959,7 +959,7 @@ s32 Loser_Sub_1P() {
     if ((Ck_Break_Into(p1sw_0, p1sw_1, 0) == 0) && !Request_Break[0]) {
         if (LOSER == 0) {
             if (save_w[1].extra_option.contents[3][5]) {
-                SSPutStr(DE_X[0], 0, 9, "     CONTINUE?");
+                SSPutStr(DE_X[0], 0, 9, "     CONTINUE?", TopHUDPriority);
             }
         } else {
             Flash_Start(0);
@@ -973,7 +973,7 @@ s32 Loser_Sub_2P() {
     if ((Ck_Break_Into(p2sw_0, p2sw_1, 1) == 0) && !Request_Break[1]) {
         if (LOSER == 1) {
             if (save_w[1].extra_option.contents[3][5]) {
-                SSPutStr(DE_X[1], 0, 9, "     CONTINUE?");
+                SSPutStr(DE_X[1], 0, 9, "     CONTINUE?", TopHUDPriority);
             }
         } else {
             Flash_Start(1);
@@ -1019,7 +1019,7 @@ s32 Credit_Continue_2P() {
 
 void Entry_Continue_Sub(s16 PL_id) {
     if ((Continue_Count_Down[PL_id] == 0) && save_w[1].extra_option.contents[3][5]) {
-        SSPutStr(DE_X[PL_id], 0, 9, "     CONTINUE?");
+        SSPutStr(DE_X[PL_id], 0, 9, "     CONTINUE?", TopHUDPriority);
         Disp_Personal_Count(PL_id, Continue_Count[PL_id]);
     }
 
@@ -1125,7 +1125,7 @@ void In_Game_Sub(s16 PL_id) {
 
     case 2:
         if (save_w[1].extra_option.contents[3][5]) {
-            SSPutStr(DE_X[PL_id], 0, 9, "     GAME OVER");
+            SSPutStr(DE_X[PL_id], 0, 9, "     GAME OVER", TopHUDPriority);
         }
 
         if (--Personal_Timer[PL_id] == 0) {
@@ -1159,7 +1159,7 @@ void In_Over_Sub(s16 PL_id) {
     }
 
     if (save_w[1].extra_option.contents[3][5]) {
-        SSPutStr(DE_X[PL_id], 0, 9, "     GAME OVER");
+        SSPutStr(DE_X[PL_id], 0, 9, "     GAME OVER", TopHUDPriority);
     }
 }
 
@@ -1185,9 +1185,9 @@ s32 Flash_Start(s16 PL_id) {
 
             if (save_w[1].extra_option.contents[3][5]) {
                 if (PL_id) {
-                    SSPutStr(DE_X[1], 0, 9, "   PRESS 2P START");
+                    SSPutStr(DE_X[1], 0, 9, "   PRESS 2P START", TopHUDPriority);
                 } else {
-                    SSPutStr(DE_X[0], 0, 9, "   PRESS 1P START");
+                    SSPutStr(DE_X[0], 0, 9, "   PRESS 1P START", TopHUDPriority);
                 }
             }
         }
@@ -1198,9 +1198,9 @@ s32 Flash_Start(s16 PL_id) {
         if (--F_Timer[PL_id]) {
             if (save_w[1].extra_option.contents[3][5]) {
                 if (PL_id) {
-                    SSPutStr(DE_X[1], 0, 9, "   PRESS 2P START");
+                    SSPutStr(DE_X[1], 0, 9, "   PRESS 2P START", TopHUDPriority);
                 } else {
-                    SSPutStr(DE_X[0], 0, 9, "   PRESS 1P START");
+                    SSPutStr(DE_X[0], 0, 9, "   PRESS 1P START", TopHUDPriority);
                 }
             }
         } else {
@@ -1216,7 +1216,7 @@ s32 Flash_Start(s16 PL_id) {
 
     default:
         if (save_w[1].extra_option.contents[3][5]) {
-            SSPutStr(DE_X[1], 0, 9, "     CONTINUE?");
+            SSPutStr(DE_X[1], 0, 9, "     CONTINUE?", TopHUDPriority);
         }
 
         break;
@@ -1247,7 +1247,7 @@ s32 Flash_Please(s16 PL_id) {
 
     default:
         if (--F_Timer[PL_id]) {
-            SSPutStr(DE_X[PL_id], 0, 9, "    PLEASE WAIT");
+            SSPutStr(DE_X[PL_id], 0, 9, "    PLEASE WAIT", TopHUDPriority);
         } else {
             F_No3[PL_id] -= 1;
             F_Timer[PL_id] = 30;

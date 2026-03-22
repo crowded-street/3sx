@@ -380,11 +380,11 @@ void Disp_Win_Record_Sub(u16 win_record, s16 zz) {
 
     switch (win_record) {
     case 1:
-        SSPutStr(zz, 0, 9, "WIN");
+        SSPutStr(zz, 0, 9, "WIN", TopHUDPriority);
         break;
 
     default:
-        SSPutStr(zz, 0, 9, "WINS");
+        SSPutStr(zz, 0, 9, "WINS", TopHUDPriority);
         break;
     }
 

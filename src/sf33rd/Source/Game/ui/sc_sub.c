@@ -330,7 +330,7 @@ void SSPutStrTexInput2(u16 x, u16 y, u8 str) {
     scrscrntex[3].y = (y + 8);
 }
 
-void SSPutStr(u16 x, u16 y, u8 atr, const s8* str) {
+void SSPutStr(u16 x, u16 y, u8 atr, const s8* str, u16 priority) {
     if (No_Trans) {
         return;
     }
@@ -338,7 +338,7 @@ void SSPutStr(u16 x, u16 y, u8 atr, const s8* str) {
     ppgSetupCurrentDataList(&ppgScrList);
     njColorBlendingMode(0, 1);
     scrscrntex[0].col = scrscrntex[3].col = 0xFFFFFFFF;
-    scrscrntex[0].z = scrscrntex[3].z = PrioBase[TopHUDPriority];
+    scrscrntex[0].z = scrscrntex[3].z = PrioBase[priority];
     njSetPaletteBankNumG(1, atr & 0x3F);
     x = x * 8;
     y = y * 8;

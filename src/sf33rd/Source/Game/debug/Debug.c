@@ -326,18 +326,18 @@ void Check_Check_Screen() {
             flPrintL(1, 33, "%04X", p2sw_0);
             flPrintL(1, 34, "%04X", p3sw_0);
             flPrintL(1, 35, "%04X", p4sw_0);
-            SSPutStr(0, 20, 9, "0123456789");
-            SSPutStr(10, 20, 9, "0123456789");
-            SSPutStr(20, 20, 9, "0123456789");
-            SSPutStr(30, 20, 9, "0123456789");
-            SSPutStr(40, 20, 9, "0123456789");
-            SSPutStr(50, 20, 9, "0123456789");
-            SSPutStr(0, 6, 9, "0123456789");
-            SSPutStr(10, 6, 9, "0123456789");
-            SSPutStr(20, 6, 9, "0123456789");
-            SSPutStr(30, 6, 9, "0123456789");
-            SSPutStr(40, 6, 9, "0123456789");
-            SSPutStr(50, 6, 9, "0123456789");
+            SSPutStr(0, 20, 9, "0123456789", 2);
+            SSPutStr(10, 20, 9, "0123456789", 2);
+            SSPutStr(20, 20, 9, "0123456789", 2);
+            SSPutStr(30, 20, 9, "0123456789", 2);
+            SSPutStr(40, 20, 9, "0123456789", 2);
+            SSPutStr(50, 20, 9, "0123456789", 2);
+            SSPutStr(0, 6, 9, "0123456789", 2);
+            SSPutStr(10, 6, 9, "0123456789", 2);
+            SSPutStr(20, 6, 9, "0123456789", 2);
+            SSPutStr(30, 6, 9, "0123456789", 2);
+            SSPutStr(40, 6, 9, "0123456789", 2);
+            SSPutStr(50, 6, 9, "0123456789", 2);
         }
 
         break;
@@ -367,26 +367,26 @@ void Check_Check_Screen() {
         }
 
         for (ix = 0; ix < 3; ix++) {
-            SSPutStr(41, (ix * 10), 9, "0");
-            SSPutStr(41, ((ix * 10) + 1), 9, "1");
-            SSPutStr(41, ((ix * 10) + 2), 9, "2");
-            SSPutStr(41, ((ix * 10) + 3), 9, "3");
-            SSPutStr(41, ((ix * 10) + 4), 9, "4");
-            SSPutStr(41, ((ix * 10) + 5), 9, "5");
-            SSPutStr(41, ((ix * 10) + 6), 9, "6");
-            SSPutStr(41, ((ix * 10) + 7), 9, "7");
-            SSPutStr(41, ((ix * 10) + 8), 9, "8");
-            SSPutStr(41, ((ix * 10) + 9), 9, "9");
-            SSPutStr(9, (ix * 10), 9, "0");
-            SSPutStr(9, ((ix * 10) + 1), 9, "1");
-            SSPutStr(9, ((ix * 10) + 2), 9, "2");
-            SSPutStr(9, ((ix * 10) + 3), 9, "3");
-            SSPutStr(9, ((ix * 10) + 4), 9, "4");
-            SSPutStr(9, ((ix * 10) + 5), 9, "5");
-            SSPutStr(9, ((ix * 10) + 6), 9, "6");
-            SSPutStr(9, ((ix * 10) + 7), 9, "7");
-            SSPutStr(9, ((ix * 10) + 8), 9, "8");
-            SSPutStr(9, ((ix * 10) + 9), 9, "9");
+            SSPutStr(41, (ix * 10), 9, "0", 2);
+            SSPutStr(41, ((ix * 10) + 1), 9, "1", 2);
+            SSPutStr(41, ((ix * 10) + 2), 9, "2", 2);
+            SSPutStr(41, ((ix * 10) + 3), 9, "3", 2);
+            SSPutStr(41, ((ix * 10) + 4), 9, "4", 2);
+            SSPutStr(41, ((ix * 10) + 5), 9, "5", 2);
+            SSPutStr(41, ((ix * 10) + 6), 9, "6", 2);
+            SSPutStr(41, ((ix * 10) + 7), 9, "7", 2);
+            SSPutStr(41, ((ix * 10) + 8), 9, "8", 2);
+            SSPutStr(41, ((ix * 10) + 9), 9, "9", 2);
+            SSPutStr(9, (ix * 10), 9, "0", 2);
+            SSPutStr(9, ((ix * 10) + 1), 9, "1", 2);
+            SSPutStr(9, ((ix * 10) + 2), 9, "2", 2);
+            SSPutStr(9, ((ix * 10) + 3), 9, "3", 2);
+            SSPutStr(9, ((ix * 10) + 4), 9, "4", 2);
+            SSPutStr(9, ((ix * 10) + 5), 9, "5", 2);
+            SSPutStr(9, ((ix * 10) + 6), 9, "6", 2);
+            SSPutStr(9, ((ix * 10) + 7), 9, "7", 2);
+            SSPutStr(9, ((ix * 10) + 8), 9, "8", 2);
+            SSPutStr(9, ((ix * 10) + 9), 9, "9", 2);
         }
 
         return;
