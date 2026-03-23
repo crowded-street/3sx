@@ -8,6 +8,9 @@
 
 #define BASE_OFFSET 0x6000000
 
+// Uncomment to enable parsed char data dumping to dump folder
+// #define DUMP_CHAR_DATA
+
 typedef struct Location {
     Uint32 offset;
     Uint32 size;
@@ -306,7 +309,7 @@ static const void* read_catch_table(SDL_IOStream* rom, Location location) {
     return result;
 }
 
-#if DEBUG
+#if DEBUG && DUMP_CHAR_DATA
 static void dump(const void* buf, const char* name, size_t length, Character character) {
     char* path;
     SDL_asprintf(&path, "dump/%s_pl%02d", name, character);
@@ -389,7 +392,7 @@ void ArcadeCharData_Init() {
         dst->atit = read_u8_array(io, locations->atit);
         dst->prot = read_s16_array(io, locations->prot);
 
-#if DEBUG
+#if DEBUG && DUMP_CHAR_DATA
         dump_data(dst, character);
 #endif
     }
