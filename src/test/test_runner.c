@@ -220,21 +220,36 @@ static void initialize_data() {
     inputs_index = 0;
 }
 
-static void compare_values(SDL_IOStream* io) {
+static void compare_main_values(SDL_IOStream* io) {
     const u8 allow_a_battle_f_cps3 = read_u8(io, ALLOW_A_BATTLE_F_OFFSET);
     stop_if(Allow_a_battle_f != allow_a_battle_f_cps3);
-
-    const s16 counter_hi_cps3 = read_s16(io, COUNTER_HI_OFFSET);
-    stop_if(Counter_hi != counter_hi_cps3);
-
-    const s16 counter_low_cps3 = read_s16(io, COUNTER_LOW_OFFSET);
-    stop_if(Counter_low != counter_low_cps3);
 
     const u8 round_timer_cps3 = read_u8(io, ROUND_TIMER_OFFSET);
     stop_if(round_timer != round_timer_cps3);
 
     // const u16 game_timer_cps3 = read_u16(io, GAME_TIMER_OFFSET);
     // printf("⏱️ %d game_timer: %d\n", comparison_index, game_timer_cps3);
+
+    for (int i = 0; i < 2; i++) {
+        const Sint64 plw_offset = calc_plw_offset(i);
+
+        const Position pos_3sx = get_position(i);
+        const Position pos_cps3 = read_position(io, i);
+        stop_if(pos_3sx.x != pos_cps3.x);
+        stop_if(pos_3sx.y != pos_cps3.y);
+
+        const s16 vital_new_3sx = plw[i].wu.vital_new;
+        const s16 vital_new_cps3 = read_s16(io, plw_offset + WORK_VITAL_NEW_OFFSET);
+        stop_if(vital_new_3sx != vital_new_cps3);
+    }
+}
+
+static void compare_service_values(SDL_IOStream* io) {
+    const s16 counter_hi_cps3 = read_s16(io, COUNTER_HI_OFFSET);
+    stop_if(Counter_hi != counter_hi_cps3);
+
+    const s16 counter_low_cps3 = read_s16(io, COUNTER_LOW_OFFSET);
+    stop_if(Counter_low != counter_low_cps3);
 
     for (int i = 0; i < 2; i++) {
         const Sint64 plw_offset = calc_plw_offset(i);
@@ -266,16 +281,12 @@ static void compare_values(SDL_IOStream* io) {
         const u16 cg_add_xy_cps3 = read_u16(io, plw_offset + WORK_CG_ADD_XY_OFFSET);
         const u16 cg_add_xy_3sx = plw[i].wu.cg_add_xy;
         stop_if(cg_add_xy_3sx != cg_add_xy_cps3);
-
-        const Position pos_3sx = get_position(i);
-        const Position pos_cps3 = read_position(io, i);
-        stop_if(pos_3sx.x != pos_cps3.x);
-        stop_if(pos_3sx.y != pos_cps3.y);
-
-        const s16 vital_new_3sx = plw[i].wu.vital_new;
-        const s16 vital_new_cps3 = read_s16(io, plw_offset + WORK_VITAL_NEW_OFFSET);
-        stop_if(vital_new_3sx != vital_new_cps3);
     }
+}
+
+static void compare_values(SDL_IOStream* io) {
+    compare_main_values(io);
+    compare_service_values(io);
 }
 
 void TestRunner_Prologue() {
