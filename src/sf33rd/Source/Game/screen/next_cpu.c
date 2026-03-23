@@ -463,11 +463,7 @@ void Wait_Load_Complete() {
         return;
     }
 
-    if (!adx_now_playend()) {
-        return;
-    }
-
-    if (!sndCheckVTransStatus(0)) {
+    if (!(adx_now_playend() || Scene_Cut)) {
         return;
     }
 
