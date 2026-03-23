@@ -23,8 +23,8 @@
 #define C_NO_OFFSET 0x154A6
 #define ROUND_TIMER_OFFSET 0x28679
 #define PLW_OFFSET 0x68C6C
-#define P1SW_OFFSET 0x6AA8C
-#define P2SW_OFFSET 0x6AA90
+#define P1SW_1_OFFSET 0x6AA8E
+#define P2SW_1_OFFSET 0x6AA92
 
 #define PLW_SIZE 0x498
 #define WORK_XYZ_OFFSET 0x64
@@ -179,8 +179,9 @@ static void initialize_data() {
         // Parse inputs
 
         if (in_round && in_round_prev) {
-            inputs[inputs_index][0] = read_input_buff(io, P1SW_OFFSET);
-            inputs[inputs_index][1] = read_input_buff(io, P2SW_OFFSET);
+            // We read previous inputs because CPS3 updates input buffers at the end of a frame
+            inputs[inputs_index][0] = read_input_buff(io, P1SW_1_OFFSET);
+            inputs[inputs_index][1] = read_input_buff(io, P2SW_1_OFFSET);
             inputs_index += 1;
 
             if (comparison_index == 0) {
