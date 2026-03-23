@@ -454,16 +454,24 @@ void Next_CPU_6th() {
     SEL_CPU_X = 1;
 }
 
-void Wait_Load_Complete() {
+static bool is_load_complete() {
     if (!Check_PL_Load()) {
-        return;
+        return false;
     }
 
-    if (!Check_LDREQ_Queue_BG(bg_w.stage + 0)) {
-        return;
+    if (!Check_LDREQ_Queue_BG(bg_w.stage)) {
+        return false;
     }
 
     if (!(adx_now_playend() || Scene_Cut)) {
+        return false;
+    }
+
+    return true;
+}
+
+void Wait_Load_Complete() {
+    if (!is_load_complete()) {
         return;
     }
 
@@ -473,19 +481,7 @@ void Wait_Load_Complete() {
 }
 
 void Wait_Load_Complete2() {
-    if (!Check_PL_Load()) {
-        return;
-    }
-
-    if (!Check_LDREQ_Queue_BG(bg_w.stage + 0)) {
-        return;
-    }
-
-    if (!adx_now_playend()) {
-        return;
-    }
-
-    if (!sndCheckVTransStatus(0)) {
+    if (!is_load_complete()) {
         return;
     }
 
@@ -495,19 +491,7 @@ void Wait_Load_Complete2() {
 }
 
 void Wait_Load_Complete3() {
-    if (!Check_PL_Load()) {
-        return;
-    }
-
-    if (!Check_LDREQ_Queue_BG(bg_w.stage + 0)) {
-        return;
-    }
-
-    if (!adx_now_playend()) {
-        return;
-    }
-
-    if (!sndCheckVTransStatus(0)) {
+    if (!is_load_complete()) {
         return;
     }
 
