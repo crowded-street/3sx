@@ -28,3 +28,4 @@ This project uses:
 - [argparse](https://github.com/cofyc/argparse) for parsing CLI arguments
 - [minizip-ng](https://github.com/zlib-ng/minizip-ng) for unzipping
 - [TF-PSA-Crypto](https://github.com/Mbed-TLS/TF-PSA-Crypto) for checksum calculation
+- [stb](https://github.com/nothings/stb) for data structures

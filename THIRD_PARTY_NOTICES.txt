@@ -109,3 +109,13 @@ License: Apache-2.0, as provided by Mbed-TLS contributors.
 
 Copyright:
 - Copyright (C) Mbed-TLS contributors.
+
+STB
+------
+Project: STB
+Upstream: https://github.com/nothings/stb
+
+License: MIT license, as provided by STB contributors.
+
+Copyright:
+- Copyright (C) STB contributors.
