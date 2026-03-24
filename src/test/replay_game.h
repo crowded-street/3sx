@@ -1,7 +1,7 @@
 #if DEBUG
 
-#ifndef REPLAY_MATCH_H
-#define REPLAY_MATCH_H
+#ifndef REPLAY_GAME_H
+#define REPLAY_GAME_H
 
 #include <SDL3/SDL_stdinc.h>
 
@@ -23,12 +23,8 @@ typedef struct ReplayGame {
     Uint8 winner;
 } ReplayGame;
 
-typedef struct ReplayMatch {
-    ReplayGame* games;
-} ReplayMatch;
-
-void ReplayMatch_Parse(ReplayMatch* match);
-void ReplayMatch_Destroy(ReplayMatch* match);
+void ReplayGame_Parse(ReplayGame* game);
+void ReplayGame_Destroy(ReplayGame* game);
 
 #endif
 

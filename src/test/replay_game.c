@@ -1,6 +1,6 @@
 #if DEBUG
 
-#include "test/replay_match.h"
+#include "test/replay_game.h"
 #include "arcade/arcade_constants.h"
 #include "constants.h"
 #include "test/test_runner_utils.h"
@@ -34,16 +34,13 @@ static void adjust_character_numbers(ReplayGame* game) {
     }
 }
 
-void ReplayMatch_Parse(ReplayMatch* match) {
-    SDL_zerop(match);
+void ReplayGame_Parse(ReplayGame* game) {
+    SDL_zerop(game);
 
     bool in_round = false;
     bool in_round_prev = false;
     bool allow_battle_prev = false;
     bool did_set_char_data = false;
-
-    ReplayGame game;
-    SDL_zero(game);
 
     ReplayRound round;
     SDL_zero(round);
@@ -74,11 +71,12 @@ void ReplayMatch_Parse(ReplayMatch* match) {
 
         if (in_round && !did_set_char_data) {
             SDL_SeekIO(io, MY_CHAR_OFFSET, SDL_IO_SEEK_SET);
-            SDL_ReadIO(io, game.characters, 2);
+            SDL_ReadIO(io, game->characters, 2);
 
             SDL_SeekIO(io, SUPER_ARTS_OFFSET, SDL_IO_SEEK_SET);
-            SDL_ReadIO(io, game.supers, 2);
+            SDL_ReadIO(io, game->supers, 2);
 
+            adjust_character_numbers(game);
             did_set_char_data = true;
         }
 
@@ -94,7 +92,7 @@ void ReplayMatch_Parse(ReplayMatch* match) {
                 round.start_index = frame_num;
             }
         } else if (in_round_prev) {
-            arrput(game.rounds, round);
+            arrput(game->rounds, round);
             SDL_zero(round);
         }
 
@@ -106,24 +104,14 @@ void ReplayMatch_Parse(ReplayMatch* match) {
             break;
         }
     }
-
-    adjust_character_numbers(&game);
-    arrput(match->games, game);
 }
 
-void ReplayMatch_Destroy(ReplayMatch* match) {
-    for (int i = 0; i < arrlen(match->games); i++) {
-        ReplayGame* game = &match->games[i];
-
-        for (int j = 0; j < arrlen(game->rounds); j++) {
-            ReplayRound* round = &game->rounds[j];
-            arrfree(round->inputs);
-        }
-
-        arrfree(game->rounds);
+void ReplayGame_Destroy(ReplayGame* game) {
+    for (int i = 0; i < arrlen(game->rounds); i++) {
+        arrfree(game->rounds[i].inputs);
     }
 
-    arrfree(match->games);
+    arrfree(game->rounds);
 }
 
 #endif

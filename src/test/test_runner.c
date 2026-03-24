@@ -10,7 +10,7 @@
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/ui/count.h"
-#include "test/replay_match.h"
+#include "test/replay_game.h"
 #include "test/test_runner_utils.h"
 
 #include "stb/stb_ds.h"
@@ -47,16 +47,11 @@ static int inputs_index = 0;
 static int comparison_index = 0;
 
 static bool initialized = false;
-static ReplayMatch match;
-static int game_index = 0;
+static ReplayGame game;
 static int round_index = 0;
 
-static ReplayGame* game() {
-    return &match.games[game_index];
-}
-
 static ReplayRound* round() {
-    return &game()->rounds[round_index];
+    return &game.rounds[round_index];
 }
 
 static void set_cursor(Character character, int player) {
@@ -92,8 +87,7 @@ static Position get_position(int player) {
 }
 
 static void initialize_data() {
-    ReplayMatch_Parse(&match);
-    game_index = 0;
+    ReplayGame_Parse(&game);
     round_index = 0;
 }
 
@@ -173,13 +167,9 @@ static void reset_comparison_index() {
 static void finish_round() {
     inputs_index = 0;
 
-    if (round_index < arrlen(game()->rounds) - 1) {
+    if (round_index < arrlen(game.rounds) - 1) {
         round_index += 1;
         phase = PHASE_ROUND_TRANSITION;
-    } else if (game_index < arrlen(match.games) - 1) {
-        game_index += 1;
-        round_index = 0;
-        fatal_error("Game transition not implemented");
     } else {
         exit(0);
     }
@@ -213,10 +203,10 @@ void TestRunner_Prologue() {
         if (G_No[1] == 1 && G_No[2] == 2) {
             // Even though we move cursor manually later, setting Last_My_char2 is required
             // for Last_Super_Arts to take effect
-            Last_My_char2[0] = game()->characters[0];
-            Last_My_char2[1] = game()->characters[1];
-            Last_Super_Arts[0] = game()->supers[0];
-            Last_Super_Arts[1] = game()->supers[1];
+            Last_My_char2[0] = game.characters[0];
+            Last_My_char2[1] = game.characters[1];
+            Last_Super_Arts[0] = game.supers[0];
+            Last_Super_Arts[1] = game.supers[1];
             phase = PHASE_CHARACTER_SELECT_TRANSITION;
             wait_timer = 60;
             break;
@@ -237,8 +227,8 @@ void TestRunner_Prologue() {
     case PHASE_CHARACTER_SELECT:
         switch (char_select_phase) {
         case 0:
-            set_cursor(game()->characters[0], 0);
-            set_cursor(game()->characters[1], 1);
+            set_cursor(game.characters[0], 0);
+            set_cursor(game.characters[1], 1);
             tap_button(SWK_START, 1);
             wait_timer = 20;
             char_select_phase = 1;
