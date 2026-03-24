@@ -504,6 +504,10 @@ void emlShimSeKeyOff(CSE_REQP* pReqp) {
 
     list_for_each (i, &active_voices, list) {
         if (checkConditions(&i->id, pReqp, cond)) {
+            if (pReqp->prio < i->id.prio) {
+                continue;
+            }
+
             SPU_VoiceKeyOff(i->voice_num);
         }
     }
@@ -519,6 +523,10 @@ void emlShimSeStop(CSE_REQP* pReqp) {
 
     list_for_each (i, &active_voices, list) {
         if (checkConditions(&i->id, pReqp, cond)) {
+            if (pReqp->prio < i->id.prio) {
+                continue;
+            }
+
             SPU_VoiceStop(i->voice_num);
         }
     }
