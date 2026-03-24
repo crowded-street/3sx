@@ -552,10 +552,12 @@ s32 check_stand_up(PLW* wk) {
     return 1;
 }
 
-s32 check_defense_lever(PLW* wk) {
+s32 check_defense_lever(PLW* wk) { // 🟡
+#if !CPS3
     if (wk->spmv_ng_flag & DIP_GUARD_DISABLED) {
         return 0;
     }
+#endif
 
     if (!check_em_catt(wk)) {
         return 0;
@@ -574,7 +576,7 @@ s32 check_defense_lever(PLW* wk) {
     return 1;
 }
 
-s32 check_em_catt(PLW* wk) {
+s32 check_em_catt(PLW* wk) { // 🟢
     PLW* em = (PLW*)wk->wu.target_adrs;
     s16 xd;
     s8 rlf;
