@@ -156,8 +156,8 @@ static void compare_service_values(SDL_IOStream* io) {
 }
 
 static void compare_values(SDL_IOStream* io) {
-    compare_main_values(io);
     compare_service_values(io);
+    compare_main_values(io);
 }
 
 static void reset_comparison_index() {
