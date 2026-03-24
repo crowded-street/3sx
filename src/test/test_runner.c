@@ -13,6 +13,7 @@
 #include "test/replay_match.h"
 #include "test/test_runner_utils.h"
 
+#include "stb/stb_ds.h"
 #include <SDL3/SDL.h>
 
 #include <stdio.h>
@@ -47,6 +48,16 @@ static int comparison_index = 0;
 
 static bool initialized = false;
 static ReplayMatch match;
+static int game_index = 0;
+static int round_index = 0;
+
+static ReplayGame* game() {
+    return &match.games[game_index];
+}
+
+static ReplayRound* round() {
+    return &game()->rounds[round_index];
+}
 
 static void set_cursor(Character character, int player) {
     Cursor_X[player] = character_to_cursor[character][0];
@@ -82,6 +93,8 @@ static Position get_position(int player) {
 
 static void initialize_data() {
     ReplayMatch_Parse(&match);
+    game_index = 0;
+    round_index = 0;
 }
 
 static void compare_main_values(SDL_IOStream* io) {
@@ -153,20 +166,35 @@ static void compare_values(SDL_IOStream* io) {
     compare_service_values(io);
 }
 
+static void reset_comparison_index() {
+    comparison_index = round()->start_index;
+}
+
+static void finish_round() {
+    inputs_index = 0;
+
+    if (round_index < arrlen(game()->rounds) - 1) {
+        round_index += 1;
+        phase = PHASE_ROUND_TRANSITION;
+    } else if (game_index < arrlen(match.games) - 1) {
+        game_index += 1;
+        round_index = 0;
+        fatal_error("Game transition not implemented");
+    } else {
+        exit(0);
+    }
+
+    reset_comparison_index();
+}
+
 void TestRunner_Prologue() {
     p1sw_buff = 0;
     p2sw_buff = 0;
 
     if (!initialized) {
         initialize_data();
+        reset_comparison_index();
         initialized = true;
-    }
-
-    const ReplayGame* game = &match.games[0];
-    const ReplayRound* round = &game->rounds[0];
-
-    if (comparison_index == 0) {
-        comparison_index = round->start_index;
     }
 
     switch (phase) {
@@ -183,10 +211,12 @@ void TestRunner_Prologue() {
 
     case PHASE_MENU:
         if (G_No[1] == 1 && G_No[2] == 2) {
-            Last_My_char2[0] = game->characters[0];
-            Last_My_char2[1] = game->characters[1];
-            Last_Super_Arts[0] = game->supers[0];
-            Last_Super_Arts[1] = game->supers[1];
+            // Even though we move cursor manually later, setting Last_My_char2 is required
+            // for Last_Super_Arts to take effect
+            Last_My_char2[0] = game()->characters[0];
+            Last_My_char2[1] = game()->characters[1];
+            Last_Super_Arts[0] = game()->supers[0];
+            Last_Super_Arts[1] = game()->supers[1];
             phase = PHASE_CHARACTER_SELECT_TRANSITION;
             wait_timer = 60;
             break;
@@ -207,8 +237,8 @@ void TestRunner_Prologue() {
     case PHASE_CHARACTER_SELECT:
         switch (char_select_phase) {
         case 0:
-            set_cursor(game->characters[0], 0);
-            set_cursor(game->characters[1], 1);
+            set_cursor(game()->characters[0], 0);
+            set_cursor(game()->characters[1], 1);
             tap_button(SWK_START, 1);
             wait_timer = 20;
             char_select_phase = 1;
@@ -263,10 +293,16 @@ void TestRunner_Prologue() {
         // fallthrough
 
     case PHASE_ROUND:
-        const ReplayInput input = round->inputs[inputs_index];
+        ReplayInput* inputs = round()->inputs;
+        const ReplayInput input = inputs[inputs_index];
         p1sw_buff = input.p1;
         p2sw_buff = input.p2;
         inputs_index += 1;
+
+        if (inputs_index >= arrlen(inputs)) {
+            finish_round();
+        }
+
         break;
     }
 }

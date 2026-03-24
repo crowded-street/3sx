@@ -94,7 +94,8 @@ void ReplayMatch_Parse(ReplayMatch* match) {
                 round.start_index = frame_num;
             }
         } else if (in_round_prev) {
-            stop = true;
+            arrput(game.rounds, round);
+            SDL_zero(round);
         }
 
         in_round_prev = in_round;
@@ -107,8 +108,6 @@ void ReplayMatch_Parse(ReplayMatch* match) {
     }
 
     adjust_character_numbers(&game);
-
-    arrput(game.rounds, round);
     arrput(match->games, game);
 }
 
