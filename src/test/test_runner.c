@@ -50,7 +50,7 @@ static bool initialized = false;
 static ReplayGame game;
 static int round_index = 0;
 
-static ReplayRound* round() {
+static ReplayRound* _round() {
     return &game.rounds[round_index];
 }
 
@@ -161,7 +161,7 @@ static void compare_values(SDL_IOStream* io) {
 }
 
 static void reset_comparison_index() {
-    comparison_index = round()->start_index;
+    comparison_index = _round()->start_index;
 }
 
 static void finish_round() {
@@ -283,7 +283,7 @@ void TestRunner_Prologue() {
         // fallthrough
 
     case PHASE_ROUND:
-        ReplayInput* inputs = round()->inputs;
+        ReplayInput* inputs = _round()->inputs;
         const ReplayInput input = inputs[inputs_index];
         p1sw_buff = input.p1;
         p2sw_buff = input.p2;
