@@ -55,6 +55,8 @@ static SDL_ScaleMode screen_texture_scale_mode() {
     case SCALEMODE_SQUARE_PIXELS:
     case SCALEMODE_INTEGER:
         return SDL_SCALEMODE_NEAREST;
+    default:
+      return SDL_SCALEMODE_INVALID;
     }
 }
 
@@ -312,6 +314,9 @@ static SDL_FRect get_letterbox_rect(int win_w, int win_h) {
 
     case SCALEMODE_SQUARE_PIXELS:
         return fit_integer_rect(win_w, win_h, 1, 1);
+
+    default:
+        return fit_4_by_3_rect(win_w, win_h);
     }
 }
 
