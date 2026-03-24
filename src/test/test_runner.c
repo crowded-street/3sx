@@ -116,6 +116,10 @@ static void compare_main_values(SDL_IOStream* io) {
         stop_if(pos_3sx.x != pos_cps3.x);
         stop_if(pos_3sx.y != pos_cps3.y);
 
+        // if (i == 0) {
+        //     printf("🔴 %llu pos x: %d vs %d\n", frame, pos_cps3.x, pos_3sx.x);
+        // }
+
         const s16 vital_new_3sx = plw[i].wu.vital_new;
         const s16 vital_new_cps3 = read_s16(io, plw_offset + WORK_VITAL_NEW_OFFSET);
         stop_if(vital_new_3sx != vital_new_cps3);
@@ -251,6 +255,9 @@ void TestRunner_Prologue() {
             wait_timer -= 1;
 
             if (wait_timer <= 0) {
+                // We must set New_Challenger manually so that the game selects the correct stage.
+                // If we set this var earlier it would be overwritten
+                New_Challenger = game.new_challenger;
                 char_select_phase = 2;
             }
 

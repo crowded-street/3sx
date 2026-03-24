@@ -13,14 +13,13 @@ typedef struct ReplayInput {
 typedef struct ReplayRound {
     ReplayInput* inputs;
     size_t start_index;
-    Uint8 winner;
 } ReplayRound;
 
 typedef struct ReplayGame {
     ReplayRound* rounds;
     Uint8 characters[2];
     Uint8 supers[2];
-    Uint8 winner;
+    Uint8 new_challenger;
 } ReplayGame;
 
 void ReplayGame_Parse(ReplayGame* game);
