@@ -123,6 +123,18 @@ static void compare_main_values(SDL_IOStream* io) {
         const s16 vital_new_3sx = plw[i].wu.vital_new;
         const s16 vital_new_cps3 = read_s16(io, plw_offset + WORK_VITAL_NEW_OFFSET);
         stop_if(vital_new_3sx != vital_new_cps3);
+
+        const s16 stun_3sx = piyori_type[i].now.quantity.h;
+        const s16 stun_cps3 = read_s16(io, PIYORI_TYPE_OFFSET + i * sizeof(PiyoriType) + offsetof(PiyoriType, now));
+        stop_if(stun_3sx != stun_cps3);
+
+        const s16 sa_gauge_3sx = super_arts[i].gauge.s.h;
+        const s16 sa_gauge_cps3 = read_s16(io, SUPER_ARTS_WORK_OFFSET + i * sizeof(SA_WORK) + offsetof(SA_WORK, gauge));
+        stop_if(sa_gauge_3sx != sa_gauge_cps3);
+
+        const s16 sa_store_3sx = super_arts[i].store;
+        const s16 sa_store_cps3 = read_s16(io, SUPER_ARTS_WORK_OFFSET + i * sizeof(SA_WORK) + offsetof(SA_WORK, store));
+        stop_if(sa_store_3sx != sa_store_cps3);
     }
 }
 
