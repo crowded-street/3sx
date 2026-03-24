@@ -6,6 +6,7 @@
 #include "sf33rd/Source/Game/engine/charset.h"
 #include "arcade/arcade_balance.h"
 #include "common.h"
+#include "constants.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/effect/effxx.h"
 #include "sf33rd/Source/Game/engine/cmd_data.h"
@@ -2386,11 +2387,17 @@ void setup_comm_abbak(WORK* wk) {
     wk->cmb3.pat = (wk->cg_ix / wk->cgd_type) + 2;
 }
 
-static int catch_table_offset() {
+static int catch_table_offset(u16 rival) {
     if (ArcadeBalance_IsEnabled()) {
-        return -24;
+        // In arcade version Akuma is followed by Shin Akuma. To account for this 
+        // we have to increment all character numbers after Akuma
+        if (rival > CHAR_AKUMA) {
+            rival += 1;
+        }
+
+        return rival - 24;
     } else {
-        return -20;
+        return rival - 20;
     }
 }
 
@@ -2464,7 +2471,7 @@ void check_cgd_patdat(WORK* wk) {
         if (wk->cg_rival == 0) {
             wk->curr_rca = NULL;
         } else {
-            wk->curr_rca = wk->rival_catch_tbl + (wk->cg_rival + catch_table_offset() + ((PLW*)wk)->tsukami_num);
+            wk->curr_rca = wk->rival_catch_tbl + (catch_table_offset(wk->cg_rival) + ((PLW*)wk)->tsukami_num);
         }
 
         wk->cg_olc = wk->olc_ix_table[wk->cg_olc_ix];
@@ -2628,7 +2635,7 @@ void check_cgd_patdat2(WORK* wk) {
         if (wk->cg_rival == 0) {
             wk->curr_rca = NULL;
         } else {
-            wk->curr_rca = wk->rival_catch_tbl + (wk->cg_rival + catch_table_offset() + ((PLW*)wk)->tsukami_num);
+            wk->curr_rca = wk->rival_catch_tbl + (catch_table_offset(wk->cg_rival) + ((PLW*)wk)->tsukami_num);
         }
     }
 
