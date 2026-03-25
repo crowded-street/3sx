@@ -116,6 +116,17 @@ static Uint16 remap_ovct_parts_char(Uint16 value, Character character) {
 
         break;
 
+    case CHAR_URIEN:
+        if (value >= 0x4E00 && value <= 0x533F) {
+            return value - 3168;
+        }
+
+        if (value >= 0x9F58 && value <= 0x9F64) {
+            return value - 10809;
+        }
+
+        break;
+
     default:
         // Do nothing
         break;
@@ -319,14 +330,29 @@ static const void* read_ovct(SDL_IOStream* rom, Location location, Character cha
         SDL_ReadS16BE(rom, &element->parts_mts);
         SDL_ReadU16BE(rom, &element->parts_nix);
         SDL_ReadU16BE(rom, &element->parts_char);
-
-        // CPS3 Ken overlap data stores this in a form that decodes to 0 with the generic path,
-        // but gameplay/rendering expects it enabled (matches PS2 char data behavior).
-        if (character == CHAR_KEN && element->parts_mts == 0) {
-            element->parts_mts = 1;
-        }
-
         element->parts_char = remap_ovct_parts_char(element->parts_char, character);
+
+        if (element->parts_mts == 0) {
+            switch (character) {
+            case CHAR_KEN:
+                // Ken's DP overlap flame uses additive MTS in PS2 data.
+                element->parts_mts = 1;
+                break;
+
+            case CHAR_URIEN:
+                if ((element->parts_char >= 17854 && element->parts_char <= 17879) ||
+                    (element->parts_char >= 18017 && element->parts_char <= 18037) ||
+                    element->parts_char == 18060 || (element->parts_char >= 18096 && element->parts_char <= 18100) ||
+                    (element->parts_char >= 18129 && element->parts_char <= 18131) ||
+                    element->parts_char == 18143 || (element->parts_char >= 29983 && element->parts_char <= 29995)) {
+                    element->parts_mts = 1;
+                }
+                break;
+
+            default:
+                break;
+            }
+        }
     }
 
     return result;
