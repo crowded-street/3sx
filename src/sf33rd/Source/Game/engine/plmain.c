@@ -162,7 +162,11 @@ void player_mv_0000(PLW* wk) { // 🟡
     wk->metamorphose = 0;
     wk->metamor_over = 0;
     wk->sa_healing = 0;
+
+#if !CPS3
     wk->resurrection_resv = 0;
+#endif
+
     wk->dm_hos_flag = 0;
     wk->kezurijini_flag = 0;
     wk->wu.floor = 0;

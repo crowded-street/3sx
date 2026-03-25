@@ -148,6 +148,9 @@ static void compare_service_values(SDL_IOStream* io) {
     for (int i = 0; i < 2; i++) {
         const Sint64 plw_offset = calc_plw_offset(i);
 
+        // const u32 curr_rca_cps3 = read_u32(io, plw_offset + WORK_CURR_RCA_OFFSET);
+        // printf("%llu curr_rca: 0x%x\n", frame, curr_rca_cps3);
+
         const u8 caution_flag_3sx = plw[i].caution_flag;
         const u8 caution_flag_cps3 = read_u8(io, plw_offset + PLW_CAUTION_FLAG_OFFSET);
         stop_if(caution_flag_3sx != caution_flag_cps3);
