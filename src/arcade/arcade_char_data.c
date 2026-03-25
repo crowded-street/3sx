@@ -69,18 +69,59 @@ static Uint16 remap_cg_number(Uint16 value, Character character) {
         return value;
     }
 
-    int adjusted = (int)value + cg_number_offsets[character];
+    int adjusted = value + cg_number_offsets[character];
 
-    // Makoto has a separate high cg-number bank that maps with an additional shift on PS2.
-    if (character == CHAR_MAKOTO && value >= 0xA000) {
-        adjusted -= 0x45F8;
+    switch (character) {
+    case CHAR_IBUKI:
+        // Ibuki uses two CPS3-only high cg-number banks that map down into her normal PS2 range.
+        if (value >= 0x70BD && value <= 0x70C7) {
+            adjusted = value - 18692;
+        } else if (value >= 0x9BA8 && value <= 0x9C6F) {
+            adjusted = value - 29904;
+        }
+
+        break;
+
+    case CHAR_MAKOTO:
+        // Makoto has a separate high cg-number bank that maps with an additional shift on PS2.
+        if (value >= 0xA000) {
+            adjusted -= 0x45F8;
+        }
+
+        break;
+
+    default:
+        // Do nothing
+        break;
     }
 
     if (adjusted < 0 || adjusted > 0xFFFF) {
         return value;
     }
 
-    return (Uint16)adjusted;
+    return adjusted;
+}
+
+static Uint16 remap_ovct_parts_char(Uint16 value, Character character) {
+    switch (character) {
+    case CHAR_IBUKI:
+        if (value >= 0x9660 && value <= 0x96D7) {
+            return value - 28671;
+        }
+
+        if ((value >= 0x9BCE && value <= 0x9BD4) || (value >= 0x9C43 && value <= 0x9C45) ||
+            (value >= 0x9C70 && value <= 0x9C7A)) {
+            return value - 29903;
+        }
+
+        break;
+
+    default:
+        // Do nothing
+        break;
+    }
+
+    return remap_cg_number(value, character);
 }
 
 static const void* read_char_table(SDL_IOStream* rom, Location location, Character character) {
@@ -285,7 +326,7 @@ static const void* read_ovct(SDL_IOStream* rom, Location location, Character cha
             element->parts_mts = 1;
         }
 
-        element->parts_char = remap_cg_number(element->parts_char, character);
+        element->parts_char = remap_ovct_parts_char(element->parts_char, character);
     }
 
     return result;
