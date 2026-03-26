@@ -219,7 +219,7 @@ void TestRunner_Epilogue() {
             break;
         }
 
-        compare_values(io);
+        compare_values(io, inputs_index);
 
         SDL_CloseIO(io);
         comparison_index += 1;

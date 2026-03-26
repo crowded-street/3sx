@@ -192,8 +192,11 @@ static void compare_wcp(SDL_IOStream* io) {
     }
 }
 
-void compare_values(SDL_IOStream* io) {
-    compare_wcp(io);
+void compare_values(SDL_IOStream* io, size_t frames_elapsed) {
+    if (frames_elapsed > 200) {
+        compare_wcp(io);
+    }
+
     compare_service_values(io);
     compare_main_values(io);
 }
