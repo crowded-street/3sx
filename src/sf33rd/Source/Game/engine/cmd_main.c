@@ -4,6 +4,8 @@
  */
 
 #include "sf33rd/Source/Game/engine/cmd_main.h"
+#include "arcade/arcade_balance.h"
+#include "arcade/arcade_cmd_data.h"
 #include "common.h"
 #include "sf33rd/Source/Game/engine/cmd_data.h"
 #include "sf33rd/Source/Game/engine/hitcheck.h"
@@ -42,7 +44,7 @@ void cmd_data_set(PLW* /* unused */, s16 i) {
     waza_work[cmd_id][i].w_dead = *cmd_tbl_ptr++;
     waza_work[cmd_id][i].w_dead2 = *cmd_tbl_ptr++;
 
-    ptr3 = &wcp[cmd_id].waza_r[i][0];
+    ptr3 = wcp[cmd_id].waza_r[i];
     *ptr3++ = (s8)*cmd_tbl_ptr++;
     *ptr3++ = (s8)*cmd_tbl_ptr++;
     *ptr3++ = (s8)*cmd_tbl_ptr++;
@@ -50,7 +52,7 @@ void cmd_data_set(PLW* /* unused */, s16 i) {
 
     wcp[cmd_id].btix[i] = *cmd_tbl_ptr++;
 
-    ptr4 = &wcp[cmd_id].exdt[i][0];
+    ptr4 = wcp[cmd_id].exdt[i];
     *ptr4++ = *cmd_tbl_ptr++;
     *ptr4++ = *cmd_tbl_ptr++;
     *ptr4++ = *cmd_tbl_ptr++;
@@ -91,17 +93,22 @@ void cmd_init(PLW* pl) {
     waza_compel_all_init(pl);
 }
 
+static const void* get_commands(s16 char_num) {
+    if (ArcadeBalance_IsEnabled()) {
+        return ArcadeCommandData_Get(char_num);
+    } else if (cmd_sel[cmd_id]) {
+        return pl_CMD[char_num];
+    } else {
+        return pl_cmd[char_num];
+    }
+}
+
 void cmd_move() {
     s16 j;
     intptr_t* adrs;
 
     cmd_id = cmd_pl->wu.id;
-
-    if (cmd_sel[cmd_id]) {
-        adrs = pl_CMD[cmd_pl->player_number];
-    } else {
-        adrs = pl_cmd[cmd_pl->player_number];
-    }
+    adrs = get_commands(cmd_pl->player_number);
 
     for (j = 0; j < 56; j++) {
         if (wcp[cmd_id].waza_flag[j] != -1) {
@@ -1739,38 +1746,20 @@ void sw_pick_up() {
 }
 
 void dash_flag_clear(s16 pl_id) {
-    intptr_t* adrs;
-
-    if (cmd_sel[pl_id]) {
-        adrs = pl_CMD[plw[pl_id].player_number];
-    } else {
-        adrs = pl_cmd[plw[pl_id].player_number];
-    }
+    intptr_t* adrs = get_commands(plw[pl_id].player_number);
 
     waza_compel_init(pl_id, 0, adrs);
     waza_compel_init(pl_id, 1, adrs);
 }
 
 void hi_jump_flag_clear(s16 pl_id) {
-    intptr_t* adrs;
-
-    if (cmd_sel[pl_id]) {
-        adrs = pl_CMD[plw[pl_id].player_number];
-    } else {
-        adrs = pl_cmd[plw[pl_id].player_number];
-    }
+    intptr_t* adrs = get_commands(plw[pl_id].player_number);
 
     waza_compel_init(pl_id, 2, adrs);
 }
 
 void waza_flag_clear_only_1(s16 pl_id, s16 wznum) {
-    intptr_t* adrs;
-
-    if (cmd_sel[pl_id]) {
-        adrs = pl_CMD[plw[pl_id].player_number];
-    } else {
-        adrs = pl_cmd[plw[pl_id].player_number];
-    }
+    intptr_t* adrs = get_commands(plw[pl_id].player_number);
 
     waza_compel_init(pl_id, wznum, adrs);
 }
@@ -1798,13 +1787,7 @@ void waza_compel_init(s16 pl_id, s16 num, intptr_t* adrs) {
 
 void waza_compel_all_init(PLW* pl) {
     s16 i;
-    intptr_t* adrs;
-
-    if (cmd_sel[pl->wu.id]) {
-        adrs = pl_CMD[pl->player_number];
-    } else {
-        adrs = pl_cmd[pl->player_number];
-    }
+    intptr_t* adrs = get_commands(pl->player_number);
 
     for (i = 0; i < pl_cmd_num[pl->player_number][0]; i++) {
         cmd_tbl_ptr = (s16*)adrs[i];
