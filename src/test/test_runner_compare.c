@@ -158,6 +158,9 @@ static void compare_wcp(SDL_IOStream* io) {
     }
 
     for (int i = 0; i < 2; i++) {
+        const s16 waza_type_cps3 = read_s16(io, WAZA_TYPE_OFFSET + i * sizeof(s16));
+        stop_if(waza_type[i] != waza_type_cps3);
+
         const WORK_CP* w_3sx = &wcp[i];
         const WORK_CP* w_cps3 = &wcp_cps3[i];
 
