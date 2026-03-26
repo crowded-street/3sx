@@ -187,7 +187,69 @@ static void compare_service_values(SDL_IOStream* io) {
     }
 }
 
+static void compare_wcp(SDL_IOStream* io) {
+    SDL_SeekIO(io, WCP_OFFSET, SDL_IO_SEEK_SET);
+
+    WORK_CP wcp_cps3[2];
+    SDL_ReadIO(io, wcp_cps3, sizeof(wcp_cps3));
+
+    for (int i = 0; i < 2; i++) {
+        WORK_CP* w = &wcp_cps3[i];
+
+        w->sw_lvbt = SDL_Swap16BE(w->sw_lvbt);
+        w->sw_new = SDL_Swap16BE(w->sw_new);
+        w->sw_old = SDL_Swap16BE(w->sw_old);
+        w->sw_now = SDL_Swap16BE(w->sw_now);
+        w->sw_off = SDL_Swap16BE(w->sw_off);
+        w->sw_chg = SDL_Swap16BE(w->sw_chg);
+        w->old_now = SDL_Swap16BE(w->old_now);
+        w->lgp = SDL_Swap16BE(w->lgp);
+
+        for (int j = 0; j < 56; j++) {
+            w->waza_flag[j] = SDL_Swap16BE(w->waza_flag[j]);
+            w->reset[j] = SDL_Swap16BE(w->reset[j]);
+            w->btix[j] = SDL_Swap16BE(w->btix[j]);
+
+            for (int k = 0; k < 4; k++) {
+                w->exdt[j][k] = SDL_Swap16BE(w->exdt[j][k]);
+            }
+        }
+    }
+
+    for (int i = 0; i < 2; i++) {
+        const WORK_CP* w_3sx = &wcp[i];
+        const WORK_CP* w_cps3 = &wcp_cps3[i];
+
+        stop_if(w_3sx->sw_lvbt != w_cps3->sw_lvbt);
+        stop_if(w_3sx->sw_new != w_cps3->sw_new);
+        stop_if(w_3sx->sw_old != w_cps3->sw_old);
+        stop_if(w_3sx->sw_now != w_cps3->sw_now);
+        stop_if(w_3sx->sw_off != w_cps3->sw_off);
+        stop_if(w_3sx->sw_chg != w_cps3->sw_chg);
+        stop_if(w_3sx->old_now != w_cps3->old_now);
+        stop_if(w_3sx->lgp != w_cps3->lgp);
+        stop_if(w_3sx->ca14 != w_cps3->ca14);
+        stop_if(w_3sx->ca25 != w_cps3->ca25);
+        stop_if(w_3sx->ca36 != w_cps3->ca36);
+        stop_if(w_3sx->calf != w_cps3->calf);
+        stop_if(w_3sx->calr != w_cps3->calr);
+        stop_if(w_3sx->lever_dir != w_cps3->lever_dir);
+
+        for (int j = 0; j < 56; j++) {
+            stop_if(w_3sx->waza_flag[j] != w_cps3->waza_flag[j]);
+            stop_if(w_3sx->reset[j] != w_cps3->reset[j]);
+            stop_if(w_3sx->btix[j] != w_cps3->btix[j]);
+
+            for (int k = 0; k < 4; k++) {
+                stop_if(w_3sx->waza_r[j][k] != w_cps3->waza_r[j][k]);
+                stop_if(w_3sx->exdt[j][k] != w_cps3->exdt[j][k]);
+            }
+        }
+    }
+}
+
 static void compare_values(SDL_IOStream* io) {
+    compare_wcp(io);
     compare_service_values(io);
     compare_main_values(io);
 }
