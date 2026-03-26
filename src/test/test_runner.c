@@ -14,6 +14,7 @@
 #include "stb/stb_ds.h"
 #include <SDL3/SDL.h>
 
+#include <signal.h>
 #include <stdio.h>
 
 #define REPLAY_FRAMES_MAX 3 * 100 * 60
@@ -86,6 +87,10 @@ static void finish_round() {
 }
 
 void TestRunner_Prologue() {
+    if (frame == SDL_MAX_UINT64) {
+        raise(SIGSTOP);
+    }
+
     p1sw_buff = 0;
     p2sw_buff = 0;
 
