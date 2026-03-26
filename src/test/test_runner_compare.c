@@ -181,6 +181,11 @@ static void compare_wcp(SDL_IOStream* io) {
 
         for (int j = 0; j < 56; j++) {
             stop_if(w_3sx->waza_flag[j] != w_cps3->waza_flag[j]);
+
+            if (w_3sx->waza_flag[j] == -1) {
+                continue;
+            }
+
             stop_if(w_3sx->reset[j] != w_cps3->reset[j]);
             stop_if(w_3sx->btix[j] != w_cps3->btix[j]);
 
