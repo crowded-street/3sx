@@ -1,5 +1,8 @@
+#if DEBUG
+
 #include "test/test_runner_compare.h"
 #include "arcade/arcade_constants.h"
+#include "constants.h"
 #include "port/utils.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
@@ -15,6 +18,8 @@ typedef struct Position {
     s16 x;
     s16 y;
 } Position;
+
+// Data reading
 
 static Sint64 calc_plw_offset(int player) {
     return PLW_OFFSET + player * PLW_SIZE;
@@ -32,8 +37,82 @@ static Position get_position(int player) {
     return (Position) { .x = xyz[0].disp.pos, .y = xyz[1].disp.pos };
 }
 
+static u8 read_allow_a_battle_f(SDL_IOStream* io) {
+    return read_u8(io, ALLOW_A_BATTLE_F_OFFSET);
+}
+
+static void read_wcp(SDL_IOStream* io, WORK_CP dst[2]) {
+    SDL_SeekIO(io, WCP_OFFSET, SDL_IO_SEEK_SET);
+    SDL_ReadIO(io, dst, sizeof(wcp));
+
+    for (int i = 0; i < 2; i++) {
+        WORK_CP* w = &dst[i];
+
+        w->sw_lvbt = SDL_Swap16BE(w->sw_lvbt);
+        w->sw_new = SDL_Swap16BE(w->sw_new);
+        w->sw_old = SDL_Swap16BE(w->sw_old);
+        w->sw_now = SDL_Swap16BE(w->sw_now);
+        w->sw_off = SDL_Swap16BE(w->sw_off);
+        w->sw_chg = SDL_Swap16BE(w->sw_chg);
+        w->old_now = SDL_Swap16BE(w->old_now);
+        w->lgp = SDL_Swap16BE(w->lgp);
+
+        for (int j = 0; j < 56; j++) {
+            w->waza_flag[j] = SDL_Swap16BE(w->waza_flag[j]);
+            w->reset[j] = SDL_Swap16BE(w->reset[j]);
+            w->btix[j] = SDL_Swap16BE(w->btix[j]);
+
+            for (int k = 0; k < 4; k++) {
+                w->exdt[j][k] = SDL_Swap16BE(w->exdt[j][k]);
+            }
+        }
+    }
+}
+
+static void read_waza_work(SDL_IOStream* io, WAZA_WORK dst[2][56]) {
+    SDL_SeekIO(io, WAZA_WORK_OFFSET, SDL_IO_SEEK_SET);
+
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 56; j++) {
+            WAZA_WORK* wk = &dst[i][j];
+
+            SDL_ReadS16BE(io, &wk->w_type);
+            SDL_ReadS16BE(io, &wk->w_int);
+            SDL_ReadS16BE(io, &wk->free1);
+            SDL_ReadS16BE(io, &wk->w_lvr);
+
+            u32 w_ptr;
+            SDL_ReadU32BE(io, &w_ptr);
+            wk->w_ptr = (s16*)(uintptr_t)w_ptr;
+
+            SDL_ReadS16BE(io, &wk->free2);
+            SDL_ReadS16BE(io, &wk->w_dead);
+            SDL_ReadS16BE(io, &wk->w_dead2);
+            SDL_ReadS16BE(io, &wk->uni0.tame.flag);
+            SDL_ReadS16BE(io, &wk->uni0.tame.shot_flag);
+            SDL_ReadS16BE(io, &wk->uni0.tame.shot_flag2);
+            SDL_ReadS16BE(io, &wk->free3);
+            SDL_ReadS16BE(io, &wk->shot_ok);
+        }
+    }
+}
+
+static void read_t_pl_lvr(SDL_IOStream* io, T_PL_LVR dst[2]) {
+    SDL_SeekIO(io, T_PL_LVR_OFFSET, SDL_IO_SEEK_SET);
+
+    u16* ptr = dst;
+
+    // T_PL_LVR consists of 16-bit ints. We need to read sizeof(T_PL_LVR) / 2 * 2 such ints
+    for (int i = 0; i < sizeof(T_PL_LVR); i++) {
+        SDL_ReadU16BE(io, ptr);
+        ptr++;
+    }
+}
+
+// Comparison
+
 static void compare_main_values(SDL_IOStream* io) {
-    const u8 allow_a_battle_f_cps3 = read_u8(io, ALLOW_A_BATTLE_F_OFFSET);
+    const u8 allow_a_battle_f_cps3 = read_allow_a_battle_f(io);
     stop_if(Allow_a_battle_f != allow_a_battle_f_cps3);
 
     const u8 round_timer_cps3 = read_u8(io, ROUND_TIMER_OFFSET);
@@ -128,34 +207,34 @@ static void compare_service_values(SDL_IOStream* io) {
     }
 }
 
-static void compare_wcp(SDL_IOStream* io) {
-    SDL_SeekIO(io, WCP_OFFSET, SDL_IO_SEEK_SET);
-
-    WORK_CP wcp_cps3[2];
-    SDL_ReadIO(io, wcp_cps3, sizeof(wcp_cps3));
+static void compare_waza_work(SDL_IOStream* io) {
+    WAZA_WORK waza_work_cps3[2][56];
+    read_waza_work(io, waza_work_cps3);
 
     for (int i = 0; i < 2; i++) {
-        WORK_CP* w = &wcp_cps3[i];
-
-        w->sw_lvbt = SDL_Swap16BE(w->sw_lvbt);
-        w->sw_new = SDL_Swap16BE(w->sw_new);
-        w->sw_old = SDL_Swap16BE(w->sw_old);
-        w->sw_now = SDL_Swap16BE(w->sw_now);
-        w->sw_off = SDL_Swap16BE(w->sw_off);
-        w->sw_chg = SDL_Swap16BE(w->sw_chg);
-        w->old_now = SDL_Swap16BE(w->old_now);
-        w->lgp = SDL_Swap16BE(w->lgp);
-
         for (int j = 0; j < 56; j++) {
-            w->waza_flag[j] = SDL_Swap16BE(w->waza_flag[j]);
-            w->reset[j] = SDL_Swap16BE(w->reset[j]);
-            w->btix[j] = SDL_Swap16BE(w->btix[j]);
+            const WAZA_WORK* w_3sx = &waza_work[i][j];
+            const WAZA_WORK* w_cps3 = &waza_work_cps3[i][j];
 
-            for (int k = 0; k < 4; k++) {
-                w->exdt[j][k] = SDL_Swap16BE(w->exdt[j][k]);
-            }
+            stop_if(w_3sx->w_type != w_cps3->w_type);
+            stop_if(w_3sx->w_int != w_cps3->w_int);
+            stop_if(w_3sx->free1 != w_cps3->free1);
+            stop_if(w_3sx->w_lvr != w_cps3->w_lvr);
+            stop_if(w_3sx->free2 != w_cps3->free2);
+            stop_if(w_3sx->w_dead != w_cps3->w_dead);
+            stop_if(w_3sx->w_dead2 != w_cps3->w_dead2);
+            stop_if(w_3sx->uni0.tame.flag != w_cps3->uni0.tame.flag);
+            stop_if(w_3sx->uni0.tame.shot_flag != w_cps3->uni0.tame.shot_flag);
+            stop_if(w_3sx->uni0.tame.shot_flag2 != w_cps3->uni0.tame.shot_flag2);
+            stop_if(w_3sx->free3 != w_cps3->free3);
+            stop_if(w_3sx->shot_ok != w_cps3->shot_ok);
         }
     }
+}
+
+static void compare_wcp(SDL_IOStream* io) {
+    WORK_CP wcp_cps3[2];
+    read_wcp(io, wcp_cps3);
 
     for (int i = 0; i < 2; i++) {
         const s16 waza_type_cps3 = read_s16(io, WAZA_TYPE_OFFSET + i * sizeof(s16));
@@ -197,11 +276,81 @@ static void compare_wcp(SDL_IOStream* io) {
     }
 }
 
-void compare_values(SDL_IOStream* io, size_t frames_elapsed) {
-    if (frames_elapsed > 200) {
-        compare_wcp(io);
-    }
+void compare_values(SDL_IOStream* io) {
+    // if (read_allow_a_battle_f(io)) {
+    compare_waza_work(io);
+    compare_wcp(io);
+    // }
 
     compare_service_values(io);
     compare_main_values(io);
 }
+
+// Syncing
+
+static void sync_lvr(T_PL_LVR* dst, const T_PL_LVR* src) {
+    dst->sw_new = src->sw_new;
+    dst->sw_old = src->sw_old;
+    dst->sw_chg = src->sw_chg;
+    dst->sw_now = src->sw_now;
+    dst->old_now = src->old_now;
+    dst->now_lvbt = src->now_lvbt;
+    dst->old_lvbt = src->old_lvbt;
+    dst->new_lvbt = src->new_lvbt;
+    dst->sw_lever = src->sw_lever;
+    dst->shot_up = src->shot_up;
+    dst->shot_down = src->shot_down;
+    dst->shot_ud = src->shot_ud;
+}
+
+static void sync_wcp(WORK_CP* dst, const WORK_CP* src) {
+    dst->sw_lvbt = src->sw_lvbt;
+    dst->sw_new = src->sw_new;
+    dst->sw_old = src->sw_old;
+    dst->sw_now = src->sw_now;
+    dst->sw_off = src->sw_off;
+    dst->sw_chg = src->sw_chg;
+    dst->old_now = src->old_now;
+    dst->lgp = src->lgp;
+    dst->ca14 = src->ca14;
+    dst->ca25 = src->ca25;
+    dst->ca36 = src->ca36;
+    dst->lever_dir = src->lever_dir;
+
+    for (int i = 0; i < 56; i++) {
+        if (dst->waza_flag[i] != -1) {
+            dst->waza_flag[i] = src->waza_flag[i];
+        }
+    }
+}
+
+static void sync_waza_work(WAZA_WORK* dst, const WAZA_WORK* src, Character character) {
+    if (dst->w_type == 15 && character == CHAR_URIEN) {
+        dst->w_int = src->w_int;
+        dst->uni0.tame.flag = src->uni0.tame.flag;
+    }
+}
+
+void sync_values(SDL_IOStream* io) {
+    WORK_CP wcp_cps3[2];
+    read_wcp(io, wcp_cps3);
+
+    WAZA_WORK waza_work_cps3[2][56];
+    read_waza_work(io, waza_work_cps3);
+
+    T_PL_LVR t_pl_lvr_cps3[2];
+    read_t_pl_lvr(io, t_pl_lvr_cps3);
+
+    for (int i = 0; i < 2; i++) {
+        const Character character = plw[i].player_number;
+
+        sync_lvr(&t_pl_lvr[i], &t_pl_lvr_cps3[i]);
+        sync_wcp(&wcp[i], &wcp_cps3[i]);
+
+        for (int j = 0; j < 56; j++) {
+            sync_waza_work(&waza_work[i][j], &waza_work_cps3[i][j], character);
+        }
+    }
+}
+
+#endif

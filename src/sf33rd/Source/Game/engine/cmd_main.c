@@ -143,7 +143,7 @@ void check_init() { // 🟢
     chk_move_jp[waza_ptr->w_type]();
 }
 
-void check_next() {
+void check_next() { // 🟢
     s16* next_ptr = waza_ptr->w_ptr;
 
     waza_ptr->w_type = *next_ptr++;

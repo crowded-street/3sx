@@ -17,8 +17,6 @@
 #include <signal.h>
 #include <stdio.h>
 
-#define REPLAY_FRAMES_MAX 3 * 100 * 60
-
 typedef enum Phase {
     PHASE_TITLE,
     PHASE_MENU,
@@ -43,6 +41,13 @@ static int comparison_index = 0;
 static bool initialized = false;
 static ReplayGame game;
 static int round_index = 0;
+
+static SDL_IOStream* io_at_index(int index) {
+    const char* path = ram_path(index);
+    SDL_IOStream* io = SDL_IOFromFile(path, "rb");
+    SDL_free(path);
+    return io;
+}
 
 static ReplayRound* _round() {
     return &game.rounds[round_index];
@@ -195,6 +200,10 @@ void TestRunner_Prologue() {
             break;
         }
 
+        SDL_IOStream* io = io_at_index(comparison_index - 1);
+        sync_values(io);
+        SDL_CloseIO(io);
+
         phase = PHASE_ROUND;
         // fallthrough
 
@@ -216,15 +225,13 @@ void TestRunner_Prologue() {
 void TestRunner_Epilogue() {
     switch (phase) {
     case PHASE_ROUND:
-        const char* path = ram_path(comparison_index);
-        SDL_IOStream* io = SDL_IOFromFile(path, "rb");
-        SDL_free(path);
+        SDL_IOStream* io = io_at_index(comparison_index);
 
         if (io == NULL) {
             break;
         }
 
-        compare_values(io, inputs_index);
+        compare_values(io);
 
         SDL_CloseIO(io);
         comparison_index += 1;
