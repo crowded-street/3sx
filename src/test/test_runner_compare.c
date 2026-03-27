@@ -41,6 +41,10 @@ static u8 read_allow_a_battle_f(SDL_IOStream* io) {
     return read_u8(io, ALLOW_A_BATTLE_F_OFFSET);
 }
 
+static u16 read_game_timer(SDL_IOStream* io) {
+    return read_u16(io, GAME_TIMER_OFFSET);
+}
+
 static void read_wcp(SDL_IOStream* io, WORK_CP dst[2]) {
     SDL_SeekIO(io, WCP_OFFSET, SDL_IO_SEEK_SET);
     SDL_ReadIO(io, dst, sizeof(wcp));
@@ -118,15 +122,9 @@ static void compare_main_values(SDL_IOStream* io) {
     const u8 round_timer_cps3 = read_u8(io, ROUND_TIMER_OFFSET);
     stop_if(round_timer != round_timer_cps3);
 
-    const u16 game_timer_cps3 = read_u16(io, GAME_TIMER_OFFSET);
+    const u16 game_timer_cps3 = read_game_timer(io);
+    stop_if(Game_timer != game_timer_cps3);
     // printf("⏱️ %d game_timer: %d\n", comparison_index, game_timer_cps3);
-
-    // Some interactions are decided by the evenness of Game_timer. After the first round Game_timer inevitably
-    // goes out of sync, which is why we have to sync it manually.
-    // This is not the best place to do this, but we need to sync Game_timer somewhere, so ...
-    if (Game_timer != game_timer_cps3) {
-        Game_timer = game_timer_cps3;
-    }
 
     for (int i = 0; i < 2; i++) {
         const Sint64 plw_offset = calc_plw_offset(i);
@@ -277,10 +275,8 @@ static void compare_wcp(SDL_IOStream* io) {
 }
 
 void compare_values(SDL_IOStream* io) {
-    // if (read_allow_a_battle_f(io)) {
-    compare_waza_work(io);
-    compare_wcp(io);
-    // }
+    // compare_waza_work(io);
+    // compare_wcp(io);
 
     compare_service_values(io);
     compare_main_values(io);
@@ -332,24 +328,28 @@ static void sync_waza_work(WAZA_WORK* dst, const WAZA_WORK* src, Character chara
 }
 
 void sync_values(SDL_IOStream* io) {
-    WORK_CP wcp_cps3[2];
-    read_wcp(io, wcp_cps3);
+    // Some interactions are decided by the evenness of Game_timer. After the first round Game_timer inevitably
+    // goes out of sync, which is why we have to sync it manually.
+    Game_timer = read_game_timer(io);
 
-    WAZA_WORK waza_work_cps3[2][56];
-    read_waza_work(io, waza_work_cps3);
+    // WORK_CP wcp_cps3[2];
+    // read_wcp(io, wcp_cps3);
 
-    T_PL_LVR t_pl_lvr_cps3[2];
-    read_t_pl_lvr(io, t_pl_lvr_cps3);
+    // WAZA_WORK waza_work_cps3[2][56];
+    // read_waza_work(io, waza_work_cps3);
+
+    // T_PL_LVR t_pl_lvr_cps3[2];
+    // read_t_pl_lvr(io, t_pl_lvr_cps3);
 
     for (int i = 0; i < 2; i++) {
         const Character character = plw[i].player_number;
 
-        sync_lvr(&t_pl_lvr[i], &t_pl_lvr_cps3[i]);
-        sync_wcp(&wcp[i], &wcp_cps3[i]);
+        // sync_lvr(&t_pl_lvr[i], &t_pl_lvr_cps3[i]);
+        // sync_wcp(&wcp[i], &wcp_cps3[i]);
 
-        for (int j = 0; j < 56; j++) {
-            sync_waza_work(&waza_work[i][j], &waza_work_cps3[i][j], character);
-        }
+        // for (int j = 0; j < 56; j++) {
+        //     sync_waza_work(&waza_work[i][j], &waza_work_cps3[i][j], character);
+        // }
     }
 }
 
