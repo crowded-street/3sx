@@ -1188,7 +1188,7 @@ void Setup_PL_Color(s16 PL_id, u16 sw) {
         id_0 = 127;
     }
 
-    if (plw[PL_id].wu.operator != 0 && My_char[PL_id] == 0) {
+    if (plw[PL_id].wu.operator != 0 && My_char[PL_id] == CHAR_GILL) {
         sw_new = 0;
     } else {
         if (Debug_w[53]) {
@@ -1208,11 +1208,11 @@ void Setup_PL_Color(s16 PL_id, u16 sw) {
         }
     }
 
-    if (My_char[PL_id] == 0) {
+    if (My_char[PL_id] == CHAR_GILL) {
         switch (sw) {
-        case 16:
-        case 32:
-        case 64:
+        case SWK_WEST:
+        case SWK_NORTH:
+        case SWK_RIGHT_SHOULDER:
             if (Player_Color[PL_id ^ 1] == 0 && id_0 == id_1) {
                 Player_Color[PL_id] = 1;
             } else {
@@ -1230,129 +1230,125 @@ void Setup_PL_Color(s16 PL_id, u16 sw) {
 
             break;
         }
-
-        return;
-    }
-
-    if (sw_new & 0x4000) {
+    } else if (sw_new & SWK_START) {
         switch (sw) {
-        case 16:
+        case SWK_WEST:
             if (Player_Color[PL_id ^ 1] == 7 && id_0 == id_1) {
                 Player_Color[PL_id] = 10;
-                break;
+            } else {
+                Player_Color[PL_id] = 7;
             }
 
-            Player_Color[PL_id] = 7;
             break;
 
-        case 32:
+        case SWK_NORTH:
             if (Player_Color[PL_id ^ 1] == 8 && id_0 == id_1) {
                 Player_Color[PL_id] = 11;
-                break;
+            } else {
+                Player_Color[PL_id] = 8;
             }
 
-            Player_Color[PL_id] = 8;
             break;
 
-        case 64:
+        case SWK_RIGHT_SHOULDER:
             if (Player_Color[PL_id ^ 1] == 9 && id_0 == id_1) {
                 Player_Color[PL_id] = 12;
-                break;
+            } else {
+                Player_Color[PL_id] = 9;
             }
 
-            Player_Color[PL_id] = 9;
             break;
 
-        case 256:
+        case SWK_SOUTH:
             if (Player_Color[PL_id ^ 1] == 10 && id_0 == id_1) {
                 Player_Color[PL_id] = 7;
-                break;
+            } else {
+                Player_Color[PL_id] = 10;
             }
 
-            Player_Color[PL_id] = 10;
             break;
 
-        case 512:
+        case SWK_EAST:
             if (Player_Color[PL_id ^ 1] == 11 && id_0 == id_1) {
                 Player_Color[PL_id] = 8;
-                break;
+            } else {
+                Player_Color[PL_id] = 11;
             }
 
-            Player_Color[PL_id] = 11;
             break;
 
         default:
             if (Player_Color[PL_id ^ 1] == 12 && id_0 == id_1) {
                 Player_Color[PL_id] = 9;
-                break;
+            } else {
+                Player_Color[PL_id] = 12;
             }
 
-            Player_Color[PL_id] = 12;
             break;
         }
     } else {
         switch (sw) {
-        case 592:
+        case SWK_WEST | SWK_RIGHT_SHOULDER | SWK_EAST:
             if (Player_Color[PL_id ^ 1] == 6 && id_0 == id_1) {
                 Player_Color[PL_id] = 0;
-                break;
+            } else {
+                Player_Color[PL_id] = 6;
             }
 
-            Player_Color[PL_id] = 6;
             break;
 
-        case 16:
+        case SWK_WEST:
             if (Player_Color[PL_id ^ 1] == 0 && id_0 == id_1) {
                 Player_Color[PL_id] = 3;
-                break;
+            } else {
+                Player_Color[PL_id] = 0;
             }
 
-            Player_Color[PL_id] = 0;
             break;
 
-        case 32:
+        case SWK_NORTH:
             if (Player_Color[PL_id ^ 1] == 1 && id_0 == id_1) {
                 Player_Color[PL_id] = 4;
-                break;
+            } else {
+                Player_Color[PL_id] = 1;
             }
 
-            Player_Color[PL_id] = 1;
             break;
 
-        case 64:
+        case SWK_RIGHT_SHOULDER:
             if (Player_Color[PL_id ^ 1] == 2 && id_0 == id_1) {
                 Player_Color[PL_id] = 5;
-                break;
+            } else {
+                Player_Color[PL_id] = 2;
             }
 
-            Player_Color[PL_id] = 2;
             break;
 
-        case 256:
+        case SWK_SOUTH:
             if (Player_Color[PL_id ^ 1] == 3 && id_0 == id_1) {
                 Player_Color[PL_id] = 0;
-                break;
+            } else {
+                Player_Color[PL_id] = 3;
             }
 
-            Player_Color[PL_id] = 3;
             break;
 
-        case 512:
+        case SWK_EAST:
             if (Player_Color[PL_id ^ 1] == 4 && id_0 == id_1) {
                 Player_Color[PL_id] = 1;
-                break;
+            } else {
+                Player_Color[PL_id] = 4;
             }
 
-            Player_Color[PL_id] = 4;
             break;
 
         default:
             if (Player_Color[PL_id ^ 1] == 5 && id_0 == id_1) {
                 Player_Color[PL_id] = 2;
-                break;
+            } else {
+                Player_Color[PL_id] = 5;
             }
 
-            Player_Color[PL_id] = 5;
             break;
         }
     }
