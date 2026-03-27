@@ -31,6 +31,22 @@ static const Uint8 character_to_cursor[20][2] = { { 7, 1 }, { 1, 0 }, { 5, 2 }, 
                                                   { 3, 0 }, { 2, 2 }, { 4, 2 }, { 0, 1 }, { 0, 2 }, { 2, 0 }, { 5, 0 },
                                                   { 6, 0 }, { 3, 1 }, { 2, 1 }, { 4, 1 }, { 1, 1 }, { 5, 1 } };
 
+static const SWKey color_to_keys[13] = {
+    SWK_WEST,
+    SWK_NORTH,
+    SWK_RIGHT_SHOULDER,
+    SWK_SOUTH,
+    SWK_EAST,
+    SWK_RIGHT_TRIGGER,
+    SWK_WEST | SWK_RIGHT_SHOULDER | SWK_EAST,
+    SWK_START | SWK_WEST,
+    SWK_START | SWK_NORTH,
+    SWK_START | SWK_RIGHT_SHOULDER,
+    SWK_START | SWK_SOUTH,
+    SWK_START | SWK_EAST,
+    SWK_START | SWK_RIGHT_TRIGGER,
+};
+
 static Uint64 frame = 0;
 static Phase phase = PHASE_TITLE;
 static int char_select_phase = 0;
@@ -165,8 +181,8 @@ void TestRunner_Prologue() {
             break;
 
         case 2:
-            tap_button(SWK_SOUTH, 0);
-            tap_button(SWK_SOUTH, 1);
+            tap_button(color_to_keys[game.colors[0]], 0);
+            tap_button(color_to_keys[game.colors[1]], 1);
             wait_timer = 45;
             char_select_phase = 3;
             break;

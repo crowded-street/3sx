@@ -79,6 +79,9 @@ void ReplayGame_Parse(ReplayGame* game) {
             SDL_SeekIO(io, NEW_CHALLENGER_OFFSET, SDL_IO_SEEK_SET);
             SDL_ReadU8(io, &game->new_challenger);
 
+            SDL_SeekIO(io, PLAYER_COLOR_OFFSET, SDL_IO_SEEK_SET);
+            SDL_ReadIO(io, game->colors, 2);
+
             adjust_character_numbers(game);
             did_set_char_data = true;
         }

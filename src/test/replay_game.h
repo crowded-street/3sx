@@ -19,6 +19,7 @@ typedef struct ReplayGame {
     ReplayRound* rounds;
     Uint8 characters[2];
     Uint8 supers[2];
+    Uint8 colors[2];
     Uint8 new_challenger;
 } ReplayGame;
 
