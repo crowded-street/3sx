@@ -72,7 +72,7 @@ void Switch_Screen_Init(s32 /* unused */) {
 }
 
 s32 Switch_Screen(u8 Wipe_Type) {
-    if (WipeOut(Wipe_Type) && --Gap_Timer <= 0) {
+    if (WipeOut(Wipe_Type)) {
         Exec_Wipe = 0;
         Stop_Combo = 0;
         return 1;
@@ -82,7 +82,7 @@ s32 Switch_Screen(u8 Wipe_Type) {
 }
 
 s32 Switch_Screen_Revival(u8 Wipe_Type) {
-    if (WipeIn(Wipe_Type) && --Gap_Timer <= 0) {
+    if (WipeIn(Wipe_Type)) {
         Exec_Wipe = 0;
         Stop_Combo = 0;
         return 1;

@@ -1065,7 +1065,7 @@ s32 WipeOut(u8 type) {
     }
 
     WipeLimit += 1;
-    return 0;
+    return (WipeLimit < 8) ? 0 : 1;
 }
 
 s32 WipeIn(u8 type) {
@@ -1074,11 +1074,7 @@ s32 WipeIn(u8 type) {
     PAL_CURSOR_COL wipe_col[4];
     s32 i;
 
-    if (WipeLimit == 9) {
-        return 1;
-    }
-
-    if ((WipeLimit != 8) && (!No_Trans)) {
+    if ((WipeLimit < 8) && !No_Trans) {
         wipe_pc.p = &wipe_p[0];
         wipe_pc.col = &wipe_col[0];
         wipe_pc.tex = 0;
@@ -1109,7 +1105,7 @@ s32 WipeIn(u8 type) {
     }
 
     WipeLimit += 1;
-    return 0;
+    return (WipeLimit < 8) ? 0 : 1;
 }
 
 void FadeInit() {
