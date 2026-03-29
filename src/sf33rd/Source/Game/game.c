@@ -1,6 +1,7 @@
 #include "sf33rd/Source/Game/game.h"
 #include "common.h"
 #include "main.h"
+#include "port/utils.h"
 #include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Common/PPGWork.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
@@ -101,6 +102,7 @@ static s16 Bonus_Sub();
 s16 Ck_Coin();
 void Loop_Demo_Sub();
 void Before_Select_Sub();
+
 static void Set_Appear_Type_For_Mode() {
     appear_type = Is_Training_Mode(Mode_Type) ? APPEAR_TYPE_NON_ANIMATED : APPEAR_TYPE_ANIMATED;
 }
@@ -421,7 +423,7 @@ void Game2_0() {
     Switch_Screen(0);
 
     if (Check_LDREQ_Clear() == 0) {
-        return;
+        fatal_error("Load queue failed to drain in time");
     }
 
     System_all_clear_Level_B();
@@ -501,6 +503,7 @@ void Game2_0() {
     player_face_init();
 }
 
+/// Main gameplay routine
 void Game2_1() {
     mpp_w.inGame = true;
 
@@ -547,7 +550,7 @@ void Game2_2() {
     Switch_Screen(0);
 
     if (Check_LDREQ_Clear() == 0) {
-        return;
+        fatal_error("Load queue failed to drain in time");
     }
 
     SsBgmHalfVolume(0);
@@ -601,7 +604,7 @@ void Game2_2() {
     G_No[2] = 7;
 }
 
-void Game2_3() {
+void Game2_3() { // 🟢
     Game2_1();
 
     if (--G_Timer == 0) {
@@ -614,6 +617,7 @@ void Game2_4() {
     BG_Draw_System();
 }
 
+/// Rounds 2, 3, ... routine
 void Game2_5() {
     BG_Draw_System();
 

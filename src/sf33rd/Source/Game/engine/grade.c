@@ -167,11 +167,10 @@ void grade_check_work_stage_init(s16 ix) {
     if (Play_Type == 1) {
         judge_item[ix][Play_Type].renshou = Win_Record[ix];
         judge_item[ix][Play_Type].em_renshou = Win_Record[(ix + 1) & 1];
-        return;
+    } else {
+        judge_item[ix][Play_Type].renshou = 0;
+        judge_item[ix][Play_Type].em_renshou = 0;
     }
-
-    judge_item[ix][Play_Type].renshou = 0;
-    judge_item[ix][Play_Type].em_renshou = 0;
 }
 
 void grade_check_work_round_init(s16 ix) {
