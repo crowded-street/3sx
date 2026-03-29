@@ -89,6 +89,7 @@ target_compile_options(3sx PRIVATE
 
     $<$<CONFIG:Debug>:-Wno-unused-function>
     $<$<CONFIG:Debug>:-Wno-unused-variable>
+    $<$<CONFIG:Debug>:-Wno-unused-but-set-variable>
 )
 
 set_target_properties(3sx PROPERTIES
