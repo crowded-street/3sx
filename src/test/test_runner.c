@@ -23,8 +23,7 @@ typedef enum Phase {
     PHASE_CHARACTER_SELECT_TRANSITION,
     PHASE_CHARACTER_SELECT,
     PHASE_GAME_TRANSITION,
-    PHASE_ROUND_TRANSITION,
-    PHASE_ROUND,
+    PHASE_GAME,
 } Phase;
 
 static const Uint8 character_to_cursor[20][2] = { { 7, 1 }, { 1, 0 }, { 5, 2 }, { 6, 1 }, { 3, 2 }, { 4, 0 }, { 1, 2 },
@@ -56,17 +55,12 @@ static int comparison_index = 0;
 
 static bool initialized = false;
 static ReplayGame game;
-static int round_index = 0;
 
 static SDL_IOStream* io_at_index(int index) {
     const char* path = ram_path(index);
     SDL_IOStream* io = SDL_IOFromFile(path, "rb");
     SDL_free(path);
     return io;
-}
-
-static ReplayRound* _round() {
-    return &game.rounds[round_index];
 }
 
 static void set_cursor(Character character, int player) {
@@ -87,24 +81,11 @@ static void tap_button(SWKey button, int player) {
 
 static void initialize_data() {
     ReplayGame_Parse(&game);
-    round_index = 0;
+    comparison_index = game.start_index;
 }
 
-static void reset_comparison_index() {
-    comparison_index = _round()->start_index;
-}
-
-static void finish_round() {
-    inputs_index = 0;
-
-    if (round_index < arrlen(game.rounds) - 1) {
-        round_index += 1;
-        phase = PHASE_ROUND_TRANSITION;
-    } else {
-        exit(0);
-    }
-
-    reset_comparison_index();
+static void finish() {
+    exit(0);
 }
 
 void TestRunner_Prologue() {
@@ -117,7 +98,6 @@ void TestRunner_Prologue() {
 
     if (!initialized) {
         initialize_data();
-        reset_comparison_index();
         initialized = true;
     }
 
@@ -202,36 +182,26 @@ void TestRunner_Prologue() {
         break;
 
     case PHASE_GAME_TRANSITION:
-        if (G_No[1] == 2) {
-            phase = PHASE_ROUND_TRANSITION;
-        } else {
+        if (G_No[1] != 2) {
             // This skips the VS animation
             mash_button(SWK_ATTACKS, 0);
-        }
-
-        break;
-
-    case PHASE_ROUND_TRANSITION:
-        if (C_No[0] != 1 || C_No[1] != 4) {
             break;
         }
 
         SDL_IOStream* io = io_at_index(comparison_index - 1);
         sync_values(io);
         SDL_CloseIO(io);
+        phase = PHASE_GAME;
+        /* fallthrough */
 
-        phase = PHASE_ROUND;
-        // fallthrough
-
-    case PHASE_ROUND:
-        ReplayInput* inputs = _round()->inputs;
-        const ReplayInput input = inputs[inputs_index];
+    case PHASE_GAME:
+        const ReplayInput input = game.inputs[inputs_index];
         p1sw_buff = input.p1;
         p2sw_buff = input.p2;
         inputs_index += 1;
 
-        if (inputs_index >= arrlen(inputs)) {
-            finish_round();
+        if (inputs_index >= arrlen(game.inputs)) {
+            finish();
         }
 
         break;
@@ -240,7 +210,7 @@ void TestRunner_Prologue() {
 
 void TestRunner_Epilogue() {
     switch (phase) {
-    case PHASE_ROUND:
+    case PHASE_GAME:
         SDL_IOStream* io = io_at_index(comparison_index);
 
         if (io == NULL) {

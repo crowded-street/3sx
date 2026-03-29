@@ -10,13 +10,9 @@ typedef struct ReplayInput {
     Uint16 p2;
 } ReplayInput;
 
-typedef struct ReplayRound {
+typedef struct ReplayGame {
     ReplayInput* inputs;
     size_t start_index;
-} ReplayRound;
-
-typedef struct ReplayGame {
-    ReplayRound* rounds;
     Uint8 characters[2];
     Uint8 supers[2];
     Uint8 colors[2];

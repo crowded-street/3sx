@@ -122,10 +122,6 @@ static void compare_main_values(SDL_IOStream* io) {
     const u8 round_timer_cps3 = read_u8(io, ROUND_TIMER_OFFSET);
     stop_if(round_timer != round_timer_cps3);
 
-    const u16 game_timer_cps3 = read_game_timer(io);
-    stop_if(Game_timer != game_timer_cps3);
-    // printf("⏱️ %d game_timer: %d\n", comparison_index, game_timer_cps3);
-
     for (int i = 0; i < 2; i++) {
         const Sint64 plw_offset = calc_plw_offset(i);
 
@@ -156,12 +152,31 @@ static void compare_main_values(SDL_IOStream* io) {
     }
 }
 
-static void compare_service_values(SDL_IOStream* io) {
+static void compare_service_values(SDL_IOStream* io, bool compare_characters) {
+    const u16 game_timer_cps3 = read_game_timer(io);
+    stop_if(Game_timer != game_timer_cps3);
+    // printf("⏱️ %d game_timer: %d\n", comparison_index, game_timer_cps3);
+
     const s16 counter_hi_cps3 = read_s16(io, COUNTER_HI_OFFSET);
     stop_if(Counter_hi != counter_hi_cps3);
 
     const s16 counter_low_cps3 = read_s16(io, COUNTER_LOW_OFFSET);
     stop_if(Counter_low != counter_low_cps3);
+
+    for (int i = 0; i < 4; i++) {
+        const u16 c_no_cps3 = read_u16(io, C_NO_OFFSET + i * sizeof(u16));
+        stop_if(C_No[i] != c_no_cps3);
+
+        const u16 g_no_cps3 = read_u16(io, G_NO_OFFSET + i * sizeof(u16));
+
+        if (i != 0) {
+            stop_if(G_No[i] != g_no_cps3);
+        }
+    }
+
+    if (!compare_characters) {
+        return;
+    }
 
     for (int i = 0; i < 2; i++) {
         const Sint64 plw_offset = calc_plw_offset(i);
@@ -278,8 +293,12 @@ void compare_values(SDL_IOStream* io) {
     // compare_waza_work(io);
     // compare_wcp(io);
 
-    compare_service_values(io);
-    compare_main_values(io);
+    const bool compare_characters = G_No[1] == 2 && G_No[2] == 1;
+    compare_service_values(io, compare_characters);
+
+    if (compare_characters) {
+        compare_main_values(io);
+    }
 }
 
 // Syncing
@@ -328,10 +347,6 @@ static void sync_waza_work(WAZA_WORK* dst, const WAZA_WORK* src, Character chara
 }
 
 void sync_values(SDL_IOStream* io) {
-    // Some interactions are decided by the evenness of Game_timer. After the first round Game_timer inevitably
-    // goes out of sync, which is why we have to sync it manually.
-    Game_timer = read_game_timer(io);
-
     // WORK_CP wcp_cps3[2];
     // read_wcp(io, wcp_cps3);
 
