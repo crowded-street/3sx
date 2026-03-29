@@ -356,7 +356,7 @@ void Game01() {
 
         if (Switch_Screen(0) != 0) {
             Game01_Sub();
-            Cover_Timer = 5;
+            Cover_Timer = 24;
             Set_Appear_Type_For_Mode();
             set_hitmark_color();
 
@@ -472,13 +472,14 @@ void Game2_0() {
     }
 
     Game_difficulty = 15;
+    Game_timer = 0;
     Game_pause = 0;
     Demo_Time_Stop = 0;
     C_No[0] = 0;
     C_No[1] = 0;
     C_No[2] = 0;
     C_No[3] = 0;
-    G_No[2] = 6;
+    G_No[2] = 3;
     G_Timer = 10;
     Round_num = 0;
     Keep_Grade[0] = 0;
@@ -501,6 +502,7 @@ void Game2_0() {
     bg_work_clear();
     win_lose_work_clear();
     player_face_init();
+    TATE00();
 }
 
 /// Main gameplay routine

@@ -439,7 +439,7 @@ void Game_Manage_2_4() {
         }
 
         C_No[2]++;
-        C_Timer = 3;
+        C_Timer = 1;
         Forbid_Break = 1;
         FadeInit();
         FadeOut(0, 0xFF, 8);
