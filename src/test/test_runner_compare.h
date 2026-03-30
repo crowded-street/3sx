@@ -5,7 +5,7 @@
 
 #include <SDL3/SDL_iostream.h>
 
-void compare_values(SDL_IOStream* io);
+void compare_values(SDL_IOStream* io, Uint64 frame);
 void sync_values(SDL_IOStream* io);
 
 #endif

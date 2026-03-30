@@ -1325,13 +1325,13 @@ void setup_smoke_type(PLW* wk) {
         ix = 0;
 
         if (total >= 48) {
-            ix = 1 & 0xFF;
+            ix = 1;
 
             if (total >= 64) {
-                ix = 2 & 0xFF;
+                ix = 2;
 
                 if (total >= 80) {
-                    ix = 3 & 0xFF;
+                    ix = 3;
                 }
             }
         }
@@ -1344,17 +1344,17 @@ void add_dm_step_tbl(PLW* wk, s8 flag) {
     if (flag) {
         if (wk->wu.dm_rl) {
             wk->wu.xyz[0].disp.pos += *wk->dm_step_tbl++;
-            return;
+        } else {
+            wk->wu.xyz[0].disp.pos -= *wk->dm_step_tbl++;
         }
-
-        wk->wu.xyz[0].disp.pos -= *wk->dm_step_tbl++;
-        return;
+    } else {
+        wk->dm_step_tbl++;
     }
-
-    wk->dm_step_tbl++;
 }
 
-void check_dmpat_to_dmpat(PLW* /* unused */) {}
+void check_dmpat_to_dmpat(PLW* /* unused */) {
+    // Do nothing
+}
 
 void set_dm_hos_flag_sky(PLW* wk) {
     PLW* twk = (PLW*)wk->wu.target_adrs;

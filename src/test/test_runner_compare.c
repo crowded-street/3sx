@@ -152,16 +152,22 @@ static void compare_main_values(SDL_IOStream* io) {
     }
 }
 
-static void compare_service_values(SDL_IOStream* io, bool compare_characters) {
+static void compare_service_values(SDL_IOStream* io, bool compare_characters, Uint64 frame) {
     const u16 game_timer_cps3 = read_game_timer(io);
     stop_if(Game_timer != game_timer_cps3);
-    // printf("⏱️ %d game_timer: %d\n", comparison_index, game_timer_cps3);
 
     const s16 counter_hi_cps3 = read_s16(io, COUNTER_HI_OFFSET);
     stop_if(Counter_hi != counter_hi_cps3);
 
     const s16 counter_low_cps3 = read_s16(io, COUNTER_LOW_OFFSET);
     stop_if(Counter_low != counter_low_cps3);
+
+    const s16 random_ix16_cps3 = read_s16(io, RANDOM_IX_16_OFFSET);
+    // This is dirty, but syncing Random_ix16 every frame helps avoid animation-related desyncs
+    Random_ix16 = random_ix16_cps3;
+
+    const s16 random_ix32_cps3 = read_s16(io, RANDOM_IX_32_OFFSET);
+    stop_if(Random_ix32 != random_ix32_cps3);
 
     for (int i = 0; i < 4; i++) {
         const u16 c_no_cps3 = read_u16(io, C_NO_OFFSET + i * sizeof(u16));
@@ -289,12 +295,12 @@ static void compare_wcp(SDL_IOStream* io) {
     }
 }
 
-void compare_values(SDL_IOStream* io) {
+void compare_values(SDL_IOStream* io, Uint64 frame) {
     // compare_waza_work(io);
     // compare_wcp(io);
 
     const bool compare_characters = G_No[1] == 2 && G_No[2] == 1;
-    compare_service_values(io, compare_characters);
+    compare_service_values(io, compare_characters, frame);
 
     if (compare_characters) {
         compare_main_values(io);
@@ -347,6 +353,9 @@ static void sync_waza_work(WAZA_WORK* dst, const WAZA_WORK* src, Character chara
 }
 
 void sync_values(SDL_IOStream* io) {
+    Random_ix16 = read_s16(io, RANDOM_IX_16_OFFSET);
+    Random_ix32 = read_s16(io, RANDOM_IX_32_OFFSET);
+
     // WORK_CP wcp_cps3[2];
     // read_wcp(io, wcp_cps3);
 
