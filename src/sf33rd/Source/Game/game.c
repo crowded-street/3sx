@@ -521,6 +521,12 @@ void Game2_1() {
     }
 
     Player_control();
+
+    if (Disp_Cockpit) {
+        vital_cont_main();
+        combo_cont_main();
+    }
+
     TATE00();
     Game_Management();
     BG_Draw_System();
@@ -529,10 +535,8 @@ void Game2_1() {
     Basic_Sub_Ex();
 
     if (Disp_Cockpit) {
-        vital_cont_main();
         player_face();
         player_name();
-        combo_cont_main();
         stngauge_cont_main();
         spgauge_cont_main();
         Sa_frame_Write();

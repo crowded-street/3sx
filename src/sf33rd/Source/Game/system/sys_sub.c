@@ -429,7 +429,7 @@ s32 Button_Cut_EX(s16* Timer, s16 Limit_Time) {
         return 1;
     }
 
-    if ((xx & 0xFF0) && Limit_Time >= *Timer) {
+    if ((xx & SWK_ATTACKS) && Limit_Time >= *Timer) {
         return 1;
     }
 

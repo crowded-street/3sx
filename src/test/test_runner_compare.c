@@ -6,6 +6,7 @@
 #include "port/utils.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/engine/cmb_win.h"
 #include "sf33rd/Source/Game/ui/count.h"
 #include "test/test_runner_utils.h"
 #include "types.h"
@@ -168,6 +169,14 @@ static void compare_service_values(SDL_IOStream* io, bool compare_characters, Ui
 
     const s16 random_ix32_cps3 = read_s16(io, RANDOM_IX_32_OFFSET);
     stop_if(Random_ix32 != random_ix32_cps3);
+
+    const u8 cmb_stock_0_cps3 = read_u8(io, CMB_STOCK_OFFSET);
+    const u8 cmb_stock_1_cps3 = read_u8(io, CMB_STOCK_OFFSET + 1);
+    stop_if(cmb_stock[0] != cmb_stock_0_cps3);
+    stop_if(cmb_stock[1] != cmb_stock_1_cps3);
+
+    const u8 cmb_all_stock_cps3 = read_u8(io, CMB_ALL_STOCK_OFFSET);
+    stop_if(cmb_all_stock[0] != cmb_all_stock_cps3);
 
     for (int i = 0; i < 4; i++) {
         const u16 c_no_cps3 = read_u16(io, C_NO_OFFSET + i * sizeof(u16));
