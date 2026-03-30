@@ -235,6 +235,51 @@ static void compare_service_values(SDL_IOStream* io, bool compare_characters, Ui
     }
 }
 
+static void compare_lvr(SDL_IOStream* io) {
+    T_PL_LVR t_pl_lvr_cps3[2];
+    read_t_pl_lvr(io, t_pl_lvr_cps3);
+
+    for (int i = 0; i < 2; i++) {
+        const T_PL_LVR* lvr_cps3 = &t_pl_lvr_cps3[i];
+        const T_PL_LVR* lvr_3sx = &t_pl_lvr[i];
+
+        stop_if(lvr_3sx->sw_new != lvr_cps3->sw_new);
+        stop_if(lvr_3sx->sw_old != lvr_cps3->sw_old);
+        stop_if(lvr_3sx->sw_chg != lvr_cps3->sw_chg);
+        stop_if(lvr_3sx->sw_now != lvr_cps3->sw_now);
+        stop_if(lvr_3sx->old_now != lvr_cps3->old_now);
+        stop_if(lvr_3sx->now_lvbt != lvr_cps3->now_lvbt);
+        stop_if(lvr_3sx->old_lvbt != lvr_cps3->old_lvbt);
+        stop_if(lvr_3sx->new_lvbt != lvr_cps3->new_lvbt);
+        stop_if(lvr_3sx->sw_lever != lvr_cps3->sw_lever);
+        stop_if(lvr_3sx->shot_up != lvr_cps3->shot_up);
+        stop_if(lvr_3sx->shot_down != lvr_cps3->shot_down);
+        stop_if(lvr_3sx->shot_ud != lvr_cps3->shot_ud);
+        stop_if(lvr_3sx->lvr_status != lvr_cps3->lvr_status);
+        stop_if(lvr_3sx->jaku_cnt != lvr_cps3->jaku_cnt);
+        stop_if(lvr_3sx->chuu_cnt != lvr_cps3->chuu_cnt);
+        stop_if(lvr_3sx->kyou_cnt != lvr_cps3->kyou_cnt);
+        stop_if(lvr_3sx->up_cnt != lvr_cps3->up_cnt);
+        stop_if(lvr_3sx->down_cnt != lvr_cps3->down_cnt);
+        stop_if(lvr_3sx->left_cnt != lvr_cps3->left_cnt);
+        stop_if(lvr_3sx->right_cnt != lvr_cps3->right_cnt);
+        stop_if(lvr_3sx->s1_cnt != lvr_cps3->s1_cnt);
+        stop_if(lvr_3sx->s2_cnt != lvr_cps3->s2_cnt);
+        stop_if(lvr_3sx->s3_cnt != lvr_cps3->s3_cnt);
+        stop_if(lvr_3sx->s4_cnt != lvr_cps3->s4_cnt);
+        stop_if(lvr_3sx->s5_cnt != lvr_cps3->s5_cnt);
+        stop_if(lvr_3sx->s6_cnt != lvr_cps3->s6_cnt);
+        stop_if(lvr_3sx->lu_cnt != lvr_cps3->lu_cnt);
+        stop_if(lvr_3sx->ld_cnt != lvr_cps3->ld_cnt);
+        stop_if(lvr_3sx->ru_cnt != lvr_cps3->ru_cnt);
+        stop_if(lvr_3sx->rd_cnt != lvr_cps3->rd_cnt);
+        stop_if(lvr_3sx->waza_num != lvr_cps3->waza_num);
+        // stop_if(lvr_3sx->waza_no != lvr_cps3->waza_no);
+        stop_if(lvr_3sx->wait_cnt != lvr_cps3->wait_cnt);
+        stop_if(lvr_3sx->cmd_r_no != lvr_cps3->cmd_r_no);
+    }
+}
+
 static void compare_waza_work(SDL_IOStream* io) {
     WAZA_WORK waza_work_cps3[2][56];
     read_waza_work(io, waza_work_cps3);
@@ -304,9 +349,19 @@ static void compare_wcp(SDL_IOStream* io) {
     }
 }
 
+static Uint64 start_frame = 0;
+
 void compare_values(SDL_IOStream* io, Uint64 frame) {
-    // compare_waza_work(io);
-    // compare_wcp(io);
+    if (start_frame == 0) {
+        start_frame = frame;
+    }
+
+    // Wait a bit so that the game has time to clear garbage values
+    if (frame - start_frame > 5) {
+        compare_lvr(io);
+        compare_waza_work(io);
+        compare_wcp(io);
+    }
 
     const bool compare_characters = G_No[1] == 2 && G_No[2] == 1;
     compare_service_values(io, compare_characters, frame);

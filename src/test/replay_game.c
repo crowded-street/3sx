@@ -57,7 +57,7 @@ void ReplayGame_Parse(ReplayGame* game) {
 
         if (game_just_started) {
             in_game = true;
-        } 
+        }
 
         // Read character and SA indices until we get to game.
         // This ensures we read the latest data
@@ -82,9 +82,8 @@ void ReplayGame_Parse(ReplayGame* game) {
         // Parse inputs
 
         if (in_game && in_game_prev) {
-            // We read previous inputs because CPS3 updates input buffers at the end of a frame
             const ReplayInput input =
-                (ReplayInput) { .p1 = read_input_buff(io, P1SW_1_OFFSET), .p2 = read_input_buff(io, P2SW_1_OFFSET) };
+                (ReplayInput) { .p1 = read_input_buff(io, P1SW_0_OFFSET), .p2 = read_input_buff(io, P2SW_0_OFFSET) };
             arrput(game->inputs, input);
 
             if (game->start_index == 0) {
