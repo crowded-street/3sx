@@ -1641,14 +1641,18 @@ void damage_atemi_setup(PLW* wk, PLW* ek) {
     ek->wu.hit_quake = wk->wu.att.hs_you / 2;
 }
 
-s32 setup_kuzureochi(PLW* wk) {
+/// Setup KO state
+s32 setup_kuzureochi(PLW* wk) { // 🟡
+    // Player is not dead yet. Return false
     if (wk->wu.vital_new >= 0) {
         return 0;
     }
 
-    if (pcon_dp_flag && Conclusion_Type != 1 && wk->wu.id == Winner_id) {
-        wk->wu.vital_new = 0;
-        return 0;
+    if (!ArcadeBalance_IsEnabled()) {
+        if (pcon_dp_flag && Conclusion_Type != 1 && wk->wu.id == Winner_id) {
+            wk->wu.vital_new = 0;
+            return 0;
+        }
     }
 
     wk->wu.routine_no[1] = 1;
