@@ -136,6 +136,11 @@ void bg090_demo_check() {
         return;
     }
 
+    if (Is_Training_Mode(Mode_Type)) {
+        bgw_ptr->r_no_0 = 2;
+        return;
+    }
+
     bgw_ptr->r_no_0 = 1;
     pos_w = 0xC0;
     bgw_ptr->xy[1].cal = bgw_ptr->wxy[1].cal = bgw_ptr->speed_y * pos_w;
