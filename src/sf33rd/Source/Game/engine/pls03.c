@@ -6,6 +6,8 @@
 #include "sf33rd/Source/Game/engine/pls03.h"
 #include "bin2obj/asstbl.h"
 #include "common.h"
+#include "constants.h"
+#include "port/utils.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/charset.h"
 #include "sf33rd/Source/Game/engine/cmd_main.h"
@@ -41,6 +43,7 @@ s16 cmdixconv(s16 ix) {
     return cmdixconv_table[ix - 20];
 }
 
+/// Check EX SA attack
 s32 check_full_gauge_attack(PLW* wk, s8 always) {
     u16* conpane;
     s16 j;
@@ -711,6 +714,7 @@ void chainex_spat_cancel_kidou(WORK* wk) {
     }
 }
 
+/// Universal overhead check
 s32 check_leap_attack(PLW* wk) {
     if (wk->spmv_ng_flag2 & DIP2_UNIVERSAL_OVERHEAD_DISABLED) {
         return 0;
@@ -879,6 +883,11 @@ s16 hikusugi_check(WORK* wk) {
     return rnum;
 }
 
+s32 FUN_06120790(PLW* wk) { // 🔵
+    fatal_error("Not implemented");
+}
+
+/// Taunt check
 s32 check_chouhatsu(PLW* wk) {
     if (wk->spmv_ng_flag & DIP_TAUNT_DISABLED) {
         return 0;
@@ -894,7 +903,7 @@ s32 check_chouhatsu(PLW* wk) {
         return 0;
     }
 
-    if (wk->player_number == 6) {
+    if (wk->player_number == CHAR_HUGO) {
         if (wk->cp->sw_lvbt & 0xE) {
             return 0;
         }

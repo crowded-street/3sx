@@ -1,6 +1,8 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
+#include <stdint.h>
+
 #define UNIT_OF_TIMER_MAX 50
 #define HUD_SHIFT 64
 
@@ -33,7 +35,7 @@ typedef enum Character {
 #else
 #define NUM_CHARS 20
 
-typedef enum Character {
+typedef enum Character : uint16_t {
     CHAR_GILL = 0,
     CHAR_ALEX = 1,
     CHAR_RYU = 2,
@@ -56,5 +58,11 @@ typedef enum Character {
     CHAR_REMY = 19,
 } Character;
 #endif
+
+typedef enum JumpDir : uint8_t {
+    JUMP_DIR_NEUTRAL = 0,
+    JUMP_DIR_FORWARD = 1,
+    JUMP_DIR_BACKWARD = 2,
+} JumpDir;
 
 #endif

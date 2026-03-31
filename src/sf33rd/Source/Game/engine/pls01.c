@@ -5,6 +5,7 @@
 
 #include "sf33rd/Source/Game/engine/pls01.h"
 #include "common.h"
+#include "constants.h"
 #include "sf33rd/Source/Game/engine/caldir.h"
 #include "sf33rd/Source/Game/engine/charset.h"
 #include "sf33rd/Source/Game/engine/grade.h"
@@ -214,6 +215,7 @@ s32 check_air_jump(PLW* wk) {
     if (wk->extra_jump) {
         return 0;
     }
+
     if (wk->air_jump_ok_time) {
         return 0;
     }
@@ -384,6 +386,22 @@ s16 check_F_R_dash(PLW* wk) {
     return rnum;
 }
 
+s32 check_360_jump(PLW* wk) {
+    // if ((wk->spmv_ng_flag & 0x10000) != 0) {
+    //     return 0;
+    // }
+
+    if (wk->cp->waza_flag[13] == 0) {
+        return 0;
+    }
+
+    wk->wu.routine_no[1] = 0;
+    wk->wu.routine_no[2] = 19;
+    wk->wu.routine_no[3] = 0;
+    wk->jpdir = 0;
+    return 1;
+}
+
 s32 check_jump_ready(PLW* wk) {
     if (!(wk->cp->sw_new & 1)) {
         return 0;
@@ -431,7 +449,7 @@ s32 check_hijump_only(PLW* wk) {
     return 1;
 }
 
-s32 check_bend_myself(PLW* wk) {
+s32 check_bend_myself(PLW* wk) { // 🟢
     if (!(wk->cp->sw_new & 2)) {
         return 0;
     }
@@ -456,6 +474,42 @@ s16 check_F_R_walk(PLW* wk) {
     case 2:
         wk->wu.routine_no[1] = 0;
         wk->wu.routine_no[2] = 4;
+        wk->wu.routine_no[3] = 0;
+        rnum = 1;
+        break;
+    }
+
+    return rnum;
+}
+
+s16 check_arcade_walk_start(PLW* wk) { // 🔵
+    s16 rnum = 0;
+
+    switch (wk->cp->lever_dir) {
+    case 1:
+        // if (wk->spmv_ng_flag & 1) {
+        //     break;
+        // }
+
+        // The above check is always successful in practice
+        break;
+
+        wk->wu.routine_no[1] = 0;
+        wk->wu.routine_no[2] = 11;
+        wk->wu.routine_no[3] = 0;
+        rnum = 1;
+        break;
+
+    case 2:
+        // if (wk->spmv_ng_flag & 2) {
+        //     break;
+        // }
+
+        // The above check is always successful in practice
+        break;
+
+        wk->wu.routine_no[1] = 0;
+        wk->wu.routine_no[2] = 12;
         wk->wu.routine_no[3] = 0;
         rnum = 1;
         break;
@@ -541,7 +595,7 @@ s16 check_walking_lv_dir(PLW* wk) {
     return rnum;
 }
 
-s32 check_stand_up(PLW* wk) {
+s32 check_stand_up(PLW* wk) { // 🟢
     if (wk->cp->sw_new & 2) {
         return 0;
     }
@@ -709,7 +763,7 @@ void jumping_union_process(WORK* wk, s16 num) {
     }
 }
 
-s32 check_floor(PLW* wk) {
+s32 check_floor(PLW* wk) { // 🟢
     if (wk->bs2_on_car == 0) {
         return 0;
     }
@@ -721,7 +775,8 @@ s32 check_floor(PLW* wk) {
     return 1;
 }
 
-s32 check_ashimoto(PLW* wk) {
+/// Check if player has lost ground under their feet and force a special transition if needed
+s32 check_ashimoto(PLW* wk) { // 🟢
     if (check_floor(wk) == 0) {
         return 0;
     }
@@ -729,7 +784,7 @@ s32 check_ashimoto(PLW* wk) {
     wk->wu.routine_no[1] = 0;
     wk->wu.routine_no[2] = 54;
     wk->wu.routine_no[3] = 0;
-    wk->jpdir = 0;
+    wk->jpdir = JUMP_DIR_NEUTRAL;
     return 1;
 }
 
