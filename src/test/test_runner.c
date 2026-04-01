@@ -102,14 +102,6 @@ static void finish() {
 }
 
 void TestRunner_Prologue() {
-    if (frame == SDL_MAX_UINT64) {
-        #ifdef SIGSTOP
-            raise(SIGSTOP);
-        #elif defined(_WIN32)
-            __debugbreak();
-        #endif
-    }
-
     p1sw_buff = 0;
     p2sw_buff = 0;
     in_battle = C_No[0] == 2;
