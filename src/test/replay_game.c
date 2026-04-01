@@ -26,11 +26,8 @@ static Uint16 read_input_buff(SDL_IOStream* io, Sint64 offset) {
 }
 
 static void adjust_character_numbers(ReplayGame* game) {
-    // There's no Shin Akuma in PS2 version, which is why we have to decrement character numbers after Akuma
     for (int i = 0; i < 2; i++) {
-        if (game->characters[i] > CHAR_AKUMA) {
-            game->characters[i] -= 1;
-        }
+        game->characters[i] = CHAR_ARCADE_TO_3SX(game->characters[i]);
     }
 }
 

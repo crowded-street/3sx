@@ -763,9 +763,5 @@ static const void* pl_cmd[21] = { p0_cmd, p1_cmd, p2_cmd,  p3_cmd,  p4_cmd,  p5_
                                   pE_cmd, pF_cmd, p10_cmd, p11_cmd, p12_cmd, p13_cmd, p14_cmd };
 
 const void* ArcadeCommandData_Get(Character character) {
-    if (character > CHAR_AKUMA) {
-        character += 1;
-    }
-
-    return pl_cmd[character];
+    return pl_cmd[CHAR_3SX_TO_ARCADE(character)];
 }

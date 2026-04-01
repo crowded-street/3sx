@@ -355,7 +355,7 @@ s16 check_F_R_dash(PLW* wk) {
             break;
 
         case 2:
-            if (!(wk->spmv_ng_flag & 8)) {
+            if (!(wk->spmv_ng_flag & DIP_BACK_DASH_DISABLED)) {
                 wk->wu.routine_no[1] = 0;
                 wk->wu.routine_no[2] = 6;
                 wk->wu.routine_no[3] = 0;
@@ -386,10 +386,15 @@ s16 check_F_R_dash(PLW* wk) {
     return rnum;
 }
 
-s32 check_360_jump(PLW* wk) {
-    // if ((wk->spmv_ng_flag & 0x10000) != 0) {
+s32 check_360_jump(PLW* wk) { // 🔵
+    // Original check
+    // if (wk->spmv_ng_flag & 0x10000) {
     //     return 0;
     // }
+
+    if (get_arcade_flags(wk->player_number) & 0x10000) {
+        return 0;
+    }
 
     if (wk->cp->waza_flag[13] == 0) {
         return 0;
@@ -487,12 +492,14 @@ s16 check_arcade_walk_start(PLW* wk) { // 🔵
 
     switch (wk->cp->lever_dir) {
     case 1:
+        // Original check
         // if (wk->spmv_ng_flag & 1) {
         //     break;
         // }
 
-        // The above check is always successful in practice
-        break;
+        if (get_arcade_flags(wk->player_number) & 1) {
+            break;
+        }
 
         wk->wu.routine_no[1] = 0;
         wk->wu.routine_no[2] = 11;
@@ -501,12 +508,14 @@ s16 check_arcade_walk_start(PLW* wk) { // 🔵
         break;
 
     case 2:
+        // Original check
         // if (wk->spmv_ng_flag & 2) {
         //     break;
         // }
 
-        // The above check is always successful in practice
-        break;
+        if (get_arcade_flags(wk->player_number) & 2) {
+            break;
+        }
 
         wk->wu.routine_no[1] = 0;
         wk->wu.routine_no[2] = 12;

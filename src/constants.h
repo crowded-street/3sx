@@ -59,6 +59,9 @@ typedef enum Character : uint16_t {
 } Character;
 #endif
 
+#define CHAR_3SX_TO_ARCADE(c) ((c) > CHAR_AKUMA ? (c) + 1 : (c))
+#define CHAR_ARCADE_TO_3SX(c) ((c) > CHAR_AKUMA ? (c) - 1 : (c))
+
 typedef enum JumpDir : uint8_t {
     JUMP_DIR_NEUTRAL = 0,
     JUMP_DIR_FORWARD = 1,

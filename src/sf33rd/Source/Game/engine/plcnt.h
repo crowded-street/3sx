@@ -1,6 +1,7 @@
 #ifndef PLCNT_H
 #define PLCNT_H
 
+#include "constants.h"
 #include "structs.h"
 #include "types.h"
 
@@ -87,5 +88,7 @@ void setup_base_and_other_data();
 s32 check_sa_type_rebirth(PLW* wk);
 void pli_0002();
 void set_super_arts_status_dc(s16 ix);
+
+u32 get_arcade_flags(Character character);
 
 #endif
