@@ -54,8 +54,6 @@ static int inputs_index = 0;
 static int comparison_index = 0;
 static bool initialized = false;
 static ReplayGame game;
-static bool in_battle = false;
-static bool in_battle_prev = false;
 
 static SDL_IOStream* io_at_index(int index) {
     const char* path = ram_path(index);
@@ -90,7 +88,9 @@ static bool need_to_finish() {
         return true;
     }
 
-    if (Round_num == 2 && in_battle_prev && !in_battle) {
+    const bool game_ended = (PL_Wins[0] == 2) || (PL_Wins[1] == 2);
+
+    if (game_ended) {
         return true;
     }
 
@@ -104,7 +104,6 @@ static void finish() {
 void TestRunner_Prologue() {
     p1sw_buff = 0;
     p2sw_buff = 0;
-    in_battle = C_No[0] == 2;
 
     if (!initialized) {
         initialize_data();
@@ -238,7 +237,6 @@ void TestRunner_Epilogue() {
         break;
     }
 
-    in_battle_prev = in_battle;
     frame += 1;
 }
 
