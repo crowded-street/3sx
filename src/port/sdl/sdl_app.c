@@ -188,7 +188,7 @@ static void handle_fullscreen_toggle(SDL_KeyboardEvent* event) {
     } else {
         SDL_SetWindowFullscreen(window, true);
     }
-}   
+}
 
 static void handle_mouse_motion() {
     last_mouse_motion_time = SDL_GetTicks();

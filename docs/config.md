@@ -30,7 +30,7 @@ Possible values:
 
 ### `scanlines`
 
-Defines the strength of the scanline filter (from values `0` to `100`). `0` means the filter is disabled.
+Defines the strength of the scanline filter (from `0` to `100`). `0` means the filter is disabled.
 
 ### `draw-players-above-hud`
 
