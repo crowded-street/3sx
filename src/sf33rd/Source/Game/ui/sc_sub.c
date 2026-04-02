@@ -5,7 +5,7 @@
 
 #include "sf33rd/Source/Game/ui/sc_sub.h"
 #include "common.h"
-#include "port/sdl/sdl_game_renderer.h"
+#include "rendering/game_renderer.h"
 #include "sf33rd/AcrSDK/ps2/flps2render.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "sf33rd/Source/Common/PPGFile.h"
@@ -330,7 +330,7 @@ void SSPutStrTexInput2(u16 x, u16 y, u8 str) {
     scrscrntex[3].y = (y + 8);
 }
 
-void SSPutStr(u16 x, u16 y, u8 atr, const s8* str) {
+void SSPutStr(u16 x, u16 y, u8 atr, const s8* str, u16 priority) {
     if (No_Trans) {
         return;
     }
@@ -338,7 +338,7 @@ void SSPutStr(u16 x, u16 y, u8 atr, const s8* str) {
     ppgSetupCurrentDataList(&ppgScrList);
     njColorBlendingMode(0, 1);
     scrscrntex[0].col = scrscrntex[3].col = 0xFFFFFFFF;
-    scrscrntex[0].z = scrscrntex[3].z = PrioBase[TopHUDPriority];
+    scrscrntex[0].z = scrscrntex[3].z = PrioBase[priority];
     njSetPaletteBankNumG(1, atr & 0x3F);
     x = x * 8;
     y = y * 8;
@@ -1065,7 +1065,7 @@ s32 WipeOut(u8 type) {
     }
 
     WipeLimit += 1;
-    return 0;
+    return (WipeLimit < 8) ? 0 : 1;
 }
 
 s32 WipeIn(u8 type) {
@@ -1074,11 +1074,7 @@ s32 WipeIn(u8 type) {
     PAL_CURSOR_COL wipe_col[4];
     s32 i;
 
-    if (WipeLimit == 9) {
-        return 1;
-    }
-
-    if ((WipeLimit != 8) && (!No_Trans)) {
+    if ((WipeLimit < 8) && !No_Trans) {
         wipe_pc.p = &wipe_p[0];
         wipe_pc.col = &wipe_col[0];
         wipe_pc.tex = 0;
@@ -1109,7 +1105,7 @@ s32 WipeIn(u8 type) {
     }
 
     WipeLimit += 1;
-    return 0;
+    return (WipeLimit < 8) ? 0 : 1;
 }
 
 void FadeInit() {
@@ -2309,7 +2305,7 @@ void dispButtonImage(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, s32 ix) {
     prm.t[0].t = scrnAddTex1UV[ix][1] / 128.0f;
     prm.t[3].t = (scrnAddTex1UV[ix][1] + scrnAddTex1UV[ix][3]) / 128.0f;
     flSetRenderState(FLRENDER_TEXSTAGE0, prm.tex_code);
-    SDLGameRenderer_DrawSprite(&prm, oricol.color);
+    Renderer_DrawSprite(&prm, oricol.color);
 }
 
 void dispButtonImage2(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, s32 ix) {
@@ -2333,7 +2329,7 @@ void dispButtonImage2(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, s32 ix) {
     prm.t[0].t = scrnAddTex1UV[ix][1] / 128.0f;
     prm.t[3].t = (scrnAddTex1UV[ix][1] + scrnAddTex1UV[ix][3]) / 128.0f;
     flSetRenderState(FLRENDER_TEXSTAGE0, prm.tex_code);
-    SDLGameRenderer_DrawSprite(&prm, oricol.color);
+    Renderer_DrawSprite(&prm, oricol.color);
 }
 
 void dispSaveLoadTitle(void* ewk) {
@@ -2368,7 +2364,7 @@ void dispSaveLoadTitle(void* ewk) {
     for (i = 0; i < 3; i++) {
         njCalcPoint(NULL, (Vec3*)&pos[0], &prm.v[0]);
         njCalcPoint(NULL, (Vec3*)&pos[1], &prm.v[3]);
-        SDLGameRenderer_DrawSprite(&prm, oricol.color);
+        Renderer_DrawSprite(&prm, oricol.color);
         step_t += 36.0f;
         prm.t[0].t = prm.t[3].t;
         prm.t[3].t = step_t / 128.0f;

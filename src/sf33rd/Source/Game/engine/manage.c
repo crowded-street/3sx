@@ -5,6 +5,7 @@
 
 #include "sf33rd/Source/Game/engine/manage.h"
 #include "common.h"
+#include "constants.h"
 #include "main.h"
 #include "sf33rd/Source/Game/animation/appear.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
@@ -205,7 +206,7 @@ void Game_Manage_1st() {
         Request_Disp_Rank[COM_id][2] = -1;
         Request_Disp_Rank[COM_id][3] = -1;
 
-        if (EM_id == 17) {
+        if (EM_id == CHAR_Q) {
             Break_Into_CPU = 2;
         } else {
             Break_Into_CPU = 0;
@@ -228,10 +229,7 @@ void Game_Manage_1st() {
         Operator_Status[New_Challenger] = 0;
         Lever_LR[0] = 0;
         Lever_LR[1] = 0;
-        return;
-    }
-
-    if (Mode_Type != MODE_NETWORK) {
+    } else if (Mode_Type != MODE_NETWORK) {
         cpReadyTask(TASK_PAUSE, Pause_Task);
     }
 }
@@ -441,7 +439,7 @@ void Game_Manage_2_4() {
         }
 
         C_No[2]++;
-        C_Timer = 3;
+        C_Timer = 1;
         Forbid_Break = 1;
         FadeInit();
         FadeOut(0, 0xFF, 8);

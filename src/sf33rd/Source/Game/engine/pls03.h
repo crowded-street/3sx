@@ -16,6 +16,7 @@ void chainex_spat_cancel_kidou(WORK* wk);
 s32 check_leap_attack(PLW* wk);
 s32 check_nm_attack(PLW* wk);
 s16 hikusugi_check(WORK* wk);
+s32 FUN_06120790(PLW* wk);
 s32 check_chouhatsu(PLW* wk);
 s32 check_nagenuke_cmd(PLW* wk);
 s32 check_catch_attack(PLW* wk);

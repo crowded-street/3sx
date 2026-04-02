@@ -6,6 +6,7 @@
 #include "sf33rd/Source/Game/stage/tate00.h"
 #include "common.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/engine/pls02.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg000.h"
 #include "sf33rd/Source/Game/stage/bg010.h"
@@ -52,6 +53,10 @@ void TATE00() {
 
 void ta0_init00() {
     bg_w.bg_routine++;
+
+    // Calling this function is necessary for Random_ix16 to be in sync with the arcade version
+    random_16();
+
     bg_initialize();
 }
 

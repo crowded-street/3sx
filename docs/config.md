@@ -35,3 +35,7 @@ Defines the strength of the scanline filter (from `0` to `100`). `0` means the f
 ### `draw-players-above-hud`
 
 Allow characters to render in front of the top HUD similar to Street Fighter IV. May introduce visual abnormalities on certain stages.
+
+### `arcade-balance` (experimental)
+
+Enables arcade balance instead of PS2 balance (work in progress). Requires `sfiii3nr1.zip` to be present in `resources` directory.

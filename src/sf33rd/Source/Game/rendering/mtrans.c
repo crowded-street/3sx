@@ -5,7 +5,7 @@
 
 #include "sf33rd/Source/Game/rendering/mtrans.h"
 #include "common.h"
-#include "port/sdl/sdl_game_renderer.h"
+#include "rendering/game_renderer.h"
 #include "sf33rd/AcrSDK/ps2/flps2render.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "sf33rd/Source/Common/PPGFile.h"
@@ -1604,7 +1604,7 @@ void seqsAfterProcess() {
                     flSetRenderState(FLRENDER_TEXSTAGE0, val);
                 }
 
-                SDLGameRenderer_DrawSprite2(&seqs_w.chip[i]);
+                Renderer_DrawSprite2(&seqs_w.chip[i]);
             }
         }
     }

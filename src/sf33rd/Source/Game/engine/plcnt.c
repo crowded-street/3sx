@@ -129,6 +129,33 @@ const s16 quake_table[64] = { 0, -1, 0, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -2, 1
                               1, -2, 2, -2, 2, -2, 2, -2, 2, -2, 2, -2, 2, -2, 2, -2, 2, -2, 2, -3, 2, -3,
                               2, -3, 2, -3, 2, -3, 2, -3, 2, -3, 2, -3, 2, -3, 2, -3, 3, -3, 3, -3 };
 
+const u32 omop_spmv_ng_table_arcade[24] = {
+    0xD0823, // CHAR_GILL
+    0xD0823, // CHAR_ALEX
+    0xD0823, // CHAR_RYU
+    0xD0823, // CHAR_YUN
+    0xD0823, // CHAR_DUDLEY
+    0xD0823, // CHAR_NECRO
+    0xD0823, // CHAR_HUGO
+    0xD0823, // CHAR_IBUKI
+    0xD0823, // CHAR_ELENA
+    0x50823, // CHAR_ORO
+    0xD0823, // CHAR_YANG
+    0xD0823, // CHAR_KEN
+    0xD0823, // CHAR_SEAN
+    0xD0823, // CHAR_URIEN
+    0xD0823, // CHAR_AKUMA
+    0xD0823, // CHAR_SHIN_AKUMA
+    0x90823, // CHAR_CHUNLI
+    0xD0823, // CHAR_MAKOTO
+    0xD0823, // CHAR_Q
+    0xD0823, // CHAR_TWELVE
+    0xD0823, // CHAR_REMY
+    0xD0823, // ???
+    0xD0823, // ???
+    0xD0823, // ???
+};
+
 const s16 kage_base[20][2] = { { 0, 21 },  { 0, 30 },  { 0, 21 },  { -4, 16 }, { 4, 21 }, { 6, 20 }, { -4, 26 },
                                { -4, 20 }, { 0, 25 },  { -3, 22 }, { -4, 16 }, { 0, 21 }, { 0, 21 }, { 0, 21 },
                                { 0, 21 },  { -8, 21 }, { 0, 23 },  { 0, 24 },  { 6, 25 }, { -6, 21 } };
@@ -1559,4 +1586,8 @@ void set_scrrrl() {
 
     scrr = scrc + 192;
     scrl = scrc - 192;
+}
+
+u32 get_arcade_flags(Character character) {
+    return omop_spmv_ng_table_arcade[CHAR_3SX_TO_ARCADE(character)];
 }

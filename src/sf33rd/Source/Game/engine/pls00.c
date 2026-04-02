@@ -4,7 +4,10 @@
  */
 
 #include "sf33rd/Source/Game/engine/pls00.h"
+#include "arcade/arcade_balance.h"
 #include "common.h"
+#include "constants.h"
+#include "port/utils.h"
 #include "sf33rd/Source/Game/com/com_pl.h"
 #include "sf33rd/Source/Game/engine/charset.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
@@ -25,19 +28,25 @@ const s8 lvdir_conv[4];
 
 void (*const process_ndcca[5])(PLW* wk);
 void (*const plpnm_xxxxx[59])(PLW* wk);
+void (*const plpnm_xxxxx_arcade[59])(PLW* wk);
 void (*const plpdm_xxxxx[32])(PLW* wk);
+void (*const plpdm_xxxxx_arcade[39])(PLW* wk);
 
-void check_lever_data(PLW* wk) {
+void check_lever_data(PLW* wk) { // 🟢
     if (wk->wu.routine_no[0] == 4) {
         process_ndcca[wk->wu.routine_no[1]](wk);
     }
 }
 
-void process_normal(PLW* wk) {
-    plpnm_xxxxx[wk->wu.routine_no[2]](wk);
+void process_normal(PLW* wk) { // 🟢
+    if (ArcadeBalance_IsEnabled()) {
+        plpnm_xxxxx_arcade[wk->wu.routine_no[2]](wk);
+    } else {
+        plpnm_xxxxx[wk->wu.routine_no[2]](wk);
+    }
 }
 
-void TO_nm_01000(WORK* wk) {
+void TO_nm_01000(WORK* wk) { // 🟢
     wk->routine_no[1] = 0;
     wk->routine_no[2] = 1;
     wk->routine_no[3] = 0;
@@ -45,7 +54,7 @@ void TO_nm_01000(WORK* wk) {
     nm_01000((PLW*)wk);
 }
 
-void TO_nm_36000(WORK* wk) {
+void TO_nm_36000(WORK* wk) { // 🟢
     wk->routine_no[1] = 0;
     wk->routine_no[2] = 36;
     wk->routine_no[3] = 0;
@@ -53,7 +62,7 @@ void TO_nm_36000(WORK* wk) {
     nm_01000((PLW*)wk);
 }
 
-void TO_nm_09000(WORK* wk) {
+void TO_nm_09000(WORK* wk) { // 🟢
     wk->routine_no[1] = 0;
     wk->routine_no[2] = 9;
     wk->routine_no[3] = 0;
@@ -61,7 +70,7 @@ void TO_nm_09000(WORK* wk) {
     nm_09000((PLW*)wk);
 }
 
-void TO_nm_37000(WORK* wk) {
+void TO_nm_37000(WORK* wk) { // 🟢
     wk->routine_no[1] = 0;
     wk->routine_no[2] = 37;
     wk->routine_no[3] = 0;
@@ -69,14 +78,14 @@ void TO_nm_37000(WORK* wk) {
     nm_09000((PLW*)wk);
 }
 
-void TO_nm_38000(WORK* wk) {
+void TO_nm_38000(WORK* wk) { // 🟢
     wk->routine_no[1] = 0;
     wk->routine_no[2] = 38;
     wk->routine_no[3] = 1;
     wk->cg_type = 0;
 }
 
-void TO_nm_18000_01(WORK* wk) {
+void TO_nm_18000_01(WORK* wk) { // 🟢
     wk->routine_no[1] = 0;
     wk->routine_no[2] = 18;
     wk->routine_no[3] = 1;
@@ -84,9 +93,11 @@ void TO_nm_18000_01(WORK* wk) {
     nm_18000((PLW*)wk);
 }
 
-void nm_00000(PLW* /* unused */) {}
+void nm_00000(PLW* /* unused */) { // 🟢
+    // Do nothing
+}
 
-void nm_01000(PLW* wk) {
+void nm_01000(PLW* wk) { // 🟡
     if (setup_kuzureochi(wk)) {
         return;
     }
@@ -139,6 +150,10 @@ void nm_01000(PLW* wk) {
         return;
     }
 
+    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
+        return;
+    }
+
     if (check_jump_ready(wk)) {
         return;
     }
@@ -154,7 +169,7 @@ void nm_01000(PLW* wk) {
     check_F_R_walk(wk);
 }
 
-void nm_02000(PLW* wk) {
+void nm_02000(PLW* wk) { // 🟡
     if (wk->wu.cg_type == 0xFF) {
         TO_nm_01000(&wk->wu);
         return;
@@ -209,6 +224,10 @@ void nm_02000(PLW* wk) {
         return;
     }
 
+    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
+        return;
+    }
+
     if (check_jump_ready(wk)) {
         return;
     }
@@ -224,7 +243,7 @@ void nm_02000(PLW* wk) {
     check_F_R_walk(wk);
 }
 
-void nm_03000(PLW* wk) {
+void nm_03000(PLW* wk) { // 🟡
     if (check_ashimoto(wk)) {
         return;
     }
@@ -273,6 +292,10 @@ void nm_03000(PLW* wk) {
         return;
     }
 
+    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
+        return;
+    }
+
     if (check_jump_ready(wk)) {
         return;
     }
@@ -290,13 +313,13 @@ void nm_03000(PLW* wk) {
     check_defense_lever(wk);
 }
 
-void nm_05000(PLW* wk) {
+void nm_05000(PLW* wk) { // 🟢
     if (check_ashimoto_ex(wk) == 0) {
         jumping_cg_type_check(wk);
     }
 }
 
-void nm_07000(PLW* wk) {
+void nm_07000(PLW* wk) { // 🟡
     if (wk->wu.cg_type == 0xFF) {
         TO_nm_01000(&wk->wu);
         return;
@@ -350,6 +373,10 @@ void nm_07000(PLW* wk) {
         return;
     }
 
+    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
+        return;
+    }
+
     if (check_jump_ready(wk)) {
         return;
     }
@@ -365,7 +392,7 @@ void nm_07000(PLW* wk) {
     check_bend_myself(wk);
 }
 
-void nm_08000(PLW* wk) {
+void nm_08000(PLW* wk) { // 🟡
     if (wk->wu.cg_type == 0xFF) {
         TO_nm_09000(&wk->wu);
         return;
@@ -424,6 +451,10 @@ void nm_08000(PLW* wk) {
         return;
     }
 
+    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
+        return;
+    }
+
     if (check_jump_ready(wk)) {
         return;
     }
@@ -432,10 +463,14 @@ void nm_08000(PLW* wk) {
         return;
     }
 
+    if (ArcadeBalance_IsEnabled() && check_arcade_walk_start(wk)) {
+        return;
+    }
+
     check_stand_up(wk);
 }
 
-void nm_09000(PLW* wk) {
+void nm_09000(PLW* wk) { // 🟡
     if (setup_kuzureochi(wk)) {
         return;
     }
@@ -488,6 +523,10 @@ void nm_09000(PLW* wk) {
         return;
     }
 
+    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
+        return;
+    }
+
     if (check_jump_ready(wk)) {
         return;
     }
@@ -496,10 +535,16 @@ void nm_09000(PLW* wk) {
         return;
     }
 
-    check_defense_lever(wk);
+    if (check_defense_lever(wk)) {
+        return;
+    }
+
+    if (ArcadeBalance_IsEnabled()) {
+        check_arcade_walk_start(wk);
+    }
 }
 
-void nm_10000(PLW* wk) {
+void nm_10000(PLW* wk) { // 🟡
     if (wk->wu.cg_type == 0xFF) {
         TO_nm_09000(&wk->wu);
         return;
@@ -549,6 +594,10 @@ void nm_10000(PLW* wk) {
         return;
     }
 
+    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
+        return;
+    }
+
     if (check_jump_ready(wk)) {
         return;
     }
@@ -560,7 +609,17 @@ void nm_10000(PLW* wk) {
     check_stand_up(wk);
 }
 
-void nm_16000(PLW* wk) {
+void nm_11000(PLW* wk) { // 🔵
+    // Do nothing
+}
+
+void nm_13000(PLW* wk) { // 🔵
+    if (wk->wu.cg_type == 0xFF) {
+        TO_nm_01000(wk);
+    }
+}
+
+void nm_16000(PLW* wk) { // 🟢
     set_new_jpdir(wk);
 
     if (wk->wu.routine_no[3] == 0) {
@@ -570,12 +629,13 @@ void nm_16000(PLW* wk) {
     switch (wk->wu.cg_type) {
     case 0xFF:
         check_jump_rl_dir(wk);
+
         switch (wk->jpdir) {
-        case 1:
+        case JUMP_DIR_FORWARD:
             wk->wu.routine_no[2] = 21;
             break;
 
-        case 2:
+        case JUMP_DIR_BACKWARD:
             wk->wu.routine_no[2] = 23;
             break;
 
@@ -614,7 +674,7 @@ void nm_16000(PLW* wk) {
     check_leap_attack(wk);
 }
 
-void nm_17000(PLW* wk) {
+void nm_17000(PLW* wk) { // 🟢 The only difference is DIP switch handling
     set_new_jpdir(wk);
 
     if (wk->wu.routine_no[3] == 0) {
@@ -623,12 +683,13 @@ void nm_17000(PLW* wk) {
 
     if (wk->wu.cg_type == 0xFF) {
         check_jump_rl_dir(wk);
+
         switch (wk->jpdir) {
-        case 1:
+        case JUMP_DIR_FORWARD:
             wk->wu.routine_no[2] = 24;
             break;
 
-        case 2:
+        case JUMP_DIR_BACKWARD:
             wk->wu.routine_no[2] = 26;
             break;
 
@@ -664,7 +725,7 @@ void nm_17000(PLW* wk) {
     check_chouhatsu(wk);
 }
 
-void check_jump_rl_dir(PLW* wk) {
+void check_jump_rl_dir(PLW* wk) { // 🟢
     if (check_rl_flag(&wk->wu) == 0) {
         wk->wu.rl_flag = wk->wu.rl_waza;
         wk->cp->lever_dir = lvdir_conv[wk->cp->lever_dir];
@@ -672,13 +733,13 @@ void check_jump_rl_dir(PLW* wk) {
     }
 }
 
-void set_new_jpdir(PLW* wk) {
+void set_new_jpdir(PLW* wk) { // 🟢
     if ((wk->cp->sw_lvbt & 1) && wk->cp->lever_dir) {
         wk->jpdir = wk->cp->lever_dir;
     }
 }
 
-void nm_18000(PLW* wk) {
+void nm_18000(PLW* wk) { // 🟢
     if (wk->wu.routine_no[3] < 2 && wk->wu.xyz[1].disp.pos > 0) {
         if (check_full_gauge_attack(wk, 0)) {
             return;
@@ -724,18 +785,25 @@ void nm_18000(PLW* wk) {
     jumping_cg_type_check(wk);
 }
 
-void jumping_cg_type_check(PLW* wk) {
+void jumping_cg_type_check(PLW* wk) { // 🟡
     if (wk->wu.pat_status < 32) {
         switch (wk->wu.cg_type) {
         case 0xFF:
             wk->guard_flag = 0;
-            clear_chainex_check(wk->wu.id);
+
+            if (!ArcadeBalance_IsEnabled()) {
+                clear_chainex_check(wk->wu.id);
+            }
+
             TO_nm_01000(&wk->wu);
             break;
 
         case 2:
             wk->guard_flag = 0;
-            clear_chainex_check(wk->wu.id);
+
+            if (!ArcadeBalance_IsEnabled()) {
+                clear_chainex_check(wk->wu.id);
+            }
 
             if (check_full_gauge_attack(wk, 0)) {
                 break;
@@ -773,15 +841,19 @@ void jumping_cg_type_check(PLW* wk) {
                 break;
             }
 
-            if (check_jump_ready(wk)) {
+            if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
                 return;
             }
 
+            check_jump_ready(wk);
             break;
 
         case 7:
             wk->guard_flag = 0;
-            clear_chainex_check(wk->wu.id);
+
+            if (!ArcadeBalance_IsEnabled()) {
+                clear_chainex_check(wk->wu.id);
+            }
 
             if (check_full_gauge_attack(wk, 0)) {
                 break;
@@ -815,15 +887,15 @@ void jumping_cg_type_check(PLW* wk) {
                 break;
             }
 
-            if (check_cg_cancel_data(wk)) {
-                return;
-            }
-
+            check_cg_cancel_data(wk);
             break;
 
         case 3:
             wk->guard_flag = 0;
-            clear_chainex_check(wk->wu.id);
+
+            if (!ArcadeBalance_IsEnabled()) {
+                clear_chainex_check(wk->wu.id);
+            }
 
             if (check_full_gauge_attack(wk, 0)) {
                 break;
@@ -867,6 +939,10 @@ void jumping_cg_type_check(PLW* wk) {
 
             if (check_F_R_dash(wk)) {
                 break;
+            }
+
+            if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
+                return;
             }
 
             if (check_jump_ready(wk)) {
@@ -882,27 +958,37 @@ void jumping_cg_type_check(PLW* wk) {
 
         case 64:
             wk->guard_flag = 0;
-            clear_chainex_check(wk->wu.id);
+
+            if (!ArcadeBalance_IsEnabled()) {
+                clear_chainex_check(wk->wu.id);
+            }
 
             if (wk->wu.pat_status < 14) {
                 TO_nm_36000(&wk->wu);
-                break;
+            } else {
+                TO_nm_38000(&wk->wu);
             }
 
-            TO_nm_38000(&wk->wu);
             break;
         }
     } else {
         switch (wk->wu.cg_type) {
         case 0xFF:
             wk->guard_flag = 0;
-            clear_chainex_check(wk->wu.id);
+
+            if (!ArcadeBalance_IsEnabled()) {
+                clear_chainex_check(wk->wu.id);
+            }
+
             TO_nm_09000(&wk->wu);
             break;
 
         case 2:
             wk->guard_flag = 0;
-            clear_chainex_check(wk->wu.id);
+
+            if (!ArcadeBalance_IsEnabled()) {
+                clear_chainex_check(wk->wu.id);
+            }
 
             if (check_full_gauge_attack(wk, 0)) {
                 break;
@@ -940,15 +1026,19 @@ void jumping_cg_type_check(PLW* wk) {
                 break;
             }
 
-            if (check_jump_ready(wk)) {
-                return;
+            if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
+                break;
             }
 
+            check_jump_ready(wk);
             break;
 
         case 7:
             wk->guard_flag = 0;
-            clear_chainex_check(wk->wu.id);
+
+            if (!ArcadeBalance_IsEnabled()) {
+                clear_chainex_check(wk->wu.id);
+            }
 
             if (check_full_gauge_attack(wk, 0)) {
                 break;
@@ -982,15 +1072,15 @@ void jumping_cg_type_check(PLW* wk) {
                 break;
             }
 
-            if (check_cg_cancel_data(wk)) {
-                return;
-            }
-
+            check_cg_cancel_data(wk);
             break;
 
         case 3:
             wk->guard_flag = 0;
-            clear_chainex_check(wk->wu.id);
+
+            if (!ArcadeBalance_IsEnabled()) {
+                clear_chainex_check(wk->wu.id);
+            }
 
             if (check_full_gauge_attack(wk, 0)) {
                 break;
@@ -1036,26 +1126,38 @@ void jumping_cg_type_check(PLW* wk) {
                 break;
             }
 
+            if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
+                break;
+            }
+
             if (check_jump_ready(wk)) {
                 break;
             }
 
             if (check_stand_up(wk)) {
-                return;
+                break;
+            }
+
+            if (ArcadeBalance_IsEnabled()) {
+                check_arcade_walk_start(wk);
             }
 
             break;
 
         case 64:
             wk->guard_flag = 0;
-            clear_chainex_check(wk->wu.id);
+
+            if (!ArcadeBalance_IsEnabled()) {
+                clear_chainex_check(wk->wu.id);
+            }
+
             TO_nm_37000(&wk->wu);
             break;
         }
     }
 }
 
-void jumping_guard_type_check(PLW* wk) {
+void jumping_guard_type_check(PLW* wk) { // 🟢
     switch (wk->wu.cg_type) {
     case 0xFF:
     case 64:
@@ -1063,10 +1165,11 @@ void jumping_guard_type_check(PLW* wk) {
     case 3:
     case 7:
         wk->guard_flag = 0;
+        break;
     }
 }
 
-void nm_27000(PLW* wk) {
+void nm_27000(PLW* wk) { // 🟡
     if (wk->wu.cg_type == 0xFF) {
         TO_nm_01000(&wk->wu);
         return;
@@ -1120,6 +1223,10 @@ void nm_27000(PLW* wk) {
         return;
     }
 
+    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
+        return;
+    }
+
     if (check_jump_ready(wk)) {
         return;
     }
@@ -1137,7 +1244,7 @@ void nm_27000(PLW* wk) {
     nm_27_cg_type_check(wk);
 }
 
-void nm_27_cg_type_check(PLW* wk) {
+void nm_27_cg_type_check(PLW* wk) { // 🟢
     if (wk->wu.routine_no[3] == 0) {
         return;
     }
@@ -1177,7 +1284,7 @@ void nm_27_cg_type_check(PLW* wk) {
     }
 }
 
-void nm_29000(PLW* wk) {
+void nm_29000(PLW* wk) { // 🟡
     if (wk->wu.cg_type == 0xFF) {
         TO_nm_09000(&wk->wu);
         return;
@@ -1231,18 +1338,28 @@ void nm_29000(PLW* wk) {
         return;
     }
 
+    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
+        return;
+    }
+
     if (check_jump_ready(wk)) {
         return;
     }
 
-    if (wk->cp->lever_dir != 2 && check_stand_up(wk)) {
-        return;
+    if (wk->cp->lever_dir != 2) {
+        if (check_stand_up(wk)) {
+            return;
+        }
+
+        if (ArcadeBalance_IsEnabled() && check_arcade_walk_start(wk)) {
+            return;
+        }
     }
 
     nm_27_cg_type_check(wk);
 }
 
-void nm_31000(PLW* wk) {
+void nm_31000(PLW* wk) { // 🟢
     if (wk->wu.routine_no[3] == 0) {
         return;
     }
@@ -1277,33 +1394,30 @@ void nm_31000(PLW* wk) {
             break;
         }
 
-        if (check_nm_attack(wk)) {
-            return;
-        }
-
+        check_nm_attack(wk);
         break;
 
     case 64:
         if (wk->wu.pat_status < 32) {
             TO_nm_36000(&wk->wu);
-            break;
+        } else {
+            TO_nm_37000(&wk->wu);
         }
 
-        TO_nm_37000(&wk->wu);
         break;
 
     case 0xFF:
         if (wk->wu.pat_status < 32) {
             TO_nm_01000(&wk->wu);
-            break;
+        } else {
+            TO_nm_09000(&wk->wu);
         }
 
-        TO_nm_09000(&wk->wu);
         break;
     }
 }
 
-void nm_34000(PLW* wk) {
+void nm_34000(PLW* wk) { // 🟢
     if (wk->wu.routine_no[3] == 0) {
         return;
     }
@@ -1315,12 +1429,13 @@ void nm_34000(PLW* wk) {
         break;
 
     default:
-        if (wk->wu.routine_no[3] >= 3) {
-            if (wk->wu.pat_status < 32) {
-                TO_nm_36000(&wk->wu);
-                return;
-            }
+        if (wk->wu.routine_no[3] < 3) {
+            break;
+        }
 
+        if (wk->wu.pat_status < 32) {
+            TO_nm_36000(&wk->wu);
+        } else {
             TO_nm_37000(&wk->wu);
         }
 
@@ -1328,7 +1443,7 @@ void nm_34000(PLW* wk) {
     }
 }
 
-void nm_36000(PLW* wk) {
+void nm_36000(PLW* wk) { // 🟢
     if (wk->wu.cg_type == 0xFF) {
         if (wk->wu.now_koc == 0 && wk->wu.char_index == 0) {
             wk->wu.routine_no[2] = 1;
@@ -1337,7 +1452,7 @@ void nm_36000(PLW* wk) {
             wk->wu.routine_no[2] = 1;
             wk->wu.routine_no[3] = 0;
         }
-    } else if (wk->player_number == 8 && wk->wu.now_koc == 0 && wk->wu.char_index == 36) {
+    } else if (wk->player_number == CHAR_ELENA && wk->wu.now_koc == 0 && wk->wu.char_index == 36) {
         exset_char_move_init(&wk->wu, 0, 0);
         wk->wu.routine_no[2] = 1;
         wk->wu.routine_no[3] = 1;
@@ -1346,7 +1461,7 @@ void nm_36000(PLW* wk) {
     nm_01000(wk);
 }
 
-void nm_37000(PLW* wk) {
+void nm_37000(PLW* wk) { // 🟢
     if (wk->wu.cg_type == 0xFF) {
         wk->wu.routine_no[2] = 9;
         wk->wu.routine_no[3] = 0;
@@ -1355,8 +1470,14 @@ void nm_37000(PLW* wk) {
     nm_09000(wk);
 }
 
-void nm_38000(PLW* wk) {
-    if (wk->wu.routine_no[3] < 2 && wk->wu.xyz[1].disp.pos > 0) {
+void nm_38000(PLW* wk) { // 🟡
+    bool in_air = true;
+
+    if (!ArcadeBalance_IsEnabled()) {
+        in_air = (wk->wu.xyz[1].disp.pos > 0);
+    }
+
+    if (wk->wu.routine_no[3] < 2 && in_air) {
         if (check_full_gauge_attack(wk, 0)) {
             return;
         }
@@ -1389,19 +1510,21 @@ void nm_38000(PLW* wk) {
             return;
         }
 
-        if (check_sankaku_tobi(wk)) {
-            return;
-        }
+        if (!ArcadeBalance_IsEnabled()) {
+            if (check_sankaku_tobi(wk)) {
+                return;
+            }
 
-        if (check_air_jump(wk)) {
-            return;
+            if (check_air_jump(wk)) {
+                return;
+            }
         }
     }
 
     jumping_cg_type_check(wk);
 }
 
-void nm_39000(PLW* wk) {
+void nm_39000(PLW* wk) { // 🟢
     if (wk->wu.cg_type == 0xFF) {
         if (wk->wu.now_koc == 0 && wk->wu.char_index == 0) {
             wk->wu.routine_no[2] = 1;
@@ -1415,19 +1538,29 @@ void nm_39000(PLW* wk) {
     nm_01000(wk);
 }
 
-void nm_40000(PLW* wk) {
+void nm_40000(PLW* wk) { // 🟢
     if (wk->wu.routine_no[3] && wk->wu.cg_type == 0xFF) {
         wk->wu.routine_no[3] = 9;
     }
 }
 
-void nm_42000(PLW* wk) {
-    if (wk->wu.routine_no[3] > 3) {
-        jumping_cg_type_check(wk);
+void nm_42000(PLW* wk) { // 🟡
+    if (ArcadeBalance_IsEnabled()) {
+        if (wk->wu.routine_no[3] == 2 || wk->wu.routine_no[3] == 3) {
+            if (FUN_06120790(wk)) {
+                return;
+            }
+        }
     }
+
+    if (wk->wu.routine_no[3] < 4) {
+        return;
+    }
+
+    jumping_cg_type_check(wk);
 }
 
-void nm_45000(PLW* wk) {
+void nm_45000(PLW* wk) { // 🟢
     if (wk->wu.routine_no[3] == 3) {
         if (check_full_gauge_attack(wk, 0)) {
             return;
@@ -1487,23 +1620,25 @@ void nm_45000(PLW* wk) {
     }
 }
 
-void nm_47000(PLW* wk) {
+void nm_47000(PLW* wk) { // 🟢
     if (wk->wu.routine_no[3] > 3) {
         jumping_cg_type_check(wk);
     }
 }
 
-void nm_48000(PLW* wk) {
+void nm_48000(PLW* wk) { // 🟢
     jumping_cg_type_check(wk);
 }
 
-void nm_49000(PLW* wk) {
+void nm_49000(PLW* wk) { // 🟢
     jumping_cg_type_check(wk);
 }
 
-void nm_51000(PLW* /* unused */) {}
+void nm_51000(PLW* /* unused */) { // 🟢
+    // Do nothing
+}
 
-void nm_52000(PLW* wk) {
+void nm_52000(PLW* wk) { // 🟢
     if (check_full_gauge_attack(wk, 0)) {
         return;
     }
@@ -1519,19 +1654,19 @@ void nm_52000(PLW* wk) {
     check_special_attack(wk);
 }
 
-void nm_55000(PLW* wk) {
+void nm_55000(PLW* wk) { // 🟢
     if (wk->wu.routine_no[3] > 1) {
         jumping_cg_type_check(wk);
     }
 }
 
-void nm_57000(PLW* wk) {
+void nm_57000(PLW* wk) { // 🟢
     if (wk->wu.routine_no[3] > 2) {
         jumping_cg_type_check(wk);
     }
 }
 
-void process_damage(PLW* wk) {
+void process_damage(PLW* wk) { // 🟡
     s32 csw;
 
     if (wk->wu.routine_no[3] == 0) {
@@ -1582,10 +1717,14 @@ void process_damage(PLW* wk) {
         return;
     }
 
-    plpdm_xxxxx[wk->wu.routine_no[2]](wk);
+    if (ArcadeBalance_IsEnabled()) {
+        plpdm_xxxxx_arcade[wk->wu.routine_no[2]](wk);
+    } else {
+        plpdm_xxxxx[wk->wu.routine_no[2]](wk);
+    }
 }
 
-void dm_00000(PLW* wk) {
+void dm_00000(PLW* wk) { // 🟢
     if (wk->wu.routine_no[2] != 0) {
         return;
     }
@@ -1603,7 +1742,7 @@ void dm_00000(PLW* wk) {
     wk->wu.routine_no[3]++;
 }
 
-void dm_04000(PLW* wk) {
+void dm_04000(PLW* wk) { // 🟡
     switch (wk->wu.cg_type) {
     case 9:
         if (wk->py->flag == 0) {
@@ -1613,8 +1752,10 @@ void dm_04000(PLW* wk) {
         break;
 
     case 64:
-        if (setup_kuzureochi(wk) != 0) {
-            break;
+        if (!ArcadeBalance_IsEnabled()) {
+            if (setup_kuzureochi(wk) != 0) {
+                break;
+            }
         }
 
         if (wk->py->flag == 0) {
@@ -1622,10 +1763,10 @@ void dm_04000(PLW* wk) {
 
             if (wk->wu.pat_status < 32) {
                 TO_nm_36000(&wk->wu);
-                break;
+            } else {
+                TO_nm_37000(&wk->wu);
             }
 
-            TO_nm_37000(&wk->wu);
             break;
         }
 
@@ -1633,11 +1774,11 @@ void dm_04000(PLW* wk) {
         wk->wu.routine_no[3] = 0;
         break;
 
-        break;
-
     case 0xFF:
-        if (setup_kuzureochi(wk) != 0) {
-            break;
+        if (!ArcadeBalance_IsEnabled()) {
+            if (setup_kuzureochi(wk) != 0) {
+                break;
+            }
         }
 
         if (wk->py->flag == 0) {
@@ -1645,21 +1786,20 @@ void dm_04000(PLW* wk) {
 
             if (wk->wu.pat_status < 32) {
                 TO_nm_01000(&wk->wu);
-                break;
+            } else {
+                TO_nm_09000(&wk->wu);
             }
 
-            TO_nm_09000(&wk->wu);
             break;
         }
 
         wk->wu.routine_no[2] = 19;
         wk->wu.routine_no[3] = 0;
-
         break;
     }
 }
 
-void dm_08000(PLW* wk) {
+void dm_08000(PLW* wk) { // 🟡
     switch (wk->wu.cg_type) {
     case 0xFF:
         wk->tsukamarenai_flag = 7;
@@ -1670,10 +1810,25 @@ void dm_08000(PLW* wk) {
         wk->tsukamarenai_flag = 7;
         TO_nm_36000(&wk->wu);
         break;
+
+    default:
+        if (!ArcadeBalance_IsEnabled()) {
+            break;
+        }
+
+        if (wk->wu.routine_no[3] > 2) {
+            break;
+        }
+
+        if (FUN_06120790(wk)) {
+            wk->tsukamarenai_flag = 7;
+        }
+
+        break;
     }
 }
 
-void dm_17000(PLW* wk) {
+void dm_17000(PLW* wk) { // 🟢
     if (wk->wu.routine_no[3] == 3) {
         wk->wu.routine_no[1] = 0;
         wk->wu.routine_no[2] = 23;
@@ -1682,7 +1837,7 @@ void dm_17000(PLW* wk) {
     }
 }
 
-void dm_18000(PLW* wk) {
+void dm_18000(PLW* wk) { // 🟢
     switch (wk->wu.cg_type) {
     case 0xFF:
         if (wk->wu.vital_new < 0 && (check_sa_type_rebirth(wk) != 0)) {
@@ -1714,7 +1869,7 @@ void dm_18000(PLW* wk) {
     }
 }
 
-void dm_25000(PLW* wk) {
+void dm_25000(PLW* wk) { // 🟢
     if (wk->sa_stop_flag == 1) {
         return;
     }
@@ -1725,7 +1880,7 @@ void dm_25000(PLW* wk) {
     }
 }
 
-void process_catch(PLW* wk) {
+void process_catch(PLW* wk) { // 🟢
     if (wk->wu.routine_no[3] == 0) {
         return;
     }
@@ -1734,27 +1889,55 @@ void process_catch(PLW* wk) {
     case 64:
         if (wk->wu.pat_status < 32) {
             TO_nm_36000(&wk->wu);
-            break;
+        } else {
+            TO_nm_37000(&wk->wu);
         }
 
-        TO_nm_37000(&wk->wu);
         break;
 
     case 0xFF:
         if (wk->wu.pat_status < 32) {
             TO_nm_01000(&wk->wu);
-            break;
+        } else {
+            TO_nm_09000(&wk->wu);
         }
 
-        TO_nm_09000(&wk->wu);
         break;
     }
 }
 
-void process_caught(PLW* /* unused */) {}
+void dm_32000(PLW* wk) { // 🔵
+    switch (wk->wu.cg_type) {
+    case 64:
+        if (wk->wu.pat_status < 32) {
+            TO_nm_36000(&wk->wu);
+        } else {
+            TO_nm_37000(&wk->wu);
+        }
 
-void process_attack(PLW* wk) {
-    if (wk->wu.routine_no[3]) {
+        break;
+
+    case 0xFF:
+        if (wk->wu.pat_status < 32) {
+            TO_nm_01000(&wk->wu);
+        } else {
+            TO_nm_09000(&wk->wu);
+        }
+
+        break;
+    }
+}
+
+void process_caught(PLW* /* unused */) { // 🟢
+    // Do nothing
+}
+
+void dm_33000(PLW* wk) { // 🔵
+    // Do nothing
+}
+
+void process_attack(PLW* wk) { // 🟢
+    if (wk->wu.routine_no[3] != 0) {
         if (check_ashimoto_ex(wk)) {
             return;
         }
@@ -1810,7 +1993,7 @@ void process_attack(PLW* wk) {
     }
 }
 
-s32 check_cg_cancel_data(PLW* wk) {
+s32 check_cg_cancel_data(PLW* wk) { // 🟡
     if (wk->wu.cg_cancel == 0) {
         return 0;
     }
@@ -1819,14 +2002,14 @@ s32 check_cg_cancel_data(PLW* wk) {
         if (wk->spmv_ng_flag2 & DIP2_SPECIAL_MOVE_SUPER_ART_CANCEL_DISABLED) {
             if (wk->wu.routine_no[1] == 4) {
                 switch (wk->player_number) {
-                case 7:
+                case CHAR_IBUKI:
                     if (wk->wu.routine_no[2] != 25 && !(wk->wu.kind_of_waza & 0xF8)) {
                         wk->wu.cg_cancel &= 0x9F;
                     }
 
                     break;
 
-                case 18:
+                case CHAR_TWELVE:
                     if (wk->wu.routine_no[2] != 17 && !(wk->wu.kind_of_waza & 0xF8)) {
                         wk->wu.cg_cancel &= 0x9F;
                     }
@@ -1850,14 +2033,16 @@ s32 check_cg_cancel_data(PLW* wk) {
         }
 
         if (wk->wu.cg_cancel & 0x40) {
-            if (check_full_gauge_attack(wk, 0) != 0) {
+            if (check_full_gauge_attack(wk, 0)) {
                 wk->wu.cg_cancel &= 0;
                 return 1;
             }
 
-            if ((wk->player_number != 14) && (check_full_gauge_attack2(wk, 0) != 0)) {
-                wk->wu.cg_cancel &= 0;
-                return 1;
+            if (!ArcadeBalance_IsEnabled()) {
+                if ((wk->player_number != CHAR_AKUMA) && check_full_gauge_attack2(wk, 0)) {
+                    wk->wu.cg_cancel &= 0;
+                    return 1;
+                }
             }
 
             if (check_super_arts_attack(wk)) {
@@ -1867,25 +2052,25 @@ s32 check_cg_cancel_data(PLW* wk) {
         }
 
         if (wk->wu.cg_cancel & 0x20) {
-            if (check_special_attack(wk) != 0) {
+            if (check_special_attack(wk)) {
                 return 1;
             }
 
-            if (check_chouhatsu(wk) != 0) {
+            if (check_chouhatsu(wk)) {
                 return 1;
             }
         }
     }
 
-    if ((wk->wu.cg_cancel & 16) && (check_renda_cancel(wk) != 0)) {
+    if ((wk->wu.cg_cancel & 16) && check_renda_cancel(wk)) {
         return 1;
     }
 
-    if ((wk->wu.cg_cancel & 8) && (check_meoshi_cancel(wk) != 0)) {
+    if ((wk->wu.cg_cancel & 8) && check_meoshi_cancel(wk)) {
         return 1;
     }
 
-    if ((wk->wu.cg_cancel & 4) && ((wk->cp->sw_now & 0x770) != ((wk->current_attack))) && (check_nm_attack(wk) != 0)) {
+    if ((wk->wu.cg_cancel & 4) && ((wk->cp->sw_now & 0x770) != wk->current_attack) && check_nm_attack(wk)) {
         return 1;
     }
 
@@ -1893,11 +2078,11 @@ s32 check_cg_cancel_data(PLW* wk) {
         return 0;
     }
 
-    if ((wk->wu.cg_cancel & 2) && (check_F_R_dash(wk))) {
+    if ((wk->wu.cg_cancel & 2) && check_F_R_dash(wk)) {
         return 1;
     }
 
-    if ((wk->wu.cg_cancel & 1) && !(wk->spmv_ng_flag & DIP_HIGH_JUMP_CANCEL_DISABLED) && (check_hijump_only(wk) != 0)) {
+    if ((wk->wu.cg_cancel & 1) && check_hijump_only(wk)) {
         wk->high_jump_flag = 1;
         return 1;
     }
@@ -1920,8 +2105,24 @@ void (*const plpnm_xxxxx[59])(PLW* wk) = {
     nm_49000, nm_51000, nm_52000, nm_52000, nm_51000, nm_55000, nm_55000, nm_57000, nm_55000
 };
 
+void (*const plpnm_xxxxx_arcade[59])(PLW* wk) = {
+    nm_00000, nm_01000, nm_02000, nm_03000, nm_03000, nm_05000, nm_05000, nm_07000, nm_08000, nm_09000,
+    nm_10000, nm_11000, nm_11000, nm_13000, nm_13000, nm_13000, nm_16000, nm_17000, nm_18000, nm_18000,
+    nm_18000, nm_18000, nm_18000, nm_18000, nm_18000, nm_18000, nm_18000, nm_27000, nm_27000, nm_29000,
+    nm_27000, nm_31000, nm_31000, nm_31000, nm_34000, nm_34000, nm_36000, nm_37000, nm_38000, nm_39000,
+    nm_40000, nm_40000, nm_42000, nm_42000, nm_42000, nm_45000, nm_45000, nm_47000, nm_48000, nm_49000,
+    nm_49000, nm_51000, nm_52000, nm_52000, nm_51000, nm_55000, nm_55000, nm_57000, nm_55000
+};
+
 void (*const plpdm_xxxxx[32])(PLW* wk) = { dm_00000, dm_04000, dm_04000, dm_04000, dm_04000, dm_04000, dm_04000,
                                            dm_04000, dm_08000, dm_08000, dm_08000, dm_08000, dm_04000, dm_04000,
                                            dm_18000, dm_18000, dm_04000, dm_17000, dm_18000, dm_18000, dm_18000,
                                            dm_18000, dm_18000, dm_18000, dm_00000, dm_25000, dm_18000, dm_18000,
                                            dm_18000, dm_18000, dm_18000, dm_18000 };
+
+void (*const plpdm_xxxxx_arcade[39])(PLW* wk) = { dm_00000, dm_04000, dm_04000, dm_04000, dm_04000, dm_04000, dm_04000,
+                                                  dm_04000, dm_08000, dm_08000, dm_08000, dm_08000, dm_04000, dm_04000,
+                                                  dm_18000, dm_18000, dm_04000, dm_17000, dm_18000, dm_18000, dm_18000,
+                                                  dm_18000, dm_18000, dm_18000, dm_00000, dm_25000, dm_18000, dm_18000,
+                                                  dm_18000, dm_18000, dm_18000, dm_18000, dm_32000, dm_32000, dm_32000,
+                                                  dm_32000, dm_33000, dm_33000, dm_33000 };

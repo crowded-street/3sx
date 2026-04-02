@@ -5,7 +5,7 @@
 #include "sf33rd/AcrSDK/ps2/flps2vram.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 
-#include "port/sdl/sdl_game_renderer.h"
+#include "rendering/game_renderer.h"
 
 void flPS2SetClearColor(u32 col);
 s32 flPS2SendTextureRegister(u32 th);
@@ -66,9 +66,9 @@ s32 flPS2SendTextureRegister(u32 th) {
 s32 flPS2SetTextureRegister(u32 th, u64* texA, u64* tex1, u64* tex0, u64* clamp, u64* miptbp1, u64* miptbp2,
                             u32 render_ope) {
     FLTexture* lpflTexture;
-    SDLGameRenderer_SetTexture(th);
+    Renderer_SetTexture(th);
 
-    // FIXME: make sure these checks are made in SDLGameRenderer_SetTexture
+    // FIXME: make sure these checks are made in Renderer_SetTexture
 
     lpflTexture = &flTexture[LO_16_BITS(th) - 1];
 

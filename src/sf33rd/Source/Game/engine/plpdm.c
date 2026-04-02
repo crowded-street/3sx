@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/engine/plpdm.h"
+#include "arcade/arcade_balance.h"
 #include "bin2obj/buttobi.h"
 #include "bin2obj/etc.h"
 #include "common.h"
@@ -202,7 +203,7 @@ void Player_damage(PLW* wk) {
     set_hit_stop_hit_quake(&wk->wu);
 }
 
-void setup_damage_process_flags(PLW* wk) {
+void setup_damage_process_flags(PLW* wk) { // TODO: Check this function thoroughly
     wk->wu.next_z = wk->wu.my_priority;
     wk->running_f = 0;
     wk->guard_flag = 3;
@@ -211,6 +212,11 @@ void setup_damage_process_flags(PLW* wk) {
     wk->tsukamare_f = false;
     wk->scr_pos_set_flag = 1;
     wk->dm_hos_flag = 0;
+
+    if (ArcadeBalance_IsEnabled()) {
+        wk->sa_stop_flag = 0;
+    }
+
     wk->caution_flag = 0;
     wk->sa->saeff_ok = 0;
     wk->sa->saeff_mp = 0;
@@ -222,8 +228,10 @@ void setup_damage_process_flags(PLW* wk) {
     wk->high_jump_flag = 0;
     wk->wu.swallow_no_effect = 0;
 
-    if (wk->wu.routine_no[3]) {
-        wk->sa_stop_flag = 0;
+    if (!ArcadeBalance_IsEnabled()) {
+        if (wk->wu.routine_no[3]) {
+            wk->sa_stop_flag = 0;
+        }
     }
 }
 
@@ -1317,13 +1325,13 @@ void setup_smoke_type(PLW* wk) {
         ix = 0;
 
         if (total >= 48) {
-            ix = 1 & 0xFF;
+            ix = 1;
 
             if (total >= 64) {
-                ix = 2 & 0xFF;
+                ix = 2;
 
                 if (total >= 80) {
-                    ix = 3 & 0xFF;
+                    ix = 3;
                 }
             }
         }
@@ -1336,17 +1344,17 @@ void add_dm_step_tbl(PLW* wk, s8 flag) {
     if (flag) {
         if (wk->wu.dm_rl) {
             wk->wu.xyz[0].disp.pos += *wk->dm_step_tbl++;
-            return;
+        } else {
+            wk->wu.xyz[0].disp.pos -= *wk->dm_step_tbl++;
         }
-
-        wk->wu.xyz[0].disp.pos -= *wk->dm_step_tbl++;
-        return;
+    } else {
+        wk->dm_step_tbl++;
     }
-
-    wk->dm_step_tbl++;
 }
 
-void check_dmpat_to_dmpat(PLW* /* unused */) {}
+void check_dmpat_to_dmpat(PLW* /* unused */) {
+    // Do nothing
+}
 
 void set_dm_hos_flag_sky(PLW* wk) {
     PLW* twk = (PLW*)wk->wu.target_adrs;
@@ -1633,14 +1641,18 @@ void damage_atemi_setup(PLW* wk, PLW* ek) {
     ek->wu.hit_quake = wk->wu.att.hs_you / 2;
 }
 
-s32 setup_kuzureochi(PLW* wk) {
+/// Setup KO state
+s32 setup_kuzureochi(PLW* wk) { // 🟡
+    // Player is not dead yet. Return false
     if (wk->wu.vital_new >= 0) {
         return 0;
     }
 
-    if (pcon_dp_flag && Conclusion_Type != 1 && wk->wu.id == Winner_id) {
-        wk->wu.vital_new = 0;
-        return 0;
+    if (!ArcadeBalance_IsEnabled()) {
+        if (pcon_dp_flag && Conclusion_Type != 1 && wk->wu.id == Winner_id) {
+            wk->wu.vital_new = 0;
+            return 0;
+        }
     }
 
     wk->wu.routine_no[1] = 1;

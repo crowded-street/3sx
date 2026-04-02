@@ -63,6 +63,8 @@ static const char* get_button_name(KeymapButton button) {
         return "back";
     case KEYMAP_BUTTON_START:
         return "start";
+    default:
+        return "";
     }
 }
 

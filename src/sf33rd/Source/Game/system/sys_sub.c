@@ -72,7 +72,7 @@ void Switch_Screen_Init(s32 /* unused */) {
 }
 
 s32 Switch_Screen(u8 Wipe_Type) {
-    if (WipeOut(Wipe_Type) && --Gap_Timer <= 0) {
+    if (WipeOut(Wipe_Type)) {
         Exec_Wipe = 0;
         Stop_Combo = 0;
         return 1;
@@ -82,7 +82,7 @@ s32 Switch_Screen(u8 Wipe_Type) {
 }
 
 s32 Switch_Screen_Revival(u8 Wipe_Type) {
-    if (WipeIn(Wipe_Type) && --Gap_Timer <= 0) {
+    if (WipeIn(Wipe_Type)) {
         Exec_Wipe = 0;
         Stop_Combo = 0;
         return 1;
@@ -248,6 +248,10 @@ bool Is_Training_Hitbox_Display_Enabled() {
 }
 
 bool Cut_Cut_Cut() {
+    if (Is_Training_Mode(Mode_Type)) {
+        return true;
+    }
+
     if (Demo_Flag == 0) {
         return false;
     }
@@ -380,11 +384,11 @@ void Disp_Win_Record_Sub(u16 win_record, s16 zz) {
 
     switch (win_record) {
     case 1:
-        SSPutStr(zz, 0, 9, "WIN");
+        SSPutStr(zz, 0, 9, "WIN", TopHUDPriority);
         break;
 
     default:
-        SSPutStr(zz, 0, 9, "WINS");
+        SSPutStr(zz, 0, 9, "WINS", TopHUDPriority);
         break;
     }
 
@@ -425,7 +429,7 @@ s32 Button_Cut_EX(s16* Timer, s16 Limit_Time) {
         return 1;
     }
 
-    if ((xx & 0xFF0) && Limit_Time >= *Timer) {
+    if ((xx & SWK_ATTACKS) && Limit_Time >= *Timer) {
         return 1;
     }
 
