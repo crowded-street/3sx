@@ -42,7 +42,6 @@ static SDL_Vertex batch_vertices[RENDER_TASK_MAX * 4];
 static int batch_indices[RENDER_TASK_MAX * 6];
 static bool batch_buffers_initialized = false;
 
-
 // Debugging
 
 static bool draw_rect_borders = false;
@@ -141,12 +140,16 @@ static void push_render_task(RenderTask* task) {
         printf("⚠️ Requesting a render task when no rendering is allowed is a programmer error!\n");
     }
 
+    if (render_task_count >= RENDER_TASK_MAX) {
+        printf("⚠️ Render task limit exceeded!\n");
+        return;
+    }
+
     memcpy(&render_tasks[render_task_count], task, sizeof(RenderTask));
     render_task_count += 1;
 }
 
 static void clear_render_tasks() {
-    SDL_zeroa(render_tasks);
     render_task_count = 0;
 }
 
@@ -261,28 +264,27 @@ void SDLGameRenderer_BeginFrame() {
 
 void SDLGameRenderer_RenderFrame() {
     SDL_SetRenderTarget(_renderer, cps3_canvas);
+
+    if (render_task_count == 0) {
+        return;
+    }
+
     qsort(render_tasks, render_task_count, sizeof(RenderTask), compare_render_tasks);
 
     int batch_start = 0;
     SDL_Texture* current_batch_texture = render_tasks[0].texture;
 
     for (int i = 0; i <= render_task_count; i++) {
-        bool should_flush = (i == render_task_count) ||
-                            (render_tasks[i].texture != current_batch_texture);
+        bool should_flush = (i == render_task_count) || (render_tasks[i].texture != current_batch_texture);
 
         if (should_flush) {
             int batch_size = i - batch_start;
             if (batch_size > 0) {
                 for (int j = 0; j < batch_size; j++) {
-                    memcpy(
-                        &batch_vertices[j * 4], render_tasks[batch_start + j].vertices, 4 * sizeof(SDL_Vertex));
+                    memcpy(&batch_vertices[j * 4], render_tasks[batch_start + j].vertices, 4 * sizeof(SDL_Vertex));
                 }
-                SDL_RenderGeometry(_renderer,
-                                   current_batch_texture,
-                                   batch_vertices,
-                                   batch_size * 4,
-                                   batch_indices,
-                                   batch_size * 6);
+                SDL_RenderGeometry(
+                    _renderer, current_batch_texture, batch_vertices, batch_size * 4, batch_indices, batch_size * 6);
             }
 
             if (i < render_task_count) {
