@@ -33,6 +33,7 @@ static SDL_Palette* palettes[FL_PALETTE_MAX] = { NULL };
 static SDL_Texture* textures[FL_PALETTE_MAX] = { NULL };
 static int texture_count = 0;
 static SDL_Texture* texture_cache[FL_TEXTURE_MAX][FL_PALETTE_MAX + 1] = { { NULL } };
+static unsigned int current_th = 0;
 static SDL_Texture* textures_to_destroy[1024] = { NULL };
 static int textures_to_destroy_count = 0;
 static RenderTask render_tasks[RENDER_TASK_MAX] = { 0 };
@@ -172,7 +173,20 @@ static int compare_render_tasks(const RenderTask* a, const RenderTask* b) {
 
 // Colors
 
-#define clut_shuf(x) (((x) & ~0x18) | ((((x) & 0x08) << 1) | (((x) & 0x10) >> 1)))
+static const Uint8 ps2_clut_shuffle[256] = {
+    0,   1,   2,   3,   4,   5,   6,   7,   16,  17,  18,  19,  20,  21,  22,  23,  8,   9,   10,  11,  12,  13,
+    14,  15,  24,  25,  26,  27,  28,  29,  30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  48,  49,  50,  51,
+    52,  53,  54,  55,  40,  41,  42,  43,  44,  45,  46,  47,  56,  57,  58,  59,  60,  61,  62,  63,  64,  65,
+    66,  67,  68,  69,  70,  71,  80,  81,  82,  83,  84,  85,  86,  87,  72,  73,  74,  75,  76,  77,  78,  79,
+    88,  89,  90,  91,  92,  93,  94,  95,  96,  97,  98,  99,  100, 101, 102, 103, 112, 113, 114, 115, 116, 117,
+    118, 119, 104, 105, 106, 107, 108, 109, 110, 111, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131,
+    132, 133, 134, 135, 144, 145, 146, 147, 148, 149, 150, 151, 136, 137, 138, 139, 140, 141, 142, 143, 152, 153,
+    154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 176, 177, 178, 179, 180, 181, 182, 183,
+    168, 169, 170, 171, 172, 173, 174, 175, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197,
+    198, 199, 208, 209, 210, 211, 212, 213, 214, 215, 200, 201, 202, 203, 204, 205, 206, 207, 216, 217, 218, 219,
+    220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 240, 241, 242, 243, 244, 245, 246, 247, 232, 233,
+    234, 235, 236, 237, 238, 239, 248, 249, 250, 251, 252, 253, 254, 255
+};
 
 static void read_rgba32_color(Uint32 pixel, SDL_Color* color) {
     color->b = pixel & 0xFF;
@@ -181,20 +195,29 @@ static void read_rgba32_color(Uint32 pixel, SDL_Color* color) {
     color->a = (pixel >> 24) & 0xFF;
 }
 
-static void read_rgba32_fcolor(Uint32 pixel, SDL_FColor* fcolor) {
-    SDL_Color color;
+static Uint32 cached_fcolor_pixel = 0xDEADBEEF;
+static SDL_FColor cached_fcolor_value;
 
-    read_rgba32_color(pixel, &color);
-    fcolor->r = (float)color.r / 255;
-    fcolor->g = (float)color.g / 255;
-    fcolor->b = (float)color.b / 255;
-    fcolor->a = (float)color.a / 255;
+static void read_rgba32_fcolor(Uint32 pixel, SDL_FColor* fcolor) {
+    if (pixel == cached_fcolor_pixel) {
+        *fcolor = cached_fcolor_value;
+        return;
+    }
+    fcolor->b = (float)(pixel & 0xFF) / 255.0f;
+    fcolor->g = (float)((pixel >> 8) & 0xFF) / 255.0f;
+    fcolor->r = (float)((pixel >> 16) & 0xFF) / 255.0f;
+    fcolor->a = (float)((pixel >> 24) & 0xFF) / 255.0f;
+    cached_fcolor_pixel = pixel;
+    cached_fcolor_value = *fcolor;
 }
 
+static const Uint8 color5_to_8[32] = { 0,   8,   16,  24,  32,  41,  49,  57,  65,  74,  82,  90,  98,  106, 115, 123,
+                                       131, 139, 148, 156, 164, 172, 180, 189, 197, 205, 213, 222, 230, 238, 246, 255 };
+
 static void read_rgba16_color(Uint16 pixel, SDL_Color* color) {
-    color->r = (pixel & 0x1F) * 255 / 31;
-    color->g = ((pixel >> 5) & 0x1F) * 255 / 31;
-    color->b = ((pixel >> 10) & 0x1F) * 255 / 31;
+    color->r = color5_to_8[pixel & 0x1F];
+    color->g = color5_to_8[(pixel >> 5) & 0x1F];
+    color->b = color5_to_8[(pixel >> 10) & 0x1F];
     color->a = (pixel & 0x8000) ? 255 : 0;
 }
 
@@ -319,6 +342,7 @@ void SDLGameRenderer_RenderFrame() {
 void SDLGameRenderer_EndFrame() {
     destroy_textures();
     clear_render_tasks();
+    current_th = 0;
 }
 
 void SDLGameRenderer_UnlockPalette(unsigned int ph) {
@@ -430,7 +454,7 @@ void SDLGameRenderer_CreatePalette(unsigned int ph) {
 
     case 256:
         for (int i = 0; i < 256; i++) {
-            const int color_index = clut_shuf(i);
+            const int color_index = ps2_clut_shuffle[i];
             read_color(pixels, color_index, color_size, &colors[i]);
         }
 
@@ -465,6 +489,11 @@ void SDLGameRenderer_DestroyPalette(unsigned int palette_handle) {
 }
 
 void SDLGameRenderer_SetTexture(unsigned int th) {
+    if (texture_count > 0 && th == current_th) {
+        return;
+    }
+    current_th = th;
+
     const int texture_handle = LO_16_BITS(th);
     const SDL_Surface* surface = surfaces[texture_handle - 1];
     const int palette_handle = HI_16_BITS(th);
