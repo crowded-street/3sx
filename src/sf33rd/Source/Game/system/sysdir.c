@@ -35,16 +35,16 @@ const u32 omop_guard_type[4] = { DIP_AUTO_GUARD_DISABLED | DIP_AUTO_PARRY_DISABL
                                  DIP_AUTO_GUARD_DISABLED | DIP_AUTO_PARRY_DISABLED,
                                  DIP_AUTO_GUARD_DISABLED | DIP_SEMI_AUTO_PARRY_DISABLED };
 
-const u32 sysdir_base_move[20] = { (DIP_UNKNOWN_18 | DIP_UNKNOWN_19), (DIP_UNKNOWN_18 | DIP_UNKNOWN_19),
-                                   (DIP_UNKNOWN_18 | DIP_UNKNOWN_19), (DIP_UNKNOWN_18 | DIP_UNKNOWN_19),
-                                   (DIP_UNKNOWN_18 | DIP_UNKNOWN_19), (DIP_UNKNOWN_18 | DIP_UNKNOWN_19),
-                                   (DIP_UNKNOWN_18 | DIP_UNKNOWN_19), (DIP_UNKNOWN_18 | DIP_UNKNOWN_19),
-                                   (DIP_UNKNOWN_18 | DIP_UNKNOWN_19), DIP_UNKNOWN_18,
-                                   (DIP_UNKNOWN_18 | DIP_UNKNOWN_19), (DIP_UNKNOWN_18 | DIP_UNKNOWN_19),
-                                   (DIP_UNKNOWN_18 | DIP_UNKNOWN_19), (DIP_UNKNOWN_18 | DIP_UNKNOWN_19),
-                                   (DIP_UNKNOWN_18 | DIP_UNKNOWN_19), DIP_UNKNOWN_19,
-                                   (DIP_UNKNOWN_18 | DIP_UNKNOWN_19), (DIP_UNKNOWN_18 | DIP_UNKNOWN_19),
-                                   (DIP_UNKNOWN_18 | DIP_UNKNOWN_19), (DIP_UNKNOWN_18 | DIP_UNKNOWN_19) };
+const u32 sysdir_base_move[20] = { (DIP_WALL_JUMP_DISABLED | DIP_AIR_JUMP_DISABLED), (DIP_WALL_JUMP_DISABLED | DIP_AIR_JUMP_DISABLED),
+                                   (DIP_WALL_JUMP_DISABLED | DIP_AIR_JUMP_DISABLED), (DIP_WALL_JUMP_DISABLED | DIP_AIR_JUMP_DISABLED),
+                                   (DIP_WALL_JUMP_DISABLED | DIP_AIR_JUMP_DISABLED), (DIP_WALL_JUMP_DISABLED | DIP_AIR_JUMP_DISABLED),
+                                   (DIP_WALL_JUMP_DISABLED | DIP_AIR_JUMP_DISABLED), (DIP_WALL_JUMP_DISABLED | DIP_AIR_JUMP_DISABLED),
+                                   (DIP_WALL_JUMP_DISABLED | DIP_AIR_JUMP_DISABLED), DIP_WALL_JUMP_DISABLED,
+                                   (DIP_WALL_JUMP_DISABLED | DIP_AIR_JUMP_DISABLED), (DIP_WALL_JUMP_DISABLED | DIP_AIR_JUMP_DISABLED),
+                                   (DIP_WALL_JUMP_DISABLED | DIP_AIR_JUMP_DISABLED), (DIP_WALL_JUMP_DISABLED | DIP_AIR_JUMP_DISABLED),
+                                   (DIP_WALL_JUMP_DISABLED | DIP_AIR_JUMP_DISABLED), DIP_AIR_JUMP_DISABLED,
+                                   (DIP_WALL_JUMP_DISABLED | DIP_AIR_JUMP_DISABLED), (DIP_WALL_JUMP_DISABLED | DIP_AIR_JUMP_DISABLED),
+                                   (DIP_WALL_JUMP_DISABLED | DIP_AIR_JUMP_DISABLED), (DIP_WALL_JUMP_DISABLED | DIP_AIR_JUMP_DISABLED) };
 
 const s16 use_ex_gauge[4] = { 0, 20, 40, 60 };
 

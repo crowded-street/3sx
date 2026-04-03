@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/engine/pls01.h"
+#include "arcade/arcade_balance.h"
 #include "common.h"
 #include "constants.h"
 #include "sf33rd/Source/Game/engine/caldir.h"
@@ -32,7 +33,7 @@ const s16 dir32_sel_tbl[2][32] = {
 
 const s16 chcgp_hos[20] = { 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1 };
 
-s32 sa_stop_check() {
+s32 sa_stop_check() { // 🟢
     if (plw[0].sa_stop_flag != 0) {
         return 1;
     }
@@ -44,26 +45,21 @@ s32 sa_stop_check() {
     return 0;
 }
 
-void check_my_tk_power_off(PLW* wk, PLW* /* unused */) {
-    if (wk->wu.old_rno[1] == 1) {
-        if (wk->wu.old_rno[2] < 8 && wk->wu.old_rno[2] > 3) {
-            return;
-        }
-
-        wk->tk_dageki = 0;
-        wk->tk_nage = 0;
-        wk->tk_kizetsu = 0;
+void check_my_tk_power_off(PLW* wk, PLW* /* unused */) { // 🟢
+    if (wk->wu.old_rno[1] != 1) {
         return;
     }
 
-    if (wk->wu.old_rno[1] == 3 && wk->wu.routine_no[1] == 0 && wk->wu.routine_no[2] < 51) {
-        if (wk->wu.routine_no[2] > 46) {
-            // do nothing
-        }
+    if (wk->wu.old_rno[2] < 8 && wk->wu.old_rno[2] > 3) {
+        return;
     }
+
+    wk->tk_dageki = 0;
+    wk->tk_nage = 0;
+    wk->tk_kizetsu = 0;
 }
 
-void check_em_tk_power_off(PLW* wk, PLW* tk) {
+void check_em_tk_power_off(PLW* wk, PLW* tk) { // 🟢
     if (about_rno[wk->wu.old_rno[1]] != 1) {
         return;
     }
@@ -86,55 +82,50 @@ void check_em_tk_power_off(PLW* wk, PLW* tk) {
     }
 }
 
-s16 check_ukemi_flag(PLW* wk) {
+s16 check_ukemi_flag(PLW* wk) { // 🟢
     return wk->cp->waza_flag[7];
 }
 
-s32 check_rl_flag(WORK* wk) {
+s32 check_rl_flag(WORK* wk) { // 🟢
     return wk->rl_flag == wk->rl_waza;
 }
 
-void set_rl_waza(PLW* wk) {
+void set_rl_waza(PLW* wk) { // 🟢
     WORK* em;
     s16 result;
 
-    while (1) {
-        if (Bonus_Game_Flag == 20) {
-            if (wk->wu.operator != 0) {
-                if (wk->wu.xyz[0].disp.pos < bs2_hosei[0] || wk->wu.xyz[0].disp.pos > bs2_hosei[1]) {
-                    break;
-                }
-
-                if (((result = wk->cp->sw_lvbt & 0xF) != 0) && !(result & 3)) {
-                    wk->wu.rl_waza = (result & 8) != 0;
-                    return;
-                }
+    if (Bonus_Game_Flag == 20) {
+        if (wk->wu.operator != 0) {
+            if (wk->wu.xyz[0].disp.pos < bs2_hosei[0] || wk->wu.xyz[0].disp.pos > bs2_hosei[1]) {
+                goto end;
             }
 
-            wk->wu.rl_waza = wk->wu.rl_flag;
-            return;
+            if (((result = wk->cp->sw_lvbt & 0xF) != 0) && !(result & 3)) {
+                wk->wu.rl_waza = (result & 8) != 0;
+                return;
+            }
         }
 
-        break;
+        wk->wu.rl_waza = wk->wu.rl_flag;
+        return;
     }
 
+end:
     em = (WORK*)wk->wu.target_adrs;
     result = wk->wu.xyz[0].disp.pos - em->xyz[0].disp.pos;
 
     if (result) {
         if (result > 0) {
             wk->wu.rl_waza = 0;
-            return;
+        } else {
+            wk->wu.rl_waza = 1;
         }
-
-        wk->wu.rl_waza = 1;
-        return;
+    } else {
+        wk->wu.rl_waza = (em->rl_waza + 1) & 1;
     }
-
-    wk->wu.rl_waza = (em->rl_waza + 1) & 1;
 }
 
-s16 check_rl_on_car(PLW* wk) {
+s16 check_rl_on_car(PLW* wk) { // 🟢
     s16 rnum;
 
     if (Bonus_Game_Flag != 20) {
@@ -153,22 +144,22 @@ s16 check_rl_on_car(PLW* wk) {
     wk->bs2_area_car = 0;
     wk->bs2_over_car = 0;
 
-    if (wk->wu.xyz[0].disp.pos >= bs2_floor[0] && !(wk->wu.xyz[0].disp.pos > bs2_floor[1])) {
+    if (wk->wu.xyz[0].disp.pos >= bs2_floor[0] && wk->wu.xyz[0].disp.pos <= bs2_floor[1]) {
         wk->bs2_area_car = 1;
     }
 
-    if (wk->wu.xyz[0].disp.pos >= bs2_hosei[0] && !(wk->wu.xyz[0].disp.pos > bs2_hosei[1])) {
+    if (wk->wu.xyz[0].disp.pos >= bs2_hosei[0] && wk->wu.xyz[0].disp.pos <= bs2_hosei[1]) {
         rnum = 1;
     }
 
-    if (wk->wu.xyz[1].disp.pos + (wk->wu.cg_jphos) >= bs2_floor[2]) {
+    if (wk->wu.xyz[1].disp.pos + wk->wu.cg_jphos >= bs2_floor[2]) {
         wk->bs2_over_car = 1;
     }
 
     return rnum;
 }
 
-s32 saishin_bs2_area_car(PLW* wk) {
+s32 saishin_bs2_area_car(PLW* wk) { // 🟡
     wk->bs2_area_car2 = 0;
     wk->bs2_over_car2 = 0;
 
@@ -176,30 +167,38 @@ s32 saishin_bs2_area_car(PLW* wk) {
         return 1;
     }
 
-    if (wk->wu.xyz[0].disp.pos >= bs2_floor[0] && !(wk->wu.xyz[0].disp.pos > bs2_floor[1])) {
+    if (wk->wu.xyz[0].disp.pos >= bs2_floor[0] && wk->wu.xyz[0].disp.pos <= bs2_floor[1]) {
         wk->bs2_area_car2 = 1;
     }
 
-    if (!(wk->wu.xyz[1].disp.pos + wk->wu.cg_jphos <= bs2_floor[2])) {
+    if (wk->wu.xyz[1].disp.pos + wk->wu.cg_jphos > bs2_floor[2]) {
         wk->bs2_over_car2 = 1;
+    }
+
+    if (ArcadeBalance_IsEnabled()) {
+        if (!wk->bs2_over_car) {
+            return 0;
+        }
     }
 
     if (wk->bs2_over_car2) {
         return 1;
     }
 
-    if (wk->bs2_area_car2 == 0) {
+    if (!wk->bs2_area_car2) {
         return 1;
     }
 
-    if (wk->wu.mvxy.a[1].sp >= 2) {
-        return 1;
+    if (!ArcadeBalance_IsEnabled()) {
+        if (wk->wu.mvxy.a[1].sp >= 2) {
+            return 1;
+        }
     }
 
     return 0;
 }
 
-s8 saishin_bs2_on_car(PLW* wk) {
+s8 saishin_bs2_on_car(PLW* wk) { // 🟢
     if (wk->bs2_on_car && (wk->wu.xyz[1].disp.pos > (bs2_floor[2] + 2))) {
         wk->bs2_on_car = 0;
     }
@@ -207,8 +206,8 @@ s8 saishin_bs2_on_car(PLW* wk) {
     return wk->bs2_on_car;
 }
 
-s32 check_air_jump(PLW* wk) {
-    if (wk->spmv_ng_flag & DIP_UNKNOWN_19) {
+s32 check_air_jump(PLW* wk) { // 🟢
+    if (wk->spmv_ng_flag & DIP_AIR_JUMP_DISABLED) {
         return 0;
     }
 
@@ -240,8 +239,8 @@ s32 check_air_jump(PLW* wk) {
     return 1;
 }
 
-s32 check_sankaku_tobi(PLW* wk) {
-    if (wk->spmv_ng_flag & DIP_UNKNOWN_18) {
+s32 check_sankaku_tobi(PLW* wk) { // 🟢
+    if (wk->spmv_ng_flag & DIP_WALL_JUMP_DISABLED) {
         return 0;
     }
 
@@ -270,14 +269,16 @@ s32 check_sankaku_tobi(PLW* wk) {
     return 1;
 }
 
-void check_extra_jump_timer(PLW* wk) {
+void check_extra_jump_timer(PLW* wk) { // 🟡
     if (wk->air_jump_ok_time) {
         wk->air_jump_ok_time--;
     }
 
     if (wk->wu.xyz[1].disp.pos > 48 && wk->micchaku_flag) {
-        if (wk->wu.routine_no[1] == 1) {
-            wk->micchaku_wall_time = 0;
+        if (!ArcadeBalance_IsEnabled()) {
+            if (wk->wu.routine_no[1] == 1) {
+                wk->micchaku_wall_time = 0;
+            }
         }
 
         wk->micchaku_wall_time++;
@@ -290,7 +291,7 @@ void check_extra_jump_timer(PLW* wk) {
     }
 }
 
-void remake_sankaku_tobi_mvxy(WORK* wk, u8 kabe) {
+void remake_sankaku_tobi_mvxy(WORK* wk, u8 kabe) { // 🟡
     if (kabe == 1) {
         wk->rl_flag = 0;
     }
@@ -314,11 +315,10 @@ void remake_sankaku_tobi_mvxy(WORK* wk, u8 kabe) {
 
     if (wk->mvxy.a[1].real.h <= 0) {
         wk->mvxy.a[1].real.h = 4;
-        wk->mvxy.a[0].real.h = (wk->mvxy.a[0].real.h * 5 / 4);
-
+        wk->mvxy.a[0].real.h = wk->mvxy.a[0].real.h * 5 / 4;
     } else {
-        wk->mvxy.a[1].real.h = ((wk->mvxy.a[1].real.h << 2) / 3);
-        wk->mvxy.a[0].real.h = (wk->mvxy.a[0].real.h * 5 / 4);
+        wk->mvxy.a[1].real.h = wk->mvxy.a[1].real.h * 4 / 3;
+        wk->mvxy.a[0].real.h = wk->mvxy.a[0].real.h * 5 / 4;
         wk->mvxy.a[1].real.h += 2;
     }
 
@@ -326,10 +326,12 @@ void remake_sankaku_tobi_mvxy(WORK* wk, u8 kabe) {
         wk->mvxy.a[1].real.h = 4;
     }
 
-    wk->mvxy.d[1].sp = -0x8800;
+    if (!ArcadeBalance_IsEnabled()) {
+        wk->mvxy.d[1].sp = -0x8800;
+    }
 }
 
-s16 check_F_R_dash(PLW* wk) {
+s16 check_F_R_dash(PLW* wk) { // 🟢
     s16 num;
     s16 rnum;
 
@@ -407,7 +409,7 @@ s32 check_360_jump(PLW* wk) { // 🔵
     return 1;
 }
 
-s32 check_jump_ready(PLW* wk) {
+s32 check_jump_ready(PLW* wk) { // 🟢
     if (!(wk->cp->sw_new & 1)) {
         return 0;
     }
@@ -429,7 +431,7 @@ s32 check_jump_ready(PLW* wk) {
     return 1;
 }
 
-s32 check_hijump_only(PLW* wk) {
+s32 check_hijump_only(PLW* wk) { // 🟢
     if (wk->spmv_ng_flag & DIP_HIGH_JUMP_DISABLED) {
         return 0;
     }
@@ -465,7 +467,7 @@ s32 check_bend_myself(PLW* wk) { // 🟢
     return 1;
 }
 
-s16 check_F_R_walk(PLW* wk) {
+s16 check_F_R_walk(PLW* wk) { // 🟢
     s16 rnum = 0;
 
     switch (wk->cp->lever_dir) {
@@ -527,7 +529,7 @@ s16 check_arcade_walk_start(PLW* wk) { // 🔵
     return rnum;
 }
 
-s32 check_turn_to_back(PLW* wk) {
+s32 check_turn_to_back(PLW* wk) { // 🟢
     if (wk->hurimukenai_flag) {
         return 0;
     }
@@ -553,21 +555,22 @@ s32 check_turn_to_back(PLW* wk) {
     return 1;
 }
 
-s32 check_hurimuki(WORK* wk) {
+s32 check_hurimuki(WORK* wk) { // 🟢
     WORK* em = (WORK*)wk->target_adrs;
     s16 result = wk->xyz[0].disp.pos - em->old_pos[0];
 
     if (result) {
         if (result > 0) {
             return wk->rl_flag == 0;
+        } else {
+            return wk->rl_flag;
         }
-        return wk->rl_flag;
     }
 
     return 1;
 }
 
-s16 check_walking_lv_dir(PLW* wk) {
+s16 check_walking_lv_dir(PLW* wk) { // 🟢
     s16 rnum = 0;
 
     switch (wk->cp->lever_dir) {
@@ -615,12 +618,10 @@ s32 check_stand_up(PLW* wk) { // 🟢
     return 1;
 }
 
-s32 check_defense_lever(PLW* wk) { // 🟡
-#if !CPS3
+s32 check_defense_lever(PLW* wk) { // 🟢
     if (wk->spmv_ng_flag & DIP_GUARD_DISABLED) {
         return 0;
     }
-#endif
 
     if (!check_em_catt(wk)) {
         return 0;
@@ -669,7 +670,7 @@ s32 check_em_catt(PLW* wk) { // 🟢
     return 1;
 }
 
-s16 check_attbox_dir(PLW* wk) {
+s16 check_attbox_dir(PLW* wk) { // 🟢
     s16 target_pos_x;
     s16 target_pos_y;
     s16 emdir;
@@ -687,7 +688,7 @@ s16 check_attbox_dir(PLW* wk) {
         emdir = dir32_rl_conv[emdir];
     }
 
-    if ((wk->wu.now_koc == 0) && ((wk->wu.char_index) == 29)) {
+    if ((wk->wu.now_koc == 0) && (wk->wu.char_index == 29)) {
         emdir = dir32_sel_tbl[1][emdir];
     } else {
         emdir = dir32_sel_tbl[0][emdir];
@@ -696,7 +697,7 @@ s16 check_attbox_dir(PLW* wk) {
     return emdir;
 }
 
-u16 check_defense_kind(PLW* wk) {
+u16 check_defense_kind(PLW* wk) { // 🟢
     u16 rnum = 0;
 
     switch (wk->wu.routine_no[2]) {
@@ -746,13 +747,13 @@ u16 check_defense_kind(PLW* wk) {
     return rnum;
 }
 
-void jumping_union_process(WORK* wk, s16 num) {
+void jumping_union_process(WORK* wk, s16 num) { // 🟢
     add_mvxy_speed(wk);
     cal_mvxy_speed(wk);
     char_move(wk);
 
     if ((Bonus_Game_Flag == 20) && (wk->operator != 0) && (saishin_bs2_area_car((PLW*)wk) == 0)) {
-        if (!(wk->xyz[1].disp.pos + wk->cg_jphos > bs2_floor[2])) {
+        if (wk->xyz[1].disp.pos + wk->cg_jphos <= bs2_floor[2]) {
             wk->position_y = wk->xyz[1].disp.pos = bs2_floor[2];
             wk->mvxy.a[1].sp = 0;
             wk->routine_no[3] = num;
@@ -797,7 +798,7 @@ s32 check_ashimoto(PLW* wk) { // 🟢
     return 1;
 }
 
-s32 check_floor_2(PLW* wk) {
+s32 check_floor_2(PLW* wk) { // 🟢
     WORK* efw;
 
     if (wk->bs2_on_car == 0) {
@@ -810,14 +811,14 @@ s32 check_floor_2(PLW* wk) {
 
     efw = (WORK*)((WORK*)wk->wu.target_adrs)->my_effadrs;
 
-    if (hit_check_x_only(&wk->wu, efw, &wk->wu.hosei_adrs->hos_box[4], &efw->h_hos->hos_box[0]) != 0) {
+    if (hit_check_x_only(&wk->wu, efw, &wk->wu.hosei_adrs[1].hos_box[0], &efw->h_hos->hos_box[0]) != 0) {
         return 0;
     }
 
     return 1;
 }
 
-s32 check_ashimoto_ex(PLW* wk) {
+s32 check_ashimoto_ex(PLW* wk) { // 🟢
     if (check_floor_2(wk) == 0) {
         return 0;
     }
