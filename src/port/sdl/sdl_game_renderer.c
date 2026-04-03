@@ -38,6 +38,11 @@ static int textures_to_destroy_count = 0;
 static RenderTask render_tasks[RENDER_TASK_MAX] = { 0 };
 static int render_task_count = 0;
 
+static SDL_Vertex batch_vertices[RENDER_TASK_MAX * 4];
+static int batch_indices[RENDER_TASK_MAX * 6];
+static bool batch_buffers_initialized = false;
+
+
 // Debugging
 
 static bool draw_rect_borders = false;
@@ -218,6 +223,19 @@ static void lerp_fcolors(SDL_FColor* dest, const SDL_FColor* a, const SDL_FColor
 // Lifecycle
 
 void SDLGameRenderer_Init(SDL_Renderer* renderer) {
+    if (!batch_buffers_initialized) {
+        for (int i = 0; i < RENDER_TASK_MAX; i++) {
+            int base = i * 4;
+            int idx_base = i * 6;
+            batch_indices[idx_base + 0] = base + 0;
+            batch_indices[idx_base + 1] = base + 1;
+            batch_indices[idx_base + 2] = base + 2;
+            batch_indices[idx_base + 3] = base + 1;
+            batch_indices[idx_base + 4] = base + 2;
+            batch_indices[idx_base + 5] = base + 3;
+        }
+        batch_buffers_initialized = true;
+    }
     _renderer = renderer;
     cps3_canvas =
         SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, cps3_width, cps3_height);
@@ -245,10 +263,33 @@ void SDLGameRenderer_RenderFrame() {
     SDL_SetRenderTarget(_renderer, cps3_canvas);
     qsort(render_tasks, render_task_count, sizeof(RenderTask), compare_render_tasks);
 
-    for (int i = 0; i < render_task_count; i++) {
-        const RenderTask* task = &render_tasks[i];
-        const int indices[] = { 0, 1, 2, 1, 2, 3 };
-        SDL_RenderGeometry(_renderer, task->texture, task->vertices, 4, indices, 6);
+    int batch_start = 0;
+    SDL_Texture* current_batch_texture = render_tasks[0].texture;
+
+    for (int i = 0; i <= render_task_count; i++) {
+        bool should_flush = (i == render_task_count) ||
+                            (render_tasks[i].texture != current_batch_texture);
+
+        if (should_flush) {
+            int batch_size = i - batch_start;
+            if (batch_size > 0) {
+                for (int j = 0; j < batch_size; j++) {
+                    memcpy(
+                        &batch_vertices[j * 4], render_tasks[batch_start + j].vertices, 4 * sizeof(SDL_Vertex));
+                }
+                SDL_RenderGeometry(_renderer,
+                                   current_batch_texture,
+                                   batch_vertices,
+                                   batch_size * 4,
+                                   batch_indices,
+                                   batch_size * 6);
+            }
+
+            if (i < render_task_count) {
+                current_batch_texture = render_tasks[i].texture;
+                batch_start = i;
+            }
+        }
     }
 
     if (draw_rect_borders) {
