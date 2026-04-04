@@ -150,12 +150,12 @@ void effect_E3_move(WORK_Other* ewk) {
             switch (Training[0].contents[0][0][2]) {
             case 0:
             sw1_case_0:
-                mwk->spmv_ng_flag2 |= 0x200;
+                mwk->spmv_ng_flag2 |= DIP_UNKNOWN_9;
                 break;
 
             case 1:
             sw1_case_1:
-                mwk->spmv_ng_flag2 &= 0xFFFFFDFF;
+                mwk->spmv_ng_flag2 &= ~DIP_UNKNOWN_9;
                 break;
 
             default:
@@ -184,10 +184,10 @@ void effect_E3_move(WORK_Other* ewk) {
                 }
 
                 if (ewk->wu.dm_vital) {
-                    mwk->spmv_ng_flag &= 0xFFFFFFBF;
+                    mwk->spmv_ng_flag &= ~DIP_AUTO_GUARD_DISABLED;
                 } else {
                     if (ewk->wu.dir_timer == 0) {
-                        mwk->spmv_ng_flag |= 0x40;
+                        mwk->spmv_ng_flag |= DIP_AUTO_GUARD_DISABLED;
                     } else {
                         ewk->wu.dir_timer--;
                     }
@@ -202,16 +202,16 @@ void effect_E3_move(WORK_Other* ewk) {
 
             case 1:
             sw2_case_1:
-                mwk->spmv_ng_flag |= 0x80;
-                mwk->spmv_ng_flag |= 0x40;
-                mwk->spmv_ng_flag |= 0x10;
+                mwk->spmv_ng_flag |= DIP_AUTO_PARRY_DISABLED;
+                mwk->spmv_ng_flag |= DIP_AUTO_GUARD_DISABLED;
+                mwk->spmv_ng_flag |= DIP_GUARD_DISABLED;
                 break;
 
             case 2:
             sw2_case_2:
-                mwk->spmv_ng_flag |= 0x80;
-                mwk->spmv_ng_flag &= 0xFFFFFFBF;
-                mwk->spmv_ng_flag &= 0xFFFFFFEF;
+                mwk->spmv_ng_flag |= DIP_AUTO_PARRY_DISABLED;
+                mwk->spmv_ng_flag &= ~DIP_AUTO_GUARD_DISABLED;
+                mwk->spmv_ng_flag &= ~DIP_GUARD_DISABLED;
                 break;
 
             case 6:
@@ -227,9 +227,10 @@ void effect_E3_move(WORK_Other* ewk) {
 
             case 3:
             sw2_case_3:
-                mwk->spmv_ng_flag |= 0x40;
-                mwk->spmv_ng_flag &= 0xFFFFFF7F;
-                mwk->spmv_ng_flag &= 0xFFFFF0FF;
+                mwk->spmv_ng_flag |= DIP_AUTO_GUARD_DISABLED;
+                mwk->spmv_ng_flag &= ~DIP_AUTO_PARRY_DISABLED;
+                mwk->spmv_ng_flag &=
+                    (DIP_UNKNOWN_8 | DIP_UNKNOWN_9 | DIP_AIR_PARRY_DISABLED | DIP_ANTI_AIR_PARRY_DISABLED);
                 break;
 
             case 4:
@@ -241,13 +242,13 @@ void effect_E3_move(WORK_Other* ewk) {
                 }
 
                 if (ewk->wu.dm_vital) {
-                    mwk->spmv_ng_flag &= 0xFFFFFFBF;
+                    mwk->spmv_ng_flag &= ~DIP_AUTO_GUARD_DISABLED;
                 } else {
                     if (ewk->wu.dir_timer == 0) {
                         if ((Game_timer & 4) != 0) {
-                            mwk->spmv_ng_flag &= 0xFFFFFFBF;
+                            mwk->spmv_ng_flag &= ~DIP_AUTO_GUARD_DISABLED;
                         } else {
-                            mwk->spmv_ng_flag |= 0x40;
+                            mwk->spmv_ng_flag |= DIP_AUTO_GUARD_DISABLED;
                         }
                     } else {
                         ewk->wu.dir_timer--;
