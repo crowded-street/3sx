@@ -2,6 +2,7 @@
 
 #include "imgui/imgui_wrapper.h"
 #include "port/sdl/sdl_app.h"
+#include "sf33rd/Source/Game/debug/debug_config.h"
 
 #include "imgui/dcimgui/dcimgui.h"
 #include "imgui/dcimgui/dcimgui_impl_sdl3.h"
@@ -30,7 +31,7 @@ static void build_debug_window() {
 
     ImGui_Begin("Debug", &show_debug_window, 0);
 
-    if (ImGui_CollapsingHeader("Frame metrics", ImGuiTreeNodeFlags_DefaultOpen)) {
+    if (ImGui_CollapsingHeader("Frame metrics", 0)) {
         plot("FPS", frame_metrics->fps, SDL_arraysize(frame_metrics->fps), frame_metrics->head, (ImVec2) { 0, 60 });
 
         plot("Frame time",
@@ -44,6 +45,22 @@ static void build_debug_window() {
              SDL_arraysize(frame_metrics->idle_time),
              frame_metrics->head,
              (ImVec2) { 0, 20 });
+    }
+
+    if (ImGui_CollapsingHeader("Debug config", 0)) {
+        ImGui_AlignTextToFramePadding();
+        ImGui_Text("Invincibility:");
+        ImGui_SameLine();
+        ImGui_Checkbox("P1##invincibility", &debug_config.values[DEBUG_PLAYER_1_INVINCIBLE]);
+        ImGui_SameLine();
+        ImGui_Checkbox("P2##invincibility", &debug_config.values[DEBUG_PLAYER_2_INVINCIBLE]);
+
+        ImGui_AlignTextToFramePadding();
+        ImGui_Text("No life:");
+        ImGui_SameLine();
+        ImGui_Checkbox("P1##nolife", &debug_config.values[DEBUG_PLAYER_1_NO_LIFE]);
+        ImGui_SameLine();
+        ImGui_Checkbox("P2##nolife", &debug_config.values[DEBUG_PLAYER_2_NO_LIFE]);
     }
 
     ImGui_End();
