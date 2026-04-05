@@ -1,5 +1,6 @@
 #include "port/sdl/sdl_app.h"
 #include "common.h"
+#include "imgui/imgui_wrapper.h"
 #include "port/config/config.h"
 #include "port/config/keymap.h"
 #include "port/sdl/netplay_screen.h"
@@ -57,7 +58,7 @@ static SDL_ScaleMode screen_texture_scale_mode() {
     case SCALEMODE_INTEGER:
         return SDL_SCALEMODE_NEAREST;
     default:
-      return SDL_SCALEMODE_INVALID;
+        return SDL_SCALEMODE_INVALID;
     }
 }
 
@@ -174,22 +175,39 @@ int SDLApp_FullInit() {
     // Initialize pads
     SDLPad_Init();
 
+#if DEBUG
+    ImGuiW_Init(window, renderer);
+#endif
+
     return 0;
 }
 
 void SDLApp_Quit() {
     Config_Destroy();
     ScanlineRenderer_Destroy();
+
+#if DEBUG
+    ImGuiW_Finish();
+#endif
+
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
 
-static void set_screenshot_flag_if_needed(SDL_KeyboardEvent* event) {
+// static void set_screenshot_flag_if_needed(SDL_KeyboardEvent* event) {
+//     if ((event->key == SDLK_GRAVE) && event->down && !event->repeat) {
+//         should_save_screenshot = true;
+//     }
+// }
+
+#if DEBUG
+static void toggle_debug_window_visibility(SDL_KeyboardEvent* event) {
     if ((event->key == SDLK_GRAVE) && event->down && !event->repeat) {
-        should_save_screenshot = true;
+        ImGuiW_ToggleVisivility();
     }
 }
+#endif
 
 static void handle_fullscreen_toggle(SDL_KeyboardEvent* event) {
     const bool is_alt_enter = (event->key == SDLK_RETURN) && (event->mod & SDL_KMOD_ALT);
@@ -227,6 +245,10 @@ bool SDLApp_PollEvents() {
     bool continue_running = true;
 
     while (SDL_PollEvent(&event)) {
+#if DEBUG
+        ImGuiW_ProcessEvent(&event);
+#endif
+
         switch (event.type) {
         case SDL_EVENT_GAMEPAD_ADDED:
         case SDL_EVENT_GAMEPAD_REMOVED:
@@ -235,7 +257,12 @@ bool SDLApp_PollEvents() {
 
         case SDL_EVENT_KEY_DOWN:
         case SDL_EVENT_KEY_UP:
-            set_screenshot_flag_if_needed(&event.key);
+            // set_screenshot_flag_if_needed(&event.key);
+
+#if DEBUG
+            toggle_debug_window_visibility(&event.key);
+#endif
+
             handle_fullscreen_toggle(&event.key);
             break;
 
@@ -264,6 +291,10 @@ void SDLApp_BeginFrame() {
 
     SDLMessageRenderer_BeginFrame();
     SDLGameRenderer_BeginFrame();
+
+#if DEBUG
+    ImGuiW_BeginFrame();
+#endif
 }
 
 static void center_rect(SDL_FRect* rect, int win_w, int win_h) {
@@ -409,6 +440,8 @@ void SDLApp_EndFrame() {
     // SDL_SetRenderScale(renderer, 2, 2);
     // SDL_RenderDebugTextFormat(renderer, (window_width / 2) - 88, 2, "FPS: %.3f", fps);
     // SDL_SetRenderScale(renderer, 1, 1);
+
+    ImGuiW_EndFrame(renderer);
 #endif
 
     SDL_RenderPresent(renderer);

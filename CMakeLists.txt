@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.24)
-project(3sx LANGUAGES C)
+project(3sx LANGUAGES C CXX)
 
 # ======================================
 # Options and platform setup
@@ -14,6 +14,8 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/src
+    ${PROJECT_SOURCE_DIR}/src/imgui/imgui
+    ${PROJECT_SOURCE_DIR}/src/imgui/dcimgui
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/include/sdk
 )
@@ -23,9 +25,11 @@ include_directories(
 # ======================================
 
 file(GLOB_RECURSE GAME_SRC src/*.c)
+file(GLOB_RECURSE CPP_SRC src/*.cpp)
 
 add_executable(3sx MACOSX_BUNDLE
     ${GAME_SRC}
+    ${CPP_SRC}
 )
 
 # ======================================
