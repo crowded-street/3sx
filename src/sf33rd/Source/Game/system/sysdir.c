@@ -221,7 +221,7 @@ void get_system_direction_parameter(SystemDir* sysdir_data) {
     }
 
     if (save_w[Present_Mode].GuardCheck) {
-        omop_spmv_ng_table[0] |= 0x04000000;
+        omop_spmv_ng_table[0] |= DIP_NEW_GUARD_JUDGMENT_ENABLED;
     }
 
     if (sysdir_data->contents[2][0] == 0) {

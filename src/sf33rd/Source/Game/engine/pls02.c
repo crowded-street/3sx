@@ -4,8 +4,10 @@
  */
 
 #include "sf33rd/Source/Game/engine/pls02.h"
+#include "arcade/arcade_balance.h"
 #include "bin2obj/gauge.h"
 #include "common.h"
+#include "port/utils.h"
 #include "sf33rd/Source/Game/com/com_data.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/engine/caldir.h"
@@ -107,7 +109,7 @@ const s16 dead_voice_table[20][2] = { { 864, 865 }, { 928, 929 }, { 512, 513 }, 
                                       { 640, 641 }, { 384, 385 }, { 480, 481 }, { 736, 737 }, { 704, 705 },
                                       { 416, 417 }, { 448, 449 }, { 768, 769 }, { 960, 961 }, { 544, 545 } };
 
-void add_to_mvxy_data(WORK* wk, u16 ix) {
+void add_to_mvxy_data(WORK* wk, u16 ix) { // 🟢
     s16* adrs;
     s32 sp;
 
@@ -115,22 +117,22 @@ void add_to_mvxy_data(WORK* wk, u16 ix) {
 
     adrs = &wk->move_xy_table[ix * 6];
     sp = adrs[0];
-    sp *= 256;
+    sp <<= 8;
     wk->mvxy.a[0].sp += sp;
     sp = adrs[1];
-    sp *= 256;
+    sp <<= 8;
     wk->mvxy.d[0].sp += sp;
     wk->mvxy.kop[0] = adrs[2];
     sp = adrs[3];
-    sp *= 256;
+    sp <<= 8;
     wk->mvxy.a[1].sp += sp;
     sp = adrs[4];
-    sp *= 256;
+    sp <<= 8;
     wk->mvxy.d[1].sp += sp;
     wk->mvxy.kop[1] = adrs[5];
 }
 
-void setup_move_data_easy(WORK* wk, const s16* adrs, s16 prx, s16 pry) {
+void setup_move_data_easy(WORK* wk, const s16* adrs, s16 prx, s16 pry) { // 🟢
     wk->mvxy.a[0].sp = adrs[0];
     wk->mvxy.a[0].sp <<= 8;
     wk->mvxy.d[0].sp = adrs[1];
@@ -143,18 +145,27 @@ void setup_move_data_easy(WORK* wk, const s16* adrs, s16 prx, s16 pry) {
     wk->mvxy.kop[1] = pry;
 }
 
-void setup_mvxy_data(WORK* wk, u16 ix) {
+void setup_mvxy_data(WORK* wk, u16 ix) { // 🟢
     wk->mvxy.index = ix;
     read_adrs_store_mvxy(wk, &wk->move_xy_table[ix * 6]);
 }
 
-void setup_butt_own_data(WORK* wk) {
-    wk->mvxy.index = wk->dm_butt_type;
-    read_adrs_store_mvxy(
-        wk, (s16*)((char*)parabora_own_table[wk->dm_plnum] + wk->dm_butt_type * 48 + wk->weight_level * 12));
+// Might be unused
+void FUN_0611d6da(WORK* wk, u16 ix) { // 🔵
+    fatal_error("Not implemented");
 }
 
-void read_adrs_store_mvxy(WORK* wk, s16* adrs) {
+// Might be unused
+void FUN_0611d732(WORK* wk, u16 ix) { // 🔵
+    fatal_error("Not implemented");
+}
+
+void setup_butt_own_data(WORK* wk) { // 🟢
+    wk->mvxy.index = wk->dm_butt_type;
+    read_adrs_store_mvxy(wk, parabora_own_table[wk->dm_plnum][wk->dm_butt_type].data[wk->weight_level]);
+}
+
+void read_adrs_store_mvxy(WORK* wk, s16* adrs) { // 🟢
     wk->mvxy.a[0].sp = adrs[0];
     wk->mvxy.a[0].sp <<= 8;
     wk->mvxy.d[0].sp = adrs[1];
@@ -167,11 +178,11 @@ void read_adrs_store_mvxy(WORK* wk, s16* adrs) {
     wk->mvxy.kop[1] = adrs[5];
 }
 
-s8 get_weight_point(WORK* wk) {
+s8 get_weight_point(WORK* wk) { // 🟢
     return wk->dm_weight - wk->weight_level + 3;
 }
 
-void cal_mvxy_speed(WORK* wk) {
+void cal_mvxy_speed(WORK* wk) { // 🟢
     s16 i;
 
     for (i = 0; i < 2; i++) {
@@ -201,7 +212,7 @@ void cal_mvxy_speed(WORK* wk) {
     }
 }
 
-void add_mvxy_speed(WORK* wk) {
+void add_mvxy_speed(WORK* wk) { // 🟢
     if (wk->rl_flag) {
         wk->xyz[0].cal += wk->mvxy.a[0].sp;
     } else {
@@ -211,7 +222,7 @@ void add_mvxy_speed(WORK* wk) {
     wk->xyz[1].cal += wk->mvxy.a[1].sp;
 }
 
-void add_mvxy_speed_exp(WORK* wk, s16 dvp) {
+void add_mvxy_speed_exp(WORK* wk, s16 dvp) { // 🟢
     if (wk->rl_flag) {
         wk->xyz[0].cal += wk->mvxy.a[0].sp / dvp;
     } else {
@@ -221,12 +232,12 @@ void add_mvxy_speed_exp(WORK* wk, s16 dvp) {
     wk->xyz[1].cal += wk->mvxy.a[1].sp;
 }
 
-void add_mvxy_speed_no_use_rl(WORK* wk) {
+void add_mvxy_speed_no_use_rl(WORK* wk) { // 🟢
     wk->xyz[0].cal += wk->mvxy.a[0].sp;
     wk->xyz[1].cal += wk->mvxy.a[1].sp;
 }
 
-void add_mvxy_speed_direct(WORK* wk, s16 sx, s16 sy) {
+void add_mvxy_speed_direct(WORK* wk, s16 sx, s16 sy) { // 🟢
     s32 ax;
     s32 ay;
 
@@ -243,19 +254,24 @@ void add_mvxy_speed_direct(WORK* wk, s16 sx, s16 sy) {
     wk->xyz[1].cal += ay << 8;
 }
 
-void reset_mvxy_data(WORK* wk) {
+void reset_mvxy_data(WORK* wk) { // 🟢
     wk->mvxy.a[0].sp = wk->mvxy.d[0].sp = wk->mvxy.kop[0] = 0;
     wk->mvxy.a[1].sp = wk->mvxy.d[1].sp = wk->mvxy.kop[1] = 0;
 }
 
-void remake_mvxy_PoSB(WORK* wk) {
+// Might be unused
+void FUN_0611da1c(WORK* wk) { // 🔵
+    fatal_error("Not implemented");
+}
+
+void remake_mvxy_PoSB(WORK* wk) { // 🟢
     if (wk->mvxy.a[1].sp < 0) {
         wk->mvxy.a[1].sp = (wk->mvxy.a[1].sp * 30) / 100;
         wk->mvxy.a[1].sp = -wk->mvxy.a[1].sp;
     }
 }
 
-void remake_mvxy_PoGR(WORK* wk) {
+void remake_mvxy_PoGR(WORK* wk) { // 🟢
     if (wk->mvxy.d[1].sp) {
         switch ((wk->mvxy.a[1].sp > 0) + ((wk->mvxy.a[1].sp < 0) * 2)) {
         case 1:
@@ -276,23 +292,24 @@ void remake_mvxy_PoGR(WORK* wk) {
     default:
         wk->mvxy.a[0].sp = (wk->mvxy.a[0].sp * 50) / 100;
 
-        if (wk->mvxy.a[0].real.h <= 0) {
+        if (wk->mvxy.a[0].real.h < 1) {
             wk->mvxy.a[0].real.h = 1;
         }
 
         wk->mvxy.d[0].sp = 0;
         wk->mvxy.a[0].sp = -wk->mvxy.a[0].sp;
+        break;
     }
 }
 
 /// Check player push box collision and push them if needed
-void check_body_touch() {
+void check_body_touch() { // 🟢
     PLW* p1w = &plw[0];
     PLW* p2w = &plw[1];
     s16 meri;
 
     if (p1w->wu.h_hos->hos_box[0] != 0 && p2w->wu.h_hos->hos_box[0] != 0) {
-        meri = hit_check_subroutine(&p1w->wu, &p2w->wu, &p1w->wu.h_hos->hos_box[0], &p2w->wu.h_hos->hos_box[0]);
+        meri = hit_check_subroutine(&p1w->wu, &p2w->wu, p1w->wu.h_hos->hos_box, p2w->wu.h_hos->hos_box);
 
         if (meri != 0) {
             meri = meri_case_switch(meri);
@@ -331,7 +348,7 @@ two:
     p2w->hos_em_flag = 2;
 }
 
-s16 meri_case_switch(s16 meri) {
+s16 meri_case_switch(s16 meri) { // 🟢
     switch (meri & 0xFFF8) {
     case 0:
         if (meri < 4) {
@@ -364,7 +381,7 @@ void check_body_touch2() {
     s16 dad2[4];
     s16 dad3[4];
 
-    if (plw->wu.operator) {
+    if (plw[0].wu.operator) {
         hmw = &plw[0];
         cmw = &plw[1];
     } else {
@@ -475,11 +492,11 @@ s16 hoseishitemo_eenka(WORK* wk, s16 tx) {
     return rnum;
 }
 
-s16 get_sel_hosei_tbl_ix(s16 plnum) {
+s16 get_sel_hosei_tbl_ix(s16 plnum) { // 🟢
     return sel_hosei_tbl_ix[plnum];
 }
 
-s16 check_work_position_bonus(WORK* hm, s16 tx) {
+s16 check_work_position_bonus(WORK* hm, s16 tx) { // 🟢
     s16 result = hm->xyz[0].disp.pos - tx;
     s16 num;
 
@@ -496,7 +513,7 @@ s16 check_work_position_bonus(WORK* hm, s16 tx) {
     return num;
 }
 
-s32 set_field_hosei_flag(PLW* pl, s16 pos, s16 ix) {
+s32 set_field_hosei_flag(PLW* pl, s16 pos, s16 ix) { // 🟢
     s16 hami;
 
     while (1) {
@@ -545,7 +562,7 @@ s32 set_field_hosei_flag(PLW* pl, s16 pos, s16 ix) {
     return 1;
 }
 
-s16 check_work_position(WORK* p1, WORK* p2) {
+s16 check_work_position(WORK* p1, WORK* p2) { // 🟡
     s16 result = p1->xyz[0].disp.pos - p2->xyz[0].disp.pos;
     s16 num;
 
@@ -572,11 +589,20 @@ s16 check_work_position(WORK* p1, WORK* p2) {
             break;
 
         case 2:
-            if (p2->rl_flag) {
-                num = 1;
+            if (ArcadeBalance_IsEnabled()) {
+                if (p2->rl_flag) {
+                    num = 0;
+                } else {
+                    num = 1;
+                }
             } else {
-                num = 0;
+                if (p2->rl_flag) {
+                    num = 1;
+                } else {
+                    num = 0;
+                }
             }
+
             break;
 
         default:
@@ -588,7 +614,7 @@ s16 check_work_position(WORK* p1, WORK* p2) {
     return num;
 }
 
-s32 random_32() {
+s32 random_32() { // 🟢
     Random_ix32++;
 
     if (Debug_w[0x3B] == -32) {
@@ -599,7 +625,7 @@ s32 random_32() {
     return random_tbl_32[Random_ix32];
 }
 
-s32 random_16() {
+s32 random_16() { // 🟢
     Random_ix16++;
 
     if (Debug_w[0x3B] == -32) {
@@ -610,7 +636,7 @@ s32 random_16() {
     return random_tbl_16[Random_ix16];
 }
 
-s32 random_32_ex() {
+s32 random_32_ex() { // 🟢
     Random_ix32_ex++;
 
     if (Debug_w[0x3B] == -32) {
@@ -703,7 +729,7 @@ s32 random_16_bg() {
     return random_tbl_16_bg[Random_ix16_bg];
 }
 
-s8 get_guard_direction(WORK* as, WORK* ds) {
+s8 get_guard_direction(WORK* as, WORK* ds) { // 🟢 Differs only in the new guard judgment branch
     s16 result;
     s8 num;
 
@@ -713,20 +739,22 @@ s8 get_guard_direction(WORK* as, WORK* ds) {
         if (result) {
             if (result < 0) {
                 if (ds->rl_flag) {
-                    num = 1;
+                    num = 1; // forward
                 } else {
-                    num = 2;
+                    num = 2; // backward
                 }
-            } else if (ds->rl_flag) {
-                num = 2;
             } else {
-                num = 1;
+                if (ds->rl_flag) {
+                    num = 2;
+                } else {
+                    num = 1;
+                }
             }
         } else {
-            num = 3;
+            num = 3; // any
         }
-    } else if (((PLW*)ds)->spmv_ng_flag & 0x04000000) {
-        if (as->rl_flag + ds->rl_flag & 1) {
+    } else if (((PLW*)ds)->spmv_ng_flag & DIP_NEW_GUARD_JUDGMENT_ENABLED) {
+        if ((as->rl_flag + ds->rl_flag) & 1) {
             if (ds->work_id != 1) {
                 num = 2;
             } else if (ds->rl_flag == ds->rl_waza) {
@@ -737,7 +765,7 @@ s8 get_guard_direction(WORK* as, WORK* ds) {
         } else {
             num = 3;
         }
-    } else if (as->rl_flag + ds->rl_flag & 1) {
+    } else if ((as->rl_flag + ds->rl_flag) & 1) {
         num = 2;
     } else {
         num = 3;
@@ -746,7 +774,7 @@ s8 get_guard_direction(WORK* as, WORK* ds) {
     return num;
 }
 
-s16 cal_attdir(WORK* wk) {
+s16 cal_attdir(WORK* wk) { // 🟢
     s16 resdir = wk->att.dir;
 
     if (wk->rl_flag) {
@@ -756,11 +784,11 @@ s16 cal_attdir(WORK* wk) {
     return resdir;
 }
 
-s16 cal_attdir_flip(s16 dir) {
+s16 cal_attdir_flip(s16 dir) { // 🟢
     return dir16_rl_conv[dir];
 }
 
-s16 get_kind_of_head_dm(s16 dir, s8 drl) {
+s16 get_kind_of_head_dm(s16 dir, s8 drl) { // 🟢
     if (drl == 0) {
         dir = dir16_rl_conv[dir];
     }
@@ -768,7 +796,7 @@ s16 get_kind_of_head_dm(s16 dir, s8 drl) {
     return dir16_hddm[dir];
 }
 
-s16 get_kind_of_trunk_dm(s16 dir, s8 drl) {
+s16 get_kind_of_trunk_dm(s16 dir, s8 drl) { // 🟢
     if (drl == 0) {
         dir = dir16_rl_conv[dir];
     }
@@ -798,7 +826,7 @@ void setup_vitality(WORK* wk, s16 pno) {
     }
 }
 
-void cal_dm_vital_gauge_hosei(PLW* wk) {
+void cal_dm_vital_gauge_hosei(PLW* wk) { // 🟢
     s16 cnjix;
 
     if (wk->wu.dm_vital == 0) {
@@ -822,12 +850,12 @@ void cal_dm_vital_gauge_hosei(PLW* wk) {
     wk->wu.dm_vital = wk->wu.dm_vital * (32 - wk->tk_konjyou) / wk->wu.dmcal_m;
     wk->wu.dm_vital = wk->wu.dm_vital * wk->wu.dmcal_m / wk->wu.dmcal_d;
 
-    if (wk->wu.dm_vital <= 0) {
+    if (wk->wu.dm_vital < 1) {
         wk->wu.dm_vital = 1;
     }
 }
 
-void set_hit_stop_hit_quake(WORK* wk) {
+void set_hit_stop_hit_quake(WORK* wk) { // 🟢
     if (wk->dm_stop) {
         wk->hit_stop = wk->dm_stop;
         wk->dm_stop = 0;
@@ -839,7 +867,7 @@ void set_hit_stop_hit_quake(WORK* wk) {
     }
 }
 
-void add_sp_arts_gauge_init(PLW* wk) {
+void add_sp_arts_gauge_init(PLW* wk) { // 🟢
     PLW* mwk;
     s16 asag;
 
@@ -856,7 +884,7 @@ void add_sp_arts_gauge_init(PLW* wk) {
     }
 }
 
-void add_sp_arts_gauge_guard(PLW* wk) {
+void add_sp_arts_gauge_guard(PLW* wk) { // 🟢
     PLW* mwk;
     s16 asag;
 
@@ -873,7 +901,7 @@ void add_sp_arts_gauge_guard(PLW* wk) {
     }
 }
 
-void add_sp_arts_gauge_hit_dm(PLW* wk) {
+void add_sp_arts_gauge_hit_dm(PLW* wk) { // 🟢 Matches except for difficulty handling
     PLW* emwk;
     s16 asag;
 
@@ -888,10 +916,10 @@ void add_sp_arts_gauge_hit_dm(PLW* wk) {
         add_super_arts_gauge(wk->sa, wk->wu.id, asag / 3, wk->metamorphose);
 
         if (emwk->wu.operator == 0) {
-            asag += asagh_zuru[save_w[Present_Mode].Difficulty];
+            asag += asagh_zuru[save_w[Present_Mode].Difficulty]; // TODO: figure out the default arcade difficulty
         }
 
-        if (asag <= 0) {
+        if (asag < 1) {
             asag = 1;
         }
 
