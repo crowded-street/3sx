@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.24)
 project(3sx LANGUAGES C CXX)
 
+include(${PROJECT_SOURCE_DIR}/cmake/imgui_sources.cmake)
+
 # ======================================
 # Options and platform setup
 # ======================================
@@ -25,11 +27,10 @@ include_directories(
 # ======================================
 
 file(GLOB_RECURSE GAME_SRC src/*.c)
-file(GLOB_RECURSE CPP_SRC src/*.cpp)
 
 add_executable(3sx MACOSX_BUNDLE
     ${GAME_SRC}
-    ${CPP_SRC}
+    $<$<CONFIG:Debug>:${IMGUI_SOURCES}>
 )
 
 # ======================================
