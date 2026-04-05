@@ -1,6 +1,7 @@
 #if DEBUG
 
 #include "imgui/imgui_wrapper.h"
+#include "port/paths.h"
 #include "port/sdl/sdl_app.h"
 #include "sf33rd/Source/Game/debug/debug_config.h"
 
@@ -11,6 +12,7 @@
 
 // static bool show_imgui_demo = true;
 static bool show_debug_window = false;
+static char* imgui_ini_path = NULL;
 
 static void plot(const char* label, const float* values, int value_count, int values_offset, ImVec2 scale) {
     const int last_index = (values_offset + value_count - 1) % value_count;
@@ -72,6 +74,9 @@ void ImGuiW_Init(SDL_Window* window, SDL_Renderer* renderer) {
 
     ImGuiIO* io = ImGui_GetIO();
     io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+    SDL_asprintf(&imgui_ini_path, "%s/imgui.ini", Paths_GetPrefPath());
+    io->IniFilename = imgui_ini_path;
 
     const float main_scale = SDL_GetWindowDisplayScale(window);
     ImGui_StyleColorsDark(NULL);
