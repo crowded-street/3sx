@@ -29,3 +29,4 @@ This project uses:
 - [minizip-ng](https://github.com/zlib-ng/minizip-ng) for unzipping
 - [TF-PSA-Crypto](https://github.com/Mbed-TLS/TF-PSA-Crypto) for checksum calculation
 - [stb](https://github.com/nothings/stb) for data structures
+- [Dear ImGui](https://github.com/ocornut/imgui) for debug UI

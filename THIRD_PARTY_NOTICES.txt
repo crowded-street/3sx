@@ -5,7 +5,6 @@ This product includes third-party software components.
 
 libcdio / libiso9660
 --------------------
-Project: libcdio
 Upstream: https://github.com/libcdio/libcdio
 
 3SX links against:
@@ -21,7 +20,6 @@ The source code for libcdio and its license notices are available from the upstr
 
 SDL3
 ----
-Project: SDL3
 Upstream: https://github.com/libsdl-org/SDL
 
 3SX links against:
@@ -34,7 +32,6 @@ Copyright:
 
 zlib
 ----
-Project: zlib
 Upstream: https://zlib.net
 
 3SX links against:
@@ -47,7 +44,6 @@ Copyright:
 
 FFmpeg
 ------
-Project: FFmpeg
 Upstream: https://ffmpeg.org
 
 3SX links against:
@@ -63,7 +59,6 @@ Copyright:
 
 GekkoNet
 ------
-Project: GekkoNet
 Upstream: https://github.com/HeatXD/GekkoNet
 
 3SX links against:
@@ -76,7 +71,6 @@ Copyright:
 
 argparse
 ------
-Project: argparse
 Upstream: https://github.com/cofyc/argparse
 
 3SX links against:
@@ -89,7 +83,6 @@ Copyright:
 
 minizip-ng
 ------
-Project: minizip-ng
 Upstream: https://github.com/zlib-ng/minizip-ng
 
 3SX links against:
@@ -102,7 +95,6 @@ Copyright:
 
 TF-PSA-Crypto
 ------
-Project: TF-PSA-Crypto
 Upstream: https://github.com/Mbed-TLS/TF-PSA-Crypto
 
 License: Apache-2.0, as provided by Mbed-TLS contributors.
@@ -112,10 +104,18 @@ Copyright:
 
 STB
 ------
-Project: STB
 Upstream: https://github.com/nothings/stb
 
 License: MIT license, as provided by STB contributors.
 
 Copyright:
 - Copyright (C) STB contributors.
+
+Dear ImGui
+------
+Upstream: https://github.com/ocornut/imgui
+
+License MIT license, as provided by Omar Cornut
+
+Copyright:
+- Copyright (C) Omar Cornut.
