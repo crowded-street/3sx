@@ -15,8 +15,6 @@
 
 #include <SDL3/SDL.h>
 
-#define FRAME_END_TIMES_MAX 30
-
 typedef enum ScaleMode {
     SCALEMODE_NEAREST,
     SCALEMODE_LINEAR,
@@ -37,11 +35,8 @@ static SDL_Texture* screen_texture = NULL;
 static ScaleMode scale_mode = SCALEMODE_SOFT_LINEAR;
 
 static Uint64 frame_deadline = 0;
-static Uint64 frame_end_times[FRAME_END_TIMES_MAX];
-static int frame_end_times_index = 0;
-static bool frame_end_times_filled = false;
-static double fps = 0;
-static Uint64 frame_counter = 0;
+static FrameMetrics frame_metrics = { 0 };
+static Uint64 last_frame_end_time = 0;
 
 static bool should_save_screenshot = false;
 static Uint64 last_mouse_motion_time = 0;
@@ -354,31 +349,17 @@ static SDL_FRect get_letterbox_rect(int win_w, int win_h) {
     }
 }
 
-static void note_frame_end_time() {
-    frame_end_times[frame_end_times_index] = SDL_GetTicksNS();
-    frame_end_times_index += 1;
-    frame_end_times_index %= FRAME_END_TIMES_MAX;
+static void update_metrics(Uint64 sleep_time) {
+    const Uint64 new_frame_end_time = SDL_GetTicksNS();
+    const Uint64 frame_time = new_frame_end_time - last_frame_end_time;
+    const float frame_time_ms = (float)frame_time / 1e6;
 
-    if (frame_end_times_index == 0) {
-        frame_end_times_filled = true;
-    }
-}
+    frame_metrics.frame_time[frame_metrics.head] = frame_time_ms;
+    frame_metrics.idle_time[frame_metrics.head] = (float)sleep_time / 1e6;
+    frame_metrics.fps[frame_metrics.head] = 1000 / frame_time_ms;
 
-static void update_fps() {
-    if (!frame_end_times_filled) {
-        return;
-    }
-
-    double total_frame_time_ms = 0;
-
-    for (int i = 0; i < FRAME_END_TIMES_MAX - 1; i++) {
-        const int cur = (frame_end_times_index + i) % FRAME_END_TIMES_MAX;
-        const int next = (cur + 1) % FRAME_END_TIMES_MAX;
-        total_frame_time_ms += (double)(frame_end_times[next] - frame_end_times[cur]) / 1e6;
-    }
-
-    double average_frame_time_ms = total_frame_time_ms / (FRAME_END_TIMES_MAX - 1);
-    fps = 1000 / average_frame_time_ms;
+    frame_metrics.head = (frame_metrics.head + 1) % SDL_arraysize(frame_metrics.frame_time);
+    last_frame_end_time = new_frame_end_time;
 }
 
 static void save_texture(SDL_Texture* texture, const char* filename) {
@@ -460,8 +441,10 @@ void SDLApp_EndFrame() {
         frame_deadline = now + target_frame_time_ns;
     }
 
+    Uint64 sleep_time = 0;
+
     if (now < frame_deadline) {
-        Uint64 sleep_time = frame_deadline - now;
+        sleep_time = frame_deadline - now;
         SDL_DelayNS(sleep_time);
         now = SDL_GetTicksNS();
     }
@@ -474,13 +457,15 @@ void SDLApp_EndFrame() {
     }
 
     // Measure
-    frame_counter += 1;
-    note_frame_end_time();
-    update_fps();
+    update_metrics(sleep_time);
 }
 
 void SDLApp_Exit() {
     SDL_Event quit_event;
     quit_event.type = SDL_EVENT_QUIT;
     SDL_PushEvent(&quit_event);
+}
+
+const FrameMetrics* SDLApp_GetFrameMetrics() {
+    return &frame_metrics;
 }

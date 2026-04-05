@@ -1,6 +1,7 @@
 #if DEBUG
 
 #include "imgui/imgui_wrapper.h"
+#include "port/sdl/sdl_app.h"
 
 #include "imgui/dcimgui/dcimgui.h"
 #include "imgui/dcimgui/dcimgui_impl_sdl3.h"
@@ -8,16 +9,42 @@
 #include <SDL3/SDL.h>
 
 // static bool show_imgui_demo = true;
-static bool show_debug_window = true;
+static bool show_debug_window = false;
+
+static void plot(const char* label, const float* values, int value_count, int values_offset, ImVec2 scale) {
+    const int last_index = (values_offset + value_count - 1) % value_count;
+    const float last_value = values[last_index];
+    const char overlay[128];
+    SDL_snprintf(overlay, sizeof(overlay), "%.02f", last_value);
+
+    ImGui_PlotLinesEx(
+        label, values, value_count, values_offset, overlay, scale.x, scale.y, (ImVec2) { 0, 80 }, sizeof(float));
+}
 
 static void build_debug_window() {
     if (!show_debug_window) {
         return;
     }
 
+    const FrameMetrics* frame_metrics = SDLApp_GetFrameMetrics();
+
     ImGui_Begin("Debug", &show_debug_window, 0);
 
-    ImGui_Text("This is a debug window!");
+    if (ImGui_CollapsingHeader("Frame metrics", ImGuiTreeNodeFlags_DefaultOpen)) {
+        plot("FPS", frame_metrics->fps, SDL_arraysize(frame_metrics->fps), frame_metrics->head, (ImVec2) { 0, 60 });
+
+        plot("Frame time",
+             frame_metrics->frame_time,
+             SDL_arraysize(frame_metrics->frame_time),
+             frame_metrics->head,
+             (ImVec2) { 0, 30 });
+
+        plot("Idle time",
+             frame_metrics->idle_time,
+             SDL_arraysize(frame_metrics->idle_time),
+             frame_metrics->head,
+             (ImVec2) { 0, 20 });
+    }
 
     ImGui_End();
 }
