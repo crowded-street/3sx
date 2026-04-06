@@ -1367,15 +1367,15 @@ void add_combo_work(PLW* as, PLW* ds) {
         return;
     }
 
-    ds->kizetsu_kow = ds->combo_type.new_dm = as->wu.kind_of_waza;
-    kow = &ds->combo_type.kind_of[0][0][0];
-    cal = &calc_hit[ds->wu.id][0];
+    ds->kizetsu_kow = ds->cb->new_dm = as->wu.kind_of_waza;
+    kow = ds->cb->kind_of[0][0];
+    cal = calc_hit[ds->wu.id];
     kow[as->wu.kind_of_waza]++;
     cal[(as->wu.kind_of_waza & 120) / 8]++;
-    ds->combo_type.total++;
-    kow = &ds->remake_power.kind_of[0][0][0];
+    ds->cb->total++;
+    kow = ds->rp->kind_of[0][0];
     kow[as->wu.kind_of_waza]++;
-    ds->remake_power.total++;
+    ds->rp->total++;
 }
 
 void nise_combo_work(PLW* as, PLW* ds, s16 num) {
@@ -1384,15 +1384,15 @@ void nise_combo_work(PLW* as, PLW* ds, s16 num) {
     s16 i;
 
     for (i = 0; i < num; i++) {
-        ds->kizetsu_kow = ds->combo_type.new_dm = as->wu.kind_of_waza;
-        kow = &ds->combo_type.kind_of[0][0][0];
-        cal = &calc_hit[ds->wu.id][0];
+        ds->kizetsu_kow = ds->cb->new_dm = as->wu.kind_of_waza;
+        kow = ds->cb->kind_of[0][0];
+        cal = calc_hit[ds->wu.id];
         kow[as->wu.kind_of_waza]++;
         cal[(as->wu.kind_of_waza & 120) / 8]++;
-        ds->combo_type.total++;
-        kow = &ds->remake_power.kind_of[0][0][0];
+        ds->cb->total++;
+        kow = ds->rp->kind_of[0][0];
         kow[as->wu.kind_of_waza]++;
-        ds->remake_power.total++;
+        ds->rp->total++;
     }
 }
 
@@ -1408,7 +1408,7 @@ void cal_combo_waribiki(PLW* as, PLW* ds) {
         return;
     }
 
-    if (ds->remake_power.total == 0) {
+    if (ds->rp->total == 0) {
         return;
     }
 
@@ -1417,8 +1417,8 @@ void cal_combo_waribiki(PLW* as, PLW* ds) {
 
     for (i = 0; i < 9; i++) {
         for (j = 0; j < 4; j++) {
-            k = ds->remake_power.kind_of[i][j][0];
-            k += ds->remake_power.kind_of[i][j][1];
+            k = ds->rp->kind_of[i][j][0];
+            k += ds->rp->kind_of[i][j][1];
 
             if (k) {
                 tbl.ixl += k * koatt->step[i][j] * 256;
@@ -1455,11 +1455,11 @@ void cal_combo_waribiki2(PLW* ds) {
         return;
     }
 
-    if (ds->combo_type.total == 0) {
+    if (ds->cb->total == 0) {
         return;
     }
 
-    num = 32 - (ds->combo_type.total * 2);
+    num = 32 - (ds->cb->total * 2);
 
     if (num <= 0) {
         num = 1;

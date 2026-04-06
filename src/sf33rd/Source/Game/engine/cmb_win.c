@@ -61,8 +61,8 @@ void combo_cont_init() {
         cmb_calc_now[i] = 0;
         cst_read[i] = 0;
         cst_write[i] = 0;
-        SDL_zero(plw[i].combo_type);
-        SDL_zero(plw[i].remake_power);
+        SDL_zero(combo_type[i]);
+        SDL_zero(remake_power[i]);
         SDL_zeroa(calc_hit[i]);
         SDL_zeroa(score_calc[i]);
     }
@@ -130,7 +130,7 @@ void combo_control(s8 PL) {
             reversal_continue_check(PL);
         }
 
-        if (!paring_check(PL) && plw[PL].combo_type.total) {
+        if (!paring_check(PL) && plw[PL].cb->total) {
             if (first_attack == 0) {
                 first_attack = plw[PL].wu.id + 1;
                 combo_window_push(PL, 4);
@@ -143,7 +143,7 @@ void combo_control(s8 PL) {
 
             if (cmb_flag != 0) {
                 return;
-            } else if (plw[PL].combo_type.total == 1) {
+            } else if (plw[PL].cb->total == 1) {
                 training_disp_data_set(PL, 1);
                 super_arts_finish_check(PL);
                 combo_hensuu_clear(PL);
@@ -165,7 +165,7 @@ void check_and_set_combo(s8 PL) {
         PLS = 0;
     }
 
-    hit_num = plw[PL].combo_type.total;
+    hit_num = plw[PL].cb->total;
 
     if (hit_num > 99) {
         hit_num = 99;
@@ -186,12 +186,12 @@ void check_and_set_combo(s8 PL) {
 }
 
 void combo_hensuu_clear(s8 PL) {
-    SDL_zero(plw[PL].combo_type);
+    SDL_zerop(plw[PL].cb);
     combo_rp_clear_check(PL);
     SDL_zeroa(calc_hit[PL]);
     SDL_zeroa(score_calc[PL]);
     bonus_pts[PL] = 0;
-    plw[PL].combo_type.total = 0;
+    plw[PL].cb->total = 0;
     hit_num = 0;
     tr_data[PL].total_damage = 0;
 }
@@ -199,13 +199,13 @@ void combo_hensuu_clear(s8 PL) {
 void combo_rp_clear_check(s8 PL) {
     if (plw[PL].wu.routine_no[1] != 1 || plw[PL].wu.routine_no[2] != 17 || plw[PL].wu.routine_no[3] == 0 ||
         plw[PL].wu.routine_no[3] == 3) {
-        SDL_zero(plw[PL].remake_power);
+        SDL_zerop(plw[PL].rp);
     }
 }
 
 void super_arts_finish_check(s8 PL) {
     if (arts_finish_check2(PL) != 0) {
-        if ((plw[PL].combo_type.new_dm & 0x3F) < 48) {
+        if ((plw[PL].cb->new_dm & 0x3F) < 48) {
             sa_kind = 2;
         } else {
             sa_kind = 3;
@@ -216,7 +216,7 @@ void super_arts_finish_check(s8 PL) {
 }
 
 void super_arts_last_check(s8 PL) {
-    if ((plw[PL].combo_type.new_dm & 0x3F) >= 0x20) {
+    if ((plw[PL].cb->new_dm & 0x3F) >= 0x20) {
         sarts_finish_flag[PL] = 1;
     } else {
         sarts_finish_flag[PL] = 0;
@@ -290,7 +290,7 @@ s32 paring_check(s8 PL) {
 }
 
 void hit_combo_check(s8 PL) {
-    s32* sa_ptr = (s32*)plw[PL].combo_type.kind_of[4][0];
+    s32* sa_ptr = (s32*)plw[PL].cb->kind_of[4][0];
     s8 lpx;
 
     for (lpx = 0; lpx < 20; lpx++) {
@@ -325,7 +325,7 @@ s32 arts_finish_check(s8 PL) {
 }
 
 s32 arts_finish_check2(u8 PL) {
-    if (Conclusion_Flag && Conclusion_Type == 0 && Loser_id == PL && (plw[PL].combo_type.new_dm & 0x3F) >= 32) {
+    if (Conclusion_Flag && Conclusion_Type == 0 && Loser_id == PL && (plw[PL].cb->new_dm & 0x3F) >= 32) {
         return 1;
     }
 
@@ -343,7 +343,7 @@ u32 SCORE_CALCULATION(s8 PL) {
     u32 score;
     s8 last;
 
-    k_ptr = plw[PL].combo_type.kind_of[0][0];
+    k_ptr = plw[PL].cb->kind_of[0][0];
     c_ptr = &calc_hit[PL][1];
     s_ptr = score_calc[PL];
 

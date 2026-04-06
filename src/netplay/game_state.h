@@ -470,6 +470,8 @@ typedef struct GameState {
     // plcnt
 
     PLW plw[2];
+    ComboType combo_type[2];
+    ComboType remake_power[2];
     ZanzouTableEntry zanzou_table[2][48];
     SA_WORK super_arts[2];
     PiyoriType piyori_type[2];

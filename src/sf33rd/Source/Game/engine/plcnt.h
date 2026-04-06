@@ -34,6 +34,8 @@ extern const s16** kizetsu_timer_table[];
 // MARK: - Serialized
 
 extern PLW plw[2];
+extern ComboType combo_type[2];
+extern ComboType remake_power[2];
 extern SA_WORK super_arts[2];
 
 /// Afterimage data

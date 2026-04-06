@@ -290,7 +290,9 @@ static void clean_plw_pointers(PLW* plw) {
     plw->dm_step_tbl = NULL;
     plw->as = NULL;
     plw->sa = NULL;
+    plw->cb = NULL;
     plw->py = NULL;
+    plw->rp = NULL;
 }
 
 static void clean_state_pointers(State* state) {

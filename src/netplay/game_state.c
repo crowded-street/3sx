@@ -473,6 +473,8 @@ void GameState_Save(GameState* dst) {
     // plcnt
 
     GS_SAVE(plw);
+    GS_SAVE(combo_type);
+    GS_SAVE(remake_power);
     GS_SAVE(zanzou_table);
     GS_SAVE(super_arts);
     GS_SAVE(piyori_type);
@@ -1097,6 +1099,8 @@ void GameState_Load(const GameState* src) {
     // plcnt
 
     GS_LOAD(plw);
+    GS_LOAD(combo_type);
+    GS_LOAD(remake_power);
     GS_LOAD(zanzou_table);
     GS_LOAD(super_arts);
     GS_LOAD(piyori_type);
