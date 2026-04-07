@@ -20,4 +20,9 @@ extern const AS _asstbl_lv_3010[20][6][3];
 extern const u16 _asstbl_lv_4000[20][6][2];
 extern const AS _asstbl_lv_4010[20][6][3];
 
+// Arcade
+
+extern const AS asstbl_lv_9900_g_arcade[21][72];
+extern const AS asstbl_lv_9900_a_arcade[21][72];
+
 #endif
