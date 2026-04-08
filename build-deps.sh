@@ -93,49 +93,34 @@ fi
 # SDL3
 # -----------------------------
 
-SDL="SDL3-3.4.0"
+SDL_TAG="release-3.4.4"
 SDL_DIR="$THIRD_PARTY/sdl3"
 SDL_BUILD="$SDL_DIR/build"
 
 if [ -d "$SDL_BUILD" ]; then
     echo "SDL3 already built at $SDL_BUILD"
 else
-    echo "Building SDL3..."
-    mkdir -p "$SDL_DIR"
-    cd "$SDL_DIR"
+    echo "Building SDL3 at $SDL_BUILD..."
+    
+    mkdir -p "$SDL_BUILD"
+    SDL_SRC=$(mktemp -d)
 
-    if [ ! -d "$SDL" ]; then
-        curl -L -O "https://libsdl.org/release/$SDL.tar.gz"
-        tar xf "$SDL.tar.gz"
-    fi
+    git clone \
+        --branch "$SDL_TAG" \
+        --single-branch \
+        https://github.com/libsdl-org/SDL \
+        "$SDL_SRC"
 
-    cd "$SDL"
+    cmake -S "$SDL_SRC" -B "$SDL_SRC/cmake-build" \
+        -DCMAKE_INSTALL_PREFIX="$SDL_BUILD" \
+        -DBUILD_SHARED_LIBS=ON \
+        -DSDL_STATIC=OFF
 
-    mkdir -p build
-    cd build
+    cmake --build "$SDL_SRC/cmake-build" -j$(nproc)
+    cmake --install "$SDL_SRC/cmake-build"
 
-    case "$OS" in
-        Darwin|Linux)
-            cmake .. \
-                -DCMAKE_INSTALL_PREFIX="$SDL_BUILD" \
-                -DBUILD_SHARED_LIBS=ON \
-                -DSDL_STATIC=OFF
-            ;;
-        MINGW*|MSYS*|CYGWIN*)
-            cmake .. \
-                -DCMAKE_INSTALL_PREFIX="$SDL_BUILD" \
-                -DBUILD_SHARED_LIBS=ON
-            ;;
-    esac
-
-    cmake --build . -j$(nproc)
-    cmake --install .
+    rm -rf "$SDL_SRC"
     echo "SDL3 installed to $SDL_BUILD"
-
-    cd ../..
-    rm -rf "$SDL"
-    rm "$SDL.tar.gz"
-    cd "$ROOT_DIR"
 fi
 
 # -----------------------------
