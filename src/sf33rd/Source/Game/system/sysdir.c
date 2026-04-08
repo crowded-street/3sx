@@ -277,7 +277,7 @@ void get_system_direction_parameter(SystemDir* sysdir_data) {
     }
 
     if (sysdir_data->contents[5][1] == 0) { // Special moves disabled
-        omop_spmv_ng_table[0] |= (DIP_UNKNOWN_28 | DIP_UNKNOWN_29);
+        omop_spmv_ng_table[0] |= (DIP_GROUND_SPECIALS_DISABLED | DIP_AIR_SPECIALS_DISABLED);
     }
 
     if (sysdir_data->contents[5][2] == 0) {

@@ -31,8 +31,8 @@ typedef enum Dipswitch : uint32_t {
     DIP_SEMI_AUTO_PARRY_DISABLED = 1 << 24,
     DIP_AIR_KNOCKDOWNS_DISABLED = 1 << 25,
     DIP_NEW_GUARD_JUDGMENT_ENABLED = 1 << 26,
-    DIP_UNKNOWN_28 = 1 << 28,
-    DIP_UNKNOWN_29 = 1 << 29,
+    DIP_GROUND_SPECIALS_DISABLED = 1 << 28,
+    DIP_AIR_SPECIALS_DISABLED = 1 << 29,
     DIP_UNKNOWN_30 = 1 << 30,
     DIP_UNKNOWN_31 = 1 << 31,
 } Dipswitch;
