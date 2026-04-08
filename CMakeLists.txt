@@ -247,10 +247,11 @@ elseif(UNIX)
     )
 
     file(GLOB FFMPEG_SO "${FFMPEG_ROOT}/lib/*.so*")
+    file(GLOB SDL3_SO "${SDL3_ROOT}/lib/libSDL3.so*")
 
     install(FILES
         ${FFMPEG_SO}
-        ${SDL3_ROOT}/lib/libSDL3.so
+        ${SDL3_SO}
         DESTINATION lib
     )
 
