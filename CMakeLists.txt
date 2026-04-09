@@ -26,10 +26,15 @@ include_directories(
 # Source collection
 # ======================================
 
-file(GLOB_RECURSE GAME_SRC src/*.c)
+file(GLOB_RECURSE GAME_SRC CONFIGURE_DEPENDS src/*.c)
+file(GLOB_RECURSE SDL_PORT_SRC CONFIGURE_DEPENDS src/port/sdl/*.c)
+
+list(FILTER GAME_SRC EXCLUDE REGEX "^${PROJECT_SOURCE_DIR}/src/port/sdl/")
+list(FILTER GAME_SRC EXCLUDE REGEX "^${PROJECT_SOURCE_DIR}/src/port/render_backend\\.c$")
 
 add_executable(3sx MACOSX_BUNDLE
     ${GAME_SRC}
+    ${SDL_PORT_SRC}
     $<$<CONFIG:Debug>:${IMGUI_SOURCES}>
 )
 

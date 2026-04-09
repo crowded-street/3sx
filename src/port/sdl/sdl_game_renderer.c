@@ -217,7 +217,13 @@ static void lerp_fcolors(SDL_FColor* dest, const SDL_FColor* a, const SDL_FColor
 
 // Lifecycle
 
-void SDLGameRenderer_Init(SDL_Renderer* renderer) {
+void SDLGameRenderer_Init(const PlatformHostContext* host_context) {
+    SDL_Renderer* renderer = NULL;
+
+    if (host_context != NULL) {
+        renderer = host_context->renderer;
+    }
+
     _renderer = renderer;
     cps3_canvas =
         SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, cps3_width, cps3_height);

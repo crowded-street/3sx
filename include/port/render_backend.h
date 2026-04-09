@@ -4,23 +4,27 @@
 #include "port/host_context.h"
 #include "rendering/game_renderer.h"
 
-void RenderBackend_Init(const PlatformHostContext* host_context);
-void RenderBackend_Shutdown();
-void RenderBackend_BeginFrame();
-void RenderBackend_RenderFrame();
-void RenderBackend_EndFrame();
-void* RenderBackend_GetCanvasHandle();
+typedef struct RenderBackendOps {
+    void (*init)(const PlatformHostContext* host_context);
+    void (*shutdown)();
+    void (*begin_frame)();
+    void (*render_frame)();
+    void (*end_frame)();
+    void* (*get_canvas_handle)();
 
-void RenderBackend_CreateTexture(unsigned int th);
-void RenderBackend_DestroyTexture(unsigned int texture_handle);
-void RenderBackend_UnlockTexture(unsigned int th);
-void RenderBackend_CreatePalette(unsigned int ph);
-void RenderBackend_DestroyPalette(unsigned int palette_handle);
-void RenderBackend_UnlockPalette(unsigned int th);
-void RenderBackend_SetTexture(unsigned int th);
-void RenderBackend_DrawTexturedQuad(const Sprite* sprite, unsigned int color);
-void RenderBackend_DrawSprite(const Sprite* sprite, unsigned int color);
-void RenderBackend_DrawSprite2(const Sprite2* sprite2);
-void RenderBackend_DrawSolidQuad(const Quad* quad, unsigned int color);
+    void (*create_texture)(unsigned int th);
+    void (*destroy_texture)(unsigned int texture_handle);
+    void (*unlock_texture)(unsigned int th);
+    void (*create_palette)(unsigned int ph);
+    void (*destroy_palette)(unsigned int palette_handle);
+    void (*unlock_palette)(unsigned int th);
+    void (*set_texture)(unsigned int th);
+    void (*draw_textured_quad)(const Sprite* sprite, unsigned int color);
+    void (*draw_sprite)(const Sprite* sprite, unsigned int color);
+    void (*draw_sprite2)(const Sprite2* sprite2);
+    void (*draw_solid_quad)(const Quad* quad, unsigned int color);
+} RenderBackendOps;
+
+extern const RenderBackendOps g_render_backend;
 
 #endif

@@ -162,7 +162,7 @@ int SDLApp_FullInit() {
 
     // Initialize rendering subsystems
     SDLMessageRenderer_Initialize(renderer);
-    RenderBackend_Init(&host_context);
+    g_render_backend.init(&host_context);
     ScanlineRenderer_Init(renderer);
 
 #if DEBUG
@@ -184,7 +184,7 @@ int SDLApp_FullInit() {
 
 void SDLApp_Quit() {
     Config_Destroy();
-    RenderBackend_Shutdown();
+    g_render_backend.shutdown();
     SDLMessageRenderer_Shutdown();
     ScanlineRenderer_Destroy();
 
@@ -302,7 +302,7 @@ void SDLApp_BeginFrame() {
     SDL_RenderClear(renderer);
 
     SDLMessageRenderer_BeginFrame();
-    RenderBackend_BeginFrame();
+    g_render_backend.begin_frame();
 
 #if DEBUG
     ImGuiW_BeginFrame();
@@ -396,9 +396,9 @@ void SDLApp_EndFrame() {
     // because NetstatsRenderer uses the existing SFIII rendering pipeline
     NetplayScreen_Render();
     NetstatsRenderer_Render();
-    RenderBackend_RenderFrame();
+    g_render_backend.render_frame();
 
-    SDL_Texture* scene_canvas = RenderBackend_GetCanvasHandle();
+    SDL_Texture* scene_canvas = g_render_backend.get_canvas_handle();
 
     if (should_save_screenshot) {
         save_texture(scene_canvas, "screenshot_cps3.bmp");
@@ -442,7 +442,7 @@ void SDLApp_EndFrame() {
     SDL_RenderPresent(renderer);
 
     // Cleanup
-    RenderBackend_EndFrame();
+    g_render_backend.end_frame();
     should_save_screenshot = false;
 
     // Handle cursor hiding
