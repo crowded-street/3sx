@@ -5,11 +5,11 @@
 #include "rendering/game_renderer.h"
 
 void RenderBackend_Init(const PlatformHostContext* host_context);
-void RenderBackend_Shutdown(void);
-void RenderBackend_BeginFrame(void);
-void RenderBackend_RenderFrame(void);
-void RenderBackend_EndFrame(void);
-void* RenderBackend_GetCanvasHandle(void);
+void RenderBackend_Shutdown();
+void RenderBackend_BeginFrame();
+void RenderBackend_RenderFrame();
+void RenderBackend_EndFrame();
+void* RenderBackend_GetCanvasHandle();
 
 void RenderBackend_CreateTexture(unsigned int th);
 void RenderBackend_DestroyTexture(unsigned int texture_handle);

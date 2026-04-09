@@ -27,7 +27,7 @@ typedef struct InputBackend_ButtonState {
     int16_t right_stick_y;
 } InputBackend_ButtonState;
 
-void InputBackend_Init(void);
+void InputBackend_Init();
 void InputBackend_HandleGamepadDeviceEvent(const void* event);
 bool InputBackend_IsGamepadConnected(int id);
 void InputBackend_GetButtonState(int id, InputBackend_ButtonState* state);

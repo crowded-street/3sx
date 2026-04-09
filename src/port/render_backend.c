@@ -12,23 +12,23 @@ void RenderBackend_Init(const PlatformHostContext* host_context) {
     SDLGameRenderer_Init(renderer);
 }
 
-void RenderBackend_Shutdown(void) {
+void RenderBackend_Shutdown() {
     SDLGameRenderer_Shutdown();
 }
 
-void RenderBackend_BeginFrame(void) {
+void RenderBackend_BeginFrame() {
     SDLGameRenderer_BeginFrame();
 }
 
-void RenderBackend_RenderFrame(void) {
+void RenderBackend_RenderFrame() {
     SDLGameRenderer_RenderFrame();
 }
 
-void RenderBackend_EndFrame(void) {
+void RenderBackend_EndFrame() {
     SDLGameRenderer_EndFrame();
 }
 
-void* RenderBackend_GetCanvasHandle(void) {
+void* RenderBackend_GetCanvasHandle() {
     return SDLGameRenderer_GetCanvasHandle();
 }
 

@@ -6,7 +6,7 @@
 
 #include <string.h>
 
-void InputBackend_Init(void) {
+void InputBackend_Init() {
     SDLPad_Init();
 }
 
