@@ -161,7 +161,6 @@ int SDLApp_FullInit() {
     }
 
     // Initialize rendering subsystems
-    SDLMessageRenderer_Initialize(renderer);
     g_render_backend.init(&host_context);
     ScanlineRenderer_Init(renderer);
 
@@ -185,7 +184,6 @@ int SDLApp_FullInit() {
 void SDLApp_Quit() {
     Config_Destroy();
     g_render_backend.shutdown();
-    SDLMessageRenderer_Shutdown();
     ScanlineRenderer_Destroy();
 
 #if DEBUG
@@ -293,7 +291,6 @@ void SDLApp_BeginFrame() {
     SDL_SetRenderTarget(renderer, NULL);
     SDL_RenderClear(renderer);
 
-    SDLMessageRenderer_BeginFrame();
     g_render_backend.begin_frame();
 
 #if DEBUG
@@ -394,10 +391,6 @@ void SDLApp_EndFrame() {
     // Render content
     const SDL_FRect dst_rect = get_letterbox_rect(screen_texture->w, screen_texture->h);
     SDL_RenderTexture(renderer, scene_canvas, NULL, &dst_rect);
-
-    if (message_canvas != NULL) {
-        SDL_RenderTexture(renderer, message_canvas, NULL, &dst_rect);
-    }
 
     // Render screen texture to screen
     SDL_SetRenderTarget(renderer, NULL);
