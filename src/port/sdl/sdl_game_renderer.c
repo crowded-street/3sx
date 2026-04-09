@@ -41,61 +41,8 @@ static int render_task_count = 0;
 // Debugging
 
 static bool draw_rect_borders = false;
-static bool dump_textures = false;
 
 static int texture_index = 0;
-
-static void save_texture(const SDL_Surface* surface, const SDL_Palette* palette) {
-    char filename[128];
-    sprintf(filename, "textures/%d.tga", texture_index);
-
-    const Uint8* pixels = surface->pixels;
-    const int width = surface->w;
-    const int height = surface->h;
-
-    FILE* f = fopen(filename, "wb");
-
-    if (!f) {
-        return;
-    }
-
-    uint8_t header[18] = { 0 };
-    header[2] = 2; // uncompressed RGB
-    header[12] = width & 0xFF;
-    header[13] = (width >> 8) & 0xFF;
-    header[14] = height & 0xFF;
-    header[15] = (height >> 8) & 0xFF;
-    header[16] = 32;   // bits per pixel
-    header[17] = 0x20; // top-left origin
-
-    fwrite(header, 1, 18, f);
-
-    // Write pixels in BGRA format
-    for (int i = 0; i < width * height; ++i) {
-        Uint8 index = pixels[i];
-
-        switch (palette->ncolors) {
-        case 16:
-            if (i & 1) {
-                index >>= 4;
-            } else {
-                index &= 0xF;
-            }
-
-            break;
-
-        case 256:
-            break;
-        }
-
-        const SDL_Color* color = &palette->colors[index];
-        const Uint8 bgr[] = { color->b, color->g, color->r, color->a };
-        fwrite(bgr, 1, 4, f);
-    }
-
-    fclose(f);
-    texture_index += 1;
-}
 
 // Textures
 
@@ -471,10 +418,6 @@ void SDLGameRenderer_SetTexture(unsigned int th) {
     const SDL_Surface* surface = surfaces[texture_handle - 1];
     const int palette_handle = HI_16_BITS(th);
     const SDL_Palette* palette = palette_handle != 0 ? palettes[palette_handle - 1] : NULL;
-
-    if (dump_textures) {
-        save_texture(surface, palette);
-    }
 
     if (palette != NULL) {
         SDL_SetSurfacePalette(surface, palette);
