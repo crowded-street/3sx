@@ -413,7 +413,10 @@ void SDLApp_EndFrame() {
     // Render content
     const SDL_FRect dst_rect = get_letterbox_rect(screen_texture->w, screen_texture->h);
     SDL_RenderTexture(renderer, scene_canvas, NULL, &dst_rect);
-    SDLMessageRenderer_Render(renderer, dst_rect.x, dst_rect.y, dst_rect.w, dst_rect.h);
+
+    if (message_canvas != NULL) {
+        SDL_RenderTexture(renderer, message_canvas, NULL, &dst_rect);
+    }
 
     // Render screen texture to screen
     SDL_SetRenderTarget(renderer, NULL);

@@ -128,15 +128,3 @@ void SDLMessageRenderer_DrawTexture(int x0, int y0, int x1, int y1, int u0, int 
     SDL_SetRenderTarget(_renderer, message_canvas);
     SDL_RenderTexture(_renderer, knjsub_texture, &src_rect, &dst_rect);
 }
-
-void SDLMessageRenderer_Render(void* host_renderer, float target_x, float target_y, float target_width,
-                               float target_height) {
-    SDL_Renderer* renderer = host_renderer;
-    const SDL_FRect dst_rect = { .x = target_x, .y = target_y, .w = target_width, .h = target_height };
-
-    if (renderer == NULL || message_canvas == NULL) {
-        return;
-    }
-
-    SDL_RenderTexture(renderer, message_canvas, NULL, &dst_rect);
-}
