@@ -42,8 +42,6 @@ static int render_task_count = 0;
 
 static bool draw_rect_borders = false;
 
-static int texture_index = 0;
-
 // Textures
 
 static void push_texture(SDL_Texture* texture) {
