@@ -17,6 +17,7 @@
 #include "sf33rd/Source/Game/effect/eff75.h"
 #include "sf33rd/Source/Game/effect/eff76.h"
 #include "sf33rd/Source/Game/effect/eff98.h"
+#include "sf33rd/Source/Game/effect/effa5.h"
 #include "sf33rd/Source/Game/effect/effa9.h"
 #include "sf33rd/Source/Game/effect/effe0.h"
 #include "sf33rd/Source/Game/effect/effect.h"
@@ -28,7 +29,6 @@
 #include "sf33rd/Source/Game/io/gd3rd.h"
 #include "sf33rd/Source/Game/rendering/mmtmcnt.h"
 #include "sf33rd/Source/Game/screen/sel_data.h"
-#include "sf33rd/Source/Game/select_timer.h"
 #include "sf33rd/Source/Game/sound/se.h"
 #include "sf33rd/Source/Game/sound/sound3rd.h"
 #include "sf33rd/Source/Game/stage/bg.h"
@@ -141,7 +141,7 @@ void Next_CPU_1st() {
 
     Time_Stop = 1;
     Unit_Of_Timer = UNIT_OF_TIMER_MAX;
-    SelectTimer_Init();
+    effect_A5_init();
     Rnd = random_16() & 3;
     effect_58_init(6, 10, EM_Select_Voice_Data[Rnd]);
     Next_Step = 0;

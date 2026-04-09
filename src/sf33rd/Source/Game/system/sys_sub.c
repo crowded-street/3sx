@@ -27,7 +27,6 @@
 #include "sf33rd/Source/Game/rendering/mmtmcnt.h"
 #include "sf33rd/Source/Game/screen/entry.h"
 #include "sf33rd/Source/Game/screen/ranking.h"
-#include "sf33rd/Source/Game/select_timer.h"
 #include "sf33rd/Source/Game/sound/sound3rd.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
@@ -947,7 +946,6 @@ u16 Check_Demo_Data(s16 PL_id) {
 void System_all_clear_Level_B() {
     Bg_Close();
     effect_work_init();
-    SelectTimer_Finish();
 }
 
 s16 Cut_Cut_C_Timer() {

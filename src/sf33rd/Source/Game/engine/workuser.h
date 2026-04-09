@@ -2,7 +2,6 @@
 #define WORKUSER_H
 
 #include "sf33rd/Source/Game/engine/cmd_data.h"
-#include "sf33rd/Source/Game/select_timer.h"
 #include "types.h"
 
 #include <stdbool.h>

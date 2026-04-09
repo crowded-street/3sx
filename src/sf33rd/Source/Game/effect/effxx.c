@@ -106,6 +106,7 @@
 #include "sf33rd/Source/Game/effect/effa1.h"
 #include "sf33rd/Source/Game/effect/effa2.h"
 #include "sf33rd/Source/Game/effect/effa3.h"
+#include "sf33rd/Source/Game/effect/effa5.h"
 #include "sf33rd/Source/Game/effect/effa6.h"
 #include "sf33rd/Source/Game/effect/effa7.h"
 #include "sf33rd/Source/Game/effect/effa8.h"
@@ -237,7 +238,7 @@ const void (*effmovejptbl[229])() = {
     effect_84_move,    effect_85_move,    effect_86_move,    effect_dummy_move, effect_dummy_move, effect_dummy_move,
     effect_90_move,    effect_91_move,    effect_92_move,    effect_93_move,    effect_94_move,    effect_95_move,
     effect_96_move,    effect_97_move,    effect_98_move,    effect_99_move,    effect_A0_move,    effect_A1_move,
-    effect_A2_move,    effect_A3_move,    effect_dummy_move, effect_dummy_move, effect_A6_move,    effect_A7_move,
+    effect_A2_move,    effect_A3_move,    effect_dummy_move, effect_A5_move,    effect_A6_move,    effect_A7_move,
     effect_A8_move,    effect_A9_move,    effect_B0_move,    effect_B1_move,    effect_B2_move,    effect_B3_move,
     effect_B4_move,    effect_B5_move,    effect_B6_move,    effect_B7_move,    effect_B8_move,    effect_B9_move,
     effect_C0_move,    effect_C1_move,    effect_C2_move,    effect_C3_move,    effect_C4_move,    effect_C5_move,

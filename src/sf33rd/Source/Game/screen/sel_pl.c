@@ -25,6 +25,7 @@
 #include "sf33rd/Source/Game/effect/eff79.h"
 #include "sf33rd/Source/Game/effect/eff93.h"
 #include "sf33rd/Source/Game/effect/eff99.h"
+#include "sf33rd/Source/Game/effect/effa5.h"
 #include "sf33rd/Source/Game/effect/effd8.h"
 #include "sf33rd/Source/Game/effect/effk6.h"
 #include "sf33rd/Source/Game/engine/grade.h"
@@ -39,7 +40,6 @@
 #include "sf33rd/Source/Game/rendering/mtrans.h"
 #include "sf33rd/Source/Game/screen/next_cpu.h"
 #include "sf33rd/Source/Game/screen/sel_data.h"
-#include "sf33rd/Source/Game/select_timer.h"
 #include "sf33rd/Source/Game/sound/se.h"
 #include "sf33rd/Source/Game/sound/sound3rd.h"
 #include "sf33rd/Source/Game/stage/bg.h"
@@ -262,7 +262,7 @@ void Sel_PL_Cont_1st() {
     Setup_1st_Play_Type();
     Setup_Face_Sub();
     Time_Stop = 1;
-    SelectTimer_Init();
+    effect_A5_init();
     Face_MV_Request = 0;
     Face_Status = 0;
     Face_Move = 0;
