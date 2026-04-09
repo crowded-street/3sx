@@ -1,14 +1,27 @@
 # 3SX
 
-A port of the greatest fighting game of all time for modern platforms.
+3SX is a native port of *Street Fighter III: 3rd Strike* that focuses on modern platforms.
 
-Requires an official copy of *Street Fighter III: 3rd Strike* or *Street Fighter Anniversary Collection* for PlayStation 2 to play.
+## Features
 
-Based on a [decompilation](https://github.com/crowded-street/sfiii-decomp) of the PlayStation 2 port.
+| Feature | Status |
+| ---- | ------ |
+| Provide a convenient and accessible way to run 3S natively on modern platforms | Runs on Windows, macOS, Linux |
+| Add quality-of-life improvements | ✅ |
+| Enable cross-platform rollback netplay with matchmaking and custom rooms | WIP |
+| Enable porting the game to niche platforms | WIP |
 
-## Resources
+## How to play
 
-Find instructions on [how to build](docs/building.md) the project and other useful resources in the [docs](docs) folder.
+3SX requires an official copy of *Street Fighter III: 3rd Strike* or *Street Fighter Anniversary Collection* for PlayStation 2 to run.
+
+1. Download the latest release from the [Releases](https://github.com/crowded-street/3sx/releases) page.
+2. Follow startup wizard prompts to provide 3SX with your legally owned copy of the PS2 version.
+3. (Optional) Edit [config](docs/config.md) to adjust various settings to your liking.
+
+## Building
+
+See the [build guide](docs/building.md).
 
 ## Community
 
