@@ -18,8 +18,7 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/src
     ${PROJECT_SOURCE_DIR}/src/imgui/imgui
     ${PROJECT_SOURCE_DIR}/src/imgui/dcimgui
-    ${PROJECT_SOURCE_DIR}/include
-    ${PROJECT_SOURCE_DIR}/include/sdk
+    ${PROJECT_SOURCE_DIR}/src/sdk
 )
 
 # ======================================
