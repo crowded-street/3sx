@@ -3,13 +3,14 @@
 #include "imgui/imgui_wrapper.h"
 #include "port/config/config.h"
 #include "port/config/keymap.h"
+#include "port/host_context.h"
+#include "port/input_backend.h"
+#include "port/render_backend.h"
 #include "port/sdl/netplay_screen.h"
 #include "port/sdl/netstats_renderer.h"
 #include "port/sdl/scanline_renderer.h"
 #include "port/sdl/sdl_debug_text.h"
-#include "port/sdl/sdl_game_renderer.h"
 #include "port/sdl/sdl_message_renderer.h"
-#include "port/sdl/sdl_pad.h"
 #include "port/sound/adx.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 
@@ -31,6 +32,7 @@ static const Uint64 target_frame_time_ns = 1000000000.0 / TARGET_FPS;
 
 SDL_Window* window = NULL;
 static SDL_Renderer* renderer = NULL;
+static PlatformHostContext host_context = { 0 };
 static SDL_Texture* screen_texture = NULL;
 static ScaleMode scale_mode = SCALEMODE_SOFT_LINEAR;
 
@@ -124,6 +126,9 @@ static bool init_window() {
     }
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    host_context.backend_kind = PLATFORM_HOST_BACKEND_SDL;
+    host_context.window = window;
+    host_context.renderer = renderer;
     return true;
 }
 
@@ -157,7 +162,7 @@ int SDLApp_FullInit() {
 
     // Initialize rendering subsystems
     SDLMessageRenderer_Initialize(renderer);
-    SDLGameRenderer_Init(renderer);
+    RenderBackend_Init(&host_context);
     ScanlineRenderer_Init(renderer);
 
 #if DEBUG
@@ -168,7 +173,7 @@ int SDLApp_FullInit() {
     create_screen_texture();
 
     // Initialize pads
-    SDLPad_Init();
+    InputBackend_Init();
 
 #if DEBUG
     ImGuiW_Init(window, renderer);
@@ -179,14 +184,26 @@ int SDLApp_FullInit() {
 
 void SDLApp_Quit() {
     Config_Destroy();
+    RenderBackend_Shutdown();
+    SDLMessageRenderer_Shutdown();
     ScanlineRenderer_Destroy();
 
 #if DEBUG
     ImGuiW_Finish();
 #endif
 
+    if (screen_texture != NULL) {
+        SDL_DestroyTexture(screen_texture);
+        screen_texture = NULL;
+    }
+
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    renderer = NULL;
+    window = NULL;
+    host_context.backend_kind = PLATFORM_HOST_BACKEND_NONE;
+    host_context.window = NULL;
+    host_context.renderer = NULL;
     SDL_Quit();
 }
 
@@ -247,7 +264,7 @@ bool SDLApp_PollEvents() {
         switch (event.type) {
         case SDL_EVENT_GAMEPAD_ADDED:
         case SDL_EVENT_GAMEPAD_REMOVED:
-            SDLPad_HandleGamepadDeviceEvent(&event.gdevice);
+            InputBackend_HandleGamepadDeviceEvent(&event.gdevice);
             break;
 
         case SDL_EVENT_KEY_DOWN:
@@ -285,7 +302,7 @@ void SDLApp_BeginFrame() {
     SDL_RenderClear(renderer);
 
     SDLMessageRenderer_BeginFrame();
-    SDLGameRenderer_BeginFrame();
+    RenderBackend_BeginFrame();
 
 #if DEBUG
     ImGuiW_BeginFrame();
@@ -379,10 +396,12 @@ void SDLApp_EndFrame() {
     // because NetstatsRenderer uses the existing SFIII rendering pipeline
     NetplayScreen_Render();
     NetstatsRenderer_Render();
-    SDLGameRenderer_RenderFrame();
+    RenderBackend_RenderFrame();
+
+    SDL_Texture* scene_canvas = RenderBackend_GetCanvasHandle();
 
     if (should_save_screenshot) {
-        save_texture(cps3_canvas, "screenshot_cps3.bmp");
+        save_texture(scene_canvas, "screenshot_cps3.bmp");
     }
 
     SDL_SetRenderTarget(renderer, screen_texture);
@@ -393,8 +412,8 @@ void SDLApp_EndFrame() {
 
     // Render content
     const SDL_FRect dst_rect = get_letterbox_rect(screen_texture->w, screen_texture->h);
-    SDL_RenderTexture(renderer, cps3_canvas, NULL, &dst_rect);
-    SDL_RenderTexture(renderer, message_canvas, NULL, &dst_rect);
+    SDL_RenderTexture(renderer, scene_canvas, NULL, &dst_rect);
+    SDLMessageRenderer_Render(renderer, dst_rect.x, dst_rect.y, dst_rect.w, dst_rect.h);
 
     // Render screen texture to screen
     SDL_SetRenderTarget(renderer, NULL);
@@ -420,7 +439,7 @@ void SDLApp_EndFrame() {
     SDL_RenderPresent(renderer);
 
     // Cleanup
-    SDLGameRenderer_EndFrame();
+    RenderBackend_EndFrame();
     should_save_screenshot = false;
 
     // Handle cursor hiding

@@ -1,12 +1,12 @@
 #include "common.h"
-#include "port/sdl/sdl_pad.h"
+#include "port/input_backend.h"
 
 #include <libpad2.h>
 
 #include <string.h>
 
 int scePad2GetState(int socket_number) {
-    return SDLPad_IsGamepadConnected(socket_number) ? scePad2StateStable : scePad2StateNoLink;
+    return InputBackend_IsGamepadConnected(socket_number) ? scePad2StateStable : scePad2StateNoLink;
 }
 
 int scePad2GetButtonProfile(int socket_number, unsigned char* profile) {
@@ -28,8 +28,8 @@ int scePad2GetButtonProfile(int socket_number, unsigned char* profile) {
 int scePad2Read(int socket_number, scePad2ButtonState* data) {
     memset(data, 0, sizeof(scePad2ButtonState));
 
-    SDLPad_ButtonState button_state;
-    SDLPad_GetButtonState(socket_number, &button_state);
+    InputBackend_ButtonState button_state;
+    InputBackend_GetButtonState(socket_number, &button_state);
 
     // sw0 and sw1 store the pressed state of each button as bits.
     // 0 = pressed, 1 = released
@@ -98,6 +98,6 @@ int sceVibSetActParam(int socket_number, int profile_size, unsigned char* profil
         }
     }
 
-    SDLPad_RumblePad(socket_number, small_value, big_value);
+    InputBackend_RumblePad(socket_number, small_value, big_value);
     return 1;
 }

@@ -224,6 +224,41 @@ void SDLGameRenderer_Init(SDL_Renderer* renderer) {
     SDL_SetTextureScaleMode(cps3_canvas, SDL_SCALEMODE_NEAREST);
 }
 
+void SDLGameRenderer_Shutdown() {
+    destroy_textures();
+    clear_render_tasks();
+
+    for (int i = 0; i < SDL_arraysize(surfaces); i++) {
+        if (surfaces[i] != NULL) {
+            SDL_DestroySurface(surfaces[i]);
+            surfaces[i] = NULL;
+        }
+    }
+
+    for (int i = 0; i < SDL_arraysize(palettes); i++) {
+        if (palettes[i] != NULL) {
+            SDL_DestroyPalette(palettes[i]);
+            palettes[i] = NULL;
+        }
+    }
+
+    for (int texture_index = 0; texture_index < SDL_arraysize(texture_cache); texture_index++) {
+        for (int palette_index = 0; palette_index < SDL_arraysize(texture_cache[texture_index]); palette_index++) {
+            if (texture_cache[texture_index][palette_index] != NULL) {
+                SDL_DestroyTexture(texture_cache[texture_index][palette_index]);
+                texture_cache[texture_index][palette_index] = NULL;
+            }
+        }
+    }
+
+    if (cps3_canvas != NULL) {
+        SDL_DestroyTexture(cps3_canvas);
+        cps3_canvas = NULL;
+    }
+
+    _renderer = NULL;
+}
+
 void SDLGameRenderer_BeginFrame() {
     // Clear canvas
     const Uint8 r = (flPs2State.FrameClearColor >> 16) & 0xFF;
@@ -276,6 +311,10 @@ void SDLGameRenderer_RenderFrame() {
 void SDLGameRenderer_EndFrame() {
     destroy_textures();
     clear_render_tasks();
+}
+
+void* SDLGameRenderer_GetCanvasHandle() {
+    return cps3_canvas;
 }
 
 void SDLGameRenderer_UnlockPalette(unsigned int ph) {

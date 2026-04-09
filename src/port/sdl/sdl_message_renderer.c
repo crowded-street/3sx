@@ -31,6 +31,25 @@ void SDLMessageRenderer_Initialize(SDL_Renderer* renderer) {
     SDL_SetPaletteColors(knjsub_palette, knjsub_palette_colors, 0, 4);
 }
 
+void SDLMessageRenderer_Shutdown() {
+    if (knjsub_texture != NULL) {
+        SDL_DestroyTexture(knjsub_texture);
+        knjsub_texture = NULL;
+    }
+
+    if (knjsub_palette != NULL) {
+        SDL_DestroyPalette(knjsub_palette);
+        knjsub_palette = NULL;
+    }
+
+    if (message_canvas != NULL) {
+        SDL_DestroyTexture(message_canvas);
+        message_canvas = NULL;
+    }
+
+    _renderer = NULL;
+}
+
 void SDLMessageRenderer_BeginFrame() {
     // Clear canvas
     SDL_SetRenderDrawColor(_renderer, 0, 0, 0, SDL_ALPHA_TRANSPARENT);
@@ -108,4 +127,16 @@ void SDLMessageRenderer_DrawTexture(int x0, int y0, int x1, int y1, int u0, int 
 
     SDL_SetRenderTarget(_renderer, message_canvas);
     SDL_RenderTexture(_renderer, knjsub_texture, &src_rect, &dst_rect);
+}
+
+void SDLMessageRenderer_Render(void* host_renderer, float target_x, float target_y, float target_width,
+                               float target_height) {
+    SDL_Renderer* renderer = host_renderer;
+    const SDL_FRect dst_rect = { .x = target_x, .y = target_y, .w = target_width, .h = target_height };
+
+    if (renderer == NULL || message_canvas == NULL) {
+        return;
+    }
+
+    SDL_RenderTexture(renderer, message_canvas, NULL, &dst_rect);
 }

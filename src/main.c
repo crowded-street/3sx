@@ -4,7 +4,7 @@
 #include "common.h"
 #include "configuration.h"
 #include "netplay/netplay.h"
-#include "port/sdl/sdl_app.h"
+#include "port/platform_app.h"
 #include "sf33rd/AcrSDK/common/mlPAD.h"
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/AcrSDK/ps2/flps2etc.h"
@@ -166,7 +166,7 @@ static void init_windows_console() {
 #endif
 
 static void initialize_game() {
-    SDLApp_FullInit();
+    PlatformApp_FullInit();
 
 #if _WIN32 && DEBUG
     init_windows_console();
@@ -180,7 +180,7 @@ static void initialize_game() {
 
 static void cleanup() {
     AFS_Finish();
-    SDLApp_Quit();
+    PlatformApp_Quit();
 }
 
 // Iteration
@@ -413,7 +413,7 @@ static int loop() {
     while (is_running) {
         switch (phase) {
         case MAIN_PHASE_INIT:
-            SDLApp_PreInit();
+            PlatformApp_PreInit();
 
             if (Resources_Check()) {
                 initialize_game();
@@ -443,15 +443,15 @@ static int loop() {
             break;
 
         case MAIN_PHASE_INITIALIZED:
-            is_running = SDLApp_PollEvents();
+            is_running = PlatformApp_PollEvents();
 
             if (!is_running) {
                 break;
             }
 
-            SDLApp_BeginFrame();
+            PlatformApp_BeginFrame();
             game_step_0();
-            SDLApp_EndFrame();
+            PlatformApp_EndFrame();
             game_step_1();
             break;
         }

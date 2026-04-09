@@ -16,8 +16,26 @@ __pycache__
 # Project
 
 build
+build-*
 temp
 third_party
 states
 rom
 dump
+*.AFS
+
+# Port worktrees / toolchains
+
+ports/*/build
+ports/*/build-*
+ports/*/.cache
+ports/*/.deps
+ports/*/.tmp
+ports/*/*.elf
+ports/*/*.o
+ports/*/*.obj
+ports/*/*.a
+ports/*/*.so
+ports/*/*.prx
+ports/*/*.PBP
+ports/*/*.SFO

@@ -19,9 +19,11 @@ extern SDL_Texture* cps3_canvas;
 
 /* SDL-specific lifecycle */
 void SDLGameRenderer_Init(SDL_Renderer* renderer);
+void SDLGameRenderer_Shutdown(void);
 void SDLGameRenderer_BeginFrame();
 void SDLGameRenderer_RenderFrame();
 void SDLGameRenderer_EndFrame();
+void* SDLGameRenderer_GetCanvasHandle(void);
 
 /* SDL backend implementations of CRS_Renderer_ interface */
 void SDLGameRenderer_CreateTexture(unsigned int th);
