@@ -5,6 +5,7 @@
 
 #include "sf33rd/Source/Game/menu/menu.h"
 #include "common.h"
+#include "core/app.h"
 #include "main.h"
 #include "netplay/netplay.h"
 #include "sf33rd/AcrSDK/common/pad.h"
@@ -316,7 +317,9 @@ static bool check_netplay_cancelled() {
 void Mode_Select(struct _TASK* task_ptr) {
     s16 ix;
     s16 PL_id;
-    s16 loop_counter = 7;
+
+    const bool supports_exit = App_SupportsExit();
+    const s16 loop_counter = supports_exit ? 7 : 6;
 
     switch (task_ptr->r_no[2]) {
     case 0:
@@ -343,6 +346,11 @@ void Mode_Select(struct _TASK* task_ptr) {
         Clear_Personal_Data(0);
         Clear_Personal_Data(1);
         Menu_Cursor_Y[0] = Cursor_Y_Pos[0][0];
+
+        if (Menu_Cursor_Y[0] >= loop_counter) {
+            Menu_Cursor_Y[0] = loop_counter - 1;
+        }
+
         Cursor_Y_Pos[0][1] = 0;
         Cursor_Y_Pos[0][2] = 0;
         Cursor_Y_Pos[0][3] = 0;
@@ -569,7 +577,7 @@ void toSelectGame(struct _TASK* task_ptr) {
         break;
 
     default:
-        // FIXME: Exit from the app
+        App_Exit();
         break;
     }
 }

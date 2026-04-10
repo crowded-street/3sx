@@ -53,6 +53,8 @@ target_compile_definitions(3sx PRIVATE
     # GekkoNet is a pre-built static lib; these were previously propagated by its cmake target
     GEKKONET_STATIC
     GEKKONET_NO_ASIO
+
+    CRS_APP_DRIVER_SDL
 )
 
 # Feature toggles

@@ -14,5 +14,6 @@ typedef struct FrameMetrics {
 } FrameMetrics;
 
 const FrameMetrics* SDLApp_GetFrameMetrics();
+void SDLApp_Exit();
 
 #endif

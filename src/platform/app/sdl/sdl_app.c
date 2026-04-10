@@ -1,3 +1,5 @@
+#if CRS_APP_DRIVER_SDL
+
 #include "platform/app/sdl/sdl_app.h"
 #include "arcade/arcade_balance.h"
 #include "common.h"
@@ -495,16 +497,6 @@ static void end_frame() {
     update_metrics(sleep_time);
 }
 
-void SDLApp_Exit() {
-    SDL_Event quit_event;
-    quit_event.type = SDL_EVENT_QUIT;
-    SDL_PushEvent(&quit_event);
-}
-
-const FrameMetrics* SDLApp_GetFrameMetrics() {
-    return &frame_metrics;
-}
-
 // Entrypoint
 
 static bool sdl_poll_helper() {
@@ -578,3 +570,17 @@ static int loop() {
 int main(int argc, const char* argv[]) {
     return loop();
 }
+
+// Public API
+
+const FrameMetrics* SDLApp_GetFrameMetrics() {
+    return &frame_metrics;
+}
+
+void SDLApp_Exit() {
+    SDL_Event quit_event;
+    quit_event.type = SDL_EVENT_QUIT;
+    SDL_PushEvent(&quit_event);
+}
+
+#endif // CRS_APP_DRIVER_SDL
