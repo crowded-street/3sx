@@ -97,7 +97,7 @@ static void distributeScratchPadAddress() {
     tpu_free = (TexturePoolUsed*)tpu_free_mem;
 }
 
-void sf3_init() {
+void Main_Init() {
     flInitialize();
     flSetRenderState(FLRENDER_BACKCOLOR, 0);
     system_init_level = 0;
@@ -243,7 +243,7 @@ static void configure_slow_timer() {
 }
 #endif
 
-void game_step_0() {
+void Main_StepFrame() {
     flSetRenderState(FLRENDER_BACKCOLOR, 0xFF000000);
 
 #if DEBUG
@@ -290,7 +290,7 @@ void game_step_0() {
     flFlip(0);
 }
 
-void game_step_1() {
+void Main_FinishFrame() {
     Interrupt_Timer += 1;
     Record_Timer += 1;
 

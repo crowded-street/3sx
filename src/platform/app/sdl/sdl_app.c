@@ -229,7 +229,7 @@ static int full_init() {
     DebugConfig_Init();
 #endif
 
-    sf3_init();
+    Main_Init();
     return 0;
 }
 
@@ -555,9 +555,9 @@ static int loop() {
             }
 
             begin_frame();
-            game_step_0();
+            Main_StepFrame();
             end_frame();
-            game_step_1();
+            Main_FinishFrame();
             break;
         }
     }

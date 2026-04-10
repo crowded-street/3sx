@@ -24,8 +24,8 @@ void cpExitTask(TaskID num);
 s32 mppGetFavoritePlayerNumber();
 void njUserMain(); // FIXME: This shouldn't be public
 
-void sf3_init();
-void game_step_0(); // FIXME: Give this func a better name
-void game_step_1(); // FIXME: Give this func a better name
+void Main_Init();
+void Main_StepFrame();
+void Main_FinishFrame();
 
 #endif
