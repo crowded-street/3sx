@@ -1,10 +1,5 @@
 #include "main.h"
-#include "arcade/arcade_balance.h"
-#include "args.h"
 #include "common.h"
-#include "configuration.h"
-#include "netplay/netplay.h"
-#include "port/app.h"
 #include "sf33rd/AcrSDK/common/mlPAD.h"
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/AcrSDK/ps2/flps2etc.h"
@@ -35,57 +30,25 @@
 #include "sf33rd/Source/PS2/mc/knjsub.h"
 #include "sf33rd/Source/PS2/mc/mcsub.h"
 #include "structs.h"
-#include "test/test_runner.h"
-
-#if DEBUG
-#include "sf33rd/Source/Game/debug/debug_config.h"
-#endif
-
-#include "port/io/afs.h"
-#include "port/resources.h"
 
 #include <SDL3/SDL.h>
-
-#if _WIN32 && DEBUG
-// Including windows.h causes conflicts with the Polygon struct, so I just included the header where
-// AllocConsole is and the Windows-specific typedefs that it requires.
-#include <windef.h>
-
-#include <ConsoleApi.h>
-#endif
 
 #include <memory.h>
 #include <stdbool.h>
 #include <stdio.h>
 
-typedef enum MainPhase {
-    MAIN_PHASE_INIT,
-    MAIN_PHASE_COPYING_RESOURCES,
-    MAIN_PHASE_INITIALIZED,
-} MainPhase;
-
 s32 system_init_level;
 MPP mpp_w;
-Configuration configuration = { 0 };
 
 static u8 dctex_linear_mem[0x800];
 static u8 texcash_melt_buffer_mem[0x1000];
 static u8 tpu_free_mem[0x2000];
-static MainPhase phase = MAIN_PHASE_INIT;
 
 static u8* mppMalloc(u32 size) {
     return flAllocMemory(size);
 }
 
 // Initialization
-
-static void set_netplay_params() {
-    if (configuration.netplay.p2p_remote_ip != NULL) {
-        Netplay_SetParams(configuration.netplay.p2p_local_player, configuration.netplay.p2p_remote_ip);
-    } else if (configuration.netplay.matchmaking_ip != NULL) {
-        Netplay_SetMatchmakingParams(configuration.netplay.matchmaking_ip, configuration.netplay.matchmaking_port);
-    }
-}
 
 static void cpInitTask() {
     memset(&task, 0, sizeof(task));
@@ -134,11 +97,7 @@ static void distributeScratchPadAddress() {
     tpu_free = (TexturePoolUsed*)tpu_free_mem;
 }
 
-static void sf3_init() {
-#if DEBUG
-    DebugConfig_Init();
-#endif
-
+void sf3_init() {
     flInitialize();
     flSetRenderState(FLRENDER_BACKCOLOR, 0);
     system_init_level = 0;
@@ -150,37 +109,6 @@ static void sf3_init() {
     ppgMakeConvTableTexDC();
     appSetupBasePriority();
     MemcardInit();
-}
-
-#if _WIN32 && DEBUG
-static void init_windows_console() {
-    // attaches to an existing console for printouts. Works with windows CMD but not MSYS2
-    if (AttachConsole(ATTACH_PARENT_PROCESS) == 0) {
-        // if fails, then allocate a new console
-        AllocConsole();
-    }
-    freopen("CONIN$", "r", stdin);
-    freopen("CONOUT$", "w", stdout);
-    freopen("CONOUT$", "w", stderr);
-}
-#endif
-
-static void initialize_game() {
-    App_FullInit();
-
-#if _WIN32 && DEBUG
-    init_windows_console();
-#endif
-
-    set_netplay_params();
-    ArcadeBalance_Init();
-    AFS_Init(Resources_GetAFSPath());
-    sf3_init();
-}
-
-static void cleanup() {
-    AFS_Finish();
-    App_Quit();
 }
 
 // Iteration
@@ -315,9 +243,7 @@ static void configure_slow_timer() {
 }
 #endif
 
-static void game_step_0() {
-    AFS_RunServer();
-
+void game_step_0() {
     flSetRenderState(FLRENDER_BACKCOLOR, 0xFF000000);
 
 #if DEBUG
@@ -331,10 +257,6 @@ static void game_step_0() {
     keyConvert();
 
 #if DEBUG
-    if (configuration.test.enabled) {
-        TestRunner_Prologue();
-    }
-
     configure_slow_timer();
 #endif
 
@@ -359,26 +281,16 @@ static void game_step_0() {
 
     mpp_w.inGame = false;
 
-    if (Netplay_GetSessionState() != NETPLAY_SESSION_IDLE) {
-        Netplay_Run();
-        // Flush the 2D polygon buffer each frame when the game's normal render
-        // loop isn't running, preventing the 100-item limit from overflowing.
-        njdp2d_draw();
-    } else {
-        njUserMain();
-        seqsBeforeProcess();
-        njdp2d_draw();
-        seqsAfterProcess();
-        Netplay_TickMatchmaking();
-        Netplay_TickDirectP2P();
-    }
-
+    njUserMain();
+    seqsBeforeProcess();
+    njdp2d_draw();
+    seqsAfterProcess();
     KnjFlush();
     disp_effect_work();
     flFlip(0);
 }
 
-static void game_step_1() {
+void game_step_1() {
     Interrupt_Timer += 1;
     Record_Timer += 1;
 
@@ -386,84 +298,6 @@ static void game_step_1() {
     Irl_Family();
     Irl_Scrn();
     BGM_Server();
-
-#if DEBUG
-    if (configuration.test.enabled) {
-        TestRunner_Epilogue();
-    }
-#endif
-}
-
-static bool sdl_poll_helper() {
-    SDL_Event event;
-    bool continue_running = true;
-
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_EVENT_QUIT) {
-            continue_running = false;
-        }
-    }
-
-    return continue_running;
-}
-
-static int loop() {
-    bool is_running = true;
-
-    while (is_running) {
-        switch (phase) {
-        case MAIN_PHASE_INIT:
-            App_PreInit();
-
-            if (Resources_Check()) {
-                initialize_game();
-                phase = MAIN_PHASE_INITIALIZED;
-            } else {
-                phase = MAIN_PHASE_COPYING_RESOURCES;
-            }
-
-            break;
-
-        case MAIN_PHASE_COPYING_RESOURCES:
-            is_running = sdl_poll_helper();
-
-            if (!is_running) {
-                break;
-            }
-
-            SDL_Delay(16);
-
-            const bool resource_flow_ended = Resources_RunResourceCopyingFlow();
-
-            if (resource_flow_ended) {
-                initialize_game();
-                phase = MAIN_PHASE_INITIALIZED;
-            }
-
-            break;
-
-        case MAIN_PHASE_INITIALIZED:
-            is_running = App_PollEvents();
-
-            if (!is_running) {
-                break;
-            }
-
-            App_BeginFrame();
-            game_step_0();
-            App_EndFrame();
-            game_step_1();
-            break;
-        }
-    }
-
-    cleanup();
-    return 0;
-}
-
-int main(int argc, const char* argv[]) {
-    read_args(argc, argv, &configuration);
-    return loop();
 }
 
 s32 mppGetFavoritePlayerNumber() {

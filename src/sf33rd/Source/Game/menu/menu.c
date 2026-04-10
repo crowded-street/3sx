@@ -7,7 +7,6 @@
 #include "common.h"
 #include "main.h"
 #include "netplay/netplay.h"
-#include "port/app.h"
 #include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Game/animation/appear.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
@@ -570,7 +569,7 @@ void toSelectGame(struct _TASK* task_ptr) {
         break;
 
     default:
-        App_Exit();
+        // FIXME: Exit from the app
         break;
     }
 }

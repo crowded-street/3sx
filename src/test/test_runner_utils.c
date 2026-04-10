@@ -7,10 +7,13 @@
 #include <SDL3/SDL_stdinc.h>
 
 const char* ram_path(int index) {
-    const char* base_path = configuration.test.states_path;
-    const char* result = NULL;
-    SDL_asprintf(&result, "%s/frame_%08d.ram", base_path, index);
-    return result;
+    // const char* base_path = configuration.test.states_path;
+    // const char* result = NULL;
+    // SDL_asprintf(&result, "%s/frame_%08d.ram", base_path, index);
+    // return result;
+
+    // FIXME: Reimplement
+    return NULL;
 }
 
 Uint8 read_u8(SDL_IOStream* io, Sint64 offset) {

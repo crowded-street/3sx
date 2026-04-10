@@ -1,6 +1,8 @@
 #include "port/sdl/sdl_app.h"
+#include "arcade/arcade_balance.h"
 #include "common.h"
 #include "imgui/imgui_wrapper.h"
+#include "main.h"
 #include "port/config/config.h"
 #include "port/config/keymap.h"
 #include "port/host_context.h"
@@ -14,7 +16,22 @@
 #include "port/sound/adx.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 
+#if DEBUG
+#include "sf33rd/Source/Game/debug/debug_config.h"
+#endif
+
+#include "port/io/afs.h"
+#include "port/resources.h"
+
 #include <SDL3/SDL.h>
+
+#if _WIN32 && DEBUG
+// Including windows.h causes conflicts with the Polygon struct, so I just included the header where
+// AllocConsole is and the Windows-specific typedefs that it requires.
+#include <windef.h>
+
+#include <ConsoleApi.h>
+#endif
 
 typedef enum ScaleMode {
     SCALEMODE_NEAREST,
@@ -23,6 +40,14 @@ typedef enum ScaleMode {
     SCALEMODE_SQUARE_PIXELS,
     SCALEMODE_INTEGER,
 } ScaleMode;
+
+typedef enum MainPhase {
+    MAIN_PHASE_INIT,
+    MAIN_PHASE_COPYING_RESOURCES,
+    MAIN_PHASE_INITIALIZED,
+} MainPhase;
+
+static MainPhase phase = MAIN_PHASE_INIT;
 
 static const char* app_name = "Street Fighter III: 3rd Strike";
 static const float display_target_ratio = 4.0 / 3.0;
@@ -451,4 +476,113 @@ void SDLApp_Exit() {
 
 const FrameMetrics* SDLApp_GetFrameMetrics() {
     return &frame_metrics;
+}
+
+// Entrypoint
+
+static bool sdl_poll_helper() {
+    SDL_Event event;
+    bool continue_running = true;
+
+    while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_EVENT_QUIT) {
+            continue_running = false;
+        }
+    }
+
+    return continue_running;
+}
+
+#if _WIN32 && DEBUG
+static void init_windows_console() {
+    // attaches to an existing console for printouts. Works with windows CMD but not MSYS2
+    if (AttachConsole(ATTACH_PARENT_PROCESS) == 0) {
+        // if fails, then allocate a new console
+        AllocConsole();
+    }
+    freopen("CONIN$", "r", stdin);
+    freopen("CONOUT$", "w", stdout);
+    freopen("CONOUT$", "w", stderr);
+}
+#endif
+
+static void initialize_game() {
+    SDLApp_FullInit();
+
+#if _WIN32 && DEBUG
+    init_windows_console();
+#endif
+
+    ArcadeBalance_Init();
+    AFS_Init(Resources_GetAFSPath());
+
+#if DEBUG
+    DebugConfig_Init();
+#endif
+
+    sf3_init();
+}
+
+static void cleanup() {
+    AFS_Finish();
+    SDLApp_Quit();
+}
+
+static int loop() {
+    bool is_running = true;
+
+    while (is_running) {
+        switch (phase) {
+        case MAIN_PHASE_INIT:
+            SDLApp_PreInit();
+
+            if (Resources_Check()) {
+                initialize_game();
+                phase = MAIN_PHASE_INITIALIZED;
+            } else {
+                phase = MAIN_PHASE_COPYING_RESOURCES;
+            }
+
+            break;
+
+        case MAIN_PHASE_COPYING_RESOURCES:
+            is_running = sdl_poll_helper();
+
+            if (!is_running) {
+                break;
+            }
+
+            SDL_Delay(16);
+
+            const bool resource_flow_ended = Resources_RunResourceCopyingFlow();
+
+            if (resource_flow_ended) {
+                initialize_game();
+                phase = MAIN_PHASE_INITIALIZED;
+            }
+
+            break;
+
+        case MAIN_PHASE_INITIALIZED:
+            is_running = SDLApp_PollEvents();
+
+            if (!is_running) {
+                break;
+            }
+
+            SDLApp_BeginFrame();
+            AFS_RunServer();
+            game_step_0();
+            SDLApp_EndFrame();
+            game_step_1();
+            break;
+        }
+    }
+
+    cleanup();
+    return 0;
+}
+
+int main(int argc, const char* argv[]) {
+    return loop();
 }
