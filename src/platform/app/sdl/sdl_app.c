@@ -7,7 +7,6 @@
 #include "main.h"
 #include "port/config/config.h"
 #include "port/config/keymap.h"
-#include "port/host_context.h"
 #include "port/input_backend.h"
 #include "port/sdl/netplay_screen.h"
 #include "port/sdl/netstats_renderer.h"
@@ -59,7 +58,6 @@ static const Uint64 target_frame_time_ns = 1000000000.0 / TARGET_FPS;
 
 SDL_Window* window = NULL;
 static SDL_Renderer* renderer = NULL;
-static PlatformHostContext host_context = { 0 };
 static SDL_Texture* screen_texture = NULL;
 static ScaleMode scale_mode = SCALEMODE_SOFT_LINEAR;
 
@@ -153,9 +151,6 @@ static bool init_window() {
     }
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    host_context.backend_kind = PLATFORM_HOST_BACKEND_SDL;
-    host_context.window = window;
-    host_context.renderer = renderer;
     return true;
 }
 

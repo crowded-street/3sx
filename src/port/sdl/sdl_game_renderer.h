@@ -2,7 +2,6 @@
 #define SDL_GAME_RENDERER_H
 
 #include "core/render_primitives.h"
-#include "port/host_context.h"
 
 #include <SDL3/SDL.h>
 
