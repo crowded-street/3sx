@@ -1,3 +1,5 @@
+#if CRS_VIDEO_DRIVER_SDL
+
 #include "port/sdl/sdl_game_renderer.h"
 #include "common.h"
 #include "port/utils.h"
@@ -162,13 +164,7 @@ static void lerp_fcolors(SDL_FColor* dest, const SDL_FColor* a, const SDL_FColor
 
 // Lifecycle
 
-void SDLGameRenderer_Init(const PlatformHostContext* host_context) {
-    SDL_Renderer* renderer = NULL;
-
-    if (host_context != NULL) {
-        renderer = host_context->renderer;
-    }
-
+void SDLGameRenderer_Init(SDL_Renderer* renderer) {
     _renderer = renderer;
     cps3_canvas =
         SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, cps3_width, cps3_height);
@@ -542,3 +538,5 @@ void SDLGameRenderer_DrawSprite2(const Sprite2* sprite2) {
 
     SDLGameRenderer_DrawSprite(&sprite, sprite2->vertex_color);
 }
+
+#endif // CRS_VIDEO_DRIVER_SDL

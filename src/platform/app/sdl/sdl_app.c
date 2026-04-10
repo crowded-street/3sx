@@ -9,7 +9,6 @@
 #include "port/config/keymap.h"
 #include "port/host_context.h"
 #include "port/input_backend.h"
-#include "port/render_backend.h"
 #include "port/sdl/netplay_screen.h"
 #include "port/sdl/netstats_renderer.h"
 #include "port/sdl/scanline_renderer.h"
@@ -202,7 +201,7 @@ static int full_init() {
     }
 
     // Initialize rendering subsystems
-    g_render_backend.init(&host_context);
+    SDLGameRenderer_Init(renderer);
     ScanlineRenderer_Init(renderer);
 
 #if DEBUG
@@ -237,7 +236,7 @@ static int full_init() {
 static void cleanup() {
     AFS_Finish();
     Config_Destroy();
-    g_render_backend.shutdown();
+    SDLGameRenderer_Shutdown();
     ScanlineRenderer_Destroy();
 
 #if DEBUG
@@ -253,9 +252,6 @@ static void cleanup() {
     SDL_DestroyWindow(window);
     renderer = NULL;
     window = NULL;
-    host_context.backend_kind = PLATFORM_HOST_BACKEND_NONE;
-    host_context.window = NULL;
-    host_context.renderer = NULL;
 }
 
 #if DEBUG
@@ -344,7 +340,7 @@ static void begin_frame() {
     SDL_SetRenderTarget(renderer, NULL);
     SDL_RenderClear(renderer);
 
-    g_render_backend.begin_frame();
+    SDLGameRenderer_BeginFrame();
 
 #if DEBUG
     ImGuiW_BeginFrame();
@@ -433,7 +429,7 @@ static void end_frame() {
     // because NetstatsRenderer uses the existing SFIII rendering pipeline
     NetplayScreen_Render();
     NetstatsRenderer_Render();
-    g_render_backend.render_frame();
+    SDLGameRenderer_RenderFrame();
 
     SDL_SetRenderTarget(renderer, screen_texture);
 
@@ -465,7 +461,7 @@ static void end_frame() {
     SDL_RenderPresent(renderer);
 
     // Cleanup
-    g_render_backend.end_frame();
+    SDLGameRenderer_EndFrame();
 
     // Handle cursor hiding
     hide_cursor_if_needed();

@@ -55,6 +55,7 @@ target_compile_definitions(3sx PRIVATE
     GEKKONET_NO_ASIO
 
     CRS_APP_DRIVER_SDL
+    CRS_VIDEO_DRIVER_SDL
 )
 
 # Feature toggles

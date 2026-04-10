@@ -19,7 +19,7 @@ typedef struct SDLGameRenderer_Vertex {
 
 // Internal
 
-void SDLGameRenderer_Init(const PlatformHostContext* host_context);
+void SDLGameRenderer_Init(SDL_Renderer* renderer);
 void SDLGameRenderer_Shutdown();
 void SDLGameRenderer_BeginFrame();
 void SDLGameRenderer_RenderFrame();
