@@ -1,6 +1,5 @@
 #include "sf33rd/Source/Common/PPGFile.h"
 #include "common.h"
-#include "rendering/game_renderer.h"
 #include "sf33rd/AcrSDK/common/plcommon.h"
 #include "sf33rd/AcrSDK/ps2/flps2render.h"
 #include "sf33rd/AcrSDK/ps2/flps2vram.h"
@@ -9,6 +8,8 @@
 #include "sf33rd/Source/Compress/Lz77/Lz77Dec.h"
 #include "sf33rd/Source/Compress/zlibApp.h"
 #include "structs.h"
+
+#include "core/renderer.h"
 
 #include <SDL3/SDL.h>
 

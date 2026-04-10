@@ -1,14 +1,14 @@
 /**
- * @file game_renderer.h
  * @brief Cross-platform renderer interface for the game core.
  *
  * Game logic calls Renderer_* functions for all rendering operations.
  * Each platform provides implementations in its GPU backend.
  */
-#ifndef RENDERING_GAME_RENDERER_H
-#define RENDERING_GAME_RENDERER_H
 
-#include "rendering/primitives.h"
+#ifndef CORE_RENDERER_H
+#define CORE_RENDERER_H
+
+#include "core/render_primitives.h"
 
 void Renderer_CreateTexture(unsigned int th);
 void Renderer_DestroyTexture(unsigned int texture_handle);

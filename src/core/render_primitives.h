@@ -1,5 +1,5 @@
-#ifndef RENDERING_PRIMITIVES_H
-#define RENDERING_PRIMITIVES_H
+#ifndef CORE_RENDER_PRIMITIVES_H
+#define CORE_RENDER_PRIMITIVES_H
 
 #include "structs.h"
 

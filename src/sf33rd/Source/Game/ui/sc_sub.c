@@ -5,7 +5,8 @@
 
 #include "sf33rd/Source/Game/ui/sc_sub.h"
 #include "common.h"
-#include "rendering/game_renderer.h"
+#include "constants.h"
+#include "port/config/config.h"
 #include "sf33rd/AcrSDK/ps2/flps2render.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "sf33rd/Source/Common/PPGFile.h"
@@ -21,8 +22,8 @@
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/ui/sc_data.h"
 #include "structs.h"
-#include "port/config/config.h"
-#include "constants.h"
+
+#include "core/renderer.h"
 
 #define TO_UV_256(val) ((val) / 256.0f)
 #define TO_UV_256_NEG(val) (TO_UV_256(val))
@@ -184,8 +185,7 @@ void HUD_Shift_Init() {
         TopHUDShadowPriority = 3 + HUD_SHIFT;
         TopHUDFacePriority = 4 + HUD_SHIFT;
         TopHUDVitalPriority = 5 + HUD_SHIFT;
-    }
-    else {
+    } else {
         TopHUDPriority = 2;
         TopHUDShadowPriority = 3;
         TopHUDFacePriority = 4;
@@ -1260,8 +1260,15 @@ void stun_mark_write(u8 Pl_Num, s16 Len) {
 
     ppgSetupCurrentDataList(&ppgScrList);
     tlen = Len - 7;
-    scfont_sqput(
-        smark_pos_tbl[tlen][Pl_Num], 3, 10, 0, (smark_kind_tbl[tlen] * 4) + 1, 2, smark_kind_tbl[tlen] + 4, 1, TopHUDPriority);
+    scfont_sqput(smark_pos_tbl[tlen][Pl_Num],
+                 3,
+                 10,
+                 0,
+                 (smark_kind_tbl[tlen] * 4) + 1,
+                 2,
+                 smark_kind_tbl[tlen] + 4,
+                 1,
+                 TopHUDPriority);
 }
 
 void max_mark_write(s8 Pl_Num, u8 Gauge_Len, u8 Mchar, u8 Mass_Len) {
@@ -1498,9 +1505,25 @@ void player_face() {
     grade_tmp = Keep_Grade[Champion] - 1;
 
     if (grade_tmp < 0x18) {
-        scfont_sqput((Champion * 41) + 1, 1, 27, 2, Grade_Pos_TBL[grade_tmp][0], Grade_Pos_TBL[grade_tmp][1], 5, 1, TopHUDPriority);
+        scfont_sqput((Champion * 41) + 1,
+                     1,
+                     27,
+                     2,
+                     Grade_Pos_TBL[grade_tmp][0],
+                     Grade_Pos_TBL[grade_tmp][1],
+                     5,
+                     1,
+                     TopHUDPriority);
     } else {
-        scfont_sqput((Champion * 41) + 1, 1, 28, 2, Grade_Pos_TBL[grade_tmp][0], Grade_Pos_TBL[grade_tmp][1], 5, 1, TopHUDPriority);
+        scfont_sqput((Champion * 41) + 1,
+                     1,
+                     28,
+                     2,
+                     Grade_Pos_TBL[grade_tmp][0],
+                     Grade_Pos_TBL[grade_tmp][1],
+                     5,
+                     1,
+                     TopHUDPriority);
     }
 }
 

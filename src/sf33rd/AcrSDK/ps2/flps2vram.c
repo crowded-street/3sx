@@ -7,7 +7,7 @@
 #include "sf33rd/AcrSDK/ps2/flps2etc.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 
-#include "rendering/game_renderer.h"
+#include "core/renderer.h"
 
 #include <libgraph.h>
 

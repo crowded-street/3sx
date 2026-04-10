@@ -1,9 +1,8 @@
 /**
- * @file renderer.c
  * @brief Render dispatch through the appropriate host render backend.
  */
 
-#include "rendering/game_renderer.h"
+#include "core/renderer.h"
 
 #if CRS_VIDEO_DRIVER_SDL
 #include "port/sdl/sdl_game_renderer.h"

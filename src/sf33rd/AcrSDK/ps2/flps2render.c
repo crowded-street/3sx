@@ -5,7 +5,7 @@
 #include "sf33rd/AcrSDK/ps2/flps2vram.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 
-#include "rendering/game_renderer.h"
+#include "core/renderer.h"
 
 void flPS2SetClearColor(u32 col);
 s32 flPS2SendTextureRegister(u32 th);
