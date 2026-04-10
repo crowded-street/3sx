@@ -41,13 +41,13 @@ typedef enum ScaleMode {
     SCALEMODE_INTEGER,
 } ScaleMode;
 
-typedef enum MainPhase {
-    MAIN_PHASE_INIT,
-    MAIN_PHASE_COPYING_RESOURCES,
-    MAIN_PHASE_INITIALIZED,
-} MainPhase;
+typedef enum AppPhase {
+    APP_PHASE_INIT,
+    APP_PHASE_COPYING_RESOURCES,
+    APP_PHASE_INITIALIZED,
+} AppPhase;
 
-static MainPhase phase = MAIN_PHASE_INIT;
+static AppPhase phase = APP_PHASE_INIT;
 
 static const char* app_name = "Street Fighter III: 3rd Strike";
 static const float display_target_ratio = 4.0 / 3.0;
@@ -157,7 +157,7 @@ static bool init_window() {
     return true;
 }
 
-int SDLApp_PreInit() {
+static int pre_init() {
     SDL_SetAppMetadata(app_name, "0.1", NULL);
     SDL_SetHint(SDL_HINT_VIDEO_WAYLAND_PREFER_LIBDECOR, "1");
     SDL_SetHint(SDL_HINT_NO_SIGNAL_HANDLERS, "1");
@@ -170,7 +170,20 @@ int SDLApp_PreInit() {
     return 0;
 }
 
-int SDLApp_FullInit() {
+#if _WIN32 && DEBUG
+static void init_windows_console() {
+    // attaches to an existing console for printouts. Works with windows CMD but not MSYS2
+    if (AttachConsole(ATTACH_PARENT_PROCESS) == 0) {
+        // if fails, then allocate a new console
+        AllocConsole();
+    }
+    freopen("CONIN$", "r", stdin);
+    freopen("CONOUT$", "w", stdout);
+    freopen("CONOUT$", "w", stderr);
+}
+#endif
+
+static int full_init() {
     Config_Init();
     Keymap_Init();
     init_scalemode();
@@ -203,10 +216,23 @@ int SDLApp_FullInit() {
     ImGuiW_Init(window, renderer);
 #endif
 
+#if _WIN32 && DEBUG
+    init_windows_console();
+#endif
+
+    ArcadeBalance_Init();
+    AFS_Init(Resources_GetAFSPath());
+
+#if DEBUG
+    DebugConfig_Init();
+#endif
+
+    sf3_init();
     return 0;
 }
 
-void SDLApp_Quit() {
+static void cleanup() {
+    AFS_Finish();
     Config_Destroy();
     g_render_backend.shutdown();
     ScanlineRenderer_Destroy();
@@ -227,7 +253,6 @@ void SDLApp_Quit() {
     host_context.backend_kind = PLATFORM_HOST_BACKEND_NONE;
     host_context.window = NULL;
     host_context.renderer = NULL;
-    SDL_Quit();
 }
 
 #if DEBUG
@@ -269,7 +294,7 @@ static void hide_cursor_if_needed() {
     }
 }
 
-bool SDLApp_PollEvents() {
+static bool poll_events() {
     SDL_Event event;
     bool continue_running = true;
 
@@ -310,7 +335,7 @@ bool SDLApp_PollEvents() {
     return continue_running;
 }
 
-void SDLApp_BeginFrame() {
+static void begin_frame() {
     // Clear window
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_SetRenderTarget(renderer, NULL);
@@ -321,6 +346,8 @@ void SDLApp_BeginFrame() {
 #if DEBUG
     ImGuiW_BeginFrame();
 #endif
+
+    AFS_RunServer();
 }
 
 static void center_rect(SDL_FRect* rect, int win_w, int win_h) {
@@ -393,7 +420,7 @@ static void update_metrics(Uint64 sleep_time) {
     last_frame_end_time = new_frame_end_time;
 }
 
-void SDLApp_EndFrame() {
+static void end_frame() {
     // Run sound processing
     ADX_ProcessTracks();
 
@@ -493,59 +520,24 @@ static bool sdl_poll_helper() {
     return continue_running;
 }
 
-#if _WIN32 && DEBUG
-static void init_windows_console() {
-    // attaches to an existing console for printouts. Works with windows CMD but not MSYS2
-    if (AttachConsole(ATTACH_PARENT_PROCESS) == 0) {
-        // if fails, then allocate a new console
-        AllocConsole();
-    }
-    freopen("CONIN$", "r", stdin);
-    freopen("CONOUT$", "w", stdout);
-    freopen("CONOUT$", "w", stderr);
-}
-#endif
-
-static void initialize_game() {
-    SDLApp_FullInit();
-
-#if _WIN32 && DEBUG
-    init_windows_console();
-#endif
-
-    ArcadeBalance_Init();
-    AFS_Init(Resources_GetAFSPath());
-
-#if DEBUG
-    DebugConfig_Init();
-#endif
-
-    sf3_init();
-}
-
-static void cleanup() {
-    AFS_Finish();
-    SDLApp_Quit();
-}
-
 static int loop() {
     bool is_running = true;
 
     while (is_running) {
         switch (phase) {
-        case MAIN_PHASE_INIT:
-            SDLApp_PreInit();
+        case APP_PHASE_INIT:
+            pre_init();
 
             if (Resources_Check()) {
-                initialize_game();
-                phase = MAIN_PHASE_INITIALIZED;
+                full_init();
+                phase = APP_PHASE_INITIALIZED;
             } else {
-                phase = MAIN_PHASE_COPYING_RESOURCES;
+                phase = APP_PHASE_COPYING_RESOURCES;
             }
 
             break;
 
-        case MAIN_PHASE_COPYING_RESOURCES:
+        case APP_PHASE_COPYING_RESOURCES:
             is_running = sdl_poll_helper();
 
             if (!is_running) {
@@ -557,29 +549,29 @@ static int loop() {
             const bool resource_flow_ended = Resources_RunResourceCopyingFlow();
 
             if (resource_flow_ended) {
-                initialize_game();
-                phase = MAIN_PHASE_INITIALIZED;
+                full_init();
+                phase = APP_PHASE_INITIALIZED;
             }
 
             break;
 
-        case MAIN_PHASE_INITIALIZED:
-            is_running = SDLApp_PollEvents();
+        case APP_PHASE_INITIALIZED:
+            is_running = poll_events();
 
             if (!is_running) {
                 break;
             }
 
-            SDLApp_BeginFrame();
-            AFS_RunServer();
+            begin_frame();
             game_step_0();
-            SDLApp_EndFrame();
+            end_frame();
             game_step_1();
             break;
         }
     }
 
     cleanup();
+    SDL_Quit();
     return 0;
 }
 
