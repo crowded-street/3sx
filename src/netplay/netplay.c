@@ -3,7 +3,6 @@
 #include "netplay/game_state.h"
 #include "netplay/matchmaking.h"
 #include "netplay/sdl_net_adapter.h"
-#include "port/sdl/sdl_app.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/grade.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"

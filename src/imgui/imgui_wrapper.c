@@ -1,8 +1,8 @@
 #if DEBUG
 
 #include "imgui/imgui_wrapper.h"
+#include "platform/app/sdl/sdl_app.h"
 #include "port/paths.h"
-#include "port/sdl/sdl_app.h"
 #include "sf33rd/Source/Game/debug/debug_config.h"
 
 #include "imgui/dcimgui/dcimgui.h"

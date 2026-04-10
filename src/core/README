@@ -1,0 +1,3 @@
+This folder contains game-facing code and glues together platform-specific implementations. 
+
+If you wanna add some platform-specific code put it in [platform](../platform) instead.
