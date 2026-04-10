@@ -264,7 +264,7 @@ void SDLGameRenderer_EndFrame() {
     clear_render_tasks();
 }
 
-void* SDLGameRenderer_GetCanvasHandle() {
+SDL_Texture* SDLGameRenderer_GetCanvas() {
     return cps3_canvas;
 }
 

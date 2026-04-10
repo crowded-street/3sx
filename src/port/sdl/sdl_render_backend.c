@@ -8,7 +8,6 @@ const RenderBackendOps g_render_backend = {
     .begin_frame = SDLGameRenderer_BeginFrame,
     .render_frame = SDLGameRenderer_RenderFrame,
     .end_frame = SDLGameRenderer_EndFrame,
-    .get_canvas_handle = SDLGameRenderer_GetCanvasHandle,
     .create_texture = SDLGameRenderer_CreateTexture,
     .destroy_texture = SDLGameRenderer_DestroyTexture,
     .unlock_texture = SDLGameRenderer_UnlockTexture,

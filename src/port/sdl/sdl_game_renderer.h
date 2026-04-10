@@ -3,6 +3,7 @@
 
 #include "port/host_context.h"
 #include "rendering/game_renderer.h"
+
 #include <SDL3/SDL.h>
 
 typedef struct SDLGameRenderer_Vertex {
@@ -16,17 +17,17 @@ typedef struct SDLGameRenderer_Vertex {
     TexCoord tex_coord;
 } SDLGameRenderer_Vertex;
 
-extern SDL_Texture* cps3_canvas;
+// Internal
 
-/* SDL-specific lifecycle */
 void SDLGameRenderer_Init(const PlatformHostContext* host_context);
 void SDLGameRenderer_Shutdown();
 void SDLGameRenderer_BeginFrame();
 void SDLGameRenderer_RenderFrame();
 void SDLGameRenderer_EndFrame();
-void* SDLGameRenderer_GetCanvasHandle();
+SDL_Texture* SDLGameRenderer_GetCanvas();
 
-/* SDL backend implementations of CRS_Renderer_ interface */
+// Public
+
 void SDLGameRenderer_CreateTexture(unsigned int th);
 void SDLGameRenderer_DestroyTexture(unsigned int texture_handle);
 void SDLGameRenderer_UnlockTexture(unsigned int th);

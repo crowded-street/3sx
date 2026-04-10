@@ -14,6 +14,7 @@
 #include "port/sdl/netstats_renderer.h"
 #include "port/sdl/scanline_renderer.h"
 #include "port/sdl/sdl_debug_text.h"
+#include "port/sdl/sdl_game_renderer.h"
 #include "port/sdl/sdl_message_renderer.h"
 #include "port/sound/adx.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
@@ -434,8 +435,6 @@ static void end_frame() {
     NetstatsRenderer_Render();
     g_render_backend.render_frame();
 
-    SDL_Texture* scene_canvas = g_render_backend.get_canvas_handle();
-
     SDL_SetRenderTarget(renderer, screen_texture);
 
     // Render window background
@@ -444,7 +443,7 @@ static void end_frame() {
 
     // Render content
     const SDL_FRect dst_rect = get_letterbox_rect(screen_texture->w, screen_texture->h);
-    SDL_RenderTexture(renderer, scene_canvas, NULL, &dst_rect);
+    SDL_RenderTexture(renderer, SDLGameRenderer_GetCanvas(), NULL, &dst_rect);
 
     // Render screen texture to screen
     SDL_SetRenderTarget(renderer, NULL);

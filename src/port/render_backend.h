@@ -10,7 +10,6 @@ typedef struct RenderBackendOps {
     void (*begin_frame)();
     void (*render_frame)();
     void (*end_frame)();
-    void* (*get_canvas_handle)();
 
     void (*create_texture)(unsigned int th);
     void (*destroy_texture)(unsigned int texture_handle);
