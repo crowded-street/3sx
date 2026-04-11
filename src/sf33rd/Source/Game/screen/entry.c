@@ -6,6 +6,7 @@
 #include "sf33rd/Source/Game/screen/entry.h"
 #include "common.h"
 #include "constants.h"
+#include "core/arcade_game_mode.h"
 #include "main.h"
 #include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
@@ -155,7 +156,11 @@ void Disp_00_0() {
         return;
     }
 
-    SSPutStr(16, Insert_Y, 9, "PRESS ANY BUTTON", 2);
+    if (ArcadeGameMode_IsEnabled()) {
+        SSPutStr(19, Insert_Y, 9, "FREE PLAY", 2);
+    } else {
+        SSPutStr(16, Insert_Y, 9, "PRESS ANY BUTTON", 2);
+    }
 
     if (!(G_No[1] == 3 || G_No[1] == 5)) {
         return;
@@ -176,9 +181,11 @@ void Entry_01() {
     case 1:
         Entry_00();
 
-        if (~p1sw_1 & p1sw_0 & (SWK_START | SWK_ATTACKS)) {
+        const u32 entry_buttons = ArcadeGameMode_IsEnabled() ? SWK_START : (SWK_START | SWK_ATTACKS);
+
+        if (~p1sw_1 & p1sw_0 & entry_buttons) {
             Entry_01_Sub(0);
-        } else if (~p2sw_1 & p2sw_0 & (SWK_START | SWK_ATTACKS)) {
+        } else if (~p2sw_1 & p2sw_0 & entry_buttons) {
             Entry_01_Sub(1);
         }
 
