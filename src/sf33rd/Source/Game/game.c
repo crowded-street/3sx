@@ -1,5 +1,6 @@
 #include "sf33rd/Source/Game/game.h"
 #include "common.h"
+#include "core/arcade_game_mode.h"
 #include "main.h"
 #include "port/utils.h"
 #include "sf33rd/AcrSDK/common/pad.h"
@@ -106,6 +107,17 @@ static void Set_Appear_Type_For_Mode() {
     appear_type = Is_Training_Mode(Mode_Type) ? APPEAR_TYPE_NON_ANIMATED : APPEAR_TYPE_ANIMATED;
 }
 
+// Select press on either pad toggles arcade game mode.
+static void try_toggle_arcade_game_mode() {
+    const bool p1_toggle = (~p1sw_1 & p1sw_0 & SWK_BACK) && !(p1sw_0 & SWK_START);
+    const bool p2_toggle = (~p2sw_1 & p2sw_0 & SWK_BACK) && !(p2sw_0 & SWK_START);
+
+    if (p1_toggle || p2_toggle) {
+        ArcadeGameMode_Toggle();
+        SsRequest(106);
+    }
+}
+
 void Game_Task(struct _TASK* task_ptr) {
     s16 ix;
     s16 ff;
@@ -181,6 +193,8 @@ void Game0_0() {
 }
 
 void Game0_1() {
+    try_toggle_arcade_game_mode();
+
     Disp_Copyright();
     TITLE_Move(1);
 
@@ -230,11 +244,19 @@ void Game0_2() {
 
     case 5:
         FadeOut(1, 0xFF, 8);
-        BGM_Request(65);
         G_No[1] = 0xC;
-        G_No[2] = 0;
         G_No[3] = 0;
-        cpReadyTask(TASK_MENU, Menu_Task);
+        BGM_Request(65);
+
+        if (ArcadeGameMode_IsEnabled()) {
+            Mode_Type = MODE_ARCADE;
+            Decide_PL(Champion);
+            G_No[2] = 1;
+        } else {
+            G_No[2] = 0;
+            cpReadyTask(TASK_MENU, Menu_Task);
+        }
+
         break;
     }
 }
@@ -1567,8 +1589,36 @@ void Game11() {
 }
 
 void Loop_Demo(struct _TASK* /* unused */) {
+    try_toggle_arcade_game_mode();
+
     if (Ck_Coin()) {
         Next_Title_Sub();
+
+        // Arcade game mode: skip the mode-select menu and land directly on the
+        // character select transition. Next_Title_Sub leaves us at Game00 with
+        // TASK_ENTRY running; reroute to Game12 with the same state Game0_2 case
+        // 5 would produce for arcade mode, and perform the texture teardown that
+        // Game0_2 cases 3-4 do.
+        //
+        // Advance Entry_01 to its "wait for Request_E_No" state (E_No[2]=2),
+        // matching what Entry_01_Sub would produce after a title-screen Start
+        // press. Without this, Entry_01 stays in case 1 polling for Start rising
+        // edges during character select, which breaks 2P break-in (Entry_04
+        // never runs) and also lets a character-confirm Start press trigger
+        // Entry_01_Sub and deactivate P2.
+        if (ArcadeGameMode_IsEnabled()) {
+            TexRelease(601);
+            title_tex_flag = 0;
+            Purge_mmtm_area(2);
+            Make_texcash_of_list(2);
+            G_No[1] = 12;
+            G_No[2] = 1;
+            Mode_Type = MODE_ARCADE;
+            Decide_PL(Champion);
+            BGM_Request(65);
+            E_No[2] = 2;
+        }
+
         return;
     }
 
@@ -1789,11 +1839,13 @@ s16 Ck_Coin() {
 
     switch (G_No[3]) {
     case 0:
+        const u32 start_buttons = ArcadeGameMode_IsEnabled() ? SWK_START : (SWK_START | SWK_ATTACKS);
+
         PL_id = -1;
 
-        if (~p1sw_1 & p1sw_0 & (SWK_START | SWK_ATTACKS)) {
+        if (~p1sw_1 & p1sw_0 & start_buttons) {
             PL_id = 0;
-        } else if (~p2sw_1 & p2sw_0 & (SWK_START | SWK_ATTACKS)) {
+        } else if (~p2sw_1 & p2sw_0 & start_buttons) {
             PL_id = 1;
         }
 
