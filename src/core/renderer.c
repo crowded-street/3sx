@@ -5,7 +5,7 @@
 #include "core/renderer.h"
 
 #if CRS_VIDEO_DRIVER_SDL
-#include "port/sdl/sdl_game_renderer.h"
+#include "platform/video/sdl/sdl_game_renderer.h"
 #endif
 
 void Renderer_CreateTexture(unsigned int th) {

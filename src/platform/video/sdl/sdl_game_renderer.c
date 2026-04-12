@@ -1,6 +1,6 @@
 #if CRS_VIDEO_DRIVER_SDL
 
-#include "port/sdl/sdl_game_renderer.h"
+#include "platform/video/sdl/sdl_game_renderer.h"
 #include "common.h"
 #include "port/utils.h"
 #include "sf33rd/AcrSDK/ps2/flps2etc.h"
