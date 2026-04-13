@@ -112,7 +112,7 @@ static void* load_file(int file_id, int* size) {
     void* buff = malloc(buff_size);
 
     AFSHandle handle = AFS_Open(file_id);
-    AFS_ReadSync(handle, fsCalSectorSize(file_size), buff);
+    AFS_ReadSync(handle, buff);
     AFS_Close(handle);
 
     return buff;

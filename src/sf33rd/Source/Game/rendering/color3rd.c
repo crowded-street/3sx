@@ -108,7 +108,7 @@ void q_ldreq_color_data(REQ* curr) {
         curr->rno = 3;
         /* fallthrough */
     case 3:
-        err = fsRequestFileRead(curr, curr->sect, (void*)Get_ramcnt_address(curr->key));
+        err = fsRequestFileRead(curr, (void*)Get_ramcnt_address(curr->key));
 
         if (err == 0) {
             Push_ramcnt_key(curr->key);

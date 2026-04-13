@@ -235,7 +235,7 @@ void q_ldreq_texture_group(REQ* curr) {
         /* fallthrough */
 
     case 3:
-        err = fsRequestFileRead(curr, curr->sect, (void*)Get_ramcnt_address(curr->key));
+        err = fsRequestFileRead(curr, (void*)Get_ramcnt_address(curr->key));
 
         if (err == 0) {
             Push_ramcnt_key(curr->key);

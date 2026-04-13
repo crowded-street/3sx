@@ -81,7 +81,6 @@ static s32 info_data_check(_save_work* save);
 static s32 yes_no_check(_save_work* save);
 
 static void load_data(s32 fnum, void* adrs) {
-    s32 nsct;
     _save_work* save = &SaveWork;
 
     save->afs_handle = AFS_Open(fnum);
@@ -94,9 +93,8 @@ static void load_data(s32 fnum, void* adrs) {
         }
     }
 
-    nsct = AFS_GetSectorCount(save->afs_handle);
-    printf("load_data: fnum=%" PRId32 " adrs=0x%" PRIXPTR " size=0x%" PRIX32 "\n", fnum, (uintptr_t)adrs, nsct << 11);
-    AFS_Read(save->afs_handle, nsct, adrs);
+    printf("load_data: fnum=%" PRId32 " adrs=0x%" PRIXPTR "\n", fnum, (uintptr_t)adrs);
+    AFS_Read(save->afs_handle, adrs);
 }
 
 static s32 load_busy_ck() {
