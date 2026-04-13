@@ -1,4 +1,7 @@
 #include "port/sound/adx.h"
+
+#if SOUND_ENABLED
+
 #include "port/io/afs.h"
 #include "port/utils.h"
 #include "sf33rd/Source/Game/io/gd3rd.h"
@@ -461,3 +464,67 @@ ADXState ADX_GetState() {
         }
     }
 }
+
+#else
+
+void ADX_ProcessTracks() {
+    // Do nothing
+}
+
+void ADX_Init() {
+    // Do nothing
+}
+
+void ADX_Exit() {
+    // Do nothing
+}
+
+void ADX_Stop() {
+    // Do nothing
+}
+
+int ADX_IsPaused() {
+    return 1;
+}
+
+void ADX_Pause(int pause) {
+    // Do nothing
+}
+
+void ADX_StartSeamless() {
+    // Do nothing
+}
+
+void ADX_StartMem(void* buf, size_t size) {
+    // Do nothing
+}
+
+int ADX_GetNumFiles() {
+    return 0;
+}
+
+void ADX_EntryAfs(int file_id) {
+    // Do nothing
+}
+
+void ADX_StartAfs(int file_id) {
+    // Do nothing
+}
+
+void ADX_ResetEntry() {
+    // Do nothing
+}
+
+void ADX_SetOutVol(int volume) {
+    // Do nothing
+}
+
+void ADX_SetMono(bool mono) {
+    // Do nothing
+}
+
+ADXState ADX_GetState() {
+    return ADX_STATE_STOP;
+}
+
+#endif

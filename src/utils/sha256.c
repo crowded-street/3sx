@@ -1,3 +1,5 @@
+#if CHECKSUM
+
 #include "sha256.h"
 
 #include <psa/crypto.h>
@@ -81,3 +83,5 @@ bool sha256_finalize_hex(sha256* sha, char* dst_hex65) {
 bool sha256_finalize_bytes(sha256* sha, void* dst_bytes32) {
     return sha256_finalize_internal(sha, dst_bytes32);
 }
+
+#endif

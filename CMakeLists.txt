@@ -29,29 +29,48 @@ file(GLOB_RECURSE GAME_SRC CONFIGURE_DEPENDS src/*.c)
 
 add_executable(3sx MACOSX_BUNDLE
     ${GAME_SRC}
-    $<$<CONFIG:Debug>:${IMGUI_SOURCES}>
 )
+
+if(NOT PSP)
+    target_sources(3sx PRIVATE
+        $<$<CONFIG:Debug>:${IMGUI_SOURCES}>
+    )
+endif()
 
 # ======================================
 # Compiler and linker flags
 # ======================================
 
-target_compile_definitions(3sx PRIVATE
-    $<$<CONFIG:Debug>:DEBUG>
-    $<$<CONFIG:Debug>:NETPLAY_ENABLED>
+if(PSP)
+    target_compile_definitions(3sx PRIVATE
+        $<$<CONFIG:Debug>:DEBUG>
 
-    $<$<CONFIG:Release>:RELEASE>
-    $<$<CONFIG:Release>:CHECKSUM>
+        $<$<CONFIG:Release>:RELEASE>
 
-    _POSIX_C_SOURCE
+        CRS_APP_DRIVER_PSP
+        CRS_VIDEO_DRIVER_PSP
+    )
+else()
+    target_compile_definitions(3sx PRIVATE
+        $<$<CONFIG:Debug>:DEBUG>
+        $<$<CONFIG:Debug>:NETPLAY_ENABLED>
 
-    # GekkoNet is a pre-built static lib; these were previously propagated by its cmake target
-    GEKKONET_STATIC
-    GEKKONET_NO_ASIO
+        $<$<CONFIG:Release>:RELEASE>
+        $<$<CONFIG:Release>:CHECKSUM>
 
-    CRS_APP_DRIVER_SDL
-    CRS_VIDEO_DRIVER_SDL
-)
+        # GekkoNet is a pre-built static lib; these were previously propagated by its cmake target
+        GEKKONET_STATIC
+        GEKKONET_NO_ASIO
+
+        CRS_APP_DRIVER_SDL
+        CRS_VIDEO_DRIVER_SDL
+
+        ARCADE_ROM
+        SOUND_ENABLED
+        IMGUI
+    )
+endif()
+
 
 # Feature toggles
 target_compile_definitions(3sx PRIVATE
@@ -95,9 +114,15 @@ target_compile_options(3sx PRIVATE
     ${DISABLED_WARNINGS}
 
     $<$<CONFIG:Debug>:-Wno-unused-function>
-    $<$<CONFIG:Debug>:-Wno-unused-variable>
+    # $<$<CONFIG:Debug>:-Wno-unused-variable>
+    -Wno-unused-variable
     $<$<CONFIG:Debug>:-Wno-unused-but-set-variable>
 )
+
+if(PSP)
+    target_compile_options(3sx PRIVATE -G0)
+    target_link_options(3sx PRIVATE -G0)
+endif()
 
 set_target_properties(3sx PROPERTIES
     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake/Info.plist"
@@ -140,17 +165,36 @@ include_directories(
     ${TF_PSA_CRYPTO_ROOT}/include
 )
 
-target_link_libraries(3sx PRIVATE
-    m
-    "${LIBCDIO_ROOT}/lib/libiso9660.a"
-    "${LIBCDIO_ROOT}/lib/libcdio.a"
-    "${GEKKONET_ROOT}/lib/libGekkoNet.a"
-    "${SDL3_NET_ROOT}/lib/libSDL3_net.a"
-    "${MINIZIP_NG_ROOT}/lib/libminizip-ng.a"
-    "${TF_PSA_CRYPTO_ROOT}/lib/libtfpsacrypto.a"
-    ZLIB::ZLIB
-    stdc++ # For GekkoNet
-)
+if(PSP)
+    target_link_libraries(3sx PRIVATE
+        m
+        "${SDL3_ROOT}/lib/libSDL3.a"
+        GL
+        ZLIB::ZLIB
+        pspdebug
+        pspvram
+        pspaudio
+        pspvfpu
+        pspgu
+        pspge
+        pspdisplay
+        psphprm
+        pspctrl
+        psppower
+    )
+else()
+    target_link_libraries(3sx PRIVATE
+        m
+        "${LIBCDIO_ROOT}/lib/libiso9660.a"
+        "${LIBCDIO_ROOT}/lib/libcdio.a"
+        "${GEKKONET_ROOT}/lib/libGekkoNet.a"
+        "${SDL3_NET_ROOT}/lib/libSDL3_net.a"
+        "${MINIZIP_NG_ROOT}/lib/libminizip-ng.a"
+        "${TF_PSA_CRYPTO_ROOT}/lib/libtfpsacrypto.a"
+        ZLIB::ZLIB
+        stdc++ # For GekkoNet
+    )
+endif()
 
 if(APPLE)
     target_link_libraries(3sx PRIVATE
@@ -267,16 +311,28 @@ endif()
 # Packaging
 # ======================================
 
-set(CPACK_PACKAGE_NAME "3SX")
-set(CPACK_PACKAGE_VENDOR "CrowdedStreet")
-# set(CPACK_PACKAGE_VERSION "1.0.0")
+if(PSP)
+    create_pbp_file(
+        TARGET 3sx
+        ICON_PATH NULL
+        BACKGROUND_PATH NULL
+        MUSIC_PATH NULL
+        PREVIEW_PATH NULL
+        TITLE "3SX"
+        VERSION 0.1
+    )
+else()
+    set(CPACK_PACKAGE_NAME "3SX")
+    set(CPACK_PACKAGE_VENDOR "CrowdedStreet")
+    # set(CPACK_PACKAGE_VERSION "1.0.0")
 
-if(WIN32)
-    set(CPACK_GENERATOR "ZIP")
-elseif(APPLE)
-    set(CPACK_GENERATOR "DragNDrop")
-else(UNIX)
-    set(CPACK_GENERATOR "TGZ")
+    if(WIN32)
+        set(CPACK_GENERATOR "ZIP")
+    elseif(APPLE)
+        set(CPACK_GENERATOR "DragNDrop")
+    else(UNIX)
+        set(CPACK_GENERATOR "TGZ")
+    endif()
+
+    include(CPack)
 endif()
-
-include(CPack)

@@ -19,8 +19,10 @@ typedef double f64;
 
 // SCE types
 
+#if !PSP
 typedef uint8_t u_char;
 typedef uint16_t u_short;
 typedef uint32_t u_int;
+#endif
 
 #endif

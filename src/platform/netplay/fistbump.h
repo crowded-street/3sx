@@ -1,3 +1,5 @@
+#if NETPLAY_ENABLED
+
 #ifndef FISTBUMP_H
 #define FISTBUMP_H
 
@@ -28,10 +30,10 @@ typedef struct NET_DatagramSocket NET_DatagramSocket;
 
 typedef struct {
     char match_id[37];
-    int player;        // 1 or 2
+    int player; // 1 or 2
     char opponent_name[64];
-    char ip[64];       // remote peer IP string
-    int remote_port;   // remote peer game port (parsed from "ip:port")
+    char ip[64];     // remote peer IP string
+    int remote_port; // remote peer game port (parsed from "ip:port")
 } MatchResult;
 
 typedef struct {
@@ -48,7 +50,7 @@ typedef struct {
     char username[64];
 } Fistbump_Profile;
 
-void Fistbump_Start(const char* server_ip, int tcp_port, int udp_port, const char *pref_path);
+void Fistbump_Start(const char* server_ip, int tcp_port, int udp_port, const char* pref_path);
 void Fistbump_Connect();
 void Fistbump_Queue();
 void Fistbump_CancelQueue();
@@ -65,3 +67,5 @@ void Fistbump_Logout();
 void Fistbump_Reset();
 
 #endif
+
+#endif // NETPLAY_ENABLED

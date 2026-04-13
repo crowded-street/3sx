@@ -1,3 +1,5 @@
+#if ARCADE_ROM
+
 #include "arcade/rom_load.h"
 #include "arcade/cps3_decrypt.h"
 
@@ -102,3 +104,5 @@ void* Rom_Load(const char* path, size_t* size) {
 
     return result;
 }
+
+#endif

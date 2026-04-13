@@ -2,10 +2,10 @@
 
 #if _WIN32
 #define WIN32_LEAN_AND_MEAN
-#include <windows.h>
 #include <dbghelp.h>
+#include <windows.h>
 #define SYMBOL_NAME_MAX 256
-#else
+#elif __APPLE__ || linux
 #include <execinfo.h>
 #include <signal.h>
 #include <unistd.h>
@@ -26,29 +26,36 @@ void fatal_error(const char* fmt, ...) {
     fprintf(stderr, "\n");
 
     va_end(args);
+
+#if __APPLE__ || linux
     void* buffer[BACKTRACE_MAX];
 
-#if !_WIN32
     int nptrs = backtrace(buffer, BACKTRACE_MAX);
     fprintf(stderr, "Stack trace:\n");
     backtrace_symbols_fd(buffer, nptrs, fileno(stderr));
-#else
+#elif _WIN32
+    void* buffer[BACKTRACE_MAX];
+
     fprintf(stderr, "Stack trace:\n");
     HANDLE process = GetCurrentProcess();
     SymInitialize(process, NULL, TRUE);
     int nptrs = CaptureStackBackTrace(0, BACKTRACE_MAX, buffer, NULL);
     SYMBOL_INFO* symbol = (SYMBOL_INFO*)calloc(1, sizeof(SYMBOL_INFO) + SYMBOL_NAME_MAX);
+
     if (!symbol) {
         fprintf(stderr, "Calloc failed when allocating SYMBOL_INFO, bailing!\n\n");
         SymCleanup(process);
         abort();
     }
+
     symbol->MaxNameLen = SYMBOL_NAME_MAX;
     symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+
     for (int i = 0; i < nptrs; i++) {
         SymFromAddr(process, (DWORD64)buffer[i], 0, symbol);
         fprintf(stderr, "%i: %s - 0x%0llX\n", nptrs - i - 1, symbol->Name, symbol->Address);
     }
+
     free(symbol);
     SymCleanup(process);
 #endif
@@ -78,7 +85,7 @@ void stop_if(bool condition) {
 
 #if _WIN32
     __debugbreak();
-#else
+#elif __APPLE__ || linux
     raise(SIGSTOP);
 #endif
 #endif

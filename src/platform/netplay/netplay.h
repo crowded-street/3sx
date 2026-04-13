@@ -1,3 +1,5 @@
+#if NETPLAY_ENABLED
+
 #ifndef NETPLAY_H
 #define NETPLAY_H
 
@@ -17,7 +19,6 @@ typedef enum NetplaySessionState {
     NETPLAY_SESSION_EXITING,
 } NetplaySessionState;
 
-
 void Netplay_SetParams(int player, const char* ip);
 void Netplay_BeginDirectP2P();
 void Netplay_TickDirectP2P();
@@ -33,3 +34,5 @@ void Netplay_HandleMenuExit();
 void Netplay_GetNetworkStats(NetworkStats* stats);
 
 #endif
+
+#endif // NETPLAY_ENABLED

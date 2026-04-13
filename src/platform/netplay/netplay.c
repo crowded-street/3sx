@@ -1,3 +1,5 @@
+#if NETPLAY_ENABLED
+
 #include "platform/netplay/netplay.h"
 #include "main.h"
 #include "platform/app/sdl/sdl_app.h"
@@ -767,3 +769,5 @@ void Netplay_HandleMenuExit() {
 void Netplay_GetNetworkStats(NetworkStats* stats) {
     SDL_copyp(stats, &network_stats);
 }
+
+#endif

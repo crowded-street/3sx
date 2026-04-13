@@ -6,7 +6,6 @@
 #include "sf33rd/Source/Game/system/sys_sub.h"
 #include "common.h"
 #include "main.h"
-#include "platform/netplay/netplay.h"
 #include "sf33rd/AcrSDK/common/mlPAD.h"
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/Source/Game/com/com_data.h"
@@ -34,6 +33,11 @@
 #include "sf33rd/Source/Game/system/sysdir.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/ui/sc_sub.h"
+
+#if NETPLAY_ENABLED
+#include "platform/netplay/netplay.h"
+#endif
+
 #include <memory.h>
 
 u8 Candidate_Buff[16];
@@ -1020,7 +1024,11 @@ void Soft_Reset_Sub() {
     init_pulpul_work();
     pp_operator_check_flag(1);
     Init_Load_Request_Queue_1st();
+
+#if NETPLAY_ENABLED
     Netplay_CancelMatchmaking();
+#endif
+
     cpExitTask(TASK_MENU);
     cpExitTask(TASK_SAVER);
     cpExitTask(TASK_PAUSE);

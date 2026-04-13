@@ -34,7 +34,7 @@ typedef enum Dipswitch : uint32_t {
     DIP_GROUND_SPECIALS_DISABLED = 1 << 28,
     DIP_AIR_SPECIALS_DISABLED = 1 << 29,
     DIP_UNKNOWN_30 = 1 << 30,
-    DIP_UNKNOWN_31 = 1 << 31,
+    DIP_UNKNOWN_31 = 1U << 31,
 } Dipswitch;
 
 typedef enum Dipswitch2 {

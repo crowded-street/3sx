@@ -8,9 +8,6 @@
 #include "core/app.h"
 #include "main.h"
 #include "platform/app/sdl/sdl_app.h"
-#include "platform/netplay/fistbump.h"
-#include "platform/netplay/netplay.h"
-#include "port/sdl/netplay_screen.h"
 #include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Game/animation/appear.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
@@ -48,7 +45,6 @@
 #include "sf33rd/Source/Game/io/vm_sub.h"
 #include "sf33rd/Source/Game/menu/dir_data.h"
 #include "sf33rd/Source/Game/menu/ex_data.h"
-#include "sf33rd/Source/Game/menu/netplay_menu.h"
 #include "sf33rd/Source/Game/message/en/msgtable_en.h"
 #include "sf33rd/Source/Game/rendering/color3rd.h"
 #include "sf33rd/Source/Game/rendering/mmtmcnt.h"
@@ -71,6 +67,13 @@
 #include "sf33rd/Source/Game/ui/sc_sub.h"
 #include "sf33rd/Source/PS2/mc/savesub.h"
 #include "structs.h"
+
+#if NETPLAY_ENABLED
+#include "platform/netplay/fistbump.h"
+#include "platform/netplay/netplay.h"
+#include "port/sdl/netplay_screen.h"
+#include "sf33rd/Source/Game/menu/netplay_menu.h"
+#endif
 
 void Default_Training_Option();
 void Dummy_Move_Sub(struct _TASK* task_ptr, s16 PL_id, s16 id, s16 type, s16 max);
@@ -3621,7 +3624,9 @@ void VS_Result(struct _TASK* task_ptr) {
 
     case 7:
     default:
+#if NETPLAY_ENABLED
         Netplay_HandleMenuExit();
+#endif
 
         if (Exit_Sub(task_ptr, 0, 0)) {
             System_all_clear_Level_B();

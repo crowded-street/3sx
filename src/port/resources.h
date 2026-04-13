@@ -7,12 +7,14 @@
 /// @param file_path Relative path to a file in resources, or `NULL` for path to the root of resources folder.
 char* Resources_GetPath(const char* file_path);
 
+const char* Resources_GetAFSPath();
 bool Resources_Check();
 
+// FIXME: Extract resource copying flow from here
+#if CRS_APP_DRIVER_SDL
 /// @brief Run resource copying flow. Repeated calls of this function progress the flow.
 /// @return `true` if resources have been copied, `false` otherwise.
 bool Resources_RunResourceCopyingFlow();
-
-const char* Resources_GetAFSPath();
+#endif
 
 #endif

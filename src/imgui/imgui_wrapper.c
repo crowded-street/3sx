@@ -1,4 +1,4 @@
-#if DEBUG
+#if DEBUG && IMGUI
 
 #include "imgui/imgui_wrapper.h"
 #include "platform/app/sdl/sdl_app.h"

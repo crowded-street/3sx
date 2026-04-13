@@ -1,3 +1,5 @@
+#if NETPLAY_ENABLED
+
 #include "port/sdl/netplay_screen.h"
 #include "main.h"
 #include "platform/netplay/fistbump.h"
@@ -116,3 +118,5 @@ void NetplayScreen_Render() {
     const char* msg = "Match start!";
     SSPutStrPro(1, 384, 110, 9, 0xFFFFFFFF, msg);
 }
+
+#endif // NETPLAY_ENABLED

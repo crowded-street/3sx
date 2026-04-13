@@ -1,9 +1,89 @@
 #include "port/resources.h"
 #include "port/paths.h"
-#include "utils/sha256.h"
 
 #include <SDL3/SDL.h>
+
+#if CHECKSUM
+#include "utils/sha256.h"
+#endif
+
+#if CRS_APP_DRIVER_SDL
 #include <cdio/iso9660.h>
+#endif
+
+static const char* afs_path = NULL;
+
+static bool file_exists(const char* path) {
+    SDL_PathInfo path_info;
+    SDL_GetPathInfo(path, &path_info);
+    return path_info.type == SDL_PATHTYPE_FILE;
+}
+
+char* Resources_GetPath(const char* file_path) {
+    const char* base = Paths_GetPrefPath();
+    char* full_path = NULL;
+
+    if (file_path == NULL) {
+        SDL_asprintf(&full_path, "%sresources/", base);
+    } else {
+        SDL_asprintf(&full_path, "%sresources/%s", base, file_path);
+    }
+
+    return full_path;
+}
+
+const char* Resources_GetAFSPath() {
+    if (afs_path == NULL) {
+        afs_path = Resources_GetPath("SF33RD.AFS");
+    }
+
+    return afs_path;
+}
+
+bool Resources_Check() {
+    const char* afs_path = Resources_GetAFSPath();
+    const bool afs_present = file_exists(afs_path);
+
+    if (!afs_present) {
+        return false;
+    }
+
+#if CHECKSUM
+    sha256 sha;
+    sha256_init(&sha);
+
+    const size_t chunk_size = 10 * 1024;
+    void* buf = SDL_malloc(chunk_size);
+    SDL_IOStream* io = SDL_IOFromFile(afs_path, "rb");
+    size_t bytes_read = 0;
+
+    while (true) {
+        bytes_read = SDL_ReadIO(io, buf, chunk_size);
+
+        if (bytes_read <= 0) {
+            break;
+        }
+
+        sha256_append(&sha, buf, bytes_read);
+    }
+
+    SDL_free(buf);
+    SDL_CloseIO(io);
+
+    char hex[SHA256_HEX_SIZE];
+    sha256_finalize_hex(&sha, hex);
+
+    if (SDL_strncmp(hex, EXPECTED_AFS_SHA, sizeof(hex)) == 0) {
+        return true;
+    } else {
+        return false;
+    }
+#else
+    return true;
+#endif
+}
+
+#if CRS_APP_DRIVER_SDL
 
 #define EXPECTED_AFS_SHA "f9fa50f3a124ec9fa9465aa9c8546c2d867887eb39f711a070762a0324ba5604"
 #define ERROR_LEN_MAX 512
@@ -13,7 +93,6 @@ typedef enum FlowState { INIT, DIALOG_OPENED, COPY_ERROR, COPY_SUCCESS } Resourc
 static ResourceCopyingFlowState flow_state = INIT;
 static SDL_Window* dialog_owner_window = NULL;
 static char error[ERROR_LEN_MAX] = { 0 };
-static const char* afs_path = NULL;
 
 static void create_dialog_parent_window() {
     if (dialog_owner_window != NULL) {
@@ -32,12 +111,6 @@ static void destroy_dialog_owner_window() {
 
     SDL_DestroyWindow(dialog_owner_window);
     dialog_owner_window = NULL;
-}
-
-static bool file_exists(const char* path) {
-    SDL_PathInfo path_info;
-    SDL_GetPathInfo(path, &path_info);
-    return path_info.type == SDL_PATHTYPE_FILE;
 }
 
 static void create_resources_directory() {
@@ -128,62 +201,6 @@ static void open_dialog() {
     SDL_ShowOpenFileDialog(open_file_dialog_callback, NULL, dialog_owner_window, &filter, 1, NULL, false);
 }
 
-char* Resources_GetPath(const char* file_path) {
-    const char* base = Paths_GetPrefPath();
-    char* full_path = NULL;
-
-    if (file_path == NULL) {
-        SDL_asprintf(&full_path, "%sresources/", base);
-    } else {
-        SDL_asprintf(&full_path, "%sresources/%s", base, file_path);
-    }
-
-    return full_path;
-}
-
-bool Resources_Check() {
-    const char* afs_path = Resources_GetAFSPath();
-    const bool afs_present = file_exists(afs_path);
-
-    if (!afs_present) {
-        return false;
-    }
-
-#if CHECKSUM
-    sha256 sha;
-    sha256_init(&sha);
-
-    const size_t chunk_size = 10 * 1024;
-    void* buf = SDL_malloc(chunk_size);
-    SDL_IOStream* io = SDL_IOFromFile(afs_path, "rb");
-    size_t bytes_read = 0;
-
-    while (true) {
-        bytes_read = SDL_ReadIO(io, buf, chunk_size);
-
-        if (bytes_read <= 0) {
-            break;
-        }
-
-        sha256_append(&sha, buf, bytes_read);
-    }
-
-    SDL_free(buf);
-    SDL_CloseIO(io);
-
-    char hex[SHA256_HEX_SIZE];
-    sha256_finalize_hex(&sha, hex);
-
-    if (SDL_strncmp(hex, EXPECTED_AFS_SHA, sizeof(hex)) == 0) {
-        return true;
-    } else {
-        return false;
-    }
-#else
-    return true;
-#endif
-}
-
 bool Resources_RunResourceCopyingFlow() {
     switch (flow_state) {
     case INIT:
@@ -221,10 +238,4 @@ bool Resources_RunResourceCopyingFlow() {
     return false;
 }
 
-const char* Resources_GetAFSPath() {
-    if (afs_path == NULL) {
-        afs_path = Resources_GetPath("SF33RD.AFS");
-    }
-
-    return afs_path;
-}
+#endif // CRS_APP_DRIVER_SDL

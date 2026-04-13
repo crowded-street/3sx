@@ -13,7 +13,10 @@
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "structs.h"
 
+#include <SDL3/SDL.h>
+
 #include <fcntl.h>
+#include <inttypes.h>
 #include <libgraph.h>
 #include <stdio.h>
 #include <string.h>
@@ -21,17 +24,6 @@
 
 #ifndef _WIN32
 #include <ctype.h>
-
-s8* strupr(s8* s) {
-    s8* p = s;
-
-    while (*p) {
-        *p = toupper((u8)*p);
-        p++;
-    }
-
-    return s;
-}
 #endif
 
 void flCompact();
@@ -55,11 +47,11 @@ s32 flFileRead(s8* filename, void* buf, s32 len) {
     strcpy(temp, "cdrom0:\\THIRD\\");
     p = strlen(temp) + temp;
     strcat(temp, filename);
-    strupr(p);
+    SDL_strupr(p);
     strcat(temp, ";1");
 
     fd = open(temp, O_RDONLY);
-    printf("flFileRead: \"%s\" (fd = %d)\n", temp, fd);
+    printf("flFileRead: \"%s\" (fd = %" PRId32 ")\n", temp, fd);
 
     if (fd < 0) {
         return 0;
@@ -78,7 +70,7 @@ s32 flFileWrite(s8* filename, void* buf, s32 len) {
     strcpy(temp, "cdrom0:\\THIRD\\");
     p = strlen(temp) + temp;
     strcat(temp, filename);
-    strupr(p);
+    SDL_strupr(p);
     strcat(temp, ";1");
 
     if ((fd = open(temp, O_WRONLY | O_CREAT | O_TRUNC)) < 0) {
@@ -98,7 +90,7 @@ s32 flFileAppend(s8* filename, void* buf, ssize_t len) {
     strcpy(temp, "cdrom0:\\THIRD\\");
     p = strlen(temp) + temp;
     strcat(temp, filename);
-    strupr(p);
+    SDL_strupr(p);
     strcat(temp, ";1");
 
     if ((fd = open(temp, O_WRONLY)) < 0) {
@@ -120,7 +112,7 @@ s32 flFileLength(s8* filename) {
     strcpy(temp, "cdrom0:\\THIRD\\");
     p = strlen(temp) + temp;
     strcat(temp, filename);
-    strupr(p);
+    SDL_strupr(p);
     strcat(temp, ";1");
 
     if ((fd = open(temp, O_RDONLY)) < 0) {

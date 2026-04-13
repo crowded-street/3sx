@@ -1,3 +1,5 @@
+#if NETPLAY_ENABLED
+
 #include "platform/netplay/fistbump.h"
 
 #include <SDL3/SDL.h>
@@ -470,3 +472,5 @@ void Fistbump_Reset() {
     memset(&profile, 0, sizeof(profile));
     NET_Quit();
 }
+
+#endif

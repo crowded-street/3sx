@@ -1,3 +1,5 @@
+#if NETPLAY_ENABLED
+
 #ifndef SDL_NET_ADAPTER_H
 #define SDL_NET_ADAPTER_H
 
@@ -9,3 +11,5 @@ GekkoNetAdapter* SDLNetAdapter_Create(struct NET_DatagramSocket* sock);
 void SDLNetAdapter_Destroy();
 
 #endif
+
+#endif // NETPLAY_ENABLED

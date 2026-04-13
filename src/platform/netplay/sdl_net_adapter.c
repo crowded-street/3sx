@@ -1,3 +1,5 @@
+#if NETPLAY_ENABLED
+
 #include "platform/netplay/sdl_net_adapter.h"
 
 #include <SDL3/SDL.h>
@@ -95,3 +97,5 @@ void SDLNetAdapter_Destroy() {
     }
     cached_port = 0;
 }
+
+#endif
