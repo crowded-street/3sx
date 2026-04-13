@@ -10,12 +10,15 @@
 #include "port/config/config.h"
 #include "port/config/keymap.h"
 #include "port/input_backend.h"
-#include "port/sdl/netplay_screen.h"
-#include "port/sdl/netstats_renderer.h"
 #include "port/sdl/sdl_debug_text.h"
 #include "port/sdl/sdl_message_renderer.h"
 #include "port/sound/adx.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
+
+#if NETPLAY_ENABLED
+#include "port/sdl/netplay_screen.h"
+#include "port/sdl/netstats_renderer.h"
+#endif
 
 #if DEBUG
 #include "sf33rd/Source/Game/debug/debug_config.h"
@@ -420,10 +423,13 @@ static void end_frame() {
 
     // Render
 
+#if NETPLAY_ENABLED
     // This should come before SDLGameRenderer_RenderFrame,
     // because NetstatsRenderer uses the existing SFIII rendering pipeline
     NetplayScreen_Render();
     NetstatsRenderer_Render();
+#endif
+
     SDLGameRenderer_RenderFrame();
 
     SDL_SetRenderTarget(renderer, screen_texture);

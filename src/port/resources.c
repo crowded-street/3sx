@@ -11,6 +11,8 @@
 #include <cdio/iso9660.h>
 #endif
 
+#define EXPECTED_AFS_SHA "f9fa50f3a124ec9fa9465aa9c8546c2d867887eb39f711a070762a0324ba5604"
+
 static const char* afs_path = NULL;
 
 static bool file_exists(const char* path) {
@@ -85,7 +87,6 @@ bool Resources_Check() {
 
 #if CRS_APP_DRIVER_SDL
 
-#define EXPECTED_AFS_SHA "f9fa50f3a124ec9fa9465aa9c8546c2d867887eb39f711a070762a0324ba5604"
 #define ERROR_LEN_MAX 512
 
 typedef enum FlowState { INIT, DIALOG_OPENED, COPY_ERROR, COPY_SUCCESS } ResourceCopyingFlowState;
