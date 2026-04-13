@@ -4,6 +4,7 @@
 #include "stb/stb_ds.h"
 #include <SDL3/SDL.h>
 
+#include <stdarg.h>
 #include <stdio.h>
 
 // Inspired by https://github.com/MaikelChan/AFSLib
@@ -19,9 +20,6 @@
 #else
 #define READ_CHUNK_SIZE 256 * 1024
 #endif
-
-// Uncomment this to enable debug prints
-// #define AFS_DEBUG
 
 typedef struct AFSEntry {
     size_t offset;
@@ -47,6 +45,18 @@ typedef struct ReadRequest {
 static AFS afs = { 0 };
 static ReadRequest* requests = NULL;
 static SDL_IOStream* stream = NULL;
+
+static void log(const char* fmt, ...) {
+    char buffer[512];
+    va_list args;
+    va_start(args, fmt);
+
+    int len = SDL_snprintf(buffer, sizeof(buffer), "[AFS] ");
+    SDL_vsnprintf(buffer + len, sizeof(buffer) - len, fmt, args);
+    SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_DEBUG, "%s", buffer);
+
+    va_end(args);
+}
 
 static bool is_valid_attribute_data(Uint32 attributes_offset, Uint32 attributes_size, Sint64 file_size,
                                     Uint32 entries_end_offset, Uint32 entry_count) {
@@ -74,10 +84,12 @@ static bool is_valid_attribute_data(Uint32 attributes_offset, Uint32 attributes_
 }
 
 static void read_string(SDL_IOStream* src, char* dst) {
+    char c;
+
     do {
-        SDL_ReadS8(src, dst);
-        dst++;
-    } while (*dst != '\0');
+        SDL_ReadS8(src, &c);
+        *dst++ = c;
+    } while (c != '\0');
 }
 
 static bool init_afs(const char* file_path) {
@@ -256,19 +268,13 @@ AFSHandle AFS_Open(size_t file_num) {
     request->state = AFS_READ_STATE_IDLE;
     request->initialized = true;
 
-#if defined(AFS_DEBUG)
-    printf("📂 %d: open (file_num = %d, filename = %s)\n", index, file_num, afs.entries[file_num].name);
-#endif
-
+    log("Open %s (file_num = %d)", afs.entries[file_num].name, file_num);
     return index;
 }
 
 void AFS_Read(AFSHandle handle, void* buf) {
-#if defined(AFS_DEBUG)
-    printf("📂 %d: read (sectors = %d, bytes = 0x%X)\n", handle, sectors, sectors * 2048);
-#endif
-
     ReadRequest* request = &requests[handle];
+    log("Read %s (bytes = 0x%X)", afs.entries[request->file_num].name, request->bytes_to_read);
     SDL_assert(request->buf == NULL);
     SDL_assert(request->state == AFS_READ_STATE_IDLE);
     request->buf = buf;
@@ -276,38 +282,25 @@ void AFS_Read(AFSHandle handle, void* buf) {
 }
 
 void AFS_ReadSync(AFSHandle handle, void* buf) {
-#if defined(AFS_DEBUG)
-    printf("📂 %d: read sync\n", handle);
-#endif
-
-    AFS_Read(handle, buf);
     ReadRequest* request = &requests[handle];
+    log("Read (sync) %s", afs.entries[request->file_num].name);
+    AFS_Read(handle, buf);
     read_into_request(request, request->bytes_to_read);
     SDL_assert(request->state == AFS_READ_STATE_FINISHED);
 }
 
 void AFS_Stop(AFSHandle handle) {
-#if defined(AFS_DEBUG)
-    printf("📂 %d: stop\n", handle);
-#endif
-
-    requests[handle].state = AFS_READ_STATE_IDLE;
+    ReadRequest* request = &requests[handle];
+    log("Stop %s", afs.entries[request->file_num].name);
+    request->state = AFS_READ_STATE_IDLE;
 }
 
 void AFS_Close(AFSHandle handle) {
-#if defined(AFS_DEBUG)
-    printf("📂 %d: close\n", handle);
-#endif
-
-    SDL_zero(requests[handle]);
+    ReadRequest* request = &requests[handle];
+    log("Close %s", afs.entries[request->file_num].name);
+    SDL_zerop(request);
 }
 
 AFSReadState AFS_GetState(AFSHandle handle) {
-    ReadRequest* request = &requests[handle];
-
-#if defined(AFS_DEBUG)
-    printf("📂 %d: get state (%d)\n", handle, request->state);
-#endif
-
-    return request->state;
+    return requests[handle].state;
 }
