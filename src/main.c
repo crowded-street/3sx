@@ -108,7 +108,10 @@ void Main_Init() {
     palCreateGhost();
     ppgMakeConvTableTexDC();
     appSetupBasePriority();
+
+#if !MEMCARD_DISABLED
     MemcardInit();
+#endif
 }
 
 // Iteration
