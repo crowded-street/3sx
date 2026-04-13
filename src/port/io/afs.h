@@ -15,7 +15,12 @@ typedef int AFSHandle;
 
 #define AFS_NONE -1
 
-bool AFS_Init(const char* file_path);
+/// Initialize AFS subsystem.
+/// @param file_path Path to AFS file.
+/// @param read_chunk_size Maximum size of data read per call to `AFS_RunServer`.
+/// @return `true` on success, `false` on failure.
+bool AFS_Init(const char* file_path, size_t read_chunk_size);
+
 void AFS_Finish();
 size_t AFS_GetFileCount();
 size_t AFS_GetSize(size_t file_num);

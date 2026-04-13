@@ -23,7 +23,7 @@ static bool init() {
     }
 
     InputBackend_Init();
-    AFS_Init(Resources_GetAFSPath());
+    AFS_Init(Resources_GetAFSPath(), 16 * 1024);
     PSPRenderer_Init();
     Main_Init();
     return true;

@@ -14,13 +14,6 @@
 #define AFS_ATTRIBUTE_ENTRY_SIZE 48
 #define AFS_MAX_NAME_LENGTH 32
 
-// FIXME: Extract to a common API surface
-#if PSP
-#define READ_CHUNK_SIZE 16 * 1024
-#else
-#define READ_CHUNK_SIZE 256 * 1024
-#endif
-
 typedef struct AFSEntry {
     size_t offset;
     size_t size;
@@ -45,6 +38,7 @@ typedef struct ReadRequest {
 static AFS afs = { 0 };
 static ReadRequest* requests = NULL;
 static SDL_IOStream* stream = NULL;
+static size_t _read_chunk_size = 0;
 
 static void log(const char* fmt, ...) {
     char buffer[512];
@@ -171,7 +165,10 @@ static bool init_afs(const char* file_path) {
     return true;
 }
 
-bool AFS_Init(const char* file_path) {
+bool AFS_Init(const char* file_path, size_t read_chunk_size) {
+    SDL_assert(read_chunk_size > 0);
+    _read_chunk_size = read_chunk_size;
+
     if (!init_afs(file_path)) {
         return false;
     }
@@ -240,7 +237,7 @@ void AFS_RunServer() {
         return;
     }
 
-    const size_t max_read_per_request = READ_CHUNK_SIZE / running_requests;
+    const size_t max_read_per_request = _read_chunk_size / running_requests;
 
     for (int i = 0; i < arrlen(requests); i++) {
         ReadRequest* request = &requests[i];

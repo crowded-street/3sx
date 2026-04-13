@@ -221,7 +221,7 @@ static int full_init() {
 #endif
 
     ArcadeBalance_Init();
-    AFS_Init(Resources_GetAFSPath());
+    AFS_Init(Resources_GetAFSPath(), 256 * 1024);
 
 #if DEBUG
     DebugConfig_Init();
