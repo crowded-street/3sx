@@ -372,7 +372,7 @@ void KnjInit(u32 type, uintptr_t adrs, u32 disp_max, u32 top_dbp) {
     kw->pack_idx = 0;
     kw->pack_cur = kw->pack_fnt[0];
     kw->mem_size = adrs - kw->font_adrs;
-    printf("KnjInit: adrs=0x%" PRIXPTR " size=0x%X\n", kw->font_adrs, kw->mem_size);
+    printf("KnjInit: adrs=0x%" PRIXPTR " size=0x%" PRIX32 "\n", kw->font_adrs, kw->mem_size);
     kw->dispw = kw->fontw;
     kw->disph = kw->fonth;
     kw->x = 0;
@@ -571,7 +571,7 @@ void KnjFlush() {
         psize = (uintptr_t)pp - (uintptr_t)kw->pack_top[kw->pack_idx];
 
         if (kw->pack_size < psize) {
-            printf("KnjFlush: packet over, 0x%X > 0x%X.\n", psize, kw->pack_size);
+            printf("KnjFlush: packet over, 0x%" PRIX32 " > 0x%" PRIX32 ".\n", psize, kw->pack_size);
 
             while (1) {
                 // Do Nothing

@@ -3,6 +3,7 @@
 
 #include <libmc.h>
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -92,7 +93,7 @@ void MemcardInit() {
 
     do {
         ret = sceMcInit();
-        printf("McInit() = %d.\n", ret);
+        printf("McInit() = %" PRId32 ".\n", ret);
     } while (ret < 0);
 }
 
@@ -214,10 +215,10 @@ s32 mc_check_file(memcard_work* mw) {
             break;
         }
 
-        printf("McGetDir(%d,%s) = %d.\n", mw->port, mw->path, mw->rslt);
+        printf("McGetDir(%" PRId32 ",%s) = %" PRId32 ".\n", mw->port, mw->path, mw->rslt);
 
         if (mw->rslt == 1) {
-            printf(" size = %d / %d.\n", mw->size, mc_dir.FileSizeByte);
+            printf(" size = %" PRId32 " / %d.\n", mw->size, mc_dir.FileSizeByte);
         }
 
         mw->r_no_1 = 0;
@@ -261,7 +262,7 @@ static s32 mc_read_file(memcard_work* mw) {
             break;
         }
 
-        printf("McOpen(%d,%s) = %d.\n", mw->port, mw->path, mw->rslt);
+        printf("McOpen(%" PRId32 ",%s) = %" PRId32 ".\n", mw->port, mw->path, mw->rslt);
 
         if (mw->rslt < 0) {
             goto block_9;
@@ -281,7 +282,7 @@ static s32 mc_read_file(memcard_work* mw) {
             break;
         }
 
-        printf("McRead(%d,%s) = %d.\n", mw->port, mw->path, mw->rslt);
+        printf("McRead(%" PRId32 ",%s) = %" PRId32 ".\n", mw->port, mw->path, mw->rslt);
 
         if (mw->rslt < 0) {
             goto block_9;
@@ -299,7 +300,7 @@ static s32 mc_read_file(memcard_work* mw) {
             break;
         }
 
-        printf("McClose(%d,%s) = %d.\n", mw->port, mw->path, mw->rslt);
+        printf("McClose(%" PRId32 ",%s) = %" PRId32 ".\n", mw->port, mw->path, mw->rslt);
 
         mw->r_no_1 = 0;
         return mw->rslt < 0 ? 1 : 0;
@@ -327,7 +328,7 @@ static s32 mc_mkdir(memcard_work* mw) {
             break;
         }
 
-        printf("McMkdir(%d,%s) = %d.\n", mw->port, mw->path, mw->rslt);
+        printf("McMkdir(%" PRId32 ",%s) = %" PRId32 ".\n", mw->port, mw->path, mw->rslt);
 
         if (mw->rslt == -4) {
             mw->rslt = 0;
@@ -361,7 +362,7 @@ static s32 mc_create_file(memcard_work* mw) {
             break;
         }
 
-        printf("McOpen(%d,%s) = %d.\n", mw->port, mw->path, mw->rslt);
+        printf("McOpen(%" PRId32 ",%s) = %" PRId32 ".\n", mw->port, mw->path, mw->rslt);
 
         if (mw->rslt < 0) {
             goto block_7;
@@ -379,7 +380,7 @@ static s32 mc_create_file(memcard_work* mw) {
             break;
         }
 
-        printf("McClose(%d,%s) = %d.\n", mw->port, mw->path, mw->rslt);
+        printf("McClose(%" PRId32 ",%s) = %" PRId32 ".\n", mw->port, mw->path, mw->rslt);
 
         mw->r_no_1 = 0;
         return mw->rslt < 0 ? 1 : 0;
@@ -409,7 +410,7 @@ static s32 mc_write_file(memcard_work* mw) {
             break;
         }
 
-        printf("McOpen(%d,%s) = %d.\n", mw->port, mw->path, mw->rslt);
+        printf("McOpen(%" PRId32 ",%s) = %" PRId32 ".\n", mw->port, mw->path, mw->rslt);
 
         if (mw->rslt < 0) {
             goto block_9;
@@ -429,7 +430,7 @@ static s32 mc_write_file(memcard_work* mw) {
             break;
         }
 
-        printf("McWrite(%d,%s) = %d.\n", mw->port, mw->path, mw->rslt);
+        printf("McWrite(%" PRId32 ",%s) = %" PRId32 ".\n", mw->port, mw->path, mw->rslt);
 
         if (mw->rslt < 0) {
             goto block_9;
@@ -447,7 +448,7 @@ static s32 mc_write_file(memcard_work* mw) {
             break;
         }
 
-        printf("McClose(%d,%s) = %d.\n", mw->port, mw->path, mw->rslt);
+        printf("McClose(%" PRId32 ",%s) = %" PRId32 ".\n", mw->port, mw->path, mw->rslt);
 
         mw->r_no_1 = 0;
         return mw->rslt < 0 ? 1 : 0;
@@ -475,7 +476,7 @@ static s32 mc_delete_file(memcard_work* mw) {
             break;
         }
 
-        printf("McDelete(%d,%s) = %d.\n", mw->port, mw->path, mw->rslt);
+        printf("McDelete(%" PRId32 ",%s) = %" PRId32 ".\n", mw->port, mw->path, mw->rslt);
 
         mw->r_no_1 = 0;
         return mw->rslt < 0 ? 1 : 0;
@@ -503,7 +504,7 @@ static s32 mc_format(memcard_work* mw) {
             break;
         }
 
-        printf("McFormat(%d) = %d.\n", mw->port, mw->rslt);
+        printf("McFormat(%" PRId32 ") = %" PRId32 ".\n", mw->port, mw->rslt);
 
         mw->r_no_1 = 0;
         return mw->rslt < 0 ? 1 : 0;
@@ -531,7 +532,7 @@ static s32 mc_unformat(memcard_work* mw) {
             break;
         }
 
-        printf("McUnformat(%d) = %d.\n", mw->port, mw->rslt);
+        printf("McUnformat(%" PRId32 ") = %" PRId32 ".\n", mw->port, mw->rslt);
 
         mw->r_no_1 = 0;
         return mw->rslt < 0 ? 1 : 0;
@@ -572,7 +573,7 @@ static s32 mc_delete_dir(memcard_work* mw) {
             break;
         }
 
-        printf("McGetDir(%d,%s) = %d.\n", mw->port, mc_path, mw->rslt);
+        printf("McGetDir(%" PRId32 ",%s) = %" PRId32 ".\n", mw->port, mc_path, mw->rslt);
 
         if (mw->rslt < 0) {
             goto block_10;
@@ -609,7 +610,7 @@ static s32 mc_delete_dir(memcard_work* mw) {
             break;
         }
 
-        printf("McDelete(%d,%s) = %d.\n", mw->port, mc_path, mw->rslt);
+        printf("McDelete(%" PRId32 ",%s) = %" PRId32 ".\n", mw->port, mc_path, mw->rslt);
 
         if (mw->rslt < 0) {
             goto block_10;
@@ -646,7 +647,7 @@ static s32 mc_get_dir(memcard_work* mw) {
             break;
         }
 
-        printf("McGetDir(%d,%s) = %d.\n", mw->port, mw->path, mw->rslt);
+        printf("McGetDir(%" PRId32 ",%s) = %" PRId32 ".\n", mw->port, mw->path, mw->rslt);
 
         mw->r_no_1 = 0;
 
@@ -676,7 +677,7 @@ void McActInit(s32 file_type, s32 file_no) {
     strcpy(mw->dir, mf->file[4].name);
 
     if (mf->fnum_flag & 1) {
-        sprintf(tmp, "%02d", file_no);
+        sprintf(tmp, "%02" PRId32, file_no);
         strcat(mw->dir, tmp);
     }
 }
@@ -1433,7 +1434,11 @@ s32 McActAvailSet(s32* ico) {
     cluster = cluster + (n + 1) / 2;
     cluster += 2;
     mf->req_clust = cluster;
-    printf("McActAvailSet(%d) = %d clusters (%d byte).\n", mw->file_type, cluster, cluster << 10);
+
+    printf("McActAvailSet(%" PRId32 ") = %" PRId32 " clusters (%" PRId32 " byte).\n",
+           mw->file_type,
+           cluster,
+           cluster << 10);
 
     return cluster;
 }
