@@ -40,7 +40,7 @@ static ReadRequest* requests = NULL;
 static SDL_IOStream* stream = NULL;
 static size_t _read_chunk_size = 0;
 
-static void log(const char* fmt, ...) {
+static void _log(const char* fmt, ...) {
     char buffer[512];
     va_list args;
     va_start(args, fmt);
@@ -265,13 +265,13 @@ AFSHandle AFS_Open(size_t file_num) {
     request->state = AFS_READ_STATE_IDLE;
     request->initialized = true;
 
-    log("Open %s (file_num = %d)", afs.entries[file_num].name, file_num);
+    _log("Open %s (file_num = %d)", afs.entries[file_num].name, file_num);
     return index;
 }
 
 void AFS_Read(AFSHandle handle, void* buf) {
     ReadRequest* request = &requests[handle];
-    log("Read %s (bytes = 0x%X)", afs.entries[request->file_num].name, request->bytes_to_read);
+    _log("Read %s (bytes = 0x%X)", afs.entries[request->file_num].name, request->bytes_to_read);
     SDL_assert(request->buf == NULL);
     SDL_assert(request->state == AFS_READ_STATE_IDLE);
     request->buf = buf;
@@ -280,7 +280,7 @@ void AFS_Read(AFSHandle handle, void* buf) {
 
 void AFS_ReadSync(AFSHandle handle, void* buf) {
     ReadRequest* request = &requests[handle];
-    log("Read (sync) %s", afs.entries[request->file_num].name);
+    _log("Read (sync) %s", afs.entries[request->file_num].name);
     AFS_Read(handle, buf);
     read_into_request(request, request->bytes_to_read);
     SDL_assert(request->state == AFS_READ_STATE_FINISHED);
@@ -288,13 +288,13 @@ void AFS_ReadSync(AFSHandle handle, void* buf) {
 
 void AFS_Stop(AFSHandle handle) {
     ReadRequest* request = &requests[handle];
-    log("Stop %s", afs.entries[request->file_num].name);
+    _log("Stop %s", afs.entries[request->file_num].name);
     request->state = AFS_READ_STATE_IDLE;
 }
 
 void AFS_Close(AFSHandle handle) {
     ReadRequest* request = &requests[handle];
-    log("Close %s", afs.entries[request->file_num].name);
+    _log("Close %s", afs.entries[request->file_num].name);
     SDL_zerop(request);
 }
 

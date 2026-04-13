@@ -1,8 +1,8 @@
 #ifndef PORT_IO_AFS_H
 #define PORT_IO_AFS_H
 
-#include <ctype.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 typedef enum AFSReadState {
     AFS_READ_STATE_IDLE,
