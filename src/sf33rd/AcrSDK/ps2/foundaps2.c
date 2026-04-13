@@ -86,26 +86,12 @@ static void flPS2InitRenderBuff() {
     flPs2State.ZBuffMax = (f32)65535;
 }
 
-s32 flLogOut(s8* format, ...) {
-    s8 str[2048];
-    s8* lp;
-    static s32 bflLogOutFirst = 1;
+s32 flLogOut(const char* format, ...) {
+    char str[2048];
 
     va_list args;
     va_start(args, format);
-
     vsprintf(str, format, args);
-    lp = strlen(str) + str;
-    *(lp++) = '\r';
-    *(lp++) = '\n';
-    *lp = '\0';
-
-    if (bflLogOutFirst != 0) {
-        flFileWrite("../acrout.txt", "Debug Message Output for PS2\r\n", strlen("Debug Message Output for PS2\r\n"));
-        bflLogOutFirst = 0;
-    }
-
-    flFileAppend("../acrout.txt", str, strlen(str));
     va_end(args);
 
     fatal_error(str);

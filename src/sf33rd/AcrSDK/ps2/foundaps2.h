@@ -24,6 +24,6 @@ extern FLPS2State flPs2State;
 
 s32 flInitialize();
 s32 flFlip(u32 flag);
-s32 flLogOut(s8* format, ...);
+s32 flLogOut(const char* format, ...);
 
 #endif
