@@ -29,8 +29,9 @@ static bool init() {
     return true;
 }
 
-static void poll_sdl_events() {
+static bool poll_sdl_events() {
     SDL_Event event;
+    bool continue_running = true;
 
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
@@ -38,8 +39,14 @@ static void poll_sdl_events() {
         case SDL_EVENT_GAMEPAD_REMOVED:
             InputBackend_HandleGamepadDeviceEvent(&event.gdevice);
             break;
+
+        case SDL_EVENT_QUIT:
+            continue_running = false;
+            break;
         }
     }
+
+    return continue_running;
 }
 
 static void begin_frame() {
@@ -52,13 +59,26 @@ static void end_frame() {
     PSPRenderer_EndFrame();
 }
 
+void PSPApp_Exit() {
+    SDL_Event quit_event;
+    quit_event.type = SDL_EVENT_QUIT;
+    SDL_PushEvent(&quit_event);
+}
+
 int main() {
     if (!init()) {
         return 1;
     }
 
-    while (true) {
-        poll_sdl_events();
+    bool is_running = true;
+
+    while (is_running) {
+        is_running = poll_sdl_events();
+
+        if (!is_running) {
+            break;
+        }
+
         begin_frame();
         Main_StepFrame();
         end_frame();
@@ -68,4 +88,4 @@ int main() {
     return 0;
 }
 
-#endif
+#endif // CRS_APP_DRIVER_PSP
