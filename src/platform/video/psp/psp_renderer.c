@@ -32,6 +32,10 @@
 
 typedef struct PSPTextureCache {
     void* pixels;
+    void* clut;
+    int clut_count;
+    unsigned int psp_format;
+    unsigned int clut_format;
     unsigned int texture_handle;
     unsigned int palette_handle;
     size_t size;
@@ -78,14 +82,6 @@ static int next_power_of_two(int value) {
     return result;
 }
 
-static unsigned int rgba16_to_abgr8888(unsigned short pixel) {
-    const unsigned int r = (pixel & 0x1Fu) * 255u / 31u;
-    const unsigned int g = ((pixel >> 5) & 0x1Fu) * 255u / 31u;
-    const unsigned int b = ((pixel >> 10) & 0x1Fu) * 255u / 31u;
-    const unsigned int a = (pixel & 0x8000u) ? 0xFFu : 0x00u;
-    return (a << 24) | (b << 16) | (g << 8) | r;
-}
-
 static unsigned int rgba32_to_abgr8888(unsigned int pixel) {
     return argb_to_abgr(pixel);
 }
@@ -106,6 +102,14 @@ static void invalidate_texture_cache(int texture_index) {
         cache->pixels = NULL;
     }
 
+    if (cache->clut != NULL) {
+        free(cache->clut);
+        cache->clut = NULL;
+    }
+
+    cache->clut_count = 0;
+    cache->psp_format = 0;
+    cache->clut_format = 0;
     cache->texture_handle = 0;
     cache->palette_handle = 0;
     cache->size = 0;
@@ -214,32 +218,6 @@ static short texel_coord(float normalized, float extent) {
     return (short)(normalized * extent + 0.5f);
 }
 
-static unsigned int palette_color_at(const FLTexture* palette, int index) {
-    const void* pixels = palette_source_pixels(palette);
-
-    if (pixels == NULL) {
-        fatal_error("Missing palette pixel data");
-    }
-
-    if ((palette->width * palette->height) == 256) {
-        index = clut_shuffle(index);
-    }
-
-    switch (palette->format) {
-    case SCE_GS_PSMCT16:
-        return rgba16_to_abgr8888(((const unsigned short*)pixels)[index]);
-
-    case SCE_GS_PSMCT24:
-        return rgb24x_to_abgr8888(((const unsigned int*)pixels)[index]);
-
-    case SCE_GS_PSMCT32:
-        return rgba32_to_abgr8888(((const unsigned int*)pixels)[index]);
-
-    default:
-        fatal_error("Unhandled PSP palette format: %u", palette->format);
-    }
-}
-
 static int texture_palette_color_count(const FLTexture* palette) {
     const int color_count = palette->width * palette->height;
 
@@ -250,123 +228,268 @@ static int texture_palette_color_count(const FLTexture* palette) {
     return color_count;
 }
 
-static void convert_indexed_texture(const FLTexture* texture, const FLTexture* palette, unsigned int* output) {
-    const unsigned char* pixels = texture_source_pixels(texture);
-    const int width = texture->width;
-    const int height = texture->height;
-    const int render_width = next_power_of_two(width);
-    const int palette_color_count = texture_palette_color_count(palette);
-
-    if (pixels == NULL) {
-        fatal_error("Missing indexed texture pixel data");
-    }
-
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            int color_index = 0;
-
-            if (texture->format == SCE_GS_PSMT8) {
-                color_index = pixels[y * width + x];
-            } else if (texture->format == SCE_GS_PSMT4) {
-                const unsigned char packed = pixels[y * (width / 2) + (x / 2)];
-                color_index = (x & 1) ? (packed >> 4) : (packed & 0x0F);
-            } else {
-                fatal_error("Unhandled indexed PSP texture format: %u", texture->format);
-            }
-
-            if (color_index >= palette_color_count) {
-                color_index = 0;
-            }
-
-            output[y * render_width + x] = palette_color_at(palette, color_index);
-        }
+static unsigned int ps2_to_psp_texture_format(int ps2_format) {
+    switch (ps2_format) {
+    case SCE_GS_PSMCT16:
+        return GU_PSM_5551;
+    case SCE_GS_PSMCT24:
+    case SCE_GS_PSMCT32:
+        return GU_PSM_8888;
+    case SCE_GS_PSMT8:
+        return GU_PSM_T8;
+    case SCE_GS_PSMT4:
+        return GU_PSM_T4;
+    default:
+        fatal_error("Unhandled PSP texture format: %d", ps2_format);
     }
 }
 
-static void convert_direct_texture(const FLTexture* texture, unsigned int* output) {
+static unsigned int ps2_to_psp_clut_format(int ps2_palette_format) {
+    switch (ps2_palette_format) {
+    case SCE_GS_PSMCT16:
+        return GU_PSM_5551;
+    case SCE_GS_PSMCT24:
+    case SCE_GS_PSMCT32:
+        return GU_PSM_8888;
+    default:
+        fatal_error("Unhandled PSP palette format: %d", ps2_palette_format);
+    }
+}
+
+static int min_render_width_for_format(unsigned int psp_format) {
+    switch (psp_format) {
+    case GU_PSM_T4:
+        return 32;
+    case GU_PSM_T8:
+        return 16;
+    case GU_PSM_5551:
+    case GU_PSM_5650:
+    case GU_PSM_4444:
+        return 8;
+    case GU_PSM_8888:
+        return 4;
+    default:
+        return 1;
+    }
+}
+
+static size_t texture_buffer_bytes(unsigned int psp_format, int render_width, int render_height) {
+    const size_t texels = (size_t)render_width * (size_t)render_height;
+
+    switch (psp_format) {
+    case GU_PSM_T4:
+        return texels / 2;
+    case GU_PSM_T8:
+        return texels;
+    case GU_PSM_5551:
+    case GU_PSM_5650:
+    case GU_PSM_4444:
+        return texels * 2;
+    case GU_PSM_8888:
+    default:
+        return texels * 4;
+    }
+}
+
+static size_t clut_bytes(unsigned int clut_format, int count) {
+    return (clut_format == GU_PSM_5551) ? (size_t)count * 2 : (size_t)count * 4;
+}
+
+static void build_clut(const FLTexture* palette, int entry_count, unsigned int clut_format, void* output) {
+    const void* src_pixels = palette_source_pixels(palette);
+
+    if (src_pixels == NULL) {
+        fatal_error("Missing palette pixel data");
+    }
+
+    const bool needs_shuffle = (entry_count == 256);
+
+    for (int i = 0; i < entry_count; i++) {
+        const int src_index = needs_shuffle ? clut_shuffle(i) : i;
+
+        switch (palette->format) {
+        case SCE_GS_PSMCT16:
+            ((unsigned short*)output)[i] = ((const unsigned short*)src_pixels)[src_index];
+            break;
+
+        case SCE_GS_PSMCT24:
+            ((unsigned int*)output)[i] = rgb24x_to_abgr8888(((const unsigned int*)src_pixels)[src_index]);
+            break;
+
+        case SCE_GS_PSMCT32:
+            ((unsigned int*)output)[i] = rgba32_to_abgr8888(((const unsigned int*)src_pixels)[src_index]);
+            break;
+
+        default:
+            fatal_error("Unhandled PSP palette format: %u", palette->format);
+        }
+    }
+
+    (void)clut_format;
+}
+
+static void fill_direct_texture(const FLTexture* texture, void* output, int render_width) {
     const void* pixels = texture_source_pixels(texture);
     const int width = texture->width;
     const int height = texture->height;
-    const int render_width = next_power_of_two(width);
 
     if (pixels == NULL) {
         fatal_error("Missing direct texture pixel data");
     }
 
     switch (texture->format) {
-    case SCE_GS_PSMCT16:
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                output[y * render_width + x] = rgba16_to_abgr8888(((const unsigned short*)pixels)[y * width + x]);
-            }
-        }
-        break;
+    case SCE_GS_PSMCT16: {
+        unsigned short* dst = (unsigned short*)output;
+        const unsigned short* src = (const unsigned short*)pixels;
 
-    case SCE_GS_PSMCT24:
         for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                output[y * render_width + x] = rgb24x_to_abgr8888(((const unsigned int*)pixels)[y * width + x]);
-            }
+            memcpy(dst + y * render_width, src + y * width, (size_t)width * sizeof(unsigned short));
         }
-        break;
 
-    case SCE_GS_PSMCT32:
+        break;
+    }
+
+    case SCE_GS_PSMCT24: {
+        unsigned int* dst = (unsigned int*)output;
+        const unsigned int* src = (const unsigned int*)pixels;
+
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                output[y * render_width + x] = rgba32_to_abgr8888(((const unsigned int*)pixels)[y * width + x]);
+                dst[y * render_width + x] = rgb24x_to_abgr8888(src[y * width + x]);
             }
         }
+
         break;
+    }
+
+    case SCE_GS_PSMCT32: {
+        unsigned int* dst = (unsigned int*)output;
+        const unsigned int* src = (const unsigned int*)pixels;
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                dst[y * render_width + x] = rgba32_to_abgr8888(src[y * width + x]);
+            }
+        }
+
+        break;
+    }
 
     default:
         fatal_error("Unhandled PSP texture format: %u", texture->format);
     }
 }
 
+static void fill_indexed_texture_t8(const FLTexture* texture, unsigned char* output, int render_width) {
+    const unsigned char* pixels = texture_source_pixels(texture);
+    const int width = texture->width;
+    const int height = texture->height;
+
+    if (pixels == NULL) {
+        fatal_error("Missing indexed texture pixel data");
+    }
+
+    for (int y = 0; y < height; y++) {
+        memcpy(output + y * render_width, pixels + y * width, (size_t)width);
+    }
+}
+
+static void fill_indexed_texture_t4(const FLTexture* texture, unsigned char* output, int render_width) {
+    const unsigned char* pixels = texture_source_pixels(texture);
+    const int width = texture->width;
+    const int height = texture->height;
+    const int src_pitch = width / 2;
+    const int dst_pitch = render_width / 2;
+
+    if (pixels == NULL) {
+        fatal_error("Missing indexed texture pixel data");
+    }
+
+    for (int y = 0; y < height; y++) {
+        memcpy(output + y * dst_pitch, pixels + y * src_pitch, (size_t)src_pitch);
+    }
+}
+
 static void rebuild_texture_cache(unsigned int th) {
     const unsigned int texture_handle = LO_16_BITS(th);
     const unsigned int palette_handle = HI_16_BITS(th);
-    const FLTexture* texture = &flTexture[texture_handle - 1];
-    PSPTextureCache* cache = &texture_cache[texture_handle - 1];
-    const int render_width = next_power_of_two(texture->width);
-    const int render_height = next_power_of_two(texture->height);
-    const size_t pixel_count = (size_t)render_width * (size_t)render_height;
-    unsigned int* converted_pixels = NULL;
 
     if ((texture_handle == 0) || (texture_handle > FL_TEXTURE_MAX)) {
         fatal_error("Invalid PSP texture handle: %u", texture_handle);
     }
 
+    const FLTexture* texture = &flTexture[texture_handle - 1];
+    PSPTextureCache* cache = &texture_cache[texture_handle - 1];
+    const unsigned int psp_format = ps2_to_psp_texture_format(texture->format);
+    const int min_rw = min_render_width_for_format(psp_format);
+    int render_width = next_power_of_two(texture->width);
+    const int render_height = next_power_of_two(texture->height);
+
+    if (render_width < min_rw) {
+        render_width = min_rw;
+    }
+
+    const size_t pixel_bytes = texture_buffer_bytes(psp_format, render_width, render_height);
+    const bool is_indexed = (texture->format == SCE_GS_PSMT4) || (texture->format == SCE_GS_PSMT8);
+
     invalidate_texture_cache(texture_handle - 1);
 
-    converted_pixels = memalign(16, pixel_count * sizeof(unsigned int));
+    void* pixels = memalign(16, pixel_bytes);
 
-    if (converted_pixels == NULL) {
+    if (pixels == NULL) {
         invalidate_other_texture_caches((int)texture_handle - 1);
-        converted_pixels = memalign(16, pixel_count * sizeof(unsigned int));
+        pixels = memalign(16, pixel_bytes);
     }
 
-    if (converted_pixels == NULL) {
-        fatal_error("Failed to allocate PSP texture cache (%dx%d, %zu bytes)",
-                    render_width,
-                    render_height,
-                    pixel_count * sizeof(unsigned int));
+    if (pixels == NULL) {
+        fatal_error(
+            "Failed to allocate PSP texture cache (%dx%d, %zu bytes)", render_width, render_height, pixel_bytes);
     }
 
-    if ((texture->format == SCE_GS_PSMT4) || (texture->format == SCE_GS_PSMT8)) {
+    memset(pixels, 0, pixel_bytes);
+
+    void* clut_data = NULL;
+    int clut_count = 0;
+    unsigned int clut_format = 0;
+
+    if (is_indexed) {
         if ((palette_handle == 0) || (palette_handle > FL_PALETTE_MAX)) {
             fatal_error("Missing palette for indexed texture");
         }
 
-        convert_indexed_texture(texture, &flPalette[palette_handle - 1], converted_pixels);
+        const FLTexture* palette = &flPalette[palette_handle - 1];
+        clut_count = texture_palette_color_count(palette);
+        clut_format = ps2_to_psp_clut_format(palette->format);
+
+        const size_t cb = clut_bytes(clut_format, clut_count);
+        const size_t clut_alloc = (cb < 64) ? 64 : cb;
+        clut_data = memalign(64, clut_alloc);
+
+        if (clut_data == NULL) {
+            fatal_error("Failed to allocate PSP CLUT (%zu bytes)", clut_alloc);
+        }
+
+        memset(clut_data, 0, clut_alloc);
+        build_clut(palette, clut_count, clut_format, clut_data);
+        sceKernelDcacheWritebackRange(clut_data, clut_alloc);
+
+        if (texture->format == SCE_GS_PSMT8) {
+            fill_indexed_texture_t8(texture, (unsigned char*)pixels, render_width);
+        } else {
+            fill_indexed_texture_t4(texture, (unsigned char*)pixels, render_width);
+        }
     } else {
-        convert_direct_texture(texture, converted_pixels);
+        fill_direct_texture(texture, pixels, render_width);
     }
 
-    sceKernelDcacheWritebackRange(converted_pixels, pixel_count * sizeof(unsigned int));
+    sceKernelDcacheWritebackRange(pixels, pixel_bytes);
 
-    cache->pixels = converted_pixels;
-    cache->size = pixel_count * sizeof(unsigned int);
+    cache->pixels = pixels;
+    cache->clut = clut_data;
+    cache->clut_count = clut_count;
+    cache->psp_format = psp_format;
+    cache->clut_format = clut_format;
+    cache->size = pixel_bytes;
     cache->texture_handle = texture_handle;
     cache->palette_handle = palette_handle;
     cache->render_width = render_width;
@@ -403,7 +526,13 @@ static void bind_current_texture() {
         fatal_error("No PSP texture is currently bound");
     }
 
-    sceGuTexMode(GU_PSM_8888, 0, 0, GU_FALSE);
+    if (cache->clut != NULL) {
+        const unsigned int mask = (cache->clut_count == 16) ? 0x0F : 0xFF;
+        sceGuClutMode(cache->clut_format, 0, mask, 0);
+        sceGuClutLoad(cache->clut_count / 8, cache->clut);
+    }
+
+    sceGuTexMode(cache->psp_format, 0, 0, GU_FALSE);
     sceGuTexFunc(GU_TFX_MODULATE, GU_TCC_RGBA);
     sceGuTexFilter(GU_NEAREST, GU_NEAREST);
     sceGuTexWrap(GU_CLAMP, GU_CLAMP);
