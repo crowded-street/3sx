@@ -1,0 +1,47 @@
+name: Build (PSP)
+
+on:
+    pull_request:
+        branches: [ "main" ]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+          - name: Checkout repository
+            uses: actions/checkout@v4
+            with:
+                submodules: true
+
+          - name: Build PSP Docker image
+            run: docker build -t 3sx-psp-env tools/psp
+
+          - name: Build SDL3 for PSP
+            run: |
+                set -o pipefail
+                docker run --rm \
+                    -v "$PWD":/work \
+                    -w /work \
+                    3sx-psp-env \
+                    sh -lc './tools/psp/build-sdl.sh' 2>&1 | tee build-psp-sdl.log
+            shell: bash
+
+          - name: Build PSP target
+            run: |
+                set -o pipefail
+                docker run --rm \
+                    -v "$PWD":/work \
+                    -w /work \
+                    3sx-psp-env \
+                    sh -lc './tools/psp/build-port.sh' 2>&1 | tee build-psp.log
+            shell: bash
+
+          - name: Upload PSP logs
+            if: always()
+            uses: actions/upload-artifact@v4
+            with:
+                name: build-log-psp
+                path: |
+                    build-psp-sdl.log
+                    build-psp.log
