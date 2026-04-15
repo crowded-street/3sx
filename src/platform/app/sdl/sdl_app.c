@@ -5,8 +5,8 @@
 #include "common.h"
 #include "imgui/imgui_wrapper.h"
 #include "main.h"
+#include "platform/video/opengl/opengl_renderer.h"
 #include "platform/video/sdl/scanline_renderer.h"
-#include "platform/video/sdl/sdl_game_renderer.h"
 #include "port/config/config.h"
 #include "port/config/keymap.h"
 #include "port/input_backend.h"
@@ -60,8 +60,7 @@ static const int window_min_height = (int)(window_min_width / display_target_rat
 static const Uint64 target_frame_time_ns = 1000000000.0 / TARGET_FPS;
 
 SDL_Window* window = NULL;
-static SDL_Renderer* renderer = NULL;
-static SDL_Texture* screen_texture = NULL;
+static SDL_GLContext* gl_context = NULL;
 static ScaleMode scale_mode = SCALEMODE_SOFT_LINEAR;
 
 static Uint64 frame_deadline = 0;
@@ -87,27 +86,27 @@ static SDL_ScaleMode screen_texture_scale_mode() {
     }
 }
 
-static SDL_Point screen_texture_size() {
-    SDL_Point size;
-    SDL_GetRenderOutputSize(renderer, &size.x, &size.y);
+// static SDL_Point screen_texture_size() {
+//     SDL_Point size;
+//     SDL_GetRenderOutputSize(renderer, &size.x, &size.y);
 
-    if (scale_mode == SCALEMODE_SOFT_LINEAR) {
-        size.x *= 2;
-        size.y *= 2;
-    }
+//     if (scale_mode == SCALEMODE_SOFT_LINEAR) {
+//         size.x *= 2;
+//         size.y *= 2;
+//     }
 
-    return size;
-}
+//     return size;
+// }
 
-static void create_screen_texture() {
-    if (screen_texture != NULL) {
-        SDL_DestroyTexture(screen_texture);
-    }
+// static void create_screen_texture() {
+//     if (screen_texture != NULL) {
+//         SDL_DestroyTexture(screen_texture);
+//     }
 
-    const SDL_Point size = screen_texture_size();
-    screen_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB32, SDL_TEXTUREACCESS_TARGET, size.x, size.y);
-    SDL_SetTextureScaleMode(screen_texture, screen_texture_scale_mode());
-}
+//     const SDL_Point size = screen_texture_size();
+//     screen_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB32, SDL_TEXTUREACCESS_TARGET, size.x, size.y);
+//     SDL_SetTextureScaleMode(screen_texture, screen_texture_scale_mode());
+// }
 
 static void init_scalemode() {
     const char* raw_scalemode = Config_GetString(CFG_KEY_SCALEMODE);
@@ -130,30 +129,39 @@ static void init_scalemode() {
 }
 
 static bool init_window() {
-    SDL_WindowFlags window_flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+    SDL_WindowFlags window_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
 
     if (Config_GetBool(CFG_KEY_FULLSCREEN)) {
         window_flags |= SDL_WINDOW_FULLSCREEN;
     }
 
     int window_width = Config_GetInt(CFG_KEY_WINDOW_WIDTH);
-
-    if (window_width < window_min_width) {
-        window_width = window_min_width;
-    }
+    window_width = SDL_max(window_width, window_min_width);
 
     int window_height = Config_GetInt(CFG_KEY_WINDOW_HEIGHT);
+    window_height = SDL_max(window_height, window_min_height);
 
-    if (window_height < window_min_height) {
-        window_height = window_min_height;
-    }
+    window = SDL_CreateWindow(app_name, window_width, window_height, window_flags);
 
-    if (!SDL_CreateWindowAndRenderer(app_name, window_width, window_height, window_flags, &window, &renderer)) {
-        SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
+    if (window == NULL) {
+        SDL_Log("Couldn't create window: %s", SDL_GetError());
         return false;
     }
 
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    gl_context = SDL_GL_CreateContext(window);
+
+    if (gl_context == NULL) {
+        SDL_Log("Couldn't create GL context: %s", SDL_GetError());
+        return false;
+    }
+
+    SDL_GL_SetSwapInterval(0); // No vsync
+
     return true;
 }
 
@@ -199,22 +207,26 @@ static int full_init() {
     }
 
     // Initialize rendering subsystems
-    SDLGameRenderer_Init(renderer);
-    ScanlineRenderer_Init(renderer);
+    
+    if (!OpenGLRenderer_Init()) {
+        return 1;
+    }
 
-#if DEBUG
-    SDLDebugText_Initialize(renderer);
-#endif
+    //     ScanlineRenderer_Init(renderer);
+
+    // #if DEBUG
+    //     SDLDebugText_Initialize(renderer);
+    // #endif
 
     // Initialize screen texture
-    create_screen_texture();
+    // create_screen_texture();
 
     // Initialize pads
     InputBackend_Init();
 
-#if DEBUG
-    ImGuiW_Init(window, renderer);
-#endif
+    // #if DEBUG
+    //     ImGuiW_Init(window, renderer);
+    // #endif
 
 #if _WIN32 && DEBUG
     init_windows_console();
@@ -234,21 +246,14 @@ static int full_init() {
 static void cleanup() {
     AFS_Finish();
     Config_Destroy();
-    SDLGameRenderer_Shutdown();
+    OpenGLRenderer_Quit();
     ScanlineRenderer_Destroy();
 
-#if DEBUG
-    ImGuiW_Finish();
-#endif
+    // #if DEBUG
+    //     ImGuiW_Finish();
+    // #endif
 
-    if (screen_texture != NULL) {
-        SDL_DestroyTexture(screen_texture);
-        screen_texture = NULL;
-    }
-
-    SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
-    renderer = NULL;
     window = NULL;
 }
 
@@ -296,9 +301,9 @@ static bool poll_events() {
     bool continue_running = true;
 
     while (SDL_PollEvent(&event)) {
-#if DEBUG
-        ImGuiW_ProcessEvent(&event);
-#endif
+        // #if DEBUG
+        //         ImGuiW_ProcessEvent(&event);
+        // #endif
 
         switch (event.type) {
         case SDL_EVENT_GAMEPAD_ADDED:
@@ -320,7 +325,7 @@ static bool poll_events() {
             break;
 
         case SDL_EVENT_WINDOW_RESIZED:
-            create_screen_texture();
+            // create_screen_texture();
             break;
 
         case SDL_EVENT_QUIT:
@@ -333,16 +338,9 @@ static bool poll_events() {
 }
 
 static void begin_frame() {
-    // Clear window
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-    SDL_SetRenderTarget(renderer, NULL);
-    SDL_RenderClear(renderer);
-
-    SDLGameRenderer_BeginFrame();
-
-#if DEBUG
-    ImGuiW_BeginFrame();
-#endif
+    // #if DEBUG
+    //     ImGuiW_BeginFrame();
+    // #endif
 
     AFS_RunServer();
 }
@@ -430,39 +428,18 @@ static void end_frame() {
     NetstatsRenderer_Render();
 #endif
 
-    SDLGameRenderer_RenderFrame();
+    // #if DEBUG
+    //     // Render debug text
+    //     SDLDebugText_Render();
 
-    SDL_SetRenderTarget(renderer, screen_texture);
+    //     ImGuiW_EndFrame(renderer);
+    // #endif
 
-    // Render window background
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // black bars
-    SDL_RenderClear(renderer);
-
-    // Render content
-    const SDL_FRect dst_rect = get_letterbox_rect(screen_texture->w, screen_texture->h);
-    SDL_RenderTexture(renderer, SDLGameRenderer_GetCanvas(), NULL, &dst_rect);
-
-    // Render screen texture to screen
-    SDL_SetRenderTarget(renderer, NULL);
-    SDL_RenderTexture(renderer, screen_texture, NULL, NULL);
-
-    // Apply scanlines using a cached overlay texture.
-    int win_w, win_h;
-    SDL_GetRenderOutputSize(renderer, &win_w, &win_h);
-    const SDL_FRect game_rect = get_letterbox_rect(win_w, win_h);
-    ScanlineRenderer_Render(&game_rect);
-
-#if DEBUG
-    // Render debug text
-    SDLDebugText_Render();
-
-    ImGuiW_EndFrame(renderer);
-#endif
-
-    SDL_RenderPresent(renderer);
-
-    // Cleanup
-    SDLGameRenderer_EndFrame();
+    int window_width;
+    int window_height;
+    SDL_GetWindowSizeInPixels(window, &window_width, &window_height);
+    OpenGLRenderer_RenderFrame(window_width, window_height);
+    SDL_GL_SwapWindow(window);
 
     // Handle cursor hiding
     hide_cursor_if_needed();
