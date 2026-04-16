@@ -558,7 +558,11 @@ void palConvRowTim2CI8Clut(u16* src, u16* dst, s32 size) {
                                8, 9, 10, 11, 12, 13, 14, 15, 24, 25, 26, 27, 28, 29, 30, 31 };
 
     for (i = 0; i < size; i++) {
+        #if defined(SKIP_CLUT_PALETTE_FORMAT)
+        dst[i] = src[i];
+        #else
         dst[(i & 0xE0) + clut_tbl[i & 0x1F]] = src[i];
+        #endif
     }
 }
 
