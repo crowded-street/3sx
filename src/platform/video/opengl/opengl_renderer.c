@@ -1,12 +1,24 @@
 #if CRS_VIDEO_DRIVER_OPENGL
 
 #include "platform/video/opengl/opengl_renderer.h"
+#include "common.h"
+#include "port/utils.h"
+#include "sf33rd/AcrSDK/ps2/flps2etc.h"
+#include "sf33rd/AcrSDK/ps2/flps2render.h"
+#include "sf33rd/AcrSDK/ps2/foundaps2.h"
 
 #include "stb/stb_ds.h"
 #include <OpenGL/gl3.h>
 #include <SDL3/SDL.h>
+#include <libgraph.h>
 
 #define QUADS_MAX 512
+
+typedef enum GLPaletteType : Uint8 {
+    PALETTE_NONE = 0,
+    PALETTE_4,
+    PALETTE_8,
+} GLPaletteType;
 
 typedef struct GLVec2 {
     float x;
@@ -19,6 +31,11 @@ typedef struct GLVec3 {
     float z;
 } GLVec3;
 
+typedef struct GLTexCoord {
+    float s;
+    float t;
+} GLTexCoord;
+
 typedef struct GLColor {
     float r;
     float g;
@@ -28,23 +45,40 @@ typedef struct GLColor {
 
 typedef struct GLVertex {
     GLVec3 position;
+    GLTexCoord tex_coord;
     GLColor color;
 } GLVertex;
 
+typedef struct GLTexture {
+    GLuint handle;
+    GLPaletteType palette_type;
+} GLTexture;
+
+typedef struct GLTextureSpec {
+    GLTexture texture;
+    GLuint palette;
+} GLTextureSpec;
+
 typedef struct GLQuad {
-    float x0;
-    float y0;
-    float x1;
-    float y1;
+    GLVec2 positions[4];
+    GLTexCoord tex_coords[4];
     float z;
+    Uint32 index;
+    GLTextureSpec texture_spec;
     GLColor color;
 } GLQuad;
 
-static GLuint shader_program;
+static GLuint solid_shader;
+static GLuint palette_8_shader;
+
 static GLuint vertex_array;
 static GLuint vertex_buffer;
 static GLQuad* quads = NULL;
 static GLVertex* vertices = NULL;
+
+static GLTexture textures[FL_TEXTURE_MAX] = { 0 };
+static GLuint palettes[FL_PALETTE_MAX] = { 0 };
+static GLTextureSpec latest_texture_spec = { 0 };
 
 static const char* read_shader(const char* path) {
     const char* base_path = SDL_GetBasePath();
@@ -59,8 +93,9 @@ static const char* read_shader(const char* path) {
     }
 
     const Sint64 size = SDL_GetIOSize(io);
-    void* buf = SDL_malloc(size);
+    char* buf = SDL_malloc(size + 1);
     SDL_ReadIO(io, buf, size);
+    buf[size] = '\0';
     SDL_CloseIO(io);
     return buf;
 }
@@ -145,62 +180,241 @@ static GLColor convert_color(Uint32 color) {
     };
 }
 
-static void push_quad(float x0, float y0, float x1, float y1, float z, Uint32 color) {
-    SDL_assert(arrlen(quads) < QUADS_MAX - 1);
-    GLQuad* quad = arraddnptr(quads, 1);
-    quad->x0 = convert_to_screen_x(x0);
-    quad->y0 = convert_to_screen_y(y0);
-    quad->x1 = convert_to_screen_x(x1);
-    quad->y1 = convert_to_screen_y(y1);
-    quad->z = z;
-    quad->color = convert_color(color);
+static void quad_infer_positions(GLQuad* quad) {
+    quad->positions[1].x = quad->positions[3].x;
+    quad->positions[1].y = quad->positions[0].y;
+    quad->positions[2].x = quad->positions[0].x;
+    quad->positions[2].y = quad->positions[3].y;
+}
+
+static void quad_infer_tex_coords(GLQuad* quad) {
+    quad->tex_coords[1].s = quad->tex_coords[3].s;
+    quad->tex_coords[1].t = quad->tex_coords[0].t;
+    quad->tex_coords[2].s = quad->tex_coords[0].s;
+    quad->tex_coords[2].t = quad->tex_coords[3].t;
+}
+
+static int compare_quads(const void* lhs, const void* rhs) {
+    const GLQuad* lhs_quad = (GLQuad*)lhs;
+    const GLQuad* rhs_quad = (GLQuad*)rhs;
+
+    if (lhs_quad->z < rhs_quad->z) {
+        return -1;
+    } else if (lhs_quad->z > rhs_quad->z) {
+        return 1;
+    } else {
+        if (lhs_quad->index < rhs_quad->index) {
+            return 1;
+        } else if (lhs_quad->index > rhs_quad->index) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
 }
 
 // Public
 
 void OpenGLRenderer_CreateTexture(unsigned int th) {
-    //
+    const int texture_index = LO_16_BITS(th) - 1;
+    const FLTexture* fl_texture = &flTexture[texture_index];
+    const void* pixels = flPS2GetSystemBuffAdrs(fl_texture->mem_handle);
+
+    if (textures[texture_index].handle != 0) {
+        glDeleteTextures(1, &textures[texture_index].handle);
+        SDL_zero(textures[texture_index]);
+    }
+
+    GLint internal_format;
+    GLenum format;
+    GLenum type;
+    GLPaletteType palette_type = PALETTE_NONE;
+
+    switch (fl_texture->format) {
+    case SCE_GS_PSMT8:
+        internal_format = GL_R8UI;
+        format = GL_RED_INTEGER;
+        type = GL_UNSIGNED_BYTE;
+        palette_type = PALETTE_8;
+        break;
+
+    case SCE_GS_PSMT4:
+        // TODO: Implement
+        return;
+
+    case SCE_GS_PSMCT16:
+        // TODO: Implement
+        return;
+
+    default:
+        fatal_error("Unhandled pixel format: %d", fl_texture->format);
+        break;
+    }
+
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(GL_TEXTURE_2D, 0, internal_format, fl_texture->width, fl_texture->height, 0, format, type, pixels);
+
+    textures[texture_index] = (GLTexture) { .handle = texture, .palette_type = palette_type };
 }
 
 void OpenGLRenderer_DestroyTexture(unsigned int texture_handle) {
-    //
+    // Do nothing
 }
 
 void OpenGLRenderer_UnlockTexture(unsigned int th) {
-    //
+    OpenGLRenderer_CreateTexture(th);
 }
 
 void OpenGLRenderer_CreatePalette(unsigned int ph) {
-    //
+    const int palette_index = HI_16_BITS(ph) - 1;
+    const FLTexture* fl_palette = &flPalette[palette_index];
+    const void* pixels = flPS2GetSystemBuffAdrs(fl_palette->mem_handle);
+    const int color_count = fl_palette->width * fl_palette->height;
+
+    if (palettes[palette_index] != 0) {
+        glDeleteTextures(1, &palettes[palette_index]);
+        palettes[palette_index] = 0;
+    }
+
+    GLint internal_format;
+    GLenum format;
+    GLenum type;
+
+    switch (fl_palette->format) {
+    case SCE_GS_PSMCT32:
+        internal_format = GL_RGBA8;
+        format = GL_BGRA;
+        type = GL_UNSIGNED_BYTE;
+        break;
+
+    case SCE_GS_PSMCT16:
+        internal_format = GL_RGB5_A1;
+        format = GL_RGBA;
+        type = GL_UNSIGNED_SHORT_1_5_5_5_REV;
+        break;
+
+    default:
+        fatal_error("Unhandled pixel format: %d", fl_palette->format);
+        break;
+    }
+
+    GLuint palette;
+    glGenTextures(1, &palette);
+    glBindTexture(GL_TEXTURE_1D, palette);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage1D(GL_TEXTURE_1D, 0, internal_format, color_count, 0, format, type, pixels);
+
+    palettes[palette_index] = palette;
 }
 
 void OpenGLRenderer_DestroyPalette(unsigned int palette_handle) {
-    //
+    // Do nothing
 }
 
 void OpenGLRenderer_UnlockPalette(unsigned int ph) {
-    //
+    OpenGLRenderer_CreatePalette(ph << 16);
 }
 
 void OpenGLRenderer_SetTexture(unsigned int th) {
-    //
+    const int texture_handle = LO_16_BITS(th);
+    const int texture_index = texture_handle - 1;
+    latest_texture_spec.texture = textures[texture_index];
+
+    const int palette_handle = HI_16_BITS(th);
+
+    if (palette_handle > 0) {
+        const int palette_index = palette_handle - 1;
+        latest_texture_spec.palette = palettes[palette_index];
+    } else {
+        latest_texture_spec.palette = 0;
+    }
 }
 
 void OpenGLRenderer_DrawTexturedQuad(const Sprite* sprite, unsigned int color) {
-    push_quad(sprite->v[0].x, sprite->v[0].y, sprite->v[3].x, sprite->v[3].y, sprite->v[0].z, color);
+    SDL_assert(arrlen(quads) < QUADS_MAX);
+
+    GLQuad* quad = arraddnptr(quads, 1);
+
+    for (int i = 0; i < 4; i++) {
+        quad->positions[i].x = convert_to_screen_x(sprite->v[i].x);
+        quad->positions[i].y = convert_to_screen_y(sprite->v[i].y);
+        quad->tex_coords[i].s = sprite->t[i].s;
+        quad->tex_coords[i].t = sprite->t[i].t;
+    }
+
+    quad->z = flPS2ConvScreenFZ(sprite->v[0].z);
+    quad->index = arrlen(quads);
+    quad->color = convert_color(color);
+    quad->texture_spec = latest_texture_spec;
 }
 
 void OpenGLRenderer_DrawSprite(const Sprite* sprite, unsigned int color) {
-    push_quad(sprite->v[0].x, sprite->v[0].y, sprite->v[3].x, sprite->v[3].y, sprite->v[0].z, color);
+    SDL_assert(arrlen(quads) < QUADS_MAX);
+
+    GLQuad* quad = arraddnptr(quads, 1);
+
+    quad->positions[0].x = convert_to_screen_x(sprite->v[0].x);
+    quad->positions[0].y = convert_to_screen_y(sprite->v[0].y);
+    quad->positions[3].x = convert_to_screen_x(sprite->v[3].x);
+    quad->positions[3].y = convert_to_screen_y(sprite->v[3].y);
+    quad_infer_positions(quad);
+
+    quad->tex_coords[0].s = sprite->t[0].s;
+    quad->tex_coords[0].t = sprite->t[0].t;
+    quad->tex_coords[3].s = sprite->t[3].s;
+    quad->tex_coords[3].t = sprite->t[3].t;
+    quad_infer_tex_coords(quad);
+
+    quad->z = flPS2ConvScreenFZ(sprite->v[0].z);
+    quad->index = arrlen(quads);
+    quad->color = convert_color(color);
+    quad->texture_spec = latest_texture_spec;
 }
 
 void OpenGLRenderer_DrawSprite2(const Sprite2* sprite2) {
-    push_quad(
-        sprite2->v[0].x, sprite2->v[0].y, sprite2->v[1].x, sprite2->v[1].y, sprite2->v[0].z, sprite2->vertex_color);
+    SDL_assert(arrlen(quads) < QUADS_MAX);
+
+    GLQuad* quad = arraddnptr(quads, 1);
+
+    quad->positions[0].x = convert_to_screen_x(sprite2->v[0].x);
+    quad->positions[0].y = convert_to_screen_y(sprite2->v[0].y);
+    quad->positions[3].x = convert_to_screen_x(sprite2->v[1].x);
+    quad->positions[3].y = convert_to_screen_y(sprite2->v[1].y);
+    quad_infer_positions(quad);
+
+    quad->tex_coords[0].s = sprite2->t[0].s;
+    quad->tex_coords[0].t = sprite2->t[0].t;
+    quad->tex_coords[3].s = sprite2->t[1].s;
+    quad->tex_coords[3].t = sprite2->t[1].t;
+    quad_infer_tex_coords(quad);
+
+    quad->z = flPS2ConvScreenFZ(sprite2->v[0].z);
+    quad->index = arrlen(quads);
+    quad->color = convert_color(sprite2->vertex_color);
+    quad->texture_spec = latest_texture_spec;
 }
 
 void OpenGLRenderer_DrawSolidQuad(const Quad* quad, unsigned int color) {
-    push_quad(quad->v[0].x, quad->v[0].y, quad->v[3].x, quad->v[3].y, quad->v[0].z, color);
+    SDL_assert(arrlen(quads) < QUADS_MAX);
+
+    GLQuad* _quad = arraddnptr(quads, 1);
+
+    for (int i = 0; i < 4; i++) {
+        _quad->positions[i].x = convert_to_screen_x(quad->v[i].x);
+        _quad->positions[i].y = convert_to_screen_y(quad->v[i].y);
+    }
+
+    _quad->z = flPS2ConvScreenFZ(quad->v[0].z);
+    _quad->index = arrlen(quads);
+    _quad->color = convert_color(color);
+    SDL_zero(_quad->texture_spec);
 }
 
 // Internal
@@ -209,7 +423,14 @@ bool OpenGLRenderer_Init() {
     arrsetcap(quads, QUADS_MAX);
     vertices = SDL_calloc(QUADS_MAX * 4, sizeof(GLVertex));
 
-    shader_program = build_shader_program("shaders/vert.glsl", "shaders/frag.glsl");
+    // Configure shaders
+
+    solid_shader = build_shader_program("shaders/vert.glsl", "shaders/frag_solid.glsl");
+
+    palette_8_shader = build_shader_program("shaders/vert.glsl", "shaders/frag_palette_8.glsl");
+    glUseProgram(palette_8_shader);
+    glUniform1i(glGetUniformLocation(palette_8_shader, "uPalette"), 0);
+    glUniform1i(glGetUniformLocation(palette_8_shader, "uIndexTex"), 1);
 
     // Setup vertex data and buffers
 
@@ -241,20 +462,28 @@ bool OpenGLRenderer_Init() {
     // aPos
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLVertex), (GLvoid*)offsetof(GLVertex, position));
     glEnableVertexAttribArray(0);
-    // aColor
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(GLVertex), (GLvoid*)offsetof(GLVertex, color));
+    // aTexCoord
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GLVertex), (GLvoid*)offsetof(GLVertex, tex_coord));
     glEnableVertexAttribArray(1);
+    // aColor
+    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(GLVertex), (GLvoid*)offsetof(GLVertex, color));
+    glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    // Misc
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     return true;
 }
 
 void OpenGLRenderer_Quit() {
-    //
+    // TODO: Implement
 }
 
 void OpenGLRenderer_RenderFrame(int window_width, int window_height) {
@@ -262,31 +491,55 @@ void OpenGLRenderer_RenderFrame(int window_width, int window_height) {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glUseProgram(shader_program);
     glBindVertexArray(vertex_array);
 
     // Draw quads
 
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+    SDL_qsort(quads, arrlen(quads), sizeof(quads[0]), compare_quads);
 
     for (int i = 0; i < arrlen(quads); i++) {
         const int vertex_base = i * 4;
-        GLQuad* quad = &quads[i];
+        const GLQuad* quad = &quads[i];
 
-        vertices[vertex_base + 0].position.x = vertices[vertex_base + 2].position.x = quad->x0;
-        vertices[vertex_base + 0].position.y = vertices[vertex_base + 1].position.y = quad->y0;
-        vertices[vertex_base + 1].position.x = vertices[vertex_base + 3].position.x = quad->x1;
-        vertices[vertex_base + 2].position.y = vertices[vertex_base + 3].position.y = quad->y1;
-
-        vertices[vertex_base + 0].position.z = vertices[vertex_base + 1].position.z =
-            vertices[vertex_base + 2].position.z = vertices[vertex_base + 3].position.z = quad->z;
-
-        vertices[vertex_base + 0].color = vertices[vertex_base + 1].color = vertices[vertex_base + 2].color =
-            vertices[vertex_base + 3].color = quad->color;
+        for (int i = 0; i < 4; i++) {
+            vertices[vertex_base + i].position.x = quad->positions[i].x;
+            vertices[vertex_base + i].position.y = quad->positions[i].y;
+            vertices[vertex_base + i].position.z = 0;
+            vertices[vertex_base + i].tex_coord = quad->tex_coords[i];
+            vertices[vertex_base + i].color = quad->color;
+        }
     }
 
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLVertex) * arrlen(quads) * 4, vertices);
-    glDrawElements(GL_TRIANGLES, 6 * arrlen(quads), GL_UNSIGNED_INT, NULL);
+
+    for (int i = 0; i < arrlen(quads); i++) {
+        const GLQuad* quad = &quads[i];
+
+        if (quad->texture_spec.texture.handle == 0) {
+            glUseProgram(solid_shader);
+        } else {
+            switch (quad->texture_spec.texture.palette_type) {
+            case PALETTE_NONE:
+            case PALETTE_4:
+                // TODO: Implement
+                glUseProgram(solid_shader);
+                break;
+
+            case PALETTE_8:
+                SDL_assert(quad->texture_spec.texture.handle != 0);
+                SDL_assert(quad->texture_spec.palette != 0);
+                glUseProgram(palette_8_shader);
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_1D, quad->texture_spec.palette);
+                glActiveTexture(GL_TEXTURE1);
+                glBindTexture(GL_TEXTURE_2D, quad->texture_spec.texture.handle);
+                break;
+            }
+        }
+
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (GLvoid*)(sizeof(GLuint) * 6 * i));
+    }
 
     // Cleanup
 

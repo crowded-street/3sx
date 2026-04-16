@@ -246,12 +246,7 @@ set(PROJECT_LICENSE_FILES
     "${CMAKE_SOURCE_DIR}/THIRD_PARTY_NOTICES.txt"
 )
 
-set(OPENGL_SHADER_DIR "${CMAKE_SOURCE_DIR}/src/platform/video/opengl/shaders")
-
-set(OPENGL_SHADER_FILES
-    "${OPENGL_SHADER_DIR}/frag.glsl"
-    "${OPENGL_SHADER_DIR}/vert.glsl"
-)
+file(GLOB_RECURSE OPENGL_SHADERS "${CMAKE_SOURCE_DIR}/src/platform/video/opengl/shaders/*.glsl")
 
 if(APPLE)
     install(TARGETS 3sx
@@ -273,7 +268,7 @@ if(APPLE)
     )
 
     install(FILES
-        ${OPENGL_SHADER_FILES}
+        ${OPENGL_SHADERS}
         DESTINATION 3SX.app/Contents/Resources/shaders
     )
 elseif(WIN32)
