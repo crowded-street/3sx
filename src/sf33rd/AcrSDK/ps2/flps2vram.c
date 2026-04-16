@@ -1110,7 +1110,7 @@ s32 flPS2ConvertContext(plContext* lpSrc, plContext* lpDst, u32 direction, u32 t
         for (x = 0; x < lpDst->width; x++) {
             if ((type == 1) && (direction == 1)) {
                 src = keep_src;
-                src += lpSrc->bitdepth * ((wk0 & 0xE0) + clut_tbl[wk0 & 0x1F]);
+                src += lpSrc->bitdepth * wk0;
             } else {
                 src = keep_src + wk1;
                 wk1 += lpSrc->bitdepth;
@@ -1137,7 +1137,7 @@ s32 flPS2ConvertContext(plContext* lpSrc, plContext* lpDst, u32 direction, u32 t
 
             if ((type == 1) && (direction == 0)) {
                 dst = keep_dst;
-                dst += lpDst->bitdepth * ((wk0 & 0xE0) + clut_tbl[wk0 & 0x1F]);
+                dst += lpDst->bitdepth * wk0;
             } else {
                 dst = keep_dst + (lpDst->pitch * y) + (lpDst->bitdepth * x);
             }

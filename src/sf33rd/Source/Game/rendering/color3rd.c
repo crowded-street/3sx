@@ -530,7 +530,8 @@ void palUpdateGhostDC() {
             flLockPalette(NULL, col3rd_w.palDC.handle[i], &bits, 2);
             dstAdrs = bits.ptr;
             srcAdrs = &colPalBuffDC[i << 6];
-            SDL_memmove(dstAdrs, srcAdrs, 0x80);
+            //SDL_memmove(dstAdrs, srcAdrs, 0x80);
+            memcpy(dstAdrs, srcAdrs, 0x80);
             flUnlockPalette(col3rd_w.palDC.handle[i]);
         }
     }
@@ -548,7 +549,8 @@ void palUpdateGhostCP3(s32 pal, s32 nums) {
         flLockPalette(NULL, col3rd_w.palCP3.handle[i], &bits, 2);
         dstAdrs = bits.ptr;
         srcAdrs = (u16*)&ColorRAM[i];
-        SDL_memmove(dstAdrs, srcAdrs, 0x80);
+        //SDL_memmove(dstAdrs, srcAdrs, 0x80);
+        memcpy(dstAdrs, srcAdrs, 0x80);
         flUnlockPalette(col3rd_w.palCP3.handle[i]);
     }
 }
