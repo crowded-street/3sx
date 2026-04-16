@@ -1098,9 +1098,6 @@ s32 flPS2ConvertContext(plContext* lpSrc, plContext* lpDst, u32 direction, u32 t
     u8* src;
     u8* dst;
 
-    static u8 clut_tbl[32] = { 0, 1, 2,  3,  4,  5,  6,  7,  16, 17, 18, 19, 20, 21, 22, 23,
-                               8, 9, 10, 11, 12, 13, 14, 15, 24, 25, 26, 27, 28, 29, 30, 31 };
-
     keep_src = lpSrc->ptr;
     keep_dst = lpDst->ptr;
     wk0 = 0;
