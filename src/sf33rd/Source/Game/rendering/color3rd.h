@@ -20,6 +20,5 @@ Palette* palGetChunkGhostDC();
 Palette* palGetChunkGhostCP3();
 void palUpdateGhostDC();
 void palUpdateGhostCP3(s32 pal, s32 nums);
-void palConvRowTim2CI8Clut(u16* src, u16* dst, s32 size);
 
 #endif

@@ -49,7 +49,6 @@ if(PSP)
 
         CRS_APP_DRIVER_PSP
         CRS_VIDEO_DRIVER_PSP
-        SKIP_CLUT_PALETTE_FORMAT
     )
 else()
     target_compile_definitions(3sx PRIVATE

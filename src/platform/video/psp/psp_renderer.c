@@ -389,7 +389,6 @@ void PSPRenderer_DestroyTexture(unsigned int texture_handle) {
     if ((texture_handle == 0) || (texture_handle > FL_TEXTURE_MAX)) {
         return;
     }
-
 }
 
 void PSPRenderer_UnlockTexture(unsigned int th) {
@@ -398,38 +397,41 @@ void PSPRenderer_UnlockTexture(unsigned int th) {
     if ((texture_handle == 0) || (texture_handle > FL_TEXTURE_MAX)) {
         fatal_error("Invalid PSP texture handle: %u", texture_handle);
     }
-
 }
 
-void PSPRenderer_CreatePalette(unsigned int ph) { }
+void PSPRenderer_CreatePalette(unsigned int ph) {
+    // Do nothing
+}
 
-void PSPRenderer_DestroyPalette(unsigned int palette_handle) { }
+void PSPRenderer_DestroyPalette(unsigned int palette_handle) {
+    // Do nothing
+}
 
-void PSPRenderer_UnlockPalette(unsigned int ph) { }
+void PSPRenderer_UnlockPalette(unsigned int ph) {
+    // Do nothing
+}
 
 void PSPRenderer_SetTexture(unsigned int th) {
     int texture_handle = LO_16_BITS(th) - 1;
-    FLTexture *flTex = &flTexture[texture_handle];
+    FLTexture* flTex = &flTexture[texture_handle];
     int palette_handle = HI_16_BITS(th) - 1;
-    FLTexture *flPal = &flPalette[palette_handle];
-    
+    FLTexture* flPal = &flPalette[palette_handle];
 
-    void *texture_source = texture_source_pixels(flTex);
-    void *palette_source = palette_source_pixels(flPal);
-    
+    void* texture_source = texture_source_pixels(flTex);
+    void* palette_source = palette_source_pixels(flPal);
 
-    if(current_palette_source != palette_source){
+    if (current_palette_source != palette_source) {
         sceGuClutMode(GU_PSM_5551, 0, 255, 0);
         sceGuClutLoad(flPal->size / 16, palette_source);
         current_palette_source = palette_source;
     }
 
-    if(current_texture_source != texture_source){
+    if (current_texture_source != texture_source) {
         sceGuTexMode(ps2_to_psp_format(flTex->format), 0, 0, GU_FALSE);
         sceGuTexImage(0, flTex->width, flTex->height, flTex->width, texture_source);
         current_texture_source = texture_source;
     }
-    
+
     current_texture_code = th;
 }
 

@@ -111,8 +111,6 @@ static int compare_render_tasks(const RenderTask* a, const RenderTask* b) {
 
 // Colors
 
-#define clut_shuf(x) (((x) & ~0x18) | ((((x) & 0x08) << 1) | (((x) & 0x10) >> 1)))
-
 static void read_rgba32_color(Uint32 pixel, SDL_Color* color) {
     color->b = pixel & 0xFF;
     color->g = (pixel >> 8) & 0xFF;
@@ -365,16 +363,9 @@ void SDLGameRenderer_CreatePalette(unsigned int ph) {
 
     switch (color_count) {
     case 16:
-        for (int i = 0; i < 16; i++) {
-            read_color(pixels, i, color_size, &colors[i]);
-        }
-
-        break;
-
     case 256:
-        for (int i = 0; i < 256; i++) {
-            const int color_index = clut_shuf(i);
-            read_color(pixels, color_index, color_size, &colors[i]);
+        for (int i = 0; i < color_count; i++) {
+            read_color(pixels, i, color_size, &colors[i]);
         }
 
         break;
