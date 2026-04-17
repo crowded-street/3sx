@@ -73,6 +73,13 @@ typedef struct GLQuad {
 static GLuint canvas_fbo = 0;
 static GLuint canvas_color_tex = 0;
 
+static bool screen_texture_nearest_filter = true;
+static int screen_texture_scale = 1;
+static bool screen_texture_initialized = false;
+static SDL_Rect last_viewport = { 0 };
+static GLuint screen_fbo = 0;
+static GLuint screen_color_tex = 0;
+
 static GLuint solid_shader = 0;
 static GLuint palette_4_shader = 0;
 static GLuint palette_8_shader = 0;
@@ -157,6 +164,52 @@ static GLuint build_shader_program(const char* vertex_shader_path, const char* f
     glDeleteShader(fragment_shader);
 
     return program;
+}
+
+static void configure_screen_texture(SDL_Rect viewport) {
+    if (!screen_texture_initialized) {
+        glGenTextures(1, &screen_color_tex);
+        glBindTexture(GL_TEXTURE_2D, screen_color_tex);
+        const GLint filter = screen_texture_nearest_filter ? GL_NEAREST : GL_LINEAR;
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+
+        glTexImage2D(GL_TEXTURE_2D,
+                     0,
+                     GL_RGBA8,
+                     viewport.w * screen_texture_scale,
+                     viewport.h * screen_texture_scale,
+                     0,
+                     GL_RGBA,
+                     GL_UNSIGNED_BYTE,
+                     NULL);
+
+        glGenFramebuffers(1, &screen_fbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, screen_fbo);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screen_color_tex, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        screen_texture_initialized = true;
+    } else if (last_viewport.w != viewport.w || last_viewport.h != viewport.h) {
+        glBindTexture(GL_TEXTURE_2D, screen_color_tex);
+
+        glTexImage2D(GL_TEXTURE_2D,
+                     0,
+                     GL_RGBA8,
+                     viewport.w * screen_texture_scale,
+                     viewport.h * screen_texture_scale,
+                     0,
+                     GL_RGBA,
+                     GL_UNSIGNED_BYTE,
+                     NULL);
+
+        // Re-attach the texture just in case
+        glBindFramebuffer(GL_FRAMEBUFFER, screen_fbo);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screen_color_tex, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
+    last_viewport = viewport;
 }
 
 static float convert_to_screen_x(float x) {
@@ -439,7 +492,10 @@ void OpenGLRenderer_DrawSolidQuad(const Quad* quad, unsigned int color) {
 
 // Internal
 
-bool OpenGLRenderer_Init() {
+bool OpenGLRenderer_Init(bool nearest_filter, int scale) {
+    screen_texture_nearest_filter = nearest_filter;
+    screen_texture_scale = scale;
+
     arrsetcap(quads, QUADS_MAX);
     vertices = SDL_calloc(QUADS_MAX * 4, sizeof(GLVertex));
 
@@ -454,10 +510,6 @@ bool OpenGLRenderer_Init() {
     glGenFramebuffers(1, &canvas_fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, canvas_fbo);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, canvas_color_tex, 0);
-
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "Error creating frame buffer");
-    }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -535,14 +587,14 @@ void OpenGLRenderer_Quit() {
 
 void OpenGLRenderer_RenderFrame(SDL_Rect viewport) {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glBindFramebuffer(GL_FRAMEBUFFER, canvas_fbo);
-    glViewport(0, 0, 384, 224);
-    glClear(GL_COLOR_BUFFER_BIT);
-
     glBindVertexArray(vertex_array);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
 
     // Draw to canvas
+
+    glBindFramebuffer(GL_FRAMEBUFFER, canvas_fbo);
+    glViewport(0, 0, 384, 224);
+    glClear(GL_COLOR_BUFFER_BIT);
 
     SDL_qsort(quads, arrlen(quads), sizeof(quads[0]), compare_quads);
 
@@ -598,11 +650,7 @@ void OpenGLRenderer_RenderFrame(SDL_Rect viewport) {
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (GLvoid*)(sizeof(GLuint) * 6 * i));
     }
 
-    // Draw to screen
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(viewport.x, viewport.y, viewport.w, viewport.h);
-    glClear(GL_COLOR_BUFFER_BIT);
+    // Draw to screen texture, then to window
 
     GLVertex screen_vertices[4] = {
         { .position = { .x = -1, .y = 1 }, .tex_coord = { .s = 0, .t = 1 } },
@@ -617,9 +665,25 @@ void OpenGLRenderer_RenderFrame(SDL_Rect viewport) {
 
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(screen_vertices), screen_vertices);
     glUseProgram(direct_shader);
+    glDisable(GL_BLEND);
+
+    configure_screen_texture(viewport);
+    glBindFramebuffer(GL_FRAMEBUFFER, screen_fbo);
+    glViewport(0, 0, viewport.w * screen_texture_scale, viewport.h * screen_texture_scale);
+    glClear(GL_COLOR_BUFFER_BIT);
+
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, canvas_color_tex);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (GLvoid*)0);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(viewport.x, viewport.y, viewport.w, viewport.h);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, screen_color_tex);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (GLvoid*)0);
+    glEnable(GL_BLEND);
 
     // Cleanup
 

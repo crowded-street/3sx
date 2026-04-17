@@ -70,22 +70,6 @@ static Uint64 last_frame_end_time = 0;
 static Uint64 last_mouse_motion_time = 0;
 static const int mouse_hide_delay_ms = 2000; // 2 seconds
 
-static SDL_ScaleMode screen_texture_scale_mode() {
-    switch (scale_mode) {
-    case SCALEMODE_LINEAR:
-    case SCALEMODE_SOFT_LINEAR:
-        return SDL_SCALEMODE_LINEAR;
-
-    case SCALEMODE_NEAREST:
-    case SCALEMODE_SQUARE_PIXELS:
-    case SCALEMODE_INTEGER:
-        return SDL_SCALEMODE_NEAREST;
-
-    default:
-        return SDL_SCALEMODE_INVALID;
-    }
-}
-
 static void init_scalemode() {
     const char* raw_scalemode = Config_GetString(CFG_KEY_SCALEMODE);
 
@@ -103,6 +87,19 @@ static void init_scalemode() {
         scale_mode = SCALEMODE_SQUARE_PIXELS;
     } else if (SDL_strcmp(raw_scalemode, "integer") == 0) {
         scale_mode = SCALEMODE_INTEGER;
+    }
+}
+
+static bool scalemode_uses_nearest_filter() {
+    switch (scale_mode) {
+    case SCALEMODE_INTEGER:
+    case SCALEMODE_NEAREST:
+    case SCALEMODE_SQUARE_PIXELS:
+        return true;
+
+    case SCALEMODE_LINEAR:
+    case SCALEMODE_SOFT_LINEAR:
+        return false;
     }
 }
 
@@ -185,8 +182,10 @@ static int full_init() {
     }
 
     // Initialize rendering subsystems
-    
-    if (!OpenGLRenderer_Init()) {
+
+    const int scale = (scale_mode == SCALEMODE_SOFT_LINEAR) ? 2 : 1;
+
+    if (!OpenGLRenderer_Init(scalemode_uses_nearest_filter(), scale)) {
         return 1;
     }
 

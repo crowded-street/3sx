@@ -25,7 +25,7 @@ void OpenGLRenderer_DrawSolidQuad(const Quad* quad, unsigned int color);
 
 // Internal
 
-bool OpenGLRenderer_Init();
+bool OpenGLRenderer_Init(bool nearest_filter, int scale);
 void OpenGLRenderer_Quit();
 void OpenGLRenderer_RenderFrame(SDL_Rect viewport);
 
