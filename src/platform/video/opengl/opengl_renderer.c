@@ -70,6 +70,9 @@ typedef struct GLQuad {
     GLColor color;
 } GLQuad;
 
+static GLuint canvas_fbo = 0;
+static GLuint canvas_color_tex = 0;
+
 static GLuint solid_shader = 0;
 static GLuint palette_4_shader = 0;
 static GLuint palette_8_shader = 0;
@@ -440,6 +443,24 @@ bool OpenGLRenderer_Init() {
     arrsetcap(quads, QUADS_MAX);
     vertices = SDL_calloc(QUADS_MAX * 4, sizeof(GLVertex));
 
+    // Configure canvas
+
+    glGenTextures(1, &canvas_color_tex);
+    glBindTexture(GL_TEXTURE_2D, canvas_color_tex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 384, 224, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
+    glGenFramebuffers(1, &canvas_fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, canvas_fbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, canvas_color_tex, 0);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "Error creating frame buffer");
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
     // Configure shaders
 
     solid_shader = build_shader_program("shaders/vert.glsl", "shaders/frag_solid.glsl");
@@ -513,15 +534,16 @@ void OpenGLRenderer_Quit() {
 }
 
 void OpenGLRenderer_RenderFrame(int window_width, int window_height) {
-    glViewport(0, 0, window_width, window_height);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glBindFramebuffer(GL_FRAMEBUFFER, canvas_fbo);
+    glViewport(0, 0, 384, 224);
     glClear(GL_COLOR_BUFFER_BIT);
 
     glBindVertexArray(vertex_array);
-
-    // Draw quads
-
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+
+    // Draw to canvas
+
     SDL_qsort(quads, arrlen(quads), sizeof(quads[0]), compare_quads);
 
     for (int i = 0; i < arrlen(quads); i++) {
@@ -575,6 +597,29 @@ void OpenGLRenderer_RenderFrame(int window_width, int window_height) {
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (GLvoid*)(sizeof(GLuint) * 6 * i));
     }
+
+    // Draw to screen
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, window_width, window_height);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    GLVertex screen_vertices[4] = {
+        { .position = { .x = -1, .y = 1 }, .tex_coord = { .s = 0, .t = 1 } },
+        { .position = { .x = 1, .y = 1 }, .tex_coord = { .s = 1, .t = 1 } },
+        { .position = { .x = -1, .y = -1 }, .tex_coord = { .s = 0, .t = 0 } },
+        { .position = { .x = 1, .y = -1 }, .tex_coord = { .s = 1, .t = 0 } },
+    };
+
+    for (int i = 0; i < SDL_arraysize(screen_vertices); i++) {
+        screen_vertices[i].color = (GLColor) { .r = 1, .g = 1, .b = 1, .a = 1 };
+    }
+
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(screen_vertices), screen_vertices);
+    glUseProgram(direct_shader);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, canvas_color_tex);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (GLvoid*)0);
 
     // Cleanup
 
