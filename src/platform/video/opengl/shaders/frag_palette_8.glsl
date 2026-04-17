@@ -11,4 +11,8 @@ void main() {
     uint index = texture(uIndexTex, vTexCoord).r;
     vec4 color = texelFetch(uPalette, int(index), 0);
     FragColor = color * vColor;
+
+	if (FragColor.a == 0) {
+		discard;
+	}
 }

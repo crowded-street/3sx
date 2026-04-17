@@ -73,6 +73,7 @@ typedef struct GLQuad {
 
 static GLuint canvas_fbo = 0;
 static GLuint canvas_color_tex = 0;
+static GLuint canvas_depth_tex = 0;
 
 static bool screen_texture_nearest_filter = true;
 static int screen_texture_scale = 1;
@@ -255,25 +256,6 @@ static void quad_infer_tex_coords(GLQuad* quad) {
     quad->tex_coords[2].t = quad->tex_coords[3].t;
 }
 
-static int compare_quads(const void* lhs, const void* rhs) {
-    const GLQuad* lhs_quad = (GLQuad*)lhs;
-    const GLQuad* rhs_quad = (GLQuad*)rhs;
-
-    if (lhs_quad->z < rhs_quad->z) {
-        return -1;
-    } else if (lhs_quad->z > rhs_quad->z) {
-        return 1;
-    } else {
-        if (lhs_quad->index < rhs_quad->index) {
-            return 1;
-        } else if (lhs_quad->index > rhs_quad->index) {
-            return -1;
-        } else {
-            return 0;
-        }
-    }
-}
-
 // Public
 
 void OpenGLRenderer_CreateTexture(unsigned int th) {
@@ -423,7 +405,7 @@ void OpenGLRenderer_DrawTexturedQuad(const Sprite* sprite, unsigned int color) {
         quad->tex_coords[i].t = sprite->t[i].t;
     }
 
-    quad->z = flPS2ConvScreenFZ(sprite->v[0].z);
+    quad->z = sprite->v[0].z;
     quad->index = arrlen(quads);
     quad->color = convert_color(color);
     quad->texture_spec = latest_texture_spec;
@@ -446,7 +428,7 @@ void OpenGLRenderer_DrawSprite(const Sprite* sprite, unsigned int color) {
     quad->tex_coords[3].t = sprite->t[3].t;
     quad_infer_tex_coords(quad);
 
-    quad->z = flPS2ConvScreenFZ(sprite->v[0].z);
+    quad->z = sprite->v[0].z;
     quad->index = arrlen(quads);
     quad->color = convert_color(color);
     quad->texture_spec = latest_texture_spec;
@@ -469,7 +451,7 @@ void OpenGLRenderer_DrawSprite2(const Sprite2* sprite2) {
     quad->tex_coords[3].t = sprite2->t[1].t;
     quad_infer_tex_coords(quad);
 
-    quad->z = flPS2ConvScreenFZ(sprite2->v[0].z);
+    quad->z = sprite2->v[0].z;
     quad->index = arrlen(quads);
     quad->color = convert_color(sprite2->vertex_color);
     quad->texture_spec = latest_texture_spec;
@@ -485,7 +467,7 @@ void OpenGLRenderer_DrawSolidQuad(const Quad* quad, unsigned int color) {
         _quad->positions[i].y = convert_to_screen_y(quad->v[i].y);
     }
 
-    _quad->z = flPS2ConvScreenFZ(quad->v[0].z);
+    _quad->z = quad->v[0].z;
     _quad->index = arrlen(quads);
     _quad->color = convert_color(color);
     SDL_zero(_quad->texture_spec);
@@ -508,9 +490,16 @@ bool OpenGLRenderer_Init(bool nearest_filter, int scale) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 384, 224, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
+    glGenTextures(1, &canvas_depth_tex);
+    glBindTexture(GL_TEXTURE_2D, canvas_depth_tex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 384, 224, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+
     glGenFramebuffers(1, &canvas_fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, canvas_fbo);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, canvas_color_tex, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, canvas_depth_tex, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -595,9 +584,8 @@ void OpenGLRenderer_RenderFrame(SDL_Rect viewport) {
 
     glBindFramebuffer(GL_FRAMEBUFFER, canvas_fbo);
     glViewport(0, 0, 384, 224);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    SDL_qsort(quads, arrlen(quads), sizeof(quads[0]), compare_quads);
+	glEnable(GL_DEPTH_TEST);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for (int i = 0; i < arrlen(quads); i++) {
         const int vertex_base = i * 4;
@@ -606,7 +594,7 @@ void OpenGLRenderer_RenderFrame(SDL_Rect viewport) {
         for (int i = 0; i < 4; i++) {
             vertices[vertex_base + i].position.x = quad->positions[i].x;
             vertices[vertex_base + i].position.y = quad->positions[i].y;
-            vertices[vertex_base + i].position.z = 0;
+            vertices[vertex_base + i].position.z = quad->z;
             vertices[vertex_base + i].tex_coord = quad->tex_coords[i];
             vertices[vertex_base + i].color = quad->color;
         }
@@ -667,6 +655,7 @@ void OpenGLRenderer_RenderFrame(SDL_Rect viewport) {
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(screen_vertices), screen_vertices);
     glUseProgram(direct_shader);
     glDisable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
 
     configure_screen_texture(viewport);
     glBindFramebuffer(GL_FRAMEBUFFER, screen_fbo);

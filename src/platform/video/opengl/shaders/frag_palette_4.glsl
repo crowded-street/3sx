@@ -22,4 +22,8 @@ uint fetch4bppIndex(vec2 uv) {
 void main() {
     uint index = fetch4bppIndex(vTexCoord);
     FragColor = texelFetch(uPalette, int(index), 0);
+
+	if (FragColor.a == 0) {
+		discard;
+	}
 }
