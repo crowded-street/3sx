@@ -243,7 +243,7 @@ s16 CAPLOGO_Move(u16 type) {
 }
 
 void Put_char(const f32* ptr, u32 indexG, u16 prio, s16 x, s16 y, f32 zx, f32 zy) {
-    Polygon tex[4];
+    ColoredVertex tex[4];
     s16 off_x;
     s16 off_y;
 
@@ -304,7 +304,7 @@ void Warning_Init() {
 
 // FIXME: When is this ever called?
 void Put_Warning(s16 type) {
-    Polygon tex[4];
+    ColoredVertex tex[4];
 
     tex[0].col = tex[1].col = tex[2].col = tex[3].col = 0xFFFFFFFF;
 

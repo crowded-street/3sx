@@ -32,8 +32,6 @@
 #include <SDL3/SDL.h>
 
 #if _WIN32 && DEBUG
-// Including windows.h causes conflicts with the Polygon struct, so I just included the header where
-// AllocConsole is and the Windows-specific typedefs that it requires.
 #include <windef.h>
 
 #include <ConsoleApi.h>

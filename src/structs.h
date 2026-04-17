@@ -1333,7 +1333,7 @@ typedef struct {
     f32 u;
     f32 v;
     u32 col;
-} Polygon; // FIXME: This is more like a vertex, not a full polygon
+} ColoredVertex;
 
 typedef struct {
     f32 x;

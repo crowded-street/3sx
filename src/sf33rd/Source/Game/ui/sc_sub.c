@@ -162,7 +162,7 @@ const u8 ascProData[128] = {
 };
 
 SAFrame sa_frame[3][48];
-Polygon scrscrntex[4];
+ColoredVertex scrscrntex[4];
 u8 WipeLimit;
 u8 FadeLimit;
 s16 Hnc_Num;
@@ -1593,7 +1593,7 @@ void hnc_set(u8 num, u8 atr) {
 }
 
 void hnc_wipeinit(u8 atr) {
-    Polygon dmyvtx[4];
+    ColoredVertex dmyvtx[4];
     u8 i;
     u8 j;
     u8 k;
@@ -1623,7 +1623,7 @@ void hnc_wipeinit(u8 atr) {
 }
 
 s32 hnc_wipeout(u8 atr) {
-    Polygon vtx[4];
+    ColoredVertex vtx[4];
     u8 i;
     u8 j;
     u8 k;

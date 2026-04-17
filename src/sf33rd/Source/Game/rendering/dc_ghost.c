@@ -141,7 +141,7 @@ void njCalcPoints(MTX* mtx, Vec3* ps, Vec3* pd, s32 num) {
     }
 }
 
-void njDrawTexture(Polygon* polygon, s32 /* unused */, s32 tex, s32 /* unused */) {
+void njDrawTexture(ColoredVertex* polygon, s32 /* unused */, s32 tex, s32 /* unused */) {
     Vertex vtx[4];
     s32 i;
 
@@ -152,7 +152,7 @@ void njDrawTexture(Polygon* polygon, s32 /* unused */, s32 tex, s32 /* unused */
     ppgWriteQuadWithST_B(vtx, polygon[0].col, NULL, tex, -1);
 }
 
-void njDrawSprite(Polygon* polygon, s32 /* unused */, s32 tex, s32 /* unused */) {
+void njDrawSprite(ColoredVertex* polygon, s32 /* unused */, s32 tex, s32 /* unused */) {
     Vertex vtx[4];
 
     if ((polygon[0].x >= 384.0f) || (polygon[3].x < 0.0f) || (polygon[0].y >= 224.0f) || (polygon[3].y < 0.0f)) {

@@ -20,7 +20,7 @@ typedef struct {
 // MARK: - Unhandled
 
 extern SAFrame sa_frame[3][48];
-extern Polygon scrscrntex[4];
+extern ColoredVertex scrscrntex[4];
 extern s16 Hnc_Num;
 extern FadeData fd_dat;
 

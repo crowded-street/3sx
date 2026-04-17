@@ -24,7 +24,7 @@
 #include "structs.h"
 
 Vertex scrDrawPos[4];
-Polygon bgpoly[4];
+ColoredVertex bgpoly[4];
 u8 bg_priority[4];
 u16 Screen_Switch;
 u16 Screen_Switch_Buffer;

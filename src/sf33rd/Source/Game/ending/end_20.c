@@ -346,7 +346,7 @@ void sea_write() {
 
 void sea_trans(u16 num, f64 arg2) {
     f32 suzi = arg2;
-    Polygon poly[4];
+    ColoredVertex poly[4];
 
     poly[0].col = poly[1].col = poly[2].col = poly[3].col = -1;
     poly[0].u = poly[1].u = 0.0f;
