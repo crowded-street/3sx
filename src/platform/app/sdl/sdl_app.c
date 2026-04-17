@@ -5,7 +5,6 @@
 #include "common.h"
 #include "main.h"
 #include "platform/video/opengl/opengl_renderer.h"
-#include "platform/video/sdl/scanline_renderer.h"
 #include "port/config/config.h"
 #include "port/config/keymap.h"
 #include "port/input_backend.h"
@@ -192,8 +191,6 @@ static int full_init() {
         return 1;
     }
 
-    //     ScanlineRenderer_Init(renderer);
-
     // #if DEBUG
     //     SDLDebugText_Initialize(renderer);
     // #endif
@@ -224,7 +221,6 @@ static void cleanup() {
     AFS_Finish();
     Config_Destroy();
     OpenGLRenderer_Quit();
-    ScanlineRenderer_Destroy();
 
 #if DEBUG && IMGUI
     ImGuiW_Finish();
