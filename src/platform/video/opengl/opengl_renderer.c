@@ -8,8 +8,10 @@
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 
 #include "stb/stb_ds.h"
-#include <OpenGL/gl3.h>
+#define GL_GLEXT_PROTOTYPES
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_opengl.h>
+
 #include <libgraph.h>
 
 #define QUADS_MAX 512
