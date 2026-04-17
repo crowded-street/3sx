@@ -15,9 +15,8 @@ uint fetch4bppIndex(vec2 uv) {
     );
 
     int packedX = pixelCoord.x / 2;
-    uint packed = texelFetch(uIndexTex, ivec2(packedX, pixelCoord.y), 0).r;
-
-    return ((pixelCoord.x & 1) == 0) ? (packed & 0xFu) : ((packed >> 4) & 0xFu);
+    uint packedTexel = texelFetch(uIndexTex, ivec2(packedX, pixelCoord.y), 0).r;
+    return ((pixelCoord.x & 1) == 0) ? (packedTexel & 0xFu) : ((packedTexel >> 4) & 0xFu);
 }
 
 void main() {
