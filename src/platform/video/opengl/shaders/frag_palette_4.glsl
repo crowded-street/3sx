@@ -1,12 +1,12 @@
 #version 330 core
 
-in vec4 ourColor;
-in vec2 TexCoord;
-out vec4 FragColor;
-
 uniform sampler1D uPalette;
 uniform usampler2D uIndexTex;
 uniform ivec2 uTextureSize;
+
+in vec4 vColor;
+in vec2 vTexCoord;
+out vec4 FragColor;
 
 uint fetch4bppIndex(vec2 uv) {
     ivec2 pixelCoord = ivec2(
@@ -21,6 +21,6 @@ uint fetch4bppIndex(vec2 uv) {
 }
 
 void main() {
-    uint index = fetch4bppIndex(TexCoord);
+    uint index = fetch4bppIndex(vTexCoord);
     FragColor = texelFetch(uPalette, int(index), 0);
 }

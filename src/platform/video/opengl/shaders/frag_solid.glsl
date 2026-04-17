@@ -1,9 +1,9 @@
 #version 330 core
 
-in vec4 ourColor;
-in vec2 TexCoord;
+in vec4 vColor;
+in vec2 vTexCoord;
 out vec4 FragColor;
 
 void main() {
-    FragColor = ourColor;
+    FragColor = vColor;
 }
