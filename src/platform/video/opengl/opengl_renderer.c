@@ -51,6 +51,8 @@ typedef struct GLVertex {
 
 typedef struct GLTexture {
     GLuint handle;
+    Uint16 width;
+    Uint16 height;
     GLPaletteType palette_type;
 } GLTexture;
 
@@ -69,6 +71,7 @@ typedef struct GLQuad {
 } GLQuad;
 
 static GLuint solid_shader = 0;
+static GLuint palette_4_shader = 0;
 static GLuint palette_8_shader = 0;
 static GLuint direct_shader = 0;
 
@@ -230,6 +233,7 @@ void OpenGLRenderer_CreateTexture(unsigned int th) {
     GLenum format;
     GLenum type;
     GLPaletteType palette_type = PALETTE_NONE;
+    GLsizei buffer_width = fl_texture->width;
 
     switch (fl_texture->format) {
     case SCE_GS_PSMT8:
@@ -240,8 +244,12 @@ void OpenGLRenderer_CreateTexture(unsigned int th) {
         break;
 
     case SCE_GS_PSMT4:
-        // TODO: Implement
-        return;
+        internal_format = GL_R8UI;
+        format = GL_RED_INTEGER;
+        type = GL_UNSIGNED_BYTE;
+        palette_type = PALETTE_4;
+        buffer_width /= 2;
+        break;
 
     case SCE_GS_PSMCT16:
         internal_format = GL_RGB5_A1;
@@ -261,9 +269,14 @@ void OpenGLRenderer_CreateTexture(unsigned int th) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, internal_format, fl_texture->width, fl_texture->height, 0, format, type, pixels);
+    glTexImage2D(GL_TEXTURE_2D, 0, internal_format, buffer_width, fl_texture->height, 0, format, type, pixels);
 
-    textures[texture_index] = (GLTexture) { .handle = texture, .palette_type = palette_type };
+    textures[texture_index] = (GLTexture) {
+        .handle = texture,
+        .width = fl_texture->width,
+        .height = fl_texture->height,
+        .palette_type = palette_type,
+    };
 }
 
 void OpenGLRenderer_DestroyTexture(unsigned int texture_handle) {
@@ -431,6 +444,11 @@ bool OpenGLRenderer_Init() {
 
     solid_shader = build_shader_program("shaders/vert.glsl", "shaders/frag_solid.glsl");
 
+    palette_4_shader = build_shader_program("shaders/vert.glsl", "shaders/frag_palette_4.glsl");
+    glUseProgram(palette_4_shader);
+    glUniform1i(glGetUniformLocation(palette_4_shader, "uPalette"), 0);
+    glUniform1i(glGetUniformLocation(palette_4_shader, "uIndexTex"), 1);
+
     palette_8_shader = build_shader_program("shaders/vert.glsl", "shaders/frag_palette_8.glsl");
     glUseProgram(palette_8_shader);
     glUniform1i(glGetUniformLocation(palette_8_shader, "uPalette"), 0);
@@ -529,8 +547,13 @@ void OpenGLRenderer_RenderFrame(int window_width, int window_height) {
         } else {
             switch (quad->texture_spec.texture.palette_type) {
             case PALETTE_4:
-                // TODO: Implement
-                glUseProgram(solid_shader);
+                glUseProgram(palette_4_shader);
+                const GLint texture_size_loc = glGetUniformLocation(palette_4_shader, "uTextureSize");
+                glUniform2i(texture_size_loc, quad->texture_spec.texture.width, quad->texture_spec.texture.width);
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_1D, quad->texture_spec.palette);
+                glActiveTexture(GL_TEXTURE1);
+                glBindTexture(GL_TEXTURE_2D, quad->texture_spec.texture.handle);
                 break;
 
             case PALETTE_8:
