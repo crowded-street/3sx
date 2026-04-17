@@ -3,7 +3,7 @@
 // https://github.com/dearimgui/dear_bindings
 
 #include "imgui.h"
-#include "imgui_impl_sdlrenderer3.h"
+#include "imgui_impl_opengl3.h"
 
 #include <stdio.h>
 
@@ -13,7 +13,7 @@
 #define DEAR_BINDINGS_INTERNAL_GLUE_CODE
 namespace cimgui
 {
-#include "dcimgui_impl_sdlrenderer3.h"
+#include "dcimgui_impl_opengl3.h"
 }
 #undef DEAR_BINDINGS_INTERNAL_GLUE_CODE
 
@@ -95,39 +95,44 @@ static inline ::ImColor ConvertToCPP_ImColor(const cimgui::ImColor& src)
 
 #ifndef IMGUI_DISABLE
 
-CIMGUI_IMPL_API bool cimgui::cImGui_ImplSDLRenderer3_Init(cimgui::SDL_Renderer* renderer)
+CIMGUI_IMPL_API bool cimgui::cImGui_ImplOpenGL3_Init(void)
 {
-    return ::ImGui_ImplSDLRenderer3_Init(reinterpret_cast<::SDL_Renderer*>(renderer));
+    return ::ImGui_ImplOpenGL3_Init();
 }
 
-CIMGUI_IMPL_API void cimgui::cImGui_ImplSDLRenderer3_Shutdown(void)
+CIMGUI_IMPL_API bool cimgui::cImGui_ImplOpenGL3_InitEx(const char* glsl_version)
 {
-    ::ImGui_ImplSDLRenderer3_Shutdown();
+    return ::ImGui_ImplOpenGL3_Init(glsl_version);
 }
 
-CIMGUI_IMPL_API void cimgui::cImGui_ImplSDLRenderer3_NewFrame(void)
+CIMGUI_IMPL_API void cimgui::cImGui_ImplOpenGL3_Shutdown(void)
 {
-    ::ImGui_ImplSDLRenderer3_NewFrame();
+    ::ImGui_ImplOpenGL3_Shutdown();
 }
 
-CIMGUI_IMPL_API void cimgui::cImGui_ImplSDLRenderer3_RenderDrawData(cimgui::ImDrawData* draw_data, cimgui::SDL_Renderer* renderer)
+CIMGUI_IMPL_API void cimgui::cImGui_ImplOpenGL3_NewFrame(void)
 {
-    ::ImGui_ImplSDLRenderer3_RenderDrawData(reinterpret_cast<::ImDrawData*>(draw_data), reinterpret_cast<::SDL_Renderer*>(renderer));
+    ::ImGui_ImplOpenGL3_NewFrame();
 }
 
-CIMGUI_IMPL_API void cimgui::cImGui_ImplSDLRenderer3_CreateDeviceObjects(void)
+CIMGUI_IMPL_API void cimgui::cImGui_ImplOpenGL3_RenderDrawData(cimgui::ImDrawData* draw_data)
 {
-    ::ImGui_ImplSDLRenderer3_CreateDeviceObjects();
+    ::ImGui_ImplOpenGL3_RenderDrawData(reinterpret_cast<::ImDrawData*>(draw_data));
 }
 
-CIMGUI_IMPL_API void cimgui::cImGui_ImplSDLRenderer3_DestroyDeviceObjects(void)
+CIMGUI_IMPL_API bool cimgui::cImGui_ImplOpenGL3_CreateDeviceObjects(void)
 {
-    ::ImGui_ImplSDLRenderer3_DestroyDeviceObjects();
+    return ::ImGui_ImplOpenGL3_CreateDeviceObjects();
 }
 
-CIMGUI_IMPL_API void cimgui::cImGui_ImplSDLRenderer3_UpdateTexture(cimgui::ImTextureData* tex)
+CIMGUI_IMPL_API void cimgui::cImGui_ImplOpenGL3_DestroyDeviceObjects(void)
 {
-    ::ImGui_ImplSDLRenderer3_UpdateTexture(reinterpret_cast<::ImTextureData*>(tex));
+    ::ImGui_ImplOpenGL3_DestroyDeviceObjects();
+}
+
+CIMGUI_IMPL_API void cimgui::cImGui_ImplOpenGL3_UpdateTexture(cimgui::ImTextureData* tex)
+{
+    ::ImGui_ImplOpenGL3_UpdateTexture(reinterpret_cast<::ImTextureData*>(tex));
 }
 
 #endif // #ifndef IMGUI_DISABLE

@@ -3,7 +3,6 @@
 #include "platform/app/sdl/sdl_app.h"
 #include "arcade/arcade_balance.h"
 #include "common.h"
-#include "imgui/imgui_wrapper.h"
 #include "main.h"
 #include "platform/video/opengl/opengl_renderer.h"
 #include "platform/video/sdl/scanline_renderer.h"
@@ -22,6 +21,10 @@
 
 #if DEBUG
 #include "sf33rd/Source/Game/debug/debug_config.h"
+#endif
+
+#if DEBUG && IMGUI
+#include "imgui/imgui_wrapper.h"
 #endif
 
 #include "port/io/afs.h"
@@ -198,9 +201,9 @@ static int full_init() {
     // Initialize pads
     InputBackend_Init();
 
-    // #if DEBUG
-    //     ImGuiW_Init(window, renderer);
-    // #endif
+#if DEBUG && IMGUI
+    ImGuiW_Init(window, gl_context);
+#endif
 
 #if _WIN32 && DEBUG
     init_windows_console();
@@ -223,15 +226,15 @@ static void cleanup() {
     OpenGLRenderer_Quit();
     ScanlineRenderer_Destroy();
 
-    // #if DEBUG
-    //     ImGuiW_Finish();
-    // #endif
+#if DEBUG && IMGUI
+    ImGuiW_Finish();
+#endif
 
     SDL_DestroyWindow(window);
     window = NULL;
 }
 
-#if DEBUG
+#if DEBUG && IMGUI
 static void toggle_debug_window_visibility(SDL_KeyboardEvent* event) {
     if ((event->key == SDLK_GRAVE) && event->down && !event->repeat) {
         ImGuiW_ToggleVisivility();
@@ -275,9 +278,9 @@ static bool poll_events() {
     bool continue_running = true;
 
     while (SDL_PollEvent(&event)) {
-        // #if DEBUG
-        //         ImGuiW_ProcessEvent(&event);
-        // #endif
+#if DEBUG && IMGUI
+        ImGuiW_ProcessEvent(&event);
+#endif
 
         switch (event.type) {
         case SDL_EVENT_GAMEPAD_ADDED:
@@ -312,9 +315,9 @@ static bool poll_events() {
 }
 
 static void begin_frame() {
-    // #if DEBUG
-    //     ImGuiW_BeginFrame();
-    // #endif
+#if DEBUG && IMGUI
+    ImGuiW_BeginFrame();
+#endif
 
     AFS_RunServer();
 }
@@ -402,17 +405,20 @@ static void end_frame() {
     NetstatsRenderer_Render();
 #endif
 
-    // #if DEBUG
-    //     // Render debug text
-    //     SDLDebugText_Render();
-
-    //     ImGuiW_EndFrame(renderer);
-    // #endif
+#if DEBUG
+    // Render debug text
+    // SDLDebugText_Render();
+#endif
 
     int window_width;
     int window_height;
     SDL_GetWindowSizeInPixels(window, &window_width, &window_height);
     OpenGLRenderer_RenderFrame(get_letterbox_rect(window_width, window_height));
+
+#if DEBUG && IMGUI
+    ImGuiW_EndFrame();
+#endif
+
     SDL_GL_SwapWindow(window);
 
     // Handle cursor hiding

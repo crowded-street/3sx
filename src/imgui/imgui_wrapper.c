@@ -6,8 +6,8 @@
 #include "sf33rd/Source/Game/debug/debug_config.h"
 
 #include "imgui/dcimgui/dcimgui.h"
+#include "imgui/dcimgui/dcimgui_impl_opengl3.h"
 #include "imgui/dcimgui/dcimgui_impl_sdl3.h"
-#include "imgui/dcimgui/dcimgui_impl_sdlrenderer3.h"
 #include <SDL3/SDL.h>
 
 // static bool show_imgui_demo = true;
@@ -68,12 +68,13 @@ static void build_debug_window() {
     ImGui_End();
 }
 
-void ImGuiW_Init(SDL_Window* window, SDL_Renderer* renderer) {
+void ImGuiW_Init(SDL_Window* window, void* sdl_gl_context) {
     CIMGUI_CHECKVERSION();
     ImGui_CreateContext(NULL);
 
     ImGuiIO* io = ImGui_GetIO();
     io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
     SDL_asprintf(&imgui_ini_path, "%s/imgui.ini", Paths_GetPrefPath());
     io->IniFilename = imgui_ini_path;
@@ -85,12 +86,12 @@ void ImGuiW_Init(SDL_Window* window, SDL_Renderer* renderer) {
     style->FontScaleDpi = main_scale;
     io->ConfigDpiScaleFonts = true;
 
-    cImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
-    cImGui_ImplSDLRenderer3_Init(renderer);
+    cImGui_ImplSDL3_InitForOpenGL(window, sdl_gl_context);
+    cImGui_ImplOpenGL3_Init();
 }
 
 void ImGuiW_Finish() {
-    cImGui_ImplSDLRenderer3_Shutdown();
+    cImGui_ImplOpenGL3_Shutdown();
     cImGui_ImplSDL3_Shutdown();
     ImGui_DestroyContext(NULL);
 }
@@ -100,21 +101,21 @@ void ImGuiW_ProcessEvent(const SDL_Event* event) {
 }
 
 void ImGuiW_BeginFrame() {
-    cImGui_ImplSDLRenderer3_NewFrame();
+    cImGui_ImplOpenGL3_NewFrame();
     cImGui_ImplSDL3_NewFrame();
     ImGui_NewFrame();
+
+    ImGui_DockSpaceOverViewportEx(0, NULL, ImGuiDockNodeFlags_PassthruCentralNode, NULL);
 }
 
-void ImGuiW_EndFrame(SDL_Renderer* renderer) {
+void ImGuiW_EndFrame() {
     ImGuiIO* io = ImGui_GetIO();
 
     // ImGui_ShowDemoWindow(&show_imgui_demo);
     build_debug_window();
     ImGui_Render();
 
-    SDL_SetRenderScale(renderer, io->DisplayFramebufferScale.x, io->DisplayFramebufferScale.y);
-    cImGui_ImplSDLRenderer3_RenderDrawData(ImGui_GetDrawData(), renderer);
-    SDL_SetRenderScale(renderer, 1.0f, 1.0f);
+    cImGui_ImplOpenGL3_RenderDrawData(ImGui_GetDrawData());
 }
 
 void ImGuiW_ToggleVisivility() {
