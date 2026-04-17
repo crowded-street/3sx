@@ -68,11 +68,12 @@ typedef struct GLQuad {
     GLColor color;
 } GLQuad;
 
-static GLuint solid_shader;
-static GLuint palette_8_shader;
+static GLuint solid_shader = 0;
+static GLuint palette_8_shader = 0;
+static GLuint direct_shader = 0;
 
-static GLuint vertex_array;
-static GLuint vertex_buffer;
+static GLuint vertex_array = 0;
+static GLuint vertex_buffer = 0;
 static GLQuad* quads = NULL;
 static GLVertex* vertices = NULL;
 
@@ -243,8 +244,11 @@ void OpenGLRenderer_CreateTexture(unsigned int th) {
         return;
 
     case SCE_GS_PSMCT16:
-        // TODO: Implement
-        return;
+        internal_format = GL_RGB5_A1;
+        format = GL_RGBA;
+        type = GL_UNSIGNED_SHORT_1_5_5_5_REV;
+        palette_type = PALETTE_NONE;
+        break;
 
     default:
         fatal_error("Unhandled pixel format: %d", fl_texture->format);
@@ -432,6 +436,10 @@ bool OpenGLRenderer_Init() {
     glUniform1i(glGetUniformLocation(palette_8_shader, "uPalette"), 0);
     glUniform1i(glGetUniformLocation(palette_8_shader, "uIndexTex"), 1);
 
+    direct_shader = build_shader_program("shaders/vert.glsl", "shaders/frag_direct.glsl");
+    glUseProgram(direct_shader);
+    glUniform1i(glGetUniformLocation(direct_shader, "uTexture"), 0);
+
     // Setup vertex data and buffers
 
     glGenVertexArrays(1, &vertex_array);
@@ -520,19 +528,23 @@ void OpenGLRenderer_RenderFrame(int window_width, int window_height) {
             glUseProgram(solid_shader);
         } else {
             switch (quad->texture_spec.texture.palette_type) {
-            case PALETTE_NONE:
             case PALETTE_4:
                 // TODO: Implement
                 glUseProgram(solid_shader);
                 break;
 
             case PALETTE_8:
-                SDL_assert(quad->texture_spec.texture.handle != 0);
                 SDL_assert(quad->texture_spec.palette != 0);
                 glUseProgram(palette_8_shader);
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_1D, quad->texture_spec.palette);
                 glActiveTexture(GL_TEXTURE1);
+                glBindTexture(GL_TEXTURE_2D, quad->texture_spec.texture.handle);
+                break;
+
+            case PALETTE_NONE:
+                glUseProgram(direct_shader);
+                glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, quad->texture_spec.texture.handle);
                 break;
             }
