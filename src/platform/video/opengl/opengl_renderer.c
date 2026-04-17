@@ -533,7 +533,7 @@ void OpenGLRenderer_Quit() {
     // TODO: Implement
 }
 
-void OpenGLRenderer_RenderFrame(int window_width, int window_height) {
+void OpenGLRenderer_RenderFrame(SDL_Rect viewport) {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glBindFramebuffer(GL_FRAMEBUFFER, canvas_fbo);
     glViewport(0, 0, 384, 224);
@@ -601,7 +601,7 @@ void OpenGLRenderer_RenderFrame(int window_width, int window_height) {
     // Draw to screen
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, window_width, window_height);
+    glViewport(viewport.x, viewport.y, viewport.w, viewport.h);
     glClear(GL_COLOR_BUFFER_BIT);
 
     GLVertex screen_vertices[4] = {

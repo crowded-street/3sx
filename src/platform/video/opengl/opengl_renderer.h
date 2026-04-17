@@ -5,6 +5,8 @@
 
 #include "core/render_primitives.h"
 
+#include <SDL3/SDL.h>
+
 #include <stdbool.h>
 
 // Public
@@ -25,7 +27,7 @@ void OpenGLRenderer_DrawSolidQuad(const Quad* quad, unsigned int color);
 
 bool OpenGLRenderer_Init();
 void OpenGLRenderer_Quit();
-void OpenGLRenderer_RenderFrame(int window_width, int window_height);
+void OpenGLRenderer_RenderFrame(SDL_Rect viewport);
 
 #endif
 

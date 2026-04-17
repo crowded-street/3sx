@@ -86,28 +86,6 @@ static SDL_ScaleMode screen_texture_scale_mode() {
     }
 }
 
-// static SDL_Point screen_texture_size() {
-//     SDL_Point size;
-//     SDL_GetRenderOutputSize(renderer, &size.x, &size.y);
-
-//     if (scale_mode == SCALEMODE_SOFT_LINEAR) {
-//         size.x *= 2;
-//         size.y *= 2;
-//     }
-
-//     return size;
-// }
-
-// static void create_screen_texture() {
-//     if (screen_texture != NULL) {
-//         SDL_DestroyTexture(screen_texture);
-//     }
-
-//     const SDL_Point size = screen_texture_size();
-//     screen_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB32, SDL_TEXTUREACCESS_TARGET, size.x, size.y);
-//     SDL_SetTextureScaleMode(screen_texture, screen_texture_scale_mode());
-// }
-
 static void init_scalemode() {
     const char* raw_scalemode = Config_GetString(CFG_KEY_SCALEMODE);
 
@@ -217,9 +195,6 @@ static int full_init() {
     // #if DEBUG
     //     SDLDebugText_Initialize(renderer);
     // #endif
-
-    // Initialize screen texture
-    // create_screen_texture();
 
     // Initialize pads
     InputBackend_Init();
@@ -345,26 +320,26 @@ static void begin_frame() {
     AFS_RunServer();
 }
 
-static void center_rect(SDL_FRect* rect, int win_w, int win_h) {
+static void center_rect(SDL_Rect* rect, int win_w, int win_h) {
     rect->x = (win_w - rect->w) / 2;
     rect->y = (win_h - rect->h) / 2;
 }
 
-static SDL_FRect fit_4_by_3_rect(int win_w, int win_h) {
-    SDL_FRect rect;
+static SDL_Rect fit_4_by_3_rect(int win_w, int win_h) {
+    SDL_Rect rect;
     rect.w = win_w;
-    rect.h = win_w / display_target_ratio;
+    rect.h = (int)((float)win_w / display_target_ratio);
 
     if (rect.h > win_h) {
         rect.h = win_h;
-        rect.w = win_h * display_target_ratio;
+        rect.w = (int)((float)win_h * display_target_ratio);
     }
 
     center_rect(&rect, win_w, win_h);
     return rect;
 }
 
-static SDL_FRect fit_integer_rect(int win_w, int win_h, int pixel_w, int pixel_h) {
+static SDL_Rect fit_integer_rect(int win_w, int win_h, int pixel_w, int pixel_h) {
     const int virtual_w = win_w / pixel_w;
     const int virtual_h = win_h / pixel_h;
     const int scale_w = virtual_w / 384;
@@ -376,14 +351,14 @@ static SDL_FRect fit_integer_rect(int win_w, int win_h, int pixel_w, int pixel_h
         scale = 1;
     }
 
-    SDL_FRect rect;
+    SDL_Rect rect;
     rect.w = scale * 384 * pixel_w;
     rect.h = scale * 224 * pixel_h;
     center_rect(&rect, win_w, win_h);
     return rect;
 }
 
-static SDL_FRect get_letterbox_rect(int win_w, int win_h) {
+static SDL_Rect get_letterbox_rect(int win_w, int win_h) {
     switch (scale_mode) {
     case SCALEMODE_NEAREST:
     case SCALEMODE_LINEAR:
@@ -438,7 +413,7 @@ static void end_frame() {
     int window_width;
     int window_height;
     SDL_GetWindowSizeInPixels(window, &window_width, &window_height);
-    OpenGLRenderer_RenderFrame(window_width, window_height);
+    OpenGLRenderer_RenderFrame(get_letterbox_rect(window_width, window_height));
     SDL_GL_SwapWindow(window);
 
     // Handle cursor hiding
