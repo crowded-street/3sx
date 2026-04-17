@@ -29,6 +29,7 @@
 #include "port/io/afs.h"
 #include "port/resources.h"
 
+#include "glad.h"
 #include <SDL3/SDL.h>
 
 #if _WIN32 && DEBUG
@@ -132,6 +133,11 @@ static bool init_window() {
 
     if (gl_context == NULL) {
         SDL_Log("Couldn't create GL context: %s", SDL_GetError());
+        return false;
+    }
+
+    if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
+        SDL_Log("Failed to log OpenGL functions");
         return false;
     }
 

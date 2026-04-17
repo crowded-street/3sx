@@ -7,10 +7,9 @@
 #include "sf33rd/AcrSDK/ps2/flps2render.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 
+#include "glad.h"
 #include "stb/stb_ds.h"
-#define GL_GLEXT_PROTOTYPES
 #include <SDL3/SDL.h>
-#include <SDL3/SDL_opengl.h>
 
 #include <libgraph.h>
 
