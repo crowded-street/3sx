@@ -64,7 +64,7 @@ else()
         GEKKONET_NO_ASIO
 
         CRS_APP_DRIVER_SDL
-        CRS_VIDEO_DRIVER_OPENGL
+        CRS_VIDEO_DRIVER_SDL_GPU
 
         ARCADE_ROM
         SOUND_ENABLED
