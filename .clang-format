@@ -13,6 +13,7 @@ DerivePointerAlignment: false
 PointerAlignment: Left
 InsertNewlineAtEOF: true
 AlignAfterOpenBracket: BlockIndent
+PenaltyReturnTypeOnItsOwnLine: 1000
 
 ForEachMacros:   ['list_for_each',
                  'list_for_each_safe',

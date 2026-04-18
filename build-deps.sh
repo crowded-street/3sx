@@ -13,6 +13,33 @@ echo "Detected OS: $OS"
 echo "Using cmake from: $(which cmake)"
 cmake --version
 
+detect_build_jobs() {
+    case "$OS" in
+        Darwin)
+            sysctl -n hw.ncpu
+            ;;
+        MINGW*|MSYS*|CYGWIN*)
+            echo "${NUMBER_OF_PROCESSORS:-4}"
+            ;;
+        *)
+            if command -v nproc >/dev/null 2>&1; then
+                nproc
+            elif command -v getconf >/dev/null 2>&1; then
+                getconf _NPROCESSORS_ONLN
+            else
+                echo 4
+            fi
+            ;;
+    esac
+}
+
+BUILD_JOBS="${BUILD_JOBS:-}"
+if [ -z "$BUILD_JOBS" ]; then
+    BUILD_JOBS="$(detect_build_jobs)"
+fi
+
+echo "Using $BUILD_JOBS build job(s)"
+
 # -----------------------------
 # FFmpeg
 # -----------------------------
@@ -79,7 +106,7 @@ else
             ;;
     esac
 
-    make -j$(nproc)
+    make -j"$BUILD_JOBS"
     make install
     echo "FFmpeg installed to $FFMPEG_BUILD"
 
@@ -114,13 +141,59 @@ else
     cmake -S "$SDL_SRC" -B "$SDL_SRC/cmake-build" \
         -DCMAKE_INSTALL_PREFIX="$SDL_BUILD" \
         -DBUILD_SHARED_LIBS=ON \
-        -DSDL_STATIC=OFF
+        -DSDL_SHARED=ON \
+        -DSDL_STATIC=ON
 
-    cmake --build "$SDL_SRC/cmake-build" -j$(nproc)
+    cmake --build "$SDL_SRC/cmake-build" -j"$BUILD_JOBS"
     cmake --install "$SDL_SRC/cmake-build"
 
     rm -rf "$SDL_SRC"
     echo "SDL3 installed to $SDL_BUILD"
+fi
+
+# SDL_shadercross
+# -----------------------------
+
+SDL_SHADERCROSS_REF="main"
+SDL_SHADERCROSS_DIR="$THIRD_PARTY/SDL_shadercross"
+SDL_SHADERCROSS_BUILD="$SDL_SHADERCROSS_DIR/build"
+
+if [ -d "$SDL_SHADERCROSS_BUILD" ]; then
+    echo "SDL_shadercross already built at $SDL_SHADERCROSS_BUILD"
+else
+    echo "Building SDL_shadercross @ $SDL_SHADERCROSS_REF..."
+
+    SDL_SHADERCROSS_SRC=$(mktemp -d)
+    git clone \
+        --branch "$SDL_SHADERCROSS_REF" \
+        --single-branch \
+        --recurse-submodules \
+        https://github.com/libsdl-org/SDL_shadercross.git \
+        "$SDL_SHADERCROSS_SRC"
+
+    cmake -S "$SDL_SHADERCROSS_SRC" -B "$SDL_SHADERCROSS_SRC/cmake-build" \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="$SDL_SHADERCROSS_BUILD" \
+        -DCMAKE_PREFIX_PATH="$SDL_BUILD" \
+        -DSDL3_DIR="$SDL_BUILD/lib/cmake/SDL3" \
+        -DBUILD_SHARED_LIBS=OFF \
+        -DSDLSHADERCROSS_VENDORED=ON \
+        -DSDLSHADERCROSS_SPIRVCROSS_SHARED=OFF \
+        -DSDLSHADERCROSS_SHARED=OFF \
+        -DSDLSHADERCROSS_STATIC=ON \
+        -DSDLSHADERCROSS_CLI=ON \
+        -DSDLSHADERCROSS_CLI_STATIC=ON \
+        -DSDLSHADERCROSS_INSTALL=ON
+
+    cmake --build "$SDL_SHADERCROSS_SRC/cmake-build" --target shadercross -j"$BUILD_JOBS"
+    cmake --install "$SDL_SHADERCROSS_SRC/cmake-build"
+
+    if [ "$OS" = "Darwin" ] && [ -f "$SDL_SHADERCROSS_BUILD/bin/shadercross" ]; then
+        install_name_tool -add_rpath "@executable_path/../lib" "$SDL_SHADERCROSS_BUILD/bin/shadercross" || true
+    fi
+
+    rm -rf "$SDL_SHADERCROSS_SRC"
+    echo "SDL_shadercross CLI installed to $SDL_SHADERCROSS_BUILD"
 fi
 
 # -----------------------------
@@ -145,7 +218,7 @@ else
         -DNO_ASIO_BUILD=ON \
         -DBUILD_SHARED_LIBS=OFF
 
-    cmake --build "$GEKKONET_SRC/cmake-build" -j$(nproc)
+    cmake --build "$GEKKONET_SRC/cmake-build" -j"$BUILD_JOBS"
 
     mkdir -p "$GEKKONET_BUILD/include" "$GEKKONET_BUILD/lib"
     cp -r "$GEKKONET_SRC/GekkoLib/include/." "$GEKKONET_BUILD/include/"
@@ -178,7 +251,7 @@ else
         -DBUILD_SHARED_LIBS=OFF \
         -DSDLNET_INSTALL=ON
 
-    cmake --build "$SDL3_NET_SRC/cmake-build" -j$(nproc)
+    cmake --build "$SDL3_NET_SRC/cmake-build" -j"$BUILD_JOBS"
     cmake --install "$SDL3_NET_SRC/cmake-build"
 
     rm -rf "$SDL3_NET_SRC"
@@ -265,7 +338,7 @@ else
         -DMZ_LIBBSD=OFF \
         -DMZ_DECOMPRESS_ONLY=ON
 
-    cmake --build "$MINIZIP_NG_SRC/cmake-build" -j$(nproc)
+    cmake --build "$MINIZIP_NG_SRC/cmake-build" -j"$BUILD_JOBS"
     cmake --install "$MINIZIP_NG_SRC/cmake-build"
 
     rm -rf "$MINIZIP_NG_SRC"
@@ -301,7 +374,7 @@ else
         -DUSE_STATIC_TF_PSA_CRYPTO_LIBRARY=ON \
         -DTF_PSA_CRYPTO_CONFIG_FILE="configs/crypto-config-ccm-aes-sha256.h"
 
-    cmake --build "$TF_PSA_CRYPTO_SRC/cmake-build" -j$(nproc)
+    cmake --build "$TF_PSA_CRYPTO_SRC/cmake-build" -j"$BUILD_JOBS"
     cmake --install "$TF_PSA_CRYPTO_SRC/cmake-build"
 
     rm -rf "$TF_PSA_CRYPTO_SRC"

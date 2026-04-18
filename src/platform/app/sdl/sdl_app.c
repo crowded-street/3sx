@@ -234,6 +234,7 @@ static int full_init() {
 
 #if CRS_VIDEO_DRIVER_SDL_GPU
     if (!SDLGPURenderer_Init(&gpu_renderer_context)) {
+        SDL_Log("Couldn't initialize SDL GPU renderer: %s", SDL_GetError());
         return 1;
     }
 #elif CRS_VIDEO_DRIVER_OPENGL
@@ -275,7 +276,7 @@ static void cleanup() {
     Config_Destroy();
 
 #if CRS_VIDEO_DRIVER_SDL_GPU
-    SDLGPURenderer_Quit();
+    SDLGPURenderer_Quit(&gpu_renderer_context);
     SDL_DestroyGPUDevice(gpu_renderer_context.device);
 #elif CRS_VIDEO_DRIVER_OPENGL
     OpenGLRenderer_Quit();
@@ -464,12 +465,13 @@ static void end_frame() {
     // SDLDebugText_Render();
 #endif
 
-#if CRS_VIDEO_DRIVER_SDL_GPU
-    SDLGPURenderer_RenderFrame(&gpu_renderer_context);
-#elif CRS_VIDEO_DRIVER_OPENGL
     int window_width;
     int window_height;
     SDL_GetWindowSizeInPixels(window, &window_width, &window_height);
+
+#if CRS_VIDEO_DRIVER_SDL_GPU
+    SDLGPURenderer_RenderFrame(&gpu_renderer_context, get_letterbox_rect(window_width, window_height));
+#elif CRS_VIDEO_DRIVER_OPENGL
     OpenGLRenderer_RenderFrame(get_letterbox_rect(window_width, window_height));
 #endif
 

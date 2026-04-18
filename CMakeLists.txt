@@ -68,7 +68,7 @@ else()
 
         ARCADE_ROM
         SOUND_ENABLED
-        IMGUI
+        # IMGUI
 
         GL_SILENCE_DEPRECATION
     )

@@ -31,8 +31,8 @@ typedef struct SDLGPURendererContext {
 } SDLGPURendererContext;
 
 bool SDLGPURenderer_Init(const SDLGPURendererContext* context);
-void SDLGPURenderer_Quit();
-void SDLGPURenderer_RenderFrame(const SDLGPURendererContext* context);
+void SDLGPURenderer_Quit(const SDLGPURendererContext* context);
+void SDLGPURenderer_RenderFrame(const SDLGPURendererContext* context, SDL_Rect viewport);
 
 #endif
 
