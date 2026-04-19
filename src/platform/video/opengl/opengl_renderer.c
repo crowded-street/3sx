@@ -585,6 +585,7 @@ void OpenGLRenderer_RenderFrame(SDL_Rect viewport) {
     glBindFramebuffer(GL_FRAMEBUFFER, canvas_fbo);
     glViewport(0, 0, 384, 224);
 	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for (int i = 0; i < arrlen(quads); i++) {
