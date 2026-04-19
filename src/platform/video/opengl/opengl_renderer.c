@@ -13,7 +13,7 @@
 
 #include <libgraph.h>
 
-#define QUADS_MAX 512
+#define QUADS_MAX 1024
 
 typedef enum GLPaletteType : Uint8 {
     PALETTE_NONE = 0,
