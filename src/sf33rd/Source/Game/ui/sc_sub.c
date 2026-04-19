@@ -1005,7 +1005,8 @@ void stun_base_put(u8 Pl_Num, s16 len) {
     pos[1].y = pos[0].y;
     pos[2].x = pos[0].x;
     pos[2].y = pos[3].y;
-    njDrawPolygon2D(&vtx, 4, PrioBase[TopHUDFacePriority], 96);
+	// Fudged priority to fix overlap with stun_put
+    njDrawPolygon2D(&vtx, 4, PrioBase[TopHUDFacePriority + 1], 96);
 }
 
 void WipeInit() {
