@@ -10,6 +10,7 @@
 #include "sf33rd/Source/Common/PPGFile.h"
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/rendering/color3rd.h"
+#include "sf33rd/Source/Game/rendering/mtrans.h"
 #include "structs.h"
 
 #include "core/renderer.h"
@@ -186,7 +187,9 @@ void njdp2d_draw() {
             break;
 
         case 1:
+			seqsBeforeProcess();
             shadow_drawing((WORK*)njdp2d_w.prim[i].col, njdp2d_w.prim[i].v[0].y);
+			seqsAfterProcess();
             break;
         }
     }
