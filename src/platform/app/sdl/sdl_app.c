@@ -42,8 +42,6 @@
 
 typedef enum ScaleMode {
     SCALEMODE_NEAREST,
-    SCALEMODE_LINEAR,
-    SCALEMODE_SOFT_LINEAR,
     SCALEMODE_SQUARE_PIXELS,
     SCALEMODE_INTEGER,
 } ScaleMode;
@@ -63,7 +61,7 @@ static const int window_min_height = (int)(window_min_width / display_target_rat
 static const Uint64 target_frame_time_ns = 1000000000.0 / TARGET_FPS;
 
 static SDL_Window* window = NULL;
-static ScaleMode scale_mode = SCALEMODE_SOFT_LINEAR;
+static ScaleMode scale_mode = SCALEMODE_NEAREST;
 
 static Uint64 frame_deadline = 0;
 static FrameMetrics frame_metrics = { 0 };
@@ -85,27 +83,10 @@ static void init_scalemode() {
 
     if (SDL_strcmp(raw_scalemode, "nearest") == 0) {
         scale_mode = SCALEMODE_NEAREST;
-    } else if (SDL_strcmp(raw_scalemode, "linear") == 0) {
-        scale_mode = SCALEMODE_LINEAR;
-    } else if (SDL_strcmp(raw_scalemode, "soft-linear") == 0) {
-        scale_mode = SCALEMODE_SOFT_LINEAR;
     } else if (SDL_strcmp(raw_scalemode, "square-pixels") == 0) {
         scale_mode = SCALEMODE_SQUARE_PIXELS;
     } else if (SDL_strcmp(raw_scalemode, "integer") == 0) {
         scale_mode = SCALEMODE_INTEGER;
-    }
-}
-
-static bool scalemode_uses_nearest_filter() {
-    switch (scale_mode) {
-    case SCALEMODE_INTEGER:
-    case SCALEMODE_NEAREST:
-    case SCALEMODE_SQUARE_PIXELS:
-        return true;
-
-    case SCALEMODE_LINEAR:
-    case SCALEMODE_SOFT_LINEAR:
-        return false;
     }
 }
 
@@ -147,8 +128,10 @@ static bool init_window() {
 
     if (SDL_WindowSupportsGPUPresentMode(gpu_renderer_context.device, window, SDL_GPU_PRESENTMODE_MAILBOX)) {
         gpu_present_mode = SDL_GPU_PRESENTMODE_MAILBOX;
+        SDL_Log("Using MAILBOX present mode");
     } else {
         gpu_present_mode = SDL_GPU_PRESENTMODE_IMMEDIATE;
+        SDL_Log("Using IMMEDIATE present mode");
     }
 
     if (!SDL_SetGPUSwapchainParameters(
@@ -383,8 +366,6 @@ static SDL_Rect fit_integer_rect(int win_w, int win_h, int pixel_w, int pixel_h)
 static SDL_Rect get_letterbox_rect(int win_w, int win_h) {
     switch (scale_mode) {
     case SCALEMODE_NEAREST:
-    case SCALEMODE_LINEAR:
-    case SCALEMODE_SOFT_LINEAR:
         return fit_4_by_3_rect(win_w, win_h);
 
     case SCALEMODE_INTEGER:
