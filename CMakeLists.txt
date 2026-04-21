@@ -247,8 +247,6 @@ set(PROJECT_LICENSE_FILES
     "${CMAKE_SOURCE_DIR}/THIRD_PARTY_NOTICES.txt"
 )
 
-file(GLOB_RECURSE OPENGL_SHADERS "${CMAKE_SOURCE_DIR}/src/platform/video/opengl/shaders/*.glsl")
-
 if(APPLE)
     install(TARGETS 3sx
         RUNTIME DESTINATION bin
@@ -266,11 +264,6 @@ if(APPLE)
     install(FILES
         ${PROJECT_LICENSE_FILES}
         DESTINATION 3SX.app/Contents/Resources/licenses
-    )
-
-    install(FILES
-        ${OPENGL_SHADERS}
-        DESTINATION 3SX.app/Contents/Resources/shaders
     )
 elseif(WIN32)
     install(TARGETS 3sx
@@ -300,11 +293,6 @@ elseif(WIN32)
         ${PROJECT_LICENSE_FILES}
         DESTINATION bin/licenses
     )
-
-    install(FILES
-        ${OPENGL_SHADERS}
-        DESTINATION bin/shaders
-    )
 elseif(UNIX)
     install(TARGETS 3sx
         RUNTIME DESTINATION bin
@@ -322,11 +310,6 @@ elseif(UNIX)
     install(FILES
         ${PROJECT_LICENSE_FILES}
         DESTINATION share/3sx/licenses
-    )
-
-    install(FILES
-        ${OPENGL_SHADERS}
-        DESTINATION bin/shaders
     )
 endif()
 

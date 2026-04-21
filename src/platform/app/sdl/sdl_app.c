@@ -14,9 +14,6 @@
 
 #if CRS_VIDEO_DRIVER_SDL_GPU
 #include "platform/video/sdl_gpu/sdl_gpu_renderer.h"
-#elif CRS_VIDEO_DRIVER_OPENGL
-#include "glad.h"
-#include "platform/video/opengl/opengl_renderer.h"
 #endif
 
 #if NETPLAY_ENABLED
@@ -77,8 +74,6 @@ static const int mouse_hide_delay_ms = 2000; // 2 seconds
 
 #if CRS_VIDEO_DRIVER_SDL_GPU
 static SDLGPURendererContext gpu_renderer_context = { 0 };
-#elif CRS_VIDEO_DRIVER_OPENGL
-static SDL_GLContext* gl_context = NULL;
 #endif
 
 static void init_scalemode() {
@@ -126,10 +121,6 @@ static bool init_window() {
         window_flags |= SDL_WINDOW_FULLSCREEN;
     }
 
-#if CRS_VIDEO_DRIVER_OPENGL
-    window_flags |= SDL_WINDOW_OPENGL;
-#endif
-
     int window_width = Config_GetInt(CFG_KEY_WINDOW_WIDTH);
     window_width = SDL_max(window_width, window_min_width);
 
@@ -170,20 +161,6 @@ static bool init_window() {
         SDL_Log("Failed to set GPU swapchain parameters: %s", SDL_GetError());
         return false;
     }
-#elif CRS_VIDEO_DRIVER_OPENGL
-    gl_context = SDL_GL_CreateContext(window);
-
-    if (gl_context == NULL) {
-        SDL_Log("Couldn't create GL context: %s", SDL_GetError());
-        return false;
-    }
-
-    if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
-        SDL_Log("Failed to log OpenGL functions");
-        return false;
-    }
-
-    SDL_GL_SetSwapInterval(0); // No vsync
 #endif
 
     return true;
@@ -237,12 +214,6 @@ static int full_init() {
         SDL_Log("Couldn't initialize SDL GPU renderer: %s", SDL_GetError());
         return 1;
     }
-#elif CRS_VIDEO_DRIVER_OPENGL
-    const int scale = (scale_mode == SCALEMODE_SOFT_LINEAR) ? 2 : 1;
-
-    if (!OpenGLRenderer_Init(scalemode_uses_nearest_filter(), scale)) {
-        return 1;
-    }
 #endif
 
     // #if DEBUG
@@ -278,8 +249,6 @@ static void cleanup() {
 #if CRS_VIDEO_DRIVER_SDL_GPU
     SDLGPURenderer_Quit(&gpu_renderer_context);
     SDL_DestroyGPUDevice(gpu_renderer_context.device);
-#elif CRS_VIDEO_DRIVER_OPENGL
-    OpenGLRenderer_Quit();
 #endif
 
 #if DEBUG && IMGUI
@@ -471,16 +440,10 @@ static void end_frame() {
 
 #if CRS_VIDEO_DRIVER_SDL_GPU
     SDLGPURenderer_RenderFrame(&gpu_renderer_context, get_letterbox_rect(window_width, window_height));
-#elif CRS_VIDEO_DRIVER_OPENGL
-    OpenGLRenderer_RenderFrame(get_letterbox_rect(window_width, window_height));
 #endif
 
 #if DEBUG && IMGUI
     ImGuiW_EndFrame();
-#endif
-
-#if CRS_VIDEO_DRIVER_OPENGL
-    SDL_GL_SwapWindow(window);
 #endif
 
     // Handle cursor hiding
