@@ -265,6 +265,10 @@ if(APPLE)
         ${PROJECT_LICENSE_FILES}
         DESTINATION 3SX.app/Contents/Resources/licenses
     )
+
+    install(DIRECTORY "${CMAKE_SOURCE_DIR}/src/platform/video/sdl_gpu/shaders/compiled"
+        DESTINATION 3SX.app/Contents/Resources/shaders
+    )
 elseif(WIN32)
     install(TARGETS 3sx
 		RUNTIME_DEPENDENCY_SET deps
@@ -293,6 +297,10 @@ elseif(WIN32)
         ${PROJECT_LICENSE_FILES}
         DESTINATION bin/licenses
     )
+
+    install(DIRECTORY "${CMAKE_SOURCE_DIR}/src/platform/video/sdl_gpu/shaders/compiled"
+        DESTINATION bin/shaders
+    )
 elseif(UNIX)
     install(TARGETS 3sx
         RUNTIME DESTINATION bin
@@ -310,6 +318,10 @@ elseif(UNIX)
     install(FILES
         ${PROJECT_LICENSE_FILES}
         DESTINATION share/3sx/licenses
+    )
+
+    install(DIRECTORY "${CMAKE_SOURCE_DIR}/src/platform/video/sdl_gpu/shaders/compiled"
+        DESTINATION bin/shaders
     )
 endif()
 

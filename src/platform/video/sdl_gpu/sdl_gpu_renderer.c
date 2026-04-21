@@ -110,12 +110,58 @@ static Sint16 latest_palette_index = 0;
 static _TextureCreateInfo* textures_to_create = NULL;
 static SDL_GPUTexture** textures_to_delete = NULL;
 
+static SDL_GPUShaderFormat shader_format = SDL_GPU_SHADERFORMAT_INVALID;
+static const char* shader_format_path = NULL;
+static const char* shader_entrypoint = "main";
+
 // Private
 
-static SDL_GPUShader* create_shader(const char* path, SDL_GPUDevice* device, SDL_GPUShaderCreateInfo* create_info) {
+static SDL_GPUShaderFormat get_shader_format(SDL_GPUDevice* device) {
+    SDL_GPUShaderFormat supported_formats = SDL_GetGPUShaderFormats(device);
+
+    if (supported_formats & SDL_GPU_SHADERFORMAT_MSL) {
+        return SDL_GPU_SHADERFORMAT_MSL;
+    } else if (supported_formats & SDL_GPU_SHADERFORMAT_DXIL) {
+        return SDL_GPU_SHADERFORMAT_DXIL;
+    } else if (supported_formats & SDL_GPU_SHADERFORMAT_SPIRV) {
+        return SDL_GPU_SHADERFORMAT_SPIRV;
+    }
+
+    return SDL_GPU_SHADERFORMAT_INVALID;
+}
+
+static const char* get_shader_format_path(SDL_GPUShaderFormat format) {
+    switch (format) {
+    case SDL_GPU_SHADERFORMAT_MSL:
+        return "compiled/msl";
+
+    case SDL_GPU_SHADERFORMAT_DXIL:
+        return "compiled/dxil";
+
+    case SDL_GPU_SHADERFORMAT_SPIRV:
+        return "compiled/spirv";
+
+    default:
+        return NULL;
+    }
+}
+
+static const char* get_shader_entrypoint(SDL_GPUShaderFormat format) {
+    switch (format) {
+    case SDL_GPU_SHADERFORMAT_MSL:
+        return "main0";
+
+    default:
+        return "main";
+    }
+}
+
+static SDL_GPUShader* create_shader(
+    const char* filename, SDL_GPUDevice* device, SDL_GPUShaderStage stage, Uint32 num_samplers
+) {
     const char* base_path = SDL_GetBasePath();
     char* full_path = NULL;
-    SDL_asprintf(&full_path, "%s/shaders/%s", base_path, path);
+    SDL_asprintf(&full_path, "%s/shaders/%s/%s", base_path, shader_format_path, filename);
 
     size_t code_size = 0;
     const Uint8* code = SDL_LoadFile(full_path, &code_size);
@@ -128,9 +174,21 @@ static SDL_GPUShader* create_shader(const char* path, SDL_GPUDevice* device, SDL
 
     SDL_free(full_path);
 
-    create_info->code = code;
-    create_info->code_size = code_size;
-    SDL_GPUShader* shader = SDL_CreateGPUShader(device, create_info);
+    SDL_GPUShader* shader = SDL_CreateGPUShader(
+        device,
+        &(SDL_GPUShaderCreateInfo) {
+            .code = code,
+            .code_size = code_size,
+            .entrypoint = shader_entrypoint,
+            .format = shader_format,
+            .stage = stage,
+            .num_samplers = num_samplers,
+            .num_storage_textures = 0,
+            .num_storage_buffers = 0,
+            .num_uniform_buffers = 0,
+        }
+    );
+
     SDL_free(code);
     return shader;
 }
@@ -457,89 +515,34 @@ bool SDLGPURenderer_Init(const SDLGPURendererContext* context) {
 
     // Init shaders
 
-    SDL_GPUShader* vertex_shader = create_shader(
-        "vert.msl",
-        context->device,
-        &(SDL_GPUShaderCreateInfo) {
-            .entrypoint = "main0",
-            .format = SDL_GPU_SHADERFORMAT_MSL,
-            .stage = SDL_GPU_SHADERSTAGE_VERTEX,
-            .num_samplers = 0,
-            .num_storage_textures = 0,
-            .num_storage_buffers = 0,
-            .num_uniform_buffers = 0,
-        }
-    );
+    shader_format = get_shader_format(context->device);
+    shader_format_path = get_shader_format_path(shader_format);
+    shader_entrypoint = get_shader_entrypoint(shader_format);
+    const char* gpu_driver = SDL_GetGPUDeviceDriver(context->device);
 
-    SDL_GPUShader* solid_fragment_shader = create_shader(
-        "solid.frag.msl",
-        context->device,
-        &(SDL_GPUShaderCreateInfo) {
-            .entrypoint = "main0",
-            .format = SDL_GPU_SHADERFORMAT_MSL,
-            .stage = SDL_GPU_SHADERSTAGE_FRAGMENT,
-            .num_samplers = 0,
-            .num_storage_textures = 0,
-            .num_storage_buffers = 0,
-            .num_uniform_buffers = 0,
-        }
-    );
+    if (shader_format_path == NULL) {
+        SDL_SetError("No supported SDL GPU shader format for driver %s", gpu_driver);
+        return false;
+    }
 
-    SDL_GPUShader* direct_fragment_shader = create_shader(
-        "direct.frag.msl",
-        context->device,
-        &(SDL_GPUShaderCreateInfo) {
-            .entrypoint = "main0",
-            .format = SDL_GPU_SHADERFORMAT_MSL,
-            .stage = SDL_GPU_SHADERSTAGE_FRAGMENT,
-            .num_samplers = 1,
-            .num_storage_textures = 0,
-            .num_storage_buffers = 0,
-            .num_uniform_buffers = 0,
-        }
-    );
+    SDL_Log("Using SDL GPU driver %s with shaders from %s", gpu_driver, shader_format_path);
 
-    SDL_GPUShader* palette_4_fragment_shader = create_shader(
-        "palette4.frag.msl",
-        context->device,
-        &(SDL_GPUShaderCreateInfo) {
-            .entrypoint = "main0",
-            .format = SDL_GPU_SHADERFORMAT_MSL,
-            .stage = SDL_GPU_SHADERSTAGE_FRAGMENT,
-            .num_samplers = 2,
-            .num_storage_textures = 0,
-            .num_storage_buffers = 0,
-            .num_uniform_buffers = 0,
-        }
-    );
+    SDL_GPUShader* vertex_shader = create_shader("vert", context->device, SDL_GPU_SHADERSTAGE_VERTEX, 0);
+    SDL_GPUShader* solid_fragment_shader =
+        create_shader("solid.frag", context->device, SDL_GPU_SHADERSTAGE_FRAGMENT, 0);
+    SDL_GPUShader* direct_fragment_shader =
+        create_shader("direct.frag", context->device, SDL_GPU_SHADERSTAGE_FRAGMENT, 1);
+    SDL_GPUShader* palette_4_fragment_shader =
+        create_shader("palette4.frag", context->device, SDL_GPU_SHADERSTAGE_FRAGMENT, 2);
+    SDL_GPUShader* palette_8_fragment_shader =
+        create_shader("palette8.frag", context->device, SDL_GPU_SHADERSTAGE_FRAGMENT, 2);
+    SDL_GPUShader* screen_fragment_shader =
+        create_shader("screen.frag", context->device, SDL_GPU_SHADERSTAGE_FRAGMENT, 1);
 
-    SDL_GPUShader* palette_8_fragment_shader = create_shader(
-        "palette8.frag.msl",
-        context->device,
-        &(SDL_GPUShaderCreateInfo) {
-            .entrypoint = "main0",
-            .format = SDL_GPU_SHADERFORMAT_MSL,
-            .stage = SDL_GPU_SHADERSTAGE_FRAGMENT,
-            .num_samplers = 2,
-            .num_storage_textures = 0,
-            .num_storage_buffers = 0,
-            .num_uniform_buffers = 0,
-        }
-    );
-
-    SDL_GPUShader* screen_fragment_shader = create_shader(
-        "screen.frag.msl",
-        context->device,
-        &(SDL_GPUShaderCreateInfo) {
-            .entrypoint = "main0",
-            .format = SDL_GPU_SHADERFORMAT_MSL,
-            .stage = SDL_GPU_SHADERSTAGE_FRAGMENT,
-            .num_samplers = 1,
-            .num_storage_textures = 0,
-            .num_storage_buffers = 0,
-            .num_uniform_buffers = 0,
-        }
-    );
+    if (vertex_shader == NULL || solid_fragment_shader == NULL || direct_fragment_shader == NULL ||
+        palette_4_fragment_shader == NULL || palette_8_fragment_shader == NULL || screen_fragment_shader == NULL) {
+        return false;
+    }
 
     const SDL_GPUTextureFormat swapchain_texture_format =
         SDL_GetGPUSwapchainTextureFormat(context->device, context->window);

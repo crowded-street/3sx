@@ -137,8 +137,9 @@ static bool init_window() {
 #if CRS_VIDEO_DRIVER_SDL_GPU
     gpu_renderer_context.window = window;
 
-    gpu_renderer_context.device =
-        SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_MSL, false, NULL);
+    gpu_renderer_context.device = SDL_CreateGPUDevice(
+        SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL | SDL_GPU_SHADERFORMAT_MSL, false, NULL
+    );
 
     if (gpu_renderer_context.device == NULL) {
         SDL_Log("Failed to create GPU device: %s", SDL_GetError());
