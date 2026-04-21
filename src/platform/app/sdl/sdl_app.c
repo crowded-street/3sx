@@ -124,18 +124,16 @@ static bool init_window() {
 
     SDL_ClaimWindowForGPUDevice(gpu_renderer_context.device, window);
 
-    SDL_GPUPresentMode gpu_present_mode;
-
     if (SDL_WindowSupportsGPUPresentMode(gpu_renderer_context.device, window, SDL_GPU_PRESENTMODE_MAILBOX)) {
-        gpu_present_mode = SDL_GPU_PRESENTMODE_MAILBOX;
+        gpu_renderer_context.present_mode = SDL_GPU_PRESENTMODE_MAILBOX;
         SDL_Log("Using MAILBOX present mode");
     } else {
-        gpu_present_mode = SDL_GPU_PRESENTMODE_IMMEDIATE;
+        gpu_renderer_context.present_mode = SDL_GPU_PRESENTMODE_IMMEDIATE;
         SDL_Log("Using IMMEDIATE present mode");
     }
 
     if (!SDL_SetGPUSwapchainParameters(
-            gpu_renderer_context.device, window, SDL_GPU_SWAPCHAINCOMPOSITION_SDR, gpu_present_mode
+            gpu_renderer_context.device, window, SDL_GPU_SWAPCHAINCOMPOSITION_SDR, gpu_renderer_context.present_mode
         )) {
         SDL_Log("Failed to set GPU swapchain parameters: %s", SDL_GetError());
         return false;
@@ -202,10 +200,6 @@ static int full_init() {
     // Initialize pads
     InputBackend_Init();
 
-#if DEBUG && IMGUI
-    ImGuiW_Init(window, gl_context);
-#endif
-
 #if _WIN32 && DEBUG
     init_windows_console();
 #endif
@@ -228,10 +222,6 @@ static void cleanup() {
 #if CRS_VIDEO_DRIVER_SDL_GPU
     SDLGPURenderer_Quit(&gpu_renderer_context);
     SDL_DestroyGPUDevice(gpu_renderer_context.device);
-#endif
-
-#if DEBUG && IMGUI
-    ImGuiW_Finish();
 #endif
 
     SDL_DestroyWindow(window);
@@ -319,7 +309,7 @@ static bool poll_events() {
 
 static void begin_frame() {
 #if DEBUG && IMGUI
-    ImGuiW_BeginFrame();
+    ImGuiW_NewFrame();
 #endif
 
     AFS_RunServer();
@@ -417,10 +407,6 @@ static void end_frame() {
 
 #if CRS_VIDEO_DRIVER_SDL_GPU
     SDLGPURenderer_RenderFrame(&gpu_renderer_context, get_letterbox_rect(window_width, window_height));
-#endif
-
-#if DEBUG && IMGUI
-    ImGuiW_EndFrame();
 #endif
 
     // Handle cursor hiding

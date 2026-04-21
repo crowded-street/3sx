@@ -5,8 +5,8 @@ set(IMGUI_SOURCES
     ${PROJECT_SOURCE_DIR}/src/imgui/imgui/imgui_widgets.cpp
     ${PROJECT_SOURCE_DIR}/src/imgui/imgui/imgui_demo.cpp
     ${PROJECT_SOURCE_DIR}/src/imgui/imgui/imgui_impl_sdl3.cpp
-    ${PROJECT_SOURCE_DIR}/src/imgui/imgui/imgui_impl_opengl3.cpp
+    ${PROJECT_SOURCE_DIR}/src/imgui/imgui/imgui_impl_sdlgpu3.cpp
     ${PROJECT_SOURCE_DIR}/src/imgui/dcimgui/dcimgui.cpp
     ${PROJECT_SOURCE_DIR}/src/imgui/dcimgui/dcimgui_impl_sdl3.cpp
-    ${PROJECT_SOURCE_DIR}/src/imgui/dcimgui/dcimgui_impl_opengl3.cpp
+    ${PROJECT_SOURCE_DIR}/src/imgui/dcimgui/dcimgui_impl_sdlgpu3.cpp
 )

@@ -28,6 +28,7 @@ void SDLGPURenderer_DrawSolidQuad(const Quad* quad, Uint32 color);
 typedef struct SDLGPURendererContext {
     SDL_Window* window;
     SDL_GPUDevice* device;
+    SDL_GPUPresentMode present_mode;
 } SDLGPURendererContext;
 
 bool SDLGPURenderer_Init(const SDLGPURendererContext* context);

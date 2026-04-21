@@ -3,7 +3,7 @@
 // https://github.com/dearimgui/dear_bindings
 
 #include "imgui.h"
-#include "imgui_impl_opengl3.h"
+#include "imgui_impl_sdlgpu3.h"
 
 #include <stdio.h>
 
@@ -13,9 +13,10 @@
 #define DEAR_BINDINGS_INTERNAL_GLUE_CODE
 namespace cimgui
 {
-#include "dcimgui_impl_opengl3.h"
+#include "dcimgui_impl_sdlgpu3.h"
 }
 #undef DEAR_BINDINGS_INTERNAL_GLUE_CODE
+
 
 // By-value struct conversions
 
@@ -95,44 +96,49 @@ static inline ::ImColor ConvertToCPP_ImColor(const cimgui::ImColor& src)
 
 #ifndef IMGUI_DISABLE
 
-CIMGUI_IMPL_API bool cimgui::cImGui_ImplOpenGL3_Init(void)
+CIMGUI_IMPL_API bool cimgui::cImGui_ImplSDLGPU3_Init(cimgui::ImGui_ImplSDLGPU3_InitInfo* info)
 {
-    return ::ImGui_ImplOpenGL3_Init();
+    return ::ImGui_ImplSDLGPU3_Init(reinterpret_cast<::ImGui_ImplSDLGPU3_InitInfo*>(info));
 }
 
-CIMGUI_IMPL_API bool cimgui::cImGui_ImplOpenGL3_InitEx(const char* glsl_version)
+CIMGUI_IMPL_API void cimgui::cImGui_ImplSDLGPU3_Shutdown(void)
 {
-    return ::ImGui_ImplOpenGL3_Init(glsl_version);
+    ::ImGui_ImplSDLGPU3_Shutdown();
 }
 
-CIMGUI_IMPL_API void cimgui::cImGui_ImplOpenGL3_Shutdown(void)
+CIMGUI_IMPL_API void cimgui::cImGui_ImplSDLGPU3_NewFrame(void)
 {
-    ::ImGui_ImplOpenGL3_Shutdown();
+    ::ImGui_ImplSDLGPU3_NewFrame();
 }
 
-CIMGUI_IMPL_API void cimgui::cImGui_ImplOpenGL3_NewFrame(void)
+CIMGUI_IMPL_API void cimgui::cImGui_ImplSDLGPU3_PrepareDrawData(cimgui::ImDrawData* draw_data, SDL_GPUCommandBuffer* command_buffer)
 {
-    ::ImGui_ImplOpenGL3_NewFrame();
+    ::ImGui_ImplSDLGPU3_PrepareDrawData(reinterpret_cast<::ImDrawData*>(draw_data), command_buffer);
 }
 
-CIMGUI_IMPL_API void cimgui::cImGui_ImplOpenGL3_RenderDrawData(cimgui::ImDrawData* draw_data)
+CIMGUI_IMPL_API void cimgui::cImGui_ImplSDLGPU3_RenderDrawData(cimgui::ImDrawData* draw_data, SDL_GPUCommandBuffer* command_buffer, SDL_GPURenderPass* render_pass)
 {
-    ::ImGui_ImplOpenGL3_RenderDrawData(reinterpret_cast<::ImDrawData*>(draw_data));
+    ::ImGui_ImplSDLGPU3_RenderDrawData(reinterpret_cast<::ImDrawData*>(draw_data), command_buffer, render_pass);
 }
 
-CIMGUI_IMPL_API bool cimgui::cImGui_ImplOpenGL3_CreateDeviceObjects(void)
+CIMGUI_IMPL_API void cimgui::cImGui_ImplSDLGPU3_RenderDrawDataEx(cimgui::ImDrawData* draw_data, SDL_GPUCommandBuffer* command_buffer, SDL_GPURenderPass* render_pass, SDL_GPUGraphicsPipeline* pipeline)
 {
-    return ::ImGui_ImplOpenGL3_CreateDeviceObjects();
+    ::ImGui_ImplSDLGPU3_RenderDrawData(reinterpret_cast<::ImDrawData*>(draw_data), command_buffer, render_pass, pipeline);
 }
 
-CIMGUI_IMPL_API void cimgui::cImGui_ImplOpenGL3_DestroyDeviceObjects(void)
+CIMGUI_IMPL_API void cimgui::cImGui_ImplSDLGPU3_CreateDeviceObjects(void)
 {
-    ::ImGui_ImplOpenGL3_DestroyDeviceObjects();
+    ::ImGui_ImplSDLGPU3_CreateDeviceObjects();
 }
 
-CIMGUI_IMPL_API void cimgui::cImGui_ImplOpenGL3_UpdateTexture(cimgui::ImTextureData* tex)
+CIMGUI_IMPL_API void cimgui::cImGui_ImplSDLGPU3_DestroyDeviceObjects(void)
 {
-    ::ImGui_ImplOpenGL3_UpdateTexture(reinterpret_cast<::ImTextureData*>(tex));
+    ::ImGui_ImplSDLGPU3_DestroyDeviceObjects();
+}
+
+CIMGUI_IMPL_API void cimgui::cImGui_ImplSDLGPU3_UpdateTexture(cimgui::ImTextureData* tex)
+{
+    ::ImGui_ImplSDLGPU3_UpdateTexture(reinterpret_cast<::ImTextureData*>(tex));
 }
 
 #endif // #ifndef IMGUI_DISABLE

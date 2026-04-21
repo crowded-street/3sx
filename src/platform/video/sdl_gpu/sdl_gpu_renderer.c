@@ -6,6 +6,10 @@
 #include "sf33rd/AcrSDK/ps2/flps2etc.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 
+#if DEBUG && IMGUI
+#include "imgui/imgui_wrapper.h"
+#endif
+
 #include "stb/stb_ds.h"
 #include <SDL3/SDL.h>
 #include <libgraph.h>
@@ -747,10 +751,25 @@ bool SDLGPURenderer_Init(const SDLGPURendererContext* context) {
     SDL_ReleaseGPUTransferBuffer(context->device, index_transfer_buffer);
     SDL_ReleaseGPUTransferBuffer(context->device, screen_vertex_transfer_buffer);
 
+#if DEBUG && IMGUI
+    ImGuiW_Init(
+        context->window,
+        &(ImGui_ImplSDLGPU3_InitInfo) {
+            .Device = context->device,
+            .ColorTargetFormat = swapchain_texture_format,
+            .PresentMode = context->present_mode,
+        }
+    );
+#endif
+
     return true;
 }
 
 void SDLGPURenderer_Quit(const SDLGPURendererContext* context) {
+#if DEBUG && IMGUI
+    ImGuiW_Finish();
+#endif
+
     SDL_ReleaseGPUGraphicsPipeline(context->device, solid_pipeline);
     SDL_ReleaseGPUGraphicsPipeline(context->device, direct_pipeline);
     SDL_ReleaseGPUGraphicsPipeline(context->device, palette_4_pipeline);
@@ -890,6 +909,10 @@ void SDLGPURenderer_RenderFrame(const SDLGPURendererContext* context, SDL_Rect v
     SDL_WaitAndAcquireGPUSwapchainTexture(command_buffer, context->window, &swapchain_texture, NULL, NULL);
 
     if (swapchain_texture != NULL) {
+#if DEBUG && IMGUI
+        ImGuiW_PrepareDrawData(command_buffer);
+#endif
+
         SDL_GPURenderPass* canvas_pass = SDL_BeginGPURenderPass(
             command_buffer,
             &(SDL_GPUColorTargetInfo) {
@@ -1069,6 +1092,11 @@ void SDLGPURenderer_RenderFrame(const SDLGPURendererContext* context, SDL_Rect v
         );
 
         SDL_DrawGPUIndexedPrimitives(screen_pass, 6, 1, 0, 0, 0);
+
+#if DEBUG && IMGUI
+        ImGuiW_RenderDrawData(command_buffer, screen_pass);
+#endif
+
         SDL_EndGPURenderPass(screen_pass);
     }
 
