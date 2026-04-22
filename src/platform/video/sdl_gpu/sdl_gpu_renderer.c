@@ -89,6 +89,10 @@ typedef struct _Quad {
     _Color color;
 } _Quad;
 
+static SDL_Window* window = NULL;
+static SDL_GPUDevice* device = NULL;
+static SDL_GPUPresentMode present_mode = SDL_GPU_PRESENTMODE_IMMEDIATE;
+
 static SDL_GPUGraphicsPipeline* solid_pipeline = NULL;
 static SDL_GPUGraphicsPipeline* direct_pipeline = NULL;
 static SDL_GPUGraphicsPipeline* palette_4_pipeline = NULL;
@@ -318,9 +322,7 @@ static void quad_infer_tex_coords(_Quad* quad) {
     quad->tex_coords[2].t = quad->tex_coords[3].t;
 }
 
-// Public
-
-void SDLGPURenderer_CreateTexture(Uint32 th) {
+static void SDLGPURenderer_CreateTexture(Uint32 th) {
     const int texture_index = LO_16_BITS(th) - 1;
     const FLTexture* fl_texture = &flTexture[texture_index];
 
@@ -364,15 +366,15 @@ void SDLGPURenderer_CreateTexture(Uint32 th) {
     arrpush(textures_to_create, tex_create_info);
 }
 
-void SDLGPURenderer_DestroyTexture(Uint32 texture_handle) {
+static void SDLGPURenderer_DestroyTexture(Uint32 texture_handle) {
     // Do nothing
 }
 
-void SDLGPURenderer_UnlockTexture(Uint32 th) {
+static void SDLGPURenderer_UnlockTexture(Uint32 th) {
     SDLGPURenderer_CreateTexture(th);
 }
 
-void SDLGPURenderer_CreatePalette(Uint32 ph) {
+static void SDLGPURenderer_CreatePalette(Uint32 ph) {
     const int palette_index = HI_16_BITS(ph) - 1;
     const FLTexture* fl_palette = &flPalette[palette_index];
 
@@ -409,20 +411,20 @@ void SDLGPURenderer_CreatePalette(Uint32 ph) {
     arrpush(textures_to_create, tex_create_info);
 }
 
-void SDLGPURenderer_DestroyPalette(Uint32 palette_handle) {
+static void SDLGPURenderer_DestroyPalette(Uint32 palette_handle) {
     // Do nothing
 }
 
-void SDLGPURenderer_UnlockPalette(Uint32 ph) {
+static void SDLGPURenderer_UnlockPalette(Uint32 ph) {
     SDLGPURenderer_CreatePalette(ph << 16);
 }
 
-void SDLGPURenderer_SetTexture(Uint32 th) {
+static void SDLGPURenderer_SetTexture(Uint32 th) {
     latest_texture_index = LO_16_BITS(th) - 1;
     latest_palette_index = HI_16_BITS(th) - 1;
 }
 
-void SDLGPURenderer_DrawTexturedQuad(const Sprite* sprite, Uint32 color) {
+static void SDLGPURenderer_DrawTexturedQuad(const Sprite* sprite, Uint32 color) {
     SDL_assert(arrlen(quads) < QUADS_MAX);
 
     _Quad* quad = arraddnptr(quads, 1);
@@ -441,7 +443,7 @@ void SDLGPURenderer_DrawTexturedQuad(const Sprite* sprite, Uint32 color) {
     quad->palette_index = latest_palette_index;
 }
 
-void SDLGPURenderer_DrawSprite(const Sprite* sprite, Uint32 color) {
+static void SDLGPURenderer_DrawSprite(const Sprite* sprite, Uint32 color) {
     SDL_assert(arrlen(quads) < QUADS_MAX);
 
     _Quad* quad = arraddnptr(quads, 1);
@@ -465,7 +467,7 @@ void SDLGPURenderer_DrawSprite(const Sprite* sprite, Uint32 color) {
     quad->palette_index = latest_palette_index;
 }
 
-void SDLGPURenderer_DrawSprite2(const Sprite2* sprite2) {
+static void SDLGPURenderer_DrawSprite2(const Sprite2* sprite2) {
     SDL_assert(arrlen(quads) < QUADS_MAX);
 
     _Quad* quad = arraddnptr(quads, 1);
@@ -489,7 +491,7 @@ void SDLGPURenderer_DrawSprite2(const Sprite2* sprite2) {
     quad->palette_index = latest_palette_index;
 }
 
-void SDLGPURenderer_DrawSolidQuad(const Quad* quad, Uint32 color) {
+static void SDLGPURenderer_DrawSolidQuad(const Quad* quad, Uint32 color) {
     SDL_assert(arrlen(quads) < QUADS_MAX);
 
     _Quad* _quad = arraddnptr(quads, 1);
@@ -506,68 +508,86 @@ void SDLGPURenderer_DrawSolidQuad(const Quad* quad, Uint32 color) {
     _quad->palette_index = -1;
 }
 
-// Internal
+static SDL_Window* SDLGPURenderer_Init(const SDLRenderBackendInitInfo* init_info) {
+    // Init window and GPU device
 
-bool SDLGPURenderer_Init(const SDLGPURendererContext* context) {
+    window = SDL_CreateWindow(
+        init_info->app_name, init_info->window_width, init_info->window_height, init_info->window_flags
+    );
+
+    if (window == NULL) {
+        SDL_Log("Failed to create window: %s", SDL_GetError());
+        return NULL;
+    }
+
+    device = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_MSL, false, NULL);
+
+    if (device == NULL) {
+        SDL_Log("Failed to create GPU device: %s", SDL_GetError());
+        SDL_DestroyWindow(window);
+        return NULL;
+    }
+
+    SDL_ClaimWindowForGPUDevice(device, window);
+
+    if (SDL_WindowSupportsGPUPresentMode(device, window, SDL_GPU_PRESENTMODE_MAILBOX)) {
+        present_mode = SDL_GPU_PRESENTMODE_MAILBOX;
+        SDL_Log("Using MAILBOX present mode");
+    } else {
+        present_mode = SDL_GPU_PRESENTMODE_IMMEDIATE;
+        SDL_Log("Using IMMEDIATE present mode");
+    }
+
+    if (!SDL_SetGPUSwapchainParameters(device, window, SDL_GPU_SWAPCHAINCOMPOSITION_SDR, present_mode)) {
+        SDL_Log("Failed to set GPU swapchain parameters: %s", SDL_GetError());
+        SDL_ReleaseWindowFromGPUDevice(device, window);
+        SDL_DestroyGPUDevice(device);
+        SDL_DestroyWindow(window);
+        return NULL;
+    }
+
+    // Init common variables
+
     arrsetcap(quads, QUADS_MAX);
-    depth_texture_format = get_supported_depth_format(context->device);
+    depth_texture_format = get_supported_depth_format(device);
 
     // Init shaders
 
-    shader_format = get_shader_format(context->device);
+    shader_format = get_shader_format(device);
     shader_format_path = get_shader_format_path(shader_format);
     shader_entrypoint = get_shader_entrypoint(shader_format);
-    const char* gpu_driver = SDL_GetGPUDeviceDriver(context->device);
 
-    if (shader_format_path == NULL) {
-        SDL_SetError("No supported SDL GPU shader format for driver %s", gpu_driver);
-        return false;
-    }
+    SDL_Log("Using SDL GPU driver %s with shaders from %s", SDL_GetGPUDeviceDriver(device), shader_format_path);
 
-    SDL_Log("Using SDL GPU driver %s with shaders from %s", gpu_driver, shader_format_path);
+    SDL_GPUShader* vertex_shader = create_shader("vert", device, SDL_GPU_SHADERSTAGE_VERTEX, 0);
+    SDL_GPUShader* solid_fragment_shader = create_shader("solid.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 0);
+    SDL_GPUShader* direct_fragment_shader = create_shader("direct.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 1);
+    SDL_GPUShader* palette_4_fragment_shader = create_shader("palette4.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 2);
+    SDL_GPUShader* palette_8_fragment_shader = create_shader("palette8.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 2);
+    SDL_GPUShader* screen_fragment_shader = create_shader("screen.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 1);
 
-    SDL_GPUShader* vertex_shader = create_shader("vert", context->device, SDL_GPU_SHADERSTAGE_VERTEX, 0);
-    SDL_GPUShader* solid_fragment_shader =
-        create_shader("solid.frag", context->device, SDL_GPU_SHADERSTAGE_FRAGMENT, 0);
-    SDL_GPUShader* direct_fragment_shader =
-        create_shader("direct.frag", context->device, SDL_GPU_SHADERSTAGE_FRAGMENT, 1);
-    SDL_GPUShader* palette_4_fragment_shader =
-        create_shader("palette4.frag", context->device, SDL_GPU_SHADERSTAGE_FRAGMENT, 2);
-    SDL_GPUShader* palette_8_fragment_shader =
-        create_shader("palette8.frag", context->device, SDL_GPU_SHADERSTAGE_FRAGMENT, 2);
-    SDL_GPUShader* screen_fragment_shader =
-        create_shader("screen.frag", context->device, SDL_GPU_SHADERSTAGE_FRAGMENT, 1);
+    const SDL_GPUTextureFormat swapchain_texture_format = SDL_GetGPUSwapchainTextureFormat(device, window);
 
-    if (vertex_shader == NULL || solid_fragment_shader == NULL || direct_fragment_shader == NULL ||
-        palette_4_fragment_shader == NULL || palette_8_fragment_shader == NULL || screen_fragment_shader == NULL) {
-        return false;
-    }
-
-    const SDL_GPUTextureFormat swapchain_texture_format =
-        SDL_GetGPUSwapchainTextureFormat(context->device, context->window);
-
-    solid_pipeline =
-        create_pipeline(context->device, vertex_shader, solid_fragment_shader, CANVAS_TEXTURE_FORMAT, true, true);
-    direct_pipeline =
-        create_pipeline(context->device, vertex_shader, direct_fragment_shader, CANVAS_TEXTURE_FORMAT, true, true);
+    solid_pipeline = create_pipeline(device, vertex_shader, solid_fragment_shader, CANVAS_TEXTURE_FORMAT, true, true);
+    direct_pipeline = create_pipeline(device, vertex_shader, direct_fragment_shader, CANVAS_TEXTURE_FORMAT, true, true);
     palette_4_pipeline =
-        create_pipeline(context->device, vertex_shader, palette_4_fragment_shader, CANVAS_TEXTURE_FORMAT, true, true);
+        create_pipeline(device, vertex_shader, palette_4_fragment_shader, CANVAS_TEXTURE_FORMAT, true, true);
     palette_8_pipeline =
-        create_pipeline(context->device, vertex_shader, palette_8_fragment_shader, CANVAS_TEXTURE_FORMAT, true, true);
+        create_pipeline(device, vertex_shader, palette_8_fragment_shader, CANVAS_TEXTURE_FORMAT, true, true);
     screen_pipeline =
-        create_pipeline(context->device, vertex_shader, screen_fragment_shader, swapchain_texture_format, false, false);
+        create_pipeline(device, vertex_shader, screen_fragment_shader, swapchain_texture_format, false, false);
 
-    SDL_ReleaseGPUShader(context->device, vertex_shader);
-    SDL_ReleaseGPUShader(context->device, solid_fragment_shader);
-    SDL_ReleaseGPUShader(context->device, direct_fragment_shader);
-    SDL_ReleaseGPUShader(context->device, palette_4_fragment_shader);
-    SDL_ReleaseGPUShader(context->device, palette_8_fragment_shader);
-    SDL_ReleaseGPUShader(context->device, screen_fragment_shader);
+    SDL_ReleaseGPUShader(device, vertex_shader);
+    SDL_ReleaseGPUShader(device, solid_fragment_shader);
+    SDL_ReleaseGPUShader(device, direct_fragment_shader);
+    SDL_ReleaseGPUShader(device, palette_4_fragment_shader);
+    SDL_ReleaseGPUShader(device, palette_8_fragment_shader);
+    SDL_ReleaseGPUShader(device, screen_fragment_shader);
 
     // Init canvas
 
     canvas_texture = SDL_CreateGPUTexture(
-        context->device,
+        device,
         &(SDL_GPUTextureCreateInfo) {
             .type = SDL_GPU_TEXTURETYPE_2D,
             .format = CANVAS_TEXTURE_FORMAT,
@@ -580,7 +600,7 @@ bool SDLGPURenderer_Init(const SDLGPURendererContext* context) {
     );
 
     depth_texture = SDL_CreateGPUTexture(
-        context->device,
+        device,
         &(SDL_GPUTextureCreateInfo) {
             .type = SDL_GPU_TEXTURETYPE_2D,
             .format = depth_texture_format,
@@ -597,7 +617,7 @@ bool SDLGPURenderer_Init(const SDLGPURendererContext* context) {
     const Uint32 vertex_buffer_max_size = QUADS_MAX * 4 * sizeof(_Vertex);
 
     vertex_buffer = SDL_CreateGPUBuffer(
-        context->device,
+        device,
         &(SDL_GPUBufferCreateInfo) {
             .usage = SDL_GPU_BUFFERUSAGE_VERTEX,
             .size = vertex_buffer_max_size,
@@ -605,7 +625,7 @@ bool SDLGPURenderer_Init(const SDLGPURendererContext* context) {
     );
 
     vertex_transfer_buffer = SDL_CreateGPUTransferBuffer(
-        context->device,
+        device,
         &(SDL_GPUTransferBufferCreateInfo) {
             .usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
             .size = vertex_buffer_max_size,
@@ -617,7 +637,7 @@ bool SDLGPURenderer_Init(const SDLGPURendererContext* context) {
     const Uint32 index_buffer_size = sizeof(Uint16) * 6 * QUADS_MAX;
 
     index_buffer = SDL_CreateGPUBuffer(
-        context->device,
+        device,
         &(SDL_GPUBufferCreateInfo) {
             .usage = SDL_GPU_BUFFERUSAGE_INDEX,
             .size = index_buffer_size,
@@ -625,14 +645,14 @@ bool SDLGPURenderer_Init(const SDLGPURendererContext* context) {
     );
 
     SDL_GPUTransferBuffer* index_transfer_buffer = SDL_CreateGPUTransferBuffer(
-        context->device,
+        device,
         &(SDL_GPUTransferBufferCreateInfo) {
             .usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
             .size = index_buffer_size,
         }
     );
 
-    Uint16* index_transfer_ptr = SDL_MapGPUTransferBuffer(context->device, index_transfer_buffer, false);
+    Uint16* index_transfer_ptr = SDL_MapGPUTransferBuffer(device, index_transfer_buffer, false);
 
     for (int i = 0; i < QUADS_MAX; i++) {
         index_transfer_ptr[i * 6 + 0] = i * 4 + 0;
@@ -643,14 +663,14 @@ bool SDLGPURenderer_Init(const SDLGPURendererContext* context) {
         index_transfer_ptr[i * 6 + 5] = i * 4 + 3;
     }
 
-    SDL_UnmapGPUTransferBuffer(context->device, index_transfer_buffer);
+    SDL_UnmapGPUTransferBuffer(device, index_transfer_buffer);
 
     // Init screen quad
 
     const Uint32 screen_vertex_buffer_size = 4 * sizeof(_Vertex);
 
     screen_vertex_buffer = SDL_CreateGPUBuffer(
-        context->device,
+        device,
         &(SDL_GPUBufferCreateInfo) {
             .usage = SDL_GPU_BUFFERUSAGE_VERTEX,
             .size = screen_vertex_buffer_size,
@@ -658,7 +678,7 @@ bool SDLGPURenderer_Init(const SDLGPURendererContext* context) {
     );
 
     SDL_GPUTransferBuffer* screen_vertex_transfer_buffer = SDL_CreateGPUTransferBuffer(
-        context->device,
+        device,
         &(SDL_GPUTransferBufferCreateInfo) {
             .usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
             .size = screen_vertex_buffer_size,
@@ -688,16 +708,15 @@ bool SDLGPURenderer_Init(const SDLGPURendererContext* context) {
         screen_vertices[i].color = (_Color) { .r = 1.0f, .g = 1.0f, .b = 1.0f, .a = 1.0f };
     }
 
-    _Vertex* screen_vertex_transfer_ptr =
-        SDL_MapGPUTransferBuffer(context->device, screen_vertex_transfer_buffer, false);
+    _Vertex* screen_vertex_transfer_ptr = SDL_MapGPUTransferBuffer(device, screen_vertex_transfer_buffer, false);
 
     SDL_memcpy(screen_vertex_transfer_ptr, screen_vertices, sizeof(screen_vertices));
-    SDL_UnmapGPUTransferBuffer(context->device, screen_vertex_transfer_buffer);
+    SDL_UnmapGPUTransferBuffer(device, screen_vertex_transfer_buffer);
 
     // Init sampler
 
     sampler = SDL_CreateGPUSampler(
-        context->device,
+        device,
         &(SDL_GPUSamplerCreateInfo) {
             .min_filter = SDL_GPU_FILTER_NEAREST,
             .mag_filter = SDL_GPU_FILTER_NEAREST,
@@ -710,7 +729,7 @@ bool SDLGPURenderer_Init(const SDLGPURendererContext* context) {
 
     // Upload up-front data
 
-    SDL_GPUCommandBuffer* upload_cmd_buf = SDL_AcquireGPUCommandBuffer(context->device);
+    SDL_GPUCommandBuffer* upload_cmd_buf = SDL_AcquireGPUCommandBuffer(device);
     SDL_GPUCopyPass* copy_pass = SDL_BeginGPUCopyPass(upload_cmd_buf);
 
     SDL_UploadToGPUBuffer(
@@ -743,49 +762,53 @@ bool SDLGPURenderer_Init(const SDLGPURendererContext* context) {
 
     SDL_EndGPUCopyPass(copy_pass);
     SDL_SubmitGPUCommandBuffer(upload_cmd_buf);
-    SDL_ReleaseGPUTransferBuffer(context->device, index_transfer_buffer);
-    SDL_ReleaseGPUTransferBuffer(context->device, screen_vertex_transfer_buffer);
+    SDL_ReleaseGPUTransferBuffer(device, index_transfer_buffer);
+    SDL_ReleaseGPUTransferBuffer(device, screen_vertex_transfer_buffer);
 
 #if DEBUG && IMGUI
     ImGuiW_Init(
-        context->window,
+        window,
         &(ImGui_ImplSDLGPU3_InitInfo) {
-            .Device = context->device,
+            .Device = device,
             .ColorTargetFormat = swapchain_texture_format,
-            .PresentMode = context->present_mode,
+            .PresentMode = present_mode,
         }
     );
 #endif
 
-    return true;
+    return window;
 }
 
-void SDLGPURenderer_Quit(const SDLGPURendererContext* context) {
+static void SDLGPURenderer_Quit() {
 #if DEBUG && IMGUI
     ImGuiW_Finish();
 #endif
 
-    SDL_ReleaseGPUGraphicsPipeline(context->device, solid_pipeline);
-    SDL_ReleaseGPUGraphicsPipeline(context->device, direct_pipeline);
-    SDL_ReleaseGPUGraphicsPipeline(context->device, palette_4_pipeline);
-    SDL_ReleaseGPUGraphicsPipeline(context->device, palette_8_pipeline);
-    SDL_ReleaseGPUGraphicsPipeline(context->device, screen_pipeline);
-    SDL_ReleaseGPUBuffer(context->device, vertex_buffer);
-    SDL_ReleaseGPUTransferBuffer(context->device, vertex_transfer_buffer);
-    SDL_ReleaseGPUBuffer(context->device, index_buffer);
-    SDL_ReleaseGPUBuffer(context->device, screen_vertex_buffer);
-    SDL_ReleaseGPUSampler(context->device, sampler);
-    SDL_ReleaseGPUTexture(context->device, canvas_texture);
-    SDL_ReleaseGPUTexture(context->device, depth_texture);
+    SDL_ReleaseGPUGraphicsPipeline(device, solid_pipeline);
+    SDL_ReleaseGPUGraphicsPipeline(device, direct_pipeline);
+    SDL_ReleaseGPUGraphicsPipeline(device, palette_4_pipeline);
+    SDL_ReleaseGPUGraphicsPipeline(device, palette_8_pipeline);
+    SDL_ReleaseGPUGraphicsPipeline(device, screen_pipeline);
+    SDL_ReleaseGPUBuffer(device, vertex_buffer);
+    SDL_ReleaseGPUTransferBuffer(device, vertex_transfer_buffer);
+    SDL_ReleaseGPUBuffer(device, index_buffer);
+    SDL_ReleaseGPUBuffer(device, screen_vertex_buffer);
+    SDL_ReleaseGPUSampler(device, sampler);
+    SDL_ReleaseGPUTexture(device, canvas_texture);
+    SDL_ReleaseGPUTexture(device, depth_texture);
+
+    SDL_ReleaseWindowFromGPUDevice(device, window);
+    SDL_DestroyGPUDevice(device);
+    SDL_DestroyWindow(window);
 }
 
-void SDLGPURenderer_RenderFrame(const SDLGPURendererContext* context, SDL_Rect viewport) {
-    SDL_GPUCommandBuffer* command_buffer = SDL_AcquireGPUCommandBuffer(context->device);
+static void SDLGPURenderer_RenderFrame(SDL_Rect viewport) {
+    SDL_GPUCommandBuffer* command_buffer = SDL_AcquireGPUCommandBuffer(device);
 
     // Delete stale textures
 
     for (int i = 0; i < arrlen(textures_to_delete); i++) {
-        SDL_ReleaseGPUTexture(context->device, textures_to_delete[i]);
+        SDL_ReleaseGPUTexture(device, textures_to_delete[i]);
     }
 
     // Prepare texture and vertex data
@@ -796,19 +819,19 @@ void SDLGPURenderer_RenderFrame(const SDLGPURendererContext* context, SDL_Rect v
         const _TextureCreateInfo* info = &textures_to_create[i];
 
         SDL_GPUTransferBuffer* texture_transfer_buffer = SDL_CreateGPUTransferBuffer(
-            context->device,
+            device,
             &(SDL_GPUTransferBufferCreateInfo) {
                 .usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
                 .size = info->size,
             }
         );
 
-        void* texture_transfer_ptr = SDL_MapGPUTransferBuffer(context->device, texture_transfer_buffer, false);
+        void* texture_transfer_ptr = SDL_MapGPUTransferBuffer(device, texture_transfer_buffer, false);
         SDL_memcpy(texture_transfer_ptr, info->pixels, info->size);
-        SDL_UnmapGPUTransferBuffer(context->device, texture_transfer_buffer);
+        SDL_UnmapGPUTransferBuffer(device, texture_transfer_buffer);
 
         SDL_GPUTexture* texture = SDL_CreateGPUTexture(
-            context->device,
+            device,
             &(SDL_GPUTextureCreateInfo) {
                 .type = SDL_GPU_TEXTURETYPE_2D,
                 .format = info->format,
@@ -839,7 +862,7 @@ void SDLGPURenderer_RenderFrame(const SDLGPURendererContext* context, SDL_Rect v
     }
 
     if (arrlen(quads) > 0) {
-        _Vertex* vertex_transfer_ptr = SDL_MapGPUTransferBuffer(context->device, vertex_transfer_buffer, false);
+        _Vertex* vertex_transfer_ptr = SDL_MapGPUTransferBuffer(device, vertex_transfer_buffer, false);
 
         for (int i = 0; i < arrlen(quads); i++) {
             const int vertex_base = i * 4;
@@ -854,7 +877,7 @@ void SDLGPURenderer_RenderFrame(const SDLGPURendererContext* context, SDL_Rect v
             }
         }
 
-        SDL_UnmapGPUTransferBuffer(context->device, vertex_transfer_buffer);
+        SDL_UnmapGPUTransferBuffer(device, vertex_transfer_buffer);
     }
 
     // Upload
@@ -901,7 +924,7 @@ void SDLGPURenderer_RenderFrame(const SDLGPURendererContext* context, SDL_Rect v
     // Render
 
     SDL_GPUTexture* swapchain_texture = NULL;
-    SDL_WaitAndAcquireGPUSwapchainTexture(command_buffer, context->window, &swapchain_texture, NULL, NULL);
+    SDL_WaitAndAcquireGPUSwapchainTexture(command_buffer, window, &swapchain_texture, NULL, NULL);
 
     if (swapchain_texture != NULL) {
 #if DEBUG && IMGUI
@@ -1100,7 +1123,7 @@ void SDLGPURenderer_RenderFrame(const SDLGPURendererContext* context, SDL_Rect v
     // Cleanup
 
     for (int i = 0; i < arrlen(texture_uploads); i++) {
-        SDL_ReleaseGPUTransferBuffer(context->device, texture_uploads[i].transfer_buffer);
+        SDL_ReleaseGPUTransferBuffer(device, texture_uploads[i].transfer_buffer);
     }
 
     arrfree(texture_uploads);
@@ -1109,4 +1132,24 @@ void SDLGPURenderer_RenderFrame(const SDLGPURendererContext* context, SDL_Rect v
     arrsetlen(textures_to_create, 0);
 }
 
-#endif
+// Internal
+
+const SDLRenderBackend sdl_gpu_render_backend = {
+    .name = "SDL GPU",
+    .init = SDLGPURenderer_Init,
+    .quit = SDLGPURenderer_Quit,
+    .render_frame = SDLGPURenderer_RenderFrame,
+    .create_texture = SDLGPURenderer_CreateTexture,
+    .destroy_texture = SDLGPURenderer_DestroyTexture,
+    .unlock_texture = SDLGPURenderer_UnlockTexture,
+    .create_palette = SDLGPURenderer_CreatePalette,
+    .destroy_palette = SDLGPURenderer_DestroyPalette,
+    .unlock_palette = SDLGPURenderer_UnlockPalette,
+    .set_texture = SDLGPURenderer_SetTexture,
+    .draw_textured_quad = SDLGPURenderer_DrawTexturedQuad,
+    .draw_sprite = SDLGPURenderer_DrawSprite,
+    .draw_sprite2 = SDLGPURenderer_DrawSprite2,
+    .draw_solid_quad = SDLGPURenderer_DrawSolidQuad,
+};
+
+#endif // CRS_VIDEO_DRIVER_SDL_GPU

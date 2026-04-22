@@ -4,6 +4,7 @@
 #include "arcade/arcade_balance.h"
 #include "common.h"
 #include "main.h"
+#include "platform/video/sdl_generic/sdl_generic_renderer.h"
 #include "port/config/config.h"
 #include "port/config/keymap.h"
 #include "port/input_backend.h"
@@ -11,10 +12,6 @@
 #include "port/sdl/sdl_message_renderer.h"
 #include "port/sound/adx.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
-
-#if CRS_VIDEO_DRIVER_SDL_GPU
-#include "platform/video/sdl_gpu/sdl_gpu_renderer.h"
-#endif
 
 #if NETPLAY_ENABLED
 #include "port/sdl/netplay_screen.h"
@@ -70,10 +67,6 @@ static Uint64 last_frame_end_time = 0;
 static Uint64 last_mouse_motion_time = 0;
 static const int mouse_hide_delay_ms = 2000; // 2 seconds
 
-#if CRS_VIDEO_DRIVER_SDL_GPU
-static SDLGPURendererContext gpu_renderer_context = { 0 };
-#endif
-
 static void init_scalemode() {
     const char* raw_scalemode = Config_GetString(CFG_KEY_SCALEMODE);
 
@@ -103,40 +96,16 @@ static bool init_window() {
     int window_height = Config_GetInt(CFG_KEY_WINDOW_HEIGHT);
     window_height = SDL_max(window_height, window_min_height);
 
-    window = SDL_CreateWindow(app_name, window_width, window_height, window_flags);
+    window = SDLGenericRenderer_Init(&(SDLRenderBackendInitInfo) {
+        .app_name = app_name,
+        .window_width = window_width,
+        .window_height = window_height,
+        .window_flags = window_flags,
+    });
 
     if (window == NULL) {
-        SDL_Log("Couldn't create window: %s", SDL_GetError());
         return false;
     }
-
-#if CRS_VIDEO_DRIVER_SDL_GPU
-    gpu_renderer_context.window = window;
-    gpu_renderer_context.device =
-        SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_MSL, false, NULL);
-
-    if (gpu_renderer_context.device == NULL) {
-        SDL_Log("Failed to create GPU device: %s", SDL_GetError());
-        return false;
-    }
-
-    SDL_ClaimWindowForGPUDevice(gpu_renderer_context.device, window);
-
-    if (SDL_WindowSupportsGPUPresentMode(gpu_renderer_context.device, window, SDL_GPU_PRESENTMODE_MAILBOX)) {
-        gpu_renderer_context.present_mode = SDL_GPU_PRESENTMODE_MAILBOX;
-        SDL_Log("Using MAILBOX present mode");
-    } else {
-        gpu_renderer_context.present_mode = SDL_GPU_PRESENTMODE_IMMEDIATE;
-        SDL_Log("Using IMMEDIATE present mode");
-    }
-
-    if (!SDL_SetGPUSwapchainParameters(
-            gpu_renderer_context.device, window, SDL_GPU_SWAPCHAINCOMPOSITION_SDR, gpu_renderer_context.present_mode
-        )) {
-        SDL_Log("Failed to set GPU swapchain parameters: %s", SDL_GetError());
-        return false;
-    }
-#endif
 
     return true;
 }
@@ -182,15 +151,6 @@ static int full_init() {
         return 1;
     }
 
-    // Initialize rendering subsystems
-
-#if CRS_VIDEO_DRIVER_SDL_GPU
-    if (!SDLGPURenderer_Init(&gpu_renderer_context)) {
-        SDL_Log("Couldn't initialize SDL GPU renderer: %s", SDL_GetError());
-        return 1;
-    }
-#endif
-
     // #if DEBUG
     //     SDLDebugText_Initialize(renderer);
     // #endif
@@ -216,13 +176,7 @@ static int full_init() {
 static void cleanup() {
     AFS_Finish();
     Config_Destroy();
-
-#if CRS_VIDEO_DRIVER_SDL_GPU
-    SDLGPURenderer_Quit(&gpu_renderer_context);
-    SDL_DestroyGPUDevice(gpu_renderer_context.device);
-#endif
-
-    SDL_DestroyWindow(window);
+    SDLGenericRenderer_Quit();
 }
 
 #if DEBUG && IMGUI
@@ -402,10 +356,7 @@ static void end_frame() {
     int window_width;
     int window_height;
     SDL_GetWindowSizeInPixels(window, &window_width, &window_height);
-
-#if CRS_VIDEO_DRIVER_SDL_GPU
-    SDLGPURenderer_RenderFrame(&gpu_renderer_context, get_letterbox_rect(window_width, window_height));
-#endif
+    SDLGenericRenderer_RenderFrame(get_letterbox_rect(window_width, window_height));
 
     // Handle cursor hiding
     hide_cursor_if_needed();
