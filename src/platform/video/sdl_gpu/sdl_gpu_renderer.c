@@ -139,10 +139,10 @@ static SDL_GPUShaderFormat get_shader_format(SDL_GPUDevice* device) {
 static const char* get_shader_format_path(SDL_GPUShaderFormat format) {
     switch (format) {
     case SDL_GPU_SHADERFORMAT_MSL:
-        return "compiled/msl";
+        return "msl";
 
     case SDL_GPU_SHADERFORMAT_SPIRV:
-        return "compiled/spirv";
+        return "spirv";
 
     default:
         return NULL;
@@ -164,7 +164,7 @@ static SDL_GPUShader* create_shader(
 ) {
     const char* base_path = SDL_GetBasePath();
     char* full_path = NULL;
-    SDL_asprintf(&full_path, "%s/shaders/%s/%s", base_path, shader_format_path, filename);
+    SDL_asprintf(&full_path, "%s/shaders/sdlgpu/%s/%s", base_path, shader_format_path, filename);
 
     size_t code_size = 0;
     const Uint8* code = SDL_LoadFile(full_path, &code_size);

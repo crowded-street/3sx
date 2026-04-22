@@ -6,11 +6,18 @@
 #include "platform/video/sdl_gpu/sdl_gpu_renderer.h"
 #endif
 
+#if CRS_VIDEO_DRIVER_OPENGL
+#include "platform/video/opengl/opengl_renderer.h"
+#endif
+
 #include <SDL3/SDL.h>
 
 static SDLRenderBackend* backend_candidates[] = {
 #if CRS_VIDEO_DRIVER_SDL_GPU
     &sdl_gpu_render_backend,
+#endif
+#if CRS_VIDEO_DRIVER_OPENGL
+    &opengl_render_backend,
 #endif
 };
 

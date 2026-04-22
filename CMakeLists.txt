@@ -249,6 +249,9 @@ set(PROJECT_LICENSE_FILES
     "${CMAKE_SOURCE_DIR}/THIRD_PARTY_NOTICES.txt"
 )
 
+set(SDL_GPU_SHADER_DIR "${CMAKE_SOURCE_DIR}/src/platform/video/sdl_gpu/shaders/compiled")
+set(OPENGL_SHADER_DIR "${CMAKE_SOURCE_DIR}/src/platform/video/opengl/shaders")
+
 if(APPLE)
     install(TARGETS 3sx
         RUNTIME DESTINATION bin
@@ -268,8 +271,14 @@ if(APPLE)
         DESTINATION 3SX.app/Contents/Resources/licenses
     )
 
-    install(DIRECTORY "${CMAKE_SOURCE_DIR}/src/platform/video/sdl_gpu/shaders/compiled"
-        DESTINATION 3SX.app/Contents/Resources/shaders
+    install(CODE "file(REMOVE_RECURSE \"\${CMAKE_INSTALL_PREFIX}/3SX.app/Contents/Resources/shaders/sdlgpu/compiled\")")
+
+    install(DIRECTORY "${SDL_GPU_SHADER_DIR}/"
+        DESTINATION 3SX.app/Contents/Resources/shaders/sdlgpu
+    )
+
+    install(DIRECTORY "${OPENGL_SHADER_DIR}/"
+        DESTINATION 3SX.app/Contents/Resources/shaders/opengl
     )
 elseif(WIN32)
     install(TARGETS 3sx
@@ -300,8 +309,14 @@ elseif(WIN32)
         DESTINATION bin/licenses
     )
 
-    install(DIRECTORY "${CMAKE_SOURCE_DIR}/src/platform/video/sdl_gpu/shaders/compiled"
-        DESTINATION bin/shaders
+    install(CODE "file(REMOVE_RECURSE \"\${CMAKE_INSTALL_PREFIX}/bin/shaders/sdlgpu/compiled\")")
+
+    install(DIRECTORY "${SDL_GPU_SHADER_DIR}/"
+        DESTINATION bin/shaders/sdlgpu
+    )
+
+    install(DIRECTORY "${OPENGL_SHADER_DIR}/"
+        DESTINATION bin/shaders/opengl
     )
 elseif(UNIX)
     install(TARGETS 3sx
@@ -322,8 +337,14 @@ elseif(UNIX)
         DESTINATION share/3sx/licenses
     )
 
-    install(DIRECTORY "${CMAKE_SOURCE_DIR}/src/platform/video/sdl_gpu/shaders/compiled"
-        DESTINATION bin/shaders
+    install(CODE "file(REMOVE_RECURSE \"\${CMAKE_INSTALL_PREFIX}/bin/shaders/sdlgpu/compiled\")")
+
+    install(DIRECTORY "${SDL_GPU_SHADER_DIR}/"
+        DESTINATION bin/shaders/sdlgpu
+    )
+
+    install(DIRECTORY "${OPENGL_SHADER_DIR}/"
+        DESTINATION bin/shaders/opengl
     )
 endif()
 

@@ -246,10 +246,6 @@ static bool poll_events() {
             handle_mouse_motion();
             break;
 
-        case SDL_EVENT_WINDOW_RESIZED:
-            // create_screen_texture();
-            break;
-
         case SDL_EVENT_QUIT:
             continue_running = false;
             break;

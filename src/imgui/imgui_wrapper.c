@@ -10,6 +10,7 @@
 #include "imgui/dcimgui/dcimgui_impl_sdlgpu3.h"
 #include <SDL3/SDL.h>
 
+static bool initialized = false;
 // static bool show_imgui_demo = true;
 static bool show_debug_window = false;
 static char* imgui_ini_path = NULL;
@@ -95,19 +96,33 @@ void ImGuiW_Init(SDL_Window* window, ImGui_ImplSDLGPU3_InitInfo* init_info) {
 
     cImGui_ImplSDL3_InitForSDLGPU(window);
     cImGui_ImplSDLGPU3_Init(init_info);
+    initialized = true;
 }
 
 void ImGuiW_Finish() {
+    if (!initialized) {
+        return;
+    }
+
     cImGui_ImplSDLGPU3_Shutdown();
     cImGui_ImplSDL3_Shutdown();
     ImGui_DestroyContext(NULL);
+    initialized = false;
 }
 
 void ImGuiW_ProcessEvent(const SDL_Event* event) {
+    if (!initialized) {
+        return;
+    }
+
     cImGui_ImplSDL3_ProcessEvent(event);
 }
 
 void ImGuiW_NewFrame() {
+    if (!initialized) {
+        return;
+    }
+
     cImGui_ImplSDLGPU3_NewFrame();
     cImGui_ImplSDL3_NewFrame();
     ImGui_NewFrame();
@@ -116,6 +131,10 @@ void ImGuiW_NewFrame() {
 }
 
 void ImGuiW_PrepareDrawData(SDL_GPUCommandBuffer* command_buffer) {
+    if (!initialized) {
+        return;
+    }
+
     // ImGui_ShowDemoWindow(&show_imgui_demo);
     build_debug_window();
     ImGui_Render();
@@ -125,10 +144,18 @@ void ImGuiW_PrepareDrawData(SDL_GPUCommandBuffer* command_buffer) {
 }
 
 void ImGuiW_RenderDrawData(SDL_GPUCommandBuffer* command_buffer, SDL_GPURenderPass* render_pass) {
+    if (!initialized) {
+        return;
+    }
+
     cImGui_ImplSDLGPU3_RenderDrawData(draw_data, command_buffer, render_pass);
 }
 
 void ImGuiW_ToggleVisivility() {
+    if (!initialized) {
+        return;
+    }
+
     show_debug_window = !show_debug_window;
 }
 
