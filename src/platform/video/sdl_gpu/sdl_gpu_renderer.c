@@ -125,8 +125,6 @@ static SDL_GPUShaderFormat get_shader_format(SDL_GPUDevice* device) {
 
     if (supported_formats & SDL_GPU_SHADERFORMAT_MSL) {
         return SDL_GPU_SHADERFORMAT_MSL;
-    } else if (supported_formats & SDL_GPU_SHADERFORMAT_DXIL) {
-        return SDL_GPU_SHADERFORMAT_DXIL;
     } else if (supported_formats & SDL_GPU_SHADERFORMAT_SPIRV) {
         return SDL_GPU_SHADERFORMAT_SPIRV;
     }
@@ -138,9 +136,6 @@ static const char* get_shader_format_path(SDL_GPUShaderFormat format) {
     switch (format) {
     case SDL_GPU_SHADERFORMAT_MSL:
         return "compiled/msl";
-
-    case SDL_GPU_SHADERFORMAT_DXIL:
-        return "compiled/dxil";
 
     case SDL_GPU_SHADERFORMAT_SPIRV:
         return "compiled/spirv";

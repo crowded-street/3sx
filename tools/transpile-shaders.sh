@@ -51,7 +51,6 @@ transpile_shader() {
 
 mkdir -p \
     "$COMPILED_DIR/spirv" \
-    "$COMPILED_DIR/dxil" \
     "$COMPILED_DIR/msl"
 
 shopt -s nullglob
@@ -68,7 +67,6 @@ for shader in "${hlsl_shaders[@]}"; do
     stage="$(detect_stage "$filename")"
 
     transpile_shader "$shader" SPIRV "$stage" "$COMPILED_DIR/spirv/$output_name"
-    transpile_shader "$shader" DXIL "$stage" "$COMPILED_DIR/dxil/$output_name"
     transpile_shader "$shader" MSL "$stage" "$COMPILED_DIR/msl/$output_name"
 done
 

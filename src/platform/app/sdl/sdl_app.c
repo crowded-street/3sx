@@ -40,11 +40,6 @@
 #include <ConsoleApi.h>
 #endif
 
-#if CRS_VIDEO_DRIVER_SDL_GPU
-static const SDL_GPUShaderFormat gpu_shader_formats =
-    SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL | SDL_GPU_SHADERFORMAT_MSL;
-#endif
-
 typedef enum ScaleMode {
     SCALEMODE_NEAREST,
     SCALEMODE_SQUARE_PIXELS,
@@ -95,25 +90,6 @@ static void init_scalemode() {
     }
 }
 
-#if CRS_VIDEO_DRIVER_SDL_GPU
-static const char* get_preferred_gpu_driver() {
-    const char* requested_driver = SDL_GetHint(SDL_HINT_GPU_DRIVER);
-
-    if (requested_driver != NULL && requested_driver[0] != '\0') {
-        SDL_Log("Using requested SDL GPU driver %s", requested_driver);
-        return requested_driver;
-    }
-
-    if (SDL_GPUSupportsShaderFormats(SDL_GPU_SHADERFORMAT_SPIRV, "vulkan")) {
-        SDL_Log("Vulkan SDL GPU driver is available; preferring it");
-        return "vulkan";
-    }
-
-    SDL_Log("Vulkan SDL GPU driver is unavailable; letting SDL choose the GPU driver");
-    return NULL;
-}
-#endif
-
 static bool init_window() {
     SDL_WindowFlags window_flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
 
@@ -136,7 +112,8 @@ static bool init_window() {
 
 #if CRS_VIDEO_DRIVER_SDL_GPU
     gpu_renderer_context.window = window;
-    gpu_renderer_context.device = SDL_CreateGPUDevice(gpu_shader_formats, false, get_preferred_gpu_driver());
+    gpu_renderer_context.device =
+        SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_MSL, false, NULL);
 
     if (gpu_renderer_context.device == NULL) {
         SDL_Log("Failed to create GPU device: %s", SDL_GetError());
