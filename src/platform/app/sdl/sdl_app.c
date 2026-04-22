@@ -41,6 +41,7 @@ typedef enum ScaleMode {
     SCALEMODE_NEAREST,
     SCALEMODE_SQUARE_PIXELS,
     SCALEMODE_INTEGER,
+    SCALEMODE_STRETCH,
 } ScaleMode;
 
 typedef enum AppPhase {
@@ -80,6 +81,8 @@ static void init_scalemode() {
         scale_mode = SCALEMODE_SQUARE_PIXELS;
     } else if (SDL_strcmp(raw_scalemode, "integer") == 0) {
         scale_mode = SCALEMODE_INTEGER;
+    } else if (SDL_strcmp(raw_scalemode, "stretch") == 0) {
+        scale_mode = SCALEMODE_STRETCH;
     }
 }
 
@@ -312,6 +315,9 @@ static SDL_Rect get_letterbox_rect(int win_w, int win_h) {
 
     case SCALEMODE_SQUARE_PIXELS:
         return fit_integer_rect(win_w, win_h, 1, 1);
+
+    case SCALEMODE_STRETCH:
+        return (SDL_Rect) { 0, 0, win_w, win_h };
 
     default:
         return fit_4_by_3_rect(win_w, win_h);

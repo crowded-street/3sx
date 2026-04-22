@@ -1,0 +1,41 @@
+set(CMAKE_SYSTEM_NAME Linux)
+set(CMAKE_SYSTEM_PROCESSOR arm)
+
+set(CRS_ARM_TRIPLE "arm-linux-gnueabihf" CACHE STRING "ARM hard-float target triple")
+set(CRS_ARM_CPU_FLAGS "-march=armv7-a -mfpu=neon -mfloat-abi=hard" CACHE STRING "ARM CPU tuning flags")
+set(CRS_ARM_SYSROOT "" CACHE PATH "Optional ARM sysroot")
+
+find_program(CRS_ARM_CC ${CRS_ARM_TRIPLE}-gcc)
+find_program(CRS_ARM_CXX ${CRS_ARM_TRIPLE}-g++)
+find_program(CRS_ARM_CCACHE ccache)
+
+if(CRS_ARM_CC)
+    set(CMAKE_C_COMPILER ${CRS_ARM_CC})
+endif()
+
+if(CRS_ARM_CXX)
+    set(CMAKE_CXX_COMPILER ${CRS_ARM_CXX})
+endif()
+
+if(CRS_ARM_CCACHE)
+    set(CMAKE_C_COMPILER_LAUNCHER ${CRS_ARM_CCACHE})
+    set(CMAKE_CXX_COMPILER_LAUNCHER ${CRS_ARM_CCACHE})
+endif()
+
+if(CRS_ARM_SYSROOT AND EXISTS "${CRS_ARM_SYSROOT}/lib/arm-linux-gnueabihf/libc.so.6")
+    set(CMAKE_SYSROOT "${CRS_ARM_SYSROOT}")
+    set(CMAKE_C_FLAGS_INIT "${CRS_ARM_CPU_FLAGS} --sysroot=${CRS_ARM_SYSROOT}")
+    set(CMAKE_CXX_FLAGS_INIT "${CRS_ARM_CPU_FLAGS} --sysroot=${CRS_ARM_SYSROOT}")
+    set(CMAKE_EXE_LINKER_FLAGS_INIT "-static-libgcc -static-libstdc++")
+    set(CMAKE_SHARED_LINKER_FLAGS_INIT "-static-libgcc")
+    set(CMAKE_C_STANDARD_LIBRARIES "-lpthread -lrt -ldl")
+    set(CMAKE_CXX_STANDARD_LIBRARIES "-lpthread -lrt -ldl")
+else()
+    set(CMAKE_C_FLAGS_INIT "${CRS_ARM_CPU_FLAGS}")
+    set(CMAKE_CXX_FLAGS_INIT "${CRS_ARM_CPU_FLAGS}")
+endif()
+
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)

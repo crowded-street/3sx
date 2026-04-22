@@ -10,6 +10,26 @@ include(${PROJECT_SOURCE_DIR}/cmake/imgui_sources.cmake)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
+option(CRS_SOFTWARE_RENDERER "Build the software renderer backend" OFF)
+option(CRS_RPI_DRM "Build the ARM Linux app driver for Raspberry Pi using DRM/KMS" OFF)
+option(CRS_MISTER "Build the ARM Linux app driver for MiSTer using fbdev" OFF)
+
+if(CRS_RPI_DRM AND CRS_MISTER)
+    message(FATAL_ERROR "CRS_RPI_DRM and CRS_MISTER are mutually exclusive.")
+endif()
+
+if(CRS_RPI_DRM OR CRS_MISTER)
+    set(CRS_SOFTWARE_RENDERER ON CACHE BOOL "Build the software renderer backend" FORCE)
+endif()
+
+if(CRS_RPI_DRM OR CRS_MISTER)
+    set(CRS_DEFAULT_AFS_CHECKSUM OFF)
+else()
+    set(CRS_DEFAULT_AFS_CHECKSUM ON)
+endif()
+
+option(CRS_ENABLE_AFS_CHECKSUM "Validate SF33RD.AFS at startup in Release builds" ${CRS_DEFAULT_AFS_CHECKSUM})
+
 # ======================================
 # Include directories
 # ======================================
@@ -19,8 +39,11 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/src/imgui/imgui
     ${PROJECT_SOURCE_DIR}/src/imgui/dcimgui
     ${PROJECT_SOURCE_DIR}/src/sdk
-    ${PROJECT_SOURCE_DIR}/src/platform/video/opengl/glad
 )
+
+if(NOT CRS_SOFTWARE_RENDERER AND NOT PSP)
+    include_directories(${PROJECT_SOURCE_DIR}/src/platform/video/opengl/glad)
+endif()
 
 # ======================================
 # Source collection
@@ -32,7 +55,7 @@ add_executable(3sx MACOSX_BUNDLE
     ${GAME_SRC}
 )
 
-if(NOT PSP)
+if(NOT PSP AND NOT CRS_SOFTWARE_RENDERER)
     target_sources(3sx PRIVATE
         $<$<CONFIG:Debug>:${IMGUI_SOURCES}>
     )
@@ -52,28 +75,57 @@ if(PSP)
         CRS_VIDEO_DRIVER_PSP
     )
 else()
+    if(CRS_RPI_DRM OR CRS_MISTER)
+        set(CRS_DRIVER_DEFINITIONS
+            CRS_APP_DRIVER_ARM
+            CRS_VIDEO_DRIVER_SOFTWARE
+        )
+    elseif(CRS_SOFTWARE_RENDERER)
+        set(CRS_DRIVER_DEFINITIONS
+            CRS_APP_DRIVER_SDL
+            CRS_VIDEO_DRIVER_SDL_GENERIC
+            CRS_VIDEO_DRIVER_SOFTWARE
+        )
+    else()
+        set(CRS_DRIVER_DEFINITIONS
+            CRS_APP_DRIVER_SDL
+            CRS_VIDEO_DRIVER_SDL_GENERIC
+            CRS_VIDEO_DRIVER_SDL_GPU
+            CRS_VIDEO_DRIVER_OPENGL
+        )
+    endif()
+
     target_compile_definitions(3sx PRIVATE
         $<$<CONFIG:Debug>:DEBUG>
-        $<$<CONFIG:Debug>:NETPLAY_ENABLED>
 
         $<$<CONFIG:Release>:RELEASE>
-        $<$<CONFIG:Release>:CHECKSUM>
+        $<$<AND:$<CONFIG:Release>,$<BOOL:${CRS_ENABLE_AFS_CHECKSUM}>>:CHECKSUM>
 
         # GekkoNet is a pre-built static lib; these were previously propagated by its cmake target
         GEKKONET_STATIC
         GEKKONET_NO_ASIO
 
-        CRS_APP_DRIVER_SDL
-        CRS_VIDEO_DRIVER_SDL_GENERIC
-        CRS_VIDEO_DRIVER_SDL_GPU
-        CRS_VIDEO_DRIVER_OPENGL
+        ${CRS_DRIVER_DEFINITIONS}
 
         ARCADE_ROM
         SOUND_ENABLED
-        IMGUI
 
         GL_SILENCE_DEPRECATION
     )
+
+    if(NOT CRS_RPI_DRM AND NOT CRS_MISTER)
+        target_compile_definitions(3sx PRIVATE
+            $<$<CONFIG:Debug>:NETPLAY_ENABLED>
+        )
+    endif()
+
+    if(NOT CRS_SOFTWARE_RENDERER)
+        target_compile_definitions(3sx PRIVATE IMGUI)
+    endif()
+
+    if(CRS_RPI_DRM)
+        target_compile_definitions(3sx PRIVATE CRS_ARM_HAVE_DRM)
+    endif()
 endif()
 
 
@@ -149,10 +201,38 @@ endif()
 # Dependencies
 # ======================================
 
-set(THIRD_PARTY_DIR "${CMAKE_SOURCE_DIR}/third_party")
+if(CRS_RPI_DRM OR CRS_MISTER)
+    set(THIRD_PARTY_DIR "${CMAKE_SOURCE_DIR}/third_party/armhf")
+else()
+    set(THIRD_PARTY_DIR "${CMAKE_SOURCE_DIR}/third_party")
+endif()
 
-find_package(ZLIB REQUIRED)
-find_package(OpenGL REQUIRED)
+if(CRS_RPI_DRM OR CRS_MISTER)
+    set(ZLIB_ROOT "${THIRD_PARTY_DIR}/zlib/build")
+    add_library(ZLIB::ZLIB STATIC IMPORTED)
+    set_target_properties(ZLIB::ZLIB PROPERTIES
+        IMPORTED_LOCATION "${ZLIB_ROOT}/lib/libz.a"
+        INTERFACE_INCLUDE_DIRECTORIES "${ZLIB_ROOT}/include"
+    )
+else()
+    find_package(ZLIB REQUIRED)
+endif()
+
+if(NOT PSP AND NOT CRS_SOFTWARE_RENDERER)
+    find_package(OpenGL REQUIRED)
+endif()
+
+if(CRS_RPI_DRM)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(DRM REQUIRED IMPORTED_TARGET libdrm)
+    pkg_get_variable(DRM_INCLUDEDIR libdrm includedir)
+    set(CRS_DRM_INCLUDE_DIRS ${DRM_INCLUDE_DIRS})
+    if(DRM_INCLUDEDIR)
+        list(APPEND CRS_DRM_INCLUDE_DIRS "${DRM_INCLUDEDIR}/libdrm")
+    endif()
+    list(REMOVE_DUPLICATES CRS_DRM_INCLUDE_DIRS)
+    include_directories(${CRS_DRM_INCLUDE_DIRS})
+endif()
 
 set(FFMPEG_ROOT        "${THIRD_PARTY_DIR}/ffmpeg/build")
 set(SDL3_ROOT          "${THIRD_PARTY_DIR}/sdl3/build")
@@ -166,11 +246,16 @@ include_directories(
     ${FFMPEG_ROOT}/include
     ${SDL3_ROOT}/include
     ${LIBCDIO_ROOT}/include
-    ${GEKKONET_ROOT}/include
-    ${SDL3_NET_ROOT}/include
     ${MINIZIP_NG_ROOT}/include
     ${TF_PSA_CRYPTO_ROOT}/include
 )
+
+if(NOT CRS_RPI_DRM AND NOT CRS_MISTER)
+    include_directories(
+        ${GEKKONET_ROOT}/include
+        ${SDL3_NET_ROOT}/include
+    )
+endif()
 
 if(PSP)
     target_link_libraries(3sx PRIVATE
@@ -194,14 +279,26 @@ else()
         m
         "${LIBCDIO_ROOT}/lib/libiso9660.a"
         "${LIBCDIO_ROOT}/lib/libcdio.a"
-        "${GEKKONET_ROOT}/lib/libGekkoNet.a"
-        "${SDL3_NET_ROOT}/lib/libSDL3_net.a"
         "${MINIZIP_NG_ROOT}/lib/libminizip-ng.a"
         "${TF_PSA_CRYPTO_ROOT}/lib/libtfpsacrypto.a"
         ZLIB::ZLIB
-        OpenGL::GL
         stdc++ # For GekkoNet
     )
+
+    if(NOT CRS_RPI_DRM AND NOT CRS_MISTER)
+        target_link_libraries(3sx PRIVATE
+            "${GEKKONET_ROOT}/lib/libGekkoNet.a"
+            "${SDL3_NET_ROOT}/lib/libSDL3_net.a"
+        )
+    endif()
+
+    if(NOT CRS_SOFTWARE_RENDERER)
+        target_link_libraries(3sx PRIVATE OpenGL::GL)
+    endif()
+
+    if(CRS_RPI_DRM)
+        target_link_libraries(3sx PRIVATE PkgConfig::DRM)
+    endif()
 endif()
 
 if(APPLE)
@@ -271,15 +368,17 @@ if(APPLE)
         DESTINATION 3SX.app/Contents/Resources/licenses
     )
 
-    install(CODE "file(REMOVE_RECURSE \"\${CMAKE_INSTALL_PREFIX}/3SX.app/Contents/Resources/shaders/sdlgpu/compiled\")")
+    if(NOT CRS_SOFTWARE_RENDERER)
+        install(CODE "file(REMOVE_RECURSE \"\${CMAKE_INSTALL_PREFIX}/3SX.app/Contents/Resources/shaders/sdlgpu/compiled\")")
 
-    install(DIRECTORY "${SDL_GPU_SHADER_DIR}/"
-        DESTINATION 3SX.app/Contents/Resources/shaders/sdlgpu
-    )
+        install(DIRECTORY "${SDL_GPU_SHADER_DIR}/"
+            DESTINATION 3SX.app/Contents/Resources/shaders/sdlgpu
+        )
 
-    install(DIRECTORY "${OPENGL_SHADER_DIR}/"
-        DESTINATION 3SX.app/Contents/Resources/shaders/opengl
-    )
+        install(DIRECTORY "${OPENGL_SHADER_DIR}/"
+            DESTINATION 3SX.app/Contents/Resources/shaders/opengl
+        )
+    endif()
 elseif(WIN32)
     install(TARGETS 3sx
 		RUNTIME_DEPENDENCY_SET deps
@@ -309,15 +408,17 @@ elseif(WIN32)
         DESTINATION bin/licenses
     )
 
-    install(CODE "file(REMOVE_RECURSE \"\${CMAKE_INSTALL_PREFIX}/bin/shaders/sdlgpu/compiled\")")
+    if(NOT CRS_SOFTWARE_RENDERER)
+        install(CODE "file(REMOVE_RECURSE \"\${CMAKE_INSTALL_PREFIX}/bin/shaders/sdlgpu/compiled\")")
 
-    install(DIRECTORY "${SDL_GPU_SHADER_DIR}/"
-        DESTINATION bin/shaders/sdlgpu
-    )
+        install(DIRECTORY "${SDL_GPU_SHADER_DIR}/"
+            DESTINATION bin/shaders/sdlgpu
+        )
 
-    install(DIRECTORY "${OPENGL_SHADER_DIR}/"
-        DESTINATION bin/shaders/opengl
-    )
+        install(DIRECTORY "${OPENGL_SHADER_DIR}/"
+            DESTINATION bin/shaders/opengl
+        )
+    endif()
 elseif(UNIX)
     install(TARGETS 3sx
         RUNTIME DESTINATION bin
@@ -337,15 +438,17 @@ elseif(UNIX)
         DESTINATION share/3sx/licenses
     )
 
-    install(CODE "file(REMOVE_RECURSE \"\${CMAKE_INSTALL_PREFIX}/bin/shaders/sdlgpu/compiled\")")
+    if(NOT CRS_SOFTWARE_RENDERER)
+        install(CODE "file(REMOVE_RECURSE \"\${CMAKE_INSTALL_PREFIX}/bin/shaders/sdlgpu/compiled\")")
 
-    install(DIRECTORY "${SDL_GPU_SHADER_DIR}/"
-        DESTINATION bin/shaders/sdlgpu
-    )
+        install(DIRECTORY "${SDL_GPU_SHADER_DIR}/"
+            DESTINATION bin/shaders/sdlgpu
+        )
 
-    install(DIRECTORY "${OPENGL_SHADER_DIR}/"
-        DESTINATION bin/shaders/opengl
-    )
+        install(DIRECTORY "${OPENGL_SHADER_DIR}/"
+            DESTINATION bin/shaders/opengl
+        )
+    endif()
 endif()
 
 # ======================================

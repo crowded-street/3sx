@@ -10,6 +10,10 @@
 #include "platform/video/opengl/opengl_renderer.h"
 #endif
 
+#if CRS_VIDEO_DRIVER_SOFTWARE
+#include "platform/video/software/sdl_software_renderer.h"
+#endif
+
 #include <SDL3/SDL.h>
 
 static SDLRenderBackend* backend_candidates[] = {
@@ -18,6 +22,9 @@ static SDLRenderBackend* backend_candidates[] = {
 #endif
 #if CRS_VIDEO_DRIVER_OPENGL
     &opengl_render_backend,
+#endif
+#if CRS_VIDEO_DRIVER_SOFTWARE
+    &sdl_software_render_backend,
 #endif
 };
 

@@ -16,19 +16,36 @@
 static const char* afs_path = NULL;
 
 static bool file_exists(const char* path) {
-    SDL_PathInfo path_info;
-    SDL_GetPathInfo(path, &path_info);
-    return path_info.type == SDL_PATHTYPE_FILE;
+    SDL_IOStream* io = SDL_IOFromFile(path, "rb");
+
+    if (io == NULL) {
+        return false;
+    }
+
+    SDL_CloseIO(io);
+    return true;
 }
 
 char* Resources_GetPath(const char* file_path) {
-    const char* base = Paths_GetPrefPath();
+    const char* app_home = SDL_getenv("THREESX_HOME");
     char* full_path = NULL;
 
+    if (app_home != NULL && app_home[0] != '\0') {
+        if (file_path == NULL) {
+            SDL_asprintf(&full_path, "%s/resources/", app_home);
+        } else {
+            SDL_asprintf(&full_path, "%s/resources/%s", app_home, file_path);
+        }
+
+        return full_path;
+    }
+
+    const char* pref_path = Paths_GetPrefPath();
+
     if (file_path == NULL) {
-        SDL_asprintf(&full_path, "%sresources/", base);
+        SDL_asprintf(&full_path, "%sresources/", pref_path);
     } else {
-        SDL_asprintf(&full_path, "%sresources/%s", base, file_path);
+        SDL_asprintf(&full_path, "%sresources/%s", pref_path, file_path);
     }
 
     return full_path;

@@ -23,6 +23,7 @@ The way the internal 384x224 buffer is scaled.
 
 Possible values:
 - `nearest` (default): Produces sharp pixels at the cost of sizing consistency
+- `stretch`: Fills the whole output, ignoring the normal 4:3 presentation
 - `integer`: Produces a pixel-perfect image, but requires a 4K display
   - ⚠️ WARNING: the image is gonna be cropped if your display resolution is smaller than 2688x2016
 - `square-pixels`: The internal buffer is scaled up by an integer (whole number) factor. Use this if you play on a CRT
