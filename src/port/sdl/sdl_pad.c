@@ -1,11 +1,16 @@
 #include "port/sdl/sdl_pad.h"
+#include "core/input.h"
 #include "port/config/keymap.h"
 
 #include <SDL3/SDL.h>
 
 #define INPUT_SOURCES_MAX 2
 
-typedef enum SDLPad_InputType { SDLPAD_INPUT_NONE = 0, SDLPAD_INPUT_GAMEPAD, SDLPAD_INPUT_KEYBOARD } SDLPad_InputType;
+typedef enum SDLPad_InputType {
+    SDLPAD_INPUT_NONE = 0,
+    SDLPAD_INPUT_GAMEPAD,
+    SDLPAD_INPUT_KEYBOARD,
+} SDLPad_InputType;
 
 typedef struct SDLPad_GamepadInputSource {
     Uint32 type;
@@ -25,7 +30,7 @@ typedef union SDLPad_InputSource {
 static SDLPad_InputSource input_sources[INPUT_SOURCES_MAX] = { 0 };
 static int connected_input_sources = 0;
 static int keyboard_index = -1;
-static SDLPad_ButtonState button_state[INPUT_SOURCES_MAX] = { 0 };
+static Input_ButtonState button_state[INPUT_SOURCES_MAX] = { 0 };
 
 static int input_source_index_from_joystick_id(SDL_JoystickID id) {
     for (int i = 0; i < INPUT_SOURCES_MAX; i++) {
@@ -120,7 +125,7 @@ static void handle_gamepad_removed_event(SDL_GamepadDeviceEvent* event) {
     SDLPad_InputSource* input_source = &input_sources[index];
     SDL_CloseGamepad(input_source->gamepad.gamepad);
     input_source->type = SDLPAD_INPUT_NONE;
-    memset(&button_state[index], 0, sizeof(SDLPad_ButtonState));
+    SDL_zero(button_state[index]);
     connected_input_sources -= 1;
 
     // Setup keyboard in the newly freed slot
@@ -138,13 +143,13 @@ static bool any_pressed(const bool* keys, KeymapButton button) {
             break;
         }
 
-        result = result || keys[code];    
+        result = result || keys[code];
     }
 
     return result;
 }
 
-static void get_keyboard_state(SDLPad_ButtonState* state) {
+static void get_keyboard_state(Input_ButtonState* state) {
     SDL_zerop(state);
     const bool* keys = SDL_GetKeyboardState(NULL);
 
@@ -170,7 +175,7 @@ static void get_keyboard_state(SDLPad_ButtonState* state) {
 #endif
 }
 
-static void get_gamepad_state(int id, SDLPad_ButtonState* state) {
+static void get_gamepad_state(int id, Input_ButtonState* state) {
     const SDL_Gamepad* pad = input_sources[id].gamepad.gamepad;
 
     state->dpad_up = SDL_GetGamepadButton(pad, SDL_GAMEPAD_BUTTON_DPAD_UP);
@@ -220,7 +225,10 @@ bool SDLPad_IsGamepadConnected(int id) {
     return input_sources[id].type != SDLPAD_INPUT_NONE;
 }
 
-void SDLPad_GetButtonState(int id, SDLPad_ButtonState* state) {
+void SDLPad_GetButtonState(int id, Input_ButtonState* state) {
+    SDL_assert(state != NULL);
+    SDL_assert(SDLPad_IsGamepadConnected(id));
+
     if (id == keyboard_index) {
         get_keyboard_state(state);
     } else {

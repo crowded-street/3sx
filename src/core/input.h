@@ -2,7 +2,8 @@
 #define CORE_INPUT_H
 
 #include <stdbool.h>
-#include <stdint.h>
+
+#include <SDL3/SDL.h>
 
 typedef struct Input_ButtonState {
     bool south;
@@ -15,20 +16,20 @@ typedef struct Input_ButtonState {
     bool right_stick;
     bool left_shoulder;
     bool right_shoulder;
-    int16_t left_trigger;
-    int16_t right_trigger;
+    Sint16 left_trigger;
+    Sint16 right_trigger;
     bool dpad_up;
     bool dpad_down;
     bool dpad_left;
     bool dpad_right;
-    int16_t left_stick_x;
-    int16_t left_stick_y;
-    int16_t right_stick_x;
-    int16_t right_stick_y;
+    Sint16 left_stick_x;
+    Sint16 left_stick_y;
+    Sint16 right_stick_x;
+    Sint16 right_stick_y;
 } Input_ButtonState;
 
 bool Input_IsGamepadConnected(int id);
 void Input_GetButtonState(int id, Input_ButtonState* state);
-void Input_RumblePad(int id, bool low_freq_enabled, uint8_t high_freq_rumble);
+void Input_RumblePad(int id, bool low_freq_enabled, Uint8 high_freq_rumble);
 
 #endif
