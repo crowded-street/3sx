@@ -27,8 +27,6 @@ typedef struct Input_ButtonState {
     int16_t right_stick_y;
 } Input_ButtonState;
 
-void Input_Init();
-void Input_HandleGamepadDeviceEvent(const void* event);
 bool Input_IsGamepadConnected(int id);
 void Input_GetButtonState(int id, Input_ButtonState* state);
 void Input_RumblePad(int id, bool low_freq_enabled, uint8_t high_freq_rumble);

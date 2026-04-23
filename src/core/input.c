@@ -6,14 +6,6 @@
 
 #include <string.h>
 
-void Input_Init() {
-    SDLPad_Init();
-}
-
-void Input_HandleGamepadDeviceEvent(const void* event) {
-    SDLPad_HandleGamepadDeviceEvent((SDL_GamepadDeviceEvent*)event);
-}
-
 bool Input_IsGamepadConnected(int id) {
     return SDLPad_IsGamepadConnected(id);
 }

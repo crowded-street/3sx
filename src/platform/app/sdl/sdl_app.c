@@ -3,13 +3,13 @@
 #include "platform/app/sdl/sdl_app.h"
 #include "arcade/arcade_balance.h"
 #include "common.h"
-#include "core/input.h"
 #include "main.h"
 #include "platform/video/sdl_generic/sdl_generic_renderer.h"
 #include "port/config/config.h"
 #include "port/config/keymap.h"
 #include "port/sdl/sdl_debug_text.h"
 #include "port/sdl/sdl_message_renderer.h"
+#include "port/sdl/sdl_pad.h"
 #include "port/sound/adx.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 
@@ -157,7 +157,7 @@ static int full_init() {
     // #endif
 
     // Initialize pads
-    Input_Init();
+    SDLPad_Init();
 
 #if _WIN32 && DEBUG
     init_windows_console();
@@ -231,7 +231,7 @@ static bool poll_events() {
         switch (event.type) {
         case SDL_EVENT_GAMEPAD_ADDED:
         case SDL_EVENT_GAMEPAD_REMOVED:
-            Input_HandleGamepadDeviceEvent(&event.gdevice);
+            SDLPad_HandleGamepadDeviceEvent(&event.gdevice);
             break;
 
         case SDL_EVENT_KEY_DOWN:
