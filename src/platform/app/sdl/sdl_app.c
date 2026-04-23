@@ -2,6 +2,7 @@
 
 #include "platform/app/sdl/sdl_app.h"
 #include "arcade/arcade_balance.h"
+#include "args.h"
 #include "common.h"
 #include "main.h"
 #include "platform/video/sdl_generic/sdl_generic_renderer.h"
@@ -27,6 +28,10 @@
 
 #if DEBUG && IMGUI
 #include "imgui/imgui_wrapper.h"
+#endif
+
+#if STATCHECK
+#include "test/test_runner.h"
 #endif
 
 #include "port/io/afs.h"
@@ -264,6 +269,10 @@ static bool poll_events() {
 }
 
 static void begin_frame() {
+#if STATCHECK
+    TestRunner_Prologue();
+#endif
+
 #if DEBUG && IMGUI
     ImGuiW_NewFrame();
 #endif
@@ -340,6 +349,10 @@ static void update_metrics(Uint64 sleep_time) {
 }
 
 static void end_frame() {
+#if STATCHECK
+    TestRunner_Epilogue();
+#endif
+
     // Run sound processing
     ADX_ProcessTracks();
 
@@ -474,6 +487,7 @@ static int loop() {
 }
 
 int main(int argc, const char* argv[]) {
+    init_args(argc, argv);
     return loop();
 }
 

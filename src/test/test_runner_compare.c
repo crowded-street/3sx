@@ -1,4 +1,4 @@
-#if DEBUG
+#if STATCHECK
 
 #include "test/test_runner_compare.h"
 #include "arcade/arcade_constants.h"

@@ -1,19 +1,15 @@
-#if DEBUG
+#if STATCHECK
 
 #include "test/test_runner_utils.h"
-#include "main.h"
+#include "args.h"
 
-#include <SDL3/SDL_iostream.h>
-#include <SDL3/SDL_stdinc.h>
+#include <SDL3/SDL.h>
 
 const char* ram_path(int index) {
-    // const char* base_path = configuration.test.states_path;
-    // const char* result = NULL;
-    // SDL_asprintf(&result, "%s/frame_%08d.ram", base_path, index);
-    // return result;
-
-    // FIXME: Reimplement
-    return NULL;
+    const char* base_path = get_args()->statcheck.states_path;
+    const char* result = NULL;
+    SDL_asprintf(&result, "%s/frame_%08d.ram", base_path, index);
+    return result;
 }
 
 Uint8 read_u8(SDL_IOStream* io, Sint64 offset) {

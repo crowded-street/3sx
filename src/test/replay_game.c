@@ -1,4 +1,4 @@
-#if DEBUG
+#if STATCHECK
 
 #include "test/replay_game.h"
 #include "arcade/arcade_constants.h"

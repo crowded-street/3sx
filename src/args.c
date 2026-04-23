@@ -6,13 +6,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+static Args args = { 0 };
+
 static void error_out(const char* error) {
     fprintf(stderr, "%s Exiting.\n", error);
     exit(1);
 }
 
-static void verify_configuration(Configuration* configuration) {
-    const NetplayConfiguration* netplay = &configuration->netplay;
+static void verify_configuration(const Args* args) {
+#if NETPLAY_ENABLED
+    const NetplayArgs* netplay = &args->netplay;
     const bool p2p_specified = netplay->p2p_local_player > 0 || netplay->p2p_remote_ip != NULL;
     const bool matchmaking_specified = netplay->matchmaking_ip != NULL || netplay->matchmaking_port != 0;
 
@@ -39,29 +42,26 @@ static void verify_configuration(Configuration* configuration) {
             error_out("You must specify --matchmaking-port.");
         }
     }
+#endif
 }
 
-void read_args(int argc, const char* argv[], Configuration* configuration) {
+void init_args(int argc, const char* argv[]) {
     struct argparse_option options[] = {
         OPT_HELP(),
 
+#if NETPLAY_ENABLED
         OPT_GROUP("Netplay"),
-        OPT_INTEGER(0,
-                    "p2p-local-player",
-                    &configuration->netplay.p2p_local_player,
-                    "Number of the local player (1 or 2).",
-                    NULL,
-                    0,
-                    0),
-        OPT_STRING(0, "p2p-remote-ip", &configuration->netplay.p2p_remote_ip, "Remote player IP.", NULL, 0, 0),
-        OPT_STRING(0, "matchmaking-ip", &configuration->netplay.matchmaking_ip, "Matchmaking server IP.", NULL, 0, 0),
         OPT_INTEGER(
-            0, "matchmaking-port", &configuration->netplay.matchmaking_port, "Matchmaking server port.", NULL, 0, 0),
+            0, "p2p-local-player", &args.netplay.p2p_local_player, "Number of the local player (1 or 2).", NULL, 0, 0
+        ),
+        OPT_STRING(0, "p2p-remote-ip", &args.netplay.p2p_remote_ip, "Remote player IP.", NULL, 0, 0),
+        OPT_STRING(0, "matchmaking-ip", &args.netplay.matchmaking_ip, "Matchmaking server IP.", NULL, 0, 0),
+        OPT_INTEGER(0, "matchmaking-port", &args.netplay.matchmaking_port, "Matchmaking server port.", NULL, 0, 0),
+#endif
 
-#if DEBUG
-        OPT_GROUP("Test runner"),
-        OPT_BOOLEAN(0, "test-enable", &configuration->test.enabled, "Enable test runner.", NULL, 0, 0),
-        OPT_STRING(0, "test-states", &configuration->test.states_path, "Path to states.", NULL, 0, 0),
+#if STATCHECK
+        OPT_GROUP("Statcheck"),
+        OPT_STRING(0, "states", &args.statcheck.states_path, "Path to states.", NULL, 0, 0),
 #endif
 
         OPT_END(),
@@ -71,5 +71,9 @@ void read_args(int argc, const char* argv[], Configuration* configuration) {
     argparse_init(&argparse, options, NULL, 0);
     argparse_parse(&argparse, argc, argv);
 
-    verify_configuration(configuration);
+    verify_configuration(&args);
+}
+
+const Args* get_args() {
+    return &args;
 }

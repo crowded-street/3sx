@@ -1,7 +1,6 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include "configuration.h"
 #include "structs.h"
 #include "types.h"
 

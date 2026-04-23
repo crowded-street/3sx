@@ -1,4 +1,4 @@
-#if DEBUG
+#if STATCHECK
 
 #ifndef REPLAY_GAME_H
 #define REPLAY_GAME_H
