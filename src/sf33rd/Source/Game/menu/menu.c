@@ -532,14 +532,14 @@ void toSelectGame(struct _TASK* task_ptr) {
     case 8:
         imgSelectGameButton();
 
-        if (FadeOut(1, 0x19, 8) != 0) {
+        if (FadeOut(1, 25, 8) != 0) {
             if (task_ptr->free[0]) {
-                task_ptr->r_no[2] = 0xA;
+                task_ptr->r_no[2] = 10;
                 sound_all_off();
-                break;
+            } else {
+                task_ptr->r_no[2] = 9;
             }
 
-            task_ptr->r_no[2] = 9;
             break;
         }
 
@@ -559,10 +559,12 @@ void toSelectGame(struct _TASK* task_ptr) {
     case 10:
         Exit_sound_system();
         task_ptr->r_no[2] += 1;
+        FadeOut(1, 0xFF, 8);
         break;
 
     default:
         App_Exit();
+        FadeOut(1, 0xFF, 8);
         break;
     }
 }
