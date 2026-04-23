@@ -49,7 +49,7 @@ You should be able to build the project with just Xcode Command Line Tools.
 2. Build the game
 
     ```bash
-    CC=clang cmake -B build -DCMAKE_BUILD_TYPE=Release
+    CC=clang CXX=clang++ cmake -B build -DCMAKE_BUILD_TYPE=Release
     cmake --build build --parallel --config Release
     cmake --install build --prefix build/application
     ```
