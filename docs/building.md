@@ -54,4 +54,11 @@ You should be able to build the project with just Xcode Command Line Tools.
     cmake --install build --prefix build/application
     ```
 
+    For the dedicated static-analysis configuration, use `Statcheck` instead:
+
+    ```bash
+    CC=clang CXX=clang++ cmake -B build-statcheck -DCMAKE_BUILD_TYPE=Statcheck
+    cmake --build build-statcheck --parallel --config Statcheck
+    ```
+
 3. Copy from build/application to the desired location

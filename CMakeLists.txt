@@ -3,6 +3,24 @@ project(3sx LANGUAGES C CXX)
 
 include(${PROJECT_SOURCE_DIR}/cmake/imgui_sources.cmake)
 
+set(THREESX_CONFIGURATIONS Debug Release RelWithDebInfo MinSizeRel)
+if(NOT PSP)
+    list(APPEND THREESX_CONFIGURATIONS Statcheck)
+endif()
+
+get_property(THREESX_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if(THREESX_IS_MULTI_CONFIG)
+    set(CMAKE_CONFIGURATION_TYPES "${THREESX_CONFIGURATIONS}" CACHE STRING "Available build types" FORCE)
+else()
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "${THREESX_CONFIGURATIONS}")
+endif()
+
+set(CMAKE_C_FLAGS_STATCHECK "${CMAKE_C_FLAGS_DEBUG}")
+set(CMAKE_CXX_FLAGS_STATCHECK "${CMAKE_CXX_FLAGS_DEBUG}")
+set(CMAKE_EXE_LINKER_FLAGS_STATCHECK "${CMAKE_EXE_LINKER_FLAGS_DEBUG}")
+set(CMAKE_SHARED_LINKER_FLAGS_STATCHECK "${CMAKE_SHARED_LINKER_FLAGS_DEBUG}")
+set(CMAKE_MODULE_LINKER_FLAGS_STATCHECK "${CMAKE_MODULE_LINKER_FLAGS_DEBUG}")
+
 # ======================================
 # Options and platform setup
 # ======================================
@@ -59,6 +77,8 @@ else()
 
         $<$<CONFIG:Release>:RELEASE>
         $<$<CONFIG:Release>:CHECKSUM>
+        
+        $<$<CONFIG:Statcheck>:STATCHECK>
 
         # GekkoNet is a pre-built static lib; these were previously propagated by its cmake target
         GEKKONET_STATIC
@@ -72,7 +92,7 @@ else()
 
         ARCADE_ROM
         SOUND_ENABLED
-        IMGUI
+        $<$<CONFIG:Debug>:IMGUI>
 
         GL_SILENCE_DEPRECATION
     )
@@ -120,10 +140,10 @@ target_compile_options(3sx PRIVATE
 
     ${DISABLED_WARNINGS}
 
-    $<$<CONFIG:Debug>:-Wno-unused-function>
+    $<$<OR:$<CONFIG:Debug>,$<CONFIG:Statcheck>>:-Wno-unused-function>
     # $<$<CONFIG:Debug>:-Wno-unused-variable>
     -Wno-unused-variable
-    $<$<CONFIG:Debug>:-Wno-unused-but-set-variable>
+    $<$<OR:$<CONFIG:Debug>,$<CONFIG:Statcheck>>:-Wno-unused-but-set-variable>
 )
 
 if(PSP)
@@ -229,8 +249,8 @@ elseif(WIN32)
         iphlpapi
     )
     target_link_options(3sx PRIVATE
-        "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:--for-linker>"
-        "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:--pdb=3sx.pdb>"
+        "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>,$<CONFIG:Statcheck>>:--for-linker>"
+        "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>,$<CONFIG:Statcheck>>:--pdb=3sx.pdb>"
     )
 elseif(UNIX)
     target_link_libraries(3sx PRIVATE
@@ -302,7 +322,7 @@ elseif(WIN32)
 	)
 
     install(FILES
-        "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:${CMAKE_CURRENT_BINARY_DIR}/3sx.pdb>"
+        "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>,$<CONFIG:Statcheck>>:${CMAKE_CURRENT_BINARY_DIR}/3sx.pdb>"
         DESTINATION bin
     )
 
