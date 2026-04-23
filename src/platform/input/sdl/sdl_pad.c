@@ -228,8 +228,15 @@ bool SDLPad_IsGamepadConnected(int id) {
 }
 
 void SDLPad_GetButtonState(int id, Input_ButtonState* state) {
-    SDL_assert(state != NULL);
-    SDL_assert(SDLPad_IsGamepadConnected(id));
+    if (state == NULL) {
+        return;
+    }
+
+    SDL_zerop(state);
+
+    if (!SDLPad_IsGamepadConnected(id)) {
+        return;
+    }
 
     if (id == keyboard_index) {
         get_keyboard_state(state);
