@@ -4,6 +4,7 @@
 #include "arcade/arcade_constants.h"
 #include "constants.h"
 #include "main.h"
+#include "platform/input/statcheck/statcheck_input.h"
 #include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
@@ -54,6 +55,7 @@ static int inputs_index = 0;
 static int comparison_index = 0;
 static bool initialized = false;
 static ReplayGame game;
+static Uint16 input_buffers[2] = { 0 };
 
 static SDL_IOStream* io_at_index(int index) {
     const char* path = ram_path(index);
@@ -69,13 +71,11 @@ static void set_cursor(Character character, int player) {
 
 /// Repeatedly press and release a button
 static void mash_button(SWKey button, int player) {
-    u16* dst = player ? &p2sw_buff : &p1sw_buff;
-    *dst |= (frame & 1) ? button : 0;
+    input_buffers[player] |= (frame & 1) ? button : 0;
 }
 
 static void tap_button(SWKey button, int player) {
-    u16* dst = player ? &p2sw_buff : &p1sw_buff;
-    *dst |= button;
+    input_buffers[player] |= button;
 }
 
 static void initialize_data() {
@@ -101,9 +101,31 @@ static void finish() {
     exit(0);
 }
 
+static void apply_input_buffer(int id, Uint16 input) {
+    Input_ButtonState state = { 0 };
+
+    state.south = (input & SWK_SOUTH) ? true : false;
+    state.east = (input & SWK_EAST) ? true : false;
+    state.west = (input & SWK_WEST) ? true : false;
+    state.north = (input & SWK_NORTH) ? true : false;
+    state.back = (input & SWK_BACK) ? true : false;
+    state.start = (input & SWK_START) ? true : false;
+    state.left_stick = (input & SWK_LEFT_STICK) ? true : false;
+    state.right_stick = (input & SWK_RIGHT_STICK) ? true : false;
+    state.left_shoulder = (input & SWK_LEFT_SHOULDER) ? true : false;
+    state.right_shoulder = (input & SWK_RIGHT_SHOULDER) ? true : false;
+    state.left_trigger = (input & SWK_LEFT_TRIGGER) ? SDL_MAX_SINT16 : 0;
+    state.right_trigger = (input & SWK_RIGHT_TRIGGER) ? SDL_MAX_SINT16 : 0;
+    state.dpad_up = (input & SWK_UP) ? true : false;
+    state.dpad_down = (input & SWK_DOWN) ? true : false;
+    state.dpad_left = (input & SWK_LEFT) ? true : false;
+    state.dpad_right = (input & SWK_RIGHT) ? true : false;
+
+    StatcheckInput_SetButtonState(id, &state);
+}
+
 void TestRunner_Prologue() {
-    p1sw_buff = 0;
-    p2sw_buff = 0;
+    SDL_zeroa(input_buffers);
 
     if (!initialized) {
         initialize_data();
@@ -205,8 +227,8 @@ void TestRunner_Prologue() {
 
     case PHASE_GAME:
         const ReplayInput input = game.inputs[inputs_index];
-        p1sw_buff = input.p1;
-        p2sw_buff = input.p2;
+        input_buffers[0] = input.p1;
+        input_buffers[1] = input.p2;
         inputs_index += 1;
 
         if (need_to_finish()) {
@@ -215,6 +237,9 @@ void TestRunner_Prologue() {
 
         break;
     }
+
+    apply_input_buffer(0, input_buffers[0]);
+    apply_input_buffer(1, input_buffers[1]);
 }
 
 void TestRunner_Epilogue() {
