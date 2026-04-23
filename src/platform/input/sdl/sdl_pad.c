@@ -1,3 +1,5 @@
+#if CRS_INPUT_DRIVER_SDL
+
 #include "platform/input/sdl/sdl_pad.h"
 #include "core/input.h"
 #include "port/config/keymap.h"
@@ -249,3 +251,5 @@ void SDLPad_RumblePad(int id, bool low_freq_enabled, Uint8 high_freq_rumble) {
 
     SDL_RumbleGamepad(input_source->gamepad.gamepad, low_freq_rumble, high_freq_rumble_adjusted, duration);
 }
+
+#endif // CRS_INPUT_DRIVER_SDL

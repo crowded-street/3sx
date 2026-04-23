@@ -50,6 +50,7 @@ if(PSP)
 
         CRS_APP_DRIVER_PSP
         CRS_VIDEO_DRIVER_PSP
+        CRS_INPUT_DRIVER_SDL
     )
 else()
     target_compile_definitions(3sx PRIVATE
@@ -67,6 +68,7 @@ else()
         CRS_VIDEO_DRIVER_SDL_GENERIC
         CRS_VIDEO_DRIVER_SDL_GPU
         CRS_VIDEO_DRIVER_OPENGL
+        CRS_INPUT_DRIVER_SDL
 
         ARCADE_ROM
         SOUND_ENABLED
