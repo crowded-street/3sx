@@ -23,6 +23,7 @@ typedef struct Args {
 #if STATCHECK
     StatcheckArgs statcheck;
 #endif
+    char dummy; /// A dummy value to make compiler stop complaining about "excess elements in struct initializer"
 } Args;
 
 void init_args(int argc, const char* argv[]);
