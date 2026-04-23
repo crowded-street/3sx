@@ -20,7 +20,7 @@ static ImDrawData* draw_data = NULL;
 static void plot(const char* label, const float* values, int value_count, int values_offset, ImVec2 scale) {
     const int last_index = (values_offset + value_count - 1) % value_count;
     const float last_value = values[last_index];
-    const char overlay[128];
+    const char overlay[128] = { 0 };
     SDL_snprintf(overlay, sizeof(overlay), "%.02f", last_value);
 
     ImGui_PlotLinesEx(

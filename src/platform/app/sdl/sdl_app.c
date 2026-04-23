@@ -35,6 +35,7 @@
 #include <windef.h>
 
 #include <ConsoleApi.h>
+#include <stdio.h>
 #endif
 
 typedef enum ScaleMode {
