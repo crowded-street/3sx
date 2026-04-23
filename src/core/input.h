@@ -1,10 +1,10 @@
-#ifndef PORT_INPUT_BACKEND_H
-#define PORT_INPUT_BACKEND_H
+#ifndef CORE_INPUT_H
+#define CORE_INPUT_H
 
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef struct InputBackend_ButtonState {
+typedef struct Input_ButtonState {
     bool south;
     bool east;
     bool west;
@@ -25,12 +25,12 @@ typedef struct InputBackend_ButtonState {
     int16_t left_stick_y;
     int16_t right_stick_x;
     int16_t right_stick_y;
-} InputBackend_ButtonState;
+} Input_ButtonState;
 
-void InputBackend_Init();
-void InputBackend_HandleGamepadDeviceEvent(const void* event);
-bool InputBackend_IsGamepadConnected(int id);
-void InputBackend_GetButtonState(int id, InputBackend_ButtonState* state);
-void InputBackend_RumblePad(int id, bool low_freq_enabled, uint8_t high_freq_rumble);
+void Input_Init();
+void Input_HandleGamepadDeviceEvent(const void* event);
+bool Input_IsGamepadConnected(int id);
+void Input_GetButtonState(int id, Input_ButtonState* state);
+void Input_RumblePad(int id, bool low_freq_enabled, uint8_t high_freq_rumble);
 
 #endif

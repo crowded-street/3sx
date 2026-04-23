@@ -1,4 +1,4 @@
-#include "port/input_backend.h"
+#include "core/input.h"
 
 #include "port/sdl/sdl_pad.h"
 
@@ -6,19 +6,19 @@
 
 #include <string.h>
 
-void InputBackend_Init() {
+void Input_Init() {
     SDLPad_Init();
 }
 
-void InputBackend_HandleGamepadDeviceEvent(const void* event) {
+void Input_HandleGamepadDeviceEvent(const void* event) {
     SDLPad_HandleGamepadDeviceEvent((SDL_GamepadDeviceEvent*)event);
 }
 
-bool InputBackend_IsGamepadConnected(int id) {
+bool Input_IsGamepadConnected(int id) {
     return SDLPad_IsGamepadConnected(id);
 }
 
-void InputBackend_GetButtonState(int id, InputBackend_ButtonState* state) {
+void Input_GetButtonState(int id, Input_ButtonState* state) {
     SDLPad_ButtonState sdl_state;
 
     if (state == NULL) {
@@ -27,7 +27,7 @@ void InputBackend_GetButtonState(int id, InputBackend_ButtonState* state) {
 
     memset(state, 0, sizeof(*state));
 
-    if (!InputBackend_IsGamepadConnected(id)) {
+    if (!Input_IsGamepadConnected(id)) {
         return;
     }
 
@@ -56,6 +56,6 @@ void InputBackend_GetButtonState(int id, InputBackend_ButtonState* state) {
     state->right_stick_y = sdl_state.right_stick_y;
 }
 
-void InputBackend_RumblePad(int id, bool low_freq_enabled, uint8_t high_freq_rumble) {
+void Input_RumblePad(int id, bool low_freq_enabled, uint8_t high_freq_rumble) {
     SDLPad_RumblePad(id, low_freq_enabled, high_freq_rumble);
 }

@@ -1,8 +1,8 @@
 #if CRS_APP_DRIVER_PSP
 
+#include "core/input.h"
 #include "main.h"
 #include "platform/video/psp/psp_renderer.h"
-#include "port/input_backend.h"
 #include "port/io/afs.h"
 #include "port/resources.h"
 
@@ -22,7 +22,7 @@ static bool init() {
         return false;
     }
 
-    InputBackend_Init();
+    Input_Init();
     AFS_Init(Resources_GetAFSPath(), 16 * 1024);
     PSPRenderer_Init();
     Main_Init();
@@ -37,7 +37,7 @@ static bool poll_sdl_events() {
         switch (event.type) {
         case SDL_EVENT_GAMEPAD_ADDED:
         case SDL_EVENT_GAMEPAD_REMOVED:
-            InputBackend_HandleGamepadDeviceEvent(&event.gdevice);
+            Input_HandleGamepadDeviceEvent(&event.gdevice);
             break;
 
         case SDL_EVENT_QUIT:
