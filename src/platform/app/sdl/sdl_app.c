@@ -4,12 +4,12 @@
 #include "arcade/arcade_balance.h"
 #include "common.h"
 #include "main.h"
+#include "platform/input/sdl/sdl_pad.h"
 #include "platform/video/sdl_generic/sdl_generic_renderer.h"
 #include "port/config/config.h"
 #include "port/config/keymap.h"
 #include "port/sdl/sdl_debug_text.h"
 #include "port/sdl/sdl_message_renderer.h"
-#include "port/sdl/sdl_pad.h"
 #include "port/sound/adx.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 

@@ -1,10 +1,10 @@
 #if CRS_APP_DRIVER_PSP
 
 #include "main.h"
+#include "platform/input/sdl/sdl_pad.h"
 #include "platform/video/psp/psp_renderer.h"
 #include "port/io/afs.h"
 #include "port/resources.h"
-#include "port/sdl/sdl_pad.h"
 
 #include <SDL3/SDL.h>
 #include <pspuser.h>

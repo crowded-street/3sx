@@ -1,6 +1,6 @@
 #include "core/input.h"
 
-#include "port/sdl/sdl_pad.h"
+#include "platform/input/sdl/sdl_pad.h"
 
 #include <SDL3/SDL.h>
 
