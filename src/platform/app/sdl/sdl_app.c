@@ -4,7 +4,6 @@
 #include "arcade/arcade_balance.h"
 #include "common.h"
 #include "main.h"
-#include "platform/input/sdl/sdl_pad.h"
 #include "platform/video/sdl_generic/sdl_generic_renderer.h"
 #include "port/config/config.h"
 #include "port/config/keymap.h"
@@ -12,6 +11,10 @@
 #include "port/sdl/sdl_message_renderer.h"
 #include "port/sound/adx.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
+
+#if CRS_INPUT_DRIVER_SDL
+#include "platform/input/sdl/sdl_pad.h"
+#endif
 
 #if NETPLAY_ENABLED
 #include "port/sdl/netplay_screen.h"
@@ -152,12 +155,14 @@ static int full_init() {
         return 1;
     }
 
-    // #if DEBUG
-    //     SDLDebugText_Initialize(renderer);
-    // #endif
+// #if DEBUG
+//     SDLDebugText_Initialize(renderer);
+// #endif
 
-    // Initialize pads
+// Initialize pads
+#if CRS_INPUT_DRIVER_SDL
     SDLPad_Init();
+#endif
 
 #if _WIN32 && DEBUG
     init_windows_console();
@@ -231,7 +236,9 @@ static bool poll_events() {
         switch (event.type) {
         case SDL_EVENT_GAMEPAD_ADDED:
         case SDL_EVENT_GAMEPAD_REMOVED:
+#if CRS_INPUT_DRIVER_SDL
             SDLPad_HandleGamepadDeviceEvent(&event.gdevice);
+#endif
             break;
 
         case SDL_EVENT_KEY_DOWN:
