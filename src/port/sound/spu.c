@@ -1,3 +1,5 @@
+#ifdef CRS_AUDIO_DRIVER_SOFT
+
 #include "port/sound/spu.h"
 
 #include "common.h"
@@ -9,8 +11,6 @@
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 #define clamp(val, min, max) (((val) > (max)) ? (max) : (((val) < (min)) ? (min) : (val)))
-
-#define VOICE_COUNT 48
 
 #include "interp_table.inc"
 
@@ -59,9 +59,10 @@ struct SPU_Voice {
 
 SDL_Mutex* soundLock;
 
+static void SPU_Tick(s16* output);
 static void (*timer_cb)();
 static SDL_AudioStream* stream;
-static struct SPU_Voice voices[VOICE_COUNT];
+static struct SPU_Voice voices[SPU_VOICE_COUNT];
 static u16 ram[(2 * 1024 * 1024) >> 1];
 static s16 adpcm_coefs[5][2] = {
     { 0, 0 }, { 60, 0 }, { 115, -52 }, { 98, -55 }, { 122, -60 },
@@ -269,16 +270,6 @@ void SPU_VoiceStop(int vnum) {
     voices[vnum].run = false;
 }
 
-void SPU_VoiceGetConf(int vnum, struct SPUVConf* conf) {
-    struct SPU_Voice* v = &voices[vnum];
-
-    conf->pitch = v->pitch;
-    conf->voll = v->voll;
-    conf->volr = v->volr;
-    conf->adsr1 = v->adsr1;
-    conf->adsr2 = v->adsr2;
-}
-
 void SPU_VoiceSetConf(int vnum, struct SPUVConf* conf) {
     struct SPU_Voice* v = &voices[vnum];
 
@@ -377,12 +368,12 @@ void SPU_Upload(u32 dst, void* src, u32 size) {
     SDL_UnlockMutex(soundLock);
 }
 
-void SPU_Tick(s16* output) {
+static void SPU_Tick(s16* output) {
     struct SPU_Voice* v;
     s32 acc[2] = {};
     s32 vout[2] = {};
 
-    for (int i = 0; i < VOICE_COUNT; i++) {
+    for (int i = 0; i < SPU_VOICE_COUNT; i++) {
         v = &voices[i];
 
         if (v->run) {
@@ -396,3 +387,5 @@ void SPU_Tick(s16* output) {
     output[0] = clamp(acc[0], INT16_MIN, INT16_MAX);
     output[1] = clamp(acc[1], INT16_MIN, INT16_MAX);
 }
+
+#endif

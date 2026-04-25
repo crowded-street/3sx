@@ -58,7 +58,7 @@ static short masterVolume;
 static short assignedBankVolume[16];
 static short bankVolume[16];
 
-static struct VWork vpool[48];
+static struct VWork vpool[SPU_VOICE_COUNT];
 
 static LIST_HEAD(active_voices);
 static LIST_HEAD(free_voices);
@@ -207,7 +207,7 @@ void emlShimInit() {
         assignedBankVolume[i] = 0x3fff;
     }
 
-    for (int i = 0; i < 48; i++) {
+    for (int i = 0; i < SPU_VOICE_COUNT; i++) {
         vpool[i].voice_num = i;
         list_init(&vpool[i].list);
         list_insert(&free_voices, &vpool[i].list);
