@@ -37,7 +37,7 @@ typedef struct memcard_work {
     s32 free[3];
     u32 new;
     s8 dir[34];
-    s8 path[66];
+    s8 path[512];
     s32 fd;
     s32 flag;
     s32 size;

@@ -1806,7 +1806,7 @@ static void self_order_get(_save_work* save) {
     u32 n;
     u32 f;
     memcard_date* md[2];
-    s8 s[2][16];
+    s8 s[2][32];
 
     n = save->sel_file_max;
     o = save->sel_file_order;

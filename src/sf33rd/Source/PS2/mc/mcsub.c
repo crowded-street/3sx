@@ -82,7 +82,7 @@ static act_jmp_ptr mc_act_jmp[11] = { mc_act_stop,   mc_act_check,  mc_act_exist
 
 memcard_work MemcardWork;
 sceMcTblGetDir mc_dir;
-s8 mc_path[64];
+s8 mc_path[128];
 
 void MemcardInit() {
     s32 ret;
