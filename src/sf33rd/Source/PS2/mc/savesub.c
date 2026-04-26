@@ -1334,7 +1334,9 @@ static void auto_load_set(_save_work* save) {
     } else {
         for (i = 0; i < 2; i++) {
             md = &save->auto_date[i];
-            sprintf(s[i], "%04d%02d%02d%02d%02d%02d", md->year, md->month, md->day, md->hour, md->min, md->sec);
+            snprintf(
+                s[i], sizeof(s[i]), "%04d%02d%02d%02d%02d%02d", md->year, md->month, md->day, md->hour, md->min, md->sec
+            );
         }
 
         save->sel_slot_no = (strcmp(s[0], s[1]) >= 0) ? 0 : 1;
@@ -1826,14 +1828,17 @@ static void self_order_get(_save_work* save) {
                 md[1] = (struct memcard_date*)&save->info[o[j]];
 
                 for (k = 0; k < 2; k++) {
-                    sprintf(s[k],
-                            "%04d%02d%02d%02d%02d%02d",
-                            md[k]->year,
-                            md[k]->month,
-                            md[k]->day,
-                            md[k]->hour,
-                            md[k]->min,
-                            md[k]->sec);
+                    snprintf(
+                        s[k],
+                        sizeof(s[k]),
+                        "%04d%02d%02d%02d%02d%02d",
+                        md[k]->year,
+                        md[k]->month,
+                        md[k]->day,
+                        md[k]->hour,
+                        md[k]->min,
+                        md[k]->sec
+                    );
                 }
 
                 if (strcmp(s[0], s[1]) < 0) {
@@ -2305,14 +2310,16 @@ static void save_file_trans(_save_work* save) {
             KnjPrintf("[FILE %02d]  ", val);
 
             if (md->dayofweek < 254) {
-                KnjPrintf("%04d-%02d-%02d %02d:%02d:%02d (%s)",
-                          md->year,
-                          md->month,
-                          md->day,
-                          md->hour,
-                          md->min,
-                          md->sec,
-                          week_str[md->dayofweek]);
+                KnjPrintf(
+                    "%04d-%02d-%02d %02d:%02d:%02d (%s)",
+                    md->year,
+                    md->month,
+                    md->day,
+                    md->hour,
+                    md->min,
+                    md->sec,
+                    week_str[md->dayofweek]
+                );
 
                 if (save->file_type == 2) {
                     KnjPrintf("  %s vs %s", pl_name[info->player[0]], pl_name[info->player[1]]);
@@ -2406,7 +2413,7 @@ static void save_msg_trans(_save_work* save) {
         y = 192;
         KnjLocate(x, y - 44);
         KnjPuts("MESSAGE No = ");
-        sprintf(tmp, "%" PRId32, no);
+        snprintf(tmp, sizeof(tmp), "%" PRId32, no);
         KnjSetColor(0x80008080);
         KnjPuts(tmp);
         KnjSetColor(0x80808080);
@@ -2451,7 +2458,7 @@ static void save_msg_trans(_save_work* save) {
             if (MsgLanguage == 0) {
                 McActZenNum(save->avail_size, tmp2, 0, 0);
             } else {
-                sprintf(tmp2, "%" PRId32, save->avail_size);
+                snprintf(tmp2, sizeof(tmp2), "%" PRId32, save->avail_size);
             }
 
             strcat(buf, tmp2);

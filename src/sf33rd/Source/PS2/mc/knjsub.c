@@ -552,7 +552,7 @@ void KnjPrintf(const s8* fmt, ...) {
 
     va_start(args, fmt);
     p = s;
-    p += vsprintf(s, fmt, args);
+    p += vsnprintf(s, sizeof(s), fmt, args);
     *p = 0;
     KnjPuts(s);
 }

@@ -555,7 +555,7 @@ static s32 mc_delete_dir(memcard_work* mw) {
         mw->cnt_1 = 0;
 
     block_8:
-        sprintf(mc_path, "%s/*", mw->path);
+        snprintf(mc_path, sizeof(mc_path), "%s/*", mw->path);
         mw->r_no_1 = 1;
 
     case 1:
@@ -589,12 +589,12 @@ static s32 mc_delete_dir(memcard_work* mw) {
             goto block_8;
         }
 
-        sprintf(mc_path, "%s/%s", mw->path, mc_dir.EntryName);
+        snprintf(mc_path, sizeof(mc_path), "%s/%s", mw->path, mc_dir.EntryName);
         mw->mode = 0;
         goto block_19;
 
     block_18:
-        sprintf(mc_path, "%s", mw->path);
+        snprintf(mc_path, sizeof(mc_path), "%s", mw->path);
         mw->mode = 1;
 
     block_19:
@@ -677,7 +677,7 @@ void McActInit(s32 file_type, s32 file_no) {
     strcpy(mw->dir, mf->file[4].name);
 
     if (mf->fnum_flag & 1) {
-        sprintf(tmp, "%02" PRId32, file_no);
+        snprintf(tmp, sizeof(tmp), "%02" PRId32, file_no);
         strcat(mw->dir, tmp);
     }
 }
@@ -736,11 +736,11 @@ void McActExistSet(s32 port, void* bufs) {
     mw->bufs = bufs;
 
     if (mf->file[5].flag == 0) {
-        sprintf(mw->path, "%s/%s", mw->dir, mw->dir);
+        snprintf(mw->path, sizeof(mw->path), "%s/%s", mw->dir, mw->dir);
         mw->size = mf->file[4].size;
         mw->mode = 0;
     } else {
-        sprintf(mw->path, "%s/%s", mw->dir, mf->file[5].name);
+        snprintf(mw->path, sizeof(mw->path), "%s/%s", mw->dir, mf->file[5].name);
         mw->size = mf->file[5].size;
         mw->mode = 1;
     }
@@ -858,7 +858,7 @@ void McActLoadSet(s32 port, void* bufs) {
     mw->r_no_1 = 0;
     mw->port = port;
     mw->bufs = bufs;
-    sprintf(mw->path, "%s/%s", mw->dir, mw->dir);
+    snprintf(mw->path, sizeof(mw->path), "%s/%s", mw->dir, mw->dir);
     mw->size = mf->file[4].size;
 }
 
@@ -936,7 +936,7 @@ void McActSave0Set(s32 port, void* bufs, s32 mode) {
     mw->port = port;
     mw->bufs = bufs;
     mw->mode = mode;
-    sprintf(mw->path, "%s/%s", mw->dir, mw->dir);
+    snprintf(mw->path, sizeof(mw->path), "%s/%s", mw->dir, mw->dir);
     mw->size = mf->file[4].size;
     memset(bufs, 0, mw->size);
 }
@@ -1053,7 +1053,7 @@ void McActSaveSet(s32 port, void* bufs) {
     mw->r_no_1 = 0;
     mw->cnt_0 = 0;
     mw->port = port;
-    sprintf(mw->path, "%s/%s", mw->dir, mw->dir);
+    snprintf(mw->path, sizeof(mw->path), "%s/%s", mw->dir, mw->dir);
     mw->size = mf->file[4].size;
     mf->file[4].bufs = (intptr_t)bufs;
     mf->file[5].bufs = (intptr_t)bufs + mw->size;
@@ -1078,7 +1078,7 @@ static void mc_act_save(memcard_work* mw) {
         case 2:
             mw->r_no_0 += 1;
             mc_icon_sys_set(mw);
-            sprintf(mw->path, "%s", mw->dir);
+            snprintf(mw->path, sizeof(mw->path), "%s", mw->dir);
             mw->copy = mf->copy_flag;
             break;
         }
@@ -1106,7 +1106,7 @@ static void mc_act_save(memcard_work* mw) {
             goto block_57;
         }
 
-        sprintf(mw->path, "%s/", mw->dir);
+        snprintf(mw->path, sizeof(mw->path), "%s/", mw->dir);
 
         if (mw->cnt_0 == 4) {
             strcat(mw->path, mw->dir);
@@ -1435,10 +1435,9 @@ s32 McActAvailSet(s32* ico) {
     cluster += 2;
     mf->req_clust = cluster;
 
-    printf("McActAvailSet(%" PRId32 ") = %" PRId32 " clusters (%" PRId32 " byte).\n",
-           mw->file_type,
-           cluster,
-           cluster << 10);
+    printf(
+        "McActAvailSet(%" PRId32 ") = %" PRId32 " clusters (%" PRId32 " byte).\n", mw->file_type, cluster, cluster << 10
+    );
 
     return cluster;
 }
@@ -1558,7 +1557,7 @@ static void mc_icon_sys_set(memcard_work* mw) {
 
     isys = (sceMcIconSys*)mf->file[0].bufs;
     isys->OffsLF = strlen(mf->title1);
-    sprintf((s8*)isys->TitleName, "%s%s", mf->title1, mf->title2);
+    snprintf((s8*)isys->TitleName, sizeof(isys->TitleName), "%s%s", mf->title1, mf->title2);
 
     if (mf->fnum_flag & 2) {
         McActZenNum(mw->file_no, tmp, 1, 2);

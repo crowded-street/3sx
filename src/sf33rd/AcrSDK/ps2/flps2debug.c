@@ -1,5 +1,6 @@
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "common.h"
+#include "port/utils.h"
 #include "sf33rd/AcrSDK/common/memfound.h"
 #include "sf33rd/AcrSDK/common/mlPAD.h"
 #include "sf33rd/AcrSDK/ps2/flps2etc.h"
@@ -33,7 +34,7 @@ s32 flPrintL(s32 posi_x, s32 posi_y, const s8* format, ...) {
     buff_ptr += flDebugStrCtr;
 
     va_start(args, format);
-    vsprintf(str, format, args);
+    vsnprintf(str, sizeof(str), format, args);
     len = strlen(str);
 
     if (flDebugStrCtr + len >= 0x12C0) {
@@ -82,25 +83,8 @@ void flPS2SystemError(s32 error_level, s8* format, ...) {
     va_list args;
     s8 str[512];
 
-    flFlip(0);
     va_start(args, format);
-    vsprintf(str, format, args);
+    vsnprintf(str, sizeof(str), format, args);
 
-    while (1) {
-        flPrintL(10, 20, "%s", str);
-
-        if (error_level == 0) {
-            flSetRenderState(FLRENDER_BACKCOLOR, 0xFF0000);
-        } else {
-            flSetRenderState(FLRENDER_BACKCOLOR, 0xFF);
-            flPrintL(10, 40, "PRESS 1P START BUTTON TO EXIT");
-
-            if (flpad_adr[0][0].sw_new & 0x8000) {
-                break;
-            }
-        }
-
-        flFlip(0);
-        flPADGetALL();
-    }
+    fatal_error("%s", str);
 }
