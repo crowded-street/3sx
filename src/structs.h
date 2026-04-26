@@ -1807,6 +1807,7 @@ typedef struct {
     u16 adsr2;
     u32 freq;
     u32 s_addr;
+    u32 s_size;
 } CSE_PHDP;
 
 typedef struct {

@@ -65,9 +65,8 @@ void SPU_Upload(u32 dst, void* src, u32 size) {
     memcpy(&ram[dst >> 1], src, size);
 }
 
-void SPU_VoiceStart(int vnum, u32 start_addr) {
-    // HACK: we don't have the vag size on hand, doesn't seem to be used far ADPCM (on ppssspp at least)
-    __sceSasSetVoice(&core, vnum, &ram[start_addr], sizeof(ram), 1);
+void SPU_VoiceStart(int vnum, u32 start_addr, u32 size) {
+    __sceSasSetVoice(&core, vnum, &ram[start_addr], size, 1);
     __sceSasSetKeyOn(&core, vnum);
 }
 

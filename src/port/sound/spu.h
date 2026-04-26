@@ -10,7 +10,7 @@ extern SDL_Mutex* soundLock;
 
 void SPU_Init(void (*cb)());
 void SPU_Upload(u32 dst, void* src, u32 size);
-void SPU_VoiceStart(int vnum, u32 start_addr);
+void SPU_VoiceStart(int vnum, u32 start_addr, u32 size);
 void SPU_VoiceSetPitch(int vnum, int pitch);
 void SPU_VoiceSetVolume(int vnum, int voll, int volr);
 void SPU_VoiceSetADSR(int vnum, u16 adsr1, u16 adsr2);

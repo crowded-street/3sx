@@ -290,9 +290,11 @@ void SPU_VoiceSetADSR(int vnum, u16 adsr1, u16 adsr2) {
     v->adsr2 = adsr2;
 }
 
-void SPU_VoiceStart(int vnum, u32 start_addr) {
+void SPU_VoiceStart(int vnum, u32 start_addr, u32 size) {
     struct SPU_Voice* v = &voices[vnum];
     u16 header;
+
+    (void)size;
 
     v->ssa = start_addr;
     v->lsa = start_addr;

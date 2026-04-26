@@ -487,7 +487,7 @@ void emlShimStartSound(CSE_SYS_PARAM_SNDSTART* param) {
 
     UpdateVolPanPitch(voice);
 
-    SPU_VoiceStart(voice->voice_num, param->phdp.s_addr >> 1);
+    SPU_VoiceStart(voice->voice_num, param->phdp.s_addr >> 1, param->phdp.s_size);
 
     SDL_UnlockMutex(soundLock);
 }
