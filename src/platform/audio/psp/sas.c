@@ -66,21 +66,30 @@ void SPU_Upload(u32 dst, void* src, u32 size) {
 }
 
 void SPU_VoiceStart(int vnum, u32 start_addr) {
-
     // HACK: we don't have the vag size on hand, doesn't seem to be used far ADPCM (on ppssspp at least)
     __sceSasSetVoice(&core, vnum, &ram[start_addr], sizeof(ram), 1);
     __sceSasSetKeyOn(&core, vnum);
 }
 
 void SPU_VoiceSetPitch(int vnum, int pitch) {
-    __sceSasSetPitch(&core, vnum, 48000 * pitch / 44100);
+    // PS2 is 48khz, psp is 44.1, scaling like this should work afaik
+    pitch = 48000 * pitch / 44100;
+
+    __sceSasSetPitch(&core, vnum, pitch);
 }
 
 void SPU_VoiceSetVolume(int vnum, int voll, int volr) {
-    __sceSasSetVolume(&core, vnum, (0x1000 * voll) / 0x3fff, (0x1000 * volr) / 0x3fff, 0, 0);
+    // Scale the volumes from 0 - 0x3fff to 0 - 0x1000
+    voll = (0x1000 * voll) / 0x3fff;
+    volr = (0x1000 * volr) / 0x3fff;
+
+    __sceSasSetVolume(&core, vnum, voll, volr, 0, 0);
 }
 
 void SPU_VoiceSetADSR(int vnum, u16 adsr1, u16 adsr2) {
+    // I'm assuming the they're not going to match the ps2 exactly
+    // but I don't have a method for scaling them at the moment.
+
     __sceSasSetSimpleADSR(&core, vnum, adsr1, adsr2);
 }
 
