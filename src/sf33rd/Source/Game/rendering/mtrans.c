@@ -215,29 +215,33 @@ void mlt_obj_disp(MultiTexture* mt, WORK* wk, s32 base_y) {
                 DebugLine(x - (dw & ((s16)attr >> 0x10)), y + (dh & ((s16)(attr * 2) >> 16)), dw, dh);
             }
 
-            rnum = seqsStoreChip(x - (dw * BOOL(attr & 0x8000)),
-                                 y + (dh * BOOL(attr & 0x4000)),
-                                 dw,
-                                 dh,
-                                 mt->mltgidx16,
-                                 trsptr->code,
-                                 palo + ((trsptr->attr ^ attr) & 0xE00F),
-                                 wk->my_clear_level,
-                                 mt->id);
+            rnum = seqsStoreChip(
+                x - (dw * BOOL(attr & 0x8000)),
+                y + (dh * BOOL(attr & 0x4000)),
+                dw,
+                dh,
+                mt->mltgidx16,
+                trsptr->code,
+                palo + ((trsptr->attr ^ attr) & 0xE00F),
+                wk->my_clear_level,
+                mt->id
+            );
         } else {
             if (Debug_w[0x10]) {
                 DebugLine(x - (dw & ((s16)attr >> 0x10)), y + (dh & ((s16)(attr * 2) >> 16)), dw, dh);
             }
 
-            rnum = seqsStoreChip(x - dw * BOOL(attr & 0x8000),
-                                 y + dh * BOOL(attr & 0x4000),
-                                 dw,
-                                 dh,
-                                 mt->mltgidx32,
-                                 trsptr->code,
-                                 palo + ((trsptr->attr ^ attr) & 0xE00F),
-                                 wk->my_clear_level,
-                                 mt->id);
+            rnum = seqsStoreChip(
+                x - dw * BOOL(attr & 0x8000),
+                y + dh * BOOL(attr & 0x4000),
+                dw,
+                dh,
+                mt->mltgidx32,
+                trsptr->code,
+                palo + ((trsptr->attr ^ attr) & 0xE00F),
+                wk->my_clear_level,
+                mt->id
+            );
         }
 
         if (rnum == 0) {
@@ -315,29 +319,33 @@ void mlt_obj_disp_rgb(MultiTexture* mt, WORK* wk, s32 base_y) {
                 DebugLine(x - (dw & ((s16)attr >> 0x10)), y + (dh & ((s16)(attr * 2) >> 16)), dw, dh);
             }
 
-            rnum = seqsStoreChip(x - (dw * BOOL(attr & 0x8000)),
-                                 y + (dh * BOOL(attr & 0x4000)),
-                                 dw,
-                                 dh,
-                                 mt->mltgidx16,
-                                 trsptr->code,
-                                 (trsptr->attr ^ attr) & 0xE000,
-                                 wk->my_clear_level,
-                                 mt->id);
+            rnum = seqsStoreChip(
+                x - (dw * BOOL(attr & 0x8000)),
+                y + (dh * BOOL(attr & 0x4000)),
+                dw,
+                dh,
+                mt->mltgidx16,
+                trsptr->code,
+                (trsptr->attr ^ attr) & 0xE000,
+                wk->my_clear_level,
+                mt->id
+            );
         } else {
             if (Debug_w[0x10]) {
                 DebugLine(x - (dw & ((s16)attr >> 0x10)), y + (dh & ((s16)(attr * 2) >> 16)), dw, dh);
             }
 
-            rnum = seqsStoreChip(x - (dw * BOOL(attr & 0x8000)),
-                                 y + (dh * BOOL(attr & 0x4000)),
-                                 dw,
-                                 dh,
-                                 mt->mltgidx32,
-                                 trsptr->code,
-                                 (trsptr->attr ^ attr) & 0xE000,
-                                 wk->my_clear_level,
-                                 mt->id);
+            rnum = seqsStoreChip(
+                x - (dw * BOOL(attr & 0x8000)),
+                y + (dh * BOOL(attr & 0x4000)),
+                dw,
+                dh,
+                mt->mltgidx32,
+                trsptr->code,
+                (trsptr->attr ^ attr) & 0xE000,
+                wk->my_clear_level,
+                mt->id
+            );
         }
 
         if (rnum == 0) {
@@ -494,15 +502,17 @@ void mlt_obj_trans_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
                         DebugLine(x - (dw & ((s16)attr >> 0x10)), y + (dh & ((s16)(attr * 2) >> 16)), dw, dh);
                     }
 
-                    rnum = seqsStoreChip(x - (dw * BOOL(attr & 0x8000)),
-                                         y + (dh * BOOL(attr & 0x4000)),
-                                         dw,
-                                         dh,
-                                         mt->mltgidx16,
-                                         code,
-                                         palo | ((trsptr->attr ^ attr) & 0xC000),
-                                         wk->my_clear_level,
-                                         mt->id);
+                    rnum = seqsStoreChip(
+                        x - (dw * BOOL(attr & 0x8000)),
+                        y + (dh * BOOL(attr & 0x4000)),
+                        dw,
+                        dh,
+                        mt->mltgidx16,
+                        code,
+                        palo | ((trsptr->attr ^ attr) & 0xC000),
+                        wk->my_clear_level,
+                        mt->id
+                    );
                     break;
 
                 case 4:
@@ -515,15 +525,17 @@ void mlt_obj_trans_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
                         DebugLine(x - (dw & ((s16)attr >> 0x10)), y + (dh & ((s16)(attr * 2) >> 16)), dw, dh);
                     }
 
-                    rnum = seqsStoreChip(x - (dw * BOOL(attr & 0x8000)),
-                                         y + (dh * BOOL(attr & 0x4000)),
-                                         dw,
-                                         dh,
-                                         mt->mltgidx32,
-                                         code,
-                                         palo | (((trsptr->attr ^ attr) & 0xC000) | 0x2000),
-                                         wk->my_clear_level,
-                                         mt->id);
+                    rnum = seqsStoreChip(
+                        x - (dw * BOOL(attr & 0x8000)),
+                        y + (dh * BOOL(attr & 0x4000)),
+                        dw,
+                        dh,
+                        mt->mltgidx32,
+                        code,
+                        palo | (((trsptr->attr ^ attr) & 0xC000) | 0x2000),
+                        wk->my_clear_level,
+                        mt->id
+                    );
                     break;
                 }
 
@@ -584,15 +596,17 @@ void mlt_obj_trans_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
                     DebugLine(x - (dw & ((s16)attr >> 16)), y + (dh & ((s16)(attr * 2) >> 16)), dw, dh);
                 }
 
-                rnum = seqsStoreChip(x - (dw * BOOL(attr & 0x8000)),
-                                     y + (dh * BOOL(attr & 0x4000)),
-                                     dw,
-                                     dh,
-                                     mt->mltgidx16,
-                                     code,
-                                     palo | ((trsptr->attr ^ attr) & 0xC000),
-                                     wk->my_clear_level,
-                                     mt->id);
+                rnum = seqsStoreChip(
+                    x - (dw * BOOL(attr & 0x8000)),
+                    y + (dh * BOOL(attr & 0x4000)),
+                    dw,
+                    dh,
+                    mt->mltgidx16,
+                    code,
+                    palo | ((trsptr->attr ^ attr) & 0xC000),
+                    wk->my_clear_level,
+                    mt->id
+                );
                 break;
 
             case 4:
@@ -602,15 +616,17 @@ void mlt_obj_trans_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
                     DebugLine(x - (dw & ((s16)attr >> 16)), y + (dh & ((s16)(attr * 2) >> 16)), dw, dh);
                 }
 
-                rnum = seqsStoreChip(x - (dw * BOOL(attr & 0x8000)),
-                                     y + (dh * BOOL(attr & 0x4000)),
-                                     dw,
-                                     dh,
-                                     mt->mltgidx32,
-                                     code,
-                                     palo | (((trsptr->attr ^ attr) & 0xC000) | 0x2000),
-                                     wk->my_clear_level,
-                                     mt->id);
+                rnum = seqsStoreChip(
+                    x - (dw * BOOL(attr & 0x8000)),
+                    y + (dh * BOOL(attr & 0x4000)),
+                    dw,
+                    dh,
+                    mt->mltgidx32,
+                    code,
+                    palo | (((trsptr->attr ^ attr) & 0xC000) | 0x2000),
+                    wk->my_clear_level,
+                    mt->id
+                );
                 break;
             }
 
@@ -717,15 +733,17 @@ void mlt_obj_trans(MultiTexture* mt, WORK* wk, s32 base_y) {
                 DebugLine(x - (dw & ((s16)attr >> 0x10)), y + (dh & ((s16)(attr * 2) >> 16)), dw, dh);
             }
 
-            rnum = seqsStoreChip(x - (dw * BOOL(attr & 0x8000)),
-                                 y + (dh * BOOL(attr & 0x4000)),
-                                 dw,
-                                 dh,
-                                 mt->mltgidx16,
-                                 code,
-                                 palo | ((trsptr->attr ^ attr) & 0xC000),
-                                 wk->my_clear_level,
-                                 mt->id);
+            rnum = seqsStoreChip(
+                x - (dw * BOOL(attr & 0x8000)),
+                y + (dh * BOOL(attr & 0x4000)),
+                dw,
+                dh,
+                mt->mltgidx16,
+                code,
+                palo | ((trsptr->attr ^ attr) & 0xC000),
+                wk->my_clear_level,
+                mt->id
+            );
             break;
 
         case 4:
@@ -738,15 +756,17 @@ void mlt_obj_trans(MultiTexture* mt, WORK* wk, s32 base_y) {
                 DebugLine(x - (dw & ((s16)attr >> 0x10)), y + (dh & ((s16)(attr * 2) >> 16)), dw, dh);
             }
 
-            rnum = seqsStoreChip(x - (dw * BOOL(attr & 0x8000)),
-                                 y + (dh * BOOL(attr & 0x4000)),
-                                 dw,
-                                 dh,
-                                 mt->mltgidx32,
-                                 code,
-                                 palo | (((trsptr->attr ^ attr) & 0xC000) | 0x2000),
-                                 wk->my_clear_level,
-                                 mt->id);
+            rnum = seqsStoreChip(
+                x - (dw * BOOL(attr & 0x8000)),
+                y + (dh * BOOL(attr & 0x4000)),
+                dw,
+                dh,
+                mt->mltgidx32,
+                code,
+                palo | (((trsptr->attr ^ attr) & 0xC000) | 0x2000),
+                wk->my_clear_level,
+                mt->id
+            );
             break;
         }
 
@@ -872,15 +892,17 @@ void mlt_obj_trans_cp3_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
                         DebugLine(x - (dw & ((s16)flip >> 0x10)), y + (dh & ((s16)(flip * 2) >> 16)), dw, dh);
                     }
 
-                    rnum = seqsStoreChip(x - (dw * BOOL(flip & 0x8000)),
-                                         y + (dh * BOOL(flip & 0x4000)),
-                                         dw,
-                                         dh,
-                                         mt->mltgidx16,
-                                         code,
-                                         attr | palt,
-                                         wk->my_clear_level,
-                                         mt->id);
+                    rnum = seqsStoreChip(
+                        x - (dw * BOOL(flip & 0x8000)),
+                        y + (dh * BOOL(flip & 0x4000)),
+                        dw,
+                        dh,
+                        mt->mltgidx16,
+                        code,
+                        attr | palt,
+                        wk->my_clear_level,
+                        mt->id
+                    );
                     break;
 
                 case 4:
@@ -893,15 +915,17 @@ void mlt_obj_trans_cp3_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
                         DebugLine(x - (dw & ((s16)flip >> 0x10)), y + (dh & ((s16)(flip * 2) >> 16)), dw, dh);
                     }
 
-                    rnum = seqsStoreChip(x - (dw * BOOL(flip & 0x8000)),
-                                         y + (dh * BOOL(flip & 0x4000)),
-                                         dw,
-                                         dh,
-                                         mt->mltgidx32,
-                                         code,
-                                         (attr | 0x2000) | palt,
-                                         wk->my_clear_level,
-                                         mt->id);
+                    rnum = seqsStoreChip(
+                        x - (dw * BOOL(flip & 0x8000)),
+                        y + (dh * BOOL(flip & 0x4000)),
+                        dw,
+                        dh,
+                        mt->mltgidx32,
+                        code,
+                        (attr | 0x2000) | palt,
+                        wk->my_clear_level,
+                        mt->id
+                    );
                     break;
                 }
 
@@ -967,15 +991,17 @@ void mlt_obj_trans_cp3_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
                     DebugLine(x - (dw & ((s16)flip >> 0x10)), y + (dh & ((s16)(flip * 2) >> 16)), dw, dh);
                 }
 
-                rnum = seqsStoreChip(x - (dw * BOOL(flip & 0x8000)),
-                                     y + (dh * BOOL(flip & 0x4000)),
-                                     dw,
-                                     dh,
-                                     mt->mltgidx16,
-                                     code,
-                                     attr | palt,
-                                     wk->my_clear_level,
-                                     mt->id);
+                rnum = seqsStoreChip(
+                    x - (dw * BOOL(flip & 0x8000)),
+                    y + (dh * BOOL(flip & 0x4000)),
+                    dw,
+                    dh,
+                    mt->mltgidx16,
+                    code,
+                    attr | palt,
+                    wk->my_clear_level,
+                    mt->id
+                );
                 break;
 
             case 4:
@@ -985,15 +1011,17 @@ void mlt_obj_trans_cp3_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
                     DebugLine(x - (dw & ((s16)flip >> 0x10)), y + (dh & ((s16)(flip * 2) >> 16)), dw, dh);
                 }
 
-                rnum = seqsStoreChip(x - (dw * BOOL(flip & 0x8000)),
-                                     y + (dh * BOOL(flip & 0x4000)),
-                                     dw,
-                                     dh,
-                                     mt->mltgidx32,
-                                     code,
-                                     (attr | 0x2000) | palt,
-                                     wk->my_clear_level,
-                                     mt->id);
+                rnum = seqsStoreChip(
+                    x - (dw * BOOL(flip & 0x8000)),
+                    y + (dh * BOOL(flip & 0x4000)),
+                    dw,
+                    dh,
+                    mt->mltgidx32,
+                    code,
+                    (attr | 0x2000) | palt,
+                    wk->my_clear_level,
+                    mt->id
+                );
                 break;
             }
 
@@ -1105,15 +1133,17 @@ void mlt_obj_trans_cp3(MultiTexture* mt, WORK* wk, s32 base_y) {
                 DebugLine(x - (dw & ((s16)flip >> 0x10)), y + (dh & ((s16)(flip * 2) >> 16)), dw, dh);
             }
 
-            rnum = seqsStoreChip(x - (dw * BOOL(flip & 0x8000)),
-                                 y + (dh * BOOL(flip & 0x4000)),
-                                 dw,
-                                 dh,
-                                 mt->mltgidx16,
-                                 code,
-                                 attr | palt,
-                                 wk->my_clear_level,
-                                 mt->id);
+            rnum = seqsStoreChip(
+                x - (dw * BOOL(flip & 0x8000)),
+                y + (dh * BOOL(flip & 0x4000)),
+                dw,
+                dh,
+                mt->mltgidx16,
+                code,
+                attr | palt,
+                wk->my_clear_level,
+                mt->id
+            );
             break;
 
         case 4:
@@ -1126,15 +1156,17 @@ void mlt_obj_trans_cp3(MultiTexture* mt, WORK* wk, s32 base_y) {
                 DebugLine(x - (dw & ((s16)flip >> 0x10)), y + (dh & ((s16)(flip * 2) >> 16)), dw, dh);
             }
 
-            rnum = seqsStoreChip(x - (dw * BOOL(flip & 0x8000)),
-                                 y + (dh * BOOL(flip & 0x4000)),
-                                 dw,
-                                 dh,
-                                 mt->mltgidx32,
-                                 code,
-                                 attr | 0x2000 | palt,
-                                 wk->my_clear_level,
-                                 mt->id);
+            rnum = seqsStoreChip(
+                x - (dw * BOOL(flip & 0x8000)),
+                y + (dh * BOOL(flip & 0x4000)),
+                dw,
+                dh,
+                mt->mltgidx32,
+                code,
+                attr | 0x2000 | palt,
+                wk->my_clear_level,
+                mt->id
+            );
             break;
         }
 
@@ -1255,15 +1287,17 @@ void mlt_obj_trans_rgb_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
                         njReLoadTexturePartNumG(mt->mltgidx16 + (code >> 8), (s8*)mt->mltbuf, code & 0xFF, size * 2);
                     }
 
-                    rnum = seqsStoreChip(x - (dw * BOOL(flip & 0x8000)),
-                                         y + (dh * BOOL(flip & 0x4000)),
-                                         dw,
-                                         dh,
-                                         mt->mltgidx16,
-                                         code,
-                                         attr,
-                                         wk->my_clear_level,
-                                         mt->id);
+                    rnum = seqsStoreChip(
+                        x - (dw * BOOL(flip & 0x8000)),
+                        y + (dh * BOOL(flip & 0x4000)),
+                        dw,
+                        dh,
+                        mt->mltgidx16,
+                        code,
+                        attr,
+                        wk->my_clear_level,
+                        mt->id
+                    );
                     break;
 
                 case 4:
@@ -1272,15 +1306,17 @@ void mlt_obj_trans_rgb_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
                         njReLoadTexturePartNumG(mt->mltgidx32 + (code >> 6), (s8*)mt->mltbuf, code & 0x3F, size * 2);
                     }
 
-                    rnum = seqsStoreChip(x - (dw * BOOL(flip & 0x8000)),
-                                         y + (dh * BOOL(flip & 0x4000)),
-                                         dw,
-                                         dh,
-                                         mt->mltgidx32,
-                                         code,
-                                         attr | 0x2000,
-                                         wk->my_clear_level,
-                                         mt->id);
+                    rnum = seqsStoreChip(
+                        x - (dw * BOOL(flip & 0x8000)),
+                        y + (dh * BOOL(flip & 0x4000)),
+                        dw,
+                        dh,
+                        mt->mltgidx32,
+                        code,
+                        attr | 0x2000,
+                        wk->my_clear_level,
+                        mt->id
+                    );
                     break;
                 }
 
@@ -1339,29 +1375,33 @@ void mlt_obj_trans_rgb_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
             case 2:
                 code = get_mltbuf16_ext(mt, cc.code, palt);
 
-                rnum = seqsStoreChip(x - (dw * BOOL(flip & 0x8000)),
-                                     y + (dh * BOOL(flip & 0x4000)),
-                                     dw,
-                                     dh,
-                                     mt->mltgidx16,
-                                     code,
-                                     attr,
-                                     wk->my_clear_level,
-                                     mt->id);
+                rnum = seqsStoreChip(
+                    x - (dw * BOOL(flip & 0x8000)),
+                    y + (dh * BOOL(flip & 0x4000)),
+                    dw,
+                    dh,
+                    mt->mltgidx16,
+                    code,
+                    attr,
+                    wk->my_clear_level,
+                    mt->id
+                );
                 break;
 
             case 4:
                 code = get_mltbuf32_ext(mt, cc.code, palt);
 
-                rnum = seqsStoreChip(x - (dw * BOOL(flip & 0x8000)),
-                                     y + (dh * BOOL(flip & 0x4000)),
-                                     dw,
-                                     dh,
-                                     mt->mltgidx32,
-                                     code,
-                                     attr | 0x2000,
-                                     wk->my_clear_level,
-                                     mt->id);
+                rnum = seqsStoreChip(
+                    x - (dw * BOOL(flip & 0x8000)),
+                    y + (dh * BOOL(flip & 0x4000)),
+                    dw,
+                    dh,
+                    mt->mltgidx32,
+                    code,
+                    attr | 0x2000,
+                    wk->my_clear_level,
+                    mt->id
+                );
                 break;
             }
 
@@ -1469,15 +1509,17 @@ void mlt_obj_trans_rgb(MultiTexture* mt, WORK* wk, s32 base_y) {
                 njReLoadTexturePartNumG(mt->mltgidx16 + (code >> 8), (s8*)mt->mltbuf, code & 0xFF, size * 2);
             }
 
-            rnum = seqsStoreChip(x - (dw * BOOL(flip & 0x8000)),
-                                 y + (dh * BOOL(flip & 0x4000)),
-                                 dw,
-                                 dh,
-                                 mt->mltgidx16,
-                                 code,
-                                 attr,
-                                 wk->my_clear_level,
-                                 mt->id);
+            rnum = seqsStoreChip(
+                x - (dw * BOOL(flip & 0x8000)),
+                y + (dh * BOOL(flip & 0x4000)),
+                dw,
+                dh,
+                mt->mltgidx16,
+                code,
+                attr,
+                wk->my_clear_level,
+                mt->id
+            );
             break;
 
         case 4:
@@ -1486,15 +1528,17 @@ void mlt_obj_trans_rgb(MultiTexture* mt, WORK* wk, s32 base_y) {
                 njReLoadTexturePartNumG(mt->mltgidx32 + (code >> 6), (s8*)mt->mltbuf, code & 0x3F, size * 2);
             }
 
-            rnum = seqsStoreChip(x - (dw * BOOL(flip & 0x8000)),
-                                 y + (dh * BOOL(flip & 0x4000)),
-                                 dw,
-                                 dh,
-                                 mt->mltgidx32,
-                                 code,
-                                 attr | 0x2000,
-                                 wk->my_clear_level,
-                                 mt->id);
+            rnum = seqsStoreChip(
+                x - (dw * BOOL(flip & 0x8000)),
+                y + (dh * BOOL(flip & 0x4000)),
+                dw,
+                dh,
+                mt->mltgidx32,
+                code,
+                attr | 0x2000,
+                wk->my_clear_level,
+                mt->id
+            );
             break;
         }
 
