@@ -270,14 +270,24 @@ void SPU_VoiceStop(int vnum) {
     voices[vnum].run = false;
 }
 
-void SPU_VoiceSetConf(int vnum, struct SPUVConf* conf) {
+void SPU_VoiceSetPitch(int vnum, int pitch) {
     struct SPU_Voice* v = &voices[vnum];
 
-    v->pitch = conf->pitch;
-    v->voll = conf->voll << 1;
-    v->volr = conf->volr << 1;
-    v->adsr1 = conf->adsr1;
-    v->adsr2 = conf->adsr2;
+    v->pitch = pitch;
+}
+
+void SPU_VoiceSetVolume(int vnum, int voll, int volr) {
+    struct SPU_Voice* v = &voices[vnum];
+
+    v->voll = voll << 1;
+    v->volr = volr << 1;
+}
+
+void SPU_VoiceSetADSR(int vnum, u16 adsr1, u16 adsr2) {
+    struct SPU_Voice* v = &voices[vnum];
+
+    v->adsr1 = adsr1;
+    v->adsr2 = adsr2;
 }
 
 void SPU_VoiceStart(int vnum, u32 start_addr) {

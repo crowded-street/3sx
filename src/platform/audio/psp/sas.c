@@ -6,8 +6,9 @@
 #include <pspsascore.h>
 #include <psputility.h>
 
-//#define GRAIN_SIZE (PSP_SAS_GRAIN_SIZE)
-#define GRAIN_SIZE 192 
+// Grain size needs to be a multiple of 64, we'd like to call the user cb at 250hz
+// 44100 / 250 = 176.4, so 192 is the closest we'll get.
+#define GRAIN_SIZE 192
 
 SDL_Mutex* soundLock;
 
@@ -16,13 +17,12 @@ __attribute__((aligned(64))) int16_t mixer[GRAIN_SIZE * 4];
 
 static int channel = -1;
 static u16 ram[(2 * 1024 * 1024) >> 1];
-static struct SPUVConf voice[SPU_VOICE_COUNT] = {};
 static void (*user_cb)();
 
 static void sas_thread() {
     SDL_SetCurrentThreadPriority(SDL_THREAD_PRIORITY_TIME_CRITICAL);
     while (1) {
-		user_cb();
+        user_cb();
 
         /* Run a SAS cycle, which will update and process the voices. */
         __sceSasCore(&core, mixer);
@@ -34,7 +34,7 @@ static void sas_thread() {
 
 void SPU_Init(void (*cb)()) {
     soundLock = SDL_CreateMutex();
-	user_cb = cb;
+    user_cb = cb;
 
     /* The following modules must be loaded in order for sceSasCore to work */
     int result = sceUtilityLoadModule(PSP_MODULE_AV_AVCODEC);
@@ -66,19 +66,22 @@ void SPU_Upload(u32 dst, void* src, u32 size) {
 }
 
 void SPU_VoiceStart(int vnum, u32 start_addr) {
-    struct SPUVConf* v = &voice[vnum];
 
     // HACK: we don't have the vag size on hand, doesn't seem to be used far ADPCM (on ppssspp at least)
     __sceSasSetVoice(&core, vnum, &ram[start_addr], sizeof(ram), 1);
-    __sceSasSetSimpleADSR(&core, vnum, v->adsr1, v->adsr2);
-    __sceSasSetPitch(&core, vnum, 48000 * v->pitch / 44100);
-    __sceSasSetVolume(&core, vnum, (0x1000 * v->voll) / 0x3fff, (0x1000 * v->volr) / 0x3fff, 0, 0);
-
     __sceSasSetKeyOn(&core, vnum);
 }
 
-void SPU_VoiceSetConf(int vnum, struct SPUVConf* conf) {
-    voice[vnum] = *conf;
+void SPU_VoiceSetPitch(int vnum, int pitch) {
+    __sceSasSetPitch(&core, vnum, 48000 * pitch / 44100);
+}
+
+void SPU_VoiceSetVolume(int vnum, int voll, int volr) {
+    __sceSasSetVolume(&core, vnum, (0x1000 * voll) / 0x3fff, (0x1000 * volr) / 0x3fff, 0, 0);
+}
+
+void SPU_VoiceSetADSR(int vnum, u16 adsr1, u16 adsr2) {
+    __sceSasSetSimpleADSR(&core, vnum, adsr1, adsr2);
 }
 
 bool SPU_VoiceIsFinished(int vnum) {
