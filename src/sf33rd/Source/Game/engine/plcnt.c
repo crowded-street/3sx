@@ -4,9 +4,11 @@
  */
 
 #include "sf33rd/Source/Game/engine/plcnt.h"
+#include "arcade/arcade_balance.h"
 #include "common.h"
 #include "constants.h"
 #include "main.h"
+#include "port/utils.h"
 #include "sf33rd/Source/Game/animation/win_pl.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/eff00.h"
@@ -423,7 +425,7 @@ const s16** kizetsu_timer_table[9] = { tsuujyou_dageki,   hissatsu_dageki,   tsu
                                        hissatsu_nage,     super_arts_dageki, super_arts_nage,
                                        super_arts_dageki, super_arts_nage,   super_arts_dageki };
 
-void Player_control() {
+void Player_control() { // 🟡 This func lacks the trailing part of its CPS3 counterpart
     pulpul_scene = 1;
 
     if (pcon_rno[0] + pcon_rno[1] != 0) {
@@ -473,7 +475,7 @@ end:
     }
 }
 
-void reqPlayerDraw() {
+void reqPlayerDraw() { // 🔴
     if (Debug_w[15] == 0) {
         move_effect_work(6);
         sort_push_request(&plw[0].wu);
@@ -481,8 +483,11 @@ void reqPlayerDraw() {
     }
 }
 
-void plcnt_init() {
-    plw[0].reserv_add_y = plw[1].reserv_add_y = 0;
+void plcnt_init() { // 🟡
+    if (!ArcadeBalance_IsEnabled()) {
+        plw[0].reserv_add_y = plw[1].reserv_add_y = 0;
+    }
+
     appear_initalize[appear_type]();
     move_player_work();
 }
@@ -538,7 +543,7 @@ void init_app_10000() {
     }
 }
 
-void init_app_20000() {
+void init_app_20000() { // 🟡
     s16 i;
 
     switch (pcon_rno[1]) {
@@ -548,6 +553,11 @@ void init_app_20000() {
         dead_voice_flag = false;
         pcon_dp_flag = false;
         another_bg[0] = another_bg[1] = 0;
+
+        if (ArcadeBalance_IsEnabled()) {
+            // FUN_06117f28(&plw[0]);
+            // FUN_06117f28(&plw[1]);
+        }
 
         for (i = 0; i < 8; i++) {
             plw[0].wu.routine_no[i] = plw[1].wu.routine_no[i] = 0;
@@ -564,7 +574,7 @@ void init_app_20000() {
     }
 }
 
-void init_app_30000() {
+void init_app_30000() { // 🟡
     s16 i;
 
     switch (pcon_rno[1]) {
@@ -580,8 +590,12 @@ void init_app_30000() {
         plw[0].wu.routine_no[0] = plw[1].wu.routine_no[0] = 1;
         another_bg[0] = another_bg[1] = 0;
         plw[0].do_not_move = plw[1].do_not_move = 0;
-        K7_muriyari_metamor_rebirth(&plw[0]);
-        K7_muriyari_metamor_rebirth(&plw[1]);
+
+        if (!ArcadeBalance_IsEnabled()) {
+            K7_muriyari_metamor_rebirth(&plw[0]);
+            K7_muriyari_metamor_rebirth(&plw[1]);
+        }
+
         break;
 
     case 1:
@@ -600,11 +614,13 @@ void init_app_30000() {
         load_any_texture_patnum(0x71E0, 0xE, 0);
         effect_work_kill(4, 0xD9);
 
-        if (plw[0].player_number == 6) {
+        // On CPS3 this code is not called on Elena's stage in round 1
+
+        if (plw[0].player_number == CHAR_HUGO) {
             effect_33_init(&plw[0].wu);
         }
 
-        if (plw[1].player_number == 6) {
+        if (plw[1].player_number == CHAR_HUGO) {
             effect_33_init(&plw[1].wu);
         }
 
@@ -612,14 +628,14 @@ void init_app_30000() {
     }
 }
 
-void pli_0000() {
+void pli_0000() { // 🟢
     pcon_rno[1]++;
     round_slow_flag = false;
     SDL_zeroa(plw);
     setup_base_and_other_data();
 }
 
-void pli_1000() {
+void pli_1000() { // 🟢
     if (plw[0].wu.routine_no[0] != 3) {
         return;
     }
@@ -639,11 +655,15 @@ void pli_1000() {
     ca_check_flag = 1;
 }
 
-void pli_0002() {
+void pli_0002() { // 🟡
     // Do nothing
+
+    // On CPS3 this func runs some character-specific code
+    // Most paths run effect_M4_init, which is absent from this version of the game
+    // Effect M4 may be an unused effect from NG/2I
 }
 
-void plcnt_move() {
+void plcnt_move() { // 🟢
     if (time_over_check() != 0) {
         return;
     }
@@ -721,7 +741,7 @@ void plcnt_move() {
     grade_check_tairyokusa();
 }
 
-void plcnt_die() {
+void plcnt_die() { // 🟢
     plw[0].wu.dm_vital = plw[1].wu.dm_vital = 0;
     settle_process[pcon_rno[1]]();
     move_player_work();
@@ -909,15 +929,17 @@ void settle_type_40000() {
     }
 }
 
-void move_player_work() {
-    if (plw[0].reserv_add_y) {
-        plw[0].wu.xyz[1].disp.pos += plw[0].reserv_add_y;
-        plw[0].reserv_add_y = 0;
-    }
+void move_player_work() { // 🟡
+    if (!ArcadeBalance_IsEnabled()) {
+        if (plw[0].reserv_add_y) {
+            plw[0].wu.xyz[1].disp.pos += plw[0].reserv_add_y;
+            plw[0].reserv_add_y = 0;
+        }
 
-    if (plw[1].reserv_add_y) {
-        plw[1].wu.xyz[1].disp.pos += plw[1].reserv_add_y;
-        plw[1].reserv_add_y = 0;
+        if (plw[1].reserv_add_y) {
+            plw[1].wu.xyz[1].disp.pos += plw[1].reserv_add_y;
+            plw[1].reserv_add_y = 0;
+        }
     }
 
     ichikannkei = check_work_position(&plw[0].wu, &plw[1].wu);
@@ -957,10 +979,10 @@ void move_player_work() {
             default:
                 if (Game_timer & 1) {
                     move_P1_move_P2();
-                    break;
+                } else {
+                    move_P2_move_P1();
                 }
 
-                move_P2_move_P1();
                 break;
             }
 
@@ -971,7 +993,7 @@ void move_player_work() {
     }
 }
 
-void move_P1_move_P2() {
+void move_P1_move_P2() { // 🟢
     if (plw[0].do_not_move == 0) {
         Player_move(&plw[0], processed_lvbt(Convert_User_Setting(0)));
     }
@@ -989,7 +1011,7 @@ void move_P1_move_P2() {
     }
 }
 
-void move_P2_move_P1() {
+void move_P2_move_P1() { // 🟢
     if (plw[1].do_not_move == 0) {
         Player_move(&plw[1], processed_lvbt(Convert_User_Setting(1)));
     }
@@ -1028,7 +1050,7 @@ void store_player_after_image_data() {
     }
 }
 
-void check_damage_hosei() {
+void check_damage_hosei() { // 🟢
     plw[0].muriyari_ugoku = plw[0].hosei_amari;
     plw[1].muriyari_ugoku = plw[1].hosei_amari;
 
@@ -1050,7 +1072,7 @@ void check_damage_hosei() {
     plw[0].hosei_amari = plw[1].hosei_amari = 0;
 }
 
-void check_damage_hosei_nage(PLW* as, PLW* ds) {
+void check_damage_hosei_nage(PLW* as, PLW* ds) { // 🟢
     if (as->kind_of_catch) {
         if (ds->hosei_amari != 0) {
             as->wu.xyz[0].disp.pos += ds->hosei_amari;
@@ -1072,14 +1094,14 @@ void check_damage_hosei_nage(PLW* as, PLW* ds) {
     }
 }
 
-void check_damage_hosei_dageki(PLW* w1, PLW* w2) {
+void check_damage_hosei_dageki(PLW* w1, PLW* w2) { // 🟢
     if ((w1->dm_hos_flag != 0) && (w2->wu.hit_stop == 0)) {
         w2->wu.xyz[0].disp.pos += w1->hosei_amari;
         w2->muriyari_ugoku += w1->hosei_amari;
     }
 }
 
-s32 time_over_check() {
+s32 time_over_check() { // 🟡
     if ((will_die() != 0) && (round_timer == 0)) {
         Winner_id = 0;
         Loser_id = 1;
@@ -1087,6 +1109,10 @@ s32 time_over_check() {
         if (plw[0].wu.vital_new < plw[1].wu.vital_new) {
             Winner_id = 1;
             Loser_id = 0;
+        }
+
+        if (ArcadeBalance_IsEnabled()) {
+            setup_gouki_wins();
         }
 
         Conclusion_Flag = 1;
@@ -1105,7 +1131,7 @@ s32 time_over_check() {
     return 0;
 }
 
-s32 will_die() {
+s32 will_die() { // 🟢
     if (plw[0].wu.dm_vital > plw[0].wu.vital_new) {
         return 0;
     }
@@ -1117,7 +1143,7 @@ s32 will_die() {
     return 1;
 }
 
-void setup_settle_rno(s16 kos) {
+void setup_settle_rno(s16 kos) { // 🟢
     pcon_rno[0] = 2;
     pcon_rno[1] = kos;
     pcon_rno[2] = 0;
@@ -1125,7 +1151,7 @@ void setup_settle_rno(s16 kos) {
     pcon_dp_flag = true;
 }
 
-void settle_check() {
+void settle_check() { // 🟡
     while (1) {
         switch ((plw[0].dead_flag) + (plw[1].dead_flag * 2)) {
         case 1:
@@ -1143,7 +1169,10 @@ void settle_check() {
                 Round_Result |= plw[Loser_id].wu.dm_koa;
 
                 if ((Round_Result & 0x800) && gouki_wins) {
-                    Forbid_Break = -1;
+                    if (!ArcadeBalance_IsEnabled()) {
+                        Forbid_Break = -1;
+                    }
+
                     Shin_Gouki_BGM = 1;
                     Control_Music_Fade(0x96);
                     setup_settle_rno(4);
@@ -1184,18 +1213,22 @@ void settle_check() {
     }
 }
 
-s32 check_sa_resurrection(PLW* wk) {
+s32 check_sa_resurrection(PLW* wk) { // 🟡
     if (check_sa_type_rebirth(wk) == 0) {
         return 0;
     }
 
     wk->kezurijini_flag = 0;
     wk->dead_flag = 0;
-    wk->resurrection_resv = 1;
+
+    if (!ArcadeBalance_IsEnabled()) {
+        wk->resurrection_resv = 1;
+    }
+
     return 1;
 }
 
-s32 check_sa_type_rebirth(PLW* wk) {
+s32 check_sa_type_rebirth(PLW* wk) { // 🟢
     if ((wk->spmv_ng_flag & DIP_UNKNOWN_30) || (wk->spmv_ng_flag & DIP_UNKNOWN_31)) {
         return 0;
     }
@@ -1211,7 +1244,7 @@ s32 check_sa_type_rebirth(PLW* wk) {
     return 1;
 }
 
-s16 nekorobi_check(s8 ix) {
+s16 nekorobi_check(s8 ix) { // 🟢
     s16 rnum = 0;
 
     if ((plw[ix].wu.routine_no[1] == 1) && (plw[ix].wu.routine_no[2] == 0) && (plw[ix].wu.routine_no[3] > 2)) {
@@ -1231,7 +1264,11 @@ s16 footwork_check(s8 ix) {
     return rnum;
 }
 
-void set_quake(PLW* wk) {
+void FUN_06117f28(PLW* wk) { // 🔵
+    not_implemented(__func__);
+}
+
+void set_quake(PLW* wk) { // 🟢
     if (wk->wu.hit_quake) {
         wk->wu.hit_quake--;
         wk->wu.next_x = quake_table[wk->wu.hit_quake];
@@ -1251,10 +1288,10 @@ void add_next_position(PLW* wk) {
     wk->wu.next_y = 0;
 }
 
-void setup_gouki_wins() {
+void setup_gouki_wins() { // 🟢
     gouki_wins = 0;
 
-    if (plw[Winner_id].player_number == 14) {
+    if (plw[Winner_id].player_number == CHAR_AKUMA) {
         gouki_wins = 1;
     }
 }
@@ -1419,7 +1456,7 @@ void clear_chainex_check(s16 ix) {
     }
 }
 
-void set_kizetsu_status(s16 ix) {
+void set_kizetsu_status(s16 ix) { // 🟢
     s16 plnum = My_char[ix];
 
     piyori_type[ix].flag = 0;
@@ -1446,7 +1483,7 @@ void clear_kizetsu_point(PLW* wk) { // 🟢
     wk->py->recover = pl_nr_piyo_tbl[wk->player_number];
 }
 
-void set_super_arts_status(s16 ix) {
+void set_super_arts_status(s16 ix) { // 🟢
     const SA_DATA* saptr;
 
     if (cmd_sel[ix] || no_sa[ix]) {
@@ -1476,7 +1513,7 @@ void set_super_arts_status(s16 ix) {
     super_arts[ix].ok = 0;
 }
 
-s16 remake_sa_store_max(s16 ix, s16 store_max) {
+s16 remake_sa_store_max(s16 ix, s16 store_max) { // 🔴
     s16 num = store_max + sag_stock_omake[omop_sag_max_ix[ix]];
 
     if (num <= 0) {
@@ -1490,7 +1527,7 @@ s16 remake_sa_store_max(s16 ix, s16 store_max) {
     return num;
 }
 
-s16 remake_sa_gauge_len(s16 ix, s16 gauge_len) {
+s16 remake_sa_gauge_len(s16 ix, s16 gauge_len) { // 🔴
     s16 num = gauge_len + sag_length_omake[omop_sag_len_ix[ix]] * 8;
 
     if (num < 0x40) {
@@ -1504,7 +1541,7 @@ s16 remake_sa_gauge_len(s16 ix, s16 gauge_len) {
     return num;
 }
 
-void set_super_arts_status_dc(s16 ix) {
+void set_super_arts_status_dc(s16 ix) { // 🔴
     const SA_DATA* saptr;
 
     if (cmd_sel[ix] || no_sa[ix]) {
@@ -1528,22 +1565,36 @@ void set_super_arts_status_dc(s16 ix) {
     super_arts[ix].dtm_mul = 1;
 }
 
-void clear_super_arts_point(PLW* wk) {
-    wk->sa->store = 0;
+void clear_super_arts_point(PLW* wk) { // 🟡
+    if (!ArcadeBalance_IsEnabled()) {
+        wk->sa->store = 0;
+    }
+
     wk->sa->gauge.s.h = 0;
     wk->sa->gauge.s.l = -1;
     wk->sa->mp_rno = 0;
-    wk->sa->mp_rno2 = 0;
+
+    if (!ArcadeBalance_IsEnabled()) {
+        wk->sa->mp_rno2 = 0;
+    }
+
     wk->sa->sa_rno = 0;
-    wk->sa->sa_rno2 = 0;
+
+    if (!ArcadeBalance_IsEnabled()) {
+        wk->sa->sa_rno2 = 0;
+    }
+
     wk->sa->ex_rno = 0;
     wk->sa->mp = 0;
     wk->sa->ok = 0;
     wk->sa->ex = 0;
-    wk->sa->bacckup_g_h = 0;
+
+    if (!ArcadeBalance_IsEnabled()) {
+        wk->sa->bacckup_g_h = 0;
+    }
 }
 
-s16 check_combo_end(s16 ix) {
+s16 check_combo_end(s16 ix) { // 🟢
     s16 rnum;
 
     if (plw[ix].py->flag) {
@@ -1585,7 +1636,7 @@ s16 check_combo_end(s16 ix) {
     return rnum;
 }
 
-void set_scrrrl() {
+void set_scrrrl() { // 🟢
     s16 scrc = get_center_position();
 
     scrr = scrc + 192;
