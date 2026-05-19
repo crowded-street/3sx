@@ -19,6 +19,12 @@
 
 #define HOLD_TO_PAUSE_TIMER_MAX 20
 
+typedef enum PauseActivationType {
+    PAUSE_ACTIVATION_NONE,
+    PAUSE_ACTIVATION_PRESS,
+    PAUSE_ACTIVATION_HOLD,
+} PauseActivationType;
+
 u8 PAUSE_X;
 
 static u8 hold_to_pause_timers[2] = { 0 };
@@ -43,6 +49,63 @@ void Exit_Pause(struct _TASK* task_ptr);
 void Setup_Pause(struct _TASK* task_ptr);
 void Setup_Come_Out(struct _TASK* task_ptr);
 s32 Check_Play_Status(s16 PL_id);
+
+static PauseActivationType get_pause_activation_type() {
+    switch (Mode_Type) {
+    case MODE_VERSUS:
+        return PAUSE_ACTIVATION_HOLD;
+
+    case MODE_ARCADE:
+        if (Round_Operator[0] != 0 && Round_Operator[1] != 0) {
+            return PAUSE_ACTIVATION_HOLD;
+        } else {
+            return PAUSE_ACTIVATION_PRESS;
+        }
+
+    case MODE_NORMAL_TRAINING:
+    case MODE_PARRY_TRAINING:
+    case MODE_REPLAY:
+        return PAUSE_ACTIVATION_PRESS;
+
+    case MODE_NETWORK:
+        return PAUSE_ACTIVATION_NONE;
+    }
+}
+
+static s32 handle_start_button(u8 PL_id, u16 current_sw, u16 edge_sw) {
+    switch (get_pause_activation_type()) {
+    case PAUSE_ACTIVATION_NONE:
+        // Do nothing
+        break;
+
+    case PAUSE_ACTIVATION_PRESS:
+        if (edge_sw & SWK_START) {
+            Pause_Type = 1;
+            return PAUSE_X = 1;
+        }
+
+        break;
+
+    case PAUSE_ACTIVATION_HOLD:
+        if ((edge_sw & SWK_START) && (hold_to_pause_timers[PL_id] == 0)) {
+            hold_to_pause_timers[PL_id] = HOLD_TO_PAUSE_TIMER_MAX;
+        } else if ((current_sw & SWK_START) && (hold_to_pause_timers[PL_id] > 0)) {
+            hold_to_pause_timers[PL_id] -= 1;
+
+            if (hold_to_pause_timers[PL_id] == 0) {
+                hold_to_pause_timers[PL_id ^ 1] = 0;
+                Pause_Type = 1;
+                return PAUSE_X = 1;
+            }
+        } else {
+            hold_to_pause_timers[PL_id] = 0;
+        }
+
+        break;
+    }
+
+    return 0;
+}
 
 void Pause_Task(struct _TASK* task_ptr) {
     void (*Main_Jmp_Tbl[4])(struct _TASK*) = { Pause_Check, Pause_Move, Pause_Sleep, Pause_Die };
@@ -143,44 +206,6 @@ void dispControllerWasRemovedMessage(s32 x, s32 y, s32 step) {
     } else {
         SSPutStrPro(0, x, y + step * 2, 9, -1, "controller port 1.");
     }
-}
-
-static s32 handle_start_button(u8 PL_id, u16 current_sw, u16 edge_sw) {
-    switch (Mode_Type) {
-    case MODE_VERSUS:
-        if ((edge_sw & SWK_START) && (hold_to_pause_timers[PL_id] == 0)) {
-            hold_to_pause_timers[PL_id] = HOLD_TO_PAUSE_TIMER_MAX;
-        } else if ((current_sw & SWK_START) && (hold_to_pause_timers[PL_id] > 0)) {
-            hold_to_pause_timers[PL_id] -= 1;
-
-            if (hold_to_pause_timers[PL_id] == 0) {
-                hold_to_pause_timers[PL_id ^ 1] = 0;
-                Pause_Type = 1;
-                return PAUSE_X = 1;
-            }
-        } else {
-            hold_to_pause_timers[PL_id] = 0;
-        }
-
-        break;
-
-    case MODE_ARCADE:
-    case MODE_NORMAL_TRAINING:
-    case MODE_PARRY_TRAINING:
-    case MODE_REPLAY:
-        if (edge_sw & SWK_START) {
-            Pause_Type = 1;
-            return PAUSE_X = 1;
-        }
-
-        break;
-
-    case MODE_NETWORK:
-        // Do nothing
-        break;
-    }
-
-    return 0;
 }
 
 s32 Check_Pause_Term(u8 PL_id, bool ignore_input) {
