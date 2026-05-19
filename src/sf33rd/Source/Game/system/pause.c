@@ -69,6 +69,9 @@ static PauseActivationType get_pause_activation_type() {
 
     case MODE_NETWORK:
         return PAUSE_ACTIVATION_NONE;
+
+    default:
+        return PAUSE_ACTIVATION_NONE;
     }
 }
 
