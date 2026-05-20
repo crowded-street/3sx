@@ -17,7 +17,7 @@
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/ui/sc_sub.h"
 
-#define HOLD_TO_PAUSE_TIMER_MAX 20
+#define HOLD_TO_PAUSE_TIMER_MAX 60
 
 typedef enum PauseActivationType {
     PAUSE_ACTIVATION_NONE,
