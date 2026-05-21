@@ -620,11 +620,7 @@ void bgm_volume_setup(s16 data) {
     bgm_vol_now = bhd + bgm_vol_mix;
 
     if (bgm_half_down) {
-        if (Country == 1) {
-            bgm_vol_now /= 3;
-        } else {
-            bgm_vol_now = 0;
-        }
+        bgm_vol_now /= 3;
     }
 
     if (bgm_vol_now > bgm_vol_mix) {
