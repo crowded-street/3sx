@@ -12,6 +12,7 @@ __pycache__
 
 .vscode
 .cache
+.env
 
 # Project
 
