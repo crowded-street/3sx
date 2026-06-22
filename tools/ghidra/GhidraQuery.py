@@ -75,6 +75,55 @@ def get_symbol(name):
     return None
 
 
+def symbol_json(symbol, target_address=None):
+    result = {
+        "name": symbol.getName(True),
+        "address": str(symbol.getAddress()),
+        "type": str(symbol.getSymbolType()),
+    }
+    if target_address is not None:
+        try:
+            offset = int(target_address.subtract(symbol.getAddress()))
+            result["offset"] = offset
+            result["offsetHex"] = "-0x%x" % -offset if offset < 0 else "0x%x" % offset
+        except Exception:
+            pass
+    return result
+
+
+def adjacent_symbol(address, forward):
+    symbol_iter = currentProgram.getSymbolTable().getSymbolIterator(address, forward)
+    while symbol_iter.hasNext():
+        symbol = symbol_iter.next()
+        if symbol.getAddress() != address:
+            return symbol
+    return None
+
+
+def address_context_json(address):
+    result = {}
+    listing = currentProgram.getListing()
+    data = listing.getDataContaining(address)
+    if data is not None:
+        data_offset = int(address.subtract(data.getMinAddress()))
+        result["containingData"] = {
+            "address": str(data.getMinAddress()),
+            "bodyMax": str(data.getMaxAddress()),
+            "dataType": data.getDataType().getDisplayName(),
+            "length": data.getLength(),
+            "offset": data_offset,
+            "offsetHex": "0x%x" % data_offset,
+        }
+
+    previous_symbol = adjacent_symbol(address, False)
+    next_symbol = adjacent_symbol(address, True)
+    if previous_symbol is not None:
+        result["previousSymbol"] = symbol_json(previous_symbol, address)
+    if next_symbol is not None:
+        result["nextSymbol"] = symbol_json(next_symbol, address)
+    return result
+
+
 def decompile_function(function):
     decompiler = DecompInterface()
     decompiler.setOptions(DecompileOptions())
@@ -161,6 +210,9 @@ def emit_target(query):
     if function is not None:
         result["function"] = function_json(function, query["decompile"])
     if address is not None:
+        address_context = address_context_json(address)
+        if address_context:
+            result["addressContext"] = address_context
         byte_data = bytes_json(address, query["bytes"])
         if isinstance(byte_data, dict):
             result["bytesError"] = byte_data["error"]
@@ -178,11 +230,7 @@ def emit_matches(search, limit):
     while symbol_iter.hasNext() and len(matches) < limit:
         symbol = symbol_iter.next()
         if needle in symbol.getName(True).lower():
-            matches.append({
-                "name": symbol.getName(True),
-                "address": str(symbol.getAddress()),
-                "type": str(symbol.getSymbolType()),
-            })
+            matches.append(symbol_json(symbol))
     return matches
 
 
