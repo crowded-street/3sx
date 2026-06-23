@@ -1,0 +1,4 @@
+interface:
+  display_name: "CPS3 Code Comparison"
+  short_description: "Compare source code with the CPS3 decomp"
+  default_prompt: "Use $compare-cps3-code to compare this code with the CPS3 Ghidra decomp."

@@ -30,5 +30,9 @@ tools/ghidra/ghidra_query.py --target 06000840 --decompile --bytes 16 --limit 5
 tools/ghidra/ghidra_query.py --target FUN_06000840 --decompile
 ```
 
+Address targets also report defined data containing the address and the nearest
+preceding/following symbols with byte offsets. This helps resolve decompiler
+pointer arithmetic when only the base data symbol is labeled.
+
 If the project is open in the Ghidra GUI, the wrapper automatically retries
 against a temporary copy of the project so read-only queries can still run.
