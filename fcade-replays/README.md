@@ -5,6 +5,7 @@
 It supports:
 - Connecting to `ggpo.fightcade.com:<port>` and running the observed token handshake
 - Saving framed server messages and parsing known message types (`3`, `-12`, `-13`)
+- Listing and bulk-downloading Fightcade replays through the observed `searchquarks` API
 
 ## Requirements
 
@@ -23,6 +24,36 @@ python3 fcade-replays/fcade_replay_tool.py download \
   --auto-dir
 ```
 
+List the latest replay stream targets for a game:
+
+```bash
+export FCADE_COOKIE='cf_clearance=...'
+python3 fcade-replays/fcade_replay_tool.py list-replays \
+  --gameid sfiii3nr1 \
+  --count 30
+```
+
+Download the latest 200 replays for a game:
+
+```bash
+export FCADE_COOKIE='cf_clearance=...'
+python3 fcade-replays/fcade_replay_tool.py bulk-download \
+  --gameid sfiii3nr1 \
+  --count 200 \
+  --keep-going
+```
+
+Download the monthly-best list shape observed in the Fightcade UI:
+
+```bash
+python3 fcade-replays/fcade_replay_tool.py bulk-download \
+  --gameid sfiii3nr1 \
+  --best \
+  --since 1780099200000 \
+  --count 200 \
+  --keep-going
+```
+
 ## Output Files
 
 Each output directory contains:
@@ -32,6 +63,12 @@ Each output directory contains:
 - `savestate`: first decompressed `type=-12` payload
 - `inputs`: all `type=-13` record bodies concatenated in receive order
 
+Bulk runs write one replay directory per target using `<game>-<replay-id>` names.
+Each directory also contains `quark.json` with the original API row. The top-level
+`bulk_manifest.json` records output paths and statuses for each attempted replay.
+
 ## Notes
 
 - The protocol understanding is still incomplete and message field names are provisional.
+- Fightcade's API may require a current Cloudflare clearance cookie copied from a browser session.
+  Pass it with `--cookie 'cf_clearance=...'` or set `FCADE_COOKIE`.

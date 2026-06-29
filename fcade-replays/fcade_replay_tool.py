@@ -5,18 +5,28 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import socket
 import struct
 import sys
 import time
+import urllib.error
 import urllib.parse
+import urllib.request
 import zlib
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 
 DEFAULT_HOST = "ggpo.fightcade.com"
 DEFAULT_PORT = 7100
+DEFAULT_API_URL = "https://www.fightcade.com/api/"
+DEFAULT_COOKIE_ENV = "FCADE_COOKIE"
+DEFAULT_USER_AGENT = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
+)
 
 
 @dataclass
@@ -25,6 +35,16 @@ class ReplayTarget:
     game: str
     token: str
     port: int
+
+
+@dataclass
+class ListedReplay:
+    target: ReplayTarget
+    source: dict[str, Any]
+
+
+class FightcadeApiError(RuntimeError):
+    pass
 
 
 def _u32be(value: int) -> bytes:
@@ -76,6 +96,141 @@ def parse_fcade_url(url: str) -> ReplayTarget:
         raise ValueError(f"invalid port in fcade URL: {port_text!r}") from exc
 
     return ReplayTarget(emulator=emulator, game=game, token=token, port=port)
+
+
+def _json_walk(value: Any) -> list[Any]:
+    out = [value]
+    if isinstance(value, dict):
+        for child in value.values():
+            out.extend(_json_walk(child))
+    elif isinstance(value, list):
+        for child in value:
+            out.extend(_json_walk(child))
+    return out
+
+
+def _find_fcade_url(value: Any) -> str | None:
+    if isinstance(value, str) and value.startswith("fcade://stream/"):
+        return value
+    if isinstance(value, dict):
+        for child in value.values():
+            if isinstance(child, str) and child.startswith("fcade://stream/"):
+                return child
+            if isinstance(child, list):
+                found = _find_fcade_url(child)
+                if found:
+                    return found
+    elif isinstance(value, list):
+        for child in value:
+            if isinstance(child, str) and child.startswith("fcade://stream/"):
+                return child
+    return None
+
+
+def _first_str(data: dict[str, Any], keys: tuple[str, ...]) -> str | None:
+    for key in keys:
+        value = data.get(key)
+        if isinstance(value, str) and value:
+            return value
+        if isinstance(value, (int, float)):
+            return str(value)
+    return None
+
+
+def _first_int(data: dict[str, Any], keys: tuple[str, ...]) -> int | None:
+    for key in keys:
+        value = data.get(key)
+        if isinstance(value, int):
+            return value
+        if isinstance(value, str):
+            try:
+                return int(value)
+            except ValueError:
+                pass
+    return None
+
+
+def _listed_replay_from_dict(data: dict[str, Any], default_game: str, default_emulator: str) -> ListedReplay | None:
+    fcade_url = _find_fcade_url(data)
+    if fcade_url:
+        return ListedReplay(target=parse_fcade_url(fcade_url), source=data)
+
+    token = _first_str(data, ("token", "quarkid", "replayid", "replay_id", "id"))
+    if not token:
+        return None
+
+    game = _first_str(data, ("gameid", "game", "rom")) or default_game
+    emulator = _first_str(data, ("emulator", "emu")) or default_emulator
+    port = _first_int(data, ("port", "replayport", "replay_port")) or DEFAULT_PORT
+    return ListedReplay(target=ReplayTarget(emulator=emulator, game=game, token=token, port=port), source=data)
+
+
+def extract_listed_replays(api_response: Any, default_game: str, default_emulator: str) -> list[ListedReplay]:
+    seen: set[tuple[str, str, int]] = set()
+    replays: list[ListedReplay] = []
+    for value in _json_walk(api_response):
+        if not isinstance(value, dict):
+            continue
+        replay = _listed_replay_from_dict(value, default_game=default_game, default_emulator=default_emulator)
+        if not replay:
+            continue
+        key = (replay.target.game, replay.target.token, replay.target.port)
+        if key in seen:
+            continue
+        seen.add(key)
+        replays.append(replay)
+    return replays
+
+
+def search_quarks(
+    api_url: str,
+    gameid: str,
+    offset: int,
+    limit: int,
+    best: bool,
+    since: int | None,
+    cookie: str | None,
+    timeout: float,
+    user_agent: str,
+) -> Any:
+    payload: dict[str, Any] = {
+        "req": "searchquarks",
+        "offset": offset,
+        "limit": limit,
+        "gameid": gameid,
+    }
+    if best:
+        payload["best"] = True
+    if since is not None:
+        payload["since"] = since
+
+    body = json.dumps(payload).encode("utf-8")
+    headers = {
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json;charset=UTF-8",
+        "Origin": "https://www.fightcade.com",
+        "Referer": f"https://www.fightcade.com/game/{gameid}",
+        "User-Agent": user_agent,
+    }
+    cookie_value = cookie or os.environ.get(DEFAULT_COOKIE_ENV)
+    if cookie_value:
+        headers["Cookie"] = cookie_value
+
+    req = urllib.request.Request(api_url, data=body, headers=headers, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as response:
+            raw = response.read()
+    except urllib.error.HTTPError as exc:
+        if exc.code == 403:
+            raise FightcadeApiError(
+                "Fightcade API returned 403 Forbidden. The replay listing endpoint usually needs "
+                "a current Cloudflare clearance cookie; pass --cookie 'cf_clearance=...' or set "
+                f"{DEFAULT_COOKIE_ENV}."
+            ) from exc
+        raise FightcadeApiError(f"Fightcade API request failed with HTTP {exc.code}: {exc.reason}") from exc
+    except urllib.error.URLError as exc:
+        raise FightcadeApiError(f"Fightcade API request failed: {exc.reason}") from exc
+    return json.loads(raw.decode("utf-8"))
 
 
 def do_handshake(sock: socket.socket, token: str, send_delay_ms: float) -> list[bytes]:
@@ -230,8 +385,14 @@ def download_replay(
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.settimeout(timeout)
     if local_port > 0:
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.bind(("", local_port))
+        try:
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            sock.bind(("", local_port))
+        except OSError:
+            sock.close()
+            used_local_port = 0
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(timeout)
     try:
         sock.connect((host, target.port))
     except (TimeoutError, socket.timeout):
@@ -356,6 +517,188 @@ def cmd_download(args: argparse.Namespace) -> int:
     return 0
 
 
+def _safe_token(token: str) -> str:
+    return token.replace("/", "_").replace("\\", "_").replace(":", "_")
+
+
+def fetch_replay_list(args: argparse.Namespace) -> list[ListedReplay]:
+    if args.count < 1:
+        return []
+    if args.page_size < 1:
+        raise ValueError("--page-size must be at least 1")
+
+    replays: list[ListedReplay] = []
+    seen: set[tuple[str, str, int]] = set()
+    offset = args.offset
+
+    while len(replays) < args.count:
+        page_limit = min(args.page_size, args.count - len(replays))
+        response = search_quarks(
+            api_url=args.api_url,
+            gameid=args.gameid,
+            offset=offset,
+            limit=page_limit,
+            best=args.best,
+            since=args.since,
+            cookie=args.cookie,
+            timeout=args.api_timeout,
+            user_agent=args.user_agent,
+        )
+        page_replays = extract_listed_replays(response, default_game=args.gameid, default_emulator=args.emulator)
+        if not page_replays:
+            break
+
+        added = 0
+        for replay in page_replays:
+            key = (replay.target.game, replay.target.token, replay.target.port)
+            if key in seen:
+                continue
+            seen.add(key)
+            replays.append(replay)
+            added += 1
+            if len(replays) >= args.count:
+                break
+
+        if added == 0 or len(page_replays) < page_limit:
+            break
+        offset += page_limit
+
+    return replays
+
+
+def cmd_list_replays(args: argparse.Namespace) -> int:
+    replays = fetch_replay_list(args)
+    payload = [
+        {
+            "fcade_url": f"fcade://stream/{r.target.emulator}/{r.target.game}/{r.target.token},{r.target.port}",
+            "emulator": r.target.emulator,
+            "game": r.target.game,
+            "token": r.target.token,
+            "port": r.target.port,
+            "source": r.source,
+        }
+        for r in replays
+    ]
+    print(json.dumps(payload, indent=2))
+    return 0
+
+
+def cmd_bulk_download(args: argparse.Namespace) -> int:
+    out_dir = Path(args.out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    replays = fetch_replay_list(args)
+
+    results: list[dict[str, Any]] = []
+    for index, replay in enumerate(replays, start=1):
+        target = replay.target
+        replay_dir = out_dir / f"{target.game}-{_safe_token(target.token)}"
+        quark_path = replay_dir / "quark.json"
+        result: dict[str, Any] = {
+            "index": index,
+            "out_dir": str(replay_dir),
+            "quark_json": str(quark_path),
+            "emulator": target.emulator,
+            "game": target.game,
+            "token": target.token,
+            "port": target.port,
+            "source": replay.source,
+        }
+
+        summary_path = replay_dir / "summary.json"
+        if args.dry_run:
+            result["status"] = "dry-run"
+        elif summary_path.exists() and not args.overwrite:
+            replay_dir.mkdir(parents=True, exist_ok=True)
+            quark_path.write_text(json.dumps(replay.source, indent=2), encoding="utf-8")
+            result["status"] = "skipped-existing"
+        else:
+            print(f"[{index}/{len(replays)}] downloading {target.game} {target.token}", file=sys.stderr)
+            try:
+                replay_dir.mkdir(parents=True, exist_ok=True)
+                quark_path.write_text(json.dumps(replay.source, indent=2), encoding="utf-8")
+                summary = download_replay(
+                    target=target,
+                    host=args.host,
+                    out_dir=replay_dir,
+                    timeout=args.timeout,
+                    idle_timeout=args.idle_timeout,
+                    max_idle_timeouts=args.max_idle_timeouts,
+                    max_frames=args.max_frames,
+                    local_port=args.local_port,
+                    send_delay_ms=args.send_delay_ms,
+                )
+                result["status"] = "downloaded"
+                result["message_count"] = len(summary["messages"])
+            except Exception as exc:  # noqa: BLE001
+                result["status"] = "error"
+                result["error"] = str(exc)
+                if not args.keep_going:
+                    results.append(result)
+                    break
+            if args.delay > 0 and index < len(replays):
+                time.sleep(args.delay)
+
+        results.append(result)
+
+    manifest = {
+        "created_at_unix": int(time.time()),
+        "gameid": args.gameid,
+        "requested_count": args.count,
+        "found_count": len(replays),
+        "results": results,
+    }
+    manifest_path = out_dir / "bulk_manifest.json"
+    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    counts: dict[str, int] = {}
+    for result in results:
+        status = str(result.get("status", "unknown"))
+        counts[status] = counts.get(status, 0) + 1
+    print(json.dumps({"out_dir": str(out_dir), "manifest": str(manifest_path), "counts": counts}, indent=2))
+    return 1 if any(result.get("status") == "error" for result in results) else 0
+
+
+def add_search_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--gameid", required=True, help="Fightcade game id, e.g. sfiii3nr1")
+    parser.add_argument("--emulator", default="fbneo", help="emulator to use if API rows do not include one")
+    parser.add_argument("--count", type=int, default=200, help="number of replays to fetch")
+    parser.add_argument("--offset", type=int, default=0, help="initial Fightcade search offset")
+    parser.add_argument("--page-size", type=int, default=15, help="Fightcade search page size")
+    parser.add_argument("--best", action="store_true", help="request Fightcade best replays")
+    parser.add_argument("--since", type=int, help="Fightcade since timestamp in milliseconds")
+    parser.add_argument("--api-url", default=DEFAULT_API_URL)
+    parser.add_argument("--api-timeout", type=float, default=20.0)
+    parser.add_argument(
+        "--cookie",
+        help=f"optional Cookie header value, e.g. cf_clearance=...; defaults to ${DEFAULT_COOKIE_ENV}",
+    )
+    parser.add_argument("--user-agent", default=DEFAULT_USER_AGENT)
+
+
+def add_download_stream_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--host", default=DEFAULT_HOST)
+    parser.add_argument("--timeout", type=float, default=10.0)
+    parser.add_argument(
+        "--local-port",
+        type=int,
+        default=6004,
+        help="bind local source TCP port (Fightcade client uses 6004); falls back to ephemeral if unavailable",
+    )
+    parser.add_argument("--idle-timeout", type=float, default=2.0)
+    parser.add_argument(
+        "--send-delay-ms",
+        type=float,
+        default=15.0,
+        help="delay between handshake frames to better mimic original client pacing",
+    )
+    parser.add_argument(
+        "--max-idle-timeouts",
+        type=int,
+        default=10,
+        help="stop after this many consecutive idle read timeouts",
+    )
+    parser.add_argument("--max-frames", type=int, default=2000)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Fightcade replay downloader/parser")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -366,31 +709,24 @@ def build_parser() -> argparse.ArgumentParser:
     p_download.add_argument("--game")
     p_download.add_argument("--token")
     p_download.add_argument("--port", type=int, default=DEFAULT_PORT)
-    p_download.add_argument("--host", default=DEFAULT_HOST)
-    p_download.add_argument("--timeout", type=float, default=10.0)
-    p_download.add_argument(
-        "--local-port",
-        type=int,
-        default=6004,
-        help="bind local source TCP port (Fightcade client uses 6004)",
-    )
-    p_download.add_argument("--idle-timeout", type=float, default=2.0)
-    p_download.add_argument(
-        "--send-delay-ms",
-        type=float,
-        default=15.0,
-        help="delay between handshake frames to better mimic original client pacing",
-    )
-    p_download.add_argument(
-        "--max-idle-timeouts",
-        type=int,
-        default=10,
-        help="stop after this many consecutive idle read timeouts",
-    )
-    p_download.add_argument("--max-frames", type=int, default=2000)
+    add_download_stream_args(p_download)
     p_download.add_argument("--out-dir", default="fcade-replays/output")
     p_download.add_argument("--auto-dir", action="store_true", help="append <game>-<token> subdir")
     p_download.set_defaults(func=cmd_download)
+
+    p_list = sub.add_parser("list-replays", help="list replay stream targets from Fightcade searchquarks")
+    add_search_args(p_list)
+    p_list.set_defaults(func=cmd_list_replays)
+
+    p_bulk = sub.add_parser("bulk-download", help="download replay streams found via Fightcade searchquarks")
+    add_search_args(p_bulk)
+    add_download_stream_args(p_bulk)
+    p_bulk.add_argument("--out-dir", default="fcade-replays/output/bulk")
+    p_bulk.add_argument("--delay", type=float, default=0.25, help="seconds to sleep between downloads")
+    p_bulk.add_argument("--overwrite", action="store_true", help="download even when summary.json already exists")
+    p_bulk.add_argument("--keep-going", action="store_true", help="continue after an individual replay fails")
+    p_bulk.add_argument("--dry-run", action="store_true", help="write a manifest without connecting to replay streams")
+    p_bulk.set_defaults(func=cmd_bulk_download)
 
     return parser
 
