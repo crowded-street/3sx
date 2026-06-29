@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/engine/hitcheck.h"
+#include "arcade/arcade_balance.h"
 #include "bin2obj/exchange.h"
 #include "bin2obj/gauge.h"
 #include "common.h"
@@ -56,7 +57,7 @@ void make_red_blocking_time(s16 id, s16 ix, s16 num) {
     }
 }
 
-void hit_check_main_process() {
+void hit_check_main_process() { // 🟢
     aiuchi_flag = 0;
 
     if (hpq_in > 1) {
@@ -74,7 +75,7 @@ void hit_check_main_process() {
     clear_hit_queue();
 }
 
-s16 set_judge_result() {
+s16 set_judge_result() { // 🟢
     s16 i;
     s16 rnum = 0;
 
@@ -93,7 +94,7 @@ s16 set_judge_result() {
     return rnum;
 }
 
-void check_result_extra() {
+void check_result_extra() { // 🟢
     WORK_Other* dm1p;
     WORK_Other* dm2p;
     s16 hs1;
@@ -153,13 +154,13 @@ void check_result_extra() {
             plw[0].wu.dm_stop = plw[1].wu.dm_stop = 0;
             plw[0].wu.dm_quake = plw[1].wu.dm_quake = 0;
             plw[0].wu.dm_nodeathattack = plw[1].wu.dm_nodeathattack = 0;
+            break;
         }
-
-        return;
     }
 }
 
-void set_caught_status(s16 ix) {
+void set_caught_status(s16 ix) { // 🟡
+    // CPS3 lacks the port-side vibration and training chip-damage metadata kept below.
     s16 ix2 = hs[ix].dm_me;
     PLW* as = (PLW*)q_hit_push[ix2];
     PLW* ds = (PLW*)q_hit_push[ix];
@@ -352,7 +353,7 @@ set_paring_status:
     set_paring_status(as, ds);
 }
 
-s32 check_pat_status(WORK* wk) {
+s32 check_pat_status(WORK* wk) { // 🟢
     if (wk->pat_status >= 14 && wk->pat_status < 31) {
         return 1;
     }
@@ -360,7 +361,7 @@ s32 check_pat_status(WORK* wk) {
     return 0;
 }
 
-s16 check_blocking_flag(PLW* as, PLW* ds) {
+s16 check_blocking_flag(PLW* as, PLW* ds) { // 🟢
     WORK_CP* wp;
     s16 num;
 
@@ -371,13 +372,13 @@ s16 check_blocking_flag(PLW* as, PLW* ds) {
     return num;
 }
 
-void setup_catch_atthit(WORK* as, WORK* ds) {
+void setup_catch_atthit(WORK* as, WORK* ds) { // 🟢
     set_damage_and_piyo((PLW*)as, (PLW*)ds);
     dm_status_copy(as, ds);
     as->hit_stop = ds->dm_stop = 0;
 }
 
-void set_catch_hit_mark_pos(WORK* as, WORK* ds) {
+void set_catch_hit_mark_pos(WORK* as, WORK* ds) { // 🟢
     if (as->att.mkh_ix) {
         if (as->rl_flag) {
             as->hit_mark_x = as->xyz[0].disp.pos - hit_mark_hosei_table[as->att.mkh_ix][0];
@@ -386,13 +387,12 @@ void set_catch_hit_mark_pos(WORK* as, WORK* ds) {
         }
 
         as->hit_mark_y = as->xyz[1].disp.pos + hit_mark_hosei_table[as->att.mkh_ix][1];
-        return;
+    } else {
+        cal_hit_mark_position(ds, as, ds->h_cau->cau_box, as->h_cat->cat_box);
     }
-
-    cal_hit_mark_position(ds, as, (s16*)ds->h_cau, (s16*)as->h_cat);
 }
 
-void set_struck_status(s16 ix) {
+void set_struck_status(s16 ix) { // 🟢
     WORK* as;
     WORK* ds;
     s16 ix2;
@@ -452,7 +452,8 @@ void cal_hit_mark_pos(WORK* as, WORK* ds, s16 ix2, s16 ix) {
 
 const s16 Dsas_dir_table[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0 };
 
-void plef_at_vs_player_damage_union(PLW* as, PLW* ds, s8 gddir) {
+void plef_at_vs_player_damage_union(PLW* as, PLW* ds, s8 gddir) { // 🟡
+    // CPS3 lacks the port-side training chip-damage metadata resets kept below.
     ds->wu.dm_guard_success = -1;
 
     if (ds->guard_flag == 3 || as->wu.att.guard == 0 || ds->py->flag != 0) {
@@ -571,7 +572,7 @@ set_paring_status:
     set_paring_status(as, ds);
 }
 
-void dm_reaction_init_set(PLW* as, PLW* ds) {
+void dm_reaction_init_set(PLW* as, PLW* ds) { // 🟢
     ds->wu.routine_no[2] = as->wu.att.reaction;
 
     if (ds->wu.routine_no[2] == 89 || ds->wu.routine_no[2] == 90) {
@@ -589,7 +590,8 @@ void dm_reaction_init_set(PLW* as, PLW* ds) {
     ds->wu.routine_no[2] = change_damage_attribute(as, as->wu.at_attribute, ds->wu.routine_no[2]);
 }
 
-void set_guard_status(PLW* as, PLW* ds) {
+void set_guard_status(PLW* as, PLW* ds) { // 🟡
+    // CPS3 always starts the guard effect; local keeps the semi-auto parry option's presentation behavior.
     if (as->wu.att.hs_you == 0 && as->wu.att.hs_me == 0) {
         ds->wu.routine_no[2] = ds->wu.old_rno[2];
     } else {
@@ -621,7 +623,9 @@ const s8 sel_sp_ch_tbl[12] = { 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0 };
 
 const s16 sel_hs_add_tbl[6] = { 4, 3, 2, 1, 0, 0 };
 
-void set_paring_status(PLW* as, PLW* ds) {
+void set_paring_status(PLW* as, PLW* ds) { // 🟡
+    // CPS3 always awards parry bonuses;
+    // local's default DIP disables auto-parry, so this only differs when auto-parry is enabled.
     s16 hsadix;
 
     if ((as->wu.att.hs_you == 0) && (as->wu.att.hs_me == 0)) {
@@ -699,7 +703,7 @@ void set_paring_status(PLW* as, PLW* ds) {
             remake_mvxy_PoGR(&as->wu);
         }
 
-        if (Bonus_Game_Flag == 0 && ds->spmv_ng_flag & 0x80) {
+        if (Bonus_Game_Flag == 0 && (ds->spmv_ng_flag & DIP_AUTO_PARRY_DISABLED)) {
             paring_bonus_r[ds->wu.id] = 1;
             paring_ctr_vs[Play_Type][ds->wu.id]++;
 
@@ -716,11 +720,12 @@ void set_paring_status(PLW* as, PLW* ds) {
     hit_pattern_extdat_check(&as->wu);
 }
 
-s32 check_normal_attack(u8 waza) {
+s32 check_normal_attack(u8 waza) { // 🟢
     return sel_sp_ch_tbl[waza >> 3] == 0;
 }
 
-void hit_pattern_extdat_check(WORK* as) {
+void hit_pattern_extdat_check(WORK* as) { // 🟡
+    // CPS3 leaves cg_extdat latched; local's extra cancel rewrites are DIP-gated and default off.
     s16 i;
 
     switch ((as->cg_extdat & 0xC0) + ((as->cg_extdat & 0x3F) != 0)) {
@@ -730,7 +735,11 @@ void hit_pattern_extdat_check(WORK* as) {
 
     case 0x40:
         as->cg_ctr = 1;
-        as->cg_extdat = 0;
+
+        if (!ArcadeBalance_IsEnabled()) {
+            as->cg_extdat = 0;
+        }
+
         break;
 
     case 0x81:
@@ -748,7 +757,11 @@ void hit_pattern_extdat_check(WORK* as) {
         setup_comm_abbak(as);
         as->cg_ix = ((as->cg_extdat & 0x3F) - 1) * as->cgd_type - as->cgd_type;
         as->cg_next_ix = 0;
-        as->cg_extdat = 0;
+
+        if (!ArcadeBalance_IsEnabled()) {
+            as->cg_extdat = 0;
+        }
+
         break;
     }
 
@@ -841,8 +854,10 @@ void hit_pattern_extdat_check(WORK* as) {
     }
 }
 
-s16 check_dm_att_guard(WORK* as, WORK* ds, s16 kom) {
+s16 check_dm_att_guard(WORK* as, WORK* ds, s16 kom) { // 🟡
+    // CPS3 uses raw kezuri_pow; local defaults match CPS3 for chip DIPs, while non-arcade keeps the kom scaling.
     s16 curr_id;
+    s16 divisor;
     s16 rnum;
 
     rnum = 0;
@@ -861,7 +876,13 @@ s16 check_dm_att_guard(WORK* as, WORK* ds, s16 kom) {
     if (as->kezuri_pow) {
         if (ds->dm_vital != 0) {
             ds->kezurare_flag = 1;
-            ds->dm_vital = ds->dm_vital / (as->kezuri_pow / kom);
+            divisor = as->kezuri_pow;
+
+            if (!ArcadeBalance_IsEnabled()) {
+                divisor /= kom;
+            }
+
+            ds->dm_vital = ds->dm_vital / divisor;
 
             if (ds->dm_vital == 0) {
                 ds->dm_vital = 1;
@@ -883,7 +904,8 @@ s16 check_dm_att_guard(WORK* as, WORK* ds, s16 kom) {
     return rnum;
 }
 
-s16 check_dm_att_blocking(WORK* as, WORK* ds, s16 dnum) {
+s16 check_dm_att_blocking(WORK* as, WORK* ds, s16 dnum) { // 🟡
+    // CPS3 lacks the port-side training chip-damage metadata kept below.
     s16 rnum = 0;
     TAMA* tama = (TAMA*)as->my_effadrs;
 
@@ -919,7 +941,8 @@ s16 check_dm_att_blocking(WORK* as, WORK* ds, s16 dnum) {
     return rnum;
 }
 
-void set_damage_and_piyo(PLW* as, PLW* ds) {
+void set_damage_and_piyo(PLW* as, PLW* ds) { // 🟡
+    // CPS3 has fixed stun gain; local's extra-option stun multiplier is neutral by default.
     cal_damage_vitality(as, ds);
     ds->wu.dm_piyo = _add_piyo_gauge[as->player_number][as->wu.att.piyo];
     ds->wu.dm_piyo = ds->wu.dm_piyo * stun_gauge_omake[omop_stun_gauge_add[(ds->wu.id + 1) & 1]] / 32;
@@ -985,7 +1008,7 @@ void set_damage_and_piyo(PLW* as, PLW* ds) {
     }
 }
 
-s16 remake_score_index(s16 dmv) {
+s16 remake_score_index(s16 dmv) { // 🟢
     s16 i;
 
     for (i = 0; i < 16; i++) {
@@ -997,7 +1020,7 @@ s16 remake_score_index(s16 dmv) {
     return rsix_r_table[i][1];
 }
 
-void same_dm_stop(WORK* as, WORK* ds) {
+void same_dm_stop(WORK* as, WORK* ds) { // 🟢
     if (as->work_id == 1 && as->att.dipsw & 1 && (ds->xyz[1].disp.pos > 0 || (ds->vital_new - ds->dm_vital) < -2)) {
         switch ((ds->dm_stop < 0) + ((as->att.hs_me < 0) * 2)) {
         case 1:
@@ -1015,7 +1038,60 @@ void same_dm_stop(WORK* as, WORK* ds) {
     }
 }
 
-s32 defense_sky(PLW* as, PLW* ds, s8 gddir) {
+s32 defense_sky_cps3(PLW* as, PLW* ds, s8 gddir) { // 🟢
+    if (ds->py->flag == 0 && !(ds->guard_flag & 2) && as->wu.att.guard & 4) {
+        if (!(ds->spmv_ng_flag & DIP_AIR_PARRY_DISABLED) && ds->cp->waza_flag[5] != 0) {
+            blocking_point_count_up(ds);
+            as->wu.hf.hit.player = 0x80;
+            ds->wu.routine_no[2] = 0x22;
+
+            if (check_dm_att_blocking(&as->wu, &ds->wu, 7)) {
+                return 2;
+            }
+
+            return 0;
+        }
+
+        if (!(ds->spmv_ng_flag & DIP_ANTI_AIR_PARRY_DISABLED) && ds->cp->waza_flag[6] != 0) {
+            blocking_point_count_up(ds);
+            as->wu.hf.hit.player = 0x80;
+            ds->wu.routine_no[2] = 0x23;
+
+            if (check_dm_att_blocking(&as->wu, &ds->wu, 7)) {
+                return 2;
+            }
+
+            return 0;
+        }
+    }
+
+    if (!(as->wu.att.guard & 0x20)) {
+        return 2;
+    }
+
+    if (ds->guard_flag & 1) {
+        return 2;
+    }
+
+    if (ds->spmv_ng_flag & DIP_AIR_GUARD_DISABLED) {
+        return 2;
+    }
+
+    if (!(gddir & ds->saishin_lvdir)) {
+        return 2;
+    }
+
+    as->wu.hf.hit.player = 0x20;
+    ds->wu.routine_no[2] = 7;
+
+    if (check_dm_att_guard(&as->wu, &ds->wu, 2)) {
+        return 2;
+    }
+
+    return 1;
+}
+
+s32 defense_sky_ps2(PLW* as, PLW* ds, s8 gddir) { // 🔴
     s8 just_now;
     s8 attr_att;
     s8 abs;
@@ -1095,7 +1171,18 @@ s32 defense_sky(PLW* as, PLW* ds, s8 gddir) {
     return 1;
 }
 
-void blocking_point_count_up(PLW* wk) {
+s32 defense_sky(PLW* as, PLW* ds, s8 gddir) { // 🟡
+    // CPS3 lacks the local red-parry/auto-guard extensions and has a second air-parry branch.
+    if (ArcadeBalance_IsEnabled()) {
+        return defense_sky_cps3(as, ds, gddir);
+    } else {
+        return defense_sky_ps2(as, ds, gddir);
+    }
+}
+
+void blocking_point_count_up(PLW* wk) { // 🟡
+    // CPS3 always scores parries; local's default DIP disables auto-parry, so this only differs when auto-parry is
+    // enabled.
     wk->kind_of_blocking = 0;
 
     if (wk->wu.routine_no[1] == 0 && wk->wu.routine_no[2] > 30 && wk->wu.routine_no[2] < 36) {
@@ -1106,12 +1193,164 @@ void blocking_point_count_up(PLW* wk) {
         wk->kind_of_blocking = 2;
     }
 
-    if (wk->spmv_ng_flag & 0x80) {
+    if (wk->spmv_ng_flag & DIP_AUTO_PARRY_DISABLED) {
         grade_add_blocking(wk);
     }
 }
 
-s32 defense_ground(PLW* as, PLW* ds, s8 gddir) {
+s32 defense_ground_cps3(PLW* as, PLW* ds, s8 gddir) { // 🟢
+    s8 just_now = 0;
+    s8 attr_att = 0;
+
+    if (ds->guard_chuu != 0 && ds->guard_chuu < 5) {
+        just_now = 1;
+        attr_att = check_normal_attack(as->wu.kind_of_waza);
+    }
+
+    if (ds->py->flag == 0 && !(ds->guard_flag & 2) && as->wu.att.guard & 3) {
+        if ((as->wu.att.guard & 2) && !(ds->spmv_ng_flag & DIP_UNKNOWN_8)) {
+            if (just_now) {
+                if (ds->cp->waza_flag[3] >= grdb[ds->wu.id][attr_att][0]) {
+                    blocking_point_count_up(ds);
+                    as->wu.hf.hit.player = 0x40;
+
+                    if (check_attbox_dir(ds) == 0) {
+                        ds->wu.routine_no[2] = 0x1F;
+                    } else {
+                        ds->wu.routine_no[2] = 0x20;
+                    }
+
+                    if (check_dm_att_blocking(&as->wu, &ds->wu, 5)) {
+                        return 2;
+                    }
+
+                    return 0;
+                }
+            } else if (as->wu.jump_att_flag == 0) {
+                if (ds->cp->waza_flag[3] != 0) {
+                    blocking_point_count_up(ds);
+                    as->wu.hf.hit.player = 0x40;
+
+                    if (check_attbox_dir(ds) == 0) {
+                        ds->wu.routine_no[2] = 0x1F;
+                    } else {
+                        ds->wu.routine_no[2] = 0x20;
+                    }
+
+                    if (check_dm_att_blocking(&as->wu, &ds->wu, 5)) {
+                        return 2;
+                    }
+
+                    return 0;
+                }
+            } else if (ds->cp->waza_flag[12] != 0) {
+                blocking_point_count_up(ds);
+                as->wu.hf.hit.player = 0x40;
+
+                if (check_attbox_dir(ds) == 0) {
+                    ds->wu.routine_no[2] = 0x1F;
+                } else {
+                    ds->wu.routine_no[2] = 0x20;
+                }
+
+                if (check_dm_att_blocking(&as->wu, &ds->wu, 5)) {
+                    return 2;
+                }
+
+                return 0;
+            }
+        }
+
+        if ((as->wu.att.guard & 1) && !(ds->spmv_ng_flag & DIP_UNKNOWN_9)) {
+            if (just_now) {
+                if (ds->cp->waza_flag[4] >= grdb[ds->wu.id][attr_att][1]) {
+                    blocking_point_count_up(ds);
+                    as->wu.hf.hit.player = 0x40;
+                    ds->wu.routine_no[2] = 0x21;
+
+                    if (check_dm_att_blocking(&as->wu, &ds->wu, 6)) {
+                        return 2;
+                    }
+
+                    return 0;
+                }
+            } else if (ds->cp->waza_flag[4] != 0) {
+                blocking_point_count_up(ds);
+                as->wu.hf.hit.player = 0x40;
+                ds->wu.routine_no[2] = 0x21;
+
+                if (check_dm_att_blocking(&as->wu, &ds->wu, 6)) {
+                    return 2;
+                }
+
+                return 0;
+            }
+        }
+    }
+
+    if (!(as->wu.att.guard & 0x18)) {
+        return 2;
+    }
+
+    if (ds->guard_flag & 1) {
+        return 2;
+    }
+
+    if (ds->spmv_ng_flag & DIP_GUARD_DISABLED) {
+        return 2;
+    }
+
+    if (!ds->auto_guard) {
+        if (!(ds->saishin_lvdir & gddir)) {
+            return 2;
+        }
+
+        if (ds->cp->sw_lvbt & 1) {
+            return 2;
+        }
+    }
+
+    switch (as->wu.att.guard & 0x18) {
+    case 8:
+        if (!(ds->cp->sw_lvbt & 2)) {
+            return 2;
+        }
+
+        ds->wu.routine_no[2] = 6;
+        break;
+
+    case 16:
+        if (ds->cp->sw_lvbt & 2) {
+            return 2;
+        }
+
+        ds->wu.routine_no[2] = 5;
+        break;
+
+    default:
+        if (ds->cp->sw_lvbt & 2) {
+            ds->wu.routine_no[2] = 6;
+            break;
+        }
+
+        ds->wu.routine_no[2] = 5;
+        break;
+    }
+
+    as->wu.hf.hit.player = 0x10;
+
+    if (ds->wu.routine_no[2] == 5 && check_attbox_dir(ds) == 0) {
+        ds->wu.routine_no[2] = 4;
+    }
+
+    if (check_dm_att_guard(&as->wu, &ds->wu, 1)) {
+        return 2;
+    }
+
+    return 1;
+}
+
+s32 defense_ground_ps2(PLW* as, PLW* ds, s8 gddir) { // 🔴
     s8 just_now;
     s8 attr_att;
     s8 abs;
@@ -1292,7 +1531,16 @@ s32 defense_ground(PLW* as, PLW* ds, s8 gddir) {
     return 1;
 }
 
-void setup_dm_rl(WORK* as, WORK* ds) {
+s32 defense_ground(PLW* as, PLW* ds, s8 gddir) { // 🟡
+    // CPS3 lacks the local red-parry/auto-guard extensions in the PS2 ground-defense path.
+    if (ArcadeBalance_IsEnabled()) {
+        return defense_ground_cps3(as, ds, gddir);
+    } else {
+        return defense_ground_ps2(as, ds, gddir);
+    }
+}
+
+void setup_dm_rl(WORK* as, WORK* ds) { // 🟢
     s16 pw;
 
     if (as->work_id != 1 || check_ttk_damage_request(as->att.reaction)) {
@@ -1324,7 +1572,8 @@ void setup_dm_rl(WORK* as, WORK* ds) {
     }
 }
 
-void dm_status_copy(WORK* as, WORK* ds) {
+void dm_status_copy(WORK* as, WORK* ds) { // 🟡
+    // CPS3 lacks the port-side vibration feedback kept below.
     ds->dm_attlv = as->att.level;
     ds->dm_impact = as->att.impact;
     ds->dm_dir = as->dir_atthit;
@@ -1359,7 +1608,7 @@ void dm_status_copy(WORK* as, WORK* ds) {
     as->meoshi_hit_flag = 1;
 }
 
-void add_combo_work(PLW* as, PLW* ds) {
+void add_combo_work(PLW* as, PLW* ds) { // 🟢
     s16* kow;
     s16* cal;
 
@@ -1378,7 +1627,7 @@ void add_combo_work(PLW* as, PLW* ds) {
     ds->rp->total++;
 }
 
-void nise_combo_work(PLW* as, PLW* ds, s16 num) {
+void nise_combo_work(PLW* as, PLW* ds, s16 num) { // 🟢
     s16* kow;
     s16* cal;
     s16 i;
@@ -1396,7 +1645,7 @@ void nise_combo_work(PLW* as, PLW* ds, s16 num) {
     }
 }
 
-void cal_combo_waribiki(PLW* as, PLW* ds) {
+void cal_combo_waribiki(PLW* as, PLW* ds) { // 🟢
     POWER* power;
     KOATT* koatt;
     s16 i;
@@ -1432,7 +1681,8 @@ void cal_combo_waribiki(PLW* as, PLW* ds) {
 
     power = (POWER*)_exchange_pow[as->wu.kind_of_waza >> 1];
 
-    if ((as->player_number == 3 || as->player_number == 10) && (as->sa->kind_of_arts == 2 && as->sa->ok == -1)) {
+    if ((as->player_number == CHAR_YUN || as->player_number == CHAR_YANG) &&
+        (as->sa->kind_of_arts == 2 && as->sa->ok == -1)) {
         power = (POWER*)_exchange_pow_pl03_sa3[as->wu.kind_of_waza >> 1];
     }
 
@@ -1448,7 +1698,7 @@ void cal_combo_waribiki(PLW* as, PLW* ds) {
     }
 }
 
-void cal_combo_waribiki2(PLW* ds) {
+void cal_combo_waribiki2(PLW* ds) { // 🟢
     s16 num;
 
     if (ds->wu.dm_piyo == 0) {
@@ -1476,7 +1726,7 @@ void cal_combo_waribiki2(PLW* ds) {
     }
 }
 
-void catch_hit_check() {
+void catch_hit_check() { // 🟢
     WORK* mad;
     WORK* sad;
     s16* mh;
@@ -1562,7 +1812,7 @@ void catch_hit_check() {
     }
 }
 
-void attack_hit_check() {
+void attack_hit_check() { // 🟢
     WORK* mad;
     WORK* sad;
     s16* mh;
@@ -1590,22 +1840,25 @@ void attack_hit_check() {
             dmdat_adrs[lp + 4] = mh;
         }
 
-        dmdat_adrs[8] = &sad->h_att->att_box[2][0];
-        dmdat_adrs[9] = &sad->h_att->att_box[3][0];
-        dmdat_adrs[10] = &sad->h_hos->hos_box[0];
+        dmdat_adrs[8] = sad->h_att->att_box[2];
+        dmdat_adrs[9] = sad->h_att->att_box[3];
+        dmdat_adrs[10] = sad->h_hos->hos_box;
 
         for (mi = 0; mi < hpq_in; mi++) {
             if (mi == si) {
                 continue;
             }
+
             if (hs[mi].flag.results & 0x1110) {
                 continue;
             }
 
             mad = q_hit_push[mi];
+
             if (mad->cg_ja.atix == 0) {
                 continue;
             }
+
             if (mad->att_hit_ok == 0) {
                 continue;
             }
@@ -1627,8 +1880,9 @@ void attack_hit_check() {
                 } else if (((WORK_Other*)mad)->master_id == ((WORK_Other*)sad)->master_id) {
                     continue;
                 }
-            } else if ((sad->work_id != 1 && ((WORK_Other*)sad)->refrected == 0) &&
-                       (mad->id == ((WORK_Other*)sad)->master_id)) {
+            } else if (
+                (sad->work_id != 1 && ((WORK_Other*)sad)->refrected == 0) && (mad->id == ((WORK_Other*)sad)->master_id)
+            ) {
                 continue;
             }
 
@@ -1697,7 +1951,7 @@ void attack_hit_check() {
     }
 }
 
-s16 hit_check_subroutine(WORK* wk1, WORK* wk2, const s16* hd1, const s16* hd2) {
+s16 hit_check_subroutine(WORK* wk1, WORK* wk2, const s16* hd1, const s16* hd2) { // 🟢
     s16 d0;
     s16 d1;
     s16 d2;
@@ -1743,7 +1997,7 @@ s16 hit_check_subroutine(WORK* wk1, WORK* wk2, const s16* hd1, const s16* hd2) {
     return d2;
 }
 
-s32 hit_check_x_only(WORK* wk1, WORK* wk2, s16* hd1, s16* hd2) {
+s32 hit_check_x_only(WORK* wk1, WORK* wk2, s16* hd1, s16* hd2) { // 🟢
     s16 d0;
     s16 d1;
     s16 d2;
@@ -1777,7 +2031,7 @@ s32 hit_check_x_only(WORK* wk1, WORK* wk2, s16* hd1, s16* hd2) {
     return 1;
 }
 
-void cal_hit_mark_position(WORK* wk1, WORK* wk2, s16* hd1, s16* hd2) {
+void cal_hit_mark_position(WORK* wk1, WORK* wk2, s16* hd1, s16* hd2) { // 🟢
     s16 d0 = *hd1++;
     s16 d1 = *hd1++;
     s16 d2;
@@ -1827,7 +2081,7 @@ void cal_hit_mark_position(WORK* wk1, WORK* wk2, s16* hd1, s16* hd2) {
     wk2->hit_mark_y = (d0 + d1) >> 1;
 }
 
-void get_target_att_position(WORK* wk, s16* tx, s16* ty) {
+void get_target_att_position(WORK* wk, s16* tx, s16* ty) { // 🟢
     s16 i;
     s16(*ta)[4];
 
@@ -1851,7 +2105,7 @@ void get_target_att_position(WORK* wk, s16* tx, s16* ty) {
     }
 }
 
-s16 get_att_head_position(WORK* wk) {
+s16 get_att_head_position(WORK* wk) { // 🟢
     s16* ta;
     s16 kx;
     s16 tx;
@@ -1888,16 +2142,17 @@ s16 get_att_head_position(WORK* wk) {
             ta += 4;
         }
     }
+
     return tx;
 }
 
-void hit_push_request(WORK* hpr_wk) {
+void hit_push_request(WORK* hpr_wk) { // 🟢
     if (hpq_in < 31 && hpr_wk->cg_hit_ix != 0) {
         q_hit_push[hpq_in++] = hpr_wk;
     }
 }
 
-void clear_hit_queue() {
+void clear_hit_queue() { // 🟢
     s16 i;
 
     hpq_in = 0;
@@ -1913,15 +2168,16 @@ void clear_hit_queue() {
     SDL_zeroa(hs);
 }
 
-s16 change_damage_attribute(PLW* as, u16 atr, u16 ix) {
+s16 change_damage_attribute(PLW* as, u16 atr, u16 ix) { // 🟢
     switch (atr) {
     case 1:
-        if (as->wu.work_id == 1 && as->player_number == 0 && as->wu.rl_flag) {
+        if (as->wu.work_id == 1 && as->player_number == CHAR_GILL && as->wu.rl_flag) {
             ix = attr_freeze_tbl[ix - 32];
             as->wu.at_attribute = 3;
         } else {
             ix = attr_flame_tbl[ix - 32];
         }
+
         break;
 
     case 2:
@@ -1929,49 +2185,50 @@ s16 change_damage_attribute(PLW* as, u16 atr, u16 ix) {
         break;
 
     case 3:
-        if (as->wu.work_id == 1 && as->player_number == 0 && as->wu.rl_flag) {
+        if (as->wu.work_id == 1 && as->player_number == CHAR_GILL && as->wu.rl_flag) {
             ix = attr_flame_tbl[ix - 32];
             as->wu.at_attribute = 1;
         } else {
             ix = attr_freeze_tbl[ix - 32];
         }
+
         break;
     }
 
     return ix;
 }
 
-s16 get_sky_nm_damage(u16 ix) {
+s16 get_sky_nm_damage(u16 ix) { // 🟢
     ix -= 32;
     return sky_nm_damage_tbl[ix];
 }
 
-s16 get_sky_sp_damage(u16 ix) {
+s16 get_sky_sp_damage(u16 ix) { // 🟢
     ix -= 32;
     return sky_sp_damage_tbl[ix];
 }
 
-s16 get_kagami_damage(u16 ix) {
+s16 get_kagami_damage(u16 ix) { // 🟢
     ix -= 32;
     return kagami_damage_tbl[ix];
 }
 
-s16 get_grd_hand_damage(u16 ix) {
+s16 get_grd_hand_damage(u16 ix) { // 🟢
     ix -= 32;
     return grd_hand_damage_tbl[ix];
 }
 
-u8 check_head_damage(s16 ix) {
+u8 check_head_damage(s16 ix) { // 🟢
     ix -= 32;
     return hddm_damage_tbl[ix];
 }
 
-u8 check_trunk_damage(s16 ix) {
+u8 check_trunk_damage(s16 ix) { // 🟢
     ix -= 32;
     return trdm_damage_tbl[ix];
 }
 
-u8 check_ttk_damage_request(s16 ix) {
+u8 check_ttk_damage_request(s16 ix) { // 🟢
     ix -= 32;
     return ttk_damage_req_tbl[ix];
 }
