@@ -59,6 +59,7 @@ float3 AdjustSaturation(float3 color, float saturation)
 float4 main(VSOutput input) : SV_Target
 {
     float scanline_strength = saturate(scanline_intensity);
+    float4 source_color = tex0.Sample(texSampler, input.texcoord);
 
     float2 coords = input.texcoord * texture_size;
 
@@ -110,5 +111,7 @@ float4 main(VSOutput input) : SV_Target
 
     color.rgb = AdjustSaturation(color.rgb, SATURATION);
 
-    return saturate(GammaOut(color));
+    color = saturate(GammaOut(color));
+
+    return lerp(source_color, color, scanline_strength);
 }
