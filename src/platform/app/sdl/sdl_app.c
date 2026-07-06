@@ -31,6 +31,7 @@
 #endif
 
 #if STATCHECK
+#include "platform/app/sdl/sdl_headless_app.h"
 #include "test/test_runner.h"
 #endif
 
@@ -488,6 +489,13 @@ static int loop() {
 
 int main(int argc, const char* argv[]) {
     init_args(argc, argv);
+
+#if STATCHECK
+    if (get_args()->statcheck.headless) {
+        return SDLHeadlessApp_Run();
+    }
+#endif
+
     return loop();
 }
 

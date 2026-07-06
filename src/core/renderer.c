@@ -5,13 +5,29 @@
 #include "core/renderer.h"
 
 #if CRS_VIDEO_DRIVER_SDL_GENERIC
+#include "args.h"
+
 #include "platform/video/sdl_generic/sdl_generic_renderer.h"
 #elif CRS_VIDEO_DRIVER_PSP
 #include "platform/video/psp/psp_renderer.h"
 #endif
 
+#if CRS_VIDEO_DRIVER_SDL_GENERIC
+static bool skip_rendering() {
+#if STATCHECK
+    return get_args()->statcheck.headless;
+#else
+    return false;
+#endif
+}
+#endif
+
 void Renderer_CreateTexture(unsigned int th) {
 #if CRS_VIDEO_DRIVER_SDL_GENERIC
+    if (skip_rendering()) {
+        return;
+    }
+
     SDLGenericRenderer_CreateTexture(th);
 #elif CRS_VIDEO_DRIVER_PSP
     PSPRenderer_CreateTexture(th);
@@ -20,6 +36,10 @@ void Renderer_CreateTexture(unsigned int th) {
 
 void Renderer_DestroyTexture(unsigned int texture_handle) {
 #if CRS_VIDEO_DRIVER_SDL_GENERIC
+    if (skip_rendering()) {
+        return;
+    }
+
     SDLGenericRenderer_DestroyTexture(texture_handle);
 #elif CRS_VIDEO_DRIVER_PSP
     PSPRenderer_DestroyTexture(texture_handle);
@@ -28,6 +48,10 @@ void Renderer_DestroyTexture(unsigned int texture_handle) {
 
 void Renderer_UnlockTexture(unsigned int th) {
 #if CRS_VIDEO_DRIVER_SDL_GENERIC
+    if (skip_rendering()) {
+        return;
+    }
+
     SDLGenericRenderer_UnlockTexture(th);
 #elif CRS_VIDEO_DRIVER_PSP
     PSPRenderer_UnlockTexture(th);
@@ -36,6 +60,10 @@ void Renderer_UnlockTexture(unsigned int th) {
 
 void Renderer_CreatePalette(unsigned int ph) {
 #if CRS_VIDEO_DRIVER_SDL_GENERIC
+    if (skip_rendering()) {
+        return;
+    }
+
     SDLGenericRenderer_CreatePalette(ph);
 #elif CRS_VIDEO_DRIVER_PSP
     PSPRenderer_CreatePalette(ph);
@@ -44,6 +72,10 @@ void Renderer_CreatePalette(unsigned int ph) {
 
 void Renderer_DestroyPalette(unsigned int palette_handle) {
 #if CRS_VIDEO_DRIVER_SDL_GENERIC
+    if (skip_rendering()) {
+        return;
+    }
+
     SDLGenericRenderer_DestroyPalette(palette_handle);
 #elif CRS_VIDEO_DRIVER_PSP
     PSPRenderer_DestroyPalette(palette_handle);
@@ -52,6 +84,10 @@ void Renderer_DestroyPalette(unsigned int palette_handle) {
 
 void Renderer_UnlockPalette(unsigned int th) {
 #if CRS_VIDEO_DRIVER_SDL_GENERIC
+    if (skip_rendering()) {
+        return;
+    }
+
     SDLGenericRenderer_UnlockPalette(th);
 #elif CRS_VIDEO_DRIVER_PSP
     PSPRenderer_UnlockPalette(th);
@@ -60,6 +96,10 @@ void Renderer_UnlockPalette(unsigned int th) {
 
 void Renderer_SetTexture(unsigned int th) {
 #if CRS_VIDEO_DRIVER_SDL_GENERIC
+    if (skip_rendering()) {
+        return;
+    }
+
     SDLGenericRenderer_SetTexture(th);
 #elif CRS_VIDEO_DRIVER_PSP
     PSPRenderer_SetTexture(th);
@@ -68,6 +108,10 @@ void Renderer_SetTexture(unsigned int th) {
 
 void Renderer_DrawTexturedQuad(const Sprite* sprite, unsigned int color) {
 #if CRS_VIDEO_DRIVER_SDL_GENERIC
+    if (skip_rendering()) {
+        return;
+    }
+
     SDLGenericRenderer_DrawTexturedQuad(sprite, color);
 #elif CRS_VIDEO_DRIVER_PSP
     PSPRenderer_DrawTexturedQuad(sprite, color);
@@ -76,6 +120,10 @@ void Renderer_DrawTexturedQuad(const Sprite* sprite, unsigned int color) {
 
 void Renderer_DrawSprite(const Sprite* sprite, unsigned int color) {
 #if CRS_VIDEO_DRIVER_SDL_GENERIC
+    if (skip_rendering()) {
+        return;
+    }
+
     SDLGenericRenderer_DrawSprite(sprite, color);
 #elif CRS_VIDEO_DRIVER_PSP
     PSPRenderer_DrawSprite(sprite, color);
@@ -84,6 +132,10 @@ void Renderer_DrawSprite(const Sprite* sprite, unsigned int color) {
 
 void Renderer_DrawSprite2(const Sprite2* sprite2) {
 #if CRS_VIDEO_DRIVER_SDL_GENERIC
+    if (skip_rendering()) {
+        return;
+    }
+
     SDLGenericRenderer_DrawSprite2(sprite2);
 #elif CRS_VIDEO_DRIVER_PSP
     PSPRenderer_DrawSprite2(sprite2);
@@ -92,6 +144,10 @@ void Renderer_DrawSprite2(const Sprite2* sprite2) {
 
 void Renderer_DrawSolidQuad(const Quad* quad, unsigned int color) {
 #if CRS_VIDEO_DRIVER_SDL_GENERIC
+    if (skip_rendering()) {
+        return;
+    }
+
     SDLGenericRenderer_DrawSolidQuad(quad, color);
 #elif CRS_VIDEO_DRIVER_PSP
     PSPRenderer_DrawSolidQuad(quad, color);
