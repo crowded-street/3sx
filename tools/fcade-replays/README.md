@@ -16,7 +16,7 @@ It supports:
 Download and parse from a known `fcade://` URL:
 
 ```bash
-python3 fcade-replays/fcade_replay_tool.py download \
+python3 tools/fcade-replays/fcade_replay_tool.py download \
   --fcade-url "fcade://stream/fbneo/sf2ce/1771978700790-3121.7,7100" \
   --local-port 6004 \
   --idle-timeout 2 \
@@ -28,7 +28,7 @@ List the latest replay stream targets for a game:
 
 ```bash
 export FCADE_COOKIE='cf_clearance=...'
-python3 fcade-replays/fcade_replay_tool.py list-replays \
+python3 tools/fcade-replays/fcade_replay_tool.py list-replays \
   --gameid sfiii3nr1 \
   --count 30
 ```
@@ -37,7 +37,7 @@ Download the latest 200 replays for a game:
 
 ```bash
 export FCADE_COOKIE='cf_clearance=...'
-python3 fcade-replays/fcade_replay_tool.py bulk-download \
+python3 tools/fcade-replays/fcade_replay_tool.py bulk-download \
   --gameid sfiii3nr1 \
   --count 200 \
   --keep-going
@@ -46,7 +46,7 @@ python3 fcade-replays/fcade_replay_tool.py bulk-download \
 Download the monthly-best list shape observed in the Fightcade UI:
 
 ```bash
-python3 fcade-replays/fcade_replay_tool.py bulk-download \
+python3 tools/fcade-replays/fcade_replay_tool.py bulk-download \
   --gameid sfiii3nr1 \
   --best \
   --since 1780099200000 \

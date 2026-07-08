@@ -678,7 +678,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_download.add_argument("--token")
     p_download.add_argument("--port", type=int, default=DEFAULT_PORT)
     add_download_stream_args(p_download)
-    p_download.add_argument("--out-dir", default="fcade-replays/output")
+    p_download.add_argument("--out-dir", default="tools/fcade-replays/output")
     p_download.add_argument("--auto-dir", action="store_true", help="append <game>-<token> subdir")
     p_download.set_defaults(func=cmd_download)
 
@@ -689,7 +689,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_bulk = sub.add_parser("bulk-download", help="download replay streams found via Fightcade searchquarks")
     add_search_args(p_bulk)
     add_download_stream_args(p_bulk)
-    p_bulk.add_argument("--out-dir", default="fcade-replays/output/bulk")
+    p_bulk.add_argument("--out-dir", default="tools/fcade-replays/output/bulk")
     p_bulk.add_argument("--delay", type=float, default=0.25, help="seconds to sleep between downloads")
     p_bulk.add_argument("--overwrite", action="store_true", help="download even when summary.json already exists")
     p_bulk.add_argument("--keep-going", action="store_true", help="continue after an individual replay fails")
