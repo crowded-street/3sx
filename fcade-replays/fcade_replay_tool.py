@@ -150,6 +150,12 @@ def _first_int(data: dict[str, Any], keys: tuple[str, ...]) -> int | None:
     return None
 
 
+def _stream_token_from_quark_id(token: str) -> str:
+    if "." in token:
+        return token
+    return f"{token}.7"
+
+
 def _listed_replay_from_dict(data: dict[str, Any], default_game: str, default_emulator: str) -> ListedReplay | None:
     fcade_url = _find_fcade_url(data)
     if fcade_url:
@@ -158,6 +164,7 @@ def _listed_replay_from_dict(data: dict[str, Any], default_game: str, default_em
     token = _first_str(data, ("token", "quarkid", "replayid", "replay_id", "id"))
     if not token:
         return None
+    token = _stream_token_from_quark_id(token)
 
     game = _first_str(data, ("gameid", "game", "rom")) or default_game
     emulator = _first_str(data, ("emulator", "emu")) or default_emulator
