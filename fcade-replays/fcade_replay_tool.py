@@ -109,47 +109,6 @@ def _json_walk(value: Any) -> list[Any]:
     return out
 
 
-def _find_fcade_url(value: Any) -> str | None:
-    if isinstance(value, str) and value.startswith("fcade://stream/"):
-        return value
-    if isinstance(value, dict):
-        for child in value.values():
-            if isinstance(child, str) and child.startswith("fcade://stream/"):
-                return child
-            if isinstance(child, list):
-                found = _find_fcade_url(child)
-                if found:
-                    return found
-    elif isinstance(value, list):
-        for child in value:
-            if isinstance(child, str) and child.startswith("fcade://stream/"):
-                return child
-    return None
-
-
-def _first_str(data: dict[str, Any], keys: tuple[str, ...]) -> str | None:
-    for key in keys:
-        value = data.get(key)
-        if isinstance(value, str) and value:
-            return value
-        if isinstance(value, (int, float)):
-            return str(value)
-    return None
-
-
-def _first_int(data: dict[str, Any], keys: tuple[str, ...]) -> int | None:
-    for key in keys:
-        value = data.get(key)
-        if isinstance(value, int):
-            return value
-        if isinstance(value, str):
-            try:
-                return int(value)
-            except ValueError:
-                pass
-    return None
-
-
 def _stream_token_from_quark_id(token: str) -> str:
     if "." in token:
         return token
@@ -157,18 +116,20 @@ def _stream_token_from_quark_id(token: str) -> str:
 
 
 def _listed_replay_from_dict(data: dict[str, Any], default_game: str, default_emulator: str) -> ListedReplay | None:
-    fcade_url = _find_fcade_url(data)
-    if fcade_url:
-        return ListedReplay(target=parse_fcade_url(fcade_url), source=data)
-
-    token = _first_str(data, ("token", "quarkid", "replayid", "replay_id", "id"))
-    if not token:
+    quark_id = data.get("quarkid")
+    if not isinstance(quark_id, str) or not quark_id:
         return None
-    token = _stream_token_from_quark_id(token)
+    token = _stream_token_from_quark_id(quark_id)
 
-    game = _first_str(data, ("gameid", "game", "rom")) or default_game
-    emulator = _first_str(data, ("emulator", "emu")) or default_emulator
-    port = _first_int(data, ("port", "replayport", "replay_port")) or DEFAULT_PORT
+    game = data.get("gameid")
+    if not isinstance(game, str) or not game:
+        game = default_game
+
+    emulator = data.get("emulator")
+    if not isinstance(emulator, str) or not emulator:
+        emulator = default_emulator
+
+    port = DEFAULT_PORT
     return ListedReplay(target=ReplayTarget(emulator=emulator, game=game, token=token, port=port), source=data)
 
 
