@@ -62,6 +62,10 @@ static int num_tracks = 0;
 static int first_track_index = 0;
 static bool has_tracks = false;
 
+static bool audio_available() {
+    return stream != NULL;
+}
+
 static int stream_data_needed() {
     return MIN_QUEUED_DATA - SDL_GetAudioStreamQueued(stream);
 }
@@ -348,6 +352,10 @@ static ADXTrack* alloc_track() {
 }
 
 void ADX_ProcessTracks() {
+    if (!audio_available()) {
+        return;
+    }
+
     const int first_track_index_old = first_track_index;
     const int num_tracks_old = num_tracks;
 
@@ -375,14 +383,27 @@ void ADX_ProcessTracks() {
 void ADX_Init() {
     const SDL_AudioSpec spec = { .format = SDL_AUDIO_S16, .channels = N_CHANNELS, .freq = SAMPLE_RATE };
     stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, NULL, NULL);
+
+    if (stream == NULL) {
+        SDL_Log("Failed to create audio stream: %s; continuing without sound", SDL_GetError());
+    }
 }
 
 void ADX_Exit() {
+    if (!audio_available()) {
+        return;
+    }
+
     ADX_Stop();
     SDL_DestroyAudioStream(stream);
+    stream = NULL;
 }
 
 void ADX_Stop() {
+    if (!audio_available()) {
+        return;
+    }
+
     ADX_Pause(true);
     SDL_ClearAudioStream(stream);
 
@@ -397,10 +418,18 @@ void ADX_Stop() {
 }
 
 int ADX_IsPaused() {
+    if (!audio_available()) {
+        return 1;
+    }
+
     return SDL_AudioStreamDevicePaused(stream);
 }
 
 void ADX_Pause(int pause) {
+    if (!audio_available()) {
+        return;
+    }
+
     if (pause) {
         SDL_PauseAudioStreamDevice(stream);
     } else {
@@ -409,6 +438,10 @@ void ADX_Pause(int pause) {
 }
 
 void ADX_StartMem(void* buf, size_t size) {
+    if (!audio_available()) {
+        return;
+    }
+
     ADX_Stop();
 
     ADXTrack* track = alloc_track();
@@ -416,15 +449,27 @@ void ADX_StartMem(void* buf, size_t size) {
 }
 
 int ADX_GetNumFiles() {
+    if (!audio_available()) {
+        return 0;
+    }
+
     return num_tracks;
 }
 
 void ADX_EntryAfs(int file_id) {
+    if (!audio_available()) {
+        return;
+    }
+
     ADXTrack* track = alloc_track();
     track_init(track, file_id, NULL, 0, false);
 }
 
 void ADX_StartSeamless() {
+    if (!audio_available()) {
+        return;
+    }
+
     ADX_Pause(false);
 }
 
@@ -433,6 +478,10 @@ void ADX_ResetEntry() {
 }
 
 void ADX_StartAfs(int file_id) {
+    if (!audio_available()) {
+        return;
+    }
+
     ADX_Stop();
 
     ADXTrack* track = alloc_track();
@@ -440,6 +489,10 @@ void ADX_StartAfs(int file_id) {
 }
 
 void ADX_SetOutVol(int volume) {
+    if (!audio_available()) {
+        return;
+    }
+
     // Convert volume (dB * 10) to linear gain
     const float gain = powf(10.0f, volume / 200.0f);
     SDL_SetAudioStreamGain(stream, gain);
@@ -450,6 +503,10 @@ void ADX_SetMono(bool mono) {
 }
 
 ADXState ADX_GetState() {
+    if (!audio_available()) {
+        return ADX_STATE_STOP;
+    }
+
     if (!has_tracks) {
         return ADX_STATE_STOP;
     }

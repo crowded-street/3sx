@@ -1,6 +1,8 @@
 #ifndef ARGS_H
 #define ARGS_H
 
+#include <stdbool.h>
+
 #if NETPLAY_ENABLED
 typedef struct NetplayArgs {
     int p2p_local_player;
@@ -13,6 +15,7 @@ typedef struct NetplayArgs {
 #if STATCHECK
 typedef struct StatcheckArgs {
     const char* states_path;
+    bool headless;
 } StatcheckArgs;
 #endif
 
