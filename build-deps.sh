@@ -304,7 +304,7 @@ fi
 # tf-psa-crypto
 # -----------------------------
 
-TF_PSA_CRYPTO_VERSION="1.1.0"
+TF_PSA_CRYPTO_VERSION="1.0.0"
 TF_PSA_CRYPTO_URL="https://github.com/Mbed-TLS/TF-PSA-Crypto/releases/download/tf-psa-crypto-$TF_PSA_CRYPTO_VERSION/tf-psa-crypto-$TF_PSA_CRYPTO_VERSION.tar.bz2"
 TF_PSA_CRYPTO_DIR="$THIRD_PARTY/tf-psa-crypto"
 TF_PSA_CRYPTO_BUILD="$TF_PSA_CRYPTO_DIR/build"

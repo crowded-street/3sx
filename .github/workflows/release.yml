@@ -18,12 +18,6 @@ jobs:
         with:
           submodules: true
 
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        with:
-          path: third_party
-          key: ${{ runner.os }}-deps-${{ hashFiles('build-deps.sh') }}
-
       - name: Install dependencies
         run: sh build-deps.sh
 
@@ -87,12 +81,6 @@ jobs:
       - name: Install MSYS2 packages
         run: tr -d '\r' < tools/requirements-windows.txt | xargs pacman -S --needed --noconfirm
 
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        with:
-          path: third_party
-          key: ${{ runner.os }}-deps-${{ hashFiles('build-deps.sh') }}
-
       - name: Build dependencies
         run: sh build-deps.sh
 
@@ -132,85 +120,25 @@ jobs:
           path: build.log
 
   build_linux:
-    name: Build Linux (x86_64)
-    runs-on: ubuntu-latest
-
+    name: Build Linux (${{ matrix.runner.arch }})
+    runs-on: ${{ matrix.runner.os }}
+    strategy:
+      matrix:
+        runner:
+          - os: ubuntu-latest
+            arch: "x86_64"
+          - os: ubuntu-24.04-arm
+            arch: "arm64"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           submodules: true
-
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        with:
-          path: third_party
-          key: ${{ runner.os }}-x86_64-deps-${{ hashFiles('build-deps.sh') }}
 
       - name: Install dependencies
         run: |
           sudo apt update
           sudo apt install -y $(cat tools/requirements-ubuntu.txt)
-          ./build-deps.sh
-        shell: bash
-
-      - name: Build
-        run: |
-          set -o pipefail
-          CC=clang CXX=clang++ cmake -B build -DCMAKE_BUILD_TYPE=Release
-          cmake --build build --parallel 2>&1 | tee build.log
-        shell: bash
-
-      - name: Package TGZ
-        run: |
-          set -euo pipefail
-          cpack -G TGZ --config build/CPackConfig.cmake
-
-          TGZ_PATH="$(find . -maxdepth 1 -type f -name '*.tar.gz' | head -n 1)"
-          if [ -z "${TGZ_PATH}" ]; then
-            echo "No .tar.gz package found in build/"
-            exit 1
-          fi
-
-          SHORT_SHA="${GITHUB_SHA::7}"
-          TGZ_NAME="3SX-${SHORT_SHA}-linux-x86_64.tar.gz"
-          mv "${TGZ_PATH}" "${TGZ_NAME}"
-        shell: bash
-
-      - name: Upload Linux release assets
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-assets-linux
-          path: |
-            3SX-*-linux-x86_64.tar.gz
-
-      - name: Upload Linux build log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-log-linux
-          path: build.log
-
-  build_linux_arm64:
-    name: Build Linux (ARM64 / Raspberry Pi)
-    runs-on: ubuntu-24.04-arm
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        with:
-          path: third_party
-          key: ${{ runner.os }}-arm64-deps-${{ hashFiles('build-deps.sh') }}
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y $(cat tools/requirements-ubuntu.txt)
           ./build-deps.sh
         shell: bash
 
@@ -228,26 +156,27 @@ jobs:
 
           TGZ_PATH="$(find . -maxdepth 1 -type f -name '*.tar.gz' | head -n 1)"
           if [ -z "${TGZ_PATH}" ]; then
-            echo "No .tar.gz package found"
+            echo "No .tar.gz package found in build/"
             exit 1
           fi
 
           SHORT_SHA="${GITHUB_SHA::7}"
-          mv "${TGZ_PATH}" "3SX-${SHORT_SHA}-linux-arm64.tar.gz"
+          TGZ_NAME="3SX-${SHORT_SHA}-linux-${{ matrix.runner.arch }}.tar.gz"
+          mv "${TGZ_PATH}" "${TGZ_NAME}"
         shell: bash
 
-      - name: Upload ARM64 release assets
+      - name: Upload Linux (${{ matrix.runner.arch }}) release assets
         uses: actions/upload-artifact@v4
         with:
-          name: release-assets-linux-arm64
+          name: release-assets-linux-${{ matrix.runner.arch }}
           path: |
-            3SX-*-linux-arm64.tar.gz
+            3SX-*-linux-${{ matrix.runner.arch }}.tar.gz
 
-      - name: Upload ARM64 build log
+      - name: Upload Linux (${{ matrix.runner.arch }}) build log
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: build-log-linux-arm64
+          name: build-log-linux-${{ matrix.runner.arch }}
           path: build.log
 
   release:
@@ -257,7 +186,6 @@ jobs:
       - build_macos
       - build_windows
       - build_linux
-      - build_linux_arm64
 
     steps:
       - name: Checkout repository
