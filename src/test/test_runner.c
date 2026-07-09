@@ -51,11 +51,11 @@ static Uint64 frame = 0;
 static Phase phase = PHASE_TITLE;
 static int char_select_phase = 0;
 static int wait_timer = 0;
-static int inputs_index = 0;
 static int comparison_index = 0;
 static bool initialized = false;
 static ReplayGame game;
 static Uint16 input_buffers[2] = { 0 };
+static SDL_IOStream* io = NULL;
 
 static SDL_IOStream* io_at_index(int index) {
     const char* path = ram_path(index);
@@ -84,21 +84,28 @@ static void initialize_data() {
 }
 
 static bool need_to_finish() {
-    if (inputs_index >= arrlen(game.inputs)) {
-        return true;
-    }
-
     const bool game_ended = (PL_Wins[0] == 2) || (PL_Wins[1] == 2);
-
-    if (game_ended) {
-        return true;
-    }
-
-    return false;
+    return game_ended;
 }
 
 static void finish() {
     exit(0);
+}
+
+static Uint16 read_input_buff(SDL_IOStream* io, Sint64 offset) {
+    const Uint16 raw_buff = read_u16(io, offset);
+    Uint16 buff = 0;
+
+    buff |= raw_buff & 0xF;              // directions
+    buff |= raw_buff & (1 << 4);         // LP
+    buff |= raw_buff & (1 << 5);         // MP
+    buff |= raw_buff & (1 << 6);         // HP
+    buff |= (raw_buff & (1 << 7)) << 1;  // LK
+    buff |= (raw_buff & (1 << 8)) << 1;  // MK
+    buff |= (raw_buff & (1 << 9)) << 1;  // HK
+    buff |= (raw_buff & (1 << 12)) << 2; // start
+
+    return buff;
 }
 
 static void apply_input_buffer(int id, Uint16 input) {
@@ -226,10 +233,9 @@ void TestRunner_Prologue() {
         /* fallthrough */
 
     case PHASE_GAME:
-        const ReplayInput input = game.inputs[inputs_index];
-        input_buffers[0] = input.p1;
-        input_buffers[1] = input.p2;
-        inputs_index += 1;
+        io = io_at_index(comparison_index);
+        input_buffers[0] = read_input_buff(io, P1SW_0_OFFSET);
+        input_buffers[1] = read_input_buff(io, P2SW_0_OFFSET);
 
         if (need_to_finish()) {
             finish();
@@ -245,14 +251,7 @@ void TestRunner_Prologue() {
 void TestRunner_Epilogue() {
     switch (phase) {
     case PHASE_GAME:
-        SDL_IOStream* io = io_at_index(comparison_index);
-
-        if (io == NULL) {
-            break;
-        }
-
         compare_values(io, frame);
-
         SDL_CloseIO(io);
         comparison_index += 1;
         break;
