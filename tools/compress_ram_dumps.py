@@ -95,7 +95,9 @@ def xor_bytes(left: bytes, right: bytes) -> bytes:
     return bytes(a ^ b for a, b in zip(left, right))
 
 
-def compress_ram_dumps(input_dir: Path, output_path: Path, force: bool) -> int:
+def compress_ram_dumps(
+    input_dir: Path, output_path: Path, force: bool, show_progress: bool = False
+) -> int:
     if not input_dir.is_dir():
         raise RuntimeError(f"input path is not a directory: {input_dir}")
 
@@ -103,6 +105,16 @@ def compress_ram_dumps(input_dir: Path, output_path: Path, force: bool) -> int:
         raise RuntimeError(f"output file already exists: {output_path} (use --force to overwrite)")
 
     frame_paths = find_frame_paths(input_dir)
+    frame_iterator = frame_paths
+
+    if show_progress:
+        try:
+            from tqdm import tqdm
+        except ImportError:
+            print("warning: install 'tqdm' to display compression progress", file=sys.stderr)
+        else:
+            frame_iterator = tqdm(frame_paths, desc="Compressing", unit="frame", dynamic_ncols=True)
+
     table_offset = HEADER_SIZE
     data_offset = HEADER_SIZE + len(frame_paths) * TABLE_ENTRY_SIZE
     frame_table: list[tuple[int, int]] = []
@@ -116,7 +128,7 @@ def compress_ram_dumps(input_dir: Path, output_path: Path, force: bool) -> int:
         out_file.write(struct.pack("<H", len(frame_paths)))
         out_file.write(bytes(len(frame_paths) * TABLE_ENTRY_SIZE))
 
-        for frame_index, frame_path in enumerate(frame_paths):
+        for frame_index, frame_path in enumerate(frame_iterator):
             frame = frame_path.read_bytes()
 
             if expected_frame_size is None:
@@ -168,7 +180,9 @@ def main(argv: list[str]) -> int:
     args = parse_args(argv)
 
     try:
-        frame_count = compress_ram_dumps(args.input_dir, args.output_path, args.force)
+        frame_count = compress_ram_dumps(
+            args.input_dir, args.output_path, args.force, show_progress=True
+        )
     except RuntimeError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
