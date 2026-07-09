@@ -1,6 +1,7 @@
 #if STATCHECK
 
 #include "test/test_runner.h"
+#include "test/ram_archive.h"
 #include "arcade/arcade_constants.h"
 #include "constants.h"
 #include "main.h"
@@ -47,7 +48,7 @@ static const SWKey color_to_keys[13] = {
     SWK_START | SWK_RIGHT_TRIGGER,
 };
 
-static Uint64 frame = 0;
+static Uint64 frame_index = 0;
 static Phase phase = PHASE_TITLE;
 static int char_select_phase = 0;
 static int wait_timer = 0;
@@ -55,14 +56,7 @@ static int comparison_index = 0;
 static bool initialized = false;
 static ReplayGame game;
 static Uint16 input_buffers[2] = { 0 };
-static SDL_IOStream* io = NULL;
-
-static SDL_IOStream* io_at_index(int index) {
-    const char* path = ram_path(index);
-    SDL_IOStream* io = SDL_IOFromFile(path, "rb");
-    SDL_free(path);
-    return io;
-}
+static SDL_IOStream* frame_io = NULL;
 
 static void set_cursor(Character character, int player) {
     Cursor_X[player] = character_to_cursor[character][0];
@@ -71,7 +65,7 @@ static void set_cursor(Character character, int player) {
 
 /// Repeatedly press and release a button
 static void mash_button(SWKey button, int player) {
-    input_buffers[player] |= (frame & 1) ? button : 0;
+    input_buffers[player] |= (frame_index & 1) ? button : 0;
 }
 
 static void tap_button(SWKey button, int player) {
@@ -226,16 +220,16 @@ void TestRunner_Prologue() {
             break;
         }
 
-        SDL_IOStream* io = io_at_index(comparison_index - 1);
-        sync_values(io);
-        SDL_CloseIO(io);
+        SDL_IOStream* initial_frame = RamArchive_GetFrame(&game.archive, comparison_index - 1);
+        sync_values(initial_frame);
+        SDL_CloseIO(initial_frame);
         phase = PHASE_GAME;
         /* fallthrough */
 
     case PHASE_GAME:
-        io = io_at_index(comparison_index);
-        input_buffers[0] = read_input_buff(io, P1SW_0_OFFSET);
-        input_buffers[1] = read_input_buff(io, P2SW_0_OFFSET);
+        frame_io = RamArchive_GetFrame(&game.archive, comparison_index);
+        input_buffers[0] = read_input_buff(frame_io, P1SW_0_OFFSET);
+        input_buffers[1] = read_input_buff(frame_io, P2SW_0_OFFSET);
 
         if (need_to_finish()) {
             finish();
@@ -251,8 +245,8 @@ void TestRunner_Prologue() {
 void TestRunner_Epilogue() {
     switch (phase) {
     case PHASE_GAME:
-        compare_values(io, frame);
-        SDL_CloseIO(io);
+        compare_values(frame_io, frame_index);
+        SDL_CloseIO(frame_io);
         comparison_index += 1;
         break;
 
@@ -261,7 +255,7 @@ void TestRunner_Epilogue() {
         break;
     }
 
-    frame += 1;
+    frame_index += 1;
 }
 
 #endif

@@ -2,7 +2,9 @@
 
 #include "test/replay_game.h"
 #include "arcade/arcade_constants.h"
+#include "args.h"
 #include "constants.h"
+#include "test/ram_archive.h"
 #include "test/test_runner_utils.h"
 
 #include <SDL3/SDL.h>
@@ -15,11 +17,10 @@ static void adjust_character_numbers(ReplayGame* game) {
 
 void ReplayGame_Parse(ReplayGame* game) {
     SDL_zerop(game);
+    RamArchive_Init(&game->archive, get_args()->statcheck.states_path);
 
     for (int frame_num = 0;; frame_num++) {
-        const char* path = ram_path(frame_num);
-        SDL_IOStream* io = SDL_IOFromFile(path, "rb");
-        SDL_free(path);
+        SDL_IOStream* io = RamArchive_GetFrame(&game->archive, frame_num);
 
         if (io == NULL) {
             break;
