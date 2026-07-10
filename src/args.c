@@ -8,10 +8,13 @@
 
 static Args args = { 0 };
 
+// Compiling conditionally to avoid "unused function" erros
+#if NETPLAY_ENABLED || STATCHECK
 static void error_out(const char* error) {
     fprintf(stderr, "%s Exiting.\n", error);
     exit(1);
 }
+#endif
 
 static void verify_configuration(const Args* args) {
 #if NETPLAY_ENABLED
