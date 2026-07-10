@@ -3,27 +3,10 @@
 #include "test/replay_game.h"
 #include "arcade/arcade_constants.h"
 #include "constants.h"
+#include "test/ram_archive.h"
 #include "test/test_runner_utils.h"
 
-#include "stb/stb_ds.h"
-#include <SDL3/SDL_iostream.h>
-#include <SDL3/SDL_stdinc.h>
-
-static Uint16 read_input_buff(SDL_IOStream* io, Sint64 offset) {
-    const Uint16 raw_buff = read_u16(io, offset);
-    Uint16 buff = 0;
-
-    buff |= raw_buff & 0xF;              // directions
-    buff |= raw_buff & (1 << 4);         // LP
-    buff |= raw_buff & (1 << 5);         // MP
-    buff |= raw_buff & (1 << 6);         // HP
-    buff |= (raw_buff & (1 << 7)) << 1;  // LK
-    buff |= (raw_buff & (1 << 8)) << 1;  // MK
-    buff |= (raw_buff & (1 << 9)) << 1;  // HK
-    buff |= (raw_buff & (1 << 12)) << 2; // start
-
-    return buff;
-}
+#include <SDL3/SDL.h>
 
 static void adjust_character_numbers(ReplayGame* game) {
     for (int i = 0; i < 2; i++) {
@@ -31,17 +14,17 @@ static void adjust_character_numbers(ReplayGame* game) {
     }
 }
 
-void ReplayGame_Parse(ReplayGame* game) {
+bool ReplayGame_Init(ReplayGame* game, const char* ram_archive_path) {
     SDL_zerop(game);
+    game->start_index = -1;
 
-    bool in_game = false;
-    bool in_game_prev = false;
-    bool did_set_char_data = false;
+    if (!RamArchive_Init(&game->archive, ram_archive_path)) {
+        SDL_Log("ReplayGame_Init: Failed to initialize RAM archive");
+        return false;
+    }
 
     for (int frame_num = 0;; frame_num++) {
-        const char* path = ram_path(frame_num);
-        SDL_IOStream* io = SDL_IOFromFile(path, "rb");
-        SDL_free(path);
+        SDL_IOStream* io = RamArchive_GetFrame(&game->archive, frame_num);
 
         if (io == NULL) {
             break;
@@ -53,13 +36,6 @@ void ReplayGame_Parse(ReplayGame* game) {
         const bool game_just_started = (g_no_1 == 2) && (g_no_2 == 0) && (g_no_3 == 0);
 
         if (game_just_started) {
-            in_game = true;
-        }
-
-        // Read character and SA indices until we get to game.
-        // This ensures we read the latest data
-
-        if (in_game && !did_set_char_data) {
             SDL_SeekIO(io, MY_CHAR_OFFSET, SDL_IO_SEEK_SET);
             SDL_ReadIO(io, game->characters, 2);
 
@@ -73,28 +49,28 @@ void ReplayGame_Parse(ReplayGame* game) {
             SDL_ReadIO(io, game->colors, 2);
 
             adjust_character_numbers(game);
-            did_set_char_data = true;
+            game->start_index = frame_num + 1;
         }
 
-        // Parse inputs
-
-        if (in_game && in_game_prev) {
-            const ReplayInput input =
-                (ReplayInput) { .p1 = read_input_buff(io, P1SW_0_OFFSET), .p2 = read_input_buff(io, P2SW_0_OFFSET) };
-            arrput(game->inputs, input);
-
-            if (game->start_index == 0) {
-                game->start_index = frame_num;
-            }
-        }
-
-        in_game_prev = in_game;
         SDL_CloseIO(io);
+
+        if (game_just_started) {
+            break;
+        }
     }
+
+    if (game->start_index == -1) {
+        SDL_Log("ReplayGame_Init: Failed to find game start frame");
+        RamArchive_Destroy(&game->archive);
+        return false;
+    }
+
+    return true;
 }
 
 void ReplayGame_Destroy(ReplayGame* game) {
-    arrfree(game->inputs);
+    RamArchive_Destroy(&game->archive);
+    SDL_zerop(game);
 }
 
 #endif

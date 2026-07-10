@@ -146,19 +146,19 @@ static void init_windows_console() {
 }
 #endif
 
-static int full_init() {
+static bool full_init() {
     Config_Init();
     Keymap_Init();
     init_scalemode();
 
     if (!SDL_Init(SDL_INIT_AUDIO | SDL_INIT_GAMEPAD)) {
         SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
-        return 1;
+        return false;
     }
 
     if (!init_window()) {
         SDL_Log("Couldn't initialize SDL window: %s", SDL_GetError());
-        return 1;
+        return false;
     }
 
 // #if DEBUG
@@ -181,8 +181,15 @@ static int full_init() {
     DebugConfig_Init();
 #endif
 
+#if STATCHECK
+    if (!TestRunner_Init(get_args()->statcheck.ram_archive_path)) {
+        SDL_Log("Failed to initialize test runner");
+        return false;
+    }
+#endif
+
     Main_Init();
-    return 0;
+    return true;
 }
 
 static void cleanup() {
@@ -429,9 +436,7 @@ static int loop() {
             pre_init();
 
             if (Resources_Check()) {
-                const int init_status = full_init();
-
-                if (init_status != 0) {
+                if (!full_init()) {
                     is_running = false;
                     break;
                 }
@@ -455,9 +460,7 @@ static int loop() {
             const bool resource_flow_ended = Resources_RunResourceCopyingFlow();
 
             if (resource_flow_ended) {
-                const int init_status = full_init();
-
-                if (init_status != 0) {
+                if (!full_init()) {
                     is_running = false;
                     break;
                 }
