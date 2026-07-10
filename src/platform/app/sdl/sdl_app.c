@@ -182,7 +182,7 @@ static bool full_init() {
 #endif
 
 #if STATCHECK
-    if (!TestRunner_Init(get_args()->statcheck.states_path)) {
+    if (!TestRunner_Init(get_args()->statcheck.ram_archive_path)) {
         SDL_Log("Failed to initialize test runner");
         return false;
     }

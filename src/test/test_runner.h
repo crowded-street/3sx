@@ -5,7 +5,7 @@
 
 #include <stdbool.h>
 
-bool TestRunner_Init(const char* archive_path);
+bool TestRunner_Init(const char* ram_archive_path);
 void TestRunner_Destroy();
 void TestRunner_Prologue();
 void TestRunner_Epilogue();

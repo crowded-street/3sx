@@ -14,7 +14,7 @@ typedef struct NetplayArgs {
 
 #if STATCHECK
 typedef struct StatcheckArgs {
-    const char* states_path;
+    const char* ram_archive_path;
     bool headless;
 } StatcheckArgs;
 #endif

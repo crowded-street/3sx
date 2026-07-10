@@ -119,8 +119,8 @@ static void apply_input_buffer(int id, Uint16 input) {
     StatcheckInput_SetButtonState(id, &state);
 }
 
-bool TestRunner_Init(const char* archive_path) {
-    if (!ReplayGame_Init(&game, archive_path)) {
+bool TestRunner_Init(const char* ram_archive_path) {
+    if (!ReplayGame_Init(&game, ram_archive_path)) {
         SDL_Log("TestRunner_Init: Failed to initialize replay game");
         return false;
     }

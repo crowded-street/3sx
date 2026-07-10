@@ -8,12 +8,10 @@
 
 static Args args = { 0 };
 
-#if NETPLAY_ENABLED
 static void error_out(const char* error) {
     fprintf(stderr, "%s Exiting.\n", error);
     exit(1);
 }
-#endif
 
 static void verify_configuration(const Args* args) {
 #if NETPLAY_ENABLED
@@ -45,6 +43,12 @@ static void verify_configuration(const Args* args) {
         }
     }
 #endif
+
+#if STATCHECK
+    if (args->statcheck.ram_archive_path == NULL) {
+        error_out("You must specify --ram-archive.");
+    }
+#endif
 }
 
 void init_args(int argc, const char* argv[]) {
@@ -63,7 +67,7 @@ void init_args(int argc, const char* argv[]) {
 
 #if STATCHECK
         OPT_GROUP("Statcheck"),
-        OPT_STRING(0, "states", &args.statcheck.states_path, "Path to states.", NULL, 0, 0),
+        OPT_STRING(0, "ram-archive", &args.statcheck.ram_archive_path, "Path to RAM archive.", NULL, 0, 0),
         OPT_BOOLEAN(0, "headless", &args.statcheck.headless, "Run the game without a window.", NULL, 0, 0),
 #endif
 

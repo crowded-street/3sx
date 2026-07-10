@@ -16,7 +16,7 @@ typedef struct ReplayGame {
     RamArchive archive;
 } ReplayGame;
 
-bool ReplayGame_Init(ReplayGame* game, const char* archive_path);
+bool ReplayGame_Init(ReplayGame* game, const char* ram_archive_path);
 void ReplayGame_Destroy(ReplayGame* game);
 
 #endif

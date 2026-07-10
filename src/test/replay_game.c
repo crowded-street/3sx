@@ -14,10 +14,10 @@ static void adjust_character_numbers(ReplayGame* game) {
     }
 }
 
-bool ReplayGame_Init(ReplayGame* game, const char* archive_path) {
+bool ReplayGame_Init(ReplayGame* game, const char* ram_archive_path) {
     SDL_zerop(game);
 
-    if (!RamArchive_Init(&game->archive, archive_path)) {
+    if (!RamArchive_Init(&game->archive, ram_archive_path)) {
         SDL_Log("ReplayGame_Init: Failed to initialize RAM archive");
         return false;
     }
