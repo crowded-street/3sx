@@ -71,9 +71,8 @@ static void tap_button(SWKey button, int player) {
     input_buffers[player] |= button;
 }
 
-static bool need_to_finish() {
-    const bool game_ended = (PL_Wins[0] == 2) || (PL_Wins[1] == 2);
-    return game_ended;
+static bool game_ended() {
+    return (PL_Wins[0] == 2) || (PL_Wins[1] == 2);
 }
 
 static void finish() {
@@ -231,13 +230,13 @@ void TestRunner_Prologue() {
 
     case PHASE_GAME:
         frame_io = RamArchive_GetFrame(&game.archive, comparison_index);
-        input_buffers[0] = read_input_buff(frame_io, P1SW_0_OFFSET);
-        input_buffers[1] = read_input_buff(frame_io, P2SW_0_OFFSET);
 
-        if (need_to_finish()) {
+        if ((frame_io == NULL) || game_ended()) {
             finish();
         }
 
+        input_buffers[0] = read_input_buff(frame_io, P1SW_0_OFFSET);
+        input_buffers[1] = read_input_buff(frame_io, P2SW_0_OFFSET);
         break;
     }
 

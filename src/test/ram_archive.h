@@ -15,6 +15,7 @@ typedef struct RamArchive {
     Uint16 entry_count;
     Uint16 current_frame_index;
     Uint8* current_frame;
+    Uint8* frame_scratch;
     RamArchive_FrameTableEntry* entries;
 } RamArchive;
 

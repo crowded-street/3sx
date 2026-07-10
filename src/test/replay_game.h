@@ -8,7 +8,7 @@
 #include <SDL3/SDL.h>
 
 typedef struct ReplayGame {
-    size_t start_index;
+    int start_index;
     Uint8 characters[2];
     Uint8 supers[2];
     Uint8 colors[2];

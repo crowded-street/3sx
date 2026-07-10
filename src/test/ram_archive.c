@@ -8,6 +8,7 @@
 #define RAM_FRAME_SIZE 524288
 
 static void decompress_frame(Uint8* dst, const Uint8* src, Uint32 frame_size) {
+    // This code assumes zero-run payload is valid
     const Uint8* s = src;
     Uint8* d = dst;
 
@@ -75,6 +76,7 @@ bool RamArchive_Init(RamArchive* archive, const char* path) {
 
     archive->current_frame_index = 0;
     archive->current_frame = SDL_malloc(RAM_FRAME_SIZE);
+    archive->frame_scratch = SDL_malloc(RAM_FRAME_SIZE);
     read_frame(archive, 0, archive->current_frame);
 
     return true;
@@ -86,7 +88,6 @@ bool RamArchive_SeekFrame(RamArchive* archive, Uint16 index) {
         return false;
     }
 
-    Uint8* buf = SDL_malloc(RAM_FRAME_SIZE);
     int iterations = index - archive->current_frame_index;
     bool forward = true;
 
@@ -97,8 +98,8 @@ bool RamArchive_SeekFrame(RamArchive* archive, Uint16 index) {
 
     for (int i = 0; i < iterations; i++) {
         const Uint16 frame_index = forward ? (archive->current_frame_index + i + 1) : (archive->current_frame_index - i);
-        read_frame(archive, frame_index, buf);
-        xor_buf(archive->current_frame, buf, RAM_FRAME_SIZE);
+        read_frame(archive, frame_index, archive->frame_scratch);
+        xor_buf(archive->current_frame, archive->frame_scratch, RAM_FRAME_SIZE);
     }
 
     archive->current_frame_index = index;
@@ -120,6 +121,8 @@ SDL_IOStream* RamArchive_GetFrame(RamArchive* archive, Uint16 index) {
 void RamArchive_Destroy(RamArchive* archive) {
     SDL_CloseIO(archive->io);
     SDL_free(archive->entries);
+    SDL_free(archive->current_frame);
+    SDL_free(archive->frame_scratch);
     SDL_zerop(archive);
 }
 

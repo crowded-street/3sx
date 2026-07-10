@@ -16,6 +16,7 @@ static void adjust_character_numbers(ReplayGame* game) {
 
 bool ReplayGame_Init(ReplayGame* game, const char* ram_archive_path) {
     SDL_zerop(game);
+    game->start_index = -1;
 
     if (!RamArchive_Init(&game->archive, ram_archive_path)) {
         SDL_Log("ReplayGame_Init: Failed to initialize RAM archive");
@@ -56,6 +57,12 @@ bool ReplayGame_Init(ReplayGame* game, const char* ram_archive_path) {
         if (game_just_started) {
             break;
         }
+    }
+
+    if (game->start_index == -1) {
+        SDL_Log("ReplayGame_Init: Failed to find game start frame");
+        RamArchive_Destroy(&game->archive);
+        return false;
     }
 
     return true;
