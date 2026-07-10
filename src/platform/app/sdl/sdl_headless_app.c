@@ -7,33 +7,40 @@
 #include "port/io/afs.h"
 #include "port/resources.h"
 #include "test/test_runner.h"
+#include "args.h"
 
 #include <SDL3/SDL.h>
 
 #include <stdbool.h>
 
-static int init() {
+static bool init() {
     Config_Init();
 
     if (!Resources_Check()) {
         SDL_Log("Missing or invalid resources: %s", Resources_GetAFSPath());
-        return 1;
+        return false;
     }
 
     ArcadeBalance_Init();
 
     if (!AFS_Init(Resources_GetAFSPath(), 256 * 1024)) {
         SDL_Log("Couldn't initialize AFS: %s", Resources_GetAFSPath());
-        return 1;
+        return false;
+    }
+
+    if (!TestRunner_Init(get_args()->statcheck.states_path)) {
+        SDL_Log("Failed to initialize test runner");
+        return false;
     }
 
     Main_Init();
-    return 0;
+    return true;
 }
 
 static void cleanup() {
     AFS_Finish();
     Config_Destroy();
+    TestRunner_Destroy();
 }
 
 static void begin_frame() {
@@ -46,7 +53,7 @@ static void end_frame() {
 }
 
 int SDLHeadlessApp_Run() {
-    if (init() != 0) {
+    if (!init()) {
         Config_Destroy();
         return 1;
     }

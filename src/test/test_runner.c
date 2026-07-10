@@ -53,7 +53,6 @@ static Phase phase = PHASE_TITLE;
 static int char_select_phase = 0;
 static int wait_timer = 0;
 static int comparison_index = 0;
-static bool initialized = false;
 static ReplayGame game;
 static Uint16 input_buffers[2] = { 0 };
 static SDL_IOStream* frame_io = NULL;
@@ -70,11 +69,6 @@ static void mash_button(SWKey button, int player) {
 
 static void tap_button(SWKey button, int player) {
     input_buffers[player] |= button;
-}
-
-static void initialize_data() {
-    ReplayGame_Parse(&game);
-    comparison_index = game.start_index;
 }
 
 static bool need_to_finish() {
@@ -125,13 +119,22 @@ static void apply_input_buffer(int id, Uint16 input) {
     StatcheckInput_SetButtonState(id, &state);
 }
 
+bool TestRunner_Init(const char* archive_path) {
+    if (!ReplayGame_Init(&game, archive_path)) {
+        SDL_Log("TestRunner_Init: Failed to initialize replay game");
+        return false;
+    }
+
+    comparison_index = game.start_index;
+    return true;
+}
+
+void TestRunner_Destroy() {
+    ReplayGame_Destroy(&game);
+}
+
 void TestRunner_Prologue() {
     SDL_zeroa(input_buffers);
-
-    if (!initialized) {
-        initialize_data();
-        initialized = true;
-    }
 
     switch (phase) {
     case PHASE_TITLE:

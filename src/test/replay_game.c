@@ -2,7 +2,6 @@
 
 #include "test/replay_game.h"
 #include "arcade/arcade_constants.h"
-#include "args.h"
 #include "constants.h"
 #include "test/ram_archive.h"
 #include "test/test_runner_utils.h"
@@ -15,9 +14,13 @@ static void adjust_character_numbers(ReplayGame* game) {
     }
 }
 
-void ReplayGame_Parse(ReplayGame* game) {
+bool ReplayGame_Init(ReplayGame* game, const char* archive_path) {
     SDL_zerop(game);
-    RamArchive_Init(&game->archive, get_args()->statcheck.states_path);
+
+    if (!RamArchive_Init(&game->archive, archive_path)) {
+        SDL_Log("ReplayGame_Init: Failed to initialize RAM archive");
+        return false;
+    }
 
     for (int frame_num = 0;; frame_num++) {
         SDL_IOStream* io = RamArchive_GetFrame(&game->archive, frame_num);
@@ -54,6 +57,13 @@ void ReplayGame_Parse(ReplayGame* game) {
             break;
         }
     }
+
+    return true;
+}
+
+void ReplayGame_Destroy(ReplayGame* game) {
+    RamArchive_Destroy(&game->archive);
+    SDL_zerop(game);
 }
 
 #endif

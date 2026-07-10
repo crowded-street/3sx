@@ -110,7 +110,10 @@ SDL_IOStream* RamArchive_GetCurrentFrame(RamArchive* archive) {
 }
 
 SDL_IOStream* RamArchive_GetFrame(RamArchive* archive, Uint16 index) {
-    RamArchive_SeekFrame(archive, index);
+    if (!RamArchive_SeekFrame(archive, index)) {
+        return NULL;
+    }
+
     return RamArchive_GetCurrentFrame(archive);
 }
 

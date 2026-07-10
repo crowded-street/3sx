@@ -5,7 +5,7 @@
 
 #include "test/ram_archive.h"
 
-#include <SDL3/SDL_stdinc.h>
+#include <SDL3/SDL.h>
 
 typedef struct ReplayGame {
     size_t start_index;
@@ -16,7 +16,8 @@ typedef struct ReplayGame {
     RamArchive archive;
 } ReplayGame;
 
-void ReplayGame_Parse(ReplayGame* game);
+bool ReplayGame_Init(ReplayGame* game, const char* archive_path);
+void ReplayGame_Destroy(ReplayGame* game);
 
 #endif
 
