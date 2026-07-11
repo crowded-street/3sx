@@ -58,20 +58,19 @@ void cmd_data_set(PLW* /* unused */, s16 i) { // 🟡
     *ptr4++ = *cmd_tbl_ptr++;
     *ptr4++ = *cmd_tbl_ptr++;
 
-    if (!ArcadeBalance_IsEnabled()) {
-        switch (i) {
-        case 3:
-        case 4:
-        case 5:
-            wcp[cmd_id].reset[i] += blok_b_omake[omop_b_block_ix[cmd_id]];
-            make_red_blocking_time(cmd_id, i, wcp[cmd_id].reset[i]);
-            break;
+    // The code below is PS2-specific, but default system-direction options produce CPS3's ground red-parry thresholds.
+    switch (i) {
+    case 3:
+    case 4:
+    case 5:
+        wcp[cmd_id].reset[i] += blok_b_omake[omop_b_block_ix[cmd_id]];
+        make_red_blocking_time(cmd_id, i, wcp[cmd_id].reset[i]);
+        break;
 
-        case 6:
-        case 12:
-            wcp[cmd_id].reset[i] += blok_b_omake[omop_b_block_ix[cmd_id]];
-            break;
-        }
+    case 6:
+    case 12:
+        wcp[cmd_id].reset[i] += blok_b_omake[omop_b_block_ix[cmd_id]];
+        break;
     }
 }
 
