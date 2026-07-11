@@ -124,8 +124,12 @@ s32 check_full_gauge_attack(PLW* wk, s8 always) { // 🟡
                     wk->sa->mp = -1;
                     hissatsu_setup_union(wk, wk->cp->waza_r[wk->sa->exsa_g_ix][j]);
                     waza_compel_all_init2(wk);
-                    chainex_check[wk->wu.id][wk->sa->exsa_g_ix - 20] = 1;
-                    chainex_spat_cancel_kidou(&wk->wu);
+
+                    if (!ArcadeBalance_IsEnabled()) {
+                        chainex_check[wk->wu.id][wk->sa->exsa_g_ix - 20] = 1;
+                        chainex_spat_cancel_kidou(&wk->wu);
+                    }
+
                     return 1;
                 }
             }
@@ -196,8 +200,12 @@ s32 check_full_gauge_attack(PLW* wk, s8 always) { // 🟡
                     wk->sa->mp = -1;
                     hissatsu_setup_union(wk, wk->cp->waza_r[wk->sa->exsa_a_ix][j]);
                     waza_compel_all_init2(wk);
-                    chainex_check[wk->wu.id][wk->sa->exsa_a_ix - 20] = 1;
-                    chainex_spat_cancel_kidou(&wk->wu);
+
+                    if (!ArcadeBalance_IsEnabled()) {
+                        chainex_check[wk->wu.id][wk->sa->exsa_a_ix - 20] = 1;
+                        chainex_spat_cancel_kidou(&wk->wu);
+                    }
+
                     return 1;
                 }
             }
@@ -285,8 +293,12 @@ s32 check_full_gauge_attack2(PLW* wk, s8 always) { // 🟡
                     wk->sa->mp = -1;
                     hissatsu_setup_union(wk, wk->cp->waza_r[wk->sa->exs2_g_ix][j]);
                     waza_compel_all_init2(wk);
-                    chainex_check[wk->wu.id][wk->sa->exs2_g_ix - 20] = 1;
-                    chainex_spat_cancel_kidou(&wk->wu);
+
+                    if (!ArcadeBalance_IsEnabled()) {
+                        chainex_check[wk->wu.id][wk->sa->exs2_g_ix - 20] = 1;
+                        chainex_spat_cancel_kidou(&wk->wu);
+                    }
+
                     return 1;
                 }
             }
@@ -357,8 +369,12 @@ s32 check_full_gauge_attack2(PLW* wk, s8 always) { // 🟡
                     wk->sa->mp = -1;
                     hissatsu_setup_union(wk, wk->cp->waza_r[wk->sa->exs2_a_ix][j]);
                     waza_compel_all_init2(wk);
-                    chainex_check[wk->wu.id][wk->sa->exs2_a_ix - 20] = 1;
-                    chainex_spat_cancel_kidou(&wk->wu);
+
+                    if (!ArcadeBalance_IsEnabled()) {
+                        chainex_check[wk->wu.id][wk->sa->exs2_a_ix - 20] = 1;
+                        chainex_spat_cancel_kidou(&wk->wu);
+                    }
+
                     return 1;
                 }
             }
@@ -474,8 +490,12 @@ s32 check_super_arts_attack_dc(PLW* wk) { // 🟡
                     wk->sa->ok = -1;
                     hissatsu_setup_union(wk, wk->cp->waza_r[wk->sa->nmsa_g_ix][j]);
                     waza_compel_all_init2(wk);
-                    chainex_check[wk->wu.id][wk->sa->nmsa_g_ix - 20] = 1;
-                    chainex_spat_cancel_kidou(&wk->wu);
+
+                    if (!ArcadeBalance_IsEnabled()) {
+                        chainex_check[wk->wu.id][wk->sa->nmsa_g_ix - 20] = 1;
+                        chainex_spat_cancel_kidou(&wk->wu);
+                    }
+
                     return 1;
                 }
             }
@@ -546,8 +566,12 @@ s32 check_super_arts_attack_dc(PLW* wk) { // 🟡
                     wk->sa->ok = -1;
                     hissatsu_setup_union(wk, wk->cp->waza_r[wk->sa->nmsa_a_ix][j]);
                     waza_compel_all_init2(wk);
-                    chainex_check[wk->wu.id][wk->sa->nmsa_a_ix - 20] = 1;
-                    chainex_spat_cancel_kidou(&wk->wu);
+
+                    if (!ArcadeBalance_IsEnabled()) {
+                        chainex_check[wk->wu.id][wk->sa->nmsa_a_ix - 20] = 1;
+                        chainex_spat_cancel_kidou(&wk->wu);
+                    }
+
                     return 1;
                 }
             }
@@ -747,8 +771,12 @@ s32 check_special_attack(PLW* wk) { // 🟡
                 hissatsu_setup_union(wk, wk->cp->waza_r[i][j]);
                 waza_flag_clear_only_1(wk->wu.id, i);
                 grade_add_command_waza(wk->wu.id);
-                chainex_check[wk->wu.id][i - 20] = 1;
-                chainex_spat_cancel_kidou(&wk->wu);
+
+                if (!ArcadeBalance_IsEnabled()) {
+                    chainex_check[wk->wu.id][i - 20] = 1;
+                    chainex_spat_cancel_kidou(&wk->wu);
+                }
+
                 return 1;
             }
         }
@@ -846,8 +874,12 @@ s32 check_special_attack(PLW* wk) { // 🟡
                     hissatsu_setup_union(wk, wk->cp->waza_r[i][j]);
                     waza_flag_clear_only_1(wk->wu.id, i);
                     grade_add_command_waza(wk->wu.id);
-                    chainex_check[wk->wu.id][i - 20] = 1;
-                    chainex_spat_cancel_kidou(&wk->wu);
+
+                    if (!ArcadeBalance_IsEnabled()) {
+                        chainex_check[wk->wu.id][i - 20] = 1;
+                        chainex_spat_cancel_kidou(&wk->wu);
+                    }
+
                     return 1;
                 }
             } else if (wk->cp->waza_flag[i]) {
@@ -863,8 +895,12 @@ s32 check_special_attack(PLW* wk) { // 🟡
                 hissatsu_setup_union(wk, wk->cp->waza_r[i][0]);
                 waza_flag_clear_only_1(wk->wu.id, i);
                 grade_add_command_waza(wk->wu.id);
-                chainex_check[wk->wu.id][i - 20] = 1;
-                chainex_spat_cancel_kidou(&wk->wu);
+
+                if (!ArcadeBalance_IsEnabled()) {
+                    chainex_check[wk->wu.id][i - 20] = 1;
+                    chainex_spat_cancel_kidou(&wk->wu);
+                }
+
                 return 1;
             }
         }
@@ -874,13 +910,10 @@ s32 check_special_attack(PLW* wk) { // 🟡
 }
 
 void chainex_spat_cancel_kidou(WORK* wk) { // 🔴
+    // This movement adjustment has no CPS3 counterpart; every caller excludes it in Arcade Balance mode.
     MVXY curr;
 
     if (wk->old_rno[1] == 4 && wk->old_rno[2] > 15) {
-        if (ArcadeBalance_IsEnabled()) {
-            fatal_error("Execution should never get to this point when arcade balance is enabled");
-        }
-
         curr = wk->mvxy;
         setup_mvxy_data(wk, 10);
         wk->mvxy.a[0].sp = curr.a[0].sp / 2;
