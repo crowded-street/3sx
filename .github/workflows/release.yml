@@ -119,12 +119,73 @@ jobs:
           name: build-log-windows
           path: build.log
 
+  build_linux:
+    name: Build Linux (${{ matrix.runner.arch }})
+    runs-on: ${{ matrix.runner.os }}
+    strategy:
+      matrix:
+        runner:
+          - os: ubuntu-latest
+            arch: "x86_64"
+          - os: ubuntu-24.04-arm
+            arch: "arm64"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y $(cat tools/requirements-ubuntu.txt)
+          ./build-deps.sh
+        shell: bash
+
+      - name: Build
+        run: |
+          set -o pipefail
+          CC=clang CXX=clang++ cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --parallel $(nproc) 2>&1 | tee build.log
+        shell: bash
+
+      - name: Package TGZ
+        run: |
+          set -euo pipefail
+          cpack -G TGZ --config build/CPackConfig.cmake
+
+          TGZ_PATH="$(find . -maxdepth 1 -type f -name '*.tar.gz' | head -n 1)"
+          if [ -z "${TGZ_PATH}" ]; then
+            echo "No .tar.gz package found in build/"
+            exit 1
+          fi
+
+          SHORT_SHA="${GITHUB_SHA::7}"
+          TGZ_NAME="3SX-${SHORT_SHA}-linux-${{ matrix.runner.arch }}.tar.gz"
+          mv "${TGZ_PATH}" "${TGZ_NAME}"
+        shell: bash
+
+      - name: Upload Linux (${{ matrix.runner.arch }}) release assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-assets-linux-${{ matrix.runner.arch }}
+          path: |
+            3SX-*-linux-${{ matrix.runner.arch }}.tar.gz
+
+      - name: Upload Linux (${{ matrix.runner.arch }}) build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log-linux-${{ matrix.runner.arch }}
+          path: build.log
+
   release:
     name: Create GitHub release
     runs-on: ubuntu-latest
     needs:
       - build_macos
       - build_windows
+      - build_linux
 
     steps:
       - name: Checkout repository

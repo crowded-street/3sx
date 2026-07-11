@@ -6,7 +6,14 @@ on:
 
 jobs:
     build:
-        runs-on: ubuntu-latest
+        runs-on: ${{ matrix.runner.os }}
+        strategy:
+            matrix:
+                runner:
+                - os: ubuntu-latest
+                  arch: "x86_64"
+                - os: ubuntu-24.04-arm
+                  arch: "arm64"
 
         steps:
           - name: Checkout repository
@@ -18,7 +25,7 @@ jobs:
             uses: actions/cache@v4
             with:
                 path: third_party
-                key: ${{ runner.os }}-deps-${{ hashFiles('build-deps.sh') }}
+                key: ${{ runner.os }}-${{ matrix.runner.arch }}-deps-${{ hashFiles('build-deps.sh') }}
 
           - name: Install dependencies
             run: |
@@ -27,16 +34,16 @@ jobs:
                 ./build-deps.sh
             shell: bash
 
-          - name: Build for Linux
+          - name: Build for Linux (${{ matrix.runner.arch }})
             run: |
                 set -o pipefail
                 CC=clang CXX=clang++ cmake -B build -DCMAKE_BUILD_TYPE=Release
-                cmake --build build --parallel 2>&1 | tee build.log
+                cmake --build build --parallel $(nproc) 2>&1 | tee build.log
             shell: bash
 
-          - name: Upload build log
+          - name: Upload Linux (${{ matrix.runner.arch }}) build log
             if: always()
             uses: actions/upload-artifact@v4
             with:
-                name: build-log
+                name: build-log-linux-${{ matrix.runner.arch }}
                 path: build.log
