@@ -69,6 +69,7 @@ if(PSP)
         CRS_APP_DRIVER_PSP
         CRS_VIDEO_DRIVER_PSP
         CRS_INPUT_DRIVER_SDL
+        CRS_AUDIO_DRIVER_PSP
     )
 else()
     target_compile_definitions(3sx PRIVATE
@@ -90,6 +91,7 @@ else()
         CRS_VIDEO_DRIVER_OPENGL
         $<$<NOT:$<CONFIG:Statcheck>>:CRS_INPUT_DRIVER_SDL>
         $<$<CONFIG:Statcheck>:CRS_INPUT_DRIVER_STATCHECK>
+        CRS_AUDIO_DRIVER_SOFT
 
         ARCADE_ROM
         SOUND_ENABLED
@@ -211,6 +213,7 @@ if(PSP)
         psphprm
         pspctrl
         psppower
+        pspsascore
     )
 else()
     target_link_libraries(3sx PRIVATE

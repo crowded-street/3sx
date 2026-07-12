@@ -145,6 +145,7 @@ s32 CalcPhdParam(CSE_PHDP* pPHDP, CSE_PHDPADDR* pHDPA, u8 note, u32 SpuTopAddr) 
     pPHDP->adsr1 = pHDPA->pSprm->ADSR1;
     pPHDP->adsr2 = pHDPA->pSprm->ADSR2;
     pPHDP->s_addr = SpuTopAddr + pHDPA->pVprm->vagOffset;
+    pPHDP->s_size = SpuTopAddr + pHDPA->pVprm->vagSize;
     pPHDP->freq = pHDPA->pVprm->sampleRate;
     return 0;
 }

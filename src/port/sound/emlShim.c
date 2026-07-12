@@ -58,7 +58,7 @@ static short masterVolume;
 static short assignedBankVolume[16];
 static short bankVolume[16];
 
-static struct VWork vpool[48];
+static struct VWork vpool[SPU_VOICE_COUNT];
 
 static LIST_HEAD(active_voices);
 static LIST_HEAD(free_voices);
@@ -207,7 +207,7 @@ void emlShimInit() {
         assignedBankVolume[i] = 0x3fff;
     }
 
-    for (int i = 0; i < 48; i++) {
+    for (int i = 0; i < SPU_VOICE_COUNT; i++) {
         vpool[i].voice_num = i;
         list_init(&vpool[i].list);
         list_insert(&free_voices, &vpool[i].list);
@@ -343,7 +343,6 @@ static int checkConditions(struct VId* id, CSE_REQP* match, u32 cond) {
 
 static void UpdateVolPanPitch(struct VWork* voice) {
     int volume, bankvol, pan, voll, volr, note, pitch;
-    struct SPUVConf conf;
 
     bankvol = bankVolume[voice->id.bank & 0xf];
     volume = (bankvol * voice->req_vol) / 0x3fff;
@@ -356,13 +355,8 @@ static void UpdateVolPanPitch(struct VWork* voice) {
     voll = 0x3fff * ((volume * (127 - pan)) / 127) / 0x3fff;
     volr = 0x3fff * ((volume * pan) / 127) / 0x3fff;
 
-    conf.pitch = pitch;
-    conf.voll = voll;
-    conf.volr = volr;
-    conf.adsr1 = voice->adsr1;
-    conf.adsr2 = voice->adsr2;
-
-    SPU_VoiceSetConf(voice->voice_num, &conf);
+    SPU_VoiceSetPitch(voice->voice_num, pitch);
+    SPU_VoiceSetVolume(voice->voice_num, voll, volr);
 }
 
 static int getCategoryVoiceNum(CSE_REQP* reqp) {
@@ -486,12 +480,14 @@ void emlShimStartSound(CSE_SYS_PARAM_SNDSTART* param) {
     voice->adsr1 = param->phdp.adsr1;
     voice->adsr2 = param->phdp.adsr2;
 
+    SPU_VoiceSetADSR(voice->voice_num, voice->adsr1, voice->adsr2);
+
     InitLfo(&voice->lfo_pitch, 0x6000, 0);
     InitLfo(&voice->lfo_vol, 0x418, 0);
 
     UpdateVolPanPitch(voice);
 
-    SPU_VoiceStart(voice->voice_num, param->phdp.s_addr >> 1);
+    SPU_VoiceStart(voice->voice_num, param->phdp.s_addr >> 1, param->phdp.s_size);
 
     SDL_UnlockMutex(soundLock);
 }
