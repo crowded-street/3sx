@@ -2,23 +2,45 @@
 
 #include "test/test_runner_compare.h"
 #include "arcade/arcade_constants.h"
+#include "args.h"
 #include "constants.h"
-#include "port/utils.h"
+#include "sf33rd/Source/Game/engine/cmb_win.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
-#include "sf33rd/Source/Game/engine/cmb_win.h"
 #include "sf33rd/Source/Game/ui/count.h"
 #include "test/test_runner_utils.h"
 #include "types.h"
 
-#include <SDL3/SDL_endian.h>
-#include <SDL3/SDL_iostream.h>
-#include <SDL3/SDL_stdinc.h>
+#include <SDL3/SDL.h>
+
+#include <stdlib.h>
+
+#if _WIN32
+#include <intrin.h>
+#elif __APPLE__ || linux
+#include <signal.h>
+#endif
 
 typedef struct Position {
     s16 x;
     s16 y;
 } Position;
+
+static void stop_if(bool condition) {
+    if (!condition) {
+        return;
+    }
+
+    if (get_args()->statcheck.headless) {
+        exit(1);
+    } else {
+#if _WIN32
+        __debugbreak();
+#elif __APPLE__ || linux
+        raise(SIGSTOP);
+#endif
+    }
+}
 
 // Data reading
 
