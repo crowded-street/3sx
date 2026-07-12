@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import errno
 import json
 import os
 import socket
@@ -363,11 +364,17 @@ def download_replay(
             sock.settimeout(timeout)
     try:
         sock.connect((host, target.port))
-    except (TimeoutError, socket.timeout):
+    except OSError as exc:
         sock.close()
-        if local_port <= 0:
+        # A port that was available for bind() can still collide during connect()
+        # (for example, while a prior bulk-download connection is in TIME_WAIT).
+        # Retry with an OS-assigned source port in that case, just as we do after
+        # a timeout from the fixed Fightcade source port.
+        if local_port <= 0 or (
+            not isinstance(exc, socket.timeout) and exc.errno != errno.EADDRINUSE
+        ):
             raise
-        # Fallback: when repeatedly testing, forcing the same source port can time out.
+        # Fallback: forcing the Fightcade source port can time out or collide.
         used_local_port = 0
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(timeout)
