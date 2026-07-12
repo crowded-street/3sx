@@ -54,6 +54,22 @@ python3 tools/fcade-replays/fcade_replay_tool.py bulk-download \
   --keep-going
 ```
 
+Convert a directory of downloaded replay folders into compressed RAM dumps:
+
+```bash
+python3 tools/replay_preprocessor.py \
+  tools/fcade-replays/output/bulk \
+  tools/fcade-replays/output/compressed \
+  --runner build/release/fbneosdlarm64
+```
+
+The wrapper runs each complete replay through the `--runner` executable, stores the
+runner's uncompressed `game_N` RAM dumps in a temporary directory, then writes
+`<replay-id>/game_N.scrd` under the requested output directory. Use `--runner` to
+select another executable, and `--game sfiii3nr1` when the replay folders do not
+have `summary.json` files. Each replay's temporary dumps are deleted before the
+next replay starts.
+
 ## Output Files
 
 Each output directory contains:
