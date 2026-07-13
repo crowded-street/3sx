@@ -54,11 +54,19 @@ You should be able to build the project with just Xcode Command Line Tools.
     cmake --install build --prefix build/application
     ```
 
-    For the dedicated static-analysis configuration, use `Statcheck` instead:
+    Enable replay statcheck independently of the build configuration. For example,
+    use `RelWithDebInfo` for routine runs:
 
     ```bash
-    CC=clang CXX=clang++ cmake -B build-statcheck -DCMAKE_BUILD_TYPE=Statcheck
-    cmake --build build-statcheck --parallel --config Statcheck
+    CC=clang CXX=clang++ cmake -B build-statcheck -DCMAKE_BUILD_TYPE=RelWithDebInfo -DTHREESX_STATCHECK=ON
+    cmake --build build-statcheck --parallel --config RelWithDebInfo
+    ```
+
+    For debugger-friendly statcheck runs, configure a Debug build instead:
+
+    ```bash
+    CC=clang CXX=clang++ cmake -B build-statcheck-debug -DCMAKE_BUILD_TYPE=Debug -DTHREESX_STATCHECK=ON
+    cmake --build build-statcheck-debug --parallel --config Debug
     ```
 
 3. Copy from build/application to the desired location

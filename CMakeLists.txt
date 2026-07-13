@@ -4,10 +4,6 @@ project(3sx LANGUAGES C CXX)
 include(${PROJECT_SOURCE_DIR}/cmake/imgui_sources.cmake)
 
 set(THREESX_CONFIGURATIONS Debug Release RelWithDebInfo MinSizeRel)
-if(NOT PSP)
-    list(APPEND THREESX_CONFIGURATIONS Statcheck)
-endif()
-
 get_property(THREESX_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(THREESX_IS_MULTI_CONFIG)
     set(CMAKE_CONFIGURATION_TYPES "${THREESX_CONFIGURATIONS}" CACHE STRING "Available build types" FORCE)
@@ -15,18 +11,16 @@ else()
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "${THREESX_CONFIGURATIONS}")
 endif()
 
-set(CMAKE_C_FLAGS_STATCHECK "${CMAKE_C_FLAGS_RELWITHDEBINFO}")
-set(CMAKE_CXX_FLAGS_STATCHECK "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
-set(CMAKE_EXE_LINKER_FLAGS_STATCHECK "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO}")
-set(CMAKE_SHARED_LINKER_FLAGS_STATCHECK "${CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO}")
-set(CMAKE_MODULE_LINKER_FLAGS_STATCHECK "${CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO}")
-
 # ======================================
 # Options and platform setup
 # ======================================
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
+
+if(NOT PSP)
+    option(THREESX_STATCHECK "Build with replay statcheck support" OFF)
+endif()
 
 # ======================================
 # Include directories
@@ -76,9 +70,9 @@ else()
         $<$<CONFIG:Debug>:NETPLAY_ENABLED>
 
         $<$<CONFIG:Release>:RELEASE>
-        $<$<CONFIG:Release>:CHECKSUM>
+        $<$<AND:$<CONFIG:Release>,$<NOT:$<BOOL:${THREESX_STATCHECK}>>>:CHECKSUM>
         
-        $<$<CONFIG:Statcheck>:STATCHECK>
+        $<$<BOOL:${THREESX_STATCHECK}>:STATCHECK>
 
         # GekkoNet is a pre-built static lib; these were previously propagated by its cmake target
         GEKKONET_STATIC
@@ -88,8 +82,8 @@ else()
         CRS_VIDEO_DRIVER_SDL_GENERIC
         CRS_VIDEO_DRIVER_SDL_GPU
         CRS_VIDEO_DRIVER_OPENGL
-        $<$<NOT:$<CONFIG:Statcheck>>:CRS_INPUT_DRIVER_SDL>
-        $<$<CONFIG:Statcheck>:CRS_INPUT_DRIVER_STATCHECK>
+        $<$<NOT:$<BOOL:${THREESX_STATCHECK}>>:CRS_INPUT_DRIVER_SDL>
+        $<$<BOOL:${THREESX_STATCHECK}>:CRS_INPUT_DRIVER_STATCHECK>
 
         ARCADE_ROM
         SOUND_ENABLED
@@ -141,10 +135,10 @@ target_compile_options(3sx PRIVATE
 
     ${DISABLED_WARNINGS}
 
-    $<$<OR:$<CONFIG:Debug>,$<CONFIG:Statcheck>>:-Wno-unused-function>
+    $<$<OR:$<CONFIG:Debug>,$<BOOL:${THREESX_STATCHECK}>>:-Wno-unused-function>
     # $<$<CONFIG:Debug>:-Wno-unused-variable>
     -Wno-unused-variable
-    $<$<OR:$<CONFIG:Debug>,$<CONFIG:Statcheck>>:-Wno-unused-but-set-variable>
+    $<$<OR:$<CONFIG:Debug>,$<BOOL:${THREESX_STATCHECK}>>:-Wno-unused-but-set-variable>
 )
 
 if(PSP)
@@ -250,8 +244,8 @@ elseif(WIN32)
         iphlpapi
     )
     target_link_options(3sx PRIVATE
-        "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>,$<CONFIG:Statcheck>>:--for-linker>"
-        "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>,$<CONFIG:Statcheck>>:--pdb=3sx.pdb>"
+        "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:--for-linker>"
+        "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:--pdb=3sx.pdb>"
     )
 elseif(UNIX)
     target_link_libraries(3sx PRIVATE
@@ -323,7 +317,7 @@ elseif(WIN32)
 	)
 
     install(FILES
-        "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>,$<CONFIG:Statcheck>>:${CMAKE_CURRENT_BINARY_DIR}/3sx.pdb>"
+        "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:${CMAKE_CURRENT_BINARY_DIR}/3sx.pdb>"
         DESTINATION bin
     )
 

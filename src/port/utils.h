@@ -10,6 +10,5 @@
 __dead2 void fatal_error(const char* fmt, ...);
 __dead2 void not_implemented(const char* func);
 void debug_print(const char* fmt, ...);
-void stop_if(bool condition);
 
 #endif

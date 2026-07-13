@@ -1,5 +1,11 @@
 # Fightcade Replay Tool (WIP)
 
+Install Python dependencies for the helper scripts with:
+
+```bash
+python3 -m pip install -r tools/requirements-python.txt
+```
+
 `fcade_replay_tool.py` is a reverse-engineering helper for Fightcade replay streams.
 
 It supports:
@@ -53,6 +59,33 @@ python3 tools/fcade-replays/fcade_replay_tool.py bulk-download \
   --count 200 \
   --keep-going
 ```
+
+Convert a directory of downloaded replay folders into compressed RAM dumps:
+
+```bash
+python3 tools/replay_preprocessor.py \
+  tools/fcade-replays/output/bulk \
+  tools/fcade-replays/output/compressed \
+  --runner build/release/fbneosdlarm64
+```
+
+The wrapper runs each complete replay through the `--runner` executable, stores the
+runner's uncompressed `game_N` RAM dumps in a temporary directory, then writes
+`<replay-id>/game_N.scrd` under the requested output directory. Use `--runner` to
+select another executable, and `--game sfiii3nr1` when the replay folders do not
+have `summary.json` files. Each replay's temporary dumps are deleted before the
+next replay starts.
+
+Run statcheck against every preprocessed game archive:
+
+```bash
+python3 tools/statcheck_runner.py \
+  build-statcheck/3SX.app/Contents/MacOS/3SX \
+  tools/fcade-replays/output/compressed
+```
+
+The runner prints the result for each game and writes output from failed or crashed
+statcheck processes to a temporary report file whose path is printed at the end.
 
 ## Output Files
 

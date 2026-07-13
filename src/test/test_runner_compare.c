@@ -2,23 +2,64 @@
 
 #include "test/test_runner_compare.h"
 #include "arcade/arcade_constants.h"
+#include "args.h"
 #include "constants.h"
-#include "port/utils.h"
+#include "sf33rd/Source/Game/engine/cmb_win.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
-#include "sf33rd/Source/Game/engine/cmb_win.h"
 #include "sf33rd/Source/Game/ui/count.h"
 #include "test/test_runner_utils.h"
 #include "types.h"
 
-#include <SDL3/SDL_endian.h>
-#include <SDL3/SDL_iostream.h>
-#include <SDL3/SDL_stdinc.h>
+#include <SDL3/SDL.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#if _WIN32
+#include <intrin.h>
+#elif __APPLE__ || linux
+#include <signal.h>
+#endif
 
 typedef struct Position {
     s16 x;
     s16 y;
 } Position;
+
+static void stop_if(bool condition) {
+    if (!condition) {
+        return;
+    }
+
+    // FIXME: Depending on args directly is dirty, but I don't wanna deal with injecting this right now
+    if (get_args()->statcheck.headless) {
+        exit(1);
+    } else {
+#if _WIN32
+        __debugbreak();
+#elif __APPLE__ || linux
+        raise(SIGSTOP);
+#endif
+    }
+}
+
+#define assert_equals(actual, expected)                                                                                \
+    do {                                                                                                               \
+        if ((actual) != (expected)) {                                                                                  \
+            fprintf(                                                                                                   \
+                stderr,                                                                                                \
+                "%s:%d: %s (%lld) != %s (%lld)\n",                                                                     \
+                __FILE__,                                                                                              \
+                __LINE__,                                                                                              \
+                #actual,                                                                                               \
+                (long long)(actual),                                                                                   \
+                #expected,                                                                                             \
+                (long long)(expected)                                                                                  \
+            );                                                                                                         \
+            stop_if(true);                                                                                             \
+        }                                                                                                              \
+    } while (0)
 
 // Data reading
 
@@ -118,18 +159,18 @@ static void read_t_pl_lvr(SDL_IOStream* io, T_PL_LVR dst[2]) {
 
 static void compare_main_values(SDL_IOStream* io) {
     const u8 allow_a_battle_f_cps3 = read_allow_a_battle_f(io);
-    stop_if(Allow_a_battle_f != allow_a_battle_f_cps3);
+    assert_equals(Allow_a_battle_f, allow_a_battle_f_cps3);
 
     const u8 round_timer_cps3 = read_u8(io, ROUND_TIMER_OFFSET);
-    stop_if(round_timer != round_timer_cps3);
+    assert_equals(round_timer, round_timer_cps3);
 
     for (int i = 0; i < 2; i++) {
         const Sint64 plw_offset = calc_plw_offset(i);
 
         const Position pos_3sx = get_position(i);
         const Position pos_cps3 = read_position(io, i);
-        stop_if(pos_3sx.x != pos_cps3.x);
-        stop_if(pos_3sx.y != pos_cps3.y);
+        assert_equals(pos_3sx.x, pos_cps3.x);
+        assert_equals(pos_3sx.y, pos_cps3.y);
 
         // if (i == 0) {
         //     printf("🔴 %llu pos x: %d vs %d\n", frame, pos_cps3.x, pos_3sx.x);
@@ -137,55 +178,55 @@ static void compare_main_values(SDL_IOStream* io) {
 
         const s16 vital_new_3sx = plw[i].wu.vital_new;
         const s16 vital_new_cps3 = read_s16(io, plw_offset + WORK_VITAL_NEW_OFFSET);
-        stop_if(vital_new_3sx != vital_new_cps3);
+        assert_equals(vital_new_3sx, vital_new_cps3);
 
         const s16 stun_3sx = piyori_type[i].now.quantity.h;
         const s16 stun_cps3 = read_s16(io, PIYORI_TYPE_OFFSET + i * sizeof(PiyoriType) + offsetof(PiyoriType, now));
-        stop_if(stun_3sx != stun_cps3);
+        assert_equals(stun_3sx, stun_cps3);
 
         const s16 sa_gauge_3sx = super_arts[i].gauge.s.h;
         const s16 sa_gauge_cps3 = read_s16(io, SUPER_ARTS_WORK_OFFSET + i * sizeof(SA_WORK) + offsetof(SA_WORK, gauge));
-        stop_if(sa_gauge_3sx != sa_gauge_cps3);
+        assert_equals(sa_gauge_3sx, sa_gauge_cps3);
 
         const s16 sa_store_3sx = super_arts[i].store;
         const s16 sa_store_cps3 = read_s16(io, SUPER_ARTS_WORK_OFFSET + i * sizeof(SA_WORK) + offsetof(SA_WORK, store));
-        stop_if(sa_store_3sx != sa_store_cps3);
+        assert_equals(sa_store_3sx, sa_store_cps3);
     }
 }
 
 static void compare_service_values(SDL_IOStream* io, bool compare_characters, Uint64 frame) {
     const u16 game_timer_cps3 = read_game_timer(io);
-    stop_if(Game_timer != game_timer_cps3);
+    assert_equals(Game_timer, game_timer_cps3);
 
     const s16 counter_hi_cps3 = read_s16(io, COUNTER_HI_OFFSET);
-    stop_if(Counter_hi != counter_hi_cps3);
+    assert_equals(Counter_hi, counter_hi_cps3);
 
     const s16 counter_low_cps3 = read_s16(io, COUNTER_LOW_OFFSET);
-    stop_if(Counter_low != counter_low_cps3);
+    assert_equals(Counter_low, counter_low_cps3);
 
     const s16 random_ix16_cps3 = read_s16(io, RANDOM_IX_16_OFFSET);
     // This is dirty, but syncing Random_ix16 every frame helps avoid animation-related desyncs
     Random_ix16 = random_ix16_cps3;
 
     const s16 random_ix32_cps3 = read_s16(io, RANDOM_IX_32_OFFSET);
-    stop_if(Random_ix32 != random_ix32_cps3);
+    assert_equals(Random_ix32, random_ix32_cps3);
 
     const u8 cmb_stock_0_cps3 = read_u8(io, CMB_STOCK_OFFSET);
     const u8 cmb_stock_1_cps3 = read_u8(io, CMB_STOCK_OFFSET + 1);
-    stop_if(cmb_stock[0] != cmb_stock_0_cps3);
-    stop_if(cmb_stock[1] != cmb_stock_1_cps3);
+    assert_equals(cmb_stock[0], cmb_stock_0_cps3);
+    assert_equals(cmb_stock[1], cmb_stock_1_cps3);
 
     const u8 cmb_all_stock_cps3 = read_u8(io, CMB_ALL_STOCK_OFFSET);
-    stop_if(cmb_all_stock[0] != cmb_all_stock_cps3);
+    assert_equals(cmb_all_stock[0], cmb_all_stock_cps3);
 
     for (int i = 0; i < 4; i++) {
         const u16 c_no_cps3 = read_u16(io, C_NO_OFFSET + i * sizeof(u16));
-        stop_if(C_No[i] != c_no_cps3);
+        assert_equals(C_No[i], c_no_cps3);
 
         const u16 g_no_cps3 = read_u16(io, G_NO_OFFSET + i * sizeof(u16));
 
         if (i != 0) {
-            stop_if(G_No[i] != g_no_cps3);
+            assert_equals(G_No[i], g_no_cps3);
         }
     }
 
@@ -201,37 +242,37 @@ static void compare_service_values(SDL_IOStream* io, bool compare_characters, Ui
 
         const u8 caution_flag_3sx = plw[i].caution_flag;
         const u8 caution_flag_cps3 = read_u8(io, plw_offset + PLW_CAUTION_FLAG_OFFSET);
-        stop_if(caution_flag_3sx != caution_flag_cps3);
+        assert_equals(caution_flag_3sx, caution_flag_cps3);
 
         const u8 do_not_move_3sx = plw[i].do_not_move;
         const u8 do_not_move_cps3 = read_u8(io, plw_offset + PLW_DO_NOT_MOVE_OFFSET);
-        stop_if(do_not_move_3sx != do_not_move_cps3);
+        assert_equals(do_not_move_3sx, do_not_move_cps3);
 
         for (int j = 0; j < 8; j++) {
             const s16 routine_no_3sx = plw[i].wu.routine_no[j];
             const s16 routine_no_cps3 = read_s16(io, plw_offset + WORK_ROUTINE_NO_OFFSET + j * 2);
-            stop_if(routine_no_3sx != routine_no_cps3);
+            assert_equals(routine_no_3sx, routine_no_cps3);
         }
 
         const s16 dm_stop_3sx = plw[i].wu.dm_stop;
         const s16 dm_stop_cps3 = read_s16(io, plw_offset + WORK_DM_STOP_OFFSET);
-        stop_if(dm_stop_3sx != dm_stop_cps3);
+        assert_equals(dm_stop_3sx, dm_stop_cps3);
 
         const s16 hit_stop_3sx = plw[i].wu.hit_stop;
         const s16 hit_stop_cps3 = read_s16(io, plw_offset + WORK_HIT_STOP_OFFSET);
-        stop_if(hit_stop_3sx != hit_stop_cps3);
+        assert_equals(hit_stop_3sx, hit_stop_cps3);
 
         const u8 sa_stop_flag_3sx = plw[i].sa_stop_flag;
         const u8 sa_stop_flag_cps3 = read_u8(io, plw_offset + PLW_SA_STOP_FLAG_OFFSET);
-        stop_if(sa_stop_flag_3sx != sa_stop_flag_cps3);
+        assert_equals(sa_stop_flag_3sx, sa_stop_flag_cps3);
 
         // const u16 cg_ix_cps3 = read_u16(io, plw_offset + WORK_CG_IX_OFFSET);
         // const u16 cg_ix_3sx = plw[i].wu.cg_ix;
-        // stop_if(cg_ix_cps3 != cg_ix_3sx);
+        // assert_equals(cg_ix_3sx, cg_ix_cps3);
 
         const u16 cg_add_xy_cps3 = read_u16(io, plw_offset + WORK_CG_ADD_XY_OFFSET);
         const u16 cg_add_xy_3sx = plw[i].wu.cg_add_xy;
-        stop_if(cg_add_xy_3sx != cg_add_xy_cps3);
+        assert_equals(cg_add_xy_3sx, cg_add_xy_cps3);
     }
 }
 
@@ -243,40 +284,40 @@ static void compare_lvr(SDL_IOStream* io) {
         const T_PL_LVR* lvr_cps3 = &t_pl_lvr_cps3[i];
         const T_PL_LVR* lvr_3sx = &t_pl_lvr[i];
 
-        stop_if(lvr_3sx->sw_new != lvr_cps3->sw_new);
-        stop_if(lvr_3sx->sw_old != lvr_cps3->sw_old);
-        stop_if(lvr_3sx->sw_chg != lvr_cps3->sw_chg);
-        stop_if(lvr_3sx->sw_now != lvr_cps3->sw_now);
-        stop_if(lvr_3sx->old_now != lvr_cps3->old_now);
-        stop_if(lvr_3sx->now_lvbt != lvr_cps3->now_lvbt);
-        stop_if(lvr_3sx->old_lvbt != lvr_cps3->old_lvbt);
-        stop_if(lvr_3sx->new_lvbt != lvr_cps3->new_lvbt);
-        stop_if(lvr_3sx->sw_lever != lvr_cps3->sw_lever);
-        stop_if(lvr_3sx->shot_up != lvr_cps3->shot_up);
-        stop_if(lvr_3sx->shot_down != lvr_cps3->shot_down);
-        stop_if(lvr_3sx->shot_ud != lvr_cps3->shot_ud);
-        stop_if(lvr_3sx->lvr_status != lvr_cps3->lvr_status);
-        stop_if(lvr_3sx->jaku_cnt != lvr_cps3->jaku_cnt);
-        stop_if(lvr_3sx->chuu_cnt != lvr_cps3->chuu_cnt);
-        stop_if(lvr_3sx->kyou_cnt != lvr_cps3->kyou_cnt);
-        stop_if(lvr_3sx->up_cnt != lvr_cps3->up_cnt);
-        stop_if(lvr_3sx->down_cnt != lvr_cps3->down_cnt);
-        stop_if(lvr_3sx->left_cnt != lvr_cps3->left_cnt);
-        stop_if(lvr_3sx->right_cnt != lvr_cps3->right_cnt);
-        stop_if(lvr_3sx->s1_cnt != lvr_cps3->s1_cnt);
-        stop_if(lvr_3sx->s2_cnt != lvr_cps3->s2_cnt);
-        stop_if(lvr_3sx->s3_cnt != lvr_cps3->s3_cnt);
-        stop_if(lvr_3sx->s4_cnt != lvr_cps3->s4_cnt);
-        stop_if(lvr_3sx->s5_cnt != lvr_cps3->s5_cnt);
-        stop_if(lvr_3sx->s6_cnt != lvr_cps3->s6_cnt);
-        stop_if(lvr_3sx->lu_cnt != lvr_cps3->lu_cnt);
-        stop_if(lvr_3sx->ld_cnt != lvr_cps3->ld_cnt);
-        stop_if(lvr_3sx->ru_cnt != lvr_cps3->ru_cnt);
-        stop_if(lvr_3sx->rd_cnt != lvr_cps3->rd_cnt);
-        stop_if(lvr_3sx->waza_num != lvr_cps3->waza_num);
-        // stop_if(lvr_3sx->waza_no != lvr_cps3->waza_no);
-        stop_if(lvr_3sx->wait_cnt != lvr_cps3->wait_cnt);
-        stop_if(lvr_3sx->cmd_r_no != lvr_cps3->cmd_r_no);
+        assert_equals(lvr_3sx->sw_new, lvr_cps3->sw_new);
+        assert_equals(lvr_3sx->sw_old, lvr_cps3->sw_old);
+        assert_equals(lvr_3sx->sw_chg, lvr_cps3->sw_chg);
+        assert_equals(lvr_3sx->sw_now, lvr_cps3->sw_now);
+        assert_equals(lvr_3sx->old_now, lvr_cps3->old_now);
+        assert_equals(lvr_3sx->now_lvbt, lvr_cps3->now_lvbt);
+        assert_equals(lvr_3sx->old_lvbt, lvr_cps3->old_lvbt);
+        assert_equals(lvr_3sx->new_lvbt, lvr_cps3->new_lvbt);
+        assert_equals(lvr_3sx->sw_lever, lvr_cps3->sw_lever);
+        assert_equals(lvr_3sx->shot_up, lvr_cps3->shot_up);
+        assert_equals(lvr_3sx->shot_down, lvr_cps3->shot_down);
+        assert_equals(lvr_3sx->shot_ud, lvr_cps3->shot_ud);
+        assert_equals(lvr_3sx->lvr_status, lvr_cps3->lvr_status);
+        assert_equals(lvr_3sx->jaku_cnt, lvr_cps3->jaku_cnt);
+        assert_equals(lvr_3sx->chuu_cnt, lvr_cps3->chuu_cnt);
+        assert_equals(lvr_3sx->kyou_cnt, lvr_cps3->kyou_cnt);
+        assert_equals(lvr_3sx->up_cnt, lvr_cps3->up_cnt);
+        assert_equals(lvr_3sx->down_cnt, lvr_cps3->down_cnt);
+        assert_equals(lvr_3sx->left_cnt, lvr_cps3->left_cnt);
+        assert_equals(lvr_3sx->right_cnt, lvr_cps3->right_cnt);
+        assert_equals(lvr_3sx->s1_cnt, lvr_cps3->s1_cnt);
+        assert_equals(lvr_3sx->s2_cnt, lvr_cps3->s2_cnt);
+        assert_equals(lvr_3sx->s3_cnt, lvr_cps3->s3_cnt);
+        assert_equals(lvr_3sx->s4_cnt, lvr_cps3->s4_cnt);
+        assert_equals(lvr_3sx->s5_cnt, lvr_cps3->s5_cnt);
+        assert_equals(lvr_3sx->s6_cnt, lvr_cps3->s6_cnt);
+        assert_equals(lvr_3sx->lu_cnt, lvr_cps3->lu_cnt);
+        assert_equals(lvr_3sx->ld_cnt, lvr_cps3->ld_cnt);
+        assert_equals(lvr_3sx->ru_cnt, lvr_cps3->ru_cnt);
+        assert_equals(lvr_3sx->rd_cnt, lvr_cps3->rd_cnt);
+        assert_equals(lvr_3sx->waza_num, lvr_cps3->waza_num);
+        // assert_equals(lvr_3sx->waza_no, lvr_cps3->waza_no);
+        assert_equals(lvr_3sx->wait_cnt, lvr_cps3->wait_cnt);
+        assert_equals(lvr_3sx->cmd_r_no, lvr_cps3->cmd_r_no);
     }
 }
 
@@ -289,18 +330,18 @@ static void compare_waza_work(SDL_IOStream* io) {
             const WAZA_WORK* w_3sx = &waza_work[i][j];
             const WAZA_WORK* w_cps3 = &waza_work_cps3[i][j];
 
-            stop_if(w_3sx->w_type != w_cps3->w_type);
-            stop_if(w_3sx->w_int != w_cps3->w_int);
-            stop_if(w_3sx->free1 != w_cps3->free1);
-            stop_if(w_3sx->w_lvr != w_cps3->w_lvr);
-            stop_if(w_3sx->free2 != w_cps3->free2);
-            stop_if(w_3sx->w_dead != w_cps3->w_dead);
-            stop_if(w_3sx->w_dead2 != w_cps3->w_dead2);
-            stop_if(w_3sx->uni0.tame.flag != w_cps3->uni0.tame.flag);
-            stop_if(w_3sx->uni0.tame.shot_flag != w_cps3->uni0.tame.shot_flag);
-            stop_if(w_3sx->uni0.tame.shot_flag2 != w_cps3->uni0.tame.shot_flag2);
-            stop_if(w_3sx->free3 != w_cps3->free3);
-            stop_if(w_3sx->shot_ok != w_cps3->shot_ok);
+            assert_equals(w_3sx->w_type, w_cps3->w_type);
+            assert_equals(w_3sx->w_int, w_cps3->w_int);
+            assert_equals(w_3sx->free1, w_cps3->free1);
+            assert_equals(w_3sx->w_lvr, w_cps3->w_lvr);
+            assert_equals(w_3sx->free2, w_cps3->free2);
+            assert_equals(w_3sx->w_dead, w_cps3->w_dead);
+            assert_equals(w_3sx->w_dead2, w_cps3->w_dead2);
+            assert_equals(w_3sx->uni0.tame.flag, w_cps3->uni0.tame.flag);
+            assert_equals(w_3sx->uni0.tame.shot_flag, w_cps3->uni0.tame.shot_flag);
+            assert_equals(w_3sx->uni0.tame.shot_flag2, w_cps3->uni0.tame.shot_flag2);
+            assert_equals(w_3sx->free3, w_cps3->free3);
+            assert_equals(w_3sx->shot_ok, w_cps3->shot_ok);
         }
     }
 }
@@ -311,39 +352,39 @@ static void compare_wcp(SDL_IOStream* io) {
 
     for (int i = 0; i < 2; i++) {
         const s16 waza_type_cps3 = read_s16(io, WAZA_TYPE_OFFSET + i * sizeof(s16));
-        stop_if(waza_type[i] != waza_type_cps3);
+        assert_equals(waza_type[i], waza_type_cps3);
 
         const WORK_CP* w_3sx = &wcp[i];
         const WORK_CP* w_cps3 = &wcp_cps3[i];
 
-        stop_if(w_3sx->sw_lvbt != w_cps3->sw_lvbt);
-        stop_if(w_3sx->sw_new != w_cps3->sw_new);
-        stop_if(w_3sx->sw_old != w_cps3->sw_old);
-        stop_if(w_3sx->sw_now != w_cps3->sw_now);
-        stop_if(w_3sx->sw_off != w_cps3->sw_off);
-        stop_if(w_3sx->sw_chg != w_cps3->sw_chg);
-        stop_if(w_3sx->old_now != w_cps3->old_now);
-        stop_if(w_3sx->lgp != w_cps3->lgp);
-        stop_if(w_3sx->ca14 != w_cps3->ca14);
-        stop_if(w_3sx->ca25 != w_cps3->ca25);
-        stop_if(w_3sx->ca36 != w_cps3->ca36);
-        stop_if(w_3sx->calf != w_cps3->calf);
-        stop_if(w_3sx->calr != w_cps3->calr);
-        stop_if(w_3sx->lever_dir != w_cps3->lever_dir);
+        assert_equals(w_3sx->sw_lvbt, w_cps3->sw_lvbt);
+        assert_equals(w_3sx->sw_new, w_cps3->sw_new);
+        assert_equals(w_3sx->sw_old, w_cps3->sw_old);
+        assert_equals(w_3sx->sw_now, w_cps3->sw_now);
+        assert_equals(w_3sx->sw_off, w_cps3->sw_off);
+        assert_equals(w_3sx->sw_chg, w_cps3->sw_chg);
+        assert_equals(w_3sx->old_now, w_cps3->old_now);
+        assert_equals(w_3sx->lgp, w_cps3->lgp);
+        assert_equals(w_3sx->ca14, w_cps3->ca14);
+        assert_equals(w_3sx->ca25, w_cps3->ca25);
+        assert_equals(w_3sx->ca36, w_cps3->ca36);
+        assert_equals(w_3sx->calf, w_cps3->calf);
+        assert_equals(w_3sx->calr, w_cps3->calr);
+        assert_equals(w_3sx->lever_dir, w_cps3->lever_dir);
 
         for (int j = 0; j < 56; j++) {
-            stop_if(w_3sx->waza_flag[j] != w_cps3->waza_flag[j]);
+            assert_equals(w_3sx->waza_flag[j], w_cps3->waza_flag[j]);
 
             if (w_3sx->waza_flag[j] == -1) {
                 continue;
             }
 
-            stop_if(w_3sx->reset[j] != w_cps3->reset[j]);
-            stop_if(w_3sx->btix[j] != w_cps3->btix[j]);
+            assert_equals(w_3sx->reset[j], w_cps3->reset[j]);
+            assert_equals(w_3sx->btix[j], w_cps3->btix[j]);
 
             for (int k = 0; k < 4; k++) {
-                stop_if(w_3sx->waza_r[j][k] != w_cps3->waza_r[j][k]);
-                stop_if(w_3sx->exdt[j][k] != w_cps3->exdt[j][k]);
+                assert_equals(w_3sx->waza_r[j][k], w_cps3->waza_r[j][k]);
+                assert_equals(w_3sx->exdt[j][k], w_cps3->exdt[j][k]);
             }
         }
     }

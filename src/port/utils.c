@@ -77,17 +77,3 @@ void debug_print(const char* fmt, ...) {
     va_end(args);
 #endif
 }
-
-void stop_if(bool condition) {
-#if DEBUG
-    if (!condition) {
-        return;
-    }
-
-#if _WIN32
-    __debugbreak();
-#elif __APPLE__ || linux
-    raise(SIGSTOP);
-#endif
-#endif
-}
