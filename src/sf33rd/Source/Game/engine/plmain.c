@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/engine/plmain.h"
+#include "arcade/arcade_balance.h"
 #include "common.h"
 #include "constants.h"
 #include "sf33rd/Source/Game/animation/appear.h"
@@ -39,39 +40,29 @@ void check_omop_vital(PLW* wk);
 s16 select_hit_stop(s16 ms, s16 sb);
 
 void Player_move(PLW* wk, u16 lv_data) { // 🟡
+    // CPS3 has a pre-recorded replay path here, but it seems to be unreachable from normal gameplay, so it's omitted.
     s16 i;
 
-#if CPS3
-    if (DAT_02016b6c == -1) {
-        wk->cp->sw_lvbt = processed_lvbt(FUN_06092294(wk->wu.id));
-    } else {
-        if (wk->wu.operator) {
-            wk->cp->sw_lvbt = lv_data;
-        } else {
-            wk->cp->sw_lvbt = processed_lvbt(cpu_algorithm(wk));
-        }
-
-        if (wk->metamor_over) {
-            wk->cp->sw_lvbt = 0;
-        }
-    }
-#else
     if (wk->wu.operator) {
         wk->cp->sw_lvbt = lv_data;
     } else {
         wk->cp->sw_lvbt = processed_lvbt(cpu_algorithm(wk));
     }
 
-    wk->cp->sw_lvbt = check_illegal_lever_data(wk->cp->sw_lvbt);
+    if (!ArcadeBalance_IsEnabled()) {
+        // The PS2 port normalizes impossible direction combinations; CPS3 uses the raw processed input.
+        wk->cp->sw_lvbt = check_illegal_lever_data(wk->cp->sw_lvbt);
+    }
 
     if (wk->metamor_over) {
         wk->cp->sw_lvbt = 0;
     }
 
-    if (wk->resurrection_resv) {
-        wk->cp->sw_lvbt = 0;
+    if (!ArcadeBalance_IsEnabled()) {
+        if (wk->resurrection_resv) {
+            wk->cp->sw_lvbt = 0;
+        }
     }
-#endif
 
     if (wk->dead_flag) {
         wk->cp->sw_lvbt = 0;
@@ -112,14 +103,12 @@ void Player_move(PLW* wk, u16 lv_data) { // 🟡
     plmain_lv_00[wk->wu.routine_no[0]](wk);
 }
 
-#if !CPS3
 u16 check_illegal_lever_data(u16 data) { // 🔴
     u16 lever = data & 0xF;
 
     data = (data & ~0xF) | Correct_Lv_Data[lever];
     return data;
 }
-#endif
 
 void player_mv_0000(PLW* wk) { // 🟡
     s16 i;
@@ -140,9 +129,9 @@ void player_mv_0000(PLW* wk) { // 🟡
     wk->tsukami_f = wk->tsukamare_f = false;
     clear_kizetsu_point(wk);
 
-#if CPS3
-    DAT_20281a8[wk->wu.id] = 0; // TODO: figure out what this does
-#endif
+    // CPS3-only assignment
+    // TODO: figure out what this does
+    // DAT_20281a8[wk->wu.id] = 0;
 
     wk->ukemi_ok_timer = 0;
     wk->uot_cd_ok_flag = 0;
@@ -163,9 +152,9 @@ void player_mv_0000(PLW* wk) { // 🟡
     wk->metamor_over = 0;
     wk->sa_healing = 0;
 
-#if !CPS3
-    wk->resurrection_resv = 0;
-#endif
+    if (!ArcadeBalance_IsEnabled()) {
+        wk->resurrection_resv = 0;
+    }
 
     wk->dm_hos_flag = 0;
     wk->kezurijini_flag = 0;
@@ -178,41 +167,40 @@ void player_mv_0000(PLW* wk) { // 🟡
     clear_tk_flags(wk);
     wk->wu.routine_no[0] = 1;
 
-#if CPS3
-    if (wk->player_number == CHAR_ELENA) {
-        FUN_06107d24(wk); // No-op function
-    }
-#endif
+    // CPS3-only block
+    // if (wk->player_number == CHAR_ELENA) {
+    //     FUN_06107d24(wk); // No-op function
+    // }
 
     wk->wu.routine_no[6] = 0;
     wk->wu.cmwk[0] = 0;
 
-#if !CPS3
-    wk->omop_vital_timer = 40;
+    if (!ArcadeBalance_IsEnabled()) {
+        wk->omop_vital_timer = 40;
 
-    if (wk->player_number == CHAR_TWELVE) {
-        metamor_color_restore(wk->wu.id);
-    }
-
-    switch (wk->spmv_ng_flag2 & (DIP2_SA_GAUGE_ROUND_RESET_DISABLED | DIP2_SA_GAUGE_MAX_START_DISABLED)) {
-    case DIP2_SA_GAUGE_MAX_START_DISABLED:
-        clear_super_arts_point(wk);
-        spgauge_cont_init();
-        break;
-
-    case DIP2_SA_GAUGE_ROUND_RESET_DISABLED:
-        if (Round_num != 0) {
-            break;
+        if (wk->player_number == CHAR_TWELVE) {
+            metamor_color_restore(wk->wu.id);
         }
 
-        /* fallthrough */
+        switch (wk->spmv_ng_flag2 & (DIP2_SA_GAUGE_ROUND_RESET_DISABLED | DIP2_SA_GAUGE_MAX_START_DISABLED)) {
+        case DIP2_SA_GAUGE_MAX_START_DISABLED:
+            clear_super_arts_point(wk);
+            spgauge_cont_init();
+            break;
 
-    case 0:
-        demo_set_sa_full(wk->sa);
-        spgauge_cont_demo_init();
-        break;
+        case DIP2_SA_GAUGE_ROUND_RESET_DISABLED:
+            if (Round_num != 0) {
+                break;
+            }
+
+            /* fallthrough */
+
+        case 0:
+            demo_set_sa_full(wk->sa);
+            spgauge_cont_demo_init();
+            break;
+        }
     }
-#endif
 
     about_gauge_process(wk);
 }
@@ -254,9 +242,10 @@ void player_mv_1000(PLW* wk) { // 🟡
 
     Player_normal(wk);
 
-#if !CPS3
-    about_gauge_process(wk);
-#endif
+    // CPS3 does not run the port's extra gauge update after player-normal processing.
+    if (!ArcadeBalance_IsEnabled()) {
+        about_gauge_process(wk);
+    }
 }
 
 void plmv_1010(PLW* wk) { // 🟢
@@ -281,9 +270,10 @@ void plmv_1020(PLW* wk, s16 step) { // 🟡
         wk->wu.xyz[1].disp.pos = 0;
     }
 
-#if !CPS3
-    about_gauge_process(wk);
-#endif
+    // CPS3 only sets the initial position here; the port also advances the gauge.
+    if (!ArcadeBalance_IsEnabled()) {
+        about_gauge_process(wk);
+    }
 }
 
 void player_mv_2000(PLW* wk) { // 🟡
@@ -299,9 +289,9 @@ void player_mv_2000(PLW* wk) { // 🟡
 
     Player_normal(wk);
 
-#if !CPS3
-    about_gauge_process(wk);
-#endif
+    if (!ArcadeBalance_IsEnabled()) {
+        about_gauge_process(wk);
+    }
 }
 
 void player_mv_3000(PLW* wk) { // 🟡
@@ -311,9 +301,9 @@ void player_mv_3000(PLW* wk) { // 🟡
         Player_normal(wk);
     }
 
-#if !CPS3
-    about_gauge_process(wk);
-#endif
+    if (!ArcadeBalance_IsEnabled()) {
+        about_gauge_process(wk);
+    }
 }
 
 void player_mv_4000(PLW* wk) { // 🟡
@@ -341,9 +331,9 @@ void player_mv_4000(PLW* wk) { // 🟡
             wk->zuru_flag = false;
         }
 
-#if !CPS3
-        check_omop_vital(wk);
-#endif
+        if (!ArcadeBalance_IsEnabled()) {
+            check_omop_vital(wk);
+        }
     }
 
     if (Timer_Freeze == 0) {
@@ -427,7 +417,7 @@ s16 select_hit_stop(s16 ms, s16 sb) {
     return ms * maf;
 }
 
-void look_after_timers(PLW* wk) { // 🟢
+void look_after_timers(PLW* wk) { // 🟡
     if (wk->tsukamarenai_flag) {
         wk->tsukamarenai_flag--;
     }
@@ -457,6 +447,7 @@ void look_after_timers(PLW* wk) { // 🟢
     }
 
     if (wk->py->now.quantity.h && (wk->wu.hit_stop == 0)) {
+        // CPS3 uses the raw rate. The default port option is neutral (32 / 32); non-default recovery options differ.
         wk->py->now.timer -= (wk->py->recover * stun_gauge_r_omake[omop_stun_gauge_rcv[wk->wu.id]]) / 32;
 
         if (wk->py->now.quantity.h <= 0) {
@@ -498,9 +489,10 @@ void about_gauge_process(PLW* wk) { // 🟡
     sag_union(wk);
     mpg_union(wk);
 
-#if !CPS3
-    add_sp_arts_gauge_maxbit(wk);
-#endif
+    // CPS3 has no equivalent max-gauge bit update.
+    if (!ArcadeBalance_IsEnabled()) {
+        add_sp_arts_gauge_maxbit(wk);
+    }
 }
 
 void mpg_union(PLW* wk) { // 🟡
@@ -533,17 +525,20 @@ void mpg_union(PLW* wk) { // 🟡
                 wk->sa->gauge.i = 0;
             }
 
-#if !CPS3
-            sag_bug_fix(wk->wu.id);
-#endif
+            if (!ArcadeBalance_IsEnabled()) {
+                // CPS3 clears this meter state without the port's super-art bug workaround.
+                sag_bug_fix(wk->wu.id);
+            }
 
             wk->sa->saeff_mp = 0;
             wk->sa->mp_rno = 0;
             wk->sa->mp = 0;
 
-#if !CPS3
-            sag_inc_timer[wk->wu.id] = 20;
-#endif
+            if (!ArcadeBalance_IsEnabled()) {
+                // The port delays the next super-art gain for 20 frames; CPS3 does not.
+                sag_inc_timer[wk->wu.id] = 20;
+            }
+
             break;
 
         case 1:
@@ -575,11 +570,8 @@ void mpg_union(PLW* wk) { // 🟡
 void eag_union(PLW* wk) { // 🟡
     switch (wk->sa->ex_rno) {
     case 0:
-#if CPS3
-        if (wk->player_number == CHAR_AKUMA || wk->player_number == CHAR_SHIN_AKUMA) {
-#else
+        // CPS3 uses Akuma and Shin Akuma here; the port uses Akuma and Gill.
         if (wk->player_number == CHAR_AKUMA || wk->player_number == CHAR_GILL) {
-#endif
             if (wk->sa->store != 0) {
                 wk->sa->ex_rno = 1;
                 wk->sa->ex = 1;
@@ -592,11 +584,8 @@ void eag_union(PLW* wk) { // 🟡
         break;
 
     case 1:
-#if CPS3
-        if (wk->player_number == CHAR_AKUMA || wk->player_number == CHAR_SHIN_AKUMA) {
-#else
+        // CPS3 uses Akuma and Shin Akuma here; the port uses Akuma and Gill.
         if (wk->player_number == CHAR_AKUMA || wk->player_number == CHAR_GILL) {
-#endif
             if (wk->sa->store == 0) {
                 wk->sa->ex_rno = 0;
                 wk->sa->ex = 0;
@@ -625,16 +614,18 @@ void eag_union(PLW* wk) { // 🟡
             }
         }
 
-#if !CPS3
-        sag_bug_fix(wk->wu.id);
-#endif
+        if (!ArcadeBalance_IsEnabled()) {
+            // CPS3 clears this meter state without the port's super-art bug workaround.
+            sag_bug_fix(wk->wu.id);
+        }
 
         wk->sa->ex_rno = 0;
         wk->sa->ex = 0;
 
-#if !CPS3
-        sag_inc_timer[wk->wu.id] = 20;
-#endif
+        if (!ArcadeBalance_IsEnabled()) {
+            // The port delays the next super-art gain for 20 frames; CPS3 does not.
+            sag_inc_timer[wk->wu.id] = 20;
+        }
 
         break;
 
@@ -647,8 +638,7 @@ void eag_union(PLW* wk) { // 🟡
     }
 }
 
-#if CPS3
-void sag_union_0(PLW* wk) {
+void sag_union_0(PLW* wk) { // 🟢
     switch (wk->sa->sa_rno) {
     case 0:
         if (wk->sa->store != 0) {
@@ -697,7 +687,7 @@ void sag_union_0(PLW* wk) {
     }
 }
 
-void sag_union_1(PLW* wk) {
+void sag_union_1(PLW* wk) { // 🟢
     switch (wk->sa->sa_rno) {
     case 0:
         if (wk->sa->store != 0) {
@@ -723,7 +713,7 @@ void sag_union_1(PLW* wk) {
     case 2:
         if (wk->sa->saeff_ok == -1) {
             if (!pcon_dp_flag) {
-                wk->sa->store -= -1;
+                wk->sa->store -= 1;
             }
 
             wk->sa->gauge.s.h = wk->sa->gauge_len;
@@ -795,7 +785,7 @@ void sag_union_1(PLW* wk) {
     }
 }
 
-void sag_union_3(PLW* wk) {
+void sag_union_3(PLW* wk) { // 🟢
     switch (wk->sa->sa_rno) {
     case 0:
         if (wk->sa->store != 0) {
@@ -843,8 +833,7 @@ void sag_union_3(PLW* wk) {
         break;
     }
 }
-#else
-void sag_union_ps2(PLW* wk) {
+void sag_union_ps2(PLW* wk) { // 🔴
     switch (wk->sa->sa_rno) {
     case 0:
         if (wk->sa->store) {
@@ -1046,17 +1035,17 @@ void sag_union_ps2(PLW* wk) {
         break;
     }
 }
-#endif
 
 void sag_union(PLW* wk) { // 🟡
-#if CPS3
-    sag_union_jump_table[wk->sa->gauge_type](wk);
-#else
-    sag_union_ps2(wk);
-#endif
+    // Arcade Balance selects the CPS3 super-art state machine; the port state machine remains available otherwise.
+    if (ArcadeBalance_IsEnabled()) {
+        void (*const sag_union_cps3_jump_table[4])(PLW* wk) = { sag_union_0, sag_union_1, sag_union_0, sag_union_3 };
+        sag_union_cps3_jump_table[wk->sa->gauge_type](wk);
+    } else {
+        sag_union_ps2(wk);
+    }
 }
 
-#if !CPS3
 void addSAAttribute(u8* kow, u16* koa) { // 🔴
     switch (*kow & 0x78) {
     case 0:
@@ -1072,7 +1061,6 @@ void addSAAttribute(u8* kow, u16* koa) { // 🔴
         break;
     }
 }
-#endif
 
 void demo_set_sa_full(SA_WORK* sa) { // 🟡
     sa->sa_rno = 1;
@@ -1080,16 +1068,17 @@ void demo_set_sa_full(SA_WORK* sa) { // 🟡
     sa->store = sa->store_max;
     sa->id_arts++;
 
-#if CPS3
-    if (sa->gauge_type == 1) {
-        sa->gauge.s.h = sa->gauge_len;
+    if (ArcadeBalance_IsEnabled()) {
+        if (sa->gauge_type == 1) {
+            sa->gauge.s.h = sa->gauge_len;
+            sa->dtm_mul = 1;
+        }
+    } else {
+        // The port initializes a zero gauge regardless of gauge type.
+        sa->gauge.s.h = 0;
+        sa->gauge.s.l = 0;
         sa->dtm_mul = 1;
     }
-#else
-    sa->gauge.s.h = 0;
-    sa->gauge.s.l = 0;
-    sa->dtm_mul = 1;
-#endif
 }
 
 void get_saikinnno_idouryou(PLW* wk) { // 🟢
@@ -1130,10 +1119,6 @@ void (*const plmain_lv_00[5])(PLW* wk) = {
 };
 
 void (*const plmain_lv_02[5])(PLW* wk) = { Player_normal, Player_damage, Player_catch, Player_caught, Player_attack };
-
-#if CPS3
-void (*const sag_union_jump_table[4])(PLW* wk) = { sag_union_0, sag_union_1, sag_union_0, sag_union_3 };
-#else
 
 const u8 plpnm_mvkind[59] = { 0, 3, 3, 3, 3, 1, 1, 3, 3, 3, 3, 0, 0, 0, 0, 0, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3,
                               3, 2, 2, 2, 2, 2, 3, 3, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -1254,4 +1239,3 @@ void check_omop_vital(PLW* wk) { // 🔴
         break;
     }
 }
-#endif
