@@ -28,7 +28,7 @@ void set_char_move_init_ca(PLW* wk, s16 koc, s16 index);
 
 void (*const plpca_lv_00[9])();
 
-void Player_catch(PLW* wk) {
+void Player_catch(PLW* wk) { // 🟡
     wk->wu.next_z = wk->wu.my_priority;
     wk->running_f = 0;
     wk->py->flag = 0;
@@ -54,11 +54,11 @@ void Player_catch(PLW* wk) {
     wk->cat_break_reserve = 0;
     wk->hsjp_ok = 0;
     wk->high_jump_flag = 0;
-    wk->wu.swallow_no_effect = 0;
+    wk->wu.swallow_no_effect = 0; // Port-only visual suppression; CPS3 does not reset this effect flag here.
     check_em_tk_power_off(wk, (PLW*)wk->wu.target_adrs);
 
     if (wk->wu.routine_no[3] == 0) {
-        pp_pulpara_catch(&wk->wu);
+        pp_pulpara_catch(&wk->wu); // Port-only controller feedback; it does not affect catch behavior.
     }
 
     plpca_lv_00[wk->wu.routine_no[2]](wk);
@@ -75,15 +75,17 @@ void Player_catch(PLW* wk) {
     wk->wu.next_z = ((WORK*)wk->wu.target_adrs)->my_priority;
 
     if (wk->wu.cg_prio == 1) {
-        wk->wu.next_z++;
-        return;
+        wk->wu.next_z += 1;
+    } else {
+        wk->wu.next_z -= 3;
     }
-
-    wk->wu.next_z -= 3;
 }
 
-void check_nagenuke(PLW* wk, PLW* tk) {
-    if (tk->wu.work_id != 1) {
+/// Check throw break and adjust state accordingly
+/// @param wk Throwing player object
+/// @param tk Thrown player object
+void check_nagenuke(PLW* wk, PLW* tk) { // 🟢
+    if (tk->wu.work_id != 1) {          // Must be a player
         return;
     }
 
@@ -126,9 +128,12 @@ void check_nagenuke(PLW* wk, PLW* tk) {
     tk->wu.dm_stop = 0;
 }
 
-void Catch_00000(PLW* /* unused */) {}
+void Catch_00000(PLW* /* unused */) { // 🟢
+    // Do nothing
+}
 
-void Catch_01000(PLW* wk) {
+/// Start and process catch animation
+void Catch_01000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -142,7 +147,8 @@ void Catch_01000(PLW* wk) {
     }
 }
 
-void Catch_02000(PLW* wk) {
+/// Weight level version of `Catch_01000`
+void Catch_02000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -156,7 +162,7 @@ void Catch_02000(PLW* wk) {
     }
 }
 
-void Catch_03000(PLW* wk) {
+void Catch_03000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -175,7 +181,7 @@ void Catch_03000(PLW* wk) {
     }
 }
 
-void Catch_04000(PLW* wk) {
+void Catch_04000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -221,7 +227,7 @@ void Catch_04000(PLW* wk) {
     }
 }
 
-void Catch_05000(PLW* wk) {
+void Catch_05000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -278,11 +284,11 @@ void Catch_05000(PLW* wk) {
     }
 }
 
-void Catch_06000(PLW* wk) {
+void Catch_06000(PLW* wk) { // 🟡
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
-        wk->wu.dir_timer = 10;
+        wk->wu.dir_timer = 10; // Port-only feedback timer; CPS3 has neither this countdown nor vibration.
         set_char_move_init_ca(wk, 2, wk->wu.char_index);
         break;
 
@@ -303,7 +309,7 @@ void Catch_06000(PLW* wk) {
     }
 }
 
-void Catch_07000(PLW* wk) {
+void Catch_07000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -368,7 +374,7 @@ void Catch_07000(PLW* wk) {
     }
 }
 
-s32 cat07_running_check(WORK* wk) {
+s32 cat07_running_check(WORK* wk) { // 🟢
     if (wk->xyz[0].disp.pos < (bg_w.bgw[1].l_limit2 - 64) || wk->xyz[0].disp.pos > (bg_w.bgw[1].r_limit2 + 64)) {
         char_move_cmja(wk);
         setup_mvxy_data(wk, wk->mvxy.index);
@@ -380,7 +386,7 @@ s32 cat07_running_check(WORK* wk) {
     return 0;
 }
 
-void Catch_08000(PLW* wk) {
+void Catch_08000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -401,7 +407,7 @@ void Catch_08000(PLW* wk) {
     }
 }
 
-void subtract_cu_vital(PLW* wk) {
+void subtract_cu_vital(PLW* wk) { // 🟡
     if (wk->wu.dm_vital != 0) {
         if (wk->dead_flag == 0) {
             if (wk->wu.dm_vital) {
@@ -409,6 +415,7 @@ void subtract_cu_vital(PLW* wk) {
                 add_sp_arts_gauge_hit_dm(wk);
             }
 
+            // Local extra-option setting 5 intentionally suppresses damage; CPS3 has no equivalent option.
             if (omop_vital_ix[wk->wu.id] == 5) {
                 wk->wu.dm_vital = 0;
             }
@@ -438,9 +445,10 @@ void subtract_cu_vital(PLW* wk) {
             }
         }
 
-        pp_pulpara_remake_dm_all(&wk->wu);
+        pp_pulpara_remake_dm_all(&wk->wu); // Port-only controller feedback; CPS3 has no equivalent call.
     }
 
+    // Port-only training display bookkeeping; it does not change damage resolution.
     if (Mode_Type == MODE_NORMAL_TRAINING && (Training_ID != wk->wu.id)) {
         Training_Damage_Set(wk->wu.dm_vital, wk->wu.dm_piyo, wk->wu.kezurare_flag);
     }
@@ -449,7 +457,7 @@ void subtract_cu_vital(PLW* wk) {
     wk->wu.dm_piyo = 0;
 }
 
-void catch_cg_type_check(PLW* wk) {
+void catch_cg_type_check(PLW* wk) { // 🟡
     PLW* emwk = (PLW*)wk->wu.hit_adrs;
 
     switch (wk->wu.cg_type) {
@@ -465,6 +473,8 @@ void catch_cg_type_check(PLW* wk) {
         subtract_cu_vital(emwk);
         set_catch_hit_mark_pos(&wk->wu, &emwk->wu);
         effect_02_init(&wk->wu, 0, 1, wk->wu.rl_flag);
+
+        // Port-only controller feedback; CPS3 omits these calls.
         pp_pulpara_remake_at_hit(wk);
         pp_pulpara_hit(&wk->wu);
         pp_pulpara_remake_dm_all(&emwk->wu);
@@ -505,14 +515,16 @@ void catch_cg_type_check(PLW* wk) {
         emwk->wu.routine_no[1] = wk->wu.cmyd.koc;
         emwk->wu.routine_no[2] = wk->wu.cmyd.ix;
         emwk->wu.routine_no[3] = wk->wu.cmyd.pat;
+        /* fallthrough */
 
     case 9:
         grade_add_nml_nage(&wk->wu);
         wk->wu.cg_type = 0;
+        break;
     }
 }
 
-void set_char_move_init_ca(PLW* wk, s16 koc, s16 index) {
+void set_char_move_init_ca(PLW* wk, s16 koc, s16 index) { // 🟢
     set_char_move_init(&wk->wu, koc, index);
     wk->cat_break_ok_timer = wk->wu.cmyd.koc >> 8;
     wk->wu.cmyd.koc &= 0xFF;
