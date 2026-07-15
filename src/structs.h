@@ -578,9 +578,16 @@ typedef struct {
     ComboType* rp;
     s16 bullet_hcnt;
     s16 bhcnt_timer;
+
+    /// Remaining throw break window
     s8 cat_break_ok_timer;
+
+    /// Flag that explicitly permits breaking a throw
     s8 cat_break_reserve;
+
+    /// Flag that's set during throw routines when the player is not allowed to tech the throw
     s8 hazusenai_flag;
+
     s8 hurimukenai_flag;
     u8 tk_success;
     u8 resurrection_resv;

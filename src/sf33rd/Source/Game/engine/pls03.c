@@ -1226,6 +1226,9 @@ s32 check_chouhatsu(PLW* wk) { // 🟢 Same overall but differs because of Start
     return 1;
 }
 
+/// Check for throw tech input
+/// @param wk Player object whos inputs should be checked
+/// @return 1 if throw tech input was registered, 0 otherwise
 s32 check_nagenuke_cmd(PLW* wk) { // 🟢 Same overall but differs because of DIP switches
     if (wk->spmv_ng_flag2 & DIP2_THROW_BREAK_DISABLED) {
         return 0;
