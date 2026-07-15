@@ -5,21 +5,29 @@ description: Compare and synchronize this codebase with the CPS3 game program in
 
 # Compare CPS3 Code
 
-Use the repository's Ghidra query bridge to compare local C code with the CPS3 decomp. Treat decompiler output as evidence to interpret, not source text that must be copied literally.
+Use the configured Ghidra MCP server to compare local C code with the CPS3 decomp. Treat decompiler output as evidence to interpret, not source text that must be copied literally.
 
 ## Query Ghidra
 
-Run commands from the repository root:
+Ghidra access is strictly read-only. Do not run `tools/ghidra/ghidra_query.py`, PyGhidra, `analyzeHeadless`, or an ad-hoc Ghidra script. Do not call any mutating Ghidra MCP tool, including tools named `rename_*`, `create_*`, `delete_*`, `set_*`, `apply_*`, `save_program`, `run_analysis`, `run_ghidra_script`, `run_script_inline`, project-management tools, or `switch_program`.
 
-```sh
-tools/ghidra/ghidra_query.py --search SYMBOL_FRAGMENT --limit 25
-tools/ghidra/ghidra_query.py --target SYMBOL_OR_ADDRESS --decompile
-tools/ghidra/ghidra_query.py --target SYMBOL_OR_ADDRESS --decompile --bytes 32
-```
+Read-only applies to the Ghidra project only. The implementation instructions below still authorize requested edits to this repository's local source code.
 
-Read `tools/ghidra/README.md` if the bridge is not configured or a query fails. Use symbol searches to resolve uncertain names, then decompile exact targets. For whole-file requests, enumerate the local functions first and query their likely CPS3 counterparts systematically.
+Before querying program data:
 
-For numeric data addresses in decompiler output, query the address directly and inspect `addressContext`. Prefer `containingData`, its type, and its `offsetHex` when Ghidra has defined the object; otherwise use `previousSymbol` and its `offsetHex` to reconstruct the base-plus-offset expression. Correlate that offset with local struct and array layouts instead of treating raw constants as unexplained behavior. The following symbol can help bound the inferred object, but do not assume the preceding symbol contains the address without layout evidence.
+- Call `list_instances`, then `connect_instance` with the CPS3 project name when the bridge is not already connected.
+- Call `list_open_programs` and select the CPS3 program by its exact returned name. Pass that name as `program` on every subsequent program-scoped call. The Codex MCP configuration must set `GHIDRA_MCP_REQUIRE_PROGRAM_SELECTORS=1`.
+- If no instance or no target program is available, ask the user to start GhidraMCP and open the CPS3 program. Do not fall back to custom scripts.
+
+Use the following Ghidra MCP API-reference tools as needed:
+
+- Resolve functions: `search_functions(name_pattern, program)`; inspect an exact address with `get_function_by_address(address, program)`.
+- Decompile: `decompile_function(address, program)`. Use its returned address or a resolved address, not an assumed active tab.
+- Follow behavior: `get_function_callers`, `get_function_callees`, `get_function_xrefs`, `get_xrefs_to`, and `get_xrefs_from`, each with `program`.
+- Inspect code and data: `disassemble_function(address, program)`, `list_globals(name_substring, program)`, `list_data_items`, `read_memory(address, length, program)`, and `inspect_memory_content(address, length, program)`.
+- Discover an unfamiliar read-only operation with `search_tools`; use `list_tool_groups` and `load_tool_group` only to expose an existing read-only tool.
+
+For a numeric data address in decompiler output, resolve a typed/global label with `list_globals`, inspect its bytes with `read_memory`, and correlate references with `get_xrefs_to` or `get_xrefs_from`. Correlate offsets with local struct and array layouts instead of treating raw constants as unexplained behavior. Do not infer an object boundary from a neighboring label without layout evidence.
 
 When Ghidra shows unlabeled data, generated field names, or raw offsets and you can infer a likely local identity, explicitly report that inference to the user. Name the generated label or offset, the suspected local symbol or struct field, and the evidence used, such as matching offsets, call arguments, table layout, or nearby assignments. Keep inference separate from certainty: say when it is only a likely match, and ask for Ghidra labeling if the ambiguity affects the comparison.
 
