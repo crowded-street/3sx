@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/engine/plpcu.h"
+#include "arcade/arcade_balance.h"
 #include "bin2obj/buttobi.h"
 #include "bin2obj/etc.h"
 #include "common.h"
@@ -33,7 +34,7 @@ void scdmd_30000(PLW* wk);
 void (*const setup_cu_dm_init_data[20])(PLW* wk);
 void (*const plpcu_lv_00[4])(PLW*, PLW*);
 
-void Player_caught(PLW* wk) {
+void Player_caught(PLW* wk) { // 🟡
     PLW* emwk = (PLW*)wk->wu.dmg_adrs;
 
     setup_caught_process_flags(wk);
@@ -43,14 +44,18 @@ void Player_caught(PLW* wk) {
         wk->uot_cd_ok_flag = 0;
         wk->ukemi_success = 0;
         wk->wu.dir_old = 1;
-        pp_pulpara_caught(&wk->wu);
-        clear_chainex_check(wk->wu.id);
+        pp_pulpara_caught(&wk->wu); // Port-only controller feedback; it does not affect caught behavior.
+
+        if (!ArcadeBalance_IsEnabled()) {
+            // Chain EX bookkeeping is port-only and absent from CPS3.
+            clear_chainex_check(wk->wu.id);
+        }
     }
 
     plpcu_lv_00[wk->wu.routine_no[2]](wk, emwk);
 }
 
-void setup_caught_process_flags(PLW* wk) {
+void setup_caught_process_flags(PLW* wk) { // 🟡
     wk->wu.next_z = wk->wu.my_priority;
     wk->running_f = 0;
     wk->guard_flag = 3;
@@ -69,16 +74,19 @@ void setup_caught_process_flags(PLW* wk) {
     wk->cmd_request = 0;
     wk->hsjp_ok = 0;
     wk->high_jump_flag = 0;
-    wk->wu.swallow_no_effect = 0;
+    wk->wu.swallow_no_effect = 0; // Port-only visual suppression; CPS3 does not reset this effect flag here.
 
-    if (wk->wu.routine_no[3]) {
+    if (ArcadeBalance_IsEnabled() || wk->wu.routine_no[3]) {
+        // CPS3 always clears the Super Art stop state while caught.
         wk->sa_stop_flag = 0;
     }
 }
 
-void Caught_00000(PLW* /* unused */, PLW* /* unused */) {}
+void Caught_00000(PLW* /* unused */, PLW* /* unused */) { // 🟢
+    // Do nothing
+}
 
-void Caught_01000(PLW* wk, PLW* emwk) {
+void Caught_01000(PLW* wk, PLW* emwk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -123,7 +131,7 @@ void Caught_01000(PLW* wk, PLW* emwk) {
     }
 }
 
-void Caught_02000(PLW* wk, PLW* emwk) {
+void Caught_02000(PLW* wk, PLW* emwk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -168,9 +176,11 @@ void Caught_02000(PLW* wk, PLW* emwk) {
     }
 }
 
-void Caught_03000(PLW* /* unused */, PLW* /* unused */) {}
+void Caught_03000(PLW* /* unused */, PLW* /* unused */) { // 🟢
+    // Do nothing
+}
 
-void caught_cg_type_check(PLW* wk, PLW* emwk) {
+void caught_cg_type_check(PLW* wk, PLW* emwk) { // 🟡
     switch (wk->wu.cg_type) {
     case 2:
         wk->wu.hit_quake = wk->wu.dm_quake;
@@ -184,7 +194,8 @@ void caught_cg_type_check(PLW* wk, PLW* emwk) {
         break;
 
     case 9:
-        if (wk->wu.now_koc == 3 && wk->wu.char_index == 60) {
+        if (!ArcadeBalance_IsEnabled() && wk->wu.now_koc == 3 && wk->wu.char_index == 60) {
+            // This port-specific caught animation is not present in CPS3.
             if (wk->dead_flag) {
                 char_move_cmms(&wk->wu);
             } else {
@@ -221,17 +232,20 @@ void caught_cg_type_check(PLW* wk, PLW* emwk) {
     }
 }
 
-s32 check_tsukamare_keizoku_check(PLW* wk, PLW* emwk) {
+s32 check_tsukamare_keizoku_check(PLW* wk, PLW* emwk) { // 🟡
     if (!emwk->tsukami_f) {
         wk->wu.routine_no[1] = 1;
         wk->wu.routine_no[2] = 88;
         wk->wu.routine_no[3] = 0;
         wk->wu.dm_stop = wk->wu.hit_stop = 0;
 
-        if (wk->wu.cg_flip & 2) {
-            wk->reserv_add_y = -getObjectHeight(wk->wu.cg_number);
-        } else {
-            wk->reserv_add_y = 0;
+        if (!ArcadeBalance_IsEnabled()) {
+            // CPS3 does not apply this port-specific caught-position correction.
+            if (wk->wu.cg_flip & 2) {
+                wk->reserv_add_y = -getObjectHeight(wk->wu.cg_number);
+            } else {
+                wk->reserv_add_y = 0;
+            }
         }
 
         return 1;
@@ -240,7 +254,7 @@ s32 check_tsukamare_keizoku_check(PLW* wk, PLW* emwk) {
     return 0;
 }
 
-void scdmd_12000(PLW* wk) {
+void scdmd_12000(PLW* wk) { // 🟢
     wk->dm_step_tbl = _dm_step_data[_select_hit_dsd[wk->wu.dm_impact][get_weight_point(&wk->wu)]];
 
     if (!wk->wu.dm_attribute) {
@@ -254,22 +268,22 @@ void scdmd_12000(PLW* wk) {
     }
 }
 
-void scdmd_14000(PLW* wk) {
+void scdmd_14000(PLW* wk) { // 🟢
     setup_butt_own_data(&wk->wu);
     wk->wu.mvxy.a[1].sp = wk->wu.mvxy.d[1].sp = wk->wu.mvxy.kop[1] = 0;
 }
 
-void scdmd_16000(PLW* wk) {
+void scdmd_16000(PLW* wk) { // 🟢
     setup_butt_own_data(&wk->wu);
     cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->wu.char_index][wk->wu.dm_attlv], 0);
 }
 
-void scdmd_17000(PLW* wk) {
+void scdmd_17000(PLW* wk) { // 🟢
     setup_butt_own_data(&wk->wu);
     cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->wu.char_index][wk->wu.dm_attlv], wk->wu.xyz[1].disp.pos);
 }
 
-void scdmd_18000(PLW* wk) {
+void scdmd_18000(PLW* wk) { // 🟢
     setup_butt_own_data(&wk->wu);
     cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->wu.char_index][wk->wu.dm_attlv], wk->wu.xyz[1].disp.pos);
 
@@ -284,21 +298,21 @@ void scdmd_18000(PLW* wk) {
     }
 }
 
-void scdmd_19000(PLW* wk) {
+void scdmd_19000(PLW* wk) { // 🟢
     setup_butt_own_data(&wk->wu);
     cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->wu.char_index][wk->wu.dm_attlv], 0);
 }
 
-void scdmd_20000(PLW* wk) {
+void scdmd_20000(PLW* wk) { // 🟢
     setup_butt_own_data(&wk->wu);
 }
 
-void scdmd_21000(PLW* wk) {
+void scdmd_21000(PLW* wk) { // 🟢
     setup_butt_own_data(&wk->wu);
     wk->wu.mvxy.a[1].sp = wk->wu.mvxy.d[1].sp = wk->wu.mvxy.kop[1] = 0;
 }
 
-void scdmd_23000(PLW* wk) {
+void scdmd_23000(PLW* wk) { // 🟢
     if (wk->wu.xyz[1].disp.pos < 0) {
         wk->wu.xyz[1].cal = 0;
     }
@@ -306,35 +320,39 @@ void scdmd_23000(PLW* wk) {
     setup_butt_own_data(&wk->wu);
 }
 
-void scdmd_24000(PLW* wk) {
+void scdmd_24000(PLW* wk) { // 🟢
     wk->wu.routine_no[2] = 0;
     wk->wu.routine_no[3] = 1;
 }
 
-void scdmd_25000(PLW* wk) {}
+void scdmd_25000(PLW* wk) { // 🟢
+    // Do nothing
+}
 
-void scdmd_26000(PLW* wk) {
+void scdmd_26000(PLW* wk) { // 🟢
     setup_butt_own_data(&wk->wu);
 }
 
-void scdmd_27000(PLW* wk) {
+void scdmd_27000(PLW* wk) { // 🟢
     setup_butt_own_data(&wk->wu);
     wk->wu.mvxy.a[1].sp = wk->wu.mvxy.d[1].sp = wk->wu.mvxy.kop[1] = 0;
 }
 
-void scdmd_28000(PLW* wk) {
+void scdmd_28000(PLW* wk) { // 🟢
     setup_butt_own_data(&wk->wu);
     cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->wu.char_index][wk->wu.dm_attlv], wk->wu.xyz[1].disp.pos);
 }
 
-void scdmd_29000(PLW* wk) {}
+void scdmd_29000(PLW* wk) { // 🟢
+    // Do nothing
+}
 
-void scdmd_30000(PLW* wk) {
+void scdmd_30000(PLW* wk) { // 🟢
     setup_butt_own_data(&wk->wu);
     cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->wu.char_index][wk->wu.dm_attlv], 0);
 }
 
-void scdmd_31000(PLW* wk) {
+void scdmd_31000(PLW* wk) { // 🟢
     setup_butt_own_data(&wk->wu);
 }
 
