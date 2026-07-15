@@ -584,10 +584,19 @@ typedef struct {
     s8 hurimukenai_flag;
     u8 tk_success;
     u8 resurrection_resv;
+
+    /// Character-specific strike damage bonus
     s16 tk_dageki;
+
+    /// Character-specific throw damage bonus
     s16 tk_nage;
+
+    /// Character-specific stun bonus
     s16 tk_kizetsu;
+
+    /// Character-specific damage resistance/guts bonus
     s16 tk_konjyou;
+
     s16 utk_dageki;
     s16 utk_nage;
     s16 utk_kizetsu;
