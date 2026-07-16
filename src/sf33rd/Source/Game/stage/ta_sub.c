@@ -5,6 +5,7 @@
 
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 #include "common.h"
+#include "port/utils.h"
 #include "sf33rd/Source/Game/animation/lose_pl.h"
 #include "sf33rd/Source/Game/animation/win_pl.h"
 #include "sf33rd/Source/Game/engine/hitcheck.h"
@@ -15,6 +16,8 @@
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "structs.h"
+
+#include <SDL3/SDL.h>
 
 s16 eff_hit_data[4][4] = { { -67, 59, 13, 29 }, { 31, 95, 24, 15 }, { 4, 123, 28, 15 }, { 20, 15, 67, 37 } };
 
@@ -257,7 +260,21 @@ s32 eff_hit_check_sub(WORK_Other* ewk, PLW* pl) {
             return 0;
         }
 
-        if (hit_check_subroutine(&pl->wu, &ewk->wu, pl_hit_eff[pl->player_number], eff_hit_data[ewk->wu.type])) {
+        // This kludge fixes an out-of-bounds read of eff_hit_data.
+        // CPS3 version got away with it because eff_hit_data is followed by pl_hit_eff in RAM.
+        const s16* hd2 = NULL;
+        const int eff_hit_data_size = SDL_arraysize(eff_hit_data);
+        const int desired_index = ewk->wu.type;
+
+        if (desired_index < eff_hit_data_size) {
+            hd2 = eff_hit_data[desired_index];
+        } else if (desired_index - eff_hit_data_size < SDL_arraysize(pl_hit_eff)) {
+            hd2 = pl_hit_eff[desired_index - 4];
+        } else {
+            fatal_error("eff_hit_check_sub: ewk->wu.type (%d) is out of bounds", desired_index);
+        }
+
+        if (hit_check_subroutine(&pl->wu, &ewk->wu, pl_hit_eff[pl->player_number], hd2)) {
             return 1;
         }
     }
