@@ -244,6 +244,18 @@ static void compare_service_values(SDL_IOStream* io, bool compare_characters, Ui
         const u8 caution_flag_cps3 = read_u8(io, plw_offset + PLW_CAUTION_FLAG_OFFSET);
         assert_equals(caution_flag_3sx, caution_flag_cps3);
 
+        const s8 cat_break_ok_timer_3sx = plw[i].cat_break_ok_timer;
+        const u8 cat_break_ok_timer_cps3 = read_u8(io, plw_offset + PLW_CAT_BREAK_OK_TIMER_OFFSET);
+        assert_equals(cat_break_ok_timer_3sx, cat_break_ok_timer_cps3);
+
+        const s8 cat_break_reserve_3sx = plw[i].cat_break_reserve;
+        const u8 cat_break_reserve_cps3 = read_u8(io, plw_offset + PLW_CAT_BREAK_RESERVE_OFFSET);
+        assert_equals(cat_break_reserve_3sx, cat_break_reserve_cps3);
+
+        const s8 hazusenai_flag_3sx = plw[i].hazusenai_flag;
+        const u8 hazusenai_flag_cps3 = read_u8(io, plw_offset + PLW_HAZUSENAI_FLAG_OFFSET);
+        assert_equals(hazusenai_flag_3sx, hazusenai_flag_cps3);
+
         const u8 do_not_move_3sx = plw[i].do_not_move;
         const u8 do_not_move_cps3 = read_u8(io, plw_offset + PLW_DO_NOT_MOVE_OFFSET);
         assert_equals(do_not_move_3sx, do_not_move_cps3);

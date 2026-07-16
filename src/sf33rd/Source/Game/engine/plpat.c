@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/engine/plpat.h"
+#include "arcade/arcade_balance.h"
 #include "common.h"
 #include "sf33rd/Source/Game/effect/effg6.h"
 #include "sf33rd/Source/Game/engine/charset.h"
@@ -50,7 +51,7 @@ const u8* cjdr_hits_table[20];
 const u8* cjdr_blocking_table[20];
 const u8* cjdr_defense_table[20];
 
-void Player_attack(PLW* wk) {
+void Player_attack(PLW* wk) { // 🟡
     wk->wu.next_z = wk->wu.my_priority;
     wk->running_f = 0;
     wk->py->flag = 0;
@@ -69,7 +70,7 @@ void Player_attack(PLW* wk) {
     wk->uot_cd_ok_flag = 0;
     wk->hazusenai_flag = 0;
     wk->cat_break_reserve = 0;
-    wk->wu.swallow_no_effect = 0;
+    wk->wu.swallow_no_effect = 0; // Port-only visual suppression; CPS3 does not reset this effect flag here.
     check_em_tk_power_off(wk, (PLW*)wk->wu.target_adrs);
 
     if (wk->wu.routine_no[3] == 0) {
@@ -79,10 +80,12 @@ void Player_attack(PLW* wk) {
         wk->total_att_hit_ok = 0;
         wk->hsjp_ok = 0;
 
-        if (wk->wu.routine_no[2] < 16) {
+        if (!ArcadeBalance_IsEnabled() && wk->wu.routine_no[2] < 16) {
+            // Chain EX bookkeeping is port-only and absent from CPS3.
             clear_chainex_check(wk->wu.id);
         }
     } else {
+        // Port-only controller feedback; it does not affect attack behavior.
         pp_pulpara_remake_at(wk);
     }
 
@@ -107,7 +110,7 @@ void Player_attack(PLW* wk) {
     }
 }
 
-void Attack_00000(PLW* wk) {
+void Attack_00000(PLW* wk) { // 🟢
     wk->scr_pos_set_flag = 0;
 
     switch (wk->wu.routine_no[3]) {
@@ -133,7 +136,7 @@ void Attack_00000(PLW* wk) {
     }
 }
 
-void Attack_01000(PLW* wk) {
+void Attack_01000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -167,7 +170,7 @@ void Attack_01000(PLW* wk) {
     }
 }
 
-void Attack_02000(PLW* wk) {
+void Attack_02000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -208,7 +211,7 @@ void Attack_02000(PLW* wk) {
     }
 }
 
-void Attack_03000(PLW* wk) {
+void Attack_03000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -257,7 +260,7 @@ void Attack_03000(PLW* wk) {
     }
 }
 
-s16 ja_nmj_rno_change(WORK* wk) {
+s16 ja_nmj_rno_change(WORK* wk) { // 🟢
     s16 rnum = 0;
 
     switch (wk->pat_status) {
@@ -310,7 +313,7 @@ s16 ja_nmj_rno_change(WORK* wk) {
     return rnum;
 }
 
-void check_ja_nmj_dummy_RTNM(PLW* wk) {
+void check_ja_nmj_dummy_RTNM(PLW* wk) { // 🟢
     if (wk->wu.xyz[1].disp.pos <= 0) {
         wk->ja_nmj_rno = 0;
         return;
@@ -358,7 +361,7 @@ void check_ja_nmj_dummy_RTNM(PLW* wk) {
     }
 }
 
-u8 get_cjdR(PLW* wk) {
+u8 get_cjdR(PLW* wk) { // 🟢
     s16 w_ix = (wk->wu.kind_of_waza & 6);
     w_ix += ((wk->wu.hf.hit.player & 0xA2) != 0);
 
@@ -391,7 +394,7 @@ case3:
     return cjdr_defense_table[wk->player_number][w_ix];
 }
 
-void Attack_04000(PLW* wk) {
+void Attack_04000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -415,7 +418,7 @@ void Attack_04000(PLW* wk) {
     }
 }
 
-void Attack_05000(PLW* wk) {
+void Attack_05000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.rl_flag = wk->wu.rl_waza;
@@ -455,12 +458,12 @@ void Attack_05000(PLW* wk) {
     }
 }
 
-void Attack_06000(PLW* wk) {
+void Attack_06000(PLW* wk) { // 🟢
     wk->scr_pos_set_flag = 0;
     Attack_07000(wk);
 }
 
-void Attack_07000(PLW* wk) {
+void Attack_07000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -488,7 +491,7 @@ void Attack_07000(PLW* wk) {
     }
 }
 
-void Attack_08000(PLW* wk) {
+void Attack_08000(PLW* wk) { // 🟢
     s16 ixx;
 
     switch (wk->wu.routine_no[3]) {
@@ -547,7 +550,7 @@ void Attack_08000(PLW* wk) {
     }
 }
 
-void Attack_09000(PLW* wk) {
+void Attack_09000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -591,7 +594,7 @@ void Attack_09000(PLW* wk) {
     }
 }
 
-void Attack_10000(PLW* wk) {
+void Attack_10000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -611,14 +614,17 @@ void Attack_10000(PLW* wk) {
 
     case 1:
         char_move(&wk->wu);
+
         if (wk->wu.cg_type != 20) {
             break;
         }
 
         wk->wu.routine_no[3]++;
+        /* fallthrough */
 
     case 2:
         jumping_union_process(&wk->wu, 4);
+
         if ((wk->wu.routine_no[3] != 4) && wk->wu.hf.hit.player) {
             if ((wk->wu.hf.hit.player & 3) != 0) {
                 wk->wu.mvxy.a[0].sp /= 4;
@@ -661,8 +667,9 @@ void Attack_10000(PLW* wk) {
     }
 }
 
-void Attack_14000(PLW* wk) {
+void Attack_14000(PLW* wk) { // 🟡
     wk->scr_pos_set_flag = 0;
+
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -675,15 +682,24 @@ void Attack_14000(PLW* wk) {
 
     case 1:
         char_move(&wk->wu);
+
+        if (ArcadeBalance_IsEnabled()) {
+            if (wk->cat_break_ok_timer) {
+                wk->cat_break_reserve = 1;
+            }
+        }
+
         break;
     }
 
-    if (wk->cat_break_ok_timer) {
-        wk->cat_break_reserve = 1;
+    if (!ArcadeBalance_IsEnabled()) {
+        if (wk->cat_break_ok_timer) {
+            wk->cat_break_reserve = 1;
+        }
     }
 }
 
-void Attack_15000(PLW* wk) {
+void Attack_15000(PLW* wk) { // 🟡
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -698,9 +714,9 @@ void Attack_15000(PLW* wk) {
         wk->cat_break_ok_timer = 6;
         set_char_move_init(&wk->wu, 4, wk->as->char_ix);
 
-        if (wk->cat_break_ok_timer) {
+        if (!ArcadeBalance_IsEnabled() && wk->cat_break_ok_timer) {
+            // The port reserves cat-break on the initialization frame; CPS3 starts checking next frame.
             wk->cat_break_reserve = 1;
-            break;
         }
 
         break;
@@ -734,27 +750,22 @@ void Attack_15000(PLW* wk) {
     }
 }
 
-void get_cancel_timer(PLW* wk) {
+void get_cancel_timer(PLW* wk) { // 🟢
     if (wk->tc_1st_flag) {
         wk->cancel_timer = 0;
-        return;
-    }
-
-    if (wk->wu.xyz[1].disp.pos > 0) {
+    } else if (wk->wu.xyz[1].disp.pos > 0) {
         wk->cancel_timer = 2;
-        return;
+    } else {
+        wk->cancel_timer = 2;
     }
-
-    wk->cancel_timer = 2;
 }
 
-void hoken_muriyari_chakuchi(PLW* wk) {
+void hoken_muriyari_chakuchi(PLW* wk) { // 🟢
     if ((Bonus_Game_Flag == 20) && wk->bs2_on_car) {
         wk->wu.xyz[1].disp.pos = bs2_floor[2];
-        return;
+    } else {
+        wk->wu.xyz[1].disp.pos = 0;
     }
-
-    wk->wu.xyz[1].disp.pos = 0;
 }
 
 void (*const plpat_lv_00[16])(PLW* wk) = { Attack_00000, Attack_01000, Attack_02000, Attack_03000,
