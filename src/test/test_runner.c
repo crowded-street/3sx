@@ -1,7 +1,6 @@
 #if STATCHECK
 
 #include "test/test_runner.h"
-#include "test/ram_archive.h"
 #include "arcade/arcade_constants.h"
 #include "constants.h"
 #include "main.h"
@@ -9,6 +8,7 @@
 #include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
+#include "test/ram_archive.h"
 #include "test/replay_game.h"
 #include "test/test_runner_compare.h"
 #include "test/test_runner_utils.h"
@@ -79,18 +79,50 @@ static void finish() {
     exit(0);
 }
 
-static Uint16 read_input_buff(SDL_IOStream* io, Sint64 offset) {
-    const Uint16 raw_buff = read_u16(io, offset);
+static Uint16 read_input_buff(SDL_IOStream* io, int player) {
+    const Sint64 sw_lvbt_offset = (player == 0) ? WCP_OFFSET : WCP_OFFSET + 0x406;
+    const Uint16 sw_lvbt_buff = read_u16(io, sw_lvbt_offset);
     Uint16 buff = 0;
 
-    buff |= raw_buff & 0xF;              // directions
-    buff |= raw_buff & (1 << 4);         // LP
-    buff |= raw_buff & (1 << 5);         // MP
-    buff |= raw_buff & (1 << 6);         // HP
-    buff |= (raw_buff & (1 << 7)) << 1;  // LK
-    buff |= (raw_buff & (1 << 8)) << 1;  // MK
-    buff |= (raw_buff & (1 << 9)) << 1;  // HK
-    buff |= (raw_buff & (1 << 12)) << 2; // start
+    if (sw_lvbt_buff & (1 << 0)) {
+        buff |= SWK_UP;
+    }
+
+    if (sw_lvbt_buff & (1 << 1)) {
+        buff |= SWK_DOWN;
+    }
+
+    if (sw_lvbt_buff & (1 << 2)) {
+        buff |= SWK_LEFT;
+    }
+
+    if (sw_lvbt_buff & (1 << 3)) {
+        buff |= SWK_RIGHT;
+    }
+
+    if (sw_lvbt_buff & (1 << 4)) {
+        buff |= SWK_WEST;
+    }
+
+    if (sw_lvbt_buff & (1 << 5)) {
+        buff |= SWK_NORTH;
+    }
+
+    if (sw_lvbt_buff & (1 << 6)) {
+        buff |= SWK_RIGHT_SHOULDER;
+    }
+
+    if (sw_lvbt_buff & (1 << 8)) {
+        buff |= SWK_SOUTH;
+    }
+
+    if (sw_lvbt_buff & (1 << 9)) {
+        buff |= SWK_EAST;
+    }
+
+    if (sw_lvbt_buff & (1 << 10)) {
+        buff |= SWK_RIGHT_TRIGGER;
+    }
 
     return buff;
 }
@@ -116,6 +148,13 @@ static void apply_input_buffer(int id, Uint16 input) {
     state.dpad_right = (input & SWK_RIGHT) ? true : false;
 
     StatcheckInput_SetButtonState(id, &state);
+}
+
+static bool inter_round_skip_needed() {
+    const Uint16 c_no_0_cps3 = read_u16(frame_io, C_NO_OFFSET + 0 * sizeof(u16));
+    const Uint16 c_no_1_cps3 = read_u16(frame_io, C_NO_OFFSET + 1 * sizeof(u16));
+    const Uint8 scene_cut_cps3 = read_u8(frame_io, SCENE_CUT_OFFSET);
+    return ((c_no_0_cps3 == 6) && (c_no_1_cps3 == 3)) || (scene_cut_cps3 && (c_no_0_cps3 > 6));
 }
 
 bool TestRunner_Init(const char* ram_archive_path) {
@@ -235,8 +274,14 @@ void TestRunner_Prologue() {
             finish();
         }
 
-        input_buffers[0] = read_input_buff(frame_io, P1SW_0_OFFSET);
-        input_buffers[1] = read_input_buff(frame_io, P2SW_0_OFFSET);
+        input_buffers[0] = read_input_buff(frame_io, 0);
+        input_buffers[1] = read_input_buff(frame_io, 1);
+
+        if (inter_round_skip_needed()) {
+            tap_button(SWK_ATTACKS, 0);
+            tap_button(SWK_ATTACKS, 1);
+        }
+
         break;
     }
 
