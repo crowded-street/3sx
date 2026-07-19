@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/engine/spgauge.h"
+#include "arcade/arcade_balance.h"
 #include "common.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/plmain.h"
@@ -344,13 +345,29 @@ void spgauge_control(s8 Spg_Num) {
     }
 }
 
-void wipe_check() {
+void wipe_check() { // 🟡 CPS3 clears an active timer-SA meter at wipe start
     if (Old_Stop_SG) {
+        if (ArcadeBalance_IsEnabled() && Exec_Wipe != 0 && Exec_Wipe_F == 0) {
+            // Stop_SG is raised one frame before WipeOut advances; CPS3 clears on that first wipe frame.
+            if (spg_dat[0].time == 1 && time_clear[0] == 1) {
+                plw[0].sa->gauge.s.h = plw[0].sa->bacckup_g_h;
+                spg_dat[0].current_spg = plw[0].sa->gauge.s.h;
+            }
+
+            if (spg_dat[1].time == 1 && time_clear[1] == 1) {
+                plw[1].sa->gauge.s.h = plw[1].sa->bacckup_g_h;
+                spg_dat[1].current_spg = plw[1].sa->gauge.s.h;
+            }
+
+            // Preserve the pending post-wipe UI cleanup while remembering that the meter state is committed.
+            Exec_Wipe_F = -1;
+        }
+
         if (Exec_Wipe != 0) {
             return;
         }
 
-        if (Exec_Wipe_F != 0) {
+        if (Exec_Wipe_F == 1) {
             return;
         }
 
