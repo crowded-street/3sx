@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-"""Run Fightcade replays into temporary RAM dumps and package them as SCRD files."""
+"""Run Fightcade replays and collect the SCRD archives produced by FBNeo."""
 
 from __future__ import annotations
 
 import argparse
 import json
+import re
+import shutil
 import subprocess
 import sys
 import tempfile
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
-
-from compress_ram_dumps import compress_ram_dumps
 
 
 @dataclass
@@ -53,11 +53,14 @@ def replay_game(replay_dir: Path, game_override: str | None) -> str:
     return game
 
 
-def game_dump_dirs(dump_root: Path) -> list[Path]:
+GAME_ARCHIVE_PATTERN = re.compile(r"game_\d+\.scrd$")
+
+
+def game_archives(archive_root: Path) -> list[Path]:
     return sorted(
         path
-        for path in dump_root.iterdir()
-        if path.is_dir() and path.name.startswith("game_")
+        for path in archive_root.iterdir()
+        if path.is_file() and GAME_ARCHIVE_PATTERN.fullmatch(path.name)
     )
 
 
@@ -65,7 +68,7 @@ def run_replay(
     runner: Path,
     replay_dir: Path,
     game: str,
-    dump_root: Path,
+    archive_root: Path,
 ) -> None:
     command = [
         str(runner),
@@ -76,7 +79,7 @@ def run_replay(
         str(replay_dir / "inputs"),
         "-headless",
         "-dump-ram-path",
-        str(dump_root),
+        str(archive_root),
     ]
     subprocess.run(command, check=True)
 
@@ -90,22 +93,25 @@ def process_replay(
     temp_root: Path,
 ) -> ReplayResult:
     game = replay_game(replay_dir, game_override)
-    dump_root = temp_root / replay_dir.name
-    dump_root.mkdir(parents=True)
-    run_replay(runner, replay_dir, game, dump_root)
+    archive_root = temp_root / replay_dir.name
+    archive_root.mkdir(parents=True)
+    run_replay(runner, replay_dir, game, archive_root)
 
-    dumps = game_dump_dirs(dump_root)
-    if not dumps:
-        raise RuntimeError("replay runner produced no game_N RAM-dump directories")
+    produced_archives = game_archives(archive_root)
+    if not produced_archives:
+        raise RuntimeError("replay runner produced no game_N.scrd archives")
 
     archives: list[str] = []
-    for dump_dir in dumps:
-        output_path = output_dir / replay_dir.name / f"{dump_dir.name}.scrd"
-        frame_count = compress_ram_dumps(dump_dir, output_path, force=force)
+    for archive_path in produced_archives:
+        output_path = output_dir / replay_dir.name / archive_path.name
+        if output_path.exists() and not force:
+            raise RuntimeError(f"output file already exists: {output_path} (use --force to overwrite)")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(archive_path, output_path)
         archives.append(str(output_path))
-        print(f"  wrote {output_path} ({frame_count} frames)")
+        print(f"  wrote {output_path}")
 
-    return ReplayResult(replay=replay_dir.name, status="compressed", game=game, archives=archives)
+    return ReplayResult(replay=replay_dir.name, status="archived", game=game, archives=archives)
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
@@ -143,12 +149,16 @@ def main(argv: list[str]) -> int:
     for index, replay_dir in enumerate(replays, start=1):
         print(f"[{index}/{len(replays)}] {replay_dir.name}")
         try:
-            # A replay can generate tens of gigabytes of raw frame dumps. Keep
-            # only one replay's dumps at a time, then delete them as soon as its
-            # game_N archives have been written.
-            with tempfile.TemporaryDirectory(prefix="fbneo-ram-dumps-") as temp_name:
+            # Keep the runner's archives isolated until it completes, so a
+            # failed replay cannot leave partial output in the destination.
+            with tempfile.TemporaryDirectory(prefix="fbneo-scrd-archives-") as temp_name:
                 result = process_replay(
-                    runner, replay_dir, args.output_dir, args.game, args.force, Path(temp_name)
+                    runner,
+                    replay_dir,
+                    args.output_dir,
+                    args.game,
+                    args.force,
+                    Path(temp_name),
                 )
         except (OSError, RuntimeError, subprocess.CalledProcessError) as exc:
             result = ReplayResult(replay=replay_dir.name, status="error", error=str(exc))
@@ -164,8 +174,9 @@ def main(argv: list[str]) -> int:
         json.dumps({"results": [asdict(result) for result in results]}, indent=2) + "\n",
         encoding="utf-8",
     )
+    archived = sum(result.status == "archived" for result in results)
     failed = sum(result.status == "error" for result in results)
-    print(f"wrote {manifest_path}; {len(results) - failed} compressed, {failed} failed")
+    print(f"wrote {manifest_path}; {archived} archived, {failed} failed")
     return 1 if failed else 0
 
 

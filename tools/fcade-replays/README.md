@@ -60,7 +60,7 @@ python3 tools/fcade-replays/fcade_replay_tool.py bulk-download \
   --keep-going
 ```
 
-Convert a directory of downloaded replay folders into compressed RAM dumps:
+Collect the SCRD archives emitted by a directory of downloaded replays:
 
 ```bash
 python3 tools/replay_preprocessor.py \
@@ -69,11 +69,11 @@ python3 tools/replay_preprocessor.py \
   --runner build/release/fbneosdlarm64
 ```
 
-The wrapper runs each complete replay through the `--runner` executable, stores the
-runner's uncompressed `game_N` RAM dumps in a temporary directory, then writes
+The wrapper runs each complete replay through the `--runner` executable, collects
+the runner's `game_N.scrd` archives in a temporary directory, then writes
 `<replay-id>/game_N.scrd` under the requested output directory. Use `--runner` to
 select another executable, and `--game sfiii3nr1` when the replay folders do not
-have `summary.json` files. Each replay's temporary dumps are deleted before the
+have `summary.json` files. Each replay's temporary archives are deleted before the
 next replay starts.
 
 Run statcheck against every preprocessed game archive:
@@ -84,8 +84,10 @@ python3 tools/statcheck_runner.py \
   tools/fcade-replays/output/compressed
 ```
 
-The runner prints the result for each game and writes output from failed or crashed
-statcheck processes to a temporary report file whose path is printed at the end.
+The runner gives each game five seconds by default; adjust it with `--timeout
+SECONDS`. It terminates timed-out 3SX processes and their children, prints each
+timeout, and writes its captured output (alongside other failures) to a temporary
+report file whose path is printed at the end.
 
 ## Output Files
 
