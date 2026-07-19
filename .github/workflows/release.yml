@@ -10,7 +10,9 @@ permissions:
 jobs:
   build_macos:
     name: Build macOS
-    runs-on: macos-latest
+    # Pin away from macos-latest: its macOS 26 runner regressed while CPack
+    # compressed the DragNDrop disk image (hdiutil reports a corrupt image).
+    runs-on: macos-15
 
     steps:
       - name: Checkout repository
