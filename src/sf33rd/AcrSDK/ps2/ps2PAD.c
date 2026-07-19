@@ -137,7 +137,8 @@ void tarPADRead() {
         if (PADRead_for_PS2(i) != 0) {
             pad = &tarpad_root[i];
             pad->conn.vib = ps2slot[i].vib;
-            pad->sw = (pad->sw & 0xFFF0) | (etclever_wrong_data[pad->sw & 0xF]);
+            // Preserve raw lever combinations for CPS3 replay input.
+            // pad->sw = (pad->sw & 0xFFF0) | (etclever_wrong_data[pad->sw & 0xF]);
             update_pad_stick_dir(&pad->stick[0], ps2pad_config[i].ast1_on);
             update_pad_stick_dir(&pad->stick[1], ps2pad_config[i].ast2_on);
             ast1 = lever_analog_to_digital(&pad->stick[0]);
