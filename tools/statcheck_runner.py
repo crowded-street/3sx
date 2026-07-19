@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import argparse
+import os
 import re
+import signal
 import subprocess
 import sys
 import tempfile
@@ -15,6 +17,7 @@ from rich.console import Console
 
 
 GAME_ARCHIVE_PATTERN = re.compile(r"game_(\d+)\.scrd$")
+DEFAULT_STATCHECK_TIMEOUT_SECONDS = 2.0
 console = Console()
 
 
@@ -23,6 +26,12 @@ class GameArchive:
     replay: str
     game_index: int
     path: Path
+
+
+class StatcheckTimeoutError(RuntimeError):
+    def __init__(self, timeout_seconds: float, output: str) -> None:
+        self.output = output
+        super().__init__(f"timed out after {timeout_seconds:g} seconds")
 
 
 def find_game_archives(replay_root: Path) -> list[GameArchive]:
@@ -45,6 +54,38 @@ def return_code_description(return_code: int) -> str:
     if return_code < 0:
         return f"terminated by signal {-return_code}"
     return f"exited with status {return_code}"
+
+
+def timeout_output(exc: subprocess.TimeoutExpired) -> str:
+    if isinstance(exc.output, bytes):
+        return exc.output.decode(errors="replace")
+    return exc.output or ""
+
+
+def run_statcheck(command: list[str], timeout_seconds: float) -> subprocess.CompletedProcess[str]:
+    process = subprocess.Popen(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        errors="replace",
+        start_new_session=True,
+    )
+    try:
+        output, _ = process.communicate(timeout=timeout_seconds)
+    except subprocess.TimeoutExpired as exc:
+        # 3SX can leave child processes behind. Kill the process group and
+        # close our pipe instead of waiting for a surviving child to close it.
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        process.wait()
+        if process.stdout is not None:
+            process.stdout.close()
+        raise StatcheckTimeoutError(timeout_seconds, timeout_output(exc)) from exc
+
+    return subprocess.CompletedProcess(command, process.returncode, output)
 
 
 def write_failure_report(
@@ -71,11 +112,22 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("statcheck_executable", type=Path, help="statcheck executable")
     parser.add_argument("replay_dir", type=Path, help="directory containing <replay>/game_N.scrd archives")
+    parser.add_argument(
+        "--timeout",
+        type=float,
+        default=DEFAULT_STATCHECK_TIMEOUT_SECONDS,
+        metavar="SECONDS",
+        help=f"maximum statcheck time per game (default: {DEFAULT_STATCHECK_TIMEOUT_SECONDS:g})",
+    )
     return parser.parse_args(argv)
 
 
 def main(argv: list[str]) -> int:
     args = parse_args(argv)
+    if args.timeout <= 0:
+        print("error: --timeout must be greater than zero", file=sys.stderr)
+        return 1
+
     executable = args.statcheck_executable.resolve()
     if not executable.is_file():
         print(f"error: statcheck executable does not exist: {executable}", file=sys.stderr)
@@ -94,6 +146,7 @@ def main(argv: list[str]) -> int:
         return 1
 
     successes = 0
+    timed_out = 0
     report = None
     report_path = None
     try:
@@ -101,13 +154,17 @@ def main(argv: list[str]) -> int:
             label = f"{archive.replay}/game_{archive.game_index}"
             command = [str(executable), "--ram-archive", str(archive.path), "--headless"]
             try:
-                result = subprocess.run(
-                    command,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    text=True,
-                    errors="replace",
-                )
+                result = run_statcheck(command, args.timeout)
+            except StatcheckTimeoutError as exc:
+                timed_out += 1
+                if report is None:
+                    report = tempfile.NamedTemporaryFile(
+                        mode="w", encoding="utf-8", prefix="statcheck-report-", suffix=".txt", delete=False
+                    )
+                    report_path = Path(report.name)
+                write_failure_report(report, archive, command, str(exc), exc.output)
+                console.print(f"[{index}/{len(archives)}] {label}: [red]✘[/red] ({exc})")
+                continue
             except OSError as exc:
                 if report is None:
                     report = tempfile.NamedTemporaryFile(
