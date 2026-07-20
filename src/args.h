@@ -20,13 +20,13 @@ typedef struct StatcheckArgs {
 #endif
 
 typedef struct Args {
+    bool no_sound;
 #if NETPLAY_ENABLED
     NetplayArgs netplay;
 #endif
 #if STATCHECK
     StatcheckArgs statcheck;
 #endif
-    char dummy; /// A dummy value to make compiler stop complaining about "excess elements in struct initializer"
 } Args;
 
 void init_args(int argc, const char* argv[]);

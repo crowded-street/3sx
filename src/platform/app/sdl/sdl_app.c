@@ -151,8 +151,14 @@ static bool full_init() {
     Keymap_Init();
     init_scalemode();
 
-    if (!SDL_Init(SDL_INIT_AUDIO | SDL_INIT_GAMEPAD)) {
-        SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
+    if (!get_args()->no_sound) {
+        if (!SDL_Init(SDL_INIT_AUDIO)) {
+            SDL_Log("Couldn't initialize audio subsystem: %s", SDL_GetError());
+        }
+    }
+
+    if (!SDL_Init(SDL_INIT_GAMEPAD)) {
+        SDL_Log("Couldn't initialize gamepad subsystem: %s", SDL_GetError());
         return false;
     }
 
