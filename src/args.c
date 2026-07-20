@@ -58,6 +58,8 @@ void init_args(int argc, const char* argv[]) {
     struct argparse_option options[] = {
         OPT_HELP(),
 
+        OPT_BOOLEAN(0, "no-sound", &args.no_sound, "Run the game without sound.", NULL, 0, 0),
+
 #if NETPLAY_ENABLED
         OPT_GROUP("Netplay"),
         OPT_INTEGER(
@@ -71,7 +73,9 @@ void init_args(int argc, const char* argv[]) {
 #if STATCHECK
         OPT_GROUP("Statcheck"),
         OPT_STRING(0, "ram-archive", &args.statcheck.ram_archive_path, "Path to RAM archive.", NULL, 0, 0),
-        OPT_BOOLEAN(0, "headless", &args.statcheck.headless, "Run the game without a window.", NULL, 0, 0),
+        OPT_BOOLEAN(
+            0, "headless", &args.statcheck.headless, "Run the game without a window. Implies --no-sound", NULL, 0, 0
+        ),
 #endif
 
         OPT_END(),
