@@ -117,7 +117,7 @@ typedef struct {
     u8 dmg_mark;
 } UNK_7;
 
-typedef struct {
+typedef struct OverlapPart {
     s16 parts_hos_x;
     s16 parts_hos_y;
     u8 parts_colmd;
@@ -129,11 +129,11 @@ typedef struct {
     s16 parts_mts;
     u16 parts_nix;
     u16 parts_char;
-} UNK_8;
+} OverlapPart;
 
-typedef struct {
+typedef struct OverlapSelection {
     s16 olc_ix[4];
-} UNK_9;
+} OverlapSelection;
 
 typedef struct {
     s16 catch_hos_x;
@@ -282,9 +282,9 @@ typedef struct {
     u32* se_random_table;
     s16* step_xy_table;
     s16* move_xy_table;
-    UNK_8* overlap_char_tbl;
-    UNK_9* olc_ix_table;
-    UNK_9 cg_olc;
+    OverlapPart* overlap_char_tbl;
+    OverlapSelection* olc_ix_table;
+    OverlapSelection cg_olc;
     CatchTable* rival_catch_tbl;
     CatchTable* curr_rca;
     u32* set_char_ad;
@@ -1210,8 +1210,8 @@ typedef struct {
     s16* stxy;
     s16* mvxy;
     u32* sernd;
-    UNK_8* ovct;
-    UNK_9* ovix;
+    OverlapPart* ovct;
+    OverlapSelection* ovix;
     CatchTable* rict;
     UNK_0* hiit;
     UNK_1* boda;

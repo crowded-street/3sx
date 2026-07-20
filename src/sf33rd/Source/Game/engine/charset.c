@@ -2389,13 +2389,7 @@ void setup_comm_abbak(WORK* wk) {
 
 static int catch_table_offset(Character thrown_character) {
     if (ArcadeBalance_IsEnabled()) {
-        // In arcade version Akuma is followed by Shin Akuma. To account for this
-        // we have to increment all character numbers after Akuma
-        if (thrown_character > CHAR_AKUMA) {
-            thrown_character += 1;
-        }
-
-        return thrown_character - 24;
+        return CHAR_3SX_TO_ARCADE(thrown_character) - 24;
     } else {
         return thrown_character - 20;
     }

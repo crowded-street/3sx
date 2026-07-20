@@ -283,7 +283,23 @@ void q_ldreq_texture_group(REQ* curr) {
 
                 if (ArcadeBalance_IsEnabled()) {
 #if ARCADE_ROM
+                    const size_t ps2_char_data_size = curr->size - bsd->to_chd;
+                    const bool adapted = ArcadeCharData_Apply3SXRenderingConventions(
+                        character_id, (const void*)ldchd, ps2_char_data_size
+                    );
                     const CharInitData* arcade_data = ArcadeCharData_Get(character_id);
+
+                    SDL_assert(adapted && arcade_data != NULL);
+
+                    if (!adapted || arcade_data == NULL) {
+                        SDL_LogCritical(
+                            SDL_LOG_CATEGORY_APPLICATION,
+                            "Could not adapt arcade character data for character %d",
+                            character_id
+                        );
+                        return;
+                    }
+
                     SDL_copyp(dst, arcade_data);
 #endif
                 } else {
