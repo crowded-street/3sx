@@ -336,6 +336,14 @@ static const void* read_ovct(SDL_IOStream* rom, Location location, Character cha
 
         if (element->parts_mts == 0) {
             switch (character) {
+            case CHAR_ALEX:
+                // These overlap animation ranges use trans mode 1 in the PS2 data.
+                if ((element->parts_char >= 0x93D && element->parts_char <= 0x945) ||
+                    (element->parts_char >= 0x97E && element->parts_char <= 0x984)) {
+                    element->parts_mts = 1;
+                }
+                break;
+
             case CHAR_KEN:
                 // Ken's DP overlap flame uses additive MTS in PS2 data.
                 element->parts_mts = 1;
