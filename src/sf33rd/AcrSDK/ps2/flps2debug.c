@@ -1,5 +1,6 @@
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "common.h"
+#include "port/utils.h"
 #include "sf33rd/AcrSDK/common/memfound.h"
 #include "sf33rd/AcrSDK/common/mlPAD.h"
 #include "sf33rd/AcrSDK/ps2/flps2etc.h"
@@ -20,7 +21,7 @@ void flPS2DebugInit() {
 }
 
 // FIXME: reimplement using SDL apis
-s32 flPrintL(s32 posi_x, s32 posi_y, const s8* format, ...) {
+s32 flPrintL(s32 posi_x, s32 posi_y, const char* format, ...) {
     s8 code;
     s8 str[512];
     size_t len;
@@ -78,29 +79,13 @@ s32 flPrintColor(u32 color) {
     return 1;
 }
 
-void flPS2SystemError(s32 error_level, s8* format, ...) {
+void flPS2SystemError(s32 error_level, const char* format, ...) {
     va_list args;
     s8 str[512];
 
     flFlip(0);
     va_start(args, format);
     vsprintf(str, format, args);
-
-    while (1) {
-        flPrintL(10, 20, "%s", str);
-
-        if (error_level == 0) {
-            flSetRenderState(FLRENDER_BACKCOLOR, 0xFF0000);
-        } else {
-            flSetRenderState(FLRENDER_BACKCOLOR, 0xFF);
-            flPrintL(10, 40, "PRESS 1P START BUTTON TO EXIT");
-
-            if (flpad_adr[0][0].sw_new & 0x8000) {
-                break;
-            }
-        }
-
-        flFlip(0);
-        flPADGetALL();
-    }
+    va_end(args);
+    fatal_error("flps2debug: %s", str);
 }
