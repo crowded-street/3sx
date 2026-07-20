@@ -49,6 +49,17 @@ python3 tools/fcade-replays/fcade_replay_tool.py bulk-download \
   --keep-going
 ```
 
+Limit listed or downloaded replays to two minutes. This locally filters each
+returned quark's floating-point `duration` field, in seconds:
+
+```bash
+python3 tools/fcade-replays/fcade_replay_tool.py bulk-download \
+  --gameid sfiii3nr1 \
+  --max-duration 120 \
+  --count 200 \
+  --keep-going
+```
+
 Download the monthly-best list shape observed in the Fightcade UI:
 
 ```bash

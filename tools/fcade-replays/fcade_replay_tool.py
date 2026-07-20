@@ -499,18 +499,27 @@ def _safe_token(token: str) -> str:
     return token.replace("/", "_").replace("\\", "_").replace(":", "_")
 
 
+def _replay_duration(replay: ListedReplay) -> float | None:
+    duration = replay.source.get("duration")
+    if isinstance(duration, bool) or not isinstance(duration, (int, float)):
+        return None
+    return float(duration)
+
+
 def fetch_replay_list(args: argparse.Namespace) -> list[ListedReplay]:
     if args.count < 1:
         return []
     if args.page_size < 1:
         raise ValueError("--page-size must be at least 1")
+    if args.max_duration is not None and args.max_duration < 0:
+        raise ValueError("--max-duration must be at least 0")
 
     replays: list[ListedReplay] = []
     seen: set[tuple[str, str, int]] = set()
     offset = args.offset
 
     while len(replays) < args.count:
-        page_limit = min(args.page_size, args.count - len(replays))
+        page_limit = args.page_size
         response = search_quarks(
             api_url=args.api_url,
             gameid=args.gameid,
@@ -527,18 +536,19 @@ def fetch_replay_list(args: argparse.Namespace) -> list[ListedReplay]:
         if not page_replays:
             break
 
-        added = 0
         for replay in page_replays:
             key = (replay.target.game, replay.target.token, replay.target.port)
             if key in seen:
                 continue
             seen.add(key)
+            duration = _replay_duration(replay)
+            if args.max_duration is not None and (duration is None or duration > args.max_duration):
+                continue
             replays.append(replay)
-            added += 1
             if len(replays) >= args.count:
                 break
 
-        if added == 0 or len(page_replays) < page_limit:
+        if len(page_replays) < page_limit:
             break
         offset += page_limit
 
@@ -645,6 +655,11 @@ def add_search_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--best", action="store_true", help="request Fightcade best replays")
     parser.add_argument("--since", type=int, help="Fightcade since timestamp in milliseconds")
     parser.add_argument("--username", type=str, help="Filter search results by username")
+    parser.add_argument(
+        "--max-duration",
+        type=float,
+        help="only keep replays whose duration field is no more than this many seconds",
+    )
     parser.add_argument("--api-url", default=DEFAULT_API_URL)
     parser.add_argument("--api-timeout", type=float, default=20.0)
     parser.add_argument(
