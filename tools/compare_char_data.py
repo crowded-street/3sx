@@ -1,6 +1,7 @@
 import sys
 import os
 import struct
+import re
 from pathlib import Path
 from dataclasses import dataclass
 
@@ -84,7 +85,7 @@ chdata_structs = {
     "caca": "I",
     "cuca": "I",
     "atca": "I",
-    "sac": "I",
+    "saca": "I",
     "exca": "I",
     "cbca": "I",
     "yuca": "I",
@@ -192,6 +193,38 @@ def calculate_cps3_array_offsets(rom_path: Path, character: int) -> dict[str, in
 
     return result
 
+def calculate_cps3_array_lengths() -> list[dict[str, int]]:
+    source_path = Path(__file__).parents[1] / "src/arcade/arcade_char_data.c"
+    source = source_path.read_text()
+    table = source.split("static const LocationData location_data[NUM_CHARS] = {", 1)[1]
+    entries = re.findall(
+        r"\.(\w+)\s*=\s*\{\s*\.offset\s*=\s*0x[0-9A-Fa-f]+,\s*\.size\s*=\s*0x([0-9A-Fa-f]+)\s*\}",
+        table,
+    )
+    expected_count = len(char_name_to_id) * len(chdata_fields)
+
+    if len(entries) != expected_count:
+        raise ValueError(f"Expected {expected_count} arcade table locations, found {len(entries)}")
+
+    result = []
+
+    for character in range(len(char_name_to_id)):
+        lengths = {}
+        character_entries = entries[character * len(chdata_fields):(character + 1) * len(chdata_fields)]
+
+        for expected_field, (field, size_hex) in zip(chdata_fields, character_entries):
+            if field != expected_field:
+                raise ValueError(f"Arcade table order changed: expected {expected_field}, found {field}")
+
+            elem_size = struct.calcsize(chdata_structs[field])
+            size = int(size_hex, 16)
+
+            lengths[field] = size // elem_size
+
+        result.append(lengths)
+
+    return result
+
 def read_array(path: Path, field: str, offset: int, length: int, little_endian: bool) -> list:
     result = list()
     endianness_specifier = "<" if little_endian else ">"
@@ -203,6 +236,10 @@ def read_array(path: Path, field: str, offset: int, length: int, little_endian: 
 
         for i in range(length):
             chunk = f.read(elem_size)
+
+            if len(chunk) != elem_size:
+                raise ValueError(f"Unexpected end of {path} while reading {field}[{i}]")
+
             result.append(struct.unpack(format, chunk))
 
     return result
@@ -210,10 +247,11 @@ def read_array(path: Path, field: str, offset: int, length: int, little_endian: 
 def analyze_and_print(rom_path: Path, afs_path: Path, character: int, field: str):
     array_info = calculate_array_info(afs_path, character)
     cps3_array_offsets = calculate_cps3_array_offsets(rom_path, character)
+    cps3_array_lengths = calculate_cps3_array_lengths()
 
     # Parse values
 
-    length = array_info[field].length
+    length = min(array_info[field].length, cps3_array_lengths[character][field])
     bin_path = afs_path / bin_name(character)
 
     port_values = read_array(
@@ -265,10 +303,37 @@ def analyze_and_print(rom_path: Path, afs_path: Path, character: int, field: str
     else:
         print("All elements match ✅")
 
+def analyze_rendering_bindings(rom_path: Path, afs_path: Path, character: int) -> bool:
+    field = "ovct"
+    array_info = calculate_array_info(afs_path, character)[field]
+    cps3_offset = calculate_cps3_array_offsets(rom_path, character)[field]
+    cps3_length = calculate_cps3_array_lengths()[character][field]
+    common_length = min(array_info.length, cps3_length)
+    port_values = read_array(afs_path / bin_name(character), field, array_info.offset, common_length, True)
+    cps3_values = read_array(rom_path, field, cps3_offset, common_length, False)
+    binding_fields = {3: "palette", 8: "texture mode", 10: "CG handle"}
+    binding_mismatches = {name: 0 for name in binding_fields.values()}
+    behavior_mismatches = 0
+
+    for cps3_value, port_value in zip(cps3_values, port_values):
+        for index, (cps3_part, port_part) in enumerate(zip(cps3_value, port_value)):
+            if cps3_part == port_part:
+                continue
+
+            if index in binding_fields:
+                binding_mismatches[binding_fields[index]] += 1
+            else:
+                behavior_mismatches += 1
+
+    name = next(name for name, value in char_name_to_id.items() if value == character)
+    bindings = ", ".join(f"{key}={value}" for key, value in binding_mismatches.items())
+    print(f"{name}: arcade={cps3_length}, port={array_info.length}, common={common_length}; {bindings}; behavior={behavior_mismatches}")
+    return behavior_mismatches == 0
+
 def main():
     if len(sys.argv) < 5:
         print("Incorrect number of arguments")
-        print("Usage: python3 compare_char_data.py <decrypted rom path> <unpacked afs path> <character> <field>")
+        print("Usage: python3 compare_char_data.py <decrypted rom path> <unpacked afs path> <character> <field|rendering>")
         return
     
     rom_path = Path(sys.argv[1])
@@ -276,7 +341,13 @@ def main():
     char_name = sys.argv[3]
     field = sys.argv[4]
     
-    if char_name == "all":
+    if field == "rendering":
+        characters = char_name_to_id.values() if char_name == "all" else (char_name_to_id[char_name],)
+        results = [analyze_rendering_bindings(rom_path, afs_path, character) for character in characters]
+
+        if not all(results):
+            raise SystemExit(1)
+    elif char_name == "all":
         is_first = True
 
         for name in char_name_to_id.keys():

@@ -46,14 +46,31 @@ typedef struct LocationData {
     Location prot;
 } LocationData;
 
-static CharInitData data[NUM_CHARS] = { 0 };
+_Static_assert(
+    sizeof(LocationData) == CHAR_DATA_SECTION_COUNT * sizeof(Location), "LocationData must follow CharDataSection order"
+);
+
+typedef struct CgRemapRange {
+    Uint16 first;
+    Uint16 last;
+    Sint32 delta;
+} CgRemapRange;
+
+typedef struct CharacterCgMap {
+    Sint32 default_delta;
+    const CgRemapRange* ranges;
+    size_t range_count;
+} CharacterCgMap;
+
+static CharDataImage data[NUM_CHARS] = { 0 };
 static bool initialized = false;
 
 // Forward decls
-static const int cg_number_offsets[NUM_CHARS];
+static const CharacterCgMap cg_maps[NUM_CHARS];
 static const LocationData location_data[NUM_CHARS];
+static const size_t section_element_sizes[CHAR_DATA_SECTION_COUNT];
 
-int SDLCALL compare(const void* lhs, const void* rhs) {
+static int SDLCALL compare_u32(const void* lhs, const void* rhs) {
     const Uint32 a = *(Uint32*)lhs;
     const Uint32 b = *(Uint32*)rhs;
 
@@ -71,70 +88,25 @@ static Uint16 remap_cg_number(Uint16 value, Character character) {
         return value;
     }
 
-    int adjusted = value + cg_number_offsets[character];
+    const CharacterCgMap* map = &cg_maps[character];
+    Sint32 delta = map->default_delta;
 
-    switch (character) {
-    case CHAR_IBUKI:
-        // Ibuki uses two CPS3-only high cg-number banks that map down into her normal PS2 range.
-        if (value >= 0x70BD && value <= 0x70C7) {
-            adjusted = value - 18692;
-        } else if (value >= 0x9BA8 && value <= 0x9C6F) {
-            adjusted = value - 29904;
+    for (size_t i = 0; i < map->range_count; i++) {
+        const CgRemapRange* range = &map->ranges[i];
+
+        if (value >= range->first && value <= range->last) {
+            delta = range->delta;
+            break;
         }
-
-        break;
-
-    case CHAR_MAKOTO:
-        // Makoto has a separate high cg-number bank that maps with an additional shift on PS2.
-        if (value >= 0xA000) {
-            adjusted -= 0x45F8;
-        }
-
-        break;
-
-    default:
-        // Do nothing
-        break;
     }
 
-    if (adjusted < 0 || adjusted > 0xFFFF) {
+    const Sint32 adjusted = value + delta;
+
+    if (adjusted < 0 || adjusted > UINT16_MAX) {
         return value;
     }
 
     return adjusted;
-}
-
-static Uint16 remap_ovct_parts_char(Uint16 value, Character character) {
-    switch (character) {
-    case CHAR_IBUKI:
-        if (value >= 0x9660 && value <= 0x96D7) {
-            return value - 28671;
-        }
-
-        if ((value >= 0x9BCE && value <= 0x9BD4) || (value >= 0x9C43 && value <= 0x9C45) ||
-            (value >= 0x9C70 && value <= 0x9C7A)) {
-            return value - 29903;
-        }
-
-        break;
-
-    case CHAR_URIEN:
-        if (value >= 0x4E00 && value <= 0x533F) {
-            return value - 3168;
-        }
-
-        if (value >= 0x9F58 && value <= 0x9F64) {
-            return value - 10809;
-        }
-
-        break;
-
-    default:
-        // Do nothing
-        break;
-    }
-
-    return remap_cg_number(value, character);
 }
 
 static const void* read_char_table(SDL_IOStream* rom, Location location, Character character) {
@@ -162,7 +134,7 @@ static const void* read_char_table(SDL_IOStream* rom, Location location, Charact
     const size_t script_offsets_size = offset_count * sizeof(Uint32);
     Uint32* script_offsets = SDL_malloc(script_offsets_size);
     SDL_memcpy(script_offsets, offsets, script_offsets_size);
-    SDL_qsort(script_offsets, offset_count, sizeof(script_offsets[0]), compare);
+    SDL_qsort(script_offsets, offset_count, sizeof(script_offsets[0]), compare_u32);
 
     // Parse data
 
@@ -313,14 +285,14 @@ static const void* read_sernd(SDL_IOStream* rom, Location location) {
     return result;
 }
 
-static const void* read_ovct(SDL_IOStream* rom, Location location, Character character) {
+static const void* read_ovct(SDL_IOStream* rom, Location location) {
     SDL_SeekIO(rom, location.offset, SDL_IO_SEEK_SET);
 
-    UNK_8* result = SDL_malloc(location.size);
-    const int elem_count = location.size / sizeof(UNK_8);
+    OverlapPart* result = SDL_malloc(location.size);
+    const int elem_count = location.size / sizeof(OverlapPart);
 
     for (int i = 0; i < elem_count; i++) {
-        UNK_8* element = &result[i];
+        OverlapPart* element = &result[i];
         SDL_ReadS16BE(rom, &element->parts_hos_x);
         SDL_ReadS16BE(rom, &element->parts_hos_y);
         SDL_ReadU8(rom, &element->parts_colmd);
@@ -332,37 +304,6 @@ static const void* read_ovct(SDL_IOStream* rom, Location location, Character cha
         SDL_ReadS16BE(rom, &element->parts_mts);
         SDL_ReadU16BE(rom, &element->parts_nix);
         SDL_ReadU16BE(rom, &element->parts_char);
-        element->parts_char = remap_ovct_parts_char(element->parts_char, character);
-
-        if (element->parts_mts == 0) {
-            switch (character) {
-            case CHAR_ALEX:
-                // These overlap animation ranges use trans mode 1 in the PS2 data.
-                if ((element->parts_char >= 0x93D && element->parts_char <= 0x945) ||
-                    (element->parts_char >= 0x97E && element->parts_char <= 0x984)) {
-                    element->parts_mts = 1;
-                }
-                break;
-
-            case CHAR_KEN:
-                // Ken's DP overlap flame uses additive MTS in PS2 data.
-                element->parts_mts = 1;
-                break;
-
-            case CHAR_URIEN:
-                if ((element->parts_char >= 17854 && element->parts_char <= 17879) ||
-                    (element->parts_char >= 18017 && element->parts_char <= 18037) ||
-                    element->parts_char == 18060 || (element->parts_char >= 18096 && element->parts_char <= 18100) ||
-                    (element->parts_char >= 18129 && element->parts_char <= 18131) ||
-                    element->parts_char == 18143 || (element->parts_char >= 29983 && element->parts_char <= 29995)) {
-                    element->parts_mts = 1;
-                }
-                break;
-
-            default:
-                break;
-            }
-        }
     }
 
     return result;
@@ -442,7 +383,8 @@ void ArcadeCharData_Init() {
 
     for (int character = 0; character < NUM_CHARS; character++) {
         const LocationData* locations = &location_data[character];
-        CharInitData* dst = &data[character];
+        CharDataImage* image = &data[character];
+        CharInitData* dst = &image->tables;
         dst->nmca = read_char_table(io, locations->nmca, character);
         dst->dmca = read_char_table(io, locations->dmca, character);
         dst->btca = read_char_table(io, locations->btca, character);
@@ -456,7 +398,7 @@ void ArcadeCharData_Init() {
         dst->stxy = read_s16_array(io, locations->stxy);
         dst->mvxy = read_s16_array(io, locations->mvxy);
         dst->sernd = read_sernd(io, locations->sernd);
-        dst->ovct = read_ovct(io, locations->ovct, character);
+        dst->ovct = read_ovct(io, locations->ovct);
         dst->ovix = read_s16_array(io, locations->ovix);
         dst->rict = read_catch_table(io, locations->rict);
         dst->hiit = read_u16_array(io, locations->hiit);
@@ -469,6 +411,22 @@ void ArcadeCharData_Init() {
         dst->atit = read_u8_array(io, locations->atit);
         dst->prot = read_s16_array(io, locations->prot);
 
+        void* const section_data[CHAR_DATA_SECTION_COUNT] = {
+            dst->nmca, dst->dmca, dst->btca, dst->caca,  dst->cuca, dst->atca, dst->saca, dst->exca, dst->cbca,
+            dst->yuca, dst->stxy, dst->mvxy, dst->sernd, dst->ovct, dst->ovix, dst->rict, dst->hiit, dst->boda,
+            dst->hana, dst->cata, dst->caua, dst->atta,  dst->hosa, dst->atit, dst->prot,
+        };
+
+        const Location* section_locations = (const Location*)locations;
+
+        for (size_t i = 0; i < CHAR_DATA_SECTION_COUNT; i++) {
+            image->spans[i] = (CharDataSpan) {
+                .data = section_data[i],
+                .size = section_locations[i].size,
+                .element_size = section_element_sizes[i],
+            };
+        }
+
 #if DEBUG && DUMP_CHAR_DATA
         dump_data(dst, character);
 #endif
@@ -480,16 +438,155 @@ void ArcadeCharData_Init() {
 }
 
 const CharInitData* ArcadeCharData_Get(Character character) {
-    if (!initialized) {
+    if (!initialized || character >= NUM_CHARS) {
         return NULL;
     }
 
-    return &data[character];
+    return &data[character].tables;
 }
 
-static const int cg_number_offsets[NUM_CHARS] = {
-    0x0000,  0x0020,  -0x01E0, -0x0420, -0x0480, -0x0600, -0x0720, -0x0940, -0x0820, -0x0800,
-    -0x0820, -0x08C0, -0x0AA0, -0x0C60, -0x0CA0, -0x0E00, -0x0D80, -0x0C20, -0x0B80, -0x0D00,
+static bool overlap_behavior_matches(const OverlapPart* arcade, const OverlapPart* ps2) {
+    return arcade->parts_hos_x == ps2->parts_hos_x && arcade->parts_hos_y == ps2->parts_hos_y &&
+           arcade->parts_colmd == ps2->parts_colmd && arcade->parts_prio == ps2->parts_prio &&
+           arcade->parts_flip == ps2->parts_flip && arcade->parts_timer == ps2->parts_timer &&
+           arcade->parts_disp == ps2->parts_disp && arcade->parts_nix == ps2->parts_nix;
+}
+
+static bool get_ps2_section_span(const void* ps2_data, size_t ps2_size, CharDataSection section, CharDataSpan* span) {
+    const size_t header_size = CHAR_DATA_SECTION_COUNT * sizeof(Uint32);
+
+    if (ps2_data == NULL || ps2_size < header_size) {
+        return false;
+    }
+
+    Uint32 offsets[CHAR_DATA_SECTION_COUNT];
+    SDL_memcpy(offsets, ps2_data, sizeof(offsets));
+
+    const Uint32 start = offsets[section];
+    size_t end = ps2_size;
+
+    if (start < header_size || start >= ps2_size) {
+        return false;
+    }
+
+    for (size_t i = 0; i < CHAR_DATA_SECTION_COUNT; i++) {
+        if (offsets[i] > start && offsets[i] < end) {
+            end = offsets[i];
+        }
+    }
+
+    span->data = (Uint8*)ps2_data + start;
+    span->size = end - start;
+    span->element_size = section_element_sizes[section];
+    return span->size % span->element_size == 0;
+}
+
+bool ArcadeCharData_Apply3SXRenderingConventions(Character character, const void* ps2_data, size_t ps2_size) {
+    static bool adapted[NUM_CHARS] = { false };
+
+    if (!initialized || character >= NUM_CHARS) {
+        return false;
+    }
+
+    if (adapted[character]) {
+        return true;
+    }
+
+    CharDataSpan ps2_span;
+
+    if (!get_ps2_section_span(ps2_data, ps2_size, CHAR_DATA_OVCT, &ps2_span)) {
+        SDL_Log("Invalid PS2 overlap table for character %u", character);
+        return false;
+    }
+
+    CharDataSpan* arcade_span = &data[character].spans[CHAR_DATA_OVCT];
+    OverlapPart* arcade_parts = arcade_span->data;
+    const OverlapPart* ps2_parts = ps2_span.data;
+    const size_t arcade_count = arcade_span->size / sizeof(*arcade_parts);
+    const size_t ps2_count = ps2_span.size / sizeof(*ps2_parts);
+    const size_t common_count = SDL_min(arcade_count, ps2_count);
+
+    for (size_t i = 0; i < common_count; i++) {
+        if (!overlap_behavior_matches(&arcade_parts[i], &ps2_parts[i])) {
+            SDL_Log("Arcade/PS2 overlap tables diverge structurally for character %u at part %zu", character, i);
+            return false;
+        }
+    }
+
+    for (size_t i = 0; i < common_count; i++) {
+        // The arcade table supplies animation behavior. These three fields bind
+        // that behavior to 3SX's palette, texture-mode, and CG namespaces.
+        arcade_parts[i].parts_colcd = ps2_parts[i].parts_colcd;
+        arcade_parts[i].parts_mts = ps2_parts[i].parts_mts;
+        arcade_parts[i].parts_char = ps2_parts[i].parts_char;
+    }
+
+    adapted[character] = true;
+    return true;
+}
+
+static const CgRemapRange ibuki_cg_ranges[] = {
+    { .first = 0x70BD, .last = 0x70C7, .delta = -18692 },
+    { .first = 0x9BA8, .last = 0x9C6F, .delta = -29904 },
+};
+
+static const CgRemapRange makoto_cg_ranges[] = {
+    { .first = 0xA000, .last = UINT16_MAX, .delta = -0x5378 },
+};
+
+static const CharacterCgMap cg_maps[NUM_CHARS] = {
+    [CHAR_GILL] = { .default_delta = 0x0000 },
+    [CHAR_ALEX] = { .default_delta = 0x0020 },
+    [CHAR_RYU] = { .default_delta = -0x01E0 },
+    [CHAR_YUN] = { .default_delta = -0x0420 },
+    [CHAR_DUDLEY] = { .default_delta = -0x0480 },
+    [CHAR_NECRO] = { .default_delta = -0x0600 },
+    [CHAR_HUGO] = { .default_delta = -0x0720 },
+    [CHAR_IBUKI] = { .default_delta = -0x0940,
+                     .ranges = ibuki_cg_ranges,
+                     .range_count = SDL_arraysize(ibuki_cg_ranges) },
+    [CHAR_ELENA] = { .default_delta = -0x0820 },
+    [CHAR_ORO] = { .default_delta = -0x0800 },
+    [CHAR_YANG] = { .default_delta = -0x0820 },
+    [CHAR_KEN] = { .default_delta = -0x08C0 },
+    [CHAR_SEAN] = { .default_delta = -0x0AA0 },
+    [CHAR_URIEN] = { .default_delta = -0x0C60 },
+    [CHAR_AKUMA] = { .default_delta = -0x0CA0 },
+    [CHAR_CHUNLI] = { .default_delta = -0x0E00 },
+    [CHAR_MAKOTO] = { .default_delta = -0x0D80,
+                      .ranges = makoto_cg_ranges,
+                      .range_count = SDL_arraysize(makoto_cg_ranges) },
+    [CHAR_Q] = { .default_delta = -0x0C20 },
+    [CHAR_TWELVE] = { .default_delta = -0x0B80 },
+    [CHAR_REMY] = { .default_delta = -0x0D00 },
+};
+
+static const size_t section_element_sizes[CHAR_DATA_SECTION_COUNT] = {
+    [CHAR_DATA_NMCA] = 1,
+    [CHAR_DATA_DMCA] = 1,
+    [CHAR_DATA_BTCA] = 1,
+    [CHAR_DATA_CACA] = 1,
+    [CHAR_DATA_CUCA] = 1,
+    [CHAR_DATA_ATCA] = 1,
+    [CHAR_DATA_SACA] = 1,
+    [CHAR_DATA_EXCA] = 1,
+    [CHAR_DATA_CBCA] = 1,
+    [CHAR_DATA_YUCA] = 1,
+    [CHAR_DATA_STXY] = sizeof(s16),
+    [CHAR_DATA_MVXY] = sizeof(s16),
+    [CHAR_DATA_SERND] = sizeof(u32),
+    [CHAR_DATA_OVCT] = sizeof(OverlapPart),
+    [CHAR_DATA_OVIX] = sizeof(OverlapSelection),
+    [CHAR_DATA_RICT] = sizeof(CatchTable),
+    [CHAR_DATA_HIIT] = sizeof(UNK_0),
+    [CHAR_DATA_BODA] = sizeof(UNK_1),
+    [CHAR_DATA_HANA] = sizeof(UNK_2),
+    [CHAR_DATA_CATA] = sizeof(UNK_3),
+    [CHAR_DATA_CAUA] = sizeof(UNK_4),
+    [CHAR_DATA_ATTA] = sizeof(UNK_5),
+    [CHAR_DATA_HOSA] = sizeof(UNK_6),
+    [CHAR_DATA_ATIT] = sizeof(UNK_7),
+    [CHAR_DATA_PROT] = sizeof(UNK_Data),
 };
 
 static const LocationData location_data[NUM_CHARS] = {
