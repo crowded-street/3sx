@@ -51,9 +51,7 @@ typedef struct {
     u16 col[20][16][16];
 } COL_x2800;
 
-// GhostDC palette indices are split between players: player 1 uses 0..15 and
-// player 2 uses 16..31.
-u16 colPalBuffDC[2048];
+u16 colPalBuffDC[1024];
 u16 ColorRAM[512][64];
 Col3rd_W col3rd_w;
 COL* plcol[2];
@@ -423,7 +421,7 @@ void palCopyGhostDC(s32 ofs, s32 cnt, void* data) {
         *dstAdrs++ = *srcAdrs++;
     }
 
-    col3rd_w.upBits = col3rd_w.upBits | (1u << (ofs / 64));
+    col3rd_w.upBits = col3rd_w.upBits | (1 << (ofs / 64));
 }
 
 u16 palConvSrcToRam(u16 col) {
@@ -488,7 +486,7 @@ void palCreateGhost() {
     ppl.c_mode = 2;
     ppl.formARGB = 0x5515;
 
-    ppl.palettes = 0x2000;
+    ppl.palettes = 0x1000;
     size = 0x2000;
     key = Pull_ramcnt_key(size, 2, 0, 1);
     adrs = (u8*)Get_ramcnt_address(key);
@@ -528,7 +526,7 @@ void palUpdateGhostDC() {
     u16* dstAdrs;
 
     for (i = 0; i < col3rd_w.palDC.total; i++) {
-        if (col3rd_w.upBits & (1u << i)) {
+        if (col3rd_w.upBits & (1 << i)) {
             flLockPalette(NULL, col3rd_w.palDC.handle[i], &bits, 2);
             dstAdrs = bits.ptr;
             srcAdrs = &colPalBuffDC[i << 6];
