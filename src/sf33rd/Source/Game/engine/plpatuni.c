@@ -4,12 +4,15 @@
  */
 
 #include "sf33rd/Source/Game/engine/plpatuni.h"
+#include "arcade/arcade_balance.h"
 #include "common.h"
 #include "sf33rd/Source/Game/engine/caldir.h"
 #include "sf33rd/Source/Game/engine/charset.h"
 #include "sf33rd/Source/Game/engine/plpat.h"
 #include "sf33rd/Source/Game/engine/pls01.h"
 #include "sf33rd/Source/Game/engine/pls02.h"
+
+#include <SDL3/SDL.h>
 
 void att_ahj_table_reader(PLW* wk);
 
@@ -780,26 +783,56 @@ const s16 ahj_empos_hos[3][20][2] = {
 
 const s16 ahj_kop[3][4] = { { 0, 24, 0, 2 }, { 0, 22, 0, 2 }, { 0, 23, 0, 2 } };
 
-void att_ahj_table_reader(PLW* wk) {
+const s16 ahj_empos_hos_cps3[6][24][2] = {
+    { { 16, 192 }, { 16, 192 }, { 16, 192 }, { 16, 192 }, { 16, 192 }, { 16, 192 }, { 16, 192 }, { 16, 192 },
+      { 16, 192 }, { 16, 192 }, { 16, 192 }, { 16, 192 }, { 16, 192 }, { 16, 192 }, { 16, 192 }, { 16, 192 },
+      { 16, 192 }, { 16, 192 }, { 16, 192 }, { 16, 192 }, { 0, 0 },    { 0, 0 },    { 0, 0 },    { 0, 0 } },
+    { { 27, -8 }, { 27, -8 }, { 27, -8 }, { 27, -8 }, { 27, -8 }, { 27, -8 }, { 27, -8 }, { 27, -8 },
+      { 27, -8 }, { 27, -8 }, { 27, -8 }, { 27, -8 }, { 27, -8 }, { 27, -8 }, { 27, -8 }, { 27, -8 },
+      { 27, -8 }, { 27, -8 }, { 27, -8 }, { 27, -8 }, { 0, 0 },   { 0, 0 },   { 0, 0 },   { 0, 0 } },
+    { { 56, 56 }, { 48, 48 }, { 40, 40 }, { 40, 28 }, { 64, 40 }, { 52, 40 }, { 64, 56 }, { 64, 32 },
+      { 56, 40 }, { 56, 32 }, { 40, 28 }, { 40, 40 }, { 40, 40 }, { 56, 56 }, { 40, 40 }, { 56, 32 },
+      { 48, 32 }, { 52, 44 }, { 48, 36 }, { 48, 36 }, { 0, 0 },   { 0, 0 },   { 0, 0 },   { 0, 0 } },
+    { { 48, 0 }, { 48, 0 }, { 48, 0 }, { 48, 0 }, { 48, 0 }, { 48, 0 }, { 48, 0 }, { 48, 0 },
+      { 48, 0 }, { 48, 0 }, { 48, 0 }, { 48, 0 }, { 48, 0 }, { 48, 0 }, { 48, 0 }, { 48, 0 },
+      { 48, 0 }, { 48, 0 }, { 48, 0 }, { 48, 0 }, { 48, 0 }, { 48, 0 }, { 48, 0 }, { 48, 0 } },
+    { { 24, 86 }, { 28, 68 }, { 16, 62 }, { 16, 52 }, { 20, 72 }, { 20, 58 }, { 18, 82 }, { 18, 52 },
+      { 28, 45 }, { 25, 42 }, { 16, 52 }, { 16, 62 }, { 16, 62 }, { 24, 86 }, { 16, 62 }, { 16, 62 },
+      { 16, 62 }, { 16, 62 }, { 24, 86 }, { 20, 58 }, { 20, 72 }, { 0, 0 },   { 0, 0 },   { 0, 0 } },
+    { { 48, 16 }, { 48, 16 }, { 48, 16 }, { 48, 16 }, { 48, 16 }, { 48, 16 }, { 48, 16 }, { 48, 16 },
+      { 48, 16 }, { 48, 16 }, { 48, 16 }, { 48, 16 }, { 48, 16 }, { 48, 16 }, { 48, 16 }, { 48, 16 },
+      { 48, 16 }, { 48, 16 }, { 48, 16 }, { 48, 16 }, { 48, 16 }, { 48, 0 },  { 48, 0 },  { 48, 0 } },
+};
+
+const s16 ahj_kop_cps3[6][4] = {
+    { 0, 28, 2, 2 }, { 0, 22, 0, 2 }, { 0, 23, 0, 2 }, { 0, 24, 0, 2 }, { 0, 27, 0, 2 }, { 0, 21, 0, 2 },
+};
+
+void att_ahj_table_reader(PLW* wk) { // 🟡
     PLW* twk = (PLW*)wk->wu.target_adrs;
-    const s16* curr_kop = ahj_kop[wk->as->r_no];
+    // CPS3 uses its original 24-character offsets and control parameters.
+    const bool use_cps3_table = ArcadeBalance_IsEnabled() || wk->as->r_no >= SDL_arraysize(ahj_empos_hos);
+    const s16(*curr_empos_hos)[2] = use_cps3_table ? ahj_empos_hos_cps3[wk->as->r_no] : ahj_empos_hos[wk->as->r_no];
+    const s16* curr_kop = use_cps3_table ? ahj_kop_cps3[wk->as->r_no] : ahj_kop[wk->as->r_no];
     s16 ex;
     s16 ey;
 
     if (wk->wu.cg_type == 30) {
         setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
         wk->wu.mvxy.index++;
+
         switch (curr_kop[0]) {
         case 0:
             if (wk->wu.rl_flag) {
-                ex = twk->wu.position_x - *ahj_empos_hos[wk->as->r_no][twk->player_number];
+                ex = twk->wu.position_x - curr_empos_hos[twk->player_number][0];
             } else {
-                ex = twk->wu.position_x + *ahj_empos_hos[wk->as->r_no][twk->player_number];
+                ex = twk->wu.position_x + curr_empos_hos[twk->player_number][0];
             }
 
-            ey = ahj_empos_hos[wk->as->r_no][twk->player_number][1];
+            ey = curr_empos_hos[twk->player_number][1];
             wk->wu.mvxy.a[0].sp = 0;
             cal_delta_speed(&wk->wu, curr_kop[1], ex, ey, curr_kop[2], curr_kop[3]);
+            /* fallthrough */
 
         default:
             if (wk->wu.rl_flag == 0) {
@@ -810,6 +843,7 @@ void att_ahj_table_reader(PLW* wk) {
             wk->wu.routine_no[3]++;
             wk->wu.cg_type = 0;
             add_mvxy_speed(&wk->wu);
+            break;
         }
     }
 

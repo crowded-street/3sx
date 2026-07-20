@@ -151,8 +151,12 @@ typedef struct {
 } UNK11;
 
 typedef struct {
+    /// Velocity ([0] – horizontal, [1] – vertical)
     Reg32SpReal a[2];
+
+    /// Acceleration ([0] – horizontal, [1] – vertical)
     Reg32SpReal d[2];
+
     s16 kop[2];
     u16 index;
 } MVXY;
