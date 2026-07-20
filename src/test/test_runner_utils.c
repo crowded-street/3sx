@@ -26,4 +26,11 @@ Sint16 read_s16(SDL_IOStream* io, Sint64 offset) {
     return result;
 }
 
+Sint32 read_s32(SDL_IOStream* io, Sint64 offset) {
+    Sint32 result;
+    SDL_SeekIO(io, offset, SDL_IO_SEEK_SET);
+    SDL_ReadS32BE(io, &result);
+    return result;
+}
+
 #endif

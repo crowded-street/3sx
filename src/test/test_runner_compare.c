@@ -167,6 +167,22 @@ static void compare_main_values(SDL_IOStream* io) {
     for (int i = 0; i < 2; i++) {
         const Sint64 plw_offset = calc_plw_offset(i);
 
+        const s32 mvxy_a_x_3sx = plw[i].wu.mvxy.a[0].sp;
+        const s32 mvxy_a_x_cps3 = read_s32(io, plw_offset + WORK_MVXY_OFFSET);
+        assert_equals(mvxy_a_x_3sx, mvxy_a_x_cps3);
+
+        const s32 mvxy_d_x_3sx = plw[i].wu.mvxy.d[0].sp;
+        const s32 mvxy_d_x_cps3 = read_s32(io, plw_offset + WORK_MVXY_OFFSET + sizeof(Reg32SpReal) * 2);
+        assert_equals(mvxy_d_x_3sx, mvxy_d_x_cps3);
+
+        const s32 mvxy_a_y_3sx = plw[i].wu.mvxy.a[1].sp;
+        const s32 mvxy_a_y_cps3 = read_s32(io, plw_offset + WORK_MVXY_OFFSET + sizeof(Reg32SpReal));
+        assert_equals(mvxy_a_y_3sx, mvxy_a_y_cps3);
+
+        const s32 mvxy_d_y_3sx = plw[i].wu.mvxy.d[1].sp;
+        const s32 mvxy_d_y_cps3 = read_s32(io, plw_offset + WORK_MVXY_OFFSET + sizeof(Reg32SpReal) * 3);
+        assert_equals(mvxy_d_y_3sx, mvxy_d_y_cps3);
+
         const Position pos_3sx = get_position(i);
         const Position pos_cps3 = read_position(io, i);
         assert_equals(pos_3sx.x, pos_cps3.x);
