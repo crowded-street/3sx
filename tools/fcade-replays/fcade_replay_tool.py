@@ -158,6 +158,7 @@ def search_quarks(
     limit: int,
     best: bool,
     since: int | None,
+    username: str | None,
     cookie: str | None,
     timeout: float,
     user_agent: str,
@@ -172,6 +173,8 @@ def search_quarks(
         payload["best"] = True
     if since is not None:
         payload["since"] = since
+    if username is not None:
+        payload["username"] = username
 
     body = json.dumps(payload).encode("utf-8")
     headers = {
@@ -515,6 +518,7 @@ def fetch_replay_list(args: argparse.Namespace) -> list[ListedReplay]:
             limit=page_limit,
             best=args.best,
             since=args.since,
+            username=args.username,
             cookie=args.cookie,
             timeout=args.api_timeout,
             user_agent=args.user_agent,
@@ -633,13 +637,14 @@ def cmd_bulk_download(args: argparse.Namespace) -> int:
 
 
 def add_search_args(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("--gameid", required=True, help="Fightcade game id, e.g. sfiii3nr1")
+    parser.add_argument("--gameid", default="sfiii3nr1", help="Fightcade game id, e.g. sfiii3nr1")
     parser.add_argument("--emulator", default="fbneo", help="emulator to use if API rows do not include one")
     parser.add_argument("--count", type=int, default=200, help="number of replays to fetch")
     parser.add_argument("--offset", type=int, default=0, help="initial Fightcade search offset")
     parser.add_argument("--page-size", type=int, default=15, help="Fightcade search page size")
     parser.add_argument("--best", action="store_true", help="request Fightcade best replays")
     parser.add_argument("--since", type=int, help="Fightcade since timestamp in milliseconds")
+    parser.add_argument("--username", type=str, help="Filter search results by username")
     parser.add_argument("--api-url", default=DEFAULT_API_URL)
     parser.add_argument("--api-timeout", type=float, default=20.0)
     parser.add_argument(
