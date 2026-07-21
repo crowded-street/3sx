@@ -99,56 +99,19 @@ def parse_fcade_url(url: str) -> ReplayTarget:
     return ReplayTarget(emulator=emulator, game=game, token=token, port=port)
 
 
-def _json_walk(value: Any) -> list[Any]:
-    out = [value]
-    if isinstance(value, dict):
-        for child in value.values():
-            out.extend(_json_walk(child))
-    elif isinstance(value, list):
-        for child in value:
-            out.extend(_json_walk(child))
-    return out
-
-
-def _stream_token_from_quark_id(token: str) -> str:
-    if "." in token:
-        return token
-    return f"{token}.7"
-
-
-def _listed_replay_from_dict(data: dict[str, Any], default_game: str, default_emulator: str) -> ListedReplay | None:
-    quark_id = data.get("quarkid")
-    if not isinstance(quark_id, str) or not quark_id:
-        return None
-    token = _stream_token_from_quark_id(quark_id)
-
-    game = data.get("gameid")
-    if not isinstance(game, str) or not game:
-        game = default_game
-
-    emulator = data.get("emulator")
-    if not isinstance(emulator, str) or not emulator:
-        emulator = default_emulator
-
-    port = DEFAULT_PORT
-    return ListedReplay(target=ReplayTarget(emulator=emulator, game=game, token=token, port=port), source=data)
-
-
-def extract_listed_replays(api_response: Any, default_game: str, default_emulator: str) -> list[ListedReplay]:
-    seen: set[tuple[str, str, int]] = set()
-    replays: list[ListedReplay] = []
-    for value in _json_walk(api_response):
-        if not isinstance(value, dict):
-            continue
-        replay = _listed_replay_from_dict(value, default_game=default_game, default_emulator=default_emulator)
-        if not replay:
-            continue
-        key = (replay.target.game, replay.target.token, replay.target.port)
-        if key in seen:
-            continue
-        seen.add(key)
-        replays.append(replay)
-    return replays
+def extract_listed_replays(api_response: dict[str, Any], game: str, emulator: str) -> list[ListedReplay]:
+    return [
+        ListedReplay(
+            target=ReplayTarget(
+                emulator=emulator,
+                game=game,
+                token=f'{row["quarkid"]}.7',
+                port=DEFAULT_PORT,
+            ),
+            source=row,
+        )
+        for row in api_response["results"]["results"]
+    ]
 
 
 def search_quarks(
@@ -158,6 +121,7 @@ def search_quarks(
     limit: int,
     best: bool,
     since: int | None,
+    username: str | None,
     cookie: str | None,
     timeout: float,
     user_agent: str,
@@ -172,6 +136,8 @@ def search_quarks(
         payload["best"] = True
     if since is not None:
         payload["since"] = since
+    if username is not None:
+        payload["username"] = username
 
     body = json.dumps(payload).encode("utf-8")
     headers = {
@@ -237,28 +203,17 @@ def do_handshake(sock: socket.socket, token: str, send_delay_ms: float) -> list[
 
 
 def _parse_metadata_type3(payload: bytes) -> dict:
-    # payload layout seen so far:
-    # int32 type=3, int32 ?, int32 ?, int32 lenA, bytesA, int32 lenB, bytesB, ...
-    out = {"type": 3}
-    if len(payload) < 16:
-        out["raw_hex"] = payload.hex()
-        return out
-
-    out["field_4"] = _u32be_from(payload, 4)
-    out["field_8"] = _u32be_from(payload, 8)
-    off = 12
+    # int32 type=3, int32 field_4, then length-prefixed strings, terminated by zero.
+    out = {"type": 3, "field_4": _u32be_from(payload, 4)}
+    off = 8
     names: list[str] = []
 
-    for _ in range(2):
-        if off + 4 > len(payload):
-            break
+    while _u32be_from(payload, off):
         n = _u32be_from(payload, off)
         off += 4
-        if off + n > len(payload):
-            break
         raw = payload[off : off + n]
         off += n
-        names.append(raw.decode("utf-8", errors="replace"))
+        names.append(raw.decode("utf-8"))
 
     out["strings"] = names
     out["trailing_hex"] = payload[off:].hex()
@@ -267,53 +222,34 @@ def _parse_metadata_type3(payload: bytes) -> dict:
 
 def _parse_minus13(payload: bytes) -> dict:
     # int32 type=-13, u32 record_size, u32 record_count, records...
-    if len(payload) < 12:
-        return {"type": -13, "error": "short payload", "raw_hex": payload.hex()}
-
     record_size = _u32be_from(payload, 4)
     record_count = _u32be_from(payload, 8)
     body = payload[12:]
-    expected = record_size * record_count
     return {
         "type": -13,
         "record_size": record_size,
         "record_count": record_count,
         "body_len": len(body),
-        "expected_body_len": expected,
-        "body_matches": len(body) == expected,
-        "records_preview_hex": body[: min(len(body), record_size * min(record_count, 3))].hex(),
+        "expected_body_len": record_size * record_count,
     }
 
 
 def _parse_minus12(payload: bytes) -> dict:
     # int32 type=-12, u32 field_4 (often uncompressed size), then compressed bytes.
-    if len(payload) < 8:
-        return {"type": -12, "error": "short payload", "raw_hex": payload.hex()}
-
     field_4 = _u32be_from(payload, 4)
     compressed = payload[8:]
+    decompressed = zlib.decompress(compressed)
     out = {
         "type": -12,
         "field_4": field_4,
         "compressed_len": len(compressed),
-        "compressed_starts": compressed[:8].hex(),
-        "zlib_header_like": len(compressed) >= 2 and compressed[0] == 0x78,
+        "decompressed_len": len(decompressed),
+        "decompressed_starts": decompressed[:32].hex(),
     }
-
-    try:
-        decompressed = zlib.decompress(compressed)
-        out["decompressed_len"] = len(decompressed)
-        out["decompressed_starts"] = decompressed[:32].hex()
-    except Exception as exc:  # noqa: BLE001
-        out["decompress_error"] = str(exc)
-
     return out
 
 
 def parse_server_message(payload: bytes) -> dict:
-    if len(payload) < 4:
-        return {"type": None, "error": "short payload", "payload_len": len(payload)}
-
     msg_type = _i32be_from(payload, 0)
     if msg_type == 3:
         return _parse_metadata_type3(payload)
@@ -413,26 +349,15 @@ def download_replay(
                 info.update({"index": count, "length": len(payload)})
                 messages.append(info)
 
-                msg_type = info.get("type")
+                msg_type = info["type"]
                 if msg_type == -12:
-                    chunk = payload[8:]
-                    try:
-                        raw = zlib.decompress(chunk)
-                        if not savestate_written:
-                            savestate_path.write_bytes(raw)
-                            savestate_written = True
-                    except Exception:
-                        pass
+                    raw = zlib.decompress(payload[8:])
+                    if not savestate_written:
+                        savestate_path.write_bytes(raw)
+                        savestate_written = True
                 elif msg_type == -13:
                     body = payload[12:]
-                    expected = info.get("expected_body_len")
-                    if isinstance(expected, int) and expected >= 0 and len(body) >= expected:
-                        inputs_f.write(body[:expected])
-                        if len(body) != expected:
-                            info["inputs_trailer_len"] = len(body) - expected
-                    else:
-                        # Fallback if fields are missing/corrupt: preserve prior behavior.
-                        inputs_f.write(body)
+                    inputs_f.write(body[: info["expected_body_len"]])
 
                 count += 1
 
@@ -501,13 +426,14 @@ def fetch_replay_list(args: argparse.Namespace) -> list[ListedReplay]:
         return []
     if args.page_size < 1:
         raise ValueError("--page-size must be at least 1")
+    if args.max_duration is not None and args.max_duration < 0:
+        raise ValueError("--max-duration must be at least 0")
 
     replays: list[ListedReplay] = []
-    seen: set[tuple[str, str, int]] = set()
     offset = args.offset
 
     while len(replays) < args.count:
-        page_limit = min(args.page_size, args.count - len(replays))
+        page_limit = args.page_size
         response = search_quarks(
             api_url=args.api_url,
             gameid=args.gameid,
@@ -515,26 +441,23 @@ def fetch_replay_list(args: argparse.Namespace) -> list[ListedReplay]:
             limit=page_limit,
             best=args.best,
             since=args.since,
+            username=args.username,
             cookie=args.cookie,
             timeout=args.api_timeout,
             user_agent=args.user_agent,
         )
-        page_replays = extract_listed_replays(response, default_game=args.gameid, default_emulator=args.emulator)
+        page_replays = extract_listed_replays(response, game=args.gameid, emulator=args.emulator)
         if not page_replays:
             break
 
-        added = 0
         for replay in page_replays:
-            key = (replay.target.game, replay.target.token, replay.target.port)
-            if key in seen:
+            if args.max_duration is not None and replay.source["duration"] > args.max_duration:
                 continue
-            seen.add(key)
             replays.append(replay)
-            added += 1
             if len(replays) >= args.count:
                 break
 
-        if added == 0 or len(page_replays) < page_limit:
+        if len(page_replays) < page_limit:
             break
         offset += page_limit
 
@@ -633,13 +556,19 @@ def cmd_bulk_download(args: argparse.Namespace) -> int:
 
 
 def add_search_args(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("--gameid", required=True, help="Fightcade game id, e.g. sfiii3nr1")
+    parser.add_argument("--gameid", default="sfiii3nr1", help="Fightcade game id, e.g. sfiii3nr1")
     parser.add_argument("--emulator", default="fbneo", help="emulator to use if API rows do not include one")
     parser.add_argument("--count", type=int, default=200, help="number of replays to fetch")
     parser.add_argument("--offset", type=int, default=0, help="initial Fightcade search offset")
     parser.add_argument("--page-size", type=int, default=15, help="Fightcade search page size")
     parser.add_argument("--best", action="store_true", help="request Fightcade best replays")
     parser.add_argument("--since", type=int, help="Fightcade since timestamp in milliseconds")
+    parser.add_argument("--username", type=str, help="Filter search results by username")
+    parser.add_argument(
+        "--max-duration",
+        type=float,
+        help="only keep replays whose duration field is no more than this many seconds",
+    )
     parser.add_argument("--api-url", default=DEFAULT_API_URL)
     parser.add_argument("--api-timeout", type=float, default=20.0)
     parser.add_argument(
