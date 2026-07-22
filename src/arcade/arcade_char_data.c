@@ -530,6 +530,10 @@ static const CgRemapRange ibuki_cg_ranges[] = {
     { .first = 0x9BA8, .last = 0x9C6F, .delta = -29904 },
 };
 
+static const CgRemapRange elena_cg_ranges[] = {
+    { .first = 0x9C88, .last = 0x9CC1, .delta = -0x6F08 },
+};
+
 static const CgRemapRange makoto_cg_ranges[] = {
     { .first = 0xA000, .last = UINT16_MAX, .delta = -0x5378 },
 };
@@ -545,7 +549,9 @@ static const CharacterCgMap cg_maps[NUM_CHARS] = {
     [CHAR_IBUKI] = { .default_delta = -0x0940,
                      .ranges = ibuki_cg_ranges,
                      .range_count = SDL_arraysize(ibuki_cg_ranges) },
-    [CHAR_ELENA] = { .default_delta = -0x0820 },
+    [CHAR_ELENA] = { .default_delta = -0x0820,
+                     .ranges = elena_cg_ranges,
+                     .range_count = SDL_arraysize(elena_cg_ranges) },
     [CHAR_ORO] = { .default_delta = -0x0800 },
     [CHAR_YANG] = { .default_delta = -0x0820 },
     [CHAR_KEN] = { .default_delta = -0x08C0 },
