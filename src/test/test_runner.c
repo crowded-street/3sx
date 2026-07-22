@@ -6,6 +6,7 @@
 #include "main.h"
 #include "platform/input/statcheck/statcheck_input.h"
 #include "sf33rd/AcrSDK/common/pad.h"
+#include "sf33rd/Source/Game/debug/debug_config.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "test/ram_archive.h"
@@ -228,6 +229,7 @@ void TestRunner_Prologue() {
                 // We must set New_Challenger manually so that the game selects the correct stage.
                 // If we set this var earlier it would be overwritten
                 New_Challenger = game.new_challenger;
+                Champion = New_Challenger ^ 1;
                 char_select_phase = 2;
             }
 
@@ -244,6 +246,8 @@ void TestRunner_Prologue() {
             wait_timer -= 1;
 
             if (wait_timer <= 0) {
+                // Stage selection happens before per-frame synchronization begins.
+                Debug_w[DEBUG_STAGE_SELECT] = game.stage + 1;
                 tap_button(SWK_SOUTH, 0);
                 tap_button(SWK_SOUTH, 1);
                 phase = PHASE_GAME_TRANSITION;

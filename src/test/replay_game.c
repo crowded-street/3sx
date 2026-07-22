@@ -45,6 +45,9 @@ bool ReplayGame_Init(ReplayGame* game, const char* ram_archive_path) {
             SDL_SeekIO(io, NEW_CHALLENGER_OFFSET, SDL_IO_SEEK_SET);
             SDL_ReadU8(io, &game->new_challenger);
 
+            // Character-associated stage IDs use the CPS3 character numbering too.
+            game->stage = CHAR_ARCADE_TO_3SX(read_u16(io, BATTLE_COUNTRY_OFFSET));
+
             SDL_SeekIO(io, PLAYER_COLOR_OFFSET, SDL_IO_SEEK_SET);
             SDL_ReadIO(io, game->colors, 2);
 
