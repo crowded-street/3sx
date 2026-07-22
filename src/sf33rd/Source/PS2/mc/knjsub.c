@@ -542,7 +542,6 @@ static u32* get_img_adrs(_kanji_w* kw, u32 index) {
 }
 
 void KnjPrintf(const s8* fmt, ...) {
-    s8* p;
     s8 s[128];
     va_list args;
 
@@ -551,9 +550,8 @@ void KnjPrintf(const s8* fmt, ...) {
     }
 
     va_start(args, fmt);
-    p = s;
-    p += vsprintf(s, fmt, args);
-    *p = 0;
+    vsnprintf(s, sizeof(s), fmt, args);
+    va_end(args);
     KnjPuts(s);
 }
 

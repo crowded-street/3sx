@@ -91,7 +91,7 @@ s32 flLogOut(const char* format, ...) {
 
     va_list args;
     va_start(args, format);
-    vsprintf(str, format, args);
+    vsnprintf(str, sizeof(str), format, args);
     va_end(args);
 
     fatal_error(str);

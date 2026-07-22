@@ -141,8 +141,21 @@ target_compile_options(3sx PRIVATE
     $<$<OR:$<CONFIG:Debug>,$<BOOL:${THREESX_STATCHECK}>>:-Wno-unused-but-set-variable>
 )
 
+if(NOT PSP AND (CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_C_COMPILER_ID STREQUAL "GNU"))
+    target_compile_options(3sx PRIVATE
+        $<$<CONFIG:Debug>:-fsanitize=address>
+        $<$<CONFIG:Debug>:-fno-omit-frame-pointer>
+    )
+    target_link_options(3sx PRIVATE
+        $<$<CONFIG:Debug>:-fsanitize=address>
+    )
+endif()
+
 if(PSP)
-    target_compile_options(3sx PRIVATE -G0)
+    target_compile_options(3sx PRIVATE
+        -G0
+        -Wno-format-truncation
+    )
     target_link_options(3sx PRIVATE -G0)
 endif()
 

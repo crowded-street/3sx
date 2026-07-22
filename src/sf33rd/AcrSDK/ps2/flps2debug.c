@@ -34,7 +34,8 @@ s32 flPrintL(s32 posi_x, s32 posi_y, const char* format, ...) {
     buff_ptr += flDebugStrCtr;
 
     va_start(args, format);
-    vsprintf(str, format, args);
+    vsnprintf(str, sizeof(str), format, args);
+    va_end(args);
     len = strlen(str);
 
     if (flDebugStrCtr + len >= 0x12C0) {
@@ -85,7 +86,7 @@ void flPS2SystemError(s32 error_level, const char* format, ...) {
 
     flFlip(0);
     va_start(args, format);
-    vsprintf(str, format, args);
+    vsnprintf(str, sizeof(str), format, args);
     va_end(args);
     fatal_error("flps2debug: %s", str);
 }
