@@ -152,7 +152,10 @@ if(NOT PSP AND (CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_COMPILER_ID STRE
 endif()
 
 if(PSP)
-    target_compile_options(3sx PRIVATE -G0)
+    target_compile_options(3sx PRIVATE
+        -G0
+        -Wno-format-truncation
+    )
     target_link_options(3sx PRIVATE -G0)
 endif()
 
