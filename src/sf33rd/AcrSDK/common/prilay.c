@@ -10,7 +10,8 @@ s8 plReportMessage[2048];
 s32 plReport(s8* format, ...) {
     va_list args;
     va_start(args, format);
-    vsprintf(plReportMessage, format, args);
+    vsnprintf(plReportMessage, sizeof(plReportMessage), format, args);
+    va_end(args);
     return 1;
 }
 
