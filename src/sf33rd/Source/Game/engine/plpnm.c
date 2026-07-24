@@ -89,7 +89,7 @@ void Player_normal(PLW* wk) {
         wk->wu.next_z = ((WORK*)wk->wu.target_adrs)->my_priority;
 
         if (wk->wu.cg_prio == 1) {
-            wk->wu.next_z++;
+            wk->wu.next_z += 1;
         } else {
             wk->wu.next_z -= 3;
         }
@@ -608,7 +608,7 @@ void Normal_35000(PLW* wk) {
         wk->wu.next_z = wk->wu.my_priority - 1;
     }
 
-    wk->guard_chuu = guard_kind[(wk->wu.routine_no[2] - 27)];
+    wk->guard_chuu = guard_kind[wk->wu.routine_no[2] - 27];
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -765,13 +765,12 @@ void Normal_42000(PLW* wk) {
 
         set_char_move_init(&wk->wu, 0, dadr[0]);
         setup_mvxy_data(&wk->wu, dadr[1]);
-        Flash_MT[(wk->wu.id)] = 2;
+        Flash_MT[wk->wu.id] = 2;
         add_sp_arts_gauge_paring(wk);
         set_hit_stop_hit_quake(&wk->wu);
 
         if (wk->wu.hit_stop > 0) {
             wk->wu.hit_stop = -wk->wu.hit_stop;
-            break;
         }
 
         break;
