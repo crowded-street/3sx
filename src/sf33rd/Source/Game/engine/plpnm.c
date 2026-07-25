@@ -18,6 +18,7 @@
 #include "sf33rd/Source/Game/engine/pls02.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/io/pulpul.h"
+#include "arcade/arcade_balance.h"
 
 void Player_normal(PLW* wk);
 void setup_normal_process_flags(PLW* wk);
@@ -37,6 +38,9 @@ void Normal_07000(PLW* wk);
 void Normal_08000(PLW* wk);
 void Normal_09000(PLW* wk);
 void Normal_10000(PLW* wk);
+void Normal_11000(PLW* wk);
+void Normal_12000(PLW* wk);
+void Normal_13000(PLW* wk);
 void Normal_16000(PLW* wk);
 void Normal_17000(PLW* wk);
 void Normal_18000(PLW* wk);
@@ -71,32 +75,39 @@ const s16 nmCE_data[4][3];
 const u16 jpdat_tbl[9][2];
 
 void (*const plpnm_lv_00[59])(PLW* wk);
+void (*const plpnm_lv_00_cps3[59])(PLW* wk);
 void (*const normal_05[])(PLW* wk);
 void (*const normal_06[])(PLW* wk);
 
-void Player_normal(PLW* wk) {
+void Player_normal(PLW* wk) { // 🟡
     setup_normal_process_flags(wk);
 
-    if (wk->wu.routine_no[3] == 0) {
+    // Chain-EX state is a port-only gameplay reset; CPS3 omits it.
+    if (!ArcadeBalance_IsEnabled() && wk->wu.routine_no[3] == 0) {
         clear_chainex_check(wk->wu.id);
     }
 
     check_my_tk_power_off(wk, (PLW*)wk->wu.target_adrs);
     check_em_tk_power_off(wk, (PLW*)wk->wu.target_adrs);
-    plpnm_lv_00[wk->wu.routine_no[2]](wk);
+
+    if (ArcadeBalance_IsEnabled()) {
+        plpnm_lv_00_cps3[wk->wu.routine_no[2]](wk);
+    } else {
+        plpnm_lv_00[wk->wu.routine_no[2]](wk);
+    }
 
     if (wk->wu.cg_prio) {
         wk->wu.next_z = ((WORK*)wk->wu.target_adrs)->my_priority;
 
         if (wk->wu.cg_prio == 1) {
-            wk->wu.next_z++;
+            wk->wu.next_z += 1;
         } else {
             wk->wu.next_z -= 3;
         }
     }
 }
 
-void setup_normal_process_flags(PLW* wk) {
+void setup_normal_process_flags(PLW* wk) { // 🟡
     wk->wu.next_z = wk->wu.my_priority;
     wk->running_f = 0;
     wk->py->flag = 0;
@@ -127,14 +138,14 @@ void setup_normal_process_flags(PLW* wk) {
         wk->high_jump_flag = 0;
     }
 
-    wk->wu.swallow_no_effect = 0;
+    wk->wu.swallow_no_effect = 0; // Port-only visual suppression; CPS3 does not reset this effect flag here.
 }
 
-void Normal_00000(PLW* wk) {
+void Normal_00000(PLW* wk) { // 🟢
     appear_player(wk);
 }
 
-void Normal_01000(PLW* wk) {
+void Normal_01000(PLW* wk) { // 🟢
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority + 1;
     }
@@ -151,7 +162,7 @@ void Normal_01000(PLW* wk) {
     }
 }
 
-void Normal_02000(PLW* wk) {
+void Normal_02000(PLW* wk) { // 🟢
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority + 1;
     }
@@ -169,7 +180,7 @@ void Normal_02000(PLW* wk) {
     }
 }
 
-void Normal_03000(PLW* wk) {
+void Normal_03000(PLW* wk) { // 🟢
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority - 1;
     }
@@ -192,7 +203,7 @@ void Normal_03000(PLW* wk) {
     }
 }
 
-void Normal_04000(PLW* wk) {
+void Normal_04000(PLW* wk) { // 🟢
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority + 1;
     }
@@ -213,7 +224,7 @@ void Normal_04000(PLW* wk) {
     }
 }
 
-void Normal_05000(PLW* wk) {
+void Normal_05000(PLW* wk) { // 🟢
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority - 1;
     }
@@ -224,7 +235,7 @@ void Normal_05000(PLW* wk) {
     jumping_guard_type_check(wk);
 }
 
-void nm_05_0000(PLW* wk) {
+void nm_05_0000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -253,7 +264,7 @@ void nm_05_0000(PLW* wk) {
     }
 }
 
-void nm_05_0100(PLW* wk) {
+void nm_05_0100(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -265,7 +276,6 @@ void nm_05_0100(PLW* wk) {
             add_mvxy_speed(&wk->wu);
             wk->wu.routine_no[3]++;
             wk->wu.cg_type = 0;
-            break;
         }
 
         break;
@@ -277,7 +287,6 @@ void nm_05_0100(PLW* wk) {
             add_mvxy_speed(&wk->wu);
             wk->wu.routine_no[3]++;
             wk->wu.cg_type = 0;
-            break;
         }
 
         break;
@@ -301,7 +310,7 @@ void nm_05_0100(PLW* wk) {
     }
 }
 
-void Normal_06000(PLW* wk) {
+void Normal_06000(PLW* wk) { // 🟢
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority + 1;
     }
@@ -312,7 +321,7 @@ void Normal_06000(PLW* wk) {
     jumping_guard_type_check(wk);
 }
 
-void nm_06_0000(PLW* wk) {
+void nm_06_0000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -326,7 +335,7 @@ void nm_06_0000(PLW* wk) {
     }
 }
 
-void nm_06_0100(PLW* wk) {
+void nm_06_0100(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -355,7 +364,7 @@ void nm_06_0100(PLW* wk) {
     }
 }
 
-void nm_06_0200(PLW* wk) {
+void nm_06_0200(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -367,7 +376,6 @@ void nm_06_0200(PLW* wk) {
             add_mvxy_speed(&wk->wu);
             wk->wu.routine_no[3]++;
             wk->wu.cg_type = 0;
-            break;
         }
 
         break;
@@ -379,7 +387,6 @@ void nm_06_0200(PLW* wk) {
             add_mvxy_speed(&wk->wu);
             wk->wu.routine_no[3]++;
             wk->wu.cg_type = 0;
-            break;
         }
 
         break;
@@ -403,7 +410,7 @@ void nm_06_0200(PLW* wk) {
     }
 }
 
-void Normal_07000(PLW* wk) {
+void Normal_07000(PLW* wk) { // 🟢
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority - 1;
     }
@@ -420,7 +427,7 @@ void Normal_07000(PLW* wk) {
     }
 }
 
-void Normal_08000(PLW* wk) {
+void Normal_08000(PLW* wk) { // 🟢
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority - 1;
     }
@@ -437,7 +444,7 @@ void Normal_08000(PLW* wk) {
     }
 }
 
-void Normal_09000(PLW* wk) {
+void Normal_09000(PLW* wk) { // 🟢
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority - 1;
     }
@@ -454,7 +461,7 @@ void Normal_09000(PLW* wk) {
     }
 }
 
-void Normal_10000(PLW* wk) {
+void Normal_10000(PLW* wk) { // 🟢
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority - 1;
     }
@@ -472,7 +479,66 @@ void Normal_10000(PLW* wk) {
     }
 }
 
-void Normal_16000(PLW* wk) {
+void Normal_11000(PLW* wk) { // 🔵
+    if (wk->the_same_players) {
+        wk->wu.next_z = wk->wu.my_priority - 1;
+    }
+
+    switch (wk->wu.routine_no[3]) {
+    case 0:
+        wk->wu.routine_no[3]++;
+        set_char_move_init(&wk->wu, 0, 9);
+        setup_mvxy_data(&wk->wu, 4);
+        add_mvxy_speed(&wk->wu);
+        break;
+
+    case 1:
+        cal_mvxy_speed(&wk->wu);
+        add_mvxy_speed(&wk->wu);
+        char_move(&wk->wu);
+        break;
+    }
+}
+
+void Normal_12000(PLW* wk) { // 🔵
+    if (wk->the_same_players) {
+        wk->wu.next_z = wk->wu.my_priority + 1;
+    }
+
+    switch (wk->wu.routine_no[3]) {
+    case 0:
+        wk->wu.routine_no[3]++;
+        set_char_move_init(&wk->wu, 0, 10);
+        setup_mvxy_data(&wk->wu, 5);
+        add_mvxy_speed(&wk->wu);
+        break;
+
+    case 1:
+        cal_mvxy_speed(&wk->wu);
+        add_mvxy_speed(&wk->wu);
+        char_move(&wk->wu);
+        break;
+    }
+}
+
+void Normal_13000(PLW* wk) { // 🔵
+    if (wk->the_same_players) {
+        wk->wu.next_z = wk->wu.my_priority + 1;
+    }
+
+    switch (wk->wu.routine_no[3]) {
+    case 0:
+        wk->wu.routine_no[3]++;
+        set_char_move_init(&wk->wu, 0, 50);
+        break;
+
+    case 1:
+        char_move(&wk->wu);
+        break;
+    }
+}
+
+void Normal_16000(PLW* wk) { // 🟢
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority + 1;
     }
@@ -492,7 +558,7 @@ void Normal_16000(PLW* wk) {
     }
 }
 
-void Normal_17000(PLW* wk) {
+void Normal_17000(PLW* wk) { // 🟢
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority + 1;
     }
@@ -512,7 +578,7 @@ void Normal_17000(PLW* wk) {
     }
 }
 
-void Normal_18000(PLW* wk) {
+void Normal_18000(PLW* wk) { // 🟢
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority + 1;
     }
@@ -539,7 +605,7 @@ void Normal_18000(PLW* wk) {
     jumping_guard_type_check(wk);
 }
 
-void Normal_18000_init_unit(PLW* wk, u8 ps) {
+void Normal_18000_init_unit(PLW* wk, u8 ps) { // 🟢
     ps = (ps - 14) / 2;
 
     if (ps > 8) {
@@ -551,7 +617,7 @@ void Normal_18000_init_unit(PLW* wk, u8 ps) {
     add_mvxy_speed(&wk->wu);
 }
 
-void Normal_27000(PLW* wk) {
+void Normal_27000(PLW* wk) { // 🟢
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority + 1;
     }
@@ -568,7 +634,7 @@ void Normal_27000(PLW* wk) {
     }
 }
 
-void Normal_31000(PLW* wk) {
+void Normal_31000(PLW* wk) { // 🟡
     if (((WORK*)wk->wu.target_adrs)->cg_prio != 2) {
         wk->wu.next_z = 32;
     }
@@ -582,13 +648,18 @@ void Normal_31000(PLW* wk) {
         wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
         set_char_move_init(&wk->wu, 0, wk->wu.routine_no[2] - 7);
 
-        if (wk->wu.dm_stop > 0) {
+        // CPS3 leaves damage-stop and vitality untouched in this guard state.
+        if (!ArcadeBalance_IsEnabled() && wk->wu.dm_stop > 0) {
             wk->wu.dm_stop = -wk->wu.dm_stop;
         }
 
         set_hit_stop_hit_quake(&wk->wu);
         add_sp_arts_gauge_paring(wk);
-        subtract_dm_vital(wk);
+
+        if (!ArcadeBalance_IsEnabled()) {
+            subtract_dm_vital(wk);
+        }
+
         pp_pulpara_blocking(&wk->wu);
         break;
 
@@ -603,18 +674,19 @@ void Normal_31000(PLW* wk) {
     }
 }
 
-void Normal_35000(PLW* wk) {
+void Normal_35000(PLW* wk) { // 🟡
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority - 1;
     }
 
-    wk->guard_chuu = guard_kind[(wk->wu.routine_no[2] - 27)];
+    wk->guard_chuu = guard_kind[wk->wu.routine_no[2] - 27];
 
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
 
-        if (wk->wu.dm_stop > 0) {
+        // CPS3 leaves damage-stop and vitality untouched in this guard state.
+        if (!ArcadeBalance_IsEnabled() && wk->wu.dm_stop > 0) {
             wk->wu.dm_stop = -wk->wu.dm_stop;
         }
 
@@ -629,7 +701,11 @@ void Normal_35000(PLW* wk) {
         remake_mvxy_PoSB(&wk->wu);
         set_char_move_init(&wk->wu, 0, 27);
         add_sp_arts_gauge_paring(wk);
-        subtract_dm_vital(wk);
+
+        if (!ArcadeBalance_IsEnabled()) {
+            subtract_dm_vital(wk);
+        }
+
         pp_pulpara_blocking(&wk->wu);
         break;
 
@@ -652,7 +728,7 @@ void Normal_35000(PLW* wk) {
     }
 }
 
-void Normal_36000(PLW* wk) {
+void Normal_36000(PLW* wk) { // 🟢
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority + 1;
     }
@@ -660,7 +736,7 @@ void Normal_36000(PLW* wk) {
     char_move(&wk->wu);
 }
 
-void Normal_37000(PLW* wk) {
+void Normal_37000(PLW* wk) { // 🟢
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority + 1;
     }
@@ -668,7 +744,7 @@ void Normal_37000(PLW* wk) {
     char_move(&wk->wu);
 }
 
-void Normal_38000(PLW* wk) {
+void Normal_38000(PLW* wk) { // 🟢
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority + 1;
     }
@@ -687,7 +763,7 @@ void Normal_38000(PLW* wk) {
     jumping_guard_type_check(wk);
 }
 
-void Normal_39000(PLW* wk) {
+void Normal_39000(PLW* wk) { // 🟢
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority - 1;
     }
@@ -701,9 +777,10 @@ void Normal_39000(PLW* wk) {
     set_char_move_init(&wk->wu, 0, 23);
 }
 
-void Normal_40000(PLW* wk) {
+void Normal_40000(PLW* wk) { // 🟡
     wk->wu.next_z = 38;
 
+    // Port training modes intentionally bypass CPS3's win sequence.
     if ((Mode_Type == MODE_NORMAL_TRAINING) || (Mode_Type == MODE_PARRY_TRAINING)) {
         switch (wk->wu.routine_no[3]) {
         case 0:
@@ -722,9 +799,10 @@ void Normal_40000(PLW* wk) {
     win_player(wk);
 }
 
-void Normal_41000(PLW* wk) {
+void Normal_41000(PLW* wk) { // 🟡
     wk->wu.next_z = 34;
 
+    // Port training modes intentionally bypass CPS3's loss sequence.
     if ((Mode_Type == MODE_NORMAL_TRAINING) || (Mode_Type == MODE_PARRY_TRAINING)) {
         switch (wk->wu.routine_no[3]) {
         case 0:
@@ -743,7 +821,7 @@ void Normal_41000(PLW* wk) {
     lose_player(wk);
 }
 
-void Normal_42000(PLW* wk) {
+void Normal_42000(PLW* wk) { // 🟢
     const s16* dadr = nmPB_data[wk->wu.routine_no[2] - 42];
 
     if (((WORK*)wk->wu.target_adrs)->cg_prio != 2) {
@@ -765,13 +843,12 @@ void Normal_42000(PLW* wk) {
 
         set_char_move_init(&wk->wu, 0, dadr[0]);
         setup_mvxy_data(&wk->wu, dadr[1]);
-        Flash_MT[(wk->wu.id)] = 2;
+        Flash_MT[wk->wu.id] = 2;
         add_sp_arts_gauge_paring(wk);
         set_hit_stop_hit_quake(&wk->wu);
 
         if (wk->wu.hit_stop > 0) {
             wk->wu.hit_stop = -wk->wu.hit_stop;
-            break;
         }
 
         break;
@@ -808,7 +885,7 @@ void Normal_42000(PLW* wk) {
     }
 }
 
-void Normal_47000(PLW* wk) {
+void Normal_47000(PLW* wk) { // 🟢
     const s16* datix = nmCE_data[wk->wu.routine_no[2] - 47];
 
     if (((WORK*)wk->wu.target_adrs)->cg_prio != 2) {
@@ -871,7 +948,7 @@ void Normal_47000(PLW* wk) {
     }
 }
 
-void Normal_48000(PLW* wk) {
+void Normal_48000(PLW* wk) { // 🟢
     wk->guard_flag = 3;
 
     switch (wk->wu.routine_no[3]) {
@@ -915,7 +992,7 @@ void Normal_48000(PLW* wk) {
     }
 }
 
-void Normal_50000(PLW* wk) {
+void Normal_50000(PLW* wk) { // 🟢
     wk->guard_flag = 3;
 
     switch (wk->wu.routine_no[3]) {
@@ -958,14 +1035,14 @@ void Normal_50000(PLW* wk) {
     }
 }
 
-void Normal_51000(PLW* wk) {
+void Normal_51000(PLW* wk) { // 🟢
     if (wk->wu.routine_no[3] == 0) {
         wk->wu.routine_no[3]++;
         set_char_move_init(&wk->wu, 0, 12);
     }
 }
 
-void Normal_52000(PLW* wk) {
+void Normal_52000(PLW* wk) { // 🟢
     wk->guard_flag = 3;
 
     if (wk->the_same_players) {
@@ -996,7 +1073,7 @@ void Normal_52000(PLW* wk) {
     }
 }
 
-void Normal_53000(PLW* wk) {
+void Normal_53000(PLW* wk) { // 🟢
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority + 1;
     }
@@ -1038,7 +1115,7 @@ void Normal_53000(PLW* wk) {
     }
 }
 
-void Normal_54000(PLW* wk) {
+void Normal_54000(PLW* wk) { // 🟢
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority + 1;
     }
@@ -1066,7 +1143,7 @@ void Normal_54000(PLW* wk) {
     }
 }
 
-void Normal_55000(PLW* wk) {
+void Normal_55000(PLW* wk) { // 🟢
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority + 1;
     }
@@ -1093,7 +1170,7 @@ void Normal_55000(PLW* wk) {
     }
 }
 
-void make_nm55_init_sp(PLW* wk) {
+void make_nm55_init_sp(PLW* wk) { // 🟢
     WORK* efw;
     s16* dad;
     s16 ix;
@@ -1123,7 +1200,7 @@ void make_nm55_init_sp(PLW* wk) {
     }
 }
 
-void Normal_56000(PLW* wk) {
+void Normal_56000(PLW* wk) { // 🟢
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority + 1;
     }
@@ -1148,7 +1225,7 @@ void Normal_56000(PLW* wk) {
     }
 }
 
-void nm56_char_select(PLW* wk) {
+void nm56_char_select(PLW* wk) { // 🟢
     WORK* efw;
     s16* dad;
     s16 ix;
@@ -1174,7 +1251,7 @@ void nm56_char_select(PLW* wk) {
     set_char_move_init(&wk->wu, 0, ix);
 }
 
-void Normal_57000(PLW* wk) {
+void Normal_57000(PLW* wk) { // 🟢
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority + 1;
     }
@@ -1211,7 +1288,7 @@ void Normal_57000(PLW* wk) {
     }
 }
 
-void nm57_dir_select(PLW* wk) {
+void nm57_dir_select(PLW* wk) { // 🟢
     WORK* efw;
     s16* dad;
     s16 ix;
@@ -1226,7 +1303,7 @@ void nm57_dir_select(PLW* wk) {
     }
 }
 
-void Normal_58000(PLW* wk) {
+void Normal_58000(PLW* wk) { // 🟢
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority + 1;
     }
@@ -1254,6 +1331,17 @@ const s16 nmCE_data[4][3] = { { 43, 26, 1 }, { 44, 27, 1 }, { 45, 28, 0 }, { 46,
 void (*const plpnm_lv_00[59])(PLW* wk) = {
     Normal_00000, Normal_01000, Normal_02000, Normal_03000, Normal_04000, Normal_05000, Normal_06000, Normal_07000,
     Normal_08000, Normal_09000, Normal_10000, Normal_03000, Normal_04000, Normal_03000, Normal_03000, Normal_03000,
+    Normal_16000, Normal_17000, Normal_18000, Normal_18000, Normal_18000, Normal_18000, Normal_18000, Normal_18000,
+    Normal_18000, Normal_18000, Normal_18000, Normal_27000, Normal_27000, Normal_27000, Normal_27000, Normal_31000,
+    Normal_31000, Normal_31000, Normal_35000, Normal_35000, Normal_36000, Normal_37000, Normal_38000, Normal_39000,
+    Normal_40000, Normal_41000, Normal_42000, Normal_42000, Normal_42000, Normal_42000, Normal_42000, Normal_47000,
+    Normal_48000, Normal_47000, Normal_50000, Normal_51000, Normal_52000, Normal_53000, Normal_54000, Normal_55000,
+    Normal_56000, Normal_57000, Normal_58000
+};
+
+void (*const plpnm_lv_00_cps3[59])(PLW* wk) = {
+    Normal_00000, Normal_01000, Normal_02000, Normal_03000, Normal_04000, Normal_05000, Normal_06000, Normal_07000,
+    Normal_08000, Normal_09000, Normal_10000, Normal_11000, Normal_12000, Normal_13000, Normal_13000, Normal_13000,
     Normal_16000, Normal_17000, Normal_18000, Normal_18000, Normal_18000, Normal_18000, Normal_18000, Normal_18000,
     Normal_18000, Normal_18000, Normal_18000, Normal_27000, Normal_27000, Normal_27000, Normal_27000, Normal_31000,
     Normal_31000, Normal_31000, Normal_35000, Normal_35000, Normal_36000, Normal_37000, Normal_38000, Normal_39000,
