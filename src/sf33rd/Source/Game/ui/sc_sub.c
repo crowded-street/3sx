@@ -6,6 +6,7 @@
 #include "sf33rd/Source/Game/ui/sc_sub.h"
 #include "common.h"
 #include "constants.h"
+#include "core/renderer.h"
 #include "port/config/config.h"
 #include "sf33rd/AcrSDK/ps2/flps2render.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
@@ -23,7 +24,9 @@
 #include "sf33rd/Source/Game/ui/sc_data.h"
 #include "structs.h"
 
-#include "core/renderer.h"
+#if !PSP
+#include "core/xbox_buttons.h"
+#endif
 
 #define TO_UV_256(val) ((val) / 256.0f)
 #define TO_UV_256_NEG(val) (TO_UV_256(val))
@@ -205,7 +208,7 @@ void Scrscreen_Init() {
     ppgScrListShot.pal = &ppgScrPalShot;
     ppgScrListOpt.pal = &ppgScrPalOpt;
     ppgSetupCurrentDataList(&ppgScrList);
-    loadSize = load_it_use_any_key2(10, &loadAdrs, &key, 2, 0); // scrscrn.ppg 
+    loadSize = load_it_use_any_key2(10, &loadAdrs, &key, 2, 0); // scrscrn.ppg
 
     if (loadSize == 0) {
         flLogOut("Couldn't load scrscrn.ppg\n");
@@ -230,6 +233,10 @@ void Scrscreen_Init() {
     Push_ramcnt_key(key);
     ppgSourceDataReleased(NULL);
     Sa_frame_Clear();
+
+#if !PSP
+    XboxButtons_Init();
+#endif
 }
 
 void Sa_frame_Clear() {
@@ -279,7 +286,8 @@ void Sa_frame_Write() {
             for (i = 0; i < 24; i++) {
                 if (sa_frame[j][i].atr != 0) {
                     scfont_put(
-                        i, j + 25, sa_frame[j][i].atr, sa_frame[j][i].page, sa_frame[j][i].cx, sa_frame[j][i].cy, 2);
+                        i, j + 25, sa_frame[j][i].atr, sa_frame[j][i].page, sa_frame[j][i].cx, sa_frame[j][i].cy, 2
+                    );
                 }
             }
         }
@@ -290,7 +298,8 @@ void Sa_frame_Write() {
             for (i = 24; i < 48; i++) {
                 if (sa_frame[j][i].atr != 0) {
                     scfont_put(
-                        i, j + 25, sa_frame[j][i].atr, sa_frame[j][i].page, sa_frame[j][i].cx, sa_frame[j][i].cy, 2);
+                        i, j + 25, sa_frame[j][i].atr, sa_frame[j][i].page, sa_frame[j][i].cx, sa_frame[j][i].cy, 2
+                    );
                 }
             }
         }
@@ -1001,7 +1010,7 @@ void stun_base_put(u8 Pl_Num, s16 len) {
     pos[1].y = pos[0].y;
     pos[2].x = pos[0].x;
     pos[2].y = pos[3].y;
-	// Fudged priority to fix overlap with stun_put
+    // Fudged priority to fix overlap with stun_put
     njDrawPolygon2D(&vtx, 4, PrioBase[TopHUDFacePriority + 1], 96);
 }
 
@@ -1257,15 +1266,17 @@ void stun_mark_write(u8 Pl_Num, s16 Len) {
 
     ppgSetupCurrentDataList(&ppgScrList);
     tlen = Len - 7;
-    scfont_sqput(smark_pos_tbl[tlen][Pl_Num],
-                 3,
-                 10,
-                 0,
-                 (smark_kind_tbl[tlen] * 4) + 1,
-                 2,
-                 smark_kind_tbl[tlen] + 4,
-                 1,
-                 TopHUDPriority);
+    scfont_sqput(
+        smark_pos_tbl[tlen][Pl_Num],
+        3,
+        10,
+        0,
+        (smark_kind_tbl[tlen] * 4) + 1,
+        2,
+        smark_kind_tbl[tlen] + 4,
+        1,
+        TopHUDPriority
+    );
 }
 
 void max_mark_write(s8 Pl_Num, u8 Gauge_Len, u8 Mchar, u8 Mass_Len) {
@@ -1273,7 +1284,8 @@ void max_mark_write(s8 Pl_Num, u8 Gauge_Len, u8 Mchar, u8 Mass_Len) {
         scfont_sqput2(Mass_Len + 6, 26, 17, 0, 0, Max_Pos_TBL[Mchar - 5][0], Max_Pos_TBL[Mchar - 5][1], Mchar, 1);
     } else {
         scfont_sqput2(
-            42 - Gauge_Len + Mass_Len, 26, 17, 0, 0, Max_Pos_TBL[Mchar - 5][0], Max_Pos_TBL[Mchar - 5][1], Mchar, 1);
+            42 - Gauge_Len + Mass_Len, 26, 17, 0, 0, Max_Pos_TBL[Mchar - 5][0], Max_Pos_TBL[Mchar - 5][1], Mchar, 1
+        );
     }
 }
 
@@ -1453,36 +1465,42 @@ void player_face() {
 
     face_base_put();
     ppgSetupCurrentDataList(&ppgScrListFace);
-    scfont_sqput_face(0,
-                      3,
-                      Player_Color[0] + (My_char[0] * 13),
-                      0,
-                      Face_Pos_TBL[My_char[0]][0],
-                      Face_Pos_TBL[My_char[0]][1],
-                      5,
-                      3,
-                      TopHUDPriority);
+    scfont_sqput_face(
+        0,
+        3,
+        Player_Color[0] + (My_char[0] * 13),
+        0,
+        Face_Pos_TBL[My_char[0]][0],
+        Face_Pos_TBL[My_char[0]][1],
+        5,
+        3,
+        TopHUDPriority
+    );
 
     if (My_char[1] == 0) {
-        scfont_sqput_face(0x2B,
-                          3,
-                          (Player_Color[1] + (My_char[1] * 13)) | 0x8000,
-                          0,
-                          Face_Pos_TBL[20][0],
-                          Face_Pos_TBL[20][1],
-                          5,
-                          3,
-                          TopHUDPriority);
+        scfont_sqput_face(
+            0x2B,
+            3,
+            (Player_Color[1] + (My_char[1] * 13)) | 0x8000,
+            0,
+            Face_Pos_TBL[20][0],
+            Face_Pos_TBL[20][1],
+            5,
+            3,
+            TopHUDPriority
+        );
     } else {
-        scfont_sqput_face(0x2B,
-                          3,
-                          (Player_Color[1] + (My_char[1] * 13)) | 0x8000,
-                          0,
-                          Face_Pos_TBL[My_char[1]][0],
-                          Face_Pos_TBL[My_char[1]][1],
-                          5,
-                          3,
-                          TopHUDPriority);
+        scfont_sqput_face(
+            0x2B,
+            3,
+            (Player_Color[1] + (My_char[1] * 13)) | 0x8000,
+            0,
+            Face_Pos_TBL[My_char[1]][0],
+            Face_Pos_TBL[My_char[1]][1],
+            5,
+            3,
+            TopHUDPriority
+        );
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
@@ -1502,25 +1520,29 @@ void player_face() {
     grade_tmp = Keep_Grade[Champion] - 1;
 
     if (grade_tmp < 0x18) {
-        scfont_sqput((Champion * 41) + 1,
-                     1,
-                     27,
-                     2,
-                     Grade_Pos_TBL[grade_tmp][0],
-                     Grade_Pos_TBL[grade_tmp][1],
-                     5,
-                     1,
-                     TopHUDPriority);
+        scfont_sqput(
+            (Champion * 41) + 1,
+            1,
+            27,
+            2,
+            Grade_Pos_TBL[grade_tmp][0],
+            Grade_Pos_TBL[grade_tmp][1],
+            5,
+            1,
+            TopHUDPriority
+        );
     } else {
-        scfont_sqput((Champion * 41) + 1,
-                     1,
-                     28,
-                     2,
-                     Grade_Pos_TBL[grade_tmp][0],
-                     Grade_Pos_TBL[grade_tmp][1],
-                     5,
-                     1,
-                     TopHUDPriority);
+        scfont_sqput(
+            (Champion * 41) + 1,
+            1,
+            28,
+            2,
+            Grade_Pos_TBL[grade_tmp][0],
+            Grade_Pos_TBL[grade_tmp][1],
+            5,
+            1,
+            TopHUDPriority
+        );
     }
 }
 
@@ -1715,15 +1737,17 @@ void ci_set(u8 type, u8 atr) {
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    scfont_sqput(ci_tbl[type][4],
-                 ci_tbl[type][5],
-                 atr,
-                 cip_tbl[type],
-                 ci_tbl[type][0],
-                 ci_tbl[type][1],
-                 ci_tbl[type][2],
-                 ci_tbl[type][3],
-                 2);
+    scfont_sqput(
+        ci_tbl[type][4],
+        ci_tbl[type][5],
+        atr,
+        cip_tbl[type],
+        ci_tbl[type][0],
+        ci_tbl[type][1],
+        ci_tbl[type][2],
+        ci_tbl[type][3],
+        2
+    );
 }
 
 void nw_set(u8 PL_num, u8 atr) {
@@ -1733,15 +1757,17 @@ void nw_set(u8 PL_num, u8 atr) {
 
     ppgSetupCurrentDataList(&ppgScrList);
     PL_num += chkNameAkuma(PL_num, 6);
-    scfont_sqput(nwdata_tbl[PL_num][3],
-                 9,
-                 atr,
-                 nwdata_tbl[PL_num][4],
-                 nwdata_tbl[PL_num][0],
-                 nwdata_tbl[PL_num][1],
-                 nwdata_tbl[PL_num][2],
-                 4,
-                 2);
+    scfont_sqput(
+        nwdata_tbl[PL_num][3],
+        9,
+        atr,
+        nwdata_tbl[PL_num][4],
+        nwdata_tbl[PL_num][0],
+        nwdata_tbl[PL_num][1],
+        nwdata_tbl[PL_num][2],
+        4,
+        2
+    );
     scfont_sqput(nwdata_tbl[PL_num][5], 9, atr, 2, 17, 22, 13, 4, 2);
 }
 
@@ -2070,7 +2096,8 @@ void sc_ram_to_vram_opc(s8 sc_num, s8 x, s8 y, u16 atr) {
 
     for (i = 0; i < loop; i++) {
         scfont_put(
-            sc_pos_ptr[0] + x, sc_pos_ptr[1] + y, atr, sa_ram_vram_col[sc_num][1], sc_uv_ptr[0], sc_uv_ptr[1], 3);
+            sc_pos_ptr[0] + x, sc_pos_ptr[1] + y, atr, sa_ram_vram_col[sc_num][1], sc_uv_ptr[0], sc_uv_ptr[1], 3
+        );
         sc_uv_ptr += 2;
         sc_pos_ptr += 2;
     }
@@ -2214,45 +2241,53 @@ void Training_Data_Disp() {
     }
 
     for (i = 0; i < 2; i++) {
-        scfont_sqput3(i + Training_combo_pos_tbl[j],
-                      i + 48,
-                      13,
-                      4,
-                      0,
-                      176,
-                      76,
-                      8,
-                      i + 5,
-                      Training_combo_prio_tbl[i] + (sa_pa_flag * 14) * i);
+        scfont_sqput3(
+            i + Training_combo_pos_tbl[j],
+            i + 48,
+            13,
+            4,
+            0,
+            176,
+            76,
+            8,
+            i + 5,
+            Training_combo_prio_tbl[i] + (sa_pa_flag * 14) * i
+        );
 
-        SSPutDec3(i + (Training_combo_pos_tbl[j] + 158),
-                  i + 48,
-                  13,
-                  tr_data[j].damage,
-                  3,
-                  i + 7,
-                  Training_combo_prio_tbl[i] + (sa_pa_flag * 14) * i);
+        SSPutDec3(
+            i + (Training_combo_pos_tbl[j] + 158),
+            i + 48,
+            13,
+            tr_data[j].damage,
+            3,
+            i + 7,
+            Training_combo_prio_tbl[i] + (sa_pa_flag * 14) * i
+        );
     }
 
     for (i = 0; i < 2; i++) {
-        scfont_sqput3(i + (Training_combo_pos_tbl[j] + 1),
-                      i + 58,
-                      13,
-                      4,
-                      0,
-                      184,
-                      134,
-                      8,
-                      i + 5,
-                      Training_combo_prio_tbl[i] + (sa_pa_flag * 14) * i);
+        scfont_sqput3(
+            i + (Training_combo_pos_tbl[j] + 1),
+            i + 58,
+            13,
+            4,
+            0,
+            184,
+            134,
+            8,
+            i + 5,
+            Training_combo_prio_tbl[i] + (sa_pa_flag * 14) * i
+        );
 
-        SSPutDec3(i + (Training_combo_pos_tbl[j] + 158),
-                  i + 58,
-                  13,
-                  tr_data[j].disp_total_damage,
-                  3,
-                  i + 7,
-                  Training_combo_prio_tbl[i] + (sa_pa_flag * 14) * i);
+        SSPutDec3(
+            i + (Training_combo_pos_tbl[j] + 158),
+            i + 58,
+            13,
+            tr_data[j].disp_total_damage,
+            3,
+            i + 7,
+            Training_combo_prio_tbl[i] + (sa_pa_flag * 14) * i
+        );
     }
 
     if (tr_data[j].frash_flag) {
@@ -2277,32 +2312,46 @@ void Training_Data_Disp() {
     }
 
     for (i = 0; i < 2; i++) {
-        scfont_sqput3(i + (Training_combo_pos_tbl[j] + 1),
-                      i + 68,
-                      13,
-                      4,
-                      0,
-                      192,
-                      98,
-                      8,
-                      i + 3,
-                      Training_combo_prio_tbl[i] + (sa_pa_flag * 14) * i);
+        scfont_sqput3(
+            i + (Training_combo_pos_tbl[j] + 1),
+            i + 68,
+            13,
+            4,
+            0,
+            192,
+            98,
+            8,
+            i + 3,
+            Training_combo_prio_tbl[i] + (sa_pa_flag * 14) * i
+        );
 
-        SSPutDec3(i + (Training_combo_pos_tbl[j] + 158),
-                  i + 68,
-                  atr,
-                  tr_data[j].max_hitcombo,
-                  2,
-                  gr + i,
-                  Training_combo_prio_tbl[i] + (sa_pa_flag * 14) * i);
+        SSPutDec3(
+            i + (Training_combo_pos_tbl[j] + 158),
+            i + 68,
+            atr,
+            tr_data[j].max_hitcombo,
+            2,
+            gr + i,
+            Training_combo_prio_tbl[i] + (sa_pa_flag * 14) * i
+        );
     }
 }
 
+#if PSP
 const u8 scrnAddTex1UV[9][4] = { { 96, 0, 32, 32 },  { 63, 0, 32, 32 },  { 0, 96, 32, 32 },
                                  { 0, 64, 32, 32 },  { 0, 0, 32, 32 },   { 31, 0, 32, 32 },
                                  { 32, 96, 32, 32 }, { 32, 64, 32, 32 }, { 128, 0, 96, 128 } };
 
-void dispButtonImage(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, s32 ix) {
+static void set_ps2_button_texture(Sprite* sprite, ButtonIcon icon) {
+    sprite->tex_code = ppgGetUsingTextureHandle(&ppgScrTex, 5) | (ppgGetUsingPaletteHandle(&ppgScrPalShot, 0) << 16);
+    sprite->t[0].s = scrnAddTex1UV[icon][0] / 256.0f;
+    sprite->t[3].s = (scrnAddTex1UV[icon][0] + scrnAddTex1UV[icon][2]) / 256.0f;
+    sprite->t[0].t = scrnAddTex1UV[icon][1] / 128.0f;
+    sprite->t[3].t = (scrnAddTex1UV[icon][1] + scrnAddTex1UV[icon][3]) / 128.0f;
+}
+#endif
+
+static void _dispButtonImage(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, ButtonIcon icon, bool invert_y) {
     PAL_CURSOR_COL oricol;
     Sprite prm;
 
@@ -2310,46 +2359,38 @@ void dispButtonImage(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, s32 ix) {
         return;
     }
 
-    oricol.color = -1;
+    oricol.color = 0xFFFFFFFF;
     oricol.argb.a = (0xFF - cl);
-    prm.tex_code = ppgGetUsingTextureHandle(&ppgScrTex, 5) | (ppgGetUsingPaletteHandle(&ppgScrPalShot, 0) << 0x10);
     prm.v[0].x = px;
     prm.v[0].y = py;
-    prm.v[3].x = (px + sx);
-    prm.v[3].y = (py - sy);
-    njCalcPoint(NULL, &prm.v[0], &prm.v[0]);
-    njCalcPoint(NULL, &prm.v[3], &prm.v[3]);
+    prm.v[3].x = px + sx;
+
+    if (invert_y) {
+        prm.v[3].y = py - sy;
+        njCalcPoint(NULL, &prm.v[0], &prm.v[0]);
+        njCalcPoint(NULL, &prm.v[3], &prm.v[3]);
+    } else {
+        prm.v[3].y = py + sy;
+    }
+
     prm.v[0].z = prm.v[3].z = PrioBase[pz];
-    prm.t[0].s = scrnAddTex1UV[ix][0] / 256.0f;
-    prm.t[3].s = (scrnAddTex1UV[ix][0] + scrnAddTex1UV[ix][2]) / 256.0f;
-    prm.t[0].t = scrnAddTex1UV[ix][1] / 128.0f;
-    prm.t[3].t = (scrnAddTex1UV[ix][1] + scrnAddTex1UV[ix][3]) / 128.0f;
+
+#if PSP
+    set_ps2_button_texture(&prm, icon);
+#else
+    XboxButtons_SetTextureParams(&prm, icon);
+#endif
+
     flSetRenderState(FLRENDER_TEXSTAGE0, prm.tex_code);
     Renderer_DrawSprite(&prm, oricol.color);
 }
 
-void dispButtonImage2(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, s32 ix) {
-    PAL_CURSOR_COL oricol;
-    Sprite prm;
+void dispButtonImage(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, ButtonIcon icon) {
+    _dispButtonImage(px, py, pz, sx, sy, cl, icon, true);
+}
 
-    if (No_Trans) {
-        return;
-    }
-
-    oricol.color = -1;
-    oricol.argb.a = (0xFF - cl);
-    prm.tex_code = ppgGetUsingTextureHandle(&ppgScrTex, 5) | (ppgGetUsingPaletteHandle(&ppgScrPalShot, 0) << 0x10);
-    prm.v[0].x = px;
-    prm.v[0].y = py;
-    prm.v[3].x = (px + sx);
-    prm.v[3].y = (py + sy);
-    prm.v[0].z = prm.v[3].z = PrioBase[pz];
-    prm.t[0].s = scrnAddTex1UV[ix][0] / 256.0f;
-    prm.t[3].s = (scrnAddTex1UV[ix][0] + scrnAddTex1UV[ix][2]) / 256.0f;
-    prm.t[0].t = scrnAddTex1UV[ix][1] / 128.0f;
-    prm.t[3].t = (scrnAddTex1UV[ix][1] + scrnAddTex1UV[ix][3]) / 128.0f;
-    flSetRenderState(FLRENDER_TEXSTAGE0, prm.tex_code);
-    Renderer_DrawSprite(&prm, oricol.color);
+void dispButtonImage2(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, ButtonIcon icon) {
+    _dispButtonImage(px, py, pz, sx, sy, cl, icon, false);
 }
 
 void dispSaveLoadTitle(void* ewk) {

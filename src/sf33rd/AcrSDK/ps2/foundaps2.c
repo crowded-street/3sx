@@ -13,14 +13,16 @@
 #include "sf33rd/AcrSDK/ps2/ps2PAD.h"
 #include "structs.h"
 
+#include <SDL3/SDL.h>
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 FLPS2State flPs2State;
-FLTexture flTexture[256];
-FLTexture flPalette[1088];
+FLTexture flTexture[FL_TEXTURE_MAX];
+FLTexture flPalette[FL_PALETTE_MAX];
 s32 flWidth;
 s32 flHeight;
 u32 flSystemRenderOperation;
@@ -50,14 +52,14 @@ s32 flInitialize() {
 static s32 system_work_init() {
     void* temp;
 
-    flMemset(&flPs2State, 0, sizeof(FLPS2State));
-    temp = malloc(0x01800000);
+    SDL_zero(flPs2State);
+    temp = malloc(0x1800000);
 
     if (temp == NULL) {
         return 0;
     }
 
-    fmsInitialize(&flFMS, temp, 0x01800000, 0x40);
+    fmsInitialize(&flFMS, temp, 0x1800000, 0x40);
     const int system_memory_size = 0xA00000;
     temp = flAllocMemoryS(system_memory_size);
     mflInit(temp, system_memory_size, 0x40);

@@ -17,6 +17,18 @@ typedef struct {
     u8 cy;
 } SAFrame;
 
+typedef enum ButtonIcon {
+    BUTTON_ICON_WEST = 0,
+    BUTTON_ICON_NORTH,
+    BUTTON_ICON_RIGHT_SHOULDER,
+    BUTTON_ICON_LEFT_SHOULDER,
+    BUTTON_ICON_SOUTH,
+    BUTTON_ICON_EAST,
+    BUTTON_ICON_RIGHT_TRIGGER,
+    BUTTON_ICON_LEFT_TRIGGER,
+    BUTTON_ICON_SAVE_LOAD,
+} ButtonIcon;
+
 // MARK: - Unhandled
 
 extern SAFrame sa_frame[3][48];
@@ -93,8 +105,8 @@ void Akaobi();
 void Training_Disp_Work_Clear();
 void Training_Damage_Set(s16 damage, s16 /* unused */, u8 kezuri);
 void Training_Data_Disp();
-void dispButtonImage(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, s32 ix);
-void dispButtonImage2(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, s32 ix);
+void dispButtonImage(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, ButtonIcon icon);
+void dispButtonImage2(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, ButtonIcon icon);
 void dispSaveLoadTitle(void* ewk);
 
 #endif

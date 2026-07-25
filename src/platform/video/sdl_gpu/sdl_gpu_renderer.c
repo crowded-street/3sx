@@ -358,6 +358,12 @@ static void SDLGPURenderer_CreateTexture(Uint32 th) {
         tex_create_info.palette_type = PALETTE_NONE;
         break;
 
+    case SCE_GS_PSMCT32:
+        tex_create_info.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
+        tex_create_info.size = fl_texture->width * fl_texture->height * 4;
+        tex_create_info.palette_type = PALETTE_NONE;
+        break;
+
     default:
         fatal_error("Unhandled pixel format: %d", fl_texture->format);
         break;
