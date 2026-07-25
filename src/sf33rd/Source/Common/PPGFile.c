@@ -14,10 +14,6 @@
 #include <SDL3/SDL.h>
 
 #define MAGIC_TO_INT(str) ((str[0] << 0x18) | (str[1] << 0x10) | (str[2] << 0x8) | (str[3]))
-#define REVERT_U32(val)                                                                                                \
-    (((val & 0xFF) << 0x18) | ((val & 0xFF00) << 8) | ((val >> 8) & 0xFF00) | ((val >> 0x18) & 0xFF))
-#define REVERT_U16(val) (((val >> 8) & 0xFF) | ((val & 0xFF) << 8))
-#define REVERT_U8(val) (((val << 4) & 0xF0) | ((val >> 4) & 0xF))
 
 #define CODE_0(val) ((val & 0xF0) << 8) + ((val & 0xF) << 4)
 #define CODE_1(val) ((val & 0x38) << 0xA) + ((val & 7) << 5)
@@ -42,13 +38,13 @@ s16* dctex_linear;
 s32 ppgCheckPaletteDataBe(Palette* pch);
 void ppgWriteQuadOnly(Vertex* pos, u32 col, u32 texCode);
 void ppgWriteQuadOnly2(Vertex* pos, u32 col, u32 texCode);
-void ppgChangeDataEndian(u8* adrs, s32 size, s32 dendL, s32 col4, s32 depth, s32 excdot);
+void ppgChangeDataEndian(u8* adrs, s32 size, s32 dendL, s32 col4, s32 depth);
 void ppgSetupContextFromPPL(PPLFileHeader* ppl, plContext* bits);
 void ppgSetupContextFromPPG(PPGFileHeader* ppg, plContext* bits);
 
 void ppg_Initialize(void* lcmAdrs, s32 lcmSize) {
     if (lcmAdrs == NULL) {
-        while (1) {}
+        flLogOut("ppg_Initialize: lcmAdrs is NULL");
     }
 
     mmHeapInitialize(&ppg_w.mm, lcmAdrs, lcmSize, ALIGN_UP(sizeof(_MEMMAN_CELL), 16), "- for PPG -");
@@ -455,32 +451,31 @@ s32 ppgSetupCmpChunk(u8* srcAdrs, s32 num, u8* dstAdrs) {
     while (1) {
         ppx = (PPXFileHeader*)(srcAdrs + ofs);
 
-        if (MAGIC_TO_INT("pEND") == REVERT_U32(ppx->magic)) {
+        if (MAGIC_TO_INT("pEND") == SDL_Swap32BE(ppx->magic)) {
             return -1;
         }
 
-        if (MAGIC_TO_INT("pCMP") != REVERT_U32(ppx->magic)) {
-            ofs += (REVERT_U32(ppx->fileSize) + 3) & ~3;
+        if (MAGIC_TO_INT("pCMP") != SDL_Swap32BE(ppx->magic)) {
+            ofs += ALIGN_UP(SDL_Swap32BE(ppx->fileSize), 4);
             continue;
         }
 
         if (num > 0) {
             num -= 1;
-            ofs += (REVERT_U32(ppx->fileSize) + 3) & ~3;
+            ofs += ALIGN_UP(SDL_Swap32BE(ppx->fileSize), 4);
             continue;
         }
 
         break;
     }
 
-    mltSize = REVERT_U32(ppx->expSize);
-    cmpSize = REVERT_U32(ppx->fileSize) - 0x10;
+    mltSize = SDL_Swap32BE(ppx->expSize);
+    cmpSize = SDL_Swap32BE(ppx->fileSize) - sizeof(PPXFileHeader);
     cmpAdrs = ppx + 1;
     koCmpr = ppx->compress & 3;
 
     if (mltSize != ppgDecompress(koCmpr, cmpAdrs, cmpSize, dstAdrs, mltSize)) {
-        flLogOut("圧縮データの解凍に失敗しました。\n"); // Failed to decompress the compressed data.
-        while (1) {}
+        flLogOut("ppgSetupCmpChunk: Failed to decompress data");
     }
 
     return 1;
@@ -503,7 +498,7 @@ s32 ppgSetupPalChunk(Palette* pch, u8* adrs, s32 size, s32 ixNum1st, s32 num, s3
     }
 
     if (pch->be) {
-        while (1) {}
+        flLogOut("ppgSetupPalChunk: palette is already in use");
     }
 
     pch->be = 0;
@@ -517,107 +512,81 @@ s32 ppgSetupPalChunk(Palette* pch, u8* adrs, s32 size, s32 ixNum1st, s32 num, s3
     while (1) {
         ppl = (PPLFileHeader*)(adrs + ofs);
 
-        if (MAGIC_TO_INT("pEND") == REVERT_U32(ppl->magic)) {
+        if (MAGIC_TO_INT("pEND") == SDL_Swap32BE(ppl->magic)) {
             return -1;
         }
 
-        if (MAGIC_TO_INT("pPAL") != REVERT_U32(ppl->magic)) {
-            ofs += (REVERT_U32(ppl->fileSize) + 3) & ~3;
+        if (MAGIC_TO_INT("pPAL") != SDL_Swap32BE(ppl->magic)) {
+            ofs += ALIGN_UP(SDL_Swap32BE(ppl->fileSize), 4);
             continue;
         }
 
         if (num > 0) {
             num -= 1;
-            ofs += (REVERT_U32(ppl->fileSize) + 3) & ~3;
+            ofs += ALIGN_UP(SDL_Swap32BE(ppl->fileSize), 4);
             continue;
         }
 
         break;
     }
 
-    cmpSize = REVERT_U32(ppl->fileSize) - 16;
+    cmpSize = SDL_Swap32BE(ppl->fileSize) - sizeof(PPLFileHeader);
     cmpAdrs = ppl + 1;
     pch->c_mode = ppl->c_mode & 3;
-    pch->total = REVERT_U16(ppl->palettes);
+    pch->total = SDL_Swap16BE(ppl->palettes);
     col_items = pplColorModeWidth[pch->c_mode] + 1;
     koCmpr = ppl->compress & 3;
     ppgSetupContextFromPPL(ppl, &bits);
     pch->handle = ppgMallocF(pch->total * 2);
 
-    if (pch->handle != NULL) {
-        for (i = 0; i < pch->total; i++) {
-            pch->handle[i] = 0;
-        }
-
-        mltSize = bits.bitdepth * (pch->total * col_items);
-
-        if (koCmpr != 0) {
-            mltAdrs = ppgPullDecBuff(mltSize);
-        } else {
-            mltAdrs = cmpAdrs;
-        }
-
-        if (mltAdrs == NULL) {
-            // Failed to allocate palette data decompression area.
-            flLogOut("パレットデータ解凍領域の確保に失敗しました。\n");
-            goto error_handler;
-        }
-
-        if (mltSize != ppgDecompress(koCmpr, cmpAdrs, cmpSize, mltAdrs, mltSize)) {
-            flLogOut("パレットデータの解凍に失敗しました。\n"); // Failed to decompress the palette data.
-            ppgPushDecBuff(mltAdrs);
-            goto error_handler;
-        }
-
-        ppgChangeDataEndian(mltAdrs, mltSize, ppl->c_mode & 4, ppl->formARGB == 0x8888, bits.bitdepth, 0);
-
-        if (koCmpr == 0) {
-            ppl->c_mode |= 4;
-        }
-
-        bits.ptr = mltAdrs;
-
-        for (i = 0; i < pch->total; i++) {
-            pch->handle[i] = flCreatePaletteHandle(&bits, 0);
-
-            if (pch->handle[i] == 0) {
-                flLogOut("パレットハンドルの取得に失敗しました。\n"); // Failed to acquire palette handle.
-
-                if (koCmpr == 0) {
-                    goto error_handler;
-                }
-
-                ppgPushDecBuff(mltAdrs);
-                goto error_handler;
-            }
-
-            bits.ptr = (u8*)bits.ptr + (col_items * bits.bitdepth);
-        }
-
-        if (koCmpr != 0) {
-            ppgPushDecBuff(mltAdrs);
-        }
-        pch->be = 1;
-        return 1;
+    if (pch->handle == NULL) {
+        flLogOut("ppgSetupPalChunk: Failed to allocate palette memory");
     }
 
-error_handler:
-    if (pch->handle != NULL) {
-        for (i = 0; i < pch->total; i++) {
-            if (pch->handle[i]) {
-                flReleasePaletteHandle(pch->handle[i]);
-            }
-        }
-
-        ppgFree(pch->handle);
+    for (i = 0; i < pch->total; i++) {
+        pch->handle[i] = 0;
     }
 
-    if ((koCmpr != 0) && (mltAdrs != NULL)) {
+    mltSize = bits.bitdepth * (pch->total * col_items);
+
+    if (koCmpr != 0) {
+        mltAdrs = ppgPullDecBuff(mltSize);
+    } else {
+        mltAdrs = cmpAdrs;
+    }
+
+    if (mltAdrs == NULL) {
+        flLogOut("ppgSetupPalChunk: Failed to allocate palette data decompression area");
+    }
+
+    if (mltSize != ppgDecompress(koCmpr, cmpAdrs, cmpSize, mltAdrs, mltSize)) {
+        flLogOut("ppgSetupPalChunk: Failed to decompress the palette data");
+    }
+
+    ppgChangeDataEndian(mltAdrs, mltSize, ppl->c_mode & 4, ppl->formARGB == 0x8888, bits.bitdepth);
+
+    if (koCmpr == 0) {
+        ppl->c_mode |= 4;
+    }
+
+    bits.ptr = mltAdrs;
+
+    for (i = 0; i < pch->total; i++) {
+        pch->handle[i] = flCreatePaletteHandle(&bits, 0);
+
+        if (pch->handle[i] == 0) {
+            flLogOut("ppgSetupPalChunk: Failed to acquire palette handle");
+        }
+
+        bits.ptr = (u8*)bits.ptr + (col_items * bits.bitdepth);
+    }
+
+    if (koCmpr != 0) {
         ppgPushDecBuff(mltAdrs);
     }
 
-    pch->handle = NULL;
-    while (1) {}
+    pch->be = 1;
+    return 1;
 }
 
 s32 ppgSetupPalChunkDir(Palette* pch, PPLFileHeader* ppl, u8* adrs, s32 ixNum1st, s32 /* unused */) {
@@ -629,7 +598,7 @@ s32 ppgSetupPalChunkDir(Palette* pch, PPLFileHeader* ppl, u8* adrs, s32 ixNum1st
     }
 
     if (pch->be) {
-        while (1) {}
+        flLogOut("ppgSetupPalChunkDir: Palette is already in use");
     }
 
     pch->be = 0;
@@ -638,7 +607,7 @@ s32 ppgSetupPalChunkDir(Palette* pch, PPLFileHeader* ppl, u8* adrs, s32 ixNum1st
     pch->c_mode = ppl->c_mode & 3;
     ppgSetupContextFromPPL(ppl, &bits);
     pch->srcSize = bits.pitch * bits.height;
-    pch->total = REVERT_U16(ppl->palettes);
+    pch->total = SDL_Swap16BE(ppl->palettes);
     pch->handle = ppgMallocF(pch->total * 2);
 
     if (pch->handle != NULL) {
@@ -647,7 +616,9 @@ s32 ppgSetupPalChunkDir(Palette* pch, PPLFileHeader* ppl, u8* adrs, s32 ixNum1st
         }
 
         ppgChangeDataEndian(
-            adrs, pch->total * (bits.pitch * bits.height), ppl->c_mode & 4, ppl->formARGB == 0x8888, bits.bitdepth, 0);
+            adrs, pch->total * (bits.pitch * bits.height), ppl->c_mode & 4, ppl->formARGB == 0x8888, bits.bitdepth
+        );
+
         ppl->c_mode |= 4;
 
         for (i = 0; i < pch->total; i++) {
@@ -677,42 +648,25 @@ error_handler:
     }
 
     pch->handle = NULL;
-    flLogOut("パレットハンドルの取得に失敗しました。( dir )\n"); // Failed to acquire palette handle. (dir)
-    while (1) {}
+    flLogOut("ppgSetupPalChunkDir: Failed to acquire palette handle");
 }
 
-void ppgChangeDataEndian(u8* adrs, s32 size, s32 dendL, s32 col4, s32 depth, s32 excdot) {
-    s32 i;
-    u32* c4;
-    u16* c2;
-
-    if (depth == 1) {
+void ppgChangeDataEndian(u8* adrs, s32 size, s32 dendL, s32 col4, s32 depth) {
+    if ((depth == 1) || (depth == 0) || (dendL != 0)) {
         return;
     }
 
-    if (depth != 0) {
-        if (dendL == 0) {
-            if (col4 != 0) {
-                c4 = (u32*)adrs;
+    if (col4 != 0) {
+        u32* c4 = adrs;
 
-                for (i = 0; i < size / 4; i++) {
-                    c4[i] = REVERT_U32(c4[i]);
-                }
-            } else {
-                c2 = (u16*)adrs;
-
-                for (i = 0; i < size / 2; i++) {
-                    c2[i] = REVERT_U16(c2[i]);
-                }
-            }
+        for (int i = 0; i < size / 4; i++) {
+            c4[i] = SDL_Swap32BE(c4[i]);
         }
+    } else {
+        u16* c2 = adrs;
 
-        return;
-    }
-
-    if (excdot != 0) {
-        for (i = 0; i < size; i++) {
-            adrs[i] = REVERT_U8(adrs[i]);
+        for (int i = 0; i < size / 2; i++) {
+            c2[i] = SDL_Swap16BE(c2[i]);
         }
     }
 }
@@ -727,7 +681,7 @@ s32 ppgSetupTexChunkSeqs(Texture* tch, PPGFileHeader* ppg, u8* adrs, s32 ixNum1s
     }
 
     if (tch->be) {
-        while (1) {}
+        flLogOut("ppgSetupTexChunkSeqs: texture is already in use");
     }
 
     tch->be = 0;
@@ -745,8 +699,7 @@ s32 ppgSetupTexChunkSeqs(Texture* tch, PPGFileHeader* ppg, u8* adrs, s32 ixNum1s
     tch->handle = ppgMallocF(ixNums * 4);
 
     if (tch->handle == NULL) {
-        flLogOut("テクスチャハンドル記憶領域が確保できませんでした。\n"); // Failed to allocate texture handle memory.
-        while (1) {}
+        flLogOut("ppgSetupTexChunkSeqs: Failed to allocate memory for texture handle");
     }
 
     for (i = 0; i < ixNums; i++) {
@@ -790,8 +743,7 @@ error_handler:
 
     ppgFree(tch->handle);
     tch->handle = NULL;
-    flLogOut("スプライト用テクスチャハンドルの取得に失敗しました。\n"); // Failed to acquire sprite texture handle.
-    while (1) {}
+    flLogOut("ppgSetupTexChunkSeqs: Failed to acquire sprite texture handle");
 }
 
 void ppgRenewDotDataSeqs(Texture* tch, u32 gix, u32* srcRam, u32 code, u32 size) {
@@ -977,7 +929,7 @@ s32 ppgSetupTexChunk_1st(Texture* tch, u8* adrs, ssize_t size, s32 ixNum1st, s32
     }
 
     if (tch->be) {
-        while (1) {}
+        flLogOut("ppgSetupTexChunk_1st: Texture is already in use");
     }
 
     tch->be = 0;
@@ -994,8 +946,7 @@ s32 ppgSetupTexChunk_1st(Texture* tch, u8* adrs, ssize_t size, s32 ixNum1st, s32
     tch->handle = (TextureHandle*)ppgMallocF(ixNums * sizeof(TextureHandle));
 
     if (tch->handle == NULL) {
-        flLogOut("テクスチャハンドル記憶領域が確保できませんでした。\n"); // Failed to allocate texture handle memory.
-        goto error_handler;
+        flLogOut("ppgSetupTexChunk_1st: Failed to allocate memory for texture handle");
     }
 
     for (i = 0; i < ixNums; i++) {
@@ -1008,28 +959,25 @@ s32 ppgSetupTexChunk_1st(Texture* tch, u8* adrs, ssize_t size, s32 ixNum1st, s32
     while (1) {
         ppg = (PPGFileHeader*)(tch->srcAdrs + ofs);
 
-        if (MAGIC_TO_INT("pEND") != REVERT_U32(ppg->magic)) {
-            if (MAGIC_TO_INT("pTEX") == REVERT_U32(ppg->magic)) {
+        if (MAGIC_TO_INT("pEND") != SDL_Swap32BE(ppg->magic)) {
+            if (MAGIC_TO_INT("pTEX") == SDL_Swap32BE(ppg->magic)) {
                 tch->textures += 1;
             }
 
-            ofs += (REVERT_U32(ppg->fileSize) + 3) & ~3;
+            ofs += ALIGN_UP(SDL_Swap32BE(ppg->fileSize), 4);
         } else {
             break;
         }
     }
 
     if (tch->textures == 0) {
-        flLogOut("テクスチャデータが見つかりませんでした。\n"); // Texture data was not found.
-        goto error_handler;
+        flLogOut("ppgSetupTexChunk_1st: Texture data was not found");
     }
 
     tch->offset = ppgMallocF(tch->textures * 4);
 
     if (tch->offset == NULL) {
-        // Failed to allocate memory for the texture data offset table.
-        flLogOut("テクスチャデータオフセットテーブルの記憶領域が確保できませんでした。\n");
-        goto error_handler;
+        flLogOut("ppgSetupTexChunk_1st: Failed to allocate memory for the texture offset table");
     }
 
     ofs = 0;
@@ -1037,12 +985,12 @@ s32 ppgSetupTexChunk_1st(Texture* tch, u8* adrs, ssize_t size, s32 ixNum1st, s32
     while (1) {
         ppg = (PPGFileHeader*)(tch->srcAdrs + ofs);
 
-        if (MAGIC_TO_INT("pEND") != REVERT_U32(ppg->magic)) {
-            if (MAGIC_TO_INT("pTEX") == REVERT_U32(ppg->magic)) {
+        if (MAGIC_TO_INT("pEND") != SDL_Swap32BE(ppg->magic)) {
+            if (MAGIC_TO_INT("pTEX") == SDL_Swap32BE(ppg->magic)) {
                 tch->offset[tch->accnum++] = ofs;
             }
 
-            ofs += (REVERT_U32(ppg->fileSize) + 3) & ~3;
+            ofs += ALIGN_UP(SDL_Swap32BE(ppg->fileSize), 4);
         } else {
             break;
         }
@@ -1051,19 +999,6 @@ s32 ppgSetupTexChunk_1st(Texture* tch, u8* adrs, ssize_t size, s32 ixNum1st, s32
     tch->accnum = 0;
     tch->be = 1;
     return 1;
-
-error_handler:
-    if (tch->handle != NULL) {
-        ppgFree(tch->handle);
-    }
-
-    if (tch->offset != NULL) {
-        ppgFree(tch->offset);
-    }
-
-    tch->handle = NULL;
-    tch->offset = NULL;
-    while (1) {}
 }
 
 s32 ppgSetupTexChunk_1st_Accnum(Texture* tch, u16 accnum) {
@@ -1084,18 +1019,14 @@ s32 ppgSetupTexChunk_2nd(Texture* tch, s32 ixNum) {
     }
 
     if (tch->textures <= tch->accnum) {
-        // Handle acquisition process has been called more times than the number of data stored in the texture chunk.
-        flLogOut("ハンドル取得処理がテクスチャチャンクに格納されているデータ数以上に呼ばれました。\n");
-        while (1) {}
+        flLogOut("ppgSetupTexChunk_2nd: Handle acquisition process has been called too many times");
     }
 
     hnof = tch->handle + (ixNum - tch->ixNum1st);
     hnof->b16[1] = tch->accnum++;
 
     if (tch->srcAdrs == NULL) {
-        // Texture chunk data has already been lost.
-        flLogOut("テクスチャチャンクデータが既に失われています。\n");
-        while (1) {}
+        flLogOut("ppgSetupTexChunk_2nd: Texture data is NULL");
     }
 
     ppg = (PPGFileHeader*)(tch->srcAdrs + tch->offset[hnof->b16[1]]);
@@ -1117,8 +1048,6 @@ s32 ppgSetupTexChunk_3rd(Texture* tch, s32 ixNum, u32 attribute) {
     void* cmpAdrs;
     void* mltAdrs;
 
-    s32 unused_s5;
-
     if (tch == NULL) {
         tch = ppg_w.cur->tex;
     }
@@ -1134,43 +1063,33 @@ s32 ppgSetupTexChunk_3rd(Texture* tch, s32 ixNum, u32 attribute) {
     }
 
     if (tch->srcAdrs == NULL) {
-        // Texture chunk data has already been lost.
-        flLogOut("テクスチャチャンクデータが既に失われています。\n");
-        while (1) {}
+        flLogOut("ppgSetupTexChunk_3rd: Texture chunk data is NULL");
     }
 
     ppg = (PPGFileHeader*)(tch->srcAdrs + (tch->offset[hnof->b16[1] & 0xFFF]));
     ppgSetupContextFromPPG(ppg, &bits);
     koCmpr = ppg->compress & 3;
-    cmpSize = (u16)REVERT_U16(ppg->transNums) * 3 + 0x10;
+    cmpSize = (u16)SDL_Swap16BE(ppg->transNums) * 3 + 0x10;
     cmpAdrs = (u8*)ppg + cmpSize;
-    cmpSize = REVERT_U32(ppg->fileSize) - cmpSize;
+    cmpSize = SDL_Swap32BE(ppg->fileSize) - cmpSize;
     mltSize = bits.height * bits.pitch;
     mltAdrs = ppgPullDecBuff(mltSize);
 
     if (mltAdrs == NULL) {
-        // Failed to allocate texture data expansion area.
-        flLogOut("テクスチャデータ展開領域が確保できませんでした。\n");
-        while (1) {}
+        flLogOut("ppgSetupTexChunk_3rd: Failed to allocate texture data buffer");
     }
 
     if (mltSize != ppgDecompress(koCmpr, cmpAdrs, cmpSize, mltAdrs, mltSize)) {
-        // Failed to acquire sprite texture handle.
-        flLogOut("テクスチャデータの解凍に失敗しました。\n");
-        ppgPushDecBuff(mltAdrs);
-        while (1) {}
+        flLogOut("ppgSetupTexChunk_3rd: Failed to acquire sprite texture handle");
     }
 
-    unused_s5 = 0;
-    ppgChangeDataEndian(mltAdrs, mltSize, ppg->pixel & 4, ppg->formARGB == 0x8888, bits.bitdepth, unused_s5);
+    ppgChangeDataEndian(mltAdrs, mltSize, ppg->pixel & 4, ppg->formARGB == 0x8888, bits.bitdepth);
     bits.ptr = mltAdrs;
     hnof->b16[0] = flCreateTextureHandle(&bits, attribute);
     ppgPushDecBuff(mltAdrs);
 
     if (hnof->b16[0] == 0) {
-        // Failed to acquire texture handle.
-        flLogOut("テクスチャハンドルの取得に失敗しました。\n");
-        while (1) {}
+        flLogOut("ppgSetupTexChunk_3rd: Failed to acquire texture handle");
     }
 
     return 1;
@@ -1184,7 +1103,7 @@ void ppgSetupContextFromPPL(PPLFileHeader* ppl, plContext* bits) {
     bits->pitch = bits->width * bits->bitdepth;
     bits->ptr = NULL;
 
-    switch ((u16)REVERT_U16(ppl->formARGB)) {
+    switch (SDL_Swap16BE(ppl->formARGB)) {
     case 0x1555:
         bits->pixelformat.rl = 5;
         bits->pixelformat.rs = 0xA;
@@ -1281,7 +1200,7 @@ void ppgSetupContextFromPPG(PPGFileHeader* ppg, plContext* bits) {
         break;
     }
 
-    switch ((u16)REVERT_U16(ppg->formARGB)) {
+    switch (SDL_Swap16BE(ppg->formARGB)) {
     case 0x1555:
         bits->pixelformat.rl = 5;
         bits->pixelformat.rs = 0xA;

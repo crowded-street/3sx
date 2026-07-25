@@ -95,5 +95,4 @@ s32 flLogOut(const char* format, ...) {
     va_end(args);
 
     fatal_error(str);
-    return 1;
 }

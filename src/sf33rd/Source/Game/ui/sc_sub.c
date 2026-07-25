@@ -205,21 +205,17 @@ void Scrscreen_Init() {
     ppgScrListShot.pal = &ppgScrPalShot;
     ppgScrListOpt.pal = &ppgScrPalOpt;
     ppgSetupCurrentDataList(&ppgScrList);
-    loadSize = load_it_use_any_key2(10, &loadAdrs, &key, 2, 0); // scrscrn.ppg
+    loadSize = load_it_use_any_key2(10, &loadAdrs, &key, 2, 0); // scrscrn.ppg 
 
     if (loadSize == 0) {
-        // Could not load texture for score screen.\n
-        flLogOut("スコアスクリーン用のテクスチャが読み込めませんでした。\n");
-        while (1) {
-            // Do nothing
-        }
+        flLogOut("Couldn't load scrscrn.ppg\n");
     }
 
-    ppgSetupPalChunk(&ppgScrPalOpt, (u8*)loadAdrs, loadSize, 0, 3, 1);
-    ppgSetupPalChunk(&ppgScrPalShot, (u8*)loadAdrs, loadSize, 0, 2, 1);
-    ppgSetupPalChunk(&ppgScrPalFace, (u8*)loadAdrs, loadSize, 0, 1, 1);
-    ppgSetupPalChunk(NULL, (u8*)loadAdrs, loadSize, 0, 0, 1);
-    ppgSetupTexChunk_1st(NULL, (u8*)loadAdrs, loadSize, 0, 6, 0, 0);
+    ppgSetupPalChunk(&ppgScrPalOpt, loadAdrs, loadSize, 0, 3, 1);
+    ppgSetupPalChunk(&ppgScrPalShot, loadAdrs, loadSize, 0, 2, 1);
+    ppgSetupPalChunk(&ppgScrPalFace, loadAdrs, loadSize, 0, 1, 1);
+    ppgSetupPalChunk(NULL, loadAdrs, loadSize, 0, 0, 1);
+    ppgSetupTexChunk_1st(NULL, loadAdrs, loadSize, 0, 6, 0, 0);
 
     for (i = 0; i < 3; i++) {
         ppgSetupTexChunk_2nd(NULL, i);
