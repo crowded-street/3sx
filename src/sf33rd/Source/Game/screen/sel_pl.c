@@ -288,19 +288,9 @@ void Check_Use_Gill() {
         return;
     }
 
-    permission_player[1].ok[0] = 0;
-    permission_player[4].ok[0] = 0;
-    permission_player[5].ok[0] = 0;
-
-    for (ix = 1; ix < 20; ix++) {
-        if (save_w[1].PL_Color[0][ix] == 0) {
-            return;
-        }
-    }
-
-    permission_player[1].ok[0] = 1;
-    permission_player[4].ok[0] = 1;
-    permission_player[5].ok[0] = 1;
+    permission_player[PRESENT_MODE_LOCAL].ok[CHAR_GILL] = 1;
+    permission_player[PRESENT_MODE_NORMAL_TRAINING].ok[CHAR_GILL] = 1;
+    permission_player[PRESENT_MODE_PARRY_TRAINING].ok[CHAR_GILL] = 1;
 }
 
 void Sel_PL_Cont_2nd() {

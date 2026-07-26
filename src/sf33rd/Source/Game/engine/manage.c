@@ -1224,12 +1224,7 @@ s32 Check_Ending() {
         }
 
         if (Check_Extra_Setting() == 0) {
-            for (xx = 1; xx < 5; xx++) {
-                save_w[xx].PL_Color[0][My_char[WINNER]] = 1;
-                save_w[xx].PL_Color[1][My_char[WINNER]] = 1;
-            }
-
-            if (My_char[WINNER] == 0) {
+            if (My_char[WINNER] == CHAR_GILL) {
                 save_w[Present_Mode].Extra_Option = 1;
             }
         }
