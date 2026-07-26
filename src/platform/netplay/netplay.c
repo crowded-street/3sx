@@ -353,6 +353,7 @@ static void configure_gekko() {
 #endif
 
     printf("starting a session for player %d at port %hu\n", player_number, local_port);
+    fflush(stdout); // has to survive the window being closed
 
     char remote_address_str[100];
     SDL_snprintf(remote_address_str, sizeof(remote_address_str), "%s:%hu", remote_ip, remote_port);
@@ -532,7 +533,14 @@ static void dump_state(const State* src, const char* relative) {
 }
 
 static void dump_saved_state(int frame) {
-    const int slot = frame % STATE_BUFFER_MAX;
+    const int slot = state_slot(frame);
+
+    // A desync can be reported after the slot has been reused; dumping it anyway
+    // would compare two unrelated frames.
+    if (state_buffer_frame[slot] != frame) {
+        printf("Frame %d has already been overwritten in the state buffer, not dumping.\n", frame);
+        return;
+    }
 
     // The re-simulated state is the one the session ended up agreeing on.
     const State* src =
