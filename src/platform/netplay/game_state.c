@@ -11,6 +11,7 @@
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
+#include "sf33rd/Source/Game/system/sysdir.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/ui/count.h"
 #include "sf33rd/Source/Game/ui/sc_sub.h"
@@ -511,6 +512,7 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(bonus_pts);
     GS_SAVE(hit_num);
     GS_SAVE(sa_kind);
+    GS_SAVE(chainex_check);
     GS_SAVE(end_flag);
     GS_SAVE(calc_hit);
     GS_SAVE(score_calc);
@@ -1138,6 +1140,7 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(bonus_pts);
     GS_LOAD(hit_num);
     GS_LOAD(sa_kind);
+    GS_LOAD(chainex_check);
     GS_LOAD(end_flag);
     GS_LOAD(calc_hit);
     GS_LOAD(score_calc);

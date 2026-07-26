@@ -501,6 +501,7 @@ typedef struct GameState {
     s8 bonus_pts[2];
     s16 hit_num;
     u8 sa_kind;
+    u8 chainex_check[2][36];
     u8 end_flag[2];
     s16 calc_hit[2][10];
     s16 score_calc[2][12];
