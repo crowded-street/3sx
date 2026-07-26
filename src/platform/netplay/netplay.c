@@ -180,7 +180,18 @@ static void setup_vs_mode() {
     Mode_Type = MODE_NETWORK;
     cpExitTask(TASK_MENU);
 
-    E_Timer = 0; // E_Timer can have different values depending on when the session was initiated
+    // These depend on when the session was initiated
+    E_Timer = 0;
+    SDL_zeroa(E_No);
+
+    // Peers spend different amounts of time in the menus, and nothing on the way
+    // into a fight clears what that leaves behind.
+    Next_Demo = 0;
+    G_Timer = 0;
+
+    // bg_initialize() reinitialises only part of each layer, and l_limit/r_limit are
+    // written by the opening alone.
+    SDL_zeroa(bg_w.bgw);
 
     Deley_Shot_No[0] = 0;
     Deley_Shot_No[1] = 0;
