@@ -1172,9 +1172,7 @@ void Setup_Com_Color() {
 void Setup_PL_Color(s16 PL_id, u16 sw) {
     s8 id_0;
     s8 id_1;
-    u16 sw_new;
-
-    sw_new = 0;
+    u16 sw_new = 0;
 
     if (plw[PL_id ^ 1].wu.operator == 0) {
         id_0 = -1;
@@ -1191,20 +1189,10 @@ void Setup_PL_Color(s16 PL_id, u16 sw) {
     if (plw[PL_id].wu.operator != 0 && My_char[PL_id] == CHAR_GILL) {
         sw_new = 0;
     } else {
-        if (Debug_w[53]) {
-            if (PL_id == 0) {
-                sw_new = p1sw_0;
-            } else {
-                sw_new = p2sw_0;
-            }
-        }
-
-        if (save_w[Present_Mode].PL_Color[PL_id][My_char[PL_id]]) {
-            if (PL_id == 0) {
-                sw_new = p1sw_0;
-            } else {
-                sw_new = p2sw_0;
-            }
+        if (PL_id == 0) {
+            sw_new = p1sw_0;
+        } else {
+            sw_new = p2sw_0;
         }
     }
 
