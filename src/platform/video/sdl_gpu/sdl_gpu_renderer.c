@@ -168,7 +168,8 @@ static const char* get_shader_entrypoint(SDL_GPUShaderFormat format) {
 }
 
 static SDL_GPUShader* create_shader(
-    const char* filename, SDL_GPUDevice* device, SDL_GPUShaderStage stage, Uint32 num_samplers, Uint32 num_uniform_buffers
+    const char* filename, SDL_GPUDevice* device, SDL_GPUShaderStage stage, Uint32 num_samplers,
+    Uint32 num_uniform_buffers
 ) {
     const char* base_path = SDL_GetBasePath();
     char* full_path = NULL;
@@ -577,10 +578,13 @@ static SDL_Window* SDLGPURenderer_Init(const SDLRenderBackendInitInfo* init_info
     SDL_GPUShader* vertex_shader = create_shader("vert", device, SDL_GPU_SHADERSTAGE_VERTEX, 0, 0);
     SDL_GPUShader* solid_fragment_shader = create_shader("solid.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 0, 0);
     SDL_GPUShader* direct_fragment_shader = create_shader("direct.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 1, 0);
-    SDL_GPUShader* palette_4_fragment_shader = create_shader("palette4.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 2, 0);
-    SDL_GPUShader* palette_8_fragment_shader = create_shader("palette8.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 2, 0);
+    SDL_GPUShader* palette_4_fragment_shader =
+        create_shader("palette4.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 2, 0);
+    SDL_GPUShader* palette_8_fragment_shader =
+        create_shader("palette8.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 2, 0);
     SDL_GPUShader* screen_fragment_shader = create_shader("screen.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 1, 0);
-    SDL_GPUShader* scanline_fragment_shader = create_shader("scanlines.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 1, 1);
+    SDL_GPUShader* scanline_fragment_shader =
+        create_shader("scanlines.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 1, 1);
 
     const SDL_GPUTextureFormat swapchain_texture_format = SDL_GetGPUSwapchainTextureFormat(device, window);
 
@@ -1091,15 +1095,12 @@ static void SDLGPURenderer_RenderFrame(SDL_Rect viewport) {
                 .max_depth = 1,
             }
         );
-        
 
         if (scanline_intensity > 0) {
             SDL_BindGPUGraphicsPipeline(screen_pass, scanline_pipeline);
-        }
-        else {
+        } else {
             SDL_BindGPUGraphicsPipeline(screen_pass, screen_pipeline);
         }
-
 
         SDL_BindGPUVertexBuffers(
             screen_pass,
