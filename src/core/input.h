@@ -28,8 +28,16 @@ typedef struct Input_ButtonState {
     Sint16 right_stick_y;
 } Input_ButtonState;
 
+typedef enum Input_PadType {
+    INPUT_PAD_TYPE_UNKNOWN,
+    INPUT_PAD_TYPE_KEYBOARD,
+    INPUT_PAD_TYPE_XBOX,
+    INPUT_PAD_TYPE_PLAYSTATION,
+} Input_PadType;
+
 bool Input_IsGamepadConnected(int id);
 void Input_GetButtonState(int id, Input_ButtonState* state);
+Input_PadType Input_GetPadType(int id);
 void Input_RumblePad(int id, bool low_freq_enabled, Uint8 high_freq_rumble);
 
 #endif

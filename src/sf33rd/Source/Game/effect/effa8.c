@@ -190,9 +190,9 @@ void effect_A8_move(WORK_Other_CONN* ewk) {
 
         if (ewk->wu.disp_flag) {
             if (Order_Dir[ewk->wu.dir_old]) {
-                dispButtonImage(-87, 25, 68, 22, 17, 0, 4);
+                dispButtonImage(-87, 25, 68, 22, 17, 0, 4, 0);
             } else {
-                dispButtonImage(-23, 0, 68, 22, 17, 0, 5);
+                dispButtonImage(-23, 0, 68, 22, 17, 0, 5, 0);
             }
         }
 

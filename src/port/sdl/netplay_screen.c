@@ -67,14 +67,14 @@ void NetplayScreen_Render() {
             SSPutStrPro(1, 384, 150, 9, 0xFFFFFFFF, dag.activate_url);
 
             SSPutStrPro(1, 384, 200, 9, 0xFFFFFFFF, "Press      to go back.");
-            dispButtonImage2(163, 197, 0x18, 0x13, 0xF, 0, 5);
+            dispButtonImage2(163, 197, 0x18, 0x13, 0xF, 0, 5, 0);
 
             break;
 
         case FISTBUMP_AWAITING_MATCH:
             SSPutStrPro(1, 384, 140, 9, 0xFFFFFFFF, "Finding match...");
             SSPutStrPro(1, 384, 160, 9, 0xFFFFFFFF, "Press      to cancel search.");
-            dispButtonImage2(143, 157, 0x18, 0x13, 0xF, 0, 5);
+            dispButtonImage2(143, 157, 0x18, 0x13, 0xF, 0, 5, 0);
             break;
 
         case FISTBUMP_MATCHED:
@@ -84,8 +84,8 @@ void NetplayScreen_Render() {
             SSPutStrPro(1, 384, 140, 9, 0xFFFFFFFF, match->opponent_name);
 
             SSPutStrPro(1, 384, 160, 9, 0xFFFFFFFF, "      ACCEPT      DECLINE");
-            dispButtonImage2(121, 157, 0x19, 0x13, 0xF, 0, 4);
-            dispButtonImage2(193, 157, 0x19, 0x13, 0xF, 0, 5);
+            dispButtonImage2(121, 157, 0x19, 0x13, 0xF, 0, 4, 0);
+            dispButtonImage2(193, 157, 0x19, 0x13, 0xF, 0, 5, 0);
 
             break;
 

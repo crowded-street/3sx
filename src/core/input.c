@@ -24,6 +24,14 @@ void Input_GetButtonState(int id, Input_ButtonState* state) {
 #endif
 }
 
+Input_PadType Input_GetPadType(int id) {
+#if CRS_INPUT_DRIVER_SDL
+    return SDLPad_GetPadType(id);
+#else
+    return INPUT_PAD_TYPE_PLAYSTATION;
+#endif
+}
+
 void Input_RumblePad(int id, bool low_freq_enabled, Uint8 high_freq_rumble) {
 #if CRS_INPUT_DRIVER_SDL
     SDLPad_RumblePad(id, low_freq_enabled, high_freq_rumble);

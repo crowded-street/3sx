@@ -6,6 +6,7 @@
 #include "sf33rd/Source/Game/ui/sc_sub.h"
 #include "common.h"
 #include "constants.h"
+#include "core/input.h"
 #include "core/renderer.h"
 #include "port/config/config.h"
 #include "sf33rd/AcrSDK/ps2/flps2render.h"
@@ -2337,7 +2338,6 @@ void Training_Data_Disp() {
     }
 }
 
-#if PSP
 const u8 scrnAddTex1UV[9][4] = { { 96, 0, 32, 32 },  { 63, 0, 32, 32 },  { 0, 96, 32, 32 },
                                  { 0, 64, 32, 32 },  { 0, 0, 32, 32 },   { 31, 0, 32, 32 },
                                  { 32, 96, 32, 32 }, { 32, 64, 32, 32 }, { 128, 0, 96, 128 } };
@@ -2349,9 +2349,10 @@ static void set_ps2_button_texture(Sprite* sprite, ButtonIcon icon) {
     sprite->t[0].t = scrnAddTex1UV[icon][1] / 128.0f;
     sprite->t[3].t = (scrnAddTex1UV[icon][1] + scrnAddTex1UV[icon][3]) / 128.0f;
 }
-#endif
 
-static void _dispButtonImage(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, ButtonIcon icon, bool invert_y) {
+static void _dispButtonImage(
+    s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, ButtonIcon icon, bool invert_y, int player_id
+) {
     PAL_CURSOR_COL oricol;
     Sprite prm;
 
@@ -2378,19 +2379,31 @@ static void _dispButtonImage(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, But
 #if PSP
     set_ps2_button_texture(&prm, icon);
 #else
-    XboxButtons_SetTextureParams(&prm, icon);
+    const Input_PadType pad_type = Input_GetPadType(player_id);
+
+    switch (pad_type) {
+    case INPUT_PAD_TYPE_PLAYSTATION:
+        set_ps2_button_texture(&prm, icon);
+        break;
+
+    case INPUT_PAD_TYPE_UNKNOWN:
+    case INPUT_PAD_TYPE_KEYBOARD:
+    case INPUT_PAD_TYPE_XBOX:
+        XboxButtons_SetTextureParams(&prm, icon);
+        break;
+    }
 #endif
 
     flSetRenderState(FLRENDER_TEXSTAGE0, prm.tex_code);
     Renderer_DrawSprite(&prm, oricol.color);
 }
 
-void dispButtonImage(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, ButtonIcon icon) {
-    _dispButtonImage(px, py, pz, sx, sy, cl, icon, true);
+void dispButtonImage(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, ButtonIcon icon, int player_id) {
+    _dispButtonImage(px, py, pz, sx, sy, cl, icon, true, player_id);
 }
 
-void dispButtonImage2(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, ButtonIcon icon) {
-    _dispButtonImage(px, py, pz, sx, sy, cl, icon, false);
+void dispButtonImage2(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, ButtonIcon icon, int player_id) {
+    _dispButtonImage(px, py, pz, sx, sy, cl, icon, false, player_id);
 }
 
 void dispSaveLoadTitle(void* ewk) {

@@ -245,6 +245,35 @@ void SDLPad_GetButtonState(int id, Input_ButtonState* state) {
     }
 }
 
+Input_PadType SDLPad_GetPadType(int id) {
+    const SDLPad_InputSource* input_source = &input_sources[id];
+
+    switch (input_source->type) {
+    case SDLPAD_INPUT_NONE:
+        return INPUT_PAD_TYPE_UNKNOWN;
+
+    case SDLPAD_INPUT_KEYBOARD:
+        return INPUT_PAD_TYPE_KEYBOARD;
+
+    case SDLPAD_INPUT_GAMEPAD:
+        const SDL_GamepadButtonLabel label =
+            SDL_GetGamepadButtonLabel(input_source->gamepad.gamepad, SDL_GAMEPAD_BUTTON_SOUTH);
+
+        switch (label) {
+        case SDL_GAMEPAD_BUTTON_LABEL_CROSS:
+            return INPUT_PAD_TYPE_PLAYSTATION;
+
+        case SDL_GAMEPAD_BUTTON_LABEL_A:
+            return INPUT_PAD_TYPE_XBOX;
+
+        default:
+            return INPUT_PAD_TYPE_UNKNOWN;
+        }
+    }
+
+    return INPUT_PAD_TYPE_UNKNOWN;
+}
+
 void SDLPad_RumblePad(int id, bool low_freq_enabled, Uint8 high_freq_rumble) {
     const SDLPad_InputSource* input_source = &input_sources[id];
 
