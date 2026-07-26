@@ -2,6 +2,7 @@
 
 #include "platform/video/sdl_gpu/sdl_gpu_renderer.h"
 #include "common.h"
+#include "port/config/config.h"
 #include "port/utils.h"
 #include "sf33rd/AcrSDK/ps2/flps2etc.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
@@ -98,6 +99,7 @@ static SDL_GPUGraphicsPipeline* direct_pipeline = NULL;
 static SDL_GPUGraphicsPipeline* palette_4_pipeline = NULL;
 static SDL_GPUGraphicsPipeline* palette_8_pipeline = NULL;
 static SDL_GPUGraphicsPipeline* screen_pipeline = NULL;
+static SDL_GPUGraphicsPipeline* scanline_pipeline = NULL;
 static SDL_GPUSampler* sampler = NULL;
 static SDL_GPUTexture* canvas_texture = NULL;
 static SDL_GPUTexture* depth_texture = NULL;
@@ -114,6 +116,12 @@ static _Texture textures[FL_TEXTURE_MAX] = { 0 };
 static SDL_GPUTexture* palettes[FL_PALETTE_MAX] = { NULL };
 static Sint16 latest_texture_index = 0;
 static Sint16 latest_palette_index = 0;
+static float scanline_intensity = 0.0f;
+
+typedef struct _ScanlineUniforms {
+    float scanline_intensity;
+    float padding[3];
+} _ScanlineUniforms;
 
 static _TextureCreateInfo* textures_to_create = NULL;
 static SDL_GPUTexture** textures_to_delete = NULL;
@@ -160,7 +168,7 @@ static const char* get_shader_entrypoint(SDL_GPUShaderFormat format) {
 }
 
 static SDL_GPUShader* create_shader(
-    const char* filename, SDL_GPUDevice* device, SDL_GPUShaderStage stage, Uint32 num_samplers
+    const char* filename, SDL_GPUDevice* device, SDL_GPUShaderStage stage, Uint32 num_samplers, Uint32 num_uniform_buffers
 ) {
     const char* base_path = SDL_GetBasePath();
     char* full_path = NULL;
@@ -188,7 +196,7 @@ static SDL_GPUShader* create_shader(
             .num_samplers = num_samplers,
             .num_storage_textures = 0,
             .num_storage_buffers = 0,
-            .num_uniform_buffers = 0,
+            .num_uniform_buffers = num_uniform_buffers,
         }
     );
 
@@ -556,6 +564,7 @@ static SDL_Window* SDLGPURenderer_Init(const SDLRenderBackendInitInfo* init_info
 
     arrsetcap(quads, QUADS_MAX);
     depth_texture_format = get_supported_depth_format(device);
+    scanline_intensity = SDL_clamp((float)Config_GetInt(CFG_KEY_SCANLINES), 0.0f, 100.0f) / 100.0f;
 
     // Init shaders
 
@@ -565,12 +574,13 @@ static SDL_Window* SDLGPURenderer_Init(const SDLRenderBackendInitInfo* init_info
 
     SDL_Log("Using SDL GPU driver %s with shaders from %s", SDL_GetGPUDeviceDriver(device), shader_format_path);
 
-    SDL_GPUShader* vertex_shader = create_shader("vert", device, SDL_GPU_SHADERSTAGE_VERTEX, 0);
-    SDL_GPUShader* solid_fragment_shader = create_shader("solid.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 0);
-    SDL_GPUShader* direct_fragment_shader = create_shader("direct.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 1);
-    SDL_GPUShader* palette_4_fragment_shader = create_shader("palette4.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 2);
-    SDL_GPUShader* palette_8_fragment_shader = create_shader("palette8.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 2);
-    SDL_GPUShader* screen_fragment_shader = create_shader("screen.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 1);
+    SDL_GPUShader* vertex_shader = create_shader("vert", device, SDL_GPU_SHADERSTAGE_VERTEX, 0, 0);
+    SDL_GPUShader* solid_fragment_shader = create_shader("solid.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 0, 0);
+    SDL_GPUShader* direct_fragment_shader = create_shader("direct.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 1, 0);
+    SDL_GPUShader* palette_4_fragment_shader = create_shader("palette4.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 2, 0);
+    SDL_GPUShader* palette_8_fragment_shader = create_shader("palette8.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 2, 0);
+    SDL_GPUShader* screen_fragment_shader = create_shader("screen.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 1, 0);
+    SDL_GPUShader* scanline_fragment_shader = create_shader("scanlines.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 1, 1);
 
     const SDL_GPUTextureFormat swapchain_texture_format = SDL_GetGPUSwapchainTextureFormat(device, window);
 
@@ -582,6 +592,8 @@ static SDL_Window* SDLGPURenderer_Init(const SDLRenderBackendInitInfo* init_info
         create_pipeline(device, vertex_shader, palette_8_fragment_shader, CANVAS_TEXTURE_FORMAT, true, true);
     screen_pipeline =
         create_pipeline(device, vertex_shader, screen_fragment_shader, swapchain_texture_format, false, false);
+    scanline_pipeline =
+        create_pipeline(device, vertex_shader, scanline_fragment_shader, swapchain_texture_format, false, false);
 
     SDL_ReleaseGPUShader(device, vertex_shader);
     SDL_ReleaseGPUShader(device, solid_fragment_shader);
@@ -589,6 +601,7 @@ static SDL_Window* SDLGPURenderer_Init(const SDLRenderBackendInitInfo* init_info
     SDL_ReleaseGPUShader(device, palette_4_fragment_shader);
     SDL_ReleaseGPUShader(device, palette_8_fragment_shader);
     SDL_ReleaseGPUShader(device, screen_fragment_shader);
+    SDL_ReleaseGPUShader(device, scanline_fragment_shader);
 
     // Init canvas
 
@@ -795,6 +808,7 @@ static void SDLGPURenderer_Quit() {
     SDL_ReleaseGPUGraphicsPipeline(device, palette_4_pipeline);
     SDL_ReleaseGPUGraphicsPipeline(device, palette_8_pipeline);
     SDL_ReleaseGPUGraphicsPipeline(device, screen_pipeline);
+    SDL_ReleaseGPUGraphicsPipeline(device, scanline_pipeline);
     SDL_ReleaseGPUBuffer(device, vertex_buffer);
     SDL_ReleaseGPUTransferBuffer(device, vertex_transfer_buffer);
     SDL_ReleaseGPUBuffer(device, index_buffer);
@@ -1077,8 +1091,15 @@ static void SDLGPURenderer_RenderFrame(SDL_Rect viewport) {
                 .max_depth = 1,
             }
         );
+        
 
-        SDL_BindGPUGraphicsPipeline(screen_pass, screen_pipeline);
+        if (scanline_intensity > 0) {
+            SDL_BindGPUGraphicsPipeline(screen_pass, scanline_pipeline);
+        }
+        else {
+            SDL_BindGPUGraphicsPipeline(screen_pass, screen_pipeline);
+        }
+
 
         SDL_BindGPUVertexBuffers(
             screen_pass,
@@ -1113,6 +1134,15 @@ static void SDLGPURenderer_RenderFrame(SDL_Rect viewport) {
                 },
             },
             1
+        );
+
+        SDL_PushGPUFragmentUniformData(
+            command_buffer,
+            0,
+            &((const _ScanlineUniforms) {
+                .scanline_intensity = scanline_intensity,
+            }),
+            sizeof(_ScanlineUniforms)
         );
 
         SDL_DrawGPUIndexedPrimitives(screen_pass, 6, 1, 0, 0, 0);
