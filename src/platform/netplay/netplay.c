@@ -552,7 +552,9 @@ static void dump_desync_pair(int frame) {
 }
 #endif
 
-#define SDL_copya(dst, src) SDL_memcpy(dst, src, sizeof(src))
+#define SDL_copya(dst, src)                                                                                            \
+    _Static_assert(sizeof(dst) == sizeof(src), #dst " and " #src " differ in size");                                   \
+    SDL_memcpy(dst, src, sizeof(src))
 
 static void gather_state(State* dst) {
     // GameState

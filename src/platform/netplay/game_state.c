@@ -17,7 +17,13 @@
 
 #include <SDL3/SDL.h>
 
-#define GS_SAVE(member) SDL_memcpy(&dst->member, &member, sizeof(member))
+// Copies are sized by the global, so a mismatched field would spill into its neighbours.
+#define GS_ASSERT_SAME_SIZE(member)                                                                                    \
+    _Static_assert(sizeof(((GameState*)0)->member) == sizeof(member), #member " does not match its global")
+
+#define GS_SAVE(member)                                                                                                \
+    GS_ASSERT_SAME_SIZE(member);                                                                                       \
+    SDL_memcpy(&dst->member, &member, sizeof(member))
 
 void GameState_Save(GameState* dst) {
     GS_SAVE(Scene_Cut);
@@ -642,7 +648,9 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(mes_timer);
 }
 
-#define GS_LOAD(member) SDL_memcpy(&member, &src->member, sizeof(member))
+#define GS_LOAD(member)                                                                                                \
+    GS_ASSERT_SAME_SIZE(member);                                                                                       \
+    SDL_memcpy(&member, &src->member, sizeof(member))
 
 void GameState_Load(const GameState* src) {
     GS_LOAD(Scene_Cut);
