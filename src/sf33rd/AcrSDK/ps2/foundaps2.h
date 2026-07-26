@@ -1,6 +1,7 @@
 #ifndef FOUNDAPS2_H
 #define FOUNDAPS2_H
 
+#include "port/utils.h"
 #include "sf33rd/AcrSDK/common/plcommon.h"
 #include "structs.h"
 #include "types.h"
@@ -24,6 +25,6 @@ extern FLPS2State flPs2State;
 
 s32 flInitialize();
 s32 flFlip(u32 flag);
-s32 flLogOut(const char* format, ...);
+__dead2 s32 flLogOut(const char* format, ...);
 
 #endif

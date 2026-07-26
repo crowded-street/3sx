@@ -281,6 +281,7 @@ set(PROJECT_LICENSE_FILES
 
 set(SDL_GPU_SHADER_DIR "${CMAKE_SOURCE_DIR}/src/platform/video/sdl_gpu/shaders/compiled")
 set(OPENGL_SHADER_DIR "${CMAKE_SOURCE_DIR}/src/platform/video/opengl/shaders")
+set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/assets")
 
 if(APPLE)
     install(TARGETS 3sx
@@ -309,6 +310,10 @@ if(APPLE)
 
     install(DIRECTORY "${OPENGL_SHADER_DIR}/"
         DESTINATION 3SX.app/Contents/Resources/shaders/opengl
+    )
+
+    install(DIRECTORY "${ASSETS_DIR}/"
+        DESTINATION 3SX.app/Contents/Resources/assets
     )
 elseif(WIN32)
     install(TARGETS 3sx
@@ -348,6 +353,10 @@ elseif(WIN32)
     install(DIRECTORY "${OPENGL_SHADER_DIR}/"
         DESTINATION bin/shaders/opengl
     )
+
+    install(DIRECTORY "${ASSETS_DIR}/"
+        DESTINATION bin/assets
+    )
 elseif(UNIX)
     install(TARGETS 3sx
         RUNTIME DESTINATION bin
@@ -375,6 +384,10 @@ elseif(UNIX)
 
     install(DIRECTORY "${OPENGL_SHADER_DIR}/"
         DESTINATION bin/shaders/opengl
+    )
+
+    install(DIRECTORY "${ASSETS_DIR}/"
+        DESTINATION bin/assets
     )
 endif()
 

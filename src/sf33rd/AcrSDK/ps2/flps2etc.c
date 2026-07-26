@@ -28,123 +28,43 @@
 
 void flCompact();
 void flPS2ConvertAlpha(void* lpPtr, s32 width, s32 height);
-u32 flCreateTextureFromApx(s8* apx_file, u32 flag);
+u32 flCreateTextureFromApx(const char* apx_file, u32 flag);
 u32 flCreateTextureFromApx_mem(void* mem, u32 flag);
-u32 flCreateTextureFromTim2(s8* tim2_file, u32 flag);
+u32 flCreateTextureFromTim2(const char* tim2_file, u32 flag);
 u32 flCreateTextureFromTim2_mem(void* mem, u32 flag);
-u32 flCreateTextureFromBMP(s8* bmp_file, u32 flag);
+u32 flCreateTextureFromBMP(const char* bmp_file, u32 flag);
 u32 flCreateTextureFromBMP_mem(void* mem, u32 flag);
-u32 flCreateTextureFromPIC(s8* pic_file, u32 flag);
+u32 flCreateTextureFromPIC(const char* pic_file, u32 flag);
 u32 flCreateTextureFromPIC_mem(void* mem, u32 flag);
 
-s32 flFileRead(s8* filename, void* buf, s32 len) {
-    s32 fd;
-    s8 temp[2048];
-    s8* p;
+bool flFileRead(const char* filename, void* buf, s32 len) {
+    SDL_IOStream* io = SDL_IOFromFile(filename, "rb");
 
-    fatal_error("Unhandled path: %s", filename);
+    if (io == NULL) {
+        SDL_Log("flFileRead: failed to read file at path %s - %s", filename, SDL_GetError());
+        return false;
+    }
 
-    strcpy(temp, "cdrom0:\\THIRD\\");
-    p = strlen(temp) + temp;
-    strcat(temp, filename);
-    SDL_strupr(p);
-    strcat(temp, ";1");
+    SDL_ReadIO(io, buf, len);
+    SDL_CloseIO(io);
+    return true;
+}
 
-    fd = open(temp, O_RDONLY);
-    printf("flFileRead: \"%s\" (fd = %" PRId32 ")\n", temp, fd);
+s32 flFileLength(const char* filename) {
+    SDL_IOStream* io = SDL_IOFromFile(filename, "rb");
 
-    if (fd < 0) {
+    if (io == NULL) {
         return 0;
     }
 
-    read(fd, buf, len);
-    close(fd);
-    return 1;
+    const s32 size = SDL_GetIOSize(io);
+    SDL_CloseIO(io);
+    return size;
 }
 
-s32 flFileWrite(s8* filename, void* buf, s32 len) {
-    s32 fd;
-    s8 temp[2048];
-    s8* p;
-
-    strcpy(temp, "cdrom0:\\THIRD\\");
-    p = strlen(temp) + temp;
-    strcat(temp, filename);
-    SDL_strupr(p);
-    strcat(temp, ";1");
-
-    if ((fd = open(temp, O_WRONLY | O_CREAT | O_TRUNC)) < 0) {
-        return 0;
-    }
-
-    write(fd, buf, len);
-    close(fd);
-    return 1;
-}
-
-s32 flFileAppend(s8* filename, void* buf, ssize_t len) {
-    s32 fd;
-    s8 temp[2048];
-    s8* p;
-
-    strcpy(temp, "cdrom0:\\THIRD\\");
-    p = strlen(temp) + temp;
-    strcat(temp, filename);
-    SDL_strupr(p);
-    strcat(temp, ";1");
-
-    if ((fd = open(temp, O_WRONLY)) < 0) {
-        return 0;
-    }
-
-    lseek(fd, 0, 2);
-    write(fd, buf, (s32)len);
-    close(fd);
-    return 1;
-}
-
-s32 flFileLength(s8* filename) {
-    s32 fd;
-    s8 temp[2048];
-    s8* p;
-    s32 length;
-
-    strcpy(temp, "cdrom0:\\THIRD\\");
-    p = strlen(temp) + temp;
-    strcat(temp, filename);
-    SDL_strupr(p);
-    strcat(temp, ";1");
-
-    if ((fd = open(temp, O_RDONLY)) < 0) {
-        return 0;
-    }
-
-    length = lseek(fd, 0, SEEK_END);
-    close(fd);
-    return length;
-}
-
-// FIXME: use memset instead
-void flMemset(void* dst, u32 pat, s32 size) {
-    s32 i;
-    u8* now = dst;
-
-    for (i = 0; i < size; i++) {
-        *now++ = pat;
-    }
-}
-
-// FIXME: use memcpy instead
+// FIXME: use memcpy/SDL_memcpy instead
 void flMemcpy(void* dst, void* src, s32 size) {
-    s32 i;
-    s8* now[2];
-
-    now[0] = dst;
-    now[1] = src;
-
-    for (i = 0; i < size; i++) {
-        *now[0]++ = *now[1]++;
-    }
+    SDL_memcpy(dst, src, size);
 }
 
 void* flAllocMemory(s32 size) {
@@ -239,7 +159,7 @@ uintptr_t flPS2GetSystemTmpBuff(s32 len, s32 align) {
     return now;
 }
 
-u32 flCreateTextureFromFile(s8* file, u32 flag) {
+u32 flCreateTextureFromFile(const char* file, u32 flag) {
     s8* tmp = file;
 
     while (*tmp != 0) {
@@ -275,11 +195,11 @@ u32 flCreateTextureFromFile(s8* file, u32 flag) {
     return 0;
 }
 
-u32 flCreateTextureFromApx(s8* apx_file, u32 flag) {
+u32 flCreateTextureFromApx(const char* apx_file, u32 flag) {
     s32 len = flFileLength(apx_file);
     s8* file_ptr = mflTemporaryUse(len);
 
-    if (flFileRead(apx_file, file_ptr, len) == 0) {
+    if (!flFileRead(apx_file, file_ptr, len)) {
         return 0;
     }
 
@@ -387,11 +307,11 @@ u32 flCreateTextureFromApx_mem(void* mem, u32 flag) {
     return th | ph;
 }
 
-u32 flCreateTextureFromTim2(s8* tim2_file, u32 flag) {
+u32 flCreateTextureFromTim2(const char* tim2_file, u32 flag) {
     s32 len = flFileLength(tim2_file);
     s8* file_ptr = mflTemporaryUse(len);
 
-    if (flFileRead(tim2_file, file_ptr, len) == 0) {
+    if (!flFileRead(tim2_file, file_ptr, len)) {
         return 0;
     }
 
@@ -516,11 +436,11 @@ void flPS2ConvertAlpha(void* lpPtr, s32 width, s32 height) {
     }
 }
 
-u32 flCreateTextureFromBMP(s8* bmp_file, u32 flag) {
+u32 flCreateTextureFromBMP(const char* bmp_file, u32 flag) {
     s32 len = flFileLength(bmp_file);
     char* file_ptr = mflTemporaryUse(len);
 
-    if (flFileRead(bmp_file, file_ptr, len) == 0) {
+    if (!flFileRead(bmp_file, file_ptr, len)) {
         return 0;
     }
 
@@ -539,12 +459,16 @@ u32 flCreateTextureFromBMP_mem(void* mem, u32 flag) {
     u8 r;
     u8 g;
     u8 b;
+    u8 a;
 
     th = flPS2GetTextureHandle();
     lpflTexture = &flTexture[LO_16_BITS(th) - 1];
-    plBMPSetContextFromImage(&context, mem);
 
-    if (context.bitdepth != 3) {
+    if (!plBMPSetContextFromImage(&context, mem)) {
+        return 0;
+    }
+
+    if (context.bitdepth != 3 && context.bitdepth != 4) {
         return 0;
     }
 
@@ -569,6 +493,23 @@ u32 flCreateTextureFromBMP_mem(void* mem, u32 flag) {
 
         break;
 
+    case 4:
+        for (y = 0; y < context.height; y++) {
+            for (x = 0; x < context.width; x++) {
+                src = keep + x * context.bitdepth + (context.height - 1 - y) * context.pitch;
+                b = *src++;
+                g = *src++;
+                r = *src++;
+                a = *src++;
+                *dst++ = b;
+                *dst++ = g;
+                *dst++ = r;
+                *dst++ = a;
+            }
+        }
+
+        break;
+
     default:
         return 0;
     }
@@ -577,11 +518,11 @@ u32 flCreateTextureFromBMP_mem(void* mem, u32 flag) {
     return th;
 }
 
-u32 flCreateTextureFromPIC(s8* pic_file, u32 flag) {
+u32 flCreateTextureFromPIC(const char* pic_file, u32 flag) {
     s32 len = flFileLength(pic_file);
     s8* file_ptr = mflTemporaryUse(len);
 
-    if (flFileRead(pic_file, file_ptr, len) == 0) {
+    if (!flFileRead(pic_file, file_ptr, len)) {
         return 0;
     }
 

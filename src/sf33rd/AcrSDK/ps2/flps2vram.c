@@ -9,6 +9,8 @@
 
 #include "core/renderer.h"
 
+#include <SDL3/SDL.h>
+
 #include <libgraph.h>
 
 #include <assert.h>
@@ -282,7 +284,7 @@ s32 flReleaseTextureHandle(u32 texture_handle) {
         flPS2ReleaseSystemMemory(lpflTexture->mem_handle);
     }
 
-    flMemset(lpflTexture, 0, sizeof(FLTexture));
+    SDL_zerop(lpflTexture);
     return 1;
 }
 
@@ -299,7 +301,7 @@ s32 flReleasePaletteHandle(u32 palette_handle) {
         flPS2ReleaseSystemMemory(lpflPalette->mem_handle);
     }
 
-    flMemset(lpflPalette, 0, sizeof(FLTexture));
+    SDL_zerop(lpflPalette);
     return 1;
 }
 
