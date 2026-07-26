@@ -262,6 +262,10 @@ void Main_StepFrame() {
     flPADGetALL();
     keyConvert();
 
+#if NETPLAY_ENABLED
+    Netplay_InjectStressBootInput();
+#endif
+
 #if DEBUG
     configure_slow_timer();
 #endif
@@ -298,6 +302,7 @@ void Main_StepFrame() {
         njdp2d_draw();
         Netplay_TickMatchmaking();
         Netplay_TickDirectP2P();
+        Netplay_TickStress();
     }
 #else
     njUserMain();

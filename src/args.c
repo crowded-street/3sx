@@ -26,6 +26,19 @@ static void verify_configuration(const Args* args) {
         error_out("Can't specify P2P and matchmaking at the same time.");
     }
 
+    if (netplay->stress && (p2p_specified || matchmaking_specified)) {
+        error_out("A stress session is local, so it can't be combined with P2P or matchmaking.");
+    }
+
+    if (!netplay->stress && (netplay->stress_seed != 0 || netplay->stress_check_distance != 0 ||
+                             netplay->stress_frames != 0 || netplay->stress_out != NULL)) {
+        error_out("Stress options require --stress.");
+    }
+
+    if (netplay->stress_check_distance < 0 || netplay->stress_frames < 0) {
+        error_out("Stress frame counts can't be negative.");
+    }
+
     if (p2p_specified) {
         if (netplay->p2p_local_player != 1 && netplay->p2p_local_player != 2) {
             error_out("Local player must be 1 or 2.");
@@ -68,6 +81,22 @@ void init_args(int argc, const char* argv[]) {
         OPT_STRING(0, "p2p-remote-ip", &args.netplay.p2p_remote_ip, "Remote player IP.", NULL, 0, 0),
         OPT_STRING(0, "matchmaking-ip", &args.netplay.matchmaking_ip, "Matchmaking server IP.", NULL, 0, 0),
         OPT_INTEGER(0, "matchmaking-port", &args.netplay.matchmaking_port, "Matchmaking server port.", NULL, 0, 0),
+        OPT_BOOLEAN(
+            0, "stress", &args.netplay.stress, "Run a local stress session that hunts for rollback desyncs.", NULL, 0, 0
+        ),
+        OPT_INTEGER(0, "stress-seed", &args.netplay.stress_seed, "Seed for the generated inputs.", NULL, 0, 0),
+        OPT_INTEGER(
+            0, "stress-check-distance", &args.netplay.stress_check_distance,
+            "How many frames to roll back and re-simulate each update.", NULL, 0, 0
+        ),
+        OPT_INTEGER(
+            0, "stress-frames", &args.netplay.stress_frames, "Exit after this many frames (0 runs until closed).", NULL,
+            0, 0
+        ),
+        OPT_STRING(
+            0, "stress-out", &args.netplay.stress_out,
+            "Directory for the trace and state dumps, so runs can go in parallel.", NULL, 0, 0
+        ),
 #endif
 
 #if STATCHECK
