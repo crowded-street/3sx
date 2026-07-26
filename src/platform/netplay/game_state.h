@@ -447,6 +447,7 @@ typedef struct GameState {
     s16 Plate_X[2][3];
     s16 Plate_Y[2][3];
     u16 Demo_Timer[2];
+    u16* Demo_Ptr[2]; // the recorder appends through this, so it has to rewind too
     u16 Condense_Buff[2];
     u16 Keep_Grade[2];
     u16 IO_Result;
