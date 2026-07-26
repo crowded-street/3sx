@@ -2236,7 +2236,7 @@ static void save_slot_trans(_save_work* save) {
 
     for (i = 0; i < 2; i++) {
         x = x_tbl[i] - 30;
-        dispButtonImage2(x, 76, 1, 60, 64, (i == no) ? 0 : 160, 8);
+        dispButtonImage2(x, 76, 1, 60, 64, (i == no) ? 0 : 160, 8, 0);
 
         KnjSetAlpha(alp[i]);
         KnjSetRgb(col[i]);

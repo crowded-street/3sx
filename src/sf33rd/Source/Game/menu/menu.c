@@ -570,8 +570,8 @@ void toSelectGame(struct _TASK* task_ptr) {
 }
 
 void imgSelectGameButton() {
-    dispButtonImage2(0x74, 0x6B, 0x18, 0x20, 0x1A, 0, 4);
-    dispButtonImage2(0xB2, 0x6B, 0x18, 0x20, 0x1A, 0, 5);
+    dispButtonImage2(0x74, 0x6B, 0x18, 0x20, 0x1A, 0, 4, 0);
+    dispButtonImage2(0xB2, 0x6B, 0x18, 0x20, 0x1A, 0, 5, 0);
 }
 
 void Training_Mode(struct _TASK* task_ptr) {
@@ -4285,7 +4285,7 @@ s32 Pause_1st_Sub(struct _TASK* task_ptr) {
 
     if (Pause_Down) {
         SSPutStr2(17, 12, 9, "PRESS   BUTTON");
-        dispButtonImage2(0xB2, 0x5B, 1, 0x13, 0xF, 0, 4);
+        dispButtonImage2(0xB2, 0x5B, 1, 0x13, 0xF, 0, 4, Pause_ID);
         SSPutStr2(18, 14, 9, "TO PAUSE MENU");
     }
 

@@ -18,6 +18,7 @@ void SDLPad_HandleGamepadDeviceEvent(SDL_GamepadDeviceEvent* event);
 
 bool SDLPad_IsGamepadConnected(int id);
 void SDLPad_GetButtonState(int id, Input_ButtonState* state);
+Input_PadType SDLPad_GetPadType(int id);
 void SDLPad_RumblePad(int id, bool low_freq_enabled, Uint8 high_freq_rumble);
 
 #endif

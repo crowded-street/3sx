@@ -85,12 +85,23 @@ void effect_10_move(WORK_Other* ewk) {
 
     if (ewk->wu.type == 5) {
         dispButtonImage2(
-            (ewk->wu.xyz[0].disp.pos * 8) - 6, (ewk->wu.xyz[1].disp.pos * 8) - 5, 1, 22, 17, 0, ix + correct_index);
-        return;
+            (ewk->wu.xyz[0].disp.pos * 8) - 6,
+            (ewk->wu.xyz[1].disp.pos * 8) - 5,
+            1,
+            22,
+            17,
+            0,
+            ix + correct_index,
+            ewk->master_id
+        );
+    } else {
+        SSPutStr2(
+            ewk->wu.xyz[0].disp.pos,
+            ewk->wu.xyz[1].disp.pos,
+            color,
+            button_string_data[ewk->wu.type][ix + correct_index]
+        );
     }
-
-    SSPutStr2(
-        ewk->wu.xyz[0].disp.pos, ewk->wu.xyz[1].disp.pos, color, button_string_data[ewk->wu.type][ix + correct_index]);
 }
 
 s32 effect_10_init(s16 id, u8 Type, u8 Type_in_Type, u8 dir_step, u8 Death_Type, s16 pos_x, s16 pos_y) {
