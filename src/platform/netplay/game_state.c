@@ -471,7 +471,8 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(Random_ix32_com);
     GS_SAVE(Random_ix16_ex_com);
     GS_SAVE(Random_ix32_ex_com);
-    GS_SAVE(Random_ix16_bg);
+    // Random_ix16_bg is left out on purpose: it only drives stage flashing, and the
+    // state deciding when to draw from it isn't saved.
     GS_SAVE(Opening_Now);
     GS_SAVE(task);
 
@@ -1099,7 +1100,6 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(Random_ix32_com);
     GS_LOAD(Random_ix16_ex_com);
     GS_LOAD(Random_ix32_ex_com);
-    GS_LOAD(Random_ix16_bg);
     GS_LOAD(Opening_Now);
     GS_LOAD(task);
 

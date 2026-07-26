@@ -460,7 +460,6 @@ typedef struct GameState {
     s16 Random_ix32_com;
     s16 Random_ix16_ex_com;
     s16 Random_ix32_ex_com;
-    s16 Random_ix16_bg;
     s16 Opening_Now;
     struct _TASK task[11];
 
