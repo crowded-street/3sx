@@ -1,5 +1,8 @@
 #include "main.h"
 #include "common.h"
+#if NETPLAY_ENABLED
+#include "platform/netplay/netplay.h"
+#endif
 #include "sf33rd/AcrSDK/common/mlPAD.h"
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/AcrSDK/ps2/flps2etc.h"
@@ -284,8 +287,23 @@ void Main_StepFrame() {
 
     mpp_w.inGame = false;
 
+#if NETPLAY_ENABLED
+    if (Netplay_GetSessionState() != NETPLAY_SESSION_IDLE) {
+        Netplay_Run();
+        // Flush the 2D polygon buffer each frame when the game's normal render
+        // loop isn't running, preventing the 100-item limit from overflowing.
+        njdp2d_draw();
+    } else {
+        njUserMain();
+        njdp2d_draw();
+        Netplay_TickMatchmaking();
+        Netplay_TickDirectP2P();
+    }
+#else
     njUserMain();
     njdp2d_draw();
+#endif
+
     KnjFlush();
     disp_effect_work();
     flFlip(0);

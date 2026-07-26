@@ -18,6 +18,7 @@
 #endif
 
 #if NETPLAY_ENABLED
+#include "platform/netplay/netplay.h"
 #include "port/sdl/netplay_screen.h"
 #include "port/sdl/netstats_renderer.h"
 #endif
@@ -496,8 +497,24 @@ static int loop() {
     return 0;
 }
 
+#if NETPLAY_ENABLED
+static void set_netplay_params() {
+    const NetplayArgs* netplay = &get_args()->netplay;
+
+    if (netplay->p2p_remote_ip != NULL) {
+        Netplay_SetParams(netplay->p2p_local_player, netplay->p2p_remote_ip);
+    } else if (netplay->matchmaking_ip != NULL) {
+        Netplay_SetMatchmakingParams(netplay->matchmaking_ip, netplay->matchmaking_port);
+    }
+}
+#endif
+
 int main(int argc, const char* argv[]) {
     init_args(argc, argv);
+
+#if NETPLAY_ENABLED
+    set_netplay_params();
+#endif
 
 #if STATCHECK
     if (get_args()->statcheck.headless) {

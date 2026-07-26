@@ -505,6 +505,7 @@ static void process_session() {
         case GekkoEmptySessionEvent:
         case GekkoSpectatorPaused:
         case GekkoSpectatorUnpaused:
+        case GekkoReplayFinished:
             // Do nothing
             break;
         }
