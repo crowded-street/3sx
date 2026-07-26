@@ -322,7 +322,7 @@ typedef struct GameState {
     s8 Menu_Max;
     u8 reset_NG_flag;
     s8 VS_Stage;
-    u8 Present_Mode;
+    PresentMode Present_Mode; // must match the global: the copies are sized by it
     u8 Play_Mode;
     u8 Page_Max;
     u8 Direction_Working[6];
