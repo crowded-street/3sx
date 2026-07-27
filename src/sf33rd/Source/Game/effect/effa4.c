@@ -12,7 +12,8 @@
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 
-s8* Netplay_Letter_Data[1][4][2] = {
+// Rows are Menu_Page - 1: the logged-out page has no items of its own.
+s8* Netplay_Letter_Data[2][4][2] = {
     {
         {
             "",
@@ -31,12 +32,36 @@ s8* Netplay_Letter_Data[1][4][2] = {
             NULL,
         },
     },
+    {
+        {
+            "",
+            "",
+        },
+        {
+            NULL,
+            NULL,
+        },
+        {
+            NULL,
+            NULL,
+        },
+        {
+            NULL,
+            NULL,
+        },
+    },
 };
 
-s8* Netplay_Title_Data[1][4] = {
+s8* Netplay_Title_Data[2][4] = {
     {
         "FIND MATCH/..................",
         "LOGOUT ACCOUNT/..............",
+        NULL,
+        NULL,
+    },
+    {
+        "DIRECT CONNECT/..............",
+        NULL,
         NULL,
         NULL,
     },

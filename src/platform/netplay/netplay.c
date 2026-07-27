@@ -68,6 +68,7 @@ static char matched_ip[64];
 static const char* matchmaking_server_ip = NULL;
 static int matchmaking_server_port = 9000;
 static bool matchmaking_pending = false;
+static bool direct_p2p_configured = false;
 static bool direct_p2p_pending = false;
 static NET_DatagramSocket* p2p_sock = NULL;
 static u16 input_history[2][INPUT_HISTORY_MAX] = { 0 };
@@ -596,6 +597,7 @@ void Netplay_SetParams(int player, const char* ip) {
     SDL_assert(player == 1 || player == 2);
     player_number = player - 1;
     remote_ip = ip;
+    direct_p2p_configured = true;
 
     if (SDL_strcmp(ip, "127.0.0.1") == 0) {
         switch (player_number) {
@@ -615,8 +617,12 @@ void Netplay_SetParams(int player, const char* ip) {
     }
 }
 
+bool Netplay_IsDirectP2PConfigured() {
+    return direct_p2p_configured;
+}
+
 void Netplay_BeginDirectP2P() {
-    if (remote_ip == NULL) {
+    if (!direct_p2p_configured) {
         return;
     }
     direct_p2p_pending = true;

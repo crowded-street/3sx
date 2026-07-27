@@ -5,8 +5,8 @@ set -euo pipefail
 # Player 1 binds UDP 50000 and talks to 50001, player 2 does the reverse:
 # Netplay_SetParams picks those ports whenever the remote IP is 127.0.0.1.
 #
-# Pick NETWORK in the menu in both windows, which is what starts the session and
-# binds the sockets. Each instance logs next to the executable.
+# Pick NETWORK then DIRECT CONNECT in both windows, which is what starts the session
+# and binds the sockets. Each instance logs next to the executable.
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 BIN="$ROOT_DIR/build/application/bin"
@@ -48,7 +48,7 @@ echo "Starting player 2 (port 50001)..."
 start_player 2 --no-sound
 
 echo
-echo "Now pick NETWORK in the menu in both windows."
+echo "Now pick NETWORK then DIRECT CONNECT in both windows."
 echo "Logs: $BIN/netplay-p1.log and netplay-p2.log"
 
 # Keep both attached to this shell so Ctrl+C stops the pair.
