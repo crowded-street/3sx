@@ -190,8 +190,11 @@ static void setup_vs_mode() {
     G_Timer = 0;
 
     // bg_initialize() reinitialises only part of each layer, and l_limit/r_limit are
-    // written by the opening alone.
+    // written by the opening alone. scno is one of those: the attract sequence leaves
+    // it at 3 and the stage only assigns it on frame 2.
     SDL_zeroa(bg_w.bgw);
+    bg_w.scno = 0;
+    bg_w.scrno = 0;
 
     Deley_Shot_No[0] = 0;
     Deley_Shot_No[1] = 0;
