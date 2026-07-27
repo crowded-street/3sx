@@ -38,8 +38,8 @@
 
 #define INPUT_HISTORY_MAX 120
 #define STRESS_CHECK_DISTANCE_DEFAULT 8
-#define GAME_STATE_FIGHT 2 // G_No[1] while a round is being played
-#define STRESS_PAD_CONNECTED 2 // Interface_Type value keyConvert() uses for a present pad
+#define GAME_STATE_FIGHT 2      // G_No[1] while a round is being played
+#define STRESS_PAD_CONNECTED 2  // Interface_Type value keyConvert() uses for a present pad
 #define FRAME_SKIP_TIMER_MAX 60 // Allow skipping a frame roughly every second
 #define STATS_UPDATE_TIMER_MAX 60
 #define DELAY_FRAMES 1
@@ -263,8 +263,8 @@ static u16 stress_random_input(int player) {
                                       SWK_DOWN | SWK_LEFT,
                                       SWK_DOWN | SWK_RIGHT };
 
-    static const u16 attacks[] = { SWK_WEST,  SWK_NORTH,          SWK_RIGHT_SHOULDER, SWK_LEFT_SHOULDER,
-                                   SWK_SOUTH, SWK_RIGHT_TRIGGER };
+    static const u16 attacks[] = { SWK_WEST,          SWK_NORTH, SWK_RIGHT_SHOULDER,
+                                   SWK_LEFT_SHOULDER, SWK_SOUTH, SWK_RIGHT_TRIGGER };
 
     static u16 held[2] = { 0, 0 };
     static int hold_frames[2] = { 0, 0 };
@@ -305,7 +305,9 @@ static void configure_stress_session(GekkoConfig* config) {
     player_handle = 0;
 
     stress_trace(
-        "session created (seed %u, check distance %d, frame limit %d)", stress_rng, stress_check_distance,
+        "session created (seed %u, check distance %d, frame limit %d)",
+        stress_rng,
+        stress_check_distance,
         stress_frame_limit
     );
 }
@@ -546,8 +548,7 @@ static void dump_saved_state(int frame) {
     }
 
     // The re-simulated state is the one the session ended up agreeing on.
-    const State* src =
-        resim_state_buffer_frame[slot] == frame ? &resim_state_buffer[slot] : &state_buffer[slot];
+    const State* src = resim_state_buffer_frame[slot] == frame ? &resim_state_buffer[slot] : &state_buffer[slot];
 
     char filename[100];
     SDL_snprintf(filename, sizeof(filename), "states/%d_%d", player_handle, frame);
@@ -689,7 +690,6 @@ static void advance_game(GekkoGameEvent* event, bool render) {
     const u16* inputs = (u16*)event->data.adv.inputs;
     const int frame = event->data.adv.frame;
 
-
     p1sw_0 = PLsw[0][0] = inputs[0];
     p2sw_0 = PLsw[1][0] = inputs[1];
     p1sw_1 = PLsw[0][1] = recall_input(0, frame - 1);
@@ -755,7 +755,9 @@ static void process_session() {
         case GekkoDesyncDetected:
             const int frame = event->data.desynced.frame;
             printf(
-                "⚠️ desync detected at frame %d (0x%X vs 0x%X)\n", frame, event->data.desynced.local_checksum,
+                "⚠️ desync detected at frame %d (0x%X vs 0x%X)\n",
+                frame,
+                event->data.desynced.local_checksum,
                 event->data.desynced.remote_checksum
             );
 
@@ -980,8 +982,12 @@ void Netplay_InjectStressBootInput() {
 
     if (stress_boot_timer % 60 == 0) {
         stress_trace(
-            "driving menus, frame %d: menu cond %d, G_No %d/%d/%d", stress_boot_timer, task[TASK_MENU].condition,
-            G_No[0], G_No[1], G_No[2]
+            "driving menus, frame %d: menu cond %d, G_No %d/%d/%d",
+            stress_boot_timer,
+            task[TASK_MENU].condition,
+            G_No[0],
+            G_No[1],
+            G_No[2]
         );
     }
 

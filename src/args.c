@@ -86,16 +86,31 @@ void init_args(int argc, const char* argv[]) {
         ),
         OPT_INTEGER(0, "stress-seed", &args.netplay.stress_seed, "Seed for the generated inputs.", NULL, 0, 0),
         OPT_INTEGER(
-            0, "stress-check-distance", &args.netplay.stress_check_distance,
-            "How many frames to roll back and re-simulate each update.", NULL, 0, 0
+            0,
+            "stress-check-distance",
+            &args.netplay.stress_check_distance,
+            "How many frames to roll back and re-simulate each update.",
+            NULL,
+            0,
+            0
         ),
         OPT_INTEGER(
-            0, "stress-frames", &args.netplay.stress_frames, "Exit after this many frames (0 runs until closed).", NULL,
-            0, 0
+            0,
+            "stress-frames",
+            &args.netplay.stress_frames,
+            "Exit after this many frames (0 runs until closed).",
+            NULL,
+            0,
+            0
         ),
         OPT_STRING(
-            0, "stress-out", &args.netplay.stress_out,
-            "Directory for the trace and state dumps, so runs can go in parallel.", NULL, 0, 0
+            0,
+            "stress-out",
+            &args.netplay.stress_out,
+            "Directory for the trace and state dumps, so runs can go in parallel.",
+            NULL,
+            0,
+            0
         ),
 #endif
 
