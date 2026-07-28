@@ -274,15 +274,16 @@ void Mtrans_use_trans_mode(WORK* wk, s16 bsy) {
         return;
     }
 
+    // Above No_Trans so a frame that skips drawing lands on the same value.
+    if (wk->my_col_mode & 0x400) {
+        wk->my_clear_level = 0x90;
+    }
+
     if (No_Trans) {
         return;
     }
 
     wk->current_colcd &= 0x1FF;
-
-    if (wk->my_col_mode & 0x400) {
-        wk->my_clear_level = 0x90;
-    }
 
     switch (mts[wk->my_mts].mode) {
     case 17:
