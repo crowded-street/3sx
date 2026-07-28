@@ -186,7 +186,6 @@ void Training_Init_Sub(struct _TASK* task_ptr);
 void Training_Exit_Sub(struct _TASK* task_ptr);
 void Menu_Init(struct _TASK* task_ptr);
 s32 Check_Pad_in_Pause(struct _TASK* task_ptr);
-s32 Pause_1st_Sub(struct _TASK* task_ptr);
 s32 Yes_No_Cursor_Move_Sub(struct _TASK* task_ptr);
 void Setup_Button_Sub(s16 x, s16 y, s16 master_player);
 void Button_Exit_Check_in_Game(struct _TASK* task_ptr, s16 PL_id);
@@ -3016,8 +3015,9 @@ void Menu_Select(struct _TASK* task_ptr) {
 
     switch (task_ptr->r_no[2]) {
     case 0:
-        Pause_1st_Sub(task_ptr);
-        break;
+        task_ptr->r_no[2] += 1;
+        Cursor_Y_Pos[0][0] = 0;
+        /* fallthrough */
 
     case 1:
         task_ptr->r_no[2]++;
@@ -3047,24 +3047,24 @@ void Menu_Select(struct _TASK* task_ptr) {
 
     case 2:
         IO_Result = MC_Move_Sub(Check_Menu_Lever(Pause_ID, 0), 0, 2, 0xFF);
-        switch (IO_Result) {
 
-        case 0x200:
-            task_ptr->r_no[2] = 0;
-            Menu_Suicide[0] = 1;
+        switch (IO_Result) {
+        case SWK_START:
+        case SWK_EAST:
+            task_ptr->r_no[2] = 99;
+            Exit_Menu = 1;
             SE_selected();
             break;
 
-        case 0x100:
+        case SWK_SOUTH:
             switch (Menu_Cursor_Y[0]) {
-
-            case 0:
-                task_ptr->r_no[2] = 0;
-                Menu_Suicide[0] = 1;
+            case 0: // Continue
+                task_ptr->r_no[2] = 99;
+                Exit_Menu = 1;
                 SE_selected();
                 break;
 
-            case 1:
+            case 1: // Button config
                 SE_selected();
 
                 switch (Mode_Type) {
@@ -3100,7 +3100,7 @@ void Menu_Select(struct _TASK* task_ptr) {
 
                 break;
 
-            case 2:
+            case 2: // Exit
                 task_ptr->r_no[2]++;
                 Menu_Suicide[0] = 1;
                 Menu_Cursor_Y[0] = 1;
@@ -4059,28 +4059,28 @@ void Control_Player_Tr() {
     case 0:
         if (control_player) {
             p2sw_0 = 0;
-            break;
+        } else {
+            p1sw_0 = 0;
         }
 
-        p1sw_0 = 0;
         break;
 
     case 1:
         if (control_player) {
-            p2sw_0 = 2;
-            break;
+            p2sw_0 = SWK_DOWN;
+        } else {
+            p1sw_0 = SWK_DOWN;
         }
 
-        p1sw_0 = 2;
         break;
 
     case 2:
         if (control_player) {
-            p2sw_0 = 1;
-            break;
+            p2sw_0 = SWK_UP;
+        } else {
+            p1sw_0 = SWK_UP;
         }
 
-        p1sw_0 = 1;
         break;
     }
 }
@@ -4202,8 +4202,6 @@ s32 Pause_in_Normal_Tr(struct _TASK* task_ptr) {
 
     switch (task_ptr->r_no[2]) {
     case 0:
-        return Pause_1st_Sub(task_ptr);
-
     case 1:
         task_ptr->r_no[2]++;
         Menu_Common_Init();
@@ -4275,38 +4273,6 @@ s32 Pause_in_Normal_Tr(struct _TASK* task_ptr) {
         }
 
         break;
-    }
-
-    return 0;
-}
-
-s32 Pause_1st_Sub(struct _TASK* task_ptr) {
-    u16 sw = ~plsw_01[Pause_ID] & plsw_00[Pause_ID];
-
-    if (Pause_Down) {
-        SSPutStr2(17, 12, 9, "PRESS   BUTTON");
-        dispButtonImage2(0xB2, 0x5B, 1, 0x13, 0xF, 0, 4, Pause_ID);
-        SSPutStr2(18, 14, 9, "TO PAUSE MENU");
-    }
-
-    if (sw & SWK_START) {
-        if (((Mode_Type == MODE_NORMAL_TRAINING) || (Mode_Type == MODE_PARRY_TRAINING)) &&
-            (Check_Pause_Term_Tr(Pause_ID ^ 1) != 0) && plw[Pause_ID ^ 1].wu.operator &&
-            (Interface_Type[Pause_ID ^ 1] == 0)) {
-            Pause_ID = Pause_ID ^ 1;
-            return 0;
-        }
-
-        task_ptr->r_no[2] = 0x63;
-        Exit_Menu = 1;
-        SE_selected();
-        return 1;
-    }
-
-    if (sw & SWK_SOUTH) {
-        task_ptr->r_no[2] += 1;
-        Cursor_Y_Pos[0][0] = 0;
-        SE_selected();
     }
 
     return 0;
@@ -4441,7 +4407,8 @@ void Training_Menu(struct _TASK* task_ptr) {
     Akaobi();
     ToneDown(0xAA, 2);
     SSPutStr_Bigger(
-        training_letter_data[Training_Index].pos_x, 0x18, 9, training_letter_data[Training_Index].menu, 1, 2, 1);
+        training_letter_data[Training_Index].pos_x, 0x18, 9, training_letter_data[Training_Index].menu, 1, 2, 1
+    );
 }
 
 void Training_Init(struct _TASK* task_ptr) {
@@ -5709,8 +5676,10 @@ void Ex_Move_Sub_LR(u16 sw, s16 PL_id) {
                 Message_Data->request = save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Max] + 32;
                 Message_Data->timer = 2;
             }
-        } else if (save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] >
-                   Ex_Menu_Max_Data[Menu_Page][Menu_Cursor_Y[0]]) {
+        } else if (
+            save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] >
+            Ex_Menu_Max_Data[Menu_Page][Menu_Cursor_Y[0]]
+        ) {
             save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] = 0;
         }
 
