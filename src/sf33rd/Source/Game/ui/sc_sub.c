@@ -22,6 +22,7 @@
 #include "sf33rd/Source/Game/system/ramcnt.h"
 #include "sf33rd/Source/Game/system/sysdir.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
+#include "sf33rd/Source/Game/ui/glyph_renderer.h"
 #include "sf33rd/Source/Game/ui/sc_data.h"
 #include "structs.h"
 
@@ -238,6 +239,8 @@ void Scrscreen_Init() {
 #if !PSP
     XboxButtons_Init();
 #endif
+
+    GlyphRenderer_Init();
 }
 
 void Sa_frame_Clear() {

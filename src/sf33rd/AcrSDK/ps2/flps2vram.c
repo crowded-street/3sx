@@ -121,34 +121,6 @@ s32 flPS2GetTextureInfoFromContext(plContext* bits, s32 bnum, u32 th, u32 flag) 
         break;
     }
 
-    switch (bits->width) {
-    case 1024:
-    case 512:
-    case 256:
-    case 128:
-    case 64:
-    case 32:
-        break;
-
-    default:
-        flLogOut("Not supported width...%d @flPS2GetTextureInfoFromContext", bits->width);
-        return 0;
-    }
-
-    switch (bits->height) {
-    case 1024:
-    case 512:
-    case 256:
-    case 128:
-    case 64:
-    case 32:
-        break;
-
-    default:
-        flLogOut("Not supported height...%d @flPS2GetTextureInfoFromContext", bits->height);
-        return 0;
-    }
-
     lpflTexture->size =
         flPS2GetTextureSize(lpflTexture->format, lpflTexture->width, lpflTexture->height, lpflTexture->tex_num);
     return 1;
