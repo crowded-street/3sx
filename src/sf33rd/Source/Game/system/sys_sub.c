@@ -569,7 +569,7 @@ void Game_Data_Init() {
 }
 
 void Setup_IO_ConvDataDefault(s32 id) {
-    const u8 ioConvInitData[12] = { 0, 1, 2, 11, 3, 4, 5, 11, 0, 0, 0, 0 };
+    const u8 ioConvInitData[12] = { 0, 1, 2, 9, 3, 4, 5, 10, 0, 0, 0, 0 };
     s32 ix;
 
     for (ix = 0; ix < 12; ix++) {
@@ -686,7 +686,18 @@ void Copy_Check_w() {
 }
 
 const struct _SAVE_W Game_Default_Data = {
-    .Pad_Infor = { { { 0, 1, 2, 11, 3, 4, 5, 11 }, 0, { 0, 0, 0 } }, { { 0, 1, 2, 11, 3, 4, 5, 11 }, 0, { 0, 0, 0 } } },
+    .Pad_Infor = {
+        [0] = {
+            .Shot = { 0, 1, 2, 9, 3, 4, 5, 10 },
+            .Vibration = 0,
+            .free = { 0, 0, 0 }
+        },
+        [1] = {
+            .Shot = { 0, 1, 2, 9, 3, 4, 5, 10 },
+            .Vibration = 0,
+            .free = { 0, 0, 0 }
+        },
+    },
     .Difficulty = 2,
     .Time_Limit = 99,
     .Battle_Number = { 1, 1 },
