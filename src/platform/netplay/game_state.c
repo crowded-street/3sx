@@ -2,6 +2,7 @@
 #include "sf33rd/Source/Game/animation/appear.h"
 #include "sf33rd/Source/Game/animation/win_pl.h"
 #include "sf33rd/Source/Game/effect/eff56.h"
+#include "sf33rd/Source/Game/effect/eff79.h"
 #include "sf33rd/Source/Game/effect/effb2.h"
 #include "sf33rd/Source/Game/effect/effb8.h"
 #include "sf33rd/Source/Game/engine/charset.h"
@@ -245,6 +246,8 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(Plate_Disposal_No);
     GS_SAVE(SO_No);
     GS_SAVE(Disp_Command_Name);
+    GS_SAVE(OK_Appear79);
+    GS_SAVE(Extra_Counter);
     GS_SAVE(SC_No);
     GS_SAVE(BGM_No);
     GS_SAVE(BGM_Timer);
@@ -875,6 +878,8 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(Plate_Disposal_No);
     GS_LOAD(SO_No);
     GS_LOAD(Disp_Command_Name);
+    GS_LOAD(OK_Appear79);
+    GS_LOAD(Extra_Counter);
     GS_LOAD(SC_No);
     GS_LOAD(BGM_No);
     GS_LOAD(BGM_Timer);
