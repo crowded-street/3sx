@@ -18,6 +18,7 @@
 #endif
 
 #if NETPLAY_ENABLED
+#include "platform/app/sdl/sdl_stress_app.h"
 #include "platform/netplay/netplay.h"
 #include "port/sdl/netplay_screen.h"
 #include "port/sdl/netstats_renderer.h"
@@ -501,10 +502,7 @@ static int loop() {
 static void set_netplay_params() {
     const NetplayArgs* netplay = &get_args()->netplay;
 
-    if (netplay->stress) {
-        Netplay_SetStressOutputDir(netplay->stress_out);
-        Netplay_BeginStress(netplay->stress_seed, netplay->stress_check_distance, netplay->stress_frames);
-    } else if (netplay->p2p_remote_ip != NULL) {
+    if (netplay->p2p_remote_ip != NULL) {
         Netplay_SetParams(netplay->p2p_local_player, netplay->p2p_remote_ip);
     } else if (netplay->matchmaking_ip != NULL) {
         Netplay_SetMatchmakingParams(netplay->matchmaking_ip, netplay->matchmaking_port);
@@ -517,6 +515,10 @@ int main(int argc, const char* argv[]) {
 
 #if NETPLAY_ENABLED
     set_netplay_params();
+
+    if (get_args()->netplay.stress) {
+        return SDLStressApp_Run();
+    }
 #endif
 
 #if STATCHECK
