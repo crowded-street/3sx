@@ -20,6 +20,7 @@ typedef enum NetplaySessionState {
 } NetplaySessionState;
 
 void Netplay_SetParams(int player, const char* ip);
+bool Netplay_IsDirectP2PConfigured(); // true when a remote was given on the command line
 void Netplay_BeginDirectP2P();
 void Netplay_TickDirectP2P();
 void Netplay_SetMatchmakingParams(const char* server_ip, int server_port);

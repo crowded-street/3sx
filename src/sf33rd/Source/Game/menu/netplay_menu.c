@@ -17,7 +17,13 @@
 #include "sf33rd/Source/Game/ui/sc_sub.h"
 
 #if NETPLAY_ENABLED
-const u8 Netplay_Page_Data[2] = { 0, 2 };
+// Menu_Page picks the item set. The direct page replaces matchmaking when a
+// remote was given on the command line.
+#define NETPLAY_PAGE_LOGGED_OUT 0
+#define NETPLAY_PAGE_LOGGED_IN 1
+#define NETPLAY_PAGE_DIRECT 2
+
+const u8 Netplay_Page_Data[3] = { 0, 2, 1 };
 
 static bool is_logged_in = false;
 
@@ -58,7 +64,7 @@ void Setup_Netplay_Menu(struct _TASK* task_ptr) {
     effect_57_init(0x73, MENU_HEADER_NETWORK, 0, 0x3F, 2);
 
     switch (Menu_Page) {
-    case 0:
+    case NETPLAY_PAGE_LOGGED_OUT:
         effect_66_init(0x8A, 8, 2, 0, -1, -1, 0x800C);
         Order[0x8A] = 3;
         Order_Timer[0x8A] = 1;
@@ -72,7 +78,8 @@ void Setup_Netplay_Menu(struct _TASK* task_ptr) {
         for (ix = 0; ix < Menu_Max; ix++) {
             effect_A4_init(0, ix, ix, 2);
 
-            if (Menu_Page != 0 || ix != (Menu_Max - 1)) {
+            // The direct page's items are actions, so they have no value column.
+            if (Menu_Page != NETPLAY_PAGE_DIRECT) {
                 effect_A4_init(1, ix, ix, 2);
             }
         }
@@ -96,7 +103,6 @@ void Netplay_Menu(struct _TASK* task_ptr) {
     switch (task_ptr->r_no[2]) {
     case 0:
         Netplay_BeginMatchmaking();
-        Netplay_BeginDirectP2P();
 
         FadeOut(1, 0xFF, 8);
         task_ptr->r_no[2]++;
@@ -113,7 +119,12 @@ void Netplay_Menu(struct _TASK* task_ptr) {
     case 1:
         FadeOut(1, 0xFF, 8);
         task_ptr->r_no[2]++;
-        Menu_Page = is_logged_in;
+        if (Netplay_IsDirectP2PConfigured()) {
+            Menu_Page = NETPLAY_PAGE_DIRECT;
+        } else {
+            Menu_Page = is_logged_in ? NETPLAY_PAGE_LOGGED_IN : NETPLAY_PAGE_LOGGED_OUT;
+        }
+
         Setup_Netplay_Menu(task_ptr);
         /* fallthrough */
 
@@ -154,7 +165,8 @@ void Netplay_Menu(struct _TASK* task_ptr) {
             SE_cursor_move();
         }
 
-        if ((IO_Result == SWK_EAST || (IO_Result == SWK_SOUTH && Menu_Cursor_Y[0] == Menu_Max && Menu_Page != 0)) &&
+        if ((IO_Result == SWK_EAST ||
+             (IO_Result == SWK_SOUTH && Menu_Cursor_Y[0] == Menu_Max && Menu_Page != NETPLAY_PAGE_LOGGED_OUT)) &&
             (fs == FISTBUMP_IDLE || fs == FISTBUMP_AWAITING_LOGIN)) {
             Menu_Suicide[0] = 0;
             Menu_Suicide[1] = 1;
@@ -178,6 +190,13 @@ void Netplay_Menu(struct _TASK* task_ptr) {
         } else if (IO_Result == SWK_SOUTH) {
             if (Fistbump_GetState() == FISTBUMP_MATCHED) {
                 Fistbump_AcceptMatch();
+                break;
+            }
+
+            if (Menu_Page == NETPLAY_PAGE_DIRECT) {
+                // DIRECT CONNECT is the only item; the EXIT row is handled above.
+                Netplay_BeginDirectP2P();
+                SE_selected();
                 break;
             }
 

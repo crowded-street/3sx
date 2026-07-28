@@ -155,7 +155,7 @@ fi
 # GekkoNet
 # -----------------------------
 
-GEKKONET_REF="7be848c"
+GEKKONET_REF="675b31d"
 GEKKONET_DIR="$THIRD_PARTY/GekkoNet"
 GEKKONET_BUILD="$GEKKONET_DIR/build"
 
@@ -176,7 +176,8 @@ else
     cmake --build "$GEKKONET_SRC/cmake-build" -j"$BUILD_JOBS"
 
     mkdir -p "$GEKKONET_BUILD/include" "$GEKKONET_BUILD/lib"
-    cp -r "$GEKKONET_SRC/GekkoLib/include/." "$GEKKONET_BUILD/include/"
+    # Only gekkonet.h is public; the rest of include/ is internal (include/private)
+    cp "$GEKKONET_SRC/GekkoLib/include/gekkonet.h" "$GEKKONET_BUILD/include/"
     find "$GEKKONET_SRC" -name "*.a" -exec cp {} "$GEKKONET_BUILD/lib/libGekkoNet.a" \;
 
     rm -rf "$GEKKONET_SRC"
