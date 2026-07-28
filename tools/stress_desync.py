@@ -143,6 +143,15 @@ def collect(process: subprocess.Popen, run_dir: Path, timeout: int) -> tuple[str
     return (trace.read_text(encoding="utf-8", errors="replace") if trace.exists() else "", timed_out)
 
 
+def abandon(running: list) -> None:
+    """One desync is enough to work with, so the rest of the wave is wasted."""
+    for _, _, process in running:
+        process.kill()
+
+    for _, _, process in running:
+        process.wait()
+
+
 def explain(obj: Path, working_dir: Path) -> str:
     result = subprocess.run(
         [sys.executable, str(REPO_ROOT / "tools" / "compare_states.py"), str(obj)],
@@ -211,7 +220,7 @@ def main():
             run_dir = prepare_run_dir(args.exe.parent, seed)
             running.append((seed, run_dir, start_session(args.exe, run_dir, seed, args.frames, args.check_distance)))
 
-        for seed, run_dir, process in running:
+        for index, (seed, run_dir, process) in enumerate(running):
             output, timed_out = collect(process, run_dir, timeout)
 
             if timed_out:
@@ -229,6 +238,10 @@ def main():
             frames = ", ".join(frame for frame, _ in desyncs)
             print(f"seed {seed}: desync at frame(s) {frames}")
             print(explain(args.obj, run_dir))
+
+            if not args.keep_going:
+                abandon(running[index + 1:])
+                break
 
         if failures and not args.keep_going:
             break
