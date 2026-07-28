@@ -257,6 +257,16 @@ void Stress_Tick() {
 void Stress_OnFrameAdvanced() {
     stress_frames_run += 1;
 
+    if (!game_is_in_a_fight()) {
+        // The texture cache is not part of the saved State, and the screens after
+        // a match release and reload it. Rolling back across that boundary makes
+        // the game draw a player from an MTS slot that has since been freed.
+        Stress_Trace("exiting: match ended after %d frames, %d desync(s)", stress_frames_run, stress_desyncs);
+        stress_finished = true;
+        App_Exit();
+        return;
+    }
+
     if (stress_frames_run % 60 == 0) {
         Stress_Trace("stress frame %d (%d desync(s))", stress_frames_run, stress_desyncs);
     }
