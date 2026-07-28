@@ -17,14 +17,19 @@ import subprocess
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-NETPLAY_OBJ = Path("CMakeFiles/3sx.dir/src/platform/netplay/netplay.c")
+TOOLS_DIR = Path(__file__).resolve().parent
+REPO_ROOT = TOOLS_DIR.parent
+
+# The translation unit that defines State, which is what the dumps are read as.
+NETPLAY_SOURCE = "netplay.c"
 
 # CMake suffixes objects with .obj on Windows and .o everywhere else.
 OBJ_SUFFIXES = [".obj", ".o"]
 
-# build/stress is the optimised harness build; a Debug build works but is about
-# eight times slower, since every re-simulated frame copies and hashes the state.
+# Where docs/building.md installs to. A build outside the repo is found by
+# walking up from THREESX_EXE instead. build/stress is the optimised harness
+# build; a Debug build works but is about eight times slower, since every
+# re-simulated frame copies and hashes the state.
 BUILD_DIRS = [REPO_ROOT / "build" / "stress", REPO_ROOT / "build"]
 
 
@@ -98,14 +103,19 @@ def prepare_run_dir(bin_dir: Path, seed: int) -> Path:
 
 def find_obj(exe: Path) -> Path | None:
     """The object file sits in the build tree the executable was installed from,
-    so walk up from it before falling back to the usual build directories."""
+    so walk up from it before falling back to the usual build directories. Its
+    path within CMakeFiles follows the source tree, so search rather than build
+    it: netplay.c has moved once already."""
     roots = list(exe.resolve().parents) + BUILD_DIRS
 
     for root in roots:
-        for suffix in OBJ_SUFFIXES:
-            candidate = root / NETPLAY_OBJ.parent / (NETPLAY_OBJ.name + suffix)
+        objects = root / "CMakeFiles"
 
-            if candidate.exists():
+        if not objects.is_dir():
+            continue
+
+        for suffix in OBJ_SUFFIXES:
+            for candidate in sorted(objects.glob(f"**/{NETPLAY_SOURCE}{suffix}")):
                 return candidate
 
     return None
@@ -173,7 +183,7 @@ def abandon(running: list) -> None:
 
 def explain(obj: Path, working_dir: Path) -> str:
     result = subprocess.run(
-        [sys.executable, str(REPO_ROOT / "tools" / "compare_states.py"), str(obj)],
+        [sys.executable, str(TOOLS_DIR / "compare_states.py"), str(obj)],
         cwd=working_dir,
         capture_output=True,
         text=True,
@@ -209,7 +219,7 @@ def main():
     args.obj = args.obj or find_obj(args.exe)
 
     if args.obj is None:
-        print(f"Could not find {NETPLAY_OBJ.name}.o near {args.exe}. Pass --obj.")
+        print(f"Could not find a built {NETPLAY_SOURCE} object near {args.exe}. Pass --obj.")
         return 1
 
     if not args.exe.exists():
