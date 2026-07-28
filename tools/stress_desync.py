@@ -25,18 +25,46 @@ NETPLAY_OBJ = Path("CMakeFiles/3sx.dir/src/platform/netplay/netplay.c.obj")
 BUILD_DIRS = [REPO_ROOT / "build" / "stress", REPO_ROOT / "build"]
 
 
-def default_build() -> Path:
-    for build in BUILD_DIRS:
-        if (build / "application" / "bin" / "3sx.exe").exists():
-            return build
+def exe_names() -> list[str]:
+    if sys.platform == "win32":
+        return ["3sx.exe"]
 
-    return BUILD_DIRS[-1]
+    if sys.platform == "darwin":
+        return ["3SX.app/Contents/MacOS/3SX", "3sx"]
+
+    return ["3sx"]
+
+
+def find_exe(build: Path) -> Path | None:
+    for name in exe_names():
+        candidate = build / "application" / "bin" / name
+
+        if candidate.exists():
+            return candidate
+
+    return None
+
+
+def default_exe() -> Path | None:
+    """THREESX_EXE wins, as it does for tools/run-netplay-local.sh."""
+    override = os.environ.get("THREESX_EXE")
+
+    if override:
+        return Path(override)
+
+    for build in BUILD_DIRS:
+        found = find_exe(build)
+
+        if found:
+            return found
+
+    return None
 
 DESYNC_RE = re.compile(r"desync at frame (-?\d+) after (\d+) frames")
 TRACE_NAME = "stress-trace.log"
 
 # compare_states.py shells out to dwarfdump; MSYS2 only ships llvm-dwarfdump.
-DWARFDUMP_FALLBACKS = [Path("E:/MSYS2/mingw64/bin/llvm-dwarfdump.exe"), Path("/mingw64/bin/llvm-dwarfdump")]
+DWARFDUMP_NAMES = ["dwarfdump", "llvm-dwarfdump"]
 
 
 def prepare_run_dir(bin_dir: Path, seed: int) -> Path:
@@ -51,15 +79,31 @@ def prepare_run_dir(bin_dir: Path, seed: int) -> Path:
     return run_dir
 
 
+def find_obj(exe: Path) -> Path | None:
+    """The object file sits in the build tree the executable was installed from,
+    so walk up from it before falling back to the usual build directories."""
+    candidates = [parent / NETPLAY_OBJ for parent in exe.resolve().parents]
+    candidates += [build / NETPLAY_OBJ for build in BUILD_DIRS]
+
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+
+    return None
+
+
 def dwarfdump_env() -> dict:
+    """compare_states.py reads DWARFDUMP, so resolve the tool off PATH for it."""
     env = dict(os.environ)
 
-    if "DWARFDUMP" in env or shutil.which("dwarfdump") or shutil.which("llvm-dwarfdump"):
+    if "DWARFDUMP" in env:
         return env
 
-    for candidate in DWARFDUMP_FALLBACKS:
-        if candidate.exists():
-            env["DWARFDUMP"] = str(candidate)
+    for name in DWARFDUMP_NAMES:
+        found = shutil.which(name)
+
+        if found:
+            env["DWARFDUMP"] = found
             break
 
     return env
@@ -128,9 +172,17 @@ def main():
     parser.add_argument("--keep-going", action="store_true", help="Keep trying seeds after the first desync.")
     args = parser.parse_args()
 
-    build = default_build()
-    args.exe = args.exe or build / "application" / "bin" / "3sx.exe"
-    args.obj = args.obj or build / NETPLAY_OBJ
+    args.exe = args.exe or default_exe()
+
+    if args.exe is None:
+        print("No build found. Pass --exe or set THREESX_EXE.")
+        return 1
+
+    args.obj = args.obj or find_obj(args.exe)
+
+    if args.obj is None:
+        print(f"Could not find {NETPLAY_OBJ.name} near {args.exe}. Pass --obj.")
+        return 1
 
     if not args.exe.exists():
         print(f"No build at {args.exe}. Build and install first.")
