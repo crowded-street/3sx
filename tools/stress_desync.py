@@ -18,7 +18,10 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-NETPLAY_OBJ = Path("CMakeFiles/3sx.dir/src/platform/netplay/netplay.c.obj")
+NETPLAY_OBJ = Path("CMakeFiles/3sx.dir/src/platform/netplay/netplay.c")
+
+# CMake suffixes objects with .obj on Windows and .o everywhere else.
+OBJ_SUFFIXES = [".obj", ".o"]
 
 # build/stress is the optimised harness build; a Debug build works but is about
 # eight times slower, since every re-simulated frame copies and hashes the state.
@@ -36,13 +39,27 @@ def exe_names() -> list[str]:
 
 
 def find_exe(build: Path) -> Path | None:
-    for name in exe_names():
-        candidate = build / "application" / "bin" / name
+    """A macOS bundle installs to the prefix itself, everything else to bin."""
+    prefix = build / "application"
 
-        if candidate.exists():
-            return candidate
+    for name in exe_names():
+        for candidate in (prefix / name, prefix / "bin" / name):
+            if candidate.exists():
+                return candidate
 
     return None
+
+
+def run_dir_for(exe: Path) -> Path:
+    """The game resolves its assets against the working directory, which for a
+    bundle is the directory holding the .app rather than the executable's own."""
+    exe = exe.resolve()
+
+    for parent in exe.parents:
+        if parent.suffix == ".app":
+            return parent.parent
+
+    return exe.parent
 
 
 def default_exe() -> Path | None:
@@ -82,12 +99,14 @@ def prepare_run_dir(bin_dir: Path, seed: int) -> Path:
 def find_obj(exe: Path) -> Path | None:
     """The object file sits in the build tree the executable was installed from,
     so walk up from it before falling back to the usual build directories."""
-    candidates = [parent / NETPLAY_OBJ for parent in exe.resolve().parents]
-    candidates += [build / NETPLAY_OBJ for build in BUILD_DIRS]
+    roots = list(exe.resolve().parents) + BUILD_DIRS
 
-    for candidate in candidates:
-        if candidate.exists():
-            return candidate
+    for root in roots:
+        for suffix in OBJ_SUFFIXES:
+            candidate = root / NETPLAY_OBJ.parent / (NETPLAY_OBJ.name + suffix)
+
+            if candidate.exists():
+                return candidate
 
     return None
 
@@ -124,7 +143,7 @@ def start_session(exe: Path, run_dir: Path, seed: int, frames: int, check_distan
     if check_distance:
         command += ["--stress-check-distance", str(check_distance)]
 
-    return subprocess.Popen(command, cwd=exe.parent, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    return subprocess.Popen(command, cwd=run_dir_for(exe), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 def collect(process: subprocess.Popen, run_dir: Path, timeout: int) -> tuple[str, bool]:
@@ -190,7 +209,7 @@ def main():
     args.obj = args.obj or find_obj(args.exe)
 
     if args.obj is None:
-        print(f"Could not find {NETPLAY_OBJ.name} near {args.exe}. Pass --obj.")
+        print(f"Could not find {NETPLAY_OBJ.name}.o near {args.exe}. Pass --obj.")
         return 1
 
     if not args.exe.exists():
@@ -217,7 +236,7 @@ def main():
         running = []
 
         for seed in wave:
-            run_dir = prepare_run_dir(args.exe.parent, seed)
+            run_dir = prepare_run_dir(run_dir_for(args.exe), seed)
             running.append((seed, run_dir, start_session(args.exe, run_dir, seed, args.frames, args.check_distance)))
 
         for index, (seed, run_dir, process) in enumerate(running):
