@@ -33,7 +33,6 @@
 #include <SDL3_net/SDL_net.h>
 
 #include <stdarg.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 #define INPUT_HISTORY_MAX 120
@@ -227,19 +226,19 @@ static void stress_trace(const char* fmt, ...) {
     char path[512];
     stress_path(path, sizeof(path), "stress-trace.log");
 
-    FILE* file = fopen(path, "a");
+    SDL_IOStream* io = SDL_IOFromFile(path, "a");
 
-    if (file == NULL) {
+    if (io == NULL) {
         return;
     }
 
     va_list args;
     va_start(args, fmt);
-    vfprintf(file, fmt, args);
+    SDL_IOvprintf(io, fmt, args);
     va_end(args);
 
-    fputc('\n', file);
-    fclose(file);
+    SDL_IOprintf(io, "\n");
+    SDL_CloseIO(io);
 }
 
 static u32 stress_random() {
@@ -291,7 +290,7 @@ static void configure_stress_session(GekkoConfig* config) {
     config->check_distance = stress_check_distance;
 
     if (!gekko_create(&session, GekkoStressSession)) {
-        printf("Session is already running! probably incorrect.\n");
+        SDL_Log("Session is already running! probably incorrect.");
         return;
     }
 
@@ -335,7 +334,7 @@ static void configure_gekko() {
     if (gekko_create(&session, GekkoGameSession)) {
         gekko_start(session, &config);
     } else {
-        printf("Session is already running! probably incorrect.\n");
+        SDL_Log("Session is already running! probably incorrect.");
     }
 
     NET_DatagramSocket* mm_sock = Fistbump_GetSocket();
@@ -357,8 +356,7 @@ static void configure_gekko() {
     gekko_net_adapter_set(session, SDLNetAdapter_Create(active_sock));
 #endif
 
-    printf("starting a session for player %d at port %hu\n", player_number, local_port);
-    fflush(stdout); // has to survive the window being closed
+    SDL_Log("starting a session for player %d at port %hu", player_number, local_port);
 
     char remote_address_str[100];
     SDL_snprintf(remote_address_str, sizeof(remote_address_str), "%s:%hu", remote_ip, remote_port);
@@ -529,7 +527,7 @@ static void dump_state(const State* src, const char* relative) {
     SDL_IOStream* io = SDL_IOFromFile(filename, "w");
 
     if (io == NULL) {
-        printf("Could not write %s: %s\n", filename, SDL_GetError());
+        SDL_Log("Could not write %s: %s", filename, SDL_GetError());
         return;
     }
 
@@ -543,7 +541,7 @@ static void dump_saved_state(int frame) {
     // A desync can be reported after the slot has been reused; dumping it anyway
     // would compare two unrelated frames.
     if (state_buffer_frame[slot] != frame) {
-        printf("Frame %d has already been overwritten in the state buffer, not dumping.\n", frame);
+        SDL_Log("Frame %d has already been overwritten in the state buffer, not dumping.", frame);
         return;
     }
 
@@ -561,7 +559,7 @@ static void dump_desync_pair(int frame) {
     const int slot = frame % STATE_BUFFER_MAX;
 
     if (state_buffer_frame[slot] != frame || resim_state_buffer_frame[slot] != frame) {
-        printf("Frame %d is no longer in the state buffer, can't dump a pair.\n", frame);
+        SDL_Log("Frame %d is no longer in the state buffer, can't dump a pair.", frame);
         return;
     }
 
@@ -734,28 +732,28 @@ static void process_session() {
 
         switch (event->type) {
         case GekkoPlayerSyncing:
-            printf("🔴 player syncing\n");
+            SDL_Log("🔴 player syncing");
             // FIXME: Show status to the player
             break;
 
         case GekkoPlayerConnected:
-            printf("🔴 player connected\n");
+            SDL_Log("🔴 player connected");
             break;
 
         case GekkoPlayerDisconnected:
-            printf("🔴 player disconnected\n");
+            SDL_Log("🔴 player disconnected");
             handle_disconnection();
             break;
 
         case GekkoSessionStarted:
-            printf("🔴 session started\n");
+            SDL_Log("🔴 session started");
             session_state = NETPLAY_SESSION_RUNNING;
             break;
 
         case GekkoDesyncDetected:
             const int frame = event->data.desynced.frame;
-            printf(
-                "⚠️ desync detected at frame %d (0x%X vs 0x%X)\n",
+            SDL_Log(
+                "⚠️ desync detected at frame %d (0x%X vs 0x%X)",
                 frame,
                 event->data.desynced.local_checksum,
                 event->data.desynced.remote_checksum
@@ -950,7 +948,7 @@ void Netplay_BeginStress(int seed, int check_distance, int frames) {
     // is reported, which is check_distance frames after the fact.
     if (stress_check_distance >= STATE_BUFFER_MAX) {
         stress_check_distance = STATE_BUFFER_MAX - 1;
-        printf("Clamped stress check distance to %d.\n", stress_check_distance);
+        SDL_Log("Clamped stress check distance to %d.", stress_check_distance);
     }
 #endif
 }
