@@ -268,6 +268,13 @@ static void OpenGLRenderer_CreateTexture(unsigned int th) {
         palette_type = PALETTE_NONE;
         break;
 
+    case SCE_GS_PSMCT32:
+        internal_format = GL_RGBA8;
+        format = GL_RGBA;
+        type = GL_UNSIGNED_BYTE;
+        palette_type = PALETTE_NONE;
+        break;
+
     default:
         fatal_error("Unhandled pixel format: %d", fl_texture->format);
         break;
