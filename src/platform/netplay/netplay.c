@@ -5,6 +5,8 @@
 #include "platform/app/sdl/sdl_app.h"
 #include "platform/netplay/fistbump.h"
 #include "platform/netplay/game_state.h"
+#include "platform/netplay/netplay_base.h"
+#include "platform/netplay/netplay_stress.h"
 #include "platform/netplay/sdl_net_adapter.h"
 #include "port/paths.h"
 #include "sf33rd/AcrSDK/common/pad.h"
@@ -32,35 +34,15 @@
 #include <SDL3/SDL.h>
 #include <SDL3_net/SDL_net.h>
 
-#include <stdarg.h>
 #include <stdlib.h>
 
 #define INPUT_HISTORY_MAX 120
-#define STRESS_CHECK_DISTANCE_DEFAULT 8
-#define GAME_STATE_FIGHT 2      // G_No[1] while a round is being played
-#define STRESS_PAD_CONNECTED 2  // Interface_Type value keyConvert() uses for a present pad
 #define FRAME_SKIP_TIMER_MAX 60 // Allow skipping a frame roughly every second
 #define STATS_UPDATE_TIMER_MAX 60
 #define DELAY_FRAMES 1
-#define PLAYER_COUNT 2
 
 // Uncomment to enable packet drops
 // #define LOSSY_ADAPTER
-
-typedef struct EffectState {
-    s16 frwctr;
-    s16 frwctr_min;
-    s16 head_ix[8];
-    s16 tail_ix[8];
-    s16 exec_tm[8];
-    uintptr_t frw[EFFECT_MAX][448];
-    s16 frwque[EFFECT_MAX];
-} EffectState;
-
-typedef struct State {
-    GameState gs;
-    EffectState es;
-} State;
 
 static GekkoSession* session = NULL;
 static unsigned short local_port = 0;
@@ -75,16 +57,6 @@ static int matchmaking_server_port = 9000;
 static bool matchmaking_pending = false;
 static bool direct_p2p_configured = false;
 static bool direct_p2p_pending = false;
-static bool stress_pending = false;
-static bool stress_mode = false;
-static u32 stress_rng = 0;
-static int stress_check_distance = 0;
-static int stress_frame_limit = 0;
-static int stress_frames_run = 0;
-static int stress_desyncs = 0;
-static int stress_boot_timer = 0;
-static bool stress_waiting_for_match = false;
-static const char* stress_out_dir = ".";
 static NET_DatagramSocket* p2p_sock = NULL;
 static u16 input_history[2][INPUT_HISTORY_MAX] = { 0 };
 static float frames_behind = 0;
@@ -96,7 +68,6 @@ static int frame_max_rollback = 0;
 static NetworkStats network_stats = { 0 };
 
 #if DEBUG
-#define STATE_BUFFER_MAX 20
 #define STATE_SLOT_EMPTY (-1)
 
 static State state_buffer[STATE_BUFFER_MAX] = { 0 };
@@ -107,16 +78,11 @@ static State resim_state_buffer[STATE_BUFFER_MAX] = { 0 };
 static int resim_state_buffer_frame[STATE_BUFFER_MAX] = { 0 };
 static u32 state_buffer_checksum[STATE_BUFFER_MAX] = { 0 };
 
-// Only the first re-simulation that disagrees is worth keeping.
-static bool stress_pair_dumped = false;
-
 static void reset_state_buffers() {
     for (int i = 0; i < STATE_BUFFER_MAX; i++) {
         state_buffer_frame[i] = STATE_SLOT_EMPTY;
         resim_state_buffer_frame[i] = STATE_SLOT_EMPTY;
     }
-
-    stress_pair_dumped = false;
 }
 
 static int state_slot(int frame) {
@@ -160,7 +126,7 @@ static void clean_input_buffers() {
     SDL_zeroa(plsw_01);
 }
 
-static void setup_vs_mode() {
+void NetplayBase_SetupVsMode() {
     task[TASK_MENU].r_no[0] = 5; // go to idle routine (doing nothing)
     cpExitTask(TASK_SAVER);
 
@@ -215,102 +181,6 @@ static void configure_lossy_adapter(NET_DatagramSocket* sock) {
 }
 #endif
 
-/// Builds a path inside the run's output directory, so parallel runs stay separate.
-static void stress_path(char* dst, size_t size, const char* relative) {
-    SDL_snprintf(dst, size, "%s/%s", stress_out_dir, relative);
-}
-
-/// Appends to stress-trace.log. A stress run is unattended, so the trace has to
-/// survive however the game was launched.
-static void stress_trace(const char* fmt, ...) {
-    char path[512];
-    stress_path(path, sizeof(path), "stress-trace.log");
-
-    SDL_IOStream* io = SDL_IOFromFile(path, "a");
-
-    if (io == NULL) {
-        return;
-    }
-
-    va_list args;
-    va_start(args, fmt);
-    SDL_IOvprintf(io, fmt, args);
-    va_end(args);
-
-    SDL_IOprintf(io, "\n");
-    SDL_CloseIO(io);
-}
-
-static u32 stress_random() {
-    // xorshift32, so a seed reproduces the exact same run.
-    stress_rng ^= stress_rng << 13;
-    stress_rng ^= stress_rng >> 17;
-    stress_rng ^= stress_rng << 5;
-    return stress_rng;
-}
-
-/// Holds presses for a few frames at a time, which exercises moves and cancels
-/// rather than one-frame noise.
-static u16 stress_random_input(int player) {
-    static const u16 directions[] = { 0,
-                                      SWK_UP,
-                                      SWK_DOWN,
-                                      SWK_LEFT,
-                                      SWK_RIGHT,
-                                      SWK_UP | SWK_LEFT,
-                                      SWK_UP | SWK_RIGHT,
-                                      SWK_DOWN | SWK_LEFT,
-                                      SWK_DOWN | SWK_RIGHT };
-
-    static const u16 attacks[] = { SWK_WEST,          SWK_NORTH, SWK_RIGHT_SHOULDER,
-                                   SWK_LEFT_SHOULDER, SWK_SOUTH, SWK_RIGHT_TRIGGER };
-
-    static u16 held[2] = { 0, 0 };
-    static int hold_frames[2] = { 0, 0 };
-
-    if (hold_frames[player] > 0) {
-        hold_frames[player] -= 1;
-        return held[player];
-    }
-
-    u16 input = directions[stress_random() % SDL_arraysize(directions)];
-
-    // Roughly a third of the time, press an attack alongside the direction.
-    if (stress_random() % 3 == 0) {
-        input |= attacks[stress_random() % SDL_arraysize(attacks)];
-    }
-
-    held[player] = input;
-    hold_frames[player] = (int)(stress_random() % 6);
-
-    return input;
-}
-
-static void configure_stress_session(GekkoConfig* config) {
-    config->check_distance = stress_check_distance;
-
-    if (!gekko_create(&session, GekkoStressSession)) {
-        SDL_Log("Session is already running! probably incorrect.");
-        return;
-    }
-
-    gekko_start(session, config);
-
-    // A stress session simulates both sides locally, so both actors are local.
-    for (int i = 0; i < PLAYER_COUNT; i++) {
-        gekko_add_actor(session, GekkoLocalPlayer, NULL);
-    }
-
-    player_handle = 0;
-
-    stress_trace(
-        "session created (seed %u, check distance %d, frame limit %d)",
-        stress_rng,
-        stress_check_distance,
-        stress_frame_limit
-    );
-}
-
 static void configure_gekko() {
     GekkoConfig config;
     SDL_zero(config);
@@ -326,8 +196,8 @@ static void configure_gekko() {
     reset_state_buffers();
 #endif
 
-    if (stress_mode) {
-        configure_stress_session(&config);
+    if (Stress_IsRunning()) {
+        Stress_CreateSession(&config, &session, &player_handle);
         return;
     }
 
@@ -518,11 +388,11 @@ static const State* note_state(const State* state, int frame) {
 
 static void dump_state(const State* src, const char* relative) {
     char states_dir[512];
-    stress_path(states_dir, sizeof(states_dir), "states");
+    Stress_Path(states_dir, sizeof(states_dir), "states");
     SDL_CreateDirectory(states_dir);
 
     char filename[512];
-    stress_path(filename, sizeof(filename), relative);
+    Stress_Path(filename, sizeof(filename), relative);
 
     SDL_IOStream* io = SDL_IOFromFile(filename, "w");
 
@@ -554,8 +424,7 @@ static void dump_saved_state(int frame) {
     dump_state(src, filename);
 }
 
-/// Dump both simulations of a frame so compare_states.py can diff them as a pair.
-static void dump_desync_pair(int frame) {
+void NetplayBase_DumpDesyncPair(int frame) {
     const int slot = frame % STATE_BUFFER_MAX;
 
     if (state_buffer_frame[slot] != frame || resim_state_buffer_frame[slot] != frame) {
@@ -611,13 +480,8 @@ static void save_state(GekkoGameEvent* event) {
 
     if (!is_resimulation) {
         state_buffer_checksum[slot] = checksum;
-    } else if (stress_mode && !stress_pair_dumped && checksum != state_buffer_checksum[slot]) {
-        // Catch the divergence here rather than when the session reports it:
-        // by then this frame has been re-simulated several more times and the
-        // buffer may hold a pass that happens to agree.
-        stress_pair_dumped = true;
-        dump_desync_pair(frame);
-        stress_trace("re-simulation of frame %d diverged (0x%X vs 0x%X)", frame, state_buffer_checksum[slot], checksum);
+    } else if (Stress_IsRunning() && checksum != state_buffer_checksum[slot]) {
+        Stress_OnResimulationDiverged(frame, state_buffer_checksum[slot], checksum);
     }
 #endif
 }
@@ -647,7 +511,7 @@ static void load_state_from_event(GekkoGameEvent* event) {
     // that was loaded. Anything that differs is state the save/load pair drops.
     static bool round_trip_checked = false;
 
-    if (stress_mode && !round_trip_checked) {
+    if (Stress_IsRunning() && !round_trip_checked) {
         round_trip_checked = true;
 
         static State before;
@@ -662,7 +526,7 @@ static void load_state_from_event(GekkoGameEvent* event) {
         dump_state(&before, "states/0_9999");
         dump_state(&after, "states/1_9999");
 
-        stress_trace("round-trip dump written for frame %d", event->data.load.frame);
+        Stress_Trace("round-trip dump written for frame %d", event->data.load.frame);
     }
 #endif
 }
@@ -714,9 +578,9 @@ static void process_session() {
 
     gekko_network_poll(session);
 
-    if (stress_mode) {
+    if (Stress_IsRunning()) {
         for (int i = 0; i < PLAYER_COUNT; i++) {
-            u16 stress_inputs = stress_random_input(i);
+            u16 stress_inputs = Stress_NextInput(i);
             gekko_add_local_input(session, i, &stress_inputs);
         }
     } else {
@@ -760,20 +624,8 @@ static void process_session() {
             );
 
 #if DEBUG
-            if (stress_mode) {
-                stress_desyncs += 1;
-                stress_trace("desync at frame %d after %d frames", frame, stress_frames_run);
-
-                if (!stress_pair_dumped) {
-                    // The divergence was outside the window save_state watches.
-                    stress_pair_dumped = true;
-                    dump_desync_pair(frame);
-                }
-
-                // Finding one is the whole point of the run, so stop here and
-                // leave the dumps for compare_states.py.
-                stress_trace("exiting: desync found after %d frames", stress_frames_run);
-                SDLApp_Exit();
+            if (Stress_IsRunning()) {
+                Stress_OnDesync(frame);
             } else {
                 dump_saved_state(frame);
             }
@@ -808,12 +660,8 @@ static void process_events(bool drawing_allowed) {
             advance_game(event, drawing_allowed && !rolling_back);
             frames_rolled_back += rolling_back ? 1 : 0;
 
-            if (stress_mode && !rolling_back) {
-                stress_frames_run += 1;
-
-                if (stress_frames_run % 60 == 0) {
-                    stress_trace("stress frame %d (%d desync(s))", stress_frames_run, stress_desyncs);
-                }
+            if (Stress_IsRunning() && !rolling_back) {
+                Stress_OnFrameAdvanced();
             }
             break;
 
@@ -919,7 +767,7 @@ void Netplay_TickDirectP2P() {
     }
 
     direct_p2p_pending = false;
-    setup_vs_mode();
+    NetplayBase_SetupVsMode();
 
     SDL_zeroa(input_history);
     frames_behind = 0;
@@ -929,145 +777,13 @@ void Netplay_TickDirectP2P() {
     session_state = NETPLAY_SESSION_TRANSITIONING;
 }
 
-void Netplay_SetStressOutputDir(const char* directory) {
-    if (directory != NULL) {
-        stress_out_dir = directory;
-    }
-}
-
-void Netplay_BeginStress(int seed, int check_distance, int frames) {
-    // A zero seed would make xorshift produce nothing but zeroes.
-    stress_rng = seed != 0 ? (u32)seed : 1;
-
-    stress_check_distance = check_distance > 0 ? check_distance : STRESS_CHECK_DISTANCE_DEFAULT;
-    stress_frame_limit = frames;
-    stress_pending = true;
-
-#if DEBUG
-    // Both simulations of a frame have to still be in the buffer when the desync
-    // is reported, which is check_distance frames after the fact.
-    if (stress_check_distance >= STATE_BUFFER_MAX) {
-        stress_check_distance = STATE_BUFFER_MAX - 1;
-        SDL_Log("Clamped stress check distance to %d.", stress_check_distance);
-    }
-#endif
-}
-
-static bool game_is_in_a_fight() {
-    return G_No[1] == GAME_STATE_FIGHT;
-}
-
-/// A stress run is unattended, so it drives the boot screens and character
-/// select itself. Called after keyConvert() has filled the pad buffers, and only
-/// until the session takes over the inputs.
-void Netplay_InjectStressBootInput() {
-    if (!stress_pending && !stress_waiting_for_match && !stress_mode) {
-        return;
-    }
-
-    // Both players are simulated, but only port 1 has real hardware behind it.
-    // keyConvert() clears the other port every frame, which makes the game ask
-    // for a controller to be reconnected mid-match.
-    Interface_Type[0] = STRESS_PAD_CONNECTED;
-    Interface_Type[1] = STRESS_PAD_CONNECTED;
-
-    if (stress_mode) {
-        // The session drives the inputs once it is running.
-        return;
-    }
-
-    stress_boot_timer += 1;
-
-    if (stress_boot_timer % 60 == 0) {
-        stress_trace(
-            "driving menus, frame %d: menu cond %d, G_No %d/%d/%d",
-            stress_boot_timer,
-            task[TASK_MENU].condition,
-            G_No[0],
-            G_No[1],
-            G_No[2]
-        );
-    }
-
-    if (stress_pending) {
-        // Tap rather than hold: the screens react to a press, not to the button
-        // being down, and holding it would only ever produce one edge.
-        if ((stress_boot_timer / 4) % 2 == 0) {
-            p1sw_buff |= SWK_START;
-        }
-
-        return;
-    }
-
-    // Character select and the screens around it. Both sides need to pick, so
-    // feed both pads and tap start to get through the VS screens.
-    p1sw_buff |= stress_random_input(0);
-    p2sw_buff |= stress_random_input(1);
-
-    if ((stress_boot_timer / 8) % 2 == 0) {
-        p1sw_buff |= SWK_START;
-        p2sw_buff |= SWK_START;
-    }
-}
-
-void Netplay_TickStress() {
-    if (stress_pending) {
-        // Wait for the game to reach the menus before taking it into VS mode.
-        if (task[TASK_MENU].condition != 1) {
-            return;
-        }
-
-        stress_trace("entering versus mode from G_No %d/%d/%d", G_No[0], G_No[1], G_No[2]);
-
-        stress_pending = false;
-        stress_waiting_for_match = true;
-        setup_vs_mode();
-
-        // Character select is driven by the pads, not by the session, so run it
-        // as a local versus match.
-        Mode_Type = MODE_VERSUS;
-        return;
-    }
-
-    if (!stress_waiting_for_match || !game_is_in_a_fight()) {
-        return;
-    }
-
-    // The fight is running, so hand the simulation over to the stress session.
-    // Starting here keeps the rollback away from character select and stage
-    // loading, which are far too expensive to re-simulate every frame.
-    stress_trace("fight reached, creating session at G_No %d/%d/%d", G_No[0], G_No[1], G_No[2]);
-
-    stress_waiting_for_match = false;
-    stress_mode = true;
-
-    const int previous_operators[PLAYER_COUNT] = { plw[0].wu.operator, plw[1].wu.operator };
-
-    // Both sides have to read their lever from the session. A CPU-controlled
-    // player derives it from cpu_algorithm() instead, whose state isn't part of
-    // the saved State, so it would diverge on every rollback.
-    for (int i = 0; i < PLAYER_COUNT; i++) {
-        Operator_Status[i] = 1;
-        plw[i].wu.operator = 1;
-    }
-
-    stress_trace("operators were %d/%d, forced to human", previous_operators[0], previous_operators[1]);
-
+void NetplayBase_StartStressSession() {
     SDL_zeroa(input_history);
     frames_behind = 0;
     frame_skip_timer = 0;
 
     configure_gekko();
     session_state = NETPLAY_SESSION_RUNNING;
-}
-
-static void check_stress_frame_limit() {
-    if (!stress_mode || stress_frame_limit <= 0 || stress_frames_run < stress_frame_limit) {
-        return;
-    }
-
-    stress_trace("exiting: frame limit reached after %d frames, %d desync(s)", stress_frames_run, stress_desyncs);
-    SDLApp_Exit();
 }
 
 void Netplay_SetMatchmakingParams(const char* server_ip, int server_port) {
@@ -1105,7 +821,7 @@ void Netplay_TickMatchmaking() {
         frame_skip_timer = 0;
         transition_ready_frames = 0;
         matchmaking_pending = false;
-        setup_vs_mode();
+        NetplayBase_SetupVsMode();
         session_state = NETPLAY_SESSION_TRANSITIONING;
     } else if (mm == FISTBUMP_ERROR) {
         matchmaking_pending = false;
@@ -1138,16 +854,6 @@ void Netplay_CancelMatchmaking() {
 void Netplay_Run() {
     switch (session_state) {
     case NETPLAY_SESSION_TRANSITIONING:
-        if (stress_mode) {
-            static int transition_trace = 0;
-
-            if (transition_trace++ % 60 == 0) {
-                stress_trace(
-                    "transitioning: G_No %d/%d/%d, ready %d", G_No[0], G_No[1], G_No[2], transition_ready_frames
-                );
-            }
-        }
-
         if (game_ready_to_run_character_select()) {
             transition_ready_frames += 1;
         } else {
@@ -1158,9 +864,7 @@ void Netplay_Run() {
 
         if (transition_ready_frames >= 2) {
             configure_gekko();
-            // A stress session is local, so there is no handshake to wait for
-            // and no GekkoSessionStarted event will ever arrive.
-            session_state = stress_mode ? NETPLAY_SESSION_RUNNING : NETPLAY_SESSION_CONNECTING;
+            session_state = NETPLAY_SESSION_CONNECTING;
         }
 
         break;
@@ -1168,7 +872,6 @@ void Netplay_Run() {
     case NETPLAY_SESSION_CONNECTING:
     case NETPLAY_SESSION_RUNNING:
         run_netplay();
-        check_stress_frame_limit();
         break;
 
     case NETPLAY_SESSION_EXITING:
