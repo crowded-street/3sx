@@ -44,7 +44,9 @@ echo "Using $BUILD_JOBS build job(s)"
 # FFmpeg
 # -----------------------------
 
-FFMPEG="ffmpeg-8.0"
+FFMPEG_TAG="n8.0"
+FFMPEG="FFmpeg-$FFMPEG_TAG"
+FFMPEG_ARCHIVE="ffmpeg-$FFMPEG_TAG.tar.gz"
 FFMPEG_DIR="$THIRD_PARTY/ffmpeg"
 FFMPEG_BUILD="$FFMPEG_DIR/build"
 
@@ -56,8 +58,8 @@ else
     cd "$FFMPEG_DIR"
 
     if [ ! -d "$FFMPEG" ]; then
-        curl -L -O "https://ffmpeg.org/releases/$FFMPEG.tar.xz"
-        tar xf "$FFMPEG.tar.xz"
+        curl -L -o "$FFMPEG_ARCHIVE" "https://github.com/FFmpeg/FFmpeg/archive/refs/tags/$FFMPEG_TAG.tar.gz"
+        tar xf "$FFMPEG_ARCHIVE"
     fi
 
     cd "$FFMPEG"
@@ -112,7 +114,7 @@ else
 
     cd ../..
     rm -rf "$FFMPEG"
-    rm "$FFMPEG.tar.xz"
+    rm "$FFMPEG_ARCHIVE"
     cd "$ROOT_DIR"
 fi
 
