@@ -29,6 +29,7 @@
 #include "sf33rd/Source/Game/rendering/meta_col.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/system/sysdir.h"
+#include "sf33rd/Source/Game/ui/input_history.h"
 
 void plmv_1010(PLW* wk);
 void plmv_1020(PLW* wk, s16 step);
@@ -53,6 +54,8 @@ void Player_move(PLW* wk, u16 lv_data) { // 🟡
         // The PS2 port normalizes impossible direction combinations; CPS3 uses the raw processed input.
         wk->cp->sw_lvbt = check_illegal_lever_data(wk->cp->sw_lvbt);
     }
+
+    InputHistory_Append(wk->cp->sw_lvbt, wk->wu.id);
 
     if (wk->metamor_over) {
         wk->cp->sw_lvbt = 0;
