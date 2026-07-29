@@ -15,18 +15,12 @@
 #if CRS_VIDEO_DRIVER_SDL_GENERIC
 static bool skip_rendering() {
 #if STATCHECK
-    if (get_args()->statcheck.headless) {
-        return true;
-    }
-#endif
-
-#if NETPLAY_ENABLED
-    if (get_args()->netplay.stress) {
-        return true;
-    }
-#endif
-
+    return get_args()->statcheck.headless;
+#elif NETPLAY_ENABLED
+    return get_args()->netplay.stress;
+#else
     return false;
+#endif
 }
 #endif
 
