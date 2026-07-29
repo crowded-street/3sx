@@ -25,8 +25,8 @@ typedef struct InputHistory {
 
 typedef struct AttackBitDescription {
     u8 bit;
-    u8 strength;
     GlyphPosition glyph;
+    GlyphColor color;
 } AttackBitDescription;
 
 static const GlyphPosition lever_to_glyph[] = {
@@ -36,15 +36,12 @@ static const GlyphPosition lever_to_glyph[] = {
 };
 
 static const AttackBitDescription attack_bits[] = {
-    { .bit = 4, .strength = 0, .glyph = GLYPH_PUNCH }, { .bit = 5, .strength = 1, .glyph = GLYPH_PUNCH },
-    { .bit = 6, .strength = 2, .glyph = GLYPH_PUNCH }, { .bit = 8, .strength = 0, .glyph = GLYPH_KICK },
-    { .bit = 9, .strength = 1, .glyph = GLYPH_KICK },  { .bit = 10, .strength = 2, .glyph = GLYPH_KICK },
-};
-
-static const GlyphColor attack_strength_to_color[] = {
-    [0] = GLYPH_COLOR_LIGHT,
-    [1] = GLYPH_COLOR_MEDIUM,
-    [2] = GLYPH_COLOR_HEAVY,
+    { .bit = 4, .glyph = GLYPH_PUNCH, .color = GLYPH_COLOR_LIGHT },
+    { .bit = 5, .glyph = GLYPH_PUNCH, .color = GLYPH_COLOR_MEDIUM },
+    { .bit = 6, .glyph = GLYPH_PUNCH, .color = GLYPH_COLOR_HEAVY },
+    { .bit = 8, .glyph = GLYPH_KICK, .color = GLYPH_COLOR_LIGHT },
+    { .bit = 9, .glyph = GLYPH_KICK, .color = GLYPH_COLOR_MEDIUM },
+    { .bit = 10, .glyph = GLYPH_KICK, .color = GLYPH_COLOR_HEAVY },
 };
 
 static InputHistory input_history[2] = { 0 };
@@ -135,7 +132,7 @@ void InputHistory_Render() {
                     continue;
                 }
 
-                GlyphRenderer_DrawGlyph(attack_bit->glyph, pos, attack_strength_to_color[attack_bit->strength], z);
+                GlyphRenderer_DrawGlyph(attack_bit->glyph, pos, attack_bit->color, z);
                 pos.x += 9;
             }
 
