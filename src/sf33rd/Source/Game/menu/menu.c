@@ -4815,9 +4815,9 @@ void Training_Option(struct _TASK* task_ptr) {
         effect_A3_init(0, 7, TRAINING_OPTION_SA_GAUGE, TRAINING_OPTION_SA_GAUGE, 1, 230, 72, 1);
         effect_A3_init(0, 15, TRAINING_OPTION_ATTACK_DATA, TRAINING_OPTION_ATTACK_DATA, 1, 230, 88, 1);
         effect_A3_init(0, 15, TRAINING_OPTION_HITBOXES, TRAINING_OPTION_HITBOXES, 1, 230, 104, 1);
-        effect_A3_init(0, 9, TRAINING_OPTION_DAMAGE, TRAINING_OPTION_DAMAGE, 1, 230, 120, 1);
-        effect_A3_init(0, 10, TRAINING_OPTION_DIFFICULTY, TRAINING_OPTION_DIFFICULTY, 1, 230, 136, 1);
-        effect_A3_init(0, 15, TRAINING_OPTION_INPUT_HISTORY, TRAINING_OPTION_INPUT_HISTORY, 1, 230, 152, 1);
+        effect_A3_init(0, 15, TRAINING_OPTION_INPUT_HISTORY, TRAINING_OPTION_INPUT_HISTORY, 1, 230, 120, 1);
+        effect_A3_init(0, 9, TRAINING_OPTION_DAMAGE, TRAINING_OPTION_DAMAGE, 1, 230, 136, 1);
+        effect_A3_init(0, 10, TRAINING_OPTION_DIFFICULTY, TRAINING_OPTION_DIFFICULTY, 1, 230, 152, 1);
 
         break;
 
@@ -4875,7 +4875,7 @@ void Dummy_Move_Sub(struct _TASK* task_ptr, s16 PL_id, s16 id, s16 type, s16 max
 }
 
 const u8 Menu_Max_Data_Tr[2][2][8] = {
-    { { 4, 6, 2, 2, 0, 0, 0, 0 }, { 3, 1, 1, 3, 7, 1, 0, 0 } },
+    { { 4, 6, 2, 2, 0, 0, 0, 0 }, { 3, 1, 1, 1, 3, 7, 0, 0 } },
     { { 2, 3, 1, 3, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0, 0 } },
 };
 
