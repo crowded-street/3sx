@@ -4794,13 +4794,10 @@ void Dummy_Setting(struct _TASK* task_ptr) {
 
 void Training_Option(struct _TASK* task_ptr) {
     s16 ix;
-    s16 group;
     s16 y;
 
     s16 s6;
     s16 s5;
-    s16 s4;
-    s16 s3;
 
     switch (task_ptr->r_no[2]) {
     case 0:
@@ -4811,22 +4808,23 @@ void Training_Option(struct _TASK* task_ptr) {
         Menu_Suicide[0] = 1;
         Training_Index = 3;
 
-        for (ix = 0, s6 = y = 72; ix < 7; ix++, s5 = y += 16) {
+        for (ix = 0, s6 = y = 72; ix < 8; ix++, s5 = y += 16) {
             effect_A3_init(0, 6, ix, ix, 1, 48, y, 1);
         }
 
-        for (ix = 0, y = 72, s4 = group = 7; ix < 4; ix++, group++, s3 = y += 16) {
-            effect_A3_init(0, group, ix, ix, 1, 230, y, 1);
-        }
-
-        effect_A3_init(0, 15, TRAINING_OPTION_INPUT_HISTORY, TRAINING_OPTION_INPUT_HISTORY, 1, 230, y, 1);
+        effect_A3_init(0, 7, TRAINING_OPTION_SA_GAUGE, TRAINING_OPTION_SA_GAUGE, 1, 230, 72, 1);
+        effect_A3_init(0, 15, TRAINING_OPTION_ATTACK_DATA, TRAINING_OPTION_ATTACK_DATA, 1, 230, 88, 1);
+        effect_A3_init(0, 15, TRAINING_OPTION_HITBOXES, TRAINING_OPTION_HITBOXES, 1, 230, 104, 1);
+        effect_A3_init(0, 9, TRAINING_OPTION_DAMAGE, TRAINING_OPTION_DAMAGE, 1, 230, 120, 1);
+        effect_A3_init(0, 10, TRAINING_OPTION_DIFFICULTY, TRAINING_OPTION_DIFFICULTY, 1, 230, 136, 1);
+        effect_A3_init(0, 15, TRAINING_OPTION_INPUT_HISTORY, TRAINING_OPTION_INPUT_HISTORY, 1, 230, 152, 1);
 
         break;
 
     case 1:
-        Dummy_Move_Sub(task_ptr, Champion, 0, 1, 6);
+        Dummy_Move_Sub(task_ptr, Champion, 0, 1, 7);
 
-        if (Menu_Cursor_Y[0] == 5 && IO_Result & 0x100) {
+        if (Menu_Cursor_Y[0] == 6 && IO_Result & 0x100) {
             Default_Training_Option();
             SE_selected();
             break;
@@ -4876,15 +4874,17 @@ void Dummy_Move_Sub(struct _TASK* task_ptr, s16 PL_id, s16 id, s16 type, s16 max
     }
 }
 
-const u8 Menu_Max_Data_Tr[2][2][7] = { { { 4, 6, 2, 2, 0, 0, 0 }, { 3, 2, 3, 7, 1, 0, 0 } },
-                                       { { 2, 3, 1, 3, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0 } } };
+const u8 Menu_Max_Data_Tr[2][2][8] = {
+    { { 4, 6, 2, 2, 0, 0, 0, 0 }, { 3, 1, 1, 3, 7, 1, 0, 0 } },
+    { { 2, 3, 1, 3, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0, 0 } },
+};
 
-static bool is_data_plus_hitboxes_option_selected() {
-    return Training[0].contents[0][1][TRAINING_OPTION_ATTACK_DATA] == 2;
+static bool is_training_hitbox_display_enabled() {
+    return Training[0].contents[0][1][TRAINING_OPTION_HITBOXES] != 0;
 }
 
 static void apply_training_hitbox_display(bool force_off) {
-    if (force_off || Mode_Type != MODE_NORMAL_TRAINING || !is_data_plus_hitboxes_option_selected()) {
+    if (force_off || Mode_Type != MODE_NORMAL_TRAINING || !is_training_hitbox_display_enabled()) {
         Set_Training_Hitbox_Display(false);
     } else {
         Set_Training_Hitbox_Display(true);
@@ -5247,7 +5247,7 @@ void Default_Training_Data(s32 flag) {
 
     for (ix = 0; ix < 2; ix++) {
         for (ix2 = 0; ix2 < 2; ix2++) {
-            for (ix3 = 0; ix3 < 5; ix3++) {
+            for (ix3 = 0; ix3 < 6; ix3++) {
                 Training[0].contents[ix][ix2][ix3] = 0;
             }
         }
@@ -5264,6 +5264,7 @@ void Default_Training_Data(s32 flag) {
 void Default_Training_Option() {
     Training->contents[0][1][TRAINING_OPTION_SA_GAUGE] = 0;
     Training->contents[0][1][TRAINING_OPTION_ATTACK_DATA] = 0;
+    Training->contents[0][1][TRAINING_OPTION_HITBOXES] = 0;
     Training->contents[0][1][TRAINING_OPTION_DAMAGE] = save_w->Damage_Level;
     Training->contents[0][1][TRAINING_OPTION_DIFFICULTY] = save_w->Difficulty;
     Training->contents[0][1][TRAINING_OPTION_INPUT_HISTORY] = 0;
