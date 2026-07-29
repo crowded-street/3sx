@@ -40,10 +40,10 @@ static const AttackBitDescription attack_bits[] = {
     { .bit = 9, .strength = 1, .glyph = GLYPH_KICK },  { .bit = 10, .strength = 2, .glyph = GLYPH_KICK },
 };
 
-static const u32 attack_strength_to_color[] = {
-    [0] = 0xFF0000FF, // Blue
-    [1] = 0xFFFFFF00, // Yellow
-    [2] = 0xFFFF0000, // Red
+static const GlyphColor attack_strength_to_color[] = {
+    [0] = GLYPH_COLOR_LIGHT,
+    [1] = GLYPH_COLOR_MEDIUM,
+    [2] = GLYPH_COLOR_HEAVY,
 };
 
 static InputHistory input_history[2] = { 0 };
@@ -102,28 +102,34 @@ void InputHistory_Render() {
                 break;
             }
 
+            // Digits
+
             if (item->count == 1) {
                 pos.x += 16;
             } else if (item->count < 10) {
                 pos.x += 8;
-                GlyphRenderer_DrawDigit(item->count, pos, 0xFFFFFFFF, z);
+                GlyphRenderer_DrawDigit(item->count, pos, GLYPH_COLOR_WHITE, z);
                 pos.x += 8;
             } else {
-                GlyphRenderer_DrawDigit(item->count / 10, pos, 0xFFFFFFFF, z);
+                GlyphRenderer_DrawDigit(item->count / 10, pos, GLYPH_COLOR_WHITE, z);
                 pos.x += 8;
-                GlyphRenderer_DrawDigit(item->count % 10, pos, 0xFFFFFFFF, z);
+                GlyphRenderer_DrawDigit(item->count % 10, pos, GLYPH_COLOR_WHITE, z);
                 pos.x += 8;
             }
 
             pos.x += 1;
 
+            // Lever
+
             const u16 lever = item->lvbt & 0xF;
 
             if (lever > 0) {
-                GlyphRenderer_DrawGlyph(lever_to_glyph[lever], pos, 0xFFFFFFFF, z);
+                GlyphRenderer_DrawGlyph(lever_to_glyph[lever], pos, GLYPH_COLOR_WHITE, z);
             }
 
             pos.x += 9;
+
+            // Attacks
 
             for (int k = 0; k < 6; k++) {
                 const AttackBitDescription* attack_bit = &attack_bits[k];
