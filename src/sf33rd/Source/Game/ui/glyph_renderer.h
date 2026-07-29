@@ -16,6 +16,7 @@ typedef enum GlyphColor {
     GLYPH_COLOR_HEAVY,   /// Red color primarily associated with heavy normals
 } GlyphColor;
 
+#define GLYPH_NEUTRAL (GlyphPosition) { 26, 2 }
 #define GLYPH_UP (GlyphPosition) { 27, 2 }
 #define GLYPH_DOWN (GlyphPosition) { 29, 2 }
 #define GLYPH_LEFT (GlyphPosition) { 30, 2 }

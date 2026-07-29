@@ -30,8 +30,9 @@ typedef struct AttackBitDescription {
 } AttackBitDescription;
 
 static const GlyphPosition lever_to_glyph[] = {
-    [0b0001] = GLYPH_UP,        [0b0010] = GLYPH_DOWN,  [0b0100] = GLYPH_LEFT,     [0b0101] = GLYPH_UP_LEFT,
-    [0b0110] = GLYPH_DOWN_LEFT, [0b1000] = GLYPH_RIGHT, [0b1001] = GLYPH_UP_RIGHT, [0b1010] = GLYPH_DOWN_RIGHT,
+    [0b0000] = GLYPH_NEUTRAL, [0b0001] = GLYPH_UP,       [0b0010] = GLYPH_DOWN,
+    [0b0100] = GLYPH_LEFT,    [0b0101] = GLYPH_UP_LEFT,  [0b0110] = GLYPH_DOWN_LEFT,
+    [0b1000] = GLYPH_RIGHT,   [0b1001] = GLYPH_UP_RIGHT, [0b1010] = GLYPH_DOWN_RIGHT,
 };
 
 static const AttackBitDescription attack_bits[] = {
@@ -122,11 +123,7 @@ void InputHistory_Render() {
             // Lever
 
             const u16 lever = item->lvbt & 0xF;
-
-            if (lever > 0) {
-                GlyphRenderer_DrawGlyph(lever_to_glyph[lever], pos, GLYPH_COLOR_WHITE, z);
-            }
-
+            GlyphRenderer_DrawGlyph(lever_to_glyph[lever], pos, GLYPH_COLOR_WHITE, z);
             pos.x += 9;
 
             // Attacks
