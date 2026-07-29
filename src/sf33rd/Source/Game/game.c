@@ -58,6 +58,7 @@
 #include "sf33rd/Source/Game/ui/count.h"
 #include "sf33rd/Source/Game/ui/flash_lp.h"
 #include "sf33rd/Source/Game/ui/sc_sub.h"
+#include "sf33rd/Source/Game/ui/input_history.h"
 #include "structs.h"
 
 void Wait_Auto_Load(struct _TASK* /* unused */);
@@ -503,6 +504,14 @@ void Game2_0() {
     TATE00();
 }
 
+static bool should_render_input_history() {
+    if ((Mode_Type == MODE_NORMAL_TRAINING) || (Mode_Type == MODE_PARRY_TRAINING)) {
+        return true;
+    }
+
+    return false;
+}
+
 /// Main gameplay routine
 void Game2_1() {
     mpp_w.inGame = true;
@@ -541,6 +550,10 @@ void Game2_1() {
         Score_Sub();
         Flash_Lamp();
         Disp_Win_Record();
+
+        if (should_render_input_history()) {
+            InputHistory_Render();
+        }
     }
 
     ppgPurgeFromVRAM(0);

@@ -42,6 +42,7 @@
 #include "sf33rd/Source/Game/system/sysdir.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/ui/count.h"
+#include "sf33rd/Source/Game/ui/input_history.h"
 #include "sf33rd/Source/Game/ui/sc_sub.h"
 
 void Game_Manage_1st();
@@ -399,6 +400,8 @@ void Game_Manage_2_2() {
     Stock_Score[1] = Score[1][0];
     grade_check_work_round_init(0);
     grade_check_work_round_init(1);
+
+    InputHistory_Clear();
 }
 
 void Game_Manage_2_3() {

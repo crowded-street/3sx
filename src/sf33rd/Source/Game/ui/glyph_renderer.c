@@ -36,3 +36,12 @@ void GlyphRenderer_DrawGlyph(GlyphPosition atlas_pos, GlyphPosition screen_pos, 
     Renderer_SetTexture(glyph_texture);
     Renderer_DrawSprite(&sprite, color);
 }
+
+void GlyphRenderer_DrawDigit(Uint8 digit, GlyphPosition screen_pos, Uint32 color, float z) {
+    if (digit > 9) {
+        SDL_assert(true);
+        return;
+    }
+
+    GlyphRenderer_DrawGlyph((GlyphPosition) { digit, 2 }, screen_pos, color, z);
+}
