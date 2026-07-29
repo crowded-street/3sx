@@ -2,6 +2,7 @@
 #include "common.h"
 #if NETPLAY_ENABLED
 #include "platform/netplay/netplay.h"
+#include "platform/netplay/netplay_stress.h"
 #endif
 #include "sf33rd/AcrSDK/common/mlPAD.h"
 #include "sf33rd/AcrSDK/ps2/flps2debug.h"
@@ -262,6 +263,10 @@ void Main_StepFrame() {
     flPADGetALL();
     keyConvert();
 
+#if NETPLAY_ENABLED
+    Stress_InjectBootInput();
+#endif
+
 #if DEBUG
     configure_slow_timer();
 #endif
@@ -298,6 +303,7 @@ void Main_StepFrame() {
         njdp2d_draw();
         Netplay_TickMatchmaking();
         Netplay_TickDirectP2P();
+        Stress_Tick();
     }
 #else
     njUserMain();

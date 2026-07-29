@@ -9,6 +9,11 @@ typedef struct NetplayArgs {
     const char* p2p_remote_ip;
     const char* matchmaking_ip;
     int matchmaking_port;
+    bool stress;
+    int stress_seed;
+    int stress_check_distance;
+    int stress_frames;
+    const char* stress_out;
 } NetplayArgs;
 #endif
 

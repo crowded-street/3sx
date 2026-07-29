@@ -2,6 +2,7 @@
 #include "sf33rd/Source/Game/animation/appear.h"
 #include "sf33rd/Source/Game/animation/win_pl.h"
 #include "sf33rd/Source/Game/effect/eff56.h"
+#include "sf33rd/Source/Game/effect/eff79.h"
 #include "sf33rd/Source/Game/effect/effb2.h"
 #include "sf33rd/Source/Game/effect/effb8.h"
 #include "sf33rd/Source/Game/engine/charset.h"
@@ -11,13 +12,20 @@
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
+#include "sf33rd/Source/Game/system/sysdir.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/ui/count.h"
 #include "sf33rd/Source/Game/ui/sc_sub.h"
 
 #include <SDL3/SDL.h>
 
-#define GS_SAVE(member) SDL_memcpy(&dst->member, &member, sizeof(member))
+// Copies are sized by the global, so a mismatched field would spill into its neighbours.
+#define GS_ASSERT_SAME_SIZE(member)                                                                                    \
+    _Static_assert(sizeof(((GameState*)0)->member) == sizeof(member), #member " does not match its global")
+
+#define GS_SAVE(member)                                                                                                \
+    GS_ASSERT_SAME_SIZE(member);                                                                                       \
+    SDL_memcpy(&dst->member, &member, sizeof(member))
 
 void GameState_Save(GameState* dst) {
     GS_SAVE(Scene_Cut);
@@ -238,6 +246,8 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(Plate_Disposal_No);
     GS_SAVE(SO_No);
     GS_SAVE(Disp_Command_Name);
+    GS_SAVE(OK_Appear79);
+    GS_SAVE(Extra_Counter);
     GS_SAVE(SC_No);
     GS_SAVE(BGM_No);
     GS_SAVE(BGM_Timer);
@@ -450,8 +460,9 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(Cont_Timer);
     GS_SAVE(Plate_X);
     GS_SAVE(Plate_Y);
-    // GS_SAVE(Demo_Timer);
-    // GS_SAVE(Condense_Buff);
+    GS_SAVE(Demo_Timer);
+    GS_SAVE(Condense_Buff);
+    GS_SAVE(Demo_Ptr);
     GS_SAVE(Keep_Grade);
     GS_SAVE(IO_Result);
     GS_SAVE(VS_Win_Record);
@@ -464,7 +475,8 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(Random_ix32_com);
     GS_SAVE(Random_ix16_ex_com);
     GS_SAVE(Random_ix32_ex_com);
-    GS_SAVE(Random_ix16_bg);
+    // Random_ix16_bg is left out on purpose: it only drives stage flashing, and the
+    // state deciding when to draw from it isn't saved.
     GS_SAVE(Opening_Now);
     GS_SAVE(task);
 
@@ -505,6 +517,7 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(bonus_pts);
     GS_SAVE(hit_num);
     GS_SAVE(sa_kind);
+    GS_SAVE(chainex_check);
     GS_SAVE(end_flag);
     GS_SAVE(calc_hit);
     GS_SAVE(score_calc);
@@ -642,7 +655,9 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(mes_timer);
 }
 
-#define GS_LOAD(member) SDL_memcpy(&member, &src->member, sizeof(member))
+#define GS_LOAD(member)                                                                                                \
+    GS_ASSERT_SAME_SIZE(member);                                                                                       \
+    SDL_memcpy(&member, &src->member, sizeof(member))
 
 void GameState_Load(const GameState* src) {
     GS_LOAD(Scene_Cut);
@@ -863,6 +878,8 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(Plate_Disposal_No);
     GS_LOAD(SO_No);
     GS_LOAD(Disp_Command_Name);
+    GS_LOAD(OK_Appear79);
+    GS_LOAD(Extra_Counter);
     GS_LOAD(SC_No);
     GS_LOAD(BGM_No);
     GS_LOAD(BGM_Timer);
@@ -1075,8 +1092,9 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(Cont_Timer);
     GS_LOAD(Plate_X);
     GS_LOAD(Plate_Y);
-    // GS_LOAD(Demo_Timer);
-    // GS_LOAD(Condense_Buff);
+    GS_LOAD(Demo_Timer);
+    GS_LOAD(Condense_Buff);
+    GS_LOAD(Demo_Ptr);
     GS_LOAD(Keep_Grade);
     GS_LOAD(IO_Result);
     GS_LOAD(VS_Win_Record);
@@ -1089,7 +1107,6 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(Random_ix32_com);
     GS_LOAD(Random_ix16_ex_com);
     GS_LOAD(Random_ix32_ex_com);
-    GS_LOAD(Random_ix16_bg);
     GS_LOAD(Opening_Now);
     GS_LOAD(task);
 
@@ -1130,6 +1147,7 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(bonus_pts);
     GS_LOAD(hit_num);
     GS_LOAD(sa_kind);
+    GS_LOAD(chainex_check);
     GS_LOAD(end_flag);
     GS_LOAD(calc_hit);
     GS_LOAD(score_calc);

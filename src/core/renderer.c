@@ -16,6 +16,8 @@
 static bool skip_rendering() {
 #if STATCHECK
     return get_args()->statcheck.headless;
+#elif NETPLAY_ENABLED
+    return get_args()->netplay.stress;
 #else
     return false;
 #endif

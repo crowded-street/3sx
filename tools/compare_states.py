@@ -1,3 +1,4 @@
+import os
 import sys
 from pathlib import Path
 from enum import Enum
@@ -115,16 +116,28 @@ class DWARFParser:
         return list(reversed(indices))
 
     def __run_dwarfdump(self, path: Path) -> str:
-        result = subprocess.run(
-            ["dwarfdump", path],
-            capture_output=True,
-            text=True
-        )
+        # LLVM ships the tool as llvm-dwarfdump, which is what MSYS2 provides.
+        candidates = [os.environ["DWARFDUMP"]] if "DWARFDUMP" in os.environ else ["dwarfdump", "llvm-dwarfdump"]
+        errors: list[str] = []
 
-        if result.returncode != 0:
-            raise RuntimeError(f"dwarfdump failed: {result.stderr.strip()}")
+        for candidate in candidates:
+            try:
+                result = subprocess.run(
+                    [candidate, path],
+                    capture_output=True,
+                    text=True
+                )
+            except FileNotFoundError:
+                errors.append(f"{candidate}: not found")
+                continue
 
-        return result.stdout
+            if result.returncode != 0:
+                errors.append(f"{candidate}: {result.stderr.strip()}")
+                continue
+
+            return result.stdout
+
+        raise RuntimeError("dwarfdump failed. " + "; ".join(errors))
 
     def __parse_typedefs(self, lines: list[str]):
         current_type: int | None = None

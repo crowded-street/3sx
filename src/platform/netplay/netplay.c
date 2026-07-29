@@ -5,9 +5,13 @@
 #include "platform/app/sdl/sdl_app.h"
 #include "platform/netplay/fistbump.h"
 #include "platform/netplay/game_state.h"
+#include "platform/netplay/netplay_base.h"
+#include "platform/netplay/netplay_stress.h"
 #include "platform/netplay/sdl_net_adapter.h"
 #include "port/paths.h"
+#include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Game/effect/effect.h"
+#include "sf33rd/Source/Game/engine/cmd_data.h"
 #include "sf33rd/Source/Game/engine/grade.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
@@ -30,32 +34,15 @@
 #include <SDL3/SDL.h>
 #include <SDL3_net/SDL_net.h>
 
-#include <stdio.h>
 #include <stdlib.h>
 
 #define INPUT_HISTORY_MAX 120
 #define FRAME_SKIP_TIMER_MAX 60 // Allow skipping a frame roughly every second
 #define STATS_UPDATE_TIMER_MAX 60
 #define DELAY_FRAMES 1
-#define PLAYER_COUNT 2
 
 // Uncomment to enable packet drops
 // #define LOSSY_ADAPTER
-
-typedef struct EffectState {
-    s16 frwctr;
-    s16 frwctr_min;
-    s16 head_ix[8];
-    s16 tail_ix[8];
-    s16 exec_tm[8];
-    uintptr_t frw[EFFECT_MAX][448];
-    s16 frwque[EFFECT_MAX];
-} EffectState;
-
-typedef struct State {
-    GameState gs;
-    EffectState es;
-} State;
 
 static GekkoSession* session = NULL;
 static unsigned short local_port = 0;
@@ -81,9 +68,30 @@ static int frame_max_rollback = 0;
 static NetworkStats network_stats = { 0 };
 
 #if DEBUG
-#define STATE_BUFFER_MAX 20
+#define STATE_SLOT_EMPTY (-1)
 
 static State state_buffer[STATE_BUFFER_MAX] = { 0 };
+static int state_buffer_frame[STATE_BUFFER_MAX] = { 0 };
+
+// A frame is saved when first simulated and again after a rollback re-simulates it.
+static State resim_state_buffer[STATE_BUFFER_MAX] = { 0 };
+static int resim_state_buffer_frame[STATE_BUFFER_MAX] = { 0 };
+static u32 state_buffer_checksum[STATE_BUFFER_MAX] = { 0 };
+
+static void reset_state_buffers() {
+    for (int i = 0; i < STATE_BUFFER_MAX; i++) {
+        state_buffer_frame[i] = STATE_SLOT_EMPTY;
+        resim_state_buffer_frame[i] = STATE_SLOT_EMPTY;
+    }
+}
+
+static int state_slot(int frame) {
+    if (frame < 0) {
+        frame += STATE_BUFFER_MAX;
+    }
+
+    return frame % STATE_BUFFER_MAX;
+}
 #endif
 
 #if defined(LOSSY_ADAPTER)
@@ -118,7 +126,7 @@ static void clean_input_buffers() {
     SDL_zeroa(plsw_01);
 }
 
-static void setup_vs_mode() {
+void NetplayBase_SetupVsMode() {
     task[TASK_MENU].r_no[0] = 5; // go to idle routine (doing nothing)
     cpExitTask(TASK_SAVER);
 
@@ -137,7 +145,21 @@ static void setup_vs_mode() {
     Mode_Type = MODE_NETWORK;
     cpExitTask(TASK_MENU);
 
-    E_Timer = 0; // E_Timer can have different values depending on when the session was initiated
+    // These depend on when the session was initiated
+    E_Timer = 0;
+    SDL_zeroa(E_No);
+
+    // Peers spend different amounts of time in the menus, and nothing on the way
+    // into a fight clears what that leaves behind.
+    Next_Demo = 0;
+    G_Timer = 0;
+
+    // bg_initialize() reinitialises only part of each layer, and l_limit/r_limit are
+    // written by the opening alone. scno is one of those: the attract sequence leaves
+    // it at 3 and the stage only assigns it on frame 2.
+    SDL_zeroa(bg_w.bgw);
+    bg_w.scno = 0;
+    bg_w.scrno = 0;
 
     Deley_Shot_No[0] = 0;
     Deley_Shot_No[1] = 0;
@@ -171,12 +193,18 @@ static void configure_gekko() {
 
 #if DEBUG
     config.desync_detection = true;
+    reset_state_buffers();
 #endif
+
+    if (Stress_IsRunning()) {
+        Stress_CreateSession(&config, &session, &player_handle);
+        return;
+    }
 
     if (gekko_create(&session, GekkoGameSession)) {
         gekko_start(session, &config);
     } else {
-        printf("Session is already running! probably incorrect.\n");
+        SDL_Log("Session is already running! probably incorrect.");
     }
 
     NET_DatagramSocket* mm_sock = Fistbump_GetSocket();
@@ -198,7 +226,7 @@ static void configure_gekko() {
     gekko_net_adapter_set(session, SDLNetAdapter_Create(active_sock));
 #endif
 
-    printf("starting a session for player %d at port %hu\n", player_number, local_port);
+    SDL_Log("starting a session for player %d at port %hu", player_number, local_port);
 
     char remote_address_str[100];
     SDL_snprintf(remote_address_str, sizeof(remote_address_str), "%s:%hu", remote_ip, remote_port);
@@ -340,33 +368,83 @@ static void clean_state_pointers(State* state) {
 /// Save state in state buffer.
 /// @return Pointer to state as it has been saved.
 static const State* note_state(const State* state, int frame) {
-    if (frame < 0) {
-        frame += STATE_BUFFER_MAX;
+    const int slot = state_slot(frame);
+    State* dst;
+
+    if (state_buffer_frame[slot] == frame) {
+        // Already stored once, so this save comes from a rollback re-simulation.
+        dst = &resim_state_buffer[slot];
+        resim_state_buffer_frame[slot] = frame;
+    } else {
+        dst = &state_buffer[slot];
+        state_buffer_frame[slot] = frame;
+        resim_state_buffer_frame[slot] = STATE_SLOT_EMPTY;
     }
 
-    State* dst = &state_buffer[frame % STATE_BUFFER_MAX];
     SDL_memcpy(dst, state, sizeof(State));
     clean_state_pointers(dst);
     return dst;
 }
 
-static void dump_state(const State* src, const char* filename) {
+static void dump_state(const State* src, const char* relative) {
+    char states_dir[512];
+    Stress_Path(states_dir, sizeof(states_dir), "states");
+    SDL_CreateDirectory(states_dir);
+
+    char filename[512];
+    Stress_Path(filename, sizeof(filename), relative);
+
     SDL_IOStream* io = SDL_IOFromFile(filename, "w");
+
+    if (io == NULL) {
+        SDL_Log("Could not write %s: %s", filename, SDL_GetError());
+        return;
+    }
+
     SDL_WriteIO(io, src, sizeof(State));
     SDL_CloseIO(io);
 }
 
 static void dump_saved_state(int frame) {
-    const State* src = &state_buffer[frame % STATE_BUFFER_MAX];
+    const int slot = state_slot(frame);
+
+    // A desync can be reported after the slot has been reused; dumping it anyway
+    // would compare two unrelated frames.
+    if (state_buffer_frame[slot] != frame) {
+        SDL_Log("Frame %d has already been overwritten in the state buffer, not dumping.", frame);
+        return;
+    }
+
+    // The re-simulated state is the one the session ended up agreeing on.
+    const State* src = resim_state_buffer_frame[slot] == frame ? &resim_state_buffer[slot] : &state_buffer[slot];
 
     char filename[100];
     SDL_snprintf(filename, sizeof(filename), "states/%d_%d", player_handle, frame);
 
     dump_state(src, filename);
 }
+
+void NetplayBase_DumpDesyncPair(int frame) {
+    const int slot = frame % STATE_BUFFER_MAX;
+
+    if (state_buffer_frame[slot] != frame || resim_state_buffer_frame[slot] != frame) {
+        SDL_Log("Frame %d is no longer in the state buffer, can't dump a pair.", frame);
+        return;
+    }
+
+    char filename[100];
+
+    SDL_snprintf(filename, sizeof(filename), "states/0_%d", frame);
+    dump_state(&state_buffer[slot], filename);
+
+    SDL_snprintf(filename, sizeof(filename), "states/1_%d", frame);
+    dump_state(&resim_state_buffer[slot], filename);
+}
 #endif
 
-#define SDL_copya(dst, src) SDL_memcpy(dst, src, sizeof(src))
+#define SDL_copya(dst, src)                                                                                            \
+    _Static_assert(sizeof(dst) == sizeof(src), #dst " and " #src " differ in size");                                   \
+    SDL_memcpy(dst, src, sizeof(src))
 
 static void gather_state(State* dst) {
     // GameState
@@ -392,8 +470,19 @@ static void save_state(GekkoGameEvent* event) {
 
 #if DEBUG
     const int frame = event->data.save.frame;
+    const int slot = state_slot(frame);
+    const bool is_resimulation = state_buffer_frame[slot] == frame;
+
     const State* saved_state = note_state(dst, frame);
-    *event->data.save.checksum = calculate_checksum(saved_state);
+    const u32 checksum = calculate_checksum(saved_state);
+
+    *event->data.save.checksum = checksum;
+
+    if (!is_resimulation) {
+        state_buffer_checksum[slot] = checksum;
+    } else if (Stress_IsRunning() && checksum != state_buffer_checksum[slot]) {
+        Stress_OnResimulationDiverged(frame, state_buffer_checksum[slot], checksum);
+    }
 #endif
 }
 
@@ -416,6 +505,30 @@ static void load_state(const State* src) {
 static void load_state_from_event(GekkoGameEvent* event) {
     const State* src = (State*)event->data.load.state;
     load_state(src);
+
+#if DEBUG
+    // Round-trip check: re-gathering right after a load must reproduce the state
+    // that was loaded. Anything that differs is state the save/load pair drops.
+    static bool round_trip_checked = false;
+
+    if (Stress_IsRunning() && !round_trip_checked) {
+        round_trip_checked = true;
+
+        static State before;
+        static State after;
+
+        SDL_memcpy(&before, src, sizeof(State));
+        gather_state(&after);
+
+        clean_state_pointers(&before);
+        clean_state_pointers(&after);
+
+        dump_state(&before, "states/0_9999");
+        dump_state(&after, "states/1_9999");
+
+        Stress_Trace("round-trip dump written for frame %d", event->data.load.frame);
+    }
+#endif
 }
 
 static bool game_ready_to_run_character_select() {
@@ -465,8 +578,15 @@ static void process_session() {
 
     gekko_network_poll(session);
 
-    u16 local_inputs = get_inputs();
-    gekko_add_local_input(session, player_handle, &local_inputs);
+    if (Stress_IsRunning()) {
+        for (int i = 0; i < PLAYER_COUNT; i++) {
+            u16 stress_inputs = Stress_NextInput(i);
+            gekko_add_local_input(session, i, &stress_inputs);
+        }
+    } else {
+        u16 local_inputs = get_inputs();
+        gekko_add_local_input(session, player_handle, &local_inputs);
+    }
 
     int session_event_count = 0;
     GekkoSessionEvent** session_events = gekko_session_events(session, &session_event_count);
@@ -476,30 +596,39 @@ static void process_session() {
 
         switch (event->type) {
         case GekkoPlayerSyncing:
-            printf("🔴 player syncing\n");
+            SDL_Log("🔴 player syncing");
             // FIXME: Show status to the player
             break;
 
         case GekkoPlayerConnected:
-            printf("🔴 player connected\n");
+            SDL_Log("🔴 player connected");
             break;
 
         case GekkoPlayerDisconnected:
-            printf("🔴 player disconnected\n");
+            SDL_Log("🔴 player disconnected");
             handle_disconnection();
             break;
 
         case GekkoSessionStarted:
-            printf("🔴 session started\n");
+            SDL_Log("🔴 session started");
             session_state = NETPLAY_SESSION_RUNNING;
             break;
 
         case GekkoDesyncDetected:
             const int frame = event->data.desynced.frame;
-            printf("⚠️ desync detected at frame %d\n", frame);
+            SDL_Log(
+                "⚠️ desync detected at frame %d (0x%X vs 0x%X)",
+                frame,
+                event->data.desynced.local_checksum,
+                event->data.desynced.remote_checksum
+            );
 
 #if DEBUG
-            dump_saved_state(frame);
+            if (Stress_IsRunning()) {
+                Stress_OnDesync(frame);
+            } else {
+                dump_saved_state(frame);
+            }
 #endif
             break;
 
@@ -530,6 +659,10 @@ static void process_events(bool drawing_allowed) {
             const bool rolling_back = event->data.adv.rolling_back;
             advance_game(event, drawing_allowed && !rolling_back);
             frames_rolled_back += rolling_back ? 1 : 0;
+
+            if (Stress_IsRunning() && !rolling_back) {
+                Stress_OnFrameAdvanced();
+            }
             break;
 
         case GekkoSaveEvent:
@@ -634,7 +767,7 @@ void Netplay_TickDirectP2P() {
     }
 
     direct_p2p_pending = false;
-    setup_vs_mode();
+    NetplayBase_SetupVsMode();
 
     SDL_zeroa(input_history);
     frames_behind = 0;
@@ -642,6 +775,15 @@ void Netplay_TickDirectP2P() {
     transition_ready_frames = 0;
 
     session_state = NETPLAY_SESSION_TRANSITIONING;
+}
+
+void NetplayBase_StartStressSession() {
+    SDL_zeroa(input_history);
+    frames_behind = 0;
+    frame_skip_timer = 0;
+
+    configure_gekko();
+    session_state = NETPLAY_SESSION_RUNNING;
 }
 
 void Netplay_SetMatchmakingParams(const char* server_ip, int server_port) {
@@ -679,7 +821,7 @@ void Netplay_TickMatchmaking() {
         frame_skip_timer = 0;
         transition_ready_frames = 0;
         matchmaking_pending = false;
-        setup_vs_mode();
+        NetplayBase_SetupVsMode();
         session_state = NETPLAY_SESSION_TRANSITIONING;
     } else if (mm == FISTBUMP_ERROR) {
         matchmaking_pending = false;
