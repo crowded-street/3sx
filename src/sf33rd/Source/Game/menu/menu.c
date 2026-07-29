@@ -3970,7 +3970,7 @@ void Wait_Pause_in_Tr(struct _TASK* task_ptr) {
             task_ptr->r_no[1]++;
 
             if (Present_Mode == 4) {
-                Disp_Attack_Data = Training->contents[0][1][1];
+                Disp_Attack_Data = Training->contents[0][1][TRAINING_OPTION_ATTACK_DATA];
             } else {
                 Disp_Attack_Data = 0;
             }
@@ -4026,7 +4026,7 @@ void Wait_Pause_in_Tr(struct _TASK* task_ptr) {
             Game_pause = 0;
             Pause = 0;
             Pause_Down = 0;
-            Disp_Attack_Data = Training->contents[0][1][1];
+            Disp_Attack_Data = Training->contents[0][1][TRAINING_OPTION_ATTACK_DATA];
 
             for (ix = 0; ix < 4; ix++) {
                 Menu_Suicide[ix] = 1;
@@ -4115,7 +4115,7 @@ s32 Check_Pause_Term_Tr(s16 PL_id) {
         return 1;
     }
 
-    if (Training->contents[0][1][3] == 2) {
+    if (Training->contents[0][1][TRAINING_OPTION_DIFFICULTY] == 2) {
         return 0;
     }
 
@@ -4528,7 +4528,7 @@ void Normal_Training(struct _TASK* task_ptr) {
 
                 All_Clear_Timer();
                 Check_Replay();
-                Training[0].contents[0][1][3] = Menu_Cursor_Y[0];
+                Training[0].contents[0][1][TRAINING_OPTION_DIFFICULTY] = Menu_Cursor_Y[0];
                 init_omop();
                 set_init_A4_flag();
                 setup_vitality(&plw[0].wu, My_char[0] + 0);
@@ -4575,7 +4575,7 @@ void Setup_NTr_Data(s16 ix) {
         Replay_Status[0] = 0;
         Replay_Status[1] = 0;
         save_w[Present_Mode].Time_Limit = -1;
-        save_w[Present_Mode].Damage_Level = Training[2].contents[0][1][2];
+        save_w[Present_Mode].Damage_Level = Training[2].contents[0][1][TRAINING_OPTION_DAMAGE];
         Training[0] = Training[2];
         break;
 
@@ -4585,7 +4585,7 @@ void Setup_NTr_Data(s16 ix) {
         Replay_Status[0] = 1;
         Replay_Status[1] = 1;
         save_w[Present_Mode].Time_Limit = 60;
-        save_w[Present_Mode].Damage_Level = Training[2].contents[0][1][2];
+        save_w[Present_Mode].Damage_Level = Training[2].contents[0][1][TRAINING_OPTION_DAMAGE];
         Training[0] = Training[2];
         Training[1] = Training[2];
         break;
@@ -4595,7 +4595,7 @@ void Setup_NTr_Data(s16 ix) {
         Replay_Status[0] = 3;
         Replay_Status[1] = 3;
         save_w[Present_Mode].Time_Limit = 60;
-        save_w[Present_Mode].Damage_Level = Training[1].contents[0][1][2];
+        save_w[Present_Mode].Damage_Level = Training[1].contents[0][1][TRAINING_OPTION_DAMAGE];
         Training[0] = Training[1];
         break;
     }
@@ -4832,8 +4832,8 @@ void Training_Option(struct _TASK* task_ptr) {
             break;
         }
 
-        save_w[Present_Mode].Damage_Level = Training[2].contents[0][1][2];
-        save_w[Present_Mode].Difficulty = Training[2].contents[0][1][3];
+        save_w[Present_Mode].Damage_Level = Training[2].contents[0][1][TRAINING_OPTION_DAMAGE];
+        save_w[Present_Mode].Difficulty = Training[2].contents[0][1][TRAINING_OPTION_DIFFICULTY];
         break;
 
     case 2:
@@ -4880,7 +4880,7 @@ const u8 Menu_Max_Data_Tr[2][2][7] = { { { 4, 6, 2, 2, 0, 0, 0 }, { 3, 2, 3, 7, 
                                        { { 2, 3, 1, 3, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0 } } };
 
 static bool is_data_plus_hitboxes_option_selected() {
-    return Training[0].contents[0][1][1] == 2;
+    return Training[0].contents[0][1][TRAINING_OPTION_ATTACK_DATA] == 2;
 }
 
 static void apply_training_hitbox_display(bool force_off) {
@@ -5253,8 +5253,8 @@ void Default_Training_Data(s32 flag) {
         }
     }
 
-    Training[0].contents[0][1][2] = save_w->Damage_Level;
-    Training[0].contents[0][1][3] = save_w->Difficulty;
+    Training[0].contents[0][1][TRAINING_OPTION_DAMAGE] = save_w->Damage_Level;
+    Training[0].contents[0][1][TRAINING_OPTION_DIFFICULTY] = save_w->Difficulty;
     save_w[Present_Mode].Damage_Level = save_w->Damage_Level;
     save_w[Present_Mode].Difficulty = save_w->Difficulty;
     Training[2] = Training[0];
@@ -5262,10 +5262,10 @@ void Default_Training_Data(s32 flag) {
 }
 
 void Default_Training_Option() {
-    Training->contents[0][1][0] = 0;
-    Training->contents[0][1][1] = 0;
-    Training->contents[0][1][2] = save_w->Damage_Level;
-    Training->contents[0][1][3] = save_w->Difficulty;
+    Training->contents[0][1][TRAINING_OPTION_SA_GAUGE] = 0;
+    Training->contents[0][1][TRAINING_OPTION_ATTACK_DATA] = 0;
+    Training->contents[0][1][TRAINING_OPTION_DAMAGE] = save_w->Damage_Level;
+    Training->contents[0][1][TRAINING_OPTION_DIFFICULTY] = save_w->Difficulty;
     Training->contents[0][1][TRAINING_OPTION_INPUT_HISTORY] = 0;
     save_w[Present_Mode].Damage_Level = save_w->Damage_Level;
     save_w[Present_Mode].Difficulty = save_w->Difficulty;

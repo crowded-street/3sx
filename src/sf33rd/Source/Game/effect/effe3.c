@@ -39,7 +39,7 @@ void effect_E3_move(WORK_Other* ewk) {
             vib_sel[mwk->wu.id] = 0;
         }
 
-        if (Training[0].contents[0][1][3] == 2) {
+        if (Training[0].contents[0][1][TRAINING_OPTION_DIFFICULTY] == 2) {
             vib_sel[mwk->wu.id] = 0;
         }
 
@@ -51,7 +51,7 @@ void effect_E3_move(WORK_Other* ewk) {
 
         omop_vital_ix[mwk->wu.id] = 1;
 
-        if (Training[0].contents[0][1][3] == 0) {
+        if (Training[0].contents[0][1][TRAINING_OPTION_DIFFICULTY] == 0) {
             omop_vital_ix[mwk->wu.id] = 3;
         }
 
@@ -92,7 +92,7 @@ void effect_E3_move(WORK_Other* ewk) {
             }
         }
 
-        switch (Training[0].contents[0][1][0]) {
+        switch (Training[0].contents[0][1][TRAINING_OPTION_SA_GAUGE]) {
         case 1:
             mwk->spmv_ng_flag2 &= 0xFFFBFFFF;
             mwk->spmv_ng_flag2 |= 0x90000;

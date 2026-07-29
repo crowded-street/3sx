@@ -4,6 +4,14 @@
 #include "structs.h"
 #include "types.h"
 
+typedef enum TrainingOption {
+    TRAINING_OPTION_SA_GAUGE,
+    TRAINING_OPTION_ATTACK_DATA,
+    TRAINING_OPTION_DAMAGE,
+    TRAINING_OPTION_DIFFICULTY,
+    TRAINING_OPTION_INPUT_HISTORY,
+} TrainingOption;
+
 extern struct _SYSTEM_W sys_w;
 extern struct _VM_W vm_w;
 extern _EXTRA_OPTION ck_ex_option;
@@ -74,9 +82,5 @@ extern struct _REP_GAME_INFOR Rep_Game_Infor[11];
 extern struct _TASK task[11];
 extern MTX BgMATRIX[9];
 extern TrainingData Training[3];
-
-enum {
-    TRAINING_OPTION_INPUT_HISTORY = 4,
-};
 
 #endif

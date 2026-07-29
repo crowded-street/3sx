@@ -694,7 +694,7 @@ void plcnt_move() { // 🟢
         plw[0].wu.dm_vital = plw[1].wu.dm_vital = 0;
     }
 
-    if (Mode_Type == MODE_NORMAL_TRAINING && Training->contents[0][1][3] == 0) {
+    if (Mode_Type == MODE_NORMAL_TRAINING && Training->contents[0][1][TRAINING_OPTION_DIFFICULTY] == 0) {
         plw[0].wu.dm_nodeathattack = 1;
         plw[1].wu.dm_nodeathattack = 1;
     }
