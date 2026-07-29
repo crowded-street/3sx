@@ -1899,7 +1899,7 @@ typedef struct {
 } MotionState;
 
 typedef struct {
-    s8 contents[2][2][4];
+    s8 contents[2][2][6];
 } TrainingData;
 
 typedef struct {

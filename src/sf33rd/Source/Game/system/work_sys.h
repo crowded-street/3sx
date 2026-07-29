@@ -4,6 +4,15 @@
 #include "structs.h"
 #include "types.h"
 
+typedef enum TrainingOption {
+    TRAINING_OPTION_SA_GAUGE,
+    TRAINING_OPTION_ATTACK_DATA,
+    TRAINING_OPTION_HITBOXES,
+    TRAINING_OPTION_INPUT_HISTORY,
+    TRAINING_OPTION_DAMAGE,
+    TRAINING_OPTION_DIFFICULTY,
+} TrainingOption;
+
 extern struct _SYSTEM_W sys_w;
 extern struct _VM_W vm_w;
 extern _EXTRA_OPTION ck_ex_option;

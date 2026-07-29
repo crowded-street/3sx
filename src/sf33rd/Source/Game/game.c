@@ -505,11 +505,7 @@ void Game2_0() {
 }
 
 static bool should_render_input_history() {
-    if ((Mode_Type == MODE_NORMAL_TRAINING) || (Mode_Type == MODE_PARRY_TRAINING)) {
-        return true;
-    }
-
-    return false;
+    return Mode_Type == MODE_NORMAL_TRAINING && Training[0].contents[0][1][TRAINING_OPTION_INPUT_HISTORY];
 }
 
 /// Main gameplay routine
