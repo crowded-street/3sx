@@ -24,8 +24,8 @@ typedef enum GlyphColor {
 #define GLYPH_UP_RIGHT (GlyphPosition) { 32, 2 }
 #define GLYPH_DOWN_LEFT (GlyphPosition) { 34, 2 }
 #define GLYPH_DOWN_RIGHT (GlyphPosition) { 33, 2 }
-#define GLYPH_PUNCH (GlyphPosition) { 35, 2 }
-#define GLYPH_KICK (GlyphPosition) { 36, 2 }
+#define GLYPH_PUNCH (GlyphPosition) { 35, 3 }
+#define GLYPH_KICK (GlyphPosition) { 36, 3 }
 
 bool GlyphRenderer_Init();
 void GlyphRenderer_DrawGlyph(GlyphPosition atlas_pos, GlyphPosition screen_pos, GlyphColor color, float z);
