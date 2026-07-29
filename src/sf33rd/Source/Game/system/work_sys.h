@@ -75,4 +75,8 @@ extern struct _TASK task[11];
 extern MTX BgMATRIX[9];
 extern TrainingData Training[3];
 
+enum {
+    TRAINING_OPTION_INPUT_HISTORY = 4,
+};
+
 #endif
