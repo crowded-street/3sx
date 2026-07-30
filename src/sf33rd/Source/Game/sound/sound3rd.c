@@ -11,7 +11,6 @@
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/emlMemMap.h"
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/emlSndDrv.h"
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/emlTSB.h"
-#include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/Source/Common/PPGFile.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/effect.h"
@@ -787,12 +786,7 @@ u16 remake_sound_code_for_DC(u16 code, SoundPatchConfig* rmcode) {
         rmcode->bank = 0;
         rmcode->port = 0;
         rnum = 1;
-
-        while (1) {
-            flPrintL(3, 5, "BAD SE CODE %X", code);
-            njWaitVSync_with_N();
-        }
-
+        SDL_assert(false); // BAD SE CODE
         break;
     }
 

@@ -7,7 +7,6 @@
 #include "common.h"
 #include "main.h"
 #include "sf33rd/AcrSDK/common/mlPAD.h"
-#include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/Source/Game/com/com_data.h"
 #include "sf33rd/Source/Game/com/com_datu.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
@@ -37,6 +36,8 @@
 #if NETPLAY_ENABLED
 #include "platform/netplay/netplay.h"
 #endif
+
+#include <SDL3/SDL.h>
 
 #include <memory.h>
 
@@ -1024,10 +1025,6 @@ void Soft_Reset_Sub() {
         cpReadyTask(TASK_GAME, Game_Task);
     }
 
-    if (task[TASK_DEBUG].condition == 0) {
-        cpReadyTask(TASK_DEBUG, Debug_Task);
-    }
-
     Next_Title_Sub();
     Bg_TexInit();
     Purge_mmtm_area(6);
@@ -1128,7 +1125,6 @@ void Check_Replay() {
         return;
     }
 
-    Record_Timer = 0;
     Demo_Timer[0] = 0;
     Demo_Timer[1] = 0;
     Demo_Ptr[0] = Replay_w.io_unit.key_buff[0];
@@ -1198,13 +1194,6 @@ void Check_Replay_Status(s16 PL_id, u8 Status) {
     switch (Status) {
     case 1:
         Get_Replay(PL_id);
-
-        if ((Game_pause != 0x81) && Debug_w[0x21]) {
-            flPrintColor(0xFFFFFFFF);
-            flPrintL(16, 8, "HUMAN REC!");
-            break;
-        }
-
         break;
 
     case 3:
@@ -1221,9 +1210,8 @@ void Check_Replay_Status(s16 PL_id, u8 Status) {
         break;
 
     case 99:
-        flPrintColor(0xFFFFFF00);
-        flPrintL(12, 20, "[REPLAY AREA FULL!!]");
-        Disp_Rec_Time(PL_id, Rec_Time[PL_id]);
+        // [REPLAY AREA FULL!!]
+        SDL_assert(false);
         break;
     }
 }
@@ -1250,10 +1238,6 @@ void Get_Replay(s16 PL_id) {
     } else {
         Setup_Replay_Buff(PL_id, sw_buff);
     }
-
-    if (PL_id == 0) {
-        Disp_Rec_Time(PL_id, Record_Timer);
-    }
 }
 
 void Setup_Replay_Buff(s16 PL_id, u16 sw_buff) {
@@ -1276,7 +1260,6 @@ void Setup_Replay_Buff(s16 PL_id, u16 sw_buff) {
     if (&Replay_w.io_unit.key_buff[PL_id][7197] < Demo_Ptr[PL_id]) {
         Replay_Status[PL_id] = 99;
         Replay_w.full_data |= PL_id + 1;
-        Rec_Time[PL_id] = Record_Timer;
         return;
     }
 

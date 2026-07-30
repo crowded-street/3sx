@@ -7,7 +7,6 @@
 #include "common.h"
 #include "port/utils.h"
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/cse.h"
-#include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
@@ -43,7 +42,6 @@ static AFSHandle afs_handle = AFS_NONE;
 s32 Push_LDREQ_Queue(REQ* ldreq);
 void Push_LDREQ_Queue_Metamor();
 void q_ldreq_error(REQ* curr);
-void disp_ldreq_status();
 void Push_LDREQ_Queue_Union(s16 ix);
 s32 Check_LDREQ_Queue_Union(s16 ix);
 
@@ -361,8 +359,6 @@ s32 Push_LDREQ_Queue(REQ* ldreq) {
 void Check_LDREQ_Queue() {
     s16 i;
 
-    disp_ldreq_status();
-
     if (!ldreq_break) {
         if (q_ldreq->be != 0) {
             ldreq_process[q_ldreq->type](q_ldreq);
@@ -384,21 +380,6 @@ void Check_LDREQ_Queue() {
         }
 
         Init_Load_Request_Queue_1st();
-    }
-}
-
-void disp_ldreq_status() {
-    s16 i;
-
-    flPrintColor(0xFFFFFF8F);
-
-    if (Debug_w[0xE]) {
-        for (i = 0; i < 16; i++) {
-            flPrintL(2, i + 18, "%1d", q_ldreq[i].be);
-            flPrintL(3, i + 18, ldreq_process_name[q_ldreq[i].type]);
-        }
-
-        flPrintL(2, i + 18, "%4d", system_timer);
     }
 }
 

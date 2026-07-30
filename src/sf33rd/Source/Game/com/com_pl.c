@@ -5,7 +5,6 @@
 
 #include "sf33rd/Source/Game/com/com_pl.h"
 #include "common.h"
-#include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/Source/Game/com/active/active00.h"
 #include "sf33rd/Source/Game/com/active/active01.h"
 #include "sf33rd/Source/Game/com/active/active02.h"
@@ -153,12 +152,6 @@ u16 cpu_algorithm(PLW* wk) {
         }
 
         CPU_Rec[wk->wu.id] = 1;
-
-        if (Debug_w[0x21]) {
-            flPrintColor(0xFFFFFFFF);
-            flPrintL(16, 9, "CPU REC!");
-        }
-
         Check_Replay_Status(wk->wu.id, 1);
     }
 
@@ -185,8 +178,6 @@ static u16 CPU_Sub(PLW* wk) {
     Lever_Buff[wk->wu.id] = check_illegal_lever_data(Lever_Buff[wk->wu.id]);
     Check_Store_Lv(wk);
     Shift_Resume_Lv(wk);
-    Disp_Lever(&Lever_Buff[wk->wu.id], wk->wu.id, 1);
-    Disp_Mode(wk);
     return Lever_Buff[wk->wu.id];
 }
 
@@ -211,12 +202,6 @@ void Main_Program(PLW* wk) {
 void Com_Initialize(PLW* wk) {
     const s16* xx;
     s16 i;
-
-    time_check_ix = 0;
-
-    for (i = 0; i < 4; i++) {
-        time_check[i] = -1;
-    }
 
     CP_No[wk->wu.id][0] = 1;
     CP_No[wk->wu.id][1] = 0;

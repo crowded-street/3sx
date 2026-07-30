@@ -11,9 +11,6 @@
 #define FL_PALETTE_MAX 1088
 #define FL_TEXTURE_MAX 256
 
-extern u32 flDebugStrCtr;
-extern u32 flDebugStrCol;
-extern u32 flDebugStrHan;
 extern s32 flVramStaticNum;
 extern FL_FMS flFMS;
 extern u32 flSystemRenderOperation;

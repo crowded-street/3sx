@@ -5,7 +5,6 @@
 
 #include "sf33rd/Source/Game/system/ramcnt.h"
 #include "common.h"
-#include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "sf33rd/Source/Common/MemMan.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
@@ -19,16 +18,6 @@ _MEMMAN_OBJ rckey_mmobj;
 s16 rckeyque[RCKEY_WORK_MAX];
 s16 rckeyctr;
 s16 rckeymin;
-
-void disp_ramcnt_free_area() {
-    if (Debug_w[0xA]) {
-        flPrintColor(0xFFFFFF8F);
-        flPrintL(4, 8, "Ramcnt Status");
-        flPrintL(4, 9, "Now %07X", mmGetRemainder(&rckey_mmobj));
-        flPrintL(4, 0xA, "Min %07X", mmGetRemainderMin(&rckey_mmobj));
-        flPrintL(4, 0xB, "Key %2d / %2d", rckeymin, rckeyctr);
-    }
-}
 
 void Init_ram_control_work(u8* adrs, s32 size) {
     s16 i;

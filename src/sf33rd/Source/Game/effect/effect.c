@@ -6,7 +6,6 @@
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "common.h"
 #include "port/utils.h"
-#include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/effxx.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
@@ -42,40 +41,6 @@ void move_effect_work(s16 index) {
         if (c_addr->timing != exec_tm[index]) {
             c_addr->timing = exec_tm[index];
             effmovejptbl[c_addr->id](c_addr);
-        }
-    }
-}
-
-void disp_effect_work() {
-    WORK* c_addr;
-    s16 index;
-    s16 curr_ix;
-    s16 next_ix;
-    s32 px;
-    s32 py;
-
-    if (Debug_w[0x29] == 0) {
-        return;
-    }
-
-    px = 7;
-    py = 15;
-
-    for (index = 0; index <= 7; index += 1) {
-        curr_ix = head_ix[index];
-        px += 5;
-        py = 14;
-
-        for (; curr_ix != -1; curr_ix = next_ix) {
-            if (py > 49) {
-                py = 14;
-                px += 3;
-            }
-
-            c_addr = (WORK*)frw[curr_ix];
-            next_ix = c_addr->behind;
-            flPrintL(px, py, "%c%d", "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"[(c_addr->id / 10)], c_addr->id % 10);
-            py++;
         }
     }
 }

@@ -6,7 +6,6 @@
 #include "sf33rd/AcrSDK/common/memfound.h"
 #include "sf33rd/AcrSDK/common/mlPAD.h"
 #include "sf33rd/AcrSDK/common/prilay.h"
-#include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/AcrSDK/ps2/flps2etc.h"
 #include "sf33rd/AcrSDK/ps2/flps2render.h"
 #include "sf33rd/AcrSDK/ps2/flps2vram.h"
@@ -28,9 +27,6 @@ s32 flHeight;
 u32 flSystemRenderOperation;
 FL_FMS flFMS;
 s32 flVramStaticNum;
-u32 flDebugStrHan;
-u32 flDebugStrCol;
-u32 flDebugStrCtr;
 
 // forward decls
 static s32 system_work_init();
@@ -44,7 +40,6 @@ s32 flInitialize() {
     flPS2SystemTmpBuffInit();
     flPS2InitRenderBuff();
     flPADInitialize();
-    flPS2DebugInit();
 
     return 1;
 }

@@ -15,7 +15,6 @@ extern s16 frwctr;
 extern s16 frwque[EFFECT_MAX];
 
 void move_effect_work(s16 index);
-void disp_effect_work();
 void effect_work_init();
 void effect_work_quick_init();
 void effect_work_kill_mod_plcol();

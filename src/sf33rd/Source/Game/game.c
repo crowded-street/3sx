@@ -146,10 +146,6 @@ void Game_Task(struct _TASK* task_ptr) {
         move_pulpul_work();
         Check_LDREQ_Queue();
     }
-
-    Check_Check_Screen();
-    Check_Pos_BG();
-    Disp_Sound_Code();
 }
 
 void Game() {
@@ -1594,8 +1590,6 @@ void Loop_Demo(struct _TASK* /* unused */) {
         Demo_PL_Index = 0;
         Demo_Stage_Index = 0;
         Select_Demo_Index = 0;
-        check_screen_L = 0;
-        check_screen_S = 0;
         Insert_Y = 23;
         Demo_Flag = 0;
         Play_Mode = 0;

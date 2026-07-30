@@ -7,7 +7,6 @@
 extern TexturePoolUsed* tpu_free;
 extern u8* texcash_melt_buffer;
 
-void disp_texcash_free_area();
 void init_texcash_1st();
 void init_texcash_2nd(s16 ix);
 void init_texcash_before_process();

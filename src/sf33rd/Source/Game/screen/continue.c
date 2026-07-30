@@ -30,11 +30,6 @@ s32 Continue_Scene() {
 
     CONTINUE_X = 0;
     Continue_Jmp_Tbl[Cont_No[0]]();
-
-    if ((Check_Exit_Check() == 0) && (Debug_w[0x18] == -1)) {
-        CONTINUE_X = 0;
-    }
-
     return CONTINUE_X;
 }
 

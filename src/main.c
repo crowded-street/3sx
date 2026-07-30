@@ -5,7 +5,6 @@
 #include "platform/netplay/netplay_stress.h"
 #endif
 #include "sf33rd/AcrSDK/common/mlPAD.h"
-#include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/AcrSDK/ps2/flps2etc.h"
 #include "sf33rd/AcrSDK/ps2/flps2render.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
@@ -106,14 +105,16 @@ void Main_Init() {
     palCreateGhost();
     ppgMakeConvTableTexDC();
     appSetupBasePriority();
+
+#if DEBUG
+    DebugConfig_Init();
+#endif
 }
 
 // Iteration
 
 static void cpLoopTask() {
 #if DEBUG
-    disp_ramcnt_free_area();
-
     if (sysSLOW) {
         if (--Slow_Timer == 0) {
             sysSLOW = 0;
@@ -166,22 +167,12 @@ void njUserMain() {
             p1sw_0 = 0;
 
             Check_Replay_Status(0, 1);
-
-            if (Debug_w[0x21]) {
-                flPrintColor(0xFFFFFFFF);
-                flPrintL(0x10, 0xA, "FAKE REC! PL1");
-            }
         }
 
         if ((plw[1].wu.operator == 0) && (CPU_Rec[1] == 0) && (Replay_Status[1] == 1)) {
             p2sw_0 = 0;
 
             Check_Replay_Status(1, 1);
-
-            if (Debug_w[0x21]) {
-                flPrintColor(0xFFFFFFFF);
-                flPrintL(0x10, 0xA, "FAKE REC!     PL2");
-            }
         }
     }
 }
@@ -300,13 +291,11 @@ void Main_StepFrame() {
     njdp2d_draw();
 #endif
 
-    disp_effect_work();
     flFlip(0);
 }
 
 void Main_FinishFrame() {
     Interrupt_Timer += 1;
-    Record_Timer += 1;
 
     Scrn_Renew();
     Irl_Family();

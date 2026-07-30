@@ -4076,10 +4076,6 @@ s32 Select_Reflection_Time(PLW* wk) {
 
     Lv = emLevelRemake(Lv, 0x14, 2);
 
-    time_check[time_check_ix] = xx;
-    time_check_ix++;
-    time_check_ix &= 3;
-
     if ((Break_Into_CPU == 1) || (Break_Into_CPU == 2)) {
         return zz = Reflection_Speed_Unit_Data[17][Lv][xx];
     }

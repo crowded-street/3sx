@@ -76,11 +76,6 @@ const DEBUG_STR_DAT debug_string_data[72] = { { .max = 255, .name = "SLOW" },
                                               { .max = 255, .name = "YOSHIZUMI EXP" },
                                               { .max = 255, .name = "NAKAGAWA EXPERIMENT" } };
 
-// Debug menu profile names
-const char* debug_profile_name_data[5] = {
-    "For NAKAI 600", "For GENTLEMAN", "For NAKAGAWA JIKKEN", "For Oh!Ya!", "For IBARAKI UNCLE"
-};
-
 // Default values for all debug options (from original NAKAI_debug_data)
 static const s8 debug_defaults[DEBUG_OPTION_COUNT] = { 8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                                        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

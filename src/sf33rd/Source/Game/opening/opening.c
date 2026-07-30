@@ -5,7 +5,6 @@
 
 #include "sf33rd/Source/Game/opening/opening.h"
 #include "common.h"
-#include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "sf33rd/Source/Common/MemMan.h"
 #include "sf33rd/Source/Common/PPGFile.h"
@@ -307,18 +306,6 @@ void OPBG_Trans() {
     if (Screen_Switch & 4) {
         opbg_trans(&op_w.bgw[2], bg_prm[2].bg_h_shift, bg_prm[2].bg_v_shift);
     }
-
-    if (Debug_w[0x30] & 1) {
-        for (k = 0; k < 3; k++) {
-            for (j = 0; j < 4; j++) {
-                for (i = 0; i < 4; i++) {
-                    flPrintL(i * 5 + 20, 23 - j + k * 5, "%04d", op_w.bgw[k].map[i][j].g_no);
-                }
-            }
-
-            flPrintL(46, k * 5 + 20, "%04x , %04x", bg_w.bgw[k].wxy[0].disp.pos, bg_w.bgw[k].xy[1].disp.pos);
-        }
-    }
 }
 
 s16 oh_tsr_ck(s32 blk_no) {
@@ -519,11 +506,6 @@ const s16 op_quake_y_tbl0[16] = { 4, -8, 2, 1, -6, -3, 9, -3, 8, -2, 6, 3, -4, -
 void opening_move() {
     s16 work2;
 
-    if (Debug_w[0x30]) {
-        flPrintColor(0xFFFFFF8F);
-        flPrintL(2, 1, "BAR %d", op_w.r_no_1);
-    }
-
     op_plmove_timer += 1;
     sound_trg_move();
 
@@ -546,7 +528,6 @@ void opening_move() {
 void op_100_move() {
     op_w.r_no_1 += 1;
     Go_BGM();
-    Disp_Sound_Code();
     op_101_move();
 }
 

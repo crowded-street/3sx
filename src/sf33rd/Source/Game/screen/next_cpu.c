@@ -96,11 +96,6 @@ s16 Next_CPU() {
     Scene_Cut = Cut_Cut_Cut();
     Next_CPU_Tbl[SC_No[0]]();
     Time_Over = false;
-
-    if (Check_Exit_Check() == 0 && Debug_w[0x18] == -1) {
-        SEL_CPU_X = 0;
-    }
-
     return SEL_CPU_X;
 }
 
@@ -938,11 +933,6 @@ s16 Next_Q() {
     SEL_CPU_X = 0;
     Scene_Cut = Cut_Cut_Cut();
     Next_Q_Tbl[SC_No[0]]();
-
-    if (Check_Exit_Check() == 0 && Debug_w[0x18] == -1) {
-        SEL_CPU_X = 0;
-    }
-
     Time_Over = false;
     return SEL_CPU_X;
 }

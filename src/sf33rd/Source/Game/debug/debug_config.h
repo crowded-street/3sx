@@ -105,9 +105,6 @@ extern DebugConfig debug_config;
 /// @brief Debug option metadata array containing names and max values
 extern const DEBUG_STR_DAT debug_string_data[DEBUG_OPTION_COUNT];
 
-/// @brief Debug profile name data
-extern const char* debug_profile_name_data[5];
-
 /// @brief Initialize debug configuration system
 ///
 /// Sets all debug options to their default values.

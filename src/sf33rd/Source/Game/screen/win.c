@@ -47,11 +47,6 @@ s32 Winner_Scene() {
     WIN_X = 0;
     Scene_Cut = Cut_Cut_Cut();
     Win_Jmp_Tbl[M_No[0]]();
-
-    if ((Check_Exit_Check() == 0) && (Debug_w[0x18] == -1)) {
-        WIN_X = 0;
-    }
-
     return WIN_X;
 }
 
@@ -227,10 +222,6 @@ s32 Loser_Scene() {
     WIN_X = 0;
     Scene_Cut = Cut_Cut_Loser();
     Lose_Jmp_Tbl[M_No[0]]();
-
-    if ((Check_Exit_Check() == 0) && (Debug_w[0x18] == -1)) {
-        WIN_X = 0;
-    }
 
     if (Break_Into) {
         return 0;

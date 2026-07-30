@@ -25,6 +25,5 @@ s32 Check_Finish_SE();
 u16 Get_Position(PLW* wk);
 u16 Check_Bonus_SE(u16 Code);
 void Store_Sound_Code(u16 code, SoundPatchConfig* rmc);
-void Disp_Sound_Code();
 
 #endif

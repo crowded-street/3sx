@@ -15,8 +15,6 @@ s32 Check_Disp_90(WORK_Other_CONN* ewk);
 s16 Check_Disp_Pos_90(WORK_Other_CONN* ewk);
 
 void effect_90_move(WORK_Other_CONN* ewk) {
-    Check_Pos_OBJ2((WORK_Other*)ewk);
-
     if (Menu_Suicide[ewk->master_player]) {
         push_effect_work(&ewk->wu);
         return;

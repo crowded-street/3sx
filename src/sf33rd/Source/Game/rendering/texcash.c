@@ -5,7 +5,7 @@
 
 #include "sf33rd/Source/Game/rendering/texcash.h"
 #include "common.h"
-#include "sf33rd/AcrSDK/ps2/flps2debug.h"
+#include "port/utils.h"
 #include "sf33rd/Source/Common/PPGFile.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/effect.h"
@@ -67,70 +67,6 @@ s16 mts_ob_curr_stage;
 extern const s16 mts_OB_page[22][2];
 extern const MTSBase mts_base[24];
 void clear_texcash_work(s16 ix);
-
-void disp_texcash_free_area() {
-    s16 i;
-
-    if (Debug_w[11]) {
-        flPrintColor(0xFF8F8F8F);
-
-        for (i = 0; i < 24; i++) {
-            flPrintL(13, i + 8, texcash_name[i]);
-            if (i) {
-                flPrintL(16, i + 8, texcash_name[24]);
-            }
-        }
-
-        flPrintColor(0xFFCFCFCF);
-        for (i = 1; i < 24; i++) {
-            if (mts_ok[i].be) {
-                if (mts[i].mltnum16 != 0) {
-                    flPrintL(16, i + 8, "%3X", mts_ok[i].min16);
-                    flPrintL(20, i + 8, "%3X", mts[i].mltnum16);
-
-                    if (mts[i].mltcshtime16 != 0) {
-                        flPrintL(24, i + 8, "%2d", mts[i].mltcshtime16);
-                    } else {
-                        flPrintL(24, i + 8, texcash_name[27]);
-                    }
-                } else {
-                    flPrintL(16, i + 8, texcash_name[26]);
-                }
-
-                if (mts[i].mltnum32 != 0) {
-                    flPrintL(28, i + 8, "%3X", mts_ok[i].min32);
-                    flPrintL(32, i + 8, "%3X", mts[i].mltnum32);
-
-                    if (mts[i].mltcshtime32 != 0) {
-                        flPrintL(36, i + 8, "%2d", mts[i].mltcshtime32);
-                    } else {
-                        flPrintL(36, i + 8, texcash_name[27]);
-                    }
-                } else {
-                    flPrintL(28, i + 8, texcash_name[26]);
-                }
-
-                flPrintL(40, i + 8, "%3X", mts[i].mltgidx16);
-                flPrintL(46, i + 8, "%2X", mts[i].mltnum);
-
-                if ((i == 7) && (mts_ob_curr_stage != bg_w.stage)) {
-                    flPrintColor(0xFFFF8F8F);
-                    flPrintL(11, i + 8, "!?");
-                    flPrintColor(0xFFCFCFCF);
-                }
-
-                if (mts[i].ext) {
-                    flPrintL(50, i + 8, "%2d", 64 - mts_ok[i].mincg);
-                    flPrintL(53, i + 8, "%2d", 64 - mts[i].cpat->kazu);
-                } else {
-                    flPrintL(50, i + 8, texcash_name[28]);
-                }
-            } else {
-                flPrintL(16, i + 8, texcash_name[25]);
-            }
-        }
-    }
-}
 
 void search_texcash_free_area(s16 ix) {
     PatternState* mc;
@@ -248,12 +184,7 @@ void texture_cash_update() {
 
                         if ((tpu_free->x16 != mts[num].cpat->adr[i]->x16) ||
                             (tpu_free->x32 != mts[num].cpat->adr[i]->x32)) {
-                            Debug_w[11] = 1;
-                            do {
-                                disp_texcash_free_area();
-                                flPrintL(2, 3, "MAPPING MISS : %2d : &2d", num, i);
-                                njWaitVSync_with_N();
-                            } while (1);
+                            SDL_assert(false);
                         }
 
                         update_with_tpu_free(mts[num].mltcsh16, mts[num].mltcsh32);
@@ -268,7 +199,6 @@ void texture_cash_update() {
             search_texcash_free_area(num);
         }
     }
-    disp_texcash_free_area();
 }
 
 void update_with_tpu_free(PatternState* mc16, PatternState* mc32) {
@@ -276,13 +206,9 @@ void update_with_tpu_free(PatternState* mc16, PatternState* mc32) {
 
     for (i = 0; i < tpu_free->x16; i++) {
         mc16[tpu_free->x16_used[i]].time -= 1;
+
         if (mc16[tpu_free->x16_used[i]].time < 0) {
-            Debug_w[11] = 1;
-            do {
-                disp_texcash_free_area();
-                flPrintL(2, 3, "CACHE MISS x16 : %3d", tpu_free->x16_used[i]);
-                njWaitVSync_with_N();
-            } while (1);
+            SDL_assert(false);
         }
 
         if (mc16[tpu_free->x16_used[i]].time <= 0) {
@@ -292,13 +218,9 @@ void update_with_tpu_free(PatternState* mc16, PatternState* mc32) {
 
     for (i = 0; i < tpu_free->x32; i++) {
         mc32[tpu_free->x32_used[i]].time -= 1;
+
         if (mc32[tpu_free->x32_used[i]].time < 0) {
-            Debug_w[11] = 1;
-            do {
-                disp_texcash_free_area();
-                flPrintL(2, 3, "CACHE MISS x32 : %3d", tpu_free->x32_used[i]);
-                njWaitVSync_with_N();
-            } while (1);
+            SDL_assert(false);
         }
 
         if (mc32[tpu_free->x32_used[i]].time <= 0) {
@@ -329,13 +251,7 @@ void make_texcash_work(s16 ix) {
             return;
         }
 
-        Debug_w[10] = 2;
-
-        while (1) {
-            disp_ramcnt_free_area();
-            flPrintL(5, 30, "TEXCASH KEY ERROR");
-            njWaitVSync_with_N();
-        }
+        fatal_error("make_texcash_work: TEXCASH KEY ERROR");
     } else {
         if (ix == 7) {
             page16 = mts_OB_page[bg_w.stage][0];
@@ -446,13 +362,7 @@ void purge_texcash_work(s16 ix) {
         Push_ramcnt_key_original(mts_ok[ix].key0);
         Push_ramcnt_key_original(mts_ok[ix].key1);
     } else {
-        Debug_w[10] = 2;
-
-        while (1) {
-            disp_ramcnt_free_area();
-            flPrintL(5, 30, "TEXCASH KEY ERROR");
-            njWaitVSync_with_N();
-        }
+        fatal_error("purge_texcash_work: TEXCASH KEY ERROR");
     }
 
     ppgReleaseTextureHandle(&mts[ix].tex, -1);
