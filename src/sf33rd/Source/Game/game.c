@@ -146,8 +146,6 @@ void Game_Task(struct _TASK* task_ptr) {
         move_pulpul_work();
         Check_LDREQ_Queue();
     }
-
-    Disp_Sound_Code();
 }
 
 void Game() {

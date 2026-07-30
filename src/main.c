@@ -116,8 +116,6 @@ void Main_Init() {
 
 static void cpLoopTask() {
 #if DEBUG
-    disp_ramcnt_free_area();
-
     if (sysSLOW) {
         if (--Slow_Timer == 0) {
             sysSLOW = 0;
@@ -170,22 +168,12 @@ void njUserMain() {
             p1sw_0 = 0;
 
             Check_Replay_Status(0, 1);
-
-            if (Debug_w[0x21]) {
-                flPrintColor(0xFFFFFFFF);
-                flPrintL(0x10, 0xA, "FAKE REC! PL1");
-            }
         }
 
         if ((plw[1].wu.operator == 0) && (CPU_Rec[1] == 0) && (Replay_Status[1] == 1)) {
             p2sw_0 = 0;
 
             Check_Replay_Status(1, 1);
-
-            if (Debug_w[0x21]) {
-                flPrintColor(0xFFFFFFFF);
-                flPrintL(0x10, 0xA, "FAKE REC!     PL2");
-            }
         }
     }
 }
@@ -304,7 +292,6 @@ void Main_StepFrame() {
     njdp2d_draw();
 #endif
 
-    disp_effect_work();
     flFlip(0);
 }
 

@@ -153,12 +153,6 @@ u16 cpu_algorithm(PLW* wk) {
         }
 
         CPU_Rec[wk->wu.id] = 1;
-
-        if (Debug_w[0x21]) {
-            flPrintColor(0xFFFFFFFF);
-            flPrintL(16, 9, "CPU REC!");
-        }
-
         Check_Replay_Status(wk->wu.id, 1);
     }
 

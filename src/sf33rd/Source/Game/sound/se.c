@@ -299,24 +299,3 @@ void Store_Sound_Code(u16 code, SoundPatchConfig* rmc) {
     sdeb->cp3code = code;
     sdeb->rmc = *rmc;
 }
-
-void Disp_Sound_Code() {
-    s16 i;
-
-    if (Debug_w[4] == 0) {
-        return;
-    }
-
-    flPrintColor(0xFFFFFFFF);
-
-    for (i = 0; i < SDEB_SIZE; i++) {
-        flPrintL(2, i * 2 + 11, "%3X", sdeb[i].cp3code);
-        flPrintL(50, i * 2 + 11, "%2X", sdeb[i].rmc.ptix);
-        flPrintL(53, i * 2 + 11, "%2X", sdeb[i].rmc.bank);
-        flPrintL(56, i * 2 + 11, "%2X", sdeb[i].rmc.port);
-        flPrintL(59, i * 2 + 11, "%3X", sdeb[i].rmc.code);
-    }
-
-    flPrintColor(0xFFFFFF8F);
-    flPrintL(2, 9, "CODE  KDCM PORT BKCD PRIO VOL  POS  PICH NEXT   PX BK PO CODE");
-}

@@ -787,12 +787,7 @@ u16 remake_sound_code_for_DC(u16 code, SoundPatchConfig* rmcode) {
         rmcode->bank = 0;
         rmcode->port = 0;
         rnum = 1;
-
-        while (1) {
-            flPrintL(3, 5, "BAD SE CODE %X", code);
-            njWaitVSync_with_N();
-        }
-
+        SDL_assert(false); // BAD SE CODE
         break;
     }
 

@@ -46,7 +46,7 @@ void GlyphRenderer_DrawGlyph(GlyphPosition atlas_pos, GlyphPosition screen_pos, 
 
 void GlyphRenderer_DrawDigit(Uint8 digit, GlyphPosition screen_pos, GlyphColor color, float z) {
     if (digit > 9) {
-        SDL_assert(true);
+        SDL_assert(false);
         return;
     }
 

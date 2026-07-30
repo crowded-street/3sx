@@ -38,6 +38,8 @@
 #include "platform/netplay/netplay.h"
 #endif
 
+#include <SDL3/SDL.h>
+
 #include <memory.h>
 
 u8 Candidate_Buff[16];
@@ -1193,13 +1195,6 @@ void Check_Replay_Status(s16 PL_id, u8 Status) {
     switch (Status) {
     case 1:
         Get_Replay(PL_id);
-
-        if ((Game_pause != 0x81) && Debug_w[0x21]) {
-            flPrintColor(0xFFFFFFFF);
-            flPrintL(16, 8, "HUMAN REC!");
-            break;
-        }
-
         break;
 
     case 3:
@@ -1216,8 +1211,8 @@ void Check_Replay_Status(s16 PL_id, u8 Status) {
         break;
 
     case 99:
-        flPrintColor(0xFFFFFF00);
-        flPrintL(12, 20, "[REPLAY AREA FULL!!]");
+        // [REPLAY AREA FULL!!]
+        SDL_assert(false);
         break;
     }
 }
