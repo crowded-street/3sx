@@ -32,7 +32,6 @@
 #include "sf33rd/Source/Game/system/sys_sub2.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/PS2/mc/knjsub.h"
-#include "sf33rd/Source/PS2/mc/mcsub.h"
 #include "structs.h"
 
 #include <SDL3/SDL.h>
