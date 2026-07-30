@@ -35,7 +35,6 @@ typedef struct {
     s8 language;
     bool cutAnalogStickData;
     bool useAnalogStickData;
-    u8 useChar[20];
 } MPP;
 
 struct _TASK {

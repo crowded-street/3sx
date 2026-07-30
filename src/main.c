@@ -31,8 +31,6 @@
 #include "sf33rd/Source/Game/system/sys_sub.h"
 #include "sf33rd/Source/Game/system/sys_sub2.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
-#include "sf33rd/Source/PS2/mc/knjsub.h"
-#include "sf33rd/Source/PS2/mc/mcsub.h"
 #include "structs.h"
 
 #include <SDL3/SDL.h>
@@ -75,10 +73,6 @@ static void njUserInit() {
     mpp_w.ramcntBuff = mppMalloc(size);
     Init_ram_control_work(mpp_w.ramcntBuff, size);
 
-    for (i = 0; i < 0x14; i++) {
-        mpp_w.useChar[i] = 0;
-    }
-
     Interrupt_Timer = 0;
     Disp_Size_H = 100;
     Disp_Size_V = 100;
@@ -112,10 +106,6 @@ void Main_Init() {
     palCreateGhost();
     ppgMakeConvTableTexDC();
     appSetupBasePriority();
-
-#if !MEMCARD_DISABLED
-    MemcardInit();
-#endif
 }
 
 // Iteration
@@ -310,7 +300,6 @@ void Main_StepFrame() {
     njdp2d_draw();
 #endif
 
-    KnjFlush();
     disp_effect_work();
     flFlip(0);
 }
@@ -323,27 +312,6 @@ void Main_FinishFrame() {
     Irl_Family();
     Irl_Scrn();
     BGM_Server();
-}
-
-s32 mppGetFavoritePlayerNumber() {
-    s32 i;
-    s32 max = 1;
-    s32 num = 0;
-
-#if DEBUG
-    if (Debug_w[0x2D]) {
-        return Debug_w[0x2D] - 1;
-    }
-#endif
-
-    for (i = 0; i < 0x14; i++) {
-        if (max <= mpp_w.useChar[i]) {
-            max = mpp_w.useChar[i];
-            num = i + 1;
-        }
-    }
-
-    return num;
 }
 
 // Tasks
