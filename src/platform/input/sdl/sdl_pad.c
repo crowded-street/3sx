@@ -203,6 +203,18 @@ static void get_gamepad_state(int id, Input_ButtonState* state) {
     state->right_stick_y = SDL_GetGamepadAxis(pad, SDL_GAMEPAD_AXIS_RIGHTY);
 }
 
+static void cleanup_state(Input_ButtonState* state) {
+    if (state->dpad_up && state->dpad_down) {
+        state->dpad_up = false;
+        state->dpad_down = false;
+    }
+
+    if (state->dpad_left && state->dpad_right) {
+        state->dpad_left = false;
+        state->dpad_right = false;
+    }
+}
+
 void SDLPad_Init() {
     setup_keyboard();
 }
@@ -243,6 +255,8 @@ void SDLPad_GetButtonState(int id, Input_ButtonState* state) {
     } else {
         get_gamepad_state(id, state);
     }
+
+    cleanup_state(state);
 }
 
 Input_PadType SDLPad_GetPadType(int id) {
