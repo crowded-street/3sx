@@ -5,6 +5,7 @@
 
 #include "sf33rd/Source/Game/rendering/texcash.h"
 #include "common.h"
+#include "port/utils.h"
 #include "sf33rd/Source/Common/PPGFile.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/effect.h"
@@ -250,8 +251,7 @@ void make_texcash_work(s16 ix) {
             return;
         }
 
-        // TEXCASH KEY ERROR
-        SDL_assert(false);
+        fatal_error("make_texcash_work: TEXCASH KEY ERROR");
     } else {
         if (ix == 7) {
             page16 = mts_OB_page[bg_w.stage][0];
@@ -362,8 +362,7 @@ void purge_texcash_work(s16 ix) {
         Push_ramcnt_key_original(mts_ok[ix].key0);
         Push_ramcnt_key_original(mts_ok[ix].key1);
     } else {
-        // TEXCASH KEY ERROR
-        SDL_assert(false);
+        fatal_error("purge_texcash_work: TEXCASH KEY ERROR");
     }
 
     ppgReleaseTextureHandle(&mts[ix].tex, -1);
