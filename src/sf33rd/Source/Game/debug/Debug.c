@@ -487,16 +487,6 @@ void Check_Pos_BG() {
     }
 }
 
-s32 Check_Exit_Check() {
-    u16 sw = (p2sw_0 & 0xFF0);
-
-    if (sw == 32) {
-        return 1;
-    }
-
-    return 0;
-}
-
 void Disp_Rec_Time(s16 PL_id, u32 time) {
     u32 time_buff;
     u8 rec_time[3];

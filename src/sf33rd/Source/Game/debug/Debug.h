@@ -35,7 +35,6 @@ s32 Debug_Menu_Lever();
 u16 Debug_Menu_Shot();
 void Disp_Lever(u16* /* unused */, u32 /* unused */, u32 /* unused */);
 void Check_Pos_BG();
-s32 Check_Exit_Check();
 void Check_Check_Screen();
 void Check_Pos_OBJ(WORK_Other* ewk);
 void Check_Pos_OBJ2(WORK_Other* ewk);

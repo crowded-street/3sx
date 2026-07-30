@@ -158,11 +158,6 @@ s16 Select_Player() {
     ID = 1;
     Sel_PL();
     Time_Over = false;
-
-    if (Check_Exit_Check() == 0 && Debug_w[24] == -1) {
-        SEL_PL_X = 0;
-    }
-
     return SEL_PL_X;
 }
 

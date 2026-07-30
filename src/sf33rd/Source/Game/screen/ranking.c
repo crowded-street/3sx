@@ -36,9 +36,6 @@ s32 Ranking() {
     Ranking_X = 0;
     main_jmp_tbl[D_No[0]]();
     BG_Draw_System();
-    if ((Check_Exit_Check() == 0) && (Debug_w[24] == -1)) {
-        Ranking_X = 0;
-    }
     return Ranking_X;
 }
 
