@@ -8,7 +8,6 @@
 #include "platform/video/sdl_generic/sdl_generic_renderer.h"
 #include "port/config/config.h"
 #include "port/config/keymap.h"
-#include "port/sdl/sdl_debug_text.h"
 #include "port/sound/adx.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 
@@ -167,10 +166,6 @@ static bool full_init() {
         SDL_Log("Couldn't initialize SDL window: %s", SDL_GetError());
         return false;
     }
-
-// #if DEBUG
-//     SDLDebugText_Initialize(renderer);
-// #endif
 
 // Initialize pads
 #if CRS_INPUT_DRIVER_SDL
@@ -378,11 +373,6 @@ static void end_frame() {
     // because NetstatsRenderer uses the existing SFIII rendering pipeline
     NetplayScreen_Render();
     NetstatsRenderer_Render();
-#endif
-
-#if DEBUG
-    // Render debug text
-    // SDLDebugText_Render();
 #endif
 
     int window_width;
