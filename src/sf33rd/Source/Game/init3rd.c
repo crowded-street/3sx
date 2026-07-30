@@ -161,7 +161,6 @@ void Init_Task_End(struct _TASK* task_ptr) {
     task_ptr->r_no[1] = 0;
     G_No[0] = 1;
     cpReadyTask(TASK_ENTRY, Entry_Task);
-    cpReadyTask(TASK_DEBUG, Debug_Task);
     cpExitTask(TASK_INIT);
     Forbid_Reset = 0;
 }

@@ -310,7 +310,6 @@ void Main_StepFrame() {
 
 void Main_FinishFrame() {
     Interrupt_Timer += 1;
-    Record_Timer += 1;
 
     Scrn_Renew();
     Irl_Family();

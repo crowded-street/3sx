@@ -210,12 +210,6 @@ void Com_Initialize(PLW* wk) {
     const s16* xx;
     s16 i;
 
-    time_check_ix = 0;
-
-    for (i = 0; i < 4; i++) {
-        time_check[i] = -1;
-    }
-
     CP_No[wk->wu.id][0] = 1;
     CP_No[wk->wu.id][1] = 0;
     CP_No[wk->wu.id][2] = 0;

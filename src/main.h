@@ -12,7 +12,6 @@ typedef enum TaskID {
     TASK_PAUSE = 4,
     TASK_GAME = 5,
     TASK_SAVER = 6,
-    TASK_DEBUG = 9,
 } TaskID;
 
 extern MPP mpp_w;
