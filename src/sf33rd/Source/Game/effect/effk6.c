@@ -34,7 +34,6 @@ void (*const EFFK6_Jmp_Tbl[6])() = {
 };
 
 void effect_K6_move(WORK_Other* ewk) {
-    Check_Pos_OBJ(ewk);
     EFFK6_Jmp_Tbl[ewk->wu.routine_no[0]](ewk);
     ewk->wu.position_x = ewk->wu.xyz[0].disp.pos & 0xFFFF;
     ewk->wu.position_y = ewk->wu.xyz[1].disp.pos & 0xFFFF;

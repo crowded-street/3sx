@@ -47,7 +47,6 @@ void effect_66_move(WORK_Other* ewk) {
         ewk->wu.routine_no[1] = 0;
     }
 
-    Check_Pos_OBJ(ewk);
     EFF66_Jmp_Tbl[ewk->wu.routine_no[0]](ewk);
 
     if (ewk->wu.be_flag == 0) {

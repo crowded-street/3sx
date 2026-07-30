@@ -33,14 +33,5 @@ void Debug_Menu_Disp(u32 /* unused */, u32 /* unused */);
 void Debug_Move_Sub(u16 sw);
 s32 Debug_Menu_Lever();
 u16 Debug_Menu_Shot();
-void Disp_Lever(u16* /* unused */, u32 /* unused */, u32 /* unused */);
-void Check_Pos_BG();
-void Check_Check_Screen();
-void Check_Pos_OBJ(WORK_Other* ewk);
-void Check_Pos_OBJ2(WORK_Other* ewk);
-void Disp_Rec_Time(s16 PL_id, u32 time);
-void Disp_Mode(PLW* wk);
-void Disp_Free_work();
-void Disp_Random();
 
 #endif

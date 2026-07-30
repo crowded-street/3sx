@@ -54,10 +54,6 @@ void effect_76_move(WORK_Other* ewk) {
         sort_push_requestA(&ewk->wu);
         break;
 
-    case 0x30:
-        Check_Pos_OBJ(ewk);
-        /* fallthrough */
-
     default:
         sort_push_request4(&ewk->wu);
         break;

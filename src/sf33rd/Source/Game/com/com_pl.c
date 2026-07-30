@@ -185,8 +185,6 @@ static u16 CPU_Sub(PLW* wk) {
     Lever_Buff[wk->wu.id] = check_illegal_lever_data(Lever_Buff[wk->wu.id]);
     Check_Store_Lv(wk);
     Shift_Resume_Lv(wk);
-    Disp_Lever(&Lever_Buff[wk->wu.id], wk->wu.id, 1);
-    Disp_Mode(wk);
     return Lever_Buff[wk->wu.id];
 }
 

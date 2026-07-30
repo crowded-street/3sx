@@ -1223,7 +1223,6 @@ void Check_Replay_Status(s16 PL_id, u8 Status) {
     case 99:
         flPrintColor(0xFFFFFF00);
         flPrintL(12, 20, "[REPLAY AREA FULL!!]");
-        Disp_Rec_Time(PL_id, Rec_Time[PL_id]);
         break;
     }
 }
@@ -1249,10 +1248,6 @@ void Get_Replay(s16 PL_id) {
         }
     } else {
         Setup_Replay_Buff(PL_id, sw_buff);
-    }
-
-    if (PL_id == 0) {
-        Disp_Rec_Time(PL_id, Record_Timer);
     }
 }
 

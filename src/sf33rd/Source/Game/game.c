@@ -147,8 +147,6 @@ void Game_Task(struct _TASK* task_ptr) {
         Check_LDREQ_Queue();
     }
 
-    Check_Check_Screen();
-    Check_Pos_BG();
     Disp_Sound_Code();
 }
 
