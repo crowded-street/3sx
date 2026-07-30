@@ -6,7 +6,6 @@
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "common.h"
 #include "port/utils.h"
-#include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/effxx.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"

@@ -1,6 +1,5 @@
 #include "sf33rd/AcrSDK/ps2/flps2render.h"
 #include "common.h"
-#include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/AcrSDK/ps2/flps2etc.h"
 #include "sf33rd/AcrSDK/ps2/flps2vram.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
@@ -73,12 +72,12 @@ s32 flPS2SetTextureRegister(u32 th, u64* texA, u64* tex1, u64* tex0, u64* clamp,
     lpflTexture = &flTexture[LO_16_BITS(th) - 1];
 
     if (!LO_16_BITS(th) || (LO_16_BITS(th) > FL_TEXTURE_MAX)) {
-        flPS2SystemError(0, "ERROR flPS2SetTextureRegister flps2render.c 1");
+        fatal_error("ERROR flPS2SetTextureRegister flps2render.c 1");
     }
 
     if (lpflTexture->desc & 0x4) {
         if (!HI_16_BITS(th) || HI_16_BITS(th) > FL_PALETTE_MAX) {
-            flPS2SystemError(0, "ERROR flPS2SetTextureRegister flps2render.c 2");
+            fatal_error("ERROR flPS2SetTextureRegister flps2render.c 2");
         }
     }
 

@@ -8,7 +8,6 @@
 #include "sf33rd/AcrSDK/common/plcommon.h"
 #include "sf33rd/AcrSDK/common/plpic.h"
 #include "sf33rd/AcrSDK/common/pltim2.h"
-#include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/AcrSDK/ps2/flps2vram.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "structs.h"
@@ -90,8 +89,7 @@ u32 flPS2GetSystemMemoryHandle(s32 len, s32 type) {
         handle = mflRegister(len);
 
         if (handle == 0) {
-            flPS2SystemError(0, "ERROR flPS2GetSystemMemoryHandle flps2etc.c");
-            while (1) {}
+            fatal_error("ERROR flPS2GetSystemMemoryHandle flps2etc.c");
         }
     }
 
@@ -149,7 +147,7 @@ uintptr_t flPS2GetSystemTmpBuff(s32 len, s32 align) {
     new_now = now + len;
 
     if (flPs2State.SystemTmpBuffEndAdrs < new_now) {
-        flPS2SystemError(0, "ERROR flPS2GetSystemTmpBuff flps2etc.c");
+        fatal_error("ERROR flPS2GetSystemTmpBuff flps2etc.c");
         now = flPs2State.SystemTmpBuffStartAdrs;
         new_now = now + len;
     }

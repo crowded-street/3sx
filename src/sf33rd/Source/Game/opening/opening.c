@@ -5,7 +5,6 @@
 
 #include "sf33rd/Source/Game/opening/opening.h"
 #include "common.h"
-#include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "sf33rd/Source/Common/MemMan.h"
 #include "sf33rd/Source/Common/PPGFile.h"

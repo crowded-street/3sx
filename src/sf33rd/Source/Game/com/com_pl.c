@@ -5,7 +5,6 @@
 
 #include "sf33rd/Source/Game/com/com_pl.h"
 #include "common.h"
-#include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/Source/Game/com/active/active00.h"
 #include "sf33rd/Source/Game/com/active/active01.h"
 #include "sf33rd/Source/Game/com/active/active02.h"

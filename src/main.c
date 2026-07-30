@@ -5,7 +5,6 @@
 #include "platform/netplay/netplay_stress.h"
 #endif
 #include "sf33rd/AcrSDK/common/mlPAD.h"
-#include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/AcrSDK/ps2/flps2etc.h"
 #include "sf33rd/AcrSDK/ps2/flps2render.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"

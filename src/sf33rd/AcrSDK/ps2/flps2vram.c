@@ -3,7 +3,6 @@
 #include "sf33rd/AcrSDK/common/memfound.h"
 #include "sf33rd/AcrSDK/common/plcommon.h"
 #include "sf33rd/AcrSDK/common/prilay.h"
-#include "sf33rd/AcrSDK/ps2/flps2debug.h"
 #include "sf33rd/AcrSDK/ps2/flps2etc.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 
@@ -141,7 +140,7 @@ u32 flPS2GetTextureHandle() {
     }
 
     if (i == FL_TEXTURE_MAX) {
-        flPS2SystemError(0, "ERROR flPS2GetTextureHandle flps2vram.c");
+        fatal_error("ERROR flPS2GetTextureHandle flps2vram.c");
     }
 
     return i + 1;
@@ -237,7 +236,7 @@ u32 flPS2GetPaletteHandle() {
     }
 
     if (i == FL_PALETTE_MAX) {
-        flPS2SystemError(0, "ERROR flPS2GetPaletteHandle flps2vram.c");
+        fatal_error("ERROR flPS2GetPaletteHandle flps2vram.c");
     }
 
     return (i + 1) << 16;
@@ -247,7 +246,7 @@ s32 flReleaseTextureHandle(u32 texture_handle) {
     FLTexture* lpflTexture = &flTexture[texture_handle - 1];
 
     if ((texture_handle == 0) || (texture_handle > FL_TEXTURE_MAX) || (lpflTexture->be_flag == 0)) {
-        flPS2SystemError(0, "ERROR flReleaseTextureHandle flps2vram.c");
+        fatal_error("ERROR flReleaseTextureHandle flps2vram.c");
     }
 
     Renderer_DestroyTexture(texture_handle);
@@ -264,7 +263,7 @@ s32 flReleasePaletteHandle(u32 palette_handle) {
     FLTexture* lpflPalette = &flPalette[palette_handle - 1];
 
     if ((palette_handle == 0) || (palette_handle > FL_PALETTE_MAX) || (lpflPalette->be_flag == 0)) {
-        flPS2SystemError(0, "ERROR flReleasePaletteHandle flps2vram.c");
+        fatal_error("ERROR flReleasePaletteHandle flps2vram.c");
     }
 
     Renderer_DestroyPalette(palette_handle);
