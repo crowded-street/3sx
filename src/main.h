@@ -20,7 +20,6 @@ extern s32 system_init_level;
 
 void cpReadyTask(TaskID num, void* func_adrs);
 void cpExitTask(TaskID num);
-s32 mppGetFavoritePlayerNumber();
 void njUserMain(); // FIXME: This shouldn't be public
 
 void Main_Init();
