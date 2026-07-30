@@ -32,18 +32,13 @@ const Permission Permission_PL_Data = { { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                                         { { 0, 0 }, { 0, 0 } } };
 
 void Init_Task_1st(struct _TASK* task_ptr);
-void Init_Task_Aload(struct _TASK* task_ptr);
 void Init_Task_Wait(struct _TASK* task_ptr);
 void Init_Task_2nd(struct _TASK* task_ptr);
 void Init_Task_End(struct _TASK* task_ptr);
 void Setup_Difficult_V();
 
 void Init_Task(struct _TASK* task_ptr) {
-    void (*Main_Jmp_Tbl[])() = { Init_Task_1st, Init_Task_Aload, Init_Task_2nd, Init_Task_End };
-
-#if defined(MEMCARD_DISABLED)
-    Main_Jmp_Tbl[1] = Init_Task_Wait;
-#endif
+    void (*Main_Jmp_Tbl[])() = { Init_Task_1st, Init_Task_Wait, Init_Task_2nd, Init_Task_End };
 
     Main_Jmp_Tbl[task_ptr->r_no[0]](task_ptr);
 }
@@ -99,9 +94,11 @@ void Init_Task_1st(struct _TASK* task_ptr) {
         system_dir[ix] = Dir_Default_Data;
         permission_player[ix] = Permission_PL_Data;
 
-        memcpy(&save_w[ix].extra_option.contents,
-               &save_w[0].extra_option.contents,
-               sizeof(save_w[ix].extra_option.contents));
+        memcpy(
+            &save_w[ix].extra_option.contents,
+            &save_w[0].extra_option.contents,
+            sizeof(save_w[ix].extra_option.contents)
+        );
 
         Direction_Working[ix] = 0;
         Vital_Handicap[ix][0] = 7;
@@ -138,29 +135,6 @@ void Setup_Difficult_V() {
 
     CC_Value[0] = Difficult_V_Data[country][0];
     CC_Value[1] = Difficult_V_Data[country][1];
-}
-
-void Init_Task_Aload(struct _TASK* task_ptr) {
-    switch (task_ptr->r_no[1]) {
-    case 0:
-    case 1:
-        task_ptr->r_no[1] = 2;
-        SaveInit(0, 2);
-        /* fallthrough */
-
-    case 2:
-        if (SaveMove() <= 0) {
-            task_ptr->r_no[0] += 1;
-            task_ptr->r_no[1] = 0;
-            mpp_w.cutAnalogStickData = false;
-            Forbid_Reset = 1;
-        }
-
-        break;
-
-    case 10:
-        break;
-    }
 }
 
 /// Adds a 30 frame delay before proceeding.

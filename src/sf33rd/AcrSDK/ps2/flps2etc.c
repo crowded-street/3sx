@@ -15,7 +15,6 @@
 
 #include <SDL3/SDL.h>
 
-#include <fcntl.h>
 #include <inttypes.h>
 #include <libgraph.h>
 #include <stdio.h>

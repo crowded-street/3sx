@@ -96,7 +96,6 @@ endif()
 
 # Feature toggles
 target_compile_definitions(3sx PRIVATE
-    MEMCARD_DISABLED
     # CPS3
 )
 
