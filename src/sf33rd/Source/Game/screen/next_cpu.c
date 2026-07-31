@@ -167,12 +167,12 @@ void Next_CPU_3rd() {
         SC_No[2] = 0;
 
 #if DEBUG
-        if (Debug_w[29]) {
-            My_char[0] = Debug_w[29] - 1;
+        if (debug_config.character_override[0]) {
+            My_char[0] = debug_config.character_override[0] - 1;
         }
 
-        if (Debug_w[30]) {
-            My_char[1] = Debug_w[30] - 1;
+        if (debug_config.character_override[1]) {
+            My_char[1] = debug_config.character_override[1] - 1;
         }
 #endif
 
@@ -180,12 +180,12 @@ void Next_CPU_3rd() {
         Setup_Next_Fighter();
 
 #if DEBUG
-        if (Debug_w[29]) {
-            My_char[0] = Debug_w[29] - 1;
+        if (debug_config.character_override[0]) {
+            My_char[0] = debug_config.character_override[0] - 1;
         }
 
-        if (Debug_w[30]) {
-            My_char[1] = Debug_w[30] - 1;
+        if (debug_config.character_override[1]) {
+            My_char[1] = debug_config.character_override[1] - 1;
         }
 #endif
 
@@ -680,12 +680,12 @@ void Select_CPU_3rd() {
         SC_No[1]++;
 
 #if DEBUG
-        if (Debug_w[29]) {
-            My_char[0] = Debug_w[29] - 1;
+        if (debug_config.character_override[0]) {
+            My_char[0] = debug_config.character_override[0] - 1;
         }
 
-        if (Debug_w[30]) {
-            My_char[1] = Debug_w[30] - 1;
+        if (debug_config.character_override[1]) {
+            My_char[1] = debug_config.character_override[1] - 1;
         }
 #endif
 
@@ -693,12 +693,12 @@ void Select_CPU_3rd() {
         Setup_Next_Fighter();
 
 #if DEBUG
-        if (Debug_w[29]) {
-            My_char[0] = Debug_w[29] - 1;
+        if (debug_config.character_override[0]) {
+            My_char[0] = debug_config.character_override[0] - 1;
         }
 
-        if (Debug_w[30]) {
-            My_char[1] = Debug_w[30] - 1;
+        if (debug_config.character_override[1]) {
+            My_char[1] = debug_config.character_override[1] - 1;
         }
 #endif
 
@@ -1127,8 +1127,8 @@ void Setup_Next_Fighter() {
     }
 
 #if DEBUG
-    if (Debug_w[31]) {
-        Battle_Country = bg_w.stage = Debug_w[31] - 1;
+    if (debug_config.stage_override) {
+        Battle_Country = bg_w.stage = debug_config.stage_override - 1;
     }
 #endif
 
@@ -1137,8 +1137,8 @@ void Setup_Next_Fighter() {
     Super_Arts[COM_id] = Stock_Com_Arts[Player_id] = Setup_Com_Arts();
 
 #if DEBUG
-    if (Debug_w[32]) {
-        Super_Arts[COM_id] = Debug_w[32] - 1;
+    if (debug_config.cpu_sa) {
+        Super_Arts[COM_id] = debug_config.cpu_sa - 1;
     }
 #endif
 
@@ -1496,13 +1496,13 @@ s8 Check_Bonus_Stage() {
 
 s8 Check_Bonus_Type() {
 #if DEBUG
-    if (Debug_w[46] != 0) {
-        if (Debug_w[46] == 1) {
+    if (debug_config.bonus_stage_override != 0) {
+        if (debug_config.bonus_stage_override == 1) {
             Completion_Bonus[Player_id][0] = 0;
             return 20;
         }
 
-        if (Debug_w[46] == 2) {
+        if (debug_config.bonus_stage_override == 2) {
             Completion_Bonus[Player_id][1] = 0;
             return 21;
         }

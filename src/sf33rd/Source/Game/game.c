@@ -343,12 +343,12 @@ void Game01() {
             set_hitmark_color();
 
 #if DEBUG
-            if (Debug_w[29]) {
-                My_char[0] = Debug_w[29] - 1;
+            if (debug_config.character_override[0]) {
+                My_char[0] = debug_config.character_override[0] - 1;
             }
 
-            if (Debug_w[30]) {
-                My_char[1] = Debug_w[30] - 1;
+            if (debug_config.character_override[1]) {
+                My_char[1] = debug_config.character_override[1] - 1;
             }
 #endif
 

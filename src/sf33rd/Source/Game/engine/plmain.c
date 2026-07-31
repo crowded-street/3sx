@@ -459,7 +459,7 @@ void look_after_timers(PLW* wk) { // 🟡
     }
 
 #if DEBUG
-    if (Debug_w[9]) {
+    if (debug_config.one_button_sa) {
         if (wk->sa->nmsa_g_ix != 0) {
             wk->cp->waza_flag[wk->sa->nmsa_g_ix] = 9;
         }

@@ -29,7 +29,7 @@ void keyConvert() {
     s32 repeat_on = 0;
 
 #if DEBUG
-    if (Debug_w[43] && mpp_w.inGame && (Game_pause == 0)) {
+    if (debug_config.turbo_buttons && mpp_w.inGame && (Game_pause == 0)) {
         repeat_on = 1;
     }
 #endif

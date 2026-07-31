@@ -4539,8 +4539,8 @@ void Select_Active(PLW* wk) {
     }
 
 #if DEBUG
-    if (Debug_w[54]) {
-        Pattern_Index[wk->wu.id] = (u16)Debug_w[54] - 1;
+    if (debug_config.cpu_active_override) {
+        Pattern_Index[wk->wu.id] = debug_config.cpu_active_override - 1;
     }
 #endif
 }
@@ -4698,8 +4698,8 @@ s32 Select_Passive(PLW* wk) {
     Timer_00[wk->wu.id] = Select_Reflection_Time(wk);
 
 #if DEBUG
-    if (Debug_w[55]) {
-        Pattern_Index[wk->wu.id] = (u16)Debug_w[55] - 1;
+    if (debug_config.cpu_passive_override) {
+        Pattern_Index[wk->wu.id] = debug_config.cpu_passive_override - 1;
     }
 #endif
 

@@ -66,7 +66,7 @@ void count_cont_main() {
     }
 
 #if DEBUG
-    if (Debug_w[24]) {
+    if (debug_config.time_stop) {
         counter_write(counter_color);
         return;
     }
@@ -211,7 +211,7 @@ void bcount_cont_main() {
     }
 
 #if DEBUG
-    if (Debug_w[24]) {
+    if (debug_config.time_stop) {
         return;
     }
 #endif

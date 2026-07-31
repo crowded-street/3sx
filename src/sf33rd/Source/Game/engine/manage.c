@@ -1244,7 +1244,7 @@ s32 Check_Ending_Sub() {
     }
 
 #if DEBUG
-    if (Debug_w[47]) {
+    if (debug_config.skip_to_ending) {
         return 1;
     }
 #endif

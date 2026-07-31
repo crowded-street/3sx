@@ -40,7 +40,7 @@ void effect_A5_move(WORK_Other* ewk) {
     }
 
 #if DEBUG
-    if (Debug_w[24]) {
+    if (debug_config.time_stop) {
         return;
     }
 #endif

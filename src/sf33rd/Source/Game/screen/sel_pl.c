@@ -775,15 +775,15 @@ void PL_Sel_1st() {
         effect_50_init(ID2, 2, 1);
 
 #if DEBUG
-        if (Debug_w[29]) {
-            My_char[0] = Debug_w[29] - 1;
+        if (debug_config.character_override[0]) {
+            My_char[0] = debug_config.character_override[0] - 1;
         }
 
-        if (!Debug_w[30]) {
+        if (!debug_config.character_override[1]) {
             return;
         }
 
-        My_char[1] = Debug_w[30] - 1;
+        My_char[1] = debug_config.character_override[1] - 1;
 #endif
     } else {
         SP_No[ID2][1] += 1;
@@ -954,12 +954,12 @@ void Sel_PL_3rd() {
     }
 
 #if DEBUG
-    if (Debug_w[29]) {
-        My_char[0] = Debug_w[29] - 1;
+    if (debug_config.character_override[0]) {
+        My_char[0] = debug_config.character_override[0] - 1;
     }
 
-    if (Debug_w[30]) {
-        My_char[1] = Debug_w[30] - 1;
+    if (debug_config.character_override[1]) {
+        My_char[1] = debug_config.character_override[1] - 1;
     }
 #endif
 
@@ -1569,8 +1569,8 @@ void Exit_2nd() {
         bg_w.area = 0;
 
 #if DEBUG
-        if (Debug_w[31]) {
-            Battle_Country = bg_w.stage = Debug_w[31] - 1;
+        if (debug_config.stage_override) {
+            Battle_Country = bg_w.stage = debug_config.stage_override - 1;
         }
 #endif
 
