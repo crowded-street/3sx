@@ -5,7 +5,7 @@
 
 #include "sf33rd/Source/Game/ui/count.h"
 #include "common.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
+#include "sf33rd/Source/Game/debug/debug_config.h"
 #include "sf33rd/Source/Game/engine/pls01.h"
 #include "sf33rd/Source/Game/engine/slowf.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
@@ -65,10 +65,12 @@ void count_cont_main() {
         return;
     }
 
-    if (Debug_w[24]) {
+#if DEBUG
+    if (debug_config.time_stop) {
         counter_write(counter_color);
         return;
     }
+#endif
 
     if (Allow_a_battle_f == 0 || Demo_Time_Stop != 0) {
         counter_write(counter_color);
@@ -208,7 +210,13 @@ void bcount_cont_main() {
         return;
     }
 
-    if (!Debug_w[24] && !EXE_flag && !Game_pause) {
+#if DEBUG
+    if (debug_config.time_stop) {
+        return;
+    }
+#endif
+
+    if (!EXE_flag && !Game_pause) {
         bcounter_control();
     }
 }

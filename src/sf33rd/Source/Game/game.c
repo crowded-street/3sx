@@ -4,7 +4,7 @@
 #include "port/utils.h"
 #include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Common/PPGWork.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
+#include "sf33rd/Source/Game/debug/debug_config.h"
 #include "sf33rd/Source/Game/demo/demo00.h"
 #include "sf33rd/Source/Game/demo/demo01.h"
 #include "sf33rd/Source/Game/demo/demo02.h"
@@ -57,8 +57,8 @@
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/ui/count.h"
 #include "sf33rd/Source/Game/ui/flash_lp.h"
-#include "sf33rd/Source/Game/ui/sc_sub.h"
 #include "sf33rd/Source/Game/ui/input_history.h"
+#include "sf33rd/Source/Game/ui/sc_sub.h"
 #include "structs.h"
 
 void Wait_Auto_Load(struct _TASK* /* unused */);
@@ -109,7 +109,6 @@ static void Set_Appear_Type_For_Mode() {
 
 void Game_Task(struct _TASK* task_ptr) {
     s16 ix;
-    s16 ff;
 
     void (*Main_Jmp_Tbl[3])(struct _TASK*) = { Wait_Auto_Load, Loop_Demo, Game };
 
@@ -117,35 +116,23 @@ void Game_Task(struct _TASK* task_ptr) {
         init_color_trans_req();
     }
 
-    ff = sysFF;
+    Play_Game = 0;
 
-    for (ix = 0; ix < ff; ix++) {
-        if (!No_Trans) {
-            if (ix == ff - 1) {
-                No_Trans = 0;
-            } else {
-                No_Trans = 1;
-            }
-        }
-
-        Play_Game = 0;
-
-        if (Game_pause != 0x81) {
-            system_timer += 1;
-        }
-
-        init_texcash_before_process();
-        seqsBeforeProcess();
-
-        if (nowSoftReset() == 0) {
-            Main_Jmp_Tbl[G_No[0]](task_ptr);
-        }
-
-        seqsAfterProcess();
-        texture_cash_update();
-        move_pulpul_work();
-        Check_LDREQ_Queue();
+    if (Game_pause != 0x81) {
+        system_timer += 1;
     }
+
+    init_texcash_before_process();
+    seqsBeforeProcess();
+
+    if (nowSoftReset() == 0) {
+        Main_Jmp_Tbl[G_No[0]](task_ptr);
+    }
+
+    seqsAfterProcess();
+    texture_cash_update();
+    move_pulpul_work();
+    Check_LDREQ_Queue();
 }
 
 void Game() {
@@ -355,13 +342,15 @@ void Game01() {
             Set_Appear_Type_For_Mode();
             set_hitmark_color();
 
-            if (Debug_w[0x1D]) {
-                My_char[0] = Debug_w[0x1D] - 1;
+#if DEBUG
+            if (debug_config.character_override[0]) {
+                My_char[0] = debug_config.character_override[0] - 1;
             }
 
-            if (Debug_w[0x1E]) {
-                My_char[1] = Debug_w[0x1E] - 1;
+            if (debug_config.character_override[1]) {
+                My_char[1] = debug_config.character_override[1] - 1;
             }
+#endif
 
             Purge_texcash_of_list(3);
             Make_texcash_of_list(3);

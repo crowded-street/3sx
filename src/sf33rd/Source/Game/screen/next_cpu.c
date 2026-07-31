@@ -8,7 +8,7 @@
 #include "constants.h"
 #include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Game/com/com_data.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
+#include "sf33rd/Source/Game/debug/debug_config.h"
 #include "sf33rd/Source/Game/effect/eff38.h"
 #include "sf33rd/Source/Game/effect/eff39.h"
 #include "sf33rd/Source/Game/effect/eff42.h"
@@ -166,24 +166,28 @@ void Next_CPU_3rd() {
         SC_No[1]++;
         SC_No[2] = 0;
 
-        if (Debug_w[0x1D]) {
-            My_char[0] = Debug_w[0x1D] - 1;
+#if DEBUG
+        if (debug_config.character_override[0]) {
+            My_char[0] = debug_config.character_override[0] - 1;
         }
 
-        if (Debug_w[0x1E]) {
-            My_char[1] = Debug_w[0x1E] - 1;
+        if (debug_config.character_override[1]) {
+            My_char[1] = debug_config.character_override[1] - 1;
         }
+#endif
 
         Push_LDREQ_Queue_Player(COM_id, My_char[COM_id]);
         Setup_Next_Fighter();
 
-        if (Debug_w[0x1D]) {
-            My_char[0] = Debug_w[0x1D] - 1;
+#if DEBUG
+        if (debug_config.character_override[0]) {
+            My_char[0] = debug_config.character_override[0] - 1;
         }
 
-        if (Debug_w[0x1E]) {
-            My_char[1] = Debug_w[0x1E] - 1;
+        if (debug_config.character_override[1]) {
+            My_char[1] = debug_config.character_override[1] - 1;
         }
+#endif
 
         if (VS_Index[Player_id] < 8) {
             S_Timer = 50;
@@ -675,24 +679,28 @@ void Select_CPU_3rd() {
 
         SC_No[1]++;
 
-        if (Debug_w[29]) {
-            My_char[0] = Debug_w[29] - 1;
+#if DEBUG
+        if (debug_config.character_override[0]) {
+            My_char[0] = debug_config.character_override[0] - 1;
         }
 
-        if (Debug_w[30]) {
-            My_char[1] = Debug_w[30] - 1;
+        if (debug_config.character_override[1]) {
+            My_char[1] = debug_config.character_override[1] - 1;
         }
+#endif
 
         Push_LDREQ_Queue_Player(COM_id, My_char[COM_id]);
         Setup_Next_Fighter();
 
-        if (Debug_w[29]) {
-            My_char[0] = Debug_w[29] - 1;
+#if DEBUG
+        if (debug_config.character_override[0]) {
+            My_char[0] = debug_config.character_override[0] - 1;
         }
 
-        if (Debug_w[30]) {
-            My_char[1] = Debug_w[30] - 1;
+        if (debug_config.character_override[1]) {
+            My_char[1] = debug_config.character_override[1] - 1;
         }
+#endif
 
         if (VS_Index[Player_id] < 8) {
             S_Timer = 50;
@@ -1118,17 +1126,21 @@ void Setup_Next_Fighter() {
         bg_w.stage = Battle_Country;
     }
 
-    if (Debug_w[31]) {
-        Battle_Country = bg_w.stage = Debug_w[31] - 1;
+#if DEBUG
+    if (debug_config.stage_override) {
+        Battle_Country = bg_w.stage = debug_config.stage_override - 1;
     }
+#endif
 
     Push_LDREQ_Queue_BG(bg_w.stage + 0);
     bg_w.area = 0;
     Super_Arts[COM_id] = Stock_Com_Arts[Player_id] = Setup_Com_Arts();
 
-    if (Debug_w[32]) {
-        Super_Arts[COM_id] = bg_w.stage = Debug_w[32] - 1;
+#if DEBUG
+    if (debug_config.cpu_sa) {
+        Super_Arts[COM_id] = debug_config.cpu_sa - 1;
     }
+#endif
 
     Setup_Com_Color();
     Setup_PL_Color(COM_id, Com_Color_Shot);
@@ -1483,19 +1495,21 @@ s8 Check_Bonus_Stage() {
 }
 
 s8 Check_Bonus_Type() {
-    if (Debug_w[0x2E] != 0) {
-        if (Debug_w[0x2E] == 1) {
+#if DEBUG
+    if (debug_config.bonus_stage_override != 0) {
+        if (debug_config.bonus_stage_override == 1) {
             Completion_Bonus[Player_id][0] = 0;
             return 20;
         }
 
-        if (Debug_w[0x2E] == 2) {
+        if (debug_config.bonus_stage_override == 2) {
             Completion_Bonus[Player_id][1] = 0;
             return 21;
         }
 
         return 0;
     }
+#endif
 
     if (save_w[Present_Mode].extra_option.contents[0][5] == 0) {
         return 0;

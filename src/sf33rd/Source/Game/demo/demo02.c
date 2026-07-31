@@ -4,7 +4,7 @@
  */
 
 #include "common.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
+#include "sf33rd/Source/Game/debug/debug_config.h"
 #include "sf33rd/Source/Game/engine/grade.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/pls02.h"
@@ -75,9 +75,11 @@ void Demo00() {
     case 3:
         Game02();
 
-        if (Debug_w[0x18] == 9) {
+#if DEBUG
+        if (debug_config.time_stop == 9) {
             D_Timer = 60;
         }
+#endif
 
         if (--D_Timer == 1) {
             D_No[1] += 1;
@@ -261,13 +263,15 @@ void Setup_Demo_PL() {
     My_char[0] = Demo_PL_Play_Data[Demo_PL_Index][0];
     My_char[1] = Demo_PL_Play_Data[Demo_PL_Index][1];
 
-    if (Debug_w[0x1D]) {
-        My_char[0] = Debug_w[0x1D] - 1;
+#if DEBUG
+    if (debug_config.character_override[0]) {
+        My_char[0] = debug_config.character_override[0] - 1;
     }
 
-    if (Debug_w[0x1E]) {
-        My_char[1] = Debug_w[0x1E] - 1;
+    if (debug_config.character_override[1]) {
+        My_char[1] = debug_config.character_override[1] - 1;
     }
+#endif
 
     init_omop();
 }

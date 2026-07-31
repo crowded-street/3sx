@@ -21,7 +21,7 @@
 #include "sf33rd/Source/Game/com/passive/pass0001.h"
 #include "sf33rd/Source/Game/com/passive/pass0002.h"
 #include "sf33rd/Source/Game/com/passive/pass0003.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
+#include "sf33rd/Source/Game/debug/debug_config.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/cmd_data.h"
 #include "sf33rd/Source/Game/engine/cmd_main.h"
@@ -100,19 +100,27 @@ void Hi_Jump(PLW* wk, s16 Pl_Number, s16 Jump_Dir);
 s32 Check_Start_Hi_Jump(PLW* wk);
 s32 Check_Air_Guard(PLW* wk);
 void Jump_Attack(PLW* wk, s16 Reaction, s16 Time_Data, u16 Lever_Data, s16 Jump_Dir);
-void Jump_Attack_Term(PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Jump_Dir, s16 Range_JX,
-                      s16 Range_JY, s16 J_Lever_Data);
+void Jump_Attack_Term(
+    PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Jump_Dir, s16 Range_JX, s16 Range_JY,
+    s16 J_Lever_Data
+);
 s32 Check_SP_Jump_Attack(PLW* wk, s16 Lever_Data);
 s32 Check_VS_Air_Attack(PLW* wk, s16 Range_JX, s16 Range_JY, s16 J_Lever_Data);
 void Hi_Jump_Attack(PLW* wk, s16 Reaction, s16 Time_Data, u16 Lever_Data, s16 Jump_Dir);
-void Hi_Jump_Attack_Term(PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Jump_Dir, s16 Range_JX,
-                         s16 Range_JY, u16 J_Lever_Data);
+void Hi_Jump_Attack_Term(
+    PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Jump_Dir, s16 Range_JX, s16 Range_JY,
+    u16 J_Lever_Data
+);
 s32 Check_Term_ABS_Distance(PLW* wk);
 s32 Check_Com_Add_Y(PLW* wk, s16 Pos_Y, s16 Range);
-void ORO_JA_Term(PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Lever_Data, s16 RJX,
-                 s16 RJY, u16 JLD);
-void ORO_HJA_Term(PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Lever_Data, s16 RJX,
-                  s16 RJY, u16 JLD);
+void ORO_JA_Term(
+    PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Lever_Data, s16 RJX, s16 RJY,
+    u16 JLD
+);
+void ORO_HJA_Term(
+    PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Lever_Data, s16 RJX, s16 RJY,
+    u16 JLD
+);
 void Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot);
 s32 Hadou_Check(PLW* wk, u16 Tech_Number);
 s32 Check_Resume_Lever(PLW* wk);
@@ -124,14 +132,22 @@ s32 Setup_Rapid_Time(PLW* wk, u16 Tech_Number); // unused all args
 void Rapid_Sub(PLW* wk);
 s32 Check_Rapid_End(PLW* wk);
 s32 Check_Start_Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number);
-void ORO_JCA_Term(PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Tech_Number,
-                  s16 Power_Level, s16 Ex_Shot, s16 RJX, s16 RJY, u16 JLD);
-void ORO_HJCA_Term(PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Tech_Number,
-                   s16 Power_Level, s16 Ex_Shot, s16 RJX, s16 RJY, u16 JLD);
-void Jump_Command_Attack_Term(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot, s16 RX, s16 RY,
-                              s16 Jump_Dir, s16 JRX, s16 JRY, u16 JLD);
-void Hi_Jump_Command_Attack_Term(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot, s16 RX, s16 RY,
-                                 s16 Jump_Dir, s16 JRX, s16 JRY, u16 JLD);
+void ORO_JCA_Term(
+    PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Tech_Number, s16 Power_Level,
+    s16 Ex_Shot, s16 RJX, s16 RJY, u16 JLD
+);
+void ORO_HJCA_Term(
+    PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Tech_Number, s16 Power_Level,
+    s16 Ex_Shot, s16 RJX, s16 RJY, u16 JLD
+);
+void Jump_Command_Attack_Term(
+    PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot, s16 RX, s16 RY, s16 Jump_Dir, s16 JRX,
+    s16 JRY, u16 JLD
+);
+void Hi_Jump_Command_Attack_Term(
+    PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot, s16 RX, s16 RY, s16 Jump_Dir, s16 JRX,
+    s16 JRY, u16 JLD
+);
 s32 Check_Landed(PLW* wk, s16 Reaction);
 s32 Check_Dash_Hit(PLW* wk, u16 Tech_Number);
 s32 Setup_Front_or_Back(PLW* wk, s16 xx);
@@ -978,8 +994,7 @@ void SA_Term(PLW* wk, u16 SA0, u16 SA1, u16 SA2, u16 Term_No) {
                 return;
 
             case 8:
-                if ((plw[wk->wu.id].sa->kind_of_arts == 2) &&
-                    (plw[wk->wu.id].wu.vital_new <= (Max_vitality / 2))) {
+                if ((plw[wk->wu.id].sa->kind_of_arts == 2) && (plw[wk->wu.id].wu.vital_new <= (Max_vitality / 2))) {
                     break;
                 }
                 CP_Index[wk->wu.id][0]++;
@@ -1960,8 +1975,10 @@ void Jump_Attack(PLW* wk, s16 Reaction, s16 Time_Data, u16 Lever_Data, s16 Jump_
     }
 }
 
-void Jump_Attack_Term(PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Jump_Dir, s16 Range_JX,
-                      s16 Range_JY, s16 J_Lever_Data) {
+void Jump_Attack_Term(
+    PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Jump_Dir, s16 Range_JX, s16 Range_JY,
+    s16 J_Lever_Data
+) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
@@ -2258,8 +2275,10 @@ void Hi_Jump_Attack(PLW* wk, s16 Reaction, s16 Time_Data, u16 Lever_Data, s16 Ju
     }
 }
 
-void Hi_Jump_Attack_Term(PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Jump_Dir, s16 Range_JX,
-                         s16 Range_JY, u16 J_Lever_Data) {
+void Hi_Jump_Attack_Term(
+    PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Jump_Dir, s16 Range_JX, s16 Range_JY,
+    u16 J_Lever_Data
+) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
@@ -2465,8 +2484,10 @@ s32 Check_Com_Add_Y(PLW* wk, s16 Pos_Y, s16 Range) {
     }
 }
 
-void ORO_JA_Term(PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Lever_Data, s16 RJX,
-                 s16 RJY, u16 JLD) {
+void ORO_JA_Term(
+    PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Lever_Data, s16 RJX, s16 RJY,
+    u16 JLD
+) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
@@ -2601,8 +2622,10 @@ void ORO_JA_Term(PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16
     }
 }
 
-void ORO_HJA_Term(PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Lever_Data, s16 RJX,
-                  s16 RJY, u16 JLD) {
+void ORO_HJA_Term(
+    PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Lever_Data, s16 RJX, s16 RJY,
+    u16 JLD
+) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
@@ -3241,8 +3264,10 @@ s32 Check_Start_Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number) {
     return 1;
 }
 
-void ORO_JCA_Term(PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Tech_Number,
-                  s16 Power_Level, s16 Ex_Shot, s16 RJX, s16 RJY, u16 JLD) {
+void ORO_JCA_Term(
+    PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Tech_Number, s16 Power_Level,
+    s16 Ex_Shot, s16 RJX, s16 RJY, u16 JLD
+) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
@@ -3362,8 +3387,10 @@ void ORO_JCA_Term(PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s1
     }
 }
 
-void ORO_HJCA_Term(PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Tech_Number,
-                   s16 Power_Level, s16 Ex_Shot, s16 RJX, s16 RJY, u16 JLD) {
+void ORO_HJCA_Term(
+    PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Tech_Number, s16 Power_Level,
+    s16 Ex_Shot, s16 RJX, s16 RJY, u16 JLD
+) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
@@ -3500,8 +3527,10 @@ void ORO_HJCA_Term(PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s
     }
 }
 
-void Jump_Command_Attack_Term(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot, s16 RX, s16 RY,
-                              s16 Jump_Dir, s16 JRX, s16 JRY, u16 JLD) {
+void Jump_Command_Attack_Term(
+    PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot, s16 RX, s16 RY, s16 Jump_Dir, s16 JRX,
+    s16 JRY, u16 JLD
+) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
@@ -3604,8 +3633,10 @@ void Jump_Command_Attack_Term(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_
     }
 }
 
-void Hi_Jump_Command_Attack_Term(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot, s16 RX, s16 RY,
-                                 s16 Jump_Dir, s16 JRX, s16 JRY, u16 JLD) {
+void Hi_Jump_Command_Attack_Term(
+    PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot, s16 RX, s16 RY, s16 Jump_Dir, s16 JRX,
+    s16 JRY, u16 JLD
+) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
@@ -4507,9 +4538,11 @@ void Select_Active(PLW* wk) {
         }
     }
 
-    if (Debug_w[0x36]) {
-        Pattern_Index[wk->wu.id] = (u16)Debug_w[0x36] - 1;
+#if DEBUG
+    if (debug_config.cpu_active_override) {
+        Pattern_Index[wk->wu.id] = debug_config.cpu_active_override - 1;
     }
+#endif
 }
 
 s32 Check_SA_Active(PLW* wk, s16* pl_id) {
@@ -4664,9 +4697,11 @@ s32 Select_Passive(PLW* wk) {
     CP_No[wk->wu.id][3] = 0;
     Timer_00[wk->wu.id] = Select_Reflection_Time(wk);
 
-    if (Debug_w[0x37]) {
-        Pattern_Index[wk->wu.id] = (u16)Debug_w[0x37] - 1;
+#if DEBUG
+    if (debug_config.cpu_passive_override) {
+        Pattern_Index[wk->wu.id] = debug_config.cpu_passive_override - 1;
     }
+#endif
 
     if ((VS_Tech[wk->wu.id] == 0x19) || (VS_Tech[wk->wu.id] == 0x13) || (Timer_00[wk->wu.id] == 0)) {
         CP_No[wk->wu.id][0] = 6;

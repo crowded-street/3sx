@@ -5,7 +5,6 @@
 
 #include "bin2obj/char_table.h"
 #include "common.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/charset.h"
 #include "sf33rd/Source/Game/opening/opening.h"
@@ -321,10 +320,6 @@ s32 effect_36_init(u8 typenum) {
     WORK_Other* ewk;
     s16 ix;
     const s16* data_ptr;
-
-    if (Debug_w[48] & 0x10) {
-        return 0;
-    }
 
     if ((ix = pull_effect_work(3)) == -1) {
         return -1;

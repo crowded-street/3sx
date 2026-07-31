@@ -10,7 +10,6 @@
 #include "platform/app/sdl/sdl_app.h"
 #include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Game/animation/appear.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/eff04.h"
 #include "sf33rd/Source/Game/effect/eff10.h"
 #include "sf33rd/Source/Game/effect/eff18.h"
@@ -3688,10 +3687,6 @@ u16 After_VS_Move_Sub(u16 sw, s16 cursor_id, s16 menu_max) {
     if (plw[0].wu.operator == 0 || plw[1].wu.operator == 0 || Mode_Type == MODE_NETWORK) {
         skip = 1;
     } else {
-        skip = 99;
-    }
-
-    if (Debug_w[49]) {
         skip = 99;
     }
 

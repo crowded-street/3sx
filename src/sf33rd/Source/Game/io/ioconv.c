@@ -8,7 +8,7 @@
 #include "main.h"
 #include "sf33rd/AcrSDK/common/mlPAD.h"
 #include "sf33rd/AcrSDK/common/pad.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
+#include "sf33rd/Source/Game/debug/debug_config.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 
@@ -28,9 +28,11 @@ void keyConvert() {
     s32 j;
     s32 repeat_on = 0;
 
-    if (Debug_w[0x2B] && mpp_w.inGame && (Game_pause == 0)) {
+#if DEBUG
+    if (debug_config.turbo_buttons && mpp_w.inGame && (Game_pause == 0)) {
         repeat_on = 1;
     }
+#endif
 
     if ((save_w[Present_Mode].extra_option.contents[0][4]) && mpp_w.inGame && (Game_pause == 0)) {
         repeat_on = 1;

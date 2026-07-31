@@ -9,7 +9,6 @@
 #include "sf33rd/Source/Common/MemMan.h"
 #include "sf33rd/Source/Common/PPGFile.h"
 #include "sf33rd/Source/Common/PPGWork.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/ending/end_data.h"
 #include "sf33rd/Source/Game/engine/pls02.h"
 #include "sf33rd/Source/Game/engine/slowf.h"
@@ -602,10 +601,6 @@ void scr_trans(u8 bgnm) {
     njGetMatrix(&BgMATRIX[bgnm + 1]);
     njTranslate(0, 0, 1024.0, PrioBase[bg_priority[bgnm]]);
     njScale(0, 1.0, -1.0, 1.0);
-
-    if (Debug_w[42]) {
-        return;
-    }
 
     palOffset = bgPalCodeOffset[bgnm];
 

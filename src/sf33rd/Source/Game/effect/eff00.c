@@ -5,7 +5,6 @@
 
 #include "sf33rd/Source/Game/effect/eff00.h"
 #include "common.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
@@ -14,8 +13,7 @@
 const u16 jdb[16] = { 0x8000, 0x80FF, 0xBC00, 0xBCFF, 0x8300, 0x83FF, 0xBF00, 0xBFFF,
                       0xC000, 0xC0FF, 0xFC00, 0xFCFF, 0xC300, 0xC3FF, 0xFF00, 0xFFFF };
 
-s32 get_dip_modoki(s16 from, s8 fl);
-s32 get_dip_modoki2(s16 from, s8 fl);
+s32 get_dip_modoki(s8 fl);
 void renewal_table_address(WORK_Other_JUDGE* ewk, WORK* twk);
 void renewal_table_data(WORK_Other_JUDGE* ewk);
 
@@ -25,7 +23,6 @@ static bool Is_Training_Hitbox_Display_Active() {
 
 void effect_00_move(WORK_Other_JUDGE* ewk) {
     u16 dip;
-    u16 dip2;
 
     ewk->fade_cja += 2;
     ewk->fade_cja &= 0xFF;
@@ -53,10 +50,8 @@ void effect_00_move(WORK_Other_JUDGE* ewk) {
             break;
         }
 
-        dip = get_dip_modoki(18, ewk->wu.type);
-        dip2 = get_dip_modoki2(18, ewk->wu.type);
+        dip = get_dip_modoki(ewk->wu.type);
         ewk->ja_disp_bit = 0;
-        ewk->ja_color_bit = 0;
 
         if (ewk->master_work_id != 1) {
             switch (dip & 0x2000) {
@@ -68,11 +63,10 @@ void effect_00_move(WORK_Other_JUDGE* ewk) {
             }
         } else if (dip & 0x1000) {
         jump:
-            dip = (dip / 256) & 0xF;
-            dip2 = (dip2 / 256) & 0xF;
+            dip = (dip >> 8) & 0xF;
             ewk->ja_disp_bit = jdb[dip];
-            ewk->ja_color_bit = jdb[dip2];
-            ewk->curr_ja = Debug_w[17];
+            // ewk->curr_ja = Debug_w[17];
+            ewk->curr_ja = 0;
         }
 
         renewal_table_address(ewk, (WORK*)ewk->my_master);
@@ -91,34 +85,18 @@ void effect_00_move(WORK_Other_JUDGE* ewk) {
     }
 }
 
-s32 get_dip_modoki(s16 from, s8 fl) {
+s32 get_dip_modoki(s8 fl) {
     s16 rnum = 0;
-    bool training_hitbox = Is_Training_Hitbox_Display_Active() && from == DEBUG_DISP_PLAYER_TYPE;
+    bool training_hitbox = Is_Training_Hitbox_Display_Active();
 
-    rnum += ((Debug_w[from] != 0) || training_hitbox) << 12;
-    rnum += ((Debug_w[from + 5] != 0) || training_hitbox) << 13;
+    rnum += training_hitbox << 12;
+    rnum += training_hitbox << 13;
 
     if (fl) {
-        rnum += ((Debug_w[from + 1] != 0) || training_hitbox) << 8;
-        rnum += ((Debug_w[from + 2] != 0) || training_hitbox) << 9;
-        rnum += ((Debug_w[from + 3] != 0) || training_hitbox) << 10;
-        rnum += (Debug_w[from + 4] != 0) << 11;
-    }
-
-    return rnum;
-}
-
-s32 get_dip_modoki2(s16 from, s8 fl) {
-    s16 rnum = 0;
-
-    rnum += (Debug_w[from] == 2) << 12;
-    rnum += (Debug_w[from + 5] == 2) << 13;
-
-    if (fl) {
-        rnum += (Debug_w[from + 1] == 2) << 8;
-        rnum += (Debug_w[from + 2] == 2) << 9;
-        rnum += (Debug_w[from + 3] == 2) << 10;
-        rnum += (Debug_w[from + 4] == 2) << 11;
+        rnum += training_hitbox << 8;
+        rnum += training_hitbox << 9;
+        rnum += training_hitbox << 10;
+        rnum += training_hitbox << 11;
     }
 
     return rnum;
@@ -184,7 +162,7 @@ s32 effect_00_init(WORK* wk) {
     WORK_Other_JUDGE* ewk;
     s16 ix;
 
-    if (Debug_w[18] == 0 && Debug_w[23] == 0 && !Is_Training_Hitbox_Display_Active()) {
+    if (!Is_Training_Hitbox_Display_Active()) {
         return 0;
     }
 

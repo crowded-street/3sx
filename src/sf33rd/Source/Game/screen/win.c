@@ -4,7 +4,7 @@
  */
 
 #include "common.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
+#include "sf33rd/Source/Game/debug/debug_config.h"
 #include "sf33rd/Source/Game/effect/eff58.h"
 #include "sf33rd/Source/Game/effect/eff76.h"
 #include "sf33rd/Source/Game/effect/effb8.h"
@@ -161,13 +161,15 @@ void Win_3rd() {
 
             effect_58_init(0xE, 0x14, 2);
 
-            if (Debug_w[0x1D]) {
-                My_char[0] = Debug_w[0x1D] - 1;
+#if DEBUG
+            if (debug_config.character_override[0]) {
+                My_char[0] = debug_config.character_override[0] - 1;
             }
 
-            if (Debug_w[0x1E]) {
-                My_char[1] = Debug_w[0x1E] - 1;
+            if (debug_config.character_override[1]) {
+                My_char[1] = debug_config.character_override[1] - 1;
             }
+#endif
 
             if (Mode_Type == MODE_ARCADE) {
                 Push_LDREQ_Queue_Player(Winner_id, My_char[Winner_id]);

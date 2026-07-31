@@ -29,7 +29,6 @@ typedef struct {
 typedef struct {
     FMS_FRAME fmsFrame;
     u8* ramcntBuff;
-    bool sysStop;
     bool initTrainingData;
     bool inGame;
     s8 language;

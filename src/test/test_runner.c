@@ -247,7 +247,7 @@ void TestRunner_Prologue() {
 
             if (wait_timer <= 0) {
                 // Stage selection happens before per-frame synchronization begins.
-                Debug_w[DEBUG_STAGE_SELECT] = game.stage + 1;
+                debug_config.stage_override = game.stage + 1;
                 tap_button(SWK_SOUTH, 0);
                 tap_button(SWK_SOUTH, 1);
                 phase = PHASE_GAME_TRANSITION;

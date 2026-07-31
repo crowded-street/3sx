@@ -10,7 +10,6 @@
 #include "main.h"
 #include "port/utils.h"
 #include "sf33rd/Source/Game/animation/win_pl.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/eff00.h"
 #include "sf33rd/Source/Game/effect/eff01.h"
 #include "sf33rd/Source/Game/effect/eff33.h"
@@ -476,11 +475,9 @@ end:
 }
 
 void reqPlayerDraw() { // 🔴
-    if (Debug_w[15] == 0) {
-        move_effect_work(6);
-        sort_push_request(&plw[0].wu);
-        sort_push_request(&plw[1].wu);
-    }
+    move_effect_work(6);
+    sort_push_request(&plw[0].wu);
+    sort_push_request(&plw[1].wu);
 }
 
 void plcnt_init() { // 🟡
@@ -658,19 +655,19 @@ void plcnt_move() { // 🟢
     }
 
 #if DEBUG
-    if (DebugConfig_Get(DEBUG_PLAYER_1_INVINCIBLE)) {
+    if (debug_config.player_invincible[0]) {
         plw[0].wu.dm_vital = 0;
     }
 
-    if (DebugConfig_Get(DEBUG_PLAYER_2_INVINCIBLE)) {
+    if (debug_config.player_invincible[1]) {
         plw[1].wu.dm_vital = 0;
     }
 
-    if (DebugConfig_Get(DEBUG_PLAYER_1_NO_LIFE)) {
+    if (debug_config.player_no_life[0]) {
         plw[0].wu.vital_new = 0;
     }
 
-    if (DebugConfig_Get(DEBUG_PLAYER_2_NO_LIFE)) {
+    if (debug_config.player_no_life[1]) {
         plw[1].wu.vital_new = 0;
     }
 #endif

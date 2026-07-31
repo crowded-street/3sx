@@ -12,7 +12,6 @@
 #include "sf33rd/Source/Common/PPGFile.h"
 #include "sf33rd/Source/Common/PPGWork.h"
 #include "sf33rd/Source/Compress/zlibApp.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
@@ -59,8 +58,6 @@ static void njUserInit() {
     s32 i;
     u32 size;
 
-    sysFF = 1;
-    mpp_w.sysStop = false;
     mpp_w.inGame = false;
     mpp_w.language = 0;
     mmSystemInitialize();
@@ -105,26 +102,11 @@ void Main_Init() {
     palCreateGhost();
     ppgMakeConvTableTexDC();
     appSetupBasePriority();
-
-#if DEBUG
-    DebugConfig_Init();
-#endif
 }
 
 // Iteration
 
 static void cpLoopTask() {
-#if DEBUG
-    if (sysSLOW) {
-        if (--Slow_Timer == 0) {
-            sysSLOW = 0;
-            Game_pause &= 0x7F;
-        } else {
-            Game_pause |= 0x80;
-        }
-    }
-#endif
-
     for (int i = 0; i < 11; i++) {
         struct _TASK* task_ptr = &task[i];
 
@@ -177,79 +159,14 @@ void njUserMain() {
     }
 }
 
-#if DEBUG
-static void configure_slow_timer() {
-    if (test_flag) {
-        return;
-    }
-
-    if (mpp_w.sysStop) {
-        sysSLOW = 1;
-
-        switch (io_w.data[1].sw_new) {
-        case SWK_LEFT_STICK:
-            mpp_w.sysStop = false;
-            // fallthrough
-
-        case SWK_LEFT_SHOULDER:
-            Slow_Timer = 1;
-            break;
-
-        default:
-            switch (io_w.data[1].sw & (SWK_LEFT_SHOULDER | SWK_LEFT_TRIGGER)) {
-            case SWK_LEFT_SHOULDER | SWK_LEFT_TRIGGER:
-                if ((sysFF = Debug_w[1]) == 0) {
-                    sysFF = 1;
-                }
-
-                sysSLOW = 1;
-                Slow_Timer = 1;
-
-                break;
-
-            case SWK_LEFT_TRIGGER:
-                if (Slow_Timer == 0) {
-                    if ((Slow_Timer = Debug_w[0]) == 0) {
-                        Slow_Timer = 1;
-                    }
-
-                    sysFF = 1;
-                }
-
-                break;
-
-            default:
-                Slow_Timer = 2;
-                break;
-            }
-
-            break;
-        }
-    } else if (io_w.data[1].sw_new & SWK_LEFT_STICK) {
-        mpp_w.sysStop = true;
-    }
-}
-#endif
-
 void Main_StepFrame() {
     flSetRenderState(FLRENDER_BACKCOLOR, 0xFF000000);
-
-#if DEBUG
-    if (Debug_w[0x43]) {
-        flSetRenderState(FLRENDER_BACKCOLOR, 0xFF0000FF);
-    }
-#endif
-
     appSetupTempPriority();
     flPADGetALL();
     keyConvert();
 
 #if NETPLAY_ENABLED
     Stress_InjectBootInput();
-#endif
-
-#if DEBUG
-    configure_slow_timer();
 #endif
 
     if ((Play_Mode != 3 && Play_Mode != 1) || (Game_pause != 0x81)) {

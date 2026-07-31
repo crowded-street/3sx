@@ -6,7 +6,6 @@
 #include "sf33rd/Source/Game/effect/eff48.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/eff36.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/caldir.h"
@@ -118,13 +117,7 @@ s32 effect_48_init(s16 type) {
     WORK_Other* ewk;
     s16 ix;
     s16 i;
-    const s16* data_ptr;
-
-    if (Debug_w[0x30] & 8) {
-        return 0;
-    }
-
-    data_ptr = eff48_adrs_tbl[type];
+    const s16* data_ptr = eff48_adrs_tbl[type];
 
     for (i = 0; i < eff48_num_tbl[type]; i++) {
         if ((ix = pull_effect_work(4)) == -1) {

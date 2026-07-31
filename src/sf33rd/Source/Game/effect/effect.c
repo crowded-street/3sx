@@ -6,7 +6,6 @@
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "common.h"
 #include "port/utils.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/effxx.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
@@ -27,10 +26,6 @@ void move_effect_work(s16 index) {
     WORK* c_addr;
     s16 curr_ix;
     s16 next_ix;
-
-    if (Debug_w[0x28]) {
-        return;
-    }
 
     exec_tm[index] += 1;
 

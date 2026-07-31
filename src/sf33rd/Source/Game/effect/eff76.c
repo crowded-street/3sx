@@ -6,7 +6,6 @@
 #include "sf33rd/Source/Game/effect/eff76.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/eff57.h"
 #include "sf33rd/Source/Game/effect/effa6.h"
 #include "sf33rd/Source/Game/effect/effect.h"
