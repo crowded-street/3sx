@@ -3,14 +3,6 @@
 
 #include "types.h"
 
-/// @brief Debug option string data structure
-///
-/// Associates a debug option name with its maximum value.
-typedef struct {
-    u8 max;           ///< Maximum value for this debug option
-    const char* name; ///< Name string for the debug option
-} DEBUG_STR_DAT;
-
 /// @brief Debug configuration options
 ///
 /// Enumeration of all available debug options that can be toggled or adjusted.
@@ -47,9 +39,6 @@ typedef struct {
 /// @brief Global debug configuration state (only available in debug builds)
 extern DebugConfig debug_config;
 
-/// @brief Debug option metadata array containing names and max values
-extern const DEBUG_STR_DAT debug_string_data[DEBUG_OPTION_COUNT];
-
 /// @brief Initialize debug configuration system
 ///
 /// Sets all debug options to their default values.
@@ -61,12 +50,6 @@ void DebugConfig_Init();
 /// @param option The debug option to query
 /// @return The current value of the specified option
 s8 DebugConfig_Get(DebugOption option);
-
-/// @brief Set the value of a debug option
-///
-/// @param option The debug option to modify
-/// @param value The new value to set (should be within option's max range)
-void DebugConfig_Set(DebugOption option, s8 value);
 
 /// @brief Backward compatibility macro for legacy debug array access
 ///
