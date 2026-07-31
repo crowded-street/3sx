@@ -57,8 +57,8 @@
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/ui/count.h"
 #include "sf33rd/Source/Game/ui/flash_lp.h"
-#include "sf33rd/Source/Game/ui/sc_sub.h"
 #include "sf33rd/Source/Game/ui/input_history.h"
+#include "sf33rd/Source/Game/ui/sc_sub.h"
 #include "structs.h"
 
 void Wait_Auto_Load(struct _TASK* /* unused */);
@@ -355,6 +355,7 @@ void Game01() {
             Set_Appear_Type_For_Mode();
             set_hitmark_color();
 
+#if DEBUG
             if (Debug_w[29]) {
                 My_char[0] = Debug_w[29] - 1;
             }
@@ -362,6 +363,7 @@ void Game01() {
             if (Debug_w[30]) {
                 My_char[1] = Debug_w[30] - 1;
             }
+#endif
 
             Purge_texcash_of_list(3);
             Make_texcash_of_list(3);

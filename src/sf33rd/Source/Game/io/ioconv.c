@@ -28,9 +28,11 @@ void keyConvert() {
     s32 j;
     s32 repeat_on = 0;
 
+#if DEBUG
     if (Debug_w[43] && mpp_w.inGame && (Game_pause == 0)) {
         repeat_on = 1;
     }
+#endif
 
     if ((save_w[Present_Mode].extra_option.contents[0][4]) && mpp_w.inGame && (Game_pause == 0)) {
         repeat_on = 1;

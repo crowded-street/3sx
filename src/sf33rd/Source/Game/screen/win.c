@@ -161,6 +161,7 @@ void Win_3rd() {
 
             effect_58_init(0xE, 0x14, 2);
 
+#if DEBUG
             if (Debug_w[29]) {
                 My_char[0] = Debug_w[29] - 1;
             }
@@ -168,6 +169,7 @@ void Win_3rd() {
             if (Debug_w[30]) {
                 My_char[1] = Debug_w[30] - 1;
             }
+#endif
 
             if (Mode_Type == MODE_ARCADE) {
                 Push_LDREQ_Queue_Player(Winner_id, My_char[Winner_id]);

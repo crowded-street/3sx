@@ -166,6 +166,7 @@ void Next_CPU_3rd() {
         SC_No[1]++;
         SC_No[2] = 0;
 
+#if DEBUG
         if (Debug_w[29]) {
             My_char[0] = Debug_w[29] - 1;
         }
@@ -173,10 +174,12 @@ void Next_CPU_3rd() {
         if (Debug_w[30]) {
             My_char[1] = Debug_w[30] - 1;
         }
+#endif
 
         Push_LDREQ_Queue_Player(COM_id, My_char[COM_id]);
         Setup_Next_Fighter();
 
+#if DEBUG
         if (Debug_w[29]) {
             My_char[0] = Debug_w[29] - 1;
         }
@@ -184,6 +187,7 @@ void Next_CPU_3rd() {
         if (Debug_w[30]) {
             My_char[1] = Debug_w[30] - 1;
         }
+#endif
 
         if (VS_Index[Player_id] < 8) {
             S_Timer = 50;
@@ -675,6 +679,7 @@ void Select_CPU_3rd() {
 
         SC_No[1]++;
 
+#if DEBUG
         if (Debug_w[29]) {
             My_char[0] = Debug_w[29] - 1;
         }
@@ -682,10 +687,12 @@ void Select_CPU_3rd() {
         if (Debug_w[30]) {
             My_char[1] = Debug_w[30] - 1;
         }
+#endif
 
         Push_LDREQ_Queue_Player(COM_id, My_char[COM_id]);
         Setup_Next_Fighter();
 
+#if DEBUG
         if (Debug_w[29]) {
             My_char[0] = Debug_w[29] - 1;
         }
@@ -693,6 +700,7 @@ void Select_CPU_3rd() {
         if (Debug_w[30]) {
             My_char[1] = Debug_w[30] - 1;
         }
+#endif
 
         if (VS_Index[Player_id] < 8) {
             S_Timer = 50;
@@ -1118,17 +1126,21 @@ void Setup_Next_Fighter() {
         bg_w.stage = Battle_Country;
     }
 
+#if DEBUG
     if (Debug_w[31]) {
         Battle_Country = bg_w.stage = Debug_w[31] - 1;
     }
+#endif
 
     Push_LDREQ_Queue_BG(bg_w.stage + 0);
     bg_w.area = 0;
     Super_Arts[COM_id] = Stock_Com_Arts[Player_id] = Setup_Com_Arts();
 
+#if DEBUG
     if (Debug_w[32]) {
         Super_Arts[COM_id] = Debug_w[32] - 1;
     }
+#endif
 
     Setup_Com_Color();
     Setup_PL_Color(COM_id, Com_Color_Shot);
@@ -1483,6 +1495,7 @@ s8 Check_Bonus_Stage() {
 }
 
 s8 Check_Bonus_Type() {
+#if DEBUG
     if (Debug_w[46] != 0) {
         if (Debug_w[46] == 1) {
             Completion_Bonus[Player_id][0] = 0;
@@ -1496,6 +1509,7 @@ s8 Check_Bonus_Type() {
 
         return 0;
     }
+#endif
 
     if (save_w[Present_Mode].extra_option.contents[0][5] == 0) {
         return 0;

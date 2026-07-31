@@ -65,10 +65,12 @@ void count_cont_main() {
         return;
     }
 
+#if DEBUG
     if (Debug_w[24]) {
         counter_write(counter_color);
         return;
     }
+#endif
 
     if (Allow_a_battle_f == 0 || Demo_Time_Stop != 0) {
         counter_write(counter_color);
@@ -208,7 +210,13 @@ void bcount_cont_main() {
         return;
     }
 
-    if (!Debug_w[24] && !EXE_flag && !Game_pause) {
+#if DEBUG
+    if (Debug_w[24]) {
+        return;
+    }
+#endif
+
+    if (!EXE_flag && !Game_pause) {
         bcounter_control();
     }
 }

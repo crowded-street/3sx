@@ -1243,9 +1243,11 @@ s32 Check_Ending_Sub() {
         return 1;
     }
 
+#if DEBUG
     if (Debug_w[47]) {
         return 1;
     }
+#endif
 
     return 0;
 }

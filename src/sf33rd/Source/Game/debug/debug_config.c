@@ -29,9 +29,4 @@ s8 DebugConfig_Get(DebugOption option) {
     return debug_config.values[option];
 }
 
-#else // !DEBUG
-
-// Stub for release builds - Debug_w array that does nothing
-s8 Debug_w[72] = { 0 };
-
 #endif // DEBUG
