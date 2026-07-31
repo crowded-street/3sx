@@ -31,8 +31,8 @@ typedef struct {
     u8 time_stop;
     bool player_no_life[2];
     bool player_invincible[2];
-    u8 character_override[2];
-    u8 stage_override;
+    int character_override[2];
+    int stage_override;
     u8 cpu_sa;
     bool turbo_buttons;
     u8 bonus_stage_override;

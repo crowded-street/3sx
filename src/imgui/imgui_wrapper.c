@@ -10,6 +10,11 @@
 #include "imgui/dcimgui/dcimgui_impl_sdlgpu3.h"
 #include <SDL3/SDL.h>
 
+static const char* const character_names[] = {
+    "-",    "Alex", "Ryu",  "Yun",   "Dudley", "Necro",   "Hugo",   "Ibuki", "Elena",  "Oro",
+    "Yang", "Ken",  "Sean", "Urien", "Akuma",  "Chun-Li", "Makoto", "Q",     "Twelve", "Remy",
+};
+
 static bool initialized = false;
 // static bool show_imgui_demo = true;
 static bool show_debug_window = false;
@@ -26,6 +31,39 @@ static void plot(const char* label, const float* values, int value_count, int va
     ImGui_PlotLinesEx(
         label, values, value_count, values_offset, overlay, scale.x, scale.y, (ImVec2) { 0, 80 }, sizeof(float)
     );
+}
+
+static void build_debug_config() {
+    if (ImGui_CollapsingHeader("Debug config", 0)) {
+        ImGui_AlignTextToFramePadding();
+        ImGui_Text("Invincibility:");
+        ImGui_SameLine();
+        ImGui_Checkbox("P1##invincibility", &debug_config.player_invincible[0]);
+        ImGui_SameLine();
+        ImGui_Checkbox("P2##invincibility", &debug_config.player_invincible[1]);
+
+        ImGui_AlignTextToFramePadding();
+        ImGui_Text("No life:");
+        ImGui_SameLine();
+        ImGui_Checkbox("P1##nolife", &debug_config.player_no_life[0]);
+        ImGui_SameLine();
+        ImGui_Checkbox("P2##nolife", &debug_config.player_no_life[1]);
+
+        ImGui_AlignTextToFramePadding();
+        ImGui_Text("Character override:");
+        ImGui_ComboChar(
+            "P1##char_override", &debug_config.character_override[0], character_names, SDL_arraysize(character_names)
+        );
+        ImGui_ComboChar(
+            "P2##char_override", &debug_config.character_override[1], character_names, SDL_arraysize(character_names)
+        );
+
+        ImGui_AlignTextToFramePadding();
+        ImGui_Text("Stage override:");
+        ImGui_ComboChar(
+            "##stage_override", &debug_config.stage_override, character_names, SDL_arraysize(character_names)
+        );
+    }
 }
 
 static void build_debug_window() {
@@ -57,21 +95,7 @@ static void build_debug_window() {
         );
     }
 
-    if (ImGui_CollapsingHeader("Debug config", 0)) {
-        ImGui_AlignTextToFramePadding();
-        ImGui_Text("Invincibility:");
-        ImGui_SameLine();
-        ImGui_Checkbox("P1##invincibility", &debug_config.player_invincible[0]);
-        ImGui_SameLine();
-        ImGui_Checkbox("P2##invincibility", &debug_config.player_invincible[1]);
-
-        ImGui_AlignTextToFramePadding();
-        ImGui_Text("No life:");
-        ImGui_SameLine();
-        ImGui_Checkbox("P1##nolife", &debug_config.player_no_life[0]);
-        ImGui_SameLine();
-        ImGui_Checkbox("P2##nolife", &debug_config.player_no_life[1]);
-    }
+    build_debug_config();
 
     ImGui_End();
 }
