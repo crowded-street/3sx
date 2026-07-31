@@ -109,7 +109,6 @@ static void Set_Appear_Type_For_Mode() {
 
 void Game_Task(struct _TASK* task_ptr) {
     s16 ix;
-    s16 ff;
 
     void (*Main_Jmp_Tbl[3])(struct _TASK*) = { Wait_Auto_Load, Loop_Demo, Game };
 
@@ -117,35 +116,23 @@ void Game_Task(struct _TASK* task_ptr) {
         init_color_trans_req();
     }
 
-    ff = sysFF;
+    Play_Game = 0;
 
-    for (ix = 0; ix < ff; ix++) {
-        if (!No_Trans) {
-            if (ix == ff - 1) {
-                No_Trans = 0;
-            } else {
-                No_Trans = 1;
-            }
-        }
-
-        Play_Game = 0;
-
-        if (Game_pause != 0x81) {
-            system_timer += 1;
-        }
-
-        init_texcash_before_process();
-        seqsBeforeProcess();
-
-        if (nowSoftReset() == 0) {
-            Main_Jmp_Tbl[G_No[0]](task_ptr);
-        }
-
-        seqsAfterProcess();
-        texture_cash_update();
-        move_pulpul_work();
-        Check_LDREQ_Queue();
+    if (Game_pause != 0x81) {
+        system_timer += 1;
     }
+
+    init_texcash_before_process();
+    seqsBeforeProcess();
+
+    if (nowSoftReset() == 0) {
+        Main_Jmp_Tbl[G_No[0]](task_ptr);
+    }
+
+    seqsAfterProcess();
+    texture_cash_update();
+    move_pulpul_work();
+    Check_LDREQ_Queue();
 }
 
 void Game() {

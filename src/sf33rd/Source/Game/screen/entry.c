@@ -25,10 +25,6 @@
 #include "sf33rd/Source/Game/ui/sc_sub.h"
 #include "structs.h"
 
-u8 letter_stack[40];
-u8 letter_counter;
-u8* letter_ptr;
-
 const u8 Coin_Message_Data[7][2] = { { 5, 30 }, { 2, 27 }, { 7, 32 }, { 17, 37 }, { 6, 31 }, { 5, 42 }, { 0, 0 } };
 
 void Entry_00();
@@ -91,7 +87,6 @@ void Continue_Score_Sub(s16 PL_id);
 
 void Entry_Task(struct _TASK* /* unused */) {
     s16 ix;
-    s16 ff;
 
     void (*Main_Jmp_Tbl[11])() = { Entry_00, Entry_01, Entry_02, Entry_03, Entry_04, Entry_03,
                                    Entry_06, Entry_07, Entry_08, Entry_03, Entry_10 };
@@ -100,21 +95,7 @@ void Entry_Task(struct _TASK* /* unused */) {
         return;
     }
 
-    ff = sysFF;
-
-    for (ix = 0; ix < ff; ix++) {
-        if (!No_Trans) {
-            if (ix == (ff - 1)) {
-                No_Trans = 0;
-            } else {
-                No_Trans = 1;
-            }
-        }
-
-        letter_counter = 0;
-        letter_ptr = letter_stack;
-        Main_Jmp_Tbl[E_No[0]]();
-    }
+    Main_Jmp_Tbl[E_No[0]]();
 }
 
 void Entry_00() {

@@ -7,8 +7,6 @@
 ///
 /// Enumeration of all available debug options that can be toggled or adjusted.
 typedef enum DebugOption {
-    DEBUG_SLOW = 0,
-    DEBUG_FAST = 1,
     DEBUG_1SHOT_SA = 9,
     DEBUG_TIME_STOP = 24,
     DEBUG_PLAYER_1_NO_LIFE = 25,
