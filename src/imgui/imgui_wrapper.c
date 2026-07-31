@@ -61,16 +61,16 @@ static void build_debug_window() {
         ImGui_AlignTextToFramePadding();
         ImGui_Text("Invincibility:");
         ImGui_SameLine();
-        ImGui_Checkbox("P1##invincibility", &debug_config.values[DEBUG_PLAYER_1_INVINCIBLE]);
+        ImGui_Checkbox("P1##invincibility", &debug_config.player_invincible[0]);
         ImGui_SameLine();
-        ImGui_Checkbox("P2##invincibility", &debug_config.values[DEBUG_PLAYER_2_INVINCIBLE]);
+        ImGui_Checkbox("P2##invincibility", &debug_config.player_invincible[1]);
 
         ImGui_AlignTextToFramePadding();
         ImGui_Text("No life:");
         ImGui_SameLine();
-        ImGui_Checkbox("P1##nolife", &debug_config.values[DEBUG_PLAYER_1_NO_LIFE]);
+        ImGui_Checkbox("P1##nolife", &debug_config.player_no_life[0]);
         ImGui_SameLine();
-        ImGui_Checkbox("P2##nolife", &debug_config.values[DEBUG_PLAYER_2_NO_LIFE]);
+        ImGui_Checkbox("P2##nolife", &debug_config.player_no_life[1]);
     }
 
     ImGui_End();

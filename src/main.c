@@ -103,10 +103,6 @@ void Main_Init() {
     palCreateGhost();
     ppgMakeConvTableTexDC();
     appSetupBasePriority();
-
-#if DEBUG
-    DebugConfig_Init();
-#endif
 }
 
 // Iteration

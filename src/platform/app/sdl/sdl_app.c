@@ -179,10 +179,6 @@ static bool full_init() {
     ArcadeBalance_Init();
     AFS_Init(Resources_GetAFSPath(), 256 * 1024);
 
-#if DEBUG
-    DebugConfig_Init();
-#endif
-
 #if STATCHECK
     if (!TestRunner_Init(get_args()->statcheck.ram_archive_path)) {
         SDL_Log("Failed to initialize test runner");

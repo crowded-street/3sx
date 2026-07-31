@@ -1,11 +1,12 @@
 #ifndef DEBUG_CONFIG_H
 #define DEBUG_CONFIG_H
 
+#if DEBUG
+
 #include "types.h"
 
-/// @brief Debug configuration options
-///
-/// Enumeration of all available debug options that can be toggled or adjusted.
+#include <stdbool.h>
+
 typedef enum DebugOption {
     DEBUG_1SHOT_SA = 9,
     DEBUG_TIME_STOP = 24,
@@ -25,45 +26,23 @@ typedef enum DebugOption {
     DEBUG_OPTION_COUNT = 72
 } DebugOption;
 
-/// @brief Debug configuration state
-///
-/// Stores the current values for all debug options.
 typedef struct {
-    s8 values[DEBUG_OPTION_COUNT];
+    bool one_button_sa;
+    u8 time_stop;
+    bool player_no_life[2];
+    bool player_invincible[2];
+    u8 character_override[2];
+    u8 stage_override;
+    u8 cpu_sa;
+    bool turbo_buttons;
+    u8 bonus_stage_override;
+    bool skip_to_ending;
+    u8 cpu_active_override;
+    u8 cpu_passive_override;
 } DebugConfig;
 
-#if DEBUG
-
-/// @brief Global debug configuration state (only available in debug builds)
 extern DebugConfig debug_config;
-
-/// @brief Initialize debug configuration system
-///
-/// Sets all debug options to their default values.
-/// Must be called before using the debug system.
-void DebugConfig_Init();
-
-/// @brief Get the current value of a debug option
-///
-/// @param option The debug option to query
-/// @return The current value of the specified option
-s8 DebugConfig_Get(DebugOption option);
-
-/// @brief Backward compatibility macro for legacy debug array access
-///
-/// Allows existing code to use Debug_w[index] syntax while internally
-/// accessing the new debug_config.values array.
-///
-/// @todo Replace all Debug_w[index] usage with DebugConfig_Get/Set
-#define Debug_w debug_config.values
-
-#else // !DEBUG
-
-/// @brief Stub debug array for release builds
-///
-/// Exists for compatibility with code that accesses Debug_w outside of DEBUG blocks.
-/// Has no functional effect in release builds.
-extern s8 Debug_w[DEBUG_OPTION_COUNT];
+extern u8 Debug_w[DEBUG_OPTION_COUNT];
 
 #endif // DEBUG
 
