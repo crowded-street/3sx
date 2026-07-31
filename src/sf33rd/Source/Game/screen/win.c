@@ -161,12 +161,12 @@ void Win_3rd() {
 
             effect_58_init(0xE, 0x14, 2);
 
-            if (Debug_w[0x1D]) {
-                My_char[0] = Debug_w[0x1D] - 1;
+            if (Debug_w[29]) {
+                My_char[0] = Debug_w[29] - 1;
             }
 
-            if (Debug_w[0x1E]) {
-                My_char[1] = Debug_w[0x1E] - 1;
+            if (Debug_w[30]) {
+                My_char[1] = Debug_w[30] - 1;
             }
 
             if (Mode_Type == MODE_ARCADE) {

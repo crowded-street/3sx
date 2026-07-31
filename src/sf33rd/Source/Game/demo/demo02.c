@@ -75,7 +75,7 @@ void Demo00() {
     case 3:
         Game02();
 
-        if (Debug_w[0x18] == 9) {
+        if (Debug_w[24] == 9) {
             D_Timer = 60;
         }
 
@@ -261,12 +261,12 @@ void Setup_Demo_PL() {
     My_char[0] = Demo_PL_Play_Data[Demo_PL_Index][0];
     My_char[1] = Demo_PL_Play_Data[Demo_PL_Index][1];
 
-    if (Debug_w[0x1D]) {
-        My_char[0] = Debug_w[0x1D] - 1;
+    if (Debug_w[29]) {
+        My_char[0] = Debug_w[29] - 1;
     }
 
-    if (Debug_w[0x1E]) {
-        My_char[1] = Debug_w[0x1E] - 1;
+    if (Debug_w[30]) {
+        My_char[1] = Debug_w[30] - 1;
     }
 
     init_omop();

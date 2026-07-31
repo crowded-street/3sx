@@ -581,10 +581,6 @@ void BGM_Server() {
 }
 
 s32 bgm_separate_check() {
-    if (Debug_w[5]) {
-        return 1;
-    }
-
     return (mpp_w.inGame | bgm_seamless_always) != 0;
 }
 
@@ -627,10 +623,6 @@ void bgm_volume_setup(s16 data) {
     }
 
     if (bgm_vol_now < 0) {
-        bgm_vol_now = 0;
-    }
-
-    if (Debug_w[44]) {
         bgm_vol_now = 0;
     }
 

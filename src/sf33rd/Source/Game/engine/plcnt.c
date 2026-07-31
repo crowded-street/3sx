@@ -476,11 +476,9 @@ end:
 }
 
 void reqPlayerDraw() { // 🔴
-    if (Debug_w[15] == 0) {
-        move_effect_work(6);
-        sort_push_request(&plw[0].wu);
-        sort_push_request(&plw[1].wu);
-    }
+    move_effect_work(6);
+    sort_push_request(&plw[0].wu);
+    sort_push_request(&plw[1].wu);
 }
 
 void plcnt_init() { // 🟡

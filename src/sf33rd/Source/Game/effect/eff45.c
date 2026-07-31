@@ -5,7 +5,6 @@
 
 #include "sf33rd/Source/Game/effect/eff45.h"
 #include "common.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/eff61.h"
 #include "sf33rd/Source/Game/effect/effb6.h"
 #include "sf33rd/Source/Game/effect/effect.h"
@@ -112,12 +111,6 @@ s32 effect_45_init(u8 id, s16 sync_bg, s16 master_player) {
 void Setup_Message(WORK_Other_CONN* ewk) {
     Message_Data[ewk->wu.dir_old].contents = Message_Data[ewk->wu.dir_old].request;
     Message_Data[ewk->wu.dir_old].kind_cnt = Message_Data[ewk->wu.dir_old].kind_req;
-
-    if (Debug_w[68]) {
-        Message_Data[ewk->wu.dir_old].request = Debug_w[68] - 1;
-        Message_Data[ewk->wu.dir_old].contents = Debug_w[68] - 1;
-    }
-
     get_message_conn_data(ewk, Message_Data[ewk->wu.dir_old].kind_cnt, 0, Message_Data[ewk->wu.dir_old].request + 0);
     ewk->wu.position_x = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + Message_Data[ewk->wu.dir_old].pos_x;
     ewk->wu.position_x -= Centering_Sub(ewk, 16);
@@ -156,27 +149,6 @@ s16 Centering_Sub(WORK_Other_CONN* ewk, s16 dot_type) {
 
 void Check_Pig_Pig(WORK_Other_CONN* ewk) {
     s16 ix;
-
-    if (Debug_w[68]) {
-        Convert_16_10_2(ewk, vm_w.Block_Size);
-
-        for (ix = 0; ix < ewk->num_of_conn; ix++) {
-            if (ewk->conn[ix].chr != 0x8020) {
-                continue;
-            }
-
-            ewk->conn[ix].chr = ewk->wu.old_rno[1] + 0x80C3;
-            ewk->conn[ix].col = 0x17;
-
-            if (ewk->wu.old_rno[1] == 0) {
-                ewk->conn[ix].ny -= 0x100;
-            }
-
-            ewk->conn[ix + 1].chr = ewk->wu.old_rno[0] + 0x80C3;
-            ewk->conn[ix + 1].col = 0x17;
-            return;
-        }
-    }
 
     switch (Message_Data[ewk->wu.dir_old].request) {
     case 22:

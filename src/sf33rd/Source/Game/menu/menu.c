@@ -3691,10 +3691,6 @@ u16 After_VS_Move_Sub(u16 sw, s16 cursor_id, s16 menu_max) {
         skip = 99;
     }
 
-    if (Debug_w[49]) {
-        skip = 99;
-    }
-
     switch (sw) {
     case SWK_UP:
         Menu_Cursor_Y[cursor_id]--;

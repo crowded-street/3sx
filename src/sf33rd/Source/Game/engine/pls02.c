@@ -9,7 +9,6 @@
 #include "common.h"
 #include "port/utils.h"
 #include "sf33rd/Source/Game/com/com_data.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/engine/caldir.h"
 #include "sf33rd/Source/Game/engine/charid.h"
 #include "sf33rd/Source/Game/engine/hitcheck.h"
@@ -616,44 +615,24 @@ s16 check_work_position(WORK* p1, WORK* p2) { // 🟡
 
 s32 random_32() { // 🟢
     Random_ix32++;
-
-    if (Debug_w[0x3B] == -32) {
-        Random_ix32 = 0;
-    }
-
     Random_ix32 &= 0x7F;
     return random_tbl_32[Random_ix32];
 }
 
 s32 random_16() { // 🟢
     Random_ix16++;
-
-    if (Debug_w[0x3B] == -32) {
-        Random_ix16 = 0;
-    }
-
     Random_ix16 &= 0x3F;
     return random_tbl_16[Random_ix16];
 }
 
 s32 random_32_ex() { // 🟢
     Random_ix32_ex++;
-
-    if (Debug_w[0x3B] == -32) {
-        Random_ix32_ex = 0;
-    }
-
     Random_ix32_ex &= 0x1F;
     return random_tbl_32_ex[Random_ix32_ex];
 }
 
 s32 random_16_ex() {
     Random_ix16_ex++;
-
-    if (Debug_w[0x3B] == -32) {
-        Random_ix16_ex = 0;
-    }
-
     Random_ix16_ex &= 0xF;
     return random_tbl_16_ex[Random_ix16_ex];
 }
@@ -664,11 +643,6 @@ s32 random_32_com() {
     }
 
     Random_ix32_com++;
-
-    if (Debug_w[0x3B] == -32) {
-        Random_ix32_com = 0;
-    }
-
     Random_ix32_com &= 0x7F;
     return random_tbl_32_com[Random_ix32_com];
 }
@@ -679,11 +653,6 @@ s32 random_16_com() {
     }
 
     Random_ix16_com++;
-
-    if (Debug_w[0x3B] == -32) {
-        Random_ix16_com = 0;
-    }
-
     Random_ix16_com &= 0x3F;
     return random_tbl_16_com[Random_ix16_com];
 }
@@ -694,11 +663,6 @@ s32 random_32_ex_com() {
     }
 
     Random_ix32_ex_com++;
-
-    if (Debug_w[0x3B] == -32) {
-        Random_ix32_ex_com = 0;
-    }
-
     Random_ix32_ex_com &= 0x1F;
     return random_tbl_32_ex_com[Random_ix32_ex_com];
 }
@@ -709,22 +673,12 @@ s32 random_16_ex_com() {
     }
 
     Random_ix16_ex_com++;
-
-    if (Debug_w[0x3B] == -32) {
-        Random_ix16_ex_com = 0;
-    }
-
     Random_ix16_ex_com &= 0xF;
     return random_tbl_16_ex_com[Random_ix16_ex_com];
 }
 
 s32 random_16_bg() {
     Random_ix16_bg++;
-
-    if (Debug_w[0x3B] == -32) {
-        Random_ix16_bg = 0;
-    }
-
     Random_ix16_bg &= 0x3F;
     return random_tbl_16_bg[Random_ix16_bg];
 }

@@ -28,7 +28,7 @@ void keyConvert() {
     s32 j;
     s32 repeat_on = 0;
 
-    if (Debug_w[0x2B] && mpp_w.inGame && (Game_pause == 0)) {
+    if (Debug_w[43] && mpp_w.inGame && (Game_pause == 0)) {
         repeat_on = 1;
     }
 

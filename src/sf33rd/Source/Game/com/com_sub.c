@@ -4507,8 +4507,8 @@ void Select_Active(PLW* wk) {
         }
     }
 
-    if (Debug_w[0x36]) {
-        Pattern_Index[wk->wu.id] = (u16)Debug_w[0x36] - 1;
+    if (Debug_w[54]) {
+        Pattern_Index[wk->wu.id] = (u16)Debug_w[54] - 1;
     }
 }
 
@@ -4664,8 +4664,8 @@ s32 Select_Passive(PLW* wk) {
     CP_No[wk->wu.id][3] = 0;
     Timer_00[wk->wu.id] = Select_Reflection_Time(wk);
 
-    if (Debug_w[0x37]) {
-        Pattern_Index[wk->wu.id] = (u16)Debug_w[0x37] - 1;
+    if (Debug_w[55]) {
+        Pattern_Index[wk->wu.id] = (u16)Debug_w[55] - 1;
     }
 
     if ((VS_Tech[wk->wu.id] == 0x19) || (VS_Tech[wk->wu.id] == 0x13) || (Timer_00[wk->wu.id] == 0)) {

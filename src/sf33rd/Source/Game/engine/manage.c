@@ -1757,11 +1757,6 @@ void Pool_Score(s16 PL_id) {
 }
 
 s32 Check_Break_Into_CPU(s16 PL_id) {
-    if (Debug_w[70] == 9) {
-        Break_Into_CPU = 2;
-        return Battle_Q[PL_id] = 1;
-    }
-
     Break_Into_CPU = 0;
     Battle_Q[PL_id] = 0;
 
@@ -2190,7 +2185,7 @@ void Game_Manage_12_4() {
 void Game_Manage_12_5() {
     switch (C_No[2]) {
     case 0:
-        if (Debug_w[70] != 2 && --C_Timer == 0) {
+        if (--C_Timer == 0) {
             C_No[2]++;
             C_Timer = 20;
         }
@@ -2330,7 +2325,7 @@ void Game_Manage_12_8() {
         break;
 
     default:
-        if (Debug_w[70] != 2 && Cut_Cut_C_Timer() == 0) {
+        if (Cut_Cut_C_Timer() == 0) {
             C_No[1]++;
             C_No[2] = 0;
             C_No[3] = 0;

@@ -28,10 +28,6 @@ void move_effect_work(s16 index) {
     s16 curr_ix;
     s16 next_ix;
 
-    if (Debug_w[0x28]) {
-        return;
-    }
-
     exec_tm[index] += 1;
 
     for (curr_ix = head_ix[index]; curr_ix != -1; curr_ix = next_ix) {

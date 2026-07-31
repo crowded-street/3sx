@@ -233,13 +233,6 @@ static void configure_slow_timer() {
 
 void Main_StepFrame() {
     flSetRenderState(FLRENDER_BACKCOLOR, 0xFF000000);
-
-#if DEBUG
-    if (Debug_w[0x43]) {
-        flSetRenderState(FLRENDER_BACKCOLOR, 0xFF0000FF);
-    }
-#endif
-
     appSetupTempPriority();
     flPADGetALL();
     keyConvert();

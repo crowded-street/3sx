@@ -355,12 +355,12 @@ void Game01() {
             Set_Appear_Type_For_Mode();
             set_hitmark_color();
 
-            if (Debug_w[0x1D]) {
-                My_char[0] = Debug_w[0x1D] - 1;
+            if (Debug_w[29]) {
+                My_char[0] = Debug_w[29] - 1;
             }
 
-            if (Debug_w[0x1E]) {
-                My_char[1] = Debug_w[0x1E] - 1;
+            if (Debug_w[30]) {
+                My_char[1] = Debug_w[30] - 1;
             }
 
             Purge_texcash_of_list(3);

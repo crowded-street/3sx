@@ -603,10 +603,6 @@ void scr_trans(u8 bgnm) {
     njTranslate(0, 0, 1024.0, PrioBase[bg_priority[bgnm]]);
     njScale(0, 1.0, -1.0, 1.0);
 
-    if (Debug_w[42]) {
-        return;
-    }
-
     palOffset = bgPalCodeOffset[bgnm];
 
     if (ending_flag == 0) {

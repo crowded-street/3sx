@@ -287,54 +287,28 @@ void Mtrans_use_trans_mode(WORK* wk, s16 bsy) {
 
     switch (mts[wk->my_mts].mode) {
     case 17:
-        if ((Debug_w[0x24] != 1) || (Debug_w[0x27] != 1)) {
-            wk->colcd = exchange_current_colcd(wk);
-            mlt_obj_trans(&mts[wk->my_mts], wk, bsy);
-        }
-
+        wk->colcd = exchange_current_colcd(wk);
+        mlt_obj_trans(&mts[wk->my_mts], wk, bsy);
         break;
 
     case 18:
-        if ((Debug_w[0x25] != 1) || (Debug_w[0x27] != 1)) {
-            wk->colcd = wk->current_colcd;
-            mlt_obj_trans_cp3(&mts[wk->my_mts], wk, bsy);
-        }
-
+        wk->colcd = wk->current_colcd;
+        mlt_obj_trans_cp3(&mts[wk->my_mts], wk, bsy);
         break;
 
     case 20:
-        if ((Debug_w[0x26] != 1) || (Debug_w[0x27] != 1)) {
-            wk->colcd = wk->current_colcd;
-            mlt_obj_trans_rgb(&mts[wk->my_mts], wk, bsy);
-        }
-
+        wk->colcd = wk->current_colcd;
+        mlt_obj_trans_rgb(&mts[wk->my_mts], wk, bsy);
         break;
 
     case 33:
-        if ((Debug_w[0x24] != 1) || (Debug_w[0x27] != 2)) {
-            wk->colcd = wk->current_colcd;
-            mlt_obj_disp(&mts[wk->my_mts], wk, (s32)bsy);
-        }
-
-        break;
-
-    case 34:
-        if (Debug_w[0x25] != 1) {
-            return;
-        }
-
-        if ((u32)Debug_w[0x27] == 2) {
-            // Do nothing
-        }
-
+        wk->colcd = wk->current_colcd;
+        mlt_obj_disp(&mts[wk->my_mts], wk, (s32)bsy);
         break;
 
     case 36:
-        if ((Debug_w[0x26] != 1) || (Debug_w[0x27] != 2)) {
-            wk->colcd = wk->current_colcd;
-            mlt_obj_disp_rgb(&mts[wk->my_mts], wk, (s32)bsy);
-        }
-
+        wk->colcd = wk->current_colcd;
+        mlt_obj_disp_rgb(&mts[wk->my_mts], wk, (s32)bsy);
         break;
     }
 }
@@ -706,10 +680,6 @@ void shadow_setup(WORK* wk, s16 bsy) {
 
 void shadow_drawing(WORK* wk, s16 bsy) {
     s16 shadow;
-
-    if (Debug_w[0x23]) {
-        return;
-    }
 
     dmwk_kage.position_x = (wk->position_x + wk->kage_hx * (1 - (wk->rl_flag != 0) * 2));
     dmwk_kage.position_y = wk->kage_hy;

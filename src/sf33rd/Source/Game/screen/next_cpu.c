@@ -166,23 +166,23 @@ void Next_CPU_3rd() {
         SC_No[1]++;
         SC_No[2] = 0;
 
-        if (Debug_w[0x1D]) {
-            My_char[0] = Debug_w[0x1D] - 1;
+        if (Debug_w[29]) {
+            My_char[0] = Debug_w[29] - 1;
         }
 
-        if (Debug_w[0x1E]) {
-            My_char[1] = Debug_w[0x1E] - 1;
+        if (Debug_w[30]) {
+            My_char[1] = Debug_w[30] - 1;
         }
 
         Push_LDREQ_Queue_Player(COM_id, My_char[COM_id]);
         Setup_Next_Fighter();
 
-        if (Debug_w[0x1D]) {
-            My_char[0] = Debug_w[0x1D] - 1;
+        if (Debug_w[29]) {
+            My_char[0] = Debug_w[29] - 1;
         }
 
-        if (Debug_w[0x1E]) {
-            My_char[1] = Debug_w[0x1E] - 1;
+        if (Debug_w[30]) {
+            My_char[1] = Debug_w[30] - 1;
         }
 
         if (VS_Index[Player_id] < 8) {
@@ -1127,7 +1127,7 @@ void Setup_Next_Fighter() {
     Super_Arts[COM_id] = Stock_Com_Arts[Player_id] = Setup_Com_Arts();
 
     if (Debug_w[32]) {
-        Super_Arts[COM_id] = bg_w.stage = Debug_w[32] - 1;
+        Super_Arts[COM_id] = Debug_w[32] - 1;
     }
 
     Setup_Com_Color();
@@ -1483,13 +1483,13 @@ s8 Check_Bonus_Stage() {
 }
 
 s8 Check_Bonus_Type() {
-    if (Debug_w[0x2E] != 0) {
-        if (Debug_w[0x2E] == 1) {
+    if (Debug_w[46] != 0) {
+        if (Debug_w[46] == 1) {
             Completion_Bonus[Player_id][0] = 0;
             return 20;
         }
 
-        if (Debug_w[0x2E] == 2) {
+        if (Debug_w[46] == 2) {
             Completion_Bonus[Player_id][1] = 0;
             return 21;
         }

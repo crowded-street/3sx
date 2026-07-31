@@ -99,14 +99,6 @@ u16 Convert_User_Setting(s16 PL_id) {
     u16 sw;
     u16 answer;
 
-    if (Debug_w[70] == 16) {
-        if (PL_id == 0) {
-            return p1sw_0;
-        }
-
-        return p2sw_0;
-    }
-
     if (PL_id == 0) {
         sw = p1sw_0;
     } else {
@@ -1316,10 +1308,6 @@ void Replay(s16 PL_id) {
 }
 
 s16 Check_SysDir_Page() {
-    if (Debug_w[52]) {
-        return Debug_w[52] + 6;
-    }
-
     return 9;
 }
 
