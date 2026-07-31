@@ -4,7 +4,6 @@
 
 #include "port/io/afs.h"
 #include "port/utils.h"
-#include "sf33rd/Source/Game/io/gd3rd.h"
 
 #include <SDL3/SDL.h>
 
@@ -26,9 +25,6 @@
 #define MIN_QUEUED_DATA (int)((float)SAMPLE_RATE * MIN_QUEUED_DATA_MS / 1000 * N_CHANNELS * BYTES_PER_SAMPLE)
 #define TRACKS_MAX 10
 
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-
 typedef struct ADXDecoderPipeline {
     AVCodecContext* context;
     AVCodecParserContext* parser_context;
@@ -47,7 +43,7 @@ typedef struct ADXLoopInfo {
 } ADXLoopInfo;
 
 typedef struct ADXTrack {
-    int size;
+    size_t size;
     uint8_t* data;
     bool should_free_data_after_use;
     int used_bytes;
@@ -70,10 +66,6 @@ static int stream_data_needed() {
     return MIN_QUEUED_DATA - SDL_GetAudioStreamQueued(stream);
 }
 
-static bool stream_needs_data() {
-    return stream_data_needed() > 0;
-}
-
 static bool stream_is_empty() {
     return SDL_GetAudioStreamQueued(stream) <= 0;
 }
@@ -85,15 +77,9 @@ static void pipeline_init(ADXDecoderPipeline* pipeline) {
     pipeline->parser_context = av_parser_init(codec->id);
 
     const AVChannelLayout ch_layout = AV_CHANNEL_LAYOUT_STEREO;
-    swr_alloc_set_opts2(&pipeline->swr,
-                        &ch_layout,
-                        AV_SAMPLE_FMT_S16,
-                        SAMPLE_RATE,
-                        &ch_layout,
-                        AV_SAMPLE_FMT_S16P,
-                        SAMPLE_RATE,
-                        0,
-                        NULL);
+    swr_alloc_set_opts2(
+        &pipeline->swr, &ch_layout, AV_SAMPLE_FMT_S16, SAMPLE_RATE, &ch_layout, AV_SAMPLE_FMT_S16P, SAMPLE_RATE, 0, NULL
+    );
     swr_init(pipeline->swr);
 
     pipeline->packet = av_packet_alloc();
@@ -108,12 +94,10 @@ static void pipeline_destroy(ADXDecoderPipeline* pipeline) {
     av_parser_close(pipeline->parser_context);
 }
 
-static void* load_file(int file_id, int* size) {
-    // FIXME: Remove dependency on GD3rd.h
-    const unsigned int file_size = fsGetFileSize(file_id);
+static void* load_file(int file_id, size_t* size) {
+    const size_t file_size = AFS_GetSize(file_id);
     *size = file_size;
-    const size_t buff_size = (file_size + 2048 - 1) & ~(2048 - 1); // AFS reads data in 2048-byte chunks
-    void* buff = malloc(buff_size);
+    void* buff = SDL_malloc(file_size);
 
     AFSHandle handle = AFS_Open(file_id);
     AFS_ReadSync(handle, buff);
@@ -163,14 +147,14 @@ static int track_add_samples_to_loop(ADXTrack* track, uint8_t* buf, int num_samp
         return 0; // No need to add samples if looping is not enabled
     }
 
-    const int buf_sample_start = MAX(loop_info->start_sample - track->processed_samples, 0);
-    const int buf_sample_end = MIN(loop_info->end_sample - track->processed_samples, num_samples);
+    const int buf_sample_start = SDL_max(loop_info->start_sample - track->processed_samples, 0);
+    const int buf_sample_end = SDL_min(loop_info->end_sample - track->processed_samples, num_samples);
 
     if (buf_sample_end > buf_sample_start) {
         const int buf_start = buf_sample_start * N_CHANNELS * BYTES_PER_SAMPLE;
         const int buf_end = buf_sample_end * N_CHANNELS * BYTES_PER_SAMPLE;
         const int buf_len = buf_end - buf_start;
-        memcpy(loop_info->data + loop_info->position, buf + buf_sample_start, buf_len);
+        SDL_memcpy(loop_info->data + loop_info->position, buf + buf_sample_start, buf_len);
         loop_info->position += buf_len;
 
         if (loop_info->position == loop_info->data_size) {
@@ -178,7 +162,7 @@ static int track_add_samples_to_loop(ADXTrack* track, uint8_t* buf, int num_samp
         }
     }
 
-    const int overflow = MAX(track->processed_samples + num_samples - loop_info->end_sample, 0);
+    const int overflow = SDL_max(track->processed_samples + num_samples - loop_info->end_sample, 0);
     track->processed_samples += num_samples;
     return overflow;
 }
@@ -216,14 +200,14 @@ static void loop_info_init(ADXLoopInfo* info, const uint8_t* data) {
 
     if (info->looping_enabled) {
         info->data_size = (info->end_sample - info->start_sample) * BYTES_PER_SAMPLE * N_CHANNELS;
-        info->data = malloc(info->data_size);
+        info->data = SDL_malloc(info->data_size);
         info->position = 0;
     }
 }
 
 static void loop_info_destroy(ADXLoopInfo* info) {
     if (info->looping_enabled) {
-        free(info->data);
+        SDL_free(info->data);
     }
 
     SDL_zerop(info);
@@ -233,16 +217,18 @@ static void process_track(ADXTrack* track) {
     ADXDecoderPipeline* pipeline = &track->pipeline;
 
     // Decode samples and queue them for playback
-    while (stream_needs_data() && track_needs_decoding(track)) {
-        int ret = av_parser_parse2(pipeline->parser_context,
-                                   pipeline->context,
-                                   &pipeline->packet->data,
-                                   &pipeline->packet->size,
-                                   track->data + track->used_bytes,
-                                   track->size - track->used_bytes,
-                                   AV_NOPTS_VALUE,
-                                   AV_NOPTS_VALUE,
-                                   0);
+    while ((stream_data_needed() > 0) && track_needs_decoding(track)) {
+        int ret = av_parser_parse2(
+            pipeline->parser_context,
+            pipeline->context,
+            &pipeline->packet->data,
+            &pipeline->packet->size,
+            track->data + track->used_bytes,
+            track->size - track->used_bytes,
+            AV_NOPTS_VALUE,
+            AV_NOPTS_VALUE,
+            0
+        );
 
         if (ret < 0) {
             print_av_error(ret);
@@ -282,7 +268,8 @@ static void process_track(ADXTrack* track) {
 
                 // Convert planar → interleaved
                 const int samples_converted = swr_convert(
-                    pipeline->swr, &out_buf, out_samples, (const uint8_t**)pipeline->frame->data, out_samples);
+                    pipeline->swr, &out_buf, out_samples, (const uint8_t**)pipeline->frame->data, out_samples
+                );
 
                 const int overflow = track_add_samples_to_loop(track, out_buf, samples_converted);
                 const int samples_to_queue = samples_converted - overflow;
@@ -297,9 +284,9 @@ static void process_track(ADXTrack* track) {
     }
 
     // Queue looped samples (if needed)
-    while (track_loop_filled(track) && stream_needs_data()) {
+    while (track_loop_filled(track) && (stream_data_needed() > 0)) {
         const int available_data = track->loop_info.data_size - track->loop_info.position;
-        const int data_to_queue = MIN(stream_data_needed(), available_data);
+        const int data_to_queue = SDL_min(stream_data_needed(), available_data);
         SDL_PutAudioStreamData(stream, track->loop_info.data + track->loop_info.position, data_to_queue);
         track->loop_info.position += data_to_queue;
 
