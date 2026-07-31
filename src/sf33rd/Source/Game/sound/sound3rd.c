@@ -132,7 +132,21 @@ u16 remake_sound_code_for_DC(u16 code, SoundPatchConfig* rmcode);
 
 extern const s16 adx_volume[128];
 
+// Patch the pitch adjustment for voice lines to match arcade
+static void patch_tsb() {
+	TSB_SE[156].pitch = 100; // code: 140 "KO"
+	TSB_SE[174].pitch = 100; // code: 158 "You need to practice more"
+	TSB_SE[175].pitch = 100; // code: 159 "Excellent job!"
+	TSB_SE[176].pitch = 100; // code: 160 "Bonus stage!"
+	TSB_SE[177].pitch = 100; // code: 161 "Begin!"
+	TSB_SE[178].pitch = 100; // code: 162 "What's next?"
+	TSB_SE[179].pitch = 100; // code: 163 "Decide..." (what is he saying here?)
+	TSB_SE[180].pitch = 100; // code: 164 "Choose your path!" 
+}
+
 void Init_sound_system() {
+	patch_tsb();
+
     se_level = 15;
     bgm_level = 15;
     bgm_half_down = 0;
