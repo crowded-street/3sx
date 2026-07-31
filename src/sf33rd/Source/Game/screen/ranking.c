@@ -5,7 +5,6 @@
 
 #include "sf33rd/Source/Game/screen/ranking.h"
 #include "common.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/demo/demo02.h"
 #include "sf33rd/Source/Game/effect/eff58.h"
 #include "sf33rd/Source/Game/effect/eff67.h"

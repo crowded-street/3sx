@@ -10,7 +10,6 @@
 #include "platform/app/sdl/sdl_app.h"
 #include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Game/animation/appear.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/eff04.h"
 #include "sf33rd/Source/Game/effect/eff10.h"
 #include "sf33rd/Source/Game/effect/eff18.h"

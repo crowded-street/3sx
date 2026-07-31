@@ -4,7 +4,7 @@
  */
 
 #include "common.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
+#include "sf33rd/Source/Game/debug/debug_config.h"
 #include "sf33rd/Source/Game/engine/grade.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/pls02.h"

@@ -9,7 +9,7 @@
 #include "constants.h"
 #include "sf33rd/Source/Game/animation/appear.h"
 #include "sf33rd/Source/Game/com/com_pl.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
+#include "sf33rd/Source/Game/debug/debug_config.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/caldir.h"
 #include "sf33rd/Source/Game/engine/charset.h"

@@ -8,7 +8,7 @@
 #include "constants.h"
 #include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Game/com/com_data.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
+#include "sf33rd/Source/Game/debug/debug_config.h"
 #include "sf33rd/Source/Game/effect/eff38.h"
 #include "sf33rd/Source/Game/effect/eff39.h"
 #include "sf33rd/Source/Game/effect/eff42.h"

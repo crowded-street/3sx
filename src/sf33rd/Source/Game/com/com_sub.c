@@ -21,7 +21,7 @@
 #include "sf33rd/Source/Game/com/passive/pass0001.h"
 #include "sf33rd/Source/Game/com/passive/pass0002.h"
 #include "sf33rd/Source/Game/com/passive/pass0003.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
+#include "sf33rd/Source/Game/debug/debug_config.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/cmd_data.h"
 #include "sf33rd/Source/Game/engine/cmd_main.h"

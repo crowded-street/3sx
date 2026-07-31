@@ -59,7 +59,6 @@
 #include "sf33rd/Source/Game/com/shell/shell12.h"
 #include "sf33rd/Source/Game/com/shell/shell13.h"
 #include "sf33rd/Source/Game/com/shell/shell14.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/engine/cmd_data.h"
 #include "sf33rd/Source/Game/engine/cmd_main.h"
 #include "sf33rd/Source/Game/engine/getup.h"

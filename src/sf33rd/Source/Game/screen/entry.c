@@ -8,7 +8,6 @@
 #include "constants.h"
 #include "main.h"
 #include "sf33rd/AcrSDK/common/pad.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/effa2.h"
 #include "sf33rd/Source/Game/ending/end_data.h"
 #include "sf33rd/Source/Game/engine/grade.h"

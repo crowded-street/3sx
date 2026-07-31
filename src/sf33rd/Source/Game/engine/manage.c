@@ -8,7 +8,7 @@
 #include "constants.h"
 #include "main.h"
 #include "sf33rd/Source/Game/animation/appear.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
+#include "sf33rd/Source/Game/debug/debug_config.h"
 #include "sf33rd/Source/Game/effect/eff08.h"
 #include "sf33rd/Source/Game/effect/eff14.h"
 #include "sf33rd/Source/Game/effect/eff35.h"

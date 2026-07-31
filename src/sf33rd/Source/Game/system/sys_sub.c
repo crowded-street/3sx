@@ -9,7 +9,6 @@
 #include "sf33rd/AcrSDK/common/mlPAD.h"
 #include "sf33rd/Source/Game/com/com_data.h"
 #include "sf33rd/Source/Game/com/com_datu.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
 #include "sf33rd/Source/Game/effect/eff93.h"
 #include "sf33rd/Source/Game/effect/effb8.h"
 #include "sf33rd/Source/Game/effect/effect.h"

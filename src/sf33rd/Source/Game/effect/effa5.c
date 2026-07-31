@@ -5,7 +5,7 @@
 
 #include "sf33rd/Source/Game/effect/effa5.h"
 #include "common.h"
-#include "sf33rd/Source/Game/debug/Debug.h"
+#include "sf33rd/Source/Game/debug/debug_config.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 
