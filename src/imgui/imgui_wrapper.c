@@ -11,8 +11,8 @@
 #include <SDL3/SDL.h>
 
 static const char* const character_names[] = {
-    "-",    "Alex", "Ryu",  "Yun",   "Dudley", "Necro",   "Hugo",   "Ibuki", "Elena",  "Oro",
-    "Yang", "Ken",  "Sean", "Urien", "Akuma",  "Chun-Li", "Makoto", "Q",     "Twelve", "Remy",
+    "-",    "Gill", "Alex", "Ryu",   "Yun",   "Dudley",  "Necro",  "Hugo", "Ibuki",  "Elena", "Oro",
+    "Yang", "Ken",  "Sean", "Urien", "Akuma", "Chun-Li", "Makoto", "Q",    "Twelve", "Remy",
 };
 
 static bool initialized = false;
