@@ -183,7 +183,6 @@ set(THIRD_PARTY_DIR "${CMAKE_SOURCE_DIR}/third_party")
 find_package(ZLIB REQUIRED)
 find_package(OpenGL REQUIRED)
 
-set(FFMPEG_ROOT        "${THIRD_PARTY_DIR}/ffmpeg/build")
 set(SDL3_ROOT          "${THIRD_PARTY_DIR}/sdl3/build")
 set(LIBCDIO_ROOT       "${THIRD_PARTY_DIR}/libcdio/build")
 set(GEKKONET_ROOT      "${THIRD_PARTY_DIR}/GekkoNet/build")
@@ -192,7 +191,6 @@ set(MINIZIP_NG_ROOT    "${THIRD_PARTY_DIR}/minizip-ng/build")
 set(TF_PSA_CRYPTO_ROOT "${THIRD_PARTY_DIR}/tf-psa-crypto/build")
 
 include_directories(
-    ${FFMPEG_ROOT}/include
     ${SDL3_ROOT}/include
     ${LIBCDIO_ROOT}/include
     ${GEKKONET_ROOT}/include
@@ -235,19 +233,11 @@ endif()
 
 if(APPLE)
     target_link_libraries(3sx PRIVATE
-        ${FFMPEG_ROOT}/lib/libavcodec.dylib
-        ${FFMPEG_ROOT}/lib/libavformat.dylib
-        ${FFMPEG_ROOT}/lib/libavutil.dylib
-        ${FFMPEG_ROOT}/lib/libswresample.dylib
         ${SDL3_ROOT}/lib/libSDL3.0.dylib
         iconv
     )
 elseif(WIN32)
     target_link_libraries(3sx PRIVATE
-        ${FFMPEG_ROOT}/lib/libavcodec.dll.a
-        ${FFMPEG_ROOT}/lib/libavformat.dll.a
-        ${FFMPEG_ROOT}/lib/libavutil.dll.a
-        ${FFMPEG_ROOT}/lib/libswresample.dll.a
         ${SDL3_ROOT}/lib/libSDL3.dll.a
         iconv
         bcrypt
@@ -261,10 +251,6 @@ elseif(WIN32)
     )
 elseif(UNIX)
     target_link_libraries(3sx PRIVATE
-        ${FFMPEG_ROOT}/lib/libavcodec.so
-        ${FFMPEG_ROOT}/lib/libavformat.so
-        ${FFMPEG_ROOT}/lib/libavutil.so
-        ${FFMPEG_ROOT}/lib/libswresample.so
         ${SDL3_ROOT}/lib/libSDL3.so
     )
 endif()
@@ -288,10 +274,7 @@ if(APPLE)
         BUNDLE DESTINATION .
     )
 
-    file(GLOB FFMPEG_DYLIBS "${FFMPEG_ROOT}/lib/*.dylib")
-
     install(FILES
-        ${FFMPEG_DYLIBS}
         ${SDL3_ROOT}/lib/libSDL3.0.dylib
         DESTINATION 3SX.app/Contents/Frameworks
     )
@@ -327,7 +310,7 @@ elseif(WIN32)
 
 	# automatically copies all the dependent DLLS, and ignores the system ones because they aren't necessary
 	install(RUNTIME_DEPENDENCY_SET deps
-		DIRECTORIES ${binPath} "${FFMPEG_ROOT}/bin" "${SDL3_ROOT}/bin"
+		DIRECTORIES ${binPath} "${SDL3_ROOT}/bin"
 		PRE_EXCLUDE_REGEXES "^api"
 		POST_EXCLUDE_REGEXES ".*system32/.*\\.dll"
 		DESTINATION bin
@@ -361,11 +344,9 @@ elseif(UNIX)
         RUNTIME DESTINATION bin
     )
 
-    file(GLOB FFMPEG_SO "${FFMPEG_ROOT}/lib/*.so*")
     file(GLOB SDL3_SO "${SDL3_ROOT}/lib/libSDL3.so*")
 
     install(FILES
-        ${FFMPEG_SO}
         ${SDL3_SO}
         DESTINATION lib
     )

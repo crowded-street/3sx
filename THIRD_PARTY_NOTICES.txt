@@ -42,21 +42,6 @@ License: zlib license, as provided by the zlib project.
 Copyright:
 - Copyright (C) Jean-loup Gailly and Mark Adler.
 
-FFmpeg
-------
-Upstream: https://ffmpeg.org
-
-3SX links against:
-- libavcodec
-- libavformat
-- libavutil
-- libswresample
-
-License: GNU Lesser General Public License (LGPL), version 2.1 or later, as provided by the FFmpeg project build configuration and linked binaries.
-
-Copyright:
-- Copyright (C) FFmpeg contributors.
-
 GekkoNet
 ------
 Upstream: https://github.com/HeatXD/GekkoNet

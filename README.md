@@ -33,7 +33,6 @@ Join `Crowded Street` server on Discord to discuss the project, report bugs or s
 
 This project uses:
 - [GekkoNet](https://github.com/HeatXD/GekkoNet) for P2P rollback netcode
-- [FFmpeg](https://ffmpeg.org) for ADX playback
 - [SDL3](https://github.com/libsdl-org/SDL) for window management, input handling, sound output and rendering
 - SDL_net for P2P connections
 - [libcdio / libiso9660](https://github.com/libcdio/libcdio) for .iso file reading
