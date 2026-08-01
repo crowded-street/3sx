@@ -3,16 +3,10 @@
 #if SOUND_ENABLED
 
 #include "port/io/afs.h"
+#include "port/sound/adx_decoder.h"
 #include "port/utils.h"
-#include "sf33rd/Source/Game/io/gd3rd.h"
 
 #include <SDL3/SDL.h>
-
-#include <libavcodec/avcodec.h>
-#include <libavutil/avutil.h>
-#include <libavutil/frame.h>
-#include <libavutil/intreadwrite.h>
-#include <libswresample/swresample.h>
 
 #include <math.h>
 #include <stddef.h>
@@ -26,34 +20,19 @@
 #define MIN_QUEUED_DATA (int)((float)SAMPLE_RATE * MIN_QUEUED_DATA_MS / 1000 * N_CHANNELS * BYTES_PER_SAMPLE)
 #define TRACKS_MAX 10
 
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-
-typedef struct ADXDecoderPipeline {
-    AVCodecContext* context;
-    AVCodecParserContext* parser_context;
-    SwrContext* swr;
-    AVPacket* packet;
-    AVFrame* frame;
-} ADXDecoderPipeline;
-
 typedef struct ADXLoopInfo {
-    bool looping_enabled;
-    int start_sample;
-    int end_sample;
-    uint8_t* data;
-    int data_size;
-    int position;
+    Uint8* pcm;
+    Uint32 pcm_size;
+    Uint32 position;
 } ADXLoopInfo;
 
 typedef struct ADXTrack {
-    int size;
+    size_t size;
     uint8_t* data;
     bool should_free_data_after_use;
-    int used_bytes;
-    int processed_samples;
+    ADXDecoder decoder;
+    SDL_IOStream* decoder_file;
     ADXLoopInfo loop_info;
-    ADXDecoderPipeline pipeline;
 } ADXTrack;
 
 static SDL_AudioStream* stream = NULL;
@@ -70,50 +49,14 @@ static int stream_data_needed() {
     return MIN_QUEUED_DATA - SDL_GetAudioStreamQueued(stream);
 }
 
-static bool stream_needs_data() {
-    return stream_data_needed() > 0;
-}
-
 static bool stream_is_empty() {
     return SDL_GetAudioStreamQueued(stream) <= 0;
 }
 
-static void pipeline_init(ADXDecoderPipeline* pipeline) {
-    const AVCodec* codec = avcodec_find_decoder(AV_CODEC_ID_ADPCM_ADX);
-    pipeline->context = avcodec_alloc_context3(codec);
-    avcodec_open2(pipeline->context, codec, NULL);
-    pipeline->parser_context = av_parser_init(codec->id);
-
-    const AVChannelLayout ch_layout = AV_CHANNEL_LAYOUT_STEREO;
-    swr_alloc_set_opts2(&pipeline->swr,
-                        &ch_layout,
-                        AV_SAMPLE_FMT_S16,
-                        SAMPLE_RATE,
-                        &ch_layout,
-                        AV_SAMPLE_FMT_S16P,
-                        SAMPLE_RATE,
-                        0,
-                        NULL);
-    swr_init(pipeline->swr);
-
-    pipeline->packet = av_packet_alloc();
-    pipeline->frame = av_frame_alloc();
-}
-
-static void pipeline_destroy(ADXDecoderPipeline* pipeline) {
-    av_packet_free(&pipeline->packet);
-    av_frame_free(&pipeline->frame);
-    swr_free(&pipeline->swr);
-    avcodec_free_context(&pipeline->context);
-    av_parser_close(pipeline->parser_context);
-}
-
-static void* load_file(int file_id, int* size) {
-    // FIXME: Remove dependency on GD3rd.h
-    const unsigned int file_size = fsGetFileSize(file_id);
+static void* load_file(int file_id, size_t* size) {
+    const size_t file_size = AFS_GetSize(file_id);
     *size = file_size;
-    const size_t buff_size = (file_size + 2048 - 1) & ~(2048 - 1); // AFS reads data in 2048-byte chunks
-    void* buff = malloc(buff_size);
+    void* buff = SDL_malloc(file_size);
 
     AFSHandle handle = AFS_Open(file_id);
     AFS_ReadSync(handle, buff);
@@ -122,26 +65,20 @@ static void* load_file(int file_id, int* size) {
     return buff;
 }
 
-static void print_av_error(int errnum) {
-    char errbuf[AV_ERROR_MAX_STRING_SIZE] = { 0 };
-    av_strerror(errnum, errbuf, sizeof(errbuf));
-    fprintf(stderr, "FFmpeg error: %s\n", errbuf);
-}
-
 static bool track_reached_eof(ADXTrack* track) {
-    return (track->size - track->used_bytes) <= 0;
+    return track->decoder.sample_index >= track->decoder.header.total_samples;
 }
 
 static bool track_loop_filled(ADXTrack* track) {
-    if (track->loop_info.looping_enabled) {
-        return track->processed_samples >= track->loop_info.end_sample;
+    if (track->loop_info.pcm != NULL) {
+        return track->decoder.sample_index >= track->decoder.header.loop_end_sample;
     } else {
         return false;
     }
 }
 
 static bool track_needs_decoding(ADXTrack* track) {
-    if (track->loop_info.looping_enabled) {
+    if (track->loop_info.pcm != NULL) {
         return !track_loop_filled(track);
     } else {
         return !track_reached_eof(track);
@@ -149,161 +86,94 @@ static bool track_needs_decoding(ADXTrack* track) {
 }
 
 static bool track_exhausted(ADXTrack* track) {
-    if (track->loop_info.looping_enabled) {
+    if (track->loop_info.pcm != NULL) {
         return false; // Track is never exhausted, because it can be looped infinitely
     } else {
         return track_reached_eof(track);
     }
 }
 
-static int track_add_samples_to_loop(ADXTrack* track, uint8_t* buf, int num_samples) {
+static Uint32 track_add_samples_to_loop(
+    ADXTrack* track, const Sint16* buffer, Uint32 sample_count, Uint32 buffer_start_sample
+) {
     ADXLoopInfo* loop_info = &track->loop_info;
+    const ADXHeader* header = &track->decoder.header;
 
-    if (!loop_info->looping_enabled) {
+    if (loop_info->pcm == NULL) {
         return 0; // No need to add samples if looping is not enabled
     }
 
-    const int buf_sample_start = MAX(loop_info->start_sample - track->processed_samples, 0);
-    const int buf_sample_end = MIN(loop_info->end_sample - track->processed_samples, num_samples);
+    const Uint32 buffer_end_sample = buffer_start_sample + sample_count;
+    const Uint32 copy_start = SDL_max(buffer_start_sample, header->loop_begin_sample);
+    const Uint32 copy_end = SDL_min(buffer_end_sample, header->loop_end_sample);
 
-    if (buf_sample_end > buf_sample_start) {
-        const int buf_start = buf_sample_start * N_CHANNELS * BYTES_PER_SAMPLE;
-        const int buf_end = buf_sample_end * N_CHANNELS * BYTES_PER_SAMPLE;
-        const int buf_len = buf_end - buf_start;
-        memcpy(loop_info->data + loop_info->position, buf + buf_sample_start, buf_len);
-        loop_info->position += buf_len;
+    if (copy_end > copy_start) {
+        const Uint32 copy_samples = copy_end - copy_start;
+        const Uint32 source_offset = (copy_start - buffer_start_sample) * N_CHANNELS;
+        const Uint32 copy_size = copy_samples * N_CHANNELS * BYTES_PER_SAMPLE;
+        SDL_memcpy(loop_info->pcm + loop_info->position, buffer + source_offset, copy_size);
+        loop_info->position += copy_size;
 
-        if (loop_info->position == loop_info->data_size) {
+        if (loop_info->position == loop_info->pcm_size) {
             loop_info->position = 0;
         }
     }
 
-    const int overflow = MAX(track->processed_samples + num_samples - loop_info->end_sample, 0);
-    track->processed_samples += num_samples;
-    return overflow;
+    return buffer_end_sample > header->loop_end_sample ? buffer_end_sample - header->loop_end_sample : 0;
 }
 
-static void loop_info_init(ADXLoopInfo* info, const uint8_t* data) {
-    const uint8_t version = data[0x12];
-
-    switch (version) {
-    case 3:
-        const Uint16 loop_enabled_16 = AV_RB16(data + 0x16);
-
-        if (loop_enabled_16 == 1) {
-            info->looping_enabled = true;
-            info->start_sample = AV_RB32(data + 0x1C);
-            info->end_sample = AV_RB32(data + 0x24);
-        }
-
-        break;
-
-    case 4:
-        const Uint32 loop_enabled_32 = AV_RB32(data + 0x24);
-
-        if (loop_enabled_32 == 1) {
-            info->looping_enabled = true;
-            info->start_sample = AV_RB32(data + 0x28);
-            info->end_sample = AV_RB32(data + 0x30);
-        }
-
-        break;
-
-    default:
-        fatal_error("Unhandled ADX version: %d", version);
-        break;
+static void loop_info_init(ADXLoopInfo* info, const ADXHeader* header) {
+    if (!header->loop_enabled) {
+        return;
     }
 
-    if (info->looping_enabled) {
-        info->data_size = (info->end_sample - info->start_sample) * BYTES_PER_SAMPLE * N_CHANNELS;
-        info->data = malloc(info->data_size);
-        info->position = 0;
-    }
+    info->pcm_size = (header->loop_end_sample - header->loop_begin_sample) * BYTES_PER_SAMPLE * N_CHANNELS;
+    info->pcm = SDL_malloc(info->pcm_size);
+    info->position = 0;
 }
 
 static void loop_info_destroy(ADXLoopInfo* info) {
-    if (info->looping_enabled) {
-        free(info->data);
+    if (info->pcm) {
+        SDL_free(info->pcm);
     }
 
     SDL_zerop(info);
 }
 
 static void process_track(ADXTrack* track) {
-    ADXDecoderPipeline* pipeline = &track->pipeline;
+    if ((stream_data_needed() > 0) && track_needs_decoding(track)) {
+        const Uint32 samples_needed = stream_data_needed() / (BYTES_PER_SAMPLE * N_CHANNELS);
 
-    // Decode samples and queue them for playback
-    while (stream_needs_data() && track_needs_decoding(track)) {
-        int ret = av_parser_parse2(pipeline->parser_context,
-                                   pipeline->context,
-                                   &pipeline->packet->data,
-                                   &pipeline->packet->size,
-                                   track->data + track->used_bytes,
-                                   track->size - track->used_bytes,
-                                   AV_NOPTS_VALUE,
-                                   AV_NOPTS_VALUE,
-                                   0);
-
-        if (ret < 0) {
-            print_av_error(ret);
-            break;
+        if (samples_needed == 0) {
+            return;
         }
 
-        track->used_bytes += ret;
+        const Uint32 sample_size = samples_needed * N_CHANNELS * BYTES_PER_SAMPLE;
+        const Uint32 buffer_start_sample = track->decoder.sample_index;
+        Sint16* buffer = SDL_malloc(sample_size);
+        const Uint32 decoded_samples = ADXDecoder_Decode(&track->decoder, buffer, samples_needed);
 
-        if (pipeline->packet->size > 0) {
-            // Send parsed packet to decoder
-            ret = avcodec_send_packet(pipeline->context, pipeline->packet);
-
-            if (ret < 0) {
-                print_av_error(ret);
-                break;
-            }
-
-            // Receive all available frames
-            while (ret >= 0) {
-                ret = avcodec_receive_frame(pipeline->context, pipeline->frame);
-
-                if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
-                    break;
-                } else if (ret < 0) {
-                    print_av_error(ret);
-                    break;
-                }
-
-                const int out_channels = pipeline->frame->ch_layout.nb_channels;
-                const int out_samples = pipeline->frame->nb_samples;
-
-                // Allocate buffer for interleaved samples
-                uint8_t* out_buf = NULL;
-                int out_linesize = 0;
-
-                av_samples_alloc(&out_buf, &out_linesize, out_channels, out_samples, AV_SAMPLE_FMT_S16, 0);
-
-                // Convert planar → interleaved
-                const int samples_converted = swr_convert(
-                    pipeline->swr, &out_buf, out_samples, (const uint8_t**)pipeline->frame->data, out_samples);
-
-                const int overflow = track_add_samples_to_loop(track, out_buf, samples_converted);
-                const int samples_to_queue = samples_converted - overflow;
-
-                const int out_size =
-                    av_samples_get_buffer_size(&out_linesize, out_channels, samples_to_queue, AV_SAMPLE_FMT_S16, 1);
-
-                SDL_PutAudioStreamData(stream, out_buf, out_size);
-                av_freep(&out_buf);
+        if (track->decoder.header.channel_count == 1) {
+            for (Uint32 i = decoded_samples; i > 0; i--) {
+                const Sint16 sample = buffer[i - 1];
+                buffer[(i - 1) * N_CHANNELS] = sample;
+                buffer[(i - 1) * N_CHANNELS + 1] = sample;
             }
         }
+
+        const Uint32 overflow = track_add_samples_to_loop(track, buffer, decoded_samples, buffer_start_sample);
+        SDL_PutAudioStreamData(stream, buffer, (decoded_samples - overflow) * BYTES_PER_SAMPLE * N_CHANNELS);
+        SDL_free(buffer);
     }
 
     // Queue looped samples (if needed)
-    while (track_loop_filled(track) && stream_needs_data()) {
-        const int available_data = track->loop_info.data_size - track->loop_info.position;
-        const int data_to_queue = MIN(stream_data_needed(), available_data);
-        SDL_PutAudioStreamData(stream, track->loop_info.data + track->loop_info.position, data_to_queue);
+    while (track_loop_filled(track) && (stream_data_needed() > 0)) {
+        const int available_data = track->loop_info.pcm_size - track->loop_info.position;
+        const int data_to_queue = SDL_min(stream_data_needed(), available_data);
+        SDL_PutAudioStreamData(stream, track->loop_info.pcm + track->loop_info.position, data_to_queue);
         track->loop_info.position += data_to_queue;
 
-        if (track->loop_info.position == track->loop_info.data_size) {
+        if (track->loop_info.position == track->loop_info.pcm_size) {
             track->loop_info.position = 0;
         }
     }
@@ -323,28 +193,37 @@ static void track_init(ADXTrack* track, int file_id, void* buf, size_t buf_size,
         track->should_free_data_after_use = false;
     }
 
-    track->used_bytes = 0;
-    pipeline_init(&track->pipeline);
+    track->decoder_file = SDL_IOFromConstMem(track->data, track->size);
+
+    if (track->decoder_file == NULL || !ADXDecoder_Init(&track->decoder, track->decoder_file)) {
+        fatal_error("Failed to initialize ADX decoder: %s", SDL_GetError());
+    }
+
+    SDL_zerop(&track->loop_info);
 
     if (looping_allowed) {
-        loop_info_init(&track->loop_info, track->data);
+        loop_info_init(&track->loop_info, &track->decoder.header);
     }
 
     process_track(track); // Feed first batch of data to the stream
 }
 
 static void track_destroy(ADXTrack* track) {
-    pipeline_destroy(&track->pipeline);
     loop_info_destroy(&track->loop_info);
+    SDL_CloseIO(track->decoder_file);
 
     if (track->should_free_data_after_use) {
-        free(track->data);
+        SDL_free(track->data);
     }
 
     SDL_zerop(track);
 }
 
 static ADXTrack* alloc_track() {
+    if (num_tracks >= TRACKS_MAX) {
+        fatal_error("Too many queued ADX tracks.");
+    }
+
     const int index = (first_track_index + num_tracks) % TRACKS_MAX;
     num_tracks += 1;
     has_tracks = true;
@@ -373,7 +252,7 @@ void ADX_ProcessTracks() {
         num_tracks -= 1;
 
         if (num_tracks > 0) {
-            first_track_index += 1;
+            first_track_index = (first_track_index + 1) % TRACKS_MAX;
         } else {
             first_track_index = 0;
         }
