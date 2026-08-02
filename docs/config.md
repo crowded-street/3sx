@@ -21,11 +21,19 @@ Window dimensions to use when `fullscreen` is set to `false`.
 
 The way the internal 384x224 buffer is scaled.
 
-Possible values:
-- `nearest` (default): Produces sharp pixels at the cost of sizing consistency
-- `integer`: Produces a pixel-perfect image, but requires a 4K display
-  - ⚠️ WARNING: the image is gonna be cropped if your display resolution is smaller than 2688x2016
-- `square-pixels`: The internal buffer is scaled up by an integer (whole number) factor. Use this if you play on a CRT
+#### `nearest` (default)
+
+Produces sharp pixels at the cost of sizing consistency
+
+#### `integer`
+
+Produces a pixel-perfect image, but requires a 4K display
+
+> ⚠️ WARNING: the image is gonna be cropped if your display resolution is smaller than 2688x2016
+
+#### `square-pixels`
+
+The internal buffer is scaled up by an integer (whole number) factor. Use this if you play on a CRT
 
 ### `scanlines`
 
@@ -37,4 +45,4 @@ Allow characters to render in front of the top HUD similar to Street Fighter IV.
 
 ### `arcade-balance` (experimental)
 
-Enables arcade balance instead of PS2 balance (work in progress). Requires `sfiii3nr1.zip` to be present in `resources` directory.
+Enables arcade balance instead of PS2 balance (work in progress). Requires `sfiii3nr1.zip` to be present in [`resources`](resources.md) directory.
