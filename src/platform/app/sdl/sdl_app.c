@@ -38,7 +38,9 @@
 #include "port/io/afs.h"
 #include "port/resources.h"
 
+#define SDL_MAIN_USE_CALLBACKS 1
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 
 #if _WIN32 && DEBUG
 #include <windef.h>
@@ -120,17 +122,17 @@ static bool init_window() {
     return true;
 }
 
-static int pre_init() {
+static bool pre_init() {
     SDL_SetAppMetadata(app_name, "0.1", NULL);
     SDL_SetHint(SDL_HINT_VIDEO_WAYLAND_PREFER_LIBDECOR, "1");
     SDL_SetHint(SDL_HINT_NO_SIGNAL_HANDLERS, "1");
 
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
-        return 1;
+        return false;
     }
 
-    return 0;
+    return true;
 }
 
 #if _WIN32 && DEBUG
@@ -235,43 +237,37 @@ static void hide_cursor_if_needed() {
     }
 }
 
-static bool poll_events() {
-    SDL_Event event;
-    bool continue_running = true;
-
-    while (SDL_PollEvent(&event)) {
+static bool handle_event(const SDL_Event* event) {
 #if DEBUG && IMGUI
-        ImGuiW_ProcessEvent(&event);
+    ImGuiW_ProcessEvent(event);
 #endif
 
-        switch (event.type) {
-        case SDL_EVENT_GAMEPAD_ADDED:
-        case SDL_EVENT_GAMEPAD_REMOVED:
+    switch (event->type) {
+    case SDL_EVENT_GAMEPAD_ADDED:
+    case SDL_EVENT_GAMEPAD_REMOVED:
 #if CRS_INPUT_DRIVER_SDL
-            SDLPad_HandleGamepadDeviceEvent(&event.gdevice);
+        SDLPad_HandleGamepadDeviceEvent(&event->gdevice);
 #endif
-            break;
+        break;
 
-        case SDL_EVENT_KEY_DOWN:
-        case SDL_EVENT_KEY_UP:
+    case SDL_EVENT_KEY_DOWN:
+    case SDL_EVENT_KEY_UP:
 #if DEBUG && IMGUI
-            toggle_debug_window_visibility(&event.key);
+        toggle_debug_window_visibility(&event->key);
 #endif
 
-            handle_fullscreen_toggle(&event.key);
-            break;
+        handle_fullscreen_toggle(&event->key);
+        break;
 
-        case SDL_EVENT_MOUSE_MOTION:
-            handle_mouse_motion();
-            break;
+    case SDL_EVENT_MOUSE_MOTION:
+        handle_mouse_motion();
+        break;
 
-        case SDL_EVENT_QUIT:
-            continue_running = false;
-            break;
-        }
+    case SDL_EVENT_QUIT:
+        return false;
     }
 
-    return continue_running;
+    return true;
 }
 
 static void begin_frame() {
@@ -405,84 +401,6 @@ static void end_frame() {
     update_metrics(sleep_time);
 }
 
-// Entrypoint
-
-static bool sdl_poll_helper() {
-    SDL_Event event;
-    bool continue_running = true;
-
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_EVENT_QUIT) {
-            continue_running = false;
-        }
-    }
-
-    return continue_running;
-}
-
-static int loop() {
-    bool is_running = true;
-
-    while (is_running) {
-        switch (phase) {
-        case APP_PHASE_INIT:
-            pre_init();
-
-            if (Resources_Check()) {
-                if (!full_init()) {
-                    is_running = false;
-                    break;
-                }
-
-                phase = APP_PHASE_INITIALIZED;
-            } else {
-                phase = APP_PHASE_COPYING_RESOURCES;
-            }
-
-            break;
-
-        case APP_PHASE_COPYING_RESOURCES:
-            is_running = sdl_poll_helper();
-
-            if (!is_running) {
-                break;
-            }
-
-            SDL_Delay(16);
-
-            const bool resource_flow_ended = Resources_RunResourceCopyingFlow();
-
-            if (resource_flow_ended) {
-                if (!full_init()) {
-                    is_running = false;
-                    break;
-                }
-
-                phase = APP_PHASE_INITIALIZED;
-            }
-
-            break;
-
-        case APP_PHASE_INITIALIZED:
-            is_running = poll_events();
-
-            if (!is_running) {
-                break;
-            }
-
-            begin_frame();
-            Main_StepFrame();
-            end_frame();
-            Main_FinishFrame();
-            break;
-        }
-    }
-
-    cleanup();
-    SDL_Quit();
-    return 0;
-}
-
 #if NETPLAY_ENABLED
 static void set_netplay_params() {
     const NetplayArgs* netplay = &get_args()->netplay;
@@ -495,24 +413,89 @@ static void set_netplay_params() {
 }
 #endif
 
-int main(int argc, const char* argv[]) {
+SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
+    (void)appstate;
     init_args(argc, argv);
 
 #if NETPLAY_ENABLED
     set_netplay_params();
 
     if (get_args()->netplay.stress) {
-        return SDLStressApp_Run();
+        return SDLStressApp_Run() == 0 ? SDL_APP_SUCCESS : SDL_APP_FAILURE;
     }
 #endif
 
 #if STATCHECK
     if (get_args()->statcheck.headless) {
-        return SDLHeadlessApp_Run();
+        return SDLHeadlessApp_Run() == 0 ? SDL_APP_SUCCESS : SDL_APP_FAILURE;
     }
 #endif
 
-    return loop();
+    if (!pre_init()) {
+        return SDL_APP_FAILURE;
+    }
+
+    if (Resources_Check()) {
+        if (!full_init()) {
+            return SDL_APP_FAILURE;
+        }
+
+        phase = APP_PHASE_INITIALIZED;
+    } else {
+        phase = APP_PHASE_COPYING_RESOURCES;
+    }
+
+    return SDL_APP_CONTINUE;
+}
+
+SDL_AppResult SDL_AppIterate(void* appstate) {
+    (void)appstate;
+
+    if (phase == APP_PHASE_COPYING_RESOURCES) {
+        SDL_Delay(16);
+
+        if (Resources_RunResourceCopyingFlow()) {
+            if (!full_init()) {
+                return SDL_APP_FAILURE;
+            }
+
+            phase = APP_PHASE_INITIALIZED;
+        }
+
+        return SDL_APP_CONTINUE;
+    }
+
+    if (phase == APP_PHASE_INITIALIZED) {
+        begin_frame();
+        Main_StepFrame();
+        end_frame();
+        Main_FinishFrame();
+    }
+
+    return SDL_APP_CONTINUE;
+}
+
+SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
+    (void)appstate;
+
+    if (event->type == SDL_EVENT_QUIT) {
+        return SDL_APP_SUCCESS;
+    }
+
+    if (phase == APP_PHASE_INITIALIZED && !handle_event(event)) {
+        return SDL_APP_SUCCESS;
+    }
+
+    return SDL_APP_CONTINUE;
+}
+
+void SDL_AppQuit(void* appstate, SDL_AppResult result) {
+    (void)appstate;
+    (void)result;
+
+    if (phase == APP_PHASE_INITIALIZED) {
+        cleanup();
+    }
 }
 
 // Public API

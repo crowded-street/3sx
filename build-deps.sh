@@ -44,7 +44,7 @@ echo "Using $BUILD_JOBS build job(s)"
 # SDL3
 # -----------------------------
 
-SDL_TAG="release-3.4.4"
+SDL_TAG="release-3.4.12"
 SDL_DIR="$THIRD_PARTY/sdl3"
 SDL_BUILD="$SDL_DIR/build"
 
