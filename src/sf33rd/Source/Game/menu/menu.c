@@ -1349,7 +1349,7 @@ void Save_Direction(struct _TASK* task_ptr) {
 
     case 1:
         if (Menu_Sub_case1(task_ptr) != 0) {
-            SaveInit(1, 1);
+            SaveInit(SAVE_FILE_SYSTEM_DIRECTION, 1);
         }
 
         break;
@@ -1389,7 +1389,7 @@ void Load_Direction(struct _TASK* task_ptr) {
 
     case 1:
         if (Menu_Sub_case1(task_ptr) != 0) {
-            SaveInit(1, 0);
+            SaveInit(SAVE_FILE_SYSTEM_DIRECTION, 0);
         }
 
         break;
@@ -1429,7 +1429,7 @@ void Load_Replay(struct _TASK* task_ptr) {
 
     case 1:
         if (Menu_Sub_case1(task_ptr) != 0) {
-            SaveInit(2, 0);
+            SaveInit(SAVE_FILE_REPLAY, 0);
         }
 
         break;
@@ -2637,9 +2637,9 @@ void Save_Load_Menu(struct _TASK* task_ptr) {
         task_ptr->timer = 5;
 
         if (task_ptr->r_no[2] == 5) {
-            SaveInit(0, 0);
+            SaveInit(SAVE_FILE_SETTINGS, 0);
         } else {
-            SaveInit(0, 1);
+            SaveInit(SAVE_FILE_SETTINGS, 1);
         }
 
         Menu_Common_Init();
@@ -3426,7 +3426,7 @@ void DAS_2nd(struct _TASK* task_ptr) {
     if ((task_ptr->timer -= 1) == 0) {
         task_ptr->r_no[1]++;
         FadeInit();
-        SaveInit(0, 3);
+        SaveInit(SAVE_FILE_SETTINGS, 3);
     }
 }
 
@@ -3816,7 +3816,7 @@ void Save_Replay(struct _TASK* task_ptr) {
 
     case 1:
         if (Menu_Sub_case1(task_ptr) != 0) {
-            SaveInit(2, 1);
+            SaveInit(SAVE_FILE_REPLAY, 1);
         }
         Order[0x4E] = 2;
         Order_Dir[0x4E] = 0;
@@ -5368,7 +5368,7 @@ void After_Replay(struct _TASK* task_ptr) {
             Order_Dir[110] = 8;
             Order_Timer[110] = 1;
             Setup_File_Property(1, 0xFF);
-            SaveInit(2, 1);
+            SaveInit(SAVE_FILE_REPLAY, 1);
             effect_66_init(138, 41, 0, 0, -1, -1, -0x7FF3);
             Order[138] = 3;
             Order_Timer[138] = 1;

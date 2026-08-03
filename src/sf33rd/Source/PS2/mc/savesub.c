@@ -1,7 +1,8 @@
+#include "sf33rd/Source/PS2/mc/savesub.h"
 #include "common.h"
 #include "port/utils.h"
 
-void SaveInit(s32 file_type, s32 save_mode) {
+void SaveInit(SaveFileType file_type, s32 save_mode) {
     not_implemented(__func__);
 }
 
