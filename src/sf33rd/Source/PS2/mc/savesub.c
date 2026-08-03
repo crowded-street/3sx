@@ -2,7 +2,7 @@
 #include "common.h"
 #include "port/utils.h"
 
-void SaveInit(SaveFileType file_type, s32 save_mode) {
+void SaveInit(SaveFileType file_type, SaveMode save_mode) {
     not_implemented(__func__);
 }
 
