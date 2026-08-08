@@ -3,7 +3,18 @@
 
 #include "types.h"
 
-void SaveInit(s32 file_type, s32 save_mode);
+typedef enum SaveFileType {
+    SAVE_FILE_SETTINGS,
+    SAVE_FILE_SYSTEM_DIRECTION,
+    SAVE_FILE_REPLAY,
+} SaveFileType;
+
+typedef enum SaveMode {
+    SAVE_MODE_LOAD,
+    SAVE_MODE_SAVE,
+} SaveMode;
+
+void SaveInit(SaveFileType file_type, SaveMode save_mode);
 s32 SaveMove();
 
 #endif

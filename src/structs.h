@@ -44,7 +44,7 @@ struct _TASK {
     u8 free[4];
 };
 
-typedef enum {
+typedef enum : u8 {
     BGM_ARRANGED,
     BGM_ORIGINAL,
 } BgmType;
