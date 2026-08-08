@@ -272,12 +272,13 @@ s32 SaveMove() {
 
         const char* name = file_type_to_name(operation.file_type);
         const Uint64 expected_size = file_type_to_expected_size[operation.file_type];
+        void* buffer = SDL_malloc(expected_size);
+        SDL_IOStream* io = NULL;
         bool success = false;
 
         switch (operation.mode) {
         case SAVE_MODE_LOAD:
         case SAVE_MODE_AUTO_LOAD:
-            void* buffer = SDL_malloc(expected_size);
             bool buffer_filled = false;
             char path[PATH_LEN_MAX];
             char backup_path[PATH_LEN_MAX];
@@ -293,25 +294,22 @@ s32 SaveMove() {
             }
 
             if (buffer_filled) {
-                SDL_IOStream* io = SDL_IOFromConstMem(buffer, expected_size);
+                io = SDL_IOFromConstMem(buffer, expected_size);
                 deserialize(operation.file_type, io);
-                SDL_CloseIO(io);
             }
 
-            SDL_free(buffer);
             break;
 
         case SAVE_MODE_SAVE:
         case SAVE_MODE_AUTO_SAVE:
-            void* buf = SDL_malloc(expected_size);
-            SDL_IOStream* io = SDL_IOFromMem(buf, expected_size);
+            io = SDL_IOFromMem(buffer, expected_size);
             serialize(operation.file_type, io);
-            SDL_CloseIO(io);
-            success = write_file(operation.storage, name, buf, expected_size);
-            SDL_free(buf);
+            success = write_file(operation.storage, name, buffer, expected_size);
             break;
         }
 
+        SDL_CloseIO(io);
+        SDL_free(buffer);
         SDL_CloseStorage(operation.storage);
         SDL_zero(operation);
         return success ? 0 : -1;
