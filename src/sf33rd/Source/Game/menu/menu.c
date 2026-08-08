@@ -99,12 +99,12 @@ void After_Title(struct _TASK* task_ptr);
 void In_Game(struct _TASK* task_ptr);
 void Wait_Load_Save(struct _TASK* task_ptr);
 void Wait_Replay_Check(struct _TASK* task_ptr);
-void Disp_Auto_Save(struct _TASK* task_ptr);
+void Save_Settings(struct _TASK* task_ptr);
 void Suspend_Menu();
 void Wait_Replay_Load();
 void Training_Menu(struct _TASK* task_ptr);
 void After_Replay(struct _TASK* task_ptr);
-void Disp_Auto_Save2(struct _TASK* task_ptr);
+void Save_Settings_After_Game(struct _TASK* task_ptr);
 void Wait_Pause_in_Tr(struct _TASK* task_ptr);
 void Reset_Training(struct _TASK* task_ptr);
 void Reset_Replay(struct _TASK* task_ptr);
@@ -161,14 +161,13 @@ u16 SD_Move_Sub_LR(u16 sw);
 void Memory_Card_Sub(s16 PL_id);
 void Save_Load_Menu(struct _TASK* task_ptr);
 void Go_Back_MC(struct _TASK* task_ptr);
-u16 Memory_Card_Move_Sub_LR(u16 sw, s16 cursor_id);
 u16 After_VS_Move_Sub(u16 sw, s16 cursor_id, s16 menu_max);
 s32 VS_Result_Move_Sub(struct _TASK* task_ptr, s16 PL_id);
-void DAS_1st(struct _TASK* task_ptr);
-void DAS_2nd(struct _TASK* task_ptr);
-void DAS_3rd(struct _TASK* task_ptr);
-void DAS_4th(struct _TASK* task_ptr);
-void DAS2_4th(struct _TASK* task_ptr);
+void Save_Settings_1st(struct _TASK* task_ptr);
+void Save_Settings_2nd(struct _TASK* task_ptr);
+void Save_Settings_3rd(struct _TASK* task_ptr);
+void Save_Settings_4th(struct _TASK* task_ptr);
+void Save_Settings_After_Game_4th(struct _TASK* task_ptr);
 void Training_Init(struct _TASK* task_ptr);
 void Menu_Select(struct _TASK* task_ptr);
 void Button_Config_in_Game(struct _TASK* task_ptr);
@@ -201,8 +200,9 @@ typedef struct {
 } LetterData;
 
 const MenuFunc Menu_Jmp_Tbl[14] = {
-    After_Title,   In_Game,      Wait_Load_Save,  Wait_Replay_Check, Disp_Auto_Save, Suspend_Menu, Wait_Replay_Load,
-    Training_Menu, After_Replay, Disp_Auto_Save2, Wait_Pause_in_Tr,  Reset_Training, Reset_Replay, End_Replay_Menu,
+    After_Title,      In_Game,          Wait_Load_Save, Wait_Replay_Check, Save_Settings,
+    Suspend_Menu,     Wait_Replay_Load, Training_Menu,  After_Replay,      Save_Settings_After_Game,
+    Wait_Pause_in_Tr, Reset_Training,   Reset_Replay,   End_Replay_Menu,
 };
 
 u8 r_no_plus;
@@ -745,13 +745,11 @@ void Option_Select(struct _TASK* task_ptr) {
             Order_Timer[0x4F] = 4;
 
             if (Check_Change_Contents()) {
-                if (save_w[Present_Mode].Auto_Save) {
-                    task_ptr->r_no[0] = 4;
-                    task_ptr->r_no[1] = 0;
-                    Forbid_Reset = 1;
-                    Copy_Check_w();
-                    break;
-                }
+                task_ptr->r_no[0] = 4;
+                task_ptr->r_no[1] = 0;
+                Forbid_Reset = 1;
+                Copy_Check_w();
+                break;
             }
 
             break;
@@ -1993,7 +1991,7 @@ void Button_Exit_Check(struct _TASK* task_ptr, s16 PL_id) {
         }
 
         switch (Menu_Cursor_Y[0]) {
-        case 3:
+        case 2:
             SE_selected();
             Return_Option_Mode_Sub(task_ptr);
             Order[0x69] = 4;
@@ -2009,11 +2007,6 @@ void Button_Exit_Check(struct _TASK* task_ptr, s16 PL_id) {
         case 1:
             SE_selected();
             task_ptr->r_no[2] = 5;
-            task_ptr->r_no[3] = 0;
-            break;
-
-        case 2:
-            task_ptr->r_no[2] = 6;
             task_ptr->r_no[3] = 0;
             break;
         }
@@ -2507,10 +2500,6 @@ u16 SD_Move_Sub_LR(u16 sw) {
 
 void Memory_Card(struct _TASK* task_ptr) {
     s16 ix;
-    s16 char_index;
-
-    s16 unused_s3;
-    s16 unused_s2;
 
     switch (task_ptr->r_no[2]) {
     case 0:
@@ -2531,18 +2520,14 @@ void Memory_Card(struct _TASK* task_ptr) {
         Order_Dir[0x69] = 8;
         Order_Timer[0x69] = 1;
 
-        for (ix = 0, unused_s3 = char_index = 0x15; ix < 4; ix++, unused_s2 = char_index++) {
-            effect_61_init(0, ix + 0x50, 1, 2, char_index, ix, 0x7047);
+        for (ix = 0; ix < 3; ix++) {
+            effect_61_init(0, ix + 0x50, 1, 2, ix + 0x15, ix, 0x7047);
             Order[ix + 0x50] = 1;
             Order_Dir[ix + 0x50] = 4;
             Order_Timer[ix + 0x50] = ix + 0x14;
         }
 
-        Menu_Cursor_Move = 4;
-        effect_64_init(0x61, 1, 2, 0, 2, 0x7047, 0, 3, 0);
-        Order[0x61] = 1;
-        Order_Dir[0x61] = 4;
-        Order_Timer[0x61] = 0x18;
+        Menu_Cursor_Move = 3;
         effect_66_init(0x8A, 8, 2, 1, -1, -1, -0x7FF5);
         Order[0x8A] = 3;
         Order_Timer[0x8A] = 1;
@@ -2575,7 +2560,6 @@ void Memory_Card(struct _TASK* task_ptr) {
 
     case 4:
     case 5:
-    case 6:
         Save_Load_Menu(task_ptr);
         break;
     }
@@ -2734,68 +2718,7 @@ void Memory_Card_Sub(s16 PL_id) {
 
     sw = ~plsw_01[PL_id] & plsw_00[PL_id];
     sw = Check_Menu_Lever(PL_id, 0);
-    MC_Move_Sub(sw, 0, 3, 0xFF);
-
-    if ((Menu_Cursor_Y[0] == 2) && !(IO_Result & 0x200)) {
-        IO_Result = 0;
-    }
-
-    Memory_Card_Move_Sub_LR(sw, 0);
-
-    if (Convert_Buff[3][0][2] == 0) {
-        save_w[Present_Mode].Auto_Save = 0;
-    }
-}
-
-u16 Memory_Card_Move_Sub_LR(u16 sw, s16 cursor_id) {
-    s32 ret;
-    s32 idx;
-    s32 val;
-
-    idx = Menu_Cursor_Y[cursor_id];
-
-    if (idx != 2) {
-        return 0;
-    }
-
-    val = Convert_Buff[3][cursor_id][idx];
-
-    switch (sw) {
-    case 4:
-        val -= 1;
-
-        if (val < 0) {
-            val = 1;
-        }
-
-        SE_dir_cursor_move();
-        ret = 4;
-        break;
-
-    case 8:
-        val += 1;
-
-        if (val > 1) {
-            val = 0;
-        }
-
-        SE_dir_cursor_move();
-        ret = 8;
-        break;
-
-    default:
-        ret = 0;
-        break;
-    }
-
-    Convert_Buff[3][cursor_id][idx] = val;
-
-    if ((ret != 0) && (val == 1)) {
-        IO_Result = 0x100;
-        Forbid_Reset = 1;
-    }
-
-    return ret;
+    MC_Move_Sub(sw, 0, 2, 0xFF);
 }
 
 u16 MC_Move_Sub(u16 sw, s16 cursor_id, s16 menu_max, s16 cansel_menu) {
@@ -3358,12 +3281,12 @@ void Wait_Load_Save(struct _TASK* task_ptr) {
     }
 }
 
-void Disp_Auto_Save(struct _TASK* task_ptr) {
-    void (*Auto_Save_Jmp_Tbl[4])() = { DAS_1st, DAS_2nd, DAS_3rd, DAS_4th };
-    Auto_Save_Jmp_Tbl[task_ptr->r_no[1]](task_ptr);
+void Save_Settings(struct _TASK* task_ptr) {
+    void (*Save_Settings_Jmp_Tbl[4])() = { Save_Settings_1st, Save_Settings_2nd, Save_Settings_3rd, Save_Settings_4th };
+    Save_Settings_Jmp_Tbl[task_ptr->r_no[1]](task_ptr);
 }
 
-void DAS_1st(struct _TASK* task_ptr) {
+void Save_Settings_1st(struct _TASK* task_ptr) {
     FadeOut(1, 0xFF, 8);
     task_ptr->r_no[1]++;
     task_ptr->timer = 5;
@@ -3375,7 +3298,7 @@ void DAS_1st(struct _TASK* task_ptr) {
     Order_Timer[0x8A] = 1;
 }
 
-void DAS_2nd(struct _TASK* task_ptr) {
+void Save_Settings_2nd(struct _TASK* task_ptr) {
     FadeOut(1, 0xFF, 8);
 
     if ((task_ptr->timer -= 1) == 0) {
@@ -3385,13 +3308,13 @@ void DAS_2nd(struct _TASK* task_ptr) {
     }
 }
 
-void DAS_3rd(struct _TASK* task_ptr) {
+void Save_Settings_3rd(struct _TASK* task_ptr) {
     if (FadeIn(1, 0x19, 8) != 0) {
         task_ptr->r_no[1]++;
     }
 }
 
-void DAS_4th(struct _TASK* task_ptr) {
+void Save_Settings_4th(struct _TASK* task_ptr) {
     if (SaveMove() <= 0) {
         task_ptr->r_no[0] = 0;
         task_ptr->r_no[1] = 1;
@@ -3401,12 +3324,14 @@ void DAS_4th(struct _TASK* task_ptr) {
     }
 }
 
-void Disp_Auto_Save2(struct _TASK* task_ptr) {
-    void (*Auto_Save2_Jmp_Tbl[4])() = { DAS_1st, DAS_2nd, DAS_3rd, DAS2_4th };
-    Auto_Save2_Jmp_Tbl[task_ptr->r_no[1]](task_ptr);
+void Save_Settings_After_Game(struct _TASK* task_ptr) {
+    void (*Save_Settings_Jmp_Tbl[4])() = {
+        Save_Settings_1st, Save_Settings_2nd, Save_Settings_3rd, Save_Settings_After_Game_4th
+    };
+    Save_Settings_Jmp_Tbl[task_ptr->r_no[1]](task_ptr);
 }
 
-void DAS2_4th(struct _TASK* task_ptr) {
+void Save_Settings_After_Game_4th(struct _TASK* task_ptr) {
     if (SaveMove() <= 0) {
         G_No[2] = 6;
         cpExitTask(TASK_MENU);

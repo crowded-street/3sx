@@ -911,7 +911,6 @@ struct _SAVE_W {
     u8 Screen_Size;
     u8 Screen_Mode;
     u8 GuardCheck;
-    u8 Auto_Save;
     u8 AnalogStick;
     BgmType BgmType;
     u8 BGM_Level;
