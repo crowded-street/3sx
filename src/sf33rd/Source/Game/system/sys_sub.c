@@ -707,7 +707,6 @@ const struct _SAVE_W Game_Default_Data = {
     .SoundMode = 0,
     .BGM_Level = 15,
     .SE_Level = 15,
-    .Extra_Option = 0,
     .extra_option = { { { 1, 3, 3, 0, 0, 1, 0, 0 },
                         { 0, 0, 2, 2, 8, 8, 2, 0 },
                         { 2, 2, 2, 2, 0, 0, 0, 0 },

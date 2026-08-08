@@ -685,26 +685,6 @@ void Option_Select(struct _TASK* task_ptr) {
         Order[0x4F] = 1;
         Order_Dir[0x4F] = 8;
         Order_Timer[0x4F] = 1;
-
-        if (save_w[Present_Mode].Extra_Option == 0) {
-            effect_04_init(1, 4, 0, 0x48);
-
-            ix = 0;
-            char_index = 0x2F;
-
-            while (ix < 6) {
-                effect_61_init(0, ix + 0x50, 0, 1, char_index, ix, 0x7047);
-                Order[ix + 0x50] = 1;
-                Order_Dir[ix + 0x50] = 4;
-                Order_Timer[ix + 0x50] = ix + 0x14;
-                ix++;
-                char_index++;
-            }
-
-            Menu_Cursor_Move = 6;
-            break;
-        }
-
         effect_04_init(1, 1, 0, 0x48);
 
         ix = 0;
@@ -738,11 +718,7 @@ void Option_Select(struct _TASK* task_ptr) {
         break;
 
     case 3:
-        if (save_w[Present_Mode].Extra_Option) {
-            ix = 1;
-        } else {
-            ix = 0;
-        }
+        ix = 1;
 
         if (MC_Move_Sub(Check_Menu_Lever(0, 0), 0, ix + 5, 0xFF) == 0) {
             MC_Move_Sub(Check_Menu_Lever(1, 0), 0, ix + 5, 0xFF);
