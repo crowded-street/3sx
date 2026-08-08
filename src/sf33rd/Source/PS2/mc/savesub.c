@@ -52,14 +52,10 @@ static const Uint64 file_type_to_expected_size[] = {
 
 static SaveOperation operation = { 0 };
 
-static void* serialize_settings(Uint64* length) {
+static void serialize_settings(SDL_IOStream* io) {
     Save_Game_Data();
 
     const struct _SAVE_W* src = &save_w[1];
-    *length = SETTINGS_SIZE;
-    void* buf = SDL_malloc(SETTINGS_SIZE);
-    SDL_IOStream* io = SDL_IOFromMem(buf, SETTINGS_SIZE);
-
     SDL_WriteU8(io, SETTINGS_VERSION);
 
     for (int i = 0; i < SDL_arraysize(src->Pad_Infor); i++) {
@@ -102,15 +98,13 @@ static void* serialize_settings(Uint64* length) {
         SDL_WriteU8(io, rank_data->player_color);
         SDL_WriteU8(io, rank_data->all_clear);
     }
-
-    SDL_CloseIO(io);
-    return buf;
 }
 
-static void* serialize(SaveFileType file_type, Uint64* length) {
+static void serialize(SaveFileType file_type, SDL_IOStream* io) {
     switch (file_type) {
     case SAVE_FILE_SETTINGS:
-        return serialize_settings(length);
+        serialize_settings(io);
+        break;
 
     case SAVE_FILE_SYSTEM_DIRECTION:
     case SAVE_FILE_REPLAY:
@@ -280,12 +274,12 @@ s32 SaveMove() {
         }
 
         const char* name = file_type_to_name(operation.file_type);
+        const Uint64 expected_size = file_type_to_expected_size[operation.file_type];
         bool success = false;
 
         switch (operation.mode) {
         case SAVE_MODE_LOAD:
         case SAVE_MODE_AUTO_LOAD:
-            const Uint64 expected_size = file_type_to_expected_size[operation.file_type];
             void* buffer = SDL_malloc(expected_size);
             bool buffer_filled = false;
             char path[PATH_LEN_MAX];
@@ -310,9 +304,12 @@ s32 SaveMove() {
 
         case SAVE_MODE_SAVE:
         case SAVE_MODE_AUTO_SAVE:
-            Uint64 length = 0;
-            const void* buf = serialize(operation.file_type, &length);
-            success = write_file(operation.storage, name, buf, length);
+            void* buf = SDL_malloc(expected_size);
+            SDL_IOStream* io = SDL_IOFromMem(buf, expected_size);
+            serialize(operation.file_type, io);
+            SDL_CloseIO(io);
+            success = write_file(operation.storage, name, buf, expected_size);
+            SDL_free(buf);
             break;
         }
 
