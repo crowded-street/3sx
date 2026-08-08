@@ -8,17 +8,6 @@
 // Forward decld
 static s32 StartSound(CSE_PHDP* pPHDP, CSE_REQP* pREQP);
 
-s32 mlSysSetMono(u32 mono_sw) {
-    CSE_SYS_PARAM_MONO param = {};
-
-    param.cmd = 0x10000007;
-    param.mono = mono_sw & 1;
-
-    emlShimSysSetMono(&param);
-
-    return 0;
-}
-
 s32 mlSysSetMasterVolume(s32 vol) {
     return mlSysSetBankVolume(0xFF, vol);
 }

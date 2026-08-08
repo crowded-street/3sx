@@ -582,7 +582,3 @@ void emlShimSeSetLfo(CSE_SYS_PARAM_LFO* param) {
 
     SDL_UnlockMutex(soundLock);
 }
-
-void emlShimSysSetMono(CSE_SYS_PARAM_MONO* param) {
-    // I'll implement this if someone asks really nicely, but really?
-}

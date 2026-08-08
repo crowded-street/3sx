@@ -377,10 +377,6 @@ void ADX_SetOutVol(int volume) {
     SDL_SetAudioStreamGain(stream, gain);
 }
 
-void ADX_SetMono(bool mono) {
-    // FIXME: Do we really need this?
-}
-
 ADXState ADX_GetState() {
     if (!audio_available()) {
         return ADX_STATE_STOP;
@@ -452,10 +448,6 @@ void ADX_ResetEntry() {
 }
 
 void ADX_SetOutVol(int volume) {
-    // Do nothing
-}
-
-void ADX_SetMono(bool mono) {
     // Do nothing
 }
 

@@ -20,7 +20,7 @@ void EFF64_SUDDENLY(WORK_Other_CONN* /* unused */);
 void Disp_64_Sub(WORK_Other_CONN* ewk);
 void Setup_Letter_64(WORK_Other_CONN* ewk, s16 disp_index);
 
-const s8* Letter_Data_64[16][16] = {
+const s8* Letter_Data_64[15][16] = {
     { "\"OFF\"", "\"/ON/\"", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
     { "#;;;;;;;",
       "##;;;;;;",
@@ -62,7 +62,6 @@ const s8* Letter_Data_64[16][16] = {
       NULL,
       NULL,
       NULL },
-    { "Stereo", "Monaural", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
     { "Silence", "-14", "-13", "-12", "-11", "-10", "-9", "-8", "-7", "-6", "-5", "-4", "-3", "-2", "-1", "Standard" },
     { "Arrange", "Original", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
     { "-PLAY(A)", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },

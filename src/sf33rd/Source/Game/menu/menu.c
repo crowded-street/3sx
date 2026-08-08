@@ -156,7 +156,6 @@ void Return_Option_Mode_Sub(struct _TASK* task_ptr);
 void Screen_Adjust_Sub(s16 PL_id);
 void Screen_Exit_Check(struct _TASK* task_ptr, s16 PL_id);
 void Screen_Move_Sub_LR(u16 sw);
-void Setup_Sound_Mode(u8 last_mode);
 u16 Sound_Cursor_Sub(s16 PL_id);
 u16 SD_Move_Sub_LR(u16 sw);
 void Memory_Card_Sub(s16 PL_id);
@@ -2284,7 +2283,6 @@ void Screen_Move_Sub_LR(u16 sw) {
 void Sound_Test(struct _TASK* task_ptr) {
     s16 char_index;
     s16 ix;
-    u8 last_mode;
 
     Clear_Flash_Sub();
 
@@ -2299,21 +2297,15 @@ void Sound_Test(struct _TASK* task_ptr) {
         Menu_Cursor_Y[0] = 0;
         Menu_Suicide[1] = 1;
         Menu_Suicide[2] = 0;
-        Convert_Buff[3][1][5] = 0;
-
-        if (sys_w.sound_mode == 0) {
-            Convert_Buff[3][1][0] = 0;
-        } else {
-            Convert_Buff[3][1][0] = 1;
-        }
+        Convert_Buff[3][1][4] = 0;
 
         if (sys_w.bgm_type == BGM_ARRANGED) {
-            Convert_Buff[3][1][3] = 0;
+            Convert_Buff[3][1][2] = 0;
         } else {
-            Convert_Buff[3][1][3] = 1;
+            Convert_Buff[3][1][2] = 1;
         }
 
-        Convert_Buff[3][1][7] = 1;
+        Convert_Buff[3][1][6] = 1;
         Order[0x4F] = 4;
         Order_Timer[0x4F] = 1;
         Order[0x4E] = 2;
@@ -2326,9 +2318,9 @@ void Sound_Test(struct _TASK* task_ptr) {
         effect_04_init(2, 6, 2, 0x48);
 
         {
-            s32 ixSoundMenuItem[4] = { 10, 11, 11, 12 };
+            s32 ixSoundMenuItem[3] = { 10, 10, 11 };
 
-            for (ix = 0; ix < 4; ix++) {
+            for (ix = 0; ix < 3; ix++) {
                 Order[ix + 0x57] = 1;
                 Order_Dir[ix + 0x57] = 4;
                 Order_Timer[ix + 0x57] = ix + 0x14;
@@ -2337,19 +2329,19 @@ void Sound_Test(struct _TASK* task_ptr) {
         }
 
         Order_Dir[0x78] = 0;
-        effect_A8_init(0, 0x78, 0, 2, 5, 0x70A7, 0);
+        effect_A8_init(0, 0x78, 0, 2, 4, 0x70A7, 0);
         Order_Dir[0x79] = 1;
-        effect_A8_init(0, 0x79, 0, 2, 5, 0x70A7, 1);
-        effect_A8_init(3, 0x7A, 0, 2, 5, 0x70A7, 3);
-        Convert_Buff[3][1][5] = 0;
+        effect_A8_init(0, 0x79, 0, 2, 4, 0x70A7, 1);
+        effect_A8_init(3, 0x7A, 0, 2, 4, 0x70A7, 3);
+        Convert_Buff[3][1][4] = 0;
         Order_Dir[0x7B] = 0;
-        effect_A8_init(2, 0x7B, 0, 2, 5, 0x70A7, 2);
+        effect_A8_init(2, 0x7B, 0, 2, 4, 0x70A7, 2);
 
         {
             s16 unused_s2;
             s16 unused_s3;
 
-            for (ix = 0, unused_s3 = char_index = 0x3B; ix < 7; ix++, unused_s2 = char_index++) {
+            for (ix = 0, unused_s3 = char_index = 0x3B; ix < 6; ix++, unused_s2 = char_index++) {
                 effect_61_init(0, ix + 0x50, 0, 2, char_index, ix, 0x7047);
                 Order[ix + 0x50] = 1;
                 Order_Dir[ix + 0x50] = 4;
@@ -2373,59 +2365,56 @@ void Sound_Test(struct _TASK* task_ptr) {
         break;
 
     case 3:
-        last_mode = Convert_Buff[3][1][0];
         Sound_Cursor_Sub(0);
 
         if (IO_Result == 0) {
             Sound_Cursor_Sub(1);
         }
 
-        if ((Menu_Cursor_Y[0] == 4) && (IO_Result == 0x100)) {
+        if ((Menu_Cursor_Y[0] == 3) && (IO_Result == 0x100)) {
             SE_selected();
             Convert_Buff[3][1][0] = 0;
             Convert_Buff[3][1][1] = 0xF;
-            Convert_Buff[3][1][2] = 0xF;
-            Convert_Buff[3][1][3] = 0;
+            Convert_Buff[3][1][2] = 0;
         }
 
-        if (bgm_level != (s16)Convert_Buff[3][1][1]) {
-            bgm_level = Convert_Buff[3][1][1];
-            save_w[Present_Mode].BGM_Level = Convert_Buff[3][1][1];
+        if (bgm_level != (s16)Convert_Buff[3][1][0]) {
+            bgm_level = Convert_Buff[3][1][0];
+            save_w[Present_Mode].BGM_Level = Convert_Buff[3][1][0];
             SsBgmHalfVolume(0);
         }
 
-        if (se_level != (s16)Convert_Buff[3][1][2]) {
-            se_level = Convert_Buff[3][1][2];
-            setSeVolume(save_w[Present_Mode].SE_Level = Convert_Buff[3][1][2]);
+        if (se_level != (s16)Convert_Buff[3][1][1]) {
+            se_level = Convert_Buff[3][1][1];
+            setSeVolume(save_w[Present_Mode].SE_Level = Convert_Buff[3][1][1]);
         }
 
-        save_w[Present_Mode].BgmType = Convert_Buff[3][1][3];
+        save_w[Present_Mode].BgmType = Convert_Buff[3][1][2];
 
-        if (sys_w.bgm_type != Convert_Buff[3][1][3]) {
-            sys_w.bgm_type = Convert_Buff[3][1][3];
-            Convert_Buff[3][1][5] = 0;
+        if (sys_w.bgm_type != Convert_Buff[3][1][2]) {
+            sys_w.bgm_type = Convert_Buff[3][1][2];
+            Convert_Buff[3][1][4] = 0;
             BGM_Request_Code_Check(0x41);
         }
 
-        Order_Dir[0x7B] = Convert_Buff[3][1][5];
-        Setup_Sound_Mode(last_mode);
+        Order_Dir[0x7B] = Convert_Buff[3][1][4];
         Save_Game_Data();
 
-        if (Menu_Cursor_Y[0] == 5) {
+        if (Menu_Cursor_Y[0] == 4) {
             if (IO_Result == 0x100) {
                 SsRequest((u16)Order_Dir[0x7B] + 1);
-                Convert_Buff[3][1][7] = 1;
+                Convert_Buff[3][1][6] = 1;
                 return;
             }
 
-            if ((IO_Result == 0x200) && Convert_Buff[3][1][7]) {
-                Convert_Buff[3][1][7] = 0;
+            if ((IO_Result == 0x200) && Convert_Buff[3][1][6]) {
+                Convert_Buff[3][1][6] = 0;
                 BGM_Stop();
                 return;
             }
         }
 
-        if (IO_Result == 0x200 || ((Menu_Cursor_Y[0] == 6) && (IO_Result == 0x100 || IO_Result == 0x4000))) {
+        if (IO_Result == 0x200 || ((Menu_Cursor_Y[0] == 5) && (IO_Result == 0x100 || IO_Result == 0x4000))) {
             SE_selected();
             Return_Option_Mode_Sub(task_ptr);
             setupAlwaysSeamlessFlag(0);
@@ -2438,29 +2427,19 @@ void Sound_Test(struct _TASK* task_ptr) {
     }
 }
 
-void Setup_Sound_Mode(u8 last_mode) {
-    if (last_mode == Convert_Buff[3][1][0]) {
-        return;
-    }
-
-    sys_w.sound_mode = Convert_Buff[3][1][0];
-    setupSoundMode();
-    SsBgmHalfVolume(0);
-}
-
 u16 Sound_Cursor_Sub(s16 PL_id) {
     u16 sw;
     u16 ret;
 
     sw = ~plsw_01[PL_id] & plsw_00[PL_id];
     sw = Check_Menu_Lever(PL_id, 0);
-    ret = MC_Move_Sub(sw, 0, 6, 0xFF);
+    ret = MC_Move_Sub(sw, 0, 5, 0xFF);
     ret |= SD_Move_Sub_LR(sw);
     ret &= 0x20F;
     return ret;
 }
 
-const u8 Sound_Data_Max[3][6] = { { 1, 0, 0, 1, 0, 66 }, { 1, 15, 15, 1, 0, 66 }, { 0, 15, 15, 0, 0, 0 } };
+const u8 Sound_Data_Max[3][5] = { { 0, 0, 1, 0, 66 }, { 15, 15, 1, 0, 66 }, { 15, 15, 0, 0, 0 } };
 
 u16 SD_Move_Sub_LR(u16 sw) {
     u16 rnum;
@@ -2469,7 +2448,7 @@ u16 SD_Move_Sub_LR(u16 sw) {
 
     rnum = 0;
 
-    if (Menu_Cursor_Y[0] == 4 || Menu_Cursor_Y[0] == 6) {
+    if (Menu_Cursor_Y[0] == 3 || Menu_Cursor_Y[0] == 5) {
         return 0;
     }
 
@@ -2486,7 +2465,7 @@ u16 SD_Move_Sub_LR(u16 sw) {
                 Convert_Buff[3][1][Menu_Cursor_Y[0]] = max;
             }
 
-            if ((Menu_Cursor_Y[0] != 5) || (bgmSkipCheck(Convert_Buff[3][1][5] + 1) == 0)) {
+            if ((Menu_Cursor_Y[0] != 4) || (bgmSkipCheck(Convert_Buff[3][1][4] + 1) == 0)) {
                 break;
             }
         }
@@ -2507,7 +2486,7 @@ u16 SD_Move_Sub_LR(u16 sw) {
                 Convert_Buff[3][1][Menu_Cursor_Y[0]] = Sound_Data_Max[2][Menu_Cursor_Y[0]];
             }
 
-            if ((Menu_Cursor_Y[0] != 5) || (bgmSkipCheck(Convert_Buff[3][1][5] + 1) == 0)) {
+            if ((Menu_Cursor_Y[0] != 4) || (bgmSkipCheck(Convert_Buff[3][1][4] + 1) == 0)) {
                 break;
             }
         }

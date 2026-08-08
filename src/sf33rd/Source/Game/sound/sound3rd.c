@@ -151,7 +151,6 @@ void Init_sound_system() {
     bgm_half_down = 0;
     current_bgm = 0;
     bgm_seamless_always = 0;
-    sys_w.sound_mode = 0;
     sys_w.bgm_type = BGM_ARRANGED;
     ADX_Init();
     system_init_level |= 2;
@@ -241,13 +240,6 @@ void setSeVolume() {
     if (system_init_level & 2) {
         vol = (127.0f / 15.0f) * se_level;
         cseSysSetMasterVolume(vol);
-    }
-}
-
-void setupSoundMode() {
-    if (system_init_level & 2) {
-        cseSysSetMono(sys_w.sound_mode);
-        ADX_SetMono(sys_w.sound_mode);
     }
 }
 
