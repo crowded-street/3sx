@@ -112,15 +112,13 @@ static void serialize(SaveFileType file_type, SDL_IOStream* io) {
     }
 }
 
-static void deserialize_settings(const void* buffer) {
+static void deserialize_settings(SDL_IOStream* io) {
     struct _SAVE_W* dst = &save_w[1];
-    SDL_IOStream* io = SDL_IOFromConstMem(buffer, SETTINGS_SIZE);
     Uint8 version;
 
     SDL_ReadU8(io, &version);
 
     if (version != SETTINGS_VERSION) {
-        SDL_CloseIO(io);
         return;
     }
 
@@ -165,17 +163,16 @@ static void deserialize_settings(const void* buffer) {
         SDL_ReadU8(io, &rank_data->all_clear);
     }
 
-    SDL_CloseIO(io);
-
     Copy_Save_w();
     Copy_Check_w();
     sys_w.bgm_type = save_w[1].BgmType;
 }
 
-static void deserialize(SaveFileType file_type, const void* buffer) {
+static void deserialize(SaveFileType file_type, SDL_IOStream* io) {
     switch (file_type) {
     case SAVE_FILE_SETTINGS:
-        return deserialize_settings(buffer);
+        deserialize_settings(io);
+        break;
 
     case SAVE_FILE_SYSTEM_DIRECTION:
     case SAVE_FILE_REPLAY:
@@ -296,7 +293,9 @@ s32 SaveMove() {
             }
 
             if (buffer_filled) {
-                deserialize(operation.file_type, buffer);
+                SDL_IOStream* io = SDL_IOFromConstMem(buffer, expected_size);
+                deserialize(operation.file_type, io);
+                SDL_CloseIO(io);
             }
 
             SDL_free(buffer);
