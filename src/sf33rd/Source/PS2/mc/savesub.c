@@ -82,7 +82,7 @@ static void serialize_settings(SDL_IOStream* io) {
     SDL_WriteU8(io, src->Partner_Type[1]);
     SDL_WriteS8(io, src->Adjust_X);
     SDL_WriteS8(io, src->Adjust_Y);
-    SDL_WriteU8(io, src->Screen_Mode);
+    SDL_WriteU8(io, src->Screen_Size);
     SDL_WriteU8(io, src->GuardCheck);
     SDL_WriteU8(io, src->AnalogStick);
     SDL_WriteU8(io, src->BgmType);
@@ -134,7 +134,7 @@ static bool deserialize_settings(SDL_IOStream* io) {
     SDL_ReadU8(io, &dst->Partner_Type[1]);
     SDL_ReadS8(io, &dst->Adjust_X);
     SDL_ReadS8(io, &dst->Adjust_Y);
-    SDL_ReadU8(io, &dst->Screen_Mode);
+    SDL_ReadU8(io, &dst->Screen_Size);
     SDL_ReadU8(io, &dst->GuardCheck);
     SDL_ReadU8(io, &dst->AnalogStick);
     SDL_ReadU8(io, &dst->BgmType);
