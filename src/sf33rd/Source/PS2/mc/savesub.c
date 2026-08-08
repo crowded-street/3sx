@@ -25,7 +25,7 @@
 typedef enum SaveState {
     SAVE_STATE_IDLE,
     SAVE_STATE_INIT,
-    SAVE_STATE_OPENING,
+    SAVE_STATE_WORKING,
     SAVE_STATE_ERROR,
 } SaveState;
 
@@ -34,7 +34,6 @@ typedef struct SaveOperation {
     SaveFileType file_type;
     SaveMode mode;
     SDL_Storage* storage;
-    const char* error;
 } SaveOperation;
 
 typedef enum ReadResult {
@@ -233,14 +232,13 @@ s32 SaveMove() {
 
         if (operation.storage == NULL) {
             operation.state = SAVE_STATE_ERROR;
-            operation.error = SDL_GetError();
             return -1;
         }
 
-        operation.state = SAVE_STATE_OPENING;
+        operation.state = SAVE_STATE_WORKING;
         /* fallthrough */
 
-    case SAVE_STATE_OPENING:
+    case SAVE_STATE_WORKING:
         if (!SDL_StorageReady(operation.storage)) {
             return 1;
         }
