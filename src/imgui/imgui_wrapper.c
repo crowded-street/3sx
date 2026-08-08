@@ -63,6 +63,9 @@ static void build_debug_config() {
         ImGui_ComboChar(
             "##stage_override", &debug_config.stage_override, character_names, SDL_arraysize(character_names)
         );
+
+        ImGui_AlignTextToFramePadding();
+        ImGui_Checkbox("Skip to ending", &debug_config.skip_to_ending);
     }
 }
 

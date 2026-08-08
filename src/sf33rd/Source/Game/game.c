@@ -1031,24 +1031,20 @@ void Game06() {
                     save_w[Present_Mode].Ranking[xx] = Ranking_Data[xx];
                 }
 
-                if (save_w[Present_Mode].Auto_Save) {
-                    G_No[2] = 5;
-                    G_No[3] = 0;
-                    G_Timer = 4;
-                    Pause_ID = Player_id;
-                    cpReadyTask(TASK_MENU, Menu_Task);
-                    System_all_clear_Level_B();
-                    Menu_Init(&task[TASK_MENU]);
-                    task[TASK_MENU].r_no[0] = 9;
-                    task[TASK_MENU].r_no[1] = 0;
-                    Forbid_Reset = 1;
-                    make_texcash_work(12);
-                    Unsubstantial_BG[0] = 1;
-                    Copy_Check_w();
-                    cpExitTask(TASK_SAVER);
-                } else {
-                    G_No[2] = 6;
-                }
+                G_No[2] = 5;
+                G_No[3] = 0;
+                G_Timer = 4;
+                Pause_ID = Player_id;
+                cpReadyTask(TASK_MENU, Menu_Task);
+                System_all_clear_Level_B();
+                Menu_Init(&task[TASK_MENU]);
+                task[TASK_MENU].r_no[0] = 9;
+                task[TASK_MENU].r_no[1] = 0;
+                Forbid_Reset = 1;
+                make_texcash_work(12);
+                Unsubstantial_BG[0] = 1;
+                Copy_Check_w();
+                cpExitTask(TASK_SAVER);
             }
 
             break;
