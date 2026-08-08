@@ -18,7 +18,6 @@ void Exit_sound_system();
 void Init_bgm_work();
 void sound_all_off();
 void setSeVolume();
-void setupSoundMode();
 void BGM_Server();
 void setupAlwaysSeamlessFlag(s16 flag);
 s32 adx_now_playend();

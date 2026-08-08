@@ -44,6 +44,5 @@ u32 cseGetIdStoredBd(u32 bank);
 
 s32 cseSeStopAll();
 s32 cseSysSetMasterVolume(s32 vol);
-s32 cseSysSetMono(u32 mono_sw);
 
 #endif

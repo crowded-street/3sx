@@ -99,7 +99,3 @@ s32 cseSeStopAll() {
 s32 cseSysSetMasterVolume(s32 vol) {
     return mlSysSetMasterVolume(vol);
 }
-
-s32 cseSysSetMono(u32 mono_sw) {
-    return mlSysSetMono(mono_sw);
-}

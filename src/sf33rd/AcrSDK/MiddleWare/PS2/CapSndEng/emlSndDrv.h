@@ -7,12 +7,6 @@
 typedef struct {
     u32 cmd; 
     u32 guid;
-    u8 mono; 
-} CSE_SYS_PARAM_MONO;
-
-typedef struct {
-    u32 cmd; 
-    u32 guid;
     u8 bank; 
     u8 vol;  
 } CSE_SYS_PARAM_BANKVOL;
@@ -40,7 +34,6 @@ typedef struct {
     CSE_REQP reqp;
 } CSE_SYS_PARAM_SECHANGE;
 
-s32 mlSysSetMono(u32 mono_sw);
 s32 mlSysSetMasterVolume(s32 vol);
 s32 mlSysSetBankVolume(s32 bank, s32 vol);
 s32 mlSeSetLfo(CSE_REQP* pReqp, u16 pmd_speed, u16 pmd_depth, u16 amd_speed, u16 amd_depth);

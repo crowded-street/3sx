@@ -24,7 +24,6 @@ void ADX_EntryAfs(int file_id);
 void ADX_StartAfs(int file_id);
 void ADX_ResetEntry();
 void ADX_SetOutVol(int volume);
-void ADX_SetMono(bool mono);
 ADXState ADX_GetState();
 
 #endif
