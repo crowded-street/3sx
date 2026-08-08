@@ -264,7 +264,6 @@ s32 SaveMove() {
 
         switch (operation.mode) {
         case SAVE_MODE_LOAD:
-        case SAVE_MODE_AUTO_LOAD:
             io = SDL_IOFromConstMem(buffer, info->size);
             bool buffer_filled = false;
             char path[PATH_LEN_MAX];
@@ -287,7 +286,6 @@ s32 SaveMove() {
             break;
 
         case SAVE_MODE_SAVE:
-        case SAVE_MODE_AUTO_SAVE:
             io = SDL_IOFromMem(buffer, info->size);
             info->serialize_handler(io);
             success = write_file(operation.storage, info->name, buffer, info->size);

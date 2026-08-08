@@ -3426,7 +3426,7 @@ void DAS_2nd(struct _TASK* task_ptr) {
     if ((task_ptr->timer -= 1) == 0) {
         task_ptr->r_no[1]++;
         FadeInit();
-        SaveInit(SAVE_FILE_SETTINGS, SAVE_MODE_AUTO_SAVE);
+        SaveInit(SAVE_FILE_SETTINGS, SAVE_MODE_SAVE);
     }
 }
 

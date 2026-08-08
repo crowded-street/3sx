@@ -12,8 +12,6 @@ typedef enum SaveFileType {
 typedef enum SaveMode {
     SAVE_MODE_LOAD,
     SAVE_MODE_SAVE,
-    SAVE_MODE_AUTO_LOAD,
-    SAVE_MODE_AUTO_SAVE,
 } SaveMode;
 
 void SaveInit(SaveFileType file_type, SaveMode save_mode);

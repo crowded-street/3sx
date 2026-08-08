@@ -141,7 +141,7 @@ void Init_Task_Aload(struct _TASK* task_ptr) {
     switch (task_ptr->r_no[1]) {
     case 0:
         task_ptr->r_no[1] = 1;
-        SaveInit(0, 2);
+        SaveInit(SAVE_FILE_SETTINGS, SAVE_MODE_LOAD);
         /* fallthrough */
 
     case 1:
