@@ -31,13 +31,13 @@ const Permission Permission_PL_Data = { { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                                         { { 0, 0 }, { 0, 0 } } };
 
 void Init_Task_1st(struct _TASK* task_ptr);
-void Init_Task_Wait(struct _TASK* task_ptr);
+void Init_Task_Aload(struct _TASK* task_ptr);
 void Init_Task_2nd(struct _TASK* task_ptr);
 void Init_Task_End(struct _TASK* task_ptr);
 void Setup_Difficult_V();
 
 void Init_Task(struct _TASK* task_ptr) {
-    void (*Main_Jmp_Tbl[])() = { Init_Task_1st, Init_Task_Wait, Init_Task_2nd, Init_Task_End };
+    void (*Main_Jmp_Tbl[])() = { Init_Task_1st, Init_Task_Aload, Init_Task_2nd, Init_Task_End };
 
     Main_Jmp_Tbl[task_ptr->r_no[0]](task_ptr);
 }
@@ -46,6 +46,7 @@ void Init_Task_1st(struct _TASK* task_ptr) {
     s16 ix;
 
     task_ptr->r_no[0] = 1;
+    task_ptr->r_no[1] = 0;
     init_texcash_1st();
     Init_texgrplds_work();
     Init_load_on_memory_data();
@@ -136,13 +137,22 @@ void Setup_Difficult_V() {
     CC_Value[1] = Difficult_V_Data[country][1];
 }
 
-/// Adds a 30 frame delay before proceeding.
-void Init_Task_Wait(struct _TASK* task_ptr) {
-    task_ptr->r_no[1] += 1;
+void Init_Task_Aload(struct _TASK* task_ptr) {
+    switch (task_ptr->r_no[1]) {
+    case 0:
+        task_ptr->r_no[1] = 1;
+        SaveInit(0, 2);
+        /* fallthrough */
 
-    if (task_ptr->r_no[1] >= 30) {
-        task_ptr->r_no[0] += 1;
-        task_ptr->r_no[1] = 0;
+    case 1:
+        if (SaveMove() <= 0) {
+            task_ptr->r_no[0] += 1;
+            task_ptr->r_no[1] = 0;
+            mpp_w.cutAnalogStickData = 0;
+            Forbid_Reset = 1;
+        }
+
+        break;
     }
 }
 
