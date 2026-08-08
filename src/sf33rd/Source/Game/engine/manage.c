@@ -1226,12 +1226,6 @@ s32 Check_Ending() {
             return 1;
         }
 
-        if (Check_Extra_Setting() == 0) {
-            if (My_char[WINNER] == CHAR_GILL) {
-                save_w[Present_Mode].Extra_Option = 1;
-            }
-        }
-
         return 1;
     }
 
