@@ -161,6 +161,14 @@ static bool deserialize_settings(SDL_IOStream* io) {
     return true;
 }
 
+static void serialize_stub(SDL_IOStream* io) {
+    fatal_error("Not implemented");
+}
+
+static bool deserialize_stub(SDL_IOStream* io) {
+    fatal_error("Not implemented");
+}
+
 static const SaveFileInfo file_info[] = {
     [SAVE_FILE_SETTINGS] = { .name = "settings",
                              .version = SETTINGS_VERSION,
@@ -170,13 +178,13 @@ static const SaveFileInfo file_info[] = {
     [SAVE_FILE_SYSTEM_DIRECTION] = { .name = "sysdir",
                                      .version = SYSDIR_VERSION,
                                      .size = SYSDIR_SIZE,
-                                     .serialize_handler = NULL,
-                                     .deserialize_handler = NULL },
+                                     .serialize_handler = serialize_stub,
+                                     .deserialize_handler = deserialize_stub },
     [SAVE_FILE_REPLAY] = { .name = "replay",
                            .version = REPLAY_VERSION,
                            .size = REPLAY_SIZE,
-                           .serialize_handler = NULL,
-                           .deserialize_handler = NULL },
+                           .serialize_handler = serialize_stub,
+                           .deserialize_handler = deserialize_stub },
 };
 
 static void make_path(char* text, size_t maxlen, const char* name, bool backup) {
@@ -256,16 +264,19 @@ s32 SaveMove() {
         case SAVE_MODE_LOAD:
             io = SDL_IOFromConstMem(buffer, info->size);
             bool buffer_filled = false;
-            success = true; // Always return success for now
+            const char* paths[] = { path, backup_path };
 
-            if (read_file_if_exists(operation.storage, path, buffer, info->size) == READ_SUCCESS) {
-                buffer_filled = true;
-            } else if (read_file_if_exists(operation.storage, backup_path, buffer, info->size) == READ_SUCCESS) {
-                buffer_filled = true;
-            }
+            for (int i = 0; i < SDL_arraysize(paths); i++) {
+                const char* _path = paths[i];
+                SDL_SeekIO(io, 0, SDL_IO_SEEK_SET);
 
-            if (buffer_filled) {
-                info->deserialize_handler(io);
+                if (read_file_if_exists(operation.storage, _path, buffer, info->size) == READ_SUCCESS) {
+                    success = info->deserialize_handler(io);
+                }
+
+                if (success) {
+                    break;
+                }
             }
 
             break;
