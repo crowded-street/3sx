@@ -44,11 +44,16 @@ typedef enum ReadResult {
     READ_ERROR,
 } ReadResult;
 
-static const Uint64 file_type_to_expected_size[] = {
-    [SAVE_FILE_SETTINGS] = SETTINGS_SIZE,
-    [SAVE_FILE_SYSTEM_DIRECTION] = SYSDIR_SIZE,
-    [SAVE_FILE_REPLAY] = REPLAY_SIZE,
-};
+typedef void (*SerializeHandler)(SDL_IOStream* io);
+typedef bool (*DeserializeHandler)(SDL_IOStream* io);
+
+typedef struct SaveFileInfo {
+    const char* name;
+    Uint8 version;
+    Uint64 size;
+    SerializeHandler serialize_handler;
+    DeserializeHandler deserialize_handler;
+} SaveFileInfo;
 
 static SaveOperation operation = { 0 };
 
@@ -100,26 +105,14 @@ static void serialize_settings(SDL_IOStream* io) {
     }
 }
 
-static void serialize(SaveFileType file_type, SDL_IOStream* io) {
-    switch (file_type) {
-    case SAVE_FILE_SETTINGS:
-        serialize_settings(io);
-        break;
-
-    case SAVE_FILE_SYSTEM_DIRECTION:
-    case SAVE_FILE_REPLAY:
-        fatal_error("Not implemented");
-    }
-}
-
-static void deserialize_settings(SDL_IOStream* io) {
+static bool deserialize_settings(SDL_IOStream* io) {
     struct _SAVE_W* dst = &save_w[1];
     Uint8 version;
 
     SDL_ReadU8(io, &version);
 
     if (version != SETTINGS_VERSION) {
-        return;
+        return false;
     }
 
     for (int i = 0; i < SDL_arraysize(dst->Pad_Infor); i++) {
@@ -166,32 +159,26 @@ static void deserialize_settings(SDL_IOStream* io) {
     Copy_Save_w();
     Copy_Check_w();
     sys_w.bgm_type = save_w[1].BgmType;
+    return true;
 }
 
-static void deserialize(SaveFileType file_type, SDL_IOStream* io) {
-    switch (file_type) {
-    case SAVE_FILE_SETTINGS:
-        deserialize_settings(io);
-        break;
-
-    case SAVE_FILE_SYSTEM_DIRECTION:
-    case SAVE_FILE_REPLAY:
-        fatal_error("Not implemented");
-    }
-}
-
-static const char* file_type_to_name(SaveFileType file_type) {
-    switch (file_type) {
-    case SAVE_FILE_SETTINGS:
-        return "settings";
-
-    case SAVE_FILE_SYSTEM_DIRECTION:
-        return "sysdir";
-
-    case SAVE_FILE_REPLAY:
-        return "replay";
-    }
-}
+static const SaveFileInfo file_info[] = {
+    [SAVE_FILE_SETTINGS] = { .name = "settings",
+                             .version = SETTINGS_VERSION,
+                             .size = SETTINGS_SIZE,
+                             .serialize_handler = serialize_settings,
+                             .deserialize_handler = deserialize_settings },
+    [SAVE_FILE_SYSTEM_DIRECTION] = { .name = "sysdir",
+                                     .version = SYSDIR_VERSION,
+                                     .size = SYSDIR_SIZE,
+                                     .serialize_handler = NULL,
+                                     .deserialize_handler = NULL },
+    [SAVE_FILE_REPLAY] = { .name = "replay",
+                           .version = REPLAY_VERSION,
+                           .size = REPLAY_SIZE,
+                           .serialize_handler = NULL,
+                           .deserialize_handler = NULL },
+};
 
 static void make_path(char* text, size_t maxlen, const char* name, bool backup) {
     SDL_snprintf(text, maxlen, backup ? "%s/%s.bak" : "%s/%s", ROOT_DIR, name);
@@ -270,41 +257,40 @@ s32 SaveMove() {
             return 1;
         }
 
-        const char* name = file_type_to_name(operation.file_type);
-        const Uint64 expected_size = file_type_to_expected_size[operation.file_type];
-        void* buffer = SDL_malloc(expected_size);
+        const SaveFileInfo* info = &file_info[operation.file_type];
+        void* buffer = SDL_malloc(info->size);
         SDL_IOStream* io = NULL;
         bool success = false;
 
         switch (operation.mode) {
         case SAVE_MODE_LOAD:
         case SAVE_MODE_AUTO_LOAD:
+            io = SDL_IOFromConstMem(buffer, info->size);
             bool buffer_filled = false;
             char path[PATH_LEN_MAX];
             char backup_path[PATH_LEN_MAX];
-            make_path(path, sizeof(path), name, false);
-            make_path(backup_path, sizeof(backup_path), name, true);
+            make_path(path, sizeof(path), info->name, false);
+            make_path(backup_path, sizeof(backup_path), info->name, true);
 
             success = true; // Always return success for now
 
-            if (read_file_if_exists(operation.storage, path, buffer, expected_size) == READ_SUCCESS) {
+            if (read_file_if_exists(operation.storage, path, buffer, info->size) == READ_SUCCESS) {
                 buffer_filled = true;
-            } else if (read_file_if_exists(operation.storage, backup_path, buffer, expected_size) == READ_SUCCESS) {
+            } else if (read_file_if_exists(operation.storage, backup_path, buffer, info->size) == READ_SUCCESS) {
                 buffer_filled = true;
             }
 
             if (buffer_filled) {
-                io = SDL_IOFromConstMem(buffer, expected_size);
-                deserialize(operation.file_type, io);
+                info->deserialize_handler(io);
             }
 
             break;
 
         case SAVE_MODE_SAVE:
         case SAVE_MODE_AUTO_SAVE:
-            io = SDL_IOFromMem(buffer, expected_size);
-            serialize(operation.file_type, io);
-            success = write_file(operation.storage, name, buffer, expected_size);
+            io = SDL_IOFromMem(buffer, info->size);
+            info->serialize_handler(io);
+            success = write_file(operation.storage, info->name, buffer, info->size);
             break;
         }
 
