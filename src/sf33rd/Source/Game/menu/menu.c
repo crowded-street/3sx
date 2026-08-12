@@ -99,12 +99,10 @@ void After_Title(struct _TASK* task_ptr);
 void In_Game(struct _TASK* task_ptr);
 void Wait_Load_Save(struct _TASK* task_ptr);
 void Wait_Replay_Check(struct _TASK* task_ptr);
-void Save_Settings(struct _TASK* task_ptr);
 void Suspend_Menu();
 void Wait_Replay_Load();
 void Training_Menu(struct _TASK* task_ptr);
 void After_Replay(struct _TASK* task_ptr);
-void Save_Settings_After_Game(struct _TASK* task_ptr);
 void Wait_Pause_in_Tr(struct _TASK* task_ptr);
 void Reset_Training(struct _TASK* task_ptr);
 void Reset_Replay(struct _TASK* task_ptr);
@@ -163,11 +161,6 @@ void Save_Load_Menu(struct _TASK* task_ptr);
 void Go_Back_MC(struct _TASK* task_ptr);
 u16 After_VS_Move_Sub(u16 sw, s16 cursor_id, s16 menu_max);
 s32 VS_Result_Move_Sub(struct _TASK* task_ptr, s16 PL_id);
-void Save_Settings_1st(struct _TASK* task_ptr);
-void Save_Settings_2nd(struct _TASK* task_ptr);
-void Save_Settings_3rd(struct _TASK* task_ptr);
-void Save_Settings_4th(struct _TASK* task_ptr);
-void Save_Settings_After_Game_4th(struct _TASK* task_ptr);
 void Training_Init(struct _TASK* task_ptr);
 void Menu_Select(struct _TASK* task_ptr);
 void Button_Config_in_Game(struct _TASK* task_ptr);
@@ -200,8 +193,8 @@ typedef struct {
 } LetterData;
 
 const MenuFunc Menu_Jmp_Tbl[14] = {
-    After_Title,      In_Game,          Wait_Load_Save, Wait_Replay_Check, Save_Settings,
-    Suspend_Menu,     Wait_Replay_Load, Training_Menu,  After_Replay,      Save_Settings_After_Game,
+    After_Title,      In_Game,          Wait_Load_Save, Wait_Replay_Check, After_Title,
+    Suspend_Menu,     Wait_Replay_Load, Training_Menu,  After_Replay,      After_Replay,
     Wait_Pause_in_Tr, Reset_Training,   Reset_Replay,   End_Replay_Menu,
 };
 
@@ -368,6 +361,17 @@ void Mode_Select(struct _TASK* task_ptr) {
         break;
 
     case 1:
+        if (task_ptr->free[3]) {
+            FadeOut(1, 0xFF, 8);
+
+            if (SaveMove() > 0) {
+                break;
+            }
+
+            task_ptr->free[3] = 0;
+            Forbid_Reset = 0;
+        }
+
         if (Menu_Sub_case1(task_ptr) != 0) {
             Order[0x4E] = 2;
             Order_Dir[0x4E] = 0;
@@ -745,11 +749,10 @@ void Option_Select(struct _TASK* task_ptr) {
             Order_Timer[0x4F] = 4;
 
             if (Check_Change_Contents()) {
-                task_ptr->r_no[0] = 4;
-                task_ptr->r_no[1] = 0;
+                SaveInit(SAVE_FILE_SETTINGS, SAVE_MODE_SAVE);
+                task_ptr->free[3] = 1;
                 Forbid_Reset = 1;
                 Copy_Check_w();
-                break;
             }
 
             break;
@@ -3278,64 +3281,6 @@ void Wait_Load_Save(struct _TASK* task_ptr) {
         }
 
         break;
-    }
-}
-
-void Save_Settings(struct _TASK* task_ptr) {
-    void (*Save_Settings_Jmp_Tbl[4])() = { Save_Settings_1st, Save_Settings_2nd, Save_Settings_3rd, Save_Settings_4th };
-    Save_Settings_Jmp_Tbl[task_ptr->r_no[1]](task_ptr);
-}
-
-void Save_Settings_1st(struct _TASK* task_ptr) {
-    FadeOut(1, 0xFF, 8);
-    task_ptr->r_no[1]++;
-    task_ptr->timer = 5;
-    Order[0x4E] = 2;
-    Order_Dir[0x4E] = 0;
-    Order_Timer[0x4E] = 1;
-    effect_66_init(0x8A, 8, 0, 0, -1, -1, -0x7FFD);
-    Order[0x8A] = 3;
-    Order_Timer[0x8A] = 1;
-}
-
-void Save_Settings_2nd(struct _TASK* task_ptr) {
-    FadeOut(1, 0xFF, 8);
-
-    if ((task_ptr->timer -= 1) == 0) {
-        task_ptr->r_no[1]++;
-        FadeInit();
-        SaveInit(SAVE_FILE_SETTINGS, SAVE_MODE_SAVE);
-    }
-}
-
-void Save_Settings_3rd(struct _TASK* task_ptr) {
-    if (FadeIn(1, 0x19, 8) != 0) {
-        task_ptr->r_no[1]++;
-    }
-}
-
-void Save_Settings_4th(struct _TASK* task_ptr) {
-    if (SaveMove() <= 0) {
-        task_ptr->r_no[0] = 0;
-        task_ptr->r_no[1] = 1;
-        task_ptr->r_no[2] = 0;
-        task_ptr->r_no[3] = 0;
-        Forbid_Reset = 0;
-    }
-}
-
-void Save_Settings_After_Game(struct _TASK* task_ptr) {
-    void (*Save_Settings_Jmp_Tbl[4])() = {
-        Save_Settings_1st, Save_Settings_2nd, Save_Settings_3rd, Save_Settings_After_Game_4th
-    };
-    Save_Settings_Jmp_Tbl[task_ptr->r_no[1]](task_ptr);
-}
-
-void Save_Settings_After_Game_4th(struct _TASK* task_ptr) {
-    if (SaveMove() <= 0) {
-        G_No[2] = 6;
-        cpExitTask(TASK_MENU);
-        task[TASK_ENTRY].condition = 1;
     }
 }
 
