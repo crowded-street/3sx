@@ -5,6 +5,7 @@
 #include "args.h"
 #include "common.h"
 #include "main.h"
+#include "platform/app/sdl/sdl_file_logger.h"
 #include "platform/video/sdl_generic/sdl_generic_renderer.h"
 #include "port/config/config.h"
 #include "port/config/keymap.h"
@@ -415,6 +416,7 @@ static void set_netplay_params() {
 
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
     (void)appstate;
+    SDLFileLogger_Configure();
     init_args(argc, argv);
 
 #if NETPLAY_ENABLED
