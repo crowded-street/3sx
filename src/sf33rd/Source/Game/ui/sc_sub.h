@@ -26,7 +26,6 @@ typedef enum ButtonIcon {
     BUTTON_ICON_EAST,
     BUTTON_ICON_RIGHT_TRIGGER,
     BUTTON_ICON_LEFT_TRIGGER,
-    BUTTON_ICON_SAVE_LOAD,
 } ButtonIcon;
 
 // MARK: - Unhandled
@@ -107,6 +106,5 @@ void Training_Damage_Set(s16 damage, s16 /* unused */, u8 kezuri);
 void Training_Data_Disp();
 void dispButtonImage(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, ButtonIcon icon, int player_id);
 void dispButtonImage2(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, ButtonIcon icon, int player_id);
-void dispSaveLoadTitle(void* ewk);
 
 #endif
