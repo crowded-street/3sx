@@ -117,7 +117,6 @@ void Game_Option(struct _TASK* task_ptr);
 void Button_Config(struct _TASK* task_ptr);
 void Screen_Adjust(struct _TASK* task_ptr);
 void Sound_Test(struct _TASK* task_ptr);
-void Memory_Card(struct _TASK* task_ptr);
 void Extra_Option(struct _TASK* task_ptr);
 void VS_Result(struct _TASK* task_ptr);
 void Save_Replay(struct _TASK* task_ptr);
@@ -156,9 +155,6 @@ void Screen_Exit_Check(struct _TASK* task_ptr, s16 PL_id);
 void Screen_Move_Sub_LR(u16 sw);
 u16 Sound_Cursor_Sub(s16 PL_id);
 u16 SD_Move_Sub_LR(u16 sw);
-void Memory_Card_Sub(s16 PL_id);
-void Save_Load_Menu(struct _TASK* task_ptr);
-void Go_Back_MC(struct _TASK* task_ptr);
 u16 After_VS_Move_Sub(u16 sw, s16 cursor_id, s16 menu_max);
 s32 VS_Result_Move_Sub(struct _TASK* task_ptr, s16 PL_id);
 void Training_Init(struct _TASK* task_ptr);
@@ -236,7 +232,7 @@ void After_Title(struct _TASK* task_ptr) {
                                  Load_Replay,
 #endif
                                  Option_Select,    toSelectGame,   Game_Option,    Button_Config, Screen_Adjust,
-                                 Sound_Test,       Memory_Card,    Extra_Option,   Option_Select, VS_Result,
+                                 Sound_Test,       Option_Select,  Extra_Option,   Option_Select, VS_Result,
                                  Save_Replay,      Direction_Menu, Save_Direction, Load_Direction };
 
     AT_Jmp_Tbl[task_ptr->r_no[1]](task_ptr);
@@ -676,7 +672,8 @@ void Training_Mode(struct _TASK* task_ptr) {
 
 void Option_Select(struct _TASK* task_ptr) {
     s16 ix;
-    s16 char_index;
+    static const s16 option_items[6] = { 7, 8, 9, 10, 12, 13 };
+    static const s16 option_routines[6] = { 9, 10, 11, 12, 14, 15 };
 
     switch (task_ptr->r_no[2]) {
     case 0:
@@ -690,19 +687,18 @@ void Option_Select(struct _TASK* task_ptr) {
         Order_Timer[0x4F] = 1;
         effect_04_init(1, 1, 0, 0x48);
 
-        ix = 0;
-        char_index = 7;
+        if (Menu_Cursor_Y[0] >= 6) {
+            Menu_Cursor_Y[0] = 5;
+        }
 
-        while (ix < 7) {
-            effect_61_init(0, ix + 0x50, 0, 1, char_index, ix, 0x7047);
+        for (ix = 0; ix < 6; ix++) {
+            effect_61_init(0, ix + 0x50, 0, 1, option_items[ix], ix, 0x7047);
             Order[ix + 0x50] = 1;
             Order_Dir[ix + 0x50] = 4;
             Order_Timer[ix + 0x50] = ix + 0x14;
-            ix++;
-            char_index++;
         }
 
-        Menu_Cursor_Move = 7;
+        Menu_Cursor_Move = 6;
         break;
 
     case 1:
@@ -721,10 +717,8 @@ void Option_Select(struct _TASK* task_ptr) {
         break;
 
     case 3:
-        ix = 1;
-
-        if (MC_Move_Sub(Check_Menu_Lever(0, 0), 0, ix + 5, 0xFF) == 0) {
-            MC_Move_Sub(Check_Menu_Lever(1, 0), 0, ix + 5, 0xFF);
+        if (MC_Move_Sub(Check_Menu_Lever(0, 0), 0, 5, 0xFF) == 0) {
+            MC_Move_Sub(Check_Menu_Lever(1, 0), 0, 5, 0xFF);
         }
 
         switch (IO_Result) {
@@ -738,7 +732,7 @@ void Option_Select(struct _TASK* task_ptr) {
 
         SE_selected();
 
-        if (Menu_Cursor_Y[0] == ix + 5 || IO_Result == 0x200) {
+        if (Menu_Cursor_Y[0] == 5 || IO_Result == 0x200) {
             Menu_Suicide[0] = 0;
             Menu_Suicide[1] = 1;
             task_ptr->r_no[1] = 1;
@@ -769,7 +763,7 @@ void Option_Select(struct _TASK* task_ptr) {
         break;
 
     default:
-        Exit_Sub(task_ptr, 1, Menu_Cursor_Y[0] + 9);
+        Exit_Sub(task_ptr, 1, option_routines[Menu_Cursor_Y[0]]);
         break;
     }
 }
@@ -2501,161 +2495,6 @@ u16 SD_Move_Sub_LR(u16 sw) {
     return rnum;
 }
 
-void Memory_Card(struct _TASK* task_ptr) {
-    s16 ix;
-
-    switch (task_ptr->r_no[2]) {
-    case 0:
-        FadeOut(1, 0xFF, 8);
-        task_ptr->r_no[2] += 1;
-        task_ptr->timer = 5;
-        Menu_Common_Init();
-        Menu_Cursor_Y[0] = 0;
-        Menu_Suicide[1] = 1;
-        Menu_Suicide[2] = 0;
-        Order[0x4F] = 4;
-        Order_Timer[0x4F] = 1;
-        Order[0x4E] = 2;
-        Order_Dir[0x4E] = 4;
-        Order_Timer[0x4E] = 1;
-        effect_57_init(0x69, MENU_HEADER_SAVE_LOAD, 0, 0x3F, 2);
-        Order[0x69] = 1;
-        Order_Dir[0x69] = 8;
-        Order_Timer[0x69] = 1;
-
-        for (ix = 0; ix < 3; ix++) {
-            effect_61_init(0, ix + 0x50, 1, 2, ix + 0x15, ix, 0x7047);
-            Order[ix + 0x50] = 1;
-            Order_Dir[ix + 0x50] = 4;
-            Order_Timer[ix + 0x50] = ix + 0x14;
-        }
-
-        Menu_Cursor_Move = 3;
-        effect_66_init(0x8A, 8, 2, 1, -1, -1, -0x7FF5);
-        Order[0x8A] = 3;
-        Order_Timer[0x8A] = 1;
-        effect_04_init(2, 2, 2, 0x48);
-        Setup_File_Property(0, 0xFF);
-        break;
-
-    case 1:
-        Menu_Sub_case1(task_ptr);
-        break;
-
-    case 2:
-        if (FadeIn(1, 0x19, 8) != 0) {
-            task_ptr->r_no[2] += 1;
-            Suicide[3] = 0;
-        }
-
-        break;
-
-    case 3:
-        Memory_Card_Sub(0);
-        Button_Exit_Check(task_ptr, 0);
-
-        if (IO_Result == 0) {
-            Memory_Card_Sub(1);
-            Button_Exit_Check(task_ptr, 0);
-        }
-
-        break;
-
-    case 4:
-    case 5:
-        Save_Load_Menu(task_ptr);
-        break;
-    }
-}
-
-void Save_Load_Menu(struct _TASK* task_ptr) {
-    s16 ix;
-
-    Menu_Cursor_X[1] = Menu_Cursor_X[0];
-
-    switch (task_ptr->r_no[3]) {
-    case 0:
-        task_ptr->r_no[3] += 1;
-        task_ptr->timer = 5;
-
-        if (task_ptr->r_no[2] == 5) {
-            SaveInit(SAVE_FILE_SETTINGS, SAVE_MODE_LOAD);
-        } else {
-            SaveInit(SAVE_FILE_SETTINGS, SAVE_MODE_SAVE);
-        }
-
-        Menu_Common_Init();
-        Menu_Suicide[3] = 0;
-        Target_BG_X[1] = bg_w.bgw[1].wxy[0].disp.pos + 0x180;
-        Offset_BG_X[1] = 0;
-        Target_BG_X[2] = bg_w.bgw[2].wxy[0].disp.pos + 0x200;
-        Offset_BG_X[2] = 0;
-        bg_w.bgw[2].speed_x = 0x333333;
-        Next_Step = 0;
-        bg_mvxy.a[0].sp = 0x266666;
-        bg_mvxy.d[0].sp = 0;
-        effect_58_init(0xE, 1, 1);
-        effect_58_init(0, 1, 2);
-        Menu_Cursor_X[0] = Setup_Final_Cursor_Pos(0, 8);
-        Message_Data->kind_req = 5;
-        break;
-
-    case 1:
-        if (Next_Step) {
-            task_ptr->r_no[3] += 1;
-            task_ptr->free[3] = 0;
-        }
-
-        break;
-
-    case 2:
-        task_ptr->r_no[3] += 1;
-        Menu_Cursor_X[1] = Menu_Cursor_X[0] + 8;
-        /* fallthrough */
-
-    case 3:
-        if (SaveMove() <= 0) {
-            Go_Back_MC(task_ptr);
-        }
-
-        break;
-
-    case 4:
-        if (Next_Step) {
-            task_ptr->r_no[2] = 3;
-            task_ptr->r_no[3] = 0;
-
-            for (ix = 0; ix < 4; ix++) {
-                Message_Data[ix].order = 3;
-            }
-
-            Order[0x78] = 3;
-            Order_Timer[0x78] = 1;
-        }
-
-        break;
-
-    default:
-        Exit_Sub(task_ptr, 1, Menu_Cursor_Y[0] + 7);
-        break;
-    }
-}
-
-void Go_Back_MC(struct _TASK* task_ptr) {
-    task_ptr->r_no[3] = 4;
-    Menu_Cursor_Y[0] = task_ptr->r_no[2] - 4;
-    Target_BG_X[1] = bg_w.bgw[1].wxy[0].disp.pos - 0x180;
-    Offset_BG_X[1] = 0;
-    Target_BG_X[2] = bg_w.bgw[2].wxy[0].disp.pos - 0x200;
-    Offset_BG_X[2] = 0;
-    bg_w.bgw[2].speed_x = -0x333333;
-    Next_Step = 0;
-    bg_mvxy.a[0].sp = 0xFFD9999A;
-    bg_mvxy.d[0].sp = 0;
-    effect_58_init(0xE, 1, 1);
-    effect_58_init(0, 1, 2);
-}
-
 s32 Setup_Final_Cursor_Pos(s8 cursor_x, s16 dir) {
     s16 ix;
     s16 check_x[2];
@@ -2714,14 +2553,6 @@ s32 Setup_Final_Cursor_Pos(s8 cursor_x, s16 dir) {
     }
 
     return -1;
-}
-
-void Memory_Card_Sub(s16 PL_id) {
-    u16 sw;
-
-    sw = ~plsw_01[PL_id] & plsw_00[PL_id];
-    sw = Check_Menu_Lever(PL_id, 0);
-    MC_Move_Sub(sw, 0, 2, 0xFF);
 }
 
 u16 MC_Move_Sub(u16 sw, s16 cursor_id, s16 menu_max, s16 cansel_menu) {
