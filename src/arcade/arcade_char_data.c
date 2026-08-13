@@ -261,6 +261,89 @@ static const void* read_u16_array(SDL_IOStream* rom, Location location) {
     return result;
 }
 
+static void coalesce_adjacent_sections(CharDataImage* image, const LocationData* locations) {
+    const Location* section_locations = (const Location*)locations;
+    CharDataSection sections[CHAR_DATA_SECTION_COUNT];
+
+    for (int i = 0; i < CHAR_DATA_SECTION_COUNT; i++) {
+        sections[i] = i;
+    }
+
+    for (int i = 1; i < CHAR_DATA_SECTION_COUNT; i++) {
+        const CharDataSection section = sections[i];
+        int j = i;
+
+        while (j > 0 && section_locations[sections[j - 1]].offset > section_locations[section].offset) {
+            sections[j] = sections[j - 1];
+            j--;
+        }
+
+        sections[j] = section;
+    }
+
+    for (int run_start = 0; run_start < CHAR_DATA_SECTION_COUNT;) {
+        int run_end = run_start;
+
+        while (run_end + 1 < CHAR_DATA_SECTION_COUNT) {
+            const Location current = section_locations[sections[run_end]];
+            const Location next = section_locations[sections[run_end + 1]];
+
+            if (current.offset + current.size != next.offset) {
+                break;
+            }
+
+            run_end++;
+        }
+
+        if (run_end > run_start) {
+            const Uint32 base_offset = section_locations[sections[run_start]].offset;
+            const Location last = section_locations[sections[run_end]];
+            Uint8* allocation = SDL_malloc(last.offset + last.size - base_offset);
+
+            for (int i = run_start; i <= run_end; i++) {
+                const CharDataSection section = sections[i];
+                CharDataSpan* span = &image->spans[section];
+                Uint8* destination = allocation + section_locations[section].offset - base_offset;
+                SDL_memcpy(destination, span->data, span->size);
+                SDL_free(span->data);
+                span->data = destination;
+            }
+        }
+
+        run_start = run_end + 1;
+    }
+}
+
+static void update_table_pointers(CharDataImage* image) {
+    CharInitData* dst = &image->tables;
+
+    dst->nmca = image->spans[CHAR_DATA_NMCA].data;
+    dst->dmca = image->spans[CHAR_DATA_DMCA].data;
+    dst->btca = image->spans[CHAR_DATA_BTCA].data;
+    dst->caca = image->spans[CHAR_DATA_CACA].data;
+    dst->cuca = image->spans[CHAR_DATA_CUCA].data;
+    dst->atca = image->spans[CHAR_DATA_ATCA].data;
+    dst->saca = image->spans[CHAR_DATA_SACA].data;
+    dst->exca = image->spans[CHAR_DATA_EXCA].data;
+    dst->cbca = image->spans[CHAR_DATA_CBCA].data;
+    dst->yuca = image->spans[CHAR_DATA_YUCA].data;
+    dst->stxy = image->spans[CHAR_DATA_STXY].data;
+    dst->mvxy = image->spans[CHAR_DATA_MVXY].data;
+    dst->sernd = image->spans[CHAR_DATA_SERND].data;
+    dst->ovct = image->spans[CHAR_DATA_OVCT].data;
+    dst->ovix = image->spans[CHAR_DATA_OVIX].data;
+    dst->rict = image->spans[CHAR_DATA_RICT].data;
+    dst->hiit = image->spans[CHAR_DATA_HIIT].data;
+    dst->boda = image->spans[CHAR_DATA_BODA].data;
+    dst->hana = image->spans[CHAR_DATA_HANA].data;
+    dst->cata = image->spans[CHAR_DATA_CATA].data;
+    dst->caua = image->spans[CHAR_DATA_CAUA].data;
+    dst->atta = image->spans[CHAR_DATA_ATTA].data;
+    dst->hosa = image->spans[CHAR_DATA_HOSA].data;
+    dst->atit = image->spans[CHAR_DATA_ATIT].data;
+    dst->prot = image->spans[CHAR_DATA_PROT].data;
+}
+
 static const void* read_sernd(SDL_IOStream* rom, Location location) {
     SDL_SeekIO(rom, location.offset, SDL_IO_SEEK_SET);
 
@@ -426,6 +509,11 @@ void ArcadeCharData_Init() {
                 .element_size = section_element_sizes[i],
             };
         }
+
+        // CPS3 data sometimes indexes across named section boundaries. Preserve
+        // every directly adjacent ROM run so those accesses remain well-defined.
+        coalesce_adjacent_sections(image, locations);
+        update_table_pointers(image);
 
 #if DEBUG && DUMP_CHAR_DATA
         dump_data(dst, character);
