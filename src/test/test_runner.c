@@ -6,7 +6,6 @@
 #include "main.h"
 #include "platform/input/statcheck/statcheck_input.h"
 #include "sf33rd/AcrSDK/common/pad.h"
-#include "sf33rd/Source/Game/debug/debug_config.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "test/ram_archive.h"
@@ -247,7 +246,7 @@ void TestRunner_Prologue() {
 
             if (wait_timer <= 0) {
                 // Stage selection happens before per-frame synchronization begins.
-                debug_config.stage_override = game.stage + 1;
+                VS_Stage = game.stage;
                 tap_button(SWK_SOUTH, 0);
                 tap_button(SWK_SOUTH, 1);
                 phase = PHASE_GAME_TRANSITION;
