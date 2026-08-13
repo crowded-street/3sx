@@ -5,21 +5,17 @@
 
 #include <SDL3/SDL.h>
 
-#include <stddef.h>
-#include <stdint.h>
-
 #define SS_CHANNEL_COUNT 16
 #define SS_CHANNEL_STATE_FREE 0xC0
-#define SS_POINTER_TO_ADDRESS(ptr) ((Uint32)(uintptr_t)(ptr))
 #define SS_READ_BE16(data) ((Uint16)(((Uint16)(data)[0] << 8) | (data)[1]))
 #define SS_READ_BE32(data)                                                                                           \
     (((Uint32)(data)[0] << 24) | ((Uint32)(data)[1] << 16) | ((Uint32)(data)[2] << 8) | (data)[3])
 
 typedef struct {
-    Uint32 stream;
-    Uint32 track;
-    Uint32 unk_08;
-    Uint32 unk_0C;
+    const Uint8* stream;
+    const Uint8* track;
+    const Uint8* unk_08;
+    const Uint8* unk_0C;
     Uint32 unk_10;
     Uint32 unk_14;
     Uint32 unk_18;
@@ -75,12 +71,6 @@ typedef struct {
     Sint16 step;
     Sint16 control;
 } SsPanDescriptor;
-
-_Static_assert(sizeof(SsChannelState) == 0x74, "SsChannelState must match the CPS-3 layout");
-_Static_assert(offsetof(SsChannelState, delay) == 0x28, "SsChannelState.delay offset");
-_Static_assert(offsetof(SsChannelState, state) == 0x5E, "SsChannelState.state offset");
-_Static_assert(offsetof(SsChannelState, priority) == 0x6F, "SsChannelState.priority offset");
-_Static_assert(sizeof(SsPanDescriptor) == 8, "SsPanDescriptor must match the CPS-3 layout");
 
 Uint32 ss_unk_02007EE8;                               /* 0x02007EE8 */
 Uint8* ss_unk_02078CFC;                               /* 0x02078CFC */
@@ -143,14 +133,14 @@ void SsRequestCore(Uint16 req_number, Sint16 pan_control) {
             }
 
             track = request + track_offset;
-            channel->track = SS_POINTER_TO_ADDRESS(track);
-            channel->stream = SS_POINTER_TO_ADDRESS(track + SsReadDelay(track, &delay));
+            channel->track = track;
+            channel->stream = track + SsReadDelay(track, &delay);
             channel->delay = delay << 8;
             channel->state = 0x20;
 
             unk_08_ptr = ss_unk_02078D00 + SS_READ_BE16(ss_unk_02078D00);
-            channel->unk_08 = SS_POINTER_TO_ADDRESS(unk_08_ptr);
-            channel->unk_0C = SS_READ_BE16(unk_08_ptr + 4) * 0x10 + SS_POINTER_TO_ADDRESS(ss_unk_02078CFC);
+            channel->unk_08 = unk_08_ptr;
+            channel->unk_0C = ss_unk_02078CFC + (SS_READ_BE16(unk_08_ptr + 4) * 0x10);
             channel->unk_24 = 0;
             channel->unk_10 = 0;
             channel->unk_14 = 0;
@@ -215,13 +205,13 @@ void SsRequestCore(Uint16 req_number, Sint16 pan_control) {
             }
 
             track = request + track_offset;
-            channel->stream = SS_POINTER_TO_ADDRESS(track + SsReadDelay(track, &delay));
+            channel->stream = track + SsReadDelay(track, &delay);
             channel->delay = delay << 8;
             channel->state = 0;
 
             unk_08_ptr = ss_unk_02078D00 + SS_READ_BE16(ss_unk_02078D00);
-            channel->unk_08 = SS_POINTER_TO_ADDRESS(unk_08_ptr);
-            channel->unk_0C = SS_READ_BE16(unk_08_ptr + 4) * 0x10 + SS_POINTER_TO_ADDRESS(ss_unk_02078CFC);
+            channel->unk_08 = unk_08_ptr;
+            channel->unk_0C = ss_unk_02078CFC + (SS_READ_BE16(unk_08_ptr + 4) * 0x10);
             channel->unk_10 = 0;
             channel->unk_14 = 0;
             channel->unk_18 = 0;
@@ -283,10 +273,10 @@ void SsRequestCore(Uint16 req_number, Sint16 pan_control) {
             return;
         }
 
-        channel->stream = SS_POINTER_TO_ADDRESS(track_offsets);
+        channel->stream = track_offsets;
         unk_08_ptr = ss_unk_02078D00 + SS_READ_BE16(ss_unk_02078D00);
-        channel->unk_08 = SS_POINTER_TO_ADDRESS(unk_08_ptr);
-        channel->unk_0C = SS_READ_BE16(unk_08_ptr + 4) * 0x10 + SS_POINTER_TO_ADDRESS(ss_unk_02078CFC);
+        channel->unk_08 = unk_08_ptr;
+        channel->unk_0C = ss_unk_02078CFC + (SS_READ_BE16(unk_08_ptr + 4) * 0x10);
         channel->unk_42 = 0;
         channel->unk_48 = 0;
         channel->unk_4A = 0;
