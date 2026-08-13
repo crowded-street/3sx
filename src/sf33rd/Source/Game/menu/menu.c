@@ -121,8 +121,6 @@ void Extra_Option(struct _TASK* task_ptr);
 void VS_Result(struct _TASK* task_ptr);
 void Save_Replay(struct _TASK* task_ptr);
 void Direction_Menu(struct _TASK* task_ptr);
-void Save_Direction(struct _TASK* task_ptr);
-void Load_Direction(struct _TASK* task_ptr);
 void Setup_VS_Mode(struct _TASK* task_ptr);
 void Setup_Next_Page(struct _TASK* task_ptr, u8 /* unused */);
 void Load_Replay_Sub(struct _TASK* task_ptr);
@@ -224,7 +222,7 @@ void Setup_Pad_or_Stick() {
 }
 
 void After_Title(struct _TASK* task_ptr) {
-    void (*AT_Jmp_Tbl[21])() = { Menu_Init,        Mode_Select,    Option_Select,  Option_Select, Training_Mode,
+    void (*AT_Jmp_Tbl[19])() = { Menu_Init,        Mode_Select,    Option_Select,  Option_Select, Training_Mode,
                                  System_Direction,
 #if NETPLAY_ENABLED
                                  Netplay_Menu,
@@ -233,7 +231,7 @@ void After_Title(struct _TASK* task_ptr) {
 #endif
                                  Option_Select,    toSelectGame,   Game_Option,    Button_Config, Screen_Adjust,
                                  Sound_Test,       Option_Select,  Extra_Option,   Option_Select, VS_Result,
-                                 Save_Replay,      Direction_Menu, Save_Direction, Load_Direction };
+                                 Save_Replay,      Direction_Menu };
 
     AT_Jmp_Tbl[task_ptr->r_no[1]](task_ptr);
 }
@@ -770,7 +768,7 @@ void Option_Select(struct _TASK* task_ptr) {
 
 void System_Direction(struct _TASK* task_ptr) {
     s16 ix;
-    s16 char_index;
+    static const s16 menu_items[2] = { 0x2B, 0x2E };
 
     switch (task_ptr->r_no[2]) {
     case 0:
@@ -789,19 +787,14 @@ void System_Direction(struct _TASK* task_ptr) {
         Order_Dir[0x61] = 4;
         Order_Timer[0x61] = 0x14;
 
-        ix = 0;
-        char_index = 0x2B;
-
-        while (ix < 4) {
-            effect_61_init(0, ix + 0x50, 0, 1, char_index, ix + 1, 0x7047);
+        for (ix = 0; ix < 2; ix++) {
+            effect_61_init(0, ix + 0x50, 0, 1, menu_items[ix], ix + 1, 0x7047);
             Order[ix + 0x50] = 1;
             Order_Dir[ix + 0x50] = 4;
             Order_Timer[ix + 0x50] = ix + 0x15;
-            ix++;
-            char_index++;
         }
 
-        Menu_Cursor_Move = 4;
+        Menu_Cursor_Move = 2;
         Page_Max = Check_SysDir_Page();
         break;
 
@@ -837,13 +830,16 @@ void System_Direction(struct _TASK* task_ptr) {
             Order[0x6D] = 4;
             Order_Timer[0x6D] = 4;
 
-            if (Menu_Cursor_Y[0] == 4 || IO_Result == 0x200) {
+            if (Menu_Cursor_Y[0] == 2 || IO_Result == 0x200) {
                 Menu_Suicide[0] = 0;
                 Menu_Suicide[1] = 1;
                 task_ptr->r_no[1] = 1;
                 task_ptr->r_no[2] = 0;
                 task_ptr->r_no[3] = 0;
                 task_ptr->free[0] = 0;
+                task_ptr->free[3] = 1;
+                Forbid_Reset = 1;
+                SaveInit(SAVE_FILE_SYSTEM_DIRECTION, SAVE_MODE_SAVE);
                 break;
             }
 
@@ -864,7 +860,7 @@ void System_Direction(struct _TASK* task_ptr) {
 void System_Dir_Move_Sub(s16 PL_id) {
     u16 sw = ~plsw_01[PL_id] & plsw_00[PL_id]; // potential macro
     sw = Check_Menu_Lever(PL_id, 0);
-    MC_Move_Sub(sw, 0, 4, 0xFF);
+    MC_Move_Sub(sw, 0, 2, 0xFF);
     System_Dir_Move_Sub_LR(sw, 0);
     Direction_Working[1] = Convert_Buff[3][0][0];
     Direction_Working[4] = Convert_Buff[3][0][0];
@@ -1296,91 +1292,6 @@ void Setup_Next_Page(struct _TASK* task_ptr, u8 /* unused */) {
     effect_40_init(mode_type, 1, 0x49, 0, 2, 1);
     effect_40_init(mode_type, 2, 0x4A, 0, 2, 0);
     effect_40_init(mode_type, 3, 0x4B, 0, 2, 2);
-}
-
-void Save_Direction(struct _TASK* task_ptr) {
-    Menu_Cursor_X[1] = Menu_Cursor_X[0];
-    Clear_Flash_Sub();
-
-    switch (task_ptr->r_no[2]) {
-    case 0:
-        FadeOut(1, 0xFF, 8);
-        task_ptr->r_no[2] += 1;
-        task_ptr->timer = 5;
-        Menu_Suicide[1] = 1;
-        Menu_Suicide[2] = 0;
-        Menu_Cursor_X[0] = 0;
-        Setup_BG(1, 0x200, 0);
-        Setup_Replay_Sub(0x70, MENU_HEADER_SYSTEM_DIRECTION, 2);
-        Setup_File_Property(2, 0);
-        Clear_Flash_Init(4);
-        Message_Data->kind_req = 5;
-        break;
-
-    case 1:
-        if (Menu_Sub_case1(task_ptr) != 0) {
-            SaveInit(SAVE_FILE_SYSTEM_DIRECTION, SAVE_MODE_SAVE);
-        }
-
-        break;
-
-    case 2:
-        Setup_Save_Replay_2nd(task_ptr, 2);
-        break;
-
-    case 3:
-        if (SaveMove() <= 0) {
-            IO_Result = 0x200;
-            Load_Replay_MC_Sub(task_ptr, 0);
-        }
-
-        break;
-    }
-}
-
-void Load_Direction(struct _TASK* task_ptr) {
-    Menu_Cursor_X[1] = Menu_Cursor_X[0];
-    Clear_Flash_Sub();
-
-    switch (task_ptr->r_no[2]) {
-    case 0:
-        FadeOut(1, 0xFF, 8);
-        task_ptr->r_no[2] += 1;
-        task_ptr->timer = 5;
-        Menu_Suicide[1] = 1;
-        Menu_Suicide[2] = 0;
-        Menu_Cursor_X[0] = 0;
-        Setup_BG(1, 0x200, 0);
-        Setup_Replay_Sub(0x70, MENU_HEADER_SYSTEM_DIRECTION, 2);
-        Setup_File_Property(2, 0);
-        Clear_Flash_Init(4);
-        Message_Data->kind_req = 5;
-        break;
-
-    case 1:
-        if (Menu_Sub_case1(task_ptr) != 0) {
-            SaveInit(SAVE_FILE_SYSTEM_DIRECTION, SAVE_MODE_LOAD);
-        }
-
-        break;
-
-    case 2:
-        if (FadeIn(1, 0x19, 8) != 0) {
-            task_ptr->r_no[2] += 1;
-            task_ptr->free[3] = 0;
-            Menu_Cursor_X[0] = Setup_Final_Cursor_Pos(0, 8);
-        }
-
-        break;
-
-    case 3:
-        if (SaveMove() <= 0) {
-            IO_Result = 0x200;
-            Load_Replay_MC_Sub(task_ptr, 0);
-        }
-
-        break;
-    }
 }
 
 void Load_Replay(struct _TASK* task_ptr) {

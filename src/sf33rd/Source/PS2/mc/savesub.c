@@ -12,7 +12,7 @@
 #define SETTINGS_SIZE SETTINGS_SIZE_V1
 
 #define SYSDIR_VERSION 1
-#define SYSDIR_SIZE_V1 0
+#define SYSDIR_SIZE_V1 71
 #define SYSDIR_SIZE SYSDIR_SIZE_V1
 
 #define REPLAY_VERSION 1
@@ -161,6 +161,38 @@ static bool deserialize_settings(SDL_IOStream* io) {
     return true;
 }
 
+static void serialize_sysdir(SDL_IOStream* io) {
+    const SystemDir* src = &system_dir[1];
+
+    SDL_WriteU8(io, SYSDIR_VERSION);
+
+    for (int page = 0; page < SDL_arraysize(src->contents); page++) {
+        for (int item = 0; item < SDL_arraysize(src->contents[page]); item++) {
+            SDL_WriteS8(io, src->contents[page][item]);
+        }
+    }
+}
+
+static bool deserialize_sysdir(SDL_IOStream* io) {
+    SystemDir loaded = { 0 };
+    Uint8 version;
+
+    SDL_ReadU8(io, &version);
+
+    if (version != SYSDIR_VERSION) {
+        return false;
+    }
+
+    for (int page = 0; page < SDL_arraysize(loaded.contents); page++) {
+        for (int item = 0; item < SDL_arraysize(loaded.contents[page]); item++) {
+            SDL_ReadS8(io, &loaded.contents[page][item]);
+        }
+    }
+
+    system_dir[1] = loaded;
+    return true;
+}
+
 static void serialize_stub(SDL_IOStream* io) {
     fatal_error("Not implemented");
 }
@@ -178,8 +210,8 @@ static const SaveFileInfo file_info[] = {
     [SAVE_FILE_SYSTEM_DIRECTION] = { .name = "sysdir",
                                      .version = SYSDIR_VERSION,
                                      .size = SYSDIR_SIZE,
-                                     .serialize_handler = serialize_stub,
-                                     .deserialize_handler = deserialize_stub },
+                                     .serialize_handler = serialize_sysdir,
+                                     .deserialize_handler = deserialize_sysdir },
     [SAVE_FILE_REPLAY] = { .name = "replay",
                            .version = REPLAY_VERSION,
                            .size = REPLAY_SIZE,
