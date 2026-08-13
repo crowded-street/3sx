@@ -844,6 +844,9 @@ void System_Direction(struct _TASK* task_ptr) {
                 task_ptr->r_no[2] = 0;
                 task_ptr->r_no[3] = 0;
                 task_ptr->free[0] = 0;
+                task_ptr->free[3] = 1;
+                Forbid_Reset = 1;
+                SaveInit(SAVE_FILE_SYSTEM_DIRECTION, SAVE_MODE_SAVE);
                 break;
             }
 

@@ -146,6 +146,14 @@ void Init_Task_Aload(struct _TASK* task_ptr) {
 
     case 1:
         if (SaveMove() <= 0) {
+            task_ptr->r_no[1] = 2;
+            SaveInit(SAVE_FILE_SYSTEM_DIRECTION, SAVE_MODE_LOAD);
+        }
+
+        break;
+
+    case 2:
+        if (SaveMove() <= 0) {
             task_ptr->r_no[0] += 1;
             task_ptr->r_no[1] = 0;
             mpp_w.cutAnalogStickData = 0;
