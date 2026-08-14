@@ -83,8 +83,6 @@ void Se_Shock(WORK_Other* ewk, u16 Code) {
     s16 zz;
     s16 uid;
 
-    s16 assign1;
-
     Code = Check_Bonus_SE(Code);
 
     if (ewk->wu.work_id == 1) {
@@ -96,12 +94,13 @@ void Se_Shock(WORK_Other* ewk, u16 Code) {
     }
 
     if (em->wu.work_id == 1 && em->wu.vital_new < 0) {
-        for (xx = 0, assign1 = zz = 0x27; xx < 7; xx++) {
+        for (xx = 0, zz = 39; xx < 7; xx++) {
             if (Code == SE_Shock_Data[xx]) {
                 zz = 0;
                 break;
             }
         }
+
         Code += zz;
     }
 
