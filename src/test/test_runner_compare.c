@@ -1,10 +1,13 @@
 #if STATCHECK
 
 #include "test/test_runner_compare.h"
+#include "arcade/arcade_cmd_data.h"
 #include "arcade/arcade_constants.h"
 #include "args.h"
 #include "constants.h"
 #include "sf33rd/Source/Game/engine/cmb_win.h"
+#include "sf33rd/Source/Game/engine/cmd_data.h"
+#include "sf33rd/Source/Game/engine/cmd_main.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/ui/count.h"
@@ -478,11 +481,10 @@ static void sync_wcp(WORK_CP* dst, const WORK_CP* src) {
     }
 }
 
-static void sync_waza_work(WAZA_WORK* dst, const WAZA_WORK* src, Character character) {
-    if (dst->w_type == 15 && character == CHAR_URIEN) {
-        dst->w_int = src->w_int;
-        dst->uni0.tame.flag = src->uni0.tame.flag;
-    }
+static void sync_waza_work(WAZA_WORK* dst, const WAZA_WORK* src) {
+    s16* local_w_ptr = dst->w_ptr;
+    *dst = *src;
+    dst->w_ptr = local_w_ptr;
 }
 
 void sync_values(SDL_IOStream* io) {
@@ -492,21 +494,27 @@ void sync_values(SDL_IOStream* io) {
     // WORK_CP wcp_cps3[2];
     // read_wcp(io, wcp_cps3);
 
-    // WAZA_WORK waza_work_cps3[2][56];
-    // read_waza_work(io, waza_work_cps3);
+    WAZA_WORK waza_work_cps3[2][56];
+    read_waza_work(io, waza_work_cps3);
 
     // T_PL_LVR t_pl_lvr_cps3[2];
     // read_t_pl_lvr(io, t_pl_lvr_cps3);
 
     for (int i = 0; i < 2; i++) {
-        const Character character = plw[i].player_number;
+        const Character character = CHAR_ARCADE_TO_3SX(read_u8(io, MY_CHAR_OFFSET + i));
 
         // sync_lvr(&t_pl_lvr[i], &t_pl_lvr_cps3[i]);
         // sync_wcp(&wcp[i], &wcp_cps3[i]);
 
-        // for (int j = 0; j < 56; j++) {
-        //     sync_waza_work(&waza_work[i][j], &waza_work_cps3[i][j], character);
-        // }
+        // CPS3's partial cmd_init clear preserves these entries across the transition. Rebuild their local
+        // command pointers, then synchronize the serialized parser state captured before the first round.
+
+        intptr_t* commands = (intptr_t*)ArcadeCommandData_Get(character);
+
+        for (int j = 48; j < pl_cmd_num[character][6]; j++) {
+            waza_compel_init(i, j, commands);
+            sync_waza_work(&waza_work[i][j], &waza_work_cps3[i][j]);
+        }
     }
 }
 
