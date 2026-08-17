@@ -146,6 +146,7 @@ def main(argv: list[str]) -> int:
         return 1
 
     successes = 0
+    skipped = 0
     timed_out = 0
     report = None
     report_path = None
@@ -180,6 +181,11 @@ def main(argv: list[str]) -> int:
                 console.print(f"[{index}/{len(archives)}] {label}: [green]✔[/green]")
                 continue
 
+            if result.returncode == 2:
+                skipped += 1
+                console.print(f"[{index}/{len(archives)}] {label}: [yellow]– skipped (CPU match)[/yellow]")
+                continue
+
             reason = return_code_description(result.returncode)
             if report is None:
                 report = tempfile.NamedTemporaryFile(
@@ -192,11 +198,12 @@ def main(argv: list[str]) -> int:
         if report is not None:
             report.close()
 
-    percentage = successes * 100 / len(archives)
-    print(f"{successes}/{len(archives)} successful ({percentage:.1f}%)")
+    checked = len(archives) - skipped
+    percentage = successes * 100 / checked if checked else 100
+    print(f"{successes}/{checked} successful ({percentage:.1f}%; {skipped} CPU matches skipped)")
     if report_path is not None:
         print(f"Failure report: {report_path}")
-    return 0 if successes == len(archives) else 1
+    return 0 if successes == checked else 1
 
 
 if __name__ == "__main__":

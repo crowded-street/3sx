@@ -51,6 +51,12 @@ bool ReplayGame_Init(ReplayGame* game, const char* ram_archive_path) {
             SDL_SeekIO(io, PLAYER_COLOR_OFFSET, SDL_IO_SEEK_SET);
             SDL_ReadIO(io, game->colors, 2);
 
+            for (int player = 0; player < 2; player++) {
+                if (read_u8(io, OPERATOR_STATUS_OFFSET + player) == 0) {
+                    game->has_cpu_player = true;
+                }
+            }
+
             adjust_character_numbers(game);
             game->start_index = frame_num + 1;
         }

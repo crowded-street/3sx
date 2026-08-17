@@ -163,6 +163,11 @@ bool TestRunner_Init(const char* ram_archive_path) {
         return false;
     }
 
+    if (game.has_cpu_player) {
+        SDL_Log("TestRunner_Init: Skipping CPU match");
+        exit(2);
+    }
+
     comparison_index = game.start_index;
     return true;
 }

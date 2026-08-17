@@ -14,6 +14,7 @@ typedef struct ReplayGame {
     Uint8 colors[2];
     Uint8 new_challenger;
     Uint8 stage;
+    bool has_cpu_player;
     RamArchive archive;
 } ReplayGame;
 
