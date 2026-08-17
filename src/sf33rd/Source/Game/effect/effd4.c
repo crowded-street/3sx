@@ -78,14 +78,14 @@ void effect_D4_move(WORK_Other* ewk) {
             break;
         }
 
-        if (EXE_flag != 0 || Game_pause != 0) {
-            break;
-        }
-
         ewk->wu.dir_timer -= 1;
 
         if (ewk->wu.dir_timer <= 0) {
             ewk->wu.routine_no[0]++;
+            break;
+        }
+
+        if (EXE_flag != 0 || Game_pause != 0) {
             break;
         }
 
@@ -197,9 +197,9 @@ s32 distance2speed(WORK_Other* ewk, WORK* wk, s32 dir) {
 
     if (dir == 0) {
         return swallow_areas_x[y][x];
+    } else {
+        return swallow_areas_y[y][x];
     }
-
-    return swallow_areas_y[y][x];
 }
 
 s32 effect_D4_init(WORK* wk, u8 data) {
