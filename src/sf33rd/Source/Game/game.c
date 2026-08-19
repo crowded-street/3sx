@@ -1313,7 +1313,7 @@ void Game09() {
         Switch_Screen(1);
 
         if (--G_Timer == 0) {
-            if (Check_LDREQ_Queue_BG((u16)bg_w.stage) == 0) {
+            if (!Check_LDREQ_Queue_BG(bg_w.stage)) {
                 G_Timer = 1;
             } else {
                 G_No[2] += 1;
@@ -1801,7 +1801,7 @@ s16 Ck_Coin() {
     default:
     case 1:
         ToneDown(0xFF, 0);
-        PL_id = Check_LDREQ_Break();
+        PL_id = Check_LDREQ_Break() ? 1 : 0;
         return PL_id ^ 1;
     }
 }

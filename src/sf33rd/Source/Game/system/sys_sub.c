@@ -884,12 +884,8 @@ void Basic_Sub_Ex() {
     move_effect_work(5);
 }
 
-s32 Check_PL_Load() {
-    if (!Check_LDREQ_Queue_Player(0) || !Check_LDREQ_Queue_Player(1)) {
-        return 0;
-    }
-
-    return 1;
+bool Check_PL_Load() {
+    return Check_LDREQ_Queue_Player(0) && Check_LDREQ_Queue_Player(1);
 }
 
 void BG_Draw_System() {
@@ -1016,7 +1012,7 @@ void Soft_Reset_Sub() {
     pulpul_stop();
     init_pulpul_work();
     pp_operator_check_flag(1);
-    Init_Load_Request_Queue_1st();
+    Init_Load_Request_Queue();
 
 #if NETPLAY_ENABLED
     Netplay_CancelMatchmaking();

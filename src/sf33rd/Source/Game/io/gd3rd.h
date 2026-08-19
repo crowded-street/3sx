@@ -1,7 +1,10 @@
 #ifndef GD3RD_H
 #define GD3RD_H
 
+#include "constants.h"
 #include "types.h"
+
+#include <stdbool.h>
 
 typedef struct {
     s8 ok;
@@ -12,11 +15,10 @@ typedef struct {
 } TEX_GRP_LD;
 
 typedef struct LoadRequest {
-    u8 be;
+    u8 be; /// Flag that's set if the load request is active
     u8 type;
     s16 id;
     u8 rno;
-    u8 retry;
     u8 ix;
     u8 frre;
     s16 key;
@@ -34,7 +36,9 @@ typedef struct LoadRequest {
     } info;
 } LoadRequest;
 
-extern s16 plt_req[2];
+/// Per-player character data requests
+extern Character plt_req[2];
+
 extern const u8 lpr_wrdata[3];
 extern const u8 lpt_seldat[4];
 
@@ -42,7 +46,7 @@ s32 fsOpen(LoadRequest* req);
 void fsClose(LoadRequest* /* unused */);
 u32 fsGetFileSize(u16 fnum);
 u32 fsCalSectorSize(u32 size);
-s32 fsCheckCommandExecuting();
+bool fsCheckCommandExecuting();
 s32 fsRequestFileRead(LoadRequest* /* unused */, void* buff);
 s32 fsCheckFileReaded(LoadRequest* /* unused */);
 s32 fsFileReadSync(LoadRequest* req, void* buff);
@@ -50,17 +54,37 @@ void waitVsyncDummy();
 s16 load_it_use_any_key(u16 fnum, u8 kokey, u8 group);
 s32 load_it_use_any_key2(u16 fnum, void** adrs, s16* key, u8 kokey, u8 group);
 s32 load_it_use_this_key(u16 fnum, s16 key);
-void Init_Load_Request_Queue_1st();
+
+void Init_Load_Request_Queue();
 void Request_LDREQ_Break();
-u8 Check_LDREQ_Break();
-void Push_LDREQ_Queue_Player(s16 id, s16 ix);
+bool Check_LDREQ_Break();
+
+/// Push load requests for character data
+/// @param id Player ID
+/// @param character Character to load data for
+void Push_LDREQ_Queue_Player(u8 id, Character character);
+
+/// Check if all load requests for player have been processed
+/// @param id Player ID
+bool Check_LDREQ_Queue_Player(u8 id);
+
+/// Process load request queue
 void Check_LDREQ_Queue();
-s32 Check_LDREQ_Clear();
-s32 Check_LDREQ_Queue_Player(s16 id);
+
+/// Check if load request queue is empty
+bool Check_LDREQ_Clear();
+
+/// Push a single load request
+/// @param ix Index of load request info
+/// @param id Request id
 void Push_LDREQ_Queue_Direct(s16 ix, s16 id);
-void Push_LDREQ_Queue_Player(s16 id, s16 ix);
+
+bool Check_LDREQ_Queue_Direct(s16 ix);
+
 void Push_LDREQ_Queue_BG(s16 ix);
-s32 Check_LDREQ_Queue_BG(s16 ix);
-s32 Check_LDREQ_Queue_Direct(s16 ix);
+
+/// Check if all load requests for background have been processed
+/// @param ix Background index
+bool Check_LDREQ_Queue_BG(s16 ix);
 
 #endif

@@ -17,6 +17,8 @@
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "structs.h"
 
+#include <SDL3/SDL.h>
+
 typedef struct {
     u8 type;
     u8 ix;
@@ -30,22 +32,20 @@ const u8 lpr_wrdata[3] = { 0x03, 0xC0, 0x3C };
 const u8 lpc_seldat[2] = { 10, 11 };
 const u8 lpt_seldat[4] = { 3, 4, 5, 0 };
 
-s16 plt_req[2];
-u8 ldreq_break;
-LoadRequest q_ldreq[16];
-u8 ldreq_result[294];
+Character plt_req[2];
 
+/// Load request queue
+static LoadRequest q_ldreq[16] = { 0 };
+
+static bool ldreq_break = false;
+static u8 ldreq_result[294] = { 0 };
 static AFSHandle afs_handle = AFS_NONE;
 
 // forward decls
-s32 Push_LDREQ_Queue(LoadRequest* ldreq);
 void Push_LDREQ_Queue_Metamor();
 void q_ldreq_error(LoadRequest* curr);
-void Push_LDREQ_Queue_Union(s16 ix);
-s32 Check_LDREQ_Queue_Union(s16 ix);
 
 const LDREQ_Process_Func ldreq_process[6];
-s8* ldreq_process_name[];
 const LDREQ_TBL ldreq_tbl[294];
 const s16 ldreq_ix[43][2];
 
@@ -81,17 +81,15 @@ u32 fsCalSectorSize(u32 size) {
     return (size + 2048 - 1) / 2048;
 }
 
-s32 fsCansel(LoadRequest* /* unused */) {
+static void fsCansel() {
     if ((afs_handle != AFS_NONE) && (AFS_GetState(afs_handle) == AFS_READ_STATE_READING)) {
         AFS_Stop(afs_handle);
     }
-
-    return 1;
 }
 
-s32 fsCheckCommandExecuting() {
+bool fsCheckCommandExecuting() {
     if (afs_handle == AFS_NONE) {
-        return 0;
+        return false;
     }
 
     const AFSReadState state = AFS_GetState(afs_handle);
@@ -99,11 +97,11 @@ s32 fsCheckCommandExecuting() {
     switch (state) {
     case AFS_READ_STATE_READING:
     case AFS_READ_STATE_ERROR:
-        return 1;
+        return true;
 
     case AFS_READ_STATE_IDLE:
     case AFS_READ_STATE_FINISHED:
-        return 0;
+        return false;
 
     default:
         fatal_error("Unhandled AFS state: %d", state);
@@ -209,40 +207,85 @@ s32 load_it_use_this_key(u16 fnum, s16 key) {
     }
 }
 
-void Init_Load_Request_Queue_1st() {
-    s16 i;
-
-    for (i = 0; i < (s16)(sizeof(q_ldreq) / sizeof(LoadRequest)); i++) {
-        q_ldreq[i].be = 0;
-        q_ldreq[i].type = 0;
-    }
-
-    ldreq_break = 0;
+void Init_Load_Request_Queue() {
+    SDL_zeroa(q_ldreq);
+    ldreq_break = false;
 }
 
 void Request_LDREQ_Break() {
-    ldreq_break = 1;
+    ldreq_break = true;
 }
 
-u8 Check_LDREQ_Break() {
+bool Check_LDREQ_Break() {
     if (ldreq_break) {
-        return 1;
+        return true;
     }
 
     return fsCheckCommandExecuting();
 }
 
-void Push_LDREQ_Queue_Player(s16 id, s16 ix) {
-    LoadRequest ldreq;
-    s16 i;
-    s16 kara;
-    s16 made;
+static void Push_LDREQ_Queue(const LoadRequest* ldreq) {
+    int i;
 
-    kara = ldreq_ix[ix][0];
-    made = kara + ldreq_ix[ix][1];
-    plt_req[id] = ix;
+    for (i = 0; i < SDL_arraysize(q_ldreq); i++) {
+        if (q_ldreq[i].be == 0) {
+            break;
+        }
+    }
 
-    for (i = kara; i < made; i++) {
+    if (i == SDL_arraysize(q_ldreq)) {
+        fatal_error("Load request buffer is full");
+    }
+
+    q_ldreq[i] = *ldreq;
+    q_ldreq[i].be = 2;
+    q_ldreq[i].rno = 0;
+
+    u8 masknum;
+
+    switch (ldreq->id) {
+    case 0:
+        masknum = 3;
+        break;
+
+    case 1:
+        masknum = 0xC0;
+        break;
+
+    default:
+        masknum = 0x3C;
+        break;
+    }
+
+    *q_ldreq[i].result &= ~masknum;
+}
+
+static void Push_LDREQ_Queue_Union(s16 ix) {
+    const int start = ldreq_ix[ix][0];
+    const int end = start + ldreq_ix[ix][1];
+
+    for (int i = start; i < end; i++) {
+        LoadRequest ldreq = { 0 };
+        ldreq.type = ldreq_tbl[i].type;
+        ldreq.id = 2;
+        ldreq.ix = ldreq_tbl[i].ix;
+        ldreq.frre = ldreq_tbl[i].frre;
+        ldreq.kokey = ldreq_tbl[i].kokey;
+        ldreq.key = 0;
+        ldreq.group = 0;
+        ldreq.result = &ldreq_result[i];
+        Push_LDREQ_Queue(&ldreq);
+    }
+}
+
+void Push_LDREQ_Queue_Player(u8 id, Character character) {
+    const int start = ldreq_ix[character][0];
+    const int end = start + ldreq_ix[character][1];
+
+    plt_req[id] = character;
+
+    for (int i = start; i < end; i++) {
+        LoadRequest ldreq = { 0 };
         ldreq.type = ldreq_tbl[i].type;
         ldreq.id = id;
         ldreq.ix = ldreq_tbl[i].ix;
@@ -266,46 +309,24 @@ void Push_LDREQ_Queue_BG(s16 ix) {
     Push_LDREQ_Queue_Metamor();
 }
 
-void Push_LDREQ_Queue_Union(s16 ix) {
-    LoadRequest ldreq;
-    s16 i;
-    s16 kara;
-    s16 made;
-
-    kara = ldreq_ix[ix][0];
-    made = kara + ldreq_ix[ix][1];
-
-    for (i = kara; i < made; i++) {
-        ldreq.type = ldreq_tbl[i].type;
-        ldreq.id = 2;
-        ldreq.ix = ldreq_tbl[i].ix;
-        ldreq.frre = ldreq_tbl[i].frre;
-        ldreq.kokey = ldreq_tbl[i].kokey;
-        ldreq.key = 0;
-        ldreq.group = 0;
-        ldreq.result = &ldreq_result[i];
-        Push_LDREQ_Queue(&ldreq);
-    }
-}
-
 void Push_LDREQ_Queue_Metamor() {
-    switch ((My_char[0] == 0x12) + (My_char[1] == 0x12) * 2) {
+    switch ((My_char[0] == CHAR_TWELVE) + (My_char[1] == CHAR_TWELVE) * 2) {
     case 1:
-        Push_LDREQ_Queue_Direct(My_char[1] + 0xD4, 0);
+        Push_LDREQ_Queue_Direct(My_char[1] + 212, 0);
         break;
 
     case 2:
-        Push_LDREQ_Queue_Direct(My_char[0] + 0xD4, 1);
+        Push_LDREQ_Queue_Direct(My_char[0] + 212, 1);
         break;
 
     case 3:
-        Push_LDREQ_Queue_Direct(0xE6, 2);
+        Push_LDREQ_Queue_Direct(230, 2);
         break;
     }
 }
 
 void Push_LDREQ_Queue_Direct(s16 ix, s16 id) {
-    LoadRequest ldreq;
+    LoadRequest ldreq = { 0 };
     ldreq.type = ldreq_tbl[ix].type;
     ldreq.id = id;
     ldreq.ix = ldreq_tbl[ix].ix;
@@ -317,138 +338,71 @@ void Push_LDREQ_Queue_Direct(s16 ix, s16 id) {
     Push_LDREQ_Queue(&ldreq);
 }
 
-s32 Push_LDREQ_Queue(LoadRequest* ldreq) {
-    s16 i;
-    u8 masknum;
-
-    for (i = 0; i < 16; i++) {
-        if (q_ldreq[i].be == 0) {
-            break;
-        }
-    }
-
-    if (i != 0x10) {
-        q_ldreq[i] = ldreq[0];
-        q_ldreq[i].be = 2;
-        q_ldreq[i].rno = 0;
-        q_ldreq[i].retry = 0x40;
-
-        switch (ldreq->id) {
-        case 0:
-            masknum = 3;
-            break;
-
-        case 1:
-            masknum = 0xC0;
-            break;
-
-        default:
-            masknum = 0x3C;
-            break;
-        }
-
-        *q_ldreq[i].result &= ~masknum;
-        return 1;
-    }
-
-    flLogOut("ファイル読み込み要求バッファがオーバーしました。\n");
-    return 0;
-}
-
 void Check_LDREQ_Queue() {
-    s16 i;
-
     if (!ldreq_break) {
-        if (q_ldreq->be != 0) {
-            ldreq_process[q_ldreq->type](q_ldreq);
+        if (q_ldreq[0].be != 0) {
+            ldreq_process[q_ldreq[0].type](&q_ldreq[0]);
 
-            if (q_ldreq->be == 0) {
-                for (i = 0; i < 15; i++) {
+            if (q_ldreq[0].be == 0) {
+                int i;
+
+                for (i = 0; i < SDL_arraysize(q_ldreq) - 1; i++) {
                     q_ldreq[i] = q_ldreq[i + 1];
                 }
 
                 q_ldreq[i].be = 0;
                 q_ldreq[i].type = 0;
             }
-
-            return;
         }
     } else {
-        if (q_ldreq->be == 1) {
-            fsCansel(q_ldreq);
+        if (q_ldreq[0].be == 1) {
+            fsCansel();
         }
 
-        Init_Load_Request_Queue_1st();
+        Init_Load_Request_Queue();
     }
 }
 
-s32 Check_LDREQ_Clear() {
-    return q_ldreq->be == 0 && q_ldreq[1].be == 0;
+bool Check_LDREQ_Clear() {
+    return q_ldreq[0].be == 0 && q_ldreq[1].be == 0;
 }
 
-s32 Check_LDREQ_Queue_Player(s16 id) {
-    s16 i;
-    s16 kara;
-    s16 made;
+static bool Check_LDREQ_Queue_Union(s16 ix, u8 id) {
+    const int start = ldreq_ix[ix][0];
+    const int end = start + ldreq_ix[ix][1];
 
-    kara = ldreq_ix[plt_req[id]][0];
-    made = kara + ldreq_ix[plt_req[id]][1];
-
-    for (i = kara; i < made; i++) {
+    for (int i = start; i < end; i++) {
         if (!(ldreq_result[i] & lpr_wrdata[id])) {
-            break;
+            return false;
         }
     }
 
-    if (i != made) {
-        return 0;
-    }
-
-    return 1;
+    return true;
 }
 
-s32 Check_LDREQ_Queue_BG(s16 ix) {
-    return Check_LDREQ_Queue_Union(ix + 20);
+bool Check_LDREQ_Queue_Player(u8 id) {
+    return Check_LDREQ_Queue_Union(plt_req[id], id);
 }
 
-s32 Check_LDREQ_Queue_Union(s16 ix) {
-    s16 i;
-    s16 kara;
-    s16 made;
-
-    kara = ldreq_ix[ix][0];
-    made = kara + ldreq_ix[ix][1];
-
-    for (i = kara; i < made; i++) {
-        if (!(ldreq_result[i] & lpr_wrdata[2])) {
-            break;
-        }
-    }
-
-    if (i != made) {
-        return 0;
-    }
-
-    return 1;
+bool Check_LDREQ_Queue_BG(s16 ix) {
+    return Check_LDREQ_Queue_Union(ix + 20, 2);
 }
 
-s32 Check_LDREQ_Queue_Direct(s16 ix) {
+bool Check_LDREQ_Queue_Direct(s16 ix) {
     if (!(ldreq_result[ix] & lpr_wrdata[2])) {
-        return 0;
+        return false;
     }
 
-    return 1;
+    return true;
 }
 
 void q_ldreq_error(LoadRequest* curr) {
     curr->be = 0;
-    flLogOut("Q_LDREQ_ERROR : ロード処理の指定に誤りがあります。\n");
+    fatal_error("Q_LDREQ_ERROR: bad load request");
 }
 
 const LDREQ_Process_Func ldreq_process[6] = { q_ldreq_error,      q_ldreq_texture_group, q_ldreq_color_data,
                                               q_ldreq_color_data, q_ldreq_color_data,    q_ldreq_color_data };
-
-s8* ldreq_process_name[] = { "EMP", "TEX", "COL", "SCR", "SND", "KNJ" };
 
 const LDREQ_TBL ldreq_tbl[294] = {
     {

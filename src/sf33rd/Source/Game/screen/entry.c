@@ -249,7 +249,7 @@ void Entry_03_2nd() {
     switch (E_No[2]) {
     case 0:
         if (--E_Timer == 0) {
-            if (Check_LDREQ_Break() == 0) {
+            if (!Check_LDREQ_Break()) {
                 E_No[2] += 1;
                 Switch_Screen_Init(1);
                 return;
@@ -313,7 +313,7 @@ void Entry_04_2nd() {
     switch (E_No[2]) {
     case 0:
         if (--E_Timer == 0) {
-            if (Check_LDREQ_Break() == 0) {
+            if (!Check_LDREQ_Break()) {
                 E_No[2] += 1;
                 Switch_Screen_Init(1);
                 return;

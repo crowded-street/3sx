@@ -65,7 +65,7 @@ void Reset_Wait(struct _TASK* task_ptr) {
     case 0:
         sound_all_off();
 
-        if (Check_LDREQ_Break() == 0) {
+        if (!Check_LDREQ_Break()) {
             task_ptr->r_no[1] += 1;
         }
 

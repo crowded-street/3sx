@@ -154,7 +154,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
 
     switch (curr->rno) {
     case 0:
-        if (fsCheckCommandExecuting() != 0) {
+        if (fsCheckCommandExecuting()) {
             break;
         }
 
@@ -278,7 +278,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
                 // Because 25 is the number of members in CharInitData struct, `i` goes
                 // to 25 too.
 
-                const s16 character_id = plt_req[curr->id];
+                const Character character_id = plt_req[curr->id];
                 CharInitData* dst = &char_init_data[plid_data[character_id]];
 
                 if (ArcadeBalance_IsEnabled()) {

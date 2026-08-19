@@ -71,7 +71,7 @@ void q_ldreq_color_data(LoadRequest* curr) {
 
     switch (curr->rno) {
     case 0:
-        if (fsCheckCommandExecuting() != 0) {
+        if (fsCheckCommandExecuting()) {
             break;
         }
         if (cfn->type == 10) {
