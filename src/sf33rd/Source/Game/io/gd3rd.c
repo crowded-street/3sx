@@ -5,6 +5,8 @@
 
 #include "sf33rd/Source/Game/io/gd3rd.h"
 #include "common.h"
+#include "constants.h"
+#include "port/io/afs.h"
 #include "port/utils.h"
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/cse.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
@@ -15,8 +17,6 @@
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "structs.h"
 
-#include "port/io/afs.h"
-
 typedef struct {
     u8 type;
     u8 ix;
@@ -24,7 +24,7 @@ typedef struct {
     u8 kokey;
 } LDREQ_TBL;
 
-typedef void (*LDREQ_Process_Func)(REQ*);
+typedef void (*LDREQ_Process_Func)(LoadRequest*);
 
 const u8 lpr_wrdata[3] = { 0x03, 0xC0, 0x3C };
 const u8 lpc_seldat[2] = { 10, 11 };
@@ -32,15 +32,15 @@ const u8 lpt_seldat[4] = { 3, 4, 5, 0 };
 
 s16 plt_req[2];
 u8 ldreq_break;
-REQ q_ldreq[16];
+LoadRequest q_ldreq[16];
 u8 ldreq_result[294];
 
 static AFSHandle afs_handle = AFS_NONE;
 
 // forward decls
-s32 Push_LDREQ_Queue(REQ* ldreq);
+s32 Push_LDREQ_Queue(LoadRequest* ldreq);
 void Push_LDREQ_Queue_Metamor();
-void q_ldreq_error(REQ* curr);
+void q_ldreq_error(LoadRequest* curr);
 void Push_LDREQ_Queue_Union(s16 ix);
 s32 Check_LDREQ_Queue_Union(s16 ix);
 
@@ -49,7 +49,7 @@ s8* ldreq_process_name[];
 const LDREQ_TBL ldreq_tbl[294];
 const s16 ldreq_ix[43][2];
 
-s32 fsOpen(REQ* req) {
+s32 fsOpen(LoadRequest* req) {
     if (req->fnum >= AFS_GetFileCount()) {
         return 0;
     }
@@ -64,7 +64,7 @@ s32 fsOpen(REQ* req) {
     return 1;
 }
 
-void fsClose(REQ* /* unused */) {
+void fsClose(LoadRequest* /* unused */) {
     AFS_Close(afs_handle);
     afs_handle = AFS_NONE;
 }
@@ -81,7 +81,7 @@ u32 fsCalSectorSize(u32 size) {
     return (size + 2048 - 1) / 2048;
 }
 
-s32 fsCansel(REQ* /* unused */) {
+s32 fsCansel(LoadRequest* /* unused */) {
     if ((afs_handle != AFS_NONE) && (AFS_GetState(afs_handle) == AFS_READ_STATE_READING)) {
         AFS_Stop(afs_handle);
     }
@@ -110,12 +110,12 @@ s32 fsCheckCommandExecuting() {
     }
 }
 
-s32 fsRequestFileRead(REQ* /* unused */, void* buff) {
+s32 fsRequestFileRead(LoadRequest* /* unused */, void* buff) {
     AFS_Read(afs_handle, buff);
     return 1;
 }
 
-s32 fsCheckFileReaded(REQ* /* unused */) {
+s32 fsCheckFileReaded(LoadRequest* /* unused */) {
     const AFSReadState state = AFS_GetState(afs_handle);
 
     switch (state) {
@@ -134,7 +134,7 @@ s32 fsCheckFileReaded(REQ* /* unused */) {
     }
 }
 
-s32 fsFileReadSync(REQ* req, void* buff) {
+s32 fsFileReadSync(LoadRequest* req, void* buff) {
     AFS_ReadSync(afs_handle, buff);
     const s32 rnum = fsCheckFileReaded(req);
     return (rnum == 1) ? 1 : 0;
@@ -183,7 +183,7 @@ s16 load_it_use_any_key(u16 fnum, u8 kokey, u8 group) {
 }
 
 s32 load_it_use_this_key(u16 fnum, s16 key) {
-    REQ req;
+    LoadRequest req;
     u32 err;
 
     req.fnum = fnum;
@@ -212,7 +212,7 @@ s32 load_it_use_this_key(u16 fnum, s16 key) {
 void Init_Load_Request_Queue_1st() {
     s16 i;
 
-    for (i = 0; i < (s16)(sizeof(q_ldreq) / sizeof(REQ)); i++) {
+    for (i = 0; i < (s16)(sizeof(q_ldreq) / sizeof(LoadRequest)); i++) {
         q_ldreq[i].be = 0;
         q_ldreq[i].type = 0;
     }
@@ -233,7 +233,7 @@ u8 Check_LDREQ_Break() {
 }
 
 void Push_LDREQ_Queue_Player(s16 id, s16 ix) {
-    REQ ldreq;
+    LoadRequest ldreq;
     s16 i;
     s16 kara;
     s16 made;
@@ -267,7 +267,7 @@ void Push_LDREQ_Queue_BG(s16 ix) {
 }
 
 void Push_LDREQ_Queue_Union(s16 ix) {
-    REQ ldreq;
+    LoadRequest ldreq;
     s16 i;
     s16 kara;
     s16 made;
@@ -305,7 +305,7 @@ void Push_LDREQ_Queue_Metamor() {
 }
 
 void Push_LDREQ_Queue_Direct(s16 ix, s16 id) {
-    REQ ldreq;
+    LoadRequest ldreq;
     ldreq.type = ldreq_tbl[ix].type;
     ldreq.id = id;
     ldreq.ix = ldreq_tbl[ix].ix;
@@ -317,7 +317,7 @@ void Push_LDREQ_Queue_Direct(s16 ix, s16 id) {
     Push_LDREQ_Queue(&ldreq);
 }
 
-s32 Push_LDREQ_Queue(REQ* ldreq) {
+s32 Push_LDREQ_Queue(LoadRequest* ldreq) {
     s16 i;
     u8 masknum;
 
@@ -440,7 +440,7 @@ s32 Check_LDREQ_Queue_Direct(s16 ix) {
     return 1;
 }
 
-void q_ldreq_error(REQ* curr) {
+void q_ldreq_error(LoadRequest* curr) {
     curr->be = 0;
     flLogOut("Q_LDREQ_ERROR : ロード処理の指定に誤りがあります。\n");
 }

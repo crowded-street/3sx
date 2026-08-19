@@ -63,7 +63,7 @@ s32 palFormConv;
 const u16 hitmark_color[128];
 const col_file_data color_file[161];
 
-void q_ldreq_color_data(REQ* curr) {
+void q_ldreq_color_data(LoadRequest* curr) {
     col_file_data* cfn;
     s32 err;
 

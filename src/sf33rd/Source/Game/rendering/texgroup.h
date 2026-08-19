@@ -1,13 +1,14 @@
 #ifndef TEXGROUP_H
 #define TEXGROUP_H
 
+#include "sf33rd/Source/Game/io/gd3rd.h"
 #include "structs.h"
 #include "types.h"
 
 extern TEX_GRP_LD texgrplds[100];
 extern const TexGroupData texgrpdat[100];
 
-void q_ldreq_texture_group(REQ* curr);
+void q_ldreq_texture_group(LoadRequest* curr);
 void Init_texgrplds_work();
 void checkSelObjFileLoaded();
 s32 load_any_texture_patnum(u16 patnum, u8 kokey, u8 _unused);

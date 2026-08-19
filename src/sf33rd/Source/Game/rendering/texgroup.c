@@ -139,7 +139,7 @@ const TexGroupData texgrpdat[100] = { { 0, -1, 0, 0, 0, 0, 0 },
 // forward decls
 s32 load_any_texture_grpnum(u8 grp, u8 kokey);
 
-void q_ldreq_texture_group(REQ* curr) {
+void q_ldreq_texture_group(LoadRequest* curr) {
     const TexGroupData* bsd;
     uintptr_t ldadr;
     uintptr_t ldchd;
