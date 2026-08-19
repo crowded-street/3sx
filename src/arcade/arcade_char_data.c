@@ -613,62 +613,128 @@ bool ArcadeCharData_Apply3SXRenderingConventions(Character character, const void
     return true;
 }
 
+static const CgRemapRange gill_cg_ranges[] = {
+    { .first = 0x7070, .last = 0x707A, .delta = -0x6AE0 },
+};
+
+static const CgRemapRange alex_cg_ranges[] = {
+    { .first = 0x707B, .last = 0x7085, .delta = -0x667D },
+};
+
+static const CgRemapRange ryu_cg_ranges[] = {
+    { .first = 0x7082, .last = 0x7090, .delta = -0x62C6 },
+};
+
+static const CgRemapRange yun_cg_ranges[] = {
+    { .first = 0x7091, .last = 0x709B, .delta = -0x5D20 },
+};
+
+static const CgRemapRange dudley_cg_ranges[] = {
+    { .first = 0x709C, .last = 0x70A6, .delta = -0x58C3 },
+};
+
+static const CgRemapRange necro_cg_ranges[] = {
+    { .first = 0x70A7, .last = 0x70B1, .delta = -0x53E4 },
+};
+
+static const CgRemapRange hugo_cg_ranges[] = {
+    { .first = 0x70B2, .last = 0x70BC, .delta = -0x5005 },
+};
+
 static const CgRemapRange ibuki_cg_ranges[] = {
     { .first = 0x70BD, .last = 0x70C7, .delta = -18692 },
     { .first = 0x9BA8, .last = 0x9C6F, .delta = -29904 },
 };
 
 static const CgRemapRange elena_cg_ranges[] = {
+    { .first = 0x70C8, .last = 0x70D2, .delta = -0x42E5 },
     { .first = 0x9C88, .last = 0x9CC1, .delta = -0x6F08 },
+};
+
+static const CgRemapRange oro_cg_ranges[] = {
+    { .first = 0x70D3, .last = 0x70DD, .delta = -0x3D5A },
+};
+
+static const CgRemapRange yang_cg_ranges[] = {
+    { .first = 0x70DE, .last = 0x70E8, .delta = -0x37F2 },
+};
+
+static const CgRemapRange ken_cg_ranges[] = {
+    { .first = 0x70E9, .last = 0x70F3, .delta = -0x3399 },
 };
 
 static const CgRemapRange sean_cg_ranges[] = {
     { .first = 0x70F4, .last = 0x70FF, .delta = -0x2F74 },
 };
 
+static const CgRemapRange urien_cg_ranges[] = {
+    { .first = 0x70FF, .last = 0x7109, .delta = -0x29C3 },
+};
+
+static const CgRemapRange akuma_cg_ranges[] = {
+    { .first = 0x710A, .last = 0x7114, .delta = -0x2526 },
+};
+
+static const CgRemapRange chunli_cg_ranges[] = {
+    { .first = 0x7115, .last = 0x711F, .delta = -0x1EB4 },
+};
+
 static const CgRemapRange makoto_cg_ranges[] = {
+    { .first = 0x7120, .last = 0x712A, .delta = -0x1760 },
     { .first = 0xA000, .last = UINT16_MAX, .delta = -0x5378 },
 };
 
-static const CgRemapRange ryu_cg_ranges[] = {
-    // X-Copy's return animation is stored in Ryu's SACA[1] script.
-    { .first = 0x7082, .last = 0x7090, .delta = -0x62C6 },
+static const CgRemapRange q_cg_ranges[] = {
+    { .first = 0x712B, .last = 0x7135, .delta = -0x123A },
 };
 
 static const CgRemapRange twelve_cg_ranges[] = {
-    // X-Copy's startup animation is stored in Twelve's SACA[0] script.
     { .first = 0x7136, .last = 0x7140, .delta = -0x0C46 },
 };
 
+static const CgRemapRange remy_cg_ranges[] = {
+    { .first = 0x7141, .last = 0x714B, .delta = -0x07C1 },
+};
+
 static const CharacterCgMap cg_maps[NUM_CHARS] = {
-    [CHAR_GILL] = { .default_delta = 0x0000 },
-    [CHAR_ALEX] = { .default_delta = 0x0020 },
+    [CHAR_GILL] = { .default_delta = 0x0000, .ranges = gill_cg_ranges, .range_count = SDL_arraysize(gill_cg_ranges) },
+    [CHAR_ALEX] = { .default_delta = 0x0020, .ranges = alex_cg_ranges, .range_count = SDL_arraysize(alex_cg_ranges) },
     [CHAR_RYU] = { .default_delta = -0x01E0, .ranges = ryu_cg_ranges, .range_count = SDL_arraysize(ryu_cg_ranges) },
-    [CHAR_YUN] = { .default_delta = -0x0420 },
-    [CHAR_DUDLEY] = { .default_delta = -0x0480 },
-    [CHAR_NECRO] = { .default_delta = -0x0600 },
-    [CHAR_HUGO] = { .default_delta = -0x0720 },
+    [CHAR_YUN] = { .default_delta = -0x0420, .ranges = yun_cg_ranges, .range_count = SDL_arraysize(yun_cg_ranges) },
+    [CHAR_DUDLEY] = { .default_delta = -0x0480,
+                      .ranges = dudley_cg_ranges,
+                      .range_count = SDL_arraysize(dudley_cg_ranges) },
+    [CHAR_NECRO] = { .default_delta = -0x0600,
+                     .ranges = necro_cg_ranges,
+                     .range_count = SDL_arraysize(necro_cg_ranges) },
+    [CHAR_HUGO] = { .default_delta = -0x0720, .ranges = hugo_cg_ranges, .range_count = SDL_arraysize(hugo_cg_ranges) },
     [CHAR_IBUKI] = { .default_delta = -0x0940,
                      .ranges = ibuki_cg_ranges,
                      .range_count = SDL_arraysize(ibuki_cg_ranges) },
     [CHAR_ELENA] = { .default_delta = -0x0820,
                      .ranges = elena_cg_ranges,
                      .range_count = SDL_arraysize(elena_cg_ranges) },
-    [CHAR_ORO] = { .default_delta = -0x0800 },
-    [CHAR_YANG] = { .default_delta = -0x0820 },
-    [CHAR_KEN] = { .default_delta = -0x08C0 },
+    [CHAR_ORO] = { .default_delta = -0x0800, .ranges = oro_cg_ranges, .range_count = SDL_arraysize(oro_cg_ranges) },
+    [CHAR_YANG] = { .default_delta = -0x0820, .ranges = yang_cg_ranges, .range_count = SDL_arraysize(yang_cg_ranges) },
+    [CHAR_KEN] = { .default_delta = -0x08C0, .ranges = ken_cg_ranges, .range_count = SDL_arraysize(ken_cg_ranges) },
     [CHAR_SEAN] = { .default_delta = -0x0AA0, .ranges = sean_cg_ranges, .range_count = SDL_arraysize(sean_cg_ranges) },
-    [CHAR_URIEN] = { .default_delta = -0x0C60 },
-    [CHAR_AKUMA] = { .default_delta = -0x0CA0 },
-    [CHAR_CHUNLI] = { .default_delta = -0x0E00 },
+    [CHAR_URIEN] = { .default_delta = -0x0C60,
+                     .ranges = urien_cg_ranges,
+                     .range_count = SDL_arraysize(urien_cg_ranges) },
+    [CHAR_AKUMA] = { .default_delta = -0x0CA0,
+                     .ranges = akuma_cg_ranges,
+                     .range_count = SDL_arraysize(akuma_cg_ranges) },
+    [CHAR_CHUNLI] = { .default_delta = -0x0E00,
+                      .ranges = chunli_cg_ranges,
+                      .range_count = SDL_arraysize(chunli_cg_ranges) },
     [CHAR_MAKOTO] = { .default_delta = -0x0D80,
                       .ranges = makoto_cg_ranges,
                       .range_count = SDL_arraysize(makoto_cg_ranges) },
-    [CHAR_Q] = { .default_delta = -0x0C20 },
+    [CHAR_Q] = { .default_delta = -0x0C20, .ranges = q_cg_ranges, .range_count = SDL_arraysize(q_cg_ranges) },
     [CHAR_TWELVE] = { .default_delta = -0x0B80,
                       .ranges = twelve_cg_ranges,
                       .range_count = SDL_arraysize(twelve_cg_ranges) },
-    [CHAR_REMY] = { .default_delta = -0x0D00 },
+    [CHAR_REMY] = { .default_delta = -0x0D00, .ranges = remy_cg_ranges, .range_count = SDL_arraysize(remy_cg_ranges) },
 };
 
 static const size_t section_element_sizes[CHAR_DATA_SECTION_COUNT] = {
