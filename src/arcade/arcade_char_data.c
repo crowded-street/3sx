@@ -630,10 +630,20 @@ static const CgRemapRange makoto_cg_ranges[] = {
     { .first = 0xA000, .last = UINT16_MAX, .delta = -0x5378 },
 };
 
+static const CgRemapRange ryu_cg_ranges[] = {
+    // X-Copy's return animation is stored in Ryu's SACA[1] script.
+    { .first = 0x7082, .last = 0x7090, .delta = -0x62C6 },
+};
+
+static const CgRemapRange twelve_cg_ranges[] = {
+    // X-Copy's startup animation is stored in Twelve's SACA[0] script.
+    { .first = 0x7136, .last = 0x7140, .delta = -0x0C46 },
+};
+
 static const CharacterCgMap cg_maps[NUM_CHARS] = {
     [CHAR_GILL] = { .default_delta = 0x0000 },
     [CHAR_ALEX] = { .default_delta = 0x0020 },
-    [CHAR_RYU] = { .default_delta = -0x01E0 },
+    [CHAR_RYU] = { .default_delta = -0x01E0, .ranges = ryu_cg_ranges, .range_count = SDL_arraysize(ryu_cg_ranges) },
     [CHAR_YUN] = { .default_delta = -0x0420 },
     [CHAR_DUDLEY] = { .default_delta = -0x0480 },
     [CHAR_NECRO] = { .default_delta = -0x0600 },
@@ -655,7 +665,9 @@ static const CharacterCgMap cg_maps[NUM_CHARS] = {
                       .ranges = makoto_cg_ranges,
                       .range_count = SDL_arraysize(makoto_cg_ranges) },
     [CHAR_Q] = { .default_delta = -0x0C20 },
-    [CHAR_TWELVE] = { .default_delta = -0x0B80 },
+    [CHAR_TWELVE] = { .default_delta = -0x0B80,
+                      .ranges = twelve_cg_ranges,
+                      .range_count = SDL_arraysize(twelve_cg_ranges) },
     [CHAR_REMY] = { .default_delta = -0x0D00 },
 };
 
