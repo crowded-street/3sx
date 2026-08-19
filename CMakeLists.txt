@@ -141,13 +141,14 @@ target_compile_options(3sx PRIVATE
 )
 
 if(NOT PSP AND (CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_C_COMPILER_ID STREQUAL "GNU"))
-    target_compile_options(3sx PRIVATE
-        $<$<CONFIG:Debug>:-fsanitize=address>
-        $<$<CONFIG:Debug>:-fno-omit-frame-pointer>
-    )
-    target_link_options(3sx PRIVATE
-        $<$<CONFIG:Debug>:-fsanitize=address>
-    )
+    # ASan runtime libraries are not available for this MSYS2 clang install
+    # target_compile_options(3sx PRIVATE
+    #     $<$<CONFIG:Debug>:-fsanitize=address>
+    #     $<$<CONFIG:Debug>:-fno-omit-frame-pointer>
+    # )
+    # target_link_options(3sx PRIVATE
+    #     $<$<CONFIG:Debug>:-fsanitize=address>
+    # )
 endif()
 
 if(PSP)
