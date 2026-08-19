@@ -622,6 +622,10 @@ static const CgRemapRange elena_cg_ranges[] = {
     { .first = 0x9C88, .last = 0x9CC1, .delta = -0x6F08 },
 };
 
+static const CgRemapRange sean_cg_ranges[] = {
+    { .first = 0x70F4, .last = 0x70FF, .delta = -0x2F74 },
+};
+
 static const CgRemapRange makoto_cg_ranges[] = {
     { .first = 0xA000, .last = UINT16_MAX, .delta = -0x5378 },
 };
@@ -643,7 +647,7 @@ static const CharacterCgMap cg_maps[NUM_CHARS] = {
     [CHAR_ORO] = { .default_delta = -0x0800 },
     [CHAR_YANG] = { .default_delta = -0x0820 },
     [CHAR_KEN] = { .default_delta = -0x08C0 },
-    [CHAR_SEAN] = { .default_delta = -0x0AA0 },
+    [CHAR_SEAN] = { .default_delta = -0x0AA0, .ranges = sean_cg_ranges, .range_count = SDL_arraysize(sean_cg_ranges) },
     [CHAR_URIEN] = { .default_delta = -0x0C60 },
     [CHAR_AKUMA] = { .default_delta = -0x0CA0 },
     [CHAR_CHUNLI] = { .default_delta = -0x0E00 },
