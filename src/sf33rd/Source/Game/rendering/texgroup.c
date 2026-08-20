@@ -235,11 +235,11 @@ void q_ldreq_texture_group(LoadRequest* curr) {
         /* fallthrough */
 
     case 3:
-        err = fsRequestFileRead(curr, (void*)Get_ramcnt_address(curr->key));
+        err = fsRequestFileRead((void*)Get_ramcnt_address(curr->key));
 
         if (err == 0) {
             Push_ramcnt_key(curr->key);
-            fsClose(curr);
+            fsClose();
             curr->rno = 0;
             return;
         }
@@ -249,9 +249,9 @@ void q_ldreq_texture_group(LoadRequest* curr) {
         break;
 
     case 4:
-        switch (fsCheckFileReaded(curr)) {
+        switch (fsCheckFileReaded()) {
         case 1:
-            fsClose(curr);
+            fsClose();
             ldadr = Get_ramcnt_address(curr->key);
             curr->lds->texture_table = ldadr + bsd->to_tex;
             curr->lds->trans_table = ldadr;
@@ -343,7 +343,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
 
         default:
             Push_ramcnt_key(curr->key);
-            fsClose(curr);
+            fsClose();
             curr->be = 2;
             curr->rno = 0;
             break;

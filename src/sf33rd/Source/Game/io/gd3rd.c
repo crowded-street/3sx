@@ -55,7 +55,7 @@ s32 fsOpen(LoadRequest* req) {
     return 1;
 }
 
-void fsClose(LoadRequest* /* unused */) {
+void fsClose() {
     AFS_Close(afs_handle);
     afs_handle = AFS_NONE;
 }
@@ -99,12 +99,12 @@ bool fsCheckCommandExecuting() {
     }
 }
 
-s32 fsRequestFileRead(LoadRequest* /* unused */, void* buff) {
+s32 fsRequestFileRead(void* buff) {
     AFS_Read(afs_handle, buff);
     return 1;
 }
 
-s32 fsCheckFileReaded(LoadRequest* /* unused */) {
+s32 fsCheckFileReaded() {
     const AFSReadState state = AFS_GetState(afs_handle);
 
     switch (state) {
@@ -123,9 +123,9 @@ s32 fsCheckFileReaded(LoadRequest* /* unused */) {
     }
 }
 
-s32 fsFileReadSync(LoadRequest* req, void* buff) {
+s32 fsFileReadSync(void* buff) {
     AFS_ReadSync(afs_handle, buff);
-    const s32 rnum = fsCheckFileReaded(req);
+    const s32 rnum = fsCheckFileReaded();
     return (rnum == 1) ? 1 : 0;
 }
 
@@ -186,8 +186,8 @@ s32 load_it_use_this_key(u16 fnum, s16 key) {
 
         req.size = fsGetFileSize(req.fnum);
         req.sect = fsCalSectorSize(req.size);
-        err = fsFileReadSync(&req, (void*)Get_ramcnt_address(key));
-        fsClose(&req);
+        err = fsFileReadSync((void*)Get_ramcnt_address(key));
+        fsClose();
         Set_size_data_ramcnt_key(key, req.size);
 
         if (err != 0) {

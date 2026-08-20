@@ -109,11 +109,11 @@ void q_ldreq_color_data(LoadRequest* curr) {
         curr->rno = 3;
         /* fallthrough */
     case 3:
-        err = fsRequestFileRead(curr, (void*)Get_ramcnt_address(curr->key));
+        err = fsRequestFileRead((void*)Get_ramcnt_address(curr->key));
 
         if (err == 0) {
             Push_ramcnt_key(curr->key);
-            fsClose(curr);
+            fsClose();
             curr->rno = 0;
         } else {
             curr->rno = 4;
@@ -122,10 +122,10 @@ void q_ldreq_color_data(LoadRequest* curr) {
         break;
 
     case 4:
-        switch (fsCheckFileReaded(curr)) {
+        switch (fsCheckFileReaded()) {
         case 1:
             if (cfn->type == 10) {
-                fsClose(curr);
+                fsClose();
                 cseSendBd2SpuWithId((void*)Get_ramcnt_address(curr->key),
                                     Get_size_data_ramcnt_key(curr->key),
                                     curr->id + 1,
@@ -133,7 +133,7 @@ void q_ldreq_color_data(LoadRequest* curr) {
                 curr->rno = 5;
             } else {
                 init_trans_color_ram(curr->id, curr->key, cfn->type, cfn->data);
-                fsClose(curr);
+                fsClose();
                 *curr->result |= lpr_wrdata[curr->id];
                 curr->be = 0;
             }
@@ -142,7 +142,7 @@ void q_ldreq_color_data(LoadRequest* curr) {
             break;
         default:
             Push_ramcnt_key(curr->key);
-            fsClose(curr);
+            fsClose();
             curr->be = 2;
             curr->rno = 0;
             break;
