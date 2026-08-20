@@ -75,9 +75,6 @@ void q_ldreq_color_data(LoadRequest* curr) {
             break;
         }
         if (cfn->type == 10) {
-            if (sndCheckVTransStatus(0) == 0) {
-                break;
-            }
             if (cfn->data + 1 == cseGetIdStoredBd(curr->id + 1)) {
                 *curr->result |= lpr_wrdata[curr->id];
                 curr->be = 0;
@@ -126,10 +123,12 @@ void q_ldreq_color_data(LoadRequest* curr) {
         case 1:
             if (cfn->type == 10) {
                 fsClose();
-                cseSendBd2SpuWithId((void*)Get_ramcnt_address(curr->key),
-                                    Get_size_data_ramcnt_key(curr->key),
-                                    curr->id + 1,
-                                    cfn->data + 1);
+                cseSendBd2SpuWithId(
+                    (void*)Get_ramcnt_address(curr->key),
+                    Get_size_data_ramcnt_key(curr->key),
+                    curr->id + 1,
+                    cfn->data + 1
+                );
                 curr->rno = 5;
             } else {
                 init_trans_color_ram(curr->id, curr->key, cfn->type, cfn->data);
@@ -150,14 +149,12 @@ void q_ldreq_color_data(LoadRequest* curr) {
         break;
 
     case 5:
-        if (sndCheckVTransStatus(1) != 0) {
-            Push_ramcnt_key(curr->key);
-            cseMemMapSetPhdAddr(curr->id + 1, csePHDDataTable[cfn->data + 1]);
-            cseTsbSetBankAddr(curr->id + 1, cseTSBDataTable[cfn->data + 1]);
-            sdbd[curr->id + 1] = (s8*)cseTSBDataTable[cfn->data + 1];
-            *curr->result |= lpr_wrdata[curr->id];
-            curr->be = 0;
-        }
+        Push_ramcnt_key(curr->key);
+        cseMemMapSetPhdAddr(curr->id + 1, csePHDDataTable[cfn->data + 1]);
+        cseTsbSetBankAddr(curr->id + 1, cseTSBDataTable[cfn->data + 1]);
+        sdbd[curr->id + 1] = (s8*)cseTSBDataTable[cfn->data + 1];
+        *curr->result |= lpr_wrdata[curr->id];
+        curr->be = 0;
         break;
     }
 }
@@ -369,21 +366,11 @@ void init_trans_color_ram(s16 id, s16 key, u8 type, u16 data) {
     }
     case 8:
         cseSendBd2SpuWithId((void*)Get_ramcnt_address(key), Get_size_data_ramcnt_key(key), 0, 0);
-
-        while (!sndCheckVTransStatus(1)) {
-            waitVsyncDummy();
-        }
-
         Push_ramcnt_key(key);
         break;
 
     case 10:
         cseSendBd2SpuWithId((void*)Get_ramcnt_address(key), Get_size_data_ramcnt_key(key), id + 1, data + 1);
-
-        while (!sndCheckVTransStatus(1)) {
-            waitVsyncDummy();
-        }
-
         cseMemMapSetPhdAddr(id + 1, csePHDDataTable[data + 1]);
         cseTsbSetBankAddr(id + 1, cseTSBDataTable[data + 1]);
         sdbd[id + 1] = (s8*)cseTSBDataTable[data + 1];

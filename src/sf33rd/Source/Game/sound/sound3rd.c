@@ -158,11 +158,6 @@ void Init_sound_system() {
     system_init_level |= 1;
 }
 
-s32 sndCheckVTransStatus(s32 type) {
-    // Keeping this for now, might use later?
-    return 1;
-}
-
 void sndInitialLoad() {
     cseMemMapInit(&SpuMap);
     cseMemMapSetPhdAddr(0, *csePHDDataTable);

@@ -1460,8 +1460,7 @@ void Load_Replay_Sub(struct _TASK* task_ptr) {
         break;
 
     case 5:
-        if (Check_PL_Load() && Check_LDREQ_Queue_BG(bg_w.stage) && (adx_now_playend() != 0) &&
-            (sndCheckVTransStatus(0) != 0)) {
+        if (Check_PL_Load() && Check_LDREQ_Queue_BG(bg_w.stage) && (adx_now_playend() != 0)) {
             task_ptr->r_no[3] += 1;
             Switch_Screen_Init(0);
             init_omop();

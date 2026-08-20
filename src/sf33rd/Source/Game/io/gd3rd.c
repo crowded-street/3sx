@@ -8,7 +8,6 @@
 #include "constants.h"
 #include "port/io/afs.h"
 #include "port/utils.h"
-#include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/cse.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/io/gd3rd_data.h"
@@ -127,11 +126,6 @@ s32 fsFileReadSync(void* buff) {
     AFS_ReadSync(afs_handle, buff);
     const s32 rnum = fsCheckFileReaded();
     return (rnum == 1) ? 1 : 0;
-}
-
-void waitVsyncDummy() {
-    AFS_RunServer(); // FIXME: Ideally we should only call this from the main loop
-    cseExecServer();
 }
 
 s32 load_it_use_any_key2(u16 fnum, void** adrs, s16* key, u8 kokey, u8 group) {
