@@ -38,7 +38,7 @@ extern Character plt_req[2];
 extern const u8 lpr_wrdata[3];
 extern const u8 lpt_seldat[4];
 
-s32 fsOpen(LoadRequest* req);
+bool fsOpen(u16 fnum);
 void fsClose();
 u32 fsGetFileSize(u16 fnum);
 bool fsCheckCommandExecuting();

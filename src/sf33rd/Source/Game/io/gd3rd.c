@@ -39,17 +39,17 @@ static bool ldreq_break = false;
 static u8 ldreq_result[294] = { 0 };
 static AFSHandle afs_handle = AFS_NONE;
 
-s32 fsOpen(LoadRequest* req) {
-    if (req->fnum >= AFS_GetFileCount()) {
-        return 0;
+bool fsOpen(u16 fnum) {
+    if (fnum >= AFS_GetFileCount()) {
+        return false;
     }
 
     if (afs_handle != AFS_NONE) {
         AFS_Close(afs_handle);
     }
 
-    afs_handle = AFS_Open(req->fnum);
-    return 1;
+    afs_handle = AFS_Open(fnum);
+    return true;
 }
 
 void fsClose() {
@@ -161,23 +161,23 @@ s16 load_it_use_any_key(u16 fnum, u8 kokey, u8 group) {
 
 s32 load_it_use_this_key(u16 fnum, s16 key) {
     LoadRequest req;
-    u32 err;
+    bool success;
 
     req.fnum = fnum;
 
     while (1) {
-        err = fsOpen(&req);
+        success = fsOpen(req.fnum);
 
-        if (err == 0) {
+        if (!success) {
             continue;
         }
 
         req.size = fsGetFileSize(req.fnum);
-        err = fsFileReadSync((void*)Get_ramcnt_address(key));
+        success = (fsFileReadSync((void*)Get_ramcnt_address(key)) == 1) ? true : false;
         fsClose();
         Set_size_data_ramcnt_key(key, req.size);
 
-        if (err != 0) {
+        if (success) {
             return 1;
         }
 

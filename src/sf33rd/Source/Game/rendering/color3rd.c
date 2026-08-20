@@ -74,6 +74,7 @@ void q_ldreq_color_data(LoadRequest* curr) {
         if (fsCheckCommandExecuting()) {
             break;
         }
+
         if (cfn->type == 10) {
             if (cfn->data + 1 == cseGetIdStoredBd(curr->id + 1)) {
                 *curr->result |= lpr_wrdata[curr->id];
@@ -89,21 +90,25 @@ void q_ldreq_color_data(LoadRequest* curr) {
             *curr->result |= lpr_wrdata[curr->id];
             curr->be = 0;
         }
+
         /* fallthrough */
+
     case 1:
-        err = fsOpen(curr);
-        if (err == 0) {
+        if (!fsOpen(curr->fnum)) {
             curr->rno = 0;
             break;
         }
+
         curr->rno = 2;
         /* fallthrough */
+
     case 2:
         curr->size = fsGetFileSize(curr->fnum);
         curr->key = Pull_ramcnt_key(curr->size, curr->kokey, curr->group, curr->frre);
         Set_size_data_ramcnt_key(curr->key, curr->size);
         curr->rno = 3;
         /* fallthrough */
+
     case 3:
         err = fsRequestFileRead((void*)Get_ramcnt_address(curr->key));
 
@@ -115,6 +120,7 @@ void q_ldreq_color_data(LoadRequest* curr) {
             curr->rno = 4;
             curr->be = 1;
         }
+
         break;
 
     case 4:
@@ -122,12 +128,14 @@ void q_ldreq_color_data(LoadRequest* curr) {
         case 1:
             if (cfn->type == 10) {
                 fsClose();
+
                 cseSendBd2SpuWithId(
                     (void*)Get_ramcnt_address(curr->key),
                     Get_size_data_ramcnt_key(curr->key),
                     curr->id + 1,
                     cfn->data + 1
                 );
+
                 curr->rno = 5;
             } else {
                 init_trans_color_ram(curr->id, curr->key, cfn->type, cfn->data);
@@ -135,9 +143,12 @@ void q_ldreq_color_data(LoadRequest* curr) {
                 *curr->result |= lpr_wrdata[curr->id];
                 curr->be = 0;
             }
+
             break;
+
         case 0:
             break;
+
         default:
             Push_ramcnt_key(curr->key);
             fsClose();
@@ -145,6 +156,7 @@ void q_ldreq_color_data(LoadRequest* curr) {
             curr->rno = 0;
             break;
         }
+
         break;
 
     case 5:

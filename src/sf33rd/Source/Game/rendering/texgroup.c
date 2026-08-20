@@ -215,9 +215,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
         /* fallthrough */
 
     case 1:
-        err = fsOpen(curr);
-
-        if (err == 0) {
+        if (!fsOpen(curr->fnum)) {
             curr->rno = 0;
             return;
         }
