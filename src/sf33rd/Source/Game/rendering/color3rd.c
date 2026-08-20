@@ -125,7 +125,7 @@ void q_ldreq_color_data(LoadRequest* curr) {
 
     case 4:
         switch (fsCheckFileReaded()) {
-        case 1:
+        case FS_READ_IDLE:
             if (cfn->type == 10) {
                 fsClose();
 
@@ -146,10 +146,11 @@ void q_ldreq_color_data(LoadRequest* curr) {
 
             break;
 
-        case 0:
+        case FS_READ_READING:
+            // Do nothing
             break;
 
-        default:
+        case FS_READ_ERROR:
             Push_ramcnt_key(curr->key);
             fsClose();
             curr->be = 2;

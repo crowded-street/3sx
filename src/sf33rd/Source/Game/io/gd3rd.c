@@ -97,19 +97,19 @@ s32 fsRequestFileRead(void* buff) {
     return 1;
 }
 
-s32 fsCheckFileReaded() {
+FileReadStatus fsCheckFileReaded() {
     const AFSReadState state = AFS_GetState(afs_handle);
 
     switch (state) {
-    case AFS_READ_STATE_ERROR:
-        return 2;
-
-    case AFS_READ_STATE_READING:
-        return 0;
-
     case AFS_READ_STATE_IDLE:
     case AFS_READ_STATE_FINISHED:
-        return 1;
+        return FS_READ_IDLE;
+
+    case AFS_READ_STATE_READING:
+        return FS_READ_READING;
+
+    case AFS_READ_STATE_ERROR:
+        return FS_READ_ERROR;
 
     default:
         fatal_error("Unhandled AFS state: %d", state);
@@ -118,8 +118,7 @@ s32 fsCheckFileReaded() {
 
 bool fsFileReadSync(void* buff) {
     AFS_ReadSync(afs_handle, buff);
-    const s32 rnum = fsCheckFileReaded();
-    return rnum == 1;
+    return fsCheckFileReaded() == FS_READ_IDLE;
 }
 
 s32 load_it_use_any_key2(u16 fnum, void** adrs, s16* key, u8 kokey, u8 group) {

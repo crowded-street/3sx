@@ -32,6 +32,12 @@ typedef struct LoadRequest {
     TEX_GRP_LD* lds;
 } LoadRequest;
 
+typedef enum FileReadStatus {
+    FS_READ_IDLE,
+    FS_READ_READING,
+    FS_READ_ERROR,
+} FileReadStatus;
+
 /// Per-player character data requests
 extern Character plt_req[2];
 
@@ -43,7 +49,7 @@ void fsClose();
 u32 fsGetFileSize(u16 fnum);
 bool fsCheckCommandExecuting();
 s32 fsRequestFileRead(void* buff);
-s32 fsCheckFileReaded();
+FileReadStatus fsCheckFileReaded();
 bool fsFileReadSync(void* buff);
 
 s16 load_it_use_any_key(u16 fnum, u8 kokey, u8 group);
