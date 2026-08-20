@@ -6,6 +6,15 @@
 
 #include <stdbool.h>
 
+typedef enum LoadRequestType {
+    LDREQ_INVALID,
+    LDREQ_TEXTURE,
+    LDREQ_COLOR,
+    LDREQ_SCREEN,
+    LDREQ_SOUND,
+    LDREQ_KANJI,
+} LoadRequestType;
+
 typedef struct {
     s8 ok;
     s8 type;
@@ -16,7 +25,7 @@ typedef struct {
 
 typedef struct LoadRequest {
     u8 be; /// Flag that's set if the load request is active
-    u8 type;
+    LoadRequestType type;
     s16 id;
     u8 rno;
     u8 ix;
@@ -26,7 +35,6 @@ typedef struct LoadRequest {
     u8 group;
     u8* result;
     s32 size;
-    s32 sect;
     u16 fnum;
     u8 free[2];
     TEX_GRP_LD* lds;

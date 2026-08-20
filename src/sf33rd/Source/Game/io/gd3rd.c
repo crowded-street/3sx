@@ -29,8 +29,10 @@ Character plt_req[2];
 
 void q_ldreq_error(LoadRequest* curr);
 
-static const LDREQ_Process_Func ldreq_process[6] = { q_ldreq_error,      q_ldreq_texture_group, q_ldreq_color_data,
-                                                     q_ldreq_color_data, q_ldreq_color_data,    q_ldreq_color_data };
+static const LDREQ_Process_Func ldreq_process[] = {
+    [LDREQ_INVALID] = q_ldreq_error,     [LDREQ_TEXTURE] = q_ldreq_texture_group, [LDREQ_COLOR] = q_ldreq_color_data,
+    [LDREQ_SCREEN] = q_ldreq_color_data, [LDREQ_SOUND] = q_ldreq_color_data,      [LDREQ_KANJI] = q_ldreq_color_data,
+};
 
 /// Load request queue
 static LoadRequest q_ldreq[16] = { 0 };
@@ -259,7 +261,7 @@ void Push_LDREQ_Queue_Player(u8 id, Character character) {
         ldreq.group = 0;
         ldreq.result = &ldreq_result[i];
 
-        if (ldreq.type == 2) {
+        if (ldreq.type == LDREQ_COLOR) {
             ldreq.kokey = lpc_seldat[id];
         } else {
             ldreq.kokey = lpt_seldat[id];
@@ -316,7 +318,7 @@ void Check_LDREQ_Queue() {
                 }
 
                 q_ldreq[i].be = 0;
-                q_ldreq[i].type = 0;
+                q_ldreq[i].type = LDREQ_INVALID;
             }
         }
     } else {
