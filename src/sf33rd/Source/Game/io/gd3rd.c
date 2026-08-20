@@ -26,6 +26,11 @@ typedef struct {
     u8 kokey;
 } LDREQ_TBL;
 
+typedef struct Span {
+    s16 start;
+    s16 length;
+} Span;
+
 typedef void (*LDREQ_Process_Func)(LoadRequest*);
 
 const u8 lpr_wrdata[3] = { 0x03, 0xC0, 0x3C };
@@ -34,377 +39,12 @@ const u8 lpt_seldat[4] = { 3, 4, 5, 0 };
 
 Character plt_req[2];
 
-/// Load request queue
-static LoadRequest q_ldreq[16] = { 0 };
-
-static bool ldreq_break = false;
-static u8 ldreq_result[294] = { 0 };
-static AFSHandle afs_handle = AFS_NONE;
-
-// forward decls
-void Push_LDREQ_Queue_Metamor();
 void q_ldreq_error(LoadRequest* curr);
-
-const LDREQ_Process_Func ldreq_process[6];
-const LDREQ_TBL ldreq_tbl[294];
-const s16 ldreq_ix[43][2];
-
-s32 fsOpen(LoadRequest* req) {
-    if (req->fnum >= AFS_GetFileCount()) {
-        return 0;
-    }
-
-    if (afs_handle != AFS_NONE) {
-        AFS_Close(afs_handle);
-    }
-
-    afs_handle = AFS_Open(req->fnum);
-
-    req->info.number = 1;
-    return 1;
-}
-
-void fsClose(LoadRequest* /* unused */) {
-    AFS_Close(afs_handle);
-    afs_handle = AFS_NONE;
-}
-
-u32 fsGetFileSize(u16 fnum) {
-    if (fnum >= AFS_GetFileCount()) {
-        return 0;
-    }
-
-    return AFS_GetSize(fnum);
-}
-
-u32 fsCalSectorSize(u32 size) {
-    return (size + 2048 - 1) / 2048;
-}
-
-static void fsCansel() {
-    if ((afs_handle != AFS_NONE) && (AFS_GetState(afs_handle) == AFS_READ_STATE_READING)) {
-        AFS_Stop(afs_handle);
-    }
-}
-
-bool fsCheckCommandExecuting() {
-    if (afs_handle == AFS_NONE) {
-        return false;
-    }
-
-    const AFSReadState state = AFS_GetState(afs_handle);
-
-    switch (state) {
-    case AFS_READ_STATE_READING:
-    case AFS_READ_STATE_ERROR:
-        return true;
-
-    case AFS_READ_STATE_IDLE:
-    case AFS_READ_STATE_FINISHED:
-        return false;
-
-    default:
-        fatal_error("Unhandled AFS state: %d", state);
-    }
-}
-
-s32 fsRequestFileRead(LoadRequest* /* unused */, void* buff) {
-    AFS_Read(afs_handle, buff);
-    return 1;
-}
-
-s32 fsCheckFileReaded(LoadRequest* /* unused */) {
-    const AFSReadState state = AFS_GetState(afs_handle);
-
-    switch (state) {
-    case AFS_READ_STATE_ERROR:
-        return 2;
-
-    case AFS_READ_STATE_READING:
-        return 0;
-
-    case AFS_READ_STATE_IDLE:
-    case AFS_READ_STATE_FINISHED:
-        return 1;
-
-    default:
-        fatal_error("Unhandled AFS state: %d", state);
-    }
-}
-
-s32 fsFileReadSync(LoadRequest* req, void* buff) {
-    AFS_ReadSync(afs_handle, buff);
-    const s32 rnum = fsCheckFileReaded(req);
-    return (rnum == 1) ? 1 : 0;
-}
-
-void waitVsyncDummy() {
-    AFS_RunServer(); // FIXME: Ideally we should only call this from the main loop
-    cseExecServer();
-}
-
-s32 load_it_use_any_key2(u16 fnum, void** adrs, s16* key, u8 kokey, u8 group) {
-    u32 size;
-    u32 err;
-
-    if (fnum >= AFS_GetFileCount()) {
-        flLogOut("ファイルナンバーに異常があります。ファイル番号：%d\n", fnum);
-        while (1) {}
-    }
-
-    size = fsGetFileSize(fnum);
-    *key = Pull_ramcnt_key(fsCalSectorSize(size) << 11, kokey, group, 0);
-    *adrs = (void*)Get_ramcnt_address(*key);
-
-    err = load_it_use_this_key(fnum, *key);
-
-    if (err != 0) {
-        return size;
-    }
-
-    Push_ramcnt_key(*key);
-    return 0;
-}
-
-s16 load_it_use_any_key(u16 fnum, u8 kokey, u8 group) {
-    u32 err;
-    void* adrs;
-    s16 key;
-
-    err = load_it_use_any_key2(fnum, &adrs, &key, kokey, group);
-
-    if (err != 0) {
-        return key;
-    }
-
-    return 0;
-}
-
-s32 load_it_use_this_key(u16 fnum, s16 key) {
-    LoadRequest req;
-    u32 err;
-
-    req.fnum = fnum;
-
-    while (1) {
-        err = fsOpen(&req);
-
-        if (err == 0) {
-            continue;
-        }
-
-        req.size = fsGetFileSize(req.fnum);
-        req.sect = fsCalSectorSize(req.size);
-        err = fsFileReadSync(&req, (void*)Get_ramcnt_address(key));
-        fsClose(&req);
-        Set_size_data_ramcnt_key(key, req.size);
-
-        if (err != 0) {
-            return 1;
-        }
-
-        flLogOut("ファイルの読み込みに失敗しました。ファイル番号：%d\n", fnum);
-    }
-}
-
-void Init_Load_Request_Queue() {
-    SDL_zeroa(q_ldreq);
-    ldreq_break = false;
-}
-
-void Request_LDREQ_Break() {
-    ldreq_break = true;
-}
-
-bool Check_LDREQ_Break() {
-    if (ldreq_break) {
-        return true;
-    }
-
-    return fsCheckCommandExecuting();
-}
-
-static void Push_LDREQ_Queue(const LoadRequest* ldreq) {
-    int i;
-
-    for (i = 0; i < SDL_arraysize(q_ldreq); i++) {
-        if (q_ldreq[i].be == 0) {
-            break;
-        }
-    }
-
-    if (i == SDL_arraysize(q_ldreq)) {
-        fatal_error("Load request buffer is full");
-    }
-
-    q_ldreq[i] = *ldreq;
-    q_ldreq[i].be = 2;
-    q_ldreq[i].rno = 0;
-
-    u8 masknum;
-
-    switch (ldreq->id) {
-    case 0:
-        masknum = 3;
-        break;
-
-    case 1:
-        masknum = 0xC0;
-        break;
-
-    default:
-        masknum = 0x3C;
-        break;
-    }
-
-    *q_ldreq[i].result &= ~masknum;
-}
-
-static void Push_LDREQ_Queue_Union(s16 ix) {
-    const int start = ldreq_ix[ix][0];
-    const int end = start + ldreq_ix[ix][1];
-
-    for (int i = start; i < end; i++) {
-        LoadRequest ldreq = { 0 };
-        ldreq.type = ldreq_tbl[i].type;
-        ldreq.id = 2;
-        ldreq.ix = ldreq_tbl[i].ix;
-        ldreq.frre = ldreq_tbl[i].frre;
-        ldreq.kokey = ldreq_tbl[i].kokey;
-        ldreq.key = 0;
-        ldreq.group = 0;
-        ldreq.result = &ldreq_result[i];
-        Push_LDREQ_Queue(&ldreq);
-    }
-}
-
-void Push_LDREQ_Queue_Player(u8 id, Character character) {
-    const int start = ldreq_ix[character][0];
-    const int end = start + ldreq_ix[character][1];
-
-    plt_req[id] = character;
-
-    for (int i = start; i < end; i++) {
-        LoadRequest ldreq = { 0 };
-        ldreq.type = ldreq_tbl[i].type;
-        ldreq.id = id;
-        ldreq.ix = ldreq_tbl[i].ix;
-        ldreq.frre = ldreq_tbl[i].frre;
-        ldreq.key = 0;
-        ldreq.group = 0;
-        ldreq.result = &ldreq_result[i];
-
-        if (ldreq.type == 2) {
-            ldreq.kokey = lpc_seldat[id];
-        } else {
-            ldreq.kokey = lpt_seldat[id];
-        }
-
-        Push_LDREQ_Queue(&ldreq);
-    }
-}
-
-void Push_LDREQ_Queue_BG(s16 ix) {
-    Push_LDREQ_Queue_Union(ix + 20);
-    Push_LDREQ_Queue_Metamor();
-}
-
-void Push_LDREQ_Queue_Metamor() {
-    switch ((My_char[0] == CHAR_TWELVE) + (My_char[1] == CHAR_TWELVE) * 2) {
-    case 1:
-        Push_LDREQ_Queue_Direct(My_char[1] + 212, 0);
-        break;
-
-    case 2:
-        Push_LDREQ_Queue_Direct(My_char[0] + 212, 1);
-        break;
-
-    case 3:
-        Push_LDREQ_Queue_Direct(230, 2);
-        break;
-    }
-}
-
-void Push_LDREQ_Queue_Direct(s16 ix, s16 id) {
-    LoadRequest ldreq = { 0 };
-    ldreq.type = ldreq_tbl[ix].type;
-    ldreq.id = id;
-    ldreq.ix = ldreq_tbl[ix].ix;
-    ldreq.frre = ldreq_tbl[ix].frre;
-    ldreq.kokey = ldreq_tbl[ix].kokey;
-    ldreq.key = 0;
-    ldreq.group = 0;
-    ldreq.result = &ldreq_result[ix];
-    Push_LDREQ_Queue(&ldreq);
-}
-
-void Check_LDREQ_Queue() {
-    if (!ldreq_break) {
-        if (q_ldreq[0].be != 0) {
-            ldreq_process[q_ldreq[0].type](&q_ldreq[0]);
-
-            if (q_ldreq[0].be == 0) {
-                int i;
-
-                for (i = 0; i < SDL_arraysize(q_ldreq) - 1; i++) {
-                    q_ldreq[i] = q_ldreq[i + 1];
-                }
-
-                q_ldreq[i].be = 0;
-                q_ldreq[i].type = 0;
-            }
-        }
-    } else {
-        if (q_ldreq[0].be == 1) {
-            fsCansel();
-        }
-
-        Init_Load_Request_Queue();
-    }
-}
-
-bool Check_LDREQ_Clear() {
-    return q_ldreq[0].be == 0 && q_ldreq[1].be == 0;
-}
-
-static bool Check_LDREQ_Queue_Union(s16 ix, u8 id) {
-    const int start = ldreq_ix[ix][0];
-    const int end = start + ldreq_ix[ix][1];
-
-    for (int i = start; i < end; i++) {
-        if (!(ldreq_result[i] & lpr_wrdata[id])) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool Check_LDREQ_Queue_Player(u8 id) {
-    return Check_LDREQ_Queue_Union(plt_req[id], id);
-}
-
-bool Check_LDREQ_Queue_BG(s16 ix) {
-    return Check_LDREQ_Queue_Union(ix + 20, 2);
-}
-
-bool Check_LDREQ_Queue_Direct(s16 ix) {
-    if (!(ldreq_result[ix] & lpr_wrdata[2])) {
-        return false;
-    }
-
-    return true;
-}
-
-void q_ldreq_error(LoadRequest* curr) {
-    curr->be = 0;
-    fatal_error("Q_LDREQ_ERROR: bad load request");
-}
 
 const LDREQ_Process_Func ldreq_process[6] = { q_ldreq_error,      q_ldreq_texture_group, q_ldreq_color_data,
                                               q_ldreq_color_data, q_ldreq_color_data,    q_ldreq_color_data };
 
-const LDREQ_TBL ldreq_tbl[294] = {
+const LDREQ_TBL ldreq_tbl[] = {
     {
         0x1,
         0x1,
@@ -2171,14 +1811,381 @@ const LDREQ_TBL ldreq_tbl[294] = {
     },
 };
 
-const s16 ldreq_ix[43][2] = { { 0x0000, 0x0005 }, { 0x0005, 0x0003 }, { 0x000A, 0x0004 }, { 0x000F, 0x0004 },
-                              { 0x0013, 0x0003 }, { 0x0019, 0x0005 }, { 0x001E, 0x0004 }, { 0x0023, 0x0005 },
-                              { 0x0028, 0x0003 }, { 0x002D, 0x0004 }, { 0x0032, 0x0003 }, { 0x0037, 0x0004 },
-                              { 0x003C, 0x0004 }, { 0x0041, 0x0004 }, { 0x0046, 0x0004 }, { 0x004B, 0x0004 },
-                              { 0x0050, 0x0003 }, { 0x0055, 0x0003 }, { 0x005A, 0x0003 }, { 0x005F, 0x0004 },
-                              { 0x0064, 0x0005 }, { 0x0069, 0x0003 }, { 0x006E, 0x0003 }, { 0x0073, 0x0003 },
-                              { 0x0078, 0x0003 }, { 0x007D, 0x0003 }, { 0x0082, 0x0003 }, { 0x0087, 0x0003 },
-                              { 0x008C, 0x0003 }, { 0x0091, 0x0003 }, { 0x0096, 0x0003 }, { 0x009B, 0x0003 },
-                              { 0x00A0, 0x0003 }, { 0x00A5, 0x0003 }, { 0x00AA, 0x0003 }, { 0x00AF, 0x0003 },
-                              { 0x00B4, 0x0003 }, { 0x00B9, 0x0003 }, { 0x00BE, 0x0003 }, { 0x00C3, 0x0003 },
-                              { 0x00C8, 0x0005 }, { 0x00CE, 0x0004 }, { 0x0016, 0x0003 } };
+const Span spans[] = {
+    { .start = 0, .length = 5 },   { .start = 5, .length = 3 },   { .start = 10, .length = 4 },
+    { .start = 15, .length = 4 },  { .start = 19, .length = 3 },  { .start = 25, .length = 5 },
+    { .start = 30, .length = 4 },  { .start = 35, .length = 5 },  { .start = 40, .length = 3 },
+    { .start = 45, .length = 4 },  { .start = 50, .length = 3 },  { .start = 55, .length = 4 },
+    { .start = 60, .length = 4 },  { .start = 65, .length = 4 },  { .start = 70, .length = 4 },
+    { .start = 75, .length = 4 },  { .start = 80, .length = 3 },  { .start = 85, .length = 3 },
+    { .start = 90, .length = 3 },  { .start = 95, .length = 4 },  { .start = 100, .length = 5 },
+    { .start = 105, .length = 3 }, { .start = 110, .length = 3 }, { .start = 115, .length = 3 },
+    { .start = 120, .length = 3 }, { .start = 125, .length = 3 }, { .start = 130, .length = 3 },
+    { .start = 135, .length = 3 }, { .start = 140, .length = 3 }, { .start = 145, .length = 3 },
+    { .start = 150, .length = 3 }, { .start = 155, .length = 3 }, { .start = 160, .length = 3 },
+    { .start = 165, .length = 3 }, { .start = 170, .length = 3 }, { .start = 175, .length = 3 },
+    { .start = 180, .length = 3 }, { .start = 185, .length = 3 }, { .start = 190, .length = 3 },
+    { .start = 195, .length = 3 }, { .start = 200, .length = 5 }, { .start = 206, .length = 4 },
+    { .start = 22, .length = 3 },
+};
+
+/// Load request queue
+static LoadRequest q_ldreq[16] = { 0 };
+
+static bool ldreq_break = false;
+static u8 ldreq_result[294] = { 0 };
+static AFSHandle afs_handle = AFS_NONE;
+
+void Push_LDREQ_Queue_Metamor();
+
+s32 fsOpen(LoadRequest* req) {
+    if (req->fnum >= AFS_GetFileCount()) {
+        return 0;
+    }
+
+    if (afs_handle != AFS_NONE) {
+        AFS_Close(afs_handle);
+    }
+
+    afs_handle = AFS_Open(req->fnum);
+
+    req->info.number = 1;
+    return 1;
+}
+
+void fsClose(LoadRequest* /* unused */) {
+    AFS_Close(afs_handle);
+    afs_handle = AFS_NONE;
+}
+
+u32 fsGetFileSize(u16 fnum) {
+    if (fnum >= AFS_GetFileCount()) {
+        return 0;
+    }
+
+    return AFS_GetSize(fnum);
+}
+
+u32 fsCalSectorSize(u32 size) {
+    return (size + 2048 - 1) / 2048;
+}
+
+static void fsCansel() {
+    if ((afs_handle != AFS_NONE) && (AFS_GetState(afs_handle) == AFS_READ_STATE_READING)) {
+        AFS_Stop(afs_handle);
+    }
+}
+
+bool fsCheckCommandExecuting() {
+    if (afs_handle == AFS_NONE) {
+        return false;
+    }
+
+    const AFSReadState state = AFS_GetState(afs_handle);
+
+    switch (state) {
+    case AFS_READ_STATE_READING:
+    case AFS_READ_STATE_ERROR:
+        return true;
+
+    case AFS_READ_STATE_IDLE:
+    case AFS_READ_STATE_FINISHED:
+        return false;
+
+    default:
+        fatal_error("Unhandled AFS state: %d", state);
+    }
+}
+
+s32 fsRequestFileRead(LoadRequest* /* unused */, void* buff) {
+    AFS_Read(afs_handle, buff);
+    return 1;
+}
+
+s32 fsCheckFileReaded(LoadRequest* /* unused */) {
+    const AFSReadState state = AFS_GetState(afs_handle);
+
+    switch (state) {
+    case AFS_READ_STATE_ERROR:
+        return 2;
+
+    case AFS_READ_STATE_READING:
+        return 0;
+
+    case AFS_READ_STATE_IDLE:
+    case AFS_READ_STATE_FINISHED:
+        return 1;
+
+    default:
+        fatal_error("Unhandled AFS state: %d", state);
+    }
+}
+
+s32 fsFileReadSync(LoadRequest* req, void* buff) {
+    AFS_ReadSync(afs_handle, buff);
+    const s32 rnum = fsCheckFileReaded(req);
+    return (rnum == 1) ? 1 : 0;
+}
+
+void waitVsyncDummy() {
+    AFS_RunServer(); // FIXME: Ideally we should only call this from the main loop
+    cseExecServer();
+}
+
+s32 load_it_use_any_key2(u16 fnum, void** adrs, s16* key, u8 kokey, u8 group) {
+    u32 size;
+    u32 err;
+
+    if (fnum >= AFS_GetFileCount()) {
+        flLogOut("ファイルナンバーに異常があります。ファイル番号：%d\n", fnum);
+        while (1) {}
+    }
+
+    size = fsGetFileSize(fnum);
+    *key = Pull_ramcnt_key(fsCalSectorSize(size) << 11, kokey, group, 0);
+    *adrs = (void*)Get_ramcnt_address(*key);
+
+    err = load_it_use_this_key(fnum, *key);
+
+    if (err != 0) {
+        return size;
+    }
+
+    Push_ramcnt_key(*key);
+    return 0;
+}
+
+s16 load_it_use_any_key(u16 fnum, u8 kokey, u8 group) {
+    u32 err;
+    void* adrs;
+    s16 key;
+
+    err = load_it_use_any_key2(fnum, &adrs, &key, kokey, group);
+
+    if (err != 0) {
+        return key;
+    }
+
+    return 0;
+}
+
+s32 load_it_use_this_key(u16 fnum, s16 key) {
+    LoadRequest req;
+    u32 err;
+
+    req.fnum = fnum;
+
+    while (1) {
+        err = fsOpen(&req);
+
+        if (err == 0) {
+            continue;
+        }
+
+        req.size = fsGetFileSize(req.fnum);
+        req.sect = fsCalSectorSize(req.size);
+        err = fsFileReadSync(&req, (void*)Get_ramcnt_address(key));
+        fsClose(&req);
+        Set_size_data_ramcnt_key(key, req.size);
+
+        if (err != 0) {
+            return 1;
+        }
+
+        flLogOut("ファイルの読み込みに失敗しました。ファイル番号：%d\n", fnum);
+    }
+}
+
+void Init_Load_Request_Queue() {
+    SDL_zeroa(q_ldreq);
+    ldreq_break = false;
+}
+
+void Request_LDREQ_Break() {
+    ldreq_break = true;
+}
+
+bool Check_LDREQ_Break() {
+    if (ldreq_break) {
+        return true;
+    }
+
+    return fsCheckCommandExecuting();
+}
+
+static void Push_LDREQ_Queue(const LoadRequest* ldreq) {
+    int i;
+
+    for (i = 0; i < SDL_arraysize(q_ldreq); i++) {
+        if (q_ldreq[i].be == 0) {
+            break;
+        }
+    }
+
+    if (i == SDL_arraysize(q_ldreq)) {
+        fatal_error("Load request buffer is full");
+    }
+
+    q_ldreq[i] = *ldreq;
+    q_ldreq[i].be = 2;
+    q_ldreq[i].rno = 0;
+
+    u8 masknum;
+
+    switch (ldreq->id) {
+    case 0:
+        masknum = 3;
+        break;
+
+    case 1:
+        masknum = 0xC0;
+        break;
+
+    default:
+        masknum = 0x3C;
+        break;
+    }
+
+    *q_ldreq[i].result &= ~masknum;
+}
+
+static void Push_LDREQ_Queue_Union(s16 ix) {
+    const Span span = spans[ix];
+    const int end = span.start + span.length;
+
+    for (int i = span.start; i < end; i++) {
+        LoadRequest ldreq = { 0 };
+        ldreq.type = ldreq_tbl[i].type;
+        ldreq.id = 2;
+        ldreq.ix = ldreq_tbl[i].ix;
+        ldreq.frre = ldreq_tbl[i].frre;
+        ldreq.kokey = ldreq_tbl[i].kokey;
+        ldreq.key = 0;
+        ldreq.group = 0;
+        ldreq.result = &ldreq_result[i];
+        Push_LDREQ_Queue(&ldreq);
+    }
+}
+
+void Push_LDREQ_Queue_Player(u8 id, Character character) {
+    const Span span = spans[character];
+    const int end = span.start + span.length;
+
+    plt_req[id] = character;
+
+    for (int i = span.start; i < end; i++) {
+        LoadRequest ldreq = { 0 };
+        ldreq.type = ldreq_tbl[i].type;
+        ldreq.id = id;
+        ldreq.ix = ldreq_tbl[i].ix;
+        ldreq.frre = ldreq_tbl[i].frre;
+        ldreq.key = 0;
+        ldreq.group = 0;
+        ldreq.result = &ldreq_result[i];
+
+        if (ldreq.type == 2) {
+            ldreq.kokey = lpc_seldat[id];
+        } else {
+            ldreq.kokey = lpt_seldat[id];
+        }
+
+        Push_LDREQ_Queue(&ldreq);
+    }
+}
+
+void Push_LDREQ_Queue_BG(s16 ix) {
+    Push_LDREQ_Queue_Union(ix + 20);
+    Push_LDREQ_Queue_Metamor();
+}
+
+void Push_LDREQ_Queue_Metamor() {
+    switch ((My_char[0] == CHAR_TWELVE) + (My_char[1] == CHAR_TWELVE) * 2) {
+    case 1:
+        Push_LDREQ_Queue_Direct(My_char[1] + 212, 0);
+        break;
+
+    case 2:
+        Push_LDREQ_Queue_Direct(My_char[0] + 212, 1);
+        break;
+
+    case 3:
+        Push_LDREQ_Queue_Direct(230, 2);
+        break;
+    }
+}
+
+void Push_LDREQ_Queue_Direct(s16 ix, s16 id) {
+    LoadRequest ldreq = { 0 };
+    ldreq.type = ldreq_tbl[ix].type;
+    ldreq.id = id;
+    ldreq.ix = ldreq_tbl[ix].ix;
+    ldreq.frre = ldreq_tbl[ix].frre;
+    ldreq.kokey = ldreq_tbl[ix].kokey;
+    ldreq.key = 0;
+    ldreq.group = 0;
+    ldreq.result = &ldreq_result[ix];
+    Push_LDREQ_Queue(&ldreq);
+}
+
+void Check_LDREQ_Queue() {
+    if (!ldreq_break) {
+        if (q_ldreq[0].be != 0) {
+            ldreq_process[q_ldreq[0].type](&q_ldreq[0]);
+
+            if (q_ldreq[0].be == 0) {
+                int i;
+
+                for (i = 0; i < SDL_arraysize(q_ldreq) - 1; i++) {
+                    q_ldreq[i] = q_ldreq[i + 1];
+                }
+
+                q_ldreq[i].be = 0;
+                q_ldreq[i].type = 0;
+            }
+        }
+    } else {
+        if (q_ldreq[0].be == 1) {
+            fsCansel();
+        }
+
+        Init_Load_Request_Queue();
+    }
+}
+
+bool Check_LDREQ_Clear() {
+    return q_ldreq[0].be == 0 && q_ldreq[1].be == 0;
+}
+
+static bool Check_LDREQ_Queue_Union(s16 ix, u8 id) {
+    const Span span = spans[ix];
+    const int end = span.start + span.length;
+
+    for (int i = span.start; i < end; i++) {
+        if (!(ldreq_result[i] & lpr_wrdata[id])) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool Check_LDREQ_Queue_Player(u8 id) {
+    return Check_LDREQ_Queue_Union(plt_req[id], id);
+}
+
+bool Check_LDREQ_Queue_BG(s16 ix) {
+    return Check_LDREQ_Queue_Union(ix + 20, 2);
+}
+
+bool Check_LDREQ_Queue_Direct(s16 ix) {
+    if (!(ldreq_result[ix] & lpr_wrdata[2])) {
+        return false;
+    }
+
+    return true;
+}
+
+void q_ldreq_error(LoadRequest* curr) {
+    curr->be = 0;
+    fatal_error("Q_LDREQ_ERROR: bad load request");
+}
