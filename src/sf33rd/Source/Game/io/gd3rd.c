@@ -41,10 +41,10 @@ Character plt_req[2];
 
 void q_ldreq_error(LoadRequest* curr);
 
-const LDREQ_Process_Func ldreq_process[6] = { q_ldreq_error,      q_ldreq_texture_group, q_ldreq_color_data,
-                                              q_ldreq_color_data, q_ldreq_color_data,    q_ldreq_color_data };
+static const LDREQ_Process_Func ldreq_process[6] = { q_ldreq_error,      q_ldreq_texture_group, q_ldreq_color_data,
+                                                     q_ldreq_color_data, q_ldreq_color_data,    q_ldreq_color_data };
 
-const LDREQ_TBL ldreq_tbl[] = {
+static const LDREQ_TBL ldreq_tbl[] = {
     {
         0x1,
         0x1,
@@ -1811,7 +1811,7 @@ const LDREQ_TBL ldreq_tbl[] = {
     },
 };
 
-const Span spans[] = {
+static const Span spans[] = {
     { .start = 0, .length = 5 },   { .start = 5, .length = 3 },   { .start = 10, .length = 4 },
     { .start = 15, .length = 4 },  { .start = 19, .length = 3 },  { .start = 25, .length = 5 },
     { .start = 30, .length = 4 },  { .start = 35, .length = 5 },  { .start = 40, .length = 3 },
@@ -1835,8 +1835,6 @@ static LoadRequest q_ldreq[16] = { 0 };
 static bool ldreq_break = false;
 static u8 ldreq_result[294] = { 0 };
 static AFSHandle afs_handle = AFS_NONE;
-
-void Push_LDREQ_Queue_Metamor();
 
 s32 fsOpen(LoadRequest* req) {
     if (req->fnum >= AFS_GetFileCount()) {
@@ -2093,12 +2091,7 @@ void Push_LDREQ_Queue_Player(u8 id, Character character) {
     }
 }
 
-void Push_LDREQ_Queue_BG(s16 ix) {
-    Push_LDREQ_Queue_Union(ix + 20);
-    Push_LDREQ_Queue_Metamor();
-}
-
-void Push_LDREQ_Queue_Metamor() {
+static void Push_LDREQ_Queue_Metamor() {
     switch ((My_char[0] == CHAR_TWELVE) + (My_char[1] == CHAR_TWELVE) * 2) {
     case 1:
         Push_LDREQ_Queue_Direct(My_char[1] + 212, 0);
@@ -2112,6 +2105,11 @@ void Push_LDREQ_Queue_Metamor() {
         Push_LDREQ_Queue_Direct(230, 2);
         break;
     }
+}
+
+void Push_LDREQ_Queue_BG(s16 ix) {
+    Push_LDREQ_Queue_Union(ix + 20);
+    Push_LDREQ_Queue_Metamor();
 }
 
 void Push_LDREQ_Queue_Direct(s16 ix, s16 id) {
