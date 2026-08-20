@@ -139,7 +139,7 @@ const TexGroupData texgrpdat[100] = { { 0, -1, 0, 0, 0, 0, 0 },
 // forward decls
 s32 load_any_texture_grpnum(u8 grp, u8 kokey);
 
-void q_ldreq_texture_group(REQ* curr) {
+void q_ldreq_texture_group(LoadRequest* curr) {
     const TexGroupData* bsd;
     uintptr_t ldadr;
     uintptr_t ldchd;
@@ -154,7 +154,7 @@ void q_ldreq_texture_group(REQ* curr) {
 
     switch (curr->rno) {
     case 0:
-        if (fsCheckCommandExecuting() != 0) {
+        if (fsCheckCommandExecuting()) {
             break;
         }
 
@@ -162,8 +162,8 @@ void q_ldreq_texture_group(REQ* curr) {
         curr->fnum = bsd->apfn;
 
         if (bsd->apfn == -1) {
-            *curr->result |= lpr_wrdata[curr->id];
-            curr->be = 0;
+            LDREQ_SetResultFlag(curr, true);
+            curr->status = LDREQ_STATUS_FREE;
         }
 
         if (bsd->num_of_1st == 0) {
@@ -196,8 +196,8 @@ void q_ldreq_texture_group(REQ* curr) {
                 }
 
                 if (rckey_work[curr->lds->key].type == 5) {
-                    *curr->result |= lpr_wrdata[curr->id];
-                    curr->be = 0;
+                    LDREQ_SetResultFlag(curr, true);
+                    curr->status = LDREQ_STATUS_FREE;
                     return;
                 }
 
@@ -207,17 +207,15 @@ void q_ldreq_texture_group(REQ* curr) {
             }
 
             rckey_work[curr->lds->key].type = curr->kokey;
-            *curr->result |= lpr_wrdata[curr->id];
-            curr->be = 0;
+            LDREQ_SetResultFlag(curr, true);
+            curr->status = LDREQ_STATUS_FREE;
             break;
         }
 
         /* fallthrough */
 
     case 1:
-        err = fsOpen(curr);
-
-        if (err == 0) {
+        if (!fsOpen(curr->fnum)) {
             curr->rno = 0;
             return;
         }
@@ -227,31 +225,30 @@ void q_ldreq_texture_group(REQ* curr) {
 
     case 2:
         curr->size = fsGetFileSize(curr->fnum);
-        curr->sect = fsCalSectorSize(curr->size);
-        curr->key = Pull_ramcnt_key(curr->sect << 0xB, curr->kokey, curr->group, curr->frre);
+        curr->key = Pull_ramcnt_key(curr->size, curr->kokey, curr->group, curr->frre);
         curr->lds->key = curr->key;
         Set_size_data_ramcnt_key(curr->key, curr->size);
         curr->rno = 3;
         /* fallthrough */
 
     case 3:
-        err = fsRequestFileRead(curr, (void*)Get_ramcnt_address(curr->key));
+        err = fsRequestFileRead((void*)Get_ramcnt_address(curr->key));
 
         if (err == 0) {
             Push_ramcnt_key(curr->key);
-            fsClose(curr);
+            fsClose();
             curr->rno = 0;
             return;
         }
 
         curr->rno = 4;
-        curr->be = 1;
+        curr->status = LDREQ_STATUS_RUNNING;
         break;
 
     case 4:
-        switch (fsCheckFileReaded(curr)) {
-        case 1:
-            fsClose(curr);
+        switch (fsCheckFileReaded()) {
+        case FS_READ_IDLE:
+            fsClose();
             ldadr = Get_ramcnt_address(curr->key);
             curr->lds->texture_table = ldadr + bsd->to_tex;
             curr->lds->trans_table = ldadr;
@@ -278,7 +275,7 @@ void q_ldreq_texture_group(REQ* curr) {
                 // Because 25 is the number of members in CharInitData struct, `i` goes
                 // to 25 too.
 
-                const s16 character_id = plt_req[curr->id];
+                const Character character_id = plt_req[curr->id];
                 CharInitData* dst = &char_init_data[plid_data[character_id]];
 
                 if (ArcadeBalance_IsEnabled()) {
@@ -334,17 +331,18 @@ void q_ldreq_texture_group(REQ* curr) {
                 parabora_own_table[character_id] = dst->prot;
             }
 
-            *curr->result |= lpr_wrdata[curr->id];
-            curr->be = 0;
+            LDREQ_SetResultFlag(curr, true);
+            curr->status = LDREQ_STATUS_FREE;
             break;
 
-        case 0:
+        case FS_READ_READING:
+            // Do nothing
             break;
 
-        default:
+        case FS_READ_ERROR:
             Push_ramcnt_key(curr->key);
-            fsClose(curr);
-            curr->be = 2;
+            fsClose();
+            curr->status = LDREQ_STATUS_IDLE;
             curr->rno = 0;
             break;
         }
@@ -367,15 +365,12 @@ void Init_texgrplds_work() {
 }
 
 void reservMemKeySelObj() {
-    TEX_GRP_LD* lds;
-    s32 size;
-
-    size = fsCalSectorSize(0x11372CU) << 0xB;
-    lds = &texgrplds[obj_group_table[0x69E0]];
-    lds->key = Pull_ramcnt_key(size, 0xD, 0, 1);
+    const int size = 1128236;
+    TEX_GRP_LD* lds = &texgrplds[obj_group_table[27104]];
+    lds->key = Pull_ramcnt_key(size, 13, 0, 1);
 
     if (lds->key < 0) {
-        while (1) {}
+        fatal_error("Failed to pull ramcnt key");
     }
 }
 
@@ -383,7 +378,6 @@ void checkSelObjFileLoaded() {
     const TexGroupData* bsd;
     TEX_GRP_LD* lds;
     uintptr_t ldadr;
-    s32 rnum;
 
     if (omSelObjNowOnMemoryType == mpp_w.language) {
         return;
@@ -398,9 +392,9 @@ void checkSelObjFileLoaded() {
     lds = &texgrplds[obj_group_table[0x69E0]];
 
     while (1) {
-        rnum = load_it_use_this_key(bsd->apfn, lds->key);
+        const bool success = load_it_use_this_key(bsd->apfn, lds->key);
 
-        if (rnum != 0) {
+        if (success) {
             break;
         }
     }

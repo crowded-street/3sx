@@ -63,7 +63,7 @@ s32 palFormConv;
 const u16 hitmark_color[128];
 const col_file_data color_file[161];
 
-void q_ldreq_color_data(REQ* curr) {
+void q_ldreq_color_data(LoadRequest* curr) {
     col_file_data* cfn;
     s32 err;
 
@@ -71,16 +71,14 @@ void q_ldreq_color_data(REQ* curr) {
 
     switch (curr->rno) {
     case 0:
-        if (fsCheckCommandExecuting() != 0) {
+        if (fsCheckCommandExecuting()) {
             break;
         }
+
         if (cfn->type == 10) {
-            if (sndCheckVTransStatus(0) == 0) {
-                break;
-            }
             if (cfn->data + 1 == cseGetIdStoredBd(curr->id + 1)) {
-                *curr->result |= lpr_wrdata[curr->id];
-                curr->be = 0;
+                LDREQ_SetResultFlag(curr, true);
+                curr->status = LDREQ_STATUS_FREE;
                 break;
             }
         }
@@ -89,75 +87,86 @@ void q_ldreq_color_data(REQ* curr) {
         curr->fnum = cfn->apfn;
 
         if (cfn->apfn == 0xFFFF) {
-            *curr->result |= lpr_wrdata[curr->id];
-            curr->be = 0;
+            LDREQ_SetResultFlag(curr, true);
+            curr->status = LDREQ_STATUS_FREE;
         }
+
         /* fallthrough */
+
     case 1:
-        err = fsOpen(curr);
-        if (err == 0) {
+        if (!fsOpen(curr->fnum)) {
             curr->rno = 0;
             break;
         }
+
         curr->rno = 2;
         /* fallthrough */
+
     case 2:
         curr->size = fsGetFileSize(curr->fnum);
-        curr->sect = fsCalSectorSize(curr->size);
-        curr->key = Pull_ramcnt_key(curr->sect << 11, curr->kokey, curr->group, curr->frre);
+        curr->key = Pull_ramcnt_key(curr->size, curr->kokey, curr->group, curr->frre);
         Set_size_data_ramcnt_key(curr->key, curr->size);
         curr->rno = 3;
         /* fallthrough */
+
     case 3:
-        err = fsRequestFileRead(curr, (void*)Get_ramcnt_address(curr->key));
+        err = fsRequestFileRead((void*)Get_ramcnt_address(curr->key));
 
         if (err == 0) {
             Push_ramcnt_key(curr->key);
-            fsClose(curr);
+            fsClose();
             curr->rno = 0;
         } else {
             curr->rno = 4;
-            curr->be = 1;
+            curr->status = LDREQ_STATUS_RUNNING;
         }
+
         break;
 
     case 4:
-        switch (fsCheckFileReaded(curr)) {
-        case 1:
+        switch (fsCheckFileReaded()) {
+        case FS_READ_IDLE:
             if (cfn->type == 10) {
-                fsClose(curr);
-                cseSendBd2SpuWithId((void*)Get_ramcnt_address(curr->key),
-                                    Get_size_data_ramcnt_key(curr->key),
-                                    curr->id + 1,
-                                    cfn->data + 1);
+                fsClose();
+
+                cseSendBd2SpuWithId(
+                    (void*)Get_ramcnt_address(curr->key),
+                    Get_size_data_ramcnt_key(curr->key),
+                    curr->id + 1,
+                    cfn->data + 1
+                );
+
                 curr->rno = 5;
             } else {
                 init_trans_color_ram(curr->id, curr->key, cfn->type, cfn->data);
-                fsClose(curr);
-                *curr->result |= lpr_wrdata[curr->id];
-                curr->be = 0;
+                fsClose();
+                LDREQ_SetResultFlag(curr, true);
+                curr->status = LDREQ_STATUS_FREE;
             }
+
             break;
-        case 0:
+
+        case FS_READ_READING:
+            // Do nothing
             break;
-        default:
+
+        case FS_READ_ERROR:
             Push_ramcnt_key(curr->key);
-            fsClose(curr);
-            curr->be = 2;
+            fsClose();
+            curr->status = LDREQ_STATUS_IDLE;
             curr->rno = 0;
             break;
         }
+
         break;
 
     case 5:
-        if (sndCheckVTransStatus(1) != 0) {
-            Push_ramcnt_key(curr->key);
-            cseMemMapSetPhdAddr(curr->id + 1, csePHDDataTable[cfn->data + 1]);
-            cseTsbSetBankAddr(curr->id + 1, cseTSBDataTable[cfn->data + 1]);
-            sdbd[curr->id + 1] = (s8*)cseTSBDataTable[cfn->data + 1];
-            *curr->result |= lpr_wrdata[curr->id];
-            curr->be = 0;
-        }
+        Push_ramcnt_key(curr->key);
+        cseMemMapSetPhdAddr(curr->id + 1, csePHDDataTable[cfn->data + 1]);
+        cseTsbSetBankAddr(curr->id + 1, cseTSBDataTable[cfn->data + 1]);
+        sdbd[curr->id + 1] = (s8*)cseTSBDataTable[cfn->data + 1];
+        LDREQ_SetResultFlag(curr, true);
+        curr->status = LDREQ_STATUS_FREE;
         break;
     }
 }
@@ -369,21 +378,11 @@ void init_trans_color_ram(s16 id, s16 key, u8 type, u16 data) {
     }
     case 8:
         cseSendBd2SpuWithId((void*)Get_ramcnt_address(key), Get_size_data_ramcnt_key(key), 0, 0);
-
-        while (!sndCheckVTransStatus(1)) {
-            waitVsyncDummy();
-        }
-
         Push_ramcnt_key(key);
         break;
 
     case 10:
         cseSendBd2SpuWithId((void*)Get_ramcnt_address(key), Get_size_data_ramcnt_key(key), id + 1, data + 1);
-
-        while (!sndCheckVTransStatus(1)) {
-            waitVsyncDummy();
-        }
-
         cseMemMapSetPhdAddr(id + 1, csePHDDataTable[data + 1]);
         cseTsbSetBankAddr(id + 1, cseTSBDataTable[data + 1]);
         sdbd[id + 1] = (s8*)cseTSBDataTable[data + 1];

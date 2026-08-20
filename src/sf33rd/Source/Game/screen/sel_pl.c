@@ -1574,7 +1574,7 @@ void Exit_2nd() {
         }
 #endif
 
-        Push_LDREQ_Queue_BG(bg_w.stage + 0);
+        Push_LDREQ_Queue_BG(bg_w.stage);
         return;
     }
 
@@ -1675,11 +1675,7 @@ void Exit_6th() {
         return;
     }
 
-    if (!Check_LDREQ_Queue_BG(bg_w.stage + 0)) {
-        return;
-    }
-
-    if (!sndCheckVTransStatus(0)) {
+    if (!Check_LDREQ_Queue_BG(bg_w.stage)) {
         return;
     }
 

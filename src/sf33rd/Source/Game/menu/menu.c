@@ -187,9 +187,8 @@ typedef struct {
 } LetterData;
 
 const MenuFunc Menu_Jmp_Tbl[14] = {
-    After_Title,      In_Game,          Wait_Load_Save, Wait_Replay_Check, After_Title,
-    Suspend_Menu,     Wait_Replay_Load, Training_Menu,  After_Replay,      After_Replay,
-    Wait_Pause_in_Tr, Reset_Training,   Reset_Replay,   End_Replay_Menu,
+    After_Title,   In_Game,      Wait_Load_Save, Wait_Replay_Check, After_Title,    Suspend_Menu, Wait_Replay_Load,
+    Training_Menu, After_Replay, After_Replay,   Wait_Pause_in_Tr,  Reset_Training, Reset_Replay, End_Replay_Menu,
 };
 
 u8 r_no_plus;
@@ -222,16 +221,16 @@ void Setup_Pad_or_Stick() {
 }
 
 void After_Title(struct _TASK* task_ptr) {
-    void (*AT_Jmp_Tbl[19])() = { Menu_Init,        Mode_Select,    Option_Select,  Option_Select, Training_Mode,
-                                 System_Direction,
+    void (*AT_Jmp_Tbl[19])() = { Menu_Init,     Mode_Select,      Option_Select, Option_Select,
+                                 Training_Mode, System_Direction,
 #if NETPLAY_ENABLED
                                  Netplay_Menu,
 #else
                                  Load_Replay,
 #endif
-                                 Option_Select,    toSelectGame,   Game_Option,    Button_Config, Screen_Adjust,
-                                 Sound_Test,       Option_Select,  Extra_Option,   Option_Select, VS_Result,
-                                 Save_Replay,      Direction_Menu };
+                                 Option_Select, toSelectGame,     Game_Option,   Button_Config,
+                                 Screen_Adjust, Sound_Test,       Option_Select, Extra_Option,
+                                 Option_Select, VS_Result,        Save_Replay,   Direction_Menu };
 
     AT_Jmp_Tbl[task_ptr->r_no[1]](task_ptr);
 }
@@ -1448,7 +1447,7 @@ void Load_Replay_Sub(struct _TASK* task_ptr) {
             Purge_memory_of_kind_of_key(0xC);
             Push_LDREQ_Queue_Player(0, My_char[0]);
             Push_LDREQ_Queue_Player(1, My_char[1]);
-            Push_LDREQ_Queue_BG((u16)bg_w.stage);
+            Push_LDREQ_Queue_BG(bg_w.stage);
         }
 
         break;
@@ -1461,8 +1460,7 @@ void Load_Replay_Sub(struct _TASK* task_ptr) {
         break;
 
     case 5:
-        if ((Check_PL_Load() != 0) && (Check_LDREQ_Queue_BG((u16)bg_w.stage) != 0) && (adx_now_playend() != 0) &&
-            (sndCheckVTransStatus(0) != 0)) {
+        if (Check_PL_Load() && Check_LDREQ_Queue_BG(bg_w.stage) && (adx_now_playend() != 0)) {
             task_ptr->r_no[3] += 1;
             Switch_Screen_Init(0);
             init_omop();
@@ -3855,7 +3853,7 @@ void Reset_Training(struct _TASK* task_ptr) {
             break;
         }
 
-        if (Check_LDREQ_Break() == 0) {
+        if (!Check_LDREQ_Break()) {
             task_ptr->r_no[1]++;
             Switch_Screen_Init(0);
             break;
@@ -3922,7 +3920,7 @@ void Reset_Replay(struct _TASK* task_ptr) {
             break;
         }
 
-        if (Check_LDREQ_Break() == 0) {
+        if (!Check_LDREQ_Break()) {
             task_ptr->r_no[1]++;
             Switch_Screen_Init(0);
             break;
@@ -4761,7 +4759,7 @@ void Character_Change(struct _TASK* task_ptr) {
 
         case 1:
             if ((task_ptr->timer -= 1) == 0) {
-                if ((Check_LDREQ_Break() == 0)) {
+                if (!Check_LDREQ_Break()) {
                     task_ptr->r_no[2]++;
                     Switch_Screen_Init(0);
                     return;

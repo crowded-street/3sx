@@ -51,7 +51,7 @@ void BG_move();
 void BG_move_Ex(u8 ix);
 void Basic_Sub();
 void Basic_Sub_Ex();
-s32 Check_PL_Load();
+bool Check_PL_Load();
 void BG_Draw_System();
 u16 Check_Demo_Data(s16 PL_id);
 void System_all_clear_Level_B();

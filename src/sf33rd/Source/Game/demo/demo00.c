@@ -126,7 +126,7 @@ s32 CAPCOM_Logo() {
         D_No[1] += 1;
         Standby_BGM(67);
         CAPLOGO_Init();
-        Push_LDREQ_Queue_Direct(0x16, 2);
+        Push_LDREQ_Queue_Direct(22, LDREQ_ID_SHARED);
         FadeInit();
         break;
 
@@ -150,7 +150,7 @@ s32 CAPCOM_Logo() {
     case 4:
         if (!CAPLOGO_Move(0)) {
             D_No[1] += 1;
-            Push_LDREQ_Queue_Direct(0x17, 2);
+            Push_LDREQ_Queue_Direct(23, LDREQ_ID_SHARED);
             FadeInit();
         }
 
@@ -162,7 +162,7 @@ s32 CAPCOM_Logo() {
         if (FadeIn(1, 6, 8) != 0) {
             D_No[1] += 1;
             D_Timer = 256;
-            Push_LDREQ_Queue_Direct(0x18, 2);
+            Push_LDREQ_Queue_Direct(24, LDREQ_ID_SHARED);
         }
 
         break;

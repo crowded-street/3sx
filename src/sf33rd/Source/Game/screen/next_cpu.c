@@ -617,7 +617,7 @@ void Select_CPU_1st() {
     Moving_Plate[Player_id] = 0;
 
     if (VS_Index[Player_id] >= 8) {
-        Push_LDREQ_Queue_Direct(9, 2);
+        Push_LDREQ_Queue_Direct(9, LDREQ_ID_SHARED);
     }
 }
 
@@ -913,7 +913,7 @@ void Next_Bonus_3rd() {
         }
 
         if ((S_Timer -= 1) == 0) {
-            if (Check_PL_Load() == 0) {
+            if (!Check_PL_Load()) {
                 S_Timer = 1;
                 break;
             }
@@ -1132,7 +1132,7 @@ void Setup_Next_Fighter() {
     }
 #endif
 
-    Push_LDREQ_Queue_BG(bg_w.stage + 0);
+    Push_LDREQ_Queue_BG(bg_w.stage);
     bg_w.area = 0;
     Super_Arts[COM_id] = Stock_Com_Arts[Player_id] = Setup_Com_Arts();
 
@@ -1490,7 +1490,7 @@ s8 Check_Bonus_Stage() {
     Setup_Com_Color();
     Setup_PL_Color(COM_id, Com_Color_Shot);
     Push_LDREQ_Queue_Player(COM_id, My_char[COM_id]);
-    Push_LDREQ_Queue_BG(Bonus_Type + 0);
+    Push_LDREQ_Queue_BG(Bonus_Type);
     return Completion_Bonus[Player_id][Bonus_Type - 20] = 1;
 }
 

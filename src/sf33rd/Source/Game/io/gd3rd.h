@@ -1,36 +1,112 @@
 #ifndef GD3RD_H
 #define GD3RD_H
 
-#include "structs.h"
+#include "constants.h"
 #include "types.h"
 
-extern s16 plt_req[2];
-extern const u8 lpr_wrdata[3];
+#include <stdbool.h>
+
+typedef enum LoadRequestStatus {
+    LDREQ_STATUS_FREE,
+    LDREQ_STATUS_RUNNING,
+    LDREQ_STATUS_IDLE,
+} LoadRequestStatus;
+
+typedef enum LoadRequestType {
+    LDREQ_INVALID,
+    LDREQ_TEXTURE,
+    LDREQ_COLOR,
+    LDREQ_SCREEN,
+    LDREQ_SOUND,
+    LDREQ_KANJI,
+} LoadRequestType;
+
+typedef enum LoadRequestID {
+    LDREQ_ID_PLAYER_1,
+    LDREQ_ID_PLAYER_2,
+    LDREQ_ID_SHARED,
+} LoadRequestID;
+
+typedef struct {
+    s8 ok;
+    s8 type;
+    s16 key;
+    uintptr_t texture_table;
+    uintptr_t trans_table;
+} TEX_GRP_LD;
+
+typedef struct LoadRequest {
+    LoadRequestStatus status;
+    LoadRequestType type;
+    LoadRequestID id;
+    u8 rno;
+    u8 ix;
+    u8 frre;
+    s16 key;
+    u8 kokey;
+    u8 group;
+    u8* result;
+    s32 size;
+    u16 fnum;
+    u8 free[2];
+    TEX_GRP_LD* lds;
+} LoadRequest;
+
+typedef enum FileReadStatus {
+    FS_READ_IDLE,
+    FS_READ_READING,
+    FS_READ_ERROR,
+} FileReadStatus;
+
+/// Per-player character data requests
+extern Character plt_req[2];
+
 extern const u8 lpt_seldat[4];
 
-s32 fsOpen(REQ* req);
-void fsClose(REQ* /* unused */);
+bool fsOpen(u16 fnum);
+void fsClose();
 u32 fsGetFileSize(u16 fnum);
-u32 fsCalSectorSize(u32 size);
-s32 fsCheckCommandExecuting();
-s32 fsRequestFileRead(REQ* /* unused */, void* buff);
-s32 fsCheckFileReaded(REQ* /* unused */);
-s32 fsFileReadSync(REQ* req, void* buff);
-void waitVsyncDummy();
+bool fsCheckCommandExecuting();
+s32 fsRequestFileRead(void* buff);
+FileReadStatus fsCheckFileReaded();
+bool fsFileReadSync(void* buff);
+
 s16 load_it_use_any_key(u16 fnum, u8 kokey, u8 group);
 s32 load_it_use_any_key2(u16 fnum, void** adrs, s16* key, u8 kokey, u8 group);
-s32 load_it_use_this_key(u16 fnum, s16 key);
-void Init_Load_Request_Queue_1st();
+bool load_it_use_this_key(u16 fnum, s16 key);
+
+void Init_Load_Request_Queue();
 void Request_LDREQ_Break();
-u8 Check_LDREQ_Break();
-void Push_LDREQ_Queue_Player(s16 id, s16 ix);
+bool Check_LDREQ_Break();
+
+/// Push load requests for character data
+/// @param id Player ID
+/// @param character Character to load data for
+void Push_LDREQ_Queue_Player(u8 id, Character character);
+
+/// Check if all load requests for player have been processed
+/// @param id Player ID
+bool Check_LDREQ_Queue_Player(u8 id);
+
+/// Process load request queue
 void Check_LDREQ_Queue();
-s32 Check_LDREQ_Clear();
-s32 Check_LDREQ_Queue_Player(s16 id);
-void Push_LDREQ_Queue_Direct(s16 ix, s16 id);
-void Push_LDREQ_Queue_Player(s16 id, s16 ix);
+
+/// Check if load request queue is empty
+bool Check_LDREQ_Clear();
+
+/// Push a single load request
+/// @param ix Index of load request info
+/// @param id Request id
+void Push_LDREQ_Queue_Direct(s16 ix, LoadRequestID id);
+
+bool Check_LDREQ_Queue_Direct(s16 ix);
+
 void Push_LDREQ_Queue_BG(s16 ix);
-s32 Check_LDREQ_Queue_BG(s16 ix);
-s32 Check_LDREQ_Queue_Direct(s16 ix);
+
+/// Check if all load requests for background have been processed
+/// @param ix Background index
+bool Check_LDREQ_Queue_BG(s16 ix);
+
+void LDREQ_SetResultFlag(LoadRequest* request, bool flag);
 
 #endif

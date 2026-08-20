@@ -11,7 +11,6 @@ extern SoundEvent* cseTSBDataTable[];
 extern s8* csePHDDataTable[];
 
 void Init_sound_system();
-s32 sndCheckVTransStatus(s32 type);
 void sndInitialLoad();
 void checkAdxFileLoaded();
 void Exit_sound_system();

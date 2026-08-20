@@ -226,8 +226,6 @@ void pulpul_stop2(s16 ix) {
 
     ppwork[ix].ok_dev = 0;
     ppwork[ix].p[0].ppnew = 0;
-
-    waitVsyncDummy();
 }
 
 void pulpul_request(s16 id, s16 ix) {

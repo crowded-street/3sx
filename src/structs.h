@@ -1144,40 +1144,9 @@ typedef union {
 } MTX;
 
 typedef struct {
-    s8 ok;
-    s8 type;
-    s16 key;
-    uintptr_t texture_table;
-    uintptr_t trans_table;
-} TEX_GRP_LD;
-
-typedef struct {
     u8 wh;
     u8 dat[4];
 } TEX;
-
-typedef struct {
-    u8 be;
-    u8 type;
-    s16 id;
-    u8 rno;
-    u8 retry;
-    u8 ix;
-    u8 frre;
-    s16 key;
-    u8 kokey;
-    u8 group;
-    u8* result;
-    s32 size;
-    s32 sect;
-    u16 fnum;
-    u8 free[2];
-    TEX_GRP_LD* lds;
-    struct {
-        u32 number;
-        u32 size;
-    } info;
-} REQ;
 
 struct _cursor_infor {
     u8 first_x;

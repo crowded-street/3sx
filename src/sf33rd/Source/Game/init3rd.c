@@ -87,7 +87,7 @@ void Init_Task_1st(struct _TASK* task_ptr) {
     }
 
     init_pulpul_work();
-    Init_Load_Request_Queue_1st();
+    Init_Load_Request_Queue();
     Game_Data_Init();
 
     for (ix = 0; ix < 6; ix++) {
