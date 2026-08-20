@@ -21,7 +21,6 @@
 
 typedef void (*LDREQ_Process_Func)(LoadRequest*);
 
-const u8 lpr_wrdata[3] = { 0x03, 0xC0, 0x3C };
 const u8 lpc_seldat[2] = { 10, 11 };
 const u8 lpt_seldat[4] = { 3, 4, 5, 0 };
 
@@ -174,6 +173,21 @@ bool load_it_use_this_key(u16 fnum, s16 key) {
     return true;
 }
 
+bool LDREQ_GetResultFlag(u8* result, LoadRequestID id) {
+    const u8 mask = 1 << id;
+    return (bool)(*result & mask);
+}
+
+void LDREQ_SetResultFlag(LoadRequest* request, bool flag) {
+    const u8 mask = 1 << request->id;
+
+    if (flag) {
+        *request->result |= mask;
+    } else {
+        *request->result &= ~mask;
+    }
+}
+
 void Init_Load_Request_Queue() {
     SDL_zeroa(q_ldreq);
     ldreq_break = false;
@@ -208,23 +222,7 @@ static void Push_LDREQ_Queue(const LoadRequest* ldreq) {
     q_ldreq[i].status = LDREQ_STATUS_IDLE;
     q_ldreq[i].rno = 0;
 
-    u8 masknum;
-
-    switch (ldreq->id) {
-    case LDREQ_ID_PLAYER_1:
-        masknum = 3;
-        break;
-
-    case LDREQ_ID_PLAYER_2:
-        masknum = 0xC0;
-        break;
-
-    case LDREQ_ID_SHARED:
-        masknum = 0x3C;
-        break;
-    }
-
-    *q_ldreq[i].result &= ~masknum;
+    LDREQ_SetResultFlag(ldreq, false);
 }
 
 static void Push_LDREQ_Queue_Union(s16 ix) {
@@ -344,7 +342,7 @@ static bool Check_LDREQ_Queue_Union(s16 ix, LoadRequestID id) {
     const int end = span.start + span.length;
 
     for (int i = span.start; i < end; i++) {
-        if (!(ldreq_result[i] & lpr_wrdata[id])) {
+        if (!LDREQ_GetResultFlag(&ldreq_result[i], id)) {
             return false;
         }
     }
@@ -361,11 +359,7 @@ bool Check_LDREQ_Queue_BG(s16 ix) {
 }
 
 bool Check_LDREQ_Queue_Direct(s16 ix) {
-    if (!(ldreq_result[ix] & lpr_wrdata[2])) {
-        return false;
-    }
-
-    return true;
+    return LDREQ_GetResultFlag(&ldreq_result[ix], 2);
 }
 
 void q_ldreq_error(LoadRequest* curr) {

@@ -77,7 +77,7 @@ void q_ldreq_color_data(LoadRequest* curr) {
 
         if (cfn->type == 10) {
             if (cfn->data + 1 == cseGetIdStoredBd(curr->id + 1)) {
-                *curr->result |= lpr_wrdata[curr->id];
+                LDREQ_SetResultFlag(curr, true);
                 curr->status = LDREQ_STATUS_FREE;
                 break;
             }
@@ -87,7 +87,7 @@ void q_ldreq_color_data(LoadRequest* curr) {
         curr->fnum = cfn->apfn;
 
         if (cfn->apfn == 0xFFFF) {
-            *curr->result |= lpr_wrdata[curr->id];
+            LDREQ_SetResultFlag(curr, true);
             curr->status = LDREQ_STATUS_FREE;
         }
 
@@ -140,7 +140,7 @@ void q_ldreq_color_data(LoadRequest* curr) {
             } else {
                 init_trans_color_ram(curr->id, curr->key, cfn->type, cfn->data);
                 fsClose();
-                *curr->result |= lpr_wrdata[curr->id];
+                LDREQ_SetResultFlag(curr, true);
                 curr->status = LDREQ_STATUS_FREE;
             }
 
@@ -165,7 +165,7 @@ void q_ldreq_color_data(LoadRequest* curr) {
         cseMemMapSetPhdAddr(curr->id + 1, csePHDDataTable[cfn->data + 1]);
         cseTsbSetBankAddr(curr->id + 1, cseTSBDataTable[cfn->data + 1]);
         sdbd[curr->id + 1] = (s8*)cseTSBDataTable[cfn->data + 1];
-        *curr->result |= lpr_wrdata[curr->id];
+        LDREQ_SetResultFlag(curr, true);
         curr->status = LDREQ_STATUS_FREE;
         break;
     }

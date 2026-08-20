@@ -162,7 +162,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
         curr->fnum = bsd->apfn;
 
         if (bsd->apfn == -1) {
-            *curr->result |= lpr_wrdata[curr->id];
+            LDREQ_SetResultFlag(curr, true);
             curr->status = LDREQ_STATUS_FREE;
         }
 
@@ -196,7 +196,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
                 }
 
                 if (rckey_work[curr->lds->key].type == 5) {
-                    *curr->result |= lpr_wrdata[curr->id];
+                    LDREQ_SetResultFlag(curr, true);
                     curr->status = LDREQ_STATUS_FREE;
                     return;
                 }
@@ -207,7 +207,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
             }
 
             rckey_work[curr->lds->key].type = curr->kokey;
-            *curr->result |= lpr_wrdata[curr->id];
+            LDREQ_SetResultFlag(curr, true);
             curr->status = LDREQ_STATUS_FREE;
             break;
         }
@@ -331,7 +331,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
                 parabora_own_table[character_id] = dst->prot;
             }
 
-            *curr->result |= lpr_wrdata[curr->id];
+            LDREQ_SetResultFlag(curr, true);
             curr->status = LDREQ_STATUS_FREE;
             break;
 

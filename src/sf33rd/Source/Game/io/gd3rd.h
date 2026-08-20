@@ -61,7 +61,6 @@ typedef enum FileReadStatus {
 /// Per-player character data requests
 extern Character plt_req[2];
 
-extern const u8 lpr_wrdata[3];
 extern const u8 lpt_seldat[4];
 
 bool fsOpen(u16 fnum);
@@ -107,5 +106,7 @@ void Push_LDREQ_Queue_BG(s16 ix);
 /// Check if all load requests for background have been processed
 /// @param ix Background index
 bool Check_LDREQ_Queue_BG(s16 ix);
+
+void LDREQ_SetResultFlag(LoadRequest* request, bool flag);
 
 #endif
