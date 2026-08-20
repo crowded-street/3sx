@@ -49,8 +49,6 @@ s32 fsOpen(LoadRequest* req) {
     }
 
     afs_handle = AFS_Open(req->fnum);
-
-    req->info.number = 1;
     return 1;
 }
 

@@ -30,10 +30,6 @@ typedef struct LoadRequest {
     u16 fnum;
     u8 free[2];
     TEX_GRP_LD* lds;
-    struct {
-        u32 number;
-        u32 size;
-    } info;
 } LoadRequest;
 
 /// Per-player character data requests
