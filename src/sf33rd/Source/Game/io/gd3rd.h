@@ -44,7 +44,7 @@ u32 fsGetFileSize(u16 fnum);
 bool fsCheckCommandExecuting();
 s32 fsRequestFileRead(void* buff);
 s32 fsCheckFileReaded();
-s32 fsFileReadSync(void* buff);
+bool fsFileReadSync(void* buff);
 
 s16 load_it_use_any_key(u16 fnum, u8 kokey, u8 group);
 s32 load_it_use_any_key2(u16 fnum, void** adrs, s16* key, u8 kokey, u8 group);

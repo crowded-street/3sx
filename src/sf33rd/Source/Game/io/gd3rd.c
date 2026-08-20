@@ -116,10 +116,10 @@ s32 fsCheckFileReaded() {
     }
 }
 
-s32 fsFileReadSync(void* buff) {
+bool fsFileReadSync(void* buff) {
     AFS_ReadSync(afs_handle, buff);
     const s32 rnum = fsCheckFileReaded();
-    return (rnum == 1) ? 1 : 0;
+    return rnum == 1;
 }
 
 s32 load_it_use_any_key2(u16 fnum, void** adrs, s16* key, u8 kokey, u8 group) {
@@ -162,7 +162,7 @@ bool load_it_use_this_key(u16 fnum, s16 key) {
     }
 
     const u32 size = fsGetFileSize(fnum);
-    bool success = (fsFileReadSync((void*)Get_ramcnt_address(key)) == 1) ? true : false;
+    bool success = fsFileReadSync((void*)Get_ramcnt_address(key));
     fsClose();
     Set_size_data_ramcnt_key(key, size);
 
