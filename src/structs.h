@@ -1343,7 +1343,6 @@ typedef struct {
     s16 apfn;
     s16 conv;
     s16 ix1st;
-    u32 use;
     u32 to_tex;
     u32 to_chd;
 } TexGroupData;
