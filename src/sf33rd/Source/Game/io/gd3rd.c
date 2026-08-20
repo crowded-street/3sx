@@ -195,7 +195,7 @@ static void Push_LDREQ_Queue(const LoadRequest* ldreq) {
     int i;
 
     for (i = 0; i < SDL_arraysize(q_ldreq); i++) {
-        if (q_ldreq[i].be == 0) {
+        if (q_ldreq[i].status == LDREQ_STATUS_FREE) {
             break;
         }
     }
@@ -205,7 +205,7 @@ static void Push_LDREQ_Queue(const LoadRequest* ldreq) {
     }
 
     q_ldreq[i] = *ldreq;
-    q_ldreq[i].be = 2;
+    q_ldreq[i].status = LDREQ_STATUS_IDLE;
     q_ldreq[i].rno = 0;
 
     u8 masknum;
@@ -312,22 +312,22 @@ void Push_LDREQ_Queue_Direct(s16 ix, LoadRequestID id) {
 
 void Check_LDREQ_Queue() {
     if (!ldreq_break) {
-        if (q_ldreq[0].be != 0) {
+        if (q_ldreq[0].status != LDREQ_STATUS_FREE) {
             ldreq_process[q_ldreq[0].type](&q_ldreq[0]);
 
-            if (q_ldreq[0].be == 0) {
+            if (q_ldreq[0].status == LDREQ_STATUS_FREE) {
                 int i;
 
                 for (i = 0; i < SDL_arraysize(q_ldreq) - 1; i++) {
                     q_ldreq[i] = q_ldreq[i + 1];
                 }
 
-                q_ldreq[i].be = 0;
+                q_ldreq[i].status = LDREQ_STATUS_FREE;
                 q_ldreq[i].type = LDREQ_INVALID;
             }
         }
     } else {
-        if (q_ldreq[0].be == 1) {
+        if (q_ldreq[0].status == LDREQ_STATUS_RUNNING) {
             fsCansel();
         }
 
@@ -336,7 +336,7 @@ void Check_LDREQ_Queue() {
 }
 
 bool Check_LDREQ_Clear() {
-    return q_ldreq[0].be == 0 && q_ldreq[1].be == 0;
+    return q_ldreq[0].status == LDREQ_STATUS_FREE && q_ldreq[1].status == LDREQ_STATUS_FREE;
 }
 
 static bool Check_LDREQ_Queue_Union(s16 ix, LoadRequestID id) {
@@ -369,6 +369,6 @@ bool Check_LDREQ_Queue_Direct(s16 ix) {
 }
 
 void q_ldreq_error(LoadRequest* curr) {
-    curr->be = 0;
+    curr->status = LDREQ_STATUS_FREE;
     fatal_error("Q_LDREQ_ERROR: bad load request");
 }

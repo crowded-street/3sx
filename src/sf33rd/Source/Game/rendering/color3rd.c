@@ -78,7 +78,7 @@ void q_ldreq_color_data(LoadRequest* curr) {
         if (cfn->type == 10) {
             if (cfn->data + 1 == cseGetIdStoredBd(curr->id + 1)) {
                 *curr->result |= lpr_wrdata[curr->id];
-                curr->be = 0;
+                curr->status = LDREQ_STATUS_FREE;
                 break;
             }
         }
@@ -88,7 +88,7 @@ void q_ldreq_color_data(LoadRequest* curr) {
 
         if (cfn->apfn == 0xFFFF) {
             *curr->result |= lpr_wrdata[curr->id];
-            curr->be = 0;
+            curr->status = LDREQ_STATUS_FREE;
         }
 
         /* fallthrough */
@@ -118,7 +118,7 @@ void q_ldreq_color_data(LoadRequest* curr) {
             curr->rno = 0;
         } else {
             curr->rno = 4;
-            curr->be = 1;
+            curr->status = LDREQ_STATUS_RUNNING;
         }
 
         break;
@@ -141,7 +141,7 @@ void q_ldreq_color_data(LoadRequest* curr) {
                 init_trans_color_ram(curr->id, curr->key, cfn->type, cfn->data);
                 fsClose();
                 *curr->result |= lpr_wrdata[curr->id];
-                curr->be = 0;
+                curr->status = LDREQ_STATUS_FREE;
             }
 
             break;
@@ -153,7 +153,7 @@ void q_ldreq_color_data(LoadRequest* curr) {
         case FS_READ_ERROR:
             Push_ramcnt_key(curr->key);
             fsClose();
-            curr->be = 2;
+            curr->status = LDREQ_STATUS_IDLE;
             curr->rno = 0;
             break;
         }
@@ -166,7 +166,7 @@ void q_ldreq_color_data(LoadRequest* curr) {
         cseTsbSetBankAddr(curr->id + 1, cseTSBDataTable[cfn->data + 1]);
         sdbd[curr->id + 1] = (s8*)cseTSBDataTable[cfn->data + 1];
         *curr->result |= lpr_wrdata[curr->id];
-        curr->be = 0;
+        curr->status = LDREQ_STATUS_FREE;
         break;
     }
 }

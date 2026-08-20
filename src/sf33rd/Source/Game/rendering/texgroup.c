@@ -163,7 +163,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
 
         if (bsd->apfn == -1) {
             *curr->result |= lpr_wrdata[curr->id];
-            curr->be = 0;
+            curr->status = LDREQ_STATUS_FREE;
         }
 
         if (bsd->num_of_1st == 0) {
@@ -197,7 +197,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
 
                 if (rckey_work[curr->lds->key].type == 5) {
                     *curr->result |= lpr_wrdata[curr->id];
-                    curr->be = 0;
+                    curr->status = LDREQ_STATUS_FREE;
                     return;
                 }
 
@@ -208,7 +208,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
 
             rckey_work[curr->lds->key].type = curr->kokey;
             *curr->result |= lpr_wrdata[curr->id];
-            curr->be = 0;
+            curr->status = LDREQ_STATUS_FREE;
             break;
         }
 
@@ -242,7 +242,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
         }
 
         curr->rno = 4;
-        curr->be = 1;
+        curr->status = LDREQ_STATUS_RUNNING;
         break;
 
     case 4:
@@ -332,7 +332,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
             }
 
             *curr->result |= lpr_wrdata[curr->id];
-            curr->be = 0;
+            curr->status = LDREQ_STATUS_FREE;
             break;
 
         case FS_READ_READING:
@@ -342,7 +342,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
         case FS_READ_ERROR:
             Push_ramcnt_key(curr->key);
             fsClose();
-            curr->be = 2;
+            curr->status = LDREQ_STATUS_IDLE;
             curr->rno = 0;
             break;
         }
