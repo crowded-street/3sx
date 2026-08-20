@@ -124,7 +124,6 @@ s32 fsFileReadSync(void* buff) {
 
 s32 load_it_use_any_key2(u16 fnum, void** adrs, s16* key, u8 kokey, u8 group) {
     u32 size;
-    u32 err;
 
     if (fnum >= AFS_GetFileCount()) {
         flLogOut("ファイルナンバーに異常があります。ファイル番号：%d\n", fnum);
@@ -135,14 +134,12 @@ s32 load_it_use_any_key2(u16 fnum, void** adrs, s16* key, u8 kokey, u8 group) {
     *key = Pull_ramcnt_key(size, kokey, group, 0);
     *adrs = (void*)Get_ramcnt_address(*key);
 
-    err = load_it_use_this_key(fnum, *key);
-
-    if (err != 0) {
+    if (load_it_use_this_key(fnum, *key)) {
         return size;
+    } else {
+        Push_ramcnt_key(*key);
+        return 0;
     }
-
-    Push_ramcnt_key(*key);
-    return 0;
 }
 
 s16 load_it_use_any_key(u16 fnum, u8 kokey, u8 group) {
@@ -159,30 +156,21 @@ s16 load_it_use_any_key(u16 fnum, u8 kokey, u8 group) {
     return 0;
 }
 
-s32 load_it_use_this_key(u16 fnum, s16 key) {
-    LoadRequest req;
-    bool success;
-
-    req.fnum = fnum;
-
-    while (1) {
-        success = fsOpen(req.fnum);
-
-        if (!success) {
-            continue;
-        }
-
-        req.size = fsGetFileSize(req.fnum);
-        success = (fsFileReadSync((void*)Get_ramcnt_address(key)) == 1) ? true : false;
-        fsClose();
-        Set_size_data_ramcnt_key(key, req.size);
-
-        if (success) {
-            return 1;
-        }
-
-        flLogOut("ファイルの読み込みに失敗しました。ファイル番号：%d\n", fnum);
+bool load_it_use_this_key(u16 fnum, s16 key) {
+    if (!fsOpen(fnum)) {
+        fatal_error("load_it_use_this_key: Failed to open file %d", fnum);
     }
+
+    const u32 size = fsGetFileSize(fnum);
+    bool success = (fsFileReadSync((void*)Get_ramcnt_address(key)) == 1) ? true : false;
+    fsClose();
+    Set_size_data_ramcnt_key(key, size);
+
+    if (!success) {
+        fatal_error("load_it_use_this_key: Failed to read file %d", fnum);
+    }
+
+    return true;
 }
 
 void Init_Load_Request_Queue() {

@@ -377,7 +377,6 @@ void checkSelObjFileLoaded() {
     const TexGroupData* bsd;
     TEX_GRP_LD* lds;
     uintptr_t ldadr;
-    s32 rnum;
 
     if (omSelObjNowOnMemoryType == mpp_w.language) {
         return;
@@ -392,9 +391,9 @@ void checkSelObjFileLoaded() {
     lds = &texgrplds[obj_group_table[0x69E0]];
 
     while (1) {
-        rnum = load_it_use_this_key(bsd->apfn, lds->key);
+        const bool success = load_it_use_this_key(bsd->apfn, lds->key);
 
-        if (rnum != 0) {
+        if (success) {
             break;
         }
     }

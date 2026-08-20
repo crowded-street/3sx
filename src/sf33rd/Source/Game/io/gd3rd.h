@@ -48,7 +48,7 @@ s32 fsFileReadSync(void* buff);
 
 s16 load_it_use_any_key(u16 fnum, u8 kokey, u8 group);
 s32 load_it_use_any_key2(u16 fnum, void** adrs, s16* key, u8 kokey, u8 group);
-s32 load_it_use_this_key(u16 fnum, s16 key);
+bool load_it_use_this_key(u16 fnum, s16 key);
 
 void Init_Load_Request_Queue();
 void Request_LDREQ_Break();
