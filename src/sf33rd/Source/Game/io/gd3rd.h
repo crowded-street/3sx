@@ -45,7 +45,6 @@ extern const u8 lpt_seldat[4];
 s32 fsOpen(LoadRequest* req);
 void fsClose();
 u32 fsGetFileSize(u16 fnum);
-u32 fsCalSectorSize(u32 size);
 bool fsCheckCommandExecuting();
 s32 fsRequestFileRead(void* buff);
 s32 fsCheckFileReaded();

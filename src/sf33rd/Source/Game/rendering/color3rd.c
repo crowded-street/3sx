@@ -100,8 +100,7 @@ void q_ldreq_color_data(LoadRequest* curr) {
         /* fallthrough */
     case 2:
         curr->size = fsGetFileSize(curr->fnum);
-        curr->sect = fsCalSectorSize(curr->size);
-        curr->key = Pull_ramcnt_key(curr->sect << 11, curr->kokey, curr->group, curr->frre);
+        curr->key = Pull_ramcnt_key(curr->size, curr->kokey, curr->group, curr->frre);
         Set_size_data_ramcnt_key(curr->key, curr->size);
         curr->rno = 3;
         /* fallthrough */

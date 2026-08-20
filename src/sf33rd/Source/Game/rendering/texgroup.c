@@ -227,8 +227,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
 
     case 2:
         curr->size = fsGetFileSize(curr->fnum);
-        curr->sect = fsCalSectorSize(curr->size);
-        curr->key = Pull_ramcnt_key(curr->sect << 0xB, curr->kokey, curr->group, curr->frre);
+        curr->key = Pull_ramcnt_key(curr->size, curr->kokey, curr->group, curr->frre);
         curr->lds->key = curr->key;
         Set_size_data_ramcnt_key(curr->key, curr->size);
         curr->rno = 3;
@@ -367,15 +366,12 @@ void Init_texgrplds_work() {
 }
 
 void reservMemKeySelObj() {
-    TEX_GRP_LD* lds;
-    s32 size;
-
-    size = fsCalSectorSize(0x11372CU) << 0xB;
-    lds = &texgrplds[obj_group_table[0x69E0]];
-    lds->key = Pull_ramcnt_key(size, 0xD, 0, 1);
+    const int size = 1128236;
+    TEX_GRP_LD* lds = &texgrplds[obj_group_table[27104]];
+    lds->key = Pull_ramcnt_key(size, 13, 0, 1);
 
     if (lds->key < 0) {
-        while (1) {}
+        fatal_error("Failed to pull ramcnt key");
     }
 }
 

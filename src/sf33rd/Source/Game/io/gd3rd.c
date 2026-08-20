@@ -67,10 +67,6 @@ u32 fsGetFileSize(u16 fnum) {
     return AFS_GetSize(fnum);
 }
 
-u32 fsCalSectorSize(u32 size) {
-    return (size + 2048 - 1) / 2048;
-}
-
 static void fsCansel() {
     if ((afs_handle != AFS_NONE) && (AFS_GetState(afs_handle) == AFS_READ_STATE_READING)) {
         AFS_Stop(afs_handle);
@@ -138,7 +134,7 @@ s32 load_it_use_any_key2(u16 fnum, void** adrs, s16* key, u8 kokey, u8 group) {
     }
 
     size = fsGetFileSize(fnum);
-    *key = Pull_ramcnt_key(fsCalSectorSize(size) << 11, kokey, group, 0);
+    *key = Pull_ramcnt_key(size, kokey, group, 0);
     *adrs = (void*)Get_ramcnt_address(*key);
 
     err = load_it_use_this_key(fnum, *key);
@@ -179,7 +175,6 @@ s32 load_it_use_this_key(u16 fnum, s16 key) {
         }
 
         req.size = fsGetFileSize(req.fnum);
-        req.sect = fsCalSectorSize(req.size);
         err = fsFileReadSync((void*)Get_ramcnt_address(key));
         fsClose();
         Set_size_data_ramcnt_key(key, req.size);
