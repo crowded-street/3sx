@@ -15,6 +15,12 @@ typedef enum LoadRequestType {
     LDREQ_KANJI,
 } LoadRequestType;
 
+typedef enum LoadRequestID {
+    LDREQ_ID_PLAYER_1,
+    LDREQ_ID_PLAYER_2,
+    LDREQ_ID_SHARED,
+} LoadRequestID;
+
 typedef struct {
     s8 ok;
     s8 type;
@@ -26,7 +32,7 @@ typedef struct {
 typedef struct LoadRequest {
     u8 be; /// Flag that's set if the load request is active
     LoadRequestType type;
-    s16 id;
+    LoadRequestID id;
     u8 rno;
     u8 ix;
     u8 frre;
@@ -86,7 +92,7 @@ bool Check_LDREQ_Clear();
 /// Push a single load request
 /// @param ix Index of load request info
 /// @param id Request id
-void Push_LDREQ_Queue_Direct(s16 ix, s16 id);
+void Push_LDREQ_Queue_Direct(s16 ix, LoadRequestID id);
 
 bool Check_LDREQ_Queue_Direct(s16 ix);
 

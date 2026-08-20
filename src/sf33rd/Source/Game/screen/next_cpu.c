@@ -617,7 +617,7 @@ void Select_CPU_1st() {
     Moving_Plate[Player_id] = 0;
 
     if (VS_Index[Player_id] >= 8) {
-        Push_LDREQ_Queue_Direct(9, 2);
+        Push_LDREQ_Queue_Direct(9, LDREQ_ID_SHARED);
     }
 }
 

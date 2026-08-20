@@ -211,15 +211,15 @@ static void Push_LDREQ_Queue(const LoadRequest* ldreq) {
     u8 masknum;
 
     switch (ldreq->id) {
-    case 0:
+    case LDREQ_ID_PLAYER_1:
         masknum = 3;
         break;
 
-    case 1:
+    case LDREQ_ID_PLAYER_2:
         masknum = 0xC0;
         break;
 
-    default:
+    case LDREQ_ID_SHARED:
         masknum = 0x3C;
         break;
     }
@@ -234,7 +234,7 @@ static void Push_LDREQ_Queue_Union(s16 ix) {
     for (int i = span.start; i < end; i++) {
         LoadRequest ldreq = { 0 };
         ldreq.type = ldreq_tbl[i].type;
-        ldreq.id = 2;
+        ldreq.id = LDREQ_ID_SHARED;
         ldreq.ix = ldreq_tbl[i].ix;
         ldreq.frre = ldreq_tbl[i].frre;
         ldreq.kokey = ldreq_tbl[i].kokey;
@@ -243,6 +243,11 @@ static void Push_LDREQ_Queue_Union(s16 ix) {
         ldreq.result = &ldreq_result[i];
         Push_LDREQ_Queue(&ldreq);
     }
+}
+
+static LoadRequestID ldreq_id_from_player_id(u8 id) {
+    SDL_assert(id == 0 || id == 1);
+    return (id == 0) ? LDREQ_ID_PLAYER_1 : LDREQ_ID_PLAYER_2;
 }
 
 void Push_LDREQ_Queue_Player(u8 id, Character character) {
@@ -254,7 +259,7 @@ void Push_LDREQ_Queue_Player(u8 id, Character character) {
     for (int i = span.start; i < end; i++) {
         LoadRequest ldreq = { 0 };
         ldreq.type = ldreq_tbl[i].type;
-        ldreq.id = id;
+        ldreq.id = ldreq_id_from_player_id(id);
         ldreq.ix = ldreq_tbl[i].ix;
         ldreq.frre = ldreq_tbl[i].frre;
         ldreq.key = 0;
@@ -274,15 +279,15 @@ void Push_LDREQ_Queue_Player(u8 id, Character character) {
 static void Push_LDREQ_Queue_Metamor() {
     switch ((My_char[0] == CHAR_TWELVE) + (My_char[1] == CHAR_TWELVE) * 2) {
     case 1:
-        Push_LDREQ_Queue_Direct(My_char[1] + 212, 0);
+        Push_LDREQ_Queue_Direct(My_char[1] + 212, LDREQ_ID_PLAYER_1);
         break;
 
     case 2:
-        Push_LDREQ_Queue_Direct(My_char[0] + 212, 1);
+        Push_LDREQ_Queue_Direct(My_char[0] + 212, LDREQ_ID_PLAYER_2);
         break;
 
     case 3:
-        Push_LDREQ_Queue_Direct(230, 2);
+        Push_LDREQ_Queue_Direct(230, LDREQ_ID_SHARED);
         break;
     }
 }
@@ -292,7 +297,7 @@ void Push_LDREQ_Queue_BG(s16 ix) {
     Push_LDREQ_Queue_Metamor();
 }
 
-void Push_LDREQ_Queue_Direct(s16 ix, s16 id) {
+void Push_LDREQ_Queue_Direct(s16 ix, LoadRequestID id) {
     LoadRequest ldreq = { 0 };
     ldreq.type = ldreq_tbl[ix].type;
     ldreq.id = id;
@@ -334,7 +339,7 @@ bool Check_LDREQ_Clear() {
     return q_ldreq[0].be == 0 && q_ldreq[1].be == 0;
 }
 
-static bool Check_LDREQ_Queue_Union(s16 ix, u8 id) {
+static bool Check_LDREQ_Queue_Union(s16 ix, LoadRequestID id) {
     const Span span = spans[ix];
     const int end = span.start + span.length;
 
@@ -348,11 +353,11 @@ static bool Check_LDREQ_Queue_Union(s16 ix, u8 id) {
 }
 
 bool Check_LDREQ_Queue_Player(u8 id) {
-    return Check_LDREQ_Queue_Union(plt_req[id], id);
+    return Check_LDREQ_Queue_Union(plt_req[id], ldreq_id_from_player_id(id));
 }
 
 bool Check_LDREQ_Queue_BG(s16 ix) {
-    return Check_LDREQ_Queue_Union(ix + 20, 2);
+    return Check_LDREQ_Queue_Union(ix + 20, LDREQ_ID_SHARED);
 }
 
 bool Check_LDREQ_Queue_Direct(s16 ix) {
