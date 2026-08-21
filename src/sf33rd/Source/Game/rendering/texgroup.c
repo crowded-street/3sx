@@ -131,7 +131,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
         /* fallthrough */
 
     case 3:
-        err = fsRequestFileRead((void*)Get_ramcnt_address(curr->key));
+        err = fsRequestFileRead(Get_ramcnt_pointer(curr->key));
 
         if (err == 0) {
             Push_ramcnt_key(curr->key);
@@ -148,7 +148,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
         switch (fsCheckFileReaded()) {
         case FS_READ_IDLE:
             fsClose();
-            ldadr = Get_ramcnt_address(curr->key);
+            ldadr = (uintptr_t)Get_ramcnt_pointer(curr->key);
             curr->lds->texture_table = ldadr + bsd->to_tex;
             curr->lds->trans_table = ldadr;
             curr->lds->ok = 1;
@@ -298,7 +298,7 @@ void checkSelObjFileLoaded() {
         }
     }
 
-    ldadr = Get_ramcnt_address(lds->key);
+    ldadr = (uintptr_t)Get_ramcnt_pointer(lds->key);
     lds->texture_table = ldadr + bsd->to_tex;
     lds->trans_table = ldadr;
     lds->ok = 1;
@@ -365,7 +365,7 @@ s32 load_any_texture_grpnum(u8 grp, u8 kokey) {
     }
 
     lds->key = load_it_use_any_key(bsd->apfn, kokey, grp);
-    ldadr = Get_ramcnt_address(lds->key);
+    ldadr = (uintptr_t)Get_ramcnt_pointer(lds->key);
     lds->texture_table = ldadr + bsd->to_tex;
     lds->trans_table = ldadr;
     lds->ok = 1;

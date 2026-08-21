@@ -1206,7 +1206,7 @@ typedef struct {
 } CharInitData2;
 
 typedef struct {
-    uintptr_t adr;
+    void* ptr;
     size_t size;
     u8 search_type;
     u8 group_num;

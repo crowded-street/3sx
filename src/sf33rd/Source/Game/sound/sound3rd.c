@@ -188,7 +188,7 @@ void checkAdxFileLoaded() {
         key = load_it_use_any_key(fnum, 21, 0);
     } while (key == 0);
 
-    adr = (u8*)Get_ramcnt_address(key);
+    adr = Get_ramcnt_pointer(key);
     ppgSetupCmpChunk(adr, 0, adx_VS);
     ppgSetupCmpChunk(adr, 1, adx_EmSel);
     Push_ramcnt_key(key);

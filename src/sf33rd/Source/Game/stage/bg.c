@@ -284,7 +284,7 @@ void Bg_Texture_Load_EX() {
     }
 
     key1 = Search_ramcnt_type(0x12);
-    loadAdrs = (void*)Get_ramcnt_address(key1);
+    loadAdrs = Get_ramcnt_pointer(key1);
     loadSize = Get_size_data_ramcnt_key(key1);
     pmask = 0xFF000000;
     shift = 0x18;
@@ -344,7 +344,7 @@ void Bg_Texture_Load_EX() {
     if (bg_w.stage != 20 && bg_w.stage != 21) {
         akeKey = Search_ramcnt_type(0x1F);
         akeSize = Get_size_data_ramcnt_key(akeKey);
-        akeAdrs = (u8*)Get_ramcnt_address(akeKey);
+        akeAdrs = Get_ramcnt_pointer(akeKey);
         ppgSetupCurrentDataList(&ppgAkeList);
         ppgSetupPalChunk(NULL, akeAdrs, akeSize, 0, 0, 1);
         ppgSetupTexChunk_1st(NULL, akeAdrs, akeSize, 0, 3, 0, 0);
@@ -398,7 +398,7 @@ void Bg_Texture_Load2(u8 type) {
     }
 
     loadSize = Get_size_data_ramcnt_key(key);
-    loadAdrs = (void*)Get_ramcnt_address(key);
+    loadAdrs = Get_ramcnt_pointer(key);
     ppgSetupTexChunk_1st(0, loadAdrs, loadSize, 0x84, 0x20, 0, 0);
     pmask = 0xFF000000;
     shift = 24;

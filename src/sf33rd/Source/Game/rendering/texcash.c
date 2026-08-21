@@ -273,7 +273,7 @@ void make_texcash_work(s16 ix) {
             memreq = (mts[ix].mltnum16 * 8) + (mts[ix].mltnum32 * 8) + sizeof(PatternCollection) +
                      sizeof(TexturePoolFree) + sizeof(TexturePoolUsed);
             mts_ok[ix].key0 = Pull_ramcnt_key(memreq, mts_base[ix].type, 0, 0);
-            adrs = (u8*)Get_ramcnt_address(mts_ok[ix].key0);
+            adrs = Get_ramcnt_pointer(mts_ok[ix].key0);
             mts[ix].mltcsh16 = (PatternState*)adrs;
             adrs += mts[ix].mltnum16 * 8;
             mts[ix].mltcsh32 = (PatternState*)adrs;
@@ -290,7 +290,7 @@ void make_texcash_work(s16 ix) {
         } else {
             memreq = mts[ix].mltnum16 * 8 + mts[ix].mltnum32 * 8;
             mts_ok[ix].key0 = Pull_ramcnt_key(memreq, mts_base[ix].type, 0, 0);
-            adrs = (u8*)Get_ramcnt_address(mts_ok[ix].key0);
+            adrs = Get_ramcnt_pointer(mts_ok[ix].key0);
             mts[ix].mltcsh16 = (PatternState*)adrs;
             adrs += mts[ix].mltnum16 * 8;
             mts[ix].mltcsh32 = (PatternState*)adrs;
@@ -301,7 +301,7 @@ void make_texcash_work(s16 ix) {
         memreq *= (mts[ix].mltnum << 0x10);
         mts_ok[ix].key1 = Pull_ramcnt_key(memreq, mts_base[ix].type, 0, 0);
         mts[ix].attribute = mts_base[ix].attribute;
-        page16 = Get_ramcnt_address(mts_ok[ix].key1);
+        page16 = (uintptr_t)Get_ramcnt_pointer(mts_ok[ix].key1);
         mlt_obj_trans_init(&mts[ix], mts_base[ix].mode, (u8*)page16);
 
         if (mts[ix].ext) {

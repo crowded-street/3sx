@@ -209,7 +209,7 @@ void OPBG_Init() {
     }
 
     loadSize = Get_size_data_ramcnt_key(key);
-    loadAdrs = (void*)Get_ramcnt_address(key);
+    loadAdrs = Get_ramcnt_pointer(key);
     ppgSetupTexChunk_1st(NULL, loadAdrs, loadSize, 602, 91, 0, 0);
 
     for (i = 0; i < ppgOpnBgTex.textures; i++) {
