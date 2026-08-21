@@ -254,7 +254,6 @@ void Bg_Texture_Load_EX() {
     u32 assign2;
     u8 assign3;
 
-    mmDebWriteTag("\nSTAGE\n\n");
     Bg_TexInit();
 
     for (i = 0; i < 8; i++) {
@@ -372,7 +371,6 @@ void Bg_Texture_Load2(u8 type) {
 
     u32 assign;
 
-    mmDebWriteTag("\nBG ETC.\n\n");
     Bg_TexInit();
     (void)assign;
     ending_flag = 0;
@@ -439,7 +437,6 @@ void Bg_Texture_Load_Ending(s16 type) {
     u32 assign;
     u32 assign2;
 
-    mmDebWriteTag("\nENDING\n\n");
     rw_num = 0;
     Bg_TexInit();
     ending_flag = 1;

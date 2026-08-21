@@ -118,7 +118,6 @@ void TITLE_Init() {
     u32 loadSize;
     s16 key;
 
-    mmDebWriteTag("\nMAIN TITLE\n\n");
     Opening_Now = 0;
     ppgTitleList.tex = &ppgTitleTex;
     ppgTitleList.pal = NULL;
@@ -197,7 +196,6 @@ void OPBG_Init() {
     s16 i;
     s16 key;
 
-    mmDebWriteTag("\nOPENING\n\n");
     ppgOpnBgList.tex = &ppgOpnBgTex;
     ppgOpnBgList.pal = palGetChunkGhostCP3();
     ppgSetupCurrentDataList(&ppgOpnBgList);
