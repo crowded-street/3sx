@@ -1,6 +1,6 @@
 /**
  * @file effk7.c
- * TODO: identify what this effect does
+ * Code related to twelve's X.C.O.P.Y. super
  */
 
 #include "sf33rd/Source/Game/effect/effk7.h"

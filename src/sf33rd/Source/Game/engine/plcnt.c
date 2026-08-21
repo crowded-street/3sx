@@ -577,11 +577,9 @@ void init_app_30000() { // 🟡
         another_bg[0] = another_bg[1] = 0;
         plw[0].do_not_move = plw[1].do_not_move = 0;
 
-        if (!ArcadeBalance_IsEnabled()) {
-            K7_muriyari_metamor_rebirth(&plw[0]);
-            K7_muriyari_metamor_rebirth(&plw[1]);
-        }
-
+        // Restore Twelve's colors (double KO only)
+        K7_muriyari_metamor_rebirth(&plw[0]);
+        K7_muriyari_metamor_rebirth(&plw[1]);
         break;
 
     case 1:
