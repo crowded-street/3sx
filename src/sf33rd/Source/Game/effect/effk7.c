@@ -1,6 +1,6 @@
 /**
  * @file effk7.c
- * Code related to twelve's X.C.O.P.Y super.
+ * Code related to twelve's X.C.O.P.Y. super
  */
 
 #include "common.h"

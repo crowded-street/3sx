@@ -46,7 +46,6 @@
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/ui/count.h"
 
-
 #if DEBUG
 #include "sf33rd/Source/Game/debug/debug_config.h"
 #endif
@@ -578,10 +577,9 @@ void init_app_30000() { // 🟡
         another_bg[0] = another_bg[1] = 0;
         plw[0].do_not_move = plw[1].do_not_move = 0;
 
-        // restore twelve's colours (double KO only)
+        // Restore Twelve's colors (double KO only)
         K7_muriyari_metamor_rebirth(&plw[0]);
         K7_muriyari_metamor_rebirth(&plw[1]);
-
         break;
 
     case 1:

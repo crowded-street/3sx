@@ -178,7 +178,7 @@ void player_mv_0000(PLW* wk) { // 🟡
     wk->wu.routine_no[6] = 0;
     wk->wu.cmwk[0] = 0;
 
-    // force twelve to swap to his real palette to override the X.C.O.P.Y palettes
+    // Force Twelve to swap to his real palette to override the X.C.O.P.Y. palette
     if (wk->player_number == CHAR_TWELVE) {
         metamor_color_restore(wk->wu.id);
     }
