@@ -3,7 +3,6 @@
  * Character Controller
  */
 
-#include "sf33rd/Source/Game/engine/plcnt.h"
 #include "arcade/arcade_balance.h"
 #include "common.h"
 #include "constants.h"
@@ -28,6 +27,7 @@
 #include "sf33rd/Source/Game/engine/grade.h"
 #include "sf33rd/Source/Game/engine/hitcheck.h"
 #include "sf33rd/Source/Game/engine/manage.h"
+#include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/plmain.h"
 #include "sf33rd/Source/Game/engine/plpdm.h"
 #include "sf33rd/Source/Game/engine/pls01.h"
@@ -45,6 +45,7 @@
 #include "sf33rd/Source/Game/system/sysdir.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/ui/count.h"
+
 
 #if DEBUG
 #include "sf33rd/Source/Game/debug/debug_config.h"
@@ -577,10 +578,9 @@ void init_app_30000() { // 🟡
         another_bg[0] = another_bg[1] = 0;
         plw[0].do_not_move = plw[1].do_not_move = 0;
 
-        if (!ArcadeBalance_IsEnabled()) {
-            K7_muriyari_metamor_rebirth(&plw[0]);
-            K7_muriyari_metamor_rebirth(&plw[1]);
-        }
+        // restore twelve's colours (double KO only)
+        K7_muriyari_metamor_rebirth(&plw[0]);
+        K7_muriyari_metamor_rebirth(&plw[1]);
 
         break;
 
@@ -943,7 +943,7 @@ void move_player_work() { // 🟡
         break;
 
     default:
-        switch (plw[0].wu.operator + (plw[1].wu.operator * 2)) {
+        switch (plw[0].wu.operator+(plw[1].wu.operator* 2)) {
         case 1:
             move_P1_move_P2();
             break;
@@ -1353,7 +1353,7 @@ void set_base_data(PLW* wk, s16 ix) {
     wk->wu.blink_timing = ix;
     wk->wu.id = ix;
     wk->wu.work_id = 1;
-    wk->wu.operator = Operator_Status[ix];
+    wk->wu.operator= Operator_Status[ix];
     wk->wu.charset_id = plid_data[My_char[ix]];
     wk->wkey_flag = wk->dead_flag = 0;
     set_char_base_data(&wk->wu);

@@ -3,7 +3,6 @@
  * Player Character's Core Gameplay Logic
  */
 
-#include "sf33rd/Source/Game/engine/plmain.h"
 #include "arcade/arcade_balance.h"
 #include "common.h"
 #include "constants.h"
@@ -16,6 +15,7 @@
 #include "sf33rd/Source/Game/engine/cmd_main.h"
 #include "sf33rd/Source/Game/engine/hitcheck.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
+#include "sf33rd/Source/Game/engine/plmain.h"
 #include "sf33rd/Source/Game/engine/plpat.h"
 #include "sf33rd/Source/Game/engine/plpca.h"
 #include "sf33rd/Source/Game/engine/plpcu.h"
@@ -178,12 +178,13 @@ void player_mv_0000(PLW* wk) { // 🟡
     wk->wu.routine_no[6] = 0;
     wk->wu.cmwk[0] = 0;
 
+    // force twelve to swap to his real palette to override the X.C.O.P.Y palettes
+    if (wk->player_number == CHAR_TWELVE) {
+        metamor_color_restore(wk->wu.id);
+    }
+
     if (!ArcadeBalance_IsEnabled()) {
         wk->omop_vital_timer = 40;
-
-        if (wk->player_number == CHAR_TWELVE) {
-            metamor_color_restore(wk->wu.id);
-        }
 
         switch (wk->spmv_ng_flag2 & (DIP2_SA_GAUGE_ROUND_RESET_DISABLED | DIP2_SA_GAUGE_MAX_START_DISABLED)) {
         case DIP2_SA_GAUGE_MAX_START_DISABLED:

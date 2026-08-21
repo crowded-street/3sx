@@ -1,24 +1,24 @@
 /**
  * @file effk7.c
- * TODO: identify what this effect does
+ * Code related to twelve's X.C.O.P.Y super.
  */
 
-#include "sf33rd/Source/Game/effect/effk7.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_pl.h"
 #include "sf33rd/Source/Game/effect/effect.h"
+#include "sf33rd/Source/Game/effect/effk7.h"
 #include "sf33rd/Source/Game/engine/charset.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/slowf.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/rendering/meta_col.h"
+#include <stdio.h>
 
 void K7_move_type_0(WORK_Other* ewk, PLW* mwk);
 s16 K7_mt0_rebirth_check(PLW* mwk);
 
 void effect_K7_move(WORK_Other* ewk) {
     PLW* mwk = (PLW*)ewk->my_master;
-
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0] = 1;
@@ -26,6 +26,7 @@ void effect_K7_move(WORK_Other* ewk) {
 
     case 1:
         if (ewk->wu.dead_f != 0 || mwk->metamor_index != ewk->wu.myself) {
+
             ewk->wu.routine_no[0] = 3;
             metamor_color_restore(mwk->wu.id);
             mwk->metamorphose = 0;
@@ -73,7 +74,7 @@ void K7_move_type_0(WORK_Other* ewk, PLW* mwk) {
         mwk->att_plus = 10;
         mwk->def_plus = 6;
 
-        if (mwk->wu.operator == 0) {
+        if (mwk->wu.operator== 0) {
             Next_Be_Free(mwk);
         }
 
@@ -135,7 +136,7 @@ void K7_move_type_0(WORK_Other* ewk, PLW* mwk) {
         set_base_data_metamorphose(mwk, mwk->wu.id);
         metamor_color_restore(mwk->wu.id);
 
-        if (mwk->wu.operator == 0) {
+        if (mwk->wu.operator== 0) {
             Next_Be_Free(mwk);
         }
 
@@ -170,7 +171,6 @@ void K7_muriyari_metamor_rebirth(PLW* wk) {
     if (wk->metamorphose == 0) {
         return;
     }
-
     wk->player_number = My_char[wk->wu.id];
     wk->wu.charset_id = plid_data[My_char[wk->wu.id]];
     set_base_data_metamorphose(wk, wk->wu.id);
