@@ -117,13 +117,7 @@ void Lose_30000(PLW* wk) {
         switch (wk->wu.routine_no[3]) {
         case 0:
             wk->wu.routine_no[3]++;
-
-            if (Country != 1) {
-                set_char_move_init(&wk->wu, 9, 0x3A);
-            } else {
-                set_char_move_init(&wk->wu, 9, 0x38);
-            }
-
+            set_char_move_init(&wk->wu, 9, 56);
             break;
 
         default:
@@ -139,13 +133,7 @@ void Lose_30000(PLW* wk) {
         switch (wk->wu.routine_no[3]) {
         case 0:
             wk->wu.routine_no[3]++;
-
-            if (Country != 1) {
-                set_char_move_init(&wk->wu, 9, 0x1C);
-            } else {
-                set_char_move_init(&wk->wu, 9, 0x18);
-            }
-
+            set_char_move_init(&wk->wu, 9, 24);
             break;
 
         case 1:
