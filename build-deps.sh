@@ -125,11 +125,26 @@ else
     git clone https://github.com/libsdl-org/SDL_net.git "$SDL3_NET_SRC"
     git -C "$SDL3_NET_SRC" -c advice.detachedHead=false checkout "$SDL3_NET_REF"
 
-    cmake -S "$SDL3_NET_SRC" -B "$SDL3_NET_SRC/cmake-build" \
-        -DCMAKE_INSTALL_PREFIX="$SDL3_NET_BUILD" \
-        -DCMAKE_PREFIX_PATH="$SDL_BUILD" \
-        -DBUILD_SHARED_LIBS=OFF \
-        -DSDLNET_INSTALL=ON
+    configure_sdl3_net() {
+        cmake -S "$SDL3_NET_SRC" -B "$SDL3_NET_SRC/cmake-build" \
+            -DCMAKE_INSTALL_PREFIX="$SDL3_NET_BUILD" \
+            -DCMAKE_PREFIX_PATH="$SDL_BUILD" \
+            -DBUILD_SHARED_LIBS=OFF \
+            -DSDLNET_INSTALL=ON \
+            "$@"
+    }
+
+    case "$OS" in
+        MINGW*|MSYS*|CYGWIN*)
+            # Avoid MinGW's deprecated CRT aliases (read/write, etc.). SDL_net
+            # has Windows socket wrappers with those names, so the aliases
+            # cause conflicting declarations when SDL headers include io.h.
+            configure_sdl3_net -DCMAKE_C_FLAGS=-DNO_OLDNAMES
+            ;;
+        *)
+            configure_sdl3_net
+            ;;
+    esac
 
     cmake --build "$SDL3_NET_SRC/cmake-build" -j"$BUILD_JOBS"
     cmake --install "$SDL3_NET_SRC/cmake-build"
