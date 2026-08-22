@@ -23,13 +23,14 @@ The way the internal 384x224 buffer is scaled.
 
 #### `nearest` (default)
 
-Produces sharp pixels at the cost of sizing consistency
+Produces sharp pixels at the cost of sizing consistency.
 
 #### `integer`
 
-Produces a pixel-perfect image, but requires a 4K display
+Produces a pixel-perfect image, but requires a 4K display.
 
-> ⚠️ WARNING: the image is gonna be cropped if your display resolution is smaller than 2688x2016
+> [!WARNING] 
+> The image is gonna be cropped if your display resolution is smaller than 2688x2016.
 
 #### `square-pixels`
 
@@ -41,8 +42,20 @@ Defines the strength of the scanline filter (from `0` to `100`). `0` means the f
 
 ### `draw-players-above-hud`
 
-Allow characters to render in front of the top HUD similar to Street Fighter IV. May introduce visual abnormalities on certain stages.
+Allow characters to render in front of the top HUD similar to Street Fighter IV.
 
-### `arcade-balance` (experimental)
+> [!NOTE]
+> With this setting on these stage decorations will be disabled to prevent overlapping with HUD:
+> - Chun-Li's stage: Bamboo stick on the right
+> - Makoto's stage: Tree on the right
+> - Yang's stage: Rain overlay
 
-Enables arcade balance instead of PS2 balance (work in progress). Requires `sfiii3nr1.zip` to be present in [`resources`](resources.md) directory.
+### `arcade-balance`
+
+Enables arcade balance instead of PS2 balance. 
+
+> [!IMPORTANT]
+> Requires `sfiii3nr1.zip` to be present in [`resources`](resources.md) directory.
+
+> [!WARNING]
+> Arcade balance is a work-in-progress. Expect bugs, crashes and instability when enabling this feature.
