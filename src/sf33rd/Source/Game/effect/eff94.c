@@ -1,6 +1,6 @@
 /**
  * @file eff94.c
- * TODO: identify what this effect does
+ * Objects reacting to knockdowns, like plate's on Chun-Li's stage
  */
 
 #include "sf33rd/Source/Game/effect/eff94.h"

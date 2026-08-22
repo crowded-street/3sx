@@ -1,6 +1,6 @@
 /**
  * @file eff85.c
- * TODO: identify what this effect does
+ * Bird on Chun-Li's stage
  */
 
 #include "sf33rd/Source/Game/effect/eff85.h"

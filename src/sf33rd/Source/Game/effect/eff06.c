@@ -1,10 +1,11 @@
 /**
  * @file eff06.c
- * TODO: identify what this effect does
+ * Stage background objects
  */
 
 #include "sf33rd/Source/Game/effect/eff06.h"
 #include "common.h"
+#include "port/config/config.h"
 #include "sf33rd/Source/Game/effect/eff05.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/charset.h"
@@ -110,6 +111,14 @@ s32 effect_06_init() {
 
     if (lp_cnt == 0) {
         return 0;
+    }
+
+    if (Config_GetBool(CFG_DRAW_PLAYERS_ABOVE_HUD)) {
+        switch (bg_w.bg_index) {
+        case 16:         // Makoto's stage
+            lp_cnt -= 1; // Remove large tree on the right
+            break;
+        }
     }
 
     data_ptr = scr_obj_data6[bg_w.bg_index];
