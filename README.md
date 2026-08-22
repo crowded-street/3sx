@@ -2,7 +2,8 @@
 
 3SX is a native port of *Street Fighter III: 3rd Strike*. It's a continuation of [3s-decomp](https://github.com/crowded-street/3s-decomp) – a matching decompilation of 3rd Strike for PS2. 
 
-> 💡 3SX is neither a recomp, nor emulation. It's native C code running directly on your hardware with no layers in between.
+> [!NOTE]
+> 3SX is neither a recomp, nor emulation. It's native C code running directly on your hardware with no layers in between.
 
 # Vision
 
@@ -30,13 +31,14 @@ To track progress towards version 1.0 check our [1.0 milestone](https://github.c
 
 ## How to play
 
-> ⚠️ 3SX requires a legally obtained copy of *Street Fighter III: 3rd Strike* or *Street Fighter Anniversary Collection* for PlayStation 2 to run. This project does not condone piracy!
+> [!IMPORTANT]
+> 3SX requires a legally obtained copy of *Street Fighter III: 3rd Strike* or *Street Fighter Anniversary Collection* for PlayStation 2 to run. This project does not condone piracy!
 
 1. Download the latest release from the [Releases](https://github.com/crowded-street/3sx/releases) page.
 
 2. Follow startup wizard prompts to provide 3SX with your legally obtained copy of the PS2 version.
 
-   OR
+   _or_
 
    Manually copy <iso path>/THIRD/SF33RD.AFS to [`resources`](docs/resources.md) folder.
 

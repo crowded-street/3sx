@@ -224,7 +224,8 @@ jobs:
           touch notes.md
           echo "Automatic release for commit ${FULL_SHA}" >> notes.md
           echo >> notes.md
-          echo "⚠️ **Disclaimer** ⚠️: This is a __pre-release__ build. Expect bugs and instability." >> notes.md
+          echo "> [!WARNING]" >> notes.md
+          echo "> This is a __pre-release__ build. Expect bugs and instability." >> notes.md
 
           if gh release view "${TAG_NAME}" >/dev/null 2>&1; then
             gh release edit "${TAG_NAME}" \
