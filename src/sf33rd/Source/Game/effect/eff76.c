@@ -624,7 +624,7 @@ void Setup_Color_L1(WORK_Other* ewk) {
 }
 
 s32 chkNameAkuma(s32 plnum, s32 rnum) {
-    if (plnum == 14 && mpp_w.language == 0) {
+    if (plnum == 14 && mpp_w.language == LANG_ENGLISH) {
         return rnum;
     }
 

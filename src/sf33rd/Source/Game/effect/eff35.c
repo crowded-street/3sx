@@ -443,7 +443,7 @@ s32 effect_35_init(s16 wait_timer, s16 c_type) {
 
     switch (c_type) {
     case 5:
-        if (mpp_w.language == 0) {
+        if (mpp_w.language == LANG_ENGLISH) {
             char_num = 9;
         } else {
             char_num = 5;
@@ -452,7 +452,7 @@ s32 effect_35_init(s16 wait_timer, s16 c_type) {
         break;
 
     case 7:
-        if (mpp_w.language == 0) {
+        if (mpp_w.language == LANG_ENGLISH) {
             char_num = 8;
         } else {
             char_num = 7;

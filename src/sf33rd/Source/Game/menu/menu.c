@@ -2120,7 +2120,7 @@ void Screen_Move_Sub_LR(u16 sw) {
             break;
 
         case 4:
-            mpp_w.language = (mpp_w.language + 1) & 1;
+            mpp_w.language = Language_Toggle(mpp_w.language);
             flag = 1;
             break;
         }
@@ -2171,7 +2171,7 @@ void Screen_Move_Sub_LR(u16 sw) {
             break;
 
         case 4:
-            mpp_w.language = (mpp_w.language + 1) & 1;
+            mpp_w.language = Language_Toggle(mpp_w.language);
             flag = 1;
             break;
         }

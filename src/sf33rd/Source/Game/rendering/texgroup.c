@@ -383,7 +383,7 @@ void checkSelObjFileLoaded() {
         return;
     }
 
-    if (mpp_w.language) {
+    if (mpp_w.language == LANG_JAPANESE) {
         bsd = &texgrpdat[0x62];
     } else {
         bsd = &texgrpdat[0x17];

@@ -54,22 +54,22 @@ static void cpInitTask() {
     memset(&task, 0, sizeof(task));
 }
 
-u8 Get_Default_Language() {
+Language Get_Default_Language() {
     int locale_count;
     SDL_Locale** locales = SDL_GetPreferredLocales(&locale_count);
 
     if (locales == NULL) {
-        return 0;
+        return LANG_ENGLISH;
     }
 
-    u8 language;
+    Language language = LANG_ENGLISH;
 
     for (int i = 0; i < locale_count; i++) {
         if (SDL_strcmp(locales[i]->language, "ja") == 0) {
-            language = 1;
+            language = LANG_JAPANESE;
             break;
         } else if (SDL_strcmp(locales[0]->language, "en") == 0) {
-            language = 0;
+            language = LANG_ENGLISH;
             break;
         }
     }

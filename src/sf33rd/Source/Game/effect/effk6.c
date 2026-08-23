@@ -398,7 +398,7 @@ s16 Setup_K6_Index(WORK_Other* ewk) {
 }
 
 s32 chkNameSuv(s32 plnum, s32 rnum) {
-    if (plnum == 20 && mpp_w.language == 0) {
+    if (plnum == 20 && mpp_w.language == LANG_ENGLISH) {
         return rnum;
     }
 
