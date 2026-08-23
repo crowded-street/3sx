@@ -728,6 +728,7 @@ void Setup_Default_Game_Option() {
 
     for (ix = 0; ix < 6; ix++) {
         save_w[ix] = Game_Default_Data;
+        save_w[ix].Language = mpp_w.language;
         save_w[ix].sum = 0;
     }
 }

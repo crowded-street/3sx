@@ -2066,7 +2066,7 @@ void Screen_Exit_Check(struct _TASK* task_ptr, s16 PL_id) {
         Y_Adjust_Buff[2] = 0;
         Disp_Size_H = 100;
         Disp_Size_V = 100;
-        mpp_w.language = 0;
+        mpp_w.language = Get_Default_Language();
     }
 }
 

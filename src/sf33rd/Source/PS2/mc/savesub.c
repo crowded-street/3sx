@@ -1,5 +1,6 @@
 #include "sf33rd/Source/PS2/mc/savesub.h"
 #include "common.h"
+#include "main.h"
 #include "port/paths.h"
 #include "port/utils.h"
 #include "sf33rd/Source/Game/system/sys_sub.h"
@@ -148,7 +149,7 @@ static bool deserialize_settings(SDL_IOStream* io) {
     if (version == SETTINGS_VERSION_V2) {
         SDL_ReadU8(io, &dst->Language);
     } else {
-        dst->Language = 0;
+        dst->Language = Get_Default_Language();
     }
 
     SDL_ReadU8(io, &dst->GuardCheck);
