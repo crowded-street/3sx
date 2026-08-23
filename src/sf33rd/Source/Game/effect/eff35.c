@@ -6,6 +6,7 @@
 #include "sf33rd/Source/Game/effect/eff35.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
+#include "main.h"
 #include "sf33rd/Source/Game/effect/eff58.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/charset.h"
@@ -442,19 +443,19 @@ s32 effect_35_init(s16 wait_timer, s16 c_type) {
 
     switch (c_type) {
     case 5:
-        if (Country == 1 || Country == 8) {
-            char_num = 5;
-        } else {
+        if (mpp_w.language == 0) {
             char_num = 9;
+        } else {
+            char_num = 5;
         }
 
         break;
 
     case 7:
-        if (Country == 1 || Country == 8) {
-            char_num = 7;
-        } else {
+        if (mpp_w.language == 0) {
             char_num = 8;
+        } else {
+            char_num = 7;
         }
 
         break;

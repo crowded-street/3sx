@@ -6,6 +6,7 @@
 #include "sf33rd/Source/Game/effect/effk6.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
+#include "main.h"
 #include "sf33rd/Source/Game/effect/eff76.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/charset.h"
@@ -397,7 +398,7 @@ s16 Setup_K6_Index(WORK_Other* ewk) {
 }
 
 s32 chkNameSuv(s32 plnum, s32 rnum) {
-    if (plnum == 20 && (Country == 4 || Country == 2 || Country == 3)) {
+    if (plnum == 20 && mpp_w.language == 0) {
         return rnum;
     }
 
