@@ -6,6 +6,7 @@
 #include "sf33rd/Source/Game/effect/eff76.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
+#include "main.h"
 #include "sf33rd/Source/Game/effect/eff57.h"
 #include "sf33rd/Source/Game/effect/effa6.h"
 #include "sf33rd/Source/Game/effect/effect.h"
@@ -623,7 +624,7 @@ void Setup_Color_L1(WORK_Other* ewk) {
 }
 
 s32 chkNameAkuma(s32 plnum, s32 rnum) {
-    if ((plnum == 14) && ((Country == 4) || (Country == 2) || (Country == 3))) {
+    if (plnum == 14 && mpp_w.language == LANG_ENGLISH) {
         return rnum;
     }
 

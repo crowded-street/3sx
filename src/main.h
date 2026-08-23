@@ -24,5 +24,6 @@ void njUserMain(); // FIXME: This shouldn't be public
 void Main_Init();
 void Main_StepFrame();
 void Main_FinishFrame();
+Language Get_Default_Language();
 
 #endif

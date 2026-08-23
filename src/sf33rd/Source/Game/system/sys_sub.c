@@ -606,6 +606,7 @@ void Save_Game_Data() {
     save_w[1].Adjust_Y = Convert_Buff[2][0][1];
     save_w[1].Screen_Size = Convert_Buff[2][0][2];
     save_w[1].Screen_Mode = Convert_Buff[2][0][3];
+    save_w[1].Language = mpp_w.language;
     save_w[1].BGM_Level = Convert_Buff[3][1][0];
     save_w[1].SE_Level = Convert_Buff[3][1][1];
     save_w[1].BgmType = Convert_Buff[3][1][2];
@@ -652,6 +653,8 @@ void Copy_Save_w() {
     Convert_Buff[2][0][2] = save_w[1].Screen_Size;
     Convert_Buff[2][0][3] = save_w[1].Screen_Mode;
     sys_w.screen_mode = save_w[1].Screen_Mode;
+    Convert_Buff[2][0][4] = save_w[1].Language;
+    mpp_w.language = save_w[1].Language;
     Convert_Buff[3][1][0] = save_w[1].BGM_Level;
     Convert_Buff[3][1][1] = save_w[1].SE_Level;
     Convert_Buff[3][1][2] = save_w[1].BgmType;
@@ -697,6 +700,7 @@ const struct _SAVE_W Game_Default_Data = {
     .Adjust_Y = 0,
     .Screen_Size = 0,
     .Screen_Mode = 1,
+    .Language = 0,
     .GuardCheck = 0,
     .AnalogStick = 1,
     .BgmType = 0,
@@ -724,6 +728,7 @@ void Setup_Default_Game_Option() {
 
     for (ix = 0; ix < 6; ix++) {
         save_w[ix] = Game_Default_Data;
+        save_w[ix].Language = mpp_w.language;
         save_w[ix].sum = 0;
     }
 }

@@ -26,12 +26,19 @@ typedef struct {
     s32 heapnum;
 } FMS_FRAME;
 
+typedef enum Language : u8 {
+    LANG_ENGLISH,
+    LANG_JAPANESE,
+} Language;
+
+#define Language_Toggle(lang) ((lang) == LANG_ENGLISH ? LANG_JAPANESE : LANG_ENGLISH)
+
 typedef struct {
     FMS_FRAME fmsFrame;
     u8* ramcntBuff;
     bool initTrainingData;
     bool inGame;
-    s8 language;
+    Language language;
     bool cutAnalogStickData;
     bool useAnalogStickData;
 } MPP;
@@ -910,6 +917,7 @@ struct _SAVE_W {
     s8 Adjust_Y;
     u8 Screen_Size;
     u8 Screen_Mode;
+    Language Language;
     u8 GuardCheck;
     u8 AnalogStick;
     BgmType BgmType;
