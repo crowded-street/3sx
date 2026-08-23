@@ -1965,12 +1965,19 @@ void Screen_Adjust(struct _TASK* task_ptr) {
         Order_Dir[0x65] = 8;
         Order_Timer[0x65] = 1;
 
-        for (ix = 0; ix < 5; ix++) {
+        Convert_Buff[2][0][4] = mpp_w.language;
+
+        for (ix = 0; ix < 4; ix++) {
             effect_63_init(ix + 0x66, 0, 2, ix, ix);
             Order[ix + 0x66] = 1;
             Order_Dir[ix + 0x66] = 4;
             Order_Timer[ix + 0x66] = ix + 0x14;
         }
+
+        effect_64_init(0x6A, 0, 2, 9, 4, 0x7047, 18, 2, 0);
+        Order[0x6A] = 1;
+        Order_Dir[0x6A] = 4;
+        Order_Timer[0x6A] = 0x18;
 
         for (ix = 0, unused_s3 = char_index = 0xE; ix < 7; ix++, unused_s2 = char_index++) {
             effect_61_init(0, ix + 0x50, 0, 2, char_index, ix, 0x7047);
@@ -2018,8 +2025,7 @@ void Screen_Adjust_Sub(s16 PL_id) {
     Convert_Buff[2][0][1] = Y_Adjust_Buff[2] & 0xFF;
     Convert_Buff[2][0][2] = dspwhPack(Disp_Size_H, Disp_Size_V);
     save_w[1].Screen_Size = dspwhPack(Disp_Size_H, Disp_Size_V);
-    Convert_Buff[2][0][3] = sys_w.screen_mode;
-    save_w[1].Screen_Mode = sys_w.screen_mode;
+    Convert_Buff[2][0][4] = mpp_w.language;
 }
 
 void Screen_Exit_Check(struct _TASK* task_ptr, s16 PL_id) {
@@ -2060,7 +2066,7 @@ void Screen_Exit_Check(struct _TASK* task_ptr, s16 PL_id) {
         Y_Adjust_Buff[2] = 0;
         Disp_Size_H = 100;
         Disp_Size_V = 100;
-        sys_w.screen_mode = 1;
+        mpp_w.language = 0;
     }
 }
 
@@ -2114,7 +2120,7 @@ void Screen_Move_Sub_LR(u16 sw) {
             break;
 
         case 4:
-            sys_w.screen_mode = (sys_w.screen_mode + 1) & 1;
+            mpp_w.language = (mpp_w.language + 1) & 1;
             flag = 1;
             break;
         }
@@ -2165,7 +2171,7 @@ void Screen_Move_Sub_LR(u16 sw) {
             break;
 
         case 4:
-            sys_w.screen_mode = (sys_w.screen_mode + 1) & 1;
+            mpp_w.language = (mpp_w.language + 1) & 1;
             flag = 1;
             break;
         }
