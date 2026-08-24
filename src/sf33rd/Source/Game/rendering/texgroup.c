@@ -39,17 +39,7 @@ TEX_GRP_LD texgrplds[100];
 s32 load_any_texture_grpnum(u8 grp, u8 kokey);
 
 void q_ldreq_texture_group(LoadRequest* curr) {
-    const TexGroupData* bsd;
-    u8* ldadr;
-    u8* ldchd;
-    s32 err;
-    s16 i;
-    u16* trsbas;
-    TexGroup_UNK_0* trsptr;
-    s16 count;
-    s16 loop;
-
-    bsd = &texgrpdat[curr->ix];
+    const TexGroupData* bsd = &texgrpdat[curr->ix];
 
     switch (curr->rno) {
     case 0:
@@ -97,17 +87,15 @@ void q_ldreq_texture_group(LoadRequest* curr) {
                 if (rckey_work[curr->lds->key].type == 5) {
                     LDREQ_SetResultFlag(curr, true);
                     curr->status = LDREQ_STATUS_FREE;
-                    return;
+                } else {
+                    fatal_error("A duplicate transfer occurred. File number: %d", bsd->apfn);
                 }
-
-                // A duplicate transfer occurred. File number: %d\n
-                flLogOut("二重転送が発生しました。ファイル番号：%d\n", bsd->apfn);
-                while (1) {}
+            } else {
+                rckey_work[curr->lds->key].type = curr->kokey;
+                LDREQ_SetResultFlag(curr, true);
+                curr->status = LDREQ_STATUS_FREE;
             }
 
-            rckey_work[curr->lds->key].type = curr->kokey;
-            LDREQ_SetResultFlag(curr, true);
-            curr->status = LDREQ_STATUS_FREE;
             break;
         }
 
@@ -116,7 +104,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
     case 1:
         if (!fsOpen(curr->fnum)) {
             curr->rno = 0;
-            return;
+            break;
         }
 
         curr->rno = 2;
@@ -131,7 +119,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
         /* fallthrough */
 
     case 3:
-        err = fsRequestFileRead(Get_ramcnt_pointer(curr->key));
+        const s32 err = fsRequestFileRead(Get_ramcnt_pointer(curr->key));
 
         if (err == 0) {
             Push_ramcnt_key(curr->key);
@@ -148,14 +136,13 @@ void q_ldreq_texture_group(LoadRequest* curr) {
         switch (fsCheckFileReaded()) {
         case FS_READ_IDLE:
             fsClose();
-            ldadr = Get_ramcnt_pointer(curr->key);
+            u8* ldadr = Get_ramcnt_pointer(curr->key);
             curr->lds->texture_table = ldadr + bsd->to_tex;
             curr->lds->trans_table = ldadr;
             curr->lds->ok = 1;
 
-            switch (bsd->ix1st) {
-            case 1:
-                ldchd = ldadr + bsd->to_chd;
+            if (bsd->ix1st == 1) {
+                u8* ldchd = ldadr + bsd->to_chd;
 
                 // Explanation:
                 //
@@ -198,7 +185,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
                     SDL_copyp(dst, arcade_data);
 #endif
                 } else {
-                    for (i = 0; i < 25; i++) {
+                    for (int i = 0; i < 25; i++) {
                         ((uintptr_t*)dst)[i] = (uintptr_t)ldchd + ((u32*)ldchd)[i];
                     }
 
@@ -209,19 +196,19 @@ void q_ldreq_texture_group(LoadRequest* curr) {
 
                     // Akuma specific code
                     if (curr->ix == 15) {
-                        trsbas = (u16*)(((u32*)texgrplds[15].trans_table)[166] + texgrplds[15].trans_table);
-                        count = *trsbas;
-                        count -= 1;
-                        trsbas[0] = count;
+                        u16* trsbas = (u16*)(((u32*)texgrplds[15].trans_table)[166] + texgrplds[15].trans_table);
+                        const int count = *trsbas - 1;
+                        *trsbas = count;
                         trsbas += 1;
-                        trsptr = (TexGroup_UNK_0*)trsbas;
+
+                        TexGroup_UNK_0* trsptr = (TexGroup_UNK_0*)trsbas;
                         trsptr[0].x += trsptr[1].x;
                         trsptr[0].y += trsptr[1].y;
                         trsptr[0].attr = trsptr[1].attr;
                         trsptr[0].code = trsptr[1].code;
 
-                        for (loop = 1; loop < count; loop++) {
-                            trsptr[loop] = trsptr[loop + 1];
+                        for (int i = 1; i < count; i++) {
+                            trsptr[i] = trsptr[i + 1];
                         }
                     }
                 }
