@@ -19,7 +19,6 @@ typedef enum TexGroupMode {
 typedef struct TexGroupData {
     u16 num_of_1st;
     s16 apfn;
-    s16 conv;
     TexGroupMode mode;
     u32 to_tex;
     u32 to_chd;
