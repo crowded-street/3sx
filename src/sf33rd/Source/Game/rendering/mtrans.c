@@ -15,6 +15,7 @@
 #include "sf33rd/Source/Game/rendering/dc_ghost.h"
 #include "sf33rd/Source/Game/rendering/texcash.h"
 #include "sf33rd/Source/Game/rendering/texgroup.h"
+#include "sf33rd/Source/Game/rendering/texgroup_data.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "structs.h"
 

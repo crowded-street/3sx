@@ -14,6 +14,7 @@
 #include "sf33rd/Source/Game/io/gd3rd.h"
 #include "sf33rd/Source/Game/rendering/chren3rd.h"
 #include "sf33rd/Source/Game/rendering/texcash.h"
+#include "sf33rd/Source/Game/rendering/texgroup_data.h"
 #include "sf33rd/Source/Game/system/ramcnt.h"
 #include "structs.h"
 

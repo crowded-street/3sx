@@ -3,7 +3,7 @@
  * Texture group file and offset data.
  */
 
-#include "sf33rd/Source/Game/rendering/texgroup.h"
+#include "sf33rd/Source/Game/rendering/texgroup_data.h"
 
 #define TexGroupData_Empty ((TexGroupData) { 0, -1, 0, 0, 0, 0 })
 

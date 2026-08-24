@@ -1339,15 +1339,6 @@ typedef struct {
 } TexCoord;
 
 typedef struct {
-    u16 num_of_1st;
-    s16 apfn;
-    s16 conv;
-    s16 ix1st;
-    u32 to_tex;
-    u32 to_chd;
-} TexGroupData;
-
-typedef struct {
     f32 x;
     f32 y;
 } PAL_CURSOR_P;

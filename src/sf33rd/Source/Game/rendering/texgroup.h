@@ -6,7 +6,6 @@
 #include "types.h"
 
 extern TEX_GRP_LD texgrplds[100];
-extern const TexGroupData texgrpdat[100];
 
 void q_ldreq_texture_group(LoadRequest* curr);
 void Init_texgrplds_work();
