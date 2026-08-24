@@ -239,10 +239,7 @@ s16 get_my_trans_mode(s16 curr) {
 void make_texcash_work(s16 ix) {
     size_t memreq;
     u8* adrs;
-    // For some reason page16 is reused later as a pointer.
-    // That's why it's uintptr_t and not u32 like page32.
-    // I guess the devs were too lazy to make another var or something.
-    uintptr_t page16;
+    u32 page16;
     u32 page32;
 
     if (mts_ok[ix].be) {
@@ -301,8 +298,7 @@ void make_texcash_work(s16 ix) {
         memreq *= (mts[ix].mltnum << 0x10);
         mts_ok[ix].key1 = Pull_ramcnt_key(memreq, mts_base[ix].type, 0, 0);
         mts[ix].attribute = mts_base[ix].attribute;
-        page16 = (uintptr_t)Get_ramcnt_pointer(mts_ok[ix].key1);
-        mlt_obj_trans_init(&mts[ix], mts_base[ix].mode, (u8*)page16);
+        mlt_obj_trans_init(&mts[ix], mts_base[ix].mode, Get_ramcnt_pointer(mts_ok[ix].key1));
 
         if (mts[ix].ext) {
             init_texcash_2nd(ix);

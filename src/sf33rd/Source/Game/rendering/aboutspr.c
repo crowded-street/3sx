@@ -314,19 +314,19 @@ void Mtrans_use_trans_mode(WORK* wk, s16 bsy) {
 
 s16 exchange_current_colcd(WORK* wk) {
     WORK* mwk;
-    s16 col = ((WORK_Other*)wk)->wu.current_colcd;
+    s16 col = wk->current_colcd;
 
-    switch (((WORK_Other*)wk)->wu.work_id) {
-    case 0x1:
-        col = ((WORK_Other*)wk)->wu.id * 8;
-        push_color_trans_req(((WORK_Other*)wk)->wu.current_colcd, col);
+    switch (wk->work_id) {
+    case 1:
+        col = wk->id * 8;
+        push_color_trans_req(wk->current_colcd, col);
         break;
 
-    case 0x8:
+    case 8:
     case 0x10:
         mwk = (WORK*)((WORK_Other*)wk)->my_master;
 
-        if ((((WORK_Other*)wk)->wu.id == 147) || (((WORK_Other*)wk)->wu.id == 148)) {
+        if ((wk->id == 147) || (wk->id == 148)) {
             col = mwk->id * 8 + 4;
         }
 
@@ -335,7 +335,7 @@ s16 exchange_current_colcd(WORK* wk) {
     case 0x20:
         mwk = (WORK*)((WORK_Other*)wk)->my_master;
 
-        if ((((WORK_Other*)wk)->wu.my_col_code) == mwk->my_col_code) {
+        if (wk->my_col_code == mwk->my_col_code) {
             col = mwk->id * 8;
         }
 
@@ -344,8 +344,8 @@ s16 exchange_current_colcd(WORK* wk) {
     case 0x40:
         mwk = (WORK*)((WORK_Other*)wk)->my_master;
 
-        if (((WORK_Other*)wk)->wu.my_col_code == mwk->my_col_code) {
-            col = ((mwk->id * 8) + 1);
+        if (wk->my_col_code == mwk->my_col_code) {
+            col = (mwk->id * 8) + 1;
         }
 
         break;
