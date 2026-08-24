@@ -65,7 +65,9 @@ void q_ldreq_texture_group(LoadRequest* curr) {
         curr->lds = &texgrplds[curr->group];
 
         if (curr->lds->ok) {
-            if (bsd->ix1st == 1 || bsd->ix1st == 2) {
+            switch (bsd->mode) {
+            case TEXGROUP_MODE_CHARACTER:
+            case TEXGROUP_MODE_SHARED:
                 switch (rckey_work[curr->lds->key].type) {
                 case 3:
                     if (curr->id) {
@@ -91,10 +93,14 @@ void q_ldreq_texture_group(LoadRequest* curr) {
                 } else {
                     fatal_error("A duplicate transfer occurred. File number: %d", bsd->apfn);
                 }
-            } else {
+                
+                break;
+
+            case TEXGROUP_MODE_NORMAL:
                 rckey_work[curr->lds->key].type = curr->kokey;
                 LDREQ_SetResultFlag(curr, true);
                 curr->status = LDREQ_STATUS_FREE;
+                break;
             }
 
             break;
@@ -142,7 +148,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
             curr->lds->trans_table = ldadr;
             curr->lds->ok = 1;
 
-            if (bsd->ix1st == 1) {
+            if (bsd->mode == TEXGROUP_MODE_CHARACTER) {
                 u8* ldchd = ldadr + bsd->to_chd;
 
                 // Explanation:
