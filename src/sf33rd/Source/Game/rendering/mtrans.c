@@ -119,7 +119,7 @@ static void lz_ext_p6_cx(u8* srcptr, u16* dstptr, u32 len, u16* palptr);
 static u16 x16_mapping_set(PatternMap* map, s32 code);
 static u16 x32_mapping_set(PatternMap* map, s32 code);
 
-static void search_trsptr(uintptr_t trstbl, s32 i, s32 n, s32 cods, s32 atrs, s32 codd, s32 atrd) {
+static void search_trsptr(void* trstbl, s32 i, s32 n, s32 cods, s32 atrs, s32 codd, s32 atrd) {
     s32 j;
     u16* tmpbas;
     s32 ctemp;

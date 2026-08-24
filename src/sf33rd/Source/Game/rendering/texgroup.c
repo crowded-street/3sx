@@ -40,8 +40,8 @@ s32 load_any_texture_grpnum(u8 grp, u8 kokey);
 
 void q_ldreq_texture_group(LoadRequest* curr) {
     const TexGroupData* bsd;
-    uintptr_t ldadr;
-    uintptr_t ldchd;
+    u8* ldadr;
+    u8* ldchd;
     s32 err;
     s16 i;
     u16* trsbas;
@@ -148,7 +148,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
         switch (fsCheckFileReaded()) {
         case FS_READ_IDLE:
             fsClose();
-            ldadr = (uintptr_t)Get_ramcnt_pointer(curr->key);
+            ldadr = Get_ramcnt_pointer(curr->key);
             curr->lds->texture_table = ldadr + bsd->to_tex;
             curr->lds->trans_table = ldadr;
             curr->lds->ok = 1;
@@ -180,9 +180,8 @@ void q_ldreq_texture_group(LoadRequest* curr) {
                 if (ArcadeBalance_IsEnabled()) {
 #if ARCADE_ROM
                     const size_t ps2_char_data_size = curr->size - bsd->to_chd;
-                    const bool adapted = ArcadeCharData_Apply3SXRenderingConventions(
-                        character_id, (const void*)ldchd, ps2_char_data_size
-                    );
+                    const bool adapted =
+                        ArcadeCharData_Apply3SXRenderingConventions(character_id, ldchd, ps2_char_data_size);
                     const CharInitData* arcade_data = ArcadeCharData_Get(character_id);
 
                     SDL_assert(adapted && arcade_data != NULL);
@@ -200,7 +199,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
 #endif
                 } else {
                     for (i = 0; i < 25; i++) {
-                        ((uintptr_t*)dst)[i] = ldchd + ((u32*)ldchd)[i];
+                        ((uintptr_t*)dst)[i] = (uintptr_t)ldchd + ((u32*)ldchd)[i];
                     }
 
                     // Q specific code
@@ -251,16 +250,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
 }
 
 void Init_texgrplds_work() {
-    s16 i;
-
-    // Zero out the 0-th element of texgrplds
-    for (i = 0; i < sizeof(TEX_GRP_LD) / sizeof(u32); i++) {
-        ((u32*)texgrplds)[i] = 0;
-    }
-
-    for (i = 1; i < 100; i++) {
-        texgrplds[i] = texgrplds[0];
-    }
+    SDL_zeroa(texgrplds);
 }
 
 void reservMemKeySelObj() {
@@ -274,21 +264,19 @@ void reservMemKeySelObj() {
 }
 
 void checkSelObjFileLoaded() {
-    const TexGroupData* bsd;
-    TEX_GRP_LD* lds;
-    uintptr_t ldadr;
-
     if (omSelObjNowOnMemoryType == mpp_w.language) {
         return;
     }
 
+    const TexGroupData* bsd;
+
     if (mpp_w.language == LANG_JAPANESE) {
-        bsd = &texgrpdat[0x62];
+        bsd = &texgrpdat[98]; // ef02.bin
     } else {
-        bsd = &texgrpdat[0x17];
+        bsd = &texgrpdat[23]; // ef02_usa.bin
     }
 
-    lds = &texgrplds[obj_group_table[0x69E0]];
+    TEX_GRP_LD* lds = &texgrplds[obj_group_table[27104]];
 
     while (1) {
         const bool success = load_it_use_this_key(bsd->apfn, lds->key);
@@ -298,8 +286,8 @@ void checkSelObjFileLoaded() {
         }
     }
 
-    ldadr = (uintptr_t)Get_ramcnt_pointer(lds->key);
-    lds->texture_table = ldadr + bsd->to_tex;
+    void* ldadr = Get_ramcnt_pointer(lds->key);
+    lds->texture_table = (u8*)ldadr + bsd->to_tex;
     lds->trans_table = ldadr;
     lds->ok = 1;
     omSelObjNowOnMemoryType = mpp_w.language;
@@ -349,24 +337,20 @@ s32 load_any_texture_patnum(u16 patnum, u8 kokey, u8 _unused) {
 }
 
 s32 load_any_texture_grpnum(u8 grp, u8 kokey) {
-    const TexGroupData* bsd;
-    TEX_GRP_LD* lds;
-    uintptr_t ldadr;
-
     if (grp == 0) {
         return 0;
     }
 
-    lds = &texgrplds[grp];
-    bsd = &texgrpdat[grp];
+    TEX_GRP_LD* lds = &texgrplds[grp];
+    const TexGroupData* bsd = &texgrpdat[grp];
 
     if (lds->ok) {
         return 0;
     }
 
     lds->key = load_it_use_any_key(bsd->apfn, kokey, grp);
-    ldadr = (uintptr_t)Get_ramcnt_pointer(lds->key);
-    lds->texture_table = ldadr + bsd->to_tex;
+    void* ldadr = Get_ramcnt_pointer(lds->key);
+    lds->texture_table = (u8*)ldadr + bsd->to_tex;
     lds->trans_table = ldadr;
     lds->ok = 1;
     return 1;
