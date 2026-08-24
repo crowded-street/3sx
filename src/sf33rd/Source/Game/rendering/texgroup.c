@@ -26,13 +26,6 @@
 
 #include <stdlib.h>
 
-typedef struct {
-    s16 x;
-    s16 y;
-    u16 attr;
-    u16 code;
-} TexGroup_UNK_0;
-
 u8 omSelObjNowOnMemoryType = 0xFF;
 TEX_GRP_LD texgrplds[100];
 
@@ -93,7 +86,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
                 } else {
                     fatal_error("A duplicate transfer occurred. File number: %d", bsd->apfn);
                 }
-                
+
                 break;
 
             case TEXGROUP_MODE_NORMAL:
@@ -208,7 +201,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
                         *trsbas = count;
                         trsbas += 1;
 
-                        TexGroup_UNK_0* trsptr = (TexGroup_UNK_0*)trsbas;
+                        TileMapEntry* trsptr = (TileMapEntry*)trsbas;
                         trsptr[0].x += trsptr[1].x;
                         trsptr[0].y += trsptr[1].y;
                         trsptr[0].attr = trsptr[1].attr;
