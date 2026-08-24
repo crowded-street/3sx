@@ -118,7 +118,6 @@ void TITLE_Init() {
     u32 loadSize;
     s16 key;
 
-    mmDebWriteTag("\nMAIN TITLE\n\n");
     Opening_Now = 0;
     ppgTitleList.tex = &ppgTitleTex;
     ppgTitleList.pal = NULL;
@@ -197,7 +196,6 @@ void OPBG_Init() {
     s16 i;
     s16 key;
 
-    mmDebWriteTag("\nOPENING\n\n");
     ppgOpnBgList.tex = &ppgOpnBgTex;
     ppgOpnBgList.pal = palGetChunkGhostCP3();
     ppgSetupCurrentDataList(&ppgOpnBgList);
@@ -209,7 +207,7 @@ void OPBG_Init() {
     }
 
     loadSize = Get_size_data_ramcnt_key(key);
-    loadAdrs = (void*)Get_ramcnt_address(key);
+    loadAdrs = Get_ramcnt_pointer(key);
     ppgSetupTexChunk_1st(NULL, loadAdrs, loadSize, 602, 91, 0, 0);
 
     for (i = 0; i < ppgOpnBgTex.textures; i++) {

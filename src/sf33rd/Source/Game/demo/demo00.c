@@ -200,7 +200,6 @@ void CAPLOGO_Init() {
     u32 loadSize;
     s16 key;
 
-    mmDebWriteTag("\nCAPCOM LOGO\n\n");
     ppgCapLogoList.tex = &ppgCapLogoTex;
     ppgCapLogoList.pal = &ppgCapLogoPal;
     ppgSetupCurrentDataList(&ppgCapLogoList);
@@ -275,7 +274,6 @@ void Warning_Init() {
     s16 key;
     s16 i;
 
-    mmDebWriteTag("\nWARNING\n\n");
     ppgWarList.tex = &ppgWarTex;
     ppgWarList.pal = &ppgWarPal;
     ppgAdxList.tex = &ppgWarTex;

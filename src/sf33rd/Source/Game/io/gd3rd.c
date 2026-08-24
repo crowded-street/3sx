@@ -132,7 +132,7 @@ s32 load_it_use_any_key2(u16 fnum, void** adrs, s16* key, u8 kokey, u8 group) {
 
     size = fsGetFileSize(fnum);
     *key = Pull_ramcnt_key(size, kokey, group, 0);
-    *adrs = (void*)Get_ramcnt_address(*key);
+    *adrs = Get_ramcnt_pointer(*key);
 
     if (load_it_use_this_key(fnum, *key)) {
         return size;
@@ -162,7 +162,7 @@ bool load_it_use_this_key(u16 fnum, s16 key) {
     }
 
     const u32 size = fsGetFileSize(fnum);
-    bool success = fsFileReadSync((void*)Get_ramcnt_address(key));
+    bool success = fsFileReadSync(Get_ramcnt_pointer(key));
     fsClose();
     Set_size_data_ramcnt_key(key, size);
 

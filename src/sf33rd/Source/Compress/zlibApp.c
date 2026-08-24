@@ -36,7 +36,7 @@ void* zlib_Malloc(void* opaque, u32 items, u32 size) {
 }
 
 void zlib_Free(void* opaque, void* adrs) {
-    mmFree(&zlib.mobj, (u8*)adrs);
+    mmFree(&zlib.mobj, adrs);
 }
 
 ssize_t zlib_Decompress(void* srcBuff, s32 srcSize, void* dstBuff, s32 dstSize) {

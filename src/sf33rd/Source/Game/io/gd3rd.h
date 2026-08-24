@@ -31,8 +31,8 @@ typedef struct {
     s8 ok;
     s8 type;
     s16 key;
-    uintptr_t texture_table;
-    uintptr_t trans_table;
+    void* texture_table;
+    void* trans_table;
 } TEX_GRP_LD;
 
 typedef struct LoadRequest {

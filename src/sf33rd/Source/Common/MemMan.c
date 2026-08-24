@@ -34,10 +34,6 @@ uintptr_t mmRoundOff(s32 unit, uintptr_t num) {
     return num & ~(unit - 1);
 }
 
-void mmDebWriteTag(s8* /* unused */) {
-    // Do nothing
-}
-
 ssize_t mmGetRemainder(_MEMMAN_OBJ* mmobj) {
     return mmobj->remainder;
 }
@@ -46,7 +42,7 @@ ssize_t mmGetRemainderMin(_MEMMAN_OBJ* mmobj) {
     return mmobj->remainderMin;
 }
 
-u8* mmAlloc(_MEMMAN_OBJ* mmobj, ssize_t size, s32 flag) {
+void* mmAlloc(_MEMMAN_OBJ* mmobj, ssize_t size, s32 flag) {
     struct _MEMMAN_CELL* cell = mmAllocSub(mmobj, size, flag);
 
     if (cell == NULL) {
@@ -59,7 +55,7 @@ u8* mmAlloc(_MEMMAN_OBJ* mmobj, ssize_t size, s32 flag) {
         mmobj->remainderMin = mmobj->remainder;
     }
 
-    return (u8*)cell + mmobj->ownUnit;
+    return (void*)((intptr_t)cell + mmobj->ownUnit);
 }
 
 struct _MEMMAN_CELL* mmAllocSub(_MEMMAN_OBJ* mmobj, ssize_t size, s32 flag) {
@@ -143,7 +139,7 @@ struct _MEMMAN_CELL* mmAllocSub(_MEMMAN_OBJ* mmobj, ssize_t size, s32 flag) {
     return myself;
 }
 
-void mmFree(_MEMMAN_OBJ* mmobj, u8* adrs) {
+void mmFree(_MEMMAN_OBJ* mmobj, void* adrs) {
     struct _MEMMAN_CELL* cell;
 
     if (adrs != NULL) {

@@ -1206,7 +1206,7 @@ typedef struct {
 } CharInitData2;
 
 typedef struct {
-    uintptr_t adr;
+    void* ptr;
     size_t size;
     u8 search_type;
     u8 group_num;
@@ -1337,16 +1337,6 @@ typedef struct {
     f32 s;
     f32 t;
 } TexCoord;
-
-typedef struct {
-    u16 num_of_1st;
-    s16 apfn;
-    s16 conv;
-    s16 ix1st;
-    u32 use;
-    u32 to_tex;
-    u32 to_chd;
-} TexGroupData;
 
 typedef struct {
     f32 x;

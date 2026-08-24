@@ -74,7 +74,7 @@ void Push_ramcnt_key_original_2(s16 key) {
     RCKeyWork* rwk = &rckey_work[key];
 
     if (rwk->use != 0) {
-        mmFree(&rckey_mmobj, (u8*)rwk->adr);
+        mmFree(&rckey_mmobj, rwk->ptr);
         rwk->type = 0;
         rwk->use = 0;
 
@@ -120,14 +120,14 @@ size_t Get_size_data_ramcnt_key(s16 key) {
     return rckey_work[key].size;
 }
 
-uintptr_t Get_ramcnt_address(s16 key) {
+void* Get_ramcnt_pointer(s16 key) {
     if (key <= 0) {
         // An attempt was made to obtain an address from an unused memory key.\n
         flLogOut("未使用のメモリキーからアドレスを取得しようとしました。\n");
         ERR_STOP;
     }
 
-    return rckey_work[key].adr;
+    return rckey_work[key].ptr;
 }
 
 s16 Search_ramcnt_type(u8 kokey) {
@@ -182,12 +182,12 @@ s16 Pull_ramcnt_key(size_t memreq, u8 kokey, u8 group, u8 frre) {
             frre--;
         }
 
-        rwk->adr = (uintptr_t)mmAlloc(&rckey_mmobj, memreq, frre);
+        rwk->ptr = mmAlloc(&rckey_mmobj, memreq, frre);
     } else {
         goto err;
     }
 
-    if (rwk->adr == 0) {
+    if (rwk->ptr == NULL) {
     err:
         rckeyque[rckeyctr++] = key;
         // Failed to allocate memory.\n
