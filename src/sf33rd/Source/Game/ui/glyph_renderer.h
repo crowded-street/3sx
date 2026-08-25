@@ -32,5 +32,5 @@ bool GlyphRenderer_Init();
 void GlyphRenderer_DrawGlyph(GlyphPosition atlas_pos, GlyphPosition screen_pos, GlyphColor color, float z);
 void GlyphRenderer_DrawDigit(Uint8 digit, GlyphPosition screen_pos, GlyphColor color, float z);
 void GlyphRenderer_DrawChar(char c, GlyphPosition screen_pos, GlyphColor color, float z);
-void GlyphRenderer_DrawString(char c, GlyphPosition screen_pos, GlyphColor color, float z);
+void GlyphRenderer_DrawString(char* str, GlyphPosition screen_pos, GlyphColor color, float z);
 #endif

@@ -10,7 +10,7 @@
 #define GLYPH_COLOR_STRIDE 4
 
 static Uint32 glyph_texture = 0;
-
+static Uint32 stringKerning = 8;
 static FLTexture* get_texture() {
     return &flTexture[glyph_texture - 1];
 }
@@ -66,10 +66,17 @@ void GlyphRenderer_DrawChar(char c, GlyphPosition screen_pos, GlyphColor color, 
             GlyphRenderer_DrawGlyph((GlyphPosition) { pos, 1 }, screen_pos, color, z);
         }
 
+    } else if (isspace(c)) {
+        GlyphRenderer_DrawGlyph((GlyphPosition) { 10, 2 }, screen_pos, color, z);
     } else {
         // draw an X if the character doesn't exist in the spritesheet
         GlyphRenderer_DrawGlyph((GlyphPosition) { 23, 0 }, screen_pos, GLYPH_COLOR_HEAVY, z);
     }
 }
 
-void GlyphRenderer_DrawString(char c, GlyphPosition screen_pos, GlyphColor color, float z);
+void GlyphRenderer_DrawString(char* str, GlyphPosition screen_pos, GlyphColor color, float z) {
+    for (int i = 0; i < strlen(str); i++) {
+        screen_pos.x += stringKerning;
+        GlyphRenderer_DrawChar(str[i], screen_pos, color, z);
+    }
+}
