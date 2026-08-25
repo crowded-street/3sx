@@ -5,12 +5,20 @@
 
 #include <SDL3/SDL.h>
 #include <ctype.h>
+#include <string.h>
 #include <wctype.h>
 
 #define GLYPH_COLOR_STRIDE 4
 
 static Uint32 glyph_texture = 0;
 static Uint32 stringKerning = 8;
+
+// hacky way to quickly map the punctuation to sprite atlas positions
+static char* puncMap = ".,!:()";
+static GlyphPosition puncPositions[6] = { (GlyphPosition) { 26, 1 }, (GlyphPosition) { 27, 1 },
+                                          (GlyphPosition) { 33, 0 }, (GlyphPosition) { 30, 0 },
+                                          (GlyphPosition) { 26, 0 }, (GlyphPosition) { 27, 0 } };
+
 static FLTexture* get_texture() {
     return &flTexture[glyph_texture - 1];
 }
@@ -55,6 +63,21 @@ void GlyphRenderer_DrawDigit(Uint8 digit, GlyphPosition screen_pos, GlyphColor c
     GlyphRenderer_DrawGlyph((GlyphPosition) { digit, 2 }, screen_pos, color, z);
 }
 
+/**
+ * Used to get the index of the character in the string. Limited error checking due to this only being called if it is
+ * in the string.
+ */
+int indexOf(const char* str, const char f) {
+    int i = 0;
+
+    while (str[i] != '\0') {
+        if (str[i] == f)
+            return i;
+        i++;
+    }
+    return 0;
+}
+
 void GlyphRenderer_DrawChar(char c, GlyphPosition screen_pos, GlyphColor color, float z) {
     if (isalpha(c)) {
 
@@ -67,7 +90,12 @@ void GlyphRenderer_DrawChar(char c, GlyphPosition screen_pos, GlyphColor color, 
         }
 
     } else if (isspace(c)) {
+        // draw nothing if the character is a space
         GlyphRenderer_DrawGlyph((GlyphPosition) { 10, 2 }, screen_pos, color, z);
+    } else if (strchr(puncMap, c)) {
+        // if the string is in the mapped list of punctuation, find the matching sprite atlas
+        GlyphPosition puncPos = puncPositions[indexOf(puncMap, c)];
+        GlyphRenderer_DrawGlyph(puncPos, screen_pos, color, z);
     } else {
         // draw an X if the character doesn't exist in the spritesheet
         GlyphRenderer_DrawGlyph((GlyphPosition) { 23, 0 }, screen_pos, GLYPH_COLOR_HEAVY, z);
