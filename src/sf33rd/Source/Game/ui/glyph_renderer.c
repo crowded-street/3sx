@@ -14,10 +14,11 @@ static Uint32 glyph_texture = 0;
 static Uint32 stringKerning = 8;
 
 // hacky way to quickly map the punctuation to sprite atlas positions
-static char* puncMap = ".,!:()";
-static GlyphPosition puncPositions[6] = { (GlyphPosition) { 26, 1 }, (GlyphPosition) { 27, 1 },
-                                          (GlyphPosition) { 33, 0 }, (GlyphPosition) { 30, 0 },
-                                          (GlyphPosition) { 26, 0 }, (GlyphPosition) { 27, 0 } };
+static char* puncMap = ".,!:()><";
+static GlyphPosition puncPositions[10] = { (GlyphPosition) { 26, 1 }, (GlyphPosition) { 27, 1 },
+                                           (GlyphPosition) { 33, 0 }, (GlyphPosition) { 30, 0 },
+                                           (GlyphPosition) { 26, 0 }, (GlyphPosition) { 27, 0 },
+                                           (GlyphPosition) { 28, 2 }, (GlyphPosition) { 30, 2 } };
 
 static FLTexture* get_texture() {
     return &flTexture[glyph_texture - 1];
@@ -89,8 +90,9 @@ void GlyphRenderer_DrawChar(char c, GlyphPosition screen_pos, GlyphColor color, 
             GlyphRenderer_DrawGlyph((GlyphPosition) { pos, 1 }, screen_pos, color, z);
         }
 
-    } else if (isspace(c)) {
+    } else if (isspace(c) || c == '_') {
         // draw nothing if the character is a space
+        // (also currently maps underscores because the glyph sheet doesn't have them)
         GlyphRenderer_DrawGlyph((GlyphPosition) { 10, 2 }, screen_pos, color, z);
     } else if (strchr(puncMap, c)) {
         // if the string is in the mapped list of punctuation, find the matching sprite atlas
