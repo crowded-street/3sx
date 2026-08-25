@@ -1,9 +1,11 @@
-#include "sf33rd/Source/Game/ui/glyph_renderer.h"
 #include "core/renderer.h"
 #include "sf33rd/AcrSDK/ps2/flps2etc.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
+#include "sf33rd/Source/Game/ui/glyph_renderer.h"
 
 #include <SDL3/SDL.h>
+#include <ctype.h>
+#include <wctype.h>
 
 #define GLYPH_COLOR_STRIDE 4
 
@@ -52,3 +54,22 @@ void GlyphRenderer_DrawDigit(Uint8 digit, GlyphPosition screen_pos, GlyphColor c
 
     GlyphRenderer_DrawGlyph((GlyphPosition) { digit, 2 }, screen_pos, color, z);
 }
+
+void GlyphRenderer_DrawChar(char c, GlyphPosition screen_pos, GlyphColor color, float z) {
+    if (isalpha(c)) {
+
+        if (isupper(c)) {
+            int pos = c - 'A';
+            GlyphRenderer_DrawGlyph((GlyphPosition) { pos, 0 }, screen_pos, color, z);
+        } else if (islower(c)) {
+            int pos = c - 'a';
+            GlyphRenderer_DrawGlyph((GlyphPosition) { pos, 1 }, screen_pos, color, z);
+        }
+
+    } else {
+        // draw an X if the character doesn't exist in the spritesheet
+        GlyphRenderer_DrawGlyph((GlyphPosition) { 23, 0 }, screen_pos, GLYPH_COLOR_HEAVY, z);
+    }
+}
+
+void GlyphRenderer_DrawString(char c, GlyphPosition screen_pos, GlyphColor color, float z);
