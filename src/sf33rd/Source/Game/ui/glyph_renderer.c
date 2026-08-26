@@ -94,6 +94,10 @@ void GlyphRenderer_DrawChar(char c, GlyphPosition screen_pos, GlyphColor color, 
         // draw nothing if the character is a space
         // (also currently maps underscores because the glyph sheet doesn't have them)
         GlyphRenderer_DrawGlyph((GlyphPosition) { 10, 2 }, screen_pos, color, z);
+
+    } else if (isdigit(c)) {
+        // render numbers using the other function
+        GlyphRenderer_DrawDigit((int)(c - '0'), screen_pos, color, z);
     } else if (strchr(puncMap, c)) {
         // if the string is in the mapped list of punctuation, find the matching sprite atlas
         GlyphPosition puncPos = puncPositions[indexOf(puncMap, c)];
