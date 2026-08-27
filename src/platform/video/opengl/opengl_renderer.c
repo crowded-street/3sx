@@ -791,10 +791,12 @@ static void OpenGLRenderer_RenderFrame(SDL_Rect viewport) {
     }
 
     // Get window size for border
-    int win_w, win_h;
-    SDL_GetWindowSizeInPixels(window, &win_w, &win_h);
+    int win_w = 0, win_h = 0;
+    if(draw_bg_border || draw_fg_border) {
+        SDL_GetWindowSizeInPixels(window, &win_w, &win_h);
+        glViewport(0, 0, win_w, win_h);
+    }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, win_w, win_h);
     glClear(GL_COLOR_BUFFER_BIT);
 
     glDisable(GL_DEPTH_TEST);
@@ -818,11 +820,9 @@ static void OpenGLRenderer_RenderFrame(SDL_Rect viewport) {
 
     // Draw border
     if(draw_bg_border && borderTexture != 0) {
-        if(borderTexture != 0) {
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, borderTexture);
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (GLvoid*)0);
-        }
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, borderTexture);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (GLvoid*)0);
     }
 
 

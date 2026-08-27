@@ -1204,15 +1204,20 @@ static void SDLGPURenderer_RenderFrame(SDL_Rect viewport) {
             SDL_GPU_INDEXELEMENTSIZE_16BIT
         );
 
-        int win_w, win_h;
-        SDL_GetWindowSizeInPixels(window, &win_w, &win_h);
-        SDL_GPUViewport full_window_viewport = {
-            .x = 0, .y = 0, .w = (float)win_w, .h = (float)win_h,
-            .min_depth = 0, .max_depth = 1
-        };
+        int win_w = 0, win_h = 0;
+        SDL_GPUViewport full_window_viewport;
+        if(border_bg_texture != NULL || border_fg_texture != NULL) {
+            SDL_GetWindowSizeInPixels(window, &win_w, &win_h);
+            full_window_viewport = (SDL_GPUViewport) {
+                .x = 0, .y = 0, .w = (float)win_w, .h = (float)win_h,
+                .min_depth = 0, .max_depth = 1
+            };
+        }
+
+        bool valid_win_size = (win_w > 0 && win_h > 0);
 
         // Draw background border (if it exists) before the game canvas
-        if(border_bg_texture != NULL) {
+        if(border_bg_texture != NULL && valid_win_size) {
             SDL_SetGPUViewport(screen_pass, &full_window_viewport);
             SDL_BindGPUGraphicsPipeline(screen_pass, direct_pipeline);
             SDL_BindGPUFragmentSamplers(
@@ -1265,7 +1270,7 @@ static void SDLGPURenderer_RenderFrame(SDL_Rect viewport) {
         SDL_DrawGPUIndexedPrimitives(screen_pass, 6, 1, 0, 0, 0);
 
         // Draw foreground border (if it exists)
-        if(border_fg_texture != NULL) {
+        if(border_fg_texture != NULL && valid_win_size) {
             SDL_SetGPUViewport(screen_pass, &full_window_viewport);
             SDL_BindGPUGraphicsPipeline(screen_pass, direct_pipeline);
             SDL_BindGPUFragmentSamplers(
