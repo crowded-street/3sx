@@ -3,6 +3,7 @@
 #include "platform/video/sdl_gpu/sdl_gpu_renderer.h"
 #include "common.h"
 #include "port/config/config.h"
+#include "port/paths.h"
 #include "port/utils.h"
 #include "sf33rd/AcrSDK/ps2/flps2etc.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
@@ -103,6 +104,8 @@ static SDL_GPUGraphicsPipeline* scanline_pipeline = NULL;
 static SDL_GPUSampler* sampler = NULL;
 static SDL_GPUTexture* canvas_texture = NULL;
 static SDL_GPUTexture* depth_texture = NULL;
+static SDL_GPUTexture* border_bg_texture = NULL;
+static SDL_GPUTexture* border_fg_texture = NULL;
 static SDL_GPUTextureFormat depth_texture_format = SDL_GPU_TEXTUREFORMAT_D32_FLOAT;
 
 static SDL_GPUBuffer* vertex_buffer = NULL;
@@ -271,6 +274,94 @@ static SDL_GPUGraphicsPipeline* create_pipeline(
             }
         }
     );
+}
+
+static SDL_GPUTexture* LoadBorder(const char* borderFileName) {
+    const char* base_path = SDL_GetBasePath();
+    char* full_path = NULL;
+    SDL_asprintf(&full_path, "%s/assets/%s", base_path, borderFileName);
+    
+    // Check if the border file exists.
+    // If it doesn't we just assume that the user hasn't added one.
+    bool path_result = SDL_GetPathInfo(full_path, NULL);
+    if(!path_result) {
+        return NULL;
+    }
+    else {
+        SDL_Log("Loading border file: %s", borderFileName);
+    }
+
+    SDL_Surface *surf_result;
+    SDL_PixelFormat surf_format;
+
+    surf_result = SDL_LoadPNG(full_path);
+    if(surf_result == NULL) {
+        SDL_Log("Failed to load border file: %s", borderFileName);
+        return NULL;
+    }
+
+    surf_format = SDL_PIXELFORMAT_BGRA32;
+    if(surf_result->format != surf_format) {
+        SDL_Surface *next = SDL_ConvertSurface(surf_result, surf_format);
+        SDL_DestroySurface(surf_result);
+        surf_result = next;
+    }
+
+    SDL_GPUTextureCreateInfo tex_info = {
+        .type = SDL_GPU_TEXTURETYPE_2D,
+        .format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM,
+        .usage = SDL_GPU_TEXTUREUSAGE_SAMPLER,
+        .width = surf_result->w,
+        .height = surf_result->h,
+        .layer_count_or_depth = 1,
+        .num_levels = 1
+    };
+
+    if(device) {
+        SDL_GPUTexture* texture = SDL_CreateGPUTexture(device, &tex_info);
+
+        SDL_GPUTransferBufferCreateInfo tb_info = {
+            .usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
+            .size = surf_result->pitch * surf_result->h
+        };
+
+        SDL_GPUTransferBuffer* transfer_buffer = SDL_CreateGPUTransferBuffer(device, &tb_info);
+
+        void* map = SDL_MapGPUTransferBuffer(device, transfer_buffer, false);
+        SDL_memcpy(map, surf_result->pixels, tb_info.size);
+        SDL_UnmapGPUTransferBuffer(device, transfer_buffer);
+
+        SDL_GPUCommandBuffer* cmd_buf = SDL_AcquireGPUCommandBuffer(device);
+        SDL_GPUCopyPass* copy_pass = SDL_BeginGPUCopyPass(cmd_buf);
+
+        SDL_GPUTextureTransferInfo src = {
+            .transfer_buffer = transfer_buffer,
+            .offset = 0,
+            .pixels_per_row = surf_result->w,
+            .rows_per_layer = surf_result->h
+        };
+
+        SDL_GPUTextureRegion dst = {
+            .texture = texture,
+            .w = surf_result->w,
+            .h = surf_result->h,
+            .d = 1
+        };
+
+        SDL_UploadToGPUTexture(copy_pass, &src, &dst, false);
+
+        SDL_EndGPUCopyPass(copy_pass);
+        SDL_SubmitGPUCommandBuffer(cmd_buf);
+
+        SDL_ReleaseGPUTransferBuffer(device, transfer_buffer);
+        SDL_DestroySurface(surf_result);
+
+        return texture;
+    }
+    else {
+        SDL_Log("Failed to create border texture: %s", borderFileName);
+        return NULL;
+    }
 }
 
 static SDL_GPUTextureFormat get_supported_depth_format(SDL_GPUDevice* device) {
@@ -635,6 +726,10 @@ static SDL_Window* SDLGPURenderer_Init(const SDLRenderBackendInitInfo* init_info
         }
     );
 
+    // Init borders
+    border_bg_texture = LoadBorder("border_bg.png");
+    border_fg_texture = LoadBorder("border_fg.png");
+
     // Init vertex buffer
 
     const Uint32 vertex_buffer_max_size = QUADS_MAX * 4 * sizeof(_Vertex);
@@ -818,6 +913,8 @@ static void SDLGPURenderer_Quit() {
     SDL_ReleaseGPUBuffer(device, index_buffer);
     SDL_ReleaseGPUBuffer(device, screen_vertex_buffer);
     SDL_ReleaseGPUSampler(device, sampler);
+    SDL_ReleaseGPUTexture(device, border_bg_texture);
+    SDL_ReleaseGPUTexture(device, border_fg_texture);
     SDL_ReleaseGPUTexture(device, canvas_texture);
     SDL_ReleaseGPUTexture(device, depth_texture);
 
@@ -1084,24 +1181,6 @@ static void SDLGPURenderer_RenderFrame(SDL_Rect viewport) {
             NULL
         );
 
-        SDL_SetGPUViewport(
-            screen_pass,
-            &(SDL_GPUViewport) {
-                .x = viewport.x,
-                .y = viewport.y,
-                .w = viewport.w,
-                .h = viewport.h,
-                .min_depth = 0,
-                .max_depth = 1,
-            }
-        );
-
-        if (scanline_intensity > 0) {
-            SDL_BindGPUGraphicsPipeline(screen_pass, scanline_pipeline);
-        } else {
-            SDL_BindGPUGraphicsPipeline(screen_pass, screen_pipeline);
-        }
-
         SDL_BindGPUVertexBuffers(
             screen_pass,
             0,
@@ -1125,6 +1204,48 @@ static void SDLGPURenderer_RenderFrame(SDL_Rect viewport) {
             SDL_GPU_INDEXELEMENTSIZE_16BIT
         );
 
+        int win_w = 0, win_h = 0;
+        SDL_GPUViewport full_window_viewport;
+        if(border_bg_texture != NULL || border_fg_texture != NULL) {
+            SDL_GetWindowSizeInPixels(window, &win_w, &win_h);
+            full_window_viewport = (SDL_GPUViewport) {
+                .x = 0, .y = 0, .w = (float)win_w, .h = (float)win_h,
+                .min_depth = 0, .max_depth = 1
+            };
+        }
+
+        bool valid_win_size = (win_w > 0 && win_h > 0);
+
+        // Draw background border (if it exists) before the game canvas
+        if(border_bg_texture != NULL && valid_win_size) {
+            SDL_SetGPUViewport(screen_pass, &full_window_viewport);
+            SDL_BindGPUGraphicsPipeline(screen_pass, direct_pipeline);
+            SDL_BindGPUFragmentSamplers(
+                screen_pass, 0,
+                (SDL_GPUTextureSamplerBinding[]) {{.texture = border_bg_texture, .sampler = sampler}}, 1
+            );
+            SDL_DrawGPUIndexedPrimitives(screen_pass, 6, 1, 0, 0, 0);
+        }
+
+        SDL_SetGPUViewport(
+            screen_pass,
+            &(SDL_GPUViewport) {
+                .x = viewport.x,
+                .y = viewport.y,
+                .w = viewport.w,
+                .h = viewport.h,
+                .min_depth = 0,
+                .max_depth = 1,
+            }
+        );
+
+        if (scanline_intensity > 0) {
+            SDL_BindGPUGraphicsPipeline(screen_pass, scanline_pipeline);
+        } else {
+            SDL_BindGPUGraphicsPipeline(screen_pass, screen_pipeline);
+        }
+
+
         SDL_BindGPUFragmentSamplers(
             screen_pass,
             0,
@@ -1147,6 +1268,17 @@ static void SDLGPURenderer_RenderFrame(SDL_Rect viewport) {
         );
 
         SDL_DrawGPUIndexedPrimitives(screen_pass, 6, 1, 0, 0, 0);
+
+        // Draw foreground border (if it exists)
+        if(border_fg_texture != NULL && valid_win_size) {
+            SDL_SetGPUViewport(screen_pass, &full_window_viewport);
+            SDL_BindGPUGraphicsPipeline(screen_pass, direct_pipeline);
+            SDL_BindGPUFragmentSamplers(
+                screen_pass, 0,
+                (SDL_GPUTextureSamplerBinding[]) {{.texture = border_fg_texture, .sampler = sampler}}, 1
+            );
+            SDL_DrawGPUIndexedPrimitives(screen_pass, 6, 1, 0, 0, 0);
+        }
 
 #if DEBUG && IMGUI
         ImGuiW_RenderDrawData(command_buffer, screen_pass);
