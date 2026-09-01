@@ -2636,9 +2636,65 @@ void In_Game(struct _TASK* task_ptr) {
     In_Game_Jmp_Tbl[task_ptr->r_no[1]](task_ptr);
 }
 
-void Menu_Select(struct _TASK* task_ptr) {
+static void menu_select_confirm(struct _TASK* task_ptr) {
     s16 ix;
 
+    switch (Menu_Cursor_Y[0]) {
+    case 0: // Continue
+        task_ptr->r_no[2] = 99;
+        Exit_Menu = 1;
+        SE_selected();
+        break;
+
+    case 1: // Button config
+        SE_selected();
+
+        switch (Mode_Type) {
+        case MODE_VERSUS:
+            task_ptr->r_no[1] = 3;
+            task_ptr->r_no[2] = 0;
+            task_ptr->r_no[3] = 0;
+
+            for (ix = 0; ix < 4; ix++) {
+                Menu_Suicide[ix] = 1;
+            }
+
+            cpExitTask(TASK_SAVER);
+            cpExitTask(TASK_PAUSE);
+            BGM_Stop();
+            break;
+
+        case MODE_REPLAY:
+            task_ptr->r_no[0] = 0xC;
+            task_ptr->r_no[1] = 0;
+            break;
+
+        default:
+            Menu_Suicide[0] = 1;
+            Menu_Suicide[1] = 1;
+            Menu_Suicide[2] = 1;
+            Menu_Suicide[3] = 0;
+            task_ptr->r_no[1]++;
+            task_ptr->r_no[2] = 0;
+            task[TASK_PAUSE].r_no[2] = 3;
+            break;
+        }
+
+        break;
+
+    case 2: // Exit
+        task_ptr->r_no[2]++;
+        Menu_Suicide[0] = 1;
+        Menu_Cursor_Y[0] = 1;
+        effect_10_init(0, 0, 3, 3, 1, 0x13, 0xC);
+        effect_10_init(0, 1, 0, 0, 1, 0x14, 0xF);
+        effect_10_init(0, 1, 1, 1, 1, 0x1A, 0xF);
+        SE_selected();
+        break;
+    }
+}
+
+void Menu_Select(struct _TASK* task_ptr) {
     if (Check_Pad_in_Pause(task_ptr) != 0) {
         return;
     }
@@ -2687,60 +2743,7 @@ void Menu_Select(struct _TASK* task_ptr) {
             break;
 
         case SWK_SOUTH:
-            switch (Menu_Cursor_Y[0]) {
-            case 0: // Continue
-                task_ptr->r_no[2] = 99;
-                Exit_Menu = 1;
-                SE_selected();
-                break;
-
-            case 1: // Button config
-                SE_selected();
-
-                switch (Mode_Type) {
-                case MODE_VERSUS:
-                    task_ptr->r_no[1] = 3;
-                    task_ptr->r_no[2] = 0;
-                    task_ptr->r_no[3] = 0;
-
-                    for (ix = 0; ix < 4; ix++) {
-                        Menu_Suicide[ix] = 1;
-                    }
-
-                    cpExitTask(TASK_SAVER);
-                    cpExitTask(TASK_PAUSE);
-                    BGM_Stop();
-                    break;
-
-                case MODE_REPLAY:
-                    task_ptr->r_no[0] = 0xC;
-                    task_ptr->r_no[1] = 0;
-                    break;
-
-                default:
-                    Menu_Suicide[0] = 1;
-                    Menu_Suicide[1] = 1;
-                    Menu_Suicide[2] = 1;
-                    Menu_Suicide[3] = 0;
-                    task_ptr->r_no[1]++;
-                    task_ptr->r_no[2] = 0;
-                    task[TASK_PAUSE].r_no[2] = 3;
-                    break;
-                }
-
-                break;
-
-            case 2: // Exit
-                task_ptr->r_no[2]++;
-                Menu_Suicide[0] = 1;
-                Menu_Cursor_Y[0] = 1;
-                effect_10_init(0, 0, 3, 3, 1, 0x13, 0xC);
-                effect_10_init(0, 1, 0, 0, 1, 0x14, 0xF);
-                effect_10_init(0, 1, 1, 1, 1, 0x1A, 0xF);
-                SE_selected();
-                break;
-            }
-
+            menu_select_confirm(task_ptr);
             break;
         }
 
