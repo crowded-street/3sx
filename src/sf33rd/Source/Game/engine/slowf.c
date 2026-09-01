@@ -24,24 +24,27 @@ void set_conclusion_slow() {
     SLOW_timer = 95;
 }
 
-void set_EXE_flag() {
-    s16 tmw;
+s16 get_slow_flag(void) {
+    if (SLOW_timer) {
+        s16 tmw;
 
-    if (!Game_pause) {
-        if (SLOW_timer) {
-            if (--SLOW_timer) {
-                tmw = SLOW_timer / 8;
+        if (--SLOW_timer) {
+            tmw = SLOW_timer / 8;
 
-                if (tmw > 31) {
-                    tmw = 31;
-                }
-
-                SLOW_flag = slow_timer_to_flag[tmw];
-            } else {
-                SLOW_flag = 0;
+            if (tmw > 31) {
+                tmw = 31;
             }
-        }
 
+            return slow_timer_to_flag[tmw];
+        }
+    }
+
+    return 0;
+}
+
+void set_EXE_flag() {
+    if (!Game_pause) {
+        SLOW_flag = get_slow_flag();
         EXE_flag = Game_timer % (SLOW_flag + 1);
     }
 }
