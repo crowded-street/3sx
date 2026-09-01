@@ -52,6 +52,7 @@ static s32 remap_stage03_player_chip(s32 global_index_real);
 static void advance_stage03_flash_state();
 static void advance_stage03_player_rw_state();
 static s32 remap_stage19_default_chip(s32 global_index_real);
+static void advance_stage19_rw_state();
 static void bgDrawOneScreen(s32 bgnum, s32 gixbase, s32* xx, s32* yy, s32 /* unused */, s32 ofsPal,
                             PPGDataList* curDataList);
 static void bgDrawOneChip(s32 x, s32 y, s32 xs, s32 ys, s32 gbix, u32 vtxCol, s32 ofsPal);
@@ -662,6 +663,64 @@ static s32 remap_stage19_default_chip(s32 global_index_real) {
     return global_index_real;
 }
 
+static void advance_stage19_rw_state() {
+    rw_dat[0].rw_cnt--;
+
+    if (rw_dat[0].rw_cnt == 0) {
+        rw_dat[0].rwd_ptr += 5;
+        rw_dat[0].rw_cnt = rw_dat[0].rwd_ptr[0];
+
+        if (rw_dat[0].rw_cnt == -1) {
+            stage_ftimer--;
+
+            if (stage_ftimer == 0) {
+                stage_flash = random_16_bg();
+                stage_ftimer = random_16_bg();
+
+                switch (stage_flash) {
+                case 0:
+                case 1:
+                    rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr = rw191;
+                    rw_dat[0].rw_cnt = 1;
+                    stage_ftimer = stage19_loop_tbl2[stage_ftimer];
+                    break;
+
+                case 2:
+                case 3:
+                    rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr = rw192;
+                    rw_dat[0].rw_cnt = 1;
+                    stage_ftimer = stage19_loop_tbl2[stage_ftimer];
+                    break;
+
+                default:
+                    rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr = rw190;
+                    rw_dat[0].rw_cnt = 2;
+                    stage_ftimer = stage19_loop_tbl1[stage_ftimer];
+                    break;
+                }
+            } else {
+                rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr;
+                rw_dat[0].rw_cnt = rw_dat[0].rwd_ptr[0];
+            }
+        }
+    }
+
+    rw_dat[1].rw_cnt--;
+
+    if (rw_dat[1].rw_cnt != 0) {
+        return;
+    }
+
+    if (rw_dat[1].rwd_ptr[0] == -1) {
+        rw_dat[1].rwd_ptr = rw_dat[1].brw_ptr;
+        rw_dat[1].rw_cnt = *rw_dat[1].rwd_ptr++;
+        rw_dat[1].gbix = *rw_dat[1].rwd_ptr++;
+    } else {
+        rw_dat[1].rw_cnt = *rw_dat[1].rwd_ptr++;
+        rw_dat[1].gbix = *rw_dat[1].rwd_ptr++;
+    }
+}
+
 void scr_trans(u8 bgnm) {
     PPGDataList* curDataList;
     Vec3 point[2];
@@ -851,62 +910,7 @@ void scr_trans(u8 bgnm) {
             break;
         }
 
-        rw_dat[0].rw_cnt--;
-
-        if (rw_dat[0].rw_cnt == 0) {
-            rw_dat[0].rwd_ptr += 5;
-            rw_dat[0].rw_cnt = rw_dat[0].rwd_ptr[0];
-
-            if (rw_dat[0].rw_cnt == -1) {
-                stage_ftimer--;
-
-                if (stage_ftimer == 0) {
-                    stage_flash = random_16_bg();
-                    stage_ftimer = random_16_bg();
-
-                    switch (stage_flash) {
-                    case 0:
-                    case 1:
-                        rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr = rw191;
-                        rw_dat[0].rw_cnt = 1;
-                        stage_ftimer = stage19_loop_tbl2[stage_ftimer];
-                        break;
-
-                    case 2:
-                    case 3:
-                        rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr = rw192;
-                        rw_dat[0].rw_cnt = 1;
-                        stage_ftimer = stage19_loop_tbl2[stage_ftimer];
-                        break;
-
-                    default:
-                        rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr = rw190;
-                        rw_dat[0].rw_cnt = 2;
-                        stage_ftimer = stage19_loop_tbl1[stage_ftimer];
-                        break;
-                    }
-                } else {
-                    rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr;
-                    rw_dat[0].rw_cnt = rw_dat[0].rwd_ptr[0];
-                }
-            }
-        }
-
-        rw_dat[1].rw_cnt--;
-
-        if (rw_dat[1].rw_cnt != 0) {
-            break;
-        }
-
-        if (rw_dat[1].rwd_ptr[0] == -1) {
-            rw_dat[1].rwd_ptr = rw_dat[1].brw_ptr;
-            rw_dat[1].rw_cnt = *rw_dat[1].rwd_ptr++;
-            rw_dat[1].gbix = *rw_dat[1].rwd_ptr++;
-        } else {
-            rw_dat[1].rw_cnt = *rw_dat[1].rwd_ptr++;
-            rw_dat[1].gbix = *rw_dat[1].rwd_ptr++;
-        }
-
+        advance_stage19_rw_state();
         break;
 
     case 5:
