@@ -74,6 +74,13 @@ const s16* scr_obj_data6[22] = { st0000_data_tbl,  st0100_data_tbl,  st0200_data
                                  st1000_data_tbl,  st1100_data_tbl,  st0500_data_tbl, st1300_data_tbl,  st1400_data_tbl,
                                  stg_dum_data_tbl, stg_dum_data_tbl };
 
+static s16 adjust_scr_obj_for_hud(const s16 base_count, const s8 bg_idx) {
+    if (Config_GetBool(CFG_DRAW_PLAYERS_ABOVE_HUD) && bg_idx == 16) {
+        return base_count - 1;
+    }
+    return base_count;
+}
+
 void effect_06_move(WORK_Other* ewk) {
     if (obr_no_disp_check()) {
         return;
@@ -105,20 +112,12 @@ void effect_06_move(WORK_Other* ewk) {
 s32 effect_06_init() {
     WORK_Other* ewk;
     s16 ix;
-    s16 lp_cnt = scr_obj_num6[bg_w.bg_index];
+    s16 lp_cnt = adjust_scr_obj_for_hud(scr_obj_num6[bg_w.bg_index], bg_w.bg_index);
     s16 i;
     const s16* data_ptr;
 
     if (lp_cnt == 0) {
         return 0;
-    }
-
-    if (Config_GetBool(CFG_DRAW_PLAYERS_ABOVE_HUD)) {
-        switch (bg_w.bg_index) {
-        case 16:         // Makoto's stage
-            lp_cnt -= 1; // Remove large tree on the right
-            break;
-        }
     }
 
     data_ptr = scr_obj_data6[bg_w.bg_index];
