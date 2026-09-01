@@ -1,0 +1,120 @@
+# Agent instructions
+
+Read this before changing anything. It applies to every agent and every harness.
+
+## What this repository is
+
+3SX is a **native C port of Street Fighter III: 3rd Strike**, derived from a *matching
+decompilation* of the PS2 build. Large parts of this code are a faithful reproduction of
+original arcade behaviour, and the engine feeds a **rollback netcode** implementation.
+
+The practical consequence:
+
+> **Behaviour fidelity outranks code quality, readability, and your own judgement.**
+> A change that makes the code cleaner but shifts behaviour by one frame is a defect,
+> even if it looks obviously correct.
+
+Code that appears wrong is usually right. Odd constants, redundant checks, and strange
+control flow are typically arcade-accurate. **Report them, do not fix them.**
+
+## Build
+
+`cmake` is not on PATH by default on the Windows dev machine. Prepend the toolchain:
+
+```bash
+export PATH="/c/msys64/mingw64/bin:$PATH"
+cmake --build build
+```
+
+- A no-op build takes ~2 seconds; a single-file change rebuilds and links in ~30 seconds.
+- The build globs sources, so adding a `.c` file needs no CMake edit.
+- Never commit a broken build.
+
+There are **no unit tests**. CI builds on four platforms and runs no tests at all. Do not
+assume anything is verified by the pipeline.
+
+## Behavioural verification
+
+`statcheck` replays real Fightcade matches frame by frame and compares engine state
+against CPS3 RAM dumps. It is the only mechanism that proves behaviour was preserved.
+
+It is currently **not running**: `THREESX_STATCHECK` defaults OFF, no CI workflow invokes
+it, and the replay corpus and ROM are not present. See [`docs/statcheck.md`](docs/statcheck.md).
+
+Until that changes, agents must not modify code inside the in-round simulation. The
+refactoring campaign encodes this as a Track A / Track B split - respect it.
+
+## The refactoring campaign
+
+If you were given a task ID like `R04`, your instructions are in
+[`docs/refactoring/tasks/`](docs/refactoring/tasks/). Read, in order:
+
+1. Your task file, e.g. `docs/refactoring/tasks/R04-menu.md`
+2. [`docs/refactoring/PLAYBOOK.md`](docs/refactoring/PLAYBOOK.md) - the closed catalogue of allowed changes
+3. [`docs/refactoring/README.md`](docs/refactoring/README.md) - campaign rules
+
+You may apply **only** the five recipes in the playbook. Anything else is out of scope.
+
+## Hard prohibitions
+
+Never, in any commit:
+
+- Change a numeric literal, string literal, character constant, or enum value.
+- Change arithmetic, bitwise operations, or shifts.
+- Change a comparison operator, including `<` to `<=`.
+- Change a type, including signedness (`s8` to `u8`) or width (`s16` to `s32`).
+- Reorder statements that have side effects.
+- Delete code that looks dead - it may be reachable through the rollback path.
+- Modify a `const` data table. The large static arrays are out of scope entirely.
+- Fix a bug you noticed. Report it.
+
+## Verification sequence
+
+Run all three after **every** commit, in this order:
+
+```bash
+# 1. it still builds
+export PATH="/c/msys64/mingw64/bin:$PATH"
+cmake --build build
+
+# 2. no constant was removed or altered
+python tools/refactor_guard.py <the file you changed>
+
+# 3. the metric improved  -- via the CodeScene MCP server
+#    code_health_score(file_path="<absolute path>")
+```
+
+`refactor_guard.py` extracts every literal before and after your change and compares them.
+A **removed** literal fails: it means a constant was altered or code carrying it was
+deleted. Added literals are only warnings - a new guard clause legitimately brings its own
+`return 0`.
+
+If the guard fails, revert immediately:
+
+```bash
+git checkout -- <file>
+```
+
+Recipe D (deduplicate) removes a duplicated block and will therefore trip the guard by
+design. That recipe requires human review before it lands.
+
+## Commits
+
+- One recipe, one function, one commit.
+- Message format: `refactor(<file>): simplify <function>`
+- Never squash several functions into one commit. The campaign relies on being able to
+  revert a single step.
+
+## When to stop
+
+Stop and report, rather than pressing on, whenever:
+
+- The baseline score in your task file does not match what you measure.
+- The build fails and the fix is not obvious.
+- The guard fails and you do not understand why.
+- A function's control flow is too tangled to transform confidently.
+- You want to make a change the playbook does not cover.
+
+**An unfinished task is an acceptable outcome. A silently broken fighting-game engine is
+not.** Reporting "I completed 2 of 5 steps and stopped because step 3 was unclear" is a
+good result.

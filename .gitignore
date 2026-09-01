@@ -23,3 +23,8 @@ states
 rom
 dump
 *.AFS
+
+# Agent tooling
+
+# Machine-specific MCP server config (absolute paths, per-developer)
+.mcp.json

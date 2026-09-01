@@ -1,0 +1,2085 @@
+{
+ "total_candidates": 624,
+ "scored": 482,
+ "unscorable": 142,
+ "bands": {
+  "red": 19,
+  "yellow": 207,
+  "green": 158,
+  "optimal": 98
+ },
+ "scores": [
+  {
+   "path": "src/sf33rd/Source/Game/engine/hitcheck.c",
+   "score": 1.42
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/com_sub.c",
+   "score": 1.52
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/pls03.c",
+   "score": 1.82
+  },
+  {
+   "path": "src/sf33rd/Source/Game/menu/menu.c",
+   "score": 1.97
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/cmd_main.c",
+   "score": 2.31
+  },
+  {
+   "path": "src/sf33rd/Source/Game/rendering/mtrans.c",
+   "score": 2.57
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff09.c",
+   "score": 2.58
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff13.c",
+   "score": 2.64
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/pls00.c",
+   "score": 2.74
+  },
+  {
+   "path": "src/sf33rd/Source/Game/opening/opening.c",
+   "score": 3.09
+  },
+  {
+   "path": "src/sf33rd/Source/Common/PPGFile.c",
+   "score": 3.49
+  },
+  {
+   "path": "src/sf33rd/Source/Game/animation/appear.c",
+   "score": 3.56
+  },
+  {
+   "path": "src/sf33rd/Source/Game/animation/win_pl.c",
+   "score": 3.56
+  },
+  {
+   "path": "src/sf33rd/Source/Game/stage/bg.c",
+   "score": 3.62
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plpdm.c",
+   "score": 3.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/ck_pass.c",
+   "score": 3.75
+  },
+  {
+   "path": "src/sf33rd/Source/Game/screen/entry.c",
+   "score": 3.86
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/charset.c",
+   "score": 3.92
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/manage.c",
+   "score": 3.92
+  },
+  {
+   "path": "src/sf33rd/Source/Game/ui/sc_sub.c",
+   "score": 4.06
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/spgauge.c",
+   "score": 4.14
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plmain.c",
+   "score": 4.17
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effe6.c",
+   "score": 4.19
+  },
+  {
+   "path": "src/sf33rd/Source/Game/stage/bg_sub.c",
+   "score": 4.54
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/cmb_win.c",
+   "score": 4.65
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plcnt.c",
+   "score": 4.66
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/com_pl.c",
+   "score": 4.77
+  },
+  {
+   "path": "src/sf33rd/Source/Game/game.c",
+   "score": 4.79
+  },
+  {
+   "path": "src/sf33rd/AcrSDK/ps2/flps2vram.c",
+   "score": 4.82
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/grade.c",
+   "score": 4.83
+  },
+  {
+   "path": "src/sf33rd/Source/Game/system/sys_sub.c",
+   "score": 4.83
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/passive/pass14.c",
+   "score": 4.9
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/pls02.c",
+   "score": 5.03
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/active/active14.c",
+   "score": 5.04
+  },
+  {
+   "path": "src/sf33rd/AcrSDK/ps2/flps2etc.c",
+   "score": 5.17
+  },
+  {
+   "path": "src/sf33rd/Source/Game/screen/next_cpu.c",
+   "score": 5.35
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effe5.c",
+   "score": 5.38
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/passive/pass10.c",
+   "score": 5.41
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effc2.c",
+   "score": 5.52
+  },
+  {
+   "path": "src/sf33rd/Source/Game/screen/sel_pl.c",
+   "score": 5.73
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/passive/pass08.c",
+   "score": 5.93
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effh6.c",
+   "score": 6.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/passive/pass03.c",
+   "score": 6.09
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff79.c",
+   "score": 6.15
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plpat.c",
+   "score": 6.15
+  },
+  {
+   "path": "src/platform/netplay/game_state.c",
+   "score": 6.3
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/passive/pass02.c",
+   "score": 6.35
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/pls01.c",
+   "score": 6.51
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plpnm.c",
+   "score": 6.54
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/passive/pass07.c",
+   "score": 6.55
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/passive/pass00.c",
+   "score": 6.56
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/passive/pass13.c",
+   "score": 6.56
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff76.c",
+   "score": 6.58
+  },
+  {
+   "path": "src/sf33rd/Source/Game/sound/sound3rd.c",
+   "score": 6.59
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/passive/pass01.c",
+   "score": 6.69
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/passive/pass06.c",
+   "score": 6.69
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/passive/pass12.c",
+   "score": 6.69
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/passive/pass16.c",
+   "score": 6.69
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/passive/pass17.c",
+   "score": 6.69
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/passive/pass18.c",
+   "score": 6.69
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/passive/pass19.c",
+   "score": 6.69
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff26.c",
+   "score": 6.77
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effi8.c",
+   "score": 6.77
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effd7.c",
+   "score": 6.81
+  },
+  {
+   "path": "src/platform/video/sdl_gpu/sdl_gpu_renderer.c",
+   "score": 6.82
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff35.c",
+   "score": 6.84
+  },
+  {
+   "path": "src/sf33rd/Source/Game/ending/end_14.c",
+   "score": 6.85
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effe3.c",
+   "score": 6.87
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/passive/pass04.c",
+   "score": 6.89
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/passive/pass09.c",
+   "score": 6.89
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/passive/pass11.c",
+   "score": 6.89
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/passive/pass15.c",
+   "score": 6.89
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effk2.c",
+   "score": 6.96
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effj8.c",
+   "score": 6.97
+  },
+  {
+   "path": "src/sf33rd/AcrSDK/ps2/ps2PAD.c",
+   "score": 7.01
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/active/active07.c",
+   "score": 7.1
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/active/active17.c",
+   "score": 7.1
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plpca.c",
+   "score": 7.1
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plcnt2.c",
+   "score": 7.13
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plpat19.c",
+   "score": 7.14
+  },
+  {
+   "path": "src/sf33rd/AcrSDK/common/pltim2.c",
+   "score": 7.21
+  },
+  {
+   "path": "src/platform/video/opengl/glad/glad.c",
+   "score": 7.3
+  },
+  {
+   "path": "src/sf33rd/Source/Game/rendering/color3rd.c",
+   "score": 7.3
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/active/active08.c",
+   "score": 7.32
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/active/active10.c",
+   "score": 7.32
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effb6.c",
+   "score": 7.36
+  },
+  {
+   "path": "src/arcade/arcade_char_data.c",
+   "score": 7.37
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plpatuni.c",
+   "score": 7.37
+  },
+  {
+   "path": "src/sf33rd/Source/Game/rendering/aboutspr.c",
+   "score": 7.4
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plpat09.c",
+   "score": 7.43
+  },
+  {
+   "path": "src/port/sound/emlShim.c",
+   "score": 7.46
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff38.c",
+   "score": 7.51
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effk5.c",
+   "score": 7.52
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effk6.c",
+   "score": 7.54
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/active/active09.c",
+   "score": 7.55
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/active/active11.c",
+   "score": 7.55
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/active/active12.c",
+   "score": 7.55
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/active/active18.c",
+   "score": 7.55
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/passive/pass05.c",
+   "score": 7.55
+  },
+  {
+   "path": "src/sf33rd/AcrSDK/common/memmgr.c",
+   "score": 7.58
+  },
+  {
+   "path": "src/sf33rd/Source/Game/animation/lose_pl.c",
+   "score": 7.58
+  },
+  {
+   "path": "src/sf33rd/AcrSDK/common/prilay.c",
+   "score": 7.6
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff67.c",
+   "score": 7.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/ending/end_00.c",
+   "score": 7.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff25.c",
+   "score": 7.73
+  },
+  {
+   "path": "src/sf33rd/Source/Game/rendering/texgroup.c",
+   "score": 7.73
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effe2.c",
+   "score": 7.77
+  },
+  {
+   "path": "src/sf33rd/Source/Game/screen/n_input.c",
+   "score": 7.8
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effl1.c",
+   "score": 7.86
+  },
+  {
+   "path": "src/test/test_runner.c",
+   "score": 7.92
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff58.c",
+   "score": 7.93
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff39.c",
+   "score": 7.95
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effl0.c",
+   "score": 7.96
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff02.c",
+   "score": 7.99
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/active/active00.c",
+   "score": 8.03
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/active/active01.c",
+   "score": 8.03
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/active/active02.c",
+   "score": 8.03
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/active/active03.c",
+   "score": 8.03
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/active/active04.c",
+   "score": 8.03
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/active/active05.c",
+   "score": 8.03
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/active/active06.c",
+   "score": 8.03
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/active/active13.c",
+   "score": 8.03
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/active/active15.c",
+   "score": 8.03
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/active/active16.c",
+   "score": 8.03
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/active/active19.c",
+   "score": 8.03
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff69.c",
+   "score": 8.03
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/bbbscom.c",
+   "score": 8.04
+  },
+  {
+   "path": "src/sf33rd/Source/Game/rendering/texcash.c",
+   "score": 8.06
+  },
+  {
+   "path": "src/sf33rd/Source/Game/system/pause.c",
+   "score": 8.07
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effd9.c",
+   "score": 8.09
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effg6.c",
+   "score": 8.09
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff27.c",
+   "score": 8.1
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff36.c",
+   "score": 8.13
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effm0.c",
+   "score": 8.15
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plpat17.c",
+   "score": 8.17
+  },
+  {
+   "path": "src/sf33rd/Source/Game/screen/staff.c",
+   "score": 8.21
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff63.c",
+   "score": 8.22
+  },
+  {
+   "path": "src/sf33rd/Source/Game/io/pulpul.c",
+   "score": 8.22
+  },
+  {
+   "path": "src/sf33rd/Source/Game/ending/end_05.c",
+   "score": 8.24
+  },
+  {
+   "path": "src/sf33rd/Source/Game/ui/count.c",
+   "score": 8.24
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff01.c",
+   "score": 8.25
+  },
+  {
+   "path": "src/core/renderer.c",
+   "score": 8.28
+  },
+  {
+   "path": "src/main.c",
+   "score": 8.28
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/shell/shell11.c",
+   "score": 8.28
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/shell/shell14.c",
+   "score": 8.28
+  },
+  {
+   "path": "src/sf33rd/Source/Game/ending/end_04.c",
+   "score": 8.28
+  },
+  {
+   "path": "src/sf33rd/Source/Compress/Lz77/Lz77Dec.c",
+   "score": 8.33
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effa7.c",
+   "score": 8.33
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/stun.c",
+   "score": 8.34
+  },
+  {
+   "path": "src/sf33rd/Source/PS2/mc/savesub.c",
+   "score": 8.36
+  },
+  {
+   "path": "src/sf33rd/Source/Game/screen/ranking.c",
+   "score": 8.37
+  },
+  {
+   "path": "src/sf33rd/Source/Game/demo/demo00.c",
+   "score": 8.38
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effb1.c",
+   "score": 8.39
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/hitplpl.c",
+   "score": 8.4
+  },
+  {
+   "path": "src/port/sound/spu.c",
+   "score": 8.41
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/caldir.c",
+   "score": 8.41
+  },
+  {
+   "path": "src/sf33rd/Source/Game/demo/demo02.c",
+   "score": 8.42
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effa6.c",
+   "score": 8.43
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effd3.c",
+   "score": 8.43
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effc5.c",
+   "score": 8.45
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effm5.c",
+   "score": 8.45
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff61.c",
+   "score": 8.46
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effd5.c",
+   "score": 8.46
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff66.c",
+   "score": 8.47
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff77.c",
+   "score": 8.53
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/shell/shell00.c",
+   "score": 8.54
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/shell/shell01.c",
+   "score": 8.54
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/shell/shell04.c",
+   "score": 8.54
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/shell/shell07.c",
+   "score": 8.54
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/shell/shell12.c",
+   "score": 8.54
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/shell/shell13.c",
+   "score": 8.54
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effa3.c",
+   "score": 8.54
+  },
+  {
+   "path": "src/sf33rd/Source/Game/ending/end_10.c",
+   "score": 8.54
+  },
+  {
+   "path": "src/sf33rd/Source/Game/ending/end_16.c",
+   "score": 8.54
+  },
+  {
+   "path": "src/sf33rd/Source/Game/ending/end_18.c",
+   "score": 8.54
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plmain2.c",
+   "score": 8.55
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effc3.c",
+   "score": 8.56
+  },
+  {
+   "path": "src/sf33rd/Source/Game/menu/netplay_menu.c",
+   "score": 8.59
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effd6.c",
+   "score": 8.62
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effc9.c",
+   "score": 8.63
+  },
+  {
+   "path": "src/sf33rd/Source/Game/sound/cps3sound.c",
+   "score": 8.65
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff94.c",
+   "score": 8.67
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effi0.c",
+   "score": 8.67
+  },
+  {
+   "path": "src/sf33rd/Source/Game/rendering/dc_ghost.c",
+   "score": 8.67
+  },
+  {
+   "path": "src/sf33rd/Source/Game/io/ioconv.c",
+   "score": 8.68
+  },
+  {
+   "path": "src/sf33rd/Source/Common/MemMan.c",
+   "score": 8.72
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effl2.c",
+   "score": 8.72
+  },
+  {
+   "path": "src/args.c",
+   "score": 8.74
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff57.c",
+   "score": 8.74
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff60.c",
+   "score": 8.74
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effe7.c",
+   "score": 8.74
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/efff9.c",
+   "score": 8.74
+  },
+  {
+   "path": "src/sf33rd/Source/Game/ending/end_06.c",
+   "score": 8.74
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effl3.c",
+   "score": 8.75
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plpat14.c",
+   "score": 8.75
+  },
+  {
+   "path": "src/platform/netplay/fistbump.c",
+   "score": 8.79
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plpat07.c",
+   "score": 8.79
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff42.c",
+   "score": 8.8
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff84.c",
+   "score": 8.8
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff95.c",
+   "score": 8.8
+  },
+  {
+   "path": "src/sf33rd/Source/Game/system/sysdir.c",
+   "score": 8.8
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/shell/shell03.c",
+   "score": 8.81
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/shell/shell05.c",
+   "score": 8.81
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff85.c",
+   "score": 8.81
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effd4.c",
+   "score": 8.81
+  },
+  {
+   "path": "src/sf33rd/Source/Game/ending/end_12.c",
+   "score": 8.81
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/hitefpl.c",
+   "score": 8.81
+  },
+  {
+   "path": "src/sf33rd/Source/Game/stage/ta_sub.c",
+   "score": 8.81
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff03.c",
+   "score": 8.82
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff78.c",
+   "score": 8.83
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff11.c",
+   "score": 8.84
+  },
+  {
+   "path": "src/sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/emlTSB.c",
+   "score": 8.85
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff97.c",
+   "score": 8.85
+  },
+  {
+   "path": "src/platform/video/opengl/opengl_renderer.c",
+   "score": 8.87
+  },
+  {
+   "path": "src/sf33rd/AcrSDK/common/mlPAD.c",
+   "score": 8.87
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff73.c",
+   "score": 8.87
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effc1.c",
+   "score": 8.87
+  },
+  {
+   "path": "src/port/sound/adx_decoder.c",
+   "score": 8.89
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effg3.c",
+   "score": 8.9
+  },
+  {
+   "path": "src/port/config/keymap.c",
+   "score": 8.92
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effm3.c",
+   "score": 8.92
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plpat20.c",
+   "score": 8.93
+  },
+  {
+   "path": "src/sf33rd/Source/Game/sound/se.c",
+   "score": 8.95
+  },
+  {
+   "path": "src/sf33rd/Source/Game/ui/flash_lp.c",
+   "score": 8.95
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effc6.c",
+   "score": 8.97
+  },
+  {
+   "path": "src/sf33rd/AcrSDK/common/plapx.c",
+   "score": 8.99
+  },
+  {
+   "path": "src/platform/netplay/netplay.c",
+   "score": 9.0
+  },
+  {
+   "path": "src/sf33rd/Source/Common/PPGWork.c",
+   "score": 9.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff16.c",
+   "score": 9.02
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff29.c",
+   "score": 9.02
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff30.c",
+   "score": 9.02
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff31.c",
+   "score": 9.02
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff32.c",
+   "score": 9.02
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff33.c",
+   "score": 9.02
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effb3.c",
+   "score": 9.02
+  },
+  {
+   "path": "src/sf33rd/Source/Game/ending/end_13.c",
+   "score": 9.02
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/hitplef.c",
+   "score": 9.02
+  },
+  {
+   "path": "src/sf33rd/Source/Game/io/gd3rd.c",
+   "score": 9.02
+  },
+  {
+   "path": "src/sf33rd/Source/Game/ui/input_history.c",
+   "score": 9.02
+  },
+  {
+   "path": "src/test/replay_game.c",
+   "score": 9.02
+  },
+  {
+   "path": "src/sf33rd/Source/Game/stage/bg090.c",
+   "score": 9.04
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effd8.c",
+   "score": 9.06
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plpat00.c",
+   "score": 9.06
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff48.c",
+   "score": 9.07
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff68.c",
+   "score": 9.07
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effa9.c",
+   "score": 9.08
+  },
+  {
+   "path": "src/platform/app/sdl/sdl_app.c",
+   "score": 9.09
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff71.c",
+   "score": 9.09
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effa0.c",
+   "score": 9.09
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effect.c",
+   "score": 9.09
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/efff6.c",
+   "score": 9.09
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effi3.c",
+   "score": 9.09
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effk9.c",
+   "score": 9.09
+  },
+  {
+   "path": "src/sf33rd/Source/Game/ending/end_03.c",
+   "score": 9.09
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plcnt3.c",
+   "score": 9.09
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plpat06.c",
+   "score": 9.11
+  },
+  {
+   "path": "src/sf33rd/Source/Game/screen/gameover.c",
+   "score": 9.11
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effb2.c",
+   "score": 9.13
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effe8.c",
+   "score": 9.14
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effl7.c",
+   "score": 9.14
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff24.c",
+   "score": 9.16
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effj4.c",
+   "score": 9.16
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff19.c",
+   "score": 9.18
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effm8.c",
+   "score": 9.18
+  },
+  {
+   "path": "src/sf33rd/Source/Game/ending/end_main.c",
+   "score": 9.18
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff00.c",
+   "score": 9.22
+  },
+  {
+   "path": "src/port/io/afs.c",
+   "score": 9.24
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effe4.c",
+   "score": 9.24
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effi9.c",
+   "score": 9.24
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plpat02.c",
+   "score": 9.24
+  },
+  {
+   "path": "src/port/sound/adx.c",
+   "score": 9.31
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff34.c",
+   "score": 9.31
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff52.c",
+   "score": 9.31
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effc0.c",
+   "score": 9.31
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effd0.c",
+   "score": 9.31
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effg0.c",
+   "score": 9.31
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effj0.c",
+   "score": 9.31
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effj7.c",
+   "score": 9.31
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effk7.c",
+   "score": 9.31
+  },
+  {
+   "path": "src/sf33rd/Source/Game/system/reset.c",
+   "score": 9.31
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effa2.c",
+   "score": 9.34
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effe0.c",
+   "score": 9.34
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effd1.c",
+   "score": 9.35
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff55.c",
+   "score": 9.37
+  },
+  {
+   "path": "src/platform/input/sdl/sdl_pad.c",
+   "score": 9.38
+  },
+  {
+   "path": "src/platform/video/psp/psp_renderer.c",
+   "score": 9.38
+  },
+  {
+   "path": "src/port/config/config.c",
+   "score": 9.38
+  },
+  {
+   "path": "src/port/sdk/sdk_libpad2.c",
+   "score": 9.38
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff10.c",
+   "score": 9.38
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff23.c",
+   "score": 9.38
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff44.c",
+   "score": 9.38
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff46.c",
+   "score": 9.38
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff53.c",
+   "score": 9.38
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff70.c",
+   "score": 9.38
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff91.c",
+   "score": 9.38
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff93.c",
+   "score": 9.38
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effi4.c",
+   "score": 9.38
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effj2.c",
+   "score": 9.38
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effj6.c",
+   "score": 9.38
+  },
+  {
+   "path": "src/sf33rd/Source/Game/ending/end_02.c",
+   "score": 9.38
+  },
+  {
+   "path": "src/sf33rd/Source/Game/ending/end_11.c",
+   "score": 9.38
+  },
+  {
+   "path": "src/sf33rd/Source/Game/ending/end_17.c",
+   "score": 9.38
+  },
+  {
+   "path": "src/sf33rd/Source/Game/ending/end_20.c",
+   "score": 9.38
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plpcu.c",
+   "score": 9.38
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/slowf.c",
+   "score": 9.38
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/vital.c",
+   "score": 9.38
+  },
+  {
+   "path": "src/sf33rd/Source/Game/stage/bonus_bg.c",
+   "score": 9.38
+  },
+  {
+   "path": "src/sf33rd/Source/Game/system/ramcnt.c",
+   "score": 9.38
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effe9.c",
+   "score": 9.41
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff45.c",
+   "score": 9.42
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff50.c",
+   "score": 9.45
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff82.c",
+   "score": 9.45
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff83.c",
+   "score": 9.45
+  },
+  {
+   "path": "src/port/sdl/netplay_screen.c",
+   "score": 9.47
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff41.c",
+   "score": 9.47
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effa5.c",
+   "score": 9.47
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effc8.c",
+   "score": 9.47
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effm2.c",
+   "score": 9.53
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/hitefef.c",
+   "score": 9.53
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plpat08.c",
+   "score": 9.53
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff15.c",
+   "score": 9.56
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plpat12.c",
+   "score": 9.56
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effb5.c",
+   "score": 9.58
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/efff8.c",
+   "score": 9.58
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effg5.c",
+   "score": 9.58
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effi7.c",
+   "score": 9.58
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effm6.c",
+   "score": 9.58
+  },
+  {
+   "path": "src/sf33rd/Source/Game/init3rd.c",
+   "score": 9.58
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effm7.c",
+   "score": 9.6
+  },
+  {
+   "path": "src/sf33rd/Source/Game/ending/end_01.c",
+   "score": 9.6
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff08.c",
+   "score": 9.61
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff37.c",
+   "score": 9.61
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff96.c",
+   "score": 9.61
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effc4.c",
+   "score": 9.61
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effc7.c",
+   "score": 9.61
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effg4.c",
+   "score": 9.61
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effg9.c",
+   "score": 9.61
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effj9.c",
+   "score": 9.61
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effk3.c",
+   "score": 9.61
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effk4.c",
+   "score": 9.61
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effk8.c",
+   "score": 9.61
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/pow_pow.c",
+   "score": 9.61
+  },
+  {
+   "path": "src/sf33rd/Source/Game/stage/bg000.c",
+   "score": 9.61
+  },
+  {
+   "path": "src/port/config/config_helpers.c",
+   "score": 9.63
+  },
+  {
+   "path": "src/sf33rd/Source/Game/demo/demo01.c",
+   "score": 9.63
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff56.c",
+   "score": 9.66
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effh9.c",
+   "score": 9.66
+  },
+  {
+   "path": "src/arcade/cps3_decrypt.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/platform/netplay/sdl_net_adapter.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/emlRefPhd.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/emlSndDrv.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/AcrSDK/common/plpic.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/AcrSDK/ps2/flps2render.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff07.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff21.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff22.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff40.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff59.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff64.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff65.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff72.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff81.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff86.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff99.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effa8.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effb4.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effb8.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/efff2.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effg8.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effh0.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effl5.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/bbbscom2.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plpat01.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plpat03.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plpat10.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plpat16.c",
+   "score": 9.68
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff06.c",
+   "score": 9.92
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff14.c",
+   "score": 9.92
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff98.c",
+   "score": 9.92
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effl6.c",
+   "score": 9.92
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plpat18.c",
+   "score": 9.92
+  },
+  {
+   "path": "src/sf33rd/Source/Game/screen/win.c",
+   "score": 9.92
+  },
+  {
+   "path": "src/test/ram_archive.c",
+   "score": 9.92
+  },
+  {
+   "path": "src/test/test_runner_compare.c",
+   "score": 9.92
+  },
+  {
+   "path": "src/arcade/arcade_balance.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/arcade/arcade_cmd_data.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/arcade/rom_load.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/core/app.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/core/input.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/core/xbox_buttons.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/platform/app/psp/psp_app.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/platform/app/sdl/sdl_file_logger.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/platform/app/sdl/sdl_headless_app.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/platform/app/sdl/sdl_stress_app.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/platform/input/statcheck/statcheck_input.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/platform/netplay/netplay_stress.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/platform/video/sdl_generic/sdl_generic_renderer.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/port/paths.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/port/resources.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/port/sdl/netstats_renderer.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/port/utils.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/cse.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/eflSpuMap.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/emlMemMap.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/AcrSDK/common/fbms.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/AcrSDK/common/memfound.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/AcrSDK/common/plbmp.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/AcrSDK/ps2/foundaps2.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Compress/zlibApp.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/follow/follow02.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/debug/OBJTEST.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff04.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff05.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff12.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff17.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff18.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff20.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff43.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff47.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff49.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff51.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff54.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff62.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff74.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff75.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff80.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff90.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/eff92.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effa1.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effa4.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effb0.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effb7.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effb9.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effe1.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/efff0.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/efff5.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effg7.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effh1.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effh2.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effi6.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effl4.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effl8.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effl9.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effm1.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effxx.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/ending/end_07.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/ending/end_08.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/ending/end_09.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/ending/end_19.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/charid.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plpat04.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plpat05.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plpat11.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/engine/plpat13.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/io/vm_sub.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/opening/op_sub.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/rendering/meta_col.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/rendering/mmtmcnt.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/screen/continue.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/stage/bg010.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/stage/bg020.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/stage/bg030.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/stage/bg040.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/stage/bg050.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/stage/bg060.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/stage/bg070.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/stage/bg080.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/stage/bg100.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/stage/bg120.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/stage/bg130.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/stage/bg140.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/stage/bg150.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/stage/bg160.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/stage/bg180.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/stage/bg190.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/stage/bns_bg2.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/stage/tate00.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/system/saver.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/system/sys_sub2.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/ui/glyph_renderer.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/test/test_runner_utils.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/utils/sha256.c",
+   "score": 10.0
+  }
+ ],
+ "unscorable_files": [
+  "src/arcade/arcade_stubs.c",
+  "src/sf33rd/AcrSDK/ps2/flPADUSR.c",
+  "src/sf33rd/Source/Game/animation/app_data.c",
+  "src/sf33rd/Source/Game/com/active/ac0000.c",
+  "src/sf33rd/Source/Game/com/active/ac0001.c",
+  "src/sf33rd/Source/Game/com/active/ac0002.c",
+  "src/sf33rd/Source/Game/com/active/ac0003.c",
+  "src/sf33rd/Source/Game/com/active/ac0004.c",
+  "src/sf33rd/Source/Game/com/com_data.c",
+  "src/sf33rd/Source/Game/com/com_datu.c",
+  "src/sf33rd/Source/Game/com/follow/fl_com00.c",
+  "src/sf33rd/Source/Game/com/follow/fl_com02.c",
+  "src/sf33rd/Source/Game/com/passive/pass0000.c",
+  "src/sf33rd/Source/Game/com/passive/pass0001.c",
+  "src/sf33rd/Source/Game/com/passive/pass0002.c",
+  "src/sf33rd/Source/Game/com/passive/pass0003.c",
+  "src/sf33rd/Source/Game/debug/OTESTDAT.c",
+  "src/sf33rd/Source/Game/debug/debug_config.c",
+  "src/sf33rd/Source/Game/demo/demo_dat.c",
+  "src/sf33rd/Source/Game/ending/end_data.c",
+  "src/sf33rd/Source/Game/engine/cmd_data.c",
+  "src/sf33rd/Source/Game/engine/getup.c",
+  "src/sf33rd/Source/Game/engine/pow_data.c",
+  "src/sf33rd/Source/Game/engine/workuser.c",
+  "src/sf33rd/Source/Game/io/gd3rd_data.c",
+  "src/sf33rd/Source/Game/io/vm.c",
+  "src/sf33rd/Source/Game/io/vm_data.c",
+  "src/sf33rd/Source/Game/menu/dir_data.c",
+  "src/sf33rd/Source/Game/menu/ex_data.c",
+  "src/sf33rd/Source/Game/message/en/msgextra_en.c",
+  "src/sf33rd/Source/Game/message/en/msgmenu_en.c",
+  "src/sf33rd/Source/Game/message/en/msgsysdir_en.c",
+  "src/sf33rd/Source/Game/message/en/msgtable_en.c",
+  "src/sf33rd/Source/Game/message/en/pl00end_en.c",
+  "src/sf33rd/Source/Game/message/en/pl00tlk_en.c",
+  "src/sf33rd/Source/Game/message/en/pl00win_en.c",
+  "src/sf33rd/Source/Game/message/en/pl01end_en.c",
+  "src/sf33rd/Source/Game/message/en/pl01tlk_en.c",
+  "src/sf33rd/Source/Game/message/en/pl01win_en.c",
+  "src/sf33rd/Source/Game/message/en/pl02end_en.c",
+  "src/sf33rd/Source/Game/message/en/pl02tlk_en.c",
+  "src/sf33rd/Source/Game/message/en/pl02win_en.c",
+  "src/sf33rd/Source/Game/message/en/pl03end_en.c",
+  "src/sf33rd/Source/Game/message/en/pl03tlk_en.c",
+  "src/sf33rd/Source/Game/message/en/pl03win_en.c",
+  "src/sf33rd/Source/Game/message/en/pl04end_en.c",
+  "src/sf33rd/Source/Game/message/en/pl04tlk_en.c",
+  "src/sf33rd/Source/Game/message/en/pl04win_en.c",
+  "src/sf33rd/Source/Game/message/en/pl05end_en.c",
+  "src/sf33rd/Source/Game/message/en/pl05tlk_en.c",
+  "src/sf33rd/Source/Game/message/en/pl05win_en.c",
+  "src/sf33rd/Source/Game/message/en/pl06end_en.c",
+  "src/sf33rd/Source/Game/message/en/pl06tlk_en.c",
+  "src/sf33rd/Source/Game/message/en/pl06win_en.c",
+  "src/sf33rd/Source/Game/message/en/pl07end_en.c",
+  "src/sf33rd/Source/Game/message/en/pl07tlk_en.c",
+  "src/sf33rd/Source/Game/message/en/pl07win_en.c",
+  "src/sf33rd/Source/Game/message/en/pl08end_en.c",
+  "src/sf33rd/Source/Game/message/en/pl08tlk_en.c",
+  "src/sf33rd/Source/Game/message/en/pl08win_en.c",
+  "src/sf33rd/Source/Game/message/en/pl09end_en.c",
+  "src/sf33rd/Source/Game/message/en/pl09tlk_en.c",
+  "src/sf33rd/Source/Game/message/en/pl09win_en.c",
+  "src/sf33rd/Source/Game/message/en/pl10end_en.c",
+  "src/sf33rd/Source/Game/message/en/pl10tlk_en.c",
+  "src/sf33rd/Source/Game/message/en/pl10win_en.c",
+  "src/sf33rd/Source/Game/message/en/pl11end_en.c",
+  "src/sf33rd/Source/Game/message/en/pl11tlk_en.c",
+  "src/sf33rd/Source/Game/message/en/pl11win_en.c",
+  "src/sf33rd/Source/Game/message/en/pl12end_en.c",
+  "src/sf33rd/Source/Game/message/en/pl12tlk_en.c",
+  "src/sf33rd/Source/Game/message/en/pl12win_en.c",
+  "src/sf33rd/Source/Game/message/en/pl13end_en.c",
+  "src/sf33rd/Source/Game/message/en/pl13tlk_en.c",
+  "src/sf33rd/Source/Game/message/en/pl13win_en.c",
+  "src/sf33rd/Source/Game/message/en/pl14end_en.c",
+  "src/sf33rd/Source/Game/message/en/pl14win_en.c",
+  "src/sf33rd/Source/Game/message/en/pl15end_en.c",
+  "src/sf33rd/Source/Game/message/en/pl15tlk_en.c",
+  "src/sf33rd/Source/Game/message/en/pl15win_en.c",
+  "src/sf33rd/Source/Game/message/en/pl16end_en.c",
+  "src/sf33rd/Source/Game/message/en/pl16tlk_en.c",
+  "src/sf33rd/Source/Game/message/en/pl16win_en.c",
+  "src/sf33rd/Source/Game/message/en/pl17end_en.c",
+  "src/sf33rd/Source/Game/message/en/pl17win_en.c",
+  "src/sf33rd/Source/Game/message/en/pl18end_en.c",
+  "src/sf33rd/Source/Game/message/en/pl18tlk_en.c",
+  "src/sf33rd/Source/Game/message/en/pl18win_en.c",
+  "src/sf33rd/Source/Game/message/en/pl19end_en.c",
+  "src/sf33rd/Source/Game/message/en/pl19tlk_en.c",
+  "src/sf33rd/Source/Game/message/en/pl19win_en.c",
+  "src/sf33rd/Source/Game/rendering/chren3rd.c",
+  "src/sf33rd/Source/Game/rendering/texgroup_data.c",
+  "src/sf33rd/Source/Game/screen/sel_data.c",
+  "src/sf33rd/Source/Game/screen/vs_shell.c",
+  "src/sf33rd/Source/Game/sound/se_data.c",
+  "src/sf33rd/Source/Game/stage/bg_data.c",
+  "src/sf33rd/Source/Game/system/work_sys.c",
+  "src/sf33rd/Source/Game/ui/sc_data.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/PHD_PL00.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/PHD_PL01.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/PHD_PL02.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/PHD_PL03.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/PHD_PL04.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/PHD_PL05.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/PHD_PL06.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/PHD_PL07.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/PHD_PL08.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/PHD_PL09.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/PHD_PL10.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/PHD_PL11.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/PHD_PL12.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/PHD_PL13.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/PHD_PL14.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/PHD_PL15.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/PHD_PL16.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/PHD_PL17.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/PHD_PL18.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/PHD_PL19.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/PHD_SE.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/SpuMap.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/TSB_PL00.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/TSB_PL01.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/TSB_PL02.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/TSB_PL03.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/TSB_PL04.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/TSB_PL05.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/TSB_PL06.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/TSB_PL07.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/TSB_PL08.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/TSB_PL09.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/TSB_PL10.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/TSB_PL11.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/TSB_PL12.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/TSB_PL13.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/TSB_PL14.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/TSB_PL15.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/TSB_PL16.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/TSB_PL17.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/TSB_PL18.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/TSB_PL19.c",
+  "src/sf33rd/Source/PS2/cseDataFiles/TSB_SE.c"
+ ]
+}
