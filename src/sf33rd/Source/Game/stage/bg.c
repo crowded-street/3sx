@@ -48,6 +48,7 @@ RW_DATA rw_dat[20];
 
 static void bgRWWorkUpdate();
 static void select_bg_list_for_reindexed_chip(s32 global_index_real);
+static s32 remap_stage03_player_chip(s32 global_index_real);
 static void bgDrawOneScreen(s32 bgnum, s32 gixbase, s32* xx, s32* yy, s32 /* unused */, s32 ofsPal,
                             PPGDataList* curDataList);
 static void bgDrawOneChip(s32 x, s32 y, s32 xs, s32 ys, s32 gbix, u32 vtxCol, s32 ofsPal);
@@ -550,6 +551,22 @@ static void select_bg_list_for_reindexed_chip(s32 global_index_real) {
     }
 }
 
+static s32 remap_stage03_player_chip(s32 global_index_real) {
+    s32 i;
+
+    for (i = 0; i < 4; i++) {
+        if (global_index_real == rw_dat[i + 1].rwgbix) {
+            global_index_real = rw_dat[i + 1].gbix;
+            if (ppgCheckTextureNumber(0, global_index_real) == 0) {
+                ppgSetupCurrentDataList(&ppgRwBgList);
+            }
+            break;
+        }
+    }
+
+    return global_index_real;
+}
+
 void scr_trans(u8 bgnm) {
     PPGDataList* curDataList;
     Vec3 point[2];
@@ -630,15 +647,7 @@ void scr_trans(u8 bgnm) {
                 vtxColor = 0xFFFFFFFF;
 
                 if (bgnm == 0) {
-                    for (i = 0; i < 4; i++) {
-                        if (global_index_real == rw_dat[i + 1].rwgbix) {
-                            global_index_real = rw_dat[i + 1].gbix;
-                            if (ppgCheckTextureNumber(0, global_index_real) == 0) {
-                                ppgSetupCurrentDataList(&ppgRwBgList);
-                            }
-                            break;
-                        }
-                    }
+                    global_index_real = remap_stage03_player_chip(global_index_real);
                 } else {
                     for (i = 0; i < 13; i++) {
                         if (global_index_real == rw_gbix[i]) {
