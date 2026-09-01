@@ -601,21 +601,15 @@ void scr_trans(u8 bgnm) {
 
     palOffset = bgPalCodeOffset[bgnm];
 
-    if (ending_flag == 0) {
-        if (bgnm == 3) {
-            ppgSetupCurrentDataList(&ppgAkeList);
-            bgAkebonoDraw();
-            return;
-        }
-
-        global_index = (bgnm * 64) + 100;
-        ppgSetupCurrentDataList(&ppgBgList[bgnm]);
-        curDataList = &ppgBgList[bgnm];
-    } else {
-        global_index = (bgnm * 64) + 100;
-        ppgSetupCurrentDataList(&ppgBgList[bgnm]);
-        curDataList = &ppgBgList[bgnm];
+    if (ending_flag == 0 && bgnm == 3) {
+        ppgSetupCurrentDataList(&ppgAkeList);
+        bgAkebonoDraw();
+        return;
     }
+
+    global_index = (bgnm * 64) + 100;
+    ppgSetupCurrentDataList(&ppgBgList[bgnm]);
+    curDataList = &ppgBgList[bgnm];
 
     switch (tokusyu_stage) {
     case 1:
