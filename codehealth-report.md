@@ -1,0 +1,551 @@
+# Code Health Report — 3SX
+
+Full sweep of **624** files scanned, **479** scored, **145** unscorable (data tables).
+
+## Summary
+
+| Band | Count | % |
+|------|-------|---|
+| red | 19 | 4.0% |
+| yellow | 205 | 42.8% |
+| green | 157 | 32.8% |
+| optimal | 98 | 20.5% |
+
+## Score Distribution
+
+| Score Range | Count |
+|-------------|-------|
+| 1.0-1.9 | 3 |
+| 2.0-2.9 | 6 |
+| 3.0-3.9 | 10 |
+| 4.0-4.9 | 13 |
+| 5.0-5.9 | 9 |
+| 6.0-6.9 | 33 |
+| 7.0-7.9 | 40 |
+| 8.0-8.9 | 110 |
+| 9.0-9.9 | 157 |
+| 10.0 | 98 |
+
+## Red Code (1.0-3.9) - Critical Technical Debt
+
+| Score | Path |
+|-------|------|
+| 1.42 | `src/sf33rd/Source/Game/engine/hitcheck.c` |
+| 1.52 | `src/sf33rd/Source/Game/com/com_sub.c` |
+| 1.82 | `src/sf33rd/Source/Game/engine/pls03.c` |
+| 2.25 | `src/sf33rd/Source/Game/menu/menu.c` |
+| 2.31 | `src/sf33rd/Source/Game/engine/cmd_main.c` |
+| 2.57 | `src/sf33rd/Source/Game/rendering/mtrans.c` |
+| 2.58 | `src/sf33rd/Source/Game/effect/eff09.c` |
+| 2.64 | `src/sf33rd/Source/Game/effect/eff13.c` |
+| 2.74 | `src/sf33rd/Source/Game/engine/pls00.c` |
+| 3.09 | `src/sf33rd/Source/Game/opening/opening.c` |
+| 3.49 | `src/sf33rd/Source/Common/PPGFile.c` |
+| 3.56 | `src/sf33rd/Source/Game/animation/appear.c` |
+| 3.56 | `src/sf33rd/Source/Game/animation/win_pl.c` |
+| 3.62 | `src/sf33rd/Source/Game/stage/bg.c` |
+| 3.68 | `src/sf33rd/Source/Game/engine/plpdm.c` |
+| 3.75 | `src/sf33rd/Source/Game/com/ck_pass.c` |
+| 3.86 | `src/sf33rd/Source/Game/screen/entry.c` |
+| 3.92 | `src/sf33rd/Source/Game/engine/charset.c` |
+| 3.92 | `src/sf33rd/Source/Game/engine/manage.c` |
+
+## Yellow Code (4.0-8.9) - Technical Debt
+
+| Score | Path |
+|-------|------|
+| 4.06 | `src/sf33rd/Source/Game/ui/sc_sub.c` |
+| 4.14 | `src/sf33rd/Source/Game/engine/spgauge.c` |
+| 4.17 | `src/sf33rd/Source/Game/engine/plmain.c` |
+| 4.19 | `src/sf33rd/Source/Game/effect/effe6.c` |
+| 4.54 | `src/sf33rd/Source/Game/stage/bg_sub.c` |
+| 4.65 | `src/sf33rd/Source/Game/engine/cmb_win.c` |
+| 4.66 | `src/sf33rd/Source/Game/engine/plcnt.c` |
+| 4.77 | `src/sf33rd/Source/Game/com/com_pl.c` |
+| 4.79 | `src/sf33rd/Source/Game/game.c` |
+| 4.82 | `src/sf33rd/AcrSDK/ps2/flps2vram.c` |
+| 4.83 | `src/sf33rd/Source/Game/engine/grade.c` |
+| 4.83 | `src/sf33rd/Source/Game/system/sys_sub.c` |
+| 4.90 | `src/sf33rd/Source/Game/com/passive/pass14.c` |
+| 5.03 | `src/sf33rd/Source/Game/engine/pls02.c` |
+| 5.04 | `src/sf33rd/Source/Game/com/active/active14.c` |
+| 5.17 | `src/sf33rd/AcrSDK/ps2/flps2etc.c` |
+| 5.35 | `src/sf33rd/Source/Game/screen/next_cpu.c` |
+| 5.38 | `src/sf33rd/Source/Game/effect/effe5.c` |
+| 5.41 | `src/sf33rd/Source/Game/com/passive/pass10.c` |
+| 5.52 | `src/sf33rd/Source/Game/effect/effc2.c` |
+| 5.73 | `src/sf33rd/Source/Game/screen/sel_pl.c` |
+| 5.93 | `src/sf33rd/Source/Game/com/passive/pass08.c` |
+| 6.00 | `src/sf33rd/Source/Game/effect/effh6.c` |
+| 6.09 | `src/sf33rd/Source/Game/com/passive/pass03.c` |
+| 6.15 | `src/sf33rd/Source/Game/effect/eff79.c` |
+| 6.15 | `src/sf33rd/Source/Game/engine/plpat.c` |
+| 6.30 | `src/platform/netplay/game_state.c` |
+| 6.35 | `src/sf33rd/Source/Game/com/passive/pass02.c` |
+| 6.51 | `src/sf33rd/Source/Game/engine/pls01.c` |
+| 6.54 | `src/sf33rd/Source/Game/engine/plpnm.c` |
+| 6.55 | `src/sf33rd/Source/Game/com/passive/pass07.c` |
+| 6.56 | `src/sf33rd/Source/Game/com/passive/pass00.c` |
+| 6.56 | `src/sf33rd/Source/Game/com/passive/pass13.c` |
+| 6.58 | `src/sf33rd/Source/Game/effect/eff76.c` |
+| 6.59 | `src/sf33rd/Source/Game/sound/sound3rd.c` |
+| 6.69 | `src/sf33rd/Source/Game/com/passive/pass01.c` |
+| 6.69 | `src/sf33rd/Source/Game/com/passive/pass06.c` |
+| 6.69 | `src/sf33rd/Source/Game/com/passive/pass12.c` |
+| 6.69 | `src/sf33rd/Source/Game/com/passive/pass16.c` |
+| 6.69 | `src/sf33rd/Source/Game/com/passive/pass17.c` |
+| 6.69 | `src/sf33rd/Source/Game/com/passive/pass18.c` |
+| 6.69 | `src/sf33rd/Source/Game/com/passive/pass19.c` |
+| 6.77 | `src/sf33rd/Source/Game/effect/eff26.c` |
+| 6.77 | `src/sf33rd/Source/Game/effect/effi8.c` |
+| 6.81 | `src/sf33rd/Source/Game/effect/effd7.c` |
+| 6.82 | `src/platform/video/sdl_gpu/sdl_gpu_renderer.c` |
+| 6.84 | `src/sf33rd/Source/Game/effect/eff35.c` |
+| 6.85 | `src/sf33rd/Source/Game/ending/end_14.c` |
+| 6.87 | `src/sf33rd/Source/Game/effect/effe3.c` |
+| 6.89 | `src/sf33rd/Source/Game/com/passive/pass04.c` |
+| 6.89 | `src/sf33rd/Source/Game/com/passive/pass09.c` |
+| 6.89 | `src/sf33rd/Source/Game/com/passive/pass11.c` |
+| 6.89 | `src/sf33rd/Source/Game/com/passive/pass15.c` |
+| 6.96 | `src/sf33rd/Source/Game/effect/effk2.c` |
+| 6.97 | `src/sf33rd/Source/Game/effect/effj8.c` |
+| 7.01 | `src/sf33rd/AcrSDK/ps2/ps2PAD.c` |
+| 7.10 | `src/sf33rd/Source/Game/com/active/active07.c` |
+| 7.10 | `src/sf33rd/Source/Game/com/active/active17.c` |
+| 7.10 | `src/sf33rd/Source/Game/engine/plpca.c` |
+| 7.13 | `src/sf33rd/Source/Game/engine/plcnt2.c` |
+| 7.14 | `src/sf33rd/Source/Game/engine/plpat19.c` |
+| 7.21 | `src/sf33rd/AcrSDK/common/pltim2.c` |
+| 7.30 | `src/platform/video/opengl/glad/glad.c` |
+| 7.30 | `src/sf33rd/Source/Game/rendering/color3rd.c` |
+| 7.32 | `src/sf33rd/Source/Game/com/active/active08.c` |
+| 7.32 | `src/sf33rd/Source/Game/com/active/active10.c` |
+| 7.36 | `src/sf33rd/Source/Game/effect/effb6.c` |
+| 7.37 | `src/arcade/arcade_char_data.c` |
+| 7.37 | `src/sf33rd/Source/Game/engine/plpatuni.c` |
+| 7.40 | `src/sf33rd/Source/Game/rendering/aboutspr.c` |
+| 7.43 | `src/sf33rd/Source/Game/engine/plpat09.c` |
+| 7.46 | `src/port/sound/emlShim.c` |
+| 7.51 | `src/sf33rd/Source/Game/effect/eff38.c` |
+| 7.52 | `src/sf33rd/Source/Game/effect/effk5.c` |
+| 7.54 | `src/sf33rd/Source/Game/effect/effk6.c` |
+| 7.55 | `src/sf33rd/Source/Game/com/active/active09.c` |
+| 7.55 | `src/sf33rd/Source/Game/com/active/active11.c` |
+| 7.55 | `src/sf33rd/Source/Game/com/active/active12.c` |
+| 7.55 | `src/sf33rd/Source/Game/com/active/active18.c` |
+| 7.55 | `src/sf33rd/Source/Game/com/passive/pass05.c` |
+| 7.58 | `src/sf33rd/AcrSDK/common/memmgr.c` |
+| 7.58 | `src/sf33rd/Source/Game/animation/lose_pl.c` |
+| 7.60 | `src/sf33rd/AcrSDK/common/prilay.c` |
+| 7.68 | `src/sf33rd/Source/Game/effect/eff67.c` |
+| 7.68 | `src/sf33rd/Source/Game/ending/end_00.c` |
+| 7.73 | `src/sf33rd/Source/Game/effect/eff25.c` |
+| 7.73 | `src/sf33rd/Source/Game/rendering/texgroup.c` |
+| 7.77 | `src/sf33rd/Source/Game/effect/effe2.c` |
+| 7.80 | `src/sf33rd/Source/Game/screen/n_input.c` |
+| 7.86 | `src/sf33rd/Source/Game/effect/effl1.c` |
+| 7.92 | `src/test/test_runner.c` |
+| 7.93 | `src/sf33rd/Source/Game/effect/eff58.c` |
+| 7.95 | `src/sf33rd/Source/Game/effect/eff39.c` |
+| 7.96 | `src/sf33rd/Source/Game/effect/effl0.c` |
+| 7.99 | `src/sf33rd/Source/Game/effect/eff02.c` |
+| 8.03 | `src/sf33rd/Source/Game/com/active/active00.c` |
+| 8.03 | `src/sf33rd/Source/Game/com/active/active01.c` |
+| 8.03 | `src/sf33rd/Source/Game/com/active/active02.c` |
+| 8.03 | `src/sf33rd/Source/Game/com/active/active03.c` |
+| 8.03 | `src/sf33rd/Source/Game/com/active/active04.c` |
+| 8.03 | `src/sf33rd/Source/Game/com/active/active05.c` |
+| 8.03 | `src/sf33rd/Source/Game/com/active/active06.c` |
+| 8.03 | `src/sf33rd/Source/Game/com/active/active13.c` |
+| 8.03 | `src/sf33rd/Source/Game/com/active/active15.c` |
+| 8.03 | `src/sf33rd/Source/Game/com/active/active16.c` |
+| 8.03 | `src/sf33rd/Source/Game/com/active/active19.c` |
+| 8.03 | `src/sf33rd/Source/Game/effect/eff69.c` |
+| 8.04 | `src/sf33rd/Source/Game/engine/bbbscom.c` |
+| 8.06 | `src/sf33rd/Source/Game/rendering/texcash.c` |
+| 8.07 | `src/sf33rd/Source/Game/system/pause.c` |
+| 8.09 | `src/sf33rd/Source/Game/effect/effd9.c` |
+| 8.09 | `src/sf33rd/Source/Game/effect/effg6.c` |
+| 8.10 | `src/sf33rd/Source/Game/effect/eff27.c` |
+| 8.13 | `src/sf33rd/Source/Game/effect/eff36.c` |
+| 8.15 | `src/sf33rd/Source/Game/effect/effm0.c` |
+| 8.17 | `src/sf33rd/Source/Game/engine/plpat17.c` |
+| 8.21 | `src/sf33rd/Source/Game/screen/staff.c` |
+| 8.22 | `src/sf33rd/Source/Game/effect/eff63.c` |
+| 8.22 | `src/sf33rd/Source/Game/io/pulpul.c` |
+| 8.24 | `src/sf33rd/Source/Game/ending/end_05.c` |
+| 8.24 | `src/sf33rd/Source/Game/ui/count.c` |
+| 8.25 | `src/sf33rd/Source/Game/effect/eff01.c` |
+| 8.28 | `src/core/renderer.c` |
+| 8.28 | `src/main.c` |
+| 8.28 | `src/sf33rd/Source/Game/com/shell/shell11.c` |
+| 8.28 | `src/sf33rd/Source/Game/com/shell/shell14.c` |
+| 8.28 | `src/sf33rd/Source/Game/ending/end_04.c` |
+| 8.33 | `src/sf33rd/Source/Compress/Lz77/Lz77Dec.c` |
+| 8.33 | `src/sf33rd/Source/Game/effect/effa7.c` |
+| 8.34 | `src/sf33rd/Source/Game/engine/stun.c` |
+| 8.36 | `src/sf33rd/Source/PS2/mc/savesub.c` |
+| 8.37 | `src/sf33rd/Source/Game/screen/ranking.c` |
+| 8.38 | `src/sf33rd/Source/Game/demo/demo00.c` |
+| 8.39 | `src/sf33rd/Source/Game/effect/effb1.c` |
+| 8.40 | `src/sf33rd/Source/Game/engine/hitplpl.c` |
+| 8.41 | `src/port/sound/spu.c` |
+| 8.41 | `src/sf33rd/Source/Game/engine/caldir.c` |
+| 8.42 | `src/sf33rd/Source/Game/demo/demo02.c` |
+| 8.43 | `src/sf33rd/Source/Game/effect/effa6.c` |
+| 8.43 | `src/sf33rd/Source/Game/effect/effd3.c` |
+| 8.45 | `src/sf33rd/Source/Game/effect/effc5.c` |
+| 8.45 | `src/sf33rd/Source/Game/effect/effm5.c` |
+| 8.46 | `src/sf33rd/Source/Game/effect/eff61.c` |
+| 8.46 | `src/sf33rd/Source/Game/effect/effd5.c` |
+| 8.47 | `src/sf33rd/Source/Game/effect/eff66.c` |
+| 8.53 | `src/sf33rd/Source/Game/effect/eff77.c` |
+| 8.54 | `src/sf33rd/Source/Game/com/shell/shell00.c` |
+| 8.54 | `src/sf33rd/Source/Game/com/shell/shell01.c` |
+| 8.54 | `src/sf33rd/Source/Game/com/shell/shell04.c` |
+| 8.54 | `src/sf33rd/Source/Game/com/shell/shell07.c` |
+| 8.54 | `src/sf33rd/Source/Game/com/shell/shell12.c` |
+| 8.54 | `src/sf33rd/Source/Game/com/shell/shell13.c` |
+| 8.54 | `src/sf33rd/Source/Game/effect/effa3.c` |
+| 8.54 | `src/sf33rd/Source/Game/ending/end_10.c` |
+| 8.54 | `src/sf33rd/Source/Game/ending/end_16.c` |
+| 8.54 | `src/sf33rd/Source/Game/ending/end_18.c` |
+| 8.55 | `src/sf33rd/Source/Game/engine/plmain2.c` |
+| 8.56 | `src/sf33rd/Source/Game/effect/effc3.c` |
+| 8.59 | `src/sf33rd/Source/Game/menu/netplay_menu.c` |
+| 8.62 | `src/sf33rd/Source/Game/effect/effd6.c` |
+| 8.63 | `src/sf33rd/Source/Game/effect/effc9.c` |
+| 8.65 | `src/sf33rd/Source/Game/sound/cps3sound.c` |
+| 8.67 | `src/sf33rd/Source/Game/effect/eff94.c` |
+| 8.67 | `src/sf33rd/Source/Game/effect/effi0.c` |
+| 8.67 | `src/sf33rd/Source/Game/rendering/dc_ghost.c` |
+| 8.68 | `src/sf33rd/Source/Game/io/ioconv.c` |
+| 8.72 | `src/sf33rd/Source/Common/MemMan.c` |
+| 8.74 | `src/args.c` |
+| 8.74 | `src/sf33rd/Source/Game/effect/eff57.c` |
+| 8.74 | `src/sf33rd/Source/Game/effect/eff60.c` |
+| 8.74 | `src/sf33rd/Source/Game/effect/effe7.c` |
+| 8.74 | `src/sf33rd/Source/Game/effect/efff9.c` |
+| 8.74 | `src/sf33rd/Source/Game/ending/end_06.c` |
+| 8.75 | `src/sf33rd/Source/Game/engine/plpat14.c` |
+| 8.79 | `src/platform/netplay/fistbump.c` |
+| 8.79 | `src/sf33rd/Source/Game/engine/plpat07.c` |
+| 8.80 | `src/sf33rd/Source/Game/effect/eff42.c` |
+| 8.80 | `src/sf33rd/Source/Game/effect/eff84.c` |
+| 8.80 | `src/sf33rd/Source/Game/effect/eff95.c` |
+| 8.80 | `src/sf33rd/Source/Game/system/sysdir.c` |
+| 8.81 | `src/sf33rd/Source/Game/com/shell/shell03.c` |
+| 8.81 | `src/sf33rd/Source/Game/com/shell/shell05.c` |
+| 8.81 | `src/sf33rd/Source/Game/effect/eff85.c` |
+| 8.81 | `src/sf33rd/Source/Game/effect/effd4.c` |
+| 8.81 | `src/sf33rd/Source/Game/ending/end_12.c` |
+| 8.81 | `src/sf33rd/Source/Game/engine/hitefpl.c` |
+| 8.81 | `src/sf33rd/Source/Game/stage/ta_sub.c` |
+| 8.82 | `src/sf33rd/Source/Game/effect/eff03.c` |
+| 8.83 | `src/sf33rd/Source/Game/effect/eff78.c` |
+| 8.84 | `src/sf33rd/Source/Game/effect/eff11.c` |
+| 8.85 | `src/sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/emlTSB.c` |
+| 8.85 | `src/sf33rd/Source/Game/effect/eff97.c` |
+| 8.87 | `src/platform/video/opengl/opengl_renderer.c` |
+| 8.87 | `src/sf33rd/AcrSDK/common/mlPAD.c` |
+| 8.87 | `src/sf33rd/Source/Game/effect/eff73.c` |
+| 8.87 | `src/sf33rd/Source/Game/effect/effc1.c` |
+| 8.89 | `src/port/sound/adx_decoder.c` |
+| 8.90 | `src/sf33rd/Source/Game/effect/effg3.c` |
+| 8.92 | `src/port/config/keymap.c` |
+| 8.92 | `src/sf33rd/Source/Game/effect/effm3.c` |
+| 8.93 | `src/sf33rd/Source/Game/engine/plpat20.c` |
+| 8.95 | `src/sf33rd/Source/Game/sound/se.c` |
+| 8.95 | `src/sf33rd/Source/Game/ui/flash_lp.c` |
+| 8.97 | `src/sf33rd/Source/Game/effect/effc6.c` |
+| 8.99 | `src/sf33rd/AcrSDK/common/plapx.c` |
+
+## Green Code (9.0-9.9) - High Quality
+
+| Score | Path |
+|-------|------|
+| 9.00 | `src/platform/netplay/netplay.c` |
+| 9.00 | `src/sf33rd/Source/Common/PPGWork.c` |
+| 9.02 | `src/sf33rd/Source/Game/effect/eff16.c` |
+| 9.02 | `src/sf33rd/Source/Game/effect/eff29.c` |
+| 9.02 | `src/sf33rd/Source/Game/effect/eff30.c` |
+| 9.02 | `src/sf33rd/Source/Game/effect/eff31.c` |
+| 9.02 | `src/sf33rd/Source/Game/effect/eff32.c` |
+| 9.02 | `src/sf33rd/Source/Game/effect/eff33.c` |
+| 9.02 | `src/sf33rd/Source/Game/effect/effb3.c` |
+| 9.02 | `src/sf33rd/Source/Game/ending/end_13.c` |
+| 9.02 | `src/sf33rd/Source/Game/engine/hitplef.c` |
+| 9.02 | `src/sf33rd/Source/Game/io/gd3rd.c` |
+| 9.02 | `src/sf33rd/Source/Game/ui/input_history.c` |
+| 9.02 | `src/test/replay_game.c` |
+| 9.04 | `src/sf33rd/Source/Game/stage/bg090.c` |
+| 9.06 | `src/sf33rd/Source/Game/effect/effd8.c` |
+| 9.06 | `src/sf33rd/Source/Game/engine/plpat00.c` |
+| 9.07 | `src/sf33rd/Source/Game/effect/eff48.c` |
+| 9.07 | `src/sf33rd/Source/Game/effect/eff68.c` |
+| 9.08 | `src/sf33rd/Source/Game/effect/effa9.c` |
+| 9.09 | `src/platform/app/sdl/sdl_app.c` |
+| 9.09 | `src/sf33rd/Source/Game/effect/eff71.c` |
+| 9.09 | `src/sf33rd/Source/Game/effect/effa0.c` |
+| 9.09 | `src/sf33rd/Source/Game/effect/effect.c` |
+| 9.09 | `src/sf33rd/Source/Game/effect/efff6.c` |
+| 9.09 | `src/sf33rd/Source/Game/effect/effi3.c` |
+| 9.09 | `src/sf33rd/Source/Game/effect/effk9.c` |
+| 9.09 | `src/sf33rd/Source/Game/ending/end_03.c` |
+| 9.09 | `src/sf33rd/Source/Game/engine/plcnt3.c` |
+| 9.11 | `src/sf33rd/Source/Game/engine/plpat06.c` |
+| 9.11 | `src/sf33rd/Source/Game/screen/gameover.c` |
+| 9.13 | `src/sf33rd/Source/Game/effect/effb2.c` |
+| 9.14 | `src/sf33rd/Source/Game/effect/effe8.c` |
+| 9.14 | `src/sf33rd/Source/Game/effect/effl7.c` |
+| 9.16 | `src/sf33rd/Source/Game/effect/eff24.c` |
+| 9.16 | `src/sf33rd/Source/Game/effect/effj4.c` |
+| 9.18 | `src/sf33rd/Source/Game/effect/eff19.c` |
+| 9.18 | `src/sf33rd/Source/Game/effect/effm8.c` |
+| 9.18 | `src/sf33rd/Source/Game/ending/end_main.c` |
+| 9.22 | `src/sf33rd/Source/Game/effect/eff00.c` |
+| 9.24 | `src/port/io/afs.c` |
+| 9.24 | `src/sf33rd/Source/Game/effect/effe4.c` |
+| 9.24 | `src/sf33rd/Source/Game/effect/effi9.c` |
+| 9.24 | `src/sf33rd/Source/Game/engine/plpat02.c` |
+| 9.31 | `src/port/sound/adx.c` |
+| 9.31 | `src/sf33rd/Source/Game/effect/eff34.c` |
+| 9.31 | `src/sf33rd/Source/Game/effect/eff52.c` |
+| 9.31 | `src/sf33rd/Source/Game/effect/effc0.c` |
+| 9.31 | `src/sf33rd/Source/Game/effect/effd0.c` |
+| 9.31 | `src/sf33rd/Source/Game/effect/effg0.c` |
+| 9.31 | `src/sf33rd/Source/Game/effect/effj0.c` |
+| 9.31 | `src/sf33rd/Source/Game/effect/effj7.c` |
+| 9.31 | `src/sf33rd/Source/Game/effect/effk7.c` |
+| 9.31 | `src/sf33rd/Source/Game/system/reset.c` |
+| 9.34 | `src/sf33rd/Source/Game/effect/effa2.c` |
+| 9.34 | `src/sf33rd/Source/Game/effect/effe0.c` |
+| 9.35 | `src/sf33rd/Source/Game/effect/effd1.c` |
+| 9.37 | `src/sf33rd/Source/Game/effect/eff55.c` |
+| 9.38 | `src/platform/input/sdl/sdl_pad.c` |
+| 9.38 | `src/platform/video/psp/psp_renderer.c` |
+| 9.38 | `src/port/config/config.c` |
+| 9.38 | `src/port/sdk/sdk_libpad2.c` |
+| 9.38 | `src/sf33rd/Source/Game/effect/eff10.c` |
+| 9.38 | `src/sf33rd/Source/Game/effect/eff23.c` |
+| 9.38 | `src/sf33rd/Source/Game/effect/eff44.c` |
+| 9.38 | `src/sf33rd/Source/Game/effect/eff46.c` |
+| 9.38 | `src/sf33rd/Source/Game/effect/eff53.c` |
+| 9.38 | `src/sf33rd/Source/Game/effect/eff70.c` |
+| 9.38 | `src/sf33rd/Source/Game/effect/eff91.c` |
+| 9.38 | `src/sf33rd/Source/Game/effect/eff93.c` |
+| 9.38 | `src/sf33rd/Source/Game/effect/effi4.c` |
+| 9.38 | `src/sf33rd/Source/Game/effect/effj2.c` |
+| 9.38 | `src/sf33rd/Source/Game/effect/effj6.c` |
+| 9.38 | `src/sf33rd/Source/Game/ending/end_02.c` |
+| 9.38 | `src/sf33rd/Source/Game/ending/end_11.c` |
+| 9.38 | `src/sf33rd/Source/Game/ending/end_17.c` |
+| 9.38 | `src/sf33rd/Source/Game/ending/end_20.c` |
+| 9.38 | `src/sf33rd/Source/Game/engine/plpcu.c` |
+| 9.38 | `src/sf33rd/Source/Game/engine/slowf.c` |
+| 9.38 | `src/sf33rd/Source/Game/engine/vital.c` |
+| 9.38 | `src/sf33rd/Source/Game/stage/bonus_bg.c` |
+| 9.38 | `src/sf33rd/Source/Game/system/ramcnt.c` |
+| 9.41 | `src/sf33rd/Source/Game/effect/effe9.c` |
+| 9.42 | `src/sf33rd/Source/Game/effect/eff45.c` |
+| 9.45 | `src/sf33rd/Source/Game/effect/eff50.c` |
+| 9.45 | `src/sf33rd/Source/Game/effect/eff82.c` |
+| 9.45 | `src/sf33rd/Source/Game/effect/eff83.c` |
+| 9.47 | `src/port/sdl/netplay_screen.c` |
+| 9.47 | `src/sf33rd/Source/Game/effect/eff41.c` |
+| 9.47 | `src/sf33rd/Source/Game/effect/effa5.c` |
+| 9.47 | `src/sf33rd/Source/Game/effect/effc8.c` |
+| 9.53 | `src/sf33rd/Source/Game/effect/effm2.c` |
+| 9.53 | `src/sf33rd/Source/Game/engine/hitefef.c` |
+| 9.53 | `src/sf33rd/Source/Game/engine/plpat08.c` |
+| 9.56 | `src/sf33rd/Source/Game/effect/eff15.c` |
+| 9.56 | `src/sf33rd/Source/Game/engine/plpat12.c` |
+| 9.58 | `src/sf33rd/Source/Game/effect/effb5.c` |
+| 9.58 | `src/sf33rd/Source/Game/effect/efff8.c` |
+| 9.58 | `src/sf33rd/Source/Game/effect/effg5.c` |
+| 9.58 | `src/sf33rd/Source/Game/effect/effi7.c` |
+| 9.58 | `src/sf33rd/Source/Game/effect/effm6.c` |
+| 9.58 | `src/sf33rd/Source/Game/init3rd.c` |
+| 9.60 | `src/sf33rd/Source/Game/effect/effm7.c` |
+| 9.60 | `src/sf33rd/Source/Game/ending/end_01.c` |
+| 9.61 | `src/sf33rd/Source/Game/effect/eff08.c` |
+| 9.61 | `src/sf33rd/Source/Game/effect/eff37.c` |
+| 9.61 | `src/sf33rd/Source/Game/effect/eff96.c` |
+| 9.61 | `src/sf33rd/Source/Game/effect/effc4.c` |
+| 9.61 | `src/sf33rd/Source/Game/effect/effc7.c` |
+| 9.61 | `src/sf33rd/Source/Game/effect/effg4.c` |
+| 9.61 | `src/sf33rd/Source/Game/effect/effg9.c` |
+| 9.61 | `src/sf33rd/Source/Game/effect/effj9.c` |
+| 9.61 | `src/sf33rd/Source/Game/effect/effk3.c` |
+| 9.61 | `src/sf33rd/Source/Game/effect/effk4.c` |
+| 9.61 | `src/sf33rd/Source/Game/effect/effk8.c` |
+| 9.61 | `src/sf33rd/Source/Game/engine/pow_pow.c` |
+| 9.61 | `src/sf33rd/Source/Game/stage/bg000.c` |
+| 9.63 | `src/port/config/config_helpers.c` |
+| 9.63 | `src/sf33rd/Source/Game/demo/demo01.c` |
+| 9.66 | `src/sf33rd/Source/Game/effect/eff56.c` |
+| 9.66 | `src/sf33rd/Source/Game/effect/effh9.c` |
+| 9.68 | `src/arcade/cps3_decrypt.c` |
+| 9.68 | `src/platform/netplay/sdl_net_adapter.c` |
+| 9.68 | `src/sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/emlRefPhd.c` |
+| 9.68 | `src/sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/emlSndDrv.c` |
+| 9.68 | `src/sf33rd/AcrSDK/common/plpic.c` |
+| 9.68 | `src/sf33rd/AcrSDK/ps2/flps2render.c` |
+| 9.68 | `src/sf33rd/Source/Game/effect/eff07.c` |
+| 9.68 | `src/sf33rd/Source/Game/effect/eff21.c` |
+| 9.68 | `src/sf33rd/Source/Game/effect/eff22.c` |
+| 9.68 | `src/sf33rd/Source/Game/effect/eff40.c` |
+| 9.68 | `src/sf33rd/Source/Game/effect/eff59.c` |
+| 9.68 | `src/sf33rd/Source/Game/effect/eff64.c` |
+| 9.68 | `src/sf33rd/Source/Game/effect/eff65.c` |
+| 9.68 | `src/sf33rd/Source/Game/effect/eff72.c` |
+| 9.68 | `src/sf33rd/Source/Game/effect/eff81.c` |
+| 9.68 | `src/sf33rd/Source/Game/effect/eff86.c` |
+| 9.68 | `src/sf33rd/Source/Game/effect/eff99.c` |
+| 9.68 | `src/sf33rd/Source/Game/effect/effa8.c` |
+| 9.68 | `src/sf33rd/Source/Game/effect/effb4.c` |
+| 9.68 | `src/sf33rd/Source/Game/effect/effb8.c` |
+| 9.68 | `src/sf33rd/Source/Game/effect/efff2.c` |
+| 9.68 | `src/sf33rd/Source/Game/effect/effg8.c` |
+| 9.68 | `src/sf33rd/Source/Game/effect/effh0.c` |
+| 9.68 | `src/sf33rd/Source/Game/effect/effl5.c` |
+| 9.68 | `src/sf33rd/Source/Game/engine/bbbscom2.c` |
+| 9.68 | `src/sf33rd/Source/Game/engine/plpat01.c` |
+| 9.68 | `src/sf33rd/Source/Game/engine/plpat03.c` |
+| 9.68 | `src/sf33rd/Source/Game/engine/plpat10.c` |
+| 9.68 | `src/sf33rd/Source/Game/engine/plpat16.c` |
+| 9.92 | `src/sf33rd/Source/Game/effect/eff06.c` |
+| 9.92 | `src/sf33rd/Source/Game/effect/eff14.c` |
+| 9.92 | `src/sf33rd/Source/Game/effect/eff98.c` |
+| 9.92 | `src/sf33rd/Source/Game/engine/plpat18.c` |
+| 9.92 | `src/sf33rd/Source/Game/screen/win.c` |
+| 9.92 | `src/test/ram_archive.c` |
+| 9.92 | `src/test/test_runner_compare.c` |
+
+## Optimal Code (10.0) - Fully Optimized
+
+| Score | Path |
+|-------|------|
+| 10.00 | `src/arcade/arcade_balance.c` |
+| 10.00 | `src/arcade/arcade_cmd_data.c` |
+| 10.00 | `src/arcade/rom_load.c` |
+| 10.00 | `src/core/app.c` |
+| 10.00 | `src/core/input.c` |
+| 10.00 | `src/core/xbox_buttons.c` |
+| 10.00 | `src/platform/app/psp/psp_app.c` |
+| 10.00 | `src/platform/app/sdl/sdl_file_logger.c` |
+| 10.00 | `src/platform/app/sdl/sdl_headless_app.c` |
+| 10.00 | `src/platform/app/sdl/sdl_stress_app.c` |
+| 10.00 | `src/platform/input/statcheck/statcheck_input.c` |
+| 10.00 | `src/platform/netplay/netplay_stress.c` |
+| 10.00 | `src/platform/video/sdl_generic/sdl_generic_renderer.c` |
+| 10.00 | `src/port/paths.c` |
+| 10.00 | `src/port/resources.c` |
+| 10.00 | `src/port/sdl/netstats_renderer.c` |
+| 10.00 | `src/port/utils.c` |
+| 10.00 | `src/sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/cse.c` |
+| 10.00 | `src/sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/eflSpuMap.c` |
+| 10.00 | `src/sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/emlMemMap.c` |
+| 10.00 | `src/sf33rd/AcrSDK/common/fbms.c` |
+| 10.00 | `src/sf33rd/AcrSDK/common/memfound.c` |
+| 10.00 | `src/sf33rd/AcrSDK/common/plbmp.c` |
+| 10.00 | `src/sf33rd/AcrSDK/ps2/foundaps2.c` |
+| 10.00 | `src/sf33rd/Source/Compress/zlibApp.c` |
+| 10.00 | `src/sf33rd/Source/Game/com/follow/follow02.c` |
+| 10.00 | `src/sf33rd/Source/Game/debug/OBJTEST.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/eff04.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/eff05.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/eff12.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/eff17.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/eff18.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/eff20.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/eff43.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/eff47.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/eff49.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/eff51.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/eff54.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/eff62.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/eff74.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/eff75.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/eff80.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/eff90.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/eff92.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/effa1.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/effa4.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/effb0.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/effb7.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/effb9.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/effe1.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/efff0.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/efff5.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/effg7.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/effh1.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/effh2.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/effi6.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/effl4.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/effl8.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/effl9.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/effm1.c` |
+| 10.00 | `src/sf33rd/Source/Game/effect/effxx.c` |
+| 10.00 | `src/sf33rd/Source/Game/ending/end_07.c` |
+| 10.00 | `src/sf33rd/Source/Game/ending/end_08.c` |
+| 10.00 | `src/sf33rd/Source/Game/ending/end_09.c` |
+| 10.00 | `src/sf33rd/Source/Game/ending/end_19.c` |
+| 10.00 | `src/sf33rd/Source/Game/engine/charid.c` |
+| 10.00 | `src/sf33rd/Source/Game/engine/plpat04.c` |
+| 10.00 | `src/sf33rd/Source/Game/engine/plpat05.c` |
+| 10.00 | `src/sf33rd/Source/Game/engine/plpat11.c` |
+| 10.00 | `src/sf33rd/Source/Game/engine/plpat13.c` |
+| 10.00 | `src/sf33rd/Source/Game/io/vm_sub.c` |
+| 10.00 | `src/sf33rd/Source/Game/opening/op_sub.c` |
+| 10.00 | `src/sf33rd/Source/Game/rendering/meta_col.c` |
+| 10.00 | `src/sf33rd/Source/Game/rendering/mmtmcnt.c` |
+| 10.00 | `src/sf33rd/Source/Game/screen/continue.c` |
+| 10.00 | `src/sf33rd/Source/Game/stage/bg010.c` |
+| 10.00 | `src/sf33rd/Source/Game/stage/bg020.c` |
+| 10.00 | `src/sf33rd/Source/Game/stage/bg030.c` |
+| 10.00 | `src/sf33rd/Source/Game/stage/bg040.c` |
+| 10.00 | `src/sf33rd/Source/Game/stage/bg050.c` |
+| 10.00 | `src/sf33rd/Source/Game/stage/bg060.c` |
+| 10.00 | `src/sf33rd/Source/Game/stage/bg070.c` |
+| 10.00 | `src/sf33rd/Source/Game/stage/bg080.c` |
+| 10.00 | `src/sf33rd/Source/Game/stage/bg100.c` |
+| 10.00 | `src/sf33rd/Source/Game/stage/bg120.c` |
+| 10.00 | `src/sf33rd/Source/Game/stage/bg130.c` |
+| 10.00 | `src/sf33rd/Source/Game/stage/bg140.c` |
+| 10.00 | `src/sf33rd/Source/Game/stage/bg150.c` |
+| 10.00 | `src/sf33rd/Source/Game/stage/bg160.c` |
+| 10.00 | `src/sf33rd/Source/Game/stage/bg180.c` |
+| 10.00 | `src/sf33rd/Source/Game/stage/bg190.c` |
+| 10.00 | `src/sf33rd/Source/Game/stage/bns_bg2.c` |
+| 10.00 | `src/sf33rd/Source/Game/stage/tate00.c` |
+| 10.00 | `src/sf33rd/Source/Game/system/saver.c` |
+| 10.00 | `src/sf33rd/Source/Game/system/sys_sub2.c` |
+| 10.00 | `src/sf33rd/Source/Game/ui/glyph_renderer.c` |
+| 10.00 | `src/test/test_runner_utils.c` |
+| 10.00 | `src/utils/sha256.c` |
+
+## Unscorable Files (145)
+
+Data tables, const arrays, or generated files that CodeScene cannot analyze as code.
+
+| Directory Prefix | Count |
+|------------------|-------|
+| `src/arcade/arcade_stubs.c/` | 1 |
+| `src/sf33rd/AcrSDK/` | 1 |
+| `src/sf33rd/Source/` | 143 |
+
+## Top 10 Worst Files
+
+| # | Score | Path |
+|---|-------|------|
+| 1 | 1.42 | `src/sf33rd/Source/Game/engine/hitcheck.c` |
+| 2 | 1.52 | `src/sf33rd/Source/Game/com/com_sub.c` |
+| 3 | 1.82 | `src/sf33rd/Source/Game/engine/pls03.c` |
+| 4 | 2.25 | `src/sf33rd/Source/Game/menu/menu.c` |
+| 5 | 2.31 | `src/sf33rd/Source/Game/engine/cmd_main.c` |
+| 6 | 2.57 | `src/sf33rd/Source/Game/rendering/mtrans.c` |
+| 7 | 2.58 | `src/sf33rd/Source/Game/effect/eff09.c` |
+| 8 | 2.64 | `src/sf33rd/Source/Game/effect/eff13.c` |
+| 9 | 2.74 | `src/sf33rd/Source/Game/engine/pls00.c` |
+| 10 | 3.09 | `src/sf33rd/Source/Game/opening/opening.c` |
