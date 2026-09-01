@@ -58,6 +58,7 @@ static s32 remap_ending_c_kakikae1_chip(s32 global_index_real);
 static s32 remap_ending_c_kakikae2_chip(s32 global_index_real);
 static bool is_exe_or_pause_active();
 static bool should_update_rw_work(u8 bgnm);
+static s32 remap_ending_nosekae_chip(s32 global_index_real);
 static void bgDrawOneScreen(s32 bgnum, s32 gixbase, s32* xx, s32* yy, s32 /* unused */, s32 ofsPal,
                             PPGDataList* curDataList);
 static void bgDrawOneChip(s32 x, s32 y, s32 xs, s32 ys, s32 gbix, u32 vtxCol, s32 ofsPal);
@@ -777,6 +778,20 @@ static bool should_update_rw_work(u8 bgnm) {
     return (EXE_flag == 0 && Game_pause == 0 && rw_bg_flag[bgnm] && rw_num);
 }
 
+static s32 remap_ending_nosekae_chip(s32 global_index_real) {
+    s32 i;
+
+    for (i = 0; i < 16; i++) {
+        if (gouki_end_gbix[i] == global_index_real) {
+            global_index_real = gouki_end_nosekae[nosekae - 1][i];
+            select_bg_list_for_reindexed_chip(global_index_real);
+            break;
+        }
+    }
+
+    return global_index_real;
+}
+
 void scr_trans(u8 bgnm) {
     PPGDataList* curDataList;
     Vec3 point[2];
@@ -976,13 +991,7 @@ void scr_trans(u8 bgnm) {
                 global_index_real = global_index + (((y >> 7) << 3) + (x >> 7));
 
                 if (nosekae != 0) {
-                    for (i = 0; i < 16; i++) {
-                        if (gouki_end_gbix[i] == global_index_real) {
-                            global_index_real = gouki_end_nosekae[nosekae - 1][i];
-                            select_bg_list_for_reindexed_chip(global_index_real);
-                            break;
-                        }
-                    }
+                    global_index_real = remap_ending_nosekae_chip(global_index_real);
                 }
 
                 if (bgnm == 0) {
