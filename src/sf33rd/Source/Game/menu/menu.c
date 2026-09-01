@@ -894,6 +894,28 @@ void System_Dir_Move_Sub_LR(u16 sw, s16 cursor_id) {
     }
 }
 
+static void on_direction_cursor_moved() {
+    SE_cursor_move();
+    system_dir[1].contents[Menu_Page][Menu_Max] = 1;
+
+    if (Menu_Cursor_Y[0] < Menu_Max) {
+        Message_Data->order = 1;
+        Message_Data->request = Menu_Page * 0xC + Menu_Cursor_Y[0] * 2 + 1;
+        Message_Data->timer = 2;
+
+        if (msgSysDirTbl[0]->msgNum[Menu_Page * 0xC + Menu_Cursor_Y[0] * 2 + 1] == 1) {
+            Message_Data->pos_y = 0x36;
+        } else {
+            Message_Data->pos_y = 0x3E;
+        }
+    } else {
+        Message_Data->order = 1;
+        Message_Data->request = system_dir[1].contents[Menu_Page][Menu_Max] + 0x74;
+        Message_Data->timer = 2;
+        Message_Data->pos_y = 0x36;
+    }
+}
+
 void Direction_Menu(struct _TASK* task_ptr) {
     Menu_Cursor_Y[1] = Menu_Cursor_Y[0];
 
@@ -943,25 +965,7 @@ void Direction_Menu(struct _TASK* task_ptr) {
         }
 
         if (Menu_Cursor_Y[1] != Menu_Cursor_Y[0]) {
-            SE_cursor_move();
-            system_dir[1].contents[Menu_Page][Menu_Max] = 1;
-
-            if (Menu_Cursor_Y[0] < Menu_Max) {
-                Message_Data->order = 1;
-                Message_Data->request = Menu_Page * 0xC + Menu_Cursor_Y[0] * 2 + 1;
-                Message_Data->timer = 2;
-
-                if (msgSysDirTbl[0]->msgNum[Menu_Page * 0xC + Menu_Cursor_Y[0] * 2 + 1] == 1) {
-                    Message_Data->pos_y = 0x36;
-                } else {
-                    Message_Data->pos_y = 0x3E;
-                }
-            } else {
-                Message_Data->order = 1;
-                Message_Data->request = system_dir[1].contents[Menu_Page][Menu_Max] + 0x74;
-                Message_Data->timer = 2;
-                Message_Data->pos_y = 0x36;
-            }
+            on_direction_cursor_moved();
         }
 
         switch (IO_Result) {
