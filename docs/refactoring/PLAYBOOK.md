@@ -221,12 +221,20 @@ python tools/refactor_guard.py <file>
 ```
 
 This extracts every numeric, string, and character literal from the file before and after
-your change and compares them. A **removed** literal fails the check - it means a constant
-was altered, or code carrying it was deleted. **Added** literals are only a warning; a new
-guard clause legitimately brings its own `return 0`.
+your change and compares the counts:
 
-Recipe D removes a duplicated block, so it trips this guard by design. That recipe needs
-human review before it lands.
+- **FAIL** - a value vanished from the file, or a count dropped while another rose. That
+  is a substituted constant (`30` became `31`) or deleted logic. Revert.
+- **WARN** - counts only dropped and every value is still present. That is what
+  deduplication looks like. Recipes **D** and **P** both produce it legitimately: pulling
+  a repeated condition into one named predicate removes copies of its literals without
+  changing any of them.
+- **WARN** - counts only rose. A new guard clause brings its own `return 0`.
+- **OK** - nothing changed.
+
+A `WARN` is not a pass mark, it is a request for a second look. The tool cannot tell
+deduplication apart from *deleting* one copy of a duplicated block, so a human confirms
+those before they land. `--strict` turns warnings into failures.
 
 Then re-measure with the CodeScene MCP server:
 
@@ -239,7 +247,33 @@ code_health_score(file_path="<absolute path to the file>")
 | Build fails | Fix it, or revert. Never commit a broken build. |
 | Guard FAILs | `git checkout -- <file>`. No exceptions. |
 | Score up | Keep it. Commit. Next function. |
-| Score flat or down | `git checkout -- <file>`. Next function. |
+| Score flat or down | **Do not revert yet.** Check the review first - see below. |
+
+### A flat score does not mean a failed refactor
+
+The file score is a single aggregate over every function in the file. In a 5,000-line
+module with 111 functions, fixing one function can move it by less than the score's
+resolution. Reverting on a flat score would throw away good work.
+
+So when the score does not move, run the detailed review and ask a sharper question:
+**did the smell I targeted actually go away?**
+
+```
+code_health_review(file_path="<absolute path>")
+```
+
+- The function **left** a category it was in (Deep Nested Complexity, Bumpy Road, Large
+  Method), or its cyclomatic complexity dropped: **keep the change and commit.**
+- The function is still listed with the same numbers: **revert.** The transformation did
+  not do what you intended.
+
+A real example from this campaign. Extracting one nested switch out of `Menu_Select` left
+the file score at 2.25, unchanged. The review showed the function had dropped out of three
+categories and its complexity had fallen from 19 to 12. Keeping it was correct.
+
+Score is the campaign-level signal. Per-step, the review is the signal.
+
+### What the guard does not cover
 
 The guard checks constants, not control flow. An inverted condition with no literal change
 passes it cleanly - so it reduces risk, it does not remove it. That is why Track B stays

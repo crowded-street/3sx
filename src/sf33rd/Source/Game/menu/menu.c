@@ -894,6 +894,28 @@ void System_Dir_Move_Sub_LR(u16 sw, s16 cursor_id) {
     }
 }
 
+static void on_direction_cursor_moved() {
+    SE_cursor_move();
+    system_dir[1].contents[Menu_Page][Menu_Max] = 1;
+
+    if (Menu_Cursor_Y[0] < Menu_Max) {
+        Message_Data->order = 1;
+        Message_Data->request = Menu_Page * 0xC + Menu_Cursor_Y[0] * 2 + 1;
+        Message_Data->timer = 2;
+
+        if (msgSysDirTbl[0]->msgNum[Menu_Page * 0xC + Menu_Cursor_Y[0] * 2 + 1] == 1) {
+            Message_Data->pos_y = 0x36;
+        } else {
+            Message_Data->pos_y = 0x3E;
+        }
+    } else {
+        Message_Data->order = 1;
+        Message_Data->request = system_dir[1].contents[Menu_Page][Menu_Max] + 0x74;
+        Message_Data->timer = 2;
+        Message_Data->pos_y = 0x36;
+    }
+}
+
 void Direction_Menu(struct _TASK* task_ptr) {
     Menu_Cursor_Y[1] = Menu_Cursor_Y[0];
 
@@ -943,25 +965,7 @@ void Direction_Menu(struct _TASK* task_ptr) {
         }
 
         if (Menu_Cursor_Y[1] != Menu_Cursor_Y[0]) {
-            SE_cursor_move();
-            system_dir[1].contents[Menu_Page][Menu_Max] = 1;
-
-            if (Menu_Cursor_Y[0] < Menu_Max) {
-                Message_Data->order = 1;
-                Message_Data->request = Menu_Page * 0xC + Menu_Cursor_Y[0] * 2 + 1;
-                Message_Data->timer = 2;
-
-                if (msgSysDirTbl[0]->msgNum[Menu_Page * 0xC + Menu_Cursor_Y[0] * 2 + 1] == 1) {
-                    Message_Data->pos_y = 0x36;
-                } else {
-                    Message_Data->pos_y = 0x3E;
-                }
-            } else {
-                Message_Data->order = 1;
-                Message_Data->request = system_dir[1].contents[Menu_Page][Menu_Max] + 0x74;
-                Message_Data->timer = 2;
-                Message_Data->pos_y = 0x36;
-            }
+            on_direction_cursor_moved();
         }
 
         switch (IO_Result) {
@@ -2632,9 +2636,65 @@ void In_Game(struct _TASK* task_ptr) {
     In_Game_Jmp_Tbl[task_ptr->r_no[1]](task_ptr);
 }
 
-void Menu_Select(struct _TASK* task_ptr) {
+static void menu_select_confirm(struct _TASK* task_ptr) {
     s16 ix;
 
+    switch (Menu_Cursor_Y[0]) {
+    case 0: // Continue
+        task_ptr->r_no[2] = 99;
+        Exit_Menu = 1;
+        SE_selected();
+        break;
+
+    case 1: // Button config
+        SE_selected();
+
+        switch (Mode_Type) {
+        case MODE_VERSUS:
+            task_ptr->r_no[1] = 3;
+            task_ptr->r_no[2] = 0;
+            task_ptr->r_no[3] = 0;
+
+            for (ix = 0; ix < 4; ix++) {
+                Menu_Suicide[ix] = 1;
+            }
+
+            cpExitTask(TASK_SAVER);
+            cpExitTask(TASK_PAUSE);
+            BGM_Stop();
+            break;
+
+        case MODE_REPLAY:
+            task_ptr->r_no[0] = 0xC;
+            task_ptr->r_no[1] = 0;
+            break;
+
+        default:
+            Menu_Suicide[0] = 1;
+            Menu_Suicide[1] = 1;
+            Menu_Suicide[2] = 1;
+            Menu_Suicide[3] = 0;
+            task_ptr->r_no[1]++;
+            task_ptr->r_no[2] = 0;
+            task[TASK_PAUSE].r_no[2] = 3;
+            break;
+        }
+
+        break;
+
+    case 2: // Exit
+        task_ptr->r_no[2]++;
+        Menu_Suicide[0] = 1;
+        Menu_Cursor_Y[0] = 1;
+        effect_10_init(0, 0, 3, 3, 1, 0x13, 0xC);
+        effect_10_init(0, 1, 0, 0, 1, 0x14, 0xF);
+        effect_10_init(0, 1, 1, 1, 1, 0x1A, 0xF);
+        SE_selected();
+        break;
+    }
+}
+
+void Menu_Select(struct _TASK* task_ptr) {
     if (Check_Pad_in_Pause(task_ptr) != 0) {
         return;
     }
@@ -2683,60 +2743,7 @@ void Menu_Select(struct _TASK* task_ptr) {
             break;
 
         case SWK_SOUTH:
-            switch (Menu_Cursor_Y[0]) {
-            case 0: // Continue
-                task_ptr->r_no[2] = 99;
-                Exit_Menu = 1;
-                SE_selected();
-                break;
-
-            case 1: // Button config
-                SE_selected();
-
-                switch (Mode_Type) {
-                case MODE_VERSUS:
-                    task_ptr->r_no[1] = 3;
-                    task_ptr->r_no[2] = 0;
-                    task_ptr->r_no[3] = 0;
-
-                    for (ix = 0; ix < 4; ix++) {
-                        Menu_Suicide[ix] = 1;
-                    }
-
-                    cpExitTask(TASK_SAVER);
-                    cpExitTask(TASK_PAUSE);
-                    BGM_Stop();
-                    break;
-
-                case MODE_REPLAY:
-                    task_ptr->r_no[0] = 0xC;
-                    task_ptr->r_no[1] = 0;
-                    break;
-
-                default:
-                    Menu_Suicide[0] = 1;
-                    Menu_Suicide[1] = 1;
-                    Menu_Suicide[2] = 1;
-                    Menu_Suicide[3] = 0;
-                    task_ptr->r_no[1]++;
-                    task_ptr->r_no[2] = 0;
-                    task[TASK_PAUSE].r_no[2] = 3;
-                    break;
-                }
-
-                break;
-
-            case 2: // Exit
-                task_ptr->r_no[2]++;
-                Menu_Suicide[0] = 1;
-                Menu_Cursor_Y[0] = 1;
-                effect_10_init(0, 0, 3, 3, 1, 0x13, 0xC);
-                effect_10_init(0, 1, 0, 0, 1, 0x14, 0xF);
-                effect_10_init(0, 1, 1, 1, 1, 0x1A, 0xF);
-                SE_selected();
-                break;
-            }
-
+            menu_select_confirm(task_ptr);
             break;
         }
 
@@ -4457,6 +4464,11 @@ static void apply_training_hitbox_display(bool force_off) {
     }
 }
 
+static bool is_disallowed_dummy_selection(s16 id, s16 type, s16 cursor_id) {
+    return Interface_Type[Champion ^ 1] == 0 && id == 0 && type == 0 && Menu_Cursor_Y[cursor_id] == 0 &&
+           Training[2].contents[id][type][Menu_Cursor_Y[cursor_id]] == 4;
+}
+
 void Dummy_Move_Sub_LR(u16 sw, s16 id, s16 type, s16 cursor_id) {
     s16 max = Menu_Max_Data_Tr[id][type][Menu_Cursor_Y[cursor_id]];
 
@@ -4472,8 +4484,7 @@ void Dummy_Move_Sub_LR(u16 sw, s16 id, s16 type, s16 cursor_id) {
             Training[2].contents[id][type][Menu_Cursor_Y[cursor_id]] = max;
         }
 
-        if (Interface_Type[Champion ^ 1] == 0 && id == 0 && type == 0 && Menu_Cursor_Y[cursor_id] == 0 &&
-            Training[2].contents[id][type][Menu_Cursor_Y[cursor_id]] == 4) {
+        if (is_disallowed_dummy_selection(id, type, cursor_id)) {
             Training[2].contents[id][type][Menu_Cursor_Y[cursor_id]] = 3;
         }
 
@@ -4487,8 +4498,7 @@ void Dummy_Move_Sub_LR(u16 sw, s16 id, s16 type, s16 cursor_id) {
             Training[2].contents[id][type][Menu_Cursor_Y[cursor_id]] = 0;
         }
 
-        if (Interface_Type[Champion ^ 1] == 0 && id == 0 && type == 0 && Menu_Cursor_Y[cursor_id] == 0 &&
-            Training[2].contents[id][type][Menu_Cursor_Y[cursor_id]] == 4) {
+        if (is_disallowed_dummy_selection(id, type, cursor_id)) {
             Training[2].contents[id][type][Menu_Cursor_Y[cursor_id]] = 0;
         }
 
@@ -4496,8 +4506,7 @@ void Dummy_Move_Sub_LR(u16 sw, s16 id, s16 type, s16 cursor_id) {
         break;
 
     default:
-        if (Interface_Type[Champion ^ 1] == 0 && id == 0 && type == 0 && Menu_Cursor_Y[cursor_id] == 0 &&
-            Training[2].contents[id][type][Menu_Cursor_Y[cursor_id]] == 4) {
+        if (is_disallowed_dummy_selection(id, type, cursor_id)) {
             Training[2].contents[id][type][Menu_Cursor_Y[cursor_id]] = 0;
         }
 

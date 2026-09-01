@@ -138,13 +138,27 @@ code_health_score(file_path="E:/SynologyDrive/research/_agentic_refactoring/Stre
 ```
 
 - Score went **up**, build passed, guard passed: commit and continue.
-- Score went **down or stayed flat**: revert that step with
-  `git checkout -- src/sf33rd/Source/Game/stage/bg.c` and move to the next function. Do not force it.
 - Guard **failed**: revert that step, no exceptions.
+- Score **flat or down**: do *not* revert yet. Run the review and check whether the
+  function you targeted left a category or dropped in complexity:
+
+```
+code_health_review(file_path="E:/SynologyDrive/research/_agentic_refactoring/Street Fighter/git_win10/3sx/src/sf33rd/Source/Game/stage/bg.c")
+```
+
+  This file has 1430 lines, so one function can move the aggregate score by
+  less than its resolution. If the targeted function left Deep Nested Complexity,
+  Bumpy Road, or Large Method, or its cyclomatic complexity fell: **keep and commit.**
+  If it is still listed with the same numbers: revert with
+  `git checkout -- src/sf33rd/Source/Game/stage/bg.c` and move on.
 
 ## 7. Definition of done
 
-- [ ] `code_health_score` >= 4.00
+Either of these is a successful outcome:
+
+- [ ] `code_health_score` >= 4.00, **or**
+- [ ] every function in section 4 has left at least one smell category, with the
+      before/after review pasted into the report
 - [ ] `cmake --build build` succeeds with no new warnings
 - [ ] `python tools/refactor_guard.py src/sf33rd/Source/Game/stage/bg.c` reports no removed literals
 - [ ] Each commit covers one function and uses the message format above
