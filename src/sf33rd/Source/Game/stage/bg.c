@@ -55,6 +55,7 @@ static s32 remap_stage19_default_chip(s32 global_index_real);
 static void advance_stage19_flash_state();
 static void advance_stage19_loop_state();
 static s32 remap_ending_c_kakikae1_chip(s32 global_index_real);
+static s32 remap_ending_c_kakikae2_chip(s32 global_index_real);
 static void bgDrawOneScreen(s32 bgnum, s32 gixbase, s32* xx, s32* yy, s32 /* unused */, s32 ofsPal,
                             PPGDataList* curDataList);
 static void bgDrawOneChip(s32 x, s32 y, s32 xs, s32 ys, s32 gbix, u32 vtxCol, s32 ofsPal);
@@ -748,6 +749,24 @@ static s32 remap_ending_c_kakikae1_chip(s32 global_index_real) {
     return global_index_real;
 }
 
+static s32 remap_ending_c_kakikae2_chip(s32 global_index_real) {
+    s32 i;
+
+    for (i = 8; i < 16; i++) {
+        if (global_index_real == rw_dat[i].rwgbix) {
+            global_index_real = rw_dat[i].rwd_ptr[c_number];
+
+            if (!ppgCheckTextureNumber(0, global_index_real)) {
+                ppgSetupCurrentDataList(&ppgRwBgList);
+            }
+
+            break;
+        }
+    }
+
+    return global_index_real;
+}
+
 void scr_trans(u8 bgnm) {
     PPGDataList* curDataList;
     Vec3 point[2];
@@ -998,17 +1017,7 @@ void scr_trans(u8 bgnm) {
                         break;
 
                     case 2:
-                        for (i = 8; i < 16; i++) {
-                            if (global_index_real == rw_dat[i].rwgbix) {
-                                global_index_real = rw_dat[i].rwd_ptr[c_number];
-
-                                if (!ppgCheckTextureNumber(0, global_index_real)) {
-                                    ppgSetupCurrentDataList(&ppgRwBgList);
-                                }
-
-                                break;
-                            }
-                        }
+                        global_index_real = remap_ending_c_kakikae2_chip(global_index_real);
                     }
                 }
 
