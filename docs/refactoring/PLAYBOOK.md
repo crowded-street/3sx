@@ -221,12 +221,20 @@ python tools/refactor_guard.py <file>
 ```
 
 This extracts every numeric, string, and character literal from the file before and after
-your change and compares them. A **removed** literal fails the check - it means a constant
-was altered, or code carrying it was deleted. **Added** literals are only a warning; a new
-guard clause legitimately brings its own `return 0`.
+your change and compares the counts:
 
-Recipe D removes a duplicated block, so it trips this guard by design. That recipe needs
-human review before it lands.
+- **FAIL** - a value vanished from the file, or a count dropped while another rose. That
+  is a substituted constant (`30` became `31`) or deleted logic. Revert.
+- **WARN** - counts only dropped and every value is still present. That is what
+  deduplication looks like. Recipes **D** and **P** both produce it legitimately: pulling
+  a repeated condition into one named predicate removes copies of its literals without
+  changing any of them.
+- **WARN** - counts only rose. A new guard clause brings its own `return 0`.
+- **OK** - nothing changed.
+
+A `WARN` is not a pass mark, it is a request for a second look. The tool cannot tell
+deduplication apart from *deleting* one copy of a duplicated block, so a human confirms
+those before they land. `--strict` turns warnings into failures.
 
 Then re-measure with the CodeScene MCP server:
 

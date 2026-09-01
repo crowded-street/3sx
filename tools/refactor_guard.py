@@ -33,12 +33,15 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 
-# Order matters: strings and chars are consumed before numbers so that digits
-# inside a string are not mistaken for numeric literals.
+# Order matters. Strings and chars are consumed first so digits inside them are
+# not read as numbers. Identifiers are consumed next and discarded: this
+# codebase's type names (s8, u16, s32) end in digits, and without this the
+# scanner reports the "16" in `s16` as a numeric literal.
 TOKEN_RE = re.compile(
     r"""
       (?P<string>"(?:[^"\\\n]|\\.)*")
     | (?P<char>'(?:[^'\\\n]|\\.)*')
+    | (?P<ident>[A-Za-z_][A-Za-z_0-9]*)
     | (?P<number>
           0[xX][0-9a-fA-F]+[uUlL]*
         | 0[bB][01]+[uUlL]*
@@ -91,6 +94,8 @@ def literals(src: str) -> Counter:
             out["str " + m.group("string")] += 1
         elif m.group("char"):
             out["chr " + m.group("char")] += 1
+        elif m.group("ident"):
+            continue  # consumed so trailing digits are not read as literals
         else:
             out["num " + normalise_number(m.group("number"))] += 1
     return out
@@ -115,13 +120,23 @@ def changed_files(base: str) -> list[str]:
 def check(rel: str, base: str, strict: bool = False) -> bool:
     """Return True if the file is clean.
 
-    A *removed* literal is the dangerous signal: a constant was altered
-    (removal plus addition of the new value) or code carrying it was deleted.
-    That fails the check.
+    Three outcomes, by what the literal counts did:
 
-    A purely *added* literal is normally benign - a new guard clause brings its
-    own `return 0`, an extracted helper its own bounds check - so it is
-    reported as a warning. Use --strict to fail on those too.
+    FAIL - a value vanished from the file entirely, or a count dropped while a
+    brand-new value appeared. Both are the signature of an altered constant
+    (`30` becomes `31`) or of deleted logic.
+
+    WARN - counts dropped, but every value is still present somewhere and no
+    new value appeared. That is what deduplication looks like: extracting a
+    repeated condition into one named predicate removes copies of its literals
+    without changing any of them. Recipes D and P both do this legitimately.
+
+    WARN - counts only went up. A new guard clause brings its own `return 0`.
+
+    Use --strict to fail on warnings too.
+
+    The blind spot is deliberate: deleting one copy of a duplicated block looks
+    identical to deduplicating it. Recipe D therefore still needs human review.
     """
     before = git_show(base, rel)
     if before is None:
@@ -142,23 +157,40 @@ def check(rel: str, base: str, strict: bool = False) -> bool:
         print("OK    " + rel + "  (" + str(sum(a.values())) + " literals unchanged)")
         return True
 
-    if removed:
-        print("FAIL  " + rel + "  - a constant was removed or altered")
+    vanished = [lit for lit in removed if b[lit] == 0]
+
+    def dump():
         for lit, n in sorted(removed.items()):
-            print("        removed x" + str(n) + "  " + lit)
+            tag = "  <-- gone from the file entirely" if lit in vanished else ""
+            print("        removed x" + str(n) + "  " + lit + tag)
         for lit, n in sorted(added.items()):
-            print("        added   x" + str(n) + "  " + lit)
+            tag = "  <-- value is new to this file" if a[lit] == 0 else ""
+            print("        added   x" + str(n) + "  " + lit + tag)
+
+    # Deduplication only ever *decreases* counts. A decrease paired with any
+    # increase is a substitution - one constant swapped for another - which is
+    # the exact failure this tool exists to catch.
+    if removed and added:
+        print("FAIL  " + rel + "  - a constant was substituted")
+        dump()
         return False
 
-    # Additions only.
-    novel = [lit for lit in added if lit not in a]
-    label = "WARN " if not strict else "FAIL "
+    if vanished:
+        print("FAIL  " + rel + "  - a constant vanished from the file")
+        dump()
+        return False
+
+    if removed:
+        label = "FAIL " if strict else "WARN "
+        print(label + " " + rel + "  - copies removed, every value still present")
+        dump()
+        print("        looks like deduplication. Legal for Recipes D and P, but a")
+        print("        deleted duplicate block looks the same - have a human confirm.")
+        return not strict
+
+    label = "FAIL " if strict else "WARN "
     print(label + " " + rel + "  - literals added, none removed")
-    for lit, n in sorted(added.items()):
-        tag = "  <-- value is new to this file" if lit in novel else ""
-        print("        added   x" + str(n) + "  " + lit + tag)
-    if novel:
-        print("        review the new values above; the rest are already used elsewhere here")
+    dump()
     return not strict
 
 

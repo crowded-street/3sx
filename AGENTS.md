@@ -84,19 +84,26 @@ python tools/refactor_guard.py <the file you changed>
 #    code_health_score(file_path="<absolute path>")
 ```
 
-`refactor_guard.py` extracts every literal before and after your change and compares them.
-A **removed** literal fails: it means a constant was altered or code carrying it was
-deleted. Added literals are only warnings - a new guard clause legitimately brings its own
-`return 0`.
+`refactor_guard.py` extracts every literal before and after your change and compares the
+counts. It reports one of three things:
 
-If the guard fails, revert immediately:
+| Outcome | Meaning |
+| --- | --- |
+| `OK` | Nothing changed. |
+| `FAIL` | A value vanished from the file, or a count dropped while another rose. That is a substituted constant - `30` became `31` - or deleted logic. |
+| `WARN` | Counts only dropped, every value still present (deduplication); or counts only rose (a new guard clause bringing its own `return 0`). |
+
+If the guard **fails**, revert immediately:
 
 ```bash
 git checkout -- <file>
 ```
 
-Recipe D (deduplicate) removes a duplicated block and will therefore trip the guard by
-design. That recipe requires human review before it lands.
+A `WARN` is not a pass mark, it is a request for a second look. Extracting a repeated
+condition into one named predicate (Recipe P) and deduplicating (Recipe D) both remove
+copies of literals, and to this tool they are indistinguishable from *deleting* one copy
+of a duplicated block. Have a human confirm those before they land. `--strict` turns every
+warning into a failure.
 
 ## Commits
 
