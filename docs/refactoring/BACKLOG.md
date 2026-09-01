@@ -12,7 +12,7 @@ Outside the in-round simulation. Safe to refactor with compile verification only
 
 | Task | File | Score | LOC | Churn | Risk | Worst function |
 | --- | --- | --- | --- | --- | --- | --- |
-| [R04](tasks/R04-menu.md) | `Game/menu/menu.c` | **1.97** | 5365 | 58 | LOW | `Direction_Menu` (cc 27) |
+| [R04](tasks/R04-menu.md) | `Game/menu/menu.c` | **2.25** | 5374 | 58 | LOW | `Extra_Option` (cc 28) |
 | [R06](tasks/R06-mtrans.md) | `Game/rendering/mtrans.c` | **2.57** | 2224 | 10 | MEDIUM | `mlt_obj_trans_rgb_ext` (cc 22) |
 | [R10](tasks/R10-opening.md) | `Game/opening/opening.c` | **3.09** | 2997 | 17 | LOW | `TITLE_Move` (cc 11) |
 | [R11](tasks/R11-PPGFile.md) | `Common/PPGFile.c` | **3.49** | 1511 | 11 | MEDIUM | `ppgRenewDotDataSeqs` (cc -) |
@@ -42,33 +42,37 @@ gameplay or rollback determinism and the build will not catch it.
 
 ## Aggregate
 
-- **19 files**, 46,856 lines of code
+- **19 files**, 46,865 lines of code
 - **330** complex methods, **267** bumpy roads, **95** deeply-nested functions
-- Highest churn: `menu/menu.c` (58 commits) - and it scores 1.97
+- Highest churn: `menu/menu.c` (58 commits), which started the campaign at 1.97
 - Worst single function: `scr_trans` in `stage/bg.c` (cyclomatic 109, nesting 9)
 
 ## Progress
 
 Update as tasks land.
 
-| Task | Baseline | Current | Status |
-| --- | --- | --- | --- |
-| R01 | 1.42 | - | not started |
-| R02 | 1.52 | - | not started |
-| R03 | 1.82 | - | not started |
-| R04 | 1.97 | - | not started |
-| R05 | 2.31 | - | not started |
-| R06 | 2.57 | - | not started |
-| R07 | 2.58 | - | not started |
-| R08 | 2.64 | - | not started |
-| R09 | 2.74 | - | not started |
-| R10 | 3.09 | - | not started |
-| R11 | 3.49 | - | not started |
-| R12 | 3.56 | - | not started |
-| R13 | 3.56 | - | not started |
-| R14 | 3.62 | - | not started |
-| R15 | 3.68 | - | not started |
-| R16 | 3.75 | - | not started |
-| R17 | 3.86 | - | not started |
-| R18 | 3.92 | - | not started |
-| R19 | 3.92 | - | not started |
+The **Baseline** column is refreshed whenever these files are regenerated, so for a task
+already under way it shows the score at last regeneration, not the campaign's starting
+point. **Campaign start** preserves the original 2026-09-01 sweep.
+
+| Task | Campaign start | Baseline | Current | Status |
+| --- | --- | --- | --- | --- |
+| R01 | 1.42 | 1.42 | - | not started |
+| R02 | 1.52 | 1.52 | - | not started |
+| R03 | 1.82 | 1.82 | - | not started |
+| R04 | **1.97** | 2.25 | **2.25** | wave 1 of 3 done (PR #3) |
+| R05 | 2.31 | 2.31 | - | not started |
+| R06 | 2.57 | 2.57 | - | not started |
+| R07 | 2.58 | 2.58 | - | not started |
+| R08 | 2.64 | 2.64 | - | not started |
+| R09 | 2.74 | 2.74 | - | not started |
+| R10 | 3.09 | 3.09 | - | not started |
+| R11 | 3.49 | 3.49 | - | not started |
+| R12 | 3.56 | 3.56 | - | not started |
+| R13 | 3.56 | 3.56 | - | not started |
+| R14 | 3.62 | 3.62 | - | not started |
+| R15 | 3.68 | 3.68 | - | not started |
+| R16 | 3.75 | 3.75 | - | not started |
+| R17 | 3.86 | 3.86 | - | not started |
+| R18 | 3.92 | 3.92 | - | not started |
+| R19 | 3.92 | 3.92 | - | not started |

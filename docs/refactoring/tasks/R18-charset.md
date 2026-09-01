@@ -65,6 +65,9 @@ rather than editing both copies.
 | 4 | `comm_ps_y` | 784 | 11 | - | 2 |
 | 5 | `check_cgd_patdat2` | 2590 | 10 | - | 2 |
 | 6 | `comm_if_l` | 506 | - | - | 3 |
+| 7 | `setupCharTableData` | 103 | - | - | 2 |
+| 8 | `char_move_cmms3` | 340 | - | - | 2 |
+| 9 | `comm_sajp` | 1262 | - | - | 2 |
 
 Thresholds for C: cyclomatic complexity under 9, nesting depth under 4.
 
@@ -73,7 +76,17 @@ Thresholds for C: cyclomatic complexity under 9, nesting depth under 4.
 Work **one function at a time, in the order above**. After each function run the
 verification in section 6. Do not batch several functions into one change.
 
-### Step 1: `check_cgd_patdat` (line 2398)
+The 9 targets are grouped into **3 waves**. A wave is one sitting
+and one pull request: do its steps, re-measure, report, open the PR, stop. Pick the
+next wave up afterwards. Do not attempt every wave in one go - this file is
+2880 lines and the review gets stale underneath you as you change it.
+
+Re-run `code_health_review` at the start of each wave: line numbers below shift as
+earlier waves land.
+
+### Wave 1 - start here (one PR)
+
+#### Step 1: `check_cgd_patdat` (line 2398)
 
 - **Recipe G (guard clauses)** - nesting is 5, target is under 4.
 - **Recipe E (extract function)** - 7 nested blocks; each bump is a missing function.
@@ -81,33 +94,62 @@ verification in section 6. Do not batch several functions into one change.
 
 Commit message: `refactor(charset): simplify check_cgd_patdat`
 
-### Step 2: `comm_ssty` (line 1919)
+#### Step 2: `comm_ssty` (line 1919)
 
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(charset): simplify comm_ssty`
 
-### Step 3: `comm_sstx` (line 1804)
+#### Step 3: `comm_sstx` (line 1804)
 
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(charset): simplify comm_sstx`
 
-### Step 4: `comm_ps_y` (line 784)
+#### Step 4: `comm_ps_y` (line 784)
 
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(charset): simplify comm_ps_y`
 
-### Step 5: `check_cgd_patdat2` (line 2590)
+### Wave 2 (one PR)
+
+#### Step 5: `check_cgd_patdat2` (line 2590)
 
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(charset): simplify check_cgd_patdat2`
 
-### Final step: re-measure, then stop
+#### Step 6: `comm_if_l` (line 506)
 
-Once the score reaches 4.00, **stop**. Do not keep pushing for a higher number.
+- **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
+
+Commit message: `refactor(charset): simplify comm_if_l`
+
+#### Step 7: `setupCharTableData` (line 103)
+
+- **Recipe E (extract function)**.
+
+Commit message: `refactor(charset): simplify setupCharTableData`
+
+#### Step 8: `char_move_cmms3` (line 340)
+
+- **Recipe E (extract function)**.
+
+Commit message: `refactor(charset): simplify char_move_cmms3`
+
+### Wave 3 (one PR)
+
+#### Step 9: `comm_sajp` (line 1262)
+
+- **Recipe E (extract function)**.
+
+Commit message: `refactor(charset): simplify comm_sajp`
+
+### When to stop
+
+Stop at the end of your wave, even if you feel you could keep going. Also stop
+early if the score reaches 4.00.
 
 ## 6. Verification - run all three after EVERY step
 
@@ -177,10 +219,11 @@ Model-based projections, not guarantees.
 Reply with exactly this, filled in:
 
 ```
-Task: R18 (src/sf33rd/Source/Game/engine/charset.c)
+Task: R18 (src/sf33rd/Source/Game/engine/charset.c)  wave <n> of 3
 Baseline score: 3.92
 Final score:    <x.xx>
-Steps completed: <n> of 5
+Steps completed: <n> of 4 in this wave
+Smells cleared:  <function: which category it left, or 'none'>
 Steps reverted:  <n>   (list which, and why)
 Build: PASS / FAIL
 Commits: <sha list>

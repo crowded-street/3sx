@@ -64,6 +64,12 @@ Do not start by moving code between files - reduce function-level complexity fir
 | 4 | `Game_Manage_2_4` | 436 | 16 | - | - |
 | 5 | `Game_Manage_9th` | 1057 | 12 | - | - |
 | 6 | `Check_Break_Into_CPU` | 1755 | 10 | - | - |
+| 7 | `BGM_Control` | 1429 | 10 | - | - |
+| 8 | `Game_Manage_6th` | 707 | 10 | - | - |
+| 9 | `Game_Manage_4th` | 535 | 10 | - | - |
+| 10 | `Game_Manage_1st` | 168 | 10 | - | - |
+| 11 | `Setup_Final_Score` | 2395 | 9 | - | - |
+| 12 | `Game_Manage_12_3` | 2013 | 9 | - | - |
 
 Thresholds for C: cyclomatic complexity under 9, nesting depth under 4.
 
@@ -72,7 +78,17 @@ Thresholds for C: cyclomatic complexity under 9, nesting depth under 4.
 Work **one function at a time, in the order above**. After each function run the
 verification in section 6. Do not batch several functions into one change.
 
-### Step 1: `Game_Manage_12_4` (line 2054)
+The 12 targets are grouped into **3 waves**. A wave is one sitting
+and one pull request: do its steps, re-measure, report, open the PR, stop. Pick the
+next wave up afterwards. Do not attempt every wave in one go - this file is
+2518 lines and the review gets stale underneath you as you change it.
+
+Re-run `code_health_review` at the start of each wave: line numbers below shift as
+earlier waves land.
+
+### Wave 1 - start here (one PR)
+
+#### Step 1: `Game_Manage_12_4` (line 2054)
 
 - **Recipe G (guard clauses)** - nesting is 4, target is under 4.
 - **Recipe E (extract function)** - 5 nested blocks; each bump is a missing function.
@@ -80,35 +96,82 @@ verification in section 6. Do not batch several functions into one change.
 
 Commit message: `refactor(manage): simplify Game_Manage_12_4`
 
-### Step 2: `Wait_Seek_Time` (line 285)
+#### Step 2: `Wait_Seek_Time` (line 285)
 
 - **Recipe G (guard clauses)** - nesting is 4, target is under 4.
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(manage): simplify Wait_Seek_Time`
 
-### Step 3: `Game_Manage_12_8` (line 2231)
+#### Step 3: `Game_Manage_12_8` (line 2231)
 
 - **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(manage): simplify Game_Manage_12_8`
 
-### Step 4: `Game_Manage_2_4` (line 436)
+#### Step 4: `Game_Manage_2_4` (line 436)
 
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(manage): simplify Game_Manage_2_4`
 
-### Step 5: `Game_Manage_9th` (line 1057)
+### Wave 2 (one PR)
+
+#### Step 5: `Game_Manage_9th` (line 1057)
 
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(manage): simplify Game_Manage_9th`
 
-### Final step: re-measure, then stop
+#### Step 6: `Check_Break_Into_CPU` (line 1755)
 
-Once the score reaches 4.00, **stop**. Do not keep pushing for a higher number.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(manage): simplify Check_Break_Into_CPU`
+
+#### Step 7: `BGM_Control` (line 1429)
+
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(manage): simplify BGM_Control`
+
+#### Step 8: `Game_Manage_6th` (line 707)
+
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(manage): simplify Game_Manage_6th`
+
+### Wave 3 (one PR)
+
+#### Step 9: `Game_Manage_4th` (line 535)
+
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(manage): simplify Game_Manage_4th`
+
+#### Step 10: `Game_Manage_1st` (line 168)
+
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(manage): simplify Game_Manage_1st`
+
+#### Step 11: `Setup_Final_Score` (line 2395)
+
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(manage): simplify Setup_Final_Score`
+
+#### Step 12: `Game_Manage_12_3` (line 2013)
+
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(manage): simplify Game_Manage_12_3`
+
+### When to stop
+
+Stop at the end of your wave, even if you feel you could keep going. Also stop
+early if the score reaches 4.00.
 
 ## 6. Verification - run all three after EVERY step
 
@@ -178,10 +241,11 @@ Model-based projections, not guarantees.
 Reply with exactly this, filled in:
 
 ```
-Task: R19 (src/sf33rd/Source/Game/engine/manage.c)
+Task: R19 (src/sf33rd/Source/Game/engine/manage.c)  wave <n> of 3
 Baseline score: 3.92
 Final score:    <x.xx>
-Steps completed: <n> of 5
+Steps completed: <n> of 4 in this wave
+Smells cleared:  <function: which category it left, or 'none'>
 Steps reverted:  <n>   (list which, and why)
 Build: PASS / FAIL
 Commits: <sha list>

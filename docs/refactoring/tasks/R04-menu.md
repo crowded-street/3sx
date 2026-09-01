@@ -2,10 +2,10 @@
 
 | Field | Value |
 | --- | --- |
-| Baseline Code Health | **1.97** / 10 (Red) |
+| Baseline Code Health | **2.25** / 10 (Red) |
 | Exit target | **>= 4.00** (leaves the Red band) |
 | Stretch target | 5.15 (CodeScene industry-average scenario) |
-| File size | 5365 lines |
+| File size | 5374 lines |
 | Git churn | 58 commits |
 | Risk tier | **LOW** - Menu/UI flow; not part of in-round simulation. |
 | Track | **A** (start now) |
@@ -36,7 +36,7 @@ code_health_review(file_path="E:/SynologyDrive/research/_agentic_refactoring/Str
 code_health_score(file_path="E:/SynologyDrive/research/_agentic_refactoring/Street Fighter/git_win10/3sx/src/sf33rd/Source/Game/menu/menu.c")
 ```
 
-The score must read 1.97. If it does not, this file changed after the task
+The score must read 2.25. If it does not, this file changed after the task
 was written - stop and report that instead of proceeding.
 
 ## 3. What CodeScene flags here
@@ -45,15 +45,12 @@ was written - stop and report that instead of proceeding.
 | --- | --- |
 | Bumpy Road Ahead | 3 |
 | Deep, Nested Complexity | 3 |
-| Lines of Code in a Single File | 2 |
+| Number of Functions in a Single Module | 2 |
 | Overall Code Complexity | 2 |
 | Complex Method | 2 |
 | Complex Conditional | 2 |
 | Code Duplication | 2 |
 | Large Method | 2 |
-
-This file also trips **Lines of Code in a Single File**. Splitting it is a *later* step.
-Do not start by moving code between files - reduce function-level complexity first.
 
 **Code Duplication** is flagged. When two blocks are identical, extract one shared helper
 rather than editing both copies.
@@ -62,12 +59,18 @@ rather than editing both copies.
 
 | # | Function | Line | Cyclomatic | Nesting | Bumps |
 | --- | --- | --- | --- | --- | --- |
-| 1 | `Direction_Menu` | 897 | 27 | 5 | 4 |
-| 2 | `Extra_Option` | 5039 | 28 | 4 | 4 |
-| 3 | `Menu_Select` | 2635 | 19 | 5 | 2 |
-| 4 | `Normal_Training` | 4005 | 24 | 4 | 2 |
-| 5 | `Blocking_Training` | 4508 | 20 | 4 | 2 |
-| 6 | `toSelectGame` | 469 | 16 | 4 | 3 |
+| 1 | `Extra_Option` | 5048 | 28 | 4 | 4 |
+| 2 | `Direction_Menu` | 919 | 25 | 5 | 3 |
+| 3 | `Normal_Training` | 4012 | 24 | 4 | 2 |
+| 4 | `Blocking_Training` | 4517 | 20 | 4 | 2 |
+| 5 | `toSelectGame` | 469 | 16 | 4 | 3 |
+| 6 | `End_Replay_Menu` | 5292 | 13 | 4 | 2 |
+| 7 | `Mode_Select` | 285 | 29 | - | 4 |
+| 8 | `VS_Result` | 3060 | 26 | - | 5 |
+| 9 | `Character_Change` | 4764 | 9 | 4 | 2 |
+| 10 | `Ex_Move_Sub_LR` | 5205 | 23 | - | 3 |
+| 11 | `After_Replay` | 4854 | 25 | - | 2 |
+| 12 | `Dir_Move_Sub_LR` | 1133 | 15 | - | 5 |
 
 Thresholds for C: cyclomatic complexity under 9, nesting depth under 4.
 
@@ -76,15 +79,17 @@ Thresholds for C: cyclomatic complexity under 9, nesting depth under 4.
 Work **one function at a time, in the order above**. After each function run the
 verification in section 6. Do not batch several functions into one change.
 
-### Step 1: `Direction_Menu` (line 897)
+The 12 targets are grouped into **3 waves**. A wave is one sitting
+and one pull request: do its steps, re-measure, report, open the PR, stop. Pick the
+next wave up afterwards. Do not attempt every wave in one go - this file is
+5374 lines and the review gets stale underneath you as you change it.
 
-- **Recipe G (guard clauses)** - nesting is 5, target is under 4.
-- **Recipe E (extract function)** - 4 nested blocks; each bump is a missing function.
-- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+Re-run `code_health_review` at the start of each wave: line numbers below shift as
+earlier waves land.
 
-Commit message: `refactor(menu): simplify Direction_Menu`
+### Wave 1 - start here (one PR)
 
-### Step 2: `Extra_Option` (line 5039)
+#### Step 1: `Extra_Option` (line 5048)
 
 - **Recipe G (guard clauses)** - nesting is 4, target is under 4.
 - **Recipe E (extract function)** - 4 nested blocks; each bump is a missing function.
@@ -92,30 +97,92 @@ Commit message: `refactor(menu): simplify Direction_Menu`
 
 Commit message: `refactor(menu): simplify Extra_Option`
 
-### Step 3: `Menu_Select` (line 2635)
+#### Step 2: `Direction_Menu` (line 919)
 
 - **Recipe G (guard clauses)** - nesting is 5, target is under 4.
+- **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
-Commit message: `refactor(menu): simplify Menu_Select`
+Commit message: `refactor(menu): simplify Direction_Menu`
 
-### Step 4: `Normal_Training` (line 4005)
+#### Step 3: `Normal_Training` (line 4012)
 
 - **Recipe G (guard clauses)** - nesting is 4, target is under 4.
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(menu): simplify Normal_Training`
 
-### Step 5: `Blocking_Training` (line 4508)
+#### Step 4: `Blocking_Training` (line 4517)
 
 - **Recipe G (guard clauses)** - nesting is 4, target is under 4.
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(menu): simplify Blocking_Training`
 
-### Final step: re-measure, then stop
+### Wave 2 (one PR)
 
-Once the score reaches 4.00, **stop**. Do not keep pushing for a higher number.
+#### Step 5: `toSelectGame` (line 469)
+
+- **Recipe G (guard clauses)** - nesting is 4, target is under 4.
+- **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(menu): simplify toSelectGame`
+
+#### Step 6: `End_Replay_Menu` (line 5292)
+
+- **Recipe G (guard clauses)** - nesting is 4, target is under 4.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(menu): simplify End_Replay_Menu`
+
+#### Step 7: `Mode_Select` (line 285)
+
+- **Recipe E (extract function)** - 4 nested blocks; each bump is a missing function.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(menu): simplify Mode_Select`
+
+#### Step 8: `VS_Result` (line 3060)
+
+- **Recipe E (extract function)** - 5 nested blocks; each bump is a missing function.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(menu): simplify VS_Result`
+
+### Wave 3 (one PR)
+
+#### Step 9: `Character_Change` (line 4764)
+
+- **Recipe G (guard clauses)** - nesting is 4, target is under 4.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(menu): simplify Character_Change`
+
+#### Step 10: `Ex_Move_Sub_LR` (line 5205)
+
+- **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(menu): simplify Ex_Move_Sub_LR`
+
+#### Step 11: `After_Replay` (line 4854)
+
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(menu): simplify After_Replay`
+
+#### Step 12: `Dir_Move_Sub_LR` (line 1133)
+
+- **Recipe E (extract function)** - 5 nested blocks; each bump is a missing function.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(menu): simplify Dir_Move_Sub_LR`
+
+### When to stop
+
+Stop at the end of your wave, even if you feel you could keep going. Also stop
+early if the score reaches 4.00.
 
 ## 6. Verification - run all three after EVERY step
 
@@ -151,7 +218,7 @@ code_health_score(file_path="E:/SynologyDrive/research/_agentic_refactoring/Stre
 code_health_review(file_path="E:/SynologyDrive/research/_agentic_refactoring/Street Fighter/git_win10/3sx/src/sf33rd/Source/Game/menu/menu.c")
 ```
 
-  This file has 5365 lines, so one function can move the aggregate score by
+  This file has 5374 lines, so one function can move the aggregate score by
   less than its resolution. If the targeted function left Deep Nested Complexity,
   Bumpy Road, or Large Method, or its cyclomatic complexity fell: **keep and commit.**
   If it is still listed with the same numbers: revert with
@@ -174,8 +241,8 @@ Either of these is a successful outcome:
 
 CodeScene projects that lifting this file to 5.15 yields, as a 90% confidence interval:
 
-- **40% to 66%** fewer defects
-- **6% to 29%** less development time
+- **35% to 62%** fewer defects
+- **5% to 27%** less development time
 
 Model-based projections, not guarantees.
 
@@ -184,10 +251,11 @@ Model-based projections, not guarantees.
 Reply with exactly this, filled in:
 
 ```
-Task: R04 (src/sf33rd/Source/Game/menu/menu.c)
-Baseline score: 1.97
+Task: R04 (src/sf33rd/Source/Game/menu/menu.c)  wave <n> of 3
+Baseline score: 2.25
 Final score:    <x.xx>
-Steps completed: <n> of 5
+Steps completed: <n> of 4 in this wave
+Smells cleared:  <function: which category it left, or 'none'>
 Steps reverted:  <n>   (list which, and why)
 Build: PASS / FAIL
 Commits: <sha list>

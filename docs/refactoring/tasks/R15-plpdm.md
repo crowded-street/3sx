@@ -76,40 +76,46 @@ Thresholds for C: cyclomatic complexity under 9, nesting depth under 4.
 Work **one function at a time, in the order above**. After each function run the
 verification in section 6. Do not batch several functions into one change.
 
-### Step 1: `subtract_dm_vital` (line 1442)
+#### Step 1: `subtract_dm_vital` (line 1442)
 
 - **Recipe E (extract function)** - 4 nested blocks; each bump is a missing function.
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(plpdm): simplify subtract_dm_vital`
 
-### Step 2: `subtract_dm_vital_aiuchi` (line 1520)
+#### Step 2: `subtract_dm_vital_aiuchi` (line 1520)
 
 - **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(plpdm): simplify subtract_dm_vital_aiuchi`
 
-### Step 3: `get_damage_reaction_data` (line 1581)
+#### Step 3: `get_damage_reaction_data` (line 1581)
 
 - **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(plpdm): simplify get_damage_reaction_data`
 
-### Step 4: `setup_smoke_type` (line 1308)
+#### Step 4: `setup_smoke_type` (line 1308)
 
 - **Recipe G (guard clauses)** - nesting is 4, target is under 4.
 
 Commit message: `refactor(plpdm): simplify setup_smoke_type`
 
-### Step 5: `set_dm_hos_flag_sky` (line 1360)
+#### Step 5: `set_dm_hos_flag_sky` (line 1360)
 
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(plpdm): simplify set_dm_hos_flag_sky`
 
-### Final step: re-measure, then stop
+#### Step 6: `remake_initial_speeds` (line 423)
+
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(plpdm): simplify remake_initial_speeds`
+
+### When to stop
 
 Once the score reaches 4.00, **stop**. Do not keep pushing for a higher number.
 
@@ -184,7 +190,8 @@ Reply with exactly this, filled in:
 Task: R15 (src/sf33rd/Source/Game/engine/plpdm.c)
 Baseline score: 3.68
 Final score:    <x.xx>
-Steps completed: <n> of 5
+Steps completed: <n> of 6 in this wave
+Smells cleared:  <function: which category it left, or 'none'>
 Steps reverted:  <n>   (list which, and why)
 Build: PASS / FAIL
 Commits: <sha list>

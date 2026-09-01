@@ -75,7 +75,7 @@ Thresholds for C: cyclomatic complexity under 9, nesting depth under 4.
 Work **one function at a time, in the order above**. After each function run the
 verification in section 6. Do not batch several functions into one change.
 
-### Step 1: `Entry_Main_Sub` (line 724)
+#### Step 1: `Entry_Main_Sub` (line 724)
 
 - **Recipe G (guard clauses)** - nesting is 5, target is under 4.
 - **Recipe E (extract function)** - 7 nested blocks; each bump is a missing function.
@@ -83,7 +83,7 @@ verification in section 6. Do not batch several functions into one change.
 
 Commit message: `refactor(entry): simplify Entry_Main_Sub`
 
-### Step 2: `Flash_Start` (line 1146)
+#### Step 2: `Flash_Start` (line 1146)
 
 - **Recipe G (guard clauses)** - nesting is 4, target is under 4.
 - **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
@@ -91,7 +91,7 @@ Commit message: `refactor(entry): simplify Entry_Main_Sub`
 
 Commit message: `refactor(entry): simplify Flash_Start`
 
-### Step 3: `Entry_10_2nd` (line 663)
+#### Step 3: `Entry_10_2nd` (line 663)
 
 - **Recipe G (guard clauses)** - nesting is 4, target is under 4.
 - **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
@@ -99,7 +99,7 @@ Commit message: `refactor(entry): simplify Flash_Start`
 
 Commit message: `refactor(entry): simplify Entry_10_2nd`
 
-### Step 4: `Entry_08_2nd` (line 552)
+#### Step 4: `Entry_08_2nd` (line 552)
 
 - **Recipe G (guard clauses)** - nesting is 4, target is under 4.
 - **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
@@ -107,7 +107,7 @@ Commit message: `refactor(entry): simplify Entry_10_2nd`
 
 Commit message: `refactor(entry): simplify Entry_08_2nd`
 
-### Step 5: `Entry_07_2nd` (line 472)
+#### Step 5: `Entry_07_2nd` (line 472)
 
 - **Recipe G (guard clauses)** - nesting is 4, target is under 4.
 - **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
@@ -115,7 +115,14 @@ Commit message: `refactor(entry): simplify Entry_08_2nd`
 
 Commit message: `refactor(entry): simplify Entry_07_2nd`
 
-### Final step: re-measure, then stop
+#### Step 6: `Entry_06_2nd` (line 385)
+
+- **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(entry): simplify Entry_06_2nd`
+
+### When to stop
 
 Once the score reaches 4.00, **stop**. Do not keep pushing for a higher number.
 
@@ -189,7 +196,8 @@ Reply with exactly this, filled in:
 Task: R17 (src/sf33rd/Source/Game/screen/entry.c)
 Baseline score: 3.86
 Final score:    <x.xx>
-Steps completed: <n> of 5
+Steps completed: <n> of 6 in this wave
+Smells cleared:  <function: which category it left, or 'none'>
 Steps reverted:  <n>   (list which, and why)
 Build: PASS / FAIL
 Commits: <sha list>

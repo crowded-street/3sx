@@ -73,40 +73,46 @@ Thresholds for C: cyclomatic complexity under 9, nesting depth under 4.
 Work **one function at a time, in the order above**. After each function run the
 verification in section 6. Do not batch several functions into one change.
 
-### Step 1: `ppgRenewDotDataSeqs` (line 749)
+#### Step 1: `ppgRenewDotDataSeqs` (line 749)
 
 - **Recipe G (guard clauses)** - nesting is 5, target is under 4.
 - **Recipe E (extract function)** - 7 nested blocks; each bump is a missing function.
 
 Commit message: `refactor(PPGFile): simplify ppgRenewDotDataSeqs`
 
-### Step 2: `ppgWriteQuadUseTrans` (line 239)
+#### Step 2: `ppgWriteQuadUseTrans` (line 239)
 
 - **Recipe G (guard clauses)** - nesting is 5, target is under 4.
 - **Recipe E (extract function)** - 6 nested blocks; each bump is a missing function.
 
 Commit message: `refactor(PPGFile): simplify ppgWriteQuadUseTrans`
 
-### Step 3: `ppgSetupPalChunk` (line 484)
+#### Step 3: `ppgSetupPalChunk` (line 484)
 
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(PPGFile): simplify ppgSetupPalChunk`
 
-### Step 4: `ppgSetupPalChunkDir` (line 592)
+#### Step 4: `ppgSetupPalChunkDir` (line 592)
 
 - **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(PPGFile): simplify ppgSetupPalChunkDir`
 
-### Step 5: `ppgSetupTexChunk_1st` (line 922)
+#### Step 5: `ppgSetupTexChunk_1st` (line 922)
 
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(PPGFile): simplify ppgSetupTexChunk_1st`
 
-### Final step: re-measure, then stop
+#### Step 6: `ppgReleaseTextureHandle` (line 1326)
+
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(PPGFile): simplify ppgReleaseTextureHandle`
+
+### When to stop
 
 Once the score reaches 4.00, **stop**. Do not keep pushing for a higher number.
 
@@ -180,7 +186,8 @@ Reply with exactly this, filled in:
 Task: R11 (src/sf33rd/Source/Common/PPGFile.c)
 Baseline score: 3.49
 Final score:    <x.xx>
-Steps completed: <n> of 5
+Steps completed: <n> of 6 in this wave
+Smells cleared:  <function: which category it left, or 'none'>
 Steps reverted:  <n>   (list which, and why)
 Build: PASS / FAIL
 Commits: <sha list>
