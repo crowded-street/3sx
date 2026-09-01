@@ -4457,6 +4457,11 @@ static void apply_training_hitbox_display(bool force_off) {
     }
 }
 
+static bool is_disallowed_dummy_selection(s16 id, s16 type, s16 cursor_id) {
+    return Interface_Type[Champion ^ 1] == 0 && id == 0 && type == 0 && Menu_Cursor_Y[cursor_id] == 0 &&
+           Training[2].contents[id][type][Menu_Cursor_Y[cursor_id]] == 4;
+}
+
 void Dummy_Move_Sub_LR(u16 sw, s16 id, s16 type, s16 cursor_id) {
     s16 max = Menu_Max_Data_Tr[id][type][Menu_Cursor_Y[cursor_id]];
 
@@ -4472,8 +4477,7 @@ void Dummy_Move_Sub_LR(u16 sw, s16 id, s16 type, s16 cursor_id) {
             Training[2].contents[id][type][Menu_Cursor_Y[cursor_id]] = max;
         }
 
-        if (Interface_Type[Champion ^ 1] == 0 && id == 0 && type == 0 && Menu_Cursor_Y[cursor_id] == 0 &&
-            Training[2].contents[id][type][Menu_Cursor_Y[cursor_id]] == 4) {
+        if (is_disallowed_dummy_selection(id, type, cursor_id)) {
             Training[2].contents[id][type][Menu_Cursor_Y[cursor_id]] = 3;
         }
 
@@ -4487,8 +4491,7 @@ void Dummy_Move_Sub_LR(u16 sw, s16 id, s16 type, s16 cursor_id) {
             Training[2].contents[id][type][Menu_Cursor_Y[cursor_id]] = 0;
         }
 
-        if (Interface_Type[Champion ^ 1] == 0 && id == 0 && type == 0 && Menu_Cursor_Y[cursor_id] == 0 &&
-            Training[2].contents[id][type][Menu_Cursor_Y[cursor_id]] == 4) {
+        if (is_disallowed_dummy_selection(id, type, cursor_id)) {
             Training[2].contents[id][type][Menu_Cursor_Y[cursor_id]] = 0;
         }
 
@@ -4496,8 +4499,7 @@ void Dummy_Move_Sub_LR(u16 sw, s16 id, s16 type, s16 cursor_id) {
         break;
 
     default:
-        if (Interface_Type[Champion ^ 1] == 0 && id == 0 && type == 0 && Menu_Cursor_Y[cursor_id] == 0 &&
-            Training[2].contents[id][type][Menu_Cursor_Y[cursor_id]] == 4) {
+        if (is_disallowed_dummy_selection(id, type, cursor_id)) {
             Training[2].contents[id][type][Menu_Cursor_Y[cursor_id]] = 0;
         }
 
