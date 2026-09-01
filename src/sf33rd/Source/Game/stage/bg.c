@@ -51,6 +51,7 @@ static void select_bg_list_for_reindexed_chip(s32 global_index_real);
 static s32 remap_stage03_player_chip(s32 global_index_real);
 static void advance_stage03_flash_state();
 static void advance_stage03_player_rw_state();
+static s32 remap_stage19_default_chip(s32 global_index_real);
 static void bgDrawOneScreen(s32 bgnum, s32 gixbase, s32* xx, s32* yy, s32 /* unused */, s32 ofsPal,
                             PPGDataList* curDataList);
 static void bgDrawOneChip(s32 x, s32 y, s32 xs, s32 ys, s32 gbix, u32 vtxCol, s32 ofsPal);
@@ -643,6 +644,24 @@ static void advance_stage03_player_rw_state() {
     }
 }
 
+static s32 remap_stage19_default_chip(s32 global_index_real) {
+    s32 i;
+
+    for (i = 0; i < 4; i++) {
+        if (global_index_real == rw_gbix[i]) {
+            global_index_real = *(rw_dat[0].rwd_ptr + i + 1);
+
+            if (!ppgCheckTextureNumber(0, global_index_real)) {
+                ppgSetupCurrentDataList(&ppgRwBgList);
+            }
+
+            break;
+        }
+    }
+
+    return global_index_real;
+}
+
 void scr_trans(u8 bgnm) {
     PPGDataList* curDataList;
     Vec3 point[2];
@@ -815,17 +834,7 @@ void scr_trans(u8 bgnm) {
                             ppgSetupCurrentDataList(&ppgRwBgList);
                         }
                     } else {
-                        for (i = 0; i < 4; i++) {
-                            if (global_index_real == rw_gbix[i]) {
-                                global_index_real = *(rw_dat[0].rwd_ptr + i + 1);
-
-                                if (!ppgCheckTextureNumber(0, global_index_real)) {
-                                    ppgSetupCurrentDataList(&ppgRwBgList);
-                                }
-
-                                break;
-                            }
-                        }
+                        global_index_real = remap_stage19_default_chip(global_index_real);
                     }
                 }
 
