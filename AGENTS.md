@@ -105,6 +105,40 @@ design. That recipe requires human review before it lands.
 - Never squash several functions into one commit. The campaign relies on being able to
   revert a single step.
 
+## Git remotes and pull requests
+
+This checkout is a **fork**, and the two remotes are easy to confuse:
+
+| Remote | Repository | Use |
+| --- | --- | --- |
+| `origin` | `mrksbrg/3sx` | **This is the target for everything.** |
+| `upstream` | `crowded-street/3sx` | The public project. Read-only, as far as agents are concerned. |
+
+> [!WARNING]
+> **Every pull request must target `mrksbrg/3sx`, base `main`.**
+> Never open one against `crowded-street/3sx`.
+
+This is not a hypothetical mistake. GitHub's "Compare & pull request" button and
+`gh pr create` both default the base to the **upstream parent** when the repo is a fork,
+so the wrong target is the *default* and it has already happened once. Always name the
+target explicitly:
+
+```bash
+gh pr create --repo mrksbrg/3sx --base main
+```
+
+Or set it once per clone, after which the default is safe:
+
+```bash
+gh repo set-default mrksbrg/3sx
+```
+
+Also: **never `git push upstream`.** That remote has a push URL configured, so the push
+would succeed rather than fail safely.
+
+This work is private refactoring research. It is not intended for the public project
+unless the maintainer decides otherwise.
+
 ## When to stop
 
 Stop and report, rather than pressing on, whenever:
