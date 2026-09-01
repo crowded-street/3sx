@@ -667,43 +667,48 @@ static s32 remap_stage19_default_chip(s32 global_index_real) {
 static void advance_stage19_flash_state() {
     rw_dat[0].rw_cnt--;
 
-    if (rw_dat[0].rw_cnt == 0) {
-        rw_dat[0].rwd_ptr += 5;
+    if (rw_dat[0].rw_cnt != 0) {
+        return;
+    }
+
+    rw_dat[0].rwd_ptr += 5;
+    rw_dat[0].rw_cnt = rw_dat[0].rwd_ptr[0];
+
+    if (rw_dat[0].rw_cnt != -1) {
+        return;
+    }
+
+    stage_ftimer--;
+
+    if (stage_ftimer != 0) {
+        rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr;
         rw_dat[0].rw_cnt = rw_dat[0].rwd_ptr[0];
+        return;
+    }
 
-        if (rw_dat[0].rw_cnt == -1) {
-            stage_ftimer--;
+    stage_flash = random_16_bg();
+    stage_ftimer = random_16_bg();
 
-            if (stage_ftimer == 0) {
-                stage_flash = random_16_bg();
-                stage_ftimer = random_16_bg();
+    switch (stage_flash) {
+    case 0:
+    case 1:
+        rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr = rw191;
+        rw_dat[0].rw_cnt = 1;
+        stage_ftimer = stage19_loop_tbl2[stage_ftimer];
+        break;
 
-                switch (stage_flash) {
-                case 0:
-                case 1:
-                    rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr = rw191;
-                    rw_dat[0].rw_cnt = 1;
-                    stage_ftimer = stage19_loop_tbl2[stage_ftimer];
-                    break;
+    case 2:
+    case 3:
+        rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr = rw192;
+        rw_dat[0].rw_cnt = 1;
+        stage_ftimer = stage19_loop_tbl2[stage_ftimer];
+        break;
 
-                case 2:
-                case 3:
-                    rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr = rw192;
-                    rw_dat[0].rw_cnt = 1;
-                    stage_ftimer = stage19_loop_tbl2[stage_ftimer];
-                    break;
-
-                default:
-                    rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr = rw190;
-                    rw_dat[0].rw_cnt = 2;
-                    stage_ftimer = stage19_loop_tbl1[stage_ftimer];
-                    break;
-                }
-            } else {
-                rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr;
-                rw_dat[0].rw_cnt = rw_dat[0].rwd_ptr[0];
-            }
-        }
+    default:
+        rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr = rw190;
+        rw_dat[0].rw_cnt = 2;
+        stage_ftimer = stage19_loop_tbl1[stage_ftimer];
+        break;
     }
 }
 
