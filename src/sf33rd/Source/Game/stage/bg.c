@@ -47,6 +47,7 @@ BG bg_w;
 RW_DATA rw_dat[20];
 
 static void bgRWWorkUpdate();
+static void select_bg_list_for_reindexed_chip(s32 global_index_real);
 static void bgDrawOneScreen(s32 bgnum, s32 gixbase, s32* xx, s32* yy, s32 /* unused */, s32 ofsPal,
                             PPGDataList* curDataList);
 static void bgDrawOneChip(s32 x, s32 y, s32 xs, s32 ys, s32 gbix, u32 vtxCol, s32 ofsPal);
@@ -539,6 +540,16 @@ void Bg_Texture_Load_Ending(s16 type) {
     ppgSourceDataReleased(&ppgAkeList);
 }
 
+static void select_bg_list_for_reindexed_chip(s32 global_index_real) {
+    if (ppgCheckTextureNumber(0, global_index_real) == 0) {
+        if (ppgCheckTextureNumber(&ppgRwBgTex, global_index_real)) {
+            ppgSetupCurrentDataList(&ppgRwBgList);
+        } else {
+            ppgSetupCurrentDataList(&ppgAkeList);
+        }
+    }
+}
+
 void scr_trans(u8 bgnm) {
     PPGDataList* curDataList;
     Vec3 point[2];
@@ -879,15 +890,7 @@ void scr_trans(u8 bgnm) {
                     for (i = 0; i < 16; i++) {
                         if (gouki_end_gbix[i] == global_index_real) {
                             global_index_real = gouki_end_nosekae[nosekae - 1][i];
-
-                            if (ppgCheckTextureNumber(0, global_index_real) == 0) {
-                                if (ppgCheckTextureNumber(&ppgRwBgTex, global_index_real)) {
-                                    ppgSetupCurrentDataList(&ppgRwBgList);
-                                } else {
-                                    ppgSetupCurrentDataList(&ppgAkeList);
-                                }
-                            }
-
+                            select_bg_list_for_reindexed_chip(global_index_real);
                             break;
                         }
                     }
@@ -898,15 +901,7 @@ void scr_trans(u8 bgnm) {
                         for (i = 0; i < 12; i++) {
                             if (global_index_real == rw_dat[i].rwgbix) {
                                 global_index_real = rw_dat[i].rwd_ptr[g_number[0]];
-
-                                if (ppgCheckTextureNumber(0, global_index_real) == 0) {
-                                    if (ppgCheckTextureNumber(&ppgRwBgTex, global_index_real)) {
-                                        ppgSetupCurrentDataList(&ppgRwBgList);
-                                    } else {
-                                        ppgSetupCurrentDataList(&ppgAkeList);
-                                    }
-                                }
-
+                                select_bg_list_for_reindexed_chip(global_index_real);
                                 break;
                             }
                         }
@@ -916,15 +911,7 @@ void scr_trans(u8 bgnm) {
                         for (i = 12; i < 20; i++) {
                             if (global_index_real == rw_dat[i].rwgbix) {
                                 global_index_real = rw_dat[i].rwd_ptr[g_number[1]];
-
-                                if (!ppgCheckTextureNumber(0, global_index_real)) {
-                                    if (ppgCheckTextureNumber(&ppgRwBgTex, global_index_real)) {
-                                        ppgSetupCurrentDataList(&ppgRwBgList);
-                                    } else {
-                                        ppgSetupCurrentDataList(&ppgAkeList);
-                                    }
-                                }
-
+                                select_bg_list_for_reindexed_chip(global_index_real);
                                 break;
                             }
                         }
