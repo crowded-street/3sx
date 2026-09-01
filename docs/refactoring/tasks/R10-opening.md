@@ -67,6 +67,12 @@ rather than editing both copies.
 | 4 | `op_107_move` | 948 | 26 | - | - |
 | 5 | `op_103_move` | 612 | 26 | - | - |
 | 6 | `op_112_move` | 1515 | 20 | - | - |
+| 7 | `op_bg0_0004` | 2238 | 12 | - | 2 |
+| 8 | `op_104_move` | 771 | 17 | - | - |
+| 9 | `opening_demo` | 67 | 10 | - | 2 |
+| 10 | `op_114_move` | 1710 | 14 | - | - |
+| 11 | `op_110_move` | 1369 | 14 | - | - |
+| 12 | `op_111_move` | 1451 | 12 | - | - |
 
 Thresholds for C: cyclomatic complexity under 9, nesting depth under 4.
 
@@ -75,40 +81,97 @@ Thresholds for C: cyclomatic complexity under 9, nesting depth under 4.
 Work **one function at a time, in the order above**. After each function run the
 verification in section 6. Do not batch several functions into one change.
 
-### Step 1: `TITLE_Move` (line 142)
+The 12 targets are grouped into **3 waves**. A wave is one sitting
+and one pull request: do its steps, re-measure, report, open the PR, stop. Pick the
+next wave up afterwards. Do not attempt every wave in one go - this file is
+2997 lines and the review gets stale underneath you as you change it.
+
+Re-run `code_health_review` at the start of each wave: line numbers below shift as
+earlier waves land.
+
+### Wave 1 - start here (one PR)
+
+#### Step 1: `TITLE_Move` (line 142)
 
 - **Recipe G (guard clauses)** - nesting is 4, target is under 4.
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(opening): simplify TITLE_Move`
 
-### Step 2: `op_bg0_0001` (line 1979)
+#### Step 2: `op_bg0_0001` (line 1979)
 
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(opening): simplify op_bg0_0001`
 
-### Step 3: `op_108_move` (line 1106)
+#### Step 3: `op_108_move` (line 1106)
 
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(opening): simplify op_108_move`
 
-### Step 4: `op_107_move` (line 948)
+#### Step 4: `op_107_move` (line 948)
 
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(opening): simplify op_107_move`
 
-### Step 5: `op_103_move` (line 612)
+### Wave 2 (one PR)
+
+#### Step 5: `op_103_move` (line 612)
 
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(opening): simplify op_103_move`
 
-### Final step: re-measure, then stop
+#### Step 6: `op_112_move` (line 1515)
 
-Once the score reaches 4.00, **stop**. Do not keep pushing for a higher number.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(opening): simplify op_112_move`
+
+#### Step 7: `op_bg0_0004` (line 2238)
+
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(opening): simplify op_bg0_0004`
+
+#### Step 8: `op_104_move` (line 771)
+
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(opening): simplify op_104_move`
+
+### Wave 3 (one PR)
+
+#### Step 9: `opening_demo` (line 67)
+
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(opening): simplify opening_demo`
+
+#### Step 10: `op_114_move` (line 1710)
+
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(opening): simplify op_114_move`
+
+#### Step 11: `op_110_move` (line 1369)
+
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(opening): simplify op_110_move`
+
+#### Step 12: `op_111_move` (line 1451)
+
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(opening): simplify op_111_move`
+
+### When to stop
+
+Stop at the end of your wave, even if you feel you could keep going. Also stop
+early if the score reaches 4.00.
 
 ## 6. Verification - run all three after EVERY step
 
@@ -177,10 +240,11 @@ Model-based projections, not guarantees.
 Reply with exactly this, filled in:
 
 ```
-Task: R10 (src/sf33rd/Source/Game/opening/opening.c)
+Task: R10 (src/sf33rd/Source/Game/opening/opening.c)  wave <n> of 3
 Baseline score: 3.09
 Final score:    <x.xx>
-Steps completed: <n> of 5
+Steps completed: <n> of 4 in this wave
+Smells cleared:  <function: which category it left, or 'none'>
 Steps reverted:  <n>   (list which, and why)
 Build: PASS / FAIL
 Commits: <sha list>

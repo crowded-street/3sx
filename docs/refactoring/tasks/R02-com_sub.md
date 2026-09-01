@@ -66,6 +66,12 @@ rather than editing both copies.
 | 4 | `ORO_HJA_Term` | 2625 | 38 | - | 6 |
 | 5 | `Check_Shell` | 5086 | 17 | 4 | 3 |
 | 6 | `EM_Term` | 1511 | 13 | 4 | 4 |
+| 7 | `Hi_Jump_Attack_Term` | 2278 | 39 | - | 3 |
+| 8 | `ORO_JA_Term` | 2487 | 35 | - | 4 |
+| 9 | `Rapid_Sub` | 3136 | 16 | 4 | 2 |
+| 10 | `Check_Dash_Hit` | 3785 | 13 | 4 | 3 |
+| 11 | `Check_VS_Air_Attack` | 2100 | 15 | 4 | 2 |
+| 12 | `ORO_JCA_Term` | 3267 | 32 | - | 4 |
 
 Thresholds for C: cyclomatic complexity under 9, nesting depth under 4.
 
@@ -74,7 +80,17 @@ Thresholds for C: cyclomatic complexity under 9, nesting depth under 4.
 Work **one function at a time, in the order above**. After each function run the
 verification in section 6. Do not batch several functions into one change.
 
-### Step 1: `Reaction_Sub` (line 4291)
+The 12 targets are grouped into **3 waves**. A wave is one sitting
+and one pull request: do its steps, re-measure, report, open the PR, stop. Pick the
+next wave up afterwards. Do not attempt every wave in one go - this file is
+5799 lines and the review gets stale underneath you as you change it.
+
+Re-run `code_health_review` at the start of each wave: line numbers below shift as
+earlier waves land.
+
+### Wave 1 - start here (one PR)
+
+#### Step 1: `Reaction_Sub` (line 4291)
 
 - **Recipe G (guard clauses)** - nesting is 4, target is under 4.
 - **Recipe E (extract function)** - 4 nested blocks; each bump is a missing function.
@@ -82,7 +98,7 @@ verification in section 6. Do not batch several functions into one change.
 
 Commit message: `refactor(com_sub): simplify Reaction_Sub`
 
-### Step 2: `Check_Exit_DENJIN` (line 337)
+#### Step 2: `Check_Exit_DENJIN` (line 337)
 
 - **Recipe G (guard clauses)** - nesting is 4, target is under 4.
 - **Recipe E (extract function)** - 7 nested blocks; each bump is a missing function.
@@ -90,7 +106,7 @@ Commit message: `refactor(com_sub): simplify Reaction_Sub`
 
 Commit message: `refactor(com_sub): simplify Check_Exit_DENJIN`
 
-### Step 3: `Command_Type_00` (line 3881)
+#### Step 3: `Command_Type_00` (line 3881)
 
 - **Recipe G (guard clauses)** - nesting is 4, target is under 4.
 - **Recipe E (extract function)** - 5 nested blocks; each bump is a missing function.
@@ -98,14 +114,16 @@ Commit message: `refactor(com_sub): simplify Check_Exit_DENJIN`
 
 Commit message: `refactor(com_sub): simplify Command_Type_00`
 
-### Step 4: `ORO_HJA_Term` (line 2625)
+#### Step 4: `ORO_HJA_Term` (line 2625)
 
 - **Recipe E (extract function)** - 6 nested blocks; each bump is a missing function.
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(com_sub): simplify ORO_HJA_Term`
 
-### Step 5: `Check_Shell` (line 5086)
+### Wave 2 (one PR)
+
+#### Step 5: `Check_Shell` (line 5086)
 
 - **Recipe G (guard clauses)** - nesting is 4, target is under 4.
 - **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
@@ -113,9 +131,63 @@ Commit message: `refactor(com_sub): simplify ORO_HJA_Term`
 
 Commit message: `refactor(com_sub): simplify Check_Shell`
 
-### Final step: re-measure, then stop
+#### Step 6: `EM_Term` (line 1511)
 
-Once the score reaches 4.00, **stop**. Do not keep pushing for a higher number.
+- **Recipe G (guard clauses)** - nesting is 4, target is under 4.
+- **Recipe E (extract function)** - 4 nested blocks; each bump is a missing function.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(com_sub): simplify EM_Term`
+
+#### Step 7: `Hi_Jump_Attack_Term` (line 2278)
+
+- **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(com_sub): simplify Hi_Jump_Attack_Term`
+
+#### Step 8: `ORO_JA_Term` (line 2487)
+
+- **Recipe E (extract function)** - 4 nested blocks; each bump is a missing function.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(com_sub): simplify ORO_JA_Term`
+
+### Wave 3 (one PR)
+
+#### Step 9: `Rapid_Sub` (line 3136)
+
+- **Recipe G (guard clauses)** - nesting is 4, target is under 4.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(com_sub): simplify Rapid_Sub`
+
+#### Step 10: `Check_Dash_Hit` (line 3785)
+
+- **Recipe G (guard clauses)** - nesting is 4, target is under 4.
+- **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(com_sub): simplify Check_Dash_Hit`
+
+#### Step 11: `Check_VS_Air_Attack` (line 2100)
+
+- **Recipe G (guard clauses)** - nesting is 4, target is under 4.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(com_sub): simplify Check_VS_Air_Attack`
+
+#### Step 12: `ORO_JCA_Term` (line 3267)
+
+- **Recipe E (extract function)** - 4 nested blocks; each bump is a missing function.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(com_sub): simplify ORO_JCA_Term`
+
+### When to stop
+
+Stop at the end of your wave, even if you feel you could keep going. Also stop
+early if the score reaches 4.00.
 
 ## 6. Verification - run all three after EVERY step
 
@@ -185,10 +257,11 @@ Model-based projections, not guarantees.
 Reply with exactly this, filled in:
 
 ```
-Task: R02 (src/sf33rd/Source/Game/com/com_sub.c)
+Task: R02 (src/sf33rd/Source/Game/com/com_sub.c)  wave <n> of 3
 Baseline score: 1.52
 Final score:    <x.xx>
-Steps completed: <n> of 5
+Steps completed: <n> of 4 in this wave
+Smells cleared:  <function: which category it left, or 'none'>
 Steps reverted:  <n>   (list which, and why)
 Build: PASS / FAIL
 Commits: <sha list>

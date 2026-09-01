@@ -72,7 +72,7 @@ Thresholds for C: cyclomatic complexity under 9, nesting depth under 4.
 Work **one function at a time, in the order above**. After each function run the
 verification in section 6. Do not batch several functions into one change.
 
-### Step 1: `attack_hit_check` (line 1815)
+#### Step 1: `attack_hit_check` (line 1815)
 
 - **Recipe G (guard clauses)** - nesting is 8, target is under 4.
 - **Recipe E (extract function)** - 8 nested blocks; each bump is a missing function.
@@ -80,7 +80,7 @@ verification in section 6. Do not batch several functions into one change.
 
 Commit message: `refactor(hitcheck): simplify attack_hit_check`
 
-### Step 2: `defense_ground_ps2` (line 1353)
+#### Step 2: `defense_ground_ps2` (line 1353)
 
 - **Recipe G (guard clauses)** - nesting is 6, target is under 4.
 - **Recipe E (extract function)** - 8 nested blocks; each bump is a missing function.
@@ -88,7 +88,7 @@ Commit message: `refactor(hitcheck): simplify attack_hit_check`
 
 Commit message: `refactor(hitcheck): simplify defense_ground_ps2`
 
-### Step 3: `defense_ground_cps3` (line 1201)
+#### Step 3: `defense_ground_cps3` (line 1201)
 
 - **Recipe G (guard clauses)** - nesting is 5, target is under 4.
 - **Recipe E (extract function)** - 7 nested blocks; each bump is a missing function.
@@ -96,7 +96,7 @@ Commit message: `refactor(hitcheck): simplify defense_ground_ps2`
 
 Commit message: `refactor(hitcheck): simplify defense_ground_cps3`
 
-### Step 4: `catch_hit_check` (line 1729)
+#### Step 4: `catch_hit_check` (line 1729)
 
 - **Recipe G (guard clauses)** - nesting is 7, target is under 4.
 - **Recipe E (extract function)** - 4 nested blocks; each bump is a missing function.
@@ -104,7 +104,7 @@ Commit message: `refactor(hitcheck): simplify defense_ground_cps3`
 
 Commit message: `refactor(hitcheck): simplify catch_hit_check`
 
-### Step 5: `hit_pattern_extdat_check` (line 727)
+#### Step 5: `hit_pattern_extdat_check` (line 727)
 
 - **Recipe G (guard clauses)** - nesting is 5, target is under 4.
 - **Recipe E (extract function)** - 6 nested blocks; each bump is a missing function.
@@ -112,7 +112,15 @@ Commit message: `refactor(hitcheck): simplify catch_hit_check`
 
 Commit message: `refactor(hitcheck): simplify hit_pattern_extdat_check`
 
-### Final step: re-measure, then stop
+#### Step 6: `plef_at_vs_player_damage_union` (line 455)
+
+- **Recipe G (guard clauses)** - nesting is 5, target is under 4.
+- **Recipe E (extract function)** - 6 nested blocks; each bump is a missing function.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(hitcheck): simplify plef_at_vs_player_damage_union`
+
+### When to stop
 
 Once the score reaches 4.00, **stop**. Do not keep pushing for a higher number.
 
@@ -187,7 +195,8 @@ Reply with exactly this, filled in:
 Task: R01 (src/sf33rd/Source/Game/engine/hitcheck.c)
 Baseline score: 1.42
 Final score:    <x.xx>
-Steps completed: <n> of 5
+Steps completed: <n> of 6 in this wave
+Smells cleared:  <function: which category it left, or 'none'>
 Steps reverted:  <n>   (list which, and why)
 Build: PASS / FAIL
 Commits: <sha list>

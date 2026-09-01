@@ -75,7 +75,7 @@ Thresholds for C: cyclomatic complexity under 9, nesting depth under 4.
 Work **one function at a time, in the order above**. After each function run the
 verification in section 6. Do not batch several functions into one change.
 
-### Step 1: `Win_10000` (line 801)
+#### Step 1: `Win_10000` (line 801)
 
 - **Recipe G (guard clauses)** - nesting is 5, target is under 4.
 - **Recipe E (extract function)** - 4 nested blocks; each bump is a missing function.
@@ -83,14 +83,14 @@ verification in section 6. Do not batch several functions into one change.
 
 Commit message: `refactor(win_pl): simplify Win_10000`
 
-### Step 2: `Win_07000` (line 604)
+#### Step 2: `Win_07000` (line 604)
 
 - **Recipe G (guard clauses)** - nesting is 5, target is under 4.
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(win_pl): simplify Win_07000`
 
-### Step 3: `bonus_game_win_pause` (line 1526)
+#### Step 3: `bonus_game_win_pause` (line 1526)
 
 - **Recipe G (guard clauses)** - nesting is 4, target is under 4.
 - **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
@@ -98,14 +98,14 @@ Commit message: `refactor(win_pl): simplify Win_07000`
 
 Commit message: `refactor(win_pl): simplify bonus_game_win_pause`
 
-### Step 4: `Win_09000` (line 718)
+#### Step 4: `Win_09000` (line 718)
 
 - **Recipe G (guard clauses)** - nesting is 4, target is under 4.
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(win_pl): simplify Win_09000`
 
-### Step 5: `Win_11000` (line 1102)
+#### Step 5: `Win_11000` (line 1102)
 
 - **Recipe G (guard clauses)** - nesting is 4, target is under 4.
 - **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
@@ -113,7 +113,14 @@ Commit message: `refactor(win_pl): simplify Win_09000`
 
 Commit message: `refactor(win_pl): simplify Win_11000`
 
-### Final step: re-measure, then stop
+#### Step 6: `Win_13000` (line 1307)
+
+- **Recipe G (guard clauses)** - nesting is 4, target is under 4.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(win_pl): simplify Win_13000`
+
+### When to stop
 
 Once the score reaches 4.00, **stop**. Do not keep pushing for a higher number.
 
@@ -188,7 +195,8 @@ Reply with exactly this, filled in:
 Task: R13 (src/sf33rd/Source/Game/animation/win_pl.c)
 Baseline score: 3.56
 Final score:    <x.xx>
-Steps completed: <n> of 5
+Steps completed: <n> of 6 in this wave
+Smells cleared:  <function: which category it left, or 'none'>
 Steps reverted:  <n>   (list which, and why)
 Build: PASS / FAIL
 Commits: <sha list>

@@ -68,6 +68,12 @@ rather than editing both copies.
 | 4 | `check_1` | 209 | 15 | 4 | 6 |
 | 5 | `check_15` | 1102 | 15 | 5 | 3 |
 | 6 | `check_9` | 554 | 16 | 4 | 4 |
+| 7 | `check_14` | 1045 | 13 | 4 | 4 |
+| 8 | `check_25` | 1470 | 11 | 4 | 3 |
+| 9 | `check_24` | 1425 | 11 | 4 | 3 |
+| 10 | `pl_lvr_set` | 1564 | 29 | - | 4 |
+| 11 | `check_19` | 1230 | 10 | 4 | 2 |
+| 12 | `check_18` | 1196 | 10 | 4 | 2 |
 
 Thresholds for C: cyclomatic complexity under 9, nesting depth under 4.
 
@@ -76,7 +82,17 @@ Thresholds for C: cyclomatic complexity under 9, nesting depth under 4.
 Work **one function at a time, in the order above**. After each function run the
 verification in section 6. Do not batch several functions into one change.
 
-### Step 1: `check_10` (line 622)
+The 12 targets are grouped into **3 waves**. A wave is one sitting
+and one pull request: do its steps, re-measure, report, open the PR, stop. Pick the
+next wave up afterwards. Do not attempt every wave in one go - this file is
+1876 lines and the review gets stale underneath you as you change it.
+
+Re-run `code_health_review` at the start of each wave: line numbers below shift as
+earlier waves land.
+
+### Wave 1 - start here (one PR)
+
+#### Step 1: `check_10` (line 622)
 
 - **Recipe G (guard clauses)** - nesting is 5, target is under 4.
 - **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
@@ -84,7 +100,7 @@ verification in section 6. Do not batch several functions into one change.
 
 Commit message: `refactor(cmd_main): simplify check_10`
 
-### Step 2: `check_12` (line 840)
+#### Step 2: `check_12` (line 840)
 
 - **Recipe G (guard clauses)** - nesting is 5, target is under 4.
 - **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
@@ -92,7 +108,7 @@ Commit message: `refactor(cmd_main): simplify check_10`
 
 Commit message: `refactor(cmd_main): simplify check_12`
 
-### Step 3: `check_21` (line 1266)
+#### Step 3: `check_21` (line 1266)
 
 - **Recipe G (guard clauses)** - nesting is 5, target is under 4.
 - **Recipe E (extract function)** - 4 nested blocks; each bump is a missing function.
@@ -100,7 +116,7 @@ Commit message: `refactor(cmd_main): simplify check_12`
 
 Commit message: `refactor(cmd_main): simplify check_21`
 
-### Step 4: `check_1` (line 209)
+#### Step 4: `check_1` (line 209)
 
 - **Recipe G (guard clauses)** - nesting is 4, target is under 4.
 - **Recipe E (extract function)** - 6 nested blocks; each bump is a missing function.
@@ -108,7 +124,9 @@ Commit message: `refactor(cmd_main): simplify check_21`
 
 Commit message: `refactor(cmd_main): simplify check_1`
 
-### Step 5: `check_15` (line 1102)
+### Wave 2 (one PR)
+
+#### Step 5: `check_15` (line 1102)
 
 - **Recipe G (guard clauses)** - nesting is 5, target is under 4.
 - **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
@@ -116,9 +134,65 @@ Commit message: `refactor(cmd_main): simplify check_1`
 
 Commit message: `refactor(cmd_main): simplify check_15`
 
-### Final step: re-measure, then stop
+#### Step 6: `check_9` (line 554)
 
-Once the score reaches 4.00, **stop**. Do not keep pushing for a higher number.
+- **Recipe G (guard clauses)** - nesting is 4, target is under 4.
+- **Recipe E (extract function)** - 4 nested blocks; each bump is a missing function.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(cmd_main): simplify check_9`
+
+#### Step 7: `check_14` (line 1045)
+
+- **Recipe G (guard clauses)** - nesting is 4, target is under 4.
+- **Recipe E (extract function)** - 4 nested blocks; each bump is a missing function.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(cmd_main): simplify check_14`
+
+#### Step 8: `check_25` (line 1470)
+
+- **Recipe G (guard clauses)** - nesting is 4, target is under 4.
+- **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(cmd_main): simplify check_25`
+
+### Wave 3 (one PR)
+
+#### Step 9: `check_24` (line 1425)
+
+- **Recipe G (guard clauses)** - nesting is 4, target is under 4.
+- **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(cmd_main): simplify check_24`
+
+#### Step 10: `pl_lvr_set` (line 1564)
+
+- **Recipe E (extract function)** - 4 nested blocks; each bump is a missing function.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(cmd_main): simplify pl_lvr_set`
+
+#### Step 11: `check_19` (line 1230)
+
+- **Recipe G (guard clauses)** - nesting is 4, target is under 4.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(cmd_main): simplify check_19`
+
+#### Step 12: `check_18` (line 1196)
+
+- **Recipe G (guard clauses)** - nesting is 4, target is under 4.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(cmd_main): simplify check_18`
+
+### When to stop
+
+Stop at the end of your wave, even if you feel you could keep going. Also stop
+early if the score reaches 4.00.
 
 ## 6. Verification - run all three after EVERY step
 
@@ -188,10 +262,11 @@ Model-based projections, not guarantees.
 Reply with exactly this, filled in:
 
 ```
-Task: R05 (src/sf33rd/Source/Game/engine/cmd_main.c)
+Task: R05 (src/sf33rd/Source/Game/engine/cmd_main.c)  wave <n> of 3
 Baseline score: 2.31
 Final score:    <x.xx>
-Steps completed: <n> of 5
+Steps completed: <n> of 4 in this wave
+Smells cleared:  <function: which category it left, or 'none'>
 Steps reverted:  <n>   (list which, and why)
 Build: PASS / FAIL
 Commits: <sha list>

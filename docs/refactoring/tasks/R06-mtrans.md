@@ -76,7 +76,7 @@ Thresholds for C: cyclomatic complexity under 9, nesting depth under 4.
 Work **one function at a time, in the order above**. After each function run the
 verification in section 6. Do not batch several functions into one change.
 
-### Step 1: `mlt_obj_trans_rgb_ext` (line 1130)
+#### Step 1: `mlt_obj_trans_rgb_ext` (line 1130)
 
 - **Recipe G (guard clauses)** - nesting is 4, target is under 4.
 - **Recipe E (extract function)** - 4 nested blocks; each bump is a missing function.
@@ -84,7 +84,7 @@ verification in section 6. Do not batch several functions into one change.
 
 Commit message: `refactor(mtrans): simplify mlt_obj_trans_rgb_ext`
 
-### Step 2: `mlt_obj_trans_cp3_ext` (line 748)
+#### Step 2: `mlt_obj_trans_cp3_ext` (line 748)
 
 - **Recipe G (guard clauses)** - nesting is 4, target is under 4.
 - **Recipe E (extract function)** - 4 nested blocks; each bump is a missing function.
@@ -92,7 +92,7 @@ Commit message: `refactor(mtrans): simplify mlt_obj_trans_rgb_ext`
 
 Commit message: `refactor(mtrans): simplify mlt_obj_trans_cp3_ext`
 
-### Step 3: `mlt_obj_trans_ext` (line 382)
+#### Step 3: `mlt_obj_trans_ext` (line 382)
 
 - **Recipe G (guard clauses)** - nesting is 4, target is under 4.
 - **Recipe E (extract function)** - 4 nested blocks; each bump is a missing function.
@@ -100,21 +100,28 @@ Commit message: `refactor(mtrans): simplify mlt_obj_trans_cp3_ext`
 
 Commit message: `refactor(mtrans): simplify mlt_obj_trans_ext`
 
-### Step 4: `makeup_tpu_free` (line 1873)
+#### Step 4: `makeup_tpu_free` (line 1873)
 
 - **Recipe G (guard clauses)** - nesting is 5, target is under 4.
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(mtrans): simplify makeup_tpu_free`
 
-### Step 5: `mlt_obj_melt2` (line 2143)
+#### Step 5: `mlt_obj_melt2` (line 2143)
 
 - **Recipe G (guard clauses)** - nesting is 4, target is under 4.
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(mtrans): simplify mlt_obj_melt2`
 
-### Final step: re-measure, then stop
+#### Step 6: `mlt_obj_trans_rgb` (line 1366)
+
+- **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(mtrans): simplify mlt_obj_trans_rgb`
+
+### When to stop
 
 Once the score reaches 4.00, **stop**. Do not keep pushing for a higher number.
 
@@ -188,7 +195,8 @@ Reply with exactly this, filled in:
 Task: R06 (src/sf33rd/Source/Game/rendering/mtrans.c)
 Baseline score: 2.57
 Final score:    <x.xx>
-Steps completed: <n> of 5
+Steps completed: <n> of 6 in this wave
+Smells cleared:  <function: which category it left, or 'none'>
 Steps reverted:  <n>   (list which, and why)
 Build: PASS / FAIL
 Commits: <sha list>

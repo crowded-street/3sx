@@ -76,7 +76,7 @@ Thresholds for C: cyclomatic complexity under 9, nesting depth under 4.
 Work **one function at a time, in the order above**. After each function run the
 verification in section 6. Do not batch several functions into one change.
 
-### Step 1: `Appear_29000` (line 1442)
+#### Step 1: `Appear_29000` (line 1442)
 
 - **Recipe G (guard clauses)** - nesting is 4, target is under 4.
 - **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
@@ -84,34 +84,40 @@ verification in section 6. Do not batch several functions into one change.
 
 Commit message: `refactor(appear): simplify Appear_29000`
 
-### Step 2: `Appear_18000` (line 979)
+#### Step 2: `Appear_18000` (line 979)
 
 - **Recipe G (guard clauses)** - nesting is 4, target is under 4.
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(appear): simplify Appear_18000`
 
-### Step 3: `Appear_07000` (line 449)
+#### Step 3: `Appear_07000` (line 449)
 
 - **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(appear): simplify Appear_07000`
 
-### Step 4: `Appear_06000` (line 338)
+#### Step 4: `Appear_06000` (line 338)
 
 - **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(appear): simplify Appear_06000`
 
-### Step 5: `Appear_26000` (line 1287)
+#### Step 5: `Appear_26000` (line 1287)
 
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(appear): simplify Appear_26000`
 
-### Final step: re-measure, then stop
+#### Step 6: `Appear_37000` (line 1819)
+
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(appear): simplify Appear_37000`
+
+### When to stop
 
 Once the score reaches 4.00, **stop**. Do not keep pushing for a higher number.
 
@@ -186,7 +192,8 @@ Reply with exactly this, filled in:
 Task: R12 (src/sf33rd/Source/Game/animation/appear.c)
 Baseline score: 3.56
 Final score:    <x.xx>
-Steps completed: <n> of 5
+Steps completed: <n> of 6 in this wave
+Smells cleared:  <function: which category it left, or 'none'>
 Steps reverted:  <n>   (list which, and why)
 Build: PASS / FAIL
 Commits: <sha list>

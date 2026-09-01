@@ -64,6 +64,9 @@ rather than editing both copies.
 | 4 | `Check_Special_Technique` | 464 | 14 | - | - |
 | 5 | `Check_After_Attack` | 843 | 12 | - | - |
 | 6 | `Check_Limited_Attack` | 618 | 12 | - | - |
+| 7 | `Check_VS_Jump` | 520 | 12 | - | - |
+| 8 | `VS_HUGO_C` | 2651 | 9 | - | - |
+| 9 | `VS_HUGO_B` | 1981 | 9 | - | - |
 
 Thresholds for C: cyclomatic complexity under 9, nesting depth under 4.
 
@@ -72,42 +75,81 @@ Thresholds for C: cyclomatic complexity under 9, nesting depth under 4.
 Work **one function at a time, in the order above**. After each function run the
 verification in section 6. Do not batch several functions into one change.
 
-### Step 1: `KEN_vs` (line 31)
+The 9 targets are grouped into **3 waves**. A wave is one sitting
+and one pull request: do its steps, re-measure, report, open the PR, stop. Pick the
+next wave up afterwards. Do not attempt every wave in one go - this file is
+3126 lines and the review gets stale underneath you as you change it.
+
+Re-run `code_health_review` at the start of each wave: line numbers below shift as
+earlier waves land.
+
+### Wave 1 - start here (one PR)
+
+#### Step 1: `KEN_vs` (line 31)
 
 - **Recipe E (extract function)** - 8 nested blocks; each bump is a missing function.
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(ck_pass): simplify KEN_vs`
 
-### Step 2: `GILL_vs` (line 319)
+#### Step 2: `GILL_vs` (line 319)
 
 - **Recipe E (extract function)** - 7 nested blocks; each bump is a missing function.
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(ck_pass): simplify GILL_vs`
 
-### Step 3: `HUGO_vs` (line 190)
+#### Step 3: `HUGO_vs` (line 190)
 
 - **Recipe E (extract function)** - 7 nested blocks; each bump is a missing function.
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(ck_pass): simplify HUGO_vs`
 
-### Step 4: `Check_Special_Technique` (line 464)
+#### Step 4: `Check_Special_Technique` (line 464)
 
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(ck_pass): simplify Check_Special_Technique`
 
-### Step 5: `Check_After_Attack` (line 843)
+### Wave 2 (one PR)
+
+#### Step 5: `Check_After_Attack` (line 843)
 
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(ck_pass): simplify Check_After_Attack`
 
-### Final step: re-measure, then stop
+#### Step 6: `Check_Limited_Attack` (line 618)
 
-Once the score reaches 4.00, **stop**. Do not keep pushing for a higher number.
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(ck_pass): simplify Check_Limited_Attack`
+
+#### Step 7: `Check_VS_Jump` (line 520)
+
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(ck_pass): simplify Check_VS_Jump`
+
+#### Step 8: `VS_HUGO_C` (line 2651)
+
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(ck_pass): simplify VS_HUGO_C`
+
+### Wave 3 (one PR)
+
+#### Step 9: `VS_HUGO_B` (line 1981)
+
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(ck_pass): simplify VS_HUGO_B`
+
+### When to stop
+
+Stop at the end of your wave, even if you feel you could keep going. Also stop
+early if the score reaches 4.00.
 
 ## 6. Verification - run all three after EVERY step
 
@@ -177,10 +219,11 @@ Model-based projections, not guarantees.
 Reply with exactly this, filled in:
 
 ```
-Task: R16 (src/sf33rd/Source/Game/com/ck_pass.c)
+Task: R16 (src/sf33rd/Source/Game/com/ck_pass.c)  wave <n> of 3
 Baseline score: 3.75
 Final score:    <x.xx>
-Steps completed: <n> of 5
+Steps completed: <n> of 4 in this wave
+Smells cleared:  <function: which category it left, or 'none'>
 Steps reverted:  <n>   (list which, and why)
 Build: PASS / FAIL
 Commits: <sha list>

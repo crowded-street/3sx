@@ -72,7 +72,7 @@ Thresholds for C: cyclomatic complexity under 9, nesting depth under 4.
 Work **one function at a time, in the order above**. After each function run the
 verification in section 6. Do not batch several functions into one change.
 
-### Step 1: `scr_trans` (line 542)
+#### Step 1: `scr_trans` (line 542)
 
 - **Recipe G (guard clauses)** - nesting is 9, target is under 4.
 - **Recipe E (extract function)** - 16 nested blocks; each bump is a missing function.
@@ -80,7 +80,7 @@ verification in section 6. Do not batch several functions into one change.
 
 Commit message: `refactor(bg): simplify scr_trans`
 
-### Step 2: `Bg_Texture_Load_Ending` (line 422)
+#### Step 2: `Bg_Texture_Load_Ending` (line 422)
 
 - **Recipe G (guard clauses)** - nesting is 4, target is under 4.
 - **Recipe E (extract function)** - 3 nested blocks; each bump is a missing function.
@@ -88,27 +88,33 @@ Commit message: `refactor(bg): simplify scr_trans`
 
 Commit message: `refactor(bg): simplify Bg_Texture_Load_Ending`
 
-### Step 3: `bgDrawOneScreen` (line 1059)
+#### Step 3: `bgDrawOneScreen` (line 1059)
 
 - **Recipe G (guard clauses)** - nesting is 6, target is under 4.
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(bg): simplify bgDrawOneScreen`
 
-### Step 4: `Bg_Texture_Load_EX` (line 235)
+#### Step 4: `Bg_Texture_Load_EX` (line 235)
 
 - **Recipe E (extract function)** - 6 nested blocks; each bump is a missing function.
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(bg): simplify Bg_Texture_Load_EX`
 
-### Step 5: `Bg_Kakikae_Set` (line 72)
+#### Step 5: `Bg_Kakikae_Set` (line 72)
 
 - **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
 
 Commit message: `refactor(bg): simplify Bg_Kakikae_Set`
 
-### Final step: re-measure, then stop
+#### Step 6: `Ed_Kakikae_Set` (line 166)
+
+- **Recipe P (named predicate)** - move compound conditions into named boolean helpers.
+
+Commit message: `refactor(bg): simplify Ed_Kakikae_Set`
+
+### When to stop
 
 Once the score reaches 4.00, **stop**. Do not keep pushing for a higher number.
 
@@ -182,7 +188,8 @@ Reply with exactly this, filled in:
 Task: R14 (src/sf33rd/Source/Game/stage/bg.c)
 Baseline score: 3.62
 Final score:    <x.xx>
-Steps completed: <n> of 5
+Steps completed: <n> of 6 in this wave
+Smells cleared:  <function: which category it left, or 'none'>
 Steps reverted:  <n>   (list which, and why)
 Build: PASS / FAIL
 Commits: <sha list>
