@@ -32,27 +32,19 @@ void effect_14_move(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (process_14_case1(ewk)) {
-            break;
+        if (--ewk->wu.dir_timer == 0) {
+            ewk->wu.my_col_code = Rewrite_Color_Data_08[ewk->wu.type][ewk->wu.dir_step][0] + 0;
+            ewk->wu.dir_timer = Rewrite_Color_Data_08[ewk->wu.type][ewk->wu.dir_step][1];
+
+            if (ewk->wu.dir_timer == 0xFF) {
+                ewk->wu.routine_no[0] = 99;
+            } else {
+                ewk->wu.dir_step++;
+            }
         }
-        ewk->wu.dir_step++;
 
         break;
     }
-}
-
-static bool process_14_case1(WORK_Other* ewk) {
-    if (--ewk->wu.dir_timer != 0) {
-        return true;
-    }
-    ewk->wu.my_col_code = Rewrite_Color_Data_08[ewk->wu.type][ewk->wu.dir_step][0] + 0;
-    ewk->wu.dir_timer = Rewrite_Color_Data_08[ewk->wu.type][ewk->wu.dir_step][1];
-
-    if (ewk->wu.dir_timer == 0xFF) {
-        ewk->wu.routine_no[0] = 99;
-        return true;
-    }
-    return false;
 
     Disp_Digit16x24(Disp_Score_Buff[ewk->wu.type], ewk->wu.position_x, ewk->wu.position_y, ewk->wu.my_col_code);
 }
