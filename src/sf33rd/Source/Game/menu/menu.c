@@ -3064,7 +3064,7 @@ void Wait_Replay_Check(struct _TASK* task_ptr) {
     }
 }
 
-void VS_Result(struct _TASK* task_ptr) {
+static void initialize_vs_result(struct _TASK* task_ptr) {
     s16 ix;
     s16 char_ix2;
     s16 total_battle;
@@ -3073,6 +3073,67 @@ void VS_Result(struct _TASK* task_ptr) {
     s16 s4;
     s16 s3;
 
+    FadeOut(1, 0xFF, 8);
+    task_ptr->r_no[2]++;
+    task_ptr->timer = 5;
+    Menu_Common_Init();
+    Menu_Cursor_Y[0] = Cursor_Y_Pos[0][0];
+    Menu_Cursor_Y[1] = Cursor_Y_Pos[1][0];
+    Menu_Suicide[0] = 0;
+    Menu_Suicide[1] = 1;
+    Menu_Cursor_X[0] = 0;
+    Menu_Cursor_X[1] = 0;
+    Order[78] = 2;
+    Order_Dir[78] = 0;
+    Order_Timer[78] = 1;
+    effect_66_init(91, 12, 0, 0, 71, 9, 0);
+    Order[91] = 3;
+    Order_Timer[91] = 1;
+    effect_66_init(138, 24, 0, 0, -1, -1, -0x7FF9);
+    Order[138] = 3;
+    Order_Timer[138] = 1;
+    effect_66_init(139, 25, 0, 0, -1, -1, -0x7FF9);
+    Order[139] = 3;
+    Order_Timer[139] = 1;
+    effect_A0_init(0, VS_Win_Record[0], 0, 3, 0, 0, 0);
+    effect_A0_init(0, VS_Win_Record[1], 1, 3, 0, 0, 0);
+    total_battle = VS_Win_Record[0] + VS_Win_Record[1];
+
+    if (total_battle == 0) {
+        total_battle = 1;
+    }
+
+    if (VS_Win_Record[0] >= VS_Win_Record[1]) {
+        ave[1] = (VS_Win_Record[1] * 100) / total_battle;
+
+        if (ave[1] == 0 && VS_Win_Record[1] > 0) {
+            ave[1] = 1;
+        }
+
+        ave[0] = 100 - ave[1];
+    } else {
+        ave[0] = (VS_Win_Record[0] * 100) / total_battle;
+
+        if (ave[0] == 0 && VS_Win_Record[0] > 0) {
+            ave[0] = 1;
+        }
+
+        ave[1] = 100 - ave[0];
+    }
+
+    effect_A0_init(0, ave[0], 2, 3, 0, 0, 0);
+    effect_A0_init(0, ave[1], 3, 3, 0, 0, 0);
+
+    for (ix = 0, s4 = char_ix2 = 22; ix < 3; ix++, s3 = char_ix2++) {
+        effect_91_init(0, ix, 0, 71, char_ix2, 0);
+        effect_91_init(1, ix, 0, 71, char_ix2, 0);
+    }
+
+    Setup_Win_Lose_OBJ();
+    Menu_Cursor_Move = 0;
+}
+
+void VS_Result(struct _TASK* task_ptr) {
     Clear_Flash_Sub();
 
     switch (task_ptr->r_no[2]) {
@@ -3090,64 +3151,7 @@ void VS_Result(struct _TASK* task_ptr) {
         break;
 
     case 1:
-        FadeOut(1, 0xFF, 8);
-        task_ptr->r_no[2]++;
-        task_ptr->timer = 5;
-        Menu_Common_Init();
-        Menu_Cursor_Y[0] = Cursor_Y_Pos[0][0];
-        Menu_Cursor_Y[1] = Cursor_Y_Pos[1][0];
-        Menu_Suicide[0] = 0;
-        Menu_Suicide[1] = 1;
-        Menu_Cursor_X[0] = 0;
-        Menu_Cursor_X[1] = 0;
-        Order[78] = 2;
-        Order_Dir[78] = 0;
-        Order_Timer[78] = 1;
-        effect_66_init(91, 12, 0, 0, 71, 9, 0);
-        Order[91] = 3;
-        Order_Timer[91] = 1;
-        effect_66_init(138, 24, 0, 0, -1, -1, -0x7FF9);
-        Order[138] = 3;
-        Order_Timer[138] = 1;
-        effect_66_init(139, 25, 0, 0, -1, -1, -0x7FF9);
-        Order[139] = 3;
-        Order_Timer[139] = 1;
-        effect_A0_init(0, VS_Win_Record[0], 0, 3, 0, 0, 0);
-        effect_A0_init(0, VS_Win_Record[1], 1, 3, 0, 0, 0);
-        total_battle = VS_Win_Record[0] + VS_Win_Record[1];
-
-        if (total_battle == 0) {
-            total_battle = 1;
-        }
-
-        if (VS_Win_Record[0] >= VS_Win_Record[1]) {
-            ave[1] = (VS_Win_Record[1] * 100) / total_battle;
-
-            if (ave[1] == 0 && VS_Win_Record[1] > 0) {
-                ave[1] = 1;
-            }
-
-            ave[0] = 100 - ave[1];
-        } else {
-            ave[0] = (VS_Win_Record[0] * 100) / total_battle;
-
-            if (ave[0] == 0 && VS_Win_Record[0] > 0) {
-                ave[0] = 1;
-            }
-
-            ave[1] = 100 - ave[0];
-        }
-
-        effect_A0_init(0, ave[0], 2, 3, 0, 0, 0);
-        effect_A0_init(0, ave[1], 3, 3, 0, 0, 0);
-
-        for (ix = 0, s4 = char_ix2 = 22; ix < 3; ix++, s3 = char_ix2++) {
-            effect_91_init(0, ix, 0, 71, char_ix2, 0);
-            effect_91_init(1, ix, 0, 71, char_ix2, 0);
-        }
-
-        Setup_Win_Lose_OBJ();
-        Menu_Cursor_Move = 0;
+        initialize_vs_result(task_ptr);
         break;
 
     case 2:
