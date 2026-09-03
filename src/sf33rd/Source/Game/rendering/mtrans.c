@@ -1375,6 +1375,28 @@ static f32 advance_trans_y(f32 y, s32 flip, TileMapEntry* trsptr) {
     return y;
 }
 
+static s32 load_trans_rgb16(MultiTexture* mt, TEX* texptr, s32 size, u32 pattern_code, s32 palt) {
+    s32 code;
+
+    if (get_mltbuf16(mt, pattern_code, palt, &code) != 0) {
+        lz_ext_p6_cx(&((u8*)texptr)[1], (u16*)mt->mltbuf, size, (u16*)(ColorRAM[palt]));
+        njReLoadTexturePartNumG(mt->mltgidx16 + (code >> 8), (s8*)mt->mltbuf, code & 0xFF, size * 2);
+    }
+
+    return code;
+}
+
+static s32 load_trans_rgb32(MultiTexture* mt, TEX* texptr, s32 size, u32 pattern_code, s32 palt) {
+    s32 code;
+
+    if (get_mltbuf32(mt, pattern_code, palt, &code) != 0) {
+        lz_ext_p6_cx(&((u8*)texptr)[1], (u16*)mt->mltbuf, size, (u16*)(ColorRAM[palt]));
+        njReLoadTexturePartNumG(mt->mltgidx32 + (code >> 6), (s8*)mt->mltbuf, code & 0x3F, size * 2);
+    }
+
+    return code;
+}
+
 void mlt_obj_trans_rgb(MultiTexture* mt, WORK* wk, s32 base_y) {
     u32* textbl;
     u16* trsbas;
@@ -1453,10 +1475,7 @@ void mlt_obj_trans_rgb(MultiTexture* mt, WORK* wk, s32 base_y) {
         switch (wh) {
         case 1:
         case 2:
-            if (get_mltbuf16(mt, cc.code, palt, &code) != 0) {
-                lz_ext_p6_cx(&((u8*)texptr)[1], (u16*)mt->mltbuf, size, (u16*)(ColorRAM[palt]));
-                njReLoadTexturePartNumG(mt->mltgidx16 + (code >> 8), (s8*)mt->mltbuf, code & 0xFF, size * 2);
-            }
+            code = load_trans_rgb16(mt, texptr, size, cc.code, palt);
 
             rnum = seqsStoreChip(
                 x - (dw * BOOL(flip & 0x8000)),
@@ -1472,10 +1491,7 @@ void mlt_obj_trans_rgb(MultiTexture* mt, WORK* wk, s32 base_y) {
             break;
 
         case 4:
-            if (get_mltbuf32(mt, cc.code, palt, &code) != 0) {
-                lz_ext_p6_cx(&((u8*)texptr)[1], (u16*)mt->mltbuf, size, (u16*)(ColorRAM[palt]));
-                njReLoadTexturePartNumG(mt->mltgidx32 + (code >> 6), (s8*)mt->mltbuf, code & 0x3F, size * 2);
-            }
+            code = load_trans_rgb32(mt, texptr, size, cc.code, palt);
 
             rnum = seqsStoreChip(
                 x - (dw * BOOL(flip & 0x8000)),
