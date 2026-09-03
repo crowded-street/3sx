@@ -781,37 +781,39 @@ void Entry_Main_Sub(s16 PL_id, s16 Jump_Index) {
             break;
 
         case 2:
-            if (Forbid_Break != 1) {
-                if (PL_id == 0) {
-                    Naming_Cut_Sub_1P();
-                } else {
-                    Naming_Cut_Sub_2P();
-                }
-
-                if (Name_Input(PL_id)) {
-                    Name_In_Sub(PL_id);
-
-                    if (Naming_Cut[PL_id]) {
-                        Clear_Personal_Data(PL_id);
-                        return;
-                    }
-
-                    E_Number[PL_id][2] = 0;
-                    E_Number[PL_id][3] = 0;
-
-                    if (E_No[0] == 8) {
-                        E_Number[PL_id][0] = 8;
-                        E_Number[PL_id][1] = 1;
-                        return;
-                    }
-
-                    E_Number[PL_id][0] = 8;
-                    E_Number[PL_id][1] = 0;
-                    return;
-                }
+            if (!(Forbid_Break != 1)) {
+                break;
             }
 
-            break;
+            if (PL_id == 0) {
+                Naming_Cut_Sub_1P();
+            } else {
+                Naming_Cut_Sub_2P();
+            }
+
+            if (!Name_Input(PL_id)) {
+                break;
+            }
+
+            Name_In_Sub(PL_id);
+
+            if (Naming_Cut[PL_id]) {
+                Clear_Personal_Data(PL_id);
+                return;
+            }
+
+            E_Number[PL_id][2] = 0;
+            E_Number[PL_id][3] = 0;
+
+            if (E_No[0] == 8) {
+                E_Number[PL_id][0] = 8;
+                E_Number[PL_id][1] = 1;
+                return;
+            }
+
+            E_Number[PL_id][0] = 8;
+            E_Number[PL_id][1] = 0;
+            return;
         }
 
         break;
