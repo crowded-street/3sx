@@ -4775,46 +4775,48 @@ void Training_Exit_Sub(struct _TASK* task_ptr) {
 void Character_Change(struct _TASK* task_ptr) {
     s16 ix;
 
-    if (Check_Pad_in_Pause(task_ptr) == 0) {
-        switch (task_ptr->r_no[2]) {
-        case 0:
-            task_ptr->r_no[2]++;
-            task_ptr->timer = 0xA;
-            Game_pause = 0x81;
-            break;
+    if (!(Check_Pad_in_Pause(task_ptr) == 0)) {
+        return;
+    }
 
-        case 1:
-            if ((task_ptr->timer -= 1) == 0) {
-                if (!Check_LDREQ_Break()) {
-                    task_ptr->r_no[2]++;
-                    Switch_Screen_Init(0);
-                    return;
-                }
+    switch (task_ptr->r_no[2]) {
+    case 0:
+        task_ptr->r_no[2]++;
+        task_ptr->timer = 0xA;
+        Game_pause = 0x81;
+        break;
 
-                task_ptr->timer = 1;
+    case 1:
+        if ((task_ptr->timer -= 1) == 0) {
+            if (!Check_LDREQ_Break()) {
+                task_ptr->r_no[2]++;
+                Switch_Screen_Init(0);
                 return;
             }
-            break;
 
-        case 2:
-            if (Switch_Screen(0) != 0) {
-                task_ptr->r_no[2]++;
-                Cover_Timer = 0x17;
-                G_No[1] = 1;
-                G_No[2] = 0;
-                G_No[3] = 0;
-
-                for (ix = 0; ix < 2; ix++) {
-                    Sel_PL_Complete[ix] = 0;
-                    Sel_Arts_Complete[ix] = 0;
-                    plw[ix].wu.operator = 1;
-                    Operator_Status[ix] = 1;
-                }
-
-                cpExitTask(TASK_MENU);
-            }
-            break;
+            task_ptr->timer = 1;
+            return;
         }
+        break;
+
+    case 2:
+        if (Switch_Screen(0) != 0) {
+            task_ptr->r_no[2]++;
+            Cover_Timer = 0x17;
+            G_No[1] = 1;
+            G_No[2] = 0;
+            G_No[3] = 0;
+
+            for (ix = 0; ix < 2; ix++) {
+                Sel_PL_Complete[ix] = 0;
+                Sel_Arts_Complete[ix] = 0;
+                plw[ix].wu.operator = 1;
+                Operator_Status[ix] = 1;
+            }
+
+            cpExitTask(TASK_MENU);
+        }
+        break;
     }
 }
 
