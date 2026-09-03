@@ -466,9 +466,27 @@ void Menu_in_Sub(struct _TASK* task_ptr) {
     Order_Timer[0x64] = 1;
 }
 
-void toSelectGame(struct _TASK* task_ptr) {
+static void handle_select_game_input(struct _TASK* task_ptr) {
     u16 sw;
 
+    imgSelectGameButton();
+    sw = (~plsw_01[0] & plsw_00[0]) | (~plsw_01[1] & plsw_00[1]); // potential macro
+    sw &= (SWK_SOUTH | SWK_EAST);
+
+    if (sw != 0) {
+        if (sw != (SWK_SOUTH | SWK_EAST)) {
+            if (sw & SWK_SOUTH) {
+                task_ptr->free[0] = 1;
+            }
+
+            SE_selected();
+            FadeInit();
+            task_ptr->r_no[2] = 8;
+        }
+    }
+}
+
+void toSelectGame(struct _TASK* task_ptr) {
     switch (task_ptr->r_no[2]) {
     case 0:
         Forbid_Reset = 1;
@@ -504,23 +522,7 @@ void toSelectGame(struct _TASK* task_ptr) {
         break;
 
     case 3:
-        imgSelectGameButton();
-        sw = (~plsw_01[0] & plsw_00[0]) | (~plsw_01[1] & plsw_00[1]); // potential macro
-        sw &= (SWK_SOUTH | SWK_EAST);
-
-        if (sw != 0) {
-            if (sw != (SWK_SOUTH | SWK_EAST)) {
-                if (sw & SWK_SOUTH) {
-                    task_ptr->free[0] = 1;
-                }
-
-                SE_selected();
-                FadeInit();
-                task_ptr->r_no[2] = 8;
-                break;
-            }
-        }
-
+        handle_select_game_input(task_ptr);
         break;
 
     case 8:
