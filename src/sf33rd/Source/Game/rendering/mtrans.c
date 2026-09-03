@@ -1862,13 +1862,10 @@ static u16 x32_mapping_set(PatternMap* map, s32 code) {
     return flg;
 }
 
-void makeup_tpu_free(s32 x16, s32 x32, PatternMap* map) {
+static void collect_used_x16_tiles(s32 x16, PatternMap* map) {
     s16 i;
     s16 j;
     s16 k;
-
-    tpu_free->x16 = 0;
-    tpu_free->x32 = 0;
 
     for (i = 0; i < x16; i++) {
         for (j = 0; j < 16; j++) {
@@ -1882,6 +1879,12 @@ void makeup_tpu_free(s32 x16, s32 x32, PatternMap* map) {
             }
         }
     }
+}
+
+static void collect_used_x32_tiles(s32 x32, PatternMap* map) {
+    s16 i;
+    s16 j;
+    s16 k;
 
     for (i = 0; i < x32; i++) {
         for (j = 0; j < 8; j++) {
@@ -1895,6 +1898,14 @@ void makeup_tpu_free(s32 x16, s32 x32, PatternMap* map) {
             }
         }
     }
+}
+
+void makeup_tpu_free(s32 x16, s32 x32, PatternMap* map) {
+    tpu_free->x16 = 0;
+    tpu_free->x32 = 0;
+
+    collect_used_x16_tiles(x16, map);
+    collect_used_x32_tiles(x32, map);
 }
 
 static s16 check_patcash_ex_trans(PatternCollection* padr, u32 cg) {
