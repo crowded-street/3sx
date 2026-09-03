@@ -1355,6 +1355,26 @@ void mlt_obj_trans_rgb_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
     }
 }
 
+static f32 advance_trans_x(f32 x, s32 flip, TileMapEntry* trsptr) {
+    if (flip & 0x8000) {
+        x += trsptr->x;
+    } else {
+        x -= trsptr->x;
+    }
+
+    return x;
+}
+
+static f32 advance_trans_y(f32 y, s32 flip, TileMapEntry* trsptr) {
+    if (flip & 0x4000) {
+        y -= trsptr->y;
+    } else {
+        y += trsptr->y;
+    }
+
+    return y;
+}
+
 void mlt_obj_trans_rgb(MultiTexture* mt, WORK* wk, s32 base_y) {
     u32* textbl;
     u16* trsbas;
@@ -1417,17 +1437,8 @@ void mlt_obj_trans_rgb(MultiTexture* mt, WORK* wk, s32 base_y) {
     cc.parts.group = i;
 
     while (count--) {
-        if (flip & 0x8000) {
-            x += trsptr->x;
-        } else {
-            x -= trsptr->x;
-        }
-
-        if (flip & 0x4000) {
-            y -= trsptr->y;
-        } else {
-            y += trsptr->y;
-        }
+        x = advance_trans_x(x, flip, trsptr);
+        y = advance_trans_y(y, flip, trsptr);
 
         texptr = (TEX*)((uintptr_t)textbl + ((u32*)textbl)[trsptr->code]);
         dw = (texptr->wh & 0xE0) >> 2;
