@@ -1145,6 +1145,36 @@ void In_Over_Sub(s16 PL_id) {
     }
 }
 
+static void begin_press_start_prompt(s16 PL_id) {
+    if (!--F_Timer[PL_id]) {
+        F_No1[PL_id] += 1;
+        F_Timer[PL_id] = 50;
+
+        if (save_w[1].extra_option.contents[3][5]) {
+            if (PL_id) {
+                SSPutStr(DE_X[1], 0, 9, "   PRESS 2P START", TopHUDPriority);
+            } else {
+                SSPutStr(DE_X[0], 0, 9, "   PRESS 1P START", TopHUDPriority);
+            }
+        }
+    }
+}
+
+static void update_press_start_prompt(s16 PL_id) {
+    if (--F_Timer[PL_id]) {
+        if (save_w[1].extra_option.contents[3][5]) {
+            if (PL_id) {
+                SSPutStr(DE_X[1], 0, 9, "   PRESS 2P START", TopHUDPriority);
+            } else {
+                SSPutStr(DE_X[0], 0, 9, "   PRESS 1P START", TopHUDPriority);
+            }
+        }
+    } else {
+        F_No1[PL_id] -= 1;
+        F_Timer[PL_id] = 30;
+    }
+}
+
 s32 Flash_Start(s16 PL_id) {
     switch (F_No1[PL_id]) {
     case 0:
@@ -1161,35 +1191,11 @@ s32 Flash_Start(s16 PL_id) {
         break;
 
     case 1:
-        if (!--F_Timer[PL_id]) {
-            F_No1[PL_id] += 1;
-            F_Timer[PL_id] = 50;
-
-            if (save_w[1].extra_option.contents[3][5]) {
-                if (PL_id) {
-                    SSPutStr(DE_X[1], 0, 9, "   PRESS 2P START", TopHUDPriority);
-                } else {
-                    SSPutStr(DE_X[0], 0, 9, "   PRESS 1P START", TopHUDPriority);
-                }
-            }
-        }
-
+        begin_press_start_prompt(PL_id);
         break;
 
     case 2:
-        if (--F_Timer[PL_id]) {
-            if (save_w[1].extra_option.contents[3][5]) {
-                if (PL_id) {
-                    SSPutStr(DE_X[1], 0, 9, "   PRESS 2P START", TopHUDPriority);
-                } else {
-                    SSPutStr(DE_X[0], 0, 9, "   PRESS 1P START", TopHUDPriority);
-                }
-            }
-        } else {
-            F_No1[PL_id] -= 1;
-            F_Timer[PL_id] = 30;
-        }
-
+        update_press_start_prompt(PL_id);
         break;
 
     case 3:
