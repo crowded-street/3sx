@@ -1137,32 +1137,35 @@ u16 Dir_Move_Sub2(u16 sw) {
     }
 }
 
+static void move_direction_option_left(u8 last_pos) {
+    SE_dir_cursor_move();
+    system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] -= 1;
+
+    if (Menu_Cursor_Y[0] == Menu_Max) {
+        if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] < 0) {
+            system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 0;
+            IO_Result = 0x80;
+            return;
+        }
+
+        if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] != last_pos) {
+            Message_Data->order = 1;
+            Message_Data->request = system_dir[1].contents[Menu_Page][Menu_Max] + 0x74;
+            Message_Data->timer = 2;
+        }
+    } else {
+        if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] < 0) {
+            system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = Dir_Menu_Max_Data[Menu_Page][Menu_Cursor_Y[0]];
+        }
+    }
+}
+
 void Dir_Move_Sub_LR(u16 sw, s16 /* unused */) {
     u8 last_pos = system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]];
 
     switch (sw) {
     case 0x4:
-        SE_dir_cursor_move();
-        system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] -= 1;
-
-        if (Menu_Cursor_Y[0] == Menu_Max) {
-            if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] < 0) {
-                system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 0;
-                IO_Result = 0x80;
-                return;
-            }
-
-            if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] != last_pos) {
-                Message_Data->order = 1;
-                Message_Data->request = system_dir[1].contents[Menu_Page][Menu_Max] + 0x74;
-                Message_Data->timer = 2;
-            }
-        } else {
-            if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] < 0) {
-                system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = Dir_Menu_Max_Data[Menu_Page][Menu_Cursor_Y[0]];
-            }
-        }
-
+        move_direction_option_left(last_pos);
         return;
 
     case 0x8:
