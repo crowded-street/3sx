@@ -282,8 +282,72 @@ void Menu_Init(struct _TASK* task_ptr) {
     cpReadyTask(TASK_SAVER, Saver_Task);
 }
 
-void Mode_Select(struct _TASK* task_ptr) {
+static void initialize_mode_select(struct _TASK* task_ptr, const s16 loop_counter) {
     s16 ix;
+
+    FadeOut(1, 0xFF, 8);
+    task_ptr->r_no[2] += 1;
+    task_ptr->timer = 5;
+    Mode_Type = MODE_ARCADE;
+    Present_Mode = 1;
+
+    if (task[TASK_ENTRY].condition != 1) {
+        E_No[0] = 1;
+        E_No[1] = 2;
+        E_No[2] = 2;
+        E_No[3] = 0;
+        cpReadyTask(TASK_ENTRY, Entry_Task);
+    }
+
+    Menu_Common_Init();
+
+    for (ix = 0; ix < 4; ix++) {
+        Menu_Suicide[ix] = 0;
+    }
+
+    Clear_Personal_Data(0);
+    Clear_Personal_Data(1);
+    Menu_Cursor_Y[0] = Cursor_Y_Pos[0][0];
+
+    if (Menu_Cursor_Y[0] >= loop_counter) {
+        Menu_Cursor_Y[0] = loop_counter - 1;
+    }
+
+    Cursor_Y_Pos[0][1] = 0;
+    Cursor_Y_Pos[0][2] = 0;
+    Cursor_Y_Pos[0][3] = 0;
+
+    for (ix = 0; ix < 4; ix++) {
+        Vital_Handicap[ix][0] = 7;
+        Vital_Handicap[ix][1] = 7;
+    }
+
+    VS_Stage = 0x14;
+    Order[0x8A] = 4;
+    Order_Timer[0x8A] = 1;
+
+    for (ix = 0; ix < 4; ix++) {
+        Message_Data[ix].order = 3;
+    }
+
+    effect_57_init(0x64, MENU_HEADER_MODE_MENU, 0, 0x3F, 2);
+    Order[0x64] = 1;
+    Order_Dir[0x64] = 8;
+    Order_Timer[0x64] = 1;
+    Menu_Suicide[0] = 0;
+    effect_04_init(0, 0, 0, 0x48);
+
+    for (ix = 0; ix < loop_counter; ix++) {
+        effect_61_init(0, ix + 0x50, 0, 0, (u32)ix, ix, 0x7047);
+        Order[ix + 0x50] = 1;
+        Order_Dir[ix + 0x50] = 4;
+        Order_Timer[ix + 0x50] = ix + 0x14;
+    }
+
+    Menu_Cursor_Move = loop_counter;
+}
+
+void Mode_Select(struct _TASK* task_ptr) {
     s16 PL_id;
 
     const bool supports_exit = App_SupportsExit();
@@ -291,66 +355,7 @@ void Mode_Select(struct _TASK* task_ptr) {
 
     switch (task_ptr->r_no[2]) {
     case 0:
-        FadeOut(1, 0xFF, 8);
-        task_ptr->r_no[2] += 1;
-        task_ptr->timer = 5;
-        Mode_Type = MODE_ARCADE;
-        Present_Mode = 1;
-
-        if (task[TASK_ENTRY].condition != 1) {
-            E_No[0] = 1;
-            E_No[1] = 2;
-            E_No[2] = 2;
-            E_No[3] = 0;
-            cpReadyTask(TASK_ENTRY, Entry_Task);
-        }
-
-        Menu_Common_Init();
-
-        for (ix = 0; ix < 4; ix++) {
-            Menu_Suicide[ix] = 0;
-        }
-
-        Clear_Personal_Data(0);
-        Clear_Personal_Data(1);
-        Menu_Cursor_Y[0] = Cursor_Y_Pos[0][0];
-
-        if (Menu_Cursor_Y[0] >= loop_counter) {
-            Menu_Cursor_Y[0] = loop_counter - 1;
-        }
-
-        Cursor_Y_Pos[0][1] = 0;
-        Cursor_Y_Pos[0][2] = 0;
-        Cursor_Y_Pos[0][3] = 0;
-
-        for (ix = 0; ix < 4; ix++) {
-            Vital_Handicap[ix][0] = 7;
-            Vital_Handicap[ix][1] = 7;
-        }
-
-        VS_Stage = 0x14;
-        Order[0x8A] = 4;
-        Order_Timer[0x8A] = 1;
-
-        for (ix = 0; ix < 4; ix++) {
-            Message_Data[ix].order = 3;
-        }
-
-        effect_57_init(0x64, MENU_HEADER_MODE_MENU, 0, 0x3F, 2);
-        Order[0x64] = 1;
-        Order_Dir[0x64] = 8;
-        Order_Timer[0x64] = 1;
-        Menu_Suicide[0] = 0;
-        effect_04_init(0, 0, 0, 0x48);
-
-        for (ix = 0; ix < loop_counter; ix++) {
-            effect_61_init(0, ix + 0x50, 0, 0, (u32)ix, ix, 0x7047);
-            Order[ix + 0x50] = 1;
-            Order_Dir[ix + 0x50] = 4;
-            Order_Timer[ix + 0x50] = ix + 0x14;
-        }
-
-        Menu_Cursor_Move = loop_counter;
+        initialize_mode_select(task_ptr, loop_counter);
         break;
 
     case 1:
