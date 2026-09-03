@@ -163,12 +163,14 @@ s16 TITLE_Move(u16 type) {
             break;
 
         case 2:
-            if (!Game_pause) {
-                if (op_timer0-- >= 0) {
-                    Frame_Down(0xC0, 0x70, 1);
-                } else {
-                    op_w.r_no_0 += 1;
-                }
+            if (Game_pause) {
+                break;
+            }
+
+            if (op_timer0-- >= 0) {
+                Frame_Down(0xC0, 0x70, 1);
+            } else {
+                op_w.r_no_0 += 1;
             }
 
             break;
