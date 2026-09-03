@@ -760,104 +760,108 @@ void ppgRenewDotDataSeqs(Texture* tch, u32 gix, u32* srcRam, u32 code, u32 size)
         tch = ppg_w.cur->tex;
     }
 
-    if (tch->be != 0) {
-        ix = gix - tch->ixNum1st;
+    if (!(tch->be != 0)) {
+        return;
+    }
 
-        if ((ix < 0) || (ix >= tch->total)) {
-            return;
-        }
+    ix = gix - tch->ixNum1st;
 
-        if (tch->handle[ix].b16[0] != 0) {
-            tch->handle[ix].b16[1] |= 0x2000;
+    if ((ix < 0) || (ix >= tch->total)) {
+        return;
+    }
 
-            switch (size) {
-            case 0x40:
-                srcRam8 = (u8*)srcRam;
-                dstRam8 = (u8*)(tch->srcAdrs + tch->srcSize * ix + CODE_0(code));
+    if (!(tch->handle[ix].b16[0] != 0)) {
+        return;
+    }
 
-                for (i = 0; i < 8; i++) {
-                    for (j = 0; j < 8; j++) {
-                        *dstRam8++ = srcRam8[dctex_linear[j + (i << 5)]];
-                    }
+    tch->handle[ix].b16[1] |= 0x2000;
 
-                    dstRam8 += 0xF8;
-                }
+    switch (size) {
+    case 0x40:
+        srcRam8 = (u8*)srcRam;
+        dstRam8 = (u8*)(tch->srcAdrs + tch->srcSize * ix + CODE_0(code));
 
-                break;
-
-            case 0x100:
-                srcRam8 = (u8*)srcRam;
-                dstRam8 = (u8*)(tch->srcAdrs + tch->srcSize * ix + CODE_0(code));
-
-                for (i = 0; i < 0x10; i++) {
-                    for (j = 0; j < 0x10; j++) {
-                        *dstRam8++ = srcRam8[dctex_linear[j + (i << 5)]];
-                    }
-
-                    dstRam8 += 0xF0;
-                }
-
-                break;
-
-            case 0x400:
-                srcRam8 = (u8*)srcRam;
-                dstRam8 = (u8*)(tch->srcAdrs + tch->srcSize * ix + CODE_1(code));
-                tix = (u16*)dctex_linear;
-
-                for (i = 0; i < 0x20; i++) {
-                    for (j = 0; j < 0x20; j++) {
-                        *dstRam8++ = srcRam8[*tix++];
-                    }
-
-                    dstRam8 += 0xE0;
-                }
-
-                break;
-
-            case 0x80:
-                srcRam16 = (u16*)srcRam;
-                dstRam16 = (u16*)(tch->srcAdrs + tch->srcSize * ix + (CODE_0(code)) * 2);
-
-                for (i = 0; i < 8; i++) {
-                    for (j = 0; j < 8; j++) {
-                        *dstRam16++ = srcRam16[dctex_linear[j + (i << 5)]];
-                    }
-
-                    dstRam16 += 0xF8;
-                }
-
-                break;
-
-            case 0x200:
-                srcRam16 = (u16*)srcRam;
-                dstRam16 = (u16*)(tch->srcAdrs + tch->srcSize * ix + (CODE_0(code)) * 2);
-
-                for (i = 0; i < 0x10; i++) {
-                    for (j = 0; j < 0x10; j++) {
-                        *dstRam16++ = srcRam16[dctex_linear[j + (i << 5)]];
-                    }
-
-                    dstRam16 += 0xF0;
-                }
-
-                break;
-
-            case 0x800:
-                srcRam16 = (u16*)srcRam;
-                dstRam16 = (u16*)(tch->srcAdrs + tch->srcSize * ix + (CODE_1(code)) * 2);
-                tix = (u16*)dctex_linear;
-
-                for (i = 0; i < 0x20; i++) {
-                    for (j = 0; j < 0x20; j++) {
-                        *dstRam16++ = srcRam16[*tix++];
-                    }
-
-                    dstRam16 += 0xE0;
-                }
-
-                break;
+        for (i = 0; i < 8; i++) {
+            for (j = 0; j < 8; j++) {
+                *dstRam8++ = srcRam8[dctex_linear[j + (i << 5)]];
             }
+
+            dstRam8 += 0xF8;
         }
+
+        break;
+
+    case 0x100:
+        srcRam8 = (u8*)srcRam;
+        dstRam8 = (u8*)(tch->srcAdrs + tch->srcSize * ix + CODE_0(code));
+
+        for (i = 0; i < 0x10; i++) {
+            for (j = 0; j < 0x10; j++) {
+                *dstRam8++ = srcRam8[dctex_linear[j + (i << 5)]];
+            }
+
+            dstRam8 += 0xF0;
+        }
+
+        break;
+
+    case 0x400:
+        srcRam8 = (u8*)srcRam;
+        dstRam8 = (u8*)(tch->srcAdrs + tch->srcSize * ix + CODE_1(code));
+        tix = (u16*)dctex_linear;
+
+        for (i = 0; i < 0x20; i++) {
+            for (j = 0; j < 0x20; j++) {
+                *dstRam8++ = srcRam8[*tix++];
+            }
+
+            dstRam8 += 0xE0;
+        }
+
+        break;
+
+    case 0x80:
+        srcRam16 = (u16*)srcRam;
+        dstRam16 = (u16*)(tch->srcAdrs + tch->srcSize * ix + (CODE_0(code)) * 2);
+
+        for (i = 0; i < 8; i++) {
+            for (j = 0; j < 8; j++) {
+                *dstRam16++ = srcRam16[dctex_linear[j + (i << 5)]];
+            }
+
+            dstRam16 += 0xF8;
+        }
+
+        break;
+
+    case 0x200:
+        srcRam16 = (u16*)srcRam;
+        dstRam16 = (u16*)(tch->srcAdrs + tch->srcSize * ix + (CODE_0(code)) * 2);
+
+        for (i = 0; i < 0x10; i++) {
+            for (j = 0; j < 0x10; j++) {
+                *dstRam16++ = srcRam16[dctex_linear[j + (i << 5)]];
+            }
+
+            dstRam16 += 0xF0;
+        }
+
+        break;
+
+    case 0x800:
+        srcRam16 = (u16*)srcRam;
+        dstRam16 = (u16*)(tch->srcAdrs + tch->srcSize * ix + (CODE_1(code)) * 2);
+        tix = (u16*)dctex_linear;
+
+        for (i = 0; i < 0x20; i++) {
+            for (j = 0; j < 0x20; j++) {
+                *dstRam16++ = srcRam16[*tix++];
+            }
+
+            dstRam16 += 0xE0;
+        }
+
+        break;
     }
 }
 
