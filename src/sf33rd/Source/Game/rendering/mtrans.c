@@ -430,105 +430,7 @@ void mlt_obj_trans_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
     cc.parts.offset = wk->cg_number;
     ix = check_patcash_ex_trans(mt->cpat, cc.code);
 
-    if (ix < 0) {
-        {
-            s32 size;
-            s32 code;
-            s32 wh;
-            s32 dw;
-            s32 dh;
-
-            (void)dw;
-            (void)dh;
-
-            ix = get_free_patcash_index(mt->cpat);
-            cp = &mt->cpat->patt[ix];
-            mt->cpat->adr[mt->cpat->kazu] = cp;
-            mt->cpat->kazu += 1;
-            cp->curr_disp = 1;
-            cp->time = mt->mltcshtime16;
-            cp->cg.code = cc.code;
-            cp->x16 = 0;
-            cp->x32 = 0;
-            SDL_zero(cp->map);
-            cc.parts.group = i;
-
-            while (count--) {
-                if (attr & 0x8000) {
-                    x += trsptr->x;
-                } else {
-                    x -= trsptr->x;
-                }
-
-                if (attr & 0x4000) {
-                    y -= trsptr->y;
-                } else {
-                    y += trsptr->y;
-                }
-
-                texptr = (TEX*)((uintptr_t)textbl + ((u32*)textbl)[trsptr->code]);
-                dw = (texptr->wh & 0xE0) >> 2;
-                dh = (texptr->wh & 0x1C) * 2;
-                wh = (texptr->wh & 3) + 1;
-                size = (wh * wh) << 6;
-                cc.parts.offset = trsptr->code;
-
-                switch (wh) {
-                case 1:
-                case 2:
-                    if (get_mltbuf16_ext_2(mt, cc.code, 0, &code, cp) != 0) {
-                        lz_ext_p6_fx(&((u8*)texptr)[1], mt->mltbuf, size);
-                        njReLoadTexturePartNumG(mt->mltgidx16 + (code >> 8), (s8*)mt->mltbuf, code & 0xFF, size);
-                    }
-
-                    rnum = seqsStoreChip(
-                        x - (dw * BOOL(attr & 0x8000)),
-                        y + (dh * BOOL(attr & 0x4000)),
-                        dw,
-                        dh,
-                        mt->mltgidx16,
-                        code,
-                        palo | ((trsptr->attr ^ attr) & 0xC000),
-                        wk->my_clear_level,
-                        mt->id
-                    );
-
-                    break;
-
-                case 4:
-                    if (get_mltbuf32_ext_2(mt, cc.code, 0, &code, cp) != 0) {
-                        lz_ext_p6_fx(&((u8*)texptr)[1], mt->mltbuf, size);
-                        njReLoadTexturePartNumG(mt->mltgidx32 + (code >> 6), (s8*)mt->mltbuf, code & 0x3F, size);
-                    }
-
-                    rnum = seqsStoreChip(
-                        x - (dw * BOOL(attr & 0x8000)),
-                        y + (dh * BOOL(attr & 0x4000)),
-                        dw,
-                        dh,
-                        mt->mltgidx32,
-                        code,
-                        palo | (((trsptr->attr ^ attr) & 0xC000) | 0x2000),
-                        wk->my_clear_level,
-                        mt->id
-                    );
-                    break;
-                }
-
-                if (rnum == 0) {
-                    break;
-                }
-
-                trsptr++;
-            }
-
-            seqs_w.up[mt->id] = 1;
-            appRenewTempPriority(wk->position_z);
-            return;
-        }
-    }
-
-    {
+    if (!(ix < 0)) {
         s32 code;
         s32 wh;
         s32 dw;
@@ -597,6 +499,102 @@ void mlt_obj_trans_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
                     mt->id
                 );
 
+                break;
+            }
+
+            if (rnum == 0) {
+                break;
+            }
+
+            trsptr++;
+        }
+
+        seqs_w.up[mt->id] = 1;
+        appRenewTempPriority(wk->position_z);
+        return;
+    }
+
+    {
+        s32 size;
+        s32 code;
+        s32 wh;
+        s32 dw;
+        s32 dh;
+
+        (void)dw;
+        (void)dh;
+
+        ix = get_free_patcash_index(mt->cpat);
+        cp = &mt->cpat->patt[ix];
+        mt->cpat->adr[mt->cpat->kazu] = cp;
+        mt->cpat->kazu += 1;
+        cp->curr_disp = 1;
+        cp->time = mt->mltcshtime16;
+        cp->cg.code = cc.code;
+        cp->x16 = 0;
+        cp->x32 = 0;
+        SDL_zero(cp->map);
+        cc.parts.group = i;
+
+        while (count--) {
+            if (attr & 0x8000) {
+                x += trsptr->x;
+            } else {
+                x -= trsptr->x;
+            }
+
+            if (attr & 0x4000) {
+                y -= trsptr->y;
+            } else {
+                y += trsptr->y;
+            }
+
+            texptr = (TEX*)((uintptr_t)textbl + ((u32*)textbl)[trsptr->code]);
+            dw = (texptr->wh & 0xE0) >> 2;
+            dh = (texptr->wh & 0x1C) * 2;
+            wh = (texptr->wh & 3) + 1;
+            size = (wh * wh) << 6;
+            cc.parts.offset = trsptr->code;
+
+            switch (wh) {
+            case 1:
+            case 2:
+                if (get_mltbuf16_ext_2(mt, cc.code, 0, &code, cp) != 0) {
+                    lz_ext_p6_fx(&((u8*)texptr)[1], mt->mltbuf, size);
+                    njReLoadTexturePartNumG(mt->mltgidx16 + (code >> 8), (s8*)mt->mltbuf, code & 0xFF, size);
+                }
+
+                rnum = seqsStoreChip(
+                    x - (dw * BOOL(attr & 0x8000)),
+                    y + (dh * BOOL(attr & 0x4000)),
+                    dw,
+                    dh,
+                    mt->mltgidx16,
+                    code,
+                    palo | ((trsptr->attr ^ attr) & 0xC000),
+                    wk->my_clear_level,
+                    mt->id
+                );
+
+                break;
+
+            case 4:
+                if (get_mltbuf32_ext_2(mt, cc.code, 0, &code, cp) != 0) {
+                    lz_ext_p6_fx(&((u8*)texptr)[1], mt->mltbuf, size);
+                    njReLoadTexturePartNumG(mt->mltgidx32 + (code >> 6), (s8*)mt->mltbuf, code & 0x3F, size);
+                }
+
+                rnum = seqsStoreChip(
+                    x - (dw * BOOL(attr & 0x8000)),
+                    y + (dh * BOOL(attr & 0x4000)),
+                    dw,
+                    dh,
+                    mt->mltgidx32,
+                    code,
+                    palo | (((trsptr->attr ^ attr) & 0xC000) | 0x2000),
+                    wk->my_clear_level,
+                    mt->id
+                );
                 break;
             }
 
