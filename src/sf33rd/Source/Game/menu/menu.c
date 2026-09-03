@@ -5291,6 +5291,38 @@ void Ex_Move_Sub_LR(u16 sw, s16 PL_id) {
     }
 }
 
+static void handle_end_replay_selection(struct _TASK* task_ptr) {
+    s16 ix;
+
+    switch (IO_Result) {
+    case 0x100:
+        switch (Menu_Cursor_Y[0]) {
+        case 0:
+            task_ptr->r_no[0] = 0xC;
+            task_ptr->r_no[1] = 0;
+
+            for (ix = 0; ix < 4; ix++) {
+                Menu_Suicide[ix] = 1;
+            }
+
+            SE_selected();
+            break;
+
+        case 1:
+            task_ptr->r_no[1] += 1;
+            SE_selected();
+            Menu_Suicide[0] = 1;
+            Menu_Cursor_Y[0] = 1;
+            effect_10_init(0, 0, 3, 3, 1, 0x13, 0xE);
+            effect_10_init(0, 1, 0, 0, 1, 0x14, 0x10);
+            effect_10_init(0, 1, 1, 1, 1, 0x1A, 0x10);
+            break;
+        }
+
+        break;
+    }
+}
+
 void End_Replay_Menu(struct _TASK* task_ptr) {
     s16 ix;
     s16 ans;
@@ -5327,35 +5359,7 @@ void End_Replay_Menu(struct _TASK* task_ptr) {
 
     case 2:
         MC_Move_Sub(Check_Menu_Lever(Pause_ID, 0), 0, 1, 0xFF);
-
-        switch (IO_Result) {
-        case 0x100:
-            switch (Menu_Cursor_Y[0]) {
-            case 0:
-                task_ptr->r_no[0] = 0xC;
-                task_ptr->r_no[1] = 0;
-
-                for (ix = 0; ix < 4; ix++) {
-                    Menu_Suicide[ix] = 1;
-                }
-
-                SE_selected();
-                break;
-
-            case 1:
-                task_ptr->r_no[1] += 1;
-                SE_selected();
-                Menu_Suicide[0] = 1;
-                Menu_Cursor_Y[0] = 1;
-                effect_10_init(0, 0, 3, 3, 1, 0x13, 0xE);
-                effect_10_init(0, 1, 0, 0, 1, 0x14, 0x10);
-                effect_10_init(0, 1, 1, 1, 1, 0x1A, 0x10);
-                break;
-            }
-
-            break;
-        }
-
+        handle_end_replay_selection(task_ptr);
         break;
 
     case 3:
