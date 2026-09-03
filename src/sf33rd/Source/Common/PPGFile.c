@@ -266,10 +266,10 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix
 
     if (tb == NULL) {
         tb = ppg_w.cur;
+    }
 
-        if (tb == NULL) {
-            return ppgWriteQuadWithST_A2(pos, col);
-        }
+    if (tb == NULL) {
+        return ppgWriteQuadWithST_A2(pos, col);
     }
 
     texhan = tb->tex->handle[tix - tb->tex->ixNum1st].b16[0];
@@ -346,25 +346,28 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix
                     qvtx[3].y = pos->y + (pys * (sy + ys) / ppghf);
                 }
 
-                if ((qvtx[0].x < 384.0f) && (qvtx[3].x >= 0.0f) && (qvtx[0].y < 224.0f) && (qvtx[3].y >= 0.0f)) {
-                    if (flip & 1) {
-                        qvtx[3].s = (sx / ppgwf) - sadd;
-                        qvtx[0].s = ((sx + xs) / ppgwf) - sadd;
-                    } else {
-                        qvtx[0].s = sadd + (sx / ppgwf);
-                        qvtx[3].s = sadd + ((sx + xs) / ppgwf);
-                    }
-
-                    if (flip & 2) {
-                        qvtx[3].t = (sy / ppghf) - tadd;
-                        qvtx[0].t = ((sy + ys) / ppghf) - tadd;
-                    } else {
-                        qvtx[0].t = tadd + (sy / ppghf);
-                        qvtx[3].t = tadd + ((sy + ys) / ppghf);
-                    }
-
-                    ppgWriteQuadOnly2(qvtx, col, texhan | (palhan << 0x10));
+                if (!((qvtx[0].x < 384.0f) && (qvtx[3].x >= 0.0f) && (qvtx[0].y < 224.0f) &&
+                      (qvtx[3].y >= 0.0f))) {
+                    continue;
                 }
+
+                if (flip & 1) {
+                    qvtx[3].s = (sx / ppgwf) - sadd;
+                    qvtx[0].s = ((sx + xs) / ppgwf) - sadd;
+                } else {
+                    qvtx[0].s = sadd + (sx / ppgwf);
+                    qvtx[3].s = sadd + ((sx + xs) / ppgwf);
+                }
+
+                if (flip & 2) {
+                    qvtx[3].t = (sy / ppghf) - tadd;
+                    qvtx[0].t = ((sy + ys) / ppghf) - tadd;
+                } else {
+                    qvtx[0].t = tadd + (sy / ppghf);
+                    qvtx[3].t = tadd + ((sy + ys) / ppghf);
+                }
+
+                ppgWriteQuadOnly2(qvtx, col, texhan | (palhan << 0x10));
             }
 
             return 1;
