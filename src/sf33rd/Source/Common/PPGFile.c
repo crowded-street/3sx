@@ -1330,6 +1330,10 @@ s32 ppgReleasePaletteHandle(Palette* pch, s32 ixNum) {
     return ppgCheckPaletteDataBe(pch);
 }
 
+static bool ppgTextureIndexIsInRange(s32 ix, const Texture* tch) {
+    return (ix >= 0) && (ix < tch->total);
+}
+
 s32 ppgReleaseTextureHandle(Texture* tch, s32 ixNum) {
     s32 i;
     s32 ix;
@@ -1364,7 +1368,7 @@ s32 ppgReleaseTextureHandle(Texture* tch, s32 ixNum) {
     } else {
         ix = ixNum - tch->ixNum1st;
 
-        if ((ix >= 0) && (ix < tch->total)) {
+        if (ppgTextureIndexIsInRange(ix, tch)) {
             han = tch->handle[ix].b16[0];
 
             if (han) {
