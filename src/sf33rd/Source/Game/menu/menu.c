@@ -4536,6 +4536,91 @@ void Dummy_Move_Sub_LR(u16 sw, s16 id, s16 type, s16 cursor_id) {
     }
 }
 
+static void handle_blocking_training_selection(struct _TASK* task_ptr) {
+    switch (Menu_Cursor_Y[0]) {
+    case 0:
+        Record_Data_Tr = 1;
+        Training[0] = Training[2];
+        Training[0].contents[1][0][2] = 1;
+        Training[1] = Training[2];
+
+        switch (Training[0].contents[1][0][0]) {
+        case 0:
+            control_pl_rno = 0;
+            break;
+
+        case 1:
+            control_pl_rno = 1;
+            break;
+
+        case 2:
+            control_pl_rno = 2;
+            break;
+        }
+
+        /* fallthrough */
+
+    case 1:
+        if (Menu_Cursor_Y[0] == 0) {
+            Play_Mode = 1;
+        } else {
+            Play_Mode = 3;
+        }
+
+        All_Clear_Timer();
+        Check_Replay();
+
+        if (Menu_Cursor_Y[0] == 1) {
+            Replay_Status[Training_ID] = 0;
+            Replay_Status[Training_ID ^ 1] = 3;
+            Training[0] = Training[1];
+            Training[0].contents[1][0][2] = Training[2].contents[1][0][2];
+            Training[0].contents[1][0][3] = Training[2].contents[1][0][3];
+            control_pl_rno = 99;
+        }
+
+        task_ptr->r_no[0] = 10;
+        task_ptr->r_no[1] = 0;
+        task_ptr->r_no[2] = 0;
+        task_ptr->r_no[3] = 0;
+        Menu_Suicide[0] = 1;
+        Game_pause = 0;
+        Pause_Down = 0;
+        save_w[Present_Mode].Time_Limit = 60;
+        count_cont_init(0);
+        Training[0].contents[1][1][3] = Menu_Cursor_Y[0];
+        init_omop();
+        set_init_A4_flag();
+        Training_Cursor = Menu_Cursor_Y[0];
+        break;
+
+    case 2:
+        task_ptr->r_no[1] = 7;
+        task_ptr->r_no[2] = 0;
+        task_ptr->r_no[3] = 0;
+        Training_Cursor = 2;
+        break;
+
+    case 3:
+        Training_Cursor = 3;
+        /* fallthrough */
+
+    case 4:
+        task_ptr->r_no[1] = Menu_Cursor_Y[0] + 2;
+        task_ptr->r_no[2] = 0;
+        task_ptr->r_no[3] = 0;
+        break;
+
+    case 5:
+        Training_Cursor = 5;
+        Training_Exit_Sub(task_ptr);
+        break;
+    }
+
+    SsBgmHalfVolume(0);
+    SE_selected();
+}
+
 void Blocking_Training(struct _TASK* task_ptr) {
     s16 ix;
     s16 x;
@@ -4577,88 +4662,7 @@ void Blocking_Training(struct _TASK* task_ptr) {
 
         switch (IO_Result) {
         case 0x100:
-            switch (Menu_Cursor_Y[0]) {
-            case 0:
-                Record_Data_Tr = 1;
-                Training[0] = Training[2];
-                Training[0].contents[1][0][2] = 1;
-                Training[1] = Training[2];
-
-                switch (Training[0].contents[1][0][0]) {
-                case 0:
-                    control_pl_rno = 0;
-                    break;
-
-                case 1:
-                    control_pl_rno = 1;
-                    break;
-
-                case 2:
-                    control_pl_rno = 2;
-                    break;
-                }
-
-                /* fallthrough */
-
-            case 1:
-                if (Menu_Cursor_Y[0] == 0) {
-                    Play_Mode = 1;
-                } else {
-                    Play_Mode = 3;
-                }
-
-                All_Clear_Timer();
-                Check_Replay();
-
-                if (Menu_Cursor_Y[0] == 1) {
-                    Replay_Status[Training_ID] = 0;
-                    Replay_Status[Training_ID ^ 1] = 3;
-                    Training[0] = Training[1];
-                    Training[0].contents[1][0][2] = Training[2].contents[1][0][2];
-                    Training[0].contents[1][0][3] = Training[2].contents[1][0][3];
-                    control_pl_rno = 99;
-                }
-
-                task_ptr->r_no[0] = 10;
-                task_ptr->r_no[1] = 0;
-                task_ptr->r_no[2] = 0;
-                task_ptr->r_no[3] = 0;
-                Menu_Suicide[0] = 1;
-                Game_pause = 0;
-                Pause_Down = 0;
-                save_w[Present_Mode].Time_Limit = 60;
-                count_cont_init(0);
-                Training[0].contents[1][1][3] = Menu_Cursor_Y[0];
-                init_omop();
-                set_init_A4_flag();
-                Training_Cursor = Menu_Cursor_Y[0];
-                break;
-
-            case 2:
-                task_ptr->r_no[1] = 7;
-                task_ptr->r_no[2] = 0;
-                task_ptr->r_no[3] = 0;
-                Training_Cursor = 2;
-                break;
-
-            case 3:
-                Training_Cursor = 3;
-                /* fallthrough */
-
-            case 4:
-                task_ptr->r_no[1] = Menu_Cursor_Y[0] + 2;
-                task_ptr->r_no[2] = 0;
-                task_ptr->r_no[3] = 0;
-                break;
-
-            case 5:
-                Training_Cursor = 5;
-                Training_Exit_Sub(task_ptr);
-                break;
-            }
-
-            SsBgmHalfVolume(0);
-            SE_selected();
+            handle_blocking_training_selection(task_ptr);
             break;
         }
 
