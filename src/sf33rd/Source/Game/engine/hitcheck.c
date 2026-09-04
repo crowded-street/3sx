@@ -1185,84 +1185,143 @@ s32 defense_sky_cps3(PLW* as, PLW* ds, s8 gddir) { // 🟢
     return 1;
 }
 
-s32 defense_sky_ps2(PLW* as, PLW* ds, s8 gddir) { // 🔴
+typedef struct {
+    PLW* attacker;
+    PLW* defender;
     s8 just_now;
-    s8 attr_att;
-    s8 abs;
-    s8 ags;
+    s8 attack_attribute;
+    s8 automatic_parry;
+    s8 automatic_guard;
+} Ps2AirDefense;
 
-    abs = (ds->spmv_ng_flag & DIP_AUTO_PARRY_DISABLED) == 0;
-    ags = (ds->spmv_ng_flag & DIP_AUTO_GUARD_DISABLED) == 0;
+static bool can_ps2_air_parry(const Ps2AirDefense* defense) {
+    if (defense->defender->py->flag != 0) {
+        return false;
+    }
+
+    if (defense->defender->guard_flag & 2) {
+        return false;
+    }
+
+    if (!(defense->attacker->wu.att.guard & 4)) {
+        return false;
+    }
+
+    if (defense->just_now) {
+        if (defense->defender->spmv_ng_flag & DIP_RED_PARRY_DISABLED) {
+            return false;
+        }
+
+        if (defense->defender->cp->waza_flag[5] >=
+            grdb2[defense->defender->wu.id][defense->attack_attribute]) {
+            return true;
+        }
+
+        return defense->automatic_parry;
+    }
+
+    if (defense->defender->spmv_ng_flag & DIP_AIR_PARRY_DISABLED) {
+        return false;
+    }
+
+    if (defense->defender->cp->waza_flag[5] != 0) {
+        return true;
+    }
+
+    return defense->automatic_parry;
+}
+
+static s32 resolve_ps2_air_parry(const Ps2AirDefense* defense) {
+    blocking_point_count_up(defense->defender);
+    defense->attacker->wu.hf.hit.player = 0x80;
+    defense->defender->wu.routine_no[2] = 0x22;
+
+    if (check_dm_att_blocking(&defense->attacker->wu, &defense->defender->wu, 7)) {
+        return 2;
+    }
+
+    return 0;
+}
+
+static bool bypasses_ps2_air_guard_input(const Ps2AirDefense* defense) {
+    if (defense->defender->auto_guard) {
+        return true;
+    }
+
+    if (defense->automatic_guard) {
+        return true;
+    }
+
+    if (defense->defender->spmv_ng_flag & DIP_ABSOLUTE_GUARD_DISABLED) {
+        return false;
+    }
+
+    return defense->just_now;
+}
+
+static bool is_ps2_air_guard_rejected(const Ps2AirDefense* defense, s8 gddir) {
+    if (!(defense->attacker->wu.att.guard & 32)) {
+        return true;
+    }
+
+    if (defense->defender->guard_flag & 1) {
+        return true;
+    }
+
+    if (defense->defender->spmv_ng_flag & DIP_AIR_GUARD_DISABLED) {
+        return true;
+    }
+
+    if (bypasses_ps2_air_guard_input(defense)) {
+        return false;
+    }
+
+    if (!(defense->defender->saishin_lvdir & gddir)) {
+        return true;
+    }
+
+    return defense->defender->cp->sw_lvbt & 3;
+}
+
+static s32 finish_ps2_air_guard(const Ps2AirDefense* defense) {
+    defense->attacker->wu.hf.hit.player = 0x20;
+    defense->defender->wu.routine_no[2] = 7;
+
+    if (check_dm_att_guard(&defense->attacker->wu, &defense->defender->wu, 2)) {
+        return 2;
+    }
+
+    return 1;
+}
+
+s32 defense_sky_ps2(PLW* as, PLW* ds, s8 gddir) { // 🔴
+    Ps2AirDefense defense;
+
+    defense.attacker = as;
+    defense.defender = ds;
+    defense.automatic_parry = (ds->spmv_ng_flag & DIP_AUTO_PARRY_DISABLED) == 0;
+    defense.automatic_guard = (ds->spmv_ng_flag & DIP_AUTO_GUARD_DISABLED) == 0;
 
     if (ds->dead_flag) {
         ds->guard_flag = 3;
     }
 
-    just_now = 0;
+    defense.just_now = 0;
 
     if (ds->guard_chuu != 0 && ds->guard_chuu < 5) {
-        just_now = 1;
-        attr_att = check_normal_attack(as->wu.kind_of_waza);
+        defense.just_now = 1;
+        defense.attack_attribute = check_normal_attack(as->wu.kind_of_waza);
     }
 
-    if (ds->py->flag == 0 && !(ds->guard_flag & 2) && as->wu.att.guard & 4) {
-        if (just_now) {
-            if (!(ds->spmv_ng_flag & DIP_RED_PARRY_DISABLED) &&
-                (ds->cp->waza_flag[5] >= grdb2[ds->wu.id][attr_att] || abs)) {
-                blocking_point_count_up(ds);
-                as->wu.hf.hit.player = 0x80;
-                ds->wu.routine_no[2] = 0x22;
-
-                if (check_dm_att_blocking(&as->wu, &ds->wu, 7)) {
-                    return 2;
-                }
-
-                return 0;
-            }
-        } else if (!(ds->spmv_ng_flag & DIP_AIR_PARRY_DISABLED) && ((ds->cp->waza_flag[5] != 0) || abs)) {
-            blocking_point_count_up(ds);
-            as->wu.hf.hit.player = 0x80;
-            ds->wu.routine_no[2] = 0x22;
-
-            if (check_dm_att_blocking(&as->wu, &ds->wu, 7)) {
-                return 2;
-            }
-
-            return 0;
-        }
+    if (can_ps2_air_parry(&defense)) {
+        return resolve_ps2_air_parry(&defense);
     }
 
-    if (!(as->wu.att.guard & 32)) {
+    if (is_ps2_air_guard_rejected(&defense, gddir)) {
         return 2;
     }
 
-    if (ds->guard_flag & 1) {
-        return 2;
-    }
-
-    if (ds->spmv_ng_flag & DIP_AIR_GUARD_DISABLED) {
-        return 2;
-    }
-
-    if (!ds->auto_guard && !ags) {
-        if ((ds->spmv_ng_flag & DIP_ABSOLUTE_GUARD_DISABLED) || !just_now) {
-            if (!(ds->saishin_lvdir & gddir)) {
-                return 2;
-            }
-            if (ds->cp->sw_lvbt & 3) {
-                return 2;
-            }
-        }
-    }
-
-    as->wu.hf.hit.player = 0x20;
-    ds->wu.routine_no[2] = 7;
-
-    if (check_dm_att_guard(&as->wu, &ds->wu, 2)) {
-        return 2;
-    }
-
-    return 1;
+    return finish_ps2_air_guard(&defense);
 }
 
 s32 defense_sky(PLW* as, PLW* ds, s8 gddir) { // 🟡
