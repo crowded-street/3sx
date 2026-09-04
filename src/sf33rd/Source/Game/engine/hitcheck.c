@@ -1666,6 +1666,28 @@ void cal_combo_waribiki2(PLW* ds) { // 🟢
     }
 }
 
+static bool should_skip_catch_target(WORK* mad, WORK* sad) {
+    if (!(mad->att.guard & 0x18)) {
+        if (!((PLW*)sad)->tsukamarenai_flag) {
+            if (!(mad->att.dipsw & 0x60)) {
+                if ((sad->routine_no[1] == 1) && (sad->routine_no[3] != 0)) {
+                    if (sad->routine_no[2] != 0x19) {
+                        return true;
+                    }
+                }
+            } else if ((sad->routine_no[1] == 1) && (sad->routine_no[3] != 0) && (sad->cg_type != 10)) {
+                if (!dm_oiuchi_catch[sad->routine_no[2]]) {
+                    return true;
+                }
+            }
+        } else {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void catch_hit_check() { // 🟢
     WORK* mad;
     WORK* sad;
@@ -1716,22 +1738,8 @@ void catch_hit_check() { // 🟢
                 continue;
             }
 
-            if (!(mad->att.guard & 0x18)) {
-                if (!((PLW*)sad)->tsukamarenai_flag) {
-                    if (!(mad->att.dipsw & 0x60)) {
-                        if ((sad->routine_no[1] == 1) && (sad->routine_no[3] != 0)) {
-                            if (sad->routine_no[2] != 0x19) {
-                                continue;
-                            }
-                        }
-                    } else if ((sad->routine_no[1] == 1) && (sad->routine_no[3] != 0) && (sad->cg_type != 10)) {
-                        if (!dm_oiuchi_catch[sad->routine_no[2]]) {
-                            continue;
-                        }
-                    }
-                } else {
-                    continue;
-                }
+            if (should_skip_catch_target(mad, sad)) {
+                continue;
             }
 
             if (hit_check_subroutine(mad, sad, mh, sh)) {
