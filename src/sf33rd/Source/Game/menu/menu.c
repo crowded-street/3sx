@@ -282,8 +282,72 @@ void Menu_Init(struct _TASK* task_ptr) {
     cpReadyTask(TASK_SAVER, Saver_Task);
 }
 
-void Mode_Select(struct _TASK* task_ptr) {
+static void initialize_mode_select(struct _TASK* task_ptr, const s16 loop_counter) {
     s16 ix;
+
+    FadeOut(1, 0xFF, 8);
+    task_ptr->r_no[2] += 1;
+    task_ptr->timer = 5;
+    Mode_Type = MODE_ARCADE;
+    Present_Mode = 1;
+
+    if (task[TASK_ENTRY].condition != 1) {
+        E_No[0] = 1;
+        E_No[1] = 2;
+        E_No[2] = 2;
+        E_No[3] = 0;
+        cpReadyTask(TASK_ENTRY, Entry_Task);
+    }
+
+    Menu_Common_Init();
+
+    for (ix = 0; ix < 4; ix++) {
+        Menu_Suicide[ix] = 0;
+    }
+
+    Clear_Personal_Data(0);
+    Clear_Personal_Data(1);
+    Menu_Cursor_Y[0] = Cursor_Y_Pos[0][0];
+
+    if (Menu_Cursor_Y[0] >= loop_counter) {
+        Menu_Cursor_Y[0] = loop_counter - 1;
+    }
+
+    Cursor_Y_Pos[0][1] = 0;
+    Cursor_Y_Pos[0][2] = 0;
+    Cursor_Y_Pos[0][3] = 0;
+
+    for (ix = 0; ix < 4; ix++) {
+        Vital_Handicap[ix][0] = 7;
+        Vital_Handicap[ix][1] = 7;
+    }
+
+    VS_Stage = 0x14;
+    Order[0x8A] = 4;
+    Order_Timer[0x8A] = 1;
+
+    for (ix = 0; ix < 4; ix++) {
+        Message_Data[ix].order = 3;
+    }
+
+    effect_57_init(0x64, MENU_HEADER_MODE_MENU, 0, 0x3F, 2);
+    Order[0x64] = 1;
+    Order_Dir[0x64] = 8;
+    Order_Timer[0x64] = 1;
+    Menu_Suicide[0] = 0;
+    effect_04_init(0, 0, 0, 0x48);
+
+    for (ix = 0; ix < loop_counter; ix++) {
+        effect_61_init(0, ix + 0x50, 0, 0, (u32)ix, ix, 0x7047);
+        Order[ix + 0x50] = 1;
+        Order_Dir[ix + 0x50] = 4;
+        Order_Timer[ix + 0x50] = ix + 0x14;
+    }
+
+    Menu_Cursor_Move = loop_counter;
+}
+
+void Mode_Select(struct _TASK* task_ptr) {
     s16 PL_id;
 
     const bool supports_exit = App_SupportsExit();
@@ -291,66 +355,7 @@ void Mode_Select(struct _TASK* task_ptr) {
 
     switch (task_ptr->r_no[2]) {
     case 0:
-        FadeOut(1, 0xFF, 8);
-        task_ptr->r_no[2] += 1;
-        task_ptr->timer = 5;
-        Mode_Type = MODE_ARCADE;
-        Present_Mode = 1;
-
-        if (task[TASK_ENTRY].condition != 1) {
-            E_No[0] = 1;
-            E_No[1] = 2;
-            E_No[2] = 2;
-            E_No[3] = 0;
-            cpReadyTask(TASK_ENTRY, Entry_Task);
-        }
-
-        Menu_Common_Init();
-
-        for (ix = 0; ix < 4; ix++) {
-            Menu_Suicide[ix] = 0;
-        }
-
-        Clear_Personal_Data(0);
-        Clear_Personal_Data(1);
-        Menu_Cursor_Y[0] = Cursor_Y_Pos[0][0];
-
-        if (Menu_Cursor_Y[0] >= loop_counter) {
-            Menu_Cursor_Y[0] = loop_counter - 1;
-        }
-
-        Cursor_Y_Pos[0][1] = 0;
-        Cursor_Y_Pos[0][2] = 0;
-        Cursor_Y_Pos[0][3] = 0;
-
-        for (ix = 0; ix < 4; ix++) {
-            Vital_Handicap[ix][0] = 7;
-            Vital_Handicap[ix][1] = 7;
-        }
-
-        VS_Stage = 0x14;
-        Order[0x8A] = 4;
-        Order_Timer[0x8A] = 1;
-
-        for (ix = 0; ix < 4; ix++) {
-            Message_Data[ix].order = 3;
-        }
-
-        effect_57_init(0x64, MENU_HEADER_MODE_MENU, 0, 0x3F, 2);
-        Order[0x64] = 1;
-        Order_Dir[0x64] = 8;
-        Order_Timer[0x64] = 1;
-        Menu_Suicide[0] = 0;
-        effect_04_init(0, 0, 0, 0x48);
-
-        for (ix = 0; ix < loop_counter; ix++) {
-            effect_61_init(0, ix + 0x50, 0, 0, (u32)ix, ix, 0x7047);
-            Order[ix + 0x50] = 1;
-            Order_Dir[ix + 0x50] = 4;
-            Order_Timer[ix + 0x50] = ix + 0x14;
-        }
-
-        Menu_Cursor_Move = loop_counter;
+        initialize_mode_select(task_ptr, loop_counter);
         break;
 
     case 1:
@@ -466,9 +471,27 @@ void Menu_in_Sub(struct _TASK* task_ptr) {
     Order_Timer[0x64] = 1;
 }
 
-void toSelectGame(struct _TASK* task_ptr) {
+static void handle_select_game_input(struct _TASK* task_ptr) {
     u16 sw;
 
+    imgSelectGameButton();
+    sw = (~plsw_01[0] & plsw_00[0]) | (~plsw_01[1] & plsw_00[1]); // potential macro
+    sw &= (SWK_SOUTH | SWK_EAST);
+
+    if (sw != 0) {
+        if (sw != (SWK_SOUTH | SWK_EAST)) {
+            if (sw & SWK_SOUTH) {
+                task_ptr->free[0] = 1;
+            }
+
+            SE_selected();
+            FadeInit();
+            task_ptr->r_no[2] = 8;
+        }
+    }
+}
+
+void toSelectGame(struct _TASK* task_ptr) {
     switch (task_ptr->r_no[2]) {
     case 0:
         Forbid_Reset = 1;
@@ -504,23 +527,7 @@ void toSelectGame(struct _TASK* task_ptr) {
         break;
 
     case 3:
-        imgSelectGameButton();
-        sw = (~plsw_01[0] & plsw_00[0]) | (~plsw_01[1] & plsw_00[1]); // potential macro
-        sw &= (SWK_SOUTH | SWK_EAST);
-
-        if (sw != 0) {
-            if (sw != (SWK_SOUTH | SWK_EAST)) {
-                if (sw & SWK_SOUTH) {
-                    task_ptr->free[0] = 1;
-                }
-
-                SE_selected();
-                FadeInit();
-                task_ptr->r_no[2] = 8;
-                break;
-            }
-        }
-
+        handle_select_game_input(task_ptr);
         break;
 
     case 8:
@@ -1130,32 +1137,35 @@ u16 Dir_Move_Sub2(u16 sw) {
     }
 }
 
+static void move_direction_option_left(u8 last_pos) {
+    SE_dir_cursor_move();
+    system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] -= 1;
+
+    if (Menu_Cursor_Y[0] == Menu_Max) {
+        if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] < 0) {
+            system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 0;
+            IO_Result = 0x80;
+            return;
+        }
+
+        if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] != last_pos) {
+            Message_Data->order = 1;
+            Message_Data->request = system_dir[1].contents[Menu_Page][Menu_Max] + 0x74;
+            Message_Data->timer = 2;
+        }
+    } else {
+        if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] < 0) {
+            system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = Dir_Menu_Max_Data[Menu_Page][Menu_Cursor_Y[0]];
+        }
+    }
+}
+
 void Dir_Move_Sub_LR(u16 sw, s16 /* unused */) {
     u8 last_pos = system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]];
 
     switch (sw) {
     case 0x4:
-        SE_dir_cursor_move();
-        system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] -= 1;
-
-        if (Menu_Cursor_Y[0] == Menu_Max) {
-            if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] < 0) {
-                system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 0;
-                IO_Result = 0x80;
-                return;
-            }
-
-            if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] != last_pos) {
-                Message_Data->order = 1;
-                Message_Data->request = system_dir[1].contents[Menu_Page][Menu_Max] + 0x74;
-                Message_Data->timer = 2;
-            }
-        } else {
-            if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] < 0) {
-                system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = Dir_Menu_Max_Data[Menu_Page][Menu_Cursor_Y[0]];
-            }
-        }
-
+        move_direction_option_left(last_pos);
         return;
 
     case 0x8:
@@ -3057,7 +3067,7 @@ void Wait_Replay_Check(struct _TASK* task_ptr) {
     }
 }
 
-void VS_Result(struct _TASK* task_ptr) {
+static void initialize_vs_result(struct _TASK* task_ptr) {
     s16 ix;
     s16 char_ix2;
     s16 total_battle;
@@ -3066,6 +3076,67 @@ void VS_Result(struct _TASK* task_ptr) {
     s16 s4;
     s16 s3;
 
+    FadeOut(1, 0xFF, 8);
+    task_ptr->r_no[2]++;
+    task_ptr->timer = 5;
+    Menu_Common_Init();
+    Menu_Cursor_Y[0] = Cursor_Y_Pos[0][0];
+    Menu_Cursor_Y[1] = Cursor_Y_Pos[1][0];
+    Menu_Suicide[0] = 0;
+    Menu_Suicide[1] = 1;
+    Menu_Cursor_X[0] = 0;
+    Menu_Cursor_X[1] = 0;
+    Order[78] = 2;
+    Order_Dir[78] = 0;
+    Order_Timer[78] = 1;
+    effect_66_init(91, 12, 0, 0, 71, 9, 0);
+    Order[91] = 3;
+    Order_Timer[91] = 1;
+    effect_66_init(138, 24, 0, 0, -1, -1, -0x7FF9);
+    Order[138] = 3;
+    Order_Timer[138] = 1;
+    effect_66_init(139, 25, 0, 0, -1, -1, -0x7FF9);
+    Order[139] = 3;
+    Order_Timer[139] = 1;
+    effect_A0_init(0, VS_Win_Record[0], 0, 3, 0, 0, 0);
+    effect_A0_init(0, VS_Win_Record[1], 1, 3, 0, 0, 0);
+    total_battle = VS_Win_Record[0] + VS_Win_Record[1];
+
+    if (total_battle == 0) {
+        total_battle = 1;
+    }
+
+    if (VS_Win_Record[0] >= VS_Win_Record[1]) {
+        ave[1] = (VS_Win_Record[1] * 100) / total_battle;
+
+        if (ave[1] == 0 && VS_Win_Record[1] > 0) {
+            ave[1] = 1;
+        }
+
+        ave[0] = 100 - ave[1];
+    } else {
+        ave[0] = (VS_Win_Record[0] * 100) / total_battle;
+
+        if (ave[0] == 0 && VS_Win_Record[0] > 0) {
+            ave[0] = 1;
+        }
+
+        ave[1] = 100 - ave[0];
+    }
+
+    effect_A0_init(0, ave[0], 2, 3, 0, 0, 0);
+    effect_A0_init(0, ave[1], 3, 3, 0, 0, 0);
+
+    for (ix = 0, s4 = char_ix2 = 22; ix < 3; ix++, s3 = char_ix2++) {
+        effect_91_init(0, ix, 0, 71, char_ix2, 0);
+        effect_91_init(1, ix, 0, 71, char_ix2, 0);
+    }
+
+    Setup_Win_Lose_OBJ();
+    Menu_Cursor_Move = 0;
+}
+
+void VS_Result(struct _TASK* task_ptr) {
     Clear_Flash_Sub();
 
     switch (task_ptr->r_no[2]) {
@@ -3083,64 +3154,7 @@ void VS_Result(struct _TASK* task_ptr) {
         break;
 
     case 1:
-        FadeOut(1, 0xFF, 8);
-        task_ptr->r_no[2]++;
-        task_ptr->timer = 5;
-        Menu_Common_Init();
-        Menu_Cursor_Y[0] = Cursor_Y_Pos[0][0];
-        Menu_Cursor_Y[1] = Cursor_Y_Pos[1][0];
-        Menu_Suicide[0] = 0;
-        Menu_Suicide[1] = 1;
-        Menu_Cursor_X[0] = 0;
-        Menu_Cursor_X[1] = 0;
-        Order[78] = 2;
-        Order_Dir[78] = 0;
-        Order_Timer[78] = 1;
-        effect_66_init(91, 12, 0, 0, 71, 9, 0);
-        Order[91] = 3;
-        Order_Timer[91] = 1;
-        effect_66_init(138, 24, 0, 0, -1, -1, -0x7FF9);
-        Order[138] = 3;
-        Order_Timer[138] = 1;
-        effect_66_init(139, 25, 0, 0, -1, -1, -0x7FF9);
-        Order[139] = 3;
-        Order_Timer[139] = 1;
-        effect_A0_init(0, VS_Win_Record[0], 0, 3, 0, 0, 0);
-        effect_A0_init(0, VS_Win_Record[1], 1, 3, 0, 0, 0);
-        total_battle = VS_Win_Record[0] + VS_Win_Record[1];
-
-        if (total_battle == 0) {
-            total_battle = 1;
-        }
-
-        if (VS_Win_Record[0] >= VS_Win_Record[1]) {
-            ave[1] = (VS_Win_Record[1] * 100) / total_battle;
-
-            if (ave[1] == 0 && VS_Win_Record[1] > 0) {
-                ave[1] = 1;
-            }
-
-            ave[0] = 100 - ave[1];
-        } else {
-            ave[0] = (VS_Win_Record[0] * 100) / total_battle;
-
-            if (ave[0] == 0 && VS_Win_Record[0] > 0) {
-                ave[0] = 1;
-            }
-
-            ave[1] = 100 - ave[0];
-        }
-
-        effect_A0_init(0, ave[0], 2, 3, 0, 0, 0);
-        effect_A0_init(0, ave[1], 3, 3, 0, 0, 0);
-
-        for (ix = 0, s4 = char_ix2 = 22; ix < 3; ix++, s3 = char_ix2++) {
-            effect_91_init(0, ix, 0, 71, char_ix2, 0);
-            effect_91_init(1, ix, 0, 71, char_ix2, 0);
-        }
-
-        Setup_Win_Lose_OBJ();
-        Menu_Cursor_Move = 0;
+        initialize_vs_result(task_ptr);
         break;
 
     case 2:
@@ -4764,46 +4778,48 @@ void Training_Exit_Sub(struct _TASK* task_ptr) {
 void Character_Change(struct _TASK* task_ptr) {
     s16 ix;
 
-    if (Check_Pad_in_Pause(task_ptr) == 0) {
-        switch (task_ptr->r_no[2]) {
-        case 0:
-            task_ptr->r_no[2]++;
-            task_ptr->timer = 0xA;
-            Game_pause = 0x81;
-            break;
+    if (!(Check_Pad_in_Pause(task_ptr) == 0)) {
+        return;
+    }
 
-        case 1:
-            if ((task_ptr->timer -= 1) == 0) {
-                if (!Check_LDREQ_Break()) {
-                    task_ptr->r_no[2]++;
-                    Switch_Screen_Init(0);
-                    return;
-                }
+    switch (task_ptr->r_no[2]) {
+    case 0:
+        task_ptr->r_no[2]++;
+        task_ptr->timer = 0xA;
+        Game_pause = 0x81;
+        break;
 
-                task_ptr->timer = 1;
+    case 1:
+        if ((task_ptr->timer -= 1) == 0) {
+            if (!Check_LDREQ_Break()) {
+                task_ptr->r_no[2]++;
+                Switch_Screen_Init(0);
                 return;
             }
-            break;
 
-        case 2:
-            if (Switch_Screen(0) != 0) {
-                task_ptr->r_no[2]++;
-                Cover_Timer = 0x17;
-                G_No[1] = 1;
-                G_No[2] = 0;
-                G_No[3] = 0;
-
-                for (ix = 0; ix < 2; ix++) {
-                    Sel_PL_Complete[ix] = 0;
-                    Sel_Arts_Complete[ix] = 0;
-                    plw[ix].wu.operator = 1;
-                    Operator_Status[ix] = 1;
-                }
-
-                cpExitTask(TASK_MENU);
-            }
-            break;
+            task_ptr->timer = 1;
+            return;
         }
+        break;
+
+    case 2:
+        if (Switch_Screen(0) != 0) {
+            task_ptr->r_no[2]++;
+            Cover_Timer = 0x17;
+            G_No[1] = 1;
+            G_No[2] = 0;
+            G_No[3] = 0;
+
+            for (ix = 0; ix < 2; ix++) {
+                Sel_PL_Complete[ix] = 0;
+                Sel_Arts_Complete[ix] = 0;
+                plw[ix].wu.operator = 1;
+                Operator_Status[ix] = 1;
+            }
+
+            cpExitTask(TASK_MENU);
+        }
+        break;
     }
 }
 
@@ -5202,34 +5218,37 @@ void Extra_Option(struct _TASK* task_ptr) {
     }
 }
 
+static void move_extra_option_left(u8 last_pos) {
+    if (Menu_Page_Buff != 0 || Menu_Cursor_Y[0] != 4) {
+        SE_dir_cursor_move();
+    }
+
+    save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]]--;
+
+    if (Menu_Cursor_Y[0] == Menu_Max) {
+        if (save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] < 0) {
+            save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] = 0;
+            IO_Result = 0x80;
+            return;
+        }
+
+        if (save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] != last_pos) {
+            Message_Data->order = 1;
+            Message_Data->request = save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Max] + 32;
+            Message_Data->timer = 2;
+        }
+    } else if (save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] < 0) {
+        save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] =
+            Ex_Menu_Max_Data[Menu_Page][Menu_Cursor_Y[0]];
+    }
+}
+
 void Ex_Move_Sub_LR(u16 sw, s16 PL_id) {
     u8 last_pos = save_w[Present_Mode].extra_option.contents[Menu_Page][Menu_Cursor_Y[0]];
 
     switch (sw) {
     case 4:
-        if (Menu_Page_Buff != 0 || Menu_Cursor_Y[0] != 4) {
-            SE_dir_cursor_move();
-        }
-
-        save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]]--;
-
-        if (Menu_Cursor_Y[0] == Menu_Max) {
-            if (save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] < 0) {
-                save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] = 0;
-                IO_Result = 0x80;
-                break;
-            }
-
-            if (save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] != last_pos) {
-                Message_Data->order = 1;
-                Message_Data->request = save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Max] + 32;
-                Message_Data->timer = 2;
-            }
-        } else if (save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] < 0) {
-            save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] =
-                Ex_Menu_Max_Data[Menu_Page][Menu_Cursor_Y[0]];
-        }
-
+        move_extra_option_left(last_pos);
         return;
 
     case 8:
@@ -5289,6 +5308,38 @@ void Ex_Move_Sub_LR(u16 sw, s16 PL_id) {
     }
 }
 
+static void handle_end_replay_selection(struct _TASK* task_ptr) {
+    s16 ix;
+
+    switch (IO_Result) {
+    case 0x100:
+        switch (Menu_Cursor_Y[0]) {
+        case 0:
+            task_ptr->r_no[0] = 0xC;
+            task_ptr->r_no[1] = 0;
+
+            for (ix = 0; ix < 4; ix++) {
+                Menu_Suicide[ix] = 1;
+            }
+
+            SE_selected();
+            break;
+
+        case 1:
+            task_ptr->r_no[1] += 1;
+            SE_selected();
+            Menu_Suicide[0] = 1;
+            Menu_Cursor_Y[0] = 1;
+            effect_10_init(0, 0, 3, 3, 1, 0x13, 0xE);
+            effect_10_init(0, 1, 0, 0, 1, 0x14, 0x10);
+            effect_10_init(0, 1, 1, 1, 1, 0x1A, 0x10);
+            break;
+        }
+
+        break;
+    }
+}
+
 void End_Replay_Menu(struct _TASK* task_ptr) {
     s16 ix;
     s16 ans;
@@ -5325,35 +5376,7 @@ void End_Replay_Menu(struct _TASK* task_ptr) {
 
     case 2:
         MC_Move_Sub(Check_Menu_Lever(Pause_ID, 0), 0, 1, 0xFF);
-
-        switch (IO_Result) {
-        case 0x100:
-            switch (Menu_Cursor_Y[0]) {
-            case 0:
-                task_ptr->r_no[0] = 0xC;
-                task_ptr->r_no[1] = 0;
-
-                for (ix = 0; ix < 4; ix++) {
-                    Menu_Suicide[ix] = 1;
-                }
-
-                SE_selected();
-                break;
-
-            case 1:
-                task_ptr->r_no[1] += 1;
-                SE_selected();
-                Menu_Suicide[0] = 1;
-                Menu_Cursor_Y[0] = 1;
-                effect_10_init(0, 0, 3, 3, 1, 0x13, 0xE);
-                effect_10_init(0, 1, 0, 0, 1, 0x14, 0x10);
-                effect_10_init(0, 1, 1, 1, 1, 0x1A, 0x10);
-                break;
-            }
-
-            break;
-        }
-
+        handle_end_replay_selection(task_ptr);
         break;
 
     case 3:

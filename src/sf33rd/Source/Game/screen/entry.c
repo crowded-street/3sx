@@ -781,37 +781,39 @@ void Entry_Main_Sub(s16 PL_id, s16 Jump_Index) {
             break;
 
         case 2:
-            if (Forbid_Break != 1) {
-                if (PL_id == 0) {
-                    Naming_Cut_Sub_1P();
-                } else {
-                    Naming_Cut_Sub_2P();
-                }
-
-                if (Name_Input(PL_id)) {
-                    Name_In_Sub(PL_id);
-
-                    if (Naming_Cut[PL_id]) {
-                        Clear_Personal_Data(PL_id);
-                        return;
-                    }
-
-                    E_Number[PL_id][2] = 0;
-                    E_Number[PL_id][3] = 0;
-
-                    if (E_No[0] == 8) {
-                        E_Number[PL_id][0] = 8;
-                        E_Number[PL_id][1] = 1;
-                        return;
-                    }
-
-                    E_Number[PL_id][0] = 8;
-                    E_Number[PL_id][1] = 0;
-                    return;
-                }
+            if (!(Forbid_Break != 1)) {
+                break;
             }
 
-            break;
+            if (PL_id == 0) {
+                Naming_Cut_Sub_1P();
+            } else {
+                Naming_Cut_Sub_2P();
+            }
+
+            if (!Name_Input(PL_id)) {
+                break;
+            }
+
+            Name_In_Sub(PL_id);
+
+            if (Naming_Cut[PL_id]) {
+                Clear_Personal_Data(PL_id);
+                return;
+            }
+
+            E_Number[PL_id][2] = 0;
+            E_Number[PL_id][3] = 0;
+
+            if (E_No[0] == 8) {
+                E_Number[PL_id][0] = 8;
+                E_Number[PL_id][1] = 1;
+                return;
+            }
+
+            E_Number[PL_id][0] = 8;
+            E_Number[PL_id][1] = 0;
+            return;
         }
 
         break;
@@ -1143,6 +1145,36 @@ void In_Over_Sub(s16 PL_id) {
     }
 }
 
+static void begin_press_start_prompt(s16 PL_id) {
+    if (!--F_Timer[PL_id]) {
+        F_No1[PL_id] += 1;
+        F_Timer[PL_id] = 50;
+
+        if (save_w[1].extra_option.contents[3][5]) {
+            if (PL_id) {
+                SSPutStr(DE_X[1], 0, 9, "   PRESS 2P START", TopHUDPriority);
+            } else {
+                SSPutStr(DE_X[0], 0, 9, "   PRESS 1P START", TopHUDPriority);
+            }
+        }
+    }
+}
+
+static void update_press_start_prompt(s16 PL_id) {
+    if (--F_Timer[PL_id]) {
+        if (save_w[1].extra_option.contents[3][5]) {
+            if (PL_id) {
+                SSPutStr(DE_X[1], 0, 9, "   PRESS 2P START", TopHUDPriority);
+            } else {
+                SSPutStr(DE_X[0], 0, 9, "   PRESS 1P START", TopHUDPriority);
+            }
+        }
+    } else {
+        F_No1[PL_id] -= 1;
+        F_Timer[PL_id] = 30;
+    }
+}
+
 s32 Flash_Start(s16 PL_id) {
     switch (F_No1[PL_id]) {
     case 0:
@@ -1159,35 +1191,11 @@ s32 Flash_Start(s16 PL_id) {
         break;
 
     case 1:
-        if (!--F_Timer[PL_id]) {
-            F_No1[PL_id] += 1;
-            F_Timer[PL_id] = 50;
-
-            if (save_w[1].extra_option.contents[3][5]) {
-                if (PL_id) {
-                    SSPutStr(DE_X[1], 0, 9, "   PRESS 2P START", TopHUDPriority);
-                } else {
-                    SSPutStr(DE_X[0], 0, 9, "   PRESS 1P START", TopHUDPriority);
-                }
-            }
-        }
-
+        begin_press_start_prompt(PL_id);
         break;
 
     case 2:
-        if (--F_Timer[PL_id]) {
-            if (save_w[1].extra_option.contents[3][5]) {
-                if (PL_id) {
-                    SSPutStr(DE_X[1], 0, 9, "   PRESS 2P START", TopHUDPriority);
-                } else {
-                    SSPutStr(DE_X[0], 0, 9, "   PRESS 1P START", TopHUDPriority);
-                }
-            }
-        } else {
-            F_No1[PL_id] -= 1;
-            F_Timer[PL_id] = 30;
-        }
-
+        update_press_start_prompt(PL_id);
         break;
 
     case 3:

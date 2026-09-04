@@ -266,10 +266,10 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix
 
     if (tb == NULL) {
         tb = ppg_w.cur;
+    }
 
-        if (tb == NULL) {
-            return ppgWriteQuadWithST_A2(pos, col);
-        }
+    if (tb == NULL) {
+        return ppgWriteQuadWithST_A2(pos, col);
     }
 
     texhan = tb->tex->handle[tix - tb->tex->ixNum1st].b16[0];
@@ -346,25 +346,28 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix
                     qvtx[3].y = pos->y + (pys * (sy + ys) / ppghf);
                 }
 
-                if ((qvtx[0].x < 384.0f) && (qvtx[3].x >= 0.0f) && (qvtx[0].y < 224.0f) && (qvtx[3].y >= 0.0f)) {
-                    if (flip & 1) {
-                        qvtx[3].s = (sx / ppgwf) - sadd;
-                        qvtx[0].s = ((sx + xs) / ppgwf) - sadd;
-                    } else {
-                        qvtx[0].s = sadd + (sx / ppgwf);
-                        qvtx[3].s = sadd + ((sx + xs) / ppgwf);
-                    }
-
-                    if (flip & 2) {
-                        qvtx[3].t = (sy / ppghf) - tadd;
-                        qvtx[0].t = ((sy + ys) / ppghf) - tadd;
-                    } else {
-                        qvtx[0].t = tadd + (sy / ppghf);
-                        qvtx[3].t = tadd + ((sy + ys) / ppghf);
-                    }
-
-                    ppgWriteQuadOnly2(qvtx, col, texhan | (palhan << 0x10));
+                if (!((qvtx[0].x < 384.0f) && (qvtx[3].x >= 0.0f) && (qvtx[0].y < 224.0f) &&
+                      (qvtx[3].y >= 0.0f))) {
+                    continue;
                 }
+
+                if (flip & 1) {
+                    qvtx[3].s = (sx / ppgwf) - sadd;
+                    qvtx[0].s = ((sx + xs) / ppgwf) - sadd;
+                } else {
+                    qvtx[0].s = sadd + (sx / ppgwf);
+                    qvtx[3].s = sadd + ((sx + xs) / ppgwf);
+                }
+
+                if (flip & 2) {
+                    qvtx[3].t = (sy / ppghf) - tadd;
+                    qvtx[0].t = ((sy + ys) / ppghf) - tadd;
+                } else {
+                    qvtx[0].t = tadd + (sy / ppghf);
+                    qvtx[3].t = tadd + ((sy + ys) / ppghf);
+                }
+
+                ppgWriteQuadOnly2(qvtx, col, texhan | (palhan << 0x10));
             }
 
             return 1;
@@ -760,104 +763,108 @@ void ppgRenewDotDataSeqs(Texture* tch, u32 gix, u32* srcRam, u32 code, u32 size)
         tch = ppg_w.cur->tex;
     }
 
-    if (tch->be != 0) {
-        ix = gix - tch->ixNum1st;
+    if (!(tch->be != 0)) {
+        return;
+    }
 
-        if ((ix < 0) || (ix >= tch->total)) {
-            return;
-        }
+    ix = gix - tch->ixNum1st;
 
-        if (tch->handle[ix].b16[0] != 0) {
-            tch->handle[ix].b16[1] |= 0x2000;
+    if ((ix < 0) || (ix >= tch->total)) {
+        return;
+    }
 
-            switch (size) {
-            case 0x40:
-                srcRam8 = (u8*)srcRam;
-                dstRam8 = (u8*)(tch->srcAdrs + tch->srcSize * ix + CODE_0(code));
+    if (!(tch->handle[ix].b16[0] != 0)) {
+        return;
+    }
 
-                for (i = 0; i < 8; i++) {
-                    for (j = 0; j < 8; j++) {
-                        *dstRam8++ = srcRam8[dctex_linear[j + (i << 5)]];
-                    }
+    tch->handle[ix].b16[1] |= 0x2000;
 
-                    dstRam8 += 0xF8;
-                }
+    switch (size) {
+    case 0x40:
+        srcRam8 = (u8*)srcRam;
+        dstRam8 = (u8*)(tch->srcAdrs + tch->srcSize * ix + CODE_0(code));
 
-                break;
-
-            case 0x100:
-                srcRam8 = (u8*)srcRam;
-                dstRam8 = (u8*)(tch->srcAdrs + tch->srcSize * ix + CODE_0(code));
-
-                for (i = 0; i < 0x10; i++) {
-                    for (j = 0; j < 0x10; j++) {
-                        *dstRam8++ = srcRam8[dctex_linear[j + (i << 5)]];
-                    }
-
-                    dstRam8 += 0xF0;
-                }
-
-                break;
-
-            case 0x400:
-                srcRam8 = (u8*)srcRam;
-                dstRam8 = (u8*)(tch->srcAdrs + tch->srcSize * ix + CODE_1(code));
-                tix = (u16*)dctex_linear;
-
-                for (i = 0; i < 0x20; i++) {
-                    for (j = 0; j < 0x20; j++) {
-                        *dstRam8++ = srcRam8[*tix++];
-                    }
-
-                    dstRam8 += 0xE0;
-                }
-
-                break;
-
-            case 0x80:
-                srcRam16 = (u16*)srcRam;
-                dstRam16 = (u16*)(tch->srcAdrs + tch->srcSize * ix + (CODE_0(code)) * 2);
-
-                for (i = 0; i < 8; i++) {
-                    for (j = 0; j < 8; j++) {
-                        *dstRam16++ = srcRam16[dctex_linear[j + (i << 5)]];
-                    }
-
-                    dstRam16 += 0xF8;
-                }
-
-                break;
-
-            case 0x200:
-                srcRam16 = (u16*)srcRam;
-                dstRam16 = (u16*)(tch->srcAdrs + tch->srcSize * ix + (CODE_0(code)) * 2);
-
-                for (i = 0; i < 0x10; i++) {
-                    for (j = 0; j < 0x10; j++) {
-                        *dstRam16++ = srcRam16[dctex_linear[j + (i << 5)]];
-                    }
-
-                    dstRam16 += 0xF0;
-                }
-
-                break;
-
-            case 0x800:
-                srcRam16 = (u16*)srcRam;
-                dstRam16 = (u16*)(tch->srcAdrs + tch->srcSize * ix + (CODE_1(code)) * 2);
-                tix = (u16*)dctex_linear;
-
-                for (i = 0; i < 0x20; i++) {
-                    for (j = 0; j < 0x20; j++) {
-                        *dstRam16++ = srcRam16[*tix++];
-                    }
-
-                    dstRam16 += 0xE0;
-                }
-
-                break;
+        for (i = 0; i < 8; i++) {
+            for (j = 0; j < 8; j++) {
+                *dstRam8++ = srcRam8[dctex_linear[j + (i << 5)]];
             }
+
+            dstRam8 += 0xF8;
         }
+
+        break;
+
+    case 0x100:
+        srcRam8 = (u8*)srcRam;
+        dstRam8 = (u8*)(tch->srcAdrs + tch->srcSize * ix + CODE_0(code));
+
+        for (i = 0; i < 0x10; i++) {
+            for (j = 0; j < 0x10; j++) {
+                *dstRam8++ = srcRam8[dctex_linear[j + (i << 5)]];
+            }
+
+            dstRam8 += 0xF0;
+        }
+
+        break;
+
+    case 0x400:
+        srcRam8 = (u8*)srcRam;
+        dstRam8 = (u8*)(tch->srcAdrs + tch->srcSize * ix + CODE_1(code));
+        tix = (u16*)dctex_linear;
+
+        for (i = 0; i < 0x20; i++) {
+            for (j = 0; j < 0x20; j++) {
+                *dstRam8++ = srcRam8[*tix++];
+            }
+
+            dstRam8 += 0xE0;
+        }
+
+        break;
+
+    case 0x80:
+        srcRam16 = (u16*)srcRam;
+        dstRam16 = (u16*)(tch->srcAdrs + tch->srcSize * ix + (CODE_0(code)) * 2);
+
+        for (i = 0; i < 8; i++) {
+            for (j = 0; j < 8; j++) {
+                *dstRam16++ = srcRam16[dctex_linear[j + (i << 5)]];
+            }
+
+            dstRam16 += 0xF8;
+        }
+
+        break;
+
+    case 0x200:
+        srcRam16 = (u16*)srcRam;
+        dstRam16 = (u16*)(tch->srcAdrs + tch->srcSize * ix + (CODE_0(code)) * 2);
+
+        for (i = 0; i < 0x10; i++) {
+            for (j = 0; j < 0x10; j++) {
+                *dstRam16++ = srcRam16[dctex_linear[j + (i << 5)]];
+            }
+
+            dstRam16 += 0xF0;
+        }
+
+        break;
+
+    case 0x800:
+        srcRam16 = (u16*)srcRam;
+        dstRam16 = (u16*)(tch->srcAdrs + tch->srcSize * ix + (CODE_1(code)) * 2);
+        tix = (u16*)dctex_linear;
+
+        for (i = 0; i < 0x20; i++) {
+            for (j = 0; j < 0x20; j++) {
+                *dstRam16++ = srcRam16[*tix++];
+            }
+
+            dstRam16 += 0xE0;
+        }
+
+        break;
     }
 }
 
@@ -1323,6 +1330,10 @@ s32 ppgReleasePaletteHandle(Palette* pch, s32 ixNum) {
     return ppgCheckPaletteDataBe(pch);
 }
 
+static bool ppgTextureIndexIsInRange(s32 ix, const Texture* tch) {
+    return (ix >= 0) && (ix < tch->total);
+}
+
 s32 ppgReleaseTextureHandle(Texture* tch, s32 ixNum) {
     s32 i;
     s32 ix;
@@ -1357,7 +1368,7 @@ s32 ppgReleaseTextureHandle(Texture* tch, s32 ixNum) {
     } else {
         ix = ixNum - tch->ixNum1st;
 
-        if ((ix >= 0) && (ix < tch->total)) {
+        if (ppgTextureIndexIsInRange(ix, tch)) {
             han = tch->handle[ix].b16[0];
 
             if (han) {

@@ -430,105 +430,7 @@ void mlt_obj_trans_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
     cc.parts.offset = wk->cg_number;
     ix = check_patcash_ex_trans(mt->cpat, cc.code);
 
-    if (ix < 0) {
-        {
-            s32 size;
-            s32 code;
-            s32 wh;
-            s32 dw;
-            s32 dh;
-
-            (void)dw;
-            (void)dh;
-
-            ix = get_free_patcash_index(mt->cpat);
-            cp = &mt->cpat->patt[ix];
-            mt->cpat->adr[mt->cpat->kazu] = cp;
-            mt->cpat->kazu += 1;
-            cp->curr_disp = 1;
-            cp->time = mt->mltcshtime16;
-            cp->cg.code = cc.code;
-            cp->x16 = 0;
-            cp->x32 = 0;
-            SDL_zero(cp->map);
-            cc.parts.group = i;
-
-            while (count--) {
-                if (attr & 0x8000) {
-                    x += trsptr->x;
-                } else {
-                    x -= trsptr->x;
-                }
-
-                if (attr & 0x4000) {
-                    y -= trsptr->y;
-                } else {
-                    y += trsptr->y;
-                }
-
-                texptr = (TEX*)((uintptr_t)textbl + ((u32*)textbl)[trsptr->code]);
-                dw = (texptr->wh & 0xE0) >> 2;
-                dh = (texptr->wh & 0x1C) * 2;
-                wh = (texptr->wh & 3) + 1;
-                size = (wh * wh) << 6;
-                cc.parts.offset = trsptr->code;
-
-                switch (wh) {
-                case 1:
-                case 2:
-                    if (get_mltbuf16_ext_2(mt, cc.code, 0, &code, cp) != 0) {
-                        lz_ext_p6_fx(&((u8*)texptr)[1], mt->mltbuf, size);
-                        njReLoadTexturePartNumG(mt->mltgidx16 + (code >> 8), (s8*)mt->mltbuf, code & 0xFF, size);
-                    }
-
-                    rnum = seqsStoreChip(
-                        x - (dw * BOOL(attr & 0x8000)),
-                        y + (dh * BOOL(attr & 0x4000)),
-                        dw,
-                        dh,
-                        mt->mltgidx16,
-                        code,
-                        palo | ((trsptr->attr ^ attr) & 0xC000),
-                        wk->my_clear_level,
-                        mt->id
-                    );
-
-                    break;
-
-                case 4:
-                    if (get_mltbuf32_ext_2(mt, cc.code, 0, &code, cp) != 0) {
-                        lz_ext_p6_fx(&((u8*)texptr)[1], mt->mltbuf, size);
-                        njReLoadTexturePartNumG(mt->mltgidx32 + (code >> 6), (s8*)mt->mltbuf, code & 0x3F, size);
-                    }
-
-                    rnum = seqsStoreChip(
-                        x - (dw * BOOL(attr & 0x8000)),
-                        y + (dh * BOOL(attr & 0x4000)),
-                        dw,
-                        dh,
-                        mt->mltgidx32,
-                        code,
-                        palo | (((trsptr->attr ^ attr) & 0xC000) | 0x2000),
-                        wk->my_clear_level,
-                        mt->id
-                    );
-                    break;
-                }
-
-                if (rnum == 0) {
-                    break;
-                }
-
-                trsptr++;
-            }
-
-            seqs_w.up[mt->id] = 1;
-            appRenewTempPriority(wk->position_z);
-            return;
-        }
-    }
-
-    {
+    if (!(ix < 0)) {
         s32 code;
         s32 wh;
         s32 dw;
@@ -597,6 +499,102 @@ void mlt_obj_trans_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
                     mt->id
                 );
 
+                break;
+            }
+
+            if (rnum == 0) {
+                break;
+            }
+
+            trsptr++;
+        }
+
+        seqs_w.up[mt->id] = 1;
+        appRenewTempPriority(wk->position_z);
+        return;
+    }
+
+    {
+        s32 size;
+        s32 code;
+        s32 wh;
+        s32 dw;
+        s32 dh;
+
+        (void)dw;
+        (void)dh;
+
+        ix = get_free_patcash_index(mt->cpat);
+        cp = &mt->cpat->patt[ix];
+        mt->cpat->adr[mt->cpat->kazu] = cp;
+        mt->cpat->kazu += 1;
+        cp->curr_disp = 1;
+        cp->time = mt->mltcshtime16;
+        cp->cg.code = cc.code;
+        cp->x16 = 0;
+        cp->x32 = 0;
+        SDL_zero(cp->map);
+        cc.parts.group = i;
+
+        while (count--) {
+            if (attr & 0x8000) {
+                x += trsptr->x;
+            } else {
+                x -= trsptr->x;
+            }
+
+            if (attr & 0x4000) {
+                y -= trsptr->y;
+            } else {
+                y += trsptr->y;
+            }
+
+            texptr = (TEX*)((uintptr_t)textbl + ((u32*)textbl)[trsptr->code]);
+            dw = (texptr->wh & 0xE0) >> 2;
+            dh = (texptr->wh & 0x1C) * 2;
+            wh = (texptr->wh & 3) + 1;
+            size = (wh * wh) << 6;
+            cc.parts.offset = trsptr->code;
+
+            switch (wh) {
+            case 1:
+            case 2:
+                if (get_mltbuf16_ext_2(mt, cc.code, 0, &code, cp) != 0) {
+                    lz_ext_p6_fx(&((u8*)texptr)[1], mt->mltbuf, size);
+                    njReLoadTexturePartNumG(mt->mltgidx16 + (code >> 8), (s8*)mt->mltbuf, code & 0xFF, size);
+                }
+
+                rnum = seqsStoreChip(
+                    x - (dw * BOOL(attr & 0x8000)),
+                    y + (dh * BOOL(attr & 0x4000)),
+                    dw,
+                    dh,
+                    mt->mltgidx16,
+                    code,
+                    palo | ((trsptr->attr ^ attr) & 0xC000),
+                    wk->my_clear_level,
+                    mt->id
+                );
+
+                break;
+
+            case 4:
+                if (get_mltbuf32_ext_2(mt, cc.code, 0, &code, cp) != 0) {
+                    lz_ext_p6_fx(&((u8*)texptr)[1], mt->mltbuf, size);
+                    njReLoadTexturePartNumG(mt->mltgidx32 + (code >> 6), (s8*)mt->mltbuf, code & 0x3F, size);
+                }
+
+                rnum = seqsStoreChip(
+                    x - (dw * BOOL(attr & 0x8000)),
+                    y + (dh * BOOL(attr & 0x4000)),
+                    dw,
+                    dh,
+                    mt->mltgidx32,
+                    code,
+                    palo | (((trsptr->attr ^ attr) & 0xC000) | 0x2000),
+                    wk->my_clear_level,
+                    mt->id
+                );
                 break;
             }
 
@@ -796,112 +794,7 @@ void mlt_obj_trans_cp3_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
     cc.parts.offset = wk->cg_number;
     ix = check_patcash_ex_trans(mt->cpat, cc.code);
 
-    if (ix < 0) {
-        {
-            s32 size;
-            s32 code;
-            s32 wh;
-            s32 dw;
-            s32 dh;
-            s32 attr;
-            s32 palt;
-
-            (void)dw;
-            (void)dh;
-
-            ix = get_free_patcash_index(mt->cpat);
-            cp = &mt->cpat->patt[ix];
-            mt->cpat->adr[mt->cpat->kazu] = cp;
-            mt->cpat->kazu += 1;
-            cp->curr_disp = 1;
-            cp->time = mt->mltcshtime16;
-            cp->cg.code = cc.code;
-            cp->x16 = 0;
-            cp->x32 = 0;
-            SDL_zero(cp->map);
-            cc.parts.group = i;
-
-            while (count--) {
-                if (flip & 0x8000) {
-                    x += trsptr->x;
-                } else {
-                    x -= trsptr->x;
-                }
-
-                if (flip & 0x4000) {
-                    y -= trsptr->y;
-                } else {
-                    y += trsptr->y;
-                }
-
-                texptr = (TEX*)((uintptr_t)textbl + ((u32*)textbl)[trsptr->code]);
-                dw = (texptr->wh & 0xE0) >> 2;
-                dh = (texptr->wh & 0x1C) * 2;
-                wh = (texptr->wh & 3) + 1;
-                size = (wh * wh) << 6;
-                attr = trsptr->attr;
-                palt = (attr & 0x1FF) + palo;
-                attr = (attr ^ flip) & 0xC000;
-                cc.parts.offset = trsptr->code;
-
-                switch (wh) {
-                case 1:
-                case 2:
-                    if (get_mltbuf16_ext_2(mt, cc.code, 0, &code, cp) != 0) {
-                        lz_ext_p6_fx(&((u8*)texptr)[1], mt->mltbuf, size);
-                        njReLoadTexturePartNumG(mt->mltgidx16 + (code >> 8), (s8*)mt->mltbuf, code & 0xFF, size);
-                    }
-
-                    rnum = seqsStoreChip(
-                        x - (dw * BOOL(flip & 0x8000)),
-                        y + (dh * BOOL(flip & 0x4000)),
-                        dw,
-                        dh,
-                        mt->mltgidx16,
-                        code,
-                        attr | palt,
-                        wk->my_clear_level,
-                        mt->id
-                    );
-
-                    break;
-
-                case 4:
-                    if (get_mltbuf32_ext_2(mt, cc.code, 0, &code, cp) != 0) {
-                        lz_ext_p6_fx(&((u8*)texptr)[1], mt->mltbuf, size);
-                        njReLoadTexturePartNumG(mt->mltgidx32 + (code >> 6), (s8*)mt->mltbuf, code & 0x3F, size);
-                    }
-
-                    rnum = seqsStoreChip(
-                        x - (dw * BOOL(flip & 0x8000)),
-                        y + (dh * BOOL(flip & 0x4000)),
-                        dw,
-                        dh,
-                        mt->mltgidx32,
-                        code,
-                        (attr | 0x2000) | palt,
-                        wk->my_clear_level,
-                        mt->id
-                    );
-
-                    break;
-                }
-
-                if (rnum == 0) {
-                    break;
-                }
-
-                trsptr++;
-            }
-
-            seqs_w.up[mt->id] = 1;
-            appRenewTempPriority(wk->position_z);
-        }
-
-        return;
-    }
-
-    {
+    if (!(ix < 0)) {
         s32 code;
         s32 wh;
         s32 dw;
@@ -961,6 +854,108 @@ void mlt_obj_trans_cp3_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
 
             case 4:
                 code = get_mltbuf32_ext(mt, cc.code, 0);
+
+                rnum = seqsStoreChip(
+                    x - (dw * BOOL(flip & 0x8000)),
+                    y + (dh * BOOL(flip & 0x4000)),
+                    dw,
+                    dh,
+                    mt->mltgidx32,
+                    code,
+                    (attr | 0x2000) | palt,
+                    wk->my_clear_level,
+                    mt->id
+                );
+
+                break;
+            }
+
+            if (rnum == 0) {
+                break;
+            }
+
+            trsptr++;
+        }
+
+        seqs_w.up[mt->id] = 1;
+        appRenewTempPriority(wk->position_z);
+        return;
+    }
+
+    {
+        s32 size;
+        s32 code;
+        s32 wh;
+        s32 dw;
+        s32 dh;
+        s32 attr;
+        s32 palt;
+
+        (void)dw;
+        (void)dh;
+
+        ix = get_free_patcash_index(mt->cpat);
+        cp = &mt->cpat->patt[ix];
+        mt->cpat->adr[mt->cpat->kazu] = cp;
+        mt->cpat->kazu += 1;
+        cp->curr_disp = 1;
+        cp->time = mt->mltcshtime16;
+        cp->cg.code = cc.code;
+        cp->x16 = 0;
+        cp->x32 = 0;
+        SDL_zero(cp->map);
+        cc.parts.group = i;
+
+        while (count--) {
+            if (flip & 0x8000) {
+                x += trsptr->x;
+            } else {
+                x -= trsptr->x;
+            }
+
+            if (flip & 0x4000) {
+                y -= trsptr->y;
+            } else {
+                y += trsptr->y;
+            }
+
+            texptr = (TEX*)((uintptr_t)textbl + ((u32*)textbl)[trsptr->code]);
+            dw = (texptr->wh & 0xE0) >> 2;
+            dh = (texptr->wh & 0x1C) * 2;
+            wh = (texptr->wh & 3) + 1;
+            size = (wh * wh) << 6;
+            attr = trsptr->attr;
+            palt = (attr & 0x1FF) + palo;
+            attr = (attr ^ flip) & 0xC000;
+            cc.parts.offset = trsptr->code;
+
+            switch (wh) {
+            case 1:
+            case 2:
+                if (get_mltbuf16_ext_2(mt, cc.code, 0, &code, cp) != 0) {
+                    lz_ext_p6_fx(&((u8*)texptr)[1], mt->mltbuf, size);
+                    njReLoadTexturePartNumG(mt->mltgidx16 + (code >> 8), (s8*)mt->mltbuf, code & 0xFF, size);
+                }
+
+                rnum = seqsStoreChip(
+                    x - (dw * BOOL(flip & 0x8000)),
+                    y + (dh * BOOL(flip & 0x4000)),
+                    dw,
+                    dh,
+                    mt->mltgidx16,
+                    code,
+                    attr | palt,
+                    wk->my_clear_level,
+                    mt->id
+                );
+
+                break;
+
+            case 4:
+                if (get_mltbuf32_ext_2(mt, cc.code, 0, &code, cp) != 0) {
+                    lz_ext_p6_fx(&((u8*)texptr)[1], mt->mltbuf, size);
+                    njReLoadTexturePartNumG(mt->mltgidx32 + (code >> 6), (s8*)mt->mltbuf, code & 0x3F, size);
+                }
 
                 rnum = seqsStoreChip(
                     x - (dw * BOOL(flip & 0x8000)),
@@ -1180,107 +1175,7 @@ void mlt_obj_trans_rgb_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
     cc.parts.offset = wk->cg_number;
     ix = check_patcash_ex_trans(mt->cpat, cc.code);
 
-    if (ix < 0) {
-        {
-            s32 size;
-            s32 code;
-            s32 attr;
-            s32 palt;
-            s32 wh;
-            s32 dw;
-            s32 dh;
-
-            ix = get_free_patcash_index(mt->cpat);
-            cp = &mt->cpat->patt[ix];
-            mt->cpat->adr[mt->cpat->kazu] = cp;
-            mt->cpat->kazu += 1;
-            cp->curr_disp = 1;
-            cp->time = mt->mltcshtime16;
-            cp->cg.code = cc.code;
-            cp->x16 = 0;
-            cp->x32 = 0;
-            SDL_zero(cp->map);
-            cc.parts.group = i;
-
-            while (count--) {
-                if (flip & 0x8000) {
-                    x += trsptr->x;
-                } else {
-                    x -= trsptr->x;
-                }
-
-                if (flip & 0x4000) {
-                    y -= trsptr->y;
-                } else {
-                    y += trsptr->y;
-                }
-
-                texptr = (TEX*)((uintptr_t)textbl + ((u32*)textbl)[trsptr->code]);
-                dw = (texptr->wh & 0xE0) >> 2;
-                dh = (texptr->wh & 0x1C) * 2;
-                wh = (texptr->wh & 3) + 1;
-                size = (wh * wh) << 6;
-                attr = trsptr->attr;
-                palt = (attr & 0x1FF) + palo;
-                attr = (attr ^ flip) & 0xC000;
-                cc.parts.offset = trsptr->code;
-
-                switch (wh) {
-                case 1:
-                case 2:
-                    if (get_mltbuf16_ext_2(mt, cc.code, palt, &code, cp) != 0) {
-                        lz_ext_p6_cx(&((u8*)texptr)[1], (u16*)mt->mltbuf, size, (u16*)(ColorRAM[palt]));
-                        njReLoadTexturePartNumG(mt->mltgidx16 + (code >> 8), (s8*)mt->mltbuf, code & 0xFF, size * 2);
-                    }
-
-                    rnum = seqsStoreChip(
-                        x - (dw * BOOL(flip & 0x8000)),
-                        y + (dh * BOOL(flip & 0x4000)),
-                        dw,
-                        dh,
-                        mt->mltgidx16,
-                        code,
-                        attr,
-                        wk->my_clear_level,
-                        mt->id
-                    );
-                    break;
-
-                case 4:
-                    if (get_mltbuf32_ext_2(mt, cc.code, palt, &code, cp) != 0) {
-                        lz_ext_p6_cx(&((u8*)texptr)[1], (u16*)mt->mltbuf, size, (u16*)(ColorRAM[palt]));
-                        njReLoadTexturePartNumG(mt->mltgidx32 + (code >> 6), (s8*)mt->mltbuf, code & 0x3F, size * 2);
-                    }
-
-                    rnum = seqsStoreChip(
-                        x - (dw * BOOL(flip & 0x8000)),
-                        y + (dh * BOOL(flip & 0x4000)),
-                        dw,
-                        dh,
-                        mt->mltgidx32,
-                        code,
-                        attr | 0x2000,
-                        wk->my_clear_level,
-                        mt->id
-                    );
-                    break;
-                }
-
-                if (rnum == 0) {
-                    break;
-                }
-
-                trsptr++;
-            }
-
-            seqs_w.up[mt->id] = 1;
-            appRenewTempPriority(wk->position_z);
-        }
-
-        return;
-    }
-
-    {
+    if (!(ix < 0)) {
         s32 code;
         s32 attr;
         s32 palt;
@@ -1360,20 +1255,152 @@ void mlt_obj_trans_rgb_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
 
         seqs_w.up[mt->id] = 1;
         appRenewTempPriority(wk->position_z);
+        return;
+    }
+
+    {
+        s32 size;
+        s32 code;
+        s32 attr;
+        s32 palt;
+        s32 wh;
+        s32 dw;
+        s32 dh;
+
+        ix = get_free_patcash_index(mt->cpat);
+        cp = &mt->cpat->patt[ix];
+        mt->cpat->adr[mt->cpat->kazu] = cp;
+        mt->cpat->kazu += 1;
+        cp->curr_disp = 1;
+        cp->time = mt->mltcshtime16;
+        cp->cg.code = cc.code;
+        cp->x16 = 0;
+        cp->x32 = 0;
+        SDL_zero(cp->map);
+        cc.parts.group = i;
+
+        while (count--) {
+            if (flip & 0x8000) {
+                x += trsptr->x;
+            } else {
+                x -= trsptr->x;
+            }
+
+            if (flip & 0x4000) {
+                y -= trsptr->y;
+            } else {
+                y += trsptr->y;
+            }
+
+            texptr = (TEX*)((uintptr_t)textbl + ((u32*)textbl)[trsptr->code]);
+            dw = (texptr->wh & 0xE0) >> 2;
+            dh = (texptr->wh & 0x1C) * 2;
+            wh = (texptr->wh & 3) + 1;
+            size = (wh * wh) << 6;
+            attr = trsptr->attr;
+            palt = (attr & 0x1FF) + palo;
+            attr = (attr ^ flip) & 0xC000;
+            cc.parts.offset = trsptr->code;
+
+            switch (wh) {
+            case 1:
+            case 2:
+                if (get_mltbuf16_ext_2(mt, cc.code, palt, &code, cp) != 0) {
+                    lz_ext_p6_cx(&((u8*)texptr)[1], (u16*)mt->mltbuf, size, (u16*)(ColorRAM[palt]));
+                    njReLoadTexturePartNumG(mt->mltgidx16 + (code >> 8), (s8*)mt->mltbuf, code & 0xFF, size * 2);
+                }
+
+                rnum = seqsStoreChip(
+                    x - (dw * BOOL(flip & 0x8000)),
+                    y + (dh * BOOL(flip & 0x4000)),
+                    dw,
+                    dh,
+                    mt->mltgidx16,
+                    code,
+                    attr,
+                    wk->my_clear_level,
+                    mt->id
+                );
+                break;
+
+            case 4:
+                if (get_mltbuf32_ext_2(mt, cc.code, palt, &code, cp) != 0) {
+                    lz_ext_p6_cx(&((u8*)texptr)[1], (u16*)mt->mltbuf, size, (u16*)(ColorRAM[palt]));
+                    njReLoadTexturePartNumG(mt->mltgidx32 + (code >> 6), (s8*)mt->mltbuf, code & 0x3F, size * 2);
+                }
+
+                rnum = seqsStoreChip(
+                    x - (dw * BOOL(flip & 0x8000)),
+                    y + (dh * BOOL(flip & 0x4000)),
+                    dw,
+                    dh,
+                    mt->mltgidx32,
+                    code,
+                    attr | 0x2000,
+                    wk->my_clear_level,
+                    mt->id
+                );
+                break;
+            }
+
+            if (rnum == 0) {
+                break;
+            }
+
+            trsptr++;
+        }
+
+        seqs_w.up[mt->id] = 1;
+        appRenewTempPriority(wk->position_z);
     }
 }
 
-void mlt_obj_trans_rgb(MultiTexture* mt, WORK* wk, s32 base_y) {
-    u32* textbl;
-    u16* trsbas;
-    TileMapEntry* trsptr;
+static f32 advance_trans_x(f32 x, s32 flip, TileMapEntry* trsptr) {
+    if (flip & 0x8000) {
+        x += trsptr->x;
+    } else {
+        x -= trsptr->x;
+    }
+
+    return x;
+}
+
+static f32 advance_trans_y(f32 y, s32 flip, TileMapEntry* trsptr) {
+    if (flip & 0x4000) {
+        y -= trsptr->y;
+    } else {
+        y += trsptr->y;
+    }
+
+    return y;
+}
+
+static s32 load_trans_rgb16(MultiTexture* mt, TEX* texptr, s32 size, u32 pattern_code, s32 palt) {
+    s32 code;
+
+    if (get_mltbuf16(mt, pattern_code, palt, &code) != 0) {
+        lz_ext_p6_cx(&((u8*)texptr)[1], (u16*)mt->mltbuf, size, (u16*)(ColorRAM[palt]));
+        njReLoadTexturePartNumG(mt->mltgidx16 + (code >> 8), (s8*)mt->mltbuf, code & 0xFF, size * 2);
+    }
+
+    return code;
+}
+
+static s32 load_trans_rgb32(MultiTexture* mt, TEX* texptr, s32 size, u32 pattern_code, s32 palt) {
+    s32 code;
+
+    if (get_mltbuf32(mt, pattern_code, palt, &code) != 0) {
+        lz_ext_p6_cx(&((u8*)texptr)[1], (u16*)mt->mltbuf, size, (u16*)(ColorRAM[palt]));
+        njReLoadTexturePartNumG(mt->mltgidx32 + (code >> 6), (s8*)mt->mltbuf, code & 0x3F, size * 2);
+    }
+
+    return code;
+}
+
+static void store_trans_rgb_tiles(MultiTexture* mt, WORK* wk, u32* textbl, TileMapEntry* trsptr, s32 count, s32 flip,
+                                  s32 palo, s32 group) {
     TEX* texptr;
     s32 rnum;
-    s32 flip;
-    s32 palo;
-    s32 count;
-    s32 n;
-    s32 i;
     f32 x;
     f32 y;
     PatternCode cc;
@@ -1384,6 +1411,76 @@ void mlt_obj_trans_rgb(MultiTexture* mt, WORK* wk, s32 base_y) {
     s32 wh;
     s32 dw;
     s32 dh;
+
+    x = y = 0.0f;
+    cc.parts.group = group;
+
+    while (count--) {
+        x = advance_trans_x(x, flip, trsptr);
+        y = advance_trans_y(y, flip, trsptr);
+
+        texptr = (TEX*)((uintptr_t)textbl + ((u32*)textbl)[trsptr->code]);
+        dw = (texptr->wh & 0xE0) >> 2;
+        dh = (texptr->wh & 0x1C) * 2;
+        wh = (texptr->wh & 3) + 1;
+        size = (wh * wh) << 6;
+        attr = trsptr->attr;
+        palt = (attr & 0x1FF) + palo;
+        attr = (attr ^ flip) & 0xC000;
+        cc.parts.offset = trsptr->code;
+
+        switch (wh) {
+        case 1:
+        case 2:
+            code = load_trans_rgb16(mt, texptr, size, cc.code, palt);
+
+            rnum = seqsStoreChip(
+                x - (dw * BOOL(flip & 0x8000)),
+                y + (dh * BOOL(flip & 0x4000)),
+                dw,
+                dh,
+                mt->mltgidx16,
+                code,
+                attr,
+                wk->my_clear_level,
+                mt->id
+            );
+            break;
+
+        case 4:
+            code = load_trans_rgb32(mt, texptr, size, cc.code, palt);
+
+            rnum = seqsStoreChip(
+                x - (dw * BOOL(flip & 0x8000)),
+                y + (dh * BOOL(flip & 0x4000)),
+                dw,
+                dh,
+                mt->mltgidx32,
+                code,
+                attr | 0x2000,
+                wk->my_clear_level,
+                mt->id
+            );
+            break;
+        }
+
+        if (rnum == 0) {
+            break;
+        }
+
+        trsptr++;
+    }
+}
+
+void mlt_obj_trans_rgb(MultiTexture* mt, WORK* wk, s32 base_y) {
+    u32* textbl;
+    u16* trsbas;
+    TileMapEntry* trsptr;
+    s32 flip;
+    s32 palo;
+    s32 count;
+    s32 n;
+    s32 i;
 
     ppgSetupCurrentDataList(&mt->texList);
 
@@ -1411,7 +1508,6 @@ void mlt_obj_trans_rgb(MultiTexture* mt, WORK* wk, s32 base_y) {
     count = *trsbas;
     trsbas++;
     trsptr = (TileMapEntry*)trsbas;
-    x = y = 0.0f;
     flip = flptbl[wk->cg_flip ^ wk->rl_flag];
     palo = wk->colcd;
 
@@ -1422,78 +1518,7 @@ void mlt_obj_trans_rgb(MultiTexture* mt, WORK* wk, s32 base_y) {
     }
 
     mlt_obj_matrix(wk, base_y);
-    cc.parts.group = i;
-
-    while (count--) {
-        if (flip & 0x8000) {
-            x += trsptr->x;
-        } else {
-            x -= trsptr->x;
-        }
-
-        if (flip & 0x4000) {
-            y -= trsptr->y;
-        } else {
-            y += trsptr->y;
-        }
-
-        texptr = (TEX*)((uintptr_t)textbl + ((u32*)textbl)[trsptr->code]);
-        dw = (texptr->wh & 0xE0) >> 2;
-        dh = (texptr->wh & 0x1C) * 2;
-        wh = (texptr->wh & 3) + 1;
-        size = (wh * wh) << 6;
-        attr = trsptr->attr;
-        palt = (attr & 0x1FF) + palo;
-        attr = (attr ^ flip) & 0xC000;
-        cc.parts.offset = trsptr->code;
-
-        switch (wh) {
-        case 1:
-        case 2:
-            if (get_mltbuf16(mt, cc.code, palt, &code) != 0) {
-                lz_ext_p6_cx(&((u8*)texptr)[1], (u16*)mt->mltbuf, size, (u16*)(ColorRAM[palt]));
-                njReLoadTexturePartNumG(mt->mltgidx16 + (code >> 8), (s8*)mt->mltbuf, code & 0xFF, size * 2);
-            }
-
-            rnum = seqsStoreChip(
-                x - (dw * BOOL(flip & 0x8000)),
-                y + (dh * BOOL(flip & 0x4000)),
-                dw,
-                dh,
-                mt->mltgidx16,
-                code,
-                attr,
-                wk->my_clear_level,
-                mt->id
-            );
-            break;
-
-        case 4:
-            if (get_mltbuf32(mt, cc.code, palt, &code) != 0) {
-                lz_ext_p6_cx(&((u8*)texptr)[1], (u16*)mt->mltbuf, size, (u16*)(ColorRAM[palt]));
-                njReLoadTexturePartNumG(mt->mltgidx32 + (code >> 6), (s8*)mt->mltbuf, code & 0x3F, size * 2);
-            }
-
-            rnum = seqsStoreChip(
-                x - (dw * BOOL(flip & 0x8000)),
-                y + (dh * BOOL(flip & 0x4000)),
-                dw,
-                dh,
-                mt->mltgidx32,
-                code,
-                attr | 0x2000,
-                wk->my_clear_level,
-                mt->id
-            );
-            break;
-        }
-
-        if (rnum == 0) {
-            break;
-        }
-
-        trsptr++;
-    }
+    store_trans_rgb_tiles(mt, wk, textbl, trsptr, count, flip, palo, i);
 
     seqs_w.up[mt->id] = 1;
     appRenewTempPriority(wk->position_z);
@@ -1870,13 +1895,10 @@ static u16 x32_mapping_set(PatternMap* map, s32 code) {
     return flg;
 }
 
-void makeup_tpu_free(s32 x16, s32 x32, PatternMap* map) {
+static void collect_used_x16_tiles(s32 x16, PatternMap* map) {
     s16 i;
     s16 j;
     s16 k;
-
-    tpu_free->x16 = 0;
-    tpu_free->x32 = 0;
 
     for (i = 0; i < x16; i++) {
         for (j = 0; j < 16; j++) {
@@ -1890,6 +1912,12 @@ void makeup_tpu_free(s32 x16, s32 x32, PatternMap* map) {
             }
         }
     }
+}
+
+static void collect_used_x32_tiles(s32 x32, PatternMap* map) {
+    s16 i;
+    s16 j;
+    s16 k;
 
     for (i = 0; i < x32; i++) {
         for (j = 0; j < 8; j++) {
@@ -1903,6 +1931,14 @@ void makeup_tpu_free(s32 x16, s32 x32, PatternMap* map) {
             }
         }
     }
+}
+
+void makeup_tpu_free(s32 x16, s32 x32, PatternMap* map) {
+    tpu_free->x16 = 0;
+    tpu_free->x32 = 0;
+
+    collect_used_x16_tiles(x16, map);
+    collect_used_x32_tiles(x32, map);
 }
 
 static s16 check_patcash_ex_trans(PatternCollection* padr, u32 cg) {
