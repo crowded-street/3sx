@@ -5175,6 +5175,14 @@ static void reset_extra_options(void) {
     SE_selected();
 }
 
+static void advance_extra_option_fade(struct _TASK* task_ptr) {
+    if (--task_ptr->timer == 0) {
+        task_ptr->r_no[2]++;
+        task_ptr->r_no[3] = 1;
+        FadeInit();
+    }
+}
+
 void Extra_Option(struct _TASK* task_ptr) {
     Menu_Cursor_Y[1] = Menu_Cursor_Y[0];
 
@@ -5200,12 +5208,7 @@ void Extra_Option(struct _TASK* task_ptr) {
 
     case 2:
         FadeOut(1, 0xFF, 8);
-
-        if (--task_ptr->timer == 0) {
-            task_ptr->r_no[2]++;
-            task_ptr->r_no[3] = 1;
-            FadeInit();
-        }
+        advance_extra_option_fade(task_ptr);
 
         break;
 
