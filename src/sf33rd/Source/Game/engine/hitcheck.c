@@ -633,62 +633,109 @@ static void finish_player_damage(PLW* as, PLW* ds, s8 gddir) {
     paring_bonus_r[ds->wu.id] = 0;
 }
 
-void plef_at_vs_player_damage_union(PLW* as, PLW* ds, s8 gddir) { // 🟡
-    // CPS3 lacks the port-side training chip-damage metadata resets kept below.
-    ds->wu.dm_guard_success = -1;
+typedef enum {
+    PLAYER_DAMAGE_AIR_DEFENSE,
+    PLAYER_DAMAGE_GROUND_DEFENSE,
+    PLAYER_DAMAGE_AIR_REACTION,
+    PLAYER_DAMAGE_GROUND_REACTION,
+    PLAYER_DAMAGE_GUARD,
+    PLAYER_DAMAGE_PARRY,
+} PlayerDamagePath;
 
-    if (ds->guard_flag == 3 || as->wu.att.guard == 0 || ds->py->flag != 0) {
-        if (ds->wu.pat_status == 10) {
-            ds->wu.xyz[1].cal = 0;
-            goto switch_defense_ground;
-        } else if (ds->wu.pat_status == 12 && ds->wu.xyz[1].disp.pos < 6) {
-            ds->wu.xyz[1].cal = 0;
-            goto switch_defense_ground;
-        }
-
-        if (ds->wu.routine_no[1] == 1) {
-            if (ds->wu.xyz[1].disp.pos > 0 || check_pat_status(&ds->wu)) {
-                goto jump_one;
-            } else {
-                goto jump_two;
-            }
-        }
+static bool uses_forced_damage_path(PLW* as, PLW* ds) {
+    if (ds->guard_flag == 3) {
+        return true;
     }
 
-    if (ds->wu.xyz[1].disp.pos > 0 || check_pat_status(&ds->wu)) {
-        switch (defense_sky(as, ds, gddir)) {
-        case 0:
-            goto set_paring_status;
+    if (as->wu.att.guard == 0) {
+        return true;
+    }
 
-        case 1:
-            goto set_guard_status;
-        }
+    return ds->py->flag != 0;
+}
 
-    jump_one:
-        apply_air_damage_reaction(as, ds);
+static bool uses_air_damage_path(PLW* ds) {
+    if (ds->wu.xyz[1].disp.pos > 0) {
+        return true;
+    }
+
+    return check_pat_status(&ds->wu);
+}
+
+static PlayerDamagePath select_player_damage_path(PLW* as, PLW* ds) {
+    if (!uses_forced_damage_path(as, ds)) {
+        return uses_air_damage_path(ds) ? PLAYER_DAMAGE_AIR_DEFENSE : PLAYER_DAMAGE_GROUND_DEFENSE;
+    }
+
+    if (ds->wu.pat_status == 10) {
+        ds->wu.xyz[1].cal = 0;
+        return PLAYER_DAMAGE_GROUND_DEFENSE;
+    }
+
+    if (ds->wu.pat_status == 12 && ds->wu.xyz[1].disp.pos < 6) {
+        ds->wu.xyz[1].cal = 0;
+        return PLAYER_DAMAGE_GROUND_DEFENSE;
+    }
+
+    if (ds->wu.routine_no[1] != 1) {
+        return uses_air_damage_path(ds) ? PLAYER_DAMAGE_AIR_DEFENSE : PLAYER_DAMAGE_GROUND_DEFENSE;
+    }
+
+    return uses_air_damage_path(ds) ? PLAYER_DAMAGE_AIR_REACTION : PLAYER_DAMAGE_GROUND_REACTION;
+}
+
+static PlayerDamagePath resolve_player_defense(PLW* as, PLW* ds, s8 gddir, PlayerDamagePath path) {
+    s32 defense_result;
+
+    if (path == PLAYER_DAMAGE_AIR_DEFENSE) {
+        defense_result = defense_sky(as, ds, gddir);
+    } else if (path == PLAYER_DAMAGE_GROUND_DEFENSE) {
+        defense_result = defense_ground(as, ds, gddir);
     } else {
-    switch_defense_ground:
-        switch (defense_ground(as, ds, gddir)) {
-        case 0:
-            goto set_paring_status;
+        return path;
+    }
 
-        case 1:
-            goto set_guard_status;
-        }
+    switch (defense_result) {
+    case 0:
+        return PLAYER_DAMAGE_PARRY;
 
-    jump_two:
+    case 1:
+        return PLAYER_DAMAGE_GUARD;
+
+    default:
+        return path == PLAYER_DAMAGE_AIR_DEFENSE ? PLAYER_DAMAGE_AIR_REACTION : PLAYER_DAMAGE_GROUND_REACTION;
+    }
+}
+
+void plef_at_vs_player_damage_union(PLW* as, PLW* ds, s8 gddir) { // 🟡
+    // CPS3 lacks the port-side training chip-damage metadata resets kept below.
+    PlayerDamagePath path;
+
+    ds->wu.dm_guard_success = -1;
+    path = resolve_player_defense(as, ds, gddir, select_player_damage_path(as, ds));
+
+    switch (path) {
+    case PLAYER_DAMAGE_AIR_REACTION:
+        apply_air_damage_reaction(as, ds);
+        break;
+
+    case PLAYER_DAMAGE_GROUND_REACTION:
         apply_ground_damage_reaction(as, ds);
+        break;
+
+    case PLAYER_DAMAGE_GUARD:
+        set_guard_status(as, ds);
+        return;
+
+    case PLAYER_DAMAGE_PARRY:
+        set_paring_status(as, ds);
+        return;
+
+    default:
+        break;
     }
 
     finish_player_damage(as, ds, gddir);
-    return;
-
-set_guard_status:
-    set_guard_status(as, ds);
-    return;
-
-set_paring_status:
-    set_paring_status(as, ds);
 }
 
 static bool is_running_damage_reaction(PLW* ds) {
