@@ -1888,25 +1888,30 @@ static u16 x32_mapping_set(PatternMap* map, s32 code) {
     return flg;
 }
 
+static void collect_used_x16_tile_row(s16 i, s16 j, PatternMap* map) {
+    s16 k;
+
+    if (map->x16_map[i][j] == 0) {
+        return;
+    }
+
+    for (k = 0; k < 16; k++) {
+        if (!((1 << k) & map->x16_map[i][j])) {
+            continue;
+        }
+
+        tpu_free->x16_used[tpu_free->x16] = (i * 256) + (j * 16) + k;
+        tpu_free->x16 += 1;
+    }
+}
+
 static void collect_used_x16_tiles(s32 x16, PatternMap* map) {
     s16 i;
     s16 j;
-    s16 k;
 
     for (i = 0; i < x16; i++) {
         for (j = 0; j < 16; j++) {
-            if (map->x16_map[i][j] == 0) {
-                continue;
-            }
-
-            for (k = 0; k < 16; k++) {
-                if (!((1 << k) & map->x16_map[i][j])) {
-                    continue;
-                }
-
-                tpu_free->x16_used[tpu_free->x16] = (i * 256) + (j * 16) + k;
-                tpu_free->x16 += 1;
-            }
+            collect_used_x16_tile_row(i, j, map);
         }
     }
 }
