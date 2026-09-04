@@ -45,6 +45,18 @@ s16 cmdixconv(s16 ix) { // 🔴
     return cmdixconv_table[ix - 20];
 }
 
+static bool is_blocked_by_arcade_switch(PLW* wk, s16 ix) {
+    if (ArcadeBalance_IsEnabled()) {
+        if (wk->cp->btix[ix] & 0x4000) {
+            if (DAT_020156b2 == 3 || DAT_020156b2 == 2) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 /// Check EX SA attack
 s32 check_full_gauge_attack(PLW* wk, s8 always) { // 🟡
     u16* conpane;
@@ -85,12 +97,8 @@ s32 check_full_gauge_attack(PLW* wk, s8 always) { // 🟡
             wk->permited_koa |= 0x40;
         }
 
-        if (ArcadeBalance_IsEnabled()) {
-            if (wk->cp->btix[wk->sa->exsa_g_ix] & 0x4000) {
-                if (DAT_020156b2 == 3 || DAT_020156b2 == 2) {
-                    return 0;
-                }
-            }
+        if (is_blocked_by_arcade_switch(wk, wk->sa->exsa_g_ix)) {
+            return 0;
         }
 
         conpane = &wk->cp->sw_lvbt;
@@ -161,12 +169,8 @@ s32 check_full_gauge_attack(PLW* wk, s8 always) { // 🟡
             wk->permited_koa |= 0x40;
         }
 
-        if (ArcadeBalance_IsEnabled()) {
-            if (wk->cp->btix[wk->sa->exsa_a_ix] & 0x4000) {
-                if (DAT_020156b2 == 3 || DAT_020156b2 == 2) {
-                    return 0;
-                }
-            }
+        if (is_blocked_by_arcade_switch(wk, wk->sa->exsa_a_ix)) {
+            return 0;
         }
 
         conpane = &wk->cp->sw_lvbt;
@@ -254,12 +258,8 @@ s32 check_full_gauge_attack2(PLW* wk, s8 always) { // 🟡
             wk->permited_koa |= 0x40;
         }
 
-        if (ArcadeBalance_IsEnabled()) {
-            if (wk->cp->btix[wk->sa->exs2_g_ix] & 0x4000) {
-                if (DAT_020156b2 == 3 || DAT_020156b2 == 2) {
-                    return 0;
-                }
-            }
+        if (is_blocked_by_arcade_switch(wk, wk->sa->exs2_g_ix)) {
+            return 0;
         }
 
         conpane = &wk->cp->sw_lvbt;
@@ -330,12 +330,8 @@ s32 check_full_gauge_attack2(PLW* wk, s8 always) { // 🟡
             wk->permited_koa |= 0x40;
         }
 
-        if (ArcadeBalance_IsEnabled()) {
-            if (wk->cp->btix[wk->sa->exs2_a_ix] & 0x4000) {
-                if (DAT_020156b2 == 3 || DAT_020156b2 == 2) {
-                    return 0;
-                }
-            }
+        if (is_blocked_by_arcade_switch(wk, wk->sa->exs2_a_ix)) {
+            return 0;
         }
 
         conpane = &wk->cp->sw_lvbt;
@@ -443,12 +439,8 @@ s32 check_super_arts_attack_dc(PLW* wk) { // 🟡
             return 0;
         }
 
-        if (ArcadeBalance_IsEnabled()) {
-            if (wk->cp->btix[wk->sa->nmsa_g_ix] & 0x4000) {
-                if (DAT_020156b2 == 3 || DAT_020156b2 == 2) {
-                    return 0;
-                }
-            }
+        if (is_blocked_by_arcade_switch(wk, wk->sa->nmsa_g_ix)) {
+            return 0;
         }
 
         conpane = &wk->cp->sw_lvbt;
@@ -519,12 +511,8 @@ s32 check_super_arts_attack_dc(PLW* wk) { // 🟡
             return 0;
         }
 
-        if (ArcadeBalance_IsEnabled()) {
-            if (wk->cp->btix[wk->sa->nmsa_a_ix] & 0x4000) {
-                if (DAT_020156b2 == 3 || DAT_020156b2 == 2) {
-                    return 0;
-                }
-            }
+        if (is_blocked_by_arcade_switch(wk, wk->sa->nmsa_a_ix)) {
+            return 0;
         }
 
         conpane = &wk->cp->sw_lvbt;
@@ -603,12 +591,8 @@ s32 execute_super_arts(PLW* wk) { // 🟡
             return 0;
         }
 
-        if (ArcadeBalance_IsEnabled()) {
-            if (wk->cp->btix[wk->sa->nmsa_g_ix] & 0x4000) {
-                if (DAT_020156b2 == 3 || DAT_020156b2 == 2) {
-                    return 0;
-                }
-            }
+        if (is_blocked_by_arcade_switch(wk, wk->sa->nmsa_g_ix)) {
+            return 0;
         }
 
         setup_comm_back(&wk->wu);
@@ -643,12 +627,8 @@ s32 execute_super_arts(PLW* wk) { // 🟡
             return 0;
         }
 
-        if (ArcadeBalance_IsEnabled()) {
-            if (wk->cp->btix[wk->sa->nmsa_a_ix] & 0x4000) {
-                if (DAT_020156b2 == 3 || DAT_020156b2 == 2) {
-                    return 0;
-                }
-            }
+        if (is_blocked_by_arcade_switch(wk, wk->sa->nmsa_a_ix)) {
+            return 0;
         }
 
         setup_comm_back(&wk->wu);
@@ -708,12 +688,8 @@ s32 check_special_attack(PLW* wk) { // 🟡
                 continue;
             }
 
-            if (ArcadeBalance_IsEnabled()) {
-                if (wk->cp->btix[i] & 0x4000) {
-                    if (DAT_020156b2 == 3 || DAT_020156b2 == 2) {
-                        return 0;
-                    }
-                }
+            if (is_blocked_by_arcade_switch(wk, i)) {
+                return 0;
             }
 
             if (((wk->cp->btix[i] & 0xFF) == 0x80) || !wk->cp->waza_flag[i]) {
@@ -810,12 +786,8 @@ s32 check_special_attack(PLW* wk) { // 🟡
                 continue;
             }
 
-            if (ArcadeBalance_IsEnabled()) {
-                if (wk->cp->btix[i] & 0x4000) {
-                    if (DAT_020156b2 == 3 || DAT_020156b2 == 2) {
-                        return 0;
-                    }
-                }
+            if (is_blocked_by_arcade_switch(wk, i)) {
+                return 0;
             }
 
             if ((wk->cp->btix[i] & 0xFF) != 0x80) {
