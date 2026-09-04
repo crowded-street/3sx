@@ -5266,6 +5266,37 @@ static void move_extra_option_left(u8 last_pos) {
     }
 }
 
+static void move_extra_option_right(u8 last_pos) {
+    if (Menu_Page_Buff != 0 || Menu_Cursor_Y[0] != 4) {
+        SE_dir_cursor_move();
+    }
+
+    save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]]++;
+
+    if (Menu_Cursor_Y[0] == Menu_Max) {
+        if (save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] > 2) {
+            save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] = 2;
+            IO_Result = 0x400;
+            return;
+        }
+
+        if (save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] > 2) {
+            save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] = 2;
+        }
+
+        if (save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] != last_pos) {
+            Message_Data->order = 1;
+            Message_Data->request = save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Max] + 32;
+            Message_Data->timer = 2;
+        }
+    } else if (
+        save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] >
+        Ex_Menu_Max_Data[Menu_Page][Menu_Cursor_Y[0]]
+    ) {
+        save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] = 0;
+    }
+}
+
 void Ex_Move_Sub_LR(u16 sw, s16 PL_id) {
     u8 last_pos = save_w[Present_Mode].extra_option.contents[Menu_Page][Menu_Cursor_Y[0]];
 
@@ -5275,35 +5306,7 @@ void Ex_Move_Sub_LR(u16 sw, s16 PL_id) {
         return;
 
     case 8:
-        if (Menu_Page_Buff != 0 || Menu_Cursor_Y[0] != 4) {
-            SE_dir_cursor_move();
-        }
-
-        save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]]++;
-
-        if (Menu_Cursor_Y[0] == Menu_Max) {
-            if (save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] > 2) {
-                save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] = 2;
-                IO_Result = 0x400;
-                return;
-            }
-
-            if (save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] > 2) {
-                save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] = 2;
-            }
-
-            if (save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] != last_pos) {
-                Message_Data->order = 1;
-                Message_Data->request = save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Max] + 32;
-                Message_Data->timer = 2;
-            }
-        } else if (
-            save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] >
-            Ex_Menu_Max_Data[Menu_Page][Menu_Cursor_Y[0]]
-        ) {
-            save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] = 0;
-        }
-
+        move_extra_option_right(last_pos);
         return;
 
     case 0x400:
