@@ -34,7 +34,8 @@ To track progress towards version 1.0 check our [1.0 milestone](https://github.c
 > [!IMPORTANT]
 > 3SX requires a legally obtained copy of *Street Fighter III: 3rd Strike* or *Street Fighter Anniversary Collection* for PlayStation 2 to run. This project does not condone piracy!
 
-1. Download the latest release from the [Releases](https://github.com/crowded-street/3sx/releases) page.
+1. Download the latest release from the [Releases](https://github.com/mrksbrg/3sx/releases) page for this fork.
+   CI build artifacts for the latest pull requests are also available from the [Actions](https://github.com/mrksbrg/3sx/actions) tab.
 
 2. Follow startup wizard prompts to provide 3SX with your legally obtained copy of the PS2 version.
 
@@ -47,6 +48,36 @@ To track progress towards version 1.0 check our [1.0 milestone](https://github.c
 ## Documentation
 
 All documentation (including the build guide) can be found in [docs](docs) folder.
+
+## Local build helpers
+
+For quick local branch testing, the repo includes convenience scripts for building and packaging the current checkout:
+
+- `./build-local.sh` chooses the right local helper for the current OS.
+- `./build-local-mac.sh` is the currently implemented macOS flow.
+
+Only macOS support has been implemented so far. The pattern is simple to extend for Linux or Windows by following the same structure: bootstrap dependencies, configure the project with CMake, build the current branch, and then run the platform-specific packaging step.
+
+These scripts are intended for local validation of the current branch and are not a replacement for the repo's release automation.
+
+## CodeScene gate
+
+The repository includes a local pre-commit guard that blocks commits when staged code degrades the CodeScene score or when newly added source code is not a perfect 10.0.
+
+To enable it locally for this repo, run:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+The hook calls `cs-mcp` from the CodeScene CLI. If the CLI is not installed, the hook exits with a clear message telling you to install it:
+
+```bash
+npm install -g @codescene/codehealth-mcp
+cs-mcp --help
+```
+
+If you prefer not to use the global install, set `CS_MCP_BINARY_PATH` to the executable location before committing.
 
 ## Community
 

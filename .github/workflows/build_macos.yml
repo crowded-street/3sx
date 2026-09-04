@@ -30,6 +30,30 @@ jobs:
                 cmake --build build --parallel 2>&1 | tee build.log
             shell: bash
 
+          - name: Package macOS PR artifact
+            if: github.event_name == 'pull_request'
+            run: |
+                set -euo pipefail
+                cpack -G DragNDrop --config build/CPackConfig.cmake
+
+                DMG_PATH="$(find . -maxdepth 1 -type f -name '*.dmg' | head -n 1)"
+                if [ -z "${DMG_PATH}" ]; then
+                  echo "No .dmg package found in build/"
+                  exit 1
+                fi
+
+                PR_NUM="${{ github.event.pull_request.number }}"
+                DMG_NAME="3SX-pr-${PR_NUM}-macos.dmg"
+                mv "${DMG_PATH}" "${DMG_NAME}"
+            shell: bash
+
+          - name: Upload macOS PR artifact
+            if: github.event_name == 'pull_request'
+            uses: actions/upload-artifact@v4
+            with:
+                name: 3SX-pr-${{ github.event.pull_request.number }}-macos
+                path: 3SX-pr-${{ github.event.pull_request.number }}-macos.dmg
+
           - name: Upload build log
             if: always()
             uses: actions/upload-artifact@v4
