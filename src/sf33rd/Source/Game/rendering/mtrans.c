@@ -607,64 +607,15 @@ void mlt_obj_trans_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
     }
 }
 
-void mlt_obj_trans(MultiTexture* mt, WORK* wk, s32 base_y) {
-    u32* textbl;
-    u16* trsbas;
-    TileMapEntry* trsptr;
+static void store_trans_tiles(MultiTexture* mt, WORK* wk, u32* textbl, TileMapEntry* trsptr, s32 count, s32 attr,
+                              s32 palo, f32 x, f32 y, PatternCode cc) {
     TEX* texptr;
     s32 rnum;
-    s32 attr;
-    s32 count;
-    s32 palo;
-    s32 n;
-    s32 i;
-    f32 x;
-    f32 y;
-    PatternCode cc;
     s32 size;
     s32 code;
     s32 wh;
     s32 dw;
     s32 dh;
-
-    ppgSetupCurrentDataList(&mt->texList);
-
-    if (mt->ext) {
-        mlt_obj_trans_ext(mt, wk, base_y);
-        return;
-    }
-
-    n = wk->cg_number;
-    i = obj_group_table[n];
-
-    if (i == 0) {
-        return;
-    }
-
-    if (texgrplds[i].ok == 0) {
-        // The trans data is not valid. Group number: %d\n
-        flLogOut("トランスデータが有効ではありません。グループ番号：%d\n", i);
-        while (1) {}
-    }
-
-    n -= texgrpdat[i].num_of_1st;
-    trsbas = (u16*)(texgrplds[i].trans_table + ((u32*)texgrplds[i].trans_table)[n]);
-    textbl = (u32*)texgrplds[i].texture_table;
-    count = *trsbas;
-    trsbas++;
-    trsptr = (TileMapEntry*)trsbas;
-    x = y = 0.0f;
-    attr = flptbl[wk->cg_flip ^ wk->rl_flag];
-    palo = wk->colcd;
-
-    if (wk->my_bright_type) {
-        curr_bright = bright_type[wk->my_bright_type - 1][wk->my_bright_level];
-    } else {
-        curr_bright = 0xFFFFFF;
-    }
-
-    mlt_obj_matrix(wk, base_y);
-    cc.parts.group = i;
 
     while (count--) {
         x = advance_trans_x(x, attr, trsptr);
@@ -726,6 +677,60 @@ void mlt_obj_trans(MultiTexture* mt, WORK* wk, s32 base_y) {
 
         trsptr++;
     }
+}
+
+void mlt_obj_trans(MultiTexture* mt, WORK* wk, s32 base_y) {
+    u32* textbl;
+    u16* trsbas;
+    TileMapEntry* trsptr;
+    s32 attr;
+    s32 count;
+    s32 palo;
+    s32 n;
+    s32 i;
+    f32 x;
+    f32 y;
+    PatternCode cc;
+
+    ppgSetupCurrentDataList(&mt->texList);
+
+    if (mt->ext) {
+        mlt_obj_trans_ext(mt, wk, base_y);
+        return;
+    }
+
+    n = wk->cg_number;
+    i = obj_group_table[n];
+
+    if (i == 0) {
+        return;
+    }
+
+    if (texgrplds[i].ok == 0) {
+        // The trans data is not valid. Group number: %d\n
+        flLogOut("トランスデータが有効ではありません。グループ番号：%d\n", i);
+        while (1) {}
+    }
+
+    n -= texgrpdat[i].num_of_1st;
+    trsbas = (u16*)(texgrplds[i].trans_table + ((u32*)texgrplds[i].trans_table)[n]);
+    textbl = (u32*)texgrplds[i].texture_table;
+    count = *trsbas;
+    trsbas++;
+    trsptr = (TileMapEntry*)trsbas;
+    x = y = 0.0f;
+    attr = flptbl[wk->cg_flip ^ wk->rl_flag];
+    palo = wk->colcd;
+
+    if (wk->my_bright_type) {
+        curr_bright = bright_type[wk->my_bright_type - 1][wk->my_bright_level];
+    } else {
+        curr_bright = 0xFFFFFF;
+    }
+
+    mlt_obj_matrix(wk, base_y);
+    cc.parts.group = i;
+    store_trans_tiles(mt, wk, textbl, trsptr, count, attr, palo, x, y, cc);
 
     seqs_w.up[mt->id] = 1;
     appRenewTempPriority(wk->position_z);
