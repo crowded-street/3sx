@@ -491,6 +491,19 @@ static void handle_select_game_input(struct _TASK* task_ptr) {
     }
 }
 
+static void handle_select_game_fade_out(struct _TASK* task_ptr) {
+    imgSelectGameButton();
+
+    if (FadeOut(1, 25, 8) != 0) {
+        if (task_ptr->free[0]) {
+            task_ptr->r_no[2] = 10;
+            sound_all_off();
+        } else {
+            task_ptr->r_no[2] = 9;
+        }
+    }
+}
+
 void toSelectGame(struct _TASK* task_ptr) {
     switch (task_ptr->r_no[2]) {
     case 0:
@@ -531,19 +544,7 @@ void toSelectGame(struct _TASK* task_ptr) {
         break;
 
     case 8:
-        imgSelectGameButton();
-
-        if (FadeOut(1, 25, 8) != 0) {
-            if (task_ptr->free[0]) {
-                task_ptr->r_no[2] = 10;
-                sound_all_off();
-            } else {
-                task_ptr->r_no[2] = 9;
-            }
-
-            break;
-        }
-
+        handle_select_game_fade_out(task_ptr);
         break;
 
     case 9:
