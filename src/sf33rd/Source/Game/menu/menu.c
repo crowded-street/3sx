@@ -5061,6 +5061,30 @@ void Back_to_Mode_Select(struct _TASK* task_ptr) {
     BGM_Request_Code_Check(0x41);
 }
 
+static void update_extra_option_message() {
+    if (Menu_Cursor_Y[1] != Menu_Cursor_Y[0]) {
+        SE_cursor_move();
+        save_w[Present_Mode].extra_option.contents[Menu_Page][Menu_Max] = 1;
+
+        if (Menu_Cursor_Y[0] < Menu_Max) {
+            Message_Data->order = 1;
+            Message_Data->request = Ex_Account_Data[Menu_Page] + Menu_Cursor_Y[0];
+            Message_Data->timer = 2;
+
+            if (msgExtraTbl[0]->msgNum[Menu_Cursor_Y[0] + (Menu_Page * 8)] == 1) {
+                Message_Data->pos_y = 54;
+            } else {
+                Message_Data->pos_y = 62;
+            }
+        } else {
+            Message_Data->order = 1;
+            Message_Data->request = save_w[Present_Mode].extra_option.contents[Menu_Page][Menu_Max] + 32;
+            Message_Data->timer = 2;
+            Message_Data->pos_y = 54;
+        }
+    }
+}
+
 void Extra_Option(struct _TASK* task_ptr) {
     Menu_Cursor_Y[1] = Menu_Cursor_Y[0];
 
@@ -5112,27 +5136,7 @@ void Extra_Option(struct _TASK* task_ptr) {
             Dir_Move_Sub(task_ptr, 1);
         }
 
-        if (Menu_Cursor_Y[1] != Menu_Cursor_Y[0]) {
-            SE_cursor_move();
-            save_w[Present_Mode].extra_option.contents[Menu_Page][Menu_Max] = 1;
-
-            if (Menu_Cursor_Y[0] < Menu_Max) {
-                Message_Data->order = 1;
-                Message_Data->request = Ex_Account_Data[Menu_Page] + Menu_Cursor_Y[0];
-                Message_Data->timer = 2;
-
-                if (msgExtraTbl[0]->msgNum[Menu_Cursor_Y[0] + (Menu_Page * 8)] == 1) {
-                    Message_Data->pos_y = 54;
-                } else {
-                    Message_Data->pos_y = 62;
-                }
-            } else {
-                Message_Data->order = 1;
-                Message_Data->request = save_w[Present_Mode].extra_option.contents[Menu_Page][Menu_Max] + 32;
-                Message_Data->timer = 2;
-                Message_Data->pos_y = 54;
-            }
-        }
+        update_extra_option_message();
 
         switch (IO_Result) {
         case 0x200:
