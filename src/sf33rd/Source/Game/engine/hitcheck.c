@@ -1812,6 +1812,19 @@ void catch_hit_check() { // 🟢
     }
 }
 
+static bool is_blocked_by_vs_id_filter(WORK* mad, WORK* sad) {
+    if (!(mad->att.dipsw & 2) ||
+        (!(sad->att.dipsw & 2) && (sad->work_id == 1 || !(((WORK_Other*)sad)->refrected)))) {
+        if ((mad->work_id != 1 && mad->work_id != 8) || !(sad->att.dipsw & 2)) {
+            if (!(mad->vs_id & sad->work_id)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 void attack_hit_check() { // 🟢
     WORK* mad;
     WORK* sad;
@@ -1863,13 +1876,8 @@ void attack_hit_check() { // 🟢
                 continue;
             }
 
-            if (!(mad->att.dipsw & 2) ||
-                (!(sad->att.dipsw & 2) && (sad->work_id == 1 || !(((WORK_Other*)sad)->refrected)))) {
-                if ((mad->work_id != 1 && mad->work_id != 8) || !(sad->att.dipsw & 2)) {
-                    if (!(mad->vs_id & sad->work_id)) {
-                        continue;
-                    }
-                }
+            if (is_blocked_by_vs_id_filter(mad, sad)) {
+                continue;
             }
 
             if (mad->work_id != 1) {
