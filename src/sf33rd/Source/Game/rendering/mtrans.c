@@ -2199,6 +2199,23 @@ void draw_box(f64 arg0, f64 arg1, f64 arg2, f64 arg3, u32 col, u32 attr, s16 pri
     appRenewTempPriority(prio);
 }
 
+static s32 reload_melt16_tile(MultiTexture* mt, TEX* texptr, s32 size, s32 dd, TileMapEntry* trsptr,
+                               void* trans_table, s32 group_index, s32 group_count, s32 palt, s32 code) {
+    s32 attr;
+
+    lz_ext_p6_fx(&((u8*)texptr)[1], mt->mltbuf, size);
+    njReLoadTexturePartNumG(mt->mltgidx16 + (code >> 8), (s8*)mt->mltbuf, code & 0xFF, size);
+    attr = (trsptr->attr & 0xC000) | 0x1000 | dd;
+    trsptr->attr |= 0x1000;
+    attr |= palt;
+    search_trsptr(trans_table, group_index, group_count, trsptr->code, palt, code, attr);
+    trsptr->code = code;
+    trsptr->attr = attr;
+    code += 1;
+
+    return code;
+}
+
 void mlt_obj_melt2(MultiTexture* mt, u16 cg_number) {
     u32* textbl;
     u16* trsbas;
@@ -2254,15 +2271,7 @@ void mlt_obj_melt2(MultiTexture* mt, u16 cg_number) {
             switch (wh) {
             case 1:
             case 2:
-                lz_ext_p6_fx(&((u8*)texptr)[1], mt->mltbuf, size);
-                njReLoadTexturePartNumG(mt->mltgidx16 + (cd16 >> 8), (s8*)mt->mltbuf, cd16 & 0xFF, size);
-                attr = (attr & 0xC000) | 0x1000 | dd;
-                trsptr->attr |= 0x1000;
-                attr |= palt;
-                search_trsptr(grplds->trans_table, i, n, trsptr->code, palt, cd16, attr);
-                trsptr->code = cd16;
-                trsptr->attr = attr;
-                cd16 += 1;
+                cd16 = reload_melt16_tile(mt, texptr, size, dd, trsptr, grplds->trans_table, i, n, palt, cd16);
                 break;
 
             case 4:
