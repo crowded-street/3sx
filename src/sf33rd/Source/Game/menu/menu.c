@@ -5190,6 +5190,19 @@ static void reset_extra_options(void) {
     SE_selected();
 }
 
+static void handle_extra_option_selection(struct _TASK* task_ptr) {
+    if (Menu_Page == 0 && Menu_Cursor_Y[0] == 6) {
+        reset_extra_options();
+        return;
+    }
+
+    if (Menu_Cursor_Y[0] != Menu_Max) {
+        return;
+    }
+
+    handle_extra_option_page_action(task_ptr);
+}
+
 static void advance_extra_option_fade(struct _TASK* task_ptr) {
     if (--task_ptr->timer == 0) {
         task_ptr->r_no[2]++;
@@ -5263,17 +5276,7 @@ void Extra_Option(struct _TASK* task_ptr) {
             break;
 
         case 0x100:
-            if (Menu_Page == 0 && Menu_Cursor_Y[0] == 6) {
-                reset_extra_options();
-                break;
-            }
-
-            if (Menu_Cursor_Y[0] != Menu_Max) {
-                break;
-            }
-
-            handle_extra_option_page_action(task_ptr);
-
+            handle_extra_option_selection(task_ptr);
             break;
         }
 
