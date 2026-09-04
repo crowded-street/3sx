@@ -1859,6 +1859,10 @@ void op_115_move() {
     }
 }
 
+static bool should_complete_opening_fade() {
+    return (FadeOut(0, 8, 8) != 0) && (--op_w.mv_ctr <= 0);
+}
+
 void op_116_move() {
     switch (op_w.r_no_2) {
     case 0:
@@ -1888,7 +1892,7 @@ void op_116_move() {
         break;
 
     case 2:
-        if ((FadeOut(0, 8, 8) != 0) && (--op_w.mv_ctr <= 0)) {
+        if (should_complete_opening_fade()) {
             op_w.index = 0x8000 - 1;
             op_end_flag = 1;
             op_w.r_no_2 += 1;
