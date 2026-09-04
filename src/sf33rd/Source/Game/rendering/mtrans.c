@@ -119,6 +119,8 @@ static void lz_ext_p6_fx(u8* srcptr, u8* dstptr, u32 len);
 static void lz_ext_p6_cx(u8* srcptr, u16* dstptr, u32 len, u16* palptr);
 static u16 x16_mapping_set(PatternMap* map, s32 code);
 static u16 x32_mapping_set(PatternMap* map, s32 code);
+static f32 advance_trans_x(f32 x, s32 flip, TileMapEntry* trsptr);
+static f32 advance_trans_y(f32 y, s32 flip, TileMapEntry* trsptr);
 
 static void search_trsptr(void* trstbl, s32 i, s32 n, s32 cods, s32 atrs, s32 codd, s32 atrd) {
     s32 j;
@@ -1190,17 +1192,8 @@ void mlt_obj_trans_rgb_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
         cc.parts.group = i;
 
         while (count--) {
-            if (flip & 0x8000) {
-                x += trsptr->x;
-            } else {
-                x -= trsptr->x;
-            }
-
-            if (flip & 0x4000) {
-                y -= trsptr->y;
-            } else {
-                y += trsptr->y;
-            }
+            x = advance_trans_x(x, flip, trsptr);
+            y = advance_trans_y(y, flip, trsptr);
 
             texptr = (TEX*)((uintptr_t)textbl + ((u32*)textbl)[trsptr->code]);
             dw = (texptr->wh & 0xE0) >> 2;
@@ -1280,17 +1273,8 @@ void mlt_obj_trans_rgb_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
         cc.parts.group = i;
 
         while (count--) {
-            if (flip & 0x8000) {
-                x += trsptr->x;
-            } else {
-                x -= trsptr->x;
-            }
-
-            if (flip & 0x4000) {
-                y -= trsptr->y;
-            } else {
-                y += trsptr->y;
-            }
+            x = advance_trans_x(x, flip, trsptr);
+            y = advance_trans_y(y, flip, trsptr);
 
             texptr = (TEX*)((uintptr_t)textbl + ((u32*)textbl)[trsptr->code]);
             dw = (texptr->wh & 0xE0) >> 2;
