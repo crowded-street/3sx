@@ -64,13 +64,13 @@ point. **Campaign start** preserves the original 2026-09-01 sweep.
 | --- | --- | --- | --- | --- |
 | R01 | 1.42 | 1.42 | **1.42** | Steps 1-3 of 6 done: `attack_hit_check` (2 predicate extractions, loop/goto core left untouched - too risky without playtesting), `defense_ground_ps2`, `defense_ground_cps3` (Recipe D dedup, cc 60->54 and 41->33). File is far larger than the 6-function target list suggests (e.g. `set_caught_status` cc 50, not in scope yet). Verify with manual playtesting. |
 | R02 | 1.52 | 1.52 | - | not started |
-| R03 | 1.82 | 1.82 | - | not started |
+| R03 | 1.82 | 1.82 | **1.82** | `check_catch_attack` simplified (Recipe E, cc 17->below threshold). `check_special_attack` (cc 99, the worst function in the whole campaign) deliberately left alone: no goto, but deeply nested `continue`-driven double loops that need dedicated, careful attention. `check_full_gauge_attack`/`check_full_gauge_attack2`/`check_super_arts_attack_dc` cluster differs by too many values to safely dedupe. |
 | R04 | **1.97** | 2.25 | **2.25** | wave 1 of 3 done (PR #3) |
 | R05 | 2.31 | 2.31 | **2.82** | All 12 originally-scoped functions done across waves 1-3, plus `check_4`/`check_23`/`sw_pick_up` deliberately left alone (remaining duplication needs 2+ value substitutions, against Recipe D's rule). Still Red. |
 | R06 | 2.57 | 2.57 | - | not started |
 | R07 | 2.58 | 2.58 | - | not started |
 | R08 | 2.64 | 2.64 | - | not started |
-| R09 | 2.74 | 2.74 | - | not started |
+| R09 | 2.74 | 2.74 | **2.96** | Deduped the shared "common attack checks" block across `nm_01000/02000/03000/07000/08000/09000/10000` plus `process_catch`/`dm_32000` and `nm_27000`/`nm_29000` (Recipe D, several functions dropped out of Complex Method entirely). `jumping_cg_type_check` (cc 92) deliberately left alone: mixes `break` (exit switch-case) and `return` (exit function) in ways that make blind pattern extraction risky - needs a dedicated pass. |
 | R10 | 3.09 | 3.09 | - | not started |
 | R11 | 3.49 | 3.49 | - | not started |
 | R12 | 3.56 | 3.56 | - | not started |
