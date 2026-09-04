@@ -159,6 +159,66 @@ void check_result_extra() { // 🟢
     }
 }
 
+static void set_catcher_animation(PLW* as, PLW* ds) {
+    s32 var_s4;
+
+    var_s4 = 0;
+
+    if (ds->wu.routine_no[1] == 1 && ds->wu.cg_type == 10) {
+        var_s4 = 1;
+    }
+
+    switch (var_s4 + (((as->wu.rl_flag + ds->wu.rl_flag) & 1) * 2)) {
+    case 0:
+    case 3:
+        as->wu.routine_no[1] = as->wu.cmcr.koc;
+        as->wu.routine_no[2] = as->wu.cmcr.ix;
+        as->wu.char_index = as->wu.cmcr.pat;
+        break;
+
+    default:
+        as->wu.routine_no[1] = as->wu.cmcf.koc;
+        as->wu.routine_no[2] = as->wu.cmcf.ix;
+        as->wu.char_index = as->wu.cmcf.pat;
+        break;
+    }
+}
+
+static void finalize_successful_catch(PLW* as, PLW* ds, s16 blocking_status, s8 gddir) {
+    ds->wu.kezurare_flag = 0;
+    as->wu.routine_no[3] = 0;
+
+    if (ds->guard_flag == 3 || blocking_status & 1) {
+        ds->hazusenai_flag = 1;
+    }
+
+    as->tsukami_num = ds->player_number;
+    as->tsukami_f = true;
+    ds->tsukamare_f = true;
+    ds->wu.routine_no[1] = 3;
+    ds->wu.routine_no[2] = as->wu.att.ng_type;
+    ds->wu.routine_no[3] = 0;
+    grade_add_clean_hits((WORK_Other*)as);
+    check_guard_miss(&as->wu, ds, gddir);
+
+    if (as->wu.att.ng_type == 2) {
+        ds->wu.xyz[1].disp.pos = as->wu.xyz[1].disp.pos;
+    }
+
+    effect_02_init(&as->wu, ds->dm_point, 1, ds->wu.dm_rl);
+    dm_status_copy(&as->wu, &ds->wu);
+    ds->wu.dm_vital = 0;
+    as->wu.hit_stop = ds->wu.dm_stop = 0;
+    as->wu.cmwk[8]++;
+    as->wu.cmwk[0xF]++;
+    ds->wu.dm_count_up++;
+    hit_pattern_extdat_check(&as->wu);
+    paring_ctr_vs[Play_Type][ds->wu.id] = 0;
+    paring_counter[ds->wu.id] = 0;
+    paring_bonus_r[ds->wu.id] = 0;
+    pp_pulpara_hit(&as->wu);
+}
+
 void set_caught_status(s16 ix) { // 🟡
     // CPS3 lacks the port-side vibration and training chip-damage metadata kept below.
     s16 ix2 = hs[ix].dm_me;
@@ -166,8 +226,6 @@ void set_caught_status(s16 ix) { // 🟡
     PLW* ds = (PLW*)q_hit_push[ix];
     s16 blocking_status = check_blocking_flag(as, ds);
     s8 gddir;
-
-    s32 var_s4;
 
     while (1) {
         if (ix == hs[ix2].my_hit) {
@@ -289,59 +347,8 @@ void set_caught_status(s16 ix) { // 🟡
         ds->wu.routine_no[2] = as->wu.att.reaction;
     }
 
-    var_s4 = 0;
-
-    if (ds->wu.routine_no[1] == 1 && ds->wu.cg_type == 10) {
-        var_s4 = 1;
-    }
-
-    switch (var_s4 + (((as->wu.rl_flag + ds->wu.rl_flag) & 1) * 2)) {
-    case 0:
-    case 3:
-        as->wu.routine_no[1] = as->wu.cmcr.koc;
-        as->wu.routine_no[2] = as->wu.cmcr.ix;
-        as->wu.char_index = as->wu.cmcr.pat;
-        break;
-
-    default:
-        as->wu.routine_no[1] = as->wu.cmcf.koc;
-        as->wu.routine_no[2] = as->wu.cmcf.ix;
-        as->wu.char_index = as->wu.cmcf.pat;
-        break;
-    }
-
-    ds->wu.kezurare_flag = 0;
-    as->wu.routine_no[3] = 0;
-
-    if (ds->guard_flag == 3 || blocking_status & 1) {
-        ds->hazusenai_flag = 1;
-    }
-
-    as->tsukami_num = ds->player_number;
-    as->tsukami_f = true;
-    ds->tsukamare_f = true;
-    ds->wu.routine_no[1] = 3;
-    ds->wu.routine_no[2] = as->wu.att.ng_type;
-    ds->wu.routine_no[3] = 0;
-    grade_add_clean_hits((WORK_Other*)as);
-    check_guard_miss(&as->wu, ds, gddir);
-
-    if (as->wu.att.ng_type == 2) {
-        ds->wu.xyz[1].disp.pos = as->wu.xyz[1].disp.pos;
-    }
-
-    effect_02_init(&as->wu, ds->dm_point, 1, ds->wu.dm_rl);
-    dm_status_copy(&as->wu, &ds->wu);
-    ds->wu.dm_vital = 0;
-    as->wu.hit_stop = ds->wu.dm_stop = 0;
-    as->wu.cmwk[8]++;
-    as->wu.cmwk[0xF]++;
-    ds->wu.dm_count_up++;
-    hit_pattern_extdat_check(&as->wu);
-    paring_ctr_vs[Play_Type][ds->wu.id] = 0;
-    paring_counter[ds->wu.id] = 0;
-    paring_bonus_r[ds->wu.id] = 0;
-    pp_pulpara_hit(&as->wu);
+    set_catcher_animation(as, ds);
+    finalize_successful_catch(as, ds, blocking_status, gddir);
     return;
 
 set_guard_status:
