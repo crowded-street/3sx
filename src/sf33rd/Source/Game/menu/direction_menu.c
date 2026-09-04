@@ -455,6 +455,26 @@ static void process_direction_menu_input(struct _TASK* task_ptr) {
     handle_direction_menu_input(task_ptr);
 }
 
+static void setup_direction_menu_page(struct _TASK* task_ptr) {
+    FadeOut(1, 0xFF, 8);
+    task_ptr->r_no[2] += 1;
+    Setup_Next_Page(task_ptr, 0);
+}
+
+static void wait_for_direction_menu_page(struct _TASK* task_ptr) {
+    FadeOut(1, 0xFF, 8);
+    if (--task_ptr->timer == 0) {
+        task_ptr->r_no[2] += 1;
+        FadeInit();
+    }
+}
+
+static void fade_in_direction_menu(struct _TASK* task_ptr) {
+    if (FadeIn(1, 0x19, 8) != 0) {
+        task_ptr->r_no[2] += 1;
+    }
+}
+
 void Direction_Menu(struct _TASK* task_ptr) {
     Menu_Cursor_Y[1] = Menu_Cursor_Y[0];
 
@@ -464,27 +484,16 @@ void Direction_Menu(struct _TASK* task_ptr) {
     }
 
     if (task_ptr->r_no[2] == 1) {
-        FadeOut(1, 0xFF, 8);
-        task_ptr->r_no[2] += 1;
-        Setup_Next_Page(task_ptr, 0);
+        setup_direction_menu_page(task_ptr);
     }
 
     if (task_ptr->r_no[2] == 2) {
-        FadeOut(1, 0xFF, 8);
-
-        if (--task_ptr->timer == 0) {
-            task_ptr->r_no[2] += 1;
-            FadeInit();
-        }
-
+        wait_for_direction_menu_page(task_ptr);
         return;
     }
 
     if (task_ptr->r_no[2] == 3) {
-        if (FadeIn(1, 0x19, 8) != 0) {
-            task_ptr->r_no[2] += 1;
-        }
-
+        fade_in_direction_menu(task_ptr);
         return;
     }
 
@@ -521,112 +530,103 @@ void Dir_Move_Sub(struct _TASK* task_ptr, s16 PL_id) {
     Dir_Move_Sub_LR(sw, PL_id);
 }
 
-u16 Dir_Move_Sub2(u16 sw) {
-    if (Menu_Cursor_Move > 0) {
-        return 0;
-    }
-
+static u16 set_direction_io_result_low(u16 sw) {
     switch (sw) {
-    case 0x1:
-        Menu_Cursor_Y[0] -= 1;
-
-        if (Menu_Cursor_Y[0] < 0) {
-            Menu_Cursor_Y[0] = Menu_Max;
-        }
-
-        SE_cursor_move();
-        return IO_Result = 1;
-
-    case 0x2:
-        Menu_Cursor_Y[0] += 1;
-
-        if (Menu_Cursor_Y[0] > Menu_Max) {
-            Menu_Cursor_Y[0] = 0;
-        }
-
-        SE_cursor_move();
-        return IO_Result = 2;
-
     case 0x10:
-        return IO_Result = 0x10;
-
     case 0x20:
-        return IO_Result = 0x20;
-
     case 0x40:
-        return IO_Result = 0x40;
-
     case 0x80:
-        return IO_Result = 0x80;
-
     case 0x100:
-        return IO_Result = 0x100;
-
-    case 0x200:
-        return IO_Result = 0x200;
-
-    case 0x400:
-        return IO_Result = 0x400;
-
-    case 0x800:
-        return IO_Result = 0x800;
-
-    case 0x4000:
-        return IO_Result = 0x4000;
-
+        return IO_Result = sw;
     default:
         return IO_Result = 0;
     }
 }
 
-static void move_direction_option_left(u8 last_pos) {
-    SE_dir_cursor_move();
-    system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] -= 1;
+static u16 set_direction_io_result_high(u16 sw) {
+    bool is_page_input = sw == 0x200 || sw == 0x400;
+    bool is_trigger_input = sw == 0x800 || sw == 0x4000;
 
-    if (Menu_Cursor_Y[0] == Menu_Max) {
-        if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] < 0) {
-            system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 0;
-            IO_Result = 0x80;
-            return;
-        }
+    if (is_page_input || is_trigger_input) {
+        return IO_Result = sw;
+    }
+    return IO_Result = 0;
+}
 
-        if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] != last_pos) {
-            Message_Data->order = 1;
-            Message_Data->request = system_dir[1].contents[Menu_Page][Menu_Max] + 0x74;
-            Message_Data->timer = 2;
+static u16 move_direction_cursor(u16 sw) {
+    if (sw == 0x1) {
+        Menu_Cursor_Y[0] -= 1;
+        if (Menu_Cursor_Y[0] < 0) {
+            Menu_Cursor_Y[0] = Menu_Max;
         }
-    } else {
-        if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] < 0) {
-            system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = Dir_Menu_Max_Data[Menu_Page][Menu_Cursor_Y[0]];
-        }
+        SE_cursor_move();
+        return IO_Result = 1;
+    }
+    Menu_Cursor_Y[0] += 1;
+    if (Menu_Cursor_Y[0] > Menu_Max) {
+        Menu_Cursor_Y[0] = 0;
+    }
+    SE_cursor_move();
+    return IO_Result = 2;
+}
+
+u16 Dir_Move_Sub2(u16 sw) {
+    if (Menu_Cursor_Move > 0) {
+        return 0;
+    }
+    if (sw == 0x1 || sw == 0x2) {
+        return move_direction_cursor(sw);
+    }
+    if (set_direction_io_result_low(sw) != 0) {
+        return IO_Result;
+    }
+    return set_direction_io_result_high(sw);
+}
+
+static void move_normal_direction_option(u16 sw) {
+    if (sw == 0x4 && system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] < 0) {
+        system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = Dir_Menu_Max_Data[Menu_Page][Menu_Cursor_Y[0]];
+    }
+    if (sw == 0x8 &&
+        system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] > Dir_Menu_Max_Data[Menu_Page][Menu_Cursor_Y[0]]) {
+        system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 0;
     }
 }
 
-static void move_direction_option_right(u8 last_pos) {
-    SE_dir_cursor_move();
-    system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] += 1;
-
-    if (Menu_Cursor_Y[0] == Menu_Max) {
-        if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] > 2) {
-            system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 2;
-            IO_Result = 0x400;
-            return;
-        }
-
-        if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] > 2) {
-            system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 2;
-        }
-
-        if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] != last_pos) {
-            Message_Data->order = 1;
-            Message_Data->request = system_dir[1].contents[Menu_Page][Menu_Max] + 0x74;
-            Message_Data->timer = 2;
-        }
-    } else {
-        if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] > Dir_Menu_Max_Data[Menu_Page][Menu_Cursor_Y[0]]) {
-            system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 0;
-        }
+static void move_final_direction_option(u16 sw, u8 last_pos) {
+    if (sw == 0x4 && system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] < 0) {
+        system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 0;
+        IO_Result = 0x80;
+        return;
     }
+    if (sw == 0x8 && system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] > 2) {
+        system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 2;
+        IO_Result = 0x400;
+        return;
+    }
+    if (sw == 0x8 && system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] > 2) {
+        system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 2;
+    }
+    if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] != last_pos) {
+        Message_Data->order = 1;
+        Message_Data->request = system_dir[1].contents[Menu_Page][Menu_Max] + 0x74;
+        Message_Data->timer = 2;
+    }
+}
+
+static void move_direction_option(u16 sw, u8 last_pos) {
+    SE_dir_cursor_move();
+    if (sw == 0x4) {
+        system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] -= 1;
+    } else {
+        system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] += 1;
+    }
+
+    if (Menu_Cursor_Y[0] != Menu_Max) {
+        move_normal_direction_option(sw);
+        return;
+    }
+    move_final_direction_option(sw, last_pos);
 }
 
 static void wrap_direction_option_right(void) {
@@ -640,11 +640,8 @@ void Dir_Move_Sub_LR(u16 sw, s16 /* unused */) {
 
     switch (sw) {
     case 0x4:
-        move_direction_option_left(last_pos);
-        return;
-
     case 0x8:
-        move_direction_option_right(last_pos);
+        move_direction_option(sw, last_pos);
         return;
 
     case 0x100:
@@ -661,21 +658,33 @@ void Dir_Move_Sub_LR(u16 sw, s16 /* unused */) {
     }
 }
 
-static void setup_menu_page_effects(s16 mode_type, s16* disp_index) {
+static void setup_standard_page_items(s16* disp_index) {
     s16 ix;
     s16 unused_s3;
 
     for (ix = 0; ix < Menu_Max; ix++, unused_s3 = *disp_index += 2) {
-        if (mode_type == 0) {
-            effect_18_init(*disp_index, ix, 0, 2);
-            effect_51_init(ix, ix, 2);
-        } else {
-            effect_C4_init(0, ix, ix, 2);
+        effect_18_init(*disp_index, ix, 0, 2);
+        effect_51_init(ix, ix, 2);
+    }
+}
 
-            if (Menu_Page != 0 || ix != (Menu_Max - 1)) {
-                effect_C4_init(1, ix, ix, 2);
-            }
+static void setup_extra_page_items(s16* disp_index) {
+    s16 ix;
+    s16 unused_s3;
+
+    for (ix = 0; ix < Menu_Max; ix++, unused_s3 = *disp_index += 2) {
+        effect_C4_init(0, ix, ix, 2);
+        if (Menu_Page != 0 || ix != (Menu_Max - 1)) {
+            effect_C4_init(1, ix, ix, 2);
         }
+    }
+}
+
+static void setup_menu_page_effects(s16 mode_type, s16* disp_index) {
+    if (mode_type == 0) {
+        setup_standard_page_items(disp_index);
+    } else {
+        setup_extra_page_items(disp_index);
     }
 
     effect_40_init(mode_type, 0, 0x48, 0, 2, 1);
@@ -684,12 +693,48 @@ static void setup_menu_page_effects(s16 mode_type, s16* disp_index) {
     effect_40_init(mode_type, 3, 0x4B, 0, 2, 2);
 }
 
+static void configure_extra_direction_page(void) {
+    Menu_Max = Ex_Page_Data[Menu_Page];
+    save_w[1].extra_option.contents[Menu_Page][Menu_Max] = 1;
+    Order_Dir[0x4E] = 1;
+    effect_57_init(0x4E, MENU_HEADER_OPTION_MENU, 0, 0x45, 0);
+    Order[0x73] = 3;
+    Order_Dir[0x73] = 8;
+    Order_Timer[0x73] = 1;
+    effect_57_init(0x73, MENU_HEADER_EXTRA_OPTION, 0, 0x3F, 2);
+    effect_66_init(0x5C, 0x27, 2, 0, 0x47, 0xB, 0);
+    Order[0x5C] = 3;
+    Order_Timer[0x5C] = 1;
+    effect_66_init(0x5D, 0x28, 2, 0, 0x40, (s16)Menu_Page + 1, 0);
+    Order[0x5D] = 3;
+    Order_Timer[0x5D] = 1;
+    Message_Data->pos_y = msgExtraTbl[0]->msgNum[Menu_Cursor_Y[0] + Menu_Page * 8] == 1 ? 0x36 : 0x3E;
+    Message_Data->request = Ex_Account_Data[Menu_Page] + Menu_Cursor_Y[0];
+}
+
+static void configure_system_direction_page(s16* disp_index) {
+    Menu_Max = Page_Data[Menu_Page];
+    system_dir[1].contents[Menu_Page][Menu_Max] = 1;
+    effect_66_init(0x5B, 0x14, 2, 0, 0x47, 0xA, 0);
+    Order[0x5B] = 3;
+    Order_Timer[0x5B] = 1;
+    Order[0x4E] = 5;
+    Order_Dir[0x4E] = 3;
+    effect_57_init(0x4E, MENU_HEADER_MODE_MENU, 0, 0x45, 0);
+    effect_66_init(0x5C, 0x15, 2, 0, 0x47, 0xB, 0);
+    Order[0x5C] = 3;
+    Order_Timer[0x5C] = 1;
+    effect_66_init(0x5D, 0x16, 2, 0, 0x40, (s16)Menu_Page + 1, 0);
+    Order[0x5D] = 3;
+    Order_Timer[0x5D] = 1;
+    Message_Data->pos_y = msgSysDirTbl[0]->msgNum[Menu_Page * 0xC + Menu_Cursor_Y[0] * 2 + 1] == 1 ? 0x36 : 0x3E;
+    *disp_index = Menu_Page * 0xC;
+    Message_Data->request = *disp_index + 1;
+}
+
 void Setup_Next_Page(struct _TASK* task_ptr, u8 /* unused */) {
-    s16 ix;
     s16 disp_index;
     s16 mode_type;
-
-    s16 unused_s3;
 
     Menu_Page_Buff = Menu_Page;
     effect_work_init();
@@ -700,53 +745,10 @@ void Setup_Next_Page(struct _TASK* task_ptr, u8 /* unused */) {
 
     if (task_ptr->r_no[1] == 0xE) {
         mode_type = 1;
-        Menu_Max = Ex_Page_Data[Menu_Page];
-        save_w[1].extra_option.contents[Menu_Page][Menu_Max] = 1;
-        Order_Dir[0x4E] = 1;
-        effect_57_init(0x4E, MENU_HEADER_OPTION_MENU, 0, 0x45, 0);
-        Order[0x73] = 3;
-        Order_Dir[0x73] = 8;
-        Order_Timer[0x73] = 1;
-        effect_57_init(0x73, MENU_HEADER_EXTRA_OPTION, 0, 0x3F, 2);
-        effect_66_init(0x5C, 0x27, 2, 0, 0x47, 0xB, 0);
-        Order[0x5C] = 3;
-        Order_Timer[0x5C] = 1;
-        effect_66_init(0x5D, 0x28, 2, 0, 0x40, (s16)Menu_Page + 1, 0);
-        Order[0x5D] = 3;
-        Order_Timer[0x5D] = 1;
-
-        if ((msgExtraTbl[0]->msgNum[Menu_Cursor_Y[0] + Menu_Page * 8]) == 1) {
-            Message_Data->pos_y = 0x36;
-        } else {
-            Message_Data->pos_y = 0x3E;
-        }
-
-        Message_Data->request = Ex_Account_Data[Menu_Page] + Menu_Cursor_Y[0];
+        configure_extra_direction_page();
     } else {
         mode_type = 0;
-        Menu_Max = Page_Data[Menu_Page];
-        system_dir[1].contents[Menu_Page][Menu_Max] = 1;
-        effect_66_init(0x5B, 0x14, 2, 0, 0x47, 0xA, 0);
-        Order[0x5B] = 3;
-        Order_Timer[0x5B] = 1;
-        Order[0x4E] = 5;
-        Order_Dir[0x4E] = 3;
-        effect_57_init(0x4E, MENU_HEADER_MODE_MENU, 0, 0x45, 0);
-        effect_66_init(0x5C, 0x15, 2, 0, 0x47, 0xB, 0);
-        Order[0x5C] = 3;
-        Order_Timer[0x5C] = 1;
-        effect_66_init(0x5D, 0x16, 2, 0, 0x40, (s16)Menu_Page + 1, 0);
-        Order[0x5D] = 3;
-        Order_Timer[0x5D] = 1;
-
-        if ((msgSysDirTbl[0]->msgNum[Menu_Page * 0xC + Menu_Cursor_Y[0] * 2 + 1]) == 1) {
-            Message_Data->pos_y = 0x36;
-        } else {
-            Message_Data->pos_y = 0x3E;
-        }
-
-        disp_index = Menu_Page * 0xC;
-        Message_Data->request = disp_index + 1;
+        configure_system_direction_page(&disp_index);
     }
 
     Menu_Cursor_Y[0] = 0;

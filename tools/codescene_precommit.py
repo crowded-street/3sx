@@ -103,6 +103,13 @@ def show(ref: str, path: str) -> tuple[bool, str]:
     return True, out.stdout
 
 
+def show_staged(path: str) -> tuple[bool, str]:
+    out = git("show", f":{path}")
+    if out.returncode != 0:
+        return False, ""
+    return True, out.stdout
+
+
 def file_score_request(path: str) -> list[dict[str, object]]:
     return [
         {"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2024-11-05", "capabilities": {}, "clientInfo": {"name": "codescene-precommit", "version": "1.0.0"}}},
@@ -147,7 +154,9 @@ def score(path: str, exe: str) -> float:
 
 
 def temp_file(content: str, suffix: str) -> str:
-    handle = tempfile.NamedTemporaryFile("w", suffix=suffix, delete=False, encoding="utf-8")
+    handle = tempfile.NamedTemporaryFile(
+        "w", prefix=".codescene-staged-", suffix=suffix, dir=REPO, delete=False, encoding="utf-8"
+    )
     handle.write(content)
     handle.close()
     return handle.name
@@ -162,8 +171,9 @@ def cleanup_temp_files(paths: tuple[str, ...]) -> None:
 
 
 def check_revised_file(path: str, exe: str, previous: str, staged: str) -> str | None:
-    old_file = temp_file(previous, Path(path).name)
-    new_file = temp_file(staged, Path(path).name)
+    suffix = Path(path).suffix
+    old_file = temp_file(previous, suffix)
+    new_file = temp_file(staged, suffix)
     try:
         old_score = score(old_file, exe)
         new_score = score(new_file, exe)
@@ -176,7 +186,7 @@ def check_revised_file(path: str, exe: str, previous: str, staged: str) -> str |
 
 
 def check_new_file(path: str, exe: str, staged: str) -> str | None:
-    new_file = temp_file(staged, Path(path).name)
+    new_file = temp_file(staged, Path(path).suffix)
     try:
         new_score = score(new_file, exe)
     finally:
@@ -188,9 +198,9 @@ def check_new_file(path: str, exe: str, staged: str) -> str | None:
 
 
 def check(path: str, exe: str, previous_path: str | None = None) -> str | None:
-    staged_exists, staged = show(":" + path, path)
+    staged_exists, staged = show_staged(path)
     if not staged_exists:
-        return None
+        return f"{path}: could not read staged content"
 
     baseline_path = previous_path if previous_path is not None else path
     previous_exists, previous = show("HEAD", baseline_path)

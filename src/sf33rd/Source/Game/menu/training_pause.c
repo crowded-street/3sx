@@ -239,9 +239,52 @@ static void handle_training_pause_state(struct _TASK* task_ptr) {
     }
 }
 
-void Wait_Pause_in_Tr(struct _TASK* task_ptr) {
+static void initialize_training_wait(struct _TASK* task_ptr) {
+    if (Allow_a_battle_f) {
+        task_ptr->r_no[1]++;
+        if (Present_Mode == 4) {
+            Disp_Attack_Data = Training->contents[0][1][TRAINING_OPTION_ATTACK_DATA];
+        } else {
+            Disp_Attack_Data = 0;
+        }
+    } else {
+        Disp_Attack_Data = 0;
+    }
+}
+
+static void check_training_pause_input(struct _TASK* task_ptr) {
     u16 ans;
-    u16 ix;
+
+    if (Allow_a_battle_f == 0 || Extra_Break != 0) {
+        return;
+    }
+    ans = 0;
+    if (Check_Pause_Term_Tr(0)) {
+        ans = Pause_Check_Tr(0);
+    }
+    if (ans == 0 && Check_Pause_Term_Tr(1)) {
+        ans = Pause_Check_Tr(1);
+    }
+    switch (ans) {
+    case 1:
+        Setup_Tr_Pause(task_ptr);
+        break;
+    case 2:
+        Setup_Tr_Pause(task_ptr);
+        task_ptr->r_no[1] = 3;
+        break;
+    }
+}
+
+static void handle_removed_training_controller(struct _TASK* task_ptr) {
+    if (Interface_Type[Pause_ID] == 0) {
+        dispControllerWasRemovedMessage(132, 82, 16);
+        return;
+    }
+    Setup_Tr_Pause(task_ptr);
+}
+
+void Wait_Pause_in_Tr(struct _TASK* task_ptr) {
 
     Training_Data_Disp();
     Control_Player_Tr();
@@ -253,59 +296,17 @@ void Wait_Pause_in_Tr(struct _TASK* task_ptr) {
 
     switch (task_ptr->r_no[1]) {
     case 0:
-        if (Allow_a_battle_f) {
-            task_ptr->r_no[1]++;
-
-            if (Present_Mode == 4) {
-                Disp_Attack_Data = Training->contents[0][1][TRAINING_OPTION_ATTACK_DATA];
-            } else {
-                Disp_Attack_Data = 0;
-            }
-        } else {
-            Disp_Attack_Data = 0;
-        }
-
-        /* fallthrough */
-
-    case 1:
-        if (Allow_a_battle_f == 0 || Extra_Break != 0) {
-            return;
-        }
-
-        ans = 0;
-
-        if (Check_Pause_Term_Tr(0)) {
-            ans = Pause_Check_Tr(0);
-        }
-
-        if (ans == 0 && Check_Pause_Term_Tr(1)) {
-            ans = Pause_Check_Tr(1);
-        }
-
-        switch (ans) {
-        case 1:
-            Setup_Tr_Pause(task_ptr);
-            break;
-
-        case 2:
-            Setup_Tr_Pause(task_ptr);
-            task_ptr->r_no[1] = 3;
-            break;
-        }
-
+        initialize_training_wait(task_ptr);
+        check_training_pause_input(task_ptr);
         break;
-
+    case 1:
+        check_training_pause_input(task_ptr);
+        break;
     case 2:
         handle_training_pause_state(task_ptr);
         break;
-
     case 3:
-        if (Interface_Type[Pause_ID] == 0) {
-            dispControllerWasRemovedMessage(132, 82, 16);
-            break;
-        }
-
-        Setup_Tr_Pause(task_ptr);
+        handle_removed_training_controller(task_ptr);
         break;
     }
 }
@@ -450,21 +451,41 @@ void Flash_1P_or_2P(struct _TASK* task_ptr) {
     }
 }
 
+static s32 exit_normal_training_pause(struct _TASK* task_ptr) {
+    switch (Menu_Cursor_Y[0]) {
+    case 0:
+        task_ptr->r_no[2] = 0x63;
+        Exit_Menu = 1;
+        Menu_Suicide[0] = 1;
+        return 1;
+    case 1:
+        Cursor_Y_Pos[0][0] = 0;
+        return 2;
+    case 2:
+        task_ptr->r_no[2]++;
+        SE_selected();
+        Menu_Suicide[0] = 1;
+        Menu_Cursor_Y[0] = 1;
+        effect_10_init(0, 0, 3, 6, 1, 17, 12);
+        effect_10_init(0, 1, 0, 0, 1, 20, 15);
+        effect_10_init(0, 1, 1, 1, 1, 26, 15);
+        break;
+    }
+    return 0;
+}
+
 static s32 handle_normal_training_pause_input(struct _TASK* task_ptr) {
     u16 sw;
-
     if (Pause_Down) {
         IO_Result = MC_Move_Sub(Check_Menu_Lever(Pause_ID, 0), 0, 2, 0xFF);
     } else {
         sw = ~PLsw[Pause_ID][1] & PLsw[Pause_ID][0];
-
         if (sw & SWK_ATTACKS) {
             IO_Result = SWK_WEST;
         } else {
             return 3;
         }
     }
-
     switch (IO_Result) {
     case SWK_START:
     case SWK_EAST:
@@ -472,33 +493,9 @@ static s32 handle_normal_training_pause_input(struct _TASK* task_ptr) {
         Exit_Menu = 1;
         Menu_Suicide[0] = 1;
         return 1;
-
     case SWK_SOUTH:
-        switch (Menu_Cursor_Y[0]) {
-        case 0: // CONTINUE
-            task_ptr->r_no[2] = 0x63;
-            Exit_Menu = 1;
-            Menu_Suicide[0] = 1;
-            return 1;
-
-        case 1: // TRAINING MENU
-            Cursor_Y_Pos[0][0] = 0;
-            return 2;
-
-        case 2: // EXIT
-            task_ptr->r_no[2]++;
-            SE_selected();
-            Menu_Suicide[0] = 1;
-            Menu_Cursor_Y[0] = 1;
-            effect_10_init(0, 0, 3, 6, 1, 17, 12);
-            effect_10_init(0, 1, 0, 0, 1, 20, 15);
-            effect_10_init(0, 1, 1, 1, 1, 26, 15);
-            break;
-        }
-
-        break;
+        return exit_normal_training_pause(task_ptr);
     }
-
     return 0;
 }
 
@@ -541,9 +538,59 @@ s32 Pause_in_Normal_Tr(struct _TASK* task_ptr) {
     return 0;
 }
 
-void Reset_Training(struct _TASK* task_ptr) {
+static void advance_reset(struct _TASK* task_ptr) {
+    if (--task_ptr->timer != 0) {
+        return;
+    }
+    if (!Check_LDREQ_Break()) {
+        task_ptr->r_no[1]++;
+        Switch_Screen_Init(0);
+        return;
+    }
+    task_ptr->timer = 1;
+}
+
+static void restart_training(struct _TASK* task_ptr) {
     s16 ix;
 
+    if (!Switch_Screen(0)) {
+        return;
+    }
+    task_ptr->r_no[1]++;
+    task_ptr->timer = 2;
+    effect_work_kill(6, -1);
+    move_effect_work(6);
+    for (ix = 0; ix < 4; ix++) {
+        C_No[ix] = 0;
+    }
+    C_No[0] = 1;
+    G_No[2] = 5;
+    G_No[3] = 0;
+    seraph_flag = 0;
+    BGM_No[0] = 1;
+    BGM_Timer[0] = 1;
+    G_Timer = 10;
+    Cover_Timer = 5;
+    Suicide[0] = 1;
+    Suicide[6] = 1;
+    judge_flag = 0;
+    Lever_LR[0] = 0;
+    Lever_LR[1] = 0;
+}
+
+static void finish_training_reset(struct _TASK* task_ptr) {
+    s16 ix;
+    Switch_Screen(0);
+    if (--task_ptr->timer != 0) {
+        return;
+    }
+    for (ix = 0; ix < 4; ix++) {
+        task_ptr->r_no[ix] = 0;
+    }
+    task_ptr->r_no[0] = 7;
+}
+
+static void reset_mode(struct _TASK* task_ptr, void (*restart)(struct _TASK*), void (*finish)(struct _TASK*)) {
     switch (task_ptr->r_no[1]) {
     case 0:
         task_ptr->r_no[1]++;
@@ -552,115 +599,49 @@ void Reset_Training(struct _TASK* task_ptr) {
         break;
 
     case 1:
-        if (--task_ptr->timer != 0) {
-            break;
-        }
-
-        if (!Check_LDREQ_Break()) {
-            task_ptr->r_no[1]++;
-            Switch_Screen_Init(0);
-            break;
-        }
-
-        task_ptr->timer = 1;
+        advance_reset(task_ptr);
         break;
-
     case 2:
-        if (!Switch_Screen(0)) {
-            break;
-        }
-
-        task_ptr->r_no[1]++;
-        task_ptr->timer = 2;
-        effect_work_kill(6, -1);
-        move_effect_work(6);
-
-        for (ix = 0; ix < 4; ix++) {
-            C_No[ix] = 0;
-        }
-
-        C_No[0] = 1;
-        G_No[2] = 5;
-        G_No[3] = 0;
-        seraph_flag = 0;
-        BGM_No[0] = 1;
-        BGM_Timer[0] = 1;
-        G_Timer = 10;
-        Cover_Timer = 5;
-        Suicide[0] = 1;
-        Suicide[6] = 1;
-        judge_flag = 0;
-        Lever_LR[0] = 0;
-        Lever_LR[1] = 0;
+        restart(task_ptr);
         break;
-
     default:
-        Switch_Screen(0);
-
-        if (--task_ptr->timer != 0) {
-            break;
-        }
-
-        for (ix = 0; ix < 4; ix++) {
-            task_ptr->r_no[ix] = 0;
-        }
-
-        task_ptr->r_no[0] = 7;
+        finish(task_ptr);
         break;
     }
 }
 
-void Reset_Replay(struct _TASK* task_ptr) {
-    switch (task_ptr->r_no[1]) {
-    case 0:
-        task_ptr->r_no[1]++;
-        task_ptr->timer = 10;
-        Game_pause = 0x81;
-        break;
+void Reset_Training(struct _TASK* task_ptr) {
+    reset_mode(task_ptr, restart_training, finish_training_reset);
+}
 
-    case 1:
-        if (--task_ptr->timer != 0) {
-            break;
-        }
-
-        if (!Check_LDREQ_Break()) {
-            task_ptr->r_no[1]++;
-            Switch_Screen_Init(0);
-            break;
-        }
-
-        task_ptr->timer = 1;
-        break;
-
-    case 2:
-        if (!Switch_Screen(0)) {
-            break;
-        }
-
-        task_ptr->r_no[1]++;
-        task_ptr->timer = 2;
-        G_No[2] = 2;
-        G_No[3] = 0;
-        seraph_flag = 0;
-        G_Timer = 10;
-        Cover_Timer = 5;
-        effect_work_kill_mod_plcol();
-        move_effect_work(6);
-        Suicide[0] = 1;
-        Suicide[6] = 1;
-        judge_flag = 0;
-        cpExitTask(TASK_PAUSE);
-        break;
-
-    default:
-        Switch_Screen(0);
-
-        if (--task_ptr->timer == 0) {
-            cpExitTask(TASK_MENU);
-        }
-
-        break;
+static void restart_replay(struct _TASK* task_ptr) {
+    if (!Switch_Screen(0)) {
+        return;
     }
+    task_ptr->r_no[1]++;
+    task_ptr->timer = 2;
+    G_No[2] = 2;
+    G_No[3] = 0;
+    seraph_flag = 0;
+    G_Timer = 10;
+    Cover_Timer = 5;
+    effect_work_kill_mod_plcol();
+    move_effect_work(6);
+    Suicide[0] = 1;
+    Suicide[6] = 1;
+    judge_flag = 0;
+    cpExitTask(TASK_PAUSE);
+}
+
+static void finish_replay_reset(struct _TASK* task_ptr) {
+    Switch_Screen(0);
+    if (--task_ptr->timer == 0) {
+        cpExitTask(TASK_MENU);
+    }
+}
+
+void Reset_Replay(struct _TASK* task_ptr) {
+    reset_mode(task_ptr, restart_replay, finish_replay_reset);
 }
 
 void Training_Menu(struct _TASK* task_ptr) {
@@ -828,45 +809,48 @@ void Check_Skip_Recording() {
     Menu_Cursor_Y[0]--;
 }
 
+static void move_training_exit_cursor_up(void) {
+    Menu_Cursor_Y[0]--;
+    if (Menu_Cursor_Y[0] < 0) {
+        Menu_Cursor_Y[0] = 0;
+        return;
+    }
+    SE_dir_cursor_move();
+}
+
+static void move_training_exit_cursor_down(void) {
+    Menu_Cursor_Y[0]++;
+    if (Menu_Cursor_Y[0] > 1) {
+        Menu_Cursor_Y[0] = 1;
+        return;
+    }
+    SE_dir_cursor_move();
+}
+
+static void select_training_exit(struct _TASK* task_ptr, s16 cursor_id, u16 sw) {
+    SE_selected();
+    if (Menu_Cursor_Y[0] || sw == 0x200) {
+        task_ptr->r_no[2] = 0;
+        Menu_Suicide[0] = 0;
+        Menu_Suicide[1] = 1;
+        Cursor_Y_Pos[0][0] = cursor_id;
+        return;
+    }
+    Soft_Reset_Sub();
+}
+
 void Yes_No_Cursor_Exit_Training(struct _TASK* task_ptr, s16 cursor_id) {
     u16 sw = ~(plsw_01[Decide_ID]) & plsw_00[Decide_ID];
-
     switch (sw) {
     case 0x4:
-        Menu_Cursor_Y[0]--;
-
-        if (Menu_Cursor_Y[0] < 0) {
-            Menu_Cursor_Y[0] = 0;
-            break;
-        }
-
-        SE_dir_cursor_move();
+        move_training_exit_cursor_up();
         break;
-
     case 0x8:
-        Menu_Cursor_Y[0]++;
-
-        if (Menu_Cursor_Y[0] > 1) {
-            Menu_Cursor_Y[0] = 1;
-            break;
-        }
-
-        SE_dir_cursor_move();
+        move_training_exit_cursor_down();
         break;
-
     case 0x200:
     case 0x100:
-        SE_selected();
-
-        if (Menu_Cursor_Y[0] || sw == 0x200) {
-            task_ptr->r_no[2] = 0;
-            Menu_Suicide[0] = 0;
-            Menu_Suicide[1] = 1;
-            Cursor_Y_Pos[0][0] = cursor_id;
-            break;
-        }
-
-        Soft_Reset_Sub();
+        select_training_exit(task_ptr, cursor_id, sw);
         break;
     }
 }

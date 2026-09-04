@@ -26,15 +26,11 @@ static bool should_finish_sound_test(void) {
     return IO_Result == 0x200 || ((Menu_Cursor_Y[0] == 5) && (IO_Result == 0x100 || IO_Result == 0x4000));
 }
 
-void Sound_Test(struct _TASK* task_ptr) {
+static void initialize_sound_test(struct _TASK* task_ptr) {
     s16 char_index;
     s16 ix;
 
-    Clear_Flash_Sub();
-
-    switch (task_ptr->r_no[2]) {
-    case 0:
-        FadeOut(1, 0xFF, 8);
+    FadeOut(1, 0xFF, 8);
         task_ptr->r_no[2] += 1;
         task_ptr->timer = 5;
         setupAlwaysSeamlessFlag(((plsw_00[0] | plsw_00[1]) & 0x4000) != 0);
@@ -96,21 +92,43 @@ void Sound_Test(struct _TASK* task_ptr) {
         }
 
         Menu_Cursor_Move = 5;
-        break;
+}
 
-    case 1:
-        Menu_Sub_case1(task_ptr);
-        break;
+static void update_sound_levels(void) {
+    if (bgm_level != (s16)Convert_Buff[3][1][0]) {
+        bgm_level = Convert_Buff[3][1][0];
+        save_w[Present_Mode].BGM_Level = Convert_Buff[3][1][0];
+        SsBgmHalfVolume(0);
+    }
+    if (se_level != (s16)Convert_Buff[3][1][1]) {
+        se_level = Convert_Buff[3][1][1];
+        setSeVolume(save_w[Present_Mode].SE_Level = Convert_Buff[3][1][1]);
+    }
+    save_w[Present_Mode].BgmType = Convert_Buff[3][1][2];
+    if (sys_w.bgm_type != Convert_Buff[3][1][2]) {
+        sys_w.bgm_type = Convert_Buff[3][1][2];
+        Convert_Buff[3][1][4] = 0;
+        BGM_Request_Code_Check(0x41);
+    }
+}
 
-    case 2:
-        if (FadeIn(1, 0x19, 8) != 0) {
-            task_ptr->r_no[2] += 1;
-            Suicide[3] = 0;
+static bool handle_sound_test_playback(void) {
+    if (Menu_Cursor_Y[0] == 4) {
+        if (IO_Result == 0x100) {
+            SsRequest((u16)Order_Dir[0x7B] + 1);
+            Convert_Buff[3][1][6] = 1;
+            return true;
         }
+        if ((IO_Result == 0x200) && Convert_Buff[3][1][6]) {
+            Convert_Buff[3][1][6] = 0;
+            BGM_Stop();
+            return true;
+        }
+    }
+    return false;
+}
 
-        break;
-
-    case 3:
+static void update_sound_test(struct _TASK* task_ptr) {
         Sound_Cursor_Sub(0);
 
         if (IO_Result == 0) {
@@ -124,40 +142,12 @@ void Sound_Test(struct _TASK* task_ptr) {
             Convert_Buff[3][1][2] = 0;
         }
 
-        if (bgm_level != (s16)Convert_Buff[3][1][0]) {
-            bgm_level = Convert_Buff[3][1][0];
-            save_w[Present_Mode].BGM_Level = Convert_Buff[3][1][0];
-            SsBgmHalfVolume(0);
-        }
-
-        if (se_level != (s16)Convert_Buff[3][1][1]) {
-            se_level = Convert_Buff[3][1][1];
-            setSeVolume(save_w[Present_Mode].SE_Level = Convert_Buff[3][1][1]);
-        }
-
-        save_w[Present_Mode].BgmType = Convert_Buff[3][1][2];
-
-        if (sys_w.bgm_type != Convert_Buff[3][1][2]) {
-            sys_w.bgm_type = Convert_Buff[3][1][2];
-            Convert_Buff[3][1][4] = 0;
-            BGM_Request_Code_Check(0x41);
-        }
-
+        update_sound_levels();
         Order_Dir[0x7B] = Convert_Buff[3][1][4];
         Save_Game_Data();
 
-        if (Menu_Cursor_Y[0] == 4) {
-            if (IO_Result == 0x100) {
-                SsRequest((u16)Order_Dir[0x7B] + 1);
-                Convert_Buff[3][1][6] = 1;
-                return;
-            }
-
-            if ((IO_Result == 0x200) && Convert_Buff[3][1][6]) {
-                Convert_Buff[3][1][6] = 0;
-                BGM_Stop();
-                return;
-            }
+        if (handle_sound_test_playback()) {
+            return;
         }
 
         if (should_finish_sound_test()) {
@@ -169,6 +159,25 @@ void Sound_Test(struct _TASK* task_ptr) {
             BGM_Request_Code_Check(0x41);
         }
 
+}
+
+void Sound_Test(struct _TASK* task_ptr) {
+    Clear_Flash_Sub();
+    switch (task_ptr->r_no[2]) {
+    case 0:
+        initialize_sound_test(task_ptr);
+        break;
+    case 1:
+        Menu_Sub_case1(task_ptr);
+        break;
+    case 2:
+        if (FadeIn(1, 0x19, 8) != 0) {
+            task_ptr->r_no[2] += 1;
+            Suicide[3] = 0;
+        }
+        break;
+    case 3:
+        update_sound_test(task_ptr);
         break;
     }
 }

@@ -178,10 +178,30 @@ void Button_Exit_Check_in_Tr(struct _TASK* task_ptr, s16 PL_id);
 s32 VS_Result_Select_Sub(struct _TASK* task_ptr, s16 PL_id);
 void Setup_Replay_Sub(s16 type, MenuHeader char_type, s16 master_player);
 
+static void calculate_vs_win_percentages(u16 ave[2]) {
+    s16 total_battle = VS_Win_Record[0] + VS_Win_Record[1];
+
+    if (total_battle == 0) {
+        total_battle = 1;
+    }
+    if (VS_Win_Record[0] >= VS_Win_Record[1]) {
+        ave[1] = (VS_Win_Record[1] * 100) / total_battle;
+        if (ave[1] == 0 && VS_Win_Record[1] > 0) {
+            ave[1] = 1;
+        }
+        ave[0] = 100 - ave[1];
+        return;
+    }
+    ave[0] = (VS_Win_Record[0] * 100) / total_battle;
+    if (ave[0] == 0 && VS_Win_Record[0] > 0) {
+        ave[0] = 1;
+    }
+    ave[1] = 100 - ave[0];
+}
+
 static void initialize_vs_result(struct _TASK* task_ptr) {
     s16 ix;
     s16 char_ix2;
-    s16 total_battle;
     u16 ave[2];
 
     s16 s4;
@@ -211,29 +231,7 @@ static void initialize_vs_result(struct _TASK* task_ptr) {
     Order_Timer[139] = 1;
     effect_A0_init(0, VS_Win_Record[0], 0, 3, 0, 0, 0);
     effect_A0_init(0, VS_Win_Record[1], 1, 3, 0, 0, 0);
-    total_battle = VS_Win_Record[0] + VS_Win_Record[1];
-
-    if (total_battle == 0) {
-        total_battle = 1;
-    }
-
-    if (VS_Win_Record[0] >= VS_Win_Record[1]) {
-        ave[1] = (VS_Win_Record[1] * 100) / total_battle;
-
-        if (ave[1] == 0 && VS_Win_Record[1] > 0) {
-            ave[1] = 1;
-        }
-
-        ave[0] = 100 - ave[1];
-    } else {
-        ave[0] = (VS_Win_Record[0] * 100) / total_battle;
-
-        if (ave[0] == 0 && VS_Win_Record[0] > 0) {
-            ave[0] = 1;
-        }
-
-        ave[1] = 100 - ave[0];
-    }
+    calculate_vs_win_percentages(ave);
 
     effect_A0_init(0, ave[0], 2, 3, 0, 0, 0);
     effect_A0_init(0, ave[1], 3, 3, 0, 0, 0);
@@ -273,9 +271,7 @@ static void advance_vs_result_exit(struct _TASK* task_ptr) {
     }
 }
 
-void VS_Result(struct _TASK* task_ptr) {
-    Clear_Flash_Sub();
-
+static void handle_vs_result_early_state(struct _TASK* task_ptr) {
     switch (task_ptr->r_no[2]) {
     case 0:
         System_all_clear_Level_B();
@@ -311,7 +307,11 @@ void VS_Result(struct _TASK* task_ptr) {
         }
 
         break;
+    }
+}
 
+static void handle_vs_result_selection_state(struct _TASK* task_ptr) {
+    switch (task_ptr->r_no[2]) {
     case 4:
         if (VS_Result_Select_Sub(task_ptr, 0) == 0) {
             VS_Result_Select_Sub(task_ptr, 1);
@@ -327,7 +327,11 @@ void VS_Result(struct _TASK* task_ptr) {
 
         Exit_Sub(task_ptr, 0, 17);
         break;
+    }
+}
 
+static void handle_vs_result_exit_state(struct _TASK* task_ptr) {
+    switch (task_ptr->r_no[2]) {
     case 6:
         continue_vs_result(task_ptr);
         break;
@@ -345,6 +349,19 @@ void VS_Result(struct _TASK* task_ptr) {
 
         break;
     }
+}
+
+void VS_Result(struct _TASK* task_ptr) {
+    Clear_Flash_Sub();
+    if (task_ptr->r_no[2] < 4) {
+        handle_vs_result_early_state(task_ptr);
+        return;
+    }
+    if (task_ptr->r_no[2] < 6) {
+        handle_vs_result_selection_state(task_ptr);
+        return;
+    }
+    handle_vs_result_exit_state(task_ptr);
 }
 
 void Setup_Win_Lose_OBJ() {
@@ -394,109 +411,102 @@ static bool should_skip_vs_result_option(void) {
     return plw[0].wu.operator == 0 || plw[1].wu.operator == 0 || Mode_Type == MODE_NETWORK;
 }
 
-u16 After_VS_Move_Sub(u16 sw, s16 cursor_id, s16 menu_max) {
-    s16 skip;
-
-    if (should_skip_vs_result_option()) {
-        skip = 1;
-    } else {
-        skip = 99;
-    }
-
-    switch (sw) {
-    case SWK_UP:
+static u16 move_vs_cursor(u16 sw, s16 cursor_id, s16 menu_max, s16 skip) {
+    if (sw == SWK_UP) {
         Menu_Cursor_Y[cursor_id]--;
-
         if (Menu_Cursor_Y[cursor_id] < 0) {
             Menu_Cursor_Y[cursor_id] = menu_max;
         }
-
         if (Menu_Cursor_Y[cursor_id] == skip) {
             Menu_Cursor_Y[cursor_id] = 0;
         }
-
         SE_cursor_move();
         return IO_Result = SWK_UP;
+    }
+    Menu_Cursor_Y[cursor_id]++;
+    if (Menu_Cursor_Y[cursor_id] > menu_max) {
+        Menu_Cursor_Y[cursor_id] = 0;
+    }
+    if (Menu_Cursor_Y[cursor_id] == skip) {
+        Menu_Cursor_Y[cursor_id] = 2;
+    }
+    SE_cursor_move();
+    return IO_Result = SWK_DOWN;
+}
 
-    case SWK_DOWN:
-        Menu_Cursor_Y[cursor_id]++;
-
-        if (Menu_Cursor_Y[cursor_id] > menu_max) {
-            Menu_Cursor_Y[cursor_id] = 0;
-        }
-
-        if (Menu_Cursor_Y[cursor_id] == skip) {
-            Menu_Cursor_Y[cursor_id] = 2;
-        }
-
-        SE_cursor_move();
-        return IO_Result = SWK_DOWN;
-
+static u16 pass_through_vs_input(u16 sw) {
+    switch (sw) {
     case SWK_WEST:
-        return IO_Result = SWK_WEST;
-
     case SWK_SOUTH:
-        return IO_Result = SWK_SOUTH;
-
     case SWK_EAST:
-        return IO_Result = SWK_EAST;
-
     case SWK_RIGHT_TRIGGER:
-        return IO_Result = SWK_RIGHT_TRIGGER;
-
     case SWK_START:
-        return IO_Result = SWK_START;
-
+        return IO_Result = sw;
     default:
         return IO_Result = 0;
-
-    case SWK_NORTH:
-        return IO_Result = SWK_NORTH;
-
-    case SWK_RIGHT_SHOULDER:
-        return IO_Result = SWK_RIGHT_SHOULDER;
-
-    case SWK_LEFT_SHOULDER:
-        return IO_Result = SWK_LEFT_SHOULDER;
-
-    case SWK_LEFT_TRIGGER:
-        return IO_Result = SWK_LEFT_TRIGGER;
     }
+}
+
+static bool is_vs_shoulder_input(u16 sw) {
+    switch (sw) {
+    case SWK_NORTH:
+    case SWK_RIGHT_SHOULDER:
+    case SWK_LEFT_SHOULDER:
+    case SWK_LEFT_TRIGGER:
+        return true;
+    default:
+        return false;
+    }
+}
+
+static u16 pass_through_vs_shoulder_input(u16 sw) {
+    if (is_vs_shoulder_input(sw)) {
+        return IO_Result = sw;
+    }
+    return IO_Result = 0;
+}
+
+u16 After_VS_Move_Sub(u16 sw, s16 cursor_id, s16 menu_max) {
+    s16 skip = should_skip_vs_result_option() ? 1 : 99;
+
+    if (sw == SWK_UP) {
+        return move_vs_cursor(sw, cursor_id, menu_max, skip);
+    }
+    if (sw == SWK_DOWN) {
+        return move_vs_cursor(sw, cursor_id, menu_max, skip);
+    }
+    if (pass_through_vs_input(sw) != 0) {
+        return IO_Result;
+    }
+    return pass_through_vs_shoulder_input(sw);
+}
+
+static s32 select_vs_result_option(struct _TASK* task_ptr, s16 PL_id) {
+    SE_selected();
+    switch (Menu_Cursor_Y[PL_id]) {
+    case 0:
+        Menu_Cursor_X[PL_id] = 1;
+        if (!Menu_Cursor_X[PL_id ^ 1]) {
+            return 0;
+        }
+        task_ptr->r_no[2] = 6;
+        break;
+    case 1:
+        task_ptr->r_no[2] = 5;
+        break;
+    case 2:
+        task_ptr->r_no[2] = 7;
+        break;
+    }
+    task_ptr->r_no[3] = 0;
+    task_ptr->timer = 15;
+    return 1;
 }
 
 s32 VS_Result_Move_Sub(struct _TASK* task_ptr, s16 PL_id) {
     switch (IO_Result) {
     case SWK_SOUTH:
-        switch (Menu_Cursor_Y[PL_id]) {
-        case 0:
-            SE_selected();
-            Menu_Cursor_X[PL_id] = 1;
-
-            if (!Menu_Cursor_X[PL_id ^ 1]) {
-                break;
-            }
-
-            task_ptr->r_no[2] = 6;
-            task_ptr->r_no[3] = 0;
-            task_ptr->timer = 15;
-            return 1;
-
-        case 1:
-            SE_selected();
-            task_ptr->r_no[2] = 5;
-            task_ptr->r_no[3] = 0;
-            task_ptr->timer = 15;
-            return 1;
-
-        case 2:
-            SE_selected();
-            task_ptr->r_no[2] = 7;
-            task_ptr->r_no[3] = 0;
-            task_ptr->timer = 15;
-            return 1;
-        }
-
-        break;
+        return select_vs_result_option(task_ptr, PL_id);
 
     case SWK_EAST:
         SE_selected();
@@ -659,4 +669,3 @@ void Decide_PL(s16 PL_id) {
         grade_check_work_1st_init(PL_id, 0);
     }
 }
-

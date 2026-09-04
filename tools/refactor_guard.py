@@ -74,18 +74,38 @@ def normalise_number(tok: str) -> str:
     """Fold away suffix/format differences that do not change the value."""
     body = tok.rstrip("uUlLfF")
     try:
-        if body[:2].lower() == "0x":
-            return str(int(body, 16))
-        if body[:2].lower() == "0b":
-            return str(int(body, 2))
-        if any(c in body for c in ".eE") and not body[:2].lower() == "0x":
+        base = integer_base(body)
+        if base is not None:
+            return str(int(body, base))
+        if is_float_literal(body):
             return repr(float(body))
-        # Leading zeros are octal in C; preserve that meaning.
-        if len(body) > 1 and body[0] == "0" and body.isdigit():
-            return str(int(body, 8))
         return str(int(body))
     except ValueError:
         return tok
+
+
+def integer_base(body: str) -> int | None:
+    prefix = body[:2].lower()
+    if prefix == "0x":
+        return 16
+    if prefix == "0b":
+        return 2
+    # Leading zeros are octal in C; preserve that meaning.
+    if is_octal_literal(body):
+        return 8
+    return None
+
+
+def is_octal_literal(body: str) -> bool:
+    if len(body) <= 1:
+        return False
+    if body[0] != "0":
+        return False
+    return body.isdigit()
+
+
+def is_float_literal(body: str) -> bool:
+    return any(char in body for char in ".eE")
 
 
 def literals(src: str) -> Counter:
@@ -122,6 +142,58 @@ def changed_files(base: str) -> list[str]:
     return [p.strip() for p in proc.stdout.splitlines() if p.strip()]
 
 
+def dump_removed(after: Counter, removed: Counter) -> None:
+    vanished = {literal for literal in removed if after[literal] == 0}
+    for literal, count in sorted(removed.items()):
+        tag = "  <-- gone from the file entirely" if literal in vanished else ""
+        print("        removed x" + str(count) + "  " + literal + tag)
+
+
+def dump_added(before: Counter, added: Counter) -> None:
+    for literal, count in sorted(added.items()):
+        tag = "  <-- value is new to this file" if before[literal] == 0 else ""
+        print("        added   x" + str(count) + "  " + literal + tag)
+
+
+def dump_changes(before: Counter, after: Counter, removed: Counter, added: Counter) -> None:
+    dump_removed(after, removed)
+    dump_added(before, added)
+
+
+def report_removed_literals(rel: str, before: Counter, after: Counter, strict: bool) -> bool:
+    removed = before - after
+    added = after - before
+    vanished = [literal for literal in removed if after[literal] == 0]
+    if added:
+        print("FAIL  " + rel + "  - a constant was substituted")
+        dump_changes(before, after, removed, added)
+        return False
+    if vanished:
+        print("FAIL  " + rel + "  - a constant vanished from the file")
+        dump_changes(before, after, removed, added)
+        return False
+    label = "FAIL " if strict else "WARN "
+    print(label + " " + rel + "  - copies removed, every value still present")
+    dump_changes(before, after, removed, added)
+    print("        looks like deduplication. Legal for Recipes D and P, but a")
+    print("        deleted duplicate block looks the same - have a human confirm.")
+    return not strict
+
+
+def report_literal_changes(rel: str, before: Counter, after: Counter, strict: bool) -> bool:
+    removed = before - after
+    added = after - before
+    if not removed and not added:
+        print("OK    " + rel + "  (" + str(sum(before.values())) + " literals unchanged)")
+        return True
+    if removed:
+        return report_removed_literals(rel, before, after, strict)
+    label = "FAIL " if strict else "WARN "
+    print(label + " " + rel + "  - literals added, none removed")
+    dump_changes(before, after, removed, added)
+    return not strict
+
+
 def check(rel: str, base: str, strict: bool = False) -> bool:
     """Return True if the file is clean.
 
@@ -154,87 +226,50 @@ def check(rel: str, base: str, strict: bool = False) -> bool:
         return False
 
     after = path.read_text(encoding="utf-8", errors="replace")
-    a, b = literals(before), literals(after)
-    removed = a - b
-    added = b - a
-
-    if not removed and not added:
-        print("OK    " + rel + "  (" + str(sum(a.values())) + " literals unchanged)")
-        return True
-
-    vanished = [lit for lit in removed if b[lit] == 0]
-
-    def dump():
-        for lit, n in sorted(removed.items()):
-            tag = "  <-- gone from the file entirely" if lit in vanished else ""
-            print("        removed x" + str(n) + "  " + lit + tag)
-        for lit, n in sorted(added.items()):
-            tag = "  <-- value is new to this file" if a[lit] == 0 else ""
-            print("        added   x" + str(n) + "  " + lit + tag)
-
-    # Deduplication only ever *decreases* counts. A decrease paired with any
-    # increase is a substitution - one constant swapped for another - which is
-    # the exact failure this tool exists to catch.
-    if removed and added:
-        print("FAIL  " + rel + "  - a constant was substituted")
-        dump()
-        return False
-
-    if vanished:
-        print("FAIL  " + rel + "  - a constant vanished from the file")
-        dump()
-        return False
-
-    if removed:
-        label = "FAIL " if strict else "WARN "
-        print(label + " " + rel + "  - copies removed, every value still present")
-        dump()
-        print("        looks like deduplication. Legal for Recipes D and P, but a")
-        print("        deleted duplicate block looks the same - have a human confirm.")
-        return not strict
-
-    label = "FAIL " if strict else "WARN "
-    print(label + " " + rel + "  - literals added, none removed")
-    dump()
-    return not strict
+    return report_literal_changes(rel, literals(before), literals(after), strict)
 
 
-def check_combined(rels: list[str], base: str) -> bool:
-    """Compare literals across a group, allowing constants to move files."""
+def collect_combined_literals(rels: list[str], base: str) -> tuple[Counter, Counter] | None:
     before = Counter()
     after = Counter()
-
     for rel in rels:
         old = git_show(base, rel)
         if old is not None:
             before.update(literals(strip_include_lines(old)))
-
         path = REPO / rel
         if not path.is_file():
             print("FAIL  " + rel + "  (deleted from working tree)")
-            return False
+            return None
         after.update(literals(strip_include_lines(path.read_text(encoding="utf-8", errors="replace"))))
+    return before, after
 
+
+def report_combined_changes(before: Counter, after: Counter) -> bool:
     removed = before - after
     added = after - before
     if not removed and not added:
         print("OK    combined group  (" + str(sum(before.values())) + " literals unchanged)")
         return True
-
     if removed and added:
         print("FAIL  combined group  - a constant was substituted")
         print("        removed: " + str(dict(removed)))
         print("        added:   " + str(dict(added)))
         return False
-
     if removed:
         print("WARN  combined group  - literal counts dropped, no values were added")
         print("        removed: " + str(dict(removed)))
         return True
-
     print("WARN  combined group  - literals added, none removed")
     print("        added: " + str(dict(added)))
     return True
+
+
+def check_combined(rels: list[str], base: str) -> bool:
+    """Compare literals across a group, allowing constants to move files."""
+    counts = collect_combined_literals(rels, base)
+    if counts is None:
+        return False
+    return report_combined_changes(*counts)
 
 
 def main() -> int:

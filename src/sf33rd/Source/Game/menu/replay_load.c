@@ -178,6 +178,23 @@ void Button_Exit_Check_in_Tr(struct _TASK* task_ptr, s16 PL_id);
 s32 VS_Result_Select_Sub(struct _TASK* task_ptr, s16 PL_id);
 void Setup_Replay_Sub(s16 type, MenuHeader char_type, s16 master_player);
 
+static void handle_replay_save_move(struct _TASK* task_ptr) {
+    switch (SaveMove()) {
+    case 0:
+        Decide_ID = 0;
+        if (Interface_Type[0] == 0) {
+            Decide_ID = 1;
+        }
+        task_ptr->r_no[2] += 1;
+        task_ptr->r_no[3] = 0;
+        break;
+    case -1:
+        IO_Result = 0x200;
+        Load_Replay_MC_Sub(task_ptr, 0);
+        break;
+    }
+}
+
 void Load_Replay(struct _TASK* task_ptr) {
     Menu_Cursor_X[1] = Menu_Cursor_X[0];
     Clear_Flash_Sub();
@@ -209,24 +226,7 @@ void Load_Replay(struct _TASK* task_ptr) {
         break;
 
     case 3:
-        switch (SaveMove()) {
-        case 0:
-            Decide_ID = 0;
-
-            if (Interface_Type[0] == 0) {
-                Decide_ID = 1;
-            }
-
-            task_ptr->r_no[2] += 1;
-            task_ptr->r_no[3] = 0;
-            break;
-
-        case -1:
-            IO_Result = 0x200;
-            Load_Replay_MC_Sub(task_ptr, 0);
-            break;
-        }
-
+        handle_replay_save_move(task_ptr);
         break;
 
     case 4:
@@ -239,9 +239,109 @@ static bool is_replay_load_complete(void) {
     return Check_PL_Load() && Check_LDREQ_Queue_BG(bg_w.stage) && (adx_now_playend() != 0);
 }
 
-void Load_Replay_Sub(struct _TASK* task_ptr) {
+static void configure_replay_players(struct _TASK* task_ptr) {
     s32 ix;
 
+    task_ptr->r_no[3] += 1;
+    FadeInit();
+    FadeOut(0, 0xFF, 8);
+    Play_Type = 1;
+    Mode_Type = MODE_REPLAY;
+    Present_Mode = 3;
+    Bonus_Game_Flag = 0;
+    for (ix = 0; ix < 2; ix++) {
+        plw[ix].wu.operator = Replay_w.game_infor.player_infor[ix].player_type;
+        Operator_Status[ix] = Replay_w.game_infor.player_infor[ix].player_type;
+        My_char[ix] = Replay_w.game_infor.player_infor[ix].my_char;
+        Super_Arts[ix] = Replay_w.game_infor.player_infor[ix].sa;
+        Player_Color[ix] = Replay_w.game_infor.player_infor[ix].color;
+        Vital_Handicap[3][ix] = Replay_w.game_infor.Vital_Handicap[ix];
+    }
+    Direction_Working[3] = Replay_w.game_infor.Direction_Working;
+    bg_w.stage = Replay_w.game_infor.stage;
+    bg_w.area = 0;
+    save_w[3].Time_Limit = Replay_w.mini_save_w.Time_Limit;
+    save_w[3].Battle_Number[0] = Replay_w.mini_save_w.Battle_Number[0];
+    save_w[3].Battle_Number[1] = Replay_w.mini_save_w.Battle_Number[1];
+    save_w[3].Damage_Level = Replay_w.mini_save_w.Damage_Level;
+    save_w[3].extra_option = Replay_w.mini_save_w.extra_option;
+    system_dir[3] = Replay_w.system_dir;
+    save_w[3].extra_option = Replay_w.mini_save_w.extra_option;
+    save_w[3].Pad_Infor[0] = Replay_w.mini_save_w.Pad_Infor[0];
+    save_w[3].Pad_Infor[1] = Replay_w.mini_save_w.Pad_Infor[1];
+    save_w[3].Pad_Infor[0].Vibration = 0;
+    save_w[3].Pad_Infor[1].Vibration = 0;
+    cpExitTask(TASK_SAVER);
+}
+
+static void request_replay_assets(struct _TASK* task_ptr) {
+    FadeOut(0, 0xFF, 8);
+    if (--task_ptr->timer <= 0) {
+        task_ptr->r_no[3] += 1;
+        bgPalCodeOffset[0] = 0x90;
+        BGM_Request(51);
+        Purge_memory_of_kind_of_key(0xC);
+        Push_LDREQ_Queue_Player(0, My_char[0]);
+        Push_LDREQ_Queue_Player(1, My_char[1]);
+        Push_LDREQ_Queue_BG(bg_w.stage);
+    }
+}
+
+static void fade_in_replay(struct _TASK* task_ptr) {
+    if (FadeIn(0, 4, 8) != 0) {
+        task_ptr->r_no[3] += 1;
+    }
+}
+
+static void finish_replay_load(struct _TASK* task_ptr) {
+    if (is_replay_load_complete()) {
+        task_ptr->r_no[3] += 1;
+        Switch_Screen_Init(0);
+        init_omop();
+    }
+}
+
+static void start_loaded_replay(struct _TASK* task_ptr) {
+    if (Switch_Screen(0) == 0) {
+        return;
+    }
+    Game01_Sub();
+    Cover_Timer = 5;
+    appear_type = APPEAR_TYPE_ANIMATED;
+    set_hitmark_color();
+    Purge_texcash_of_list(3);
+    Make_texcash_of_list(3);
+    G_No[1] = 2;
+    G_No[2] = 0;
+    G_No[3] = 0;
+    E_No[0] = 4;
+    E_No[1] = 0;
+    E_No[2] = 0;
+    E_No[3] = 0;
+    if (plw->wu.operator != 0) {
+        Sel_Arts_Complete[0] = -1;
+    }
+    if (plw[1].wu.operator != 0) {
+        Sel_Arts_Complete[1] = -1;
+    }
+    task_ptr->r_no[2] = 0;
+    cpExitTask(TASK_MENU);
+}
+
+static void finish_replay_load_state(struct _TASK* task_ptr) {
+    switch (task_ptr->r_no[3]) {
+    case 5:
+        finish_replay_load(task_ptr);
+        break;
+    case 6:
+        start_loaded_replay(task_ptr);
+        break;
+    default:
+        break;
+    }
+}
+
+void Load_Replay_Sub(struct _TASK* task_ptr) {
     switch (task_ptr->r_no[3]) {
     case 0:
         task_ptr->r_no[3] += 1;
@@ -251,38 +351,7 @@ void Load_Replay_Sub(struct _TASK* task_ptr) {
         break;
 
     case 1:
-        task_ptr->r_no[3] += 1;
-        FadeInit();
-        FadeOut(0, 0xFF, 8);
-        Play_Type = 1;
-        Mode_Type = MODE_REPLAY;
-        Present_Mode = 3;
-        Bonus_Game_Flag = 0;
-
-        for (ix = 0; ix < 2; ix++) {
-            plw[ix].wu.operator = Replay_w.game_infor.player_infor[ix].player_type;
-            Operator_Status[ix] = Replay_w.game_infor.player_infor[ix].player_type;
-            My_char[ix] = Replay_w.game_infor.player_infor[ix].my_char;
-            Super_Arts[ix] = Replay_w.game_infor.player_infor[ix].sa;
-            Player_Color[ix] = Replay_w.game_infor.player_infor[ix].color;
-            Vital_Handicap[3][ix] = Replay_w.game_infor.Vital_Handicap[ix];
-        }
-
-        Direction_Working[3] = Replay_w.game_infor.Direction_Working;
-        bg_w.stage = Replay_w.game_infor.stage;
-        bg_w.area = 0;
-        save_w[3].Time_Limit = Replay_w.mini_save_w.Time_Limit;
-        save_w[3].Battle_Number[0] = Replay_w.mini_save_w.Battle_Number[0];
-        save_w[3].Battle_Number[1] = Replay_w.mini_save_w.Battle_Number[1];
-        save_w[3].Damage_Level = Replay_w.mini_save_w.Damage_Level;
-        save_w[3].extra_option = Replay_w.mini_save_w.extra_option;
-        system_dir[3] = Replay_w.system_dir;
-        save_w[3].extra_option = Replay_w.mini_save_w.extra_option;
-        save_w[3].Pad_Infor[0] = Replay_w.mini_save_w.Pad_Infor[0];
-        save_w[3].Pad_Infor[1] = Replay_w.mini_save_w.Pad_Infor[1];
-        save_w[3].Pad_Infor[0].Vibration = 0;
-        save_w[3].Pad_Infor[1].Vibration = 0;
-        cpExitTask(TASK_SAVER);
+        configure_replay_players(task_ptr);
         break;
 
     case 2:
@@ -327,118 +396,68 @@ void Load_Replay_Sub(struct _TASK* task_ptr) {
         break;
 
     case 3:
-        FadeOut(0, 0xFF, 8);
-
-        if (--task_ptr->timer <= 0) {
-            task_ptr->r_no[3] += 1;
-            bgPalCodeOffset[0] = 0x90;
-            BGM_Request(51);
-            Purge_memory_of_kind_of_key(0xC);
-            Push_LDREQ_Queue_Player(0, My_char[0]);
-            Push_LDREQ_Queue_Player(1, My_char[1]);
-            Push_LDREQ_Queue_BG(bg_w.stage);
-        }
-
+        request_replay_assets(task_ptr);
         break;
 
     case 4:
-        if (FadeIn(0, 4, 8) != 0) {
-            task_ptr->r_no[3] += 1;
-        }
-
-        break;
-
-    case 5:
-        if (is_replay_load_complete()) {
-            task_ptr->r_no[3] += 1;
-            Switch_Screen_Init(0);
-            init_omop();
-        }
-
-        break;
-
-    case 6:
-        if (Switch_Screen(0) != 0) {
-            Game01_Sub();
-            Cover_Timer = 5;
-            appear_type = APPEAR_TYPE_ANIMATED;
-            set_hitmark_color();
-            Purge_texcash_of_list(3);
-            Make_texcash_of_list(3);
-            G_No[1] = 2;
-            G_No[2] = 0;
-            G_No[3] = 0;
-            E_No[0] = 4;
-            E_No[1] = 0;
-            E_No[2] = 0;
-            E_No[3] = 0;
-
-            if (plw->wu.operator != 0) {
-                Sel_Arts_Complete[0] = -1;
-            }
-
-            if (plw[1].wu.operator != 0) {
-                Sel_Arts_Complete[1] = -1;
-            }
-
-            task_ptr->r_no[2] = 0;
-            cpExitTask(TASK_MENU);
-        }
-
+        fade_in_replay(task_ptr);
         break;
 
     default:
-        break;
+        finish_replay_load_state(task_ptr);
+    }
+}
+
+static s32 start_replay_memory_card_load(struct _TASK* task_ptr, s16 PL_id) {
+    if ((Menu_Cursor_X[0] == -1) || (vm_w.Connect[Menu_Cursor_X[0]] == 0)) {
+        return 0;
+    }
+
+    Pause_ID = PL_id;
+    vm_w.Drive = (u8)Menu_Cursor_X[0];
+
+    if (VM_Access_Request(6, Menu_Cursor_X[0]) == 0) {
+        return 0;
+    }
+
+    SE_selected();
+    task_ptr->free[1] = 0;
+    task_ptr->free[2] = 0;
+    task_ptr->r_no[0] = 3;
+    return 1;
+}
+
+static void cancel_replay_memory_card_load(struct _TASK* task_ptr) {
+    if (task_ptr->r_no[1] == 6) {
+        Menu_Suicide[0] = 0;
+        Menu_Suicide[1] = 1;
+        task_ptr->r_no[1] = 1;
+        task_ptr->r_no[2] = 0;
+        task_ptr->r_no[3] = 0;
+        task_ptr->free[0] = 0;
+        Order[0x6E] = 4;
+        Order_Timer[0x6E] = 4;
+    } else {
+        Menu_Suicide[0] = 0;
+        Menu_Suicide[1] = 0;
+        Menu_Suicide[2] = 1;
+        task_ptr->r_no[1] = 5;
+        task_ptr->r_no[2] = 0;
+        task_ptr->r_no[3] = 0;
+        task_ptr->free[0] = 0;
+        Order[0x70] = 4;
+        Order_Timer[0x70] = 4;
     }
 }
 
 s32 Load_Replay_MC_Sub(struct _TASK* task_ptr, s16 PL_id) {
-    u16 sw = IO_Result;
-
-    switch (sw) {
+    switch (IO_Result) {
     case 0x100:
-        if ((Menu_Cursor_X[0] == -1) || (vm_w.Connect[Menu_Cursor_X[0]] == 0)) {
-            break;
-        }
-
-        Pause_ID = PL_id;
-        vm_w.Drive = (u8)Menu_Cursor_X[0];
-
-        if (VM_Access_Request(6, Menu_Cursor_X[0]) == 0) {
-            break;
-        }
-
-        SE_selected();
-        task_ptr->free[1] = 0;
-        task_ptr->free[2] = 0;
-        task_ptr->r_no[0] = 3;
-        return 1;
-
+        return start_replay_memory_card_load(task_ptr, PL_id);
     case 0x200:
-        if (task_ptr->r_no[1] == 6) {
-            Menu_Suicide[0] = 0;
-            Menu_Suicide[1] = 1;
-            task_ptr->r_no[1] = 1;
-            task_ptr->r_no[2] = 0;
-            task_ptr->r_no[3] = 0;
-            task_ptr->free[0] = 0;
-            Order[0x6E] = 4;
-            Order_Timer[0x6E] = 4;
-        } else {
-            Menu_Suicide[0] = 0;
-            Menu_Suicide[1] = 0;
-            Menu_Suicide[2] = 1;
-            task_ptr->r_no[1] = 5;
-            task_ptr->r_no[2] = 0;
-            task_ptr->r_no[3] = 0;
-            task_ptr->free[0] = 0;
-            Order[0x70] = 4;
-            Order_Timer[0x70] = 4;
-        }
-
+        cancel_replay_memory_card_load(task_ptr);
         break;
     }
 
     return 0;
 }
-

@@ -15,18 +15,41 @@ void Training_Disp_Sub(struct _TASK* task_ptr);
 extern u8 control_player;
 extern u8 control_pl_rno;
 
-void Blocking_Tr_Option(struct _TASK* task_ptr) {
+static void initialize_blocking_training_left_column(void) {
     s16 ix;
-    s16 group;
     s16 y;
     s16 s6;
     s16 s5;
+
+    for (ix = 0, s6 = y = 72; ix < 6; ix++, s5 = y += 16) {
+        if (ix == 2) {
+            y += 20;
+        }
+        if (ix == 4) {
+            y += 8;
+        }
+        effect_A3_init(1, 16, ix, ix, 1, 64, y, 0);
+    }
+}
+
+static void initialize_blocking_training_right_column(void) {
+    s16 ix;
+    s16 group;
+    s16 y;
     s16 s4;
     s16 s3;
 
-    switch (task_ptr->r_no[2]) {
-    case 0:
-        task_ptr->r_no[2]++;
+    for (ix = 0, y = 72, s4 = group = 17; ix < 4; ix++, group++, s3 = y += 16) {
+        if (ix == 2) {
+            y += 20;
+        }
+        effect_A3_init(1, group, ix, ix, 1, 264, y, 0);
+    }
+}
+
+static void initialize_blocking_training_option(struct _TASK* task_ptr) {
+
+    task_ptr->r_no[2]++;
         Menu_Common_Init();
         Menu_Cursor_Y[0] = 0;
         Menu_Cursor_Y[1] = 0;
@@ -35,35 +58,21 @@ void Blocking_Tr_Option(struct _TASK* task_ptr) {
         effect_A3_init(1, 21, 99, 0, 1, 51, 56, 1);
         effect_A3_init(1, 21, 99, 1, 1, 51, 106, 1);
 
-        for (ix = 0, s6 = y = 72; ix < 6; ix++, s5 = y += 16) {
-            if (ix == 2) {
-                y += 20;
-            }
-            if (ix == 4) {
-                y += 8;
-            }
-            effect_A3_init(1, 16, ix, ix, 1, 64, y, 0);
-        }
+    initialize_blocking_training_left_column();
+    initialize_blocking_training_right_column();
+}
 
-        for (ix = 0, y = 72, s4 = group = 17; ix < 4; ix++, group++, s3 = y += 16) {
-            if (ix == 2) {
-                y += 20;
-            }
-            effect_A3_init(1, group, ix, ix, 1, 264, y, 0);
-        }
-        break;
+static void update_blocking_training_option(struct _TASK* task_ptr) {
+    Dummy_Move_Sub(task_ptr, Champion, 1, 0, 5);
 
-    case 1:
-        Dummy_Move_Sub(task_ptr, Champion, 1, 0, 5);
-
-        if (Menu_Cursor_Y[0] == 4 && IO_Result & 0x100) {
-            Default_Training_Data(1);
-            SE_selected();
-        }
-        break;
-
-    case 2:
+    if (Menu_Cursor_Y[0] == 4 && IO_Result & 0x100) {
+        Default_Training_Data(1);
         SE_selected();
+    }
+}
+
+static void finish_blocking_training_option(struct _TASK* task_ptr) {
+    SE_selected();
         Menu_Suicide[0] = 0;
         Menu_Suicide[1] = 1;
         task_ptr->r_no[2] = 0;
@@ -87,7 +96,19 @@ void Blocking_Tr_Option(struct _TASK* task_ptr) {
             break;
         }
 
-        Training_Disp_Sub(task_ptr);
+    Training_Disp_Sub(task_ptr);
+}
+
+void Blocking_Tr_Option(struct _TASK* task_ptr) {
+    switch (task_ptr->r_no[2]) {
+    case 0:
+        initialize_blocking_training_option(task_ptr);
+        break;
+    case 1:
+        update_blocking_training_option(task_ptr);
+        break;
+    case 2:
+        finish_blocking_training_option(task_ptr);
         break;
     }
 }
