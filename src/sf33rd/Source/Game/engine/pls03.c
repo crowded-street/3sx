@@ -940,6 +940,46 @@ s32 check_leap_attack(PLW* wk) { // 🟡
     return 1;
 }
 
+static bool is_blocked_by_hikusugi(PLW* wk) {
+    if (!ArcadeBalance_IsEnabled()) {
+        if (hikusugi_check(&wk->wu)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+static void select_nm_attack_level_3010(PLW* wk, s16 kos, s16 level) {
+    s16 koa = waza_select(wk, kos, level);
+
+    if (ArcadeBalance_IsEnabled()) {
+        wk->as = &asstbl_lv_3010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
+    } else {
+        wk->as = &_asstbl_lv_3010[wk->player_number][kos][koa];
+    }
+}
+
+static void select_nm_attack_level_2010(PLW* wk, s16 kos, s16 level) {
+    s16 koa = waza_select(wk, kos, level);
+
+    if (ArcadeBalance_IsEnabled()) {
+        wk->as = &asstbl_lv_2010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
+    } else {
+        wk->as = &_asstbl_lv_2010[wk->player_number][kos][koa];
+    }
+}
+
+static void select_nm_attack_level_4010(PLW* wk, s16 kos, s16 level) {
+    s16 koa = waza_select(wk, kos, level);
+
+    if (ArcadeBalance_IsEnabled()) {
+        wk->as = &asstbl_lv_4010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
+    } else {
+        wk->as = &_asstbl_lv_4010[wk->player_number][kos][koa];
+    }
+}
+
 s32 check_nm_attack(PLW* wk) { // 🟡
     s16 kos;
     s16 koa;
@@ -952,156 +992,75 @@ s32 check_nm_attack(PLW* wk) { // 🟡
 
     switch (wk->wu.pat_status) {
     case 20:
-        if (!ArcadeBalance_IsEnabled()) {
-            if (hikusugi_check(&wk->wu)) {
-                return 0;
-            }
+        if (is_blocked_by_hikusugi(wk)) {
+            return 0;
         }
 
-        koa = waza_select(wk, kos, 3);
-
-        if (ArcadeBalance_IsEnabled()) {
-            wk->as = &asstbl_lv_3010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
-        } else {
-            wk->as = &_asstbl_lv_3010[wk->player_number][kos][koa];
-        }
-
+        select_nm_attack_level_3010(wk, kos, 3);
         break;
 
     case 14:
-        if (!ArcadeBalance_IsEnabled()) {
-            if (hikusugi_check(&wk->wu)) {
-                return 0;
-            }
+        if (is_blocked_by_hikusugi(wk)) {
+            return 0;
         }
 
-        koa = waza_select(wk, kos, 6);
-
-        if (ArcadeBalance_IsEnabled()) {
-            wk->as = &asstbl_lv_3010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
-        } else {
-            wk->as = &_asstbl_lv_3010[wk->player_number][kos][koa];
-        }
-
+        select_nm_attack_level_3010(wk, kos, 6);
         break;
 
     case 26:
-        if (!ArcadeBalance_IsEnabled()) {
-            if (hikusugi_check(&wk->wu)) {
-                return 0;
-            }
+        if (is_blocked_by_hikusugi(wk)) {
+            return 0;
         }
 
-        koa = waza_select(wk, kos, 9);
-
-        if (ArcadeBalance_IsEnabled()) {
-            wk->as = &asstbl_lv_3010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
-        } else {
-            wk->as = &_asstbl_lv_3010[wk->player_number][kos][koa];
-        }
-
+        select_nm_attack_level_3010(wk, kos, 9);
         break;
 
     case 22:
-        if (!ArcadeBalance_IsEnabled()) {
-            if (hikusugi_check(&wk->wu)) {
-                return 0;
-            }
+        if (is_blocked_by_hikusugi(wk)) {
+            return 0;
         }
 
-        koa = waza_select(wk, kos, 2);
-
-        if (ArcadeBalance_IsEnabled()) {
-            wk->as = &asstbl_lv_2010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
-        } else {
-            wk->as = &_asstbl_lv_2010[wk->player_number][kos][koa];
-        }
-
+        select_nm_attack_level_2010(wk, kos, 2);
         break;
 
     case 16:
-        if (!ArcadeBalance_IsEnabled()) {
-            if (hikusugi_check(&wk->wu)) {
-                return 0;
-            }
+        if (is_blocked_by_hikusugi(wk)) {
+            return 0;
         }
 
-        koa = waza_select(wk, kos, 5);
-
-        if (ArcadeBalance_IsEnabled()) {
-            wk->as = &asstbl_lv_2010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
-        } else {
-            wk->as = &_asstbl_lv_2010[wk->player_number][kos][koa];
-        }
-
+        select_nm_attack_level_2010(wk, kos, 5);
         break;
 
     case 28:
-        if (!ArcadeBalance_IsEnabled()) {
-            if (hikusugi_check(&wk->wu)) {
-                return 0;
-            }
+        if (is_blocked_by_hikusugi(wk)) {
+            return 0;
         }
 
-        koa = waza_select(wk, kos, 8);
-
-        if (ArcadeBalance_IsEnabled()) {
-            wk->as = &asstbl_lv_2010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
-        } else {
-            wk->as = &_asstbl_lv_2010[wk->player_number][kos][koa];
-        }
-
+        select_nm_attack_level_2010(wk, kos, 8);
         break;
 
     case 24:
-        if (!ArcadeBalance_IsEnabled()) {
-            if (hikusugi_check(&wk->wu)) {
-                return 0;
-            }
+        if (is_blocked_by_hikusugi(wk)) {
+            return 0;
         }
 
-        koa = waza_select(wk, kos, 4);
-
-        if (ArcadeBalance_IsEnabled()) {
-            wk->as = &asstbl_lv_4010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
-        } else {
-            wk->as = &_asstbl_lv_4010[wk->player_number][kos][koa];
-        }
-
+        select_nm_attack_level_4010(wk, kos, 4);
         break;
 
     case 18:
-        if (!ArcadeBalance_IsEnabled()) {
-            if (hikusugi_check(&wk->wu)) {
-                return 0;
-            }
+        if (is_blocked_by_hikusugi(wk)) {
+            return 0;
         }
 
-        koa = waza_select(wk, kos, 7);
-
-        if (ArcadeBalance_IsEnabled()) {
-            wk->as = &asstbl_lv_4010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
-        } else {
-            wk->as = &_asstbl_lv_4010[wk->player_number][kos][koa];
-        }
-
+        select_nm_attack_level_4010(wk, kos, 7);
         break;
 
     case 30:
-        if (!ArcadeBalance_IsEnabled()) {
-            if (hikusugi_check(&wk->wu)) {
-                return 0;
-            }
+        if (is_blocked_by_hikusugi(wk)) {
+            return 0;
         }
 
-        koa = waza_select(wk, kos, 10);
-
-        if (ArcadeBalance_IsEnabled()) {
-            wk->as = &asstbl_lv_4010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
-        } else {
-            wk->as = &_asstbl_lv_4010[wk->player_number][kos][koa];
-        }
-
+        select_nm_attack_level_4010(wk, kos, 10);
         break;
 
     default:
