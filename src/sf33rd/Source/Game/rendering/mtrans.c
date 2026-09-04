@@ -122,6 +122,10 @@ static u16 x32_mapping_set(PatternMap* map, s32 code);
 static f32 advance_trans_x(f32 x, s32 flip, TileMapEntry* trsptr);
 static f32 advance_trans_y(f32 y, s32 flip, TileMapEntry* trsptr);
 
+static bool is_cached_pattern_state(PatternState* mc, u32 code, u32 palt) {
+    return (mc->cs.code == code) && (mc->state == palt);
+}
+
 static bool is_matching_trans_entry(TileMapEntry* trsptr, s32 cods, s32 atrs) {
     return !(trsptr->attr & 0x1000) && (trsptr->code == cods) && ((trsptr->attr & 0xF) == atrs);
 }
@@ -1690,7 +1694,7 @@ static s32 get_mltbuf16(MultiTexture* mt, u32 code, u32 palt, s32* ret) {
     i = mt->mltnum16;
 
     while (1) {
-        if ((mc->cs.code == code) && (mc->state == palt)) {
+        if (is_cached_pattern_state(mc, code, palt)) {
             mc->time = mt->mltcshtime16;
             *ret = mt->mltnum16 - i;
             return 0;
