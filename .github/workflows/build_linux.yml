@@ -41,6 +41,30 @@ jobs:
                 cmake --build build --parallel $(nproc) 2>&1 | tee build.log
             shell: bash
 
+          - name: Package Linux (${{ matrix.runner.arch }}) PR artifact
+            if: github.event_name == 'pull_request'
+            run: |
+                set -euo pipefail
+                cpack -G TGZ --config build/CPackConfig.cmake
+
+                TGZ_PATH="$(find . -maxdepth 1 -type f -name '*.tar.gz' | head -n 1)"
+                if [ -z "${TGZ_PATH}" ]; then
+                  echo "No .tar.gz package found in build/"
+                  exit 1
+                fi
+
+                PR_NUM="${{ github.event.pull_request.number }}"
+                TGZ_NAME="3SX-pr-${PR_NUM}-linux-${{ matrix.runner.arch }}.tar.gz"
+                mv "${TGZ_PATH}" "${TGZ_NAME}"
+            shell: bash
+
+          - name: Upload Linux (${{ matrix.runner.arch }}) PR artifact
+            if: github.event_name == 'pull_request'
+            uses: actions/upload-artifact@v4
+            with:
+                name: 3SX-pr-${{ github.event.pull_request.number }}-linux-${{ matrix.runner.arch }}
+                path: 3SX-pr-${{ github.event.pull_request.number }}-linux-${{ matrix.runner.arch }}.tar.gz
+
           - name: Upload Linux (${{ matrix.runner.arch }}) build log
             if: always()
             uses: actions/upload-artifact@v4

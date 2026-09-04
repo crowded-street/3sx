@@ -46,6 +46,25 @@ jobs:
 
                 cmake --build build --parallel 2>&1 | tee build.log
 
+          - name: Install for Windows artifact packaging
+            if: github.event_name == 'pull_request'
+            run: cmake --install build --prefix dist
+
+          - name: Package Windows PR artifact
+            if: github.event_name == 'pull_request'
+            shell: pwsh
+            run: |
+                $prNum = "${{ github.event.pull_request.number }}"
+                $archiveName = "3SX-pr-$prNum-windows.zip"
+                Compress-Archive -Path "dist\*" -DestinationPath $archiveName -Force
+
+          - name: Upload Windows PR artifact
+            if: github.event_name == 'pull_request'
+            uses: actions/upload-artifact@v4
+            with:
+                name: 3SX-pr-${{ github.event.pull_request.number }}-windows
+                path: 3SX-pr-${{ github.event.pull_request.number }}-windows.zip
+
           - name: Upload build log
             if: always()
             uses: actions/upload-artifact@v4
