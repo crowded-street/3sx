@@ -452,6 +452,34 @@ void cal_hit_mark_pos(WORK* as, WORK* ds, s16 ix2, s16 ix) {
 
 const s16 Dsas_dir_table[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0 };
 
+static void resolve_ground_damage_variant(PLW* as, PLW* ds) {
+    if (ds->wu.pat_status >= 32) {
+        ds->wu.routine_no[2] = get_kagami_damage(ds->wu.routine_no[2]);
+    } else {
+        switch (ds->dm_point) {
+        case 0:
+        case 1:
+            if (check_head_damage(ds->wu.routine_no[2])) {
+                ds->wu.routine_no[2] = get_kind_of_head_dm(as->wu.dir_atthit, ds->wu.dm_rl);
+            }
+
+            break;
+
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+            ds->wu.routine_no[2] = get_grd_hand_damage(ds->wu.routine_no[2]);
+            /* fallthrough */
+
+        default:
+            if (check_trunk_damage(ds->wu.routine_no[2])) {
+                ds->wu.routine_no[2] = get_kind_of_trunk_dm(as->wu.dir_atthit, ds->wu.dm_rl);
+            }
+        }
+    }
+}
+
 void plef_at_vs_player_damage_union(PLW* as, PLW* ds, s8 gddir) { // 🟡
     // CPS3 lacks the port-side training chip-damage metadata resets kept below.
     ds->wu.dm_guard_success = -1;
@@ -509,31 +537,7 @@ void plef_at_vs_player_damage_union(PLW* as, PLW* ds, s8 gddir) { // 🟡
         dm_reaction_init_set(as, ds);
 
         if (as->wu.zu_flag == 0) {
-            if (ds->wu.pat_status >= 32) {
-                ds->wu.routine_no[2] = get_kagami_damage(ds->wu.routine_no[2]);
-            } else {
-                switch (ds->dm_point) {
-                case 0:
-                case 1:
-                    if (check_head_damage(ds->wu.routine_no[2])) {
-                        ds->wu.routine_no[2] = get_kind_of_head_dm(as->wu.dir_atthit, ds->wu.dm_rl);
-                    }
-
-                    break;
-
-                case 4:
-                case 5:
-                case 6:
-                case 7:
-                    ds->wu.routine_no[2] = get_grd_hand_damage(ds->wu.routine_no[2]);
-                    /* fallthrough */
-
-                default:
-                    if (check_trunk_damage(ds->wu.routine_no[2])) {
-                        ds->wu.routine_no[2] = get_kind_of_trunk_dm(as->wu.dir_atthit, ds->wu.dm_rl);
-                    }
-                }
-            }
+            resolve_ground_damage_variant(as, ds);
         }
     }
 
