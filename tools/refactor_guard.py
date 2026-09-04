@@ -16,6 +16,7 @@ Usage:
     python tools/refactor_guard.py src/path/file.c            # working tree vs HEAD
     python tools/refactor_guard.py --base main src/path/file.c
     python tools/refactor_guard.py --all                      # every changed .c/.cpp
+    python tools/refactor_guard.py --combined --base HEAD src/path/file.c src/path/new.c
 
 Exit codes:
     0  no literal changed
@@ -99,6 +100,10 @@ def literals(src: str) -> Counter:
         else:
             out["num " + normalise_number(m.group("number"))] += 1
     return out
+
+
+def strip_include_lines(src: str) -> str:
+    return re.sub(r"^\s*#\s*include[^\n]*\n", "", src, flags=re.MULTILINE)
 
 
 def git_show(ref: str, rel: str) -> str | None:
@@ -194,12 +199,52 @@ def check(rel: str, base: str, strict: bool = False) -> bool:
     return not strict
 
 
+def check_combined(rels: list[str], base: str) -> bool:
+    """Compare literals across a group, allowing constants to move files."""
+    before = Counter()
+    after = Counter()
+
+    for rel in rels:
+        old = git_show(base, rel)
+        if old is not None:
+            before.update(literals(strip_include_lines(old)))
+
+        path = REPO / rel
+        if not path.is_file():
+            print("FAIL  " + rel + "  (deleted from working tree)")
+            return False
+        after.update(literals(strip_include_lines(path.read_text(encoding="utf-8", errors="replace"))))
+
+    removed = before - after
+    added = after - before
+    if not removed and not added:
+        print("OK    combined group  (" + str(sum(before.values())) + " literals unchanged)")
+        return True
+
+    if removed and added:
+        print("FAIL  combined group  - a constant was substituted")
+        print("        removed: " + str(dict(removed)))
+        print("        added:   " + str(dict(added)))
+        return False
+
+    if removed:
+        print("WARN  combined group  - literal counts dropped, no values were added")
+        print("        removed: " + str(dict(removed)))
+        return True
+
+    print("WARN  combined group  - literals added, none removed")
+    print("        added: " + str(dict(added)))
+    return True
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("files", nargs="*", help="paths relative to the repo root")
     ap.add_argument("--base", default="HEAD", help="git ref to compare against (default HEAD)")
     ap.add_argument("--all", action="store_true", help="check every changed .c/.cpp")
+    ap.add_argument("--combined", action="store_true",
+                    help="compare all supplied files as one literal group")
     ap.add_argument("--strict", action="store_true",
                     help="also fail when literals are added (not just removed)")
     args = ap.parse_args()
@@ -208,6 +253,9 @@ def main() -> int:
     if not targets:
         print("nothing to check")
         return 0
+
+    if args.combined:
+        return 0 if check_combined([p.replace("\\", "/") for p in targets], args.base) else 1
 
     ok = True
     for rel in targets:

@@ -44,6 +44,18 @@ it, and the replay corpus and ROM are not present. See [`docs/statcheck.md`](doc
 Until that changes, agents must not modify code inside the in-round simulation. The
 refactoring campaign encodes this as a Track A / Track B split - respect it.
 
+### User-authorized local experiments
+
+For Track A code only, the repository owner may explicitly authorize a local experimental
+refactoring session whose goal is manual gameplay evaluation. During such a session,
+`refactor_guard.py` is advisory: a `WARN` or `FAIL` must be investigated and reported, but
+does not require reverting or stopping when the owner has explicitly said to continue.
+
+This exception does not authorize intentional behaviour changes, changes to in-round
+simulation code, publishing, pushing, or opening a pull request. Before any experimental
+work is committed for review, the normal build, guard, CodeScene, and commit requirements
+below apply again unless the owner explicitly requests a separate review workflow.
+
 ## The refactoring campaign
 
 If you were given a task ID like `R04`, your instructions are in
@@ -93,7 +105,7 @@ counts. It reports one of three things:
 | `FAIL` | A value vanished from the file, or a count dropped while another rose. That is a substituted constant - `30` became `31` - or deleted logic. |
 | `WARN` | Counts only dropped, every value still present (deduplication); or counts only rose (a new guard clause bringing its own `return 0`). |
 
-If the guard **fails**, revert immediately:
+Outside a user-authorized local experiment, if the guard **fails**, revert immediately:
 
 ```bash
 git checkout -- <file>
@@ -148,7 +160,7 @@ unless the maintainer decides otherwise.
 
 ## When to stop
 
-Stop and report, rather than pressing on, whenever:
+Outside a user-authorized local experiment, stop and report, rather than pressing on, whenever:
 
 - The baseline score in your task file does not match what you measure.
 - The build fails and the fix is not obvious.
