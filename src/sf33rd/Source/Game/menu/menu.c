@@ -1037,7 +1037,9 @@ void Direction_Menu(struct _TASK* task_ptr) {
         FadeOut(1, 0xFF, 8);
         task_ptr->r_no[2] += 1;
         Setup_Next_Page(task_ptr, 0);
-    } else if (task_ptr->r_no[2] == 2) {
+    }
+
+    if (task_ptr->r_no[2] == 2) {
         FadeOut(1, 0xFF, 8);
 
         if (--task_ptr->timer == 0) {
@@ -1046,13 +1048,17 @@ void Direction_Menu(struct _TASK* task_ptr) {
         }
 
         return;
-    } else if (task_ptr->r_no[2] == 3) {
+    }
+
+    if (task_ptr->r_no[2] == 3) {
         if (FadeIn(1, 0x19, 8) != 0) {
             task_ptr->r_no[2] += 1;
         }
 
         return;
-    } else if (task_ptr->r_no[2] == 4) {
+    }
+
+    if (task_ptr->r_no[2] == 4) {
         Pause_ID = 0;
 
         Dir_Move_Sub(task_ptr, 0);
