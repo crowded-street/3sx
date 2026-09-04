@@ -4027,6 +4027,64 @@ void Training_Init(struct _TASK* task_ptr) {
     Replay_Status[1] = 0;
 }
 
+static void start_normal_training_mode(struct _TASK* task_ptr) {
+    if (Interface_Type[Champion ^ 1] == 0 && Training[2].contents[0][0][0] == 4) {
+        Training[2].contents[0][0][0] = 0;
+    }
+
+    task_ptr->r_no[0] = 10;
+    task_ptr->r_no[1] = 0;
+    task_ptr->r_no[2] = 0;
+    task_ptr->r_no[3] = 0;
+    Menu_Suicide[0] = 1;
+    Game_pause = 0;
+    Pause_Down = 0;
+    Training_Disp_Work_Clear();
+    CP_No[0][0] = 0;
+    CP_No[1][0] = 0;
+    plw[New_Challenger].wu.operator = 1;
+    Operator_Status[New_Challenger] = 1;
+    Setup_NTr_Data(Menu_Cursor_Y[0]);
+    count_cont_init(0);
+
+    switch (Training[0].contents[0][0][0]) {
+    case 0:
+        control_pl_rno = 0;
+        control_player = New_Challenger;
+        break;
+
+    case 1:
+        control_pl_rno = 1;
+        control_player = New_Challenger;
+        break;
+
+    case 2:
+        control_pl_rno = 2;
+        control_player = New_Challenger;
+        break;
+
+    case 3:
+        control_pl_rno = 99;
+        plw[New_Challenger].wu.operator = 0;
+        Operator_Status[New_Challenger] = 0;
+        break;
+
+    case 4:
+        control_pl_rno = 99;
+        break;
+    }
+
+    All_Clear_Timer();
+    Check_Replay();
+    Training[0].contents[0][1][TRAINING_OPTION_DIFFICULTY] = Menu_Cursor_Y[0];
+    init_omop();
+    set_init_A4_flag();
+    setup_vitality(&plw[0].wu, My_char[0] + 0);
+    setup_vitality(&plw[1].wu, My_char[1] + 0);
+    Setup_Training_Difficulty();
+    Training_Cursor = Menu_Cursor_Y[0];
+}
+
 void Normal_Training(struct _TASK* task_ptr) {
     s16 ix;
     s16 x;
@@ -4071,61 +4129,7 @@ void Normal_Training(struct _TASK* task_ptr) {
             case 0:
             case 1:
             case 2:
-                if (Interface_Type[Champion ^ 1] == 0 && Training[2].contents[0][0][0] == 4) {
-                    Training[2].contents[0][0][0] = 0;
-                }
-
-                task_ptr->r_no[0] = 10;
-                task_ptr->r_no[1] = 0;
-                task_ptr->r_no[2] = 0;
-                task_ptr->r_no[3] = 0;
-                Menu_Suicide[0] = 1;
-                Game_pause = 0;
-                Pause_Down = 0;
-                Training_Disp_Work_Clear();
-                CP_No[0][0] = 0;
-                CP_No[1][0] = 0;
-                plw[New_Challenger].wu.operator = 1;
-                Operator_Status[New_Challenger] = 1;
-                Setup_NTr_Data(Menu_Cursor_Y[0]);
-                count_cont_init(0);
-
-                switch (Training[0].contents[0][0][0]) {
-                case 0:
-                    control_pl_rno = 0;
-                    control_player = New_Challenger;
-                    break;
-
-                case 1:
-                    control_pl_rno = 1;
-                    control_player = New_Challenger;
-                    break;
-
-                case 2:
-                    control_pl_rno = 2;
-                    control_player = New_Challenger;
-                    break;
-
-                case 3:
-                    control_pl_rno = 99;
-                    plw[New_Challenger].wu.operator = 0;
-                    Operator_Status[New_Challenger] = 0;
-                    break;
-
-                case 4:
-                    control_pl_rno = 99;
-                    break;
-                }
-
-                All_Clear_Timer();
-                Check_Replay();
-                Training[0].contents[0][1][TRAINING_OPTION_DIFFICULTY] = Menu_Cursor_Y[0];
-                init_omop();
-                set_init_A4_flag();
-                setup_vitality(&plw[0].wu, My_char[0] + 0);
-                setup_vitality(&plw[1].wu, My_char[1] + 0);
-                Setup_Training_Difficulty();
-                Training_Cursor = Menu_Cursor_Y[0];
+                start_normal_training_mode(task_ptr);
                 break;
 
             case 3:
