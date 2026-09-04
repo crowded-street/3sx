@@ -786,33 +786,7 @@ void Damage_21000(PLW* wk) {
 }
 
 void Damage_23000(PLW* wk) {
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.dm_rl = ((WORK*)wk->wu.dmg_adrs)->rl_flag;
-        wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
-        setup_butt_own_data(&wk->wu);
-        buttobi_add_y_check(wk);
-        set_char_move_init(&wk->wu, 6, wk->as->char_ix);
-        check_dmpat_to_dmpat(wk);
-        get_sky_dm_timer(wk);
-        break;
-
-    case 1:
-        wk->wu.routine_no[3]++;
-        char_move_wca_init(&wk->wu);
-        /* fallthrough */
-
-    case 2:
-        set_dm_hos_flag_sky(wk);
-        first_flight_union(wk, 3, 2);
-        break;
-
-    case 3:
-        char_move(&wk->wu);
-        buttobi_chakuchi_cg_type_check(wk);
-        break;
-    }
+    run_flight_damage_sequence(wk, 2);
 }
 
 void Damage_24000(PLW* wk) {
