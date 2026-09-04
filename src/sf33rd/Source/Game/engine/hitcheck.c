@@ -1783,19 +1783,108 @@ static bool is_blocked_by_vs_id_filter(WORK* mad, WORK* sad) {
     return false;
 }
 
-void attack_hit_check() { // 🟢
+static void check_attacker_against_target(WORK* sad, s16 mi, s16 si) {
     WORK* mad;
+    s16* mh;
+    s16 lp;
+    s16 lp2;
+    s16 mw;
+    s16* assign2;
+
+    if (mi == si) {
+        return;
+    }
+
+    if (hs[mi].flag.results & 0x1110) {
+        return;
+    }
+
+    mad = q_hit_push[mi];
+
+    if (mad->cg_ja.atix == 0) {
+        return;
+    }
+
+    if (mad->att_hit_ok == 0) {
+        return;
+    }
+
+    if (is_blocked_by_vs_id_filter(mad, sad)) {
+        return;
+    }
+
+    if (is_same_owner_target(mad, sad)) {
+        return;
+    }
+
+    mh = &mad->h_att->att_box[0][0];
+
+    for (lp = 0; lp < 4; lp++, assign2 = mh += 4) {
+        if (mh[1] == 0) {
+            continue;
+        }
+
+        for (lp2 = 0; lp2 < 11; lp2++) {
+            if (lp2 > 3 && mad->att_hit_ok == 0) {
+                return;
+            }
+
+            if (dmdat_adrs[lp2][1] == 0) {
+                continue;
+            }
+
+            if ((lp == 2 || lp == 3) && (lp2 == 8 || lp2 == 9)) {
+                continue;
+            }
+
+            if ((lp2 > 3) && (lp2 < 0xA)) {
+                if (!(((mad->rl_flag) + (sad->rl_flag)) & 1)) {
+                    if (mad->rl_flag) {
+                        if (!(mad->xyz[0].disp.pos <= sad->xyz[0].disp.pos)) {
+                            continue;
+                        }
+                    } else if (!(mad->xyz[0].disp.pos >= sad->xyz[0].disp.pos)) {
+                        continue;
+                    }
+                }
+                if (mad->att.dipsw & 4 && (lp2 >= 8 || sad->cg_ja.bhix == 0)) {
+                    continue;
+                }
+            }
+
+            if (lp2 == 10) {
+                if (!(mad->att.dipsw & 64) || sad->kind_of_waza & 0x60 || pcon_dp_flag || sad->pat_status == 0x26) {
+                    continue;
+                }
+            }
+
+            mw = hit_check_subroutine(mad, sad, mh, dmdat_adrs[lp2]);
+
+            if (mw > mkm_wk[si]) {
+                hs[mi].flag.results |= 0x10;
+                hs[mi].my_hit = si;
+                hs[mi].my_att = lp;
+                hs[si].flag.results |= 1;
+                hs[si].dm_me = mi;
+                hs[si].dm_body = lp2;
+                mad->att_hit_ok = 0;
+                mkm_wk[si] = mw;
+                hs[mi].ah = mh;
+                hs[si].dh = dmdat_adrs[lp2];
+            }
+        }
+    }
+}
+
+void attack_hit_check() { // 🟢
     WORK* sad;
     s16* mh;
     s16* sh;
     s16 mi;
     s16 si;
     s16 lp;
-    s16 lp2;
-    s16 mw;
 
     s16* assign1;
-    s16* assign2;
 
     for (si = 0; si < hpq_in; si++) {
         if (hs[si].flag.results & 0x1101) {
@@ -1816,94 +1905,8 @@ void attack_hit_check() { // 🟢
         dmdat_adrs[10] = sad->h_hos->hos_box;
 
         for (mi = 0; mi < hpq_in; mi++) {
-            if (mi == si) {
-                continue;
-            }
-
-            if (hs[mi].flag.results & 0x1110) {
-                continue;
-            }
-
-            mad = q_hit_push[mi];
-
-            if (mad->cg_ja.atix == 0) {
-                continue;
-            }
-
-            if (mad->att_hit_ok == 0) {
-                continue;
-            }
-
-            if (is_blocked_by_vs_id_filter(mad, sad)) {
-                continue;
-            }
-
-            if (is_same_owner_target(mad, sad)) {
-                continue;
-            }
-
-            mh = &mad->h_att->att_box[0][0];
-
-            for (lp = 0; lp < 4; lp++, assign2 = mh += 4) {
-                if (mh[1] == 0) {
-                    continue;
-                }
-
-                for (lp2 = 0; lp2 < 11; lp2++) {
-                    if (lp2 > 3 && mad->att_hit_ok == 0) {
-                        goto end;
-                    }
-
-                    if (dmdat_adrs[lp2][1] == 0) {
-                        continue;
-                    }
-
-                    if ((lp == 2 || lp == 3) && (lp2 == 8 || lp2 == 9)) {
-                        continue;
-                    }
-
-                    if ((lp2 > 3) && (lp2 < 0xA)) {
-                        if (!(((mad->rl_flag) + (sad->rl_flag)) & 1)) {
-                            if (mad->rl_flag) {
-                                if (!(mad->xyz[0].disp.pos <= sad->xyz[0].disp.pos)) {
-                                    continue;
-                                }
-                            } else if (!(mad->xyz[0].disp.pos >= sad->xyz[0].disp.pos)) {
-                                continue;
-                            }
-                        }
-                        if (mad->att.dipsw & 4 && (lp2 >= 8 || sad->cg_ja.bhix == 0)) {
-                            continue;
-                        }
-                    }
-
-                    if (lp2 == 10) {
-                        if (!(mad->att.dipsw & 64) || sad->kind_of_waza & 0x60 || pcon_dp_flag ||
-                            sad->pat_status == 0x26) {
-                            continue;
-                        }
-                    }
-
-                    mw = hit_check_subroutine(mad, sad, mh, dmdat_adrs[lp2]);
-
-                    if (mw > mkm_wk[si]) {
-                        hs[mi].flag.results |= 0x10;
-                        hs[mi].my_hit = si;
-                        hs[mi].my_att = lp;
-                        hs[si].flag.results |= 1;
-                        hs[si].dm_me = mi;
-                        hs[si].dm_body = lp2;
-                        mad->att_hit_ok = 0;
-                        mkm_wk[si] = mw;
-                        hs[mi].ah = mh;
-                        hs[si].dh = dmdat_adrs[lp2];
-                    }
-                }
-            }
+            check_attacker_against_target(sad, mi, si);
         }
-
-    end:
-        continue;
     }
 }
 
