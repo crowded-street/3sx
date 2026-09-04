@@ -3144,6 +3144,26 @@ static void initialize_vs_result(struct _TASK* task_ptr) {
     Menu_Cursor_Move = 0;
 }
 
+static void continue_vs_result(struct _TASK* task_ptr) {
+    switch (task_ptr->r_no[3]) {
+    case 0:
+        task_ptr->r_no[3]++;
+        /* fallthrough */
+
+    case 1:
+        if (--task_ptr->timer) {
+            break;
+        }
+
+        Setup_VS_Mode(task_ptr);
+        G_No[1] = 12;
+        G_No[2] = 1;
+        // We should leave Mode_Type be, no need to reset it
+        // Mode_Type = MODE_VERSUS;
+        break;
+    }
+}
+
 void VS_Result(struct _TASK* task_ptr) {
     Clear_Flash_Sub();
 
@@ -3203,24 +3223,7 @@ void VS_Result(struct _TASK* task_ptr) {
         break;
 
     case 6:
-        switch (task_ptr->r_no[3]) {
-        case 0:
-            task_ptr->r_no[3]++;
-            /* fallthrough */
-
-        case 1:
-            if (--task_ptr->timer) {
-                break;
-            }
-
-            Setup_VS_Mode(task_ptr);
-            G_No[1] = 12;
-            G_No[2] = 1;
-            // We should leave Mode_Type be, no need to reset it
-            // Mode_Type = MODE_VERSUS;
-            break;
-        }
-
+        continue_vs_result(task_ptr);
         break;
 
     case 7:
