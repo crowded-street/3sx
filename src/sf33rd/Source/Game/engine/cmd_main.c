@@ -1421,36 +1421,38 @@ void check_23() { // 🟢
 }
 
 static void run_lever_command_check(u16 sw_lever) {
-    if (!dead_lvr_check()) {
-        if (waza_ptr->w_lvr & 0x8000) {
-            sw_work = waza_ptr->w_lvr & 0xF;
+    if (dead_lvr_check()) {
+        return;
+    }
 
-            if (sw_lever == sw_work) {
-                if (*waza_ptr->w_ptr == 28) {
-                    command_ok();
-                    return;
-                }
+    if (waza_ptr->w_lvr & 0x8000) {
+        sw_work = waza_ptr->w_lvr & 0xF;
 
-                check_next();
+        if (sw_lever == sw_work) {
+            if (*waza_ptr->w_ptr == 28) {
+                command_ok();
+                return;
             }
-        } else if (waza_ptr->w_lvr == 0) {
-            if (sw_lever == 0) {
-                if (*waza_ptr->w_ptr == 28) {
-                    command_ok();
-                    return;
-                }
 
-                check_next();
+            check_next();
+        }
+    } else if (waza_ptr->w_lvr == 0) {
+        if (sw_lever == 0) {
+            if (*waza_ptr->w_ptr == 28) {
+                command_ok();
+                return;
             }
-        } else {
-            if (sw_lever & waza_ptr->w_lvr) {
-                if (*waza_ptr->w_ptr == 28) {
-                    command_ok();
-                    return;
-                }
 
-                check_next();
+            check_next();
+        }
+    } else {
+        if (sw_lever & waza_ptr->w_lvr) {
+            if (*waza_ptr->w_ptr == 28) {
+                command_ok();
+                return;
             }
+
+            check_next();
         }
     }
 }
