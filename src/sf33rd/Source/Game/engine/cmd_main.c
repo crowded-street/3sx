@@ -206,6 +206,25 @@ void check_0() { // 🟢
     }
 }
 
+static void resolve_tame_flag_or_reset_timer() {
+    if (waza_ptr->uni0.tame.flag) {
+        waza_ptr->uni0.tame.flag = 0;
+
+        if (*waza_ptr->w_ptr == 0x1C) {
+            command_ok();
+        } else {
+            check_next();
+        }
+    } else {
+        waza_ptr->free2 = waza_ptr->free1;
+        waza_ptr->w_int--;
+
+        if (waza_ptr->w_int < 0) {
+            waza_ptr->w_type = 0;
+        }
+    }
+}
+
 void check_1() { // 🟢
     if (dead_lvr_check()) {
         return;
@@ -221,22 +240,7 @@ void check_1() { // 🟢
                 waza_ptr->uni0.tame.flag = 1;
             }
         } else {
-            if (waza_ptr->uni0.tame.flag) {
-                waza_ptr->uni0.tame.flag = 0;
-
-                if (*waza_ptr->w_ptr == 0x1C) {
-                    command_ok();
-                } else {
-                    check_next();
-                }
-            } else {
-                waza_ptr->free2 = waza_ptr->free1;
-                waza_ptr->w_int--;
-
-                if (waza_ptr->w_int < 0) {
-                    waza_ptr->w_type = 0;
-                }
-            }
+            resolve_tame_flag_or_reset_timer();
         }
     } else {
         if (sw_work & chk_pl->sw_lever) {
@@ -248,22 +252,7 @@ void check_1() { // 🟢
                 }
             }
         } else {
-            if (waza_ptr->uni0.tame.flag) {
-                waza_ptr->uni0.tame.flag = 0;
-
-                if (*waza_ptr->w_ptr == 0x1C) {
-                    command_ok();
-                } else {
-                    check_next();
-                }
-            } else {
-                waza_ptr->free2 = waza_ptr->free1;
-                waza_ptr->w_int--;
-
-                if (waza_ptr->w_int < 0) {
-                    waza_ptr->w_type = 0;
-                }
-            }
+            resolve_tame_flag_or_reset_timer();
         }
     }
 }
