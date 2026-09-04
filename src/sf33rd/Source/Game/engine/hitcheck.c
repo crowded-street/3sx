@@ -1027,6 +1027,22 @@ s16 check_dm_att_guard(WORK* as, WORK* ds, s16 kom) { // 🟡
     return rnum;
 }
 
+static bool supports_blocking_chip_damage(WORK* as, TAMA* tama) {
+    if (as->work_id != 4) {
+        return false;
+    }
+
+    if (as->id != 13) {
+        return false;
+    }
+
+    if (tama->kz_blocking == 0) {
+        return false;
+    }
+
+    return as->kezuri_pow;
+}
+
 s16 check_dm_att_blocking(WORK* as, WORK* ds, s16 dnum) { // 🟡
     // CPS3 lacks the port-side training chip-damage metadata kept below.
     s16 rnum = 0;
@@ -1034,31 +1050,36 @@ s16 check_dm_att_blocking(WORK* as, WORK* ds, s16 dnum) { // 🟡
 
     ds->kezurare_flag = 0;
 
-    if (as->work_id == 4 && as->id == 13 && tama->kz_blocking != 0 && as->kezuri_pow) {
-        if (ds->dm_vital != 0) {
-            ds->kezurare_flag = 1;
+    if (!supports_blocking_chip_damage(as, tama)) {
+        ds->dm_vital = 0;
+        return rnum;
+    }
 
-            if (as->kezuri_pow) {
-                ds->dm_vital = ds->dm_vital / as->kezuri_pow;
-            } else {
-                ds->dm_vital = 0;
-            }
+    if (ds->dm_vital == 0) {
+        return rnum;
+    }
 
-            if (ds->dm_vital == 0) {
-                ds->dm_vital = 1;
-            }
+    ds->kezurare_flag = 1;
 
-            if (ds->dm_vital > ds->vital_new) {
-                if (as->no_death_attack) {
-                    ds->dm_vital = ds->vital_new;
-                } else {
-                    ds->dm_guard_success = dnum;
-                    rnum = 1;
-                }
-            }
-        }
+    if (as->kezuri_pow) {
+        ds->dm_vital = ds->dm_vital / as->kezuri_pow;
     } else {
         ds->dm_vital = 0;
+    }
+
+    if (ds->dm_vital == 0) {
+        ds->dm_vital = 1;
+    }
+
+    if (ds->dm_vital <= ds->vital_new) {
+        return rnum;
+    }
+
+    if (as->no_death_attack) {
+        ds->dm_vital = ds->vital_new;
+    } else {
+        ds->dm_guard_success = dnum;
+        rnum = 1;
     }
 
     return rnum;
