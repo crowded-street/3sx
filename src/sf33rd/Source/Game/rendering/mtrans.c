@@ -1821,7 +1821,7 @@ static s32 get_mltbuf32_ext_2(MultiTexture* mt, u32 code, u32 palt, s32* ret, Pa
         }
     }
 
-    if ((i != mt->mltnum32) && (mt->tpf->x32 != 0)) {
+    if (has_free_pattern_slot(i, mt->mltnum32, mt->tpf->x32)) {
         mt->tpf->x32 -= 1;
         mt->tpu->x32_used[i] = mt->tpf->x32_free[mt->tpf->x32];
         mt->tpu->x32 += 1;
