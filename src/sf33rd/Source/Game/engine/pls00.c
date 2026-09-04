@@ -1024,6 +1024,14 @@ void nm_29000(PLW* wk) { // 🟡
     nm_27_cg_type_check(wk);
 }
 
+static void dispatch_by_pat_status(PLW* wk, void (*on_low_pat_status)(WORK*), void (*on_high_pat_status)(WORK*)) {
+    if (wk->wu.pat_status < 32) {
+        on_low_pat_status(&wk->wu);
+    } else {
+        on_high_pat_status(&wk->wu);
+    }
+}
+
 void nm_31000(PLW* wk) { // 🟢
     if (wk->wu.routine_no[3] == 0) {
         return;
@@ -1063,21 +1071,11 @@ void nm_31000(PLW* wk) { // 🟢
         break;
 
     case 64:
-        if (wk->wu.pat_status < 32) {
-            TO_nm_36000(&wk->wu);
-        } else {
-            TO_nm_37000(&wk->wu);
-        }
-
+        dispatch_by_pat_status(wk, TO_nm_36000, TO_nm_37000);
         break;
 
     case 0xFF:
-        if (wk->wu.pat_status < 32) {
-            TO_nm_01000(&wk->wu);
-        } else {
-            TO_nm_09000(&wk->wu);
-        }
-
+        dispatch_by_pat_status(wk, TO_nm_01000, TO_nm_09000);
         break;
     }
 }
@@ -1098,12 +1096,7 @@ void nm_34000(PLW* wk) { // 🟢
             break;
         }
 
-        if (wk->wu.pat_status < 32) {
-            TO_nm_36000(&wk->wu);
-        } else {
-            TO_nm_37000(&wk->wu);
-        }
-
+        dispatch_by_pat_status(wk, TO_nm_36000, TO_nm_37000);
         break;
     }
 }
@@ -1198,57 +1191,17 @@ void nm_42000(PLW* wk) { // 🟡
 }
 
 void nm_45000(PLW* wk) { // 🟢
-    if (wk->wu.routine_no[3] == 3) {
-        if (check_full_gauge_attack(wk, 0)) {
-            return;
-        }
-
-        if (check_full_gauge_attack2(wk, 0)) {
-            return;
-        }
-
-        if (check_super_arts_attack(wk)) {
-            return;
-        }
-
-        if (check_special_attack(wk)) {
-            return;
-        }
-
-        if (check_chouhatsu(wk)) {
-            return;
-        }
-
-        if (check_catch_attack(wk)) {
-            return;
-        }
-
-        if (check_nm_attack(wk)) {
-            return;
-        }
-
-        if (check_cg_cancel_data(wk)) {
-            return;
-        }
+    if (wk->wu.routine_no[3] == 3 && run_jump_attack_checks(wk)) {
+        return;
     }
 
     switch (wk->wu.cg_type) {
     case 64:
-        if (wk->wu.pat_status < 32) {
-            TO_nm_36000(&wk->wu);
-            break;
-        }
-
-        TO_nm_37000(&wk->wu);
+        dispatch_by_pat_status(wk, TO_nm_36000, TO_nm_37000);
         break;
 
     case 0xFF:
-        if (wk->wu.pat_status < 32) {
-            TO_nm_01000(&wk->wu);
-            break;
-        }
-
-        TO_nm_09000(&wk->wu);
+        dispatch_by_pat_status(wk, TO_nm_01000, TO_nm_09000);
         break;
 
     default:
