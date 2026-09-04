@@ -1603,6 +1603,10 @@ void seqsAfterProcess() {
     }
 }
 
+static bool is_sequence_chip_outside_view(Sprite2* chip) {
+    return (chip->v[0].x >= 384.0f) || (chip->v[1].x < 0.0f) || (chip->v[0].y >= 224.0f) || (chip->v[1].y < 0.0f);
+}
+
 s32 seqsStoreChip(f32 x, f32 y, s32 w, s32 h, s32 gix, s32 code, s32 attr, s32 alpha, s32 id) {
     Sprite2* chip;
     s32 u;
@@ -1617,7 +1621,7 @@ s32 seqsStoreChip(f32 x, f32 y, s32 w, s32 h, s32 gix, s32 code, s32 attr, s32 a
     njCalcPoint(NULL, &chip->v[0], &chip->v[0]);
     njCalcPoint(NULL, &chip->v[1], &chip->v[1]);
 
-    if ((chip->v[0].x >= 384.0f) || (chip->v[1].x < 0.0f) || (chip->v[0].y >= 224.0f) || (chip->v[1].y < 0.0f)) {
+    if (is_sequence_chip_outside_view(chip)) {
         return 1;
     }
 
