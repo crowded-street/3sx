@@ -41,8 +41,17 @@ against CPS3 RAM dumps. It is the only mechanism that proves behaviour was prese
 It is currently **not running**: `THREESX_STATCHECK` defaults OFF, no CI workflow invokes
 it, and the replay corpus and ROM are not present. See [`docs/statcheck.md`](docs/statcheck.md).
 
-Until that changes, agents must not modify code inside the in-round simulation. The
-refactoring campaign encodes this as a Track A / Track B split - respect it.
+The missing ROM is not a "not yet acquired" gap: `fbneo-replay-runner` needs a real CPS3
+ROM dump to emulate anything, and a legitimate dump requires owning genuine CPS3 arcade
+hardware, which this project's no-piracy policy (see `README.md`) won't work around.
+Treat statcheck as indefinitely unavailable, not pending.
+
+**2026-09-04 (project owner directive):** given the above, the Track A / Track B split no
+longer gates whether agents may touch a file - it now only marks how CRITICAL/HIGH-risk a
+file is. Agents may refactor Track B files following the same closed recipe catalogue,
+one recipe per commit, build + `tools/refactor_guard.py` after every commit. Verification
+is manual playtesting by a human instead of statcheck - call out CRITICAL-risk changes
+clearly (file, function, what changed) so playtesting can be targeted at them.
 
 ## The refactoring campaign
 

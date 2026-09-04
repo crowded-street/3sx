@@ -19,10 +19,15 @@ Outside the in-round simulation. Safe to refactor with compile verification only
 | [R14](tasks/R14-bg.md) | `Game/stage/bg.c` | **3.62** | 1430 | 11 | MEDIUM | `scr_trans` (cc 109) |
 | [R17](tasks/R17-entry.md) | `Game/screen/entry.c` | **3.86** | 1480 | 19 | LOW | `Entry_Main_Sub` (cc 35) |
 
-## Track B - blocked until statcheck is green in CI
+## Track B - manual playtesting required (statcheck indefinitely unavailable)
 
 Core engine, CPU logic, animation and effects. A silent behaviour change here breaks
-gameplay or rollback determinism and the build will not catch it.
+gameplay or rollback determinism and the build will not catch it. Statcheck would
+normally catch it, but its replay runner needs a real CPS3 ROM dump, and a legitimate
+one requires owning genuine CPS3 arcade hardware - this project's no-piracy policy won't
+work around that, so treat statcheck as indefinitely unavailable rather than pending.
+**2026-09-04 (project owner directive):** these files may be refactored now; verify with
+manual playtesting instead of waiting on statcheck.
 
 | Task | File | Score | LOC | Churn | Risk | Worst function |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -74,5 +79,5 @@ point. **Campaign start** preserves the original 2026-09-01 sweep.
 | R15 | 3.68 | 3.68 | **4.08** | Deduped `subtract_dm_vital`/`_aiuchi` (Recipe E+D) and `Damage_14000`/`21000`/`20000`/`23000` pairs (Recipe D). Cleared Red band. Track B gate manually overridden by user request - statcheck still not running in CI. |
 | R16 | 3.75 | 3.75 | - | not started |
 | R17 | 3.86 | 3.86 | - | not started |
-| R18 | 3.92 | 3.92 | **4.17** | `comm_sstx` deduped (Recipe D), file cleared Red band. Track B gate manually overridden by user request - statcheck still not running in CI, remaining functions in this file stay off-limits until it is. |
+| R18 | 3.92 | 3.92 | **4.17** | `comm_sstx` deduped (Recipe D), file cleared Red band. Verified by build + refactor_guard; not yet manually playtested. Remaining functions (`check_cgd_patdat` etc.) open for further work under the relaxed gate. |
 | R19 | 3.92 | 3.92 | **4.01** | Extracted `run_bonus_perfect_result_phase` out of `Game_Manage_12_4` (Recipe E) - cc 32->18, bumps 5->3. Cleared Red band, close to the line. Track B gate manually overridden by user request. |

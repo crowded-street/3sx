@@ -60,13 +60,20 @@ regression that no compiler warning will catch.
 Fightcade matches frame by frame and compares health, positions, stun, SA meter, round
 timer, and round phase against CPS3 RAM dumps.
 
-Two facts about its current state:
+Three facts about its current state:
 
 - `THREESX_STATCHECK` defaults to **OFF**.
 - **No CI workflow runs it.** The five workflows build on Linux, macOS, Windows and PSP,
   and none of them execute a single test.
+- **The blocker is not "not yet built."** `fbneo-replay-runner` needs a real CPS3 ROM dump
+  to emulate anything, and a legitimate dump requires owning genuine CPS3 arcade hardware -
+  this project's no-piracy policy (`README.md`) won't work around that. Treat statcheck as
+  indefinitely unavailable.
 
-Until that changes, the campaign runs on two tracks.
+**2026-09-04 (project owner directive):** given the above, the campaign no longer waits on
+statcheck. The Track A / Track B split below stays as a risk label, but Track B files may
+now be refactored under the same recipe discipline - verification is manual playtesting
+by a human instead of a clean statcheck run.
 
 ---
 
@@ -91,10 +98,11 @@ silently corrupting a match.
 it is the single best place to start. `bg.c` contains `scr_trans`, the worst function in
 the codebase.
 
-### Track B - blocked (13 files)
+### Track B - manual playtesting required (13 files)
 
-Core engine, CPU logic, animation and effects. **Do not start these until statcheck is
-green in CI.** Each task file carries a warning banner to that effect.
+Core engine, CPU logic, animation and effects. Statcheck cannot verify these (see above),
+so **verify with manual playtesting instead of waiting on CI.** Each task file's warning
+banner has been updated to reflect this.
 
 These are the files where refactoring pays the most and costs the most if it goes wrong.
 
@@ -102,7 +110,8 @@ These are the files where refactoring pays the most and costs the most if it goe
 
 ## Phases
 
-**Phase 0 - Stand up the safety net** *(runs in parallel with Phase 1; blocks Phase 2)*
+**Phase 0 - Stand up the safety net** *(indefinitely blocked - see above; not a prerequisite
+for Phase 2 anymore)*
 
 1. Obtain the PS2 assets and a Fightcade replay corpus (see [`../statcheck.md`](../statcheck.md)).
 2. Build `fbneo-replay-runner`, produce SCRD archives, confirm `tools/statcheck_runner.py`
@@ -110,7 +119,8 @@ These are the files where refactoring pays the most and costs the most if it goe
 3. Add a CI workflow that builds with `-DTHREESX_STATCHECK=ON` and runs the corpus.
 4. Record how long a full run takes - that number sets the batch size for Phase 2.
 
-This is a human-or-strong-agent task. Do not hand it to a weak agent.
+This requires a legitimately-dumped CPS3 ROM, which requires owning genuine CPS3 arcade
+hardware. Revisit this phase only if that changes.
 
 **Phase 1 - Track A** *(can start immediately)*
 
@@ -118,10 +128,12 @@ Work R04, R06, R10, R11, R14, R17 in that order. Each file exits when it scores 
 This phase also serves as the pilot: it tells you whether the task format actually works
 for the agents you plan to use, on files where being wrong is cheap.
 
-**Phase 2 - Track B** *(after Phase 0)*
+**Phase 2 - Track B** *(can start now - Phase 0 is not a prerequisite; verify with manual
+playtesting instead)*
 
 The remaining 13 files, hardest first: R01 `hitcheck.c`, R02 `com_sub.c`, R03 `pls03.c`.
-Every commit is additionally gated on a clean statcheck run.
+Every commit should still be called out clearly (file, function, what changed) so a human
+playtester knows what to focus on.
 
 **Phase 3 - The Yellow band** *(not yet specified)*
 
@@ -148,7 +160,8 @@ and the per-file cost is known.
 - `code_health_score` >= 4.00
 - `cmake --build build` succeeds with no new warnings
 - One function per commit, message format `refactor(<file>): simplify <function>`
-- Track B only: statcheck clean across the corpus
+- Track B only: statcheck clean across the corpus, when statcheck exists. Until then
+  (indefinitely - see the note above), manual playtesting stands in for it.
 - Final `code_health_review` included in the report
 
 ---
@@ -191,4 +204,5 @@ change; a removed or altered constant fails. It catches the single most dangerou
 mistake - a changed magic number - with essentially no false positives on legal refactors.
 
 It does **not** check control flow. An inverted condition passes it. It reduces risk for
-Track A; it is not a substitute for statcheck on Track B.
+Track A; on Track B it is combined with manual playtesting rather than statcheck, which
+is indefinitely unavailable (see above).
