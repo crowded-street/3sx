@@ -75,4 +75,4 @@ point. **Campaign start** preserves the original 2026-09-01 sweep.
 | R16 | 3.75 | 3.75 | - | not started |
 | R17 | 3.86 | 3.86 | - | not started |
 | R18 | 3.92 | 3.92 | **4.17** | `comm_sstx` deduped (Recipe D), file cleared Red band. Track B gate manually overridden by user request - statcheck still not running in CI, remaining functions in this file stay off-limits until it is. |
-| R19 | 3.92 | 3.92 | - | not started |
+| R19 | 3.92 | 3.92 | **4.01** | Extracted `run_bonus_perfect_result_phase` out of `Game_Manage_12_4` (Recipe E) - cc 32->18, bumps 5->3. Cleared Red band, close to the line. Track B gate manually overridden by user request. |
