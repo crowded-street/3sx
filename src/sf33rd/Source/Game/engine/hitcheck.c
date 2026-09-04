@@ -583,6 +583,56 @@ static void resolve_ground_damage_variant(PLW* as, PLW* ds) {
     }
 }
 
+static void apply_air_damage_reaction(PLW* as, PLW* ds) {
+    as->wu.hf.hit.player = 2;
+    ds->wu.kezurare_flag = 0;
+    dm_reaction_init_set(as, ds);
+
+    if (as->wu.att.dipsw & 0x10) {
+        ds->wu.routine_no[2] = get_sky_sp_damage(ds->wu.routine_no[2]);
+    } else {
+        ds->wu.routine_no[2] = get_sky_nm_damage(ds->wu.routine_no[2]);
+    }
+}
+
+static void apply_ground_damage_reaction(PLW* as, PLW* ds) {
+    as->wu.hf.hit.player = 1;
+    ds->wu.kezurare_flag = 0;
+    dm_reaction_init_set(as, ds);
+
+    if (as->wu.zu_flag == 0) {
+        resolve_ground_damage_variant(as, ds);
+    }
+}
+
+static void finish_player_damage(PLW* as, PLW* ds, s8 gddir) {
+    ds->wu.routine_no[1] = 1;
+    ds->wu.routine_no[3] = 0;
+    grade_add_clean_hits((WORK_Other*)as);
+    check_guard_miss(&as->wu, ds, gddir);
+    effect_02_init(&as->wu, ds->dm_point, 1, ds->wu.dm_rl);
+    dm_status_copy(&as->wu, &ds->wu);
+    same_dm_stop(&as->wu, &ds->wu);
+    as->wu.cmwk[8]++;
+    as->wu.cmwk[15]++;
+    ds->wu.dm_count_up++;
+
+    if (ds->wu.xyz[1].disp.pos < 0) {
+        ds->wu.xyz[1].cal = 0;
+    }
+
+    add_combo_work(as, ds);
+    hit_pattern_extdat_check(&as->wu);
+
+    if (ds->atemi_flag && ds->atemi_point != ds->dm_point) {
+        ds->atemi_flag = 0;
+    }
+
+    paring_ctr_vs[Play_Type][ds->wu.id] = 0;
+    paring_counter[ds->wu.id] = 0;
+    paring_bonus_r[ds->wu.id] = 0;
+}
+
 void plef_at_vs_player_damage_union(PLW* as, PLW* ds, s8 gddir) { // 🟡
     // CPS3 lacks the port-side training chip-damage metadata resets kept below.
     ds->wu.dm_guard_success = -1;
@@ -615,15 +665,7 @@ void plef_at_vs_player_damage_union(PLW* as, PLW* ds, s8 gddir) { // 🟡
         }
 
     jump_one:
-        as->wu.hf.hit.player = 2;
-        ds->wu.kezurare_flag = 0;
-        dm_reaction_init_set(as, ds);
-
-        if (as->wu.att.dipsw & 0x10) {
-            ds->wu.routine_no[2] = get_sky_sp_damage(ds->wu.routine_no[2]);
-        } else {
-            ds->wu.routine_no[2] = get_sky_nm_damage(ds->wu.routine_no[2]);
-        }
+        apply_air_damage_reaction(as, ds);
     } else {
     switch_defense_ground:
         switch (defense_ground(as, ds, gddir)) {
@@ -635,40 +677,10 @@ void plef_at_vs_player_damage_union(PLW* as, PLW* ds, s8 gddir) { // 🟡
         }
 
     jump_two:
-        as->wu.hf.hit.player = 1;
-        ds->wu.kezurare_flag = 0;
-        dm_reaction_init_set(as, ds);
-
-        if (as->wu.zu_flag == 0) {
-            resolve_ground_damage_variant(as, ds);
-        }
+        apply_ground_damage_reaction(as, ds);
     }
 
-    ds->wu.routine_no[1] = 1;
-    ds->wu.routine_no[3] = 0;
-    grade_add_clean_hits((WORK_Other*)as);
-    check_guard_miss(&as->wu, ds, gddir);
-    effect_02_init(&as->wu, ds->dm_point, 1, ds->wu.dm_rl);
-    dm_status_copy(&as->wu, &ds->wu);
-    same_dm_stop(&as->wu, &ds->wu);
-    as->wu.cmwk[8]++;
-    as->wu.cmwk[15]++;
-    ds->wu.dm_count_up++;
-
-    if (ds->wu.xyz[1].disp.pos < 0) {
-        ds->wu.xyz[1].cal = 0;
-    }
-
-    add_combo_work(as, ds);
-    hit_pattern_extdat_check(&as->wu);
-
-    if (ds->atemi_flag && ds->atemi_point != ds->dm_point) {
-        ds->atemi_flag = 0;
-    }
-
-    paring_ctr_vs[Play_Type][ds->wu.id] = 0;
-    paring_counter[ds->wu.id] = 0;
-    paring_bonus_r[ds->wu.id] = 0;
+    finish_player_damage(as, ds, gddir);
     return;
 
 set_guard_status:
