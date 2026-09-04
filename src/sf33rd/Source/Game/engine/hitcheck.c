@@ -1790,6 +1790,40 @@ typedef struct {
     s16 target_index;
 } HitScan;
 
+static bool is_excluded_attack_damage_box_pair(s16 attack_box, s16 damage_box) {
+    return (attack_box == 2 || attack_box == 3) && (damage_box == 8 || damage_box == 9);
+}
+
+static bool is_damage_box_on_wrong_side(const HitScan* scan) {
+    if (((scan->attacker->rl_flag) + (scan->target->rl_flag)) & 1) {
+        return false;
+    }
+
+    if (scan->attacker->rl_flag) {
+        return !(scan->attacker->xyz[0].disp.pos <= scan->target->xyz[0].disp.pos);
+    }
+
+    return !(scan->attacker->xyz[0].disp.pos >= scan->target->xyz[0].disp.pos);
+}
+
+static bool is_auxiliary_damage_box_blocked(const HitScan* scan, s16 damage_box) {
+    return scan->attacker->att.dipsw & 4 && (damage_box >= 8 || scan->target->cg_ja.bhix == 0);
+}
+
+static bool should_skip_auxiliary_damage_box(const HitScan* scan, s16 damage_box) {
+    return ((damage_box > 3) && (damage_box < 0xA)) &&
+           (is_damage_box_on_wrong_side(scan) || is_auxiliary_damage_box_blocked(scan, damage_box));
+}
+
+static bool is_push_damage_box_blocked(const HitScan* scan, s16 damage_box) {
+    if (damage_box != 10) {
+        return false;
+    }
+
+    return !(scan->attacker->att.dipsw & 64) || scan->target->kind_of_waza & 0x60 || pcon_dp_flag ||
+           scan->target->pat_status == 0x26;
+}
+
 static bool check_attack_box_against_damage_boxes(const HitScan* scan, s16* mh, s16 lp) {
     s16 lp2;
     s16 mw;
@@ -1803,30 +1837,16 @@ static bool check_attack_box_against_damage_boxes(const HitScan* scan, s16* mh, 
             continue;
         }
 
-        if ((lp == 2 || lp == 3) && (lp2 == 8 || lp2 == 9)) {
+        if (is_excluded_attack_damage_box_pair(lp, lp2)) {
             continue;
         }
 
-        if ((lp2 > 3) && (lp2 < 0xA)) {
-            if (!(((scan->attacker->rl_flag) + (scan->target->rl_flag)) & 1)) {
-                if (scan->attacker->rl_flag) {
-                    if (!(scan->attacker->xyz[0].disp.pos <= scan->target->xyz[0].disp.pos)) {
-                        continue;
-                    }
-                } else if (!(scan->attacker->xyz[0].disp.pos >= scan->target->xyz[0].disp.pos)) {
-                    continue;
-                }
-            }
-            if (scan->attacker->att.dipsw & 4 && (lp2 >= 8 || scan->target->cg_ja.bhix == 0)) {
-                continue;
-            }
+        if (should_skip_auxiliary_damage_box(scan, lp2)) {
+            continue;
         }
 
-        if (lp2 == 10) {
-            if (!(scan->attacker->att.dipsw & 64) || scan->target->kind_of_waza & 0x60 || pcon_dp_flag ||
-                scan->target->pat_status == 0x26) {
-                continue;
-            }
+        if (is_push_damage_box_blocked(scan, lp2)) {
+            continue;
         }
 
         mw = hit_check_subroutine(scan->attacker, scan->target, mh, dmdat_adrs[lp2]);
