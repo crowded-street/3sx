@@ -1539,13 +1539,9 @@ void dm_status_copy(WORK* as, WORK* ds) { // 🟡
     as->meoshi_hit_flag = 1;
 }
 
-void add_combo_work(PLW* as, PLW* ds) { // 🟢
+static void apply_combo_work(PLW* as, PLW* ds) {
     s16* kow;
     s16* cal;
-
-    if (ds->kezurijini_flag) {
-        return;
-    }
 
     ds->kizetsu_kow = ds->cb->new_dm = as->wu.kind_of_waza;
     kow = ds->cb->kind_of[0][0];
@@ -1558,21 +1554,19 @@ void add_combo_work(PLW* as, PLW* ds) { // 🟢
     ds->rp->total++;
 }
 
+void add_combo_work(PLW* as, PLW* ds) { // 🟢
+    if (ds->kezurijini_flag) {
+        return;
+    }
+
+    apply_combo_work(as, ds);
+}
+
 void nise_combo_work(PLW* as, PLW* ds, s16 num) { // 🟢
-    s16* kow;
-    s16* cal;
     s16 i;
 
     for (i = 0; i < num; i++) {
-        ds->kizetsu_kow = ds->cb->new_dm = as->wu.kind_of_waza;
-        kow = ds->cb->kind_of[0][0];
-        cal = calc_hit[ds->wu.id];
-        kow[as->wu.kind_of_waza]++;
-        cal[(as->wu.kind_of_waza & 120) / 8]++;
-        ds->cb->total++;
-        kow = ds->rp->kind_of[0][0];
-        kow[as->wu.kind_of_waza]++;
-        ds->rp->total++;
+        apply_combo_work(as, ds);
     }
 }
 
