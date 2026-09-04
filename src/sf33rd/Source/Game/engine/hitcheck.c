@@ -327,6 +327,90 @@ static bool should_cancel_competing_catch(const CatchContest* contest) {
     return false;
 }
 
+typedef enum {
+    CATCH_DEFENSE_DAMAGE,
+    CATCH_DEFENSE_GUARD,
+    CATCH_DEFENSE_PARRY,
+} CatchDefenseResult;
+
+typedef enum {
+    CATCH_HIT_GROUND = 1,
+    CATCH_HIT_SKY = 2,
+} CatchHitType;
+
+static void set_caught_damage_reaction(PLW* as, PLW* ds, s16 hit_type) {
+    as->wu.hf.hit.player = hit_type;
+    ds->wu.routine_no[2] = as->wu.att.reaction;
+}
+
+static bool is_forced_catch_damage(PLW* as, PLW* ds) {
+    return ds->guard_flag == 3 || as->wu.att.guard == 0 || ds->py->flag != 0;
+}
+
+static bool should_use_ground_catch_damage(PLW* ds) {
+    return ds->wu.xyz[1].disp.pos <= 0 && check_pat_status(&ds->wu) == 0;
+}
+
+static CatchDefenseResult resolve_catch_defense_variant(PLW* as, PLW* ds, s8 gddir, CatchHitType hit_type) {
+    s32 defense_result;
+
+    if (hit_type == CATCH_HIT_SKY) {
+        defense_result = defense_sky(as, ds, gddir);
+    } else {
+        defense_result = defense_ground(as, ds, gddir);
+    }
+
+    switch (defense_result) {
+    case 0:
+        return CATCH_DEFENSE_PARRY;
+
+    case 1:
+        return CATCH_DEFENSE_GUARD;
+
+    default:
+        break;
+    }
+
+    set_caught_damage_reaction(as, ds, hit_type);
+    return CATCH_DEFENSE_DAMAGE;
+}
+
+static CatchDefenseResult resolve_catch_defense(PLW* as, PLW* ds, s8 gddir) {
+    if (is_forced_catch_damage(as, ds)) {
+        if (should_use_ground_catch_damage(ds)) {
+            set_caught_damage_reaction(as, ds, CATCH_HIT_GROUND);
+        } else {
+            set_caught_damage_reaction(as, ds, CATCH_HIT_SKY);
+        }
+
+        return CATCH_DEFENSE_DAMAGE;
+    }
+
+    if (ds->wu.xyz[1].disp.pos > 0) {
+        return resolve_catch_defense_variant(as, ds, gddir, CATCH_HIT_SKY);
+    }
+
+    return resolve_catch_defense_variant(as, ds, gddir, CATCH_HIT_GROUND);
+}
+
+static bool apply_catch_defense_result(CatchDefenseResult result, PLW* as, PLW* ds) {
+    switch (result) {
+    case CATCH_DEFENSE_GUARD:
+        set_guard_status(as, ds);
+        pp_pulpara_hit(&as->wu);
+        return true;
+
+    case CATCH_DEFENSE_PARRY:
+        set_paring_status(as, ds);
+        return true;
+
+    case CATCH_DEFENSE_DAMAGE:
+        return false;
+    }
+
+    return false;
+}
+
 void set_caught_status(s16 ix) { // 🟡
     // CPS3 lacks the port-side vibration and training chip-damage metadata kept below.
     s16 ix2 = hs[ix].dm_me;
@@ -364,58 +448,12 @@ void set_caught_status(s16 ix) { // 🟡
     set_damage_and_piyo(as, ds);
     ds->wu.dm_guard_success = -1;
 
-    if (ds->guard_flag == 3 || as->wu.att.guard == 0 || ds->py->flag != 0) {
-        if (ds->wu.xyz[1].disp.pos <= 0) {
-            switch (check_pat_status(&ds->wu)) {
-            case 0:
-                goto four;
-
-            default:
-                break;
-            }
-        }
-
-        goto three;
-    } else if (ds->wu.xyz[1].disp.pos > 0) {
-        switch (defense_sky(as, ds, gddir)) {
-        case 0:
-            goto set_paring_status;
-
-        case 1:
-            goto set_guard_status;
-        }
-
-    three:
-        as->wu.hf.hit.player = 2;
-        ds->wu.routine_no[2] = as->wu.att.reaction;
-    } else {
-        switch (defense_ground(as, ds, gddir)) {
-        case 0:
-            goto set_paring_status;
-
-        case 1:
-            goto set_guard_status;
-
-        default:
-            break;
-        }
-
-    four:
-        as->wu.hf.hit.player = 1;
-        ds->wu.routine_no[2] = as->wu.att.reaction;
+    if (apply_catch_defense_result(resolve_catch_defense(as, ds, gddir), as, ds)) {
+        return;
     }
 
     set_catcher_animation(as, ds);
     finalize_successful_catch(as, ds, blocking_status, gddir);
-    return;
-
-set_guard_status:
-    set_guard_status(as, ds);
-    pp_pulpara_hit(&as->wu);
-    return;
-
-set_paring_status:
-    set_paring_status(as, ds);
 }
 
 s32 check_pat_status(WORK* wk) { // 🟢
