@@ -1022,6 +1022,23 @@ static void handle_direction_menu_input(struct _TASK* task_ptr) {
     }
 }
 
+static void handle_active_direction_menu(struct _TASK* task_ptr) {
+    Pause_ID = 0;
+
+    Dir_Move_Sub(task_ptr, 0);
+
+    if (IO_Result == 0) {
+        Pause_ID = 1;
+        Dir_Move_Sub(task_ptr, 1);
+    }
+
+    if (Menu_Cursor_Y[1] != Menu_Cursor_Y[0]) {
+        on_direction_cursor_moved();
+    }
+
+    handle_direction_menu_input(task_ptr);
+}
+
 void Direction_Menu(struct _TASK* task_ptr) {
     Menu_Cursor_Y[1] = Menu_Cursor_Y[0];
 
@@ -1063,20 +1080,7 @@ void Direction_Menu(struct _TASK* task_ptr) {
     }
 
     if (task_ptr->r_no[2] == 4) {
-        Pause_ID = 0;
-
-        Dir_Move_Sub(task_ptr, 0);
-
-        if (IO_Result == 0) {
-            Pause_ID = 1;
-            Dir_Move_Sub(task_ptr, 1);
-        }
-
-        if (Menu_Cursor_Y[1] != Menu_Cursor_Y[0]) {
-            on_direction_cursor_moved();
-        }
-
-        handle_direction_menu_input(task_ptr);
+        handle_active_direction_menu(task_ptr);
         return;
     }
 
