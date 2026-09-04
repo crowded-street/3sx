@@ -1039,6 +1039,15 @@ static void handle_active_direction_menu(struct _TASK* task_ptr) {
     handle_direction_menu_input(task_ptr);
 }
 
+static void advance_direction_menu_transition(struct _TASK* task_ptr) {
+    FadeOut(1, 0xFF, 8);
+
+    if (--task_ptr->timer == 0) {
+        task_ptr->r_no[2] += 1;
+        FadeInit();
+    }
+}
+
 void Direction_Menu(struct _TASK* task_ptr) {
     Menu_Cursor_Y[1] = Menu_Cursor_Y[0];
 
@@ -1061,13 +1070,7 @@ void Direction_Menu(struct _TASK* task_ptr) {
     }
 
     if (task_ptr->r_no[2] == 2) {
-        FadeOut(1, 0xFF, 8);
-
-        if (--task_ptr->timer == 0) {
-            task_ptr->r_no[2] += 1;
-            FadeInit();
-        }
-
+        advance_direction_menu_transition(task_ptr);
         return;
     }
 
