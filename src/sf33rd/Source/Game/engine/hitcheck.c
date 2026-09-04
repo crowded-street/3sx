@@ -679,19 +679,39 @@ set_paring_status:
     set_paring_status(as, ds);
 }
 
+static bool is_running_damage_reaction(PLW* ds) {
+    if (ds->wu.routine_no[2] == 89) {
+        return true;
+    }
+
+    return ds->wu.routine_no[2] == 90;
+}
+
+static bool should_apply_running_damage_reaction(PLW* as, PLW* ds) {
+    if (!is_running_damage_reaction(ds)) {
+        return false;
+    }
+
+    if (ds->running_f != 1) {
+        return false;
+    }
+
+    if (!Dsas_dir_table[as->wu.att.dir]) {
+        return false;
+    }
+
+    if (check_work_position(&as->wu, &ds->wu)) {
+        return ds->move_distance > 0;
+    }
+
+    return ds->move_distance < 0;
+}
+
 void dm_reaction_init_set(PLW* as, PLW* ds) { // 🟢
     ds->wu.routine_no[2] = as->wu.att.reaction;
 
-    if (ds->wu.routine_no[2] == 89 || ds->wu.routine_no[2] == 90) {
-        if (ds->running_f == 1 && Dsas_dir_table[as->wu.att.dir]) {
-            if (check_work_position(&as->wu, &ds->wu)) {
-                if (ds->move_distance > 0) {
-                    ds->wu.routine_no[2] = 99;
-                }
-            } else if (ds->move_distance < 0) {
-                ds->wu.routine_no[2] = 99;
-            }
-        }
+    if (should_apply_running_damage_reaction(as, ds)) {
+        ds->wu.routine_no[2] = 99;
     }
 
     ds->wu.routine_no[2] = change_damage_attribute(as, as->wu.at_attribute, ds->wu.routine_no[2]);
