@@ -347,20 +347,7 @@ static void initialize_mode_select(struct _TASK* task_ptr, const s16 loop_counte
     Menu_Cursor_Move = loop_counter;
 }
 
-static void handle_mode_select_input(struct _TASK* task_ptr, const s16 loop_counter) {
-    s16 PL_id;
-
-    if (Connect_Status == 0 && Menu_Cursor_Y[0] == 1) {
-        Menu_Cursor_Y[0] = 2;
-    } else {
-        PL_id = 0;
-
-        if (MC_Move_Sub(Check_Menu_Lever(0, 0), 0, loop_counter - 1, 1) == 0) {
-            PL_id = 1;
-            MC_Move_Sub(Check_Menu_Lever(1, 0), 0, loop_counter - 1, 1);
-        }
-    }
-
+static void select_mode(struct _TASK* task_ptr, const s16* PL_id) {
     switch (IO_Result) {
     case 0x100:
         switch (Menu_Cursor_Y[0]) {
@@ -369,7 +356,7 @@ static void handle_mode_select_input(struct _TASK* task_ptr, const s16 loop_coun
             Mode_Type = MODE_ARCADE;
             task_ptr->r_no[0] = 5;
             cpExitTask(TASK_SAVER);
-            Decide_PL(PL_id);
+            Decide_PL(*PL_id);
             break;
 
         case 1:
@@ -397,6 +384,23 @@ static void handle_mode_select_input(struct _TASK* task_ptr, const s16 loop_coun
         SE_selected();
         break;
     }
+}
+
+static void handle_mode_select_input(struct _TASK* task_ptr, const s16 loop_counter) {
+    s16 PL_id;
+
+    if (Connect_Status == 0 && Menu_Cursor_Y[0] == 1) {
+        Menu_Cursor_Y[0] = 2;
+    } else {
+        PL_id = 0;
+
+        if (MC_Move_Sub(Check_Menu_Lever(0, 0), 0, loop_counter - 1, 1) == 0) {
+            PL_id = 1;
+            MC_Move_Sub(Check_Menu_Lever(1, 0), 0, loop_counter - 1, 1);
+        }
+    }
+
+    select_mode(task_ptr, &PL_id);
 }
 
 void Mode_Select(struct _TASK* task_ptr) {
@@ -1018,6 +1022,32 @@ static void handle_direction_menu_input(struct _TASK* task_ptr) {
     }
 }
 
+static void handle_active_direction_menu(struct _TASK* task_ptr) {
+    Pause_ID = 0;
+
+    Dir_Move_Sub(task_ptr, 0);
+
+    if (IO_Result == 0) {
+        Pause_ID = 1;
+        Dir_Move_Sub(task_ptr, 1);
+    }
+
+    if (Menu_Cursor_Y[1] != Menu_Cursor_Y[0]) {
+        on_direction_cursor_moved();
+    }
+
+    handle_direction_menu_input(task_ptr);
+}
+
+static void advance_direction_menu_transition(struct _TASK* task_ptr) {
+    FadeOut(1, 0xFF, 8);
+
+    if (--task_ptr->timer == 0) {
+        task_ptr->r_no[2] += 1;
+        FadeInit();
+    }
+}
+
 void Direction_Menu(struct _TASK* task_ptr) {
     Menu_Cursor_Y[1] = Menu_Cursor_Y[0];
 
@@ -1040,13 +1070,7 @@ void Direction_Menu(struct _TASK* task_ptr) {
     }
 
     if (task_ptr->r_no[2] == 2) {
-        FadeOut(1, 0xFF, 8);
-
-        if (--task_ptr->timer == 0) {
-            task_ptr->r_no[2] += 1;
-            FadeInit();
-        }
-
+        advance_direction_menu_transition(task_ptr);
         return;
     }
 
@@ -1059,20 +1083,7 @@ void Direction_Menu(struct _TASK* task_ptr) {
     }
 
     if (task_ptr->r_no[2] == 4) {
-        Pause_ID = 0;
-
-        Dir_Move_Sub(task_ptr, 0);
-
-        if (IO_Result == 0) {
-            Pause_ID = 1;
-            Dir_Move_Sub(task_ptr, 1);
-        }
-
-        if (Menu_Cursor_Y[1] != Menu_Cursor_Y[0]) {
-            on_direction_cursor_moved();
-        }
-
-        handle_direction_menu_input(task_ptr);
+        handle_active_direction_menu(task_ptr);
         return;
     }
 
