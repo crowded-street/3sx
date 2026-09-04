@@ -941,9 +941,7 @@ static void apply_normal_move_chain_cancel(WORK* as) {
     }
 }
 
-void hit_pattern_extdat_check(WORK* as) { // 🟡
-    // CPS3 leaves cg_extdat latched; local's extra cancel rewrites are DIP-gated and default off.
-
+static void apply_hit_pattern_extension(WORK* as) {
     switch ((as->cg_extdat & 0xC0) + ((as->cg_extdat & 0x3F) != 0)) {
     case 0x80:
         char_move_z(as);
@@ -980,49 +978,110 @@ void hit_pattern_extdat_check(WORK* as) { // 🟡
 
         break;
     }
+}
+
+static void restrict_target_combo(WORK* as) {
+    if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_TARGET_COMBO_DISABLED)) {
+        return;
+    }
+
+    if (!(as->cg_cancel & 8)) {
+        return;
+    }
+
+    if (as->kow & 0xF8) {
+        return;
+    }
+
+    if (as->kow & 6) {
+        as->cg_cancel &= 0xF7;
+        as->cg_meoshi = 0;
+    } else if (as->cg_meoshi & 0x110) {
+        as->cg_meoshi &= 0xF99F;
+    } else {
+        as->cg_cancel &= 0xF7;
+        as->cg_meoshi = 0;
+    }
+}
+
+static void enable_super_art_cancel(WORK* as) {
+    if (((PLW*)as)->spmv_ng_flag2 & DIP2_SA_TO_SA_CANCEL_DISABLED) {
+        return;
+    }
+
+    if (!(as->kow & 0x60)) {
+        return;
+    }
+
+    as->cg_cancel |= 0x40;
+}
+
+static void enable_special_move_cancel(WORK* as) {
+    if (((PLW*)as)->spmv_ng_flag2 & DIP2_SPECIAL_TO_SPECIAL_CANCEL_DISABLED) {
+        return;
+    }
+
+    if (as->kow & 0x60) {
+        return;
+    }
+
+    if (!(as->kow & 0xF8)) {
+        return;
+    }
+
+    as->cg_cancel |= 0x60;
+}
+
+static void enable_normal_move_cancel(WORK* as) {
+    if (((PLW*)as)->spmv_ng_flag2 & DIP2_ALL_NORMALS_CANCELLABLE_DISABLED) {
+        return;
+    }
+
+    if (as->kow & 0xF8) {
+        return;
+    }
+
+    switch (plpat_rno_filter[as->routine_no[2]]) {
+    case 9:
+        if (as->routine_no[3] != 1) {
+            break;
+        }
+
+        /* fallthrough */
+
+    case 1:
+    case 2:
+        as->cg_cancel |= 0x60;
+        break;
+    }
+}
+
+static bool can_apply_normal_move_chain(WORK* as) {
+    if (as->kow & 0xF8) {
+        return false;
+    }
+
+    if (as->routine_no[1] != 4) {
+        return false;
+    }
+
+    return as->routine_no[2] < 0x10;
+}
+
+void hit_pattern_extdat_check(WORK* as) { // 🟡
+    // CPS3 leaves cg_extdat latched; local's extra cancel rewrites are DIP-gated and default off.
+    apply_hit_pattern_extension(as);
 
     if (as->work_id != 1) {
         return;
     }
 
-    if ((((PLW*)as)->spmv_ng_flag2 & DIP2_TARGET_COMBO_DISABLED) && as->cg_cancel & 8 && !(as->kow & 0xF8)) {
-        if (as->kow & 6) {
-            as->cg_cancel &= 0xF7;
-            as->cg_meoshi = 0;
-        } else if (as->cg_meoshi & 0x110) {
-            as->cg_meoshi &= 0xF99F;
-        } else {
-            as->cg_cancel &= 0xF7;
-            as->cg_meoshi = 0;
-        }
-    }
+    restrict_target_combo(as);
+    enable_super_art_cancel(as);
+    enable_special_move_cancel(as);
+    enable_normal_move_cancel(as);
 
-    if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_SA_TO_SA_CANCEL_DISABLED) && as->kow & 0x60) {
-        as->cg_cancel |= 0x40;
-    }
-
-    if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_SPECIAL_TO_SPECIAL_CANCEL_DISABLED) && !(as->kow & 0x60) &&
-        as->kow & 0xF8) {
-        as->cg_cancel |= 0x60;
-    }
-
-    if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_ALL_NORMALS_CANCELLABLE_DISABLED) && !(as->kow & 0xF8)) {
-        switch (plpat_rno_filter[as->routine_no[2]]) {
-        case 9:
-            if (as->routine_no[3] != 1) {
-                break;
-            }
-
-            /* fallthrough */
-
-        case 1:
-        case 2:
-            as->cg_cancel |= 0x60;
-            break;
-        }
-    }
-
-    if (!(as->kow & 0xF8) && as->routine_no[1] == 4 && as->routine_no[2] < 0x10) {
+    if (can_apply_normal_move_chain(as)) {
         apply_normal_move_chain_cancel(as);
     }
 }
