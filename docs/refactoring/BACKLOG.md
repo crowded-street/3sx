@@ -74,5 +74,5 @@ point. **Campaign start** preserves the original 2026-09-01 sweep.
 | R15 | 3.68 | 3.68 | - | not started |
 | R16 | 3.75 | 3.75 | - | not started |
 | R17 | 3.86 | 3.86 | - | not started |
-| R18 | 3.92 | 3.92 | - | not started |
+| R18 | 3.92 | 3.92 | **4.17** | `comm_sstx` deduped (Recipe D), file cleared Red band. Track B gate manually overridden by user request - statcheck still not running in CI, remaining functions in this file stay off-limits until it is. |
 | R19 | 3.92 | 3.92 | - | not started |
