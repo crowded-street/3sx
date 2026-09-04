@@ -347,10 +347,14 @@ static void initialize_mode_select(struct _TASK* task_ptr, const s16 loop_counte
     Menu_Cursor_Move = loop_counter;
 }
 
+static bool should_skip_mode_selection(void) {
+    return Connect_Status == 0 && Menu_Cursor_Y[0] == 1;
+}
+
 static void handle_mode_select_input(struct _TASK* task_ptr, const s16 loop_counter) {
     s16 PL_id;
 
-    if (Connect_Status == 0 && Menu_Cursor_Y[0] == 1) {
+    if (should_skip_mode_selection()) {
         Menu_Cursor_Y[0] = 2;
     } else {
         PL_id = 0;
@@ -678,6 +682,21 @@ void Training_Mode(struct _TASK* task_ptr) {
     }
 }
 
+static bool is_option_selection_input(void) {
+    if (MC_Move_Sub(Check_Menu_Lever(0, 0), 0, 5, 0xFF) == 0) {
+        MC_Move_Sub(Check_Menu_Lever(1, 0), 0, 5, 0xFF);
+    }
+
+    switch (IO_Result) {
+    case 0x100:
+    case 0x200:
+        return true;
+
+    default:
+        return false;
+    }
+}
+
 void Option_Select(struct _TASK* task_ptr) {
     s16 ix;
     static const s16 option_items[6] = { 7, 8, 9, 10, 12, 13 };
@@ -725,16 +744,7 @@ void Option_Select(struct _TASK* task_ptr) {
         break;
 
     case 3:
-        if (MC_Move_Sub(Check_Menu_Lever(0, 0), 0, 5, 0xFF) == 0) {
-            MC_Move_Sub(Check_Menu_Lever(1, 0), 0, 5, 0xFF);
-        }
-
-        switch (IO_Result) {
-        case 0x100:
-        case 0x200:
-            break;
-
-        default:
+        if (!is_option_selection_input()) {
             return;
         }
 
@@ -1395,6 +1405,10 @@ void Load_Replay(struct _TASK* task_ptr) {
     }
 }
 
+static bool is_replay_load_complete(void) {
+    return Check_PL_Load() && Check_LDREQ_Queue_BG(bg_w.stage) && (adx_now_playend() != 0);
+}
+
 void Load_Replay_Sub(struct _TASK* task_ptr) {
     s32 ix;
 
@@ -1505,7 +1519,7 @@ void Load_Replay_Sub(struct _TASK* task_ptr) {
         break;
 
     case 5:
-        if (Check_PL_Load() && Check_LDREQ_Queue_BG(bg_w.stage) && (adx_now_playend() != 0)) {
+        if (is_replay_load_complete()) {
             task_ptr->r_no[3] += 1;
             Switch_Screen_Init(0);
             init_omop();
@@ -2230,6 +2244,10 @@ void Screen_Move_Sub_LR(u16 sw) {
     Y_Adjust = Y_Adjust_Buff[0] = Y_Adjust_Buff[1] = Y_Adjust_Buff[2];
 }
 
+static bool should_finish_sound_test(void) {
+    return IO_Result == 0x200 || ((Menu_Cursor_Y[0] == 5) && (IO_Result == 0x100 || IO_Result == 0x4000));
+}
+
 void Sound_Test(struct _TASK* task_ptr) {
     s16 char_index;
     s16 ix;
@@ -2364,7 +2382,7 @@ void Sound_Test(struct _TASK* task_ptr) {
             }
         }
 
-        if (IO_Result == 0x200 || ((Menu_Cursor_Y[0] == 5) && (IO_Result == 0x100 || IO_Result == 0x4000))) {
+        if (should_finish_sound_test()) {
             SE_selected();
             Return_Option_Mode_Sub(task_ptr);
             setupAlwaysSeamlessFlag(0);
@@ -3310,10 +3328,14 @@ s32 VS_Result_Select_Sub(struct _TASK* task_ptr, s16 PL_id) {
     return 0;
 }
 
+static bool should_skip_vs_result_option(void) {
+    return plw[0].wu.operator == 0 || plw[1].wu.operator == 0 || Mode_Type == MODE_NETWORK;
+}
+
 u16 After_VS_Move_Sub(u16 sw, s16 cursor_id, s16 menu_max) {
     s16 skip;
 
-    if (plw[0].wu.operator == 0 || plw[1].wu.operator == 0 || Mode_Type == MODE_NETWORK) {
+    if (should_skip_vs_result_option()) {
         skip = 1;
     } else {
         skip = 99;
@@ -4511,8 +4533,12 @@ static bool is_training_hitbox_display_enabled() {
     return Training[0].contents[0][1][TRAINING_OPTION_HITBOXES] != 0;
 }
 
+static bool should_disable_training_hitbox_display(bool force_off) {
+    return force_off || Mode_Type != MODE_NORMAL_TRAINING || !is_training_hitbox_display_enabled();
+}
+
 static void apply_training_hitbox_display(bool force_off) {
-    if (force_off || Mode_Type != MODE_NORMAL_TRAINING || !is_training_hitbox_display_enabled()) {
+    if (should_disable_training_hitbox_display(force_off)) {
         Set_Training_Hitbox_Display(false);
     } else {
         Set_Training_Hitbox_Display(true);
