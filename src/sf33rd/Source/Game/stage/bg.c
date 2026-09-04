@@ -287,6 +287,23 @@ static void load_stage07_textures(void* loadAdrs, u32 loadSize, u16 accnum) {
     }
 }
 
+static u16 load_rewrite_stage_textures(void* loadAdrs, u32 loadSize, u8 stg, u8 x, u16 accnum) {
+    u8 i;
+
+    if (x) {
+        ppgSetupCurrentDataList(&ppgRwBgList);
+        ppgSetupTexChunk_1st(NULL, loadAdrs, loadSize, (stg * 64) + 0x64, x, 0, 0);
+        ppgSetupTexChunk_1st_Accnum(0, accnum);
+
+        for (i = 0; i < x; i++) {
+            accnum = ppgSetupTexChunk_2nd(NULL, i + ((stg * 64) + 0x64));
+            ppgSetupTexChunk_3rd(NULL, i + ((stg * 64) + 0x64), 1);
+        }
+    }
+
+    return accnum;
+}
+
 void Bg_Texture_Load_EX() {
     void* loadAdrs;
     u32 loadSize;
@@ -366,17 +383,7 @@ void Bg_Texture_Load_EX() {
     }
 
     x = rewrite_scr[bg_w.stage];
-
-    if (x) {
-        ppgSetupCurrentDataList(&ppgRwBgList);
-        ppgSetupTexChunk_1st(NULL, loadAdrs, loadSize, (stg * 64) + 0x64, x, 0, 0);
-        ppgSetupTexChunk_1st_Accnum(0, accnum);
-
-        for (i = 0; i < x; i++) {
-            accnum = ppgSetupTexChunk_2nd(NULL, i + ((stg * 64) + 0x64));
-            ppgSetupTexChunk_3rd(NULL, i + ((stg * 64) + 0x64), 1);
-        }
-    }
+    accnum = load_rewrite_stage_textures(loadAdrs, loadSize, stg, x, accnum);
 
     load_stage07_textures(loadAdrs, loadSize, accnum);
     load_ake_stage_textures();
