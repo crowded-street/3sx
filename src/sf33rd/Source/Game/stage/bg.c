@@ -405,22 +405,35 @@ void Bg_Texture_Load_EX() {
     load_ake_stage_textures();
 }
 
+static void load_texture2_chunks(u8 type, u32 tgbix) {
+    u32 mask;
+    u32 assign;
+    u8 i;
+    u8 j;
+
+    mask = 0x80000000;
+
+    for (j = 0, i = 0; i < 32; i++, assign = mask >>= 1) {
+        if (tgbix & mask) {
+            ppgBgList->tex->accnum = etcBgGixCnvTable[type][j];
+            ppgSetupTexChunk_2nd(NULL, i + 0x84);
+            ppgSetupTexChunk_3rd(NULL, i + 0x84, 1);
+            j++;
+        }
+    }
+}
+
 void Bg_Texture_Load2(u8 type) {
     void* loadAdrs;
     u32 loadSize;
     s16 key;
     u32 tgbix;
     u32 prio;
-    u32 mask;
     u32 pmask;
     u8 i;
-    u8 j;
     u8 shift;
 
-    u32 assign;
-
     Bg_TexInit();
-    (void)assign;
     ending_flag = 0;
     tokusyu_stage = 0;
     rw_num = 0;
@@ -449,20 +462,11 @@ void Bg_Texture_Load2(u8 type) {
     pmask = 0xFF000000;
     shift = 24;
     tgbix = bgtex_etc_gbix[type];
-    mask = 0x80000000;
     prio = etc_bg_priority[type];
     prio &= pmask;
     prio >>= shift;
     bg_priority[0] = prio;
-
-    for (j = 0, i = 0; i < 32; i++, assign = mask >>= 1) {
-        if (tgbix & mask) {
-            ppgBgList->tex->accnum = etcBgGixCnvTable[type][j];
-            ppgSetupTexChunk_2nd(NULL, i + 0x84);
-            ppgSetupTexChunk_3rd(NULL, i + 0x84, 1);
-            j++;
-        }
-    }
+    load_texture2_chunks(type, tgbix);
 
     bgPalCodeOffset[0] = etcBgPalCnvTable[type] + 144;
 }
