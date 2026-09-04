@@ -3179,6 +3179,12 @@ static void continue_vs_result(struct _TASK* task_ptr) {
     }
 }
 
+static void advance_vs_result_exit(struct _TASK* task_ptr) {
+    if (--task_ptr->timer == 0) {
+        task_ptr->r_no[3]++;
+    }
+}
+
 void VS_Result(struct _TASK* task_ptr) {
     Clear_Flash_Sub();
 
@@ -3227,10 +3233,7 @@ void VS_Result(struct _TASK* task_ptr) {
 
     case 5:
         if (task_ptr->r_no[3] == 0) {
-            if (--task_ptr->timer == 0) {
-                task_ptr->r_no[3]++;
-            }
-
+            advance_vs_result_exit(task_ptr);
             break;
         }
 
