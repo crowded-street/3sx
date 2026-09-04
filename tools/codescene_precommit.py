@@ -53,16 +53,54 @@ def interesting(path: str) -> bool:
     return not any(path.startswith(prefix) for prefix in EXCLUDED)
 
 
-def staged_files() -> list[str]:
-    result = git("diff", "--cached", "--name-only", "--diff-filter=ACMR")
+def is_code_file(path: str) -> bool:
+    if not path:
+        return False
+    if Path(path).suffix.lower() not in SUFFIXES:
+        return False
+    return not any(path.startswith(prefix) for prefix in EXCLUDED)
+
+
+def parse_staged_entries(raw: str) -> list[tuple[str, str | None]]:
+    entries: list[tuple[str, str | None]] = []
+    chunks = raw.split("\0")
+    index = 0
+    while index < len(chunks) - 1:
+        status = chunks[index]
+        if not status:
+            index += 1
+            continue
+
+        if status.startswith(("R", "C")):
+            old_path = chunks[index + 1]
+            new_path = chunks[index + 2]
+            entries.append((new_path, old_path))
+            index += 3
+            continue
+
+        entries.append((chunks[index + 1], None))
+        index += 2
+    return entries
+
+
+def staged_files() -> list[tuple[str, str | None]]:
+    result = git("diff", "--cached", "--name-status", "-z", "--diff-filter=ACMR")
     if result.returncode != 0:
         raise SystemExit(result.stderr.strip() or "git diff failed")
-    return sorted(path for path in (line.strip() for line in result.stdout.splitlines()) if path and interesting(path))
+
+    staged = [
+        (path, previous_path)
+        for path, previous_path in parse_staged_entries(result.stdout)
+        if is_code_file(path)
+    ]
+    return sorted(staged, key=lambda item: item[0])
 
 
-def show(ref: str, path: str) -> str:
+def show(ref: str, path: str) -> tuple[bool, str]:
     out = git("show", f"{ref}:{path}")
-    return out.stdout if out.returncode == 0 else ""
+    if out.returncode != 0:
+        return False, ""
+    return True, out.stdout
 
 
 def file_score_request(path: str) -> list[dict[str, object]]:
@@ -73,17 +111,25 @@ def file_score_request(path: str) -> list[dict[str, object]]:
     ]
 
 
+def run_score_process(exe: str, payload: str) -> subprocess.CompletedProcess[str]:
+    try:
+        return subprocess.run(
+            [exe],
+            input=payload,
+            capture_output=True,
+            text=True,
+            env={**os.environ, "CS_DISABLE_VERSION_CHECK": "1"},
+            encoding="utf-8",
+            errors="replace",
+            timeout=30,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise RuntimeError(f"CodeScene score request timed out after {exc.timeout}s") from exc
+
+
 def run_score_request(exe: str, path: str) -> str:
     payload = "\n".join(json.dumps(item) for item in file_score_request(path)) + "\n"
-    proc = subprocess.run(
-        [exe],
-        input=payload,
-        capture_output=True,
-        text=True,
-        env={**os.environ, "CS_DISABLE_VERSION_CHECK": "1"},
-        encoding="utf-8",
-        errors="replace",
-    )
+    proc = run_score_process(exe, payload)
     if proc.returncode != 0 and not proc.stdout:
         raise RuntimeError((proc.stderr or proc.stdout or "CodeScene invocation failed").strip())
     return proc.stdout or ""
@@ -141,22 +187,23 @@ def check_new_file(path: str, exe: str, staged: str) -> str | None:
     return None
 
 
-def check(path: str, exe: str) -> str | None:
-    staged = show(":" + path, path)
-    if not staged:
+def check(path: str, exe: str, previous_path: str | None = None) -> str | None:
+    staged_exists, staged = show(":" + path, path)
+    if not staged_exists:
         return None
 
-    previous = show("HEAD", path)
-    if not previous:
+    baseline_path = previous_path if previous_path is not None else path
+    previous_exists, previous = show("HEAD", baseline_path)
+    if not previous_exists:
         return check_new_file(path, exe, staged)
     return check_revised_file(path, exe, previous, staged)
 
 
-def collect_failures(paths: list[str], exe: str) -> list[str]:
+def collect_failures(paths: list[tuple[str, str | None]], exe: str) -> list[str]:
     failures: list[str] = []
-    for path in paths:
+    for path, previous_path in paths:
         try:
-            reason = check(path, exe)
+            reason = check(path, exe, previous_path)
         except Exception as exc:  # pragma: no cover
             reason = f"{path}: {exc}"
         if reason:
