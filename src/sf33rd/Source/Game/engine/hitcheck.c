@@ -1350,6 +1350,23 @@ s32 defense_ground_cps3(PLW* as, PLW* ds, s8 gddir) { // 🟢
     return 1;
 }
 
+static s32 resolve_standing_guard_block(PLW* as, PLW* ds) {
+    blocking_point_count_up(ds);
+    as->wu.hf.hit.player = 64;
+
+    if (check_attbox_dir(ds) == 0) {
+        ds->wu.routine_no[2] = 31;
+    } else {
+        ds->wu.routine_no[2] = 32;
+    }
+
+    if (check_dm_att_blocking(&as->wu, &ds->wu, 5)) {
+        return 2;
+    }
+
+    return 0;
+}
+
 s32 defense_ground_ps2(PLW* as, PLW* ds, s8 gddir) { // 🔴
     s8 just_now;
     s8 attr_att;
@@ -1375,54 +1392,15 @@ s32 defense_ground_ps2(PLW* as, PLW* ds, s8 gddir) { // 🔴
             if (just_now) {
                 if (!(ds->spmv_ng_flag & DIP_RED_PARRY_DISABLED) &&
                     ((ds->cp->waza_flag[3] >= grdb[ds->wu.id][attr_att][0]) || abs)) {
-                    blocking_point_count_up(ds);
-                    as->wu.hf.hit.player = 64;
-
-                    if (check_attbox_dir(ds) == 0) {
-                        ds->wu.routine_no[2] = 31;
-                    } else {
-                        ds->wu.routine_no[2] = 32;
-                    }
-
-                    if (check_dm_att_blocking(&as->wu, &ds->wu, 5)) {
-                        return 2;
-                    }
-
-                    return 0;
+                    return resolve_standing_guard_block(as, ds);
                 }
             } else if (!(ds->spmv_ng_flag & DIP_UNKNOWN_8)) {
                 if (as->wu.jump_att_flag) {
                     if (!(ds->spmv_ng_flag & DIP_ANTI_AIR_PARRY_DISABLED) && (ds->cp->waza_flag[12] != 0 || abs)) {
-                        blocking_point_count_up(ds);
-                        as->wu.hf.hit.player = 64;
-
-                        if (check_attbox_dir(ds) == 0) {
-                            ds->wu.routine_no[2] = 31;
-                        } else {
-                            ds->wu.routine_no[2] = 32;
-                        }
-
-                        if (check_dm_att_blocking(&as->wu, &ds->wu, 5)) {
-                            return 2;
-                        }
-
-                        return 0;
+                        return resolve_standing_guard_block(as, ds);
                     }
                 } else if (ds->cp->waza_flag[3] != 0 || abs) {
-                    blocking_point_count_up(ds);
-                    as->wu.hf.hit.player = 64;
-
-                    if (check_attbox_dir(ds) == 0) {
-                        ds->wu.routine_no[2] = 31;
-                    } else {
-                        ds->wu.routine_no[2] = 32;
-                    }
-
-                    if (check_dm_att_blocking(&as->wu, &ds->wu, 5)) {
-                        return 2;
-                    }
-
-                    return 0;
+                    return resolve_standing_guard_block(as, ds);
                 }
             }
         }
