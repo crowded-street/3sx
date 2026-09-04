@@ -1239,60 +1239,92 @@ s16 check_dm_att_blocking(WORK* as, WORK* ds, s16 dnum) { // 🟡
     return rnum;
 }
 
-void set_damage_and_piyo(PLW* as, PLW* ds) { // 🟡
-    // CPS3 has fixed stun gain; local's extra-option stun multiplier is neutral by default.
-    cal_damage_vitality(as, ds);
-    ds->wu.dm_piyo = _add_piyo_gauge[as->player_number][as->wu.att.piyo];
-    ds->wu.dm_piyo = ds->wu.dm_piyo * stun_gauge_omake[omop_stun_gauge_add[(ds->wu.id + 1) & 1]] / 32;
+static bool uses_medium_damage_modifier(s16 status) {
+    if (status == 32) {
+        return true;
+    }
 
-    if ((ds->wu.pat_status == 32 || ds->wu.pat_status == 3) || ds->wu.pat_status == 25) {
+    if (status == 3) {
+        return true;
+    }
+
+    return status == 25;
+}
+
+static bool uses_high_damage_modifier(s16 status) {
+    if (status == 7) {
+        return true;
+    }
+
+    if (status == 23) {
+        return true;
+    }
+
+    return status == 35;
+}
+
+static bool uses_double_damage_modifier(s16 status) {
+    if (status == 1) {
+        return true;
+    }
+
+    if (status == 21) {
+        return true;
+    }
+
+    return status == 37;
+}
+
+static void apply_status_damage_modifier(PLW* ds) {
+    if (uses_medium_damage_modifier(ds->wu.pat_status)) {
         ds->wu.dm_vital = (ds->wu.dm_vital * 125) / 100;
-    } else if (ds->wu.pat_status == 7 || ds->wu.pat_status == 23 || ds->wu.pat_status == 35) {
+    } else if (uses_high_damage_modifier(ds->wu.pat_status)) {
         ds->wu.dm_vital = (ds->wu.dm_vital * 150) / 100;
-    } else if (ds->wu.pat_status == 1 || ds->wu.pat_status == 21 || ds->wu.pat_status == 37) {
+    } else if (uses_double_damage_modifier(ds->wu.pat_status)) {
         ds->wu.dm_vital *= 2;
     }
+}
 
-    if (ds->wu.dm_vital) {
-        if (as->wu.routine_no[1] == 2) {
-            ds->wu.dm_vital = (ds->wu.dm_vital) * (as->tk_nage + 32) / 32;
-
-            if ((as->tk_nage -= 2) < 0) {
-                as->tk_nage = 0;
-            }
-        }
-
-        if (as->wu.routine_no[1] == 4) {
-            ds->wu.dm_vital = (ds->wu.dm_vital) * (as->tk_dageki + 32) / 32;
-
-            if ((as->tk_dageki -= 2) < 0) {
-                as->tk_dageki = 0;
-            }
-        }
-
-        ds->utk_nage = as->tk_nage;
-        ds->utk_dageki = as->tk_dageki;
-    }
-
-    if (ds->wu.dm_piyo) {
-        ds->wu.dm_piyo = ds->wu.dm_piyo * (as->tk_kizetsu + 32) / 32;
-
-        if ((as->tk_kizetsu -= 2) < 0) {
-            as->tk_kizetsu = 0;
-        }
-
-        ds->utk_kizetsu = as->tk_kizetsu;
-    }
-
-    as->wu.at_ten_ix = remake_score_index(ds->wu.dm_vital);
-    cal_combo_waribiki(as, ds);
-    cal_dm_vital_gauge_hosei(ds);
-    cal_combo_waribiki2(ds);
-
-    if (as->wu.work_id != 1) {
+static void apply_attack_damage_scaling(PLW* as, PLW* ds) {
+    if (!ds->wu.dm_vital) {
         return;
     }
 
+    if (as->wu.routine_no[1] == 2) {
+        ds->wu.dm_vital = (ds->wu.dm_vital) * (as->tk_nage + 32) / 32;
+
+        if ((as->tk_nage -= 2) < 0) {
+            as->tk_nage = 0;
+        }
+    }
+
+    if (as->wu.routine_no[1] == 4) {
+        ds->wu.dm_vital = (ds->wu.dm_vital) * (as->tk_dageki + 32) / 32;
+
+        if ((as->tk_dageki -= 2) < 0) {
+            as->tk_dageki = 0;
+        }
+    }
+
+    ds->utk_nage = as->tk_nage;
+    ds->utk_dageki = as->tk_dageki;
+}
+
+static void apply_stun_scaling(PLW* as, PLW* ds) {
+    if (!ds->wu.dm_piyo) {
+        return;
+    }
+
+    ds->wu.dm_piyo = ds->wu.dm_piyo * (as->tk_kizetsu + 32) / 32;
+
+    if ((as->tk_kizetsu -= 2) < 0) {
+        as->tk_kizetsu = 0;
+    }
+
+    ds->utk_kizetsu = as->tk_kizetsu;
+}
+
+static void apply_damage_vital_backup(PLW* as, PLW* ds) {
     switch (as->dm_vital_use) {
     case 1:
         ds->wu.dm_vital += as->dm_vital_backup;
@@ -1304,6 +1336,26 @@ void set_damage_and_piyo(PLW* as, PLW* ds) { // 🟡
         ds->wu.dm_vital += as->dm_vital_backup;
         break;
     }
+}
+
+void set_damage_and_piyo(PLW* as, PLW* ds) { // 🟡
+    // CPS3 has fixed stun gain; local's extra-option stun multiplier is neutral by default.
+    cal_damage_vitality(as, ds);
+    ds->wu.dm_piyo = _add_piyo_gauge[as->player_number][as->wu.att.piyo];
+    ds->wu.dm_piyo = ds->wu.dm_piyo * stun_gauge_omake[omop_stun_gauge_add[(ds->wu.id + 1) & 1]] / 32;
+    apply_status_damage_modifier(ds);
+    apply_attack_damage_scaling(as, ds);
+    apply_stun_scaling(as, ds);
+    as->wu.at_ten_ix = remake_score_index(ds->wu.dm_vital);
+    cal_combo_waribiki(as, ds);
+    cal_dm_vital_gauge_hosei(ds);
+    cal_combo_waribiki2(ds);
+
+    if (as->wu.work_id != 1) {
+        return;
+    }
+
+    apply_damage_vital_backup(as, ds);
 }
 
 s16 remake_score_index(s16 dmv) { // 🟢
