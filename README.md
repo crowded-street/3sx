@@ -35,7 +35,7 @@ To track progress towards version 1.0 check our [1.0 milestone](https://github.c
 > 3SX requires a legally obtained copy of *Street Fighter III: 3rd Strike* or *Street Fighter Anniversary Collection* for PlayStation 2 to run. This project does not condone piracy!
 
 1. Download the latest release from the [Releases](https://github.com/mrksbrg/3sx/releases) page for this fork.
-   CI build artifacts for the latest PRs and main branch are also available from the [Actions](https://github.com/mrksbrg/3sx/actions) tab.
+   CI build artifacts for the latest pull requests are also available from the [Actions](https://github.com/mrksbrg/3sx/actions) tab.
 
 2. Follow startup wizard prompts to provide 3SX with your legally obtained copy of the PS2 version.
 
