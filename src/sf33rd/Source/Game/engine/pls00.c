@@ -1880,11 +1880,7 @@ void dm_25000(PLW* wk) { // 🟢
     }
 }
 
-void process_catch(PLW* wk) { // 🟢
-    if (wk->wu.routine_no[3] == 0) {
-        return;
-    }
-
+static void dispatch_catch_cg_type(PLW* wk) {
     switch (wk->wu.cg_type) {
     case 64:
         if (wk->wu.pat_status < 32) {
@@ -1906,26 +1902,16 @@ void process_catch(PLW* wk) { // 🟢
     }
 }
 
-void dm_32000(PLW* wk) { // 🔵
-    switch (wk->wu.cg_type) {
-    case 64:
-        if (wk->wu.pat_status < 32) {
-            TO_nm_36000(&wk->wu);
-        } else {
-            TO_nm_37000(&wk->wu);
-        }
-
-        break;
-
-    case 0xFF:
-        if (wk->wu.pat_status < 32) {
-            TO_nm_01000(&wk->wu);
-        } else {
-            TO_nm_09000(&wk->wu);
-        }
-
-        break;
+void process_catch(PLW* wk) { // 🟢
+    if (wk->wu.routine_no[3] == 0) {
+        return;
     }
+
+    dispatch_catch_cg_type(wk);
+}
+
+void dm_32000(PLW* wk) { // 🔵
+    dispatch_catch_cg_type(wk);
 }
 
 void process_caught(PLW* /* unused */) { // 🟢
