@@ -2147,6 +2147,14 @@ void mlt_obj_trans_init(MultiTexture* mt, s32 mode, u8* adrs) {
     }
 }
 
+static void release_expired_pattern(PatternState* mc, u32 unused_code) {
+    if (mc->time) {
+        if (--mc->time == 0) {
+            mc->cs.code = unused_code;
+        }
+    }
+}
+
 void mlt_obj_trans_update(MultiTexture* mt) {
     s32 i;
     PatternState* mc;
@@ -2155,19 +2163,11 @@ void mlt_obj_trans_update(MultiTexture* mt) {
     PatternState* assign2;
 
     for (mc = mt->mltcsh16, i = 0; i < mt->mltnum16; i++, mc += 1, assign1 = mc) {
-        if (mc->time) {
-            if (--mc->time == 0) {
-                mc->cs.code = -1;
-            }
-        }
+        release_expired_pattern(mc, -1);
     }
 
     for (mc = mt->mltcsh32, i = 0; i < mt->mltnum32; i++, mc += 1, assign2 = mc) {
-        if (mc->time) {
-            if (--mc->time == 0) {
-                mc->cs.code = -1U;
-            }
-        }
+        release_expired_pattern(mc, -1U);
     }
 }
 
