@@ -1466,48 +1466,13 @@ void check_24() { // 🟢
 }
 
 void check_25() { // 🟢
-    u16 sw_lever;
-
     waza_ptr->w_int--;
 
     if (waza_ptr->w_int < 0) {
         waza_ptr->w_type = 0;
     }
 
-    sw_lever = chk_pl->sw_lever & 0xF;
-
-    if (!dead_lvr_check()) {
-        if (waza_ptr->w_lvr & 0x8000) {
-            sw_work = waza_ptr->w_lvr & 0xF;
-
-            if (sw_lever == sw_work) {
-                if (*waza_ptr->w_ptr == 28) {
-                    command_ok();
-                    return;
-                }
-
-                check_next();
-            }
-        } else if (waza_ptr->w_lvr == 0) {
-            if (sw_lever == 0) {
-                if (*waza_ptr->w_ptr == 28) {
-                    command_ok();
-                    return;
-                }
-
-                check_next();
-            }
-        } else {
-            if (sw_lever & waza_ptr->w_lvr) {
-                if (*waza_ptr->w_ptr == 28) {
-                    command_ok();
-                    return;
-                }
-
-                check_next();
-            }
-        }
-    }
+    run_lever_command_check(chk_pl->sw_lever & 0xF);
 }
 
 void check_26() { // 🟢
