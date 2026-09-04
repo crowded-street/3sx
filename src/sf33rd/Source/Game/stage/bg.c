@@ -304,6 +304,18 @@ static u16 load_rewrite_stage_textures(void* loadAdrs, u32 loadSize, u8 stg, u8 
     return accnum;
 }
 
+static u8 find_first_stage_background(void) {
+    u8 stg;
+
+    for (stg = 0; stg < 3; stg++) {
+        if (stage_bgw_number[bg_w.stage][stg] != 0) {
+            break;
+        }
+    }
+
+    return stg;
+}
+
 void Bg_Texture_Load_EX() {
     void* loadAdrs;
     u32 loadSize;
@@ -331,11 +343,7 @@ void Bg_Texture_Load_EX() {
 
     ending_flag = 0;
 
-    for (stg = 0; stg < 3; stg++) {
-        if (stage_bgw_number[bg_w.stage][stg] != 0) {
-            break;
-        }
-    }
+    stg = find_first_stage_background();
 
     for (i = 0; i < use_real_scr[bg_w.stage]; i++) {
         scr_bcm[stg + i] = bg_map_tbl[bg_w.stage][i];
