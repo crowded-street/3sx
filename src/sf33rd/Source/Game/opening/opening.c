@@ -323,9 +323,13 @@ static bool should_reload_opening_texture(OPBW* opbw, s32 blk_no, s16 mapx, s16 
     return !oh_tsr_ck(blk_no) && (opbw->map[mapx][mapy].g_no != (blk_no + 0x259));
 }
 
+static bool should_release_opening_texture(OPBW* opbw, s16 mapx, s16 mapy) {
+    return opbw->map[mapx][mapy].g_no && !oh_tsr_ck(opbw->map[mapx][mapy].g_no - 0x259);
+}
+
 void oh_reload_tex(OPBW* opbw, s32 blk_no, s16 mapx, s16 mapy) {
     if (should_reload_opening_texture(opbw, blk_no, mapx, mapy)) {
-        if (opbw->map[mapx][mapy].g_no && !oh_tsr_ck(opbw->map[mapx][mapy].g_no - 0x259)) {
+        if (should_release_opening_texture(opbw, mapx, mapy)) {
             ppgReleaseTextureHandle(&ppgOpnBgTex, opbw->map[mapx][mapy].g_no);
         }
 
