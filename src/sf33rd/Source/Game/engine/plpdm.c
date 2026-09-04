@@ -778,34 +778,7 @@ void Damage_20000(PLW* wk) {
 }
 
 void Damage_21000(PLW* wk) {
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.dm_rl = ((WORK*)wk->wu.dmg_adrs)->rl_flag;
-        wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
-        wk->dm_ix = wk->as->char_ix + wk->wu.dm_attlv;
-        set_char_move_init(&wk->wu, 1, wk->dm_ix);
-        setup_butt_own_data(&wk->wu);
-        wk->wu.mvxy.a[1].sp = wk->wu.mvxy.d[1].sp = wk->wu.mvxy.kop[1] = 0;
-        wk->zuru_timer = 0;
-        wk->zuru_ix_counter = 0;
-        break;
-
-    case 1:
-        wk->wu.routine_no[3]++;
-        char_move_wca_init(&wk->wu);
-        /* fallthrough */
-
-    case 2:
-        wk->dm_hos_flag = 1;
-        first_TtktV_union(wk, 3, 2);
-        break;
-
-    case 3:
-        char_move(&wk->wu);
-        buttobi_chakuchi_cg_type_check(wk);
-        break;
-    }
+    run_zuru_damage_sequence(wk, 2);
 }
 
 void Damage_23000(PLW* wk) {
