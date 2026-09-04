@@ -5107,6 +5107,40 @@ static void update_extra_option_message() {
     }
 }
 
+static void handle_extra_option_page_action(struct _TASK* task_ptr) {
+    switch (save_w[Present_Mode].extra_option.contents[Menu_Page][Menu_Max]) {
+    case 0:
+        task_ptr->r_no[2] = 1;
+        task_ptr->timer = 5;
+
+        if (--Menu_Page < 0) {
+            Menu_Page = Page_Max;
+        }
+
+        break;
+
+    case 2:
+        task_ptr->r_no[2] = 1;
+        task_ptr->timer = 5;
+
+        if (++Menu_Page > Page_Max) {
+            Menu_Page = 0;
+        }
+
+        break;
+
+    default:
+        Return_Option_Mode_Sub(task_ptr);
+        save_w[4].extra_option = save_w[1].extra_option;
+        save_w[5].extra_option = save_w[1].extra_option;
+        Order[115] = 4;
+        Order_Timer[115] = 4;
+        break;
+    }
+
+    SE_selected();
+}
+
 void Extra_Option(struct _TASK* task_ptr) {
     Menu_Cursor_Y[1] = Menu_Cursor_Y[0];
 
@@ -5205,37 +5239,7 @@ void Extra_Option(struct _TASK* task_ptr) {
                 break;
             }
 
-            switch (save_w[Present_Mode].extra_option.contents[Menu_Page][Menu_Max]) {
-            case 0:
-                task_ptr->r_no[2] = 1;
-                task_ptr->timer = 5;
-
-                if (--Menu_Page < 0) {
-                    Menu_Page = Page_Max;
-                }
-
-                break;
-
-            case 2:
-                task_ptr->r_no[2] = 1;
-                task_ptr->timer = 5;
-
-                if (++Menu_Page > Page_Max) {
-                    Menu_Page = 0;
-                }
-
-                break;
-
-            default:
-                Return_Option_Mode_Sub(task_ptr);
-                save_w[4].extra_option = save_w[1].extra_option;
-                save_w[5].extra_option = save_w[1].extra_option;
-                Order[115] = 4;
-                Order_Timer[115] = 4;
-                break;
-            }
-
-            SE_selected();
+            handle_extra_option_page_action(task_ptr);
 
             break;
         }
