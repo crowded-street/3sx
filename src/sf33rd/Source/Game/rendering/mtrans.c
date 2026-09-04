@@ -1590,10 +1590,27 @@ static bool should_refresh_sequence_texture(s32 i) {
     return seqs_w.up[i] && (ppgRenewTexChunkSeqs(mts[i].texList.tex) == 0);
 }
 
-void seqsAfterProcess() {
+static void draw_queued_sequence_chips(void) {
     s32 i;
     u32 keep = 0;
     u32 val = 0;
+
+    for (i = 0; i < seqs_w.sprTotal; i++) {
+        if (seqs_w.up[seqs_w.chip[i].id]) {
+            val = seqs_w.chip[i].tex_code;
+
+            if (keep != val) {
+                keep = val;
+                flSetRenderState(FLRENDER_TEXSTAGE0, val);
+            }
+
+            Renderer_DrawSprite2(&seqs_w.chip[i]);
+        }
+    }
+}
+
+void seqsAfterProcess() {
+    s32 i;
 
     if (seqs_w.sprTotal == 0) {
         return;
@@ -1609,18 +1626,7 @@ void seqsAfterProcess() {
         seqs_w.sprMax = seqs_w.sprTotal;
     }
 
-    for (i = 0; i < seqs_w.sprTotal; i++) {
-        if (seqs_w.up[seqs_w.chip[i].id]) {
-            val = seqs_w.chip[i].tex_code;
-
-            if (keep != val) {
-                keep = val;
-                flSetRenderState(FLRENDER_TEXSTAGE0, val);
-            }
-
-            Renderer_DrawSprite2(&seqs_w.chip[i]);
-        }
-    }
+    draw_queued_sequence_chips();
 }
 
 static bool is_sequence_chip_outside_view(Sprite2* chip) {
