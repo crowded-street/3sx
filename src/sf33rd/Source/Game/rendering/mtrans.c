@@ -1895,13 +1895,17 @@ static void collect_used_x16_tiles(s32 x16, PatternMap* map) {
 
     for (i = 0; i < x16; i++) {
         for (j = 0; j < 16; j++) {
-            if (map->x16_map[i][j] != 0) {
-                for (k = 0; k < 16; k++) {
-                    if ((1 << k) & map->x16_map[i][j]) {
-                        tpu_free->x16_used[tpu_free->x16] = (i * 256) + (j * 16) + k;
-                        tpu_free->x16 += 1;
-                    }
+            if (map->x16_map[i][j] == 0) {
+                continue;
+            }
+
+            for (k = 0; k < 16; k++) {
+                if (!((1 << k) & map->x16_map[i][j])) {
+                    continue;
                 }
+
+                tpu_free->x16_used[tpu_free->x16] = (i * 256) + (j * 16) + k;
+                tpu_free->x16 += 1;
             }
         }
     }
