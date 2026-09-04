@@ -316,12 +316,31 @@ static u8 find_first_stage_background(void) {
     return stg;
 }
 
+static u16 load_stage_screen_textures(void* loadAdrs, u32 loadSize, u8 stg, u32 tgbix, u16 accnum) {
+    u32 mask;
+    u32 assign2;
+    u8 i;
+
+    mask = 0x80000000;
+    ppgSetupCurrentDataList(&ppgBgList[stg]);
+    ppgSetupTexChunk_1st(NULL, loadAdrs, loadSize, (stg * 64) + 0x84, 32, 0, 0);
+    ppgSetupTexChunk_1st_Accnum(0, accnum);
+
+    for (i = 0; i < 32; i++, assign2 = mask >>= 1) {
+        if (tgbix & mask) {
+            accnum = ppgSetupTexChunk_2nd(NULL, i + ((stg * 64) + 0x84));
+            ppgSetupTexChunk_3rd(NULL, i + ((stg * 64) + 0x84), 1);
+        }
+    }
+
+    return accnum;
+}
+
 void Bg_Texture_Load_EX() {
     void* loadAdrs;
     u32 loadSize;
     u32 tgbix;
     u32 prio;
-    u32 mask;
     u32 pmask;
     s16 key1;
     u16 accnum;
@@ -332,7 +351,6 @@ void Bg_Texture_Load_EX() {
     u8 stg;
 
     u32 assign1;
-    u32 assign2;
     u8 assign3;
 
     Bg_TexInit();
@@ -377,17 +395,7 @@ void Bg_Texture_Load_EX() {
 
     for (j = 0; j < bg_w.scrno; j++, assign3 = stg++) {
         tgbix = bgtex_stage_gbix[bg_w.stage][j];
-        mask = 0x80000000;
-        ppgSetupCurrentDataList(&ppgBgList[stg]);
-        ppgSetupTexChunk_1st(NULL, loadAdrs, loadSize, (stg * 64) + 0x84, 32, 0, 0);
-        ppgSetupTexChunk_1st_Accnum(0, accnum);
-
-        for (i = 0; i < 32; i++, assign2 = mask >>= 1) {
-            if (tgbix & mask) {
-                accnum = ppgSetupTexChunk_2nd(NULL, i + ((stg * 64) + 0x84));
-                ppgSetupTexChunk_3rd(NULL, i + ((stg * 64) + 0x84), 1);
-            }
-        }
+        accnum = load_stage_screen_textures(loadAdrs, loadSize, stg, tgbix, accnum);
     }
 
     x = rewrite_scr[bg_w.stage];
