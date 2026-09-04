@@ -440,37 +440,45 @@ void set_new_jpdir(PLW* wk) { // 🟢
     }
 }
 
+static bool run_jump_attack_checks(PLW* wk) {
+    if (check_full_gauge_attack(wk, 0)) {
+        return true;
+    }
+
+    if (check_full_gauge_attack2(wk, 0)) {
+        return true;
+    }
+
+    if (check_super_arts_attack(wk)) {
+        return true;
+    }
+
+    if (check_special_attack(wk)) {
+        return true;
+    }
+
+    if (check_chouhatsu(wk)) {
+        return true;
+    }
+
+    if (check_catch_attack(wk)) {
+        return true;
+    }
+
+    if (check_nm_attack(wk)) {
+        return true;
+    }
+
+    if (check_cg_cancel_data(wk)) {
+        return true;
+    }
+
+    return false;
+}
+
 void nm_18000(PLW* wk) { // 🟢
     if (wk->wu.routine_no[3] < 2 && wk->wu.xyz[1].disp.pos > 0) {
-        if (check_full_gauge_attack(wk, 0)) {
-            return;
-        }
-
-        if (check_full_gauge_attack2(wk, 0)) {
-            return;
-        }
-
-        if (check_super_arts_attack(wk)) {
-            return;
-        }
-
-        if (check_special_attack(wk)) {
-            return;
-        }
-
-        if (check_chouhatsu(wk)) {
-            return;
-        }
-
-        if (check_catch_attack(wk)) {
-            return;
-        }
-
-        if (check_nm_attack(wk)) {
-            return;
-        }
-
-        if (check_cg_cancel_data(wk)) {
+        if (run_jump_attack_checks(wk)) {
             return;
         }
 
@@ -1135,35 +1143,7 @@ void nm_38000(PLW* wk) { // 🟡
     }
 
     if (wk->wu.routine_no[3] < 2 && in_air) {
-        if (check_full_gauge_attack(wk, 0)) {
-            return;
-        }
-
-        if (check_full_gauge_attack2(wk, 0)) {
-            return;
-        }
-
-        if (check_super_arts_attack(wk)) {
-            return;
-        }
-
-        if (check_special_attack(wk)) {
-            return;
-        }
-
-        if (check_chouhatsu(wk)) {
-            return;
-        }
-
-        if (check_catch_attack(wk)) {
-            return;
-        }
-
-        if (check_nm_attack(wk)) {
-            return;
-        }
-
-        if (check_cg_cancel_data(wk)) {
+        if (run_jump_attack_checks(wk)) {
             return;
         }
 
