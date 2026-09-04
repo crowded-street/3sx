@@ -62,7 +62,7 @@ point. **Campaign start** preserves the original 2026-09-01 sweep.
 
 | Task | Campaign start | Baseline | Current | Status |
 | --- | --- | --- | --- | --- |
-| R01 | 1.42 | 1.42 | **1.42** | Steps 1-3 of 6 done: `attack_hit_check` (2 predicate extractions, loop/goto core left untouched - too risky without playtesting), `defense_ground_ps2`, `defense_ground_cps3` (Recipe D dedup, cc 60->54 and 41->33). File is far larger than the 6-function target list suggests (e.g. `set_caught_status` cc 50, not in scope yet). Verify with manual playtesting. |
+| R01 | 1.42 | 1.42 | **1.58** | All 6 target functions touched: `attack_hit_check`, `defense_ground_ps2`, `defense_ground_cps3`, `catch_hit_check`, `hit_pattern_extdat_check`, `plef_at_vs_player_damage_union`. Plus `set_paring_status` (merged identical switch-case bodies) and `add_combo_work`/`nise_combo_work` (Recipe D). Still Red - `set_caught_status` (cc 50, has 6 `goto`s) and the `goto`/nested-loop cores of `attack_hit_check` and `plef_at_vs_player_damage_union` deliberately left untouched. Verify with manual playtesting. |
 | R02 | 1.52 | 1.52 | - | not started |
 | R03 | 1.82 | 1.82 | **1.82** | `check_catch_attack` simplified (Recipe E, cc 17->below threshold). `check_special_attack` (cc 99, the worst function in the whole campaign) deliberately left alone: no goto, but deeply nested `continue`-driven double loops that need dedicated, careful attention. `check_full_gauge_attack`/`check_full_gauge_attack2`/`check_super_arts_attack_dc` cluster differs by too many values to safely dedupe. |
 | R04 | **1.97** | 2.25 | **2.25** | wave 1 of 3 done (PR #3) |
