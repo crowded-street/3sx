@@ -747,7 +747,7 @@ void Damage_19000(PLW* wk) {
     }
 }
 
-void Damage_20000(PLW* wk) {
+static void run_flight_damage_sequence(PLW* wk, s32 flight_arg) {
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -767,7 +767,7 @@ void Damage_20000(PLW* wk) {
 
     case 2:
         set_dm_hos_flag_sky(wk);
-        first_flight_union(wk, 3, 4);
+        first_flight_union(wk, 3, flight_arg);
         break;
 
     case 3:
@@ -775,6 +775,10 @@ void Damage_20000(PLW* wk) {
         buttobi_chakuchi_cg_type_check(wk);
         break;
     }
+}
+
+void Damage_20000(PLW* wk) {
+    run_flight_damage_sequence(wk, 4);
 }
 
 void Damage_21000(PLW* wk) {
