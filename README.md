@@ -49,6 +49,17 @@ To track progress towards version 1.0 check our [1.0 milestone](https://github.c
 
 All documentation (including the build guide) can be found in [docs](docs) folder.
 
+## Local build helpers
+
+For quick local branch testing, the repo includes convenience scripts for building and packaging the current checkout:
+
+- `./build-local.sh` chooses the right local helper for the current OS.
+- `./build-local-mac.sh` is the currently implemented macOS flow.
+
+Only macOS support has been implemented so far. The pattern is simple to extend for Linux or Windows by following the same structure: bootstrap dependencies, configure the project with CMake, build the current branch, and then run the platform-specific packaging step.
+
+These scripts are intended for local validation of the current branch and are not a replacement for the repo's release automation.
+
 ## CodeScene gate
 
 The repository includes a local pre-commit guard that blocks commits when staged code degrades the CodeScene score or when newly added source code is not a perfect 10.0.
