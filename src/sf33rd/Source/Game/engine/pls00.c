@@ -1636,6 +1636,35 @@ void process_attack(PLW* wk) { // 🟢
     }
 }
 
+static void apply_special_move_cancel_mask(PLW* wk) {
+    if (wk->wu.routine_no[1] == 4) {
+        switch (wk->player_number) {
+        case CHAR_IBUKI:
+            if (wk->wu.routine_no[2] != 25 && !(wk->wu.kind_of_waza & 0xF8)) {
+                wk->wu.cg_cancel &= 0x9F;
+            }
+
+            break;
+
+        case CHAR_TWELVE:
+            if (wk->wu.routine_no[2] != 17 && !(wk->wu.kind_of_waza & 0xF8)) {
+                wk->wu.cg_cancel &= 0x9F;
+            }
+
+            break;
+
+        default:
+            if (!(wk->wu.kind_of_waza & 0xF8)) {
+                wk->wu.cg_cancel &= 0x9F;
+            }
+
+            break;
+        }
+    } else if (!(wk->wu.kind_of_waza & 0xF8)) {
+        wk->wu.cg_cancel &= 0x9F;
+    }
+}
+
 s32 check_cg_cancel_data(PLW* wk) { // 🟡
     if (wk->wu.cg_cancel == 0) {
         return 0;
@@ -1643,32 +1672,7 @@ s32 check_cg_cancel_data(PLW* wk) { // 🟡
 
     if (wk->wu.meoshi_hit_flag != 0) {
         if (wk->spmv_ng_flag2 & DIP2_SPECIAL_MOVE_SUPER_ART_CANCEL_DISABLED) {
-            if (wk->wu.routine_no[1] == 4) {
-                switch (wk->player_number) {
-                case CHAR_IBUKI:
-                    if (wk->wu.routine_no[2] != 25 && !(wk->wu.kind_of_waza & 0xF8)) {
-                        wk->wu.cg_cancel &= 0x9F;
-                    }
-
-                    break;
-
-                case CHAR_TWELVE:
-                    if (wk->wu.routine_no[2] != 17 && !(wk->wu.kind_of_waza & 0xF8)) {
-                        wk->wu.cg_cancel &= 0x9F;
-                    }
-
-                    break;
-
-                default:
-                    if (!(wk->wu.kind_of_waza & 0xF8)) {
-                        wk->wu.cg_cancel &= 0x9F;
-                    }
-
-                    break;
-                }
-            } else if (!(wk->wu.kind_of_waza & 0xF8)) {
-                wk->wu.cg_cancel &= 0x9F;
-            }
+            apply_special_move_cancel_mask(wk);
         }
 
         if ((wk->spmv_ng_flag2 & DIP2_SUPER_ART_CANCEL_DISABLED) && (wk->wu.kind_of_waza & 0xF8)) {
