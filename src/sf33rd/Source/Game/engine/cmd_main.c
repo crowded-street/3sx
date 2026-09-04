@@ -1530,6 +1530,36 @@ s32 dead_lvr_check() { // 🟢
     return 1;
 }
 
+static u16 latch_sw_lvbt_bit_0x80(u16 work2, u16 hana2, u16 sw_0) {
+    switch (work2) {
+    case 0x70:
+    case 0x30:
+    case 0x50:
+    case 0x60:
+        wcp[cmd_id].sw_lvbt |= 0x80;
+        sw_0 |= 0x80;
+        break;
+
+    default:
+        switch (hana2) {
+        case 0x70:
+        case 0x30:
+        case 0x50:
+        case 0x60:
+            wcp[cmd_id].sw_lvbt |= 0x80;
+            sw_0 |= 0x80;
+            break;
+
+        default:
+            wcp[cmd_id].sw_lvbt &= 0xFF7F;
+            sw_0 &= 0xFF7F;
+            break;
+        }
+    }
+
+    return sw_0;
+}
+
 void pl_lvr_set() { // 🟢
     u16 sw_work;
     u16 work2;
@@ -1568,31 +1598,7 @@ void pl_lvr_set() { // 🟢
     work2 = sw_work & 0xF0;
     hana2 = sw_hana & 0xF0;
 
-    switch (work2) {
-    case 0x70:
-    case 0x30:
-    case 0x50:
-    case 0x60:
-        wcp[cmd_id].sw_lvbt |= 0x80;
-        sw_0 |= 0x80;
-        break;
-
-    default:
-        switch (hana2) {
-        case 0x70:
-        case 0x30:
-        case 0x50:
-        case 0x60:
-            wcp[cmd_id].sw_lvbt |= 0x80;
-            sw_0 |= 0x80;
-            break;
-
-        default:
-            wcp[cmd_id].sw_lvbt &= 0xFF7F;
-            sw_0 &= 0xFF7F;
-            break;
-        }
-    }
+    sw_0 = latch_sw_lvbt_bit_0x80(work2, hana2, sw_0);
 
     work2 = sw_work & 0xF00;
     hana2 = sw_hana & 0xF00;
