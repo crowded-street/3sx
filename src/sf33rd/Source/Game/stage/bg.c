@@ -904,6 +904,26 @@ static void draw_stage02_tiles(u8 bgnm, s32* xx, s32* yy, s32 global_index, u32 
     }
 }
 
+static void draw_stage04_suzi(u8 bgnm) {
+    s32 x;
+    s32 suzi_pos;
+
+    if (bgnm == 2) {
+        suzi_pos = bg_pos[2].scr_x_buff.word_pos.h - 320;
+        suzi_pos = suzi_pos * -0.5f;
+        ppgSetupCurrentDataList(&ppgAkaneList);
+
+        for (x = 0; x < 3; x = x + 1) {
+            scr_trans_sub2(x * 256 + 128, 128, suzi_pos);
+
+            if (No_Trans == 0) {
+                ppgSetupCurrentPaletteNumber(0, x);
+                njDrawTexture(bgpoly, 4, x, 0);
+            }
+        }
+    }
+}
+
 void scr_trans(u8 bgnm) {
     PPGDataList* curDataList;
     Vec3 point[2];
@@ -915,7 +935,6 @@ void scr_trans(u8 bgnm) {
     s32 global_index_real;
     s32 palOffset;
     u32 vtxColor;
-    s32 suzi_pos;
 
     njUnitMatrix(0);
     njScale(0, 1.0f, -1.0f, 1.0f);
@@ -1128,20 +1147,7 @@ void scr_trans(u8 bgnm) {
         break;
 
     case 4:
-        if (bgnm == 2) {
-            suzi_pos = bg_pos[2].scr_x_buff.word_pos.h - 320;
-            suzi_pos = suzi_pos * -0.5f;
-            ppgSetupCurrentDataList(&ppgAkaneList);
-
-            for (x = 0; x < 3; x = x + 1) {
-                scr_trans_sub2(x * 256 + 128, 128, suzi_pos);
-
-                if (No_Trans == 0) {
-                    ppgSetupCurrentPaletteNumber(0, x);
-                    njDrawTexture(bgpoly, 4, x, 0);
-                }
-            }
-        }
+        draw_stage04_suzi(bgnm);
 
         /* fallthrough */
 
