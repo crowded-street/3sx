@@ -1574,6 +1574,10 @@ void seqsBeforeProcess() {
     }
 }
 
+static bool should_refresh_sequence_texture(s32 i) {
+    return seqs_w.up[i] && (ppgRenewTexChunkSeqs(mts[i].texList.tex) == 0);
+}
+
 void seqsAfterProcess() {
     s32 i;
     u32 keep = 0;
@@ -1584,7 +1588,7 @@ void seqsAfterProcess() {
     }
 
     for (i = 0; i < 24; i++) {
-        if (seqs_w.up[i] && (ppgRenewTexChunkSeqs(mts[i].texList.tex) == 0)) {
+        if (should_refresh_sequence_texture(i)) {
             seqs_w.up[i] = 0;
         }
     }
