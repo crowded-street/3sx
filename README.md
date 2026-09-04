@@ -49,6 +49,25 @@ To track progress towards version 1.0 check our [1.0 milestone](https://github.c
 
 All documentation (including the build guide) can be found in [docs](docs) folder.
 
+## CodeScene gate
+
+The repository includes a local pre-commit guard that blocks commits when staged code degrades the CodeScene score or when newly added source code is not a perfect 10.0.
+
+To enable it locally for this repo, run:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+The hook calls `cs-mcp` from the CodeScene CLI. If the CLI is not installed, the hook exits with a clear message telling you to install it:
+
+```bash
+npm install -g @codescene/codehealth-mcp
+cs-mcp --help
+```
+
+If you prefer not to use the global install, set `CS_MCP_BINARY_PATH` to the executable location before committing.
+
 ## Community
 
 Join `Crowded Street` server on Discord to discuss the project, report bugs or share your ideas!
