@@ -538,6 +538,58 @@ static bool run_early_attack_checks(PLW* wk) {
     return false;
 }
 
+static void handle_jump_attack_state(PLW* wk) {
+    if (run_early_attack_checks(wk)) {
+        return;
+    }
+
+    if (check_cg_cancel_data(wk)) {
+        return;
+    }
+
+    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
+        return;
+    }
+
+    check_jump_ready(wk);
+}
+
+static void handle_jump_defense_state(PLW* wk) {
+    if (run_early_attack_checks(wk)) {
+        return;
+    }
+
+    check_cg_cancel_data(wk);
+}
+
+static bool run_forward_jump_checks(PLW* wk) {
+    if (run_early_attack_checks(wk)) {
+        return true;
+    }
+
+    if (check_cg_cancel_data(wk)) {
+        return true;
+    }
+
+    if (check_turn_to_back(wk)) {
+        return true;
+    }
+
+    if (check_F_R_dash(wk)) {
+        return true;
+    }
+
+    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
+        return true;
+    }
+
+    if (check_jump_ready(wk)) {
+        return true;
+    }
+
+    return false;
+}
+
 void jumping_cg_type_check(PLW* wk) { // 🟡
     if (wk->wu.pat_status < 32) {
         switch (wk->wu.cg_type) {
@@ -549,56 +601,18 @@ void jumping_cg_type_check(PLW* wk) { // 🟡
 
         case 2:
             reset_guard_for_new_state(wk);
-
-            if (run_early_attack_checks(wk)) {
-                break;
-            }
-
-            if (check_cg_cancel_data(wk)) {
-                break;
-            }
-
-            if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
-                return;
-            }
-
-            check_jump_ready(wk);
+            handle_jump_attack_state(wk);
             break;
 
         case 7:
             reset_guard_for_new_state(wk);
-
-            if (run_early_attack_checks(wk)) {
-                break;
-            }
-
-            check_cg_cancel_data(wk);
+            handle_jump_defense_state(wk);
             break;
 
         case 3:
             reset_guard_for_new_state(wk);
 
-            if (run_early_attack_checks(wk)) {
-                break;
-            }
-
-            if (check_cg_cancel_data(wk)) {
-                break;
-            }
-
-            if (check_turn_to_back(wk)) {
-                break;
-            }
-
-            if (check_F_R_dash(wk)) {
-                break;
-            }
-
-            if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
-                return;
-            }
-
-            if (check_jump_ready(wk)) {
+            if (run_forward_jump_checks(wk)) {
                 break;
             }
 
@@ -630,56 +644,18 @@ void jumping_cg_type_check(PLW* wk) { // 🟡
 
         case 2:
             reset_guard_for_new_state(wk);
-
-            if (run_early_attack_checks(wk)) {
-                break;
-            }
-
-            if (check_cg_cancel_data(wk)) {
-                break;
-            }
-
-            if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
-                break;
-            }
-
-            check_jump_ready(wk);
+            handle_jump_attack_state(wk);
             break;
 
         case 7:
             reset_guard_for_new_state(wk);
-
-            if (run_early_attack_checks(wk)) {
-                break;
-            }
-
-            check_cg_cancel_data(wk);
+            handle_jump_defense_state(wk);
             break;
 
         case 3:
             reset_guard_for_new_state(wk);
 
-            if (run_early_attack_checks(wk)) {
-                break;
-            }
-
-            if (check_cg_cancel_data(wk)) {
-                break;
-            }
-
-            if (check_turn_to_back(wk)) {
-                break;
-            }
-
-            if (check_F_R_dash(wk)) {
-                break;
-            }
-
-            if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
-                break;
-            }
-
-            if (check_jump_ready(wk)) {
+            if (run_forward_jump_checks(wk)) {
                 break;
             }
 
