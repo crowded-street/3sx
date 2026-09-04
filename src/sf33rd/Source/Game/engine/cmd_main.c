@@ -1104,46 +1104,48 @@ void check_15() { // 🟢
         return;
     }
 
-    if (!dead_lvr_check()) {
-        if (waza_ptr->w_lvr & 0x8000) {
-            sw_work = waza_ptr->w_lvr & 0xF;
+    if (dead_lvr_check()) {
+        return;
+    }
 
-            if (chk_pl->sw_lever == sw_work) {
-                waza_ptr->shot_ok++;
+    if (waza_ptr->w_lvr & 0x8000) {
+        sw_work = waza_ptr->w_lvr & 0xF;
 
-                if (waza_ptr->shot_ok >= waza_ptr->free1) {
-                    if (*waza_ptr->w_ptr == 28) {
-                        command_ok();
-                        return;
-                    }
+        if (chk_pl->sw_lever == sw_work) {
+            waza_ptr->shot_ok++;
 
-                    check_next();
+            if (waza_ptr->shot_ok >= waza_ptr->free1) {
+                if (*waza_ptr->w_ptr == 28) {
+                    command_ok();
+                    return;
                 }
-            }
-        } else if (waza_ptr->w_lvr == 0) {
-            if (chk_pl->sw_lever == 0) {
-                waza_ptr->shot_ok += 1;
 
-                if (waza_ptr->shot_ok >= waza_ptr->free1) {
-                    if (*waza_ptr->w_ptr == 28) {
-                        command_ok();
-                        return;
-                    }
-
-                    check_next();
-                }
+                check_next();
             }
-        } else if (
-            ((chk_pl->old_lvbt & 0xF) != (chk_pl->new_lvbt & 0xF)) && (chk_pl->sw_lever & waza_ptr->w_lvr) &&
-            (waza_ptr->shot_ok += 1, waza_ptr->shot_ok < waza_ptr->free1 == 0)
-        ) {
-            if (*waza_ptr->w_ptr == 0x1C) {
-                command_ok();
-                return;
-            }
-
-            check_next();
         }
+    } else if (waza_ptr->w_lvr == 0) {
+        if (chk_pl->sw_lever == 0) {
+            waza_ptr->shot_ok += 1;
+
+            if (waza_ptr->shot_ok >= waza_ptr->free1) {
+                if (*waza_ptr->w_ptr == 28) {
+                    command_ok();
+                    return;
+                }
+
+                check_next();
+            }
+        }
+    } else if (
+        ((chk_pl->old_lvbt & 0xF) != (chk_pl->new_lvbt & 0xF)) && (chk_pl->sw_lever & waza_ptr->w_lvr) &&
+        (waza_ptr->shot_ok += 1, waza_ptr->shot_ok < waza_ptr->free1 == 0)
+    ) {
+        if (*waza_ptr->w_ptr == 0x1C) {
+            command_ok();
+            return;
+        }
+
+        check_next();
     }
 }
 
