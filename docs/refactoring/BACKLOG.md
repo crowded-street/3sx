@@ -70,7 +70,7 @@ point. **Campaign start** preserves the original 2026-09-01 sweep.
 | R06 | 2.57 | 2.57 | - | not started |
 | R07 | 2.58 | 2.58 | - | not started |
 | R08 | 2.64 | 2.64 | - | not started |
-| R09 | 2.74 | 2.74 | **2.96** | Deduped the shared "common attack checks" block across `nm_01000/02000/03000/07000/08000/09000/10000` plus `process_catch`/`dm_32000` and `nm_27000`/`nm_29000` (Recipe D, several functions dropped out of Complex Method entirely). `jumping_cg_type_check` (cc 92) deliberately left alone: mixes `break` (exit switch-case) and `return` (exit function) in ways that make blind pattern extraction risky - needs a dedicated pass. |
+| R09 | 2.74 | 2.74 | **4.05** | **Cleared Red band.** Deduped the shared "common attack checks" blocks across most `nm_XXXXX` functions and `jumping_cg_type_check` (cc 92 -> 40). The `return`-vs-`break` mismatch there turned out safe: the switch is the terminal statement of both branches, so they're equivalent - verified byte-for-byte after normalizing that one line before extracting. |
 | R10 | 3.09 | 3.09 | - | not started |
 | R11 | 3.49 | 3.49 | - | not started |
 | R12 | 3.56 | 3.56 | - | not started |
