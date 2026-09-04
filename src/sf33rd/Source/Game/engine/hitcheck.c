@@ -2225,23 +2225,12 @@ void nise_combo_work(PLW* as, PLW* ds, s16 num) { // 🟢
     }
 }
 
-void cal_combo_waribiki(PLW* as, PLW* ds) { // 🟢
-    POWER* power;
-    KOATT* koatt;
+static TBL calculate_combo_scaling_index(PLW* ds, KOATT* koatt) {
     s16 i;
     s16 j;
     s16 k;
     TBL tbl;
 
-    if (ds->wu.dm_vital == 0) {
-        return;
-    }
-
-    if (ds->rp->total == 0) {
-        return;
-    }
-
-    koatt = (KOATT*)_exchange_koa[(as->wu.kind_of_waza) >> 1];
     tbl.ixl = 0;
 
     for (i = 0; i < 9; i++) {
@@ -2255,16 +2244,52 @@ void cal_combo_waribiki(PLW* as, PLW* ds) { // 🟢
         }
     }
 
+    return tbl;
+}
+
+static bool uses_special_combo_power(PLW* as) {
+    if (as->player_number != CHAR_YUN) {
+        if (as->player_number != CHAR_YANG) {
+            return false;
+        }
+    }
+
+    if (as->sa->kind_of_arts != 2) {
+        return false;
+    }
+
+    return as->sa->ok == -1;
+}
+
+static POWER* select_combo_power(PLW* as) {
+    if (uses_special_combo_power(as)) {
+        return (POWER*)_exchange_pow_pl03_sa3[as->wu.kind_of_waza >> 1];
+    }
+
+    return (POWER*)_exchange_pow[as->wu.kind_of_waza >> 1];
+}
+
+void cal_combo_waribiki(PLW* as, PLW* ds) { // 🟢
+    POWER* power;
+    KOATT* koatt;
+    TBL tbl;
+
+    if (ds->wu.dm_vital == 0) {
+        return;
+    }
+
+    if (ds->rp->total == 0) {
+        return;
+    }
+
+    koatt = (KOATT*)_exchange_koa[(as->wu.kind_of_waza) >> 1];
+    tbl = calculate_combo_scaling_index(ds, koatt);
+
     if (tbl.ixs.l) {
         tbl.ixs.h++;
     }
 
-    power = (POWER*)_exchange_pow[as->wu.kind_of_waza >> 1];
-
-    if ((as->player_number == CHAR_YUN || as->player_number == CHAR_YANG) &&
-        (as->sa->kind_of_arts == 2 && as->sa->ok == -1)) {
-        power = (POWER*)_exchange_pow_pl03_sa3[as->wu.kind_of_waza >> 1];
-    }
+    power = select_combo_power(as);
 
     if (tbl.ixs.h > 31) {
         tbl.ixs.h = 31;
