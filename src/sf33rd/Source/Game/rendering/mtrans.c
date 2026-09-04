@@ -130,6 +130,10 @@ static bool has_free_pattern_slot(s32 i, s32 pattern_count, s32 free_count) {
     return (i != pattern_count) && (free_count != 0);
 }
 
+static bool is_first_available_pattern_slot(PatternState* mc, s32 free_index) {
+    return (mc->cs.code == -1) && (free_index < 0);
+}
+
 static bool is_matching_trans_entry(TileMapEntry* trsptr, s32 cods, s32 atrs) {
     return !(trsptr->attr & 0x1000) && (trsptr->code == cods) && ((trsptr->attr & 0xF) == atrs);
 }
@@ -1704,7 +1708,7 @@ static s32 get_mltbuf16(MultiTexture* mt, u32 code, u32 palt, s32* ret) {
             return 0;
         }
 
-        if ((mc->cs.code == -1) && (b < 0)) {
+        if (is_first_available_pattern_slot(mc, b)) {
             b = i;
         }
 
