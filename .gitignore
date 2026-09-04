@@ -7,6 +7,7 @@ __pycache__
 # macOS
 
 .DS_Store
+*.dmg
 
 # IDEs
 
@@ -18,12 +19,14 @@ __pycache__
 
 build
 /build-*/
+CPack*
 temp
 third_party
 states
 rom
 dump
 *.AFS
+*.dmg
 
 # Agent tooling
 
