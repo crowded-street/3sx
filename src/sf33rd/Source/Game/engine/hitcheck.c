@@ -1812,6 +1812,24 @@ void catch_hit_check() { // 🟢
     }
 }
 
+static bool is_same_owner_target(WORK* mad, WORK* sad) {
+    if (mad->work_id != 1) {
+        if (sad->work_id == 1) {
+            if (((WORK_Other*)mad)->master_id == sad->id) {
+                return true;
+            }
+        } else if (((WORK_Other*)mad)->master_id == ((WORK_Other*)sad)->master_id) {
+            return true;
+        }
+    } else if (
+        (sad->work_id != 1 && ((WORK_Other*)sad)->refrected == 0) && (mad->id == ((WORK_Other*)sad)->master_id)
+    ) {
+        return true;
+    }
+
+    return false;
+}
+
 static bool is_blocked_by_vs_id_filter(WORK* mad, WORK* sad) {
     if (!(mad->att.dipsw & 2) ||
         (!(sad->att.dipsw & 2) && (sad->work_id == 1 || !(((WORK_Other*)sad)->refrected)))) {
@@ -1880,17 +1898,7 @@ void attack_hit_check() { // 🟢
                 continue;
             }
 
-            if (mad->work_id != 1) {
-                if (sad->work_id == 1) {
-                    if (((WORK_Other*)mad)->master_id == sad->id) {
-                        continue;
-                    }
-                } else if (((WORK_Other*)mad)->master_id == ((WORK_Other*)sad)->master_id) {
-                    continue;
-                }
-            } else if (
-                (sad->work_id != 1 && ((WORK_Other*)sad)->refrected == 0) && (mad->id == ((WORK_Other*)sad)->master_id)
-            ) {
+            if (is_same_owner_target(mad, sad)) {
                 continue;
             }
 
