@@ -1453,6 +1453,7 @@ typedef struct {
     s8 just_now;
     s8 attack_attribute;
     s8 automatic_parry;
+    s8 automatic_guard;
 } Ps2GroundDefense;
 
 typedef enum {
@@ -1563,15 +1564,103 @@ static bool try_ps2_ground_parry(const Ps2GroundDefense* defense, s32* result) {
     return try_ps2_parry(defense, PARRY_CROUCHING, result);
 }
 
+static bool bypasses_manual_guard_input(const Ps2GroundDefense* defense) {
+    if (defense->defender->auto_guard) {
+        return true;
+    }
+
+    if (defense->automatic_guard) {
+        return true;
+    }
+
+    if (defense->defender->spmv_ng_flag & DIP_ABSOLUTE_GUARD_DISABLED) {
+        return false;
+    }
+
+    return defense->just_now;
+}
+
+static bool is_manual_guard_input_rejected(const Ps2GroundDefense* defense, s8 gddir) {
+    if (bypasses_manual_guard_input(defense)) {
+        return false;
+    }
+
+    if (!(defense->defender->saishin_lvdir & gddir)) {
+        return true;
+    }
+
+    return defense->defender->cp->sw_lvbt & 1;
+}
+
+static bool is_ps2_ground_guard_rejected(const Ps2GroundDefense* defense, s8 gddir) {
+    if (!(defense->attacker->wu.att.guard & 0x18)) {
+        return true;
+    }
+
+    if (defense->defender->guard_flag & 1) {
+        return true;
+    }
+
+    if (defense->defender->spmv_ng_flag & DIP_GUARD_DISABLED) {
+        return true;
+    }
+
+    return is_manual_guard_input_rejected(defense, gddir);
+}
+
+static bool configure_directional_guard_animation(const Ps2GroundDefense* defense, bool requires_down,
+                                                  s16 animation) {
+    bool is_down = defense->defender->cp->sw_lvbt & 2;
+
+    if (defense->automatic_guard == 0 && is_down != requires_down) {
+        return false;
+    }
+
+    defense->defender->wu.routine_no[2] = animation;
+    return true;
+}
+
+static bool configure_ps2_guard_animation(const Ps2GroundDefense* defense) {
+    switch (defense->attacker->wu.att.guard & 0x18) {
+    case 8:
+        return configure_directional_guard_animation(defense, true, 6);
+
+    case 16:
+        return configure_directional_guard_animation(defense, false, 5);
+
+    default:
+        if (defense->defender->cp->sw_lvbt & 2) {
+            defense->defender->wu.routine_no[2] = 6;
+        } else {
+            defense->defender->wu.routine_no[2] = 5;
+        }
+
+        return true;
+    }
+}
+
+static s32 finish_ps2_ground_guard(const Ps2GroundDefense* defense) {
+    defense->attacker->wu.hf.hit.player = 16;
+
+    if (defense->defender->wu.routine_no[2] == 5 && check_attbox_dir(defense->defender) == 0) {
+        defense->defender->wu.routine_no[2] = 4;
+    }
+
+    if (check_dm_att_guard(&defense->attacker->wu, &defense->defender->wu, 1)) {
+        return 2;
+    }
+
+    return 1;
+}
+
 s32 defense_ground_ps2(PLW* as, PLW* ds, s8 gddir) { // 🔴
     Ps2GroundDefense defense;
     s32 parry_result;
-    s8 ags;
 
     defense.attacker = as;
     defense.defender = ds;
     defense.automatic_parry = (ds->spmv_ng_flag & DIP_AUTO_PARRY_DISABLED) == 0;
-    ags = (ds->spmv_ng_flag & DIP_AUTO_GUARD_DISABLED) == 0;
+    defense.automatic_guard = (ds->spmv_ng_flag & DIP_AUTO_GUARD_DISABLED) == 0;
 
     if (ds->dead_flag) {
         ds->guard_flag = 3;
@@ -1588,67 +1677,15 @@ s32 defense_ground_ps2(PLW* as, PLW* ds, s8 gddir) { // 🔴
         return parry_result;
     }
 
-    if (!(as->wu.att.guard & 0x18)) {
+    if (is_ps2_ground_guard_rejected(&defense, gddir)) {
         return 2;
     }
 
-    if (ds->guard_flag & 1) {
+    if (!configure_ps2_guard_animation(&defense)) {
         return 2;
     }
 
-    if (ds->spmv_ng_flag & DIP_GUARD_DISABLED) {
-        return 2;
-    }
-
-    if (!ds->auto_guard && !ags &&
-        (ds->spmv_ng_flag & DIP_ABSOLUTE_GUARD_DISABLED || !defense.just_now)) {
-        if (!(ds->saishin_lvdir & gddir)) {
-            return 2;
-        }
-
-        if (ds->cp->sw_lvbt & 1) {
-            return 2;
-        }
-    }
-
-    switch (as->wu.att.guard & 0x18) {
-    case 8:
-        if (!(ds->cp->sw_lvbt & 2) && ags == 0) {
-            return 2;
-        }
-
-        ds->wu.routine_no[2] = 6;
-        break;
-
-    case 16:
-        if (ds->cp->sw_lvbt & 2 && ags == 0) {
-            return 2;
-        }
-
-        ds->wu.routine_no[2] = 5;
-        break;
-
-    default:
-        if (ds->cp->sw_lvbt & 2) {
-            ds->wu.routine_no[2] = 6;
-            break;
-        }
-
-        ds->wu.routine_no[2] = 5;
-        break;
-    }
-
-    as->wu.hf.hit.player = 16;
-
-    if (ds->wu.routine_no[2] == 5 && check_attbox_dir(ds) == 0) {
-        ds->wu.routine_no[2] = 4;
-    }
-
-    if (check_dm_att_guard(&as->wu, &ds->wu, 1)) {
-        return 2;
-    }
-
-    return 1;
+    return finish_ps2_ground_guard(&defense);
 }
 
 s32 defense_ground(PLW* as, PLW* ds, s8 gddir) { // 🟡
