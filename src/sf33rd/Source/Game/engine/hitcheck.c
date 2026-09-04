@@ -1447,60 +1447,145 @@ static s32 resolve_crouching_guard_block(PLW* as, PLW* ds) {
     return 0;
 }
 
-s32 defense_ground_ps2(PLW* as, PLW* ds, s8 gddir) { // 🔴
+typedef struct {
+    PLW* attacker;
+    PLW* defender;
     s8 just_now;
-    s8 attr_att;
-    s8 abs;
+    s8 attack_attribute;
+    s8 automatic_parry;
+} Ps2GroundDefense;
+
+typedef enum {
+    PARRY_STANDING,
+    PARRY_CROUCHING,
+} ParryStance;
+
+static bool attack_supports_parry_stance(const Ps2GroundDefense* defense, ParryStance stance) {
+    if (stance == PARRY_STANDING) {
+        return defense->attacker->wu.att.guard & 2;
+    }
+
+    return defense->attacker->wu.att.guard & 1;
+}
+
+static bool can_red_parry(const Ps2GroundDefense* defense, ParryStance stance) {
+    if (defense->defender->spmv_ng_flag & DIP_RED_PARRY_DISABLED) {
+        return false;
+    }
+
+    if (stance == PARRY_STANDING) {
+        return (defense->defender->cp->waza_flag[3] >=
+                grdb[defense->defender->wu.id][defense->attack_attribute][0]) ||
+               defense->automatic_parry;
+    }
+
+    return !(defense->defender->cp->waza_flag[4] <
+             grdb[defense->defender->wu.id][defense->attack_attribute][1]) ||
+           defense->automatic_parry;
+}
+
+static bool is_standard_parry_disabled(const Ps2GroundDefense* defense, ParryStance stance) {
+    if (stance == PARRY_STANDING) {
+        return defense->defender->spmv_ng_flag & DIP_UNKNOWN_8;
+    }
+
+    return defense->defender->spmv_ng_flag & DIP_UNKNOWN_9;
+}
+
+static bool can_air_parry(const Ps2GroundDefense* defense, ParryStance stance) {
+    if (defense->defender->spmv_ng_flag & DIP_ANTI_AIR_PARRY_DISABLED) {
+        return false;
+    }
+
+    if (stance == PARRY_STANDING) {
+        return defense->defender->cp->waza_flag[12] != 0 || defense->automatic_parry;
+    }
+
+    return defense->defender->cp->waza_flag[4] != 0 || defense->automatic_parry;
+}
+
+static bool can_ground_parry(const Ps2GroundDefense* defense, ParryStance stance) {
+    if (stance == PARRY_STANDING) {
+        return defense->defender->cp->waza_flag[3] != 0 || defense->automatic_parry;
+    }
+
+    return defense->defender->cp->waza_flag[4] != 0 || defense->automatic_parry;
+}
+
+static bool can_standard_parry(const Ps2GroundDefense* defense, ParryStance stance) {
+    if (is_standard_parry_disabled(defense, stance)) {
+        return false;
+    }
+
+    if (defense->attacker->wu.jump_att_flag) {
+        return can_air_parry(defense, stance);
+    }
+
+    return can_ground_parry(defense, stance);
+}
+
+static bool try_ps2_parry(const Ps2GroundDefense* defense, ParryStance stance, s32* result) {
+    bool can_parry;
+
+    if (!attack_supports_parry_stance(defense, stance)) {
+        return false;
+    }
+
+    if (defense->just_now) {
+        can_parry = can_red_parry(defense, stance);
+    } else {
+        can_parry = can_standard_parry(defense, stance);
+    }
+
+    if (!can_parry) {
+        return false;
+    }
+
+    if (stance == PARRY_STANDING) {
+        *result = resolve_standing_guard_block(defense->attacker, defense->defender);
+    } else {
+        *result = resolve_crouching_guard_block(defense->attacker, defense->defender);
+    }
+
+    return true;
+}
+
+static bool try_ps2_ground_parry(const Ps2GroundDefense* defense, s32* result) {
+    if (defense->defender->py->flag != 0 || defense->defender->guard_flag & 2 ||
+        !(defense->attacker->wu.att.guard & 3)) {
+        return false;
+    }
+
+    if (try_ps2_parry(defense, PARRY_STANDING, result)) {
+        return true;
+    }
+
+    return try_ps2_parry(defense, PARRY_CROUCHING, result);
+}
+
+s32 defense_ground_ps2(PLW* as, PLW* ds, s8 gddir) { // 🔴
+    Ps2GroundDefense defense;
+    s32 parry_result;
     s8 ags;
 
-    abs = (ds->spmv_ng_flag & DIP_AUTO_PARRY_DISABLED) == 0;
+    defense.attacker = as;
+    defense.defender = ds;
+    defense.automatic_parry = (ds->spmv_ng_flag & DIP_AUTO_PARRY_DISABLED) == 0;
     ags = (ds->spmv_ng_flag & DIP_AUTO_GUARD_DISABLED) == 0;
 
     if (ds->dead_flag) {
         ds->guard_flag = 3;
     }
 
-    just_now = 0;
+    defense.just_now = 0;
 
     if (ds->guard_chuu != 0 && ds->guard_chuu < 5) {
-        just_now = 1;
-        attr_att = check_normal_attack(as->wu.kind_of_waza);
+        defense.just_now = 1;
+        defense.attack_attribute = check_normal_attack(as->wu.kind_of_waza);
     }
 
-    if (ds->py->flag == 0 && !(ds->guard_flag & 2) && as->wu.att.guard & 3) {
-        if (as->wu.att.guard & 2) {
-            if (just_now) {
-                if (!(ds->spmv_ng_flag & DIP_RED_PARRY_DISABLED) &&
-                    ((ds->cp->waza_flag[3] >= grdb[ds->wu.id][attr_att][0]) || abs)) {
-                    return resolve_standing_guard_block(as, ds);
-                }
-            } else if (!(ds->spmv_ng_flag & DIP_UNKNOWN_8)) {
-                if (as->wu.jump_att_flag) {
-                    if (!(ds->spmv_ng_flag & DIP_ANTI_AIR_PARRY_DISABLED) && (ds->cp->waza_flag[12] != 0 || abs)) {
-                        return resolve_standing_guard_block(as, ds);
-                    }
-                } else if (ds->cp->waza_flag[3] != 0 || abs) {
-                    return resolve_standing_guard_block(as, ds);
-                }
-            }
-        }
-
-        if (as->wu.att.guard & 1) {
-            if (just_now) {
-                if (!(ds->spmv_ng_flag & DIP_RED_PARRY_DISABLED) &&
-                    (!(ds->cp->waza_flag[4] < grdb[ds->wu.id][attr_att][1]) || abs)) {
-                    return resolve_crouching_guard_block(as, ds);
-                }
-            } else if (!(ds->spmv_ng_flag & DIP_UNKNOWN_9)) {
-                if (as->wu.jump_att_flag) {
-                    if (!(ds->spmv_ng_flag & DIP_ANTI_AIR_PARRY_DISABLED) && (ds->cp->waza_flag[4] != 0 || abs)) {
-                        return resolve_crouching_guard_block(as, ds);
-                    }
-                } else if (ds->cp->waza_flag[4] != 0 || abs) {
-                    return resolve_crouching_guard_block(as, ds);
-                }
-            }
-        }
+    if (try_ps2_ground_parry(&defense, &parry_result)) {
+        return parry_result;
     }
 
     if (!(as->wu.att.guard & 0x18)) {
@@ -1515,7 +1600,8 @@ s32 defense_ground_ps2(PLW* as, PLW* ds, s8 gddir) { // 🔴
         return 2;
     }
 
-    if (!ds->auto_guard && !ags && (ds->spmv_ng_flag & DIP_ABSOLUTE_GUARD_DISABLED || !just_now)) {
+    if (!ds->auto_guard && !ags &&
+        (ds->spmv_ng_flag & DIP_ABSOLUTE_GUARD_DISABLED || !defense.just_now)) {
         if (!(ds->saishin_lvdir & gddir)) {
             return 2;
         }
