@@ -1207,6 +1207,12 @@ static void move_direction_option_right(u8 last_pos) {
     }
 }
 
+static void wrap_direction_option_right(void) {
+    if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] > Dir_Menu_Max_Data[Menu_Page][Menu_Cursor_Y[0]]) {
+        system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 0;
+    }
+}
+
 void Dir_Move_Sub_LR(u16 sw, s16 /* unused */) {
     u8 last_pos = system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]];
 
@@ -1226,10 +1232,7 @@ void Dir_Move_Sub_LR(u16 sw, s16 /* unused */) {
             return;
         } else {
             system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] += 1;
-
-            if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] > Dir_Menu_Max_Data[Menu_Page][Menu_Cursor_Y[0]]) {
-                system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 0;
-            }
+            wrap_direction_option_right();
         }
 
         return;
