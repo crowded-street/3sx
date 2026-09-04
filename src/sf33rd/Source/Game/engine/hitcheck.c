@@ -1198,6 +1198,35 @@ void blocking_point_count_up(PLW* wk) { // 🟡
     }
 }
 
+static s32 resolve_standing_guard_block_cps3(PLW* as, PLW* ds) {
+    blocking_point_count_up(ds);
+    as->wu.hf.hit.player = 0x40;
+
+    if (check_attbox_dir(ds) == 0) {
+        ds->wu.routine_no[2] = 0x1F;
+    } else {
+        ds->wu.routine_no[2] = 0x20;
+    }
+
+    if (check_dm_att_blocking(&as->wu, &ds->wu, 5)) {
+        return 2;
+    }
+
+    return 0;
+}
+
+static s32 resolve_crouching_guard_block_cps3(PLW* as, PLW* ds) {
+    blocking_point_count_up(ds);
+    as->wu.hf.hit.player = 0x40;
+    ds->wu.routine_no[2] = 0x21;
+
+    if (check_dm_att_blocking(&as->wu, &ds->wu, 6)) {
+        return 2;
+    }
+
+    return 0;
+}
+
 s32 defense_ground_cps3(PLW* as, PLW* ds, s8 gddir) { // 🟢
     s8 just_now = 0;
     s8 attr_att = 0;
@@ -1211,79 +1240,24 @@ s32 defense_ground_cps3(PLW* as, PLW* ds, s8 gddir) { // 🟢
         if ((as->wu.att.guard & 2) && !(ds->spmv_ng_flag & DIP_UNKNOWN_8)) {
             if (just_now) {
                 if (ds->cp->waza_flag[3] >= grdb[ds->wu.id][attr_att][0]) {
-                    blocking_point_count_up(ds);
-                    as->wu.hf.hit.player = 0x40;
-
-                    if (check_attbox_dir(ds) == 0) {
-                        ds->wu.routine_no[2] = 0x1F;
-                    } else {
-                        ds->wu.routine_no[2] = 0x20;
-                    }
-
-                    if (check_dm_att_blocking(&as->wu, &ds->wu, 5)) {
-                        return 2;
-                    }
-
-                    return 0;
+                    return resolve_standing_guard_block_cps3(as, ds);
                 }
             } else if (as->wu.jump_att_flag == 0) {
                 if (ds->cp->waza_flag[3] != 0) {
-                    blocking_point_count_up(ds);
-                    as->wu.hf.hit.player = 0x40;
-
-                    if (check_attbox_dir(ds) == 0) {
-                        ds->wu.routine_no[2] = 0x1F;
-                    } else {
-                        ds->wu.routine_no[2] = 0x20;
-                    }
-
-                    if (check_dm_att_blocking(&as->wu, &ds->wu, 5)) {
-                        return 2;
-                    }
-
-                    return 0;
+                    return resolve_standing_guard_block_cps3(as, ds);
                 }
             } else if (ds->cp->waza_flag[12] != 0) {
-                blocking_point_count_up(ds);
-                as->wu.hf.hit.player = 0x40;
-
-                if (check_attbox_dir(ds) == 0) {
-                    ds->wu.routine_no[2] = 0x1F;
-                } else {
-                    ds->wu.routine_no[2] = 0x20;
-                }
-
-                if (check_dm_att_blocking(&as->wu, &ds->wu, 5)) {
-                    return 2;
-                }
-
-                return 0;
+                return resolve_standing_guard_block_cps3(as, ds);
             }
         }
 
         if ((as->wu.att.guard & 1) && !(ds->spmv_ng_flag & DIP_UNKNOWN_9)) {
             if (just_now) {
                 if (ds->cp->waza_flag[4] >= grdb[ds->wu.id][attr_att][1]) {
-                    blocking_point_count_up(ds);
-                    as->wu.hf.hit.player = 0x40;
-                    ds->wu.routine_no[2] = 0x21;
-
-                    if (check_dm_att_blocking(&as->wu, &ds->wu, 6)) {
-                        return 2;
-                    }
-
-                    return 0;
+                    return resolve_crouching_guard_block_cps3(as, ds);
                 }
             } else if (ds->cp->waza_flag[4] != 0) {
-                blocking_point_count_up(ds);
-                as->wu.hf.hit.player = 0x40;
-                ds->wu.routine_no[2] = 0x21;
-
-                if (check_dm_att_blocking(&as->wu, &ds->wu, 6)) {
-                    return 2;
-                }
-
-                return 0;
+                return resolve_crouching_guard_block_cps3(as, ds);
             }
         }
     }
