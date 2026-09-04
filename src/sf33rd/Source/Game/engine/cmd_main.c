@@ -1420,17 +1420,7 @@ void check_23() { // 🟢
     }
 }
 
-void check_24() { // 🟢
-    u16 sw_lever;
-
-    waza_ptr->w_int--;
-
-    if (waza_ptr->w_int < 0) {
-        waza_ptr->w_type = 0;
-    }
-
-    sw_lever = chk_pl->now_lvbt & 0xF;
-
+static void run_lever_command_check(u16 sw_lever) {
     if (!dead_lvr_check()) {
         if (waza_ptr->w_lvr & 0x8000) {
             sw_work = waza_ptr->w_lvr & 0xF;
@@ -1463,6 +1453,16 @@ void check_24() { // 🟢
             }
         }
     }
+}
+
+void check_24() { // 🟢
+    waza_ptr->w_int--;
+
+    if (waza_ptr->w_int < 0) {
+        waza_ptr->w_type = 0;
+    }
+
+    run_lever_command_check(chk_pl->now_lvbt & 0xF);
 }
 
 void check_25() { // 🟢
