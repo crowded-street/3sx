@@ -532,6 +532,10 @@ void op_100_move() {
 
 const s16 op_101_sound[2] = { 0, 11 };
 
+static bool op_101_sound_ready() {
+    return (gSeqStatus[0] >= op_101_sound[op_w.r_no_2]) && (gSeqStatus[0] != 0x65);
+}
+
 void op_101_move() {
     switch (op_w.r_no_2) {
     case 0:
@@ -545,7 +549,7 @@ void op_101_move() {
         break;
 
     case 1:
-        if ((gSeqStatus[0] >= op_101_sound[op_w.r_no_2]) && (gSeqStatus[0] != 0x65)) {
+        if (op_101_sound_ready()) {
             op_w.r_no_2 += 1;
             op_w.index = 1;
             op_obj_disp = 1;
