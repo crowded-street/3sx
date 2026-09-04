@@ -1732,7 +1732,7 @@ static s32 get_mltbuf32(MultiTexture* mt, u32 code, u32 palt, s32* ret) {
     i = mt->mltnum32;
 
     while (1) {
-        if ((mc->cs.code == code) && (mc->state == palt)) {
+        if (is_cached_pattern_state(mc, code, palt)) {
             mc->time = mt->mltcshtime32;
             *ret = mt->mltnum32 - i;
             return 0;
