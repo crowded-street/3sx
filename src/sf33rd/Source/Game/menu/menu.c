@@ -347,20 +347,7 @@ static void initialize_mode_select(struct _TASK* task_ptr, const s16 loop_counte
     Menu_Cursor_Move = loop_counter;
 }
 
-static void handle_mode_select_input(struct _TASK* task_ptr, const s16 loop_counter) {
-    s16 PL_id;
-
-    if (Connect_Status == 0 && Menu_Cursor_Y[0] == 1) {
-        Menu_Cursor_Y[0] = 2;
-    } else {
-        PL_id = 0;
-
-        if (MC_Move_Sub(Check_Menu_Lever(0, 0), 0, loop_counter - 1, 1) == 0) {
-            PL_id = 1;
-            MC_Move_Sub(Check_Menu_Lever(1, 0), 0, loop_counter - 1, 1);
-        }
-    }
-
+static void select_mode(struct _TASK* task_ptr, const s16* PL_id) {
     switch (IO_Result) {
     case 0x100:
         switch (Menu_Cursor_Y[0]) {
@@ -369,7 +356,7 @@ static void handle_mode_select_input(struct _TASK* task_ptr, const s16 loop_coun
             Mode_Type = MODE_ARCADE;
             task_ptr->r_no[0] = 5;
             cpExitTask(TASK_SAVER);
-            Decide_PL(PL_id);
+            Decide_PL(*PL_id);
             break;
 
         case 1:
@@ -397,6 +384,23 @@ static void handle_mode_select_input(struct _TASK* task_ptr, const s16 loop_coun
         SE_selected();
         break;
     }
+}
+
+static void handle_mode_select_input(struct _TASK* task_ptr, const s16 loop_counter) {
+    s16 PL_id;
+
+    if (Connect_Status == 0 && Menu_Cursor_Y[0] == 1) {
+        Menu_Cursor_Y[0] = 2;
+    } else {
+        PL_id = 0;
+
+        if (MC_Move_Sub(Check_Menu_Lever(0, 0), 0, loop_counter - 1, 1) == 0) {
+            PL_id = 1;
+            MC_Move_Sub(Check_Menu_Lever(1, 0), 0, loop_counter - 1, 1);
+        }
+    }
+
+    select_mode(task_ptr, &PL_id);
 }
 
 void Mode_Select(struct _TASK* task_ptr) {
