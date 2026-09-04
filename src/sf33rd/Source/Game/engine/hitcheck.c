@@ -1783,12 +1783,76 @@ static bool is_blocked_by_vs_id_filter(WORK* mad, WORK* sad) {
     return false;
 }
 
-static void check_attacker_against_target(WORK* sad, s16 mi, s16 si) {
-    WORK* mad;
-    s16* mh;
-    s16 lp;
+typedef struct {
+    WORK* attacker;
+    WORK* target;
+    s16 attacker_index;
+    s16 target_index;
+} HitScan;
+
+static bool check_attack_box_against_damage_boxes(const HitScan* scan, s16* mh, s16 lp) {
     s16 lp2;
     s16 mw;
+
+    for (lp2 = 0; lp2 < 11; lp2++) {
+        if (lp2 > 3 && scan->attacker->att_hit_ok == 0) {
+            return false;
+        }
+
+        if (dmdat_adrs[lp2][1] == 0) {
+            continue;
+        }
+
+        if ((lp == 2 || lp == 3) && (lp2 == 8 || lp2 == 9)) {
+            continue;
+        }
+
+        if ((lp2 > 3) && (lp2 < 0xA)) {
+            if (!(((scan->attacker->rl_flag) + (scan->target->rl_flag)) & 1)) {
+                if (scan->attacker->rl_flag) {
+                    if (!(scan->attacker->xyz[0].disp.pos <= scan->target->xyz[0].disp.pos)) {
+                        continue;
+                    }
+                } else if (!(scan->attacker->xyz[0].disp.pos >= scan->target->xyz[0].disp.pos)) {
+                    continue;
+                }
+            }
+            if (scan->attacker->att.dipsw & 4 && (lp2 >= 8 || scan->target->cg_ja.bhix == 0)) {
+                continue;
+            }
+        }
+
+        if (lp2 == 10) {
+            if (!(scan->attacker->att.dipsw & 64) || scan->target->kind_of_waza & 0x60 || pcon_dp_flag ||
+                scan->target->pat_status == 0x26) {
+                continue;
+            }
+        }
+
+        mw = hit_check_subroutine(scan->attacker, scan->target, mh, dmdat_adrs[lp2]);
+
+        if (mw > mkm_wk[scan->target_index]) {
+            hs[scan->attacker_index].flag.results |= 0x10;
+            hs[scan->attacker_index].my_hit = scan->target_index;
+            hs[scan->attacker_index].my_att = lp;
+            hs[scan->target_index].flag.results |= 1;
+            hs[scan->target_index].dm_me = scan->attacker_index;
+            hs[scan->target_index].dm_body = lp2;
+            scan->attacker->att_hit_ok = 0;
+            mkm_wk[scan->target_index] = mw;
+            hs[scan->attacker_index].ah = mh;
+            hs[scan->target_index].dh = dmdat_adrs[lp2];
+        }
+    }
+
+    return true;
+}
+
+static void check_attacker_against_target(WORK* sad, s16 mi, s16 si) {
+    WORK* mad;
+    HitScan scan;
+    s16* mh;
+    s16 lp;
     s16* assign2;
 
     if (mi == si) {
@@ -1817,6 +1881,10 @@ static void check_attacker_against_target(WORK* sad, s16 mi, s16 si) {
         return;
     }
 
+    scan.attacker = mad;
+    scan.target = sad;
+    scan.attacker_index = mi;
+    scan.target_index = si;
     mh = &mad->h_att->att_box[0][0];
 
     for (lp = 0; lp < 4; lp++, assign2 = mh += 4) {
@@ -1824,54 +1892,8 @@ static void check_attacker_against_target(WORK* sad, s16 mi, s16 si) {
             continue;
         }
 
-        for (lp2 = 0; lp2 < 11; lp2++) {
-            if (lp2 > 3 && mad->att_hit_ok == 0) {
-                return;
-            }
-
-            if (dmdat_adrs[lp2][1] == 0) {
-                continue;
-            }
-
-            if ((lp == 2 || lp == 3) && (lp2 == 8 || lp2 == 9)) {
-                continue;
-            }
-
-            if ((lp2 > 3) && (lp2 < 0xA)) {
-                if (!(((mad->rl_flag) + (sad->rl_flag)) & 1)) {
-                    if (mad->rl_flag) {
-                        if (!(mad->xyz[0].disp.pos <= sad->xyz[0].disp.pos)) {
-                            continue;
-                        }
-                    } else if (!(mad->xyz[0].disp.pos >= sad->xyz[0].disp.pos)) {
-                        continue;
-                    }
-                }
-                if (mad->att.dipsw & 4 && (lp2 >= 8 || sad->cg_ja.bhix == 0)) {
-                    continue;
-                }
-            }
-
-            if (lp2 == 10) {
-                if (!(mad->att.dipsw & 64) || sad->kind_of_waza & 0x60 || pcon_dp_flag || sad->pat_status == 0x26) {
-                    continue;
-                }
-            }
-
-            mw = hit_check_subroutine(mad, sad, mh, dmdat_adrs[lp2]);
-
-            if (mw > mkm_wk[si]) {
-                hs[mi].flag.results |= 0x10;
-                hs[mi].my_hit = si;
-                hs[mi].my_att = lp;
-                hs[si].flag.results |= 1;
-                hs[si].dm_me = mi;
-                hs[si].dm_body = lp2;
-                mad->att_hit_ok = 0;
-                mkm_wk[si] = mw;
-                hs[mi].ah = mh;
-                hs[si].dh = dmdat_adrs[lp2];
-            }
+        if (!check_attack_box_against_damage_boxes(&scan, mh, lp)) {
+            return;
         }
     }
 }
