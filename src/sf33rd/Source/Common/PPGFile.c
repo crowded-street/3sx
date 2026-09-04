@@ -592,6 +592,20 @@ s32 ppgSetupPalChunk(Palette* pch, u8* adrs, s32 size, s32 ixNum1st, s32 num, s3
     return 1;
 }
 
+static void ppgReleaseFailedPaletteHandles(Palette* pch) {
+    s32 i;
+
+    if (pch->handle != NULL) {
+        for (i = 0; i < pch->total; i++) {
+            if (pch->handle[i]) {
+                flReleasePaletteHandle(pch->handle[i]);
+            }
+        }
+
+        ppgFree(pch->handle);
+    }
+}
+
 s32 ppgSetupPalChunkDir(Palette* pch, PPLFileHeader* ppl, u8* adrs, s32 ixNum1st, s32 /* unused */) {
     plContext bits;
     s32 i;
@@ -640,16 +654,7 @@ s32 ppgSetupPalChunkDir(Palette* pch, PPLFileHeader* ppl, u8* adrs, s32 ixNum1st
     }
 
 error_handler:
-    if (pch->handle != NULL) {
-        for (i = 0; i < pch->total; i++) {
-            if (pch->handle[i]) {
-                flReleasePaletteHandle(pch->handle[i]);
-            }
-        }
-
-        ppgFree(pch->handle);
-    }
-
+    ppgReleaseFailedPaletteHandles(pch);
     pch->handle = NULL;
     flLogOut("ppgSetupPalChunkDir: Failed to acquire palette handle");
 }
