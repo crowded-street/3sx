@@ -2211,70 +2211,94 @@ static bool should_skip_catch_target(WORK* mad, WORK* sad) {
     return should_skip_oiuchi_catch(sad);
 }
 
+typedef struct {
+    WORK* attacker;
+    WORK* target;
+    s16* attack_box;
+    s16* target_box;
+    s16 attacker_index;
+    s16 target_index;
+} CatchScan;
+
+static bool prepare_catch_attacker(CatchScan* scan, s16 attacker_index) {
+    scan->attacker_index = attacker_index;
+
+    if (hs[attacker_index].flag.results & 0x1000) {
+        return false;
+    }
+
+    scan->attacker = q_hit_push[attacker_index];
+
+    if (scan->attacker->work_id != 1) {
+        return false;
+    }
+
+    if (scan->attacker->att_hit_ok == 0) {
+        return false;
+    }
+
+    scan->attack_box = &scan->attacker->h_cat->cat_box[0];
+    return scan->attack_box[1] != 0;
+}
+
+static bool prepare_catch_target(CatchScan* scan, s16 target_index) {
+    scan->target_index = target_index;
+
+    if (target_index == scan->attacker_index) {
+        return false;
+    }
+
+    if (hs[target_index].flag.results & 0x100) {
+        return false;
+    }
+
+    scan->target = q_hit_push[target_index];
+
+    if (scan->target->work_id != 1) {
+        return false;
+    }
+
+    scan->target_box = &scan->target->h_cau->cau_box[0];
+
+    if (scan->target_box[1] == 0) {
+        return false;
+    }
+
+    return !should_skip_catch_target(scan->attacker, scan->target);
+}
+
+static bool register_catch_hit(CatchScan* scan) {
+    if (!hit_check_subroutine(scan->attacker, scan->target, scan->attack_box, scan->target_box)) {
+        return false;
+    }
+
+    hs[scan->attacker_index].flag.results |= 0x1000;
+    hs[scan->attacker_index].my_hit = (u16)scan->target_index;
+    hs[scan->target_index].flag.results |= 0x100;
+    hs[scan->target_index].dm_me = (u16)scan->attacker_index;
+    scan->attacker->att_hit_ok = 0;
+    hs[scan->attacker_index].ah = scan->attack_box;
+    hs[scan->target_index].dh = scan->target_box;
+    scan->attacker->att_hit_ok = 0;
+    return true;
+}
+
 void catch_hit_check() { // 🟢
-    WORK* mad;
-    WORK* sad;
-    s16* mh;
-    s16* sh;
+    CatchScan scan;
     s16 mi;
     s16 si;
 
     for (mi = 0; mi < hpq_in; mi++) {
-        if (hs[mi].flag.results & 0x1000) {
-            continue;
-        }
-
-        mad = q_hit_push[mi];
-
-        if (mad->work_id != 1) {
-            continue;
-        }
-
-        if (mad->att_hit_ok == 0) {
-            continue;
-        }
-
-        mh = &mad->h_cat->cat_box[0];
-
-        if (mh[1] == 0) {
+        if (!prepare_catch_attacker(&scan, mi)) {
             continue;
         }
 
         for (si = 0; si < hpq_in; si++) {
-            if (si == mi) {
+            if (!prepare_catch_target(&scan, si)) {
                 continue;
             }
 
-            if (hs[si].flag.results & 0x100) {
-                continue;
-            }
-
-            sad = q_hit_push[si];
-
-            if (sad->work_id != 1) {
-                continue;
-            }
-
-            sh = &sad->h_cau->cau_box[0];
-
-            if (sh[1] == 0) {
-                continue;
-            }
-
-            if (should_skip_catch_target(mad, sad)) {
-                continue;
-            }
-
-            if (hit_check_subroutine(mad, sad, mh, sh)) {
-                hs[mi].flag.results |= 0x1000;
-                hs[mi].my_hit = (u16)si;
-                hs[si].flag.results |= 0x100;
-                hs[si].dm_me = (u16)mi;
-                mad->att_hit_ok = 0;
-                hs[mi].ah = mh;
-                hs[si].dh = sh;
-                mad->att_hit_ok = 0;
-            } else {
+            if (!register_catch_hit(&scan)) {
                 continue;
             }
 
