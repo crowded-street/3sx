@@ -347,9 +347,59 @@ static void initialize_mode_select(struct _TASK* task_ptr, const s16 loop_counte
     Menu_Cursor_Move = loop_counter;
 }
 
-void Mode_Select(struct _TASK* task_ptr) {
+static void handle_mode_select_input(struct _TASK* task_ptr, const s16 loop_counter) {
     s16 PL_id;
 
+    if (Connect_Status == 0 && Menu_Cursor_Y[0] == 1) {
+        Menu_Cursor_Y[0] = 2;
+    } else {
+        PL_id = 0;
+
+        if (MC_Move_Sub(Check_Menu_Lever(0, 0), 0, loop_counter - 1, 1) == 0) {
+            PL_id = 1;
+            MC_Move_Sub(Check_Menu_Lever(1, 0), 0, loop_counter - 1, 1);
+        }
+    }
+
+    switch (IO_Result) {
+    case 0x100:
+        switch (Menu_Cursor_Y[0]) {
+        case 0:
+            G_No[2] += 1;
+            Mode_Type = MODE_ARCADE;
+            task_ptr->r_no[0] = 5;
+            cpExitTask(TASK_SAVER);
+            Decide_PL(PL_id);
+            break;
+
+        case 1:
+            Setup_VS_Mode(task_ptr);
+            G_No[1] = 12;
+            G_No[2] = 1;
+            Mode_Type = MODE_VERSUS;
+            cpExitTask(TASK_MENU);
+            break;
+
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+            task_ptr->r_no[2] += 1;
+            task_ptr->free[0] = 0;
+            task_ptr->free[1] = Menu_Cursor_Y[0] + 2;
+            break;
+
+        default:
+            break;
+        }
+
+        SE_selected();
+        break;
+    }
+}
+
+void Mode_Select(struct _TASK* task_ptr) {
     const bool supports_exit = App_SupportsExit();
     const s16 loop_counter = supports_exit ? 7 : 6;
 
@@ -389,54 +439,7 @@ void Mode_Select(struct _TASK* task_ptr) {
         break;
 
     case 3:
-        if (Connect_Status == 0 && Menu_Cursor_Y[0] == 1) {
-            Menu_Cursor_Y[0] = 2;
-        } else {
-            PL_id = 0;
-
-            if (MC_Move_Sub(Check_Menu_Lever(0, 0), 0, loop_counter - 1, 1) == 0) {
-                PL_id = 1;
-                MC_Move_Sub(Check_Menu_Lever(1, 0), 0, loop_counter - 1, 1);
-            }
-        }
-
-        switch (IO_Result) {
-        case 0x100:
-            switch (Menu_Cursor_Y[0]) {
-            case 0:
-                G_No[2] += 1;
-                Mode_Type = MODE_ARCADE;
-                task_ptr->r_no[0] = 5;
-                cpExitTask(TASK_SAVER);
-                Decide_PL(PL_id);
-                break;
-
-            case 1:
-                Setup_VS_Mode(task_ptr);
-                G_No[1] = 12;
-                G_No[2] = 1;
-                Mode_Type = MODE_VERSUS;
-                cpExitTask(TASK_MENU);
-                break;
-
-            case 2:
-            case 3:
-            case 4:
-            case 5:
-            case 6:
-                task_ptr->r_no[2] += 1;
-                task_ptr->free[0] = 0;
-                task_ptr->free[1] = Menu_Cursor_Y[0] + 2;
-                break;
-
-            default:
-                break;
-            }
-
-            SE_selected();
-            break;
-        }
-
+        handle_mode_select_input(task_ptr, loop_counter);
         break;
 
     default:
@@ -491,6 +494,19 @@ static void handle_select_game_input(struct _TASK* task_ptr) {
     }
 }
 
+static void handle_select_game_fade_out(struct _TASK* task_ptr) {
+    imgSelectGameButton();
+
+    if (FadeOut(1, 25, 8) != 0) {
+        if (task_ptr->free[0]) {
+            task_ptr->r_no[2] = 10;
+            sound_all_off();
+        } else {
+            task_ptr->r_no[2] = 9;
+        }
+    }
+}
+
 void toSelectGame(struct _TASK* task_ptr) {
     switch (task_ptr->r_no[2]) {
     case 0:
@@ -531,19 +547,7 @@ void toSelectGame(struct _TASK* task_ptr) {
         break;
 
     case 8:
-        imgSelectGameButton();
-
-        if (FadeOut(1, 25, 8) != 0) {
-            if (task_ptr->free[0]) {
-                task_ptr->r_no[2] = 10;
-                sound_all_off();
-            } else {
-                task_ptr->r_no[2] = 9;
-            }
-
-            break;
-        }
-
+        handle_select_game_fade_out(task_ptr);
         break;
 
     case 9:
@@ -923,6 +927,91 @@ static void on_direction_cursor_moved() {
     }
 }
 
+static void select_previous_direction_page(struct _TASK* task_ptr) {
+    task_ptr->r_no[2] = 1;
+    task_ptr->timer = 5;
+
+    if (--Menu_Page < 0) {
+        Menu_Page = (s8)Page_Max;
+    }
+
+    SE_dir_selected();
+}
+
+static void select_next_direction_page(struct _TASK* task_ptr) {
+    task_ptr->r_no[2] = 1;
+    task_ptr->timer = 5;
+
+    if (++Menu_Page > Page_Max) {
+        Menu_Page = 0;
+    }
+
+    SE_dir_selected();
+}
+
+static void handle_direction_page_action(struct _TASK* task_ptr) {
+    switch (system_dir[1].contents[Menu_Page][Menu_Max]) {
+    case 0:
+        task_ptr->r_no[2] = 1;
+        task_ptr->timer = 5;
+
+        if (--Menu_Page < 0) {
+            Menu_Page = (s8)Page_Max;
+        }
+
+        break;
+
+    case 2:
+        task_ptr->r_no[2] = 1;
+        task_ptr->timer = 5;
+
+        if (++Menu_Page > Page_Max) {
+            Menu_Page = 0;
+        }
+
+        break;
+
+    default:
+        task_ptr->r_no[2] += 1;
+        Menu_Suicide[0] = 0;
+        Menu_Suicide[1] = 0;
+        Menu_Suicide[2] = 1;
+        break;
+    }
+
+    SE_selected();
+}
+
+static void handle_direction_menu_input(struct _TASK* task_ptr) {
+    switch (IO_Result) {
+    case 0x200:
+        task_ptr->r_no[2] += 1;
+        Menu_Suicide[0] = 0;
+        Menu_Suicide[1] = 0;
+        Menu_Suicide[2] = 1;
+        SE_dir_selected();
+        break;
+
+    case 0x80:
+    case 0x800:
+        select_previous_direction_page(task_ptr);
+        break;
+
+    case 0x40:
+    case 0x400:
+        select_next_direction_page(task_ptr);
+        break;
+
+    case 0x100:
+        if (Menu_Cursor_Y[0] != Menu_Max) {
+            break;
+        }
+
+        handle_direction_page_action(task_ptr);
+        break;
+    }
+}
+
 void Direction_Menu(struct _TASK* task_ptr) {
     Menu_Cursor_Y[1] = Menu_Cursor_Y[0];
 
@@ -975,76 +1064,7 @@ void Direction_Menu(struct _TASK* task_ptr) {
             on_direction_cursor_moved();
         }
 
-        switch (IO_Result) {
-        case 0x200:
-            task_ptr->r_no[2] += 1;
-            Menu_Suicide[0] = 0;
-            Menu_Suicide[1] = 0;
-            Menu_Suicide[2] = 1;
-            SE_dir_selected();
-            break;
-
-        case 0x80:
-        case 0x800:
-            task_ptr->r_no[2] = 1;
-            task_ptr->timer = 5;
-
-            if (--Menu_Page < 0) {
-                Menu_Page = (s8)Page_Max;
-            }
-
-            SE_dir_selected();
-            break;
-
-        case 0x40:
-        case 0x400:
-            task_ptr->r_no[2] = 1;
-            task_ptr->timer = 5;
-
-            if (++Menu_Page > Page_Max) {
-                Menu_Page = 0;
-            }
-
-            SE_dir_selected();
-            break;
-
-        case 0x100:
-            if (Menu_Cursor_Y[0] == Menu_Max) {
-                switch (system_dir[1].contents[Menu_Page][Menu_Max]) {
-                case 0:
-                    task_ptr->r_no[2] = 1;
-                    task_ptr->timer = 5;
-
-                    if (--Menu_Page < 0) {
-                        Menu_Page = (s8)Page_Max;
-                    }
-
-                    break;
-
-                case 2:
-                    task_ptr->r_no[2] = 1;
-                    task_ptr->timer = 5;
-
-                    if (++Menu_Page > Page_Max) {
-                        Menu_Page = 0;
-                    }
-
-                    break;
-
-                default:
-                    task_ptr->r_no[2] += 1;
-                    Menu_Suicide[0] = 0;
-                    Menu_Suicide[1] = 0;
-                    Menu_Suicide[2] = 1;
-                    break;
-                }
-
-                SE_selected();
-                break;
-            }
-
-            break;
-        }
+        handle_direction_menu_input(task_ptr);
 
         break;
 
@@ -1160,6 +1180,39 @@ static void move_direction_option_left(u8 last_pos) {
     }
 }
 
+static void move_direction_option_right(u8 last_pos) {
+    SE_dir_cursor_move();
+    system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] += 1;
+
+    if (Menu_Cursor_Y[0] == Menu_Max) {
+        if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] > 2) {
+            system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 2;
+            IO_Result = 0x400;
+            return;
+        }
+
+        if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] > 2) {
+            system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 2;
+        }
+
+        if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] != last_pos) {
+            Message_Data->order = 1;
+            Message_Data->request = system_dir[1].contents[Menu_Page][Menu_Max] + 0x74;
+            Message_Data->timer = 2;
+        }
+    } else {
+        if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] > Dir_Menu_Max_Data[Menu_Page][Menu_Cursor_Y[0]]) {
+            system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 0;
+        }
+    }
+}
+
+static void wrap_direction_option_right(void) {
+    if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] > Dir_Menu_Max_Data[Menu_Page][Menu_Cursor_Y[0]]) {
+        system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 0;
+    }
+}
+
 void Dir_Move_Sub_LR(u16 sw, s16 /* unused */) {
     u8 last_pos = system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]];
 
@@ -1169,31 +1222,7 @@ void Dir_Move_Sub_LR(u16 sw, s16 /* unused */) {
         return;
 
     case 0x8:
-        SE_dir_cursor_move();
-        system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] += 1;
-
-        if (Menu_Cursor_Y[0] == Menu_Max) {
-            if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] > 2) {
-                system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 2;
-                IO_Result = 0x400;
-                return;
-            }
-
-            if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] > 2) {
-                system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 2;
-            }
-
-            if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] != last_pos) {
-                Message_Data->order = 1;
-                Message_Data->request = system_dir[1].contents[Menu_Page][Menu_Max] + 0x74;
-                Message_Data->timer = 2;
-            }
-        } else {
-            if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] > Dir_Menu_Max_Data[Menu_Page][Menu_Cursor_Y[0]]) {
-                system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 0;
-            }
-        }
-
+        move_direction_option_right(last_pos);
         return;
 
     case 0x100:
@@ -1203,10 +1232,7 @@ void Dir_Move_Sub_LR(u16 sw, s16 /* unused */) {
             return;
         } else {
             system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] += 1;
-
-            if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] > Dir_Menu_Max_Data[Menu_Page][Menu_Cursor_Y[0]]) {
-                system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 0;
-            }
+            wrap_direction_option_right();
         }
 
         return;
@@ -3136,6 +3162,32 @@ static void initialize_vs_result(struct _TASK* task_ptr) {
     Menu_Cursor_Move = 0;
 }
 
+static void continue_vs_result(struct _TASK* task_ptr) {
+    switch (task_ptr->r_no[3]) {
+    case 0:
+        task_ptr->r_no[3]++;
+        /* fallthrough */
+
+    case 1:
+        if (--task_ptr->timer) {
+            break;
+        }
+
+        Setup_VS_Mode(task_ptr);
+        G_No[1] = 12;
+        G_No[2] = 1;
+        // We should leave Mode_Type be, no need to reset it
+        // Mode_Type = MODE_VERSUS;
+        break;
+    }
+}
+
+static void advance_vs_result_exit(struct _TASK* task_ptr) {
+    if (--task_ptr->timer == 0) {
+        task_ptr->r_no[3]++;
+    }
+}
+
 void VS_Result(struct _TASK* task_ptr) {
     Clear_Flash_Sub();
 
@@ -3184,10 +3236,7 @@ void VS_Result(struct _TASK* task_ptr) {
 
     case 5:
         if (task_ptr->r_no[3] == 0) {
-            if (--task_ptr->timer == 0) {
-                task_ptr->r_no[3]++;
-            }
-
+            advance_vs_result_exit(task_ptr);
             break;
         }
 
@@ -3195,24 +3244,7 @@ void VS_Result(struct _TASK* task_ptr) {
         break;
 
     case 6:
-        switch (task_ptr->r_no[3]) {
-        case 0:
-            task_ptr->r_no[3]++;
-            /* fallthrough */
-
-        case 1:
-            if (--task_ptr->timer) {
-                break;
-            }
-
-            Setup_VS_Mode(task_ptr);
-            G_No[1] = 12;
-            G_No[2] = 1;
-            // We should leave Mode_Type be, no need to reset it
-            // Mode_Type = MODE_VERSUS;
-            break;
-        }
-
+        continue_vs_result(task_ptr);
         break;
 
     case 7:
@@ -4023,6 +4055,64 @@ void Training_Init(struct _TASK* task_ptr) {
     Replay_Status[1] = 0;
 }
 
+static void start_normal_training_mode(struct _TASK* task_ptr) {
+    if (Interface_Type[Champion ^ 1] == 0 && Training[2].contents[0][0][0] == 4) {
+        Training[2].contents[0][0][0] = 0;
+    }
+
+    task_ptr->r_no[0] = 10;
+    task_ptr->r_no[1] = 0;
+    task_ptr->r_no[2] = 0;
+    task_ptr->r_no[3] = 0;
+    Menu_Suicide[0] = 1;
+    Game_pause = 0;
+    Pause_Down = 0;
+    Training_Disp_Work_Clear();
+    CP_No[0][0] = 0;
+    CP_No[1][0] = 0;
+    plw[New_Challenger].wu.operator = 1;
+    Operator_Status[New_Challenger] = 1;
+    Setup_NTr_Data(Menu_Cursor_Y[0]);
+    count_cont_init(0);
+
+    switch (Training[0].contents[0][0][0]) {
+    case 0:
+        control_pl_rno = 0;
+        control_player = New_Challenger;
+        break;
+
+    case 1:
+        control_pl_rno = 1;
+        control_player = New_Challenger;
+        break;
+
+    case 2:
+        control_pl_rno = 2;
+        control_player = New_Challenger;
+        break;
+
+    case 3:
+        control_pl_rno = 99;
+        plw[New_Challenger].wu.operator = 0;
+        Operator_Status[New_Challenger] = 0;
+        break;
+
+    case 4:
+        control_pl_rno = 99;
+        break;
+    }
+
+    All_Clear_Timer();
+    Check_Replay();
+    Training[0].contents[0][1][TRAINING_OPTION_DIFFICULTY] = Menu_Cursor_Y[0];
+    init_omop();
+    set_init_A4_flag();
+    setup_vitality(&plw[0].wu, My_char[0] + 0);
+    setup_vitality(&plw[1].wu, My_char[1] + 0);
+    Setup_Training_Difficulty();
+    Training_Cursor = Menu_Cursor_Y[0];
+}
+
 void Normal_Training(struct _TASK* task_ptr) {
     s16 ix;
     s16 x;
@@ -4067,61 +4157,7 @@ void Normal_Training(struct _TASK* task_ptr) {
             case 0:
             case 1:
             case 2:
-                if (Interface_Type[Champion ^ 1] == 0 && Training[2].contents[0][0][0] == 4) {
-                    Training[2].contents[0][0][0] = 0;
-                }
-
-                task_ptr->r_no[0] = 10;
-                task_ptr->r_no[1] = 0;
-                task_ptr->r_no[2] = 0;
-                task_ptr->r_no[3] = 0;
-                Menu_Suicide[0] = 1;
-                Game_pause = 0;
-                Pause_Down = 0;
-                Training_Disp_Work_Clear();
-                CP_No[0][0] = 0;
-                CP_No[1][0] = 0;
-                plw[New_Challenger].wu.operator = 1;
-                Operator_Status[New_Challenger] = 1;
-                Setup_NTr_Data(Menu_Cursor_Y[0]);
-                count_cont_init(0);
-
-                switch (Training[0].contents[0][0][0]) {
-                case 0:
-                    control_pl_rno = 0;
-                    control_player = New_Challenger;
-                    break;
-
-                case 1:
-                    control_pl_rno = 1;
-                    control_player = New_Challenger;
-                    break;
-
-                case 2:
-                    control_pl_rno = 2;
-                    control_player = New_Challenger;
-                    break;
-
-                case 3:
-                    control_pl_rno = 99;
-                    plw[New_Challenger].wu.operator = 0;
-                    Operator_Status[New_Challenger] = 0;
-                    break;
-
-                case 4:
-                    control_pl_rno = 99;
-                    break;
-                }
-
-                All_Clear_Timer();
-                Check_Replay();
-                Training[0].contents[0][1][TRAINING_OPTION_DIFFICULTY] = Menu_Cursor_Y[0];
-                init_omop();
-                set_init_A4_flag();
-                setup_vitality(&plw[0].wu, My_char[0] + 0);
-                setup_vitality(&plw[1].wu, My_char[1] + 0);
-                Setup_Training_Difficulty();
-                Training_Cursor = Menu_Cursor_Y[0];
+                start_normal_training_mode(task_ptr);
                 break;
 
             case 3:
@@ -4528,6 +4564,91 @@ void Dummy_Move_Sub_LR(u16 sw, s16 id, s16 type, s16 cursor_id) {
     }
 }
 
+static void handle_blocking_training_selection(struct _TASK* task_ptr) {
+    switch (Menu_Cursor_Y[0]) {
+    case 0:
+        Record_Data_Tr = 1;
+        Training[0] = Training[2];
+        Training[0].contents[1][0][2] = 1;
+        Training[1] = Training[2];
+
+        switch (Training[0].contents[1][0][0]) {
+        case 0:
+            control_pl_rno = 0;
+            break;
+
+        case 1:
+            control_pl_rno = 1;
+            break;
+
+        case 2:
+            control_pl_rno = 2;
+            break;
+        }
+
+        /* fallthrough */
+
+    case 1:
+        if (Menu_Cursor_Y[0] == 0) {
+            Play_Mode = 1;
+        } else {
+            Play_Mode = 3;
+        }
+
+        All_Clear_Timer();
+        Check_Replay();
+
+        if (Menu_Cursor_Y[0] == 1) {
+            Replay_Status[Training_ID] = 0;
+            Replay_Status[Training_ID ^ 1] = 3;
+            Training[0] = Training[1];
+            Training[0].contents[1][0][2] = Training[2].contents[1][0][2];
+            Training[0].contents[1][0][3] = Training[2].contents[1][0][3];
+            control_pl_rno = 99;
+        }
+
+        task_ptr->r_no[0] = 10;
+        task_ptr->r_no[1] = 0;
+        task_ptr->r_no[2] = 0;
+        task_ptr->r_no[3] = 0;
+        Menu_Suicide[0] = 1;
+        Game_pause = 0;
+        Pause_Down = 0;
+        save_w[Present_Mode].Time_Limit = 60;
+        count_cont_init(0);
+        Training[0].contents[1][1][3] = Menu_Cursor_Y[0];
+        init_omop();
+        set_init_A4_flag();
+        Training_Cursor = Menu_Cursor_Y[0];
+        break;
+
+    case 2:
+        task_ptr->r_no[1] = 7;
+        task_ptr->r_no[2] = 0;
+        task_ptr->r_no[3] = 0;
+        Training_Cursor = 2;
+        break;
+
+    case 3:
+        Training_Cursor = 3;
+        /* fallthrough */
+
+    case 4:
+        task_ptr->r_no[1] = Menu_Cursor_Y[0] + 2;
+        task_ptr->r_no[2] = 0;
+        task_ptr->r_no[3] = 0;
+        break;
+
+    case 5:
+        Training_Cursor = 5;
+        Training_Exit_Sub(task_ptr);
+        break;
+    }
+
+    SsBgmHalfVolume(0);
+    SE_selected();
+}
+
 void Blocking_Training(struct _TASK* task_ptr) {
     s16 ix;
     s16 x;
@@ -4569,88 +4690,7 @@ void Blocking_Training(struct _TASK* task_ptr) {
 
         switch (IO_Result) {
         case 0x100:
-            switch (Menu_Cursor_Y[0]) {
-            case 0:
-                Record_Data_Tr = 1;
-                Training[0] = Training[2];
-                Training[0].contents[1][0][2] = 1;
-                Training[1] = Training[2];
-
-                switch (Training[0].contents[1][0][0]) {
-                case 0:
-                    control_pl_rno = 0;
-                    break;
-
-                case 1:
-                    control_pl_rno = 1;
-                    break;
-
-                case 2:
-                    control_pl_rno = 2;
-                    break;
-                }
-
-                /* fallthrough */
-
-            case 1:
-                if (Menu_Cursor_Y[0] == 0) {
-                    Play_Mode = 1;
-                } else {
-                    Play_Mode = 3;
-                }
-
-                All_Clear_Timer();
-                Check_Replay();
-
-                if (Menu_Cursor_Y[0] == 1) {
-                    Replay_Status[Training_ID] = 0;
-                    Replay_Status[Training_ID ^ 1] = 3;
-                    Training[0] = Training[1];
-                    Training[0].contents[1][0][2] = Training[2].contents[1][0][2];
-                    Training[0].contents[1][0][3] = Training[2].contents[1][0][3];
-                    control_pl_rno = 99;
-                }
-
-                task_ptr->r_no[0] = 10;
-                task_ptr->r_no[1] = 0;
-                task_ptr->r_no[2] = 0;
-                task_ptr->r_no[3] = 0;
-                Menu_Suicide[0] = 1;
-                Game_pause = 0;
-                Pause_Down = 0;
-                save_w[Present_Mode].Time_Limit = 60;
-                count_cont_init(0);
-                Training[0].contents[1][1][3] = Menu_Cursor_Y[0];
-                init_omop();
-                set_init_A4_flag();
-                Training_Cursor = Menu_Cursor_Y[0];
-                break;
-
-            case 2:
-                task_ptr->r_no[1] = 7;
-                task_ptr->r_no[2] = 0;
-                task_ptr->r_no[3] = 0;
-                Training_Cursor = 2;
-                break;
-
-            case 3:
-                Training_Cursor = 3;
-                /* fallthrough */
-
-            case 4:
-                task_ptr->r_no[1] = Menu_Cursor_Y[0] + 2;
-                task_ptr->r_no[2] = 0;
-                task_ptr->r_no[3] = 0;
-                break;
-
-            case 5:
-                Training_Cursor = 5;
-                Training_Exit_Sub(task_ptr);
-                break;
-            }
-
-            SsBgmHalfVolume(0);
-            SE_selected();
+            handle_blocking_training_selection(task_ptr);
             break;
         }
 
@@ -5061,6 +5101,119 @@ void Back_to_Mode_Select(struct _TASK* task_ptr) {
     BGM_Request_Code_Check(0x41);
 }
 
+static void update_extra_option_message() {
+    if (Menu_Cursor_Y[1] != Menu_Cursor_Y[0]) {
+        SE_cursor_move();
+        save_w[Present_Mode].extra_option.contents[Menu_Page][Menu_Max] = 1;
+
+        if (Menu_Cursor_Y[0] < Menu_Max) {
+            Message_Data->order = 1;
+            Message_Data->request = Ex_Account_Data[Menu_Page] + Menu_Cursor_Y[0];
+            Message_Data->timer = 2;
+
+            if (msgExtraTbl[0]->msgNum[Menu_Cursor_Y[0] + (Menu_Page * 8)] == 1) {
+                Message_Data->pos_y = 54;
+            } else {
+                Message_Data->pos_y = 62;
+            }
+        } else {
+            Message_Data->order = 1;
+            Message_Data->request = save_w[Present_Mode].extra_option.contents[Menu_Page][Menu_Max] + 32;
+            Message_Data->timer = 2;
+            Message_Data->pos_y = 54;
+        }
+    }
+}
+
+static void handle_extra_option_page_action(struct _TASK* task_ptr) {
+    switch (save_w[Present_Mode].extra_option.contents[Menu_Page][Menu_Max]) {
+    case 0:
+        task_ptr->r_no[2] = 1;
+        task_ptr->timer = 5;
+
+        if (--Menu_Page < 0) {
+            Menu_Page = Page_Max;
+        }
+
+        break;
+
+    case 2:
+        task_ptr->r_no[2] = 1;
+        task_ptr->timer = 5;
+
+        if (++Menu_Page > Page_Max) {
+            Menu_Page = 0;
+        }
+
+        break;
+
+    default:
+        Return_Option_Mode_Sub(task_ptr);
+        save_w[4].extra_option = save_w[1].extra_option;
+        save_w[5].extra_option = save_w[1].extra_option;
+        Order[115] = 4;
+        Order_Timer[115] = 4;
+        break;
+    }
+
+    SE_selected();
+}
+
+static void select_previous_extra_option_page(struct _TASK* task_ptr) {
+    task_ptr->r_no[2] = 1;
+    task_ptr->timer = 5;
+
+    if (--Menu_Page < 0) {
+        Menu_Page = Page_Max;
+    }
+
+    SE_dir_selected();
+}
+
+static void select_next_extra_option_page(struct _TASK* task_ptr) {
+    task_ptr->r_no[2] = 1;
+    task_ptr->timer = 5;
+
+    if (++Menu_Page > Page_Max) {
+        Menu_Page = 0;
+    }
+
+    SE_dir_selected();
+}
+
+static void read_second_extra_option_input(struct _TASK* task_ptr) {
+    if (IO_Result == 0) {
+        Pause_ID = 1;
+        Dir_Move_Sub(task_ptr, 1);
+    }
+}
+
+static void reset_extra_options(void) {
+    save_w[Present_Mode].extra_option = save_w[0].extra_option;
+    SE_selected();
+}
+
+static void handle_extra_option_selection(struct _TASK* task_ptr) {
+    if (Menu_Page == 0 && Menu_Cursor_Y[0] == 6) {
+        reset_extra_options();
+        return;
+    }
+
+    if (Menu_Cursor_Y[0] != Menu_Max) {
+        return;
+    }
+
+    handle_extra_option_page_action(task_ptr);
+}
+
+static void advance_extra_option_fade(struct _TASK* task_ptr) {
+    if (--task_ptr->timer == 0) {
+        task_ptr->r_no[2]++;
+        task_ptr->r_no[3] = 1;
+        FadeInit();
+    }
+}
+
 void Extra_Option(struct _TASK* task_ptr) {
     Menu_Cursor_Y[1] = Menu_Cursor_Y[0];
 
@@ -5086,12 +5239,7 @@ void Extra_Option(struct _TASK* task_ptr) {
 
     case 2:
         FadeOut(1, 0xFF, 8);
-
-        if (--task_ptr->timer == 0) {
-            task_ptr->r_no[2]++;
-            task_ptr->r_no[3] = 1;
-            FadeInit();
-        }
+        advance_extra_option_fade(task_ptr);
 
         break;
 
@@ -5106,33 +5254,9 @@ void Extra_Option(struct _TASK* task_ptr) {
     case 4:
         Pause_ID = 0;
         Dir_Move_Sub(task_ptr, 0);
+        read_second_extra_option_input(task_ptr);
 
-        if (IO_Result == 0) {
-            Pause_ID = 1;
-            Dir_Move_Sub(task_ptr, 1);
-        }
-
-        if (Menu_Cursor_Y[1] != Menu_Cursor_Y[0]) {
-            SE_cursor_move();
-            save_w[Present_Mode].extra_option.contents[Menu_Page][Menu_Max] = 1;
-
-            if (Menu_Cursor_Y[0] < Menu_Max) {
-                Message_Data->order = 1;
-                Message_Data->request = Ex_Account_Data[Menu_Page] + Menu_Cursor_Y[0];
-                Message_Data->timer = 2;
-
-                if (msgExtraTbl[0]->msgNum[Menu_Cursor_Y[0] + (Menu_Page * 8)] == 1) {
-                    Message_Data->pos_y = 54;
-                } else {
-                    Message_Data->pos_y = 62;
-                }
-            } else {
-                Message_Data->order = 1;
-                Message_Data->request = save_w[Present_Mode].extra_option.contents[Menu_Page][Menu_Max] + 32;
-                Message_Data->timer = 2;
-                Message_Data->pos_y = 54;
-            }
-        }
+        update_extra_option_message();
 
         switch (IO_Result) {
         case 0x200:
@@ -5146,71 +5270,16 @@ void Extra_Option(struct _TASK* task_ptr) {
 
         case 0x80:
         case 0x800:
-            task_ptr->r_no[2] = 1;
-            task_ptr->timer = 5;
-
-            if (--Menu_Page < 0) {
-                Menu_Page = Page_Max;
-            }
-
-            SE_dir_selected();
+            select_previous_extra_option_page(task_ptr);
             break;
 
         case 0x40:
         case 0x400:
-            task_ptr->r_no[2] = 1;
-            task_ptr->timer = 5;
-
-            if (++Menu_Page > Page_Max) {
-                Menu_Page = 0;
-            }
-
-            SE_dir_selected();
+            select_next_extra_option_page(task_ptr);
             break;
 
         case 0x100:
-            if (Menu_Page == 0 && Menu_Cursor_Y[0] == 6) {
-                save_w[Present_Mode].extra_option = save_w[0].extra_option;
-                SE_selected();
-                break;
-            }
-
-            if (Menu_Cursor_Y[0] != Menu_Max) {
-                break;
-            }
-
-            switch (save_w[Present_Mode].extra_option.contents[Menu_Page][Menu_Max]) {
-            case 0:
-                task_ptr->r_no[2] = 1;
-                task_ptr->timer = 5;
-
-                if (--Menu_Page < 0) {
-                    Menu_Page = Page_Max;
-                }
-
-                break;
-
-            case 2:
-                task_ptr->r_no[2] = 1;
-                task_ptr->timer = 5;
-
-                if (++Menu_Page > Page_Max) {
-                    Menu_Page = 0;
-                }
-
-                break;
-
-            default:
-                Return_Option_Mode_Sub(task_ptr);
-                save_w[4].extra_option = save_w[1].extra_option;
-                save_w[5].extra_option = save_w[1].extra_option;
-                Order[115] = 4;
-                Order_Timer[115] = 4;
-                break;
-            }
-
-            SE_selected();
-
+            handle_extra_option_selection(task_ptr);
             break;
         }
 
@@ -5243,6 +5312,37 @@ static void move_extra_option_left(u8 last_pos) {
     }
 }
 
+static void move_extra_option_right(u8 last_pos) {
+    if (Menu_Page_Buff != 0 || Menu_Cursor_Y[0] != 4) {
+        SE_dir_cursor_move();
+    }
+
+    save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]]++;
+
+    if (Menu_Cursor_Y[0] == Menu_Max) {
+        if (save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] > 2) {
+            save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] = 2;
+            IO_Result = 0x400;
+            return;
+        }
+
+        if (save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] > 2) {
+            save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] = 2;
+        }
+
+        if (save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] != last_pos) {
+            Message_Data->order = 1;
+            Message_Data->request = save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Max] + 32;
+            Message_Data->timer = 2;
+        }
+    } else if (
+        save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] >
+        Ex_Menu_Max_Data[Menu_Page][Menu_Cursor_Y[0]]
+    ) {
+        save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] = 0;
+    }
+}
+
 void Ex_Move_Sub_LR(u16 sw, s16 PL_id) {
     u8 last_pos = save_w[Present_Mode].extra_option.contents[Menu_Page][Menu_Cursor_Y[0]];
 
@@ -5252,35 +5352,7 @@ void Ex_Move_Sub_LR(u16 sw, s16 PL_id) {
         return;
 
     case 8:
-        if (Menu_Page_Buff != 0 || Menu_Cursor_Y[0] != 4) {
-            SE_dir_cursor_move();
-        }
-
-        save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]]++;
-
-        if (Menu_Cursor_Y[0] == Menu_Max) {
-            if (save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] > 2) {
-                save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] = 2;
-                IO_Result = 0x400;
-                return;
-            }
-
-            if (save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] > 2) {
-                save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] = 2;
-            }
-
-            if (save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] != last_pos) {
-                Message_Data->order = 1;
-                Message_Data->request = save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Max] + 32;
-                Message_Data->timer = 2;
-            }
-        } else if (
-            save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] >
-            Ex_Menu_Max_Data[Menu_Page][Menu_Cursor_Y[0]]
-        ) {
-            save_w[1].extra_option.contents[Menu_Page_Buff][Menu_Cursor_Y[0]] = 0;
-        }
-
+        move_extra_option_right(last_pos);
         return;
 
     case 0x400:
