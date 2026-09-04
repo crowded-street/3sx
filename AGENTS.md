@@ -53,8 +53,9 @@ does not require reverting or stopping when the owner has explicitly said to con
 
 This exception does not authorize intentional behaviour changes, changes to in-round
 simulation code, publishing, pushing, or opening a pull request. Before any experimental
-work is committed for review, the normal build, guard, CodeScene, and commit requirements
-below apply again unless the owner explicitly requests a separate review workflow.
+work is committed for review, the normal build, guard, CodeScene, commit, and mandatory
+validation requirements below apply again. A separately authorized review workflow may
+make only the guard's automatic revert and stop behavior advisory.
 
 ## The refactoring campaign
 

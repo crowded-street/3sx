@@ -2,6 +2,7 @@
 #define SF33RD_SOURCE_GAME_MENU_MENU_INTERNAL_H
 
 #include "sf33rd/Source/Game/menu/menu.h"
+#include "sf33rd/Source/Game/effect/eff57.h"
 
 void Default_Training_Option();
 void Dummy_Move_Sub(struct _TASK* task_ptr, s16 player_id, s16 id, s16 type, s16 max);
@@ -67,7 +68,7 @@ s32 Menu_Sub_case1(struct _TASK* task_ptr);
 void System_Dir_Move_Sub(s16 player_id);
 void System_Dir_Move_Sub_LR(u16 input, s16 cursor_id);
 u16 Dir_Move_Sub2(u16 input);
-void Dir_Move_Sub_LR(u16 input, s16 /* unused */);
+void Dir_Move_Sub_LR(u16 input, s16 unused);
 void Ex_Move_Sub_LR(u16 input, s16 player_id);
 u16 Game_Option_Sub(s16 player_id);
 u16 GO_Move_Sub_LR(u16 input, s16 cursor_id);

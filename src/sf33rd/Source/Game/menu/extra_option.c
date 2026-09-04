@@ -354,6 +354,8 @@ void Ex_Move_Sub_LR(u16 sw, s16 PL_id) {
             break;
         }
 
+        /* fallthrough */
+
     case 0x100:
         if (Menu_Cursor_Y[0] == Menu_Max) {
             break;

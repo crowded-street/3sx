@@ -1,4 +1,4 @@
-#include "sf33rd/Source/Game/menu/menu.h"
+#include "sf33rd/Source/Game/menu/menu_internal.h"
 #include "common.h"
 #include "main.h"
 #include "sf33rd/Source/Game/animation/appear.h"
@@ -11,13 +11,6 @@
 #include "structs.h"
 
 void start_normal_training_mode(struct _TASK* task_ptr);
-void Training_Init_Sub(struct _TASK* task_ptr);
-void Check_Skip_Recording();
-void Check_Skip_Replay(s16 ix);
-void Training_Exit_Sub(struct _TASK* task_ptr);
-void Yes_No_Cursor_Exit_Training(struct _TASK* task_ptr, s16 cursor_id);
-void Exit_Sub(struct _TASK* task_ptr, s16 cursor_ix, s16 next_routine);
-u16 MC_Move_Sub(u16 sw, s16 cursor_id, s16 menu_max, s16 cansel_menu);
 
 static void initialize_normal_training(struct _TASK* task_ptr) {
     s16 ix;

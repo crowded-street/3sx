@@ -772,7 +772,7 @@ static bool is_disallowed_dummy_selection(s16 id, s16 type, s16 cursor_id) {
 
 static void adjust_dummy_option(u16 input, s16 id, s16 type, s16 cursor_id) {
     s16 maximum_value = Menu_Max_Data_Tr[id][type][Menu_Cursor_Y[cursor_id]];
-    if (input == SWK_WEST) {
+    if (input == 4) {
         Training[2].contents[id][type][Menu_Cursor_Y[cursor_id]]--;
     } else {
         Training[2].contents[id][type][Menu_Cursor_Y[cursor_id]]++;
@@ -784,7 +784,7 @@ static void adjust_dummy_option(u16 input, s16 id, s16 type, s16 cursor_id) {
         Training[2].contents[id][type][Menu_Cursor_Y[cursor_id]] = 0;
     }
     if (is_disallowed_dummy_selection(id, type, cursor_id)) {
-        Training[2].contents[id][type][Menu_Cursor_Y[cursor_id]] = input == SWK_WEST ? 3 : 0;
+        Training[2].contents[id][type][Menu_Cursor_Y[cursor_id]] = input == 4 ? 3 : 0;
     }
     SE_dir_cursor_move();
 }

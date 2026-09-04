@@ -244,7 +244,7 @@ def collect_combined_literals(rels: list[str], base: str) -> tuple[Counter, Coun
     return before, after
 
 
-def report_combined_changes(before: Counter, after: Counter) -> bool:
+def report_combined_changes(before: Counter, after: Counter, strict: bool) -> bool:
     removed = before - after
     added = after - before
     if not removed and not added:
@@ -258,18 +258,18 @@ def report_combined_changes(before: Counter, after: Counter) -> bool:
     if removed:
         print("WARN  combined group  - literal counts dropped, no values were added")
         print("        removed: " + str(dict(removed)))
-        return True
+        return not strict
     print("WARN  combined group  - literals added, none removed")
     print("        added: " + str(dict(added)))
-    return True
+    return not strict
 
 
-def check_combined(rels: list[str], base: str) -> bool:
+def check_combined(rels: list[str], base: str, strict: bool) -> bool:
     """Compare literals across a group, allowing constants to move files."""
     counts = collect_combined_literals(rels, base)
     if counts is None:
         return False
-    return report_combined_changes(*counts)
+    return report_combined_changes(*counts, strict)
 
 
 def main() -> int:
@@ -281,7 +281,7 @@ def main() -> int:
     ap.add_argument("--combined", action="store_true",
                     help="compare all supplied files as one literal group")
     ap.add_argument("--strict", action="store_true",
-                    help="also fail when literals are added (not just removed)")
+                    help="fail on added literals and reduced-count warnings")
     args = ap.parse_args()
 
     targets = changed_files(args.base) if args.all else args.files
@@ -290,7 +290,7 @@ def main() -> int:
         return 0
 
     if args.combined:
-        return 0 if check_combined([p.replace("\\", "/") for p in targets], args.base) else 1
+        return 0 if check_combined([p.replace("\\", "/") for p in targets], args.base, args.strict) else 1
 
     ok = True
     for rel in targets:

@@ -1,4 +1,4 @@
-#include "sf33rd/Source/Game/menu/menu.h"
+#include "sf33rd/Source/Game/menu/menu_internal.h"
 #include "common.h"
 #include "main.h"
 #include "sf33rd/Source/Game/effect/eff04.h"
@@ -17,10 +17,6 @@
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/ui/sc_sub.h"
 #include "structs.h"
-
-u16 Sound_Cursor_Sub(s16 PL_id);
-void Menu_Sub_case1(struct _TASK* task_ptr);
-void Return_Option_Mode_Sub(struct _TASK* task_ptr);
 
 static bool should_finish_sound_test(void) {
     return IO_Result == 0x200 || ((Menu_Cursor_Y[0] == 5) && (IO_Result == 0x100 || IO_Result == 0x4000));

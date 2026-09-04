@@ -1,4 +1,4 @@
-#include "sf33rd/Source/Game/menu/menu.h"
+#include "sf33rd/Source/Game/menu/menu_internal.h"
 #include "common.h"
 #include "main.h"
 #include "sf33rd/Source/Game/effect/eff57.h"
@@ -18,12 +18,7 @@
 #include "sf33rd/Source/PS2/mc/savesub.h"
 #include "structs.h"
 
-void Back_to_Mode_Select(struct _TASK* task_ptr);
-void Load_Replay_Sub(struct _TASK* task_ptr);
 void Setup_Save_Replay_2nd(struct _TASK* task_ptr, s16 unused);
-void Menu_Sub_case1(struct _TASK* task_ptr);
-s32 Exit_Sub(struct _TASK* task_ptr, s16 cursor_ix, s16 next_routine);
-u16 MC_Move_Sub(u16 sw, s16 cursor_id, s16 menu_max, s16 cansel_menu);
 
 static void initialize_after_replay(struct _TASK* task_ptr) {
     s16 ix;

@@ -1,4 +1,4 @@
-#include "sf33rd/Source/Game/menu/menu.h"
+#include "sf33rd/Source/Game/menu/menu_internal.h"
 #include "common.h"
 #include "main.h"
 #include "sf33rd/Source/Game/effect/eff04.h"
@@ -13,11 +13,6 @@
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/ui/sc_sub.h"
 #include "structs.h"
-
-void Menu_in_Sub(struct _TASK* task_ptr);
-void Menu_Sub_case1(struct _TASK* task_ptr);
-u16 MC_Move_Sub(u16 sw, s16 cursor_id, s16 menu_max, s16 cansel_menu);
-void Setup_VS_Mode(struct _TASK* task_ptr);
 
 static bool should_exit_menu_selection(void) {
     return Menu_Cursor_Y[0] == 2 || IO_Result == 0x200;

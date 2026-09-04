@@ -502,9 +502,6 @@ static void move_final_direction_option(u16 input, u8 previous_value) {
         IO_Result = 0x400;
         return;
     }
-    if (input == 0x8 && system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] > 2) {
-        system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 2;
-    }
     if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] != previous_value) {
         Message_Data->order = 1;
         Message_Data->request = system_dir[1].contents[Menu_Page][Menu_Max] + 0x74;
@@ -533,7 +530,7 @@ static void wrap_direction_option_right(void) {
     }
 }
 
-void Dir_Move_Sub_LR(u16 sw, s16 /* unused */) {
+void Dir_Move_Sub_LR(u16 sw, s16 unused) {
     u8 last_pos = system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]];
 
     switch (sw) {
@@ -631,7 +628,7 @@ static void configure_system_direction_page(s16* display_index) {
 }
 
 void Setup_Next_Page(struct _TASK* task_ptr, u8 /* unused */) {
-    s16 disp_index;
+    s16 disp_index = 0;
     s16 mode_type;
 
     Menu_Page_Buff = Menu_Page;
