@@ -61,7 +61,7 @@ point. **Campaign start** preserves the original 2026-09-01 sweep.
 | R02 | 1.52 | 1.52 | - | not started |
 | R03 | 1.82 | 1.82 | - | not started |
 | R04 | **1.97** | 2.25 | **2.25** | wave 1 of 3 done (PR #3) |
-| R05 | 2.31 | 2.31 | - | not started |
+| R05 | 2.31 | 2.31 | **2.42** | Wave 1 of 3 done: `check_10`, `check_12`, `check_21`, `check_1` (Recipe E/D/G). Still Red - 2 more waves per the task file. Track B gate manually overridden by user request. |
 | R06 | 2.57 | 2.57 | - | not started |
 | R07 | 2.58 | 2.58 | - | not started |
 | R08 | 2.64 | 2.64 | - | not started |
