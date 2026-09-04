@@ -2512,9 +2512,28 @@ void get_target_att_position(WORK* wk, s16* tx, s16* ty) { // 🟢
     }
 }
 
+static s16 adjust_att_head_position(WORK* wk, s16 tx, s16 offset) {
+    s16 kx;
+
+    if (wk->rl_flag) {
+        kx = tx - offset;
+
+        if (tx < kx) {
+            tx = kx;
+        }
+    } else {
+        kx = tx + offset;
+
+        if (tx > kx) {
+            tx = kx;
+        }
+    }
+
+    return tx;
+}
+
 s16 get_att_head_position(WORK* wk) { // 🟢
     s16* ta;
-    s16 kx;
     s16 tx;
     s16 i;
 
@@ -2528,26 +2547,10 @@ s16 get_att_head_position(WORK* wk) { // 🟢
 
     for (i = 0; i < 3; i++) {
         if (*ta) {
-            if (wk->rl_flag) {
-                kx = tx - *ta;
-
-                if (tx < kx) {
-                    tx = kx;
-                }
-
-                break;
-            } else {
-                kx = tx + *ta;
-
-                if (tx > kx) {
-                    tx = kx;
-                }
-
-                break;
-            }
-        } else {
-            ta += 4;
+            return adjust_att_head_position(wk, tx, *ta);
         }
+
+        ta += 4;
     }
 
     return tx;
