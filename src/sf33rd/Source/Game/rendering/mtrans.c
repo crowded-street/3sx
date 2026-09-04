@@ -2164,39 +2164,43 @@ void mlt_obj_melt2(MultiTexture* mt, u16 cg_number) {
         while (count != 0) {
             attr = trsptr->attr;
 
-            if (!(attr & 0x1000)) {
-                texptr = (TEX*)((uintptr_t)textbl + ((u32*)textbl)[trsptr->code]);
-                dd = (((texptr->wh & 0xE0) << 5) - 0x400) | (((texptr->wh & 0x1C) << 6) - 0x100);
-                wh = (texptr->wh & 3) + 1;
-                size = (wh * wh) << 6;
-                palt = attr & 3;
+            if (attr & 0x1000) {
+                count -= 1;
+                trsptr++;
+                continue;
+            }
 
-                switch (wh) {
-                case 1:
-                case 2:
-                    lz_ext_p6_fx(&((u8*)texptr)[1], mt->mltbuf, size);
-                    njReLoadTexturePartNumG(mt->mltgidx16 + (cd16 >> 8), (s8*)mt->mltbuf, cd16 & 0xFF, size);
-                    attr = (attr & 0xC000) | 0x1000 | dd;
-                    trsptr->attr |= 0x1000;
-                    attr |= palt;
-                    search_trsptr(grplds->trans_table, i, n, trsptr->code, palt, cd16, attr);
-                    trsptr->code = cd16;
-                    trsptr->attr = attr;
-                    cd16 += 1;
-                    break;
+            texptr = (TEX*)((uintptr_t)textbl + ((u32*)textbl)[trsptr->code]);
+            dd = (((texptr->wh & 0xE0) << 5) - 0x400) | (((texptr->wh & 0x1C) << 6) - 0x100);
+            wh = (texptr->wh & 3) + 1;
+            size = (wh * wh) << 6;
+            palt = attr & 3;
 
-                case 4:
-                    lz_ext_p6_fx(&((u8*)texptr)[1], mt->mltbuf, size);
-                    njReLoadTexturePartNumG(mt->mltgidx32 + (cd32 >> 6), (s8*)mt->mltbuf, cd32 & 0x3F, size);
-                    attr = (attr & 0xC000) | 0x3000 | dd;
-                    trsptr->attr |= 0x1000;
-                    attr |= palt;
-                    search_trsptr(grplds->trans_table, i, n, trsptr->code, palt, cd32, attr);
-                    trsptr->code = cd32;
-                    trsptr->attr = attr;
-                    cd32 += 1;
-                    break;
-                }
+            switch (wh) {
+            case 1:
+            case 2:
+                lz_ext_p6_fx(&((u8*)texptr)[1], mt->mltbuf, size);
+                njReLoadTexturePartNumG(mt->mltgidx16 + (cd16 >> 8), (s8*)mt->mltbuf, cd16 & 0xFF, size);
+                attr = (attr & 0xC000) | 0x1000 | dd;
+                trsptr->attr |= 0x1000;
+                attr |= palt;
+                search_trsptr(grplds->trans_table, i, n, trsptr->code, palt, cd16, attr);
+                trsptr->code = cd16;
+                trsptr->attr = attr;
+                cd16 += 1;
+                break;
+
+            case 4:
+                lz_ext_p6_fx(&((u8*)texptr)[1], mt->mltbuf, size);
+                njReLoadTexturePartNumG(mt->mltgidx32 + (cd32 >> 6), (s8*)mt->mltbuf, cd32 & 0x3F, size);
+                attr = (attr & 0xC000) | 0x3000 | dd;
+                trsptr->attr |= 0x1000;
+                attr |= palt;
+                search_trsptr(grplds->trans_table, i, n, trsptr->code, palt, cd32, attr);
+                trsptr->code = cd32;
+                trsptr->attr = attr;
+                cd32 += 1;
+                break;
             }
 
             count -= 1;
