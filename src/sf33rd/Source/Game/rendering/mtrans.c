@@ -814,17 +814,8 @@ void mlt_obj_trans_cp3_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
         cc.parts.group = i;
 
         while (count--) {
-            if (flip & 0x8000) {
-                x += trsptr->x;
-            } else {
-                x -= trsptr->x;
-            }
-
-            if (flip & 0x4000) {
-                y -= trsptr->y;
-            } else {
-                y += trsptr->y;
-            }
+            x = advance_trans_x(x, flip, trsptr);
+            y = advance_trans_y(y, flip, trsptr);
 
             texptr = (TEX*)((uintptr_t)textbl + ((u32*)textbl)[trsptr->code]);
             dw = (texptr->wh & 0xE0) >> 2;
@@ -909,17 +900,8 @@ void mlt_obj_trans_cp3_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
         cc.parts.group = i;
 
         while (count--) {
-            if (flip & 0x8000) {
-                x += trsptr->x;
-            } else {
-                x -= trsptr->x;
-            }
-
-            if (flip & 0x4000) {
-                y -= trsptr->y;
-            } else {
-                y += trsptr->y;
-            }
+            x = advance_trans_x(x, flip, trsptr);
+            y = advance_trans_y(y, flip, trsptr);
 
             texptr = (TEX*)((uintptr_t)textbl + ((u32*)textbl)[trsptr->code]);
             dw = (texptr->wh & 0xE0) >> 2;
