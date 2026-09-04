@@ -246,6 +246,29 @@ void Bg_Close() {
     bg_disp_off = 0;
 }
 
+static void load_ake_stage_textures() {
+    u8* akeAdrs;
+    s32 akeSize;
+    s16 akeKey;
+    u8 i;
+
+    if (bg_w.stage != 20 && bg_w.stage != 21) {
+        akeKey = Search_ramcnt_type(0x1F);
+        akeSize = Get_size_data_ramcnt_key(akeKey);
+        akeAdrs = Get_ramcnt_pointer(akeKey);
+        ppgSetupCurrentDataList(&ppgAkeList);
+        ppgSetupPalChunk(NULL, akeAdrs, akeSize, 0, 0, 1);
+        ppgSetupTexChunk_1st(NULL, akeAdrs, akeSize, 0, 3, 0, 0);
+
+        for (i = 0; i < 3; i++) {
+            ppgSetupTexChunk_2nd(NULL, i);
+            ppgSetupTexChunk_3rd(NULL, i, 1);
+        }
+
+        ppgSourceDataReleased(&ppgAkeList);
+    }
+}
+
 void Bg_Texture_Load_EX() {
     void* loadAdrs;
     u32 loadSize;
@@ -260,9 +283,6 @@ void Bg_Texture_Load_EX() {
     u8 x;
     u8 shift;
     u8 stg;
-    u8* akeAdrs;
-    s32 akeSize;
-    s16 akeKey;
 
     u32 assign1;
     u32 assign2;
@@ -354,21 +374,7 @@ void Bg_Texture_Load_EX() {
         ppgSourceDataReleased(&ppgAkaneList);
     }
 
-    if (bg_w.stage != 20 && bg_w.stage != 21) {
-        akeKey = Search_ramcnt_type(0x1F);
-        akeSize = Get_size_data_ramcnt_key(akeKey);
-        akeAdrs = Get_ramcnt_pointer(akeKey);
-        ppgSetupCurrentDataList(&ppgAkeList);
-        ppgSetupPalChunk(NULL, akeAdrs, akeSize, 0, 0, 1);
-        ppgSetupTexChunk_1st(NULL, akeAdrs, akeSize, 0, 3, 0, 0);
-
-        for (i = 0; i < 3; i++) {
-            ppgSetupTexChunk_2nd(NULL, i);
-            ppgSetupTexChunk_3rd(NULL, i, 1);
-        }
-
-        ppgSourceDataReleased(&ppgAkeList);
-    }
+    load_ake_stage_textures();
 }
 
 void Bg_Texture_Load2(u8 type) {
