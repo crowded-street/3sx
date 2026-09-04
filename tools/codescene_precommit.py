@@ -1,13 +1,7 @@
 #!/usr/bin/env python3
-"""Block commits when staged code health degrades or new code is not perfect.
+"""Guard staged CodeScene quality.
 
-Policy:
-- staged files that already existed in HEAD must not score lower than their HEAD score
-- newly added source files must score exactly 10.0
-- generated or vendored files are ignored
-
-This is intentionally lightweight and follows the same CodeScene MCP path already used by
-`tools/codehealth_sweep.py`.
+New files must score a perfect 10.0. Existing files must not regress.
 """
 
 from __future__ import annotations
@@ -22,176 +16,172 @@ import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-EXCLUDE_PREFIXES = (
-    "src/imgui/",
-    "src/stb/",
-    "src/argparse/",
-    "src/bin2obj/",
-)
+SUFFIXES = {".c", ".cpp", ".h", ".hpp", ".py"}
+EXCLUDED = ("src/imgui/", "src/stb/", "src/argparse/", "src/bin2obj/")
 SCORE_RE = re.compile(r"Code Health score:\s*([0-9.]+)")
-CODE_EXTENSIONS = (".c", ".cpp", ".h", ".hpp")
 
 
-def run(cmd: list[str], cwd: Path = REPO) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(cmd, cwd=str(cwd), capture_output=True, text=True, encoding="utf-8", errors="replace")
+def git(*args: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(["git", *args], cwd=REPO, capture_output=True, text=True, encoding="utf-8", errors="replace")
 
 
-def find_cs_mcp() -> str:
+def cli_path() -> str:
     override = os.environ.get("CS_MCP_BINARY_PATH")
     if override:
         if not Path(override).is_file():
-            sys.exit(
-                "CodeScene CLI not found at CS_MCP_BINARY_PATH=\"" + override + "\".\n"
-                "Install it with:\n"
-                "  npm install -g @codescene/codehealth-mcp\n"
-                "then run it once, or set CS_MCP_BINARY_PATH to the executable location."
+            raise SystemExit(
+                "CodeScene CLI not found at CS_MCP_BINARY_PATH=\""
+                + override
+                + "\".\nInstall it with:\n  npm install -g @codescene/codehealth-mcp"
             )
         return override
 
-    on_path = shutil.which("cs-mcp")
-    if on_path:
-        return on_path
+    found = shutil.which("cs-mcp")
+    if found:
+        return found
 
-    sys.exit(
+    raise SystemExit(
         "CodeScene CLI is not installed or not on PATH.\n"
-        "Install it with:\n"
-        "  npm install -g @codescene/codehealth-mcp\n"
-        "Then verify it works with:\n"
-        "  cs-mcp --help\n"
-        "or set CS_MCP_BINARY_PATH to the installed executable."
+        "Install it with:\n  npm install -g @codescene/codehealth-mcp\n"
+        "Then verify it with:\n  cs-mcp --help"
     )
 
 
+def interesting(path: str) -> bool:
+    if Path(path).suffix.lower() not in SUFFIXES:
+        return False
+    return not any(path.startswith(prefix) for prefix in EXCLUDED)
+
+
 def staged_files() -> list[str]:
-    result = run(["git", "diff", "--cached", "--name-only", "--diff-filter=ACMR"])
+    result = git("diff", "--cached", "--name-only", "--diff-filter=ACMR")
     if result.returncode != 0:
-        sys.exit(result.stderr.strip() or "git diff failed")
-
-    files: list[str] = []
-    for line in result.stdout.splitlines():
-        path = line.strip()
-        if not path:
-            continue
-        if not path.endswith(CODE_EXTENSIONS):
-            continue
-        if any(path.startswith(prefix) for prefix in EXCLUDE_PREFIXES):
-            continue
-        files.append(path)
-    return sorted(files)
+        raise SystemExit(result.stderr.strip() or "git diff failed")
+    return sorted(path for path in (line.strip() for line in result.stdout.splitlines()) if path and interesting(path))
 
 
-def git_show(ref: str, path: str) -> str:
-    result = run(["git", "show", f"{ref}:{path}"])
-    if result.returncode != 0:
-        return ""
-    return result.stdout
+def show(ref: str, path: str) -> str:
+    out = git("show", f"{ref}:{path}")
+    return out.stdout if out.returncode == 0 else ""
 
 
-def score_path(exe: str, file_path: str) -> float:
-    payload = [
-        json.dumps({
-            "jsonrpc": "2.0",
-            "id": 1,
-            "method": "initialize",
-            "params": {
-                "protocolVersion": "2024-11-05",
-                "capabilities": {},
-                "clientInfo": {"name": "codescene-precommit", "version": "1.0.0"},
-            },
-        }),
-        json.dumps({"jsonrpc": "2.0", "method": "notifications/initialized"}),
-        json.dumps({
-            "jsonrpc": "2.0",
-            "id": 2,
-            "method": "tools/call",
-            "params": {
-                "name": "code_health_score",
-                "arguments": {"file_path": file_path},
-            },
-        }),
+def file_score_request(path: str) -> list[dict[str, object]]:
+    return [
+        {"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2024-11-05", "capabilities": {}, "clientInfo": {"name": "codescene-precommit", "version": "1.0.0"}}},
+        {"jsonrpc": "2.0", "method": "notifications/initialized"},
+        {"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": "code_health_score", "arguments": {"file_path": path}}},
     ]
-    stdin = "\n".join(payload) + "\n"
-    env = dict(os.environ, CS_DISABLE_VERSION_CHECK="1")
+
+
+def run_score_request(exe: str, path: str) -> str:
+    payload = "\n".join(json.dumps(item) for item in file_score_request(path)) + "\n"
     proc = subprocess.run(
         [exe],
-        input=stdin,
+        input=payload,
         capture_output=True,
         text=True,
-        env=env,
+        env={**os.environ, "CS_DISABLE_VERSION_CHECK": "1"},
         encoding="utf-8",
         errors="replace",
     )
     if proc.returncode != 0 and not proc.stdout:
         raise RuntimeError((proc.stderr or proc.stdout or "CodeScene invocation failed").strip())
+    return proc.stdout or ""
 
-    for line in (proc.stdout or "").splitlines():
-        line = line.strip()
-        if not line:
-            continue
+
+def parse_score(stdout: str, path: str) -> float:
+    match = SCORE_RE.search(stdout)
+    if not match:
+        raise RuntimeError(f"No Code Health score returned for: {path}")
+    return float(match.group(1))
+
+
+def score(path: str, exe: str) -> float:
+    return parse_score(run_score_request(exe, path), path)
+
+
+def temp_file(content: str, suffix: str) -> str:
+    handle = tempfile.NamedTemporaryFile("w", suffix=suffix, delete=False, encoding="utf-8")
+    handle.write(content)
+    handle.close()
+    return handle.name
+
+
+def cleanup_temp_files(paths: tuple[str, ...]) -> None:
+    for candidate in paths:
         try:
-            msg = json.loads(line)
-        except json.JSONDecodeError:
-            continue
-        if msg.get("id") != 2:
-            continue
-        result = msg.get("result", {})
-        text = " ".join(part.get("text", "") for part in result.get("content", []))
-        match = SCORE_RE.search(text)
-        if match:
-            return float(match.group(1))
-    raise RuntimeError("No Code Health score returned for: " + file_path)
+            os.unlink(candidate)
+        except FileNotFoundError:
+            pass
+
+
+def check_revised_file(path: str, exe: str, previous: str, staged: str) -> str | None:
+    old_file = temp_file(previous, Path(path).name)
+    new_file = temp_file(staged, Path(path).name)
+    try:
+        old_score = score(old_file, exe)
+        new_score = score(new_file, exe)
+    finally:
+        cleanup_temp_files((old_file, new_file))
+
+    if new_score < old_score - 1e-9:
+        return f"{path}: Code Health degraded from {old_score:.2f} to {new_score:.2f}"
+    return None
+
+
+def check_new_file(path: str, exe: str, staged: str) -> str | None:
+    new_file = temp_file(staged, Path(path).name)
+    try:
+        new_score = score(new_file, exe)
+    finally:
+        cleanup_temp_files((new_file,))
+
+    if abs(new_score - 10.0) > 1e-9:
+        return f"{path}: new code must score 10.0, got {new_score:.2f}"
+    return None
+
+
+def check(path: str, exe: str) -> str | None:
+    staged = show(":" + path, path)
+    if not staged:
+        return None
+
+    previous = show("HEAD", path)
+    if not previous:
+        return check_new_file(path, exe, staged)
+    return check_revised_file(path, exe, previous, staged)
+
+
+def collect_failures(paths: list[str], exe: str) -> list[str]:
+    failures: list[str] = []
+    for path in paths:
+        try:
+            reason = check(path, exe)
+        except Exception as exc:  # pragma: no cover
+            reason = f"{path}: {exc}"
+        if reason:
+            failures.append(reason)
+    return failures
+
+
+def report_failures(failures: list[str]) -> None:
+    print(
+        "CodeScene gate failed. Use the CodeScene MCP tools (code_health_review / code_health_score) to diagnose the issue before committing; do not guess at a fix.",
+        file=sys.stderr,
+    )
+    for failure in failures:
+        print(f"  - {failure}", file=sys.stderr)
 
 
 def main() -> int:
-    staged = staged_files()
-    if not staged:
+    files = staged_files()
+    if not files:
         return 0
 
-    exe = find_cs_mcp()
-    failures: list[str] = []
-
-    for rel in staged:
-        try:
-            head_content = git_show("HEAD", rel)
-            index_content = git_show(":" + rel, rel)
-            if not index_content:
-                continue
-
-            if head_content:
-                with tempfile.NamedTemporaryFile("w", suffix=Path(rel).name, delete=False, encoding="utf-8") as head_file:
-                    head_file.write(head_content)
-                    head_path = head_file.name
-                with tempfile.NamedTemporaryFile("w", suffix=Path(rel).name, delete=False, encoding="utf-8") as staged_file:
-                    staged_file.write(index_content)
-                    staged_path = staged_file.name
-
-                try:
-                    original_score = score_path(exe, head_path)
-                    new_score = score_path(exe, staged_path)
-                    if new_score < original_score - 1e-9:
-                        failures.append(
-                            f"{rel}: Code Health degraded from {original_score:.2f} to {new_score:.2f}"
-                        )
-                finally:
-                    os.unlink(head_path)
-                    os.unlink(staged_path)
-            else:
-                with tempfile.NamedTemporaryFile("w", suffix=Path(rel).name, delete=False, encoding="utf-8") as staged_file:
-                    staged_file.write(index_content)
-                    staged_path = staged_file.name
-                try:
-                    new_score = score_path(exe, staged_path)
-                    if abs(new_score - 10.0) > 1e-9:
-                        failures.append(f"{rel}: new code must score 10.0, got {new_score:.2f}")
-                finally:
-                    os.unlink(staged_path)
-        except Exception as exc:  # pragma: no cover - fail safe
-            failures.append(f"{rel}: {exc}")
-
+    exe = cli_path()
+    failures = collect_failures(files, exe)
     if failures:
-        print("CodeScene gate failed. Fix these issues before committing:", file=sys.stderr)
-        for item in failures:
-            print(f"  - {item}", file=sys.stderr)
+        report_failures(failures)
         return 1
 
     print("CodeScene gate passed: staged code does not degrade and new code is perfect 10.0.")
