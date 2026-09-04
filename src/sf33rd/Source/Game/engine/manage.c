@@ -2051,6 +2051,59 @@ void Game_Manage_12_3() {
     }
 }
 
+static void run_bonus_perfect_result_phase(void) {
+    switch (C_No[3]) {
+    case 0:
+        if (Bonus_Cut_Sub() == 0 && --C_Timer == 0) {
+            C_No[2]++;
+            C_Timer = 30;
+            Bonus_Game_result = Stock_Bonus_Game_Result;
+        }
+
+        break;
+
+    case 1:
+        if (Bonus_Cut_Sub() == 0 && --C_Timer == 0) {
+            C_No[3]++;
+            C_Timer = 10;
+            Disp_Bonus_Perfect();
+        }
+
+        break;
+
+    case 2:
+        if (Bonus_Cut_Sub() == 0 && --C_Timer == 0) {
+            C_No[3]++;
+            C_Timer = 40;
+
+            if (PB_Status & 1) {
+                Score[Player_id][0] += Ball_Perfect_PTS[0][Bonus_Stage_Level];
+            }
+
+            if (PB_Status & 2) {
+                Score[Player_id][0] += Ball_Perfect_PTS[1][Bonus_Stage_Level];
+            }
+
+            if (Score[Player_id][0] >= 99999900) {
+                Score[Player_id][0] = 99999900;
+            }
+
+            Flash_Bonus_Perfect();
+            break;
+        }
+
+        break;
+
+    default:
+        if (--C_Timer == 0) {
+            C_No[2]++;
+            C_Timer = 30;
+        }
+
+        break;
+    }
+}
+
 void Game_Manage_12_4() {
     switch (C_No[2]) {
     case 0:
@@ -2110,57 +2163,7 @@ void Game_Manage_12_4() {
         break;
 
     case 3:
-        switch (C_No[3]) {
-        case 0:
-            if (Bonus_Cut_Sub() == 0 && --C_Timer == 0) {
-                C_No[2]++;
-                C_Timer = 30;
-                Bonus_Game_result = Stock_Bonus_Game_Result;
-            }
-
-            break;
-
-        case 1:
-            if (Bonus_Cut_Sub() == 0 && --C_Timer == 0) {
-                C_No[3]++;
-                C_Timer = 10;
-                Disp_Bonus_Perfect();
-            }
-
-            break;
-
-        case 2:
-            if (Bonus_Cut_Sub() == 0 && --C_Timer == 0) {
-                C_No[3]++;
-                C_Timer = 40;
-
-                if (PB_Status & 1) {
-                    Score[Player_id][0] += Ball_Perfect_PTS[0][Bonus_Stage_Level];
-                }
-
-                if (PB_Status & 2) {
-                    Score[Player_id][0] += Ball_Perfect_PTS[1][Bonus_Stage_Level];
-                }
-
-                if (Score[Player_id][0] >= 99999900) {
-                    Score[Player_id][0] = 99999900;
-                }
-
-                Flash_Bonus_Perfect();
-                break;
-            }
-
-            break;
-
-        default:
-            if (--C_Timer == 0) {
-                C_No[2]++;
-                C_Timer = 30;
-            }
-
-            break;
-        }
-
+        run_bonus_perfect_result_phase();
         break;
 
     default:
