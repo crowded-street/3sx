@@ -809,78 +809,114 @@ const s8 sel_sp_ch_tbl[12] = { 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0 };
 
 const s16 sel_hs_add_tbl[6] = { 4, 3, 2, 1, 0, 0 };
 
+static s16 get_parry_hit_stop_index(PLW* as) {
+    s16 hsadix = 4;
+
+    if ((as->wu.kind_of_waza & 0xF8) == 0) {
+        hsadix = (as->wu.kind_of_waza / 2) & 3;
+    }
+
+    return hsadix;
+}
+
+static void apply_parry_hit_stop(PLW* as, PLW* ds, s16 hsadix) {
+    switch ((as->wu.xyz[1].disp.pos > 0) + (ds->wu.routine_no[2] - 31) * 2) {
+    case 0:
+    case 2:
+    case 4:
+        ds->wu.dm_stop = -15;
+        as->wu.hit_stop = sel_hs_add_tbl[hsadix] + 16;
+        as->wu.hit_quake = sel_hs_add_tbl[hsadix] + 16;
+        break;
+
+    case 1:
+    case 3:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+    case 9:
+        ds->wu.dm_stop = -15;
+        as->wu.hit_stop = 16;
+        as->wu.hit_quake = 16;
+        break;
+
+    default:
+        ds->wu.dm_stop = 0;
+        as->wu.hit_stop = 0;
+        as->wu.hit_quake = 0;
+        break;
+    }
+}
+
+static bool should_remake_parry_movement(PLW* as) {
+    if (as->wu.pat_status < 0xE) {
+        return false;
+    }
+
+    if (as->wu.pat_status >= 31) {
+        return false;
+    }
+
+    if (as->wu.work_id != 1) {
+        return false;
+    }
+
+    return sel_sp_ch_tbl[as->wu.kind_of_waza >> 3] == 0;
+}
+
+static void award_parry_bonus(PLW* ds) {
+    if (Bonus_Game_Flag != 0) {
+        return;
+    }
+
+    if (!(ds->spmv_ng_flag & DIP_AUTO_PARRY_DISABLED)) {
+        return;
+    }
+
+    paring_bonus_r[ds->wu.id] = 1;
+    paring_ctr_vs[Play_Type][ds->wu.id]++;
+
+    if (paring_ctr_vs[Play_Type][ds->wu.id] > 39) {
+        paring_ctr_vs[Play_Type][ds->wu.id] = 39;
+    }
+
+    paring_counter[ds->wu.id] = parisucc_pts[Play_Type][paring_ctr_vs[Play_Type][ds->wu.id] - 1];
+}
+
+static void apply_parry_status(PLW* as, PLW* ds) {
+    s16 hsadix = get_parry_hit_stop_index(as);
+
+    ds->wu.routine_no[1] = 0;
+    ds->wu.routine_no[3] = 0;
+    waza_compel_all_init2(ds);
+    dm_status_copy(&as->wu, &ds->wu);
+    ds->wu.dm_piyo = 0;
+    ds->wu.cg_type = 0;
+    apply_parry_hit_stop(as, ds, hsadix);
+    ds->wu.dm_quake = 0;
+
+    if (ds->wu.xyz[1].disp.pos < 0) {
+        ds->wu.xyz[1].cal = 0;
+    }
+
+    ds->wu.dm_arts_point = 0;
+
+    if (should_remake_parry_movement(as)) {
+        remake_mvxy_PoGR(&as->wu);
+    }
+
+    award_parry_bonus(ds);
+    as->wu.cmwk[8]++;
+}
+
 void set_paring_status(PLW* as, PLW* ds) { // 🟡
     // CPS3 always awards parry bonuses;
     // local's default DIP disables auto-parry, so this only differs when auto-parry is enabled.
-    s16 hsadix;
-
     if ((as->wu.att.hs_you == 0) && (as->wu.att.hs_me == 0)) {
         ds->wu.routine_no[2] = ds->wu.old_rno[2];
     } else {
-        hsadix = 4;
-        if ((as->wu.kind_of_waza & 0xF8) == 0) {
-            hsadix = (as->wu.kind_of_waza / 2) & 3;
-        }
-        ds->wu.routine_no[1] = 0;
-        ds->wu.routine_no[3] = 0;
-        waza_compel_all_init2(ds);
-        dm_status_copy(&as->wu, &ds->wu);
-        ds->wu.dm_piyo = 0;
-        ds->wu.cg_type = 0;
-
-        switch ((as->wu.xyz[1].disp.pos > 0) + (ds->wu.routine_no[2] - 31) * 2) {
-        case 0:
-        case 2:
-        case 4:
-            ds->wu.dm_stop = -15;
-            as->wu.hit_stop = sel_hs_add_tbl[hsadix] + 16;
-            as->wu.hit_quake = sel_hs_add_tbl[hsadix] + 16;
-            break;
-
-        case 1:
-        case 3:
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-        case 9:
-            ds->wu.dm_stop = -15;
-            as->wu.hit_stop = 16;
-            as->wu.hit_quake = 16;
-            break;
-
-        default:
-            ds->wu.dm_stop = 0;
-            as->wu.hit_stop = 0;
-            as->wu.hit_quake = 0;
-            break;
-        }
-
-        ds->wu.dm_quake = 0;
-
-        if (ds->wu.xyz[1].disp.pos < 0) {
-            ds->wu.xyz[1].cal = 0;
-        }
-
-        ds->wu.dm_arts_point = 0;
-
-        if (as->wu.pat_status >= 0xE && as->wu.pat_status < 31 && as->wu.work_id == 1 &&
-            sel_sp_ch_tbl[as->wu.kind_of_waza >> 3] == 0) {
-            remake_mvxy_PoGR(&as->wu);
-        }
-
-        if (Bonus_Game_Flag == 0 && (ds->spmv_ng_flag & DIP_AUTO_PARRY_DISABLED)) {
-            paring_bonus_r[ds->wu.id] = 1;
-            paring_ctr_vs[Play_Type][ds->wu.id]++;
-
-            if (paring_ctr_vs[Play_Type][ds->wu.id] > 39) {
-                paring_ctr_vs[Play_Type][ds->wu.id] = 39;
-            }
-
-            paring_counter[ds->wu.id] = parisucc_pts[Play_Type][paring_ctr_vs[Play_Type][ds->wu.id] - 1];
-        }
-
-        as->wu.cmwk[8]++;
+        apply_parry_status(as, ds);
     }
 
     hit_pattern_extdat_check(&as->wu);
