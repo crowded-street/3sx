@@ -23,6 +23,7 @@ void nm_18000(PLW* wk);
 void jumping_cg_type_check(PLW* wk);
 void nm_27_cg_type_check(PLW* wk);
 s32 check_cg_cancel_data(PLW* wk);
+static bool run_common_nm_attack_checks(PLW* wk);
 
 const s8 lvdir_conv[4];
 
@@ -475,59 +476,7 @@ void nm_09000(PLW* wk) { // 🟡
         return;
     }
 
-    if (check_ashimoto(wk)) {
-        return;
-    }
-
-    if (check_full_gauge_attack(wk, 0)) {
-        return;
-    }
-
-    if (check_full_gauge_attack2(wk, 0)) {
-        return;
-    }
-
-    if (check_super_arts_attack(wk)) {
-        return;
-    }
-
-    if (check_special_attack(wk)) {
-        return;
-    }
-
-    if (check_chouhatsu(wk)) {
-        return;
-    }
-
-    if (check_catch_attack(wk)) {
-        return;
-    }
-
-    if (check_leap_attack(wk)) {
-        return;
-    }
-
-    if (check_nm_attack(wk)) {
-        return;
-    }
-
-    if (check_cg_cancel_data(wk)) {
-        return;
-    }
-
-    if (check_turn_to_back(wk)) {
-        return;
-    }
-
-    if (check_F_R_dash(wk)) {
-        return;
-    }
-
-    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
-        return;
-    }
-
-    if (check_jump_ready(wk)) {
+    if (run_common_nm_attack_checks(wk)) {
         return;
     }
 
