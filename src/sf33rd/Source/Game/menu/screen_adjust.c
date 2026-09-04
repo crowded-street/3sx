@@ -80,48 +80,48 @@ static s16 increase_vertical_size(void) {
     return 1;
 }
 
-static s16 adjust_horizontal_position(u16 sw) {
-    if (sw == 4) {
+static s16 adjust_horizontal_position(u16 input) {
+    if (input == 4) {
         return decrease_horizontal_position();
     }
-    if (sw == 8) {
+    if (input == 8) {
         return increase_horizontal_position();
     }
     return 0;
 }
 
-static s16 adjust_vertical_position(u16 sw) {
-    if (sw == 4) {
+static s16 adjust_vertical_position(u16 input) {
+    if (input == 4) {
         return decrease_vertical_position();
     }
-    if (sw == 8) {
+    if (input == 8) {
         return increase_vertical_position();
     }
     return 0;
 }
 
-static s16 adjust_horizontal_size(u16 sw) {
-    if (sw == 4) {
+static s16 adjust_horizontal_size(u16 input) {
+    if (input == 4) {
         return decrease_horizontal_size();
     }
-    if (sw == 8) {
+    if (input == 8) {
         return increase_horizontal_size();
     }
     return 0;
 }
 
-static s16 adjust_vertical_size(u16 sw) {
-    if (sw == 4) {
+static s16 adjust_vertical_size(u16 input) {
+    if (input == 4) {
         return decrease_vertical_size();
     }
-    if (sw == 8) {
+    if (input == 8) {
         return increase_vertical_size();
     }
     return 0;
 }
 
-static s16 adjust_language(u16 sw) {
-    switch (sw) {
+static s16 adjust_language(u16 input) {
+    switch (input) {
     case 4:
     case 8:
         mpp_w.language = Language_Toggle(mpp_w.language);
@@ -131,18 +131,18 @@ static s16 adjust_language(u16 sw) {
     }
 }
 
-static s16 adjust_screen_size(u16 sw) {
+static s16 adjust_screen_size(u16 input) {
     switch (Menu_Cursor_Y[0]) {
     case 0:
-        return adjust_horizontal_position(sw);
+        return adjust_horizontal_position(input);
     case 1:
-        return adjust_vertical_position(sw);
+        return adjust_vertical_position(input);
     case 2:
-        return adjust_horizontal_size(sw);
+        return adjust_horizontal_size(input);
     case 3:
-        return adjust_vertical_size(sw);
+        return adjust_vertical_size(input);
     case 4:
-        return adjust_language(sw);
+        return adjust_language(input);
     default:
         return 0;
     }

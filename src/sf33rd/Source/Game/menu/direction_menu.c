@@ -1,5 +1,5 @@
 /**
- * @file menu.c
+ * @file direction_menu.c
  * Menus
  */
 
@@ -74,109 +74,7 @@
 #include "sf33rd/Source/Game/menu/netplay_menu.h"
 #endif
 
-void Default_Training_Option();
-void Dummy_Move_Sub(struct _TASK* task_ptr, s16 PL_id, s16 id, s16 type, s16 max);
-void Return_Pause_Sub(struct _TASK* task_ptr);
-void Dummy_Move_Sub_LR(u16 sw, s16 id, s16 type, s16 cursor_id);
-void Return_VS_Result_Sub(struct _TASK* task_ptr);
-void Exit_Replay_Save(struct _TASK* task_ptr);
-void Setup_NTr_Data(s16 ix);
-s32 Check_Pad_in_Pause(struct _TASK* task_ptr);
-void Next_Be_Tr_Menu(struct _TASK* task_ptr);
-void Yes_No_Cursor_Exit_Training(struct _TASK* task_ptr, s16 cursor_id);
-void Check_Skip_Recording();
-void Check_Skip_Replay(s16 ix);
-void Setup_Tr_Pause(struct _TASK* task_ptr);
-void Control_Player_Tr();
-s32 Pause_Check_Tr(s16 PL_id);
-void Setup_Win_Lose_OBJ();
-s32 Pause_in_Normal_Tr(struct _TASK* task_ptr);
-void Training_Disp_Sub(struct _TASK* task_ptr);
-
-// forward decls
-void After_Title(struct _TASK* task_ptr);
-void In_Game(struct _TASK* task_ptr);
-void Wait_Load_Save(struct _TASK* task_ptr);
-void Wait_Replay_Check(struct _TASK* task_ptr);
-void Suspend_Menu();
-void Wait_Replay_Load();
-void Training_Menu(struct _TASK* task_ptr);
-void After_Replay(struct _TASK* task_ptr);
-void Wait_Pause_in_Tr(struct _TASK* task_ptr);
-void Reset_Training(struct _TASK* task_ptr);
-void Reset_Replay(struct _TASK* task_ptr);
-void End_Replay_Menu(struct _TASK* task_ptr);
-void Mode_Select(struct _TASK* task_ptr);
-void Option_Select(struct _TASK* task_ptr);
-void Training_Mode(struct _TASK* task_ptr);
-void System_Direction(struct _TASK* task_ptr);
-void Load_Replay(struct _TASK* task_ptr);
-void toSelectGame(struct _TASK* task_ptr);
-void Game_Option(struct _TASK* task_ptr);
-void Button_Config(struct _TASK* task_ptr);
-void Screen_Adjust(struct _TASK* task_ptr);
-void Sound_Test(struct _TASK* task_ptr);
-void Extra_Option(struct _TASK* task_ptr);
-void VS_Result(struct _TASK* task_ptr);
-void Save_Replay(struct _TASK* task_ptr);
-void Direction_Menu(struct _TASK* task_ptr);
-void Setup_VS_Mode(struct _TASK* task_ptr);
-void Setup_Next_Page(struct _TASK* task_ptr, u8 /* unused */);
-void Load_Replay_Sub(struct _TASK* task_ptr);
-void Button_Exit_Check(struct _TASK* task_ptr, s16 PL_id);
-void Back_to_Mode_Select(struct _TASK* task_ptr);
-void Flash_1P_or_2P(struct _TASK* task_ptr);
-
-void bg_etc_write_ex(s16 type);
-void Decide_PL(s16 PL_id);
-void imgSelectGameButton();
-void jmpRebootProgram();
-s32 Check_Pause_Term_Tr(s16 PL_id);
-
-void Menu_in_Sub(struct _TASK* task_ptr);
-s32 Exit_Sub(struct _TASK* task_ptr, s16 cursor_ix, s16 next_routine);
-u16 MC_Move_Sub(u16 sw, s16 cursor_id, s16 menu_max, s16 cansel_menu);
-s32 Menu_Sub_case1(struct _TASK* task_ptr);
-void System_Dir_Move_Sub(s16 PL_id);
-void System_Dir_Move_Sub_LR(u16 sw, s16 cursor_id);
-u16 Dir_Move_Sub2(u16 sw);
-void Dir_Move_Sub_LR(u16 sw, s16 /* unused */);
-void Ex_Move_Sub_LR(u16 sw, s16 PL_id);
-u16 Game_Option_Sub(s16 PL_id);
-u16 GO_Move_Sub_LR(u16 sw, s16 cursor_id);
-void Button_Config_Sub(s16 PL_id);
-void Button_Move_Sub_LR(u16 sw, s16 cursor_id);
-void Return_Option_Mode_Sub(struct _TASK* task_ptr);
-void Screen_Adjust_Sub(s16 PL_id);
-void Screen_Exit_Check(struct _TASK* task_ptr, s16 PL_id);
-void Screen_Move_Sub_LR(u16 sw);
-u16 Sound_Cursor_Sub(s16 PL_id);
-u16 SD_Move_Sub_LR(u16 sw);
-u16 After_VS_Move_Sub(u16 sw, s16 cursor_id, s16 menu_max);
-s32 VS_Result_Move_Sub(struct _TASK* task_ptr, s16 PL_id);
-void Training_Init(struct _TASK* task_ptr);
-void Menu_Select(struct _TASK* task_ptr);
-void Button_Config_in_Game(struct _TASK* task_ptr);
-void Character_Change(struct _TASK* task_ptr);
-void Pad_Come_Out(struct _TASK* task_ptr);
-void Normal_Training(struct _TASK* task_ptr);
-void Blocking_Training(struct _TASK* task_ptr);
-void Dummy_Setting(struct _TASK* task_ptr);
-void Training_Option(struct _TASK* task_ptr);
-void Button_Config_Tr(struct _TASK* task_ptr);
-void Blocking_Tr_Option(struct _TASK* task_ptr);
-void Training_Init_Sub(struct _TASK* task_ptr);
-void Training_Exit_Sub(struct _TASK* task_ptr);
-void Menu_Init(struct _TASK* task_ptr);
-s32 Check_Pad_in_Pause(struct _TASK* task_ptr);
-s32 Yes_No_Cursor_Move_Sub(struct _TASK* task_ptr);
-void Setup_Button_Sub(s16 x, s16 y, s16 master_player);
-void Button_Exit_Check_in_Game(struct _TASK* task_ptr, s16 PL_id);
-void Setup_Save_Replay_1st(struct _TASK* task_ptr);
-s32 Save_Replay_MC_Sub(struct _TASK* task_ptr, s16 /* unused */);
-void Button_Exit_Check_in_Tr(struct _TASK* task_ptr, s16 PL_id);
-s32 VS_Result_Select_Sub(struct _TASK* task_ptr, s16 PL_id);
-void Setup_Replay_Sub(s16 type, MenuHeader char_type, s16 master_player);
+#include "sf33rd/Source/Game/menu/menu_internal.h"
 
 static bool should_exit_menu_selection(void) {
     return Menu_Cursor_Y[0] == 2 || IO_Result == 0x200;
@@ -314,7 +212,7 @@ void System_Dir_Move_Sub_LR(u16 sw, s16 cursor_id) {
     }
 }
 
-static void on_direction_cursor_moved() {
+static void update_direction_cursor_message(void) {
     SE_cursor_move();
     system_dir[1].contents[Menu_Page][Menu_Max] = 1;
 
@@ -449,7 +347,7 @@ static void process_direction_menu_input(struct _TASK* task_ptr) {
     }
 
     if (Menu_Cursor_Y[1] != Menu_Cursor_Y[0]) {
-        on_direction_cursor_moved();
+        update_direction_cursor_message();
     }
 
     handle_direction_menu_input(task_ptr);
@@ -530,31 +428,31 @@ void Dir_Move_Sub(struct _TASK* task_ptr, s16 PL_id) {
     Dir_Move_Sub_LR(sw, PL_id);
 }
 
-static u16 set_direction_io_result_low(u16 sw) {
-    switch (sw) {
+static u16 set_direction_io_result_low(u16 input) {
+    switch (input) {
     case 0x10:
     case 0x20:
     case 0x40:
     case 0x80:
     case 0x100:
-        return IO_Result = sw;
+        return IO_Result = input;
     default:
         return IO_Result = 0;
     }
 }
 
-static u16 set_direction_io_result_high(u16 sw) {
-    bool is_page_input = sw == 0x200 || sw == 0x400;
-    bool is_trigger_input = sw == 0x800 || sw == 0x4000;
+static u16 set_direction_io_result_high(u16 input) {
+    bool is_page_input = input == 0x200 || input == 0x400;
+    bool is_trigger_input = input == 0x800 || input == 0x4000;
 
     if (is_page_input || is_trigger_input) {
-        return IO_Result = sw;
+        return IO_Result = input;
     }
     return IO_Result = 0;
 }
 
-static u16 move_direction_cursor(u16 sw) {
-    if (sw == 0x1) {
+static u16 move_direction_cursor(u16 input) {
+    if (input == 0x1) {
         Menu_Cursor_Y[0] -= 1;
         if (Menu_Cursor_Y[0] < 0) {
             Menu_Cursor_Y[0] = Menu_Max;
@@ -583,50 +481,50 @@ u16 Dir_Move_Sub2(u16 sw) {
     return set_direction_io_result_high(sw);
 }
 
-static void move_normal_direction_option(u16 sw) {
-    if (sw == 0x4 && system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] < 0) {
+static void move_normal_direction_option(u16 input) {
+    if (input == 0x4 && system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] < 0) {
         system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = Dir_Menu_Max_Data[Menu_Page][Menu_Cursor_Y[0]];
     }
-    if (sw == 0x8 &&
+    if (input == 0x8 &&
         system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] > Dir_Menu_Max_Data[Menu_Page][Menu_Cursor_Y[0]]) {
         system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 0;
     }
 }
 
-static void move_final_direction_option(u16 sw, u8 last_pos) {
-    if (sw == 0x4 && system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] < 0) {
+static void move_final_direction_option(u16 input, u8 previous_value) {
+    if (input == 0x4 && system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] < 0) {
         system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 0;
         IO_Result = 0x80;
         return;
     }
-    if (sw == 0x8 && system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] > 2) {
+    if (input == 0x8 && system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] > 2) {
         system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 2;
         IO_Result = 0x400;
         return;
     }
-    if (sw == 0x8 && system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] > 2) {
+    if (input == 0x8 && system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] > 2) {
         system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] = 2;
     }
-    if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] != last_pos) {
+    if (system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] != previous_value) {
         Message_Data->order = 1;
         Message_Data->request = system_dir[1].contents[Menu_Page][Menu_Max] + 0x74;
         Message_Data->timer = 2;
     }
 }
 
-static void move_direction_option(u16 sw, u8 last_pos) {
+static void move_direction_option(u16 input, u8 previous_value) {
     SE_dir_cursor_move();
-    if (sw == 0x4) {
+    if (input == 0x4) {
         system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] -= 1;
     } else {
         system_dir[1].contents[Menu_Page][Menu_Cursor_Y[0]] += 1;
     }
 
     if (Menu_Cursor_Y[0] != Menu_Max) {
-        move_normal_direction_option(sw);
+        move_normal_direction_option(input);
         return;
     }
-    move_final_direction_option(sw, last_pos);
+    move_final_direction_option(input, previous_value);
 }
 
 static void wrap_direction_option_right(void) {
@@ -658,21 +556,21 @@ void Dir_Move_Sub_LR(u16 sw, s16 /* unused */) {
     }
 }
 
-static void setup_standard_page_items(s16* disp_index) {
+static void setup_standard_page_items(s16* display_index) {
     s16 ix;
     s16 unused_s3;
 
-    for (ix = 0; ix < Menu_Max; ix++, unused_s3 = *disp_index += 2) {
-        effect_18_init(*disp_index, ix, 0, 2);
+    for (ix = 0; ix < Menu_Max; ix++, unused_s3 = *display_index += 2) {
+        effect_18_init(*display_index, ix, 0, 2);
         effect_51_init(ix, ix, 2);
     }
 }
 
-static void setup_extra_page_items(s16* disp_index) {
+static void setup_extra_page_items(s16* display_index) {
     s16 ix;
     s16 unused_s3;
 
-    for (ix = 0; ix < Menu_Max; ix++, unused_s3 = *disp_index += 2) {
+    for (ix = 0; ix < Menu_Max; ix++, unused_s3 = *display_index += 2) {
         effect_C4_init(0, ix, ix, 2);
         if (Menu_Page != 0 || ix != (Menu_Max - 1)) {
             effect_C4_init(1, ix, ix, 2);
@@ -680,11 +578,11 @@ static void setup_extra_page_items(s16* disp_index) {
     }
 }
 
-static void setup_menu_page_effects(s16 mode_type, s16* disp_index) {
+static void setup_menu_page_effects(s16 mode_type, s16* display_index) {
     if (mode_type == 0) {
-        setup_standard_page_items(disp_index);
+        setup_standard_page_items(display_index);
     } else {
-        setup_extra_page_items(disp_index);
+        setup_extra_page_items(display_index);
     }
 
     effect_40_init(mode_type, 0, 0x48, 0, 2, 1);
@@ -712,7 +610,7 @@ static void configure_extra_direction_page(void) {
     Message_Data->request = Ex_Account_Data[Menu_Page] + Menu_Cursor_Y[0];
 }
 
-static void configure_system_direction_page(s16* disp_index) {
+static void configure_system_direction_page(s16* display_index) {
     Menu_Max = Page_Data[Menu_Page];
     system_dir[1].contents[Menu_Page][Menu_Max] = 1;
     effect_66_init(0x5B, 0x14, 2, 0, 0x47, 0xA, 0);
@@ -728,8 +626,8 @@ static void configure_system_direction_page(s16* disp_index) {
     Order[0x5D] = 3;
     Order_Timer[0x5D] = 1;
     Message_Data->pos_y = msgSysDirTbl[0]->msgNum[Menu_Page * 0xC + Menu_Cursor_Y[0] * 2 + 1] == 1 ? 0x36 : 0x3E;
-    *disp_index = Menu_Page * 0xC;
-    Message_Data->request = *disp_index + 1;
+    *display_index = Menu_Page * 0xC;
+    Message_Data->request = *display_index + 1;
 }
 
 void Setup_Next_Page(struct _TASK* task_ptr, u8 /* unused */) {

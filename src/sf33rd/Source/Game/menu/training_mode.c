@@ -53,10 +53,10 @@ static void initialize_training_mode(struct _TASK* task_ptr) {
 }
 
 static void select_training_mode(struct _TASK* task_ptr) {
-    s16 PL_id = 0;
+    s16 player_id = 0;
 
     if (MC_Move_Sub(Check_Menu_Lever(0, 0), 0, 2, 0xFF) == 0) {
-        PL_id = 1;
+        player_id = 1;
         MC_Move_Sub(Check_Menu_Lever(1, 0), 0, 2, 0xFF);
     }
 
@@ -82,7 +82,7 @@ static void select_training_mode(struct _TASK* task_ptr) {
         return;
     }
 
-    Decide_ID = PL_id;
+    Decide_ID = player_id;
 
     if (Menu_Cursor_Y[0] == 0) {
         Mode_Type = MODE_NORMAL_TRAINING;
@@ -96,10 +96,10 @@ static void select_training_mode(struct _TASK* task_ptr) {
     G_No[2] += 1;
     task_ptr->r_no[0] = 5;
     cpExitTask(TASK_SAVER);
-    Champion = PL_id;
-    Pause_ID = PL_id;
-    Training_ID = PL_id;
-    New_Challenger = PL_id ^ 1;
+    Champion = player_id;
+    Pause_ID = player_id;
+    Training_ID = player_id;
+    New_Challenger = player_id ^ 1;
     cpExitTask(TASK_ENTRY);
 }
 

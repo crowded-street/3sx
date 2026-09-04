@@ -1,5 +1,5 @@
 /**
- * @file menu.c
+ * @file training_pause.c
  * Menus
  */
 
@@ -74,110 +74,9 @@
 #include "sf33rd/Source/Game/menu/netplay_menu.h"
 #endif
 
-void Default_Training_Option();
-void Dummy_Move_Sub(struct _TASK* task_ptr, s16 PL_id, s16 id, s16 type, s16 max);
-void Return_Pause_Sub(struct _TASK* task_ptr);
-void Dummy_Move_Sub_LR(u16 sw, s16 id, s16 type, s16 cursor_id);
-void Return_VS_Result_Sub(struct _TASK* task_ptr);
-void Exit_Replay_Save(struct _TASK* task_ptr);
-void Setup_NTr_Data(s16 ix);
+#include "sf33rd/Source/Game/menu/menu_internal.h"
+
 static void apply_training_hitbox_display(bool force_off);
-s32 Check_Pad_in_Pause(struct _TASK* task_ptr);
-void Next_Be_Tr_Menu(struct _TASK* task_ptr);
-void Yes_No_Cursor_Exit_Training(struct _TASK* task_ptr, s16 cursor_id);
-void Check_Skip_Recording();
-void Check_Skip_Replay(s16 ix);
-void Setup_Tr_Pause(struct _TASK* task_ptr);
-void Control_Player_Tr();
-s32 Pause_Check_Tr(s16 PL_id);
-void Setup_Win_Lose_OBJ();
-s32 Pause_in_Normal_Tr(struct _TASK* task_ptr);
-void Training_Disp_Sub(struct _TASK* task_ptr);
-
-// forward decls
-void After_Title(struct _TASK* task_ptr);
-void In_Game(struct _TASK* task_ptr);
-void Wait_Load_Save(struct _TASK* task_ptr);
-void Wait_Replay_Check(struct _TASK* task_ptr);
-void Suspend_Menu();
-void Wait_Replay_Load();
-void Training_Menu(struct _TASK* task_ptr);
-void After_Replay(struct _TASK* task_ptr);
-void Wait_Pause_in_Tr(struct _TASK* task_ptr);
-void Reset_Training(struct _TASK* task_ptr);
-void Reset_Replay(struct _TASK* task_ptr);
-void End_Replay_Menu(struct _TASK* task_ptr);
-void Mode_Select(struct _TASK* task_ptr);
-void Option_Select(struct _TASK* task_ptr);
-void Training_Mode(struct _TASK* task_ptr);
-void System_Direction(struct _TASK* task_ptr);
-void Load_Replay(struct _TASK* task_ptr);
-void toSelectGame(struct _TASK* task_ptr);
-void Game_Option(struct _TASK* task_ptr);
-void Button_Config(struct _TASK* task_ptr);
-void Screen_Adjust(struct _TASK* task_ptr);
-void Sound_Test(struct _TASK* task_ptr);
-void Extra_Option(struct _TASK* task_ptr);
-void VS_Result(struct _TASK* task_ptr);
-void Save_Replay(struct _TASK* task_ptr);
-void Direction_Menu(struct _TASK* task_ptr);
-void Setup_VS_Mode(struct _TASK* task_ptr);
-void Setup_Next_Page(struct _TASK* task_ptr, u8 /* unused */);
-void Load_Replay_Sub(struct _TASK* task_ptr);
-void Button_Exit_Check(struct _TASK* task_ptr, s16 PL_id);
-void Back_to_Mode_Select(struct _TASK* task_ptr);
-void Flash_1P_or_2P(struct _TASK* task_ptr);
-
-void bg_etc_write_ex(s16 type);
-void Decide_PL(s16 PL_id);
-void imgSelectGameButton();
-void jmpRebootProgram();
-s32 Check_Pause_Term_Tr(s16 PL_id);
-
-void Menu_in_Sub(struct _TASK* task_ptr);
-s32 Exit_Sub(struct _TASK* task_ptr, s16 cursor_ix, s16 next_routine);
-u16 MC_Move_Sub(u16 sw, s16 cursor_id, s16 menu_max, s16 cansel_menu);
-s32 Menu_Sub_case1(struct _TASK* task_ptr);
-void System_Dir_Move_Sub(s16 PL_id);
-void System_Dir_Move_Sub_LR(u16 sw, s16 cursor_id);
-u16 Dir_Move_Sub2(u16 sw);
-void Dir_Move_Sub_LR(u16 sw, s16 /* unused */);
-void Ex_Move_Sub_LR(u16 sw, s16 PL_id);
-u16 Game_Option_Sub(s16 PL_id);
-u16 GO_Move_Sub_LR(u16 sw, s16 cursor_id);
-void Button_Config_Sub(s16 PL_id);
-void Button_Move_Sub_LR(u16 sw, s16 cursor_id);
-void Return_Option_Mode_Sub(struct _TASK* task_ptr);
-void Screen_Adjust_Sub(s16 PL_id);
-void Screen_Exit_Check(struct _TASK* task_ptr, s16 PL_id);
-void Screen_Move_Sub_LR(u16 sw);
-u16 Sound_Cursor_Sub(s16 PL_id);
-u16 SD_Move_Sub_LR(u16 sw);
-u16 After_VS_Move_Sub(u16 sw, s16 cursor_id, s16 menu_max);
-s32 VS_Result_Move_Sub(struct _TASK* task_ptr, s16 PL_id);
-void Training_Init(struct _TASK* task_ptr);
-void Menu_Select(struct _TASK* task_ptr);
-void Button_Config_in_Game(struct _TASK* task_ptr);
-void Character_Change(struct _TASK* task_ptr);
-void Pad_Come_Out(struct _TASK* task_ptr);
-void Normal_Training(struct _TASK* task_ptr);
-void Blocking_Training(struct _TASK* task_ptr);
-void Dummy_Setting(struct _TASK* task_ptr);
-void Training_Option(struct _TASK* task_ptr);
-void Button_Config_Tr(struct _TASK* task_ptr);
-void Blocking_Tr_Option(struct _TASK* task_ptr);
-void Training_Init_Sub(struct _TASK* task_ptr);
-void Training_Exit_Sub(struct _TASK* task_ptr);
-void Menu_Init(struct _TASK* task_ptr);
-s32 Check_Pad_in_Pause(struct _TASK* task_ptr);
-s32 Yes_No_Cursor_Move_Sub(struct _TASK* task_ptr);
-void Setup_Button_Sub(s16 x, s16 y, s16 master_player);
-void Button_Exit_Check_in_Game(struct _TASK* task_ptr, s16 PL_id);
-void Setup_Save_Replay_1st(struct _TASK* task_ptr);
-s32 Save_Replay_MC_Sub(struct _TASK* task_ptr, s16 /* unused */);
-void Button_Exit_Check_in_Tr(struct _TASK* task_ptr, s16 PL_id);
-s32 VS_Result_Select_Sub(struct _TASK* task_ptr, s16 PL_id);
-void Setup_Replay_Sub(s16 type, MenuHeader char_type, s16 master_player);
 
 typedef struct {
     s16 pos_x;
@@ -475,12 +374,12 @@ static s32 exit_normal_training_pause(struct _TASK* task_ptr) {
 }
 
 static s32 handle_normal_training_pause_input(struct _TASK* task_ptr) {
-    u16 sw;
+    u16 input;
     if (Pause_Down) {
         IO_Result = MC_Move_Sub(Check_Menu_Lever(Pause_ID, 0), 0, 2, 0xFF);
     } else {
-        sw = ~PLsw[Pause_ID][1] & PLsw[Pause_ID][0];
-        if (sw & SWK_ATTACKS) {
+        input = ~PLsw[Pause_ID][1] & PLsw[Pause_ID][0];
+        if (input & SWK_ATTACKS) {
             IO_Result = SWK_WEST;
         } else {
             return 3;
@@ -538,7 +437,7 @@ s32 Pause_in_Normal_Tr(struct _TASK* task_ptr) {
     return 0;
 }
 
-static void advance_reset(struct _TASK* task_ptr) {
+static void advance_reset_when_loads_complete(struct _TASK* task_ptr) {
     if (--task_ptr->timer != 0) {
         return;
     }
@@ -599,7 +498,7 @@ static void reset_mode(struct _TASK* task_ptr, void (*restart)(struct _TASK*), v
         break;
 
     case 1:
-        advance_reset(task_ptr);
+        advance_reset_when_loads_complete(task_ptr);
         break;
     case 2:
         restart(task_ptr);
@@ -827,9 +726,9 @@ static void move_training_exit_cursor_down(void) {
     SE_dir_cursor_move();
 }
 
-static void select_training_exit(struct _TASK* task_ptr, s16 cursor_id, u16 sw) {
+static void select_training_exit(struct _TASK* task_ptr, s16 cursor_id, u16 input) {
     SE_selected();
-    if (Menu_Cursor_Y[0] || sw == 0x200) {
+    if (Menu_Cursor_Y[0] || input == 0x200) {
         task_ptr->r_no[2] = 0;
         Menu_Suicide[0] = 0;
         Menu_Suicide[1] = 1;

@@ -1,5 +1,5 @@
 /**
- * @file menu.c
+ * @file vs_result_menu.c
  * Menus
  */
 
@@ -74,135 +74,33 @@
 #include "sf33rd/Source/Game/menu/netplay_menu.h"
 #endif
 
-void Default_Training_Option();
-void Dummy_Move_Sub(struct _TASK* task_ptr, s16 PL_id, s16 id, s16 type, s16 max);
-void Return_Pause_Sub(struct _TASK* task_ptr);
-void Dummy_Move_Sub_LR(u16 sw, s16 id, s16 type, s16 cursor_id);
-void Return_VS_Result_Sub(struct _TASK* task_ptr);
-void Exit_Replay_Save(struct _TASK* task_ptr);
-void Setup_NTr_Data(s16 ix);
-s32 Check_Pad_in_Pause(struct _TASK* task_ptr);
-void Next_Be_Tr_Menu(struct _TASK* task_ptr);
-void Yes_No_Cursor_Exit_Training(struct _TASK* task_ptr, s16 cursor_id);
-void Check_Skip_Recording();
-void Check_Skip_Replay(s16 ix);
-void Setup_Tr_Pause(struct _TASK* task_ptr);
-void Control_Player_Tr();
-s32 Pause_Check_Tr(s16 PL_id);
-void Setup_Win_Lose_OBJ();
-s32 Pause_in_Normal_Tr(struct _TASK* task_ptr);
-void Training_Disp_Sub(struct _TASK* task_ptr);
+#include "sf33rd/Source/Game/menu/menu_internal.h"
 
-// forward decls
-void After_Title(struct _TASK* task_ptr);
-void In_Game(struct _TASK* task_ptr);
-void Wait_Load_Save(struct _TASK* task_ptr);
-void Wait_Replay_Check(struct _TASK* task_ptr);
-void Suspend_Menu();
-void Wait_Replay_Load();
-void Training_Menu(struct _TASK* task_ptr);
-void After_Replay(struct _TASK* task_ptr);
-void Wait_Pause_in_Tr(struct _TASK* task_ptr);
-void Reset_Training(struct _TASK* task_ptr);
-void Reset_Replay(struct _TASK* task_ptr);
-void End_Replay_Menu(struct _TASK* task_ptr);
-void Mode_Select(struct _TASK* task_ptr);
-void Option_Select(struct _TASK* task_ptr);
-void Training_Mode(struct _TASK* task_ptr);
-void System_Direction(struct _TASK* task_ptr);
-void Load_Replay(struct _TASK* task_ptr);
-void toSelectGame(struct _TASK* task_ptr);
-void Game_Option(struct _TASK* task_ptr);
-void Button_Config(struct _TASK* task_ptr);
-void Screen_Adjust(struct _TASK* task_ptr);
-void Sound_Test(struct _TASK* task_ptr);
-void Extra_Option(struct _TASK* task_ptr);
-void VS_Result(struct _TASK* task_ptr);
-void Save_Replay(struct _TASK* task_ptr);
-void Direction_Menu(struct _TASK* task_ptr);
-void Setup_VS_Mode(struct _TASK* task_ptr);
-void Setup_Next_Page(struct _TASK* task_ptr, u8 /* unused */);
-void Load_Replay_Sub(struct _TASK* task_ptr);
-void Button_Exit_Check(struct _TASK* task_ptr, s16 PL_id);
-void Back_to_Mode_Select(struct _TASK* task_ptr);
-void Flash_1P_or_2P(struct _TASK* task_ptr);
-
-void bg_etc_write_ex(s16 type);
-void Decide_PL(s16 PL_id);
-void imgSelectGameButton();
-void jmpRebootProgram();
-s32 Check_Pause_Term_Tr(s16 PL_id);
-
-void Menu_in_Sub(struct _TASK* task_ptr);
-s32 Exit_Sub(struct _TASK* task_ptr, s16 cursor_ix, s16 next_routine);
-u16 MC_Move_Sub(u16 sw, s16 cursor_id, s16 menu_max, s16 cansel_menu);
-s32 Menu_Sub_case1(struct _TASK* task_ptr);
-void System_Dir_Move_Sub(s16 PL_id);
-void System_Dir_Move_Sub_LR(u16 sw, s16 cursor_id);
-u16 Dir_Move_Sub2(u16 sw);
-void Dir_Move_Sub_LR(u16 sw, s16 /* unused */);
-void Ex_Move_Sub_LR(u16 sw, s16 PL_id);
-u16 Game_Option_Sub(s16 PL_id);
-u16 GO_Move_Sub_LR(u16 sw, s16 cursor_id);
-void Button_Config_Sub(s16 PL_id);
-void Button_Move_Sub_LR(u16 sw, s16 cursor_id);
-void Return_Option_Mode_Sub(struct _TASK* task_ptr);
-void Screen_Adjust_Sub(s16 PL_id);
-void Screen_Exit_Check(struct _TASK* task_ptr, s16 PL_id);
-void Screen_Move_Sub_LR(u16 sw);
-u16 Sound_Cursor_Sub(s16 PL_id);
-u16 SD_Move_Sub_LR(u16 sw);
-u16 After_VS_Move_Sub(u16 sw, s16 cursor_id, s16 menu_max);
-s32 VS_Result_Move_Sub(struct _TASK* task_ptr, s16 PL_id);
-void Training_Init(struct _TASK* task_ptr);
-void Menu_Select(struct _TASK* task_ptr);
-void Button_Config_in_Game(struct _TASK* task_ptr);
-void Character_Change(struct _TASK* task_ptr);
-void Pad_Come_Out(struct _TASK* task_ptr);
-void Normal_Training(struct _TASK* task_ptr);
-void Blocking_Training(struct _TASK* task_ptr);
-void Dummy_Setting(struct _TASK* task_ptr);
-void Training_Option(struct _TASK* task_ptr);
-void Button_Config_Tr(struct _TASK* task_ptr);
-void Blocking_Tr_Option(struct _TASK* task_ptr);
-void Training_Init_Sub(struct _TASK* task_ptr);
-void Training_Exit_Sub(struct _TASK* task_ptr);
-void Menu_Init(struct _TASK* task_ptr);
-s32 Check_Pad_in_Pause(struct _TASK* task_ptr);
-s32 Yes_No_Cursor_Move_Sub(struct _TASK* task_ptr);
-void Setup_Button_Sub(s16 x, s16 y, s16 master_player);
-void Button_Exit_Check_in_Game(struct _TASK* task_ptr, s16 PL_id);
-void Setup_Save_Replay_1st(struct _TASK* task_ptr);
-s32 Save_Replay_MC_Sub(struct _TASK* task_ptr, s16 /* unused */);
-void Button_Exit_Check_in_Tr(struct _TASK* task_ptr, s16 PL_id);
-s32 VS_Result_Select_Sub(struct _TASK* task_ptr, s16 PL_id);
-void Setup_Replay_Sub(s16 type, MenuHeader char_type, s16 master_player);
-
-static void calculate_vs_win_percentages(u16 ave[2]) {
+static void calculate_vs_win_percentages(u16 win_percentages[2]) {
     s16 total_battle = VS_Win_Record[0] + VS_Win_Record[1];
 
     if (total_battle == 0) {
         total_battle = 1;
     }
     if (VS_Win_Record[0] >= VS_Win_Record[1]) {
-        ave[1] = (VS_Win_Record[1] * 100) / total_battle;
-        if (ave[1] == 0 && VS_Win_Record[1] > 0) {
-            ave[1] = 1;
+        win_percentages[1] = (VS_Win_Record[1] * 100) / total_battle;
+        if (win_percentages[1] == 0 && VS_Win_Record[1] > 0) {
+            win_percentages[1] = 1;
         }
-        ave[0] = 100 - ave[1];
+        win_percentages[0] = 100 - win_percentages[1];
         return;
     }
-    ave[0] = (VS_Win_Record[0] * 100) / total_battle;
-    if (ave[0] == 0 && VS_Win_Record[0] > 0) {
-        ave[0] = 1;
+    win_percentages[0] = (VS_Win_Record[0] * 100) / total_battle;
+    if (win_percentages[0] == 0 && VS_Win_Record[0] > 0) {
+        win_percentages[0] = 1;
     }
-    ave[1] = 100 - ave[0];
+    win_percentages[1] = 100 - win_percentages[0];
 }
 
 static void initialize_vs_result(struct _TASK* task_ptr) {
     s16 ix;
     s16 char_ix2;
-    u16 ave[2];
+    u16 win_percentages[2];
 
     s16 s4;
     s16 s3;
@@ -231,10 +129,10 @@ static void initialize_vs_result(struct _TASK* task_ptr) {
     Order_Timer[139] = 1;
     effect_A0_init(0, VS_Win_Record[0], 0, 3, 0, 0, 0);
     effect_A0_init(0, VS_Win_Record[1], 1, 3, 0, 0, 0);
-    calculate_vs_win_percentages(ave);
+    calculate_vs_win_percentages(win_percentages);
 
-    effect_A0_init(0, ave[0], 2, 3, 0, 0, 0);
-    effect_A0_init(0, ave[1], 3, 3, 0, 0, 0);
+    effect_A0_init(0, win_percentages[0], 2, 3, 0, 0, 0);
+    effect_A0_init(0, win_percentages[1], 3, 3, 0, 0, 0);
 
     for (ix = 0, s4 = char_ix2 = 22; ix < 3; ix++, s3 = char_ix2++) {
         effect_91_init(0, ix, 0, 71, char_ix2, 0);
@@ -245,7 +143,7 @@ static void initialize_vs_result(struct _TASK* task_ptr) {
     Menu_Cursor_Move = 0;
 }
 
-static void continue_vs_result(struct _TASK* task_ptr) {
+static void start_vs_rematch(struct _TASK* task_ptr) {
     switch (task_ptr->r_no[3]) {
     case 0:
         task_ptr->r_no[3]++;
@@ -333,7 +231,7 @@ static void handle_vs_result_selection_state(struct _TASK* task_ptr) {
 static void handle_vs_result_exit_state(struct _TASK* task_ptr) {
     switch (task_ptr->r_no[2]) {
     case 6:
-        continue_vs_result(task_ptr);
+        start_vs_rematch(task_ptr);
         break;
 
     case 7:
@@ -411,13 +309,13 @@ static bool should_skip_vs_result_option(void) {
     return plw[0].wu.operator == 0 || plw[1].wu.operator == 0 || Mode_Type == MODE_NETWORK;
 }
 
-static u16 move_vs_cursor(u16 sw, s16 cursor_id, s16 menu_max, s16 skip) {
-    if (sw == SWK_UP) {
+static u16 move_vs_cursor(u16 input, s16 cursor_id, s16 menu_max, s16 skipped_cursor) {
+    if (input == SWK_UP) {
         Menu_Cursor_Y[cursor_id]--;
         if (Menu_Cursor_Y[cursor_id] < 0) {
             Menu_Cursor_Y[cursor_id] = menu_max;
         }
-        if (Menu_Cursor_Y[cursor_id] == skip) {
+        if (Menu_Cursor_Y[cursor_id] == skipped_cursor) {
             Menu_Cursor_Y[cursor_id] = 0;
         }
         SE_cursor_move();
@@ -427,28 +325,28 @@ static u16 move_vs_cursor(u16 sw, s16 cursor_id, s16 menu_max, s16 skip) {
     if (Menu_Cursor_Y[cursor_id] > menu_max) {
         Menu_Cursor_Y[cursor_id] = 0;
     }
-    if (Menu_Cursor_Y[cursor_id] == skip) {
+    if (Menu_Cursor_Y[cursor_id] == skipped_cursor) {
         Menu_Cursor_Y[cursor_id] = 2;
     }
     SE_cursor_move();
     return IO_Result = SWK_DOWN;
 }
 
-static u16 pass_through_vs_input(u16 sw) {
-    switch (sw) {
+static u16 pass_through_vs_input(u16 input) {
+    switch (input) {
     case SWK_WEST:
     case SWK_SOUTH:
     case SWK_EAST:
     case SWK_RIGHT_TRIGGER:
     case SWK_START:
-        return IO_Result = sw;
+        return IO_Result = input;
     default:
         return IO_Result = 0;
     }
 }
 
-static bool is_vs_shoulder_input(u16 sw) {
-    switch (sw) {
+static bool is_vs_shoulder_input(u16 input) {
+    switch (input) {
     case SWK_NORTH:
     case SWK_RIGHT_SHOULDER:
     case SWK_LEFT_SHOULDER:
@@ -459,9 +357,9 @@ static bool is_vs_shoulder_input(u16 sw) {
     }
 }
 
-static u16 pass_through_vs_shoulder_input(u16 sw) {
-    if (is_vs_shoulder_input(sw)) {
-        return IO_Result = sw;
+static u16 pass_through_vs_shoulder_input(u16 input) {
+    if (is_vs_shoulder_input(input)) {
+        return IO_Result = input;
     }
     return IO_Result = 0;
 }
@@ -481,12 +379,12 @@ u16 After_VS_Move_Sub(u16 sw, s16 cursor_id, s16 menu_max) {
     return pass_through_vs_shoulder_input(sw);
 }
 
-static s32 select_vs_result_option(struct _TASK* task_ptr, s16 PL_id) {
+static s32 select_vs_result_option(struct _TASK* task_ptr, s16 player_id) {
     SE_selected();
-    switch (Menu_Cursor_Y[PL_id]) {
+    switch (Menu_Cursor_Y[player_id]) {
     case 0:
-        Menu_Cursor_X[PL_id] = 1;
-        if (!Menu_Cursor_X[PL_id ^ 1]) {
+        Menu_Cursor_X[player_id] = 1;
+        if (!Menu_Cursor_X[player_id ^ 1]) {
             return 0;
         }
         task_ptr->r_no[2] = 6;

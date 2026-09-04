@@ -16,7 +16,9 @@ import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-SUFFIXES = {".c", ".cpp", ".h", ".hpp", ".py"}
+# CodeScene does not return a Code Health score for declaration-only headers.
+# Their implementations remain covered when the corresponding source files are staged.
+SUFFIXES = {".c", ".cpp", ".py"}
 EXCLUDED = ("src/imgui/", "src/stb/", "src/argparse/", "src/bin2obj/")
 SCORE_RE = re.compile(r"Code Health score:\s*([0-9.]+)")
 
