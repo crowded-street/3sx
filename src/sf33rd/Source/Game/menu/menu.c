@@ -5141,6 +5141,17 @@ static void handle_extra_option_page_action(struct _TASK* task_ptr) {
     SE_selected();
 }
 
+static void select_previous_extra_option_page(struct _TASK* task_ptr) {
+    task_ptr->r_no[2] = 1;
+    task_ptr->timer = 5;
+
+    if (--Menu_Page < 0) {
+        Menu_Page = Page_Max;
+    }
+
+    SE_dir_selected();
+}
+
 void Extra_Option(struct _TASK* task_ptr) {
     Menu_Cursor_Y[1] = Menu_Cursor_Y[0];
 
@@ -5206,14 +5217,7 @@ void Extra_Option(struct _TASK* task_ptr) {
 
         case 0x80:
         case 0x800:
-            task_ptr->r_no[2] = 1;
-            task_ptr->timer = 5;
-
-            if (--Menu_Page < 0) {
-                Menu_Page = Page_Max;
-            }
-
-            SE_dir_selected();
+            select_previous_extra_option_page(task_ptr);
             break;
 
         case 0x40:
