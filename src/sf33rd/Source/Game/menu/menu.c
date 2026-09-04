@@ -5163,6 +5163,13 @@ static void select_next_extra_option_page(struct _TASK* task_ptr) {
     SE_dir_selected();
 }
 
+static void read_second_extra_option_input(struct _TASK* task_ptr) {
+    if (IO_Result == 0) {
+        Pause_ID = 1;
+        Dir_Move_Sub(task_ptr, 1);
+    }
+}
+
 void Extra_Option(struct _TASK* task_ptr) {
     Menu_Cursor_Y[1] = Menu_Cursor_Y[0];
 
@@ -5208,11 +5215,7 @@ void Extra_Option(struct _TASK* task_ptr) {
     case 4:
         Pause_ID = 0;
         Dir_Move_Sub(task_ptr, 0);
-
-        if (IO_Result == 0) {
-            Pause_ID = 1;
-            Dir_Move_Sub(task_ptr, 1);
-        }
+        read_second_extra_option_input(task_ptr);
 
         update_extra_option_message();
 
