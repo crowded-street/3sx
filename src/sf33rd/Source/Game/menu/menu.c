@@ -5170,6 +5170,11 @@ static void read_second_extra_option_input(struct _TASK* task_ptr) {
     }
 }
 
+static void reset_extra_options(void) {
+    save_w[Present_Mode].extra_option = save_w[0].extra_option;
+    SE_selected();
+}
+
 void Extra_Option(struct _TASK* task_ptr) {
     Menu_Cursor_Y[1] = Menu_Cursor_Y[0];
 
@@ -5241,8 +5246,7 @@ void Extra_Option(struct _TASK* task_ptr) {
 
         case 0x100:
             if (Menu_Page == 0 && Menu_Cursor_Y[0] == 6) {
-                save_w[Present_Mode].extra_option = save_w[0].extra_option;
-                SE_selected();
+                reset_extra_options();
                 break;
             }
 
