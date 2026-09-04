@@ -494,25 +494,25 @@ void nm_18000(PLW* wk) { // 🟢
     jumping_cg_type_check(wk);
 }
 
+static void reset_guard_for_new_state(PLW* wk) {
+    wk->guard_flag = 0;
+
+    if (!ArcadeBalance_IsEnabled()) {
+        clear_chainex_check(wk->wu.id);
+    }
+}
+
 void jumping_cg_type_check(PLW* wk) { // 🟡
     if (wk->wu.pat_status < 32) {
         switch (wk->wu.cg_type) {
         case 0xFF:
-            wk->guard_flag = 0;
-
-            if (!ArcadeBalance_IsEnabled()) {
-                clear_chainex_check(wk->wu.id);
-            }
+            reset_guard_for_new_state(wk);
 
             TO_nm_01000(&wk->wu);
             break;
 
         case 2:
-            wk->guard_flag = 0;
-
-            if (!ArcadeBalance_IsEnabled()) {
-                clear_chainex_check(wk->wu.id);
-            }
+            reset_guard_for_new_state(wk);
 
             if (check_full_gauge_attack(wk, 0)) {
                 break;
@@ -558,11 +558,7 @@ void jumping_cg_type_check(PLW* wk) { // 🟡
             break;
 
         case 7:
-            wk->guard_flag = 0;
-
-            if (!ArcadeBalance_IsEnabled()) {
-                clear_chainex_check(wk->wu.id);
-            }
+            reset_guard_for_new_state(wk);
 
             if (check_full_gauge_attack(wk, 0)) {
                 break;
@@ -600,11 +596,7 @@ void jumping_cg_type_check(PLW* wk) { // 🟡
             break;
 
         case 3:
-            wk->guard_flag = 0;
-
-            if (!ArcadeBalance_IsEnabled()) {
-                clear_chainex_check(wk->wu.id);
-            }
+            reset_guard_for_new_state(wk);
 
             if (check_full_gauge_attack(wk, 0)) {
                 break;
@@ -666,11 +658,7 @@ void jumping_cg_type_check(PLW* wk) { // 🟡
             break;
 
         case 64:
-            wk->guard_flag = 0;
-
-            if (!ArcadeBalance_IsEnabled()) {
-                clear_chainex_check(wk->wu.id);
-            }
+            reset_guard_for_new_state(wk);
 
             if (wk->wu.pat_status < 14) {
                 TO_nm_36000(&wk->wu);
@@ -683,21 +671,13 @@ void jumping_cg_type_check(PLW* wk) { // 🟡
     } else {
         switch (wk->wu.cg_type) {
         case 0xFF:
-            wk->guard_flag = 0;
-
-            if (!ArcadeBalance_IsEnabled()) {
-                clear_chainex_check(wk->wu.id);
-            }
+            reset_guard_for_new_state(wk);
 
             TO_nm_09000(&wk->wu);
             break;
 
         case 2:
-            wk->guard_flag = 0;
-
-            if (!ArcadeBalance_IsEnabled()) {
-                clear_chainex_check(wk->wu.id);
-            }
+            reset_guard_for_new_state(wk);
 
             if (check_full_gauge_attack(wk, 0)) {
                 break;
@@ -743,11 +723,7 @@ void jumping_cg_type_check(PLW* wk) { // 🟡
             break;
 
         case 7:
-            wk->guard_flag = 0;
-
-            if (!ArcadeBalance_IsEnabled()) {
-                clear_chainex_check(wk->wu.id);
-            }
+            reset_guard_for_new_state(wk);
 
             if (check_full_gauge_attack(wk, 0)) {
                 break;
@@ -785,11 +761,7 @@ void jumping_cg_type_check(PLW* wk) { // 🟡
             break;
 
         case 3:
-            wk->guard_flag = 0;
-
-            if (!ArcadeBalance_IsEnabled()) {
-                clear_chainex_check(wk->wu.id);
-            }
+            reset_guard_for_new_state(wk);
 
             if (check_full_gauge_attack(wk, 0)) {
                 break;
@@ -854,11 +826,7 @@ void jumping_cg_type_check(PLW* wk) { // 🟡
             break;
 
         case 64:
-            wk->guard_flag = 0;
-
-            if (!ArcadeBalance_IsEnabled()) {
-                clear_chainex_check(wk->wu.id);
-            }
+            reset_guard_for_new_state(wk);
 
             TO_nm_37000(&wk->wu);
             break;
