@@ -1824,12 +1824,32 @@ static bool is_push_damage_box_blocked(const HitScan* scan, s16 damage_box) {
            scan->target->pat_status == 0x26;
 }
 
+static bool should_end_damage_box_scan(const HitScan* scan, s16 damage_box) {
+    return damage_box > 3 && scan->attacker->att_hit_ok == 0;
+}
+
+static void record_hit_if_stronger(const HitScan* scan, s16* attack_box_data, s16 attack_box, s16 damage_box) {
+    s16 overlap = hit_check_subroutine(scan->attacker, scan->target, attack_box_data, dmdat_adrs[damage_box]);
+
+    if (overlap > mkm_wk[scan->target_index]) {
+        hs[scan->attacker_index].flag.results |= 0x10;
+        hs[scan->attacker_index].my_hit = scan->target_index;
+        hs[scan->attacker_index].my_att = attack_box;
+        hs[scan->target_index].flag.results |= 1;
+        hs[scan->target_index].dm_me = scan->attacker_index;
+        hs[scan->target_index].dm_body = damage_box;
+        scan->attacker->att_hit_ok = 0;
+        mkm_wk[scan->target_index] = overlap;
+        hs[scan->attacker_index].ah = attack_box_data;
+        hs[scan->target_index].dh = dmdat_adrs[damage_box];
+    }
+}
+
 static bool check_attack_box_against_damage_boxes(const HitScan* scan, s16* mh, s16 lp) {
     s16 lp2;
-    s16 mw;
 
     for (lp2 = 0; lp2 < 11; lp2++) {
-        if (lp2 > 3 && scan->attacker->att_hit_ok == 0) {
+        if (should_end_damage_box_scan(scan, lp2)) {
             return false;
         }
 
@@ -1849,20 +1869,7 @@ static bool check_attack_box_against_damage_boxes(const HitScan* scan, s16* mh, 
             continue;
         }
 
-        mw = hit_check_subroutine(scan->attacker, scan->target, mh, dmdat_adrs[lp2]);
-
-        if (mw > mkm_wk[scan->target_index]) {
-            hs[scan->attacker_index].flag.results |= 0x10;
-            hs[scan->attacker_index].my_hit = scan->target_index;
-            hs[scan->attacker_index].my_att = lp;
-            hs[scan->target_index].flag.results |= 1;
-            hs[scan->target_index].dm_me = scan->attacker_index;
-            hs[scan->target_index].dm_body = lp2;
-            scan->attacker->att_hit_ok = 0;
-            mkm_wk[scan->target_index] = mw;
-            hs[scan->attacker_index].ah = mh;
-            hs[scan->target_index].dh = dmdat_adrs[lp2];
-        }
+        record_hit_if_stronger(scan, mh, lp, lp2);
     }
 
     return true;
