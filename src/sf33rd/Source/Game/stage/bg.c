@@ -474,6 +474,23 @@ static void setup_ending_type14(void* loadAdrs, u32 loadSize, u16 accnum) {
     }
 }
 
+static u16 load_ending_rewrite_textures(void* loadAdrs, u32 loadSize, u8 j, u8 x, u16 accnum) {
+    u8 i;
+
+    if (x) {
+        ppgSetupCurrentDataList(&ppgRwBgList);
+        ppgSetupTexChunk_1st(NULL, loadAdrs, loadSize, (j * 64) + 100, x, 0, 0);
+        ppgSetupTexChunk_1st_Accnum(0, accnum);
+
+        for (i = 0; i < x; i++) {
+            accnum = ppgSetupTexChunk_2nd(NULL, i + ((j * 64) + 100));
+            ppgSetupTexChunk_3rd(NULL, i + ((j * 64) + 100), 1);
+        }
+    }
+
+    return accnum;
+}
+
 void Bg_Texture_Load_Ending(s16 type) {
     void* loadAdrs;
     u32 loadSize;
@@ -532,17 +549,7 @@ void Bg_Texture_Load_Ending(s16 type) {
     }
 
     x = ending_rewrite_scr[type];
-
-    if (x) {
-        ppgSetupCurrentDataList(&ppgRwBgList);
-        ppgSetupTexChunk_1st(NULL, loadAdrs, loadSize, (j * 64) + 100, x, 0, 0);
-        ppgSetupTexChunk_1st_Accnum(0, accnum);
-
-        for (i = 0; i < x; i++) {
-            accnum = ppgSetupTexChunk_2nd(NULL, i + ((j * 64) + 100));
-            ppgSetupTexChunk_3rd(NULL, i + ((j * 64) + 100), 1);
-        }
-    }
+    accnum = load_ending_rewrite_textures(loadAdrs, loadSize, j, x, accnum);
 
     switch (type) {
     case 14:
