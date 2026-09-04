@@ -1282,36 +1282,31 @@ void check_21() { // 🟢
 
     sw_lever = chk_pl->sw_lever & 0xF;
 
-    if (!dead_lvr_check()) {
-        if (waza_ptr->w_lvr & 0x8000) {
-            sw_work = waza_ptr->w_lvr & 0xF;
-            if (sw_work == 0) {
-                if (sw_lever == 0) {
-                    if (((*waza_ptr->w_ptr)) == 0x1C) {
-                        command_ok();
-                        return;
-                    }
-                    check_next();
-                }
-            } else if (chk_pl->now_lvbt & 0xF) {
-                if (sw_lever == sw_work) {
-                    if (*waza_ptr->w_ptr == 28) {
-                        command_ok();
-                        return;
-                    }
-                    check_next();
-                }
-            }
-        } else if (waza_ptr->w_lvr == 0) {
+    if (dead_lvr_check()) {
+        return;
+    }
+
+    if (waza_ptr->w_lvr & 0x8000) {
+        sw_work = waza_ptr->w_lvr & 0xF;
+        if (sw_work == 0) {
             if (sw_lever == 0) {
+                if (((*waza_ptr->w_ptr)) == 0x1C) {
+                    command_ok();
+                    return;
+                }
+                check_next();
+            }
+        } else if (chk_pl->now_lvbt & 0xF) {
+            if (sw_lever == sw_work) {
                 if (*waza_ptr->w_ptr == 28) {
                     command_ok();
                     return;
                 }
-
                 check_next();
             }
-        } else if ((chk_pl->now_lvbt & 0xF) && (sw_lever & waza_ptr->w_lvr)) {
+        }
+    } else if (waza_ptr->w_lvr == 0) {
+        if (sw_lever == 0) {
             if (*waza_ptr->w_ptr == 28) {
                 command_ok();
                 return;
@@ -1319,6 +1314,13 @@ void check_21() { // 🟢
 
             check_next();
         }
+    } else if ((chk_pl->now_lvbt & 0xF) && (sw_lever & waza_ptr->w_lvr)) {
+        if (*waza_ptr->w_ptr == 28) {
+            command_ok();
+            return;
+        }
+
+        check_next();
     }
 }
 
