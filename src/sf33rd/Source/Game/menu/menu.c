@@ -949,6 +949,39 @@ static void select_next_direction_page(struct _TASK* task_ptr) {
     SE_dir_selected();
 }
 
+static void handle_direction_page_action(struct _TASK* task_ptr) {
+    switch (system_dir[1].contents[Menu_Page][Menu_Max]) {
+    case 0:
+        task_ptr->r_no[2] = 1;
+        task_ptr->timer = 5;
+
+        if (--Menu_Page < 0) {
+            Menu_Page = (s8)Page_Max;
+        }
+
+        break;
+
+    case 2:
+        task_ptr->r_no[2] = 1;
+        task_ptr->timer = 5;
+
+        if (++Menu_Page > Page_Max) {
+            Menu_Page = 0;
+        }
+
+        break;
+
+    default:
+        task_ptr->r_no[2] += 1;
+        Menu_Suicide[0] = 0;
+        Menu_Suicide[1] = 0;
+        Menu_Suicide[2] = 1;
+        break;
+    }
+
+    SE_selected();
+}
+
 static void handle_direction_menu_input(struct _TASK* task_ptr) {
     switch (IO_Result) {
     case 0x200:
@@ -974,36 +1007,7 @@ static void handle_direction_menu_input(struct _TASK* task_ptr) {
             break;
         }
 
-        switch (system_dir[1].contents[Menu_Page][Menu_Max]) {
-        case 0:
-            task_ptr->r_no[2] = 1;
-            task_ptr->timer = 5;
-
-            if (--Menu_Page < 0) {
-                Menu_Page = (s8)Page_Max;
-            }
-
-            break;
-
-        case 2:
-            task_ptr->r_no[2] = 1;
-            task_ptr->timer = 5;
-
-            if (++Menu_Page > Page_Max) {
-                Menu_Page = 0;
-            }
-
-            break;
-
-        default:
-            task_ptr->r_no[2] += 1;
-            Menu_Suicide[0] = 0;
-            Menu_Suicide[1] = 0;
-            Menu_Suicide[2] = 1;
-            break;
-        }
-
-        SE_selected();
+        handle_direction_page_action(task_ptr);
         break;
     }
 }
