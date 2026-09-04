@@ -19,10 +19,15 @@ Outside the in-round simulation. Safe to refactor with compile verification only
 | [R14](tasks/R14-bg.md) | `Game/stage/bg.c` | **3.62** | 1430 | 11 | MEDIUM | `scr_trans` (cc 109) |
 | [R17](tasks/R17-entry.md) | `Game/screen/entry.c` | **3.86** | 1480 | 19 | LOW | `Entry_Main_Sub` (cc 35) |
 
-## Track B - blocked until statcheck is green in CI
+## Track B - manual playtesting required (statcheck indefinitely unavailable)
 
 Core engine, CPU logic, animation and effects. A silent behaviour change here breaks
-gameplay or rollback determinism and the build will not catch it.
+gameplay or rollback determinism and the build will not catch it. Statcheck would
+normally catch it, but its replay runner needs a real CPS3 ROM dump, and a legitimate
+one requires owning genuine CPS3 arcade hardware - this project's no-piracy policy won't
+work around that, so treat statcheck as indefinitely unavailable rather than pending.
+**2026-09-04 (project owner directive):** these files may be refactored now; verify with
+manual playtesting instead of waiting on statcheck.
 
 | Task | File | Score | LOC | Churn | Risk | Worst function |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -57,22 +62,22 @@ point. **Campaign start** preserves the original 2026-09-01 sweep.
 
 | Task | Campaign start | Baseline | Current | Status |
 | --- | --- | --- | --- | --- |
-| R01 | 1.42 | 1.42 | - | not started |
+| R01 | 1.42 | 1.42 | **1.58** | All 6 target functions touched: `attack_hit_check`, `defense_ground_ps2`, `defense_ground_cps3`, `catch_hit_check`, `hit_pattern_extdat_check`, `plef_at_vs_player_damage_union`. Plus `set_paring_status` (merged identical switch-case bodies) and `add_combo_work`/`nise_combo_work` (Recipe D). Still Red - `set_caught_status` (cc 50, has 6 `goto`s) and the `goto`/nested-loop cores of `attack_hit_check` and `plef_at_vs_player_damage_union` deliberately left untouched. Verify with manual playtesting. |
 | R02 | 1.52 | 1.52 | - | not started |
-| R03 | 1.82 | 1.82 | - | not started |
+| R03 | 1.82 | 1.82 | **2.14** | `check_catch_attack`, `check_nm_attack` (deduped 8-way case cluster into 3 array-family helpers), `check_super_arts_attack_dc` (deduped inner loop-skip check), and `is_blocked_by_arcade_switch` deduped 10x across the file. `check_special_attack` (cc 99, worst in the campaign) deliberately left alone: no goto, but deeply nested `continue`-driven double loops. `check_full_gauge_attack`/`check_full_gauge_attack2` still differ by too many values (field, comparator direction, DIP flag, array, offset) to safely dedupe their outer branches. |
 | R04 | **1.97** | 2.25 | **2.25** | wave 1 of 3 done (PR #3) |
-| R05 | 2.31 | 2.31 | - | not started |
+| R05 | 2.31 | 2.31 | **3.33** | All 12 originally-scoped functions done, plus `check_4` (the "missing return" in its 3rd block turned out to be a non-issue - it's the function's last statement either way), `clear_lower_priority_waza_flags`/`_no_free3_check` (deduped via a 5-arg `clear_flags_below` helper, ~150 lines removed), and `waza_compel_all_init` (7 repeated range-loop pairs -> 2 helpers). Still Red - `check_10`/`check_12`/`check_23` remain flagged as similar but differ in real side effects per branch, not safely mergeable. |
 | R06 | 2.57 | 2.57 | - | not started |
 | R07 | 2.58 | 2.58 | - | not started |
 | R08 | 2.64 | 2.64 | - | not started |
-| R09 | 2.74 | 2.74 | - | not started |
+| R09 | 2.74 | 2.74 | **4.05** | **Cleared Red band.** Deduped the shared "common attack checks" blocks across most `nm_XXXXX` functions and `jumping_cg_type_check` (cc 92 -> 40). The `return`-vs-`break` mismatch there turned out safe: the switch is the terminal statement of both branches, so they're equivalent - verified byte-for-byte after normalizing that one line before extracting. |
 | R10 | 3.09 | 3.09 | - | not started |
 | R11 | 3.49 | 3.49 | - | not started |
 | R12 | 3.56 | 3.56 | - | not started |
 | R13 | 3.56 | 3.56 | - | not started |
 | R14 | 3.62 | 3.62 | - | not started |
-| R15 | 3.68 | 3.68 | - | not started |
+| R15 | 3.68 | 3.68 | **4.08** | Deduped `subtract_dm_vital`/`_aiuchi` (Recipe E+D) and `Damage_14000`/`21000`/`20000`/`23000` pairs (Recipe D). Cleared Red band. Track B gate manually overridden by user request - statcheck still not running in CI. |
 | R16 | 3.75 | 3.75 | - | not started |
 | R17 | 3.86 | 3.86 | - | not started |
-| R18 | 3.92 | 3.92 | - | not started |
-| R19 | 3.92 | 3.92 | - | not started |
+| R18 | 3.92 | 3.92 | **4.17** | `comm_sstx` deduped (Recipe D), file cleared Red band. Verified by build + refactor_guard; not yet manually playtested. Remaining functions (`check_cgd_patdat` etc.) open for further work under the relaxed gate. |
+| R19 | 3.92 | 3.92 | **4.01** | Extracted `run_bonus_perfect_result_phase` out of `Game_Manage_12_4` (Recipe E) - cc 32->18, bumps 5->3. Cleared Red band, close to the line. Track B gate manually overridden by user request. |

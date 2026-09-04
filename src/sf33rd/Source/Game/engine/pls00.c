@@ -23,6 +23,7 @@ void nm_18000(PLW* wk);
 void jumping_cg_type_check(PLW* wk);
 void nm_27_cg_type_check(PLW* wk);
 s32 check_cg_cancel_data(PLW* wk);
+static bool run_common_nm_attack_checks(PLW* wk);
 
 const s8 lvdir_conv[4];
 
@@ -102,59 +103,7 @@ void nm_01000(PLW* wk) { // 🟡
         return;
     }
 
-    if (check_ashimoto(wk)) {
-        return;
-    }
-
-    if (check_full_gauge_attack(wk, 0)) {
-        return;
-    }
-
-    if (check_full_gauge_attack2(wk, 0)) {
-        return;
-    }
-
-    if (check_super_arts_attack(wk)) {
-        return;
-    }
-
-    if (check_special_attack(wk)) {
-        return;
-    }
-
-    if (check_chouhatsu(wk)) {
-        return;
-    }
-
-    if (check_catch_attack(wk)) {
-        return;
-    }
-
-    if (check_leap_attack(wk)) {
-        return;
-    }
-
-    if (check_nm_attack(wk)) {
-        return;
-    }
-
-    if (check_cg_cancel_data(wk)) {
-        return;
-    }
-
-    if (check_turn_to_back(wk)) {
-        return;
-    }
-
-    if (check_F_R_dash(wk)) {
-        return;
-    }
-
-    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
-        return;
-    }
-
-    if (check_jump_ready(wk)) {
+    if (run_common_nm_attack_checks(wk)) {
         return;
     }
 
@@ -169,6 +118,62 @@ void nm_01000(PLW* wk) { // 🟡
     check_F_R_walk(wk);
 }
 
+static bool run_common_nm_attack_checks_no_turn(PLW* wk) {
+    if (check_ashimoto(wk)) {
+        return true;
+    }
+
+    if (check_full_gauge_attack(wk, 0)) {
+        return true;
+    }
+
+    if (check_full_gauge_attack2(wk, 0)) {
+        return true;
+    }
+
+    if (check_super_arts_attack(wk)) {
+        return true;
+    }
+
+    if (check_special_attack(wk)) {
+        return true;
+    }
+
+    if (check_chouhatsu(wk)) {
+        return true;
+    }
+
+    if (check_catch_attack(wk)) {
+        return true;
+    }
+
+    if (check_leap_attack(wk)) {
+        return true;
+    }
+
+    if (check_nm_attack(wk)) {
+        return true;
+    }
+
+    if (check_cg_cancel_data(wk)) {
+        return true;
+    }
+
+    if (check_F_R_dash(wk)) {
+        return true;
+    }
+
+    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
+        return true;
+    }
+
+    if (check_jump_ready(wk)) {
+        return true;
+    }
+
+    return false;
+}
+
 void nm_02000(PLW* wk) { // 🟡
     if (wk->wu.cg_type == 0xFF) {
         TO_nm_01000(&wk->wu);
@@ -180,55 +185,7 @@ void nm_02000(PLW* wk) { // 🟡
         return;
     }
 
-    if (check_ashimoto(wk)) {
-        return;
-    }
-
-    if (check_full_gauge_attack(wk, 0)) {
-        return;
-    }
-
-    if (check_full_gauge_attack2(wk, 0)) {
-        return;
-    }
-
-    if (check_super_arts_attack(wk)) {
-        return;
-    }
-
-    if (check_special_attack(wk)) {
-        return;
-    }
-
-    if (check_chouhatsu(wk)) {
-        return;
-    }
-
-    if (check_catch_attack(wk)) {
-        return;
-    }
-
-    if (check_leap_attack(wk)) {
-        return;
-    }
-
-    if (check_nm_attack(wk)) {
-        return;
-    }
-
-    if (check_cg_cancel_data(wk)) {
-        return;
-    }
-
-    if (check_F_R_dash(wk)) {
-        return;
-    }
-
-    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
-        return;
-    }
-
-    if (check_jump_ready(wk)) {
+    if (run_common_nm_attack_checks_no_turn(wk)) {
         return;
     }
 
@@ -244,59 +201,7 @@ void nm_02000(PLW* wk) { // 🟡
 }
 
 void nm_03000(PLW* wk) { // 🟡
-    if (check_ashimoto(wk)) {
-        return;
-    }
-
-    if (check_full_gauge_attack(wk, 0)) {
-        return;
-    }
-
-    if (check_full_gauge_attack2(wk, 0)) {
-        return;
-    }
-
-    if (check_super_arts_attack(wk)) {
-        return;
-    }
-
-    if (check_special_attack(wk)) {
-        return;
-    }
-
-    if (check_chouhatsu(wk)) {
-        return;
-    }
-
-    if (check_catch_attack(wk)) {
-        return;
-    }
-
-    if (check_leap_attack(wk)) {
-        return;
-    }
-
-    if (check_nm_attack(wk)) {
-        return;
-    }
-
-    if (check_cg_cancel_data(wk)) {
-        return;
-    }
-
-    if (check_turn_to_back(wk)) {
-        return;
-    }
-
-    if (check_F_R_dash(wk)) {
-        return;
-    }
-
-    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
-        return;
-    }
-
-    if (check_jump_ready(wk)) {
+    if (run_common_nm_attack_checks(wk)) {
         return;
     }
 
@@ -325,59 +230,7 @@ void nm_07000(PLW* wk) { // 🟡
         return;
     }
 
-    if (check_ashimoto(wk)) {
-        return;
-    }
-
-    if (check_full_gauge_attack(wk, 0)) {
-        return;
-    }
-
-    if (check_full_gauge_attack2(wk, 0)) {
-        return;
-    }
-
-    if (check_super_arts_attack(wk)) {
-        return;
-    }
-
-    if (check_special_attack(wk)) {
-        return;
-    }
-
-    if (check_chouhatsu(wk)) {
-        return;
-    }
-
-    if (check_catch_attack(wk)) {
-        return;
-    }
-
-    if (check_leap_attack(wk)) {
-        return;
-    }
-
-    if (check_nm_attack(wk)) {
-        return;
-    }
-
-    if (check_cg_cancel_data(wk)) {
-        return;
-    }
-
-    if (check_turn_to_back(wk)) {
-        return;
-    }
-
-    if (check_F_R_dash(wk)) {
-        return;
-    }
-
-    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
-        return;
-    }
-
-    if (check_jump_ready(wk)) {
+    if (run_common_nm_attack_checks(wk)) {
         return;
     }
 
@@ -403,59 +256,7 @@ void nm_08000(PLW* wk) { // 🟡
         return;
     }
 
-    if (check_ashimoto(wk)) {
-        return;
-    }
-
-    if (check_full_gauge_attack(wk, 0)) {
-        return;
-    }
-
-    if (check_full_gauge_attack2(wk, 0)) {
-        return;
-    }
-
-    if (check_super_arts_attack(wk)) {
-        return;
-    }
-
-    if (check_special_attack(wk)) {
-        return;
-    }
-
-    if (check_chouhatsu(wk)) {
-        return;
-    }
-
-    if (check_catch_attack(wk)) {
-        return;
-    }
-
-    if (check_leap_attack(wk)) {
-        return;
-    }
-
-    if (check_nm_attack(wk)) {
-        return;
-    }
-
-    if (check_cg_cancel_data(wk)) {
-        return;
-    }
-
-    if (check_turn_to_back(wk)) {
-        return;
-    }
-
-    if (check_F_R_dash(wk)) {
-        return;
-    }
-
-    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
-        return;
-    }
-
-    if (check_jump_ready(wk)) {
+    if (run_common_nm_attack_checks(wk)) {
         return;
     }
 
@@ -475,59 +276,7 @@ void nm_09000(PLW* wk) { // 🟡
         return;
     }
 
-    if (check_ashimoto(wk)) {
-        return;
-    }
-
-    if (check_full_gauge_attack(wk, 0)) {
-        return;
-    }
-
-    if (check_full_gauge_attack2(wk, 0)) {
-        return;
-    }
-
-    if (check_super_arts_attack(wk)) {
-        return;
-    }
-
-    if (check_special_attack(wk)) {
-        return;
-    }
-
-    if (check_chouhatsu(wk)) {
-        return;
-    }
-
-    if (check_catch_attack(wk)) {
-        return;
-    }
-
-    if (check_leap_attack(wk)) {
-        return;
-    }
-
-    if (check_nm_attack(wk)) {
-        return;
-    }
-
-    if (check_cg_cancel_data(wk)) {
-        return;
-    }
-
-    if (check_turn_to_back(wk)) {
-        return;
-    }
-
-    if (check_F_R_dash(wk)) {
-        return;
-    }
-
-    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
-        return;
-    }
-
-    if (check_jump_ready(wk)) {
+    if (run_common_nm_attack_checks(wk)) {
         return;
     }
 
@@ -550,55 +299,7 @@ void nm_10000(PLW* wk) { // 🟡
         return;
     }
 
-    if (check_ashimoto(wk)) {
-        return;
-    }
-
-    if (check_full_gauge_attack(wk, 0)) {
-        return;
-    }
-
-    if (check_full_gauge_attack2(wk, 0)) {
-        return;
-    }
-
-    if (check_super_arts_attack(wk)) {
-        return;
-    }
-
-    if (check_special_attack(wk)) {
-        return;
-    }
-
-    if (check_chouhatsu(wk)) {
-        return;
-    }
-
-    if (check_catch_attack(wk)) {
-        return;
-    }
-
-    if (check_leap_attack(wk)) {
-        return;
-    }
-
-    if (check_nm_attack(wk)) {
-        return;
-    }
-
-    if (check_cg_cancel_data(wk)) {
-        return;
-    }
-
-    if (check_F_R_dash(wk)) {
-        return;
-    }
-
-    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
-        return;
-    }
-
-    if (check_jump_ready(wk)) {
+    if (run_common_nm_attack_checks_no_turn(wk)) {
         return;
     }
 
@@ -739,37 +440,45 @@ void set_new_jpdir(PLW* wk) { // 🟢
     }
 }
 
+static bool run_jump_attack_checks(PLW* wk) {
+    if (check_full_gauge_attack(wk, 0)) {
+        return true;
+    }
+
+    if (check_full_gauge_attack2(wk, 0)) {
+        return true;
+    }
+
+    if (check_super_arts_attack(wk)) {
+        return true;
+    }
+
+    if (check_special_attack(wk)) {
+        return true;
+    }
+
+    if (check_chouhatsu(wk)) {
+        return true;
+    }
+
+    if (check_catch_attack(wk)) {
+        return true;
+    }
+
+    if (check_nm_attack(wk)) {
+        return true;
+    }
+
+    if (check_cg_cancel_data(wk)) {
+        return true;
+    }
+
+    return false;
+}
+
 void nm_18000(PLW* wk) { // 🟢
     if (wk->wu.routine_no[3] < 2 && wk->wu.xyz[1].disp.pos > 0) {
-        if (check_full_gauge_attack(wk, 0)) {
-            return;
-        }
-
-        if (check_full_gauge_attack2(wk, 0)) {
-            return;
-        }
-
-        if (check_super_arts_attack(wk)) {
-            return;
-        }
-
-        if (check_special_attack(wk)) {
-            return;
-        }
-
-        if (check_chouhatsu(wk)) {
-            return;
-        }
-
-        if (check_catch_attack(wk)) {
-            return;
-        }
-
-        if (check_nm_attack(wk)) {
-            return;
-        }
-
-        if (check_cg_cancel_data(wk)) {
+        if (run_jump_attack_checks(wk)) {
             return;
         }
 
@@ -785,167 +494,125 @@ void nm_18000(PLW* wk) { // 🟢
     jumping_cg_type_check(wk);
 }
 
+static void reset_guard_for_new_state(PLW* wk) {
+    wk->guard_flag = 0;
+
+    if (!ArcadeBalance_IsEnabled()) {
+        clear_chainex_check(wk->wu.id);
+    }
+}
+
+static bool run_early_attack_checks(PLW* wk) {
+    if (check_full_gauge_attack(wk, 0)) {
+        return true;
+    }
+
+    if (check_full_gauge_attack2(wk, 0)) {
+        return true;
+    }
+
+    if (check_super_arts_attack(wk)) {
+        return true;
+    }
+
+    if (check_special_attack(wk)) {
+        return true;
+    }
+
+    if (check_chouhatsu(wk)) {
+        return true;
+    }
+
+    if (check_catch_attack(wk)) {
+        return true;
+    }
+
+    if (check_leap_attack(wk)) {
+        return true;
+    }
+
+    if (check_nm_attack(wk)) {
+        return true;
+    }
+
+    return false;
+}
+
+static void handle_jump_attack_state(PLW* wk) {
+    if (run_early_attack_checks(wk)) {
+        return;
+    }
+
+    if (check_cg_cancel_data(wk)) {
+        return;
+    }
+
+    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
+        return;
+    }
+
+    check_jump_ready(wk);
+}
+
+static void handle_jump_defense_state(PLW* wk) {
+    if (run_early_attack_checks(wk)) {
+        return;
+    }
+
+    check_cg_cancel_data(wk);
+}
+
+static bool run_forward_jump_checks(PLW* wk) {
+    if (run_early_attack_checks(wk)) {
+        return true;
+    }
+
+    if (check_cg_cancel_data(wk)) {
+        return true;
+    }
+
+    if (check_turn_to_back(wk)) {
+        return true;
+    }
+
+    if (check_F_R_dash(wk)) {
+        return true;
+    }
+
+    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
+        return true;
+    }
+
+    if (check_jump_ready(wk)) {
+        return true;
+    }
+
+    return false;
+}
+
 void jumping_cg_type_check(PLW* wk) { // 🟡
     if (wk->wu.pat_status < 32) {
         switch (wk->wu.cg_type) {
         case 0xFF:
-            wk->guard_flag = 0;
-
-            if (!ArcadeBalance_IsEnabled()) {
-                clear_chainex_check(wk->wu.id);
-            }
+            reset_guard_for_new_state(wk);
 
             TO_nm_01000(&wk->wu);
             break;
 
         case 2:
-            wk->guard_flag = 0;
-
-            if (!ArcadeBalance_IsEnabled()) {
-                clear_chainex_check(wk->wu.id);
-            }
-
-            if (check_full_gauge_attack(wk, 0)) {
-                break;
-            }
-
-            if (check_full_gauge_attack2(wk, 0)) {
-                break;
-            }
-
-            if (check_super_arts_attack(wk)) {
-                break;
-            }
-
-            if (check_special_attack(wk)) {
-                break;
-            }
-
-            if (check_chouhatsu(wk)) {
-                break;
-            }
-
-            if (check_catch_attack(wk)) {
-                break;
-            }
-
-            if (check_leap_attack(wk)) {
-                break;
-            }
-
-            if (check_nm_attack(wk)) {
-                break;
-            }
-
-            if (check_cg_cancel_data(wk)) {
-                break;
-            }
-
-            if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
-                return;
-            }
-
-            check_jump_ready(wk);
+            reset_guard_for_new_state(wk);
+            handle_jump_attack_state(wk);
             break;
 
         case 7:
-            wk->guard_flag = 0;
-
-            if (!ArcadeBalance_IsEnabled()) {
-                clear_chainex_check(wk->wu.id);
-            }
-
-            if (check_full_gauge_attack(wk, 0)) {
-                break;
-            }
-
-            if (check_full_gauge_attack2(wk, 0)) {
-                break;
-            }
-
-            if (check_super_arts_attack(wk)) {
-                break;
-            }
-
-            if (check_special_attack(wk)) {
-                break;
-            }
-
-            if (check_chouhatsu(wk)) {
-                break;
-            }
-
-            if (check_catch_attack(wk)) {
-                break;
-            }
-
-            if (check_leap_attack(wk)) {
-                break;
-            }
-
-            if (check_nm_attack(wk)) {
-                break;
-            }
-
-            check_cg_cancel_data(wk);
+            reset_guard_for_new_state(wk);
+            handle_jump_defense_state(wk);
             break;
 
         case 3:
-            wk->guard_flag = 0;
+            reset_guard_for_new_state(wk);
 
-            if (!ArcadeBalance_IsEnabled()) {
-                clear_chainex_check(wk->wu.id);
-            }
-
-            if (check_full_gauge_attack(wk, 0)) {
-                break;
-            }
-
-            if (check_full_gauge_attack2(wk, 0)) {
-                break;
-            }
-
-            if (check_super_arts_attack(wk)) {
-                break;
-            }
-
-            if (check_special_attack(wk)) {
-                break;
-            }
-
-            if (check_chouhatsu(wk)) {
-                break;
-            }
-
-            if (check_catch_attack(wk)) {
-                break;
-            }
-
-            if (check_leap_attack(wk)) {
-                break;
-            }
-
-            if (check_nm_attack(wk)) {
-                break;
-            }
-
-            if (check_cg_cancel_data(wk)) {
-                break;
-            }
-
-            if (check_turn_to_back(wk)) {
-                break;
-            }
-
-            if (check_F_R_dash(wk)) {
-                break;
-            }
-
-            if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
-                return;
-            }
-
-            if (check_jump_ready(wk)) {
+            if (run_forward_jump_checks(wk)) {
                 break;
             }
 
@@ -957,11 +624,7 @@ void jumping_cg_type_check(PLW* wk) { // 🟡
             break;
 
         case 64:
-            wk->guard_flag = 0;
-
-            if (!ArcadeBalance_IsEnabled()) {
-                clear_chainex_check(wk->wu.id);
-            }
+            reset_guard_for_new_state(wk);
 
             if (wk->wu.pat_status < 14) {
                 TO_nm_36000(&wk->wu);
@@ -974,163 +637,25 @@ void jumping_cg_type_check(PLW* wk) { // 🟡
     } else {
         switch (wk->wu.cg_type) {
         case 0xFF:
-            wk->guard_flag = 0;
-
-            if (!ArcadeBalance_IsEnabled()) {
-                clear_chainex_check(wk->wu.id);
-            }
+            reset_guard_for_new_state(wk);
 
             TO_nm_09000(&wk->wu);
             break;
 
         case 2:
-            wk->guard_flag = 0;
-
-            if (!ArcadeBalance_IsEnabled()) {
-                clear_chainex_check(wk->wu.id);
-            }
-
-            if (check_full_gauge_attack(wk, 0)) {
-                break;
-            }
-
-            if (check_full_gauge_attack2(wk, 0)) {
-                break;
-            }
-
-            if (check_super_arts_attack(wk)) {
-                break;
-            }
-
-            if (check_special_attack(wk)) {
-                break;
-            }
-
-            if (check_chouhatsu(wk)) {
-                break;
-            }
-
-            if (check_catch_attack(wk)) {
-                break;
-            }
-
-            if (check_leap_attack(wk)) {
-                break;
-            }
-
-            if (check_nm_attack(wk)) {
-                break;
-            }
-
-            if (check_cg_cancel_data(wk)) {
-                break;
-            }
-
-            if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
-                break;
-            }
-
-            check_jump_ready(wk);
+            reset_guard_for_new_state(wk);
+            handle_jump_attack_state(wk);
             break;
 
         case 7:
-            wk->guard_flag = 0;
-
-            if (!ArcadeBalance_IsEnabled()) {
-                clear_chainex_check(wk->wu.id);
-            }
-
-            if (check_full_gauge_attack(wk, 0)) {
-                break;
-            }
-
-            if (check_full_gauge_attack2(wk, 0)) {
-                break;
-            }
-
-            if (check_super_arts_attack(wk)) {
-                break;
-            }
-
-            if (check_special_attack(wk)) {
-                break;
-            }
-
-            if (check_chouhatsu(wk)) {
-                break;
-            }
-
-            if (check_catch_attack(wk)) {
-                break;
-            }
-
-            if (check_leap_attack(wk)) {
-                break;
-            }
-
-            if (check_nm_attack(wk)) {
-                break;
-            }
-
-            check_cg_cancel_data(wk);
+            reset_guard_for_new_state(wk);
+            handle_jump_defense_state(wk);
             break;
 
         case 3:
-            wk->guard_flag = 0;
+            reset_guard_for_new_state(wk);
 
-            if (!ArcadeBalance_IsEnabled()) {
-                clear_chainex_check(wk->wu.id);
-            }
-
-            if (check_full_gauge_attack(wk, 0)) {
-                break;
-            }
-
-            if (check_full_gauge_attack2(wk, 0)) {
-                break;
-            }
-
-            if (check_super_arts_attack(wk)) {
-                break;
-            }
-
-            if (check_special_attack(wk)) {
-                break;
-            }
-
-            if (check_chouhatsu(wk)) {
-                break;
-            }
-
-            if (check_catch_attack(wk)) {
-                break;
-            }
-
-            if (check_leap_attack(wk)) {
-                break;
-            }
-
-            if (check_nm_attack(wk)) {
-                break;
-            }
-
-            if (check_cg_cancel_data(wk)) {
-                break;
-            }
-
-            if (check_turn_to_back(wk)) {
-                break;
-            }
-
-            if (check_F_R_dash(wk)) {
-                break;
-            }
-
-            if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
-                break;
-            }
-
-            if (check_jump_ready(wk)) {
+            if (run_forward_jump_checks(wk)) {
                 break;
             }
 
@@ -1145,11 +670,7 @@ void jumping_cg_type_check(PLW* wk) { // 🟡
             break;
 
         case 64:
-            wk->guard_flag = 0;
-
-            if (!ArcadeBalance_IsEnabled()) {
-                clear_chainex_check(wk->wu.id);
-            }
+            reset_guard_for_new_state(wk);
 
             TO_nm_37000(&wk->wu);
             break;
@@ -1169,65 +690,73 @@ void jumping_guard_type_check(PLW* wk) { // 🟢
     }
 }
 
+static bool run_common_nm_attack_checks(PLW* wk) {
+    if (check_ashimoto(wk)) {
+        return true;
+    }
+
+    if (check_full_gauge_attack(wk, 0)) {
+        return true;
+    }
+
+    if (check_full_gauge_attack2(wk, 0)) {
+        return true;
+    }
+
+    if (check_super_arts_attack(wk)) {
+        return true;
+    }
+
+    if (check_special_attack(wk)) {
+        return true;
+    }
+
+    if (check_chouhatsu(wk)) {
+        return true;
+    }
+
+    if (check_catch_attack(wk)) {
+        return true;
+    }
+
+    if (check_leap_attack(wk)) {
+        return true;
+    }
+
+    if (check_nm_attack(wk)) {
+        return true;
+    }
+
+    if (check_cg_cancel_data(wk)) {
+        return true;
+    }
+
+    if (check_turn_to_back(wk)) {
+        return true;
+    }
+
+    if (check_F_R_dash(wk)) {
+        return true;
+    }
+
+    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
+        return true;
+    }
+
+    if (check_jump_ready(wk)) {
+        return true;
+    }
+
+    return false;
+}
+
 void nm_27000(PLW* wk) { // 🟡
     if (wk->wu.cg_type == 0xFF) {
         TO_nm_01000(&wk->wu);
         return;
     }
 
-    if (check_ashimoto(wk)) {
-        return;
-    }
-
-    if (check_full_gauge_attack(wk, 0)) {
-        return;
-    }
-
-    if (check_full_gauge_attack2(wk, 0)) {
-        return;
-    }
-
-    if (check_super_arts_attack(wk)) {
-        return;
-    }
-
-    if (check_special_attack(wk)) {
-        return;
-    }
-
-    if (check_chouhatsu(wk)) {
-        return;
-    }
-
-    if (check_catch_attack(wk)) {
-        return;
-    }
-
-    if (check_leap_attack(wk)) {
-        return;
-    }
-
-    if (check_nm_attack(wk)) {
-        return;
-    }
-
-    if (check_cg_cancel_data(wk)) {
-        return;
-    }
-
-    if (check_turn_to_back(wk)) {
-        return;
-    }
-
-    if (check_F_R_dash(wk)) {
-        return;
-    }
-
-    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
-        return;
-    }
-
-    if (check_jump_ready(wk)) {
+    if (run_common_nm_attack_checks(wk)) {
         return;
     }
 
@@ -1290,59 +819,7 @@ void nm_29000(PLW* wk) { // 🟡
         return;
     }
 
-    if (check_ashimoto(wk)) {
-        return;
-    }
-
-    if (check_full_gauge_attack(wk, 0)) {
-        return;
-    }
-
-    if (check_full_gauge_attack2(wk, 0)) {
-        return;
-    }
-
-    if (check_super_arts_attack(wk)) {
-        return;
-    }
-
-    if (check_special_attack(wk)) {
-        return;
-    }
-
-    if (check_chouhatsu(wk)) {
-        return;
-    }
-
-    if (check_catch_attack(wk)) {
-        return;
-    }
-
-    if (check_leap_attack(wk)) {
-        return;
-    }
-
-    if (check_nm_attack(wk)) {
-        return;
-    }
-
-    if (check_cg_cancel_data(wk)) {
-        return;
-    }
-
-    if (check_turn_to_back(wk)) {
-        return;
-    }
-
-    if (check_F_R_dash(wk)) {
-        return;
-    }
-
-    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
-        return;
-    }
-
-    if (check_jump_ready(wk)) {
+    if (run_common_nm_attack_checks(wk)) {
         return;
     }
 
@@ -1357,6 +834,14 @@ void nm_29000(PLW* wk) { // 🟡
     }
 
     nm_27_cg_type_check(wk);
+}
+
+static void dispatch_by_pat_status(PLW* wk, void (*on_low_pat_status)(WORK*), void (*on_high_pat_status)(WORK*)) {
+    if (wk->wu.pat_status < 32) {
+        on_low_pat_status(&wk->wu);
+    } else {
+        on_high_pat_status(&wk->wu);
+    }
 }
 
 void nm_31000(PLW* wk) { // 🟢
@@ -1398,21 +883,11 @@ void nm_31000(PLW* wk) { // 🟢
         break;
 
     case 64:
-        if (wk->wu.pat_status < 32) {
-            TO_nm_36000(&wk->wu);
-        } else {
-            TO_nm_37000(&wk->wu);
-        }
-
+        dispatch_by_pat_status(wk, TO_nm_36000, TO_nm_37000);
         break;
 
     case 0xFF:
-        if (wk->wu.pat_status < 32) {
-            TO_nm_01000(&wk->wu);
-        } else {
-            TO_nm_09000(&wk->wu);
-        }
-
+        dispatch_by_pat_status(wk, TO_nm_01000, TO_nm_09000);
         break;
     }
 }
@@ -1433,12 +908,7 @@ void nm_34000(PLW* wk) { // 🟢
             break;
         }
 
-        if (wk->wu.pat_status < 32) {
-            TO_nm_36000(&wk->wu);
-        } else {
-            TO_nm_37000(&wk->wu);
-        }
-
+        dispatch_by_pat_status(wk, TO_nm_36000, TO_nm_37000);
         break;
     }
 }
@@ -1478,35 +948,7 @@ void nm_38000(PLW* wk) { // 🟡
     }
 
     if (wk->wu.routine_no[3] < 2 && in_air) {
-        if (check_full_gauge_attack(wk, 0)) {
-            return;
-        }
-
-        if (check_full_gauge_attack2(wk, 0)) {
-            return;
-        }
-
-        if (check_super_arts_attack(wk)) {
-            return;
-        }
-
-        if (check_special_attack(wk)) {
-            return;
-        }
-
-        if (check_chouhatsu(wk)) {
-            return;
-        }
-
-        if (check_catch_attack(wk)) {
-            return;
-        }
-
-        if (check_nm_attack(wk)) {
-            return;
-        }
-
-        if (check_cg_cancel_data(wk)) {
+        if (run_jump_attack_checks(wk)) {
             return;
         }
 
@@ -1561,57 +1003,17 @@ void nm_42000(PLW* wk) { // 🟡
 }
 
 void nm_45000(PLW* wk) { // 🟢
-    if (wk->wu.routine_no[3] == 3) {
-        if (check_full_gauge_attack(wk, 0)) {
-            return;
-        }
-
-        if (check_full_gauge_attack2(wk, 0)) {
-            return;
-        }
-
-        if (check_super_arts_attack(wk)) {
-            return;
-        }
-
-        if (check_special_attack(wk)) {
-            return;
-        }
-
-        if (check_chouhatsu(wk)) {
-            return;
-        }
-
-        if (check_catch_attack(wk)) {
-            return;
-        }
-
-        if (check_nm_attack(wk)) {
-            return;
-        }
-
-        if (check_cg_cancel_data(wk)) {
-            return;
-        }
+    if (wk->wu.routine_no[3] == 3 && run_jump_attack_checks(wk)) {
+        return;
     }
 
     switch (wk->wu.cg_type) {
     case 64:
-        if (wk->wu.pat_status < 32) {
-            TO_nm_36000(&wk->wu);
-            break;
-        }
-
-        TO_nm_37000(&wk->wu);
+        dispatch_by_pat_status(wk, TO_nm_36000, TO_nm_37000);
         break;
 
     case 0xFF:
-        if (wk->wu.pat_status < 32) {
-            TO_nm_01000(&wk->wu);
-            break;
-        }
-
-        TO_nm_09000(&wk->wu);
+        dispatch_by_pat_status(wk, TO_nm_01000, TO_nm_09000);
         break;
 
     default:
@@ -1666,6 +1068,20 @@ void nm_57000(PLW* wk) { // 🟢
     }
 }
 
+static void reset_dm_stop_after_parry(PLW* wk) {
+    if (wk->wu.operator == 0) {
+        Next_Be_Free(wk);
+    }
+
+    if (wk->wu.dm_stop < 0) {
+        if (wk->wu.dm_stop > -4) {
+            wk->wu.dm_stop = -4;
+        }
+    } else if (wk->wu.dm_stop < 4) {
+        wk->wu.dm_stop = 4;
+    }
+}
+
 void process_damage(PLW* wk) { // 🟡
     s32 csw;
 
@@ -1700,17 +1116,7 @@ void process_damage(PLW* wk) { // 🟡
             }
 
             if (csw) {
-                if (wk->wu.operator == 0) {
-                    Next_Be_Free(wk);
-                }
-
-                if (wk->wu.dm_stop < 0) {
-                    if (wk->wu.dm_stop > -4) {
-                        wk->wu.dm_stop = -4;
-                    }
-                } else if (wk->wu.dm_stop < 4) {
-                    wk->wu.dm_stop = 4;
-                }
+                reset_dm_stop_after_parry(wk);
             }
         }
 
@@ -1742,6 +1148,29 @@ void dm_00000(PLW* wk) { // 🟢
     wk->wu.routine_no[3]++;
 }
 
+static void resolve_dm_04000_pat_status(PLW* wk, void (*on_low_pat_status)(WORK*), void (*on_high_pat_status)(WORK*)) {
+    if (!ArcadeBalance_IsEnabled()) {
+        if (setup_kuzureochi(wk) != 0) {
+            return;
+        }
+    }
+
+    if (wk->py->flag == 0) {
+        wk->tsukamarenai_flag = 7;
+
+        if (wk->wu.pat_status < 32) {
+            on_low_pat_status(&wk->wu);
+        } else {
+            on_high_pat_status(&wk->wu);
+        }
+
+        return;
+    }
+
+    wk->wu.routine_no[2] = 19;
+    wk->wu.routine_no[3] = 0;
+}
+
 void dm_04000(PLW* wk) { // 🟡
     switch (wk->wu.cg_type) {
     case 9:
@@ -1752,49 +1181,11 @@ void dm_04000(PLW* wk) { // 🟡
         break;
 
     case 64:
-        if (!ArcadeBalance_IsEnabled()) {
-            if (setup_kuzureochi(wk) != 0) {
-                break;
-            }
-        }
-
-        if (wk->py->flag == 0) {
-            wk->tsukamarenai_flag = 7;
-
-            if (wk->wu.pat_status < 32) {
-                TO_nm_36000(&wk->wu);
-            } else {
-                TO_nm_37000(&wk->wu);
-            }
-
-            break;
-        }
-
-        wk->wu.routine_no[2] = 19;
-        wk->wu.routine_no[3] = 0;
+        resolve_dm_04000_pat_status(wk, TO_nm_36000, TO_nm_37000);
         break;
 
     case 0xFF:
-        if (!ArcadeBalance_IsEnabled()) {
-            if (setup_kuzureochi(wk) != 0) {
-                break;
-            }
-        }
-
-        if (wk->py->flag == 0) {
-            wk->tsukamarenai_flag = 7;
-
-            if (wk->wu.pat_status < 32) {
-                TO_nm_01000(&wk->wu);
-            } else {
-                TO_nm_09000(&wk->wu);
-            }
-
-            break;
-        }
-
-        wk->wu.routine_no[2] = 19;
-        wk->wu.routine_no[3] = 0;
+        resolve_dm_04000_pat_status(wk, TO_nm_01000, TO_nm_09000);
         break;
     }
 }
@@ -1880,11 +1271,7 @@ void dm_25000(PLW* wk) { // 🟢
     }
 }
 
-void process_catch(PLW* wk) { // 🟢
-    if (wk->wu.routine_no[3] == 0) {
-        return;
-    }
-
+static void dispatch_catch_cg_type(PLW* wk) {
     switch (wk->wu.cg_type) {
     case 64:
         if (wk->wu.pat_status < 32) {
@@ -1906,26 +1293,16 @@ void process_catch(PLW* wk) { // 🟢
     }
 }
 
-void dm_32000(PLW* wk) { // 🔵
-    switch (wk->wu.cg_type) {
-    case 64:
-        if (wk->wu.pat_status < 32) {
-            TO_nm_36000(&wk->wu);
-        } else {
-            TO_nm_37000(&wk->wu);
-        }
-
-        break;
-
-    case 0xFF:
-        if (wk->wu.pat_status < 32) {
-            TO_nm_01000(&wk->wu);
-        } else {
-            TO_nm_09000(&wk->wu);
-        }
-
-        break;
+void process_catch(PLW* wk) { // 🟢
+    if (wk->wu.routine_no[3] == 0) {
+        return;
     }
+
+    dispatch_catch_cg_type(wk);
+}
+
+void dm_32000(PLW* wk) { // 🔵
+    dispatch_catch_cg_type(wk);
 }
 
 void process_caught(PLW* /* unused */) { // 🟢
@@ -1934,6 +1311,38 @@ void process_caught(PLW* /* unused */) { // 🟢
 
 void dm_33000(PLW* wk) { // 🔵
     // Do nothing
+}
+
+static bool run_active_cancel_checks(PLW* wk) {
+    if (check_full_gauge_attack(wk, 0)) {
+        return true;
+    }
+
+    if (check_full_gauge_attack2(wk, 0)) {
+        return true;
+    }
+
+    if (check_super_arts_attack(wk)) {
+        return true;
+    }
+
+    if (check_special_attack(wk)) {
+        return true;
+    }
+
+    if (check_chouhatsu(wk)) {
+        return true;
+    }
+
+    if (check_catch_attack(wk)) {
+        return true;
+    }
+
+    if (check_leap_attack(wk)) {
+        return true;
+    }
+
+    return false;
 }
 
 void process_attack(PLW* wk) { // 🟢
@@ -1946,34 +1355,8 @@ void process_attack(PLW* wk) { // 🟢
             wk->cancel_timer--;
         }
 
-        if (wk->cancel_timer) {
-            if (check_full_gauge_attack(wk, 0)) {
-                return;
-            }
-
-            if (check_full_gauge_attack2(wk, 0)) {
-                return;
-            }
-
-            if (check_super_arts_attack(wk)) {
-                return;
-            }
-
-            if (check_special_attack(wk)) {
-                return;
-            }
-
-            if (check_chouhatsu(wk)) {
-                return;
-            }
-
-            if (check_catch_attack(wk)) {
-                return;
-            }
-
-            if (check_leap_attack(wk)) {
-                return;
-            }
+        if (wk->cancel_timer && run_active_cancel_checks(wk)) {
+            return;
         }
 
         if (wk->wu.routine_no[2] < 16 && check_full_gauge_attack(wk, 1)) {
@@ -1993,6 +1376,35 @@ void process_attack(PLW* wk) { // 🟢
     }
 }
 
+static void apply_special_move_cancel_mask(PLW* wk) {
+    if (wk->wu.routine_no[1] == 4) {
+        switch (wk->player_number) {
+        case CHAR_IBUKI:
+            if (wk->wu.routine_no[2] != 25 && !(wk->wu.kind_of_waza & 0xF8)) {
+                wk->wu.cg_cancel &= 0x9F;
+            }
+
+            break;
+
+        case CHAR_TWELVE:
+            if (wk->wu.routine_no[2] != 17 && !(wk->wu.kind_of_waza & 0xF8)) {
+                wk->wu.cg_cancel &= 0x9F;
+            }
+
+            break;
+
+        default:
+            if (!(wk->wu.kind_of_waza & 0xF8)) {
+                wk->wu.cg_cancel &= 0x9F;
+            }
+
+            break;
+        }
+    } else if (!(wk->wu.kind_of_waza & 0xF8)) {
+        wk->wu.cg_cancel &= 0x9F;
+    }
+}
+
 s32 check_cg_cancel_data(PLW* wk) { // 🟡
     if (wk->wu.cg_cancel == 0) {
         return 0;
@@ -2000,32 +1412,7 @@ s32 check_cg_cancel_data(PLW* wk) { // 🟡
 
     if (wk->wu.meoshi_hit_flag != 0) {
         if (wk->spmv_ng_flag2 & DIP2_SPECIAL_MOVE_SUPER_ART_CANCEL_DISABLED) {
-            if (wk->wu.routine_no[1] == 4) {
-                switch (wk->player_number) {
-                case CHAR_IBUKI:
-                    if (wk->wu.routine_no[2] != 25 && !(wk->wu.kind_of_waza & 0xF8)) {
-                        wk->wu.cg_cancel &= 0x9F;
-                    }
-
-                    break;
-
-                case CHAR_TWELVE:
-                    if (wk->wu.routine_no[2] != 17 && !(wk->wu.kind_of_waza & 0xF8)) {
-                        wk->wu.cg_cancel &= 0x9F;
-                    }
-
-                    break;
-
-                default:
-                    if (!(wk->wu.kind_of_waza & 0xF8)) {
-                        wk->wu.cg_cancel &= 0x9F;
-                    }
-
-                    break;
-                }
-            } else if (!(wk->wu.kind_of_waza & 0xF8)) {
-                wk->wu.cg_cancel &= 0x9F;
-            }
+            apply_special_move_cancel_mask(wk);
         }
 
         if ((wk->spmv_ng_flag2 & DIP2_SUPER_ART_CANCEL_DISABLED) && (wk->wu.kind_of_waza & 0xF8)) {

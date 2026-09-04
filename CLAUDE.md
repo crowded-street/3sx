@@ -37,5 +37,11 @@ across harnesses.
 
 - Run `python tools/refactor_guard.py <file>` after every commit. It is cheap and it
   catches the one class of mistake that no build error will.
-- Do not touch Track B files until statcheck is green in CI, however safe a change looks.
+- **Track B gate relaxed 2026-09-04 (project owner directive).** Statcheck cannot be
+  stood up: a legitimate CPS3 ROM dump requires owning genuine CPS3 arcade hardware,
+  which this project's no-piracy policy won't work around (`docs/statcheck.md`,
+  `AGENTS.md`). This is not "not yet" - treat it as indefinite. Track B files may be
+  refactored; verification is manual playtesting instead of statcheck. Still follow the
+  closed recipe catalogue exactly, one recipe per commit, build + `refactor_guard.py`
+  after every commit, and flag CRITICAL-risk files clearly so playtesting is targeted.
 - Stop at a Code Health score of 4.00. Do not gold-plate.

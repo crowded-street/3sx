@@ -8,7 +8,7 @@
 | File size | 5799 lines |
 | Git churn | 20 commits |
 | Risk tier | **CRITICAL** - CPU-opponent logic driving gameplay state. |
-| Track | **B** (BLOCKED - see Gate) |
+| Track | **B** (manual playtesting required - see note) |
 | Recipes needed | P, G, E |
 | Suitable for | strongest available agent |
 
@@ -17,11 +17,14 @@ data-flow reasoning about which variables cross the extracted boundary - that is
 a weaker model fails silently while the build still succeeds. If this task is assigned
 to a smaller model, restrict it to the Recipe P steps and leave the rest.
 
-> [!WARNING]
-> **Gate: do not start this task until statcheck is green in CI.**
-> This file is CRITICAL risk. A silent behaviour change here corrupts gameplay or
-> breaks rollback determinism, and nothing in the build will catch it. If statcheck is
-> not yet running, pick a Track A task instead and leave this one alone.
+> [!NOTE]
+> **Gate relaxed 2026-09-04 (project owner directive).** Statcheck cannot be stood up -
+> a legitimate CPS3 ROM dump requires owning genuine CPS3 arcade hardware, which this
+> project's no-piracy policy won't work around (see `docs/statcheck.md`, `AGENTS.md`).
+> This file is CRITICAL risk - a silent behaviour change corrupts gameplay or breaks rollback
+> determinism and the build will not catch it. Verify with manual playtesting instead of
+> statcheck: follow the recipes exactly, one recipe per commit, build + `refactor_guard.py`
+> after every commit, and call out what changed so playtesting can be targeted.
 
 ## 1. Read these first
 
