@@ -1568,6 +1568,38 @@ void dm_33000(PLW* wk) { // 🔵
     // Do nothing
 }
 
+static bool run_active_cancel_checks(PLW* wk) {
+    if (check_full_gauge_attack(wk, 0)) {
+        return true;
+    }
+
+    if (check_full_gauge_attack2(wk, 0)) {
+        return true;
+    }
+
+    if (check_super_arts_attack(wk)) {
+        return true;
+    }
+
+    if (check_special_attack(wk)) {
+        return true;
+    }
+
+    if (check_chouhatsu(wk)) {
+        return true;
+    }
+
+    if (check_catch_attack(wk)) {
+        return true;
+    }
+
+    if (check_leap_attack(wk)) {
+        return true;
+    }
+
+    return false;
+}
+
 void process_attack(PLW* wk) { // 🟢
     if (wk->wu.routine_no[3] != 0) {
         if (check_ashimoto_ex(wk)) {
@@ -1578,34 +1610,8 @@ void process_attack(PLW* wk) { // 🟢
             wk->cancel_timer--;
         }
 
-        if (wk->cancel_timer) {
-            if (check_full_gauge_attack(wk, 0)) {
-                return;
-            }
-
-            if (check_full_gauge_attack2(wk, 0)) {
-                return;
-            }
-
-            if (check_super_arts_attack(wk)) {
-                return;
-            }
-
-            if (check_special_attack(wk)) {
-                return;
-            }
-
-            if (check_chouhatsu(wk)) {
-                return;
-            }
-
-            if (check_catch_attack(wk)) {
-                return;
-            }
-
-            if (check_leap_attack(wk)) {
-                return;
-            }
+        if (wk->cancel_timer && run_active_cancel_checks(wk)) {
+            return;
         }
 
         if (wk->wu.routine_no[2] < 16 && check_full_gauge_attack(wk, 1)) {
