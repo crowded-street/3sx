@@ -949,6 +949,18 @@ static void select_next_direction_page(struct _TASK* task_ptr) {
     SE_dir_selected();
 }
 
+static bool should_change_direction_page(void) {
+    return Menu_Cursor_Y[0] == Menu_Max;
+}
+
+static bool is_direction_page_backward(u16 result) {
+    return result == 0x80 || result == 0x800;
+}
+
+static bool is_direction_page_forward(u16 result) {
+    return result == 0x40 || result == 0x400;
+}
+
 static void handle_direction_page_action(struct _TASK* task_ptr) {
     switch (system_dir[1].contents[Menu_Page][Menu_Max]) {
     case 0:
@@ -959,7 +971,8 @@ static void handle_direction_page_action(struct _TASK* task_ptr) {
             Menu_Page = (s8)Page_Max;
         }
 
-        break;
+        SE_selected();
+        return;
 
     case 2:
         task_ptr->r_no[2] = 1;
@@ -969,54 +982,46 @@ static void handle_direction_page_action(struct _TASK* task_ptr) {
             Menu_Page = 0;
         }
 
-        break;
-
-    default:
-        task_ptr->r_no[2] += 1;
-        Menu_Suicide[0] = 0;
-        Menu_Suicide[1] = 0;
-        Menu_Suicide[2] = 1;
-        break;
+        SE_selected();
+        return;
     }
 
+    task_ptr->r_no[2] += 1;
+    Menu_Suicide[0] = 0;
+    Menu_Suicide[1] = 0;
+    Menu_Suicide[2] = 1;
     SE_selected();
 }
 
 static void handle_direction_menu_input(struct _TASK* task_ptr) {
-    switch (IO_Result) {
-    case 0x200:
+    if (IO_Result == 0x200) {
         task_ptr->r_no[2] += 1;
         Menu_Suicide[0] = 0;
         Menu_Suicide[1] = 0;
         Menu_Suicide[2] = 1;
         SE_dir_selected();
-        break;
+        return;
+    }
 
-    case 0x80:
-    case 0x800:
+    if (is_direction_page_backward(IO_Result)) {
         select_previous_direction_page(task_ptr);
-        break;
+        return;
+    }
 
-    case 0x40:
-    case 0x400:
+    if (is_direction_page_forward(IO_Result)) {
         select_next_direction_page(task_ptr);
-        break;
+        return;
+    }
 
-    case 0x100:
-        if (Menu_Cursor_Y[0] != Menu_Max) {
-            break;
-        }
-
+    if (IO_Result == 0x100 && should_change_direction_page()) {
         handle_direction_page_action(task_ptr);
-        break;
     }
 }
 
 void Direction_Menu(struct _TASK* task_ptr) {
     Menu_Cursor_Y[1] = Menu_Cursor_Y[0];
 
-    switch (task_ptr->r_no[2]) {
-    case 0:
+    if (task_ptr->r_no[2] == 0) {
         FadeOut(1, 0xFF, 8);
         task_ptr->r_no[2] += 1;
         task_ptr->timer = 5;
@@ -1025,15 +1030,14 @@ void Direction_Menu(struct _TASK* task_ptr) {
         Menu_Page = 0;
         Menu_Page_Buff = Menu_Page;
         Message_Data->kind_req = 3;
-        break;
+        return;
+    }
 
-    case 1:
+    if (task_ptr->r_no[2] == 1) {
         FadeOut(1, 0xFF, 8);
         task_ptr->r_no[2] += 1;
         Setup_Next_Page(task_ptr, 0);
-        /* fallthrough */
-
-    case 2:
+    } else if (task_ptr->r_no[2] == 2) {
         FadeOut(1, 0xFF, 8);
 
         if (--task_ptr->timer == 0) {
@@ -1041,16 +1045,14 @@ void Direction_Menu(struct _TASK* task_ptr) {
             FadeInit();
         }
 
-        break;
-
-    case 3:
+        return;
+    } else if (task_ptr->r_no[2] == 3) {
         if (FadeIn(1, 0x19, 8) != 0) {
             task_ptr->r_no[2] += 1;
         }
 
-        break;
-
-    case 4:
+        return;
+    } else if (task_ptr->r_no[2] == 4) {
         Pause_ID = 0;
 
         Dir_Move_Sub(task_ptr, 0);
@@ -1065,13 +1067,10 @@ void Direction_Menu(struct _TASK* task_ptr) {
         }
 
         handle_direction_menu_input(task_ptr);
-
-        break;
-
-    default:
-        Exit_Sub(task_ptr, 2, 5);
-        break;
+        return;
     }
+
+    Exit_Sub(task_ptr, 2, 5);
 }
 
 void Dir_Move_Sub(struct _TASK* task_ptr, s16 PL_id) {
@@ -5193,13 +5192,21 @@ static void reset_extra_options(void) {
     SE_selected();
 }
 
+static bool should_reset_extra_options(void) {
+    return Menu_Page == 0 && Menu_Cursor_Y[0] == 6;
+}
+
+static bool should_handle_extra_option_page_action(void) {
+    return Menu_Cursor_Y[0] == Menu_Max;
+}
+
 static void handle_extra_option_selection(struct _TASK* task_ptr) {
-    if (Menu_Page == 0 && Menu_Cursor_Y[0] == 6) {
+    if (should_reset_extra_options()) {
         reset_extra_options();
         return;
     }
 
-    if (Menu_Cursor_Y[0] != Menu_Max) {
+    if (!should_handle_extra_option_page_action()) {
         return;
     }
 
