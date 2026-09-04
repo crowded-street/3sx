@@ -1439,6 +1439,30 @@ void get_sky_dm_timer(PLW* wk) {
     wk->zuru_timer = sky_dm_zuru_table[omop_otedama_ix[(wk->wu.id + 1) & 1]][wk->zuru_ix_counter];
 }
 
+static void apply_vital_underflow_or_piyo(PLW* wk) {
+    if (wk->wu.vital_new < 0) {
+        wk->wu.vital_new = -1;
+        wk->dead_flag = 1;
+        dead_voice_flag = true;
+
+        if (wk->wu.dm_guard_success != -1) {
+            wk->kezurijini_flag = 1;
+        }
+
+        if (!round_slow_flag) {
+            set_conclusion_slow();
+            round_slow_flag = true;
+        }
+    } else if (wk->py->flag == 0) {
+        wk->py->now.quantity.h += wk->wu.dm_piyo;
+
+        if (wk->py->now.quantity.h >= wk->py->genkai) {
+            wk->py->now.timer = 0;
+            wk->py->flag = 1;
+        }
+    }
+}
+
 void subtract_dm_vital(PLW* wk) {
     if (wk->dead_flag == 0) {
         if (wk->wu.dm_vital && (wk->wu.routine_no[1] != 1 || wk->wu.routine_no[2] > 11 || wk->wu.routine_no[3] != 0)) {
@@ -1469,27 +1493,7 @@ void subtract_dm_vital(PLW* wk) {
             wk->wu.vital_new = 0;
         }
 
-        if (wk->wu.vital_new < 0) {
-            wk->wu.vital_new = -1;
-            wk->dead_flag = 1;
-            dead_voice_flag = true;
-
-            if (wk->wu.dm_guard_success != -1) {
-                wk->kezurijini_flag = 1;
-            }
-
-            if (!round_slow_flag) {
-                set_conclusion_slow();
-                round_slow_flag = true;
-            }
-        } else if (wk->py->flag == 0) {
-            wk->py->now.quantity.h += wk->wu.dm_piyo;
-
-            if (wk->py->now.quantity.h >= wk->py->genkai) {
-                wk->py->now.timer = 0;
-                wk->py->flag = 1;
-            }
-        }
+        apply_vital_underflow_or_piyo(wk);
     }
 
     if (wk->guard_chuu == 0) {
