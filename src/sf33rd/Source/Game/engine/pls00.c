@@ -118,6 +118,62 @@ void nm_01000(PLW* wk) { // 🟡
     check_F_R_walk(wk);
 }
 
+static bool run_common_nm_attack_checks_no_turn(PLW* wk) {
+    if (check_ashimoto(wk)) {
+        return true;
+    }
+
+    if (check_full_gauge_attack(wk, 0)) {
+        return true;
+    }
+
+    if (check_full_gauge_attack2(wk, 0)) {
+        return true;
+    }
+
+    if (check_super_arts_attack(wk)) {
+        return true;
+    }
+
+    if (check_special_attack(wk)) {
+        return true;
+    }
+
+    if (check_chouhatsu(wk)) {
+        return true;
+    }
+
+    if (check_catch_attack(wk)) {
+        return true;
+    }
+
+    if (check_leap_attack(wk)) {
+        return true;
+    }
+
+    if (check_nm_attack(wk)) {
+        return true;
+    }
+
+    if (check_cg_cancel_data(wk)) {
+        return true;
+    }
+
+    if (check_F_R_dash(wk)) {
+        return true;
+    }
+
+    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
+        return true;
+    }
+
+    if (check_jump_ready(wk)) {
+        return true;
+    }
+
+    return false;
+}
+
 void nm_02000(PLW* wk) { // 🟡
     if (wk->wu.cg_type == 0xFF) {
         TO_nm_01000(&wk->wu);
@@ -129,55 +185,7 @@ void nm_02000(PLW* wk) { // 🟡
         return;
     }
 
-    if (check_ashimoto(wk)) {
-        return;
-    }
-
-    if (check_full_gauge_attack(wk, 0)) {
-        return;
-    }
-
-    if (check_full_gauge_attack2(wk, 0)) {
-        return;
-    }
-
-    if (check_super_arts_attack(wk)) {
-        return;
-    }
-
-    if (check_special_attack(wk)) {
-        return;
-    }
-
-    if (check_chouhatsu(wk)) {
-        return;
-    }
-
-    if (check_catch_attack(wk)) {
-        return;
-    }
-
-    if (check_leap_attack(wk)) {
-        return;
-    }
-
-    if (check_nm_attack(wk)) {
-        return;
-    }
-
-    if (check_cg_cancel_data(wk)) {
-        return;
-    }
-
-    if (check_F_R_dash(wk)) {
-        return;
-    }
-
-    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
-        return;
-    }
-
-    if (check_jump_ready(wk)) {
+    if (run_common_nm_attack_checks_no_turn(wk)) {
         return;
     }
 
@@ -291,55 +299,7 @@ void nm_10000(PLW* wk) { // 🟡
         return;
     }
 
-    if (check_ashimoto(wk)) {
-        return;
-    }
-
-    if (check_full_gauge_attack(wk, 0)) {
-        return;
-    }
-
-    if (check_full_gauge_attack2(wk, 0)) {
-        return;
-    }
-
-    if (check_super_arts_attack(wk)) {
-        return;
-    }
-
-    if (check_special_attack(wk)) {
-        return;
-    }
-
-    if (check_chouhatsu(wk)) {
-        return;
-    }
-
-    if (check_catch_attack(wk)) {
-        return;
-    }
-
-    if (check_leap_attack(wk)) {
-        return;
-    }
-
-    if (check_nm_attack(wk)) {
-        return;
-    }
-
-    if (check_cg_cancel_data(wk)) {
-        return;
-    }
-
-    if (check_F_R_dash(wk)) {
-        return;
-    }
-
-    if (ArcadeBalance_IsEnabled() && check_360_jump(wk)) {
-        return;
-    }
-
-    if (check_jump_ready(wk)) {
+    if (run_common_nm_attack_checks_no_turn(wk)) {
         return;
     }
 
