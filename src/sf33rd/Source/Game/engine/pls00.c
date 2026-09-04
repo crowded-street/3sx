@@ -1403,6 +1403,29 @@ void dm_00000(PLW* wk) { // 🟢
     wk->wu.routine_no[3]++;
 }
 
+static void resolve_dm_04000_pat_status(PLW* wk, void (*on_low_pat_status)(WORK*), void (*on_high_pat_status)(WORK*)) {
+    if (!ArcadeBalance_IsEnabled()) {
+        if (setup_kuzureochi(wk) != 0) {
+            return;
+        }
+    }
+
+    if (wk->py->flag == 0) {
+        wk->tsukamarenai_flag = 7;
+
+        if (wk->wu.pat_status < 32) {
+            on_low_pat_status(&wk->wu);
+        } else {
+            on_high_pat_status(&wk->wu);
+        }
+
+        return;
+    }
+
+    wk->wu.routine_no[2] = 19;
+    wk->wu.routine_no[3] = 0;
+}
+
 void dm_04000(PLW* wk) { // 🟡
     switch (wk->wu.cg_type) {
     case 9:
@@ -1413,49 +1436,11 @@ void dm_04000(PLW* wk) { // 🟡
         break;
 
     case 64:
-        if (!ArcadeBalance_IsEnabled()) {
-            if (setup_kuzureochi(wk) != 0) {
-                break;
-            }
-        }
-
-        if (wk->py->flag == 0) {
-            wk->tsukamarenai_flag = 7;
-
-            if (wk->wu.pat_status < 32) {
-                TO_nm_36000(&wk->wu);
-            } else {
-                TO_nm_37000(&wk->wu);
-            }
-
-            break;
-        }
-
-        wk->wu.routine_no[2] = 19;
-        wk->wu.routine_no[3] = 0;
+        resolve_dm_04000_pat_status(wk, TO_nm_36000, TO_nm_37000);
         break;
 
     case 0xFF:
-        if (!ArcadeBalance_IsEnabled()) {
-            if (setup_kuzureochi(wk) != 0) {
-                break;
-            }
-        }
-
-        if (wk->py->flag == 0) {
-            wk->tsukamarenai_flag = 7;
-
-            if (wk->wu.pat_status < 32) {
-                TO_nm_01000(&wk->wu);
-            } else {
-                TO_nm_09000(&wk->wu);
-            }
-
-            break;
-        }
-
-        wk->wu.routine_no[2] = 19;
-        wk->wu.routine_no[3] = 0;
+        resolve_dm_04000_pat_status(wk, TO_nm_01000, TO_nm_09000);
         break;
     }
 }
