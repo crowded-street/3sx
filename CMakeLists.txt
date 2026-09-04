@@ -44,6 +44,14 @@ add_executable(3sx MACOSX_BUNDLE
     ${GAME_SRC}
 )
 
+if(APPLE)
+    set(THREESX_MACOS_ICON "${CMAKE_SOURCE_DIR}/cmake/macos/3SX.icns")
+    set_source_files_properties("${THREESX_MACOS_ICON}" PROPERTIES
+        MACOSX_PACKAGE_LOCATION "Resources"
+    )
+    target_sources(3sx PRIVATE "${THREESX_MACOS_ICON}")
+endif()
+
 if(NOT PSP)
     target_sources(3sx PRIVATE
         $<$<CONFIG:Debug>:${IMGUI_SOURCES}>
@@ -166,6 +174,7 @@ if(APPLE)
     set_target_properties(3sx PROPERTIES
         OUTPUT_NAME "3SX"
         MACOSX_BUNDLE_BUNDLE_NAME "3SX"
+        MACOSX_BUNDLE_ICON_FILE "3SX.icns"
         INSTALL_RPATH "@executable_path/../Frameworks"
     )
 elseif(UNIX AND NOT APPLE)
