@@ -1916,25 +1916,30 @@ static void collect_used_x16_tiles(s32 x16, PatternMap* map) {
     }
 }
 
+static void collect_used_x32_tile_row(s16 i, s16 j, PatternMap* map) {
+    s16 k;
+
+    if (map->x32_map[i][j] == 0) {
+        return;
+    }
+
+    for (k = 0; k < 8; k++) {
+        if (!(map->x32_map[i][j] & (1 << k))) {
+            continue;
+        }
+
+        tpu_free->x32_used[tpu_free->x32] = (i * 64) + (j * 8) + k;
+        tpu_free->x32 += 1;
+    }
+}
+
 static void collect_used_x32_tiles(s32 x32, PatternMap* map) {
     s16 i;
     s16 j;
-    s16 k;
 
     for (i = 0; i < x32; i++) {
         for (j = 0; j < 8; j++) {
-            if (map->x32_map[i][j] == 0) {
-                continue;
-            }
-
-            for (k = 0; k < 8; k++) {
-                if (!(map->x32_map[i][j] & (1 << k))) {
-                    continue;
-                }
-
-                tpu_free->x32_used[tpu_free->x32] = (i * 64) + (j * 8) + k;
-                tpu_free->x32 += 1;
-            }
+            collect_used_x32_tile_row(i, j, map);
         }
     }
 }
