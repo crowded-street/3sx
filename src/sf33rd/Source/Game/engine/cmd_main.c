@@ -540,6 +540,33 @@ void check_7() { // 🟢
     }
 }
 
+static void resolve_extended_lever_command() {
+    sw_work = waza_ptr->w_lvr & 0xF;
+
+    if (waza_ptr->w_lvr == 0) {
+        if (chk_pl->new_lvbt == 0) {
+            if (*waza_ptr->w_ptr == 28) {
+                command_ok();
+                return;
+            }
+
+            check_next();
+        }
+    } else if ((chk_pl->old_lvbt & 0xF) != (chk_pl->new_lvbt & 0xF)) {
+        if (chk_pl->sw_lever == sw_work) {
+            if (*waza_ptr->w_ptr == 0x1C) {
+                command_ok();
+                return;
+            }
+
+            check_next();
+            return;
+        }
+
+        waza_ptr->w_type = 0;
+    }
+}
+
 void check_9() { // 🟢
     waza_ptr->w_int--;
 
@@ -548,30 +575,7 @@ void check_9() { // 🟢
     }
 
     if (waza_ptr->w_lvr & 0x8000) {
-        sw_work = waza_ptr->w_lvr & 0xF;
-
-        if (waza_ptr->w_lvr == 0) {
-            if (chk_pl->new_lvbt == 0) {
-                if (*waza_ptr->w_ptr == 28) {
-                    command_ok();
-                    return;
-                }
-
-                check_next();
-            }
-        } else if ((chk_pl->old_lvbt & 0xF) != (chk_pl->new_lvbt & 0xF)) {
-            if (chk_pl->sw_lever == sw_work) {
-                if (*waza_ptr->w_ptr == 0x1C) {
-                    command_ok();
-                    return;
-                }
-
-                check_next();
-                return;
-            }
-
-            waza_ptr->w_type = 0;
-        }
+        resolve_extended_lever_command();
     } else if (waza_ptr->w_lvr == 0) {
         if (chk_pl->new_lvbt == 0) {
             if (*waza_ptr->w_ptr == 28) {
