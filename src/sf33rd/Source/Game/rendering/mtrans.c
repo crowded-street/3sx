@@ -126,6 +126,10 @@ static bool is_cached_pattern_state(PatternState* mc, u32 code, u32 palt) {
     return (mc->cs.code == code) && (mc->state == palt);
 }
 
+static bool has_free_pattern_slot(s32 i, s32 pattern_count, s32 free_count) {
+    return (i != pattern_count) && (free_count != 0);
+}
+
 static bool is_matching_trans_entry(TileMapEntry* trsptr, s32 cods, s32 atrs) {
     return !(trsptr->attr & 0x1000) && (trsptr->code == cods) && ((trsptr->attr & 0xF) == atrs);
 }
@@ -1779,7 +1783,7 @@ static s32 get_mltbuf16_ext_2(MultiTexture* mt, u32 code, u32 palt, s32* ret, Pa
         }
     }
 
-    if ((i != mt->mltnum16) && (mt->tpf->x16 != 0)) {
+    if (has_free_pattern_slot(i, mt->mltnum16, mt->tpf->x16)) {
         mt->tpf->x16 -= 1;
         mt->tpu->x16_used[i] = mt->tpf->x16_free[mt->tpf->x16];
         mt->tpu->x16 += 1;
