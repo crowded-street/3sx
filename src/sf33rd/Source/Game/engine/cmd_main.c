@@ -619,6 +619,113 @@ void paring_miss_init() { // 🟢
     wcp[cmd_id].waza_flag[waza_type[cmd_id]] = 0;
 }
 
+static void clear_lower_priority_waza_flags() {
+    switch (waza_type[cmd_id]) {
+    case 3:
+        if (wcp[cmd_id].waza_flag[3] > wcp[cmd_id].waza_flag[4]) {
+            wcp[cmd_id].waza_flag[4] = 0;
+        }
+
+        if (wcp[cmd_id].waza_flag[3] > wcp[cmd_id].waza_flag[5]) {
+            wcp[cmd_id].waza_flag[5] = 0;
+        }
+
+        if (wcp[cmd_id].waza_flag[3] > wcp[cmd_id].waza_flag[6]) {
+            wcp[cmd_id].waza_flag[6] = 0;
+        }
+
+        if (wcp[cmd_id].waza_flag[3] > wcp[cmd_id].waza_flag[12]) {
+            wcp[cmd_id].waza_flag[12] = 0;
+        }
+
+        break;
+
+    case 4:
+        if (wcp[cmd_id].waza_flag[4] > wcp[cmd_id].waza_flag[3]) {
+            wcp[cmd_id].waza_flag[3] = 0;
+        }
+
+        if (wcp[cmd_id].waza_flag[4] > wcp[cmd_id].waza_flag[5]) {
+            wcp[cmd_id].waza_flag[5] = 0;
+        }
+
+        if (wcp[cmd_id].waza_flag[4] > wcp[cmd_id].waza_flag[6]) {
+            wcp[cmd_id].waza_flag[6] = 0;
+        }
+
+        if (wcp[cmd_id].waza_flag[4] > wcp[cmd_id].waza_flag[12]) {
+            wcp[cmd_id].waza_flag[12] = 0;
+        }
+
+        break;
+
+    case 5:
+        if (wcp[cmd_id].waza_flag[5] > wcp[cmd_id].waza_flag[3]) {
+            wcp[cmd_id].waza_flag[3] = 0;
+        }
+
+        if (wcp[cmd_id].waza_flag[5] > wcp[cmd_id].waza_flag[4]) {
+            wcp[cmd_id].waza_flag[4] = 0;
+        }
+
+        if (wcp[cmd_id].waza_flag[5] > wcp[cmd_id].waza_flag[6]) {
+            wcp[cmd_id].waza_flag[6] = 0;
+        }
+
+        if (wcp[cmd_id].waza_flag[5] > wcp[cmd_id].waza_flag[12]) {
+            wcp[cmd_id].waza_flag[12] = 0;
+        }
+
+        if (waza_work[cmd_id][6].free3 > 0) {
+            wcp[cmd_id].waza_flag[5] = 0;
+        }
+
+        break;
+
+    case 6:
+        if (wcp[cmd_id].waza_flag[6] > wcp[cmd_id].waza_flag[3]) {
+            wcp[cmd_id].waza_flag[3] = 0;
+        }
+
+        if (wcp[cmd_id].waza_flag[6] > wcp[cmd_id].waza_flag[4]) {
+            wcp[cmd_id].waza_flag[4] = 0;
+        }
+
+        if (wcp[cmd_id].waza_flag[6] > wcp[cmd_id].waza_flag[5]) {
+            wcp[cmd_id].waza_flag[5] = 0;
+        }
+
+        if (wcp[cmd_id].waza_flag[6] > wcp[cmd_id].waza_flag[12]) {
+            wcp[cmd_id].waza_flag[12] = 0;
+        }
+
+        if (waza_work[cmd_id][5].free3 > 0) {
+            wcp[cmd_id].waza_flag[6] = 0;
+        }
+
+        break;
+
+    case 12:
+        if (wcp[cmd_id].waza_flag[12] > wcp[cmd_id].waza_flag[3]) {
+            wcp[cmd_id].waza_flag[3] = 0;
+        }
+
+        if (wcp[cmd_id].waza_flag[12] > wcp[cmd_id].waza_flag[4]) {
+            wcp[cmd_id].waza_flag[4] = 0;
+        }
+
+        if (wcp[cmd_id].waza_flag[12] > wcp[cmd_id].waza_flag[5]) {
+            wcp[cmd_id].waza_flag[5] = 0;
+        }
+
+        if (wcp[cmd_id].waza_flag[12] > wcp[cmd_id].waza_flag[6]) {
+            wcp[cmd_id].waza_flag[6] = 0;
+        }
+
+        break;
+    }
+}
+
 void check_10() { // 🟢
     switch (waza_ptr->shot_ok) {
     case 0:
@@ -636,110 +743,7 @@ void check_10() { // 🟢
                 waza_ptr->free3 = wcp[cmd_id].reset[waza_type[cmd_id]] + 10;
                 waza_ptr->w_int = 6;
 
-                switch (waza_type[cmd_id]) {
-                case 3:
-                    if (wcp[cmd_id].waza_flag[3] > wcp[cmd_id].waza_flag[4]) {
-                        wcp[cmd_id].waza_flag[4] = 0;
-                    }
-
-                    if (wcp[cmd_id].waza_flag[3] > wcp[cmd_id].waza_flag[5]) {
-                        wcp[cmd_id].waza_flag[5] = 0;
-                    }
-
-                    if (wcp[cmd_id].waza_flag[3] > wcp[cmd_id].waza_flag[6]) {
-                        wcp[cmd_id].waza_flag[6] = 0;
-                    }
-
-                    if (wcp[cmd_id].waza_flag[3] > wcp[cmd_id].waza_flag[12]) {
-                        wcp[cmd_id].waza_flag[12] = 0;
-                    }
-
-                    break;
-
-                case 4:
-                    if (wcp[cmd_id].waza_flag[4] > wcp[cmd_id].waza_flag[3]) {
-                        wcp[cmd_id].waza_flag[3] = 0;
-                    }
-
-                    if (wcp[cmd_id].waza_flag[4] > wcp[cmd_id].waza_flag[5]) {
-                        wcp[cmd_id].waza_flag[5] = 0;
-                    }
-
-                    if (wcp[cmd_id].waza_flag[4] > wcp[cmd_id].waza_flag[6]) {
-                        wcp[cmd_id].waza_flag[6] = 0;
-                    }
-
-                    if (wcp[cmd_id].waza_flag[4] > wcp[cmd_id].waza_flag[12]) {
-                        wcp[cmd_id].waza_flag[12] = 0;
-                    }
-
-                    break;
-
-                case 5:
-                    if (wcp[cmd_id].waza_flag[5] > wcp[cmd_id].waza_flag[3]) {
-                        wcp[cmd_id].waza_flag[3] = 0;
-                    }
-
-                    if (wcp[cmd_id].waza_flag[5] > wcp[cmd_id].waza_flag[4]) {
-                        wcp[cmd_id].waza_flag[4] = 0;
-                    }
-
-                    if (wcp[cmd_id].waza_flag[5] > wcp[cmd_id].waza_flag[6]) {
-                        wcp[cmd_id].waza_flag[6] = 0;
-                    }
-
-                    if (wcp[cmd_id].waza_flag[5] > wcp[cmd_id].waza_flag[12]) {
-                        wcp[cmd_id].waza_flag[12] = 0;
-                    }
-
-                    if (waza_work[cmd_id][6].free3 > 0) {
-                        wcp[cmd_id].waza_flag[5] = 0;
-                    }
-
-                    break;
-
-                case 6:
-                    if (wcp[cmd_id].waza_flag[6] > wcp[cmd_id].waza_flag[3]) {
-                        wcp[cmd_id].waza_flag[3] = 0;
-                    }
-
-                    if (wcp[cmd_id].waza_flag[6] > wcp[cmd_id].waza_flag[4]) {
-                        wcp[cmd_id].waza_flag[4] = 0;
-                    }
-
-                    if (wcp[cmd_id].waza_flag[6] > wcp[cmd_id].waza_flag[5]) {
-                        wcp[cmd_id].waza_flag[5] = 0;
-                    }
-
-                    if (wcp[cmd_id].waza_flag[6] > wcp[cmd_id].waza_flag[12]) {
-                        wcp[cmd_id].waza_flag[12] = 0;
-                    }
-
-                    if (waza_work[cmd_id][5].free3 > 0) {
-                        wcp[cmd_id].waza_flag[6] = 0;
-                    }
-
-                    break;
-
-                case 12:
-                    if (wcp[cmd_id].waza_flag[12] > wcp[cmd_id].waza_flag[3]) {
-                        wcp[cmd_id].waza_flag[3] = 0;
-                    }
-
-                    if (wcp[cmd_id].waza_flag[12] > wcp[cmd_id].waza_flag[4]) {
-                        wcp[cmd_id].waza_flag[4] = 0;
-                    }
-
-                    if (wcp[cmd_id].waza_flag[12] > wcp[cmd_id].waza_flag[5]) {
-                        wcp[cmd_id].waza_flag[5] = 0;
-                    }
-
-                    if (wcp[cmd_id].waza_flag[12] > wcp[cmd_id].waza_flag[6]) {
-                        wcp[cmd_id].waza_flag[6] = 0;
-                    }
-
-                    break;
-                }
+                clear_lower_priority_waza_flags();
             } else {
                 waza_ptr->shot_ok = 0;
                 break;
