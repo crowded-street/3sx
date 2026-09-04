@@ -433,6 +433,29 @@ void Bg_Texture_Load2(u8 type) {
     bgPalCodeOffset[0] = etcBgPalCnvTable[type] + 144;
 }
 
+static void setup_ending_type14(void* loadAdrs, u32 loadSize, u16 accnum) {
+    u8 i;
+    u8 j;
+
+    tokusyu_stage = 5;
+
+    for (i = 0; i < 4; i++) {
+        for (j = 0; j < 4; j++) {
+            gouki_end_gbix[j + (i * 4)] = (j + ((i * 8) + 100));
+        }
+    }
+
+    ppgSetupCurrentDataList(&ppgAkeList);
+    ppgSetupPalChunk(NULL, loadAdrs, loadSize, 0, 0, 1);
+    ppgSetupTexChunk_1st(NULL, loadAdrs, loadSize, 0x1A0, 0x18, 0, 0);
+    ppgSetupTexChunk_1st_Accnum(0, accnum);
+
+    for (i = 0; i < 0x18; i++) {
+        accnum = ppgSetupTexChunk_2nd(NULL, i + 0x1A0);
+        ppgSetupTexChunk_3rd(NULL, i + 0x1A0, 1);
+    }
+}
+
 void Bg_Texture_Load_Ending(s16 type) {
     void* loadAdrs;
     u32 loadSize;
@@ -505,24 +528,7 @@ void Bg_Texture_Load_Ending(s16 type) {
 
     switch (type) {
     case 14:
-        tokusyu_stage = 5;
-
-        for (i = 0; i < 4; i++) {
-            for (j = 0; j < 4; j++) {
-                gouki_end_gbix[j + (i * 4)] = (j + ((i * 8) + 100));
-            }
-        }
-
-        ppgSetupCurrentDataList(&ppgAkeList);
-        ppgSetupPalChunk(NULL, loadAdrs, loadSize, 0, 0, 1);
-        ppgSetupTexChunk_1st(NULL, loadAdrs, loadSize, 0x1A0, 0x18, 0, 0);
-        ppgSetupTexChunk_1st_Accnum(0, accnum);
-
-        for (i = 0; i < 0x18; i++) {
-            accnum = ppgSetupTexChunk_2nd(NULL, i + 0x1A0);
-            ppgSetupTexChunk_3rd(NULL, i + 0x1A0, 1);
-        }
-
+        setup_ending_type14(loadAdrs, loadSize, accnum);
         break;
 
     case 15:
