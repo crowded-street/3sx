@@ -822,12 +822,46 @@ static s32 remap_ending_g_kakikae1_chip(s32 global_index_real) {
     return global_index_real;
 }
 
+static void draw_stage03_tiles(u8 bgnm, s32* xx, s32* yy, s32 global_index, s32 palOffset,
+                               PPGDataList* curDataList) {
+    s32 i;
+    s32 x;
+    s32 y;
+    s32 global_index_real;
+    u32 vtxColor;
+
+    for (y = yy[0]; y < yy[1]; y += 128) {
+        for (x = xx[0]; x < xx[1]; x += 128) {
+            global_index_real = global_index + (((y >> 7) << 3) + (x >> 7));
+            vtxColor = 0xFFFFFFFF;
+
+            if (bgnm == 0) {
+                global_index_real = remap_stage03_player_chip(global_index_real);
+            } else {
+                for (i = 0; i < 13; i++) {
+                    if (global_index_real == rw_gbix[i]) {
+                        global_index_real = *(rw_dat[0].rwd_ptr + i + 1);
+                        vtxColor = *rw3col_ptr;
+
+                        if (ppgCheckTextureNumber(0, global_index_real) == 0) {
+                            ppgSetupCurrentDataList(&ppgRwBgList);
+                        }
+                        break;
+                    }
+                }
+            }
+
+            bgDrawOneChip(x, y, 128, 128, global_index_real, vtxColor, palOffset);
+            ppgSetupCurrentDataList(curDataList);
+        }
+    }
+}
+
 void scr_trans(u8 bgnm) {
     PPGDataList* curDataList;
     Vec3 point[2];
     s32 xx[2];
     s32 yy[2];
-    s32 i;
     s32 x;
     s32 y;
     s32 global_index;
@@ -896,31 +930,7 @@ void scr_trans(u8 bgnm) {
 
     switch (tokusyu_stage) {
     case 1:
-        for (y = yy[0]; y < yy[1]; y += 128) {
-            for (x = xx[0]; x < xx[1]; x += 128) {
-                global_index_real = global_index + (((y >> 7) << 3) + (x >> 7));
-                vtxColor = 0xFFFFFFFF;
-
-                if (bgnm == 0) {
-                    global_index_real = remap_stage03_player_chip(global_index_real);
-                } else {
-                    for (i = 0; i < 13; i++) {
-                        if (global_index_real == rw_gbix[i]) {
-                            global_index_real = *(rw_dat[0].rwd_ptr + i + 1);
-                            vtxColor = *rw3col_ptr;
-
-                            if (ppgCheckTextureNumber(0, global_index_real) == 0) {
-                                ppgSetupCurrentDataList(&ppgRwBgList);
-                            }
-                            break;
-                        }
-                    }
-                }
-
-                bgDrawOneChip(x, y, 128, 128, global_index_real, vtxColor, palOffset);
-                ppgSetupCurrentDataList(curDataList);
-            }
-        }
+        draw_stage03_tiles(bgnm, xx, yy, global_index, palOffset, curDataList);
 
         if (is_exe_or_pause_active()) {
             return;
