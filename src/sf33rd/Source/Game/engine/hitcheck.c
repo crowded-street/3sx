@@ -1321,101 +1321,183 @@ static s32 resolve_crouching_guard_block_cps3(PLW* as, PLW* ds) {
     return 0;
 }
 
-s32 defense_ground_cps3(PLW* as, PLW* ds, s8 gddir) { // 🟢
-    s8 just_now = 0;
-    s8 attr_att = 0;
+typedef struct {
+    PLW* attacker;
+    PLW* defender;
+    s8 just_now;
+    s8 attack_attribute;
+} Cps3GroundDefense;
 
-    if (ds->guard_chuu != 0 && ds->guard_chuu < 5) {
-        just_now = 1;
-        attr_att = check_normal_attack(as->wu.kind_of_waza);
+static bool can_cps3_standing_parry(const Cps3GroundDefense* defense) {
+    if (defense->just_now) {
+        return defense->defender->cp->waza_flag[3] >=
+               grdb[defense->defender->wu.id][defense->attack_attribute][0];
     }
 
-    if (ds->py->flag == 0 && !(ds->guard_flag & 2) && as->wu.att.guard & 3) {
-        if ((as->wu.att.guard & 2) && !(ds->spmv_ng_flag & DIP_UNKNOWN_8)) {
-            if (just_now) {
-                if (ds->cp->waza_flag[3] >= grdb[ds->wu.id][attr_att][0]) {
-                    return resolve_standing_guard_block_cps3(as, ds);
-                }
-            } else if (as->wu.jump_att_flag == 0) {
-                if (ds->cp->waza_flag[3] != 0) {
-                    return resolve_standing_guard_block_cps3(as, ds);
-                }
-            } else if (ds->cp->waza_flag[12] != 0) {
-                return resolve_standing_guard_block_cps3(as, ds);
-            }
-        }
-
-        if ((as->wu.att.guard & 1) && !(ds->spmv_ng_flag & DIP_UNKNOWN_9)) {
-            if (just_now) {
-                if (ds->cp->waza_flag[4] >= grdb[ds->wu.id][attr_att][1]) {
-                    return resolve_crouching_guard_block_cps3(as, ds);
-                }
-            } else if (ds->cp->waza_flag[4] != 0) {
-                return resolve_crouching_guard_block_cps3(as, ds);
-            }
-        }
+    if (defense->attacker->wu.jump_att_flag == 0) {
+        return defense->defender->cp->waza_flag[3] != 0;
     }
 
-    if (!(as->wu.att.guard & 0x18)) {
-        return 2;
+    return defense->defender->cp->waza_flag[12] != 0;
+}
+
+static bool try_cps3_standing_parry(const Cps3GroundDefense* defense, s32* result) {
+    if (!(defense->attacker->wu.att.guard & 2)) {
+        return false;
     }
 
-    if (ds->guard_flag & 1) {
-        return 2;
+    if (defense->defender->spmv_ng_flag & DIP_UNKNOWN_8) {
+        return false;
     }
 
-    if (ds->spmv_ng_flag & DIP_GUARD_DISABLED) {
-        return 2;
+    if (!can_cps3_standing_parry(defense)) {
+        return false;
     }
 
-    if (!ds->auto_guard) {
-        if (!(ds->saishin_lvdir & gddir)) {
-            return 2;
-        }
+    *result = resolve_standing_guard_block_cps3(defense->attacker, defense->defender);
+    return true;
+}
 
-        if (ds->cp->sw_lvbt & 1) {
-            return 2;
-        }
+static bool can_cps3_crouching_parry(const Cps3GroundDefense* defense) {
+    if (defense->just_now) {
+        return defense->defender->cp->waza_flag[4] >=
+               grdb[defense->defender->wu.id][defense->attack_attribute][1];
     }
 
-    switch (as->wu.att.guard & 0x18) {
+    return defense->defender->cp->waza_flag[4] != 0;
+}
+
+static bool try_cps3_crouching_parry(const Cps3GroundDefense* defense, s32* result) {
+    if (!(defense->attacker->wu.att.guard & 1)) {
+        return false;
+    }
+
+    if (defense->defender->spmv_ng_flag & DIP_UNKNOWN_9) {
+        return false;
+    }
+
+    if (!can_cps3_crouching_parry(defense)) {
+        return false;
+    }
+
+    *result = resolve_crouching_guard_block_cps3(defense->attacker, defense->defender);
+    return true;
+}
+
+static bool try_cps3_ground_parry(const Cps3GroundDefense* defense, s32* result) {
+    if (defense->defender->py->flag != 0) {
+        return false;
+    }
+
+    if (defense->defender->guard_flag & 2) {
+        return false;
+    }
+
+    if (!(defense->attacker->wu.att.guard & 3)) {
+        return false;
+    }
+
+    if (try_cps3_standing_parry(defense, result)) {
+        return true;
+    }
+
+    return try_cps3_crouching_parry(defense, result);
+}
+
+static bool is_cps3_ground_guard_rejected(const Cps3GroundDefense* defense, s8 gddir) {
+    if (!(defense->attacker->wu.att.guard & 0x18)) {
+        return true;
+    }
+
+    if (defense->defender->guard_flag & 1) {
+        return true;
+    }
+
+    if (defense->defender->spmv_ng_flag & DIP_GUARD_DISABLED) {
+        return true;
+    }
+
+    if (defense->defender->auto_guard) {
+        return false;
+    }
+
+    if (!(defense->defender->saishin_lvdir & gddir)) {
+        return true;
+    }
+
+    return defense->defender->cp->sw_lvbt & 1;
+}
+
+static bool configure_cps3_guard_animation(const Cps3GroundDefense* defense) {
+    switch (defense->attacker->wu.att.guard & 0x18) {
     case 8:
-        if (!(ds->cp->sw_lvbt & 2)) {
-            return 2;
+        if (!(defense->defender->cp->sw_lvbt & 2)) {
+            return false;
         }
 
-        ds->wu.routine_no[2] = 6;
-        break;
+        defense->defender->wu.routine_no[2] = 6;
+        return true;
 
     case 16:
-        if (ds->cp->sw_lvbt & 2) {
-            return 2;
+        if (defense->defender->cp->sw_lvbt & 2) {
+            return false;
         }
 
-        ds->wu.routine_no[2] = 5;
-        break;
+        defense->defender->wu.routine_no[2] = 5;
+        return true;
 
     default:
-        if (ds->cp->sw_lvbt & 2) {
-            ds->wu.routine_no[2] = 6;
-            break;
+        if (defense->defender->cp->sw_lvbt & 2) {
+            defense->defender->wu.routine_no[2] = 6;
+        } else {
+            defense->defender->wu.routine_no[2] = 5;
         }
 
-        ds->wu.routine_no[2] = 5;
-        break;
+        return true;
+    }
+}
+
+static s32 finish_cps3_ground_guard(const Cps3GroundDefense* defense) {
+    defense->attacker->wu.hf.hit.player = 0x10;
+
+    if (defense->defender->wu.routine_no[2] == 5 && check_attbox_dir(defense->defender) == 0) {
+        defense->defender->wu.routine_no[2] = 4;
     }
 
-    as->wu.hf.hit.player = 0x10;
-
-    if (ds->wu.routine_no[2] == 5 && check_attbox_dir(ds) == 0) {
-        ds->wu.routine_no[2] = 4;
-    }
-
-    if (check_dm_att_guard(&as->wu, &ds->wu, 1)) {
+    if (check_dm_att_guard(&defense->attacker->wu, &defense->defender->wu, 1)) {
         return 2;
     }
 
     return 1;
+}
+
+s32 defense_ground_cps3(PLW* as, PLW* ds, s8 gddir) { // 🟢
+    Cps3GroundDefense defense;
+    s32 parry_result;
+
+    defense.attacker = as;
+    defense.defender = ds;
+    defense.just_now = 0;
+    defense.attack_attribute = 0;
+
+    if (ds->guard_chuu != 0 && ds->guard_chuu < 5) {
+        defense.just_now = 1;
+        defense.attack_attribute = check_normal_attack(as->wu.kind_of_waza);
+    }
+
+    if (try_cps3_ground_parry(&defense, &parry_result)) {
+        return parry_result;
+    }
+
+    if (is_cps3_ground_guard_rejected(&defense, gddir)) {
+        return 2;
+    }
+
+    if (!configure_cps3_guard_animation(&defense)) {
+        return 2;
+    }
+
+    return finish_cps3_ground_guard(&defense);
 }
 
 static s32 resolve_standing_guard_block(PLW* as, PLW* ds) {
