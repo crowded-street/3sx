@@ -1828,6 +1828,11 @@ static bool should_end_damage_box_scan(const HitScan* scan, s16 damage_box) {
     return damage_box > 3 && scan->attacker->att_hit_ok == 0;
 }
 
+static bool should_skip_damage_box(const HitScan* scan, s16 attack_box, s16 damage_box) {
+    return dmdat_adrs[damage_box][1] == 0 || is_excluded_attack_damage_box_pair(attack_box, damage_box) ||
+           should_skip_auxiliary_damage_box(scan, damage_box) || is_push_damage_box_blocked(scan, damage_box);
+}
+
 static void record_hit_if_stronger(const HitScan* scan, s16* attack_box_data, s16 attack_box, s16 damage_box) {
     s16 overlap = hit_check_subroutine(scan->attacker, scan->target, attack_box_data, dmdat_adrs[damage_box]);
 
@@ -1853,19 +1858,7 @@ static bool check_attack_box_against_damage_boxes(const HitScan* scan, s16* mh, 
             return false;
         }
 
-        if (dmdat_adrs[lp2][1] == 0) {
-            continue;
-        }
-
-        if (is_excluded_attack_damage_box_pair(lp, lp2)) {
-            continue;
-        }
-
-        if (should_skip_auxiliary_damage_box(scan, lp2)) {
-            continue;
-        }
-
-        if (is_push_damage_box_blocked(scan, lp2)) {
+        if (should_skip_damage_box(scan, lp, lp2)) {
             continue;
         }
 
@@ -1873,6 +1866,11 @@ static bool check_attack_box_against_damage_boxes(const HitScan* scan, s16* mh, 
     }
 
     return true;
+}
+
+static bool should_skip_attacker(WORK* attacker, WORK* target) {
+    return attacker->cg_ja.atix == 0 || attacker->att_hit_ok == 0 || is_blocked_by_vs_id_filter(attacker, target) ||
+           is_same_owner_target(attacker, target);
 }
 
 static void check_attacker_against_target(WORK* sad, s16 mi, s16 si) {
@@ -1892,19 +1890,7 @@ static void check_attacker_against_target(WORK* sad, s16 mi, s16 si) {
 
     mad = q_hit_push[mi];
 
-    if (mad->cg_ja.atix == 0) {
-        return;
-    }
-
-    if (mad->att_hit_ok == 0) {
-        return;
-    }
-
-    if (is_blocked_by_vs_id_filter(mad, sad)) {
-        return;
-    }
-
-    if (is_same_owner_target(mad, sad)) {
+    if (should_skip_attacker(mad, sad)) {
         return;
     }
 
