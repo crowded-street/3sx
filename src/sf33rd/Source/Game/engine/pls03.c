@@ -404,6 +404,20 @@ s16 check_super_arts_attack(PLW* wk) { // 🟡
     return rnum;
 }
 
+static bool should_skip_dc_slot(PLW* wk, s16 ix, s16 j) {
+    if (ArcadeBalance_IsEnabled()) {
+        if ((j == 3) && !(wk->cp->btix[ix] & 0x600)) {
+            return true;
+        }
+    } else {
+        if ((j == 3) && (!(wk->cp->btix[ix] & 0x600) || (wk->sa->ex4th_full && (wk->sa->mp != 1)))) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 s32 check_super_arts_attack_dc(PLW* wk) { // 🟡
     s16 j;
     u16 cusw;
@@ -453,15 +467,8 @@ s32 check_super_arts_attack_dc(PLW* wk) { // 🟡
             cusw = conpane[wk->cp->btix[wk->sa->nmsa_g_ix] & 0xFF];
 
             for (j = 3; j >= 0; j--) {
-                if (ArcadeBalance_IsEnabled()) {
-                    if ((j == 3) && !(wk->cp->btix[wk->sa->nmsa_g_ix] & 0x600)) {
-                        continue;
-                    }
-                } else {
-                    if ((j == 3) &&
-                        (!(wk->cp->btix[wk->sa->nmsa_g_ix] & 0x600) || (wk->sa->ex4th_full && (wk->sa->mp != 1)))) {
-                        continue;
-                    }
+                if (should_skip_dc_slot(wk, wk->sa->nmsa_g_ix, j)) {
+                    continue;
                 }
 
                 exsw = cusw & cmdshot_conv_tbl[wk->cp->exdt[wk->sa->nmsa_g_ix][j]];
@@ -525,15 +532,8 @@ s32 check_super_arts_attack_dc(PLW* wk) { // 🟡
             cusw = conpane[wk->cp->btix[wk->sa->nmsa_a_ix] & 0xFF];
 
             for (j = 3; j >= 0; j--) {
-                if (ArcadeBalance_IsEnabled()) {
-                    if ((j == 3) && !(wk->cp->btix[wk->sa->nmsa_a_ix] & 0x600)) {
-                        continue;
-                    }
-                } else {
-                    if ((j == 3) &&
-                        (!(wk->cp->btix[wk->sa->nmsa_a_ix] & 0x600) || (wk->sa->ex4th_full && (wk->sa->mp != 1)))) {
-                        continue;
-                    }
+                if (should_skip_dc_slot(wk, wk->sa->nmsa_a_ix, j)) {
+                    continue;
                 }
 
                 exsw = cusw & cmdshot_conv_tbl[wk->cp->exdt[wk->sa->nmsa_a_ix][j]];
