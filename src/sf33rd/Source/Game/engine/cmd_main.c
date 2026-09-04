@@ -1560,6 +1560,36 @@ static u16 latch_sw_lvbt_bit_0x80(u16 work2, u16 hana2, u16 sw_0) {
     return sw_0;
 }
 
+static u16 latch_sw_lvbt_bit_0x800(u16 work2, u16 hana2, u16 sw_0) {
+    switch (work2) {
+    case 0x700:
+    case 0x300:
+    case 0x500:
+    case 0x600:
+        wcp[cmd_id].sw_lvbt |= 0x800;
+        sw_0 |= 0x800;
+        break;
+
+    default:
+        switch (hana2) {
+        case 0x700:
+        case 0x300:
+        case 0x500:
+        case 0x600:
+            wcp[cmd_id].sw_lvbt |= 0x800;
+            sw_0 |= 0x800;
+            break;
+
+        default:
+            wcp[cmd_id].sw_lvbt &= 0xF7FF;
+            sw_0 &= 0xF7FF;
+            break;
+        }
+    }
+
+    return sw_0;
+}
+
 void pl_lvr_set() { // 🟢
     u16 sw_work;
     u16 work2;
@@ -1603,31 +1633,7 @@ void pl_lvr_set() { // 🟢
     work2 = sw_work & 0xF00;
     hana2 = sw_hana & 0xF00;
 
-    switch (work2) {
-    case 0x700:
-    case 0x300:
-    case 0x500:
-    case 0x600:
-        wcp[cmd_id].sw_lvbt |= 0x800;
-        sw_0 |= 0x800;
-        break;
-
-    default:
-        switch (hana2) {
-        case 0x700:
-        case 0x300:
-        case 0x500:
-        case 0x600:
-            wcp[cmd_id].sw_lvbt |= 0x800;
-            sw_0 |= 0x800;
-            break;
-
-        default:
-            wcp[cmd_id].sw_lvbt &= 0xF7FF;
-            sw_0 &= 0xF7FF;
-            break;
-        }
-    }
+    sw_0 = latch_sw_lvbt_bit_0x800(work2, hana2, sw_0);
 
     chk_pl->new_lvbt = wcp[cmd_id].sw_lvbt;
     chk_pl->sw_old = chk_pl->sw_new;
