@@ -1388,49 +1388,63 @@ void same_dm_stop(WORK* as, WORK* ds) { // 🟢
     }
 }
 
-s32 defense_sky_cps3(PLW* as, PLW* ds, s8 gddir) { // 🟢
-    if (ds->py->flag == 0 && !(ds->guard_flag & 2) && as->wu.att.guard & 4) {
-        if (!(ds->spmv_ng_flag & DIP_AIR_PARRY_DISABLED) && ds->cp->waza_flag[5] != 0) {
-            blocking_point_count_up(ds);
-            as->wu.hf.hit.player = 0x80;
-            ds->wu.routine_no[2] = 0x22;
-
-            if (check_dm_att_blocking(&as->wu, &ds->wu, 7)) {
-                return 2;
-            }
-
-            return 0;
-        }
-
-        if (!(ds->spmv_ng_flag & DIP_ANTI_AIR_PARRY_DISABLED) && ds->cp->waza_flag[6] != 0) {
-            blocking_point_count_up(ds);
-            as->wu.hf.hit.player = 0x80;
-            ds->wu.routine_no[2] = 0x23;
-
-            if (check_dm_att_blocking(&as->wu, &ds->wu, 7)) {
-                return 2;
-            }
-
-            return 0;
-        }
+static bool can_attempt_cps3_air_parry(PLW* as, PLW* ds) {
+    if (ds->py->flag != 0) {
+        return false;
     }
 
-    if (!(as->wu.att.guard & 0x20)) {
+    if (ds->guard_flag & 2) {
+        return false;
+    }
+
+    return as->wu.att.guard & 4;
+}
+
+static bool can_cps3_air_parry(PLW* ds) {
+    if (ds->spmv_ng_flag & DIP_AIR_PARRY_DISABLED) {
+        return false;
+    }
+
+    return ds->cp->waza_flag[5] != 0;
+}
+
+static bool can_cps3_anti_air_parry(PLW* ds) {
+    if (ds->spmv_ng_flag & DIP_ANTI_AIR_PARRY_DISABLED) {
+        return false;
+    }
+
+    return ds->cp->waza_flag[6] != 0;
+}
+
+static s32 resolve_cps3_air_parry(PLW* as, PLW* ds, s16 reaction) {
+    blocking_point_count_up(ds);
+    as->wu.hf.hit.player = 0x80;
+    ds->wu.routine_no[2] = reaction;
+
+    if (check_dm_att_blocking(&as->wu, &ds->wu, 7)) {
         return 2;
+    }
+
+    return 0;
+}
+
+static bool is_cps3_air_guard_rejected(PLW* as, PLW* ds, s8 gddir) {
+    if (!(as->wu.att.guard & 0x20)) {
+        return true;
     }
 
     if (ds->guard_flag & 1) {
-        return 2;
+        return true;
     }
 
     if (ds->spmv_ng_flag & DIP_AIR_GUARD_DISABLED) {
-        return 2;
+        return true;
     }
 
-    if (!(gddir & ds->saishin_lvdir)) {
-        return 2;
-    }
+    return !(gddir & ds->saishin_lvdir);
+}
 
+static s32 finish_cps3_air_guard(PLW* as, PLW* ds) {
     as->wu.hf.hit.player = 0x20;
     ds->wu.routine_no[2] = 7;
 
@@ -1439,6 +1453,24 @@ s32 defense_sky_cps3(PLW* as, PLW* ds, s8 gddir) { // 🟢
     }
 
     return 1;
+}
+
+s32 defense_sky_cps3(PLW* as, PLW* ds, s8 gddir) { // 🟢
+    if (can_attempt_cps3_air_parry(as, ds)) {
+        if (can_cps3_air_parry(ds)) {
+            return resolve_cps3_air_parry(as, ds, 0x22);
+        }
+
+        if (can_cps3_anti_air_parry(ds)) {
+            return resolve_cps3_air_parry(as, ds, 0x23);
+        }
+    }
+
+    if (is_cps3_air_guard_rejected(as, ds, gddir)) {
+        return 2;
+    }
+
+    return finish_cps3_air_guard(as, ds);
 }
 
 typedef struct {
