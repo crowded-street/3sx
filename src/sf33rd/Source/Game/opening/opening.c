@@ -894,6 +894,10 @@ void op_105_move() {
 
 const s16 op_106_sound[4] = { 0, 1, 3, 7 };
 
+static bool op_106_sound_ready() {
+    return (gSeqStatus[0] >= op_106_sound[op_w.r_no_2]) && (gSeqStatus[0] != 0x6A);
+}
+
 void op_106_move() {
     switch (op_w.r_no_2) {
     case 0:
@@ -913,7 +917,7 @@ void op_106_move() {
         break;
 
     case 1:
-        if ((gSeqStatus[0] >= op_106_sound[op_w.r_no_2]) && (gSeqStatus[0] != 0x6A)) {
+        if (op_106_sound_ready()) {
             op_w.r_no_2 += 1;
             op_work_clear();
             op_w.index = 26;
