@@ -347,9 +347,59 @@ static void initialize_mode_select(struct _TASK* task_ptr, const s16 loop_counte
     Menu_Cursor_Move = loop_counter;
 }
 
-void Mode_Select(struct _TASK* task_ptr) {
+static void handle_mode_select_input(struct _TASK* task_ptr, const s16 loop_counter) {
     s16 PL_id;
 
+    if (Connect_Status == 0 && Menu_Cursor_Y[0] == 1) {
+        Menu_Cursor_Y[0] = 2;
+    } else {
+        PL_id = 0;
+
+        if (MC_Move_Sub(Check_Menu_Lever(0, 0), 0, loop_counter - 1, 1) == 0) {
+            PL_id = 1;
+            MC_Move_Sub(Check_Menu_Lever(1, 0), 0, loop_counter - 1, 1);
+        }
+    }
+
+    switch (IO_Result) {
+    case 0x100:
+        switch (Menu_Cursor_Y[0]) {
+        case 0:
+            G_No[2] += 1;
+            Mode_Type = MODE_ARCADE;
+            task_ptr->r_no[0] = 5;
+            cpExitTask(TASK_SAVER);
+            Decide_PL(PL_id);
+            break;
+
+        case 1:
+            Setup_VS_Mode(task_ptr);
+            G_No[1] = 12;
+            G_No[2] = 1;
+            Mode_Type = MODE_VERSUS;
+            cpExitTask(TASK_MENU);
+            break;
+
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+            task_ptr->r_no[2] += 1;
+            task_ptr->free[0] = 0;
+            task_ptr->free[1] = Menu_Cursor_Y[0] + 2;
+            break;
+
+        default:
+            break;
+        }
+
+        SE_selected();
+        break;
+    }
+}
+
+void Mode_Select(struct _TASK* task_ptr) {
     const bool supports_exit = App_SupportsExit();
     const s16 loop_counter = supports_exit ? 7 : 6;
 
@@ -389,54 +439,7 @@ void Mode_Select(struct _TASK* task_ptr) {
         break;
 
     case 3:
-        if (Connect_Status == 0 && Menu_Cursor_Y[0] == 1) {
-            Menu_Cursor_Y[0] = 2;
-        } else {
-            PL_id = 0;
-
-            if (MC_Move_Sub(Check_Menu_Lever(0, 0), 0, loop_counter - 1, 1) == 0) {
-                PL_id = 1;
-                MC_Move_Sub(Check_Menu_Lever(1, 0), 0, loop_counter - 1, 1);
-            }
-        }
-
-        switch (IO_Result) {
-        case 0x100:
-            switch (Menu_Cursor_Y[0]) {
-            case 0:
-                G_No[2] += 1;
-                Mode_Type = MODE_ARCADE;
-                task_ptr->r_no[0] = 5;
-                cpExitTask(TASK_SAVER);
-                Decide_PL(PL_id);
-                break;
-
-            case 1:
-                Setup_VS_Mode(task_ptr);
-                G_No[1] = 12;
-                G_No[2] = 1;
-                Mode_Type = MODE_VERSUS;
-                cpExitTask(TASK_MENU);
-                break;
-
-            case 2:
-            case 3:
-            case 4:
-            case 5:
-            case 6:
-                task_ptr->r_no[2] += 1;
-                task_ptr->free[0] = 0;
-                task_ptr->free[1] = Menu_Cursor_Y[0] + 2;
-                break;
-
-            default:
-                break;
-            }
-
-            SE_selected();
-            break;
-        }
-
+        handle_mode_select_input(task_ptr, loop_counter);
         break;
 
     default:
