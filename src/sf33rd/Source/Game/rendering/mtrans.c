@@ -122,6 +122,10 @@ static u16 x32_mapping_set(PatternMap* map, s32 code);
 static f32 advance_trans_x(f32 x, s32 flip, TileMapEntry* trsptr);
 static f32 advance_trans_y(f32 y, s32 flip, TileMapEntry* trsptr);
 
+static bool is_matching_trans_entry(TileMapEntry* trsptr, s32 cods, s32 atrs) {
+    return !(trsptr->attr & 0x1000) && (trsptr->code == cods) && ((trsptr->attr & 0xF) == atrs);
+}
+
 static void search_trsptr(void* trstbl, s32 i, s32 n, s32 cods, s32 atrs, s32 codd, s32 atrd) {
     s32 j;
     u16* tmpbas;
@@ -138,7 +142,7 @@ static void search_trsptr(void* trstbl, s32 i, s32 n, s32 cods, s32 atrs, s32 co
         tmpptr = (TileMapEntry*)tmpbas;
 
         while (ctemp != 0) {
-            if (!(tmpptr->attr & 0x1000) && (tmpptr->code == cods) && ((tmpptr->attr & 0xF) == atrs)) {
+            if (is_matching_trans_entry(tmpptr, cods, atrs)) {
                 tmpptr->code = codd;
                 tmpptr->attr = (tmpptr->attr & 0xC000) | atrd;
             }
