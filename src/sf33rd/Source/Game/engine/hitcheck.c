@@ -658,29 +658,9 @@ void set_paring_status(PLW* as, PLW* ds) { // 🟡
         case 1:
         case 3:
         case 5:
-            ds->wu.dm_stop = -15;
-            as->wu.hit_stop = 16;
-            as->wu.hit_quake = 16;
-            break;
-
         case 6:
-            ds->wu.dm_stop = -15;
-            as->wu.hit_stop = 16;
-            as->wu.hit_quake = 16;
-            break;
-
         case 7:
-            ds->wu.dm_stop = -15;
-            as->wu.hit_stop = 16;
-            as->wu.hit_quake = 16;
-            break;
-
         case 8:
-            ds->wu.dm_stop = -15;
-            as->wu.hit_stop = 16;
-            as->wu.hit_quake = 16;
-            break;
-
         case 9:
             ds->wu.dm_stop = -15;
             as->wu.hit_stop = 16;
