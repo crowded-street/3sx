@@ -1323,6 +1323,20 @@ void nm_57000(PLW* wk) { // 🟢
     }
 }
 
+static void reset_dm_stop_after_parry(PLW* wk) {
+    if (wk->wu.operator == 0) {
+        Next_Be_Free(wk);
+    }
+
+    if (wk->wu.dm_stop < 0) {
+        if (wk->wu.dm_stop > -4) {
+            wk->wu.dm_stop = -4;
+        }
+    } else if (wk->wu.dm_stop < 4) {
+        wk->wu.dm_stop = 4;
+    }
+}
+
 void process_damage(PLW* wk) { // 🟡
     s32 csw;
 
@@ -1357,17 +1371,7 @@ void process_damage(PLW* wk) { // 🟡
             }
 
             if (csw) {
-                if (wk->wu.operator == 0) {
-                    Next_Be_Free(wk);
-                }
-
-                if (wk->wu.dm_stop < 0) {
-                    if (wk->wu.dm_stop > -4) {
-                        wk->wu.dm_stop = -4;
-                    }
-                } else if (wk->wu.dm_stop < 4) {
-                    wk->wu.dm_stop = 4;
-                }
+                reset_dm_stop_after_parry(wk);
             }
         }
 
