@@ -1201,25 +1201,27 @@ void check_18() { // 🟢
 
     sw_lever = chk_pl->sw_lever & 0xF;
 
-    if (!dead_lvr_check()) {
-        if (waza_ptr->w_lvr & 0x8000) {
-            if ((chk_pl->old_lvbt & 0xF) != (chk_pl->new_lvbt & 0xF)) {
-                sw_work = waza_ptr->w_lvr & 0xF;
+    if (dead_lvr_check()) {
+        return;
+    }
 
-                if (sw_lever == sw_work) {
-                    waza_ptr->w_int = waza_ptr->free1;
-                    wcp[cmd_id].waza_flag[waza_type[cmd_id]] = wcp[cmd_id].reset[waza_type[cmd_id]];
-                }
-            }
-        } else if (waza_ptr->w_lvr == 0) {
-            if (chk_pl->sw_lever == 0) {
+    if (waza_ptr->w_lvr & 0x8000) {
+        if ((chk_pl->old_lvbt & 0xF) != (chk_pl->new_lvbt & 0xF)) {
+            sw_work = waza_ptr->w_lvr & 0xF;
+
+            if (sw_lever == sw_work) {
                 waza_ptr->w_int = waza_ptr->free1;
                 wcp[cmd_id].waza_flag[waza_type[cmd_id]] = wcp[cmd_id].reset[waza_type[cmd_id]];
             }
-        } else if ((chk_pl->old_lvbt & 0xF) != (chk_pl->new_lvbt & 0xF) && (sw_lever & waza_ptr->w_lvr)) {
+        }
+    } else if (waza_ptr->w_lvr == 0) {
+        if (chk_pl->sw_lever == 0) {
             waza_ptr->w_int = waza_ptr->free1;
             wcp[cmd_id].waza_flag[waza_type[cmd_id]] = wcp[cmd_id].reset[waza_type[cmd_id]];
         }
+    } else if ((chk_pl->old_lvbt & 0xF) != (chk_pl->new_lvbt & 0xF) && (sw_lever & waza_ptr->w_lvr)) {
+        waza_ptr->w_int = waza_ptr->free1;
+        wcp[cmd_id].waza_flag[waza_type[cmd_id]] = wcp[cmd_id].reset[waza_type[cmd_id]];
     }
 }
 
