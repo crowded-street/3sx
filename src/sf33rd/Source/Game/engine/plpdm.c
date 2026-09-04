@@ -546,7 +546,7 @@ void Damage_12000(PLW* wk) {
     }
 }
 
-void Damage_14000(PLW* wk) {
+static void run_zuru_damage_sequence(PLW* wk, s32 ttktv_arg) {
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -567,7 +567,7 @@ void Damage_14000(PLW* wk) {
 
     case 2:
         wk->dm_hos_flag = 1;
-        first_TtktV_union(wk, 3, 4);
+        first_TtktV_union(wk, 3, ttktv_arg);
         break;
 
     case 3:
@@ -575,6 +575,10 @@ void Damage_14000(PLW* wk) {
         buttobi_chakuchi_cg_type_check(wk);
         break;
     }
+}
+
+void Damage_14000(PLW* wk) {
+    run_zuru_damage_sequence(wk, 4);
 }
 
 void Damage_16000(PLW* wk) {
