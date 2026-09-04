@@ -219,12 +219,121 @@ static void finalize_successful_catch(PLW* as, PLW* ds, s16 blocking_status, s8 
     pp_pulpara_hit(&as->wu);
 }
 
+typedef enum {
+    CATCH_RESULT_UNDECIDED,
+    CATCH_RESULT_CANCEL_CURRENT,
+    CATCH_RESULT_KEEP_CURRENT,
+    CATCH_RESULT_USE_BLOCKING_STATUS,
+} CatchResolution;
+
+typedef struct {
+    s16 current_index;
+    s16 competing_index;
+    PLW* attacker;
+    PLW* defender;
+    s16 blocking_status;
+} CatchContest;
+
+static CatchResolution choose_dipswitch_catch_resolution(PLW* as, PLW* ds) {
+    if (as->wu.att.dipsw & 0x40) {
+        if (!(ds->wu.att.dipsw & 0x40)) {
+            return CATCH_RESULT_KEEP_CURRENT;
+        }
+
+        return CATCH_RESULT_UNDECIDED;
+    } else if (as->wu.att.dipsw & 0x20) {
+        if (ds->wu.att.dipsw & 0x40) {
+            return CATCH_RESULT_CANCEL_CURRENT;
+        }
+
+        if (!(ds->wu.att.dipsw & 0x20)) {
+            return CATCH_RESULT_KEEP_CURRENT;
+        }
+
+        return CATCH_RESULT_UNDECIDED;
+    } else if (ds->wu.att.dipsw & 0x60) {
+        return CATCH_RESULT_CANCEL_CURRENT;
+    }
+
+    return CATCH_RESULT_USE_BLOCKING_STATUS;
+}
+
+static CatchResolution choose_catch_resolution(const CatchContest* contest) {
+    CatchResolution resolution = choose_dipswitch_catch_resolution(contest->attacker, contest->defender);
+
+    if (resolution != CATCH_RESULT_USE_BLOCKING_STATUS) {
+        return resolution;
+    }
+
+    switch (contest->blocking_status) {
+    case 1:
+        contest->defender->hazusenai_flag = 1;
+        return CATCH_RESULT_KEEP_CURRENT;
+
+    case 2:
+        contest->attacker->hazusenai_flag = 1;
+        return CATCH_RESULT_CANCEL_CURRENT;
+
+    case 3:
+        contest->defender->hazusenai_flag = 1;
+        contest->attacker->hazusenai_flag = 1;
+        break;
+
+    default:
+        contest->attacker->cat_break_reserve = contest->defender->cat_break_reserve = 1;
+        break;
+    }
+
+    return CATCH_RESULT_UNDECIDED;
+}
+
+static CatchResolution resolve_catch_tie(CatchResolution resolution) {
+    if (resolution != CATCH_RESULT_UNDECIDED) {
+        return resolution;
+    }
+
+    if (!(Game_timer & 1)) {
+        return CATCH_RESULT_CANCEL_CURRENT;
+    }
+
+    return CATCH_RESULT_KEEP_CURRENT;
+}
+
+static bool should_cancel_competing_catch(const CatchContest* contest) {
+    CatchResolution resolution;
+
+    while (1) {
+        if (!(hs[contest->competing_index].flag.results & 0x100)) {
+            break;
+        }
+
+        if (contest->current_index != hs[contest->competing_index].dm_me) {
+            continue;
+        }
+
+        resolution = resolve_catch_tie(choose_catch_resolution(contest));
+
+        if (resolution == CATCH_RESULT_CANCEL_CURRENT) {
+            hs[contest->competing_index].flag.results &= 0x111;
+            hs[contest->current_index].flag.results &= 0x1011;
+            return true;
+        }
+
+        hs[contest->competing_index].flag.results &= 0x1011;
+        hs[contest->current_index].flag.results &= 0x111;
+        break;
+    }
+
+    return false;
+}
+
 void set_caught_status(s16 ix) { // 🟡
     // CPS3 lacks the port-side vibration and training chip-damage metadata kept below.
     s16 ix2 = hs[ix].dm_me;
     PLW* as = (PLW*)q_hit_push[ix2];
     PLW* ds = (PLW*)q_hit_push[ix];
     s16 blocking_status = check_blocking_flag(as, ds);
+    CatchContest contest;
     s8 gddir;
 
     while (1) {
@@ -233,65 +342,14 @@ void set_caught_status(s16 ix) { // 🟡
         }
     }
 
-    while (1) {
-        if (!(hs[ix2].flag.results & 0x100)) {
-            break;
-        }
+    contest.current_index = ix;
+    contest.competing_index = ix2;
+    contest.attacker = as;
+    contest.defender = ds;
+    contest.blocking_status = blocking_status;
 
-        if (ix != hs[ix2].dm_me) {
-            continue;
-        }
-
-        if (as->wu.att.dipsw & 0x40) {
-            if (!(ds->wu.att.dipsw & 0x40)) {
-                goto two;
-            } else {
-                // do nothing
-            }
-        } else if (as->wu.att.dipsw & 0x20) {
-            if (ds->wu.att.dipsw & 0x40) {
-                goto one;
-            }
-
-            if (!(ds->wu.att.dipsw & 0x20)) {
-                goto two;
-            } else {
-                // do nothing
-            }
-        } else if (ds->wu.att.dipsw & 0x60) {
-            goto one;
-        } else {
-            switch (blocking_status) {
-            case 1:
-                ds->hazusenai_flag = 1;
-                goto two;
-
-            case 2:
-                as->hazusenai_flag = 1;
-                goto one;
-
-            case 3:
-                ds->hazusenai_flag = 1;
-                as->hazusenai_flag = 1;
-                break;
-
-            default:
-                as->cat_break_reserve = ds->cat_break_reserve = 1;
-                break;
-            }
-        }
-
-        if (!(Game_timer & 1)) {
-        one:
-            hs[ix2].flag.results &= 0x111;
-            hs[ix].flag.results &= 0x1011;
-            return;
-        } else {
-        two:
-            hs[ix2].flag.results &= 0x1011;
-            hs[ix].flag.results &= 0x111;
-            break;
-        }
+    if (should_cancel_competing_catch(&contest)) {
+        return;
     }
 
     as->wu.hit_adrs = ds;
