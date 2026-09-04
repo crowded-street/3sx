@@ -927,6 +927,17 @@ static void on_direction_cursor_moved() {
     }
 }
 
+static void select_previous_direction_page(struct _TASK* task_ptr) {
+    task_ptr->r_no[2] = 1;
+    task_ptr->timer = 5;
+
+    if (--Menu_Page < 0) {
+        Menu_Page = (s8)Page_Max;
+    }
+
+    SE_dir_selected();
+}
+
 static void handle_direction_menu_input(struct _TASK* task_ptr) {
     switch (IO_Result) {
     case 0x200:
@@ -939,14 +950,7 @@ static void handle_direction_menu_input(struct _TASK* task_ptr) {
 
     case 0x80:
     case 0x800:
-        task_ptr->r_no[2] = 1;
-        task_ptr->timer = 5;
-
-        if (--Menu_Page < 0) {
-            Menu_Page = (s8)Page_Max;
-        }
-
-        SE_dir_selected();
+        select_previous_direction_page(task_ptr);
         break;
 
     case 0x40:
