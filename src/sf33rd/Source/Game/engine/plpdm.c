@@ -546,7 +546,7 @@ void Damage_12000(PLW* wk) {
     }
 }
 
-void Damage_14000(PLW* wk) {
+static void run_zuru_damage_sequence(PLW* wk, s32 ttktv_arg) {
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -567,7 +567,7 @@ void Damage_14000(PLW* wk) {
 
     case 2:
         wk->dm_hos_flag = 1;
-        first_TtktV_union(wk, 3, 4);
+        first_TtktV_union(wk, 3, ttktv_arg);
         break;
 
     case 3:
@@ -575,6 +575,10 @@ void Damage_14000(PLW* wk) {
         buttobi_chakuchi_cg_type_check(wk);
         break;
     }
+}
+
+void Damage_14000(PLW* wk) {
+    run_zuru_damage_sequence(wk, 4);
 }
 
 void Damage_16000(PLW* wk) {
@@ -743,7 +747,7 @@ void Damage_19000(PLW* wk) {
     }
 }
 
-void Damage_20000(PLW* wk) {
+static void run_flight_damage_sequence(PLW* wk, s32 flight_arg) {
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -763,7 +767,7 @@ void Damage_20000(PLW* wk) {
 
     case 2:
         set_dm_hos_flag_sky(wk);
-        first_flight_union(wk, 3, 4);
+        first_flight_union(wk, 3, flight_arg);
         break;
 
     case 3:
@@ -771,67 +775,18 @@ void Damage_20000(PLW* wk) {
         buttobi_chakuchi_cg_type_check(wk);
         break;
     }
+}
+
+void Damage_20000(PLW* wk) {
+    run_flight_damage_sequence(wk, 4);
 }
 
 void Damage_21000(PLW* wk) {
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.dm_rl = ((WORK*)wk->wu.dmg_adrs)->rl_flag;
-        wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
-        wk->dm_ix = wk->as->char_ix + wk->wu.dm_attlv;
-        set_char_move_init(&wk->wu, 1, wk->dm_ix);
-        setup_butt_own_data(&wk->wu);
-        wk->wu.mvxy.a[1].sp = wk->wu.mvxy.d[1].sp = wk->wu.mvxy.kop[1] = 0;
-        wk->zuru_timer = 0;
-        wk->zuru_ix_counter = 0;
-        break;
-
-    case 1:
-        wk->wu.routine_no[3]++;
-        char_move_wca_init(&wk->wu);
-        /* fallthrough */
-
-    case 2:
-        wk->dm_hos_flag = 1;
-        first_TtktV_union(wk, 3, 2);
-        break;
-
-    case 3:
-        char_move(&wk->wu);
-        buttobi_chakuchi_cg_type_check(wk);
-        break;
-    }
+    run_zuru_damage_sequence(wk, 2);
 }
 
 void Damage_23000(PLW* wk) {
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.dm_rl = ((WORK*)wk->wu.dmg_adrs)->rl_flag;
-        wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
-        setup_butt_own_data(&wk->wu);
-        buttobi_add_y_check(wk);
-        set_char_move_init(&wk->wu, 6, wk->as->char_ix);
-        check_dmpat_to_dmpat(wk);
-        get_sky_dm_timer(wk);
-        break;
-
-    case 1:
-        wk->wu.routine_no[3]++;
-        char_move_wca_init(&wk->wu);
-        /* fallthrough */
-
-    case 2:
-        set_dm_hos_flag_sky(wk);
-        first_flight_union(wk, 3, 2);
-        break;
-
-    case 3:
-        char_move(&wk->wu);
-        buttobi_chakuchi_cg_type_check(wk);
-        break;
-    }
+    run_flight_damage_sequence(wk, 2);
 }
 
 void Damage_24000(PLW* wk) {
@@ -1439,6 +1394,30 @@ void get_sky_dm_timer(PLW* wk) {
     wk->zuru_timer = sky_dm_zuru_table[omop_otedama_ix[(wk->wu.id + 1) & 1]][wk->zuru_ix_counter];
 }
 
+static void apply_vital_underflow_or_piyo(PLW* wk) {
+    if (wk->wu.vital_new < 0) {
+        wk->wu.vital_new = -1;
+        wk->dead_flag = 1;
+        dead_voice_flag = true;
+
+        if (wk->wu.dm_guard_success != -1) {
+            wk->kezurijini_flag = 1;
+        }
+
+        if (!round_slow_flag) {
+            set_conclusion_slow();
+            round_slow_flag = true;
+        }
+    } else if (wk->py->flag == 0) {
+        wk->py->now.quantity.h += wk->wu.dm_piyo;
+
+        if (wk->py->now.quantity.h >= wk->py->genkai) {
+            wk->py->now.timer = 0;
+            wk->py->flag = 1;
+        }
+    }
+}
+
 void subtract_dm_vital(PLW* wk) {
     if (wk->dead_flag == 0) {
         if (wk->wu.dm_vital && (wk->wu.routine_no[1] != 1 || wk->wu.routine_no[2] > 11 || wk->wu.routine_no[3] != 0)) {
@@ -1469,27 +1448,7 @@ void subtract_dm_vital(PLW* wk) {
             wk->wu.vital_new = 0;
         }
 
-        if (wk->wu.vital_new < 0) {
-            wk->wu.vital_new = -1;
-            wk->dead_flag = 1;
-            dead_voice_flag = true;
-
-            if (wk->wu.dm_guard_success != -1) {
-                wk->kezurijini_flag = 1;
-            }
-
-            if (!round_slow_flag) {
-                set_conclusion_slow();
-                round_slow_flag = true;
-            }
-        } else if (wk->py->flag == 0) {
-            wk->py->now.quantity.h += wk->wu.dm_piyo;
-
-            if (wk->py->now.quantity.h >= wk->py->genkai) {
-                wk->py->now.timer = 0;
-                wk->py->flag = 1;
-            }
-        }
+        apply_vital_underflow_or_piyo(wk);
     }
 
     if (wk->guard_chuu == 0) {
@@ -1545,27 +1504,7 @@ void subtract_dm_vital_aiuchi(PLW* wk) {
             wk->wu.vital_new = 0;
         }
 
-        if (wk->wu.vital_new < 0) {
-            wk->wu.vital_new = -1;
-            wk->dead_flag = 1;
-            dead_voice_flag = true;
-
-            if (wk->wu.dm_guard_success != -1) {
-                wk->kezurijini_flag = 1;
-            }
-
-            if (!round_slow_flag) {
-                set_conclusion_slow();
-                round_slow_flag = true;
-            }
-        } else if (wk->py->flag == 0) {
-            wk->py->now.quantity.h += wk->wu.dm_piyo;
-
-            if (wk->py->now.quantity.h >= wk->py->genkai) {
-                wk->py->now.timer = 0;
-                wk->py->flag = 1;
-            }
-        }
+        apply_vital_underflow_or_piyo(wk);
     }
 
     pp_pulpara_remake_dm_all(&wk->wu);

@@ -122,6 +122,22 @@ static u16 x32_mapping_set(PatternMap* map, s32 code);
 static f32 advance_trans_x(f32 x, s32 flip, TileMapEntry* trsptr);
 static f32 advance_trans_y(f32 y, s32 flip, TileMapEntry* trsptr);
 
+static bool is_cached_pattern_state(PatternState* mc, u32 code, u32 palt) {
+    return (mc->cs.code == code) && (mc->state == palt);
+}
+
+static bool has_free_pattern_slot(s32 i, s32 pattern_count, s32 free_count) {
+    return (i != pattern_count) && (free_count != 0);
+}
+
+static bool is_first_available_pattern_slot(PatternState* mc, s32 free_index) {
+    return (mc->cs.code == -1) && (free_index < 0);
+}
+
+static bool is_matching_trans_entry(TileMapEntry* trsptr, s32 cods, s32 atrs) {
+    return !(trsptr->attr & 0x1000) && (trsptr->code == cods) && ((trsptr->attr & 0xF) == atrs);
+}
+
 static void search_trsptr(void* trstbl, s32 i, s32 n, s32 cods, s32 atrs, s32 codd, s32 atrd) {
     s32 j;
     u16* tmpbas;
@@ -138,7 +154,7 @@ static void search_trsptr(void* trstbl, s32 i, s32 n, s32 cods, s32 atrs, s32 co
         tmpptr = (TileMapEntry*)tmpbas;
 
         while (ctemp != 0) {
-            if (!(tmpptr->attr & 0x1000) && (tmpptr->code == cods) && ((tmpptr->attr & 0xF) == atrs)) {
+            if (is_matching_trans_entry(tmpptr, cods, atrs)) {
                 tmpptr->code = codd;
                 tmpptr->attr = (tmpptr->attr & 0xC000) | atrd;
             }
@@ -1570,24 +1586,14 @@ void seqsBeforeProcess() {
     }
 }
 
-void seqsAfterProcess() {
+static bool should_refresh_sequence_texture(s32 i) {
+    return seqs_w.up[i] && (ppgRenewTexChunkSeqs(mts[i].texList.tex) == 0);
+}
+
+static void draw_queued_sequence_chips(void) {
     s32 i;
     u32 keep = 0;
     u32 val = 0;
-
-    if (seqs_w.sprTotal == 0) {
-        return;
-    }
-
-    for (i = 0; i < 24; i++) {
-        if (seqs_w.up[i] && (ppgRenewTexChunkSeqs(mts[i].texList.tex) == 0)) {
-            seqs_w.up[i] = 0;
-        }
-    }
-
-    if (seqs_w.sprMax < seqs_w.sprTotal) {
-        seqs_w.sprMax = seqs_w.sprTotal;
-    }
 
     for (i = 0; i < seqs_w.sprTotal; i++) {
         if (seqs_w.up[seqs_w.chip[i].id]) {
@@ -1601,6 +1607,37 @@ void seqsAfterProcess() {
             Renderer_DrawSprite2(&seqs_w.chip[i]);
         }
     }
+}
+
+void seqsAfterProcess() {
+    s32 i;
+
+    if (seqs_w.sprTotal == 0) {
+        return;
+    }
+
+    for (i = 0; i < 24; i++) {
+        if (should_refresh_sequence_texture(i)) {
+            seqs_w.up[i] = 0;
+        }
+    }
+
+    if (seqs_w.sprMax < seqs_w.sprTotal) {
+        seqs_w.sprMax = seqs_w.sprTotal;
+    }
+
+    draw_queued_sequence_chips();
+}
+
+static bool is_sequence_chip_outside_view(Sprite2* chip) {
+    return (chip->v[0].x >= 384.0f) || (chip->v[1].x < 0.0f) || (chip->v[0].y >= 224.0f) || (chip->v[1].y < 0.0f);
+}
+
+static bool is_sequence_chip_scaled(Sprite2* chip, s32 width, s32 height) {
+    const f32 screen_w = SDL_fabsf(chip->v[1].x - chip->v[0].x);
+    const f32 screen_h = SDL_fabsf(chip->v[0].y - chip->v[1].y);
+
+    return SDL_fabsf(screen_w - (f32)width) > 0.001f || SDL_fabsf(screen_h - (f32)height) > 0.001f;
 }
 
 s32 seqsStoreChip(f32 x, f32 y, s32 w, s32 h, s32 gix, s32 code, s32 attr, s32 alpha, s32 id) {
@@ -1617,7 +1654,7 @@ s32 seqsStoreChip(f32 x, f32 y, s32 w, s32 h, s32 gix, s32 code, s32 attr, s32 a
     njCalcPoint(NULL, &chip->v[0], &chip->v[0]);
     njCalcPoint(NULL, &chip->v[1], &chip->v[1]);
 
-    if ((chip->v[0].x >= 384.0f) || (chip->v[1].x < 0.0f) || (chip->v[0].y >= 224.0f) || (chip->v[1].y < 0.0f)) {
+    if (is_sequence_chip_outside_view(chip)) {
         return 1;
     }
 
@@ -1633,9 +1670,7 @@ s32 seqsStoreChip(f32 x, f32 y, s32 w, s32 h, s32 gix, s32 code, s32 attr, s32 a
 
     appRenewTempPriority_1_Chip();
 
-    const f32 screen_w = SDL_fabsf(chip->v[1].x - chip->v[0].x);
-    const f32 screen_h = SDL_fabsf(chip->v[0].y - chip->v[1].y);
-    const bool scaled = SDL_fabsf(screen_w - (f32)w) > 0.001f || SDL_fabsf(screen_h - (f32)h) > 0.001f;
+    const bool scaled = is_sequence_chip_scaled(chip, w, h);
 
     const f32 uv_dx = scaled ? 0.5f : 0.0f;
     const f32 uv_dy = scaled ? 0.5f : 0.0f;
@@ -1678,13 +1713,13 @@ static s32 get_mltbuf16(MultiTexture* mt, u32 code, u32 palt, s32* ret) {
     i = mt->mltnum16;
 
     while (1) {
-        if ((mc->cs.code == code) && (mc->state == palt)) {
+        if (is_cached_pattern_state(mc, code, palt)) {
             mc->time = mt->mltcshtime16;
             *ret = mt->mltnum16 - i;
             return 0;
         }
 
-        if ((mc->cs.code == -1) && (b < 0)) {
+        if (is_first_available_pattern_slot(mc, b)) {
             b = i;
         }
 
@@ -1716,7 +1751,7 @@ static s32 get_mltbuf32(MultiTexture* mt, u32 code, u32 palt, s32* ret) {
     i = mt->mltnum32;
 
     while (1) {
-        if ((mc->cs.code == code) && (mc->state == palt)) {
+        if (is_cached_pattern_state(mc, code, palt)) {
             mc->time = mt->mltcshtime32;
             *ret = mt->mltnum32 - i;
             return 0;
@@ -1763,7 +1798,7 @@ static s32 get_mltbuf16_ext_2(MultiTexture* mt, u32 code, u32 palt, s32* ret, Pa
         }
     }
 
-    if ((i != mt->mltnum16) && (mt->tpf->x16 != 0)) {
+    if (has_free_pattern_slot(i, mt->mltnum16, mt->tpf->x16)) {
         mt->tpf->x16 -= 1;
         mt->tpu->x16_used[i] = mt->tpf->x16_free[mt->tpf->x16];
         mt->tpu->x16 += 1;
@@ -1801,7 +1836,7 @@ static s32 get_mltbuf32_ext_2(MultiTexture* mt, u32 code, u32 palt, s32* ret, Pa
         }
     }
 
-    if ((i != mt->mltnum32) && (mt->tpf->x32 != 0)) {
+    if (has_free_pattern_slot(i, mt->mltnum32, mt->tpf->x32)) {
         mt->tpf->x32 -= 1;
         mt->tpu->x32_used[i] = mt->tpf->x32_free[mt->tpf->x32];
         mt->tpu->x32 += 1;
@@ -1876,40 +1911,58 @@ static u16 x32_mapping_set(PatternMap* map, s32 code) {
     return flg;
 }
 
+static void collect_used_x16_tile_row(s16 i, s16 j, PatternMap* map) {
+    s16 k;
+
+    if (map->x16_map[i][j] == 0) {
+        return;
+    }
+
+    for (k = 0; k < 16; k++) {
+        if (!((1 << k) & map->x16_map[i][j])) {
+            continue;
+        }
+
+        tpu_free->x16_used[tpu_free->x16] = (i * 256) + (j * 16) + k;
+        tpu_free->x16 += 1;
+    }
+}
+
 static void collect_used_x16_tiles(s32 x16, PatternMap* map) {
     s16 i;
     s16 j;
-    s16 k;
 
     for (i = 0; i < x16; i++) {
         for (j = 0; j < 16; j++) {
-            if (map->x16_map[i][j] != 0) {
-                for (k = 0; k < 16; k++) {
-                    if ((1 << k) & map->x16_map[i][j]) {
-                        tpu_free->x16_used[tpu_free->x16] = (i * 256) + (j * 16) + k;
-                        tpu_free->x16 += 1;
-                    }
-                }
-            }
+            collect_used_x16_tile_row(i, j, map);
         }
+    }
+}
+
+static void collect_used_x32_tile_row(s16 i, s16 j, PatternMap* map) {
+    s16 k;
+
+    if (map->x32_map[i][j] == 0) {
+        return;
+    }
+
+    for (k = 0; k < 8; k++) {
+        if (!(map->x32_map[i][j] & (1 << k))) {
+            continue;
+        }
+
+        tpu_free->x32_used[tpu_free->x32] = (i * 64) + (j * 8) + k;
+        tpu_free->x32 += 1;
     }
 }
 
 static void collect_used_x32_tiles(s32 x32, PatternMap* map) {
     s16 i;
     s16 j;
-    s16 k;
 
     for (i = 0; i < x32; i++) {
         for (j = 0; j < 8; j++) {
-            if (map->x32_map[i][j] != 0) {
-                for (k = 0; k < 8; k++) {
-                    if (map->x32_map[i][j] & (1 << k)) {
-                        tpu_free->x32_used[tpu_free->x32] = (i * 64) + (j * 8) + k;
-                        tpu_free->x32 += 1;
-                    }
-                }
-            }
+            collect_used_x32_tile_row(i, j, map);
         }
     }
 }
@@ -2099,6 +2152,14 @@ void mlt_obj_trans_init(MultiTexture* mt, s32 mode, u8* adrs) {
     }
 }
 
+static void release_expired_pattern(PatternState* mc, u32 unused_code) {
+    if (mc->time) {
+        if (--mc->time == 0) {
+            mc->cs.code = unused_code;
+        }
+    }
+}
+
 void mlt_obj_trans_update(MultiTexture* mt) {
     s32 i;
     PatternState* mc;
@@ -2107,19 +2168,11 @@ void mlt_obj_trans_update(MultiTexture* mt) {
     PatternState* assign2;
 
     for (mc = mt->mltcsh16, i = 0; i < mt->mltnum16; i++, mc += 1, assign1 = mc) {
-        if (mc->time) {
-            if (--mc->time == 0) {
-                mc->cs.code = -1;
-            }
-        }
+        release_expired_pattern(mc, -1);
     }
 
     for (mc = mt->mltcsh32, i = 0; i < mt->mltnum32; i++, mc += 1, assign2 = mc) {
-        if (mc->time) {
-            if (--mc->time == 0) {
-                mc->cs.code = -1U;
-            }
-        }
+        release_expired_pattern(mc, -1U);
     }
 }
 
@@ -2155,6 +2208,23 @@ void draw_box(f64 arg0, f64 arg1, f64 arg2, f64 arg3, u32 col, u32 attr, s16 pri
     line.col[0].color = line.col[1].color = line.col[2].color = line.col[3].color = col;
     njDrawPolygon2D(&line, 4, PrioBase[prio], attr);
     appRenewTempPriority(prio);
+}
+
+static s32 reload_melt16_tile(MultiTexture* mt, TEX* texptr, s32 size, s32 dd, TileMapEntry* trsptr,
+                               void* trans_table, s32 group_index, s32 group_count, s32 palt, s32 code) {
+    s32 attr;
+
+    lz_ext_p6_fx(&((u8*)texptr)[1], mt->mltbuf, size);
+    njReLoadTexturePartNumG(mt->mltgidx16 + (code >> 8), (s8*)mt->mltbuf, code & 0xFF, size);
+    attr = (trsptr->attr & 0xC000) | 0x1000 | dd;
+    trsptr->attr |= 0x1000;
+    attr |= palt;
+    search_trsptr(trans_table, group_index, group_count, trsptr->code, palt, code, attr);
+    trsptr->code = code;
+    trsptr->attr = attr;
+    code += 1;
+
+    return code;
 }
 
 void mlt_obj_melt2(MultiTexture* mt, u16 cg_number) {
@@ -2212,15 +2282,7 @@ void mlt_obj_melt2(MultiTexture* mt, u16 cg_number) {
             switch (wh) {
             case 1:
             case 2:
-                lz_ext_p6_fx(&((u8*)texptr)[1], mt->mltbuf, size);
-                njReLoadTexturePartNumG(mt->mltgidx16 + (cd16 >> 8), (s8*)mt->mltbuf, cd16 & 0xFF, size);
-                attr = (attr & 0xC000) | 0x1000 | dd;
-                trsptr->attr |= 0x1000;
-                attr |= palt;
-                search_trsptr(grplds->trans_table, i, n, trsptr->code, palt, cd16, attr);
-                trsptr->code = cd16;
-                trsptr->attr = attr;
-                cd16 += 1;
+                cd16 = reload_melt16_tile(mt, texptr, size, dd, trsptr, grplds->trans_table, i, n, palt, cd16);
                 break;
 
             case 4:

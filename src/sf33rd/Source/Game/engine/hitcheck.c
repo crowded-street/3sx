@@ -452,6 +452,34 @@ void cal_hit_mark_pos(WORK* as, WORK* ds, s16 ix2, s16 ix) {
 
 const s16 Dsas_dir_table[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0 };
 
+static void resolve_ground_damage_variant(PLW* as, PLW* ds) {
+    if (ds->wu.pat_status >= 32) {
+        ds->wu.routine_no[2] = get_kagami_damage(ds->wu.routine_no[2]);
+    } else {
+        switch (ds->dm_point) {
+        case 0:
+        case 1:
+            if (check_head_damage(ds->wu.routine_no[2])) {
+                ds->wu.routine_no[2] = get_kind_of_head_dm(as->wu.dir_atthit, ds->wu.dm_rl);
+            }
+
+            break;
+
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+            ds->wu.routine_no[2] = get_grd_hand_damage(ds->wu.routine_no[2]);
+            /* fallthrough */
+
+        default:
+            if (check_trunk_damage(ds->wu.routine_no[2])) {
+                ds->wu.routine_no[2] = get_kind_of_trunk_dm(as->wu.dir_atthit, ds->wu.dm_rl);
+            }
+        }
+    }
+}
+
 void plef_at_vs_player_damage_union(PLW* as, PLW* ds, s8 gddir) { // 🟡
     // CPS3 lacks the port-side training chip-damage metadata resets kept below.
     ds->wu.dm_guard_success = -1;
@@ -509,31 +537,7 @@ void plef_at_vs_player_damage_union(PLW* as, PLW* ds, s8 gddir) { // 🟡
         dm_reaction_init_set(as, ds);
 
         if (as->wu.zu_flag == 0) {
-            if (ds->wu.pat_status >= 32) {
-                ds->wu.routine_no[2] = get_kagami_damage(ds->wu.routine_no[2]);
-            } else {
-                switch (ds->dm_point) {
-                case 0:
-                case 1:
-                    if (check_head_damage(ds->wu.routine_no[2])) {
-                        ds->wu.routine_no[2] = get_kind_of_head_dm(as->wu.dir_atthit, ds->wu.dm_rl);
-                    }
-
-                    break;
-
-                case 4:
-                case 5:
-                case 6:
-                case 7:
-                    ds->wu.routine_no[2] = get_grd_hand_damage(ds->wu.routine_no[2]);
-                    /* fallthrough */
-
-                default:
-                    if (check_trunk_damage(ds->wu.routine_no[2])) {
-                        ds->wu.routine_no[2] = get_kind_of_trunk_dm(as->wu.dir_atthit, ds->wu.dm_rl);
-                    }
-                }
-            }
+            resolve_ground_damage_variant(as, ds);
         }
     }
 
@@ -654,29 +658,9 @@ void set_paring_status(PLW* as, PLW* ds) { // 🟡
         case 1:
         case 3:
         case 5:
-            ds->wu.dm_stop = -15;
-            as->wu.hit_stop = 16;
-            as->wu.hit_quake = 16;
-            break;
-
         case 6:
-            ds->wu.dm_stop = -15;
-            as->wu.hit_stop = 16;
-            as->wu.hit_quake = 16;
-            break;
-
         case 7:
-            ds->wu.dm_stop = -15;
-            as->wu.hit_stop = 16;
-            as->wu.hit_quake = 16;
-            break;
-
         case 8:
-            ds->wu.dm_stop = -15;
-            as->wu.hit_stop = 16;
-            as->wu.hit_quake = 16;
-            break;
-
         case 9:
             ds->wu.dm_stop = -15;
             as->wu.hit_stop = 16;
@@ -724,9 +708,59 @@ s32 check_normal_attack(u8 waza) { // 🟢
     return sel_sp_ch_tbl[waza >> 3] == 0;
 }
 
+static void apply_normal_move_chain_cancel(WORK* as) {
+    s16 i;
+
+    switch (plpat_rno_filter[as->routine_no[2]]) {
+    case 9:
+        if (as->routine_no[3] != 1) {
+            break;
+        }
+
+        /* fallthrough */
+
+    case 1:
+        if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_ALL_MOVES_CANCELLABLE_BY_HIGH_JUMP_DISABLED)) {
+            as->cg_cancel |= 1;
+        }
+
+        if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_ALL_MOVES_CANCELLABLE_BY_DASH_DISABLED)) {
+            as->cg_cancel |= 2;
+        }
+
+        if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_GROUND_CHAIN_COMBO_DISABLED)) {
+            i = 0;
+
+            if (((PLW*)as)->player_number == 4) {
+                as->cg_meoshi = chain_hidou_nm_ground_table[as->kow & 7];
+                as->cg_cancel |= 8;
+            } else {
+                as->cg_meoshi = i | chain_normal_ground_table[as->kow & 7];
+                as->cg_cancel |= 8;
+            }
+        }
+
+        break;
+
+    case 2:
+        if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_AIR_CHAIN_COMBO_DISABLED) && !hikusugi_check(as)) {
+            i = 0;
+
+            if (((PLW*)as)->player_number == 7) {
+                as->cg_meoshi = chain_hidou_nm_air_table[as->kow & 7];
+                as->cg_cancel |= 8;
+            } else {
+                as->cg_meoshi = i | chain_normal_air_table[as->kow & 7];
+                as->cg_cancel |= 8;
+            }
+        }
+
+        break;
+    }
+}
+
 void hit_pattern_extdat_check(WORK* as) { // 🟡
     // CPS3 leaves cg_extdat latched; local's extra cancel rewrites are DIP-gated and default off.
-    s16 i;
 
     switch ((as->cg_extdat & 0xC0) + ((as->cg_extdat & 0x3F) != 0)) {
     case 0x80:
@@ -765,92 +799,49 @@ void hit_pattern_extdat_check(WORK* as) { // 🟡
         break;
     }
 
-    if (as->work_id == 1) {
-        if ((((PLW*)as)->spmv_ng_flag2 & DIP2_TARGET_COMBO_DISABLED) && as->cg_cancel & 8 && !(as->kow & 0xF8)) {
-            if (as->kow & 6) {
-                as->cg_cancel &= 0xF7;
-                as->cg_meoshi = 0;
-            } else if (as->cg_meoshi & 0x110) {
-                as->cg_meoshi &= 0xF99F;
-            } else {
-                as->cg_cancel &= 0xF7;
-                as->cg_meoshi = 0;
+    if (as->work_id != 1) {
+        return;
+    }
+
+    if ((((PLW*)as)->spmv_ng_flag2 & DIP2_TARGET_COMBO_DISABLED) && as->cg_cancel & 8 && !(as->kow & 0xF8)) {
+        if (as->kow & 6) {
+            as->cg_cancel &= 0xF7;
+            as->cg_meoshi = 0;
+        } else if (as->cg_meoshi & 0x110) {
+            as->cg_meoshi &= 0xF99F;
+        } else {
+            as->cg_cancel &= 0xF7;
+            as->cg_meoshi = 0;
+        }
+    }
+
+    if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_SA_TO_SA_CANCEL_DISABLED) && as->kow & 0x60) {
+        as->cg_cancel |= 0x40;
+    }
+
+    if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_SPECIAL_TO_SPECIAL_CANCEL_DISABLED) && !(as->kow & 0x60) &&
+        as->kow & 0xF8) {
+        as->cg_cancel |= 0x60;
+    }
+
+    if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_ALL_NORMALS_CANCELLABLE_DISABLED) && !(as->kow & 0xF8)) {
+        switch (plpat_rno_filter[as->routine_no[2]]) {
+        case 9:
+            if (as->routine_no[3] != 1) {
+                break;
             }
-        }
 
-        if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_SA_TO_SA_CANCEL_DISABLED) && as->kow & 0x60) {
-            as->cg_cancel |= 0x40;
-        }
+            /* fallthrough */
 
-        if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_SPECIAL_TO_SPECIAL_CANCEL_DISABLED) && !(as->kow & 0x60) &&
-            as->kow & 0xF8) {
+        case 1:
+        case 2:
             as->cg_cancel |= 0x60;
+            break;
         }
+    }
 
-        if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_ALL_NORMALS_CANCELLABLE_DISABLED) && !(as->kow & 0xF8)) {
-            switch (plpat_rno_filter[as->routine_no[2]]) {
-            case 9:
-                if (as->routine_no[3] != 1) {
-                    break;
-                }
-
-                /* fallthrough */
-
-            case 1:
-            case 2:
-                as->cg_cancel |= 0x60;
-                break;
-            }
-        }
-
-        if (!(as->kow & 0xF8) && as->routine_no[1] == 4 && as->routine_no[2] < 0x10) {
-            switch (plpat_rno_filter[as->routine_no[2]]) {
-            case 9:
-                if (as->routine_no[3] != 1) {
-                    break;
-                }
-
-                /* fallthrough */
-
-            case 1:
-                if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_ALL_MOVES_CANCELLABLE_BY_HIGH_JUMP_DISABLED)) {
-                    as->cg_cancel |= 1;
-                }
-
-                if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_ALL_MOVES_CANCELLABLE_BY_DASH_DISABLED)) {
-                    as->cg_cancel |= 2;
-                }
-
-                if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_GROUND_CHAIN_COMBO_DISABLED)) {
-                    i = 0;
-
-                    if (((PLW*)as)->player_number == 4) {
-                        as->cg_meoshi = chain_hidou_nm_ground_table[as->kow & 7];
-                        as->cg_cancel |= 8;
-                    } else {
-                        as->cg_meoshi = i | chain_normal_ground_table[as->kow & 7];
-                        as->cg_cancel |= 8;
-                    }
-                }
-
-                break;
-
-            case 2:
-                if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_AIR_CHAIN_COMBO_DISABLED) && !hikusugi_check(as)) {
-                    i = 0;
-
-                    if (((PLW*)as)->player_number == 7) {
-                        as->cg_meoshi = chain_hidou_nm_air_table[as->kow & 7];
-                        as->cg_cancel |= 8;
-                    } else {
-                        as->cg_meoshi = i | chain_normal_air_table[as->kow & 7];
-                        as->cg_cancel |= 8;
-                    }
-                }
-
-                break;
-            }
-        }
+    if (!(as->kow & 0xF8) && as->routine_no[1] == 4 && as->routine_no[2] < 0x10) {
+        apply_normal_move_chain_cancel(as);
     }
 }
 
@@ -1198,6 +1189,35 @@ void blocking_point_count_up(PLW* wk) { // 🟡
     }
 }
 
+static s32 resolve_standing_guard_block_cps3(PLW* as, PLW* ds) {
+    blocking_point_count_up(ds);
+    as->wu.hf.hit.player = 0x40;
+
+    if (check_attbox_dir(ds) == 0) {
+        ds->wu.routine_no[2] = 0x1F;
+    } else {
+        ds->wu.routine_no[2] = 0x20;
+    }
+
+    if (check_dm_att_blocking(&as->wu, &ds->wu, 5)) {
+        return 2;
+    }
+
+    return 0;
+}
+
+static s32 resolve_crouching_guard_block_cps3(PLW* as, PLW* ds) {
+    blocking_point_count_up(ds);
+    as->wu.hf.hit.player = 0x40;
+    ds->wu.routine_no[2] = 0x21;
+
+    if (check_dm_att_blocking(&as->wu, &ds->wu, 6)) {
+        return 2;
+    }
+
+    return 0;
+}
+
 s32 defense_ground_cps3(PLW* as, PLW* ds, s8 gddir) { // 🟢
     s8 just_now = 0;
     s8 attr_att = 0;
@@ -1211,79 +1231,24 @@ s32 defense_ground_cps3(PLW* as, PLW* ds, s8 gddir) { // 🟢
         if ((as->wu.att.guard & 2) && !(ds->spmv_ng_flag & DIP_UNKNOWN_8)) {
             if (just_now) {
                 if (ds->cp->waza_flag[3] >= grdb[ds->wu.id][attr_att][0]) {
-                    blocking_point_count_up(ds);
-                    as->wu.hf.hit.player = 0x40;
-
-                    if (check_attbox_dir(ds) == 0) {
-                        ds->wu.routine_no[2] = 0x1F;
-                    } else {
-                        ds->wu.routine_no[2] = 0x20;
-                    }
-
-                    if (check_dm_att_blocking(&as->wu, &ds->wu, 5)) {
-                        return 2;
-                    }
-
-                    return 0;
+                    return resolve_standing_guard_block_cps3(as, ds);
                 }
             } else if (as->wu.jump_att_flag == 0) {
                 if (ds->cp->waza_flag[3] != 0) {
-                    blocking_point_count_up(ds);
-                    as->wu.hf.hit.player = 0x40;
-
-                    if (check_attbox_dir(ds) == 0) {
-                        ds->wu.routine_no[2] = 0x1F;
-                    } else {
-                        ds->wu.routine_no[2] = 0x20;
-                    }
-
-                    if (check_dm_att_blocking(&as->wu, &ds->wu, 5)) {
-                        return 2;
-                    }
-
-                    return 0;
+                    return resolve_standing_guard_block_cps3(as, ds);
                 }
             } else if (ds->cp->waza_flag[12] != 0) {
-                blocking_point_count_up(ds);
-                as->wu.hf.hit.player = 0x40;
-
-                if (check_attbox_dir(ds) == 0) {
-                    ds->wu.routine_no[2] = 0x1F;
-                } else {
-                    ds->wu.routine_no[2] = 0x20;
-                }
-
-                if (check_dm_att_blocking(&as->wu, &ds->wu, 5)) {
-                    return 2;
-                }
-
-                return 0;
+                return resolve_standing_guard_block_cps3(as, ds);
             }
         }
 
         if ((as->wu.att.guard & 1) && !(ds->spmv_ng_flag & DIP_UNKNOWN_9)) {
             if (just_now) {
                 if (ds->cp->waza_flag[4] >= grdb[ds->wu.id][attr_att][1]) {
-                    blocking_point_count_up(ds);
-                    as->wu.hf.hit.player = 0x40;
-                    ds->wu.routine_no[2] = 0x21;
-
-                    if (check_dm_att_blocking(&as->wu, &ds->wu, 6)) {
-                        return 2;
-                    }
-
-                    return 0;
+                    return resolve_crouching_guard_block_cps3(as, ds);
                 }
             } else if (ds->cp->waza_flag[4] != 0) {
-                blocking_point_count_up(ds);
-                as->wu.hf.hit.player = 0x40;
-                ds->wu.routine_no[2] = 0x21;
-
-                if (check_dm_att_blocking(&as->wu, &ds->wu, 6)) {
-                    return 2;
-                }
-
-                return 0;
+                return resolve_crouching_guard_block_cps3(as, ds);
             }
         }
     }
@@ -1350,6 +1315,35 @@ s32 defense_ground_cps3(PLW* as, PLW* ds, s8 gddir) { // 🟢
     return 1;
 }
 
+static s32 resolve_standing_guard_block(PLW* as, PLW* ds) {
+    blocking_point_count_up(ds);
+    as->wu.hf.hit.player = 64;
+
+    if (check_attbox_dir(ds) == 0) {
+        ds->wu.routine_no[2] = 31;
+    } else {
+        ds->wu.routine_no[2] = 32;
+    }
+
+    if (check_dm_att_blocking(&as->wu, &ds->wu, 5)) {
+        return 2;
+    }
+
+    return 0;
+}
+
+static s32 resolve_crouching_guard_block(PLW* as, PLW* ds) {
+    blocking_point_count_up(ds);
+    as->wu.hf.hit.player = 64;
+    ds->wu.routine_no[2] = 33;
+
+    if (check_dm_att_blocking(&as->wu, &ds->wu, 6)) {
+        return 2;
+    }
+
+    return 0;
+}
+
 s32 defense_ground_ps2(PLW* as, PLW* ds, s8 gddir) { // 🔴
     s8 just_now;
     s8 attr_att;
@@ -1375,54 +1369,15 @@ s32 defense_ground_ps2(PLW* as, PLW* ds, s8 gddir) { // 🔴
             if (just_now) {
                 if (!(ds->spmv_ng_flag & DIP_RED_PARRY_DISABLED) &&
                     ((ds->cp->waza_flag[3] >= grdb[ds->wu.id][attr_att][0]) || abs)) {
-                    blocking_point_count_up(ds);
-                    as->wu.hf.hit.player = 64;
-
-                    if (check_attbox_dir(ds) == 0) {
-                        ds->wu.routine_no[2] = 31;
-                    } else {
-                        ds->wu.routine_no[2] = 32;
-                    }
-
-                    if (check_dm_att_blocking(&as->wu, &ds->wu, 5)) {
-                        return 2;
-                    }
-
-                    return 0;
+                    return resolve_standing_guard_block(as, ds);
                 }
             } else if (!(ds->spmv_ng_flag & DIP_UNKNOWN_8)) {
                 if (as->wu.jump_att_flag) {
                     if (!(ds->spmv_ng_flag & DIP_ANTI_AIR_PARRY_DISABLED) && (ds->cp->waza_flag[12] != 0 || abs)) {
-                        blocking_point_count_up(ds);
-                        as->wu.hf.hit.player = 64;
-
-                        if (check_attbox_dir(ds) == 0) {
-                            ds->wu.routine_no[2] = 31;
-                        } else {
-                            ds->wu.routine_no[2] = 32;
-                        }
-
-                        if (check_dm_att_blocking(&as->wu, &ds->wu, 5)) {
-                            return 2;
-                        }
-
-                        return 0;
+                        return resolve_standing_guard_block(as, ds);
                     }
                 } else if (ds->cp->waza_flag[3] != 0 || abs) {
-                    blocking_point_count_up(ds);
-                    as->wu.hf.hit.player = 64;
-
-                    if (check_attbox_dir(ds) == 0) {
-                        ds->wu.routine_no[2] = 31;
-                    } else {
-                        ds->wu.routine_no[2] = 32;
-                    }
-
-                    if (check_dm_att_blocking(&as->wu, &ds->wu, 5)) {
-                        return 2;
-                    }
-
-                    return 0;
+                    return resolve_standing_guard_block(as, ds);
                 }
             }
         }
@@ -1431,39 +1386,15 @@ s32 defense_ground_ps2(PLW* as, PLW* ds, s8 gddir) { // 🔴
             if (just_now) {
                 if (!(ds->spmv_ng_flag & DIP_RED_PARRY_DISABLED) &&
                     (!(ds->cp->waza_flag[4] < grdb[ds->wu.id][attr_att][1]) || abs)) {
-                    blocking_point_count_up(ds);
-                    as->wu.hf.hit.player = 64;
-                    ds->wu.routine_no[2] = 33;
-
-                    if (check_dm_att_blocking(&as->wu, &ds->wu, 6)) {
-                        return 2;
-                    }
-
-                    return 0;
+                    return resolve_crouching_guard_block(as, ds);
                 }
             } else if (!(ds->spmv_ng_flag & DIP_UNKNOWN_9)) {
                 if (as->wu.jump_att_flag) {
                     if (!(ds->spmv_ng_flag & DIP_ANTI_AIR_PARRY_DISABLED) && (ds->cp->waza_flag[4] != 0 || abs)) {
-                        blocking_point_count_up(ds);
-                        as->wu.hf.hit.player = 64;
-                        ds->wu.routine_no[2] = 33;
-
-                        if (check_dm_att_blocking(&as->wu, &ds->wu, 6)) {
-                            return 2;
-                        }
-
-                        return 0;
+                        return resolve_crouching_guard_block(as, ds);
                     }
                 } else if (ds->cp->waza_flag[4] != 0 || abs) {
-                    blocking_point_count_up(ds);
-                    as->wu.hf.hit.player = 64;
-                    ds->wu.routine_no[2] = 33;
-
-                    if (check_dm_att_blocking(&as->wu, &ds->wu, 6)) {
-                        return 2;
-                    }
-
-                    return 0;
+                    return resolve_crouching_guard_block(as, ds);
                 }
             }
         }
@@ -1608,13 +1539,9 @@ void dm_status_copy(WORK* as, WORK* ds) { // 🟡
     as->meoshi_hit_flag = 1;
 }
 
-void add_combo_work(PLW* as, PLW* ds) { // 🟢
+static void apply_combo_work(PLW* as, PLW* ds) {
     s16* kow;
     s16* cal;
-
-    if (ds->kezurijini_flag) {
-        return;
-    }
 
     ds->kizetsu_kow = ds->cb->new_dm = as->wu.kind_of_waza;
     kow = ds->cb->kind_of[0][0];
@@ -1627,21 +1554,19 @@ void add_combo_work(PLW* as, PLW* ds) { // 🟢
     ds->rp->total++;
 }
 
+void add_combo_work(PLW* as, PLW* ds) { // 🟢
+    if (ds->kezurijini_flag) {
+        return;
+    }
+
+    apply_combo_work(as, ds);
+}
+
 void nise_combo_work(PLW* as, PLW* ds, s16 num) { // 🟢
-    s16* kow;
-    s16* cal;
     s16 i;
 
     for (i = 0; i < num; i++) {
-        ds->kizetsu_kow = ds->cb->new_dm = as->wu.kind_of_waza;
-        kow = ds->cb->kind_of[0][0];
-        cal = calc_hit[ds->wu.id];
-        kow[as->wu.kind_of_waza]++;
-        cal[(as->wu.kind_of_waza & 120) / 8]++;
-        ds->cb->total++;
-        kow = ds->rp->kind_of[0][0];
-        kow[as->wu.kind_of_waza]++;
-        ds->rp->total++;
+        apply_combo_work(as, ds);
     }
 }
 
@@ -1726,6 +1651,28 @@ void cal_combo_waribiki2(PLW* ds) { // 🟢
     }
 }
 
+static bool should_skip_catch_target(WORK* mad, WORK* sad) {
+    if (!(mad->att.guard & 0x18)) {
+        if (!((PLW*)sad)->tsukamarenai_flag) {
+            if (!(mad->att.dipsw & 0x60)) {
+                if ((sad->routine_no[1] == 1) && (sad->routine_no[3] != 0)) {
+                    if (sad->routine_no[2] != 0x19) {
+                        return true;
+                    }
+                }
+            } else if ((sad->routine_no[1] == 1) && (sad->routine_no[3] != 0) && (sad->cg_type != 10)) {
+                if (!dm_oiuchi_catch[sad->routine_no[2]]) {
+                    return true;
+                }
+            }
+        } else {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void catch_hit_check() { // 🟢
     WORK* mad;
     WORK* sad;
@@ -1776,22 +1723,8 @@ void catch_hit_check() { // 🟢
                 continue;
             }
 
-            if (!(mad->att.guard & 0x18)) {
-                if (!((PLW*)sad)->tsukamarenai_flag) {
-                    if (!(mad->att.dipsw & 0x60)) {
-                        if ((sad->routine_no[1] == 1) && (sad->routine_no[3] != 0)) {
-                            if (sad->routine_no[2] != 0x19) {
-                                continue;
-                            }
-                        }
-                    } else if ((sad->routine_no[1] == 1) && (sad->routine_no[3] != 0) && (sad->cg_type != 10)) {
-                        if (!dm_oiuchi_catch[sad->routine_no[2]]) {
-                            continue;
-                        }
-                    }
-                } else {
-                    continue;
-                }
+            if (should_skip_catch_target(mad, sad)) {
+                continue;
             }
 
             if (hit_check_subroutine(mad, sad, mh, sh)) {
@@ -1810,6 +1743,37 @@ void catch_hit_check() { // 🟢
             break;
         }
     }
+}
+
+static bool is_same_owner_target(WORK* mad, WORK* sad) {
+    if (mad->work_id != 1) {
+        if (sad->work_id == 1) {
+            if (((WORK_Other*)mad)->master_id == sad->id) {
+                return true;
+            }
+        } else if (((WORK_Other*)mad)->master_id == ((WORK_Other*)sad)->master_id) {
+            return true;
+        }
+    } else if (
+        (sad->work_id != 1 && ((WORK_Other*)sad)->refrected == 0) && (mad->id == ((WORK_Other*)sad)->master_id)
+    ) {
+        return true;
+    }
+
+    return false;
+}
+
+static bool is_blocked_by_vs_id_filter(WORK* mad, WORK* sad) {
+    if (!(mad->att.dipsw & 2) ||
+        (!(sad->att.dipsw & 2) && (sad->work_id == 1 || !(((WORK_Other*)sad)->refrected)))) {
+        if ((mad->work_id != 1 && mad->work_id != 8) || !(sad->att.dipsw & 2)) {
+            if (!(mad->vs_id & sad->work_id)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 void attack_hit_check() { // 🟢
@@ -1863,26 +1827,11 @@ void attack_hit_check() { // 🟢
                 continue;
             }
 
-            if (!(mad->att.dipsw & 2) ||
-                (!(sad->att.dipsw & 2) && (sad->work_id == 1 || !(((WORK_Other*)sad)->refrected)))) {
-                if ((mad->work_id != 1 && mad->work_id != 8) || !(sad->att.dipsw & 2)) {
-                    if (!(mad->vs_id & sad->work_id)) {
-                        continue;
-                    }
-                }
+            if (is_blocked_by_vs_id_filter(mad, sad)) {
+                continue;
             }
 
-            if (mad->work_id != 1) {
-                if (sad->work_id == 1) {
-                    if (((WORK_Other*)mad)->master_id == sad->id) {
-                        continue;
-                    }
-                } else if (((WORK_Other*)mad)->master_id == ((WORK_Other*)sad)->master_id) {
-                    continue;
-                }
-            } else if (
-                (sad->work_id != 1 && ((WORK_Other*)sad)->refrected == 0) && (mad->id == ((WORK_Other*)sad)->master_id)
-            ) {
+            if (is_same_owner_target(mad, sad)) {
                 continue;
             }
 

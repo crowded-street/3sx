@@ -45,6 +45,18 @@ s16 cmdixconv(s16 ix) { // 🔴
     return cmdixconv_table[ix - 20];
 }
 
+static bool is_blocked_by_arcade_switch(PLW* wk, s16 ix) {
+    if (ArcadeBalance_IsEnabled()) {
+        if (wk->cp->btix[ix] & 0x4000) {
+            if (DAT_020156b2 == 3 || DAT_020156b2 == 2) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 /// Check EX SA attack
 s32 check_full_gauge_attack(PLW* wk, s8 always) { // 🟡
     u16* conpane;
@@ -85,12 +97,8 @@ s32 check_full_gauge_attack(PLW* wk, s8 always) { // 🟡
             wk->permited_koa |= 0x40;
         }
 
-        if (ArcadeBalance_IsEnabled()) {
-            if (wk->cp->btix[wk->sa->exsa_g_ix] & 0x4000) {
-                if (DAT_020156b2 == 3 || DAT_020156b2 == 2) {
-                    return 0;
-                }
-            }
+        if (is_blocked_by_arcade_switch(wk, wk->sa->exsa_g_ix)) {
+            return 0;
         }
 
         conpane = &wk->cp->sw_lvbt;
@@ -161,12 +169,8 @@ s32 check_full_gauge_attack(PLW* wk, s8 always) { // 🟡
             wk->permited_koa |= 0x40;
         }
 
-        if (ArcadeBalance_IsEnabled()) {
-            if (wk->cp->btix[wk->sa->exsa_a_ix] & 0x4000) {
-                if (DAT_020156b2 == 3 || DAT_020156b2 == 2) {
-                    return 0;
-                }
-            }
+        if (is_blocked_by_arcade_switch(wk, wk->sa->exsa_a_ix)) {
+            return 0;
         }
 
         conpane = &wk->cp->sw_lvbt;
@@ -254,12 +258,8 @@ s32 check_full_gauge_attack2(PLW* wk, s8 always) { // 🟡
             wk->permited_koa |= 0x40;
         }
 
-        if (ArcadeBalance_IsEnabled()) {
-            if (wk->cp->btix[wk->sa->exs2_g_ix] & 0x4000) {
-                if (DAT_020156b2 == 3 || DAT_020156b2 == 2) {
-                    return 0;
-                }
-            }
+        if (is_blocked_by_arcade_switch(wk, wk->sa->exs2_g_ix)) {
+            return 0;
         }
 
         conpane = &wk->cp->sw_lvbt;
@@ -330,12 +330,8 @@ s32 check_full_gauge_attack2(PLW* wk, s8 always) { // 🟡
             wk->permited_koa |= 0x40;
         }
 
-        if (ArcadeBalance_IsEnabled()) {
-            if (wk->cp->btix[wk->sa->exs2_a_ix] & 0x4000) {
-                if (DAT_020156b2 == 3 || DAT_020156b2 == 2) {
-                    return 0;
-                }
-            }
+        if (is_blocked_by_arcade_switch(wk, wk->sa->exs2_a_ix)) {
+            return 0;
         }
 
         conpane = &wk->cp->sw_lvbt;
@@ -408,6 +404,20 @@ s16 check_super_arts_attack(PLW* wk) { // 🟡
     return rnum;
 }
 
+static bool should_skip_dc_slot(PLW* wk, s16 ix, s16 j) {
+    if (ArcadeBalance_IsEnabled()) {
+        if ((j == 3) && !(wk->cp->btix[ix] & 0x600)) {
+            return true;
+        }
+    } else {
+        if ((j == 3) && (!(wk->cp->btix[ix] & 0x600) || (wk->sa->ex4th_full && (wk->sa->mp != 1)))) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 s32 check_super_arts_attack_dc(PLW* wk) { // 🟡
     s16 j;
     u16 cusw;
@@ -443,12 +453,8 @@ s32 check_super_arts_attack_dc(PLW* wk) { // 🟡
             return 0;
         }
 
-        if (ArcadeBalance_IsEnabled()) {
-            if (wk->cp->btix[wk->sa->nmsa_g_ix] & 0x4000) {
-                if (DAT_020156b2 == 3 || DAT_020156b2 == 2) {
-                    return 0;
-                }
-            }
+        if (is_blocked_by_arcade_switch(wk, wk->sa->nmsa_g_ix)) {
+            return 0;
         }
 
         conpane = &wk->cp->sw_lvbt;
@@ -461,15 +467,8 @@ s32 check_super_arts_attack_dc(PLW* wk) { // 🟡
             cusw = conpane[wk->cp->btix[wk->sa->nmsa_g_ix] & 0xFF];
 
             for (j = 3; j >= 0; j--) {
-                if (ArcadeBalance_IsEnabled()) {
-                    if ((j == 3) && !(wk->cp->btix[wk->sa->nmsa_g_ix] & 0x600)) {
-                        continue;
-                    }
-                } else {
-                    if ((j == 3) &&
-                        (!(wk->cp->btix[wk->sa->nmsa_g_ix] & 0x600) || (wk->sa->ex4th_full && (wk->sa->mp != 1)))) {
-                        continue;
-                    }
+                if (should_skip_dc_slot(wk, wk->sa->nmsa_g_ix, j)) {
+                    continue;
                 }
 
                 exsw = cusw & cmdshot_conv_tbl[wk->cp->exdt[wk->sa->nmsa_g_ix][j]];
@@ -519,12 +518,8 @@ s32 check_super_arts_attack_dc(PLW* wk) { // 🟡
             return 0;
         }
 
-        if (ArcadeBalance_IsEnabled()) {
-            if (wk->cp->btix[wk->sa->nmsa_a_ix] & 0x4000) {
-                if (DAT_020156b2 == 3 || DAT_020156b2 == 2) {
-                    return 0;
-                }
-            }
+        if (is_blocked_by_arcade_switch(wk, wk->sa->nmsa_a_ix)) {
+            return 0;
         }
 
         conpane = &wk->cp->sw_lvbt;
@@ -537,15 +532,8 @@ s32 check_super_arts_attack_dc(PLW* wk) { // 🟡
             cusw = conpane[wk->cp->btix[wk->sa->nmsa_a_ix] & 0xFF];
 
             for (j = 3; j >= 0; j--) {
-                if (ArcadeBalance_IsEnabled()) {
-                    if ((j == 3) && !(wk->cp->btix[wk->sa->nmsa_a_ix] & 0x600)) {
-                        continue;
-                    }
-                } else {
-                    if ((j == 3) &&
-                        (!(wk->cp->btix[wk->sa->nmsa_a_ix] & 0x600) || (wk->sa->ex4th_full && (wk->sa->mp != 1)))) {
-                        continue;
-                    }
+                if (should_skip_dc_slot(wk, wk->sa->nmsa_a_ix, j)) {
+                    continue;
                 }
 
                 exsw = cusw & cmdshot_conv_tbl[wk->cp->exdt[wk->sa->nmsa_a_ix][j]];
@@ -603,12 +591,8 @@ s32 execute_super_arts(PLW* wk) { // 🟡
             return 0;
         }
 
-        if (ArcadeBalance_IsEnabled()) {
-            if (wk->cp->btix[wk->sa->nmsa_g_ix] & 0x4000) {
-                if (DAT_020156b2 == 3 || DAT_020156b2 == 2) {
-                    return 0;
-                }
-            }
+        if (is_blocked_by_arcade_switch(wk, wk->sa->nmsa_g_ix)) {
+            return 0;
         }
 
         setup_comm_back(&wk->wu);
@@ -643,12 +627,8 @@ s32 execute_super_arts(PLW* wk) { // 🟡
             return 0;
         }
 
-        if (ArcadeBalance_IsEnabled()) {
-            if (wk->cp->btix[wk->sa->nmsa_a_ix] & 0x4000) {
-                if (DAT_020156b2 == 3 || DAT_020156b2 == 2) {
-                    return 0;
-                }
-            }
+        if (is_blocked_by_arcade_switch(wk, wk->sa->nmsa_a_ix)) {
+            return 0;
         }
 
         setup_comm_back(&wk->wu);
@@ -708,12 +688,8 @@ s32 check_special_attack(PLW* wk) { // 🟡
                 continue;
             }
 
-            if (ArcadeBalance_IsEnabled()) {
-                if (wk->cp->btix[i] & 0x4000) {
-                    if (DAT_020156b2 == 3 || DAT_020156b2 == 2) {
-                        return 0;
-                    }
-                }
+            if (is_blocked_by_arcade_switch(wk, i)) {
+                return 0;
             }
 
             if (((wk->cp->btix[i] & 0xFF) == 0x80) || !wk->cp->waza_flag[i]) {
@@ -810,12 +786,8 @@ s32 check_special_attack(PLW* wk) { // 🟡
                 continue;
             }
 
-            if (ArcadeBalance_IsEnabled()) {
-                if (wk->cp->btix[i] & 0x4000) {
-                    if (DAT_020156b2 == 3 || DAT_020156b2 == 2) {
-                        return 0;
-                    }
-                }
+            if (is_blocked_by_arcade_switch(wk, i)) {
+                return 0;
             }
 
             if ((wk->cp->btix[i] & 0xFF) != 0x80) {
@@ -968,6 +940,46 @@ s32 check_leap_attack(PLW* wk) { // 🟡
     return 1;
 }
 
+static bool is_blocked_by_hikusugi(PLW* wk) {
+    if (!ArcadeBalance_IsEnabled()) {
+        if (hikusugi_check(&wk->wu)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+static void select_nm_attack_level_3010(PLW* wk, s16 kos, s16 level) {
+    s16 koa = waza_select(wk, kos, level);
+
+    if (ArcadeBalance_IsEnabled()) {
+        wk->as = &asstbl_lv_3010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
+    } else {
+        wk->as = &_asstbl_lv_3010[wk->player_number][kos][koa];
+    }
+}
+
+static void select_nm_attack_level_2010(PLW* wk, s16 kos, s16 level) {
+    s16 koa = waza_select(wk, kos, level);
+
+    if (ArcadeBalance_IsEnabled()) {
+        wk->as = &asstbl_lv_2010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
+    } else {
+        wk->as = &_asstbl_lv_2010[wk->player_number][kos][koa];
+    }
+}
+
+static void select_nm_attack_level_4010(PLW* wk, s16 kos, s16 level) {
+    s16 koa = waza_select(wk, kos, level);
+
+    if (ArcadeBalance_IsEnabled()) {
+        wk->as = &asstbl_lv_4010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
+    } else {
+        wk->as = &_asstbl_lv_4010[wk->player_number][kos][koa];
+    }
+}
+
 s32 check_nm_attack(PLW* wk) { // 🟡
     s16 kos;
     s16 koa;
@@ -980,156 +992,75 @@ s32 check_nm_attack(PLW* wk) { // 🟡
 
     switch (wk->wu.pat_status) {
     case 20:
-        if (!ArcadeBalance_IsEnabled()) {
-            if (hikusugi_check(&wk->wu)) {
-                return 0;
-            }
+        if (is_blocked_by_hikusugi(wk)) {
+            return 0;
         }
 
-        koa = waza_select(wk, kos, 3);
-
-        if (ArcadeBalance_IsEnabled()) {
-            wk->as = &asstbl_lv_3010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
-        } else {
-            wk->as = &_asstbl_lv_3010[wk->player_number][kos][koa];
-        }
-
+        select_nm_attack_level_3010(wk, kos, 3);
         break;
 
     case 14:
-        if (!ArcadeBalance_IsEnabled()) {
-            if (hikusugi_check(&wk->wu)) {
-                return 0;
-            }
+        if (is_blocked_by_hikusugi(wk)) {
+            return 0;
         }
 
-        koa = waza_select(wk, kos, 6);
-
-        if (ArcadeBalance_IsEnabled()) {
-            wk->as = &asstbl_lv_3010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
-        } else {
-            wk->as = &_asstbl_lv_3010[wk->player_number][kos][koa];
-        }
-
+        select_nm_attack_level_3010(wk, kos, 6);
         break;
 
     case 26:
-        if (!ArcadeBalance_IsEnabled()) {
-            if (hikusugi_check(&wk->wu)) {
-                return 0;
-            }
+        if (is_blocked_by_hikusugi(wk)) {
+            return 0;
         }
 
-        koa = waza_select(wk, kos, 9);
-
-        if (ArcadeBalance_IsEnabled()) {
-            wk->as = &asstbl_lv_3010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
-        } else {
-            wk->as = &_asstbl_lv_3010[wk->player_number][kos][koa];
-        }
-
+        select_nm_attack_level_3010(wk, kos, 9);
         break;
 
     case 22:
-        if (!ArcadeBalance_IsEnabled()) {
-            if (hikusugi_check(&wk->wu)) {
-                return 0;
-            }
+        if (is_blocked_by_hikusugi(wk)) {
+            return 0;
         }
 
-        koa = waza_select(wk, kos, 2);
-
-        if (ArcadeBalance_IsEnabled()) {
-            wk->as = &asstbl_lv_2010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
-        } else {
-            wk->as = &_asstbl_lv_2010[wk->player_number][kos][koa];
-        }
-
+        select_nm_attack_level_2010(wk, kos, 2);
         break;
 
     case 16:
-        if (!ArcadeBalance_IsEnabled()) {
-            if (hikusugi_check(&wk->wu)) {
-                return 0;
-            }
+        if (is_blocked_by_hikusugi(wk)) {
+            return 0;
         }
 
-        koa = waza_select(wk, kos, 5);
-
-        if (ArcadeBalance_IsEnabled()) {
-            wk->as = &asstbl_lv_2010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
-        } else {
-            wk->as = &_asstbl_lv_2010[wk->player_number][kos][koa];
-        }
-
+        select_nm_attack_level_2010(wk, kos, 5);
         break;
 
     case 28:
-        if (!ArcadeBalance_IsEnabled()) {
-            if (hikusugi_check(&wk->wu)) {
-                return 0;
-            }
+        if (is_blocked_by_hikusugi(wk)) {
+            return 0;
         }
 
-        koa = waza_select(wk, kos, 8);
-
-        if (ArcadeBalance_IsEnabled()) {
-            wk->as = &asstbl_lv_2010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
-        } else {
-            wk->as = &_asstbl_lv_2010[wk->player_number][kos][koa];
-        }
-
+        select_nm_attack_level_2010(wk, kos, 8);
         break;
 
     case 24:
-        if (!ArcadeBalance_IsEnabled()) {
-            if (hikusugi_check(&wk->wu)) {
-                return 0;
-            }
+        if (is_blocked_by_hikusugi(wk)) {
+            return 0;
         }
 
-        koa = waza_select(wk, kos, 4);
-
-        if (ArcadeBalance_IsEnabled()) {
-            wk->as = &asstbl_lv_4010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
-        } else {
-            wk->as = &_asstbl_lv_4010[wk->player_number][kos][koa];
-        }
-
+        select_nm_attack_level_4010(wk, kos, 4);
         break;
 
     case 18:
-        if (!ArcadeBalance_IsEnabled()) {
-            if (hikusugi_check(&wk->wu)) {
-                return 0;
-            }
+        if (is_blocked_by_hikusugi(wk)) {
+            return 0;
         }
 
-        koa = waza_select(wk, kos, 7);
-
-        if (ArcadeBalance_IsEnabled()) {
-            wk->as = &asstbl_lv_4010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
-        } else {
-            wk->as = &_asstbl_lv_4010[wk->player_number][kos][koa];
-        }
-
+        select_nm_attack_level_4010(wk, kos, 7);
         break;
 
     case 30:
-        if (!ArcadeBalance_IsEnabled()) {
-            if (hikusugi_check(&wk->wu)) {
-                return 0;
-            }
+        if (is_blocked_by_hikusugi(wk)) {
+            return 0;
         }
 
-        koa = waza_select(wk, kos, 10);
-
-        if (ArcadeBalance_IsEnabled()) {
-            wk->as = &asstbl_lv_4010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
-        } else {
-            wk->as = &_asstbl_lv_4010[wk->player_number][kos][koa];
-        }
-
+        select_nm_attack_level_4010(wk, kos, 10);
         break;
 
     default:
@@ -1258,6 +1189,62 @@ const u8 nml_catch_h2_ok[2][21] = { { 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 
                                     { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x11, 0x00, 0x11, 0x00,
                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x11, 0x00, 0x00, 0x00, 0x00 } };
 
+static s32 resolve_ground_catch_target(PLW* wk, s16 kos) {
+    if (!(nml_catch_h2_ok[0][CHAR_3SX_TO_ARCADE(wk->player_number)] & 0x10)) {
+        return 0;
+    }
+
+    if (ArcadeBalance_IsEnabled()) {
+        if (wk->cp->sw_lvbt & 1) {
+            return 0;
+        }
+
+        if (wk->cp->sw_lvbt & 2) {
+            if (!(nml_catch_h2_ok[0][CHAR_3SX_TO_ARCADE(wk->player_number)] & 1)) {
+                return 0;
+            }
+
+            kos += 3;
+        }
+
+        wk->as = &asstbl_lv_A010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos];
+    } else {
+        if (wk->cp->sw_lvbt & 3) {
+            return 0;
+        }
+
+        wk->as = &_asstbl_lv_A010[kos];
+    }
+
+    return 1;
+}
+
+static s32 resolve_air_catch_target(PLW* wk, s16 kos) {
+    if (!(nml_catch_h2_ok[1][CHAR_3SX_TO_ARCADE(wk->player_number)] & 0x10)) {
+        return 0;
+    }
+
+    if (wk->wu.xyz[1].disp.pos < 24) {
+        return 0;
+    }
+
+    if (ArcadeBalance_IsEnabled()) {
+        if (wk->cp->sw_lvbt & 2) {
+            if (!(nml_catch_h2_ok[1][CHAR_3SX_TO_ARCADE(wk->player_number)] & 1)) {
+                return 0;
+            }
+
+            kos += 3;
+        }
+
+        wk->as = &asstbl_lv_B010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos];
+    } else {
+        wk->as = &_asstbl_lv_B010[kos];
+    }
+
+    return 1;
+}
+
 s32 check_catch_attack(PLW* wk) { // 🟡
     s16 kos;
 
@@ -1278,52 +1265,12 @@ s32 check_catch_attack(PLW* wk) { // 🟡
     kos = ((wk->cp->sw_new & 4) != 0) + (((wk->cp->sw_new & 8) != 0) * 2);
 
     if ((wk->wu.pat_status < 0xE) || (wk->wu.pat_status > 0x1E)) {
-        if (!(nml_catch_h2_ok[0][CHAR_3SX_TO_ARCADE(wk->player_number)] & 0x10)) {
+        if (!resolve_ground_catch_target(wk, kos)) {
             return 0;
-        }
-
-        if (ArcadeBalance_IsEnabled()) {
-            if (wk->cp->sw_lvbt & 1) {
-                return 0;
-            }
-
-            if (wk->cp->sw_lvbt & 2) {
-                if (!(nml_catch_h2_ok[0][CHAR_3SX_TO_ARCADE(wk->player_number)] & 1)) {
-                    return 0;
-                }
-
-                kos += 3;
-            }
-
-            wk->as = &asstbl_lv_A010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos];
-        } else {
-            if (wk->cp->sw_lvbt & 3) {
-                return 0;
-            }
-
-            wk->as = &_asstbl_lv_A010[kos];
         }
     } else {
-        if (!(nml_catch_h2_ok[1][CHAR_3SX_TO_ARCADE(wk->player_number)] & 0x10)) {
+        if (!resolve_air_catch_target(wk, kos)) {
             return 0;
-        }
-
-        if (wk->wu.xyz[1].disp.pos < 24) {
-            return 0;
-        }
-
-        if (ArcadeBalance_IsEnabled()) {
-            if (wk->cp->sw_lvbt & 2) {
-                if (!(nml_catch_h2_ok[1][CHAR_3SX_TO_ARCADE(wk->player_number)] & 1)) {
-                    return 0;
-                }
-
-                kos += 3;
-            }
-
-            wk->as = &asstbl_lv_B010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos];
-        } else {
-            wk->as = &_asstbl_lv_B010[kos];
         }
     }
 

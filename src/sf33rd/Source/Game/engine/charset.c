@@ -1801,6 +1801,38 @@ s32 comm_retmj(PLW* wk, UNK11* /* unused */) {
     return 0;
 }
 
+static void apply_koc_sp_op(s32* target, s16 ix, s32 patl) {
+    switch (ix) {
+    default:
+        *target = patl;
+        break;
+
+    case 1:
+        *target &= patl;
+        break;
+
+    case 2:
+        *target |= patl;
+        break;
+
+    case 3:
+        *target += patl;
+        break;
+
+    case 4:
+        *target -= patl;
+        break;
+
+    case 5:
+        *target *= patl;
+        break;
+
+    case 6:
+        *target /= patl;
+        break;
+    }
+}
+
 s32 comm_sstx(WORK* wk, UNK11* ctc) {
     SST sstx;
 
@@ -1810,102 +1842,16 @@ s32 comm_sstx(WORK* wk, UNK11* ctc) {
 
     switch (ctc->koc) {
     case 0:
-        switch (ctc->ix) {
-        default:
-            wk->mvxy.a[0].sp = sstx.patl;
-            break;
-
-        case 1:
-            wk->mvxy.a[0].sp &= sstx.patl;
-            break;
-
-        case 2:
-            wk->mvxy.a[0].sp |= sstx.patl;
-            break;
-
-        case 3:
-            wk->mvxy.a[0].sp += sstx.patl;
-            break;
-
-        case 4:
-            wk->mvxy.a[0].sp -= sstx.patl;
-            break;
-
-        case 5:
-            wk->mvxy.a[0].sp *= sstx.patl;
-            break;
-
-        case 6:
-            wk->mvxy.a[0].sp /= sstx.patl;
-            break;
-        }
-
+        apply_koc_sp_op(&wk->mvxy.a[0].sp, ctc->ix, sstx.patl);
         break;
 
     case 2:
-        switch (ctc->ix) {
-        default:
-            wk->mvxy.a[0].sp = sstx.patl;
-            break;
-
-        case 1:
-            wk->mvxy.a[0].sp &= sstx.patl;
-            break;
-
-        case 2:
-            wk->mvxy.a[0].sp |= sstx.patl;
-            break;
-
-        case 3:
-            wk->mvxy.a[0].sp += sstx.patl;
-            break;
-
-        case 4:
-            wk->mvxy.a[0].sp -= sstx.patl;
-            break;
-
-        case 5:
-            wk->mvxy.a[0].sp *= sstx.patl;
-            break;
-
-        case 6:
-            wk->mvxy.a[0].sp /= sstx.patl;
-            break;
-        }
+        apply_koc_sp_op(&wk->mvxy.a[0].sp, ctc->ix, sstx.patl);
 
         /* fallthrough */
 
     case 1:
-        switch (ctc->ix) {
-        default:
-            wk->mvxy.d[0].sp = sstx.patl;
-            break;
-
-        case 1:
-            wk->mvxy.d[0].sp &= sstx.patl;
-            break;
-
-        case 2:
-            wk->mvxy.d[0].sp |= sstx.patl;
-            break;
-
-        case 3:
-            wk->mvxy.d[0].sp += sstx.patl;
-            break;
-
-        case 4:
-            wk->mvxy.d[0].sp -= sstx.patl;
-            break;
-
-        case 5:
-            wk->mvxy.d[0].sp *= sstx.patl;
-            break;
-
-        case 6:
-            wk->mvxy.d[0].sp /= sstx.patl;
-            break;
-        }
-
+        apply_koc_sp_op(&wk->mvxy.d[0].sp, ctc->ix, sstx.patl);
         break;
 
     default:
