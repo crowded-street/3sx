@@ -694,9 +694,17 @@ static bool uses_air_damage_path(PLW* ds) {
     return check_pat_status(&ds->wu);
 }
 
+static PlayerDamagePath select_air_or_ground_damage_path(PLW* ds, PlayerDamagePath air_path) {
+    if (uses_air_damage_path(ds)) {
+        return air_path;
+    }
+
+    return PLAYER_DAMAGE_GROUND_DEFENSE;
+}
+
 static PlayerDamagePath select_player_damage_path(PLW* as, PLW* ds) {
     if (!uses_forced_damage_path(as, ds)) {
-        return uses_air_damage_path(ds) ? PLAYER_DAMAGE_AIR_DEFENSE : PLAYER_DAMAGE_GROUND_DEFENSE;
+        return select_air_or_ground_damage_path(ds, PLAYER_DAMAGE_AIR_DEFENSE);
     }
 
     if (ds->wu.pat_status == 10) {
@@ -710,10 +718,14 @@ static PlayerDamagePath select_player_damage_path(PLW* as, PLW* ds) {
     }
 
     if (ds->wu.routine_no[1] != 1) {
-        return uses_air_damage_path(ds) ? PLAYER_DAMAGE_AIR_DEFENSE : PLAYER_DAMAGE_GROUND_DEFENSE;
+        return select_air_or_ground_damage_path(ds, PLAYER_DAMAGE_AIR_DEFENSE);
     }
 
-    return uses_air_damage_path(ds) ? PLAYER_DAMAGE_AIR_REACTION : PLAYER_DAMAGE_GROUND_REACTION;
+    if (uses_air_damage_path(ds)) {
+        return PLAYER_DAMAGE_AIR_REACTION;
+    }
+
+    return PLAYER_DAMAGE_GROUND_REACTION;
 }
 
 static PlayerDamagePath resolve_player_defense(PLW* as, PLW* ds, s8 gddir, PlayerDamagePath path) {
