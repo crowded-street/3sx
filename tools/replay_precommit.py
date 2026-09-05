@@ -1,14 +1,18 @@
 """Run a bounded deterministic gameplay comparison before relevant commits."""
 
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
 
+TOOLS_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(TOOLS_DIR))
+
 from compare_stress_replays import TraceRun, first_difference, read_trace, run_trace
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = TOOLS_DIR.parent
 GAME_SOURCE_PREFIX = "src/sf33rd/Source/Game/"
 SOURCE_SUFFIXES = {".c", ".h"}
 DEFAULT_FRAMES = 120
@@ -30,12 +34,19 @@ def staged_game_sources() -> list[str]:
     ]
 
 
-def executable_in(build_dir: Path) -> Path:
-    if sys.platform == "darwin":
-        return build_dir / "3SX.app" / "Contents" / "MacOS" / "3SX"
+def executable_candidates(build_dir: Path, platform: str = sys.platform) -> list[Path]:
+    if platform == "darwin":
+        return [build_dir / "3SX.app" / "Contents" / "MacOS" / "3SX", build_dir / "3sx"]
 
-    executable_name = "3sx.exe" if sys.platform == "win32" else "3sx"
-    return build_dir / executable_name
+    if platform == "win32":
+        return [build_dir / "Debug" / "3sx.exe", build_dir / "3sx.exe"]
+
+    return [build_dir / "3sx", build_dir / "Debug" / "3sx"]
+
+
+def executable_in(build_dir: Path) -> Path:
+    candidates = executable_candidates(build_dir)
+    return next((path for path in candidates if path.is_file()), candidates[0])
 
 
 def configured_path(variable: str, default: Path) -> Path:
@@ -47,8 +58,26 @@ def replay_required(changed: list[str]) -> bool:
     return bool(changed) or os.environ.get("THREESX_REPLAY_GUARD_FORCE") == "1"
 
 
+def cmake_binary() -> str:
+    configured = os.environ.get("CMAKE")
+
+    if configured:
+        return configured
+
+    discovered = shutil.which("cmake")
+
+    if discovered:
+        return discovered
+
+    windows_candidates = [
+        Path("C:/msys64/mingw64/bin/cmake.exe"),
+        Path("/c/msys64/mingw64/bin/cmake.exe"),
+    ]
+    return str(next((path for path in windows_candidates if path.is_file()), "cmake"))
+
+
 def build_candidate(build_dir: Path) -> None:
-    command = ["cmake", "--build", str(build_dir), "--parallel", "--config", "Debug"]
+    command = [cmake_binary(), "--build", str(build_dir), "--parallel", "--config", "Debug"]
     subprocess.run(command, cwd=REPO_ROOT, check=True)
 
 

@@ -94,6 +94,10 @@ cmake --build build-replay --parallel --config Debug
 
 The paths can be overridden with `THREESX_REPLAY_GUARD_BASELINE`,
 `THREESX_REPLAY_GUARD_CANDIDATE`, and `THREESX_REPLAY_GUARD_BUILD_DIR`.
+The hook recognizes macOS application bundles, Linux executables, and both
+single- and multi-configuration Windows build layouts. On Windows it also
+checks the standard MSYS2 MinGW64 location when `cmake` is not on `PATH`; set
+`CMAKE` if the tool is installed elsewhere.
 For broader validation, use `tools/compare_stress_replays.py` with multiple
 seeds and longer frame counts as documented in `docs/statcheck.md`.
 
