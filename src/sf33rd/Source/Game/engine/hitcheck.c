@@ -2075,8 +2075,15 @@ static bool try_ps2_parry(const Ps2GroundDefense* defense, ParryStance stance, s
 }
 
 static bool try_ps2_ground_parry(const Ps2GroundDefense* defense, s32* result) {
-    if (defense->defender->py->flag != 0 || defense->defender->guard_flag & 2 ||
-        !(defense->attacker->wu.att.guard & 3)) {
+    if (defense->defender->py->flag != 0) {
+        return false;
+    }
+
+    if (defense->defender->guard_flag & 2) {
+        return false;
+    }
+
+    if (!(defense->attacker->wu.att.guard & 3)) {
         return false;
     }
 
