@@ -926,9 +926,55 @@ s32 check_normal_attack(u8 waza) { // 🟢
     return sel_sp_ch_tbl[waza >> 3] == 0;
 }
 
-static void apply_normal_move_chain_cancel(WORK* as) {
+static void apply_ground_chain_cancel(WORK* as) {
     s16 i;
 
+    if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_ALL_MOVES_CANCELLABLE_BY_HIGH_JUMP_DISABLED)) {
+        as->cg_cancel |= 1;
+    }
+
+    if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_ALL_MOVES_CANCELLABLE_BY_DASH_DISABLED)) {
+        as->cg_cancel |= 2;
+    }
+
+    if (((PLW*)as)->spmv_ng_flag2 & DIP2_GROUND_CHAIN_COMBO_DISABLED) {
+        return;
+    }
+
+    i = 0;
+
+    if (((PLW*)as)->player_number == 4) {
+        as->cg_meoshi = chain_hidou_nm_ground_table[as->kow & 7];
+        as->cg_cancel |= 8;
+    } else {
+        as->cg_meoshi = i | chain_normal_ground_table[as->kow & 7];
+        as->cg_cancel |= 8;
+    }
+}
+
+static void apply_air_chain_cancel(WORK* as) {
+    s16 i;
+
+    if (((PLW*)as)->spmv_ng_flag2 & DIP2_AIR_CHAIN_COMBO_DISABLED) {
+        return;
+    }
+
+    if (hikusugi_check(as)) {
+        return;
+    }
+
+    i = 0;
+
+    if (((PLW*)as)->player_number == 7) {
+        as->cg_meoshi = chain_hidou_nm_air_table[as->kow & 7];
+        as->cg_cancel |= 8;
+    } else {
+        as->cg_meoshi = i | chain_normal_air_table[as->kow & 7];
+        as->cg_cancel |= 8;
+    }
+}
+
+static void apply_normal_move_chain_cancel(WORK* as) {
     switch (plpat_rno_filter[as->routine_no[2]]) {
     case 9:
         if (as->routine_no[3] != 1) {
@@ -938,41 +984,11 @@ static void apply_normal_move_chain_cancel(WORK* as) {
         /* fallthrough */
 
     case 1:
-        if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_ALL_MOVES_CANCELLABLE_BY_HIGH_JUMP_DISABLED)) {
-            as->cg_cancel |= 1;
-        }
-
-        if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_ALL_MOVES_CANCELLABLE_BY_DASH_DISABLED)) {
-            as->cg_cancel |= 2;
-        }
-
-        if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_GROUND_CHAIN_COMBO_DISABLED)) {
-            i = 0;
-
-            if (((PLW*)as)->player_number == 4) {
-                as->cg_meoshi = chain_hidou_nm_ground_table[as->kow & 7];
-                as->cg_cancel |= 8;
-            } else {
-                as->cg_meoshi = i | chain_normal_ground_table[as->kow & 7];
-                as->cg_cancel |= 8;
-            }
-        }
-
+        apply_ground_chain_cancel(as);
         break;
 
     case 2:
-        if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_AIR_CHAIN_COMBO_DISABLED) && !hikusugi_check(as)) {
-            i = 0;
-
-            if (((PLW*)as)->player_number == 7) {
-                as->cg_meoshi = chain_hidou_nm_air_table[as->kow & 7];
-                as->cg_cancel |= 8;
-            } else {
-                as->cg_meoshi = i | chain_normal_air_table[as->kow & 7];
-                as->cg_cancel |= 8;
-            }
-        }
-
+        apply_air_chain_cancel(as);
         break;
     }
 }
