@@ -79,6 +79,24 @@ cs-mcp --help
 
 If you prefer not to use the global install, set `CS_MCP_BINARY_PATH` to the executable location before committing.
 
+The hook also runs a short deterministic gameplay comparison when staged files
+change `src/sf33rd/Source/Game`. It rebuilds `build-replay` and compares it with
+a Debug baseline executable in `build-replay-main`. Create those build trees
+from `main` and your working branch respectively:
+
+```bash
+CC=clang CXX=clang++ cmake -B build-replay-main -DCMAKE_BUILD_TYPE=Debug
+cmake --build build-replay-main --parallel --config Debug
+
+CC=clang CXX=clang++ cmake -B build-replay -DCMAKE_BUILD_TYPE=Debug
+cmake --build build-replay --parallel --config Debug
+```
+
+The paths can be overridden with `THREESX_REPLAY_GUARD_BASELINE`,
+`THREESX_REPLAY_GUARD_CANDIDATE`, and `THREESX_REPLAY_GUARD_BUILD_DIR`.
+For broader validation, use `tools/compare_stress_replays.py` with multiple
+seeds and longer frame counts as documented in `docs/statcheck.md`.
+
 ## Community
 
 Join `Crowded Street` server on Discord to discuss the project, report bugs or share your ideas!
