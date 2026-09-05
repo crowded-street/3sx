@@ -60,46 +60,97 @@ Only macOS support has been implemented so far. The pattern is simple to extend 
 
 These scripts are intended for local validation of the current branch and are not a replacement for the repo's release automation.
 
-## CodeScene gate
+## Developer validation setup
 
-The repository includes a local pre-commit guard that blocks commits when staged code degrades the CodeScene score or when newly added source code is not a perfect 10.0.
+Before changing gameplay code, complete the platform setup in the
+[build guide](docs/building.md), build the dependencies with
+`sh build-deps.sh`, and install Python 3. The automated gameplay checks also
+need a legally obtained `SF33RD.AFS` in the platform-specific
+[resources directory](docs/resources.md); the repository never downloads or
+distributes this file.
 
-To enable it locally for this repo, run:
+### Install the commit checks
 
-```bash
-git config core.hooksPath .githooks
-```
+The repository's pre-commit hook runs two gates:
 
-The hook calls `cs-mcp` from the CodeScene CLI. If the CLI is not installed, the hook exits with a clear message telling you to install it:
+1. CodeScene blocks a degraded staged file and requires new source files to
+   score 10.0.
+2. Changes staged under `src/sf33rd/Source/Game` trigger a short deterministic
+   fight that compares 120 rollback-state snapshots with a build from `main`.
+
+Install the CodeScene CLI and enable the repository hooks:
 
 ```bash
 npm install -g @codescene/codehealth-mcp
 cs-mcp --help
+git config core.hooksPath .githooks
 ```
 
-If you prefer not to use the global install, set `CS_MCP_BINARY_PATH` to the executable location before committing.
+Set `CS_MCP_BINARY_PATH` if `cs-mcp` is not installed globally.
 
-The hook also runs a short deterministic gameplay comparison when staged files
-change `src/sf33rd/Source/Game`. It rebuilds `build-replay` and compares it with
-a Debug baseline executable in `build-replay-main`. Create those build trees
-from `main` and your working branch respectively:
+### Create the replay baseline and candidate builds
+
+Create the baseline before starting feature work. The explicit branch switches
+are important: building both directories from the feature branch makes the
+comparison meaningless.
 
 ```bash
+git status
+git switch main
+sh build-deps.sh
 CC=clang CXX=clang++ cmake -B build-replay-main -DCMAKE_BUILD_TYPE=Debug
 cmake --build build-replay-main --parallel --config Debug
 
+git switch -
 CC=clang CXX=clang++ cmake -B build-replay -DCMAKE_BUILD_TYPE=Debug
 cmake --build build-replay --parallel --config Debug
 ```
 
-The paths can be overridden with `THREESX_REPLAY_GUARD_BASELINE`,
-`THREESX_REPLAY_GUARD_CANDIDATE`, and `THREESX_REPLAY_GUARD_BUILD_DIR`.
-The hook recognizes macOS application bundles, Linux executables, and both
-single- and multi-configuration Windows build layouts. On Windows it also
+Run the gate directly at any time with:
+
+```bash
+THREESX_REPLAY_GUARD_FORCE=1 python3 tools/replay_precommit.py
+```
+
+The hook rebuilds `build-replay` before each relevant commit. Rebuild
+`build-replay-main` from `main` whenever the base branch changes. A missing
+baseline, candidate, dependency, or AFS file is a failure rather than a skipped
+test.
+
+Default executable locations are:
+
+| Platform | Baseline | Candidate |
+| --- | --- | --- |
+| macOS | `build-replay-main/3SX.app/Contents/MacOS/3SX` | `build-replay/3SX.app/Contents/MacOS/3SX` |
+| Linux | `build-replay-main/3sx` | `build-replay/3sx` |
+| Windows | `build-replay-main/Debug/3sx.exe` | `build-replay/Debug/3sx.exe` |
+
+Single-configuration Windows builds are also recognized. On Windows the hook
 checks the standard MSYS2 MinGW64 location when `cmake` is not on `PATH`; set
-`CMAKE` if the tool is installed elsewhere.
-For broader validation, use `tools/compare_stress_replays.py` with multiple
-seeds and longer frame counts as documented in `docs/statcheck.md`.
+`CMAKE` if it is installed elsewhere. Custom layouts can use
+`THREESX_REPLAY_GUARD_BASELINE`, `THREESX_REPLAY_GUARD_CANDIDATE`, and
+`THREESX_REPLAY_GUARD_BUILD_DIR`.
+
+### Make, test, and commit a change
+
+1. Make one focused change.
+2. Build it with `cmake --build build-replay --parallel --config Debug`.
+3. Play the affected behavior manually when practical.
+4. Stage the intended files and run `git commit`; the installed hook runs both
+   gates automatically.
+5. For high-risk gameplay changes, run a longer comparison as documented in
+   [Statcheck](docs/statcheck.md). For example on macOS:
+
+   ```bash
+   python3 tools/compare_stress_replays.py \
+     build-replay-main/3SX.app/Contents/MacOS/3SX \
+     build-replay/3SX.app/Contents/MacOS/3SX \
+     --seeds 10 --frames 1800
+   ```
+
+The deterministic comparison proves parity with the selected `main` baseline.
+It complements manual playtesting; it does not prove arcade accuracy in the way
+CPS3-backed Statcheck does.
 
 ## Community
 

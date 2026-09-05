@@ -80,15 +80,19 @@ candidate build with a baseline build. It drives both players with identical
 seeded input, runs without a window, and records a normalized rollback-state
 checksum after every gameplay frame.
 
-Build and install both revisions in separate build directories, then run:
+Build both revisions in separate Debug build directories as described in the
+[README developer validation setup](../README.md#developer-validation-setup),
+then run the comparator with their executable paths. For example on macOS:
 
 ```bash
 python3 tools/compare_stress_replays.py \
-  build-main/application/3SX.app/Contents/MacOS/3SX \
-  build-candidate/application/3SX.app/Contents/MacOS/3SX \
-  --seeds 10 --frames 3600
+  build-replay-main/3SX.app/Contents/MacOS/3SX \
+  build-replay/3SX.app/Contents/MacOS/3SX \
+  --seeds 10 --frames 1800
 ```
 
 The command exits at the first differing frame and can retain both traces with
-`--output <directory>`. This proves parity with the chosen baseline; it does not
-replace Statcheck's comparison with original CPS3 behavior.
+`--output <directory>`. Substitute the Linux or Windows executable paths from
+the README when working on those platforms. This proves parity with the chosen
+baseline; it does not replace Statcheck's comparison with original CPS3
+behavior.
