@@ -1588,6 +1588,19 @@ typedef struct {
     s8 automatic_guard;
 } Ps2AirDefense;
 
+static bool can_ps2_red_air_parry(const Ps2AirDefense* defense) {
+    if (defense->defender->spmv_ng_flag & DIP_RED_PARRY_DISABLED) {
+        return false;
+    }
+
+    if (defense->defender->cp->waza_flag[5] >=
+        grdb2[defense->defender->wu.id][defense->attack_attribute]) {
+        return true;
+    }
+
+    return defense->automatic_parry;
+}
+
 static bool can_ps2_air_parry(const Ps2AirDefense* defense) {
     if (defense->defender->py->flag != 0) {
         return false;
@@ -1602,16 +1615,7 @@ static bool can_ps2_air_parry(const Ps2AirDefense* defense) {
     }
 
     if (defense->just_now) {
-        if (defense->defender->spmv_ng_flag & DIP_RED_PARRY_DISABLED) {
-            return false;
-        }
-
-        if (defense->defender->cp->waza_flag[5] >=
-            grdb2[defense->defender->wu.id][defense->attack_attribute]) {
-            return true;
-        }
-
-        return defense->automatic_parry;
+        return can_ps2_red_air_parry(defense);
     }
 
     if (defense->defender->spmv_ng_flag & DIP_AIR_PARRY_DISABLED) {
