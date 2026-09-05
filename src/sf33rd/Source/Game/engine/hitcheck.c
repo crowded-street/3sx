@@ -552,32 +552,55 @@ void cal_hit_mark_pos(WORK* as, WORK* ds, s16 ix2, s16 ix) {
 
 const s16 Dsas_dir_table[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0 };
 
+static void apply_head_damage_variant(PLW* as, PLW* ds) {
+    if (check_head_damage(ds->wu.routine_no[2])) {
+        ds->wu.routine_no[2] = get_kind_of_head_dm(as->wu.dir_atthit, ds->wu.dm_rl);
+    }
+}
+
+static void apply_trunk_damage_variant(PLW* as, PLW* ds) {
+    if (check_trunk_damage(ds->wu.routine_no[2])) {
+        ds->wu.routine_no[2] = get_kind_of_trunk_dm(as->wu.dir_atthit, ds->wu.dm_rl);
+    }
+}
+
+static bool uses_ground_hand_damage(s16 damage_point) {
+    if (damage_point == 4) {
+        return true;
+    }
+
+    if (damage_point == 5) {
+        return true;
+    }
+
+    if (damage_point == 6) {
+        return true;
+    }
+
+    return damage_point == 7;
+}
+
 static void resolve_ground_damage_variant(PLW* as, PLW* ds) {
     if (ds->wu.pat_status >= 32) {
         ds->wu.routine_no[2] = get_kagami_damage(ds->wu.routine_no[2]);
-    } else {
-        switch (ds->dm_point) {
-        case 0:
-        case 1:
-            if (check_head_damage(ds->wu.routine_no[2])) {
-                ds->wu.routine_no[2] = get_kind_of_head_dm(as->wu.dir_atthit, ds->wu.dm_rl);
-            }
-
-            break;
-
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-            ds->wu.routine_no[2] = get_grd_hand_damage(ds->wu.routine_no[2]);
-            /* fallthrough */
-
-        default:
-            if (check_trunk_damage(ds->wu.routine_no[2])) {
-                ds->wu.routine_no[2] = get_kind_of_trunk_dm(as->wu.dir_atthit, ds->wu.dm_rl);
-            }
-        }
+        return;
     }
+
+    if (ds->dm_point == 0) {
+        apply_head_damage_variant(as, ds);
+        return;
+    }
+
+    if (ds->dm_point == 1) {
+        apply_head_damage_variant(as, ds);
+        return;
+    }
+
+    if (uses_ground_hand_damage(ds->dm_point)) {
+        ds->wu.routine_no[2] = get_grd_hand_damage(ds->wu.routine_no[2]);
+    }
+
+    apply_trunk_damage_variant(as, ds);
 }
 
 static void apply_air_damage_reaction(PLW* as, PLW* ds) {
