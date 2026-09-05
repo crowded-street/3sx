@@ -490,16 +490,23 @@ void setup_catch_atthit(WORK* as, WORK* ds) { // 🟢
     as->hit_stop = ds->dm_stop = 0;
 }
 
-void set_catch_hit_mark_pos(WORK* as, WORK* ds) { // 🟢
-    if (as->att.mkh_ix) {
-        if (as->rl_flag) {
-            as->hit_mark_x = as->xyz[0].disp.pos - hit_mark_hosei_table[as->att.mkh_ix][0];
-        } else {
-            as->hit_mark_x = as->xyz[0].disp.pos + hit_mark_hosei_table[as->att.mkh_ix][0];
-        }
+static bool set_configured_hit_mark_pos(WORK* attacker) {
+    if (!attacker->att.mkh_ix) {
+        return false;
+    }
 
-        as->hit_mark_y = as->xyz[1].disp.pos + hit_mark_hosei_table[as->att.mkh_ix][1];
+    if (attacker->rl_flag) {
+        attacker->hit_mark_x = attacker->xyz[0].disp.pos - hit_mark_hosei_table[attacker->att.mkh_ix][0];
     } else {
+        attacker->hit_mark_x = attacker->xyz[0].disp.pos + hit_mark_hosei_table[attacker->att.mkh_ix][0];
+    }
+
+    attacker->hit_mark_y = attacker->xyz[1].disp.pos + hit_mark_hosei_table[attacker->att.mkh_ix][1];
+    return true;
+}
+
+void set_catch_hit_mark_pos(WORK* as, WORK* ds) { // 🟢
+    if (!set_configured_hit_mark_pos(as)) {
         cal_hit_mark_position(ds, as, ds->h_cau->cau_box, as->h_cat->cat_box);
     }
 }
@@ -547,15 +554,7 @@ void set_struck_status(s16 ix) { // 🟢
 }
 
 void cal_hit_mark_pos(WORK* as, WORK* ds, s16 ix2, s16 ix) {
-    if (as->att.mkh_ix) {
-        if (as->rl_flag) {
-            as->hit_mark_x = as->xyz[0].disp.pos - hit_mark_hosei_table[as->att.mkh_ix][0];
-        } else {
-            as->hit_mark_x = as->xyz[0].disp.pos + hit_mark_hosei_table[as->att.mkh_ix][0];
-        }
-
-        as->hit_mark_y = as->xyz[1].disp.pos + hit_mark_hosei_table[as->att.mkh_ix][1];
-    } else {
+    if (!set_configured_hit_mark_pos(as)) {
         cal_hit_mark_position(ds, as, hs[ix].dh, hs[ix2].ah);
     }
 
