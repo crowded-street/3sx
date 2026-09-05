@@ -839,33 +839,61 @@ static s16 get_parry_hit_stop_index(PLW* as) {
     return hsadix;
 }
 
+static bool uses_enhanced_parry_hit_stop(s16 stop_type) {
+    if (stop_type == 0) {
+        return true;
+    }
+
+    if (stop_type == 2) {
+        return true;
+    }
+
+    return stop_type == 4;
+}
+
+static bool uses_standard_parry_hit_stop(s16 stop_type) {
+    if (stop_type == 1) {
+        return true;
+    }
+
+    if (stop_type == 3) {
+        return true;
+    }
+
+    if (stop_type == 5) {
+        return true;
+    }
+
+    if (stop_type == 6) {
+        return true;
+    }
+
+    if (stop_type == 7) {
+        return true;
+    }
+
+    if (stop_type == 8) {
+        return true;
+    }
+
+    return stop_type == 9;
+}
+
 static void apply_parry_hit_stop(PLW* as, PLW* ds, s16 hsadix) {
-    switch ((as->wu.xyz[1].disp.pos > 0) + (ds->wu.routine_no[2] - 31) * 2) {
-    case 0:
-    case 2:
-    case 4:
+    s16 stop_type = (as->wu.xyz[1].disp.pos > 0) + (ds->wu.routine_no[2] - 31) * 2;
+
+    if (uses_enhanced_parry_hit_stop(stop_type)) {
         ds->wu.dm_stop = -15;
         as->wu.hit_stop = sel_hs_add_tbl[hsadix] + 16;
         as->wu.hit_quake = sel_hs_add_tbl[hsadix] + 16;
-        break;
-
-    case 1:
-    case 3:
-    case 5:
-    case 6:
-    case 7:
-    case 8:
-    case 9:
+    } else if (uses_standard_parry_hit_stop(stop_type)) {
         ds->wu.dm_stop = -15;
         as->wu.hit_stop = 16;
         as->wu.hit_quake = 16;
-        break;
-
-    default:
+    } else {
         ds->wu.dm_stop = 0;
         as->wu.hit_stop = 0;
         as->wu.hit_quake = 0;
-        break;
     }
 }
 
