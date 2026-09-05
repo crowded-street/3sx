@@ -1455,20 +1455,30 @@ s16 remake_score_index(s16 dmv) { // 🟢
 }
 
 void same_dm_stop(WORK* as, WORK* ds) { // 🟢
-    if (as->work_id == 1 && as->att.dipsw & 1 && (ds->xyz[1].disp.pos > 0 || (ds->vital_new - ds->dm_vital) < -2)) {
-        switch ((ds->dm_stop < 0) + ((as->att.hs_me < 0) * 2)) {
-        case 1:
-            ds->dm_stop = -as->att.hs_me;
-            /* fallthrough */
+    if (as->work_id != 1) {
+        return;
+    }
 
-        case 2:
-            ds->dm_stop = -as->att.hs_me;
-            break;
+    if (!(as->att.dipsw & 1)) {
+        return;
+    }
 
-        default:
-            ds->dm_stop = as->att.hs_me;
-            break;
-        }
+    if (ds->xyz[1].disp.pos <= 0 && (ds->vital_new - ds->dm_vital) >= -2) {
+        return;
+    }
+
+    switch ((ds->dm_stop < 0) + ((as->att.hs_me < 0) * 2)) {
+    case 1:
+        ds->dm_stop = -as->att.hs_me;
+        /* fallthrough */
+
+    case 2:
+        ds->dm_stop = -as->att.hs_me;
+        break;
+
+    default:
+        ds->dm_stop = as->att.hs_me;
+        break;
     }
 }
 
