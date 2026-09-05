@@ -2870,14 +2870,16 @@ static s16 adjust_att_head_position(WORK* wk, s16 tx, s16 offset) {
         kx = tx - offset;
 
         if (tx < kx) {
-            tx = kx;
+            return kx;
         }
-    } else {
-        kx = tx + offset;
 
-        if (tx > kx) {
-            tx = kx;
-        }
+        return tx;
+    }
+
+    kx = tx + offset;
+
+    if (tx > kx) {
+        return kx;
     }
 
     return tx;
