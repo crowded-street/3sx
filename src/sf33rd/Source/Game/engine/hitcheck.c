@@ -2901,16 +2901,42 @@ void clear_hit_queue() { // 🟢
     SDL_zeroa(hs);
 }
 
+static bool is_reversed_gill(PLW* as) {
+    if (as->wu.work_id != 1) {
+        return false;
+    }
+
+    if (as->player_number != CHAR_GILL) {
+        return false;
+    }
+
+    return as->wu.rl_flag;
+}
+
+static u16 apply_flame_damage_attribute(PLW* as, u16 ix) {
+    if (is_reversed_gill(as)) {
+        ix = attr_freeze_tbl[ix - 32];
+        as->wu.at_attribute = 3;
+        return ix;
+    }
+
+    return attr_flame_tbl[ix - 32];
+}
+
+static u16 apply_freeze_damage_attribute(PLW* as, u16 ix) {
+    if (is_reversed_gill(as)) {
+        ix = attr_flame_tbl[ix - 32];
+        as->wu.at_attribute = 1;
+        return ix;
+    }
+
+    return attr_freeze_tbl[ix - 32];
+}
+
 s16 change_damage_attribute(PLW* as, u16 atr, u16 ix) { // 🟢
     switch (atr) {
     case 1:
-        if (as->wu.work_id == 1 && as->player_number == CHAR_GILL && as->wu.rl_flag) {
-            ix = attr_freeze_tbl[ix - 32];
-            as->wu.at_attribute = 3;
-        } else {
-            ix = attr_flame_tbl[ix - 32];
-        }
-
+        ix = apply_flame_damage_attribute(as, ix);
         break;
 
     case 2:
@@ -2918,13 +2944,7 @@ s16 change_damage_attribute(PLW* as, u16 atr, u16 ix) { // 🟢
         break;
 
     case 3:
-        if (as->wu.work_id == 1 && as->player_number == CHAR_GILL && as->wu.rl_flag) {
-            ix = attr_flame_tbl[ix - 32];
-            as->wu.at_attribute = 1;
-        } else {
-            ix = attr_freeze_tbl[ix - 32];
-        }
-
+        ix = apply_freeze_damage_attribute(as, ix);
         break;
     }
 
