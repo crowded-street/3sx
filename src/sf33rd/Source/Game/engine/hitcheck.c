@@ -231,25 +231,33 @@ typedef struct {
     s16 blocking_status;
 } CatchContest;
 
+static CatchResolution resolve_priority_catch_dipswitch(PLW* ds) {
+    if (ds->wu.att.dipsw & 0x40) {
+        return CATCH_RESULT_UNDECIDED;
+    }
+
+    return CATCH_RESULT_KEEP_CURRENT;
+}
+
+static CatchResolution resolve_secondary_catch_dipswitch(PLW* ds) {
+    if (ds->wu.att.dipsw & 0x40) {
+        return CATCH_RESULT_CANCEL_CURRENT;
+    }
+
+    if (ds->wu.att.dipsw & 0x20) {
+        return CATCH_RESULT_UNDECIDED;
+    }
+
+    return CATCH_RESULT_KEEP_CURRENT;
+}
+
 static CatchResolution choose_dipswitch_catch_resolution(PLW* as, PLW* ds) {
     if (as->wu.att.dipsw & 0x40) {
-        if (ds->wu.att.dipsw & 0x40) {
-            return CATCH_RESULT_UNDECIDED;
-        }
-
-        return CATCH_RESULT_KEEP_CURRENT;
+        return resolve_priority_catch_dipswitch(ds);
     }
 
     if (as->wu.att.dipsw & 0x20) {
-        if (ds->wu.att.dipsw & 0x40) {
-            return CATCH_RESULT_CANCEL_CURRENT;
-        }
-
-        if (ds->wu.att.dipsw & 0x20) {
-            return CATCH_RESULT_UNDECIDED;
-        }
-
-        return CATCH_RESULT_KEEP_CURRENT;
+        return resolve_secondary_catch_dipswitch(ds);
     }
 
     if (ds->wu.att.dipsw & 0x60) {
