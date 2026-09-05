@@ -2492,27 +2492,32 @@ static bool register_catch_hit(CatchScan* scan) {
     return true;
 }
 
+static void scan_catch_targets(CatchScan* scan) {
+    s16 si;
+
+    for (si = 0; si < hpq_in; si++) {
+        if (!prepare_catch_target(scan, si)) {
+            continue;
+        }
+
+        if (!register_catch_hit(scan)) {
+            continue;
+        }
+
+        break;
+    }
+}
+
 void catch_hit_check() { // 🟢
     CatchScan scan;
     s16 mi;
-    s16 si;
 
     for (mi = 0; mi < hpq_in; mi++) {
         if (!prepare_catch_attacker(&scan, mi)) {
             continue;
         }
 
-        for (si = 0; si < hpq_in; si++) {
-            if (!prepare_catch_target(&scan, si)) {
-                continue;
-            }
-
-            if (!register_catch_hit(&scan)) {
-                continue;
-            }
-
-            break;
-        }
+        scan_catch_targets(&scan);
     }
 }
 
