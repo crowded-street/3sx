@@ -2564,21 +2564,23 @@ void catch_hit_check() { // 🟢
 }
 
 static bool is_same_owner_target(WORK* mad, WORK* sad) {
-    if (mad->work_id != 1) {
+    if (mad->work_id == 1) {
         if (sad->work_id == 1) {
-            if (((WORK_Other*)mad)->master_id == sad->id) {
-                return true;
-            }
-        } else if (((WORK_Other*)mad)->master_id == ((WORK_Other*)sad)->master_id) {
-            return true;
+            return false;
         }
-    } else if (
-        (sad->work_id != 1 && ((WORK_Other*)sad)->refrected == 0) && (mad->id == ((WORK_Other*)sad)->master_id)
-    ) {
-        return true;
+
+        if (((WORK_Other*)sad)->refrected != 0) {
+            return false;
+        }
+
+        return mad->id == ((WORK_Other*)sad)->master_id;
     }
 
-    return false;
+    if (sad->work_id == 1) {
+        return ((WORK_Other*)mad)->master_id == sad->id;
+    }
+
+    return ((WORK_Other*)mad)->master_id == ((WORK_Other*)sad)->master_id;
 }
 
 static bool is_blocked_by_vs_id_filter(WORK* mad, WORK* sad) {
