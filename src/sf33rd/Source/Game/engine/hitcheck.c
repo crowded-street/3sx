@@ -1715,16 +1715,36 @@ s32 defense_sky(PLW* as, PLW* ds, s8 gddir) { // 🟡
     }
 }
 
+static bool is_standing_blocking_state(PLW* wk) {
+    if (wk->wu.routine_no[1] == 0) {
+        if (wk->wu.routine_no[2] > 30) {
+            return wk->wu.routine_no[2] < 36;
+        }
+    }
+
+    return false;
+}
+
+static bool is_crouching_blocking_state(PLW* wk) {
+    if (wk->wu.routine_no[1] == 1) {
+        if (wk->wu.routine_no[2] > 3) {
+            return wk->wu.routine_no[2] < 8;
+        }
+    }
+
+    return false;
+}
+
 void blocking_point_count_up(PLW* wk) { // 🟡
     // CPS3 always scores parries; local's default DIP disables auto-parry, so this only differs when auto-parry is
     // enabled.
     wk->kind_of_blocking = 0;
 
-    if (wk->wu.routine_no[1] == 0 && wk->wu.routine_no[2] > 30 && wk->wu.routine_no[2] < 36) {
+    if (is_standing_blocking_state(wk)) {
         wk->kind_of_blocking = 1;
     }
 
-    if (wk->wu.routine_no[1] == 1 && wk->wu.routine_no[2] > 3 && wk->wu.routine_no[2] < 8) {
+    if (is_crouching_blocking_state(wk)) {
         wk->kind_of_blocking = 2;
     }
 
