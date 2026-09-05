@@ -233,22 +233,26 @@ typedef struct {
 
 static CatchResolution choose_dipswitch_catch_resolution(PLW* as, PLW* ds) {
     if (as->wu.att.dipsw & 0x40) {
-        if (!(ds->wu.att.dipsw & 0x40)) {
-            return CATCH_RESULT_KEEP_CURRENT;
+        if (ds->wu.att.dipsw & 0x40) {
+            return CATCH_RESULT_UNDECIDED;
         }
 
-        return CATCH_RESULT_UNDECIDED;
-    } else if (as->wu.att.dipsw & 0x20) {
+        return CATCH_RESULT_KEEP_CURRENT;
+    }
+
+    if (as->wu.att.dipsw & 0x20) {
         if (ds->wu.att.dipsw & 0x40) {
             return CATCH_RESULT_CANCEL_CURRENT;
         }
 
-        if (!(ds->wu.att.dipsw & 0x20)) {
-            return CATCH_RESULT_KEEP_CURRENT;
+        if (ds->wu.att.dipsw & 0x20) {
+            return CATCH_RESULT_UNDECIDED;
         }
 
-        return CATCH_RESULT_UNDECIDED;
-    } else if (ds->wu.att.dipsw & 0x60) {
+        return CATCH_RESULT_KEEP_CURRENT;
+    }
+
+    if (ds->wu.att.dipsw & 0x60) {
         return CATCH_RESULT_CANCEL_CURRENT;
     }
 
