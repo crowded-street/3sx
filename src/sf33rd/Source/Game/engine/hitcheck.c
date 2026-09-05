@@ -317,7 +317,7 @@ static bool should_cancel_competing_catch(const CatchContest* contest) {
         }
 
         if (contest->current_index != hs[contest->competing_index].dm_me) {
-            continue;
+            break;
         }
 
         resolution = resolve_catch_tie(choose_catch_resolution(contest));
