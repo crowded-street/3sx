@@ -2202,35 +2202,47 @@ s32 defense_ground(PLW* as, PLW* ds, s8 gddir) { // 🟡
     }
 }
 
+static bool preserves_attack_direction(WORK* as, WORK* ds) {
+    if (as->work_id != 1) {
+        return true;
+    }
+
+    if (check_ttk_damage_request(as->att.reaction)) {
+        return true;
+    }
+
+    switch ((ds->xyz[1].disp.pos > 0) + ((as->xyz[1].disp.pos > 0) * 2)) {
+    case 0:
+    case 2:
+        if (!(as->att.dipsw & 0x60)) {
+            return true;
+        }
+
+        break;
+    }
+
+    return false;
+}
+
 void setup_dm_rl(WORK* as, WORK* ds) { // 🟢
     s16 pw;
 
-    if (as->work_id != 1 || check_ttk_damage_request(as->att.reaction)) {
+    if (preserves_attack_direction(as, ds)) {
         ds->dm_rl = as->rl_flag;
         return;
     }
 
     pw = ds->xyz[0].disp.pos - as->xyz[0].disp.pos;
 
-    switch ((ds->xyz[1].disp.pos > 0) + ((as->xyz[1].disp.pos > 0) * 2)) {
-    case 0:
-    case 2:
-        if (!(as->att.dipsw & 0x60)) {
-            ds->dm_rl = as->rl_flag;
-            return;
-        }
-
-        break;
+    if (!pw) {
+        ds->dm_rl = as->rl_flag;
+        return;
     }
 
-    if (pw) {
-        if (pw > 0) {
-            ds->dm_rl = 1;
-        } else {
-            ds->dm_rl = 0;
-        }
+    if (pw > 0) {
+        ds->dm_rl = 1;
     } else {
-        ds->dm_rl = as->rl_flag;
+        ds->dm_rl = 0;
     }
 }
 
