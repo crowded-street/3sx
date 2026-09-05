@@ -72,3 +72,23 @@ When Statcheck encounters a mismatch, it stops execution and prints a message wi
 - round phase (start, in-game, win animation, etc.)
 
 `tools/statcheck_runner.py` can run replays through Statcheck in bulk, report aggregate statistics and save the report with detailed mismatch descriptions to a file.
+
+## Local deterministic comparison
+
+When CPS3 RAM archives are unavailable, the netplay stress player can compare a
+candidate build with a baseline build. It drives both players with identical
+seeded input, runs without a window, and records a normalized rollback-state
+checksum after every gameplay frame.
+
+Build and install both revisions in separate build directories, then run:
+
+```bash
+python3 tools/compare_stress_replays.py \
+  build-main/application/3SX.app/Contents/MacOS/3SX \
+  build-candidate/application/3SX.app/Contents/MacOS/3SX \
+  --seeds 10 --frames 3600
+```
+
+The command exits at the first differing frame and can retain both traces with
+`--output <directory>`. This proves parity with the chosen baseline; it does not
+replace Statcheck's comparison with original CPS3 behavior.

@@ -18,6 +18,7 @@
 #define STRESS_CHECK_DISTANCE_DEFAULT 8
 #define GAME_STATE_FIGHT 2     // G_No[1] while a round is being played
 #define STRESS_PAD_CONNECTED 2 // Interface_Type value keyConvert() uses for a present pad
+#define STATE_TRACE_NAME "state-trace.csv"
 
 static bool stress_pending = false;
 static bool stress_running = false;
@@ -116,6 +117,16 @@ void Stress_Begin(int seed, int check_distance, int frames) {
     stress_frame_limit = frames;
     stress_pending = true;
 
+    char path[512];
+    Stress_Path(path, sizeof(path), STATE_TRACE_NAME);
+
+    SDL_IOStream* io = SDL_IOFromFile(path, "w");
+
+    if (io != NULL) {
+        SDL_IOprintf(io, "frame,checksum\n");
+        SDL_CloseIO(io);
+    }
+
 #if DEBUG
     // Both simulations of a frame have to still be in the buffer when the desync
     // is reported, which is check_distance frames after the fact.
@@ -124,6 +135,24 @@ void Stress_Begin(int seed, int check_distance, int frames) {
         SDL_Log("Clamped stress check distance to %d.", stress_check_distance);
     }
 #endif
+}
+
+void Stress_RecordState(int frame, u32 checksum) {
+    if (!stress_running) {
+        return;
+    }
+
+    char path[512];
+    Stress_Path(path, sizeof(path), STATE_TRACE_NAME);
+
+    SDL_IOStream* io = SDL_IOFromFile(path, "a");
+
+    if (io == NULL) {
+        return;
+    }
+
+    SDL_IOprintf(io, "%d,%08X\n", frame, checksum);
+    SDL_CloseIO(io);
 }
 
 bool Stress_IsRequested() {

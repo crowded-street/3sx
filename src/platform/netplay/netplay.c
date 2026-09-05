@@ -328,6 +328,8 @@ static void clean_plw_pointers(PLW* plw) {
 }
 
 static void clean_state_pointers(State* state) {
+    SDL_zeroa(state->gs.Demo_Ptr);
+
     for (int i = 0; i < 2; i++) {
         clean_plw_pointers(&state->gs.plw[i]);
 
@@ -447,6 +449,10 @@ void NetplayBase_DumpDesyncPair(int frame) {
     SDL_memcpy(dst, src, sizeof(src))
 
 static void gather_state(State* dst) {
+    // GekkoNet treats State as opaque bytes. Clear structure padding so traces
+    // from separate processes only differ when captured game state differs.
+    SDL_memset(dst, 0, sizeof(*dst));
+
     // GameState
     GameState* gs = &dst->gs;
     GameState_Save(gs);
@@ -480,6 +486,7 @@ static void save_state(GekkoGameEvent* event) {
 
     if (!is_resimulation) {
         state_buffer_checksum[slot] = checksum;
+        Stress_RecordState(frame, checksum);
     } else if (Stress_IsRunning() && checksum != state_buffer_checksum[slot]) {
         Stress_OnResimulationDiverged(frame, state_buffer_checksum[slot], checksum);
     }
