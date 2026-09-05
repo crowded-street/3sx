@@ -2583,17 +2583,46 @@ static bool is_same_owner_target(WORK* mad, WORK* sad) {
     return ((WORK_Other*)mad)->master_id == ((WORK_Other*)sad)->master_id;
 }
 
-static bool is_blocked_by_vs_id_filter(WORK* mad, WORK* sad) {
-    if (!(mad->att.dipsw & 2) ||
-        (!(sad->att.dipsw & 2) && (sad->work_id == 1 || !(((WORK_Other*)sad)->refrected)))) {
-        if ((mad->work_id != 1 && mad->work_id != 8) || !(sad->att.dipsw & 2)) {
-            if (!(mad->vs_id & sad->work_id)) {
-                return true;
-            }
-        }
+static bool uses_vs_id_filter(WORK* mad, WORK* sad) {
+    if (!(mad->att.dipsw & 2)) {
+        return true;
     }
 
-    return false;
+    if (sad->att.dipsw & 2) {
+        return false;
+    }
+
+    if (sad->work_id == 1) {
+        return true;
+    }
+
+    return !((WORK_Other*)sad)->refrected;
+}
+
+static bool can_vs_id_block_target(WORK* mad, WORK* sad) {
+    bool target_uses_dipswitch = sad->att.dipsw & 2;
+
+    if (mad->work_id == 1) {
+        return !target_uses_dipswitch;
+    }
+
+    if (mad->work_id == 8) {
+        return !target_uses_dipswitch;
+    }
+
+    return true;
+}
+
+static bool is_blocked_by_vs_id_filter(WORK* mad, WORK* sad) {
+    if (!uses_vs_id_filter(mad, sad)) {
+        return false;
+    }
+
+    if (!can_vs_id_block_target(mad, sad)) {
+        return false;
+    }
+
+    return !(mad->vs_id & sad->work_id);
 }
 
 typedef struct {
