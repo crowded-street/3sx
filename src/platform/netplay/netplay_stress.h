@@ -29,6 +29,7 @@ void Stress_Trace(const char* fmt, ...);
 void Stress_CreateSession(GekkoConfig* config, GekkoSession** session, int* player_handle);
 u16 Stress_NextInput(int player);
 void Stress_OnFrameAdvanced();
+void Stress_RecordState(int frame, u32 checksum);
 void Stress_OnDesync(int frame);
 void Stress_OnResimulationDiverged(int frame, u32 first_checksum, u32 resim_checksum);
 
