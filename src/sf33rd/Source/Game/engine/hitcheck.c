@@ -1214,6 +1214,14 @@ static bool prevents_chip_damage_ko(WORK* as, s16 player_id) {
     return as->no_death_attack || (plw[player_id].spmv_ng_flag2 & DIP2_CHIP_DAMAGE_KO_DISABLED);
 }
 
+static s16 damage_attacker_player_id(WORK* attacker) {
+    if (attacker->work_id == 1) {
+        return attacker->id;
+    }
+
+    return ((WORK_Other*)attacker)->master_id;
+}
+
 s16 check_dm_att_guard(WORK* as, WORK* ds, s16 kom) { // 🟡
     // CPS3 uses raw kezuri_pow; local defaults match CPS3 for chip DIPs, while non-arcade keeps the kom scaling.
     s16 curr_id;
@@ -1222,12 +1230,7 @@ s16 check_dm_att_guard(WORK* as, WORK* ds, s16 kom) { // 🟡
 
     rnum = 0;
     ds->kezurare_flag = 0;
-
-    if (as->work_id == 1) {
-        curr_id = as->id;
-    } else {
-        curr_id = ((WORK_Other*)as)->master_id;
-    }
+    curr_id = damage_attacker_player_id(as);
 
     if (!(plw[curr_id].spmv_ng_flag & DIP_CHIP_DAMAGE_ENABLED)) {
         as->kezuri_pow = 0;
