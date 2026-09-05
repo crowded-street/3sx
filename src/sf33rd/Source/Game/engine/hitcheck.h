@@ -27,8 +27,13 @@ extern const u8 parisucc_pts[2][40];
 extern const u8 dm_oiuchi_catch[32];
 
 extern HS hs[32];
+extern s16 grdb[2][2][2];
+extern s16 grdb2[2][2];
+extern s16* dmdat_adrs[16];
 
 extern WORK* q_hit_push[32];
+extern s16 mkm_wk[32];
+extern s16 hpq_in;
 extern s8 ca_check_flag;
 
 void make_red_blocking_time(s16 id, s16 ix, s16 num);

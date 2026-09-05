@@ -2,4 +2,5 @@
 set -eu
 
 repo_root=$(git rev-parse --show-toplevel)
-exec python3 "$repo_root/tools/codescene_precommit.py"
+python3 "$repo_root/tools/codescene_precommit.py"
+exec python3 "$repo_root/tools/replay_precommit.py"

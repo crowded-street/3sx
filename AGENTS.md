@@ -92,6 +92,17 @@ Never, in any commit:
 
 ## Verification sequence
 
+### CodeScene authorization
+
+The project owner authorizes CodeScene MCP analysis for this entire repository, including
+new, renamed, moved, and split source files. The MCP uses the locally installed CodeScene
+CLI and/or the repository's existing project-level GitHub integration. Treat CodeScene
+analysis as an approved routine verification step and **do not request per-file consent**.
+
+If an agent harness independently blocks a CodeScene call, describe it accurately as a
+harness limitation; do not attribute the restriction to CodeScene or ask for redundant
+authorization that this repository already grants.
+
 Run all three after **every** commit, in this order:
 
 ```bash
