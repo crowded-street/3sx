@@ -1349,25 +1349,33 @@ static void apply_status_damage_modifier(PLW* ds) {
     }
 }
 
+static void apply_throw_damage_scaling(PLW* as, PLW* ds) {
+    ds->wu.dm_vital = (ds->wu.dm_vital) * (as->tk_nage + 32) / 32;
+
+    if ((as->tk_nage -= 2) < 0) {
+        as->tk_nage = 0;
+    }
+}
+
+static void apply_strike_damage_scaling(PLW* as, PLW* ds) {
+    ds->wu.dm_vital = (ds->wu.dm_vital) * (as->tk_dageki + 32) / 32;
+
+    if ((as->tk_dageki -= 2) < 0) {
+        as->tk_dageki = 0;
+    }
+}
+
 static void apply_attack_damage_scaling(PLW* as, PLW* ds) {
     if (!ds->wu.dm_vital) {
         return;
     }
 
     if (as->wu.routine_no[1] == 2) {
-        ds->wu.dm_vital = (ds->wu.dm_vital) * (as->tk_nage + 32) / 32;
-
-        if ((as->tk_nage -= 2) < 0) {
-            as->tk_nage = 0;
-        }
+        apply_throw_damage_scaling(as, ds);
     }
 
     if (as->wu.routine_no[1] == 4) {
-        ds->wu.dm_vital = (ds->wu.dm_vital) * (as->tk_dageki + 32) / 32;
-
-        if ((as->tk_dageki -= 2) < 0) {
-            as->tk_dageki = 0;
-        }
+        apply_strike_damage_scaling(as, ds);
     }
 
     ds->utk_nage = as->tk_nage;
