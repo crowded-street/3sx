@@ -94,68 +94,65 @@ s16 set_judge_result() { // 🟢
     return rnum;
 }
 
-void check_result_extra() { // 🟢
+static s16 get_player_damage_state(PLW* player) {
+    s32 assigned = 0;
+
+    if (player->wu.routine_no[1] == 1 && player->wu.routine_no[3] == 0) {
+        assigned = 1;
+    }
+
+    return assigned;
+}
+
+static void resolve_simultaneous_player_hit() {
     WORK_Other* dm1p;
     WORK_Other* dm2p;
     s16 hs1;
     s16 hs2;
     s16 qua;
-    s16 p1state;
-    s16 p2state;
-    s32 assign1;
-    s32 assign2;
 
-    assign1 = 0;
+    dm1p = (WORK_Other*)plw[0].wu.dmg_adrs;
+    dm2p = (WORK_Other*)plw[1].wu.dmg_adrs;
 
-    if (plw[0].wu.routine_no[1] == 1 && plw[0].wu.routine_no[3] == 0) {
-        assign1 = 1;
+    switch ((dm1p->wu.work_id == 1) + ((dm2p->wu.work_id == 1) * 2)) {
+    case 3:
+        aiuchi_flag = 1;
+
+        if ((hs1 = plw[0].wu.dm_stop) < 0) {
+            hs1 = -hs1;
+        }
+
+        if ((hs2 = plw[1].wu.dm_stop) < 0) {
+            hs2 = -hs2;
+        }
+
+        qua = plw[0].wu.dm_quake;
+
+        if (qua < plw[1].wu.dm_quake) {
+            qua = plw[1].wu.dm_quake;
+        }
+
+        if (hs1 > hs2) {
+            plw[0].wu.hit_stop = plw[1].wu.hit_stop = hs1;
+            plw[0].wu.hit_quake = plw[1].wu.hit_quake = qua;
+        } else if (hs2) {
+            plw[0].wu.hit_stop = plw[1].wu.hit_stop = hs2;
+            plw[0].wu.hit_quake = plw[1].wu.hit_quake = qua;
+        }
+
+        plw[0].wu.dm_stop = plw[1].wu.dm_stop = 0;
+        plw[0].wu.dm_quake = plw[1].wu.dm_quake = 0;
+        plw[0].wu.dm_nodeathattack = plw[1].wu.dm_nodeathattack = 0;
+        break;
     }
+}
 
-    p1state = assign1;
-
-    assign2 = 0;
-
-    if (plw[1].wu.routine_no[1] == 1 && plw[1].wu.routine_no[3] == 0) {
-        assign2 = 1;
-    }
-
-    p2state = assign2;
+void check_result_extra() { // 🟢
+    s16 p1state = get_player_damage_state(&plw[0]);
+    s16 p2state = get_player_damage_state(&plw[1]);
 
     if (p1state & p2state) {
-        dm1p = (WORK_Other*)plw[0].wu.dmg_adrs;
-        dm2p = (WORK_Other*)plw[1].wu.dmg_adrs;
-
-        switch ((dm1p->wu.work_id == 1) + ((dm2p->wu.work_id == 1) * 2)) {
-        case 3:
-            aiuchi_flag = 1;
-
-            if ((hs1 = plw[0].wu.dm_stop) < 0) {
-                hs1 = -hs1;
-            }
-
-            if ((hs2 = plw[1].wu.dm_stop) < 0) {
-                hs2 = -hs2;
-            }
-
-            qua = plw[0].wu.dm_quake;
-
-            if (qua < plw[1].wu.dm_quake) {
-                qua = plw[1].wu.dm_quake;
-            }
-
-            if (hs1 > hs2) {
-                plw[0].wu.hit_stop = plw[1].wu.hit_stop = hs1;
-                plw[0].wu.hit_quake = plw[1].wu.hit_quake = qua;
-            } else if (hs2) {
-                plw[0].wu.hit_stop = plw[1].wu.hit_stop = hs2;
-                plw[0].wu.hit_quake = plw[1].wu.hit_quake = qua;
-            }
-
-            plw[0].wu.dm_stop = plw[1].wu.dm_stop = 0;
-            plw[0].wu.dm_quake = plw[1].wu.dm_quake = 0;
-            plw[0].wu.dm_nodeathattack = plw[1].wu.dm_nodeathattack = 0;
-            break;
-        }
+        resolve_simultaneous_player_hit();
     }
 }
 
