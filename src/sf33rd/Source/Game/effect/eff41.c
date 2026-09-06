@@ -43,6 +43,11 @@ const s16 sa_sign_data[69][5] = {
 
 void (*const eff41_main_process[2])() = { eff41_process_00, eff41_process_01 };
 
++static s32 game_is_active(void) {
+    return EXE_flag == 0 && Game_pause == 0;
+}
+
+
 void effect_41_move(WORK_Other* ewk) {
     PLW* mwk = (PLW*)ewk->my_master;
 
@@ -74,7 +79,7 @@ void effect_41_move(WORK_Other* ewk) {
             break;
         }
 
-        if (EXE_flag == 0 && Game_pause == 0) {
+if (game_is_active()) {
             if (ewk->wu.hit_stop) {
                 ewk->wu.hit_stop--;
             } else {
