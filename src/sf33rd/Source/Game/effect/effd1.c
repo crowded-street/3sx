@@ -17,6 +17,10 @@
 
 void fall_data_set(WORK_Other* ewk);
 
+static s32 should_end_effect_d1(const WORK_Other* ewk) {
+    return ewk->wu.no_death_attack && !Exec_Wipe;
+}
+
 void effect_D1_move(WORK_Other* ewk) {
     if (Exec_Wipe) {
         ewk->wu.no_death_attack = 1;
@@ -32,7 +36,7 @@ void effect_D1_move(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (ewk->wu.no_death_attack && !Exec_Wipe) {
+        if (should_end_effect_d1(ewk)) {
             ewk->wu.routine_no[0] = 99;
         } else {
             if (!ewk->wu.cg_type) {
@@ -54,7 +58,7 @@ void effect_D1_move(WORK_Other* ewk) {
         break;
 
     case 2:
-        if (ewk->wu.no_death_attack && !Exec_Wipe) {
+        if (should_end_effect_d1(ewk)) {
             ewk->wu.routine_no[0] = 99;
         } else {
             if (!ewk->wu.cg_type) {
@@ -75,7 +79,7 @@ void effect_D1_move(WORK_Other* ewk) {
         break;
 
     case 3:
-        if (ewk->wu.no_death_attack && !Exec_Wipe) {
+        if (should_end_effect_d1(ewk)) {
             ewk->wu.routine_no[0] = 99;
         } else {
             char_move(&ewk->wu);
