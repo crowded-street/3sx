@@ -14,6 +14,10 @@
 
 void d0_speed_set(WORK* ewk, s16 num);
 
+static s32 should_end_effect_d0(const WORK_Other* ewk) {
+    return ewk->wu.no_death_attack && !Exec_Wipe;
+}
+
 const s32 effd0_data_tbl[9][4] = { { 0x4000, -0x800, -0x6000, -0x400 }, { -0x4000, 0x600, -0x4000, -0x600 },
                                    { 0x4000, -0xC00, -0x3000, -0x400 }, { 0x800, -0x300, -0x6000, -0x600 },
                                    { 0x0, -0x100, -0x5000, -0x500 },    { 0x6000, -0xA00, -0x3000, -0x600 },
@@ -36,7 +40,7 @@ void effect_D0_move(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (ewk->wu.no_death_attack && !Exec_Wipe) {
+        if (should_end_effect_d0(ewk)) {
             ewk->wu.routine_no[0] = 99;
             break;
         }
@@ -60,7 +64,7 @@ void effect_D0_move(WORK_Other* ewk) {
         break;
 
     case 2:
-        if (ewk->wu.no_death_attack && !Exec_Wipe) {
+        if (should_end_effect_d0(ewk)) {
             ewk->wu.routine_no[0] = 99;
             break;
         }
@@ -84,7 +88,7 @@ void effect_D0_move(WORK_Other* ewk) {
         break;
 
     case 3:
-        if (ewk->wu.no_death_attack && !Exec_Wipe) {
+        if (should_end_effect_d0(ewk)) {
             ewk->wu.routine_no[0] = 99;
             break;
         }
@@ -99,7 +103,7 @@ void effect_D0_move(WORK_Other* ewk) {
         break;
 
     case 4:
-        if (ewk->wu.no_death_attack && !Exec_Wipe) {
+        if (should_end_effect_d0(ewk)) {
             ewk->wu.routine_no[0] = 99;
             break;
         }
