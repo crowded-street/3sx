@@ -88,8 +88,13 @@ void effect_59_move(WORK_Other* ewk) {
     EFF59_Trans(ewk);
 }
 
+static s32 is_eff59_damage_state(const WORK_Other* ewk) {
+    return ewk->wu.dm_vital == 4 || ewk->wu.dm_vital == 5;
+}
+
+
 void EFF59_Trans(WORK_Other* ewk) {
-    if (ewk->wu.dm_vital == 4 || ewk->wu.dm_vital == 5) {
+if (is_eff59_damage_state(ewk)) {
         sort_push_requestA(&ewk->wu);
     } else {
         sort_push_request4(&ewk->wu);
