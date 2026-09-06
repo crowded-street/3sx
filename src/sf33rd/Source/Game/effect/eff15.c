@@ -17,7 +17,7 @@
 
 void eff15_koishi(WORK_Other* ewk);
 
-+static s32 game_is_active(void) {
+static s32 game_is_active(void) {
     return !EXE_flag && !Game_pause;
 }
 

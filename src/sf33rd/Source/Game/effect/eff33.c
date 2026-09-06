@@ -17,7 +17,7 @@
 
 const s16 WinLoseID[2][2];
 
-+static s32 game_is_active(void) {
+static s32 game_is_active(void) {
     return !EXE_flag && !Game_pause;
 }
 

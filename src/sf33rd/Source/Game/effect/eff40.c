@@ -38,7 +38,7 @@ void effect_40_move(WORK_Other* ewk) {
     sort_push_request4(&ewk->wu);
 }
 
-+static s32 is_selected_menu_option(const WORK_Other* ewk) {
+static s32 is_selected_menu_option(const WORK_Other* ewk) {
     return Menu_Cursor_Y[0] == Menu_Max && ewk->wu.rl_waza == ewk->master_priority;
 }
 

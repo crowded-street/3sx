@@ -23,7 +23,7 @@ const s16 eff26_num[1] = { 1 };
 
 const s16 eff26_data_0000[1] = { 0 };
 
-+static s32 game_is_active(void) {
+static s32 game_is_active(void) {
     return !EXE_flag && !Game_pause;
 }
 

@@ -33,7 +33,7 @@ const s16 piece_0001[57] = { 2, 8492, 14,  80, 70, 51, 1, 0, 2, 32, 32, 2,  0, 0
 
 const s16* scr_obj_data27[2] = { piece_0000, piece_0001 };
 
-+static s32 can_update_effect(void) {
+static s32 can_update_effect(void) {
     return !EXE_flag && !Game_pause && !EXE_obroll;
 }
 

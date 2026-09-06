@@ -25,7 +25,7 @@ const s16* scr_obj_data25[1] = { eff25_data_0000 };
 void (*eff25_jp_tbl[10])(WORK_Other* ewk) = { eff25_00, eff25_00, eff25_02, eff25_02, eff25_04,
                                               eff25_04, eff25_06, eff25_06, eff25_08, eff25_08 };
 
-+static s32 game_is_active(void) {
+static s32 game_is_active(void) {
     return !EXE_flag && !Game_pause;
 }
 

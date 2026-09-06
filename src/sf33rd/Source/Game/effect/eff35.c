@@ -37,7 +37,7 @@ const s16 eff35_03_b[4] = { 180, 120, 240, 60 };
 
 const s16 eff35_03_s[4] = { 190, 130, 220, 60 };
 
-+static s32 game_is_active(void) {
+static s32 game_is_active(void) {
     return !EXE_flag && !Game_pause;
 }
 

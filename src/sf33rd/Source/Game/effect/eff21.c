@@ -25,7 +25,7 @@ const s16 eff21_data_tbl_00[27] = { 1,  2,  8492, 640, 0, 10, 17,   0,   0, 0,  
 
 const s16* eff21_data_adrs[1] = { eff21_data_tbl_00 };
 
-+static s32 can_update_effect(void) {
+static s32 can_update_effect(void) {
     return !EXE_flag && !Game_pause && !EXE_obroll;
 }
 

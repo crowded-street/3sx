@@ -31,7 +31,7 @@ void (*const EFF39_Jmp_Tbl[6])() = {
     EFF39_WAIT, EFF39_SLIDE_IN, EFF39_SLIDE_OUT, EFF39_SUDDENLY, EFF39_MOVE, EFF39_KILL
 };
 
-+static s32 is_selection_ready(const WORK_Other* ewk) {
+static s32 is_selection_ready(const WORK_Other* ewk) {
     return Sel_PL_Complete[ewk->master_id] || plw[ewk->master_id].wu.operator == 0;
 }
 

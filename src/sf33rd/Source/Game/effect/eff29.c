@@ -18,7 +18,7 @@
 
 const s16 eff29_vanish_time[8] = { 480, 600, 300, 240, 200, 340, 500, 360 };
 
-+static s32 can_update_effect(void) {
+static s32 can_update_effect(void) {
     return !EXE_flag && !Game_pause && !EXE_obroll;
 }
 

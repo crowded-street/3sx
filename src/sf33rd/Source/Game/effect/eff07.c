@@ -15,7 +15,7 @@
 
 const s16 eff07_data_tbl[2][3] = { { 4, 742, 28 }, { 5, 806, 28 } };
 
-+static s32 can_update_effect(void) {
+static s32 can_update_effect(void) {
     return !EXE_flag && !Game_pause && !EXE_obroll;
 }
 

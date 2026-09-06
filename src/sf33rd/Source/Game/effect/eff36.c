@@ -166,7 +166,7 @@ void eff36_move03(WORK_Other* ewk) {
 
 const s16 eff36_04_tbl[4] = { 0, 5, 9, 13 };
 
-+static s32 can_advance_eff36_sequence(const WORK_Other* ewk) {
+static s32 can_advance_eff36_sequence(const WORK_Other* ewk) {
     return gSeqStatus[0] >= eff36_04_tbl[ewk->wu.routine_no[2]] && gSeqStatus[0] != 0x74;
 }
 

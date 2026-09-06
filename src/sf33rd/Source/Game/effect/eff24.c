@@ -40,7 +40,7 @@ const s32 eff24_quake_speed_x_tbl[4][8] = { { 0x1200, 0x1200, 0x1400, 0x1400, 0x
 
 const s16 dog24_x_data[8] = { 0, 0, 0, 6, 10, 16, 32, 40 };
 
-+static s32 can_update_effect(void) {
+static s32 can_update_effect(void) {
     return !EXE_flag && !Game_pause && !EXE_obroll;
 }
 

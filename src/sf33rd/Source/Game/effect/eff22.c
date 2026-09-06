@@ -70,7 +70,7 @@ const s32 snow_sp[4][12][4] = { { { 0x200, 0, -0x2000, 0 },
                                   { -0x80, 0, -0x1800, 0 },
                                   { 0, 0, -0x2000, 0 } } };
 
-+static s32 game_is_active(void) {
+static s32 game_is_active(void) {
     return !EXE_flag && !Game_pause;
 }
 

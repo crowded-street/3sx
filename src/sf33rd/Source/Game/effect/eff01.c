@@ -19,7 +19,7 @@ const s16 parts_colcd_table[14] = {
 void get_new_parts_data(WORK_Other* ewk, PLW* mwk);
 void set_parts_disp_flag(WORK_Other* ewk, PLW* mwk);
 
-+static s32 game_is_active(void) {
+static s32 game_is_active(void) {
     return !Game_pause && !EXE_flag;
 }
 

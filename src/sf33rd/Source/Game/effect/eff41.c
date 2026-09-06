@@ -43,7 +43,7 @@ const s16 sa_sign_data[69][5] = {
 
 void (*const eff41_main_process[2])() = { eff41_process_00, eff41_process_01 };
 
-+static s32 game_is_active(void) {
+static s32 game_is_active(void) {
     return EXE_flag == 0 && Game_pause == 0;
 }
 

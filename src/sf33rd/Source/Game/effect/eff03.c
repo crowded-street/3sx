@@ -98,7 +98,7 @@ const PLEF plef_data[165] = { { 0, 0, -1, 0, 1, 0, 0, 1, 0, 0, 0 },       { 13, 
                               { 16, -4, -1, 0, 0, 32, 1, 1, 1, 0, 57 },   { -37, 4, -1, 0, 0, 32, 1, 1, 1, 0, 58 },
                               { 44, 1, -1, 0, 0, 32, 1, 1, 1, 0, 58 } };
 
-+static s32 game_is_active(void) {
+static s32 game_is_active(void) {
     return EXE_flag == 0 && Game_pause == 0;
 }
 

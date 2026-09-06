@@ -35,7 +35,7 @@ const s16 EFF38_Base_XY[2][2][2] = { { { -64, 16 }, { -128, 32 } }, { { 64, 16 }
 void (*const EFF38_Jmp_Tbl[7])() = { EFF38_WAIT,  EFF38_SLIDE_IN, EFF38_SLIDE_OUT, EFF38_SUDDENLY,
                                      EFF38_SHIFT, EFF38_MOVE,     EFF38_KILL };
 
-+static s32 is_selection_ready(const WORK_Other* ewk) {
+static s32 is_selection_ready(const WORK_Other* ewk) {
     return Sel_PL_Complete[ewk->master_id] || plw[ewk->master_id].wu.operator == 0;
 }
 

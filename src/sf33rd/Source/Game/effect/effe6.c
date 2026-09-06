@@ -95,6 +95,10 @@ static s32 move_with_player_input(WORK_Other* ewk) {
     }
 }
 
+static s32 ending_has_advanced(const WORK_Other* ewk) {
+    return ewk->wu.old_rno[6] < end_w.r_no_2;
+}
+
 const s16 effe6_data_tbl[180][8] = {
     { 1, 0, 1, 512, 64, 80, 1, 0 },     { 1, 0, 1, 512, 64, 80, 2, 0 },     { 1, 0, 1, 512, 64, 80, 4, 0 },
     { 1, 0, 1, 576, 64, 78, 5, 0 },     { 1, 0, 1, 512, 64, 80, 6, 0 },     { 1, 0, 1, 512, 64, 82, 8, 0 },
@@ -1450,7 +1454,7 @@ void effe6_0032(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (ewk->wu.old_rno[6] < end_w.r_no_2) {
+        if (ending_has_advanced(ewk)) {
             ewk->wu.routine_no[2] = 99;
         }
 
@@ -1472,7 +1476,7 @@ void effe6_0032(WORK_Other* ewk) {
         break;
 
     case 2:
-        if (ewk->wu.old_rno[6] < end_w.r_no_2) {
+        if (ending_has_advanced(ewk)) {
             ewk->wu.routine_no[2] = 99;
         }
 
@@ -1481,7 +1485,7 @@ void effe6_0032(WORK_Other* ewk) {
         disp_pos_trans_entry(ewk);
 
     case 3:
-        if (ewk->wu.old_rno[6] < end_w.r_no_2) {
+        if (ending_has_advanced(ewk)) {
             ewk->wu.routine_no[2] = 99;
         }
 
@@ -1495,7 +1499,7 @@ void effe6_0032(WORK_Other* ewk) {
         break;
 
     case 4:
-        if (ewk->wu.old_rno[6] < end_w.r_no_2) {
+        if (ending_has_advanced(ewk)) {
             ewk->wu.routine_no[2] = 99;
         }
 
@@ -1517,7 +1521,7 @@ void effe6_0032(WORK_Other* ewk) {
         break;
 
     case 10:
-        if (ewk->wu.old_rno[6] < end_w.r_no_2) {
+        if (ending_has_advanced(ewk)) {
             ewk->wu.routine_no[2] = 99;
         }
 
@@ -1528,7 +1532,7 @@ void effe6_0032(WORK_Other* ewk) {
         break;
 
     case 11:
-        if (ewk->wu.old_rno[6] < end_w.r_no_2) {
+        if (ending_has_advanced(ewk)) {
             ewk->wu.routine_no[2] = 99;
         }
 
@@ -1551,7 +1555,7 @@ void effe6_0032(WORK_Other* ewk) {
         break;
 
     case 12:
-        if (ewk->wu.old_rno[6] < end_w.r_no_2) {
+        if (ending_has_advanced(ewk)) {
             ewk->wu.routine_no[2] = 99;
         }
 
