@@ -34,6 +34,11 @@ const s16 eff12_data_tbl5[16] = { 0, 2, 8492, 575, 80, 74, 20, 0, 0, 2, 8492, 46
 const s16* scr_obj_data12[6] = { eff12_data_tbl0, eff12_data_tbl1, eff12_data_tbl2,
                                  eff12_data_tbl3, eff12_data_tbl4, eff12_data_tbl5 };
 
++static s32 game_is_active(void) {
+    return !EXE_flag && !Game_pause;
+}
+
+
 void effect_12_move(WORK_Other* ewk) {
     if (obr_no_disp_check()) {
         return;
@@ -53,7 +58,7 @@ void effect_12_move(WORK_Other* ewk) {
             break;
         }
 
-        if (!EXE_flag && !Game_pause) {
+if (game_is_active()) {
             char_move(&ewk->wu);
         }
 
