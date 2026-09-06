@@ -35,6 +35,12 @@ void effI8_main_process(WORK_Other* ewk);
 void cal_speeds_to_me_effI8(WORK_Other* ewk, PLW* mwk);
 void cal_speeds_to_em_effI8(WORK_Other* ewk, PLW* twk);
 
+static s32 effI8_can_hit_master(WORK_Other* ewk, PLW* mwk) {
+    return ewk->wu.kage_flag != 0 && ewk->refrected == 0 && mwk->wu.routine_no[1] == 4 &&
+           mwk->wu.routine_no[2] == 31 && mwk->wu.cg_type == 0x28 &&
+           hit_check_subroutine(&ewk->wu, (WORK*)ewk->my_master, effI8_hit_box[0], effI8_hit_box[1]);
+}
+
 void effect_I8_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -159,9 +165,7 @@ void effI8_main_process(WORK_Other* ewk) {
                 }
             }
 
-            if (ewk->wu.kage_flag != 0 && ewk->refrected == 0 && mwk->wu.routine_no[1] == 4 &&
-                mwk->wu.routine_no[2] == 31 && mwk->wu.cg_type == 0x28 &&
-                hit_check_subroutine(&ewk->wu, (WORK*)ewk->my_master, effI8_hit_box[0], effI8_hit_box[1])) {
+            if (effI8_can_hit_master(ewk, mwk)) {
                 mwk->wu.cmwk[7] = 1;
                 ewk->wu.type = 0;
                 ewk->wu.routine_no[2] = 1;
