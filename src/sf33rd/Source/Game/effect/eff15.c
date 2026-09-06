@@ -17,6 +17,11 @@
 
 void eff15_koishi(WORK_Other* ewk);
 
++static s32 game_is_active(void) {
+    return !EXE_flag && !Game_pause;
+}
+
+
 void effect_15_move(WORK_Other* ewk) {
     if (ewk->wu.type) {
         eff15_koishi(ewk);
@@ -49,7 +54,7 @@ void eff15_koishi(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (!EXE_flag && !Game_pause) {
+if (game_is_active()) {
             char_move(&ewk->wu);
             add_x_sub(&ewk->wu);
             add_y_sub(&ewk->wu);
