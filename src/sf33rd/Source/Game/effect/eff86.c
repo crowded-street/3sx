@@ -19,12 +19,17 @@ const s16 eff86_data_tbl00[7] = { 0, 2, 8224, 511, 56, 10, 18 };
 
 const s16* eff86_adrs_tbl[1] = { eff86_data_tbl00 };
 
+static s32 can_update_effect(void) {
+    return !EXE_flag && !Game_pause && !EXE_obroll;
+}
+
+
 void effect_86_move(WORK_Other* ewk) {
     void (*eff86_jp_tbl[1])(WORK_Other*) = { eff86_0000 };
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        if (!EXE_flag && !Game_pause && !EXE_obroll) {
+        if (can_update_effect()) {
             eff86_jp_tbl[ewk->wu.routine_no[1]](ewk);
         }
 
