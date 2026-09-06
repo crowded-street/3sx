@@ -21,6 +21,24 @@ s32 SF33rd_Logo(WORK_Other* ewk);
 void EFF58_Type_01(WORK_Other* ewk);
 void Fade_In_58_Sub(WORK_Other* ewk);
 
+static void move_background_to_target(WORK_Other* ewk, s32 speed) {
+    if (0 < speed) {
+        if (Target_BG_X[ewk->wu.direction] + Offset_BG_X[ewk->wu.direction] <=
+            bg_w.bgw[ewk->wu.direction].wxy[0].disp.pos) {
+            Next_Step |= 1;
+            bg_w.bgw[ewk->wu.direction].wxy[0].disp.pos =
+                Target_BG_X[ewk->wu.direction] + Offset_BG_X[ewk->wu.direction];
+            ewk->wu.routine_no[0]++;
+        }
+    } else if (Target_BG_X[ewk->wu.direction] + Offset_BG_X[ewk->wu.direction] >=
+               bg_w.bgw[ewk->wu.direction].wxy[0].disp.pos) {
+        Next_Step |= 1;
+        bg_w.bgw[ewk->wu.direction].wxy[0].disp.pos =
+            Target_BG_X[ewk->wu.direction] + Offset_BG_X[ewk->wu.direction];
+        ewk->wu.routine_no[0]++;
+    }
+}
+
 void effect_58_move(WORK_Other* ewk) {
     s16 xx;
 
@@ -37,21 +55,7 @@ void effect_58_move(WORK_Other* ewk) {
         case 0:
             bg_w.bgw[ewk->wu.direction].wxy[0].cal += bg_w.bgw[ewk->wu.direction].speed_x;
 
-            if (0 < bg_w.bgw[ewk->wu.direction].speed_x) {
-                if (Target_BG_X[ewk->wu.direction] + Offset_BG_X[ewk->wu.direction] <=
-                    bg_w.bgw[ewk->wu.direction].wxy[0].disp.pos) {
-                    Next_Step |= 1;
-                    bg_w.bgw[ewk->wu.direction].wxy[0].disp.pos =
-                        Target_BG_X[ewk->wu.direction] + Offset_BG_X[ewk->wu.direction];
-                    ewk->wu.routine_no[0]++;
-                }
-            } else if (Target_BG_X[ewk->wu.direction] + Offset_BG_X[ewk->wu.direction] >=
-                       bg_w.bgw[ewk->wu.direction].wxy[0].disp.pos) {
-                Next_Step |= 1;
-                bg_w.bgw[ewk->wu.direction].wxy[0].disp.pos =
-                    Target_BG_X[ewk->wu.direction] + Offset_BG_X[ewk->wu.direction];
-                ewk->wu.routine_no[0]++;
-            }
+            move_background_to_target(ewk, bg_w.bgw[ewk->wu.direction].speed_x);
             break;
 
         case 1:
@@ -105,21 +109,7 @@ void effect_58_move(WORK_Other* ewk) {
             bg_w.bgw[ewk->wu.direction].wxy[0].cal += bg_mvxy.a[0].sp * xx;
             bg_mvxy.a[0].sp += bg_mvxy.d[0].sp;
 
-            if (0 < bg_mvxy.a[0].sp) {
-                if (Target_BG_X[ewk->wu.direction] + Offset_BG_X[ewk->wu.direction] <=
-                    bg_w.bgw[ewk->wu.direction].wxy[0].disp.pos) {
-                    Next_Step |= 1;
-                    bg_w.bgw[ewk->wu.direction].wxy[0].disp.pos =
-                        Target_BG_X[ewk->wu.direction] + Offset_BG_X[ewk->wu.direction];
-                    ewk->wu.routine_no[0]++;
-                }
-            } else if (Target_BG_X[ewk->wu.direction] + Offset_BG_X[ewk->wu.direction] >=
-                       bg_w.bgw[ewk->wu.direction].wxy[0].disp.pos) {
-                Next_Step |= 1;
-                bg_w.bgw[ewk->wu.direction].wxy[0].disp.pos =
-                    Target_BG_X[ewk->wu.direction] + Offset_BG_X[ewk->wu.direction];
-                ewk->wu.routine_no[0]++;
-            }
+            move_background_to_target(ewk, bg_mvxy.a[0].sp);
 
             break;
 
@@ -133,21 +123,7 @@ void effect_58_move(WORK_Other* ewk) {
             bg_w.bgw[ewk->wu.direction].wxy[0].cal += bg_mvxy.a[0].sp * xx;
             bg_mvxy.a[0].sp += bg_mvxy.d[0].sp;
 
-            if (0 < bg_mvxy.a[0].sp) {
-                if (Target_BG_X[ewk->wu.direction] + Offset_BG_X[ewk->wu.direction] <=
-                    bg_w.bgw[ewk->wu.direction].wxy[0].disp.pos) {
-                    Next_Step |= 1;
-                    bg_w.bgw[ewk->wu.direction].wxy[0].disp.pos =
-                        Target_BG_X[ewk->wu.direction] + Offset_BG_X[ewk->wu.direction];
-                    ewk->wu.routine_no[0]++;
-                }
-            } else if (Target_BG_X[ewk->wu.direction] + Offset_BG_X[ewk->wu.direction] >=
-                       bg_w.bgw[ewk->wu.direction].wxy[0].disp.pos) {
-                Next_Step |= 1;
-                bg_w.bgw[ewk->wu.direction].wxy[0].disp.pos =
-                    Target_BG_X[ewk->wu.direction] + Offset_BG_X[ewk->wu.direction];
-                ewk->wu.routine_no[0]++;
-            }
+            move_background_to_target(ewk, bg_mvxy.a[0].sp);
 
             break;
 
@@ -155,21 +131,7 @@ void effect_58_move(WORK_Other* ewk) {
             bg_w.bgw[ewk->wu.direction].wxy[0].cal += bg_mvxy.a[0].sp;
             bg_mvxy.a[0].sp += bg_mvxy.d[0].sp;
 
-            if (0 < bg_mvxy.a[0].sp) {
-                if (Target_BG_X[ewk->wu.direction] + Offset_BG_X[ewk->wu.direction] <=
-                    bg_w.bgw[ewk->wu.direction].wxy[0].disp.pos) {
-                    Next_Step |= 1;
-                    bg_w.bgw[ewk->wu.direction].wxy[0].disp.pos =
-                        Target_BG_X[ewk->wu.direction] + Offset_BG_X[ewk->wu.direction];
-                    ewk->wu.routine_no[0]++;
-                }
-            } else if (Target_BG_X[ewk->wu.direction] + Offset_BG_X[ewk->wu.direction] >=
-                       bg_w.bgw[ewk->wu.direction].wxy[0].disp.pos) {
-                Next_Step |= 1;
-                bg_w.bgw[ewk->wu.direction].wxy[0].disp.pos =
-                    Target_BG_X[ewk->wu.direction] + Offset_BG_X[ewk->wu.direction];
-                ewk->wu.routine_no[0]++;
-            }
+            move_background_to_target(ewk, bg_mvxy.a[0].sp);
 
             break;
 
