@@ -38,8 +38,13 @@ void effect_40_move(WORK_Other* ewk) {
     sort_push_request4(&ewk->wu);
 }
 
++static s32 is_selected_menu_option(const WORK_Other* ewk) {
+    return Menu_Cursor_Y[0] == Menu_Max && ewk->wu.rl_waza == ewk->master_priority;
+}
+
+
 void EFF40_EXIT(WORK_Other* ewk) {
-    if (Menu_Cursor_Y[0] == Menu_Max && ewk->wu.rl_waza == ewk->master_priority) {
+if (is_selected_menu_option(ewk)) {
         ewk->wu.my_clear_level = 0;
     } else {
         ewk->wu.my_clear_level = 128;
