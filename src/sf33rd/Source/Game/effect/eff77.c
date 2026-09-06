@@ -20,6 +20,11 @@ const s16 eff77_data_tbl[7][2] = { { 64, 0 }, { 2, 0 }, { 1, 1 }, { 32, 1 }, { 2
 
 const u32 eff77_col_tbl[2] = { 0xFFFFFFFF, 0xFF000000 };
 
+static s32 game_is_inactive(void) {
+    return Game_pause || EXE_flag;
+}
+
+
 void effect_77_move(WORK_Other* ewk) {
     s16 i;
     u16 bg;
@@ -42,7 +47,7 @@ void effect_77_move(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        if (Game_pause || EXE_flag) {
+if (game_is_inactive()) {
             break;
         }
 
