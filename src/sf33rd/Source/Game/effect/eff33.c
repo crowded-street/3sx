@@ -17,6 +17,11 @@
 
 const s16 WinLoseID[2][2];
 
++static s32 game_is_active(void) {
+    return !EXE_flag && !Game_pause;
+}
+
+
 void effect_33_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -42,7 +47,7 @@ void effect_33_move(WORK_Other* ewk) {
         break;
 
     case 2:
-        if (!EXE_flag && !Game_pause) {
+if (game_is_active()) {
             ewk->wu.routine_no[0]++;
             ewk->wu.char_index = WinLoseID[ewk->master_id][Winner_id] + 10;
             set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
