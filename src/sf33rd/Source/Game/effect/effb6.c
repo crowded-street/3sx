@@ -17,6 +17,10 @@ void get_message_conn_data(WORK_Other_CONN* ewk, s16 kind, s16 pl, s16 msg);
 s32 msgConvertObjNum(u8* moji, s32* spc, s32* hz, u16* num, u8 hzSel);
 s32 msgCheckCodeSize(u8 data);
 
+static s32 is_spacing_code(u8* text) {
+    return strcmp(&text[0], "\x81\x40") == 0 || strcmp(&text[0], "\x81\x51") == 0;
+}
+
 const s8* src_han_zen_conv[256] = {
     "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40",
     "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40",
@@ -439,7 +443,7 @@ s32 msgConvertObjNum(u8* moji, s32* spc, s32* hz, u16* num, u8 hzSel) {
             goto two;
         }
 
-        if (strcmp(&tmpstr[0], "\x81\x40") == 0 || strcmp(&tmpstr[0], "\x81\x51") == 0) {
+        if (is_spacing_code(tmpstr)) {
             goto three;
         }
 
