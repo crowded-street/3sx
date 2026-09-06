@@ -25,6 +25,10 @@ void clear_parts_hit_data(WORK* wk);
 void effC3_main_process(WORK_Other* ewk);
 s32 get_efffC3_nsc(WORK* wk, WORK* c2wk);
 
+static s32 game_is_active(void) {
+    return EXE_flag == 0 && Game_pause == 0;
+}
+
 const u16 effC3_nsc[6] = { 0x7E1A, 0x7E1A, 0x7E1A, 0x7E1A, 0x7E1A, 0x7E1A };
 
 const u16 car_parts[7][8][18][2] = { { { { 0x7D10, 0x0000 },
@@ -1064,7 +1068,7 @@ void effect_C3_move(WORK_Other* ewk) {
 
         ewk->wu.dir_old = bs2_sync_bomb(&ewk->wu);
 
-        if (EXE_flag == 0 && Game_pause == 0) {
+        if (game_is_active()) {
             effC3_main_process(ewk);
         }
 
