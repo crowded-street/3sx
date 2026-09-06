@@ -70,6 +70,11 @@ const s32 snow_sp[4][12][4] = { { { 0x200, 0, -0x2000, 0 },
                                   { -0x80, 0, -0x1800, 0 },
                                   { 0, 0, -0x2000, 0 } } };
 
++static s32 game_is_active(void) {
+    return !EXE_flag && !Game_pause;
+}
+
+
 void effect_22_move(WORK_Other* ewk) {
     const s32* ptr;
 
@@ -106,7 +111,7 @@ void effect_22_move(WORK_Other* ewk) {
         break;
 
     case 2:
-        if (!EXE_flag && !Game_pause) {
+if (game_is_active()) {
             add_x_sub(&ewk->wu);
             add_y_sub(&ewk->wu);
 
