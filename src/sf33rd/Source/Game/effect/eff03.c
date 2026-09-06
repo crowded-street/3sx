@@ -98,6 +98,11 @@ const PLEF plef_data[165] = { { 0, 0, -1, 0, 1, 0, 0, 1, 0, 0, 0 },       { 13, 
                               { 16, -4, -1, 0, 0, 32, 1, 1, 1, 0, 57 },   { -37, 4, -1, 0, 0, 32, 1, 1, 1, 0, 58 },
                               { 44, 1, -1, 0, 0, 32, 1, 1, 1, 0, 58 } };
 
++static s32 game_is_active(void) {
+    return EXE_flag == 0 && Game_pause == 0;
+}
+
+
 void effect_03_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -164,7 +169,7 @@ void effect_03_move(WORK_Other* ewk) {
             break;
         }
 
-        if (EXE_flag == 0 && Game_pause == 0) {
+if (game_is_active()) {
             char_move(&ewk->wu);
 
             if (ewk->wu.cg_type) {
