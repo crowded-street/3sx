@@ -31,6 +31,11 @@ void (*const EFF39_Jmp_Tbl[6])() = {
     EFF39_WAIT, EFF39_SLIDE_IN, EFF39_SLIDE_OUT, EFF39_SUDDENLY, EFF39_MOVE, EFF39_KILL
 };
 
++static s32 is_selection_ready(const WORK_Other* ewk) {
+    return Sel_PL_Complete[ewk->master_id] || plw[ewk->master_id].wu.operator == 0;
+}
+
+
 void effect_39_move(WORK_Other* ewk) {
     EFF39_Jmp_Tbl[ewk->wu.routine_no[0]](ewk);
 
@@ -200,7 +205,7 @@ void EFF39_MOVE(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (Sel_PL_Complete[ewk->master_id] || plw[ewk->master_id].wu.operator == 0) {
+if (is_selection_ready(ewk)) {
             ewk->wu.routine_no[1] = 2;
         } else {
             ewk->wu.routine_no[1]++;
