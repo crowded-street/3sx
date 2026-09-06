@@ -20,6 +20,11 @@
 void eff46_move(WORK_Other* ewk);
 s16 eff46_appear_check(WORK_Other* ewk);
 
+static s32 can_update_effect(void) {
+    return !EXE_flag && !Game_pause && !EXE_obroll;
+}
+
+
 void effect_46_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -30,7 +35,7 @@ void effect_46_move(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (!EXE_flag && !Game_pause && !EXE_obroll) {
+if (can_update_effect()) {
             eff46_move(ewk);
         }
 
