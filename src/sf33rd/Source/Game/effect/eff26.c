@@ -23,6 +23,11 @@ const s16 eff26_num[1] = { 1 };
 
 const s16 eff26_data_0000[1] = { 0 };
 
++static s32 game_is_active(void) {
+    return !EXE_flag && !Game_pause;
+}
+
+
 void effect_26_move(WORK_Other* ewk) {
     if (obr_no_disp_check()) {
         return;
@@ -43,7 +48,7 @@ void effect_26_move(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (!EXE_flag && !Game_pause) {
+if (game_is_active()) {
             eff26_jp_tbl[ewk->wu.old_rno[2] / 2](ewk);
         }
 
