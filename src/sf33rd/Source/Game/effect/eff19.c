@@ -27,6 +27,11 @@ const s8 effect_19_m_tbl[16] = { 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1 
 
 const s8 effect_19_l_tbl[16] = { 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1 };
 
++static s32 can_update_effect(void) {
+    return !EXE_flag && !Game_pause && !EXE_obroll;
+}
+
+
 void effect_19_move(WORK_Other* ewk) {
     if (obr_no_disp_check()) {
         return;
@@ -40,7 +45,7 @@ void effect_19_move(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (!EXE_flag && !Game_pause && !EXE_obroll) {
+if (can_update_effect()) {
             eff19_quake_sub(ewk);
         }
 
