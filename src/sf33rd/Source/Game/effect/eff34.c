@@ -17,6 +17,11 @@
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 
++static s32 game_is_inactive(void) {
+    return EXE_flag || Game_pause;
+}
+
+
 void effect_34_move(WORK_Other* ewk) {
     WORK* oya_ptr = (WORK*)ewk->my_master;
 
@@ -54,7 +59,7 @@ void effect_34_move(WORK_Other* ewk) {
         break;
 
     case 2:
-        if (EXE_flag || Game_pause) {
+if (game_is_inactive()) {
             suzi_sync_pos_set(ewk);
             sort_push_request(&ewk->wu);
             break;
