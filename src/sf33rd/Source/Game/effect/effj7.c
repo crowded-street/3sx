@@ -383,6 +383,10 @@ const ColorCode* pl00_cctbl[][2];
 void check_new_color_data(WORK* wk);
 void get_new_color_data(WORK* wk, ColorCode* trom, s16* tram);
 
+static s32 can_initialize_color_data(const PLW* mwk) {
+    return mwk->gill_ccch_go != 0 || (mwk->wu.routine_no[1] == 0 && mwk->wu.routine_no[2] == 1);
+}
+
 void effect_J7_move(WORK_Other* ewk) {
     PLW* mwk = (PLW*)ewk->my_master;
 
@@ -390,7 +394,7 @@ void effect_J7_move(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        if (mwk->gill_ccch_go == 0 && (mwk->wu.routine_no[1] != 0 || mwk->wu.routine_no[2] != 1)) {
+        if (!can_initialize_color_data(mwk)) {
             break;
         }
 
