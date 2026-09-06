@@ -19,6 +19,11 @@ const s16 parts_colcd_table[14] = {
 void get_new_parts_data(WORK_Other* ewk, PLW* mwk);
 void set_parts_disp_flag(WORK_Other* ewk, PLW* mwk);
 
++static s32 game_is_active(void) {
+    return !Game_pause && !EXE_flag;
+}
+
+
 void effect_01_move(WORK_Other* ewk) {
     WORK* mwk = (WORK*)ewk->my_master;
 
@@ -43,7 +48,7 @@ void effect_01_move(WORK_Other* ewk) {
             return;
         }
 
-        if (!Game_pause && !EXE_flag) {
+if (game_is_active()) {
             if (ewk->wu.cg_olc.olc_ix[ewk->wu.type] != mwk->cg_olc.olc_ix[ewk->wu.type]) {
                 ewk->wu.cg_olc.olc_ix[ewk->wu.type] = ewk->wu.cg_ix = mwk->cg_olc.olc_ix[ewk->wu.type];
                 ewk->wu.now_koc = ewk->wu.cg_ix;
