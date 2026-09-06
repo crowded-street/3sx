@@ -13,6 +13,10 @@ s32 Check_Sleep_A5(WORK_Other* ewk);
 
 static s16 bcdext;
 
+static s32 is_timer_disabled_present_mode(void) {
+    return Present_Mode == 4 || Present_Mode == 5;
+}
+
 u8 sbcd(u8 a, u8 b) {
     s16 c, d;
 
@@ -35,7 +39,7 @@ u8 sbcd(u8 a, u8 b) {
 }
 
 void effect_A5_move(WORK_Other* ewk) {
-    if (Present_Mode == 4 || Present_Mode == 5) {
+    if (is_timer_disabled_present_mode()) {
         return;
     }
 
