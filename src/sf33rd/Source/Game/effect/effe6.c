@@ -55,6 +55,46 @@ void effe6_0032(WORK_Other* ewk);
 void effe6_0033(WORK_Other* ewk);
 void effe6_init_common(WORK_Other* ewk);
 
+static s32 move_with_player_input(WORK_Other* ewk) {
+    if (ewk->wu.type == 150) {
+        if (p1sw_0 & 8) {
+            ewk->wu.xyz[0].disp.pos++;
+        }
+
+        if (p1sw_0 & 4) {
+            ewk->wu.xyz[0].disp.pos--;
+        }
+
+        if (p1sw_0 & 1) {
+            ewk->wu.xyz[1].disp.pos++;
+        }
+
+        if (p1sw_0 & 2) {
+            ewk->wu.xyz[1].disp.pos--;
+        }
+
+        return 1;
+    } else {
+        if (p2sw_0 & 8) {
+            ewk->wu.xyz[0].disp.pos++;
+        }
+
+        if (p2sw_0 & 4) {
+            ewk->wu.xyz[0].disp.pos--;
+        }
+
+        if (p2sw_0 & 1) {
+            ewk->wu.xyz[1].disp.pos++;
+        }
+
+        if (p2sw_0 & 2) {
+            ewk->wu.xyz[1].disp.pos--;
+        }
+
+        return 0;
+    }
+}
+
 const s16 effe6_data_tbl[180][8] = {
     { 1, 0, 1, 512, 64, 80, 1, 0 },     { 1, 0, 1, 512, 64, 80, 2, 0 },     { 1, 0, 1, 512, 64, 80, 4, 0 },
     { 1, 0, 1, 576, 64, 78, 5, 0 },     { 1, 0, 1, 512, 64, 80, 6, 0 },     { 1, 0, 1, 512, 64, 82, 8, 0 },
@@ -1072,38 +1112,7 @@ void effe6_0025(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (ewk->wu.type == 150) {
-            if (p1sw_0 & 8) {
-                ewk->wu.xyz[0].disp.pos++;
-            }
-
-            if (p1sw_0 & 4) {
-                ewk->wu.xyz[0].disp.pos--;
-            }
-
-            if (p1sw_0 & 1) {
-                ewk->wu.xyz[1].disp.pos++;
-            }
-
-            if (p1sw_0 & 2) {
-                ewk->wu.xyz[1].disp.pos--;
-            }
-        } else {
-            if (p2sw_0 & 8) {
-                ewk->wu.xyz[0].disp.pos++;
-            }
-
-            if (p2sw_0 & 4) {
-                ewk->wu.xyz[0].disp.pos--;
-            }
-
-            if (p2sw_0 & 1) {
-                ewk->wu.xyz[1].disp.pos++;
-            }
-
-            if (p2sw_0 & 2) {
-                ewk->wu.xyz[1].disp.pos--;
-            }
+        if (!move_with_player_input(ewk)) {
 
             work = p2sw_0 & ~p2sw_1;
 
