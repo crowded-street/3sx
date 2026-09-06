@@ -49,6 +49,11 @@ const s16 eff44_data_tbl9[16] = { 0, 2, 8492, 720, 80, 83, 5, 0, 0, 2, 300, 286,
 const s16* scr_obj_data44[10] = { eff44_data_tbl0, eff44_data_tbl1, eff44_data_tbl2, eff44_data_tbl3, eff44_data_tbl4,
                                   eff44_data_tbl5, eff44_data_tbl6, eff44_data_tbl7, eff44_data_tbl8, eff44_data_tbl9 };
 
+static s32 can_update_effect(void) {
+    return !EXE_flag && !Game_pause && !EXE_obroll;
+}
+
+
 void effect_44_move(WORK_Other* ewk) {
     if (obr_no_disp_check()) {
         return;
@@ -68,7 +73,7 @@ void effect_44_move(WORK_Other* ewk) {
             break;
         }
 
-        if (!EXE_flag && !Game_pause && !EXE_obroll) {
+if (can_update_effect()) {
             char_move(&ewk->wu);
         }
 
