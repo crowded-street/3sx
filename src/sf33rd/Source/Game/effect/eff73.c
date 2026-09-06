@@ -23,6 +23,11 @@ const s16 eff73_vanish_tbl[8] = { 0x003C, 0x0018, 0x0026, 0x000E, 0x0016, 0x001C
 
 const s16 eff73_survive_tbl[8] = { 0x0000, 0x0001, 0x0002, 0x0003, 0x0003, 0x0002, 0x0001, 0x0000 };
 
+static s32 game_is_active(void) {
+    return !EXE_flag && !Game_pause;
+}
+
+
 void effect_73_move(WORK_Other* ewk) {
     if (obr_no_disp_check()) {
         return;
@@ -36,7 +41,7 @@ void effect_73_move(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (!EXE_flag && !Game_pause) {
+if (game_is_active()) {
             char_move(&ewk->wu);
             add_x_sub(&ewk->wu);
             add_y_sub(&ewk->wu);
