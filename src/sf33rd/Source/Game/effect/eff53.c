@@ -16,6 +16,11 @@
 
 const s16 eff53_vanish_time[8] = { 480, 600, 900, 1440, 480, 1080, 1500, 600 };
 
+static s32 cannot_update_effect(void) {
+    return EXE_flag || Game_pause || !EXE_obroll;
+}
+
+
 void effect_53_move(WORK_Other* ewk) {
     s16 work;
 
@@ -23,7 +28,7 @@ void effect_53_move(WORK_Other* ewk) {
         return;
     }
 
-    if (EXE_flag || Game_pause || !EXE_obroll) {
+if (cannot_update_effect()) {
         return;
     }
 
