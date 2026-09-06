@@ -16,6 +16,10 @@
 
 const s32 effc8_data_tbl[4] = { 0x30000, 0x200, 0, -0x1800 };
 
+static s32 game_is_active(void) {
+    return !EXE_flag && !Game_pause;
+}
+
 void effect_C8_move(WORK_Other* ewk) {
     PLW* oya_pl = (PLW*)ewk->my_master;
     s16 work;
@@ -77,7 +81,7 @@ void effect_C8_move(WORK_Other* ewk) {
         break;
 
     case 3:
-        if (!EXE_flag && !Game_pause) {
+        if (game_is_active()) {
             add_x_sub(&ewk->wu);
             add_y_sub(&ewk->wu);
             char_move(&ewk->wu);
