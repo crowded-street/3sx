@@ -40,6 +40,11 @@ const s32 eff24_quake_speed_x_tbl[4][8] = { { 0x1200, 0x1200, 0x1400, 0x1400, 0x
 
 const s16 dog24_x_data[8] = { 0, 0, 0, 6, 10, 16, 32, 40 };
 
++static s32 can_update_effect(void) {
+    return !EXE_flag && !Game_pause && !EXE_obroll;
+}
+
+
 void effect_24_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -50,7 +55,7 @@ void effect_24_move(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (!EXE_flag && !Game_pause && !EXE_obroll) {
+if (can_update_effect()) {
             eff24_quake_sub(ewk);
         }
 
