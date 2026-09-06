@@ -15,6 +15,11 @@
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 
+static s32 game_is_active(void) {
+    return !EXE_flag && !Game_pause;
+}
+
+
 void effect_55_move(WORK_Other* ewk) {
     if (obr_no_disp_check()) {
         return;
@@ -28,7 +33,7 @@ void effect_55_move(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (!EXE_flag && !Game_pause) {
+if (game_is_active()) {
             ewk->wu.xyz[1].cal += 0x3000;
 
             if (ewk->wu.xyz[1].disp.pos >= 128) {
