@@ -19,12 +19,17 @@ const u8 ci_color_tbl[26] = { 21, 2,  22, 2,  21, 2,  20, 2,  21, 2,  22, 2,  21
 
 const u8 bonus_ci_color_tbl[6] = { 20, 12, 20, 12, 20, 255 };
 
+static s32 is_bonus_stage_20(void) {
+    return Bonus_Game_Flag && bg_w.stage == 20;
+}
+
+
 void effect_56_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0]++;
 
-        if (Bonus_Game_Flag && bg_w.stage == 20) {
+if (is_bonus_stage_20()) {
             ci_pointer = bonus_ci_color_tbl;
             ci_col = *ci_pointer++;
             ci_timer = *ci_pointer++;
