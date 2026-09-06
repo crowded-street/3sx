@@ -15,6 +15,11 @@
 
 const s16 eff07_data_tbl[2][3] = { { 4, 742, 28 }, { 5, 806, 28 } };
 
++static s32 can_update_effect(void) {
+    return !EXE_flag && !Game_pause && !EXE_obroll;
+}
+
+
 void effect_07_move(WORK_Other* ewk) {
     if (obr_no_disp_check()) {
         return;
@@ -28,7 +33,7 @@ void effect_07_move(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (!EXE_flag && !Game_pause && !EXE_obroll) {
+if (can_update_effect()) {
             char_move(&ewk->wu);
         }
 
