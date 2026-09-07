@@ -31,7 +31,6 @@ typedef enum GlyphColor {
 bool GlyphRenderer_Init();
 void GlyphRenderer_DrawGlyph(GlyphPosition atlas_pos, GlyphPosition screen_pos, GlyphColor color, float z);
 void GlyphRenderer_DrawDigit(Uint8 digit, GlyphPosition screen_pos, GlyphColor color, float z);
-int indexOf(const char* str, const char f);
 void GlyphRenderer_DrawChar(char c, GlyphPosition screen_pos, GlyphColor color, float z);
-void GlyphRenderer_DrawString(char* str, GlyphPosition screen_pos, GlyphColor color, float z);
+void GlyphRenderer_DrawString(GlyphPosition screen_pos, GlyphColor color, float z, const char* format, ...);
 #endif
