@@ -49,14 +49,8 @@ static void verify_configuration(const Args* args) {
         }
     }
 
-    if (matchmaking_specified) {
-        if (netplay->matchmaking_ip == NULL) {
-            error_out("You must specify --matchmaking-ip.");
-        }
-
-        if (netplay->matchmaking_port == 0) {
-            error_out("You must specify --matchmaking-port.");
-        }
+    if (netplay->matchmaking_port < 0 || netplay->matchmaking_port > 65535) {
+        error_out("Matchmaking port must be between 1 and 65535 (0 uses the default).");
     }
 #endif
 
@@ -79,8 +73,8 @@ void init_args(int argc, const char* argv[]) {
             0, "p2p-local-player", &args.netplay.p2p_local_player, "Number of the local player (1 or 2).", NULL, 0, 0
         ),
         OPT_STRING(0, "p2p-remote-ip", &args.netplay.p2p_remote_ip, "Remote player IP.", NULL, 0, 0),
-        OPT_STRING(0, "matchmaking-ip", &args.netplay.matchmaking_ip, "Matchmaking server IP.", NULL, 0, 0),
-        OPT_INTEGER(0, "matchmaking-port", &args.netplay.matchmaking_port, "Matchmaking server port.", NULL, 0, 0),
+        OPT_STRING(0, "matchmaking-ip", &args.netplay.matchmaking_ip, "Override the default Fistbump server.", NULL, 0, 0),
+        OPT_INTEGER(0, "matchmaking-port", &args.netplay.matchmaking_port, "Override the Fistbump TCP port (0 uses default).", NULL, 0, 0),
         OPT_BOOLEAN(
             0, "stress", &args.netplay.stress, "Run a local stress session that hunts for rollback desyncs.", NULL, 0, 0
         ),

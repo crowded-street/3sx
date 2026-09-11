@@ -24,6 +24,24 @@ void NetplayScreen_Render() {
     const NetplaySessionState ns = Netplay_GetSessionState();
     const FistbumpState fs = Fistbump_GetState();
 
+    if (Netplay_IsArcadeMatchmaking() && ns == NETPLAY_SESSION_IDLE) {
+        if (fs == FISTBUMP_AWAITING_LOGIN) {
+            const DAG login = Fistbump_GetDAG();
+            SSPutStrPro(1, 384, 70, 9, 0xFFFFFFFF, "Netplay: activate in your browser");
+            SSPutStrPro(1, 384, 85, 9, 0xFFFFFFFF, login.activate_url);
+            SSPutStrPro(1, 384, 100, 9, 0xFFFFFFFF, login.code);
+        } else {
+            const char* status = "Netplay: connecting...";
+            if (fs == FISTBUMP_AWAITING_MATCH) {
+                status = "Netplay: searching for a challenger...";
+            } else if (fs == FISTBUMP_MATCHED || fs == FISTBUMP_SENDING_UDP) {
+                status = "Challenger found! Connecting...";
+            }
+            SSPutStrPro(1, 384, 70, 9, 0xFFFFFFFF, status);
+        }
+        return;
+    }
+
     if (!display_netplay_text) {
         return;
     }
@@ -107,7 +125,7 @@ void NetplayScreen_Render() {
     // After a match is found, show "Match start!" during VS mode loading and
     // hold it briefly into the connecting phase before revealing the game.
     // this should maybe be replaced by actual visual effects but good for a prototype.
-    if (ns == NETPLAY_SESSION_TRANSITIONING) {
+    if (ns == NETPLAY_SESSION_TRANSITIONING || ns == NETPLAY_SESSION_ARCADE_RESETTING) {
         match_found_hold = MATCH_FOUND_HOLD_FRAMES;
     } else if (match_found_hold > 0) {
         match_found_hold--;

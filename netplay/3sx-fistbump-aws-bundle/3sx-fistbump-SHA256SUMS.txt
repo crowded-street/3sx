@@ -1,0 +1,3 @@
+bee61f24d44aa38cb329e31cc0ee5de845709a13f6326a79bb483a1e12f2be61  /mnt/data/3sx-fistbump-server-linux-amd64
+75701cd3f2813738b09cfab2a80a971b4fece9134602e29e8b1f22ebd9e8e668  /mnt/data/3sx-fistbump-server-linux-arm64
+061f17b67d0a69a74d420e77e597a2637ca01c7ef26e0faf37e4de0951e27088  /mnt/data/deploy-3sx-fistbump-aws.sh

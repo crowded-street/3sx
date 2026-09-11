@@ -291,6 +291,11 @@ void Mode_Select(struct _TASK* task_ptr) {
 
     switch (task_ptr->r_no[2]) {
     case 0:
+#if NETPLAY_ENABLED
+        if (Netplay_IsArcadeMatchmaking()) {
+            Netplay_CancelMatchmaking();
+        }
+#endif
         FadeOut(1, 0xFF, 8);
         task_ptr->r_no[2] += 1;
         task_ptr->timer = 5;
@@ -404,6 +409,9 @@ void Mode_Select(struct _TASK* task_ptr) {
                 task_ptr->r_no[0] = 5;
                 cpExitTask(TASK_SAVER);
                 Decide_PL(PL_id);
+#if NETPLAY_ENABLED
+                Netplay_BeginArcadeMatchmaking();
+#endif
                 break;
 
             case 1:

@@ -19,6 +19,10 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
 if(NOT PSP)
+    option(THREESX_NETPLAY "Build with GekkoNet netplay support" ON)
+    set(THREESX_FISTBUMP_HOST "3.16.58.140" CACHE STRING "Default Fistbump server")
+    set(THREESX_FISTBUMP_TCP_PORT 9000 CACHE STRING "Fistbump control port")
+    set(THREESX_FISTBUMP_UDP_PORT 9001 CACHE STRING "Fistbump rendezvous port")
     option(THREESX_STATCHECK "Build with replay statcheck support" OFF)
 endif()
 
@@ -67,7 +71,10 @@ if(PSP)
 else()
     target_compile_definitions(3sx PRIVATE
         $<$<CONFIG:Debug>:DEBUG>
-        $<$<CONFIG:Debug>:NETPLAY_ENABLED>
+        $<$<BOOL:${THREESX_NETPLAY}>:NETPLAY_ENABLED>
+        DEFAULT_FISTBUMP_HOST="${THREESX_FISTBUMP_HOST}"
+        DEFAULT_FISTBUMP_TCP_PORT=${THREESX_FISTBUMP_TCP_PORT}
+        DEFAULT_FISTBUMP_UDP_PORT=${THREESX_FISTBUMP_UDP_PORT}
 
         $<$<CONFIG:Release>:RELEASE>
         $<$<AND:$<CONFIG:Release>,$<NOT:$<BOOL:${THREESX_STATCHECK}>>>:CHECKSUM>

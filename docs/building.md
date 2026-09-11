@@ -54,6 +54,29 @@ You should be able to build the project with just Xcode Command Line Tools.
     cmake --install build --prefix build/application
     ```
 
+    GekkoNet netplay is enabled by default for desktop builds, including Release.
+    To disable it, configure with `-DTHREESX_NETPLAY=OFF`.
+
+    This custom build defaults to Fistbump at `3.16.58.140` (TCP 9000,
+    UDP 9001). Selecting Arcade connects in the background, displays browser
+    activation details when login is needed, queues after login, and automatically
+    accepts matches. A match ends the CPU run through the reset path before
+    entering network character select. Returning to mode select cancels the
+    search; connection errors leave Arcade running offline. This is the initial
+    auto-accept testing flow, without an accept/decline dialog in Arcade.
+
+    Override the compiled endpoint with `-DTHREESX_FISTBUMP_HOST=host`,
+    `-DTHREESX_FISTBUMP_TCP_PORT=9000`, and `-DTHREESX_FISTBUMP_UDP_PORT=9001`.
+    At launch, `--matchmaking-ip` and `--matchmaking-port` independently override
+    the default host and TCP port. Explicit `--p2p-*` arguments retain direct
+    connection mode and disable Arcade matchmaking.
+
+    On macOS, after a Makefiles Release build, run
+    `python3 tools/tests/run_arcade_matchmaking_smoke.py` to test the production
+    matchmaking code with local mock servers and temporary login profiles.
+    This covers the handoff to the reset state, not a rendered CPU-to-network
+    transition or a live two-player match.
+
     Enable replay statcheck independently of the build configuration. For example,
     use `RelWithDebInfo` for routine runs:
 

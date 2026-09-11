@@ -57,43 +57,16 @@ static bool LoadToken(JWT* jwt) {
     char path[512];
     SDL_snprintf(path, sizeof(path), "%s/token", base_path);
 
-    SDL_IOStream* stream = SDL_IOFromFile(path, "r");
-    if (!stream) {
+    // Read the complete record: a single ReadIO can consume both saved lines.
+    char* record = SDL_LoadFile(path, NULL);
+    if (record == NULL) {
         return false;
     }
-
-    char line[256];
-
-    if (!SDL_ReadIO(stream, line, sizeof(line) - 1)) {
-        SDL_CloseIO(stream);
+    const int fields = SDL_sscanf(record, "%1023s %d", jwt->token, &jwt->expiry);
+    SDL_free(record);
+    if (fields != 2) {
         return false;
     }
-
-    line[sizeof(line) - 1] = '\0';
-
-    SDL_strlcpy(jwt->token, line, sizeof(jwt->token));
-
-    size_t len = strcspn(jwt->token, "\r\n");
-    jwt->token[len] = '\0';
-
-    if (!SDL_ReadIO(stream, line, sizeof(line) - 1)) {
-        SDL_CloseIO(stream);
-        return false;
-    }
-
-    line[sizeof(line) - 1] = '\0';
-
-    char* endptr = NULL;
-    long expiry = strtol(line, &endptr, 10);
-
-    if (endptr == line) {
-        SDL_CloseIO(stream);
-        return false;
-    }
-
-    jwt->expiry = (time_t)expiry;
-
-    SDL_CloseIO(stream);
 
     time_t now = time(NULL);
     if (jwt->expiry <= now) {
@@ -137,6 +110,9 @@ static bool pop_line(char* out, int out_size) {
 }
 
 static void read_into_line_buf() {
+    if (tcp_sock == NULL || connect_state != FISTBUMP_CONN_CONNECTED) {
+        return;
+    }
     int space = (int)sizeof(line_buf) - line_len - 1;
 
     if (space <= 0) {
@@ -147,6 +123,8 @@ static void read_into_line_buf() {
 
     if (n > 0) {
         line_len += n;
+    } else if (n < 0) {
+        state = FISTBUMP_ERROR;
     }
 }
 
@@ -349,7 +327,7 @@ void Fistbump_HandleCANCEL(const char* line) {
     SDL_Log("Fistbump: match cancelled\n");
     SDL_zero(match_result);
 
-    if (state == FISTBUMP_MATCHED) {
+    if (state == FISTBUMP_MATCHED || state == FISTBUMP_SENDING_UDP) {
         state = FISTBUMP_IDLE;
     }
 }
@@ -470,6 +448,7 @@ void Fistbump_Reset() {
 
     state = FISTBUMP_IDLE;
     memset(&profile, 0, sizeof(profile));
+    connect_state = FISTBUMP_CONN_IDLE;
     NET_Quit();
 }
 

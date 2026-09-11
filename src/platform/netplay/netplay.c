@@ -9,6 +9,7 @@
 #include "platform/netplay/netplay_stress.h"
 #include "platform/netplay/sdl_net_adapter.h"
 #include "port/paths.h"
+#include "port/sdl/netplay_screen.h"
 #include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/cmd_data.h"
@@ -23,6 +24,7 @@
 #include "sf33rd/Source/Game/rendering/dc_ghost.h"
 #include "sf33rd/Source/Game/rendering/mtrans.h"
 #include "sf33rd/Source/Game/rendering/texcash.h"
+#include "sf33rd/Source/Game/sound/sound3rd.h"
 #include "sf33rd/Source/Game/system/sys_sub.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/utils/djb2_hash.h"
@@ -55,6 +57,9 @@ static char matched_ip[64];
 static const char* matchmaking_server_ip = NULL;
 static int matchmaking_server_port = 9000;
 static bool matchmaking_pending = false;
+static bool arcade_matchmaking = false;
+static bool preserve_matchmaking_on_reset = false;
+static bool arcade_reset_complete = false;
 static bool direct_p2p_configured = false;
 static bool direct_p2p_pending = false;
 static NET_DatagramSocket* p2p_sock = NULL;
@@ -792,13 +797,26 @@ void Netplay_SetMatchmakingParams(const char* server_ip, int server_port) {
 }
 
 void Netplay_BeginMatchmaking() {
-    if (matchmaking_server_ip == NULL) {
+    if (matchmaking_server_ip == NULL || matchmaking_server_ip[0] == '\0' ||
+        direct_p2p_configured || matchmaking_pending || session_state != NETPLAY_SESSION_IDLE) {
         return;
     }
     // session_state stays IDLE so the menu keeps running normally.
     // setup_vs_mode() and the session transition happen in Netplay_TickMatchmaking.
-    Fistbump_Start(matchmaking_server_ip, matchmaking_server_port, 9001, Paths_GetPrefPath());
+    Fistbump_Start(matchmaking_server_ip, matchmaking_server_port, DEFAULT_FISTBUMP_UDP_PORT, Paths_GetPrefPath());
     matchmaking_pending = true;
+}
+
+void Netplay_BeginArcadeMatchmaking() {
+    if (direct_p2p_configured || Stress_IsRunning()) {
+        return;
+    }
+    Netplay_BeginMatchmaking();
+    arcade_matchmaking = matchmaking_pending;
+}
+
+bool Netplay_IsArcadeMatchmaking() {
+    return arcade_matchmaking;
 }
 
 void Netplay_TickMatchmaking() {
@@ -807,6 +825,21 @@ void Netplay_TickMatchmaking() {
     }
 
     Fistbump_Run();
+
+    if (arcade_matchmaking) {
+        if (Mode_Type != MODE_ARCADE) {
+            Netplay_CancelMatchmaking();
+            return;
+        }
+        // Queue only after asynchronous login completes. Queue/accept change the
+        // state immediately, so each command is sent once, including after CANCEL.
+        if (Fistbump_IsLoggedIn() && Fistbump_GetState() == FISTBUMP_IDLE) {
+            Fistbump_Queue();
+        }
+        if (Fistbump_GetState() == FISTBUMP_MATCHED) {
+            Fistbump_AcceptMatch();
+        }
+    }
 
     const FistbumpState mm = Fistbump_GetState();
 
@@ -821,11 +854,27 @@ void Netplay_TickMatchmaking() {
         frame_skip_timer = 0;
         transition_ready_frames = 0;
         matchmaking_pending = false;
+        if (arcade_matchmaking) {
+            // This tick runs after njUserMain, outside the game task iteration.
+            // Drain outstanding loads before resetting the active Arcade fight.
+            display_netplay_text = true;
+            sound_all_off();
+            Request_LDREQ_Break();
+            effect_work_init();
+            arcade_reset_complete = false;
+            session_state = NETPLAY_SESSION_ARCADE_RESETTING;
+            return;
+        }
         NetplayBase_SetupVsMode();
         session_state = NETPLAY_SESSION_TRANSITIONING;
     } else if (mm == FISTBUMP_ERROR) {
-        matchmaking_pending = false;
-        Soft_Reset_Sub();
+        const bool was_arcade = arcade_matchmaking;
+        Netplay_CancelMatchmaking();
+        if (was_arcade) {
+            SDL_Log("Arcade matchmaking unavailable; continuing offline.");
+        } else {
+            Soft_Reset_Sub();
+        }
     }
 }
 
@@ -847,12 +896,41 @@ void Netplay_FindMatch() {
 }
 
 void Netplay_CancelMatchmaking() {
-    Fistbump_Reset();
+    if (preserve_matchmaking_on_reset) {
+        return;
+    }
+    if (matchmaking_pending || arcade_matchmaking || Fistbump_GetState() != FISTBUMP_IDLE ||
+        Fistbump_IsLoggedIn()) {
+        Fistbump_Reset();
+    }
     matchmaking_pending = false;
+    arcade_matchmaking = false;
+    if (session_state == NETPLAY_SESSION_ARCADE_RESETTING) {
+        session_state = NETPLAY_SESSION_EXITING;
+    }
 }
 
 void Netplay_Run() {
     switch (session_state) {
+    case NETPLAY_SESSION_ARCADE_RESETTING:
+        if (!arcade_reset_complete) {
+            if (Check_LDREQ_Break()) {
+                step_game(true);
+                break;
+            }
+            // Keep the negotiated endpoint and rendezvous socket across the
+            // normal reset, which otherwise cancels matchmaking.
+            preserve_matchmaking_on_reset = true;
+            Soft_Reset_Sub();
+            preserve_matchmaking_on_reset = false;
+            arcade_reset_complete = true;
+            break;
+        }
+        arcade_matchmaking = false;
+        NetplayBase_SetupVsMode();
+        session_state = NETPLAY_SESSION_TRANSITIONING;
+        break;
+
     case NETPLAY_SESSION_TRANSITIONING:
         if (game_ready_to_run_character_select()) {
             transition_ready_frames += 1;
@@ -908,6 +986,7 @@ void Netplay_HandleMenuExit() {
         break;
 
     case NETPLAY_SESSION_TRANSITIONING:
+    case NETPLAY_SESSION_ARCADE_RESETTING:
     case NETPLAY_SESSION_CONNECTING:
     case NETPLAY_SESSION_RUNNING:
         session_state = NETPLAY_SESSION_EXITING;

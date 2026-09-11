@@ -13,6 +13,7 @@ typedef struct NetworkStats {
 
 typedef enum NetplaySessionState {
     NETPLAY_SESSION_IDLE,
+    NETPLAY_SESSION_ARCADE_RESETTING,
     NETPLAY_SESSION_TRANSITIONING,
     NETPLAY_SESSION_CONNECTING,
     NETPLAY_SESSION_RUNNING,
@@ -25,6 +26,8 @@ void Netplay_BeginDirectP2P();
 void Netplay_TickDirectP2P();
 void Netplay_SetMatchmakingParams(const char* server_ip, int server_port);
 void Netplay_BeginMatchmaking();
+void Netplay_BeginArcadeMatchmaking();
+bool Netplay_IsArcadeMatchmaking();
 void Netplay_TickMatchmaking();
 bool Netplay_IsMatchmakingPending(); // true while searching, false once matched or idle
 void Netplay_FindMatch();

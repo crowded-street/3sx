@@ -408,8 +408,10 @@ static void set_netplay_params() {
 
     if (netplay->p2p_remote_ip != NULL) {
         Netplay_SetParams(netplay->p2p_local_player, netplay->p2p_remote_ip);
-    } else if (netplay->matchmaking_ip != NULL) {
-        Netplay_SetMatchmakingParams(netplay->matchmaking_ip, netplay->matchmaking_port);
+    } else if (!netplay->stress) {
+        Netplay_SetMatchmakingParams(
+            netplay->matchmaking_ip != NULL ? netplay->matchmaking_ip : DEFAULT_FISTBUMP_HOST,
+            netplay->matchmaking_port != 0 ? netplay->matchmaking_port : DEFAULT_FISTBUMP_TCP_PORT);
     }
 }
 #endif
