@@ -16,6 +16,14 @@ typedef enum GlyphColor {
     GLYPH_COLOR_HEAVY,   /// Red color primarily associated with heavy normals
 } GlyphColor;
 
+typedef struct GlyphRendererState {
+    GlyphPosition position; /// Current position. Glyph renderer moves it automatically after each draw.
+    GlyphColor color;       /// Current color.
+    float z;                /// Current Z value.
+} GlyphRendererState;
+
+#define GLYPH_SIZE 8
+
 #define GLYPH_NEUTRAL (GlyphPosition) { 26, 2 }
 #define GLYPH_UP (GlyphPosition) { 27, 2 }
 #define GLYPH_DOWN (GlyphPosition) { 29, 2 }
@@ -28,9 +36,12 @@ typedef enum GlyphColor {
 #define GLYPH_PUNCH (GlyphPosition) { 35, 3 }
 #define GLYPH_KICK (GlyphPosition) { 36, 3 }
 
+extern GlyphRendererState glyph_renderer_state;
+
 bool GlyphRenderer_Init();
-void GlyphRenderer_DrawGlyph(GlyphPosition atlas_pos, GlyphPosition screen_pos, GlyphColor color, float z);
-void GlyphRenderer_DrawDigit(Uint8 digit, GlyphPosition screen_pos, GlyphColor color, float z);
-void GlyphRenderer_DrawChar(char c, GlyphPosition screen_pos, GlyphColor color, float z);
-void GlyphRenderer_DrawString(GlyphPosition screen_pos, GlyphColor color, float z, const char* format, ...);
+void GlyphRenderer_DrawGlyph(GlyphPosition atlas_pos);
+void GlyphRenderer_DrawDigit(Uint8 digit);
+void GlyphRenderer_DrawChar(char c);
+void GlyphRenderer_DrawString(const char* format, ...);
+
 #endif
