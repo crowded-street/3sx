@@ -141,27 +141,30 @@ void EFF39_SLIDE_IN(WORK_Other* ewk) {
     }
 }
 
+static void start_slide_out(WORK_Other* ewk) {
+    if (ewk->wu.disp_flag == 0) {
+        ewk->wu.routine_no[1] = 99;
+    } else {
+        if (--Order_Timer[ewk->wu.dir_old]) {
+            return;
+        }
+
+        ewk->wu.routine_no[6]++;
+    }
+
+    if (Order_Dir[ewk->wu.dir_old] == 4) {
+        ewk->wu.mvxy.a[0].sp = -0xF0000;
+        ewk->wu.mvxy.d[0].sp = 0;
+    } else {
+        ewk->wu.mvxy.a[0].sp = 0xF0000;
+        ewk->wu.mvxy.d[0].sp = 0;
+    }
+}
+
 void EFF39_SLIDE_OUT(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[6]) {
     case 0:
-        if (ewk->wu.disp_flag == 0) {
-            ewk->wu.routine_no[1] = 99;
-        } else {
-            if (--Order_Timer[ewk->wu.dir_old]) {
-                break;
-            }
-
-            ewk->wu.routine_no[6]++;
-        }
-
-        if (Order_Dir[ewk->wu.dir_old] == 4) {
-            ewk->wu.mvxy.a[0].sp = -0xF0000;
-            ewk->wu.mvxy.d[0].sp = 0;
-        } else {
-            ewk->wu.mvxy.a[0].sp = 0xF0000;
-            ewk->wu.mvxy.d[0].sp = 0;
-        }
-
+        start_slide_out(ewk);
         break;
 
     case 1:
