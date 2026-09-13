@@ -88,6 +88,19 @@ static void update_slide_in_wait_38(WORK_Other* ewk) {
     }
 }
 
+static void update_slide_in_motion_38(WORK_Other* ewk, u16 cut) {
+    ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp * cut;
+    ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
+
+    if (0 < ewk->wu.mvxy.a[0].sp) {
+        if (ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
+            Exit_Slide_in_38(ewk);
+        }
+    } else if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
+        Exit_Slide_in_38(ewk);
+    }
+}
+
 void EFF38_SLIDE_IN(WORK_Other* ewk) {
     u16 cut = Cut_Cut_Sub(3);
 
@@ -97,17 +110,7 @@ void EFF38_SLIDE_IN(WORK_Other* ewk) {
         break;
 
     case 1:
-        ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp * cut;
-        ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
-
-        if (0 < ewk->wu.mvxy.a[0].sp) {
-            if (ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
-                Exit_Slide_in_38(ewk);
-            }
-        } else if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
-            Exit_Slide_in_38(ewk);
-        }
-
+        update_slide_in_motion_38(ewk, cut);
         break;
     }
 }
