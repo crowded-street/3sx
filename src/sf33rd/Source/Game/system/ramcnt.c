@@ -21,7 +21,7 @@ s16 rckeymin;
 void Init_ram_control_work(u8* adrs, s32 size) {
     s16 i;
 
-    mmHeapInitialize(&rckey_mmobj, adrs, size, ALIGN_UP(sizeof(_MEMMAN_CELL), 64), "- for Ramcnt -");
+    mmHeapInitialize(&rckey_mmobj, adrs, size, ALIGN_UP(sizeof(_MEMMAN_CELL), 64));
 
     for (i = 0; i < (RCKEY_WORK_MAX - 1); i++) {
         rckeyque[i] = ((RCKEY_WORK_MAX - 1) - i);

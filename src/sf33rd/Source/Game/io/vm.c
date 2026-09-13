@@ -5,4 +5,4 @@
 
 #include "common.h"
 
-s8* SystemFileName = "SystemFile";
+const char* SystemFileName = "SystemFile";

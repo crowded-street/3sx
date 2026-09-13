@@ -24,7 +24,7 @@ void zlib_Initialize(void* tempAdrs, s32 tempSize) {
         while (1) {}
     }
 
-    mmHeapInitialize(&zlib.mobj, tempAdrs, tempSize, ALIGN_UP(sizeof(_MEMMAN_CELL), 16), "- for zlib -");
+    mmHeapInitialize(&zlib.mobj, tempAdrs, tempSize, ALIGN_UP(sizeof(_MEMMAN_CELL), 16));
 
     zlib.info.zalloc = zlib_Malloc;
     zlib.info.zfree = zlib_Free;

@@ -106,12 +106,10 @@ if(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_COMPILER_ID STREQUAL "AppleCl
         -Wno-tautological-overlap-compare
         -Wno-c2x-extensions
         -Wno-incompatible-pointer-types
-        -Wno-pointer-sign
     )
 elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
     set(DISABLED_WARNINGS
         -Wno-unused-but-set-variable
-        -Wno-pointer-sign
         -Wno-parentheses
         -Wno-incompatible-pointer-types
         -Wno-discarded-qualifiers

@@ -78,7 +78,7 @@ static bool is_valid_attribute_data(Uint32 attributes_offset, Uint32 attributes_
 }
 
 static void read_string(SDL_IOStream* src, char* dst) {
-    char c;
+    Sint8 c;
 
     do {
         SDL_ReadS8(src, &c);

@@ -5,14 +5,13 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-s8 plReportMessage[2048];
+char plReportMessage[2048];
 
-s32 plReport(s8* format, ...) {
+void plReport(char* format, ...) {
     va_list args;
     va_start(args, format);
     vsnprintf(plReportMessage, sizeof(plReportMessage), format, args);
     va_end(args);
-    return 1;
 }
 
 void plMemset(void* dst, u32 pat, s32 size) {

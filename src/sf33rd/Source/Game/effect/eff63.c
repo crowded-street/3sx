@@ -21,12 +21,12 @@ void EFF63_SUDDENLY(WORK_Other_CONN* /* unused */);
 void Disp_63_Sub(WORK_Other_CONN* ewk);
 void Setup_Letter_63(WORK_Other_CONN* ewk, s16 disp_index);
 
-const s8* Letter_Data_63[3][21] = { { "-10", "-9", "-8", "-7", "-6", "-5", "-4", "-3", "-2", "-1", "0",
-                                      "1",   "2",  "3",  "4",  "5",  "6",  "7",  "8",  "9",  "10" },
-                                    { "94%", "96%", "98%", "100%", NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-                                      NULL,  NULL,  NULL,  NULL,   NULL, NULL, NULL, NULL, NULL, NULL },
-                                    { "OFF", "ON", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-                                      NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } };
+const char* Letter_Data_63[3][21] = { { "-10", "-9", "-8", "-7", "-6", "-5", "-4", "-3", "-2", "-1", "0",
+                                        "1",   "2",  "3",  "4",  "5",  "6",  "7",  "8",  "9",  "10" },
+                                      { "94%", "96%", "98%", "100%", NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+                                        NULL,  NULL,  NULL,  NULL,   NULL, NULL, NULL, NULL, NULL, NULL },
+                                      { "OFF", "ON", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+                                        NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } };
 
 void (*const EFF63_Jmp_Tbl[4])() = { EFF63_WAIT, EFF63_SLIDE_IN, EFF63_CHAR_CHANGE, EFF63_SUDDENLY };
 

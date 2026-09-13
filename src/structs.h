@@ -1029,7 +1029,7 @@ struct _VM_W {
     s32 polResult;
     s32 polNumber;
     u8 File_Type;
-    u8* File_Name;
+    const char* File_Name;
     u32 Save_Size;
     u16 Block_Size;
     u8 Icon_Type;

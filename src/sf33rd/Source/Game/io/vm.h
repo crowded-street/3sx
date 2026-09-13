@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-extern u8* SystemFileName;
+extern const char* SystemFileName;
 
 #endif
