@@ -67,30 +67,33 @@ void EFF38_SUDDENLY(WORK_Other* ewk) {
     }
 }
 
+static void update_slide_in_wait_38(WORK_Other* ewk) {
+    if (Order[ewk->wu.dir_old] != 1) {
+        if (ewk->master_id == 0) {
+            ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos - 128;
+            ewk->wu.xyz[1].disp.pos = ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + 32;
+        } else {
+            ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + 128;
+            ewk->wu.xyz[1].disp.pos = ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos - 32;
+        }
+
+        Order[ewk->wu.dir_old] = 1;
+        return;
+    }
+
+    if (--Order_Timer[ewk->wu.dir_old] == 0) {
+        ewk->wu.routine_no[6]++;
+        ewk->wu.disp_flag = 1;
+        set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+    }
+}
+
 void EFF38_SLIDE_IN(WORK_Other* ewk) {
     u16 cut = Cut_Cut_Sub(3);
 
     switch (ewk->wu.routine_no[6]) {
     case 0:
-        if (Order[ewk->wu.dir_old] != 1) {
-            if (ewk->master_id == 0) {
-                ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos - 128;
-                ewk->wu.xyz[1].disp.pos = ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + 32;
-            } else {
-                ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + 128;
-                ewk->wu.xyz[1].disp.pos = ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos - 32;
-            }
-
-            Order[ewk->wu.dir_old] = 1;
-            break;
-        }
-
-        if (--Order_Timer[ewk->wu.dir_old] == 0) {
-            ewk->wu.routine_no[6]++;
-            ewk->wu.disp_flag = 1;
-            set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
-        }
-
+        update_slide_in_wait_38(ewk);
         break;
 
     case 1:
