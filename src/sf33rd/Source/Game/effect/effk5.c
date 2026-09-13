@@ -75,6 +75,30 @@ static s32 encoded_delay_is_valid(u8 delay) {
     return (delay != 0xFF) || (delay < 0xC8);
 }
 
+static void initialize_effect_K5(WORK_Other* ewk, WORK* mwk) {
+    MVJ* mvj;
+
+    ewk->wu.routine_no[0] += 1;
+
+    if (get_cal_work(&ewk->wu) == -1) {
+        ewk->wu.routine_no[0] = 3;
+        return;
+    }
+
+    // This line is bullshit. Effect K5 needs some space for MVJ manipulation. Instead of allocating
+    // space for that somewhere else they decided to use some of the space dedicated to effect work.
+    // Why did they choose routine_no as the starting offset specifically? They did that because it's
+    // the first var of WORK that is not used for effect scheduling. If they chose an earlier address
+    // that would lead to crashes and infinite loops. Fun times!
+    // There's one more line just like this one down below.
+    mvj = (MVJ*)(((WORK*)ewk->wu.target_adrs)->routine_no);
+
+    init_K5_work(&ewk->wu, mwk, mvj);
+    ewk->wu.old_rno[1] = mwk->cg_hit_ix;
+    get_table_adrs_K5(mwk);
+    K5_init_data(mwk, mvj, (u16*)(&mwk->cg_ja));
+}
+
 
 void effect_K5_move(WORK_Other* ewk) {
     WORK* mwk = (WORK*)ewk->my_master;
@@ -82,25 +106,7 @@ void effect_K5_move(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0] += 1;
-
-        if (get_cal_work(&ewk->wu) == -1) {
-            ewk->wu.routine_no[0] = 3;
-            return;
-        }
-
-        // This line is bullshit. Effect K5 needs some space for MVJ manipulation. Instead of allocating
-        // space for that somewhere else they decided to use some of the space dedicated to effect work.
-        // Why did they choose routine_no as the starting offset specifically? They did that because it's
-        // the first var of WORK that is not used for effect scheduling. If they chose an earlier address
-        // that would lead to crashes and infinite loops. Fun times!
-        // There's one more line just like this one down below.
-        mvj = (MVJ*)(((WORK*)ewk->wu.target_adrs)->routine_no);
-
-        init_K5_work(&ewk->wu, mwk, mvj);
-        ewk->wu.old_rno[1] = mwk->cg_hit_ix;
-        get_table_adrs_K5(mwk);
-        K5_init_data(mwk, mvj, (u16*)(&mwk->cg_ja));
+        initialize_effect_K5(ewk, mwk);
         break;
 
     case 1:
