@@ -133,6 +133,38 @@ const s16 hit_mark_hosei_table[108][2] = {
     { -72, 0 },   { -48, 104 }, { 0, 2 },     { -48, 50 }
 };
 
+static void setup_hit_mark_properties(WORK_Other* ewk, const HMDT* tad) {
+    if (tad->status & 8) {
+        ewk->wu.disp_flag = 2;
+    } else {
+        ewk->wu.disp_flag = 1;
+    }
+
+    if (tad->status & 0x40) {
+        if (((PLW*)ewk->wu.target_adrs)->wu.work_id == 1) {
+            ewk->wu.dir_timer = ((PLW*)ewk->wu.target_adrs)->player_number;
+        } else {
+            ewk->wu.dir_timer = ((WORK_Other*)ewk->wu.target_adrs)->master_player;
+        }
+    }
+
+    if (tad->col) {
+        ewk->wu.my_col_code = hcct[tad->col];
+    } else if (tad->status & 0x80) {
+        ewk->wu.my_col_code = ((PLW*)ewk->wu.target_adrs)->wu.my_col_code;
+    }
+
+    if (tad->se) {
+        urian_guard_se_check(ewk, (PLW*)ewk->wu.target_adrs, tad->se);
+    } else {
+        Last_Called_SE = 0;
+    }
+
+    if (tad->status & 4) {
+        ewk->wu.rl_flag = ewk->wu.dm_rl;
+    }
+}
+
 void effect_02_move(WORK_Other* ewk) {
     const HMDT* tad;
     const EXPLEM* edt;
@@ -169,35 +201,7 @@ void effect_02_move(WORK_Other* ewk) {
             break;
         }
 
-        if (tad->status & 8) {
-            ewk->wu.disp_flag = 2;
-        } else {
-            ewk->wu.disp_flag = 1;
-        }
-
-        if (tad->status & 0x40) {
-            if (((PLW*)ewk->wu.target_adrs)->wu.work_id == 1) {
-                ewk->wu.dir_timer = ((PLW*)ewk->wu.target_adrs)->player_number;
-            } else {
-                ewk->wu.dir_timer = ((WORK_Other*)ewk->wu.target_adrs)->master_player;
-            }
-        }
-
-        if (tad->col) {
-            ewk->wu.my_col_code = hcct[tad->col];
-        } else if (tad->status & 0x80) {
-            ewk->wu.my_col_code = ((PLW*)ewk->wu.target_adrs)->wu.my_col_code;
-        }
-
-        if (tad->se) {
-            urian_guard_se_check(ewk, (PLW*)ewk->wu.target_adrs, tad->se);
-        } else {
-            Last_Called_SE = 0;
-        }
-
-        if (tad->status & 4) {
-            ewk->wu.rl_flag = ewk->wu.dm_rl;
-        }
+        setup_hit_mark_properties(ewk, tad);
 
         if (tad->status & 0x10) {
             if (tad->status & 0x20) {
