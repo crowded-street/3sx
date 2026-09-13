@@ -115,6 +115,23 @@ static void initialize_slide_in_K6(WORK_Other* ewk) {
     set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
 }
 
+static void update_slide_in_motion_K6(WORK_Other* ewk) {
+    ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
+    ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
+
+    if (0 < ewk->wu.mvxy.a[0].sp) {
+        if (ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
+            finish_slide_in_K6(ewk);
+        }
+
+        return;
+    }
+
+    if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
+        finish_slide_in_K6(ewk);
+    }
+}
+
 void EFFK6_SLIDE_IN(WORK_Other* ewk) {
     if ((Order[ewk->wu.dir_old]) == 5) {
         ewk->wu.routine_no[0] = 5;
@@ -128,21 +145,7 @@ void EFFK6_SLIDE_IN(WORK_Other* ewk) {
         break;
 
     default:
-        ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
-        ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
-
-        if (0 < ewk->wu.mvxy.a[0].sp) {
-            if (ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
-                finish_slide_in_K6(ewk);
-            }
-
-            break;
-        }
-
-        if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
-            finish_slide_in_K6(ewk);
-        }
-
+        update_slide_in_motion_K6(ewk);
         break;
     }
 }
