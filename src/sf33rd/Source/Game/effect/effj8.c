@@ -76,9 +76,13 @@ void dragonfly_l_move_0(WORK_Other* ewk) {
     ewk->wu.xyz[1].disp.low = 0;
 }
 
-void dragonfly_l_move_1(WORK_Other* ewk) {
+static void dragonfly_direction_move_1(WORK_Other* ewk, s16 dir_type) {
     char_move(&ewk->wu);
-    dragonfly_line_set(ewk, 0);
+    dragonfly_line_set(ewk, dir_type);
+}
+
+void dragonfly_l_move_1(WORK_Other* ewk) {
+    dragonfly_direction_move_1(ewk, 0);
 }
 
 s16 dragonfly_l_move_2(WORK_Other* ewk) {
@@ -190,8 +194,7 @@ void dragonfly_r_move_0(WORK_Other* ewk) {
 }
 
 void dragonfly_r_move_1(WORK_Other* ewk) {
-    char_move(&ewk->wu);
-    dragonfly_line_set(ewk, 1);
+    dragonfly_direction_move_1(ewk, 1);
 }
 
 s16 dragonfly_r_move_2(WORK_Other* ewk) {
