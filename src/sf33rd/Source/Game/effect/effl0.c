@@ -27,6 +27,12 @@ static s32 should_continue_flash(const WORK_Other* ewk, const PLW* mwk) {
             (!(mwk->wu.kind_of_waza & 0x20) && mwk->wu.char_index != 0x40 && mwk->wu.char_index != 1));
 }
 
+static void tick_flash_timer(WORK_Other* ewk, const PLW* mwk) {
+    if (mwk->sa_stop_flag != 1) {
+        ewk->wu.dir_timer--;
+    }
+}
+
 static void update_player_flash(const WORK_Other* ewk, PLW* mwk) {
     if (ewk->wu.dir_timer >= 30) {
         return;
@@ -64,9 +70,7 @@ void effect_L0_move(WORK_Other* ewk) {
             break;
         }
 
-        if (mwk->sa_stop_flag != 1) {
-            ewk->wu.dir_timer--;
-        }
+        tick_flash_timer(ewk, mwk);
 
         if (should_continue_flash(ewk, mwk)) {
             update_player_flash(ewk, mwk);
