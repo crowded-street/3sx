@@ -13,9 +13,12 @@ static s32 effect_is_alive(const WORK_Other* ewk) {
     return ewk->wu.dead_f == 0 && Suicide[0] == 0;
 }
 
+static s32 player_routine_allows_flash(const PLW* mwk) {
+    return mwk->wu.routine_no[1] != 1 && mwk->wu.routine_no[1] != 2 && mwk->wu.routine_no[1] != 3;
+}
+
 static s32 should_continue_flash(const WORK_Other* ewk, const PLW* mwk) {
-    return ewk->wu.dead_f == 0 && ewk->wu.dir_timer > 0 && mwk->wu.routine_no[1] != 1 &&
-           mwk->wu.routine_no[1] != 2 && mwk->wu.routine_no[1] != 3 &&
+    return ewk->wu.dead_f == 0 && ewk->wu.dir_timer > 0 && player_routine_allows_flash(mwk) &&
            (mwk->wu.now_koc != 5 ||
             (!(mwk->wu.kind_of_waza & 0x20) && mwk->wu.char_index != 0x40 && mwk->wu.char_index != 1));
 }
