@@ -517,11 +517,13 @@ s32 msgConvertObjNum(u8* moji, s32* spc, s32* hz, u16* num, u8 hzSel) {
         tmpstr[2] = 0;
 
         if (tmpstr[0] == ' ') {
-            goto one;
+            rnum = 1;
+            goto spacing;
         }
 
         if (strcmp(&tmpstr[0], "\x62\x68") == 0) {
-            goto two;
+            rnum = 2;
+            goto spacing;
         }
 
         if (is_spacing_code(tmpstr)) {
@@ -551,7 +553,7 @@ s32 msgConvertObjNum(u8* moji, s32* spc, s32* hz, u16* num, u8 hzSel) {
     rnum = prepare_half_width_text_B6(moji, tmpstr);
 
     if (tmpstr[0] == ' ') {
-        goto one;
+        goto spacing;
     }
 
     if (find_han_character_2(&tmpstr[0], num)) {
@@ -560,17 +562,11 @@ s32 msgConvertObjNum(u8* moji, s32* spc, s32* hz, u16* num, u8 hzSel) {
         return rnum;
     }
 
-one:
+spacing:
     *hz = 0;
     *spc = 1;
     *num = 0;
-    return 1;
-
-two:
-    *hz = 0;
-    *spc = 1;
-    *num = 0;
-    return 2;
+    return rnum;
 
 three:
     *hz = 1;
