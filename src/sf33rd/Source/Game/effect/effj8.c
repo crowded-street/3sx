@@ -511,6 +511,21 @@ void dragonfly_move_next(WORK_Other* ewk) {
     ewk->wu.routine_no[3] = 0;
 }
 
+static void initialize_dragonfly_position(WORK_Other* ewk) {
+    switch (ewk->wu.type) {
+    case 0:
+        ewk->wu.routine_no[1] = 4;
+        ewk->wu.xyz[0].disp.pos = 16;
+        ewk->wu.xyz[1].disp.pos = 120;
+        break;
+    case 1:
+        ewk->wu.routine_no[1] = 0;
+        ewk->wu.xyz[0].disp.pos = -1;
+        ewk->wu.xyz[1].disp.pos = 104;
+        break;
+    }
+}
+
 s32 effect_J8_init() {
     WORK_Other* ewk;
     s16 ix;
@@ -535,18 +550,7 @@ s32 effect_J8_init() {
         ewk->wu.my_mts = 7;
         ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
 
-        switch (ewk->wu.type) {
-        case 0:
-            ewk->wu.routine_no[1] = 4;
-            ewk->wu.xyz[0].disp.pos = 16;
-            ewk->wu.xyz[1].disp.pos = 120;
-            break;
-        case 1:
-            ewk->wu.routine_no[1] = 0;
-            ewk->wu.xyz[0].disp.pos = -1;
-            ewk->wu.xyz[1].disp.pos = 104;
-            break;
-        }
+        initialize_dragonfly_position(ewk);
 
         ewk->wu.my_priority = ewk->wu.position_z = 83;
         ewk->wu.char_index = 4;
