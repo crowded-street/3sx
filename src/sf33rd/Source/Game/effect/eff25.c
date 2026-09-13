@@ -68,6 +68,12 @@ void effect_25_move(WORK_Other* ewk) {
     }
 }
 
+static void update_eff25_hit_stop(WORK_Other* ewk) {
+    if (ewk->wu.hit_stop && !EXE_obroll) {
+        char_move(&ewk->wu);
+    }
+}
+
 static void update_eff25_00_hit_response(WORK_Other* ewk) {
     if (eff_hit_check(ewk, ewk->wu.old_rno[4])) {
         piece_set(ewk);
@@ -76,9 +82,7 @@ static void update_eff25_00_hit_response(WORK_Other* ewk) {
         return;
     }
 
-    if (ewk->wu.hit_stop && !EXE_obroll) {
-        char_move(&ewk->wu);
-    }
+    update_eff25_hit_stop(ewk);
 }
 
 void eff25_00(WORK_Other* ewk) {
@@ -121,9 +125,7 @@ static void update_eff25_animated_hit_response(WORK_Other* ewk) {
         return;
     }
 
-    if (ewk->wu.hit_stop && !EXE_obroll) {
-        char_move(&ewk->wu);
-    }
+    update_eff25_hit_stop(ewk);
 }
 
 static void update_eff25_animation(WORK_Other* ewk) {
@@ -185,10 +187,7 @@ void eff25_04(WORK_Other* ewk) {
             break;
         }
 
-        if (ewk->wu.hit_stop && !EXE_obroll) {
-            char_move(&ewk->wu);
-        }
-
+        update_eff25_hit_stop(ewk);
         break;
 
     case 2:
