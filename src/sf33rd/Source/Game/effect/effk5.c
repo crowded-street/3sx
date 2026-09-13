@@ -206,6 +206,12 @@ static void update_K5_control_flow(WORK* ewk, WORK* mwk, GOTCP* gotcp) {
     }
 }
 
+static void update_matching_delay_K5(WORK* ewk, GOTCP* gotcp) {
+    if (encoded_delay_is_valid(gotcp->cpc[1])) {
+        ewk->old_rno[0] += gotcp->cpc[1];
+    }
+}
+
 void get_okuri_time(WORK* ewk, WORK* mwk, MVJ* mvj) {
     GOTCP gotcp;
     ST st;
@@ -228,10 +234,7 @@ void get_okuri_time(WORK* ewk, WORK* mwk, MVJ* mvj) {
                 ewk->cg_hit_ix = st.w.h & 0x1FF;
 
                 if (ewk->old_rno[1] == ewk->cg_hit_ix) {
-                    if (encoded_delay_is_valid(gotcp.cpc[1])) {
-                        ewk->old_rno[0] += gotcp.cpc[1];
-                    }
-
+                    update_matching_delay_K5(ewk, &gotcp);
                     continue;
                 }
 
