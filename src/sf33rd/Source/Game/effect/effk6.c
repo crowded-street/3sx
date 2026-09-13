@@ -84,9 +84,38 @@ static void finish_slide_in_K6(WORK_Other* ewk) {
     ewk->wu.routine_no[0] = 0;
 }
 
-void EFFK6_SLIDE_IN(WORK_Other* ewk) {
+static void initialize_slide_in_K6(WORK_Other* ewk) {
     s16 xx;
 
+    if (--Order_Timer[ewk->wu.dir_old]) {
+        return;
+    }
+
+    ewk->wu.routine_no[1]++;
+    ewk->wu.disp_flag = 1;
+
+    if (uses_special_direction(ewk)) {
+        xx = ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]];
+        Setup_1st_PosK6(ewk, xx, Play_Type);
+    } else {
+        xx = ewk->wu.dir_step;
+        Setup_1st_PosK6(ewk, xx, Play_Type);
+
+        if (ewk->wu.direction == 25 && xx != 0) {
+            ewk->wu.xyz[0].disp.pos += 8;
+            ewk->wu.hit_quake += 8;
+
+            if (ewk->wu.mvxy.a[0].sp > 0) {
+                ewk->wu.xyz[0].disp.pos += 8;
+                ewk->wu.hit_quake += 8;
+            }
+        }
+    }
+
+    set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+}
+
+void EFFK6_SLIDE_IN(WORK_Other* ewk) {
     if ((Order[ewk->wu.dir_old]) == 5) {
         ewk->wu.routine_no[0] = 5;
         ewk->wu.routine_no[1] = 0;
@@ -95,32 +124,7 @@ void EFFK6_SLIDE_IN(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old]) {
-            break;
-        }
-
-        ewk->wu.routine_no[1]++;
-        ewk->wu.disp_flag = 1;
-
-        if (uses_special_direction(ewk)) {
-            xx = ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]];
-            Setup_1st_PosK6(ewk, xx, Play_Type);
-        } else {
-            xx = ewk->wu.dir_step;
-            Setup_1st_PosK6(ewk, xx, Play_Type);
-
-            if (ewk->wu.direction == 25 && xx != 0) {
-                ewk->wu.xyz[0].disp.pos += 8;
-                ewk->wu.hit_quake += 8;
-
-                if (ewk->wu.mvxy.a[0].sp > 0) {
-                    ewk->wu.xyz[0].disp.pos += 8;
-                    ewk->wu.hit_quake += 8;
-                }
-            }
-        }
-
-        set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+        initialize_slide_in_K6(ewk);
         break;
 
     default:
