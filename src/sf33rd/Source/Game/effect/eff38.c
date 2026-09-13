@@ -187,34 +187,38 @@ void EFF38_KILL(WORK_Other* ewk) {
     }
 }
 
+static void initialize_shift_38(WORK_Other* ewk) {
+    if (--Order_Timer[ewk->wu.dir_old] != 0) {
+        return;
+    }
+
+    ewk->wu.routine_no[1]++;
+
+    if (ewk->master_id == 0) {
+        ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + EFF38_Base_XY[ewk->master_id][1][0] +
+                            EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][0];
+        ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + EFF38_Base_XY[ewk->master_id][1][1] +
+                            EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][1];
+        ewk->wu.mvxy.a[0].sp = -0x60000;
+        ewk->wu.mvxy.a[1].sp = 0x30000;
+        cal_delta_speed(&ewk->wu, 10, ewk->wu.hit_quake, ewk->wu.vital_new, 1, 1);
+        ewk->wu.dir_timer = 10;
+    } else {
+        ewk->wu.hit_quake = 128 + bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos +
+                            EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][0];
+        ewk->wu.vital_new = -32 + bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos +
+                            EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][1];
+        ewk->wu.mvxy.a[0].sp = 0x60000;
+        ewk->wu.mvxy.a[1].sp = -0x30000;
+        cal_delta_speed(&ewk->wu, 10, ewk->wu.hit_quake, ewk->wu.vital_new, 1, 1);
+        ewk->wu.dir_timer = 10;
+    }
+}
+
 void EFF38_SHIFT(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old] != 0) {
-            break;
-        }
-
-        ewk->wu.routine_no[1]++;
-
-        if (ewk->master_id == 0) {
-            ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + EFF38_Base_XY[ewk->master_id][1][0] +
-                                EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][0];
-            ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + EFF38_Base_XY[ewk->master_id][1][1] +
-                                EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][1];
-            ewk->wu.mvxy.a[0].sp = -0x60000;
-            ewk->wu.mvxy.a[1].sp = 0x30000;
-            cal_delta_speed(&ewk->wu, 10, ewk->wu.hit_quake, ewk->wu.vital_new, 1, 1);
-            ewk->wu.dir_timer = 10;
-        } else {
-            ewk->wu.hit_quake = 128 + bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos +
-                                EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][0];
-            ewk->wu.vital_new = -32 + bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos +
-                                EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][1];
-            ewk->wu.mvxy.a[0].sp = 0x60000;
-            ewk->wu.mvxy.a[1].sp = -0x30000;
-            cal_delta_speed(&ewk->wu, 10, ewk->wu.hit_quake, ewk->wu.vital_new, 1, 1);
-            ewk->wu.dir_timer = 10;
-        }
+        initialize_shift_38(ewk);
 
         break;
 
