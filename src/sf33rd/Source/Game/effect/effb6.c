@@ -368,6 +368,14 @@ void effect_B6_move(WORK_Other_CONN* ewk) {
     }
 }
 
+static s32 message_advance_B6(s32 hzflag, s32 slideX) {
+    if (hzflag) {
+        return slideX * 2;
+    }
+
+    return slideX;
+}
+
 void get_message_conn_data(WORK_Other_CONN* ewk, s16 kind, s16 pl, s16 msg) {
     u8** msghead;
     u8* msgtbl;
@@ -419,11 +427,7 @@ void get_message_conn_data(WORK_Other_CONN* ewk, s16 kind, s16 pl, s16 msg) {
                 }
             }
 
-            if (hzflag) {
-                currX += slideX * 2;
-            } else {
-                currX += slideX;
-            }
+            currX += message_advance_B6(hzflag, slideX);
         }
 
         currX = 0;
