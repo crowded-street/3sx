@@ -13,6 +13,10 @@ static s32 effect_is_alive(const WORK_Other* ewk) {
     return ewk->wu.dead_f == 0 && Suicide[0] == 0;
 }
 
+static s32 effect_is_paused(void) {
+    return Game_pause || EXE_flag;
+}
+
 static s32 player_routine_allows_flash(const PLW* mwk) {
     return mwk->wu.routine_no[1] != 1 && mwk->wu.routine_no[1] != 2 && mwk->wu.routine_no[1] != 3;
 }
@@ -56,7 +60,7 @@ void effect_L0_move(WORK_Other* ewk) {
             break;
         }
 
-        if (Game_pause || EXE_flag) {
+        if (effect_is_paused()) {
             break;
         }
 
