@@ -11,37 +11,41 @@
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/rendering/texcash.h"
 
+static void update_left_connection_67(WORK_Other_CONN* ewk) {
+    switch (ewk->wu.routine_no[1]) {
+    case 0:
+        ewk->wu.routine_no[1]++;
+        ewk->wu.disp_flag = 1;
+        set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+        break;
+
+    case 1:
+        if (!--ewk->wu.dir_timer) {
+            ewk->wu.routine_no[1]++;
+            ewk->wu.dir_timer = 40;
+        }
+
+        break;
+
+    case 2:
+        if (--ewk->wu.dir_timer) {
+            ewk->wu.xyz[0].disp.pos = ewk->wu.xyz[0].disp.pos - 10;
+        } else {
+            ewk->wu.routine_no[0] = 3;
+        }
+
+        break;
+    }
+
+    ewk->wu.position_x = ewk->wu.xyz[0].disp.pos & 0xFFFF;
+    ewk->wu.position_y = ewk->wu.xyz[1].disp.pos & 0xFFFF;
+    sort_push_request4(&ewk->wu);
+}
+
 void effect_67_move(WORK_Other_CONN* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        switch (ewk->wu.routine_no[1]) {
-        case 0:
-            ewk->wu.routine_no[1]++;
-            ewk->wu.disp_flag = 1;
-            set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
-            break;
-
-        case 1:
-            if (!--ewk->wu.dir_timer) {
-                ewk->wu.routine_no[1]++;
-                ewk->wu.dir_timer = 40;
-            }
-
-            break;
-
-        case 2:
-            if (--ewk->wu.dir_timer) {
-                ewk->wu.xyz[0].disp.pos = ewk->wu.xyz[0].disp.pos - 10;
-            } else {
-                ewk->wu.routine_no[0] = 3;
-            }
-
-            break;
-        }
-
-        ewk->wu.position_x = ewk->wu.xyz[0].disp.pos & 0xFFFF;
-        ewk->wu.position_y = ewk->wu.xyz[1].disp.pos & 0xFFFF;
-        sort_push_request4(&ewk->wu);
+        update_left_connection_67(ewk);
         break;
 
     case 1:
