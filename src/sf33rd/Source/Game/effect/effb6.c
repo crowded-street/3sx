@@ -440,11 +440,11 @@ void get_message_conn_data(WORK_Other_CONN* ewk, s16 kind, s16 pl, s16 msg) {
     ewk->num_of_conn = mjcnt;
 }
 
-static const u8* find_han_character_3(const u8* text, u16* number) {
+static const u8* find_han_character(const u8* text, u16* number, s32 table_count) {
     s32 i;
     s32 j;
 
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < table_count; i++) {
         for (j = 0; j < 128; j++) {
             if (strcmp(text, han_adrs[i][j]) != 0) {
                 continue;
@@ -476,24 +476,6 @@ static const u8* find_zen_character(const u8* text, u16* number) {
     return NULL;
 }
 
-static const u8* find_han_character_2(const u8* text, u16* number) {
-    s32 i;
-    s32 j;
-
-    for (i = 0; i < 2; i++) {
-        for (j = 0; j < 128; j++) {
-            if (strcmp(text, han_adrs[i][j]) != 0) {
-                continue;
-            }
-
-            *number = j + (i * 128) + 0x7F30;
-            return text;
-        }
-    }
-
-    return NULL;
-}
-
 static s32 prepare_half_width_text_B6(u8* moji, u8* tmpstr) {
     if (moji[0] == 0x5E) {
         tmpstr[0] = moji[0];
@@ -511,7 +493,7 @@ static const u8* find_converted_han_character_3(u8* tmpstr, u16* number) {
     if (msgCheckCodeSize(tmpstr[0]) == 1) {
         tmpstr[1] = ((u8**)src_han_zen_conv)[tmpstr[0]][1];
         tmpstr[0] = ((u8**)src_han_zen_conv)[tmpstr[0]][0];
-        return find_han_character_3(&tmpstr[0], number);
+        return find_han_character(&tmpstr[0], number, 3);
     }
 
     return NULL;
@@ -561,7 +543,7 @@ s32 msgConvertObjNum(u8* moji, s32* spc, s32* hz, u16* num, u8 hzSel) {
         goto spacing;
     }
 
-    if (find_han_character_2(&tmpstr[0], num)) {
+    if (find_han_character(&tmpstr[0], num, 2)) {
         *hz = 0;
         *spc = 0;
         return rnum;
