@@ -150,27 +150,30 @@ void EFFK6_SLIDE_IN(WORK_Other* ewk) {
     }
 }
 
+static void initialize_slide_out_K6(WORK_Other* ewk) {
+    if (ewk->wu.disp_flag == 0) {
+        ewk->wu.routine_no[1] = 99;
+    } else {
+        if (--Order_Timer[ewk->wu.dir_old]) {
+            return;
+        }
+
+        ewk->wu.routine_no[1]++;
+    }
+
+    if (Order_Dir[ewk->wu.dir_old] == 4) {
+        ewk->wu.mvxy.a[0].sp = -0xF0000;
+        ewk->wu.mvxy.d[0].sp = 0;
+    } else {
+        ewk->wu.mvxy.a[0].sp = 0xF0000;
+        ewk->wu.mvxy.d[0].sp = 0;
+    }
+}
+
 void EFFK6_SLIDE_OUT(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (ewk->wu.disp_flag == 0) {
-            ewk->wu.routine_no[1] = 99;
-        } else {
-            if (--Order_Timer[ewk->wu.dir_old]) {
-                break;
-            }
-
-            ewk->wu.routine_no[1]++;
-        }
-
-        if (Order_Dir[ewk->wu.dir_old] == 4) {
-            ewk->wu.mvxy.a[0].sp = -0xF0000;
-            ewk->wu.mvxy.d[0].sp = 0;
-        } else {
-            ewk->wu.mvxy.a[0].sp = 0xF0000;
-            ewk->wu.mvxy.d[0].sp = 0;
-        }
-
+        initialize_slide_out_K6(ewk);
         break;
 
     case 1:
