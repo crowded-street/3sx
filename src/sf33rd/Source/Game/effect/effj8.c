@@ -117,7 +117,7 @@ s16 dragonfly_l_move_3(WORK_Other* ewk) {
     return 0;
 }
 
-s16 dragonfly_l_move_4(WORK_Other* ewk) {
+static s16 dragonfly_turn_move_4(WORK_Other* ewk) {
     char_move(&ewk->wu);
     ewk->wu.dir_timer--;
 
@@ -127,6 +127,10 @@ s16 dragonfly_l_move_4(WORK_Other* ewk) {
     }
 
     return 0;
+}
+
+s16 dragonfly_l_move_4(WORK_Other* ewk) {
+    return dragonfly_turn_move_4(ewk);
 }
 
 static void update_dragonfly_wait(WORK_Other* ewk) {
@@ -227,15 +231,7 @@ s16 dragonfly_r_move_3(WORK_Other* ewk) {
 }
 
 s16 dragonfly_r_move_4(WORK_Other* ewk) {
-    char_move(&ewk->wu);
-    ewk->wu.dir_timer--;
-
-    if (ewk->wu.dir_timer <= 0) {
-        set_char_move_init(&ewk->wu, 0, 4);
-        return 1;
-    }
-
-    return 0;
+    return dragonfly_turn_move_4(ewk);
 }
 
 void dragonfly_r_move(WORK_Other* ewk) {
