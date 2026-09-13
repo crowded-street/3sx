@@ -264,14 +264,10 @@ void get_okuri_time(WORK* ewk, WORK* mwk, MVJ* mvj) {
     ewk->routine_no[1] = 2;
 }
 
-void K5_decode_new_hit_index(WORK* wk, MVJ* mvj, u16 mf) {
+static void update_body_motion_K5(WORK* wk, MVJ* mvj, MVSW mvsw) {
     s16 i;
     s16 t0;
     s16 t1;
-    MVSW mvsw;
-
-    get_table_adrs_K5(wk);
-    mvsw.swi = decode_mvsw(mf);
 
     if (wk->cg_ja.boix != mvj[0].index) {
         for (i = 0; i < 4; i++) {
@@ -316,6 +312,18 @@ void K5_decode_new_hit_index(WORK* wk, MVJ* mvj, u16 mf) {
             mvj[i].index = wk->cg_ja.boix;
         }
     }
+}
+
+void K5_decode_new_hit_index(WORK* wk, MVJ* mvj, u16 mf) {
+    s16 i;
+    s16 t0;
+    s16 t1;
+    MVSW mvsw;
+
+    get_table_adrs_K5(wk);
+    mvsw.swi = decode_mvsw(mf);
+
+    update_body_motion_K5(wk, mvj, mvsw);
 
     if (mvj[4].index != (wk->cg_ja.bhix + wk->cg_ja.haix)) {
         for (i = 4; i < 8; i++) {
