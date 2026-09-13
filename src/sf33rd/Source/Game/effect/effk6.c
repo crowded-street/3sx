@@ -67,6 +67,23 @@ void EFFK6_WAIT(WORK_Other* ewk) {
     }
 }
 
+static void finish_slide_in_K6(WORK_Other* ewk) {
+    if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
+        Order[ewk->wu.dir_old] = 0;
+    }
+
+    ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
+
+    if (ewk->wu.dir_old < 31) {
+        Order[ewk->wu.dir_old] = 4;
+        ewk->wu.routine_no[0] = 4;
+        ewk->wu.routine_no[6] = 0;
+        return;
+    }
+
+    ewk->wu.routine_no[0] = 0;
+}
+
 void EFFK6_SLIDE_IN(WORK_Other* ewk) {
     s16 xx;
 
@@ -112,40 +129,14 @@ void EFFK6_SLIDE_IN(WORK_Other* ewk) {
 
         if (0 < ewk->wu.mvxy.a[0].sp) {
             if (ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
-                if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
-                    Order[ewk->wu.dir_old] = 0;
-                }
-
-                ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
-
-                if (ewk->wu.dir_old < 31) {
-                    Order[ewk->wu.dir_old] = 4;
-                    ewk->wu.routine_no[0] = 4;
-                    ewk->wu.routine_no[6] = 0;
-                    break;
-                }
-
-                ewk->wu.routine_no[0] = 0;
+                finish_slide_in_K6(ewk);
             }
 
             break;
         }
 
         if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
-            if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
-                Order[ewk->wu.dir_old] = 0;
-            }
-
-            ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
-
-            if (ewk->wu.dir_old < 31) {
-                Order[ewk->wu.dir_old] = 4;
-                ewk->wu.routine_no[0] = 4;
-                ewk->wu.routine_no[6] = 0;
-                break;
-            }
-
-            ewk->wu.routine_no[0] = 0;
+            finish_slide_in_K6(ewk);
         }
 
         break;
