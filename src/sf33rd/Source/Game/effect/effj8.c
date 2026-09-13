@@ -322,6 +322,14 @@ const s16 effj8_timer_tbl[8] = { 60, 120, 180, 90, 150, 30, 220, 160 };
 
 const s16 effj8_y_tbl[8] = { 128, 80, 96, 160, 176, 112, 144, 168 };
 
+static void update_dragonfly_left_turn_J8(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+
+    if (dragonfly_l_move_4(ewk)) {
+        ewk->wu.routine_no[2] = 2;
+    }
+}
+
 void dragonfly_move_0001(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[2]) {
     case 0:
@@ -356,13 +364,7 @@ void dragonfly_move_0001(WORK_Other* ewk) {
         break;
 
     case 5:
-        char_move(&ewk->wu);
-
-        if (dragonfly_l_move_4(ewk)) {
-            ewk->wu.routine_no[2] = 2;
-            break;
-        }
-
+        update_dragonfly_left_turn_J8(ewk);
         break;
 
     default:
