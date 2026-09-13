@@ -316,6 +316,26 @@ static s32 is_double_width_code(u8 data) {
     return data >= 128 && data < 160;
 }
 
+static void update_message_state_B6(WORK_Other_CONN* ewk) {
+    switch (ewk->wu.routine_no[1]) {
+    case 0:
+        ewk->wu.routine_no[1]++;
+        ot_mot[0] = *ot_cgf;
+        ot_mot_of[0] = ot_all_of[0];
+        ot_mot_of[1] = ot_all_of[1];
+        get_message_conn_data(ewk, ot_mot[0], ot_mot_of[0], ot_mot_of[1]);
+        ewk->wu.disp_flag = 1;
+        break;
+
+    case 1:
+        if (ot_mot[1]) {
+            ewk->wu.routine_no[1] = 0;
+        }
+
+        break;
+    }
+}
+
 
 void effect_B6_move(WORK_Other_CONN* ewk) {
     switch (ewk->wu.routine_no[0]) {
@@ -337,23 +357,7 @@ void effect_B6_move(WORK_Other_CONN* ewk) {
         ewk->wu.position_x = ot_pat[0];
         ewk->wu.position_y = ot_pat[1];
 
-        switch (ewk->wu.routine_no[1]) {
-        case 0:
-            ewk->wu.routine_no[1]++;
-            ot_mot[0] = *ot_cgf;
-            ot_mot_of[0] = ot_all_of[0];
-            ot_mot_of[1] = ot_all_of[1];
-            get_message_conn_data(ewk, ot_mot[0], ot_mot_of[0], ot_mot_of[1]);
-            ewk->wu.disp_flag = 1;
-            break;
-
-        case 1:
-            if (ot_mot[1]) {
-                ewk->wu.routine_no[1] = 0;
-            }
-
-            break;
-        }
+        update_message_state_B6(ewk);
 
         sort_push_request3(&ewk->wu);
         break;
