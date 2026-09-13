@@ -69,6 +69,17 @@ void EFF39_SUDDENLY(WORK_Other* ewk) {
     set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
 }
 
+static void finish_slide_in(WORK_Other* ewk) {
+    ewk->wu.routine_no[0] = 4;
+    Order[ewk->wu.dir_old] = 4;
+    ewk->wu.routine_no[6] = 0;
+    ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
+
+    if (--Select_Start[ewk->master_id] < 0) {
+        Select_Start[ewk->master_id] = 0;
+    }
+}
+
 void EFF39_SLIDE_IN(WORK_Other* ewk) {
     if (Order[ewk->wu.dir_old] == 5) {
         ewk->wu.routine_no[0] = 5;
@@ -111,28 +122,14 @@ void EFF39_SLIDE_IN(WORK_Other* ewk) {
 
         if (0 < ewk->wu.mvxy.a[0].sp) {
             if (ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
-                ewk->wu.routine_no[0] = 4;
-                Order[ewk->wu.dir_old] = 4;
-                ewk->wu.routine_no[6] = 0;
-                ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
-
-                if (--Select_Start[ewk->master_id] < 0) {
-                    Select_Start[ewk->master_id] = 0;
-                }
+                finish_slide_in(ewk);
             }
 
             break;
         }
 
         if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
-            ewk->wu.routine_no[0] = 4;
-            Order[ewk->wu.dir_old] = 4;
-            ewk->wu.routine_no[6] = 0;
-            ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
-
-            if (--Select_Start[ewk->master_id] < 0) {
-                Select_Start[ewk->master_id] = 0;
-            }
+            finish_slide_in(ewk);
         }
 
         break;
