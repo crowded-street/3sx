@@ -23,6 +23,23 @@ static s32 should_continue_flash(const WORK_Other* ewk, const PLW* mwk) {
             (!(mwk->wu.kind_of_waza & 0x20) && mwk->wu.char_index != 0x40 && mwk->wu.char_index != 1));
 }
 
+static void update_player_flash(const WORK_Other* ewk, PLW* mwk) {
+    if (ewk->wu.dir_timer >= 30) {
+        return;
+    }
+
+    mwk->wu.my_bright_type = 1;
+
+    if (ewk->wu.dir_timer < 10) {
+        mwk->wu.disp_flag = 1;
+        mwk->wu.my_bright_level = ewk->wu.dir_timer;
+    } else {
+        mwk->wu.disp_flag = 2;
+        mwk->wu.my_bright_level = 13;
+        mwk->wu.my_col_mode = 0x4400;
+    }
+}
+
 
 void effect_L0_move(WORK_Other* ewk) {
     PLW* mwk = (PLW*)ewk->my_master;
@@ -48,22 +65,7 @@ void effect_L0_move(WORK_Other* ewk) {
         }
 
         if (should_continue_flash(ewk, mwk)) {
-
-            if (ewk->wu.dir_timer >= 30) {
-                break;
-            }
-
-            mwk->wu.my_bright_type = 1;
-
-            if (ewk->wu.dir_timer < 10) {
-                mwk->wu.disp_flag = 1;
-                mwk->wu.my_bright_level = ewk->wu.dir_timer;
-            } else {
-                mwk->wu.disp_flag = 2;
-                mwk->wu.my_bright_level = 13;
-                mwk->wu.my_col_mode = 0x4400;
-            }
-
+            update_player_flash(ewk, mwk);
             break;
         }
 
