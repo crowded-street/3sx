@@ -5,7 +5,7 @@
 #include "types.h"
 
 void mmSystemInitialize();
-void mmHeapInitialize(_MEMMAN_OBJ* mmobj, u8* adrs, s32 size, s32 unit, s8* format);
+void mmHeapInitialize(_MEMMAN_OBJ* mmobj, u8* adrs, s32 size, s32 unit);
 uintptr_t mmRoundUp(s32 unit, uintptr_t num);
 uintptr_t mmRoundOff(s32 unit, uintptr_t num);
 ssize_t mmGetRemainder(_MEMMAN_OBJ* mmobj);

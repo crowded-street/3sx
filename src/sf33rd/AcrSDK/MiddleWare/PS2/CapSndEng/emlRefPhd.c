@@ -4,7 +4,7 @@
 #include <string.h>
 
 s32 IsSafeHeadChunk(_ps2_head_chunk* pHEAD) {
-    if (strncmp((s8*)pHEAD, "Head", 4) == 0) {
+    if (strncmp((char*)pHEAD, "Head", 4) == 0) {
         return 1;
     }
 

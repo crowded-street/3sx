@@ -12,7 +12,7 @@
 
 const u8 Contents_Check_Data_A3[23] = { 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0 };
 
-s8* Letter_Data_A3[23][8] = {
+char* Letter_Data_A3[23][8] = {
     { "NORMAL MODE",
       "RECORDING MODE",
       "REPLAY",
@@ -119,13 +119,15 @@ void effect_A3_move(WORK_Other* ewk) {
         prio = 2.0f;
     }
 
-    SSPutStr_Bigger(ewk->wu.xyz[0].disp.pos,
-                    ewk->wu.xyz[1].disp.pos,
-                    color,
-                    Letter_Data_A3[ewk->wu.type][ix],
-                    1.0f,
-                    clear_level,
-                    prio);
+    SSPutStr_Bigger(
+        ewk->wu.xyz[0].disp.pos,
+        ewk->wu.xyz[1].disp.pos,
+        color,
+        Letter_Data_A3[ewk->wu.type][ix],
+        1.0f,
+        clear_level,
+        prio
+    );
 }
 
 s32 effect_A3_init(s16 id, u8 Type, u8 Type_in_Type, u8 dir_step, u8 Death_Type, s16 pos_x, s16 pos_y, s16 Buff) {

@@ -272,12 +272,12 @@ void effect_H6_move(WORK_Other* ewk) {
     }
 }
 
-s32 effect_H6_init(s16 timer, s8* str, s16 X, s16 Y, s16 Original_Color, s32 /* unused */) {
+s32 effect_H6_init(s16 timer, const char* str, s16 X, s16 Y, s16 Original_Color, s32 /* unused */) {
     WORK_Other_CONN* ewk;
     s16 i;
     s16 x;
     s16 c;
-    s8* su = str;
+    const char* su = str;
 
     if ((x = pull_effect_work(4)) == -1) {
         return -1;
@@ -425,7 +425,7 @@ s32 effect_H6_init(s16 timer, s8* str, s16 X, s16 Y, s16 Original_Color, s32 /* 
         ewk->wu.my_col_code = 0;
 
         for (x = 0, i = 0; *su != '\0'; i += 9, su++) {
-            if ((c = code_tab[*su]) == -1) {
+            if ((c = code_tab[(int)*su]) == -1) {
                 continue;
             }
 

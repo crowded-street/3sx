@@ -28,36 +28,6 @@ typedef struct {
     u32 attribute;
 } MTSBase;
 
-s8* texcash_name[29] = { "    16x16 (tm)  32x32 (tm) GIX      (mn.nw)",
-                         "QA",
-                         "HT",
-                         "1P",
-                         "2P",
-                         "CA",
-                         "SW",
-                         "OB",
-                         "ED",
-                         "DM",
-                         "OT",
-                         "MJ",
-                         "MS",
-                         "SL",
-                         "EU",
-                         "RR",
-                         "GI",
-                         "xx",
-                         "xx",
-                         "xx",
-                         "xx",
-                         "xx",
-                         "xx",
-                         "xx",
-                         "   /   (  )    /   (  )     +    (  .  )",
-                         "--- --- --  --- --- --  ---   --  -- --",
-                         "--- --- --",
-                         "--",
-                         "--.--" };
-
 u8* texcash_melt_buffer;
 TexturePoolUsed* tpu_free;
 s16 mts_ob_curr_stage;

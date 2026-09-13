@@ -21,43 +21,43 @@ void EFF23_SUDDENLY(WORK_Other_CONN* /* unused */);
 void Setup_23_Sub(WORK_Other_CONN* ewk);
 void Setup_Letter_23(WORK_Other_CONN* ewk, s16 disp_index);
 
-const s8* Letter_Data_23[4][12] = { { "L.PUNCH",
-                                      "M.PUNCH",
-                                      "H.PUNCH",
-                                      "L.KICK",
-                                      "M.KICK",
-                                      "H.KICK",
-                                      "L.P+L.K",
-                                      "M.P+M.K",
-                                      "H.P+H.K",
-                                      "PUNCH*3",
-                                      "KICK*3",
-                                      "NONE" },
-                                    { "  OFF", "  ON", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-                                    { "  ^^^ ",
-                                      "  ^^^ ",
-                                      "  ^^^ ",
-                                      "  ^^^ ",
-                                      "  ^^^ ",
-                                      "  ^^^ ",
-                                      "  ^^^ ",
-                                      "  ^^^ ",
-                                      "VIBRATION",
-                                      "DEFAULT SETTING",
-                                      "EXIT",
-                                      "PLAYER 1" },
-                                    { "  ^^^ ",
-                                      "  ^^^ ",
-                                      "  ^^^ ",
-                                      "  ^^^ ",
-                                      "  ^^^ ",
-                                      "  ^^^ ",
-                                      "  ^^^ ",
-                                      "  ^^^ ",
-                                      "VIBRATION",
-                                      "DEFAULT SETTING",
-                                      "EXIT",
-                                      "PLAYER 2" } };
+const char* Letter_Data_23[4][12] = { { "L.PUNCH",
+                                        "M.PUNCH",
+                                        "H.PUNCH",
+                                        "L.KICK",
+                                        "M.KICK",
+                                        "H.KICK",
+                                        "L.P+L.K",
+                                        "M.P+M.K",
+                                        "H.P+H.K",
+                                        "PUNCH*3",
+                                        "KICK*3",
+                                        "NONE" },
+                                      { "  OFF", "  ON", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+                                      { "  ^^^ ",
+                                        "  ^^^ ",
+                                        "  ^^^ ",
+                                        "  ^^^ ",
+                                        "  ^^^ ",
+                                        "  ^^^ ",
+                                        "  ^^^ ",
+                                        "  ^^^ ",
+                                        "VIBRATION",
+                                        "DEFAULT SETTING",
+                                        "EXIT",
+                                        "PLAYER 1" },
+                                      { "  ^^^ ",
+                                        "  ^^^ ",
+                                        "  ^^^ ",
+                                        "  ^^^ ",
+                                        "  ^^^ ",
+                                        "  ^^^ ",
+                                        "  ^^^ ",
+                                        "  ^^^ ",
+                                        "VIBRATION",
+                                        "DEFAULT SETTING",
+                                        "EXIT",
+                                        "PLAYER 2" } };
 
 void (*const EFF23_Jmp_Tbl[4])() = { EFF23_WAIT, EFF23_SLIDE_IN, EFF23_CHAR_CHANGE, EFF23_SUDDENLY };
 
@@ -154,8 +154,10 @@ void EFF23_CHAR_CHANGE(WORK_Other_CONN* /* unused */) {}
 
 void EFF23_SUDDENLY(WORK_Other_CONN* /* unused */) {}
 
-s32 effect_23_init(s16 id, u8 dir_old, s16 sync_bg, s16 master_player, s16 letter_type, s16 cursor_index,
-                   u16 char_offset, s16 pos_index, s16 type) {
+s32 effect_23_init(
+    s16 id, u8 dir_old, s16 sync_bg, s16 master_player, s16 letter_type, s16 cursor_index, u16 char_offset,
+    s16 pos_index, s16 type
+) {
     WORK_Other_CONN* ewk;
     s16 ix;
 

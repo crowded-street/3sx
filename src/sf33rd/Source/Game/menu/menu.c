@@ -183,7 +183,7 @@ typedef void (*MenuFunc)(struct _TASK*);
 
 typedef struct {
     s16 pos_x;
-    s8* menu;
+    char* menu;
 } LetterData;
 
 const MenuFunc Menu_Jmp_Tbl[14] = {

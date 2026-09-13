@@ -6,29 +6,29 @@
 #include "sf33rd/Source/Game/message/en/pl18tlk_en.h"
 #include "common.h"
 
-static s8* msgTlkPL18_00P[1] = { "" };
-static s8* msgTlkPL18_01P[2] = {
+static char* msgTlkPL18_00P[1] = { "" };
+static char* msgTlkPL18_01P[2] = {
     "  Why?! Why can't you                           ",
     "  just leave me alone?!                         ",
 };
-static s8* msgTlkPL18_02P[2] = {
+static char* msgTlkPL18_02P[2] = {
     "  I'm just a failure, right?!                   ",
     "  I have nothing you want!                      ",
 };
-static s8* msgTlkPL18_03P[2] = {
+static char* msgTlkPL18_03P[2] = {
     "  Your body is full of dangerous,               ",
     "  confidential information.                     ",
 };
-static s8* msgTlkPL18_04P[2] = {
+static char* msgTlkPL18_04P[2] = {
     "  Knowledge of your existence can               ",
     "  never be allowed into the world.              ",
 };
-static s8* msgTlkPL18_05P[2] = {
+static char* msgTlkPL18_05P[2] = {
     "  It's up to each of us to decide               ",
     "  whether or not we should exist!               ",
 };
 
-static s8** msgTalkAdrPL18[6] = {
+static char** msgTalkAdrPL18[6] = {
     msgTlkPL18_00P, msgTlkPL18_01P, msgTlkPL18_02P, msgTlkPL18_03P, msgTlkPL18_04P, msgTlkPL18_05P,
 };
 
