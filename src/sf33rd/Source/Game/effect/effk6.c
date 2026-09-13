@@ -237,6 +237,24 @@ void EFFK6_KILL(WORK_Other* ewk) {
     }
 }
 
+static void update_name_selection_K6(WORK_Other* ewk) {
+    if (ewk->wu.dir_step != ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]]) {
+        ewk->wu.dir_step = ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]];
+        ewk->wu.xyz[0].disp.pos =
+            bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + Get_PosK6(ewk, ewk->wu.dir_step, 0, Play_Type);
+        ewk->wu.xyz[1].disp.pos =
+            bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + Get_PosK6(ewk, ewk->wu.dir_step, 1, Play_Type);
+
+        if (ewk->wu.direction == 19) {
+            set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, (ewk->wu.dir_step) + 1, 0);
+        }
+    }
+
+    if (Sel_PL_Complete[ewk->master_id]) {
+        ewk->wu.routine_no[1]++;
+    }
+}
+
 void EFFK6_MOVE(WORK_Other* ewk) {
     if (Order[ewk->wu.dir_old] != 4) {
         ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
@@ -256,22 +274,7 @@ void EFFK6_MOVE(WORK_Other* ewk) {
         /* fallthrough */
 
     case 1:
-        if (ewk->wu.dir_step != ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]]) {
-            ewk->wu.dir_step = ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]];
-            ewk->wu.xyz[0].disp.pos =
-                bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + Get_PosK6(ewk, ewk->wu.dir_step, 0, Play_Type);
-            ewk->wu.xyz[1].disp.pos =
-                bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + Get_PosK6(ewk, ewk->wu.dir_step, 1, Play_Type);
-
-            if (ewk->wu.direction == 19) {
-                set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, (ewk->wu.dir_step) + 1, 0);
-            }
-        }
-
-        if (Sel_PL_Complete[ewk->master_id]) {
-            ewk->wu.routine_no[1]++;
-        }
-
+        update_name_selection_K6(ewk);
         break;
 
     case 2:
