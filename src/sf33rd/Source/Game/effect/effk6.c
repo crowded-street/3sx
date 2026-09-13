@@ -190,21 +190,25 @@ void EFFK6_SLIDE_OUT(WORK_Other* ewk) {
     }
 }
 
-void EFFK6_SUDDENLY(WORK_Other* ewk) {
+static void initialize_sudden_K6(WORK_Other* ewk) {
     s16 xx;
 
+    if (--Order_Timer[ewk->wu.dir_old]) {
+        return;
+    }
+
+    ewk->wu.routine_no[1]++;
+    ewk->wu.disp_flag = 1;
+    xx = Setup_K6_Index(ewk);
+    ewk->wu.xyz[0].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + Get_PosK6(ewk, xx, 0, 1);
+    ewk->wu.xyz[1].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + Get_PosK6(ewk, xx, 1, 1);
+    set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+}
+
+void EFFK6_SUDDENLY(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old]) {
-            break;
-        }
-
-        ewk->wu.routine_no[1]++;
-        ewk->wu.disp_flag = 1;
-        xx = Setup_K6_Index(ewk);
-        ewk->wu.xyz[0].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + Get_PosK6(ewk, xx, 0, 1);
-        ewk->wu.xyz[1].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + Get_PosK6(ewk, xx, 1, 1);
-        set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+        initialize_sudden_K6(ewk);
         break;
 
     default:
