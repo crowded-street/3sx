@@ -330,6 +330,15 @@ static void update_dragonfly_left_turn_J8(WORK_Other* ewk) {
     }
 }
 
+static void update_dragonfly_initial_wait_J8(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+    ewk->wu.dir_timer--;
+
+    if (ewk->wu.dir_timer <= 0) {
+        ewk->wu.routine_no[2]++;
+    }
+}
+
 void dragonfly_move_0001(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[2]) {
     case 0:
@@ -340,14 +349,7 @@ void dragonfly_move_0001(WORK_Other* ewk) {
         break;
 
     case 1:
-        char_move(&ewk->wu);
-        ewk->wu.dir_timer--;
-
-        if (ewk->wu.dir_timer <= 0) {
-            ewk->wu.routine_no[2]++;
-            break;
-        }
-
+        update_dragonfly_initial_wait_J8(ewk);
         break;
 
     case 2:
