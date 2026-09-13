@@ -507,6 +507,16 @@ static s32 prepare_half_width_text_B6(u8* moji, u8* tmpstr) {
     return 1;
 }
 
+static const u8* find_converted_han_character_3(u8* tmpstr, u16* number) {
+    if (msgCheckCodeSize(tmpstr[0]) == 1) {
+        tmpstr[1] = ((u8**)src_han_zen_conv)[tmpstr[0]][1];
+        tmpstr[0] = ((u8**)src_han_zen_conv)[tmpstr[0]][0];
+        return find_han_character_3(&tmpstr[0], number);
+    }
+
+    return NULL;
+}
+
 s32 msgConvertObjNum(u8* moji, s32* spc, s32* hz, u16* num, u8 hzSel) {
     u8 tmpstr[4];
     s32 rnum;
@@ -530,15 +540,10 @@ s32 msgConvertObjNum(u8* moji, s32* spc, s32* hz, u16* num, u8 hzSel) {
             goto three;
         }
 
-        if (msgCheckCodeSize(tmpstr[0]) == 1) {
-            tmpstr[1] = ((u8**)src_han_zen_conv)[tmpstr[0]][1];
-            tmpstr[0] = ((u8**)src_han_zen_conv)[tmpstr[0]][0];
-
-            if (find_han_character_3(&tmpstr[0], num)) {
-                *hz = 0;
-                *spc = 0;
-                return 1;
-            }
+        if (find_converted_han_character_3(tmpstr, num)) {
+            *hz = 0;
+            *spc = 0;
+            return 1;
         }
 
         if (find_zen_character(&tmpstr[0], num)) {
