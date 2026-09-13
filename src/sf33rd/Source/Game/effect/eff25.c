@@ -126,6 +126,12 @@ static void update_eff25_animated_hit_response(WORK_Other* ewk) {
     }
 }
 
+static void update_eff25_animation(WORK_Other* ewk) {
+    if (!EXE_obroll) {
+        char_move(&ewk->wu);
+    }
+}
+
 void eff25_02(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -144,9 +150,7 @@ void eff25_02(WORK_Other* ewk) {
         break;
 
     case 2:
-        if (!EXE_obroll) {
-            char_move(&ewk->wu);
-        }
+        update_eff25_animation(ewk);
 
         if (ewk->wu.cg_type) {
             ewk->wu.routine_no[1]++;
@@ -158,10 +162,7 @@ void eff25_02(WORK_Other* ewk) {
         break;
 
     case 4:
-        if (!EXE_obroll) {
-            char_move(&ewk->wu);
-        }
-
+        update_eff25_animation(ewk);
         break;
     }
 }
@@ -214,9 +215,7 @@ void eff25_06(WORK_Other* ewk) {
         break;
 
     case 2:
-        if (!EXE_obroll) {
-            char_move(&ewk->wu);
-        }
+        update_eff25_animation(ewk);
 
         if (ewk->wu.cg_type) {
             set_char_move_init(&ewk->wu, 0, ewk->wu.old_rno[3]);
@@ -230,10 +229,7 @@ void eff25_06(WORK_Other* ewk) {
         break;
 
     case 4:
-        if (!EXE_obroll) {
-            char_move(&ewk->wu);
-        }
-
+        update_eff25_animation(ewk);
         break;
     }
 }
