@@ -184,6 +184,28 @@ typedef union {
     u8* cpc;
 } GOTCP;
 
+static void update_K5_control_flow(WORK* ewk, WORK* mwk, GOTCP* gotcp) {
+    switch (gotcp->cps[0]) {
+    case 2:
+        ewk->cg_ix = (gotcp->cps[3] - 2) * mwk->cgd_type;
+        break;
+
+    case 49:
+        if ((test_flag == 0) || (ixbfw_cut == 0)) {
+            ewk->cg_ix += (gotcp->cps[3] - 1) * mwk->cgd_type;
+        }
+
+        break;
+
+    case 50:
+        if ((test_flag == 0) || (ixbfw_cut == 0)) {
+            ewk->cg_ix -= (gotcp->cps[3] + 1) * mwk->cgd_type;
+        }
+
+        break;
+    }
+}
+
 void get_okuri_time(WORK* ewk, WORK* mwk, MVJ* mvj) {
     GOTCP gotcp;
     ST st;
@@ -234,25 +256,7 @@ void get_okuri_time(WORK* ewk, WORK* mwk, MVJ* mvj) {
                 break;
             }
 
-            switch (gotcp.cps[0]) {
-            case 2:
-                ewk->cg_ix = (gotcp.cps[3] - 2) * mwk->cgd_type;
-                break;
-
-            case 49:
-                if ((test_flag == 0) || (ixbfw_cut == 0)) {
-                    ewk->cg_ix += (gotcp.cps[3] - 1) * mwk->cgd_type;
-                }
-
-                break;
-
-            case 50:
-                if ((test_flag == 0) || (ixbfw_cut == 0)) {
-                    ewk->cg_ix -= (gotcp.cps[3] + 1) * mwk->cgd_type;
-                }
-
-                break;
-            }
+            update_K5_control_flow(ewk, mwk, &gotcp);
         }
     }
 
