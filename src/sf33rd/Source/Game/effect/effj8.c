@@ -129,6 +129,15 @@ s16 dragonfly_l_move_4(WORK_Other* ewk) {
     return 0;
 }
 
+static void update_dragonfly_wait(WORK_Other* ewk) {
+    ewk->wu.dir_timer--;
+
+    if (ewk->wu.dir_timer <= 0) {
+        dragonfly_move_next(ewk);
+        set_char_move_init(&ewk->wu, 0, 4);
+    }
+}
+
 void dragonfly_l_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[2]) {
     case 0:
@@ -160,13 +169,7 @@ void dragonfly_l_move(WORK_Other* ewk) {
         break;
 
     default:
-        ewk->wu.dir_timer--;
-
-        if (ewk->wu.dir_timer <= 0) {
-            dragonfly_move_next(ewk);
-            set_char_move_init(&ewk->wu, 0, 4);
-        }
-
+        update_dragonfly_wait(ewk);
         break;
     }
 }
@@ -265,13 +268,7 @@ void dragonfly_r_move(WORK_Other* ewk) {
         break;
 
     default:
-        ewk->wu.dir_timer--;
-
-        if (ewk->wu.dir_timer <= 0) {
-            dragonfly_move_next(ewk);
-            set_char_move_init(&ewk->wu, 0, 4);
-        }
-
+        update_dragonfly_wait(ewk);
         break;
     }
 }
@@ -370,13 +367,7 @@ void dragonfly_move_0001(WORK_Other* ewk) {
         break;
 
     default:
-        ewk->wu.dir_timer--;
-
-        if (ewk->wu.dir_timer <= 0) {
-            dragonfly_move_next(ewk);
-            set_char_move_init(&ewk->wu, 0, 4);
-        }
-
+        update_dragonfly_wait(ewk);
         break;
     }
 }
@@ -465,13 +456,7 @@ void dragonfly_move_0005(WORK_Other* ewk) {
         break;
 
     default:
-        ewk->wu.dir_timer--;
-
-        if (ewk->wu.dir_timer <= 0) {
-            dragonfly_move_next(ewk);
-            set_char_move_init(&ewk->wu, 0, 4);
-        }
-
+        update_dragonfly_wait(ewk);
         break;
     }
 }
