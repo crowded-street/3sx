@@ -417,6 +417,14 @@ void dragonfly_move_0004(WORK_Other* ewk) {
     }
 }
 
+static void update_dragonfly_right_turn_J8(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+
+    if (dragonfly_r_move_4(ewk)) {
+        ewk->wu.routine_no[2] = 2;
+    }
+}
+
 void dragonfly_move_0005(WORK_Other* ewk) {
     char_move(&ewk->wu);
 
@@ -449,13 +457,7 @@ void dragonfly_move_0005(WORK_Other* ewk) {
         break;
 
     case 5:
-        char_move(&ewk->wu);
-
-        if (dragonfly_r_move_4(ewk)) {
-            ewk->wu.routine_no[2] = 2;
-            break;
-        }
-
+        update_dragonfly_right_turn_J8(ewk);
         break;
 
     default:
