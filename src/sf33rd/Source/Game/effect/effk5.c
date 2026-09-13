@@ -99,10 +99,46 @@ static void initialize_effect_K5(WORK_Other* ewk, WORK* mwk) {
     K5_init_data(mwk, mvj, (u16*)(&mwk->cg_ja));
 }
 
+static void update_effect_K5(WORK_Other* ewk, WORK* mwk) {
+    MVJ* mvj;
+
+    if (ewk->wu.dead_f == 1) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0] = 2;
+        return;
+    }
+
+    if (((PLW*)mwk)->waku_ram_index != ewk->wu.myself) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0] = 2;
+        return;
+    }
+
+    get_master_table_address(&ewk->wu, mwk);
+    mvj = (MVJ*)(((WORK*)ewk->wu.target_adrs)->routine_no);
+
+    if (mwk->K5_exec_ok) {
+        mwk->K5_exec_ok = 0;
+
+        if (image_data_needs_refresh(ewk, mwk)) {
+            mwk->K5_init_flag = 0;
+            ewk->wu.old_rno[1] = mwk->cg_hit_ix;
+            ewk->wu.routine_no[1] = 0;
+            K5_init_data(mwk, mvj, (u16*)(&mwk->cg_ja));
+        }
+
+        K5_main_process(&ewk->wu, mwk, mvj);
+    }
+
+    K5_init_data_copy2((K5Data*)&rambod[mwk->id], mvj, 4);
+    K5_init_data_copy2((K5Data*)&ramhan[mwk->id], mvj + 4, 4);
+    mwk->h_bod = &rambod[mwk->id];
+    mwk->h_han = &ramhan[mwk->id];
+}
+
 
 void effect_K5_move(WORK_Other* ewk) {
     WORK* mwk = (WORK*)ewk->my_master;
-    MVJ* mvj;
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -110,38 +146,7 @@ void effect_K5_move(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (ewk->wu.dead_f == 1) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0] = 2;
-            return;
-        }
-
-        if (((PLW*)mwk)->waku_ram_index != ewk->wu.myself) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0] = 2;
-            return;
-        }
-
-        get_master_table_address(&ewk->wu, mwk);
-        mvj = (MVJ*)(((WORK*)ewk->wu.target_adrs)->routine_no);
-
-        if (mwk->K5_exec_ok) {
-            mwk->K5_exec_ok = 0;
-
-            if (image_data_needs_refresh(ewk, mwk)) {
-                mwk->K5_init_flag = 0;
-                ewk->wu.old_rno[1] = mwk->cg_hit_ix;
-                ewk->wu.routine_no[1] = 0;
-                K5_init_data(mwk, mvj, (u16*)(&mwk->cg_ja));
-            }
-
-            K5_main_process(&ewk->wu, mwk, mvj);
-        }
-
-        K5_init_data_copy2((K5Data*)&rambod[mwk->id], mvj, 4);
-        K5_init_data_copy2((K5Data*)&ramhan[mwk->id], mvj + 4, 4);
-        mwk->h_bod = &rambod[mwk->id];
-        mwk->h_han = &ramhan[mwk->id];
+        update_effect_K5(ewk, mwk);
         break;
 
     case 2:
