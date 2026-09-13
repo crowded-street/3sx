@@ -29,6 +29,14 @@ static s32 game_is_active(void) {
     return !EXE_flag && !Game_pause;
 }
 
+static void update_active_effect25(WORK_Other* ewk) {
+    if (game_is_active()) {
+        eff25_jp_tbl[ewk->wu.old_rno[2]](ewk);
+    }
+
+    disp_pos_trans_entry_rs(ewk);
+}
+
 
 void effect_25_move(WORK_Other* ewk) {
     if (compel_dead_check(ewk)) {
@@ -39,11 +47,7 @@ void effect_25_move(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-if (game_is_active()) {
-            eff25_jp_tbl[ewk->wu.old_rno[2]](ewk);
-        }
-
-        disp_pos_trans_entry_rs(ewk);
+        update_active_effect25(ewk);
         break;
 
     case 1:
@@ -64,6 +68,23 @@ if (game_is_active()) {
     }
 }
 
+static void update_eff25_hit_stop(WORK_Other* ewk) {
+    if (ewk->wu.hit_stop && !EXE_obroll) {
+        char_move(&ewk->wu);
+    }
+}
+
+static void update_eff25_00_hit_response(WORK_Other* ewk) {
+    if (eff_hit_check(ewk, ewk->wu.old_rno[4])) {
+        piece_set(ewk);
+        set_char_move_init(&ewk->wu, 0, ewk->wu.old_rno[1]);
+        ewk->wu.routine_no[1]++;
+        return;
+    }
+
+    update_eff25_hit_stop(ewk);
+}
+
 void eff25_00(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -76,17 +97,7 @@ void eff25_00(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (eff_hit_check(ewk, ewk->wu.old_rno[4])) {
-            piece_set(ewk);
-            set_char_move_init(&ewk->wu, 0, ewk->wu.old_rno[1]);
-            ewk->wu.routine_no[1]++;
-            break;
-        }
-
-        if (ewk->wu.hit_stop && !EXE_obroll) {
-            char_move(&ewk->wu);
-        }
-
+        update_eff25_00_hit_response(ewk);
         break;
 
     case 2:
@@ -106,6 +117,23 @@ void eff25_00(WORK_Other* ewk) {
     }
 }
 
+static void update_eff25_animated_hit_response(WORK_Other* ewk) {
+    if (eff_hit_check(ewk, ewk->wu.old_rno[4])) {
+        piece_set(ewk);
+        ewk->wu.routine_no[1]++;
+        set_char_move_init(&ewk->wu, 0, ewk->wu.old_rno[1]);
+        return;
+    }
+
+    update_eff25_hit_stop(ewk);
+}
+
+static void update_eff25_animation(WORK_Other* ewk) {
+    if (!EXE_obroll) {
+        char_move(&ewk->wu);
+    }
+}
+
 void eff25_02(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -120,23 +148,11 @@ void eff25_02(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (eff_hit_check(ewk, ewk->wu.old_rno[4])) {
-            piece_set(ewk);
-            ewk->wu.routine_no[1]++;
-            set_char_move_init(&ewk->wu, 0, ewk->wu.old_rno[1]);
-            break;
-        }
-
-        if (ewk->wu.hit_stop && !EXE_obroll) {
-            char_move(&ewk->wu);
-        }
-
+        update_eff25_animated_hit_response(ewk);
         break;
 
     case 2:
-        if (!EXE_obroll) {
-            char_move(&ewk->wu);
-        }
+        update_eff25_animation(ewk);
 
         if (ewk->wu.cg_type) {
             ewk->wu.routine_no[1]++;
@@ -148,10 +164,7 @@ void eff25_02(WORK_Other* ewk) {
         break;
 
     case 4:
-        if (!EXE_obroll) {
-            char_move(&ewk->wu);
-        }
-
+        update_eff25_animation(ewk);
         break;
     }
 }
@@ -174,10 +187,7 @@ void eff25_04(WORK_Other* ewk) {
             break;
         }
 
-        if (ewk->wu.hit_stop && !EXE_obroll) {
-            char_move(&ewk->wu);
-        }
-
+        update_eff25_hit_stop(ewk);
         break;
 
     case 2:
@@ -200,23 +210,11 @@ void eff25_06(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (eff_hit_check(ewk, ewk->wu.old_rno[4])) {
-            piece_set(ewk);
-            ewk->wu.routine_no[1]++;
-            set_char_move_init(&ewk->wu, 0, ewk->wu.old_rno[1]);
-            break;
-        }
-
-        if (ewk->wu.hit_stop && !EXE_obroll) {
-            char_move(&ewk->wu);
-        }
-
+        update_eff25_animated_hit_response(ewk);
         break;
 
     case 2:
-        if (!EXE_obroll) {
-            char_move(&ewk->wu);
-        }
+        update_eff25_animation(ewk);
 
         if (ewk->wu.cg_type) {
             set_char_move_init(&ewk->wu, 0, ewk->wu.old_rno[3]);
@@ -230,42 +228,13 @@ void eff25_06(WORK_Other* ewk) {
         break;
 
     case 4:
-        if (!EXE_obroll) {
-            char_move(&ewk->wu);
-        }
-
+        update_eff25_animation(ewk);
         break;
     }
 }
 
 void eff25_08(WORK_Other* ewk) {
-    switch (ewk->wu.routine_no[1]) {
-    case 0:
-        if (eff_hit_flag[ewk->wu.type]) {
-            ewk->wu.routine_no[0] = 4;
-            break;
-        }
-
-        eff25_char_set(ewk);
-        break;
-
-    case 1:
-        if (eff_hit_check(ewk, ewk->wu.old_rno[4])) {
-            piece_set(ewk);
-            ewk->wu.routine_no[1]++;
-            break;
-        }
-
-        if (ewk->wu.hit_stop && !EXE_obroll) {
-            char_move(&ewk->wu);
-        }
-
-        break;
-
-    case 2:
-        ewk->wu.routine_no[0]++;
-        break;
-    }
+    eff25_04(ewk);
 }
 
 void eff25_char_set(WORK_Other* ewk) {

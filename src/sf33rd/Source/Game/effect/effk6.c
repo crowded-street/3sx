@@ -67,9 +67,72 @@ void EFFK6_WAIT(WORK_Other* ewk) {
     }
 }
 
-void EFFK6_SLIDE_IN(WORK_Other* ewk) {
+static void finish_slide_in_K6(WORK_Other* ewk) {
+    if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
+        Order[ewk->wu.dir_old] = 0;
+    }
+
+    ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
+
+    if (ewk->wu.dir_old < 31) {
+        Order[ewk->wu.dir_old] = 4;
+        ewk->wu.routine_no[0] = 4;
+        ewk->wu.routine_no[6] = 0;
+        return;
+    }
+
+    ewk->wu.routine_no[0] = 0;
+}
+
+static void initialize_slide_in_K6(WORK_Other* ewk) {
     s16 xx;
 
+    if (--Order_Timer[ewk->wu.dir_old]) {
+        return;
+    }
+
+    ewk->wu.routine_no[1]++;
+    ewk->wu.disp_flag = 1;
+
+    if (uses_special_direction(ewk)) {
+        xx = ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]];
+        Setup_1st_PosK6(ewk, xx, Play_Type);
+    } else {
+        xx = ewk->wu.dir_step;
+        Setup_1st_PosK6(ewk, xx, Play_Type);
+
+        if (ewk->wu.direction == 25 && xx != 0) {
+            ewk->wu.xyz[0].disp.pos += 8;
+            ewk->wu.hit_quake += 8;
+
+            if (ewk->wu.mvxy.a[0].sp > 0) {
+                ewk->wu.xyz[0].disp.pos += 8;
+                ewk->wu.hit_quake += 8;
+            }
+        }
+    }
+
+    set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+}
+
+static void update_slide_in_motion_K6(WORK_Other* ewk) {
+    ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
+    ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
+
+    if (0 < ewk->wu.mvxy.a[0].sp) {
+        if (ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
+            finish_slide_in_K6(ewk);
+        }
+
+        return;
+    }
+
+    if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
+        finish_slide_in_K6(ewk);
+    }
+}
+
+void EFFK6_SLIDE_IN(WORK_Other* ewk) {
     if ((Order[ewk->wu.dir_old]) == 5) {
         ewk->wu.routine_no[0] = 5;
         ewk->wu.routine_no[1] = 0;
@@ -78,101 +141,39 @@ void EFFK6_SLIDE_IN(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old]) {
-            break;
-        }
-
-        ewk->wu.routine_no[1]++;
-        ewk->wu.disp_flag = 1;
-
-        if (uses_special_direction(ewk)) {
-            xx = ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]];
-            Setup_1st_PosK6(ewk, xx, Play_Type);
-        } else {
-            xx = ewk->wu.dir_step;
-            Setup_1st_PosK6(ewk, xx, Play_Type);
-
-            if (ewk->wu.direction == 25 && xx != 0) {
-                ewk->wu.xyz[0].disp.pos += 8;
-                ewk->wu.hit_quake += 8;
-
-                if (ewk->wu.mvxy.a[0].sp > 0) {
-                    ewk->wu.xyz[0].disp.pos += 8;
-                    ewk->wu.hit_quake += 8;
-                }
-            }
-        }
-
-        set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+        initialize_slide_in_K6(ewk);
         break;
 
     default:
-        ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
-        ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
-
-        if (0 < ewk->wu.mvxy.a[0].sp) {
-            if (ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
-                if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
-                    Order[ewk->wu.dir_old] = 0;
-                }
-
-                ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
-
-                if (ewk->wu.dir_old < 31) {
-                    Order[ewk->wu.dir_old] = 4;
-                    ewk->wu.routine_no[0] = 4;
-                    ewk->wu.routine_no[6] = 0;
-                    break;
-                }
-
-                ewk->wu.routine_no[0] = 0;
-            }
-
-            break;
-        }
-
-        if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
-            if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
-                Order[ewk->wu.dir_old] = 0;
-            }
-
-            ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
-
-            if (ewk->wu.dir_old < 31) {
-                Order[ewk->wu.dir_old] = 4;
-                ewk->wu.routine_no[0] = 4;
-                ewk->wu.routine_no[6] = 0;
-                break;
-            }
-
-            ewk->wu.routine_no[0] = 0;
-        }
-
+        update_slide_in_motion_K6(ewk);
         break;
+    }
+}
+
+static void initialize_slide_out_K6(WORK_Other* ewk) {
+    if (ewk->wu.disp_flag == 0) {
+        ewk->wu.routine_no[1] = 99;
+    } else {
+        if (--Order_Timer[ewk->wu.dir_old]) {
+            return;
+        }
+
+        ewk->wu.routine_no[1]++;
+    }
+
+    if (Order_Dir[ewk->wu.dir_old] == 4) {
+        ewk->wu.mvxy.a[0].sp = -0xF0000;
+        ewk->wu.mvxy.d[0].sp = 0;
+    } else {
+        ewk->wu.mvxy.a[0].sp = 0xF0000;
+        ewk->wu.mvxy.d[0].sp = 0;
     }
 }
 
 void EFFK6_SLIDE_OUT(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (ewk->wu.disp_flag == 0) {
-            ewk->wu.routine_no[1] = 99;
-        } else {
-            if (--Order_Timer[ewk->wu.dir_old]) {
-                break;
-            }
-
-            ewk->wu.routine_no[1]++;
-        }
-
-        if (Order_Dir[ewk->wu.dir_old] == 4) {
-            ewk->wu.mvxy.a[0].sp = -0xF0000;
-            ewk->wu.mvxy.d[0].sp = 0;
-        } else {
-            ewk->wu.mvxy.a[0].sp = 0xF0000;
-            ewk->wu.mvxy.d[0].sp = 0;
-        }
-
+        initialize_slide_out_K6(ewk);
         break;
 
     case 1:
@@ -192,21 +193,25 @@ void EFFK6_SLIDE_OUT(WORK_Other* ewk) {
     }
 }
 
-void EFFK6_SUDDENLY(WORK_Other* ewk) {
+static void initialize_sudden_K6(WORK_Other* ewk) {
     s16 xx;
 
+    if (--Order_Timer[ewk->wu.dir_old]) {
+        return;
+    }
+
+    ewk->wu.routine_no[1]++;
+    ewk->wu.disp_flag = 1;
+    xx = Setup_K6_Index(ewk);
+    ewk->wu.xyz[0].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + Get_PosK6(ewk, xx, 0, 1);
+    ewk->wu.xyz[1].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + Get_PosK6(ewk, xx, 1, 1);
+    set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+}
+
+void EFFK6_SUDDENLY(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old]) {
-            break;
-        }
-
-        ewk->wu.routine_no[1]++;
-        ewk->wu.disp_flag = 1;
-        xx = Setup_K6_Index(ewk);
-        ewk->wu.xyz[0].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + Get_PosK6(ewk, xx, 0, 1);
-        ewk->wu.xyz[1].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + Get_PosK6(ewk, xx, 1, 1);
-        set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+        initialize_sudden_K6(ewk);
         break;
 
     default:
@@ -239,6 +244,24 @@ void EFFK6_KILL(WORK_Other* ewk) {
     }
 }
 
+static void update_name_selection_K6(WORK_Other* ewk) {
+    if (ewk->wu.dir_step != ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]]) {
+        ewk->wu.dir_step = ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]];
+        ewk->wu.xyz[0].disp.pos =
+            bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + Get_PosK6(ewk, ewk->wu.dir_step, 0, Play_Type);
+        ewk->wu.xyz[1].disp.pos =
+            bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + Get_PosK6(ewk, ewk->wu.dir_step, 1, Play_Type);
+
+        if (ewk->wu.direction == 19) {
+            set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, (ewk->wu.dir_step) + 1, 0);
+        }
+    }
+
+    if (Sel_PL_Complete[ewk->master_id]) {
+        ewk->wu.routine_no[1]++;
+    }
+}
+
 void EFFK6_MOVE(WORK_Other* ewk) {
     if (Order[ewk->wu.dir_old] != 4) {
         ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
@@ -258,22 +281,7 @@ void EFFK6_MOVE(WORK_Other* ewk) {
         /* fallthrough */
 
     case 1:
-        if (ewk->wu.dir_step != ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]]) {
-            ewk->wu.dir_step = ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]];
-            ewk->wu.xyz[0].disp.pos =
-                bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + Get_PosK6(ewk, ewk->wu.dir_step, 0, Play_Type);
-            ewk->wu.xyz[1].disp.pos =
-                bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + Get_PosK6(ewk, ewk->wu.dir_step, 1, Play_Type);
-
-            if (ewk->wu.direction == 19) {
-                set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, (ewk->wu.dir_step) + 1, 0);
-            }
-        }
-
-        if (Sel_PL_Complete[ewk->master_id]) {
-            ewk->wu.routine_no[1]++;
-        }
-
+        update_name_selection_K6(ewk);
         break;
 
     case 2:
@@ -322,32 +330,40 @@ void Setup_1st_PosK6(WORK_Other* ewk, s16 Who, s16 Play_Style) {
     }
 }
 
+static s16 get_player_one_name_position_K6(WORK_Other* ewk, s16 Who, s16 Get_Type, s16 Play_Style) {
+    switch (ewk->wu.direction) {
+    default:
+    case 25:
+    case 29:
+        Who += chkNameAkuma(Who, 9);
+        Who += chkNameSuv(Who, 2);
+        return Name_Cover_Pos_Data[ewk->master_id][Play_Style][Who][Get_Type];
+
+    case 31:
+    case 35:
+        return get_center_name_position(ewk->master_id, Get_Type, Play_Style);
+    }
+}
+
+static s16 get_player_two_name_position_K6(WORK_Other* ewk, s16 Who, s16 Get_Type, s16 Play_Style) {
+    switch (ewk->wu.direction) {
+    default:
+    case 25:
+    case 29:
+        Who += chkNameAkuma(Who, 9);
+        return Name_Cover_Pos_Data[ewk->master_id][Play_Style][Who][Get_Type];
+
+    case 31:
+    case 35:
+        return get_center_name_position(ewk->master_id, Get_Type, Play_Style);
+    }
+}
+
 s16 Get_PosK6(WORK_Other* ewk, s16 Who, s16 Get_Type, s16 Play_Style) {
     if (ewk->master_id == 0) {
-        switch (ewk->wu.direction) {
-        default:
-        case 25:
-        case 29:
-            Who += chkNameAkuma(Who, 9);
-            Who += chkNameSuv(Who, 2);
-            return Name_Cover_Pos_Data[ewk->master_id][Play_Style][Who][Get_Type];
-
-        case 31:
-        case 35:
-            return get_center_name_position(ewk->master_id, Get_Type, Play_Style);
-        }
+        return get_player_one_name_position_K6(ewk, Who, Get_Type, Play_Style);
     } else {
-        switch (ewk->wu.direction) {
-        default:
-        case 25:
-        case 29:
-            Who += chkNameAkuma(Who, 9);
-            return Name_Cover_Pos_Data[ewk->master_id][Play_Style][Who][Get_Type];
-
-        case 31:
-        case 35:
-            return get_center_name_position(ewk->master_id, Get_Type, Play_Style);
-        }
+        return get_player_two_name_position_K6(ewk, Who, Get_Type, Play_Style);
     }
 }
 

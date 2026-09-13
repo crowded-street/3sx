@@ -11,104 +11,130 @@
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/rendering/texcash.h"
 
-void effect_67_move(WORK_Other_CONN* ewk) {
-    switch (ewk->wu.routine_no[0]) {
+static void update_left_connection_67(WORK_Other_CONN* ewk) {
+    switch (ewk->wu.routine_no[1]) {
     case 0:
-        switch (ewk->wu.routine_no[1]) {
-        case 0:
-            ewk->wu.routine_no[1]++;
-            ewk->wu.disp_flag = 1;
-            set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
-            break;
-
-        case 1:
-            if (!--ewk->wu.dir_timer) {
-                ewk->wu.routine_no[1]++;
-                ewk->wu.dir_timer = 40;
-            }
-
-            break;
-
-        case 2:
-            if (--ewk->wu.dir_timer) {
-                ewk->wu.xyz[0].disp.pos = ewk->wu.xyz[0].disp.pos - 10;
-            } else {
-                ewk->wu.routine_no[0] = 3;
-            }
-
-            break;
-        }
-
-        ewk->wu.position_x = ewk->wu.xyz[0].disp.pos & 0xFFFF;
-        ewk->wu.position_y = ewk->wu.xyz[1].disp.pos & 0xFFFF;
-        sort_push_request4(&ewk->wu);
+        ewk->wu.routine_no[1]++;
+        ewk->wu.disp_flag = 1;
+        set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
         break;
 
     case 1:
-        switch (ewk->wu.routine_no[1]) {
-        case 0:
+        if (!--ewk->wu.dir_timer) {
             ewk->wu.routine_no[1]++;
-            ewk->wu.disp_flag = 1;
-            set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
-            break;
-
-        case 1:
-            if (!--ewk->wu.dir_timer) {
-                ewk->wu.routine_no[1]++;
-                ewk->wu.dir_timer = 39;
-            }
-
-            break;
-
-        case 2:
-            if (--ewk->wu.dir_timer) {
-                ewk->wu.xyz[0].disp.pos = ewk->wu.xyz[0].disp.pos + 10;
-            } else {
-                ewk->wu.routine_no[0] = 3;
-            }
-
-            break;
+            ewk->wu.dir_timer = 40;
         }
 
-        ewk->wu.position_x = ewk->wu.xyz[0].disp.pos & 0xFFFF;
-        ewk->wu.position_y = ewk->wu.xyz[1].disp.pos & 0xFFFF;
-        sort_push_request4(&ewk->wu);
         break;
 
     case 2:
-        switch (ewk->wu.routine_no[1]) {
-        case 0:
-            ewk->wu.routine_no[1]++;
-            ewk->wu.disp_flag = 1;
-            ewk->wu.old_cgnum = ewk->wu.cg_number = 0;
-            ewk->wu.cg_number++;
-            ewk->wu.cg_number &= 0x7FFF;
-            ewk->prio_reverse = 1;
-            break;
-
-        case 1:
-            if (!--ewk->wu.dir_timer) {
-                ewk->wu.routine_no[1]++;
-                ewk->wu.dir_timer = 40;
-            }
-
-            break;
-
-        case 2:
-            if (--ewk->wu.dir_timer) {
-                ewk->wu.xyz[0].disp.pos = ewk->wu.xyz[0].disp.pos - 10;
-            } else {
-                ewk->wu.routine_no[0] = 4;
-            }
-
-            break;
+        if (--ewk->wu.dir_timer) {
+            ewk->wu.xyz[0].disp.pos = ewk->wu.xyz[0].disp.pos - 10;
+        } else {
+            ewk->wu.routine_no[0] = 3;
         }
 
-        ewk->wu.position_x = ewk->wu.xyz[0].disp.pos & 0xFFFF;
-        ewk->wu.position_y = ewk->wu.xyz[1].disp.pos & 0xFFFF;
+        break;
+    }
+
+    ewk->wu.position_x = ewk->wu.xyz[0].disp.pos & 0xFFFF;
+    ewk->wu.position_y = ewk->wu.xyz[1].disp.pos & 0xFFFF;
+    sort_push_request4(&ewk->wu);
+}
+
+static void update_right_connection_67(WORK_Other_CONN* ewk) {
+    switch (ewk->wu.routine_no[1]) {
+    case 0:
+        ewk->wu.routine_no[1]++;
+        ewk->wu.disp_flag = 1;
+        set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+        break;
+
+    case 1:
+        if (!--ewk->wu.dir_timer) {
+            ewk->wu.routine_no[1]++;
+            ewk->wu.dir_timer = 39;
+        }
+
+        break;
+
+    case 2:
+        if (--ewk->wu.dir_timer) {
+            ewk->wu.xyz[0].disp.pos = ewk->wu.xyz[0].disp.pos + 10;
+        } else {
+            ewk->wu.routine_no[0] = 3;
+        }
+
+        break;
+    }
+
+    ewk->wu.position_x = ewk->wu.xyz[0].disp.pos & 0xFFFF;
+    ewk->wu.position_y = ewk->wu.xyz[1].disp.pos & 0xFFFF;
+    sort_push_request4(&ewk->wu);
+}
+
+static void update_animated_connection_67(WORK_Other_CONN* ewk) {
+    switch (ewk->wu.routine_no[1]) {
+    case 0:
+        ewk->wu.routine_no[1]++;
+        ewk->wu.disp_flag = 1;
+        ewk->wu.old_cgnum = ewk->wu.cg_number = 0;
         ewk->wu.cg_number++;
         ewk->wu.cg_number &= 0x7FFF;
-        sort_push_request3(&ewk->wu);
+        ewk->prio_reverse = 1;
+        break;
+
+    case 1:
+        if (!--ewk->wu.dir_timer) {
+            ewk->wu.routine_no[1]++;
+            ewk->wu.dir_timer = 40;
+        }
+
+        break;
+
+    case 2:
+        if (--ewk->wu.dir_timer) {
+            ewk->wu.xyz[0].disp.pos = ewk->wu.xyz[0].disp.pos - 10;
+        } else {
+            ewk->wu.routine_no[0] = 4;
+        }
+
+        break;
+    }
+
+    ewk->wu.position_x = ewk->wu.xyz[0].disp.pos & 0xFFFF;
+    ewk->wu.position_y = ewk->wu.xyz[1].disp.pos & 0xFFFF;
+    ewk->wu.cg_number++;
+    ewk->wu.cg_number &= 0x7FFF;
+    sort_push_request3(&ewk->wu);
+}
+
+static void initialize_static_connection_67(WORK_Other_CONN* ewk) {
+    switch (ewk->wu.routine_no[1]) {
+    case 0:
+        ewk->wu.routine_no[1]++;
+        ewk->wu.disp_flag = 1;
+        set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+        break;
+    }
+
+    ewk->wu.position_x = ewk->wu.xyz[0].disp.pos & 0xFFFF;
+    ewk->wu.position_y = ewk->wu.xyz[1].disp.pos & 0xFFFF;
+    sort_push_request4(&ewk->wu);
+}
+
+void effect_67_move(WORK_Other_CONN* ewk) {
+    switch (ewk->wu.routine_no[0]) {
+    case 0:
+        update_left_connection_67(ewk);
+        break;
+
+    case 1:
+        update_right_connection_67(ewk);
+        break;
+
+    case 2:
+        update_animated_connection_67(ewk);
         break;
 
     case 3:
@@ -124,17 +150,7 @@ void effect_67_move(WORK_Other_CONN* ewk) {
         break;
 
     case 5:
-        switch (ewk->wu.routine_no[1]) {
-        case 0:
-            ewk->wu.routine_no[1]++;
-            ewk->wu.disp_flag = 1;
-            set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
-            break;
-        }
-
-        ewk->wu.position_x = ewk->wu.xyz[0].disp.pos & 0xFFFF;
-        ewk->wu.position_y = ewk->wu.xyz[1].disp.pos & 0xFFFF;
-        sort_push_request4(&ewk->wu);
+        initialize_static_connection_67(ewk);
         break;
 
     case 6:

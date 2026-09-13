@@ -13,11 +13,41 @@ static s32 effect_is_alive(const WORK_Other* ewk) {
     return ewk->wu.dead_f == 0 && Suicide[0] == 0;
 }
 
+static s32 effect_is_paused(void) {
+    return Game_pause || EXE_flag;
+}
+
+static s32 player_routine_allows_flash(const PLW* mwk) {
+    return mwk->wu.routine_no[1] != 1 && mwk->wu.routine_no[1] != 2 && mwk->wu.routine_no[1] != 3;
+}
+
 static s32 should_continue_flash(const WORK_Other* ewk, const PLW* mwk) {
-    return ewk->wu.dead_f == 0 && ewk->wu.dir_timer > 0 && mwk->wu.routine_no[1] != 1 &&
-           mwk->wu.routine_no[1] != 2 && mwk->wu.routine_no[1] != 3 &&
+    return ewk->wu.dead_f == 0 && ewk->wu.dir_timer > 0 && player_routine_allows_flash(mwk) &&
            (mwk->wu.now_koc != 5 ||
             (!(mwk->wu.kind_of_waza & 0x20) && mwk->wu.char_index != 0x40 && mwk->wu.char_index != 1));
+}
+
+static void tick_flash_timer(WORK_Other* ewk, const PLW* mwk) {
+    if (mwk->sa_stop_flag != 1) {
+        ewk->wu.dir_timer--;
+    }
+}
+
+static void update_player_flash(const WORK_Other* ewk, PLW* mwk) {
+    if (ewk->wu.dir_timer >= 30) {
+        return;
+    }
+
+    mwk->wu.my_bright_type = 1;
+
+    if (ewk->wu.dir_timer < 10) {
+        mwk->wu.disp_flag = 1;
+        mwk->wu.my_bright_level = ewk->wu.dir_timer;
+    } else {
+        mwk->wu.disp_flag = 2;
+        mwk->wu.my_bright_level = 13;
+        mwk->wu.my_col_mode = 0x4400;
+    }
 }
 
 
@@ -31,41 +61,27 @@ void effect_L0_move(WORK_Other* ewk) {
         /* fallthrough */
 
     case 1:
-        if (effect_is_alive(ewk)) {
-            if (Game_pause || EXE_flag) {
-                break;
-            }
-
-            if (mwk->sa_stop_flag != 1) {
-                ewk->wu.dir_timer--;
-            }
-
-            if (should_continue_flash(ewk, mwk)) {
-
-                if (ewk->wu.dir_timer >= 30) {
-                    break;
-                }
-
-                mwk->wu.my_bright_type = 1;
-
-                if (ewk->wu.dir_timer < 10) {
-                    mwk->wu.disp_flag = 1;
-                    mwk->wu.my_bright_level = ewk->wu.dir_timer;
-                } else {
-                    mwk->wu.disp_flag = 2;
-                    mwk->wu.my_bright_level = 13;
-                    mwk->wu.my_col_mode = 0x4400;
-                }
-
-                break;
-            }
-
-            mwk->wu.disp_flag = 1;
-            mwk->wu.my_bright_type = 0;
-            mwk->wu.my_bright_level = 0;
-            mwk->wu.my_clear_level = 0;
-            mwk->wu.my_col_mode = 0x4200;
+        if (!effect_is_alive(ewk)) {
+            ewk->wu.routine_no[0]++;
+            break;
         }
+
+        if (effect_is_paused()) {
+            break;
+        }
+
+        tick_flash_timer(ewk, mwk);
+
+        if (should_continue_flash(ewk, mwk)) {
+            update_player_flash(ewk, mwk);
+            break;
+        }
+
+        mwk->wu.disp_flag = 1;
+        mwk->wu.my_bright_type = 0;
+        mwk->wu.my_bright_level = 0;
+        mwk->wu.my_clear_level = 0;
+        mwk->wu.my_col_mode = 0x4200;
 
         ewk->wu.routine_no[0]++;
         break;

@@ -316,6 +316,26 @@ static s32 is_double_width_code(u8 data) {
     return data >= 128 && data < 160;
 }
 
+static void update_message_state_B6(WORK_Other_CONN* ewk) {
+    switch (ewk->wu.routine_no[1]) {
+    case 0:
+        ewk->wu.routine_no[1]++;
+        ot_mot[0] = *ot_cgf;
+        ot_mot_of[0] = ot_all_of[0];
+        ot_mot_of[1] = ot_all_of[1];
+        get_message_conn_data(ewk, ot_mot[0], ot_mot_of[0], ot_mot_of[1]);
+        ewk->wu.disp_flag = 1;
+        break;
+
+    case 1:
+        if (ot_mot[1]) {
+            ewk->wu.routine_no[1] = 0;
+        }
+
+        break;
+    }
+}
+
 
 void effect_B6_move(WORK_Other_CONN* ewk) {
     switch (ewk->wu.routine_no[0]) {
@@ -337,23 +357,7 @@ void effect_B6_move(WORK_Other_CONN* ewk) {
         ewk->wu.position_x = ot_pat[0];
         ewk->wu.position_y = ot_pat[1];
 
-        switch (ewk->wu.routine_no[1]) {
-        case 0:
-            ewk->wu.routine_no[1]++;
-            ot_mot[0] = *ot_cgf;
-            ot_mot_of[0] = ot_all_of[0];
-            ot_mot_of[1] = ot_all_of[1];
-            get_message_conn_data(ewk, ot_mot[0], ot_mot_of[0], ot_mot_of[1]);
-            ewk->wu.disp_flag = 1;
-            break;
-
-        case 1:
-            if (ot_mot[1]) {
-                ewk->wu.routine_no[1] = 0;
-            }
-
-            break;
-        }
+        update_message_state_B6(ewk);
 
         sort_push_request3(&ewk->wu);
         break;
@@ -361,6 +365,22 @@ void effect_B6_move(WORK_Other_CONN* ewk) {
     default:
         push_effect_work(&ewk->wu);
         break;
+    }
+}
+
+static s32 message_advance_B6(s32 hzflag, s32 slideX) {
+    if (hzflag) {
+        return slideX * 2;
+    }
+
+    return slideX;
+}
+
+static void halt_on_connection_overflow_B6(s32 connection_count) {
+    if (connection_count > 108) {
+        while (1) {
+            // do nothing
+        }
     }
 }
 
@@ -407,19 +427,10 @@ void get_message_conn_data(WORK_Other_CONN* ewk, s16 kind, s16 pl, s16 msg) {
                 ewk->conn[mjcnt].col = 0;
                 ewk->conn[mjcnt].chr = objnum;
                 mjcnt++;
-
-                if (mjcnt > 108) {
-                    while (1) {
-                        // do nothing
-                    }
-                }
+                halt_on_connection_overflow_B6(mjcnt);
             }
 
-            if (hzflag) {
-                currX += slideX * 2;
-            } else {
-                currX += slideX;
-            }
+            currX += message_advance_B6(hzflag, slideX);
         }
 
         currX = 0;
@@ -429,11 +440,11 @@ void get_message_conn_data(WORK_Other_CONN* ewk, s16 kind, s16 pl, s16 msg) {
     ewk->num_of_conn = mjcnt;
 }
 
-static const u8* find_han_character_3(const u8* text, u16* number) {
+static const u8* find_han_character(const u8* text, u16* number, s32 table_count) {
     s32 i;
     s32 j;
 
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < table_count; i++) {
         for (j = 0; j < 128; j++) {
             if (strcmp(text, han_adrs[i][j]) != 0) {
                 continue;
@@ -465,19 +476,24 @@ static const u8* find_zen_character(const u8* text, u16* number) {
     return NULL;
 }
 
-static const u8* find_han_character_2(const u8* text, u16* number) {
-    s32 i;
-    s32 j;
+static s32 prepare_half_width_text_B6(u8* moji, u8* tmpstr) {
+    if (moji[0] == 0x5E) {
+        tmpstr[0] = moji[0];
+        tmpstr[1] = moji[1];
+        tmpstr[2] = 0;
+        return 2;
+    }
 
-    for (i = 0; i < 2; i++) {
-        for (j = 0; j < 128; j++) {
-            if (strcmp(text, han_adrs[i][j]) != 0) {
-                continue;
-            }
+    tmpstr[0] = moji[0];
+    tmpstr[1] = 0;
+    return 1;
+}
 
-            *number = j + (i * 128) + 0x7F30;
-            return text;
-        }
+static const u8* find_converted_han_character_3(u8* tmpstr, u16* number) {
+    if (msgCheckCodeSize(tmpstr[0]) == 1) {
+        tmpstr[1] = ((u8**)src_han_zen_conv)[tmpstr[0]][1];
+        tmpstr[0] = ((u8**)src_han_zen_conv)[tmpstr[0]][0];
+        return find_han_character(&tmpstr[0], number, 3);
     }
 
     return NULL;
@@ -493,26 +509,23 @@ s32 msgConvertObjNum(u8* moji, s32* spc, s32* hz, u16* num, u8 hzSel) {
         tmpstr[2] = 0;
 
         if (tmpstr[0] == ' ') {
-            goto one;
+            rnum = 1;
+            goto spacing;
         }
 
         if (strcmp(&tmpstr[0], "\x62\x68") == 0) {
-            goto two;
+            rnum = 2;
+            goto spacing;
         }
 
         if (is_spacing_code(tmpstr)) {
             goto three;
         }
 
-        if (msgCheckCodeSize(tmpstr[0]) == 1) {
-            tmpstr[1] = ((u8**)src_han_zen_conv)[tmpstr[0]][1];
-            tmpstr[0] = ((u8**)src_han_zen_conv)[tmpstr[0]][0];
-
-            if (find_han_character_3(&tmpstr[0], num)) {
-                *hz = 0;
-                *spc = 0;
-                return 1;
-            }
+        if (find_converted_han_character_3(tmpstr, num)) {
+            *hz = 0;
+            *spc = 0;
+            return 1;
         }
 
         if (find_zen_character(&tmpstr[0], num)) {
@@ -524,38 +537,23 @@ s32 msgConvertObjNum(u8* moji, s32* spc, s32* hz, u16* num, u8 hzSel) {
         goto three;
     }
 
-    if (moji[0] == 0x5E) {
-        tmpstr[0] = moji[0];
-        tmpstr[1] = moji[1];
-        tmpstr[2] = 0;
-        rnum = 2;
-    } else {
-        tmpstr[0] = moji[0];
-        tmpstr[1] = 0;
-        rnum = 1;
-    }
+    rnum = prepare_half_width_text_B6(moji, tmpstr);
 
     if (tmpstr[0] == ' ') {
-        goto one;
+        goto spacing;
     }
 
-    if (find_han_character_2(&tmpstr[0], num)) {
+    if (find_han_character(&tmpstr[0], num, 2)) {
         *hz = 0;
         *spc = 0;
         return rnum;
     }
 
-one:
+spacing:
     *hz = 0;
     *spc = 1;
     *num = 0;
-    return 1;
-
-two:
-    *hz = 0;
-    *spc = 1;
-    *num = 0;
-    return 2;
+    return rnum;
 
 three:
     *hz = 1;

@@ -67,44 +67,50 @@ void EFF38_SUDDENLY(WORK_Other* ewk) {
     }
 }
 
+static void update_slide_in_wait_38(WORK_Other* ewk) {
+    if (Order[ewk->wu.dir_old] != 1) {
+        if (ewk->master_id == 0) {
+            ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos - 128;
+            ewk->wu.xyz[1].disp.pos = ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + 32;
+        } else {
+            ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + 128;
+            ewk->wu.xyz[1].disp.pos = ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos - 32;
+        }
+
+        Order[ewk->wu.dir_old] = 1;
+        return;
+    }
+
+    if (--Order_Timer[ewk->wu.dir_old] == 0) {
+        ewk->wu.routine_no[6]++;
+        ewk->wu.disp_flag = 1;
+        set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+    }
+}
+
+static void update_slide_in_motion_38(WORK_Other* ewk, u16 cut) {
+    ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp * cut;
+    ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
+
+    if (0 < ewk->wu.mvxy.a[0].sp) {
+        if (ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
+            Exit_Slide_in_38(ewk);
+        }
+    } else if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
+        Exit_Slide_in_38(ewk);
+    }
+}
+
 void EFF38_SLIDE_IN(WORK_Other* ewk) {
     u16 cut = Cut_Cut_Sub(3);
 
     switch (ewk->wu.routine_no[6]) {
     case 0:
-        if (Order[ewk->wu.dir_old] != 1) {
-            if (ewk->master_id == 0) {
-                ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos - 128;
-                ewk->wu.xyz[1].disp.pos = ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + 32;
-            } else {
-                ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + 128;
-                ewk->wu.xyz[1].disp.pos = ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos - 32;
-            }
-
-            Order[ewk->wu.dir_old] = 1;
-            break;
-        }
-
-        if (--Order_Timer[ewk->wu.dir_old] == 0) {
-            ewk->wu.routine_no[6]++;
-            ewk->wu.disp_flag = 1;
-            set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
-        }
-
+        update_slide_in_wait_38(ewk);
         break;
 
     case 1:
-        ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp * cut;
-        ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
-
-        if (0 < ewk->wu.mvxy.a[0].sp) {
-            if (ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
-                Exit_Slide_in_38(ewk);
-            }
-        } else if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
-            Exit_Slide_in_38(ewk);
-        }
-
+        update_slide_in_motion_38(ewk, cut);
         break;
     }
 }
@@ -184,34 +190,38 @@ void EFF38_KILL(WORK_Other* ewk) {
     }
 }
 
+static void initialize_shift_38(WORK_Other* ewk) {
+    if (--Order_Timer[ewk->wu.dir_old] != 0) {
+        return;
+    }
+
+    ewk->wu.routine_no[1]++;
+
+    if (ewk->master_id == 0) {
+        ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + EFF38_Base_XY[ewk->master_id][1][0] +
+                            EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][0];
+        ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + EFF38_Base_XY[ewk->master_id][1][1] +
+                            EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][1];
+        ewk->wu.mvxy.a[0].sp = -0x60000;
+        ewk->wu.mvxy.a[1].sp = 0x30000;
+        cal_delta_speed(&ewk->wu, 10, ewk->wu.hit_quake, ewk->wu.vital_new, 1, 1);
+        ewk->wu.dir_timer = 10;
+    } else {
+        ewk->wu.hit_quake = 128 + bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos +
+                            EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][0];
+        ewk->wu.vital_new = -32 + bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos +
+                            EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][1];
+        ewk->wu.mvxy.a[0].sp = 0x60000;
+        ewk->wu.mvxy.a[1].sp = -0x30000;
+        cal_delta_speed(&ewk->wu, 10, ewk->wu.hit_quake, ewk->wu.vital_new, 1, 1);
+        ewk->wu.dir_timer = 10;
+    }
+}
+
 void EFF38_SHIFT(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old] != 0) {
-            break;
-        }
-
-        ewk->wu.routine_no[1]++;
-
-        if (ewk->master_id == 0) {
-            ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + EFF38_Base_XY[ewk->master_id][1][0] +
-                                EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][0];
-            ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + EFF38_Base_XY[ewk->master_id][1][1] +
-                                EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][1];
-            ewk->wu.mvxy.a[0].sp = -0x60000;
-            ewk->wu.mvxy.a[1].sp = 0x30000;
-            cal_delta_speed(&ewk->wu, 10, ewk->wu.hit_quake, ewk->wu.vital_new, 1, 1);
-            ewk->wu.dir_timer = 10;
-        } else {
-            ewk->wu.hit_quake = 128 + bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos +
-                                EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][0];
-            ewk->wu.vital_new = -32 + bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos +
-                                EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][1];
-            ewk->wu.mvxy.a[0].sp = 0x60000;
-            ewk->wu.mvxy.a[1].sp = -0x30000;
-            cal_delta_speed(&ewk->wu, 10, ewk->wu.hit_quake, ewk->wu.vital_new, 1, 1);
-            ewk->wu.dir_timer = 10;
-        }
+        initialize_shift_38(ewk);
 
         break;
 
@@ -299,6 +309,28 @@ s32 Move_Y_Sub_38(WORK_Other* ewk, s16 Target_Y) {
     return 0;
 }
 
+static void update_selected_portrait_38(WORK_Other* ewk) {
+    if (ewk->wu.dir_step != ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]]) {
+        ewk->wu.dir_step = ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]];
+        ewk->wu.xyz[0].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos +
+                                  EFF38_Base_XY[ewk->master_id][Play_Type][0] +
+                                  EFF38_Correct_Data[ewk->master_id][Play_Type][ewk->wu.dir_step][0];
+        ewk->wu.xyz[1].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos +
+                                  EFF38_Base_XY[ewk->master_id][Play_Type][1] +
+                                  EFF38_Correct_Data[ewk->master_id][Play_Type][ewk->wu.dir_step][1];
+
+        if (ewk->master_id == 0 && ewk->wu.dir_step == 0) {
+            ewk->wu.dir_step = 23;
+        }
+
+        set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+    }
+
+    if (Sel_PL_Complete[ewk->master_id]) {
+        ewk->wu.routine_no[1]++;
+    }
+}
+
 void EFF38_MOVE(WORK_Other* ewk) {
     if (Order[ewk->wu.dir_old] != 5) {
         ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
@@ -318,31 +350,66 @@ if (is_selection_ready(ewk)) {
         break;
 
     case 1:
-        if (ewk->wu.dir_step != ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]]) {
-            ewk->wu.dir_step = ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]];
-            ewk->wu.xyz[0].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos +
-                                      EFF38_Base_XY[ewk->master_id][Play_Type][0] +
-                                      EFF38_Correct_Data[ewk->master_id][Play_Type][ewk->wu.dir_step][0];
-            ewk->wu.xyz[1].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos +
-                                      EFF38_Base_XY[ewk->master_id][Play_Type][1] +
-                                      EFF38_Correct_Data[ewk->master_id][Play_Type][ewk->wu.dir_step][1];
-
-            if (ewk->master_id == 0 && ewk->wu.dir_step == 0) {
-                ewk->wu.dir_step = 23;
-            }
-
-            set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
-        }
-
-        if (Sel_PL_Complete[ewk->master_id]) {
-            ewk->wu.routine_no[1]++;
-        }
-
+        update_selected_portrait_38(ewk);
         break;
 
     case 2:
         break;
     }
+}
+
+static void select_initial_character_38(WORK_Other* ewk, s16 PL_id, s16 Your_Char) {
+    if (Your_Char == 0x7F) {
+        ewk->wu.dir_step = ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]];
+
+        if (ewk->wu.dir_step == 0 && PL_id == 0) {
+            ewk->wu.dir_step = 23;
+        }
+    } else {
+        ewk->wu.dir_step = Your_Char;
+    }
+}
+
+static void set_initial_target_38(WORK_Other* ewk, s16 Play_Status) {
+    if (Play_Status == 0) {
+        ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos +
+                            EFF38_Base_XY[ewk->master_id][0][0] +
+                            EFF38_Correct_Data[ewk->master_id][0][ewk->wu.dir_step][0];
+        ewk->wu.xyz[1].disp.pos = ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos +
+                                                      EFF38_Base_XY[ewk->master_id][0][1] +
+                                                      EFF38_Correct_Data[ewk->master_id][0][ewk->wu.dir_step][1];
+    } else {
+        ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos +
+                            EFF38_Base_XY[ewk->master_id][1][0] +
+                            EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][0];
+        ewk->wu.xyz[1].disp.pos = ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos +
+                                                      EFF38_Base_XY[ewk->master_id][1][1] +
+                                                      EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][1];
+    }
+}
+
+static void initialize_player_one_portrait_38(WORK_Other* ewk, s16 PL_id, s16 Your_Char) {
+    if (Your_Char != 0x7F && My_char[PL_id] == 0) {
+        ewk->wu.dir_step = 0x17;
+    }
+
+    ewk->wu.xyz[0].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos - 272;
+    ewk->wu.position_z = 77;
+    ewk->wu.mvxy.a[0].sp = 0xF0000;
+    ewk->wu.mvxy.d[0].sp = 0x8000;
+    ewk->wu.mvxy.d[1].sp = 0;
+}
+
+static void initialize_player_two_portrait_38(WORK_Other* ewk, s16 PL_id) {
+    if (My_char[PL_id] == 21) {
+        ewk->wu.dir_step++;
+    }
+
+    ewk->wu.xyz[0].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + 272;
+    ewk->wu.position_z = 75;
+    ewk->wu.mvxy.a[0].sp = -0xF0000;
+    ewk->wu.mvxy.d[0].sp = -0x8000;
+    ewk->wu.mvxy.d[1].sp = 0;
 }
 
 s32 effect_38_init(s16 PL_id, s16 dir_old, s16 Your_Char, s16 Play_Status, s16 Target_BG) {
@@ -369,67 +436,17 @@ s32 effect_38_init(s16 PL_id, s16 dir_old, s16 Your_Char, s16 Play_Status, s16 T
     ewk->wu.my_mts = 13;
     ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
 
-    if (Your_Char == 0x7F) {
-        ewk->wu.dir_step = ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]];
-
-        if (ewk->wu.dir_step == 0 && PL_id == 0) {
-            ewk->wu.dir_step = 23;
-        }
-    } else {
-        ewk->wu.dir_step = Your_Char;
-    }
+    select_initial_character_38(ewk, PL_id, Your_Char);
 
     ewk->wu.rl_flag = PL_id ^ 1;
 
     if (PL_id) {
-        if (My_char[PL_id] == 21) {
-            ewk->wu.dir_step++;
-        }
-
-        ewk->wu.xyz[0].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + 272;
-        ewk->wu.position_z = 75;
-        ewk->wu.mvxy.a[0].sp = -0xF0000;
-        ewk->wu.mvxy.d[0].sp = -0x8000;
-        ewk->wu.mvxy.d[1].sp = 0;
-
-        if (Play_Status == 0) {
-            ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + EFF38_Base_XY[ewk->master_id][0][0] +
-                                EFF38_Correct_Data[ewk->master_id][0][ewk->wu.dir_step][0];
-            ewk->wu.xyz[1].disp.pos = ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos +
-                                                          EFF38_Base_XY[ewk->master_id][0][1] +
-                                                          EFF38_Correct_Data[ewk->master_id][0][ewk->wu.dir_step][1];
-        } else {
-            ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + EFF38_Base_XY[ewk->master_id][1][0] +
-                                EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][0];
-            ewk->wu.xyz[1].disp.pos = ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos +
-                                                          EFF38_Base_XY[ewk->master_id][1][1] +
-                                                          EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][1];
-        }
+        initialize_player_two_portrait_38(ewk, PL_id);
     } else {
-        if (Your_Char != 0x7F && My_char[PL_id] == 0) {
-            ewk->wu.dir_step = 0x17;
-        }
-
-        ewk->wu.xyz[0].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos - 272;
-        ewk->wu.position_z = 77;
-        ewk->wu.mvxy.a[0].sp = 0xF0000;
-        ewk->wu.mvxy.d[0].sp = 0x8000;
-        ewk->wu.mvxy.d[1].sp = 0;
-
-        if (Play_Status == 0) {
-            ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + EFF38_Base_XY[ewk->master_id][0][0] +
-                                EFF38_Correct_Data[ewk->master_id][0][ewk->wu.dir_step][0];
-            ewk->wu.xyz[1].disp.pos = ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos +
-                                                          EFF38_Base_XY[ewk->master_id][0][1] +
-                                                          EFF38_Correct_Data[ewk->master_id][0][ewk->wu.dir_step][1];
-        } else {
-            ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + EFF38_Base_XY[ewk->master_id][1][0] +
-                                EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][0];
-            ewk->wu.xyz[1].disp.pos = ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos +
-                                                          EFF38_Base_XY[ewk->master_id][1][1] +
-                                                          EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][1];
-        }
+        initialize_player_one_portrait_38(ewk, PL_id, Your_Char);
     }
+
+    set_initial_target_38(ewk, Play_Status);
 
     return 0;
 }
