@@ -357,6 +357,24 @@ static void select_initial_character_38(WORK_Other* ewk, s16 PL_id, s16 Your_Cha
     }
 }
 
+static void set_initial_target_38(WORK_Other* ewk, s16 Play_Status) {
+    if (Play_Status == 0) {
+        ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos +
+                            EFF38_Base_XY[ewk->master_id][0][0] +
+                            EFF38_Correct_Data[ewk->master_id][0][ewk->wu.dir_step][0];
+        ewk->wu.xyz[1].disp.pos = ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos +
+                                                      EFF38_Base_XY[ewk->master_id][0][1] +
+                                                      EFF38_Correct_Data[ewk->master_id][0][ewk->wu.dir_step][1];
+    } else {
+        ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos +
+                            EFF38_Base_XY[ewk->master_id][1][0] +
+                            EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][0];
+        ewk->wu.xyz[1].disp.pos = ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos +
+                                                      EFF38_Base_XY[ewk->master_id][1][1] +
+                                                      EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][1];
+    }
+}
+
 s32 effect_38_init(s16 PL_id, s16 dir_old, s16 Your_Char, s16 Play_Status, s16 Target_BG) {
     WORK_Other* ewk;
     s16 ix;
@@ -396,19 +414,6 @@ s32 effect_38_init(s16 PL_id, s16 dir_old, s16 Your_Char, s16 Play_Status, s16 T
         ewk->wu.mvxy.d[0].sp = -0x8000;
         ewk->wu.mvxy.d[1].sp = 0;
 
-        if (Play_Status == 0) {
-            ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + EFF38_Base_XY[ewk->master_id][0][0] +
-                                EFF38_Correct_Data[ewk->master_id][0][ewk->wu.dir_step][0];
-            ewk->wu.xyz[1].disp.pos = ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos +
-                                                          EFF38_Base_XY[ewk->master_id][0][1] +
-                                                          EFF38_Correct_Data[ewk->master_id][0][ewk->wu.dir_step][1];
-        } else {
-            ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + EFF38_Base_XY[ewk->master_id][1][0] +
-                                EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][0];
-            ewk->wu.xyz[1].disp.pos = ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos +
-                                                          EFF38_Base_XY[ewk->master_id][1][1] +
-                                                          EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][1];
-        }
     } else {
         if (Your_Char != 0x7F && My_char[PL_id] == 0) {
             ewk->wu.dir_step = 0x17;
@@ -420,20 +425,9 @@ s32 effect_38_init(s16 PL_id, s16 dir_old, s16 Your_Char, s16 Play_Status, s16 T
         ewk->wu.mvxy.d[0].sp = 0x8000;
         ewk->wu.mvxy.d[1].sp = 0;
 
-        if (Play_Status == 0) {
-            ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + EFF38_Base_XY[ewk->master_id][0][0] +
-                                EFF38_Correct_Data[ewk->master_id][0][ewk->wu.dir_step][0];
-            ewk->wu.xyz[1].disp.pos = ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos +
-                                                          EFF38_Base_XY[ewk->master_id][0][1] +
-                                                          EFF38_Correct_Data[ewk->master_id][0][ewk->wu.dir_step][1];
-        } else {
-            ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + EFF38_Base_XY[ewk->master_id][1][0] +
-                                EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][0];
-            ewk->wu.xyz[1].disp.pos = ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos +
-                                                          EFF38_Base_XY[ewk->master_id][1][1] +
-                                                          EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][1];
-        }
     }
+
+    set_initial_target_38(ewk, Play_Status);
 
     return 0;
 }
