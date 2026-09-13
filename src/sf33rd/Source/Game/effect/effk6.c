@@ -345,21 +345,25 @@ static s16 get_player_one_name_position_K6(WORK_Other* ewk, s16 Who, s16 Get_Typ
     }
 }
 
+static s16 get_player_two_name_position_K6(WORK_Other* ewk, s16 Who, s16 Get_Type, s16 Play_Style) {
+    switch (ewk->wu.direction) {
+    default:
+    case 25:
+    case 29:
+        Who += chkNameAkuma(Who, 9);
+        return Name_Cover_Pos_Data[ewk->master_id][Play_Style][Who][Get_Type];
+
+    case 31:
+    case 35:
+        return get_center_name_position(ewk->master_id, Get_Type, Play_Style);
+    }
+}
+
 s16 Get_PosK6(WORK_Other* ewk, s16 Who, s16 Get_Type, s16 Play_Style) {
     if (ewk->master_id == 0) {
         return get_player_one_name_position_K6(ewk, Who, Get_Type, Play_Style);
     } else {
-        switch (ewk->wu.direction) {
-        default:
-        case 25:
-        case 29:
-            Who += chkNameAkuma(Who, 9);
-            return Name_Cover_Pos_Data[ewk->master_id][Play_Style][Who][Get_Type];
-
-        case 31:
-        case 35:
-            return get_center_name_position(ewk->master_id, Get_Type, Play_Style);
-        }
+        return get_player_two_name_position_K6(ewk, Who, Get_Type, Play_Style);
     }
 }
 
