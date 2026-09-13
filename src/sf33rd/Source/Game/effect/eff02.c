@@ -165,9 +165,63 @@ static void setup_hit_mark_properties(WORK_Other* ewk, const HMDT* tad) {
     }
 }
 
+static void position_and_animate_hit_mark(WORK_Other* ewk, const HMDT* tad) {
+    const EXPLEM* edt;
+
+    if (tad->status & 0x10) {
+        if (tad->status & 0x20) {
+            edt = &explem2[tad->emhix][ewk->wu.dir_timer];
+        } else {
+            edt = &explem[tad->myhix];
+        }
+
+        if (ewk->wu.rl_flag) {
+            ewk->wu.xyz[0].disp.pos -= *(s16*)&edt->hx;
+        } else {
+            ewk->wu.xyz[0].disp.pos += *(s16*)&edt->hx;
+        }
+
+        ewk->wu.xyz[1].disp.pos += *(s16*)&edt->hy;
+    } else {
+        ewk->wu.xyz[0].disp.pos += ewk->wu.old_pos[0];
+        ewk->wu.xyz[1].disp.pos += ewk->wu.old_pos[1];
+    }
+
+    if (ewk->wu.weight_level) {
+        ewk->wu.xyz[0].disp.pos += ((PLW*)ewk->my_master)->muriyari_ugoku;
+    }
+
+    if (tad->status & 2) {
+        ewk->wu.xyz[0].disp.pos += random_16() - 7;
+        ewk->wu.xyz[1].disp.pos += (random_16() & 7) - 3;
+    }
+
+    ewk->wu.scr_mv_x = gqdt[tad->quake][0];
+    ewk->wu.scr_mv_y = gqdt[tad->quake][1];
+    ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
+    ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
+    ewk->wu.position_z = ewk->wu.xyz[2].disp.pos;
+
+    if (tad->status & 0x10) {
+        set_char_move_init(&ewk->wu, 0, edt->chix);
+    } else {
+        ewk->wu.dir_old = 0;
+
+        if (tad->dir) {
+            ewk->wu.dir_old = hit_mark_dir_table[ewk->wu.direction];
+
+            if (ewk->wu.dir_old < 0) {
+                ewk->wu.rl_flag = 1;
+                ewk->wu.dir_old = -ewk->wu.dir_old;
+            }
+        }
+
+        set_char_move_init(&ewk->wu, 0, tad->hits + ewk->wu.dir_old);
+    }
+}
+
 void effect_02_move(WORK_Other* ewk) {
     const HMDT* tad;
-    const EXPLEM* edt;
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -202,57 +256,7 @@ void effect_02_move(WORK_Other* ewk) {
         }
 
         setup_hit_mark_properties(ewk, tad);
-
-        if (tad->status & 0x10) {
-            if (tad->status & 0x20) {
-                edt = &explem2[tad->emhix][ewk->wu.dir_timer];
-            } else {
-                edt = &explem[tad->myhix];
-            }
-
-            if (ewk->wu.rl_flag) {
-                ewk->wu.xyz[0].disp.pos -= *(s16*)&edt->hx;
-            } else {
-                ewk->wu.xyz[0].disp.pos += *(s16*)&edt->hx;
-            }
-
-            ewk->wu.xyz[1].disp.pos += *(s16*)&edt->hy;
-        } else {
-            ewk->wu.xyz[0].disp.pos += ewk->wu.old_pos[0];
-            ewk->wu.xyz[1].disp.pos += ewk->wu.old_pos[1];
-        }
-
-        if (ewk->wu.weight_level) {
-            ewk->wu.xyz[0].disp.pos += ((PLW*)ewk->my_master)->muriyari_ugoku;
-        }
-
-        if (tad->status & 2) {
-            ewk->wu.xyz[0].disp.pos += random_16() - 7;
-            ewk->wu.xyz[1].disp.pos += (random_16() & 7) - 3;
-        }
-
-        ewk->wu.scr_mv_x = gqdt[tad->quake][0];
-        ewk->wu.scr_mv_y = gqdt[tad->quake][1];
-        ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
-        ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
-        ewk->wu.position_z = ewk->wu.xyz[2].disp.pos;
-
-        if (tad->status & 0x10) {
-            set_char_move_init(&ewk->wu, 0, edt->chix);
-        } else {
-            ewk->wu.dir_old = 0;
-
-            if (tad->dir) {
-                ewk->wu.dir_old = hit_mark_dir_table[ewk->wu.direction];
-
-                if (ewk->wu.dir_old < 0) {
-                    ewk->wu.rl_flag = 1;
-                    ewk->wu.dir_old = -ewk->wu.dir_old;
-                }
-            }
-
-            set_char_move_init(&ewk->wu, 0, tad->hits + ewk->wu.dir_old);
-        }
+        position_and_animate_hit_mark(ewk, tad);
 
         if (ewk->wu.char_index == 0x4B) {
             ewk->wu.my_mr_flag = 1;
