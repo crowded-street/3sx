@@ -494,6 +494,19 @@ static const u8* find_han_character_2(const u8* text, u16* number) {
     return NULL;
 }
 
+static s32 prepare_half_width_text_B6(u8* moji, u8* tmpstr) {
+    if (moji[0] == 0x5E) {
+        tmpstr[0] = moji[0];
+        tmpstr[1] = moji[1];
+        tmpstr[2] = 0;
+        return 2;
+    }
+
+    tmpstr[0] = moji[0];
+    tmpstr[1] = 0;
+    return 1;
+}
+
 s32 msgConvertObjNum(u8* moji, s32* spc, s32* hz, u16* num, u8 hzSel) {
     u8 tmpstr[4];
     s32 rnum;
@@ -535,16 +548,7 @@ s32 msgConvertObjNum(u8* moji, s32* spc, s32* hz, u16* num, u8 hzSel) {
         goto three;
     }
 
-    if (moji[0] == 0x5E) {
-        tmpstr[0] = moji[0];
-        tmpstr[1] = moji[1];
-        tmpstr[2] = 0;
-        rnum = 2;
-    } else {
-        tmpstr[0] = moji[0];
-        tmpstr[1] = 0;
-        rnum = 1;
-    }
+    rnum = prepare_half_width_text_B6(moji, tmpstr);
 
     if (tmpstr[0] == ' ') {
         goto one;
