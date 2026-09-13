@@ -239,33 +239,7 @@ void eff25_06(WORK_Other* ewk) {
 }
 
 void eff25_08(WORK_Other* ewk) {
-    switch (ewk->wu.routine_no[1]) {
-    case 0:
-        if (eff_hit_flag[ewk->wu.type]) {
-            ewk->wu.routine_no[0] = 4;
-            break;
-        }
-
-        eff25_char_set(ewk);
-        break;
-
-    case 1:
-        if (eff_hit_check(ewk, ewk->wu.old_rno[4])) {
-            piece_set(ewk);
-            ewk->wu.routine_no[1]++;
-            break;
-        }
-
-        if (ewk->wu.hit_stop && !EXE_obroll) {
-            char_move(&ewk->wu);
-        }
-
-        break;
-
-    case 2:
-        ewk->wu.routine_no[0]++;
-        break;
-    }
+    eff25_04(ewk);
 }
 
 void eff25_char_set(WORK_Other* ewk) {
