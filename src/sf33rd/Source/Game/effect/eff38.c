@@ -345,6 +345,18 @@ if (is_selection_ready(ewk)) {
     }
 }
 
+static void select_initial_character_38(WORK_Other* ewk, s16 PL_id, s16 Your_Char) {
+    if (Your_Char == 0x7F) {
+        ewk->wu.dir_step = ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]];
+
+        if (ewk->wu.dir_step == 0 && PL_id == 0) {
+            ewk->wu.dir_step = 23;
+        }
+    } else {
+        ewk->wu.dir_step = Your_Char;
+    }
+}
+
 s32 effect_38_init(s16 PL_id, s16 dir_old, s16 Your_Char, s16 Play_Status, s16 Target_BG) {
     WORK_Other* ewk;
     s16 ix;
@@ -369,15 +381,7 @@ s32 effect_38_init(s16 PL_id, s16 dir_old, s16 Your_Char, s16 Play_Status, s16 T
     ewk->wu.my_mts = 13;
     ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
 
-    if (Your_Char == 0x7F) {
-        ewk->wu.dir_step = ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]];
-
-        if (ewk->wu.dir_step == 0 && PL_id == 0) {
-            ewk->wu.dir_step = 23;
-        }
-    } else {
-        ewk->wu.dir_step = Your_Char;
-    }
+    select_initial_character_38(ewk, PL_id, Your_Char);
 
     ewk->wu.rl_flag = PL_id ^ 1;
 
