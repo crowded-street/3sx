@@ -299,6 +299,28 @@ s32 Move_Y_Sub_38(WORK_Other* ewk, s16 Target_Y) {
     return 0;
 }
 
+static void update_selected_portrait_38(WORK_Other* ewk) {
+    if (ewk->wu.dir_step != ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]]) {
+        ewk->wu.dir_step = ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]];
+        ewk->wu.xyz[0].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos +
+                                  EFF38_Base_XY[ewk->master_id][Play_Type][0] +
+                                  EFF38_Correct_Data[ewk->master_id][Play_Type][ewk->wu.dir_step][0];
+        ewk->wu.xyz[1].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos +
+                                  EFF38_Base_XY[ewk->master_id][Play_Type][1] +
+                                  EFF38_Correct_Data[ewk->master_id][Play_Type][ewk->wu.dir_step][1];
+
+        if (ewk->master_id == 0 && ewk->wu.dir_step == 0) {
+            ewk->wu.dir_step = 23;
+        }
+
+        set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+    }
+
+    if (Sel_PL_Complete[ewk->master_id]) {
+        ewk->wu.routine_no[1]++;
+    }
+}
+
 void EFF38_MOVE(WORK_Other* ewk) {
     if (Order[ewk->wu.dir_old] != 5) {
         ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
@@ -318,26 +340,7 @@ if (is_selection_ready(ewk)) {
         break;
 
     case 1:
-        if (ewk->wu.dir_step != ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]]) {
-            ewk->wu.dir_step = ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]];
-            ewk->wu.xyz[0].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos +
-                                      EFF38_Base_XY[ewk->master_id][Play_Type][0] +
-                                      EFF38_Correct_Data[ewk->master_id][Play_Type][ewk->wu.dir_step][0];
-            ewk->wu.xyz[1].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos +
-                                      EFF38_Base_XY[ewk->master_id][Play_Type][1] +
-                                      EFF38_Correct_Data[ewk->master_id][Play_Type][ewk->wu.dir_step][1];
-
-            if (ewk->master_id == 0 && ewk->wu.dir_step == 0) {
-                ewk->wu.dir_step = 23;
-            }
-
-            set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
-        }
-
-        if (Sel_PL_Complete[ewk->master_id]) {
-            ewk->wu.routine_no[1]++;
-        }
-
+        update_selected_portrait_38(ewk);
         break;
 
     case 2:
