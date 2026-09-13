@@ -385,6 +385,18 @@ static void set_initial_target_38(WORK_Other* ewk, s16 Play_Status) {
     }
 }
 
+static void initialize_player_one_portrait_38(WORK_Other* ewk, s16 PL_id, s16 Your_Char) {
+    if (Your_Char != 0x7F && My_char[PL_id] == 0) {
+        ewk->wu.dir_step = 0x17;
+    }
+
+    ewk->wu.xyz[0].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos - 272;
+    ewk->wu.position_z = 77;
+    ewk->wu.mvxy.a[0].sp = 0xF0000;
+    ewk->wu.mvxy.d[0].sp = 0x8000;
+    ewk->wu.mvxy.d[1].sp = 0;
+}
+
 s32 effect_38_init(s16 PL_id, s16 dir_old, s16 Your_Char, s16 Play_Status, s16 Target_BG) {
     WORK_Other* ewk;
     s16 ix;
@@ -425,16 +437,7 @@ s32 effect_38_init(s16 PL_id, s16 dir_old, s16 Your_Char, s16 Play_Status, s16 T
         ewk->wu.mvxy.d[1].sp = 0;
 
     } else {
-        if (Your_Char != 0x7F && My_char[PL_id] == 0) {
-            ewk->wu.dir_step = 0x17;
-        }
-
-        ewk->wu.xyz[0].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos - 272;
-        ewk->wu.position_z = 77;
-        ewk->wu.mvxy.a[0].sp = 0xF0000;
-        ewk->wu.mvxy.d[0].sp = 0x8000;
-        ewk->wu.mvxy.d[1].sp = 0;
-
+        initialize_player_one_portrait_38(ewk, PL_id, Your_Char);
     }
 
     set_initial_target_38(ewk, Play_Status);
