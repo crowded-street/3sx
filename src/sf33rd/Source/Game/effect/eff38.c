@@ -397,6 +397,18 @@ static void initialize_player_one_portrait_38(WORK_Other* ewk, s16 PL_id, s16 Yo
     ewk->wu.mvxy.d[1].sp = 0;
 }
 
+static void initialize_player_two_portrait_38(WORK_Other* ewk, s16 PL_id) {
+    if (My_char[PL_id] == 21) {
+        ewk->wu.dir_step++;
+    }
+
+    ewk->wu.xyz[0].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + 272;
+    ewk->wu.position_z = 75;
+    ewk->wu.mvxy.a[0].sp = -0xF0000;
+    ewk->wu.mvxy.d[0].sp = -0x8000;
+    ewk->wu.mvxy.d[1].sp = 0;
+}
+
 s32 effect_38_init(s16 PL_id, s16 dir_old, s16 Your_Char, s16 Play_Status, s16 Target_BG) {
     WORK_Other* ewk;
     s16 ix;
@@ -426,16 +438,7 @@ s32 effect_38_init(s16 PL_id, s16 dir_old, s16 Your_Char, s16 Play_Status, s16 T
     ewk->wu.rl_flag = PL_id ^ 1;
 
     if (PL_id) {
-        if (My_char[PL_id] == 21) {
-            ewk->wu.dir_step++;
-        }
-
-        ewk->wu.xyz[0].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + 272;
-        ewk->wu.position_z = 75;
-        ewk->wu.mvxy.a[0].sp = -0xF0000;
-        ewk->wu.mvxy.d[0].sp = -0x8000;
-        ewk->wu.mvxy.d[1].sp = 0;
-
+        initialize_player_two_portrait_38(ewk, PL_id);
     } else {
         initialize_player_one_portrait_38(ewk, PL_id, Your_Char);
     }
