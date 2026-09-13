@@ -29,6 +29,14 @@ static s32 game_is_active(void) {
     return !EXE_flag && !Game_pause;
 }
 
+static void update_active_effect25(WORK_Other* ewk) {
+    if (game_is_active()) {
+        eff25_jp_tbl[ewk->wu.old_rno[2]](ewk);
+    }
+
+    disp_pos_trans_entry_rs(ewk);
+}
+
 
 void effect_25_move(WORK_Other* ewk) {
     if (compel_dead_check(ewk)) {
@@ -39,11 +47,7 @@ void effect_25_move(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-if (game_is_active()) {
-            eff25_jp_tbl[ewk->wu.old_rno[2]](ewk);
-        }
-
-        disp_pos_trans_entry_rs(ewk);
+        update_active_effect25(ewk);
         break;
 
     case 1:
