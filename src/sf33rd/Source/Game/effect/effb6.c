@@ -376,6 +376,14 @@ static s32 message_advance_B6(s32 hzflag, s32 slideX) {
     return slideX;
 }
 
+static void halt_on_connection_overflow_B6(s32 connection_count) {
+    if (connection_count > 108) {
+        while (1) {
+            // do nothing
+        }
+    }
+}
+
 void get_message_conn_data(WORK_Other_CONN* ewk, s16 kind, s16 pl, s16 msg) {
     u8** msghead;
     u8* msgtbl;
@@ -419,12 +427,7 @@ void get_message_conn_data(WORK_Other_CONN* ewk, s16 kind, s16 pl, s16 msg) {
                 ewk->conn[mjcnt].col = 0;
                 ewk->conn[mjcnt].chr = objnum;
                 mjcnt++;
-
-                if (mjcnt > 108) {
-                    while (1) {
-                        // do nothing
-                    }
-                }
+                halt_on_connection_overflow_B6(mjcnt);
             }
 
             currX += message_advance_B6(hzflag, slideX);
