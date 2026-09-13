@@ -73,6 +73,42 @@ static void update_right_connection_67(WORK_Other_CONN* ewk) {
     sort_push_request4(&ewk->wu);
 }
 
+static void update_animated_connection_67(WORK_Other_CONN* ewk) {
+    switch (ewk->wu.routine_no[1]) {
+    case 0:
+        ewk->wu.routine_no[1]++;
+        ewk->wu.disp_flag = 1;
+        ewk->wu.old_cgnum = ewk->wu.cg_number = 0;
+        ewk->wu.cg_number++;
+        ewk->wu.cg_number &= 0x7FFF;
+        ewk->prio_reverse = 1;
+        break;
+
+    case 1:
+        if (!--ewk->wu.dir_timer) {
+            ewk->wu.routine_no[1]++;
+            ewk->wu.dir_timer = 40;
+        }
+
+        break;
+
+    case 2:
+        if (--ewk->wu.dir_timer) {
+            ewk->wu.xyz[0].disp.pos = ewk->wu.xyz[0].disp.pos - 10;
+        } else {
+            ewk->wu.routine_no[0] = 4;
+        }
+
+        break;
+    }
+
+    ewk->wu.position_x = ewk->wu.xyz[0].disp.pos & 0xFFFF;
+    ewk->wu.position_y = ewk->wu.xyz[1].disp.pos & 0xFFFF;
+    ewk->wu.cg_number++;
+    ewk->wu.cg_number &= 0x7FFF;
+    sort_push_request3(&ewk->wu);
+}
+
 void effect_67_move(WORK_Other_CONN* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -84,39 +120,7 @@ void effect_67_move(WORK_Other_CONN* ewk) {
         break;
 
     case 2:
-        switch (ewk->wu.routine_no[1]) {
-        case 0:
-            ewk->wu.routine_no[1]++;
-            ewk->wu.disp_flag = 1;
-            ewk->wu.old_cgnum = ewk->wu.cg_number = 0;
-            ewk->wu.cg_number++;
-            ewk->wu.cg_number &= 0x7FFF;
-            ewk->prio_reverse = 1;
-            break;
-
-        case 1:
-            if (!--ewk->wu.dir_timer) {
-                ewk->wu.routine_no[1]++;
-                ewk->wu.dir_timer = 40;
-            }
-
-            break;
-
-        case 2:
-            if (--ewk->wu.dir_timer) {
-                ewk->wu.xyz[0].disp.pos = ewk->wu.xyz[0].disp.pos - 10;
-            } else {
-                ewk->wu.routine_no[0] = 4;
-            }
-
-            break;
-        }
-
-        ewk->wu.position_x = ewk->wu.xyz[0].disp.pos & 0xFFFF;
-        ewk->wu.position_y = ewk->wu.xyz[1].disp.pos & 0xFFFF;
-        ewk->wu.cg_number++;
-        ewk->wu.cg_number &= 0x7FFF;
-        sort_push_request3(&ewk->wu);
+        update_animated_connection_67(ewk);
         break;
 
     case 3:
