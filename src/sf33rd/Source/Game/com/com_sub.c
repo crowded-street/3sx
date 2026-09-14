@@ -241,6 +241,15 @@ s32 ETC_Term_0009(PLW* wk, WORK* em);
 s32 emLevelRemake(s32 now, s32 max, s32 exd);
 s32 emGetMaxBlocking();
 
+/* Tests the routine state that gates committing to a new action or ending the
+ * current reaction: any routine_no[1] other than 4, with cg_type 0x40 treated
+ * as free regardless. The name describes the role this test plays at its 12
+ * call sites; the original source carried no name for it. The condition is
+ * copied character for character - do not simplify the boolean algebra. */
+static s32 Check_Free_To_Act(PLW* wk) {
+    return (wk->wu.routine_no[1] != 4) || (wk->wu.cg_type == 0x40);
+}
+
 void End_Pattern(PLW* wk) {
     Next_Be_Free(wk);
 }
@@ -919,7 +928,7 @@ s32 Setup_Guard_Lever(PLW* wk, u16 Lever) {
 }
 
 s32 Check_Start_Lever_Attack(PLW* wk, u16 Lever, u16 Lever_Data) {
-    if ((wk->wu.routine_no[1] != 4) || (wk->wu.cg_type == 0x40)) {
+    if (Check_Free_To_Act(wk)) {
         return 0;
     }
 
@@ -1693,7 +1702,7 @@ void Jump(PLW* wk, s16 Jump_Dir) {
             break;
         }
 
-        if ((wk->wu.routine_no[1] != 4) || (wk->wu.cg_type == 0x40)) {
+        if (Check_Free_To_Act(wk)) {
             CP_Index[wk->wu.id][1]++;
             hi_jump_flag_clear(wk->wu.id);
             Check_First_Menu(wk);
@@ -1829,7 +1838,7 @@ void Hi_Jump(PLW* wk, s16 Pl_Number, s16 Jump_Dir) {
 }
 
 s32 Check_Start_Hi_Jump(PLW* wk) {
-    if ((wk->wu.routine_no[1] != 4) || (wk->wu.cg_type == 0x40)) {
+    if (Check_Free_To_Act(wk)) {
         return 0;
     }
 
@@ -3242,7 +3251,7 @@ s32 Check_Start_Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number) {
     if (wk->wu.routine_no[1] == 2) {
         return 1;
     }
-    if ((wk->wu.routine_no[1] != 4) || (wk->wu.cg_type == 0x40)) {
+    if (Check_Free_To_Act(wk)) {
         return 0;
     }
 
@@ -3275,7 +3284,7 @@ void ORO_JCA_Term(
             break;
         }
         Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-        if ((wk->wu.routine_no[1] != 4) || (wk->wu.cg_type == 0x40)) {
+        if (Check_Free_To_Act(wk)) {
             Continue_Menu[wk->wu.id] = 0;
             CP_Index[wk->wu.id][1]++;
             if (cmd_sel[wk->wu.id]) {
@@ -3543,7 +3552,7 @@ void Jump_Command_Attack_Term(
             break;
         }
         Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-        if ((wk->wu.routine_no[1] != 4) || (wk->wu.cg_type == 0x40)) {
+        if (Check_Free_To_Act(wk)) {
             Continue_Menu[wk->wu.id] = 0;
             CP_Index[wk->wu.id][1]++;
             if (cmd_sel[wk->wu.id]) {
@@ -4293,7 +4302,7 @@ void Reaction_Sub(PLW* wk, s16 Reaction, s16 Power_Level) {
     case 9:
         if (Stock_Hit_Flag[wk->wu.id]) {
             Reaction_Exit_Sub(wk);
-        } else if ((wk->wu.routine_no[1] != 4) || (wk->wu.cg_type == 0x40)) {
+        } else if (Check_Free_To_Act(wk)) {
             Next_End(wk);
         }
         break;
@@ -4306,7 +4315,7 @@ void Reaction_Sub(PLW* wk, s16 Reaction, s16 Power_Level) {
         if (Stock_Hit_Flag[wk->wu.id]) {
             Reaction_Exit_Sub(wk);
         } else {
-            if ((wk->wu.routine_no[1] != 4) || (wk->wu.cg_type == 0x40)) {
+            if (Check_Free_To_Act(wk)) {
                 Reaction_Exit_Sub(wk);
             }
         }
@@ -4326,7 +4335,7 @@ void Reaction_Sub(PLW* wk, s16 Reaction, s16 Power_Level) {
         }
         if (Stock_Hit_Flag[wk->wu.id]) {
             Reaction_Exit_Sub(wk);
-        } else if ((wk->wu.routine_no[1] != 4) || (wk->wu.cg_type == 0x40)) {
+        } else if (Check_Free_To_Act(wk)) {
             Next_End(wk);
         }
         break;
@@ -4345,7 +4354,7 @@ void Reaction_Sub(PLW* wk, s16 Reaction, s16 Power_Level) {
         }
         if (Stock_Hit_Flag[wk->wu.id]) {
             Reaction_Exit_Sub(wk);
-        } else if ((wk->wu.routine_no[1] != 4) || (wk->wu.cg_type == 0x40)) {
+        } else if (Check_Free_To_Act(wk)) {
             Setup_Follow(wk, Reaction & 0xFFF);
         }
         break;
@@ -4373,7 +4382,7 @@ void Reaction_Sub(PLW* wk, s16 Reaction, s16 Power_Level) {
         }
         Last_Eftype[wk->wu.id] = -1;
 
-        if ((wk->wu.routine_no[1] != 4) || (wk->wu.cg_type == 0x40)) {
+        if (Check_Free_To_Act(wk)) {
             if (Stock_Hit_Flag[wk->wu.id]) {
                 if ((CP_No[wk->wu.id][0] == 6) && (Pattern_Index[wk->wu.id] == 0)) {
                     CP_No[wk->wu.id][0] = Return_CP_No[wk->wu.id];
@@ -4404,7 +4413,7 @@ void Reaction_Sub(PLW* wk, s16 Reaction, s16 Power_Level) {
             Reaction_Exit_Sub(wk);
         }
 
-        else if ((wk->wu.routine_no[1] != 4) || (wk->wu.cg_type == 0x40)) {
+        else if (Check_Free_To_Act(wk)) {
             Reaction_Exit_Sub(wk);
         }
 
