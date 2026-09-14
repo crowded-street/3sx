@@ -391,6 +391,64 @@ static s32 effect_can_update(void) {
     return EXE_flag == 0 && Game_pause == 0;
 }
 
+static void initialize_color_effect(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.hit_adrs = pl00_cctbl[ewk->wu.type][0];
+    ewk->wu.dmg_adrs = pl00_cctbl[ewk->wu.type][1];
+    ewk->wu.step_xy_table = (s16*)ColorRAM[ewk->master_id * 16];
+    ewk->wu.move_xy_table = (s16*)ColorRAM[(ewk->master_id * 16) + 8];
+    ewk->wu.dir_timer = 0;
+    ewk->wu.dir_step = 0;
+    ewk->wu.dir_old = 1;
+    check_new_color_data(&ewk->wu);
+}
+
+static void update_active_color_effect(WORK_Other* ewk, PLW* mwk) {
+    if (ewk->wu.dead_f == 1) {
+        ewk->wu.routine_no[0] = 3;
+    } else if (mwk->wu.vital_new < 0) {
+        ewk->wu.routine_no[0] = 2;
+        ewk->wu.routine_no[1] = 0;
+    } else if (effect_can_update()) {
+        check_new_color_data(&ewk->wu);
+    }
+}
+
+static void update_color_effect_shutdown(WORK_Other* ewk, PLW* mwk) {
+    switch (ewk->wu.routine_no[1]) {
+    case 0:
+        ewk->wu.routine_no[1]++;
+        ewk->wu.dir_timer = 0;
+        ewk->wu.dir_step = 0;
+        ewk->wu.dir_old = 1;
+
+        if (ewk->wu.rl_flag) {
+            get_new_color_data(&ewk->wu, (ColorCode*)ewk->wu.hit_adrs, ewk->wu.step_xy_table);
+            get_new_color_data(&ewk->wu, (ColorCode*)ewk->wu.dmg_adrs, ewk->wu.move_xy_table);
+        } else {
+            get_new_color_data(&ewk->wu, (ColorCode*)ewk->wu.dmg_adrs, ewk->wu.move_xy_table);
+            get_new_color_data(&ewk->wu, (ColorCode*)ewk->wu.hit_adrs, ewk->wu.step_xy_table);
+        }
+
+        break;
+
+    case 1:
+        if (mwk->wu.routine_no[1] == 4 && mwk->wu.routine_no[2] == 21) {
+            ewk->wu.routine_no[1]++;
+        }
+
+        break;
+
+    case 2:
+        if (mwk->wu.routine_no[1] != 4 || mwk->wu.routine_no[2] != 21) {
+            ewk->wu.routine_no[0] = 1;
+            ewk->wu.routine_no[1] = 0;
+        }
+
+        break;
+    }
+}
+
 
 void effect_J7_move(WORK_Other* ewk) {
     PLW* mwk = (PLW*)ewk->my_master;
@@ -403,63 +461,15 @@ void effect_J7_move(WORK_Other* ewk) {
             break;
         }
 
-        ewk->wu.routine_no[0]++;
-        ewk->wu.hit_adrs = pl00_cctbl[ewk->wu.type][0];
-        ewk->wu.dmg_adrs = pl00_cctbl[ewk->wu.type][1];
-        ewk->wu.step_xy_table = (s16*)ColorRAM[ewk->master_id * 16];
-        ewk->wu.move_xy_table = (s16*)ColorRAM[(ewk->master_id * 16) + 8];
-        ewk->wu.dir_timer = 0;
-        ewk->wu.dir_step = 0;
-        ewk->wu.dir_old = 1;
-        check_new_color_data(&ewk->wu);
+        initialize_color_effect(ewk);
         break;
 
     case 1:
-        if (ewk->wu.dead_f == 1) {
-            ewk->wu.routine_no[0] = 3;
-        } else if (mwk->wu.vital_new < 0) {
-            ewk->wu.routine_no[0] = 2;
-            ewk->wu.routine_no[1] = 0;
-        } else if (effect_can_update()) {
-            check_new_color_data(&ewk->wu);
-        }
-
+        update_active_color_effect(ewk, mwk);
         break;
 
     case 2:
-        switch (ewk->wu.routine_no[1]) {
-        case 0:
-            ewk->wu.routine_no[1]++;
-            ewk->wu.dir_timer = 0;
-            ewk->wu.dir_step = 0;
-            ewk->wu.dir_old = 1;
-
-            if (ewk->wu.rl_flag) {
-                get_new_color_data(&ewk->wu, (ColorCode*)ewk->wu.hit_adrs, ewk->wu.step_xy_table);
-                get_new_color_data(&ewk->wu, (ColorCode*)ewk->wu.dmg_adrs, ewk->wu.move_xy_table);
-            } else {
-                get_new_color_data(&ewk->wu, (ColorCode*)ewk->wu.dmg_adrs, ewk->wu.move_xy_table);
-                get_new_color_data(&ewk->wu, (ColorCode*)ewk->wu.hit_adrs, ewk->wu.step_xy_table);
-            }
-
-            break;
-
-        case 1:
-            if (mwk->wu.routine_no[1] == 4 && mwk->wu.routine_no[2] == 21) {
-                ewk->wu.routine_no[1]++;
-            }
-
-            break;
-
-        case 2:
-            if (mwk->wu.routine_no[1] != 4 || mwk->wu.routine_no[2] != 21) {
-                ewk->wu.routine_no[0] = 1;
-                ewk->wu.routine_no[1] = 0;
-            }
-
-            break;
-        }
-
+        update_color_effect_shutdown(ewk, mwk);
         break;
 
     default:
