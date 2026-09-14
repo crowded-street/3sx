@@ -150,30 +150,96 @@ s16 keep_mes_no;
 
 s32 Rewrite();
 
+static void initialize_end_message(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.my_mts = 12;
+    ewk->free = 0;
+
+    if (mes_already) {
+        get_message_conn_data((WORK_Other_CONN*)ewk, 2, ewk->master_player, mes_already);
+    }
+
+    ewk->wu.old_rno[4] = ewk->free;
+
+    if (ewk->wu.old_rno[4] == 0) {
+        ewk->wu.old_rno[5] = 0;
+    } else {
+        ewk->wu.old_rno[5] = 1;
+    }
+
+    ewk->wu.old_rno[6] = 1;
+    ewk->wu.disp_flag = 1;
+    ewk->wu.vitality = 240;
+    ewk->free = ewk->wu.old_rno[5];
+    efff9_suicide = 0;
+}
+
+static s32 reveal_timer_elapsed(const WORK_Other* ewk) {
+    return ewk->wu.old_rno[6] == 0;
+}
+
+static s32 reveal_exceeds_message_length(WORK_Other* ewk) {
+    return Country != 1 && Country != 8 &&
+           (ewk->wu.old_rno[5]++, ewk->wu.old_rno[4] < ewk->wu.old_rno[5]);
+}
+
+static void advance_message_reveal(WORK_Other* ewk) {
+    ewk->wu.old_rno[6]--;
+
+    if (!reveal_timer_elapsed(ewk)) {
+        return;
+    }
+
+    ewk->wu.old_rno[6] = 3;
+
+    if (ewk->wu.old_rno[4] == ewk->wu.old_rno[5]) {
+        ewk->wu.old_rno[6] = 3;
+        return;
+    }
+
+    ewk->wu.old_rno[5]++;
+
+    if (reveal_exceeds_message_length(ewk)) {
+        ewk->wu.old_rno[5] = ewk->wu.old_rno[4];
+    }
+
+    ewk->free = ewk->wu.old_rno[5];
+}
+
+static void update_message_lifetime(WORK_Other* ewk) {
+    if (ewk->wu.old_rno[3] == 0) {
+        Rewrite();
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0] = 6;
+    } else {
+        ewk->wu.old_rno[3]--;
+
+        if (efff9_suicide == 1) {
+            ewk->wu.disp_flag = 0;
+            ewk->wu.routine_no[0] = 6;
+            ewk->wu.disp_flag = 0;
+        } else {
+            sort_push_request3(&ewk->wu);
+        }
+    }
+}
+
+static void update_end_message(WORK_Other* ewk) {
+    if (ewk->wu.dead_f == 1) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.type = 0;
+        ewk->wu.routine_no[0] = 6;
+        return;
+    }
+
+    advance_message_reveal(ewk);
+    update_message_lifetime(ewk);
+}
+
 void effect_F9_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.my_mts = 12;
-        ewk->free = 0;
-
-        if (mes_already) {
-            get_message_conn_data((WORK_Other_CONN*)ewk, 2, ewk->master_player, mes_already);
-        }
-
-        ewk->wu.old_rno[4] = ewk->free;
-
-        if (ewk->wu.old_rno[4] == 0) {
-            ewk->wu.old_rno[5] = 0;
-        } else {
-            ewk->wu.old_rno[5] = 1;
-        }
-
-        ewk->wu.old_rno[6] = 1;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.vitality = 240;
-        ewk->free = ewk->wu.old_rno[5];
-        efff9_suicide = 0;
+        initialize_end_message(ewk);
         break;
 
     case 1:
@@ -184,46 +250,7 @@ void effect_F9_move(WORK_Other* ewk) {
         break;
 
     case 5:
-        if (ewk->wu.dead_f == 1) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.type = 0;
-            ewk->wu.routine_no[0] = 6;
-            break;
-        }
-
-        ewk->wu.old_rno[6]--;
-
-        if (ewk->wu.old_rno[6] == 0) {
-            ewk->wu.old_rno[6] = 3;
-
-            if (ewk->wu.old_rno[4] == ewk->wu.old_rno[5]) {
-                ewk->wu.old_rno[6] = 3;
-            } else {
-                ewk->wu.old_rno[5]++;
-
-                if (Country != 1 && Country != 8 && (ewk->wu.old_rno[5]++, ewk->wu.old_rno[4] < ewk->wu.old_rno[5])) {
-                    ewk->wu.old_rno[5] = ewk->wu.old_rno[4];
-                }
-
-                ewk->free = ewk->wu.old_rno[5];
-            }
-        }
-
-        if (ewk->wu.old_rno[3] == 0) {
-            Rewrite();
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0] = 6;
-        } else {
-            ewk->wu.old_rno[3]--;
-
-            if (efff9_suicide == 1) {
-                ewk->wu.disp_flag = 0;
-                ewk->wu.routine_no[0] = 6;
-                ewk->wu.disp_flag = 0;
-            } else {
-                sort_push_request3(&ewk->wu);
-            }
-        }
+        update_end_message(ewk);
 
         break;
 
