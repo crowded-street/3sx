@@ -2574,6 +2574,33 @@ s32 Check_Com_Add_Y(PLW* wk, s16 Pos_Y, s16 Range) {
     }
 }
 
+/* The approach gates every airborne attack Term function runs before it commits.
+ * Returns 0 as soon as one fails, which is where each caller used to break.
+ *
+ * Check_Landed and Check_VS_Air_Attack mutate state, so the order and the
+ * short-circuiting here are load-bearing - they match the original exactly.
+ * Check_Air_Guard is deliberately left at the call sites: one caller sets
+ * Stock_Hit_Flag between it and the first gate. */
+static s32 Attack_Range_Gates(PLW* wk, s16 Reaction, s16 RX, s16 RY, s16 RJX, s16 RJY, u16 JLD) {
+    if (Check_Landed(wk, Reaction) != 0) {
+        return 0;
+    }
+
+    if (Check_VS_Air_Attack(wk, RJX, RJY, JLD) != 0) {
+        return 0;
+    }
+    if (Check_Term_Sub(wk, PL_Distance[wk->wu.id], RX) == 0) {
+        return 0;
+    }
+    if (Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, RY) == 0) {
+        return 0;
+    }
+    if (Check_Term_Sub(wk, wk->wu.xyz[1].disp.pos, RY) == 0) {
+        return 0;
+    }
+    return 1;
+}
+
 void ORO_JA_Term(
     PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Lever_Data, s16 RJX, s16 RJY,
     u16 JLD
@@ -2657,20 +2684,7 @@ void ORO_JA_Term(
 
     case 4:
         Check_Air_Guard(wk);
-        if (Check_Landed(wk, Reaction) != 0) {
-            break;
-        }
-
-        if (Check_VS_Air_Attack(wk, RJX, RJY, JLD) != 0) {
-            break;
-        }
-        if (Check_Term_Sub(wk, PL_Distance[wk->wu.id], RX) == 0) {
-            break;
-        }
-        if (Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, RY) == 0) {
-            break;
-        }
-        if (Check_Term_Sub(wk, wk->wu.xyz[1].disp.pos, RY) == 0) {
+        if (Attack_Range_Gates(wk, Reaction, RX, RY, RJX, RJY, JLD) == 0) {
             break;
         }
 
