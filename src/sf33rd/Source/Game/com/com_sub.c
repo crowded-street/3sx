@@ -2081,9 +2081,11 @@ static void Jump_Attack_Term_Approach(
     Stock_Hit_Flag[wk->wu.id] = 0;
 }
 
-/* CP_Index 5: run the landing opcode. The inner switch has no break on its
- * final arm in the original; preserved as found. */
-static void Jump_Attack_Term_Landing(PLW* wk) {
+/* The landing opcode step shared by Jump_Attack_Term, Hi_Jump_Attack_Term,
+ * ORO_JA_Term and ORO_HJA_Term - the same switch appeared verbatim in all
+ * four. The inner switch has no break on its final arm in the original;
+ * preserved as found. */
+static void Landing_Tech_Step(PLW* wk) {
     switch (Tech_Address[wk->wu.id][Tech_Index[wk->wu.id]]) {
     default:
     case 1:
@@ -2160,7 +2162,7 @@ void Jump_Attack_Term(
 
     case 5:
         if (Check_Landed(wk, Reaction & 0x7F) == 0) {
-            Jump_Attack_Term_Landing(wk);
+            Landing_Tech_Step(wk);
         }
         break;
     default:
@@ -2491,15 +2493,7 @@ void Hi_Jump_Attack_Term(
             break;
         }
 
-        switch (Tech_Address[wk->wu.id][Tech_Index[wk->wu.id]]) {
-        default:
-        case 1:
-        case 10:
-
-            if (Command_Type_00(wk, 8, 0xFFFF, -1) == -1) {
-                CP_Index[wk->wu.id][1] = 0x63;
-            }
-        }
+        Landing_Tech_Step(wk);
 
         break;
 
@@ -2698,14 +2692,7 @@ void ORO_JA_Term(
             break;
         }
 
-        switch (Tech_Address[wk->wu.id][Tech_Index[wk->wu.id]]) {
-        default:
-        case 1:
-        case 10:
-            if (Command_Type_00(wk, 8, 0xFFFF, -1) == -1) {
-                CP_Index[wk->wu.id][1] = 0x63;
-            }
-        }
+        Landing_Tech_Step(wk);
 
         break;
     default:
@@ -2846,14 +2833,7 @@ void ORO_HJA_Term(
             break;
         }
 
-        switch (Tech_Address[wk->wu.id][Tech_Index[wk->wu.id]]) {
-        default:
-        case 1:
-        case 10:
-            if (Command_Type_00(wk, 8, 0xFFFF, -1) == -1) {
-                CP_Index[wk->wu.id][1] = 0x63;
-            }
-        }
+        Landing_Tech_Step(wk);
 
         break;
     default:
