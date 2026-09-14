@@ -284,6 +284,18 @@ void effl3_kie(WORK_Other* ewk) {
     }
 }
 
+static void configure_effl3_rendering(WORK_Other* ewk, const PLW* oya) {
+    ewk->wu.char_table[0] = oya->wu.char_table[0];
+    ewk->wu.char_table[1] = _etc_char_table;
+    ewk->wu.char_table[9] = oya->wu.char_table[9];
+    ewk->wu.kage_flag = 1;
+    ewk->wu.kage_hx = 6;
+    ewk->wu.kage_hy = 0;
+    ewk->wu.kage_prio = ewk->wu.position_z + 5;
+    ewk->wu.my_mts = oya->wu.my_mts;
+    ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
+}
+
 s32 effect_L3_init(PLW* oya) {
     WORK_Other* ewk;
     s16 ix;
@@ -327,15 +339,7 @@ s32 effect_L3_init(PLW* oya) {
         ewk->wu.old_rno[0] += *(s16*)data_ptr++;
         ewk->wu.old_rno[1] = *data_ptr++;
         ewk->wu.routine_no[1] = *data_ptr++;
-        ewk->wu.char_table[0] = oya->wu.char_table[0];
-        ewk->wu.char_table[1] = _etc_char_table;
-        ewk->wu.char_table[9] = oya->wu.char_table[9];
-        ewk->wu.kage_flag = 1;
-        ewk->wu.kage_hx = 6;
-        ewk->wu.kage_hy = 0;
-        ewk->wu.kage_prio = ewk->wu.position_z + 5;
-        ewk->wu.my_mts = oya->wu.my_mts;
-        ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
+        configure_effl3_rendering(ewk, oya);
     }
 
     return 0;
