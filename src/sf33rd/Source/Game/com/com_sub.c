@@ -1691,18 +1691,11 @@ s32 Check_Term_Sub_Air(PLW* wk, s16 Distance, s16 Range) {
         return 1;
     }
     if (!(Range & 0x8000)) {
-        if (Distance >= Range) {
-            return 1;
-        }
-        return 0;
-    } else {
-        Range += Correct_Unit_PL(wk);
-
-        if (Distance <= (Range & 0x7FFF)) {
-            return 1;
-        }
-        return 0;
+        return Distance >= Range;
     }
+
+    Range += Correct_Unit_PL(wk);
+    return Distance <= (Range & 0x7FFF);
 }
 
 s32 Check_Term_Sub(PLW* wk, s16 Distance, s16 Range) {
@@ -1710,16 +1703,9 @@ s32 Check_Term_Sub(PLW* wk, s16 Distance, s16 Range) {
         return 1;
     }
     if (!(Range & 0x8000)) {
-        if (Distance >= Range) {
-            return 1;
-        }
-        return 0;
-    } else {
-        if (Distance <= (Range & 0x7FFF)) {
-            return 1;
-        }
-        return 0;
+        return Distance >= Range;
     }
+    return Distance <= (Range & 0x7FFF);
 }
 
 const s16 Correct_VS_Air_Data[0x14] = { 0, 0x20, 0, 0, 0, 0x20, 0x20, 0, 0x20, 0, 0, 0, 0, 0x20, 0, 0, 0, 0, 0, 0 };
@@ -2559,19 +2545,12 @@ s32 Check_Com_Add_Y(PLW* wk, s16 Pos_Y, s16 Range) {
         return 1;
     }
     if (!(Range & 0x8000)) {
-        if (Pos_Y >= Range) {
-            return 1;
-        }
-        return 0;
-    } else {
-        if (wk->wu.mvxy.a[1].real.h >= 0) {
-            return 0;
-        }
-        if (Pos_Y <= (Range & 0x7FFF)) {
-            return 1;
-        }
+        return Pos_Y >= Range;
+    }
+    if (wk->wu.mvxy.a[1].real.h >= 0) {
         return 0;
     }
+    return Pos_Y <= (Range & 0x7FFF);
 }
 
 /* The approach gates every airborne attack Term function runs before it commits.
@@ -3896,16 +3875,9 @@ s32 Check_Dash_Hit(PLW* wk, u16 Tech_Number) {
 
 s32 Setup_Front_or_Back(PLW* wk, s16 xx) {
     if (wk->wu.rl_waza == 0) {
-        if (xx >= 0) {
-            return 0;
-        }
-        return 1;
-    } else {
-        if (xx >= 0) {
-            return 1;
-        }
-        return 0;
+        return xx < 0;
     }
+    return xx >= 0;
 }
 
 s32 Check_Hit_Shell(PLW* wk, WORK_Other* tmw, u16 Tech_Number) {
@@ -5463,16 +5435,9 @@ s32 Ck_Distance_XX(s16 x1, s16 x2) {
 
 s32 Check_Behind(PLW* wk, WORK_Other* tmw) {
     if (wk->wu.rl_waza == 0) {
-        if (wk->wu.xyz[0].disp.pos < tmw->wu.xyz[0].disp.pos) {
-            return 1;
-        }
-        return 0;
-    } else {
-        if (wk->wu.xyz[0].disp.pos > tmw->wu.xyz[0].disp.pos) {
-            return 1;
-        }
-        return 0;
+        return wk->wu.xyz[0].disp.pos < tmw->wu.xyz[0].disp.pos;
     }
+    return wk->wu.xyz[0].disp.pos > tmw->wu.xyz[0].disp.pos;
 }
 
 typedef s32 (*Term_Tbl_t)(PLW* wk, WORK* em);
