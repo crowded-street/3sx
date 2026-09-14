@@ -414,6 +414,16 @@ static void update_active_color_effect(WORK_Other* ewk, PLW* mwk) {
     }
 }
 
+static void update_color_data_for_direction(WORK* wk) {
+    if (wk->rl_flag) {
+        get_new_color_data(wk, (ColorCode*)wk->hit_adrs, wk->step_xy_table);
+        get_new_color_data(wk, (ColorCode*)wk->dmg_adrs, wk->move_xy_table);
+    } else {
+        get_new_color_data(wk, (ColorCode*)wk->dmg_adrs, wk->move_xy_table);
+        get_new_color_data(wk, (ColorCode*)wk->hit_adrs, wk->step_xy_table);
+    }
+}
+
 static void update_color_effect_shutdown(WORK_Other* ewk, PLW* mwk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -422,13 +432,7 @@ static void update_color_effect_shutdown(WORK_Other* ewk, PLW* mwk) {
         ewk->wu.dir_step = 0;
         ewk->wu.dir_old = 1;
 
-        if (ewk->wu.rl_flag) {
-            get_new_color_data(&ewk->wu, (ColorCode*)ewk->wu.hit_adrs, ewk->wu.step_xy_table);
-            get_new_color_data(&ewk->wu, (ColorCode*)ewk->wu.dmg_adrs, ewk->wu.move_xy_table);
-        } else {
-            get_new_color_data(&ewk->wu, (ColorCode*)ewk->wu.dmg_adrs, ewk->wu.move_xy_table);
-            get_new_color_data(&ewk->wu, (ColorCode*)ewk->wu.hit_adrs, ewk->wu.step_xy_table);
-        }
+        update_color_data_for_direction(&ewk->wu);
 
         break;
 
@@ -489,13 +493,7 @@ void check_new_color_data(WORK* wk) {
         wk->dir_step++;
     }
 
-    if (wk->rl_flag) {
-        get_new_color_data(wk, (ColorCode*)wk->hit_adrs, wk->step_xy_table);
-        get_new_color_data(wk, (ColorCode*)wk->dmg_adrs, wk->move_xy_table);
-    } else {
-        get_new_color_data(wk, (ColorCode*)wk->dmg_adrs, wk->move_xy_table);
-        get_new_color_data(wk, (ColorCode*)wk->hit_adrs, wk->step_xy_table);
-    }
+    update_color_data_for_direction(wk);
 }
 
 void get_new_color_data(WORK* wk, ColorCode* trom, s16* tram) {
