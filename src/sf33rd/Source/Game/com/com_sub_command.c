@@ -101,47 +101,103 @@ static void Command_Attack_Rapid_Step(PLW* wk, s16 Reaction, s16 Power_Level) {
     Reaction_Sub(wk, Reaction, Power_Level);
 }
 
+/* CP_Index 0. Non-zero when the state advanced and case 1 runs this frame. */
+static s32 Command_Attack_Begin(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level) {
+    dash_flag_clear(wk->wu.id);
+    if (cmd_sel[wk->wu.id]) {
+        Tech_Address[wk->wu.id] = player_CMD[wk->player_number][Tech_Number & 0xFF];
+    } else {
+        Tech_Address[wk->wu.id] = player_cmd[wk->player_number][Tech_Number & 0xFF];
+    }
+    Tech_Index[wk->wu.id] = 0xC;
+    Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
+
+    if (Check_Start_Command_Attack(wk, Reaction, Tech_Number & 0x80FF) != 0) {
+        return 0;
+    }
+    if (Check_Dash_Hit(wk, Tech_Number & 0x80FF) != 0) {
+        Next_Be_Free(wk);
+    }
+
+    CP_Index[wk->wu.id][1]++;
+    Check_First_Menu(wk);
+    Setup_Free_Lever(wk, Power_Level);
+
+    return 1;
+}
+
+/* CP_Index 1. Non-zero when the state advanced and case 2 runs this frame. */
+static s32 Command_Attack_Charge(PLW* wk, u16 Tech_Number) {
+    if (--Combo_Speed[wk->wu.id]) {
+        Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
+        return 0;
+    }
+
+    if (Hadou_Check(wk, Tech_Number & 0x80FF) != 0) {
+        if (Check_Passive(wk) == 0) {
+            Combo_Speed[wk->wu.id] = 1;
+        }
+        return 0;
+    }
+
+    CP_Index[wk->wu.id][1]++;
+    Check_Rapid(wk, Tech_Number);
+
+    return 1;
+}
+
+static void Command_Attack_Rapid(PLW* wk, s16 Reaction, s16 Power_Level) {
+    Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
+    if (plw[wk->wu.id].tsukami_f) {
+        return;
+    }
+
+    if (Check_Motion_Ended(wk)) {
+        Reaction_Exit_Sub(wk);
+        return;
+    }
+
+    Command_Attack_Rapid_Step(wk, Reaction, Power_Level);
+}
+
+static void Command_Attack_Run(PLW* wk) {
+    Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
+    if (((wk->wu.cg_type) == 0x40) || (wk->running_f == 0)) {
+        Reaction_Exit_Sub(wk);
+    }
+}
+
+static void Command_Attack_Close(PLW* wk) {
+    if (PL_Distance[wk->wu.id] > 0x70) {
+        Lever_Buff[wk->wu.id] = 0x40;
+    }
+    if (Check_Motion_Ended(wk)) {
+        Reaction_Exit_Sub(wk);
+    }
+}
+
+static void Command_Attack_Timeout(PLW* wk) {
+    Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
+    if (--Timer_00[wk->wu.id] == 0) {
+        Reaction_Exit_Sub(wk);
+    }
+}
+
 void Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
-        dash_flag_clear(wk->wu.id);
-        if (cmd_sel[wk->wu.id]) {
-            Tech_Address[wk->wu.id] = player_CMD[wk->player_number][Tech_Number & 0xFF];
-        } else {
-            Tech_Address[wk->wu.id] = player_cmd[wk->player_number][Tech_Number & 0xFF];
-        }
-        Tech_Index[wk->wu.id] = 0xC;
-        Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-
-        if (Check_Start_Command_Attack(wk, Reaction, Tech_Number & 0x80FF) != 0) {
+        if (!Command_Attack_Begin(wk, Reaction, Tech_Number, Power_Level)) {
             break;
         }
-        if (Check_Dash_Hit(wk, Tech_Number & 0x80FF) != 0) {
-            Next_Be_Free(wk);
-        }
-
-        CP_Index[wk->wu.id][1]++;
-        Check_First_Menu(wk);
-        Setup_Free_Lever(wk, Power_Level);
         /* Fallthrough */
 
     case 1:
-        if (--Combo_Speed[wk->wu.id]) {
-            Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
+        if (!Command_Attack_Charge(wk, Tech_Number)) {
             break;
-        }
-
-        if (Hadou_Check(wk, Tech_Number & 0x80FF) != 0) {
-            if (Check_Passive(wk) == 0) {
-                Combo_Speed[wk->wu.id] = 1;
-            }
-            break;
-        } else {
-            CP_Index[wk->wu.id][1]++;
-            Check_Rapid(wk, Tech_Number);
         }
         /* Fallthrough */
+
     case 2:
         if (Check_Passive(wk) != 0) {
             break;
@@ -150,38 +206,19 @@ void Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16
         break;
 
     case 3:
-        Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-        if (plw[wk->wu.id].tsukami_f) {
-            break;
-        }
-        if (Check_Motion_Ended(wk)) {
-            Reaction_Exit_Sub(wk);
-        } else {
-            Command_Attack_Rapid_Step(wk, Reaction, Power_Level);
-        }
+        Command_Attack_Rapid(wk, Reaction, Power_Level);
         break;
 
     case 4:
-        Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-        if (((wk->wu.cg_type) == 0x40) || (wk->running_f == 0)) {
-            Reaction_Exit_Sub(wk);
-        }
+        Command_Attack_Run(wk);
         break;
 
     case 5:
-        if (PL_Distance[wk->wu.id] > 0x70) {
-            Lever_Buff[wk->wu.id] = 0x40;
-        }
-        if (Check_Motion_Ended(wk)) {
-            Reaction_Exit_Sub(wk);
-        }
+        Command_Attack_Close(wk);
         break;
 
     default:
-        Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-        if (--Timer_00[wk->wu.id] == 0) {
-            Reaction_Exit_Sub(wk);
-        }
+        Command_Attack_Timeout(wk);
         break;
     }
 }
