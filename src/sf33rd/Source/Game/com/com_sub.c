@@ -832,50 +832,71 @@ static void Command_Type_00_Advance(PLW* wk, u16 Tech_Number) {
     }
 }
 
+/* Mirror the pressed lever when the character is reversed. Both arms of
+ * Command_Type_00 ran this identically. */
+static void Flip_Lever_Buff(PLW* wk) {
+    if (!wk->wu.rl_waza) {
+        return;
+    }
+    if (Lever_Buff[wk->wu.id] & 0xC) {
+        Lever_Buff[wk->wu.id] ^= 0xC;
+    }
+}
+
+/* The tech script has a further step: press this one and advance the index. */
+static s32 Command_Type_00_Step(PLW* wk) {
+    Lever_Buff[wk->wu.id] = Tech_Address[wk->wu.id][Tech_Index[wk->wu.id] + 3] & 0x7FFF;
+    Lever_Buff[wk->wu.id] = datacmd_conpanecmd(Lever_Buff[wk->wu.id]);
+
+    Flip_Lever_Buff(wk);
+
+    Tech_Index[wk->wu.id] += 4;
+    return 1;
+}
+
+/* The My_char 2 form of tech 0x8015 parks the pattern on its own index instead
+ * of advancing normally. */
+static void Command_Type_00_Park(PLW* wk, s16 Power_Level) {
+    CP_Index[wk->wu.id][0]++;
+    Lever_LR[wk->wu.id] = Lever_Buff[wk->wu.id] & 0xFF0;
+
+    if (Power_Level == 0xA) {
+        CP_Index[wk->wu.id][1] = 1;
+    } else {
+        CP_Index[wk->wu.id][1] = 0;
+    }
+}
+
+/* The last step of the script: choose the shot, then hand the pattern on. */
+static s32 Command_Type_00_Final(PLW* wk, s16 Power_Level, u16 Tech_Number, s16 Ex_Shot) {
+    Lever_Buff[wk->wu.id] = Tech_Address[wk->wu.id][Tech_Index[wk->wu.id] + 3] & 0x7FFF;
+
+    Flip_Lever_Buff(wk);
+
+    if (Tech_Address[wk->wu.id][7] == 0x80) {
+        return -1;
+    }
+    Tech_Index[wk->wu.id] = 7;
+
+    if ((plw[wk->wu.id].sa->ex) && ((Ex_Shot == 0x70) || (Ex_Shot == 0x700))) {
+        Lever_Buff[wk->wu.id] |= Ex_Shot;
+    } else {
+        Lever_Buff[wk->wu.id] |= renbanshot_conpaneshot(Tech_Address[wk->wu.id], Power_Level);
+    }
+
+    if ((My_char[wk->wu.id] == 2) && ((Tech_Number) == 0x8015) && (Power_Level != 8)) {
+        Command_Type_00_Park(wk, Power_Level);
+    } else {
+        Command_Type_00_Advance(wk, Tech_Number);
+    }
+    return 0;
+}
+
 s32 Command_Type_00(PLW* wk, s16 Power_Level, u16 Tech_Number, s16 Ex_Shot) {
     if (Tech_Address[wk->wu.id][Tech_Index[wk->wu.id] + 4] != 0x1C) {
-        Lever_Buff[wk->wu.id] = Tech_Address[wk->wu.id][Tech_Index[wk->wu.id] + 3] & 0x7FFF;
-        Lever_Buff[wk->wu.id] = datacmd_conpanecmd(Lever_Buff[wk->wu.id]);
-
-        if (wk->wu.rl_waza) {
-            if (Lever_Buff[wk->wu.id] & 0xC) {
-                Lever_Buff[wk->wu.id] ^= 0xC;
-            }
-        }
-        Tech_Index[wk->wu.id] += 4;
-        return 1;
-    } else {
-        Lever_Buff[wk->wu.id] = Tech_Address[wk->wu.id][Tech_Index[wk->wu.id] + 3] & 0x7FFF;
-        if (wk->wu.rl_waza) {
-            if (Lever_Buff[wk->wu.id] & 0xC) {
-                Lever_Buff[wk->wu.id] ^= 0xC;
-            }
-        }
-        if (Tech_Address[wk->wu.id][7] == 0x80) {
-            return -1;
-        }
-        Tech_Index[wk->wu.id] = 7;
-
-        if ((plw[wk->wu.id].sa->ex) && ((Ex_Shot == 0x70) || (Ex_Shot == 0x700))) {
-            Lever_Buff[wk->wu.id] |= Ex_Shot;
-        } else {
-            Lever_Buff[wk->wu.id] |= renbanshot_conpaneshot(Tech_Address[wk->wu.id], Power_Level);
-        }
-
-        if ((My_char[wk->wu.id] == 2) && ((Tech_Number) == 0x8015) && (Power_Level != 8)) {
-            CP_Index[wk->wu.id][0]++;
-            Lever_LR[wk->wu.id] = Lever_Buff[wk->wu.id] & 0xFF0;
-
-            if (Power_Level == 0xA) {
-                CP_Index[wk->wu.id][1] = 1;
-            } else {
-                CP_Index[wk->wu.id][1] = 0;
-            }
-        } else {
-            Command_Type_00_Advance(wk, Tech_Number);
-        }
-        return 0;
+        return Command_Type_00_Step(wk);
     }
+    return Command_Type_00_Final(wk, Power_Level, Tech_Number, Ex_Shot);
 }
 
 const u16 Rolling_Lv_Data[2][9] = {
