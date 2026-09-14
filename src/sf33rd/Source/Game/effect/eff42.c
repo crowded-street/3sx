@@ -72,6 +72,46 @@ void EFF42_SUDDENLY(WORK_Other* ewk) {
     }
 }
 
+static void initialize_slide_in(WORK_Other* ewk) {
+    if (--Order_Timer[ewk->wu.dir_old] != 0) {
+        return;
+    }
+
+    ewk->wu.routine_no[6]++;
+    ewk->wu.disp_flag = 1;
+    ewk->wu.hit_quake = Pos_Data_69[ewk->wu.dir_old][0] + 512;
+    ewk->wu.xyz[1].disp.pos = Pos_Data_69[ewk->wu.dir_old][1] + 0;
+
+    if (Order_Dir[ewk->wu.dir_old] == 4) {
+        ewk->wu.xyz[0].disp.pos = 800;
+        ewk->wu.mvxy.a[0].sp = -0x100000;
+        ewk->wu.mvxy.d[0].sp = 0;
+    } else {
+        ewk->wu.xyz[0].disp.pos = 224;
+        ewk->wu.mvxy.a[0].sp = 0x100000;
+        ewk->wu.mvxy.d[0].sp = 0x8000;
+    }
+
+    set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+}
+
+static void complete_slide_in(WORK_Other* ewk) {
+    Order[ewk->wu.dir_old] = 3;
+    ewk->wu.routine_no[6] = 0;
+    ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
+}
+
+static void advance_slide_in(WORK_Other* ewk) {
+    ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
+    ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
+
+    if (0 < ewk->wu.mvxy.a[0].sp && ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
+        complete_slide_in(ewk);
+    } else if (!(0 < ewk->wu.mvxy.a[0].sp) && ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
+        complete_slide_in(ewk);
+    }
+}
+
 void EFF42_SLIDE_IN(WORK_Other* ewk) {
     if (Order[ewk->wu.dir_old] != 1) {
         ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
@@ -79,47 +119,10 @@ void EFF42_SLIDE_IN(WORK_Other* ewk) {
         return;
     }
 
-    switch (ewk->wu.routine_no[6]) {
-    case 0:
-        if (--Order_Timer[ewk->wu.dir_old] != 0) {
-            break;
-        }
-
-        ewk->wu.routine_no[6]++;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.hit_quake = Pos_Data_69[ewk->wu.dir_old][0] + 512;
-        ewk->wu.xyz[1].disp.pos = Pos_Data_69[ewk->wu.dir_old][1] + 0;
-
-        if (Order_Dir[ewk->wu.dir_old] == 4) {
-            ewk->wu.xyz[0].disp.pos = 800;
-            ewk->wu.mvxy.a[0].sp = -0x100000;
-            ewk->wu.mvxy.d[0].sp = 0;
-        } else {
-            ewk->wu.xyz[0].disp.pos = 224;
-            ewk->wu.mvxy.a[0].sp = 0x100000;
-            ewk->wu.mvxy.d[0].sp = 0x8000;
-        }
-
-        set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
-        break;
-
-    default:
-        ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
-        ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
-
-        if (0 < ewk->wu.mvxy.a[0].sp) {
-            if (ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
-                Order[ewk->wu.dir_old] = 3;
-                ewk->wu.routine_no[6] = 0;
-                ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
-            }
-        } else if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
-            Order[ewk->wu.dir_old] = 3;
-            ewk->wu.routine_no[6] = 0;
-            ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
-        }
-
-        break;
+    if (ewk->wu.routine_no[6] == 0) {
+        initialize_slide_in(ewk);
+    } else {
+        advance_slide_in(ewk);
     }
 }
 
