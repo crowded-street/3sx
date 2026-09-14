@@ -240,9 +240,36 @@ s32 Check_Start_Hi_Jump(PLW* wk) {
     return 1;
 }
 
+/* True while an incoming attack is close enough to be worth guarding. */
+static s32 Check_Guard_In_Range(PLW* wk, WORK* em) {
+    s16 xx;
+
+    xx = Hit_Range_Data[em->hit_range] + 0x20;
+    xx += Com_Width_Data[wk->wu.id];
+
+    return PL_Distance[wk->wu.id] <= xx;
+}
+
+/* Pick the guard skill level for this decision. Rnd is drawn here because the
+ * table is indexed with it below; both are file-scope scratch. */
+static void Setup_Guard_Level(PLW* wk) {
+    Lv = Setup_Lv10(0);
+    if ((Demo_Flag == 0) && (Weak_PL == wk->wu.id)) {
+        Lv = 2;
+    }
+
+    Rnd = random_16_com();
+    Lv += CC_Value[0];
+
+    if (Lv >= 7) {
+        Lv = 0xA;
+    }
+
+    Lv = emLevelRemake(Lv, 0xB, 1);
+}
+
 s32 Check_Air_Guard(PLW* wk) {
     WORK* em;
-    s16 xx;
     s16 zz;
 
     em = (WORK*)wk->wu.target_adrs;
@@ -257,26 +284,12 @@ s32 Check_Air_Guard(PLW* wk) {
         return Lever_LR[wk->wu.id];
     }
 
-    xx = Hit_Range_Data[em->hit_range] + 0x20;
-    xx += Com_Width_Data[wk->wu.id];
-    if (PL_Distance[wk->wu.id] > xx) {
+    if (!Check_Guard_In_Range(wk, em)) {
         return 0;
     }
 
     Guard_Counter[wk->wu.id] = Attack_Counter[wk->wu.id];
-    Lv = Setup_Lv10(0);
-    if ((Demo_Flag == 0) && (Weak_PL == wk->wu.id)) {
-        Lv = 2;
-    }
-
-    Rnd = random_16_com();
-    Lv += CC_Value[0];
-
-    if (Lv >= 7) {
-        Lv = 0xA;
-    }
-
-    Lv = emLevelRemake(Lv, 0xB, 1);
+    Setup_Guard_Level(wk);
 
     zz = Setup_EM_Rank_Index(wk);
 
@@ -536,6 +549,13 @@ static s32 Check_VS_Air_Attack_Fire(PLW* wk, s16 J_Lever_Data) {
     return 1;
 }
 
+/* The target must be in one of the three airborne patterns, or off the ground,
+ * for an air-to-air answer to make sense. */
+static s32 Check_Target_Airborne(WORK* em) {
+    return (em->pat_status == 0xE) || (em->pat_status == 0x14) || (em->pat_status == 0x1A) ||
+           (em->xyz[1].disp.pos > 0);
+}
+
 s32 Check_VS_Air_Attack(PLW* wk, s16 Range_JX, s16 Range_JY, s16 J_Lever_Data) {
     WORK* em;
 
@@ -547,24 +567,24 @@ s32 Check_VS_Air_Attack(PLW* wk, s16 Range_JX, s16 Range_JY, s16 J_Lever_Data) {
     }
 
     em = (WORK*)wk->wu.target_adrs;
-    if ((em->pat_status != 0xE) && (em->pat_status != 0x14) && (em->pat_status != 0x1A) && (em->xyz[1].disp.pos <= 0)) {
+    if (!Check_Target_Airborne(em)) {
         return 0;
     }
 
     if (Check_Term_Sub_Air(wk, PL_Distance[wk->wu.id], Range_JX) == 0) {
         return 0;
     }
-    if (Check_Term_Sub(wk, Ck_Distance_Height(wk), Range_JY) != 0) {
-        switch (CP_Index[wk->wu.id][2]) {
-        case 0:
-            CP_Index[wk->wu.id][2]++;
-            Timer_01[wk->wu.id] = Select_Reflection_Time(wk);
-            Timer_01[wk->wu.id]++;
-            break;
-        default:
-            return Check_VS_Air_Attack_Fire(wk, J_Lever_Data);
-        }
+    if (Check_Term_Sub(wk, Ck_Distance_Height(wk), Range_JY) == 0) {
+        return 0;
     }
+
+    if (CP_Index[wk->wu.id][2] != 0) {
+        return Check_VS_Air_Attack_Fire(wk, J_Lever_Data);
+    }
+
+    CP_Index[wk->wu.id][2]++;
+    Timer_01[wk->wu.id] = Select_Reflection_Time(wk);
+    Timer_01[wk->wu.id]++;
 
     return 0;
 }
