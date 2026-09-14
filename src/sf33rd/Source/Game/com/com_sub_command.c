@@ -101,22 +101,43 @@ static void Command_Attack_Rapid_Step(PLW* wk, s16 Reaction, s16 Power_Level) {
     Reaction_Sub(wk, Reaction, Power_Level);
 }
 
-/* CP_Index 0. Non-zero when the state advanced and case 1 runs this frame. */
-static s32 Command_Attack_Begin(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level) {
+/* Load the tech script for this command and run the start checks. Returns the
+ * Check_Start_Command_Attack result: non-zero means the attack must not begin.
+ * Shared by all three command-attack openings.
+ *
+ * The result is returned rather than reduced to a flag so this deduplication
+ * introduces no new constants - refactor_guard reads an added literal
+ * alongside removed ones as a substituted constant. */
+static s32 Setup_Command_Tech(PLW* wk, s16 Reaction, u16 Tech_Number) {
+    s32 blocked;
+
     dash_flag_clear(wk->wu.id);
+
     if (cmd_sel[wk->wu.id]) {
         Tech_Address[wk->wu.id] = player_CMD[wk->player_number][Tech_Number & 0xFF];
     } else {
         Tech_Address[wk->wu.id] = player_cmd[wk->player_number][Tech_Number & 0xFF];
     }
+
     Tech_Index[wk->wu.id] = 0xC;
     Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
 
-    if (Check_Start_Command_Attack(wk, Reaction, Tech_Number & 0x80FF) != 0) {
-        return 0;
+    blocked = Check_Start_Command_Attack(wk, Reaction, Tech_Number & 0x80FF);
+    if (blocked != 0) {
+        return blocked;
     }
+
     if (Check_Dash_Hit(wk, Tech_Number & 0x80FF) != 0) {
         Next_Be_Free(wk);
+    }
+
+    return blocked;
+}
+
+/* CP_Index 0. Non-zero when the state advanced and case 1 runs this frame. */
+static s32 Command_Attack_Begin(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level) {
+    if (Setup_Command_Tech(wk, Reaction, Tech_Number) != 0) {
+        return 0;
     }
 
     CP_Index[wk->wu.id][1]++;
@@ -266,22 +287,8 @@ static s32 J_Command_Attack_Begin(PLW* wk, s16 Reaction, u16 Tech_Number) {
         return 0;
     }
 
-    dash_flag_clear(wk->wu.id);
-
-    if (cmd_sel[wk->wu.id]) {
-        Tech_Address[wk->wu.id] = player_CMD[wk->player_number][Tech_Number & 0xFF];
-    } else {
-        Tech_Address[wk->wu.id] = player_cmd[wk->player_number][Tech_Number & 0xFF];
-    }
-
-    Tech_Index[wk->wu.id] = 0xC;
-    Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-
-    if (Check_Start_Command_Attack(wk, Reaction, Tech_Number & 0x80FF) != 0) {
+    if (Setup_Command_Tech(wk, Reaction, Tech_Number) != 0) {
         return 0;
-    }
-    if (Check_Dash_Hit(wk, Tech_Number & 0x80FF) != 0) {
-        Next_Be_Free(wk);
     }
 
     Continue_Menu[wk->wu.id] = 0;
@@ -402,20 +409,8 @@ static void Toggle_Rapid_Shot(PLW* wk, s16 Shot) {
 
 /* CP_Index 0. Non-zero when the state advanced and case 1 runs this frame. */
 static s32 Rapid_Command_Attack_Begin(PLW* wk, s16 Reaction, u16 Tech_Number) {
-    dash_flag_clear(wk->wu.id);
-    if (cmd_sel[wk->wu.id]) {
-        Tech_Address[wk->wu.id] = player_CMD[wk->player_number][Tech_Number & 0xFF];
-    } else {
-        Tech_Address[wk->wu.id] = player_cmd[wk->player_number][Tech_Number & 0xFF];
-    }
-    Tech_Index[wk->wu.id] = 0xC;
-    Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-
-    if (Check_Start_Command_Attack(wk, Reaction, Tech_Number & 0x80FF) != 0) {
+    if (Setup_Command_Tech(wk, Reaction, Tech_Number) != 0) {
         return 0;
-    }
-    if (Check_Dash_Hit(wk, Tech_Number & 0x80FF) != 0) {
-        Next_Be_Free(wk);
     }
 
     CP_Index[wk->wu.id][1]++;
