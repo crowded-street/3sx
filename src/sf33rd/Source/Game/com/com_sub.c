@@ -168,70 +168,82 @@ void Push_Shot(PLW* wk, s16 Power_Level) {
  * The two arms share an identical "falling and low enough" test. It is left
  * duplicated deliberately: folding it would be a behaviour-neutral edit the
  * refactor_guard cannot distinguish from a substituted constant. */
+/* Falling, and low enough for the charge to end. Both arms of the area test
+ * ran this identically. */
+static s32 Check_DENJIN_Falling_Low(WORK* em) {
+    if (em->mvxy.a[1].real.h >= 0) {
+        return 0;
+    }
+    return em->xyz[1].disp.pos < 0x29;
+}
+
+/* The area-dependent half of Check_Exit_DENJIN. Outside the first three areas
+ * the rising test also requires the attack to be coming from behind. */
 static s32 Check_Exit_DENJIN_Area(PLW* wk, WORK* em, s16 xx) {
+    s32 rising;
+
+    rising = em->mvxy.a[1].real.h > 0;
+
     switch (CP_Index[wk->wu.id][3]) {
     case 0:
     case 1:
     case 2:
-        if (em->mvxy.a[1].real.h > 0) {
-            return 1;
-        }
-        if (em->mvxy.a[1].real.h < 0) {
-            if (em->xyz[1].disp.pos < 0x29) {
-                return 1;
-            }
-        }
         break;
+
     default:
-        if ((em->mvxy.a[1].real.h > 0) && (xx == -1)) {
-            return 1;
-        }
-        if (em->mvxy.a[1].real.h < 0) {
-            if (em->xyz[1].disp.pos < 0x29) {
-                return 1;
-            }
-        }
+        rising = rising && (xx == -1);
         break;
     }
-    return 0;
+
+    if (rising) {
+        return 1;
+    }
+    return Check_DENJIN_Falling_Low(em);
+}
+
+/* Which way the target is moving relative to the charge: -1 behind, 1 ahead,
+ * 0 when it has not moved at all. */
+static s16 Check_DENJIN_Direction(PLW* wk, WORK* em) {
+    if ((em->xyz[0].disp.pos) == (em->old_pos[0])) {
+        return 0;
+    }
+    if (Check_Attack_Direction(wk, em) != 0) {
+        return -1;
+    }
+    return 1;
+}
+
+/* Latch the area on first use, then run the area test. Only reached while the
+ * charge is tracking, so the latch happens exactly when it did before. */
+static s32 Check_Exit_DENJIN_Tracking(PLW* wk, WORK* em, s16 xx) {
+    if (CP_Index[wk->wu.id][2] == 0) {
+        CP_Index[wk->wu.id][2]++;
+        CP_Index[wk->wu.id][3] = Area_Number[wk->wu.id];
+    }
+
+    return Check_Exit_DENJIN_Area(wk, em, xx);
 }
 
 s32 Check_Exit_DENJIN(PLW* wk) {
     s16 xx;
     WORK* em;
 
-    if (!(DENJIN_Term[wk->wu.id] & 1)) {
-        if (CP_Index[wk->wu.id][1] == 0) {
-            return 0;
-        }
+    if (!(DENJIN_Term[wk->wu.id] & 1) && (CP_Index[wk->wu.id][1] == 0)) {
+        return 0;
     }
 
-    if ((DENJIN_Term[wk->wu.id] & 8)) {
-        if (Attack_Flag[wk->wu.id]) {
-            return 1;
-        }
+    if ((DENJIN_Term[wk->wu.id] & 8) && Attack_Flag[wk->wu.id]) {
+        return 1;
     }
+
     em = (WORK*)wk->wu.target_adrs;
+    xx = Check_DENJIN_Direction(wk, em);
 
-    xx = 0;
-    if ((em->xyz[0].disp.pos) != (em->old_pos[0])) {
-        if (Check_Attack_Direction(wk, em) != 0) {
-            xx = -1;
-        } else {
-            xx = 1;
-        }
+    if (((DENJIN_Term[wk->wu.id] & 1) && (em->xyz[0].disp.pos != 0)) &&
+        (Check_Exit_DENJIN_Tracking(wk, em, xx) != 0)) {
+        return 1;
     }
 
-    if ((DENJIN_Term[wk->wu.id] & 1) && (em->xyz[0].disp.pos != 0)) {
-        if (CP_Index[wk->wu.id][2] == 0) {
-            CP_Index[wk->wu.id][2]++;
-            CP_Index[wk->wu.id][3] = Area_Number[wk->wu.id];
-        }
-
-        if (Check_Exit_DENJIN_Area(wk, em, xx) != 0) {
-            return 1;
-        }
-    }
     if (xx == 0) {
         return 0;
     }
