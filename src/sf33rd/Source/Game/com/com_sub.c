@@ -997,37 +997,40 @@ void Check_Store_Lever(PLW* wk, u16 Tech_Number, s16 Next_Action, s16 Next_Menu)
     }
 }
 
-s32 Check_Store_Direction(PLW* wk, u16 lever, s16 time) {
-    if (wk->wu.rl_waza) {
-        if (lever & (SWK_LEFT | SWK_RIGHT)) {
-            lever ^= (SWK_LEFT | SWK_RIGHT);
-        }
+/* Mirror left/right when the character is reversed. */
+static u16 Mirror_Lever_LR(PLW* wk, u16 lever) {
+    if (!wk->wu.rl_waza) {
+        return lever;
     }
+    if (lever & (SWK_LEFT | SWK_RIGHT)) {
+        lever ^= (SWK_LEFT | SWK_RIGHT);
+    }
+    return lever;
+}
+
+s32 Check_Store_Direction(PLW* wk, u16 lever, s16 time) {
+    s16 stored;
+
+    lever = Mirror_Lever_LR(wk, lever);
 
     switch (lever) {
     case SWK_DOWN:
-        if (time <= Lever_Store[wk->wu.id][0]) {
-            return 1;
-        }
-
+        stored = Lever_Store[wk->wu.id][0];
         break;
 
     case SWK_RIGHT:
-        if (time <= Lever_Store[wk->wu.id][1]) {
-            return 1;
-        }
-
+        stored = Lever_Store[wk->wu.id][1];
         break;
 
     case SWK_LEFT:
-        if (time <= Lever_Store[wk->wu.id][2]) {
-            return 1;
-        }
-
+        stored = Lever_Store[wk->wu.id][2];
         break;
+
+    default:
+        return 0;
     }
 
-    return 0;
+    return time <= stored;
 }
 
 s32 Select_Combo_Speed(PLW* wk) {
