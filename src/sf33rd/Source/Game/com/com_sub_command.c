@@ -527,6 +527,25 @@ s32 Setup_Rapid_Time(PLW* wk, u16 Tech_Number) {
 /* Rapid_No[0] == 2: the three-stage rapid-fire cadence. The original returned
  * from the first stage rather than breaking; the helper returns at the same
  * point, which ends Rapid_Sub just as the return did. */
+/* Stage 1 of the triple cadence: press on the beat, and step to stage 2 once
+ * the repeat count runs out. */
+static void Rapid_Sub_Triple_Beat(PLW* wk) {
+    if (--Timer_00[wk->wu.id] != 0) {
+        return;
+    }
+
+    Lever_Buff[wk->wu.id] = Rapid_Index[wk->wu.id];
+    Timer_00[wk->wu.id] = 2;
+
+    if (--Timer_01[wk->wu.id] == 0) {
+        Rapid_No[wk->wu.id][1]++;
+        Timer_01[wk->wu.id] = 0x18;
+    }
+}
+
+/* Rapid_No[0] == 2: the three-stage rapid-fire cadence. The original returned
+ * from the first stage rather than breaking; the helper returns at the same
+ * point, which ends Rapid_Sub just as the return did. */
 static void Rapid_Sub_Triple(PLW* wk) {
     switch (Rapid_No[wk->wu.id][1]) {
     case 0:
@@ -534,17 +553,11 @@ static void Rapid_Sub_Triple(PLW* wk) {
         Timer_00[wk->wu.id] = 1;
         Timer_01[wk->wu.id] = 3;
         return;
-    case 1:
-        if (--Timer_00[wk->wu.id] == 0) {
-            Lever_Buff[wk->wu.id] = Rapid_Index[wk->wu.id];
-            Timer_00[wk->wu.id] = 2;
 
-            if (--Timer_01[wk->wu.id] == 0) {
-                Rapid_No[wk->wu.id][1]++;
-                Timer_01[wk->wu.id] = 0x18;
-            }
-        }
+    case 1:
+        Rapid_Sub_Triple_Beat(wk);
         break;
+
     case 2:
         if (--Timer_01[wk->wu.id] == 0) {
             Rapid_No[wk->wu.id][1]++;
@@ -552,6 +565,7 @@ static void Rapid_Sub_Triple(PLW* wk) {
             Timer_01[wk->wu.id] = 2;
         }
         break;
+
     default:
         if (--Timer_00[wk->wu.id] == 0) {
             Lever_Buff[wk->wu.id] = Rapid_Index[wk->wu.id];
@@ -659,6 +673,28 @@ s32 Check_Rapid_End(PLW* wk) {
     return 0;
 }
 
+/* Dash techs are gated by their own cancel bit. */
+static s32 Check_Dash_Cancel_Ok(PLW* wk) {
+    if (wk->wu.cg_cancel & 2) {
+        return 0;
+    }
+    return 1;
+}
+
+/* The cancel-window tests for every other tech. */
+static s32 Check_Command_Cancel_Ok(PLW* wk, s16 Reaction, u16 Tech_Number) {
+    if ((Tech_Number & 0x8000) && (wk->wu.cg_cancel & 0x40)) {
+        return 0;
+    }
+    if (wk->wu.cg_cancel & 0x20) {
+        return 0;
+    }
+    if ((wk->wu.cg_cancel & 8) && (Reaction == 0xE)) {
+        return 0;
+    }
+    return 1;
+}
+
 s32 Check_Start_Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number) {
     if (Before_Jump[wk->wu.id]) {
         return Before_Jump[wk->wu.id] = 0;
@@ -672,19 +708,8 @@ s32 Check_Start_Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number) {
     }
 
     if ((Tech_Number == 0) || (Tech_Number == 1)) {
-        if (wk->wu.cg_cancel & 2) {
-            return 0;
-        }
-        return 1;
+        return Check_Dash_Cancel_Ok(wk);
     }
-    if ((Tech_Number & 0x8000) && (wk->wu.cg_cancel & 0x40)) {
-        return 0;
-    }
-    if (wk->wu.cg_cancel & 0x20) {
-        return 0;
-    }
-    if ((wk->wu.cg_cancel & 8) && (Reaction == 0xE)) {
-        return 0;
-    }
-    return 1;
+
+    return Check_Command_Cancel_Ok(wk, Reaction, Tech_Number);
 }
