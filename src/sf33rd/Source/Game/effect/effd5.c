@@ -33,28 +33,42 @@ static s32 game_is_active(void) {
     return EXE_flag == 0 && Game_pause == 0;
 }
 
+static s32 rose_updates_are_active(void) {
+    return sa_stop_check() == 0;
+}
+
+static s32 advance_active_rose(WORK_Other* ewk) {
+    if (game_is_active()) {
+        effD5_main_process(ewk);
+
+        if (ewk->wu.cg_type == 0xFF) {
+            ewk->wu.routine_no[0]++;
+            ewk->wu.disp_flag = 0;
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 static s32 update_live_rose(WORK_Other* ewk) {
-    if (sa_stop_check() == 0) {
-        if (ewk->wu.hit_stop < 0) {
-            ewk->wu.hit_stop = -ewk->wu.hit_stop;
-        }
+    if (!rose_updates_are_active()) {
+        return 0;
+    }
 
-        if (game_is_active()) {
-            effD5_main_process(ewk);
+    if (ewk->wu.hit_stop < 0) {
+        ewk->wu.hit_stop = -ewk->wu.hit_stop;
+    }
 
-            if (ewk->wu.cg_type == 0xFF) {
-                ewk->wu.routine_no[0]++;
-                ewk->wu.disp_flag = 0;
-                return 1;
-            }
-        }
+    if (advance_active_rose(ewk)) {
+        return 1;
+    }
 
-        ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
-        ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
+    ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
+    ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
 
-        if (ewk->wu.type) {
-            hit_push_request(&ewk->wu);
-        }
+    if (ewk->wu.type) {
+        hit_push_request(&ewk->wu);
     }
 
     return 0;
