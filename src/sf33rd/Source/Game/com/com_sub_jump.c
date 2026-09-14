@@ -78,6 +78,7 @@ static s32 Check_Combo_Ready(PLW* wk) {
     return --Combo_Speed[wk->wu.id] == 0;
 }
 
+
 /* Step the held command; non-zero when it has just completed. */
 static s32 Run_Hi_Jump_Command(PLW* wk) {
     if (Command_Type_00(wk, 8, 0xFFFF, -1) != -1) {
@@ -87,6 +88,30 @@ static s32 Run_Hi_Jump_Command(PLW* wk) {
     CP_Index[wk->wu.id][1]++;
     Lever_Buff[wk->wu.id] |= Lever_Pool[wk->wu.id];
     return 1;
+}
+
+/* The command arm shared by Hi_Jump and Hi_Jump_Attack.
+ *
+ * Returns non-zero when Hi_Jump_Attack must return outright: that arm used a
+ * bare return where every other arm breaks, so it skips the trailing lever
+ * merge, and the flag preserves that. Hi_Jump discards the result - it has no
+ * trailing merge, and its own arm expressed the same choice as
+ * "if (!(Lever_Buff & 2)) OR in Lever_Pool". */
+static s32 Hi_Jump_Attack_Command(PLW* wk) {
+    if (Check_Passive(wk) != 0) {
+        return 0;
+    }
+
+    if (Run_Hi_Jump_Command(wk)) {
+        return 0;
+    }
+
+    if (Lever_Buff[wk->wu.id] & 2) {
+        return 1;
+    }
+    Lever_Buff[wk->wu.id] |= Lever_Pool[wk->wu.id];
+
+    return 0;
 }
 
 /* The rise off the ground, once the jump has left it. Jump and Hi_Jump ran
@@ -198,19 +223,6 @@ static void Hi_Jump_Launch(PLW* wk, s16 Jump_Dir) {
     Lever_Buff[wk->wu.id] = 0;
 }
 
-static void Hi_Jump_Command(PLW* wk) {
-    if (Check_Passive(wk) != 0) {
-        return;
-    }
-
-    if (Run_Hi_Jump_Command(wk)) {
-        return;
-    }
-
-    if (!(Lever_Buff[wk->wu.id] & 2)) {
-        Lever_Buff[wk->wu.id] |= Lever_Pool[wk->wu.id];
-    }
-}
 
 
 /* Landing clears only the four CP_Index fields - not the flip and limited flags
@@ -238,7 +250,7 @@ void Hi_Jump(PLW* wk, s16 Pl_Number, s16 Jump_Dir) {
         break;
 
     case 2:
-        Hi_Jump_Command(wk);
+        Hi_Jump_Attack_Command(wk);
         break;
 
     case 3:
@@ -691,25 +703,6 @@ static void Hi_Jump_Attack_Launch(PLW* wk, s16 Jump_Dir) {
     }
 }
 
-/* Returns non-zero when Hi_Jump_Attack must return outright. This arm used a
- * bare return where every other arm breaks, so it skips the trailing lever
- * merge - that difference is preserved through this flag. */
-static s32 Hi_Jump_Attack_Command(PLW* wk) {
-    if (Check_Passive(wk) != 0) {
-        return 0;
-    }
-
-    if (Run_Hi_Jump_Command(wk)) {
-        return 0;
-    }
-
-    if (Lever_Buff[wk->wu.id] & 2) {
-        return 1;
-    }
-    Lever_Buff[wk->wu.id] |= Lever_Pool[wk->wu.id];
-
-    return 0;
-}
 
 static void Hi_Jump_Attack_Rise(PLW* wk) {
     if (wk->wu.xyz[1].disp.pos > 0) {
