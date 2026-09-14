@@ -73,30 +73,29 @@ static void initialize_EFF63_slide(WORK_Other_CONN* ewk) {
     ewk->wu.mvxy.d[0].sp = 0x50000;
 }
 
+static void finish_EFF63_slide(WORK_Other_CONN* ewk) {
+    if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
+        Order[ewk->wu.dir_old] = 0;
+    }
+
+    ewk->wu.routine_no[0] = 0;
+    ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
+}
+
 static void advance_EFF63_slide(WORK_Other_CONN* ewk) {
     ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
     ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
 
     if (0 < ewk->wu.mvxy.a[0].sp) {
         if (ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
-            if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
-                Order[ewk->wu.dir_old] = 0;
-            }
-
-            ewk->wu.routine_no[0] = 0;
-            ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
+            finish_EFF63_slide(ewk);
         }
 
         return;
     }
 
     if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
-        if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
-            Order[ewk->wu.dir_old] = 0;
-        }
-
-        ewk->wu.routine_no[0] = 0;
-        ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
+        finish_EFF63_slide(ewk);
     }
 }
 
