@@ -2812,20 +2812,7 @@ void ORO_HJA_Term(
 
     case 5:
         Check_Air_Guard(wk);
-        if (Check_Landed(wk, Reaction) != 0) {
-            break;
-        }
-
-        if (Check_VS_Air_Attack(wk, RJX, RJY, JLD) != 0) {
-            break;
-        }
-        if (Check_Term_Sub(wk, PL_Distance[wk->wu.id], RX) == 0) {
-            break;
-        }
-        if (Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, RY) == 0) {
-            break;
-        }
-        if (Check_Term_Sub(wk, wk->wu.xyz[1].disp.pos, RY) == 0) {
+        if (Attack_Range_Gates(wk, Reaction, RX, RY, RJX, RJY, JLD) == 0) {
             break;
         }
 
@@ -3463,20 +3450,7 @@ void ORO_JCA_Term(
 
     case 4:
         Check_Air_Guard(wk);
-        if (Check_Landed(wk, Reaction) != 0) {
-            break;
-        }
-
-        if (Check_VS_Air_Attack(wk, RJX, RJY, JLD) != 0) {
-            break;
-        }
-        if (Check_Term_Sub(wk, PL_Distance[wk->wu.id], RX) == 0) {
-            break;
-        }
-        if (Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, RY) == 0) {
-            break;
-        }
-        if (Check_Term_Sub(wk, wk->wu.xyz[1].disp.pos, RY) == 0) {
+        if (Attack_Range_Gates(wk, Reaction, RX, RY, RJX, RJY, JLD) == 0) {
             break;
         }
         CP_Index[wk->wu.id][1] += 2;
@@ -3603,20 +3577,7 @@ void ORO_HJCA_Term(
 
     case 5:
         Check_Air_Guard(wk);
-        if (Check_Landed(wk, Reaction) != 0) {
-            break;
-        }
-
-        if (Check_VS_Air_Attack(wk, RJX, RJY, JLD) != 0) {
-            break;
-        }
-        if (Check_Term_Sub(wk, PL_Distance[wk->wu.id], RX) == 0) {
-            break;
-        }
-        if (Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, RY) == 0) {
-            break;
-        }
-        if (Check_Term_Sub(wk, wk->wu.xyz[1].disp.pos, RY) == 0) {
+        if (Attack_Range_Gates(wk, Reaction, RX, RY, RJX, RJY, JLD) == 0) {
             break;
         }
         CP_Index[wk->wu.id][1] += 2;
@@ -3709,20 +3670,7 @@ void Jump_Command_Attack_Term(
     case 3:
         Check_Air_Guard(wk);
         Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
-        if (Check_Landed(wk, Reaction) != 0) {
-            break;
-        }
-
-        if (Check_VS_Air_Attack(wk, JRX, JRY, JLD) != 0) {
-            break;
-        }
-        if (Check_Term_Sub(wk, PL_Distance[wk->wu.id], RX) == 0) {
-            break;
-        }
-        if (Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, RY) == 0) {
-            break;
-        }
-        if (Check_Term_Sub(wk, wk->wu.xyz[1].disp.pos, RY) == 0) {
+        if (Attack_Range_Gates(wk, Reaction, RX, RY, JRX, JRY, JLD) == 0) {
             break;
         }
         CP_Index[wk->wu.id][1] += 2;
@@ -3824,20 +3772,7 @@ void Hi_Jump_Command_Attack_Term(
 
     case 4:
         Check_Air_Guard(wk);
-        if (Check_Landed(wk, Reaction) != 0) {
-            break;
-        }
-
-        if (Check_VS_Air_Attack(wk, JRX, JRY, JLD) != 0) {
-            break;
-        }
-        if (Check_Term_Sub(wk, PL_Distance[wk->wu.id], RX) == 0) {
-            break;
-        }
-        if (Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, RY) == 0) {
-            break;
-        }
-        if (Check_Term_Sub(wk, wk->wu.xyz[1].disp.pos, RY) == 0) {
+        if (Attack_Range_Gates(wk, Reaction, RX, RY, JRX, JRY, JLD) == 0) {
             break;
         }
         CP_Index[wk->wu.id][1] += 2;
