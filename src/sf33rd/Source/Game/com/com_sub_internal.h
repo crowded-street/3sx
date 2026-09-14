@@ -4,6 +4,10 @@
 #include "structs.h"
 #include "types.h"
 
+/* Defined in com_sub.c; the level/random scratch shared by the split files. */
+extern s8 Lv;
+extern s8 Rnd;
+
 typedef s32 (*Term_Tbl_t)(PLW* wk, WORK* em);
 
 /* Declarations shared between com_sub.c and the files split out of it. These
