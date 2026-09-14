@@ -206,50 +206,67 @@ s32 effect_58_init(s16 id, s16 time0, s16 option) {
     return 0;
 }
 
+static void initialize_logo_58(WORK_Other* ewk) {
+    ewk->wu.routine_no[2]++;
+    ewk->wu.dir_timer = 1;
+    Disappear_LOGO = 0;
+}
+
+static s32 advance_logo_frame_58(WORK_Other* ewk) {
+    if (--ewk->wu.dir_timer != 0) {
+        return 0;
+    }
+
+    ewk->wu.dir_timer = 2;
+    ewk->wu.direction++;
+    return 2;
+}
+
+static void reveal_logo_58(WORK_Other* ewk) {
+    if (!advance_logo_frame_58(ewk)) {
+        return;
+    }
+
+    if (ewk->wu.direction >= 8) {
+        ewk->wu.direction = 8;
+        ewk->wu.routine_no[2]++;
+    }
+}
+
+static void wait_to_hide_logo_58(WORK_Other* ewk) {
+    if (Disappear_LOGO) {
+        ewk->wu.routine_no[2]++;
+        ewk->wu.dir_timer = 1;
+    }
+}
+
+static void hide_logo_58(WORK_Other* ewk) {
+    if (!advance_logo_frame_58(ewk)) {
+        return;
+    }
+
+    if (ewk->wu.direction > 16) {
+        ewk->wu.direction = 16;
+        sort_push_request4(&ewk->wu);
+    }
+}
+
 s32 SF33rd_Logo(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[2]) {
     case 0:
-        ewk->wu.routine_no[2]++;
-        ewk->wu.dir_timer = 1;
-        Disappear_LOGO = 0;
+        initialize_logo_58(ewk);
         /* fallthrough */
 
     case 1:
-        if (--ewk->wu.dir_timer != 0) {
-            break;
-        }
-
-        ewk->wu.dir_timer = 2;
-        ewk->wu.direction++;
-
-        if (ewk->wu.direction >= 8) {
-            ewk->wu.direction = 8;
-            ewk->wu.routine_no[2]++;
-        }
-
+        reveal_logo_58(ewk);
         break;
 
     case 2:
-        if (Disappear_LOGO) {
-            ewk->wu.routine_no[2]++;
-            ewk->wu.dir_timer = 1;
-        }
-
+        wait_to_hide_logo_58(ewk);
         break;
 
     default:
-        if (--ewk->wu.dir_timer != 0) {
-            break;
-        }
-
-        ewk->wu.dir_timer = 2;
-        ewk->wu.direction++;
-
-        if (ewk->wu.direction > 16) {
-            ewk->wu.direction = 16;
-            sort_push_request4(&ewk->wu);
-        }
-
+        hide_logo_58(ewk);
         break;
     }
 
