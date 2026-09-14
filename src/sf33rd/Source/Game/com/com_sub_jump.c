@@ -102,88 +102,113 @@ void Jump(PLW* wk, s16 Jump_Dir) {
     }
 }
 
+static void Hi_Jump_Begin(PLW* wk, s16 Pl_Number) {
+    Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
+    if (Check_Passive(wk) != 0) {
+        return;
+    }
+
+    if (wk->spmv_ng_flag & 0x30000) {
+        Next_Be_Free(wk);
+        return;
+    }
+
+    if (Check_Start_Hi_Jump(wk) != 0) {
+        return;
+    }
+
+    CP_Index[wk->wu.id][1]++;
+    if (cmd_sel[wk->wu.id]) {
+        Tech_Address[wk->wu.id] = player_CMD[Pl_Number][2];
+    } else {
+        Tech_Address[wk->wu.id] = player_cmd[Pl_Number][2];
+    }
+    Check_First_Menu(wk);
+}
+
+static void Hi_Jump_Launch(PLW* wk, s16 Jump_Dir) {
+    if (Check_Passive(wk) != 0) {
+        return;
+    }
+    if (--Combo_Speed[wk->wu.id] != 0) {
+        return;
+    }
+
+    CP_Index[wk->wu.id][1]++;
+    Tech_Index[wk->wu.id] = 0xC;
+
+    Jump_Init(wk, Jump_Dir);
+    if (Check_Diagonal_Shell(wk) != 0) {
+        Next_Be_Free(wk);
+    }
+
+    Lever_Buff[wk->wu.id] = 0;
+}
+
+static void Hi_Jump_Command(PLW* wk) {
+    if (Check_Passive(wk) != 0) {
+        return;
+    }
+
+    if (Command_Type_00(wk, 8, 0xFFFF, -1) == -1) {
+        CP_Index[wk->wu.id][1]++;
+        Lever_Buff[wk->wu.id] |= Lever_Pool[wk->wu.id];
+        return;
+    }
+
+    if (!(Lever_Buff[wk->wu.id] & 2)) {
+        Lever_Buff[wk->wu.id] |= Lever_Pool[wk->wu.id];
+    }
+}
+
+static void Hi_Jump_Rise(PLW* wk) {
+    Lever_Buff[wk->wu.id] = Lever_Pool[wk->wu.id];
+    if (wk->wu.xyz[1].disp.pos <= 0) {
+        return;
+    }
+
+    CP_Index[wk->wu.id][1]++;
+    Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
+    Check_Air_Guard(wk);
+}
+
+/* Landing clears only the four CP_Index fields - not the flip and limited flags
+ * that Next_Pattern_Step also clears - so it stays written out. */
+static void Hi_Jump_Land(PLW* wk) {
+    Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
+    Check_Air_Guard(wk);
+
+    if (wk->wu.xyz[1].disp.pos) {
+        return;
+    }
+
+    CP_Index[wk->wu.id][0]++;
+    CP_Index[wk->wu.id][1] = 0;
+    CP_Index[wk->wu.id][2] = 0;
+    CP_Index[wk->wu.id][3] = 0;
+}
+
 void Hi_Jump(PLW* wk, s16 Pl_Number, s16 Jump_Dir) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
-        Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-
-        if (wk->spmv_ng_flag & 0x30000) {
-            Next_Be_Free(wk);
-            break;
-        }
-
-        if (Check_Start_Hi_Jump(wk) == 0) {
-            CP_Index[wk->wu.id][1]++;
-            if (cmd_sel[wk->wu.id]) {
-                Tech_Address[wk->wu.id] = player_CMD[Pl_Number][2];
-            } else {
-                Tech_Address[wk->wu.id] = player_cmd[Pl_Number][2];
-            }
-            Check_First_Menu(wk);
-        }
-
+        Hi_Jump_Begin(wk, Pl_Number);
         break;
 
     case 1:
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-        if (--Combo_Speed[wk->wu.id] != 0) {
-            break;
-        }
-
-        CP_Index[wk->wu.id][1]++;
-        Tech_Index[wk->wu.id] = 0xC;
-
-        Jump_Init(wk, Jump_Dir);
-        if (Check_Diagonal_Shell(wk) != 0) {
-            Next_Be_Free(wk);
-        }
-
-        Lever_Buff[wk->wu.id] = 0;
-
+        Hi_Jump_Launch(wk, Jump_Dir);
         break;
 
     case 2:
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-
-        if (Command_Type_00(wk, 8, 0xFFFF, -1) == -1) {
-            CP_Index[wk->wu.id][1]++;
-            Lever_Buff[wk->wu.id] |= Lever_Pool[wk->wu.id];
-            break;
-        }
-
-        if (!(Lever_Buff[wk->wu.id] & 2)) {
-            Lever_Buff[wk->wu.id] |= Lever_Pool[wk->wu.id];
-        }
+        Hi_Jump_Command(wk);
         break;
 
     case 3:
-        Lever_Buff[wk->wu.id] = Lever_Pool[wk->wu.id];
-        if (wk->wu.xyz[1].disp.pos > 0) {
-            CP_Index[wk->wu.id][1]++;
-            Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-            Check_Air_Guard(wk);
-        }
+        Hi_Jump_Rise(wk);
         break;
 
     default:
-        Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-        Check_Air_Guard(wk);
-
-        if (wk->wu.xyz[1].disp.pos) {
-            break;
-        }
-        CP_Index[wk->wu.id][0]++;
-        CP_Index[wk->wu.id][1] = 0;
-        CP_Index[wk->wu.id][2] = 0;
-        CP_Index[wk->wu.id][3] = 0;
+        Hi_Jump_Land(wk);
         break;
     }
 }
@@ -533,128 +558,165 @@ s32 Check_VS_Air_Attack(PLW* wk, s16 Range_JX, s16 Range_JY, s16 J_Lever_Data) {
     return 0;
 }
 
-void Hi_Jump_Attack(PLW* wk, s16 Reaction, s16 Time_Data, u16 Lever_Data, s16 Jump_Dir) {
+static void Hi_Jump_Attack_Start(PLW* wk, s16 Reaction, s16 Time_Data) {
+    Setup_Lever_LR(wk, wk->wu.id, Reaction & 0xF000);
+    if (Check_Passive(wk) != 0) {
+        return;
+    }
+
+    if (wk->spmv_ng_flag & 0x30000) {
+        Next_Be_Free(wk);
+        return;
+    }
+    if (Check_Start_Hi_Jump(wk) != 0) {
+        return;
+    }
+
+    Continue_Menu[wk->wu.id] = 0;
+    wk->wu.hf.hit.player = 0;
+    CP_Index[wk->wu.id][1]++;
+    if (cmd_sel[wk->wu.id]) {
+        Tech_Address[wk->wu.id] = player_CMD[wk->player_number][2];
+    } else {
+        Tech_Address[wk->wu.id] = player_cmd[wk->player_number][2];
+    }
+    Timer_00[wk->wu.id] = Time_Data;
+    Check_First_Menu(wk);
+}
+
+static void Hi_Jump_Attack_Launch(PLW* wk, s16 Jump_Dir) {
+    if (Check_Passive(wk) != 0) {
+        return;
+    }
+
+    if (--Combo_Speed[wk->wu.id] != 0) {
+        return;
+    }
+
+    CP_Index[wk->wu.id][1]++;
+    Tech_Index[wk->wu.id] = 0xC;
+
+    dash_flag_clear(wk->wu.id);
+    Jump_Init(wk, Jump_Dir);
+    Lever_Pool[wk->wu.id] &= 0xC;
+    Lever_Buff[wk->wu.id] = 0;
+    Check_Air_Guard(wk);
+    if (Check_Diagonal_Shell(wk) != 0) {
+        Next_Be_Free(wk);
+    }
+}
+
+/* Returns non-zero when Hi_Jump_Attack must return outright. This arm used a
+ * bare return where every other arm breaks, so it skips the trailing lever
+ * merge - that difference is preserved through this flag. */
+static s32 Hi_Jump_Attack_Command(PLW* wk) {
+    if (Check_Passive(wk) != 0) {
+        return 0;
+    }
+
+    if (Command_Type_00(wk, 8, 0xFFFF, -1) == -1) {
+        CP_Index[wk->wu.id][1]++;
+        Lever_Buff[wk->wu.id] |= Lever_Pool[wk->wu.id];
+        return 0;
+    }
+
+    if (Lever_Buff[wk->wu.id] & 2) {
+        return 1;
+    }
+    Lever_Buff[wk->wu.id] |= Lever_Pool[wk->wu.id];
+
+    return 0;
+}
+
+static void Hi_Jump_Attack_Rise(PLW* wk) {
+    if (wk->wu.xyz[1].disp.pos > 0) {
+        CP_Index[wk->wu.id][1]++;
+        return;
+    }
+
+    Lever_Buff[wk->wu.id] = Lever_Pool[wk->wu.id] | 1;
+}
+
+static void Hi_Jump_Attack_Fire(PLW* wk, s16 Reaction, u16 Lever_Data) {
+    Check_Air_Guard(wk);
+
+    if (--Timer_00[wk->wu.id] != 0) {
+        return;
+    }
+
+    Lever_Data = Check_SP_Jump_Attack(wk, Lever_Data);
+    Lever_Buff[wk->wu.id] = Lever_Data;
+    CP_Index[wk->wu.id][1] += 2;
+    if (Reaction & 0x80) {
+        CP_Index[wk->wu.id][1]++;
+    }
+}
+
+static void Hi_Jump_Attack_Meoshi(PLW* wk) {
+    Check_Air_Guard(wk);
+    if (Attack_Flag[wk->wu.id]) {
+        return;
+    }
+
+    CP_Index[wk->wu.id][1]++;
+    if (wk->wu.hf.hit.player == 0) {
+        return;
+    }
+
+    if (!(wk->wu.cg_cancel & 8)) {
+        return;
+    }
+
+    Lever_Buff[wk->wu.id] = Get_Meoshi_Data(wk);
+}
+
+static void Hi_Jump_Attack_Land(PLW* wk, s16 Reaction) {
+    if (wk->wu.hf.hit.player) {
+        Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
+    }
+    Check_Landed(wk, Reaction & 0xFFF);
+}
+
+/* Returns non-zero when the trailing lever merge must be skipped. */
+static s32 Hi_Jump_Attack_Step(PLW* wk, s16 Reaction, s16 Time_Data, u16 Lever_Data, s16 Jump_Dir) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
-        Setup_Lever_LR(wk, wk->wu.id, Reaction & 0xF000);
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-
-        if (wk->spmv_ng_flag & 0x30000) {
-            Next_Be_Free(wk);
-            break;
-        }
-        if (Check_Start_Hi_Jump(wk) == 0) {
-            Continue_Menu[wk->wu.id] = 0;
-            wk->wu.hf.hit.player = 0;
-            CP_Index[wk->wu.id][1]++;
-            if (cmd_sel[wk->wu.id]) {
-                Tech_Address[wk->wu.id] = player_CMD[wk->player_number][2];
-            } else {
-                Tech_Address[wk->wu.id] = player_cmd[wk->player_number][2];
-            }
-            Timer_00[wk->wu.id] = Time_Data;
-            Check_First_Menu(wk);
-        }
-
+        Hi_Jump_Attack_Start(wk, Reaction, Time_Data);
         break;
 
     case 1:
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-
-        if (--Combo_Speed[wk->wu.id] != 0) {
-            break;
-        }
-
-        CP_Index[wk->wu.id][1]++;
-        Tech_Index[wk->wu.id] = 0xC;
-
-        dash_flag_clear(wk->wu.id);
-        Jump_Init(wk, Jump_Dir);
-        Lever_Pool[wk->wu.id] &= 0xC;
-        Lever_Buff[wk->wu.id] = 0;
-        Check_Air_Guard(wk);
-        if (Check_Diagonal_Shell(wk) != 0) {
-            Next_Be_Free(wk);
-        }
-
+        Hi_Jump_Attack_Launch(wk, Jump_Dir);
         break;
 
     case 2:
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-
-        if (Command_Type_00(wk, 8, 0xFFFF, -1) == -1) {
-            CP_Index[wk->wu.id][1]++;
-            Lever_Buff[wk->wu.id] |= Lever_Pool[wk->wu.id];
-            break;
-        }
-
-        if (Lever_Buff[wk->wu.id] & 2) {
-            return;
-        }
-        Lever_Buff[wk->wu.id] |= Lever_Pool[wk->wu.id];
-
-        break;
+        return Hi_Jump_Attack_Command(wk);
 
     case 3:
-        if (wk->wu.xyz[1].disp.pos > 0) {
-            CP_Index[wk->wu.id][1]++;
-        }
-
-        else {
-            Lever_Buff[wk->wu.id] = Lever_Pool[wk->wu.id] | 1;
-        }
-
+        Hi_Jump_Attack_Rise(wk);
         break;
 
     case 4:
-        Check_Air_Guard(wk);
-
-        if (--Timer_00[wk->wu.id] != 0) {
-            break;
-        }
-
-        Lever_Data = Check_SP_Jump_Attack(wk, Lever_Data);
-        Lever_Buff[wk->wu.id] = Lever_Data;
-        CP_Index[wk->wu.id][1] += 2;
-        if (Reaction & 0x80) {
-            CP_Index[wk->wu.id][1]++;
-        }
-
+        Hi_Jump_Attack_Fire(wk, Reaction, Lever_Data);
         break;
 
     case 6:
-        Check_Air_Guard(wk);
-        if (Attack_Flag[wk->wu.id]) {
-            break;
-        }
-
-        CP_Index[wk->wu.id][1]++;
-        if (wk->wu.hf.hit.player == 0) {
-            break;
-        }
-
-        if (!(wk->wu.cg_cancel & 8)) {
-            break;
-        }
-
-        Lever_Buff[wk->wu.id] = Get_Meoshi_Data(wk);
-
+        Hi_Jump_Attack_Meoshi(wk);
         break;
 
     default:
-        if (wk->wu.hf.hit.player) {
-            Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
-        }
-        Check_Landed(wk, Reaction & 0xFFF);
+        Hi_Jump_Attack_Land(wk, Reaction);
         break;
     }
+
+    return 0;
+}
+
+void Hi_Jump_Attack(PLW* wk, s16 Reaction, s16 Time_Data, u16 Lever_Data, s16 Jump_Dir) {
+    if (Hi_Jump_Attack_Step(wk, Reaction, Time_Data, Lever_Data, Jump_Dir) != 0) {
+        return;
+    }
+
     if (CP_Index[wk->wu.id][1] >= 4) {
         Lever_Buff[wk->wu.id] |= Lever_LR[wk->wu.id];
     }
