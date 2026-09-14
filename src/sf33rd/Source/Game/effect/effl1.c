@@ -161,9 +161,34 @@ static void initialize_L1_effect(WORK_Other_CONN* ewk) {
     effL1_trans(&ewk->wu);
 }
 
-void effect_L1_move(WORK_Other_CONN* ewk) {
+static void update_L1_active_display(WORK_Other_CONN* ewk) {
     s16 i;
 
+    switch (ewk->wu.type) {
+    case 1:
+        if (--ewk->wu.dir_timer < 0) {
+            ewk->wu.dir_timer = 0;
+            ewk->wu.disp_flag = 1;
+        }
+
+        grade_data_disp();
+        break;
+
+    case 10:
+        if (--ewk->wu.dir_timer < 0) {
+            ewk->wu.dir_timer = ewk->wu.dir_step;
+            ewk->wu.direction = (ewk->wu.direction + 1) & ewk->wu.dir_old;
+
+            for (i = 0; i < ewk->num_of_conn; i++) {
+                ewk->conn[i].chr = ewk->conn[ewk->num_of_conn + ewk->wu.direction].chr;
+            }
+        }
+
+        break;
+    }
+}
+
+void effect_L1_move(WORK_Other_CONN* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
         initialize_L1_effect(ewk);
@@ -177,28 +202,7 @@ void effect_L1_move(WORK_Other_CONN* ewk) {
             break;
         }
 
-        switch (ewk->wu.type) {
-        case 1:
-            if (--ewk->wu.dir_timer < 0) {
-                ewk->wu.dir_timer = 0;
-                ewk->wu.disp_flag = 1;
-            }
-
-            grade_data_disp();
-            break;
-
-        case 10:
-            if (--ewk->wu.dir_timer < 0) {
-                ewk->wu.dir_timer = ewk->wu.dir_step;
-                ewk->wu.direction = (ewk->wu.direction + 1) & ewk->wu.dir_old;
-
-                for (i = 0; i < ewk->num_of_conn; i++) {
-                    ewk->conn[i].chr = ewk->conn[ewk->num_of_conn + ewk->wu.direction].chr;
-                }
-            }
-
-            break;
-        }
+        update_L1_active_display(ewk);
 
         effL1_trans(&ewk->wu);
         break;
