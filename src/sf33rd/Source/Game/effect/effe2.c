@@ -151,6 +151,95 @@ static s32 game_is_active(void) {
     return EXE_flag == 0 && Game_pause == 0;
 }
 
+static void initialize_effect_E2(WORK_Other* ewk, PLW* mwk) {
+    ewk->wu.routine_no[0]++;
+
+    if (ewk->wu.weight_level) {
+        ewk->wu.disp_flag = 2;
+    } else {
+        ewk->wu.disp_flag = 1;
+    }
+
+    ewk->wu.cg_wca_ix = 0;
+    set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+    effE2_sort_push(&ewk->wu, &mwk->wu);
+}
+
+static void advance_effect_E2_initial_animation(WORK_Other* ewk, PLW* mwk) {
+    if (game_is_active()) {
+        char_move(&ewk->wu);
+
+        if (ewk->wu.cg_type) {
+            if (ewk->wu.cg_type == 0xFF) {
+                ewk->wu.disp_flag = 0;
+                ewk->wu.routine_no[0] = 2;
+                return;
+            }
+
+            if (ewk->wu.cg_type == 1) {
+                ewk->wu.routine_no[1] = 1;
+                sort_push_request8(&ewk->wu);
+                return;
+            }
+        }
+    }
+
+    if (ewk->wu.dir_old != mwk->wu.dm_count_up) {
+        if (ewk->wu.dm_attribute == mwk->wu.dm_attribute) {
+            ewk->wu.disp_flag = 0;
+            ewk->wu.routine_no[0] = 2;
+            return;
+        }
+
+        effe2_erase_or_die(&ewk->wu);
+        return;
+    }
+
+    if (ewk->wu.type != 0 && ewk->wu.type != 32) {
+        if (mwk->wu.xyz[1].disp.pos <= 0) {
+            effe2_erase_or_die(&ewk->wu);
+            return;
+        }
+    } else if (mwk->wu.cg_type != 0) {
+        effe2_erase_or_die(&ewk->wu);
+        return;
+    }
+
+    effE2_sort_push(&ewk->wu, &mwk->wu);
+}
+
+static void advance_effect_E2_finishing_animation(WORK_Other* ewk) {
+    if (EXE_flag == 0 && Game_pause == 0) {
+        char_move(&ewk->wu);
+
+        if (ewk->wu.cg_type && ewk->wu.cg_type == 0xFF) {
+            ewk->wu.disp_flag = 0;
+            ewk->wu.routine_no[0] = 2;
+            return;
+        }
+    }
+
+    sort_push_request8(&ewk->wu);
+}
+
+static void advance_effect_E2(WORK_Other* ewk, PLW* mwk) {
+    if (ewk->wu.dead_f == 1 || Suicide[0] != 0) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0] = 2;
+        return;
+    }
+
+    switch (ewk->wu.routine_no[1]) {
+    case 0:
+        advance_effect_E2_initial_animation(ewk, mwk);
+        break;
+
+    default:
+        advance_effect_E2_finishing_animation(ewk);
+        break;
+    }
+}
+
 void effect_E2_move(WORK_Other* ewk) {
     PLW* mwk = (PLW*)ewk->my_master;
 
@@ -158,85 +247,11 @@ void effect_E2_move(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-
-        if (ewk->wu.weight_level) {
-            ewk->wu.disp_flag = 2;
-        } else {
-            ewk->wu.disp_flag = 1;
-        }
-
-        ewk->wu.cg_wca_ix = 0;
-        set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-        effE2_sort_push(&ewk->wu, &mwk->wu);
+        initialize_effect_E2(ewk, mwk);
         break;
 
     case 1:
-        if (ewk->wu.dead_f == 1 || Suicide[0] != 0) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0] = 2;
-            break;
-        }
-
-        switch (ewk->wu.routine_no[1]) {
-        case 0:
-            if (game_is_active()) {
-                char_move(&ewk->wu);
-
-                if (ewk->wu.cg_type) {
-                    if (ewk->wu.cg_type == 0xFF) {
-                        ewk->wu.disp_flag = 0;
-                        ewk->wu.routine_no[0] = 2;
-                        break;
-                    }
-
-                    if (ewk->wu.cg_type == 1) {
-                        ewk->wu.routine_no[1] = 1;
-                        sort_push_request8(&ewk->wu);
-                        break;
-                    }
-                }
-            }
-
-            if (ewk->wu.dir_old != mwk->wu.dm_count_up) {
-                if (ewk->wu.dm_attribute == mwk->wu.dm_attribute) {
-                    ewk->wu.disp_flag = 0;
-                    ewk->wu.routine_no[0] = 2;
-                    break;
-                }
-
-                effe2_erase_or_die(&ewk->wu);
-                break;
-            }
-
-            if (ewk->wu.type != 0 && ewk->wu.type != 32) {
-                if (mwk->wu.xyz[1].disp.pos <= 0) {
-                    effe2_erase_or_die(&ewk->wu);
-                    break;
-                }
-            } else if (mwk->wu.cg_type != 0) {
-                effe2_erase_or_die(&ewk->wu);
-                break;
-            }
-
-            effE2_sort_push(&ewk->wu, &mwk->wu);
-            break;
-
-        default:
-            if (EXE_flag == 0 && Game_pause == 0) {
-                char_move(&ewk->wu);
-
-                if (ewk->wu.cg_type && ewk->wu.cg_type == 0xFF) {
-                    ewk->wu.disp_flag = 0;
-                    ewk->wu.routine_no[0] = 2;
-                    break;
-                }
-            }
-
-            sort_push_request8(&ewk->wu);
-            break;
-        }
-
+        advance_effect_E2(ewk, mwk);
         break;
 
     case 2:
