@@ -347,6 +347,22 @@ void J_Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s
     }
 }
 
+/* Alternate the shot between pressed and released on successive frames. The
+ * fire and hold arms ran this identically. */
+static void Toggle_Rapid_Shot(PLW* wk, s16 Shot) {
+    switch (Rapid_No[wk->wu.id][0]) {
+
+    case 0:
+        Rapid_No[wk->wu.id][0] = 1;
+        Lever_Buff[wk->wu.id] = Shot;
+        break;
+    case 1:
+        Rapid_No[wk->wu.id][0] = 0;
+        Lever_Buff[wk->wu.id] = 0;
+        break;
+    }
+}
+
 /* CP_Index 0. Non-zero when the state advanced and case 1 runs this frame. */
 static s32 Rapid_Command_Attack_Begin(PLW* wk, s16 Reaction, u16 Tech_Number) {
     dash_flag_clear(wk->wu.id);
@@ -391,17 +407,7 @@ static s32 Rapid_Command_Attack_Arm(PLW* wk, u16 Time) {
 }
 
 static void Rapid_Command_Attack_Fire(PLW* wk, u16 Tech_Number, s16 Shot) {
-    switch (Rapid_No[wk->wu.id][0]) {
-
-    case 0:
-        Rapid_No[wk->wu.id][0] = 1;
-        Lever_Buff[wk->wu.id] = Shot;
-        break;
-    case 1:
-        Rapid_No[wk->wu.id][0] = 0;
-        Lever_Buff[wk->wu.id] = 0;
-        break;
-    }
+    Toggle_Rapid_Shot(wk, Shot);
 
     if (wk->wu.sp_tech_id == Tech_Number) {
         CP_Index[wk->wu.id][1] = 3;
@@ -414,17 +420,7 @@ static void Rapid_Command_Attack_Hold(PLW* wk, u16 Tech_Number, s16 Shot) {
         return;
     }
 
-    switch (Rapid_No[wk->wu.id][0]) {
-
-    case 0:
-        Rapid_No[wk->wu.id][0] = 1;
-        Lever_Buff[wk->wu.id] = Shot;
-        break;
-    case 1:
-        Rapid_No[wk->wu.id][0] = 0;
-        Lever_Buff[wk->wu.id] = 0;
-        break;
-    }
+    Toggle_Rapid_Shot(wk, Shot);
 
     if (wk->wu.sp_tech_id != Tech_Number) {
         CP_Index[wk->wu.id][1] = 4;
