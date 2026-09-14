@@ -216,39 +216,8 @@ void Setup_Char_Index(WORK_Other* ewk) {
     }
 }
 
-s32 effect_42_init(s16 type) {
-    WORK_Other* ewk;
+static void configure_effect_type(WORK_Other* ewk, s16 type) {
     s16 ix;
-
-    if (present_mode_hides_effect()) {
-        return 0;
-    }
-
-    if ((ix = pull_effect_work(4)) == -1) {
-        return -1;
-    }
-
-    ewk = (WORK_Other*)frw[ix];
-    ewk->wu.be_flag = 1;
-    ewk->wu.id = 42;
-    ewk->wu.work_id = 16;
-    ewk->wu.my_col_code = 0x2090;
-    ewk->wu.my_family = 3;
-    ewk->wu.dir_timer = 10;
-    ewk->wu.rl_waza = Select_Timer;
-    *ewk->wu.char_table = _sel_pl_char_table;
-    ewk->wu.dir_old = type;
-    ewk->wu.my_mts = 13;
-    ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
-
-    if (type & 1) {
-        ewk->wu.direction = 4;
-    } else {
-        ewk->wu.direction = 8;
-    }
-
-    ewk->wu.char_index = 3;
-    ewk->wu.position_z = 14;
 
     switch (type) {
     case 5:
@@ -289,6 +258,43 @@ s32 effect_42_init(s16 type) {
         ewk->wu.my_family = 4;
         break;
     }
+}
+
+s32 effect_42_init(s16 type) {
+    WORK_Other* ewk;
+    s16 ix;
+
+    if (present_mode_hides_effect()) {
+        return 0;
+    }
+
+    if ((ix = pull_effect_work(4)) == -1) {
+        return -1;
+    }
+
+    ewk = (WORK_Other*)frw[ix];
+    ewk->wu.be_flag = 1;
+    ewk->wu.id = 42;
+    ewk->wu.work_id = 16;
+    ewk->wu.my_col_code = 0x2090;
+    ewk->wu.my_family = 3;
+    ewk->wu.dir_timer = 10;
+    ewk->wu.rl_waza = Select_Timer;
+    *ewk->wu.char_table = _sel_pl_char_table;
+    ewk->wu.dir_old = type;
+    ewk->wu.my_mts = 13;
+    ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
+
+    if (type & 1) {
+        ewk->wu.direction = 4;
+    } else {
+        ewk->wu.direction = 8;
+    }
+
+    ewk->wu.char_index = 3;
+    ewk->wu.position_z = 14;
+
+    configure_effect_type(ewk, type);
 
     return 0;
 }
