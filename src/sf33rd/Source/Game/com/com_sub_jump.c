@@ -39,6 +39,37 @@
 #include "structs.h"
 #include "sf33rd/Source/Game/com/com_sub_internal.h"
 
+/* A jump that is special-move blocked frees the character instead. Returns
+ * non-zero when the caller should stop. */
+static s32 Check_Jump_Blocked(PLW* wk) {
+    if (wk->spmv_ng_flag & 0x30000) {
+        Next_Be_Free(wk);
+        return 1;
+    }
+    return 0;
+}
+
+/* The opening of every jump launch: passive first, then the combo timer.
+ * Combo_Speed is decremented only when Check_Passive declines, exactly as the
+ * original ordering did. Returns non-zero when the launch may proceed. */
+static s32 Check_Combo_Ready(PLW* wk) {
+    if (Check_Passive(wk) != 0) {
+        return 0;
+    }
+    return --Combo_Speed[wk->wu.id] == 0;
+}
+
+/* Step the held command; non-zero when it has just completed. */
+static s32 Run_Hi_Jump_Command(PLW* wk) {
+    if (Command_Type_00(wk, 8, 0xFFFF, -1) != -1) {
+        return 0;
+    }
+
+    CP_Index[wk->wu.id][1]++;
+    Lever_Buff[wk->wu.id] |= Lever_Pool[wk->wu.id];
+    return 1;
+}
+
 /* The rise off the ground, once the jump has left it. Jump and Hi_Jump ran
  * this identically. */
 static void Jump_Rise_To_Air(PLW* wk) {
@@ -59,8 +90,7 @@ static void Jump_Begin(PLW* wk) {
         return;
     }
 
-    if (wk->spmv_ng_flag & 0x30000) {
-        Next_Be_Free(wk);
+    if (Check_Jump_Blocked(wk)) {
         return;
     }
 
@@ -74,11 +104,7 @@ static void Jump_Begin(PLW* wk) {
 }
 
 static void Jump_Launch(PLW* wk, s16 Jump_Dir) {
-    if (Check_Passive(wk) != 0) {
-        return;
-    }
-
-    if (--Combo_Speed[wk->wu.id] != 0) {
+    if (!Check_Combo_Ready(wk)) {
         return;
     }
 
@@ -129,8 +155,7 @@ static void Hi_Jump_Begin(PLW* wk, s16 Pl_Number) {
         return;
     }
 
-    if (wk->spmv_ng_flag & 0x30000) {
-        Next_Be_Free(wk);
+    if (Check_Jump_Blocked(wk)) {
         return;
     }
 
@@ -148,10 +173,7 @@ static void Hi_Jump_Begin(PLW* wk, s16 Pl_Number) {
 }
 
 static void Hi_Jump_Launch(PLW* wk, s16 Jump_Dir) {
-    if (Check_Passive(wk) != 0) {
-        return;
-    }
-    if (--Combo_Speed[wk->wu.id] != 0) {
+    if (!Check_Combo_Ready(wk)) {
         return;
     }
 
@@ -171,9 +193,7 @@ static void Hi_Jump_Command(PLW* wk) {
         return;
     }
 
-    if (Command_Type_00(wk, 8, 0xFFFF, -1) == -1) {
-        CP_Index[wk->wu.id][1]++;
-        Lever_Buff[wk->wu.id] |= Lever_Pool[wk->wu.id];
+    if (Run_Hi_Jump_Command(wk)) {
         return;
     }
 
@@ -595,8 +615,7 @@ static void Hi_Jump_Attack_Start(PLW* wk, s16 Reaction, s16 Time_Data) {
         return;
     }
 
-    if (wk->spmv_ng_flag & 0x30000) {
-        Next_Be_Free(wk);
+    if (Check_Jump_Blocked(wk)) {
         return;
     }
     if (Check_Start_Hi_Jump(wk) != 0) {
@@ -616,11 +635,7 @@ static void Hi_Jump_Attack_Start(PLW* wk, s16 Reaction, s16 Time_Data) {
 }
 
 static void Hi_Jump_Attack_Launch(PLW* wk, s16 Jump_Dir) {
-    if (Check_Passive(wk) != 0) {
-        return;
-    }
-
-    if (--Combo_Speed[wk->wu.id] != 0) {
+    if (!Check_Combo_Ready(wk)) {
         return;
     }
 
@@ -645,9 +660,7 @@ static s32 Hi_Jump_Attack_Command(PLW* wk) {
         return 0;
     }
 
-    if (Command_Type_00(wk, 8, 0xFFFF, -1) == -1) {
-        CP_Index[wk->wu.id][1]++;
-        Lever_Buff[wk->wu.id] |= Lever_Pool[wk->wu.id];
+    if (Run_Hi_Jump_Command(wk)) {
         return 0;
     }
 
