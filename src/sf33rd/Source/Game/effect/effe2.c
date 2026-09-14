@@ -165,47 +165,73 @@ static void initialize_effect_E2(WORK_Other* ewk, PLW* mwk) {
     effE2_sort_push(&ewk->wu, &mwk->wu);
 }
 
-static void advance_effect_E2_initial_animation(WORK_Other* ewk, PLW* mwk) {
-    if (game_is_active()) {
-        char_move(&ewk->wu);
-
-        if (ewk->wu.cg_type) {
-            if (ewk->wu.cg_type == 0xFF) {
-                ewk->wu.disp_flag = 0;
-                ewk->wu.routine_no[0] = 2;
-                return;
-            }
-
-            if (ewk->wu.cg_type == 1) {
-                ewk->wu.routine_no[1] = 1;
-                sort_push_request8(&ewk->wu);
-                return;
-            }
-        }
+static s32 advance_effect_E2_animation(WORK_Other* ewk) {
+    if (!game_is_active()) {
+        return 0;
     }
 
-    if (ewk->wu.dir_old != mwk->wu.dm_count_up) {
-        if (ewk->wu.dm_attribute == mwk->wu.dm_attribute) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0] = 2;
-            return;
-        }
+    char_move(&ewk->wu);
 
+    if (!ewk->wu.cg_type) {
+        return 0;
+    }
+
+    if (ewk->wu.cg_type == 0xFF) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0] = 2;
+        return 1;
+    }
+
+    if (ewk->wu.cg_type == 1) {
+        ewk->wu.routine_no[1] = 1;
+        sort_push_request8(&ewk->wu);
+        return 1;
+    }
+
+    return 0;
+}
+
+static s32 erase_effect_E2_after_damage_change(WORK_Other* ewk, const PLW* mwk) {
+    if (ewk->wu.dir_old == mwk->wu.dm_count_up) {
+        return 0;
+    }
+
+    if (ewk->wu.dm_attribute == mwk->wu.dm_attribute) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0] = 2;
+    } else {
         effe2_erase_or_die(&ewk->wu);
-        return;
     }
 
+    return 1;
+}
+
+static s32 erase_effect_E2_out_of_position(WORK_Other* ewk, const PLW* mwk) {
     if (ewk->wu.type != 0 && ewk->wu.type != 32) {
         if (mwk->wu.xyz[1].disp.pos <= 0) {
             effe2_erase_or_die(&ewk->wu);
-            return;
+            return 1;
         }
     } else if (mwk->wu.cg_type != 0) {
         effe2_erase_or_die(&ewk->wu);
+        return 1;
+    }
+
+    return 0;
+}
+
+static void advance_effect_E2_initial_animation(WORK_Other* ewk, PLW* mwk) {
+    if (advance_effect_E2_animation(ewk)) {
         return;
     }
 
-    effE2_sort_push(&ewk->wu, &mwk->wu);
+    if (erase_effect_E2_after_damage_change(ewk, mwk)) {
+        return;
+    }
+
+    if (!erase_effect_E2_out_of_position(ewk, mwk)) {
+        effE2_sort_push(&ewk->wu, &mwk->wu);
+    }
 }
 
 static void advance_effect_E2_finishing_animation(WORK_Other* ewk) {
