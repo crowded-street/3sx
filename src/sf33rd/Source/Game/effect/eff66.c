@@ -90,6 +90,38 @@ void EFF66_SUSPEND(WORK_Other* ewk) {
     }
 }
 
+static void initialize_slide_in_66(WORK_Other* ewk) {
+    if (--Order_Timer[ewk->wu.dir_old]) {
+        return;
+    }
+
+    ewk->wu.routine_no[1]++;
+    ewk->wu.disp_flag = ewk->wu.rl_waza;
+    ewk->wu.xyz[0].disp.pos =
+        bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + Slide_Pos_Data_66[ewk->wu.type - 7][0] + 384;
+    ewk->wu.xyz[1].disp.pos =
+        bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + Slide_Pos_Data_66[ewk->wu.type - 7][1];
+    ewk->wu.position_z = Slide_Pos_Data_66[ewk->wu.type - 7][2];
+    ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + Slide_Pos_Data_66[ewk->wu.type - 7][0];
+    ewk->wu.mvxy.a[0].sp = -0x400000;
+    ewk->wu.mvxy.d[0].sp = 0x50000;
+    set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+}
+
+static void advance_slide_in_66(WORK_Other* ewk) {
+    ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
+    ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
+
+    if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
+        if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
+            Order[ewk->wu.dir_old] = 0;
+        }
+
+        ewk->wu.routine_no[0] = 0;
+        ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
+    }
+}
+
 void EFF66_SLIDE_IN(WORK_Other* ewk) {
     if (Order[ewk->wu.dir_old] != 1) {
         ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
@@ -97,39 +129,10 @@ void EFF66_SLIDE_IN(WORK_Other* ewk) {
         return;
     }
 
-    switch (ewk->wu.routine_no[1]) {
-    case 0:
-        if (--Order_Timer[ewk->wu.dir_old]) {
-            break;
-        }
-
-        ewk->wu.routine_no[1]++;
-        ewk->wu.disp_flag = ewk->wu.rl_waza;
-        ewk->wu.xyz[0].disp.pos =
-            bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + Slide_Pos_Data_66[ewk->wu.type - 7][0] + 384;
-        ewk->wu.xyz[1].disp.pos =
-            bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + Slide_Pos_Data_66[ewk->wu.type - 7][1];
-        ewk->wu.position_z = Slide_Pos_Data_66[ewk->wu.type - 7][2];
-        ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + Slide_Pos_Data_66[ewk->wu.type - 7][0];
-        ewk->wu.mvxy.a[0].sp = -0x400000;
-        ewk->wu.mvxy.d[0].sp = 0x50000;
-        set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
-        break;
-
-    default:
-        ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
-        ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
-
-        if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
-            if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
-                Order[ewk->wu.dir_old] = 0;
-            }
-
-            ewk->wu.routine_no[0] = 0;
-            ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
-        }
-
-        break;
+    if (ewk->wu.routine_no[1] == 0) {
+        initialize_slide_in_66(ewk);
+    } else {
+        advance_slide_in_66(ewk);
     }
 }
 
