@@ -81,23 +81,27 @@ void eff85_1000(WORK_Other* ewk) {
     }
 }
 
-void eff85_common(WORK_Other* ewk) {
+static void run_bird_animation(WORK_Other* ewk, s16 char_index, s16 next_routine) {
     switch (ewk->wu.routine_no[2]) {
     case 0:
         ewk->wu.routine_no[2]++;
-        set_char_move_init(&ewk->wu, 0, eff85_char_index_tbl[ewk->wu.routine_no[1]]);
+        set_char_move_init(&ewk->wu, 0, char_index);
         break;
 
     case 1:
         char_move(&ewk->wu);
 
         if (ewk->wu.cg_type == 0xFF) {
-            ewk->wu.routine_no[1]++;
+            ewk->wu.routine_no[1] = next_routine;
             ewk->wu.routine_no[2] = 0;
         }
 
         break;
     }
+}
+
+void eff85_common(WORK_Other* ewk) {
+    run_bird_animation(ewk, eff85_char_index_tbl[ewk->wu.routine_no[1]], ewk->wu.routine_no[1] + 1);
 }
 
 void eff85_3000(WORK_Other* ewk) {
@@ -173,22 +177,7 @@ void eff85_7000(WORK_Other* ewk) {
 }
 
 void eff85_8000(WORK_Other* ewk) {
-    switch (ewk->wu.routine_no[2]) {
-    case 0:
-        ewk->wu.routine_no[2]++;
-        set_char_move_init(&ewk->wu, 0, 35);
-        break;
-
-    case 1:
-        char_move(&ewk->wu);
-
-        if (ewk->wu.cg_type == 0xFF) {
-            ewk->wu.routine_no[1] = 0;
-            ewk->wu.routine_no[2] = 0;
-        }
-
-        break;
-    }
+    run_bird_animation(ewk, 35, 0);
 }
 
 void eff85_9000(WORK_Other* ewk) {
