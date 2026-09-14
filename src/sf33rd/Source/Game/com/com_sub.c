@@ -4297,6 +4297,75 @@ void Next_Another_Menu(PLW* wk, s16 Next_Action, u16 Next_Menu) {
     }
 }
 
+/* Reaction handling is skipped entirely while the character is in caution or
+ * held by a throw. Both tests are read-only; the original broke out of the
+ * switch on each in turn. */
+static s32 Check_Reaction_Locked(PLW* wk) {
+    return plw[wk->wu.id].caution_flag || plw[wk->wu.id].tsukami_f;
+}
+
+/* Non-zero when the stocked hit flag still carries a queued follow-up above
+ * its low two bits. */
+static s32 Check_Stock_Hit_Follow(PLW* wk) {
+    return (Stock_Hit_Flag[wk->wu.id] >> 2) != 0;
+}
+
+/* Rewinds the active pattern to the stored return point. */
+static void Restore_Return_Pattern(PLW* wk) {
+    CP_No[wk->wu.id][0] = Return_CP_No[wk->wu.id];
+    CP_Index[wk->wu.id][0] = Return_CP_Index[wk->wu.id];
+    CP_Index[wk->wu.id][1] = 0;
+    CP_Index[wk->wu.id][2] = 0;
+    CP_Index[wk->wu.id][3] = 0;
+    Pattern_Index[wk->wu.id] = Return_Pattern_Index[wk->wu.id];
+}
+
+/* Reaction codes 0-7: queue the follow-up named by the low 12 bits. */
+static void Reaction_Follow_Sub(PLW* wk, s16 Reaction) {
+    if (Check_Stock_Hit_Follow(wk)) {
+        Setup_Follow(wk, Reaction & 0xFFF);
+        return;
+    }
+
+    if (Stock_Hit_Flag[wk->wu.id]) {
+        Reaction_Exit_Sub(wk);
+    } else if (Check_Free_To_Act(wk)) {
+        Setup_Follow(wk, Reaction & 0xFFF);
+    }
+}
+
+/* Reaction code 13: the meoshi path, which may answer with its own attack and
+ * otherwise rewinds to the stored return pattern. */
+static void Reaction_Meoshi_Sub(PLW* wk, s16 Reaction, s16 Power_Level) {
+    if (Check_Stock_Hit_Follow(wk)) {
+        Next_End(wk);
+        return;
+    }
+
+    if (wk->permited_koa & 0x10) {
+        if (Check_Meoshi_Attack(wk, Reaction, Power_Level) != 0) {
+            return;
+        }
+    }
+
+    Last_Eftype[wk->wu.id] = -1;
+
+    if (!Check_Free_To_Act(wk)) {
+        return;
+    }
+
+    if (!Stock_Hit_Flag[wk->wu.id]) {
+        Next_End(wk);
+        return;
+    }
+
+    if ((CP_No[wk->wu.id][0] == 6) && (Pattern_Index[wk->wu.id] == 0)) {
+        Restore_Return_Pattern(wk);
+    } else {
+        Reaction_Exit_Sub(wk);
+    }
+}
+
 void Reaction_Sub(PLW* wk, s16 Reaction, s16 Power_Level) {
     switch (Reaction & 0x7F) {
     case 9:
@@ -4308,31 +4377,26 @@ void Reaction_Sub(PLW* wk, s16 Reaction, s16 Power_Level) {
         break;
 
     case 10:
-        if ((Stock_Hit_Flag[wk->wu.id] >> 2) != 0) {
+        if (Check_Stock_Hit_Follow(wk)) {
             Next_End(wk);
             break;
         }
-        if (Stock_Hit_Flag[wk->wu.id]) {
+
+        if (Stock_Hit_Flag[wk->wu.id] || Check_Free_To_Act(wk)) {
             Reaction_Exit_Sub(wk);
-        } else {
-            if (Check_Free_To_Act(wk)) {
-                Reaction_Exit_Sub(wk);
-            }
         }
         break;
 
     case 11:
-        if (plw[wk->wu.id].caution_flag) {
-            break;
-        }
-        if (plw[wk->wu.id].tsukami_f) {
+        if (Check_Reaction_Locked(wk)) {
             break;
         }
 
-        if ((Stock_Hit_Flag[wk->wu.id] >> 2) != 0) {
+        if (Check_Stock_Hit_Follow(wk)) {
             Next_End(wk);
             break;
         }
+
         if (Stock_Hit_Flag[wk->wu.id]) {
             Reaction_Exit_Sub(wk);
         } else if (Check_Free_To_Act(wk)) {
@@ -4348,75 +4412,27 @@ void Reaction_Sub(PLW* wk, s16 Reaction, s16 Power_Level) {
     case 5:
     case 6:
     case 7:
-        if ((Stock_Hit_Flag[wk->wu.id] >> 2) != 0) {
-            Setup_Follow(wk, Reaction & 0xFFF);
-            break;
-        }
-        if (Stock_Hit_Flag[wk->wu.id]) {
-            Reaction_Exit_Sub(wk);
-        } else if (Check_Free_To_Act(wk)) {
-            Setup_Follow(wk, Reaction & 0xFFF);
-        }
+        Reaction_Follow_Sub(wk, Reaction);
         break;
 
     case 12:
-        Reaction_Exit_Sub(wk);
-        Counter_Attack[wk->wu.id] = 1;
-        break;
-
     case 14:
         Reaction_Exit_Sub(wk);
         Counter_Attack[wk->wu.id] = 1;
         break;
 
     case 13:
-
-        if ((Stock_Hit_Flag[wk->wu.id] >> 2) != 0) {
-            Next_End(wk);
-            break;
-        }
-        if (wk->permited_koa & 0x10) {
-            if (Check_Meoshi_Attack(wk, Reaction, Power_Level) != 0) {
-                break;
-            }
-        }
-        Last_Eftype[wk->wu.id] = -1;
-
-        if (Check_Free_To_Act(wk)) {
-            if (Stock_Hit_Flag[wk->wu.id]) {
-                if ((CP_No[wk->wu.id][0] == 6) && (Pattern_Index[wk->wu.id] == 0)) {
-                    CP_No[wk->wu.id][0] = Return_CP_No[wk->wu.id];
-                    CP_Index[wk->wu.id][0] = Return_CP_Index[wk->wu.id];
-                    CP_Index[wk->wu.id][1] = 0;
-                    CP_Index[wk->wu.id][2] = 0;
-                    CP_Index[wk->wu.id][3] = 0;
-                    Pattern_Index[wk->wu.id] = Return_Pattern_Index[wk->wu.id];
-                } else {
-                    Reaction_Exit_Sub(wk);
-                }
-            } else {
-                Next_End(wk);
-            }
-        }
+        Reaction_Meoshi_Sub(wk, Reaction, Power_Level);
         break;
 
     default:
-
-        if (plw[wk->wu.id].caution_flag) {
-            break;
-        }
-        if (plw[wk->wu.id].tsukami_f) {
+        if (Check_Reaction_Locked(wk)) {
             break;
         }
 
-        if (Stock_Hit_Flag[wk->wu.id]) {
+        if (Stock_Hit_Flag[wk->wu.id] || Check_Free_To_Act(wk)) {
             Reaction_Exit_Sub(wk);
         }
-
-        else if (Check_Free_To_Act(wk)) {
-            Reaction_Exit_Sub(wk);
-        }
-
         break;
     }
 }
