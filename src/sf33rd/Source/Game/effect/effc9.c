@@ -66,6 +66,11 @@ static void initialize_C9_effect(WORK_Other* ewk) {
     sort_push_request(&ewk->wu);
 }
 
+static void advance_C9_motion(WORK* wk) {
+    add_mvxy_speed(wk);
+    cal_mvxy_speed(wk);
+}
+
 static void update_C9_charset_7_motion(WORK_Other* ewk) {
     if (ewk->wu.charset_id == 7) {
         switch (ewk->wu.routine_no[2]) {
@@ -89,8 +94,7 @@ static void update_C9_charset_7_motion(WORK_Other* ewk) {
             /* fallthrough */
 
         case 2:
-            add_mvxy_speed(&ewk->wu);
-            cal_mvxy_speed(&ewk->wu);
+            advance_C9_motion(&ewk->wu);
 
             if (ewk->wu.xyz[1].disp.pos <= ewk->wu.next_y) {
                 ewk->wu.routine_no[2] += 1;
@@ -106,8 +110,7 @@ static void update_C9_charset_7_motion(WORK_Other* ewk) {
             break;
 
         default:
-            add_mvxy_speed(&ewk->wu);
-            cal_mvxy_speed(&ewk->wu);
+            advance_C9_motion(&ewk->wu);
             break;
         }
     }
