@@ -222,93 +222,127 @@ s32 Check_Resume_Lever(PLW* wk) {
     return 0;
 }
 
+/* CP_Index 0. Non-zero when the state advanced and case 1 runs this frame. */
+static s32 J_Command_Attack_Begin(PLW* wk, s16 Reaction, u16 Tech_Number) {
+    if (wk->spmv_ng_flag & 0x30000) {
+        Next_Be_Free(wk);
+        return 0;
+    }
+
+    dash_flag_clear(wk->wu.id);
+
+    if (cmd_sel[wk->wu.id]) {
+        Tech_Address[wk->wu.id] = player_CMD[wk->player_number][Tech_Number & 0xFF];
+    } else {
+        Tech_Address[wk->wu.id] = player_cmd[wk->player_number][Tech_Number & 0xFF];
+    }
+
+    Tech_Index[wk->wu.id] = 0xC;
+    Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
+
+    if (Check_Start_Command_Attack(wk, Reaction, Tech_Number & 0x80FF) != 0) {
+        return 0;
+    }
+    if (Check_Dash_Hit(wk, Tech_Number & 0x80FF) != 0) {
+        Next_Be_Free(wk);
+    }
+
+    Continue_Menu[wk->wu.id] = 0;
+    CP_Index[wk->wu.id][1]++;
+    Check_First_Menu(wk);
+
+    return 1;
+}
+
+/* CP_Index 1. Non-zero when the state advanced and case 2 runs this frame. */
+static s32 J_Command_Attack_Wait(PLW* wk) {
+    if (Check_Passive(wk) != 0) {
+        return 0;
+    }
+
+    if (--Combo_Speed[wk->wu.id]) {
+        Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
+        return 0;
+    }
+    if (Check_Diagonal_Shell(wk) != 0) {
+        Next_Be_Free(wk);
+        return 0;
+    }
+
+    CP_Index[wk->wu.id][1]++;
+    return 1;
+}
+
+/* CP_Index 2: run the opcode the tech script points at. The arm order differs
+ * from Command_Attack_Tech_Step - opcode 2 leads here and opcode 10 shares the
+ * default - so the two are not merged. */
+static void J_Command_Attack_Run(PLW* wk, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot) {
+    if (Check_Passive(wk) != 0) {
+        return;
+    }
+
+    switch (Tech_Address[wk->wu.id][Tech_Index[wk->wu.id]]) {
+
+    case 2:
+        if (Command_Type_01(wk, Power_Level & 0xF, Ex_Shot) != 0) {
+            CP_Index[wk->wu.id][1]++;
+        }
+        break;
+
+    default:
+    case 1:
+    case 10:
+        if (Command_Type_00(wk, Power_Level & 0xF, Tech_Number, Ex_Shot) == -1) {
+            CP_Index[wk->wu.id][1] = 0x63;
+        }
+        break;
+    }
+}
+
+static void J_Command_Attack_End(PLW* wk, s16 Reaction, s16 Power_Level) {
+    Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
+    Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
+
+    if (Check_Motion_Ended(wk)) {
+        Reaction_Exit_Sub(wk);
+        return;
+    }
+
+    Rapid_Sub(wk);
+    if (Reaction == 0xC) {
+        Reaction_Sub(wk, Reaction, Power_Level);
+        return;
+    }
+
+    Check_Landed(wk, Reaction & 0xFFF);
+}
+
 void J_Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
-        if (wk->spmv_ng_flag & 0x30000) {
-            Next_Be_Free(wk);
+        if (!J_Command_Attack_Begin(wk, Reaction, Tech_Number)) {
             break;
         }
-
-        dash_flag_clear(wk->wu.id);
-
-        if (cmd_sel[wk->wu.id]) {
-            Tech_Address[wk->wu.id] = player_CMD[wk->player_number][Tech_Number & 0xFF];
-        } else {
-            Tech_Address[wk->wu.id] = player_cmd[wk->player_number][Tech_Number & 0xFF];
-        }
-
-        Tech_Index[wk->wu.id] = 0xC;
-        Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-
-        if (Check_Start_Command_Attack(wk, Reaction, Tech_Number & 0x80FF) != 0) {
-            break;
-        }
-        if (Check_Dash_Hit(wk, Tech_Number & 0x80FF) != 0) {
-            Next_Be_Free(wk);
-        }
-
-        Continue_Menu[wk->wu.id] = 0;
-        CP_Index[wk->wu.id][1]++;
-        Check_First_Menu(wk);
         /* Fallthough */
 
     case 1:
-        if (Check_Passive(wk) != 0) {
+        if (!J_Command_Attack_Wait(wk)) {
             break;
         }
-
-        if (--Combo_Speed[wk->wu.id]) {
-            Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-            break;
-        }
-        if (Check_Diagonal_Shell(wk) != 0) {
-            Next_Be_Free(wk);
-            break;
-        }
-        CP_Index[wk->wu.id][1]++;
         /* Fallthough */
+
     case 2:
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-        switch (Tech_Address[wk->wu.id][Tech_Index[wk->wu.id]]) {
-
-        case 2:
-            if (Command_Type_01(wk, Power_Level & 0xF, Ex_Shot) != 0) {
-                CP_Index[wk->wu.id][1]++;
-            }
-            break;
-
-        default:
-        case 1:
-        case 10:
-            if (Command_Type_00(wk, Power_Level & 0xF, Tech_Number, Ex_Shot) == -1) {
-                CP_Index[wk->wu.id][1] = 0x63;
-            }
-            break;
-        }
+        J_Command_Attack_Run(wk, Tech_Number, Power_Level, Ex_Shot);
         break;
 
     case 3:
         Check_Rapid(wk, Tech_Number);
         CP_Index[wk->wu.id][1]++;
-        return;
+        break;
 
     default:
-        Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-        Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
-        if (Check_Motion_Ended(wk)) {
-            Reaction_Exit_Sub(wk);
-        } else {
-            Rapid_Sub(wk);
-            if (Reaction == 0xC) {
-                Reaction_Sub(wk, Reaction, Power_Level);
-                break;
-            }
-            Check_Landed(wk, Reaction & 0xFFF);
-        }
+        J_Command_Attack_End(wk, Reaction, Power_Level);
         break;
     }
 }
@@ -497,45 +531,67 @@ void Rapid_Sub(PLW* wk) {
     }
 }
 
-s32 Check_Rapid_End(PLW* wk) {
-    switch (Rapid_No[wk->wu.id][2]) {
+/* Rapid_No[2] == 1: the sequence ends as soon as the character starts falling. */
+static s32 Check_Rapid_End_Falling(PLW* wk) {
+    if (wk->wu.mvxy.a[1].real.h < 0) {
+        Rapid_No[wk->wu.id][0] = 0;
+        return 1;
+    }
+    return 0;
+}
+
+/* Rapid_No[2] == 2: arm on the caution flag, end when it clears. */
+static s32 Check_Rapid_End_Caution(PLW* wk) {
+    switch (Rapid_No[wk->wu.id][3]) {
+    case 0:
+        if (plw[wk->wu.id].caution_flag) {
+            Rapid_No[wk->wu.id][3]++;
+        }
+        break;
+
     case 1:
-        if (wk->wu.mvxy.a[1].real.h < 0) {
+        if (plw[wk->wu.id].caution_flag == 0) {
             Rapid_No[wk->wu.id][0] = 0;
             return 1;
         }
         break;
-    case 2:
-        switch (Rapid_No[wk->wu.id][3]) {
-        case 0:
-            if (plw[wk->wu.id].caution_flag) {
-                Rapid_No[wk->wu.id][3]++;
-            }
-            break;
-        case 1:
-            if (plw[wk->wu.id].caution_flag == 0) {
-                Rapid_No[wk->wu.id][0] = 0;
-                return 1;
-            }
-            break;
+    }
+    return 0;
+}
+
+/* Rapid_No[2] == 4: arm on the attack index, then end on the next frame. The
+ * second arm decrements the same field it switched on, which is how it gets
+ * back to 0 - preserved as found. */
+static s32 Check_Rapid_End_Atix(PLW* wk) {
+    switch (Rapid_No[wk->wu.id][3]) {
+    case 0:
+        if (wk->wu.cg_ja.atix) {
+            Rapid_No[wk->wu.id][3]++;
         }
         break;
-    case 4:
-        switch (Rapid_No[wk->wu.id][3]) {
-        case 0:
-            if (wk->wu.cg_ja.atix) {
-                Rapid_No[wk->wu.id][3]++;
-            }
-            break;
-        case 1:
-            if (--Rapid_No[wk->wu.id][3] == 0) {
-                Rapid_No[wk->wu.id][0] = 0;
-                return 1;
-            }
-            break;
+
+    case 1:
+        if (--Rapid_No[wk->wu.id][3] == 0) {
+            Rapid_No[wk->wu.id][0] = 0;
+            return 1;
         }
         break;
     }
+    return 0;
+}
+
+s32 Check_Rapid_End(PLW* wk) {
+    switch (Rapid_No[wk->wu.id][2]) {
+    case 1:
+        return Check_Rapid_End_Falling(wk);
+
+    case 2:
+        return Check_Rapid_End_Caution(wk);
+
+    case 4:
+        return Check_Rapid_End_Atix(wk);
+    }
+
     return 0;
 }
 
