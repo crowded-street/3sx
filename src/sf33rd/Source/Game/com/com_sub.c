@@ -1573,6 +1573,35 @@ void Short_Range_Attack(PLW* wk, s16 Reaction, u16 Lever_Data, s16 Next_Action, 
     }
 }
 
+/* Exit_Term result 0: the range gates, and the pattern advance that follows
+ * when they all pass. Lifted out of EM_Term, where this reached nesting depth
+ * 4. Each gate broke out of the inner switch, which fell straight through to
+ * the end of EM_Term - the same thing returning here does. */
+static void EM_Term_Approach(PLW* wk, WORK* em, s16 Range_X, s16 Range_Y, s16 Exit_Number) {
+    if (Check_Term_Sub(wk, PL_Distance[wk->wu.id], Range_X) == 0) {
+        return;
+    }
+
+    if (Exit_Number != 8) {
+        if (Check_Term_Sub_Y(wk, em->xyz[1].disp.pos, Range_Y) == 0) {
+            return;
+        }
+    } else {
+        if (Check_Term_Sub(wk, wk->wu.xyz[1].disp.pos, Range_Y) == 0) {
+            return;
+        }
+    }
+
+    Disposal_Again[wk->wu.id] = 1;
+    CP_Index[wk->wu.id][0]++;
+    CP_Index[wk->wu.id][1] = 0;
+    CP_Index[wk->wu.id][2] = 0;
+    CP_Index[wk->wu.id][3] = 0;
+
+    Flip_Flag[wk->wu.id] = 0;
+    Limited_Flag[wk->wu.id] = 0;
+}
+
 void EM_Term(PLW* wk, s16 Range_X, s16 Range_Y, s16 Exit_Number, s16 Next_Action, s16 Next_Menu) {
     WORK* em;
 
@@ -1592,28 +1621,7 @@ void EM_Term(PLW* wk, s16 Range_X, s16 Range_Y, s16 Exit_Number, s16 Next_Action
 
         switch (Check_Exit_Term(wk, em, Exit_Number)) {
         case 0:
-            if (Check_Term_Sub(wk, PL_Distance[wk->wu.id], Range_X) == 0) {
-                break;
-            }
-
-            if (Exit_Number != 8) {
-                if (Check_Term_Sub_Y(wk, em->xyz[1].disp.pos, Range_Y) == 0) {
-                    break;
-                }
-            } else {
-                if (Check_Term_Sub(wk, wk->wu.xyz[1].disp.pos, Range_Y) == 0) {
-                    break;
-                }
-            }
-
-            Disposal_Again[wk->wu.id] = 1;
-            CP_Index[wk->wu.id][0]++;
-            CP_Index[wk->wu.id][1] = 0;
-            CP_Index[wk->wu.id][2] = 0;
-            CP_Index[wk->wu.id][3] = 0;
-
-            Flip_Flag[wk->wu.id] = 0;
-            Limited_Flag[wk->wu.id] = 0;
+            EM_Term_Approach(wk, em, Range_X, Range_Y, Exit_Number);
             break;
 
         case 1:
@@ -2177,6 +2185,32 @@ s32 Check_SP_Jump_Attack(PLW* wk, s16 Lever_Data) {
     return xx | 2;
 }
 
+/* The armed branch of Check_VS_Air_Attack: once the reflection timer expires,
+ * commit to either a command attack (-1) or a plain lever press (1). Returns 0
+ * while the timer is still counting, which is what the original fell through
+ * to at the end of the function. */
+static s32 Check_VS_Air_Attack_Fire(PLW* wk, s16 J_Lever_Data) {
+    if (--Timer_01[wk->wu.id] != 0) {
+        return 0;
+    }
+
+    if (J_Lever_Data & 0x4000) {
+        CP_Index[wk->wu.id][1] += 2;
+        if (cmd_sel[wk->wu.id]) {
+            Tech_Address[wk->wu.id] = player_CMD[wk->player_number][J_Lever_Data & 0x3FFF];
+        } else {
+            Tech_Address[wk->wu.id] = player_cmd[wk->player_number][J_Lever_Data & 0x3FFF];
+        }
+        Continue_Menu[wk->wu.id] = 1;
+        return -1;
+    }
+
+    Lever_Buff[wk->wu.id] = J_Lever_Data;
+    CP_Index[wk->wu.id][1]++;
+    Continue_Menu[wk->wu.id] = 1;
+    return 1;
+}
+
 s32 Check_VS_Air_Attack(PLW* wk, s16 Range_JX, s16 Range_JY, s16 J_Lever_Data) {
     WORK* em;
 
@@ -2203,25 +2237,7 @@ s32 Check_VS_Air_Attack(PLW* wk, s16 Range_JX, s16 Range_JY, s16 J_Lever_Data) {
             Timer_01[wk->wu.id]++;
             break;
         default:
-            if (--Timer_01[wk->wu.id] != 0) {
-                break;
-            }
-
-            if (J_Lever_Data & 0x4000) {
-                CP_Index[wk->wu.id][1] += 2;
-                if (cmd_sel[wk->wu.id]) {
-                    Tech_Address[wk->wu.id] = player_CMD[wk->player_number][J_Lever_Data & 0x3FFF];
-                } else {
-                    Tech_Address[wk->wu.id] = player_cmd[wk->player_number][J_Lever_Data & 0x3FFF];
-                }
-                Continue_Menu[wk->wu.id] = 1;
-                return -1;
-            }
-
-            Lever_Buff[wk->wu.id] = J_Lever_Data;
-            CP_Index[wk->wu.id][1]++;
-            Continue_Menu[wk->wu.id] = 1;
-            return 1;
+            return Check_VS_Air_Attack_Fire(wk, J_Lever_Data);
         }
     }
 
@@ -4004,6 +4020,25 @@ void Jump_Init(PLW* wk, s16 Jump_Dir) {
     }
 }
 
+/* Advances CP_Index once the final lever value is settled. Lifted out of
+ * Command_Type_00's else arm, where the player_number 7 test sat at nesting
+ * depth 4. */
+static void Command_Type_00_Advance(PLW* wk, u16 Tech_Number) {
+    if (CP_No[wk->wu.id][0] == 0xA) {
+        Rapid_Index[wk->wu.id] = Lever_Buff[wk->wu.id] & 0xFF0;
+        Lever_Pool[wk->wu.id] = Lever_Buff[wk->wu.id] & 0xFF0;
+    }
+    if ((wk->player_number == 6) && ((Tech_Number) == 0x8016)) {
+        CP_Index[wk->wu.id][1] = 5;
+    } else {
+        if ((wk->player_number == 7) && ((Tech_Number) == 0x1F)) {
+            Reaction_Exit_Sub(wk);
+        } else {
+            CP_Index[wk->wu.id][1]++;
+        }
+    }
+}
+
 s32 Command_Type_00(PLW* wk, s16 Power_Level, u16 Tech_Number, s16 Ex_Shot) {
     if (Tech_Address[wk->wu.id][Tech_Index[wk->wu.id] + 4] != 0x1C) {
         Lever_Buff[wk->wu.id] = Tech_Address[wk->wu.id][Tech_Index[wk->wu.id] + 3] & 0x7FFF;
@@ -4044,19 +4079,7 @@ s32 Command_Type_00(PLW* wk, s16 Power_Level, u16 Tech_Number, s16 Ex_Shot) {
                 CP_Index[wk->wu.id][1] = 0;
             }
         } else {
-            if (CP_No[wk->wu.id][0] == 0xA) {
-                Rapid_Index[wk->wu.id] = Lever_Buff[wk->wu.id] & 0xFF0;
-                Lever_Pool[wk->wu.id] = Lever_Buff[wk->wu.id] & 0xFF0;
-            }
-            if ((wk->player_number == 6) && ((Tech_Number) == 0x8016)) {
-                CP_Index[wk->wu.id][1] = 5;
-            } else {
-                if ((wk->player_number == 7) && ((Tech_Number) == 0x1F)) {
-                    Reaction_Exit_Sub(wk);
-                } else {
-                    CP_Index[wk->wu.id][1]++;
-                }
-            }
+            Command_Type_00_Advance(wk, Tech_Number);
         }
         return 0;
     }
