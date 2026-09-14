@@ -149,67 +149,53 @@ static s32 can_advance_eff36_sequence(const WORK_Other* ewk) {
     return gSeqStatus[0] >= eff36_04_tbl[ewk->wu.routine_no[2]] && gSeqStatus[0] != 0x74;
 }
 
+static void update_eff36_sequence_visibility(WORK_Other* ewk) {
+    if (ewk->wu.old_rno[6] <= 0) {
+        ewk->wu.disp_flag = 0;
+    } else {
+        ewk->wu.old_rno[6] -= 1;
+    }
+}
+
+static void advance_eff36_sequence(WORK_Other* ewk, s16 char_index) {
+    ewk->wu.routine_no[2] += 1;
+    ewk->wu.disp_flag = 1;
+    ewk->wu.old_rno[6] = 4;
+    set_char_move_init2(&ewk->wu, 0, ewk->wu.old_rno[0], char_index, 0);
+}
+
+static void initialize_eff36_sequence(WORK_Other* ewk) {
+    advance_eff36_sequence(ewk, ewk->wu.char_index);
+    push_color_trans_req((ewk->wu.my_col_code & 0x1FF) + 2, 1);
+    ewk->wu.my_col_code = 0;
+}
+
+static void update_eff36_sequence(WORK_Other* ewk, s16 char_index, s32 can_advance) {
+    update_eff36_sequence_visibility(ewk);
+
+    if (can_advance) {
+        advance_eff36_sequence(ewk, char_index);
+    }
+
+    disp_pos_trans_entry(ewk);
+}
 
 void eff36_move04(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[2]) {
     case 0:
-        ewk->wu.routine_no[2] += 1;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.old_rno[6] = 4;
-        set_char_move_init2(&ewk->wu, 0, ewk->wu.old_rno[0], ewk->wu.char_index, 0);
-        push_color_trans_req((ewk->wu.my_col_code & 0x1FF) + 2, 1);
-        ewk->wu.my_col_code = 0;
+        initialize_eff36_sequence(ewk);
         break;
 
     case 1:
-        if (ewk->wu.old_rno[6] <= 0) {
-            ewk->wu.disp_flag = 0;
-        } else {
-            ewk->wu.old_rno[6] -= 1;
-        }
-
-if (can_advance_eff36_sequence(ewk)) {
-            ewk->wu.routine_no[2] += 1;
-            ewk->wu.disp_flag = 1;
-            ewk->wu.old_rno[6] = 4;
-            set_char_move_init2(&ewk->wu, 0, ewk->wu.old_rno[0], 0x17, 0);
-        }
-
-        disp_pos_trans_entry(ewk);
+        update_eff36_sequence(ewk, 0x17, can_advance_eff36_sequence(ewk));
         break;
 
     case 2:
-        if (ewk->wu.old_rno[6] <= 0) {
-            ewk->wu.disp_flag = 0;
-        } else {
-            ewk->wu.old_rno[6] -= 1;
-        }
-
-        if (gSeqStatus[0] >= eff36_04_tbl[ewk->wu.routine_no[2]]) {
-            ewk->wu.routine_no[2] += 1;
-            ewk->wu.disp_flag = 1;
-            ewk->wu.old_rno[6] = 4;
-            set_char_move_init2(&ewk->wu, 0, ewk->wu.old_rno[0], 0x18, 0);
-        }
-
-        disp_pos_trans_entry(ewk);
+        update_eff36_sequence(ewk, 0x18, gSeqStatus[0] >= eff36_04_tbl[ewk->wu.routine_no[2]]);
         break;
 
     case 3:
-        if (ewk->wu.old_rno[6] <= 0) {
-            ewk->wu.disp_flag = 0;
-        } else {
-            ewk->wu.old_rno[6] -= 1;
-        }
-
-        if (gSeqStatus[0] >= eff36_04_tbl[ewk->wu.routine_no[2]]) {
-            ewk->wu.routine_no[2] += 1;
-            ewk->wu.disp_flag = 1;
-            ewk->wu.old_rno[6] = 4;
-            set_char_move_init2(&ewk->wu, 0, ewk->wu.old_rno[0], 0x19, 0);
-        }
-
-        disp_pos_trans_entry(ewk);
+        update_eff36_sequence(ewk, 0x19, gSeqStatus[0] >= eff36_04_tbl[ewk->wu.routine_no[2]]);
         break;
 
     case 4:
