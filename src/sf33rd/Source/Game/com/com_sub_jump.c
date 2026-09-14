@@ -39,65 +39,86 @@
 #include "structs.h"
 #include "sf33rd/Source/Game/com/com_sub_internal.h"
 
+/* The rise off the ground, once the jump has left it. Jump and Hi_Jump ran
+ * this identically. */
+static void Jump_Rise_To_Air(PLW* wk) {
+    Lever_Buff[wk->wu.id] = Lever_Pool[wk->wu.id];
+
+    if (wk->wu.xyz[1].disp.pos <= 0) {
+        return;
+    }
+
+    CP_Index[wk->wu.id][1]++;
+    Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
+    Check_Air_Guard(wk);
+}
+
+static void Jump_Begin(PLW* wk) {
+    Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
+    if (Check_Passive(wk) != 0) {
+        return;
+    }
+
+    if (wk->spmv_ng_flag & 0x30000) {
+        Next_Be_Free(wk);
+        return;
+    }
+
+    if (!Check_Free_To_Act(wk)) {
+        return;
+    }
+
+    CP_Index[wk->wu.id][1]++;
+    hi_jump_flag_clear(wk->wu.id);
+    Check_First_Menu(wk);
+}
+
+static void Jump_Launch(PLW* wk, s16 Jump_Dir) {
+    if (Check_Passive(wk) != 0) {
+        return;
+    }
+
+    if (--Combo_Speed[wk->wu.id] != 0) {
+        return;
+    }
+
+    CP_Index[wk->wu.id][1]++;
+    Jump_Init(wk, Jump_Dir);
+    if (Check_Diagonal_Shell(wk) != 0) {
+        Next_Be_Free(wk);
+    }
+}
+
+/* Unlike Hi_Jump's landing, this one does not run the air guard. */
+static void Jump_Land(PLW* wk) {
+    Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
+    if (wk->wu.xyz[1].disp.pos) {
+        return;
+    }
+
+    CP_Index[wk->wu.id][0]++;
+    CP_Index[wk->wu.id][1] = 0;
+    CP_Index[wk->wu.id][2] = 0;
+    CP_Index[wk->wu.id][3] = 0;
+}
+
 void Jump(PLW* wk, s16 Jump_Dir) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
-        Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-
-        if (wk->spmv_ng_flag & 0x30000) {
-            Next_Be_Free(wk);
-            break;
-        }
-
-        if (Check_Free_To_Act(wk)) {
-            CP_Index[wk->wu.id][1]++;
-            hi_jump_flag_clear(wk->wu.id);
-            Check_First_Menu(wk);
-        }
-
+        Jump_Begin(wk);
         break;
 
     case 1:
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-
-        if (--Combo_Speed[wk->wu.id] != 0) {
-            break;
-        }
-
-        CP_Index[wk->wu.id][1]++;
-        Jump_Init(wk, Jump_Dir);
-        if (Check_Diagonal_Shell(wk) != 0) {
-            Next_Be_Free(wk);
-        }
-
+        Jump_Launch(wk, Jump_Dir);
         break;
 
     case 2:
-        Lever_Buff[wk->wu.id] = Lever_Pool[wk->wu.id];
-
-        if (wk->wu.xyz[1].disp.pos > 0) {
-            CP_Index[wk->wu.id][1]++;
-            Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-            Check_Air_Guard(wk);
-        }
+        Jump_Rise_To_Air(wk);
         break;
 
     default:
-        Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-        if (wk->wu.xyz[1].disp.pos) {
-            break;
-        }
-
-        CP_Index[wk->wu.id][0]++;
-        CP_Index[wk->wu.id][1] = 0;
-        CP_Index[wk->wu.id][2] = 0;
-        CP_Index[wk->wu.id][3] = 0;
+        Jump_Land(wk);
         break;
     }
 }
@@ -161,16 +182,6 @@ static void Hi_Jump_Command(PLW* wk) {
     }
 }
 
-static void Hi_Jump_Rise(PLW* wk) {
-    Lever_Buff[wk->wu.id] = Lever_Pool[wk->wu.id];
-    if (wk->wu.xyz[1].disp.pos <= 0) {
-        return;
-    }
-
-    CP_Index[wk->wu.id][1]++;
-    Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-    Check_Air_Guard(wk);
-}
 
 /* Landing clears only the four CP_Index fields - not the flip and limited flags
  * that Next_Pattern_Step also clears - so it stays written out. */
@@ -204,7 +215,7 @@ void Hi_Jump(PLW* wk, s16 Pl_Number, s16 Jump_Dir) {
         break;
 
     case 3:
-        Hi_Jump_Rise(wk);
+        Jump_Rise_To_Air(wk);
         break;
 
     default:
