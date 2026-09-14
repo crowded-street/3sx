@@ -2007,6 +2007,52 @@ void Jump_Attack(PLW* wk, s16 Reaction, s16 Time_Data, u16 Lever_Data, s16 Jump_
     }
 }
 
+/* CP_Index 3: airborne approach. Each range gate that fails leaves CP_Index
+ * alone so the next frame retries. Lever_Data is a by-value copy; the original
+ * reassigned its own parameter here and nothing downstream read it back. */
+static void Jump_Attack_Term_Approach(
+    PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Range_JX, s16 Range_JY, s16 J_Lever_Data
+) {
+    Check_Air_Guard(wk);
+    if (Check_Landed(wk, Reaction) != 0) {
+        return;
+    }
+
+    if (Check_VS_Air_Attack(wk, Range_JX, Range_JY, J_Lever_Data) != 0) {
+        return;
+    }
+    Check_Term_ABS_Distance(wk);
+
+    if (Check_Term_Sub(wk, PL_Distance[wk->wu.id], Range_X) == 0) {
+        return;
+    }
+    if (Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, Range_Y) == 0) {
+        return;
+    }
+    if (Check_Term_Sub(wk, wk->wu.xyz[1].disp.pos, Range_Y) == 0) {
+        return;
+    }
+
+    Lever_Data = Check_SP_Jump_Attack(wk, Lever_Data);
+    Lever_Buff[wk->wu.id] = Lever_Data;
+
+    CP_Index[wk->wu.id][1]++;
+    Stock_Hit_Flag[wk->wu.id] = 0;
+}
+
+/* CP_Index 5: run the landing opcode. The inner switch has no break on its
+ * final arm in the original; preserved as found. */
+static void Jump_Attack_Term_Landing(PLW* wk) {
+    switch (Tech_Address[wk->wu.id][Tech_Index[wk->wu.id]]) {
+    default:
+    case 1:
+    case 10:
+        if (Command_Type_00(wk, 8, 0xFFFF, -1) == -1) {
+            CP_Index[wk->wu.id][1] = 0x63;
+        }
+    }
+}
+
 void Jump_Attack_Term(
     PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Jump_Dir, s16 Range_JX, s16 Range_JY,
     s16 J_Lever_Data
@@ -2060,31 +2106,7 @@ void Jump_Attack_Term(
         break;
 
     case 3:
-        Check_Air_Guard(wk);
-        if (Check_Landed(wk, Reaction) != 0) {
-            break;
-        }
-
-        if (Check_VS_Air_Attack(wk, Range_JX, Range_JY, J_Lever_Data) != 0) {
-            break;
-        }
-        Check_Term_ABS_Distance(wk);
-
-        if (Check_Term_Sub(wk, PL_Distance[wk->wu.id], Range_X) == 0) {
-            break;
-        }
-        if (Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, Range_Y) == 0) {
-            break;
-        }
-        if (Check_Term_Sub(wk, wk->wu.xyz[1].disp.pos, Range_Y) == 0) {
-            break;
-        }
-
-        Lever_Data = Check_SP_Jump_Attack(wk, Lever_Data);
-        Lever_Buff[wk->wu.id] = Lever_Data;
-
-        CP_Index[wk->wu.id][1]++;
-        Stock_Hit_Flag[wk->wu.id] = 0;
+        Jump_Attack_Term_Approach(wk, Range_X, Range_Y, Reaction, Lever_Data, Range_JX, Range_JY, J_Lever_Data);
         break;
 
     case 4:
@@ -2097,14 +2119,7 @@ void Jump_Attack_Term(
 
     case 5:
         if (Check_Landed(wk, Reaction & 0x7F) == 0) {
-            switch (Tech_Address[wk->wu.id][Tech_Index[wk->wu.id]]) {
-            default:
-            case 1:
-            case 10:
-                if (Command_Type_00(wk, 8, 0xFFFF, -1) == -1) {
-                    CP_Index[wk->wu.id][1] = 0x63;
-                }
-            }
+            Jump_Attack_Term_Landing(wk);
         }
         break;
     default:
