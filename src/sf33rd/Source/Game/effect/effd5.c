@@ -238,20 +238,18 @@ void cal_speeds(WORK_Other* ewk, PLW* /* unused */, PLW* twk) {
 
     if (ewk->wu.rl_flag) {
         tx -= 16;
-
-        if (tx > ewk->wu.position_x) {
-            rix = (tx - ewk->wu.position_x) / 32;
-        } else {
-            tx = ewk->wu.position_x + 16;
-        }
     } else {
         tx += 16;
+    }
 
-        if (tx < ewk->wu.position_x) {
-            rix = (ewk->wu.position_x - tx) / 32;
-        } else {
-            tx = ewk->wu.position_x - 16;
-        }
+    if (ewk->wu.rl_flag && tx > ewk->wu.position_x) {
+        rix = (tx - ewk->wu.position_x) / 32;
+    } else if (ewk->wu.rl_flag) {
+        tx = ewk->wu.position_x + 16;
+    } else if (tx < ewk->wu.position_x) {
+        rix = (ewk->wu.position_x - tx) / 32;
+    } else {
+        tx = ewk->wu.position_x - 16;
     }
 
     ewk->wu.mvxy.a[0].sp = 0;
