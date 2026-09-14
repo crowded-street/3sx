@@ -142,27 +142,31 @@ static s32 should_end_effect(const WORK_Other_CONN* ewk) {
     return ewk->wu.dead_f == 1 || Suicide[2] != 0;
 }
 
+static void initialize_L1_effect(WORK_Other_CONN* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.disp_flag = effL1_base_data[ewk->wu.type][3];
+    ewk->wu.dir_timer = effL1_base_data[ewk->wu.type][4];
+    ewk->wu.old_cgnum = 0;
+    ewk->wu.my_col_code = 0x90;
+
+    if (effL1_base_data[ewk->wu.type][2]) {
+        Setup_Color_L1((WORK_Other*)ewk);
+    }
+
+    ewk->wu.my_family = effL1_base_data[ewk->wu.type][1];
+    ewk->wu.position_z = ewk->wu.my_priority = effL1_base_data[ewk->wu.type][0];
+    ewk->wu.position_x = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos;
+    ewk->wu.position_y = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos;
+    effL1_item_init[ewk->wu.type](ewk);
+    effL1_trans(&ewk->wu);
+}
+
 void effect_L1_move(WORK_Other_CONN* ewk) {
     s16 i;
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.disp_flag = effL1_base_data[ewk->wu.type][3];
-        ewk->wu.dir_timer = effL1_base_data[ewk->wu.type][4];
-        ewk->wu.old_cgnum = 0;
-        ewk->wu.my_col_code = 0x90;
-
-        if (effL1_base_data[ewk->wu.type][2]) {
-            Setup_Color_L1((WORK_Other*)ewk);
-        }
-
-        ewk->wu.my_family = effL1_base_data[ewk->wu.type][1];
-        ewk->wu.position_z = ewk->wu.my_priority = effL1_base_data[ewk->wu.type][0];
-        ewk->wu.position_x = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos;
-        ewk->wu.position_y = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos;
-        effL1_item_init[ewk->wu.type](ewk);
-        effL1_trans(&ewk->wu);
+        initialize_L1_effect(ewk);
         break;
 
     case 1:
