@@ -134,17 +134,50 @@ static void update_eff25_animation(WORK_Other* ewk) {
     }
 }
 
-void eff25_02(WORK_Other* ewk) {
+static void initialize_eff25_02(WORK_Other* ewk) {
+    if (eff_hit_flag[ewk->wu.type]) {
+        ewk->wu.disp_flag = 1;
+        ewk->wu.routine_no[1] = 4;
+        set_char_move_init(&ewk->wu, 0, ewk->wu.old_rno[7]);
+        return;
+    }
+
+    eff25_char_set(ewk);
+}
+
+static void initialize_eff25_06(WORK_Other* ewk) {
+    if (eff_hit_flag[ewk->wu.type]) {
+        ewk->wu.disp_flag = 1;
+        set_char_move_init(&ewk->wu, 0, ewk->wu.old_rno[7]);
+        ewk->wu.routine_no[1] = 4;
+        return;
+    }
+
+    eff25_char_set(ewk);
+}
+
+static void advance_eff25_02_animation(WORK_Other* ewk) {
+    update_eff25_animation(ewk);
+
+    if (ewk->wu.cg_type) {
+        ewk->wu.routine_no[1]++;
+    }
+}
+
+static void advance_eff25_06_animation(WORK_Other* ewk) {
+    update_eff25_animation(ewk);
+
+    if (ewk->wu.cg_type) {
+        set_char_move_init(&ewk->wu, 0, ewk->wu.old_rno[3]);
+        ewk->wu.routine_no[1]++;
+    }
+}
+
+static void run_eff25_animated_effect(WORK_Other* ewk, void (*initialize)(WORK_Other*),
+                                      void (*advance_animation)(WORK_Other*)) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (eff_hit_flag[ewk->wu.type]) {
-            ewk->wu.disp_flag = 1;
-            ewk->wu.routine_no[1] = 4;
-            set_char_move_init(&ewk->wu, 0, ewk->wu.old_rno[7]);
-            break;
-        }
-
-        eff25_char_set(ewk);
+        initialize(ewk);
         break;
 
     case 1:
@@ -152,12 +185,7 @@ void eff25_02(WORK_Other* ewk) {
         break;
 
     case 2:
-        update_eff25_animation(ewk);
-
-        if (ewk->wu.cg_type) {
-            ewk->wu.routine_no[1]++;
-        }
-
+        advance_animation(ewk);
         break;
 
     case 3:
@@ -167,6 +195,10 @@ void eff25_02(WORK_Other* ewk) {
         update_eff25_animation(ewk);
         break;
     }
+}
+
+void eff25_02(WORK_Other* ewk) {
+    run_eff25_animated_effect(ewk, initialize_eff25_02, advance_eff25_02_animation);
 }
 
 void eff25_04(WORK_Other* ewk) {
@@ -197,40 +229,7 @@ void eff25_04(WORK_Other* ewk) {
 }
 
 void eff25_06(WORK_Other* ewk) {
-    switch (ewk->wu.routine_no[1]) {
-    case 0:
-        if (eff_hit_flag[ewk->wu.type]) {
-            ewk->wu.disp_flag = 1;
-            set_char_move_init(&ewk->wu, 0, ewk->wu.old_rno[7]);
-            ewk->wu.routine_no[1] = 4;
-            break;
-        }
-
-        eff25_char_set(ewk);
-        break;
-
-    case 1:
-        update_eff25_animated_hit_response(ewk);
-        break;
-
-    case 2:
-        update_eff25_animation(ewk);
-
-        if (ewk->wu.cg_type) {
-            set_char_move_init(&ewk->wu, 0, ewk->wu.old_rno[3]);
-            ewk->wu.routine_no[1]++;
-            break;
-        }
-
-        break;
-
-    case 3:
-        break;
-
-    case 4:
-        update_eff25_animation(ewk);
-        break;
-    }
+    run_eff25_animated_effect(ewk, initialize_eff25_06, advance_eff25_06_animation);
 }
 
 void eff25_08(WORK_Other* ewk) {
