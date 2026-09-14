@@ -5248,11 +5248,39 @@ s32 Check_Ignore_Shell2(WORK_Other* tmw) {
     return 0;
 }
 
+/* Commit to a reaction against one incoming shell. Returns 1 when the COM
+ * switched pattern, 0 when Decide_Shell_Guard declined - both were returns out
+ * of Check_Shell in the original, at nesting depth 4. */
+static s32 Check_Shell_Engage(PLW* wk, WORK_Other* tmw) {
+    s16 xx;
+
+    xx = Compute_Hit_Time(wk, tmw);
+
+    if (Decide_Shell_Guard(wk, tmw) != 0) {
+        return 0;
+    }
+
+    CP_No[wk->wu.id][0] = 8;
+    CP_No[wk->wu.id][1] = 0;
+    CP_No[wk->wu.id][2] = 0;
+    CP_No[wk->wu.id][3] = 0;
+
+    CP_Index[wk->wu.id][0] = 0;
+    CP_Index[wk->wu.id][1] = 0;
+    CP_Index[wk->wu.id][2] = 0;
+    CP_Index[wk->wu.id][3] = 0;
+
+    Shell_Address[wk->wu.id] = tmw;
+
+    Guard_or_Jump_VS_Shell(wk, tmw, xx);
+
+    return 1;
+}
+
 s32 Check_Shell(PLW* wk) {
     WORK_Other* tmw;
     WORK* em;
     s16 i;
-    s16 xx;
 
     if (Shell_Ignore_Timer[wk->wu.id]) {
         Shell_Ignore_Timer[wk->wu.id]--;
@@ -5283,27 +5311,7 @@ s32 Check_Shell(PLW* wk) {
                 continue;
             }
             if (Check_Ignore_Shell(tmw) == 0) {
-                xx = Compute_Hit_Time(wk, tmw);
-
-                if (Decide_Shell_Guard(wk, tmw) != 0) {
-                    return 0;
-                }
-
-                CP_No[wk->wu.id][0] = 8;
-                CP_No[wk->wu.id][1] = 0;
-                CP_No[wk->wu.id][2] = 0;
-                CP_No[wk->wu.id][3] = 0;
-
-                CP_Index[wk->wu.id][0] = 0;
-                CP_Index[wk->wu.id][1] = 0;
-                CP_Index[wk->wu.id][2] = 0;
-                CP_Index[wk->wu.id][3] = 0;
-
-                Shell_Address[wk->wu.id] = tmw;
-
-                Guard_or_Jump_VS_Shell(wk, tmw, xx);
-
-                return 1;
+                return Check_Shell_Engage(wk, tmw);
             }
         }
     }
@@ -5423,6 +5431,32 @@ s32 Decide_Shell_Guard(PLW* wk, WORK_Other* tmw) {
     return 1;
 }
 
+/* Difficulty-dependent choice of shell reaction. The two random dodges fall
+ * through to the default arm when they do not fire, exactly as written. */
+static void Guard_Shell_By_Difficulty(PLW* wk, WORK_Other* tmw) {
+    switch (save_w[Present_Mode].Difficulty) {
+    case 7:
+        if (wk->wu.vital_new < 4) {
+            if (!(random_32_com() & 0xF)) {
+                Pattern_Index[wk->wu.id] = 9;
+                break;
+            }
+        }
+        /* fallthrough */
+    case 6:
+        if (wk->wu.vital_new < 2) {
+            if (!(random_32_com() & 7)) {
+                Pattern_Index[wk->wu.id] = 9;
+                break;
+            }
+        }
+        /* fallthrough */
+    default:
+        Pattern_Index[wk->wu.id] = Decide_Shell_Reaction(wk, tmw, Shell_Change_Data_For_Reaction[tmw->wu.type]);
+        break;
+    }
+}
+
 void Guard_or_Jump_VS_Shell(PLW* wk, WORK_Other* tmw, s16 xx) {
     if (xx <= Shell_Dodge_Data[0][wk->player_number]) {
         if (Check_Flip_Term(wk, &tmw->wu) != 0) {
@@ -5431,27 +5465,7 @@ void Guard_or_Jump_VS_Shell(PLW* wk, WORK_Other* tmw, s16 xx) {
             Pattern_Index[wk->wu.id] = 0;
         }
     } else {
-        switch (save_w[Present_Mode].Difficulty) {
-        case 7:
-            if (wk->wu.vital_new < 4) {
-                if (!(random_32_com() & 0xF)) {
-                    Pattern_Index[wk->wu.id] = 9;
-                    break;
-                }
-            }
-            /* fallthrough */
-        case 6:
-            if (wk->wu.vital_new < 2) {
-                if (!(random_32_com() & 7)) {
-                    Pattern_Index[wk->wu.id] = 9;
-                    break;
-                }
-            }
-            /* fallthrough */
-        default:
-            Pattern_Index[wk->wu.id] = Decide_Shell_Reaction(wk, tmw, Shell_Change_Data_For_Reaction[tmw->wu.type]);
-            break;
-        }
+        Guard_Shell_By_Difficulty(wk, tmw);
     }
 
     Setup_Shell_Disposal(wk, tmw);
