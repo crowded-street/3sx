@@ -192,69 +192,55 @@ void eff27_03(WORK_Other* ewk) {
     run_eff27_hops(ewk, finish_eff27_hops_with_death_check);
 }
 
-void eff27_04(WORK_Other* ewk) {
+static void advance_eff27_initial_hop(WORK_Other* ewk) {
+    move_eff27_hop(ewk);
+
+    if (ewk->wu.xyz[1].disp.pos < ewk->wu.old_rno[1]) {
+        char_move_z(&ewk->wu);
+        ewk->wu.routine_no[1]++;
+    }
+}
+
+static void advance_eff27_animation(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+
+    if (ewk->wu.cg_type == 1) {
+        ewk->wu.routine_no[1]++;
+    }
+}
+
+static void advance_eff27_animation_to_second_hop(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+
+    if (ewk->wu.cg_type == 1) {
+        ewk->wu.routine_no[1]++;
+        set_second_hop(ewk);
+    }
+}
+
+static void run_eff27_animated_hop(WORK_Other* ewk, void (*advance_animation)(WORK_Other*),
+                                   void (*finish)(WORK_Other*)) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (ewk->wu.cg_type != 2) {
-            char_move(&ewk->wu);
-        }
-
-        add_x_sub(&ewk->wu);
-        add_y_sub(&ewk->wu);
-
-        if (ewk->wu.xyz[1].disp.pos < ewk->wu.old_rno[1]) {
-            char_move_z(&ewk->wu);
-            ewk->wu.routine_no[1]++;
-        }
-
+        advance_eff27_initial_hop(ewk);
         break;
 
     case 1:
-        char_move(&ewk->wu);
-
-        if (ewk->wu.cg_type == 1) {
-            ewk->wu.routine_no[1]++;
-        }
-
+        advance_animation(ewk);
         break;
 
     case 2:
-        dead_check27(ewk);
+        finish(ewk);
         break;
     }
 }
 
+void eff27_04(WORK_Other* ewk) {
+    run_eff27_animated_hop(ewk, advance_eff27_animation, dead_check27);
+}
+
 void eff27_05(WORK_Other* ewk) {
-    switch (ewk->wu.routine_no[1]) {
-    case 0:
-        if (ewk->wu.cg_type != 2) {
-            char_move(&ewk->wu);
-        }
-
-        add_x_sub(&ewk->wu);
-        add_y_sub(&ewk->wu);
-
-        if (ewk->wu.xyz[1].disp.pos < ewk->wu.old_rno[1]) {
-            char_move_z(&ewk->wu);
-            ewk->wu.routine_no[1]++;
-        }
-
-        break;
-
-    case 1:
-        char_move(&ewk->wu);
-
-        if (ewk->wu.cg_type == 1) {
-            ewk->wu.routine_no[1]++;
-            set_second_hop(ewk);
-        }
-
-        break;
-
-    case 2:
-        eff27_03(ewk);
-        break;
-    }
+    run_eff27_animated_hop(ewk, advance_eff27_animation_to_second_hop, eff27_03);
 }
 
 void eff27_06(WORK_Other* ewk) {
