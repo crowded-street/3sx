@@ -242,16 +242,7 @@ void Setup_Pos_66(WORK_Other* ewk) {
     set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
 }
 
-s32 effect_66_init_with_params(Effect66InitParams params) {
-    WORK_Other* ewk;
-    s16 ix;
-    s16 cg_type;
-
-    if ((ix = pull_effect_work(4)) == -1) {
-        return -1;
-    }
-
-    ewk = (WORK_Other*)frw[ix];
+static void initialize_effect_66_work(WORK_Other* ewk, Effect66InitParams params) {
     ewk->wu.be_flag = 1;
     ewk->wu.id = 66;
     ewk->wu.work_id = 16;
@@ -267,12 +258,10 @@ s32 effect_66_init_with_params(Effect66InitParams params) {
     ewk->master_priority = params.option;
     ewk->wu.my_mts = 13;
     ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
+}
 
-    switch (params.option) {
-    case 1:
-        ewk->wu.my_clear_level = 0x80;
-        return 0;
-    }
+static void configure_half_object_66(WORK_Other* ewk) {
+    s16 cg_type;
 
     if (ewk->master_priority & 0x8000) {
         cg_type = ewk->master_priority & 0x3FFF;
@@ -297,6 +286,26 @@ s32 effect_66_init_with_params(Effect66InitParams params) {
         ewk->wu.my_clear_level = EFF66_Half_OBJ_Data[cg_type][5];
         ewk->wu.rl_waza = EFF66_Half_OBJ_Data[cg_type][6];
     }
+}
+
+s32 effect_66_init_with_params(Effect66InitParams params) {
+    WORK_Other* ewk;
+    s16 ix;
+
+    if ((ix = pull_effect_work(4)) == -1) {
+        return -1;
+    }
+
+    ewk = (WORK_Other*)frw[ix];
+    initialize_effect_66_work(ewk, params);
+
+    switch (params.option) {
+    case 1:
+        ewk->wu.my_clear_level = 0x80;
+        return 0;
+    }
+
+    configure_half_object_66(ewk);
 
     return 0;
 }
