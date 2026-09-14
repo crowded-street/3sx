@@ -499,48 +499,65 @@ static const u8* find_converted_han_character_3(u8* tmpstr, u16* number) {
     return NULL;
 }
 
-s32 msgConvertObjNum(u8* moji, s32* spc, s32* hz, u16* num, u8 hzSel) {
+static s32 set_message_spacing_B6(s32* spc, s32* hz, u16* num, s32 width) {
+    *hz = 0;
+    *spc = 1;
+    *num = 0;
+    return width;
+}
+
+static s32 set_wide_message_spacing_B6(s32* spc, s32* hz, u16* num) {
+    *hz = 1;
+    *spc = 1;
+    *num = 0;
+    return 2;
+}
+
+static s32 convert_full_width_message_B6(u8* moji, s32* spc, s32* hz, u16* num) {
     u8 tmpstr[4];
     s32 rnum;
 
-    if (hzSel != 0) {
-        tmpstr[0] = moji[0];
-        tmpstr[1] = moji[1];
-        tmpstr[2] = 0;
+    tmpstr[0] = moji[0];
+    tmpstr[1] = moji[1];
+    tmpstr[2] = 0;
 
-        if (tmpstr[0] == ' ') {
-            rnum = 1;
-            goto spacing;
-        }
-
-        if (strcmp(&tmpstr[0], "\x62\x68") == 0) {
-            rnum = 2;
-            goto spacing;
-        }
-
-        if (is_spacing_code(tmpstr)) {
-            goto three;
-        }
-
-        if (find_converted_han_character_3(tmpstr, num)) {
-            *hz = 0;
-            *spc = 0;
-            return 1;
-        }
-
-        if (find_zen_character(&tmpstr[0], num)) {
-            *hz = 1;
-            *spc = 0;
-            return 2;
-        }
-
-        goto three;
+    if (tmpstr[0] == ' ') {
+        rnum = 1;
+        return set_message_spacing_B6(spc, hz, num, rnum);
     }
+
+    if (strcmp(&tmpstr[0], "\x62\x68") == 0) {
+        rnum = 2;
+        return set_message_spacing_B6(spc, hz, num, rnum);
+    }
+
+    if (is_spacing_code(tmpstr)) {
+        return set_wide_message_spacing_B6(spc, hz, num);
+    }
+
+    if (find_converted_han_character_3(tmpstr, num)) {
+        *hz = 0;
+        *spc = 0;
+        return 1;
+    }
+
+    if (find_zen_character(&tmpstr[0], num)) {
+        *hz = 1;
+        *spc = 0;
+        return 2;
+    }
+
+    return set_wide_message_spacing_B6(spc, hz, num);
+}
+
+static s32 convert_half_width_message_B6(u8* moji, s32* spc, s32* hz, u16* num) {
+    u8 tmpstr[4];
+    s32 rnum;
 
     rnum = prepare_half_width_text_B6(moji, tmpstr);
 
     if (tmpstr[0] == ' ') {
-        goto spacing;
+        return set_message_spacing_B6(spc, hz, num, rnum);
     }
 
     if (find_han_character(&tmpstr[0], num, 2)) {
@@ -549,17 +566,15 @@ s32 msgConvertObjNum(u8* moji, s32* spc, s32* hz, u16* num, u8 hzSel) {
         return rnum;
     }
 
-spacing:
-    *hz = 0;
-    *spc = 1;
-    *num = 0;
-    return rnum;
+    return set_message_spacing_B6(spc, hz, num, rnum);
+}
 
-three:
-    *hz = 1;
-    *spc = 1;
-    *num = 0;
-    return 2;
+s32 msgConvertObjNum(u8* moji, s32* spc, s32* hz, u16* num, u8 hzSel) {
+    if (hzSel != 0) {
+        return convert_full_width_message_B6(moji, spc, hz, num);
+    }
+
+    return convert_half_width_message_B6(moji, spc, hz, num);
 }
 
 s32 msgCheckCodeSize(u8 data) {
