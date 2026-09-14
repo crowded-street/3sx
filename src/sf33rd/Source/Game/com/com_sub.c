@@ -1723,19 +1723,12 @@ s32 Check_Term_Sub_Y(PLW* wk, s16 Distance, s16 Range) {
 
     em = (WORK*)wk->wu.target_adrs;
     if (!(Range & 0x8000)) {
-        if (Distance >= Range) {
-            return 1;
-        }
-        return 0;
-    } else {
-        if (em->mvxy.a[1].real.h > 0) {
-            return 0;
-        }
-        if (Distance <= (Range & 0x7FFF)) {
-            return 1;
-        }
+        return Distance >= Range;
+    }
+    if (em->mvxy.a[1].real.h > 0) {
         return 0;
     }
+    return Distance <= (Range & 0x7FFF);
 }
 
 void Jump(PLW* wk, s16 Jump_Dir) {
@@ -3826,20 +3819,18 @@ s32 Check_Landed(PLW* wk, s16 Reaction) {
  * which Setup_Front_or_Back result disqualifies the shell; both are kept as
  * written rather than folded into one test. */
 static s32 Check_Dash_Hit_Shell(PLW* wk, WORK_Other* tmw, u16 Tech_Number, s16 zz) {
+    s16 blocked;
+
     if (Tech_Number == 0) {
-        if (zz != 1) {
-            if (Check_Hit_Shell(wk, tmw, Tech_Number) != 0) {
-                return 1;
-            }
-        }
+        blocked = (zz == 1);
     } else {
-        if (zz != 0) {
-            if (Check_Hit_Shell(wk, tmw, Tech_Number) != 0) {
-                return 1;
-            }
-        }
+        blocked = (zz == 0);
     }
-    return 0;
+
+    if (blocked) {
+        return 0;
+    }
+    return Check_Hit_Shell(wk, tmw, Tech_Number) != 0;
 }
 
 s32 Check_Dash_Hit(PLW* wk, u16 Tech_Number) {
@@ -3889,17 +3880,11 @@ s32 Check_Hit_Shell(PLW* wk, WORK_Other* tmw, u16 Tech_Number) {
 
     if (Tech_Number == 0) {
         xx = wk->wu.xyz[0].disp.pos - Dash_Distance_Data[wk->player_number][Tech_Number];
-        if (xx <= tmw->wu.xyz[0].disp.pos) {
-            return 1;
-        }
-        return 0;
-    } else {
-        xx = wk->wu.xyz[0].disp.pos + Dash_Distance_Data[wk->player_number][Tech_Number];
-        if (xx >= tmw->wu.xyz[0].disp.pos) {
-            return 1;
-        }
-        return 0;
+        return xx <= tmw->wu.xyz[0].disp.pos;
     }
+
+    xx = wk->wu.xyz[0].disp.pos + Dash_Distance_Data[wk->player_number][Tech_Number];
+    return xx >= tmw->wu.xyz[0].disp.pos;
 }
 
 void Jump_Init(PLW* wk, s16 Jump_Dir) {
@@ -5060,22 +5045,22 @@ void Next_Be_Flip(PLW* wk, s16 xx) {
 
     Flip_Counter[wk->wu.id] = 0;
 
-    if (xx) {
-        if (xx == 8) {
-            SetShellFlipLever(wk);
-        } else {
-            if ((em->pat_status == 0x21) || (em->pat_status == 0x20)) {
-                Lever_Buff[wk->wu.id] = 2;
-            } else {
-                Lever_Buff[wk->wu.id] = Setup_Guard_Lever(wk, 0);
-            }
-        }
-        CP_No[wk->wu.id][2] = 1;
-
-        Timer_01[wk->wu.id] = xx;
-    } else {
+    if (!xx) {
         Check_Flip_GO(wk, 0);
+        return;
     }
+
+    if (xx == 8) {
+        SetShellFlipLever(wk);
+    } else if ((em->pat_status == 0x21) || (em->pat_status == 0x20)) {
+        Lever_Buff[wk->wu.id] = 2;
+    } else {
+        Lever_Buff[wk->wu.id] = Setup_Guard_Lever(wk, 0);
+    }
+
+    CP_No[wk->wu.id][2] = 1;
+
+    Timer_01[wk->wu.id] = xx;
 }
 
 s32 Check_Diagonal_Shell(PLW* wk) {
@@ -5447,22 +5432,21 @@ const Term_Tbl_t Exit_Term_Tbl[9] = { Exit_Term_0000, Exit_Term_0001, Exit_Term_
 void Setup_Lever_LR(PLW* wk, s16 PL_id, s16 Lever) {
     if (Lever == 0) {
         Lever_LR[PL_id] = 0;
-    } else {
-        if (Lever & 0x1000) {
-            Lever_LR[PL_id] = 1;
-        }
+        return;
+    }
 
-        else if (Lever & 0x2000) {
-            Lever_LR[PL_id] |= 2;
-        }
+    if (Lever & 0x1000) {
+        Lever_LR[PL_id] = 1;
+    }
 
-        if (Lever & 0x4000) {
-            Lever_LR[PL_id] |= Setup_Guard_Lever(wk, 0);
-        } else {
-            if (Lever & 0x8000) {
-                Lever_LR[PL_id] |= Setup_Guard_Lever(wk, 1);
-            }
-        }
+    else if (Lever & 0x2000) {
+        Lever_LR[PL_id] |= 2;
+    }
+
+    if (Lever & 0x4000) {
+        Lever_LR[PL_id] |= Setup_Guard_Lever(wk, 0);
+    } else if (Lever & 0x8000) {
+        Lever_LR[PL_id] |= Setup_Guard_Lever(wk, 1);
     }
 }
 
