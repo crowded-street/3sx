@@ -250,6 +250,13 @@ static s32 Check_Free_To_Act(PLW* wk) {
     return (wk->wu.routine_no[1] != 4) || (wk->wu.cg_type == 0x40);
 }
 
+/* True once the current motion has run out: cg_type 0x40, or routine_no[1]
+ * back at 0. Gates handing control back to Reaction_Exit_Sub at six sites.
+ * Name describes the observed role; condition copied character for character. */
+static s32 Check_Motion_Ended(PLW* wk) {
+    return (wk->wu.cg_type == 0x40) || (wk->wu.routine_no[1] == 0);
+}
+
 void End_Pattern(PLW* wk) {
     Next_Be_Free(wk);
 }
@@ -305,25 +312,38 @@ void Setup_DENJIN_LEVEL(PLW* wk) {
     }
 }
 
-void Push_Shot(PLW* wk, s16 Power_Level) {
+/* CP_Index 0: hold the charge, and decide whether it has run its course.
+ * Lifted out of Push_Shot, where it was the else arm at nesting depth 4. */
+static void Push_Shot_Charge(PLW* wk, s16 Power_Level) {
     s16 xx;
 
+    Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
+
+    if ((wk->wu.now_koc == 8) && (wk->wu.char_index == 0xD)) {
+        xx = wk->wu.cg_ix / wk->wu.cgd_type;
+        if (xx >= Power_Level) {
+            CP_Index[wk->wu.id][1] = 0x63;
+        }
+    }
+
+    if (Check_Exit_DENJIN(wk) != 0) {
+        CP_Index[wk->wu.id][1] = 0x63;
+    }
+}
+
+/* Hand the shot's hit back to the reaction machinery. */
+static void Push_Shot_Reaction(PLW* wk, s16 Power_Level) {
+    Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
+    Reaction_Sub(wk, 8, Power_Level);
+}
+
+void Push_Shot(PLW* wk, s16 Power_Level) {
     switch (CP_Index[wk->wu.id][1]) {
     case 0:
-        if ((wk->wu.cg_type == 0x40) || (wk->wu.routine_no[1] == 0)) {
+        if (Check_Motion_Ended(wk)) {
             Reaction_Exit_Sub(wk);
         } else {
-            Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-            if ((wk->wu.now_koc == 8) && (wk->wu.char_index == 0xD)) {
-
-                xx = wk->wu.cg_ix / wk->wu.cgd_type;
-                if (xx >= Power_Level) {
-                    CP_Index[wk->wu.id][1] = 0x63;
-                }
-            }
-            if (Check_Exit_DENJIN(wk) != 0) {
-                CP_Index[wk->wu.id][1] = 0x63;
-            }
+            Push_Shot_Charge(wk, Power_Level);
         }
         break;
     case 1:
@@ -333,11 +353,10 @@ void Push_Shot(PLW* wk, s16 Power_Level) {
         }
         /* fallthrough */
     default:
-        if ((wk->wu.cg_type == 0x40) || (wk->wu.routine_no[1] == 0)) {
+        if (Check_Motion_Ended(wk)) {
             Reaction_Exit_Sub(wk);
         } else {
-            Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
-            Reaction_Sub(wk, 8, Power_Level);
+            Push_Shot_Reaction(wk, Power_Level);
         }
         break;
     }
@@ -2925,7 +2944,7 @@ void Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16
         if (plw[wk->wu.id].tsukami_f) {
             break;
         }
-        if (((wk->wu.cg_type) == 0x40) || (wk->wu.routine_no[1] == 0)) {
+        if (Check_Motion_Ended(wk)) {
             Reaction_Exit_Sub(wk);
         } else {
             Command_Attack_Rapid_Step(wk, Reaction, Power_Level);
@@ -2943,7 +2962,7 @@ void Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16
         if (PL_Distance[wk->wu.id] > 0x70) {
             Lever_Buff[wk->wu.id] = 0x40;
         }
-        if (((wk->wu.cg_type) == 0x40) || (wk->wu.routine_no[1] == 0)) {
+        if (Check_Motion_Ended(wk)) {
             Reaction_Exit_Sub(wk);
         }
         break;
@@ -3070,7 +3089,7 @@ void J_Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s
     default:
         Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
         Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
-        if ((wk->wu.cg_type == 0x40) || (wk->wu.routine_no[1] == 0)) {
+        if (Check_Motion_Ended(wk)) {
             Reaction_Exit_Sub(wk);
         } else {
             Rapid_Sub(wk);
@@ -3164,7 +3183,7 @@ void Rapid_Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Shot, u16 
         if (wk->wu.sp_tech_id == Tech_Number) {
             break;
         }
-        if ((wk->wu.cg_type == 0x40) || (wk->wu.routine_no[1] == 0)) {
+        if (Check_Motion_Ended(wk)) {
             Reaction_Exit_Sub(wk);
         }
         break;
