@@ -236,31 +236,27 @@ static void update_end_message(WORK_Other* ewk) {
     update_message_lifetime(ewk);
 }
 
+static void advance_message_state(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+}
+
 void effect_F9_move(WORK_Other* ewk) {
-    switch (ewk->wu.routine_no[0]) {
-    case 0:
-        initialize_end_message(ewk);
-        break;
+    void (*const move[])(WORK_Other*) = {
+        [0] = initialize_end_message,
+        [1] = advance_message_state,
+        [2] = advance_message_state,
+        [3] = advance_message_state,
+        [4] = advance_message_state,
+        [5] = update_end_message,
+        [6] = advance_message_state,
+    };
 
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-        ewk->wu.routine_no[0]++;
-        break;
-
-    case 5:
-        update_end_message(ewk);
-
-        break;
-
-    case 6:
-        ewk->wu.routine_no[0]++;
-        break;
-
-    default:
+    if (ewk->wu.routine_no[0] > 6) {
         push_effect_work(&ewk->wu);
+        return;
     }
+
+    move[ewk->wu.routine_no[0]](ewk);
 }
 
 void effect_F9_init(s16 END_PL_NO) {
