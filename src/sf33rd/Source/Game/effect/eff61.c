@@ -286,16 +286,7 @@ static void initialize_menu_letters(WORK_Other_CONN* ewk, s16 char_ix, s16 offse
     ewk->num_of_conn = ix;
 }
 
-s32 effect_61_init(Effect61InitParams params) {
-    WORK_Other_CONN* ewk;
-    s16 ix;
-    s16 offset_x;
-
-    if ((ix = pull_effect_work(4)) == -1) {
-        return -1;
-    }
-
-    ewk = (WORK_Other_CONN*)frw[ix];
+static void initialize_menu_effect_work(WORK_Other_CONN* ewk, Effect61InitParams params) {
     ewk->wu.be_flag = 1;
     ewk->wu.id = 61;
     ewk->wu.work_id = 16;
@@ -307,6 +298,19 @@ s32 effect_61_init(Effect61InitParams params) {
     ewk->wu.old_cgnum = params.letter_type;
     ewk->wu.dir_old = params.dir_old;
     ewk->master_player = params.master_player;
+}
+
+s32 effect_61_init(Effect61InitParams params) {
+    WORK_Other_CONN* ewk;
+    s16 ix;
+    s16 offset_x;
+
+    if ((ix = pull_effect_work(4)) == -1) {
+        return -1;
+    }
+
+    ewk = (WORK_Other_CONN*)frw[ix];
+    initialize_menu_effect_work(ewk, params);
 
     if (ewk->wu.old_cgnum == 0x70A7) {
         offset_x = 8;
