@@ -95,6 +95,41 @@ static s32 uses_primary_character_range(const WORK_Other_CONN* ewk) {
     return ewk->wu.char_index >= 37 && ewk->wu.char_index < 43;
 }
 
+static s32 update_primary_character_appearance(WORK_Other_CONN* ewk) {
+    if (!uses_primary_character_range(ewk)) {
+        return 0;
+    }
+
+    if (Menu_Cursor_Y[ewk->master_id] == ewk->wu.type) {
+        if (Menu_Cursor_X[ewk->master_id]) {
+            ewk->wu.my_clear_level = 0;
+        } else {
+            ewk->wu.my_clear_level = 51;
+        }
+    } else {
+        ewk->wu.my_clear_level = 179;
+    }
+
+    return 1;
+}
+
+static s32 update_secondary_character_appearance(WORK_Other_CONN* ewk) {
+    if (!(ewk->wu.char_index >= 56 && ewk->wu.char_index < 59)) {
+        return 0;
+    }
+
+    if (Menu_Cursor_Y[ewk->master_id] == ewk->wu.type) {
+        ewk->wu.my_bright_type = 0;
+        ewk->wu.my_bright_level = 0;
+        ewk->wu.my_clear_level = 0;
+    } else {
+        ewk->wu.my_bright_type = 1;
+        ewk->wu.my_bright_level = 8;
+        ewk->wu.my_clear_level = 51;
+    }
+
+    return 1;
+}
 
 void effect_61_move(WORK_Other_CONN* ewk) {
     if (Check_Die_61((WORK_Other*)ewk)) {
@@ -111,27 +146,12 @@ void effect_61_move(WORK_Other_CONN* ewk) {
     ewk->wu.position_x = ewk->wu.xyz[0].disp.pos & 0xFFFF;
     ewk->wu.position_y = ewk->wu.xyz[1].disp.pos & 0xFFFF;
 
-    if (uses_primary_character_range(ewk)) {
-        if (Menu_Cursor_Y[ewk->master_id] == ewk->wu.type) {
-            if (Menu_Cursor_X[ewk->master_id]) {
-                ewk->wu.my_clear_level = 0;
-            } else {
-                ewk->wu.my_clear_level = 51;
-            }
-        } else {
-            ewk->wu.my_clear_level = 179;
-        }
-    } else if (ewk->wu.char_index >= 56 && ewk->wu.char_index < 59) {
-        if (Menu_Cursor_Y[ewk->master_id] == ewk->wu.type) {
-            ewk->wu.my_bright_type = 0;
-            ewk->wu.my_bright_level = 0;
-            ewk->wu.my_clear_level = 0;
-        } else {
-            ewk->wu.my_bright_type = 1;
-            ewk->wu.my_bright_level = 8;
-            ewk->wu.my_clear_level = 51;
-        }
-    } else if (Menu_Cursor_Y[ewk->master_id] == ewk->wu.type) {
+    if (update_primary_character_appearance(ewk) || update_secondary_character_appearance(ewk)) {
+        sort_push_request3(&ewk->wu);
+        return;
+    }
+
+    if (Menu_Cursor_Y[ewk->master_id] == ewk->wu.type) {
         ewk->wu.my_clear_level = 0;
     } else if (ewk->wu.char_index == 1 && Connect_Status == 0) {
         ewk->wu.my_clear_level = 179;
