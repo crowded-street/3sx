@@ -8,6 +8,10 @@
  * that also use it moved to com_sub_command.c. */
 s32 Check_Motion_Ended(PLW* wk);
 
+/* Defined in com_sub_jump.c; the airborne attack Terms in com_sub_air_term.c
+ * run the same landing step. */
+void Landing_Tech_Step(PLW* wk);
+
 /* Defined in com_sub_jump.c; the four command-attack Term functions that stayed
  * in com_sub.c run the same approach gates. */
 s32 Attack_Range_Gates(PLW* wk, s16 Reaction, s16 RX, s16 RY, s16 RJX, s16 RJY, u16 JLD);
