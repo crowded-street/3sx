@@ -450,23 +450,30 @@ s32 Check_Exit_DENJIN(PLW* wk) {
     return 0;
 }
 
+/* CP_Index[3] == 0: choose the keep-away move. Option 0 rolls for it; the
+ * random draw still happens only on that path. */
+static void Setup_Keep_Away(PLW* wk, s16 Option) {
+    if (Option == 1) {
+        Setup_KA_Jump(wk);
+        return;
+    }
+    if (Option != 0) {
+        CP_Index[wk->wu.id][3] = Option + 1;
+        return;
+    }
+
+    if (random_16_com() < 4) {
+        Setup_KA_Jump(wk);
+    } else {
+        Setup_KA_Walk(wk);
+    }
+}
+
 void Keep_Away(PLW* wk, s16 Target_Pos, s16 Option) {
     switch (CP_Index[wk->wu.id][3]) {
 
     case 0:
-        if (Option == 0) {
-            if (random_16_com() < 4) {
-                Setup_KA_Jump(wk);
-            } else {
-                Setup_KA_Walk(wk);
-            }
-        } else {
-            if (Option == 1) {
-                Setup_KA_Jump(wk);
-            } else {
-                CP_Index[wk->wu.id][3] = Option + 1;
-            }
-        }
+        Setup_Keep_Away(wk, Option);
         /* fallthrough */
 
     case 1:
@@ -481,22 +488,25 @@ void Keep_Away(PLW* wk, s16 Target_Pos, s16 Option) {
     }
 }
 
-void Setup_KA_Jump(PLW* wk) {
+/* True when a back jump of Back_Jump_Data would carry the character past the
+ * stage edge behind them. */
+static s32 Check_Back_Jump_Blocked(PLW* wk) {
     s16 xx;
-
-    CP_Index[wk->wu.id][3] = 2;
-    xx = Back_Jump_Data[wk->player_number];
 
     if (wk->wu.rl_waza) {
         xx = wk->wu.xyz[0].disp.pos - Back_Jump_Data[wk->player_number];
-        if ((bg_w.bgw[1].l_limit2 - bg_w.pos_offset) > xx) {
-            CP_Index[wk->wu.id][3] = 1;
-        }
-    } else {
-        xx = wk->wu.xyz[0].disp.pos + Back_Jump_Data[wk->player_number];
-        if ((bg_w.bgw[1].r_limit2 + bg_w.pos_offset) < xx) {
-            CP_Index[wk->wu.id][3] = 1;
-        }
+        return (bg_w.bgw[1].l_limit2 - bg_w.pos_offset) > xx;
+    }
+
+    xx = wk->wu.xyz[0].disp.pos + Back_Jump_Data[wk->player_number];
+    return (bg_w.bgw[1].r_limit2 + bg_w.pos_offset) < xx;
+}
+
+void Setup_KA_Jump(PLW* wk) {
+    CP_Index[wk->wu.id][3] = 2;
+
+    if (Check_Back_Jump_Blocked(wk)) {
+        CP_Index[wk->wu.id][3] = 1;
     }
 }
 
@@ -505,20 +515,20 @@ void Setup_KA_Walk(PLW* wk) {
 }
 
 void Search_Back_Term(PLW* wk, s16 Move_Value, s16 Next_Action, s16 Next_Menu) {
+    s32 past_edge;
+
     if (wk->wu.rl_waza) {
         Move_Value = wk->wu.xyz[0].disp.pos - Move_Value;
-        if ((bg_w.bgw[1].l_limit2 - bg_w.pos_offset) > Move_Value) {
-            Next_Another_Menu(wk, Next_Action, Next_Menu);
-        } else {
-            CP_Index[wk->wu.id][0]++;
-        }
+        past_edge = (bg_w.bgw[1].l_limit2 - bg_w.pos_offset) > Move_Value;
     } else {
         Move_Value = wk->wu.xyz[0].disp.pos + Move_Value;
-        if (((bg_w.bgw[1].r_limit2) + (bg_w.pos_offset)) < (Move_Value)) {
-            Next_Another_Menu(wk, Next_Action, Next_Menu);
-        } else {
-            CP_Index[wk->wu.id][0]++;
-        }
+        past_edge = ((bg_w.bgw[1].r_limit2) + (bg_w.pos_offset)) < (Move_Value);
+    }
+
+    if (past_edge) {
+        Next_Another_Menu(wk, Next_Action, Next_Menu);
+    } else {
+        CP_Index[wk->wu.id][0]++;
     }
     Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
 }
@@ -1319,42 +1329,54 @@ void Look(PLW* wk, s16 Time) {
     }
 }
 
+/* CP_Index 0: latch the lever that will be replayed for the hold. */
+static void Keep_Status_Begin(PLW* wk, u16 Lever_Data, s16 Option_Data) {
+    CP_Index[wk->wu.id][1]++;
+    dash_flag_clear(wk->wu.id);
+    Timer_00[wk->wu.id] = 0xA;
+
+    Free_Lever[wk->wu.id] = Lever_Data;
+    if (Option_Data != -1) {
+        Free_Lever[wk->wu.id] |= Setup_Guard_Lever(wk, Option_Data);
+    }
+    Lever_Buff[wk->wu.id] = Free_Lever[wk->wu.id];
+}
+
+/* Replay the latched lever, and hand the pattern back once the hold expires
+ * with nothing attacking. */
+static void Keep_Status_Hold(PLW* wk) {
+    Lever_Buff[wk->wu.id] = Free_Lever[wk->wu.id];
+    if (--Timer_00[wk->wu.id]) {
+        return;
+    }
+    Timer_00[wk->wu.id] = 1;
+
+    if (Attack_Flag[wk->wu.id] != 0) {
+        return;
+    }
+
+    CP_Index[wk->wu.id][0]++;
+    CP_Index[wk->wu.id][1] = 0;
+    CP_Index[wk->wu.id][2] = 0;
+    CP_Index[wk->wu.id][3] = 0;
+
+    Flip_Flag[wk->wu.id] = 0;
+    Limited_Flag[wk->wu.id] = 0;
+
+    if (CP_No[wk->wu.id][0] != 6) {
+        Passive_Flag[wk->wu.id] = 0;
+    }
+}
+
 void Keep_Status(PLW* wk, u16 Lever_Data, s16 Option_Data) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
-        CP_Index[wk->wu.id][1]++;
-        dash_flag_clear(wk->wu.id);
-        Timer_00[wk->wu.id] = 0xA;
-
-        Free_Lever[wk->wu.id] = Lever_Data;
-        if (Option_Data != -1) {
-            Free_Lever[wk->wu.id] |= Setup_Guard_Lever(wk, Option_Data);
-        }
-        Lever_Buff[wk->wu.id] = Free_Lever[wk->wu.id];
-
+        Keep_Status_Begin(wk, Lever_Data, Option_Data);
         break;
 
     default:
-        Lever_Buff[wk->wu.id] = Free_Lever[wk->wu.id];
-        if (--Timer_00[wk->wu.id]) {
-            break;
-        }
-        Timer_00[wk->wu.id] = 1;
-
-        if (Attack_Flag[wk->wu.id] == 0) {
-            CP_Index[wk->wu.id][0]++;
-            CP_Index[wk->wu.id][1] = 0;
-            CP_Index[wk->wu.id][2] = 0;
-            CP_Index[wk->wu.id][3] = 0;
-
-            Flip_Flag[wk->wu.id] = 0;
-            Limited_Flag[wk->wu.id] = 0;
-
-            if (CP_No[wk->wu.id][0] != 6) {
-                Passive_Flag[wk->wu.id] = 0;
-            }
-        }
+        Keep_Status_Hold(wk);
         break;
     }
 }
