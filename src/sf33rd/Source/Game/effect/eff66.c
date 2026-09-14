@@ -242,7 +242,7 @@ void Setup_Pos_66(WORK_Other* ewk) {
     set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
 }
 
-s32 effect_66_init(s16 order_index, s16 id, s16 master_player, s16 target_bg, s16 char_ix, s16 char_ix2, s16 option) {
+s32 effect_66_init_with_params(Effect66InitParams params) {
     WORK_Other* ewk;
     s16 ix;
     s16 cg_type;
@@ -256,19 +256,19 @@ s32 effect_66_init(s16 order_index, s16 id, s16 master_player, s16 target_bg, s1
     ewk->wu.id = 66;
     ewk->wu.work_id = 16;
     ewk->wu.my_col_code = 0x1AC;
-    ewk->wu.my_family = target_bg + 1;
+    ewk->wu.my_family = params.target_bg + 1;
     ewk->wu.rl_waza = 1;
     *ewk->wu.char_table = _sel_pl_char_table;
-    ewk->wu.dir_old = order_index;
-    ewk->wu.dir_step = char_ix2;
-    ewk->wu.type = id;
-    ewk->master_player = master_player;
-    ewk->wu.char_index = char_ix;
-    ewk->master_priority = option;
+    ewk->wu.dir_old = params.order_index;
+    ewk->wu.dir_step = params.char_ix2;
+    ewk->wu.type = params.id;
+    ewk->master_player = params.master_player;
+    ewk->wu.char_index = params.char_ix;
+    ewk->master_priority = params.option;
     ewk->wu.my_mts = 13;
     ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
 
-    switch (option) {
+    switch (params.option) {
     case 1:
         ewk->wu.my_clear_level = 0x80;
         return 0;
