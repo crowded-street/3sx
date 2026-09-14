@@ -185,62 +185,75 @@ void effl3_0002(WORK_Other* ewk) {
     }
 }
 
+static void wait_to_launch_effl3(WORK_Other* ewk) {
+    ewk->wu.old_rno[4]--;
+
+    if (ewk->wu.old_rno[4] < 0) {
+        ewk->wu.routine_no[4]++;
+        set_char_move_init(&ewk->wu, 9, 39);
+    }
+}
+
+static void start_launch_effl3(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+
+    if (ewk->wu.cg_type == 1) {
+        ewk->wu.routine_no[4]++;
+        ewk->wu.mvxy.a[0].sp = 0;
+        ewk->wu.mvxy.d[0].sp = 0;
+        ewk->wu.mvxy.a[1].sp = 0x78000;
+        ewk->wu.mvxy.d[1].sp = -0x6000;
+    }
+}
+
+static void redirect_launch_effl3(WORK_Other* ewk) {
+    add_y_sub(&ewk->wu);
+    char_move(&ewk->wu);
+
+    if (ewk->wu.cg_type != 2) {
+        return;
+    }
+
+    ewk->wu.routine_no[4]++;
+    ewk->wu.mvxy.d[0].sp = 0;
+
+    if (ewk->wu.rl_flag) {
+        ewk->wu.mvxy.a[0].sp = 0x80000;
+    } else {
+        ewk->wu.mvxy.a[0].sp = -0x80000;
+    }
+
+    ewk->wu.mvxy.a[1].sp = -0x8000;
+    ewk->wu.mvxy.d[1].sp = 0x4000;
+}
+
+static void finish_launch_effl3(WORK_Other* ewk) {
+    add_x_sub(&ewk->wu);
+    add_y_sub(&ewk->wu);
+
+    if (!range_x_check3(ewk, 208)) {
+        ewk->wu.routine_no[0] = 99;
+    }
+}
+
 void effl3_tobi(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[4]) {
     case 0:
-        ewk->wu.old_rno[4]--;
-
-        if (ewk->wu.old_rno[4] < 0) {
-            ewk->wu.routine_no[4]++;
-            set_char_move_init(&ewk->wu, 9, 39);
-        }
-
+        wait_to_launch_effl3(ewk);
         break;
 
     case 1:
-        char_move(&ewk->wu);
-
-        if (ewk->wu.cg_type == 1) {
-            ewk->wu.routine_no[4]++;
-            ewk->wu.mvxy.a[0].sp = 0;
-            ewk->wu.mvxy.d[0].sp = 0;
-            ewk->wu.mvxy.a[1].sp = 0x78000;
-            ewk->wu.mvxy.d[1].sp = -0x6000;
-        }
-
+        start_launch_effl3(ewk);
         break;
 
     case 2:
-        add_y_sub(&ewk->wu);
-        char_move(&ewk->wu);
-
-        if (ewk->wu.cg_type != 2) {
-            break;
-        }
-
-        ewk->wu.routine_no[4]++;
-        ewk->wu.mvxy.d[0].sp = 0;
-
-        if (ewk->wu.rl_flag) {
-            ewk->wu.mvxy.a[0].sp = 0x80000;
-        } else {
-            ewk->wu.mvxy.a[0].sp = -0x80000;
-        }
-
-        ewk->wu.mvxy.a[1].sp = -0x8000;
-        ewk->wu.mvxy.d[1].sp = 0x4000;
+        redirect_launch_effl3(ewk);
         break;
 
         break;
 
     case 3:
-        add_x_sub(&ewk->wu);
-        add_y_sub(&ewk->wu);
-
-        if (!range_x_check3(ewk, 208)) {
-            ewk->wu.routine_no[0] = 99;
-        }
-
+        finish_launch_effl3(ewk);
         break;
 
     case 4:
