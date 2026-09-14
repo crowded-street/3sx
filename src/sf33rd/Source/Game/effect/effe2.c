@@ -354,63 +354,65 @@ s32 effect_E2_init(PLW* wk, const s16* data, s16 color_code, u8 ff) {
     return 0;
 }
 
-static void setup_standing_accessories(PLW* wk) {
+static void setup_flame_accessories(PLW* wk, const s16 accessory_data[4][4]) {
     s16 i;
 
+    for (i = 0; i < 4; i++) {
+        effect_E2_init(wk, accessory_data[i], 32, 1);
+    }
+}
+
+static void setup_thunder_accessory(PLW* wk) {
+    effect_E2_init(wk, thunder_set_pos_SKB[wk->player_number], 32, 0);
+}
+
+static void setup_freeze_accessories(PLW* wk, const s16 accessory_data[4][4]) {
+    s16 i;
+
+    for (i = 0; i < 4; i++) {
+        effect_E2_init(wk, accessory_data[i], 32, 0);
+    }
+}
+
+static void setup_standing_accessories(PLW* wk) {
     if (wk->wu.dm_attribute == 1) {
-        for (i = 0; i < 4; i++) {
-            effect_E2_init(wk, flames_stand[wk->player_number][i], 32, 1);
-        }
+        setup_flame_accessories(wk, flames_stand[wk->player_number]);
     }
 
     if (wk->wu.dm_attribute == 2) {
-        effect_E2_init(wk, thunder_set_pos_SKB[wk->player_number], 32, 0);
+        setup_thunder_accessory(wk);
     }
 
     if (wk->wu.dm_attribute == 3) {
-        for (i = 0; i < 4; i++) {
-            effect_E2_init(wk, freeze_stand[wk->player_number][i], 32, 0);
-        }
+        setup_freeze_accessories(wk, freeze_stand[wk->player_number]);
     }
 }
 
 static void setup_crouching_accessories(PLW* wk) {
-    s16 i;
-
     if (wk->wu.dm_attribute == 1) {
-        for (i = 0; i < 4; i++) {
-            effect_E2_init(wk, flames_crunch[wk->player_number][i], 32, 1);
-        }
+        setup_flame_accessories(wk, flames_crunch[wk->player_number]);
     }
 
     if (wk->wu.dm_attribute == 2) {
-        effect_E2_init(wk, thunder_set_pos_SKB[wk->player_number], 32, 0);
+        setup_thunder_accessory(wk);
     }
 
     if (wk->wu.dm_attribute == 3) {
-        for (i = 0; i < 4; i++) {
-            effect_E2_init(wk, freeze_crunch[wk->player_number][i], 32, 0);
-        }
+        setup_freeze_accessories(wk, freeze_crunch[wk->player_number]);
     }
 }
 
 static void setup_aerial_accessories(PLW* wk) {
-    s16 i;
-
     if (wk->wu.dm_attribute == 1) {
-        for (i = 0; i < 4; i++) {
-            effect_E2_init(wk, flames_ariel[wk->player_number][i], 32, 1);
-        }
+        setup_flame_accessories(wk, flames_ariel[wk->player_number]);
     }
 
     if (wk->wu.dm_attribute == 2) {
-        effect_E2_init(wk, thunder_set_pos_SKB[wk->player_number], 32, 0);
+        setup_thunder_accessory(wk);
     }
 
     if (wk->wu.dm_attribute == 3) {
-        for (i = 0; i < 4; i++) {
-            effect_E2_init(wk, freeze_set_pos_B[wk->player_number][i], 32, 0);
-        }
+        setup_freeze_accessories(wk, freeze_set_pos_B[wk->player_number]);
     }
 }
 
