@@ -269,6 +269,37 @@ void animal_0002(WORK_Other* ewk) {
     }
 }
 
+static void wait_for_animal_delay(WORK_Other* ewk) {
+    ewk->wu.old_rno[0]--;
+
+    if (ewk->wu.old_rno[0] <= 0) {
+        ewk->wu.routine_no[1]++;
+    }
+}
+
+static void run_mouse_offscreen(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+    add_x_sub(&ewk->wu);
+
+    if (!range_x_check3(ewk, 32)) {
+        ewk->wu.routine_no[0] = 99;
+        ewk->wu.routine_no[1]++;
+    }
+}
+
+static void advance_random_mouse_run(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+    ewk->wu.old_rno[3]--;
+
+    if (ewk->wu.old_rno[3] <= 0) {
+        ewk->wu.routine_no[1]++;
+        mouse_stand_set(ewk);
+        return;
+    }
+
+    add_x_sub(&ewk->wu);
+}
+
 void animal_0004(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -288,12 +319,7 @@ void animal_0004(WORK_Other* ewk) {
         break;
 
     case 1:
-        ewk->wu.old_rno[0]--;
-
-        if (ewk->wu.old_rno[0] <= 0) {
-            ewk->wu.routine_no[1]++;
-        }
-
+        wait_for_animal_delay(ewk);
         break;
 
     case 2:
@@ -307,14 +333,7 @@ void animal_0004(WORK_Other* ewk) {
         break;
 
     case 3:
-        char_move(&ewk->wu);
-        add_x_sub(&ewk->wu);
-
-        if (!range_x_check3(ewk, 32)) {
-            ewk->wu.routine_no[0] = 99;
-            ewk->wu.routine_no[1]++;
-        }
-
+        run_mouse_offscreen(ewk);
         break;
     }
 }
@@ -333,25 +352,11 @@ void animal_0005(WORK_Other* ewk) {
         break;
 
     case 1:
-        ewk->wu.old_rno[0]--;
-
-        if (ewk->wu.old_rno[0] <= 0) {
-            ewk->wu.routine_no[1]++;
-        }
-
+        wait_for_animal_delay(ewk);
         break;
 
     case 2:
-        char_move(&ewk->wu);
-        ewk->wu.old_rno[3]--;
-
-        if (ewk->wu.old_rno[3] <= 0) {
-            ewk->wu.routine_no[1]++;
-            mouse_stand_set(ewk);
-            break;
-        }
-
-        add_x_sub(&ewk->wu);
+        advance_random_mouse_run(ewk);
         break;
 
     case 3:
