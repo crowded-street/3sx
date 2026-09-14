@@ -34,7 +34,7 @@ static void initialize_training_mode(struct _TASK* task_ptr) {
         char_index = 0x35;
 
         while (ix < 3) {
-            effect_61_init(0, ix + 0x50, 0, 1, char_index, ix, 0x7047);
+            effect_61_init((Effect61InitParams){ 0, ix + 0x50, 0, 1, char_index, ix, 0x7047 });
             Order[ix + 0x50] = 1;
             Order_Dir[ix + 0x50] = 4;
             Order_Timer[ix + 0x50] = ix + 0x14;

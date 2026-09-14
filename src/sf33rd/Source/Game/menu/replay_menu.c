@@ -33,7 +33,7 @@ static void initialize_after_replay(struct _TASK* task_ptr) {
         Menu_Cursor_Y[0] = 0;
 
         for (ix = 0, s5 = char_ix = '8'; ix < 3; ix++, s4 = char_ix++) {
-            effect_61_init(0, ix + 80, 0, 0, char_ix, ix, 0x7047);
+            effect_61_init((Effect61InitParams){ 0, ix + 80, 0, 0, char_ix, ix, 0x7047 });
             Order[ix + 80] = 3;
             Order_Timer[ix + 80] = 1;
         }
@@ -135,7 +135,7 @@ static void initialize_after_replay_return(struct _TASK* task_ptr) {
     FadeOut(1, 0xFF, 8);
     Menu_Suicide[0] = 0;
     for (ix = 0, s3 = char_ix = '8'; ix < 3; ix++, s2 = char_ix++) {
-        effect_61_init(0, ix + 80, 0, 0, char_ix, ix, 0x7047);
+        effect_61_init((Effect61InitParams){ 0, ix + 80, 0, 0, char_ix, ix, 0x7047 });
         Order[ix + 80] = 3;
         Order_Timer[ix + 80] = 1;
     }

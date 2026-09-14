@@ -286,8 +286,7 @@ static void initialize_menu_letters(WORK_Other_CONN* ewk, s16 char_ix, s16 offse
     ewk->num_of_conn = ix;
 }
 
-s32 effect_61_init(s16 master, u8 dir_old, s16 sync_bg, s16 master_player, s16 char_ix, s16 cursor_index,
-                   u16 letter_type) {
+s32 effect_61_init(Effect61InitParams params) {
     WORK_Other_CONN* ewk;
     s16 ix;
     s16 offset_x;
@@ -300,14 +299,14 @@ s32 effect_61_init(s16 master, u8 dir_old, s16 sync_bg, s16 master_player, s16 c
     ewk->wu.be_flag = 1;
     ewk->wu.id = 61;
     ewk->wu.work_id = 16;
-    ewk->master_id = master;
-    ewk->wu.my_family = sync_bg + 1;
+    ewk->master_id = params.master;
+    ewk->wu.my_family = params.sync_bg + 1;
     ewk->wu.my_col_code = 0x1AC;
-    ewk->wu.type = cursor_index;
-    ewk->wu.char_index = char_ix;
-    ewk->wu.old_cgnum = letter_type;
-    ewk->wu.dir_old = dir_old;
-    ewk->master_player = master_player;
+    ewk->wu.type = params.cursor_index;
+    ewk->wu.char_index = params.char_ix;
+    ewk->wu.old_cgnum = params.letter_type;
+    ewk->wu.dir_old = params.dir_old;
+    ewk->master_player = params.master_player;
 
     if (ewk->wu.old_cgnum == 0x70A7) {
         offset_x = 8;
@@ -315,7 +314,7 @@ s32 effect_61_init(s16 master, u8 dir_old, s16 sync_bg, s16 master_player, s16 c
         offset_x = 14;
     }
 
-    initialize_menu_letters(ewk, char_ix, offset_x);
+    initialize_menu_letters(ewk, params.char_ix, offset_x);
     ewk->wu.my_mts = 13;
     ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
     return 0;

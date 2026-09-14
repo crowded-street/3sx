@@ -80,7 +80,7 @@ static void initialize_sound_test(struct _TASK* task_ptr) {
             s16 unused_s3;
 
             for (ix = 0, unused_s3 = char_index = 0x3B; ix < 6; ix++, unused_s2 = char_index++) {
-                effect_61_init(0, ix + 0x50, 0, 2, char_index, ix, 0x7047);
+                effect_61_init((Effect61InitParams){ 0, ix + 0x50, 0, 2, char_index, ix, 0x7047 });
                 Order[ix + 0x50] = 1;
                 Order_Dir[ix + 0x50] = 4;
                 Order_Timer[ix + 0x50] = ix + 0x14;
