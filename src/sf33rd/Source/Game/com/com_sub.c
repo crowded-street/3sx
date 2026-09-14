@@ -40,6 +40,32 @@
 s8 Lv;
 s8 Rnd;
 
+/* Where a Term hands control when it completes.
+ *
+ * These groupings exist so the internal helpers stay within the argument
+ * threshold. The public Term signatures are deliberately unchanged - EM_Term
+ * alone is called from over 800 sites in the pattern scripts. */
+typedef struct {
+    s16 action;
+    s16 menu;
+} Com_Next_Menu;
+
+typedef struct {
+    WORK* em;
+    s16 range_x;
+    s16 range_y;
+    s16 exit_number;
+    Com_Next_Menu next;
+} EM_Term_Args;
+
+typedef struct {
+    WORK* em;
+    WORK_Other* tmw;
+    s16 next_command;
+    s16 exit_number;
+    Com_Next_Menu next;
+} Shell_Term_Args;
+
 
 /* Tests the routine state that gates committing to a new action or ending the
  * current reaction: any routine_no[1] other than 4, with cg_type 0x40 treated
@@ -493,7 +519,7 @@ void Walk(PLW* wk, u16 Lever, s16 Time, s16 unused) {
  *
  * NOTE: the get_nearing_range call assigns xx twice in one expression, with no
  * sequence point between them. Copied verbatim; see AGENTS.md. */
-static void Short_Range_Attack_Start(PLW* wk, s16 Reaction, u16 Lever_Data, s16 Next_Action, s16 Next_Menu) {
+static void Short_Range_Attack_Start(PLW* wk, s16 Reaction, u16 Lever_Data, Com_Next_Menu next) {
     u16 xx;
 
     if (Check_Passive(wk) != 0) {
@@ -509,7 +535,7 @@ static void Short_Range_Attack_Start(PLW* wk, s16 Reaction, u16 Lever_Data, s16 
     Ck_Distance_LvJ(wk);
     xx = get_nearing_range(wk->player_number, xx = Lever_Data & 0xFF0);
     if (PL_Distance[wk->wu.id] > xx) {
-        Next_Another_Menu(wk, Next_Action, Next_Menu);
+        Next_Another_Menu(wk, next.action, next.menu);
     }
 }
 
@@ -527,9 +553,14 @@ static void Short_Range_Attack_Wait(PLW* wk, u16 Lever_Data) {
 }
 
 void Short_Range_Attack(PLW* wk, s16 Reaction, u16 Lever_Data, s16 Next_Action, s16 Next_Menu) {
+    Com_Next_Menu next;
+
+    next.action = Next_Action;
+    next.menu = Next_Menu;
+
     switch (CP_Index[wk->wu.id][1]) {
     case 0:
-        Short_Range_Attack_Start(wk, Reaction, Lever_Data, Next_Action, Next_Menu);
+        Short_Range_Attack_Start(wk, Reaction, Lever_Data, next);
         break;
 
     case 1:
@@ -548,19 +579,19 @@ void Short_Range_Attack(PLW* wk, s16 Reaction, u16 Lever_Data, s16 Next_Action, 
  * 4. Each gate broke out of the inner switch, which fell straight through to
  * the end of EM_Term - the same thing returning here does. */
 /* Which height gate applies depends on the exit number. */
-static s32 Check_EM_Term_Height(PLW* wk, WORK* em, s16 Range_Y, s16 Exit_Number) {
-    if (Exit_Number != 8) {
-        return Check_Term_Sub_Y(wk, em->xyz[1].disp.pos, Range_Y);
+static s32 Check_EM_Term_Height(PLW* wk, const EM_Term_Args* a) {
+    if (a->exit_number != 8) {
+        return Check_Term_Sub_Y(wk, a->em->xyz[1].disp.pos, a->range_y);
     }
-    return Check_Term_Sub(wk, wk->wu.xyz[1].disp.pos, Range_Y);
+    return Check_Term_Sub(wk, wk->wu.xyz[1].disp.pos, a->range_y);
 }
 
-static void EM_Term_Approach(PLW* wk, WORK* em, s16 Range_X, s16 Range_Y, s16 Exit_Number) {
-    if (Check_Term_Sub(wk, PL_Distance[wk->wu.id], Range_X) == 0) {
+static void EM_Term_Approach(PLW* wk, const EM_Term_Args* a) {
+    if (Check_Term_Sub(wk, PL_Distance[wk->wu.id], a->range_x) == 0) {
         return;
     }
 
-    if (Check_EM_Term_Height(wk, em, Range_Y, Exit_Number) == 0) {
+    if (Check_EM_Term_Height(wk, a) == 0) {
         return;
     }
 
@@ -568,10 +599,42 @@ static void EM_Term_Approach(PLW* wk, WORK* em, s16 Range_X, s16 Range_Y, s16 Ex
     Next_Pattern_Step(wk);
 }
 
-void EM_Term(PLW* wk, s16 Range_X, s16 Range_Y, s16 Exit_Number, s16 Next_Action, s16 Next_Menu) {
-    WORK* em;
+/* Act on the exit-term result. */
+static void EM_Term_Dispatch(PLW* wk, const EM_Term_Args* a) {
+    switch (Check_Exit_Term(wk, a->em, a->exit_number)) {
+    case 0:
+        EM_Term_Approach(wk, a);
+        break;
 
-    em = (WORK*)wk->wu.target_adrs;
+    case 1:
+        Disposal_Again[wk->wu.id] = 1;
+        Next_Another_Menu(wk, a->next.action, a->next.menu);
+        break;
+
+    case 2:
+        break;
+
+    case 3:
+        Select_Passive(wk);
+        break;
+
+    default:
+        Counter_Attack[wk->wu.id] = 1;
+        Select_Passive(wk);
+        break;
+    }
+}
+
+void EM_Term(PLW* wk, s16 Range_X, s16 Range_Y, s16 Exit_Number, s16 Next_Action, s16 Next_Menu) {
+    EM_Term_Args a;
+
+    a.em = (WORK*)wk->wu.target_adrs;
+    a.range_x = Range_X;
+    a.range_y = Range_Y;
+    a.exit_number = Exit_Number;
+    a.next.action = Next_Action;
+    a.next.menu = Next_Menu;
+
     Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
 
     switch (CP_Index[wk->wu.id][1]) {
@@ -585,61 +648,41 @@ void EM_Term(PLW* wk, s16 Range_X, s16 Range_Y, s16 Exit_Number, s16 Next_Action
             break;
         }
 
-        switch (Check_Exit_Term(wk, em, Exit_Number)) {
-        case 0:
-            EM_Term_Approach(wk, em, Range_X, Range_Y, Exit_Number);
-            break;
-
-        case 1:
-            Disposal_Again[wk->wu.id] = 1;
-            Next_Another_Menu(wk, Next_Action, Next_Menu);
-            break;
-
-        case 2:
-            break;
-
-        case 3:
-            Select_Passive(wk);
-            break;
-
-        default:
-            Counter_Attack[wk->wu.id] = 1;
-            Select_Passive(wk);
-            break;
-        }
-
+        EM_Term_Dispatch(wk, &a);
         break;
     }
 }
 
 /* CP_Index 1: wait out the shell, dodging once it is close enough. em and tmw
  * are passed in so Shell_Address is still read once, before the switch. */
-static void SHELL_Term_Step(PLW* wk, WORK* em, WORK_Other* tmw, s16 Next_Command, s16 Exit_Number, s16 Next_Action,
-                            s16 Next_Menu) {
+static void SHELL_Term_Step(PLW* wk, const Shell_Term_Args* a) {
     s16 xx;
 
     if (Check_Passive(wk) != 0) {
         return;
     }
 
-    if (Check_Exit_Term(wk, em, Exit_Number) == 1) {
-        Next_Another_Menu(wk, Next_Action, Next_Menu);
+    if (Check_Exit_Term(wk, a->em, a->exit_number) == 1) {
+        Next_Another_Menu(wk, a->next.action, a->next.menu);
         return;
     }
 
-    xx = Compute_Hit_Time(wk, tmw);
-    if (xx < Shell_Dodge_Data[Next_Command][wk->player_number]) {
+    xx = Compute_Hit_Time(wk, a->tmw);
+    if (xx < Shell_Dodge_Data[a->next_command][wk->player_number]) {
         Disposal_Again[wk->wu.id] = 1;
         Next_Pattern_Step(wk);
     }
 }
 
 void SHELL_Term(PLW* wk, s16 Next_Command, s16 Exit_Number, s16 Next_Action, s16 Next_Menu, s16 unused) {
-    WORK* em;
-    WORK_Other* tmw;
+    Shell_Term_Args a;
 
-    em = (WORK*)Shell_Address[wk->wu.id];
-    tmw = (WORK_Other*)Shell_Address[wk->wu.id];
+    a.em = (WORK*)Shell_Address[wk->wu.id];
+    a.tmw = (WORK_Other*)Shell_Address[wk->wu.id];
+    a.next_command = Next_Command;
+    a.exit_number = Exit_Number;
+    a.next.action = Next_Action;
+    a.next.menu = Next_Menu;
 
     Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
     switch (CP_Index[wk->wu.id][1]) {
@@ -650,7 +693,7 @@ void SHELL_Term(PLW* wk, s16 Next_Command, s16 Exit_Number, s16 Next_Action, s16
         /* fallthrough */
 
     case 1:
-        SHELL_Term_Step(wk, em, tmw, Next_Command, Exit_Number, Next_Action, Next_Menu);
+        SHELL_Term_Step(wk, &a);
         break;
     }
 }
