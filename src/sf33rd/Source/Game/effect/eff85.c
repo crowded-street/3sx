@@ -132,8 +132,7 @@ void eff85_3000(WORK_Other* ewk) {
 void eff85_5000(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[2]) {
     case 0:
-        ewk->wu.routine_no[2]++;
-        set_char_move_init(&ewk->wu, 0, eff85_char_index_tbl[ewk->wu.routine_no[1]]);
+        eff85_common(ewk);
         break;
 
     case 1:
@@ -141,13 +140,7 @@ void eff85_5000(WORK_Other* ewk) {
             break;
         }
 
-        char_move(&ewk->wu);
-
-        if (ewk->wu.cg_type == 0xFF) {
-            ewk->wu.routine_no[1]++;
-            ewk->wu.routine_no[2] = 0;
-        }
-
+        eff85_common(ewk);
         break;
     }
 }
