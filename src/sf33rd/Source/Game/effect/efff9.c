@@ -150,30 +150,34 @@ s16 keep_mes_no;
 
 s32 Rewrite();
 
+static void initialize_F9_effect(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.my_mts = 12;
+    ewk->free = 0;
+
+    if (mes_already) {
+        get_message_conn_data((WORK_Other_CONN*)ewk, 2, ewk->master_player, mes_already);
+    }
+
+    ewk->wu.old_rno[4] = ewk->free;
+
+    if (ewk->wu.old_rno[4] == 0) {
+        ewk->wu.old_rno[5] = 0;
+    } else {
+        ewk->wu.old_rno[5] = 1;
+    }
+
+    ewk->wu.old_rno[6] = 1;
+    ewk->wu.disp_flag = 1;
+    ewk->wu.vitality = 240;
+    ewk->free = ewk->wu.old_rno[5];
+    efff9_suicide = 0;
+}
+
 void effect_F9_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.my_mts = 12;
-        ewk->free = 0;
-
-        if (mes_already) {
-            get_message_conn_data((WORK_Other_CONN*)ewk, 2, ewk->master_player, mes_already);
-        }
-
-        ewk->wu.old_rno[4] = ewk->free;
-
-        if (ewk->wu.old_rno[4] == 0) {
-            ewk->wu.old_rno[5] = 0;
-        } else {
-            ewk->wu.old_rno[5] = 1;
-        }
-
-        ewk->wu.old_rno[6] = 1;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.vitality = 240;
-        ewk->free = ewk->wu.old_rno[5];
-        efff9_suicide = 0;
+        initialize_F9_effect(ewk);
         break;
 
     case 1:
