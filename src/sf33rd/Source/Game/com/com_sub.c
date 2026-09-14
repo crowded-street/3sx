@@ -362,6 +362,40 @@ void Push_Shot(PLW* wk, s16 Power_Level) {
     }
 }
 
+/* The area-dependent half of Check_Exit_DENJIN, lifted out of the switch that
+ * sat at nesting depth 4. Returns non-zero when the charge should end.
+ *
+ * The two arms share an identical "falling and low enough" test. It is left
+ * duplicated deliberately: folding it would be a behaviour-neutral edit the
+ * refactor_guard cannot distinguish from a substituted constant. */
+static s32 Check_Exit_DENJIN_Area(PLW* wk, WORK* em, s16 xx) {
+    switch (CP_Index[wk->wu.id][3]) {
+    case 0:
+    case 1:
+    case 2:
+        if (em->mvxy.a[1].real.h > 0) {
+            return 1;
+        }
+        if (em->mvxy.a[1].real.h < 0) {
+            if (em->xyz[1].disp.pos < 0x29) {
+                return 1;
+            }
+        }
+        break;
+    default:
+        if ((em->mvxy.a[1].real.h > 0) && (xx == -1)) {
+            return 1;
+        }
+        if (em->mvxy.a[1].real.h < 0) {
+            if (em->xyz[1].disp.pos < 0x29) {
+                return 1;
+            }
+        }
+        break;
+    }
+    return 0;
+}
+
 s32 Check_Exit_DENJIN(PLW* wk) {
     s16 xx;
     WORK* em;
@@ -393,29 +427,9 @@ s32 Check_Exit_DENJIN(PLW* wk) {
             CP_Index[wk->wu.id][2]++;
             CP_Index[wk->wu.id][3] = Area_Number[wk->wu.id];
         }
-        switch (CP_Index[wk->wu.id][3]) {
-        case 0:
-        case 1:
-        case 2:
-            if (em->mvxy.a[1].real.h > 0) {
-                return 1;
-            }
-            if (em->mvxy.a[1].real.h < 0) {
-                if (em->xyz[1].disp.pos < 0x29) {
-                    return 1;
-                }
-            }
-            break;
-        default:
-            if ((em->mvxy.a[1].real.h > 0) && (xx == -1)) {
-                return 1;
-            }
-            if (em->mvxy.a[1].real.h < 0) {
-                if (em->xyz[1].disp.pos < 0x29) {
-                    return 1;
-                }
-            }
-            break;
+
+        if (Check_Exit_DENJIN_Area(wk, em, xx) != 0) {
+            return 1;
         }
     }
     if (xx == 0) {
