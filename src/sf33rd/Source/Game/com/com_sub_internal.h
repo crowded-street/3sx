@@ -4,6 +4,10 @@
 #include "structs.h"
 #include "types.h"
 
+/* Was static in com_sub.c; Push_Shot kept it there while the command attacks
+ * that also use it moved to com_sub_command.c. */
+s32 Check_Motion_Ended(PLW* wk);
+
 /* Defined in com_sub_jump.c; the four command-attack Term functions that stayed
  * in com_sub.c run the same approach gates. */
 s32 Attack_Range_Gates(PLW* wk, s16 Reaction, s16 RX, s16 RY, s16 RJX, s16 RJY, u16 JLD);
