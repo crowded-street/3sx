@@ -283,6 +283,19 @@ void efff9_wk_set(WORK_Other_CONN* ewk) {
     ewk->wu.position_z = ewk->wu.my_priority = 5;
 }
 
+static void prepare_message_rewrite(WORK_Other* ewk) {
+    efff9_wk_set((WORK_Other_CONN*)ewk);
+    ewk->master_player = efff9_PL_NO;
+    efff9_suicide = 1;
+}
+
+static void select_rewrite_message(WORK_Other* ewk, u16 mes_no, s16 point) {
+    efff9_txt_no_adrs = txt_no_tbl[efff9_PL_NO];
+    efff9_txt_scene_adrs = efff9_txt_no_adrs[mes_no];
+    efff9_message = efff9_txt_scene_adrs[point];
+    ewk->wu.old_rno[3] = efff9_txt_scene_adrs[point + 1];
+}
+
 s32 Rewrite_End_Message(u16 mes_no) {
     WORK_Other* ewk;
     s16 ix;
@@ -293,14 +306,9 @@ s32 Rewrite_End_Message(u16 mes_no) {
 
     ewk = (WORK_Other*)frw[ix];
     keep_mes_no = mes_no;
-    efff9_wk_set((WORK_Other_CONN*)ewk);
-    ewk->master_player = efff9_PL_NO;
-    efff9_suicide = 1;
+    prepare_message_rewrite(ewk);
     efff9_txt_point = 2;
-    efff9_txt_no_adrs = txt_no_tbl[efff9_PL_NO];
-    efff9_txt_scene_adrs = efff9_txt_no_adrs[mes_no];
-    efff9_message = efff9_txt_scene_adrs[0];
-    ewk->wu.old_rno[3] = efff9_txt_scene_adrs[1];
+    select_rewrite_message(ewk, mes_no, 0);
     mes_already = efff9_message;
     return 0;
 }
@@ -314,13 +322,8 @@ s32 Rewrite() {
     }
 
     ewk = (WORK_Other*)frw[ix];
-    efff9_wk_set((WORK_Other_CONN*)ewk);
-    ewk->master_player = efff9_PL_NO;
-    efff9_suicide = 1;
-    efff9_txt_no_adrs = txt_no_tbl[efff9_PL_NO];
-    efff9_txt_scene_adrs = efff9_txt_no_adrs[keep_mes_no];
-    efff9_message = efff9_txt_scene_adrs[efff9_txt_point];
-    ewk->wu.old_rno[3] = efff9_txt_scene_adrs[efff9_txt_point + 1];
+    prepare_message_rewrite(ewk);
+    select_rewrite_message(ewk, keep_mes_no, efff9_txt_point);
     efff9_txt_point += 2;
     mes_already = efff9_message;
     return 0;
