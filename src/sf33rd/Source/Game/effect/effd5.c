@@ -124,35 +124,43 @@ static void update_rose_flight(WORK_Other* ewk) {
     }
 }
 
+static void handle_normal_rose_hit(WORK_Other* ewk) {
+    ewk->wu.routine_no[1] = 0;
+    ewk->wu.mvxy.d[0].sp = 0;
+    ewk->wu.mvxy.a[0].sp = 0;
+    ewk->wu.mvxy.a[1].sp = 0;
+    ewk->wu.direction = 2;
+
+    if (ewk->wu.rl_flag) {
+        ewk->wu.direction = cal_attdir_flip(ewk->wu.direction);
+    }
+
+    setup_hana_extra(&ewk->wu, 0, 8);
+}
+
+static void handle_reflected_rose_hit(WORK_Other* ewk) {
+    ewk->wu.routine_no[1] = 0;
+    ewk->refrected = 1;
+    ewk->wu.rl_flag = (ewk->wu.rl_flag + 1) & 1;
+    ewk->wu.mvxy.a[0].sp = 0x60000;
+    ewk->wu.mvxy.d[0].sp = -0x3000;
+    ewk->wu.mvxy.a[1].sp /= 3;
+    ewk->wu.mvxy.a[1].sp = -ewk->wu.mvxy.a[1].sp;
+    ewk->wu.hit_stop = 4;
+    ewk->wu.direction = 0xD;
+
+    if (ewk->wu.rl_flag) {
+        ewk->wu.direction = cal_attdir_flip(ewk->wu.direction);
+    }
+
+    setup_hana_extra(&ewk->wu, 1, 0x18);
+}
+
 static void handle_rose_player_hit(WORK_Other* ewk) {
     if (ewk->wu.hf.hit.player & 0x33) {
-        ewk->wu.routine_no[1] = 0;
-        ewk->wu.mvxy.d[0].sp = 0;
-        ewk->wu.mvxy.a[0].sp = 0;
-        ewk->wu.mvxy.a[1].sp = 0;
-        ewk->wu.direction = 2;
-
-        if (ewk->wu.rl_flag) {
-            ewk->wu.direction = cal_attdir_flip(ewk->wu.direction);
-        }
-
-        setup_hana_extra(&ewk->wu, 0, 8);
+        handle_normal_rose_hit(ewk);
     } else if (ewk->wu.hf.hit.player & 0xC0) {
-        ewk->wu.routine_no[1] = 0;
-        ewk->refrected = 1;
-        ewk->wu.rl_flag = (ewk->wu.rl_flag + 1) & 1;
-        ewk->wu.mvxy.a[0].sp = 0x60000;
-        ewk->wu.mvxy.d[0].sp = -0x3000;
-        ewk->wu.mvxy.a[1].sp /= 3;
-        ewk->wu.mvxy.a[1].sp = -ewk->wu.mvxy.a[1].sp;
-        ewk->wu.hit_stop = 4;
-        ewk->wu.direction = 0xD;
-
-        if (ewk->wu.rl_flag) {
-            ewk->wu.direction = cal_attdir_flip(ewk->wu.direction);
-        }
-
-        setup_hana_extra(&ewk->wu, 1, 0x18);
+        handle_reflected_rose_hit(ewk);
     }
 }
 
