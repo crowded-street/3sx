@@ -39,6 +39,25 @@
 #include "structs.h"
 #include "sf33rd/Source/Game/com/com_sub_internal.h"
 
+/* Start the jump, freeing the character if a shell is already in the way.
+ * Four of the five launch arms ran these two statements back to back. */
+static void Start_Jump(PLW* wk, s16 Jump_Dir) {
+    Jump_Init(wk, Jump_Dir);
+    if (Check_Diagonal_Shell(wk) != 0) {
+        Next_Be_Free(wk);
+    }
+}
+
+/* Step the pattern on and clear the three sub-indices. Unlike
+ * Next_Pattern_Step in com_sub.c, the landing arms leave the flip and limited
+ * flags alone. */
+static void Clear_Jump_Pattern(PLW* wk) {
+    CP_Index[wk->wu.id][0]++;
+    CP_Index[wk->wu.id][1] = 0;
+    CP_Index[wk->wu.id][2] = 0;
+    CP_Index[wk->wu.id][3] = 0;
+}
+
 /* A jump that is special-move blocked frees the character instead. Returns
  * non-zero when the caller should stop. */
 static s32 Check_Jump_Blocked(PLW* wk) {
@@ -109,10 +128,7 @@ static void Jump_Launch(PLW* wk, s16 Jump_Dir) {
     }
 
     CP_Index[wk->wu.id][1]++;
-    Jump_Init(wk, Jump_Dir);
-    if (Check_Diagonal_Shell(wk) != 0) {
-        Next_Be_Free(wk);
-    }
+    Start_Jump(wk, Jump_Dir);
 }
 
 /* Unlike Hi_Jump's landing, this one does not run the air guard. */
@@ -122,10 +138,7 @@ static void Jump_Land(PLW* wk) {
         return;
     }
 
-    CP_Index[wk->wu.id][0]++;
-    CP_Index[wk->wu.id][1] = 0;
-    CP_Index[wk->wu.id][2] = 0;
-    CP_Index[wk->wu.id][3] = 0;
+    Clear_Jump_Pattern(wk);
 }
 
 void Jump(PLW* wk, s16 Jump_Dir) {
@@ -180,10 +193,7 @@ static void Hi_Jump_Launch(PLW* wk, s16 Jump_Dir) {
     CP_Index[wk->wu.id][1]++;
     Tech_Index[wk->wu.id] = 0xC;
 
-    Jump_Init(wk, Jump_Dir);
-    if (Check_Diagonal_Shell(wk) != 0) {
-        Next_Be_Free(wk);
-    }
+    Start_Jump(wk, Jump_Dir);
 
     Lever_Buff[wk->wu.id] = 0;
 }
@@ -213,10 +223,7 @@ static void Hi_Jump_Land(PLW* wk) {
         return;
     }
 
-    CP_Index[wk->wu.id][0]++;
-    CP_Index[wk->wu.id][1] = 0;
-    CP_Index[wk->wu.id][2] = 0;
-    CP_Index[wk->wu.id][3] = 0;
+    Clear_Jump_Pattern(wk);
 }
 
 void Hi_Jump(PLW* wk, s16 Pl_Number, s16 Jump_Dir) {
@@ -358,10 +365,7 @@ static void Jump_Attack_Launch(PLW* wk, s16 Time_Data, s16 Jump_Dir) {
     Timer_00[wk->wu.id] = Time_Data;
     CP_Index[wk->wu.id][1]++;
     dash_flag_clear(wk->wu.id);
-    Jump_Init(wk, Jump_Dir);
-    if (Check_Diagonal_Shell(wk) != 0) {
-        Next_Be_Free(wk);
-    }
+    Start_Jump(wk, Jump_Dir);
 }
 
 static void Jump_Attack_Rise(PLW* wk) {
@@ -502,10 +506,7 @@ static void Jump_Attack_Term_Launch(PLW* wk, s16 Jump_Dir) {
     CP_Index[wk->wu.id][1]++;
     dash_flag_clear(wk->wu.id);
 
-    Jump_Init(wk, Jump_Dir);
-    if (Check_Diagonal_Shell(wk) != 0) {
-        Next_Be_Free(wk);
-    }
+    Start_Jump(wk, Jump_Dir);
 }
 
 static void Jump_Attack_Term_Hold(PLW* wk, s16 Reaction) {
