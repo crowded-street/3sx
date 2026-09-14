@@ -104,33 +104,68 @@ void eff85_common(WORK_Other* ewk) {
     run_bird_animation(ewk, eff85_char_index_tbl[ewk->wu.routine_no[1]], ewk->wu.routine_no[1] + 1);
 }
 
-void eff85_3000(WORK_Other* ewk) {
+static void initialize_first_bird_flight(WORK_Other* ewk) {
+    ewk->wu.routine_no[2]++;
+    set_char_move_init(&ewk->wu, 0, 31);
+    ewk->wu.dir_timer = 34;
+    ewk->wu.mvxy.d[0].sp = 0;
+    ewk->wu.mvxy.d[1].sp = -0x2000;
+    cal_initial_speed(&ewk->wu, ewk->wu.dir_timer, 400, 81);
+}
+
+static s32 first_bird_flight_finished(const WORK_Other* ewk) {
+    return ewk->wu.dir_timer <= 0;
+}
+
+static s32 second_bird_flight_finished(const WORK_Other* ewk) {
+    return ewk->wu.dir_timer < 0;
+}
+
+static void advance_bird_flight(WORK_Other* ewk, s32 (*finished)(const WORK_Other*), s32 final_x, s32 final_y) {
+    char_move(&ewk->wu);
+    ewk->wu.dir_timer--;
+
+    if (finished(ewk)) {
+        ewk->wu.routine_no[1]++;
+        ewk->wu.routine_no[2] = 0;
+        ewk->wu.xyz[0].cal = final_x;
+        ewk->wu.xyz[1].cal = final_y;
+        return;
+    }
+
+    add_x_sub(&ewk->wu);
+    add_y_sub(&ewk->wu);
+}
+
+static void advance_first_bird_flight(WORK_Other* ewk) {
+    advance_bird_flight(ewk, first_bird_flight_finished, 0x1900000, 0x510000);
+}
+
+static void initialize_second_bird_flight(WORK_Other* ewk) {
+    ewk->wu.routine_no[2]++;
+    set_char_move_init(&ewk->wu, 0, 34);
+    ewk->wu.dir_timer = 110;
+    cal_all_speed_data(&ewk->wu, ewk->wu.dir_timer, 491, 44, 2, 0);
+}
+
+static void advance_second_bird_flight(WORK_Other* ewk) {
+    advance_bird_flight(ewk, second_bird_flight_finished, 0x1EB0000, 0x2C0000);
+}
+
+static void run_bird_flight(WORK_Other* ewk, void (*initialize)(WORK_Other*), void (*advance)(WORK_Other*)) {
     switch (ewk->wu.routine_no[2]) {
     case 0:
-        ewk->wu.routine_no[2]++;
-        set_char_move_init(&ewk->wu, 0, 31);
-        ewk->wu.dir_timer = 34;
-        ewk->wu.mvxy.d[0].sp = 0;
-        ewk->wu.mvxy.d[1].sp = -0x2000;
-        cal_initial_speed(&ewk->wu, ewk->wu.dir_timer, 400, 81);
+        initialize(ewk);
         break;
 
     case 1:
-        char_move(&ewk->wu);
-        ewk->wu.dir_timer--;
-
-        if (ewk->wu.dir_timer <= 0) {
-            ewk->wu.routine_no[1]++;
-            ewk->wu.routine_no[2] = 0;
-            ewk->wu.xyz[0].cal = 0x1900000;
-            ewk->wu.xyz[1].cal = 0x510000;
-            break;
-        }
-
-        add_x_sub(&ewk->wu);
-        add_y_sub(&ewk->wu);
+        advance(ewk);
         break;
     }
+}
+
+void eff85_3000(WORK_Other* ewk) {
+    run_bird_flight(ewk, initialize_first_bird_flight, advance_first_bird_flight);
 }
 
 void eff85_5000(WORK_Other* ewk) {
@@ -150,30 +185,7 @@ void eff85_5000(WORK_Other* ewk) {
 }
 
 void eff85_7000(WORK_Other* ewk) {
-    switch (ewk->wu.routine_no[2]) {
-    case 0:
-        ewk->wu.routine_no[2]++;
-        set_char_move_init(&ewk->wu, 0, 34);
-        ewk->wu.dir_timer = 110;
-        cal_all_speed_data(&ewk->wu, ewk->wu.dir_timer, 491, 44, 2, 0);
-        break;
-
-    case 1:
-        char_move(&ewk->wu);
-        ewk->wu.dir_timer--;
-
-        if (ewk->wu.dir_timer < 0) {
-            ewk->wu.routine_no[1]++;
-            ewk->wu.routine_no[2] = 0;
-            ewk->wu.xyz[0].cal = 0x1EB0000;
-            ewk->wu.xyz[1].cal = 0x2C0000;
-            break;
-        }
-
-        add_x_sub(&ewk->wu);
-        add_y_sub(&ewk->wu);
-        break;
-    }
+    run_bird_flight(ewk, initialize_second_bird_flight, advance_second_bird_flight);
 }
 
 void eff85_8000(WORK_Other* ewk) {
