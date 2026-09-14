@@ -125,36 +125,42 @@ void eff27_02(WORK_Other* ewk) {
     }
 }
 
+static void advance_eff27_first_hop(WORK_Other* ewk) {
+    if (ewk->wu.cg_type != 2) {
+        char_move(&ewk->wu);
+    }
+
+    add_x_sub(&ewk->wu);
+    add_y_sub(&ewk->wu);
+
+    if (ewk->wu.xyz[1].disp.pos < ewk->wu.old_rno[1]) {
+        char_move_z(&ewk->wu);
+        ewk->wu.routine_no[1]++;
+        set_second_hop(ewk);
+    }
+}
+
+static void advance_eff27_second_hop(WORK_Other* ewk) {
+    if (ewk->wu.cg_type != 2) {
+        char_move(&ewk->wu);
+    }
+
+    add_x_sub(&ewk->wu);
+    add_y_sub(&ewk->wu);
+
+    if (ewk->wu.xyz[1].disp.pos <= ewk->wu.old_rno[2]) {
+        ewk->wu.routine_no[1]++;
+    }
+}
+
 void eff27_03(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (ewk->wu.cg_type != 2) {
-            char_move(&ewk->wu);
-        }
-
-        add_x_sub(&ewk->wu);
-        add_y_sub(&ewk->wu);
-
-        if (ewk->wu.xyz[1].disp.pos < ewk->wu.old_rno[1]) {
-            char_move_z(&ewk->wu);
-            ewk->wu.routine_no[1]++;
-            set_second_hop(ewk);
-        }
-
+        advance_eff27_first_hop(ewk);
         break;
 
     case 1:
-        if (ewk->wu.cg_type != 2) {
-            char_move(&ewk->wu);
-        }
-
-        add_x_sub(&ewk->wu);
-        add_y_sub(&ewk->wu);
-
-        if (ewk->wu.xyz[1].disp.pos <= ewk->wu.old_rno[2]) {
-            ewk->wu.routine_no[1]++;
-        }
-
+        advance_eff27_second_hop(ewk);
         break;
 
     case 2:
@@ -257,33 +263,11 @@ void eff27_06(WORK_Other* ewk) {
 void eff27_07(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (ewk->wu.cg_type != 2) {
-            char_move(&ewk->wu);
-        }
-
-        add_x_sub(&ewk->wu);
-        add_y_sub(&ewk->wu);
-
-        if (ewk->wu.xyz[1].disp.pos < ewk->wu.old_rno[1]) {
-            char_move_z(&ewk->wu);
-            ewk->wu.routine_no[1]++;
-            set_second_hop(ewk);
-        }
-
+        advance_eff27_first_hop(ewk);
         break;
 
     case 1:
-        if (ewk->wu.cg_type != 2) {
-            char_move(&ewk->wu);
-        }
-
-        add_x_sub(&ewk->wu);
-        add_y_sub(&ewk->wu);
-
-        if (ewk->wu.xyz[1].disp.pos <= ewk->wu.old_rno[2]) {
-            ewk->wu.routine_no[1]++;
-        }
-
+        advance_eff27_second_hop(ewk);
         break;
 
     case 2:
