@@ -2802,6 +2802,61 @@ void ORO_HJA_Term(
     }
 }
 
+/* Runs one step of the running command, dispatching on the opcode the tech
+ * script currently points at. Lifted out of Command_Attack case 2, where it was
+ * the fifth level of nesting. */
+static void Command_Attack_Tech_Step(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot) {
+    switch (Tech_Address[wk->wu.id][Tech_Index[wk->wu.id]]) {
+
+    default:
+    case 1:
+
+        if (Command_Type_00(wk, Power_Level & 0xF, Tech_Number, Ex_Shot) == -1) {
+            if ((Tech_Number & 0xF) == 0 || (Tech_Number & 0xF) == 1) {
+                if (Reaction == 0xC) {
+                    CP_Index[wk->wu.id][1] = 0x63;
+                    Timer_00[wk->wu.id] = Dash_Time_Data[wk->player_number][Tech_Number];
+                } else {
+                    CP_Index[wk->wu.id][1] = 4;
+                }
+            } else {
+                CP_Index[wk->wu.id][1] = 3;
+            }
+        }
+        break;
+
+    case 2:
+        if (Command_Type_01(wk, Power_Level & 0xF, Ex_Shot) != 0) {
+            CP_Index[wk->wu.id][1]++;
+        }
+        break;
+
+    case 7:
+        if (Command_Type_06(wk, Power_Level & 0xF, Tech_Number, Ex_Shot) != 0) {
+            CP_Index[wk->wu.id][1]++;
+        }
+        break;
+    }
+}
+
+/* Seeds the lever value replayed while the command plays out. */
+static void Setup_Free_Lever(PLW* wk, s16 Power_Level) {
+    if (Power_Level & 0x4000) {
+        Free_Lever[wk->wu.id] = Power_Lv_Data[(Power_Level & 0xF) - 8];
+    } else {
+        Free_Lever[wk->wu.id] = 0;
+    }
+}
+
+/* CP_Index 3: replay the stored lever, then hand the hit back to the reaction
+ * machinery. */
+static void Command_Attack_Rapid_Step(PLW* wk, s16 Reaction, s16 Power_Level) {
+    Lever_Buff[wk->wu.id] = Free_Lever[wk->wu.id];
+    Rapid_Sub(wk);
+    Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
+    Reaction_Sub(wk, Reaction, Power_Level);
+}
+
 void Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot) {
     switch (CP_Index[wk->wu.id][1]) {
 
@@ -2824,12 +2879,7 @@ void Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16
 
         CP_Index[wk->wu.id][1]++;
         Check_First_Menu(wk);
-
-        if (Power_Level & 0x4000) {
-            Free_Lever[wk->wu.id] = Power_Lv_Data[(Power_Level & 0xF) - 8];
-        } else {
-            Free_Lever[wk->wu.id] = 0;
-        }
+        Setup_Free_Lever(wk, Power_Level);
         /* Fallthrough */
 
     case 1:
@@ -2852,37 +2902,7 @@ void Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16
         if (Check_Passive(wk) != 0) {
             break;
         }
-        switch (Tech_Address[wk->wu.id][Tech_Index[wk->wu.id]]) {
-
-        default:
-        case 1:
-
-            if (Command_Type_00(wk, Power_Level & 0xF, Tech_Number, Ex_Shot) == -1) {
-                if ((Tech_Number & 0xF) == 0 || (Tech_Number & 0xF) == 1) {
-                    if (Reaction == 0xC) {
-                        CP_Index[wk->wu.id][1] = 0x63;
-                        Timer_00[wk->wu.id] = Dash_Time_Data[wk->player_number][Tech_Number];
-                    } else {
-                        CP_Index[wk->wu.id][1] = 4;
-                    }
-                } else {
-                    CP_Index[wk->wu.id][1] = 3;
-                }
-            }
-            break;
-
-        case 2:
-            if (Command_Type_01(wk, Power_Level & 0xF, Ex_Shot) != 0) {
-                CP_Index[wk->wu.id][1]++;
-            }
-            break;
-
-        case 7:
-            if (Command_Type_06(wk, Power_Level & 0xF, Tech_Number, Ex_Shot) != 0) {
-                CP_Index[wk->wu.id][1]++;
-            }
-            break;
-        }
+        Command_Attack_Tech_Step(wk, Reaction, Tech_Number, Power_Level, Ex_Shot);
         break;
 
     case 3:
@@ -2893,10 +2913,7 @@ void Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16
         if (((wk->wu.cg_type) == 0x40) || (wk->wu.routine_no[1] == 0)) {
             Reaction_Exit_Sub(wk);
         } else {
-            Lever_Buff[wk->wu.id] = Free_Lever[wk->wu.id];
-            Rapid_Sub(wk);
-            Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
-            Reaction_Sub(wk, Reaction, Power_Level);
+            Command_Attack_Rapid_Step(wk, Reaction, Power_Level);
         }
         break;
 
