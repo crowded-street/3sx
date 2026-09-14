@@ -943,6 +943,88 @@ s32 Check_Start_Lever_Attack(PLW* wk, u16 Lever, u16 Lever_Data) {
     return 1;
 }
 
+/* Commits to the super art selected for this character. Reads kind_of_arts at
+ * the point of use, so callers that mutate xx first (DENJIN_Check, YAGYOU_Check)
+ * see their own result. */
+static void SA_Next_Menu(PLW* wk, s16* xx) {
+    Next_Another_Menu(wk, 2, xx[plw[wk->wu.id].sa->kind_of_arts]);
+}
+
+/* Per-character super art handling, split out of SA_Term. Every path is
+ * terminal. The original reached the shared Next_Another_Menu call by breaking
+ * out of the switch on one path only (player_number 8, low vitality); that path
+ * calls SA_Next_Menu here instead, which is the same call it fell through to. */
+static void SA_Term_Player_Case(PLW* wk, s16* xx, u16 SA2, u16 Term_No) {
+    switch (wk->player_number) {
+    case 2:
+        if (SA_Range_Check(wk, 1, Term_No) != 0) {
+            return;
+        }
+        DENJIN_Check(wk, SA2, (u16*)&xx[2], Term_No);
+        SA_Next_Menu(wk, xx);
+        return;
+
+    case 11:
+        if (SA_Range_Check(wk, 1, Term_No) != 0) {
+            return;
+        }
+        SA_Next_Menu(wk, xx);
+        return;
+
+    case 1:
+        if (SA_Range_Check(wk, 1, Term_No) != 0) {
+            return;
+        }
+        SA_Next_Menu(wk, xx);
+        return;
+
+    case 5:
+        if (((WORK*)wk->wu.target_adrs)->xyz[1].disp.pos >= 0x10) {
+            CP_Index[wk->wu.id][0]++;
+            return;
+        }
+        if (SA_Range_Check(wk, 1, Term_No) != 0) {
+            return;
+        }
+        SA_Next_Menu(wk, xx);
+        return;
+
+    case 6:
+        if (SA_Range_Check(wk, 0, Term_No) != 0) {
+            return;
+        }
+        SA_Next_Menu(wk, xx);
+        return;
+
+    case 8:
+        if ((plw[wk->wu.id].sa->kind_of_arts == 2) && (plw[wk->wu.id].wu.vital_new <= (Max_vitality / 2))) {
+            SA_Next_Menu(wk, xx);
+            return;
+        }
+        CP_Index[wk->wu.id][0]++;
+        return;
+
+    case 9:
+        YAGYOU_Check(wk, &xx[1], Term_No);
+        SA_Next_Menu(wk, xx);
+        return;
+
+    case 14:
+        if (SA_Range_Check(wk, 1, Term_No) != 0) {
+            return;
+        }
+        if (SA_Range_Check(wk, 2, Term_No) != 0) {
+            return;
+        }
+        SA_Next_Menu(wk, xx);
+        return;
+
+    default:
+        SA_Next_Menu(wk, xx);
+        return;
+    }
+}
+
 void SA_Term(PLW* wk, u16 SA0, u16 SA1, u16 SA2, u16 Term_No) {
     s16 xx[3];
 
@@ -957,83 +1039,24 @@ void SA_Term(PLW* wk, u16 SA0, u16 SA1, u16 SA2, u16 Term_No) {
 
     if ((xx[plw[wk->wu.id].sa->kind_of_arts] == -1) || plw[wk->wu.id].metamorphose) {
         CP_Index[wk->wu.id][0]++;
-    } else if ((plw[wk->wu.id].sa->ok) || (plw[wk->wu.id].sa->mp)) {
-        Disposal_Again[wk->wu.id] = 1;
-
-        if ((Term_No != 0xFFFF) || (Term_No != 0)) {
-            switch (wk->player_number) {
-            case 2:
-                if (SA_Range_Check(wk, 1, Term_No) != 0) {
-                    return;
-                }
-                DENJIN_Check(wk, SA2, (u16*)&xx[2], Term_No);
-                Next_Another_Menu(wk, 2, xx[plw[wk->wu.id].sa->kind_of_arts]);
-                return;
-
-            case 11:
-                if (SA_Range_Check(wk, 1, Term_No) != 0) {
-                    return;
-                }
-                Next_Another_Menu(wk, 2, xx[plw[wk->wu.id].sa->kind_of_arts]);
-                return;
-
-            case 1:
-                if (SA_Range_Check(wk, 1, Term_No) != 0) {
-                    return;
-                }
-                Next_Another_Menu(wk, 2, xx[plw[wk->wu.id].sa->kind_of_arts]);
-                return;
-
-            case 5:
-                if (((WORK*)wk->wu.target_adrs)->xyz[1].disp.pos >= 0x10) {
-                    CP_Index[wk->wu.id][0]++;
-                    return;
-                }
-                if (SA_Range_Check(wk, 1, Term_No) != 0) {
-                    return;
-                }
-                Next_Another_Menu(wk, 2, xx[plw[wk->wu.id].sa->kind_of_arts]);
-                return;
-
-            case 6:
-                if (SA_Range_Check(wk, 0, Term_No) != 0) {
-                    return;
-                }
-                Next_Another_Menu(wk, 2, xx[plw[wk->wu.id].sa->kind_of_arts]);
-                return;
-
-            case 8:
-                if ((plw[wk->wu.id].sa->kind_of_arts == 2) && (plw[wk->wu.id].wu.vital_new <= (Max_vitality / 2))) {
-                    break;
-                }
-                CP_Index[wk->wu.id][0]++;
-                return;
-
-            case 9:
-                YAGYOU_Check(wk, &xx[1], Term_No);
-                Next_Another_Menu(wk, 2, xx[plw[wk->wu.id].sa->kind_of_arts]);
-                return;
-
-            case 14:
-                if (SA_Range_Check(wk, 1, Term_No) != 0) {
-                    return;
-                }
-                if (SA_Range_Check(wk, 2, Term_No) != 0) {
-                    return;
-                }
-                Next_Another_Menu(wk, 2, xx[plw[wk->wu.id].sa->kind_of_arts]);
-                return;
-
-            default:
-                Next_Another_Menu(wk, 2, xx[plw[wk->wu.id].sa->kind_of_arts]);
-                return;
-            }
-        }
-
-        Next_Another_Menu(wk, 2, xx[plw[wk->wu.id].sa->kind_of_arts]);
-    } else {
-        CP_Index[wk->wu.id][0]++;
+        return;
     }
+
+    if (!((plw[wk->wu.id].sa->ok) || (plw[wk->wu.id].sa->mp))) {
+        CP_Index[wk->wu.id][0]++;
+        return;
+    }
+
+    Disposal_Again[wk->wu.id] = 1;
+
+    /* NOTE: this condition is always true - no value is both 0xFFFF and 0.
+     * Preserved exactly as found; see AGENTS.md on arcade-accurate oddities. */
+    if ((Term_No != 0xFFFF) || (Term_No != 0)) {
+        SA_Term_Player_Case(wk, xx, SA2, Term_No);
+        return;
+    }
+
+    SA_Next_Menu(wk, xx);
 }
 
 s32 DENJIN_Check(PLW* wk, u16 SA2, u16* xx, u16 Term_No) {
