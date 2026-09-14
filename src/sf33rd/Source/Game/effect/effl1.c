@@ -310,6 +310,17 @@ static void normalize_L1_graph_percentage(WORK_Other_CONN* ewk) {
     ewk->wu.direction /= 10;
 }
 
+static void finalize_L1_graph(WORK_Other_CONN* ewk) {
+    ewk->num_of_conn = ewk->wu.direction;
+
+    if (ewk->wu.dir_step) {
+        ewk->conn[ewk->num_of_conn].chr = (ewk->conn[ewk->num_of_conn].chr - 10) + ewk->wu.dir_step;
+        ewk->num_of_conn++;
+    }
+
+    ewk->wu.position_x -= 384;
+}
+
 void effL1_w_graph_init(WORK_Other_CONN* ewk) {
     s16 i;
 
@@ -322,14 +333,7 @@ void effL1_w_graph_init(WORK_Other_CONN* ewk) {
         ewk->conn[i].ny -= (ewk->wu.type - 3) * 4;
     }
 
-    ewk->num_of_conn = ewk->wu.direction;
-
-    if (ewk->wu.dir_step) {
-        ewk->conn[ewk->num_of_conn].chr = (ewk->conn[ewk->num_of_conn].chr - 10) + ewk->wu.dir_step;
-        ewk->num_of_conn++;
-    }
-
-    ewk->wu.position_x -= 384;
+    finalize_L1_graph(ewk);
 }
 
 void effL1_k_graph_init(WORK_Other_CONN* ewk) {
@@ -348,14 +352,7 @@ void effL1_k_graph_init(WORK_Other_CONN* ewk) {
         ewk->conn[i].ny -= (ewk->wu.type - 16) * 3;
     }
 
-    ewk->num_of_conn = ewk->wu.direction;
-
-    if (ewk->wu.dir_step) {
-        ewk->conn[ewk->num_of_conn].chr = (ewk->conn[ewk->num_of_conn].chr - 10) + ewk->wu.dir_step;
-        ewk->num_of_conn++;
-    }
-
-    ewk->wu.position_x -= 384;
+    finalize_L1_graph(ewk);
 }
 
 void effL1_f_stage_p_init(WORK_Other_CONN* ewk) {
