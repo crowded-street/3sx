@@ -147,6 +147,8 @@ const s16 thunder_set_pos_SKB[20][4] = { { 2, 5, 1, 23 }, { 2, 5, 1, 23 }, { 2, 
 void effE2_sort_push(WORK* ewk, WORK* mwk);
 void effe2_erase_or_die(WORK* wk);
 
+#define ACCESSORY_COUNT 4
+
 static s32 game_is_active(void) {
     return EXE_flag == 0 && Game_pause == 0;
 }
@@ -380,10 +382,10 @@ s32 effect_E2_init(PLW* wk, const s16* data, s16 color_code, u8 ff) {
     return 0;
 }
 
-static void setup_flame_accessories(PLW* wk, const s16 accessory_data[4][4]) {
+static void setup_flame_accessories(PLW* wk, const s16 accessory_data[ACCESSORY_COUNT][ACCESSORY_COUNT]) {
     s16 i;
 
-    for (i = 0; i < 4; i++) {
+    for (i = 0; i < ACCESSORY_COUNT; i++) {
         effect_E2_init(wk, accessory_data[i], 32, 1);
     }
 }
@@ -392,17 +394,18 @@ static void setup_thunder_accessory(PLW* wk) {
     effect_E2_init(wk, thunder_set_pos_SKB[wk->player_number], 32, 0);
 }
 
-static void setup_freeze_accessories(PLW* wk, const s16 accessory_data[4][4]) {
+static void setup_freeze_accessories(PLW* wk, const s16 accessory_data[ACCESSORY_COUNT][ACCESSORY_COUNT]) {
     s16 i;
 
-    for (i = 0; i < 4; i++) {
+    for (i = 0; i < ACCESSORY_COUNT; i++) {
         effect_E2_init(wk, accessory_data[i], 32, 0);
     }
 }
 
-static void setup_standing_accessories(PLW* wk) {
+static void setup_pose_accessories(PLW* wk, const s16 flame_data[ACCESSORY_COUNT][ACCESSORY_COUNT],
+                                   const s16 freeze_data[ACCESSORY_COUNT][ACCESSORY_COUNT]) {
     if (wk->wu.dm_attribute == 1) {
-        setup_flame_accessories(wk, flames_stand[wk->player_number]);
+        setup_flame_accessories(wk, flame_data);
     }
 
     if (wk->wu.dm_attribute == 2) {
@@ -410,35 +413,7 @@ static void setup_standing_accessories(PLW* wk) {
     }
 
     if (wk->wu.dm_attribute == 3) {
-        setup_freeze_accessories(wk, freeze_stand[wk->player_number]);
-    }
-}
-
-static void setup_crouching_accessories(PLW* wk) {
-    if (wk->wu.dm_attribute == 1) {
-        setup_flame_accessories(wk, flames_crunch[wk->player_number]);
-    }
-
-    if (wk->wu.dm_attribute == 2) {
-        setup_thunder_accessory(wk);
-    }
-
-    if (wk->wu.dm_attribute == 3) {
-        setup_freeze_accessories(wk, freeze_crunch[wk->player_number]);
-    }
-}
-
-static void setup_aerial_accessories(PLW* wk) {
-    if (wk->wu.dm_attribute == 1) {
-        setup_flame_accessories(wk, flames_ariel[wk->player_number]);
-    }
-
-    if (wk->wu.dm_attribute == 2) {
-        setup_thunder_accessory(wk);
-    }
-
-    if (wk->wu.dm_attribute == 3) {
-        setup_freeze_accessories(wk, freeze_set_pos_B[wk->player_number]);
+        setup_freeze_accessories(wk, freeze_data);
     }
 }
 
@@ -449,15 +424,15 @@ s32 setup_accessories(PLW* wk, u8 data) {
 
     switch (data) {
     case 0:
-        setup_standing_accessories(wk);
+        setup_pose_accessories(wk, flames_stand[wk->player_number], freeze_stand[wk->player_number]);
         break;
 
     case 32:
-        setup_crouching_accessories(wk);
+        setup_pose_accessories(wk, flames_crunch[wk->player_number], freeze_crunch[wk->player_number]);
         break;
 
     default:
-        setup_aerial_accessories(wk);
+        setup_pose_accessories(wk, flames_ariel[wk->player_number], freeze_set_pos_B[wk->player_number]);
         break;
     }
 
