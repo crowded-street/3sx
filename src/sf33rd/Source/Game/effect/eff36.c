@@ -22,44 +22,23 @@ void eff36_move04(WORK_Other* ewk);
 void eff36_move05(WORK_Other* ewk);
 void eff36_move06(WORK_Other* ewk);
 
+static void (*const eff36_moves[])(WORK_Other*) = {
+    eff36_move00, eff36_move01, eff36_move02, eff36_move03, eff36_move04, eff36_move05, eff36_move06
+};
+
+static void dispatch_eff36_move(WORK_Other* ewk) {
+    if (ewk->wu.routine_no[1] <= 6) {
+        eff36_moves[ewk->wu.routine_no[1]](ewk);
+    }
+}
+
 void effect_36_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
         if (ewk->wu.old_rno[1] <= op_w.index) {
             ewk->wu.routine_no[0] += 1;
         } else if (ewk->wu.old_rno[2] <= op_w.index) {
-            switch (ewk->wu.routine_no[1]) {
-            case 0:
-                eff36_move00(ewk);
-                break;
-
-            case 1:
-                eff36_move01(ewk);
-                break;
-
-            case 2:
-                eff36_move02(ewk);
-                break;
-
-            case 3:
-                eff36_move03(ewk);
-                break;
-
-            case 4:
-                eff36_move04(ewk);
-                break;
-
-            case 5:
-                eff36_move05(ewk);
-                break;
-
-            case 6:
-                eff36_move06(ewk);
-                break;
-
-            default:
-                break;
-            }
+            dispatch_eff36_move(ewk);
         }
 
         break;
