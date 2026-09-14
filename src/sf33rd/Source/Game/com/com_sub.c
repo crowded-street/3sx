@@ -2853,6 +2853,22 @@ void ORO_HJA_Term(
 /* Runs one step of the running command, dispatching on the opcode the tech
  * script currently points at. Lifted out of Command_Attack case 2, where it was
  * the fifth level of nesting. */
+/* Chooses the CP_Index the command falls back to when Command_Type_00 rejects
+ * the step. Lifted out of Command_Attack_Tech_Step's first arm, which reached
+ * nesting depth 4 here. */
+static void Command_Attack_Set_Fallback(PLW* wk, s16 Reaction, u16 Tech_Number) {
+    if ((Tech_Number & 0xF) == 0 || (Tech_Number & 0xF) == 1) {
+        if (Reaction == 0xC) {
+            CP_Index[wk->wu.id][1] = 0x63;
+            Timer_00[wk->wu.id] = Dash_Time_Data[wk->player_number][Tech_Number];
+        } else {
+            CP_Index[wk->wu.id][1] = 4;
+        }
+    } else {
+        CP_Index[wk->wu.id][1] = 3;
+    }
+}
+
 static void Command_Attack_Tech_Step(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot) {
     switch (Tech_Address[wk->wu.id][Tech_Index[wk->wu.id]]) {
 
@@ -2860,16 +2876,7 @@ static void Command_Attack_Tech_Step(PLW* wk, s16 Reaction, u16 Tech_Number, s16
     case 1:
 
         if (Command_Type_00(wk, Power_Level & 0xF, Tech_Number, Ex_Shot) == -1) {
-            if ((Tech_Number & 0xF) == 0 || (Tech_Number & 0xF) == 1) {
-                if (Reaction == 0xC) {
-                    CP_Index[wk->wu.id][1] = 0x63;
-                    Timer_00[wk->wu.id] = Dash_Time_Data[wk->player_number][Tech_Number];
-                } else {
-                    CP_Index[wk->wu.id][1] = 4;
-                }
-            } else {
-                CP_Index[wk->wu.id][1] = 3;
-            }
+            Command_Attack_Set_Fallback(wk, Reaction, Tech_Number);
         }
         break;
 
@@ -3230,6 +3237,60 @@ s32 Setup_Rapid_Time(PLW* wk, u16 Tech_Number) {
     return 60;
 }
 
+/* Rapid_No[0] == 2: the three-stage rapid-fire cadence. The original returned
+ * from the first stage rather than breaking; the helper returns at the same
+ * point, which ends Rapid_Sub just as the return did. */
+static void Rapid_Sub_Triple(PLW* wk) {
+    switch (Rapid_No[wk->wu.id][1]) {
+    case 0:
+        Rapid_No[wk->wu.id][1]++;
+        Timer_00[wk->wu.id] = 1;
+        Timer_01[wk->wu.id] = 3;
+        return;
+    case 1:
+        if (--Timer_00[wk->wu.id] == 0) {
+            Lever_Buff[wk->wu.id] = Rapid_Index[wk->wu.id];
+            Timer_00[wk->wu.id] = 2;
+
+            if (--Timer_01[wk->wu.id] == 0) {
+                Rapid_No[wk->wu.id][1]++;
+                Timer_01[wk->wu.id] = 0x18;
+            }
+        }
+        break;
+    case 2:
+        if (--Timer_01[wk->wu.id] == 0) {
+            Rapid_No[wk->wu.id][1]++;
+            Timer_00[wk->wu.id] = 1;
+            Timer_01[wk->wu.id] = 2;
+        }
+        break;
+    default:
+        if (--Timer_00[wk->wu.id] == 0) {
+            Lever_Buff[wk->wu.id] = Rapid_Index[wk->wu.id];
+            Timer_00[wk->wu.id] = Timer_01[wk->wu.id];
+        }
+        break;
+    }
+}
+
+/* Every other Rapid_No[0]: the plain two-stage cadence. */
+static void Rapid_Sub_Single(PLW* wk) {
+    switch (Rapid_No[wk->wu.id][1]) {
+    case 0:
+        Rapid_No[wk->wu.id][1]++;
+        Timer_00[wk->wu.id] = 1;
+        Timer_01[wk->wu.id] = 2;
+        break;
+    default:
+        if (--Timer_00[wk->wu.id] == 0) {
+            Lever_Buff[wk->wu.id] = Rapid_Index[wk->wu.id];
+            Timer_00[wk->wu.id] = Timer_01[wk->wu.id];
+        }
+        break;
+    }
+}
+
 void Rapid_Sub(PLW* wk) {
     if (Check_Rapid_End(wk) != 0) {
         return;
@@ -3239,52 +3300,10 @@ void Rapid_Sub(PLW* wk) {
     case 0:
         break;
     case 2:
-        switch (Rapid_No[wk->wu.id][1]) {
-        case 0:
-            Rapid_No[wk->wu.id][1]++;
-            Timer_00[wk->wu.id] = 1;
-            Timer_01[wk->wu.id] = 3;
-            return;
-        case 1:
-            if (--Timer_00[wk->wu.id] == 0) {
-                Lever_Buff[wk->wu.id] = Rapid_Index[wk->wu.id];
-                Timer_00[wk->wu.id] = 2;
-
-                if (--Timer_01[wk->wu.id] == 0) {
-                    Rapid_No[wk->wu.id][1]++;
-                    Timer_01[wk->wu.id] = 0x18;
-                }
-            }
-            break;
-        case 2:
-            if (--Timer_01[wk->wu.id] == 0) {
-                Rapid_No[wk->wu.id][1]++;
-                Timer_00[wk->wu.id] = 1;
-                Timer_01[wk->wu.id] = 2;
-            }
-            break;
-        default:
-            if (--Timer_00[wk->wu.id] == 0) {
-                Lever_Buff[wk->wu.id] = Rapid_Index[wk->wu.id];
-                Timer_00[wk->wu.id] = Timer_01[wk->wu.id];
-            }
-            break;
-        }
+        Rapid_Sub_Triple(wk);
         break;
     default:
-        switch (Rapid_No[wk->wu.id][1]) {
-        case 0:
-            Rapid_No[wk->wu.id][1]++;
-            Timer_00[wk->wu.id] = 1;
-            Timer_01[wk->wu.id] = 2;
-            break;
-        default:
-            if (--Timer_00[wk->wu.id] == 0) {
-                Lever_Buff[wk->wu.id] = Rapid_Index[wk->wu.id];
-                Timer_00[wk->wu.id] = Timer_01[wk->wu.id];
-            }
-            break;
-        }
+        Rapid_Sub_Single(wk);
         break;
     }
 }
@@ -3879,6 +3898,26 @@ s32 Check_Landed(PLW* wk, s16 Reaction) {
     return 0;
 }
 
+/* One shell's worth of the Check_Dash_Hit scan. The two arms differ only in
+ * which Setup_Front_or_Back result disqualifies the shell; both are kept as
+ * written rather than folded into one test. */
+static s32 Check_Dash_Hit_Shell(PLW* wk, WORK_Other* tmw, u16 Tech_Number, s16 zz) {
+    if (Tech_Number == 0) {
+        if (zz != 1) {
+            if (Check_Hit_Shell(wk, tmw, Tech_Number) != 0) {
+                return 1;
+            }
+        }
+    } else {
+        if (zz != 0) {
+            if (Check_Hit_Shell(wk, tmw, Tech_Number) != 0) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 s32 Check_Dash_Hit(PLW* wk, u16 Tech_Number) {
     WORK_Other* tmw;
     WORK* em;
@@ -3902,18 +3941,8 @@ s32 Check_Dash_Hit(PLW* wk, u16 Tech_Number) {
         xx = wk->wu.xyz[0].disp.pos - tmw->wu.xyz[0].disp.pos;
         zz = Setup_Front_or_Back(wk, xx);
 
-        if (Tech_Number == 0) {
-            if (zz != 1) {
-                if (Check_Hit_Shell(wk, tmw, Tech_Number) != 0) {
-                    return 1;
-                }
-            }
-        } else {
-            if (zz != 0) {
-                if (Check_Hit_Shell(wk, tmw, Tech_Number) != 0) {
-                    return 1;
-                }
-            }
+        if (Check_Dash_Hit_Shell(wk, tmw, Tech_Number, zz) != 0) {
+            return 1;
         }
     }
 
