@@ -37,36 +37,43 @@ static s32 can_update_effect(void) {
     return !EXE_flag && !Game_pause && !EXE_obroll;
 }
 
-
-void effect_27_move(WORK_Other* ewk) {
+static void initialize_effect_27(WORK_Other* ewk) {
     WORK_Other* oya;
 
+    ewk->wu.routine_no[0]++;
+    ewk->wu.routine_no[1] = 0;
+    ewk->wu.disp_flag = 1;
+    set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+    oya = (WORK_Other*)ewk->my_master;
+    ewk->wu.old_rno[3] = oya->wu.routine_no[1];
+}
+
+static void advance_effect_27(WORK_Other* ewk) {
+    if (compel_dead_check(ewk)) {
+        ewk->wu.routine_no[0] = 99;
+        ewk->wu.disp_flag = 0;
+        return;
+    }
+
+    if (can_update_effect()) {
+        eff27_jp_tbl[ewk->wu.old_rno[0]](ewk);
+    }
+
+    disp_pos_trans_entry_rs(ewk);
+}
+
+void effect_27_move(WORK_Other* ewk) {
     if (obr_no_disp_check()) {
         return;
     }
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.routine_no[1] = 0;
-        ewk->wu.disp_flag = 1;
-        set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-        oya = (WORK_Other*)ewk->my_master;
-        ewk->wu.old_rno[3] = oya->wu.routine_no[1];
+        initialize_effect_27(ewk);
         /* fallthrough */
 
     case 1:
-        if (compel_dead_check(ewk)) {
-            ewk->wu.routine_no[0] = 99;
-            ewk->wu.disp_flag = 0;
-            break;
-        }
-
-if (can_update_effect()) {
-            eff27_jp_tbl[ewk->wu.old_rno[0]](ewk);
-        }
-
-        disp_pos_trans_entry_rs(ewk);
+        advance_effect_27(ewk);
         break;
 
     case 2:
