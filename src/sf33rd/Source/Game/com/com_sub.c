@@ -224,6 +224,13 @@ static s32 Check_Exit_DENJIN_Tracking(PLW* wk, WORK* em, s16 xx) {
     return Check_Exit_DENJIN_Area(wk, em, xx);
 }
 
+/* The charge only tracks while it is armed and the target has moved off the
+ * origin. Kept separate from the tracking call so that call stays behind the
+ * same short-circuit - it latches CP_Index as a side effect. */
+static s32 Check_DENJIN_Tracking_Armed(PLW* wk, WORK* em) {
+    return (DENJIN_Term[wk->wu.id] & 1) && (em->xyz[0].disp.pos != 0);
+}
+
 s32 Check_Exit_DENJIN(PLW* wk) {
     s16 xx;
     WORK* em;
@@ -239,8 +246,7 @@ s32 Check_Exit_DENJIN(PLW* wk) {
     em = (WORK*)wk->wu.target_adrs;
     xx = Check_DENJIN_Direction(wk, em);
 
-    if (((DENJIN_Term[wk->wu.id] & 1) && (em->xyz[0].disp.pos != 0)) &&
-        (Check_Exit_DENJIN_Tracking(wk, em, xx) != 0)) {
+    if (Check_DENJIN_Tracking_Armed(wk, em) && (Check_Exit_DENJIN_Tracking(wk, em, xx) != 0)) {
         return 1;
     }
 
@@ -435,6 +441,12 @@ s32 Check_Arrival(PLW* wk, s16 Target_Pos, s16 Option) {
     return 0;
 }
 
+/* The walk is abandoned when the character has turned since it started, or
+ * either of the two proximity flags is set. */
+static s32 Check_Walk_Interrupted(PLW* wk) {
+    return (Timer_01[wk->wu.id] != (s16)wk->wu.rl_flag) || (wk->micchaku_flag != 0) || (wk->hos_em_flag != 0);
+}
+
 /* One frame of a timed walk. */
 static void Walk_Step(PLW* wk) {
     if (Check_Passive_Standing(wk) != 0) {
@@ -446,7 +458,7 @@ static void Walk_Step(PLW* wk) {
         return;
     }
 
-    if ((Timer_01[wk->wu.id] != (s16)wk->wu.rl_flag) || (wk->micchaku_flag != 0) || (wk->hos_em_flag != 0)) {
+    if (Check_Walk_Interrupted(wk)) {
         Next_Be_Free(wk);
     }
     Lever_Buff[wk->wu.id] = Free_Lever[wk->wu.id];
@@ -724,11 +736,21 @@ static s32 Check_Landed_Grounded(PLW* wk, s16 Reaction) {
     return 1;
 }
 
+/* Touched down this frame: was airborne, is now at ground level. */
+static s32 Check_Just_Landed(PLW* wk) {
+    return (wk->wu.old_pos[1] != 0) && (wk->wu.xyz[1].disp.pos == 0);
+}
+
+/* Already on the ground and not in routine 4. */
+static s32 Check_Grounded_Idle(PLW* wk) {
+    return (wk->wu.old_pos[1] == 0) && (wk->wu.xyz[1].disp.pos == 0) && (wk->wu.routine_no[1] != 4);
+}
+
 s32 Check_Landed(PLW* wk, s16 Reaction) {
-    if ((wk->wu.old_pos[1] != 0) && (wk->wu.xyz[1].disp.pos == 0)) {
+    if (Check_Just_Landed(wk)) {
         return Check_Landed_From_Air(wk, Reaction);
     }
-    if ((wk->wu.old_pos[1] == 0) && (wk->wu.xyz[1].disp.pos == 0) && (wk->wu.routine_no[1] != 4)) {
+    if (Check_Grounded_Idle(wk)) {
         return Check_Landed_Grounded(wk, Reaction);
     }
     return 0;
@@ -879,6 +901,17 @@ static void Command_Type_00_Park(PLW* wk, s16 Power_Level) {
     }
 }
 
+/* An EX shot is substituted only when the meter allows it and the shot is one
+ * of the two EX buttons. */
+static s32 Check_Ex_Shot(PLW* wk, s16 Ex_Shot) {
+    return (plw[wk->wu.id].sa->ex) && ((Ex_Shot == 0x70) || (Ex_Shot == 0x700));
+}
+
+/* The My_char 2 form of tech 0x8015, below full power. */
+static s32 Check_Park_Tech(PLW* wk, u16 Tech_Number, s16 Power_Level) {
+    return (My_char[wk->wu.id] == 2) && ((Tech_Number) == 0x8015) && (Power_Level != 8);
+}
+
 /* The last step of the script: choose the shot, then hand the pattern on. */
 static s32 Command_Type_00_Final(PLW* wk, s16 Power_Level, u16 Tech_Number, s16 Ex_Shot) {
     Lever_Buff[wk->wu.id] = Tech_Address[wk->wu.id][Tech_Index[wk->wu.id] + 3] & 0x7FFF;
@@ -890,13 +923,13 @@ static s32 Command_Type_00_Final(PLW* wk, s16 Power_Level, u16 Tech_Number, s16 
     }
     Tech_Index[wk->wu.id] = 7;
 
-    if ((plw[wk->wu.id].sa->ex) && ((Ex_Shot == 0x70) || (Ex_Shot == 0x700))) {
+    if (Check_Ex_Shot(wk, Ex_Shot)) {
         Lever_Buff[wk->wu.id] |= Ex_Shot;
     } else {
         Lever_Buff[wk->wu.id] |= renbanshot_conpaneshot(Tech_Address[wk->wu.id], Power_Level);
     }
 
-    if ((My_char[wk->wu.id] == 2) && ((Tech_Number) == 0x8015) && (Power_Level != 8)) {
+    if (Check_Park_Tech(wk, Tech_Number, Power_Level)) {
         Command_Type_00_Park(wk, Power_Level);
     } else {
         Command_Type_00_Advance(wk, Tech_Number);
