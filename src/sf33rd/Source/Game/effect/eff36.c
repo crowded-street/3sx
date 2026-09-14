@@ -22,44 +22,23 @@ void eff36_move04(WORK_Other* ewk);
 void eff36_move05(WORK_Other* ewk);
 void eff36_move06(WORK_Other* ewk);
 
+static void (*const eff36_moves[])(WORK_Other*) = {
+    eff36_move00, eff36_move01, eff36_move02, eff36_move03, eff36_move04, eff36_move05, eff36_move06
+};
+
+static void dispatch_eff36_move(WORK_Other* ewk) {
+    if (ewk->wu.routine_no[1] <= 6) {
+        eff36_moves[ewk->wu.routine_no[1]](ewk);
+    }
+}
+
 void effect_36_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
         if (ewk->wu.old_rno[1] <= op_w.index) {
             ewk->wu.routine_no[0] += 1;
         } else if (ewk->wu.old_rno[2] <= op_w.index) {
-            switch (ewk->wu.routine_no[1]) {
-            case 0:
-                eff36_move00(ewk);
-                break;
-
-            case 1:
-                eff36_move01(ewk);
-                break;
-
-            case 2:
-                eff36_move02(ewk);
-                break;
-
-            case 3:
-                eff36_move03(ewk);
-                break;
-
-            case 4:
-                eff36_move04(ewk);
-                break;
-
-            case 5:
-                eff36_move05(ewk);
-                break;
-
-            case 6:
-                eff36_move06(ewk);
-                break;
-
-            default:
-                break;
-            }
+            dispatch_eff36_move(ewk);
         }
 
         break;
@@ -98,70 +77,70 @@ void eff36_move00(WORK_Other* ewk) {
     }
 }
 
-void eff36_move01(WORK_Other* ewk) {
+static void initialize_eff36_move01(WORK_Other* ewk) {
+    if (ewk->wu.type == 0) {
+        push_color_trans_req((ewk->wu.my_col_code & 0x1FF) + 3, 1);
+    }
+}
+
+static void update_eff36_move01(WORK_Other* ewk) {
+    disp_pos_trans_entry(ewk);
+}
+
+static void initialize_eff36_move02(WORK_Other* ewk) {
+    if (ewk->wu.type == 15) {
+        push_color_trans_req((ewk->wu.my_col_code & 0x1FF) + 8, 0);
+    } else if (ewk->wu.type < 19) {
+        push_color_trans_req((ewk->wu.my_col_code & 0x1FF) + 8, 1);
+    }
+}
+
+static void update_eff36_move02(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+    disp_pos_trans_entry(ewk);
+}
+
+static void run_eff36_move(WORK_Other* ewk, void (*initialize)(WORK_Other*), void (*update)(WORK_Other*)) {
     switch (ewk->wu.routine_no[2]) {
     case 0:
         ewk->wu.routine_no[2] += 1;
         ewk->wu.disp_flag = 1;
         set_char_move_init2(&ewk->wu, 0, ewk->wu.old_rno[0], ewk->wu.char_index, 0);
-
-        if (ewk->wu.type == 0) {
-            push_color_trans_req((ewk->wu.my_col_code & 0x1FF) + 3, 1);
-        }
-
+        initialize(ewk);
         ewk->wu.my_col_code = 0;
         break;
 
     case 1:
-        disp_pos_trans_entry(ewk);
+        update(ewk);
         break;
     }
+}
+
+void eff36_move01(WORK_Other* ewk) {
+    run_eff36_move(ewk, initialize_eff36_move01, update_eff36_move01);
 }
 
 void eff36_move02(WORK_Other* ewk) {
-    switch (ewk->wu.routine_no[2]) {
-    case 0:
-        ewk->wu.routine_no[2] += 1;
-        ewk->wu.disp_flag = 1;
-        set_char_move_init2(&ewk->wu, 0, ewk->wu.old_rno[0], ewk->wu.char_index, 0);
+    run_eff36_move(ewk, initialize_eff36_move02, update_eff36_move02);
+}
 
-        if (ewk->wu.type == 15) {
-            push_color_trans_req((ewk->wu.my_col_code & 0x1FF) + 8, 0);
-        } else if (ewk->wu.type < 19) {
-            push_color_trans_req((ewk->wu.my_col_code & 0x1FF) + 8, 1);
-        }
+static void initialize_eff36_move03(WORK_Other* ewk) {
+    push_color_trans_req((ewk->wu.my_col_code & 0x1FF) + 8, 1);
+}
 
-        ewk->wu.my_col_code = 0;
-        break;
+static void update_eff36_move03(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+    ewk->wu.xyz[0].cal -= 0x8000 + 0x8000;
 
-    case 1:
-        char_move(&ewk->wu);
-        disp_pos_trans_entry(ewk);
-        break;
+    if (ewk->wu.xyz[0].disp.pos < 288) {
+        ewk->wu.routine_no[0] = 99;
     }
+
+    disp_pos_trans_entry(ewk);
 }
 
 void eff36_move03(WORK_Other* ewk) {
-    switch (ewk->wu.routine_no[2]) {
-    case 0:
-        ewk->wu.routine_no[2] += 1;
-        ewk->wu.disp_flag = 1;
-        set_char_move_init2(&ewk->wu, 0, ewk->wu.old_rno[0], ewk->wu.char_index, 0);
-        push_color_trans_req((ewk->wu.my_col_code & 0x1FF) + 8, 1);
-        ewk->wu.my_col_code = 0;
-        break;
-
-    case 1:
-        char_move(&ewk->wu);
-        ewk->wu.xyz[0].cal -= 0x8000 + 0x8000;
-
-        if (ewk->wu.xyz[0].disp.pos < 288) {
-            ewk->wu.routine_no[0] = 99;
-        }
-
-        disp_pos_trans_entry(ewk);
-        break;
-    }
+    run_eff36_move(ewk, initialize_eff36_move03, update_eff36_move03);
 }
 
 const s16 eff36_04_tbl[4] = { 0, 5, 9, 13 };
@@ -170,67 +149,53 @@ static s32 can_advance_eff36_sequence(const WORK_Other* ewk) {
     return gSeqStatus[0] >= eff36_04_tbl[ewk->wu.routine_no[2]] && gSeqStatus[0] != 0x74;
 }
 
+static void update_eff36_sequence_visibility(WORK_Other* ewk) {
+    if (ewk->wu.old_rno[6] <= 0) {
+        ewk->wu.disp_flag = 0;
+    } else {
+        ewk->wu.old_rno[6] -= 1;
+    }
+}
+
+static void advance_eff36_sequence(WORK_Other* ewk, s16 char_index) {
+    ewk->wu.routine_no[2] += 1;
+    ewk->wu.disp_flag = 1;
+    ewk->wu.old_rno[6] = 4;
+    set_char_move_init2(&ewk->wu, 0, ewk->wu.old_rno[0], char_index, 0);
+}
+
+static void initialize_eff36_sequence(WORK_Other* ewk) {
+    advance_eff36_sequence(ewk, ewk->wu.char_index);
+    push_color_trans_req((ewk->wu.my_col_code & 0x1FF) + 2, 1);
+    ewk->wu.my_col_code = 0;
+}
+
+static void update_eff36_sequence(WORK_Other* ewk, s16 char_index, s32 can_advance) {
+    update_eff36_sequence_visibility(ewk);
+
+    if (can_advance) {
+        advance_eff36_sequence(ewk, char_index);
+    }
+
+    disp_pos_trans_entry(ewk);
+}
 
 void eff36_move04(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[2]) {
     case 0:
-        ewk->wu.routine_no[2] += 1;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.old_rno[6] = 4;
-        set_char_move_init2(&ewk->wu, 0, ewk->wu.old_rno[0], ewk->wu.char_index, 0);
-        push_color_trans_req((ewk->wu.my_col_code & 0x1FF) + 2, 1);
-        ewk->wu.my_col_code = 0;
+        initialize_eff36_sequence(ewk);
         break;
 
     case 1:
-        if (ewk->wu.old_rno[6] <= 0) {
-            ewk->wu.disp_flag = 0;
-        } else {
-            ewk->wu.old_rno[6] -= 1;
-        }
-
-if (can_advance_eff36_sequence(ewk)) {
-            ewk->wu.routine_no[2] += 1;
-            ewk->wu.disp_flag = 1;
-            ewk->wu.old_rno[6] = 4;
-            set_char_move_init2(&ewk->wu, 0, ewk->wu.old_rno[0], 0x17, 0);
-        }
-
-        disp_pos_trans_entry(ewk);
+        update_eff36_sequence(ewk, 0x17, can_advance_eff36_sequence(ewk));
         break;
 
     case 2:
-        if (ewk->wu.old_rno[6] <= 0) {
-            ewk->wu.disp_flag = 0;
-        } else {
-            ewk->wu.old_rno[6] -= 1;
-        }
-
-        if (gSeqStatus[0] >= eff36_04_tbl[ewk->wu.routine_no[2]]) {
-            ewk->wu.routine_no[2] += 1;
-            ewk->wu.disp_flag = 1;
-            ewk->wu.old_rno[6] = 4;
-            set_char_move_init2(&ewk->wu, 0, ewk->wu.old_rno[0], 0x18, 0);
-        }
-
-        disp_pos_trans_entry(ewk);
+        update_eff36_sequence(ewk, 0x18, gSeqStatus[0] >= eff36_04_tbl[ewk->wu.routine_no[2]]);
         break;
 
     case 3:
-        if (ewk->wu.old_rno[6] <= 0) {
-            ewk->wu.disp_flag = 0;
-        } else {
-            ewk->wu.old_rno[6] -= 1;
-        }
-
-        if (gSeqStatus[0] >= eff36_04_tbl[ewk->wu.routine_no[2]]) {
-            ewk->wu.routine_no[2] += 1;
-            ewk->wu.disp_flag = 1;
-            ewk->wu.old_rno[6] = 4;
-            set_char_move_init2(&ewk->wu, 0, ewk->wu.old_rno[0], 0x19, 0);
-        }
-
-        disp_pos_trans_entry(ewk);
+        update_eff36_sequence(ewk, 0x19, gSeqStatus[0] >= eff36_04_tbl[ewk->wu.routine_no[2]]);
         break;
 
     case 4:
@@ -239,31 +204,25 @@ if (can_advance_eff36_sequence(ewk)) {
     }
 }
 
-void eff36_move05(WORK_Other* ewk) {
-    switch (ewk->wu.routine_no[2]) {
-    case 0:
-        ewk->wu.routine_no[2] += 1;
-        ewk->wu.disp_flag = 1;
-        set_char_move_init2(&ewk->wu, 0, ewk->wu.old_rno[0], ewk->wu.char_index, 0);
-
-        if (ewk->wu.type < 25) {
-            push_color_trans_req((ewk->wu.my_col_code & 0x1FF) + 8, 1);
-        }
-
-        ewk->wu.my_col_code = 0;
-        break;
-
-    case 1:
-        char_move(&ewk->wu);
-
-        if (ewk->wu.cg_type == 255) {
-            ewk->wu.routine_no[0] += 1;
-            break;
-        }
-
-        disp_pos_trans_entry(ewk);
-        break;
+static void initialize_eff36_move05(WORK_Other* ewk) {
+    if (ewk->wu.type < 25) {
+        push_color_trans_req((ewk->wu.my_col_code & 0x1FF) + 8, 1);
     }
+}
+
+static void update_eff36_move05(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+
+    if (ewk->wu.cg_type == 255) {
+        ewk->wu.routine_no[0] += 1;
+        return;
+    }
+
+    disp_pos_trans_entry(ewk);
+}
+
+void eff36_move05(WORK_Other* ewk) {
+    run_eff36_move(ewk, initialize_eff36_move05, update_eff36_move05);
 }
 
 void eff36_move06(WORK_Other* ewk) {

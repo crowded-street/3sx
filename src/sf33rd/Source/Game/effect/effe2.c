@@ -147,8 +147,125 @@ const s16 thunder_set_pos_SKB[20][4] = { { 2, 5, 1, 23 }, { 2, 5, 1, 23 }, { 2, 
 void effE2_sort_push(WORK* ewk, WORK* mwk);
 void effe2_erase_or_die(WORK* wk);
 
+#define ACCESSORY_COUNT 4
+
 static s32 game_is_active(void) {
     return EXE_flag == 0 && Game_pause == 0;
+}
+
+static void initialize_effect_E2(WORK_Other* ewk, PLW* mwk) {
+    ewk->wu.routine_no[0]++;
+
+    if (ewk->wu.weight_level) {
+        ewk->wu.disp_flag = 2;
+    } else {
+        ewk->wu.disp_flag = 1;
+    }
+
+    ewk->wu.cg_wca_ix = 0;
+    set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+    effE2_sort_push(&ewk->wu, &mwk->wu);
+}
+
+static s32 advance_effect_E2_animation(WORK_Other* ewk) {
+    if (!game_is_active()) {
+        return 0;
+    }
+
+    char_move(&ewk->wu);
+
+    if (!ewk->wu.cg_type) {
+        return 0;
+    }
+
+    if (ewk->wu.cg_type == 0xFF) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0] = 2;
+        return 1;
+    }
+
+    if (ewk->wu.cg_type == 1) {
+        ewk->wu.routine_no[1] = 1;
+        sort_push_request8(&ewk->wu);
+        return 1;
+    }
+
+    return 0;
+}
+
+static s32 erase_effect_E2_after_damage_change(WORK_Other* ewk, const PLW* mwk) {
+    if (ewk->wu.dir_old == mwk->wu.dm_count_up) {
+        return 0;
+    }
+
+    if (ewk->wu.dm_attribute == mwk->wu.dm_attribute) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0] = 2;
+    } else {
+        effe2_erase_or_die(&ewk->wu);
+    }
+
+    return 1;
+}
+
+static s32 erase_effect_E2_out_of_position(WORK_Other* ewk, const PLW* mwk) {
+    if (ewk->wu.type != 0 && ewk->wu.type != 32) {
+        if (mwk->wu.xyz[1].disp.pos <= 0) {
+            effe2_erase_or_die(&ewk->wu);
+            return 1;
+        }
+    } else if (mwk->wu.cg_type != 0) {
+        effe2_erase_or_die(&ewk->wu);
+        return 1;
+    }
+
+    return 0;
+}
+
+static void advance_effect_E2_initial_animation(WORK_Other* ewk, PLW* mwk) {
+    if (advance_effect_E2_animation(ewk)) {
+        return;
+    }
+
+    if (erase_effect_E2_after_damage_change(ewk, mwk)) {
+        return;
+    }
+
+    if (!erase_effect_E2_out_of_position(ewk, mwk)) {
+        effE2_sort_push(&ewk->wu, &mwk->wu);
+    }
+}
+
+static void advance_effect_E2_finishing_animation(WORK_Other* ewk) {
+    if (EXE_flag == 0 && Game_pause == 0) {
+        char_move(&ewk->wu);
+
+        if (ewk->wu.cg_type && ewk->wu.cg_type == 0xFF) {
+            ewk->wu.disp_flag = 0;
+            ewk->wu.routine_no[0] = 2;
+            return;
+        }
+    }
+
+    sort_push_request8(&ewk->wu);
+}
+
+static void advance_effect_E2(WORK_Other* ewk, PLW* mwk) {
+    if (ewk->wu.dead_f == 1 || Suicide[0] != 0) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0] = 2;
+        return;
+    }
+
+    switch (ewk->wu.routine_no[1]) {
+    case 0:
+        advance_effect_E2_initial_animation(ewk, mwk);
+        break;
+
+    default:
+        advance_effect_E2_finishing_animation(ewk);
+        break;
+    }
 }
 
 void effect_E2_move(WORK_Other* ewk) {
@@ -158,85 +275,11 @@ void effect_E2_move(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-
-        if (ewk->wu.weight_level) {
-            ewk->wu.disp_flag = 2;
-        } else {
-            ewk->wu.disp_flag = 1;
-        }
-
-        ewk->wu.cg_wca_ix = 0;
-        set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-        effE2_sort_push(&ewk->wu, &mwk->wu);
+        initialize_effect_E2(ewk, mwk);
         break;
 
     case 1:
-        if (ewk->wu.dead_f == 1 || Suicide[0] != 0) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0] = 2;
-            break;
-        }
-
-        switch (ewk->wu.routine_no[1]) {
-        case 0:
-            if (game_is_active()) {
-                char_move(&ewk->wu);
-
-                if (ewk->wu.cg_type) {
-                    if (ewk->wu.cg_type == 0xFF) {
-                        ewk->wu.disp_flag = 0;
-                        ewk->wu.routine_no[0] = 2;
-                        break;
-                    }
-
-                    if (ewk->wu.cg_type == 1) {
-                        ewk->wu.routine_no[1] = 1;
-                        sort_push_request8(&ewk->wu);
-                        break;
-                    }
-                }
-            }
-
-            if (ewk->wu.dir_old != mwk->wu.dm_count_up) {
-                if (ewk->wu.dm_attribute == mwk->wu.dm_attribute) {
-                    ewk->wu.disp_flag = 0;
-                    ewk->wu.routine_no[0] = 2;
-                    break;
-                }
-
-                effe2_erase_or_die(&ewk->wu);
-                break;
-            }
-
-            if (ewk->wu.type != 0 && ewk->wu.type != 32) {
-                if (mwk->wu.xyz[1].disp.pos <= 0) {
-                    effe2_erase_or_die(&ewk->wu);
-                    break;
-                }
-            } else if (mwk->wu.cg_type != 0) {
-                effe2_erase_or_die(&ewk->wu);
-                break;
-            }
-
-            effE2_sort_push(&ewk->wu, &mwk->wu);
-            break;
-
-        default:
-            if (EXE_flag == 0 && Game_pause == 0) {
-                char_move(&ewk->wu);
-
-                if (ewk->wu.cg_type && ewk->wu.cg_type == 0xFF) {
-                    ewk->wu.disp_flag = 0;
-                    ewk->wu.routine_no[0] = 2;
-                    break;
-                }
-            }
-
-            sort_push_request8(&ewk->wu);
-            break;
-        }
-
+        advance_effect_E2(ewk, mwk);
         break;
 
     case 2:
@@ -339,69 +382,57 @@ s32 effect_E2_init(PLW* wk, const s16* data, s16 color_code, u8 ff) {
     return 0;
 }
 
-s32 setup_accessories(PLW* wk, u8 data) {
+static void setup_flame_accessories(PLW* wk, const s16 accessory_data[ACCESSORY_COUNT][ACCESSORY_COUNT]) {
     s16 i;
 
+    for (i = 0; i < ACCESSORY_COUNT; i++) {
+        effect_E2_init(wk, accessory_data[i], 32, 1);
+    }
+}
+
+static void setup_thunder_accessory(PLW* wk) {
+    effect_E2_init(wk, thunder_set_pos_SKB[wk->player_number], 32, 0);
+}
+
+static void setup_freeze_accessories(PLW* wk, const s16 accessory_data[ACCESSORY_COUNT][ACCESSORY_COUNT]) {
+    s16 i;
+
+    for (i = 0; i < ACCESSORY_COUNT; i++) {
+        effect_E2_init(wk, accessory_data[i], 32, 0);
+    }
+}
+
+static void setup_pose_accessories(PLW* wk, const s16 flame_data[ACCESSORY_COUNT][ACCESSORY_COUNT],
+                                   const s16 freeze_data[ACCESSORY_COUNT][ACCESSORY_COUNT]) {
+    if (wk->wu.dm_attribute == 1) {
+        setup_flame_accessories(wk, flame_data);
+    }
+
+    if (wk->wu.dm_attribute == 2) {
+        setup_thunder_accessory(wk);
+    }
+
+    if (wk->wu.dm_attribute == 3) {
+        setup_freeze_accessories(wk, freeze_data);
+    }
+}
+
+s32 setup_accessories(PLW* wk, u8 data) {
     if (wk->wu.work_id != 1) {
         return -1;
     }
 
     switch (data) {
     case 0:
-        if (wk->wu.dm_attribute == 1) {
-            for (i = 0; i < 4; i++) {
-                effect_E2_init(wk, flames_stand[wk->player_number][i], 32, 1);
-            }
-        }
-
-        if (wk->wu.dm_attribute == 2) {
-            effect_E2_init(wk, thunder_set_pos_SKB[wk->player_number], 32, 0);
-        }
-
-        if (wk->wu.dm_attribute == 3) {
-            for (i = 0; i < 4; i++) {
-                effect_E2_init(wk, freeze_stand[wk->player_number][i], 32, 0);
-            }
-        }
-
+        setup_pose_accessories(wk, flames_stand[wk->player_number], freeze_stand[wk->player_number]);
         break;
 
     case 32:
-        if (wk->wu.dm_attribute == 1) {
-            for (i = 0; i < 4; i++) {
-                effect_E2_init(wk, flames_crunch[wk->player_number][i], 32, 1);
-            }
-        }
-
-        if (wk->wu.dm_attribute == 2) {
-            effect_E2_init(wk, thunder_set_pos_SKB[wk->player_number], 32, 0);
-        }
-
-        if (wk->wu.dm_attribute == 3) {
-            for (i = 0; i < 4; i++) {
-                effect_E2_init(wk, freeze_crunch[wk->player_number][i], 32, 0);
-            }
-        }
-
+        setup_pose_accessories(wk, flames_crunch[wk->player_number], freeze_crunch[wk->player_number]);
         break;
 
     default:
-        if (wk->wu.dm_attribute == 1) {
-            for (i = 0; i < 4; i++) {
-                effect_E2_init(wk, flames_ariel[wk->player_number][i], 32, 1);
-            }
-        }
-
-        if (wk->wu.dm_attribute == 2) {
-            effect_E2_init(wk, thunder_set_pos_SKB[wk->player_number], 32, 0);
-        }
-
-        if (wk->wu.dm_attribute == 3) {
-            for (i = 0; i < 4; i++) {
-                effect_E2_init(wk, freeze_set_pos_B[wk->player_number][i], 32, 0);
-            }
-        }
-
+        setup_pose_accessories(wk, flames_ariel[wk->player_number], freeze_set_pos_B[wk->player_number]);
         break;
     }
 

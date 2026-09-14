@@ -65,69 +65,85 @@ void effect_M0_move(WORK_Other* ewk) {
     }
 }
 
+static void initialize_cat(WORK_Other* ewk, s16 work_l, s16 work_r) {
+    ewk->wu.kage_flag = 1;
+    ewk->wu.kage_hx = -4;
+    ewk->wu.kage_hy = 33;
+    ewk->wu.kage_prio = 71;
+    ewk->wu.kage_char = 3;
+
+    if (ewk->wu.rl_flag) {
+        ewk->wu.xyz[0].disp.pos = work_l;
+        return;
+    }
+
+    ewk->wu.xyz[0].disp.pos = work_r;
+}
+
+static void initialize_reversed_cat(WORK_Other* ewk) {
+    ewk->wu.kage_flag = 1;
+    ewk->wu.kage_hx = -4;
+    ewk->wu.kage_hy = 33;
+    ewk->wu.kage_prio = 71;
+    ewk->wu.kage_char = 3;
+    ewk->wu.rl_flag ^= 1;
+}
+
+static void initialize_don(WORK_Other* ewk, s16 work_l, s16 work_r) {
+    if (plw->player_number == 7) {
+        ewk->wu.my_col_code = plw->wu.my_col_code;
+    } else {
+        ewk->wu.my_col_code = plw[1].wu.my_col_code;
+    }
+
+    ewk->wu.kage_flag = 1;
+    ewk->wu.kage_hx = -2;
+    ewk->wu.kage_hy = 24;
+    ewk->wu.kage_prio = 71;
+    ewk->wu.kage_char = 8;
+
+    if (ewk->wu.rl_flag) {
+        ewk->wu.xyz[0].disp.pos = work_l;
+        return;
+    }
+
+    ewk->wu.xyz[0].disp.pos = work_r;
+}
+
+static void initialize_mouse(WORK_Other* ewk, s16 work_l, s16 work_r) {
+    if (ewk->wu.rl_flag) {
+        ewk->wu.xyz[0].disp.pos = work_r;
+    } else {
+        ewk->wu.xyz[0].disp.pos = work_l;
+    }
+
+    ewk->wu.kage_flag = 1;
+    ewk->wu.kage_hx = 0;
+    ewk->wu.kage_hy = 33;
+    ewk->wu.kage_prio = 71;
+    ewk->wu.kage_char = 0;
+    ewk->wu.rl_flag ^= 1;
+}
+
 void animal_init(WORK_Other* ewk) {
     s16 work_l = bg_w.bgw[1].wxy[0].disp.pos - bg_w.pos_offset;
     s16 work_r = bg_w.bgw[1].wxy[0].disp.pos + bg_w.pos_offset;
 
     switch (ewk->wu.type) {
     case 0:
-        ewk->wu.kage_flag = 1;
-        ewk->wu.kage_hx = -4;
-        ewk->wu.kage_hy = 33;
-        ewk->wu.kage_prio = 71;
-        ewk->wu.kage_char = 3;
-
-        if (ewk->wu.rl_flag) {
-            ewk->wu.xyz[0].disp.pos = work_l;
-            break;
-        }
-
-        ewk->wu.xyz[0].disp.pos = work_r;
+        initialize_cat(ewk, work_l, work_r);
         break;
 
     case 2:
-        ewk->wu.kage_flag = 1;
-        ewk->wu.kage_hx = -4;
-        ewk->wu.kage_hy = 33;
-        ewk->wu.kage_prio = 71;
-        ewk->wu.kage_char = 3;
-        ewk->wu.rl_flag ^= 1;
+        initialize_reversed_cat(ewk);
         break;
 
     case 6:
-        if (plw->player_number == 7) {
-            ewk->wu.my_col_code = plw->wu.my_col_code;
-        } else {
-            ewk->wu.my_col_code = plw[1].wu.my_col_code;
-        }
-
-        ewk->wu.kage_flag = 1;
-        ewk->wu.kage_hx = -2;
-        ewk->wu.kage_hy = 24;
-        ewk->wu.kage_prio = 71;
-        ewk->wu.kage_char = 8;
-
-        if (ewk->wu.rl_flag) {
-            ewk->wu.xyz[0].disp.pos = work_l;
-            break;
-        }
-
-        ewk->wu.xyz[0].disp.pos = work_r;
+        initialize_don(ewk, work_l, work_r);
         break;
 
     default:
-        if (ewk->wu.rl_flag) {
-            ewk->wu.xyz[0].disp.pos = work_r;
-        } else {
-            ewk->wu.xyz[0].disp.pos = work_l;
-        }
-
-        ewk->wu.kage_flag = 1;
-        ewk->wu.kage_hx = 0;
-        ewk->wu.kage_hy = 33;
-        ewk->wu.kage_prio = 71;
-        ewk->wu.kage_char = 0;
-        ewk->wu.rl_flag ^= 1;
+        initialize_mouse(ewk, work_l, work_r);
         break;
     }
 }
@@ -253,6 +269,37 @@ void animal_0002(WORK_Other* ewk) {
     }
 }
 
+static void wait_for_animal_delay(WORK_Other* ewk) {
+    ewk->wu.old_rno[0]--;
+
+    if (ewk->wu.old_rno[0] <= 0) {
+        ewk->wu.routine_no[1]++;
+    }
+}
+
+static void run_mouse_offscreen(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+    add_x_sub(&ewk->wu);
+
+    if (!range_x_check3(ewk, 32)) {
+        ewk->wu.routine_no[0] = 99;
+        ewk->wu.routine_no[1]++;
+    }
+}
+
+static void advance_random_mouse_run(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+    ewk->wu.old_rno[3]--;
+
+    if (ewk->wu.old_rno[3] <= 0) {
+        ewk->wu.routine_no[1]++;
+        mouse_stand_set(ewk);
+        return;
+    }
+
+    add_x_sub(&ewk->wu);
+}
+
 void animal_0004(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -272,12 +319,7 @@ void animal_0004(WORK_Other* ewk) {
         break;
 
     case 1:
-        ewk->wu.old_rno[0]--;
-
-        if (ewk->wu.old_rno[0] <= 0) {
-            ewk->wu.routine_no[1]++;
-        }
-
+        wait_for_animal_delay(ewk);
         break;
 
     case 2:
@@ -291,14 +333,7 @@ void animal_0004(WORK_Other* ewk) {
         break;
 
     case 3:
-        char_move(&ewk->wu);
-        add_x_sub(&ewk->wu);
-
-        if (!range_x_check3(ewk, 32)) {
-            ewk->wu.routine_no[0] = 99;
-            ewk->wu.routine_no[1]++;
-        }
-
+        run_mouse_offscreen(ewk);
         break;
     }
 }
@@ -317,25 +352,11 @@ void animal_0005(WORK_Other* ewk) {
         break;
 
     case 1:
-        ewk->wu.old_rno[0]--;
-
-        if (ewk->wu.old_rno[0] <= 0) {
-            ewk->wu.routine_no[1]++;
-        }
-
+        wait_for_animal_delay(ewk);
         break;
 
     case 2:
-        char_move(&ewk->wu);
-        ewk->wu.old_rno[3]--;
-
-        if (ewk->wu.old_rno[3] <= 0) {
-            ewk->wu.routine_no[1]++;
-            mouse_stand_set(ewk);
-            break;
-        }
-
-        add_x_sub(&ewk->wu);
+        advance_random_mouse_run(ewk);
         break;
 
     case 3:

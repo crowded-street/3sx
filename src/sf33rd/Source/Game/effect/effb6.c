@@ -13,8 +13,14 @@
 #include <string.h>
 #include <strings.h>
 
+typedef struct MessageConversionB6 {
+    s32 space;
+    s32 wide;
+    u16 object_number;
+} MessageConversionB6;
+
 void get_message_conn_data(WORK_Other_CONN* ewk, s16 kind, s16 pl, s16 msg);
-s32 msgConvertObjNum(u8* moji, s32* spc, s32* hz, u16* num, u8 hzSel);
+static s32 msgConvertObjNum(u8* moji, MessageConversionB6* conversion, u8 hzSel);
 s32 msgCheckCodeSize(u8 data);
 
 static s32 is_spacing_code(u8* text) {
@@ -394,11 +400,9 @@ void get_message_conn_data(WORK_Other_CONN* ewk, s16 kind, s16 pl, s16 msg) {
     s32 currY;
     s32 i;
     s32 hzsel;
-    s32 space;
-    s32 hzflag;
     s32 bytes;
     s32 mjcnt;
-    u16 objnum;
+    MessageConversionB6 conversion;
 
     s32 assign;
 
@@ -419,18 +423,18 @@ void get_message_conn_data(WORK_Other_CONN* ewk, s16 kind, s16 pl, s16 msg) {
 
     for (i = 0; i < msgline; i++) {
         for (msgtbl = msghead[i]; *msgtbl; msgtbl += bytes) {
-            bytes = msgConvertObjNum(msgtbl, &space, &hzflag, &objnum, hzsel);
+            bytes = msgConvertObjNum(msgtbl, &conversion, hzsel);
 
-            if (!space) {
+            if (!conversion.space) {
                 ewk->conn[mjcnt].nx = currX;
                 ewk->conn[mjcnt].ny = currY;
                 ewk->conn[mjcnt].col = 0;
-                ewk->conn[mjcnt].chr = objnum;
+                ewk->conn[mjcnt].chr = conversion.object_number;
                 mjcnt++;
                 halt_on_connection_overflow_B6(mjcnt);
             }
 
-            currX += message_advance_B6(hzflag, slideX);
+            currX += message_advance_B6(conversion.wide, slideX);
         }
 
         currX = 0;
@@ -440,17 +444,23 @@ void get_message_conn_data(WORK_Other_CONN* ewk, s16 kind, s16 pl, s16 msg) {
     ewk->num_of_conn = mjcnt;
 }
 
-static const u8* find_han_character(const u8* text, u16* number, s32 table_count) {
+typedef struct CharacterSearchB6 {
+    const s8*** tables;
+    s32 table_count;
+    u16 base_character;
+} CharacterSearchB6;
+
+static const u8* find_character_B6(const u8* text, u16* number, const CharacterSearchB6* search) {
     s32 i;
     s32 j;
 
-    for (i = 0; i < table_count; i++) {
+    for (i = 0; i < search->table_count; i++) {
         for (j = 0; j < 128; j++) {
-            if (strcmp(text, han_adrs[i][j]) != 0) {
+            if (strcmp(text, search->tables[i][j]) != 0) {
                 continue;
             }
 
-            *number = j + (i * 128) + 0x7F30;
+            *number = j + (i * 128) + search->base_character;
             return text;
         }
     }
@@ -458,22 +468,14 @@ static const u8* find_han_character(const u8* text, u16* number, s32 table_count
     return NULL;
 }
 
+static const u8* find_han_character(const u8* text, u16* number, s32 table_count) {
+    CharacterSearchB6 search = { han_adrs, table_count, 0x7F30 };
+    return find_character_B6(text, number, &search);
+}
+
 static const u8* find_zen_character(const u8* text, u16* number) {
-    s32 i;
-    s32 j;
-
-    for (i = 0; i < 11; i++) {
-        for (j = 0; j < 128; j++) {
-            if (strcmp(text, zen_adrs[i][j]) != 0) {
-                continue;
-            }
-
-            *number = j + (i * 128) + 0x80B0;
-            return text;
-        }
-    }
-
-    return NULL;
+    CharacterSearchB6 search = { zen_adrs, 11, 0x80B0 };
+    return find_character_B6(text, number, &search);
 }
 
 static s32 prepare_half_width_text_B6(u8* moji, u8* tmpstr) {
@@ -499,48 +501,65 @@ static const u8* find_converted_han_character_3(u8* tmpstr, u16* number) {
     return NULL;
 }
 
-s32 msgConvertObjNum(u8* moji, s32* spc, s32* hz, u16* num, u8 hzSel) {
+static s32 set_message_spacing_B6(s32* spc, s32* hz, u16* num, s32 width) {
+    *hz = 0;
+    *spc = 1;
+    *num = 0;
+    return width;
+}
+
+static s32 set_wide_message_spacing_B6(s32* spc, s32* hz, u16* num) {
+    *hz = 1;
+    *spc = 1;
+    *num = 0;
+    return 2;
+}
+
+static s32 convert_full_width_message_B6(u8* moji, s32* spc, s32* hz, u16* num) {
     u8 tmpstr[4];
     s32 rnum;
 
-    if (hzSel != 0) {
-        tmpstr[0] = moji[0];
-        tmpstr[1] = moji[1];
-        tmpstr[2] = 0;
+    tmpstr[0] = moji[0];
+    tmpstr[1] = moji[1];
+    tmpstr[2] = 0;
 
-        if (tmpstr[0] == ' ') {
-            rnum = 1;
-            goto spacing;
-        }
-
-        if (strcmp(&tmpstr[0], "\x62\x68") == 0) {
-            rnum = 2;
-            goto spacing;
-        }
-
-        if (is_spacing_code(tmpstr)) {
-            goto three;
-        }
-
-        if (find_converted_han_character_3(tmpstr, num)) {
-            *hz = 0;
-            *spc = 0;
-            return 1;
-        }
-
-        if (find_zen_character(&tmpstr[0], num)) {
-            *hz = 1;
-            *spc = 0;
-            return 2;
-        }
-
-        goto three;
+    if (tmpstr[0] == ' ') {
+        rnum = 1;
+        return set_message_spacing_B6(spc, hz, num, rnum);
     }
+
+    if (strcmp(&tmpstr[0], "\x62\x68") == 0) {
+        rnum = 2;
+        return set_message_spacing_B6(spc, hz, num, rnum);
+    }
+
+    if (is_spacing_code(tmpstr)) {
+        return set_wide_message_spacing_B6(spc, hz, num);
+    }
+
+    if (find_converted_han_character_3(tmpstr, num)) {
+        *hz = 0;
+        *spc = 0;
+        return 1;
+    }
+
+    if (find_zen_character(&tmpstr[0], num)) {
+        *hz = 1;
+        *spc = 0;
+        return 2;
+    }
+
+    return set_wide_message_spacing_B6(spc, hz, num);
+}
+
+static s32 convert_half_width_message_B6(u8* moji, s32* spc, s32* hz, u16* num) {
+    u8 tmpstr[4];
+    s32 rnum;
 
     rnum = prepare_half_width_text_B6(moji, tmpstr);
 
     if (tmpstr[0] == ' ') {
-        goto spacing;
+        return set_message_spacing_B6(spc, hz, num, rnum);
     }
 
     if (find_han_character(&tmpstr[0], num, 2)) {
@@ -549,17 +568,16 @@ s32 msgConvertObjNum(u8* moji, s32* spc, s32* hz, u16* num, u8 hzSel) {
         return rnum;
     }
 
-spacing:
-    *hz = 0;
-    *spc = 1;
-    *num = 0;
-    return rnum;
+    return set_message_spacing_B6(spc, hz, num, rnum);
+}
 
-three:
-    *hz = 1;
-    *spc = 1;
-    *num = 0;
-    return 2;
+static s32 msgConvertObjNum(u8* moji, MessageConversionB6* conversion, u8 hzSel) {
+    if (hzSel != 0) {
+        return convert_full_width_message_B6(
+            moji, &conversion->space, &conversion->wide, &conversion->object_number);
+    }
+
+    return convert_half_width_message_B6(moji, &conversion->space, &conversion->wide, &conversion->object_number);
 }
 
 s32 msgCheckCodeSize(u8 data) {
