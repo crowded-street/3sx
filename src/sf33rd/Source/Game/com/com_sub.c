@@ -459,36 +459,52 @@ void Walk(PLW* wk, u16 Lever, s16 Time, s16 unused) {
 
 
 
-void Short_Range_Attack(PLW* wk, s16 Reaction, u16 Lever_Data, s16 Next_Action, s16 Next_Menu) {
+/* CP_Index 0: open the attack, and bail out to the menu if the target is
+ * further away than the move reaches.
+ *
+ * NOTE: the get_nearing_range call assigns xx twice in one expression, with no
+ * sequence point between them. Copied verbatim; see AGENTS.md. */
+static void Short_Range_Attack_Start(PLW* wk, s16 Reaction, u16 Lever_Data, s16 Next_Action, s16 Next_Menu) {
     u16 xx;
 
+    if (Check_Passive(wk) != 0) {
+        return;
+    }
+    if (Check_Start_Normal_Attack(wk, Reaction, Lever_Data) != 0) {
+        return;
+    }
+
+    CP_Index[wk->wu.id][1]++;
+    Check_First_Menu(wk);
+
+    Ck_Distance_LvJ(wk);
+    xx = get_nearing_range(wk->player_number, xx = Lever_Data & 0xFF0);
+    if (PL_Distance[wk->wu.id] > xx) {
+        Next_Another_Menu(wk, Next_Action, Next_Menu);
+    }
+}
+
+/* CP_Index 1: hold until the combo timer expires, then press the attack. */
+static void Short_Range_Attack_Wait(PLW* wk, u16 Lever_Data) {
+    if (Check_Passive(wk) != 0) {
+        return;
+    }
+    if (--Combo_Speed[wk->wu.id]) {
+        return;
+    }
+
+    Lever_Buff[wk->wu.id] = Lever_Data;
+    CP_Index[wk->wu.id][1]++;
+}
+
+void Short_Range_Attack(PLW* wk, s16 Reaction, u16 Lever_Data, s16 Next_Action, s16 Next_Menu) {
     switch (CP_Index[wk->wu.id][1]) {
     case 0:
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-        if (Check_Start_Normal_Attack(wk, Reaction, Lever_Data) == 0) {
-            CP_Index[wk->wu.id][1]++;
-            Check_First_Menu(wk);
-
-            Ck_Distance_LvJ(wk);
-            xx = get_nearing_range(wk->player_number, xx = Lever_Data & 0xFF0);
-            if (PL_Distance[wk->wu.id] > xx) {
-                Next_Another_Menu(wk, Next_Action, Next_Menu);
-            }
-        }
-
+        Short_Range_Attack_Start(wk, Reaction, Lever_Data, Next_Action, Next_Menu);
         break;
 
     case 1:
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-        if (--Combo_Speed[wk->wu.id]) {
-            break;
-        }
-        Lever_Buff[wk->wu.id] = Lever_Data;
-        CP_Index[wk->wu.id][1]++;
+        Short_Range_Attack_Wait(wk, Lever_Data);
         break;
 
     default:
@@ -567,10 +583,31 @@ void EM_Term(PLW* wk, s16 Range_X, s16 Range_Y, s16 Exit_Number, s16 Next_Action
     }
 }
 
+/* CP_Index 1: wait out the shell, dodging once it is close enough. em and tmw
+ * are passed in so Shell_Address is still read once, before the switch. */
+static void SHELL_Term_Step(PLW* wk, WORK* em, WORK_Other* tmw, s16 Next_Command, s16 Exit_Number, s16 Next_Action,
+                            s16 Next_Menu) {
+    s16 xx;
+
+    if (Check_Passive(wk) != 0) {
+        return;
+    }
+
+    if (Check_Exit_Term(wk, em, Exit_Number) == 1) {
+        Next_Another_Menu(wk, Next_Action, Next_Menu);
+        return;
+    }
+
+    xx = Compute_Hit_Time(wk, tmw);
+    if (xx < Shell_Dodge_Data[Next_Command][wk->player_number]) {
+        Disposal_Again[wk->wu.id] = 1;
+        Next_Pattern_Step(wk);
+    }
+}
+
 void SHELL_Term(PLW* wk, s16 Next_Command, s16 Exit_Number, s16 Next_Action, s16 Next_Menu, s16 unused) {
     WORK* em;
     WORK_Other* tmw;
-    s16 xx;
 
     em = (WORK*)Shell_Address[wk->wu.id];
     tmw = (WORK_Other*)Shell_Address[wk->wu.id];
@@ -584,25 +621,7 @@ void SHELL_Term(PLW* wk, s16 Next_Command, s16 Exit_Number, s16 Next_Action, s16
         /* fallthrough */
 
     case 1:
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-
-        if (Check_Exit_Term(wk, em, Exit_Number) == 1) {
-            Next_Another_Menu(wk, Next_Action, Next_Menu);
-        } else {
-            xx = Compute_Hit_Time(wk, tmw);
-            if (xx < Shell_Dodge_Data[Next_Command][wk->player_number]) {
-                Disposal_Again[wk->wu.id] = 1;
-                CP_Index[wk->wu.id][0]++;
-                CP_Index[wk->wu.id][1] = 0;
-                CP_Index[wk->wu.id][2] = 0;
-                CP_Index[wk->wu.id][3] = 0;
-
-                Flip_Flag[wk->wu.id] = 0;
-                Limited_Flag[wk->wu.id] = 0;
-            }
-        }
+        SHELL_Term_Step(wk, em, tmw, Next_Command, Exit_Number, Next_Action, Next_Menu);
         break;
     }
 }
@@ -654,37 +673,51 @@ s32 Check_Term_Sub_Y(PLW* wk, s16 Distance, s16 Range) {
 
 
 
+/* Landing out of the air. Continue_Menu routes straight back to the menu;
+ * otherwise the reaction runs and the guard check is advisory. */
+static s32 Check_Landed_From_Air(PLW* wk, s16 Reaction) {
+    Lever_Buff[wk->wu.id] = 0;
+
+    if (Continue_Menu[wk->wu.id]) {
+        Next_End(wk);
+        Before_Jump[wk->wu.id] = 1;
+        return 1;
+    }
+
+    Reaction_Sub(wk, Reaction, 0);
+
+    Lever_Buff[wk->wu.id] |= Lever_LR[wk->wu.id];
+    Check_Guard(wk);
+
+    Before_Jump[wk->wu.id] = 1;
+    return 1;
+}
+
+/* Already grounded. Same shape, except a successful guard returns before
+ * Before_Jump is set - preserved as found. */
+static s32 Check_Landed_Grounded(PLW* wk, s16 Reaction) {
+    Lever_Buff[wk->wu.id] = 0;
+
+    if (Continue_Menu[wk->wu.id]) {
+        Next_End(wk);
+        Before_Jump[wk->wu.id] = 1;
+        return 1;
+    }
+
+    Reaction_Sub(wk, Reaction, 0);
+    if (Check_Guard(wk) != 0) {
+        return 1;
+    }
+    Before_Jump[wk->wu.id] = 1;
+    return 1;
+}
+
 s32 Check_Landed(PLW* wk, s16 Reaction) {
     if ((wk->wu.old_pos[1] != 0) && (wk->wu.xyz[1].disp.pos == 0)) {
-        Lever_Buff[wk->wu.id] = 0;
-        if (Continue_Menu[wk->wu.id]) {
-            Next_End(wk);
-            Before_Jump[wk->wu.id] = 1;
-            return 1;
-        } else {
-            Reaction_Sub(wk, Reaction, 0);
-
-            Lever_Buff[wk->wu.id] |= Lever_LR[wk->wu.id];
-            Check_Guard(wk);
-
-            Before_Jump[wk->wu.id] = 1;
-            return 1;
-        }
+        return Check_Landed_From_Air(wk, Reaction);
     }
     if ((wk->wu.old_pos[1] == 0) && (wk->wu.xyz[1].disp.pos == 0) && (wk->wu.routine_no[1] != 4)) {
-        Lever_Buff[wk->wu.id] = 0;
-        if (Continue_Menu[wk->wu.id]) {
-            Next_End(wk);
-            Before_Jump[wk->wu.id] = 1;
-            return 1;
-        } else {
-            Reaction_Sub(wk, Reaction, 0);
-            if (Check_Guard(wk) != 0) {
-                return 1;
-            }
-            Before_Jump[wk->wu.id] = 1;
-            return 1;
-        }
+        return Check_Landed_Grounded(wk, Reaction);
     }
     return 0;
 }
