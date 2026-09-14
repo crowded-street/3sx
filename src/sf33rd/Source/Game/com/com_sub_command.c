@@ -347,89 +347,125 @@ void J_Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s
     }
 }
 
+/* CP_Index 0. Non-zero when the state advanced and case 1 runs this frame. */
+static s32 Rapid_Command_Attack_Begin(PLW* wk, s16 Reaction, u16 Tech_Number) {
+    dash_flag_clear(wk->wu.id);
+    if (cmd_sel[wk->wu.id]) {
+        Tech_Address[wk->wu.id] = player_CMD[wk->player_number][Tech_Number & 0xFF];
+    } else {
+        Tech_Address[wk->wu.id] = player_cmd[wk->player_number][Tech_Number & 0xFF];
+    }
+    Tech_Index[wk->wu.id] = 0xC;
+    Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
+
+    if (Check_Start_Command_Attack(wk, Reaction, Tech_Number & 0x80FF) != 0) {
+        return 0;
+    }
+    if (Check_Dash_Hit(wk, Tech_Number & 0x80FF) != 0) {
+        Next_Be_Free(wk);
+    }
+
+    CP_Index[wk->wu.id][1]++;
+    Check_First_Menu(wk);
+    Free_Lever[wk->wu.id] = 0;
+
+    return 1;
+}
+
+/* CP_Index 1. Non-zero when the state advanced and case 2 runs this frame.
+ * Unlike the other arms, the original had no break here at all - reaching the
+ * end of this arm always fell into case 2. */
+static s32 Rapid_Command_Attack_Arm(PLW* wk, u16 Time) {
+    if (--Combo_Speed[wk->wu.id]) {
+        Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
+        return 0;
+    }
+
+    CP_Index[wk->wu.id][1]++;
+
+    Rapid_No[wk->wu.id][0] = 0;
+    Rapid_No[wk->wu.id][1] = 0;
+    Timer_00[wk->wu.id] = Time;
+
+    return 1;
+}
+
+static void Rapid_Command_Attack_Fire(PLW* wk, u16 Tech_Number, s16 Shot) {
+    switch (Rapid_No[wk->wu.id][0]) {
+
+    case 0:
+        Rapid_No[wk->wu.id][0] = 1;
+        Lever_Buff[wk->wu.id] = Shot;
+        break;
+    case 1:
+        Rapid_No[wk->wu.id][0] = 0;
+        Lever_Buff[wk->wu.id] = 0;
+        break;
+    }
+
+    if (wk->wu.sp_tech_id == Tech_Number) {
+        CP_Index[wk->wu.id][1] = 3;
+    }
+}
+
+static void Rapid_Command_Attack_Hold(PLW* wk, u16 Tech_Number, s16 Shot) {
+    if (--Timer_00[wk->wu.id] == 0) {
+        CP_Index[wk->wu.id][1] = 4;
+        return;
+    }
+
+    switch (Rapid_No[wk->wu.id][0]) {
+
+    case 0:
+        Rapid_No[wk->wu.id][0] = 1;
+        Lever_Buff[wk->wu.id] = Shot;
+        break;
+    case 1:
+        Rapid_No[wk->wu.id][0] = 0;
+        Lever_Buff[wk->wu.id] = 0;
+        break;
+    }
+
+    if (wk->wu.sp_tech_id != Tech_Number) {
+        CP_Index[wk->wu.id][1] = 4;
+    }
+}
+
+static void Rapid_Command_Attack_End(PLW* wk, u16 Tech_Number) {
+    if (wk->wu.sp_tech_id == Tech_Number) {
+        return;
+    }
+
+    if (Check_Motion_Ended(wk)) {
+        Reaction_Exit_Sub(wk);
+    }
+}
+
 void Rapid_Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Shot, u16 Time) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
-        dash_flag_clear(wk->wu.id);
-        if (cmd_sel[wk->wu.id]) {
-            Tech_Address[wk->wu.id] = player_CMD[wk->player_number][Tech_Number & 0xFF];
-        } else {
-            Tech_Address[wk->wu.id] = player_cmd[wk->player_number][Tech_Number & 0xFF];
-        }
-        Tech_Index[wk->wu.id] = 0xC;
-        Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-
-        if (Check_Start_Command_Attack(wk, Reaction, Tech_Number & 0x80FF) != 0) {
+        if (!Rapid_Command_Attack_Begin(wk, Reaction, Tech_Number)) {
             break;
         }
-        if (Check_Dash_Hit(wk, Tech_Number & 0x80FF) != 0) {
-            Next_Be_Free(wk);
-        }
-
-        CP_Index[wk->wu.id][1]++;
-        Check_First_Menu(wk);
-        Free_Lever[wk->wu.id] = 0;
         /* Fallthough */
 
     case 1:
-        if (--Combo_Speed[wk->wu.id]) {
-            Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
+        if (!Rapid_Command_Attack_Arm(wk, Time)) {
             break;
         }
-        CP_Index[wk->wu.id][1]++;
-
-        Rapid_No[wk->wu.id][0] = 0;
-        Rapid_No[wk->wu.id][1] = 0;
-        Timer_00[wk->wu.id] = Time;
+        /* Fallthough */
 
     case 2:
-        switch (Rapid_No[wk->wu.id][0]) {
-
-        case 0:
-            Rapid_No[wk->wu.id][0] = 1;
-            Lever_Buff[wk->wu.id] = Shot;
-            break;
-        case 1:
-            Rapid_No[wk->wu.id][0] = 0;
-            Lever_Buff[wk->wu.id] = 0;
-            break;
-        }
-        if (wk->wu.sp_tech_id == Tech_Number) {
-            CP_Index[wk->wu.id][1] = 3;
-        }
+        Rapid_Command_Attack_Fire(wk, Tech_Number, Shot);
         break;
 
     case 3:
-        if (--Timer_00[wk->wu.id] == 0) {
-            CP_Index[wk->wu.id][1] = 4;
-        }
-
-        else {
-            switch (Rapid_No[wk->wu.id][0]) {
-
-            case 0:
-                Rapid_No[wk->wu.id][0] = 1;
-                Lever_Buff[wk->wu.id] = Shot;
-                break;
-            case 1:
-                Rapid_No[wk->wu.id][0] = 0;
-                Lever_Buff[wk->wu.id] = 0;
-                break;
-            }
-            if (wk->wu.sp_tech_id != Tech_Number) {
-                CP_Index[wk->wu.id][1] = 4;
-            }
-        }
+        Rapid_Command_Attack_Hold(wk, Tech_Number, Shot);
         break;
 
     case 4:
-        if (wk->wu.sp_tech_id == Tech_Number) {
-            break;
-        }
-        if (Check_Motion_Ended(wk)) {
-            Reaction_Exit_Sub(wk);
-        }
+        Rapid_Command_Attack_End(wk, Tech_Number);
         break;
     }
 }
