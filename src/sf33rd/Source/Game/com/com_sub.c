@@ -333,9 +333,65 @@ void Search_Back_Term(PLW* wk, s16 Move_Value, s16 Next_Action, s16 Next_Menu) {
     Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
 }
 
-void Approach_Walk(PLW* wk, s16 Target_Pos, s16 Option) {
+/* Clear the per-step state and move the pattern on by one step. */
+static void Next_Pattern_Step(PLW* wk) {
+    CP_Index[wk->wu.id][0]++;
+    CP_Index[wk->wu.id][1] = 0;
+    CP_Index[wk->wu.id][2] = 0;
+    CP_Index[wk->wu.id][3] = 0;
+
+    Flip_Flag[wk->wu.id] = 0;
+    Limited_Flag[wk->wu.id] = 0;
+}
+
+/* As Next_Pattern_Step, and release the passive lock unless pattern 6 holds it.
+ * Walk spelled the pattern read *CP_No[id] rather than CP_No[id][0]; they are
+ * the same access. */
+static void Next_Pattern_Step_Free_Passive(PLW* wk) {
+    Next_Pattern_Step(wk);
+
+    if (CP_No[wk->wu.id][0] != 6) {
+        Passive_Flag[wk->wu.id] = 0;
+    }
+}
+
+/* Check_Passive is skipped entirely while the character is lying down. */
+static s32 Check_Passive_Standing(PLW* wk) {
+    if (Lie_Flag[wk->wu.id] != 0) {
+        return 0;
+    }
+    return Check_Passive(wk);
+}
+
+/* The walking step itself, run every frame once Approach_Walk has started. */
+static void Approach_Walk_Step(PLW* wk, s16 Target_Pos, s16 Option) {
     s16 xx;
 
+    xx = Standing_Timer[wk->wu.id];
+
+    if (Check_Passive_Standing(wk) != 0) {
+        return;
+    }
+    Standing_Timer[wk->wu.id] = xx;
+
+    if (--Timer_00[wk->wu.id] == 0) {
+        Next_Be_Free(wk);
+        return;
+    }
+
+    if (Check_Arrival(wk, Target_Pos, Option) != 0) {
+        Disposal_Again[wk->wu.id] = 1;
+        Next_Pattern_Step_Free_Passive(wk);
+        return;
+    }
+
+    Ck_Distance_Lv(wk);
+    if (Option == 3) {
+        Lever_Buff[wk->wu.id] ^= 0xC;
+    }
+}
+
+void Approach_Walk(PLW* wk, s16 Target_Pos, s16 Option) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
@@ -345,38 +401,7 @@ void Approach_Walk(PLW* wk, s16 Target_Pos, s16 Option) {
         /* fallthrough */
 
     case 1:
-        xx = Standing_Timer[wk->wu.id];
-
-        if (Lie_Flag[wk->wu.id] == 0) {
-            if (Check_Passive(wk) != 0) {
-                break;
-            }
-        }
-        Standing_Timer[wk->wu.id] = xx;
-
-        if (--Timer_00[wk->wu.id] == 0) {
-            Next_Be_Free(wk);
-        }
-
-        else if (Check_Arrival(wk, Target_Pos, Option) != 0) {
-            Disposal_Again[wk->wu.id] = 1;
-            CP_Index[wk->wu.id][0]++;
-            CP_Index[wk->wu.id][1] = 0;
-            CP_Index[wk->wu.id][2] = 0;
-            CP_Index[wk->wu.id][3] = 0;
-
-            Flip_Flag[wk->wu.id] = 0;
-            Limited_Flag[wk->wu.id] = 0;
-
-            if (CP_No[wk->wu.id][0] != 6) {
-                Passive_Flag[wk->wu.id] = 0;
-            }
-        } else {
-            Ck_Distance_Lv(wk);
-            if (Option == 3) {
-                Lever_Buff[wk->wu.id] ^= 0xC;
-            }
-        }
+        Approach_Walk_Step(wk, Target_Pos, Option);
     }
 }
 
@@ -398,6 +423,23 @@ s32 Check_Arrival(PLW* wk, s16 Target_Pos, s16 Option) {
     return 0;
 }
 
+/* One frame of a timed walk. */
+static void Walk_Step(PLW* wk) {
+    if (Check_Passive_Standing(wk) != 0) {
+        return;
+    }
+
+    if (--Timer_00[wk->wu.id] == 0) {
+        Next_Pattern_Step_Free_Passive(wk);
+        return;
+    }
+
+    if ((Timer_01[wk->wu.id] != (s16)wk->wu.rl_flag) || (wk->micchaku_flag != 0) || (wk->hos_em_flag != 0)) {
+        Next_Be_Free(wk);
+    }
+    Lever_Buff[wk->wu.id] = Free_Lever[wk->wu.id];
+}
+
 void Walk(PLW* wk, u16 Lever, s16 Time, s16 unused) {
     switch (CP_Index[wk->wu.id][1]) {
 
@@ -410,30 +452,7 @@ void Walk(PLW* wk, u16 Lever, s16 Time, s16 unused) {
         /* fallthrough */
 
     case 1:
-        if (Lie_Flag[wk->wu.id] == 0) {
-            if (Check_Passive(wk) != 0) {
-                break;
-            }
-        }
-
-        if (--Timer_00[wk->wu.id] == 0) {
-            CP_Index[wk->wu.id][0]++;
-            CP_Index[wk->wu.id][1] = 0;
-            CP_Index[wk->wu.id][2] = 0;
-            CP_Index[wk->wu.id][3] = 0;
-
-            Flip_Flag[wk->wu.id] = 0;
-            Limited_Flag[wk->wu.id] = 0;
-
-            if (*CP_No[wk->wu.id] != 6) {
-                Passive_Flag[wk->wu.id] = 0;
-            }
-        } else {
-            if ((Timer_01[wk->wu.id] != (s16)wk->wu.rl_flag) || (wk->micchaku_flag != 0) || (wk->hos_em_flag != 0)) {
-                Next_Be_Free(wk);
-            }
-            Lever_Buff[wk->wu.id] = Free_Lever[wk->wu.id];
-        }
+        Walk_Step(wk);
         break;
     }
 }
@@ -483,29 +502,25 @@ void Short_Range_Attack(PLW* wk, s16 Reaction, u16 Lever_Data, s16 Next_Action, 
  * when they all pass. Lifted out of EM_Term, where this reached nesting depth
  * 4. Each gate broke out of the inner switch, which fell straight through to
  * the end of EM_Term - the same thing returning here does. */
+/* Which height gate applies depends on the exit number. */
+static s32 Check_EM_Term_Height(PLW* wk, WORK* em, s16 Range_Y, s16 Exit_Number) {
+    if (Exit_Number != 8) {
+        return Check_Term_Sub_Y(wk, em->xyz[1].disp.pos, Range_Y);
+    }
+    return Check_Term_Sub(wk, wk->wu.xyz[1].disp.pos, Range_Y);
+}
+
 static void EM_Term_Approach(PLW* wk, WORK* em, s16 Range_X, s16 Range_Y, s16 Exit_Number) {
     if (Check_Term_Sub(wk, PL_Distance[wk->wu.id], Range_X) == 0) {
         return;
     }
 
-    if (Exit_Number != 8) {
-        if (Check_Term_Sub_Y(wk, em->xyz[1].disp.pos, Range_Y) == 0) {
-            return;
-        }
-    } else {
-        if (Check_Term_Sub(wk, wk->wu.xyz[1].disp.pos, Range_Y) == 0) {
-            return;
-        }
+    if (Check_EM_Term_Height(wk, em, Range_Y, Exit_Number) == 0) {
+        return;
     }
 
     Disposal_Again[wk->wu.id] = 1;
-    CP_Index[wk->wu.id][0]++;
-    CP_Index[wk->wu.id][1] = 0;
-    CP_Index[wk->wu.id][2] = 0;
-    CP_Index[wk->wu.id][3] = 0;
-
-    Flip_Flag[wk->wu.id] = 0;
-    Limited_Flag[wk->wu.id] = 0;
+    Next_Pattern_Step(wk);
 }
 
 void EM_Term(PLW* wk, s16 Range_X, s16 Range_Y, s16 Exit_Number, s16 Next_Action, s16 Next_Menu) {
