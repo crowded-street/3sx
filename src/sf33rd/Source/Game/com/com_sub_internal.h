@@ -4,6 +4,10 @@
 #include "structs.h"
 #include "types.h"
 
+/* Was static in com_sub.c; promoted when Reaction_Sub moved to
+ * com_sub_reaction.c and kept calling it. */
+s32 Check_Free_To_Act(PLW* wk);
+
 /* Defined in com_sub.c; the level/random scratch shared by the split files. */
 extern s8 Lv;
 extern s8 Rnd;
