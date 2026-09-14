@@ -297,11 +297,7 @@ void effL1_w_score_init(WORK_Other_CONN* ewk) {
     ewk->wu.position_x -= 384;
 }
 
-void effL1_w_graph_init(WORK_Other_CONN* ewk) {
-    s16 i;
-
-    ewk->wu.direction = grade_get_my_point_percentage((s32)Winner_id, (s16)(ewk->wu.type - 3));
-
+static void normalize_L1_graph_percentage(WORK_Other_CONN* ewk) {
     if (ewk->wu.direction) {
         ewk->wu.direction /= 2;
 
@@ -312,6 +308,14 @@ void effL1_w_graph_init(WORK_Other_CONN* ewk) {
 
     ewk->wu.dir_step = ewk->wu.direction % 10;
     ewk->wu.direction /= 10;
+}
+
+void effL1_w_graph_init(WORK_Other_CONN* ewk) {
+    s16 i;
+
+    ewk->wu.direction = grade_get_my_point_percentage((s32)Winner_id, (s16)(ewk->wu.type - 3));
+
+    normalize_L1_graph_percentage(ewk);
 
     for (i = 0; i < 6; i++) {
         ewk->conn[i] = gj_bar[i];
@@ -337,16 +341,7 @@ void effL1_k_graph_init(WORK_Other_CONN* ewk) {
         ewk->wu.direction = grade_get_cm_point_percentage((s32)kakushi_ix, (s16)(ewk->wu.type - 16));
     }
 
-    if (ewk->wu.direction) {
-        ewk->wu.direction /= 2;
-
-        if (ewk->wu.direction == 0) {
-            ewk->wu.direction = 1;
-        }
-    }
-
-    ewk->wu.dir_step = ewk->wu.direction % 10;
-    ewk->wu.direction /= 10;
+    normalize_L1_graph_percentage(ewk);
 
     for (i = 0; i < 6; i++) {
         ewk->conn[i] = gj_bar2[i];
