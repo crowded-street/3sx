@@ -96,6 +96,25 @@ void eff94_0000(WORK_Other* ewk) {
     }
 }
 
+static void advance_eff94_1000_initial_animation(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+
+    if (ewk->wu.cg_type == 0xFF) {
+        if (ewk->wu.xyz[0].disp.pos >= 452) {
+            ewk->wu.routine_no[2]++;
+            set_char_move_init(&ewk->wu, 0, 47);
+            ewk->wu.mvxy.a[0].sp = 0x8000;
+            ewk->wu.mvxy.a[1].sp = 0;
+            ewk->wu.mvxy.d[0].sp = 0;
+            ewk->wu.mvxy.d[1].sp = -0x6000;
+            return;
+        }
+
+        ewk->wu.routine_no[2] = 0;
+        set_char_move_init(&ewk->wu, 0, ewk->wu.old_rno[0]);
+    }
+}
+
 void eff94_1000(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[2]) {
     case 0:
@@ -107,24 +126,7 @@ void eff94_1000(WORK_Other* ewk) {
         break;
 
     case 1:
-        char_move(&ewk->wu);
-
-        if (ewk->wu.cg_type == 0xFF) {
-            if (ewk->wu.xyz[0].disp.pos >= 452) {
-                ewk->wu.routine_no[2]++;
-                set_char_move_init(&ewk->wu, 0, 47);
-                ewk->wu.mvxy.a[0].sp = 0x8000;
-                ewk->wu.mvxy.a[1].sp = 0;
-                ewk->wu.mvxy.d[0].sp = 0;
-                ewk->wu.mvxy.d[1].sp = -0x6000;
-                break;
-            }
-
-            ewk->wu.routine_no[2] = 0;
-            set_char_move_init(&ewk->wu, 0, ewk->wu.old_rno[0]);
-            break;
-        }
-
+        advance_eff94_1000_initial_animation(ewk);
         break;
 
     case 2:
