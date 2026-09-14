@@ -231,6 +231,23 @@ static s32 Check_DENJIN_Tracking_Armed(PLW* wk, WORK* em) {
     return (DENJIN_Term[wk->wu.id] & 1) && (em->xyz[0].disp.pos != 0);
 }
 
+/* The three direction-specific ways the charge ends once the target has moved.
+ * Each pairs a DENJIN_Term bit with the direction it applies to. */
+static s32 Check_DENJIN_Exit_By_Direction(PLW* wk, s16 xx) {
+    if ((DENJIN_Term[wk->wu.id] & 2) && (xx == 1)) {
+        return 1;
+    }
+
+    if ((DENJIN_Term[wk->wu.id] & 4) && (xx == -1)) {
+        return 1;
+    }
+
+    if ((DENJIN_Term[wk->wu.id] & 0x20) && (Lie_Flag[wk->wu.id] == 0)) {
+        return 1;
+    }
+    return 0;
+}
+
 s32 Check_Exit_DENJIN(PLW* wk) {
     s16 xx;
     WORK* em;
@@ -253,19 +270,7 @@ s32 Check_Exit_DENJIN(PLW* wk) {
     if (xx == 0) {
         return 0;
     }
-
-    if ((DENJIN_Term[wk->wu.id] & 2) && (xx == 1)) {
-        return 1;
-    }
-
-    if ((DENJIN_Term[wk->wu.id] & 4) && (xx == -1)) {
-        return 1;
-    }
-
-    if ((DENJIN_Term[wk->wu.id] & 0x20) && (Lie_Flag[wk->wu.id] == 0)) {
-        return 1;
-    }
-    return 0;
+    return Check_DENJIN_Exit_By_Direction(wk, xx);
 }
 
 /* CP_Index[3] == 0: choose the keep-away move. Option 0 rolls for it; the
@@ -774,12 +779,25 @@ static s32 Check_Dash_Hit_Shell(PLW* wk, WORK_Other* tmw, u16 Tech_Number, s16 z
     return Check_Hit_Shell(wk, tmw, Tech_Number) != 0;
 }
 
+/* One shell slot of the dash scan: zero to keep scanning, non-zero on a hit. */
+static s32 Check_Dash_Hit_Slot(PLW* wk, WORK_Other* tmw, u16 Tech_Number) {
+    s16 xx;
+    s16 zz;
+
+    if (tmw->wu.routine_no[1] == 2) {
+        return 0;
+    }
+
+    xx = wk->wu.xyz[0].disp.pos - tmw->wu.xyz[0].disp.pos;
+    zz = Setup_Front_or_Back(wk, xx);
+
+    return Check_Dash_Hit_Shell(wk, tmw, Tech_Number, zz);
+}
+
 s32 Check_Dash_Hit(PLW* wk, u16 Tech_Number) {
     WORK_Other* tmw;
     WORK* em;
     s16 i;
-    s16 xx;
-    s16 zz;
 
     if ((Tech_Number != 0) && (Tech_Number != 1)) {
         return 0;
@@ -790,14 +808,8 @@ s32 Check_Dash_Hit(PLW* wk, u16 Tech_Number) {
         if ((get_vs_shell_adrs(em, em->id, i, &tmw) == 0) && (get_vs_shell_adrs((WORK*)wk, em->id, i, &tmw) == 0)) {
             return 0;
         }
-        if (tmw->wu.routine_no[1] == 2) {
-            continue;
-        }
 
-        xx = wk->wu.xyz[0].disp.pos - tmw->wu.xyz[0].disp.pos;
-        zz = Setup_Front_or_Back(wk, xx);
-
-        if (Check_Dash_Hit_Shell(wk, tmw, Tech_Number, zz) != 0) {
+        if (Check_Dash_Hit_Slot(wk, tmw, Tech_Number) != 0) {
             return 1;
         }
     }
