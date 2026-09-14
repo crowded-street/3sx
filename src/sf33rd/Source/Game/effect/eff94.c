@@ -258,6 +258,19 @@ void eff94_3000_4(WORK_Other* ewk) {
     ewk->wu.routine_no[0] = 99;
 }
 
+static void advance_eff94_4000_animation(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+
+    if (ewk->wu.cg_type == 9) {
+        if (bg_w.quake_y_index > 3) {
+            ewk->wu.routine_no[2] = 1;
+        }
+    } else if (ewk->wu.cg_type == 0xFF) {
+        ewk->wu.routine_no[2] = 0;
+        set_char_move_init(&ewk->wu, 0, ewk->wu.old_rno[0]);
+    }
+}
+
 void eff94_4000(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[2]) {
     case 0:
@@ -273,18 +286,7 @@ void eff94_4000(WORK_Other* ewk) {
         break;
 
     case 2:
-        char_move(&ewk->wu);
-
-        if (ewk->wu.cg_type == 9) {
-            if (bg_w.quake_y_index > 3) {
-                ewk->wu.routine_no[2] = 1;
-                break;
-            }
-        } else if (ewk->wu.cg_type == 0xFF) {
-            ewk->wu.routine_no[2] = 0;
-            set_char_move_init(&ewk->wu, 0, ewk->wu.old_rno[0]);
-        }
-
+        advance_eff94_4000_animation(ewk);
         break;
     }
 }
