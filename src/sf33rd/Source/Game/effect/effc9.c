@@ -113,6 +113,37 @@ static void update_C9_charset_7_motion(WORK_Other* ewk) {
     }
 }
 
+static void update_C9_effect_state(WORK_Other* ewk) {
+    switch (ewk->wu.routine_no[1]) {
+    case 0:
+        update_C9_charset_7_motion(ewk);
+
+        if (Event_Judge_Gals) {
+            ewk->wu.routine_no[1] += 1;
+            set_char_move_init(&ewk->wu, 0, 1);
+        }
+
+        break;
+
+    case 1:
+        if (ewk->wu.cg_type == 0xFF) {
+            ewk->wu.routine_no[1] += 1;
+            set_char_move_init(&ewk->wu, 0, 2);
+            effect_37_init(&ewk->wu, ewk->wu.charset_id, EJG_index[ewk->wu.type]);
+        }
+
+        break;
+
+    case 2:
+        if (ewk->wu.cg_type == 0xFF) {
+            ewk->wu.routine_no[1] += 1;
+            Event_Judge_Gals -= 1;
+        }
+
+        break;
+    }
+}
+
 void effect_C9_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -128,35 +159,7 @@ void effect_C9_move(WORK_Other* ewk) {
 
         if ((EXE_flag == 0) && (Game_pause == 0)) {
             char_move(&ewk->wu);
-
-            switch (ewk->wu.routine_no[1]) {
-            case 0:
-                update_C9_charset_7_motion(ewk);
-
-                if (Event_Judge_Gals) {
-                    ewk->wu.routine_no[1] += 1;
-                    set_char_move_init(&ewk->wu, 0, 1);
-                }
-
-                break;
-
-            case 1:
-                if (ewk->wu.cg_type == 0xFF) {
-                    ewk->wu.routine_no[1] += 1;
-                    set_char_move_init(&ewk->wu, 0, 2);
-                    effect_37_init(&ewk->wu, ewk->wu.charset_id, EJG_index[ewk->wu.type]);
-                }
-
-                break;
-
-            case 2:
-                if (ewk->wu.cg_type == 0xFF) {
-                    ewk->wu.routine_no[1] += 1;
-                    Event_Judge_Gals -= 1;
-                }
-
-                break;
-            }
+            update_C9_effect_state(ewk);
         }
 
         ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
