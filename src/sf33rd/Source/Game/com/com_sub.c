@@ -1066,6 +1066,39 @@ s32 Check_Store_Direction(PLW* wk, u16 lever, s16 time) {
     return time <= stored;
 }
 
+/* Walk a level threshold table and report how many entries Control_Time has
+ * already passed. Setup_Lv04 wrote this as a return from inside the loop and
+ * the others as a break; both land on the same value.
+ *
+ * The tables are const u16, but every caller read them through an s16 pointer.
+ * That cast is reproduced exactly rather than corrected. */
+static s32 Setup_Lv_Scan(const u16* table, s16 count) {
+    s16 i;
+    s16* zz;
+
+    zz = (s16*)table;
+
+    for (i = 0; i < count; i++) {
+        if (Control_Time <= zz[i]) {
+            break;
+        }
+    }
+    return i;
+}
+
+/* The level adjustment shared by every Setup_/Select_ helper below: a forced
+ * CPU run pins the level to that table's top entry, and the weaker player is
+ * always handed level 2. Only the cap differs between callers. */
+static s8 Adjust_Level(PLW* wk, s8 level, s8 cap) {
+    if (Break_Into_CPU == 2) {
+        level = cap;
+    }
+    if ((Demo_Flag == 0) && (Weak_PL == wk->wu.id)) {
+        level = 2;
+    }
+    return level;
+}
+
 s32 Select_Combo_Speed(PLW* wk) {
     s8 xx;
     s8 zz;
@@ -1074,17 +1107,11 @@ s32 Select_Combo_Speed(PLW* wk) {
 
     Lv = Setup_Lv18(8);
     Lv += CC_Value[0];
-
-    if (Break_Into_CPU == 2) {
-        Lv = 0x13;
-    }
-
-    if ((Demo_Flag == 0) && (Weak_PL == wk->wu.id)) {
-        Lv = 2;
-    }
-
+    Lv = Adjust_Level(wk, Lv, 0x13);
     Lv = emLevelRemake(Lv, 0x14, 2);
 
+    /* zz is an s8: the assignment truncates the table value, so it cannot be
+     * dropped even though zz is never read. */
     if ((Break_Into_CPU == 1) || (Break_Into_CPU == 2)) {
         return zz = Combo_Speed_Unit_Data[17][Lv][xx];
     }
@@ -1097,15 +1124,11 @@ s32 Select_Reflection_Time(PLW* wk) {
     s8 zz;
 
     xx = (u8)random_32_com();
+
+    /* This Lv shadows the file-scope one; Select_Combo_Speed writes the global. */
     Lv = Setup_Lv18(save_w[Present_Mode].Difficulty + 0);
     Lv += CC_Value[0];
-    if (Break_Into_CPU == 2) {
-        Lv = 0x13;
-    }
-    if ((Demo_Flag == 0) && (Weak_PL == wk->wu.id)) {
-        Lv = 2;
-    }
-
+    Lv = Adjust_Level(wk, Lv, 0x13);
     Lv = emLevelRemake(Lv, 0x14, 2);
 
     if ((Break_Into_CPU == 1) || (Break_Into_CPU == 2)) {
@@ -1115,91 +1138,33 @@ s32 Select_Reflection_Time(PLW* wk) {
 }
 
 s32 Setup_Lv04(s16 xx) {
-    s16 i;
-    s16* zz;
-
-    zz = (s16*)&Level_04_Data[xx];
-
-    for (i = 0; i < 3; i++) {
-        if (Control_Time <= zz[i]) {
-            return i;
-        }
-    }
-    return 3;
+    return Setup_Lv_Scan(&Level_04_Data[xx], 3);
 }
 
 s32 Setup_Lv08(s16 xx) {
-    s16 i;
-    s16* zz;
-
-    zz = (s16*)&Level_08_Data[xx];
-
-    for (i = 0; i < 7; i++) {
-        if (Control_Time <= zz[i]) {
-            break;
-        }
-    }
-    return i;
+    return Setup_Lv_Scan(&Level_08_Data[xx][0], 7);
 }
 
 s32 Setup_Lv10(s16 xx) {
-    s16 i;
-    s16* zz;
-
-    zz = (s16*)&Level_10_Data[xx];
-
-    for (i = 0; i < 9; i++) {
-        if (Control_Time <= zz[i]) {
-            break;
-        }
-    }
-    return i;
+    return Setup_Lv_Scan(&Level_10_Data[xx], 9);
 }
 
 s32 Setup_Lv18(s16 xx) {
-    s16 i;
-    s16* zz;
-
-    zz = (s16*)&Level_18_Data[xx];
-
-    for (i = 0; i < 17; i++) {
-        if (Control_Time <= zz[i]) {
-            break;
-        }
-    }
-    return i;
+    return Setup_Lv_Scan(&Level_18_Data[xx][0], 17);
 }
 
 s32 Setup_VS_Catch_Data(PLW* wk) {
-    Lv = Setup_Lv08(0);
-    if (Break_Into_CPU == 2) {
-        Lv = 7;
-    }
-    if ((Demo_Flag == 0) && (Weak_PL == wk->wu.id)) {
-        Lv = 2;
-    }
+    Lv = Adjust_Level(wk, Setup_Lv08(0), 7);
     return VS_Catch_Data[emLevelRemake(Lv, 8, 0)];
 }
 
 s32 Setup_LP_Data(PLW* wk) {
-    Lv = Setup_Lv08(0);
-    if (Break_Into_CPU == 2) {
-        Lv = 7;
-    }
-    if ((Demo_Flag == 0) && (Weak_PL == wk->wu.id)) {
-        Lv = 2;
-    }
+    Lv = Adjust_Level(wk, Setup_Lv08(0), 7);
     return LOOK_POSITION_Data[emLevelRemake(Lv, 8, 0)][random_32_com()];
 }
 
 s32 Setup_WT_Data(PLW* wk) {
-    Lv = Setup_Lv04(0);
-    if (Break_Into_CPU == 2) {
-        Lv = 3;
-    }
-    if ((Demo_Flag == 0) && (Weak_PL == wk->wu.id)) {
-        Lv = 2;
-    }
+    Lv = Adjust_Level(wk, Setup_Lv04(0), 3);
     return Wait_Time_Data[emLevelRemake(Lv, 4, 0)][random_16_com() & 7];
 }
 
