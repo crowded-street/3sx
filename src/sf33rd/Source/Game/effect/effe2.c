@@ -354,69 +354,82 @@ s32 effect_E2_init(PLW* wk, const s16* data, s16 color_code, u8 ff) {
     return 0;
 }
 
-s32 setup_accessories(PLW* wk, u8 data) {
+static void setup_standing_accessories(PLW* wk) {
     s16 i;
 
+    if (wk->wu.dm_attribute == 1) {
+        for (i = 0; i < 4; i++) {
+            effect_E2_init(wk, flames_stand[wk->player_number][i], 32, 1);
+        }
+    }
+
+    if (wk->wu.dm_attribute == 2) {
+        effect_E2_init(wk, thunder_set_pos_SKB[wk->player_number], 32, 0);
+    }
+
+    if (wk->wu.dm_attribute == 3) {
+        for (i = 0; i < 4; i++) {
+            effect_E2_init(wk, freeze_stand[wk->player_number][i], 32, 0);
+        }
+    }
+}
+
+static void setup_crouching_accessories(PLW* wk) {
+    s16 i;
+
+    if (wk->wu.dm_attribute == 1) {
+        for (i = 0; i < 4; i++) {
+            effect_E2_init(wk, flames_crunch[wk->player_number][i], 32, 1);
+        }
+    }
+
+    if (wk->wu.dm_attribute == 2) {
+        effect_E2_init(wk, thunder_set_pos_SKB[wk->player_number], 32, 0);
+    }
+
+    if (wk->wu.dm_attribute == 3) {
+        for (i = 0; i < 4; i++) {
+            effect_E2_init(wk, freeze_crunch[wk->player_number][i], 32, 0);
+        }
+    }
+}
+
+static void setup_aerial_accessories(PLW* wk) {
+    s16 i;
+
+    if (wk->wu.dm_attribute == 1) {
+        for (i = 0; i < 4; i++) {
+            effect_E2_init(wk, flames_ariel[wk->player_number][i], 32, 1);
+        }
+    }
+
+    if (wk->wu.dm_attribute == 2) {
+        effect_E2_init(wk, thunder_set_pos_SKB[wk->player_number], 32, 0);
+    }
+
+    if (wk->wu.dm_attribute == 3) {
+        for (i = 0; i < 4; i++) {
+            effect_E2_init(wk, freeze_set_pos_B[wk->player_number][i], 32, 0);
+        }
+    }
+}
+
+s32 setup_accessories(PLW* wk, u8 data) {
     if (wk->wu.work_id != 1) {
         return -1;
     }
 
     switch (data) {
     case 0:
-        if (wk->wu.dm_attribute == 1) {
-            for (i = 0; i < 4; i++) {
-                effect_E2_init(wk, flames_stand[wk->player_number][i], 32, 1);
-            }
-        }
-
-        if (wk->wu.dm_attribute == 2) {
-            effect_E2_init(wk, thunder_set_pos_SKB[wk->player_number], 32, 0);
-        }
-
-        if (wk->wu.dm_attribute == 3) {
-            for (i = 0; i < 4; i++) {
-                effect_E2_init(wk, freeze_stand[wk->player_number][i], 32, 0);
-            }
-        }
-
+        setup_standing_accessories(wk);
         break;
 
     case 32:
-        if (wk->wu.dm_attribute == 1) {
-            for (i = 0; i < 4; i++) {
-                effect_E2_init(wk, flames_crunch[wk->player_number][i], 32, 1);
-            }
-        }
-
-        if (wk->wu.dm_attribute == 2) {
-            effect_E2_init(wk, thunder_set_pos_SKB[wk->player_number], 32, 0);
-        }
-
-        if (wk->wu.dm_attribute == 3) {
-            for (i = 0; i < 4; i++) {
-                effect_E2_init(wk, freeze_crunch[wk->player_number][i], 32, 0);
-            }
-        }
-
+        setup_crouching_accessories(wk);
         break;
 
     default:
-        if (wk->wu.dm_attribute == 1) {
-            for (i = 0; i < 4; i++) {
-                effect_E2_init(wk, flames_ariel[wk->player_number][i], 32, 1);
-            }
-        }
-
-        if (wk->wu.dm_attribute == 2) {
-            effect_E2_init(wk, thunder_set_pos_SKB[wk->player_number], 32, 0);
-        }
-
-        if (wk->wu.dm_attribute == 3) {
-            for (i = 0; i < 4; i++) {
-                effect_E2_init(wk, freeze_set_pos_B[wk->player_number][i], 32, 0);
-            }
-        }
-
+        setup_aerial_accessories(wk);
         break;
     }
 
