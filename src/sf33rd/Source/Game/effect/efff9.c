@@ -174,6 +174,24 @@ static void initialize_F9_effect(WORK_Other* ewk) {
     efff9_suicide = 0;
 }
 
+static void update_F9_effect_lifetime(WORK_Other* ewk) {
+    if (ewk->wu.old_rno[3] == 0) {
+        Rewrite();
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0] = 6;
+    } else {
+        ewk->wu.old_rno[3]--;
+
+        if (efff9_suicide == 1) {
+            ewk->wu.disp_flag = 0;
+            ewk->wu.routine_no[0] = 6;
+            ewk->wu.disp_flag = 0;
+        } else {
+            sort_push_request3(&ewk->wu);
+        }
+    }
+}
+
 void effect_F9_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -213,21 +231,7 @@ void effect_F9_move(WORK_Other* ewk) {
             }
         }
 
-        if (ewk->wu.old_rno[3] == 0) {
-            Rewrite();
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0] = 6;
-        } else {
-            ewk->wu.old_rno[3]--;
-
-            if (efff9_suicide == 1) {
-                ewk->wu.disp_flag = 0;
-                ewk->wu.routine_no[0] = 6;
-                ewk->wu.disp_flag = 0;
-            } else {
-                sort_push_request3(&ewk->wu);
-            }
-        }
+        update_F9_effect_lifetime(ewk);
 
         break;
 
