@@ -904,43 +904,66 @@ s32 Command_Type_06(PLW* wk, s16 Power_Level, u16 Tech_Number, s16 Ex_Shot) {
     return 0;
 }
 
+/* Mirror the stored lever when the character is reversed. */
+static void Flip_Lever_Pool(PLW* wk) {
+    if (!wk->wu.rl_waza) {
+        return;
+    }
+    if (Lever_Pool[wk->wu.id] & 0xC) {
+        Lever_Pool[wk->wu.id] ^= 0xC;
+    }
+}
+
+/* CP_Index[2] == 0: latch the timings and lever for the held command. */
+static void Command_Type_01_Begin(PLW* wk) {
+    CP_Index[wk->wu.id][2]++;
+    Timer_01[wk->wu.id] = Tech_Address[wk->wu.id][Tech_Index[wk->wu.id] + 1] + 2;
+    Lever_Pool[wk->wu.id] = Tech_Address[wk->wu.id][Tech_Index[wk->wu.id] + 3];
+    Setup_Command_01(wk);
+    Flip_Lever_Pool(wk);
+}
+
+/* The running step: replay the lever until the hold expires, then step the
+ * tech script on and report whether the command is finished. */
+static s32 Command_Type_01_Run(PLW* wk) {
+    if (++Timer_00[wk->wu.id] < Timer_01[wk->wu.id]) {
+        Lever_Buff[wk->wu.id] = Lever_Pool[wk->wu.id];
+        return 0;
+    }
+
+    Lever_Buff[wk->wu.id] = Lever_Pool[wk->wu.id];
+    Tech_Index[wk->wu.id] += 4;
+    if (Tech_Address[wk->wu.id][Tech_Index[wk->wu.id]] == 0x1C) {
+        return 1;
+    }
+    return 0;
+}
+
+/* CP_Index[2] == 1: once the move is permitted this falls straight through to
+ * the running step, which is what the original did by not breaking. */
+static s32 Command_Type_01_Arm(PLW* wk) {
+    if (!(wk->permited_koa & 2)) {
+        Lever_Buff[wk->wu.id] = Lever_Pool[wk->wu.id];
+        Timer_00[wk->wu.id]++;
+        return 0;
+    }
+
+    CP_Index[wk->wu.id][2]++;
+    return Command_Type_01_Run(wk);
+}
+
 s32 Command_Type_01(PLW* wk, s16 Power_Level, s16 Ex_Shot) {
     switch (CP_Index[wk->wu.id][2]) {
     case 0:
-        CP_Index[wk->wu.id][2]++;
-        Timer_01[wk->wu.id] = Tech_Address[wk->wu.id][Tech_Index[wk->wu.id] + 1] + 2;
-        Lever_Pool[wk->wu.id] = Tech_Address[wk->wu.id][Tech_Index[wk->wu.id] + 3];
-        Setup_Command_01(wk);
-
-        if (wk->wu.rl_waza) {
-            if (Lever_Pool[wk->wu.id] & 0xC) {
-                Lever_Pool[wk->wu.id] ^= 0xC;
-            }
-        }
+        Command_Type_01_Begin(wk);
         /* fallthrough */
 
     case 1:
-        if (wk->permited_koa & 2) {
-            CP_Index[wk->wu.id][2]++;
-        } else {
-            Lever_Buff[wk->wu.id] = Lever_Pool[wk->wu.id];
-            Timer_00[wk->wu.id]++;
-            break;
-        }
+        return Command_Type_01_Arm(wk);
 
     default:
-        if (++Timer_00[wk->wu.id] < Timer_01[wk->wu.id]) {
-            Lever_Buff[wk->wu.id] = Lever_Pool[wk->wu.id];
-        } else {
-            Lever_Buff[wk->wu.id] = Lever_Pool[wk->wu.id];
-            Tech_Index[wk->wu.id] += 4;
-            if (Tech_Address[wk->wu.id][Tech_Index[wk->wu.id]] == 0x1C) {
-                return 1;
-            }
-        }
-        break;
+        return Command_Type_01_Run(wk);
     }
-    return 0;
 }
 
 void Setup_Command_01(PLW* wk) {
