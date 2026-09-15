@@ -532,7 +532,11 @@ static void initialize_eff09_4000(WORK_Other* ewk) {
     cal_all_speed_data(&ewk->wu, ewk->wu.old_rno[0], work2, 0, 0, 2);
 }
 
-static void advance_eff09_4000(WORK_Other* ewk) {
+/* The timed approach both effects run: while updates are enabled, move the
+ * effect along and count its timer down. Non-zero on the frame the timer
+ * reaches zero and the state steps on - which is where the two callers each do
+ * their own thing. */
+static s32 eff09_approach_complete(WORK_Other* ewk) {
     if (!EXE_flag && !Game_pause) {
         char_move(&ewk->wu);
         add_x_sub(&ewk->wu);
@@ -540,8 +544,16 @@ static void advance_eff09_4000(WORK_Other* ewk) {
 
         if (ewk->wu.old_rno[0] <= 0) {
             ewk->wu.routine_no[1]++;
-            set_char_move_init(&ewk->wu, 0, 29);
+            return 1;
         }
+    }
+
+    return 0;
+}
+
+static void advance_eff09_4000(WORK_Other* ewk) {
+    if (eff09_approach_complete(ewk)) {
+        set_char_move_init(&ewk->wu, 0, 29);
     }
 }
 
@@ -753,15 +765,8 @@ static void initialize_eff09_11000(WORK_Other* ewk, const WORK* oya_ptr) {
 }
 
 static void advance_eff09_11000(WORK_Other* ewk, WORK* oya_ptr) {
-    if (!EXE_flag && !Game_pause) {
-        char_move(&ewk->wu);
-        add_x_sub(&ewk->wu);
-        ewk->wu.old_rno[0]--;
-
-        if (ewk->wu.old_rno[0] <= 0) {
-            ewk->wu.routine_no[1]++;
-            oya_ptr->cmwk[0] = 9;
-        }
+    if (eff09_approach_complete(ewk)) {
+        oya_ptr->cmwk[0] = 9;
     }
 }
 
