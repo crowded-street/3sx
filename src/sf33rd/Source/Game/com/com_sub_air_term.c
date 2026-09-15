@@ -530,23 +530,13 @@ static void ORO_HJA_Term_Arm(PLW* wk) {
     Lever_Pool[wk->wu.id] |= 1;
 }
 
-void ORO_HJA_Term(
-    PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Lever_Data, s16 RJX, s16 RJY,
-    u16 JLD
+/* The airborne half of ORO_HJA_Term: everything from the rise onwards. The case
+ * labels are the original ones, so this reads against the same state numbers as
+ * the ground half it was lifted out of. */
+static void ORO_HJA_Term_Airborne(
+    PLW* wk, s16 Reaction, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Lever_Data, s16 RJX, s16 RJY, u16 JLD
 ) {
     switch (CP_Index[wk->wu.id][1]) {
-
-    case 0:
-        ORO_HJA_Term_Begin(wk);
-        break;
-
-    case 1:
-        ORO_HJA_Term_Launch(wk, Jump_Dir);
-        break;
-
-    case 2:
-        ORO_HJA_Term_Arm(wk);
-        break;
 
     case 3:
         ORO_Air_Rise(wk);
@@ -570,6 +560,30 @@ void ORO_HJA_Term(
 
     default:
         Air_Term_End(wk, Reaction);
+        break;
+    }
+}
+
+void ORO_HJA_Term(
+    PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Lever_Data, s16 RJX, s16 RJY,
+    u16 JLD
+) {
+    switch (CP_Index[wk->wu.id][1]) {
+
+    case 0:
+        ORO_HJA_Term_Begin(wk);
+        break;
+
+    case 1:
+        ORO_HJA_Term_Launch(wk, Jump_Dir);
+        break;
+
+    case 2:
+        ORO_HJA_Term_Arm(wk);
+        break;
+
+    default:
+        ORO_HJA_Term_Airborne(wk, Reaction, JY, Jump_Dir2, RX, RY, Lever_Data, RJX, RJY, JLD);
         break;
     }
 
