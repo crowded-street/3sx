@@ -22,6 +22,14 @@ static s32 game_is_active(void) {
 }
 
 
+/* Non-zero when the effect's animation has reached the given cel. The frame
+ * advance is inside the test, and behind the pause checks, exactly as the
+ * original comma expression had it - char_move only runs when the game is
+ * running. */
+static s32 e30_animation_reached(WORK_Other* ewk, s16 cg_type) {
+    return !EXE_flag && !Game_pause && (char_move(&ewk->wu), ewk->wu.cg_type == cg_type);
+}
+
 void effect_30_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -55,7 +63,7 @@ if (game_is_active()) {
         break;
 
     case 2:
-        if (!EXE_flag && !Game_pause && (char_move(&ewk->wu), ewk->wu.cg_type == 0xFF)) {
+        if (e30_animation_reached(ewk, 0xFF)) {
             ewk->wu.routine_no[0]++;
             set_char_move_init(&ewk->wu, 0, 2);
         }
@@ -65,7 +73,7 @@ if (game_is_active()) {
         break;
 
     case 3:
-        if (!EXE_flag && !Game_pause && (char_move(&ewk->wu), ewk->wu.cg_type == 10)) {
+        if (e30_animation_reached(ewk, 10)) {
             ewk->wu.cg_type = 0;
             ewk->wu.kage_hx -= 4;
         }
