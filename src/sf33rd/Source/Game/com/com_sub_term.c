@@ -255,6 +255,12 @@ s32 Exit_Term_0007(PLW* wk, WORK* em) {
     return 0;
 }
 
+/* Non-zero once the character is back on the ground, was already there last
+ * frame, and is not in the airborne routine. */
+static s32 Settled_On_Ground(PLW* wk) {
+    return (wk->wu.old_pos[1] == 0) && (wk->wu.xyz[1].disp.pos == 0) && (wk->wu.routine_no[1] != 4);
+}
+
 s32 Exit_Term_0008(PLW* wk, WORK* em) {
     switch (Term_No[wk->wu.id]) {
     case 0:
@@ -262,7 +268,7 @@ s32 Exit_Term_0008(PLW* wk, WORK* em) {
         Timer_00[wk->wu.id] = 0xb4;
         /* fallthough */
     default:
-        if ((wk->wu.old_pos[1] == 0) && (wk->wu.xyz[1].disp.pos == 0) && (wk->wu.routine_no[1] != 4)) {
+        if (Settled_On_Ground(wk)) {
             return 1;
         }
         if (--Timer_00[wk->wu.id] == 0) {
