@@ -209,7 +209,7 @@ void Shell11_0011(PLW* wk) {
 void Shell11_0012(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Command_Attack_Term(wk, 8, 0x1E, 0xA, -1, -1, 0x30, 0, -1, -1, 0xFFFF);
+        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x1E, 0xA, -1, -1, 0x30, 0, -1, -1, 0xFFFF});
         break;
 
     default:
@@ -221,7 +221,7 @@ void Shell11_0012(PLW* wk) {
 void Shell11_0013(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Command_Attack_Term(wk, 8, 0x1E, 0xA, 0x700, -1, 0x30, 0, -1, -1, 0xFFFF);
+        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x1E, 0xA, 0x700, -1, 0x30, 0, -1, -1, 0xFFFF});
         break;
 
     default:

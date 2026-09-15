@@ -102,10 +102,23 @@ typedef struct {
 
 void ORO_JCA_Term(PLW* wk, const ORO_JCA_Term_Args* a);
 void ORO_HJCA_Term(PLW* wk, const ORO_JCA_Term_Args* a);
-void Jump_Command_Attack_Term(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot, s16 RX, s16 RY,
-                              s16 Jump_Dir, s16 JRX, s16 JRY, u16 JLD);
-void Hi_Jump_Command_Attack_Term(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot, s16 RX, s16 RY,
-                                 s16 Jump_Dir, s16 JRX, s16 JRY, u16 JLD);
+/* The ten values the two jump command attack Terms are driven by. The field
+ * order is the parameter order they used to take. */
+typedef struct {
+    s16 Reaction;
+    u16 Tech_Number;
+    s16 Power_Level;
+    s16 Ex_Shot;
+    s16 RX;
+    s16 RY;
+    s16 Jump_Dir;
+    s16 JRX;
+    s16 JRY;
+    u16 JLD;
+} JCA_Term_Args;
+
+void Jump_Command_Attack_Term(PLW* wk, const JCA_Term_Args* a);
+void Hi_Jump_Command_Attack_Term(PLW* wk, const JCA_Term_Args* a);
 void Check_Store_Lever(PLW* wk, u16 Tech_Number, s16 Next_Action, s16 Next_Menu);
 s32 Setup_Lv04(s16 xx);
 s32 Setup_Lv08(s16 xx);

@@ -708,7 +708,7 @@ void Pattern05_0046(PLW* wk) {
 void Pattern05_0047(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Hi_Jump_Command_Attack_Term(wk, 8, 0x1F, 0xA, -1, -0x7FA0, 0x30, 0, -1, 0x30, 0x400);
+        Hi_Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x1F, 0xA, -1, -0x7FA0, 0x30, 0, -1, 0x30, 0x400});
         break;
 
     default:
@@ -760,7 +760,7 @@ void Pattern05_0051(PLW* wk) {
 void Pattern05_0052(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Hi_Jump_Command_Attack_Term(wk, 8, 0x1F, 0xA, -1, -1, 0x30, 0, -1, -1, -1);
+        Hi_Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x1F, 0xA, -1, -1, 0x30, 0, -1, -1, -1});
         break;
 
     default:

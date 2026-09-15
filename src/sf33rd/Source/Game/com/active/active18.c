@@ -49,7 +49,7 @@ void Pattern18_0001(PLW* wk) {
 void Pattern18_0002(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Command_Attack_Term(wk, 8, 0x2F, 9, -1, -1, -0x7FA8, 1, -1, 0x30, 0x400);
+        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x2F, 9, -1, -1, -0x7FA8, 1, -1, 0x30, 0x400});
         break;
 
     default:
@@ -264,7 +264,7 @@ void Pattern18_0017(PLW* wk) {
 void Pattern18_0018(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Command_Attack_Term(wk, 8, 0x2F, 9, -1, -1, -0x7FA8, 1, -1, 0x30, 0x400);
+        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x2F, 9, -1, -1, -0x7FA8, 1, -1, 0x30, 0x400});
         break;
 
     default:
@@ -732,7 +732,7 @@ void Pattern18_0046(PLW* wk) {
 void Pattern18_0047(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Command_Attack_Term(wk, 8, 0x8026, 0xA, -1, 0x30, -0x7FB0, 1, -1, -1, -1);
+        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x8026, 0xA, -1, 0x30, -0x7FB0, 1, -1, -1, -1});
         break;
 
     default:
@@ -756,7 +756,7 @@ void Pattern18_0048(PLW* wk) {
 void Pattern18_0049(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Command_Attack_Term(wk, 8, 0x8026, 8, -1, 0x30, -0x7FB0, 0, -1, -1, -1);
+        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x8026, 8, -1, 0x30, -0x7FB0, 0, -1, -1, -1});
         break;
 
     default:
@@ -768,7 +768,7 @@ void Pattern18_0049(PLW* wk) {
 void Pattern18_0050(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Command_Attack_Term(wk, 8, 0x8026, 9, -1, 0x30, -0x7FB0, 2, -1, -1, -1);
+        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x8026, 9, -1, 0x30, -0x7FB0, 2, -1, -1, -1});
         break;
 
     default:
@@ -780,7 +780,7 @@ void Pattern18_0050(PLW* wk) {
 void Pattern18_0051(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Command_Attack_Term(wk, 8, 0x8026, 0xA, -1, 0x30, -0x7FB0, 1, -1, -1, -1);
+        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x8026, 0xA, -1, 0x30, -0x7FB0, 1, -1, -1, -1});
         break;
 
     default:
@@ -920,7 +920,7 @@ void Pattern18_0060(PLW* wk) {
 void Pattern18_0061(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Command_Attack_Term(wk, 8, 0x2F, 9, 0x700, -1, -0x7FA8, 1, -1, 0x30, 0x400);
+        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x2F, 9, 0x700, -1, -0x7FA8, 1, -1, 0x30, 0x400});
         break;
 
     default:
@@ -1004,7 +1004,7 @@ void Pattern18_0067(PLW* wk) {
 void Pattern18_0068(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Hi_Jump_Command_Attack_Term(wk, 8, 0x2E, 9, -1, -1, 0x50, 0, -0x7FA0, -1, 0x40);
+        Hi_Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x2E, 9, -1, -1, 0x50, 0, -0x7FA0, -1, 0x40});
         break;
 
     default:
@@ -1168,7 +1168,7 @@ void Pattern18_0080(PLW* wk) {
 void Pattern18_0081(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Command_Attack_Term(wk, 8, 0x2F, 8, -1, -1, -0x7FA8, 2, -1, 0x30, 0x400);
+        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x2F, 8, -1, -1, -0x7FA8, 2, -1, 0x30, 0x400});
         break;
 
     default:
@@ -1180,7 +1180,7 @@ void Pattern18_0081(PLW* wk) {
 void Pattern18_0082(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Command_Attack_Term(wk, 8, 0x2F, 9, -1, -1, -0x7FA8, 2, -1, 0x30, 0x400);
+        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x2F, 9, -1, -1, -0x7FA8, 2, -1, 0x30, 0x400});
         break;
 
     default:
@@ -1192,7 +1192,7 @@ void Pattern18_0082(PLW* wk) {
 void Pattern18_0083(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Command_Attack_Term(wk, 8, 0x2F, 0xA, -1, -1, -0x7FA8, 2, -1, 0x30, 0x400);
+        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x2F, 0xA, -1, -1, -0x7FA8, 2, -1, 0x30, 0x400});
         break;
 
     default:
@@ -1216,7 +1216,7 @@ void Pattern18_0084(PLW* wk) {
 void Pattern18_0085(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Command_Attack_Term(wk, 8, 0x2F, 8, -1, -1, -0x7FA8, 0, -1, 0x30, 0x400);
+        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x2F, 8, -1, -1, -0x7FA8, 0, -1, 0x30, 0x400});
         break;
 
     default:
@@ -1228,7 +1228,7 @@ void Pattern18_0085(PLW* wk) {
 void Pattern18_0086(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Command_Attack_Term(wk, 8, 0x2F, 9, -1, -1, -0x7FA8, 0, -1, 0x30, 0x400);
+        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x2F, 9, -1, -1, -0x7FA8, 0, -1, 0x30, 0x400});
         break;
 
     default:
@@ -1240,7 +1240,7 @@ void Pattern18_0086(PLW* wk) {
 void Pattern18_0087(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Command_Attack_Term(wk, 8, 0x2F, 0xA, -1, -1, -0x7FA8, 0, -1, 0x30, 0x400);
+        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x2F, 0xA, -1, -1, -0x7FA8, 0, -1, 0x30, 0x400});
         break;
 
     default:
@@ -1264,7 +1264,7 @@ void Pattern18_0088(PLW* wk) {
 void Pattern18_0089(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Command_Attack_Term(wk, 8, 0x2F, 8, -1, -1, -0x7FA8, 0, -1, 0x30, 0x400);
+        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x2F, 8, -1, -1, -0x7FA8, 0, -1, 0x30, 0x400});
         break;
 
     default:
@@ -1276,7 +1276,7 @@ void Pattern18_0089(PLW* wk) {
 void Pattern18_0090(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Command_Attack_Term(wk, 8, 0x2F, 9, -1, -1, -0x7FA8, 0, -1, 0x30, 0x400);
+        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x2F, 9, -1, -1, -0x7FA8, 0, -1, 0x30, 0x400});
         break;
 
     default:
@@ -1288,7 +1288,7 @@ void Pattern18_0090(PLW* wk) {
 void Pattern18_0091(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Command_Attack_Term(wk, 8, 0x2F, 0xA, -1, -1, -0x7FA8, 0, -1, 0x30, 0x400);
+        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x2F, 0xA, -1, -1, -0x7FA8, 0, -1, 0x30, 0x400});
         break;
 
     default:

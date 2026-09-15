@@ -729,7 +729,7 @@ void Passive12_0042(PLW* wk) {
 void Passive12_0043(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Hi_Jump_Command_Attack_Term(wk, 8, 0x20, 10, -1, -1, 0x30, 0, -1, -1, 0xFFFF);
+        Hi_Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x20, 10, -1, -1, 0x30, 0, -1, -1, 0xFFFF});
         break;
 
     default:

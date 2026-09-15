@@ -155,8 +155,8 @@ static void JCA_Term_Rise(PLW* wk) {
     }
 }
 
-static void JCA_Term_Approach(PLW* wk, s16 Reaction, s16 RX, s16 RY, s16 JRX, s16 JRY, u16 JLD) {
-    const Attack_Range_Args r = { Reaction, RX, RY, JRX, JRY, JLD };
+static void JCA_Term_Approach(PLW* wk, const JCA_Term_Args* a) {
+    const Attack_Range_Args r = { a->Reaction, a->RX, a->RY, a->JRX, a->JRY, a->JLD };
 
     Check_Air_Guard(wk);
     Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
@@ -183,18 +183,15 @@ static void JCA_Term_End(PLW* wk, s16 Reaction) {
     Check_Landed(wk, Reaction & 0xFFF);
 }
 
-void Jump_Command_Attack_Term(
-    PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot, s16 RX, s16 RY, s16 Jump_Dir, s16 JRX,
-    s16 JRY, u16 JLD
-) {
+void Jump_Command_Attack_Term(PLW* wk, const JCA_Term_Args* a) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
-        JCA_Term_Begin(wk, Tech_Number);
+        JCA_Term_Begin(wk, a->Tech_Number);
         break;
 
     case 1:
-        JCA_Term_Launch(wk, Tech_Number, Jump_Dir);
+        JCA_Term_Launch(wk, a->Tech_Number, a->Jump_Dir);
         break;
 
     case 2:
@@ -202,19 +199,19 @@ void Jump_Command_Attack_Term(
         break;
 
     case 3:
-        JCA_Term_Approach(wk, Reaction, RX, RY, JRX, JRY, JLD);
+        JCA_Term_Approach(wk, a);
         break;
 
     case 4:
-        Command_Term_Hold(wk, Reaction, 0xFFF);
+        Command_Term_Hold(wk, a->Reaction, 0xFFF);
         break;
 
     case 5:
-        JCA_Term_Land(wk, Reaction, Tech_Number, Power_Level, Ex_Shot);
+        JCA_Term_Land(wk, a->Reaction, a->Tech_Number, a->Power_Level, a->Ex_Shot);
         break;
 
     default:
-        JCA_Term_End(wk, Reaction);
+        JCA_Term_End(wk, a->Reaction);
         break;
     }
 }
@@ -314,9 +311,7 @@ static void HJCA_Term_End(PLW* wk, s16 Reaction) {
 /* The airborne half of Hi_Jump_Command_Attack_Term: everything from the rise
  * onwards. The case labels are the original ones, so this reads against the
  * same state numbers as the ground half it was lifted out of. */
-static void HJCA_Term_Airborne(
-    PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot, s16 RX, s16 RY, s16 JRX, s16 JRY, u16 JLD
-) {
+static void HJCA_Term_Airborne(PLW* wk, const JCA_Term_Args* a) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 3:
@@ -324,35 +319,32 @@ static void HJCA_Term_Airborne(
         break;
 
     case 4:
-        Command_Term_Approach(wk, Reaction, RX, RY, JRX, JRY, JLD);
+        Command_Term_Approach(wk, a->Reaction, a->RX, a->RY, a->JRX, a->JRY, a->JLD);
         break;
 
     case 5:
-        Command_Term_Hold(wk, Reaction, 0xFFF);
+        Command_Term_Hold(wk, a->Reaction, 0xFFF);
         break;
 
     case 6:
-        HJCA_Term_Land(wk, Reaction, Tech_Number, Power_Level, Ex_Shot);
+        HJCA_Term_Land(wk, a->Reaction, a->Tech_Number, a->Power_Level, a->Ex_Shot);
         break;
 
     default:
-        HJCA_Term_End(wk, Reaction);
+        HJCA_Term_End(wk, a->Reaction);
         break;
     }
 }
 
-void Hi_Jump_Command_Attack_Term(
-    PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot, s16 RX, s16 RY, s16 Jump_Dir, s16 JRX,
-    s16 JRY, u16 JLD
-) {
+void Hi_Jump_Command_Attack_Term(PLW* wk, const JCA_Term_Args* a) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
-        HJCA_Term_Begin(wk, Tech_Number);
+        HJCA_Term_Begin(wk, a->Tech_Number);
         break;
 
     case 1:
-        HJCA_Term_Launch(wk, Jump_Dir);
+        HJCA_Term_Launch(wk, a->Jump_Dir);
         break;
 
     case 2:
@@ -360,7 +352,7 @@ void Hi_Jump_Command_Attack_Term(
         break;
 
     default:
-        HJCA_Term_Airborne(wk, Reaction, Tech_Number, Power_Level, Ex_Shot, RX, RY, JRX, JRY, JLD);
+        HJCA_Term_Airborne(wk, a);
         break;
     }
 }

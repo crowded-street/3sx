@@ -130,14 +130,8 @@ s32 Check_Rapid_End(PLW* wk);
 s32 Check_Start_Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number);
 void ORO_JCA_Term(PLW* wk, const ORO_JCA_Term_Args* a);
 void ORO_HJCA_Term(PLW* wk, const ORO_JCA_Term_Args* a);
-void Jump_Command_Attack_Term(
-    PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot, s16 RX, s16 RY, s16 Jump_Dir, s16 JRX,
-    s16 JRY, u16 JLD
-);
-void Hi_Jump_Command_Attack_Term(
-    PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot, s16 RX, s16 RY, s16 Jump_Dir, s16 JRX,
-    s16 JRY, u16 JLD
-);
+void Jump_Command_Attack_Term(PLW* wk, const JCA_Term_Args* a);
+void Hi_Jump_Command_Attack_Term(PLW* wk, const JCA_Term_Args* a);
 s32 Check_Landed(PLW* wk, s16 Reaction);
 s32 Check_Dash_Hit(PLW* wk, u16 Tech_Number);
 s32 Setup_Front_or_Back(PLW* wk, s16 xx);

@@ -858,7 +858,7 @@ void Pattern07_0046(PLW* wk) {
 void Pattern07_0047(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Hi_Jump_Command_Attack_Term(wk, 8, 0x2E, 9, -1, -0x7FA0, 0x38, 0x0, -1, 0x30, 0x400);
+        Hi_Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x2E, 9, -1, -0x7FA0, 0x38, 0x0, -1, 0x30, 0x400});
         break;
 
     default:
@@ -878,7 +878,7 @@ void Pattern07_0048(PLW* wk) {
         break;
 
     case 2:
-        Jump_Command_Attack_Term(wk, 8, 0x2E, 0xA, -1, -1, 0x38, 1, -1, -1, -1);
+        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x2E, 0xA, -1, -1, 0x38, 1, -1, -1, -1});
         break;
 
     default:
@@ -942,7 +942,7 @@ void Pattern07_0051(PLW* wk) {
 void Pattern07_0052(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Hi_Jump_Command_Attack_Term(wk, 8, 0x8126, 0xA, -1, -1, 0x30, 0, -1, -1, -1);
+        Hi_Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x8126, 0xA, -1, -1, 0x30, 0, -1, -1, -1});
         break;
 
     default:
@@ -990,7 +990,7 @@ void Pattern07_0055(PLW* wk) {
 void Pattern07_0056(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Command_Attack_Term(wk, 8, 0x8126, 9, -1, -1, 0x40, 1, -1, -1, -1);
+        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x8126, 9, -1, -1, 0x40, 1, -1, -1, -1});
         break;
 
     default:
@@ -1002,7 +1002,7 @@ void Pattern07_0056(PLW* wk) {
 void Pattern07_0057(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Command_Attack_Term(wk, 8, 0x8126, 9, -1, -1, 0x40, 2, -1, -1, -1);
+        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x8126, 9, -1, -1, 0x40, 2, -1, -1, -1});
         break;
 
     default:
@@ -1014,7 +1014,7 @@ void Pattern07_0057(PLW* wk) {
 void Pattern07_0058(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Command_Attack_Term(wk, 8, 0x8126, 0xA, -1, -1, 0x30, 2, -1, -1, -1);
+        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x8126, 0xA, -1, -1, 0x30, 2, -1, -1, -1});
         break;
 
     default:
