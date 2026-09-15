@@ -456,6 +456,25 @@ static s32 ORO_JA_Term_Begin(PLW* wk, s16 Reaction) {
     return 1;
 }
 
+/* The descent: hold the attack, then land. The case labels are the original
+ * ones. */
+static void ORO_JA_Term_Descent(PLW* wk, const ORO_Air_Term_Args* a) {
+    switch (CP_Index[wk->wu.id][1]) {
+
+    case 5:
+        Air_Term_Hold(wk, a->Reaction, 0x7F);
+        break;
+
+    case 6:
+        Air_Term_Land(wk, a->Reaction & 0x7F);
+        break;
+
+    default:
+        Air_Term_End(wk, a->Reaction);
+        break;
+    }
+}
+
 void ORO_JA_Term(PLW* wk, const ORO_Air_Term_Args* a) {
     switch (CP_Index[wk->wu.id][1]) {
 
@@ -481,16 +500,8 @@ void ORO_JA_Term(PLW* wk, const ORO_Air_Term_Args* a) {
         ORO_Air_Strike(wk, a);
         break;
 
-    case 5:
-        Air_Term_Hold(wk, a->Reaction, 0x7F);
-        break;
-
-    case 6:
-        Air_Term_Land(wk, a->Reaction & 0x7F);
-        break;
-
     default:
-        Air_Term_End(wk, a->Reaction);
+        ORO_JA_Term_Descent(wk, a);
         break;
     }
     if (CP_Index[wk->wu.id][1] >= 3) {
