@@ -16,6 +16,16 @@ static s32 should_end_effect(const WORK_Other* ewk) {
     return ewk->wu.dead_f == 1 || Suicide[0] != 0;
 }
 
+/* Non-zero when this effect is done. Which test applies comes from its table
+ * entry: flag 1 runs a timer down, flag 2 watches the master's cel. The timer
+ * is decremented inside the condition and only when flag 1 is set, exactly as
+ * the original expression had it. */
+static s32 i3_effect_expired(WORK_Other* ewk, const WORK* mwk) {
+    return (i3_data[ewk->wu.type].flag & 1 && --ewk->wu.dir_timer < 0) ||
+           (i3_data[ewk->wu.type].flag & 2 &&
+            (ewk->wu.now_koc != mwk->now_koc || ewk->wu.char_index != mwk->char_index));
+}
+
 void effect_I3_move(WORK_Other* ewk) {
     WORK* mwk = (WORK*)ewk->my_master;
 
@@ -53,9 +63,7 @@ void effect_I3_move(WORK_Other* ewk) {
             break;
         }
 
-        if ((i3_data[ewk->wu.type].flag & 1 && --ewk->wu.dir_timer < 0) ||
-            (i3_data[ewk->wu.type].flag & 2 &&
-             (ewk->wu.now_koc != mwk->now_koc || ewk->wu.char_index != mwk->char_index))) {
+        if (i3_effect_expired(ewk, mwk)) {
             ewk->wu.routine_no[0] = 2;
         }
 
