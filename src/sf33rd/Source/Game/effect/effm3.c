@@ -28,6 +28,55 @@ static void m3_stop(WORK_Other* ewk) {
     ewk->wu.routine_no[0] = 2;
 }
 
+/* The flight itself, a state machine of its own on routine_no[1]: wait for the
+ * step flag, run the delay out, then fly the bahn until the horizontal
+ * component reaches zero. The case labels and the fallthroughs are the
+ * original ones. */
+static void m3_advance_bahn(WORK_Other* ewk) {
+    switch (ewk->wu.routine_no[1]) {
+    case 0:
+        if (!(Next_Step & 1)) {
+            break;
+        }
+
+        ewk->wu.routine_no[1]++;
+        ewk->wu.mvxy.a[0].real.h = 64;
+        ewk->wu.mvxy.a[0].real.l = -1;
+        ewk->wu.mvxy.d[0].real.h = -1;
+        ewk->wu.mvxy.d[0].real.l = M3_bahn_data[4] * 16;
+        ewk->wu.mvxy.kop[0] = 1;
+        ewk->wu.my_mr_flag = 1;
+        /* fallthrough */
+
+    case 1:
+        if (--ewk->wu.dir_timer >= 0) {
+            break;
+        }
+
+        ewk->wu.routine_no[1]++;
+        ewk->wu.disp_flag = 1;
+        /* fallthrough */
+
+    case 2:
+        cal_mvxy_speed(&ewk->wu);
+        ewk->wu.mvxy.d[0].sp = (ewk->wu.mvxy.d[0].sp * ewk->wu.dmcal_m) / ewk->wu.dmcal_d;
+
+        if (!ewk->wu.mvxy.a[0].real.h) {
+            ewk->wu.routine_no[1]++;
+
+            if (ewk->wu.type == 0) {
+                Next_Step = 0;
+            }
+        }
+
+        break;
+
+    default:
+        m3_stop(ewk);
+        break;
+    }
+}
+
 void effect_M3_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -50,48 +99,7 @@ void effect_M3_move(WORK_Other* ewk) {
             break;
         }
 
-        switch (ewk->wu.routine_no[1]) {
-        case 0:
-            if (!(Next_Step & 1)) {
-                break;
-            }
-
-            ewk->wu.routine_no[1]++;
-            ewk->wu.mvxy.a[0].real.h = 64;
-            ewk->wu.mvxy.a[0].real.l = -1;
-            ewk->wu.mvxy.d[0].real.h = -1;
-            ewk->wu.mvxy.d[0].real.l = M3_bahn_data[4] * 16;
-            ewk->wu.mvxy.kop[0] = 1;
-            ewk->wu.my_mr_flag = 1;
-            /* fallthrough */
-
-        case 1:
-            if (--ewk->wu.dir_timer >= 0) {
-                break;
-            }
-
-            ewk->wu.routine_no[1]++;
-            ewk->wu.disp_flag = 1;
-            /* fallthrough */
-
-        case 2:
-            cal_mvxy_speed(&ewk->wu);
-            ewk->wu.mvxy.d[0].sp = (ewk->wu.mvxy.d[0].sp * ewk->wu.dmcal_m) / ewk->wu.dmcal_d;
-
-            if (!ewk->wu.mvxy.a[0].real.h) {
-                ewk->wu.routine_no[1]++;
-
-                if (ewk->wu.type == 0) {
-                    Next_Step = 0;
-                }
-            }
-
-            break;
-
-        default:
-            m3_stop(ewk);
-            break;
-        }
+        m3_advance_bahn(ewk);
 
         ewk->wu.my_mr.size.x = ewk->wu.my_mr.size.y = ewk->wu.mvxy.a[0].real.h + 63;
         effM3_trans(&ewk->wu);
