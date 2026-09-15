@@ -14,6 +14,17 @@
 #include "sf33rd/Source/Game/rendering/color3rd.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
 
+/* Non-zero while the effect should keep drawing: either the game is paused - in
+ * which case it holds its frame - or the master is still on the cel it was
+ * spawned for and the effect's own animation has not run out. The frame advance
+ * sits inside the condition, behind both of those, exactly as the original
+ * comma expression had it. */
+static s32 k9_still_showing(WORK_Other* ewk, const WORK* mwk) {
+    return EXE_flag != 0 || Game_pause != 0 ||
+           (ewk->wu.dir_old == mwk->now_koc && ewk->wu.dir_step == mwk->char_index &&
+            (char_move(&ewk->wu), ewk->wu.cg_type != 0xFF));
+}
+
 void effect_K9_move(WORK_Other* ewk) {
     WORK* mwk = (WORK*)ewk->my_master;
 
@@ -33,9 +44,7 @@ void effect_K9_move(WORK_Other* ewk) {
 
     case 1:
         if (ewk->wu.dead_f == 0) {
-            if (EXE_flag != 0 || Game_pause != 0 ||
-                (ewk->wu.dir_old == mwk->now_koc && ewk->wu.dir_step == mwk->char_index &&
-                 (char_move(&ewk->wu), ewk->wu.cg_type != 0xFF))) {
+            if (k9_still_showing(ewk, mwk)) {
                 sort_push_request(&ewk->wu);
                 return;
             }
