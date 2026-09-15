@@ -121,41 +121,57 @@ void Provoke(PLW* wk, s16 Lever) {
     }
 }
 
+/* Set the guard lever up and check the attack may start. Non-zero when the
+ * state advanced and the wind-up runs in the same frame; each early exit here
+ * broke out of the switch instead. */
+static s32 Normal_Attack_Begin(PLW* wk, s16 Reaction, u16 Lever_Data) {
+    if (Check_Passive(wk) != 0) {
+        return 0;
+    }
+
+    if (Lever_Data & 2) {
+        Lever_LR[wk->wu.id] = Setup_Guard_Lever(wk, 1);
+    } else {
+        Lever_LR[wk->wu.id] = 0;
+    }
+
+    Lever_LR[wk->wu.id] |= Lever_Data & 2;
+    Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
+
+    if (Check_Start_Normal_Attack(wk, Reaction, Lever_Data) != 0) {
+        return 0;
+    }
+
+    CP_Index[wk->wu.id][1]++;
+    Check_First_Menu(wk);
+
+    return 1;
+}
+
+/* Count the combo delay down, and press the attack once it runs out. */
+static void Normal_Attack_Wind_Up(PLW* wk, u16 Lever_Data) {
+    if (Check_Passive(wk) != 0) {
+        return;
+    }
+    if (--Combo_Speed[wk->wu.id] == 0) {
+        CP_Index[wk->wu.id][1]++;
+        Lever_Buff[wk->wu.id] = Lever_Data;
+        Lever_Buff[wk->wu.id] |= Lever_LR[wk->wu.id];
+    } else {
+        Lever_Buff[wk->wu.id] |= Lever_LR[wk->wu.id];
+    }
+}
+
 void Normal_Attack(PLW* wk, s16 Reaction, u16 Lever_Data) {
     switch (CP_Index[wk->wu.id][1]) {
     case 0:
-        if (Check_Passive(wk) != 0) {
+        if (!Normal_Attack_Begin(wk, Reaction, Lever_Data)) {
             break;
         }
-
-        if (Lever_Data & 2) {
-            Lever_LR[wk->wu.id] = Setup_Guard_Lever(wk, 1);
-        } else {
-            Lever_LR[wk->wu.id] = 0;
-        }
-
-        Lever_LR[wk->wu.id] |= Lever_Data & 2;
-        Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-
-        if (Check_Start_Normal_Attack(wk, Reaction, Lever_Data) != 0) {
-            break;
-        }
-
-        CP_Index[wk->wu.id][1]++;
-        Check_First_Menu(wk);
         /* fallthrough */
 
     case 1:
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-        if (--Combo_Speed[wk->wu.id] == 0) {
-            CP_Index[wk->wu.id][1]++;
-            Lever_Buff[wk->wu.id] = Lever_Data;
-            Lever_Buff[wk->wu.id] |= Lever_LR[wk->wu.id];
-        } else {
-            Lever_Buff[wk->wu.id] |= Lever_LR[wk->wu.id];
-        }
+        Normal_Attack_Wind_Up(wk, Lever_Data);
         break;
 
     default:
