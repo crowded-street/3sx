@@ -559,10 +559,22 @@ static s32 Check_Passive_Modes(PLW* wk) {
     return 0;
 }
 
+/* Non-zero while the CPU is committed to something the passive handler must not
+ * interrupt. */
+static s32 Passive_Suppressed(PLW* wk) {
+    return (Counter_Attack[wk->wu.id] != 0) || (Pierce_Menu[wk->wu.id] != 0);
+}
+
+/* Non-zero when a throw is coming and a passive was selected for it.
+ * Try_Select_Passive only runs when the throw check found one, as before. */
+static s32 Thrown_Passive_Taken(PLW* wk, WORK* em) {
+    return (Check_Thrown(wk, em) != 0) && Try_Select_Passive(wk);
+}
+
 s32 Check_Passive(PLW* wk) {
     WORK* em;
 
-    if ((Counter_Attack[wk->wu.id] != 0) || (Pierce_Menu[wk->wu.id] != 0)) {
+    if (Passive_Suppressed(wk)) {
         return 0;
     }
 
@@ -573,7 +585,7 @@ s32 Check_Passive(PLW* wk) {
         return -1;
     }
 
-    if ((Check_Thrown(wk, em) != 0) && Try_Select_Passive(wk)) {
+    if (Thrown_Passive_Taken(wk, em)) {
         return 1;
     }
 
