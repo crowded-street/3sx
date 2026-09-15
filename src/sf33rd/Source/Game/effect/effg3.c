@@ -16,6 +16,13 @@ static s32 game_is_active(void) {
     return EXE_flag == 0 && Game_pause == 0;
 }
 
+/* End the effect: park it in the state that releases the work slot, and stop
+ * drawing it. State 1 reaches this from three different conditions. */
+static void g3_stop(WORK_Other* ewk) {
+    ewk->wu.routine_no[0] = 3;
+    ewk->wu.disp_flag = 0;
+}
+
 void effect_G3_move(WORK_Other* ewk) {
     WORK_Other* mwk;
     PLW* pwk = (PLW*)ewk->wu.target_adrs;
@@ -35,8 +42,7 @@ void effect_G3_move(WORK_Other* ewk) {
 
     case 1:
         if (ewk->wu.dead_f || Suicide[6] != 0) {
-            ewk->wu.routine_no[0] = 3;
-            ewk->wu.disp_flag = 0;
+            g3_stop(ewk);
             break;
         }
 
@@ -44,8 +50,7 @@ void effect_G3_move(WORK_Other* ewk) {
             mwk = (WORK_Other*)ewk->my_master;
 
             if (mwk->wu.dead_f) {
-                ewk->wu.routine_no[0] = 3;
-                ewk->wu.disp_flag = 0;
+                g3_stop(ewk);
                 break;
             }
 
@@ -54,8 +59,7 @@ void effect_G3_move(WORK_Other* ewk) {
                 set_char_move_init(&ewk->wu, 0, 1);
             }
         } else if (ewk->wu.cg_type == 0xFF) {
-            ewk->wu.routine_no[0] = 3;
-            ewk->wu.disp_flag = 0;
+            g3_stop(ewk);
             break;
         }
 
