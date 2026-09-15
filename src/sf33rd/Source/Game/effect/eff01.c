@@ -35,6 +35,21 @@ static s32 is_mirrored_primary_part(const WORK_Other* ewk, const PLW* mwk) {
     return ewk->wu.type == 0 && mwk->player_number == 0 && mwk->wu.rl_flag;
 }
 
+/* Run the part's own cel timer down and, when it expires, step to the next cel
+ * - the table's jump target if it has one, otherwise the following cel. */
+static void advance_parts_cel_timer(WORK_Other* ewk, WORK* mwk) {
+    if (--ewk->wu.cg_ctr == 0) {
+        if (ewk->wu.overlap_char_tbl->parts_nix) {
+            ewk->wu.cg_ix = ewk->wu.overlap_char_tbl->parts_nix;
+        } else {
+            ewk->wu.cg_ix++;
+        }
+
+        ewk->wu.now_koc = ewk->wu.cg_ix;
+        get_new_parts_data(ewk, (PLW*)mwk);
+    }
+}
+
 /* Pick the part's cel for this frame: follow the master's overlap index when it
  * moved, otherwise run the part's own cel timer down while the super-art freeze
  * is not on. */
@@ -49,16 +64,7 @@ static void advance_parts_animation(WORK_Other* ewk, WORK* mwk) {
 
         get_new_parts_data(ewk, (PLW*)mwk);
     } else if (((PLW*)mwk)->sa_stop_flag == 0) {
-        if (--ewk->wu.cg_ctr == 0) {
-            if (ewk->wu.overlap_char_tbl->parts_nix) {
-                ewk->wu.cg_ix = ewk->wu.overlap_char_tbl->parts_nix;
-            } else {
-                ewk->wu.cg_ix++;
-            }
-
-            ewk->wu.now_koc = ewk->wu.cg_ix;
-            get_new_parts_data(ewk, (PLW*)mwk);
-        }
+        advance_parts_cel_timer(ewk, mwk);
     }
 }
 
