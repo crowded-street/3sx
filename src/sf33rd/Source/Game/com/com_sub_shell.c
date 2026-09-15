@@ -207,23 +207,30 @@ s32 Check_Shell_Another_in_Flip(PLW* wk) {
     return xx;
 }
 
+/* Non-zero when the shell's type falls in the half-open range the caller names.
+ * Four of Check_Ignore_Shell's tests are this same range test on different
+ * bounds. */
+static s32 Shell_Type_Between(WORK_Other* tmw, s32 Low, s32 High) {
+    return (tmw->wu.type >= Low) && (tmw->wu.type < High);
+}
+
 s32 Check_Ignore_Shell(WORK_Other* tmw) {
     if (tmw->wu.type == 0xDE) {
         return 1;
     }
-    if ((tmw->wu.type >= 0x24) && (tmw->wu.type < 0x28)) {
+    if (Shell_Type_Between(tmw, 0x24, 0x28)) {
         return 1;
     }
-    if ((tmw->wu.type >= 0xD) && (tmw->wu.type < 0x10)) {
+    if (Shell_Type_Between(tmw, 0xD, 0x10)) {
         return 1;
     }
     if ((tmw->wu.type == 0x54) || (tmw->wu.type == 0x55)) {
         return 1;
     }
-    if ((tmw->wu.type >= 0x4D) && (tmw->wu.type < 0x51)) {
+    if (Shell_Type_Between(tmw, 0x4D, 0x51)) {
         return 1;
     }
-    if ((tmw->wu.type >= 0x7A) && (tmw->wu.type < 0x7F)) {
+    if (Shell_Type_Between(tmw, 0x7A, 0x7F)) {
         return 1;
     }
 
