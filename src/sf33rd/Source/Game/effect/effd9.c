@@ -66,6 +66,18 @@ static s32 palette_processing_can_continue(WORK_Other* ewk, const PLW* mwk) {
 }
 
 
+/* The effect drives one of the master's two extra colour slots, picked by bit 0
+ * of the flag captured at init. Both the running state and the teardown write
+ * through here - the running state with the current step's colour, the teardown
+ * with zero. */
+static void d9_set_extra_col(WORK_Other* ewk, PLW* mwk, s16 value) {
+    if ((ewk->wu.vital_old & 1) != 0) {
+        mwk->wu.extra_col = value;
+    } else {
+        mwk->wu.extra_col_2 = value;
+    }
+}
+
 void effect_D9_move(WORK_Other* ewk) {
     PLW* mwk = (PLW*)ewk->my_master;
 
@@ -118,11 +130,7 @@ void effect_D9_move(WORK_Other* ewk) {
                     ewk->wu.vital_new = ewk->wu.step_xy_table[ewk->wu.dir_step + 1];
                 }
 
-                if ((ewk->wu.vital_old & 1) != 0) {
-                    mwk->wu.extra_col = ewk->wu.vital_new;
-                } else {
-                    mwk->wu.extra_col_2 = ewk->wu.vital_new;
-                }
+                d9_set_extra_col(ewk, mwk, ewk->wu.vital_new);
 
                 break;
             }
@@ -134,11 +142,7 @@ void effect_D9_move(WORK_Other* ewk) {
 
     case 2:
     default:
-        if ((ewk->wu.vital_old & 1) != 0) {
-            mwk->wu.extra_col = 0;
-        } else {
-            mwk->wu.extra_col_2 = 0;
-        }
+        d9_set_extra_col(ewk, mwk, 0);
         push_effect_work(&ewk->wu);
         break;
     }
