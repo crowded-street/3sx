@@ -3,7 +3,8 @@
 | Field | Value |
 | --- | --- |
 | Baseline Code Health | **1.52** / 10 (Red) |
-| Exit target | **>= 4.00** (leaves the Red band) |
+| Exit target | **plateau** - no legal recipe raises the score further; record it |
+| Hand-off point | **4.00** leaves the Red band. A small model stops there and hands on |
 | Stretch target | 5.15 (CodeScene industry-average scenario) |
 | File size | 5799 lines |
 | Git churn | 20 commits |
@@ -189,8 +190,12 @@ Commit message: `refactor(com_sub): simplify ORO_JCA_Term`
 
 ### When to stop
 
-Stop at the end of your wave, even if you feel you could keep going. Also stop
-early if the score reaches 4.00.
+Stop at the end of your wave, even if you feel you could keep going.
+
+If you are a small model, 4.00 is also a stopping point: the file has left the Red band,
+and the transformations that remain need data-flow reasoning. Hand it on rather than
+attempt them. If you are not, keep going to the plateau - the point where no legal recipe
+raises the score further - and record that figure and its reason in your report.
 
 ## 6. Verification - run all three after EVERY step
 

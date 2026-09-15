@@ -3,7 +3,8 @@
 | Field | Value |
 | --- | --- |
 | Baseline Code Health | **3.62** / 10 (Red) |
-| Exit target | **>= 4.00** (leaves the Red band) |
+| Exit target | **plateau** - no legal recipe raises the score further; record it |
+| Hand-off point | **4.00** leaves the Red band. A small model stops there and hands on |
 | Stretch target | 5.15 (CodeScene industry-average scenario) |
 | File size | 1430 lines |
 | Git churn | 11 commits |
@@ -116,7 +117,10 @@ Commit message: `refactor(bg): simplify Ed_Kakikae_Set`
 
 ### When to stop
 
-Once the score reaches 4.00, **stop**. Do not keep pushing for a higher number.
+At 4.00 the file has left the Red band. If you are a small model, **stop there** and
+hand the file on - the transformations that remain need data-flow reasoning. If you are
+not, keep going to the plateau, the point where no legal recipe raises the score
+further, and record that figure and its reason in your report.
 
 ## 6. Verification - run all three after EVERY step
 

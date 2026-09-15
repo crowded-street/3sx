@@ -35,6 +35,12 @@ Every one of the 19 Red files trips both *Bumpy Road Ahead* and *Complex Method*
 trip *Deep, Nested Complexity*. The campaign therefore leans almost entirely on three
 recipes: **extract function**, **guard clauses**, and **named predicates**.
 
+Those three clear the Red band. Carrying a file the rest of the way to 10.00 needs the
+four added on 2026-09-15 - **extract common part**, **split dispatch**, **parameter
+object** and **deduplicate** - because what remains at 8.5-9.7 is almost always argument
+count or duplication rather than complexity. See [`PLAYBOOK-REVIEW.md`](PLAYBOOK-REVIEW.md)
+for the evidence behind that change.
+
 ### The extremes
 
 | Function | File | Cyclomatic | Nesting |
@@ -124,7 +130,8 @@ hardware. Revisit this phase only if that changes.
 
 **Phase 1 - Track A** *(can start immediately)*
 
-Work R04, R06, R10, R11, R14, R17 in that order. Each file exits when it scores >= 4.00.
+Work R04, R06, R10, R11, R14, R17 in that order. Each file leaves the Red band at 4.00
+and is done when it plateaus - see rule 6 below.
 This phase also serves as the pilot: it tells you whether the task format actually works
 for the agents you plan to use, on files where being wrong is cheap.
 
@@ -145,11 +152,18 @@ and the per-file cost is known.
 ## Rules for every agent
 
 1. Apply **only** the recipes in [`PLAYBOOK.md`](PLAYBOOK.md). Nothing else.
-2. **One recipe, one function, one commit.**
-3. Re-measure after every commit. Score did not improve, revert the commit.
+2. **One recipe, one function, one commit.** The same recipe may be applied several times
+   to that function in one commit; two different recipes may not.
+3. Re-measure after every commit. If the score did not improve, run `code_health_review`
+   and keep the change only when the targeted function left a smell category or its
+   complexity dropped. Otherwise revert.
 4. Never change literals, arithmetic, comparisons, types, or the order of side effects.
+   `case` labels are literals - states are never renumbered.
 5. Found a bug? **Report it, do not fix it.** Arcade-accurate is not the same as correct.
-6. Stop at 4.00. Do not gold-plate.
+6. **4.00 leaves the Red band; it is not the finish line.** Keep applying the catalogue
+   until no legal recipe raises the score further, then record where the file plateaued
+   and why. The target is 10.00. *(Project owner directive; supersedes the earlier "stop
+   at 4.00, do not gold-plate".)*
 7. Blocked, confused, or the baseline score does not match? **Stop and report.**
    An unfinished task is a fine outcome.
 
@@ -157,8 +171,12 @@ and the per-file cost is known.
 
 ## Definition of done, per file
 
-- `code_health_score` >= 4.00
+- `code_health_score` at its plateau - no legal recipe raises it further - with the
+  figure and the reason recorded in the report. 4.00 is the point the file leaves the Red
+  band, not the point the work stops.
 - `cmake --build build` succeeds with no new warnings
+- `python tools/refactor_guard.py <file>` and, after any extract or split,
+  `python tools/refactor_guard.py --calls <file>`
 - One function per commit, message format `refactor(<file>): simplify <function>`
 - Track B only: statcheck clean across the corpus, when statcheck exists. Until then
   (indefinitely - see the note above), manual playtesting stands in for it.
@@ -188,6 +206,7 @@ CodeScene CLI die with `java.lang.OutOfMemoryError`; the script handles this for
 | --- | --- |
 | [`README.md`](README.md) | This charter |
 | [`PLAYBOOK.md`](PLAYBOOK.md) | The closed catalogue of allowed transformations |
+| [`PLAYBOOK-REVIEW.md`](PLAYBOOK-REVIEW.md) | Why the catalogue gained four recipes on 2026-09-15, with the evidence |
 | [`BACKLOG.md`](BACKLOG.md) | All 19 Red tasks, ranked, with baselines |
 | [`AGENT-SETUP.md`](AGENT-SETUP.md) | Per-harness MCP config, work routing, calibration protocol |
 | [`codehealth-baseline.json`](codehealth-baseline.json) | The committed baseline sweep |

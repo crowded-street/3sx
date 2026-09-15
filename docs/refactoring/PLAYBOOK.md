@@ -11,8 +11,14 @@ and it is the only reason a task can be handed to an agent that cannot run the g
 
 ## The three rules
 
-1. **One recipe, one function, one commit.** Never combine two recipes in one commit.
-2. **Re-measure after every commit.** If the Code Health score did not improve, revert.
+1. **One recipe, one function, one commit.** The unit is the *function*: a commit may
+   apply the same recipe several times to it - four blocks extracted from one state
+   machine is one commit - but it must not mix two different recipes, and it must not
+   span two functions. The point is that a playtester can revert exactly one behaviour.
+2. **Re-measure after every commit.** If the score improved, keep it. If it did not, run
+   `code_health_review` and keep the change only when the function you targeted left a
+   smell category or its cyclomatic complexity dropped. Otherwise revert. See
+   *A flat score does not mean a failed refactor* below.
 3. **When in doubt, stop and report.** An unfinished task is fine. A silently broken
    fighting-game engine is not.
 
@@ -22,7 +28,10 @@ and it is the only reason a task can be handed to an agent that cannot run the g
 
 These will change behaviour and must never appear in a campaign commit:
 
-- Changing any numeric literal, string literal, or enum value.
+- Changing any numeric literal, string literal, or enum value. **`case` labels are
+  literals.** Renumbering states - rewriting `case 3:` as `case 0:` and subtracting an
+  offset from the switch expression - is a literal change, however tempting it looks when
+  two state machines differ only by their numbering.
 - Changing arithmetic (`+ - * / %`), bit operations, or shifts.
 - Changing a comparison operator, including `<` to `<=`.
 - Reordering statements that have side effects (assignment, I/O, function calls).
@@ -45,8 +54,12 @@ blocks of nested logic). Each "bump" is a missing function.
 1. Find one nested block. It usually already has a comment or a blank line around it.
 2. Cut it into a new `static` function directly above the current one.
 3. Pass in every variable it reads as a parameter. Return the single value it produces.
-4. If the block writes to more than one outer variable, **skip it** and move to the next
-   bump. Do not invent an out-parameter struct.
+4. If the block writes to more than one outer **local** variable, **skip it** and move to
+   the next bump. Do not invent an out-parameter struct to carry results back.
+
+   Writing many *fields* through a struct pointer the block already has - `ewk`, `wk`,
+   `mwk` - is not what this rule is about. That is safe, and it is what most extractions
+   in this codebase do. The rule exists to stop you inventing a way to return two values.
 
 **Before:**
 
@@ -177,6 +190,188 @@ faithful ports get broken.
 
 ---
 
+## Recipe C - Extract Common Part
+
+**Use when:** CodeScene reports *Code Duplication* and the blocks share a **contiguous
+identical run** - a prefix, a suffix, or a middle - but differ elsewhere, so Recipe D does
+not apply.
+
+This is the mirror image of Recipe D, and it is safer. Recipe D moves the *difference*
+into the helper as a parameter. Recipe C moves only the *identical* part, and every
+difference stays at the call site where it is still visible and still unchanged.
+
+**How:**
+
+1. Find the longest run of lines that is identical in both blocks, character for
+   character. Whitespace may differ; nothing else may.
+2. Move exactly that run into a `static` helper. Do not tidy it on the way.
+3. Leave everything else at the call sites, in its original order.
+4. If the shared run ends inside control flow - the callers need to know whether to carry
+   on - the helper returns `0` or `1` and each caller branches on it. Return nothing else.
+
+**Before:**
+
+```c
+static void advance_4000(Work *w) {
+    if (!paused()) {
+        move(w);
+        if (--w->timer <= 0) {
+            w->state++;
+            set_anim(w, 29);          /* <- differs */
+        }
+    }
+}
+
+static void advance_11000(Work *w, Work *parent) {
+    if (!paused()) {
+        move(w);
+        if (--w->timer <= 0) {
+            w->state++;
+            parent->cmd = 9;          /* <- differs */
+        }
+    }
+}
+```
+
+**After:**
+
+```c
+static s32 approach_complete(Work *w) {
+    if (!paused()) {
+        move(w);
+        if (--w->timer <= 0) {
+            w->state++;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static void advance_4000(Work *w) {
+    if (approach_complete(w)) {
+        set_anim(w, 29);
+    }
+}
+
+static void advance_11000(Work *w, Work *parent) {
+    if (approach_complete(w)) {
+        parent->cmd = 9;
+    }
+}
+```
+
+**Careful:** this does **not** license merging near-miss blocks by parameterising two or
+more differences. That is exactly what Recipe D forbids, and it stays forbidden. If you
+cannot point at a contiguous run that is identical, there is nothing here to extract.
+
+`refactor_guard.py` reports this shape as a WARN - *copies removed, 0/1 returns added* -
+because the call sites lose the run's literals while the helper brings its own returns.
+
+---
+
+## Recipe X - Split Dispatch
+
+**Use when:** CodeScene reports *Complex Method* on a function whose complexity is mostly
+its own `switch` - a state machine with more arms than the threshold allows. Recipe E does
+not help: there is no bump of nested logic to lift out, only arms.
+
+**How:**
+
+1. Choose a contiguous group of later arms that belong together - the airborne half of a
+   jump, the teardown of an effect.
+2. Move them to a `static` helper that switches on **the same expression**.
+3. Reach the helper from the original `default:` arm.
+
+**The binding constraint: case labels are never renumbered.** The helper keeps the
+original labels, so a state still reads as the number the rest of the engine uses. If you
+find yourself writing `switch (index - 2)` with labels `0..4`, stop - that is a literal
+change, and it is forbidden.
+
+**Before:**
+
+```c
+void term(Work *w, s16 a) {
+    switch (w->index) {
+    case 0: begin(w); break;
+    case 1: launch(w); break;
+    case 2: rise(w); break;
+    case 3: climb(w, a); break;
+    case 4: strike(w, a); break;
+    default: land(w); break;
+    }
+}
+```
+
+**After:**
+
+```c
+/* The airborne half: everything from the rise onwards. The case labels are the
+ * original ones, so the states still read as the same numbers. */
+static void term_airborne(Work *w, s16 a) {
+    switch (w->index) {
+    case 2: rise(w); break;
+    case 3: climb(w, a); break;
+    case 4: strike(w, a); break;
+    default: land(w); break;
+    }
+}
+
+void term(Work *w, s16 a) {
+    switch (w->index) {
+    case 0: begin(w); break;
+    case 1: launch(w); break;
+    default: term_airborne(w, a); break;
+    }
+}
+```
+
+Anything that ran after the switch - a trailing lever merge, a sort request - stays in the
+caller, after its switch, where it ran before.
+
+---
+
+## Recipe A - Parameter Object
+
+**Use when:** CodeScene reports *Excess Number of Function Arguments* (more than four for
+C). No other recipe reaches this smell, and on the Term families it was the only thing
+standing between the file and a clean review.
+
+**Authorised by the project owner on 2026-09-15**, including on public signatures, in the
+knowledge that it can mean rewriting thousands of call sites in the character scripts.
+That is mechanical, but it is not small: `Command_Attack` alone has 1,658 call sites.
+
+**How:**
+
+1. Declare a `struct` whose fields are the function's parameters, **in the same order**
+   and with **exactly the same types**. Name it for the family, not the function.
+2. Change the function to take one `const Struct*`, and read each parameter as a field.
+   Pass the same pointer on to any helper that only ever ran on those values.
+3. Rewrite every call site to pass its **original argument list** through a compound
+   literal: `f(wk, &(Args){8, 0, 0x30, -1});`. Do not reorder, reformat or "clean up" the
+   arguments while you are in there.
+4. Declare the struct in the header the callers already include, beside the function.
+
+**Preconditions - all of them:**
+
+- Two functions share a struct **only** if their parameter lists match in order *and* in
+  type. One signed-versus-unsigned field is enough to require two structs; merging them
+  would be a type change, which is forbidden.
+- Where two families need the same subset of values - approach gates, a landing step -
+  give that subset its own small struct and build it at the call site from fields the
+  caller already holds. Do not widen one family's struct to serve another.
+- Check that the function is never referenced other than as a direct call. A name that
+  appears in a function-pointer table cannot take a new signature.
+- `refactor_guard.py` must report **OK** on every changed file - not WARN. The argument
+  lists are copied verbatim, so the literal fingerprint cannot move. A WARN here means the
+  rewrite touched something it should not have.
+
+**Scriptable, and worth scripting.** A regex over `name(wk, <args>);` that wraps the
+argument list is reliable *if* it also asserts, per file, that the number of matches
+equals the number of occurrences of `name(wk,` - that catches a call split over two lines,
+which the regex would silently miss - and that every call has the expected argument count.
+
+---
+
 ## Recipe S - Split File
 
 **Use when:** CodeScene reports *Lines of Code in a Single File*.
@@ -195,6 +390,26 @@ the file often drops out of the Red band without needing a split at all.
 Do not split a file if it would require making a `static` function non-`static`. Widening
 linkage is a behaviour change in the sense that matters here: it changes what the rest of
 the program can reach.
+
+---
+
+## Known plateaus
+
+A plateau is a result, not a failure: the point where no legal recipe raises the score
+further. Record it in the task report with the reason, so the next agent does not spend a
+session rediscovering it.
+
+Every plateau found so far has the same cause - duplication between sibling state machines
+that differ in more than one value, or only in their state numbering, which Recipe D and
+Recipe X both refuse to merge.
+
+| File | Plateau | Why |
+| --- | --- | --- |
+| `com_sub_air_term.c` | 9.68 | `ORO_JA_Term` at cc 9; clearing it makes a twin of `ORO_HJA_Term_Airborne` and costs 0.87 |
+| `com_sub_attack.c` | 9.09 | the two normal-attack wind-ups differ in two statements |
+| `com_sub_command_term.c` | 9.09 | two pairs of airborne twins, one state number apart |
+| `eff09.c` | 8.54 | five near-miss pairs; `adjust_sean_ball_left`/`_right` differ in five values |
+| `eff09_animation.c`, `eff09_endgame.c`, `eff09_late.c` | 8.81 | the same near-miss family |
 
 ---
 
@@ -242,6 +457,31 @@ A `WARN` is not a pass mark, it is a request for a second look. The tool cannot 
 deduplication apart from *deleting* one copy of a duplicated block, so a human confirms
 those before they land. `--strict` turns warnings into failures.
 
+Then check that no call went missing:
+
+```bash
+python tools/refactor_guard.py --calls <file>
+```
+
+This compares the multiset of **called function names** before and after, so a call
+dropped or duplicated inside a rewritten branch shows up even when every literal still
+matches. It is the check that makes Recipes C and X cheap to trust; run it whenever you
+extract or split.
+
+Two shapes are expected, both measured against real campaign commits:
+
+| Recipe | Signature |
+| --- | --- |
+| E, G, X (extract, flatten, split) | **nothing removed**; each new helper `+2` - its definition and the one call that replaced the block |
+| C, D (deduplicate) | the shared callees drop by the number of copies removed; the helper is `+1` per call site and `+1` for its definition |
+
+A name that disappears from the file entirely is a **FAIL**: something was deleted, not
+moved. Anything else that does not match the two rows above wants explaining before it
+lands.
+
+It does not see *reordering*. Nothing mechanical in this repo does, which is why the
+prohibition on reordering side effects is absolute rather than advisory.
+
 Then re-measure with the CodeScene MCP server:
 
 ```
@@ -278,6 +518,30 @@ the file score at 2.25, unchanged. The review showed the function had dropped ou
 categories and its complexity had fallen from 19 to 12. Keeping it was correct.
 
 Score is the campaign-level signal. Per-step, the review is the signal.
+
+### When the score falls but the review improves
+
+Sometimes a correct transformation *lowers* the score. This is real, it is measurable, and
+it happened three times in the September 2026 sessions.
+
+The cause is always the same: decomposing one state machine makes it look like its
+sibling, and the duplication detector prices that resemblance above the complexity you
+removed. Splitting `ORO_JA_Term`'s airborne half cost 0.25, and a larger version of the
+same split cost 0.87. Fixing `Command_Attack`'s complexity cost 0.57 - until the parameter
+structs made its two siblings stop reading alike, after which the identical change was
+free and took the file to 10.00.
+
+**Duplication-by-shape between sibling state machines is an artifact of decomposition, not
+a defect introduced by it.** So:
+
+- Record both numbers in the commit message, and say which smell went.
+- Prefer the variant with the better *review*, not the better score, and say so.
+- Where the cost is large and the smell is small - one point of cyclomatic complexity
+  against 0.87 of score - keep the higher score and record the file as plateaued.
+- Never "fix" sibling similarity by merging two state machines that differ only in their
+  state numbering. That needs a literal change and is forbidden.
+
+---
 
 ### What the guard does not cover
 
