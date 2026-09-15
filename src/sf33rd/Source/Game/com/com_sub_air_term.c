@@ -39,158 +39,218 @@
 #include "structs.h"
 #include "sf33rd/Source/Game/com/com_sub_internal.h"
 
-void Hi_Jump_Attack_Term(
+/* Hold while airborne: latch any hit, then watch for the landing. The three
+ * air Terms differ only in the reaction mask they use here. */
+static void Air_Term_Hold(PLW* wk, s16 Reaction, s16 mask) {
+    if (wk->wu.hf.hit.player) {
+        Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
+    }
+    Check_Landed(wk, Reaction & mask);
+}
+
+/* Run the landing opcode once down. Callers pass the reaction already masked,
+ * because they do not all mask it the same way. */
+static void Air_Term_Land(PLW* wk, s16 reaction) {
+    if (Check_Landed(wk, reaction) != 0) {
+        return;
+    }
+
+    Landing_Tech_Step(wk);
+}
+
+/* The unconditional landing arm shared by all three air Terms. */
+static void Air_Term_End(PLW* wk, s16 Reaction) {
+    Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
+    Check_Landed(wk, Reaction & 0xFFF);
+}
+
+static void HJA_Term_Begin(PLW* wk, s16 Reaction) {
+    Setup_Lever_LR(wk, wk->wu.id, Reaction & 0xF000);
+    if (Check_Passive(wk) != 0) {
+        return;
+    }
+
+    if (wk->spmv_ng_flag & 0x30000) {
+        Next_Be_Free(wk);
+        return;
+    }
+    if (Check_Start_Hi_Jump(wk) != 0) {
+        return;
+    }
+
+    Continue_Menu[wk->wu.id] = 0;
+    wk->wu.hf.hit.player = 0;
+    CP_Index[wk->wu.id][1]++;
+    if (cmd_sel[wk->wu.id]) {
+        Tech_Address[wk->wu.id] = player_CMD[wk->player_number][2];
+    } else {
+        Tech_Address[wk->wu.id] = player_cmd[wk->player_number][2];
+    }
+    Check_First_Menu(wk);
+}
+
+static void HJA_Term_Launch(PLW* wk, s16 Jump_Dir) {
+    if (Check_Passive(wk) != 0) {
+        return;
+    }
+    if (--Combo_Speed[wk->wu.id] != 0) {
+        return;
+    }
+
+    CP_Index[wk->wu.id][1]++;
+    Tech_Index[wk->wu.id] = 0xC;
+
+    dash_flag_clear(wk->wu.id);
+    Jump_Init(wk, Jump_Dir);
+    Lever_Pool[wk->wu.id] &= 0xC;
+    Lever_Buff[wk->wu.id] = 0;
+    if (Check_Diagonal_Shell(wk) != 0) {
+        Next_Be_Free(wk);
+    }
+}
+
+/* Non-zero when Hi_Jump_Attack_Term must return outright: this arm used a bare
+ * return where the others break, so it skips the trailing lever merge. */
+static s32 HJA_Term_Command(PLW* wk) {
+    if (Check_Passive(wk) != 0) {
+        return 0;
+    }
+
+    if (Command_Type_00(wk, 8, 0xFFFF, -1) == -1) {
+        CP_Index[wk->wu.id][1]++;
+        Lever_Buff[wk->wu.id] |= Lever_Pool[wk->wu.id];
+        return 0;
+    }
+
+    if (Lever_Buff[wk->wu.id] & 2) {
+        return 1;
+    }
+    Lever_Buff[wk->wu.id] |= Lever_Pool[wk->wu.id];
+
+    return 0;
+}
+
+static void HJA_Term_Rise(PLW* wk) {
+    if (wk->wu.xyz[1].disp.pos > 0) {
+        CP_Index[wk->wu.id][1]++;
+        return;
+    }
+
+    Lever_Buff[wk->wu.id] = Lever_Pool[wk->wu.id] | 1;
+}
+
+static void HJA_Term_Approach(
+    PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Range_JX, s16 Range_JY, u16 J_Lever_Data
+) {
+    Check_Air_Guard(wk);
+    if (Check_Landed(wk, Reaction) != 0) {
+        return;
+    }
+
+    if (Check_VS_Air_Attack(wk, Range_JX, Range_JY, J_Lever_Data) != 0) {
+        return;
+    }
+
+    if (Check_Term_Sub(wk, PL_Distance[wk->wu.id], Range_X) == 0) {
+        return;
+    }
+    if (Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, Range_Y) == 0) {
+        return;
+    }
+    if (Check_Term_Sub(wk, wk->wu.xyz[1].disp.pos, Range_Y) == 0) {
+        return;
+    }
+
+    Lever_Data = Check_SP_Jump_Attack(wk, Lever_Data);
+    Lever_Buff[wk->wu.id] = Lever_Data;
+    CP_Index[wk->wu.id][1]++;
+    if (Reaction & 0x80) {
+        CP_Index[wk->wu.id][1] = 8;
+    }
+}
+
+static void HJA_Term_Recover(PLW* wk) {
+    if (--Combo_Speed[wk->wu.id]) {
+        return;
+    }
+
+    Lever_Buff[wk->wu.id] = Tech_Address[wk->wu.id][8];
+    CP_Index[wk->wu.id][1]++;
+}
+
+static void HJA_Term_Meoshi(PLW* wk) {
+    if (Attack_Flag[wk->wu.id]) {
+        return;
+    }
+
+    CP_Index[wk->wu.id][1] = 8;
+    if (wk->wu.hf.hit.player == 0) {
+        return;
+    }
+
+    if (wk->wu.cg_cancel & 8) {
+        Lever_Buff[wk->wu.id] = Get_Meoshi_Data(wk);
+    }
+}
+
+/* Non-zero when the trailing lever merge must be skipped. */
+static s32 HJA_Term_Step(
     PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Jump_Dir, s16 Range_JX, s16 Range_JY,
     u16 J_Lever_Data
 ) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
-        Setup_Lever_LR(wk, wk->wu.id, Reaction & 0xF000);
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-
-        if (wk->spmv_ng_flag & 0x30000) {
-            Next_Be_Free(wk);
-            break;
-        }
-        if (Check_Start_Hi_Jump(wk) != 0) {
-            break;
-        }
-
-        Continue_Menu[wk->wu.id] = 0;
-        wk->wu.hf.hit.player = 0;
-        CP_Index[wk->wu.id][1]++;
-        if (cmd_sel[wk->wu.id]) {
-            Tech_Address[wk->wu.id] = player_CMD[wk->player_number][2];
-        } else {
-            Tech_Address[wk->wu.id] = player_cmd[wk->player_number][2];
-        }
-        Check_First_Menu(wk);
-
+        HJA_Term_Begin(wk, Reaction);
         break;
 
     case 1:
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-        if (--Combo_Speed[wk->wu.id] != 0) {
-            break;
-        }
-
-        CP_Index[wk->wu.id][1]++;
-        Tech_Index[wk->wu.id] = 0xC;
-
-        dash_flag_clear(wk->wu.id);
-        Jump_Init(wk, Jump_Dir);
-        Lever_Pool[wk->wu.id] &= 0xC;
-        Lever_Buff[wk->wu.id] = 0;
-        if (Check_Diagonal_Shell(wk) != 0) {
-            Next_Be_Free(wk);
-        }
-
+        HJA_Term_Launch(wk, Jump_Dir);
         break;
 
     case 2:
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-
-        if (Command_Type_00(wk, 8, 0xFFFF, -1) == -1) {
-            CP_Index[wk->wu.id][1]++;
-            Lever_Buff[wk->wu.id] |= Lever_Pool[wk->wu.id];
-        } else {
-            if (Lever_Buff[wk->wu.id] & 2) {
-                return;
-            }
-            Lever_Buff[wk->wu.id] |= Lever_Pool[wk->wu.id];
-        }
-        break;
+        return HJA_Term_Command(wk);
 
     case 3:
-        if (wk->wu.xyz[1].disp.pos > 0) {
-            CP_Index[wk->wu.id][1]++;
-        }
-
-        else {
-            Lever_Buff[wk->wu.id] = Lever_Pool[wk->wu.id] | 1;
-        }
-
+        HJA_Term_Rise(wk);
         break;
 
     case 4:
-        Check_Air_Guard(wk);
-        if (Check_Landed(wk, Reaction) != 0) {
-            break;
-        }
-
-        if (Check_VS_Air_Attack(wk, Range_JX, Range_JY, J_Lever_Data) != 0) {
-            break;
-        }
-
-        if (Check_Term_Sub(wk, PL_Distance[wk->wu.id], Range_X) == 0) {
-            break;
-        }
-        if (Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, Range_Y) == 0) {
-            break;
-        }
-        if (Check_Term_Sub(wk, wk->wu.xyz[1].disp.pos, Range_Y) == 0) {
-            break;
-        }
-
-        Lever_Data = Check_SP_Jump_Attack(wk, Lever_Data);
-        Lever_Buff[wk->wu.id] = Lever_Data;
-        CP_Index[wk->wu.id][1]++;
-        if (Reaction & 0x80) {
-            CP_Index[wk->wu.id][1] = 8;
-        }
+        HJA_Term_Approach(wk, Range_X, Range_Y, Reaction, Lever_Data, Range_JX, Range_JY, J_Lever_Data);
         break;
 
     case 5:
-        if (wk->wu.hf.hit.player) {
-            Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
-        }
-        Check_Landed(wk, Reaction & 0xFFF);
+        Air_Term_Hold(wk, Reaction, 0xFFF);
         break;
 
     case 6:
-        if (Check_Landed(wk, Reaction) != 0) {
-            break;
-        }
-
-        Landing_Tech_Step(wk);
-
+        Air_Term_Land(wk, Reaction);
         break;
 
     case 7:
-        if (--Combo_Speed[wk->wu.id]) {
-            break;
-        }
-        Lever_Buff[wk->wu.id] = Tech_Address[wk->wu.id][8];
-        CP_Index[wk->wu.id][1]++;
+        HJA_Term_Recover(wk);
         break;
 
     case 8:
-        Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
-        Check_Landed(wk, Reaction & 0xFFF);
+        Air_Term_End(wk, Reaction);
         break;
 
     default:
-        if (Attack_Flag[wk->wu.id]) {
-            break;
-        }
-
-        CP_Index[wk->wu.id][1] = 8;
-        if (wk->wu.hf.hit.player == 0) {
-            break;
-        }
-
-        if (wk->wu.cg_cancel & 8) {
-            Lever_Buff[wk->wu.id] = Get_Meoshi_Data(wk);
-        }
+        HJA_Term_Meoshi(wk);
         break;
     }
+
+    return 0;
+}
+
+void Hi_Jump_Attack_Term(
+    PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Jump_Dir, s16 Range_JX, s16 Range_JY,
+    u16 J_Lever_Data
+) {
+    if (HJA_Term_Step(wk, Range_X, Range_Y, Reaction, Lever_Data, Jump_Dir, Range_JX, Range_JY, J_Lever_Data) != 0) {
+        return;
+    }
+
     if (CP_Index[wk->wu.id][1] >= 4) {
         Lever_Buff[wk->wu.id] |= Lever_LR[wk->wu.id];
     }
