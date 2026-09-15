@@ -41,6 +41,44 @@ void EFF57_WAIT(WORK_Other* ewk) {
     }
 }
 
+static void initialize_slide_in_57(WORK_Other* ewk) {
+    if (--Order_Timer[ewk->wu.dir_old]) {
+        return;
+    }
+
+    ewk->wu.routine_no[1]++;
+    ewk->wu.disp_flag = 1;
+    ewk->wu.xyz[0].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos - 384;
+    ewk->wu.xyz[1].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + 236;
+    ewk->wu.position_z = 70;
+    ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + 0;
+    ewk->wu.mvxy.a[0].sp = 0x100000;
+    ewk->wu.mvxy.d[0].sp = 0x8000;
+    set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+}
+
+static void finish_slide_in_57(WORK_Other* ewk) {
+    if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
+        Order[ewk->wu.dir_old] = 0;
+    }
+
+    ewk->wu.routine_no[0] = 0;
+    ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
+}
+
+static void update_slide_in_57(WORK_Other* ewk) {
+    ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
+    ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
+
+    if (0 < ewk->wu.mvxy.a[0].sp) {
+        if (ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
+            finish_slide_in_57(ewk);
+        }
+    } else if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
+        finish_slide_in_57(ewk);
+    }
+}
+
 void EFF57_SLIDE_IN(WORK_Other* ewk) {
     if (Order[ewk->wu.dir_old] != 1) {
         ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
@@ -50,45 +88,11 @@ void EFF57_SLIDE_IN(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (--Order_Timer[ewk->wu.dir_old]) {
-            break;
-        }
-
-        ewk->wu.routine_no[1]++;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.xyz[0].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos - 384;
-        ewk->wu.xyz[1].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + 236;
-        ewk->wu.position_z = 70;
-        ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + 0;
-        ewk->wu.mvxy.a[0].sp = 0x100000;
-        ewk->wu.mvxy.d[0].sp = 0x8000;
-        set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+        initialize_slide_in_57(ewk);
         break;
 
     default:
-        ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
-        ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
-
-        if (0 < ewk->wu.mvxy.a[0].sp) {
-            if (ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
-                if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
-                    Order[ewk->wu.dir_old] = 0;
-                }
-
-                ewk->wu.routine_no[0] = 0;
-                ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
-            }
-        } else {
-            if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
-                if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
-                    Order[ewk->wu.dir_old] = 0;
-                }
-
-                ewk->wu.routine_no[0] = 0;
-                ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
-            }
-        }
-
+        update_slide_in_57(ewk);
         break;
     }
 }
@@ -151,7 +155,7 @@ void EFF57_KILL(WORK_Other* ewk) {
     }
 }
 
-s32 effect_57_init(s16 dir_old, MenuHeader ID, s16 Target_BG, s16 char_ix, s16 option) {
+s32 effect_57_init_params(Effect57Init params) {
     WORK_Other* ewk;
     s16 ix;
 
@@ -164,17 +168,17 @@ s32 effect_57_init(s16 dir_old, MenuHeader ID, s16 Target_BG, s16 char_ix, s16 o
     ewk->wu.id = 57;
     ewk->wu.work_id = 16;
     ewk->wu.my_col_code = 0x1AC;
-    ewk->wu.my_family = Target_BG + 1;
+    ewk->wu.my_family = params.target_bg + 1;
     *ewk->wu.char_table = _sel_pl_char_table;
-    ewk->wu.dir_step = ID;
-    ewk->wu.type = ID;
-    ewk->wu.dir_old = dir_old;
+    ewk->wu.dir_step = params.header;
+    ewk->wu.type = params.header;
+    ewk->wu.dir_old = params.direction;
     ewk->wu.my_mts = 13;
     ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
-    ewk->wu.char_index = char_ix;
-    ewk->master_priority = option;
+    ewk->wu.char_index = params.character_index;
+    ewk->master_priority = params.option;
 
-    switch (option) {
+    switch (params.option) {
     case 1:
         effect_58_init(4, 1, 78);
         break;
