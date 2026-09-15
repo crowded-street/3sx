@@ -323,6 +323,23 @@ void Com_Random_Select(PLW* wk, const Branch_Menu_Args* p, s16 Rnd_Type) {
     }
 }
 
+/* Run the wait timer down and, when it expires, leave for the next CP state.
+ * Branch_Wait_Area and Wait share this arm; the timer they loaded differs, not
+ * what happens when it runs out. */
+static void Wait_Timer_Step(PLW* wk) {
+    if (--Timer_00[wk->wu.id]) {
+        return;
+    }
+    Advance_CP_State(wk);
+
+    Flip_Flag[wk->wu.id] = 0;
+    Limited_Flag[wk->wu.id] = 0;
+
+    if (CP_No[wk->wu.id][0] != 6) {
+        Passive_Flag[wk->wu.id] = 0;
+    }
+}
+
 void Branch_Wait_Area(PLW* wk, const Branch_Wait_Args* p) {
     s16 xx[4];
 
@@ -339,17 +356,7 @@ void Branch_Wait_Area(PLW* wk, const Branch_Wait_Args* p) {
         break;
 
     default:
-        if (--Timer_00[wk->wu.id]) {
-            break;
-        }
-        Advance_CP_State(wk);
-
-        Flip_Flag[wk->wu.id] = 0;
-        Limited_Flag[wk->wu.id] = 0;
-
-        if (CP_No[wk->wu.id][0] != 6) {
-            Passive_Flag[wk->wu.id] = 0;
-        }
+        Wait_Timer_Step(wk);
         break;
     }
 }
@@ -369,17 +376,7 @@ void Wait(PLW* wk, s16 Time) {
         break;
 
     default:
-        if (--Timer_00[wk->wu.id]) {
-            break;
-        }
-        Advance_CP_State(wk);
-
-        Flip_Flag[wk->wu.id] = 0;
-        Limited_Flag[wk->wu.id] = 0;
-
-        if (CP_No[wk->wu.id][0] != 6) {
-            Passive_Flag[wk->wu.id] = 0;
-        }
+        Wait_Timer_Step(wk);
         break;
     }
     Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
