@@ -307,23 +307,13 @@ static void HJCA_Term_End(PLW* wk, s16 Reaction) {
     Check_Landed(wk, Reaction & 0xFFF);
 }
 
-void Hi_Jump_Command_Attack_Term(
-    PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot, s16 RX, s16 RY, s16 Jump_Dir, s16 JRX,
-    s16 JRY, u16 JLD
+/* The airborne half of Hi_Jump_Command_Attack_Term: everything from the rise
+ * onwards. The case labels are the original ones, so this reads against the
+ * same state numbers as the ground half it was lifted out of. */
+static void HJCA_Term_Airborne(
+    PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot, s16 RX, s16 RY, s16 JRX, s16 JRY, u16 JLD
 ) {
     switch (CP_Index[wk->wu.id][1]) {
-
-    case 0:
-        HJCA_Term_Begin(wk, Tech_Number);
-        break;
-
-    case 1:
-        HJCA_Term_Launch(wk, Jump_Dir);
-        break;
-
-    case 2:
-        HJCA_Term_Arm(wk);
-        break;
 
     case 3:
         HJCA_Term_Rise(wk);
@@ -343,6 +333,30 @@ void Hi_Jump_Command_Attack_Term(
 
     default:
         HJCA_Term_End(wk, Reaction);
+        break;
+    }
+}
+
+void Hi_Jump_Command_Attack_Term(
+    PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot, s16 RX, s16 RY, s16 Jump_Dir, s16 JRX,
+    s16 JRY, u16 JLD
+) {
+    switch (CP_Index[wk->wu.id][1]) {
+
+    case 0:
+        HJCA_Term_Begin(wk, Tech_Number);
+        break;
+
+    case 1:
+        HJCA_Term_Launch(wk, Jump_Dir);
+        break;
+
+    case 2:
+        HJCA_Term_Arm(wk);
+        break;
+
+    default:
+        HJCA_Term_Airborne(wk, Reaction, Tech_Number, Power_Level, Ex_Shot, RX, RY, JRX, JRY, JLD);
         break;
     }
 }
