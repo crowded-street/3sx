@@ -39,242 +39,6 @@
 #include "structs.h"
 #include "sf33rd/Source/Game/com/com_sub_internal.h"
 
-void ORO_JCA_Term(
-    PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Tech_Number, s16 Power_Level,
-    s16 Ex_Shot, s16 RJX, s16 RJY, u16 JLD
-) {
-    switch (CP_Index[wk->wu.id][1]) {
-
-    case 0:
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-        Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-        if (Check_Free_To_Act(wk)) {
-            Continue_Menu[wk->wu.id] = 0;
-            CP_Index[wk->wu.id][1]++;
-            if (cmd_sel[wk->wu.id]) {
-                Tech_Address[wk->wu.id] = player_CMD[wk->player_number][Tech_Number & 0xFF];
-            } else {
-                Tech_Address[wk->wu.id] = player_cmd[wk->player_number][Tech_Number & 0xFF];
-            }
-            Check_First_Menu(wk);
-        }
-
-        break;
-
-    case 1:
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-        if (--Combo_Speed[wk->wu.id] == 0) {
-            CP_Index[wk->wu.id][1]++;
-            Tech_Index[wk->wu.id] = 0xC;
-            dash_flag_clear(wk->wu.id);
-
-            Jump_Init(wk, Jump_Dir);
-            Check_Air_Guard(wk);
-            if (Check_Diagonal_Shell(wk) != 0) {
-                Next_Be_Free(wk);
-            }
-        }
-        break;
-
-    case 2:
-        if (wk->wu.xyz[1].disp.pos > 0) {
-            CP_Index[wk->wu.id][1]++;
-        }
-
-        else {
-            Lever_Buff[wk->wu.id] = Lever_Pool[wk->wu.id];
-            Timer_00[wk->wu.id] = 2;
-        }
-        break;
-
-    case 3:
-        Check_Air_Guard(wk);
-
-        if (Check_Landed(wk, Reaction) != 0) {
-            break;
-        }
-        if (Check_VS_Air_Attack(wk, RJX, RJY, JLD) != 0) {
-            break;
-        }
-        if (Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, JY) == 0) {
-            break;
-        }
-
-        Jump_Init(wk, Jump_Dir2);
-        if (--Timer_00[wk->wu.id] == 0) {
-            CP_Index[wk->wu.id][1]++;
-        }
-        break;
-
-    case 4:
-        Check_Air_Guard(wk);
-        if (Attack_Range_Gates(wk, Reaction, RX, RY, RJX, RJY, JLD) == 0) {
-            break;
-        }
-        CP_Index[wk->wu.id][1] += 2;
-        break;
-
-    case 5:
-        if (wk->wu.hf.hit.player) {
-            Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
-        }
-        Check_Landed(wk, Reaction & 0x7F);
-        break;
-
-    case 6:
-        Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-        if (Check_Landed(wk, Reaction) != 0) {
-            break;
-        }
-
-        switch (Tech_Address[wk->wu.id][Tech_Index[wk->wu.id]]) {
-        default:
-        case 1:
-        case 10:
-            if (Command_Type_00(wk, Power_Level & 0xF, Tech_Number, Ex_Shot) == -1) {
-                CP_Index[wk->wu.id][1] = 0x63;
-            }
-            break;
-        }
-        break;
-    default:
-        Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
-        Rapid_Sub(wk);
-        Check_Landed(wk, Reaction & 0xFFF);
-        break;
-    }
-}
-
-void ORO_HJCA_Term(
-    PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Tech_Number, s16 Power_Level,
-    s16 Ex_Shot, s16 RJX, s16 RJY, u16 JLD
-) {
-    switch (CP_Index[wk->wu.id][1]) {
-
-    case 0:
-        Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-
-        if (wk->spmv_ng_flag & 0x30000) {
-            Next_Be_Free(wk);
-            break;
-        }
-        if (Check_Start_Hi_Jump(wk) != 0) {
-            break;
-        }
-
-        Continue_Menu[wk->wu.id] = 0;
-        CP_Index[wk->wu.id][1]++;
-        if (cmd_sel[wk->wu.id]) {
-            Tech_Address[wk->wu.id] = player_CMD[wk->player_number][Tech_Number & 0x7FFF];
-        } else {
-            Tech_Address[wk->wu.id] = player_cmd[wk->player_number][Tech_Number & 0x7FFF];
-        }
-        Check_First_Menu(wk);
-
-        break;
-
-    case 1:
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-        if (--Combo_Speed[wk->wu.id == 0]) {
-            CP_Index[wk->wu.id][1]++;
-            Tech_Index[wk->wu.id] = 0xC;
-
-            Jump_Init(wk, Jump_Dir);
-            Lever_Pool[wk->wu.id] &= 0xC;
-            Lever_Buff[wk->wu.id] = 0;
-            Check_Air_Guard(wk);
-            if (Check_Diagonal_Shell(wk) != 0) {
-                Next_Be_Free(wk);
-            }
-        }
-        break;
-
-    case 2:
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-        CP_Index[wk->wu.id][1]++;
-        Lever_Buff[wk->wu.id] = 2;
-        Lever_Pool[wk->wu.id] |= 1;
-        break;
-
-    case 3:
-        if (wk->wu.xyz[1].disp.pos > 0) {
-            CP_Index[wk->wu.id][1]++;
-        }
-
-        else {
-            Lever_Buff[wk->wu.id] = Lever_Pool[wk->wu.id];
-            Timer_00[wk->wu.id] = 2;
-        }
-        break;
-
-    case 4:
-        Check_Air_Guard(wk);
-
-        if (Check_Landed(wk, Reaction) != 0) {
-            break;
-        }
-        if (Check_VS_Air_Attack(wk, RJX, RJY, JLD) != 0) {
-            break;
-        }
-        if (Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, JY) == 0) {
-            break;
-        }
-
-        Jump_Init(wk, Jump_Dir2);
-        if (--Timer_00[wk->wu.id] == 0) {
-            CP_Index[wk->wu.id][1]++;
-        }
-        break;
-
-    case 5:
-        Check_Air_Guard(wk);
-        if (Attack_Range_Gates(wk, Reaction, RX, RY, RJX, RJY, JLD) == 0) {
-            break;
-        }
-        CP_Index[wk->wu.id][1] += 2;
-        break;
-
-    case 6:
-        if (wk->wu.hf.hit.player) {
-            Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
-        }
-        Check_Landed(wk, Reaction & 0x7F);
-        return;
-
-    case 7:
-        Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-        if (Check_Landed(wk, Reaction) != 0) {
-            break;
-        }
-
-        switch (Tech_Address[wk->wu.id][Tech_Index[wk->wu.id]]) {
-        default:
-        case 1:
-        case 10:
-            if (Command_Type_00(wk, Power_Level & 0xF, Tech_Number, Ex_Shot) == -1) {
-                CP_Index[wk->wu.id][1] = 0x63;
-            }
-            break;
-        }
-        break;
-    default:
-        Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
-        Rapid_Sub(wk);
-        Check_Landed(wk, Reaction & 0xFFF);
-        break;
-    }
-}
 
 /* The landing opcode step shared by the command Term functions. Distinct from
  * Landing_Tech_Step in com_sub_jump.c, which passes different arguments to
@@ -291,12 +55,46 @@ static void Command_Term_Landing_Step(PLW* wk, u16 Tech_Number, s16 Power_Level,
     }
 }
 
-/* Hold while airborne: latch any hit, then watch for the landing. */
-static void Command_Term_Hold(PLW* wk, s16 Reaction) {
+/* Hold while airborne: latch any hit, then watch for the landing. The two jump
+ * Terms mask the reaction with 0xFFF and the two ORO Terms with 0x7F - the only
+ * difference between the four copies. */
+static void Command_Term_Hold(PLW* wk, s16 Reaction, s16 mask) {
     if (wk->wu.hf.hit.player) {
         Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
     }
-    Check_Landed(wk, Reaction & 0xFFF);
+    Check_Landed(wk, Reaction & mask);
+}
+
+/* The rise arm the two ORO Terms share: climb, or hold the pooled lever and
+ * reset the descent timer. */
+static void ORO_Term_Rise(PLW* wk) {
+    if (wk->wu.xyz[1].disp.pos > 0) {
+        CP_Index[wk->wu.id][1]++;
+        return;
+    }
+
+    Lever_Buff[wk->wu.id] = Lever_Pool[wk->wu.id];
+    Timer_00[wk->wu.id] = 2;
+}
+
+/* The second jump the two ORO Terms take once the height gate passes. */
+static void ORO_Term_Climb(PLW* wk, s16 Reaction, s16 JY, s16 Jump_Dir2, s16 RJX, s16 RJY, u16 JLD) {
+    Check_Air_Guard(wk);
+
+    if (Check_Landed(wk, Reaction) != 0) {
+        return;
+    }
+    if (Check_VS_Air_Attack(wk, RJX, RJY, JLD) != 0) {
+        return;
+    }
+    if (Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, JY) == 0) {
+        return;
+    }
+
+    Jump_Init(wk, Jump_Dir2);
+    if (--Timer_00[wk->wu.id] == 0) {
+        CP_Index[wk->wu.id][1]++;
+    }
 }
 
 static void JCA_Term_Begin(PLW* wk, u16 Tech_Number) {
@@ -399,7 +197,7 @@ void Jump_Command_Attack_Term(
         break;
 
     case 4:
-        Command_Term_Hold(wk, Reaction);
+        Command_Term_Hold(wk, Reaction, 0xFFF);
         break;
 
     case 5:
@@ -478,7 +276,7 @@ static void HJCA_Term_Rise(PLW* wk) {
     }
 }
 
-static void HJCA_Term_Approach(PLW* wk, s16 Reaction, s16 RX, s16 RY, s16 JRX, s16 JRY, u16 JLD) {
+static void Command_Term_Approach(PLW* wk, s16 Reaction, s16 RX, s16 RY, s16 JRX, s16 JRY, u16 JLD) {
     Check_Air_Guard(wk);
 
     if (Attack_Range_Gates(wk, Reaction, RX, RY, JRX, JRY, JLD) == 0) {
@@ -525,11 +323,11 @@ void Hi_Jump_Command_Attack_Term(
         break;
 
     case 4:
-        HJCA_Term_Approach(wk, Reaction, RX, RY, JRX, JRY, JLD);
+        Command_Term_Approach(wk, Reaction, RX, RY, JRX, JRY, JLD);
         break;
 
     case 5:
-        Command_Term_Hold(wk, Reaction);
+        Command_Term_Hold(wk, Reaction, 0xFFF);
         break;
 
     case 6:
@@ -538,6 +336,132 @@ void Hi_Jump_Command_Attack_Term(
 
     default:
         HJCA_Term_End(wk, Reaction);
+        break;
+    }
+}
+
+/* ORO_JCA_Term's opening: unlike the jump Terms it has no spmv_ng_flag guard. */
+static void ORO_JCA_Term_Begin(PLW* wk, u16 Tech_Number) {
+    if (Check_Passive(wk) != 0) {
+        return;
+    }
+
+    Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
+    if (!Check_Free_To_Act(wk)) {
+        return;
+    }
+
+    Continue_Menu[wk->wu.id] = 0;
+    CP_Index[wk->wu.id][1]++;
+    if (cmd_sel[wk->wu.id]) {
+        Tech_Address[wk->wu.id] = player_CMD[wk->player_number][Tech_Number & 0xFF];
+    } else {
+        Tech_Address[wk->wu.id] = player_cmd[wk->player_number][Tech_Number & 0xFF];
+    }
+    Check_First_Menu(wk);
+}
+
+/* Clears the dash flag and runs the air guard, which the jump Term launch does
+ * not; kept separate for that reason. */
+static void ORO_JCA_Term_Launch(PLW* wk, s16 Jump_Dir) {
+    if (Check_Passive(wk) != 0) {
+        return;
+    }
+    if (--Combo_Speed[wk->wu.id] != 0) {
+        return;
+    }
+
+    CP_Index[wk->wu.id][1]++;
+    Tech_Index[wk->wu.id] = 0xC;
+    dash_flag_clear(wk->wu.id);
+
+    Jump_Init(wk, Jump_Dir);
+    Check_Air_Guard(wk);
+    if (Check_Diagonal_Shell(wk) != 0) {
+        Next_Be_Free(wk);
+    }
+}
+
+void ORO_JCA_Term(
+    PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Tech_Number, s16 Power_Level,
+    s16 Ex_Shot, s16 RJX, s16 RJY, u16 JLD
+) {
+    switch (CP_Index[wk->wu.id][1]) {
+
+    case 0:
+        ORO_JCA_Term_Begin(wk, Tech_Number);
+        break;
+
+    case 1:
+        ORO_JCA_Term_Launch(wk, Jump_Dir);
+        break;
+
+    case 2:
+        ORO_Term_Rise(wk);
+        break;
+
+    case 3:
+        ORO_Term_Climb(wk, Reaction, JY, Jump_Dir2, RJX, RJY, JLD);
+        break;
+
+    case 4:
+        Command_Term_Approach(wk, Reaction, RX, RY, RJX, RJY, JLD);
+        break;
+
+    case 5:
+        Command_Term_Hold(wk, Reaction, 0x7F);
+        break;
+
+    case 6:
+        JCA_Term_Land(wk, Reaction, Tech_Number, Power_Level, Ex_Shot);
+        break;
+
+    default:
+        JCA_Term_End(wk, Reaction);
+        break;
+    }
+}
+
+void ORO_HJCA_Term(
+    PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Tech_Number, s16 Power_Level,
+    s16 Ex_Shot, s16 RJX, s16 RJY, u16 JLD
+) {
+    switch (CP_Index[wk->wu.id][1]) {
+
+    case 0:
+        HJCA_Term_Begin(wk, Tech_Number);
+        break;
+
+    case 1:
+        HJCA_Term_Launch(wk, Jump_Dir);
+        break;
+
+    case 2:
+        HJCA_Term_Arm(wk);
+        break;
+
+    case 3:
+        ORO_Term_Rise(wk);
+        break;
+
+    case 4:
+        ORO_Term_Climb(wk, Reaction, JY, Jump_Dir2, RJX, RJY, JLD);
+        break;
+
+    case 5:
+        Command_Term_Approach(wk, Reaction, RX, RY, RJX, RJY, JLD);
+        break;
+
+    case 6:
+        Command_Term_Hold(wk, Reaction, 0x7F);
+        break;
+
+    case 7:
+        JCA_Term_Land(wk, Reaction, Tech_Number, Power_Level, Ex_Shot);
+        break;
+
+    default:
+        JCA_Term_End(wk, Reaction);
         break;
     }
 }
