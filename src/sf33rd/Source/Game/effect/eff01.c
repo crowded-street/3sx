@@ -28,6 +28,13 @@ static s32 should_end_parts_effect(const WORK_Other* ewk, const WORK* mwk) {
     return ewk->wu.dead_f == 1 || mwk->olc_work_ix[ewk->wu.type] != ewk->wu.myself;
 }
 
+/* Player 1's primary part is stored mirrored, so it reads one cel further on
+ * when the fighter faces left. Both the cel pick and the parts-data load need
+ * this. */
+static s32 is_mirrored_primary_part(const WORK_Other* ewk, const PLW* mwk) {
+    return ewk->wu.type == 0 && mwk->player_number == 0 && mwk->wu.rl_flag;
+}
+
 /* Pick the part's cel for this frame: follow the master's overlap index when it
  * moved, otherwise run the part's own cel timer down while the super-art freeze
  * is not on. */
@@ -36,9 +43,7 @@ static void advance_parts_animation(WORK_Other* ewk, WORK* mwk) {
         ewk->wu.cg_olc.olc_ix[ewk->wu.type] = ewk->wu.cg_ix = mwk->cg_olc.olc_ix[ewk->wu.type];
         ewk->wu.now_koc = ewk->wu.cg_ix;
 
-        const s32 is_mirrored_primary_part = ewk->wu.type == 0 && ((PLW*)mwk)->player_number == 0 && mwk->rl_flag;
-
-        if (is_mirrored_primary_part) {
+        if (is_mirrored_primary_part(ewk, (PLW*)mwk)) {
             ewk->wu.now_koc++;
         }
 
@@ -164,7 +169,7 @@ void effect_01_move(WORK_Other* ewk) {
 void get_new_parts_data(WORK_Other* ewk, PLW* mwk) {
     ewk->wu.now_koc = ewk->wu.cg_ix;
 
-    if (ewk->wu.type == 0 && mwk->player_number == 0 && mwk->wu.rl_flag) {
+    if (is_mirrored_primary_part(ewk, mwk)) {
         ewk->wu.now_koc++;
     }
 
