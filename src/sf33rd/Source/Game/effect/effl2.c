@@ -17,6 +17,21 @@
 const s8 effl2_dir_tbl[2][16] = { { 0, 0, 0, 1, 2, 2, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4 },
                                   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 3 } };
 
+/* Non-zero once the round is decided: no battle running, the conclusion flag
+ * up, and the scene counter past the fight itself. */
+static s32 battle_is_over(void) {
+    return Allow_a_battle_f == 0 && Conclusion_Flag == 1 && *C_No >= 2;
+}
+
+/* Non-zero for a perfect win.
+ *
+ * NOTE: the Conclusion_Flag test is redundant - the caller only reaches this
+ * once battle_is_over() has already required it. Preserved as found; see
+ * AGENTS.md on arcade-accurate oddities. */
+static s32 is_complete_victory(void) {
+    return !(Complete_Victory == 0) && Conclusion_Flag;
+}
+
 void effect_L2_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -27,8 +42,8 @@ void effect_L2_move(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (Allow_a_battle_f == 0 && Conclusion_Flag == 1 && *C_No >= 2) {
-            if (!(Complete_Victory == 0) && Conclusion_Flag) {
+        if (battle_is_over()) {
+            if (is_complete_victory()) {
                 ewk->wu.routine_no[0]++;
                 ewk->wu.old_rno[0] = 0;
 
