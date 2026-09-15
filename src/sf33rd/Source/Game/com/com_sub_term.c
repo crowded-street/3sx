@@ -393,8 +393,14 @@ s32 ETC_Term_0002(PLW* wk, WORK* em) {
     return 0;
 }
 
+/* Non-zero when the opponent is in none of the three pat states this Term
+ * waits out. */
+static s32 Opponent_Pat_Status_Clear(WORK* em) {
+    return (em->pat_status != 0x20) && (em->pat_status != 0x21) && (em->pat_status != 2);
+}
+
 s32 ETC_Term_0003(PLW* wk, WORK* em) {
-    if ((em->pat_status != 0x20) && (em->pat_status != 0x21) && (em->pat_status != 2)) {
+    if (Opponent_Pat_Status_Clear(em)) {
         return 1;
     }
     return 0;
