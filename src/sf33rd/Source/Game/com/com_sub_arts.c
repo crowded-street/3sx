@@ -42,6 +42,15 @@
 /* Commits to the super art selected for this character. Reads kind_of_arts at
  * the point of use, so callers that mutate xx first (DENJIN_Check, YAGYOU_Check)
  * see their own result. */
+/* Step to the next CP state: bump the outer index and clear the three inner
+ * ones. Every wait and branch function in this file ends on this block. */
+static void Advance_CP_State(PLW* wk) {
+    CP_Index[wk->wu.id][0]++;
+    CP_Index[wk->wu.id][1] = 0;
+    CP_Index[wk->wu.id][2] = 0;
+    CP_Index[wk->wu.id][3] = 0;
+}
+
 static void SA_Next_Menu(PLW* wk, s16* xx) {
     Next_Another_Menu(wk, 2, xx[plw[wk->wu.id].sa->kind_of_arts]);
 }
@@ -283,10 +292,7 @@ void Branch_Wait_Area(PLW* wk, s16 Time_00, s16 Time_01, s16 Time_02, s16 Time_0
         if (--Timer_00[wk->wu.id]) {
             break;
         }
-        CP_Index[wk->wu.id][0]++;
-        CP_Index[wk->wu.id][1] = 0;
-        CP_Index[wk->wu.id][2] = 0;
-        CP_Index[wk->wu.id][3] = 0;
+        Advance_CP_State(wk);
 
         Flip_Flag[wk->wu.id] = 0;
         Limited_Flag[wk->wu.id] = 0;
@@ -316,10 +322,7 @@ void Wait(PLW* wk, s16 Time) {
         if (--Timer_00[wk->wu.id]) {
             break;
         }
-        CP_Index[wk->wu.id][0]++;
-        CP_Index[wk->wu.id][1] = 0;
-        CP_Index[wk->wu.id][2] = 0;
-        CP_Index[wk->wu.id][3] = 0;
+        Advance_CP_State(wk);
 
         Flip_Flag[wk->wu.id] = 0;
         Limited_Flag[wk->wu.id] = 0;
@@ -364,10 +367,7 @@ void Look(PLW* wk, s16 Time) {
             break;
         }
 
-        CP_Index[wk->wu.id][0]++;
-        CP_Index[wk->wu.id][1] = 0;
-        CP_Index[wk->wu.id][2] = 0;
-        CP_Index[wk->wu.id][3] = 0;
+        Advance_CP_State(wk);
 
         Flip_Flag[wk->wu.id] = 0;
         Limited_Flag[wk->wu.id] = 0;
@@ -402,10 +402,7 @@ static void Keep_Status_Hold(PLW* wk) {
         return;
     }
 
-    CP_Index[wk->wu.id][0]++;
-    CP_Index[wk->wu.id][1] = 0;
-    CP_Index[wk->wu.id][2] = 0;
-    CP_Index[wk->wu.id][3] = 0;
+    Advance_CP_State(wk);
 
     Flip_Flag[wk->wu.id] = 0;
     Limited_Flag[wk->wu.id] = 0;
@@ -444,10 +441,7 @@ void VS_Jump_Guard(PLW* wk) {
         }
 
         if (((WORK*)wk->wu.target_adrs)->xyz[1].disp.pos < 0x19) {
-            CP_Index[wk->wu.id][0]++;
-            CP_Index[wk->wu.id][1] = 0;
-            CP_Index[wk->wu.id][2] = 0;
-            CP_Index[wk->wu.id][3] = 0;
+            Advance_CP_State(wk);
 
             Passive_Flag[wk->wu.id] = 0;
             Flip_Flag[wk->wu.id] = 0;
@@ -481,10 +475,7 @@ void Wait_Lie(PLW* wk, u16 Lever_Data) {
 
         em = (WORK*)wk->wu.target_adrs;
         if ((Check_Blow_Off(wk, em, 0) == 0) || (Lie_Flag[wk->wu.id] != 0)) {
-            CP_Index[wk->wu.id][0]++;
-            CP_Index[wk->wu.id][1] = 0;
-            CP_Index[wk->wu.id][2] = 0;
-            CP_Index[wk->wu.id][3] = 0;
+            Advance_CP_State(wk);
 
             Flip_Flag[wk->wu.id] = 0;
 
@@ -515,10 +506,7 @@ void Wait_Get_Up(PLW* wk, u16 Lever_Data, s16 Option) {
         Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
 
         if (Check_Wait_Term(wk, Option) != 0) {
-            CP_Index[wk->wu.id][0]++;
-            CP_Index[wk->wu.id][1] = 0;
-            CP_Index[wk->wu.id][2] = 0;
-            CP_Index[wk->wu.id][3] = 0;
+            Advance_CP_State(wk);
 
             Disposal_Again[wk->wu.id] = 1;
             Passive_Flag[wk->wu.id] = 1;
@@ -570,10 +558,7 @@ void Wait_Attack_Complete(PLW* wk, u16 Lever_Data, s16 Option) {
         Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
 
         if (Check_Exit_Guard(wk, Option) == 0) {
-            CP_Index[wk->wu.id][0]++;
-            CP_Index[wk->wu.id][1] = 0;
-            CP_Index[wk->wu.id][2] = 0;
-            CP_Index[wk->wu.id][3] = 0;
+            Advance_CP_State(wk);
             Guard_Flag[wk->wu.id] = 0;
 
             Flip_Flag[wk->wu.id] = 0;
