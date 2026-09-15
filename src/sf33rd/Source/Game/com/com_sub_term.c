@@ -52,6 +52,49 @@ s32 Check_Exit_Term(PLW* wk, WORK* em, s16 Exit_No) {
     return Exit_Term_Tbl[Exit_No](wk, em);
 }
 
+/* Each of these answers one opponent's jump-in: zero when this character has no
+ * counter to take, otherwise the menu it wants, written through xx as the
+ * original did. The arms that fell out of the switch return zero here. */
+static s32 VS_Jump_Cross_Chop(PLW* wk, WORK* em, s16* xx) {
+    if (Check_F_Cross_Chop(wk, em, 0xF) != 0) {
+        return *xx = 3;
+    }
+    return 0;
+}
+
+static s32 VS_Jump_Anti_Air_2b(PLW* wk, WORK* em, s16* xx) {
+    if (Check_Special_Technique(wk, em, 0, 0, 0x2b, -1, -1) != 0) {
+        return *xx = 2;
+    }
+    return 0;
+}
+
+static s32 VS_Jump_Anti_Air_2A(PLW* wk, WORK* em, s16* xx) {
+    if (Check_Special_Technique(wk, em, 0, 0, 0x2A, -1, -1) != 0) {
+        return *xx = 2;
+    }
+    if (Check_Limited_Jump_Attack(wk, em, 0x14, 4) != 0) {
+        VS_Tech[wk->wu.id] = 0xF;
+        return *xx = 3;
+    }
+    return 0;
+}
+
+static s32 VS_Jump_Limited_Attack(PLW* wk, WORK* em, s16* xx) {
+    if (Check_Limited_Jump_Attack(wk, em, 0x14, 5) != 0) {
+        VS_Tech[wk->wu.id] = 0xF;
+        return *xx = 3;
+    }
+    return 0;
+}
+
+static s32 VS_Jump_Anti_Air_2C(PLW* wk, WORK* em, s16* xx) {
+    if (Check_Special_Technique(wk, em, 0xF, 8, 0x2C, 1, -1) != 0) {
+        return *xx = 3;
+    }
+    return 0;
+}
+
 s32 VS_Jump_Term(PLW* wk, WORK* em, s16* xx) {
     if (Attack_Flag[wk->wu.id] == 0) {
         return 0;
@@ -59,36 +102,20 @@ s32 VS_Jump_Term(PLW* wk, WORK* em, s16* xx) {
 
     switch (My_char[em->id]) {
     case 1:
-        if (Check_F_Cross_Chop(wk, em, 0xF) != 0) {
-            return *xx = 3;
-        }
-        break;
+        return VS_Jump_Cross_Chop(wk, em, xx);
+
     case 3:
     case 10:
-        if (Check_Special_Technique(wk, em, 0, 0, 0x2b, -1, -1) != 0) {
-            return *xx = 2;
-        }
-        break;
+        return VS_Jump_Anti_Air_2b(wk, em, xx);
+
     case 5:
-        if (Check_Special_Technique(wk, em, 0, 0, 0x2A, -1, -1) != 0) {
-            return *xx = 2;
-        }
-        if (Check_Limited_Jump_Attack(wk, em, 0x14, 4) != 0) {
-            VS_Tech[wk->wu.id] = 0xF;
-            return *xx = 3;
-        }
-        break;
+        return VS_Jump_Anti_Air_2A(wk, em, xx);
+
     case 8:
-        if (Check_Limited_Jump_Attack(wk, em, 0x14, 5) != 0) {
-            VS_Tech[wk->wu.id] = 0xF;
-            return *xx = 3;
-        }
-        break;
+        return VS_Jump_Limited_Attack(wk, em, xx);
+
     case 9:
-        if (Check_Special_Technique(wk, em, 0xF, 8, 0x2C, 1, -1) != 0) {
-            return *xx = 3;
-        }
-        break;
+        return VS_Jump_Anti_Air_2C(wk, em, xx);
     }
     return 0;
 }
