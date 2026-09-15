@@ -26,6 +26,93 @@ static s32 animation_can_advance(void) {
 }
 
 
+/* Hold until the first timer runs out, then aim at the first waypoint. */
+static void e68_wait_start(WORK_Other* ewk) {
+if (game_is_active()) {
+        ewk->wu.routine_no[4]--;
+
+        if (ewk->wu.routine_no[4] < 1) {
+            ewk->wu.routine_no[0]++;
+            ewk->wu.routine_no[4] = 50;
+            cal_all_speed_data(&ewk->wu, ewk->wu.routine_no[4], ewk->wu.old_rno[2], ewk->wu.old_rno[3], 1, 1);
+            ewk->wu.char_index = ewk->wu.routine_no[6];
+            set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+        }
+    }
+}
+
+/* Fly to the first waypoint, then aim at the second. */
+static void e68_arc_out(WORK_Other* ewk) {
+    if (animation_can_advance()) {
+        ewk->wu.routine_no[4]--;
+
+        if (ewk->wu.routine_no[4] < 1) {
+            ewk->wu.routine_no[0]++;
+            ewk->wu.routine_no[4] = 50;
+            cal_delta_speed(&ewk->wu, ewk->wu.routine_no[4], ewk->wu.old_rno[4], ewk->wu.old_rno[5], 2, 2);
+            ewk->wu.char_index = ewk->wu.routine_no[6];
+            set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+        }
+
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
+    }
+}
+
+/* Fly to the second waypoint, then aim at the third. */
+static void e68_arc_back(WORK_Other* ewk) {
+    if (!EXE_flag && !Game_pause) {
+        ewk->wu.routine_no[4]--;
+
+        if (ewk->wu.routine_no[4] < 1) {
+            ewk->wu.routine_no[0]++;
+            ewk->wu.routine_no[4] = 40;
+            cal_all_speed_data(&ewk->wu, ewk->wu.routine_no[4], ewk->wu.old_rno[6], ewk->wu.old_rno[7], 1, 1);
+        }
+
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
+        char_move(&ewk->wu);
+    }
+}
+
+/* Fly to the third waypoint, then aim back at the first. */
+static void e68_return(WORK_Other* ewk) {
+    if (!EXE_flag && !Game_pause) {
+        ewk->wu.routine_no[4]--;
+
+        if (ewk->wu.routine_no[4] < 1) {
+            ewk->wu.routine_no[0]++;
+            ewk->wu.routine_no[4] = 60;
+            cal_delta_speed(&ewk->wu, ewk->wu.routine_no[4], ewk->wu.old_rno[0], ewk->wu.old_rno[1], 2, 2);
+            ewk->wu.char_index = ewk->wu.routine_no[5];
+            set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+        }
+
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
+        char_move(&ewk->wu);
+    }
+}
+
+/* Fly home, then start the arc again from state 2. */
+static void e68_loop(WORK_Other* ewk) {
+    if (!EXE_flag && !Game_pause) {
+        ewk->wu.routine_no[4]--;
+
+        if (ewk->wu.routine_no[4] < 1) {
+            ewk->wu.routine_no[0] = 2;
+            ewk->wu.routine_no[4] = 50;
+            cal_all_speed_data(&ewk->wu, ewk->wu.routine_no[4], ewk->wu.old_rno[2], ewk->wu.old_rno[3], 1, 1);
+            ewk->wu.char_index = ewk->wu.routine_no[6];
+            set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+        }
+
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
+    }
+}
+
 void effect_68_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -36,94 +123,27 @@ void effect_68_move(WORK_Other* ewk) {
         break;
 
     case 1:
-if (game_is_active()) {
-            ewk->wu.routine_no[4]--;
-
-            if (ewk->wu.routine_no[4] < 1) {
-                ewk->wu.routine_no[0]++;
-                ewk->wu.routine_no[4] = 50;
-                cal_all_speed_data(&ewk->wu, ewk->wu.routine_no[4], ewk->wu.old_rno[2], ewk->wu.old_rno[3], 1, 1);
-                ewk->wu.char_index = ewk->wu.routine_no[6];
-                set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-            }
-        }
-
+        e68_wait_start(ewk);
         disp_pos_trans_entry(ewk);
         break;
 
     case 2:
-        if (animation_can_advance()) {
-            ewk->wu.routine_no[4]--;
-
-            if (ewk->wu.routine_no[4] < 1) {
-                ewk->wu.routine_no[0]++;
-                ewk->wu.routine_no[4] = 50;
-                cal_delta_speed(&ewk->wu, ewk->wu.routine_no[4], ewk->wu.old_rno[4], ewk->wu.old_rno[5], 2, 2);
-                ewk->wu.char_index = ewk->wu.routine_no[6];
-                set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-            }
-
-            add_x_sub(&ewk->wu);
-            add_y_sub(&ewk->wu);
-        }
-
+        e68_arc_out(ewk);
         disp_pos_trans_entry(ewk);
         break;
 
     case 3:
-        if (!EXE_flag && !Game_pause) {
-            ewk->wu.routine_no[4]--;
-
-            if (ewk->wu.routine_no[4] < 1) {
-                ewk->wu.routine_no[0]++;
-                ewk->wu.routine_no[4] = 40;
-                cal_all_speed_data(&ewk->wu, ewk->wu.routine_no[4], ewk->wu.old_rno[6], ewk->wu.old_rno[7], 1, 1);
-            }
-
-            add_x_sub(&ewk->wu);
-            add_y_sub(&ewk->wu);
-            char_move(&ewk->wu);
-        }
-
+        e68_arc_back(ewk);
         disp_pos_trans_entry(ewk);
         break;
 
     case 4:
-        if (!EXE_flag && !Game_pause) {
-            ewk->wu.routine_no[4]--;
-
-            if (ewk->wu.routine_no[4] < 1) {
-                ewk->wu.routine_no[0]++;
-                ewk->wu.routine_no[4] = 60;
-                cal_delta_speed(&ewk->wu, ewk->wu.routine_no[4], ewk->wu.old_rno[0], ewk->wu.old_rno[1], 2, 2);
-                ewk->wu.char_index = ewk->wu.routine_no[5];
-                set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-            }
-
-            add_x_sub(&ewk->wu);
-            add_y_sub(&ewk->wu);
-            char_move(&ewk->wu);
-        }
-
+        e68_return(ewk);
         disp_pos_trans_entry(ewk);
         break;
 
     case 5:
-        if (!EXE_flag && !Game_pause) {
-            ewk->wu.routine_no[4]--;
-
-            if (ewk->wu.routine_no[4] < 1) {
-                ewk->wu.routine_no[0] = 2;
-                ewk->wu.routine_no[4] = 50;
-                cal_all_speed_data(&ewk->wu, ewk->wu.routine_no[4], ewk->wu.old_rno[2], ewk->wu.old_rno[3], 1, 1);
-                ewk->wu.char_index = ewk->wu.routine_no[6];
-                set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-            }
-
-            add_x_sub(&ewk->wu);
-            add_y_sub(&ewk->wu);
-        }
-
+        e68_loop(ewk);
         disp_pos_trans_entry(ewk);
         break;
 
