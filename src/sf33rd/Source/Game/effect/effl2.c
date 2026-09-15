@@ -32,48 +32,70 @@ static s32 is_complete_victory(void) {
     return !(Complete_Victory == 0) && Conclusion_Flag;
 }
 
+/* Start the effect: show it and face it the right way. */
+static void l2_start(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.disp_flag = 1;
+    effl2_dir_check(ewk);
+    set_char_move_init2(&ewk->wu, 0, 0, 1, 0);
+}
+
+/* Switch to the win animation - the winner's own, or the loser's. */
+static void l2_show_result(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.old_rno[0] = 0;
+
+    if (Winner_id != ewk->master_id) {
+        set_char_move_init(&ewk->wu, 0, 2);
+    } else {
+        set_char_move_init(&ewk->wu, 0, 1);
+    }
+}
+
+/* While the round runs, keep the effect facing the right way; once it is
+ * decided, a perfect win switches to the result animation. */
+static void l2_track_round(WORK_Other* ewk) {
+    if (battle_is_over()) {
+        if (is_complete_victory()) {
+            l2_show_result(ewk);
+        }
+    } else if (!EXE_flag && !Game_pause) {
+        effl2_dir_check(ewk);
+    }
+}
+
+/* Hold the result until the wipe has come and gone, then restart the effect. */
+static void l2_wait_for_wipe(WORK_Other* ewk) {
+    if (Exec_Wipe) {
+        ewk->wu.old_rno[0] = 1;
+    }
+
+    if (ewk->wu.old_rno[0] && !Exec_Wipe) {
+        ewk->wu.routine_no[0] = 0;
+    }
+}
+
+/* Place the effect at its work position and hand it to the renderer. */
+static void l2_push_at_position(WORK_Other* ewk) {
+    ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
+    ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
+    sort_push_request(&ewk->wu);
+}
+
 void effect_L2_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.disp_flag = 1;
-        effl2_dir_check(ewk);
-        set_char_move_init2(&ewk->wu, 0, 0, 1, 0);
+        l2_start(ewk);
         break;
 
     case 1:
-        if (battle_is_over()) {
-            if (is_complete_victory()) {
-                ewk->wu.routine_no[0]++;
-                ewk->wu.old_rno[0] = 0;
-
-                if (Winner_id != ewk->master_id) {
-                    set_char_move_init(&ewk->wu, 0, 2);
-                } else {
-                    set_char_move_init(&ewk->wu, 0, 1);
-                }
-            }
-        } else if (!EXE_flag && !Game_pause) {
-            effl2_dir_check(ewk);
-        }
-
-        ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
-        ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
-        sort_push_request(&ewk->wu);
+        l2_track_round(ewk);
+        l2_push_at_position(ewk);
         break;
 
     case 2:
-        if (Exec_Wipe) {
-            ewk->wu.old_rno[0] = 1;
-        }
-
-        if (ewk->wu.old_rno[0] && !Exec_Wipe) {
-            ewk->wu.routine_no[0] = 0;
-        }
-
-        ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
-        ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
-        sort_push_request(&ewk->wu);
+        l2_wait_for_wipe(ewk);
+        l2_push_at_position(ewk);
         break;
 
     default:
