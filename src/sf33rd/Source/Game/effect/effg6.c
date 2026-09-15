@@ -130,6 +130,13 @@ static s32 effect_update_is_blocked(void) {
     return (EXE_flag != 0) || (Game_pause != 0);
 }
 
+/* Non-zero while the master has not moved since the effect last sampled it.
+ * Both arms of the position check ask this; they differ only in whether a hit
+ * stop also has to be clear. */
+static s32 g6_master_unmoved(const WORK_Other* ewk, const WORK* mwk) {
+    return (ewk->wu.old_pos[0] == mwk->xyz[0].disp.pos) && (ewk->wu.old_pos[1] == mwk->xyz[1].disp.pos);
+}
+
 static s32 master_state_requires_shutdown(const WORK_Other* ewk, const WORK* mwk) {
     return ((ewk->wu.dmcal_m & 1) && (ewk->wu.old_pos[1] != mwk->xyz[1].disp.pos)) ||
            ((ewk->wu.dmcal_m & 2) && (mwk->disp_flag == 0)) ||
@@ -192,11 +199,10 @@ void effect_G6_move(WORK_Other* ewk) {
         }
 
         if (ewk->wu.dmcal_m & 0x20) {
-            if ((mwk->hit_stop == 0) && (ewk->wu.old_pos[0] == mwk->xyz[0].disp.pos) &&
-                (ewk->wu.old_pos[1] == mwk->xyz[1].disp.pos)) {
+            if ((mwk->hit_stop == 0) && g6_master_unmoved(ewk, mwk)) {
                 goto block_22;
             }
-        } else if ((ewk->wu.old_pos[0] == mwk->xyz[0].disp.pos) && (ewk->wu.old_pos[1] == mwk->xyz[1].disp.pos)) {
+        } else if (g6_master_unmoved(ewk, mwk)) {
             break;
         }
 
