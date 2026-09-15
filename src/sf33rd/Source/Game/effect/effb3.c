@@ -28,6 +28,35 @@ void fight_vanish(WORK_Other* ewk);
 
 // Funcs
 
+/* The master's fight phases and its end states. The case labels are the master's
+ * own routine numbers, unchanged - this is the same switch, split so neither
+ * half carries all eleven arms. */
+static void b3_fight_phase(WORK_Other* ewk) {
+    switch (oya_adrs->wu.routine_no[0]) {
+    case 4:
+        fight_move(ewk);
+        break;
+
+    case 7:
+        fight_col_move(ewk);
+        break;
+
+    case 8:
+        fight_vanish(ewk);
+        break;
+
+    case 9:
+    case 10:
+    case 99:
+        ewk->wu.disp_flag = 0;
+        break;
+
+    default:
+        push_effect_work(&ewk->wu);
+        break;
+    }
+}
+
 void effect_B3_move(WORK_Other* ewk) {
     oya_adrs = (WORK_Other*)ewk->my_master;
 
@@ -55,26 +84,8 @@ void effect_B3_move(WORK_Other* ewk) {
         disp_pos_trans_entry5(ewk);
         break;
 
-    case 4:
-        fight_move(ewk);
-        break;
-
-    case 7:
-        fight_col_move(ewk);
-        break;
-
-    case 8:
-        fight_vanish(ewk);
-        break;
-
-    case 9:
-    case 10:
-    case 99:
-        ewk->wu.disp_flag = 0;
-        break;
-
     default:
-        push_effect_work(&ewk->wu);
+        b3_fight_phase(ewk);
         break;
     }
 }
