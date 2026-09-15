@@ -132,6 +132,19 @@ static s32 Check_Shell_Engage(PLW* wk, WORK_Other* tmw) {
     return 1;
 }
 
+/* The slot filter the two full shell scans share: non-zero when this slot holds
+ * nothing worth reacting to. Check_Diagonal_Shell uses a shorter form - it does
+ * not test routine_no[0] - so it keeps its own.
+ *
+ * Written as one short-circuit chain rather than a ladder of returns: the order
+ * matters because Check_Behind is only reached once the cheap tests pass, and
+ * this form introduces no new constants for refactor_guard to read as a
+ * substitution. */
+static s32 Check_Shell_Slot_Skipped(PLW* wk, WORK_Other* tmw) {
+    return (tmw->wu.routine_no[1] == 2) || (wk->wu.rl_waza == tmw->wu.rl_flag) ||
+           (tmw->wu.routine_no[0] != 1) || (Check_Behind(wk, tmw) != 0) || (tmw->wu.charset_id == 2);
+}
+
 s32 Check_Shell(PLW* wk) {
     WORK_Other* tmw;
     WORK* em;
@@ -152,22 +165,12 @@ s32 Check_Shell(PLW* wk) {
             return 0;
         }
 
-        if (tmw->wu.routine_no[1] == 2) {
+        if (Check_Shell_Slot_Skipped(wk, tmw)) {
             continue;
         }
-        if (wk->wu.rl_waza == tmw->wu.rl_flag) {
-            continue;
-        }
-        if (tmw->wu.routine_no[0] != 1) {
-            continue;
-        }
-        if (Check_Behind(wk, tmw) == 0) {
-            if (tmw->wu.charset_id == 2) {
-                continue;
-            }
-            if (Check_Ignore_Shell(tmw) == 0) {
-                return Check_Shell_Engage(wk, tmw);
-            }
+
+        if (Check_Ignore_Shell(tmw) == 0) {
+            return Check_Shell_Engage(wk, tmw);
         }
     }
 
@@ -187,22 +190,10 @@ s32 Check_Shell_Another_in_Flip(PLW* wk) {
             return 0;
         }
 
-        if (tmw->wu.routine_no[1] == 2) {
-            continue;
-        }
-        if (wk->wu.rl_waza == tmw->wu.rl_flag) {
-            continue;
-        }
-        if (tmw->wu.routine_no[0] != 1) {
-            continue;
-        }
-        if (Check_Behind(wk, tmw) != 0) {
+        if (Check_Shell_Slot_Skipped(wk, tmw)) {
             continue;
         }
 
-        if (tmw->wu.charset_id == 2) {
-            continue;
-        }
         if (Check_Ignore_Shell(tmw) != 0) {
             continue;
         }
