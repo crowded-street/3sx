@@ -52,14 +52,14 @@ static void ORO_Air_Rise(PLW* wk) {
 
 /* The height gates that apply only when a lever was given. Non-zero when one
  * of them failed. */
-static s32 ORO_Air_Climb_Blocked(PLW* wk, s16 Reaction, s16 JY, s16 RJX, s16 RJY, u16 JLD) {
-    if (Check_Landed(wk, Reaction) != 0) {
+static s32 ORO_Air_Climb_Blocked(PLW* wk, const ORO_Air_Term_Args* a) {
+    if (Check_Landed(wk, a->Reaction) != 0) {
         return 1;
     }
-    if (Check_VS_Air_Attack(wk, RJX, RJY, JLD) != 0) {
+    if (Check_VS_Air_Attack(wk, a->RJX, a->RJY, a->JLD) != 0) {
         return 1;
     }
-    return Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, JY) == 0;
+    return Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, a->JY) == 0;
 }
 
 /* Take the second jump, if the character is high enough and has one left. */
@@ -79,25 +79,25 @@ static void ORO_Air_Second_Jump(PLW* wk, s16 Jump_Dir2, u16 Lever_Data) {
 
 /* The second jump: the range gates only apply when a lever was given, and the
  * step taken afterwards depends on the same thing. */
-static void ORO_Air_Climb(PLW* wk, s16 Reaction, s16 JY, s16 Jump_Dir2, u16 Lever_Data, s16 RJX, s16 RJY, u16 JLD) {
+static void ORO_Air_Climb(PLW* wk, const ORO_Air_Term_Args* a) {
     Check_Air_Guard(wk);
 
-    if ((Lever_Data != 0xFFFF) && ORO_Air_Climb_Blocked(wk, Reaction, JY, RJX, RJY, JLD)) {
+    if ((a->Lever_Data != 0xFFFF) && ORO_Air_Climb_Blocked(wk, a)) {
         return;
     }
 
-    ORO_Air_Second_Jump(wk, Jump_Dir2, Lever_Data);
+    ORO_Air_Second_Jump(wk, a->Jump_Dir2, a->Lever_Data);
 }
 
 /* Commit to the attack once the approach gates pass. */
-static void ORO_Air_Strike(PLW* wk, s16 Reaction, s16 RX, s16 RY, u16 Lever_Data, s16 RJX, s16 RJY, u16 JLD) {
+static void ORO_Air_Strike(PLW* wk, const ORO_Air_Term_Args* a) {
     Check_Air_Guard(wk);
 
-    if (Attack_Range_Gates(wk, Reaction, RX, RY, RJX, RJY, JLD) == 0) {
+    if (Attack_Range_Gates(wk, a->Reaction, a->RX, a->RY, a->RJX, a->RJY, a->JLD) == 0) {
         return;
     }
 
-    Lever_Buff[wk->wu.id] = Lever_Data;
+    Lever_Buff[wk->wu.id] = a->Lever_Data;
 
     CP_Index[wk->wu.id][1]++;
     Stock_Hit_Flag[wk->wu.id] = 0;
@@ -480,11 +480,11 @@ void ORO_JA_Term(PLW* wk, const ORO_Air_Term_Args* a) {
         break;
 
     case 3:
-        ORO_Air_Climb(wk, a->Reaction, a->JY, a->Jump_Dir2, a->Lever_Data, a->RJX, a->RJY, a->JLD);
+        ORO_Air_Climb(wk, a);
         break;
 
     case 4:
-        ORO_Air_Strike(wk, a->Reaction, a->RX, a->RY, a->Lever_Data, a->RJX, a->RJY, a->JLD);
+        ORO_Air_Strike(wk, a);
         break;
 
     case 5:
@@ -549,9 +549,7 @@ static void ORO_HJA_Term_Arm(PLW* wk) {
 /* The airborne half of ORO_HJA_Term: everything from the rise onwards. The case
  * labels are the original ones, so this reads against the same state numbers as
  * the ground half it was lifted out of. */
-static void ORO_HJA_Term_Airborne(
-    PLW* wk, s16 Reaction, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Lever_Data, s16 RJX, s16 RJY, u16 JLD
-) {
+static void ORO_HJA_Term_Airborne(PLW* wk, const ORO_Air_Term_Args* a) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 3:
@@ -559,23 +557,23 @@ static void ORO_HJA_Term_Airborne(
         break;
 
     case 4:
-        ORO_Air_Climb(wk, Reaction, JY, Jump_Dir2, Lever_Data, RJX, RJY, JLD);
+        ORO_Air_Climb(wk, a);
         break;
 
     case 5:
-        ORO_Air_Strike(wk, Reaction, RX, RY, Lever_Data, RJX, RJY, JLD);
+        ORO_Air_Strike(wk, a);
         break;
 
     case 6:
-        Air_Term_Hold(wk, Reaction, 0x7F);
+        Air_Term_Hold(wk, a->Reaction, 0x7F);
         break;
 
     case 7:
-        Air_Term_Land(wk, Reaction & 0x7F);
+        Air_Term_Land(wk, a->Reaction & 0x7F);
         break;
 
     default:
-        Air_Term_End(wk, Reaction);
+        Air_Term_End(wk, a->Reaction);
         break;
     }
 }
@@ -596,8 +594,7 @@ void ORO_HJA_Term(PLW* wk, const ORO_Air_Term_Args* a) {
         break;
 
     default:
-        ORO_HJA_Term_Airborne(wk, a->Reaction, a->JY, a->Jump_Dir2, a->RX, a->RY, a->Lever_Data, a->RJX, a->RJY,
-                              a->JLD);
+        ORO_HJA_Term_Airborne(wk, a);
         break;
     }
 
