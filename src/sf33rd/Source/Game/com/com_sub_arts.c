@@ -64,6 +64,42 @@ static void SA_Range_Menu(PLW* wk, s16* xx, s16 SA_No, u16 Term_No) {
     SA_Next_Menu(wk, xx);
 }
 
+/* The arm for player 2: the range gate, then the DENJIN charge, then the menu. */
+static void SA_Denjin_Arm(PLW* wk, s16* xx, u16 SA2, u16 Term_No) {
+    if (SA_Range_Check(wk, 1, Term_No) != 0) {
+        return;
+    }
+    DENJIN_Check(wk, SA2, (u16*)&xx[2], Term_No);
+    SA_Next_Menu(wk, xx);
+}
+
+/* The arm for player 5: hold off while the target is still off the ground. */
+static void SA_Grounded_Arm(PLW* wk, s16* xx, u16 Term_No) {
+    if (((WORK*)wk->wu.target_adrs)->xyz[1].disp.pos >= 0x10) {
+        CP_Index[wk->wu.id][0]++;
+        return;
+    }
+    SA_Range_Menu(wk, xx, 1, Term_No);
+}
+
+/* The arm for player 8: no range gate, but the super only comes out on the
+ * second art once vitality is down to half. */
+static void SA_Low_Vitality_Arm(PLW* wk, s16* xx) {
+    if ((plw[wk->wu.id].sa->kind_of_arts == 2) && (plw[wk->wu.id].wu.vital_new <= (Max_vitality / 2))) {
+        SA_Next_Menu(wk, xx);
+        return;
+    }
+    CP_Index[wk->wu.id][0]++;
+}
+
+/* The arm for player 14: two range gates before the menu. */
+static void SA_Two_Range_Arm(PLW* wk, s16* xx, u16 Term_No) {
+    if (SA_Range_Check(wk, 1, Term_No) != 0) {
+        return;
+    }
+    SA_Range_Menu(wk, xx, 2, Term_No);
+}
+
 /* Per-character super art handling, split out of SA_Term. Every path is
  * terminal. The original reached the shared Next_Another_Menu call by breaking
  * out of the switch on one path only (player_number 8, low vitality); that path
@@ -71,11 +107,7 @@ static void SA_Range_Menu(PLW* wk, s16* xx, s16 SA_No, u16 Term_No) {
 static void SA_Term_Player_Case(PLW* wk, s16* xx, u16 SA2, u16 Term_No) {
     switch (wk->player_number) {
     case 2:
-        if (SA_Range_Check(wk, 1, Term_No) != 0) {
-            return;
-        }
-        DENJIN_Check(wk, SA2, (u16*)&xx[2], Term_No);
-        SA_Next_Menu(wk, xx);
+        SA_Denjin_Arm(wk, xx, SA2, Term_No);
         return;
 
     case 11:
@@ -87,11 +119,7 @@ static void SA_Term_Player_Case(PLW* wk, s16* xx, u16 SA2, u16 Term_No) {
         return;
 
     case 5:
-        if (((WORK*)wk->wu.target_adrs)->xyz[1].disp.pos >= 0x10) {
-            CP_Index[wk->wu.id][0]++;
-            return;
-        }
-        SA_Range_Menu(wk, xx, 1, Term_No);
+        SA_Grounded_Arm(wk, xx, Term_No);
         return;
 
     case 6:
@@ -99,11 +127,7 @@ static void SA_Term_Player_Case(PLW* wk, s16* xx, u16 SA2, u16 Term_No) {
         return;
 
     case 8:
-        if ((plw[wk->wu.id].sa->kind_of_arts == 2) && (plw[wk->wu.id].wu.vital_new <= (Max_vitality / 2))) {
-            SA_Next_Menu(wk, xx);
-            return;
-        }
-        CP_Index[wk->wu.id][0]++;
+        SA_Low_Vitality_Arm(wk, xx);
         return;
 
     case 9:
@@ -112,10 +136,7 @@ static void SA_Term_Player_Case(PLW* wk, s16* xx, u16 SA2, u16 Term_No) {
         return;
 
     case 14:
-        if (SA_Range_Check(wk, 1, Term_No) != 0) {
-            return;
-        }
-        SA_Range_Menu(wk, xx, 2, Term_No);
+        SA_Two_Range_Arm(wk, xx, Term_No);
         return;
 
     default:
