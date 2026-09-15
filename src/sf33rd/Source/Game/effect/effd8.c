@@ -38,6 +38,41 @@ static s32 d8_waiting_for_training_partner(const WORK_Other* ewk) {
            (ewk->master_id == New_Challenger) && (S_No[3] < 2);
 }
 
+/* Hold until the portrait artwork is ready, then start the appear delay. */
+static void d8_await_face_ready(WORK_Other* ewk) {
+    if (Complete_Face <= 0) {
+        ewk->wu.routine_no[0] += 1;
+        ewk->wu.dir_timer = 10;
+    }
+}
+
+/* Run the appear delay out, then show the face and start its animation. */
+static void d8_await_appear_delay(WORK_Other* ewk) {
+    if (--ewk->wu.dir_timer == 0) {
+        ewk->wu.routine_no[0] += 1;
+        ewk->wu.disp_flag = 1;
+        set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+    }
+}
+
+/* Copy the work position out and hand the face to the renderer. Faces on the
+ * near layer flicker between two depths each frame, which is what hit_quake
+ * counts here. */
+static void d8_place_and_push(WORK_Other* ewk) {
+    ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
+    ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
+
+    if (ewk->wu.direction == 0) {
+        if (ewk->wu.hit_quake & 1) {
+            ewk->wu.position_z = 56;
+        } else {
+            ewk->wu.position_z = 54;
+        }
+    }
+
+    sort_push_request4(&ewk->wu);
+}
+
 /* Track the select cursor: when it moves, re-place the face and restart its
  * animation at the matching frame. Once this player has locked in, start the
  * confirm animation instead. */
@@ -96,20 +131,11 @@ void effect_D8_move(WORK_Other* ewk) {
             return;
         }
 
-        if (Complete_Face <= 0) {
-            ewk->wu.routine_no[0] += 1;
-            ewk->wu.dir_timer = 10;
-        }
-
+        d8_await_face_ready(ewk);
         break;
 
     case 1:
-        if (--ewk->wu.dir_timer == 0) {
-            ewk->wu.routine_no[0] += 1;
-            ewk->wu.disp_flag = 1;
-            set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-        }
-
+        d8_await_appear_delay(ewk);
         break;
 
     case 2:
@@ -130,18 +156,7 @@ void effect_D8_move(WORK_Other* ewk) {
         return;
     }
 
-    ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
-    ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
-
-    if (ewk->wu.direction == 0) {
-        if (ewk->wu.hit_quake & 1) {
-            ewk->wu.position_z = 56;
-        } else {
-            ewk->wu.position_z = 54;
-        }
-    }
-
-    sort_push_request4(&ewk->wu);
+    d8_place_and_push(ewk);
 }
 
 s32 effect_D8_init(s16 PL_id, s16 Type) {
