@@ -137,7 +137,7 @@ void Shell14_0006(PLW* wk) {
 void Shell14_0007(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Command_Attack(wk, 8, 0x1F, 8, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 8, -1});
         break;
 
     default:

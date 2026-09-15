@@ -69,7 +69,7 @@ void Shell07_0003(PLW* wk) {
         break;
 
     case 3:
-        J_Command_Attack(wk, 8, 0x20, 9, -1);
+        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x20, 9, -1});
         break;
 
     default:
@@ -137,7 +137,7 @@ void Shell07_0006(PLW* wk) {
 void Shell07_0007(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        J_Command_Attack(wk, 8, 0x1E, 0xA, -1);
+        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 0xA, -1});
         break;
 
     default:

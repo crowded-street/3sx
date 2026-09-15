@@ -53,7 +53,7 @@ void Passive18_0002(PLW* wk) {
         break;
 
     case 2:
-        Command_Attack(wk, 8, 0, 0xB, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0, 0xB, -1});
         break;
 
     default:
@@ -81,7 +81,7 @@ void Passive18_0004(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 1, 0xB, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 1, 0xB, -1});
         break;
 
     default:
@@ -125,7 +125,7 @@ void Passive18_0007(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1C, 10, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
         break;
 
     default:
@@ -141,11 +141,11 @@ void Passive18_0008(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 0xC, 0, 0xB, -1);
+        Command_Attack(wk, &(Command_Attack_Args){0xC, 0, 0xB, -1});
         break;
 
     case 2:
-        Command_Attack(wk, 8, 0x1C, 9, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 9, -1});
         break;
 
     default:
@@ -209,7 +209,7 @@ void Passive18_0013(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 1, 0xB, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 1, 0xB, -1});
         break;
 
     default:
@@ -225,7 +225,7 @@ void Passive18_0014(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1C, 10, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
         break;
 
     default:
@@ -361,7 +361,7 @@ void Passive18_0021(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1C, 9, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 9, -1});
         break;
 
     default:
@@ -501,7 +501,7 @@ void Passive18_0026(PLW* wk) {
 void Passive18_0027(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Command_Attack(wk, 8, 0x1C, 8, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 8, -1});
         break;
 
     case 1:
@@ -585,7 +585,7 @@ void Passive18_0032(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1C, 10, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
         break;
 
     default:
@@ -645,7 +645,7 @@ void Passive18_0035(PLW* wk) {
 void Passive18_0036(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Command_Attack(wk, 0xB, 0x1C, 10, -1);
+        Command_Attack(wk, &(Command_Attack_Args){0xB, 0x1C, 10, -1});
         break;
 
     case 1:
@@ -797,7 +797,7 @@ void Passive18_0044(PLW* wk) {
         break;
 
     case 2:
-        Command_Attack(wk, 8, 0x1C, 10, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
         break;
 
     default:
@@ -841,7 +841,7 @@ void Passive18_0047(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1C, 8, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 8, -1});
         break;
 
     default:
@@ -933,7 +933,7 @@ void Passive18_0052(PLW* wk) {
 void Passive18_0053(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Command_Attack(wk, 8, 0x1C, 8, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 8, -1});
         break;
 
     default:
@@ -957,7 +957,7 @@ void Passive18_0054(PLW* wk) {
 void Passive18_0055(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Command_Attack(wk, 8, 0x1C, 9, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 9, -1});
         break;
 
     default:
@@ -1005,7 +1005,7 @@ void Passive18_0058(PLW* wk) {
 void Passive18_0059(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Command_Attack(wk, 8, 0x1C, 8, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 8, -1});
         break;
 
     default:
@@ -1101,7 +1101,7 @@ void Passive18_0065(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1C, 10, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
         break;
 
     case 2:
@@ -1209,7 +1209,7 @@ void Passive18_0072(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 0xC, 0, 0xB, -1);
+        Command_Attack(wk, &(Command_Attack_Args){0xC, 0, 0xB, -1});
         break;
 
     case 2:
@@ -1249,7 +1249,7 @@ void Passive18_0074(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1C, 10, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
         break;
 
     default:
@@ -1481,7 +1481,7 @@ void Passive18_0086(PLW* wk) {
         break;
 
     case 5:
-        Command_Attack(wk, 8, 0x1C, 10, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
         break;
 
     default:
@@ -1509,7 +1509,7 @@ void Passive18_0087(PLW* wk) {
         break;
 
     case 4:
-        Command_Attack(wk, 8, 0x1C, 10, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
         break;
 
     default:
@@ -1537,7 +1537,7 @@ void Passive18_0088(PLW* wk) {
         break;
 
     case 4:
-        Command_Attack(wk, 8, 0x1C, 10, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
         break;
 
     default:
@@ -1697,7 +1697,7 @@ void Passive18_0098(PLW* wk) {
         break;
 
     case 2:
-        Command_Attack(wk, 8, 0x1C, 10, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
         break;
 
     case 3:
@@ -1801,7 +1801,7 @@ void Passive18_0103(PLW* wk) {
 void Passive18_0104(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Command_Attack(wk, 8, 0x1D, 8, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 8, -1});
         break;
 
     default:
@@ -1813,7 +1813,7 @@ void Passive18_0104(PLW* wk) {
 void Passive18_0105(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Command_Attack(wk, 8, 0x1D, 9, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 9, -1});
         break;
 
     default:
@@ -1825,7 +1825,7 @@ void Passive18_0105(PLW* wk) {
 void Passive18_0106(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Command_Attack(wk, 8, 0x1D, 10, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 10, -1});
         break;
 
     default:
@@ -1877,7 +1877,7 @@ void Passive18_0109(PLW* wk) {
         break;
 
     case 2:
-        Command_Attack(wk, 8, 1, 10, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 1, 10, -1});
         break;
 
     case 3:
@@ -1965,7 +1965,7 @@ void Passive18_0114(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1C, 9, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 9, -1});
         break;
 
     default:
@@ -2153,7 +2153,7 @@ void Passive18_0128(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1D, 9, 0x700);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 9, 0x700});
         break;
 
     default:
@@ -2229,7 +2229,7 @@ void Passive18_0133(PLW* wk) {
 void Passive18_0134(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Command_Attack(wk, 8, 0x1C, 10, 0x70);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, 0x70});
         break;
 
     default:
@@ -2245,7 +2245,7 @@ void Passive18_0135(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1D, 10, 0x700);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 10, 0x700});
         break;
 
     default:
@@ -2261,7 +2261,7 @@ void Passive18_0136(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1D, 10, 0x700);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 10, 0x700});
         break;
 
     default:
@@ -2277,7 +2277,7 @@ void Passive18_0137(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1C, 10, 0x70);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, 0x70});
         break;
 
     default:
@@ -2293,7 +2293,7 @@ void Passive18_0138(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1D, 10, 0x700);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 10, 0x700});
         break;
 
     default:
@@ -2421,11 +2421,11 @@ void Passive18_0146(PLW* wk) {
         break;
 
     case 2:
-        Command_Attack(wk, 0xC, 0, 0xB, -1);
+        Command_Attack(wk, &(Command_Attack_Args){0xC, 0, 0xB, -1});
         break;
 
     case 3:
-        Command_Attack(wk, 8, 0x1C, 10, 0x700);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, 0x700});
         break;
 
     default:
@@ -2441,7 +2441,7 @@ void Passive18_0147(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1D, 10, 0x700);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 10, 0x700});
         break;
 
     default:
@@ -2593,7 +2593,7 @@ void Passive18_0156(PLW* wk) {
         break;
 
     case 2:
-        Command_Attack(wk, 8, 0x1D, 9, 0x700);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 9, 0x700});
         break;
 
     default:
@@ -2829,7 +2829,7 @@ void Passive18_0169(PLW* wk) {
 void Passive18_0170(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Command_Attack(wk, 0xC, 0, 0xB, -1);
+        Command_Attack(wk, &(Command_Attack_Args){0xC, 0, 0xB, -1});
         break;
 
     default:
@@ -2849,7 +2849,7 @@ void Passive18_0171(PLW* wk) {
         break;
 
     case 2:
-        Command_Attack(wk, 8, 0, 0xB, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0, 0xB, -1});
         break;
 
     default:
@@ -2869,7 +2869,7 @@ void Passive18_0172(PLW* wk) {
         break;
 
     case 2:
-        Command_Attack(wk, 8, 0x1C, 8, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 8, -1});
         break;
 
     default:
@@ -2925,7 +2925,7 @@ void Passive18_0176(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1D, 8, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 8, -1});
         break;
 
     default:
@@ -2953,7 +2953,7 @@ void Passive18_0178(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1C, 8, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 8, -1});
         break;
 
     default:
@@ -2969,7 +2969,7 @@ void Passive18_0179(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1D, 8, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 8, -1});
         break;
 
     default:
@@ -2985,7 +2985,7 @@ void Passive18_0180(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1C, 8, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 8, -1});
         break;
 
     default:
@@ -3001,7 +3001,7 @@ void Passive18_0181(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1D, 8, 0x70);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 8, 0x70});
         break;
 
     default:
@@ -3017,7 +3017,7 @@ void Passive18_0182(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1C, 8, 0x70);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 8, 0x70});
         break;
 
     default:
@@ -3033,7 +3033,7 @@ void Passive18_0183(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1D, 8, 0x70);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 8, 0x70});
         break;
 
     default:
@@ -3049,7 +3049,7 @@ void Passive18_0184(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1C, 8, 0x70);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 8, 0x70});
         break;
 
     default:
@@ -3065,7 +3065,7 @@ void Passive18_0185(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1D, 8, 0x70);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 8, 0x70});
         break;
 
     default:
@@ -3081,7 +3081,7 @@ void Passive18_0186(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1C, 8, 0x70);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 8, 0x70});
         break;
 
     default:
@@ -3113,15 +3113,15 @@ void Passive18_0187(PLW* wk) {
 void Passive18_0188(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Command_Attack(wk, 8, 0x1C, 10, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1C, 9, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 9, -1});
         break;
 
     case 2:
-        Command_Attack(wk, 8, 0x1C, 8, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 8, -1});
         break;
 
     default:
@@ -3137,15 +3137,15 @@ void Passive18_0189(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1C, 10, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
         break;
 
     case 2:
-        Command_Attack(wk, 8, 0x1C, 9, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 9, -1});
         break;
 
     case 3:
-        Command_Attack(wk, 8, 0x1C, 8, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 8, -1});
         break;
 
     default:
@@ -3185,11 +3185,11 @@ void Passive18_0191(PLW* wk) {
 void Passive18_0192(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Command_Attack(wk, 8, 0x1C, 9, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 9, -1});
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1C, 8, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 8, -1});
         break;
 
     default:
@@ -3205,11 +3205,11 @@ void Passive18_0193(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1C, 9, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 9, -1});
         break;
 
     case 2:
-        Command_Attack(wk, 8, 0x1C, 8, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 8, -1});
         break;
 
     default:
@@ -3257,7 +3257,7 @@ void Passive18_0196(PLW* wk) {
 void Passive18_0197(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Command_Attack(wk, 8, 0x1C, 10, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
         break;
 
     default:
@@ -3329,7 +3329,7 @@ void Passive18_0202(PLW* wk) {
         break;
 
     case 2:
-        Command_Attack(wk, 8, 1, 0xB, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 1, 0xB, -1});
         break;
 
     case 3:
@@ -3349,7 +3349,7 @@ void Passive18_0203(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1C, 10, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
         break;
 
     default:

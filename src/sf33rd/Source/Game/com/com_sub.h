@@ -151,9 +151,28 @@ typedef struct {
 
 void ORO_JA_Term(PLW* wk, const ORO_Air_Term_Args* a);
 void ORO_HJA_Term(PLW* wk, const ORO_Air_Term_Args* a);
-void Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot);
-void J_Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot);
-void Rapid_Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Shot, u16 Time);
+/* The four values a command attack is driven by. The field order is the
+ * parameter order Command_Attack and J_Command_Attack took. */
+typedef struct {
+    s16 Reaction;
+    u16 Tech_Number;
+    s16 Power_Level;
+    s16 Ex_Shot;
+} Command_Attack_Args;
+
+/* The rapid command attack takes a shot count and a hold time where the others
+ * take a power level and an EX shot. The field order is its own parameter
+ * order. */
+typedef struct {
+    s16 Reaction;
+    u16 Tech_Number;
+    s16 Shot;
+    u16 Time;
+} Rapid_Command_Args;
+
+void Command_Attack(PLW* wk, const Command_Attack_Args* p);
+void J_Command_Attack(PLW* wk, const Command_Attack_Args* p);
+void Rapid_Command_Attack(PLW* wk, const Rapid_Command_Args* p);
 /* The twelve values Oro's two command attack Terms are driven by. The field
  * order is the parameter order these functions used to take. */
 typedef struct {

@@ -123,11 +123,11 @@ s32 Check_Term_ABS_Distance(PLW* wk);
 s32 Check_Com_Add_Y(PLW* wk, s16 Pos_Y, s16 Range);
 void ORO_JA_Term(PLW* wk, const ORO_Air_Term_Args* a);
 void ORO_HJA_Term(PLW* wk, const ORO_Air_Term_Args* a);
-void Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot);
+void Command_Attack(PLW* wk, const Command_Attack_Args* p);
 s32 Hadou_Check(PLW* wk, u16 Tech_Number);
 s32 Check_Resume_Lever(PLW* wk);
-void J_Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot);
-void Rapid_Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Shot, u16 Time);
+void J_Command_Attack(PLW* wk, const Command_Attack_Args* p);
+void Rapid_Command_Attack(PLW* wk, const Rapid_Command_Args* p);
 void Check_Rapid(PLW* wk, u16 Tech_Number);
 void Setup_Rapid_End_Term(PLW* wk, s16 Tech_Number);
 s32 Setup_Rapid_Time(PLW* wk, u16 Tech_Number); // unused all args

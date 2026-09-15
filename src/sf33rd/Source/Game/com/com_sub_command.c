@@ -58,25 +58,25 @@ static void Command_Attack_Set_Fallback(PLW* wk, s16 Reaction, u16 Tech_Number) 
 /* Runs one step of the running command, dispatching on the opcode the tech
  * script currently points at. Lifted out of Command_Attack case 2, where it was
  * the fifth level of nesting. */
-static void Command_Attack_Tech_Step(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot) {
+static void Command_Attack_Tech_Step(PLW* wk, const Command_Attack_Args* p) {
     switch (Tech_Address[wk->wu.id][Tech_Index[wk->wu.id]]) {
 
     default:
     case 1:
 
-        if (Command_Type_00(wk, Power_Level & 0xF, Tech_Number, Ex_Shot) == -1) {
-            Command_Attack_Set_Fallback(wk, Reaction, Tech_Number);
+        if (Command_Type_00(wk, p->Power_Level & 0xF, p->Tech_Number, p->Ex_Shot) == -1) {
+            Command_Attack_Set_Fallback(wk, p->Reaction, p->Tech_Number);
         }
         break;
 
     case 2:
-        if (Command_Type_01(wk, Power_Level & 0xF, Ex_Shot) != 0) {
+        if (Command_Type_01(wk, p->Power_Level & 0xF, p->Ex_Shot) != 0) {
             CP_Index[wk->wu.id][1]++;
         }
         break;
 
     case 7:
-        if (Command_Type_06(wk, Power_Level & 0xF, Tech_Number, Ex_Shot) != 0) {
+        if (Command_Type_06(wk, p->Power_Level & 0xF, p->Tech_Number, p->Ex_Shot) != 0) {
             CP_Index[wk->wu.id][1]++;
         }
         break;
@@ -223,17 +223,17 @@ static void Command_Attack_Finish(PLW* wk) {
     }
 }
 
-void Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot) {
+void Command_Attack(PLW* wk, const Command_Attack_Args* p) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
-        if (!Command_Attack_Begin(wk, Reaction, Tech_Number, Power_Level)) {
+        if (!Command_Attack_Begin(wk, p->Reaction, p->Tech_Number, p->Power_Level)) {
             break;
         }
         /* Fallthrough */
 
     case 1:
-        if (!Command_Attack_Charge(wk, Tech_Number)) {
+        if (!Command_Attack_Charge(wk, p->Tech_Number)) {
             break;
         }
         /* Fallthrough */
@@ -242,11 +242,11 @@ void Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16
         if (Check_Passive(wk) != 0) {
             break;
         }
-        Command_Attack_Tech_Step(wk, Reaction, Tech_Number, Power_Level, Ex_Shot);
+        Command_Attack_Tech_Step(wk, p);
         break;
 
     case 3:
-        Command_Attack_Rapid(wk, Reaction, Power_Level);
+        Command_Attack_Rapid(wk, p->Reaction, p->Power_Level);
         break;
 
     default:
@@ -372,11 +372,11 @@ static void J_Command_Attack_End(PLW* wk, s16 Reaction, s16 Power_Level) {
     Check_Landed(wk, Reaction & 0xFFF);
 }
 
-void J_Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot) {
+void J_Command_Attack(PLW* wk, const Command_Attack_Args* p) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
-        if (!J_Command_Attack_Begin(wk, Reaction, Tech_Number)) {
+        if (!J_Command_Attack_Begin(wk, p->Reaction, p->Tech_Number)) {
             break;
         }
         /* Fallthough */
@@ -388,16 +388,16 @@ void J_Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s
         /* Fallthough */
 
     case 2:
-        J_Command_Attack_Run(wk, Tech_Number, Power_Level, Ex_Shot);
+        J_Command_Attack_Run(wk, p->Tech_Number, p->Power_Level, p->Ex_Shot);
         break;
 
     case 3:
-        Check_Rapid(wk, Tech_Number);
+        Check_Rapid(wk, p->Tech_Number);
         CP_Index[wk->wu.id][1]++;
         break;
 
     default:
-        J_Command_Attack_End(wk, Reaction, Power_Level);
+        J_Command_Attack_End(wk, p->Reaction, p->Power_Level);
         break;
     }
 }
@@ -480,31 +480,31 @@ static void Rapid_Command_Attack_End(PLW* wk, u16 Tech_Number) {
     }
 }
 
-void Rapid_Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Shot, u16 Time) {
+void Rapid_Command_Attack(PLW* wk, const Rapid_Command_Args* p) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
-        if (!Rapid_Command_Attack_Begin(wk, Reaction, Tech_Number)) {
+        if (!Rapid_Command_Attack_Begin(wk, p->Reaction, p->Tech_Number)) {
             break;
         }
         /* Fallthough */
 
     case 1:
-        if (!Rapid_Command_Attack_Arm(wk, Time)) {
+        if (!Rapid_Command_Attack_Arm(wk, p->Time)) {
             break;
         }
         /* Fallthough */
 
     case 2:
-        Rapid_Command_Attack_Fire(wk, Tech_Number, Shot);
+        Rapid_Command_Attack_Fire(wk, p->Tech_Number, p->Shot);
         break;
 
     case 3:
-        Rapid_Command_Attack_Hold(wk, Tech_Number, Shot);
+        Rapid_Command_Attack_Hold(wk, p->Tech_Number, p->Shot);
         break;
 
     case 4:
-        Rapid_Command_Attack_End(wk, Tech_Number);
+        Rapid_Command_Attack_End(wk, p->Tech_Number);
         break;
     }
 }
