@@ -118,45 +118,57 @@ static void push_part_for_display(WORK_Other* ewk, WORK* mwk) {
     sort_push_request(&ewk->wu);
 }
 
+/* Take the master's ROM type and blink timing, and start with no cel. */
+static void initialize_parts_effect(WORK_Other* ewk, WORK* mwk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.cgromtype = mwk->cgromtype;
+    ewk->wu.cg_number = ewk->wu.old_cgnum = 0;
+    ewk->wu.blink_timing = mwk->blink_timing;
+    ewk->wu.cg_olc.olc_ix[ewk->wu.type] = 0;
+}
+
+/* One frame of a live part. Every exit here ended the frame in the original -
+ * the early returns and the two `break`s alike, since nothing followed the
+ * switch. */
+static void update_parts_effect(WORK_Other* ewk, WORK* mwk) {
+    if (should_end_parts_effect(ewk, mwk)) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0]++;
+        return;
+    }
+
+    if (mwk->cg_olc.olc_ix[ewk->wu.type] == 0) {
+        ewk->wu.cg_olc.olc_ix[ewk->wu.type] = 0;
+        return;
+    }
+
+    if (game_is_active()) {
+        advance_parts_animation(ewk, mwk);
+
+        if (ewk->wu.cg_number == 0) {
+            return;
+        }
+
+        place_part_on_master(ewk, mwk);
+    }
+
+    if (ewk->wu.cg_number == 0) {
+        return;
+    }
+
+    push_part_for_display(ewk, mwk);
+}
+
 void effect_01_move(WORK_Other* ewk) {
     WORK* mwk = (WORK*)ewk->my_master;
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.cgromtype = mwk->cgromtype;
-        ewk->wu.cg_number = ewk->wu.old_cgnum = 0;
-        ewk->wu.blink_timing = mwk->blink_timing;
-        ewk->wu.cg_olc.olc_ix[ewk->wu.type] = 0;
-        return;
+        initialize_parts_effect(ewk, mwk);
+        break;
 
     case 1:
-        if (should_end_parts_effect(ewk, mwk)) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0]++;
-            return;
-        }
-
-        if (mwk->cg_olc.olc_ix[ewk->wu.type] == 0) {
-            ewk->wu.cg_olc.olc_ix[ewk->wu.type] = 0;
-            return;
-        }
-
-        if (game_is_active()) {
-            advance_parts_animation(ewk, mwk);
-
-            if (ewk->wu.cg_number == 0) {
-                break;
-            }
-
-            place_part_on_master(ewk, mwk);
-        }
-
-        if (ewk->wu.cg_number == 0) {
-            break;
-        }
-
-        push_part_for_display(ewk, mwk);
+        update_parts_effect(ewk, mwk);
         break;
 
     case 2:
