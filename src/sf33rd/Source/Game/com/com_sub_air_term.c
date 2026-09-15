@@ -263,27 +263,14 @@ static void HJA_Term_Meoshi(PLW* wk) {
     }
 }
 
-/* Non-zero when the trailing lever merge must be skipped. */
-static s32 HJA_Term_Step(
-    PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Jump_Dir, s16 Range_JX, s16 Range_JY,
-    u16 J_Lever_Data
+/* The airborne half of Hi_Jump_Attack_Term: everything from the approach
+ * onwards. The case labels are the original ones, so this reads against the same
+ * state numbers as the ground half it was lifted out of. None of these arms can
+ * skip the trailing lever merge, so this returns nothing. */
+static void HJA_Term_Airborne(
+    PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Range_JX, s16 Range_JY, u16 J_Lever_Data
 ) {
     switch (CP_Index[wk->wu.id][1]) {
-
-    case 0:
-        HJA_Term_Begin(wk, Reaction);
-        break;
-
-    case 1:
-        HJA_Term_Launch(wk, Jump_Dir);
-        break;
-
-    case 2:
-        return HJA_Term_Command(wk);
-
-    case 3:
-        HJA_Term_Rise(wk);
-        break;
 
     case 4:
         HJA_Term_Approach(wk, Range_X, Range_Y, Reaction, Lever_Data, Range_JX, Range_JY, J_Lever_Data);
@@ -307,6 +294,34 @@ static s32 HJA_Term_Step(
 
     default:
         HJA_Term_Meoshi(wk);
+        break;
+    }
+}
+
+/* Non-zero when the trailing lever merge must be skipped. */
+static s32 HJA_Term_Step(
+    PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Jump_Dir, s16 Range_JX, s16 Range_JY,
+    u16 J_Lever_Data
+) {
+    switch (CP_Index[wk->wu.id][1]) {
+
+    case 0:
+        HJA_Term_Begin(wk, Reaction);
+        break;
+
+    case 1:
+        HJA_Term_Launch(wk, Jump_Dir);
+        break;
+
+    case 2:
+        return HJA_Term_Command(wk);
+
+    case 3:
+        HJA_Term_Rise(wk);
+        break;
+
+    default:
+        HJA_Term_Airborne(wk, Range_X, Range_Y, Reaction, Lever_Data, Range_JX, Range_JY, J_Lever_Data);
         break;
     }
 
