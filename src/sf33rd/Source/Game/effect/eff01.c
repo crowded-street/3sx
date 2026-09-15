@@ -166,16 +166,9 @@ void effect_01_move(WORK_Other* ewk) {
     }
 }
 
-void get_new_parts_data(WORK_Other* ewk, PLW* mwk) {
-    ewk->wu.now_koc = ewk->wu.cg_ix;
-
-    if (is_mirrored_primary_part(ewk, mwk)) {
-        ewk->wu.now_koc++;
-    }
-
-    ewk->wu.overlap_char_tbl = mwk->wu.overlap_char_tbl + ewk->wu.now_koc;
-    ewk->wu.cg_ctr = ewk->wu.overlap_char_tbl->parts_timer;
-
+/* Colour mode: mode 1 follows the master's opponent, any other non-zero mode
+ * comes from the table, and zero inherits the master's own. */
+static void apply_parts_colour_mode(WORK_Other* ewk, PLW* mwk) {
     if (ewk->wu.overlap_char_tbl->parts_colmd) {
         if (ewk->wu.overlap_char_tbl->parts_colmd == 1) {
             ewk->wu.my_col_mode = ((WORK*)mwk->wu.target_adrs)->my_col_mode;
@@ -185,7 +178,15 @@ void get_new_parts_data(WORK_Other* ewk, PLW* mwk) {
     } else {
         ewk->wu.my_col_mode = mwk->wu.my_col_mode;
     }
+}
 
+/* Colour code: a part with its own code takes it from the table and adds the
+ * master's unless bit 0x2000 is set; otherwise it inherits the master's code
+ * and extra colours.
+ *
+ * NOTE: the inherit path assigns my_col_code twice. Preserved as found; see
+ * AGENTS.md on arcade-accurate oddities. */
+static void apply_parts_colour_code(WORK_Other* ewk, PLW* mwk) {
     if (ewk->wu.overlap_char_tbl->parts_colcd) {
         ewk->wu.extra_col = 0;
         ewk->wu.extra_col_2 = 0;
@@ -200,6 +201,20 @@ void get_new_parts_data(WORK_Other* ewk, PLW* mwk) {
         ewk->wu.extra_col = mwk->wu.extra_col;
         ewk->wu.extra_col_2 = mwk->wu.extra_col_2;
     }
+}
+
+void get_new_parts_data(WORK_Other* ewk, PLW* mwk) {
+    ewk->wu.now_koc = ewk->wu.cg_ix;
+
+    if (is_mirrored_primary_part(ewk, mwk)) {
+        ewk->wu.now_koc++;
+    }
+
+    ewk->wu.overlap_char_tbl = mwk->wu.overlap_char_tbl + ewk->wu.now_koc;
+    ewk->wu.cg_ctr = ewk->wu.overlap_char_tbl->parts_timer;
+
+    apply_parts_colour_mode(ewk, mwk);
+    apply_parts_colour_code(ewk, mwk);
 
     ewk->wu.cg_number = ewk->wu.overlap_char_tbl->parts_char;
 }
