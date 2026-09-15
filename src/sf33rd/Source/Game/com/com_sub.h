@@ -50,10 +50,24 @@ void Jump_Attack_Term(PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever
 void Hi_Jump_Attack(PLW* wk, s16 Reaction, s16 Time_Data, u16 Lever_Data, s16 Jump_Dir);
 void Hi_Jump_Attack_Term(PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Jump_Dir, s16 Range_JX,
                          s16 Range_JY, u16 J_Lever_Data);
-void ORO_JA_Term(PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Lever_Data, s16 RJX,
-                 s16 RJY, u16 JLD);
-void ORO_HJA_Term(PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Lever_Data, s16 RJX,
-                  s16 RJY, u16 JLD);
+/* The ten values Oro's two air attack Terms are driven by. The field order is
+ * the parameter order these functions used to take, so a call site's argument
+ * list initialises exactly the fields it used to fill positionally. */
+typedef struct {
+    s16 Reaction;
+    s16 Jump_Dir;
+    s16 JY;
+    s16 Jump_Dir2;
+    s16 RX;
+    s16 RY;
+    u16 Lever_Data;
+    s16 RJX;
+    s16 RJY;
+    u16 JLD;
+} ORO_Air_Term_Args;
+
+void ORO_JA_Term(PLW* wk, const ORO_Air_Term_Args* a);
+void ORO_HJA_Term(PLW* wk, const ORO_Air_Term_Args* a);
 void Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot);
 void J_Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot);
 void Rapid_Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Shot, u16 Time);

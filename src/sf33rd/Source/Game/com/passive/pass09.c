@@ -1997,7 +1997,7 @@ void Passive09_0115(PLW* wk) {
 void Passive09_0116(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        ORO_JA_Term(wk, 8, 1, 0x40, 1, -1, -1, 0xFFFF, -0x7FB0, -0x7FD0, 0x20);
+        ORO_JA_Term(wk, &(ORO_Air_Term_Args){8, 1, 0x40, 1, -1, -1, 0xFFFF, -0x7FB0, -0x7FD0, 0x20});
         break;
 
     default:
@@ -2009,7 +2009,7 @@ void Passive09_0116(PLW* wk) {
 void Passive09_0117(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        ORO_JA_Term(wk, 8, 1, 0x50, 0, -1, -1, 0xFFFF, -0x7FB0, -0x7FD0, 0x20);
+        ORO_JA_Term(wk, &(ORO_Air_Term_Args){8, 1, 0x50, 0, -1, -1, 0xFFFF, -0x7FB0, -0x7FD0, 0x20});
         break;
 
     default:
@@ -2021,7 +2021,7 @@ void Passive09_0117(PLW* wk) {
 void Passive09_0118(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        ORO_JA_Term(wk, 8, 2, 0x40, 0, -1, -1, 0xFFFF, -0x7FB0, -0x7FD0, 0x20);
+        ORO_JA_Term(wk, &(ORO_Air_Term_Args){8, 2, 0x40, 0, -1, -1, 0xFFFF, -0x7FB0, -0x7FD0, 0x20});
         break;
 
     default:
@@ -2033,7 +2033,7 @@ void Passive09_0118(PLW* wk) {
 void Passive09_0119(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        ORO_JA_Term(wk, 8, 2, 0x40, 1, -1, -1, 0xFFFF, -0x7FB0, -0x7FD0, 0x20);
+        ORO_JA_Term(wk, &(ORO_Air_Term_Args){8, 2, 0x40, 1, -1, -1, 0xFFFF, -0x7FB0, -0x7FD0, 0x20});
         break;
 
     default:
@@ -2057,7 +2057,7 @@ void Passive09_0120(PLW* wk) {
 void Passive09_0121(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        ORO_JA_Term(wk, 8, 0, 0x40, 2, -1, -1, 0xFFFF, -0x7FB0, -0x7FD0, 0x400);
+        ORO_JA_Term(wk, &(ORO_Air_Term_Args){8, 0, 0x40, 2, -1, -1, 0xFFFF, -0x7FB0, -0x7FD0, 0x400});
         break;
 
     default:
@@ -2069,7 +2069,7 @@ void Passive09_0121(PLW* wk) {
 void Passive09_0122(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        ORO_JA_Term(wk, 8, 0, 0x50, 0, -1, -1, 0xFFFF, -0x7FB0, -0x7FD0, 0x400);
+        ORO_JA_Term(wk, &(ORO_Air_Term_Args){8, 0, 0x50, 0, -1, -1, 0xFFFF, -0x7FB0, -0x7FD0, 0x400});
         break;
 
     default:

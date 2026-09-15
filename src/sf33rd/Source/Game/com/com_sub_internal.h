@@ -107,14 +107,8 @@ void Hi_Jump_Attack_Term(
 );
 s32 Check_Term_ABS_Distance(PLW* wk);
 s32 Check_Com_Add_Y(PLW* wk, s16 Pos_Y, s16 Range);
-void ORO_JA_Term(
-    PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Lever_Data, s16 RJX, s16 RJY,
-    u16 JLD
-);
-void ORO_HJA_Term(
-    PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Lever_Data, s16 RJX, s16 RJY,
-    u16 JLD
-);
+void ORO_JA_Term(PLW* wk, const ORO_Air_Term_Args* a);
+void ORO_HJA_Term(PLW* wk, const ORO_Air_Term_Args* a);
 void Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot);
 s32 Hadou_Check(PLW* wk, u16 Tech_Number);
 s32 Check_Resume_Lever(PLW* wk);

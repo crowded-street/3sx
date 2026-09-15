@@ -462,20 +462,17 @@ static s32 ORO_JA_Term_Begin(PLW* wk, s16 Reaction) {
     return 1;
 }
 
-void ORO_JA_Term(
-    PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Lever_Data, s16 RJX, s16 RJY,
-    u16 JLD
-) {
+void ORO_JA_Term(PLW* wk, const ORO_Air_Term_Args* a) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
-        if (!ORO_JA_Term_Begin(wk, Reaction)) {
+        if (!ORO_JA_Term_Begin(wk, a->Reaction)) {
             break;
         }
         /* fallthrough */
 
     case 1:
-        ORO_JA_Term_Launch(wk, Jump_Dir);
+        ORO_JA_Term_Launch(wk, a->Jump_Dir);
         break;
 
     case 2:
@@ -483,23 +480,23 @@ void ORO_JA_Term(
         break;
 
     case 3:
-        ORO_Air_Climb(wk, Reaction, JY, Jump_Dir2, Lever_Data, RJX, RJY, JLD);
+        ORO_Air_Climb(wk, a->Reaction, a->JY, a->Jump_Dir2, a->Lever_Data, a->RJX, a->RJY, a->JLD);
         break;
 
     case 4:
-        ORO_Air_Strike(wk, Reaction, RX, RY, Lever_Data, RJX, RJY, JLD);
+        ORO_Air_Strike(wk, a->Reaction, a->RX, a->RY, a->Lever_Data, a->RJX, a->RJY, a->JLD);
         break;
 
     case 5:
-        Air_Term_Hold(wk, Reaction, 0x7F);
+        Air_Term_Hold(wk, a->Reaction, 0x7F);
         break;
 
     case 6:
-        Air_Term_Land(wk, Reaction & 0x7F);
+        Air_Term_Land(wk, a->Reaction & 0x7F);
         break;
 
     default:
-        Air_Term_End(wk, Reaction);
+        Air_Term_End(wk, a->Reaction);
         break;
     }
     if (CP_Index[wk->wu.id][1] >= 3) {
@@ -583,10 +580,7 @@ static void ORO_HJA_Term_Airborne(
     }
 }
 
-void ORO_HJA_Term(
-    PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Lever_Data, s16 RJX, s16 RJY,
-    u16 JLD
-) {
+void ORO_HJA_Term(PLW* wk, const ORO_Air_Term_Args* a) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
@@ -594,7 +588,7 @@ void ORO_HJA_Term(
         break;
 
     case 1:
-        ORO_HJA_Term_Launch(wk, Jump_Dir);
+        ORO_HJA_Term_Launch(wk, a->Jump_Dir);
         break;
 
     case 2:
@@ -602,7 +596,8 @@ void ORO_HJA_Term(
         break;
 
     default:
-        ORO_HJA_Term_Airborne(wk, Reaction, JY, Jump_Dir2, RX, RY, Lever_Data, RJX, RJY, JLD);
+        ORO_HJA_Term_Airborne(wk, a->Reaction, a->JY, a->Jump_Dir2, a->RX, a->RY, a->Lever_Data, a->RJX, a->RJY,
+                              a->JLD);
         break;
     }
 
