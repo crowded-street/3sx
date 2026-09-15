@@ -156,10 +156,12 @@ static void JCA_Term_Rise(PLW* wk) {
 }
 
 static void JCA_Term_Approach(PLW* wk, s16 Reaction, s16 RX, s16 RY, s16 JRX, s16 JRY, u16 JLD) {
+    const Attack_Range_Args r = { Reaction, RX, RY, JRX, JRY, JLD };
+
     Check_Air_Guard(wk);
     Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
 
-    if (Attack_Range_Gates(wk, Reaction, RX, RY, JRX, JRY, JLD) == 0) {
+    if (Attack_Range_Gates(wk, &r) == 0) {
         return;
     }
 
@@ -284,9 +286,11 @@ static void HJCA_Term_Rise(PLW* wk) {
 }
 
 static void Command_Term_Approach(PLW* wk, s16 Reaction, s16 RX, s16 RY, s16 JRX, s16 JRY, u16 JLD) {
+    const Attack_Range_Args r = { Reaction, RX, RY, JRX, JRY, JLD };
+
     Check_Air_Guard(wk);
 
-    if (Attack_Range_Gates(wk, Reaction, RX, RY, JRX, JRY, JLD) == 0) {
+    if (Attack_Range_Gates(wk, &r) == 0) {
         return;
     }
 

@@ -91,9 +91,11 @@ static void ORO_Air_Climb(PLW* wk, const ORO_Air_Term_Args* a) {
 
 /* Commit to the attack once the approach gates pass. */
 static void ORO_Air_Strike(PLW* wk, const ORO_Air_Term_Args* a) {
+    const Attack_Range_Args r = { a->Reaction, a->RX, a->RY, a->RJX, a->RJY, a->JLD };
+
     Check_Air_Guard(wk);
 
-    if (Attack_Range_Gates(wk, a->Reaction, a->RX, a->RY, a->RJX, a->RJY, a->JLD) == 0) {
+    if (Attack_Range_Gates(wk, &r) == 0) {
         return;
     }
 
@@ -394,21 +396,21 @@ s32 Check_Com_Add_Y(PLW* wk, s16 Pos_Y, s16 Range) {
  * short-circuiting here are load-bearing - they match the original exactly.
  * Check_Air_Guard is deliberately left at the call sites: one caller sets
  * Stock_Hit_Flag between it and the first gate. */
-s32 Attack_Range_Gates(PLW* wk, s16 Reaction, s16 RX, s16 RY, s16 RJX, s16 RJY, u16 JLD) {
-    if (Check_Landed(wk, Reaction) != 0) {
+s32 Attack_Range_Gates(PLW* wk, const Attack_Range_Args* r) {
+    if (Check_Landed(wk, r->Reaction) != 0) {
         return 0;
     }
 
-    if (Check_VS_Air_Attack(wk, RJX, RJY, JLD) != 0) {
+    if (Check_VS_Air_Attack(wk, r->RJX, r->RJY, r->JLD) != 0) {
         return 0;
     }
-    if (Check_Term_Sub(wk, PL_Distance[wk->wu.id], RX) == 0) {
+    if (Check_Term_Sub(wk, PL_Distance[wk->wu.id], r->RX) == 0) {
         return 0;
     }
-    if (Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, RY) == 0) {
+    if (Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, r->RY) == 0) {
         return 0;
     }
-    if (Check_Term_Sub(wk, wk->wu.xyz[1].disp.pos, RY) == 0) {
+    if (Check_Term_Sub(wk, wk->wu.xyz[1].disp.pos, r->RY) == 0) {
         return 0;
     }
     return 1;

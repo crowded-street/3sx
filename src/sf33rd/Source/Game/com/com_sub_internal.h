@@ -18,7 +18,18 @@ void Landing_Tech_Step(PLW* wk);
 
 /* Defined in com_sub_jump.c; the four command-attack Term functions that stayed
  * in com_sub.c run the same approach gates. */
-s32 Attack_Range_Gates(PLW* wk, s16 Reaction, s16 RX, s16 RY, s16 RJX, s16 RJY, u16 JLD);
+/* The six values every airborne attack Term's approach gates are checked
+ * against. The field order is the parameter order Attack_Range_Gates took. */
+typedef struct {
+    s16 Reaction;
+    s16 RX;
+    s16 RY;
+    s16 RJX;
+    s16 RJY;
+    u16 JLD;
+} Attack_Range_Args;
+
+s32 Attack_Range_Gates(PLW* wk, const Attack_Range_Args* r);
 
 /* Was static in com_sub.c; promoted when Reaction_Sub moved to
  * com_sub_reaction.c and kept calling it. */
