@@ -50,32 +50,43 @@ static void ORO_Air_Rise(PLW* wk) {
     Timer_00[wk->wu.id] = 2;
 }
 
+/* The height gates that apply only when a lever was given. Non-zero when one
+ * of them failed. */
+static s32 ORO_Air_Climb_Blocked(PLW* wk, s16 Reaction, s16 JY, s16 RJX, s16 RJY, u16 JLD) {
+    if (Check_Landed(wk, Reaction) != 0) {
+        return 1;
+    }
+    if (Check_VS_Air_Attack(wk, RJX, RJY, JLD) != 0) {
+        return 1;
+    }
+    return Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, JY) == 0;
+}
+
+/* Take the second jump, if the character is high enough and has one left. */
+static void ORO_Air_Second_Jump(PLW* wk, s16 Jump_Dir2, u16 Lever_Data) {
+    if ((wk->air_jump_ok_time != 0) || (wk->wu.position_y < 0x30)) {
+        return;
+    }
+
+    Jump_Init(wk, Jump_Dir2);
+
+    if ((Lever_Data) == 0xFFFF) {
+        CP_Index[wk->wu.id][1] += 2;
+    } else {
+        CP_Index[wk->wu.id][1]++;
+    }
+}
+
 /* The second jump: the range gates only apply when a lever was given, and the
  * step taken afterwards depends on the same thing. */
 static void ORO_Air_Climb(PLW* wk, s16 Reaction, s16 JY, s16 Jump_Dir2, u16 Lever_Data, s16 RJX, s16 RJY, u16 JLD) {
     Check_Air_Guard(wk);
 
-    if (Lever_Data != 0xFFFF) {
-        if (Check_Landed(wk, Reaction) != 0) {
-            return;
-        }
-        if (Check_VS_Air_Attack(wk, RJX, RJY, JLD) != 0) {
-            return;
-        }
-        if (Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, JY) == 0) {
-            return;
-        }
+    if ((Lever_Data != 0xFFFF) && ORO_Air_Climb_Blocked(wk, Reaction, JY, RJX, RJY, JLD)) {
+        return;
     }
 
-    if ((wk->air_jump_ok_time == 0) && (wk->wu.position_y >= 0x30)) {
-        Jump_Init(wk, Jump_Dir2);
-
-        if ((Lever_Data) == 0xFFFF) {
-            CP_Index[wk->wu.id][1] += 2;
-        } else {
-            CP_Index[wk->wu.id][1]++;
-        }
-    }
+    ORO_Air_Second_Jump(wk, Jump_Dir2, Lever_Data);
 }
 
 /* Commit to the attack once the approach gates pass. */
@@ -373,6 +384,24 @@ s32 Attack_Range_Gates(PLW* wk, s16 Reaction, s16 RX, s16 RY, s16 RJX, s16 RJY, 
     return 1;
 }
 
+static void ORO_JA_Term_Launch(PLW* wk, s16 Jump_Dir) {
+    if (Check_Passive(wk) != 0) {
+        return;
+    }
+    if (--Combo_Speed[wk->wu.id] != 0) {
+        return;
+    }
+
+    CP_Index[wk->wu.id][1]++;
+    dash_flag_clear(wk->wu.id);
+
+    Jump_Init(wk, Jump_Dir);
+    Check_Air_Guard(wk);
+    if (Check_Diagonal_Shell(wk) != 0) {
+        Next_Be_Free(wk);
+    }
+}
+
 /* CP_Index 0. Non-zero when the state advanced and case 1 runs this frame;
  * every early exit here broke out of the switch instead. */
 static s32 ORO_JA_Term_Begin(PLW* wk, s16 Reaction) {
@@ -410,22 +439,7 @@ void ORO_JA_Term(
         /* fallthrough */
 
     case 1:
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-        if (--Combo_Speed[wk->wu.id] != 0) {
-            break;
-        }
-
-        CP_Index[wk->wu.id][1]++;
-        dash_flag_clear(wk->wu.id);
-
-        Jump_Init(wk, Jump_Dir);
-        Check_Air_Guard(wk);
-        if (Check_Diagonal_Shell(wk) != 0) {
-            Next_Be_Free(wk);
-        }
-
+        ORO_JA_Term_Launch(wk, Jump_Dir);
         break;
 
     case 2:
