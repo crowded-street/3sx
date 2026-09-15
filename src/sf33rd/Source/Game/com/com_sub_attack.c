@@ -199,33 +199,50 @@ static void Attack_SP_Hold(PLW* wk, u16 Lever_Data) {
     }
 }
 
+/* Check the attack may start and load the hold timer. Non-zero when the state
+ * advanced and the wind-up runs in the same frame; each early exit here broke
+ * out of the switch instead. */
+static s32 Normal_Attack_SP_Begin(PLW* wk, s16 Reaction, u16 Lever_Data, s16 Time) {
+    if (Check_Passive(wk) != 0) {
+        return 0;
+    }
+    if (Check_Start_Normal_Attack(wk, Reaction, Lever_Data) != 0) {
+        return 0;
+    }
+
+    CP_Index[wk->wu.id][1]++;
+    Timer_00[wk->wu.id] = Time;
+    Check_First_Menu(wk);
+
+    return 1;
+}
+
+/* Count the combo delay down, and press the attack once it runs out. The extra
+ * timer decrement is the first frame of the hold. */
+static void Normal_Attack_SP_Wind_Up(PLW* wk, u16 Lever_Data) {
+    if (Check_Passive(wk) != 0) {
+        return;
+    }
+    if (--Combo_Speed[wk->wu.id] == 0) {
+        Lever_Buff[wk->wu.id] = Lever_Data;
+        Lever_Squat[wk->wu.id] = Lever_Data & 2;
+        CP_Index[wk->wu.id][1]++;
+        Timer_00[wk->wu.id]--;
+    } else {
+        Lever_Buff[wk->wu.id] = Lever_Squat[wk->wu.id];
+    }
+}
+
 void Normal_Attack_SP(PLW* wk, s16 Reaction, u16 Lever_Data, s16 Time) {
     switch (CP_Index[wk->wu.id][1]) {
     case 0:
-        if (Check_Passive(wk) != 0) {
+        if (!Normal_Attack_SP_Begin(wk, Reaction, Lever_Data, Time)) {
             break;
         }
-        if (Check_Start_Normal_Attack(wk, Reaction, Lever_Data) != 0) {
-            break;
-        }
-
-        CP_Index[wk->wu.id][1]++;
-        Timer_00[wk->wu.id] = Time;
-        Check_First_Menu(wk);
         /* fallthrough */
 
     case 1:
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-        if (--Combo_Speed[wk->wu.id] == 0) {
-            Lever_Buff[wk->wu.id] = Lever_Data;
-            Lever_Squat[wk->wu.id] = Lever_Data & 2;
-            CP_Index[wk->wu.id][1]++;
-            Timer_00[wk->wu.id]--;
-        } else {
-            Lever_Buff[wk->wu.id] = Lever_Squat[wk->wu.id];
-        }
+        Normal_Attack_SP_Wind_Up(wk, Lever_Data);
         break;
 
     case 2:
