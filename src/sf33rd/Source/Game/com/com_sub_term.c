@@ -268,35 +268,38 @@ s32 Check_SHINRYU(PLW* wk) {
 const Term_Tbl_t ETC_Term_Tbl[10] = { ETC_Term_0000, ETC_Term_0001, ETC_Term_0002, ETC_Term_0003, ETC_Term_0004,
                                       ETC_Term_0005, ETC_Term_0006, ETC_Term_0007, ETC_Term_0008, ETC_Term_0009 };
 
+/* Take the fight over from the demo CPU: step to the next CP state and clear
+ * the per-state flags. */
+static void BOSS_Break_In(PLW* wk) {
+    Disposal_Again[wk->wu.id] = 1;
+    CP_Index[wk->wu.id][0]++;
+    CP_Index[wk->wu.id][1] = 0;
+    CP_Index[wk->wu.id][2] = 0;
+    CP_Index[wk->wu.id][3] = 0;
+
+    Flip_Flag[wk->wu.id] = 0;
+    Limited_Flag[wk->wu.id] = 0;
+}
+
+/* Leave the fight to the menu the caller named. */
+static void BOSS_Hand_Over(PLW* wk, u32 Next_Action, u16 Next_Menu) {
+    Disposal_Again[wk->wu.id] = 1;
+    Next_Another_Menu(wk, Next_Action, Next_Menu);
+}
+
 void Check_BOSS(PLW* wk, u32 Next_Action, u16 Next_Menu) {
     if (Break_Into_CPU == 1) {
-        Disposal_Again[wk->wu.id] = 1;
-        CP_Index[wk->wu.id][0]++;
-        CP_Index[wk->wu.id][1] = 0;
-        CP_Index[wk->wu.id][2] = 0;
-        CP_Index[wk->wu.id][3] = 0;
-
-        Flip_Flag[wk->wu.id] = 0;
-        Limited_Flag[wk->wu.id] = 0;
+        BOSS_Break_In(wk);
     } else {
-        Disposal_Again[wk->wu.id] = 1;
-        Next_Another_Menu(wk, Next_Action, Next_Menu);
+        BOSS_Hand_Over(wk, Next_Action, Next_Menu);
     }
 }
 
 void Check_BOSS_EX(PLW* wk, u32 Next_Action, u16 Next_Menu) {
     if (Break_Into_CPU != 1) {
-        Disposal_Again[wk->wu.id] = 1;
-        CP_Index[wk->wu.id][0]++;
-        CP_Index[wk->wu.id][1] = 0;
-        CP_Index[wk->wu.id][2] = 0;
-        CP_Index[wk->wu.id][3] = 0;
-
-        Flip_Flag[wk->wu.id] = 0;
-        Limited_Flag[wk->wu.id] = 0;
+        BOSS_Break_In(wk);
     } else {
-        Disposal_Again[wk->wu.id] = 1;
-        Next_Another_Menu(wk, Next_Action, Next_Menu);
+        BOSS_Hand_Over(wk, Next_Action, Next_Menu);
     }
 }
 
@@ -311,17 +314,9 @@ void ETC_Term(PLW* wk, s16 Exit_No, u32 Next_Action, u16 Next_Menu) {
     }
 
     if (xx) {
-        Disposal_Again[wk->wu.id] = 1;
-        CP_Index[wk->wu.id][0]++;
-        CP_Index[wk->wu.id][1] = 0;
-        CP_Index[wk->wu.id][2] = 0;
-        CP_Index[wk->wu.id][3] = 0;
-
-        Flip_Flag[wk->wu.id] = 0;
-        Limited_Flag[wk->wu.id] = 0;
+        BOSS_Break_In(wk);
     } else {
-        Disposal_Again[wk->wu.id] = 1;
-        Next_Another_Menu(wk, Next_Action, Next_Menu);
+        BOSS_Hand_Over(wk, Next_Action, Next_Menu);
     }
 }
 
