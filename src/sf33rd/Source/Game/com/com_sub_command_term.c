@@ -40,6 +40,25 @@
 #include "sf33rd/Source/Game/com/com_sub_internal.h"
 
 
+/* Load the command's tech script, once the character is free to act.
+ * Jump_Command_Attack_Term guards this with spmv_ng_flag first and ORO_JCA_Term
+ * does not; that guard is the only difference between their openings. */
+static void Command_Term_Open(PLW* wk, u16 Tech_Number) {
+    Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
+    if (!Check_Free_To_Act(wk)) {
+        return;
+    }
+
+    Continue_Menu[wk->wu.id] = 0;
+    CP_Index[wk->wu.id][1]++;
+    if (cmd_sel[wk->wu.id]) {
+        Tech_Address[wk->wu.id] = player_CMD[wk->player_number][Tech_Number & 0xFF];
+    } else {
+        Tech_Address[wk->wu.id] = player_cmd[wk->player_number][Tech_Number & 0xFF];
+    }
+    Check_First_Menu(wk);
+}
+
 /* The landing opcode step shared by the command Term functions. Distinct from
  * Landing_Tech_Step in com_sub_jump.c, which passes different arguments to
  * Command_Type_00. The inner switch has only a default group; preserved. */
@@ -107,19 +126,7 @@ static void JCA_Term_Begin(PLW* wk, u16 Tech_Number) {
         return;
     }
 
-    Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-    if (!Check_Free_To_Act(wk)) {
-        return;
-    }
-
-    Continue_Menu[wk->wu.id] = 0;
-    CP_Index[wk->wu.id][1]++;
-    if (cmd_sel[wk->wu.id]) {
-        Tech_Address[wk->wu.id] = player_CMD[wk->player_number][Tech_Number & 0xFF];
-    } else {
-        Tech_Address[wk->wu.id] = player_cmd[wk->player_number][Tech_Number & 0xFF];
-    }
-    Check_First_Menu(wk);
+    Command_Term_Open(wk, Tech_Number);
 }
 
 static void JCA_Term_Launch(PLW* wk, u16 Tech_Number, s16 Jump_Dir) {
@@ -346,19 +353,7 @@ static void ORO_JCA_Term_Begin(PLW* wk, u16 Tech_Number) {
         return;
     }
 
-    Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-    if (!Check_Free_To_Act(wk)) {
-        return;
-    }
-
-    Continue_Menu[wk->wu.id] = 0;
-    CP_Index[wk->wu.id][1]++;
-    if (cmd_sel[wk->wu.id]) {
-        Tech_Address[wk->wu.id] = player_CMD[wk->player_number][Tech_Number & 0xFF];
-    } else {
-        Tech_Address[wk->wu.id] = player_cmd[wk->player_number][Tech_Number & 0xFF];
-    }
-    Check_First_Menu(wk);
+    Command_Term_Open(wk, Tech_Number);
 }
 
 /* Clears the dash flag and runs the air guard, which the jump Term launch does
