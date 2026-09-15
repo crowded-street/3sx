@@ -78,6 +78,65 @@ static void d9_set_extra_col(WORK_Other* ewk, PLW* mwk, s16 value) {
     }
 }
 
+/* Non-zero once the master has finished with this effect. Only asked when the
+ * effect was told to watch for it - bit 2 of the captured flag - and then the
+ * answer depends on whether the master has moved on, and on what this effect
+ * type watches: the standard type waits for the master to reach the ground, the
+ * others for its cel to change. */
+static s32 d9_master_finished(WORK_Other* ewk, PLW* mwk) {
+    if ((ewk->wu.vital_old & 4) == 0) {
+        return 0;
+    }
+
+    if (ewk->wu.dir_old != mwk->wu.dm_count_up) {
+        return 1;
+    }
+
+    if (uses_standard_effect_type(ewk)) {
+        return mwk->wu.xyz[1].disp.pos <= 0;
+    }
+
+    return mwk->wu.cg_type != 0;
+}
+
+/* Step the palette on: count the current entry's timer down and, when it
+ * expires, move to the next pair in the table, wrapping at the terminator. */
+static void d9_advance_palette(WORK_Other* ewk) {
+    if (--ewk->wu.vitality <= 0) {
+        ewk->wu.dir_step += 2;
+
+        if (ewk->wu.step_xy_table[ewk->wu.dir_step] == 0) {
+            ewk->wu.dir_step = 0;
+        }
+
+        ewk->wu.vitality = ewk->wu.step_xy_table[ewk->wu.dir_step];
+        ewk->wu.vital_new = ewk->wu.step_xy_table[ewk->wu.dir_step + 1];
+    }
+}
+
+/* One frame of the palette cycle. Zero when the effect is done, which is where
+ * the original jumped to its set_routine_2 label - from a blocked master, a
+ * finished master, or a palette that cannot advance. The three tests run in the
+ * order they did. */
+static s32 d9_run_palette_step(WORK_Other* ewk, PLW* mwk) {
+    if (!palette_processing_can_continue(ewk, mwk)) {
+        return 0;
+    }
+
+    if (d9_master_finished(ewk, mwk)) {
+        return 0;
+    }
+
+    if (!palette_can_advance(ewk, mwk)) {
+        return 0;
+    }
+
+    d9_advance_palette(ewk);
+    d9_set_extra_col(ewk, mwk, ewk->wu.vital_new);
+
+    return 1;
+}
+
 void effect_D9_move(WORK_Other* ewk) {
     PLW* mwk = (PLW*)ewk->my_master;
 
@@ -101,43 +160,10 @@ void effect_D9_move(WORK_Other* ewk) {
             break;
         }
 
-        if (palette_processing_can_continue(ewk, mwk)) {
-            if ((ewk->wu.vital_old & 4) != 0) {
-                if (ewk->wu.dir_old == mwk->wu.dm_count_up) {
-                    if (uses_standard_effect_type(ewk)) {
-                        if (mwk->wu.xyz[1].disp.pos <= 0) {
-                            goto set_routine_2;
-                        }
-                    } else {
-                        if (mwk->wu.cg_type != 0) {
-                            goto set_routine_2;
-                        }
-                    }
-                } else {
-                    goto set_routine_2;
-                }
-            }
-
-            if (palette_can_advance(ewk, mwk)) {
-                if (--ewk->wu.vitality <= 0) {
-                    ewk->wu.dir_step += 2;
-
-                    if (ewk->wu.step_xy_table[ewk->wu.dir_step] == 0) {
-                        ewk->wu.dir_step = 0;
-                    }
-
-                    ewk->wu.vitality = ewk->wu.step_xy_table[ewk->wu.dir_step];
-                    ewk->wu.vital_new = ewk->wu.step_xy_table[ewk->wu.dir_step + 1];
-                }
-
-                d9_set_extra_col(ewk, mwk, ewk->wu.vital_new);
-
-                break;
-            }
+        if (!d9_run_palette_step(ewk, mwk)) {
+            ewk->wu.routine_no[0] = 2;
         }
 
-    set_routine_2:
-        ewk->wu.routine_no[0] = 2;
         break;
 
     case 2:
