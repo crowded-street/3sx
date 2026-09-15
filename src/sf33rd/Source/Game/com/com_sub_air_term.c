@@ -39,6 +39,59 @@
 #include "structs.h"
 #include "sf33rd/Source/Game/com/com_sub_internal.h"
 
+/* The rise arm the two ORO Terms share. */
+static void ORO_Air_Rise(PLW* wk) {
+    if (wk->wu.xyz[1].disp.pos > 0) {
+        CP_Index[wk->wu.id][1]++;
+        return;
+    }
+
+    Lever_Buff[wk->wu.id] = Lever_Pool[wk->wu.id];
+    Timer_00[wk->wu.id] = 2;
+}
+
+/* The second jump: the range gates only apply when a lever was given, and the
+ * step taken afterwards depends on the same thing. */
+static void ORO_Air_Climb(PLW* wk, s16 Reaction, s16 JY, s16 Jump_Dir2, u16 Lever_Data, s16 RJX, s16 RJY, u16 JLD) {
+    Check_Air_Guard(wk);
+
+    if (Lever_Data != 0xFFFF) {
+        if (Check_Landed(wk, Reaction) != 0) {
+            return;
+        }
+        if (Check_VS_Air_Attack(wk, RJX, RJY, JLD) != 0) {
+            return;
+        }
+        if (Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, JY) == 0) {
+            return;
+        }
+    }
+
+    if ((wk->air_jump_ok_time == 0) && (wk->wu.position_y >= 0x30)) {
+        Jump_Init(wk, Jump_Dir2);
+
+        if ((Lever_Data) == 0xFFFF) {
+            CP_Index[wk->wu.id][1] += 2;
+        } else {
+            CP_Index[wk->wu.id][1]++;
+        }
+    }
+}
+
+/* Commit to the attack once the approach gates pass. */
+static void ORO_Air_Strike(PLW* wk, s16 Reaction, s16 RX, s16 RY, u16 Lever_Data, s16 RJX, s16 RJY, u16 JLD) {
+    Check_Air_Guard(wk);
+
+    if (Attack_Range_Gates(wk, Reaction, RX, RY, RJX, RJY, JLD) == 0) {
+        return;
+    }
+
+    Lever_Buff[wk->wu.id] = Lever_Data;
+
+    CP_Index[wk->wu.id][1]++;
+    Stock_Hit_Flag[wk->wu.id] = 0;
+}
+
 /* Hold while airborne: latch any hit, then watch for the landing. The three
  * air Terms differ only in the reaction mask they use here. */
 static void Air_Term_Hold(PLW* wk, s16 Reaction, s16 mask) {
@@ -376,76 +429,91 @@ void ORO_JA_Term(
         break;
 
     case 2:
-        if (wk->wu.xyz[1].disp.pos > 0) {
-            CP_Index[wk->wu.id][1]++;
-        } else {
-
-            Lever_Buff[wk->wu.id] = Lever_Pool[wk->wu.id];
-            Timer_00[wk->wu.id] = 2;
-        }
+        ORO_Air_Rise(wk);
         break;
 
     case 3:
-        Check_Air_Guard(wk);
-
-        if (Lever_Data != 0xFFFF) {
-            if (Check_Landed(wk, Reaction) != 0) {
-                break;
-            }
-            if (Check_VS_Air_Attack(wk, RJX, RJY, JLD) != 0) {
-                break;
-            }
-            if (Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, JY) == 0) {
-                break;
-            }
-        }
-        if ((wk->air_jump_ok_time == 0) && (wk->wu.position_y >= 0x30)) {
-            Jump_Init(wk, Jump_Dir2);
-
-            if ((Lever_Data) == 0xFFFF) {
-                CP_Index[wk->wu.id][1] += 2;
-            } else {
-                CP_Index[wk->wu.id][1]++;
-            }
-        }
-
+        ORO_Air_Climb(wk, Reaction, JY, Jump_Dir2, Lever_Data, RJX, RJY, JLD);
         break;
 
     case 4:
-        Check_Air_Guard(wk);
-        if (Attack_Range_Gates(wk, Reaction, RX, RY, RJX, RJY, JLD) == 0) {
-            break;
-        }
-
-        Lever_Buff[wk->wu.id] = Lever_Data;
-
-        CP_Index[wk->wu.id][1]++;
-        Stock_Hit_Flag[wk->wu.id] = 0;
+        ORO_Air_Strike(wk, Reaction, RX, RY, Lever_Data, RJX, RJY, JLD);
         break;
 
     case 5:
-        if (wk->wu.hf.hit.player) {
-            Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
-        }
-        Check_Landed(wk, Reaction & 0x7F);
+        Air_Term_Hold(wk, Reaction, 0x7F);
         break;
 
     case 6:
-        if (Check_Landed(wk, Reaction & 0x7F) != 0) {
-            break;
-        }
-
-        Landing_Tech_Step(wk);
-
+        Air_Term_Land(wk, Reaction & 0x7F);
         break;
+
     default:
-        Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
-        Check_Landed(wk, Reaction & 0xFFF);
+        Air_Term_End(wk, Reaction);
         break;
     }
     if (CP_Index[wk->wu.id][1] >= 3) {
         Lever_Buff[wk->wu.id] |= Lever_LR[wk->wu.id];
     }
+}
+
+static void ORO_HJA_Term_Begin(PLW* wk) {
+    Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
+    if (Check_Passive(wk) != 0) {
+        return;
+    }
+
+    if (wk->spmv_ng_flag & 0x30000) {
+        Next_Be_Free(wk);
+        return;
+    }
+    if (Check_Start_Hi_Jump(wk) != 0) {
+        return;
+    }
+
+    Continue_Menu[wk->wu.id] = 0;
+    CP_Index[wk->wu.id][1]++;
+    if (cmd_sel[wk->wu.id]) {
+        Tech_Address[wk->wu.id] = player_CMD[wk->player_number][2];
+    } else {
+        Tech_Address[wk->wu.id] = player_cmd[wk->player_number][2];
+    }
+    Check_First_Menu(wk);
+}
+
+/* NOTE: the combo test reads Combo_Speed[wk->wu.id == 0] - the bracket encloses
+ * the comparison, so it decrements Combo_Speed[0] or [1] according to whether
+ * the id is zero rather than testing --Combo_Speed[id] == 0 as the sibling
+ * Terms do. Copied verbatim; the same shape appears in
+ * Hi_Jump_Command_Attack_Term. */
+static void ORO_HJA_Term_Launch(PLW* wk, s16 Jump_Dir) {
+    if (Check_Passive(wk) != 0) {
+        return;
+    }
+    if (!(--Combo_Speed[wk->wu.id == 0])) {
+        return;
+    }
+
+    CP_Index[wk->wu.id][1]++;
+    Tech_Index[wk->wu.id] = 0xC;
+
+    Jump_Init(wk, Jump_Dir);
+    Lever_Pool[wk->wu.id] &= 0xC;
+    Lever_Buff[wk->wu.id] = 0;
+    Check_Air_Guard(wk);
+    if (Check_Diagonal_Shell(wk) != 0) {
+        Next_Be_Free(wk);
+    }
+}
+
+static void ORO_HJA_Term_Arm(PLW* wk) {
+    if (Check_Passive(wk) != 0) {
+        return;
+    }
+
+    CP_Index[wk->wu.id][1]++;
+    Lever_Buff[wk->wu.id] = 2;
+    Lever_Pool[wk->wu.id] |= 1;
 }
 
 void ORO_HJA_Term(
@@ -455,122 +523,42 @@ void ORO_HJA_Term(
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
-        Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-
-        if (wk->spmv_ng_flag & 0x30000) {
-            Next_Be_Free(wk);
-            break;
-        }
-        if (Check_Start_Hi_Jump(wk) == 0) {
-            Continue_Menu[wk->wu.id] = 0;
-            CP_Index[wk->wu.id][1]++;
-            if (cmd_sel[wk->wu.id]) {
-                Tech_Address[wk->wu.id] = player_CMD[wk->player_number][2];
-            } else {
-                Tech_Address[wk->wu.id] = player_cmd[wk->player_number][2];
-            }
-            Check_First_Menu(wk);
-        }
+        ORO_HJA_Term_Begin(wk);
         break;
 
     case 1:
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-        if (--Combo_Speed[wk->wu.id == 0]) {
-            CP_Index[wk->wu.id][1]++;
-            Tech_Index[wk->wu.id] = 0xC;
-
-            Jump_Init(wk, Jump_Dir);
-            Lever_Pool[wk->wu.id] &= 0xC;
-            Lever_Buff[wk->wu.id] = 0;
-            Check_Air_Guard(wk);
-            if (Check_Diagonal_Shell(wk) != 0) {
-                Next_Be_Free(wk);
-            }
-        }
+        ORO_HJA_Term_Launch(wk, Jump_Dir);
         break;
 
     case 2:
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-        CP_Index[wk->wu.id][1]++;
-        Lever_Buff[wk->wu.id] = 2;
-        Lever_Pool[wk->wu.id] |= 1;
+        ORO_HJA_Term_Arm(wk);
         break;
 
     case 3:
-        if (wk->wu.xyz[1].disp.pos > 0) {
-            CP_Index[wk->wu.id][1]++;
-        } else {
-
-            Lever_Buff[wk->wu.id] = Lever_Pool[wk->wu.id];
-            Timer_00[wk->wu.id] = 2;
-        }
+        ORO_Air_Rise(wk);
         break;
 
     case 4:
-        Check_Air_Guard(wk);
-
-        if (Lever_Data != 0xFFFF) {
-            if (Check_Landed(wk, Reaction) != 0) {
-                break;
-            }
-            if (Check_VS_Air_Attack(wk, RJX, RJY, JLD) != 0) {
-                break;
-            }
-            if (Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, JY) == 0) {
-                break;
-            }
-        }
-        if ((wk->air_jump_ok_time == 0) && (wk->wu.position_y >= 0x30)) {
-            Jump_Init(wk, Jump_Dir2);
-
-            if ((Lever_Data) == 0xFFFF) {
-                CP_Index[wk->wu.id][1] += 2;
-            } else {
-                CP_Index[wk->wu.id][1]++;
-            }
-        }
-
+        ORO_Air_Climb(wk, Reaction, JY, Jump_Dir2, Lever_Data, RJX, RJY, JLD);
         break;
 
     case 5:
-        Check_Air_Guard(wk);
-        if (Attack_Range_Gates(wk, Reaction, RX, RY, RJX, RJY, JLD) == 0) {
-            break;
-        }
-
-        Lever_Buff[wk->wu.id] = Lever_Data;
-
-        CP_Index[wk->wu.id][1]++;
-        Stock_Hit_Flag[wk->wu.id] = 0;
+        ORO_Air_Strike(wk, Reaction, RX, RY, Lever_Data, RJX, RJY, JLD);
         break;
 
     case 6:
-        if (wk->wu.hf.hit.player) {
-            Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
-        }
-        Check_Landed(wk, Reaction & 0x7F);
+        Air_Term_Hold(wk, Reaction, 0x7F);
         break;
 
     case 7:
-        if (Check_Landed(wk, Reaction & 0x7F) != 0) {
-            break;
-        }
-
-        Landing_Tech_Step(wk);
-
+        Air_Term_Land(wk, Reaction & 0x7F);
         break;
+
     default:
-        Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
-        Check_Landed(wk, Reaction & 0xFFF);
+        Air_Term_End(wk, Reaction);
         break;
     }
+
     if (CP_Index[wk->wu.id][1] >= 3) {
         Lever_Buff[wk->wu.id] |= Lever_LR[wk->wu.id];
     }
