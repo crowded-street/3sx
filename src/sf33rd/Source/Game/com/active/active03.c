@@ -325,7 +325,7 @@ void Pattern03_0021(PLW* wk) {
 void Pattern03_0022(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Hi_Jump_Attack_Term(wk, -0x7FB0, -1, 8, 0x8100, 0, -0x7fa0, 8, 0x200);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-0x7FB0, -1, 8, 0x8100, 0, -0x7fa0, 8, 0x200});
         break;
 
     default:
@@ -349,7 +349,7 @@ void Pattern03_0023(PLW* wk) {
 void Pattern03_0024(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Hi_Jump_Attack_Term(wk, -0x7FA0, -0x7FD0, 8, 0x20, 2, -0x7FA0, 8, 0x400);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-0x7FA0, -0x7FD0, 8, 0x20, 2, -0x7FA0, 8, 0x400});
         break;
 
     default:
@@ -809,7 +809,7 @@ void Pattern03_0054(PLW* wk) {
         break;
 
     case 1:
-        Hi_Jump_Attack_Term(wk, -0x7FB0, 8, 8, 0x8400, 0, -0x7FA0, 8, 0x20);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-0x7FB0, 8, 8, 0x8400, 0, -0x7FA0, 8, 0x20});
         break;
 
     default:
@@ -821,7 +821,7 @@ void Pattern03_0054(PLW* wk) {
 void Pattern03_0055(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Hi_Jump_Attack_Term(wk, -0x7FA0, -0x7FD0, 8, 0x40, 0, -0x7FA0, 8, 0x20);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-0x7FA0, -0x7FD0, 8, 0x40, 0, -0x7FA0, 8, 0x20});
         break;
 
     default:
@@ -869,7 +869,7 @@ void Pattern03_0058(PLW* wk) {
         break;
 
     case 1:
-        Hi_Jump_Attack_Term(wk, -0x7FA0, -0x7FC0, 8, 0x20, 1, -0x7FA0, 8, 0x200);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-0x7FA0, -0x7FC0, 8, 0x20, 1, -0x7FA0, 8, 0x200});
         break;
 
     case 2:
@@ -961,7 +961,7 @@ void Pattern03_0061(PLW* wk) {
         break;
 
     case 3:
-        Hi_Jump_Attack_Term(wk, -0x7FA0, -1, 8, 0x8400, 0, -0x7FA0, -1, 0x8400);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-0x7FA0, -1, 8, 0x8400, 0, -0x7FA0, -1, 0x8400});
         break;
 
     default:
@@ -973,7 +973,7 @@ void Pattern03_0061(PLW* wk) {
 void Pattern03_0062(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Hi_Jump_Attack_Term(wk, -0x7FA0, -0x7FC0, 8, 0x20, 0, -0x7FA0, 8, 0x200);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-0x7FA0, -0x7FC0, 8, 0x20, 0, -0x7FA0, 8, 0x200});
         break;
 
     case 1:

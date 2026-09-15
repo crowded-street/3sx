@@ -2949,7 +2949,7 @@ void Passive14_0152(PLW* wk) {
         break;
 
     case 1:
-        Hi_Jump_Attack_Term(wk, -1, 0x61, 0xB, 0x202, 0, -0x7F80, -1, 0x400);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-1, 0x61, 0xB, 0x202, 0, -0x7F80, -1, 0x400});
         break;
 
     case 2:
@@ -3393,7 +3393,7 @@ void Passive14_0170(PLW* wk) {
         break;
 
     case 2:
-        Hi_Jump_Attack_Term(wk, -1, 0x61, 9, 0x202, 0, -0x7F80, -1, 0x400);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-1, 0x61, 9, 0x202, 0, -0x7F80, -1, 0x400});
         break;
 
     case 3:
@@ -3529,7 +3529,7 @@ void Passive14_0175(PLW* wk) {
         break;
 
     case 1:
-        Hi_Jump_Attack_Term(wk, -1, 0x61, 9, 0x202, 0, -0x7F80, -1, 0x400);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-1, 0x61, 9, 0x202, 0, -0x7F80, -1, 0x400});
         break;
 
     case 2:
@@ -3673,7 +3673,7 @@ void Passive14_0181(PLW* wk) {
         break;
 
     case 1:
-        Hi_Jump_Attack_Term(wk, -1, 0x61, 9, 0x202, 0, -0x7F80, -1, 0x400);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-1, 0x61, 9, 0x202, 0, -0x7F80, -1, 0x400});
         break;
 
     case 2:
@@ -3725,7 +3725,7 @@ void Passive14_0183(PLW* wk) {
         break;
 
     case 1:
-        Hi_Jump_Attack_Term(wk, -1, 0x61, 9, 0x202, 0, -0x7F80, -1, 0x400);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-1, 0x61, 9, 0x202, 0, -0x7F80, -1, 0x400});
         break;
 
     case 2:
@@ -3905,7 +3905,7 @@ void Passive14_0191(PLW* wk) {
         break;
 
     case 1:
-        Hi_Jump_Attack_Term(wk, -1, 0x61, 0xB, 0x202, 0, -0x7F80, -1, 0x400);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-1, 0x61, 0xB, 0x202, 0, -0x7F80, -1, 0x400});
         break;
 
     case 2:
@@ -3933,7 +3933,7 @@ void Passive14_0192(PLW* wk) {
         break;
 
     case 1:
-        Hi_Jump_Attack_Term(wk, -1, 0x61, 0xB, 0x202, 0, -0x7F80, -1, 0x400);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-1, 0x61, 0xB, 0x202, 0, -0x7F80, -1, 0x400});
         break;
 
     case 2:

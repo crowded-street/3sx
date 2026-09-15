@@ -101,10 +101,7 @@ void Jump_Attack_Term(
 s32 Check_SP_Jump_Attack(PLW* wk, s16 Lever_Data);
 s32 Check_VS_Air_Attack(PLW* wk, s16 Range_JX, s16 Range_JY, s16 J_Lever_Data);
 void Hi_Jump_Attack(PLW* wk, s16 Reaction, s16 Time_Data, u16 Lever_Data, s16 Jump_Dir);
-void Hi_Jump_Attack_Term(
-    PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Jump_Dir, s16 Range_JX, s16 Range_JY,
-    u16 J_Lever_Data
-);
+void Hi_Jump_Attack_Term(PLW* wk, const Hi_Jump_Term_Args* a);
 s32 Check_Term_ABS_Distance(PLW* wk);
 s32 Check_Com_Add_Y(PLW* wk, s16 Pos_Y, s16 Range);
 void ORO_JA_Term(PLW* wk, const ORO_Air_Term_Args* a);

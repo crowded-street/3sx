@@ -897,7 +897,7 @@ void Passive11_0050(PLW* wk) {
 void Passive11_0051(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Hi_Jump_Attack_Term(wk, -0x7FA0, -0x7FD0, 8, 0x40, 0, -1, -1, 0xFFFF);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-0x7FA0, -0x7FD0, 8, 0x40, 0, -1, -1, 0xFFFF});
         break;
 
     default:
@@ -4329,7 +4329,7 @@ void Passive11_0237(PLW* wk) {
 void Passive11_0238(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Hi_Jump_Attack_Term(wk, -0x7FA8, -0x7FC0, 8, 0x200, 0, -0x7FB0, -1, 0x200);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-0x7FA8, -0x7FC0, 8, 0x200, 0, -0x7FB0, -1, 0x200});
         break;
 
     case 1:

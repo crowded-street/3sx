@@ -2541,7 +2541,7 @@ void Passive06_0138(PLW* wk) {
 void Passive06_0139(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Hi_Jump_Attack_Term(wk, -0x7F88, -0x7FA8, 9, 0x400, 0, -0x7F68, -1, 0x400);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-0x7F88, -0x7FA8, 9, 0x400, 0, -0x7F68, -1, 0x400});
         break;
 
     case 1:
@@ -2561,7 +2561,7 @@ void Passive06_0139(PLW* wk) {
 void Passive06_0140(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Hi_Jump_Attack_Term(wk, -0x7F88, -0x7FA8, 9, 0x400, 0, -0x7F68, -1, 0x400);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-0x7F88, -0x7FA8, 9, 0x400, 0, -0x7F68, -1, 0x400});
         break;
 
     case 1:
@@ -2577,7 +2577,7 @@ void Passive06_0140(PLW* wk) {
 void Passive06_0141(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Hi_Jump_Attack_Term(wk, -0x7F88, -0x7FA8, 9, 0x400, 0, -0x7F68, -1, 0x400);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-0x7F88, -0x7FA8, 9, 0x400, 0, -0x7F68, -1, 0x400});
         break;
 
     case 1:
@@ -2593,7 +2593,7 @@ void Passive06_0141(PLW* wk) {
 void Passive06_0142(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Hi_Jump_Attack_Term(wk, -0x7F88, -0x7FA8, 9, 0x400, 0, -0x7F68, -1, 0x400);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-0x7F88, -0x7FA8, 9, 0x400, 0, -0x7F68, -1, 0x400});
         break;
 
     case 1:
@@ -2609,7 +2609,7 @@ void Passive06_0142(PLW* wk) {
 void Passive06_0143(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Hi_Jump_Attack_Term(wk, -0x7F88, -0x7FA8, 9, 0x400, 0, -0x7F68, -1, 0x400);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-0x7F88, -0x7FA8, 9, 0x400, 0, -0x7F68, -1, 0x400});
         break;
 
     case 1:
@@ -2625,7 +2625,7 @@ void Passive06_0143(PLW* wk) {
 void Passive06_0144(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Hi_Jump_Attack_Term(wk, -0x7F88, -0x7FA8, 9, 0x400, 0, -0x7F68, -1, 0x400);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-0x7F88, -0x7FA8, 9, 0x400, 0, -0x7F68, -1, 0x400});
         break;
 
     case 1:

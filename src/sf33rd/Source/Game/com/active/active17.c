@@ -1213,7 +1213,7 @@ void Pattern17_0075(PLW* wk) {
         break;
 
     case 1:
-        Hi_Jump_Attack_Term(wk, -1, 0x40, 8, 0x40, 0, -0x7FA0, -1, 0x200);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-1, 0x40, 8, 0x40, 0, -0x7FA0, -1, 0x200});
         break;
 
     case 2:
@@ -1317,7 +1317,7 @@ void Pattern17_0079(PLW* wk) {
         break;
 
     case 1:
-        Hi_Jump_Attack_Term(wk, -1, 0x40, 8, 0x400, 0, -0x7FA0, -1, 0x200);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-1, 0x40, 8, 0x400, 0, -0x7FA0, -1, 0x200});
         break;
 
     case 2:
@@ -1394,7 +1394,7 @@ void Pattern17_0082(PLW* wk)
         Pierce_On(wk);
         break;
     case 1:
-        Hi_Jump_Attack_Term(wk, -1, 0x40, 8, 0x400, 0, -0x7FA0, -1, 0x200);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-1, 0x40, 8, 0x400, 0, -0x7FA0, -1, 0x200});
         break;
     case 2:
         Lever_On(wk, 1, 0xffff);

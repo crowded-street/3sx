@@ -226,32 +226,32 @@ static void HJA_Term_Rise(PLW* wk) {
     Lever_Buff[wk->wu.id] = Lever_Pool[wk->wu.id] | 1;
 }
 
-static void HJA_Term_Approach(
-    PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Range_JX, s16 Range_JY, u16 J_Lever_Data
-) {
+static void HJA_Term_Approach(PLW* wk, const Hi_Jump_Term_Args* a) {
+    u16 Lever_Data;
+
     Check_Air_Guard(wk);
-    if (Check_Landed(wk, Reaction) != 0) {
+    if (Check_Landed(wk, a->Reaction) != 0) {
         return;
     }
 
-    if (Check_VS_Air_Attack(wk, Range_JX, Range_JY, J_Lever_Data) != 0) {
+    if (Check_VS_Air_Attack(wk, a->Range_JX, a->Range_JY, a->J_Lever_Data) != 0) {
         return;
     }
 
-    if (Check_Term_Sub(wk, PL_Distance[wk->wu.id], Range_X) == 0) {
+    if (Check_Term_Sub(wk, PL_Distance[wk->wu.id], a->Range_X) == 0) {
         return;
     }
-    if (Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, Range_Y) == 0) {
+    if (Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, a->Range_Y) == 0) {
         return;
     }
-    if (Check_Term_Sub(wk, wk->wu.xyz[1].disp.pos, Range_Y) == 0) {
+    if (Check_Term_Sub(wk, wk->wu.xyz[1].disp.pos, a->Range_Y) == 0) {
         return;
     }
 
-    Lever_Data = Check_SP_Jump_Attack(wk, Lever_Data);
+    Lever_Data = Check_SP_Jump_Attack(wk, a->Lever_Data);
     Lever_Buff[wk->wu.id] = Lever_Data;
     CP_Index[wk->wu.id][1]++;
-    if (Reaction & 0x80) {
+    if (a->Reaction & 0x80) {
         CP_Index[wk->wu.id][1] = 8;
     }
 }
@@ -284,21 +284,19 @@ static void HJA_Term_Meoshi(PLW* wk) {
  * onwards. The case labels are the original ones, so this reads against the same
  * state numbers as the ground half it was lifted out of. None of these arms can
  * skip the trailing lever merge, so this returns nothing. */
-static void HJA_Term_Airborne(
-    PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Range_JX, s16 Range_JY, u16 J_Lever_Data
-) {
+static void HJA_Term_Airborne(PLW* wk, const Hi_Jump_Term_Args* a) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 4:
-        HJA_Term_Approach(wk, Range_X, Range_Y, Reaction, Lever_Data, Range_JX, Range_JY, J_Lever_Data);
+        HJA_Term_Approach(wk, a);
         break;
 
     case 5:
-        Air_Term_Hold(wk, Reaction, 0xFFF);
+        Air_Term_Hold(wk, a->Reaction, 0xFFF);
         break;
 
     case 6:
-        Air_Term_Land(wk, Reaction);
+        Air_Term_Land(wk, a->Reaction);
         break;
 
     case 7:
@@ -306,7 +304,7 @@ static void HJA_Term_Airborne(
         break;
 
     case 8:
-        Air_Term_End(wk, Reaction);
+        Air_Term_End(wk, a->Reaction);
         break;
 
     default:
@@ -316,18 +314,15 @@ static void HJA_Term_Airborne(
 }
 
 /* Non-zero when the trailing lever merge must be skipped. */
-static s32 HJA_Term_Step(
-    PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Jump_Dir, s16 Range_JX, s16 Range_JY,
-    u16 J_Lever_Data
-) {
+static s32 HJA_Term_Step(PLW* wk, const Hi_Jump_Term_Args* a) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
-        HJA_Term_Begin(wk, Reaction);
+        HJA_Term_Begin(wk, a->Reaction);
         break;
 
     case 1:
-        HJA_Term_Launch(wk, Jump_Dir);
+        HJA_Term_Launch(wk, a->Jump_Dir);
         break;
 
     case 2:
@@ -338,18 +333,15 @@ static s32 HJA_Term_Step(
         break;
 
     default:
-        HJA_Term_Airborne(wk, Range_X, Range_Y, Reaction, Lever_Data, Range_JX, Range_JY, J_Lever_Data);
+        HJA_Term_Airborne(wk, a);
         break;
     }
 
     return 0;
 }
 
-void Hi_Jump_Attack_Term(
-    PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Jump_Dir, s16 Range_JX, s16 Range_JY,
-    u16 J_Lever_Data
-) {
-    if (HJA_Term_Step(wk, Range_X, Range_Y, Reaction, Lever_Data, Jump_Dir, Range_JX, Range_JY, J_Lever_Data) != 0) {
+void Hi_Jump_Attack_Term(PLW* wk, const Hi_Jump_Term_Args* a) {
+    if (HJA_Term_Step(wk, a) != 0) {
         return;
     }
 

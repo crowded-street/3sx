@@ -593,7 +593,7 @@ void Pattern14_0035(PLW* wk) {
         break;
 
     case 1:
-        Hi_Jump_Attack_Term(wk, -1, 0x61, 8, 0x202, 0, -0x7F80, -1, 0x400);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-1, 0x61, 8, 0x202, 0, -0x7F80, -1, 0x400});
         break;
 
     case 2:
@@ -617,7 +617,7 @@ void Pattern14_0036(PLW* wk) {
         break;
 
     case 1:
-        Hi_Jump_Attack_Term(wk, -1, 0x61, 8, 0x202, 0, 0x8080, -1, 0x400);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-1, 0x61, 8, 0x202, 0, 0x8080, -1, 0x400});
         break;
 
     case 2:
@@ -649,7 +649,7 @@ void Pattern14_0037(PLW* wk) {
         break;
 
     case 1:
-        Hi_Jump_Attack_Term(wk, -1, 0x61, 8, 0x202, 0, 0x8080, -1, 0x400);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-1, 0x61, 8, 0x202, 0, 0x8080, -1, 0x400});
         break;
 
     case 2:
@@ -1117,7 +1117,7 @@ void Pattern14_0061(PLW* wk) {
         break;
 
     case 2:
-        Hi_Jump_Attack_Term(wk, -1, 0x61, 9, 0x202, 0, 0x8080, -1, 0x400);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-1, 0x61, 9, 0x202, 0, 0x8080, -1, 0x400});
         break;
 
     case 3:
