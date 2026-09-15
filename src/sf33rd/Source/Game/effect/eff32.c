@@ -30,56 +30,76 @@ static s32 e32_animation_reached(WORK_Other* ewk, s16 cg_type) {
     return !EXE_flag && !Game_pause && (char_move(&ewk->wu), ewk->wu.cg_type == cg_type);
 }
 
+/* Show the effect with its shadow and send it on its arc. */
+static void e32_start(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.disp_flag = 1;
+    ewk->wu.kage_flag = 1;
+    ewk->wu.kage_hx = 0;
+    ewk->wu.kage_hy = -4;
+    ewk->wu.kage_prio = 71;
+    ewk->wu.kage_char = 16;
+    set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+    ewk->wu.old_rno[0] = 120;
+    cal_initial_speed(&ewk->wu, ewk->wu.old_rno[0], ewk->wu.old_rno[1], ewk->wu.xyz[1].disp.pos);
+}
+
+/* Fly the arc out, then switch to the landing animation. */
+static void e32_fly(WORK_Other* ewk) {
+    if (game_is_active()) {
+        char_move(&ewk->wu);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
+        ewk->wu.old_rno[0]--;
+
+        if (ewk->wu.old_rno[0] < 1) {
+            ewk->wu.routine_no[0]++;
+            set_char_move_init(&ewk->wu, 0, 1);
+        }
+    }
+}
+
+/* Run the landing animation to its end, then start the settle. */
+static void e32_land(WORK_Other* ewk) {
+    if (e32_animation_reached(ewk, 0xFF)) {
+        ewk->wu.routine_no[0]++;
+        set_char_move_init(&ewk->wu, 0, 5);
+    }
+}
+
+/* Nudge the shadow across once the settle reaches its marked cel. */
+static void e32_settle(WORK_Other* ewk) {
+    if (e32_animation_reached(ewk, 10)) {
+        ewk->wu.cg_type = 0;
+        ewk->wu.kage_hx -= 8;
+    }
+}
+
+/* Place the effect and hand it to the renderer - the tail states 1 to 3 share. */
+static void e32_sync_and_push(WORK_Other* ewk) {
+    suzi_sync_pos_set(ewk);
+    sort_push_request(&ewk->wu);
+}
+
 void effect_32_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.kage_flag = 1;
-        ewk->wu.kage_hx = 0;
-        ewk->wu.kage_hy = -4;
-        ewk->wu.kage_prio = 71;
-        ewk->wu.kage_char = 16;
-        set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-        ewk->wu.old_rno[0] = 120;
-        cal_initial_speed(&ewk->wu, ewk->wu.old_rno[0], ewk->wu.old_rno[1], ewk->wu.xyz[1].disp.pos);
+        e32_start(ewk);
         break;
 
     case 1:
-if (game_is_active()) {
-            char_move(&ewk->wu);
-            add_x_sub(&ewk->wu);
-            add_y_sub(&ewk->wu);
-            ewk->wu.old_rno[0]--;
-
-            if (ewk->wu.old_rno[0] < 1) {
-                ewk->wu.routine_no[0]++;
-                set_char_move_init(&ewk->wu, 0, 1);
-            }
-        }
-
-        suzi_sync_pos_set(ewk);
-        sort_push_request(&ewk->wu);
+        e32_fly(ewk);
+        e32_sync_and_push(ewk);
         break;
 
     case 2:
-        if (e32_animation_reached(ewk, 0xFF)) {
-            ewk->wu.routine_no[0]++;
-            set_char_move_init(&ewk->wu, 0, 5);
-        }
-
-        suzi_sync_pos_set(ewk);
-        sort_push_request(&ewk->wu);
+        e32_land(ewk);
+        e32_sync_and_push(ewk);
         break;
 
     case 3:
-        if (e32_animation_reached(ewk, 10)) {
-            ewk->wu.cg_type = 0;
-            ewk->wu.kage_hx -= 8;
-        }
-
-        suzi_sync_pos_set(ewk);
-        sort_push_request(&ewk->wu);
+        e32_settle(ewk);
+        e32_sync_and_push(ewk);
         break;
 
     case 4:
