@@ -39,11 +39,9 @@
 #include "structs.h"
 #include "sf33rd/Source/Game/com/com_sub_internal.h"
 
-s32 Check_Diagonal_Shell(PLW* wk) {
-    WORK_Other* tmw;
-    WORK* em;
-    s16 i;
-
+/* The dodge roll: non-zero when the COM declines to react to the shell at all.
+ * Applies CC_Value before the forced-CPU cap, unlike the guard-level rolls. */
+static s32 Check_Diagonal_Shell_Declined(PLW* wk) {
     Lv = Setup_Lv08(0);
     if ((Demo_Flag == 0) && (Weak_PL == wk->wu.id)) {
         Lv = 2;
@@ -55,7 +53,35 @@ s32 Check_Diagonal_Shell(PLW* wk) {
     if (Break_Into_CPU == 2) {
         Lv = 7;
     }
-    if (Rnd > VS_Diagonal_Shell_Data[emLevelRemake(Lv, 8, 0)]) {
+
+    return Rnd > VS_Diagonal_Shell_Data[emLevelRemake(Lv, 8, 0)];
+}
+
+/* One shell slot: non-zero when this shell is worth dodging. */
+static s32 Check_Diagonal_Shell_Slot(PLW* wk, WORK_Other* tmw) {
+    if (tmw->wu.routine_no[1] == 2) {
+        return 0;
+    }
+    if (wk->wu.rl_waza == tmw->wu.rl_flag) {
+        return 0;
+    }
+
+    if (Check_Behind(wk, tmw) != 0) {
+        return 0;
+    }
+
+    if (tmw->wu.charset_id == 2) {
+        return 0;
+    }
+    return Check_Ignore_Shell2(tmw) != 0;
+}
+
+s32 Check_Diagonal_Shell(PLW* wk) {
+    WORK_Other* tmw;
+    WORK* em;
+    s16 i;
+
+    if (Check_Diagonal_Shell_Declined(wk)) {
         return 0;
     }
 
@@ -66,21 +92,7 @@ s32 Check_Diagonal_Shell(PLW* wk) {
             return 0;
         }
 
-        if (tmw->wu.routine_no[1] == 2) {
-            continue;
-        }
-        if (wk->wu.rl_waza == tmw->wu.rl_flag) {
-            continue;
-        }
-
-        if (Check_Behind(wk, tmw) != 0) {
-            continue;
-        }
-
-        if (tmw->wu.charset_id == 2) {
-            continue;
-        }
-        if (Check_Ignore_Shell2(tmw) != 0) {
+        if (Check_Diagonal_Shell_Slot(wk, tmw) != 0) {
             return 1;
         }
     }
