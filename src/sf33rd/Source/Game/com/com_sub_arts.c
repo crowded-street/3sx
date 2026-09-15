@@ -205,8 +205,11 @@ s32 SA_Range_Check(PLW* wk, s16 SA_No, u16 Range) {
     return 0;
 }
 
-void Check_SA(PLW* wk, s16 Next_Action, s16 Next_Menu) {
-    if (plw[wk->wu.id].sa->ok) {
+/* Step on when the gauge the caller asked about is ready, otherwise hand the
+ * CPU the fallback menu. The gauge flag is the only thing Check_SA and Check_EX
+ * differ in. */
+static void Check_Arts_Gauge(PLW* wk, s8 Gauge_Ready, s16 Next_Action, s16 Next_Menu) {
+    if (Gauge_Ready) {
         CP_Index[wk->wu.id][0]++;
     } else {
         CP_No[wk->wu.id][0] = Next_Action;
@@ -216,15 +219,12 @@ void Check_SA(PLW* wk, s16 Next_Action, s16 Next_Menu) {
     Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
 }
 
+void Check_SA(PLW* wk, s16 Next_Action, s16 Next_Menu) {
+    Check_Arts_Gauge(wk, plw[wk->wu.id].sa->ok, Next_Action, Next_Menu);
+}
+
 void Check_EX(PLW* wk, s16 Next_Action, s16 Next_Menu) {
-    if (plw[wk->wu.id].sa->ex) {
-        CP_Index[wk->wu.id][0]++;
-    } else {
-        CP_No[wk->wu.id][0] = Next_Action;
-        Disposal_Again[wk->wu.id] = 1;
-        Next_Another_Menu(wk, Next_Action, Next_Menu);
-    }
-    Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
+    Check_Arts_Gauge(wk, plw[wk->wu.id].sa->ex, Next_Action, Next_Menu);
 }
 
 void Check_SA_Full(PLW* wk, s16 Next_Action, s16 Next_Menu) {
