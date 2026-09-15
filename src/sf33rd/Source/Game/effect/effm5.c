@@ -113,6 +113,25 @@ static void m5_finish(WORK_Other* ewk) {
     ewk->wu.disp_flag = 0;
 }
 
+/* The states after the car has driven off: hide it, idle one frame, then hand
+ * the work slot back. The case labels are the original ones. */
+static void m5_teardown(WORK_Other* ewk) {
+    switch (ewk->wu.routine_no[0]) {
+    case 5:
+        m5_finish(ewk);
+        break;
+
+    case 6:
+        ewk->wu.routine_no[0]++;
+        break;
+
+    default:
+        all_cgps_put_back(&ewk->wu);
+        push_effect_work(&ewk->wu);
+        break;
+    }
+}
+
 void effect_M5_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -143,17 +162,8 @@ void effect_M5_move(WORK_Other* ewk) {
         sort_push_request(&ewk->wu);
         break;
 
-    case 5:
-        m5_finish(ewk);
-        break;
-
-    case 6:
-        ewk->wu.routine_no[0]++;
-        break;
-
     default:
-        all_cgps_put_back(&ewk->wu);
-        push_effect_work(&ewk->wu);
+        m5_teardown(ewk);
         break;
     }
 }
