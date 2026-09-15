@@ -129,16 +129,28 @@ static void JCA_Term_Begin(PLW* wk, u16 Tech_Number) {
     Command_Term_Open(wk, Tech_Number);
 }
 
-static void JCA_Term_Launch(PLW* wk, u16 Tech_Number, s16 Jump_Dir) {
+/* The countdown both plain command attack launches share, and the two steps
+ * they take once it reaches zero. Non-zero when the jump goes out this frame.
+ * HJCA_Term_Launch is deliberately not a caller: it counts down a different
+ * Combo_Speed slot - see the note on that function. */
+static s32 JCA_Launch_Ready(PLW* wk) {
     if (Check_Passive(wk) != 0) {
-        return;
+        return 0;
     }
     if (--Combo_Speed[wk->wu.id] != 0) {
-        return;
+        return 0;
     }
 
     CP_Index[wk->wu.id][1]++;
     Tech_Index[wk->wu.id] = 0xC;
+
+    return 1;
+}
+
+static void JCA_Term_Launch(PLW* wk, u16 Tech_Number, s16 Jump_Dir) {
+    if (!JCA_Launch_Ready(wk)) {
+        return;
+    }
 
     Jump_Init(wk, Jump_Dir);
     Check_Rapid(wk, Tech_Number);
@@ -372,15 +384,9 @@ static void ORO_JCA_Term_Begin(PLW* wk, u16 Tech_Number) {
 /* Clears the dash flag and runs the air guard, which the jump Term launch does
  * not; kept separate for that reason. */
 static void ORO_JCA_Term_Launch(PLW* wk, s16 Jump_Dir) {
-    if (Check_Passive(wk) != 0) {
+    if (!JCA_Launch_Ready(wk)) {
         return;
     }
-    if (--Combo_Speed[wk->wu.id] != 0) {
-        return;
-    }
-
-    CP_Index[wk->wu.id][1]++;
-    Tech_Index[wk->wu.id] = 0xC;
     dash_flag_clear(wk->wu.id);
 
     Jump_Init(wk, Jump_Dir);
