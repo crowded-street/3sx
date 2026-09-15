@@ -31,6 +31,13 @@ static s32 cursor_position_changed(const WORK_Other* ewk) {
 }
 
 
+/* In either training mode the challenger's face waits until the select screen
+ * has moved on - the effect does nothing at all until then. */
+static s32 d8_waiting_for_training_partner(const WORK_Other* ewk) {
+    return ((Mode_Type == MODE_NORMAL_TRAINING) || (Mode_Type == MODE_PARRY_TRAINING)) &&
+           (ewk->master_id == New_Challenger) && (S_No[3] < 2);
+}
+
 void effect_D8_move(WORK_Other* ewk) {
     s16 offset_x;
 
@@ -38,8 +45,7 @@ void effect_D8_move(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        if (((Mode_Type == MODE_NORMAL_TRAINING) || (Mode_Type == MODE_PARRY_TRAINING)) &&
-            (ewk->master_id == New_Challenger) && (S_No[3] < 2)) {
+        if (d8_waiting_for_training_partner(ewk)) {
             return;
         }
 
