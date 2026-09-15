@@ -40,7 +40,16 @@ void VS_Jump_Guard(PLW* wk);
 void Wait_Lie(PLW* wk, u16 Lever_Data);
 void Wait_Get_Up(PLW* wk, u16 Lever_Data, s16 Option);
 void Wait_Attack_Complete(PLW* wk, u16 Lever_Data, s16 Option);
-void Short_Range_Attack(PLW* wk, s16 Reaction, u16 Lever_Data, s16 Next_Action, s16 Next_Menu);
+/* The four values Short_Range_Attack is driven by. The field order is the
+ * parameter order it used to take. */
+typedef struct {
+    s16 Reaction;
+    u16 Lever_Data;
+    s16 Next_Action;
+    s16 Next_Menu;
+} Short_Range_Args;
+
+void Short_Range_Attack(PLW* wk, const Short_Range_Args* p);
 /* The five values EM_Term is driven by. The field order is the parameter order
  * it used to take. */
 typedef struct {
@@ -162,7 +171,18 @@ s32 Select_Passive(PLW* wk);
 void Check_BOSS(PLW* wk, u32 Next_Action, u16 Next_Menu);
 void Check_BOSS_EX(PLW* wk, u32 Next_Action, u16 Next_Menu);
 void ETC_Term(PLW* wk, s16 Exit_No, u32 Next_Action, u16 Next_Menu);
-void SHELL_Term(PLW* wk, s16 Next_Command, s16 Exit_Number, s16 Next_Action, s16 Next_Menu, s16 unused); // unused arg
+/* The five values SHELL_Term is driven by. The field order is the parameter
+ * order it used to take, trailing unused argument included, so the call sites
+ * keep passing what they always did. */
+typedef struct {
+    s16 Next_Command;
+    s16 Exit_Number;
+    s16 Next_Action;
+    s16 Next_Menu;
+    s16 unused;
+} Shell_Term_Params;
+
+void SHELL_Term(PLW* wk, const Shell_Term_Params* p);
 void Next_Be_Flip(PLW* wk, s16 xx);
 s32 Check_Guard(PLW* wk);
 s32 Check_Passive(PLW* wk);

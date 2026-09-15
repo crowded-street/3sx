@@ -161,7 +161,7 @@ void Passive19_0009(PLW* wk) {
 void Passive19_0010(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Short_Range_Attack(wk, 8, 0x40, 6, 0x1D);
+        Short_Range_Attack(wk, &(Short_Range_Args){8, 0x40, 6, 0x1D});
         break;
 
     default:

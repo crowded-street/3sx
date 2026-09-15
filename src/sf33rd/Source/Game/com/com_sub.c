@@ -553,24 +553,24 @@ static void Short_Range_Attack_Wait(PLW* wk, u16 Lever_Data) {
     CP_Index[wk->wu.id][1]++;
 }
 
-void Short_Range_Attack(PLW* wk, s16 Reaction, u16 Lever_Data, s16 Next_Action, s16 Next_Menu) {
+void Short_Range_Attack(PLW* wk, const Short_Range_Args* p) {
     Com_Next_Menu next;
 
-    next.action = Next_Action;
-    next.menu = Next_Menu;
+    next.action = p->Next_Action;
+    next.menu = p->Next_Menu;
 
     switch (CP_Index[wk->wu.id][1]) {
     case 0:
-        Short_Range_Attack_Start(wk, Reaction, Lever_Data, next);
+        Short_Range_Attack_Start(wk, p->Reaction, p->Lever_Data, next);
         break;
 
     case 1:
-        Short_Range_Attack_Wait(wk, Lever_Data);
+        Short_Range_Attack_Wait(wk, p->Lever_Data);
         break;
 
     default:
         Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
-        Reaction_Sub(wk, Reaction, 0);
+        Reaction_Sub(wk, p->Reaction, 0);
         break;
     }
 }
@@ -675,15 +675,15 @@ static void SHELL_Term_Step(PLW* wk, const Shell_Term_Args* a) {
     }
 }
 
-void SHELL_Term(PLW* wk, s16 Next_Command, s16 Exit_Number, s16 Next_Action, s16 Next_Menu, s16 unused) {
+void SHELL_Term(PLW* wk, const Shell_Term_Params* p) {
     Shell_Term_Args a;
 
     a.em = (WORK*)Shell_Address[wk->wu.id];
     a.tmw = (WORK_Other*)Shell_Address[wk->wu.id];
-    a.next_command = Next_Command;
-    a.exit_number = Exit_Number;
-    a.next.action = Next_Action;
-    a.next.menu = Next_Menu;
+    a.next_command = p->Next_Command;
+    a.exit_number = p->Exit_Number;
+    a.next.action = p->Next_Action;
+    a.next.menu = p->Next_Menu;
 
     Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
     switch (CP_Index[wk->wu.id][1]) {

@@ -25,7 +25,7 @@ void Shell01_0000(PLW* wk) {
 void Shell01_0001(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        SHELL_Term(wk, 1, 2, 1, -1, -1);
+        SHELL_Term(wk, &(Shell_Term_Params){1, 2, 1, -1, -1});
         break;
 
     case 1:
@@ -41,7 +41,7 @@ void Shell01_0001(PLW* wk) {
 void Shell01_0002(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        SHELL_Term(wk, 0, 2, 1, -1, -1);
+        SHELL_Term(wk, &(Shell_Term_Params){0, 2, 1, -1, -1});
         break;
 
     case 1:
@@ -57,7 +57,7 @@ void Shell01_0002(PLW* wk) {
 void Shell01_0003(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        SHELL_Term(wk, 0, 2, 1, -1, -1);
+        SHELL_Term(wk, &(Shell_Term_Params){0, 2, 1, -1, -1});
         break;
 
     case 1:
@@ -73,7 +73,7 @@ void Shell01_0003(PLW* wk) {
 void Shell01_0004(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        SHELL_Term(wk, 0, 2, 1, -1, -1);
+        SHELL_Term(wk, &(Shell_Term_Params){0, 2, 1, -1, -1});
         break;
 
     case 1:
@@ -89,7 +89,7 @@ void Shell01_0004(PLW* wk) {
 void Shell01_0005(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        SHELL_Term(wk, 0, 2, 1, -1, -1);
+        SHELL_Term(wk, &(Shell_Term_Params){0, 2, 1, -1, -1});
         break;
 
     case 1:
@@ -105,7 +105,7 @@ void Shell01_0005(PLW* wk) {
 void Shell01_0006(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        SHELL_Term(wk, 0, 2, 1, -1, -1);
+        SHELL_Term(wk, &(Shell_Term_Params){0, 2, 1, -1, -1});
         break;
 
     case 1:
@@ -125,7 +125,7 @@ void Shell01_0006(PLW* wk) {
 void Shell01_0007(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        SHELL_Term(wk, 0, 2, 1, -1, -1);
+        SHELL_Term(wk, &(Shell_Term_Params){0, 2, 1, -1, -1});
         break;
 
     case 1:
@@ -145,7 +145,7 @@ void Shell01_0007(PLW* wk) {
 void Shell01_0008(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        SHELL_Term(wk, 0, 2, 1, -1, -1);
+        SHELL_Term(wk, &(Shell_Term_Params){0, 2, 1, -1, -1});
         break;
 
     case 1:
@@ -169,7 +169,7 @@ void Shell01_0009(PLW* wk) {
         break;
 
     case 1:
-        SHELL_Term(wk, 2, 2, 1, -1, -1);
+        SHELL_Term(wk, &(Shell_Term_Params){2, 2, 1, -1, -1});
         break;
 
     case 2:

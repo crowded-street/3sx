@@ -181,7 +181,7 @@ void Passive10_0010(PLW* wk) {
         break;
 
     case 1:
-        Short_Range_Attack(wk, 8, 0x40, 6, 0x1d);
+        Short_Range_Attack(wk, &(Short_Range_Args){8, 0x40, 6, 0x1d});
         break;
 
     default:
