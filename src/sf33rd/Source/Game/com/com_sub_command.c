@@ -204,6 +204,25 @@ static void Command_Attack_Timeout(PLW* wk) {
     }
 }
 
+/* The states that close the command attack out: the run, the close, and the
+ * timeout every other index falls into. The case labels are the original ones. */
+static void Command_Attack_Finish(PLW* wk) {
+    switch (CP_Index[wk->wu.id][1]) {
+
+    case 4:
+        Command_Attack_Run(wk);
+        break;
+
+    case 5:
+        Command_Attack_Close(wk);
+        break;
+
+    default:
+        Command_Attack_Timeout(wk);
+        break;
+    }
+}
+
 void Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot) {
     switch (CP_Index[wk->wu.id][1]) {
 
@@ -230,16 +249,8 @@ void Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16
         Command_Attack_Rapid(wk, Reaction, Power_Level);
         break;
 
-    case 4:
-        Command_Attack_Run(wk);
-        break;
-
-    case 5:
-        Command_Attack_Close(wk);
-        break;
-
     default:
-        Command_Attack_Timeout(wk);
+        Command_Attack_Finish(wk);
         break;
     }
 }
