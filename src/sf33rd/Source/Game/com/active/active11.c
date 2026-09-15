@@ -1245,7 +1245,7 @@ void Pattern11_0078(PLW* wk) {
 void Pattern11_0079(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Lever_Attack_SP(wk, 8, 0, 0x400, 0x12);
+        Lever_Attack_SP(wk, &(Lever_Attack_SP_Args){8, 0, 0x400, 0x12});
         break;
 
     default:
@@ -1317,7 +1317,7 @@ void Pattern11_0083(PLW* wk) {
 void Pattern11_0084(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Lever_Attack_SP(wk, 8, 0, 0x400, 0x12);
+        Lever_Attack_SP(wk, &(Lever_Attack_SP_Args){8, 0, 0x400, 0x12});
         break;
 
     case 1:
@@ -1337,7 +1337,7 @@ void Pattern11_0085(PLW* wk) {
         break;
 
     case 1:
-        Lever_Attack_SP(wk, 8, 0, 0x400, 0x12);
+        Lever_Attack_SP(wk, &(Lever_Attack_SP_Args){8, 0, 0x400, 0x12});
         break;
 
     case 2:

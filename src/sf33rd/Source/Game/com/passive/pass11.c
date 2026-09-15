@@ -4421,7 +4421,7 @@ void Passive11_0244(PLW* wk) {
 void Passive11_0245(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Lever_Attack_SP(wk, 8, 0, 0x400, 0x12);
+        Lever_Attack_SP(wk, &(Lever_Attack_SP_Args){8, 0, 0x400, 0x12});
         break;
 
     default:
@@ -4457,7 +4457,7 @@ void Passive11_0247(PLW* wk) {
 void Passive11_0248(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Lever_Attack_SP(wk, 8, 0, 0x400, 0x12);
+        Lever_Attack_SP(wk, &(Lever_Attack_SP_Args){8, 0, 0x400, 0x12});
         break;
 
     case 1:
@@ -4477,7 +4477,7 @@ void Passive11_0249(PLW* wk) {
         break;
 
     case 1:
-        Lever_Attack_SP(wk, 8, 0, 0x400, 0x12);
+        Lever_Attack_SP(wk, &(Lever_Attack_SP_Args){8, 0, 0x400, 0x12});
         break;
 
     case 2:

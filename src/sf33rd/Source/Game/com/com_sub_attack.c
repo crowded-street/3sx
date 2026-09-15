@@ -425,24 +425,24 @@ static void Lever_Attack_SP_Wind_Up(PLW* wk, u16 Lever, u16 Lever_Data) {
     CP_Index[wk->wu.id][1]++;
 }
 
-void Lever_Attack_SP(PLW* wk, s16 Reaction, u16 Lever, u16 Lever_Data, s16 Time) {
+void Lever_Attack_SP(PLW* wk, const Lever_Attack_SP_Args* p) {
     switch (CP_Index[wk->wu.id][1]) {
     case 0:
-        if (!Lever_Attack_SP_Begin(wk, Lever, Lever_Data, Time)) {
+        if (!Lever_Attack_SP_Begin(wk, p->Lever, p->Lever_Data, p->Time)) {
             break;
         }
         /* fallthrough */
 
     case 1:
-        Lever_Attack_SP_Wind_Up(wk, Lever, Lever_Data);
+        Lever_Attack_SP_Wind_Up(wk, p->Lever, p->Lever_Data);
         break;
 
     case 2:
-        Attack_SP_Hold(wk, Lever_Data);
+        Attack_SP_Hold(wk, p->Lever_Data);
         break;
 
     default:
-        Attack_Reaction_Exit(wk, Reaction);
+        Attack_Reaction_Exit(wk, p->Reaction);
         break;
     }
 }

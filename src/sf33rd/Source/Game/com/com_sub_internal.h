@@ -80,7 +80,7 @@ void Adjust_Attack(PLW* wk, s16 Reaction, u16 Lever_Data);
 s32 Check_Squat(PLW* wk);
 s32 Check_Start_Normal_Attack(PLW* wk, s16 Reaction, u16 Lever_Data); // extra arg unused
 void Lever_Attack(PLW* wk, s16 Reaction, u16 Lever, u16 Lever_Data);
-void Lever_Attack_SP(PLW* wk, s16 Reaction, u16 Lever, u16 Lever_Data, s16 Time);
+void Lever_Attack_SP(PLW* wk, const Lever_Attack_SP_Args* p);
 s32 Setup_Guard_Lever(PLW* wk, u16 Lever);
 s32 Check_Start_Lever_Attack(PLW* wk, u16 Lever, u16 Lever_Data); // extra args
 void SA_Term(PLW* wk, const SA_Term_Args* p);

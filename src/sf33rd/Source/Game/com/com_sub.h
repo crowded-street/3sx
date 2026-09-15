@@ -23,7 +23,16 @@ void Normal_Attack(PLW* wk, s16 Reaction, u16 Lever_Data);
 void Normal_Attack_SP(PLW* wk, s16 Reaction, u16 Lever_Data, s16 Time);
 void Adjust_Attack(PLW* wk, s16 Reaction, u16 Lever_Data);
 void Lever_Attack(PLW* wk, s16 Reaction, u16 Lever, u16 Lever_Data);
-void Lever_Attack_SP(PLW* wk, s16 Reaction, u16 Lever, u16 Lever_Data, s16 Time);
+/* The four values the timed lever attack is driven by. The field order is the
+ * parameter order it used to take. */
+typedef struct {
+    s16 Reaction;
+    u16 Lever;
+    u16 Lever_Data;
+    s16 Time;
+} Lever_Attack_SP_Args;
+
+void Lever_Attack_SP(PLW* wk, const Lever_Attack_SP_Args* p);
 s32 Setup_Guard_Lever(PLW* wk, u16 Lever);
 s32 Check_Start_Lever_Attack(PLW* wk, u16 Lever, u16 Lever_Data);
 /* The four values SA_Term is driven by: one super art menu per kind of art,
