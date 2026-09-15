@@ -145,10 +145,27 @@ static void SA_Term_Player_Case(PLW* wk, s16* xx, u16 SA2, u16 Term_No) {
     }
 }
 
+/* The passive gate SA_Term opens with. Check_Passive mutates state, so it must
+ * stay behind the Passive_Flag test exactly as it did. */
+static s32 SA_Term_Passive_Taken(PLW* wk) {
+    return ((Passive_Flag[wk->wu.id]) == 0) && (Check_Passive(wk) != 0);
+}
+
+/* Non-zero when this character has no super art to give: the slot is empty, or
+ * it is mid-metamorphose. */
+static s32 SA_Not_Available(PLW* wk, s16* xx) {
+    return (xx[plw[wk->wu.id].sa->kind_of_arts] == -1) || plw[wk->wu.id].metamorphose;
+}
+
+/* Non-zero when neither the super art gauge nor the meter-pool flag is up. */
+static s32 SA_Gauge_Empty(PLW* wk) {
+    return !((plw[wk->wu.id].sa->ok) || (plw[wk->wu.id].sa->mp));
+}
+
 void SA_Term(PLW* wk, u16 SA0, u16 SA1, u16 SA2, u16 Term_No) {
     s16 xx[3];
 
-    if (((Passive_Flag[wk->wu.id]) == 0) && (Check_Passive(wk) != 0)) {
+    if (SA_Term_Passive_Taken(wk)) {
         return;
     }
 
@@ -157,12 +174,12 @@ void SA_Term(PLW* wk, u16 SA0, u16 SA1, u16 SA2, u16 Term_No) {
     xx[2] = SA2;
     Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
 
-    if ((xx[plw[wk->wu.id].sa->kind_of_arts] == -1) || plw[wk->wu.id].metamorphose) {
+    if (SA_Not_Available(wk, xx)) {
         CP_Index[wk->wu.id][0]++;
         return;
     }
 
-    if (!((plw[wk->wu.id].sa->ok) || (plw[wk->wu.id].sa->mp))) {
+    if (SA_Gauge_Empty(wk)) {
         CP_Index[wk->wu.id][0]++;
         return;
     }
