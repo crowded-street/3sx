@@ -273,7 +273,7 @@ void Pattern02_0018(PLW* wk) {
 void Pattern02_0019(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        EM_Term(wk, 0x88, -1, 0, 2, 5);
+        EM_Term(wk, &(EM_Term_Params){0x88, -1, 0, 2, 5});
         break;
 
     case 1:
@@ -705,7 +705,7 @@ void Pattern02_0047(PLW* wk) {
 void Pattern02_0048(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        EM_Term(wk, 0x50, -1, 5, 2, 0);
+        EM_Term(wk, &(EM_Term_Params){0x50, -1, 5, 2, 0});
         break;
 
     case 1:

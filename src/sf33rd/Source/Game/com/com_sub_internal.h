@@ -103,7 +103,7 @@ s32 Check_Wait_Term(PLW* wk, s16 Option);
 void Wait_Attack_Complete(PLW* wk, u16 Lever_Data, s16 Option);
 s32 Check_Exit_Guard(PLW* wk, s16 Option);
 void Short_Range_Attack(PLW* wk, s16 Reaction, u16 Lever_Data, s16 Next_Action, s16 Next_Menu);
-void EM_Term(PLW* wk, s16 Range_X, s16 Range_Y, s16 Exit_Number, s16 Next_Action, s16 Next_Menu);
+void EM_Term(PLW* wk, const EM_Term_Params* p);
 void SHELL_Term(PLW* wk, s16 Next_Command, s16 Exit_Number, s16 Next_Action, s16 Next_Menu, s16 unused); // unused arg
 s32 Check_Term_Sub_Air(PLW* wk, s16 Distance, s16 Range);
 s32 Check_Term_Sub(PLW* wk, s16 Distance, s16 Range);

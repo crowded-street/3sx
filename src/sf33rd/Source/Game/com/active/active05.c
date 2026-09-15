@@ -277,7 +277,7 @@ void Pattern05_0018(PLW* wk) {
 void Pattern05_0019(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        EM_Term(wk, 0x88, -1, 0, 2, 5);
+        EM_Term(wk, &(EM_Term_Params){0x88, -1, 0, 2, 5});
         break;
 
     case 1:

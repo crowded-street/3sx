@@ -43,8 +43,9 @@ s8 Rnd;
 /* Where a Term hands control when it completes.
  *
  * These groupings exist so the internal helpers stay within the argument
- * threshold. The public Term signatures are deliberately unchanged - EM_Term
- * alone is called from over 800 sites in the pattern scripts. */
+ * threshold. The public Term signatures now take parameter structs of their own
+ * (see com_sub.h), which is what let the call sites - over 800 of them for
+ * EM_Term alone - keep passing the same argument list. */
 typedef struct {
     s16 action;
     s16 menu;
@@ -625,15 +626,15 @@ static void EM_Term_Dispatch(PLW* wk, const EM_Term_Args* a) {
     }
 }
 
-void EM_Term(PLW* wk, s16 Range_X, s16 Range_Y, s16 Exit_Number, s16 Next_Action, s16 Next_Menu) {
+void EM_Term(PLW* wk, const EM_Term_Params* p) {
     EM_Term_Args a;
 
     a.em = (WORK*)wk->wu.target_adrs;
-    a.range_x = Range_X;
-    a.range_y = Range_Y;
-    a.exit_number = Exit_Number;
-    a.next.action = Next_Action;
-    a.next.menu = Next_Menu;
+    a.range_x = p->Range_X;
+    a.range_y = p->Range_Y;
+    a.exit_number = p->Exit_Number;
+    a.next.action = p->Next_Action;
+    a.next.menu = p->Next_Menu;
 
     Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
 

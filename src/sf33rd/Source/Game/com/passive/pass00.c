@@ -57,7 +57,7 @@ void Passive00_0002(PLW* wk) {
         break;
 
     case 3:
-        EM_Term(wk, 0x7FFF, -1, 1, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){0x7FFF, -1, 1, 1, -1});
         break;
 
     default:
@@ -113,7 +113,7 @@ void Passive00_0006(PLW* wk) {
         break;
 
     case 1:
-        EM_Term(wk, 0x7FFF, -1, 1, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){0x7FFF, -1, 1, 1, -1});
         break;
 
     default:
@@ -157,7 +157,7 @@ void Passive00_0008(PLW* wk) {
 void Passive00_0009(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        EM_Term(wk, -1, 0x38, 7, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, 0x38, 7, 1, -1});
         break;
 
     case 1:
@@ -197,7 +197,7 @@ void Passive00_0011(PLW* wk) {
 void Passive00_0012(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        EM_Term(wk, -0x7F80, 0, 0, 2, 0);
+        EM_Term(wk, &(EM_Term_Params){-0x7F80, 0, 0, 2, 0});
         break;
 
     case 1:
@@ -493,7 +493,7 @@ void Passive00_0027(PLW* wk) {
         break;
 
     case 1:
-        EM_Term(wk, -1, -0x7FA0, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FA0, 6, 1, -1});
         break;
 
     case 2:
@@ -541,7 +541,7 @@ void Passive00_0029(PLW* wk) {
 void Passive00_0030(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        EM_Term(wk, -0x7F80, -0x7FD0, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-0x7F80, -0x7FD0, 6, 1, -1});
         break;
 
     case 1:
@@ -633,7 +633,7 @@ void Passive00_0035(PLW* wk) {
 void Passive00_0036(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        EM_Term(wk, -1, -0x7FE8, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FE8, 6, 1, -1});
         break;
 
     case 1:
@@ -665,7 +665,7 @@ void Passive00_0037(PLW* wk) {
         break;
 
     case 1:
-        EM_Term(wk, -1, -0x7FFE, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FFE, 6, 1, -1});
         break;
 
     case 2:
@@ -681,7 +681,7 @@ void Passive00_0037(PLW* wk) {
 void Passive00_0038(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        EM_Term(wk, -1, -0x7FFE, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FFE, 6, 1, -1});
         break;
 
     case 1:
@@ -701,7 +701,7 @@ void Passive00_0039(PLW* wk) {
         break;
 
     case 1:
-        EM_Term(wk, -1, -0x7FD0, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FD0, 6, 1, -1});
         break;
 
     case 2:
@@ -721,7 +721,7 @@ void Passive00_0040(PLW* wk) {
         break;
 
     case 1:
-        EM_Term(wk, -0x7F80, -0x7FB0, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-0x7F80, -0x7FB0, 6, 1, -1});
         break;
 
     case 2:
@@ -745,7 +745,7 @@ void Passive00_0040(PLW* wk) {
 void Passive00_0041(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        EM_Term(wk, -1, -0x7FF0, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FF0, 6, 1, -1});
         break;
 
     case 1:
@@ -781,7 +781,7 @@ void Passive00_0043(PLW* wk) {
         break;
 
     case 1:
-        EM_Term(wk, -0x7F80, -0x7FB0, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-0x7F80, -0x7FB0, 6, 1, -1});
         break;
 
     case 2:
@@ -797,7 +797,7 @@ void Passive00_0043(PLW* wk) {
 void Passive00_0044(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        EM_Term(wk, -1, -0x7FC0, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FC0, 6, 1, -1});
         break;
 
     case 1:
@@ -817,7 +817,7 @@ void Passive00_0045(PLW* wk) {
         break;
 
     case 1:
-        EM_Term(wk, -1, -0x7F90, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7F90, 6, 1, -1});
         break;
 
     case 2:
@@ -861,7 +861,7 @@ void Passive00_0047(PLW* wk) {
 void Passive00_0048(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        EM_Term(wk, -0x7F80, -0x7FC0, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-0x7F80, -0x7FC0, 6, 1, -1});
         break;
 
     case 1:
@@ -1513,7 +1513,7 @@ void Passive00_0086(PLW* wk) {
         break;
 
     case 2:
-        EM_Term(wk, -1, -0x7FD0, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FD0, 6, 1, -1});
         break;
 
     case 3:
@@ -1545,7 +1545,7 @@ void Passive00_0087(PLW* wk) {
         break;
 
     case 2:
-        EM_Term(wk, -1, -0x7FD0, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FD0, 6, 1, -1});
         break;
 
     case 3:
@@ -1645,7 +1645,7 @@ void Passive00_0091(PLW* wk) {
 void Passive00_0092(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        EM_Term(wk, -1, -0x7FB8, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FB8, 6, 1, -1});
         break;
 
     case 1:
@@ -1705,7 +1705,7 @@ void Passive00_0095(PLW* wk) {
 void Passive00_0096(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        EM_Term(wk, -1, -0x7FF0, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FF0, 6, 1, -1});
         break;
 
     case 1:
@@ -1725,7 +1725,7 @@ void Passive00_0097(PLW* wk) {
         break;
 
     case 1:
-        EM_Term(wk, -1, -0x7FFE, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FFE, 6, 1, -1});
         break;
 
     case 2:
@@ -1745,7 +1745,7 @@ void Passive00_0098(PLW* wk) {
         break;
 
     case 1:
-        EM_Term(wk, -1, -0x7FF0, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FF0, 6, 1, -1});
         break;
 
     case 2:
@@ -1925,7 +1925,7 @@ void Passive00_0107(PLW* wk) {
         break;
 
     case 1:
-        EM_Term(wk, -1, -0x7FD0, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FD0, 6, 1, -1});
         break;
 
     case 2:
@@ -1961,7 +1961,7 @@ void Passive00_0109(PLW* wk) {
         break;
 
     case 1:
-        EM_Term(wk, -1, -0x7F90, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7F90, 6, 1, -1});
         break;
 
     case 2:
@@ -1997,7 +1997,7 @@ void Passive00_0111(PLW* wk) {
         break;
 
     case 1:
-        EM_Term(wk, -1, -0x7FA0, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FA0, 6, 1, -1});
         break;
 
     case 2:
@@ -2017,7 +2017,7 @@ void Passive00_0112(PLW* wk) {
         break;
 
     case 1:
-        EM_Term(wk, -1, -0x7FB0, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FB0, 6, 1, -1});
         break;
 
     case 2:
@@ -2045,7 +2045,7 @@ void Passive00_0113(PLW* wk) {
         break;
 
     case 2:
-        EM_Term(wk, -1, -0x7FA8, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FA8, 6, 1, -1});
         break;
 
     case 3:
@@ -2073,7 +2073,7 @@ void Passive00_0114(PLW* wk) {
         break;
 
     case 1:
-        EM_Term(wk, -1, 0x30, 7, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, 0x30, 7, 1, -1});
         break;
 
     case 2:
@@ -2097,7 +2097,7 @@ void Passive00_0115(PLW* wk) {
         break;
 
     case 1:
-        EM_Term(wk, -1, -0x7FB0, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FB0, 6, 1, -1});
         break;
 
     case 2:
@@ -2197,7 +2197,7 @@ void Passive00_0121(PLW* wk) {
 void Passive00_0122(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        EM_Term(wk, -1, 0x30, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, 0x30, 6, 1, -1});
         break;
 
     case 1:
@@ -2217,7 +2217,7 @@ void Passive00_0123(PLW* wk) {
         break;
 
     case 1:
-        EM_Term(wk, -1, 0x30, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, 0x30, 6, 1, -1});
         break;
 
     case 2:
@@ -2245,7 +2245,7 @@ void Passive00_0124(PLW* wk) {
         break;
 
     case 1:
-        EM_Term(wk, -1, 0x30, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, 0x30, 6, 1, -1});
         break;
 
     case 2:
@@ -2321,7 +2321,7 @@ void Passive00_0127(PLW* wk) {
 void Passive00_0128(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        EM_Term(wk, -0x7F80, -0x7FB0, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-0x7F80, -0x7FB0, 6, 1, -1});
         break;
 
     case 1:
@@ -2369,7 +2369,7 @@ void Passive00_0130(PLW* wk) {
         break;
 
     case 2:
-        EM_Term(wk, -1, -0x7FB0, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FB0, 6, 1, -1});
         break;
 
     case 3:
@@ -2573,7 +2573,7 @@ void Passive00_0143(PLW* wk) {
 void Passive00_0144(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        EM_Term(wk, -0x7F80, -1, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-0x7F80, -1, 6, 1, -1});
         break;
 
     case 1:
@@ -2589,7 +2589,7 @@ void Passive00_0144(PLW* wk) {
 void Passive00_0145(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        EM_Term(wk, -0x7F90, -1, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-0x7F90, -1, 6, 1, -1});
         break;
 
     case 1:
@@ -2609,7 +2609,7 @@ void Passive00_0145(PLW* wk) {
 void Passive00_0146(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        EM_Term(wk, -0x7F70, -1, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-0x7F70, -1, 6, 1, -1});
         break;
 
     case 1:
@@ -2625,7 +2625,7 @@ void Passive00_0146(PLW* wk) {
 void Passive00_0147(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        EM_Term(wk, -0x7F90, -1, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-0x7F90, -1, 6, 1, -1});
         break;
 
     case 1:
@@ -2669,7 +2669,7 @@ void Passive00_0149(PLW* wk) {
 void Passive00_0150(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        EM_Term(wk, -0x7F90, -1, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-0x7F90, -1, 6, 1, -1});
         break;
 
     case 1:
@@ -2685,7 +2685,7 @@ void Passive00_0150(PLW* wk) {
 void Passive00_0151(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        EM_Term(wk, -0x7F90, -1, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-0x7F90, -1, 6, 1, -1});
         break;
 
     case 1:

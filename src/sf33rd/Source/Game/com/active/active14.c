@@ -897,7 +897,7 @@ void Pattern14_0052(PLW* wk) {
         break;
 
     case 1:
-        EM_Term(wk, 0x80d0, -1, 5, 2, 0);
+        EM_Term(wk, &(EM_Term_Params){0x80d0, -1, 5, 2, 0});
         break;
 
     case 2:
@@ -2253,7 +2253,7 @@ void Pattern14_0113(PLW* wk) {
         break;
 
     case 2:
-        EM_Term(wk, -0x7FB0, -1, 5, 6, 1);
+        EM_Term(wk, &(EM_Term_Params){-0x7FB0, -1, 5, 6, 1});
         break;
 
     case 3:
@@ -2281,7 +2281,7 @@ void Pattern14_0114(PLW* wk) {
         break;
 
     case 3:
-        EM_Term(wk, -0x7FB0, -1, 5, 6, 1);
+        EM_Term(wk, &(EM_Term_Params){-0x7FB0, -1, 5, 6, 1});
         break;
 
     case 4:
@@ -2309,7 +2309,7 @@ void Pattern14_0115(PLW* wk) {
         break;
 
     case 3:
-        EM_Term(wk, -0x7FB0, -1, 5, 6, 1);
+        EM_Term(wk, &(EM_Term_Params){-0x7FB0, -1, 5, 6, 1});
         break;
 
     case 4:
@@ -2337,7 +2337,7 @@ void Pattern14_0116(PLW* wk) {
         break;
 
     case 3:
-        EM_Term(wk, -0x7FB0, -1, 5, 6, 1);
+        EM_Term(wk, &(EM_Term_Params){-0x7FB0, -1, 5, 6, 1});
         break;
 
     case 4:
@@ -2365,7 +2365,7 @@ void Pattern14_0117(PLW* wk) {
         break;
 
     case 3:
-        EM_Term(wk, -0x7FB0, -1, 5, 6, 1);
+        EM_Term(wk, &(EM_Term_Params){-0x7FB0, -1, 5, 6, 1});
         break;
 
     case 4:
@@ -2389,7 +2389,7 @@ void Pattern14_0118(PLW* wk) {
         break;
 
     case 2:
-        EM_Term(wk, -0x7FB0, -1, 5, 6, 1);
+        EM_Term(wk, &(EM_Term_Params){-0x7FB0, -1, 5, 6, 1});
         break;
 
     case 3:
@@ -2413,7 +2413,7 @@ void Pattern14_0119(PLW* wk) {
         break;
 
     case 2:
-        EM_Term(wk, -0x7FB0, -1, 5, 6, 1);
+        EM_Term(wk, &(EM_Term_Params){-0x7FB0, -1, 5, 6, 1});
         break;
 
     case 3:
@@ -3005,7 +3005,7 @@ void Pattern14_0150(PLW* wk) {
         break;
 
     case 1:
-        EM_Term(wk, -0x7F30, -1, 5, 2, 0);
+        EM_Term(wk, &(EM_Term_Params){-0x7F30, -1, 5, 2, 0});
         break;
 
     case 2:

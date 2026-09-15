@@ -805,7 +805,7 @@ void Pattern17_0051(PLW* wk) {
 void Pattern17_0052(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        EM_Term(wk, -1, -0x7FD0, 5, 2, 0);
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FD0, 5, 2, 0});
         break;
 
     case 1:
@@ -825,7 +825,7 @@ void Pattern17_0052(PLW* wk) {
 void Pattern17_0053(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        EM_Term(wk, -1, -0x7FD0, 5, 2, 0);
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FD0, 5, 2, 0});
         break;
 
     case 1:
@@ -1165,7 +1165,7 @@ void Pattern17_0073(PLW* wk) {
         break;
 
     case 4:
-        EM_Term(wk, -1, -0x7FD0, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FD0, 6, 1, -1});
         break;
 
     case 5:
@@ -1193,7 +1193,7 @@ void Pattern17_0074(PLW* wk) {
         break;
 
     case 3:
-        EM_Term(wk, -1, -0x7FD0, 6, 1, -1);
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FD0, 6, 1, -1});
         break;
 
     case 4:

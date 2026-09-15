@@ -41,7 +41,17 @@ void Wait_Lie(PLW* wk, u16 Lever_Data);
 void Wait_Get_Up(PLW* wk, u16 Lever_Data, s16 Option);
 void Wait_Attack_Complete(PLW* wk, u16 Lever_Data, s16 Option);
 void Short_Range_Attack(PLW* wk, s16 Reaction, u16 Lever_Data, s16 Next_Action, s16 Next_Menu);
-void EM_Term(PLW* wk, s16 Range_X, s16 Range_Y, s16 Exit_Number, s16 Next_Action, s16 Next_Menu);
+/* The five values EM_Term is driven by. The field order is the parameter order
+ * it used to take. */
+typedef struct {
+    s16 Range_X;
+    s16 Range_Y;
+    s16 Exit_Number;
+    s16 Next_Action;
+    s16 Next_Menu;
+} EM_Term_Params;
+
+void EM_Term(PLW* wk, const EM_Term_Params* p);
 void Jump(PLW* wk, s16 Time);
 void Hi_Jump(PLW* wk, s16 Pl_Number, s16 Jump_Dir);
 /* The four values the plain jump and hi-jump attacks are driven by. The field
