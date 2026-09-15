@@ -785,7 +785,7 @@ void Pattern09_0049(PLW* wk) {
 void Pattern09_0050(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Hi_Jump_Attack(wk, 8, 0xA, 0x400, 2);
+        Hi_Jump_Attack(wk, &(Jump_Attack_Args){8, 0xA, 0x400, 2});
         break;
 
     default:

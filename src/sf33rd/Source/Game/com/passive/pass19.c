@@ -505,7 +505,7 @@ void Passive19_0027(PLW* wk) {
 void Passive19_0028(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack(wk, 8, 10, 0x400, 1);
+        Jump_Attack(wk, &(Jump_Attack_Args){8, 10, 0x400, 1});
         break;
 
     default:
@@ -729,7 +729,7 @@ void Passive19_0041(PLW* wk) {
 void Passive19_0042(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack(wk, 8, 0xC, 0x400, 2);
+        Jump_Attack(wk, &(Jump_Attack_Args){8, 0xC, 0x400, 2});
         break;
 
     default:
@@ -1129,7 +1129,7 @@ void Passive19_0068(PLW* wk) {
 void Passive19_0069(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack(wk, 0xC, 0xC, 0x400, 0);
+        Jump_Attack(wk, &(Jump_Attack_Args){0xC, 0xC, 0x400, 0});
         break;
 
     default:
@@ -1397,7 +1397,7 @@ void Passive19_0083(PLW* wk) {
 void Passive19_0084(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Hi_Jump_Attack(wk, 0xC, 0xC, 0x402, 0);
+        Hi_Jump_Attack(wk, &(Jump_Attack_Args){0xC, 0xC, 0x402, 0});
         break;
 
     case 1:
@@ -1977,7 +1977,7 @@ void Passive19_0116(PLW* wk) {
 void Passive19_0117(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack(wk, 8, 0xC, 0x100, 0);
+        Jump_Attack(wk, &(Jump_Attack_Args){8, 0xC, 0x100, 0});
         break;
 
     default:
@@ -2281,7 +2281,7 @@ void Passive19_0138(PLW* wk) {
 void Passive19_0139(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack(wk, 0xC, 0xD, 0x400, 2);
+        Jump_Attack(wk, &(Jump_Attack_Args){0xC, 0xD, 0x400, 2});
         break;
 
     default:

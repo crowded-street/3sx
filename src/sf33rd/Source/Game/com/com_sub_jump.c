@@ -409,17 +409,17 @@ static void Jump_Attack_Land(PLW* wk, s16 Reaction) {
     Check_Landed(wk, Reaction & 0xFFF);
 }
 
-void Jump_Attack(PLW* wk, s16 Reaction, s16 Time_Data, u16 Lever_Data, s16 Jump_Dir) {
+void Jump_Attack(PLW* wk, const Jump_Attack_Args* a) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
-        if (!Jump_Attack_Begin(wk, Reaction, Time_Data)) {
+        if (!Jump_Attack_Begin(wk, a->Reaction, a->Time_Data)) {
             break;
         }
         /* fallthrough */
 
     case 1:
-        Jump_Attack_Launch(wk, Time_Data, Jump_Dir);
+        Jump_Attack_Launch(wk, a->Time_Data, a->Jump_Dir);
         break;
 
     case 2:
@@ -427,11 +427,11 @@ void Jump_Attack(PLW* wk, s16 Reaction, s16 Time_Data, u16 Lever_Data, s16 Jump_
         break;
 
     case 3:
-        Jump_Attack_Fire(wk, Lever_Data);
+        Jump_Attack_Fire(wk, a->Lever_Data);
         break;
 
     default:
-        Jump_Attack_Land(wk, Reaction);
+        Jump_Attack_Land(wk, a->Reaction);
         break;
     }
 
@@ -763,15 +763,15 @@ static void Hi_Jump_Attack_Land(PLW* wk, s16 Reaction) {
 }
 
 /* Returns non-zero when the trailing lever merge must be skipped. */
-static s32 Hi_Jump_Attack_Step(PLW* wk, s16 Reaction, s16 Time_Data, u16 Lever_Data, s16 Jump_Dir) {
+static s32 Hi_Jump_Attack_Step(PLW* wk, const Jump_Attack_Args* a) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
-        Hi_Jump_Attack_Start(wk, Reaction, Time_Data);
+        Hi_Jump_Attack_Start(wk, a->Reaction, a->Time_Data);
         break;
 
     case 1:
-        Hi_Jump_Attack_Launch(wk, Jump_Dir);
+        Hi_Jump_Attack_Launch(wk, a->Jump_Dir);
         break;
 
     case 2:
@@ -782,7 +782,7 @@ static s32 Hi_Jump_Attack_Step(PLW* wk, s16 Reaction, s16 Time_Data, u16 Lever_D
         break;
 
     case 4:
-        Hi_Jump_Attack_Fire(wk, Reaction, Lever_Data);
+        Hi_Jump_Attack_Fire(wk, a->Reaction, a->Lever_Data);
         break;
 
     case 6:
@@ -790,15 +790,15 @@ static s32 Hi_Jump_Attack_Step(PLW* wk, s16 Reaction, s16 Time_Data, u16 Lever_D
         break;
 
     default:
-        Hi_Jump_Attack_Land(wk, Reaction);
+        Hi_Jump_Attack_Land(wk, a->Reaction);
         break;
     }
 
     return 0;
 }
 
-void Hi_Jump_Attack(PLW* wk, s16 Reaction, s16 Time_Data, u16 Lever_Data, s16 Jump_Dir) {
-    if (Hi_Jump_Attack_Step(wk, Reaction, Time_Data, Lever_Data, Jump_Dir) != 0) {
+void Hi_Jump_Attack(PLW* wk, const Jump_Attack_Args* a) {
+    if (Hi_Jump_Attack_Step(wk, a) != 0) {
         return;
     }
 

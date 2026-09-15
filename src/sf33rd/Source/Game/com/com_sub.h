@@ -44,7 +44,16 @@ void Short_Range_Attack(PLW* wk, s16 Reaction, u16 Lever_Data, s16 Next_Action, 
 void EM_Term(PLW* wk, s16 Range_X, s16 Range_Y, s16 Exit_Number, s16 Next_Action, s16 Next_Menu);
 void Jump(PLW* wk, s16 Time);
 void Hi_Jump(PLW* wk, s16 Pl_Number, s16 Jump_Dir);
-void Jump_Attack(PLW* wk, s16 Reaction, s16 Time_Data, u16 Lever_Data, s16 Jump_Dir);
+/* The four values the plain jump and hi-jump attacks are driven by. The field
+ * order is the parameter order they used to take. */
+typedef struct {
+    s16 Reaction;
+    s16 Time_Data;
+    u16 Lever_Data;
+    s16 Jump_Dir;
+} Jump_Attack_Args;
+
+void Jump_Attack(PLW* wk, const Jump_Attack_Args* a);
 /* The eight values the jump attack Term is driven by. The field order is the
  * parameter order it used to take. It differs from Hi_Jump_Term_Args only in
  * the width of J_Lever_Data, which is signed here, so the two stay separate. */
@@ -60,7 +69,7 @@ typedef struct {
 } Jump_Term_Args;
 
 void Jump_Attack_Term(PLW* wk, const Jump_Term_Args* a);
-void Hi_Jump_Attack(PLW* wk, s16 Reaction, s16 Time_Data, u16 Lever_Data, s16 Jump_Dir);
+void Hi_Jump_Attack(PLW* wk, const Jump_Attack_Args* a);
 /* The eight values the hi-jump attack Term is driven by. The field order is the
  * parameter order it used to take. */
 typedef struct {

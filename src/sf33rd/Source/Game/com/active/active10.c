@@ -293,7 +293,7 @@ void Pattern10_0017(PLW* wk) {
 void Pattern10_0018(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack(wk, 8, 0xC, 0x8400, 2);
+        Jump_Attack(wk, &(Jump_Attack_Args){8, 0xC, 0x8400, 2});
         break;
 
     default:

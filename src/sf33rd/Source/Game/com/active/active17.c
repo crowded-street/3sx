@@ -269,7 +269,7 @@ void Pattern17_0017(PLW* wk) {
 void Pattern17_0018(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack(wk, 8, 8, 0x402, 0);
+        Jump_Attack(wk, &(Jump_Attack_Args){8, 8, 0x402, 0});
         break;
 
     default:
@@ -321,7 +321,7 @@ void Pattern17_0021(PLW* wk) {
 void Pattern17_0022(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack(wk, 8, 0xF, 0x40, 0);
+        Jump_Attack(wk, &(Jump_Attack_Args){8, 0xF, 0x40, 0});
         break;
 
     default:
