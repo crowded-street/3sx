@@ -1177,7 +1177,7 @@ static s32 Setup_Lv_Scan(const u16* table, s16 count) {
 /* The level adjustment shared by every Setup_/Select_ helper below: a forced
  * CPU run pins the level to that table's top entry, and the weaker player is
  * always handed level 2. Only the cap differs between callers. */
-static s8 Adjust_Level(PLW* wk, s8 level, s8 cap) {
+s8 Adjust_Level(PLW* wk, s8 level, s8 cap) {
     if (Break_Into_CPU == 2) {
         level = cap;
     }

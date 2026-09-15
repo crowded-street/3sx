@@ -242,64 +242,49 @@ void Check_First_Menu(PLW* wk) {
     }
 }
 
+/* The super-art active tables, chosen by area. The original wrote the last arm
+ * as a switch default; it is the same selection. */
+static s16 Select_SA_Active_Pattern(PLW* wk, s16 pl_id) {
+    switch (Area_Number[wk->wu.id]) {
+    case 0:
+        return SA_Active_A_Unit_Data[pl_id - 1][Lv][Rnd];
+    case 1:
+        return SA_Active_B_Unit_Data[pl_id - 1][Lv][Rnd];
+    case 2:
+        return SA_Active_C_Unit_Data[pl_id - 1][Lv][Rnd];
+    }
+    return SA_Active_D_Unit_Data[pl_id - 1][Lv][Rnd];
+}
+
+/* The ordinary active tables. Indexed by player_number rather than the super
+ * art id, so this is not shared with the SA variant. */
+static s16 Select_Normal_Active_Pattern(PLW* wk) {
+    switch (Area_Number[wk->wu.id]) {
+    case 0:
+        return Active_A_Unit_Data[wk->player_number][Lv][Rnd];
+    case 1:
+        return Active_B_Unit_Data[wk->player_number][Lv][Rnd];
+    case 2:
+        return Active_C_Unit_Data[wk->player_number][Lv][Rnd];
+    }
+    return Active_D_Unit_Data[wk->player_number][Lv][Rnd];
+}
+
 void Select_Active(PLW* wk) {
     s16 pl_id;
 
-    Lv = Setup_Lv08(0);
-    if (Break_Into_CPU == 2) {
-        Lv = 7;
-    }
-    if ((Demo_Flag == 0) && (Weak_PL == wk->wu.id)) {
-        Lv = 2;
-    }
-
+    Lv = Adjust_Level(wk, Setup_Lv08(0), 7);
     Lv = emLevelRemake(Lv, 8, 0);
 
     Rnd = (u8)random_32_ex_com();
 
     if (Check_SA_Active(wk, &pl_id) != 0) {
-        Lv = Setup_Lv04(0);
-        if (Break_Into_CPU == 2) {
-            Lv = 3;
-        }
-        if ((Demo_Flag == 0) && (Weak_PL == wk->wu.id)) {
-            Lv = 2;
-        }
-
+        Lv = Adjust_Level(wk, Setup_Lv04(0), 3);
         Lv = emLevelRemake(Lv, 4, 0);
 
-        switch (Area_Number[wk->wu.id]) {
-        case 0:
-            Pattern_Index[wk->wu.id] = SA_Active_A_Unit_Data[pl_id - 1][Lv][Rnd];
-            break;
-        case 1:
-            Pattern_Index[wk->wu.id] = SA_Active_B_Unit_Data[pl_id - 1][Lv][Rnd];
-            break;
-        case 2:
-            Pattern_Index[wk->wu.id] = SA_Active_C_Unit_Data[pl_id - 1][Lv][Rnd];
-            break;
-        default:
-            Pattern_Index[wk->wu.id] = SA_Active_D_Unit_Data[pl_id - 1][Lv][Rnd];
-            break;
-        }
+        Pattern_Index[wk->wu.id] = Select_SA_Active_Pattern(wk, pl_id);
     } else {
-        switch (Area_Number[wk->wu.id]) {
-        case 0:
-            Pattern_Index[wk->wu.id] = Active_A_Unit_Data[wk->player_number][Lv][Rnd];
-            break;
-
-        case 1:
-            Pattern_Index[wk->wu.id] = Active_B_Unit_Data[wk->player_number][Lv][Rnd];
-            break;
-
-        case 2:
-            Pattern_Index[wk->wu.id] = Active_C_Unit_Data[wk->player_number][Lv][Rnd];
-            break;
-
-        default:
-            Pattern_Index[wk->wu.id] = Active_D_Unit_Data[wk->player_number][Lv][Rnd];
-            break;
-        }
+        Pattern_Index[wk->wu.id] = Select_Normal_Active_Pattern(wk);
     }
 
 #if DEBUG
@@ -519,6 +504,24 @@ s32 Check_Dramatic(PLW* wk, s16 PL_id) {
 
 const s8 PL_Status[0xA] = { 1, 0, 0, 0, 1, 1, 0, 0, 0, 0 };
 
+/* The pattern jump taken when the character is blown off their feet. */
+static void Next_Be_Blown_Off(PLW* wk) {
+    *CP_No[wk->wu.id] = 0xE;
+    CP_No[wk->wu.id][1] = 0;
+    CP_No[wk->wu.id][2] = 0;
+    CP_No[wk->wu.id][3] = 0;
+}
+
+/* Non-zero once a passive or flip pattern already holds the character. */
+static s32 Check_Passive_Locked(PLW* wk) {
+    return (Passive_Flag[wk->wu.id]) || (Flip_Flag[wk->wu.id]);
+}
+
+/* Run the passive selection; non-zero when it committed to one. */
+static s32 Try_Select_Passive(PLW* wk) {
+    return Select_Passive(wk) != -1;
+}
+
 s32 Check_Passive(PLW* wk) {
     WORK* em;
 
@@ -529,22 +532,18 @@ s32 Check_Passive(PLW* wk) {
     em = (WORK*)wk->wu.target_adrs;
 
     if (Check_Blow_Off(wk, em, 0) != 0) {
-        *CP_No[wk->wu.id] = 0xE;
-        CP_No[wk->wu.id][1] = 0;
-        CP_No[wk->wu.id][2] = 0;
-        CP_No[wk->wu.id][3] = 0;
+        Next_Be_Blown_Off(wk);
         return -1;
     }
-    if (Check_Thrown(wk, em) != 0) {
-        if (Select_Passive(wk) != -1) {
-            return 1;
-        }
+
+    if ((Check_Thrown(wk, em) != 0) && Try_Select_Passive(wk)) {
+        return 1;
     }
 
     if (Check_Shell(wk) != 0) {
         return 1;
     }
-    if ((Passive_Flag[wk->wu.id]) || (Flip_Flag[wk->wu.id])) {
+    if (Check_Passive_Locked(wk)) {
         return Check_Guard(wk);
     }
     if (Check_Lie(wk) == 1) {
@@ -557,16 +556,14 @@ s32 Check_Passive(PLW* wk) {
 
     Passive_Mode = 4;
 
-    if (Ck_Passive_Term(wk) != 0) {
-        if (Select_Passive(wk) != -1) {
-            return 1;
-        }
+    if ((Ck_Passive_Term(wk) != 0) && Try_Select_Passive(wk)) {
+        return 1;
     }
 
     if (Check_Guard(wk) != 0) {
         return 1;
     }
-    if ((Passive_Flag[wk->wu.id]) || (Flip_Flag[wk->wu.id])) {
+    if (Check_Passive_Locked(wk)) {
         return 0;
     }
 

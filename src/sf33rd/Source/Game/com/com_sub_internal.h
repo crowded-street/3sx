@@ -8,6 +8,10 @@
  * that also use it moved to com_sub_command.c. */
 s32 Check_Motion_Ended(PLW* wk);
 
+/* Defined in com_sub.c. Pins the level to a table's top entry under a forced
+ * CPU run and to 2 for the weaker player; Select_Active uses it twice. */
+s8 Adjust_Level(PLW* wk, s8 level, s8 cap);
+
 /* Defined in com_sub_jump.c; the airborne attack Terms in com_sub_air_term.c
  * run the same landing step. */
 void Landing_Tech_Step(PLW* wk);
