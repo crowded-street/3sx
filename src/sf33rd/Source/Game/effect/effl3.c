@@ -61,38 +61,39 @@ void effect_L3_move(WORK_Other* ewk) {
     }
 }
 
+static void initialize_effl3_0000(WORK_Other* ewk) {
+    ewk->wu.routine_no[2]++;
+    ewk->wu.disp_flag = 1;
+    set_char_move_init(&ewk->wu, 0, 2);
+
+    if (ewk->wu.rl_flag) {
+        ewk->wu.mvxy.a[0].sp = 0x28000;
+    } else {
+        ewk->wu.mvxy.a[0].sp = -0x28000;
+    }
+}
+
+static void advance_effl3_0000(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+    add_x_sub(&ewk->wu);
+
+    if (ewk->wu.rl_flag && ewk->wu.xyz[0].disp.pos > ewk->wu.old_rno[0]) {
+        ewk->wu.routine_no[2]++;
+        set_char_move_init(&ewk->wu, 0, 11);
+    } else if (!ewk->wu.rl_flag && ewk->wu.xyz[0].disp.pos < ewk->wu.old_rno[0]) {
+        ewk->wu.routine_no[2]++;
+        set_char_move_init(&ewk->wu, 0, 11);
+    }
+}
+
 void effl3_0000(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[2]) {
     case 0:
-        ewk->wu.routine_no[2]++;
-        ewk->wu.disp_flag = 1;
-        set_char_move_init(&ewk->wu, 0, 2);
-
-        if (ewk->wu.rl_flag) {
-            ewk->wu.mvxy.a[0].sp = 0x28000;
-        } else {
-            ewk->wu.mvxy.a[0].sp = -0x28000;
-        }
-
+        initialize_effl3_0000(ewk);
         /* fallthrough */
 
     case 1:
-        char_move(&ewk->wu);
-        add_x_sub(&ewk->wu);
-
-        if (ewk->wu.rl_flag) {
-            if (ewk->wu.xyz[0].disp.pos > ewk->wu.old_rno[0]) {
-                ewk->wu.routine_no[2]++;
-                set_char_move_init(&ewk->wu, 0, 11);
-                break;
-            }
-        } else {
-            if (ewk->wu.xyz[0].disp.pos < ewk->wu.old_rno[0]) {
-                ewk->wu.routine_no[2]++;
-                set_char_move_init(&ewk->wu, 0, 11);
-            }
-        }
-
+        advance_effl3_0000(ewk);
         break;
 
     case 2:
@@ -184,62 +185,75 @@ void effl3_0002(WORK_Other* ewk) {
     }
 }
 
+static void wait_to_launch_effl3(WORK_Other* ewk) {
+    ewk->wu.old_rno[4]--;
+
+    if (ewk->wu.old_rno[4] < 0) {
+        ewk->wu.routine_no[4]++;
+        set_char_move_init(&ewk->wu, 9, 39);
+    }
+}
+
+static void start_launch_effl3(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+
+    if (ewk->wu.cg_type == 1) {
+        ewk->wu.routine_no[4]++;
+        ewk->wu.mvxy.a[0].sp = 0;
+        ewk->wu.mvxy.d[0].sp = 0;
+        ewk->wu.mvxy.a[1].sp = 0x78000;
+        ewk->wu.mvxy.d[1].sp = -0x6000;
+    }
+}
+
+static void redirect_launch_effl3(WORK_Other* ewk) {
+    add_y_sub(&ewk->wu);
+    char_move(&ewk->wu);
+
+    if (ewk->wu.cg_type != 2) {
+        return;
+    }
+
+    ewk->wu.routine_no[4]++;
+    ewk->wu.mvxy.d[0].sp = 0;
+
+    if (ewk->wu.rl_flag) {
+        ewk->wu.mvxy.a[0].sp = 0x80000;
+    } else {
+        ewk->wu.mvxy.a[0].sp = -0x80000;
+    }
+
+    ewk->wu.mvxy.a[1].sp = -0x8000;
+    ewk->wu.mvxy.d[1].sp = 0x4000;
+}
+
+static void finish_launch_effl3(WORK_Other* ewk) {
+    add_x_sub(&ewk->wu);
+    add_y_sub(&ewk->wu);
+
+    if (!range_x_check3(ewk, 208)) {
+        ewk->wu.routine_no[0] = 99;
+    }
+}
+
 void effl3_tobi(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[4]) {
     case 0:
-        ewk->wu.old_rno[4]--;
-
-        if (ewk->wu.old_rno[4] < 0) {
-            ewk->wu.routine_no[4]++;
-            set_char_move_init(&ewk->wu, 9, 39);
-        }
-
+        wait_to_launch_effl3(ewk);
         break;
 
     case 1:
-        char_move(&ewk->wu);
-
-        if (ewk->wu.cg_type == 1) {
-            ewk->wu.routine_no[4]++;
-            ewk->wu.mvxy.a[0].sp = 0;
-            ewk->wu.mvxy.d[0].sp = 0;
-            ewk->wu.mvxy.a[1].sp = 0x78000;
-            ewk->wu.mvxy.d[1].sp = -0x6000;
-        }
-
+        start_launch_effl3(ewk);
         break;
 
     case 2:
-        add_y_sub(&ewk->wu);
-        char_move(&ewk->wu);
-
-        if (ewk->wu.cg_type != 2) {
-            break;
-        }
-
-        ewk->wu.routine_no[4]++;
-        ewk->wu.mvxy.d[0].sp = 0;
-
-        if (ewk->wu.rl_flag) {
-            ewk->wu.mvxy.a[0].sp = 0x80000;
-        } else {
-            ewk->wu.mvxy.a[0].sp = -0x80000;
-        }
-
-        ewk->wu.mvxy.a[1].sp = -0x8000;
-        ewk->wu.mvxy.d[1].sp = 0x4000;
+        redirect_launch_effl3(ewk);
         break;
 
         break;
 
     case 3:
-        add_x_sub(&ewk->wu);
-        add_y_sub(&ewk->wu);
-
-        if (!range_x_check3(ewk, 208)) {
-            ewk->wu.routine_no[0] = 99;
-        }
-
+        finish_launch_effl3(ewk);
         break;
 
     case 4:
@@ -268,6 +282,18 @@ void effl3_kie(WORK_Other* ewk) {
 
         break;
     }
+}
+
+static void configure_effl3_rendering(WORK_Other* ewk, const PLW* oya) {
+    ewk->wu.char_table[0] = oya->wu.char_table[0];
+    ewk->wu.char_table[1] = _etc_char_table;
+    ewk->wu.char_table[9] = oya->wu.char_table[9];
+    ewk->wu.kage_flag = 1;
+    ewk->wu.kage_hx = 6;
+    ewk->wu.kage_hy = 0;
+    ewk->wu.kage_prio = ewk->wu.position_z + 5;
+    ewk->wu.my_mts = oya->wu.my_mts;
+    ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
 }
 
 s32 effect_L3_init(PLW* oya) {
@@ -313,15 +339,7 @@ s32 effect_L3_init(PLW* oya) {
         ewk->wu.old_rno[0] += *(s16*)data_ptr++;
         ewk->wu.old_rno[1] = *data_ptr++;
         ewk->wu.routine_no[1] = *data_ptr++;
-        ewk->wu.char_table[0] = oya->wu.char_table[0];
-        ewk->wu.char_table[1] = _etc_char_table;
-        ewk->wu.char_table[9] = oya->wu.char_table[9];
-        ewk->wu.kage_flag = 1;
-        ewk->wu.kage_hx = 6;
-        ewk->wu.kage_hy = 0;
-        ewk->wu.kage_prio = ewk->wu.position_z + 5;
-        ewk->wu.my_mts = oya->wu.my_mts;
-        ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
+        configure_effl3_rendering(ewk, oya);
     }
 
     return 0;

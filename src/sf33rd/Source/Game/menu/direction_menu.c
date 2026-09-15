@@ -142,7 +142,7 @@ void System_Direction(struct _TASK* task_ptr) {
         Order_Timer[0x61] = 0x14;
 
         for (ix = 0; ix < 2; ix++) {
-            effect_61_init(0, ix + 0x50, 0, 1, menu_items[ix], ix + 1, 0x7047);
+            effect_61_init((Effect61InitParams){ 0, ix + 0x50, 0, 1, menu_items[ix], ix + 1, 0x7047 });
             Order[ix + 0x50] = 1;
             Order_Dir[ix + 0x50] = 4;
             Order_Timer[ix + 0x50] = ix + 0x15;

@@ -33,6 +33,47 @@ static s32 game_is_active(void) {
     return EXE_flag == 0 && Game_pause == 0;
 }
 
+static s32 rose_updates_are_active(void) {
+    return sa_stop_check() == 0;
+}
+
+static s32 advance_active_rose(WORK_Other* ewk) {
+    if (game_is_active()) {
+        effD5_main_process(ewk);
+
+        if (ewk->wu.cg_type == 0xFF) {
+            ewk->wu.routine_no[0]++;
+            ewk->wu.disp_flag = 0;
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+static s32 update_live_rose(WORK_Other* ewk) {
+    if (!rose_updates_are_active()) {
+        return 0;
+    }
+
+    if (ewk->wu.hit_stop < 0) {
+        ewk->wu.hit_stop = -ewk->wu.hit_stop;
+    }
+
+    if (advance_active_rose(ewk)) {
+        return 1;
+    }
+
+    ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
+    ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
+
+    if (ewk->wu.type) {
+        hit_push_request(&ewk->wu);
+    }
+
+    return 0;
+}
+
 void effect_D5_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -60,27 +101,8 @@ void effect_D5_move(WORK_Other* ewk) {
             break;
         }
 
-        if (sa_stop_check() == 0) {
-            if (ewk->wu.hit_stop < 0) {
-                ewk->wu.hit_stop = -ewk->wu.hit_stop;
-            }
-
-            if (game_is_active()) {
-                effD5_main_process(ewk);
-
-                if (ewk->wu.cg_type == 0xFF) {
-                    ewk->wu.routine_no[0]++;
-                    ewk->wu.disp_flag = 0;
-                    break;
-                }
-            }
-
-            ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
-            ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
-
-            if (ewk->wu.type) {
-                hit_push_request(&ewk->wu);
-            }
+        if (update_live_rose(ewk)) {
+            break;
         }
 
         sort_push_request(&ewk->wu);
@@ -96,98 +118,118 @@ void effect_D5_move(WORK_Other* ewk) {
     }
 }
 
-void effD5_main_process(WORK_Other* ewk) {
+static void update_rose_flight(WORK_Other* ewk) {
+    if (ewk->wu.hit_stop) {
+        ewk->wu.hit_stop--;
+        return;
+    }
+
+    char_move(&ewk->wu);
+    add_mvxy_speed(&ewk->wu);
+    cal_mvxy_speed(&ewk->wu);
+
+    if (ewk->wu.xyz[1].disp.pos < 0) {
+        ewk->wu.xyz[1].disp.pos = 0;
+        char_move_cmja(&ewk->wu);
+        ewk->wu.mvxy.a[1].sp = 0;
+        ewk->wu.mvxy.a[0].sp = 0;
+        ewk->wu.mvxy.d[1].sp = 0;
+        ewk->wu.mvxy.d[0].sp = 0;
+    }
+}
+
+static void handle_normal_rose_hit(WORK_Other* ewk) {
+    ewk->wu.routine_no[1] = 0;
+    ewk->wu.mvxy.d[0].sp = 0;
+    ewk->wu.mvxy.a[0].sp = 0;
+    ewk->wu.mvxy.a[1].sp = 0;
+    ewk->wu.direction = 2;
+
+    if (ewk->wu.rl_flag) {
+        ewk->wu.direction = cal_attdir_flip(ewk->wu.direction);
+    }
+
+    setup_hana_extra(&ewk->wu, 0, 8);
+}
+
+static void handle_reflected_rose_hit(WORK_Other* ewk) {
+    ewk->wu.routine_no[1] = 0;
+    ewk->refrected = 1;
+    ewk->wu.rl_flag = (ewk->wu.rl_flag + 1) & 1;
+    ewk->wu.mvxy.a[0].sp = 0x60000;
+    ewk->wu.mvxy.d[0].sp = -0x3000;
+    ewk->wu.mvxy.a[1].sp /= 3;
+    ewk->wu.mvxy.a[1].sp = -ewk->wu.mvxy.a[1].sp;
+    ewk->wu.hit_stop = 4;
+    ewk->wu.direction = 0xD;
+
+    if (ewk->wu.rl_flag) {
+        ewk->wu.direction = cal_attdir_flip(ewk->wu.direction);
+    }
+
+    setup_hana_extra(&ewk->wu, 1, 0x18);
+}
+
+static void handle_rose_player_hit(WORK_Other* ewk) {
+    if (ewk->wu.hf.hit.player & 0x33) {
+        handle_normal_rose_hit(ewk);
+    } else if (ewk->wu.hf.hit.player & 0xC0) {
+        handle_reflected_rose_hit(ewk);
+    }
+}
+
+static void handle_rose_non_player_hit(WORK_Other* ewk) {
     s16 dsst;
+
+    sound_effect_request[0x10B](ewk, 0x10B);
+    ewk->wu.routine_no[1] = 2;
+    ewk->wu.rl_flag = (ewk->wu.rl_flag + 1) & 1;
+    ewk->wu.disp_flag = 2;
+    ewk->wu.type = 0;
+    ewk->wu.kage_flag = 0;
+    ewk->wu.dir_timer = 16;
+    ewk->wu.hit_stop = 2;
+    ewk->wu.direction = ewk->wu.dm_dir;
+    dsst = 3;
+
+    if (!(ewk->wu.dm_kind_of_waza & 0xF8)) {
+        dsst = (ewk->wu.dm_kind_of_waza / 2) & 3;
+    }
+
+    setup_hana_extra(&ewk->wu, dm_sp_sel_tbl[dsst][0], dm_sp_sel_tbl[dsst][1]);
+}
+
+static void process_rose_hit(WORK_Other* ewk) {
+    if (ewk->wu.hf.hit.player) {
+        handle_rose_player_hit(ewk);
+    } else {
+        handle_rose_non_player_hit(ewk);
+    }
+
+    ewk->wu.hf.hit_flag = 0;
+}
+
+static void expire_rose(WORK_Other* ewk) {
+    ewk->wu.dir_timer--;
+
+    if (ewk->wu.dir_timer <= 0) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0] = 2;
+    }
+}
+
+void effD5_main_process(WORK_Other* ewk) {
+    void (*const process[])(WORK_Other*) = {
+        [0] = update_rose_flight,
+        [1] = process_rose_hit,
+        [2] = expire_rose,
+    };
 
     if (ewk->wu.hf.hit_flag) {
         ewk->wu.routine_no[1] = 1;
     }
 
-    switch (ewk->wu.routine_no[1]) {
-    case 0:
-        if (ewk->wu.hit_stop) {
-            ewk->wu.hit_stop--;
-            break;
-        }
-
-        char_move(&ewk->wu);
-        add_mvxy_speed(&ewk->wu);
-        cal_mvxy_speed(&ewk->wu);
-
-        if (ewk->wu.xyz[1].disp.pos < 0) {
-            ewk->wu.xyz[1].disp.pos = 0;
-            char_move_cmja(&ewk->wu);
-            ewk->wu.mvxy.a[1].sp = 0;
-            ewk->wu.mvxy.a[0].sp = 0;
-            ewk->wu.mvxy.d[1].sp = 0;
-            ewk->wu.mvxy.d[0].sp = 0;
-        }
-
-        break;
-
-    case 1:
-        if (ewk->wu.hf.hit.player) {
-            if (ewk->wu.hf.hit.player & 0x33) {
-                ewk->wu.routine_no[1] = 0;
-                ewk->wu.mvxy.d[0].sp = 0;
-                ewk->wu.mvxy.a[0].sp = 0;
-                ewk->wu.mvxy.a[1].sp = 0;
-                ewk->wu.direction = 2;
-
-                if (ewk->wu.rl_flag) {
-                    ewk->wu.direction = cal_attdir_flip(ewk->wu.direction);
-                }
-
-                setup_hana_extra(&ewk->wu, 0, 8);
-            } else if (ewk->wu.hf.hit.player & 0xC0) {
-                ewk->wu.routine_no[1] = 0;
-                ewk->refrected = 1;
-                ewk->wu.rl_flag = (ewk->wu.rl_flag + 1) & 1;
-                ewk->wu.mvxy.a[0].sp = 0x60000;
-                ewk->wu.mvxy.d[0].sp = -0x3000;
-                ewk->wu.mvxy.a[1].sp /= 3;
-                ewk->wu.mvxy.a[1].sp = -ewk->wu.mvxy.a[1].sp;
-                ewk->wu.hit_stop = 4;
-                ewk->wu.direction = 0xD;
-
-                if (ewk->wu.rl_flag) {
-                    ewk->wu.direction = cal_attdir_flip(ewk->wu.direction);
-                }
-
-                setup_hana_extra(&ewk->wu, 1, 0x18);
-            }
-        } else {
-            sound_effect_request[0x10B](ewk, 0x10B);
-            ewk->wu.routine_no[1] = 2;
-            ewk->wu.rl_flag = (ewk->wu.rl_flag + 1) & 1;
-            ewk->wu.disp_flag = 2;
-            ewk->wu.type = 0;
-            ewk->wu.kage_flag = 0;
-            ewk->wu.dir_timer = 16;
-            ewk->wu.hit_stop = 2;
-            ewk->wu.direction = ewk->wu.dm_dir;
-            dsst = 3;
-
-            if (!(ewk->wu.dm_kind_of_waza & 0xF8)) {
-                dsst = (ewk->wu.dm_kind_of_waza / 2) & 3;
-            }
-
-            setup_hana_extra(&ewk->wu, dm_sp_sel_tbl[dsst][0], dm_sp_sel_tbl[dsst][1]);
-        }
-
-        ewk->wu.hf.hit_flag = 0;
-        break;
-
-    case 2:
-        ewk->wu.dir_timer--;
-
-        if (ewk->wu.dir_timer <= 0) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0] = 2;
-        }
-
-        break;
-    }
+    process[ewk->wu.routine_no[1]](ewk);
 }
 
 void cal_speeds(WORK_Other* ewk, PLW* /* unused */, PLW* twk) {
@@ -196,20 +238,18 @@ void cal_speeds(WORK_Other* ewk, PLW* /* unused */, PLW* twk) {
 
     if (ewk->wu.rl_flag) {
         tx -= 16;
-
-        if (tx > ewk->wu.position_x) {
-            rix = (tx - ewk->wu.position_x) / 32;
-        } else {
-            tx = ewk->wu.position_x + 16;
-        }
     } else {
         tx += 16;
+    }
 
-        if (tx < ewk->wu.position_x) {
-            rix = (ewk->wu.position_x - tx) / 32;
-        } else {
-            tx = ewk->wu.position_x - 16;
-        }
+    if (ewk->wu.rl_flag && tx > ewk->wu.position_x) {
+        rix = (tx - ewk->wu.position_x) / 32;
+    } else if (ewk->wu.rl_flag) {
+        tx = ewk->wu.position_x + 16;
+    } else if (tx < ewk->wu.position_x) {
+        rix = (ewk->wu.position_x - tx) / 32;
+    } else {
+        tx = ewk->wu.position_x - 16;
     }
 
     ewk->wu.mvxy.a[0].sp = 0;

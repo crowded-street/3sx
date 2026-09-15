@@ -160,14 +160,48 @@ def dump_changes(before: Counter, after: Counter, removed: Counter, added: Count
     dump_added(before, added)
 
 
+#: The only literals an extracted boolean helper introduces: its own returns.
+PREDICATE_RETURNS = {"num 0", "num 1"}
+
+
+def is_extract_to_predicate(before: Counter, removed: Counter, added: Counter) -> bool:
+    """True for the one shape where added literals do not mean a substitution.
+
+    Extracting a duplicated block into a named boolean helper - Recipe D or P -
+    removes the block's literals from every call site but one, and the helper
+    brings its own `return 0;` and `return 1;`. That reads as "a count dropped
+    while another rose", which is otherwise the signature of a substituted
+    constant.
+
+    It is only this shape when every added literal is a 0 or a 1 that the file
+    already contained, and no removed value vanished from the file entirely. A
+    substitution that happens to land on 0 or 1 still has to take its value from
+    somewhere, and that source value vanishing is what the caller checks next.
+    """
+    if not added:
+        return False
+    if any(literal not in PREDICATE_RETURNS for literal in added):
+        return False
+    return all(before[literal] > 0 for literal in added)
+
+
 def report_removed_literals(rel: str, before: Counter, after: Counter, strict: bool) -> bool:
     removed = before - after
     added = after - before
     vanished = [literal for literal in removed if after[literal] == 0]
-    if added:
+    if added and not (is_extract_to_predicate(before, removed, added) and not vanished):
         print("FAIL  " + rel + "  - a constant was substituted")
         dump_changes(before, after, removed, added)
         return False
+    if added:
+        label = "FAIL " if strict else "WARN "
+        print(label + " " + rel + "  - copies removed, 0/1 returns added")
+        dump_changes(before, after, removed, added)
+        print("        looks like extracting a duplicated block into a named boolean")
+        print("        helper: the call sites lose the block's literals and the helper")
+        print("        brings its own returns. Legal for Recipes D and P - confirm the")
+        print("        helper is the block, not a rewrite of it.")
+        return not strict
     if vanished:
         print("FAIL  " + rel + "  - a constant vanished from the file")
         dump_changes(before, after, removed, added)

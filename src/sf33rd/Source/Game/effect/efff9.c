@@ -150,7 +150,7 @@ s16 keep_mes_no;
 
 s32 Rewrite();
 
-static void initialize_F9_effect(WORK_Other* ewk) {
+static void initialize_end_message(WORK_Other* ewk) {
     ewk->wu.routine_no[0]++;
     ewk->wu.my_mts = 12;
     ewk->free = 0;
@@ -174,7 +174,39 @@ static void initialize_F9_effect(WORK_Other* ewk) {
     efff9_suicide = 0;
 }
 
-static void update_F9_effect_lifetime(WORK_Other* ewk) {
+static s32 reveal_timer_elapsed(const WORK_Other* ewk) {
+    return ewk->wu.old_rno[6] == 0;
+}
+
+static s32 reveal_exceeds_message_length(WORK_Other* ewk) {
+    return Country != 1 && Country != 8 &&
+           (ewk->wu.old_rno[5]++, ewk->wu.old_rno[4] < ewk->wu.old_rno[5]);
+}
+
+static void advance_message_reveal(WORK_Other* ewk) {
+    ewk->wu.old_rno[6]--;
+
+    if (!reveal_timer_elapsed(ewk)) {
+        return;
+    }
+
+    ewk->wu.old_rno[6] = 3;
+
+    if (ewk->wu.old_rno[4] == ewk->wu.old_rno[5]) {
+        ewk->wu.old_rno[6] = 3;
+        return;
+    }
+
+    ewk->wu.old_rno[5]++;
+
+    if (reveal_exceeds_message_length(ewk)) {
+        ewk->wu.old_rno[5] = ewk->wu.old_rno[4];
+    }
+
+    ewk->free = ewk->wu.old_rno[5];
+}
+
+static void update_message_lifetime(WORK_Other* ewk) {
     if (ewk->wu.old_rno[3] == 0) {
         Rewrite();
         ewk->wu.disp_flag = 0;
@@ -192,56 +224,39 @@ static void update_F9_effect_lifetime(WORK_Other* ewk) {
     }
 }
 
-void effect_F9_move(WORK_Other* ewk) {
-    switch (ewk->wu.routine_no[0]) {
-    case 0:
-        initialize_F9_effect(ewk);
-        break;
-
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-        ewk->wu.routine_no[0]++;
-        break;
-
-    case 5:
-        if (ewk->wu.dead_f == 1) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.type = 0;
-            ewk->wu.routine_no[0] = 6;
-            break;
-        }
-
-        ewk->wu.old_rno[6]--;
-
-        if (ewk->wu.old_rno[6] == 0) {
-            ewk->wu.old_rno[6] = 3;
-
-            if (ewk->wu.old_rno[4] == ewk->wu.old_rno[5]) {
-                ewk->wu.old_rno[6] = 3;
-            } else {
-                ewk->wu.old_rno[5]++;
-
-                if (Country != 1 && Country != 8 && (ewk->wu.old_rno[5]++, ewk->wu.old_rno[4] < ewk->wu.old_rno[5])) {
-                    ewk->wu.old_rno[5] = ewk->wu.old_rno[4];
-                }
-
-                ewk->free = ewk->wu.old_rno[5];
-            }
-        }
-
-        update_F9_effect_lifetime(ewk);
-
-        break;
-
-    case 6:
-        ewk->wu.routine_no[0]++;
-        break;
-
-    default:
-        push_effect_work(&ewk->wu);
+static void update_end_message(WORK_Other* ewk) {
+    if (ewk->wu.dead_f == 1) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.type = 0;
+        ewk->wu.routine_no[0] = 6;
+        return;
     }
+
+    advance_message_reveal(ewk);
+    update_message_lifetime(ewk);
+}
+
+static void advance_message_state(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+}
+
+void effect_F9_move(WORK_Other* ewk) {
+    void (*const move[])(WORK_Other*) = {
+        [0] = initialize_end_message,
+        [1] = advance_message_state,
+        [2] = advance_message_state,
+        [3] = advance_message_state,
+        [4] = advance_message_state,
+        [5] = update_end_message,
+        [6] = advance_message_state,
+    };
+
+    if (ewk->wu.routine_no[0] > 6) {
+        push_effect_work(&ewk->wu);
+        return;
+    }
+
+    move[ewk->wu.routine_no[0]](ewk);
 }
 
 void effect_F9_init(s16 END_PL_NO) {
@@ -268,6 +283,19 @@ void efff9_wk_set(WORK_Other_CONN* ewk) {
     ewk->wu.position_z = ewk->wu.my_priority = 5;
 }
 
+static void prepare_message_rewrite(WORK_Other* ewk) {
+    efff9_wk_set((WORK_Other_CONN*)ewk);
+    ewk->master_player = efff9_PL_NO;
+    efff9_suicide = 1;
+}
+
+static void select_rewrite_message(WORK_Other* ewk, u16 mes_no, s16 point) {
+    efff9_txt_no_adrs = txt_no_tbl[efff9_PL_NO];
+    efff9_txt_scene_adrs = efff9_txt_no_adrs[mes_no];
+    efff9_message = efff9_txt_scene_adrs[point];
+    ewk->wu.old_rno[3] = efff9_txt_scene_adrs[point + 1];
+}
+
 s32 Rewrite_End_Message(u16 mes_no) {
     WORK_Other* ewk;
     s16 ix;
@@ -278,14 +306,9 @@ s32 Rewrite_End_Message(u16 mes_no) {
 
     ewk = (WORK_Other*)frw[ix];
     keep_mes_no = mes_no;
-    efff9_wk_set((WORK_Other_CONN*)ewk);
-    ewk->master_player = efff9_PL_NO;
-    efff9_suicide = 1;
+    prepare_message_rewrite(ewk);
     efff9_txt_point = 2;
-    efff9_txt_no_adrs = txt_no_tbl[efff9_PL_NO];
-    efff9_txt_scene_adrs = efff9_txt_no_adrs[mes_no];
-    efff9_message = efff9_txt_scene_adrs[0];
-    ewk->wu.old_rno[3] = efff9_txt_scene_adrs[1];
+    select_rewrite_message(ewk, mes_no, 0);
     mes_already = efff9_message;
     return 0;
 }
@@ -299,13 +322,8 @@ s32 Rewrite() {
     }
 
     ewk = (WORK_Other*)frw[ix];
-    efff9_wk_set((WORK_Other_CONN*)ewk);
-    ewk->master_player = efff9_PL_NO;
-    efff9_suicide = 1;
-    efff9_txt_no_adrs = txt_no_tbl[efff9_PL_NO];
-    efff9_txt_scene_adrs = efff9_txt_no_adrs[keep_mes_no];
-    efff9_message = efff9_txt_scene_adrs[efff9_txt_point];
-    ewk->wu.old_rno[3] = efff9_txt_scene_adrs[efff9_txt_point + 1];
+    prepare_message_rewrite(ewk);
+    select_rewrite_message(ewk, keep_mes_no, efff9_txt_point);
     efff9_txt_point += 2;
     mes_already = efff9_message;
     return 0;

@@ -132,7 +132,7 @@ static void initialize_mode_select(struct _TASK* task_ptr, const s16 loop_counte
     effect_04_init(0, 0, 0, 0x48);
 
     for (ix = 0; ix < loop_counter; ix++) {
-        effect_61_init(0, ix + 0x50, 0, 0, (u32)ix, ix, 0x7047);
+        effect_61_init((Effect61InitParams){ 0, ix + 0x50, 0, 0, (u32)ix, ix, 0x7047 });
         Order[ix + 0x50] = 1;
         Order_Dir[ix + 0x50] = 4;
         Order_Timer[ix + 0x50] = ix + 0x14;
@@ -439,7 +439,7 @@ static void initialize_option_select(struct _TASK* task_ptr) {
         Menu_Cursor_Y[0] = 5;
     }
     for (ix = 0; ix < 6; ix++) {
-        effect_61_init(0, ix + 0x50, 0, 1, option_items[ix], ix, 0x7047);
+        effect_61_init((Effect61InitParams){ 0, ix + 0x50, 0, 1, option_items[ix], ix, 0x7047 });
         Order[ix + 0x50] = 1;
         Order_Dir[ix + 0x50] = 4;
         Order_Timer[ix + 0x50] = ix + 0x14;

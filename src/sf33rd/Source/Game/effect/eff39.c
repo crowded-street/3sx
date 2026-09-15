@@ -240,7 +240,7 @@ if (is_selection_ready(ewk)) {
     }
 }
 
-s32 effect_39_init(s16 PL_id, s16 dir_old, s16 Your_Char, s16 Target_BG, s16 Option) {
+s32 effect_39_init_with_params(Effect39InitParams params) {
     WORK_Other* ewk;
     s16 ix;
 
@@ -253,25 +253,25 @@ s32 effect_39_init(s16 PL_id, s16 dir_old, s16 Your_Char, s16 Target_BG, s16 Opt
     ewk->wu.id = 39;
     ewk->wu.work_id = 16;
     ewk->wu.my_col_code = 0x2090;
-    ewk->wu.my_family = Target_BG + 1;
+    ewk->wu.my_family = params.Target_BG + 1;
     ewk->wu.position_z = 71;
     ewk->wu.char_index = 1;
     *ewk->wu.char_table = _sel_pl_char_table;
-    ewk->master_id = PL_id;
-    ewk->wu.dir_old = dir_old;
+    ewk->master_id = params.PL_id;
+    ewk->wu.dir_old = params.dir_old;
     ewk->wu.my_mts = 13;
     ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
 
-    if (Your_Char == 0x7F) {
+    if (params.Your_Char == 0x7F) {
         ewk->wu.dir_step = ID_of_Face[Cursor_Y[ewk->master_id]][Cursor_X[ewk->master_id]];
     } else {
-        ewk->wu.dir_step = Your_Char;
+        ewk->wu.dir_step = params.Your_Char;
     }
 
     ewk->wu.dir_step += chkNameAkuma(ewk->wu.dir_step, 9);
     ewk->wu.dir_step += chkNameSuv(ewk->wu.dir_step, 2);
 
-    if (Option == 1) {
+    if (params.Option == 1) {
         effect_59_init(ewk, ewk->wu.my_family, 5, 1);
     }
 

@@ -72,6 +72,46 @@ void EFF42_SUDDENLY(WORK_Other* ewk) {
     }
 }
 
+static void initialize_slide_in(WORK_Other* ewk) {
+    if (--Order_Timer[ewk->wu.dir_old] != 0) {
+        return;
+    }
+
+    ewk->wu.routine_no[6]++;
+    ewk->wu.disp_flag = 1;
+    ewk->wu.hit_quake = Pos_Data_69[ewk->wu.dir_old][0] + 512;
+    ewk->wu.xyz[1].disp.pos = Pos_Data_69[ewk->wu.dir_old][1] + 0;
+
+    if (Order_Dir[ewk->wu.dir_old] == 4) {
+        ewk->wu.xyz[0].disp.pos = 800;
+        ewk->wu.mvxy.a[0].sp = -0x100000;
+        ewk->wu.mvxy.d[0].sp = 0;
+    } else {
+        ewk->wu.xyz[0].disp.pos = 224;
+        ewk->wu.mvxy.a[0].sp = 0x100000;
+        ewk->wu.mvxy.d[0].sp = 0x8000;
+    }
+
+    set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+}
+
+static void complete_slide_in(WORK_Other* ewk) {
+    Order[ewk->wu.dir_old] = 3;
+    ewk->wu.routine_no[6] = 0;
+    ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
+}
+
+static void advance_slide_in(WORK_Other* ewk) {
+    ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
+    ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
+
+    if (0 < ewk->wu.mvxy.a[0].sp && ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
+        complete_slide_in(ewk);
+    } else if (!(0 < ewk->wu.mvxy.a[0].sp) && ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
+        complete_slide_in(ewk);
+    }
+}
+
 void EFF42_SLIDE_IN(WORK_Other* ewk) {
     if (Order[ewk->wu.dir_old] != 1) {
         ewk->wu.routine_no[0] = Order[ewk->wu.dir_old];
@@ -79,47 +119,10 @@ void EFF42_SLIDE_IN(WORK_Other* ewk) {
         return;
     }
 
-    switch (ewk->wu.routine_no[6]) {
-    case 0:
-        if (--Order_Timer[ewk->wu.dir_old] != 0) {
-            break;
-        }
-
-        ewk->wu.routine_no[6]++;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.hit_quake = Pos_Data_69[ewk->wu.dir_old][0] + 512;
-        ewk->wu.xyz[1].disp.pos = Pos_Data_69[ewk->wu.dir_old][1] + 0;
-
-        if (Order_Dir[ewk->wu.dir_old] == 4) {
-            ewk->wu.xyz[0].disp.pos = 800;
-            ewk->wu.mvxy.a[0].sp = -0x100000;
-            ewk->wu.mvxy.d[0].sp = 0;
-        } else {
-            ewk->wu.xyz[0].disp.pos = 224;
-            ewk->wu.mvxy.a[0].sp = 0x100000;
-            ewk->wu.mvxy.d[0].sp = 0x8000;
-        }
-
-        set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
-        break;
-
-    default:
-        ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
-        ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
-
-        if (0 < ewk->wu.mvxy.a[0].sp) {
-            if (ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
-                Order[ewk->wu.dir_old] = 3;
-                ewk->wu.routine_no[6] = 0;
-                ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
-            }
-        } else if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
-            Order[ewk->wu.dir_old] = 3;
-            ewk->wu.routine_no[6] = 0;
-            ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
-        }
-
-        break;
+    if (ewk->wu.routine_no[6] == 0) {
+        initialize_slide_in(ewk);
+    } else {
+        advance_slide_in(ewk);
     }
 }
 
@@ -213,39 +216,8 @@ void Setup_Char_Index(WORK_Other* ewk) {
     }
 }
 
-s32 effect_42_init(s16 type) {
-    WORK_Other* ewk;
+static void configure_effect_type(WORK_Other* ewk, s16 type) {
     s16 ix;
-
-    if (present_mode_hides_effect()) {
-        return 0;
-    }
-
-    if ((ix = pull_effect_work(4)) == -1) {
-        return -1;
-    }
-
-    ewk = (WORK_Other*)frw[ix];
-    ewk->wu.be_flag = 1;
-    ewk->wu.id = 42;
-    ewk->wu.work_id = 16;
-    ewk->wu.my_col_code = 0x2090;
-    ewk->wu.my_family = 3;
-    ewk->wu.dir_timer = 10;
-    ewk->wu.rl_waza = Select_Timer;
-    *ewk->wu.char_table = _sel_pl_char_table;
-    ewk->wu.dir_old = type;
-    ewk->wu.my_mts = 13;
-    ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
-
-    if (type & 1) {
-        ewk->wu.direction = 4;
-    } else {
-        ewk->wu.direction = 8;
-    }
-
-    ewk->wu.char_index = 3;
-    ewk->wu.position_z = 14;
 
     switch (type) {
     case 5:
@@ -286,6 +258,43 @@ s32 effect_42_init(s16 type) {
         ewk->wu.my_family = 4;
         break;
     }
+}
+
+s32 effect_42_init(s16 type) {
+    WORK_Other* ewk;
+    s16 ix;
+
+    if (present_mode_hides_effect()) {
+        return 0;
+    }
+
+    if ((ix = pull_effect_work(4)) == -1) {
+        return -1;
+    }
+
+    ewk = (WORK_Other*)frw[ix];
+    ewk->wu.be_flag = 1;
+    ewk->wu.id = 42;
+    ewk->wu.work_id = 16;
+    ewk->wu.my_col_code = 0x2090;
+    ewk->wu.my_family = 3;
+    ewk->wu.dir_timer = 10;
+    ewk->wu.rl_waza = Select_Timer;
+    *ewk->wu.char_table = _sel_pl_char_table;
+    ewk->wu.dir_old = type;
+    ewk->wu.my_mts = 13;
+    ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
+
+    if (type & 1) {
+        ewk->wu.direction = 4;
+    } else {
+        ewk->wu.direction = 8;
+    }
+
+    ewk->wu.char_index = 3;
+    ewk->wu.position_z = 14;
+
+    configure_effect_type(ewk, type);
 
     return 0;
 }

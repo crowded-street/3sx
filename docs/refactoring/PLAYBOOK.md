@@ -230,6 +230,12 @@ your change and compares the counts:
   a repeated condition into one named predicate removes copies of its literals without
   changing any of them.
 - **WARN** - counts only rose. A new guard clause brings its own `return 0`.
+- **WARN** - counts dropped and only `0`/`1` rose. That is extract-to-predicate: a
+  duplicated block became a named boolean helper, so the call sites lost the block's
+  literals and the helper brought its own returns. Confirm the helper *is* the block
+  rather than a rewrite of it. (Recognised since 2026-09-15, on the project owner's
+  directive - before that the guard scored this legal Recipe D shape as a substitution
+  and blocked it.)
 - **OK** - nothing changed.
 
 A `WARN` is not a pass mark, it is a request for a second look. The tool cannot tell

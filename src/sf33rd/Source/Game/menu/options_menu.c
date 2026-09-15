@@ -106,7 +106,7 @@ static void initialize_game_options(struct _TASK* task_ptr) {
 
     initialize_game_option_header(task_ptr);
     for (ix = 0, unused_s3 = char_index = 0x19; ix < 0xC; ix++, unused_s2 = char_index++) {
-        effect_61_init(0, ix + 0x50, 0, 2, char_index, ix, 0x70A7);
+        effect_61_init((Effect61InitParams){ 0, ix + 0x50, 0, 2, char_index, ix, 0x70A7 });
         Order[ix + 0x50] = 1;
         Order_Dir[ix + 0x50] = 4;
         Order_Timer[ix + 0x50] = ix + 0x14;
@@ -503,7 +503,7 @@ static void initialize_screen_adjust_labels(void) {
     s16 unused_s3;
     s16 unused_s2;
     for (ix = 0, unused_s3 = char_index = 0xE; ix < 7; ix++, unused_s2 = char_index++) {
-        effect_61_init(0, ix + 0x50, 0, 2, char_index, ix, 0x7047);
+        effect_61_init((Effect61InitParams){ 0, ix + 0x50, 0, 2, char_index, ix, 0x7047 });
         Order[ix + 0x50] = 1;
         Order_Dir[ix + 0x50] = 4;
         Order_Timer[ix + 0x50] = ix + 0x14;

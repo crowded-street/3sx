@@ -49,7 +49,7 @@ void Pattern00_0001(PLW* wk) {
 void Pattern00_0002(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Command_Attack(wk, 8, 0x1E, 8, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
         break;
 
     default:
@@ -77,7 +77,7 @@ void Pattern00_0003(PLW* wk) {
 void Pattern00_0004(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Command_Attack(wk, 8, 0x1F, 0xA, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 0xA, -1});
         break;
 
     default:
@@ -217,7 +217,7 @@ void Pattern00_0013(PLW* wk) {
 void Pattern00_0014(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack_Term(wk, -1, -0x7FC0, 8, 0x40, 2, -0x7F90, 8, 0x20);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, -0x7FC0, 8, 0x40, 2, -0x7F90, 8, 0x20});
         break;
 
     default:
@@ -257,7 +257,7 @@ void Pattern00_0016(PLW* wk) {
 void Pattern00_0017(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Command_Attack(wk, 8, 0x1E, 8, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
         break;
 
     default:
@@ -269,7 +269,7 @@ void Pattern00_0017(PLW* wk) {
 void Pattern00_0018(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        J_Command_Attack(wk, 8, 0x1D, 0xA, -1);
+        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 0xA, -1});
         break;
 
     default:
@@ -285,7 +285,7 @@ void Pattern00_0019(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1C, 0xA, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 0xA, -1});
         break;
 
     default:
@@ -297,7 +297,7 @@ void Pattern00_0019(PLW* wk) {
 void Pattern00_0020(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack_Term(wk, -1, -0x7FB0, 8, 0x10, 0, 8, 8, 8);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, -0x7FB0, 8, 0x10, 0, 8, 8, 8});
         break;
 
     default:
@@ -309,7 +309,7 @@ void Pattern00_0020(PLW* wk) {
 void Pattern00_0021(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack_Term(wk, -1, -0x7FC0, 8, 0x400, 0, -0x7F90, 8, 0x200);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, -0x7FC0, 8, 0x400, 0, -0x7F90, 8, 0x200});
         break;
 
     default:
@@ -329,11 +329,11 @@ void Pattern00_0022(PLW* wk) {
         break;
 
     case 2:
-        Command_Attack(wk, 8, 1, 0xB, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 1, 0xB, -1});
         break;
 
     case 3:
-        J_Command_Attack(wk, 8, 0x1D, 0xA, -1);
+        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 0xA, -1});
         break;
 
     default:
@@ -385,7 +385,7 @@ void Pattern00_0025(PLW* wk) {
 void Pattern00_0026(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Command_Attack(wk, 8, 0, 0xB, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0, 0xB, -1});
         break;
 
     case 1:
@@ -401,7 +401,7 @@ void Pattern00_0026(PLW* wk) {
 void Pattern00_0027(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack_Term(wk, -1, -0x7FB0, 0xB, 0x20, 0, -0x7F90, 8, 0x20);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, -0x7FB0, 0xB, 0x20, 0, -0x7F90, 8, 0x20});
         break;
 
     default:
@@ -469,7 +469,7 @@ void Pattern00_0031(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1E, 8, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
         break;
 
     default:
@@ -521,7 +521,7 @@ void Pattern00_0034(PLW* wk) {
         break;
 
     case 2:
-        Command_Attack(wk, 8, 0x1C, 8, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 8, -1});
         break;
 
     default:
@@ -581,7 +581,7 @@ void Pattern00_0038(PLW* wk) {
         break;
 
     case 2:
-        Command_Attack(wk, 8, 0x1C, 0xA, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 0xA, -1});
         break;
 
     default:
@@ -597,7 +597,7 @@ void Pattern00_0039(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1E, 8, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
         break;
 
     default:
@@ -609,11 +609,11 @@ void Pattern00_0039(PLW* wk) {
 void Pattern00_0040(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Command_Attack(wk, 8, 0x1E, 8, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1E, 8, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
         break;
 
     default:
@@ -625,7 +625,7 @@ void Pattern00_0040(PLW* wk) {
 void Pattern00_0041(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Command_Attack(wk, 8, 0x1F, 9, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 9, -1});
         break;
 
     case 1:
@@ -661,7 +661,7 @@ void Pattern00_0042(PLW* wk) {
 void Pattern00_0043(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack_Term(wk, -1, -0x7FC0, 8, 0x400, 0, -1, -1, -1);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, -0x7FC0, 8, 0x400, 0, -1, -1, -1});
         break;
 
     default:
@@ -673,7 +673,7 @@ void Pattern00_0043(PLW* wk) {
 void Pattern00_0044(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack_Term(wk, -1, -0x7FC0, 8, 0x40, 0, -1, -1, -1);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, -0x7FC0, 8, 0x40, 0, -1, -1, -1});
         break;
 
     default:
@@ -685,7 +685,7 @@ void Pattern00_0044(PLW* wk) {
 void Pattern00_0045(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Hi_Jump_Attack_Term(wk, -1, -0x7FC0, 8, 0x400, 0, -1, -1, 0xFFFF);
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-1, -0x7FC0, 8, 0x400, 0, -1, -1, 0xFFFF});
         break;
 
     default:
@@ -697,7 +697,7 @@ void Pattern00_0045(PLW* wk) {
 void Pattern00_0046(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Com_Random_Select(wk, 2, 0x39, 0x39, 0x41, 0x41, 0);
+        Com_Random_Select(wk, &(Branch_Menu_Args){2, 0x39, 0x39, 0x41, 0x41}, 0);
         break;
 
     default:
@@ -709,7 +709,7 @@ void Pattern00_0046(PLW* wk) {
 void Pattern00_0047(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Com_Random_Select(wk, 2, 0x39, 0x39, 0x41, 0x41, 0);
+        Com_Random_Select(wk, &(Branch_Menu_Args){2, 0x39, 0x39, 0x41, 0x41}, 0);
         break;
 
     default:
@@ -721,7 +721,7 @@ void Pattern00_0047(PLW* wk) {
 void Pattern00_0048(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Com_Random_Select(wk, 2, 0x39, 0x39, 0x41, 0x41, 0);
+        Com_Random_Select(wk, &(Branch_Menu_Args){2, 0x39, 0x39, 0x41, 0x41}, 0);
         break;
 
     default:
@@ -733,7 +733,7 @@ void Pattern00_0048(PLW* wk) {
 void Pattern00_0049(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Command_Attack(wk, 8, 0x1E, 8, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
         break;
 
     default:
@@ -745,7 +745,7 @@ void Pattern00_0049(PLW* wk) {
 void Pattern00_0050(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Command_Attack(wk, 8, 0x1E, 9, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 9, -1});
         break;
 
     default:
@@ -757,7 +757,7 @@ void Pattern00_0050(PLW* wk) {
 void Pattern00_0051(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Command_Attack(wk, 8, 0x1E, 0xA, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 0xA, -1});
         break;
 
     default:
@@ -773,7 +773,7 @@ void Pattern00_0052(PLW* wk) {
         break;
 
     case 1:
-        Com_Random_Select(wk, 2, 0x31, 0x31, 0x31, 0x32, 0);
+        Com_Random_Select(wk, &(Branch_Menu_Args){2, 0x31, 0x31, 0x31, 0x32}, 0);
         break;
 
     default:
@@ -785,7 +785,7 @@ void Pattern00_0052(PLW* wk) {
 void Pattern00_0053(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Com_Random_Select(wk, 2, 0x31, 0x31, 0x32, 0x33, 0);
+        Com_Random_Select(wk, &(Branch_Menu_Args){2, 0x31, 0x31, 0x32, 0x33}, 0);
         break;
 
     default:
@@ -797,7 +797,7 @@ void Pattern00_0053(PLW* wk) {
 void Pattern00_0054(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Com_Random_Select(wk, 2, 0x31, 0x32, 0x32, 0x33, 0);
+        Com_Random_Select(wk, &(Branch_Menu_Args){2, 0x31, 0x32, 0x32, 0x33}, 0);
         break;
 
     default:
@@ -829,7 +829,7 @@ void Pattern00_0056(PLW* wk) {
         break;
 
     case 1:
-        Jump_Attack_Term(wk, -1, -0x7FB8, 8, 0x400, 1, -0x7F90, -1, 0x200);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, -0x7FB8, 8, 0x400, 1, -0x7F90, -1, 0x200});
         break;
 
     default:
@@ -845,7 +845,7 @@ void Pattern00_0057(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x8018, 0xA, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x8018, 0xA, -1});
         break;
 
     default:
@@ -873,7 +873,7 @@ void Pattern00_0058(PLW* wk) {
 void Pattern00_0059(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Command_Attack(wk, 8, 1, 0xB, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 1, 0xB, -1});
         break;
 
     default:
@@ -953,7 +953,7 @@ void Pattern00_0065(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x8019, 0xA, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x8019, 0xA, -1});
         break;
 
     default:
@@ -969,7 +969,7 @@ void Pattern00_0066(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1E, 8, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
         break;
 
     default:
@@ -985,7 +985,7 @@ void Pattern00_0067(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 8, 0x1E, 8, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
         break;
 
     case 2:
@@ -993,7 +993,7 @@ void Pattern00_0067(PLW* wk) {
         break;
 
     case 3:
-        Command_Attack(wk, 8, 0x1E, 8, -1);
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
         break;
 
     default:

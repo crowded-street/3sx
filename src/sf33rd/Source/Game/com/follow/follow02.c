@@ -41,7 +41,7 @@ void Follow02_0001(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 2, 8, 0x1C, 8);
+        Command_Attack(wk, &(Command_Attack_Args){2, 8, 0x1C, 8});
         break;
 
     default:
@@ -77,7 +77,7 @@ void Follow02_0003(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, 2, 8, 0x1C, 8);
+        Command_Attack(wk, &(Command_Attack_Args){2, 8, 0x1C, 8});
         break;
 
     default:
