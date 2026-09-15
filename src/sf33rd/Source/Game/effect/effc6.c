@@ -19,6 +19,38 @@ static s32 game_is_active(void) {
     return !EXE_flag && !Game_pause;
 }
 
+/* Animate until the master moves on, then switch to the finishing animation -
+ * a different one when the other player is Chun-Li. */
+static void c6_await_master(WORK_Other* ewk, const WORK_Other* oya) {
+    if (!game_is_active()) {
+        return;
+    }
+
+    if (oya->wu.routine_no[0] >= 2) {
+        ewk->wu.routine_no[0]++;
+
+        if (plw[oya->master_id ^ 1].player_number == 16) {
+            set_char_move_init(&ewk->wu, 0, 19);
+        } else {
+            set_char_move_init(&ewk->wu, 0, 11);
+        }
+    } else {
+        char_move(&ewk->wu);
+    }
+}
+
+/* Run the finishing animation out, then hide the effect. */
+static void c6_run_out(WORK_Other* ewk) {
+    if (!EXE_flag && !Game_pause) {
+        char_move(&ewk->wu);
+
+        if (ewk->wu.cg_type == 1) {
+            ewk->wu.routine_no[0]++;
+            ewk->wu.disp_flag = 0;
+        }
+    }
+}
+
 void effect_C6_move(WORK_Other* ewk) {
     WORK_Other* oya = (WORK_Other*)ewk->my_master;
 
@@ -30,19 +62,7 @@ void effect_C6_move(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (game_is_active()) {
-            if (oya->wu.routine_no[0] >= 2) {
-                ewk->wu.routine_no[0]++;
-
-                if (plw[oya->master_id ^ 1].player_number == 16) {
-                    set_char_move_init(&ewk->wu, 0, 19);
-                } else {
-                    set_char_move_init(&ewk->wu, 0, 11);
-                }
-            } else {
-                char_move(&ewk->wu);
-            }
-        }
+        c6_await_master(ewk, oya);
 
         ewk->wu.xyz[0].cal = oya->wu.xyz[0].cal;
         suzi_sync_pos_set(ewk);
@@ -50,14 +70,7 @@ void effect_C6_move(WORK_Other* ewk) {
         break;
 
     case 2:
-        if (!EXE_flag && !Game_pause) {
-            char_move(&ewk->wu);
-
-            if (ewk->wu.cg_type == 1) {
-                ewk->wu.routine_no[0]++;
-                ewk->wu.disp_flag = 0;
-            }
-        }
+        c6_run_out(ewk);
 
         ewk->wu.xyz[0].cal = oya->wu.xyz[0].cal;
         suzi_sync_pos_set(ewk);
