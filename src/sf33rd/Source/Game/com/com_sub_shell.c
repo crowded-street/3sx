@@ -277,30 +277,47 @@ s32 Decide_Shell_Guard(PLW* wk, WORK_Other* tmw) {
     return 1;
 }
 
-/* Difficulty-dependent choice of shell reaction. The two random dodges fall
- * through to the default arm when they do not fire, exactly as written. */
-static void Guard_Shell_By_Difficulty(PLW* wk, WORK_Other* tmw) {
-    switch (save_w[Present_Mode].Difficulty) {
-    case 7:
-        if (wk->wu.vital_new < 4) {
-            if (!(random_32_com() & 0xF)) {
-                Pattern_Index[wk->wu.id] = 9;
-                break;
-            }
-        }
-        /* fallthrough */
-    case 6:
-        if (wk->wu.vital_new < 2) {
-            if (!(random_32_com() & 7)) {
-                Pattern_Index[wk->wu.id] = 9;
-                break;
-            }
-        }
-        /* fallthrough */
-    default:
-        Pattern_Index[wk->wu.id] = Decide_Shell_Reaction(wk, tmw, Shell_Change_Data_For_Reaction[tmw->wu.type]);
-        break;
+/* A low-vitality random dodge roll. The draw only happens once vitality is
+ * under the threshold - it advances shared PRNG state, so reaching it on a
+ * frame the original would not is a desync.
+ *
+ * The roll only reports; each caller writes Pattern_Index itself, so this
+ * deduplication removes no constants. */
+static s32 Check_Panic_Dodge(PLW* wk, s16 vital, s16 mask) {
+    if (wk->wu.vital_new >= vital) {
+        return 0;
     }
+    return !(random_32_com() & mask);
+}
+
+/* The two difficulties whose arms ran the second dodge - 7 reached it by
+ * falling through from its own arm. */
+static s32 Check_Panic_Difficulty(s16 difficulty) {
+    return (difficulty == 7) || (difficulty == 6);
+}
+
+/* Difficulty-dependent choice of shell reaction.
+ *
+ * The original was a switch where difficulty 7 fell through into 6 and both
+ * fell through to the default. The explicit tests reproduce that: only 7 runs
+ * the first dodge, only 7 and 6 run the second, and anything else - above 7
+ * included - goes straight to the default. */
+static void Guard_Shell_By_Difficulty(PLW* wk, WORK_Other* tmw) {
+    s16 difficulty;
+
+    difficulty = save_w[Present_Mode].Difficulty;
+
+    if ((difficulty == 7) && Check_Panic_Dodge(wk, 4, 0xF)) {
+        Pattern_Index[wk->wu.id] = 9;
+        return;
+    }
+
+    if (Check_Panic_Difficulty(difficulty) && Check_Panic_Dodge(wk, 2, 7)) {
+        Pattern_Index[wk->wu.id] = 9;
+        return;
+    }
+
+    Pattern_Index[wk->wu.id] = Decide_Shell_Reaction(wk, tmw, Shell_Change_Data_For_Reaction[tmw->wu.type]);
 }
 
 void Guard_or_Jump_VS_Shell(PLW* wk, WORK_Other* tmw, s16 xx) {
