@@ -23,60 +23,85 @@ static void g3_stop(WORK_Other* ewk) {
     ewk->wu.disp_flag = 0;
 }
 
-void effect_G3_move(WORK_Other* ewk) {
+/* Set the effect up against the player it follows. */
+static void g3_start(WORK_Other* ewk, PLW* pwk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.routine_no[1] = 0;
+    ewk->wu.disp_flag = 1;
+    ewk->wu.my_col_mode = 0x4200;
+    ewk->wu.my_col_code = 0x2020;
+    ewk->wu.position_y = pwk->wu.position_y - 8;
+    ewk->wu.position_z = pwk->wu.position_z - 4;
+    set_char_move_init(&ewk->wu, 0, 0);
+}
+
+/* Non-zero when the effect is done. Before the hand-off - routine_no[1] still
+ * zero - it dies with its master and hands off once the master's timer runs
+ * out; after it, it dies with its own animation. The hand-off itself happens
+ * here, which is why this is not a pure predicate. */
+static s32 g3_finished(WORK_Other* ewk) {
     WORK_Other* mwk;
-    PLW* pwk = (PLW*)ewk->wu.target_adrs;
+
+    if (ewk->wu.dead_f || Suicide[6] != 0) {
+        return 1;
+    }
+
+    if (!ewk->wu.routine_no[1]) {
+        mwk = (WORK_Other*)ewk->my_master;
+
+        if (mwk->wu.dead_f) {
+            return 1;
+        }
+
+        if (mwk->wu.dir_timer <= 0) {
+            ewk->wu.routine_no[1]++;
+            set_char_move_init(&ewk->wu, 0, 1);
+        }
+
+        return 0;
+    }
+
+    if (ewk->wu.cg_type == 0xFF) {
+        return 1;
+    }
+
+    return 0;
+}
+
+/* Hold station beside the player until the hand-off, then just animate. */
+static void g3_track_player(WORK_Other* ewk, PLW* pwk) {
     s16 adjust;
+
+    if (game_is_active()) {
+        if (!ewk->wu.routine_no[1]) {
+            adjust = 80;
+
+            if (ewk->wu.rl_flag) {
+                adjust = -adjust;
+            }
+
+            ewk->wu.position_x = pwk->wu.position_x + adjust;
+        }
+
+        char_move(&ewk->wu);
+    }
+}
+
+void effect_G3_move(WORK_Other* ewk) {
+    PLW* pwk = (PLW*)ewk->wu.target_adrs;
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.routine_no[1] = 0;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.my_col_mode = 0x4200;
-        ewk->wu.my_col_code = 0x2020;
-        ewk->wu.position_y = pwk->wu.position_y - 8;
-        ewk->wu.position_z = pwk->wu.position_z - 4;
-        set_char_move_init(&ewk->wu, 0, 0);
+        g3_start(ewk, pwk);
         /* fallthrough */
 
     case 1:
-        if (ewk->wu.dead_f || Suicide[6] != 0) {
+        if (g3_finished(ewk)) {
             g3_stop(ewk);
             break;
         }
 
-        if (!ewk->wu.routine_no[1]) {
-            mwk = (WORK_Other*)ewk->my_master;
-
-            if (mwk->wu.dead_f) {
-                g3_stop(ewk);
-                break;
-            }
-
-            if (mwk->wu.dir_timer <= 0) {
-                ewk->wu.routine_no[1]++;
-                set_char_move_init(&ewk->wu, 0, 1);
-            }
-        } else if (ewk->wu.cg_type == 0xFF) {
-            g3_stop(ewk);
-            break;
-        }
-
-        if (game_is_active()) {
-            if (!ewk->wu.routine_no[1]) {
-                adjust = 80;
-
-                if (ewk->wu.rl_flag) {
-                    adjust = -adjust;
-                }
-
-                ewk->wu.position_x = pwk->wu.position_x + adjust;
-            }
-
-            char_move(&ewk->wu);
-        }
-
+        g3_track_player(ewk, pwk);
         sort_push_request(&ewk->wu);
         break;
 
