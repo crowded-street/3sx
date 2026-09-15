@@ -17,6 +17,80 @@ static s32 is_bonus_stage_twenty(void) {
     return Bonus_Game_Flag == 20 && bg_w.stage == 20;
 }
 
+static void start_message_84(WORK_Other* ewk) {
+    switch (message_index) {
+    case 0:
+        Game_pause = 1;
+        ewk->wu.routine_no[1]++;
+        effect_56_init(0, 0);
+        break;
+
+    case 1:
+        Game_pause = 1;
+        ewk->wu.routine_no[1]++;
+        effect_56_init(1, 0);
+        break;
+
+    case 2:
+        Game_pause = 1;
+        ewk->wu.routine_no[1]++;
+
+        if (is_bonus_stage_twenty()) {
+            ewk->wu.dir_timer = 90;
+        }
+
+        effect_56_init(2, 0);
+        break;
+
+    case 3:
+        ewk->wu.routine_no[1]++;
+        effect_56_init(3, 3);
+        break;
+
+    case 4:
+    default:
+        ewk->wu.routine_no[1]++;
+        effect_56_init(4, 2);
+        break;
+    }
+}
+
+static void finish_message_84(WORK_Other* ewk) {
+    if ((ewk->wu.dir_timer -= 1) != 0) {
+        return;
+    }
+
+    switch (message_index) {
+    case 4:
+        Message_Suicide[2] = 1;
+        break;
+
+    case 3:
+        Message_Suicide[3] = 1;
+        break;
+
+    default:
+        Message_Suicide[0] = 1;
+        break;
+    }
+
+    dead_voice_request();
+    request_message = 0;
+    Game_pause = 0;
+    ewk->wu.routine_no[0] = ewk->wu.routine_no[1] = 0;
+}
+
+static void update_message_84(WORK_Other* ewk) {
+    switch (ewk->wu.routine_no[1]) {
+    case 0:
+        start_message_84(ewk);
+        break;
+
+    case 1:
+        finish_message_84(ewk);
+        break;
+    }
+}
 
 void effect_84_move(WORK_Other* ewk) {
     if (Suicide[0]) {
@@ -34,72 +108,7 @@ void effect_84_move(WORK_Other* ewk) {
         break;
 
     case 1:
-        switch (ewk->wu.routine_no[1]) {
-        case 0:
-            switch (message_index) {
-            case 0:
-                Game_pause = 1;
-                ewk->wu.routine_no[1]++;
-                effect_56_init(0, 0);
-                break;
-
-            case 1:
-                Game_pause = 1;
-                ewk->wu.routine_no[1]++;
-                effect_56_init(1, 0);
-                break;
-
-            case 2:
-                Game_pause = 1;
-                ewk->wu.routine_no[1]++;
-
-                if (is_bonus_stage_twenty()) {
-                    ewk->wu.dir_timer = 90;
-                }
-
-                effect_56_init(2, 0);
-                break;
-
-            case 3:
-                ewk->wu.routine_no[1]++;
-                effect_56_init(3, 3);
-                break;
-
-            case 4:
-            default:
-                ewk->wu.routine_no[1]++;
-                effect_56_init(4, 2);
-                break;
-            }
-
-            break;
-
-        case 1:
-            if ((ewk->wu.dir_timer -= 1) != 0) {
-                break;
-            }
-
-            switch (message_index) {
-            case 4:
-                Message_Suicide[2] = 1;
-                break;
-
-            case 3:
-                Message_Suicide[3] = 1;
-                break;
-
-            default:
-                Message_Suicide[0] = 1;
-                break;
-            }
-
-            dead_voice_request();
-            request_message = 0;
-            Game_pause = 0;
-            ewk->wu.routine_no[0] = ewk->wu.routine_no[1] = 0;
-            break;
-        }
-
+        update_message_84(ewk);
         break;
 
     case 2:
