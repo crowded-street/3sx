@@ -59,6 +59,13 @@ void Forced_Guard(PLW* wk, s16 Guard_Type) {
     Lever_Buff[wk->wu.id] |= Lever_Squat[wk->wu.id];
 }
 
+/* Latch the hit and hand the attack over to the reaction handler. Every attack
+ * function in this file ends its last state on these two lines. */
+static void Attack_Reaction_Exit(PLW* wk, s16 Reaction) {
+    Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
+    Reaction_Sub(wk, Reaction, 0);
+}
+
 void Provoke(PLW* wk, s16 Lever) {
     switch (CP_Index[wk->wu.id][1]) {
     case 0:
@@ -133,8 +140,7 @@ void Normal_Attack(PLW* wk, s16 Reaction, u16 Lever_Data) {
 
     default:
         Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-        Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
-        Reaction_Sub(wk, Reaction, 0);
+        Attack_Reaction_Exit(wk, Reaction);
         break;
     }
 }
@@ -185,8 +191,7 @@ void Normal_Attack_SP(PLW* wk, s16 Reaction, u16 Lever_Data, s16 Time) {
         break;
 
     default:
-        Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
-        Reaction_Sub(wk, Reaction, 0);
+        Attack_Reaction_Exit(wk, Reaction);
         break;
     }
 }
@@ -225,8 +230,7 @@ void Adjust_Attack(PLW* wk, s16 Reaction, u16 Lever_Data) {
 
     default:
         Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-        Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
-        Reaction_Sub(wk, Reaction, 0);
+        Attack_Reaction_Exit(wk, Reaction);
         break;
     }
 }
@@ -293,8 +297,7 @@ void Lever_Attack(PLW* wk, s16 Reaction, u16 Lever, u16 Lever_Data) {
         if (wk->wu.routine_no[1] == 2) {
             Be_Catch(wk);
         } else {
-            Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
-            Reaction_Sub(wk, Reaction, 0);
+            Attack_Reaction_Exit(wk, Reaction);
         }
         break;
     }
@@ -343,8 +346,7 @@ void Lever_Attack_SP(PLW* wk, s16 Reaction, u16 Lever, u16 Lever_Data, s16 Time)
         break;
 
     default:
-        Stock_Hit_Flag[wk->wu.id] = wk->wu.hf.hit.player;
-        Reaction_Sub(wk, Reaction, 0);
+        Attack_Reaction_Exit(wk, Reaction);
         break;
     }
 }
