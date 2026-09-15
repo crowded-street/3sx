@@ -66,37 +66,57 @@ static void Attack_Reaction_Exit(PLW* wk, s16 Reaction) {
     Reaction_Sub(wk, Reaction, 0);
 }
 
+/* Start the taunt. Non-zero when the state advanced and the arm state runs in
+ * the same frame; each early exit here broke out of the switch instead. */
+static s32 Provoke_Begin(PLW* wk, s16 Lever) {
+    if (Check_Passive(wk) != 0) {
+        return 0;
+    }
+
+    if (wk->spmv_ng_flag & DIP_TAUNT_DISABLED) {
+        Next_Be_Free(wk);
+        return 0;
+    }
+
+    CP_Index[wk->wu.id][1]++;
+    if (Lever != -1) {
+        Lever_LR[wk->wu.id] = Setup_Guard_Lever(wk, Lever & 1);
+        Lever_LR[wk->wu.id] |= Lever & 2;
+    }
+
+    return 1;
+}
+
+/* Wait for the taunt to be permitted, then send the taunt input. */
+static void Provoke_Arm(PLW* wk) {
+    if (wk->permited_koa & 0x80) {
+        CP_Index[wk->wu.id][1]++;
+        Lever_Buff[wk->wu.id] = 0x440;
+    }
+}
+
+/* Hold the lever until the taunt animation is over. */
+static void Provoke_Wait(PLW* wk) {
+    Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
+    if ((wk->wu.routine_no[1] != 4) || (wk->wu.routine_no[2] != 0x1E)) {
+        Reaction_Exit_Sub(wk);
+    }
+}
+
 void Provoke(PLW* wk, s16 Lever) {
     switch (CP_Index[wk->wu.id][1]) {
     case 0:
-        if (Check_Passive(wk) != 0) {
+        if (!Provoke_Begin(wk, Lever)) {
             break;
-        }
-
-        if (wk->spmv_ng_flag & DIP_TAUNT_DISABLED) {
-            Next_Be_Free(wk);
-            break;
-        }
-
-        CP_Index[wk->wu.id][1]++;
-        if (Lever != -1) {
-            Lever_LR[wk->wu.id] = Setup_Guard_Lever(wk, Lever & 1);
-            Lever_LR[wk->wu.id] |= Lever & 2;
         }
         /* fallthrough */
-    case 1:
 
-        if (wk->permited_koa & 0x80) {
-            CP_Index[wk->wu.id][1]++;
-            Lever_Buff[wk->wu.id] = 0x440;
-        }
+    case 1:
+        Provoke_Arm(wk);
         break;
 
     default:
-        Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-        if ((wk->wu.routine_no[1] != 4) || (wk->wu.routine_no[2] != 0x1E)) {
-            Reaction_Exit_Sub(wk);
-        }
+        Provoke_Wait(wk);
         break;
     }
 }
