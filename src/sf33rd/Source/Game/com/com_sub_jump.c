@@ -540,21 +540,13 @@ static void Jump_Attack_Term_Land(PLW* wk, s16 Reaction) {
     Check_Landed(wk, Reaction & 0xFFF);
 }
 
-void Jump_Attack_Term(
-    PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Jump_Dir, s16 Range_JX, s16 Range_JY,
-    s16 J_Lever_Data
+/* The airborne half of Jump_Attack_Term: everything from the rise onwards. The
+ * case labels are the original ones, so this reads against the same state
+ * numbers as the ground half it was lifted out of. */
+static void Jump_Attack_Term_Airborne(
+    PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Range_JX, s16 Range_JY, s16 J_Lever_Data
 ) {
     switch (CP_Index[wk->wu.id][1]) {
-
-    case 0:
-        if (!Jump_Attack_Term_Begin(wk, Reaction)) {
-            break;
-        }
-        /* Fallthrough */
-
-    case 1:
-        Jump_Attack_Term_Launch(wk, Jump_Dir);
-        break;
 
     case 2:
         Jump_Attack_Rise(wk);
@@ -574,6 +566,28 @@ void Jump_Attack_Term(
 
     default:
         Jump_Attack_Term_Land(wk, Reaction);
+        break;
+    }
+}
+
+void Jump_Attack_Term(
+    PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Jump_Dir, s16 Range_JX, s16 Range_JY,
+    s16 J_Lever_Data
+) {
+    switch (CP_Index[wk->wu.id][1]) {
+
+    case 0:
+        if (!Jump_Attack_Term_Begin(wk, Reaction)) {
+            break;
+        }
+        /* Fallthrough */
+
+    case 1:
+        Jump_Attack_Term_Launch(wk, Jump_Dir);
+        break;
+
+    default:
+        Jump_Attack_Term_Airborne(wk, Range_X, Range_Y, Reaction, Lever_Data, Range_JX, Range_JY, J_Lever_Data);
         break;
     }
 
