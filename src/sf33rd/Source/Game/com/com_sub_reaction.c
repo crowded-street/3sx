@@ -315,23 +315,30 @@ void Select_Active(PLW* wk) {
 #endif
 }
 
+/* Characters that map their third super art onto a dedicated active table. */
+static s32 Check_SA_Arts_2(PLW* wk, s16 my_char) {
+    return (My_char[wk->wu.id] == my_char) && (plw[wk->wu.id].sa->kind_of_arts == 2);
+}
+
 s32 Check_SA_Active(PLW* wk, s16* pl_id) {
     if (wk->sa->ok != -1) {
         return 0;
     }
+
     if (My_char[wk->wu.id] == 9) {
         if (plw[wk->wu.id].sa->kind_of_arts == 0) {
             return *pl_id = 3;
         }
         return *pl_id = 2;
     }
-    if ((My_char[wk->wu.id] == 3) && (plw[wk->wu.id].sa->kind_of_arts == 2)) {
+
+    if (Check_SA_Arts_2(wk, 3)) {
         return *pl_id = 1;
     }
-    if ((My_char[wk->wu.id] == 0xA) && (plw[wk->wu.id].sa->kind_of_arts == 2)) {
+    if (Check_SA_Arts_2(wk, 0xA)) {
         return *pl_id = 1;
     }
-    if ((My_char[wk->wu.id] == 0x11) && (plw[wk->wu.id].sa->kind_of_arts == 2)) {
+    if (Check_SA_Arts_2(wk, 0x11)) {
         return *pl_id = 4;
     }
     return 0;
@@ -383,13 +390,40 @@ void Decide_Follow_Menu(PLW* wk) {
     Pattern_Index[wk->wu.id] = Menu_Add_Ptr1->zzzz[xx][Area_Number[wk->wu.id]];
 }
 
+/* Read the passive table for the current area, and report which jump-pass
+ * timer slot goes with it. Everything past area C shares D's table and slot,
+ * which is what the original default arm did. */
+static u16 Select_Passive_Value(PLW* wk, s16* slot) {
+    switch (Area_Number[wk->wu.id]) {
+    case 0:
+        *slot = 0;
+        return Passive_A_Unit_Data_04[wk->player_number][VS_Tech[wk->wu.id]][Lv][Rnd];
+
+    case 1:
+        *slot = 1;
+        return Passive_B_Unit_Data_04[wk->player_number][VS_Tech[wk->wu.id]][Lv][Rnd];
+
+    case 2:
+        *slot = 2;
+        return Passive_C_Unit_Data_04[wk->player_number][VS_Tech[wk->wu.id]][Lv][Rnd];
+    }
+
+    *slot = 3;
+    return Passive_D_Unit_Data_04[wk->player_number][VS_Tech[wk->wu.id]][Lv][Rnd];
+}
+
+/* Techs that park the pattern on CP_No 6 rather than 5. */
+static s32 Check_Passive_Immediate(PLW* wk) {
+    return (VS_Tech[wk->wu.id] == 0x19) || (VS_Tech[wk->wu.id] == 0x13) || (Timer_00[wk->wu.id] == 0);
+}
+
 s32 Select_Passive(PLW* wk) {
     u16 xx;
+    s16 slot;
 
-    if (VS_Tech[wk->wu.id] == 0xB) {
-        Area_Number[wk->wu.id] = Ck_Area_Shell(wk);
-    }
-    if (VS_Tech[wk->wu.id] == 0x1E) {
+    /* The original tested these two techs in separate ifs; VS_Tech cannot hold
+     * both, so Ck_Area_Shell is still reached at most once. */
+    if ((VS_Tech[wk->wu.id] == 0xB) || (VS_Tech[wk->wu.id] == 0x1E)) {
         Area_Number[wk->wu.id] = Ck_Area_Shell(wk);
     }
 
@@ -403,63 +437,20 @@ s32 Select_Passive(PLW* wk) {
 
     Setup_Random(wk);
 
-    switch (Area_Number[wk->wu.id]) {
-    case 0:
-        xx = Passive_A_Unit_Data_04[wk->player_number][VS_Tech[wk->wu.id]][Lv][Rnd];
+    xx = Select_Passive_Value(wk, &slot);
 
-        if (xx == 0xFF) {
-            Counter_Attack[wk->wu.id] = 0;
-            Passive_Flag[wk->wu.id] = 0;
-            Jump_Pass_Timer[wk->wu.id][0] = 0x78;
+    /* 0xFF means no passive is available here: park the jump-pass timer and
+     * report failure. All four arms did this identically. */
+    if (xx == 0xFF) {
+        Counter_Attack[wk->wu.id] = 0;
+        Passive_Flag[wk->wu.id] = 0;
+        Jump_Pass_Timer[wk->wu.id][slot] = 0x78;
 
-            return -1;
-        }
-        Pattern_Index[wk->wu.id] = xx;
-        Jump_Pass_Timer[wk->wu.id][0] = 0;
-        break;
-
-    case 1:
-        xx = Passive_B_Unit_Data_04[wk->player_number][VS_Tech[wk->wu.id]][Lv][Rnd];
-
-        if (xx == 0xFF) {
-            Counter_Attack[wk->wu.id] = 0;
-            Passive_Flag[wk->wu.id] = 0;
-            Jump_Pass_Timer[wk->wu.id][1] = 0x78;
-
-            return -1;
-        }
-        Pattern_Index[wk->wu.id] = xx;
-        Jump_Pass_Timer[wk->wu.id][1] = 0;
-        break;
-
-    case 2:
-        xx = Passive_C_Unit_Data_04[wk->player_number][VS_Tech[wk->wu.id]][Lv][Rnd];
-
-        if (xx == 0xFF) {
-            Counter_Attack[wk->wu.id] = 0;
-            Passive_Flag[wk->wu.id] = 0;
-            Jump_Pass_Timer[wk->wu.id][2] = 0x78;
-
-            return -1;
-        }
-        Pattern_Index[wk->wu.id] = xx;
-        Jump_Pass_Timer[wk->wu.id][2] = 0;
-        break;
-
-    default:
-        xx = Passive_D_Unit_Data_04[wk->player_number][VS_Tech[wk->wu.id]][Lv][Rnd];
-
-        if (xx == 0xFF) {
-            Counter_Attack[wk->wu.id] = 0;
-            Passive_Flag[wk->wu.id] = 0;
-            Jump_Pass_Timer[wk->wu.id][3] = 0x78;
-
-            return -1;
-        }
-        Pattern_Index[wk->wu.id] = xx;
-        Jump_Pass_Timer[wk->wu.id][3] = 0;
-        break;
+        return -1;
     }
+
+    Pattern_Index[wk->wu.id] = xx;
+    Jump_Pass_Timer[wk->wu.id][slot] = 0;
 
     Passive_Flag[wk->wu.id] = 1;
     CP_No[wk->wu.id][1] = 0;
@@ -473,7 +464,7 @@ s32 Select_Passive(PLW* wk) {
     }
 #endif
 
-    if ((VS_Tech[wk->wu.id] == 0x19) || (VS_Tech[wk->wu.id] == 0x13) || (Timer_00[wk->wu.id] == 0)) {
+    if (Check_Passive_Immediate(wk)) {
         CP_No[wk->wu.id][0] = 6;
         CP_Index[wk->wu.id][0] = 0;
         CP_Index[wk->wu.id][1] = 0;
@@ -597,9 +588,34 @@ s32 Check_Passive(PLW* wk) {
     return 0;
 }
 
+/* Ground guard range. Note this is not com_sub_jump.c's Check_Guard_In_Range:
+ * the air version adds 0x20 to the hit range. */
+static s32 Check_Guard_Range(PLW* wk, WORK* em) {
+    s16 xx;
+
+    xx = Hit_Range_Data[em->hit_range];
+    xx += Com_Width_Data[wk->wu.id];
+
+    return PL_Distance[wk->wu.id] <= xx;
+}
+
+/* Ground guard skill level. Also not the air version: that one applies
+ * CC_Value before the forced-CPU cap and clamps at 7, this one does neither. */
+static void Setup_Ground_Guard_Level(PLW* wk) {
+    Lv = Setup_Lv10(0);
+    if ((Demo_Flag == 0) && (Weak_PL == wk->wu.id)) {
+        Lv = 2;
+    }
+    Lv += CC_Value[0];
+    if (Break_Into_CPU == 2) {
+        Lv = 0xA;
+    }
+
+    Rnd = random_16_com();
+}
+
 s32 Check_Guard(PLW* wk) {
     WORK* em;
-    s16 xx;
     s16 zz;
 
     em = (WORK*)wk->wu.target_adrs;
@@ -612,23 +628,11 @@ s32 Check_Guard(PLW* wk) {
         return 0;
     }
 
-    xx = Hit_Range_Data[em->hit_range];
-    xx += Com_Width_Data[wk->wu.id];
-
-    if (PL_Distance[wk->wu.id] > xx) {
+    if (!Check_Guard_Range(wk, em)) {
         return 0;
     }
 
-    Lv = Setup_Lv10(0);
-    if ((Demo_Flag == 0) && (Weak_PL == wk->wu.id)) {
-        Lv = 2;
-    }
-    Lv += CC_Value[0];
-    if (Break_Into_CPU == 2) {
-        Lv = 0xA;
-    }
-
-    Rnd = random_16_com();
+    Setup_Ground_Guard_Level(wk);
 
     zz = Setup_EM_Rank_Index(wk);
 
