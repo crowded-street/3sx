@@ -114,10 +114,7 @@ void Hi_Jump(PLW* wk, s16 Pl_Number, s16 Jump_Dir);
 s32 Check_Start_Hi_Jump(PLW* wk);
 s32 Check_Air_Guard(PLW* wk);
 void Jump_Attack(PLW* wk, s16 Reaction, s16 Time_Data, u16 Lever_Data, s16 Jump_Dir);
-void Jump_Attack_Term(
-    PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Jump_Dir, s16 Range_JX, s16 Range_JY,
-    s16 J_Lever_Data
-);
+void Jump_Attack_Term(PLW* wk, const Jump_Term_Args* a);
 s32 Check_SP_Jump_Attack(PLW* wk, s16 Lever_Data);
 s32 Check_VS_Air_Attack(PLW* wk, s16 Range_JX, s16 Range_JY, s16 J_Lever_Data);
 void Hi_Jump_Attack(PLW* wk, s16 Reaction, s16 Time_Data, u16 Lever_Data, s16 Jump_Dir);

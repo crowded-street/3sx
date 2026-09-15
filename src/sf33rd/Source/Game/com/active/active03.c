@@ -221,7 +221,7 @@ void Pattern03_0013(PLW* wk) {
 void Pattern03_0014(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack_Term(wk, -0x7FA0, -0x7FD0, 8, 0x20, 2, -0x7fa0, 8, 0x20);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA0, -0x7FD0, 8, 0x20, 2, -0x7fa0, 8, 0x20});
         break;
 
     default:
@@ -313,7 +313,7 @@ void Pattern03_0020(PLW* wk) {
 void Pattern03_0021(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack_Term(wk, -0x7FA0, -0x7FD0, 8, 0x40, 0, -0x7fa0, 8, 0x200);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA0, -0x7FD0, 8, 0x40, 0, -0x7fa0, 8, 0x200});
         break;
 
     default:
@@ -657,7 +657,7 @@ void Pattern03_0042(PLW* wk) {
 void Pattern03_0043(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack_Term(wk, -0x7FA0, 8, 8, 0x8400, 0, -1, -0x7FA0, 0x400);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA0, 8, 8, 0x8400, 0, -1, -0x7FA0, 0x400});
         break;
 
     default:
@@ -669,7 +669,7 @@ void Pattern03_0043(PLW* wk) {
 void Pattern03_0044(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack_Term(wk, -0x7FA0, -0x7FC0, 8, 0x20, 0, -0x7FA0, 8, 0x400);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA0, -0x7FC0, 8, 0x20, 0, -0x7FA0, 8, 0x400});
         break;
 
     default:
@@ -853,7 +853,7 @@ void Pattern03_0057(PLW* wk) {
         break;
 
     case 1:
-        Jump_Attack_Term(wk, -0x7FA0, -0x7FC0, 8, 0x20, 1, -0x7FA0, 8, 0x200);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA0, -0x7FC0, 8, 0x20, 1, -0x7FA0, 8, 0x200});
         break;
 
     default:
@@ -925,7 +925,7 @@ void Pattern03_0060(PLW* wk) {
         break;
 
     case 1:
-        Jump_Attack_Term(wk, -0x7FA0, -0x7FC0, 8, 0x200, 0, -1, -1, -1);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA0, -0x7FC0, 8, 0x200, 0, -1, -1, -1});
         break;
 
     case 2:

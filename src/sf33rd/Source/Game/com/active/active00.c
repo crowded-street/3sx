@@ -217,7 +217,7 @@ void Pattern00_0013(PLW* wk) {
 void Pattern00_0014(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack_Term(wk, -1, -0x7FC0, 8, 0x40, 2, -0x7F90, 8, 0x20);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, -0x7FC0, 8, 0x40, 2, -0x7F90, 8, 0x20});
         break;
 
     default:
@@ -297,7 +297,7 @@ void Pattern00_0019(PLW* wk) {
 void Pattern00_0020(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack_Term(wk, -1, -0x7FB0, 8, 0x10, 0, 8, 8, 8);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, -0x7FB0, 8, 0x10, 0, 8, 8, 8});
         break;
 
     default:
@@ -309,7 +309,7 @@ void Pattern00_0020(PLW* wk) {
 void Pattern00_0021(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack_Term(wk, -1, -0x7FC0, 8, 0x400, 0, -0x7F90, 8, 0x200);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, -0x7FC0, 8, 0x400, 0, -0x7F90, 8, 0x200});
         break;
 
     default:
@@ -401,7 +401,7 @@ void Pattern00_0026(PLW* wk) {
 void Pattern00_0027(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack_Term(wk, -1, -0x7FB0, 0xB, 0x20, 0, -0x7F90, 8, 0x20);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, -0x7FB0, 0xB, 0x20, 0, -0x7F90, 8, 0x20});
         break;
 
     default:
@@ -661,7 +661,7 @@ void Pattern00_0042(PLW* wk) {
 void Pattern00_0043(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack_Term(wk, -1, -0x7FC0, 8, 0x400, 0, -1, -1, -1);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, -0x7FC0, 8, 0x400, 0, -1, -1, -1});
         break;
 
     default:
@@ -673,7 +673,7 @@ void Pattern00_0043(PLW* wk) {
 void Pattern00_0044(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack_Term(wk, -1, -0x7FC0, 8, 0x40, 0, -1, -1, -1);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, -0x7FC0, 8, 0x40, 0, -1, -1, -1});
         break;
 
     default:
@@ -829,7 +829,7 @@ void Pattern00_0056(PLW* wk) {
         break;
 
     case 1:
-        Jump_Attack_Term(wk, -1, -0x7FB8, 8, 0x400, 1, -0x7F90, -1, 0x200);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, -0x7FB8, 8, 0x400, 1, -0x7F90, -1, 0x200});
         break;
 
     default:

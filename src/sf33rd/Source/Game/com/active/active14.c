@@ -421,7 +421,7 @@ void Pattern14_0029(PLW* wk) {
         break;
 
     case 1:
-        Jump_Attack_Term(wk, -0x7FA8, -0x7FC8, 0xB, 0x400, 0, -0x7F80, -1, 0x400);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA8, -0x7FC8, 0xB, 0x400, 0, -0x7F80, -1, 0x400});
         break;
 
     case 2:
@@ -445,7 +445,7 @@ void Pattern14_0030(PLW* wk) {
         break;
 
     case 1:
-        Jump_Attack_Term(wk, 0x8058, 0x8038, 0xb, 0x400, 0, 0x8080, -1, 0x400);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){0x8058, 0x8038, 0xb, 0x400, 0, 0x8080, -1, 0x400});
         break;
 
     case 2:
@@ -477,7 +477,7 @@ void Pattern14_0031(PLW* wk) {
         break;
 
     case 1:
-        Jump_Attack_Term(wk, -0x7FA8, -0x7FC8, 0xB, 0x400, 0, -0x7F80, -1, 0x400);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA8, -0x7FC8, 0xB, 0x400, 0, -0x7F80, -1, 0x400});
         break;
 
     case 2:
@@ -501,7 +501,7 @@ void Pattern14_0032(PLW* wk) {
         break;
 
     case 1:
-        Jump_Attack_Term(wk, 0x8058, 0x8038, 0xb, 0x400, 0, 0x8080, -1, 0x400);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){0x8058, 0x8038, 0xb, 0x400, 0, 0x8080, -1, 0x400});
         break;
 
     case 2:
@@ -1021,7 +1021,7 @@ void Pattern14_0058(PLW* wk) {
         break;
 
     case 1:
-        Jump_Attack_Term(wk, -0x7FA8, -0x7FC8, 9, 0x400, 0, -0x7F80, -1, 0x400);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA8, -0x7FC8, 9, 0x400, 0, -0x7F80, -1, 0x400});
         break;
 
     case 2:
@@ -1049,7 +1049,7 @@ void Pattern14_0059(PLW* wk) {
         break;
 
     case 1:
-        Jump_Attack_Term(wk, 0x8058, 0x8038, 9, 0x400, 0, 0x8080, -1, 0x400);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){0x8058, 0x8038, 9, 0x400, 0, 0x8080, -1, 0x400});
         break;
 
     case 2:
@@ -1085,7 +1085,7 @@ void Pattern14_0060(PLW* wk) {
         break;
 
     case 1:
-        Jump_Attack_Term(wk, -0x7FA8, -0x7FC8, 9, 0x400, 0, -0x7F80, -1, 0x400);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA8, -0x7FC8, 9, 0x400, 0, -0x7F80, -1, 0x400});
         break;
 
     case 2:
@@ -1145,7 +1145,7 @@ void Pattern14_0062(PLW* wk) {
         break;
 
     case 1:
-        Jump_Attack_Term(wk, -0x7FA8, -0x7FC8, 9, 0x400, 0, -0x7F80, -1, 0x400);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA8, -0x7FC8, 9, 0x400, 0, -0x7F80, -1, 0x400});
         break;
 
     case 2:
@@ -1869,7 +1869,7 @@ void Pattern14_0092(PLW* wk) {
         break;
 
     case 1:
-        Jump_Attack_Term(wk, -1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40});
         break;
 
     case 2:
@@ -1889,7 +1889,7 @@ void Pattern14_0093(PLW* wk) {
         break;
 
     case 1:
-        Jump_Attack_Term(wk, -1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40});
         break;
 
     case 2:
@@ -1909,7 +1909,7 @@ void Pattern14_0094(PLW* wk) {
         break;
 
     case 1:
-        Jump_Attack_Term(wk, -1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40});
         break;
 
     case 2:
@@ -1929,7 +1929,7 @@ void Pattern14_0095(PLW* wk) {
         break;
 
     case 1:
-        Jump_Attack_Term(wk, -1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40});
         break;
 
     case 2:
@@ -2145,7 +2145,7 @@ void Pattern14_0108(PLW* wk) {
         break;
 
     case 2:
-        Jump_Attack_Term(wk, -1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40});
         break;
 
     case 3:
@@ -2169,7 +2169,7 @@ void Pattern14_0109(PLW* wk) {
         break;
 
     case 2:
-        Jump_Attack_Term(wk, -1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40});
         break;
 
     case 3:
@@ -2193,7 +2193,7 @@ void Pattern14_0110(PLW* wk) {
         break;
 
     case 2:
-        Jump_Attack_Term(wk, -1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40});
         break;
 
     case 3:
@@ -2217,7 +2217,7 @@ void Pattern14_0111(PLW* wk) {
         break;
 
     case 2:
-        Jump_Attack_Term(wk, -1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40});
         break;
 
     case 3:
@@ -2841,7 +2841,7 @@ void Pattern14_0142(PLW* wk) {
         break;
 
     case 2:
-        Jump_Attack_Term(wk, -1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40});
         break;
 
     case 3:
@@ -2861,7 +2861,7 @@ void Pattern14_0143(PLW* wk) {
         break;
 
     case 1:
-        Jump_Attack_Term(wk, -1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40});
         break;
 
     case 2:
@@ -2897,7 +2897,7 @@ void Pattern14_0145(PLW* wk) {
         break;
 
     case 2:
-        Jump_Attack_Term(wk, -1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40});
         break;
 
     case 3:
@@ -2921,7 +2921,7 @@ void Pattern14_0146(PLW* wk) {
         break;
 
     case 2:
-        Jump_Attack_Term(wk, -1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40});
         break;
 
     case 3:
@@ -2945,7 +2945,7 @@ void Pattern14_0147(PLW* wk) {
         break;
 
     case 2:
-        Jump_Attack_Term(wk, -1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40});
         break;
 
     case 3:
@@ -2969,7 +2969,7 @@ void Pattern14_0148(PLW* wk) {
         break;
 
     case 2:
-        Jump_Attack_Term(wk, -1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40);
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40});
         break;
 
     case 3:

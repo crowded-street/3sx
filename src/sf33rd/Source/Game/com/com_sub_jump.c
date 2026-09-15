@@ -443,30 +443,30 @@ void Jump_Attack(PLW* wk, s16 Reaction, s16 Time_Data, u16 Lever_Data, s16 Jump_
 /* CP_Index 3: airborne approach. Each range gate that fails leaves CP_Index
  * alone so the next frame retries. Lever_Data is a by-value copy; the original
  * reassigned its own parameter here and nothing downstream read it back. */
-static void Jump_Attack_Term_Approach(
-    PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Range_JX, s16 Range_JY, s16 J_Lever_Data
-) {
+static void Jump_Attack_Term_Approach(PLW* wk, const Jump_Term_Args* a) {
+    u16 Lever_Data;
+
     Check_Air_Guard(wk);
-    if (Check_Landed(wk, Reaction) != 0) {
+    if (Check_Landed(wk, a->Reaction) != 0) {
         return;
     }
 
-    if (Check_VS_Air_Attack(wk, Range_JX, Range_JY, J_Lever_Data) != 0) {
+    if (Check_VS_Air_Attack(wk, a->Range_JX, a->Range_JY, a->J_Lever_Data) != 0) {
         return;
     }
     Check_Term_ABS_Distance(wk);
 
-    if (Check_Term_Sub(wk, PL_Distance[wk->wu.id], Range_X) == 0) {
+    if (Check_Term_Sub(wk, PL_Distance[wk->wu.id], a->Range_X) == 0) {
         return;
     }
-    if (Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, Range_Y) == 0) {
+    if (Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, a->Range_Y) == 0) {
         return;
     }
-    if (Check_Term_Sub(wk, wk->wu.xyz[1].disp.pos, Range_Y) == 0) {
+    if (Check_Term_Sub(wk, wk->wu.xyz[1].disp.pos, a->Range_Y) == 0) {
         return;
     }
 
-    Lever_Data = Check_SP_Jump_Attack(wk, Lever_Data);
+    Lever_Data = Check_SP_Jump_Attack(wk, a->Lever_Data);
     Lever_Buff[wk->wu.id] = Lever_Data;
 
     CP_Index[wk->wu.id][1]++;
@@ -543,9 +543,7 @@ static void Jump_Attack_Term_Land(PLW* wk, s16 Reaction) {
 /* The airborne half of Jump_Attack_Term: everything from the rise onwards. The
  * case labels are the original ones, so this reads against the same state
  * numbers as the ground half it was lifted out of. */
-static void Jump_Attack_Term_Airborne(
-    PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Range_JX, s16 Range_JY, s16 J_Lever_Data
-) {
+static void Jump_Attack_Term_Airborne(PLW* wk, const Jump_Term_Args* a) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 2:
@@ -553,41 +551,38 @@ static void Jump_Attack_Term_Airborne(
         break;
 
     case 3:
-        Jump_Attack_Term_Approach(wk, Range_X, Range_Y, Reaction, Lever_Data, Range_JX, Range_JY, J_Lever_Data);
+        Jump_Attack_Term_Approach(wk, a);
         break;
 
     case 4:
-        Jump_Attack_Term_Hold(wk, Reaction);
+        Jump_Attack_Term_Hold(wk, a->Reaction);
         break;
 
     case 5:
-        Jump_Attack_Term_Finish(wk, Reaction);
+        Jump_Attack_Term_Finish(wk, a->Reaction);
         break;
 
     default:
-        Jump_Attack_Term_Land(wk, Reaction);
+        Jump_Attack_Term_Land(wk, a->Reaction);
         break;
     }
 }
 
-void Jump_Attack_Term(
-    PLW* wk, s16 Range_X, s16 Range_Y, s16 Reaction, u16 Lever_Data, s16 Jump_Dir, s16 Range_JX, s16 Range_JY,
-    s16 J_Lever_Data
-) {
+void Jump_Attack_Term(PLW* wk, const Jump_Term_Args* a) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
-        if (!Jump_Attack_Term_Begin(wk, Reaction)) {
+        if (!Jump_Attack_Term_Begin(wk, a->Reaction)) {
             break;
         }
         /* Fallthrough */
 
     case 1:
-        Jump_Attack_Term_Launch(wk, Jump_Dir);
+        Jump_Attack_Term_Launch(wk, a->Jump_Dir);
         break;
 
     default:
-        Jump_Attack_Term_Airborne(wk, Range_X, Range_Y, Reaction, Lever_Data, Range_JX, Range_JY, J_Lever_Data);
+        Jump_Attack_Term_Airborne(wk, a);
         break;
     }
 
