@@ -156,18 +156,9 @@ static void Reaction_Locked_Exit(PLW* wk) {
     Reaction_Exit_If_Ready(wk);
 }
 
-void Reaction_Sub(PLW* wk, s16 Reaction, s16 Power_Level) {
-    s16 code;
-
-    code = Reaction & 0x7F;
-
-    /* Codes 0-7 all took the follow path. The mask keeps code non-negative, so
-     * the eight case labels the original listed are exactly this range. */
-    if (code <= 7) {
-        Reaction_Follow_Sub(wk, Reaction);
-        return;
-    }
-
+/* The codes above the follow range. The case labels are the original ones, and
+ * the caller passes the masked code it already computed. */
+static void Reaction_Code_Sub(PLW* wk, s16 code, s16 Reaction, s16 Power_Level) {
     switch (code) {
     case 9:
         Reaction_Exit_Or_End(wk);
@@ -195,6 +186,21 @@ void Reaction_Sub(PLW* wk, s16 Reaction, s16 Power_Level) {
         Reaction_Locked_Exit(wk);
         break;
     }
+}
+
+void Reaction_Sub(PLW* wk, s16 Reaction, s16 Power_Level) {
+    s16 code;
+
+    code = Reaction & 0x7F;
+
+    /* Codes 0-7 all took the follow path. The mask keeps code non-negative, so
+     * the eight case labels the original listed are exactly this range. */
+    if (code <= 7) {
+        Reaction_Follow_Sub(wk, Reaction);
+        return;
+    }
+
+    Reaction_Code_Sub(wk, code, Reaction, Power_Level);
 }
 
 s32 Check_Meoshi_Attack(PLW* wk, s16 Reaction, s16 Power_Level) {
