@@ -322,10 +322,9 @@ s32 Check_Start_Normal_Attack(PLW* wk, s16 Reaction, u16 Lever_Data) {
     return 1;
 }
 
-/* Check the lever attack may start. Non-zero when the state advanced and the
- * wind-up runs in the same frame; each early exit here broke out of the switch
- * instead. */
-static s32 Lever_Attack_Begin(PLW* wk, u16 Lever, u16 Lever_Data) {
+/* The gates both lever attack openings run before they commit, and the dash
+ * clear that follows them. Non-zero when the attack may start. */
+static s32 Lever_Attack_Gates_Passed(PLW* wk, u16 Lever, u16 Lever_Data) {
     if (Check_Passive(wk) != 0) {
         return 0;
     }
@@ -333,6 +332,17 @@ static s32 Lever_Attack_Begin(PLW* wk, u16 Lever, u16 Lever_Data) {
         return 0;
     }
     dash_flag_clear(wk->wu.id);
+
+    return 1;
+}
+
+/* Check the lever attack may start. Non-zero when the state advanced and the
+ * wind-up runs in the same frame; each early exit here broke out of the switch
+ * instead. */
+static s32 Lever_Attack_Begin(PLW* wk, u16 Lever, u16 Lever_Data) {
+    if (!Lever_Attack_Gates_Passed(wk, Lever, Lever_Data)) {
+        return 0;
+    }
 
     CP_Index[wk->wu.id][1]++;
     Check_First_Menu(wk);
@@ -382,13 +392,9 @@ void Lever_Attack(PLW* wk, s16 Reaction, u16 Lever, u16 Lever_Data) {
  * state advanced and the wind-up runs in the same frame; each early exit here
  * broke out of the switch instead. */
 static s32 Lever_Attack_SP_Begin(PLW* wk, u16 Lever, u16 Lever_Data, s16 Time) {
-    if (Check_Passive(wk) != 0) {
+    if (!Lever_Attack_Gates_Passed(wk, Lever, Lever_Data)) {
         return 0;
     }
-    if (Check_Start_Lever_Attack(wk, Lever, Lever_Data) != 0) {
-        return 0;
-    }
-    dash_flag_clear(wk->wu.id);
 
     Timer_00[wk->wu.id] = Time;
     CP_Index[wk->wu.id][1]++;
