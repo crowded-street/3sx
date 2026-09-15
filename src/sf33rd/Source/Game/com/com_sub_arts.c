@@ -537,20 +537,39 @@ s32 Check_Wait_Term(PLW* wk, s16 Option) {
     return 0;
 }
 
+/* Arm the guard for the wait: the lever the guard holds, and the guard flag it
+ * only raises when a lever was given. */
+static void Wait_Attack_Complete_Begin(PLW* wk, u16 Lever_Data) {
+    CP_Index[wk->wu.id][1]++;
+    dash_flag_clear(wk->wu.id);
+
+    if (Lever_Data != 0) {
+        Lever_LR[wk->wu.id] = Setup_Guard_Lever(wk, 1);
+        Lever_LR[wk->wu.id] |= Lever_Data & 2;
+        Guard_Flag[wk->wu.id] = 1;
+    } else {
+        Lever_LR[wk->wu.id] = 0;
+    }
+}
+
+/* Leave the wait once the guard is over. Passive_Flag is only cleared on the
+ * unoptioned path, as before. */
+static void Wait_Attack_Complete_Exit(PLW* wk, s16 Option) {
+    Advance_CP_State(wk);
+    Guard_Flag[wk->wu.id] = 0;
+
+    Flip_Flag[wk->wu.id] = 0;
+    Limited_Flag[wk->wu.id] = 0;
+    if (Option == 0) {
+        Passive_Flag[wk->wu.id] = 0;
+    }
+}
+
 void Wait_Attack_Complete(PLW* wk, u16 Lever_Data, s16 Option) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
-        CP_Index[wk->wu.id][1]++;
-        dash_flag_clear(wk->wu.id);
-
-        if (Lever_Data != 0) {
-            Lever_LR[wk->wu.id] = Setup_Guard_Lever(wk, 1);
-            Lever_LR[wk->wu.id] |= Lever_Data & 2;
-            Guard_Flag[wk->wu.id] = 1;
-        } else {
-            Lever_LR[wk->wu.id] = 0;
-        }
+        Wait_Attack_Complete_Begin(wk, Lever_Data);
 
         /* fallthrough */
 
@@ -558,14 +577,7 @@ void Wait_Attack_Complete(PLW* wk, u16 Lever_Data, s16 Option) {
         Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
 
         if (Check_Exit_Guard(wk, Option) == 0) {
-            Advance_CP_State(wk);
-            Guard_Flag[wk->wu.id] = 0;
-
-            Flip_Flag[wk->wu.id] = 0;
-            Limited_Flag[wk->wu.id] = 0;
-            if (Option == 0) {
-                Passive_Flag[wk->wu.id] = 0;
-            }
+            Wait_Attack_Complete_Exit(wk, Option);
         }
         break;
     }
