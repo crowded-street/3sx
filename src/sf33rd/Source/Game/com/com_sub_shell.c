@@ -100,26 +100,7 @@ s32 Check_Diagonal_Shell(PLW* wk) {
 }
 
 s32 Check_Ignore_Shell2(WORK_Other* tmw) {
-    if (tmw->wu.type == 0xDE) {
-        return 1;
-    }
-    if ((tmw->wu.type >= 0x24) && (tmw->wu.type < 0x28)) {
-        return 1;
-    }
-    if ((tmw->wu.type >= 0xD) && (tmw->wu.type < 0x10)) {
-        return 1;
-    }
-    if ((tmw->wu.type == 0x54) || (tmw->wu.type == 0x55)) {
-        return 1;
-    }
-    if ((tmw->wu.type >= 0x4D) && (tmw->wu.type < 0x51)) {
-        return 1;
-    }
-    if ((tmw->wu.type >= 0x7A) && (tmw->wu.type < 0x7F)) {
-        return 1;
-    }
-
-    return 0;
+    return Check_Ignore_Shell(tmw);
 }
 
 /* Commit to a reaction against one incoming shell. Returns 1 when the COM
