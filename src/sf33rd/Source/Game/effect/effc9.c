@@ -33,39 +33,124 @@ static s32 should_end_effect(const WORK_Other* ewk) {
     return (ewk->wu.dead_f == 1) || (Suicide[0] != 0);
 }
 
-void effect_C9_move(WORK_Other* ewk) {
+static void initialize_C9_effect(WORK_Other* ewk) {
     s16 scrc;
 
+    ewk->wu.routine_no[0] += 1;
+    ewk->wu.disp_flag = 1;
+    scrc = get_center_position();
+    ewk->wu.xyz[0].disp.pos = app_pos_hosei[ewk->wu.type][0] + scrc;
+    ewk->wu.xyz[1].disp.pos = app_pos_hosei[ewk->wu.type][1];
+    ewk->wu.xyz[2].disp.pos = app_pos_hosei[ewk->wu.type][2] + 32;
+    ewk->wu.kage_flag = 1;
+    ewk->wu.kage_hx = judge_gals_kage_tbl[ewk->wu.charset_id][0];
+    ewk->wu.kage_hy = judge_gals_kage_tbl[ewk->wu.charset_id][1];
+    ewk->wu.kage_prio = judge_gals_kage_tbl[ewk->wu.charset_id][2];
+    ewk->wu.kage_char = judge_gals_kage_tbl[ewk->wu.charset_id][3];
+
+    if (ewk->wu.type == 1) {
+        ewk->wu.kage_hy -= 2;
+    }
+
+    set_char_move_init(&ewk->wu, 0, 0);
+
+    if (ewk->wu.charset_id == 7) {
+        ewk->wu.next_x = efy_data[0];
+        ewk->wu.xyz[0].disp.pos += efy_data[1];
+        ewk->wu.next_y = ewk->wu.xyz[1].disp.pos;
+    }
+
+    ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
+    ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
+    ewk->wu.position_z = ewk->wu.xyz[2].disp.pos;
+    sort_push_request(&ewk->wu);
+}
+
+static void advance_C9_motion(WORK* wk) {
+    add_mvxy_speed(wk);
+    cal_mvxy_speed(wk);
+}
+
+static void update_C9_charset_7_motion(WORK_Other* ewk) {
+    if (ewk->wu.charset_id == 7) {
+        switch (ewk->wu.routine_no[2]) {
+        case 0:
+            ewk->wu.next_x -= 1;
+
+            if (ewk->wu.next_x > 0) {
+                break;
+            }
+
+            ewk->wu.routine_no[2] += 1;
+            /* fallthrough */
+
+        case 1:
+            ewk->wu.mvxy.a[0].sp = efy_data[2];
+            ewk->wu.mvxy.d[0].sp = efy_data[3];
+            ewk->wu.mvxy.a[1].sp = efy_data[4];
+            ewk->wu.mvxy.d[1].sp = efy_data[5];
+            ewk->wu.mvxy.kop[0] = 2;
+            ewk->wu.routine_no[2] += 1;
+            /* fallthrough */
+
+        case 2:
+            advance_C9_motion(&ewk->wu);
+
+            if (ewk->wu.xyz[1].disp.pos <= ewk->wu.next_y) {
+                ewk->wu.routine_no[2] += 1;
+                ewk->wu.xyz[1].disp.pos = ewk->wu.next_y;
+                ewk->wu.mvxy.d[1].sp = 0;
+                ewk->wu.mvxy.a[1].sp = 0;
+                ewk->wu.mvxy.kop[0] = 1;
+                effect_03_init(&ewk->wu, 110);
+                sound_effect_request[309](ewk, 309);
+                char_move_z(&ewk->wu);
+            }
+
+            break;
+
+        default:
+            advance_C9_motion(&ewk->wu);
+            break;
+        }
+    }
+}
+
+static void update_C9_effect_state(WORK_Other* ewk) {
+    switch (ewk->wu.routine_no[1]) {
+    case 0:
+        update_C9_charset_7_motion(ewk);
+
+        if (Event_Judge_Gals) {
+            ewk->wu.routine_no[1] += 1;
+            set_char_move_init(&ewk->wu, 0, 1);
+        }
+
+        break;
+
+    case 1:
+        if (ewk->wu.cg_type == 0xFF) {
+            ewk->wu.routine_no[1] += 1;
+            set_char_move_init(&ewk->wu, 0, 2);
+            effect_37_init(&ewk->wu, ewk->wu.charset_id, EJG_index[ewk->wu.type]);
+        }
+
+        break;
+
+    case 2:
+        if (ewk->wu.cg_type == 0xFF) {
+            ewk->wu.routine_no[1] += 1;
+            Event_Judge_Gals -= 1;
+        }
+
+        break;
+    }
+}
+
+void effect_C9_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0] += 1;
-        ewk->wu.disp_flag = 1;
-        scrc = get_center_position();
-        ewk->wu.xyz[0].disp.pos = app_pos_hosei[ewk->wu.type][0] + scrc;
-        ewk->wu.xyz[1].disp.pos = app_pos_hosei[ewk->wu.type][1];
-        ewk->wu.xyz[2].disp.pos = app_pos_hosei[ewk->wu.type][2] + 32;
-        ewk->wu.kage_flag = 1;
-        ewk->wu.kage_hx = judge_gals_kage_tbl[ewk->wu.charset_id][0];
-        ewk->wu.kage_hy = judge_gals_kage_tbl[ewk->wu.charset_id][1];
-        ewk->wu.kage_prio = judge_gals_kage_tbl[ewk->wu.charset_id][2];
-        ewk->wu.kage_char = judge_gals_kage_tbl[ewk->wu.charset_id][3];
-
-        if (ewk->wu.type == 1) {
-            ewk->wu.kage_hy -= 2;
-        }
-
-        set_char_move_init(&ewk->wu, 0, 0);
-
-        if (ewk->wu.charset_id == 7) {
-            ewk->wu.next_x = efy_data[0];
-            ewk->wu.xyz[0].disp.pos += efy_data[1];
-            ewk->wu.next_y = ewk->wu.xyz[1].disp.pos;
-        }
-
-        ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
-        ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
-        ewk->wu.position_z = ewk->wu.xyz[2].disp.pos;
-        sort_push_request(&ewk->wu);
+        initialize_C9_effect(ewk);
         break;
 
     case 1:
@@ -77,78 +162,7 @@ void effect_C9_move(WORK_Other* ewk) {
 
         if ((EXE_flag == 0) && (Game_pause == 0)) {
             char_move(&ewk->wu);
-
-            switch (ewk->wu.routine_no[1]) {
-            case 0:
-                if (ewk->wu.charset_id == 7) {
-                    switch (ewk->wu.routine_no[2]) {
-                    case 0:
-                        ewk->wu.next_x -= 1;
-
-                        if (ewk->wu.next_x > 0) {
-                            break;
-                        }
-
-                        ewk->wu.routine_no[2] += 1;
-                        /* fallthrough */
-
-                    case 1:
-                        ewk->wu.mvxy.a[0].sp = efy_data[2];
-                        ewk->wu.mvxy.d[0].sp = efy_data[3];
-                        ewk->wu.mvxy.a[1].sp = efy_data[4];
-                        ewk->wu.mvxy.d[1].sp = efy_data[5];
-                        ewk->wu.mvxy.kop[0] = 2;
-                        ewk->wu.routine_no[2] += 1;
-                        /* fallthrough */
-
-                    case 2:
-                        add_mvxy_speed(&ewk->wu);
-                        cal_mvxy_speed(&ewk->wu);
-
-                        if (ewk->wu.xyz[1].disp.pos <= ewk->wu.next_y) {
-                            ewk->wu.routine_no[2] += 1;
-                            ewk->wu.xyz[1].disp.pos = ewk->wu.next_y;
-                            ewk->wu.mvxy.d[1].sp = 0;
-                            ewk->wu.mvxy.a[1].sp = 0;
-                            ewk->wu.mvxy.kop[0] = 1;
-                            effect_03_init(&ewk->wu, 110);
-                            sound_effect_request[309](ewk, 309);
-                            char_move_z(&ewk->wu);
-                        }
-
-                        break;
-
-                    default:
-                        add_mvxy_speed(&ewk->wu);
-                        cal_mvxy_speed(&ewk->wu);
-                        break;
-                    }
-                }
-
-                if (Event_Judge_Gals) {
-                    ewk->wu.routine_no[1] += 1;
-                    set_char_move_init(&ewk->wu, 0, 1);
-                }
-
-                break;
-
-            case 1:
-                if (ewk->wu.cg_type == 0xFF) {
-                    ewk->wu.routine_no[1] += 1;
-                    set_char_move_init(&ewk->wu, 0, 2);
-                    effect_37_init(&ewk->wu, ewk->wu.charset_id, EJG_index[ewk->wu.type]);
-                }
-
-                break;
-
-            case 2:
-                if (ewk->wu.cg_type == 0xFF) {
-                    ewk->wu.routine_no[1] += 1;
-                    Event_Judge_Gals -= 1;
-                }
-
-                break;
-            }
+            update_C9_effect_state(ewk);
         }
 
         ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
