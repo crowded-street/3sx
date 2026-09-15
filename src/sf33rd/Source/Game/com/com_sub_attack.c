@@ -152,6 +152,17 @@ s32 Small_Jump_Measure(PLW* wk) {
     return 0;
 }
 
+/* Hold the attack lever down while the SP timer runs, and step on when it
+ * expires. Normal_Attack_SP and Lever_Attack_SP share this state. */
+static void Attack_SP_Hold(PLW* wk, u16 Lever_Data) {
+    if (--Timer_00[wk->wu.id]) {
+        Lever_Buff[wk->wu.id] = Lever_Data;
+        Lever_Squat[wk->wu.id] = Lever_Data & 2;
+    } else {
+        CP_Index[wk->wu.id][1]++;
+    }
+}
+
 void Normal_Attack_SP(PLW* wk, s16 Reaction, u16 Lever_Data, s16 Time) {
     switch (CP_Index[wk->wu.id][1]) {
     case 0:
@@ -182,12 +193,7 @@ void Normal_Attack_SP(PLW* wk, s16 Reaction, u16 Lever_Data, s16 Time) {
         break;
 
     case 2:
-        if (--Timer_00[wk->wu.id]) {
-            Lever_Buff[wk->wu.id] = Lever_Data;
-            Lever_Squat[wk->wu.id] = Lever_Data & 2;
-        } else {
-            CP_Index[wk->wu.id][1]++;
-        }
+        Attack_SP_Hold(wk, Lever_Data);
         break;
 
     default:
@@ -337,12 +343,7 @@ void Lever_Attack_SP(PLW* wk, s16 Reaction, u16 Lever, u16 Lever_Data, s16 Time)
         break;
 
     case 2:
-        if (--Timer_00[wk->wu.id]) {
-            Lever_Buff[wk->wu.id] = Lever_Data;
-            Lever_Squat[wk->wu.id] = Lever_Data & 2;
-        } else {
-            CP_Index[wk->wu.id][1]++;
-        }
+        Attack_SP_Hold(wk, Lever_Data);
         break;
 
     default:
