@@ -1044,23 +1044,27 @@ static s32 car_part_is_finishing(const WORK* c2wk) {
     return c2wk->routine_no[0] == 2 && c2wk->routine_no[1] == 1;
 }
 
+static void initialize_C3_effect(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.disp_flag = 1;
+    ewk->wu.charset_id = 17;
+    set_char_base_data(&ewk->wu);
+    get_bs2_parts_data(&ewk->wu);
+    clear_parts_hit_data(&ewk->wu);
+    set_display_car_parts(ewk);
+
+    if (c3_hit_disp_check(ewk->wu.type)) {
+        effect_00_init(&ewk->wu);
+    }
+
+    clear_attack_num(&ewk->wu);
+}
+
 
 void effect_C3_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.charset_id = 17;
-        set_char_base_data(&ewk->wu);
-        get_bs2_parts_data(&ewk->wu);
-        clear_parts_hit_data(&ewk->wu);
-        set_display_car_parts(ewk);
-
-        if (c3_hit_disp_check(ewk->wu.type)) {
-            effect_00_init(&ewk->wu);
-        }
-
-        clear_attack_num(&ewk->wu);
+        initialize_C3_effect(ewk);
         break;
 
     case 1:
