@@ -33,6 +33,66 @@ static s32 animation_can_advance(void) {
 }
 
 
+/* Show the effect and start its animation. */
+static void e73_start(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.disp_flag = 1;
+    set_char_move_init(&ewk->wu, 0, 2);
+}
+
+/* The first flight, counted out by old_rno[0]. When it expires the effect
+ * either carries on to the bounce or ends outright, depending on the flag set
+ * when it was created. */
+static void e73_fly(WORK_Other* ewk) {
+    if (game_is_active()) {
+        char_move(&ewk->wu);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
+        ewk->wu.old_rno[0]--;
+
+        if (ewk->wu.old_rno[0] < 0) {
+            if (ewk->wu.old_rno[1]) {
+                ewk->wu.routine_no[0]++;
+            } else {
+                ewk->wu.routine_no[0] = 99;
+                ewk->wu.disp_flag = 0;
+            }
+        }
+    }
+}
+
+/* Keep flying until low enough to bounce, then take the per-type horizontal
+ * speed and a fresh upward kick. */
+static void e73_bounce(WORK_Other* ewk) {
+    if (animation_can_advance()) {
+        char_move(&ewk->wu);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
+
+        if (ewk->wu.xyz[1].disp.pos < 64) {
+            ewk->wu.routine_no[0]++;
+            ewk->wu.mvxy.a[0].sp = eff73_sp_tbl[ewk->wu.type][0];
+            ewk->wu.mvxy.d[0].sp = 0;
+            ewk->wu.mvxy.a[1].sp = 0x30000;
+            ewk->wu.mvxy.d[1].sp = -0x4000;
+        }
+    }
+}
+
+/* The last descent: hide the effect once it is low enough. */
+static void e73_settle(WORK_Other* ewk) {
+    if (!EXE_flag && !Game_pause) {
+        char_move(&ewk->wu);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
+
+        if (ewk->wu.xyz[1].disp.pos < 56) {
+            ewk->wu.routine_no[0] = 99;
+            ewk->wu.disp_flag = 0;
+        }
+    }
+}
+
 void effect_73_move(WORK_Other* ewk) {
     if (obr_no_disp_check()) {
         return;
@@ -40,61 +100,21 @@ void effect_73_move(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.disp_flag = 1;
-        set_char_move_init(&ewk->wu, 0, 2);
+        e73_start(ewk);
         break;
 
     case 1:
-if (game_is_active()) {
-            char_move(&ewk->wu);
-            add_x_sub(&ewk->wu);
-            add_y_sub(&ewk->wu);
-            ewk->wu.old_rno[0]--;
-
-            if (ewk->wu.old_rno[0] < 0) {
-                if (ewk->wu.old_rno[1]) {
-                    ewk->wu.routine_no[0]++;
-                } else {
-                    ewk->wu.routine_no[0] = 99;
-                    ewk->wu.disp_flag = 0;
-                }
-            }
-        }
-
+        e73_fly(ewk);
         disp_pos_trans_entry_r(ewk);
         break;
 
     case 2:
-        if (animation_can_advance()) {
-            char_move(&ewk->wu);
-            add_x_sub(&ewk->wu);
-            add_y_sub(&ewk->wu);
-
-            if (ewk->wu.xyz[1].disp.pos < 64) {
-                ewk->wu.routine_no[0]++;
-                ewk->wu.mvxy.a[0].sp = eff73_sp_tbl[ewk->wu.type][0];
-                ewk->wu.mvxy.d[0].sp = 0;
-                ewk->wu.mvxy.a[1].sp = 0x30000;
-                ewk->wu.mvxy.d[1].sp = -0x4000;
-            }
-        }
-
+        e73_bounce(ewk);
         disp_pos_trans_entry_r(ewk);
         break;
 
     case 3:
-        if (!EXE_flag && !Game_pause) {
-            char_move(&ewk->wu);
-            add_x_sub(&ewk->wu);
-            add_y_sub(&ewk->wu);
-
-            if (ewk->wu.xyz[1].disp.pos < 56) {
-                ewk->wu.routine_no[0] = 99;
-                ewk->wu.disp_flag = 0;
-            }
-        }
-
+        e73_settle(ewk);
         disp_pos_trans_entry_r(ewk);
         break;
 
