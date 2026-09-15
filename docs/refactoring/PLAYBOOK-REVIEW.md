@@ -2,8 +2,10 @@
 
 A review of the closed catalogue in [`PLAYBOOK.md`](PLAYBOOK.md), written after taking
 thirteen files to Code Health 10.00 in one session: the ten `com_sub` files (R02) and six
-effect files. It is a **proposal**, not a change. Nothing here is adopted until the
-project owner says so.
+effect files. **Status: adopted 2026-09-15.** All nine items are implemented - eight in
+[`PLAYBOOK.md`](PLAYBOOK.md) and [`README.md`](README.md), one in
+`tools/refactor_guard.py`. This document stays as the rationale: it records what was
+measured, and why the semantic prohibitions were left alone.
 
 ## The framing that matters
 
