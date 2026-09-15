@@ -26,108 +26,136 @@ static s32 game_is_active(void) {
     return !EXE_flag && !Game_pause;
 }
 
-void effect_C5_move(WORK_Other* ewk) {
-    switch (ewk->wu.routine_no[0]) {
-    case 0:
-        if (game_is_active()) {
-            ewk->wu.routine_no[0]++;
-            ewk->wu.disp_flag = 1;
-            set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-            Sound_SE(ewk->master_id * 0x300 + 0x134);
-        }
+static void display_car_C5(WORK_Other* ewk) {
+    suzi_sync_pos_set(ewk);
+    sort_push_request(&ewk->wu);
+}
 
-        break;
-
-    case 1:
-        if (!EXE_flag && !Game_pause) {
-            char_move(&ewk->wu);
-            ewk->wu.old_rno[0]--;
-
-            if (ewk->wu.old_rno[0] < 1) {
-                ewk->wu.routine_no[0]++;
-                Appear_car_stop[ewk->master_id] = 1;
-                set_char_move_init(&ewk->wu, 0, 9);
-
-                if (Demo_Flag != 0) {
-                    SsRequestPan(0x135, 0x40, 0x40, 0, 2);
-                }
-            } else {
-                add_x_sub(&ewk->wu);
-            }
-        }
-
-        suzi_sync_pos_set(ewk);
-        sort_push_request(&ewk->wu);
-        break;
-
-    case 2:
-        if (!EXE_flag && !Game_pause) {
-            char_move(&ewk->wu);
-
-            if (ewk->wu.cg_type == 1) {
-                ewk->wu.routine_no[0]++;
-                ewk->wu.old_rno[0] = 20;
-            } else if (ewk->wu.cg_type == 2) {
-                demo_car_flag[ewk->master_id] = 1;
-            }
-        }
-
-        suzi_sync_pos_set(ewk);
-        sort_push_request(&ewk->wu);
-        break;
-
-    case 3:
-        if (!EXE_flag && !Game_pause) {
-            ewk->wu.old_rno[0]--;
-
-            if (ewk->wu.old_rno[0] < 0) {
-                ewk->wu.routine_no[0]++;
-                ewk->wu.old_rno[0] = 48;
-
-                if (ewk->wu.rl_flag) {
-                    ewk->wu.mvxy.a[0].sp = -0x20000;
-                    ewk->wu.mvxy.d[0].sp = -0x1000;
-                } else {
-                    ewk->wu.mvxy.a[0].sp = 0x20000;
-                    ewk->wu.mvxy.d[0].sp = 0x1000;
-                }
-            }
-        }
-
-        suzi_sync_pos_set(ewk);
-        sort_push_request(&ewk->wu);
-        break;
-
-    case 4:
-        if (!EXE_flag && !Game_pause) {
-            ewk->wu.old_rno[0]--;
-
-            if (ewk->wu.old_rno[0] < 0) {
-                ewk->wu.routine_no[0]++;
-            } else {
-                add_x_sub(&ewk->wu);
-            }
-        }
-
-        suzi_sync_pos_set(ewk);
-        sort_push_request(&ewk->wu);
-        break;
-
-    case 5:
+static void initialize_car_C5(WORK_Other* ewk) {
+    if (game_is_active()) {
         ewk->wu.routine_no[0]++;
-        demo_car_flag[ewk->master_id] = 0;
-        ewk->wu.disp_flag = 0;
-        break;
-
-    case 6:
-        ewk->wu.routine_no[0]++;
-        break;
-
-    default:
-        all_cgps_put_back(&ewk->wu);
-        push_effect_work(&ewk->wu);
-        break;
+        ewk->wu.disp_flag = 1;
+        set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+        Sound_SE(ewk->master_id * 0x300 + 0x134);
     }
+}
+
+static void approach_car_C5(WORK_Other* ewk) {
+    if (game_is_active()) {
+        char_move(&ewk->wu);
+        ewk->wu.old_rno[0]--;
+
+        if (ewk->wu.old_rno[0] < 1) {
+            ewk->wu.routine_no[0]++;
+            Appear_car_stop[ewk->master_id] = 1;
+            set_char_move_init(&ewk->wu, 0, 9);
+
+            if (Demo_Flag != 0) {
+                SsRequestPan(0x135, 0x40, 0x40, 0, 2);
+            }
+        } else {
+            add_x_sub(&ewk->wu);
+        }
+    }
+
+    display_car_C5(ewk);
+}
+
+static void idle_car_C5(WORK_Other* ewk) {
+    if (game_is_active()) {
+        char_move(&ewk->wu);
+
+        if (ewk->wu.cg_type == 1) {
+            ewk->wu.routine_no[0]++;
+            ewk->wu.old_rno[0] = 20;
+        } else if (ewk->wu.cg_type == 2) {
+            demo_car_flag[ewk->master_id] = 1;
+        }
+    }
+
+    display_car_C5(ewk);
+}
+
+static void set_car_departure_speed_C5(WORK_Other* ewk) {
+    if (ewk->wu.rl_flag) {
+        ewk->wu.mvxy.a[0].sp = -0x20000;
+        ewk->wu.mvxy.d[0].sp = -0x1000;
+    } else {
+        ewk->wu.mvxy.a[0].sp = 0x20000;
+        ewk->wu.mvxy.d[0].sp = 0x1000;
+    }
+}
+
+static void begin_car_departure_C5(WORK_Other* ewk) {
+    ewk->wu.old_rno[0] = 48;
+    set_car_departure_speed_C5(ewk);
+}
+
+static void continue_car_departure_C5(WORK_Other* ewk) {
+    add_x_sub(&ewk->wu);
+}
+
+static void wait_for_car_departure_C5(WORK_Other* ewk) {
+    (void)ewk;
+}
+
+static void update_car_departure_C5(WORK_Other* ewk,
+                                    void (*on_expired)(WORK_Other*),
+                                    void (*while_waiting)(WORK_Other*)) {
+    if (game_is_active()) {
+        ewk->wu.old_rno[0]--;
+
+        if (ewk->wu.old_rno[0] < 0) {
+            ewk->wu.routine_no[0]++;
+            on_expired(ewk);
+        } else {
+            while_waiting(ewk);
+        }
+    }
+
+    display_car_C5(ewk);
+}
+
+static void prepare_car_departure_C5(WORK_Other* ewk) {
+    update_car_departure_C5(ewk, begin_car_departure_C5, wait_for_car_departure_C5);
+}
+
+static void depart_car_C5(WORK_Other* ewk) {
+    update_car_departure_C5(ewk, wait_for_car_departure_C5, continue_car_departure_C5);
+}
+
+static void hide_car_C5(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    demo_car_flag[ewk->master_id] = 0;
+    ewk->wu.disp_flag = 0;
+}
+
+static void advance_car_state_C5(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+}
+
+static void (*const car_state_handlers_C5[])(WORK_Other*) = {
+    [0] = initialize_car_C5,
+    [1] = approach_car_C5,
+    [2] = idle_car_C5,
+    [3] = prepare_car_departure_C5,
+    [4] = depart_car_C5,
+    [5] = hide_car_C5,
+    [6] = advance_car_state_C5
+};
+
+static void dispose_car_C5(WORK_Other* ewk) {
+    all_cgps_put_back(&ewk->wu);
+    push_effect_work(&ewk->wu);
+}
+
+void effect_C5_move(WORK_Other* ewk) {
+    if (ewk->wu.routine_no[0] < sizeof(car_state_handlers_C5) / sizeof(car_state_handlers_C5[0])) {
+        car_state_handlers_C5[ewk->wu.routine_no[0]](ewk);
+        return;
+    }
+
+    dispose_car_C5(ewk);
 }
 
 s32 effect_C5_init(PLW* oya, s16 reverse_f) {
