@@ -26,6 +26,54 @@ static s32 effect_can_update(void) {
     return (EXE_flag == 0) && (Game_pause == 0);
 }
 
+static void update_koishi_animation(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+
+    if (ewk->wu.cg_type == 0xFF) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0] += 1;
+    }
+}
+
+static void update_rising_koishi(WORK_Other* ewk) {
+    add_mvxy_speed(&ewk->wu);
+    cal_mvxy_speed(&ewk->wu);
+
+    if (ewk->wu.mvxy.a[1].sp <= 0) {
+        ewk->wu.routine_no[1] += 1;
+    }
+
+    char_move(&ewk->wu);
+}
+
+static void update_falling_koishi(WORK_Other* ewk) {
+    add_mvxy_speed(&ewk->wu);
+    cal_mvxy_speed(&ewk->wu);
+
+    if (ewk->wu.xyz[1].disp.pos <= ewk->wu.next_y) {
+        ewk->wu.routine_no[1] += 1;
+        char_move_wca(&ewk->wu);
+        return;
+    }
+
+    update_koishi_animation(ewk);
+}
+
+static void update_koishi_motion(WORK_Other* ewk) {
+    switch (ewk->wu.routine_no[1]) {
+    case 0:
+        update_rising_koishi(ewk);
+        break;
+
+    case 1:
+        update_falling_koishi(ewk);
+        break;
+
+    default:
+        update_koishi_animation(ewk);
+        break;
+    }
+}
 
 void effect_I0_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
@@ -44,32 +92,7 @@ void effect_I0_move(WORK_Other* ewk) {
         }
 
         if (effect_can_update()) {
-            switch (ewk->wu.routine_no[1]) {
-            case 0:
-                add_mvxy_speed(&ewk->wu);
-                cal_mvxy_speed(&ewk->wu);
-                if (ewk->wu.mvxy.a[1].sp <= 0) {
-                    ewk->wu.routine_no[1] += 1;
-                }
-                char_move(&ewk->wu);
-                break;
-
-            case 1:
-                add_mvxy_speed(&ewk->wu);
-                cal_mvxy_speed(&ewk->wu);
-                if (ewk->wu.xyz[1].disp.pos <= ewk->wu.next_y) {
-                    ewk->wu.routine_no[1] += 1;
-                    char_move_wca(&ewk->wu);
-                } else {
-                default:
-                    char_move(&ewk->wu);
-                    if (ewk->wu.cg_type == 0xFF) {
-                        ewk->wu.disp_flag = 0;
-                        ewk->wu.routine_no[0] += 1;
-                    }
-                }
-                break;
-            }
+            update_koishi_motion(ewk);
         }
         ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
         ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
@@ -86,7 +109,7 @@ void effect_I0_move(WORK_Other* ewk) {
     }
 }
 
-s32 effect_I0_init(WORK* wk, s16 hsx, s16 hsy, s16 spx, s16 spy, s16 nxy) {
+s32 effect_I0_init(EffectI0Init params) {
     WORK_Other* ewk;
     s16 ix;
 
@@ -98,23 +121,23 @@ s32 effect_I0_init(WORK* wk, s16 hsx, s16 hsy, s16 spx, s16 spy, s16 nxy) {
     ewk->wu.be_flag = 1;
     ewk->wu.id = 0xB4;
     ewk->wu.work_id = 0x10;
-    ewk->wu.rl_flag = wk->rl_flag;
-    ewk->wu.my_family = wk->my_family;
+    ewk->wu.rl_flag = params.master->rl_flag;
+    ewk->wu.my_family = params.master->my_family;
     ewk->wu.cgromtype = 1;
-    ewk->wu.next_y = nxy;
-    ewk->wu.mvxy.a[0].sp = spx << 8;
+    ewk->wu.next_y = params.target_y;
+    ewk->wu.mvxy.a[0].sp = params.x_speed << 8;
     ewk->wu.mvxy.d[0].sp = 0;
-    ewk->wu.mvxy.a[1].sp = spy << 8;
+    ewk->wu.mvxy.a[1].sp = params.y_speed << 8;
     ewk->wu.mvxy.d[1].sp = -0x8000U;
 
     if (ewk->wu.rl_flag) {
-        ewk->wu.xyz[0].disp.pos = wk->position_x - hsx;
+        ewk->wu.xyz[0].disp.pos = params.master->position_x - params.x_offset;
     } else {
-        ewk->wu.xyz[0].disp.pos = wk->position_x + hsx;
+        ewk->wu.xyz[0].disp.pos = params.master->position_x + params.x_offset;
     }
 
-    ewk->wu.xyz[1].disp.pos = wk->position_y + hsy;
-    ewk->wu.position_z = wk->position_z + 1;
+    ewk->wu.xyz[1].disp.pos = params.master->position_y + params.y_offset;
+    ewk->wu.position_z = params.master->position_z + 1;
     ewk->wu.char_table[0] = _plef_char_table;
     return 0;
 }
@@ -136,7 +159,7 @@ s32 setup_koishi_extra(WORK* wk, u8 num) {
         nxy = (hsy - (random_16() & 3));
         spx = koishi_speed_x[dix[i]][random_16() & 7];
         spy = koishi_speed_y[dix[i]][random_16() & 7];
-        effect_I0_init(wk, hsx, hsy, spx, spy, nxy);
+        effect_I0_init((EffectI0Init) { wk, hsx, hsy, spx, spy, nxy });
     }
 
     return 0;
