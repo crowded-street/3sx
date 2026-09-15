@@ -289,7 +289,7 @@ void Pattern02_0019(PLW* wk) {
 void Pattern02_0020(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Com_Random_Select(wk, 2, 0x41, 0x42, 0x43, 0x44, 1);
+        Com_Random_Select(wk, &(Branch_Menu_Args){2, 0x41, 0x42, 0x43, 0x44}, 1);
         break;
 
     default:
@@ -725,7 +725,7 @@ void Pattern02_0048(PLW* wk) {
         break;
 
     case 5:
-        SA_Term(wk, 0x35, 0x36, 0x37, 0x47);
+        SA_Term(wk, &(SA_Term_Args){0x35, 0x36, 0x37, 0x47});
         break;
 
     default:
@@ -753,7 +753,7 @@ void Pattern02_0049(PLW* wk) {
         break;
 
     case 4:
-        SA_Term(wk, 0x35, 0x36, 0x37, 0x47);
+        SA_Term(wk, &(SA_Term_Args){0x35, 0x36, 0x37, 0x47});
         break;
 
     default:
@@ -920,11 +920,11 @@ void Pattern02_0061(PLW* wk) {
 void Pattern02_0062(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        SA_Term(wk, 0x35, 0x36, 0xFFFF, 0x47);
+        SA_Term(wk, &(SA_Term_Args){0x35, 0x36, 0xFFFF, 0x47});
         break;
 
     case 1:
-        SA_Term(wk, 0xFFFF, 0xFFFF, 0x19, 0x3C);
+        SA_Term(wk, &(SA_Term_Args){0xFFFF, 0xFFFF, 0x19, 0x3C});
         break;
 
     default:
@@ -964,7 +964,7 @@ void Pattern02_0064(PLW* wk) {
         break;
 
     case 4:
-        SA_Term(wk, 0x35, 0x36, 0x37, 0);
+        SA_Term(wk, &(SA_Term_Args){0x35, 0x36, 0x37, 0});
         break;
 
     default:

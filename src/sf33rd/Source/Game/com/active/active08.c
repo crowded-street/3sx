@@ -665,7 +665,7 @@ void Pattern08_0037(PLW* wk) {
 void Pattern08_0038(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        SA_Term(wk, 0x39, 0x3A, 0xFFFF, 0);
+        SA_Term(wk, &(SA_Term_Args){0x39, 0x3A, 0xFFFF, 0});
         break;
 
     case 1:
@@ -995,7 +995,7 @@ void Pattern08_0056(PLW* wk) {
         break;
 
     case 5:
-        SA_Term(wk, -1, -1, 0x3b, 0);
+        SA_Term(wk, &(SA_Term_Args){-1, -1, 0x3b, 0});
         break;
 
     default:
@@ -1055,7 +1055,7 @@ void Pattern08_0061(PLW* wk) {
         break;
 
     case 1:
-        SA_Term(wk, 0xFFFF, 0xFFFF, 0x3B, 0);
+        SA_Term(wk, &(SA_Term_Args){0xFFFF, 0xFFFF, 0x3B, 0});
         break;
 
     default:
@@ -1067,7 +1067,7 @@ void Pattern08_0061(PLW* wk) {
 void Pattern08_0062(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        SA_Term(wk, 0x39, 0x3A, 0xFFFF, 0);
+        SA_Term(wk, &(SA_Term_Args){0x39, 0x3A, 0xFFFF, 0});
         break;
 
     default:

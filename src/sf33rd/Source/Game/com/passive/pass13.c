@@ -1117,7 +1117,7 @@ void Passive13_0067(PLW* wk) {
 void Passive13_0068(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Com_Random_Select(wk, 6, 0x59, 0x59, 0x59, 0x5A, 0);
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x59, 0x59, 0x59, 0x5A}, 0);
         break;
 
     default:
@@ -1637,7 +1637,7 @@ void Passive13_0093(PLW* wk) {
 void Passive13_0094(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Com_Random_Select(wk, 6, 0x59, 0x5A, 0x5A, 0x5B, 0);
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x59, 0x5A, 0x5A, 0x5B}, 0);
         break;
 
     default:
@@ -1653,7 +1653,7 @@ void Passive13_0095(PLW* wk) {
         break;
 
     case 1:
-        Com_Random_Select(wk, 6, 0x59, 0x59, 0x59, 0x5A, 0);
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x59, 0x59, 0x59, 0x5A}, 0);
         break;
 
     default:
@@ -1769,7 +1769,7 @@ void Passive13_0101(PLW* wk) {
         break;
 
     case 1:
-        Com_Random_Select(wk, 6, 0x59, 0x5A, 0x5A, 0x5B, 0);
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x59, 0x5A, 0x5A, 0x5B}, 0);
         break;
 
     default:
@@ -1785,7 +1785,7 @@ void Passive13_0102(PLW* wk) {
         break;
 
     case 1:
-        Com_Random_Select(wk, 6, 0x59, 0x59, 0x59, 0x5A, 0);
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x59, 0x59, 0x59, 0x5A}, 0);
         break;
 
     default:
@@ -2357,7 +2357,7 @@ void Passive13_0131(PLW* wk) {
 void Passive13_0132(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        SA_Term(wk, 0xFFFF, 0x3A, 0x3D, 0xFFFF);
+        SA_Term(wk, &(SA_Term_Args){0xFFFF, 0x3A, 0x3D, 0xFFFF});
         break;
 
     case 1:
@@ -2373,7 +2373,7 @@ void Passive13_0132(PLW* wk) {
 void Passive13_0133(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        SA_Term(wk, 0x39, 0x3A, 0x3C, 0xFFFF);
+        SA_Term(wk, &(SA_Term_Args){0x39, 0x3A, 0x3C, 0xFFFF});
         break;
 
     case 1:
@@ -2429,7 +2429,7 @@ void Passive13_0136(PLW* wk) {
         break;
 
     case 2:
-        Branch_Unit_Area(wk, 6, 0x89, 0x89, 0x8A, 0x8B);
+        Branch_Unit_Area(wk, &(Branch_Menu_Args){6, 0x89, 0x89, 0x8A, 0x8B});
         break;
 
     default:
@@ -2501,7 +2501,7 @@ void Passive13_0139(PLW* wk) {
         break;
 
     case 3:
-        Com_Random_Select(wk, 2, 0x31, 0x31, 0x32, 0x33, 0);
+        Com_Random_Select(wk, &(Branch_Menu_Args){2, 0x31, 0x31, 0x32, 0x33}, 0);
         break;
 
     default:
@@ -2513,7 +2513,7 @@ void Passive13_0139(PLW* wk) {
 void Passive13_0140(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Branch_Unit_Area(wk, 6, 0x8D, 0x8D, 0x8E, 0x8F);
+        Branch_Unit_Area(wk, &(Branch_Menu_Args){6, 0x8D, 0x8D, 0x8E, 0x8F});
         break;
 
     default:
@@ -2561,7 +2561,7 @@ void Passive13_0143(PLW* wk) {
 void Passive13_0144(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Branch_Unit_Area(wk, 6, 0x91, 0x91, 0x92, 0x93);
+        Branch_Unit_Area(wk, &(Branch_Menu_Args){6, 0x91, 0x91, 0x92, 0x93});
         break;
 
     default:
@@ -2669,7 +2669,7 @@ void Passive13_0152(PLW* wk) {
         break;
 
     case 2:
-        SA_Term(wk, 0xFFFF, 0x3A, 0xFFFF, 0xFFFF);
+        SA_Term(wk, &(SA_Term_Args){0xFFFF, 0x3A, 0xFFFF, 0xFFFF});
         break;
 
     default:
@@ -2717,7 +2717,7 @@ void Passive13_0154(PLW* wk) {
         break;
 
     case 4:
-        SA_Term(wk, 0x39, 0x3A, 0x3D, 0xFFFF);
+        SA_Term(wk, &(SA_Term_Args){0x39, 0x3A, 0x3D, 0xFFFF});
         break;
 
     case 5:
@@ -2757,7 +2757,7 @@ void Passive13_0156(PLW* wk) {
         break;
 
     case 2:
-        Com_Random_Select(wk, 6, 0x9D, 0x59, 0x8C, 0x9E, 0);
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x9D, 0x59, 0x8C, 0x9E}, 0);
         break;
 
     default:

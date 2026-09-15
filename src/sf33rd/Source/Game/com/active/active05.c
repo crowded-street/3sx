@@ -545,7 +545,7 @@ void Pattern05_0037(PLW* wk) {
 void Pattern05_0038(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        SA_Term(wk, 0x35, 0xFFFF, 0x37, 0);
+        SA_Term(wk, &(SA_Term_Args){0x35, 0xFFFF, 0x37, 0});
         break;
     case 1:
         Pierce_On(wk);
@@ -880,7 +880,7 @@ void Pattern05_0061(PLW* wk) {
 void Pattern05_0062(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        SA_Term(wk, 0x35, 0x36, 0x37, 0x60);
+        SA_Term(wk, &(SA_Term_Args){0x35, 0x36, 0x37, 0x60});
         break;
 
     default:

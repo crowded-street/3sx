@@ -573,7 +573,7 @@ void Pattern04_0037(PLW* wk) {
 void Pattern04_0038(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        SA_Term(wk, 0x35, 0xFFFF, 0x37, 0);
+        SA_Term(wk, &(SA_Term_Args){0x35, 0xFFFF, 0x37, 0});
         break;
 
     case 1:
@@ -937,7 +937,7 @@ void Pattern04_0060(PLW* wk) {
 void Pattern04_0061(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Com_Random_Select(wk, 2, 0x40, 0x41, 0x43, 0x43, 1);
+        Com_Random_Select(wk, &(Branch_Menu_Args){2, 0x40, 0x41, 0x43, 0x43}, 1);
         break;
 
     default:
@@ -949,7 +949,7 @@ void Pattern04_0061(PLW* wk) {
 void Pattern04_0062(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Com_Random_Select(wk, 2, 0x40, 0x41, 0x42, 0x43, 1);
+        Com_Random_Select(wk, &(Branch_Menu_Args){2, 0x40, 0x41, 0x42, 0x43}, 1);
         break;
 
     default:

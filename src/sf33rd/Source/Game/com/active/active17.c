@@ -97,7 +97,7 @@ void Pattern17_0005(PLW* wk) {
         break;
 
     case 1:
-        Com_Random_Select(wk, 2, 0x3E, 0x3F, 0x40, 0x40, 1);
+        Com_Random_Select(wk, &(Branch_Menu_Args){2, 0x3E, 0x3F, 0x40, 0x40}, 1);
         break;
 
     default:
@@ -809,7 +809,7 @@ void Pattern17_0052(PLW* wk) {
         break;
 
     case 1:
-        SA_Term(wk, 0x2E, 0x2F, 0xFFFF, 0);
+        SA_Term(wk, &(SA_Term_Args){0x2E, 0x2F, 0xFFFF, 0});
         break;
 
     case 2:
@@ -829,7 +829,7 @@ void Pattern17_0053(PLW* wk) {
         break;
 
     case 1:
-        SA_Term(wk, 0x2e, -1, -1, 0);
+        SA_Term(wk, &(SA_Term_Args){0x2e, -1, -1, 0});
         break;
 
     case 2:
@@ -837,7 +837,7 @@ void Pattern17_0053(PLW* wk) {
         break;
 
     case 3:
-        SA_Term(wk, -1, 0x2f, -1, 0);
+        SA_Term(wk, &(SA_Term_Args){-1, 0x2f, -1, 0});
         break;
 
     case 4:
@@ -857,7 +857,7 @@ void Pattern17_0053(PLW* wk) {
 void Pattern17_0054(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        SA_Term(wk, 0xFFFF, 0xFFFF, 0x30, 0);
+        SA_Term(wk, &(SA_Term_Args){0xFFFF, 0xFFFF, 0x30, 0});
         break;
 
     case 1:
@@ -1137,7 +1137,7 @@ void Pattern17_0072(PLW* wk) {
         break;
 
     case 3:
-        Com_Random_Select(wk, 6, 0x85, 0x86, 0x87, 0x70, 1);
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x85, 0x86, 0x87, 0x70}, 1);
         break;
 
     default:
@@ -1169,7 +1169,7 @@ void Pattern17_0073(PLW* wk) {
         break;
 
     case 5:
-        SA_Term(wk, -1, 0x2f, -1, 0);
+        SA_Term(wk, &(SA_Term_Args){-1, 0x2f, -1, 0});
         break;
 
     default:

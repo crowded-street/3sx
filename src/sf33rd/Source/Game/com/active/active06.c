@@ -45,7 +45,7 @@ void Pattern06_0001(PLW* wk) {
 void Pattern06_0002(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Branch_Unit_Area(wk, 2, 4, 5, 6, 6);
+        Branch_Unit_Area(wk, &(Branch_Menu_Args){2, 4, 5, 6, 6});
         break;
 
     default:
@@ -796,7 +796,7 @@ void Pattern06_0054(PLW* wk) {
 void Pattern06_0055(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Com_Random_Select(wk, 2, 0x2F, 0x30, 0x35, 0x36, 1);
+        Com_Random_Select(wk, &(Branch_Menu_Args){2, 0x2F, 0x30, 0x35, 0x36}, 1);
         break;
 
     default:
@@ -852,7 +852,7 @@ void Pattern06_0057(PLW* wk) {
 void Pattern06_0058(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Branch_Unit_Area(wk, 2, 0x3B, 0x3B, 0x3C, 0x3D);
+        Branch_Unit_Area(wk, &(Branch_Menu_Args){2, 0x3B, 0x3B, 0x3C, 0x3D});
         break;
 
     default:
@@ -900,7 +900,7 @@ void Pattern06_0061(PLW* wk) {
 void Pattern06_0062(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Branch_Unit_Area(wk, 2, 0x21, 0x21, 0x22, 0x23);
+        Branch_Unit_Area(wk, &(Branch_Menu_Args){2, 0x21, 0x21, 0x22, 0x23});
         break;
 
     default:
@@ -912,7 +912,7 @@ void Pattern06_0062(PLW* wk) {
 void Pattern06_0063(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Com_Random_Select(wk, 2, 0x3A, 0x3A, 0x3A, 0x36, 5);
+        Com_Random_Select(wk, &(Branch_Menu_Args){2, 0x3A, 0x3A, 0x3A, 0x36}, 5);
         break;
 
     default:

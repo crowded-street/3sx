@@ -1149,7 +1149,7 @@ void Passive00_0067(PLW* wk) {
 void Passive00_0068(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Com_Random_Select(wk, 6, 0x59, 0x59, 0x59, 0x5a, 0);
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x59, 0x59, 0x59, 0x5a}, 0);
         break;
 
     default:
@@ -1677,7 +1677,7 @@ void Passive00_0093(PLW* wk) {
 void Passive00_0094(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Com_Random_Select(wk, 6, 0x59, 0x5A, 0x5A, 0x5B, 0);
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x59, 0x5A, 0x5A, 0x5B}, 0);
         break;
 
     default:
@@ -1693,7 +1693,7 @@ void Passive00_0095(PLW* wk) {
         break;
 
     case 1:
-        Com_Random_Select(wk, 6, 0x59, 0x59, 0x59, 0x5A, 0);
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x59, 0x59, 0x59, 0x5A}, 0);
         break;
 
     default:
@@ -1817,7 +1817,7 @@ void Passive00_0101(PLW* wk) {
         break;
 
     case 1:
-        Com_Random_Select(wk, 6, 0x59, 0x5A, 0x5A, 0x5B, 0);
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x59, 0x5A, 0x5A, 0x5B}, 0);
         break;
 
     default:
@@ -1833,7 +1833,7 @@ void Passive00_0102(PLW* wk) {
         break;
 
     case 1:
-        Com_Random_Select(wk, 6, 0x59, 0x59, 0x59, 0x5A, 0);
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x59, 0x59, 0x59, 0x5A}, 0);
         break;
 
     default:
@@ -2405,7 +2405,7 @@ void Passive00_0131(PLW* wk) {
 void Passive00_0132(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        SA_Term(wk, 0x2E, 0x2F, 0x30, 0);
+        SA_Term(wk, &(SA_Term_Args){0x2E, 0x2F, 0x30, 0});
         break;
 
     case 1:
@@ -2717,7 +2717,7 @@ void Passive00_0152(PLW* wk) {
 void Passive00_0153(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Com_Random_Select(wk, 6, 0x59, 0x6E, 0x89, 0x98, 0);
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x59, 0x6E, 0x89, 0x98}, 0);
         break;
 
     default:
@@ -2729,7 +2729,7 @@ void Passive00_0153(PLW* wk) {
 void Passive00_0154(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Com_Random_Select(wk, 6, 0x6C, 0x9B, 0x5A, 0x98, 0);
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x6C, 0x9B, 0x5A, 0x98}, 0);
         break;
 
     default:

@@ -83,16 +83,16 @@ void Lever_Attack(PLW* wk, s16 Reaction, u16 Lever, u16 Lever_Data);
 void Lever_Attack_SP(PLW* wk, s16 Reaction, u16 Lever, u16 Lever_Data, s16 Time);
 s32 Setup_Guard_Lever(PLW* wk, u16 Lever);
 s32 Check_Start_Lever_Attack(PLW* wk, u16 Lever, u16 Lever_Data); // extra args
-void SA_Term(PLW* wk, u16 SA0, u16 SA1, u16 SA2, u16 Term_No);
+void SA_Term(PLW* wk, const SA_Term_Args* p);
 s32 DENJIN_Check(PLW* wk, u16 SA2, u16* xx, u16 Term_No);
 s32 YAGYOU_Check(PLW* wk, s16* xx, u16 Term_No);
 s32 SA_Range_Check(PLW* wk, s16 SA_No, u16 Range);
 void Check_SA(PLW* wk, s16 Next_Action, s16 Next_Menu);
 void Check_EX(PLW* wk, s16 Next_Action, s16 Next_Menu);
 void Check_SA_Full(PLW* wk, s16 Next_Action, s16 Next_Menu);
-void Branch_Unit_Area(PLW* wk, s16 Next_Action, s16 Menu_00, s16 Menu_01, s16 Menu_02, s16 Menu_03);
-void Com_Random_Select(PLW* wk, s16 Next_Action, s16 Menu_00, s16 Menu_01, s16 Menu_02, s16 Menu_03, s16 Rnd_Type);
-void Branch_Wait_Area(PLW* wk, s16 Time_00, s16 Time_01, s16 Time_02, s16 Time_03);
+void Branch_Unit_Area(PLW* wk, const Branch_Menu_Args* p);
+void Com_Random_Select(PLW* wk, const Branch_Menu_Args* p, s16 Rnd_Type);
+void Branch_Wait_Area(PLW* wk, const Branch_Wait_Args* p);
 void Wait(PLW* wk, s16 Time); // unused arg
 void Look(PLW* wk, s16 Time);
 void Keep_Status(PLW* wk, u16 Lever_Data, s16 Option_Data);

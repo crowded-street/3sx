@@ -174,16 +174,16 @@ static s32 SA_Gauge_Empty(PLW* wk) {
     return !((plw[wk->wu.id].sa->ok) || (plw[wk->wu.id].sa->mp));
 }
 
-void SA_Term(PLW* wk, u16 SA0, u16 SA1, u16 SA2, u16 Term_No) {
+void SA_Term(PLW* wk, const SA_Term_Args* p) {
     s16 xx[3];
 
     if (SA_Term_Passive_Taken(wk)) {
         return;
     }
 
-    xx[0] = SA0;
-    xx[1] = SA1;
-    xx[2] = SA2;
+    xx[0] = p->SA0;
+    xx[1] = p->SA1;
+    xx[2] = p->SA2;
     Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
 
     if (SA_Not_Available(wk, xx)) {
@@ -200,8 +200,8 @@ void SA_Term(PLW* wk, u16 SA0, u16 SA1, u16 SA2, u16 Term_No) {
 
     /* NOTE: this condition is always true - no value is both 0xFFFF and 0.
      * Preserved exactly as found; see AGENTS.md on arcade-accurate oddities. */
-    if ((Term_No != 0xFFFF) || (Term_No != 0)) {
-        SA_Term_Player_Case(wk, xx, SA2, Term_No);
+    if ((p->Term_No != 0xFFFF) || (p->Term_No != 0)) {
+        SA_Term_Player_Case(wk, xx, p->SA2, p->Term_No);
         return;
     }
 
@@ -289,41 +289,41 @@ void Check_SA_Full(PLW* wk, s16 Next_Action, s16 Next_Menu) {
     Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
 }
 
-void Branch_Unit_Area(PLW* wk, s16 Next_Action, s16 Menu_00, s16 Menu_01, s16 Menu_02, s16 Menu_03) {
+void Branch_Unit_Area(PLW* wk, const Branch_Menu_Args* p) {
     s16 xx[4];
 
-    CP_No[wk->wu.id][0] = Next_Action;
-    xx[0] = Menu_00;
-    xx[1] = Menu_01;
-    xx[2] = Menu_02;
-    xx[3] = Menu_03;
+    CP_No[wk->wu.id][0] = p->Next_Action;
+    xx[0] = p->Menu_00;
+    xx[1] = p->Menu_01;
+    xx[2] = p->Menu_02;
+    xx[3] = p->Menu_03;
 
     Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
     Disposal_Again[wk->wu.id] = 1;
-    Next_Another_Menu(wk, Next_Action, xx[Area_Number[wk->wu.id]]);
+    Next_Another_Menu(wk, p->Next_Action, xx[Area_Number[wk->wu.id]]);
 }
 
-void Com_Random_Select(PLW* wk, s16 Next_Action, s16 Menu_00, s16 Menu_01, s16 Menu_02, s16 Menu_03, s16 Rnd_Type) {
+void Com_Random_Select(PLW* wk, const Branch_Menu_Args* p, s16 Rnd_Type) {
     s16 xx[4];
     s16 zz;
 
     zz = Com_Rnd_Select_Data[Rnd_Type][random_16_com()];
 
-    xx[0] = Menu_00;
-    xx[1] = Menu_01;
-    xx[2] = Menu_02;
-    xx[3] = Menu_03;
+    xx[0] = p->Menu_00;
+    xx[1] = p->Menu_01;
+    xx[2] = p->Menu_02;
+    xx[3] = p->Menu_03;
     Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
 
     if (xx[zz] == 0xFF) {
         Next_End(wk);
     } else {
         Disposal_Again[wk->wu.id] = 1;
-        Next_Another_Menu(wk, Next_Action, xx[zz]);
+        Next_Another_Menu(wk, p->Next_Action, xx[zz]);
     }
 }
 
-void Branch_Wait_Area(PLW* wk, s16 Time_00, s16 Time_01, s16 Time_02, s16 Time_03) {
+void Branch_Wait_Area(PLW* wk, const Branch_Wait_Args* p) {
     s16 xx[4];
 
     switch (CP_Index[wk->wu.id][1]) {
@@ -331,10 +331,10 @@ void Branch_Wait_Area(PLW* wk, s16 Time_00, s16 Time_01, s16 Time_02, s16 Time_0
 
         CP_Index[wk->wu.id][1]++;
 
-        xx[0] = Time_00;
-        xx[1] = Time_01;
-        xx[2] = Time_02;
-        xx[3] = Time_03;
+        xx[0] = p->Time_00;
+        xx[1] = p->Time_01;
+        xx[2] = p->Time_02;
+        xx[3] = p->Time_03;
         Timer_00[wk->wu.id] = xx[Area_Number[wk->wu.id]];
         break;
 

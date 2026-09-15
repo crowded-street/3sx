@@ -710,7 +710,7 @@ void Pattern07_0037(PLW* wk) {
 void Pattern07_0038(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        SA_Term(wk, 0x35, 0x36, 0x37, 0);
+        SA_Term(wk, &(SA_Term_Args){0x35, 0x36, 0x37, 0});
         break;
 
     case 1:
@@ -954,7 +954,7 @@ void Pattern07_0052(PLW* wk) {
 void Pattern07_0053(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Branch_Unit_Area(wk, 2, 0x38, 0x3A, 0x3A, 0x3A);
+        Branch_Unit_Area(wk, &(Branch_Menu_Args){2, 0x38, 0x3A, 0x3A, 0x3A});
         break;
 
     default:
@@ -1238,7 +1238,7 @@ void Pattern07_0071(PLW* wk) {
         break;
 
     case 2:
-        SA_Term(wk, 0x48, 0xFFFF, 0xFFFF, 0);
+        SA_Term(wk, &(SA_Term_Args){0x48, 0xFFFF, 0xFFFF, 0});
         break;
 
     case 3:
@@ -1254,7 +1254,7 @@ void Pattern07_0071(PLW* wk) {
 void Pattern07_0072(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Branch_Unit_Area(wk, 2, 0x49, 0x49, 0x4A, 0x4B);
+        Branch_Unit_Area(wk, &(Branch_Menu_Args){2, 0x49, 0x49, 0x4A, 0x4B});
         break;
 
     default:
