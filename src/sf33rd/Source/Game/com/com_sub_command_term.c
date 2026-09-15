@@ -391,19 +391,13 @@ static void ORO_JCA_Term_Launch(PLW* wk, s16 Jump_Dir) {
     }
 }
 
-void ORO_JCA_Term(
-    PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Tech_Number, s16 Power_Level,
-    s16 Ex_Shot, s16 RJX, s16 RJY, u16 JLD
+/* The airborne half of ORO_JCA_Term: everything from the rise onwards. The case
+ * labels are the original ones. */
+static void ORO_JCA_Term_Airborne(
+    PLW* wk, s16 Reaction, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot,
+    s16 RJX, s16 RJY, u16 JLD
 ) {
     switch (CP_Index[wk->wu.id][1]) {
-
-    case 0:
-        ORO_JCA_Term_Begin(wk, Tech_Number);
-        break;
-
-    case 1:
-        ORO_JCA_Term_Launch(wk, Jump_Dir);
-        break;
 
     case 2:
         ORO_Term_Rise(wk);
@@ -427,6 +421,26 @@ void ORO_JCA_Term(
 
     default:
         JCA_Term_End(wk, Reaction);
+        break;
+    }
+}
+
+void ORO_JCA_Term(
+    PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Tech_Number, s16 Power_Level,
+    s16 Ex_Shot, s16 RJX, s16 RJY, u16 JLD
+) {
+    switch (CP_Index[wk->wu.id][1]) {
+
+    case 0:
+        ORO_JCA_Term_Begin(wk, Tech_Number);
+        break;
+
+    case 1:
+        ORO_JCA_Term_Launch(wk, Jump_Dir);
+        break;
+
+    default:
+        ORO_JCA_Term_Airborne(wk, Reaction, JY, Jump_Dir2, RX, RY, Tech_Number, Power_Level, Ex_Shot, RJX, RJY, JLD);
         break;
     }
 }
