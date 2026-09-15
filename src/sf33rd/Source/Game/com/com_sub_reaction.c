@@ -534,6 +534,31 @@ static s32 Try_Select_Passive(PLW* wk) {
     return Select_Passive(wk) != -1;
 }
 
+/* The passive-mode passes, reached once every earlier condition has declined.
+ * Mode 4 is tried first, then mode 0. */
+static s32 Check_Passive_Modes(PLW* wk) {
+    Passive_Mode = 4;
+
+    if ((Ck_Passive_Term(wk) != 0) && Try_Select_Passive(wk)) {
+        return 1;
+    }
+
+    if (Check_Guard(wk) != 0) {
+        return 1;
+    }
+    if (Check_Passive_Locked(wk)) {
+        return 0;
+    }
+
+    Passive_Mode = 0;
+
+    if (Ck_Passive_Term(wk) != 0) {
+        return Select_Passive(wk);
+    }
+
+    return 0;
+}
+
 s32 Check_Passive(PLW* wk) {
     WORK* em;
 
@@ -566,26 +591,7 @@ s32 Check_Passive(PLW* wk) {
         return Check_Shell(wk);
     }
 
-    Passive_Mode = 4;
-
-    if ((Ck_Passive_Term(wk) != 0) && Try_Select_Passive(wk)) {
-        return 1;
-    }
-
-    if (Check_Guard(wk) != 0) {
-        return 1;
-    }
-    if (Check_Passive_Locked(wk)) {
-        return 0;
-    }
-
-    Passive_Mode = 0;
-
-    if (Ck_Passive_Term(wk) != 0) {
-        return Select_Passive(wk);
-    }
-
-    return 0;
+    return Check_Passive_Modes(wk);
 }
 
 /* Ground guard range. Note this is not com_sub_jump.c's Check_Guard_In_Range:
