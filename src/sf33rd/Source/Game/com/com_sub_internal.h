@@ -18,6 +18,15 @@ void Landing_Tech_Step(PLW* wk);
 
 /* Defined in com_sub_jump.c; the four command-attack Term functions that stayed
  * in com_sub.c run the same approach gates. */
+/* The four values a command attack's landing step is driven by. The field order
+ * is the parameter order the two landing helpers took. */
+typedef struct {
+    s16 Reaction;
+    u16 Tech_Number;
+    s16 Power_Level;
+    s16 Ex_Shot;
+} Command_Landing_Args;
+
 /* The six values every airborne attack Term's approach gates are checked
  * against. The field order is the parameter order Attack_Range_Gates took. */
 typedef struct {

@@ -168,13 +168,13 @@ static void JCA_Term_Approach(PLW* wk, const JCA_Term_Args* a) {
     CP_Index[wk->wu.id][1] += 2;
 }
 
-static void JCA_Term_Land(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot) {
+static void JCA_Term_Land(PLW* wk, const Command_Landing_Args* L) {
     Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-    if (Check_Landed(wk, Reaction) != 0) {
+    if (Check_Landed(wk, L->Reaction) != 0) {
         return;
     }
 
-    Command_Term_Landing_Step(wk, Tech_Number, Power_Level, Ex_Shot);
+    Command_Term_Landing_Step(wk, L->Tech_Number, L->Power_Level, L->Ex_Shot);
 }
 
 static void JCA_Term_End(PLW* wk, s16 Reaction) {
@@ -184,6 +184,8 @@ static void JCA_Term_End(PLW* wk, s16 Reaction) {
 }
 
 void Jump_Command_Attack_Term(PLW* wk, const JCA_Term_Args* a) {
+    const Command_Landing_Args L = { a->Reaction, a->Tech_Number, a->Power_Level, a->Ex_Shot };
+
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
@@ -207,7 +209,7 @@ void Jump_Command_Attack_Term(PLW* wk, const JCA_Term_Args* a) {
         break;
 
     case 5:
-        JCA_Term_Land(wk, a->Reaction, a->Tech_Number, a->Power_Level, a->Ex_Shot);
+        JCA_Term_Land(wk, &L);
         break;
 
     default:
@@ -282,25 +284,23 @@ static void HJCA_Term_Rise(PLW* wk) {
     }
 }
 
-static void Command_Term_Approach(PLW* wk, s16 Reaction, s16 RX, s16 RY, s16 JRX, s16 JRY, u16 JLD) {
-    const Attack_Range_Args r = { Reaction, RX, RY, JRX, JRY, JLD };
-
+static void Command_Term_Approach(PLW* wk, const Attack_Range_Args* r) {
     Check_Air_Guard(wk);
 
-    if (Attack_Range_Gates(wk, &r) == 0) {
+    if (Attack_Range_Gates(wk, r) == 0) {
         return;
     }
 
     CP_Index[wk->wu.id][1] += 2;
 }
 
-static void HJCA_Term_Land(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot) {
+static void HJCA_Term_Land(PLW* wk, const Command_Landing_Args* L) {
     Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-    if (Check_Landed(wk, Reaction) != 0) {
+    if (Check_Landed(wk, L->Reaction) != 0) {
         return;
     }
 
-    Command_Term_Landing_Step(wk, Tech_Number, Power_Level, Ex_Shot);
+    Command_Term_Landing_Step(wk, L->Tech_Number, L->Power_Level, L->Ex_Shot);
 }
 
 static void HJCA_Term_End(PLW* wk, s16 Reaction) {
@@ -312,6 +312,9 @@ static void HJCA_Term_End(PLW* wk, s16 Reaction) {
  * onwards. The case labels are the original ones, so this reads against the
  * same state numbers as the ground half it was lifted out of. */
 static void HJCA_Term_Airborne(PLW* wk, const JCA_Term_Args* a) {
+    const Attack_Range_Args r = { a->Reaction, a->RX, a->RY, a->JRX, a->JRY, a->JLD };
+    const Command_Landing_Args L = { a->Reaction, a->Tech_Number, a->Power_Level, a->Ex_Shot };
+
     switch (CP_Index[wk->wu.id][1]) {
 
     case 3:
@@ -319,7 +322,7 @@ static void HJCA_Term_Airborne(PLW* wk, const JCA_Term_Args* a) {
         break;
 
     case 4:
-        Command_Term_Approach(wk, a->Reaction, a->RX, a->RY, a->JRX, a->JRY, a->JLD);
+        Command_Term_Approach(wk, &r);
         break;
 
     case 5:
@@ -327,7 +330,7 @@ static void HJCA_Term_Airborne(PLW* wk, const JCA_Term_Args* a) {
         break;
 
     case 6:
-        HJCA_Term_Land(wk, a->Reaction, a->Tech_Number, a->Power_Level, a->Ex_Shot);
+        HJCA_Term_Land(wk, &L);
         break;
 
     default:
@@ -390,6 +393,9 @@ static void ORO_JCA_Term_Launch(PLW* wk, s16 Jump_Dir) {
 /* The airborne half of ORO_JCA_Term: everything from the rise onwards. The case
  * labels are the original ones. */
 static void ORO_JCA_Term_Airborne(PLW* wk, const ORO_JCA_Term_Args* a) {
+    const Attack_Range_Args r = { a->Reaction, a->RX, a->RY, a->RJX, a->RJY, a->JLD };
+    const Command_Landing_Args L = { a->Reaction, a->Tech_Number, a->Power_Level, a->Ex_Shot };
+
     switch (CP_Index[wk->wu.id][1]) {
 
     case 2:
@@ -401,7 +407,7 @@ static void ORO_JCA_Term_Airborne(PLW* wk, const ORO_JCA_Term_Args* a) {
         break;
 
     case 4:
-        Command_Term_Approach(wk, a->Reaction, a->RX, a->RY, a->RJX, a->RJY, a->JLD);
+        Command_Term_Approach(wk, &r);
         break;
 
     case 5:
@@ -409,7 +415,7 @@ static void ORO_JCA_Term_Airborne(PLW* wk, const ORO_JCA_Term_Args* a) {
         break;
 
     case 6:
-        JCA_Term_Land(wk, a->Reaction, a->Tech_Number, a->Power_Level, a->Ex_Shot);
+        JCA_Term_Land(wk, &L);
         break;
 
     default:
@@ -439,6 +445,9 @@ void ORO_JCA_Term(PLW* wk, const ORO_JCA_Term_Args* a) {
  * case labels are the original ones, so this reads against the same state
  * numbers as the ground half it was lifted out of. */
 static void ORO_HJCA_Term_Airborne(PLW* wk, const ORO_JCA_Term_Args* a) {
+    const Attack_Range_Args r = { a->Reaction, a->RX, a->RY, a->RJX, a->RJY, a->JLD };
+    const Command_Landing_Args L = { a->Reaction, a->Tech_Number, a->Power_Level, a->Ex_Shot };
+
     switch (CP_Index[wk->wu.id][1]) {
 
     case 3:
@@ -450,7 +459,7 @@ static void ORO_HJCA_Term_Airborne(PLW* wk, const ORO_JCA_Term_Args* a) {
         break;
 
     case 5:
-        Command_Term_Approach(wk, a->Reaction, a->RX, a->RY, a->RJX, a->RJY, a->JLD);
+        Command_Term_Approach(wk, &r);
         break;
 
     case 6:
@@ -458,7 +467,7 @@ static void ORO_HJCA_Term_Airborne(PLW* wk, const ORO_JCA_Term_Args* a) {
         break;
 
     case 7:
-        JCA_Term_Land(wk, a->Reaction, a->Tech_Number, a->Power_Level, a->Ex_Shot);
+        JCA_Term_Land(wk, &L);
         break;
 
     default:
