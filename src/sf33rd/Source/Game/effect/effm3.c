@@ -28,6 +28,34 @@ static void m3_stop(WORK_Other* ewk) {
     ewk->wu.routine_no[0] = 2;
 }
 
+/* Arm the flight: full horizontal component, the per-effect deceleration from
+ * the shared table, and the mirror enabled. */
+static void m3_launch(WORK_Other* ewk) {
+    ewk->wu.routine_no[1]++;
+    ewk->wu.mvxy.a[0].real.h = 64;
+    ewk->wu.mvxy.a[0].real.l = -1;
+    ewk->wu.mvxy.d[0].real.h = -1;
+    ewk->wu.mvxy.d[0].real.l = M3_bahn_data[4] * 16;
+    ewk->wu.mvxy.kop[0] = 1;
+    ewk->wu.my_mr_flag = 1;
+}
+
+/* Fly one frame, scaling the deceleration by the bahn ratio. When the
+ * horizontal component reaches zero the flight is over, and the first effect of
+ * the group clears the step flag for the next one. */
+static void m3_fly(WORK_Other* ewk) {
+    cal_mvxy_speed(&ewk->wu);
+    ewk->wu.mvxy.d[0].sp = (ewk->wu.mvxy.d[0].sp * ewk->wu.dmcal_m) / ewk->wu.dmcal_d;
+
+    if (!ewk->wu.mvxy.a[0].real.h) {
+        ewk->wu.routine_no[1]++;
+
+        if (ewk->wu.type == 0) {
+            Next_Step = 0;
+        }
+    }
+}
+
 /* The flight itself, a state machine of its own on routine_no[1]: wait for the
  * step flag, run the delay out, then fly the bahn until the horizontal
  * component reaches zero. The case labels and the fallthroughs are the
@@ -39,13 +67,7 @@ static void m3_advance_bahn(WORK_Other* ewk) {
             break;
         }
 
-        ewk->wu.routine_no[1]++;
-        ewk->wu.mvxy.a[0].real.h = 64;
-        ewk->wu.mvxy.a[0].real.l = -1;
-        ewk->wu.mvxy.d[0].real.h = -1;
-        ewk->wu.mvxy.d[0].real.l = M3_bahn_data[4] * 16;
-        ewk->wu.mvxy.kop[0] = 1;
-        ewk->wu.my_mr_flag = 1;
+        m3_launch(ewk);
         /* fallthrough */
 
     case 1:
@@ -58,17 +80,7 @@ static void m3_advance_bahn(WORK_Other* ewk) {
         /* fallthrough */
 
     case 2:
-        cal_mvxy_speed(&ewk->wu);
-        ewk->wu.mvxy.d[0].sp = (ewk->wu.mvxy.d[0].sp * ewk->wu.dmcal_m) / ewk->wu.dmcal_d;
-
-        if (!ewk->wu.mvxy.a[0].real.h) {
-            ewk->wu.routine_no[1]++;
-
-            if (ewk->wu.type == 0) {
-                Next_Step = 0;
-            }
-        }
-
+        m3_fly(ewk);
         break;
 
     default:
