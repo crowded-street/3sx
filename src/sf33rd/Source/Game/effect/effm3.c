@@ -19,6 +19,15 @@ static s32 should_end_effect(const WORK_Other* ewk) {
     return ewk->wu.dead_f == 1 || Suicide[2] != 0;
 }
 
+/* End the effect: stop drawing it, release its type slot, and move to the state
+ * that hands the work back. Reached both from the shared end check and from an
+ * exhausted inner state. */
+static void m3_stop(WORK_Other* ewk) {
+    ewk->wu.disp_flag = 0;
+    ewk->wu.type = 0;
+    ewk->wu.routine_no[0] = 2;
+}
+
 void effect_M3_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -37,9 +46,7 @@ void effect_M3_move(WORK_Other* ewk) {
 
     case 1:
         if (should_end_effect(ewk)) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.type = 0;
-            ewk->wu.routine_no[0] = 2;
+            m3_stop(ewk);
             break;
         }
 
@@ -82,9 +89,7 @@ void effect_M3_move(WORK_Other* ewk) {
             break;
 
         default:
-            ewk->wu.disp_flag = 0;
-            ewk->wu.type = 0;
-            ewk->wu.routine_no[0] = 2;
+            m3_stop(ewk);
             break;
         }
 
