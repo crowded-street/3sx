@@ -151,11 +151,14 @@ s32 Exit_Term_0002(PLW* wk, WORK* em) {
     return 0;
 }
 
-s32 Exit_Term_0003(PLW* wk, WORK* em) {
+/* The wait these four exit Terms share: load a timer on the first frame, then
+ * leave once it runs out unless a SHINRYU is on its way. The wait length is the
+ * only thing that differs between them. */
+static s32 Exit_Term_Timed(PLW* wk, s16 Time) {
     switch (Term_No[wk->wu.id]) {
     case 0:
         Term_No[wk->wu.id]++;
-        Timer_00[wk->wu.id] = 0xA;
+        Timer_00[wk->wu.id] = Time;
         break;
     default:
         if (--Timer_00[wk->wu.id]) {
@@ -169,66 +172,22 @@ s32 Exit_Term_0003(PLW* wk, WORK* em) {
     }
 
     return 0;
+}
+
+s32 Exit_Term_0003(PLW* wk, WORK* em) {
+    return Exit_Term_Timed(wk, 0xA);
 }
 
 s32 Exit_Term_0004(PLW* wk, WORK* em) {
-    switch (Term_No[wk->wu.id]) {
-    case 0:
-        Term_No[wk->wu.id]++;
-        Timer_00[wk->wu.id] = 1;
-        break;
-    default:
-        if (--Timer_00[wk->wu.id]) {
-            break;
-        }
-        if (Check_SHINRYU(wk)) {
-            return 0;
-        }
-        Timer_00[wk->wu.id] = 1;
-        return 1;
-    }
-
-    return 0;
+    return Exit_Term_Timed(wk, 1);
 }
 
 s32 Exit_Term_0005(PLW* wk, WORK* em) {
-    switch (Term_No[wk->wu.id]) {
-    case 0:
-        Term_No[wk->wu.id]++;
-        Timer_00[wk->wu.id] = 5;
-        break;
-    default:
-        if (--Timer_00[wk->wu.id]) {
-            break;
-        }
-        if (Check_SHINRYU(wk)) {
-            return 0;
-        }
-        Timer_00[wk->wu.id] = 1;
-        return 1;
-    }
-
-    return 0;
+    return Exit_Term_Timed(wk, 5);
 }
 
 s32 Exit_Term_0006(PLW* wk, WORK* em) {
-    switch (Term_No[wk->wu.id]) {
-    case 0:
-        Term_No[wk->wu.id]++;
-        Timer_00[wk->wu.id] = 0x3C;
-        break;
-    default:
-        if (--Timer_00[wk->wu.id]) {
-            break;
-        }
-        if (Check_SHINRYU(wk)) {
-            return 0;
-        }
-        Timer_00[wk->wu.id] = 1;
-        return 1;
-    }
-
-    return 0;
+    return Exit_Term_Timed(wk, 0x3C);
 }
 
 s32 Exit_Term_0007(PLW* wk, WORK* em) {
