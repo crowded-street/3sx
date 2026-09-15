@@ -147,21 +147,33 @@ static void Free_On_Diagonal_Shell(PLW* wk) {
     }
 }
 
-static void HJA_Term_Begin(PLW* wk, s16 Reaction) {
-    Setup_Lever_LR(wk, wk->wu.id, Reaction & 0xF000);
+/* The opening the two hi-jump attack Terms share: the passive, special-move and
+ * hi-jump gates, then the menu reset. Non-zero when one of the gates stopped the
+ * opening. Only the statement before it and the hit reset after it differ
+ * between the two callers. */
+static s32 HJA_Term_Opening_Blocked(PLW* wk) {
     if (Check_Passive(wk) != 0) {
-        return;
+        return 1;
     }
 
     if (wk->spmv_ng_flag & 0x30000) {
         Next_Be_Free(wk);
-        return;
+        return 1;
     }
     if (Check_Start_Hi_Jump(wk) != 0) {
-        return;
+        return 1;
     }
 
     Continue_Menu[wk->wu.id] = 0;
+    return 0;
+}
+
+static void HJA_Term_Begin(PLW* wk, s16 Reaction) {
+    Setup_Lever_LR(wk, wk->wu.id, Reaction & 0xF000);
+    if (HJA_Term_Opening_Blocked(wk)) {
+        return;
+    }
+
     wk->wu.hf.hit.player = 0;
     Air_Term_Load_Tech(wk);
 }
@@ -497,19 +509,10 @@ void ORO_JA_Term(
 
 static void ORO_HJA_Term_Begin(PLW* wk) {
     Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
-    if (Check_Passive(wk) != 0) {
+    if (HJA_Term_Opening_Blocked(wk)) {
         return;
     }
 
-    if (wk->spmv_ng_flag & 0x30000) {
-        Next_Be_Free(wk);
-        return;
-    }
-    if (Check_Start_Hi_Jump(wk) != 0) {
-        return;
-    }
-
-    Continue_Menu[wk->wu.id] = 0;
     Air_Term_Load_Tech(wk);
 }
 
