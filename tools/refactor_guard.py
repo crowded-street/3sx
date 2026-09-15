@@ -122,6 +122,86 @@ def literals(src: str) -> Counter:
     return out
 
 
+#: Control-flow keywords that take a parenthesis and would otherwise scan as calls.
+NOT_CALLS = frozenset(
+    ("if", "for", "while", "switch", "return", "sizeof", "do", "else", "case", "defined")
+)
+
+CALL_RE = re.compile(r"\b([A-Za-z_][A-Za-z_0-9]*)\s*\(")
+
+
+def calls(src: str) -> Counter:
+    """Multiset of called function names, ignoring definitions and declarations.
+
+    This catches the failure mode a literal fingerprint misses: a call dropped
+    or duplicated inside a branch that was rewritten, with every constant still
+    in place.
+
+    A definition looks like a call to this scanner, which is deliberate - it
+    makes the two legitimate shapes easy to recognise. Measured against real
+    campaign commits:
+
+      Recipe E (extract)      nothing removed; each new helper +2
+                              (its definition, and the one call that replaced
+                              the block)
+      Recipe C/D (dedup)      the shared callees drop by the number of copies
+                              removed; the helper is +1 per call site, +1 for
+                              its definition
+
+    Anything else wants explaining. A name that disappears entirely is a FAIL.
+    """
+    out = Counter()
+    for m in CALL_RE.finditer(strip_comments(src)):
+        name = m.group(1)
+        if name in NOT_CALLS:
+            continue
+        out[name] += 1
+    return out
+
+
+def report_call_changes(rel: str, before: Counter, after: Counter, strict: bool) -> bool:
+    removed = before - after
+    added = after - before
+    if not removed and not added:
+        print("OK    " + rel + "  (" + str(sum(before.values())) + " call sites unchanged)")
+        return True
+
+    vanished = [name for name in removed if after[name] == 0]
+    if vanished:
+        print("FAIL  " + rel + "  - a call vanished from the file")
+        for name in sorted(vanished):
+            print("        gone      " + name + " (was called " + str(before[name]) + "x)")
+        return False
+
+    label = "FAIL " if strict else "WARN "
+    print(label + " " + rel + "  - call counts moved")
+    for name, count in sorted(removed.items()):
+        print("        -" + str(count) + "  " + name)
+    for name, count in sorted(added.items()):
+        tag = "  <-- new name" if before[name] == 0 else ""
+        print("        +" + str(count) + "  " + name + tag)
+    print("        expected: extract removes nothing and adds each helper twice (its")
+    print("        definition and its call); deduplicate drops the shared callees by the")
+    print("        copies removed. Anything else wants explaining.")
+    return not strict
+
+
+def check_calls(rel: str, base: str, strict: bool = False) -> bool:
+    """Compare the call fingerprint of one file against `base`."""
+    before = git_show(base, rel)
+    if before is None:
+        print("SKIP  " + rel + "  (not in " + base + "; new file)")
+        return True
+
+    path = REPO / rel
+    if not path.is_file():
+        print("FAIL  " + rel + "  (deleted from working tree)")
+        return False
+
+    after = path.read_text(encoding="utf-8", errors="replace")
+    return report_call_changes(rel, calls(before), calls(after), strict)
+
+
 def strip_include_lines(src: str) -> str:
     return re.sub(r"^\s*#\s*include[^\n]*\n", "", src, flags=re.MULTILINE)
 
@@ -316,6 +396,8 @@ def main() -> int:
                     help="compare all supplied files as one literal group")
     ap.add_argument("--strict", action="store_true",
                     help="fail on added literals and reduced-count warnings")
+    ap.add_argument("--calls", action="store_true",
+                    help="compare called-function fingerprints instead of literals")
     args = ap.parse_args()
 
     targets = changed_files(args.base) if args.all else args.files
@@ -329,11 +411,15 @@ def main() -> int:
     ok = True
     for rel in targets:
         rel = rel.replace("\\", "/")
-        if not check(rel, args.base, args.strict):
+        checker = check_calls if args.calls else check
+        if not checker(rel, args.base, args.strict):
             ok = False
 
     print()
     if ok:
+        if args.calls:
+            print("PASS - no call was dropped or duplicated.")
+            return 0
         print("PASS - no constant was removed or altered.")
         return 0
     print("BLOCKED - this is not a legal campaign refactor.")
