@@ -81,17 +81,28 @@ static s32 is_recording_display(const WORK_Other* ewk) {
     return Record_Data_Tr == 0 && ewk->wu.type == 11 && ewk->master_priority == 1;
 }
 
+static s32 is_training_clear_level(const WORK_Other* ewk) {
+    return Training[2].contents[0][0][0] == 3 && ewk->wu.type == 0 && ewk->master_priority == 1;
+}
 
-void effect_A3_move(WORK_Other* ewk) {
-    s16 color;
-    s16 ix;
-    s16 clear_level;
-    f32 prio;
-
-    if (Menu_Suicide[ewk->master_player]) {
-        push_effect_work(&ewk->wu);
-        return;
+static s16 get_clear_level_A3(const WORK_Other* ewk) {
+    if (is_record_clear_level(ewk)) {
+        return 1;
     }
+
+    if (is_recording_display(ewk)) {
+        return 1;
+    }
+
+    if (is_training_clear_level(ewk)) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static s16 get_text_color_A3(const WORK_Other* ewk) {
+    s16 color;
 
     if (ewk->master_priority != Menu_Cursor_Y[0]) {
         color = 9;
@@ -99,45 +110,45 @@ void effect_A3_move(WORK_Other* ewk) {
         color = 5;
     }
 
-    if (Contents_Check_Data_A3[ewk->wu.type] == 1) {
-        ix = Training[2].contents[ewk->master_id][ewk->wu.dir_step][ewk->master_priority];
-    } else {
-        ix = ewk->wu.cg_type;
-    }
-
-    clear_level = 0;
-
-    if (is_record_clear_level(ewk)) {
-        clear_level = 1;
-    }
-    if (is_recording_display(ewk)) {
-        clear_level = 1;
-    }
-
-    if (Training[2].contents[0][0][0] == 3 && ewk->wu.type == 0 && ewk->master_priority == 1) {
-        clear_level = 1;
-    }
-
     if (ewk->master_priority == 99) {
         color = 10;
     }
 
+    return color;
+}
+
+static s16 get_text_index_A3(const WORK_Other* ewk) {
+    if (Contents_Check_Data_A3[ewk->wu.type] == 1) {
+        return Training[2].contents[ewk->master_id][ewk->wu.dir_step][ewk->master_priority];
+    }
+
+    return ewk->wu.cg_type;
+}
+
+static f32 get_text_priority_A3(const WORK_Other* ewk) {
     if (ewk->wu.type < 22) {
-        prio = 1.0f;
-    } else {
-        prio = 2.0f;
+        return 1.0f;
+    }
+
+    return 2.0f;
+}
+
+void effect_A3_move(WORK_Other* ewk) {
+    if (Menu_Suicide[ewk->master_player]) {
+        push_effect_work(&ewk->wu);
+        return;
     }
 
     SSPutStr_Bigger(ewk->wu.xyz[0].disp.pos,
                     ewk->wu.xyz[1].disp.pos,
-                    color,
-                    Letter_Data_A3[ewk->wu.type][ix],
+                    get_text_color_A3(ewk),
+                    Letter_Data_A3[ewk->wu.type][get_text_index_A3(ewk)],
                     1.0f,
-                    clear_level,
-                    prio);
+                    get_clear_level_A3(ewk),
+                    get_text_priority_A3(ewk));
 }
 
-s32 effect_A3_init(s16 id, u8 Type, u8 Type_in_Type, u8 dir_step, u8 Death_Type, s16 pos_x, s16 pos_y, s16 Buff) {
+s32 effect_A3_init_params(EffectA3Init init) {
     WORK_Other* ewk;
     s16 ix;
 
@@ -149,13 +160,13 @@ s32 effect_A3_init(s16 id, u8 Type, u8 Type_in_Type, u8 dir_step, u8 Death_Type,
     ewk->wu.be_flag = 1;
     ewk->wu.id = 103;
     ewk->wu.work_id = 16;
-    ewk->master_id = id;
-    ewk->wu.type = Type;
-    ewk->master_priority = Type_in_Type;
-    ewk->wu.cg_type = dir_step;
-    ewk->master_player = Death_Type;
-    ewk->wu.dir_step = Buff;
-    ewk->wu.xyz[0].disp.pos = pos_x;
-    ewk->wu.xyz[1].disp.pos = pos_y;
+    ewk->master_id = init.id;
+    ewk->wu.type = init.type;
+    ewk->master_priority = init.type_in_type;
+    ewk->wu.cg_type = init.dir_step;
+    ewk->master_player = init.death_type;
+    ewk->wu.dir_step = init.buff;
+    ewk->wu.xyz[0].disp.pos = init.pos_x;
+    ewk->wu.xyz[1].disp.pos = init.pos_y;
     return 0;
 }
