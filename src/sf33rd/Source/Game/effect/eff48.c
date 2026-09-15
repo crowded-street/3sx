@@ -55,6 +55,32 @@ void eff48_0000(WORK_Other* ewk) {
     }
 }
 
+/* Four of the logo pieces kick off their own effect when they land; the rest
+ * land silently, and a piece that has already done it is marked in old_rno[4]. */
+static void e48_spawn_landing_effect(WORK_Other* ewk) {
+    if (ewk->wu.old_rno[4]) {
+        return;
+    }
+
+    switch (ewk->wu.type) {
+    case 16:
+        effect_36_init(0x18);
+        break;
+
+    case 17:
+        effect_36_init(0x19);
+        break;
+
+    case 20:
+        effect_36_init(0x1A);
+        break;
+
+    case 21:
+        effect_36_init(0x1B);
+        break;
+    }
+}
+
 void eff48_1000(WORK_Other* ewk) {
     if (ewk->wu.old_rno[1] <= op_obj_disp) {
         ewk->wu.routine_no[1] = 0x63;
@@ -78,25 +104,7 @@ void eff48_1000(WORK_Other* ewk) {
             ewk->wu.xyz[1].disp.pos = ewk->wu.old_rno[2];
             op_scrn_end = 1;
 
-            if (!ewk->wu.old_rno[4]) {
-                switch (ewk->wu.type) {
-                case 16:
-                    effect_36_init(0x18);
-                    break;
-
-                case 17:
-                    effect_36_init(0x19);
-                    break;
-
-                case 20:
-                    effect_36_init(0x1A);
-                    break;
-
-                case 21:
-                    effect_36_init(0x1B);
-                    break;
-                }
-            }
+            e48_spawn_landing_effect(ewk);
         } else {
             add_y_sub(ewk);
         }
