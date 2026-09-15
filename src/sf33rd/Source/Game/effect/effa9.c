@@ -19,6 +19,19 @@
 
 void Setup_A9(WORK_Other* ewk, s16 Char_Index, s16 Option, s16 Option2);
 
+/* Hide the effect once it has scrolled out of range, or when the global suicide
+ * flag fires. Non-zero when it did - states 2 and 4 both end this way, and
+ * state 2 stops the rest of its frame on it. */
+static s32 a9_hide_if_gone(WORK_Other* ewk) {
+    if (Ck_Range_Out_S(ewk, ewk->wu.my_family - 1, ewk->wu.vital_new) || Suicide[3] != 0) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0] = 99;
+        return 1;
+    }
+
+    return 0;
+}
+
 void effect_A9_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -35,9 +48,7 @@ void effect_A9_move(WORK_Other* ewk) {
         break;
 
     case 2:
-        if (Ck_Range_Out_S(ewk, ewk->wu.my_family - 1, ewk->wu.vital_new) || Suicide[3] != 0) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0] = 99;
+        if (a9_hide_if_gone(ewk)) {
             break;
         }
 
@@ -71,10 +82,7 @@ void effect_A9_move(WORK_Other* ewk) {
         break;
 
     case 4:
-        if (Ck_Range_Out_S(ewk, ewk->wu.my_family - 1, ewk->wu.vital_new) || Suicide[3] != 0) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0] = 99;
-        }
+        a9_hide_if_gone(ewk);
 
         break;
 
