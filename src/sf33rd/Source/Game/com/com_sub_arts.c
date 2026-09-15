@@ -104,12 +104,10 @@ static void SA_Two_Range_Arm(PLW* wk, s16* xx, u16 Term_No) {
  * terminal. The original reached the shared Next_Another_Menu call by breaking
  * out of the switch on one path only (player_number 8, low vitality); that path
  * calls SA_Next_Menu here instead, which is the same call it fell through to. */
-static void SA_Term_Player_Case(PLW* wk, s16* xx, u16 SA2, u16 Term_No) {
+/* The characters whose super art is gated on range alone, and the default every
+ * other character takes. The case labels are the original ones. */
+static void SA_Term_Range_Case(PLW* wk, s16* xx, u16 Term_No) {
     switch (wk->player_number) {
-    case 2:
-        SA_Denjin_Arm(wk, xx, SA2, Term_No);
-        return;
-
     case 11:
         SA_Range_Menu(wk, xx, 1, Term_No);
         return;
@@ -126,6 +124,24 @@ static void SA_Term_Player_Case(PLW* wk, s16* xx, u16 SA2, u16 Term_No) {
         SA_Range_Menu(wk, xx, 0, Term_No);
         return;
 
+    case 14:
+        SA_Two_Range_Arm(wk, xx, Term_No);
+        return;
+
+    default:
+        SA_Next_Menu(wk, xx);
+        return;
+    }
+}
+
+/* The characters with a condition of their own; everyone else is gated on range
+ * and goes to SA_Term_Range_Case. */
+static void SA_Term_Player_Case(PLW* wk, s16* xx, u16 SA2, u16 Term_No) {
+    switch (wk->player_number) {
+    case 2:
+        SA_Denjin_Arm(wk, xx, SA2, Term_No);
+        return;
+
     case 8:
         SA_Low_Vitality_Arm(wk, xx);
         return;
@@ -135,12 +151,8 @@ static void SA_Term_Player_Case(PLW* wk, s16* xx, u16 SA2, u16 Term_No) {
         SA_Next_Menu(wk, xx);
         return;
 
-    case 14:
-        SA_Two_Range_Arm(wk, xx, Term_No);
-        return;
-
     default:
-        SA_Next_Menu(wk, xx);
+        SA_Term_Range_Case(wk, xx, Term_No);
         return;
     }
 }
