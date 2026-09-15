@@ -350,19 +350,30 @@ static s32 Lever_Attack_Begin(PLW* wk, u16 Lever, u16 Lever_Data) {
     return 1;
 }
 
-/* Count the combo delay down, then press the lever attack. */
-static void Lever_Attack_Wind_Up(PLW* wk, u16 Lever, u16 Lever_Data) {
+/* Count the combo delay down and, once it runs out, press the lever attack.
+ * Non-zero when the press happened; both wind-ups then step the state on, and
+ * the SP one also starts its hold timer. */
+static s32 Lever_Attack_Pressed(PLW* wk, u16 Lever, u16 Lever_Data) {
     s16 xx;
 
     if (Check_Passive(wk) != 0) {
-        return;
+        return 0;
     }
     if (--Combo_Speed[wk->wu.id]) {
-        return;
+        return 0;
     }
 
     xx = Setup_Guard_Lever(wk, Lever);
     Lever_Buff[wk->wu.id] = (Lever_Data | xx);
+
+    return 1;
+}
+
+/* Count the combo delay down, then press the lever attack. */
+static void Lever_Attack_Wind_Up(PLW* wk, u16 Lever, u16 Lever_Data) {
+    if (!Lever_Attack_Pressed(wk, Lever, Lever_Data)) {
+        return;
+    }
     CP_Index[wk->wu.id][1]++;
 }
 
@@ -406,17 +417,9 @@ static s32 Lever_Attack_SP_Begin(PLW* wk, u16 Lever, u16 Lever_Data, s16 Time) {
 /* Count the combo delay down, then press the lever attack. The extra timer
  * decrement is the first frame of the hold. */
 static void Lever_Attack_SP_Wind_Up(PLW* wk, u16 Lever, u16 Lever_Data) {
-    s16 xx;
-
-    if (Check_Passive(wk) != 0) {
+    if (!Lever_Attack_Pressed(wk, Lever, Lever_Data)) {
         return;
     }
-    if (--Combo_Speed[wk->wu.id]) {
-        return;
-    }
-
-    xx = Setup_Guard_Lever(wk, Lever);
-    Lever_Buff[wk->wu.id] = (Lever_Data | xx);
 
     Timer_00[wk->wu.id]--;
     CP_Index[wk->wu.id][1]++;
