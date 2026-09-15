@@ -128,6 +128,18 @@ static void Air_Term_End(PLW* wk, s16 Reaction) {
     Check_Landed(wk, Reaction & 0xFFF);
 }
 
+/* Step the state on and load the hi-jump tech script. Shared by
+ * Hi_Jump_Attack_Term and ORO_HJA_Term; only what precedes it differs. */
+static void Air_Term_Load_Tech(PLW* wk) {
+    CP_Index[wk->wu.id][1]++;
+    if (cmd_sel[wk->wu.id]) {
+        Tech_Address[wk->wu.id] = player_CMD[wk->player_number][2];
+    } else {
+        Tech_Address[wk->wu.id] = player_cmd[wk->player_number][2];
+    }
+    Check_First_Menu(wk);
+}
+
 static void HJA_Term_Begin(PLW* wk, s16 Reaction) {
     Setup_Lever_LR(wk, wk->wu.id, Reaction & 0xF000);
     if (Check_Passive(wk) != 0) {
@@ -144,13 +156,7 @@ static void HJA_Term_Begin(PLW* wk, s16 Reaction) {
 
     Continue_Menu[wk->wu.id] = 0;
     wk->wu.hf.hit.player = 0;
-    CP_Index[wk->wu.id][1]++;
-    if (cmd_sel[wk->wu.id]) {
-        Tech_Address[wk->wu.id] = player_CMD[wk->player_number][2];
-    } else {
-        Tech_Address[wk->wu.id] = player_cmd[wk->player_number][2];
-    }
-    Check_First_Menu(wk);
+    Air_Term_Load_Tech(wk);
 }
 
 static void HJA_Term_Launch(PLW* wk, s16 Jump_Dir) {
@@ -486,13 +492,7 @@ static void ORO_HJA_Term_Begin(PLW* wk) {
     }
 
     Continue_Menu[wk->wu.id] = 0;
-    CP_Index[wk->wu.id][1]++;
-    if (cmd_sel[wk->wu.id]) {
-        Tech_Address[wk->wu.id] = player_CMD[wk->player_number][2];
-    } else {
-        Tech_Address[wk->wu.id] = player_cmd[wk->player_number][2];
-    }
-    Check_First_Menu(wk);
+    Air_Term_Load_Tech(wk);
 }
 
 /* NOTE: the combo test reads Combo_Speed[wk->wu.id == 0] - the bracket encloses
