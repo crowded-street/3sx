@@ -38,9 +38,56 @@ static s32 d8_waiting_for_training_partner(const WORK_Other* ewk) {
            (ewk->master_id == New_Challenger) && (S_No[3] < 2);
 }
 
-void effect_D8_move(WORK_Other* ewk) {
+/* Track the select cursor: when it moves, re-place the face and restart its
+ * animation at the matching frame. Once this player has locked in, start the
+ * confirm animation instead. */
+static void d8_follow_cursor(WORK_Other* ewk) {
     s16 offset_x;
 
+    if (cursor_position_changed(ewk)) {
+        ewk->wu.vital_new = Cursor_X[ewk->master_id];
+        ewk->wu.vital_old = Cursor_Y[ewk->master_id];
+
+        if (Play_Type == 1) {
+            offset_x = Setup_Face_Offset_X(99);
+        } else {
+            offset_x = Setup_Face_Offset_X(Play_Type_1st);
+        }
+
+        Setup_EffD8_Pos(ewk, offset_x);
+        set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, (ewk->wu.cg_ix / ewk->wu.cgd_type) + 1, 0);
+    }
+
+    if (Sel_PL_Complete[ewk->master_id]) {
+        ewk->wu.routine_no[0] += 1;
+        ewk->wu.dir_timer = 20;
+        ewk->wu.char_index += 1;
+        set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+    } else {
+        char_move(&ewk->wu);
+    }
+}
+
+/* Run the confirm animation out, then lock the selection in and hand the select
+ * timer over. */
+static void d8_confirm_selection(WORK_Other* ewk) {
+    if (--ewk->wu.dir_timer) {
+        char_move(&ewk->wu);
+    } else {
+        ewk->wu.routine_no[0] += 1;
+        Sel_PL_Complete[ewk->master_id] = -0x8000;
+
+        if (Select_Start[ewk->master_id] == 0) {
+            Select_Timer = 0x20;
+        }
+
+        Unit_Of_Timer = UNIT_OF_TIMER_MAX;
+        ewk->wu.char_index += 1;
+        set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+    }
+}
+
+void effect_D8_move(WORK_Other* ewk) {
     ewk->wu.hit_quake += 1;
 
     switch (ewk->wu.routine_no[0]) {
@@ -66,47 +113,11 @@ void effect_D8_move(WORK_Other* ewk) {
         break;
 
     case 2:
-        if (cursor_position_changed(ewk)) {
-            ewk->wu.vital_new = Cursor_X[ewk->master_id];
-            ewk->wu.vital_old = Cursor_Y[ewk->master_id];
-
-            if (Play_Type == 1) {
-                offset_x = Setup_Face_Offset_X(99);
-            } else {
-                offset_x = Setup_Face_Offset_X(Play_Type_1st);
-            }
-
-            Setup_EffD8_Pos(ewk, offset_x);
-            set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, (ewk->wu.cg_ix / ewk->wu.cgd_type) + 1, 0);
-        }
-
-        if (Sel_PL_Complete[ewk->master_id]) {
-            ewk->wu.routine_no[0] += 1;
-            ewk->wu.dir_timer = 20;
-            ewk->wu.char_index += 1;
-            set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-        } else {
-            char_move(&ewk->wu);
-        }
-
+        d8_follow_cursor(ewk);
         break;
 
     case 3:
-        if (--ewk->wu.dir_timer) {
-            char_move(&ewk->wu);
-        } else {
-            ewk->wu.routine_no[0] += 1;
-            Sel_PL_Complete[ewk->master_id] = -0x8000;
-
-            if (Select_Start[ewk->master_id] == 0) {
-                Select_Timer = 0x20;
-            }
-
-            Unit_Of_Timer = UNIT_OF_TIMER_MAX;
-            ewk->wu.char_index += 1;
-            set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-        }
-
+        d8_confirm_selection(ewk);
         break;
 
     case 4:
