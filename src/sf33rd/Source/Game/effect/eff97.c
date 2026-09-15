@@ -27,69 +27,95 @@ static s32 player_reached_target_state(const WORK_Other* ewk) {
 }
 
 
+/* Show the effect and start its first animation. */
+static void e97_start(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.disp_flag = 1;
+    set_char_move_init(&ewk->wu, 0, 44);
+}
+
+/* Run the first animation until the player reaches the state this effect waits
+ * for, then arm the turn timer. */
+static void e97_await_player(WORK_Other* ewk) {
+    if (game_is_active()) {
+        char_move(&ewk->wu);
+
+        if (player_reached_target_state(ewk)) {
+            ewk->wu.routine_no[0]++;
+            ewk->wu.old_rno[0] = 16;
+        }
+    }
+}
+
+/* Turn the effect around and launch it: up, and away from the player's side. */
+static void e97_launch(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.rl_flag ^= 1;
+    set_char_move_init(&ewk->wu, 0, 45);
+    ewk->wu.old_rno[0] = 16;
+    ewk->wu.mvxy.a[1].sp = 0xE8000;
+    ewk->wu.mvxy.d[1].sp = -0x6000;
+
+    if (plw[ewk->master_id].wu.id) {
+        ewk->wu.mvxy.a[0].sp = -0xA8000;
+        ewk->wu.mvxy.d[0].sp = -0x1000;
+    } else {
+        ewk->wu.mvxy.a[0].sp = 0xA8000;
+        ewk->wu.mvxy.d[0].sp = 0x1000;
+    }
+}
+
+/* Count the turn timer down and launch once it has run. */
+static void e97_await_turn(WORK_Other* ewk) {
+    if (!EXE_flag && !Game_pause) {
+        ewk->wu.old_rno[0]--;
+
+        if (ewk->wu.old_rno[0] > 0) {
+            e97_launch(ewk);
+        }
+    }
+}
+
+/* Fly until the flight timer runs out, then hide the effect. */
+static void e97_fly(WORK_Other* ewk) {
+    if (!EXE_flag && !Game_pause) {
+        ewk->wu.old_rno[0]--;
+
+        if (ewk->wu.old_rno[0] > 0) {
+            add_x_sub(&ewk->wu);
+            add_y_sub(&ewk->wu);
+        } else {
+            ewk->wu.routine_no[0]++;
+            ewk->wu.disp_flag = 0;
+        }
+    }
+}
+
+/* Place the effect and hand it to the renderer - the tail states 1 to 3 share. */
+static void e97_sync_and_push(WORK_Other* ewk) {
+    suzi_sync_pos_set(ewk);
+    sort_push_request4(&ewk->wu);
+}
+
 void effect_97_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.disp_flag = 1;
-        set_char_move_init(&ewk->wu, 0, 44);
+        e97_start(ewk);
         /* fallthrough */
 
     case 1:
-        if (game_is_active()) {
-            char_move(&ewk->wu);
-
-            if (player_reached_target_state(ewk)) {
-                ewk->wu.routine_no[0]++;
-                ewk->wu.old_rno[0] = 16;
-            }
-        }
-
-        suzi_sync_pos_set(ewk);
-        sort_push_request4(&ewk->wu);
+        e97_await_player(ewk);
+        e97_sync_and_push(ewk);
         break;
 
     case 2:
-        if (!EXE_flag && !Game_pause) {
-            ewk->wu.old_rno[0]--;
-
-            if (ewk->wu.old_rno[0] > 0) {
-                ewk->wu.routine_no[0]++;
-                ewk->wu.rl_flag ^= 1;
-                set_char_move_init(&ewk->wu, 0, 45);
-                ewk->wu.old_rno[0] = 16;
-                ewk->wu.mvxy.a[1].sp = 0xE8000;
-                ewk->wu.mvxy.d[1].sp = -0x6000;
-
-                if (plw[ewk->master_id].wu.id) {
-                    ewk->wu.mvxy.a[0].sp = -0xA8000;
-                    ewk->wu.mvxy.d[0].sp = -0x1000;
-                } else {
-                    ewk->wu.mvxy.a[0].sp = 0xA8000;
-                    ewk->wu.mvxy.d[0].sp = 0x1000;
-                }
-            }
-        }
-
-        suzi_sync_pos_set(ewk);
-        sort_push_request4(&ewk->wu);
+        e97_await_turn(ewk);
+        e97_sync_and_push(ewk);
         break;
 
     case 3:
-        if (!EXE_flag && !Game_pause) {
-            ewk->wu.old_rno[0]--;
-
-            if (ewk->wu.old_rno[0] > 0) {
-                add_x_sub(&ewk->wu);
-                add_y_sub(&ewk->wu);
-            } else {
-                ewk->wu.routine_no[0]++;
-                ewk->wu.disp_flag = 0;
-            }
-        }
-
-        suzi_sync_pos_set(ewk);
-        sort_push_request4(&ewk->wu);
+        e97_fly(ewk);
+        e97_sync_and_push(ewk);
         break;
 
     case 4:
