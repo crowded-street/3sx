@@ -46,6 +46,15 @@ static void SA_Next_Menu(PLW* wk, s16* xx) {
     Next_Another_Menu(wk, 2, xx[plw[wk->wu.id].sa->kind_of_arts]);
 }
 
+/* The arm most characters take: one range gate, then the shared menu step. The
+ * gate level is the only thing that differs between them. */
+static void SA_Range_Menu(PLW* wk, s16* xx, s16 SA_No, u16 Term_No) {
+    if (SA_Range_Check(wk, SA_No, Term_No) != 0) {
+        return;
+    }
+    SA_Next_Menu(wk, xx);
+}
+
 /* Per-character super art handling, split out of SA_Term. Every path is
  * terminal. The original reached the shared Next_Another_Menu call by breaking
  * out of the switch on one path only (player_number 8, low vitality); that path
@@ -61,17 +70,11 @@ static void SA_Term_Player_Case(PLW* wk, s16* xx, u16 SA2, u16 Term_No) {
         return;
 
     case 11:
-        if (SA_Range_Check(wk, 1, Term_No) != 0) {
-            return;
-        }
-        SA_Next_Menu(wk, xx);
+        SA_Range_Menu(wk, xx, 1, Term_No);
         return;
 
     case 1:
-        if (SA_Range_Check(wk, 1, Term_No) != 0) {
-            return;
-        }
-        SA_Next_Menu(wk, xx);
+        SA_Range_Menu(wk, xx, 1, Term_No);
         return;
 
     case 5:
@@ -79,17 +82,11 @@ static void SA_Term_Player_Case(PLW* wk, s16* xx, u16 SA2, u16 Term_No) {
             CP_Index[wk->wu.id][0]++;
             return;
         }
-        if (SA_Range_Check(wk, 1, Term_No) != 0) {
-            return;
-        }
-        SA_Next_Menu(wk, xx);
+        SA_Range_Menu(wk, xx, 1, Term_No);
         return;
 
     case 6:
-        if (SA_Range_Check(wk, 0, Term_No) != 0) {
-            return;
-        }
-        SA_Next_Menu(wk, xx);
+        SA_Range_Menu(wk, xx, 0, Term_No);
         return;
 
     case 8:
@@ -109,10 +106,7 @@ static void SA_Term_Player_Case(PLW* wk, s16* xx, u16 SA2, u16 Term_No) {
         if (SA_Range_Check(wk, 1, Term_No) != 0) {
             return;
         }
-        if (SA_Range_Check(wk, 2, Term_No) != 0) {
-            return;
-        }
-        SA_Next_Menu(wk, xx);
+        SA_Range_Menu(wk, xx, 2, Term_No);
         return;
 
     default:
