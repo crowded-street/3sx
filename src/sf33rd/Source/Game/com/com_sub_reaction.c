@@ -105,53 +105,80 @@ static void Reaction_Meoshi_Sub(PLW* wk, s16 Reaction, s16 Power_Level) {
     }
 }
 
+/* A stocked hit ends the reaction outright; otherwise the pattern ends only
+ * once the character is free to act. Reaction codes 9 and 11 share this. */
+static void Reaction_Exit_Or_End(PLW* wk) {
+    if (Stock_Hit_Flag[wk->wu.id]) {
+        Reaction_Exit_Sub(wk);
+    } else if (Check_Free_To_Act(wk)) {
+        Next_End(wk);
+    }
+}
+
+/* Either condition ends the reaction. Code 10 and the default share this. */
+static void Reaction_Exit_If_Ready(PLW* wk) {
+    if (Stock_Hit_Flag[wk->wu.id] || Check_Free_To_Act(wk)) {
+        Reaction_Exit_Sub(wk);
+    }
+}
+
+/* Code 10: a queued follow-up ends the pattern instead. */
+static void Reaction_Follow_Or_Exit(PLW* wk) {
+    if (Check_Stock_Hit_Follow(wk)) {
+        Next_End(wk);
+        return;
+    }
+
+    Reaction_Exit_If_Ready(wk);
+}
+
+/* Code 11: as code 10, but nothing happens at all while the reaction is
+ * locked, and the tail is the code 9 form. */
+static void Reaction_Locked_Follow(PLW* wk) {
+    if (Check_Reaction_Locked(wk)) {
+        return;
+    }
+
+    if (Check_Stock_Hit_Follow(wk)) {
+        Next_End(wk);
+        return;
+    }
+
+    Reaction_Exit_Or_End(wk);
+}
+
+/* Every other code. */
+static void Reaction_Locked_Exit(PLW* wk) {
+    if (Check_Reaction_Locked(wk)) {
+        return;
+    }
+
+    Reaction_Exit_If_Ready(wk);
+}
+
 void Reaction_Sub(PLW* wk, s16 Reaction, s16 Power_Level) {
-    switch (Reaction & 0x7F) {
+    s16 code;
+
+    code = Reaction & 0x7F;
+
+    /* Codes 0-7 all took the follow path. The mask keeps code non-negative, so
+     * the eight case labels the original listed are exactly this range. */
+    if (code <= 7) {
+        Reaction_Follow_Sub(wk, Reaction);
+        return;
+    }
+
+    switch (code) {
     case 9:
-        if (Stock_Hit_Flag[wk->wu.id]) {
-            Reaction_Exit_Sub(wk);
-        } else if (Check_Free_To_Act(wk)) {
-            Next_End(wk);
-        }
+        Reaction_Exit_Or_End(wk);
         break;
 
     case 10:
-        if (Check_Stock_Hit_Follow(wk)) {
-            Next_End(wk);
-            break;
-        }
-
-        if (Stock_Hit_Flag[wk->wu.id] || Check_Free_To_Act(wk)) {
-            Reaction_Exit_Sub(wk);
-        }
+        Reaction_Follow_Or_Exit(wk);
         break;
 
     case 11:
-        if (Check_Reaction_Locked(wk)) {
-            break;
-        }
-
-        if (Check_Stock_Hit_Follow(wk)) {
-            Next_End(wk);
-            break;
-        }
-
-        if (Stock_Hit_Flag[wk->wu.id]) {
-            Reaction_Exit_Sub(wk);
-        } else if (Check_Free_To_Act(wk)) {
-            Next_End(wk);
-        }
-        break;
-
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-    case 5:
-    case 6:
-    case 7:
-        Reaction_Follow_Sub(wk, Reaction);
+        Reaction_Locked_Follow(wk);
         break;
 
     case 12:
@@ -165,13 +192,7 @@ void Reaction_Sub(PLW* wk, s16 Reaction, s16 Power_Level) {
         break;
 
     default:
-        if (Check_Reaction_Locked(wk)) {
-            break;
-        }
-
-        if (Stock_Hit_Flag[wk->wu.id] || Check_Free_To_Act(wk)) {
-            Reaction_Exit_Sub(wk);
-        }
+        Reaction_Locked_Exit(wk);
         break;
     }
 }
