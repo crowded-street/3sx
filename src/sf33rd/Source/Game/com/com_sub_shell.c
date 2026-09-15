@@ -76,6 +76,12 @@ static s32 Check_Diagonal_Shell_Slot(PLW* wk, WORK_Other* tmw) {
     return Check_Ignore_Shell2(tmw) != 0;
 }
 
+/* Non-zero when neither side has a shell in this slot. Both lookups write tmw
+ * and the second only runs when the first found nothing, exactly as before. */
+static s32 Shell_Slot_Empty(PLW* wk, WORK* em, s16 i, WORK_Other** tmw) {
+    return (get_vs_shell_adrs(em, em->id, i, tmw) == 0) && (get_vs_shell_adrs(&wk->wu, em->id, i, tmw) == 0);
+}
+
 s32 Check_Diagonal_Shell(PLW* wk) {
     WORK_Other* tmw;
     WORK* em;
@@ -88,7 +94,7 @@ s32 Check_Diagonal_Shell(PLW* wk) {
     em = (WORK*)wk->wu.target_adrs;
 
     for (i = 0; i < 8; i++) {
-        if ((get_vs_shell_adrs(em, em->id, i, &tmw) == 0) && (get_vs_shell_adrs(&wk->wu, em->id, i, &tmw) == 0)) {
+        if (Shell_Slot_Empty(wk, em, i, &tmw)) {
             return 0;
         }
 
@@ -145,12 +151,6 @@ static s32 Check_Shell_Slot_Skipped(PLW* wk, WORK_Other* tmw) {
            (tmw->wu.routine_no[0] != 1) || (Check_Behind(wk, tmw) != 0) || (tmw->wu.charset_id == 2);
 }
 
-/* Non-zero when neither side has a shell in this slot. Both lookups write tmw
- * and the second only runs when the first found nothing, exactly as before. */
-static s32 Shell_Slot_Empty(PLW* wk, WORK* em, s16 i, WORK_Other** tmw) {
-    return (get_vs_shell_adrs(em, em->id, i, tmw) == 0) && (get_vs_shell_adrs(&wk->wu, em->id, i, tmw) == 0);
-}
-
 s32 Check_Shell(PLW* wk) {
     WORK_Other* tmw;
     WORK* em;
@@ -192,7 +192,7 @@ s32 Check_Shell_Another_in_Flip(PLW* wk) {
     em = (WORK*)wk->wu.target_adrs;
 
     for (i = 0; i < 8; i++) {
-        if ((get_vs_shell_adrs(em, em->id, i, &tmw) == 0) && (get_vs_shell_adrs(&wk->wu, em->id, i, &tmw) == 0)) {
+        if (Shell_Slot_Empty(wk, em, i, &tmw)) {
             return 0;
         }
 
