@@ -321,6 +321,13 @@ void setup_shell_hit_stop(WORK* wk, s16 tm, s16 fl) {
     }
 }
 
+/* The three shell kinds that count for player number 0xE, which scans for a set
+ * of them rather than for one index. */
+static s32 shell_counts_for_special(const WORK_Other* tmw) {
+    return (tmw->wu.original_vitality == 31) || (tmw->wu.original_vitality == 33) ||
+           (tmw->wu.original_vitality == 46);
+}
+
 s32 shell_live_check(PLW* wk, s16 wix) {
     WORK_Other* tmw;
     s16 i;
@@ -352,8 +359,7 @@ s32 shell_live_check(PLW* wk, s16 wix) {
             continue;
         }
 
-        if ((tmw->wu.original_vitality == 31) || (tmw->wu.original_vitality == 33) ||
-            (tmw->wu.original_vitality == 46)) {
+        if (shell_counts_for_special(tmw)) {
             return 1;
         }
     }
