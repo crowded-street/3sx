@@ -97,20 +97,20 @@ static void ORO_Term_Rise(PLW* wk) {
 }
 
 /* The second jump the two ORO Terms take once the height gate passes. */
-static void ORO_Term_Climb(PLW* wk, s16 Reaction, s16 JY, s16 Jump_Dir2, s16 RJX, s16 RJY, u16 JLD) {
+static void ORO_Term_Climb(PLW* wk, const ORO_JCA_Term_Args* a) {
     Check_Air_Guard(wk);
 
-    if (Check_Landed(wk, Reaction) != 0) {
+    if (Check_Landed(wk, a->Reaction) != 0) {
         return;
     }
-    if (Check_VS_Air_Attack(wk, RJX, RJY, JLD) != 0) {
+    if (Check_VS_Air_Attack(wk, a->RJX, a->RJY, a->JLD) != 0) {
         return;
     }
-    if (Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, JY) == 0) {
+    if (Check_Com_Add_Y(wk, wk->wu.xyz[1].disp.pos, a->JY) == 0) {
         return;
     }
 
-    Jump_Init(wk, Jump_Dir2);
+    Jump_Init(wk, a->Jump_Dir2);
     if (--Timer_00[wk->wu.id] == 0) {
         CP_Index[wk->wu.id][1]++;
     }
@@ -397,10 +397,7 @@ static void ORO_JCA_Term_Launch(PLW* wk, s16 Jump_Dir) {
 
 /* The airborne half of ORO_JCA_Term: everything from the rise onwards. The case
  * labels are the original ones. */
-static void ORO_JCA_Term_Airborne(
-    PLW* wk, s16 Reaction, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot,
-    s16 RJX, s16 RJY, u16 JLD
-) {
+static void ORO_JCA_Term_Airborne(PLW* wk, const ORO_JCA_Term_Args* a) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 2:
@@ -408,43 +405,40 @@ static void ORO_JCA_Term_Airborne(
         break;
 
     case 3:
-        ORO_Term_Climb(wk, Reaction, JY, Jump_Dir2, RJX, RJY, JLD);
+        ORO_Term_Climb(wk, a);
         break;
 
     case 4:
-        Command_Term_Approach(wk, Reaction, RX, RY, RJX, RJY, JLD);
+        Command_Term_Approach(wk, a->Reaction, a->RX, a->RY, a->RJX, a->RJY, a->JLD);
         break;
 
     case 5:
-        Command_Term_Hold(wk, Reaction, 0x7F);
+        Command_Term_Hold(wk, a->Reaction, 0x7F);
         break;
 
     case 6:
-        JCA_Term_Land(wk, Reaction, Tech_Number, Power_Level, Ex_Shot);
+        JCA_Term_Land(wk, a->Reaction, a->Tech_Number, a->Power_Level, a->Ex_Shot);
         break;
 
     default:
-        JCA_Term_End(wk, Reaction);
+        JCA_Term_End(wk, a->Reaction);
         break;
     }
 }
 
-void ORO_JCA_Term(
-    PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Tech_Number, s16 Power_Level,
-    s16 Ex_Shot, s16 RJX, s16 RJY, u16 JLD
-) {
+void ORO_JCA_Term(PLW* wk, const ORO_JCA_Term_Args* a) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
-        ORO_JCA_Term_Begin(wk, Tech_Number);
+        ORO_JCA_Term_Begin(wk, a->Tech_Number);
         break;
 
     case 1:
-        ORO_JCA_Term_Launch(wk, Jump_Dir);
+        ORO_JCA_Term_Launch(wk, a->Jump_Dir);
         break;
 
     default:
-        ORO_JCA_Term_Airborne(wk, Reaction, JY, Jump_Dir2, RX, RY, Tech_Number, Power_Level, Ex_Shot, RJX, RJY, JLD);
+        ORO_JCA_Term_Airborne(wk, a);
         break;
     }
 }
@@ -452,10 +446,7 @@ void ORO_JCA_Term(
 /* The airborne half of ORO_HJCA_Term: everything from the rise onwards. The
  * case labels are the original ones, so this reads against the same state
  * numbers as the ground half it was lifted out of. */
-static void ORO_HJCA_Term_Airborne(
-    PLW* wk, s16 Reaction, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Tech_Number, s16 Power_Level, s16 Ex_Shot,
-    s16 RJX, s16 RJY, u16 JLD
-) {
+static void ORO_HJCA_Term_Airborne(PLW* wk, const ORO_JCA_Term_Args* a) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 3:
@@ -463,39 +454,36 @@ static void ORO_HJCA_Term_Airborne(
         break;
 
     case 4:
-        ORO_Term_Climb(wk, Reaction, JY, Jump_Dir2, RJX, RJY, JLD);
+        ORO_Term_Climb(wk, a);
         break;
 
     case 5:
-        Command_Term_Approach(wk, Reaction, RX, RY, RJX, RJY, JLD);
+        Command_Term_Approach(wk, a->Reaction, a->RX, a->RY, a->RJX, a->RJY, a->JLD);
         break;
 
     case 6:
-        Command_Term_Hold(wk, Reaction, 0x7F);
+        Command_Term_Hold(wk, a->Reaction, 0x7F);
         break;
 
     case 7:
-        JCA_Term_Land(wk, Reaction, Tech_Number, Power_Level, Ex_Shot);
+        JCA_Term_Land(wk, a->Reaction, a->Tech_Number, a->Power_Level, a->Ex_Shot);
         break;
 
     default:
-        JCA_Term_End(wk, Reaction);
+        JCA_Term_End(wk, a->Reaction);
         break;
     }
 }
 
-void ORO_HJCA_Term(
-    PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Tech_Number, s16 Power_Level,
-    s16 Ex_Shot, s16 RJX, s16 RJY, u16 JLD
-) {
+void ORO_HJCA_Term(PLW* wk, const ORO_JCA_Term_Args* a) {
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
-        HJCA_Term_Begin(wk, Tech_Number);
+        HJCA_Term_Begin(wk, a->Tech_Number);
         break;
 
     case 1:
-        HJCA_Term_Launch(wk, Jump_Dir);
+        HJCA_Term_Launch(wk, a->Jump_Dir);
         break;
 
     case 2:
@@ -503,7 +491,7 @@ void ORO_HJCA_Term(
         break;
 
     default:
-        ORO_HJCA_Term_Airborne(wk, Reaction, JY, Jump_Dir2, RX, RY, Tech_Number, Power_Level, Ex_Shot, RJX, RJY, JLD);
+        ORO_HJCA_Term_Airborne(wk, a);
         break;
     }
 }

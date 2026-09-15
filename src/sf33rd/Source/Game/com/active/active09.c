@@ -1433,7 +1433,7 @@ void Pattern09_0094(PLW* wk) {
 void Pattern09_0095(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        ORO_JCA_Term(wk, 8, 0, 0x40, 1, -1, -0x7FB0, 0x2F, 0xA, -1, -0x7FB0, -0x7FD0, 0x400);
+        ORO_JCA_Term(wk, &(ORO_JCA_Term_Args){8, 0, 0x40, 1, -1, -0x7FB0, 0x2F, 0xA, -1, -0x7FB0, -0x7FD0, 0x400});
         break;
 
     default:
@@ -1445,7 +1445,7 @@ void Pattern09_0095(PLW* wk) {
 void Pattern09_0096(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        ORO_JCA_Term(wk, 8, 0, 0x40, 0, -0x7FA0, -1, 0x2F, 0xA, -1, -0x7FB0, -0x7FD0, 0x400);
+        ORO_JCA_Term(wk, &(ORO_JCA_Term_Args){8, 0, 0x40, 0, -0x7FA0, -1, 0x2F, 0xA, -1, -0x7FB0, -0x7FD0, 0x400});
         break;
 
     default:
@@ -1457,7 +1457,7 @@ void Pattern09_0096(PLW* wk) {
 void Pattern09_0097(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        ORO_HJCA_Term(wk, 8, 0, 0x40, 0, -0x7FA0, -1, 0x2F, 0xA, -1, -0x7FB0, -0x7FD0, 0x400);
+        ORO_HJCA_Term(wk, &(ORO_JCA_Term_Args){8, 0, 0x40, 0, -0x7FA0, -1, 0x2F, 0xA, -1, -0x7FB0, -0x7FD0, 0x400});
         break;
 
     default:
