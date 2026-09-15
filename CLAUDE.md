@@ -44,4 +44,9 @@ across harnesses.
   refactored; verification is manual playtesting instead of statcheck. Still follow the
   closed recipe catalogue exactly, one recipe per commit, build + `refactor_guard.py`
   after every commit, and flag CRITICAL-risk files clearly so playtesting is targeted.
-- Stop at a Code Health score of 4.00. Do not gold-plate.
+- **A Code Health score of 4.00 is a milestone, not the finish line.** It marks leaving
+  the Red band, and the task files use it as a stopping point for weaker models that
+  should hand the file on rather than attempt the transformations needing data-flow
+  reasoning. A strong model is expected to carry a file past it - keep applying the
+  closed recipe catalogue until no legal recipe raises the score further, then report
+  where each file plateaued and why. The target is 10.00.
