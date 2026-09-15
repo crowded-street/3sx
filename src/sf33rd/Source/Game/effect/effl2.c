@@ -117,11 +117,9 @@ void effl2_dir_check(WORK_Other* ewk) {
     }
 }
 
-s32 effect_L2_init() {
-    WORK_Other* ewk;
-    s16 ix;
-    s16 oya_id;
-
+/* Which player owns this effect: the Yun side, and only when the other player
+ * is neither Yun nor Yang. -1 when no one does. */
+static s16 l2_owner_id(void) {
     if (My_char[0] == 10 || My_char[1] == 10) {
         return -1;
     }
@@ -131,18 +129,19 @@ s32 effect_L2_init() {
     }
 
     if (My_char[0] == 3) {
-        oya_id = 0;
-    } else if (My_char[1] == 3) {
-        oya_id = 1;
-    } else {
-        return -1;
+        return 0;
     }
 
-    if ((ix = pull_effect_work(3)) == -1) {
-        return -1;
+    if (My_char[1] == 3) {
+        return 1;
     }
 
-    ewk = (WORK_Other*)frw[ix];
+    return -1;
+}
+
+/* Fill in the effect's work slot. The colour code and start position differ
+ * between the two player sides. */
+static void l2_setup_work(WORK_Other* ewk, s16 oya_id) {
     ewk->wu.be_flag = 1;
     ewk->wu.id = 212;
     ewk->wu.work_id = 16;
@@ -178,5 +177,22 @@ s32 effect_L2_init() {
     ewk->wu.kage_prio = ewk->wu.position_z + 1;
     ewk->wu.dir_old = 0;
     ewk->wu.direction = 0;
+}
+
+s32 effect_L2_init() {
+    WORK_Other* ewk;
+    s16 ix;
+    s16 oya_id = l2_owner_id();
+
+    if (oya_id == -1) {
+        return -1;
+    }
+
+    if ((ix = pull_effect_work(3)) == -1) {
+        return -1;
+    }
+
+    ewk = (WORK_Other*)frw[ix];
+    l2_setup_work(ewk, oya_id);
     return 0;
 }
