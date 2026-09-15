@@ -140,6 +140,13 @@ static void Air_Term_Load_Tech(PLW* wk) {
     Check_First_Menu(wk);
 }
 
+/* The shell check every launch arm runs last. */
+static void Free_On_Diagonal_Shell(PLW* wk) {
+    if (Check_Diagonal_Shell(wk) != 0) {
+        Next_Be_Free(wk);
+    }
+}
+
 static void HJA_Term_Begin(PLW* wk, s16 Reaction) {
     Setup_Lever_LR(wk, wk->wu.id, Reaction & 0xF000);
     if (Check_Passive(wk) != 0) {
@@ -174,9 +181,7 @@ static void HJA_Term_Launch(PLW* wk, s16 Jump_Dir) {
     Jump_Init(wk, Jump_Dir);
     Lever_Pool[wk->wu.id] &= 0xC;
     Lever_Buff[wk->wu.id] = 0;
-    if (Check_Diagonal_Shell(wk) != 0) {
-        Next_Be_Free(wk);
-    }
+    Free_On_Diagonal_Shell(wk);
 }
 
 /* Non-zero when Hi_Jump_Attack_Term must return outright: this arm used a bare
@@ -418,9 +423,7 @@ static void ORO_JA_Term_Launch(PLW* wk, s16 Jump_Dir) {
 
     Jump_Init(wk, Jump_Dir);
     Check_Air_Guard(wk);
-    if (Check_Diagonal_Shell(wk) != 0) {
-        Next_Be_Free(wk);
-    }
+    Free_On_Diagonal_Shell(wk);
 }
 
 /* CP_Index 0. Non-zero when the state advanced and case 1 runs this frame;
@@ -530,9 +533,7 @@ static void ORO_HJA_Term_Launch(PLW* wk, s16 Jump_Dir) {
     Lever_Pool[wk->wu.id] &= 0xC;
     Lever_Buff[wk->wu.id] = 0;
     Check_Air_Guard(wk);
-    if (Check_Diagonal_Shell(wk) != 0) {
-        Next_Be_Free(wk);
-    }
+    Free_On_Diagonal_Shell(wk);
 }
 
 static void ORO_HJA_Term_Arm(PLW* wk) {
