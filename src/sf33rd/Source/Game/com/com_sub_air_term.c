@@ -320,6 +320,30 @@ s32 Attack_Range_Gates(PLW* wk, s16 Reaction, s16 RX, s16 RY, s16 RJX, s16 RJY, 
     return 1;
 }
 
+/* CP_Index 0. Non-zero when the state advanced and case 1 runs this frame;
+ * every early exit here broke out of the switch instead. */
+static s32 ORO_JA_Term_Begin(PLW* wk, s16 Reaction) {
+    if (wk->spmv_ng_flag & 0x30000) {
+        Next_Be_Free(wk);
+        return 0;
+    }
+
+    Setup_Lever_LR(wk, wk->wu.id, Reaction & 0xF000);
+
+    if ((wk->wu.routine_no[1] == 4) && (wk->wu.cg_type != 0x40)) {
+        return 0;
+    }
+
+    hi_jump_flag_clear(wk->wu.id);
+    Continue_Menu[wk->wu.id] = 0;
+
+    wk->wu.hf.hit.player = 0;
+    CP_Index[wk->wu.id][1]++;
+    Check_First_Menu(wk);
+
+    return 1;
+}
+
 void ORO_JA_Term(
     PLW* wk, s16 Reaction, s16 Jump_Dir, s16 JY, s16 Jump_Dir2, s16 RX, s16 RY, u16 Lever_Data, s16 RJX, s16 RJY,
     u16 JLD
@@ -327,23 +351,9 @@ void ORO_JA_Term(
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
-        if (wk->spmv_ng_flag & 0x30000) {
-            Next_Be_Free(wk);
+        if (!ORO_JA_Term_Begin(wk, Reaction)) {
             break;
         }
-
-        Setup_Lever_LR(wk, wk->wu.id, Reaction & 0xF000);
-
-        if ((wk->wu.routine_no[1] == 4) && (wk->wu.cg_type != 0x40)) {
-            break;
-        }
-
-        hi_jump_flag_clear(wk->wu.id);
-        Continue_Menu[wk->wu.id] = 0;
-
-        wk->wu.hf.hit.player = 0;
-        CP_Index[wk->wu.id][1]++;
-        Check_First_Menu(wk);
         /* fallthrough */
 
     case 1:
