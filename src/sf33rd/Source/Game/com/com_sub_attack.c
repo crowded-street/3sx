@@ -322,34 +322,50 @@ s32 Check_Start_Normal_Attack(PLW* wk, s16 Reaction, u16 Lever_Data) {
     return 1;
 }
 
-void Lever_Attack(PLW* wk, s16 Reaction, u16 Lever, u16 Lever_Data) {
+/* Check the lever attack may start. Non-zero when the state advanced and the
+ * wind-up runs in the same frame; each early exit here broke out of the switch
+ * instead. */
+static s32 Lever_Attack_Begin(PLW* wk, u16 Lever, u16 Lever_Data) {
+    if (Check_Passive(wk) != 0) {
+        return 0;
+    }
+    if (Check_Start_Lever_Attack(wk, Lever, Lever_Data) != 0) {
+        return 0;
+    }
+    dash_flag_clear(wk->wu.id);
+
+    CP_Index[wk->wu.id][1]++;
+    Check_First_Menu(wk);
+
+    return 1;
+}
+
+/* Count the combo delay down, then press the lever attack. */
+static void Lever_Attack_Wind_Up(PLW* wk, u16 Lever, u16 Lever_Data) {
     s16 xx;
 
+    if (Check_Passive(wk) != 0) {
+        return;
+    }
+    if (--Combo_Speed[wk->wu.id]) {
+        return;
+    }
+
+    xx = Setup_Guard_Lever(wk, Lever);
+    Lever_Buff[wk->wu.id] = (Lever_Data | xx);
+    CP_Index[wk->wu.id][1]++;
+}
+
+void Lever_Attack(PLW* wk, s16 Reaction, u16 Lever, u16 Lever_Data) {
     switch (CP_Index[wk->wu.id][1]) {
     case 0:
-        if (Check_Passive(wk) != 0) {
+        if (!Lever_Attack_Begin(wk, Lever, Lever_Data)) {
             break;
         }
-        if (Check_Start_Lever_Attack(wk, Lever, Lever_Data) != 0) {
-            break;
-        }
-        dash_flag_clear(wk->wu.id);
-
-        CP_Index[wk->wu.id][1]++;
-        Check_First_Menu(wk);
         /* falltrhough */
 
     case 1:
-        if (Check_Passive(wk) != 0) {
-            break;
-        }
-        if (--Combo_Speed[wk->wu.id]) {
-            break;
-        }
-
-        xx = Setup_Guard_Lever(wk, Lever);
-        Lever_Buff[wk->wu.id] = (Lever_Data | xx);
-        CP_Index[wk->wu.id][1]++;
+        Lever_Attack_Wind_Up(wk, Lever, Lever_Data);
         break;
 
     default:
