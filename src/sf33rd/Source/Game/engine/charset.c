@@ -358,10 +358,48 @@ void char_move_cmms2(WORK* wk) {
 #endif
 }
 
-s32 char_move_cmms3(PLW* wk) {
+/* Run the script from the current pattern until it reaches a real pattern, or
+ * until a command says to stop. Returns 0 when the caller has to give up. */
+static s32 run_cmms3_script(PLW* wk) {
     UNK11* cpc;
+
+    while (1) {
+        cpc = (UNK11*)(wk->wu.set_char_ad + wk->wu.cg_ix);
+
+        if (cpc->code >= 0x100) {
+            break;
+        }
+
+        if (decode_chcmd[cpc->code](wk, cpc) != 0) {
+            wk->wu.cg_ix += wk->wu.cgd_type;
+        } else if (wk->meoshi_jump_flag != 0) {
+            break;
+        } else {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+/* A pattern type that shrank leaves words behind it that the new type does
+ * not use; they are cleared from the end backwards. */
+static void clear_shrunk_pattern_tail(PLW* wk, s16 now_cgd) {
     u32* to_ram;
     s16 i;
+
+    if (now_cgd <= wk->wu.cgd_type) {
+        return;
+    }
+
+    to_ram = (u32*)&wk->wu.cg_wca_ix;
+
+    for (i = 0; i < now_cgd - wk->wu.cgd_type; i++) {
+        *--to_ram = 0;
+    }
+}
+
+s32 char_move_cmms3(PLW* wk) {
     s16 now_cgd;
 
     wk->meoshi_jump_flag = 1;
@@ -390,29 +428,11 @@ s32 char_move_cmms3(PLW* wk) {
     wk->wu.kow = wk->wu.kind_of_waza;
 #endif
 
-    while (1) {
-        cpc = (UNK11*)(wk->wu.set_char_ad + wk->wu.cg_ix);
-
-        if (cpc->code >= 0x100) {
-            break;
-        }
-
-        if (decode_chcmd[cpc->code](wk, cpc) != 0) {
-            wk->wu.cg_ix += wk->wu.cgd_type;
-        } else if (wk->meoshi_jump_flag != 0) {
-            break;
-        } else {
-            return 0;
-        }
+    if (!run_cmms3_script(wk)) {
+        return 0;
     }
 
-    if (now_cgd > wk->wu.cgd_type) {
-        to_ram = (u32*)&wk->wu.cg_wca_ix;
-
-        for (i = 0; i < now_cgd - wk->wu.cgd_type; i++) {
-            *--to_ram = 0;
-        }
-    }
+    clear_shrunk_pattern_tail(wk, now_cgd);
 
     wk->wu.cg_ix -= wk->wu.cgd_type;
     wk->wu.cg_ctr = 1;
