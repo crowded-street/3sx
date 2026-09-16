@@ -54,58 +54,8 @@ void effect_L7_move(WORK_Other* ewk) {
     }
 }
 
-void effl7_move(WORK_Other* ewk) {
+static void effl7_move_late(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
-    case 0:
-        ewk->wu.routine_no[1] += 1;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.kage_flag = 1;
-        ewk->wu.kage_hx = 0;
-        ewk->wu.kage_hy = -10;
-        ewk->wu.kage_prio = 71;
-        ewk->wu.kage_char = 16;
-        set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-        ewk->wu.old_rno[0] = 80;
-        cal_initial_speed(&ewk->wu, ewk->wu.old_rno[0], ewk->wu.old_rno[1], ewk->wu.xyz[1].disp.pos);
-        break;
-
-    case 1:
-        char_move(&ewk->wu);
-        add_x_sub(&ewk->wu);
-        add_y_sub(&ewk->wu);
-        ewk->wu.old_rno[0]--;
-
-        if (ewk->wu.old_rno[0] <= 0) {
-            ewk->wu.routine_no[1] += 1;
-            set_char_move_init(&ewk->wu, 0, 1);
-        }
-
-        break;
-
-    default:
-        // Do nothing
-        break;
-
-    case 2:
-        char_move(&ewk->wu);
-
-        if (ewk->wu.cg_type == 0xFF) {
-            ewk->wu.routine_no[1] += 1;
-            set_char_move_init(&ewk->wu, 1, ewk->wu.old_rno[2]);
-        }
-
-        break;
-
-    case 3:
-        char_move(&ewk->wu);
-
-        if (ewk->wu.cg_type == 9) {
-            ewk->wu.routine_no[1] += 1;
-            ewk->wu.rl_flag ^= 1;
-        }
-
-        break;
-
     case 4:
         char_move(&ewk->wu);
 
@@ -139,6 +89,64 @@ void effl7_move(WORK_Other* ewk) {
     case 6:
         ewk->wu.routine_no[1] += 1;
         ewk->wu.routine_no[0] += 1;
+        break;
+
+    default:
+        // Do nothing
+        break;
+    }
+}
+
+void effl7_move(WORK_Other* ewk) {
+    switch (ewk->wu.routine_no[1]) {
+    case 0:
+        ewk->wu.routine_no[1] += 1;
+        ewk->wu.disp_flag = 1;
+        ewk->wu.kage_flag = 1;
+        ewk->wu.kage_hx = 0;
+        ewk->wu.kage_hy = -10;
+        ewk->wu.kage_prio = 71;
+        ewk->wu.kage_char = 16;
+        set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+        ewk->wu.old_rno[0] = 80;
+        cal_initial_speed(&ewk->wu, ewk->wu.old_rno[0], ewk->wu.old_rno[1], ewk->wu.xyz[1].disp.pos);
+        break;
+
+    case 1:
+        char_move(&ewk->wu);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
+        ewk->wu.old_rno[0]--;
+
+        if (ewk->wu.old_rno[0] <= 0) {
+            ewk->wu.routine_no[1] += 1;
+            set_char_move_init(&ewk->wu, 0, 1);
+        }
+
+        break;
+
+    case 2:
+        char_move(&ewk->wu);
+
+        if (ewk->wu.cg_type == 0xFF) {
+            ewk->wu.routine_no[1] += 1;
+            set_char_move_init(&ewk->wu, 1, ewk->wu.old_rno[2]);
+        }
+
+        break;
+
+    case 3:
+        char_move(&ewk->wu);
+
+        if (ewk->wu.cg_type == 9) {
+            ewk->wu.routine_no[1] += 1;
+            ewk->wu.rl_flag ^= 1;
+        }
+
+        break;
+
+    default:
+        effl7_move_late(ewk);
         break;
     }
 }
