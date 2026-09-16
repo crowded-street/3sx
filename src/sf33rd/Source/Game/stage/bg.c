@@ -1078,6 +1078,34 @@ static s32 advance_stage03_state(u8 bgnm) {
     return 0;
 }
 
+static void draw_stage19_tiles(u8 bgnm, s32 xx[2], s32 yy[2], s32 global_index, s32 palOffset,
+                               PPGDataList* curDataList) {
+    s32 x;
+    s32 y;
+    s32 global_index_real;
+
+    for (y = yy[0]; y < yy[1]; y += 128) {
+        for (x = xx[0]; x < xx[1]; x += 128) {
+            global_index_real = global_index + (((y >> 7) << 3) + (x >> 7));
+
+            if (bgnm == 1) {
+                if (rw_dat[1].rwgbix == global_index_real) {
+                    global_index_real = rw_dat[1].gbix;
+
+                    if (!ppgCheckTextureNumber(0, global_index_real)) {
+                        ppgSetupCurrentDataList(&ppgRwBgList);
+                    }
+                } else {
+                    global_index_real = remap_stage19_default_chip(global_index_real);
+                }
+            }
+
+            bgDrawOneChip(x, y, 128, 128, global_index_real, -1, palOffset);
+            ppgSetupCurrentDataList(curDataList);
+        }
+    }
+}
+
 void scr_trans(u8 bgnm) {
     PPGDataList* curDataList;
     s32 xx[2];
@@ -1127,26 +1155,7 @@ void scr_trans(u8 bgnm) {
         break;
 
     case 3:
-        for (y = yy[0]; y < yy[1]; y += 128) {
-            for (x = xx[0]; x < xx[1]; x += 128) {
-                global_index_real = global_index + (((y >> 7) << 3) + (x >> 7));
-
-                if (bgnm == 1) {
-                    if (rw_dat[1].rwgbix == global_index_real) {
-                        global_index_real = rw_dat[1].gbix;
-
-                        if (!ppgCheckTextureNumber(0, global_index_real)) {
-                            ppgSetupCurrentDataList(&ppgRwBgList);
-                        }
-                    } else {
-                        global_index_real = remap_stage19_default_chip(global_index_real);
-                    }
-                }
-
-                bgDrawOneChip(x, y, 128, 128, global_index_real, -1, palOffset);
-                ppgSetupCurrentDataList(curDataList);
-            }
-        }
+        draw_stage19_tiles(bgnm, xx, yy, global_index, palOffset, curDataList);
 
         if (advance_stage19_state(bgnm)) {
             return;
