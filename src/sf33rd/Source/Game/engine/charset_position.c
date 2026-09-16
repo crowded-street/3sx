@@ -125,40 +125,39 @@ s32 comm_ps_y(WORK* wk, UNK11* ctc) {
     return 1;
 }
 
+/* The three relative-move opcodes share these two steps: X moves the way the
+ * work faces, Y always the same way. */
+static void add_script_x_offset(WORK* wk, UNK11* ctc) {
+    if (wk->rl_flag) {
+        wk->xyz[0].cal += ctc->ix << 8;
+    } else {
+        wk->xyz[0].cal -= ctc->ix << 8;
+    }
+}
+
+static void add_script_y_offset(WORK* wk, UNK11* ctc) {
+    wk->xyz[1].cal += ctc->pat << 8;
+}
+
 s32 comm_paxy(WORK* wk, UNK11* ctc) {
     WORK* emwk;
 
     switch (ctc->koc) {
     case 0:
-        if (wk->rl_flag) {
-            wk->xyz[0].cal += ctc->ix << 8;
-        } else {
-            wk->xyz[0].cal -= ctc->ix << 8;
-        }
-
-        wk->xyz[1].cal += ctc->pat << 8;
+        add_script_x_offset(wk, ctc);
+        add_script_y_offset(wk, ctc);
         break;
 
     case 2:
-        if (wk->rl_flag) {
-            wk->xyz[0].cal += ctc->ix << 8;
-        } else {
-            wk->xyz[0].cal -= ctc->ix << 8;
-        }
-
-        wk->xyz[1].cal += ctc->pat << 8;
+        add_script_x_offset(wk, ctc);
+        add_script_y_offset(wk, ctc);
         /* fallthrough */
 
     default:
         emwk = (WORK*)wk->target_adrs;
 
-        if (emwk->rl_flag) {
-            emwk->xyz[0].cal += ctc->ix << 8;
-        } else {
-            emwk->xyz[0].cal -= ctc->ix << 8;
-        }
-
-        emwk->xyz[1].cal += ctc->pat << 8;
+        add_script_x_offset(emwk, ctc);
+        add_script_y_offset(emwk, ctc);
         break;
     }
 
@@ -170,32 +169,17 @@ s32 comm_pa_x(WORK* wk, UNK11* ctc) {
 
     switch (ctc->koc) {
     case 0:
-        if (wk->rl_flag) {
-            wk->xyz[0].cal += ctc->ix << 8;
-        } else {
-            wk->xyz[0].cal -= ctc->ix << 8;
-        }
-
+        add_script_x_offset(wk, ctc);
         break;
 
     case 2:
-        if (wk->rl_flag) {
-            wk->xyz[0].cal += ctc->ix << 8;
-        } else {
-            wk->xyz[0].cal -= ctc->ix << 8;
-        }
-
+        add_script_x_offset(wk, ctc);
         /* fallthrough */
 
     default:
         emwk = (WORK*)wk->target_adrs;
 
-        if (emwk->rl_flag) {
-            emwk->xyz[0].cal += ctc->ix << 8;
-        } else {
-            emwk->xyz[0].cal -= ctc->ix << 8;
-        }
-
+        add_script_x_offset(emwk, ctc);
         break;
     }
 
@@ -207,16 +191,16 @@ s32 comm_pa_y(WORK* wk, UNK11* ctc) {
 
     switch (ctc->koc) {
     case 0:
-        wk->xyz[1].cal += ctc->pat << 8;
+        add_script_y_offset(wk, ctc);
         break;
 
     case 2:
-        wk->xyz[1].cal += ctc->pat << 8;
+        add_script_y_offset(wk, ctc);
         /* fallthrough */
 
     default:
         emwk = (WORK*)wk->target_adrs;
-        emwk->xyz[1].cal += ctc->pat << 8;
+        add_script_y_offset(emwk, ctc);
         break;
     }
 
