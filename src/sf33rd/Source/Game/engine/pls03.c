@@ -1112,6 +1112,33 @@ static s32 meoshi_lever_matches(const PLW* wk, s16 tdat, s16 wdat) {
  *   1 - cancel, and set up the next attack
  *   2 - cancel as a target-combo continuation
  */
+/* The release half of the meoshi cancel: letting the buttons go can cancel too,
+ * but only when the cancel window allows it and the released buttons are a
+ * subset of the ones the move wants. */
+static s32 meoshi_release_cancels(PLW* wk, s16 tdat) {
+    s16 wdat;
+
+    if (!(wk->wu.cg_cancel & 0x80)) {
+        return 0;
+    }
+
+    wdat = wk->cp->sw_off & 0x770;
+
+    if (wdat & ~tdat) {
+        return 0;
+    }
+
+    if (shot_data_convert(wk->cp->sw_off) < 0) {
+        return 0;
+    }
+
+    if (!(wk->wu.cg_meoshi & 0x800)) {
+        return 0;
+    }
+
+    return 1;
+}
+
 static s32 meoshi_cancel_gate(PLW* wk) {
     s16 tdat;
     s16 wdat;
@@ -1138,25 +1165,7 @@ static s32 meoshi_cancel_gate(PLW* wk) {
         return 2;
     }
 
-    if (!(wk->wu.cg_cancel & 0x80)) {
-        return 0;
-    }
-
-    wdat = wk->cp->sw_off & 0x770;
-
-    if (wdat & ~tdat) {
-        return 0;
-    }
-
-    if (shot_data_convert(wk->cp->sw_off) < 0) {
-        return 0;
-    }
-
-    if (!(wk->wu.cg_meoshi & 0x800)) {
-        return 0;
-    }
-
-    return 1;
+    return meoshi_release_cancels(wk, tdat);
 }
 
 static s32 commit_meoshi_cancel(PLW* wk) {
