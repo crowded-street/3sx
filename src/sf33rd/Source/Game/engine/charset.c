@@ -109,27 +109,39 @@ void set_char_move_init(WORK* wk, s16 koc, s16 index) {
     char_move(wk);
 }
 
-void setupCharTableData(WORK* wk, s32 clr, s32 info) {
+/* The two words before the pattern data - the header the pattern type and
+ * length live in - and, when asked, a cleared pattern behind them. */
+static void copy_char_header(WORK* wk, s32 clr) {
     u32* dst = (u32*)&wk->cg_type;
-    u32* src;
+    u32* src = wk->set_char_ad;
     s32 i;
 
+    dst[-1] = src[-1];
+    dst[-2] = src[-2];
+
+    if (clr != 0) {
+        for (i = 0; i < 6; i++) {
+            dst[i] = 0;
+        }
+    }
+}
+
+/* The pattern the work is currently on, as many words as its type carries. */
+static void copy_char_pattern(WORK* wk) {
+    u32* dst = (u32*)&wk->cg_type;
+    u32* src = wk->set_char_ad + wk->cg_ix;
+    s32 i;
+
+    for (i = 0; i < wk->cgd_type; i++) {
+        dst[i] = src[i];
+    }
+}
+
+void setupCharTableData(WORK* wk, s32 clr, s32 info) {
     if (info != 0) {
-        src = wk->set_char_ad;
-        dst[-1] = src[-1];
-        dst[-2] = src[-2];
-
-        if (clr != 0) {
-            for (i = 0; i < 6; i++) {
-                dst[i] = 0;
-            }
-        }
+        copy_char_header(wk, clr);
     } else {
-        src = wk->set_char_ad + wk->cg_ix;
-
-        for (i = 0; i < wk->cgd_type; i++) {
-            dst[i] = src[i];
-        }
+        copy_char_pattern(wk);
     }
 }
 
