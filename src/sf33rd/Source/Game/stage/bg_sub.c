@@ -104,17 +104,8 @@ static void select_horizontal_zoom_request_middle(u16 p1zoom, u16 zoom_wk) {
     }
 }
 
-static void select_horizontal_zoom_request(u16 p1zoom, u16 p2zoom) {
-    u16 zoom_wk;
-
-    zoom_wk = p2zoom & 0xE200;
-
-    switch (p1zoom & 0xE200) {
-    case 0x4000:
-        break;
-
-    case 0x2000:
-        switch (zoom_wk) {
+static void select_horizontal_2000_zoom_request(u16 zoom_wk) {
+    switch (zoom_wk) {
         case 0x4000:
             zoom_request_flag = 0x100;
             scr_req_x = plw[0].wu.xyz[0].disp.pos;
@@ -131,7 +122,20 @@ static void select_horizontal_zoom_request(u16 p1zoom, u16 p2zoom) {
             zoom_request_flag = 0x100;
             scr_req_x = plw[1].wu.xyz[0].disp.pos;
             break;
-        }
+    }
+}
+
+static void select_horizontal_zoom_request(u16 p1zoom, u16 p2zoom) {
+    u16 zoom_wk;
+
+    zoom_wk = p2zoom & 0xE200;
+
+    switch (p1zoom & 0xE200) {
+    case 0x4000:
+        break;
+
+    case 0x2000:
+        select_horizontal_2000_zoom_request(zoom_wk);
         break;
 
     default:
@@ -233,19 +237,8 @@ static void select_vertical_zoom_request_middle(u16 p1zoom, u16 zoom_wk) {
     }
 }
 
-static void select_vertical_zoom_request(u16 p1zoom, u16 p2zoom) {
-    u16 zoom_wk;
-
-    zoom_wk = p2zoom & 0xD100;
-
-    switch (p1zoom & 0xD100) {
-    case 0x4000:
-        zoom_request_flag |= 0x1000;
-        scr_req_y = 0;
-        break;
-
-    case 0x1000:
-        switch (zoom_wk) {
+static void select_vertical_1000_zoom_request(u16 zoom_wk) {
+    switch (zoom_wk) {
         case 0x1000:
             zoom_request_flag |= 0x1000;
             scr_req_y = (plw[0].wu.xyz[1].disp.pos + plw[1].wu.xyz[1].disp.pos) >> 1;
@@ -262,7 +255,22 @@ static void select_vertical_zoom_request(u16 p1zoom, u16 p2zoom) {
             zoom_request_flag |= 0x1000;
             scr_req_y = 0;
             break;
-        }
+    }
+}
+
+static void select_vertical_zoom_request(u16 p1zoom, u16 p2zoom) {
+    u16 zoom_wk;
+
+    zoom_wk = p2zoom & 0xD100;
+
+    switch (p1zoom & 0xD100) {
+    case 0x4000:
+        zoom_request_flag |= 0x1000;
+        scr_req_y = 0;
+        break;
+
+    case 0x1000:
+        select_vertical_1000_zoom_request(zoom_wk);
         break;
 
     default:
@@ -337,12 +345,8 @@ void bg_chase_move() {
     }
 }
 
-static void chase_x_start_check() {
-    s16 work;
-    s16 work2;
-
-    if (zoom_request_flag & 0xF00) {
-        if (chase_x != scr_req_x) {
+static void start_requested_x_chase() {
+    if (chase_x != scr_req_x) {
             chase_x = scr_req_x;
 
             if (bgw_ptr->zuubun) {
@@ -356,7 +360,15 @@ static void chase_x_start_check() {
             bg_w.chase_flag |= 1;
             bg_w.chase_flag &= ~2;
             bg_w.old_chase_flag = 1;
-        }
+    }
+}
+
+static void chase_x_start_check() {
+    s16 work;
+    s16 work2;
+
+    if (zoom_request_flag & 0xF00) {
+        start_requested_x_chase();
     } else {
         work = zoom_req_flag_old & 0xF00;
         work2 = ~(zoom_request_flag & 0xF00);
@@ -372,11 +384,7 @@ static void chase_x_start_check() {
     }
 }
 
-static void chase_y_start_check() {
-    s16 work;
-    s16 work2;
-
-    if (zoom_request_flag & 0xF000) {
+static void start_requested_y_chase() {
         bg_w.chase_flag |= 0x10;
         bg_w.chase_flag &= ~0x20;
         bg_w.old_chase_flag |= 0x10;
@@ -394,6 +402,14 @@ static void chase_y_start_check() {
             chase_time_y = 6;
             cal_bg_speed_data_y(bgw_ptr->fam_no, chase_time_y, chase_y);
         }
+}
+
+static void chase_y_start_check() {
+    s16 work;
+    s16 work2;
+
+    if (zoom_request_flag & 0xF000) {
+        start_requested_y_chase();
     } else {
         work = zoom_req_flag_old & 0xF000;
         work2 = ~(zoom_request_flag & 0xF000);
@@ -415,8 +431,11 @@ void chase_start_check() {
 }
 
 static void chase_x_move() {
-    if (bg_w.chase_flag & 0xF) {
-        bg_w.bg2_sp_x2 = bg_w.bg2_sp_x = 0;
+    if (!(bg_w.chase_flag & 0xF)) {
+        return;
+    }
+
+    bg_w.bg2_sp_x2 = bg_w.bg2_sp_x = 0;
 
         if (bg_w.chase_flag & 1) {
             chase_time_x -= 1;
@@ -450,12 +469,14 @@ static void chase_x_move() {
             bgw_ptr->chase_xy[0].disp.low = 0;
         }
 
-        bg_w.bg2_sp_x = bg_w.bg2_sp_x2 = bgw_ptr->chase_xy[0].disp.pos - bgw_ptr->pos_x_work;
-    }
+    bg_w.bg2_sp_x = bg_w.bg2_sp_x2 = bgw_ptr->chase_xy[0].disp.pos - bgw_ptr->pos_x_work;
 }
 
 static void chase_y_move() {
-    if (bg_w.chase_flag & 0xF0) {
+    if (!(bg_w.chase_flag & 0xF0)) {
+        return;
+    }
+
         if (bg_w.chase_flag & 0x10) {
             chase_time_y -= 1;
 
@@ -483,8 +504,7 @@ static void chase_y_move() {
             bgw_ptr->chase_xy[1].disp.low = 0;
         }
 
-        bg_w.bg2_sp_y = bgw_ptr->chase_xy[1].disp.pos - bgw_ptr->pos_y_work;
-    }
+    bg_w.bg2_sp_y = bgw_ptr->chase_xy[1].disp.pos - bgw_ptr->pos_y_work;
 }
 
 void chase_xy_move() {
@@ -673,6 +693,26 @@ void bg_base_x_move_sub() {
     scr_x_mv_jp[(st[0] << 4) + st[1]]();
 }
 
+static s16 adjust_bg_x_step(s16 mvstep) {
+    if (!mvstep) {
+        return mvstep;
+    }
+
+    if (mvstep < 0) {
+        if (mvstep < -bg_w.max_x) {
+            mvstep = -bg_w.max_x;
+        }
+        mvstep = -remake_x_mvstep(-mvstep);
+    } else {
+        if (mvstep > bg_w.max_x) {
+            mvstep = bg_w.max_x;
+        }
+        mvstep = remake_x_mvstep(mvstep);
+    }
+
+    return mvstep;
+}
+
 static void move_bg_base_x() {
     s16 mvstep, old_work;
 
@@ -690,19 +730,7 @@ static void move_bg_base_x() {
     ideal_w.iw[0].cal = 0;
     ideal_w.iw[0].disp.pos = mvstep;
 
-    if (mvstep) {
-        if (mvstep < 0) {
-            if (mvstep < -bg_w.max_x) {
-                mvstep = -bg_w.max_x;
-            }
-            mvstep = -remake_x_mvstep(-mvstep);
-        } else {
-            if (mvstep > bg_w.max_x) {
-                mvstep = bg_w.max_x;
-            }
-            mvstep = remake_x_mvstep(mvstep);
-        }
-    }
+    mvstep = adjust_bg_x_step(mvstep);
 
     ideal_w.iw[0].disp.pos = mvstep;
     Bg_mv_tw(ideal_w.iw[0].cal, 0);
