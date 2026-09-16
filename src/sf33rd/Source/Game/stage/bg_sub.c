@@ -789,26 +789,8 @@ void bg_y_move_check() {
     bgw_ptr->wxy[1].cal = bgw_ptr->xy[1].cal;
 }
 
-void zoom_ud_check() {
-    s16 work;
-    s16 work2;
+static void start_zoom_frame(s16 work) {
     s16 pos_w;
-
-    if (bg_app) {
-        return;
-    }
-
-    if (Bonus_Game_Flag) {
-        return;
-    }
-
-    if (bg_app_stop && bg_w.bg_f_x == 64) {
-        return;
-    }
-
-    work2 = zoom_request_flag & 0xFF;
-    bg_w.frame_deff = 64 - zoom_request_level;
-    work = (~(zoom_req_flag_old) & (zoom_request_flag) & 0xFF);
 
     if (work && !bg_w.frame_flag) {
         bg_w.frame_flag = 1;
@@ -846,7 +828,9 @@ void zoom_ud_check() {
             bg_w.center_y = 224;
         }
     }
+}
 
+static void advance_zoom_frame(s16 work2) {
     if (work2) {
         if (bg_w.bg_f_x > bg_w.frame_deff) {
             Frame_Up((u16)bg_w.center_x, (u16)bg_w.center_y, 1);
@@ -875,6 +859,30 @@ void zoom_ud_check() {
             Zoomf_Init();
         }
     }
+}
+
+void zoom_ud_check() {
+    s16 work;
+    s16 work2;
+
+    if (bg_app) {
+        return;
+    }
+
+    if (Bonus_Game_Flag) {
+        return;
+    }
+
+    if (bg_app_stop && bg_w.bg_f_x == 64) {
+        return;
+    }
+
+    work2 = zoom_request_flag & 0xFF;
+    bg_w.frame_deff = 64 - zoom_request_level;
+    work = (~(zoom_req_flag_old) & (zoom_request_flag) & 0xFF);
+
+    start_zoom_frame(work);
+    advance_zoom_frame(work2);
 }
 
 void suzi_offset_set(WORK_Other* ewk) {
