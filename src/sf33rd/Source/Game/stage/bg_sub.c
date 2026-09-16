@@ -308,7 +308,7 @@ void bg_chase_move() {
     }
 }
 
-void chase_start_check() {
+static void chase_x_start_check() {
     s16 work;
     s16 work2;
 
@@ -341,6 +341,11 @@ void chase_start_check() {
             cal_bg_speed_data_x(bgw_ptr->fam_no, chase_time_x, chase_x);
         }
     }
+}
+
+static void chase_y_start_check() {
+    s16 work;
+    s16 work2;
 
     if (zoom_request_flag & 0xF000) {
         bg_w.chase_flag |= 0x10;
@@ -373,6 +378,11 @@ void chase_start_check() {
             cal_bg_speed_data_y(bgw_ptr->fam_no, chase_time_y, chase_y);
         }
     }
+}
+
+void chase_start_check() {
+    chase_x_start_check();
+    chase_y_start_check();
 }
 
 void chase_xy_move() {
