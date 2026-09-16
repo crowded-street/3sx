@@ -84,24 +84,35 @@ void Player_catch(PLW* wk) { // 🟡
 /// Check throw break and adjust state accordingly
 /// @param wk Throwing player object
 /// @param tk Thrown player object
-void check_nagenuke(PLW* wk, PLW* tk) { // 🟢
-    if (tk->wu.work_id != 1) {          // Must be a player
-        return;
+/* Every reason a throw cannot be broken: the other work is not a player, it
+ * is in a throw that cannot be escaped, the break window has closed, the
+ * thrower is not in the state that allows it, or the command was not entered. */
+static s32 nagenuke_is_refused(PLW* wk, PLW* tk) {
+    if (tk->wu.work_id != 1) { // Must be a player
+        return 1;
     }
 
     if (!tk->cat_break_reserve && tk->hazusenai_flag) {
-        return;
+        return 1;
     }
 
     if (!wk->cat_break_ok_timer) {
-        return;
+        return 1;
     }
 
     if (wk->wu.routine_no[1] != 2) {
-        return;
+        return 1;
     }
 
     if (!check_nagenuke_cmd(tk)) {
+        return 1;
+    }
+
+    return 0;
+}
+
+void check_nagenuke(PLW* wk, PLW* tk) { // 🟢
+    if (nagenuke_is_refused(wk, tk)) {
         return;
     }
 
