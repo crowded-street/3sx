@@ -767,6 +767,40 @@ static s32 check_special_attack_grounded(PLW* wk) {
     return 0;
 }
 
+/* The j == 3 slot of an airborne special is the EX / air-special gate. Returns 0
+ * wherever the original moved on to the next j, and 1 where it fell through to
+ * the commit. The `wk->sa->ex = -1` consumption stays inside the test it belongs
+ * to, in the same position as the original. */
+static s32 air_ex_slot_is_allowed(PLW* wk, s16 i) {
+    if (!(wk->cp->btix[i] & 0x600)) {
+        return 0;
+    }
+
+    if ((wk->cp->btix[i] & 0x200) && (wk->spmv_ng_flag & DIP_AIR_SPECIALS_DISABLED)) {
+        return 0;
+    }
+
+    if (wk->metamorphose) {
+        if (wk->cp->btix[i] & 0x400) {
+            return 0;
+        }
+    } else {
+        if ((wk->sa->mp == -1) || (wk->sa->ok == -1)) {
+            return 0;
+        }
+
+        if (wk->cp->btix[i] & 0x400) {
+            if ((wk->spmv_ng_flag2 & DIP2_EX_MOVE_DISABLED) || (wk->sa->ex != 1)) {
+                return 0;
+            }
+
+            wk->sa->ex = -1;
+        }
+    }
+
+    return 1;
+}
+
 static s32 check_special_attack_airborne(PLW* wk) {
     s16 i;
     s16 j;
@@ -820,30 +854,8 @@ static s32 check_special_attack_airborne(PLW* wk) {
                 }
 
                 if (j == 3) {
-                    if (!(wk->cp->btix[i] & 0x600)) {
+                    if (!air_ex_slot_is_allowed(wk, i)) {
                         continue;
-                    }
-
-                    if ((wk->cp->btix[i] & 0x200) && (wk->spmv_ng_flag & DIP_AIR_SPECIALS_DISABLED)) {
-                        continue;
-                    }
-
-                    if (wk->metamorphose) {
-                        if (wk->cp->btix[i] & 0x400) {
-                            continue;
-                        }
-                    } else {
-                        if ((wk->sa->mp == -1) || (wk->sa->ok == -1)) {
-                            continue;
-                        }
-
-                        if (wk->cp->btix[i] & 0x400) {
-                            if ((wk->spmv_ng_flag2 & DIP2_EX_MOVE_DISABLED) || (wk->sa->ex != 1)) {
-                                continue;
-                            }
-
-                            wk->sa->ex = -1;
-                        }
                     }
                 } else if (wk->spmv_ng_flag & DIP_AIR_SPECIALS_DISABLED) {
                     continue;
