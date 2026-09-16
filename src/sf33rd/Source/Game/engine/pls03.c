@@ -1631,6 +1631,34 @@ const s16 cnmc_z_lever_data[16][8] = { { -1, -1, -1, -1, -1, -1, -1, -1 }, { 4, 
                                        { 1, 4, 5, 7, -1, -1, -1, -1 },     { 3, 5, 6, 9, -1, -1, -1, -1 },
                                        { 1, 4, 7, 3, 6, 9, -1, -1 },       { 1, 4, 7, 5, 3, 6, 9, -1 } };
 
+static s32 meoshi_lever_matches(const PLW* wk, s16 tdat, s16 wdat) {
+    s16 i;
+
+    if (wk->wu.cg_meoshi & 0x80) {
+        for (i = 0; i < 6; i++) {
+            if (cnmc_Z_lever_data[tdat][i] == -1) {
+                return 0;
+            }
+
+            if (wdat == cnmc_Z_lever_data[tdat][i]) {
+                return 1;
+            }
+        }
+    } else {
+        for (i = 0; i < 8; i++) {
+            if (cnmc_z_lever_data[tdat][i] == -1) {
+                return 0;
+            }
+
+            if (wdat == cnmc_z_lever_data[tdat][i]) {
+                return 1;
+            }
+        }
+    }
+
+    return 0;
+}
+
 s32 check_meoshi_cancel(PLW* wk) { // 🟢
     s16 i;
     s16 tdat;
@@ -1649,32 +1677,13 @@ s32 check_meoshi_cancel(PLW* wk) { // 🟢
         wdat = cnmc_conv_data[wk->cp->sw_new & 0xF];
         tdat &= 0xF;
 
-        if (wk->wu.cg_meoshi & 0x80) {
-            for (i = 0; i < 6; i++) {
-                if (cnmc_Z_lever_data[tdat][i] == -1) {
-                    return 0;
-                }
-
-                if (wdat == cnmc_Z_lever_data[tdat][i]) {
-                    goto case_0;
-                }
-            }
-        } else {
-            for (i = 0; i < 8; i++) {
-                if (cnmc_z_lever_data[tdat][i] == -1) {
-                    return 0;
-                }
-
-                if (wdat == cnmc_z_lever_data[tdat][i]) {
-                    goto case_0;
-                }
-            }
+        if (!meoshi_lever_matches(wk, tdat, wdat)) {
+            return 0;
         }
 
-        return 0;
+        /* fallthrough */
 
     case 0:
-    case_0:
         if ((tdat = wk->wu.cg_meoshi & 0x770) == 0) {
             if (!(wk->wu.cg_meoshi & 0x800)) {
                 return 0;
