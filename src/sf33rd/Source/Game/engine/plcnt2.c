@@ -85,62 +85,75 @@ s32 Player_control_bonus() {
     return 0;
 }
 
+/* Both works and the round-level flags go back to nothing. */
+static void clear_bonus_players() {
+    pcon_rno[1] = 2;
+    SDL_zeroa(plw);
+    setup_base_and_other_data();
+    pcon_dp_flag = false;
+    round_slow_flag = false;
+    dead_voice_flag = false;
+    another_bg[0] = another_bg[1] = 0;
+    plw[0].scr_pos_set_flag = plw[1].scr_pos_set_flag = 1;
+    clear_super_arts_point(&plw[0]);
+    clear_super_arts_point(&plw[1]);
+
+    if (Bonus_Game_Flag == 21) {
+        setup_bs_scrrrl_bs();
+    }
+}
+
+/* Both works have to be ready, and the battle allowed, before the stage runs. */
+static void start_bonus_stage() {
+    if (plw[0].wu.routine_no[0] != 3) {
+        return;
+    }
+
+    if (plw[1].wu.routine_no[0] != 3) {
+        return;
+    }
+
+    if (!Allow_a_battle_f) {
+        return;
+    }
+
+    pcon_rno[0] = 1;
+    pcon_rno[1] = 0;
+    plw[0].wu.routine_no[0] = 4;
+    plw[1].wu.routine_no[0] = 4;
+    ca_check_flag = 1;
+}
+
+/* A human player keeps the parry counter it came in with; a CPU one starts at
+ * nothing. */
+static void setup_bonus_parry_counters() {
+    pcon_rno[1] = 3;
+
+    if (plw[0].wu.operator) {
+        paring_ctr_vs[0][0] = paring_ctr_ori[0];
+    } else {
+        paring_ctr_vs[0][0] = 0;
+    }
+
+    if (plw[1].wu.operator) {
+        paring_ctr_vs[0][1] = paring_ctr_ori[1];
+    } else {
+        paring_ctr_vs[0][1] = 0;
+    }
+}
+
 void plcnt_b_init() {
     switch (pcon_rno[1]) {
     case 0:
-        pcon_rno[1] = 2;
-        SDL_zeroa(plw);
-        setup_base_and_other_data();
-        pcon_dp_flag = false;
-        round_slow_flag = false;
-        dead_voice_flag = false;
-        another_bg[0] = another_bg[1] = 0;
-        plw[0].scr_pos_set_flag = plw[1].scr_pos_set_flag = 1;
-        clear_super_arts_point(&plw[0]);
-        clear_super_arts_point(&plw[1]);
-
-        if (Bonus_Game_Flag == 21) {
-            setup_bs_scrrrl_bs();
-        }
-
+        clear_bonus_players();
         break;
 
     case 1:
-        if (plw[0].wu.routine_no[0] != 3) {
-            break;
-        }
-
-        if (plw[1].wu.routine_no[0] != 3) {
-            break;
-        }
-
-        if (!Allow_a_battle_f) {
-            break;
-        }
-
-        pcon_rno[0] = 1;
-        pcon_rno[1] = 0;
-        plw[0].wu.routine_no[0] = 4;
-        plw[1].wu.routine_no[0] = 4;
-        ca_check_flag = 1;
-
+        start_bonus_stage();
         break;
 
     case 2:
-        pcon_rno[1] = 3;
-
-        if (plw[0].wu.operator) {
-            paring_ctr_vs[0][0] = paring_ctr_ori[0];
-        } else {
-            paring_ctr_vs[0][0] = 0;
-        }
-
-        if (plw[1].wu.operator) {
-            paring_ctr_vs[0][1] = paring_ctr_ori[1];
-        } else {
-            paring_ctr_vs[0][1] = 0;
-        }
-
+        setup_bonus_parry_counters();
         break;
 
     case 3:
