@@ -397,7 +397,11 @@ s32 comm_rv_y(WORK* wk, UNK11* ctc) {
     return 1;
 }
 
-static void apply_koc_sp_op(s32* target, s16 ix, s32 patl) {
+/* The seven ways a script command can combine a value into a speed field. Both
+ * comm_sstx and comm_ssty wrote this switch out three times, identical apart
+ * from which field it targets, so the field is the parameter - passed by
+ * address. Case labels are unchanged. */
+static void apply_speed_op(s32* target, s16 ix, s32 patl) {
     switch (ix) {
     default:
         *target = patl;
@@ -427,97 +431,42 @@ static void apply_koc_sp_op(s32* target, s16 ix, s32 patl) {
         *target /= patl;
         break;
     }
+}
+
+/* comm_sstx and comm_ssty set a speed from the script's 16-bit value; they
+ * differ in one thing, the mvxy axis. */
+static s32 set_speed_on_axis(WORK* wk, UNK11* ctc, s32 axis) {
+    SST sst;
+
+    sst.patl = 0;
+    sst.pats.h = ctc->pat;
+    sst.patl >>= 8;
+
+    switch (ctc->koc) {
+    case 0:
+        apply_speed_op(&wk->mvxy.a[axis].sp, ctc->ix, sst.patl);
+        break;
+
+    case 2:
+        apply_speed_op(&wk->mvxy.a[axis].sp, ctc->ix, sst.patl);
+        /* fallthrough */
+
+    case 1:
+        apply_speed_op(&wk->mvxy.d[axis].sp, ctc->ix, sst.patl);
+        break;
+
+    default:
+        wk->mvxy.kop[axis] = ctc->pat;
+        break;
+    }
+
+    return 1;
 }
 
 s32 comm_sstx(WORK* wk, UNK11* ctc) {
-    SST sstx;
-
-    sstx.patl = 0;
-    sstx.pats.h = ctc->pat;
-    sstx.patl >>= 8;
-
-    switch (ctc->koc) {
-    case 0:
-        apply_koc_sp_op(&wk->mvxy.a[0].sp, ctc->ix, sstx.patl);
-        break;
-
-    case 2:
-        apply_koc_sp_op(&wk->mvxy.a[0].sp, ctc->ix, sstx.patl);
-
-        /* fallthrough */
-
-    case 1:
-        apply_koc_sp_op(&wk->mvxy.d[0].sp, ctc->ix, sstx.patl);
-        break;
-
-    default:
-        wk->mvxy.kop[0] = ctc->pat;
-        break;
-    }
-
-    return 1;
-}
-
-/* The seven ways a script command can combine a value into a speed field.
- * comm_ssty wrote this switch out three times, identical apart from which field
- * it targets, so the field is the parameter - passed by address, which is the
- * single difference between the three copies. Case labels are unchanged. */
-static void apply_ssty_op(s32* target, s16 ix, s32 patl) {
-    switch (ix) {
-    default:
-        *target = patl;
-        break;
-
-    case 1:
-        *target &= patl;
-        break;
-
-    case 2:
-        *target |= patl;
-        break;
-
-    case 3:
-        *target += patl;
-        break;
-
-    case 4:
-        *target -= patl;
-        break;
-
-    case 5:
-        *target *= patl;
-        break;
-
-    case 6:
-        *target /= patl;
-        break;
-    }
+    return set_speed_on_axis(wk, ctc, 0);
 }
 
 s32 comm_ssty(WORK* wk, UNK11* ctc) {
-    SST ssty;
-
-    ssty.patl = 0;
-    ssty.pats.h = ctc->pat;
-    ssty.patl >>= 8;
-
-    switch (ctc->koc) {
-    case 0:
-        apply_ssty_op(&wk->mvxy.a[1].sp, ctc->ix, ssty.patl);
-        break;
-
-    case 2:
-        apply_ssty_op(&wk->mvxy.a[1].sp, ctc->ix, ssty.patl);
-        /* fallthrough */
-
-    case 1:
-        apply_ssty_op(&wk->mvxy.d[1].sp, ctc->ix, ssty.patl);
-        break;
-
-    default:
-        wk->mvxy.kop[1] = ctc->pat;
-        break;
-    }
-
-    return 1;
+    return set_speed_on_axis(wk, ctc, 1);
 }
