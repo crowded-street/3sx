@@ -1201,6 +1201,13 @@ static s32 vital_drain_is_paused(const PLW* wk) {
            ((wk->wu.routine_no[1] == 1) && !(plpdm_mvkind[wk->wu.routine_no[2]] & 1)) || (wk->wu.routine_no[1] == 3);
 }
 
+/* The second of the two player-one states that hold the vitality drain: a
+ * specific pattern of a specific attack routine. The three numbers are the
+ * original's. */
+static s32 in_second_credit_pose(const PLW* wk) {
+    return (wk->wu.routine_no[1] == 4) && (wk->wu.routine_no[2] == 22) && (wk->wu.pat_status == 23);
+}
+
 void check_omop_vital(PLW* wk) { // 🔴
     if (pcon_dp_flag) {
         return;
@@ -1234,7 +1241,7 @@ void check_omop_vital(PLW* wk) { // 🔴
                 break;
             }
 
-            if ((wk->wu.routine_no[1] == 4) && (wk->wu.routine_no[2] == 22) && (wk->wu.pat_status == 23)) {
+            if (in_second_credit_pose(wk)) {
                 break;
             }
         }
