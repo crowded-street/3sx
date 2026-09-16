@@ -615,9 +615,265 @@ void combo_window_push(s8 PL, s8 KIND) { // 🟡
     }
 }
 
-void combo_window_trans(s8 PL) { // 🟡
+/* Animating one queued combo record that shows a score: the message slides in,
+ * then the points, then the record is held and retired. */
+/* Redraw the message at its current slide position. */
+static void draw_combo_message(s8 PL) {
+    if (cmst_buff[PL][cst_read[PL]].x_posnum[0] != 0) {
+        combo_message_set(
+            PL,
+            cmst_buff[PL][cst_read[PL]].kind,
+            cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[0] - 1],
+            cmst_buff[PL][cst_read[PL]].x_posnum[0],
+            cmst_buff[PL][cst_read[PL]].hit_hi,
+            cmst_buff[PL][cst_read[PL]].hit_low
+        );
+    }
+}
+
+/* Move the message one step along, until it reaches its resting place and sets
+ * its end flag. */
+static void slide_combo_message(s8 PL) {
+    if (!(Game_pause & 0x80) && !(end_flag[PL] & 1)) {
+        if (cmst_buff[PL][cst_read[PL]].x_posnum[0] < cmst_buff[PL][cst_read[PL]].move[0]) {
+            cmst_buff[PL][cst_read[PL]].x_posnum[0]++;
+        } else {
+            end_flag[PL] |= 1;
+        }
+    }
+}
+
+/* Move the points display one digit-step along. Once it is fully out the `else`
+ * arm keeps it drawn where it stopped. */
+static void slide_combo_points(s8 PL) {
+    if (!(end_flag[PL] & 2)) {
+        if (!(Game_pause & 0x80)) {
+            cmst_buff[PL][cst_read[PL]].timer[0]--;
+        }
+
+        if (cmst_buff[PL][cst_read[PL]].timer[0] < 0) {
+            if (cmst_buff[PL][cst_read[PL]].x_posnum[1] < (cmst_buff[PL][cst_read[PL]].move[1] + 2)) {
+                if (cmst_buff[PL][cst_read[PL]].x_posnum[1] < cmst_buff[PL][cst_read[PL]].move[1]) {
+                    if (cmst_buff[PL][cst_read[PL]].x_posnum[1] != 0) {
+                        combo_pts_set(
+                            PL,
+                            cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[1] - 1],
+                            cmst_buff[PL][cst_read[PL]].x_posnum[1],
+                            &cmst_buff[PL][cst_read[PL]].pts_digit[0],
+                            cmst_buff[PL][cst_read[PL]].first_digit
+                        );
+                    }
+                } else if (cmst_buff[PL][cst_read[PL]].x_posnum[1] != 0) {
+                    combo_pts_set(
+                        PL,
+                        cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[1] - 1],
+                        (cmst_buff[PL][cst_read[PL]].move[1] - 1),
+                        &cmst_buff[PL][cst_read[PL]].pts_digit[0],
+                        cmst_buff[PL][cst_read[PL]].first_digit
+                    );
+                }
+
+                if (!(Game_pause & 0x80)) {
+                    cmst_buff[PL][cst_read[PL]].x_posnum[1]++;
+                }
+            } else {
+                end_flag[PL] |= 2;
+
+                combo_pts_set(
+                    PL,
+                    cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[1] - 1],
+                    (cmst_buff[PL][cst_read[PL]].move[1] - 1),
+                    &cmst_buff[PL][cst_read[PL]].pts_digit[0],
+                    cmst_buff[PL][cst_read[PL]].first_digit
+                );
+            }
+        }
+    } else {
+        combo_pts_set(
+            PL,
+            cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[1] - 1],
+            (cmst_buff[PL][cst_read[PL]].move[1] - 1),
+            &cmst_buff[PL][cst_read[PL]].pts_digit[0],
+            cmst_buff[PL][cst_read[PL]].first_digit
+        );
+    }
+}
+
+/* Once both the message and the points have finished, award the score to the
+ * other side and start the hold timer. PLS was a local of the whole function
+ * and is used only here, so it moves in with the block. */
+static void commit_combo_points(s8 PL) {
     s8 PLS;
 
+    if (!(Game_pause & 0x80) && ((end_flag[PL] & 3) == 3)) {
+        cmst_buff[PL][cst_read[PL]].routine_num++;
+        cmst_buff[PL][cst_read[PL]].timer[1] = cmb_window_time_tbl[cmst_buff[PL][cst_read[PL]].kind];
+
+        if (PL == 0) {
+            PLS = 1;
+        } else {
+            PLS = 0;
+        }
+
+        SCORE_PLUS(PLS, cmst_buff[PL][cst_read[PL]].pts);
+
+        if (versus_rules_apply(PLS)) {
+            Score_Sub();
+        }
+    }
+}
+
+
+static void run_scored_combo_window(s8 PL) {
+    switch (cmst_buff[PL][cst_read[PL]].routine_num) {
+    case 0:
+        end_flag[PL] = 0;
+        cmst_buff[PL][cst_read[PL]].move[0] = cmb_window_move_tbl[(cmst_buff[PL][cst_read[PL]].kind)];
+        cmst_buff[PL][cst_read[PL]].x_posnum[0] = 0;
+        cmst_buff[PL][cst_read[PL]].timer[0] = 8;
+        cmst_buff[PL][cst_read[PL]].x_posnum[1] = 0;
+        cmst_buff[PL][cst_read[PL]].routine_num++;
+        break;
+
+    case 1:
+        draw_combo_message(PL);
+        slide_combo_message(PL);
+        slide_combo_points(PL);
+        commit_combo_points(PL);
+        break;
+
+    case 2:
+        if (!(Game_pause & 0x80)) {
+            cmst_buff[PL][cst_read[PL]].timer[1]--;
+
+            if (cmst_buff[PL][cst_read[PL]].timer[1]) {
+                combo_message_set(
+                    PL,
+                    cmst_buff[PL][cst_read[PL]].kind,
+                    cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[0] - 1],
+                    cmst_buff[PL][cst_read[PL]].x_posnum[0],
+                    cmst_buff[PL][cst_read[PL]].hit_hi,
+                    cmst_buff[PL][cst_read[PL]].hit_low
+                );
+
+                combo_pts_set(
+                    PL,
+                    cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[1] - 1],
+                    (cmst_buff[PL][cst_read[PL]].move[1] - 1),
+                    &cmst_buff[PL][cst_read[PL]].pts_digit[0],
+                    cmst_buff[PL][cst_read[PL]].first_digit
+                );
+
+                return;
+            }
+        } else {
+            combo_message_set(
+                PL,
+                cmst_buff[PL][cst_read[PL]].kind,
+                cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[0] - 1],
+                cmst_buff[PL][cst_read[PL]].x_posnum[0],
+                cmst_buff[PL][cst_read[PL]].hit_hi,
+                cmst_buff[PL][cst_read[PL]].hit_low
+            );
+            combo_pts_set(
+                PL,
+                cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[1] - 1],
+                (cmst_buff[PL][cst_read[PL]].move[1] - 1),
+                &cmst_buff[PL][cst_read[PL]].pts_digit[0],
+                cmst_buff[PL][cst_read[PL]].first_digit
+            );
+            return;
+        }
+
+        // CPS3 wraps its four-record queue after index 3.
+        if (cst_read[PL] == (ArcadeBalance_IsEnabled() ? 3 : 4)) {
+            cst_read[PL] = 0;
+        } else {
+            cst_read[PL]++;
+        }
+
+        cmb_stock[PL]--;
+        break;
+    }
+}
+
+/* The same for a record with no score to show - the message only. */
+static void run_plain_combo_window(s8 PL) {
+    switch ((cmst_buff[PL][cst_read[PL]].routine_num)) {
+    case 0:
+        cmst_buff[PL][cst_read[PL]].move[0] = cmb_window_move_tbl[(cmst_buff[PL][cst_read[PL]].kind)];
+        // CPS3 starts at zero and advances before drawing; the port normally starts at one.
+        cmst_buff[PL][cst_read[PL]].x_posnum[0] = ArcadeBalance_IsEnabled() ? 0 : 1;
+        cmst_buff[PL][cst_read[PL]].routine_num++;
+        break;
+
+    case 1:
+        if (!(Game_pause & 0x80)) {
+            if ((cmst_buff[PL][cst_read[PL]].x_posnum[0]) < (cmst_buff[PL][cst_read[PL]].move[0])) {
+                cmst_buff[PL][cst_read[PL]].x_posnum[0]++;
+            } else {
+                cmst_buff[PL][cst_read[PL]].timer[1] = 36;
+                cmst_buff[PL][cst_read[PL]].routine_num++;
+            }
+        }
+
+        combo_message_set(
+            PL,
+            cmst_buff[PL][cst_read[PL]].kind,
+            cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[0] - 1],
+            cmst_buff[PL][cst_read[PL]].x_posnum[0],
+            cmst_buff[PL][cst_read[PL]].hit_hi,
+            cmst_buff[PL][cst_read[PL]].hit_low
+        );
+
+        break;
+
+    case 2:
+        if (!(Game_pause & 0x80)) {
+            cmst_buff[PL][cst_read[PL]].timer[1]--;
+
+            if (cmst_buff[PL][cst_read[PL]].timer[1]) {
+                combo_message_set(
+                    PL,
+                    cmst_buff[PL][cst_read[PL]].kind,
+                    cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[0] - 1],
+                    cmst_buff[PL][cst_read[PL]].x_posnum[0],
+                    cmst_buff[PL][cst_read[PL]].hit_hi,
+                    cmst_buff[PL][cst_read[PL]].hit_low
+                );
+
+                return;
+            }
+        } else {
+            combo_message_set(
+                PL,
+                cmst_buff[PL][cst_read[PL]].kind,
+                cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[0] - 1],
+                cmst_buff[PL][cst_read[PL]].x_posnum[0],
+                cmst_buff[PL][cst_read[PL]].hit_hi,
+                cmst_buff[PL][cst_read[PL]].hit_low
+            );
+
+            return;
+        }
+
+        if (cmst_buff[PL][cst_read[PL]].pts_flag) {
+            cmst_buff[PL][cst_read[PL]].routine_num++;
+            return;
+        }
+
+        if (cst_read[PL] == (ArcadeBalance_IsEnabled() ? 3 : 4)) {
+            cst_read[PL] = 0;
+        } else {
+            cst_read[PL]++;
+        }
+
+        cmb_stock[PL]--;
+        break;
+    }
+}
+
+void combo_window_trans(s8 PL) { // 🔴
     if (cmb_stock[PL] == 0) {
         return;
     }
@@ -629,233 +885,9 @@ void combo_window_trans(s8 PL) { // 🟡
     }
 
     if (cmst_buff[PL][cst_read[PL]].pts_flag) {
-        switch (cmst_buff[PL][cst_read[PL]].routine_num) {
-        case 0:
-            end_flag[PL] = 0;
-            cmst_buff[PL][cst_read[PL]].move[0] = cmb_window_move_tbl[(cmst_buff[PL][cst_read[PL]].kind)];
-            cmst_buff[PL][cst_read[PL]].x_posnum[0] = 0;
-            cmst_buff[PL][cst_read[PL]].timer[0] = 8;
-            cmst_buff[PL][cst_read[PL]].x_posnum[1] = 0;
-            cmst_buff[PL][cst_read[PL]].routine_num++;
-            break;
-
-        case 1:
-            if (cmst_buff[PL][cst_read[PL]].x_posnum[0] != 0) {
-                combo_message_set(
-                    PL,
-                    cmst_buff[PL][cst_read[PL]].kind,
-                    cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[0] - 1],
-                    cmst_buff[PL][cst_read[PL]].x_posnum[0],
-                    cmst_buff[PL][cst_read[PL]].hit_hi,
-                    cmst_buff[PL][cst_read[PL]].hit_low
-                );
-            }
-
-            if (!(Game_pause & 0x80) && !(end_flag[PL] & 1)) {
-                if (cmst_buff[PL][cst_read[PL]].x_posnum[0] < cmst_buff[PL][cst_read[PL]].move[0]) {
-                    cmst_buff[PL][cst_read[PL]].x_posnum[0]++;
-                } else {
-                    end_flag[PL] |= 1;
-                }
-            }
-
-            if (!(end_flag[PL] & 2)) {
-                if (!(Game_pause & 0x80)) {
-                    cmst_buff[PL][cst_read[PL]].timer[0]--;
-                }
-
-                if (cmst_buff[PL][cst_read[PL]].timer[0] < 0) {
-                    if (cmst_buff[PL][cst_read[PL]].x_posnum[1] < (cmst_buff[PL][cst_read[PL]].move[1] + 2)) {
-                        if (cmst_buff[PL][cst_read[PL]].x_posnum[1] < cmst_buff[PL][cst_read[PL]].move[1]) {
-                            if (cmst_buff[PL][cst_read[PL]].x_posnum[1] != 0) {
-                                combo_pts_set(
-                                    PL,
-                                    cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[1] - 1],
-                                    cmst_buff[PL][cst_read[PL]].x_posnum[1],
-                                    &cmst_buff[PL][cst_read[PL]].pts_digit[0],
-                                    cmst_buff[PL][cst_read[PL]].first_digit
-                                );
-                            }
-                        } else if (cmst_buff[PL][cst_read[PL]].x_posnum[1] != 0) {
-                            combo_pts_set(
-                                PL,
-                                cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[1] - 1],
-                                (cmst_buff[PL][cst_read[PL]].move[1] - 1),
-                                &cmst_buff[PL][cst_read[PL]].pts_digit[0],
-                                cmst_buff[PL][cst_read[PL]].first_digit
-                            );
-                        }
-
-                        if (!(Game_pause & 0x80)) {
-                            cmst_buff[PL][cst_read[PL]].x_posnum[1]++;
-                        }
-                    } else {
-                        end_flag[PL] |= 2;
-
-                        combo_pts_set(
-                            PL,
-                            cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[1] - 1],
-                            (cmst_buff[PL][cst_read[PL]].move[1] - 1),
-                            &cmst_buff[PL][cst_read[PL]].pts_digit[0],
-                            cmst_buff[PL][cst_read[PL]].first_digit
-                        );
-                    }
-                }
-            } else {
-                combo_pts_set(
-                    PL,
-                    cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[1] - 1],
-                    (cmst_buff[PL][cst_read[PL]].move[1] - 1),
-                    &cmst_buff[PL][cst_read[PL]].pts_digit[0],
-                    cmst_buff[PL][cst_read[PL]].first_digit
-                );
-            }
-
-            if (!(Game_pause & 0x80) && ((end_flag[PL] & 3) == 3)) {
-                cmst_buff[PL][cst_read[PL]].routine_num++;
-                cmst_buff[PL][cst_read[PL]].timer[1] = cmb_window_time_tbl[cmst_buff[PL][cst_read[PL]].kind];
-
-                if (PL == 0) {
-                    PLS = 1;
-                } else {
-                    PLS = 0;
-                }
-
-                SCORE_PLUS(PLS, cmst_buff[PL][cst_read[PL]].pts);
-
-                if (versus_rules_apply(PLS)) {
-                    Score_Sub();
-                }
-            }
-
-            break;
-
-        case 2:
-            if (!(Game_pause & 0x80)) {
-                cmst_buff[PL][cst_read[PL]].timer[1]--;
-
-                if (cmst_buff[PL][cst_read[PL]].timer[1]) {
-                    combo_message_set(
-                        PL,
-                        cmst_buff[PL][cst_read[PL]].kind,
-                        cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[0] - 1],
-                        cmst_buff[PL][cst_read[PL]].x_posnum[0],
-                        cmst_buff[PL][cst_read[PL]].hit_hi,
-                        cmst_buff[PL][cst_read[PL]].hit_low
-                    );
-
-                    combo_pts_set(
-                        PL,
-                        cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[1] - 1],
-                        (cmst_buff[PL][cst_read[PL]].move[1] - 1),
-                        &cmst_buff[PL][cst_read[PL]].pts_digit[0],
-                        cmst_buff[PL][cst_read[PL]].first_digit
-                    );
-
-                    return;
-                }
-            } else {
-                combo_message_set(
-                    PL,
-                    cmst_buff[PL][cst_read[PL]].kind,
-                    cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[0] - 1],
-                    cmst_buff[PL][cst_read[PL]].x_posnum[0],
-                    cmst_buff[PL][cst_read[PL]].hit_hi,
-                    cmst_buff[PL][cst_read[PL]].hit_low
-                );
-                combo_pts_set(
-                    PL,
-                    cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[1] - 1],
-                    (cmst_buff[PL][cst_read[PL]].move[1] - 1),
-                    &cmst_buff[PL][cst_read[PL]].pts_digit[0],
-                    cmst_buff[PL][cst_read[PL]].first_digit
-                );
-                return;
-            }
-
-            // CPS3 wraps its four-record queue after index 3.
-            if (cst_read[PL] == (ArcadeBalance_IsEnabled() ? 3 : 4)) {
-                cst_read[PL] = 0;
-            } else {
-                cst_read[PL]++;
-            }
-
-            cmb_stock[PL]--;
-            break;
-        }
+        run_scored_combo_window(PL);
     } else {
-        switch ((cmst_buff[PL][cst_read[PL]].routine_num)) {
-        case 0:
-            cmst_buff[PL][cst_read[PL]].move[0] = cmb_window_move_tbl[(cmst_buff[PL][cst_read[PL]].kind)];
-            // CPS3 starts at zero and advances before drawing; the port normally starts at one.
-            cmst_buff[PL][cst_read[PL]].x_posnum[0] = ArcadeBalance_IsEnabled() ? 0 : 1;
-            cmst_buff[PL][cst_read[PL]].routine_num++;
-            break;
-
-        case 1:
-            if (!(Game_pause & 0x80)) {
-                if ((cmst_buff[PL][cst_read[PL]].x_posnum[0]) < (cmst_buff[PL][cst_read[PL]].move[0])) {
-                    cmst_buff[PL][cst_read[PL]].x_posnum[0]++;
-                } else {
-                    cmst_buff[PL][cst_read[PL]].timer[1] = 36;
-                    cmst_buff[PL][cst_read[PL]].routine_num++;
-                }
-            }
-
-            combo_message_set(
-                PL,
-                cmst_buff[PL][cst_read[PL]].kind,
-                cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[0] - 1],
-                cmst_buff[PL][cst_read[PL]].x_posnum[0],
-                cmst_buff[PL][cst_read[PL]].hit_hi,
-                cmst_buff[PL][cst_read[PL]].hit_low
-            );
-
-            break;
-
-        case 2:
-            if (!(Game_pause & 0x80)) {
-                cmst_buff[PL][cst_read[PL]].timer[1]--;
-
-                if (cmst_buff[PL][cst_read[PL]].timer[1]) {
-                    combo_message_set(
-                        PL,
-                        cmst_buff[PL][cst_read[PL]].kind,
-                        cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[0] - 1],
-                        cmst_buff[PL][cst_read[PL]].x_posnum[0],
-                        cmst_buff[PL][cst_read[PL]].hit_hi,
-                        cmst_buff[PL][cst_read[PL]].hit_low
-                    );
-
-                    return;
-                }
-            } else {
-                combo_message_set(
-                    PL,
-                    cmst_buff[PL][cst_read[PL]].kind,
-                    cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[0] - 1],
-                    cmst_buff[PL][cst_read[PL]].x_posnum[0],
-                    cmst_buff[PL][cst_read[PL]].hit_hi,
-                    cmst_buff[PL][cst_read[PL]].hit_low
-                );
-
-                return;
-            }
-
-            if (cmst_buff[PL][cst_read[PL]].pts_flag) {
-                cmst_buff[PL][cst_read[PL]].routine_num++;
-                return;
-            }
-
-            if (cst_read[PL] == (ArcadeBalance_IsEnabled() ? 3 : 4)) {
-                cst_read[PL] = 0;
-            } else {
-                cst_read[PL]++;
-            }
-
-            cmb_stock[PL]--;
-            break;
-        }
+        run_plain_combo_window(PL);
     }
 }
 
