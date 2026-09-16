@@ -17,19 +17,7 @@ static s32 should_adjust_end_panel(const WORK_Other* ewk) {
 }
 
 
-void effect_E9_move(WORK_Other* ewk) {
-    PAL_CURSOR ita;
-    PAL_CURSOR_P ita_p[4];
-    PAL_CURSOR_P ita_pos[4];
-    PAL_CURSOR_COL ita_col[4];
-    f32 prio;
-
-    ita.p = &ita_pos[0];
-    ita.col = &ita_col[0];
-    ita.num = 4;
-    ita_col[0].color = ita_col[1].color = ita_col[2].color = ita_col[3].color = 0xFF000000;
-    prio = PrioBase[ewk->wu.my_priority];
-
+static void effe9_panel_shape(const WORK_Other* ewk, PAL_CURSOR_P* ita_p) {
     if (ewk->wu.type < 2) {
         ita_p[0].x = ita_p[1].x = 0.0f;
         ita_p[2].x = ita_p[3].x = 384.0f;
@@ -53,19 +41,59 @@ void effect_E9_move(WORK_Other* ewk) {
             ita_p[2].x = ita_p[3].x = 385.0f;
         }
     }
+}
+
+static void effe9_draw(PAL_CURSOR* ita, const PAL_CURSOR_P* ita_p, PAL_CURSOR_P* ita_pos, f32 prio) {
+    if (!No_Trans) {
+        ita_pos[0] = ita_p[0];
+        ita_pos[1] = ita_p[3];
+        ita_pos[2] = ita_p[1];
+        ita_pos[3] = ita_p[2];
+        njDrawPolygon2D((PAL_CURSOR*)&ita->p, 4, prio, 0x60);
+    }
+}
+
+static void effe9_scale_panel(const WORK_Other* ewk, PAL_CURSOR_P* ita_p) {
+    if (ewk->wu.type) {
+        ita_p[0].y = ita_p[3].y = 0.0f;
+        ita_p[1].y = ita_p[2].y = (33.0f - ((33.0f * scr_sc) - 33.0f));
+    } else {
+        ita_p[0].y = ita_p[3].y = (224.0f - (1.0f + (48.0f - ((48.0f * scr_sc) - 48.0f))));
+        ita_p[1].y = ita_p[2].y = 224.0f;
+    }
+}
+
+static void effe9_final_panel(const WORK_Other* ewk, PAL_CURSOR_P* ita_p) {
+    if (ewk->wu.type) {
+        ita_p[0].y = ita_p[3].y = 0.0f;
+        ita_p[1].y = ita_p[2].y = 16.0f;
+    } else {
+        ita_p[0].y = ita_p[3].y = 207.0f;
+        ita_p[1].y = ita_p[2].y = 224.0f;
+    }
+}
+
+void effect_E9_move(WORK_Other* ewk) {
+    PAL_CURSOR ita;
+    PAL_CURSOR_P ita_p[4];
+    PAL_CURSOR_P ita_pos[4];
+    PAL_CURSOR_COL ita_col[4];
+    f32 prio;
+
+    ita.p = &ita_pos[0];
+    ita.col = &ita_col[0];
+    ita.num = 4;
+    ita_col[0].color = ita_col[1].color = ita_col[2].color = ita_col[3].color = 0xFF000000;
+    prio = PrioBase[ewk->wu.my_priority];
+
+    effe9_panel_shape(ewk, ita_p);
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0]++;
         ewk->wu.disp_flag = 1;
 
-        if (!No_Trans) {
-            ita_pos[0] = ita_p[0];
-            ita_pos[1] = ita_p[3];
-            ita_pos[2] = ita_p[1];
-            ita_pos[3] = ita_p[2];
-            njDrawPolygon2D((PAL_CURSOR*)&ita.p, 4, prio, 0x60);
-        }
+        effe9_draw(&ita, ita_p, ita_pos, prio);
 
         break;
 
@@ -77,46 +105,20 @@ void effect_E9_move(WORK_Other* ewk) {
         }
 
         if (should_adjust_end_panel(ewk)) {
-            if (ewk->wu.type) {
-                ita_p[0].y = ita_p[3].y = 0.0f;
-                ita_p[1].y = ita_p[2].y = (33.0f - ((33.0f * scr_sc) - 33.0f));
-            } else {
-                ita_p[0].y = ita_p[3].y = (224.0f - (1.0f + (48.0f - ((48.0f * scr_sc) - 48.0f))));
-                ita_p[1].y = ita_p[2].y = 224.0f;
-            }
+            effe9_scale_panel(ewk, ita_p);
         }
 
         if (end_w.r_no_0 >= 6) {
             ewk->wu.routine_no[0]++;
         }
 
-        if (!No_Trans) {
-            ita_pos[0] = ita_p[0];
-            ita_pos[1] = ita_p[3];
-            ita_pos[2] = ita_p[1];
-            ita_pos[3] = ita_p[2];
-            njDrawPolygon2D((PAL_CURSOR*)&ita.p, 4, prio, 0x60);
-            break;
-        }
-
+        effe9_draw(&ita, ita_p, ita_pos, prio);
         break;
 
     case 2:
-        if (ewk->wu.type) {
-            ita_p[0].y = ita_p[3].y = 0.0f;
-            ita_p[1].y = ita_p[2].y = 16.0f;
-        } else {
-            ita_p[0].y = ita_p[3].y = 207.0f;
-            ita_p[1].y = ita_p[2].y = 224.0f;
-        }
+        effe9_final_panel(ewk, ita_p);
 
-        if (!No_Trans) {
-            ita_pos[0] = ita_p[0];
-            ita_pos[1] = ita_p[3];
-            ita_pos[2] = ita_p[1];
-            ita_pos[3] = ita_p[2];
-            njDrawPolygon2D((PAL_CURSOR*)&ita.p, 4, prio, 0x60);
-        }
+        effe9_draw(&ita, ita_p, ita_pos, prio);
 
         break;
 
