@@ -287,19 +287,23 @@ void remake_mvxy_PoSB(WORK* wk) { // 🟢
     }
 }
 
-void remake_mvxy_PoGR(WORK* wk) { // 🟢
-    if (wk->mvxy.d[1].sp) {
-        switch ((wk->mvxy.a[1].sp > 0) + ((wk->mvxy.a[1].sp < 0) * 2)) {
-        case 1:
-            wk->mvxy.a[1].sp = (wk->mvxy.a[1].sp * 80) / 100;
-            break;
+/* Rising is damped gently, falling hard. Only a work that is accelerating
+ * vertically is damped at all. */
+static void damp_vertical_speed(WORK* wk) {
+    switch ((wk->mvxy.a[1].sp > 0) + ((wk->mvxy.a[1].sp < 0) * 2)) {
+    case 1:
+        wk->mvxy.a[1].sp = (wk->mvxy.a[1].sp * 80) / 100;
+        break;
 
-        default:
-            wk->mvxy.a[1].sp = (wk->mvxy.a[1].sp * 10) / 100;
-            break;
-        }
+    default:
+        wk->mvxy.a[1].sp = (wk->mvxy.a[1].sp * 10) / 100;
+        break;
     }
+}
 
+/* Moving backwards is only damped; anything else is damped, floored and
+ * turned around. */
+static void damp_horizontal_speed(WORK* wk) {
     switch ((wk->mvxy.a[0].sp > 0) + ((wk->mvxy.a[0].sp < 0) * 2)) {
     case 2:
         wk->mvxy.a[0].sp = (wk->mvxy.a[0].sp * 30) / 100;
@@ -316,6 +320,14 @@ void remake_mvxy_PoGR(WORK* wk) { // 🟢
         wk->mvxy.a[0].sp = -wk->mvxy.a[0].sp;
         break;
     }
+}
+
+void remake_mvxy_PoGR(WORK* wk) { // 🟢
+    if (wk->mvxy.d[1].sp) {
+        damp_vertical_speed(wk);
+    }
+
+    damp_horizontal_speed(wk);
 }
 
 /// Check player push box collision and push them if needed
