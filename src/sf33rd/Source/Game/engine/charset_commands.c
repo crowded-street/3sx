@@ -1472,6 +1472,42 @@ s32 comm_sstx(WORK* wk, UNK11* ctc) {
     return 1;
 }
 
+/* The seven ways a script command can combine a value into a speed field.
+ * comm_ssty wrote this switch out three times, identical apart from which field
+ * it targets, so the field is the parameter - passed by address, which is the
+ * single difference between the three copies. Case labels are unchanged. */
+static void apply_ssty_op(s32* target, s16 ix, s32 patl) {
+    switch (ix) {
+    default:
+        *target = patl;
+        break;
+
+    case 1:
+        *target &= patl;
+        break;
+
+    case 2:
+        *target |= patl;
+        break;
+
+    case 3:
+        *target += patl;
+        break;
+
+    case 4:
+        *target -= patl;
+        break;
+
+    case 5:
+        *target *= patl;
+        break;
+
+    case 6:
+        *target /= patl;
+        break;
+    }
+}
+
 s32 comm_ssty(WORK* wk, UNK11* ctc) {
     SST ssty;
 
@@ -1481,102 +1517,15 @@ s32 comm_ssty(WORK* wk, UNK11* ctc) {
 
     switch (ctc->koc) {
     case 0:
-        switch (ctc->ix) {
-        default:
-            wk->mvxy.a[1].sp = ssty.patl;
-            break;
-
-        case 1:
-            wk->mvxy.a[1].sp &= ssty.patl;
-            break;
-
-        case 2:
-            wk->mvxy.a[1].sp |= ssty.patl;
-            break;
-
-        case 3:
-            wk->mvxy.a[1].sp += ssty.patl;
-            break;
-
-        case 4:
-            wk->mvxy.a[1].sp -= ssty.patl;
-            break;
-
-        case 5:
-            wk->mvxy.a[1].sp *= ssty.patl;
-            break;
-
-        case 6:
-            wk->mvxy.a[1].sp /= ssty.patl;
-            break;
-        }
-
+        apply_ssty_op(&wk->mvxy.a[1].sp, ctc->ix, ssty.patl);
         break;
 
     case 2:
-        switch (ctc->ix) {
-        default:
-            wk->mvxy.a[1].sp = ssty.patl;
-            break;
-
-        case 1:
-            wk->mvxy.a[1].sp &= ssty.patl;
-            break;
-
-        case 2:
-            wk->mvxy.a[1].sp |= ssty.patl;
-            break;
-
-        case 3:
-            wk->mvxy.a[1].sp += ssty.patl;
-            break;
-
-        case 4:
-            wk->mvxy.a[1].sp -= ssty.patl;
-            break;
-
-        case 5:
-            wk->mvxy.a[1].sp *= ssty.patl;
-            break;
-
-        case 6:
-            wk->mvxy.a[1].sp /= ssty.patl;
-            break;
-        }
-
+        apply_ssty_op(&wk->mvxy.a[1].sp, ctc->ix, ssty.patl);
         /* fallthrough */
 
     case 1:
-        switch (ctc->ix) {
-        default:
-            wk->mvxy.d[1].sp = ssty.patl;
-            break;
-
-        case 1:
-            wk->mvxy.d[1].sp &= ssty.patl;
-            break;
-
-        case 2:
-            wk->mvxy.d[1].sp |= ssty.patl;
-            break;
-
-        case 3:
-            wk->mvxy.d[1].sp += ssty.patl;
-            break;
-
-        case 4:
-            wk->mvxy.d[1].sp -= ssty.patl;
-            break;
-
-        case 5:
-            wk->mvxy.d[1].sp *= ssty.patl;
-            break;
-
-        case 6:
-            wk->mvxy.d[1].sp /= ssty.patl;
-            break;
-        }
-
+        apply_ssty_op(&wk->mvxy.d[1].sp, ctc->ix, ssty.patl);
         break;
 
     default:
