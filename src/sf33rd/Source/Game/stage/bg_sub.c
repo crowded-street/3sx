@@ -752,8 +752,28 @@ void Bg_Y_Sitei(u8 on_off, s16 pos) {
     y_sitei_pos = pos;
 }
 
-void bg_base_y_move_check() {
+static void set_bg_base_y(s16 hi_pos) {
     s32 pos_w, kake;
+
+    kake = 0x1C000;
+    pos_w = kake * hi_pos;
+
+    bgw_ptr->xy[1].cal = 0;
+    bgw_ptr->wxy[1].cal = 0;
+
+    bgw_ptr->xy[1].cal += pos_w;
+    bgw_ptr->wxy[1].cal += pos_w;
+
+    if (bgw_ptr->xy[1].disp.pos > bgw_ptr->y_limit2) {
+        bgw_ptr->xy[1].disp.pos = bgw_ptr->y_limit2;
+        bgw_ptr->xy[1].disp.low = 0;
+        bgw_ptr->wxy[1].disp.pos = bgw_ptr->y_limit2;
+        bgw_ptr->wxy[1].disp.low = 0;
+        bg_w.scr_stop &= 0x7FFF;
+    }
+}
+
+void bg_base_y_move_check() {
     s16 hi_pos;
 
     if (y_sitei_flag == 1) {
@@ -777,22 +797,7 @@ void bg_base_y_move_check() {
         bgw_ptr->wxy[1].cal = 0;
         bgw_ptr->xy[1].cal = 0;
     } else {
-        kake = 0x1C000;
-        pos_w = kake * hi_pos;
-
-        bgw_ptr->xy[1].cal = 0;
-        bgw_ptr->wxy[1].cal = 0;
-
-        bgw_ptr->xy[1].cal += pos_w;
-        bgw_ptr->wxy[1].cal += pos_w;
-
-        if (bgw_ptr->xy[1].disp.pos > bgw_ptr->y_limit2) {
-            bgw_ptr->xy[1].disp.pos = bgw_ptr->y_limit2;
-            bgw_ptr->xy[1].disp.low = 0;
-            bgw_ptr->wxy[1].disp.pos = bgw_ptr->y_limit2;
-            bgw_ptr->wxy[1].disp.low = 0;
-            bg_w.scr_stop &= 0x7FFF;
-        }
+        set_bg_base_y(hi_pos);
     }
 end:
     bg_w.bg2_sp_y = bgw_ptr->xy[1].disp.pos - bgw_ptr->pos_y_work;
