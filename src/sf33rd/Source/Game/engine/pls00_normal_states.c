@@ -523,91 +523,117 @@ static bool run_forward_jump_checks(PLW* wk) {
     return false;
 }
 
+/* What a grounded jump-cancel does with a forward lever: try the jump, then a
+ * crouch, then a walk. Each `break` in the original left the switch with
+ * nothing after it, so returning here reaches the same place. */
+static void run_low_pat_ground_step(PLW* wk) {
+    if (run_forward_jump_checks(wk)) {
+        return;
+    }
+
+    if (check_bend_myself(wk)) {
+        return;
+    }
+
+    check_F_R_walk(wk);
+}
+
+/* The airborne equivalent: the jump, then standing up, then the arcade-only
+ * walk start. Not shared with the grounded one - the middle and last steps are
+ * different calls. */
+static void run_high_pat_ground_step(PLW* wk) {
+    if (run_forward_jump_checks(wk)) {
+        return;
+    }
+
+    if (check_stand_up(wk)) {
+        return;
+    }
+
+    if (ArcadeBalance_IsEnabled()) {
+        check_arcade_walk_start(wk);
+    }
+}
+
+/* The grounded half of the jump-cancel dispatch. Split from the airborne half
+ * below rather than left as one function: the two switches carry the same five
+ * case labels but call different state entries, so they cannot be merged, and
+ * at cc 18 the parent was well over the threshold with both inline. */
+static void jumping_cg_type_low_pat(PLW* wk) {
+    switch (wk->wu.cg_type) {
+    case 0xFF:
+        reset_guard_for_new_state(wk);
+
+        TO_nm_01000(&wk->wu);
+        break;
+
+    case 2:
+        reset_guard_for_new_state(wk);
+        handle_jump_attack_state(wk);
+        break;
+
+    case 7:
+        reset_guard_for_new_state(wk);
+        handle_jump_defense_state(wk);
+        break;
+
+    case 3:
+        reset_guard_for_new_state(wk);
+
+        run_low_pat_ground_step(wk);
+        break;
+
+    case 64:
+        reset_guard_for_new_state(wk);
+
+        if (wk->wu.pat_status < 14) {
+            TO_nm_36000(&wk->wu);
+        } else {
+            TO_nm_38000(&wk->wu);
+        }
+
+        break;
+    }
+}
+
+/* The airborne half. Same five labels, different destinations. */
+static void jumping_cg_type_high_pat(PLW* wk) {
+    switch (wk->wu.cg_type) {
+    case 0xFF:
+        reset_guard_for_new_state(wk);
+
+        TO_nm_09000(&wk->wu);
+        break;
+
+    case 2:
+        reset_guard_for_new_state(wk);
+        handle_jump_attack_state(wk);
+        break;
+
+    case 7:
+        reset_guard_for_new_state(wk);
+        handle_jump_defense_state(wk);
+        break;
+
+    case 3:
+        reset_guard_for_new_state(wk);
+
+        run_high_pat_ground_step(wk);
+        break;
+
+    case 64:
+        reset_guard_for_new_state(wk);
+
+        TO_nm_37000(&wk->wu);
+        break;
+    }
+}
+
 void jumping_cg_type_check(PLW* wk) { // 🟡
     if (wk->wu.pat_status < 32) {
-        switch (wk->wu.cg_type) {
-        case 0xFF:
-            reset_guard_for_new_state(wk);
-
-            TO_nm_01000(&wk->wu);
-            break;
-
-        case 2:
-            reset_guard_for_new_state(wk);
-            handle_jump_attack_state(wk);
-            break;
-
-        case 7:
-            reset_guard_for_new_state(wk);
-            handle_jump_defense_state(wk);
-            break;
-
-        case 3:
-            reset_guard_for_new_state(wk);
-
-            if (run_forward_jump_checks(wk)) {
-                break;
-            }
-
-            if (check_bend_myself(wk)) {
-                break;
-            }
-
-            check_F_R_walk(wk);
-            break;
-
-        case 64:
-            reset_guard_for_new_state(wk);
-
-            if (wk->wu.pat_status < 14) {
-                TO_nm_36000(&wk->wu);
-            } else {
-                TO_nm_38000(&wk->wu);
-            }
-
-            break;
-        }
+        jumping_cg_type_low_pat(wk);
     } else {
-        switch (wk->wu.cg_type) {
-        case 0xFF:
-            reset_guard_for_new_state(wk);
-
-            TO_nm_09000(&wk->wu);
-            break;
-
-        case 2:
-            reset_guard_for_new_state(wk);
-            handle_jump_attack_state(wk);
-            break;
-
-        case 7:
-            reset_guard_for_new_state(wk);
-            handle_jump_defense_state(wk);
-            break;
-
-        case 3:
-            reset_guard_for_new_state(wk);
-
-            if (run_forward_jump_checks(wk)) {
-                break;
-            }
-
-            if (check_stand_up(wk)) {
-                break;
-            }
-
-            if (ArcadeBalance_IsEnabled()) {
-                check_arcade_walk_start(wk);
-            }
-
-            break;
-
-        case 64:
-            reset_guard_for_new_state(wk);
-
-            TO_nm_37000(&wk->wu);
-            break;
-        }
+        jumping_cg_type_high_pat(wk);
     }
 }
 
