@@ -429,15 +429,10 @@ s16 select_hit_stop(s16 ms, s16 sb) {
     return ms * maf;
 }
 
-void look_after_timers(PLW* wk) { // 🟡
-    if (wk->tsukamarenai_flag) {
-        wk->tsukamarenai_flag--;
-    }
-
-    if (wk->cat_break_ok_timer) {
-        wk->cat_break_ok_timer--;
-    }
-
+/* The recovery-roll window closing, either because it ran out or because the
+ * player took it. Both outcomes clear the same two fields and differ only in
+ * what ukemi_success is left at, as in the original. */
+static void tick_ukemi_window(PLW* wk) {
     if (wk->uot_cd_ok_flag) {
         wk->ukemi_ok_timer--;
 
@@ -451,13 +446,10 @@ void look_after_timers(PLW* wk) { // 🟡
             wk->ukemi_success = 1;
         }
     }
+}
 
-    if (wk->bullet_hcnt) {
-        if (--wk->bhcnt_timer <= 0) {
-            wk->bullet_hcnt = 0;
-        }
-    }
-
+/* The stun gauge draining back down between hits. */
+static void tick_stun_recovery(PLW* wk) {
     if (wk->py->now.quantity.h && (wk->wu.hit_stop == 0)) {
         // CPS3 uses the raw rate. The default port option is neutral (32 / 32); non-default recovery options differ.
         wk->py->now.timer -= (wk->py->recover * stun_gauge_r_omake[omop_stun_gauge_rcv[wk->wu.id]]) / 32;
@@ -466,7 +458,11 @@ void look_after_timers(PLW* wk) { // 🟡
             wk->py->now.timer = 0;
         }
     }
+}
 
+/* The one-button super-art debug option. Compiled away entirely in a release
+ * build, as the block it came from was. */
+static void arm_one_button_super_arts(PLW* wk) {
 #if DEBUG
     if (debug_config.one_button_sa) {
         if (wk->sa->nmsa_g_ix != 0) {
@@ -493,7 +489,31 @@ void look_after_timers(PLW* wk) { // 🟡
             wk->cp->waza_flag[wk->sa->exs2_a_ix] = 9;
         }
     }
+#else
+    (void)wk;
 #endif
+}
+
+void look_after_timers(PLW* wk) { // 🟡
+    if (wk->tsukamarenai_flag) {
+        wk->tsukamarenai_flag--;
+    }
+
+    if (wk->cat_break_ok_timer) {
+        wk->cat_break_ok_timer--;
+    }
+
+    tick_ukemi_window(wk);
+
+    if (wk->bullet_hcnt) {
+        if (--wk->bhcnt_timer <= 0) {
+            wk->bullet_hcnt = 0;
+        }
+    }
+
+    tick_stun_recovery(wk);
+
+    arm_one_button_super_arts(wk);
 }
 
 void about_gauge_process(PLW* wk) { // 🟡
