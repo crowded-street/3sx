@@ -199,6 +199,15 @@ s32 Game_Management() {
     return MANAGE_X;
 }
 
+/* Note that a side is being played by a human this round. Written out once per
+ * side, identical apart from the index. */
+static void record_round_operator(s16 side) {
+    if (plw[side].wu.operator) {
+        Round_Operator[side] = 1;
+        Final_Play_Type[side] = Play_Type;
+    }
+}
+
 void Game_Manage_1st() {
     Switch_Screen(0);
     EXE_obroll = 0;
@@ -219,15 +228,8 @@ void Game_Manage_1st() {
     Round_Operator[0] = 0;
     Round_Operator[1] = 0;
 
-    if (plw[0].wu.operator) {
-        Round_Operator[0] = 1;
-        Final_Play_Type[0] = Play_Type;
-    }
-
-    if (plw[1].wu.operator) {
-        Round_Operator[1] = 1;
-        Final_Play_Type[1] = Play_Type;
-    }
+    record_round_operator(0);
+    record_round_operator(1);
 
     Battle_Q[0] = 0;
     Battle_Q[1] = 0;
