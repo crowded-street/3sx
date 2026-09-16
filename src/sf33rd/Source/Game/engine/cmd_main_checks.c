@@ -365,6 +365,20 @@ void check_6() { // 🟢
     }
 }
 
+/* check_7's window for a repeated button press closing. Runs the countdown only
+ * while a press has been counted, exactly as the original did. */
+static void expire_shot_window(void) {
+    if (waza_ptr->shot_ok) {
+        waza_ptr->free2--;
+
+        if (waza_ptr->free2 < 0) {
+            waza_ptr->shot_ok = 0;
+            waza_ptr->free2 = waza_ptr->free1;
+            waza_ptr->uni0.tame.shot_flag = 0;
+        }
+    }
+}
+
 void check_7() { // 🟢
     s16 i;
     s16 w_flag;
@@ -399,15 +413,7 @@ void check_7() { // 🟢
         w_flag *= 2;
     }
 
-    if (waza_ptr->shot_ok) {
-        waza_ptr->free2--;
-
-        if (waza_ptr->free2 < 0) {
-            waza_ptr->shot_ok = 0;
-            waza_ptr->free2 = waza_ptr->free1;
-            waza_ptr->uni0.tame.shot_flag = 0;
-        }
-    }
+    expire_shot_window();
 
     if (waza_ptr->shot_ok >= waza_ptr->w_lvr) {
         waza_ptr->shot_ok = 0;
