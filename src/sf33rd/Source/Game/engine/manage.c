@@ -471,6 +471,51 @@ void Game_Manage_2_3() {
     }
 }
 
+/* Training mode starts a round from a clean slate rather than carrying the
+ * previous one's state over. */
+static void reset_training_round_state(void) {
+    if (Is_Training_Mode(Mode_Type)) {
+        Score[0][2] = 0;
+        Score[1][2] = 0;
+        Game_pause = 0;
+        pcon_rno[0] = 0;
+        pcon_rno[1] = 0;
+        pcon_rno[2] = 0;
+        pcon_rno[3] = 0;
+        appear_type = APPEAR_TYPE_NON_ANIMATED;
+        erase_extra_plef_work();
+        compel_bg_init_position();
+        win_lose_work_clear();
+    }
+}
+
+/* The round actually starting, once the fade and the intro have finished:
+ * arm the timers, show the boss introduction if this is the stage for it, and
+ * start the round-begin effect outside demos and training. The early return is
+ * the original's `break` while Next_Step is still 0. */
+static void begin_the_round(void) {
+    if (Next_Step == 0) {
+        return;
+    }
+
+    C_No[0]++;
+    C_No[1] = 0;
+    C_No[2] = 0;
+    Allow_a_battle_f = 1;
+    vital_inc_timer = 50;
+    vital_dec_timer = 40;
+    sag_inc_timer[0] = sag_inc_timer[1] = 0;
+
+    if (boss_intro_is_due()) {
+        Introduce_Boss[Player_id][1] |= 128;
+        Check_Stage_BGM();
+    }
+
+    if (Demo_Flag == 0 && !Is_Training_Mode(Mode_Type)) {
+        effect_58_init(10, 60, 0);
+    }
+}
+
 void Game_Manage_2_4() {
     switch (C_No[2]) {
     case 0:
@@ -486,19 +531,7 @@ void Game_Manage_2_4() {
         FadeOut(0, 0xFF, 8);
         Disp_Cockpit = 1;
 
-        if (Is_Training_Mode(Mode_Type)) {
-            Score[0][2] = 0;
-            Score[1][2] = 0;
-            Game_pause = 0;
-            pcon_rno[0] = 0;
-            pcon_rno[1] = 0;
-            pcon_rno[2] = 0;
-            pcon_rno[3] = 0;
-            appear_type = APPEAR_TYPE_NON_ANIMATED;
-            erase_extra_plef_work();
-            compel_bg_init_position();
-            win_lose_work_clear();
-        }
+        reset_training_round_state();
 
         break;
 
@@ -518,27 +551,7 @@ void Game_Manage_2_4() {
         break;
 
     case 3:
-        if (Next_Step == 0) {
-            break;
-        }
-
-        C_No[0]++;
-        C_No[1] = 0;
-        C_No[2] = 0;
-        Allow_a_battle_f = 1;
-        vital_inc_timer = 50;
-        vital_dec_timer = 40;
-        sag_inc_timer[0] = sag_inc_timer[1] = 0;
-
-        if (boss_intro_is_due()) {
-            Introduce_Boss[Player_id][1] |= 128;
-            Check_Stage_BGM();
-        }
-
-        if (Demo_Flag == 0 && !Is_Training_Mode(Mode_Type)) {
-            effect_58_init(10, 60, 0);
-        }
-
+        begin_the_round();
         break;
     }
 }
