@@ -1084,6 +1084,12 @@ void Game_Manage_8_3() {
     }
 }
 
+/* Outside versus, a winning human player who queued another battle goes
+ * straight on to it rather than through the normal continue flow. */
+static s32 winner_queued_another_battle(void) {
+    return Play_Type != 1 && Round_Operator[WINNER] && Battle_Q[WINNER];
+}
+
 void Game_Manage_9th() {
     switch (C_No[1]) {
     case 0:
@@ -1093,7 +1099,7 @@ void Game_Manage_9th() {
             C_Timer = 75;
             cpExitTask(TASK_PAUSE);
 
-            if (Play_Type != 1 && Round_Operator[WINNER] && Battle_Q[WINNER]) {
+            if (winner_queued_another_battle()) {
                 C_No[0] = 10;
             }
 
