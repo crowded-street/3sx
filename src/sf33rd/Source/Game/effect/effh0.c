@@ -15,40 +15,48 @@ const CONN bbbs_nando_small[2][2] = { { { 176, -16, 0, 32490 }, { 132, -16, 0, 3
 
 void effH0_trans(WORK* ewk);
 
-void effect_H0_move(WORK_Other_CONN* ewk) {
-    switch (ewk->wu.routine_no[0]) {
+static void effh0_count_in(WORK_Other_CONN* ewk) {
+    switch (ewk->wu.routine_no[1]) {
     case 0:
-        switch (ewk->wu.routine_no[1]) {
-        case 0:
-            ewk->wu.routine_no[1]++;
-            ewk->wu.disp_flag = 0;
-            ewk->wu.old_cgnum = 0;
-            ewk->wu.dir_timer = 60;
-            ewk->wu.position_z = ewk->wu.my_priority = 9;
-            ewk->conn[0].chr = (Bonus_Stage_Level % 10) + 32490;
-            break;
-
-        case 1:
-            if (--ewk->wu.dir_timer <= 0) {
-                ewk->wu.disp_flag = 1;
-                ewk->wu.routine_no[0] = 1;
-                ewk->wu.routine_no[1] = 0;
-            }
-            break;
-        }
-
-        effH0_trans(&ewk->wu);
+        ewk->wu.routine_no[1]++;
+        ewk->wu.disp_flag = 0;
+        ewk->wu.old_cgnum = 0;
+        ewk->wu.dir_timer = 60;
+        ewk->wu.position_z = ewk->wu.my_priority = 9;
+        ewk->conn[0].chr = (Bonus_Stage_Level % 10) + 32490;
         break;
 
     case 1:
-        if (ewk->wu.dead_f == 1) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.type = 0;
-            ewk->wu.routine_no[0] = 2;
-            break;
+        if (--ewk->wu.dir_timer <= 0) {
+            ewk->wu.disp_flag = 1;
+            ewk->wu.routine_no[0] = 1;
+            ewk->wu.routine_no[1] = 0;
         }
+        break;
+    }
 
-        effH0_trans(&ewk->wu);
+    effH0_trans(&ewk->wu);
+}
+
+static void effh0_show(WORK_Other_CONN* ewk) {
+    if (ewk->wu.dead_f == 1) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.type = 0;
+        ewk->wu.routine_no[0] = 2;
+        return;
+    }
+
+    effH0_trans(&ewk->wu);
+}
+
+void effect_H0_move(WORK_Other_CONN* ewk) {
+    switch (ewk->wu.routine_no[0]) {
+    case 0:
+        effh0_count_in(ewk);
+        break;
+
+    case 1:
+        effh0_show(ewk);
         break;
 
     case 2:
