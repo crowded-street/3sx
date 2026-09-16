@@ -491,6 +491,30 @@ void subtract_cu_vital(PLW* wk) { // 🟡
     wk->wu.dm_piyo = 0;
 }
 
+/* The frame a catch does its damage on: the hit itself, its effect, and the
+ * recovery window the caught player gets afterwards. */
+static void apply_catch_hit(PLW* wk, PLW* emwk) {
+    wk->wu.cg_type = 4;
+    subtract_cu_vital(emwk);
+    set_catch_hit_mark_pos(&wk->wu, &emwk->wu);
+    effect_02_init(&wk->wu, 0, 1, wk->wu.rl_flag);
+
+    // Port-only controller feedback; CPS3 omits these calls.
+    pp_pulpara_remake_at_hit(wk);
+    pp_pulpara_hit(&wk->wu);
+    pp_pulpara_remake_dm_all(&emwk->wu);
+
+    if (emwk->backup_ok_timer) {
+        emwk->uot_cd_ok_flag = 1;
+        emwk->ukemi_ok_timer = emwk->backup_ok_timer;
+    } else {
+        emwk->uot_cd_ok_flag = 0;
+        emwk->ukemi_ok_timer = 0;
+    }
+
+    emwk->ukemi_success = 0;
+}
+
 void catch_cg_type_check(PLW* wk) { // 🟡
     PLW* emwk = (PLW*)wk->wu.hit_adrs;
 
@@ -503,25 +527,7 @@ void catch_cg_type_check(PLW* wk) { // 🟡
         break;
 
     case 3:
-        wk->wu.cg_type = 4;
-        subtract_cu_vital(emwk);
-        set_catch_hit_mark_pos(&wk->wu, &emwk->wu);
-        effect_02_init(&wk->wu, 0, 1, wk->wu.rl_flag);
-
-        // Port-only controller feedback; CPS3 omits these calls.
-        pp_pulpara_remake_at_hit(wk);
-        pp_pulpara_hit(&wk->wu);
-        pp_pulpara_remake_dm_all(&emwk->wu);
-
-        if (emwk->backup_ok_timer) {
-            emwk->uot_cd_ok_flag = 1;
-            emwk->ukemi_ok_timer = emwk->backup_ok_timer;
-        } else {
-            emwk->uot_cd_ok_flag = 0;
-            emwk->ukemi_ok_timer = 0;
-        }
-
-        emwk->ukemi_success = 0;
+        apply_catch_hit(wk, emwk);
         break;
 
     case 5:
