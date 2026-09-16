@@ -495,6 +495,18 @@ A name that disappears from the file entirely is a **FAIL**: something was delet
 moved. Anything else that does not match the two rows above wants explaining before it
 lands.
 
+**After a Recipe S split, check the group rather than each file.** A split moves whole
+functions, so each file on its own reads as calls vanishing or appearing; only the union
+is meant to be unchanged:
+
+```bash
+python tools/refactor_guard.py --calls --combined <old-file> <new-file>
+```
+
+`OK combined group (N call sites unchanged)` is the result a clean split gives, and it is
+strong evidence: it says every call in the original is still made, from one of the two
+files, the same number of times.
+
 **Renaming a helper you extracted earlier reads as a vanished call**, because the tool
 sees only that the old name is gone. Renaming a `static` that no other file can see is
 legal - the prohibition is on renaming functions across files - so declare it and run

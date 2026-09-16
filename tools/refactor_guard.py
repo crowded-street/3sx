@@ -405,6 +405,30 @@ def check_combined(rels: list[str], base: str, strict: bool) -> bool:
     return report_combined_changes(*counts, strict)
 
 
+def check_calls_combined(rels: list[str], base: str, strict: bool, renames: dict) -> bool:
+    """Compare the call fingerprint of a group of files as one.
+
+    This is the check Recipe S needs. A split moves whole functions into a new
+    file, so every file on its own reads as calls vanishing or appearing; only
+    the union of the group is meant to be unchanged. Files absent from `base`
+    contribute nothing to the before side, which is exactly right for the new
+    file a split creates.
+    """
+    before = Counter()
+    after = Counter()
+    for rel in rels:
+        old = git_show(base, rel)
+        if old is not None:
+            before += calls(old)
+        path = REPO / rel
+        if not path.is_file():
+            print("FAIL  " + rel + "  (deleted from working tree)")
+            return False
+        after += calls(path.read_text(encoding="utf-8", errors="replace"))
+
+    return report_call_changes("combined group", apply_renames(before, renames), after, strict)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -412,7 +436,9 @@ def main() -> int:
     ap.add_argument("--base", default="HEAD", help="git ref to compare against (default HEAD)")
     ap.add_argument("--all", action="store_true", help="check every changed .c/.cpp")
     ap.add_argument("--combined", action="store_true",
-                    help="compare all supplied files as one literal group")
+                    help="compare all supplied files as one group, so a Recipe S split that "
+                         "moves whole functions between them reads as unchanged. Works with "
+                         "--calls too.")
     ap.add_argument("--strict", action="store_true",
                     help="fail on added literals and reduced-count warnings")
     ap.add_argument("--calls", action="store_true",
@@ -436,7 +462,19 @@ def main() -> int:
         return 0
 
     if args.combined:
-        return 0 if check_combined([p.replace("\\", "/") for p in targets], args.base, args.strict) else 1
+        group = [p.replace("\\", "/") for p in targets]
+        if args.calls:
+            passed = check_calls_combined(group, args.base, args.strict, renames)
+        else:
+            passed = check_combined(group, args.base, args.strict)
+        if not passed:
+            print()
+            print("BLOCKED - this is not a legal campaign refactor.")
+            return 1
+        print()
+        print("PASS - no call was dropped or duplicated." if args.calls
+              else "PASS - no constant was removed or altered.")
+        return 0
 
     ok = True
     for rel in targets:
