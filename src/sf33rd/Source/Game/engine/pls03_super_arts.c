@@ -248,22 +248,34 @@ s32 check_full_gauge_attack2(PLW* wk, s8 always) {
     return try_airborne_ex_super(wk, wk->sa->exs2_a_ix, always);
 }
 
-s16 check_super_arts_attack(PLW* wk) { // 🟡
+/* With the arts selectable, try each of the three in turn and keep the first
+ * that fires. Super_Arts and the DC status are set for each attempt, and both
+ * are left pointing at whichever art was tried last - the original does the
+ * same, so a failed sweep leaves the third art selected. */
+static s16 try_each_selectable_art(PLW* wk) {
     s16 rnum = 0;
     s16 i;
 
+    for (i = 0; i < 3; i++) {
+        Super_Arts[wk->wu.id] = i;
+        set_super_arts_status_dc(wk->wu.id);
+        rnum = check_super_arts_attack_dc(wk);
+
+        if (rnum) {
+            wk->sa->gt2 = wk->sa->gauge_type;
+            break;
+        }
+    }
+
+    return rnum;
+}
+
+s16 check_super_arts_attack(PLW* wk) { // 🟡
+    s16 rnum = 0;
+
     if (cmd_sel[wk->wu.id]) {
         if (wk->sa->ok != -1) {
-            for (i = 0; i < 3; i++) {
-                Super_Arts[wk->wu.id] = i;
-                set_super_arts_status_dc(wk->wu.id);
-                rnum = check_super_arts_attack_dc(wk);
-
-                if (rnum) {
-                    wk->sa->gt2 = wk->sa->gauge_type;
-                    break;
-                }
-            }
+            rnum = try_each_selectable_art(wk);
         }
     } else {
         rnum = check_super_arts_attack_dc(wk);
