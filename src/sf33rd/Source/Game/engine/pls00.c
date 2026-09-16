@@ -1414,6 +1414,38 @@ static void apply_special_move_cancel_mask(PLW* wk) {
     }
 }
 
+/* The three super-art cancels the 0x40 bit allows, in the order the original
+ * tried them. Each clears cg_cancel before reporting success, exactly where the
+ * original did. Returns 0 when none fired, which is where the original fell
+ * through to the 0x20 test. */
+static s32 try_super_art_cancel(PLW* wk) {
+    if (check_full_gauge_attack(wk, 0)) {
+        wk->wu.cg_cancel &= 0;
+        return 1;
+    }
+
+    if (!ArcadeBalance_IsEnabled()) {
+        if ((wk->player_number != CHAR_AKUMA) && check_full_gauge_attack2(wk, 0)) {
+            wk->wu.cg_cancel &= 0;
+            return 1;
+        }
+    }
+
+    if (check_super_arts_attack(wk)) {
+        wk->wu.cg_cancel &= 0;
+        return 1;
+    }
+
+    return 0;
+}
+
+/* The two cancels the 0x20 bit allows. `||` short-circuits, so check_chouhatsu
+ * is still only reached when check_special_attack declined - and neither is
+ * called before the other, as in the original. */
+static s32 try_special_or_taunt_cancel(PLW* wk) {
+    return check_special_attack(wk) || check_chouhatsu(wk);
+}
+
 s32 check_cg_cancel_data(PLW* wk) { // 🟡
     if (wk->wu.cg_cancel == 0) {
         return 0;
@@ -1428,33 +1460,12 @@ s32 check_cg_cancel_data(PLW* wk) { // 🟡
             wk->wu.cg_cancel &= 0xBF;
         }
 
-        if (wk->wu.cg_cancel & 0x40) {
-            if (check_full_gauge_attack(wk, 0)) {
-                wk->wu.cg_cancel &= 0;
-                return 1;
-            }
-
-            if (!ArcadeBalance_IsEnabled()) {
-                if ((wk->player_number != CHAR_AKUMA) && check_full_gauge_attack2(wk, 0)) {
-                    wk->wu.cg_cancel &= 0;
-                    return 1;
-                }
-            }
-
-            if (check_super_arts_attack(wk)) {
-                wk->wu.cg_cancel &= 0;
-                return 1;
-            }
+        if ((wk->wu.cg_cancel & 0x40) && try_super_art_cancel(wk)) {
+            return 1;
         }
 
-        if (wk->wu.cg_cancel & 0x20) {
-            if (check_special_attack(wk)) {
-                return 1;
-            }
-
-            if (check_chouhatsu(wk)) {
-                return 1;
-            }
+        if ((wk->wu.cg_cancel & 0x20) && try_special_or_taunt_cancel(wk)) {
+            return 1;
         }
     }
 
