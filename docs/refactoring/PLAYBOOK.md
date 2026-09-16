@@ -433,6 +433,10 @@ Recipe X both refuse to merge.
 | `effect.c` | 9.38 | four functions whose two arms walk the same list in mirror - see the rule below |
 | `efff6.c` | 9.09 | near-miss siblings |
 | `effm2.c` | 9.53 | the two cat routines' dispatchers read as duplicates once their states are named |
+| `plcnt.c` | 9.47 | `settle_type_40000` at cc 10 and `check_combo_end` at cc 9; extracting from either costs 0.38-0.55 to the file's other guard predicates |
+| `pls02.c` | 9.31 | `set_field_hosei_flag`'s two wall sides differ in three places, and `check_body_touch2` cannot lose its fourth nesting level without adding gotos, which measured -0.29 |
+| `charset_position.c` | 9.09 | four opcodes share a `koc` dispatch skeleton and differ only in the action each arm performs; the only way to merge them is a function-pointer parameter, which the catalogue does not have |
+| `plpdm_states.c` | 9.38 | Overall Code Complexity only; every further arm extraction makes a twin of an existing `begin_damage_*` and costs 0.84 |
 
 ---
 
@@ -917,3 +921,50 @@ closed until statcheck runs.
 
 Use `code_health_review` (not just the score) when you need to see *which* smells remain -
 the score alone will not tell you whether you hit the right problem.
+
+---
+
+### Recipe S first, then the duplication it exposes
+
+`charset_commands.c` was the clearest case measured so far. At 132 functions it carried a
+*Number of Functions in a Single Module* finding that no extraction could touch, and a Code
+Duplication web of 34 functions in 19 groups spanning the whole file.
+
+Moving the 21 position-and-speed opcodes into `charset_position.c` (Recipe S) took the
+original from 7.00 to 7.96 and gave the new file 7.27. That is the smaller half of the win.
+The larger half is what the split made possible: with each duplication family now whole
+inside one file, five ordinary Recipe C and Recipe D merges took `charset_commands.c` to
+10.00 and `charset_position.c` to 9.09.
+
+The rule that made the split work is the one already written down for Recipe S - **move a
+duplication family whole** - and the way to check it is to run the review first and list
+which functions share a group. A split that cuts through a group leaves both halves with a
+finding neither file can clear on its own.
+
+### A duplicated call site is worth extracting even when the score does not move
+
+`plmain.c` had eight places that cleared the same three fields in the same order. CodeScene
+reported none of them: three lines is below its duplication threshold. Extracting them into
+`abandon_super_art` moved the score from 8.03 to 9.09 anyway, because the *near-miss*
+groups it did report - three `spend_or_abandon_*` functions that differed in two or three
+statements each - stopped reading as near-misses once their shared tail was a call.
+
+So when the review reports a duplication group that Recipe D refuses (too many
+differences), look for a shorter identical run **inside** the group and extract that
+instead. It is Recipe C, it is always legal, and it can dissolve a group that could not be
+merged.
+
+### An arm that ends in `break` inside a `while (1)` is not a plateau
+
+`pls02.c`'s `set_field_hosei_flag` and `plcnt.c`'s `settle_check` both used the
+`while (1) { ... break; ... }` idiom to mean "retry" or "fall out to the tail". Two
+different attempts to remove it were measured:
+
+- `settle_check`: extracting the arm's body into `settle_double_ko` and leaving the loop
+  alone, +0.55.
+- `set_field_hosei_flag`: rewriting the loop as two functions and a flag, -0.70 at 8.65 and
+  -0.77 again at 9.31 after the file had improved.
+
+The difference is the twin. `settle_double_ko` has no sibling; the two wall sides of
+`set_field_hosei_flag` differ in three places and become a duplication group the moment
+they are separate functions. **Extract the body, keep the loop** is the move that pays.
