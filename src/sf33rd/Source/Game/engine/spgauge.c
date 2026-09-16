@@ -172,62 +172,67 @@ void spgauge_cont_init() {
     col = 0;
 }
 
+/* One player's gauge, set to a full bar for the demo. */
+static void init_demo_gauge(s8 lpy) {
+    demo_set_sa_full(&super_arts[lpy]);
+    spg_dat[lpy].current_spg = super_arts[lpy].gauge_len;
+    spg_dat[lpy].old_spg = super_arts[lpy].gauge_len;
+    spg_dat[lpy].spgtbl_ptr = spgauge_puttbl[lpy];
+    spg_dat[lpy].spg_level = super_arts[lpy].store;
+    spg_dat[lpy].spg_maxlevel = super_arts[lpy].store_max;
+    spg_dat[lpy].spg_len = super_arts[lpy].gauge_len / 8;
+    spg_dat[lpy].spg_dotlen = super_arts[lpy].gauge_len;
+    spg_dat[lpy].flag = 1;
+    spg_dat[lpy].flag2 = 0;
+    spg_dat[lpy].level_flag = 0;
+    spg_dat[lpy].timer = 51;
+    spg_dat[lpy].timer2 = 2;
+    spg_dat[lpy].kind = 1;
+    spg_dat[lpy].max = 0;
+    spg_dat[lpy].max_old = 1;
+    spg_dat[lpy].max_rno = 2;
+    spg_dat[lpy].time_rno = 5;
+    spg_dat[lpy].gauge_flash_time = 2;
+    spg_dat[lpy].gauge_flash_col = 0;
+    spg_dat[lpy].sa_flag = 0;
+    spg_dat[lpy].ex_flag = 0;
+    spg_dat[lpy].no_chgcol = 0;
+    spg_dat[lpy].time_no_clear = 0;
+    spg_dat[lpy].sa_mukou = 0;
+    sa_gauge_flash[lpy] = 0;
+    spg_dat[lpy].spgptbl_ptr = spgauge_postbl[lpy];
+
+    if (super_arts[lpy].gauge_type == 1) {
+        spg_dat[lpy].time = 1;
+        time_flag[lpy] = 1;
+    } else {
+        spg_dat[lpy].time = 0;
+        time_flag[lpy] = 0;
+    }
+
+    spg_dat[lpy].mass_len = spg_dat[lpy].spg_len - 5;
+
+    if (spg_dat[lpy].spg_len & 1) {
+        spg_dat[lpy].mchar = 5;
+    } else {
+        spg_dat[lpy].mass_len = spg_dat[lpy].mass_len - 1;
+        spg_dat[lpy].mchar = 6;
+    }
+
+    spg_dat[lpy].mass_len /= 2;
+    time_operate[lpy] = 0;
+    sast_now[lpy] = 0;
+    max2[lpy] = 0;
+    max_rno2[lpy] = 0;
+}
+
 void spgauge_cont_demo_init() {
     s8 lpy;
 
     Sa_frame_Clear();
 
     for (lpy = 0; lpy < 2; lpy++) {
-        demo_set_sa_full(&super_arts[lpy]);
-        spg_dat[lpy].current_spg = super_arts[lpy].gauge_len;
-        spg_dat[lpy].old_spg = super_arts[lpy].gauge_len;
-        spg_dat[lpy].spgtbl_ptr = spgauge_puttbl[lpy];
-        spg_dat[lpy].spg_level = super_arts[lpy].store;
-        spg_dat[lpy].spg_maxlevel = super_arts[lpy].store_max;
-        spg_dat[lpy].spg_len = super_arts[lpy].gauge_len / 8;
-        spg_dat[lpy].spg_dotlen = super_arts[lpy].gauge_len;
-        spg_dat[lpy].flag = 1;
-        spg_dat[lpy].flag2 = 0;
-        spg_dat[lpy].level_flag = 0;
-        spg_dat[lpy].timer = 51;
-        spg_dat[lpy].timer2 = 2;
-        spg_dat[lpy].kind = 1;
-        spg_dat[lpy].max = 0;
-        spg_dat[lpy].max_old = 1;
-        spg_dat[lpy].max_rno = 2;
-        spg_dat[lpy].time_rno = 5;
-        spg_dat[lpy].gauge_flash_time = 2;
-        spg_dat[lpy].gauge_flash_col = 0;
-        spg_dat[lpy].sa_flag = 0;
-        spg_dat[lpy].ex_flag = 0;
-        spg_dat[lpy].no_chgcol = 0;
-        spg_dat[lpy].time_no_clear = 0;
-        spg_dat[lpy].sa_mukou = 0;
-        sa_gauge_flash[lpy] = 0;
-        spg_dat[lpy].spgptbl_ptr = spgauge_postbl[lpy];
-
-        if (super_arts[lpy].gauge_type == 1) {
-            spg_dat[lpy].time = 1;
-            time_flag[lpy] = 1;
-        } else {
-            spg_dat[lpy].time = 0;
-            time_flag[lpy] = 0;
-        }
-
-        spg_dat[lpy].mass_len = spg_dat[lpy].spg_len - 5;
-
-        if (spg_dat[lpy].spg_len & 1) {
-            spg_dat[lpy].mchar = 5;
-        } else {
-            spg_dat[lpy].mass_len = spg_dat[lpy].mass_len - 1;
-            spg_dat[lpy].mchar = 6;
-        }
-
-        spg_dat[lpy].mass_len /= 2;
-        time_operate[lpy] = 0;
-        sast_now[lpy] = 0;
-        max2[lpy] = 0;
-        max_rno2[lpy] = 0;
+        init_demo_gauge(lpy);
     }
 
     spg_dat[0].spgcol_number = 17;
