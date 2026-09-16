@@ -231,6 +231,27 @@ void Game_Manage_12_3() {
     }
 }
 
+/* Pay out whichever halves of the perfect bonus were earned, clamp the score at
+ * the display's maximum, and start the flash. */
+static void award_perfect_bonus(void) {
+    C_No[3]++;
+    C_Timer = 40;
+
+    if (PB_Status & 1) {
+        Score[Player_id][0] += Ball_Perfect_PTS[0][Bonus_Stage_Level];
+    }
+
+    if (PB_Status & 2) {
+        Score[Player_id][0] += Ball_Perfect_PTS[1][Bonus_Stage_Level];
+    }
+
+    if (Score[Player_id][0] >= 99999900) {
+        Score[Player_id][0] = 99999900;
+    }
+
+    Flash_Bonus_Perfect();
+}
+
 static void run_bonus_perfect_result_phase(void) {
     switch (C_No[3]) {
     case 0:
@@ -253,22 +274,7 @@ static void run_bonus_perfect_result_phase(void) {
 
     case 2:
         if (bonus_cut_and_timer_finished()) {
-            C_No[3]++;
-            C_Timer = 40;
-
-            if (PB_Status & 1) {
-                Score[Player_id][0] += Ball_Perfect_PTS[0][Bonus_Stage_Level];
-            }
-
-            if (PB_Status & 2) {
-                Score[Player_id][0] += Ball_Perfect_PTS[1][Bonus_Stage_Level];
-            }
-
-            if (Score[Player_id][0] >= 99999900) {
-                Score[Player_id][0] = 99999900;
-            }
-
-            Flash_Bonus_Perfect();
+            award_perfect_bonus();
             break;
         }
 
