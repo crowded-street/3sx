@@ -1398,6 +1398,14 @@ s32 waza_select(PLW* wk, s16 kos, s16 sf) { // 🟢
     return 0;
 }
 
+static s32 rising_within_height(const PLW* wk, s16 cmd_ex) {
+    return (wk->wu.mvxy.a[1].sp > 0) && cmd_ex_check(wk->wu.xyz[1].disp.pos, cmd_ex);
+}
+
+static s32 falling_within_height(const PLW* wk, s16 cmd_ex) {
+    return (wk->wu.mvxy.a[1].sp <= 0) && cmd_ex_check(wk->wu.xyz[1].disp.pos, cmd_ex);
+}
+
 u16 decode_wst_data(PLW* wk, u16 cmd, s16 cmd_ex) { // 🟢
     u16 lever;
     u16 rnum;
@@ -1437,14 +1445,14 @@ u16 decode_wst_data(PLW* wk, u16 cmd, s16 cmd_ex) { // 🟢
         break;
 
     case 0x2000:
-        if ((wk->wu.mvxy.a[1].sp > 0) && cmd_ex_check(wk->wu.xyz[1].disp.pos, cmd_ex)) {
+        if (rising_within_height(wk, cmd_ex)) {
             rnum = 1;
         }
 
         break;
 
     case 0x1000:
-        if ((wk->wu.mvxy.a[1].sp <= 0) && cmd_ex_check(wk->wu.xyz[1].disp.pos, cmd_ex)) {
+        if (falling_within_height(wk, cmd_ex)) {
             rnum = 1;
         }
 
@@ -1467,14 +1475,14 @@ u16 decode_wst_data(PLW* wk, u16 cmd, s16 cmd_ex) { // 🟢
         break;
 
     case 0x6000:
-        if ((wk->wu.mvxy.a[1].sp > 0) && cmd_ex_check(wk->wu.xyz[1].disp.pos, cmd_ex)) {
+        if (rising_within_height(wk, cmd_ex)) {
             rnum = wk->cp->sw_new & lever;
         }
 
         break;
 
     case 0x5000:
-        if ((wk->wu.mvxy.a[1].sp <= 0) && cmd_ex_check(wk->wu.xyz[1].disp.pos, cmd_ex)) {
+        if (falling_within_height(wk, cmd_ex)) {
             rnum = wk->cp->sw_new & lever;
         }
 
