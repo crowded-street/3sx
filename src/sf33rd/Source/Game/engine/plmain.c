@@ -1147,6 +1147,26 @@ static void sag_union_ps2_active(PLW* wk) {
     }
 }
 
+/* Armed and waiting: losing the last stock disarms the art, and the request
+ * flag fires it. A gauge type 0 art starts from an empty remembered bar. */
+static void fire_ps2_art_when_ready(PLW* wk) {
+    if (wk->sa->store == 0) {
+        wk->sa->sa_rno = 0;
+        wk->sa->ok = 0;
+        return;
+    }
+
+    if (wk->sa->ok == -1) {
+        wk->sa->sa_rno = 2;
+        wk->sa->sa_rno2 = 0;
+        wk->sa->saeff_ok = 1;
+
+        if (wk->sa->gt2 == 0) {
+            wk->sa->bacckup_g_h = 0;
+        }
+    }
+}
+
 void sag_union_ps2(PLW* wk) { // 🔴
     switch (wk->sa->sa_rno) {
     case 0:
@@ -1160,23 +1180,7 @@ void sag_union_ps2(PLW* wk) { // 🔴
         break;
 
     case 1:
-        if (wk->sa->store == 0) {
-            wk->sa->sa_rno = 0;
-            wk->sa->ok = 0;
-            break;
-        }
-
-        if (wk->sa->ok == -1) {
-            wk->sa->sa_rno = 2;
-            wk->sa->sa_rno2 = 0;
-            wk->sa->saeff_ok = 1;
-
-            if (wk->sa->gt2 == 0) {
-                wk->sa->bacckup_g_h = 0;
-                break;
-            }
-        }
-
+        fire_ps2_art_when_ready(wk);
         break;
 
     case 2:
