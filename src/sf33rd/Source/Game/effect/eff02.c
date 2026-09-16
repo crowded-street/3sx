@@ -133,13 +133,15 @@ const s16 hit_mark_hosei_table[108][2] = {
     { -72, 0 },   { -48, 104 }, { 0, 2 },     { -48, 50 }
 };
 
-static void setup_hit_mark_properties(WORK_Other* ewk, const HMDT* tad) {
-    if (tad->status & 8) {
-        ewk->wu.disp_flag = 2;
+static void eff02_play_hit_se(WORK_Other* ewk, const HMDT* tad) {
+    if (tad->se) {
+        urian_guard_se_check(ewk, (PLW*)ewk->wu.target_adrs, tad->se);
     } else {
-        ewk->wu.disp_flag = 1;
+        Last_Called_SE = 0;
     }
+}
 
+static void eff02_pick_variant(WORK_Other* ewk, const HMDT* tad) {
     if (tad->status & 0x40) {
         if (((PLW*)ewk->wu.target_adrs)->wu.work_id == 1) {
             ewk->wu.dir_timer = ((PLW*)ewk->wu.target_adrs)->player_number;
@@ -147,41 +149,73 @@ static void setup_hit_mark_properties(WORK_Other* ewk, const HMDT* tad) {
             ewk->wu.dir_timer = ((WORK_Other*)ewk->wu.target_adrs)->master_player;
         }
     }
+}
 
+static void eff02_pick_colour(WORK_Other* ewk, const HMDT* tad) {
     if (tad->col) {
         ewk->wu.my_col_code = hcct[tad->col];
     } else if (tad->status & 0x80) {
         ewk->wu.my_col_code = ((PLW*)ewk->wu.target_adrs)->wu.my_col_code;
     }
+}
 
-    if (tad->se) {
-        urian_guard_se_check(ewk, (PLW*)ewk->wu.target_adrs, tad->se);
+static void setup_hit_mark_properties(WORK_Other* ewk, const HMDT* tad) {
+    if (tad->status & 8) {
+        ewk->wu.disp_flag = 2;
     } else {
-        Last_Called_SE = 0;
+        ewk->wu.disp_flag = 1;
     }
+
+    eff02_pick_variant(ewk, tad);
+
+    eff02_pick_colour(ewk, tad);
+
+    eff02_play_hit_se(ewk, tad);
 
     if (tad->status & 4) {
         ewk->wu.rl_flag = ewk->wu.dm_rl;
     }
 }
 
+static const EXPLEM* eff02_place_from_table(WORK_Other* ewk, const HMDT* tad) {
+    const EXPLEM* edt;
+
+    if (tad->status & 0x20) {
+        edt = &explem2[tad->emhix][ewk->wu.dir_timer];
+    } else {
+        edt = &explem[tad->myhix];
+    }
+
+    if (ewk->wu.rl_flag) {
+        ewk->wu.xyz[0].disp.pos -= *(s16*)&edt->hx;
+    } else {
+        ewk->wu.xyz[0].disp.pos += *(s16*)&edt->hx;
+    }
+
+    ewk->wu.xyz[1].disp.pos += *(s16*)&edt->hy;
+    return edt;
+}
+
+static void eff02_aim_mark(WORK_Other* ewk, const HMDT* tad) {
+    ewk->wu.dir_old = 0;
+
+    if (tad->dir) {
+        ewk->wu.dir_old = hit_mark_dir_table[ewk->wu.direction];
+
+        if (ewk->wu.dir_old < 0) {
+            ewk->wu.rl_flag = 1;
+            ewk->wu.dir_old = -ewk->wu.dir_old;
+        }
+    }
+
+    set_char_move_init(&ewk->wu, 0, tad->hits + ewk->wu.dir_old);
+}
+
 static void position_and_animate_hit_mark(WORK_Other* ewk, const HMDT* tad) {
     const EXPLEM* edt;
 
     if (tad->status & 0x10) {
-        if (tad->status & 0x20) {
-            edt = &explem2[tad->emhix][ewk->wu.dir_timer];
-        } else {
-            edt = &explem[tad->myhix];
-        }
-
-        if (ewk->wu.rl_flag) {
-            ewk->wu.xyz[0].disp.pos -= *(s16*)&edt->hx;
-        } else {
-            ewk->wu.xyz[0].disp.pos += *(s16*)&edt->hx;
-        }
-
-        ewk->wu.xyz[1].disp.pos += *(s16*)&edt->hy;
+        edt = eff02_place_from_table(ewk, tad);
     } else {
         ewk->wu.xyz[0].disp.pos += ewk->wu.old_pos[0];
         ewk->wu.xyz[1].disp.pos += ewk->wu.old_pos[1];
@@ -205,100 +239,107 @@ static void position_and_animate_hit_mark(WORK_Other* ewk, const HMDT* tad) {
     if (tad->status & 0x10) {
         set_char_move_init(&ewk->wu, 0, edt->chix);
     } else {
-        ewk->wu.dir_old = 0;
-
-        if (tad->dir) {
-            ewk->wu.dir_old = hit_mark_dir_table[ewk->wu.direction];
-
-            if (ewk->wu.dir_old < 0) {
-                ewk->wu.rl_flag = 1;
-                ewk->wu.dir_old = -ewk->wu.dir_old;
-            }
-        }
-
-        set_char_move_init(&ewk->wu, 0, tad->hits + ewk->wu.dir_old);
+        eff02_aim_mark(ewk, tad);
     }
 }
 
-void effect_02_move(WORK_Other* ewk) {
+static void eff02_finish_without_mark(WORK_Other* ewk, const HMDT* tad) {
+    eff02_play_hit_se(ewk, tad);
+
+    if (tad->quake != 0) {
+        bg_w.quake_y_index = gqdt[tad->quake][1];
+        pp_screen_quake(bg_w.quake_y_index);
+    }
+
+    push_effect_work(&ewk->wu);
+}
+
+static void eff02_widen_mark(WORK_Other* ewk) {
+    ewk->wu.my_mr_flag = 1;
+    ewk->wu.my_mr.size.x = 127;
+    ewk->wu.my_mr.size.y = 63;
+    ewk->wu.my_col_code |= (ewk->master_id == 1) * 16;
+}
+
+static void eff02_spawn(WORK_Other* ewk) {
     const HMDT* tad;
 
+    ewk->wu.routine_no[0]++;
+    ewk->wu.char_table[0] = _ef01_char_table;
+    tad = &hmdt[ewk->wu.kohm];
+
+    if (ewk->wu.vital_old == 2) {
+        ewk->wu.kohm = tad->deff;
+
+        if (ewk->wu.dm_vital != 0) {
+            ewk->wu.kohm = tad->kezu;
+        }
+    }
+
+    tad = &hmdt[ewk->wu.kohm];
+
+    if (tad->hits == 0) {
+        eff02_finish_without_mark(ewk, tad);
+        return;
+    }
+
+    setup_hit_mark_properties(ewk, tad);
+    position_and_animate_hit_mark(ewk, tad);
+
+    if (ewk->wu.char_index == 0x4B) {
+        eff02_widen_mark(ewk);
+    }
+
+    if (!Pause_Hit_Marks) {
+        sort_push_request8(&ewk->wu);
+    }
+}
+
+static s32 eff02_run_mark(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+
+    if (ewk->wu.cg_type == 0xFF) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0]++;
+        return 1;
+    }
+
+    if (ewk->wu.scr_mv_x && --ewk->wu.scr_mv_x == 0) {
+        bg_w.quake_y_index = ewk->wu.scr_mv_y;
+        pp_screen_quake(bg_w.quake_y_index);
+    }
+
+    return 0;
+}
+
+static void eff02_animate(WORK_Other* ewk) {
+    if (ewk->wu.dead_f == 1 || Suicide[6] != 0) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0]++;
+        return;
+    }
+
+    if (Pause_Hit_Marks) {
+        return;
+    }
+
+    if (EXE_flag == 0 && Game_pause == 0) {
+        if (eff02_run_mark(ewk)) {
+            return;
+        }
+    }
+
+    sort_push_request8(&ewk->wu);
+}
+
+void effect_02_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.char_table[0] = _ef01_char_table;
-        tad = &hmdt[ewk->wu.kohm];
-
-        if (ewk->wu.vital_old == 2) {
-            ewk->wu.kohm = tad->deff;
-
-            if (ewk->wu.dm_vital != 0) {
-                ewk->wu.kohm = tad->kezu;
-            }
-        }
-
-        tad = &hmdt[ewk->wu.kohm];
-
-        if (tad->hits == 0) {
-            if (tad->se) {
-                urian_guard_se_check(ewk, (PLW*)ewk->wu.target_adrs, tad->se);
-            } else {
-                Last_Called_SE = 0;
-            }
-
-            if (tad->quake != 0) {
-                bg_w.quake_y_index = gqdt[tad->quake][1];
-                pp_screen_quake(bg_w.quake_y_index);
-            }
-
-            push_effect_work(&ewk->wu);
-            break;
-        }
-
-        setup_hit_mark_properties(ewk, tad);
-        position_and_animate_hit_mark(ewk, tad);
-
-        if (ewk->wu.char_index == 0x4B) {
-            ewk->wu.my_mr_flag = 1;
-            ewk->wu.my_mr.size.x = 127;
-            ewk->wu.my_mr.size.y = 63;
-            ewk->wu.my_col_code |= (ewk->master_id == 1) * 16;
-        }
-
-        if (!Pause_Hit_Marks) {
-            sort_push_request8(&ewk->wu);
-        }
-
+        eff02_spawn(ewk);
         break;
 
     case 1:
-        if (ewk->wu.dead_f == 1 || Suicide[6] != 0) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0]++;
-            break;
-        }
-
-        if (Pause_Hit_Marks) {
-            break;
-        }
-
-        if (EXE_flag == 0 && Game_pause == 0) {
-            char_move(&ewk->wu);
-
-            if (ewk->wu.cg_type == 0xFF) {
-                ewk->wu.disp_flag = 0;
-                ewk->wu.routine_no[0]++;
-                break;
-            }
-
-            if (ewk->wu.scr_mv_x && --ewk->wu.scr_mv_x == 0) {
-                bg_w.quake_y_index = ewk->wu.scr_mv_y;
-                pp_screen_quake(bg_w.quake_y_index);
-            }
-        }
-
-        sort_push_request8(&ewk->wu);
-
+        eff02_animate(ewk);
         break;
 
     case 2:
