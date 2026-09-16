@@ -771,6 +771,16 @@ void plcnt_die() { // 🟢
     }
 }
 
+/* The winner goes into its victory routine and the loser into its defeat one.
+ * Written out identically by settle_type_00000 and settle_type_40000. */
+static void set_victory_routines() {
+    plw[Winner_id].wu.routine_no[2] = 40;
+    plw[Winner_id].wu.routine_no[3] = 0;
+    plw[Loser_id].wu.routine_no[1] = 0;
+    plw[Loser_id].wu.routine_no[2] = 41;
+    plw[Loser_id].wu.routine_no[3] = 0;
+}
+
 void settle_type_00000() {
     switch (pcon_rno[2]) {
     case 0:
@@ -794,11 +804,7 @@ void settle_type_00000() {
         if (footwork_check(Winner_id)) {
             grade_set_round_result(Winner_id + 0);
             pcon_rno[2]++;
-            plw[Winner_id].wu.routine_no[2] = 40;
-            plw[Winner_id].wu.routine_no[3] = 0;
-            plw[Loser_id].wu.routine_no[1] = 0;
-            plw[Loser_id].wu.routine_no[2] = 41;
-            plw[Loser_id].wu.routine_no[3] = 0;
+            set_victory_routines();
             plw[0].wu.cg_type = plw[1].wu.cg_type = 0;
             plw[0].image_setup_flag = plw[1].image_setup_flag = 0;
             complete_victory_pause();
@@ -918,11 +924,7 @@ void settle_type_40000() {
     case 2:
         if (footwork_check(Winner_id)) {
             pcon_rno[2]++;
-            plw[Winner_id].wu.routine_no[2] = 40;
-            plw[Winner_id].wu.routine_no[3] = 0;
-            plw[Loser_id].wu.routine_no[1] = 0;
-            plw[Loser_id].wu.routine_no[2] = 41;
-            plw[Loser_id].wu.routine_no[3] = 0;
+            set_victory_routines();
             plw[Winner_id].wu.cg_type = 0;
             grade_set_round_result(Winner_id + 0);
             plw[0].image_setup_flag = plw[1].image_setup_flag = 0;
