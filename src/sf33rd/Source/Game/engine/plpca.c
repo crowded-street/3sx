@@ -133,11 +133,13 @@ void Catch_00000(PLW* /* unused */) { // 🟢
 }
 
 /// Start and process catch animation
-void Catch_01000(PLW* wk) { // 🟢
+/* Holding a catch: start the pattern, then run it. Catch_01000 and Catch_02000
+ * differ in one thing, which pattern index they start. */
+static void run_catch_hold(PLW* wk, s16 index) {
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
-        set_char_move_init_ca(wk, 2, wk->wu.char_index);
+        set_char_move_init_ca(wk, 2, index);
         break;
 
     case 1:
@@ -147,19 +149,13 @@ void Catch_01000(PLW* wk) { // 🟢
     }
 }
 
+void Catch_01000(PLW* wk) { // 🟢
+    run_catch_hold(wk, wk->wu.char_index);
+}
+
 /// Weight level version of `Catch_01000`
 void Catch_02000(PLW* wk) { // 🟢
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        set_char_move_init_ca(wk, 2, wk->wu.char_index + ((WORK*)wk->wu.hit_adrs)->weight_level);
-        break;
-
-    case 1:
-        char_move(&wk->wu);
-        catch_cg_type_check(wk);
-        break;
-    }
+    run_catch_hold(wk, wk->wu.char_index + ((WORK*)wk->wu.hit_adrs)->weight_level);
 }
 
 void Catch_03000(PLW* wk) { // 🟢
