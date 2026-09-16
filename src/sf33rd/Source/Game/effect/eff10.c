@@ -50,6 +50,22 @@ static s32 pause_input_is_blocked(void) {
 }
 
 
+/* Button-image rows 2 and 5 swap places on the second interface layout, so the
+ * image index needs shifting for those two rows only. */
+static s16 e10_row_correction(const WORK_Other* ewk) {
+    if (ewk->wu.type == 5 && Interface_Type[ewk->master_id] == 1) {
+        if (ewk->master_priority == 2) {
+            return 4;
+        }
+
+        if (ewk->master_priority == 5) {
+            return 2;
+        }
+    }
+
+    return 0;
+}
+
 void effect_10_move(WORK_Other* ewk) {
     s16 color;
     s16 correct_index;
@@ -64,22 +80,12 @@ void effect_10_move(WORK_Other* ewk) {
         return;
     }
 
-    correct_index = 0;
+    correct_index = e10_row_correction(ewk);
 
     if (ewk->master_priority != Menu_Cursor_Y[ewk->master_id]) {
         color = 9;
     } else {
         color = 5;
-    }
-
-    if (ewk->wu.type == 5 && Interface_Type[ewk->master_id] == 1) {
-        if (ewk->master_priority == 2) {
-            correct_index = 4;
-        }
-
-        if (ewk->master_priority == 5) {
-            correct_index = 2;
-        }
     }
 
     if (Contents_Check_Data[ewk->wu.type] == 1) {
