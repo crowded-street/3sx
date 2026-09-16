@@ -43,8 +43,21 @@ static s32 round_is_in_play(void) {
     return pcon_rno[0] == 2 && pcon_rno[1] == 0 && pcon_rno[2] == 2;
 }
 
+/* The bonus stage runs either before it has started at all, or whenever the
+ * game is neither paused nor in the test menu. */
+static s32 bonus_players_should_run() {
+    return ((pcon_rno[0] + pcon_rno[1]) == 0) || (!Game_pause && !EXE_flag);
+}
+
+/* Both players ask for their push-out the same way. */
+static void request_hit_push(PLW* wk) {
+    if (!wk->zuru_flag && !wk->zettai_muteki_flag) {
+        hit_push_request(&wk->wu);
+    }
+}
+
 s32 Player_control_bonus() {
-    if (((pcon_rno[0] + pcon_rno[1]) == 0) || (!Game_pause && !EXE_flag)) {
+    if (bonus_players_should_run()) {
         players_timer++;
         players_timer &= 0x7FFF;
         player_bonus_process[pcon_rno[0]]();
@@ -53,13 +66,8 @@ s32 Player_control_bonus() {
         set_quake(&plw[0]);
         set_quake(&plw[1]);
 
-        if (!plw[0].zuru_flag && !plw[0].zettai_muteki_flag) {
-            hit_push_request(&plw[0].wu);
-        }
-
-        if (!plw[1].zuru_flag && !plw[1].zettai_muteki_flag) {
-            hit_push_request(&plw[1].wu);
-        }
+        request_hit_push(&plw[0]);
+        request_hit_push(&plw[1]);
 
         add_next_position(plw);
         add_next_position(&plw[1]);
