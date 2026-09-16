@@ -136,17 +136,23 @@ s32 comm_djmp(WORK* wk, UNK11* ctc) {
     }
 }
 
-s32 comm_for(WORK* wk, UNK11* ctc) {
+/* comm_for and comm_for2 open the two nested script loops. They differ only in
+ * which loop record they write, cmlp or cml2. */
+static s32 begin_script_loop(WORK* wk, UNK11* ctc, UNK11* loop) {
     if (ctc->pat & 0x4000) {
-        wk->cmlp.code = wk->cmwk[ctc->pat & 0xF];
+        loop->code = wk->cmwk[ctc->pat & 0xF];
     } else {
-        wk->cmlp.code = ctc->pat;
+        loop->code = ctc->pat;
     }
 
-    wk->cmlp.koc = wk->now_koc;
-    wk->cmlp.ix = wk->char_index;
-    wk->cmlp.pat = wk->cg_ix / wk->cgd_type + 2;
+    loop->koc = wk->now_koc;
+    loop->ix = wk->char_index;
+    loop->pat = wk->cg_ix / wk->cgd_type + 2;
     return 1;
+}
+
+s32 comm_for(WORK* wk, UNK11* ctc) {
+    return begin_script_loop(wk, ctc, &wk->cmlp);
 }
 
 s32 comm_nex(WORK* wk, UNK11* ctc) {
@@ -159,16 +165,7 @@ s32 comm_nex(WORK* wk, UNK11* ctc) {
 }
 
 s32 comm_for2(WORK* wk, UNK11* ctc) {
-    if (ctc->pat & 0x4000) {
-        wk->cml2.code = wk->cmwk[ctc->pat & 0xF];
-    } else {
-        wk->cml2.code = ctc->pat;
-    }
-
-    wk->cml2.koc = wk->now_koc;
-    wk->cml2.ix = wk->char_index;
-    wk->cml2.pat = (wk->cg_ix / wk->cgd_type) + 2;
-    return 1;
+    return begin_script_loop(wk, ctc, &wk->cml2);
 }
 
 s32 comm_nex2(WORK* wk, UNK11* ctc) {
