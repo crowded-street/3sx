@@ -316,6 +316,98 @@ static s32 grounded_dc_slot_is_blocked(PLW* wk) {
     return wk->cp->waza_flag[wk->sa->nmsa_g_ix] == -1;
 }
 
+/* The four button strengths of the grounded double-cancel slot, strongest
+ * first. Returns 1 when one of them fired, which is where
+ * check_super_arts_attack_dc returned 1.
+ *
+ * The airborne arm keeps its own copy: it indexes its table from 38 rather than
+ * 20 and reads a different slot field, so Recipe D cannot merge them and
+ * extracting from both would create a twin pair. */
+static s32 try_grounded_dc_strengths(PLW* wk, u16 cusw) {
+    s16 j;
+    u16 exsw;
+
+    for (j = 3; j >= 0; j--) {
+        if (should_skip_dc_slot(wk, wk->sa->nmsa_g_ix, j)) {
+            continue;
+        }
+
+        exsw = cusw & cmdshot_conv_tbl[wk->cp->exdt[wk->sa->nmsa_g_ix][j]];
+
+        if (exsw == cmdshot_conv_tbl[wk->cp->exdt[wk->sa->nmsa_g_ix][j] & 0xF]) {
+            setup_comm_back(&wk->wu);
+
+            if (ArcadeBalance_IsEnabled()) {
+                wk->as = &asstbl_lv_9900_g_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)]
+                                                 [j + (wk->sa->nmsa_g_ix - 20) * 4];
+            } else {
+                wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(wk->sa->nmsa_g_ix)]
+                                         [j + (wk->sa->nmsa_g_ix - 20) * 4];
+                wk->sa->ex4th_exec = (j == 3) * wk->sa->ex4th_full;
+            }
+
+            wk->wu.cg_cancel = 0;
+            wk->sa->ok = -1;
+            hissatsu_setup_union(wk, wk->cp->waza_r[wk->sa->nmsa_g_ix][j]);
+            waza_compel_all_init2(wk);
+
+            if (!ArcadeBalance_IsEnabled()) {
+                chainex_check[wk->wu.id][wk->sa->nmsa_g_ix - 20] = 1;
+                chainex_spat_cancel_kidou(&wk->wu);
+            }
+
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+/* The airborne mirror of try_grounded_dc_strengths. Kept separate: it reads
+ * nmsa_a_ix and indexes its table from 38, which is two differences, so Recipe D
+ * cannot merge the pair. Extracting both was measured against extracting one -
+ * see the commit - and both won here because it brought the parent under the
+ * threshold. */
+static s32 try_airborne_dc_strengths(PLW* wk, u16 cusw) {
+    s16 j;
+    u16 exsw;
+
+    for (j = 3; j >= 0; j--) {
+        if (should_skip_dc_slot(wk, wk->sa->nmsa_a_ix, j)) {
+            continue;
+        }
+
+        exsw = cusw & cmdshot_conv_tbl[wk->cp->exdt[wk->sa->nmsa_a_ix][j]];
+
+        if (exsw == cmdshot_conv_tbl[wk->cp->exdt[wk->sa->nmsa_a_ix][j] & 0xF]) {
+            setup_comm_back(&wk->wu);
+
+            if (ArcadeBalance_IsEnabled()) {
+                wk->as = &asstbl_lv_9900_a_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)]
+                                                 [j + (wk->sa->nmsa_a_ix - 38) * 4];
+            } else {
+                wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(wk->sa->nmsa_a_ix)]
+                                         [j + (wk->sa->nmsa_a_ix - 38) * 4];
+                wk->sa->ex4th_exec = (j == 3) * wk->sa->ex4th_full;
+            }
+
+            wk->wu.cg_cancel = 0;
+            wk->sa->ok = -1;
+            hissatsu_setup_union(wk, wk->cp->waza_r[wk->sa->nmsa_a_ix][j]);
+            waza_compel_all_init2(wk);
+
+            if (!ArcadeBalance_IsEnabled()) {
+                chainex_check[wk->wu.id][wk->sa->nmsa_a_ix - 20] = 1;
+                chainex_spat_cancel_kidou(&wk->wu);
+            }
+
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 s32 check_super_arts_attack_dc(PLW* wk) { // 🟡
     s16 j;
     u16 cusw;
@@ -344,37 +436,8 @@ s32 check_super_arts_attack_dc(PLW* wk) { // 🟡
         if (((wk->cp->btix[wk->sa->nmsa_g_ix] & 0xFF) != 0x80) && wk->cp->waza_flag[wk->sa->nmsa_g_ix]) {
             cusw = conpane[wk->cp->btix[wk->sa->nmsa_g_ix] & 0xFF];
 
-            for (j = 3; j >= 0; j--) {
-                if (should_skip_dc_slot(wk, wk->sa->nmsa_g_ix, j)) {
-                    continue;
-                }
-
-                exsw = cusw & cmdshot_conv_tbl[wk->cp->exdt[wk->sa->nmsa_g_ix][j]];
-
-                if (exsw == cmdshot_conv_tbl[wk->cp->exdt[wk->sa->nmsa_g_ix][j] & 0xF]) {
-                    setup_comm_back(&wk->wu);
-
-                    if (ArcadeBalance_IsEnabled()) {
-                        wk->as = &asstbl_lv_9900_g_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)]
-                                                         [j + (wk->sa->nmsa_g_ix - 20) * 4];
-                    } else {
-                        wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(wk->sa->nmsa_g_ix)]
-                                                 [j + (wk->sa->nmsa_g_ix - 20) * 4];
-                        wk->sa->ex4th_exec = (j == 3) * wk->sa->ex4th_full;
-                    }
-
-                    wk->wu.cg_cancel = 0;
-                    wk->sa->ok = -1;
-                    hissatsu_setup_union(wk, wk->cp->waza_r[wk->sa->nmsa_g_ix][j]);
-                    waza_compel_all_init2(wk);
-
-                    if (!ArcadeBalance_IsEnabled()) {
-                        chainex_check[wk->wu.id][wk->sa->nmsa_g_ix - 20] = 1;
-                        chainex_spat_cancel_kidou(&wk->wu);
-                    }
-
-                    return 1;
-                }
+            if (try_grounded_dc_strengths(wk, cusw)) {
+                return 1;
             }
         }
 
@@ -409,37 +472,8 @@ s32 check_super_arts_attack_dc(PLW* wk) { // 🟡
         if (((wk->cp->btix[wk->sa->nmsa_a_ix] & 0xFF) != 0x80) && (wk->cp->waza_flag[wk->sa->nmsa_a_ix])) {
             cusw = conpane[wk->cp->btix[wk->sa->nmsa_a_ix] & 0xFF];
 
-            for (j = 3; j >= 0; j--) {
-                if (should_skip_dc_slot(wk, wk->sa->nmsa_a_ix, j)) {
-                    continue;
-                }
-
-                exsw = cusw & cmdshot_conv_tbl[wk->cp->exdt[wk->sa->nmsa_a_ix][j]];
-
-                if (exsw == cmdshot_conv_tbl[wk->cp->exdt[wk->sa->nmsa_a_ix][j] & 0xF]) {
-                    setup_comm_back(&wk->wu);
-
-                    if (ArcadeBalance_IsEnabled()) {
-                        wk->as = &asstbl_lv_9900_a_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)]
-                                                         [j + (wk->sa->nmsa_a_ix - 38) * 4];
-                    } else {
-                        wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(wk->sa->nmsa_a_ix)]
-                                                 [j + (wk->sa->nmsa_a_ix - 38) * 4];
-                        wk->sa->ex4th_exec = (j == 3) * wk->sa->ex4th_full;
-                    }
-
-                    wk->wu.cg_cancel = 0;
-                    wk->sa->ok = -1;
-                    hissatsu_setup_union(wk, wk->cp->waza_r[wk->sa->nmsa_a_ix][j]);
-                    waza_compel_all_init2(wk);
-
-                    if (!ArcadeBalance_IsEnabled()) {
-                        chainex_check[wk->wu.id][wk->sa->nmsa_a_ix - 20] = 1;
-                        chainex_spat_cancel_kidou(&wk->wu);
-                    }
-
-                    return 1;
-                }
+            if (try_airborne_dc_strengths(wk, cusw)) {
+                return 1;
             }
         }
 

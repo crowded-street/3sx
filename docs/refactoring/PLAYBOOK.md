@@ -673,9 +673,27 @@ gate chains differ only in a DIP constant and `>` against `<`:
 | gate chain extracted from **both** arms | 5.29 |
 | gate chain extracted from the **grounded arm only** | **5.46** |
 
-The asymmetry looks wrong and reads slightly odd in the source, so say in the commit
-message that the other arm was left inline deliberately and why. The alternative - a
-symmetric pair of near-identical predicates - is worse by every measure the tool reports.
+**Unless extracting both brings the parent under the threshold.** That is the deciding
+question, and it is worth checking before settling for one arm. Measured on the same
+file's `check_super_arts_attack_dc`, cc 29 with a strength loop in each arm:
+
+| What was done | Score |
+| --- | --- |
+| baseline | 5.67 |
+| loop extracted from the **grounded arm only** | 5.71 |
+| loop extracted from **both** arms | **5.87** |
+
+Here both wins, because with both loops gone the parent drops from cc 29 to under 9 and
+loses its Complex Method *and* Large Method findings - more than the new twin pair costs.
+In the gate-chain case above, extracting both left the parent flagged anyway, so the twin
+penalty was all that changed.
+
+So the rule is not "always one arm". It is: **extract both only if that clears the
+parent's findings; otherwise extract one.** Same arithmetic as *Do not extract an arm that
+is still too big*, applied to the parent rather than the piece.
+
+Where one arm is the answer, the asymmetry reads slightly odd, so say in the commit message
+that the other arm was left inline deliberately and why.
 
 This is the same force behind *Two mirrored arms are cheaper left together* below; the
 difference is that here one arm can still be improved for free.
