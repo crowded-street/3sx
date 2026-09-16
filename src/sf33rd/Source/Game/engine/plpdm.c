@@ -638,15 +638,12 @@ void subtract_dm_vital_aiuchi(PLW* wk) {
     wk->wu.dm_piyo = 0;
 }
 
-void get_damage_reaction_data(PLW* wk) {
-    if (wk->atemi_flag == 2) {
-        wk->wu.dm_vital = 0;
-        damage_atemi_setup(wk, (PLW*)wk->wu.dmg_adrs);
-        return;
-    }
-
-    subtract_dm_vital(wk);
-
+/* Reaction 88 is "decide the knockdown type": first from the attack, then
+ * overridden to 91 if the victim is dizzy or if air knockdowns are not disabled.
+ * Each test re-reads routine_no[2], so an earlier override stops the later ones
+ * firing - that sequencing is the original's and is why they stay three
+ * separate tests. */
+static void resolve_knockdown_reaction(PLW* wk) {
     if (wk->wu.routine_no[2] == 88) {
         wk->wu.routine_no[2] = check_buttobi_type(wk);
     }
@@ -658,6 +655,31 @@ void get_damage_reaction_data(PLW* wk) {
     if (!(((PLW*)wk->wu.target_adrs)->spmv_ng_flag & DIP_AIR_KNOCKDOWNS_DISABLED) && wk->wu.routine_no[2] == 88) {
         wk->wu.routine_no[2] = 91;
     }
+}
+
+/* Count the damage stop one frame toward zero, from whichever side it is on. */
+static void ease_damage_stop_toward_zero(PLW* wk) {
+    if (wk->wu.dm_stop) {
+        if (wk->wu.dm_stop > 0) {
+            wk->wu.dm_stop--;
+        }
+
+        if (wk->wu.dm_stop < 0) {
+            wk->wu.dm_stop++;
+        }
+    }
+}
+
+void get_damage_reaction_data(PLW* wk) {
+    if (wk->atemi_flag == 2) {
+        wk->wu.dm_vital = 0;
+        damage_atemi_setup(wk, (PLW*)wk->wu.dmg_adrs);
+        return;
+    }
+
+    subtract_dm_vital(wk);
+
+    resolve_knockdown_reaction(wk);
 
     if (wk->dead_flag) {
         wk->wu.routine_no[2] = dd_convert[wk->wu.routine_no[2]][wk->wu.dm_attlv];
@@ -678,15 +700,7 @@ void get_damage_reaction_data(PLW* wk) {
     wk->as = &dm_reaction_table[wk->wu.routine_no[2]];
     wk->wu.routine_no[2] = wk->as->r_no;
 
-    if (wk->wu.dm_stop) {
-        if (wk->wu.dm_stop > 0) {
-            wk->wu.dm_stop--;
-        }
-
-        if (wk->wu.dm_stop < 0) {
-            wk->wu.dm_stop++;
-        }
-    }
+    ease_damage_stop_toward_zero(wk);
 }
 
 void damage_atemi_setup(PLW* wk, PLW* ek) {
