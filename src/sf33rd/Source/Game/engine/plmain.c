@@ -1321,6 +1321,52 @@ static void drain_vitality(PLW* wk) {
     }
 }
 
+/* One point of health back, up to the bar's length. */
+static void gain_one_vitality(PLW* wk) {
+    wk->wu.vital_new++;
+
+    if (wk->wu.vital_new > 160) {
+        wk->wu.vital_new = 160;
+    }
+}
+
+/* Mode 2 only regains while the player is idle, and only on the frames the
+ * regain timer allows. */
+static s32 idle_regain_is_blocked(PLW* wk) {
+    if (vital_inc_timer) {
+        return 1;
+    }
+
+    if (wk->wu.routine_no[1] != 0) {
+        return 1;
+    }
+
+    if (!(plpnm_mvkind[wk->wu.routine_no[2]] & 2)) {
+        return 1;
+    }
+
+    return 0;
+}
+
+/* Mode 3 stops regaining while the player is in one of the plpxx states, and
+ * for a while after leaving one. */
+static s32 timed_regain_is_blocked(PLW* wk) {
+    if (plpxx_kind[wk->wu.routine_no[1]]) {
+        return 1;
+    }
+
+    if (plpxx_kind[wk->wu.old_rno[1]]) {
+        wk->omop_vital_timer = 40;
+    }
+
+    if (wk->omop_vital_timer) {
+        wk->omop_vital_timer--;
+        return 1;
+    }
+
+    return 0;
+}
+
 void check_omop_vital(PLW* wk) { // 🔴
     if (pcon_dp_flag) {
         return;
@@ -1345,50 +1391,22 @@ void check_omop_vital(PLW* wk) { // 🔴
         break;
 
     case 2:
-        if (vital_inc_timer) {
+        if (idle_regain_is_blocked(wk)) {
             break;
         }
 
-        if (wk->wu.routine_no[1] != 0) {
-            break;
-        }
-
-        if (!(plpnm_mvkind[wk->wu.routine_no[2]] & 2)) {
-            break;
-        }
-
-        wk->wu.vital_new++;
-
-        if (wk->wu.vital_new > 160) {
-            wk->wu.vital_new = 160;
-            break;
-        }
-
+        gain_one_vitality(wk);
         break;
 
     case 3:
-        if (plpxx_kind[wk->wu.routine_no[1]]) {
-            break;
-        }
-
-        if (plpxx_kind[wk->wu.old_rno[1]]) {
-            wk->omop_vital_timer = 40;
-        }
-
-        if (wk->omop_vital_timer) {
-            wk->omop_vital_timer--;
+        if (timed_regain_is_blocked(wk)) {
             break;
         }
 
         /* fallthrough */
 
     case 4:
-        wk->wu.vital_new++;
-
-        if (wk->wu.vital_new > 160) {
-            wk->wu.vital_new = 160;
-        }
-
+        gain_one_vitality(wk);
         break;
     }
 }
