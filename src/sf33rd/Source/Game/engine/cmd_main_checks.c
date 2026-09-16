@@ -191,6 +191,27 @@ void check_2() { // 🟢
     }
 }
 
+/* The window for a repeated button press closing. Runs the countdown only while
+ * a press has been counted, exactly as the original did, and returns 1 on the
+ * frame the window actually closed.
+ *
+ * check_7 and check_3 shared everything here except one trailing statement, so
+ * that statement stays at check_7's call site rather than being parameterised -
+ * and it still runs after the two assignments above it, as it did before. */
+static s32 expire_shot_window(void) {
+    if (waza_ptr->shot_ok) {
+        waza_ptr->free2--;
+
+        if (waza_ptr->free2 < 0) {
+            waza_ptr->shot_ok = 0;
+            waza_ptr->free2 = waza_ptr->free1;
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 void check_3() { // 🟢
     s16 i;
     s16 w_flag;
@@ -216,14 +237,7 @@ void check_3() { // 🟢
         w_flag <<= 1;
     }
 
-    if (waza_ptr->shot_ok) {
-        waza_ptr->free2--;
-
-        if (waza_ptr->free2 < 0) {
-            waza_ptr->shot_ok = 0;
-            waza_ptr->free2 = waza_ptr->free1;
-        }
-    }
+    expire_shot_window();
 
     if (waza_ptr->shot_ok >= waza_ptr->w_lvr) {
         waza_ptr->shot_ok = 0;
@@ -365,20 +379,6 @@ void check_6() { // 🟢
     }
 }
 
-/* check_7's window for a repeated button press closing. Runs the countdown only
- * while a press has been counted, exactly as the original did. */
-static void expire_shot_window(void) {
-    if (waza_ptr->shot_ok) {
-        waza_ptr->free2--;
-
-        if (waza_ptr->free2 < 0) {
-            waza_ptr->shot_ok = 0;
-            waza_ptr->free2 = waza_ptr->free1;
-            waza_ptr->uni0.tame.shot_flag = 0;
-        }
-    }
-}
-
 void check_7() { // 🟢
     s16 i;
     s16 w_flag;
@@ -413,7 +413,9 @@ void check_7() { // 🟢
         w_flag *= 2;
     }
 
-    expire_shot_window();
+    if (expire_shot_window()) {
+        waza_ptr->uni0.tame.shot_flag = 0;
+    }
 
     if (waza_ptr->shot_ok >= waza_ptr->w_lvr) {
         waza_ptr->shot_ok = 0;
