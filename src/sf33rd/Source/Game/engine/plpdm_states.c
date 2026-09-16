@@ -685,10 +685,32 @@ void Damage_24000(PLW* wk) {
     }
 }
 
-void Damage_25000(PLW* wk) {
+/* Mashing shortens the stun: the lever-and-button count both takes time off
+ * the timer and advances the animation by several frames at once. */
+static void shake_off_kizetsu(PLW* wk) {
     s16 i;
     s16 hok;
 
+    if ((pcon_dp_flag != 0) && (wk->py->time > 48)) {
+        wk->py->time = 48;
+    }
+
+    wk->py->time -= wk->cp->lgp / 2;
+
+    if (wk->cp->lgp > 13) {
+        hok = 5;
+    } else {
+        hok = hok_table[wk->cp->lgp / 2];
+    }
+
+    for (i = 0; i < hok; i++) {
+        char_move(&wk->wu);
+    }
+
+    setup_kuzureochi(wk);
+}
+
+void Damage_25000(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -703,23 +725,7 @@ void Damage_25000(PLW* wk) {
         break;
 
     case 1:
-        if ((pcon_dp_flag != 0) && (wk->py->time > 48)) {
-            wk->py->time = 48;
-        }
-
-        wk->py->time -= wk->cp->lgp / 2;
-
-        if (wk->cp->lgp > 13) {
-            hok = 5;
-        } else {
-            hok = hok_table[wk->cp->lgp / 2];
-        }
-
-        for (i = 0; i < hok; i++) {
-            char_move(&wk->wu);
-        }
-
-        setup_kuzureochi(wk);
+        shake_off_kizetsu(wk);
         break;
     }
 
