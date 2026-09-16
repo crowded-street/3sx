@@ -21,9 +21,54 @@ static bool Is_Training_Hitbox_Display_Active() {
     return Mode_Type == MODE_NORMAL_TRAINING && Is_Training_Hitbox_Display_Enabled();
 }
 
-void effect_00_move(WORK_Other_JUDGE* ewk) {
+static void eff00_set_disp_bit(WORK_Other_JUDGE* ewk, u16 dip) {
+    dip = (dip >> 8) & 0xF;
+    ewk->ja_disp_bit = jdb[dip];
+    // ewk->curr_ja = Debug_w[17];
+    ewk->curr_ja = 0;
+}
+
+static void eff00_draw_boxes(WORK_Other_JUDGE* ewk) {
     u16 dip;
 
+    if (ewk->wu.dead_f == 1) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0] = 2;
+        return;
+    }
+
+    if (((WORK*)ewk->my_master)->waku_work_index != ewk->wu.myself) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0] = 2;
+        return;
+    }
+
+    dip = get_dip_modoki(ewk->wu.type);
+    ewk->ja_disp_bit = 0;
+
+    if (ewk->master_work_id != 1) {
+        switch (dip & 0x2000) {
+        default:
+            eff00_set_disp_bit(ewk, dip);
+            break;
+
+        case 0:
+            break;
+        }
+    } else if (dip & 0x1000) {
+        eff00_set_disp_bit(ewk, dip);
+    }
+
+    renewal_table_address(ewk, (WORK*)ewk->my_master);
+
+    if (ewk->wu.type) {
+        renewal_table_data(ewk);
+    }
+
+    sort_push_request2((WORK_Other*)ewk);
+}
+
+void effect_00_move(WORK_Other_JUDGE* ewk) {
     ewk->fade_cja += 2;
     ewk->fade_cja &= 0xFF;
 
@@ -38,46 +83,8 @@ void effect_00_move(WORK_Other_JUDGE* ewk) {
         break;
 
     case 1:
-        if (ewk->wu.dead_f == 1) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0] = 2;
-            break;
-        }
-
-        if (((WORK*)ewk->my_master)->waku_work_index != ewk->wu.myself) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0] = 2;
-            break;
-        }
-
-        dip = get_dip_modoki(ewk->wu.type);
-        ewk->ja_disp_bit = 0;
-
-        if (ewk->master_work_id != 1) {
-            switch (dip & 0x2000) {
-            default:
-                goto jump;
-
-            case 0:
-                break;
-            }
-        } else if (dip & 0x1000) {
-        jump:
-            dip = (dip >> 8) & 0xF;
-            ewk->ja_disp_bit = jdb[dip];
-            // ewk->curr_ja = Debug_w[17];
-            ewk->curr_ja = 0;
-        }
-
-        renewal_table_address(ewk, (WORK*)ewk->my_master);
-
-        if (ewk->wu.type) {
-            renewal_table_data(ewk);
-        }
-
-        sort_push_request2((WORK_Other*)ewk);
+        eff00_draw_boxes(ewk);
         break;
-
     default:
     case 2:
         push_effect_work(&ewk->wu);
