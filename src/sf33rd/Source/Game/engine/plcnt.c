@@ -838,6 +838,25 @@ void settle_type_10000() {
     }
 }
 
+/* A timeout: equal health is a draw and goes to its own state, otherwise both
+ * sides go into their end-of-round routines. */
+static void settle_timeout_result() {
+    complete_victory_pause();
+
+    if (plw[0].wu.vital_new == plw[1].wu.vital_new) {
+        pcon_rno[2] = 4;
+        return;
+    }
+
+    grade_set_round_result(Winner_id + 0);
+    plw[Winner_id].wu.routine_no[2] = 40;
+    plw[Loser_id].wu.routine_no[2] = 41;
+    plw[0].wu.routine_no[1] = plw[1].wu.routine_no[1] = 0;
+    plw[0].wu.routine_no[3] = plw[1].wu.routine_no[3] = 0;
+    plw[0].wu.cg_type = plw[1].wu.cg_type = 0;
+    pcon_rno[2]++;
+}
+
 void settle_type_20000() {
     switch (pcon_rno[2]) {
     case 0:
@@ -854,20 +873,7 @@ void settle_type_20000() {
         break;
 
     case 2:
-        complete_victory_pause();
-
-        if (plw[0].wu.vital_new == plw[1].wu.vital_new) {
-            pcon_rno[2] = 4;
-            return;
-        }
-
-        grade_set_round_result(Winner_id + 0);
-        plw[Winner_id].wu.routine_no[2] = 40;
-        plw[Loser_id].wu.routine_no[2] = 41;
-        plw[0].wu.routine_no[1] = plw[1].wu.routine_no[1] = 0;
-        plw[0].wu.routine_no[3] = plw[1].wu.routine_no[3] = 0;
-        plw[0].wu.cg_type = plw[1].wu.cg_type = 0;
-        pcon_rno[2]++;
+        settle_timeout_result();
         break;
 
     case 3:
