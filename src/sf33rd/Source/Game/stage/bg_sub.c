@@ -23,43 +23,8 @@ void (*scr_x_mv_jp[35])() = { scr_10_20,   scr_10_21,   scr_10_22,   scr_x_dummy
 static s16 remake_x_mvstep(s16 mvstep);
 static s32 suzi_offset_set_sub(WORK_Other* ewk);
 
-void check_cg_zoom() {
-    s16 i;
-    s16 zoom_wk;
-    u16 p1zoom;
-    u16 p2zoom;
-    u16 zmlv;
-    u16 lookp1;
-    u16 lookp2;
-
-    p1zoom = plw[0].wu.cg_zoom;
-    p2zoom = plw[1].wu.cg_zoom;
-
-    if (bg_stop != 0 && !((p1zoom | p2zoom) & 0x4000)) {
-        zmlv = p1zoom & 0xFF;
-
-        if (zmlv < (p2zoom & 0xFF)) {
-            zmlv = p2zoom & 0xFF;
-        }
-
-        lookp1 = p1zoom >> 8 & 3;
-        lookp2 = p2zoom >> 8 & 3;
-        p1zoom = zmlv | (lookp2 << 12 | lookp1 << 8);
-        p2zoom = zmlv | (lookp1 << 12 | lookp2 << 8);
-    }
-
-    zoom_req_flag_old = zoom_request_flag;
-    zoom_request_flag = 0;
-
-    for (i = 0; i < 2; i++) {
-        if (plw[i].scr_pos_set_flag) {
-            plw[i].wu.scr_mv_x = plw[i].wu.xyz[0].disp.pos;
-            plw[i].wu.scr_mv_y = plw[i].wu.xyz[1].disp.pos;
-        } else if (plw[i].tsukamare_f) {
-            plw[i].wu.scr_mv_x = plw[(i + 1) & 1].wu.xyz[0].disp.pos;
-            plw[i].wu.scr_mv_y = plw[(i + 1) & 1].wu.xyz[1].disp.pos;
-        }
-    }
+static void select_horizontal_zoom_request(u16 p1zoom, u16 p2zoom) {
+    u16 zoom_wk;
 
     zoom_wk = p2zoom & 0xE200;
 
@@ -149,6 +114,10 @@ void check_cg_zoom() {
         }
         break;
     }
+}
+
+static void select_vertical_zoom_request(u16 p1zoom, u16 p2zoom) {
+    u16 zoom_wk;
 
     zoom_wk = p2zoom & 0xD100;
 
@@ -252,6 +221,47 @@ void check_cg_zoom() {
         }
         break;
     }
+}
+
+void check_cg_zoom() {
+    s16 i;
+    u16 p1zoom;
+    u16 p2zoom;
+    u16 zmlv;
+    u16 lookp1;
+    u16 lookp2;
+
+    p1zoom = plw[0].wu.cg_zoom;
+    p2zoom = plw[1].wu.cg_zoom;
+
+    if (bg_stop != 0 && !((p1zoom | p2zoom) & 0x4000)) {
+        zmlv = p1zoom & 0xFF;
+
+        if (zmlv < (p2zoom & 0xFF)) {
+            zmlv = p2zoom & 0xFF;
+        }
+
+        lookp1 = p1zoom >> 8 & 3;
+        lookp2 = p2zoom >> 8 & 3;
+        p1zoom = zmlv | (lookp2 << 12 | lookp1 << 8);
+        p2zoom = zmlv | (lookp1 << 12 | lookp2 << 8);
+    }
+
+    zoom_req_flag_old = zoom_request_flag;
+    zoom_request_flag = 0;
+
+    for (i = 0; i < 2; i++) {
+        if (plw[i].scr_pos_set_flag) {
+            plw[i].wu.scr_mv_x = plw[i].wu.xyz[0].disp.pos;
+            plw[i].wu.scr_mv_y = plw[i].wu.xyz[1].disp.pos;
+        } else if (plw[i].tsukamare_f) {
+            plw[i].wu.scr_mv_x = plw[(i + 1) & 1].wu.xyz[0].disp.pos;
+            plw[i].wu.scr_mv_y = plw[(i + 1) & 1].wu.xyz[1].disp.pos;
+        }
+    }
+
+    select_horizontal_zoom_request(p1zoom, p2zoom);
+    select_vertical_zoom_request(p1zoom, p2zoom);
 
     zoom_request_level = p1zoom & 0xFF;
 
