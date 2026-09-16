@@ -193,11 +193,51 @@ static s32 airborne_slot_is_skipped(const PLW* wk, s16 i) {
            ((wk->cp->btix[i] & 0x2000) && (wk->wu.mvxy.a[0].sp < 0));
 }
 
+/* The four button strengths of one airborne special slot, strongest first.
+ * Returns 1 when one of them fired, which is where check_special_attack_airborne
+ * returned 1; returning 0 is where it carried on to the next slot.
+ *
+ * check_special_attack_grounded keeps its own copy of this loop. The two differ
+ * in which DIP switch they read and in both table offsets, so sharing would mean
+ * changing literals, and extracting from both would only create a twin pair. */
+static s32 try_airborne_special_strengths(PLW* wk, s16 i, u16 cusw) {
+    s16 j;
+    u16 exsw;
+
+    for (j = 3; j >= 0; j--) {
+        exsw = cusw & cmdshot_conv_tbl[wk->cp->exdt[i][j]];
+
+        if (exsw != cmdshot_conv_tbl[wk->cp->exdt[i][j] & 0xF]) {
+            continue;
+        }
+
+        if (j == 3) {
+            if (!ex_slot_is_allowed(wk, i, DIP_AIR_SPECIALS_DISABLED)) {
+                continue;
+            }
+        } else if (wk->spmv_ng_flag & DIP_AIR_SPECIALS_DISABLED) {
+            continue;
+        }
+
+        setup_comm_back(&wk->wu);
+
+        if (ArcadeBalance_IsEnabled()) {
+            wk->as = &asstbl_lv_9900_a_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][j + (i - 38) * 4];
+        } else {
+            wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(i)][j + (i - 46) * 4];
+        }
+
+        commit_special_attack(wk, i, j);
+
+        return 1;
+    }
+
+    return 0;
+}
+
 static s32 check_special_attack_airborne(PLW* wk) {
     s16 i;
-    s16 j;
     u16 cusw;
-    u16 exsw;
     u16* conpane;
 
     if ((wk->wu.mvxy.a[1].sp > 0) && (wk->wu.xyz[1].disp.pos < 32)) {
@@ -226,31 +266,7 @@ static s32 check_special_attack_airborne(PLW* wk) {
 
             cusw = conpane[wk->cp->btix[i] & 0xFF];
 
-            for (j = 3; j >= 0; j--) {
-                exsw = cusw & cmdshot_conv_tbl[wk->cp->exdt[i][j]];
-
-                if (exsw != cmdshot_conv_tbl[wk->cp->exdt[i][j] & 0xF]) {
-                    continue;
-                }
-
-                if (j == 3) {
-                    if (!ex_slot_is_allowed(wk, i, DIP_AIR_SPECIALS_DISABLED)) {
-                        continue;
-                    }
-                } else if (wk->spmv_ng_flag & DIP_AIR_SPECIALS_DISABLED) {
-                    continue;
-                }
-
-                setup_comm_back(&wk->wu);
-
-                if (ArcadeBalance_IsEnabled()) {
-                    wk->as = &asstbl_lv_9900_a_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][j + (i - 38) * 4];
-                } else {
-                    wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(i)][j + (i - 46) * 4];
-                }
-
-                commit_special_attack(wk, i, j);
-
+            if (try_airborne_special_strengths(wk, i, cusw)) {
                 return 1;
             }
         } else if (wk->cp->waza_flag[i]) {
