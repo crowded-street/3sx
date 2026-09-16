@@ -27,78 +27,92 @@ static s32 effect_is_blocked_by_stage(void) {
 }
 
 
-void effect_34_move(WORK_Other* ewk) {
+static void eff34_spawn(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.disp_flag = 1;
+    ewk->wu.kage_flag = 1;
+    ewk->wu.kage_hx = 0;
+    ewk->wu.kage_hy = -10;
+    ewk->wu.kage_prio = 71;
+    ewk->wu.kage_char = 16;
+    set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+    ewk->wu.old_rno[0] = 60;
+    cal_initial_speed(&ewk->wu, ewk->wu.old_rno[0], ewk->wu.old_rno[1], ewk->wu.xyz[1].disp.pos);
+}
+
+static void eff34_fly(WORK_Other* ewk) {
     WORK* oya_ptr = (WORK*)ewk->my_master;
 
+    if (effect_is_blocked_by_stage()) {
+        suzi_sync_pos_set(ewk);
+        sort_push_request(&ewk->wu);
+        return;
+    }
+
+    char_move(&ewk->wu);
+    suzi_sync_pos_set(ewk);
+    sort_push_request(&ewk->wu);
+
+    if (ewk->wu.cg_type == 1) {
+        ewk->wu.routine_no[0]++;
+        ewk->wu.cg_type = 0;
+        oya_ptr->cmwk[1] = 9;
+    }
+}
+
+static void eff34_land(WORK_Other* ewk) {
+if (game_is_inactive()) {
+        suzi_sync_pos_set(ewk);
+        sort_push_request(&ewk->wu);
+        return;
+    }
+
+    char_move(&ewk->wu);
+    suzi_sync_pos_set(ewk);
+    sort_push_request(&ewk->wu);
+
+    if (ewk->wu.cg_type == 0xFF) {
+        ewk->wu.routine_no[0]++;
+        ewk->wu.rl_flag = ewk->wu.rl_flag ? 0 : 1;
+        set_char_move_init(&ewk->wu, 0, 0);
+    }
+}
+
+static void eff34_drift(WORK_Other* ewk) {
+    if (EXE_flag || Game_pause) {
+        suzi_sync_pos_set(ewk);
+        sort_push_request(&ewk->wu);
+        return;
+    }
+
+    if (ewk->wu.old_rno[0]--) {
+        char_move(&ewk->wu);
+        add_x_sub(&ewk->wu);
+        suzi_sync_pos_set(ewk);
+        sort_push_request(&ewk->wu);
+        return;
+    }
+
+    ewk->wu.routine_no[0]++;
+    ewk->wu.disp_flag = 0;
+}
+
+void effect_34_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.kage_flag = 1;
-        ewk->wu.kage_hx = 0;
-        ewk->wu.kage_hy = -10;
-        ewk->wu.kage_prio = 71;
-        ewk->wu.kage_char = 16;
-        set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-        ewk->wu.old_rno[0] = 60;
-        cal_initial_speed(&ewk->wu, ewk->wu.old_rno[0], ewk->wu.old_rno[1], ewk->wu.xyz[1].disp.pos);
+        eff34_spawn(ewk);
         break;
 
     case 1:
-        if (effect_is_blocked_by_stage()) {
-            suzi_sync_pos_set(ewk);
-            sort_push_request(&ewk->wu);
-            break;
-        }
-
-        char_move(&ewk->wu);
-        suzi_sync_pos_set(ewk);
-        sort_push_request(&ewk->wu);
-
-        if (ewk->wu.cg_type == 1) {
-            ewk->wu.routine_no[0]++;
-            ewk->wu.cg_type = 0;
-            oya_ptr->cmwk[1] = 9;
-        }
-
+        eff34_fly(ewk);
         break;
 
     case 2:
-if (game_is_inactive()) {
-            suzi_sync_pos_set(ewk);
-            sort_push_request(&ewk->wu);
-            break;
-        }
-
-        char_move(&ewk->wu);
-        suzi_sync_pos_set(ewk);
-        sort_push_request(&ewk->wu);
-
-        if (ewk->wu.cg_type == 0xFF) {
-            ewk->wu.routine_no[0]++;
-            ewk->wu.rl_flag = ewk->wu.rl_flag ? 0 : 1;
-            set_char_move_init(&ewk->wu, 0, 0);
-        }
-
+        eff34_land(ewk);
         break;
 
     case 3:
-        if (EXE_flag || Game_pause) {
-            suzi_sync_pos_set(ewk);
-            sort_push_request(&ewk->wu);
-            break;
-        }
-
-        if (ewk->wu.old_rno[0]--) {
-            char_move(&ewk->wu);
-            add_x_sub(&ewk->wu);
-            suzi_sync_pos_set(ewk);
-            sort_push_request(&ewk->wu);
-            break;
-        }
-
-        ewk->wu.routine_no[0]++;
-        ewk->wu.disp_flag = 0;
+        eff34_drift(ewk);
         break;
 
     case 4:
