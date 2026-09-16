@@ -239,6 +239,28 @@ s32 set_bonus_game_difficulty(s16 emid) {
     }
 }
 
+/* The lower half of the same lookup, split out so neither half is a long chain
+ * of tests. Every switch value and every result is unchanged. */
+static s32 set_bonus_game_nando_low(u16 swdat) {
+    if (swdat == 0x521) {
+        return 4;
+    }
+
+    if (swdat == 0x71) {
+        return 3;
+    }
+
+    if (swdat == 0x41) {
+        return 2;
+    }
+
+    if (swdat == 0x21) {
+        return 1;
+    }
+
+    return 0;
+}
+
 s32 set_bonus_game_nando(u16 swdat) {
     if (swdat == 0x252) {
         return 9;
@@ -260,23 +282,7 @@ s32 set_bonus_game_nando(u16 swdat) {
         return 5;
     }
 
-    if (swdat == 0x521) {
-        return 4;
-    }
-
-    if (swdat == 0x71) {
-        return 3;
-    }
-
-    if (swdat == 0x41) {
-        return 2;
-    }
-
-    if (swdat == 0x21) {
-        return 1;
-    }
-
-    return 0;
+    return set_bonus_game_nando_low(swdat);
 }
 
 s32 katteni_bonus_nando(u16 swdat) {
