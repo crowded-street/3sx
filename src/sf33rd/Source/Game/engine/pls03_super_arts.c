@@ -519,6 +519,74 @@ static s32 grounded_art_is_blocked(PLW* wk) {
     return is_blocked_by_arcade_switch(wk, wk->sa->nmsa_g_ix);
 }
 
+/* Starting a grounded super art once its gates have passed. */
+static s32 start_grounded_super_art(PLW* wk) {
+    if (grounded_art_is_blocked(wk)) {
+        return 0;
+    }
+
+    setup_comm_back(&wk->wu);
+
+    if (ArcadeBalance_IsEnabled()) {
+        wk->as = &asstbl_lv_9900_g_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][(wk->sa->nmsa_g_ix - 20) * 4];
+    } else {
+        wk->as = _assadr_lv_9900[wk->player_number][cmdixconv(wk->sa->nmsa_g_ix)] + (wk->sa->nmsa_g_ix - 20) * 4;
+        wk->sa->ex4th_exec = 0;
+    }
+
+    wk->wu.cg_cancel = 0;
+    wk->sa->ok = -1;
+    hissatsu_setup_union(wk, wk->cp->waza_r[wk->sa->nmsa_g_ix][0]);
+    waza_compel_all_init2(wk);
+
+    if (!ArcadeBalance_IsEnabled()) {
+        wk->sa->gt2 = wk->sa->gauge_type;
+    }
+
+    return 1;
+}
+
+/* The airborne equivalent. Its gates are still inline here where the grounded
+ * side has them in a helper, because the two gate chains differ in `<` against
+ * `>` and in which slot field they read, and naming both was measured worse. */
+static s32 start_airborne_super_art(PLW* wk) {
+    if (wk->spmv_ng_flag & DIP_UNKNOWN_31) {
+        return 0;
+    }
+
+    if (wk->sa->ok != 1) {
+        return 0;
+    }
+
+    if (wk->sa->nmsa_a_ix < 0x1C) {
+        return 0;
+    }
+
+    if (is_blocked_by_arcade_switch(wk, wk->sa->nmsa_a_ix)) {
+        return 0;
+    }
+
+    setup_comm_back(&wk->wu);
+
+    if (ArcadeBalance_IsEnabled()) {
+        wk->as = &asstbl_lv_9900_a_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][(wk->sa->nmsa_a_ix - 38) * 4];
+    } else {
+        wk->as = _assadr_lv_9900[wk->player_number][cmdixconv(wk->sa->nmsa_a_ix)] + (wk->sa->nmsa_a_ix - 38) * 4;
+        wk->sa->ex4th_exec = 0;
+    }
+
+    wk->wu.cg_cancel = 0;
+    wk->sa->ok = -1;
+    hissatsu_setup_union(wk, wk->cp->waza_r[wk->sa->nmsa_a_ix][0]);
+    waza_compel_all_init2(wk);
+
+    if (!ArcadeBalance_IsEnabled()) {
+        wk->sa->gt2 = wk->sa->gauge_type;
+    }
+
+    return 1;
+}
+
 s32 execute_super_arts(PLW* wk) { // 🟡
     if (wk->cancel_timer == 0) {
         wk->permited_koa |= 1;
@@ -529,64 +597,8 @@ s32 execute_super_arts(PLW* wk) { // 🟡
     }
 
     if (player_is_grounded_or_on_car(wk)) {
-        if (grounded_art_is_blocked(wk)) {
-            return 0;
-        }
-
-        setup_comm_back(&wk->wu);
-
-        if (ArcadeBalance_IsEnabled()) {
-            wk->as = &asstbl_lv_9900_g_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][(wk->sa->nmsa_g_ix - 20) * 4];
-        } else {
-            wk->as = _assadr_lv_9900[wk->player_number][cmdixconv(wk->sa->nmsa_g_ix)] + (wk->sa->nmsa_g_ix - 20) * 4;
-            wk->sa->ex4th_exec = 0;
-        }
-
-        wk->wu.cg_cancel = 0;
-        wk->sa->ok = -1;
-        hissatsu_setup_union(wk, wk->cp->waza_r[wk->sa->nmsa_g_ix][0]);
-        waza_compel_all_init2(wk);
-
-        if (!ArcadeBalance_IsEnabled()) {
-            wk->sa->gt2 = wk->sa->gauge_type;
-        }
-
-        return 1;
-    } else {
-        if (wk->spmv_ng_flag & DIP_UNKNOWN_31) {
-            return 0;
-        }
-
-        if (wk->sa->ok != 1) {
-            return 0;
-        }
-
-        if (wk->sa->nmsa_a_ix < 0x1C) {
-            return 0;
-        }
-
-        if (is_blocked_by_arcade_switch(wk, wk->sa->nmsa_a_ix)) {
-            return 0;
-        }
-
-        setup_comm_back(&wk->wu);
-
-        if (ArcadeBalance_IsEnabled()) {
-            wk->as = &asstbl_lv_9900_a_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][(wk->sa->nmsa_a_ix - 38) * 4];
-        } else {
-            wk->as = _assadr_lv_9900[wk->player_number][cmdixconv(wk->sa->nmsa_a_ix)] + (wk->sa->nmsa_a_ix - 38) * 4;
-            wk->sa->ex4th_exec = 0;
-        }
-
-        wk->wu.cg_cancel = 0;
-        wk->sa->ok = -1;
-        hissatsu_setup_union(wk, wk->cp->waza_r[wk->sa->nmsa_a_ix][0]);
-        waza_compel_all_init2(wk);
-
-        if (!ArcadeBalance_IsEnabled()) {
-            wk->sa->gt2 = wk->sa->gauge_type;
-        }
-
-        return 1;
+        return start_grounded_super_art(wk);
     }
+
+    return start_airborne_super_art(wk);
 }
