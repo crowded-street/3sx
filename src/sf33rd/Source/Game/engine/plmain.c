@@ -961,152 +961,176 @@ static void mark_ps2_art_attack_for(PLW* wk, u8 character) {
 /* The gt2 dispatch that was case 2 of sag_union_ps2's switch: what the super
  * art does once it is stored and running. Moved out whole, so every `break`
  * still belongs to the switch it belonged to before. */
-static void sag_union_ps2_active(PLW* wk) {
-    switch (wk->sa->gt2) {
-    case 0:
-        switch (wk->sa->saeff_ok) {
-        case -1:
-            if (!pcon_dp_flag) {
-                if (wk->sa->ex4th_exec) {
-                    wk->sa->store = 0;
-                } else {
-                    wk->sa->store--;
-                }
+/* gauge type 0: the art is paid for once and then simply stops. */
+static void sag_ps2_instant_art(PLW* wk) {
+    switch (wk->sa->saeff_ok) {
+    case -1:
+        if (!pcon_dp_flag) {
+            if (wk->sa->ex4th_exec) {
+                wk->sa->store = 0;
+            } else {
+                wk->sa->store--;
             }
-
-            sag_bug_fix(wk->wu.id);
-            wk->sa->saeff_ok = 0;
-            wk->sa->sa_rno = 0;
-            wk->sa->ok = 0;
-            sag_inc_timer[wk->wu.id] = 20;
-            break;
-
-        case 1:
-            if (wk->wu.routine_no[1] == 4) {
-                break;
-            }
-
-            /* fallthrough */
-
-        default:
-            wk->sa->saeff_ok = 0;
-            wk->sa->sa_rno = 0;
-            wk->sa->ok = 0;
-            break;
         }
 
+        sag_bug_fix(wk->wu.id);
+        wk->sa->saeff_ok = 0;
+        wk->sa->sa_rno = 0;
+        wk->sa->ok = 0;
+        sag_inc_timer[wk->wu.id] = 20;
         break;
 
     case 1:
-        switch (wk->sa->sa_rno2) {
-        case 0:
-            switch (wk->sa->saeff_ok) {
-            case -1:
-                if (!pcon_dp_flag) {
-                    if (wk->sa->ex4th_exec) {
-                        wk->sa->store = 0;
-                    } else {
-                        wk->sa->store--;
-                    }
-                }
+        if (wk->wu.routine_no[1] == 4) {
+            break;
+        }
 
-                sag_bug_fix(wk->wu.id);
+        /* fallthrough */
 
-                if (wk->sa->mp == 1) {
-                    wk->sa->bacckup_g_h = 0;
-                } else {
-                    wk->sa->bacckup_g_h = wk->sa->gauge.s.h;
-                }
+    default:
+        wk->sa->saeff_ok = 0;
+        wk->sa->sa_rno = 0;
+        wk->sa->ok = 0;
+        break;
+    }
+}
 
-                wk->sa->gauge.s.h = wk->sa->gauge_len;
-                wk->sa->gauge.s.l = -1;
-                wk->sa->sa_rno2 = 1;
-                wk->sa->saeff_ok = 0;
-                break;
-
-            case 1:
-                if (wk->wu.routine_no[1] == 4) {
-                    break;
-                }
-
-                /* fallthrough */
-
-            default:
-                wk->sa->saeff_ok = 0;
-                wk->sa->sa_rno = 0;
-                wk->sa->ok = 0;
-                wk->sa->dtm_mul = 1;
-                break;
+/* gauge type 1: the bar is filled, then drained frame by frame while the art
+ * runs, and the characters whose arts mark their attacks are marked here. */
+/* Starting a timed art: the stock is paid for, the bar is filled, and the
+ * height it had is remembered so it can come back afterwards. */
+static void sag_ps2_timed_begin(PLW* wk) {
+    switch (wk->sa->saeff_ok) {
+    case -1:
+        if (!pcon_dp_flag) {
+            if (wk->sa->ex4th_exec) {
+                wk->sa->store = 0;
+            } else {
+                wk->sa->store--;
             }
+        }
 
+        sag_bug_fix(wk->wu.id);
+
+        if (wk->sa->mp == 1) {
+            wk->sa->bacckup_g_h = 0;
+        } else {
+            wk->sa->bacckup_g_h = wk->sa->gauge.s.h;
+        }
+
+        wk->sa->gauge.s.h = wk->sa->gauge_len;
+        wk->sa->gauge.s.l = -1;
+        wk->sa->sa_rno2 = 1;
+        wk->sa->saeff_ok = 0;
+        break;
+
+    case 1:
+        if (wk->wu.routine_no[1] == 4) {
+            break;
+        }
+
+        /* fallthrough */
+
+    default:
+        wk->sa->saeff_ok = 0;
+        wk->sa->sa_rno = 0;
+        wk->sa->ok = 0;
+        wk->sa->dtm_mul = 1;
+        break;
+    }
+}
+
+/* Running a timed art: the bar drains every frame that neither player is in a
+ * super stop, and the characters whose arts mark their attacks are marked
+ * here. Emptying the bar ends the art and restores what was left. */
+static void sag_ps2_timed_drain(PLW* wk) {
+    if ((wk->sa_stop_flag != 1) && (((PLW*)wk->wu.target_adrs)->sa_stop_flag != 1)) {
+        wk->sa->gauge.i -= wk->sa->dtm * wk->sa->dtm_mul;
+    }
+
+    if (wk->sa->gauge.s.h <= 0 || Suicide[6] != 0) {
+        wk->sa->gauge.i = 0;
+        wk->sa->ok = 0;
+        wk->sa->sa_rno = 0;
+        wk->sa->dtm_mul = 1;
+        wk->sa->gauge.s.h = wk->sa->bacckup_g_h;
+        sag_inc_timer[wk->wu.id] = 20;
+        return;
+    }
+
+    if (My_char[wk->wu.id] == CHAR_YUN) {
+        addSAAttribute(&wk->wu.kind_of_waza, &wk->wu.at_koa);
+    }
+
+    mark_ps2_art_attack_for(wk, CHAR_YANG);
+    mark_ps2_art_attack_for(wk, CHAR_MAKOTO);
+    mark_ps2_art_attack_for(wk, CHAR_TWELVE);
+
+    if ((My_char[wk->wu.id] == CHAR_ORO) && (wk->sa->kind_of_arts == 2)) {
+        wk->wu.att.dipsw |= 0x10;
+    }
+}
+
+static void sag_ps2_timed_art(PLW* wk) {
+    switch (wk->sa->sa_rno2) {
+    case 0:
+        sag_ps2_timed_begin(wk);
+        break;
+
+    case 1:
+        if (Timer_Freeze != 0) {
+            break;
+        }
+
+        wk->sa->sa_rno2 = 2;
+        /* fallthrough */
+
+    case 2:
+        sag_ps2_timed_drain(wk);
+        break;
+    }
+}
+
+/* gauge type 3: paid for, with no drain of its own. */
+static void sag_ps2_stored_art(PLW* wk) {
+    switch (wk->sa->sa_rno2) {
+    case 0:
+        switch (wk->sa->saeff_ok) {
+        case -1:
+            sag_bug_fix(wk->wu.id);
+            wk->sa->store--;
+            wk->sa->saeff_ok = 0;
+            wk->sa->sa_rno2 = 1;
             break;
 
         case 1:
-            if (Timer_Freeze != 0) {
-                break;
-            }
-
-            wk->sa->sa_rno2 = 2;
-            /* fallthrough */
-
-        case 2:
-            if ((wk->sa_stop_flag != 1) && (((PLW*)wk->wu.target_adrs)->sa_stop_flag != 1)) {
-                wk->sa->gauge.i -= wk->sa->dtm * wk->sa->dtm_mul;
-            }
-
-            if (wk->sa->gauge.s.h <= 0 || Suicide[6] != 0) {
-                wk->sa->gauge.i = 0;
-                wk->sa->ok = 0;
-                wk->sa->sa_rno = 0;
-                wk->sa->dtm_mul = 1;
-                wk->sa->gauge.s.h = wk->sa->bacckup_g_h;
-                sag_inc_timer[wk->wu.id] = 20;
-                break;
-            }
-
-            if (My_char[wk->wu.id] == CHAR_YUN) {
-                addSAAttribute(&wk->wu.kind_of_waza, &wk->wu.at_koa);
-            }
-
-            mark_ps2_art_attack_for(wk, CHAR_YANG);
-            mark_ps2_art_attack_for(wk, CHAR_MAKOTO);
-            mark_ps2_art_attack_for(wk, CHAR_TWELVE);
-
-            if ((My_char[wk->wu.id] == CHAR_ORO) && (wk->sa->kind_of_arts == 2)) {
-                wk->wu.att.dipsw |= 0x10;
-            }
-
             break;
+
+        default:
+            wk->sa->saeff_ok = 0;
+            wk->sa->sa_rno = 0;
+            wk->sa->ok = 0;
         }
 
         break;
 
+    default:
+        break;
+    }
+}
+
+static void sag_union_ps2_active(PLW* wk) {
+    switch (wk->sa->gt2) {
+    case 0:
+        sag_ps2_instant_art(wk);
+        break;
+
+    case 1:
+        sag_ps2_timed_art(wk);
+        break;
+
     case 3:
-        switch (wk->sa->sa_rno2) {
-        case 0:
-            switch (wk->sa->saeff_ok) {
-            case -1:
-                sag_bug_fix(wk->wu.id);
-                wk->sa->store--;
-                wk->sa->saeff_ok = 0;
-                wk->sa->sa_rno2 = 1;
-                break;
-
-            case 1:
-                break;
-
-            default:
-                wk->sa->saeff_ok = 0;
-                wk->sa->sa_rno = 0;
-                wk->sa->ok = 0;
-            }
-
-            break;
-
-        default:
-            break;
-        }
-
+        sag_ps2_stored_art(wk);
         break;
 
     default:
