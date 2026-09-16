@@ -409,7 +409,7 @@ Recipe X both refuse to merge.
 | `com_sub_attack.c` | 9.09 | the two normal-attack wind-ups differ in two statements |
 | `com_sub_command_term.c` | 9.09 | two pairs of airborne twins, one state number apart |
 | `eff09.c` | 8.54 | see *The eff09 family* below |
-| `eff09_animation.c`, `eff09_endgame.c`, `eff09_late.c` | 8.81 | see *The eff09 family* below |
+| `eff09_endgame.c`, `eff09_late.c` | 9.38 | see *The eff09 family* below |
 | `eff02.c` | 9.06 | near-miss siblings |
 | `eff55.c` | 9.42 | the rise and the fall differ in three values; splitting the states exposes it, -0.33 |
 | `eff68.c` | 9.09 | five waypoint steps differing in their timers and targets; sharing their identical runs leaves the smell unmoved |
@@ -557,36 +557,42 @@ a defect introduced by it.** So:
 - Never "fix" sibling similarity by merging two state machines that differ only in their
   state numbering. That needs a literal change and is forbidden.
 
-### The eff09 family: duplication that is only shape
+### The eff09 family: separate the shape from the substance
 
-`eff09.c` and its three split files are the campaign's hardest plateau, and the reason is
-worth stating exactly, because every legal move has now been tried and measured.
+`eff09.c` and its three split files all sat at 8.54-8.81 on Code Duplication, and the
+first reading was that the whole family was immovable. That was wrong, and the way it was
+wrong is the lesson.
 
-Their Code Duplication comes from five pairs, and each pair is one of two kinds:
+Their duplication is two different things wearing the same label:
 
-- **Dispatchers that differ only in which functions they call.** `eff09_4000` against
-  `eff09_27000`, `eff09_17000` against `eff09_18000`: same switch, same labels, same
-  shape, different callees. Merging them means passing function pointers, which is not a
-  recipe in this catalogue.
-- **Bodies that differ in three to five values.** `adjust_sean_ball_left` against
-  `_right` differ in a bit mask, two array slots and two thresholds. Recipe D allows one
-  differing value, and Recipe C only extracts runs that are byte-identical.
+- **Substance - identical runs that really are shared.** A frame gate repeated seven
+  times, a four-line show-and-init entry repeated three times, a speed-table load, a
+  placement block. All of it is ordinary Recipe C and P work and all of it pays.
+- **Shape - dispatchers that differ only in which functions they call.** `eff09_4000`
+  against `eff09_27000`, `eff09_17000` against `eff09_18000`: same switch, same labels,
+  different callees. Merging them means passing function pointers, which is not a recipe
+  in this catalogue.
 
-What was tried, all of it measured at **8.54, unchanged**:
+Clearing the substance moved three of the four files:
 
-- Recipe C on the 18 copies of `suzi_sync_pos_set` + `sort_push_request` - a real dedup of
-  36 lines into 18, which cleared one pair and let a sixth surface in its place.
-- Recipe C on the shared prefix and middle of the two ball initialisers, and Recipe D on
-  their launch, which differs only in a flight time.
-- Recipe C on the burst setup shared by `eff09_0000` and `eff09_8000`.
+| File | Before | After |
+| --- | --- | --- |
+| `eff09_animation.c` | 8.81 | **10.00** |
+| `eff09_endgame.c` | 8.81 | 9.38 |
+| `eff09_late.c` | 8.81 | 9.38 |
+| `eff09.c` | 8.54 | 8.54 |
 
-All were reverted under rule 2: the score was flat and the smell did not move. What is
-left duplicated is the shape of the state machines themselves, which is the artifact
-described above, not a defect to chase.
+`eff09.c` is the one that does not move. The same extractions were applied to it twice -
+the gate, the entry, the ball style, and the 18 copies of the draw pair, 36 lines into 18
+- and the score did not shift, because the file is 1,200 lines carrying **five
+independent near-miss pairs**, and removing shared runs from around them leaves every
+pair standing. Two of those pairs are `adjust_sean_ball_left`/`_right`, which differ in
+five values and contain an arcade-accurate bug that must stay.
 
-**Do not spend another session here.** If the file is ever to reach 10.00 it needs the
-one thing the catalogue forbids - merging sibling state machines - and that is a
-behaviour risk no score is worth.
+**The rule to take away:** when a file reports Code Duplication, separate the shared runs
+from the shared shape before calling it a plateau. Extract the runs, measure, and only
+then judge. A file can look identical to its neighbour in the review and still have most
+of a point in it.
 
 ### Two mirrored arms are cheaper left together
 
