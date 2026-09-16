@@ -685,31 +685,37 @@ void Damage_25000(PLW* wk) {
     }
 }
 
+/* The launch: the damage pattern, the reduced fall acceleration and a
+ * horizontal speed taken from the attack's move_power, clamped at both ends. */
+static void begin_damage_26000(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    set_char_move_init(&wk->wu, 6, wk->as->char_ix);
+    check_dmpat_to_dmpat(wk);
+    buttobi_add_y_check(wk);
+    setup_butt_own_data(&wk->wu);
+    wk->wu.mvxy.d[1].sp = (wk->wu.mvxy.d[1].sp * 80) / 100;
+    cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->as->char_ix][wk->wu.dm_attlv], 0);
+    wk->wu.mvxy.a[0].real.h = wk->move_power;
+    wk->wu.mvxy.a[0].real.l = 0;
+    wk->wu.mvxy.a[0].sp *= 3;
+    wk->wu.mvxy.a[0].sp /= 4;
+    wk->wu.mvxy.d[0].sp = 0;
+
+    if (wk->wu.mvxy.a[0].real.h > 4) {
+        wk->wu.mvxy.a[0].real.h = 4;
+    }
+
+    if (wk->wu.mvxy.a[0].real.h <= 0) {
+        wk->wu.mvxy.a[0].real.h = 1;
+    }
+
+    get_sky_dm_timer(wk);
+}
+
 void Damage_26000(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        set_char_move_init(&wk->wu, 6, wk->as->char_ix);
-        check_dmpat_to_dmpat(wk);
-        buttobi_add_y_check(wk);
-        setup_butt_own_data(&wk->wu);
-        wk->wu.mvxy.d[1].sp = (wk->wu.mvxy.d[1].sp * 80) / 100;
-        cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->as->char_ix][wk->wu.dm_attlv], 0);
-        wk->wu.mvxy.a[0].real.h = wk->move_power;
-        wk->wu.mvxy.a[0].real.l = 0;
-        wk->wu.mvxy.a[0].sp *= 3;
-        wk->wu.mvxy.a[0].sp /= 4;
-        wk->wu.mvxy.d[0].sp = 0;
-
-        if (wk->wu.mvxy.a[0].real.h > 4) {
-            wk->wu.mvxy.a[0].real.h = 4;
-        }
-
-        if (wk->wu.mvxy.a[0].real.h <= 0) {
-            wk->wu.mvxy.a[0].real.h = 1;
-        }
-
-        get_sky_dm_timer(wk);
+        begin_damage_26000(wk);
         break;
 
     case 1:
