@@ -1146,6 +1146,21 @@ static void draw_ending_g_tiles(u8 bgnm, s32 xx[2], s32 yy[2], s32 global_index,
     }
 }
 
+static s32 remap_ending_c_chip(u8 bgnm, s32 global_index_real) {
+    if (bgnm == 0) {
+        switch (c_kakikae) {
+        case 1:
+            global_index_real = remap_ending_c_kakikae1_chip(global_index_real);
+            break;
+
+        case 2:
+            global_index_real = remap_ending_c_kakikae2_chip(global_index_real);
+        }
+    }
+
+    return global_index_real;
+}
+
 static void draw_ending_c_tiles(u8 bgnm, s32 xx[2], s32 yy[2], s32 global_index, s32 palOffset,
                                 PPGDataList* curDataList) {
     s32 x;
@@ -1155,17 +1170,7 @@ static void draw_ending_c_tiles(u8 bgnm, s32 xx[2], s32 yy[2], s32 global_index,
     for (y = yy[0]; y < yy[1]; y += 128) {
         for (x = xx[0]; x < xx[1]; x += 128) {
             global_index_real = global_index + (((y >> 7) << 3) + (x >> 7));
-
-            if (bgnm == 0) {
-                switch (c_kakikae) {
-                case 1:
-                    global_index_real = remap_ending_c_kakikae1_chip(global_index_real);
-                    break;
-
-                case 2:
-                    global_index_real = remap_ending_c_kakikae2_chip(global_index_real);
-                }
-            }
+            global_index_real = remap_ending_c_chip(bgnm, global_index_real);
 
             bgDrawOneChip(x, y, 128, 128, global_index_real, -1, palOffset);
             ppgSetupCurrentDataList(curDataList);
