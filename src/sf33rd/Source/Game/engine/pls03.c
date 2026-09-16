@@ -138,11 +138,47 @@ static s32 grounded_slot_is_skipped(PLW* wk, s16 i) {
            slot_blocked_by_super(wk, i);
 }
 
+/* The four button strengths of one grounded special slot, strongest first. The
+ * mirror of try_airborne_special_strengths; the two differ in which DIP switch
+ * they read and in both table offsets, so they are not merged. */
+static s32 try_grounded_special_strengths(PLW* wk, s16 i, u16 cusw) {
+    s16 j;
+    u16 exsw;
+
+    for (j = 3; j >= 0; j--) {
+        exsw = cusw & cmdshot_conv_tbl[wk->cp->exdt[i][j]];
+
+        if (exsw != cmdshot_conv_tbl[wk->cp->exdt[i][j] & 0xF]) {
+            continue;
+        }
+
+        if (j == 3) {
+            if (!ex_slot_is_allowed(wk, i, DIP_GROUND_SPECIALS_DISABLED)) {
+                continue;
+            }
+        } else if (wk->spmv_ng_flag & DIP_GROUND_SPECIALS_DISABLED) {
+            continue;
+        }
+
+        setup_comm_back(&wk->wu);
+
+        if (ArcadeBalance_IsEnabled()) {
+            wk->as = &asstbl_lv_9900_g_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][j + (i - 20) * 4];
+        } else {
+            wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(i)][j + (i - 28) * 4];
+        }
+
+        commit_special_attack(wk, i, j);
+
+        return 1;
+    }
+
+    return 0;
+}
+
 static s32 check_special_attack_grounded(PLW* wk) {
     s16 i;
-    s16 j;
     u16 cusw;
-    u16 exsw;
     u16* conpane;
 
     conpane = &wk->cp->sw_lvbt;
@@ -162,31 +198,7 @@ static s32 check_special_attack_grounded(PLW* wk) {
 
         cusw = conpane[wk->cp->btix[i] & 0xFF];
 
-        for (j = 3; j >= 0; j--) {
-            exsw = cusw & cmdshot_conv_tbl[wk->cp->exdt[i][j]];
-
-            if (exsw != cmdshot_conv_tbl[wk->cp->exdt[i][j] & 0xF]) {
-                continue;
-            }
-
-            if (j == 3) {
-                if (!ex_slot_is_allowed(wk, i, DIP_GROUND_SPECIALS_DISABLED)) {
-                    continue;
-                }
-            } else if (wk->spmv_ng_flag & DIP_GROUND_SPECIALS_DISABLED) {
-                continue;
-            }
-
-            setup_comm_back(&wk->wu);
-
-            if (ArcadeBalance_IsEnabled()) {
-                wk->as = &asstbl_lv_9900_g_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][j + (i - 20) * 4];
-            } else {
-                wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(i)][j + (i - 28) * 4];
-            }
-
-            commit_special_attack(wk, i, j);
-
+        if (try_grounded_special_strengths(wk, i, cusw)) {
             return 1;
         }
     }
