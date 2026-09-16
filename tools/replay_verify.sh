@@ -27,15 +27,24 @@ echo "==> building candidate (Debug)"
 cmake -S "$REPO" -B "$REPO/build-dbg" -DCMAKE_BUILD_TYPE=Debug >/dev/null
 cmake --build "$REPO/build-dbg" -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc)" >/dev/null
 
-echo "==> preparing baseline worktree at $BASELINE"
-rm -rf "$BASE_TREE"
-mkdir -p "$WORK"
-git -C "$REPO" worktree prune
-git -C "$REPO" worktree add --detach "$BASE_TREE" "$BASELINE" >/dev/null
-# third_party holds prebuilt dependencies and is untracked, so a fresh
-# worktree has none. Share the ones already built in the main checkout.
-rm -rf "$BASE_TREE/third_party"
-ln -s "$REPO/third_party" "$BASE_TREE/third_party"
+# Reuse the baseline tree when it is already at the wanted commit. A fresh
+# Debug build takes minutes; reusing makes repeat runs cost only the replays.
+WANT="$(git -C "$REPO" rev-parse "$BASELINE")"
+HAVE="$(git -C "$BASE_TREE" rev-parse HEAD 2>/dev/null || true)"
+
+if [ "$WANT" != "$HAVE" ]; then
+    echo "==> preparing baseline worktree at $BASELINE"
+    rm -rf "$BASE_TREE"
+    mkdir -p "$WORK"
+    git -C "$REPO" worktree prune
+    git -C "$REPO" worktree add --detach "$BASE_TREE" "$BASELINE" >/dev/null
+    # third_party holds prebuilt dependencies and is untracked, so a fresh
+    # worktree has none. Share the ones already built in the main checkout.
+    rm -rf "$BASE_TREE/third_party"
+    ln -s "$REPO/third_party" "$BASE_TREE/third_party"
+else
+    echo "==> reusing baseline build at $BASELINE"
+fi
 
 echo "==> building baseline (Debug)"
 cmake -S "$BASE_TREE" -B "$BASE_TREE/build-dbg" -DCMAKE_BUILD_TYPE=Debug >/dev/null
