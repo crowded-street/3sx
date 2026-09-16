@@ -732,6 +732,22 @@ void nm_27000(PLW* wk) { // 🟡
     nm_27_cg_type_check(wk);
 }
 
+/* cg_type 2 of the nm_27 state: if the opponent is not attacking and the player
+ * is not going into a defensive state, step the script back one command and run
+ * it again. Each `break` left the switch with nothing after it. */
+static void rewind_script_if_not_defending(PLW* wk) {
+    if (check_em_catt(wk) == 0) {
+        return;
+    }
+
+    if (check_defense_kind(wk) != 0) {
+        return;
+    }
+
+    wk->wu.cg_ix -= wk->wu.cgd_type;
+    char_move_z(&wk->wu);
+}
+
 void nm_27_cg_type_check(PLW* wk) { // 🟢
     if (wk->wu.routine_no[3] == 0) {
         return;
@@ -747,16 +763,7 @@ void nm_27_cg_type_check(PLW* wk) { // 🟢
         break;
 
     case 2:
-        if (check_em_catt(wk) == 0) {
-            break;
-        }
-
-        if (check_defense_kind(wk) != 0) {
-            break;
-        }
-
-        wk->wu.cg_ix -= wk->wu.cgd_type;
-        char_move_z(&wk->wu);
+        rewind_script_if_not_defending(wk);
         break;
 
     case 64:
