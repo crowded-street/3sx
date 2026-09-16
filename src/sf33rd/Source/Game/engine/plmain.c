@@ -734,6 +734,14 @@ void eag_union(PLW* wk) { // 🟡
     }
 }
 
+/* An art that is not going to run: the request, the state machine and the
+ * ready flag all go back to nothing. */
+static void abandon_super_art(PLW* wk) {
+    wk->sa->saeff_ok = 0;
+    wk->sa->sa_rno = 0;
+    wk->sa->ok = 0;
+}
+
 /* The unreachable-state reset the super-art machines fall back on, shared
  * verbatim by sag_union_0, sag_union_3 and sag_union_ps2. sag_union_1's reset
  * also clears dtm_mul and is left where it is. */
@@ -779,13 +787,9 @@ static void spend_or_abandon_super_art(PLW* wk) {
             wk->sa->store -= 1;
         }
 
-        wk->sa->saeff_ok = 0;
-        wk->sa->sa_rno = 0;
-        wk->sa->ok = 0;
+        abandon_super_art(wk);
     } else if ((wk->sa->saeff_ok != 1) || (wk->wu.routine_no[1] != 4)) {
-        wk->sa->saeff_ok = 0;
-        wk->sa->sa_rno = 0;
-        wk->sa->ok = 0;
+        abandon_super_art(wk);
     }
 }
 
@@ -868,9 +872,7 @@ static void spend_stock_or_abandon_art(PLW* wk) {
     }
 
     if ((wk->sa->saeff_ok != 1) || (wk->wu.routine_no[1] != 4)) {
-        wk->sa->saeff_ok = 0;
-        wk->sa->sa_rno = 0;
-        wk->sa->ok = 0;
+        abandon_super_art(wk);
         wk->sa->dtm_mul = 1;
     }
 }
@@ -921,9 +923,7 @@ static void spend_or_abandon_gauge_art(PLW* wk) {
         wk->sa->saeff_ok = 0;
         wk->sa->sa_rno = 3;
     } else if (wk->sa->saeff_ok != 1) {
-        wk->sa->saeff_ok = 0;
-        wk->sa->sa_rno = 0;
-        wk->sa->ok = 0;
+        abandon_super_art(wk);
     }
 }
 
@@ -982,9 +982,7 @@ static void sag_ps2_instant_art(PLW* wk) {
         }
 
         sag_bug_fix(wk->wu.id);
-        wk->sa->saeff_ok = 0;
-        wk->sa->sa_rno = 0;
-        wk->sa->ok = 0;
+        abandon_super_art(wk);
         sag_inc_timer[wk->wu.id] = 20;
         break;
 
@@ -996,9 +994,7 @@ static void sag_ps2_instant_art(PLW* wk) {
         /* fallthrough */
 
     default:
-        wk->sa->saeff_ok = 0;
-        wk->sa->sa_rno = 0;
-        wk->sa->ok = 0;
+        abandon_super_art(wk);
         break;
     }
 }
@@ -1040,9 +1036,7 @@ static void sag_ps2_timed_begin(PLW* wk) {
         /* fallthrough */
 
     default:
-        wk->sa->saeff_ok = 0;
-        wk->sa->sa_rno = 0;
-        wk->sa->ok = 0;
+        abandon_super_art(wk);
         wk->sa->dtm_mul = 1;
         break;
     }
@@ -1115,9 +1109,7 @@ static void sag_ps2_stored_art(PLW* wk) {
             break;
 
         default:
-            wk->sa->saeff_ok = 0;
-            wk->sa->sa_rno = 0;
-            wk->sa->ok = 0;
+            abandon_super_art(wk);
         }
 
         break;
