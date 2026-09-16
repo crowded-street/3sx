@@ -101,24 +101,41 @@ void EFF69_SLIDE_IN(WORK_Other* ewk) {
     }
 }
 
+/* Non-zero when the panel should leave now. A panel that is already hidden goes
+ * straight to the finished state and still runs the launch, as it did before; a
+ * visible one waits out the shared order timer first. */
+static s32 e69_exit_due(WORK_Other* ewk) {
+    if (ewk->wu.disp_flag == 0) {
+        ewk->wu.routine_no[1] = 99;
+        return 1;
+    }
+
+    if (--Order_Timer[ewk->wu.dir_old]) {
+        return 0;
+    }
+
+    ewk->wu.routine_no[1]++;
+
+    return 1;
+}
+
+/* Send the panel off the side it came from - direction 4 exits left, everything
+ * else exits right. */
+static void e69_launch_outward(WORK_Other* ewk) {
+    if (Order_Dir[ewk->wu.dir_old] == 4) {
+        ewk->wu.mvxy.a[0].sp = -0x100000;
+        ewk->wu.mvxy.d[0].sp = -0x8000;
+    } else {
+        ewk->wu.mvxy.a[0].sp = 0x100000;
+        ewk->wu.mvxy.d[0].sp = 0x8000;
+    }
+}
+
 void EFF69_SLIDE_OUT(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (ewk->wu.disp_flag == 0) {
-            ewk->wu.routine_no[1] = 99;
-        } else {
-            if (--Order_Timer[ewk->wu.dir_old]) {
-                break;
-            }
-            ewk->wu.routine_no[1]++;
-        }
-
-        if (Order_Dir[ewk->wu.dir_old] == 4) {
-            ewk->wu.mvxy.a[0].sp = -0x100000;
-            ewk->wu.mvxy.d[0].sp = -0x8000;
-        } else {
-            ewk->wu.mvxy.a[0].sp = 0x100000;
-            ewk->wu.mvxy.d[0].sp = 0x8000;
+        if (e69_exit_due(ewk)) {
+            e69_launch_outward(ewk);
         }
 
         break;
