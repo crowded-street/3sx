@@ -1261,6 +1261,42 @@ static s32 in_second_credit_pose(const PLW* wk) {
     return (wk->wu.routine_no[1] == 4) && (wk->wu.routine_no[2] == 22) && (wk->wu.pat_status == 23);
 }
 
+/* The vitality drain itself, and the death it ends in. Every `break` in the
+ * original left the switch with nothing after it, so each is a `return` here.
+ *
+ * The player-one credit-check states are the two that hold the drain without
+ * being a pause: the game is waiting on a coin, not on the player. */
+static void drain_vitality(PLW* wk) {
+    if (vital_drain_is_paused(wk)) {
+        return;
+    }
+
+    if (wk->player_number == 0) {
+        if ((wk->wu.routine_no[1] == 4) && (wk->wu.routine_no[2] == 21)) {
+            if (ca_check_flag == 0) {
+                ca_check_flag = 1;
+            }
+
+            return;
+        }
+
+        if (in_second_credit_pose(wk)) {
+            return;
+        }
+    }
+
+    wk->wu.vital_new--;
+
+    if (wk->wu.vital_new < 0) {
+        wk->wu.vital_new = -1;
+        wk->wu.dm_koa = 4;
+        wk->dead_flag = 1;
+        wk->guard_flag = 3;
+        ca_check_flag = 0;
+        return;
+    }
+}
+
 void check_omop_vital(PLW* wk) { // 🔴
     if (pcon_dp_flag) {
         return;
@@ -1281,35 +1317,7 @@ void check_omop_vital(PLW* wk) { // 🔴
 
     switch (omop_vital_ix[wk->wu.id]) {
     case 0:
-        if (vital_drain_is_paused(wk)) {
-            break;
-        }
-
-        if (wk->player_number == 0) {
-            if ((wk->wu.routine_no[1] == 4) && (wk->wu.routine_no[2] == 21)) {
-                if (ca_check_flag == 0) {
-                    ca_check_flag = 1;
-                }
-
-                break;
-            }
-
-            if (in_second_credit_pose(wk)) {
-                break;
-            }
-        }
-
-        wk->wu.vital_new--;
-
-        if (wk->wu.vital_new < 0) {
-            wk->wu.vital_new = -1;
-            wk->wu.dm_koa = 4;
-            wk->dead_flag = 1;
-            wk->guard_flag = 3;
-            ca_check_flag = 0;
-            break;
-        }
-
+        drain_vitality(wk);
         break;
 
     case 2:
