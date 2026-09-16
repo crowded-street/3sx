@@ -23,53 +23,60 @@ static s32 j4_timer_expired(WORK_Other* ewk) {
     return ewk->wu.dir_timer != 0x7FFF && !Game_pause && !EXE_flag && --ewk->wu.dir_timer <= 0;
 }
 
+static void effj4_spawn(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.disp_flag = 1;
+    ewk->wu.blink_timing = 0;
+    ewk->wu.rl_flag = 0;
+
+    if (ewk->wu.type) {
+        SA_shadow_on = 1;
+    }
+
+    if (ewk->wu.dir_timer == 0xFF) {
+        ewk->wu.dir_timer = 0x7FFF;
+        ewk->wu.my_clear_level = 160;
+    }
+
+    ewk->wu.my_priority = ewk->wu.position_z = 71;
+    ewk->wu.shell_ix[0] = 0;
+    ewk->wu.shell_ix[1] = 384;
+    ewk->wu.shell_ix[2] = -base_y_pos;
+    ewk->wu.shell_ix[3] = 224;
+    ewk->wu.position_x = 0;
+    ewk->wu.position_y = 0;
+}
+
+static void effj4_animate(WORK_Other* ewk) {
+    if (should_end_effect(ewk)) {
+        goto jump;
+    }
+
+    if (Game_pause == 129 && !pcon_dp_flag) {
+        return;
+    }
+
+    if (j4_timer_expired(ewk)) {
+    jump:
+        ewk->wu.routine_no[0]++;
+
+        if (ewk->wu.type) {
+            SA_shadow_on = 0;
+        }
+    }
+
+    sort_push_requestA(&ewk->wu);
+}
+
 void effect_J4_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.blink_timing = 0;
-        ewk->wu.rl_flag = 0;
-
-        if (ewk->wu.type) {
-            SA_shadow_on = 1;
-        }
-
-        if (ewk->wu.dir_timer == 0xFF) {
-            ewk->wu.dir_timer = 0x7FFF;
-            ewk->wu.my_clear_level = 160;
-        }
-
-        ewk->wu.my_priority = ewk->wu.position_z = 71;
-        ewk->wu.shell_ix[0] = 0;
-        ewk->wu.shell_ix[1] = 384;
-        ewk->wu.shell_ix[2] = -base_y_pos;
-        ewk->wu.shell_ix[3] = 224;
-        ewk->wu.position_x = 0;
-        ewk->wu.position_y = 0;
+        effj4_spawn(ewk);
         break;
 
     case 1:
-        if (should_end_effect(ewk)) {
-            goto jump;
-        }
-
-        if (Game_pause == 129 && !pcon_dp_flag) {
-            break;
-        }
-
-        if (j4_timer_expired(ewk)) {
-        jump:
-            ewk->wu.routine_no[0]++;
-
-            if (ewk->wu.type) {
-                SA_shadow_on = 0;
-            }
-        }
-
-        sort_push_requestA(&ewk->wu);
+        effj4_animate(ewk);
         break;
-
     case 2:
         ewk->wu.disp_flag = 0;
         ewk->wu.routine_no[0]++;
