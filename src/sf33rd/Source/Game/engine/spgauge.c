@@ -907,6 +907,33 @@ void sagauge_color_chenge(s8 Stpl_Num) {
     spg_dat[Stpl_Num].spgcol_number = sagauge_colchg_tbl[spg_dat[Stpl_Num].gauge_flash_col][Stpl_Num];
 }
 
+/* Drawing or clearing the super-art timer text for one side. The two sides use
+ * different screen coordinates and a different row of the character table, so
+ * they are not shared. Every `break` in the original left the switch with
+ * nothing after it, so returning here reaches the same place. */
+static void sa_time_moji_draw(s8 Stpl_Num, s8 OnOff) {
+    if (Stpl_Num == 0) {
+        if (OnOff) {
+            scfont_sqput2(1, 25, 11, 0, 2, sa_time_data_tbl[time_num][0], 0, 4, 2);
+            scfont_sqput2(1, 27, 11, 0, 0, 13, 12, 2, 1);
+            return;
+        }
+
+        sc_clear(1, 25, 4, 26);
+        sc_clear(1, 27, 2, 27);
+        return;
+    }
+
+    if (OnOff) {
+        scfont_sqput2(43, 25, 11, 0, 2, sa_time_data_tbl[time_num][1], 0, 4, 2);
+        scfont_sqput2(45, 27, 11, 0, 0, 14, 8, 2, 1);
+        return;
+    }
+
+    sc_clear(43, 25, 46, 26);
+    sc_clear(45, 27, 46, 27);
+}
+
 void sa_moji_trans(s8 Stpl_Num, s8 Kind, s8 OnOff) {
     switch (Kind) {
     case 0:
@@ -925,26 +952,7 @@ void sa_moji_trans(s8 Stpl_Num, s8 Kind, s8 OnOff) {
 
     default:
     case 1:
-        if (Stpl_Num == 0) {
-            if (OnOff) {
-                scfont_sqput2(1, 25, 11, 0, 2, sa_time_data_tbl[time_num][0], 0, 4, 2);
-                scfont_sqput2(1, 27, 11, 0, 0, 13, 12, 2, 1);
-                break;
-            }
-
-            sc_clear(1, 25, 4, 26);
-            sc_clear(1, 27, 2, 27);
-            break;
-        }
-
-        if (OnOff) {
-            scfont_sqput2(43, 25, 11, 0, 2, sa_time_data_tbl[time_num][1], 0, 4, 2);
-            scfont_sqput2(45, 27, 11, 0, 0, 14, 8, 2, 1);
-            break;
-        }
-
-        sc_clear(43, 25, 46, 26);
-        sc_clear(45, 27, 46, 27);
+        sa_time_moji_draw(Stpl_Num, OnOff);
         break;
     }
 }
