@@ -367,6 +367,24 @@ static void transfer_hosei(s16 from, s16 to) {
     plw[to].muriyari_ugoku += plw[from].hosei_amari;
 }
 
+/* Both players have a correction left over. It only goes anywhere when they
+ * are correcting the same way and one of them is being thrown; then it goes
+ * to the other one. */
+static void transfer_hosei_to_thrower() {
+    if (plw[0].hos_fi_flag != plw[1].hos_fi_flag) {
+        return;
+    }
+
+    if (plw[0].tsukamare_f) {
+        transfer_hosei(0, 1);
+        return;
+    }
+
+    if (plw[1].tsukamare_f) {
+        transfer_hosei(1, 0);
+    }
+}
+
 void check_damage_hosei_bonus() {
     plw[0].muriyari_ugoku = plw[0].hosei_amari;
     plw[1].muriyari_ugoku = plw[1].hosei_amari;
@@ -389,18 +407,7 @@ void check_damage_hosei_bonus() {
         break;
 
     case 3:
-        if (plw[0].hos_fi_flag == plw[1].hos_fi_flag) {
-            if (plw[0].tsukamare_f) {
-                transfer_hosei(0, 1);
-                break;
-            }
-
-            if (plw[1].tsukamare_f) {
-                transfer_hosei(1, 0);
-                break;
-            }
-        }
-
+        transfer_hosei_to_thrower();
         break;
     }
 
