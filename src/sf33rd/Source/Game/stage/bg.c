@@ -83,6 +83,42 @@ void Bg_TexInit() {
     ppgAkaneList.pal = &ppgAkanePal;
 }
 
+static void set_default_kakikae() {
+    u8 i;
+    const bgrw_data_tbl_elem* rwtbl_ptr;
+    s8 rw;
+
+    if (bg_w.stage == 7) {
+        tokusyu_stage = 4;
+    } else {
+        tokusyu_stage = 0;
+    }
+
+    rw_num = 0;
+
+    for (i = 0; i < 4; i++) {
+        rw_bg_flag[i] = 0;
+    }
+
+    for (i = 0; i < 8; i++) {
+        rw = bgrw_on[bg_w.stage][i];
+
+        if (rw == -1) {
+            break;
+        }
+
+        rw_num += 1;
+
+        rwtbl_ptr = &bgrw_data_tbl[rw];
+        rw_dat[i].bg_num = rwtbl_ptr->bg_num;
+        rw_bg_flag[rw_dat[i].bg_num] = 1;
+        rw_dat[i].rwgbix = rwtbl_ptr->rwgbix;
+        rw_dat[i].rwd_ptr = rw_dat[i].brw_ptr = rwtbl_ptr->rw_ptr;
+        rw_dat[i].rw_cnt = *rw_dat[i].rwd_ptr++;
+        rw_dat[i].gbix = *rw_dat[i].rwd_ptr++;
+    }
+}
+
 void Bg_Kakikae_Set() {
     u8 i;
     const bgrw_data_tbl_elem* rwtbl_ptr;
@@ -143,43 +179,33 @@ void Bg_Kakikae_Set() {
         break;
 
     default:
-        if (bg_w.stage == 7) {
-            tokusyu_stage = 4;
-        } else {
-            tokusyu_stage = 0;
-        }
+        set_default_kakikae();
+        break;
+    }
+}
 
-        rw_num = 0;
+static void set_default_ending_kakikae(s16 type) {
+    u8 i;
+    s8 rw;
 
-        for (i = 0; i < 4; i++) {
-            rw_bg_flag[i] = 0;
-        }
+    if (edrw_num[type][0] != -1) {
+        rw = edrw_num[type][0];
 
-        for (i = 0; i < 8; i++) {
-            rw = bgrw_on[bg_w.stage][i];
-
-            if (rw == -1) {
-                break;
-            }
-
+        for (i = 0; i < edrw_num[type][1]; i++) {
+            const edrw_data* edrw_data_ptr = &edrw_data_tbl[rw + i];
             rw_num += 1;
-
-            rwtbl_ptr = &bgrw_data_tbl[rw];
-            rw_dat[i].bg_num = rwtbl_ptr->bg_num;
+            rw_dat[i].bg_num = edrw_data_ptr->bg_num;
             rw_bg_flag[rw_dat[i].bg_num] = 1;
-            rw_dat[i].rwgbix = rwtbl_ptr->rwgbix;
-            rw_dat[i].rwd_ptr = rw_dat[i].brw_ptr = rwtbl_ptr->rw_ptr;
+            rw_dat[i].rwgbix = edrw_data_ptr->rwgbix;
+            rw_dat[i].rwd_ptr = rw_dat[i].brw_ptr = edrw_data_ptr->rw_ptr;
             rw_dat[i].rw_cnt = *rw_dat[i].rwd_ptr++;
             rw_dat[i].gbix = *rw_dat[i].rwd_ptr++;
         }
-
-        break;
     }
 }
 
 void Ed_Kakikae_Set(s16 type) {
     u8 i;
-    s8 rw;
 
     rw_num = 0;
 
@@ -207,21 +233,7 @@ void Ed_Kakikae_Set(s16 type) {
         break;
 
     default:
-        if (edrw_num[type][0] != -1) {
-            rw = edrw_num[type][0];
-
-            for (i = 0; i < edrw_num[type][1]; i++) {
-                const edrw_data* edrw_data_ptr = &edrw_data_tbl[rw + i];
-                rw_num += 1;
-                rw_dat[i].bg_num = edrw_data_ptr->bg_num;
-                rw_bg_flag[rw_dat[i].bg_num] = 1;
-                rw_dat[i].rwgbix = edrw_data_ptr->rwgbix;
-                rw_dat[i].rwd_ptr = rw_dat[i].brw_ptr = edrw_data_ptr->rw_ptr;
-                rw_dat[i].rw_cnt = *rw_dat[i].rwd_ptr++;
-                rw_dat[i].gbix = *rw_dat[i].rwd_ptr++;
-            }
-        }
-
+        set_default_ending_kakikae(type);
         break;
     }
 }
@@ -873,9 +885,26 @@ static s32 remap_ending_g_kakikae1_chip(s32 global_index_real) {
     return global_index_real;
 }
 
+static s32 remap_stage03_background_chip(s32 global_index_real, u32* vtxColor) {
+    s32 i;
+
+    for (i = 0; i < 13; i++) {
+        if (global_index_real == rw_gbix[i]) {
+            global_index_real = *(rw_dat[0].rwd_ptr + i + 1);
+            *vtxColor = *rw3col_ptr;
+
+            if (ppgCheckTextureNumber(0, global_index_real) == 0) {
+                ppgSetupCurrentDataList(&ppgRwBgList);
+            }
+            break;
+        }
+    }
+
+    return global_index_real;
+}
+
 static void draw_stage03_tiles(u8 bgnm, s32* xx, s32* yy, s32 global_index, s32 palOffset,
                                PPGDataList* curDataList) {
-    s32 i;
     s32 x;
     s32 y;
     s32 global_index_real;
@@ -889,17 +918,7 @@ static void draw_stage03_tiles(u8 bgnm, s32* xx, s32* yy, s32 global_index, s32 
             if (bgnm == 0) {
                 global_index_real = remap_stage03_player_chip(global_index_real);
             } else {
-                for (i = 0; i < 13; i++) {
-                    if (global_index_real == rw_gbix[i]) {
-                        global_index_real = *(rw_dat[0].rwd_ptr + i + 1);
-                        vtxColor = *rw3col_ptr;
-
-                        if (ppgCheckTextureNumber(0, global_index_real) == 0) {
-                            ppgSetupCurrentDataList(&ppgRwBgList);
-                        }
-                        break;
-                    }
-                }
+                global_index_real = remap_stage03_background_chip(global_index_real, &vtxColor);
             }
 
             bgDrawOneChip(x, y, 128, 128, global_index_real, vtxColor, palOffset);
@@ -1208,24 +1227,32 @@ void bgRWWorkUpdate() {
     }
 }
 
+static s32 remap_screen_chip(s32 bgnum, s32 gbix) {
+    s32 i;
+
+    if (rw_bg_flag[bgnum] && rw_num) {
+        for (i = 0; i < rw_num; i++) {
+            if (bgnum == rw_dat[i].bg_num && gbix == rw_dat[i].rwgbix) {
+                gbix = rw_dat[i].gbix;
+                if (!(ppgCheckTextureNumber(0, gbix))) {
+                    ppgSetupCurrentDataList(&ppgRwBgList);
+                }
+                break;
+            }
+        }
+    }
+
+    return gbix;
+}
+
 void bgDrawOneScreen(s32 bgnum, s32 gixbase, s32* xx, s32* yy, s32 /* unused */, s32 ofsPal, PPGDataList* curDataList) {
-    s32 i, x, y, gbix;
+    s32 x, y, gbix;
 
     for (y = yy[0]; y < yy[1]; y += 128) {
         for (x = xx[0]; x < xx[1]; x += 128) {
             gbix = ((y >> 7) << 3) + (x >> 7) + gixbase;
 
-            if (rw_bg_flag[bgnum] && rw_num) {
-                for (i = 0; i < rw_num; i++) {
-                    if (bgnum == rw_dat[i].bg_num && gbix == rw_dat[i].rwgbix) {
-                        gbix = rw_dat[i].gbix;
-                        if (!(ppgCheckTextureNumber(0, gbix))) {
-                            ppgSetupCurrentDataList(&ppgRwBgList);
-                        }
-                        break;
-                    }
-                }
-            }
+            gbix = remap_screen_chip(bgnum, gbix);
 
             bgDrawOneChip(x, y, 128, 128, gbix, -1, ofsPal);
             ppgSetupCurrentDataList(curDataList);
@@ -1233,12 +1260,16 @@ void bgDrawOneScreen(s32 bgnum, s32 gixbase, s32* xx, s32* yy, s32 /* unused */,
     }
 }
 
+static bool is_bg_chip_outside_screen() {
+    return (scrDrawPos->x >= 384.0f) || (scrDrawPos[3].x < 0.0f) || (scrDrawPos->y >= 224.0f) ||
+           (scrDrawPos[3].y < 0.0f);
+}
+
 void bgDrawOneChip(s32 x, s32 y, s32 xs, s32 ys, s32 gbix, u32 vtxCol, s32 ofsPal) {
     if ((No_Trans == 0) && ppgCheckTextureNumber(0, gbix)) {
         ppgCalScrPosition(x, y, xs, ys);
 
-        if ((scrDrawPos->x >= 384.0f) || (scrDrawPos[3].x < 0.0f) || (scrDrawPos->y >= 224.0f) ||
-            (scrDrawPos[3].y < 0.0f)) {
+        if (is_bg_chip_outside_screen()) {
             return;
         }
 
@@ -1404,7 +1435,7 @@ void Frame_Down(u16 x, u16 y, u16 add) {
     Frame_Adgjust(x, y);
 }
 
-void Frame_Adgjust(u16 pos_x, u16 pos_y) {
+static void adjust_frame_x(u16 pos_x) {
     u16 buff;
 
     if (zoom_add >= 0x40) {
@@ -1422,6 +1453,10 @@ void Frame_Adgjust(u16 pos_x, u16 pos_y) {
         buff &= 0x1FF;
         scrn_adgjust_x = buff;
     }
+}
+
+static void adjust_frame_y(u16 pos_y) {
+    u16 buff;
 
     if (zoom_add >= 0x40) {
         buff = zoom_add;
@@ -1446,6 +1481,11 @@ void Frame_Adgjust(u16 pos_x, u16 pos_y) {
             scrn_adgjust_y += 1;
         }
     }
+}
+
+void Frame_Adgjust(u16 pos_x, u16 pos_y) {
+    adjust_frame_x(pos_x);
+    adjust_frame_y(pos_y);
 }
 
 void Scrn_Pos_Init() {

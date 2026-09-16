@@ -31,7 +31,7 @@ void bns01() {
     bns01_jmp[bgw_ptr->r_no_0]();
 }
 
-void bns01_init00() {
+static void initialize_bonus_background() {
     bgw_ptr->r_no_0++;
 
     if (Player_id == 0) {
@@ -42,6 +42,10 @@ void bns01_init00() {
 
     bgw_ptr->hos_xy[0].cal = bgw_ptr->wxy[0].cal = bgw_ptr->xy[0].cal;
     bgw_ptr->zuubun = 0;
+}
+
+void bns01_init00() {
+    initialize_bonus_background();
     bg_app = 0;
     effect_05_init();
 }
@@ -57,16 +61,7 @@ void bns02() {
 }
 
 void bns02_init00() {
-    bgw_ptr->r_no_0++;
-
-    if (Player_id == 0) {
-        bgw_ptr->old_pos_x = bgw_ptr->xy[0].disp.pos = bgw_ptr->pos_x_work = 0x1C5;
-    } else {
-        bgw_ptr->old_pos_x = bgw_ptr->xy[0].disp.pos = bgw_ptr->pos_x_work = 0x209;
-    }
-
-    bgw_ptr->hos_xy[0].cal = bgw_ptr->wxy[0].cal = bgw_ptr->xy[0].cal;
-    bgw_ptr->zuubun = 0;
+    initialize_bonus_background();
 }
 
 void bns02_move() {
