@@ -27,173 +27,179 @@
 
 
 /// Check EX SA attack
-s32 check_full_gauge_attack(PLW* wk, s8 always) { // 🟡
+/* One grounded EX super-art slot: every gate it must pass, then the
+ * command match that fires it. Returns 1 when the art started.
+ *
+ * check_full_gauge_attack and check_full_gauge_attack2 were byte-identical
+ * apart from which slot field they read, so the slot index is the parameter -
+ * u8, the field's own type - and each caller passes its own field. */
+static s32 try_grounded_ex_super(PLW* wk, u8 slot_ix, s8 always) {
     u16* conpane;
     s16 j;
     u16 cusw;
     u16 exsw;
 
-    if (wk->sa->mp != 1) {
+    if (wk->spmv_ng_flag & DIP_UNKNOWN_30) {
         return 0;
     }
 
-    if (pcon_dp_flag) {
+    if (slot_ix == 0) {
         return 0;
     }
 
-    if (player_is_grounded_or_on_car(wk)) {
-        if (wk->spmv_ng_flag & DIP_UNKNOWN_30) {
-            return 0;
-        }
+    if (slot_ix > 0x1C) {
+        return 0;
+    }
 
-        if (wk->sa->exsa_g_ix == 0) {
-            return 0;
-        }
+    if (always && !(wk->cp->btix[slot_ix] & 0x100)) {
+        return 0;
+    }
 
-        if (wk->sa->exsa_g_ix > 0x1C) {
-            return 0;
-        }
+    if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && chainex_check[wk->wu.id][slot_ix - 20]) {
+        return 0;
+    }
 
-        if (always && !(wk->cp->btix[wk->sa->exsa_g_ix] & 0x100)) {
-            return 0;
-        }
+    if (wk->cancel_timer == 0) {
+        wk->permited_koa |= 0x40;
+    }
 
-        if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && chainex_check[wk->wu.id][wk->sa->exsa_g_ix - 20]) {
-            return 0;
-        }
+    if (is_blocked_by_arcade_switch(wk, slot_ix)) {
+        return 0;
+    }
 
-        if (wk->cancel_timer == 0) {
-            wk->permited_koa |= 0x40;
-        }
+    conpane = &wk->cp->sw_lvbt;
 
-        if (is_blocked_by_arcade_switch(wk, wk->sa->exsa_g_ix)) {
-            return 0;
-        }
+    if (wk->cp->waza_flag[slot_ix] == -1) {
+        return 0;
+    }
 
-        conpane = &wk->cp->sw_lvbt;
+    if (((wk->cp->btix[slot_ix] & 0xFF) != 0x80) && wk->cp->waza_flag[slot_ix]) {
+        cusw = conpane[wk->cp->btix[slot_ix] & 0xFF];
 
-        if (wk->cp->waza_flag[wk->sa->exsa_g_ix] == -1) {
-            return 0;
-        }
+        for (j = 3; j >= 0; j--) {
+            if ((j == 3) && !(wk->cp->btix[slot_ix] & 0x600)) {
+                continue;
+            }
 
-        if (((wk->cp->btix[wk->sa->exsa_g_ix] & 0xFF) != 0x80) && wk->cp->waza_flag[wk->sa->exsa_g_ix]) {
-            cusw = conpane[wk->cp->btix[wk->sa->exsa_g_ix] & 0xFF];
+            exsw = cusw & cmdshot_conv_tbl[wk->cp->exdt[slot_ix][j]];
 
-            for (j = 3; j >= 0; j--) {
-                if ((j == 3) && !(wk->cp->btix[wk->sa->exsa_g_ix] & 0x600)) {
-                    continue;
+            if (exsw == cmdshot_conv_tbl[wk->cp->exdt[slot_ix][j] & 0xF]) {
+                setup_comm_back(&wk->wu);
+
+                if (ArcadeBalance_IsEnabled()) {
+                    wk->as = &asstbl_lv_9900_g_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)]
+                                                     [j + (slot_ix - 20) * 4];
+                } else {
+                    wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(slot_ix)]
+                                             [j + (slot_ix - 20) * 4];
                 }
 
-                exsw = cusw & cmdshot_conv_tbl[wk->cp->exdt[wk->sa->exsa_g_ix][j]];
+                wk->wu.cg_cancel = 0;
+                wk->sa->mp = -1;
+                hissatsu_setup_union(wk, wk->cp->waza_r[slot_ix][j]);
+                waza_compel_all_init2(wk);
 
-                if (exsw == cmdshot_conv_tbl[wk->cp->exdt[wk->sa->exsa_g_ix][j] & 0xF]) {
-                    setup_comm_back(&wk->wu);
-
-                    if (ArcadeBalance_IsEnabled()) {
-                        wk->as = &asstbl_lv_9900_g_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)]
-                                                         [j + (wk->sa->exsa_g_ix - 20) * 4];
-                    } else {
-                        wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(wk->sa->exsa_g_ix)]
-                                                 [j + (wk->sa->exsa_g_ix - 20) * 4];
-                    }
-
-                    wk->wu.cg_cancel = 0;
-                    wk->sa->mp = -1;
-                    hissatsu_setup_union(wk, wk->cp->waza_r[wk->sa->exsa_g_ix][j]);
-                    waza_compel_all_init2(wk);
-
-                    if (!ArcadeBalance_IsEnabled()) {
-                        chainex_check[wk->wu.id][wk->sa->exsa_g_ix - 20] = 1;
-                        chainex_spat_cancel_kidou(&wk->wu);
-                    }
-
-                    return 1;
+                if (!ArcadeBalance_IsEnabled()) {
+                    chainex_check[wk->wu.id][slot_ix - 20] = 1;
+                    chainex_spat_cancel_kidou(&wk->wu);
                 }
+
+                return 1;
             }
         }
-
-        return 0;
-    } else {
-        if (wk->spmv_ng_flag & DIP_UNKNOWN_31) {
-            return 0;
-        }
-
-        if (wk->sa->exsa_a_ix == 0) {
-            return 0;
-        }
-
-        if (wk->sa->exsa_a_ix < 0x1C) {
-            return 0;
-        }
-
-        if (always && !(wk->cp->btix[wk->sa->exsa_a_ix] & 0x100)) {
-            return 0;
-        }
-
-        if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && chainex_check[wk->wu.id][wk->sa->exsa_a_ix - 20]) {
-            return 0;
-        }
-
-        if (wk->cancel_timer == 0) {
-            wk->permited_koa |= 0x40;
-        }
-
-        if (is_blocked_by_arcade_switch(wk, wk->sa->exsa_a_ix)) {
-            return 0;
-        }
-
-        conpane = &wk->cp->sw_lvbt;
-
-        if (wk->cp->waza_flag[wk->sa->exsa_a_ix] == -1) {
-            return 0;
-        }
-
-        if (((wk->cp->btix[wk->sa->exsa_a_ix] & 0xFF) != 0x80) && wk->cp->waza_flag[wk->sa->exsa_a_ix]) {
-            cusw = conpane[wk->cp->btix[wk->sa->exsa_a_ix] & 0xFF];
-
-            for (j = 3; j >= 0; j--) {
-                if ((j == 3) && !(wk->cp->btix[wk->sa->exsa_a_ix] & 0x600)) {
-                    continue;
-                }
-
-                exsw = cusw & cmdshot_conv_tbl[wk->cp->exdt[wk->sa->exsa_a_ix][j]];
-
-                if (exsw == cmdshot_conv_tbl[wk->cp->exdt[wk->sa->exsa_a_ix][j] & 0xF]) {
-                    setup_comm_back(&wk->wu);
-
-                    if (ArcadeBalance_IsEnabled()) {
-                        wk->as = &asstbl_lv_9900_a_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)]
-                                                         [j + (wk->sa->exsa_a_ix - 38) * 4];
-                    } else {
-                        wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(wk->sa->exsa_a_ix)]
-                                                 [j + (wk->sa->exsa_a_ix - 38) * 4];
-                    }
-
-                    wk->wu.cg_cancel = 0;
-                    wk->sa->mp = -1;
-                    hissatsu_setup_union(wk, wk->cp->waza_r[wk->sa->exsa_a_ix][j]);
-                    waza_compel_all_init2(wk);
-
-                    if (!ArcadeBalance_IsEnabled()) {
-                        chainex_check[wk->wu.id][wk->sa->exsa_a_ix - 20] = 1;
-                        chainex_spat_cancel_kidou(&wk->wu);
-                    }
-
-                    return 1;
-                }
-            }
-        }
-
-        return 0;
     }
+
+    return 0;
 }
 
-s32 check_full_gauge_attack2(PLW* wk, s8 always) { // 🟡
+/* One airborne EX super-art slot. Not shared with the grounded version:
+ * that one tests `> 0x1C` where this tests `< 0x1C`, and indexes its table
+ * from 20 rather than 38. A comparison operator and an offset are not
+ * values Recipe D may parameterise.
+ *
+ * check_full_gauge_attack and check_full_gauge_attack2 were byte-identical
+ * apart from which slot field they read, so the slot index is the parameter -
+ * u8, the field's own type - and each caller passes its own field. */
+static s32 try_airborne_ex_super(PLW* wk, u8 slot_ix, s8 always) {
     u16* conpane;
     s16 j;
     u16 cusw;
     u16 exsw;
 
+    if (wk->spmv_ng_flag & DIP_UNKNOWN_31) {
+        return 0;
+    }
+
+    if (slot_ix == 0) {
+        return 0;
+    }
+
+    if (slot_ix < 0x1C) {
+        return 0;
+    }
+
+    if (always && !(wk->cp->btix[slot_ix] & 0x100)) {
+        return 0;
+    }
+
+    if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && chainex_check[wk->wu.id][slot_ix - 20]) {
+        return 0;
+    }
+
+    if (wk->cancel_timer == 0) {
+        wk->permited_koa |= 0x40;
+    }
+
+    if (is_blocked_by_arcade_switch(wk, slot_ix)) {
+        return 0;
+    }
+
+    conpane = &wk->cp->sw_lvbt;
+
+    if (wk->cp->waza_flag[slot_ix] == -1) {
+        return 0;
+    }
+
+    if (((wk->cp->btix[slot_ix] & 0xFF) != 0x80) && wk->cp->waza_flag[slot_ix]) {
+        cusw = conpane[wk->cp->btix[slot_ix] & 0xFF];
+
+        for (j = 3; j >= 0; j--) {
+            if ((j == 3) && !(wk->cp->btix[slot_ix] & 0x600)) {
+                continue;
+            }
+
+            exsw = cusw & cmdshot_conv_tbl[wk->cp->exdt[slot_ix][j]];
+
+            if (exsw == cmdshot_conv_tbl[wk->cp->exdt[slot_ix][j] & 0xF]) {
+                setup_comm_back(&wk->wu);
+
+                if (ArcadeBalance_IsEnabled()) {
+                    wk->as = &asstbl_lv_9900_a_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)]
+                                                     [j + (slot_ix - 38) * 4];
+                } else {
+                    wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(slot_ix)]
+                                             [j + (slot_ix - 38) * 4];
+                }
+
+                wk->wu.cg_cancel = 0;
+                wk->sa->mp = -1;
+                hissatsu_setup_union(wk, wk->cp->waza_r[slot_ix][j]);
+                waza_compel_all_init2(wk);
+
+                if (!ArcadeBalance_IsEnabled()) {
+                    chainex_check[wk->wu.id][slot_ix - 20] = 1;
+                    chainex_spat_cancel_kidou(&wk->wu);
+                }
+
+                return 1;
+            }
+        }
+    }
+
+    return 0;
+}
+
+s32 check_full_gauge_attack(PLW* wk, s8 always) {
     if (wk->sa->mp != 1) {
         return 0;
     }
@@ -203,150 +209,26 @@ s32 check_full_gauge_attack2(PLW* wk, s8 always) { // 🟡
     }
 
     if (player_is_grounded_or_on_car(wk)) {
-        if (wk->spmv_ng_flag & DIP_UNKNOWN_30) {
-            return 0;
-        }
+        return try_grounded_ex_super(wk, wk->sa->exsa_g_ix, always);
+    }
 
-        if (wk->sa->exs2_g_ix == 0) {
-            return 0;
-        }
+    return try_airborne_ex_super(wk, wk->sa->exsa_a_ix, always);
+}
 
-        if (wk->sa->exs2_g_ix > 0x1C) {
-            return 0;
-        }
-
-        if (always && !(wk->cp->btix[wk->sa->exs2_g_ix] & 0x100)) {
-            return 0;
-        }
-
-        if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && chainex_check[wk->wu.id][wk->sa->exs2_g_ix - 20]) {
-            return 0;
-        }
-
-        if (wk->cancel_timer == 0) {
-            wk->permited_koa |= 0x40;
-        }
-
-        if (is_blocked_by_arcade_switch(wk, wk->sa->exs2_g_ix)) {
-            return 0;
-        }
-
-        conpane = &wk->cp->sw_lvbt;
-
-        if (wk->cp->waza_flag[wk->sa->exs2_g_ix] == -1) {
-            return 0;
-        }
-
-        if (((wk->cp->btix[wk->sa->exs2_g_ix] & 0xFF) != 0x80) && wk->cp->waza_flag[wk->sa->exs2_g_ix]) {
-            cusw = conpane[wk->cp->btix[wk->sa->exs2_g_ix] & 0xFF];
-
-            for (j = 3; j >= 0; j--) {
-                if ((j == 3) && !(wk->cp->btix[wk->sa->exs2_g_ix] & 0x600)) {
-                    continue;
-                }
-
-                exsw = cusw & cmdshot_conv_tbl[wk->cp->exdt[wk->sa->exs2_g_ix][j]];
-
-                if (exsw == cmdshot_conv_tbl[wk->cp->exdt[wk->sa->exs2_g_ix][j] & 0xF]) {
-                    setup_comm_back(&wk->wu);
-
-                    if (ArcadeBalance_IsEnabled()) {
-                        wk->as = &asstbl_lv_9900_g_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)]
-                                                         [j + (wk->sa->exs2_g_ix - 20) * 4];
-                    } else {
-                        wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(wk->sa->exs2_g_ix)]
-                                                 [j + (wk->sa->exs2_g_ix - 20) * 4];
-                    }
-
-                    wk->wu.cg_cancel = 0;
-                    wk->sa->mp = -1;
-                    hissatsu_setup_union(wk, wk->cp->waza_r[wk->sa->exs2_g_ix][j]);
-                    waza_compel_all_init2(wk);
-
-                    if (!ArcadeBalance_IsEnabled()) {
-                        chainex_check[wk->wu.id][wk->sa->exs2_g_ix - 20] = 1;
-                        chainex_spat_cancel_kidou(&wk->wu);
-                    }
-
-                    return 1;
-                }
-            }
-        }
-
-        return 0;
-    } else {
-        if (wk->spmv_ng_flag & DIP_UNKNOWN_31) {
-            return 0;
-        }
-
-        if (wk->sa->exs2_a_ix == 0) {
-            return 0;
-        }
-
-        if (wk->sa->exs2_a_ix < 0x1C) {
-            return 0;
-        }
-
-        if (always && !(wk->cp->btix[wk->sa->exs2_a_ix] & 0x100)) {
-            return 0;
-        }
-
-        if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && chainex_check[wk->wu.id][wk->sa->exs2_a_ix - 20]) {
-            return 0;
-        }
-
-        if (wk->cancel_timer == 0) {
-            wk->permited_koa |= 0x40;
-        }
-
-        if (is_blocked_by_arcade_switch(wk, wk->sa->exs2_a_ix)) {
-            return 0;
-        }
-
-        conpane = &wk->cp->sw_lvbt;
-
-        if (wk->cp->waza_flag[wk->sa->exs2_a_ix] == -1) {
-            return 0;
-        }
-
-        if (((wk->cp->btix[wk->sa->exs2_a_ix] & 0xFF) != 0x80) && wk->cp->waza_flag[wk->sa->exs2_a_ix]) {
-            cusw = conpane[wk->cp->btix[wk->sa->exs2_a_ix] & 0xFF];
-
-            for (j = 3; j >= 0; j--) {
-                if ((j == 3) && !(wk->cp->btix[wk->sa->exs2_a_ix] & 0x600)) {
-                    continue;
-                }
-
-                exsw = cusw & cmdshot_conv_tbl[wk->cp->exdt[wk->sa->exs2_a_ix][j]];
-
-                if (exsw == cmdshot_conv_tbl[wk->cp->exdt[wk->sa->exs2_a_ix][j] & 0xF]) {
-                    setup_comm_back(&wk->wu);
-
-                    if (ArcadeBalance_IsEnabled()) {
-                        wk->as = &asstbl_lv_9900_a_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)]
-                                                         [j + (wk->sa->exs2_a_ix - 38) * 4];
-                    } else {
-                        wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(wk->sa->exs2_a_ix)]
-                                                 [j + (wk->sa->exs2_a_ix - 38) * 4];
-                    }
-
-                    wk->wu.cg_cancel = 0;
-                    wk->sa->mp = -1;
-                    hissatsu_setup_union(wk, wk->cp->waza_r[wk->sa->exs2_a_ix][j]);
-                    waza_compel_all_init2(wk);
-
-                    if (!ArcadeBalance_IsEnabled()) {
-                        chainex_check[wk->wu.id][wk->sa->exs2_a_ix - 20] = 1;
-                        chainex_spat_cancel_kidou(&wk->wu);
-                    }
-
-                    return 1;
-                }
-            }
-        }
-
+s32 check_full_gauge_attack2(PLW* wk, s8 always) {
+    if (wk->sa->mp != 1) {
         return 0;
     }
+
+    if (pcon_dp_flag) {
+        return 0;
+    }
+
+    if (player_is_grounded_or_on_car(wk)) {
+        return try_grounded_ex_super(wk, wk->sa->exs2_g_ix, always);
+    }
+
+    return try_airborne_ex_super(wk, wk->sa->exs2_a_ix, always);
 }
 
 s16 check_super_arts_attack(PLW* wk) { // 🟡
