@@ -537,6 +537,37 @@ static void apply_vital_underflow_or_piyo(PLW* wk) {
     }
 }
 
+/* Taking the damage off the player's vitality, with the vital option that
+ * zeroes it first and the two floors at zero after. subtract_dm_vital and
+ * subtract_dm_vital_aiuchi ran this identically; the one statement that differs
+ * between them - the super-art gauge award - stays at subtract_dm_vital's call
+ * site, before the call, where it was. */
+static void apply_damage_to_vital(PLW* wk) {
+    if (wk->atemi_flag) {
+        wk->dm_vital_backup = wk->wu.dm_vital;
+    } else {
+        wk->dm_vital_backup = 0;
+    }
+
+    wk->dm_vital_use = 0;
+
+    if (omop_vital_ix[wk->wu.id] == 5) {
+        wk->wu.dm_vital = 0;
+    }
+
+    wk->wu.vital_new -= wk->wu.dm_vital;
+
+    if (chip_damage_would_be_fatal(wk)) {
+        wk->wu.vital_new = 0;
+    }
+
+    if (wk->wu.dm_nodeathattack && wk->wu.vital_new < 0) {
+        wk->wu.vital_new = 0;
+    }
+
+    apply_vital_underflow_or_piyo(wk);
+}
+
 void subtract_dm_vital(PLW* wk) {
     if (wk->dead_flag == 0) {
         if (damage_interrupts_current_action(wk)) {
@@ -545,29 +576,7 @@ void subtract_dm_vital(PLW* wk) {
 
         add_sp_arts_gauge_hit_dm(wk);
 
-        if (wk->atemi_flag) {
-            wk->dm_vital_backup = wk->wu.dm_vital;
-        } else {
-            wk->dm_vital_backup = 0;
-        }
-
-        wk->dm_vital_use = 0;
-
-        if (omop_vital_ix[wk->wu.id] == 5) {
-            wk->wu.dm_vital = 0;
-        }
-
-        wk->wu.vital_new -= wk->wu.dm_vital;
-
-        if (chip_damage_would_be_fatal(wk)) {
-            wk->wu.vital_new = 0;
-        }
-
-        if (wk->wu.dm_nodeathattack && wk->wu.vital_new < 0) {
-            wk->wu.vital_new = 0;
-        }
-
-        apply_vital_underflow_or_piyo(wk);
+        apply_damage_to_vital(wk);
     }
 
     if (wk->guard_chuu == 0) {
@@ -595,6 +604,7 @@ void subtract_dm_vital(PLW* wk) {
     wk->wu.dm_piyo = 0;
 }
 
+
 /* Applying a trade's damage to a player who is still alive. The order matters:
  * the vital option that zeroes the damage runs before the subtraction, and the
  * two floors at zero run after it, as in the original. */
@@ -603,29 +613,7 @@ static void take_aiuchi_damage(PLW* wk) {
         Additinal_Score_DM((WORK_Other*)wk->wu.dmg_adrs, wk->wu.dm_ten_ix);
     }
 
-    if (wk->atemi_flag) {
-        wk->dm_vital_backup = wk->wu.dm_vital;
-    } else {
-        wk->dm_vital_backup = 0;
-    }
-
-    wk->dm_vital_use = 0;
-
-    if (omop_vital_ix[wk->wu.id] == 5) {
-        wk->wu.dm_vital = 0;
-    }
-
-    wk->wu.vital_new -= wk->wu.dm_vital;
-
-    if (chip_damage_would_be_fatal(wk)) {
-        wk->wu.vital_new = 0;
-    }
-
-    if (wk->wu.dm_nodeathattack && wk->wu.vital_new < 0) {
-        wk->wu.vital_new = 0;
-    }
-
-    apply_vital_underflow_or_piyo(wk);
+    apply_damage_to_vital(wk);
 }
 
 void subtract_dm_vital_aiuchi(PLW* wk) {
