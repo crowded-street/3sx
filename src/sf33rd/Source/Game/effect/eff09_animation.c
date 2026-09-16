@@ -21,21 +21,47 @@ static s32 eff09_9000_animation_updates_enabled(const WORK_Other* ewk) {
     return !EXE_flag && !Game_pause && ewk->wu.hit_stop;
 }
 
+static void start_eff09_animation_effect(WORK_Other* ewk) {
+    ewk->wu.routine_no[1]++;
+    ewk->wu.disp_flag = 1;
+    ewk->wu.dead_f = 1;
+}
+
+static void place_eff09_animation_effect(WORK_Other* ewk) {
+    if (ewk->wu.rl_flag) {
+        ewk->wu.xyz[0].disp.pos -= 6;
+    } else {
+        ewk->wu.xyz[0].disp.pos -= 2;
+    }
+
+    ewk->wu.rl_flag = 0;
+    ewk->wu.xyz[1].disp.pos += base_y_pos;
+    set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+}
+
+static void advance_eff09_animation_step(WORK_Other* ewk) {
+    if (eff09_9000_animation_updates_enabled(ewk)) {
+        char_move(&ewk->wu);
+
+        if (ewk->wu.cg_type) {
+            ewk->wu.routine_no[1]++;
+            ewk->wu.disp_flag = 0;
+        }
+    }
+}
+
+static void advance_eff09_animation(WORK_Other* ewk) {
+    advance_eff09_animation_step(ewk);
+    disp_pos_trans_entry_rs(ewk);
+}
+
 void eff09_9000(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
         ewk->wu.routine_no[1]++;
         ewk->wu.disp_flag = 1;
 
-        if (ewk->wu.rl_flag) {
-            ewk->wu.xyz[0].disp.pos -= 6;
-        } else {
-            ewk->wu.xyz[0].disp.pos -= 2;
-        }
-
-        ewk->wu.rl_flag = 0;
-        ewk->wu.xyz[1].disp.pos += base_y_pos;
-        set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+        place_eff09_animation_effect(ewk);
         break;
 
     case 1:
@@ -61,15 +87,7 @@ static void initialize_eff09_10000(WORK_Other* ewk) {
     ewk->wu.disp_flag = 1;
     ewk->wu.dead_f = 1;
 
-    if (ewk->wu.rl_flag) {
-        ewk->wu.xyz[0].disp.pos -= 6;
-    } else {
-        ewk->wu.xyz[0].disp.pos -= 2;
-    }
-
-    ewk->wu.rl_flag = 0;
-    ewk->wu.xyz[1].disp.pos += base_y_pos;
-    set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+    place_eff09_animation_effect(ewk);
 }
 
 void eff09_10000(WORK_Other* ewk) {
@@ -79,16 +97,7 @@ void eff09_10000(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (eff09_9000_animation_updates_enabled(ewk)) {
-            char_move(&ewk->wu);
-
-            if (ewk->wu.cg_type) {
-                ewk->wu.routine_no[1]++;
-                ewk->wu.disp_flag = 0;
-            }
-        }
-
-        disp_pos_trans_entry_rs(ewk);
+        advance_eff09_animation(ewk);
         break;
 
     case 2:
@@ -116,23 +125,12 @@ void eff09_14000(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        ewk->wu.routine_no[1]++;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.dead_f = 1;
+        start_eff09_animation_effect(ewk);
         set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
         break;
 
     case 1:
-        if (eff09_9000_animation_updates_enabled(ewk)) {
-            char_move(&ewk->wu);
-
-            if (ewk->wu.cg_type) {
-                ewk->wu.routine_no[1]++;
-                ewk->wu.disp_flag = 0;
-            }
-        }
-
-        disp_pos_trans_entry_rs(ewk);
+        advance_eff09_animation(ewk);
         break;
 
     case 2:
@@ -156,9 +154,7 @@ void eff09_15000(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        ewk->wu.routine_no[1]++;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.dead_f = 1;
+        start_eff09_animation_effect(ewk);
         ewk->wu.rl_flag = 0;
         ewk->wu.xyz[1].disp.pos += base_y_pos;
         set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
@@ -190,9 +186,7 @@ void eff09_15000(WORK_Other* ewk) {
 void eff09_16000(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        ewk->wu.routine_no[1]++;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.dead_f = 1;
+        start_eff09_animation_effect(ewk);
         ewk->wu.xyz[0].disp.pos += 2;
         ewk->wu.xyz[1].disp.pos += base_y_pos;
         ewk->wu.rl_flag = 0;
@@ -200,15 +194,7 @@ void eff09_16000(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (eff09_9000_animation_updates_enabled(ewk)) {
-            char_move(&ewk->wu);
-
-            if (ewk->wu.cg_type) {
-                ewk->wu.routine_no[1]++;
-                ewk->wu.disp_flag = 0;
-            }
-        }
-
+        advance_eff09_animation_step(ewk);
         suzi_sync_pos_set(ewk);
         sort_push_request4(&ewk->wu);
         break;
