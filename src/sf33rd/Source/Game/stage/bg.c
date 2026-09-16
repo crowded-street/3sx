@@ -1163,6 +1163,60 @@ static void draw_ending_c_tiles(u8 bgnm, s32 xx[2], s32 yy[2], s32 global_index,
     }
 }
 
+static void draw_ending_stage7(u8 bgnm, s32 xx[2], s32 yy[2], s32 global_index, s32 palOffset,
+                               PPGDataList* curDataList) {
+    bgDrawOneScreen(bgnm, global_index, &xx[0], &yy[0], -1, palOffset, curDataList);
+
+    if (EXE_flag != 0) {
+        return;
+    }
+
+    if (Game_pause != 0) {
+        return;
+    }
+
+    if (rw_bg_flag[bgnm] && rw_num) {
+        bgRWWorkUpdate();
+    }
+
+    scr_calc2(bgnm);
+}
+
+static void draw_later_special_stage(u8 bgnm, s32 xx[2], s32 yy[2], s32 global_index, s32 palOffset,
+                                     PPGDataList* curDataList) {
+    switch (tokusyu_stage) {
+    case 5:
+        draw_ending_g_tiles(bgnm, xx, yy, global_index, palOffset, curDataList);
+
+        scr_calc2(bgnm);
+        break;
+
+    case 6:
+        draw_ending_c_tiles(bgnm, xx, yy, global_index, palOffset, curDataList);
+
+        scr_calc2(bgnm);
+        break;
+
+    case 7:
+        draw_ending_stage7(bgnm, xx, yy, global_index, palOffset, curDataList);
+        break;
+
+    case 4:
+        draw_stage04_suzi(bgnm);
+
+        /* fallthrough */
+
+    default:
+        bgDrawOneScreen(bgnm, global_index, &xx[0], &yy[0], -1, palOffset, curDataList);
+
+        if (should_update_rw_work(bgnm)) {
+            bgRWWorkUpdate();
+        }
+
+        break;
+    }
+}
+
 void scr_trans(u8 bgnm) {
     PPGDataList* curDataList;
     s32 xx[2];
@@ -1216,48 +1270,8 @@ void scr_trans(u8 bgnm) {
         }
         break;
 
-    case 5:
-        draw_ending_g_tiles(bgnm, xx, yy, global_index, palOffset, curDataList);
-
-        scr_calc2(bgnm);
-        break;
-
-    case 6:
-        draw_ending_c_tiles(bgnm, xx, yy, global_index, palOffset, curDataList);
-
-        scr_calc2(bgnm);
-        break;
-
-    case 7:
-        bgDrawOneScreen(bgnm, global_index, &xx[0], &yy[0], -1, palOffset, curDataList);
-
-        if (EXE_flag != 0) {
-            break;
-        }
-
-        if (Game_pause != 0) {
-            break;
-        }
-
-        if (rw_bg_flag[bgnm] && rw_num) {
-            bgRWWorkUpdate();
-        }
-
-        scr_calc2(bgnm);
-        break;
-
-    case 4:
-        draw_stage04_suzi(bgnm);
-
-        /* fallthrough */
-
     default:
-        bgDrawOneScreen(bgnm, global_index, &xx[0], &yy[0], -1, palOffset, curDataList);
-
-        if (should_update_rw_work(bgnm)) {
-            bgRWWorkUpdate();
-        }
-
+        draw_later_special_stage(bgnm, xx, yy, global_index, palOffset, curDataList);
         break;
     }
 }
