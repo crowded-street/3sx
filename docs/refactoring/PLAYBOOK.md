@@ -685,6 +685,19 @@ both findings and was worth **+0.06**.
 
 So: one name for the whole `if`, even when the parts have good names of their own.
 
+**But the opposite is true for Complex Method.** That finding counts every `&&` and `||`
+in the function wherever they sit, so moving terms into named helpers is exactly what
+reduces it. `grade.c`'s `guard_was_not_deliberate` was five lines at cc 9 - a seven-term
+conjunction and nothing else - and splitting it into three named halves took it to cc 3 and
+cleared the finding, worth +0.13.
+
+So check which finding you are looking at before choosing:
+
+| Finding | What helps |
+| --- | --- |
+| Complex Conditional | one name for the **whole** condition at the branch |
+| Complex Method driven by a long boolean | names for the **parts**, moving the operators out |
+
 ### Recipe X pays only if both halves come in under the threshold
 
 The same arithmetic as *Do not extract an arm that is still too big*, applied to a split
