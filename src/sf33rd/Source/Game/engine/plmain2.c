@@ -30,9 +30,11 @@ void player_mvbs_4000(PLW* wk);
 
 void (*const plmain_b_lv_00[5])(PLW* wk);
 
-void Player_move_bonus(PLW* wk, u16 lv_data) {
-    s16 i;
+static s32 zuru_timer_is_running(const PLW* wk) {
+    return (Timer_Freeze == 0) && (wk->wu.hit_stop == 0) && (wk->zuru_timer > 0);
+}
 
+static void read_bonus_lever(PLW* wk, u16 lv_data) {
     if (wk->wu.operator) {
         if (wk->metamor_over) {
             wk->cp->sw_lvbt = 0;
@@ -58,10 +60,10 @@ void Player_move_bonus(PLW* wk, u16 lv_data) {
     }
 
     wk->cp->sw_lvbt = check_illegal_lever_data(wk->cp->sw_lvbt);
+}
 
-    if ((wk->dead_flag + wk->wkey_flag) == 0) {
-        wk->hurimukenai_flag = 0;
-    }
+static void snapshot_previous_frame(PLW* wk) {
+    s16 i;
 
     for (i = 0; i < 8; i++) {
         wk->wu.old_rno[(i)] = wk->wu.routine_no[(i)];
@@ -70,6 +72,18 @@ void Player_move_bonus(PLW* wk, u16 lv_data) {
     for (i = 0; i < 3; i++) {
         wk->wu.old_pos[(i)] = wk->wu.xyz[(i)].disp.pos;
     }
+}
+
+void Player_move_bonus(PLW* wk, u16 lv_data) {
+    s16 i;
+
+    read_bonus_lever(wk, lv_data);
+
+    if ((wk->dead_flag + wk->wkey_flag) == 0) {
+        wk->hurimukenai_flag = 0;
+    }
+
+    snapshot_previous_frame(wk);
 
     get_saikinnno_idouryou(wk);
     wk->old_gdflag = wk->guard_flag;
@@ -238,7 +252,7 @@ void player_mvbs_4000(PLW* wk) {
     if (!check_hit_stop(wk)) {
         plmain_lv_02[wk->wu.routine_no[1]](wk);
 
-        if ((Timer_Freeze == 0) && (wk->wu.hit_stop == 0) && (wk->zuru_timer > 0)) {
+        if (zuru_timer_is_running(wk)) {
             wk->zuru_timer -= 2;
         }
 
