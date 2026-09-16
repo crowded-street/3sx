@@ -49,10 +49,9 @@ static s32 only_this_player_is_moving(const PLW* wk, const WORK* emwk) {
            (emwk->routine_no[1] != 1) && (emwk->routine_no[1] != 3);
 }
 
-void Player_move(PLW* wk, u16 lv_data) { // 🟡
-    // CPS3 has a pre-recorded replay path here, but it seems to be unreachable from normal gameplay, so it's omitted.
-    s16 i;
-
+/* Read this frame's lever data - from the pad for a human player, from the CPU
+ * algorithm otherwise - normalise it, and record it in the input history. */
+static void read_lever_input(PLW* wk, u16 lv_data) {
     if (wk->wu.operator) {
         wk->cp->sw_lvbt = lv_data;
     } else {
@@ -65,7 +64,12 @@ void Player_move(PLW* wk, u16 lv_data) { // 🟡
     }
 
     InputHistory_Append(wk->cp->sw_lvbt, wk->wu.id);
+}
 
+/* The states in which the player's input is thrown away for the frame. The
+ * resurrection case is arcade-balance-gated where the others are not, as in the
+ * original. */
+static void silence_lever_when_inactive(PLW* wk) {
     if (wk->metamor_over) {
         wk->cp->sw_lvbt = 0;
     }
@@ -87,6 +91,15 @@ void Player_move(PLW* wk, u16 lv_data) { // 🟡
     if ((wk->dead_flag + wk->wkey_flag) == 0) {
         wk->hurimukenai_flag = 0;
     }
+}
+
+void Player_move(PLW* wk, u16 lv_data) { // 🟡
+    // CPS3 has a pre-recorded replay path here, but it seems to be unreachable from normal gameplay, so it's omitted.
+    s16 i;
+
+    read_lever_input(wk, lv_data);
+
+    silence_lever_when_inactive(wk);
 
     for (i = 0; i < 8; i++) {
         wk->wu.old_rno[i] = wk->wu.routine_no[i];
