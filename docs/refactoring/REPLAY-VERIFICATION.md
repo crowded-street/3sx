@@ -65,16 +65,24 @@ the critical path. Seed diversity is also the better buy for finding a refactori
 a mis-extracted branch either gets exercised in the first few hundred frames or is not
 reached at all, whereas a longer run mostly revisits states it has already covered.
 
-The resulting cadence:
+The resulting cadence (project owner directive, 2026-09-16):
 
-- **Per commit: the default `tools/replay_verify.sh origin/main`** (8 x 1200, ~35 s).
-  Cheap enough to run on every commit, which is the point - a divergence caught here
-  is one commit wide and reverts cleanly.
-- **Before a PR: `tools/replay_verify.sh origin/main 30 3600`** (~8 min).
+- **Every commit: build plus `tools/refactor_guard.py`, including `--calls`.** This
+  remains the routine gate. It is what catches the mistake class no build error will,
+  and it costs seconds.
+- **A replay run when the change is genuinely high risk.** Removing a `goto` into a
+  `switch`, restructuring control flow where an early return has to be argued to reach
+  the same exit, anything touching state the rollback system saves. The default
+  `tools/replay_verify.sh origin/main` (8 x 1200, ~35 s) is the right size here. Not
+  needed for an ordinary Recipe P predicate or a straightforward deduplication.
+- **Before pushing a branch: one wide run,
+  `tools/replay_verify.sh origin/main 30 3600`** (~8 min).
 
-If a wide run ever does diverge on a batch that passed its per-commit gates, bisect
-with the same tool: the seed and frame are reported, and every commit is reachable as
-a worktree.
+Judging which changes are risky is part of the work. Running the wide gate on everything
+is not a substitute for that judgement, and it is not what the time is for.
+
+If a pre-push run ever does diverge, bisect with the same tool: the seed and frame are
+reported, and every commit is reachable as a worktree.
 
 ## What it does not cover
 

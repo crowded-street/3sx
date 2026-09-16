@@ -52,6 +52,12 @@ across harnesses.
   flows. Read [`docs/refactoring/REPLAY-VERIFICATION.md`](docs/refactoring/REPLAY-VERIFICATION.md)
   before relying on a clean result, and keep flagging CRITICAL-risk files so the
   playtesting that remains is targeted.
+- **Run it on risky changes and once before pushing - not on every commit.** Build plus
+  `refactor_guard.py` stays the per-commit gate. Add a replay run when a change is
+  genuinely high risk (control flow restructured, a `goto` removed from a `switch`,
+  rollback-saved state touched), and run the wide gate
+  `tools/replay_verify.sh origin/main 30 3600` before a branch is pushed. Judging which
+  changes need it is part of the work.
 - **A Code Health score of 4.00 is a milestone, not the finish line.** It marks leaving
   the Red band, and the task files use it as a stopping point for weaker models that
   should hand the file on rather than attempt the transformations needing data-flow
