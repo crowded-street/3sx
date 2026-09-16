@@ -919,6 +919,30 @@ s16 cal_sa_gauge_waribiki(PLW* wk, s16 asag) { // 🟢
     return asag;
 }
 
+/* Every super-art gauge award follows the same tail once it has its base
+ * amount: the CPU difficulty adjustment, a floor of 1, and the award itself.
+ * Only the base amount differs between the callers, and that stays at each call
+ * site.
+ *
+ * add_sp_arts_gauge_paring wrote this as `if (asag != 0) { ... }` rather than an
+ * early return; the two are the same test either way round, which is the one
+ * inversion the catalogue sanctions. */
+static void award_sp_arts_gauge(PLW* wk, s16 asag) {
+    if (asag == 0) {
+        return;
+    }
+
+    if (wk->wu.operator == 0) {
+        asag += asagh_zuru[save_w[Present_Mode].Difficulty];
+    }
+
+    if (asag < 1) {
+        asag = 1;
+    }
+
+    add_super_arts_gauge(wk->sa, wk->wu.id, asag, wk->metamorphose);
+}
+
 void add_sp_arts_gauge_paring(PLW* wk) { // 🟡 Difficulty handling differs
     PLW* emwk;
     s16 asag;
@@ -936,91 +960,33 @@ void add_sp_arts_gauge_paring(PLW* wk) { // 🟡 Difficulty handling differs
     emwk = (PLW*)wk->wu.target_adrs;
     asag = _add_arts_gauge[emwk->player_number][wk->wu.dm_arts_point][3];
 
-    if (asag != 0) {
-        if (wk->wu.operator == 0) {
-            asag += asagh_zuru[save_w[Present_Mode].Difficulty];
-        }
-
-        if (asag < 1) {
-            asag = 1;
-        }
-
-        add_super_arts_gauge(wk->sa, wk->wu.id, asag, wk->metamorphose);
-    }
+    award_sp_arts_gauge(wk, asag);
 
     wk->wu.dm_arts_point = 0;
 }
 
 void add_sp_arts_gauge_tokushu(PLW* wk) { // 🟢 Difficulty handling differs
-    s16 asag;
-
     if (wk->wu.work_id != 1) {
         return;
     }
 
-    asag = apagt_table[wk->player_number];
-
-    if (asag == 0) {
-        return;
-    }
-
-    if (wk->wu.operator == 0) {
-        asag += asagh_zuru[save_w[Present_Mode].Difficulty];
-    }
-
-    if (asag < 1) {
-        asag = 1;
-    }
-
-    add_super_arts_gauge(wk->sa, wk->wu.id, asag, wk->metamorphose);
+    award_sp_arts_gauge(wk, apagt_table[wk->player_number]);
 }
 
 void add_sp_arts_gauge_ukemi(PLW* wk) { // 🟢 Difficulty handling differs
-    s16 asag;
-
     if (wk->wu.work_id != 1) {
         return;
     }
 
-    asag = 3;
-
-    if (asag == 0) {
-        return;
-    }
-
-    if (wk->wu.operator == 0) {
-        asag += asagh_zuru[save_w[Present_Mode].Difficulty];
-    }
-
-    if (asag < 1) {
-        asag = 1;
-    }
-
-    add_super_arts_gauge(wk->sa, wk->wu.id, asag, wk->metamorphose);
+    award_sp_arts_gauge(wk, 3);
 }
 
 void add_sp_arts_gauge_nagenuke(PLW* wk) { // 🟢 Difficulty handling differs
-    s16 asag;
-
     if (wk->wu.work_id != 1) {
         return;
     }
 
-    asag = 6;
-
-    if (asag == 0) {
-        return;
-    }
-
-    if (wk->wu.operator == 0) {
-        asag += asagh_zuru[save_w[Present_Mode].Difficulty];
-    }
-
-    if (asag < 1) {
-        asag = 1;
-    }
-
-    add_super_arts_gauge(wk->sa, wk->wu.id, asag, wk->metamorphose);
+    award_sp_arts_gauge(wk, 6);
 }
 
 #if !CPS3
