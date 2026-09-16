@@ -1240,13 +1240,55 @@ static void draw_later_special_stage(u8 bgnm, s32 xx[2], s32 yy[2], s32 global_i
     }
 }
 
+static s32 draw_early_special_stage(u8 bgnm, s32 xx[2], s32 yy[2], s32 global_index, s32 palOffset,
+                                    PPGDataList* curDataList) {
+    u32 vtxColor;
+
+    switch (tokusyu_stage) {
+    case 1:
+        draw_stage03_tiles(bgnm, xx, yy, global_index, palOffset, curDataList);
+
+        if (advance_stage03_state(bgnm)) {
+            return 1;
+        }
+        break;
+
+    case 2:
+        if (judge_flag == 1 && bgnm == 1) {
+            vtxColor = 0xFFA0A0A0;
+        } else {
+            vtxColor = 0xFFFFFFFF;
+        }
+
+        draw_stage02_tiles(bgnm, xx, yy, global_index, vtxColor, palOffset, curDataList);
+
+        if (advance_stage02_state(bgnm)) {
+            return 1;
+        }
+        break;
+
+    case 3:
+        draw_stage19_tiles(bgnm, xx, yy, global_index, palOffset, curDataList);
+
+        if (advance_stage19_state(bgnm)) {
+            return 1;
+        }
+        break;
+
+    default:
+        draw_later_special_stage(bgnm, xx, yy, global_index, palOffset, curDataList);
+        break;
+    }
+
+    return 0;
+}
+
 void scr_trans(u8 bgnm) {
     PPGDataList* curDataList;
     s32 xx[2];
     s32 yy[2];
     s32 global_index;
     s32 palOffset;
-    u32 vtxColor;
 
     prepare_stage_tile_bounds(bgnm, xx, yy);
 
@@ -1262,40 +1304,8 @@ void scr_trans(u8 bgnm) {
     ppgSetupCurrentDataList(&ppgBgList[bgnm]);
     curDataList = &ppgBgList[bgnm];
 
-    switch (tokusyu_stage) {
-    case 1:
-        draw_stage03_tiles(bgnm, xx, yy, global_index, palOffset, curDataList);
-
-        if (advance_stage03_state(bgnm)) {
-            return;
-        }
-        break;
-
-    case 2:
-        if (judge_flag == 1 && bgnm == 1) {
-            vtxColor = 0xFFA0A0A0;
-        } else {
-            vtxColor = 0xFFFFFFFF;
-        }
-
-        draw_stage02_tiles(bgnm, xx, yy, global_index, vtxColor, palOffset, curDataList);
-
-        if (advance_stage02_state(bgnm)) {
-            return;
-        }
-        break;
-
-    case 3:
-        draw_stage19_tiles(bgnm, xx, yy, global_index, palOffset, curDataList);
-
-        if (advance_stage19_state(bgnm)) {
-            return;
-        }
-        break;
-
-    default:
-        draw_later_special_stage(bgnm, xx, yy, global_index, palOffset, curDataList);
-        break;
+    if (draw_early_special_stage(bgnm, xx, yy, global_index, palOffset, curDataList)) {
+        return;
     }
 }
 
