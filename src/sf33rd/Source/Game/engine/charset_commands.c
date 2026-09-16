@@ -413,6 +413,34 @@ s32 comm_quay(WORK* /* unused */, UNK11* ctc) {
     return 1;
 }
 
+/* The six shot-test opcodes all read their operand the same way: bit 0x4000
+ * means "one of my command work registers", anything else is the literal. */
+static u16 comm_shot_operand(WORK* wk, UNK11* ctc) {
+    if (ctc->koc & 0x4000) {
+        return wk->cmwk[ctc->koc & 0xF];
+    }
+
+    return ctc->koc;
+}
+
+/* ...and they all end the same way, jumping to ix when the test holds and to
+ * pat when it does not. The two tests stay apart: one compares, one masks. */
+static s32 jump_on_shot_equal(WORK* wk, UNK11* ctc, u16 my_shdat, u16 shdat) {
+    if (my_shdat == shdat) {
+        return decord_if_jump(wk, ctc, ctc->ix);
+    }
+
+    return decord_if_jump(wk, ctc, ctc->pat);
+}
+
+static s32 jump_on_shot_overlap(WORK* wk, UNK11* ctc, u16 my_shdat, u16 shdat) {
+    if (my_shdat & shdat) {
+        return decord_if_jump(wk, ctc, ctc->ix);
+    }
+
+    return decord_if_jump(wk, ctc, ctc->pat);
+}
+
 /* One character's taunt shot pattern is ignored after a KO while the DIP switch
  * that disables post-KO taunts is set. Character 16 and the 0x440 pattern are
  * the original's, not a guess at which character that is. */
@@ -422,26 +450,14 @@ static s32 taunt_shot_is_suppressed(WORK* wk, u16 my_shdat) {
 }
 
 s32 comm_if_s(WORK* wk, UNK11* ctc) {
-    u16 shdat;
-    u16 my_shdat;
-
-    if (ctc->koc & 0x4000) {
-        my_shdat = wk->cmwk[ctc->koc & 0xF];
-    } else {
-        my_shdat = ctc->koc;
-    }
-
-    shdat = get_comm_if_shot(wk);
+    u16 my_shdat = comm_shot_operand(wk, ctc);
+    u16 shdat = get_comm_if_shot(wk);
 
     if (taunt_shot_is_suppressed(wk, my_shdat)) {
         shdat = 0;
     }
 
-    if (my_shdat == shdat) {
-        return decord_if_jump(wk, ctc, ctc->ix);
-    }
-
-    return decord_if_jump(wk, ctc, ctc->pat);
+    return jump_on_shot_equal(wk, ctc, my_shdat, shdat);
 }
 
 s32 comm_rapp(WORK* wk, UNK11* ctc) {
@@ -577,22 +593,10 @@ s32 comm_ngem(WORK* wk, UNK11* /* unused */) {
 }
 
 s32 comm_iflb(WORK* wk, UNK11* ctc) {
-    u16 shdat;
-    u16 my_shdat;
+    u16 my_shdat = comm_shot_operand(wk, ctc);
+    u16 shdat = get_comm_if_lvsh(wk);
 
-    if (ctc->koc & 0x4000) {
-        my_shdat = wk->cmwk[ctc->koc & 0xF];
-    } else {
-        my_shdat = ctc->koc;
-    }
-
-    shdat = get_comm_if_lvsh(wk);
-
-    if (my_shdat == shdat) {
-        return decord_if_jump(wk, ctc, ctc->ix);
-    }
-
-    return decord_if_jump(wk, ctc, ctc->pat);
+    return jump_on_shot_equal(wk, ctc, my_shdat, shdat);
 }
 
 s32 comm_back(WORK* wk, UNK11* /* unused */) {
@@ -1076,22 +1080,10 @@ s32 comm_rljmp(WORK* wk, UNK11* ctc) {
 }
 
 s32 comm_ifs2(WORK* wk, UNK11* ctc) {
-    u16 shdat;
-    u16 my_shdat;
+    u16 my_shdat = comm_shot_operand(wk, ctc);
+    u16 shdat = get_comm_if_shot(wk);
 
-    if (ctc->koc & 0x4000) {
-        my_shdat = wk->cmwk[ctc->koc & 0xF];
-    } else {
-        my_shdat = ctc->koc;
-    }
-
-    shdat = get_comm_if_shot(wk);
-
-    if (my_shdat & shdat) {
-        return decord_if_jump(wk, ctc, ctc->ix);
-    }
-
-    return decord_if_jump(wk, ctc, ctc->pat);
+    return jump_on_shot_overlap(wk, ctc, my_shdat, shdat);
 }
 
 s32 comm_abbak(WORK* wk, UNK11* /* unused */) {
@@ -1117,41 +1109,17 @@ s32 comm_sse(WORK* wk, UNK11* ctc) {
 }
 
 s32 comm_s_chg(WORK* wk, UNK11* ctc) {
-    u16 shdat;
-    u16 my_shdat;
+    u16 my_shdat = comm_shot_operand(wk, ctc);
+    u16 shdat = get_comm_if_shot_now_off(wk);
 
-    if (ctc->koc & 0x4000) {
-        my_shdat = wk->cmwk[ctc->koc & 0xF];
-    } else {
-        my_shdat = ctc->koc;
-    }
-
-    shdat = get_comm_if_shot_now_off(wk);
-
-    if (my_shdat == shdat) {
-        return decord_if_jump(wk, ctc, ctc->ix);
-    }
-
-    return decord_if_jump(wk, ctc, ctc->pat);
+    return jump_on_shot_equal(wk, ctc, my_shdat, shdat);
 }
 
 s32 comm_schg2(WORK* wk, UNK11* ctc) {
-    u16 shdat;
-    u16 my_shdat;
+    u16 my_shdat = comm_shot_operand(wk, ctc);
+    u16 shdat = get_comm_if_shot_now_off(wk);
 
-    if (ctc->koc & 0x4000) {
-        my_shdat = wk->cmwk[ctc->koc & 0xF];
-    } else {
-        my_shdat = ctc->koc;
-    }
-
-    shdat = get_comm_if_shot_now_off(wk);
-
-    if (my_shdat & shdat) {
-        return decord_if_jump(wk, ctc, ctc->ix);
-    }
-
-    return decord_if_jump(wk, ctc, ctc->pat);
+    return jump_on_shot_overlap(wk, ctc, my_shdat, shdat);
 }
 
 s32 comm_rhsja(PLW* wk, UNK11* ctc) {
@@ -1202,21 +1170,9 @@ s32 comm_ayjmp(WORK* wk, UNK11* ctc) {
 }
 
 s32 comm_ifs3(WORK* wk, UNK11* ctc) {
-    u16 shdat;
-    u16 my_shdat;
+    u16 my_shdat = comm_shot_operand(wk, ctc);
+    u16 shdat = get_comm_if_shot_now(wk);
 
-    if (ctc->koc & 0x4000) {
-        my_shdat = wk->cmwk[ctc->koc & 0xF];
-    } else {
-        my_shdat = ctc->koc;
-    }
-
-    shdat = get_comm_if_shot_now(wk);
-
-    if (my_shdat & shdat) {
-        return decord_if_jump(wk, ctc, ctc->ix);
-    }
-
-    return decord_if_jump(wk, ctc, ctc->pat);
+    return jump_on_shot_overlap(wk, ctc, my_shdat, shdat);
 }
 
