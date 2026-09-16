@@ -108,6 +108,14 @@ const s16 dead_voice_table[20][2] = { { 864, 865 }, { 928, 929 }, { 512, 513 }, 
                                       { 640, 641 }, { 384, 385 }, { 480, 481 }, { 736, 737 }, { 704, 705 },
                                       { 416, 417 }, { 448, 449 }, { 768, 769 }, { 960, 961 }, { 544, 545 } };
 
+static s32 super_arts_unavailable(const SA_WORK* wk) {
+    return (wk->mp == -1) || (wk->ok == -1) || (wk->ex == -1);
+}
+
+static s32 absolute_guard_is_live(const PLW* ds) {
+    return !(ds->spmv_ng_flag & DIP_ABSOLUTE_GUARD_DISABLED) && (ds->guard_chuu != 0) && (ds->guard_chuu < 5);
+}
+
 void add_to_mvxy_data(WORK* wk, u16 ix) { // 🟢
     s16* adrs;
     s32 sp;
@@ -1021,7 +1029,7 @@ void add_sp_arts_gauge_maxbit(PLW* wk) { // 🔴
         return;
     }
 
-    if (wk->sa->mp == -1 || wk->sa->ok == -1 || wk->sa->ex == -1) {
+    if (super_arts_unavailable(wk->sa)) {
         return;
     }
 
@@ -1061,7 +1069,7 @@ void add_super_arts_gauge(SA_WORK* wk, s16 ix, s16 asag, u8 mf) { // 🟡
             return;
         }
     } else {
-        if ((wk->mp == -1) || (wk->ok == -1) || (wk->ex == -1)) {
+        if (super_arts_unavailable(wk)) {
             return;
         }
     }
@@ -1161,7 +1169,7 @@ void setup_saishin_lvdir(PLW* ds, s8 gddir) { // 🟢
         }
     }
 
-    if (!(ds->spmv_ng_flag & DIP_ABSOLUTE_GUARD_DISABLED) && (ds->guard_chuu != 0) && (ds->guard_chuu < 5)) {
+    if (absolute_guard_is_live(ds)) {
         ds->saishin_lvdir = gddir;
     }
 }
