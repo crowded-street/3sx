@@ -642,6 +642,42 @@ symmetric pair of near-identical predicates - is worse by every measure the tool
 This is the same force behind *Two mirrored arms are cheaper left together* below; the
 difference is that here one arm can still be improved for free.
 
+### For a Complex Conditional, name the whole condition, not its parts
+
+CodeScene counts the logical operators in the expression **at the branch**. Replacing the
+operands with named predicates leaves the operator count unchanged, so the finding stays.
+
+Measured on `pls03.c`'s `decode_wst_data`. Its 0xA000 arm tested three things at once:
+
+```c
+if ((wk->wu.mvxy.a[1].sp > 0) && (lever == (wk->cp->sw_new & 0xF)) &&
+    cmd_ex_check(wk->wu.xyz[1].disp.pos, cmd_ex)) {
+```
+
+Naming the lever test and the height test separately measured **flat** and left both
+findings in place - the arm still joined three terms with `&&`. Replacing the whole
+condition with one predicate, `rising_with_lever_at_height(wk, lever, cmd_ex)`, cleared
+both findings and was worth **+0.06**.
+
+So: one name for the whole `if`, even when the parts have good names of their own.
+
+### Recipe X pays only if both halves come in under the threshold
+
+The same arithmetic as *Do not extract an arm that is still too big*, applied to a split
+dispatch. Splitting a switch in two leaves each half with roughly half the arms - and a
+switch's cyclomatic complexity is driven by its arm count, so a switch far above the
+threshold does not get both halves below it.
+
+Measured on `decode_wst_data`, a twelve-arm switch at cc 29. Splitting it six and six
+measured **-0.03** (5.35 -> 5.32): the two halves came out at about cc 15 and cc 14, so the
+file gained a second Complex Method instead of losing one, and the two halves then read as
+near-twins into the bargain. Reverted.
+
+Before splitting a dispatch, divide: if arms/2 is still over 9, the split will not pay.
+`decode_wst_data` is recorded as a plateau for this reason - its complexity is its twelve
+command encodings, and the only way to reduce the arm count is to renumber or merge
+encodings, which is a literal change.
+
 ### Do not extract an arm that is still too big
 
 Recipe E on a `switch` arm pays only if the piece you lift out comes in **under the
