@@ -1220,24 +1220,32 @@ void bgRWWorkUpdate() {
     }
 }
 
+static s32 remap_screen_chip(s32 bgnum, s32 gbix) {
+    s32 i;
+
+    if (rw_bg_flag[bgnum] && rw_num) {
+        for (i = 0; i < rw_num; i++) {
+            if (bgnum == rw_dat[i].bg_num && gbix == rw_dat[i].rwgbix) {
+                gbix = rw_dat[i].gbix;
+                if (!(ppgCheckTextureNumber(0, gbix))) {
+                    ppgSetupCurrentDataList(&ppgRwBgList);
+                }
+                break;
+            }
+        }
+    }
+
+    return gbix;
+}
+
 void bgDrawOneScreen(s32 bgnum, s32 gixbase, s32* xx, s32* yy, s32 /* unused */, s32 ofsPal, PPGDataList* curDataList) {
-    s32 i, x, y, gbix;
+    s32 x, y, gbix;
 
     for (y = yy[0]; y < yy[1]; y += 128) {
         for (x = xx[0]; x < xx[1]; x += 128) {
             gbix = ((y >> 7) << 3) + (x >> 7) + gixbase;
 
-            if (rw_bg_flag[bgnum] && rw_num) {
-                for (i = 0; i < rw_num; i++) {
-                    if (bgnum == rw_dat[i].bg_num && gbix == rw_dat[i].rwgbix) {
-                        gbix = rw_dat[i].gbix;
-                        if (!(ppgCheckTextureNumber(0, gbix))) {
-                            ppgSetupCurrentDataList(&ppgRwBgList);
-                        }
-                        break;
-                    }
-                }
-            }
+            gbix = remap_screen_chip(bgnum, gbix);
 
             bgDrawOneChip(x, y, 128, 128, gbix, -1, ofsPal);
             ppgSetupCurrentDataList(curDataList);
