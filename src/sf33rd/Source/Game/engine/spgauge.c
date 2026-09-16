@@ -664,69 +664,111 @@ static s32 run_timer_state_3(s8 Stpl_Num) {
     return 0;
 }
 
+/* Timer state 1: waiting for the stock display to settle, then either starting
+ * the art's own display or tearing everything down. */
+static void run_timer_state_1(s8 Stpl_Num) {
+spg_dat[Stpl_Num].timer--;
+
+if (sa_stock_display_is_settled(Stpl_Num)) {
+    flash_stock_display(Stpl_Num);
+
+    return;
+}
+
+if (spg_dat[Stpl_Num].sa_flag != 0 && spg_dat[Stpl_Num].sa_mukou == 0) {
+    sa_waku_trans(Stpl_Num, 1);
+    sa_moji_trans(Stpl_Num, 1, 1);
+    time_operate[Stpl_Num] = 1;
+    sast_color_chenge(Stpl_Num);
+    spg_dat[Stpl_Num].time_rno = 2;
+    spg_dat[Stpl_Num].no_chgcol = 1;
+
+    spg_dat[Stpl_Num].current_spg = spg_dat[Stpl_Num].spg_dotlen;
+    sa_gauge_trans(Stpl_Num);
+    return;
+}
+
+finish_timer_art(Stpl_Num);
+return;
+}
+
+/* Timer state 2: the art is running and the gauge drains. */
+static void run_timer_state_2(s8 Stpl_Num) {
+if (spg_dat[Stpl_Num].current_spg > 0 && plw[Stpl_Num].sa->ok == -1) {
+    if (spg_dat[Stpl_Num].current_spg != spg_dat[Stpl_Num].old_spg) {
+        sa_gauge_trans(Stpl_Num);
+    }
+
+    spg_dat[Stpl_Num].old_spg = spg_dat[Stpl_Num].current_spg;
+} else {
+    spg_dat[Stpl_Num].time_rno = 4;
+}
+
+return;
+}
+
+/* Timer state 0: pick up a new stock, then either advance to state 1 - which
+ * the original reached by falling through, and which is the run_timer_state_1
+ * call here - or jump straight to state 3.
+ *
+ * Returns what run_timer_state_3 returns: 1 to leave the switch, 0 to return. */
+static s32 run_timer_state_0(s8 Stpl_Num) {
+    if (plw[Stpl_Num].sa->ok == -1) {
+        spg_dat[Stpl_Num].time_rno = 1;
+        run_timer_state_1(Stpl_Num);
+        return 0;
+    }
+
+    if (plw[Stpl_Num].sa->store > spg_dat[Stpl_Num].spg_level) {
+        spg_dat[Stpl_Num].current_spg = spg_dat[Stpl_Num].spg_dotlen;
+        sa_gauge_trans(Stpl_Num);
+        spg_dat[Stpl_Num].spg_level = plw[Stpl_Num].sa->store;
+        sa_stock_trans(spg_dat[Stpl_Num].spg_level, col, Stpl_Num);
+    }
+
+    spg_dat[Stpl_Num].time_rno = 3;
+    return run_timer_state_3(Stpl_Num);
+}
+
+/* The epilogue the timer switch `break`s out to: show the full stock and stop. */
+static void show_max_stock_and_stop(s8 Stpl_Num) {
+    sast_color_chenge(Stpl_Num);
+    sa_stock_trans(spg_dat[Stpl_Num].spg_level, col, Stpl_Num);
+    sa_waku_trans(Stpl_Num, col);
+
+    spg_dat[Stpl_Num].flag = 1;
+    spg_dat[Stpl_Num].time_rno = 5;
+    spg_dat[Stpl_Num].max_old = 1;
+    spg_dat[Stpl_Num].max_rno = 2;
+    spg_dat[Stpl_Num].sa_flag = 0;
+    spg_dat[Stpl_Num].ex_flag = 0;
+    spg_dat[Stpl_Num].no_chgcol = 0;
+    spg_dat[Stpl_Num].sa_mukou = 0;
+    spg_dat[Stpl_Num].flag2 = 0;
+    max2[Stpl_Num] = 0;
+    max_rno2[Stpl_Num] = 0;
+    sast_now[Stpl_Num] = 0;
+    return;
+}
+
 void sast_control(s8 Stpl_Num) {
     sast_now[Stpl_Num] = 1;
 
     if (spg_dat[Stpl_Num].time) {
         switch (spg_dat[Stpl_Num].time_rno) {
         case 0:
-            if (plw[Stpl_Num].sa->ok == -1) {
-                spg_dat[Stpl_Num].time_rno = 1;
-            } else {
-                if (plw[Stpl_Num].sa->store > spg_dat[Stpl_Num].spg_level) {
-                    spg_dat[Stpl_Num].current_spg = spg_dat[Stpl_Num].spg_dotlen;
-                    sa_gauge_trans(Stpl_Num);
-                    spg_dat[Stpl_Num].spg_level = plw[Stpl_Num].sa->store;
-                    sa_stock_trans(spg_dat[Stpl_Num].spg_level, col, Stpl_Num);
-                }
-
-                spg_dat[Stpl_Num].time_rno = 3;
-
-                if (run_timer_state_3(Stpl_Num)) {
-                    break;
-                }
-
-                return;
+            if (run_timer_state_0(Stpl_Num)) {
+                break;
             }
 
-            /* fallthrough */
+            return;
 
         case 1:
-            spg_dat[Stpl_Num].timer--;
-
-            if (sa_stock_display_is_settled(Stpl_Num)) {
-                flash_stock_display(Stpl_Num);
-
-                return;
-            }
-
-            if (spg_dat[Stpl_Num].sa_flag != 0 && spg_dat[Stpl_Num].sa_mukou == 0) {
-                sa_waku_trans(Stpl_Num, 1);
-                sa_moji_trans(Stpl_Num, 1, 1);
-                time_operate[Stpl_Num] = 1;
-                sast_color_chenge(Stpl_Num);
-                spg_dat[Stpl_Num].time_rno = 2;
-                spg_dat[Stpl_Num].no_chgcol = 1;
-
-                spg_dat[Stpl_Num].current_spg = spg_dat[Stpl_Num].spg_dotlen;
-                sa_gauge_trans(Stpl_Num);
-                return;
-            }
-
-            finish_timer_art(Stpl_Num);
+            run_timer_state_1(Stpl_Num);
             return;
 
         case 2:
-            if (spg_dat[Stpl_Num].current_spg > 0 && plw[Stpl_Num].sa->ok == -1) {
-                if (spg_dat[Stpl_Num].current_spg != spg_dat[Stpl_Num].old_spg) {
-                    sa_gauge_trans(Stpl_Num);
-                }
-
-                spg_dat[Stpl_Num].old_spg = spg_dat[Stpl_Num].current_spg;
-            } else {
-                spg_dat[Stpl_Num].time_rno = 4;
-            }
-
+            run_timer_state_2(Stpl_Num);
             return;
 
         case 3:
@@ -746,22 +788,7 @@ void sast_control(s8 Stpl_Num) {
             return;
         }
 
-        sast_color_chenge(Stpl_Num);
-        sa_stock_trans(spg_dat[Stpl_Num].spg_level, col, Stpl_Num);
-        sa_waku_trans(Stpl_Num, col);
-
-        spg_dat[Stpl_Num].flag = 1;
-        spg_dat[Stpl_Num].time_rno = 5;
-        spg_dat[Stpl_Num].max_old = 1;
-        spg_dat[Stpl_Num].max_rno = 2;
-        spg_dat[Stpl_Num].sa_flag = 0;
-        spg_dat[Stpl_Num].ex_flag = 0;
-        spg_dat[Stpl_Num].no_chgcol = 0;
-        spg_dat[Stpl_Num].sa_mukou = 0;
-        spg_dat[Stpl_Num].flag2 = 0;
-        max2[Stpl_Num] = 0;
-        max_rno2[Stpl_Num] = 0;
-        sast_now[Stpl_Num] = 0;
+        show_max_stock_and_stop(Stpl_Num);
         return;
     }
 
