@@ -459,12 +459,47 @@ static s32 score_is_shown_immediately(s8 PLS) {
     return Mode_Type == MODE_VERSUS || Mode_Type == 5 || plw[PLS].wu.operator;
 }
 
-void combo_window_push(s8 PL, s8 KIND) { // 🟡
-    u32 score;
-    s8 PLS;
+/* Split the queued combo's score into the digits the renderer draws, and note
+ * which is the first non-zero one so the display knows where to start. */
+static void write_score_digits(s8 PL, u32 score) {
     u32 Pts_Buff;
     s32 xx;
     s16 i;
+
+    // The port precomputes renderer digits here; CPS3 prepares tiles while transitioning the record.
+    Pts_Buff = cmst_buff[PL][cst_write[PL]].pts = score;
+    i = 3;
+    xx = 100000;
+
+    cmst_buff[PL][cst_write[PL]].first_digit = -1;
+
+    while (i >= 0) {
+        cmst_buff[PL][cst_write[PL]].pts_digit[i] = Pts_Buff / xx & 0xFF;
+        Pts_Buff -= (cmst_buff[PL][cst_write[PL]].pts_digit[i] * xx);
+
+        if (cmst_buff[PL][cst_write[PL]].first_digit < 0 && cmst_buff[PL][cst_write[PL]].pts_digit[i]) {
+            cmst_buff[PL][cst_write[PL]].first_digit = i;
+        }
+
+        i--;
+        xx /= 10;
+    }
+
+    cmst_buff[PL][cst_write[PL]].move[1] = cmst_buff[PL][cst_write[PL]].first_digit + 6;
+}
+
+/* Step the write cursor round the queue. */
+static void advance_combo_write_index(s8 PL, s8 stock_capacity) {
+    if (cst_write[PL] == stock_capacity - 1) {
+        cst_write[PL] = 0;
+    } else {
+        cst_write[PL]++;
+    }
+}
+
+void combo_window_push(s8 PL, s8 KIND) { // 🟡
+    u32 score;
+    s8 PLS;
 
     if (KIND < 3) {
         score = SCORE_CALCULATION(PL);
@@ -575,32 +610,8 @@ void combo_window_push(s8 PL, s8 KIND) { // 🟡
             score = 999900;
         }
 
-        // The port precomputes renderer digits here; CPS3 prepares tiles while transitioning the record.
-        Pts_Buff = cmst_buff[PL][cst_write[PL]].pts = score;
-        i = 3;
-        xx = 100000;
-
-        cmst_buff[PL][cst_write[PL]].first_digit = -1;
-
-        while (i >= 0) {
-            cmst_buff[PL][cst_write[PL]].pts_digit[i] = Pts_Buff / xx & 0xFF;
-            Pts_Buff -= (cmst_buff[PL][cst_write[PL]].pts_digit[i] * xx);
-
-            if (cmst_buff[PL][cst_write[PL]].first_digit < 0 && cmst_buff[PL][cst_write[PL]].pts_digit[i]) {
-                cmst_buff[PL][cst_write[PL]].first_digit = i;
-            }
-
-            i--;
-            xx /= 10;
-        }
-
-        cmst_buff[PL][cst_write[PL]].move[1] = cmst_buff[PL][cst_write[PL]].first_digit + 6;
-
-        if (cst_write[PL] == stock_capacity - 1) {
-            cst_write[PL] = 0;
-        } else {
-            cst_write[PL]++;
-        }
+        write_score_digits(PL, score);
+        advance_combo_write_index(PL, stock_capacity);
     }
 }
 
