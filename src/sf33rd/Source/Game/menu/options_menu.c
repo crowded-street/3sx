@@ -490,7 +490,7 @@ void Return_Option_Mode_Sub(struct _TASK* task_ptr) {
 static void initialize_screen_adjust_controls(void) {
     s16 ix;
     for (ix = 0; ix < 4; ix++) {
-        effect_63_init(ix + 0x66, 0, 2, ix, ix);
+        effect_63_init(&(Effect63Init){ix + 0x66, 0, 2, ix, ix});
         Order[ix + 0x66] = 1;
         Order_Dir[ix + 0x66] = 4;
         Order_Timer[ix + 0x66] = ix + 0x14;
