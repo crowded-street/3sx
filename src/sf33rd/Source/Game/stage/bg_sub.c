@@ -694,18 +694,20 @@ void bg_base_x_move_sub() {
 }
 
 static s16 adjust_bg_x_step(s16 mvstep) {
-    if (mvstep) {
-        if (mvstep < 0) {
-            if (mvstep < -bg_w.max_x) {
-                mvstep = -bg_w.max_x;
-            }
-            mvstep = -remake_x_mvstep(-mvstep);
-        } else {
-            if (mvstep > bg_w.max_x) {
-                mvstep = bg_w.max_x;
-            }
-            mvstep = remake_x_mvstep(mvstep);
+    if (!mvstep) {
+        return mvstep;
+    }
+
+    if (mvstep < 0) {
+        if (mvstep < -bg_w.max_x) {
+            mvstep = -bg_w.max_x;
         }
+        mvstep = -remake_x_mvstep(-mvstep);
+    } else {
+        if (mvstep > bg_w.max_x) {
+            mvstep = bg_w.max_x;
+        }
+        mvstep = remake_x_mvstep(mvstep);
     }
 
     return mvstep;
