@@ -30,6 +30,55 @@ void EFF98_WAIT(WORK_Other* ewk) {
     }
 }
 
+/* Arrived: snap to the target, release the order slot and go idle. Both
+ * directions of travel end here; only the comparison that decides "arrived"
+ * differs, and that stays at the call site. */
+static void e98_settle_at_target(WORK_Other* ewk) {
+    Order[ewk->wu.dir_old] = 0;
+    ewk->wu.routine_no[0] = 0;
+    ewk->wu.xyz[0].disp.pos = ewk->wu.vital_new;
+}
+
+/* Place the plate off its own side of the screen, aim it at its slot, and start
+ * the command name and cursor lock that go with it. */
+static void e98_begin_slide(WORK_Other* ewk) {
+    ewk->wu.routine_no[1]++;
+    ewk->wu.disp_flag = 1;
+    ewk->wu.vital_new =
+        bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + Plate_Pos_Data_79[1][ewk->master_id][0][0];
+    ewk->wu.xyz[1].disp.pos =
+        bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + Plate_Pos_Data_79[1][ewk->master_id][0][1];
+    Stop_Cursor[ewk->master_id] = 1;
+    Disp_Command_Name[ewk->master_id][ewk->master_player] = 1;
+    effect_80_init(ewk, ewk->master_id, ewk->master_player, ewk->wu.my_family - 1);
+
+    if (ewk->master_id == 0) {
+        ewk->wu.xyz[0].disp.pos = 0xF0;
+        ewk->wu.mvxy.a[0].sp = 0xF0000;
+        ewk->wu.mvxy.d[0].sp = 0x8000;
+    } else {
+        ewk->wu.xyz[0].disp.pos = 0x310;
+        ewk->wu.mvxy.a[0].sp = -0xF0000;
+        ewk->wu.mvxy.d[0].sp = -0x8000;
+    }
+
+    set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+}
+
+/* Move one frame and settle once the slot is reached. */
+static void e98_travel(WORK_Other* ewk) {
+    ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
+    ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
+
+    if (0 < ewk->wu.mvxy.a[0].sp) {
+        if (ewk->wu.vital_new <= ewk->wu.xyz[0].disp.pos) {
+            e98_settle_at_target(ewk);
+        }
+    } else if (ewk->wu.vital_new >= ewk->wu.xyz[0].disp.pos) {
+        e98_settle_at_target(ewk);
+    }
+}
+
 void EFF98_SLIDE_IN(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -37,45 +86,11 @@ void EFF98_SLIDE_IN(WORK_Other* ewk) {
             break;
         }
 
-        ewk->wu.routine_no[1]++;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.vital_new =
-            bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + Plate_Pos_Data_79[1][ewk->master_id][0][0];
-        ewk->wu.xyz[1].disp.pos =
-            bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + Plate_Pos_Data_79[1][ewk->master_id][0][1];
-        Stop_Cursor[ewk->master_id] = 1;
-        Disp_Command_Name[ewk->master_id][ewk->master_player] = 1;
-        effect_80_init(ewk, ewk->master_id, ewk->master_player, ewk->wu.my_family - 1);
-
-        if (ewk->master_id == 0) {
-            ewk->wu.xyz[0].disp.pos = 0xF0;
-            ewk->wu.mvxy.a[0].sp = 0xF0000;
-            ewk->wu.mvxy.d[0].sp = 0x8000;
-        } else {
-            ewk->wu.xyz[0].disp.pos = 0x310;
-            ewk->wu.mvxy.a[0].sp = -0xF0000;
-            ewk->wu.mvxy.d[0].sp = -0x8000;
-        }
-
-        set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+        e98_begin_slide(ewk);
         break;
 
     default:
-        ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
-        ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
-
-        if (0 < ewk->wu.mvxy.a[0].sp) {
-            if (ewk->wu.vital_new <= ewk->wu.xyz[0].disp.pos) {
-                Order[ewk->wu.dir_old] = 0;
-                ewk->wu.routine_no[0] = 0;
-                ewk->wu.xyz[0].disp.pos = ewk->wu.vital_new;
-            }
-        } else if (ewk->wu.vital_new >= ewk->wu.xyz[0].disp.pos) {
-            Order[ewk->wu.dir_old] = 0;
-            ewk->wu.routine_no[0] = 0;
-            ewk->wu.xyz[0].disp.pos = ewk->wu.vital_new;
-        }
-
+        e98_travel(ewk);
         break;
     }
 }
