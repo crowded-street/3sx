@@ -183,6 +183,11 @@ static s32 try_grounded_special_strengths(PLW* wk, s16 i, u16 cusw) {
     return 0;
 }
 
+/* The slot fires on its button index alone, or its command has not completed. */
+static s32 grounded_slot_has_no_command(const PLW* wk, s16 i) {
+    return ((wk->cp->btix[i] & 0xFF) == 0x80) || !wk->cp->waza_flag[i];
+}
+
 static s32 check_special_attack_grounded(PLW* wk) {
     s16 i;
     u16 cusw;
@@ -199,7 +204,7 @@ static s32 check_special_attack_grounded(PLW* wk) {
             return 0;
         }
 
-        if (((wk->cp->btix[i] & 0xFF) == 0x80) || !wk->cp->waza_flag[i]) {
+        if (grounded_slot_has_no_command(wk, i)) {
             continue;
         }
 
@@ -300,9 +305,33 @@ static void commit_airborne_button_special(PLW* wk, s16 i) {
     commit_special_attack(wk, i, 0);
 }
 
+/* One airborne slot: a slot with a button index picks a strength from the
+ * command, and a slot without one fires on its own. Returns 1 when a special
+ * started, which is where check_special_attack_airborne returned 1; returning 0
+ * is where it carried on to the next slot. */
+static s32 try_airborne_slot(PLW* wk, s16 i, u16* conpane) {
+    u16 cusw;
+
+    if ((wk->cp->btix[i] & 0xFF) != 0x80) {
+        if (!wk->cp->waza_flag[i]) {
+            return 0;
+        }
+
+        cusw = conpane[wk->cp->btix[i] & 0xFF];
+
+        return try_airborne_special_strengths(wk, i, cusw);
+    }
+
+    if (wk->cp->waza_flag[i]) {
+        commit_airborne_button_special(wk, i);
+        return 1;
+    }
+
+    return 0;
+}
+
 static s32 check_special_attack_airborne(PLW* wk) {
     s16 i;
-    u16 cusw;
     u16* conpane;
 
     if (air_special_cancel_is_blocked(wk)) {
@@ -320,18 +349,7 @@ static s32 check_special_attack_airborne(PLW* wk) {
             return 0;
         }
 
-        if ((wk->cp->btix[i] & 0xFF) != 0x80) {
-            if (!wk->cp->waza_flag[i]) {
-                continue;
-            }
-
-            cusw = conpane[wk->cp->btix[i] & 0xFF];
-
-            if (try_airborne_special_strengths(wk, i, cusw)) {
-                return 1;
-            }
-        } else if (wk->cp->waza_flag[i]) {
-            commit_airborne_button_special(wk, i);
+        if (try_airborne_slot(wk, i, conpane)) {
             return 1;
         }
     }
