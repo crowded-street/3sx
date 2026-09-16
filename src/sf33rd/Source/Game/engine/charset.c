@@ -748,15 +748,11 @@ static void apply_cgd_type_fields(WORK* wk) {
     }
 }
 
-void check_cgd_patdat(WORK* wk) {
+/* The flip, priority and sound packed into cg_se. A sound may be drawn from a
+ * random table before it is requested. */
+static void request_pattern_sound(WORK* wk) {
     u16* seAdrs;
 
-    setupCharTableData(wk, 0, 0);
-
-    apply_cgd_type_fields(wk);
-
-    wk->cg_jphos = jphos_table[wk->cg_olc_ix & 0xF];
-    wk->cg_olc_ix >>= 4;
     wk->cg_flip = wk->cg_se & 3;
     wk->cg_prio = (wk->cg_se & 0xF) >> 2;
     wk->cg_se >>= 4;
@@ -769,15 +765,31 @@ void check_cgd_patdat(WORK* wk) {
     if (wk->cg_se) {
         sound_effect_request[wk->cg_se](wk, check_xcopy_filter_se_req(wk));
     }
+}
+
+/* A player work also carries the rival-catch entry this pattern allows and
+ * its outline. */
+static void apply_rival_catch_and_outline(WORK* wk) {
+    if (wk->cg_rival == 0) {
+        wk->curr_rca = NULL;
+    } else {
+        wk->curr_rca = wk->rival_catch_tbl + (wk->cg_rival + catch_table_offset(((PLW*)wk)->tsukami_num));
+    }
+
+    wk->cg_olc = wk->olc_ix_table[wk->cg_olc_ix];
+}
+
+void check_cgd_patdat(WORK* wk) {
+    setupCharTableData(wk, 0, 0);
+
+    apply_cgd_type_fields(wk);
+
+    wk->cg_jphos = jphos_table[wk->cg_olc_ix & 0xF];
+    wk->cg_olc_ix >>= 4;
+    request_pattern_sound(wk);
 
     if (wk->work_id == 1) {
-        if (wk->cg_rival == 0) {
-            wk->curr_rca = NULL;
-        } else {
-            wk->curr_rca = wk->rival_catch_tbl + (wk->cg_rival + catch_table_offset(((PLW*)wk)->tsukami_num));
-        }
-
-        wk->cg_olc = wk->olc_ix_table[wk->cg_olc_ix];
+        apply_rival_catch_and_outline(wk);
     }
 
     if (wk->work_id < 16) {
