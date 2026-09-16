@@ -148,6 +148,22 @@ const u8 BIC_SA_Data[2][4] = { { 3, 5, 7, 9 }, { 1, 1, 1, 1 } };
 
 const u32 Ball_Perfect_PTS[2][5] = { { 20000, 30000, 50000, 80000, 120000 }, { 10000, 20000, 40000, 80000, 160000 } };
 
+static s32 cockpit_is_shown(void) {
+    return Mode_Type != MODE_NORMAL_TRAINING && Mode_Type != MODE_PARRY_TRAINING && omop_cockpit;
+}
+
+static s32 winner_continues_freely(void) {
+    return Mode_Type == MODE_VERSUS || Mode_Type == 5 || Round_Operator[WINNER];
+}
+
+static s32 combo_display_is_busy(void) {
+    return cmb_all_stock[0] != 0 || cmb_calc_now[0] != 0 || cmb_calc_now[1] != 0;
+}
+
+static s32 winner_owns_the_credit(void) {
+    return Round_Operator[Winner_id] != 0 || Mode_Type == MODE_VERSUS || Mode_Type == 5;
+}
+
 s32 Game_Management() {
     void (*Management_Jmp_Tbl[13])() = { Game_Manage_1st, Game_Manage_2nd,  Game_Manage_3rd,  Game_Manage_4th,
                                          Game_Manage_5th, Game_Manage_6th,  Game_Manage_7th,  Game_Manage_8th,
@@ -717,7 +733,7 @@ void Game_Manage_6th() {
         pcon_rno[2] = 0;
         grade_makeup_round_para_dko();
 
-        if (Mode_Type != MODE_NORMAL_TRAINING && Mode_Type != MODE_PARRY_TRAINING && omop_cockpit) {
+        if (cockpit_is_shown()) {
             effect_58_init(6, 1, Winner_id + 100);
             effect_92_init(0, PL_Wins[0] - 1);
             effect_92_init(1, PL_Wins[1] - 1);
@@ -761,7 +777,7 @@ void Game_Manage_7_0() {
     C_Timer = 1;
     grade_makeup_round_parameter(Winner_id);
 
-    if (Mode_Type != MODE_NORMAL_TRAINING && Mode_Type != MODE_PARRY_TRAINING && omop_cockpit) {
+    if (cockpit_is_shown()) {
         effect_58_init(6, 1, Winner_id + 100);
         effect_92_init(Winner_id, PL_Wins[Winner_id] - 1);
     }
@@ -799,7 +815,7 @@ void Game_Manage_7_2() {
 }
 
 s32 Check_Disp_Combo() {
-    if (cmb_all_stock[0] != 0 || cmb_calc_now[0] != 0 || cmb_calc_now[1] != 0) {
+    if (combo_display_is_busy()) {
         return 1;
     }
 
@@ -900,7 +916,7 @@ void Game_Manage_8_0() {
     Quick_Entry();
     Stop_Update_Score = 1;
 
-    if (Round_Operator[Winner_id] != 0 || Mode_Type == MODE_VERSUS || Mode_Type == 5) {
+    if (winner_owns_the_credit()) {
         Pool_Score(Winner_id);
 
         if (PL_Wins[Winner_id] >= save_w[Present_Mode].Battle_Number[Play_Type] + 1) {
@@ -1142,7 +1158,7 @@ void Game_Manage_10th() {
             appear_type = APPEAR_TYPE_ANIMATED;
             Continue_Coin2[WINNER] = 0;
 
-            if (Mode_Type == MODE_VERSUS || Mode_Type == 5 || Round_Operator[WINNER]) {
+            if (winner_continues_freely()) {
                 G_No[1] = 3;
                 G_No[2] = 0;
                 G_No[3] = 0;
