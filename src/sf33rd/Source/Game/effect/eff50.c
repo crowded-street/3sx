@@ -19,15 +19,93 @@ static s32 moving_plate_matches_effect(const WORK_Other* ewk) {
 }
 
 
+/* Waiting for this button to go down. The arts selection being finished sends
+ * the plate away; otherwise a matching press lifts it, which shifts it and steps
+ * its animation on. Either way the plate animates while it is not held. */
+static void e50_await_press(WORK_Other* ewk) {
+    if (Sel_Arts_Complete[ewk->master_id]) {
+        ewk->wu.routine_no[0] = 3;
+        ewk->wu.dir_timer = 5;
+    } else if (moving_plate_matches_effect(ewk)) {
+        ewk->wu.routine_no[0]++;
+        ewk->wu.char_index++;
+        ewk->wu.dmcal_m += 3;
+        ewk->wu.dmcal_d--;
+        set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+    }
+
+    if (ewk->wu.dm_vital == 0) {
+        char_move(&ewk->wu);
+    }
+}
+
+/* Held down: when the button is released the plate drops back, re-syncing its
+ * cel with its partner plate. Non-zero when the frame ends there - only the
+ * first direction skips the trailing char_move, as it did before. */
+static s32 e50_release_or_hold(WORK_Other* ewk, const WORK_Other* pwk, u16 sw) {
+    if (ewk->wu.cg_type != 0 && sw != ewk->wu.direction) {
+        ewk->wu.routine_no[0] = 1;
+        ewk->wu.char_index--;
+        set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+        ewk->wu.cg_ix = pwk->wu.cg_ix - ewk->wu.cgd_type;
+        char_move_z(&ewk->wu);
+        ewk->wu.cg_ctr = pwk->wu.cg_ctr;
+        ewk->wu.dmcal_m -= 3;
+        ewk->wu.dmcal_d++;
+
+        if (ewk->wu.direction != 1) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+static u16 e50_player_switch(s16 master_id) {
+    if (master_id) {
+        return p2sw_0 & 3;
+    }
+
+    return p1sw_0 & 3;
+}
+
+static void e50_wait_select(WORK_Other* ewk) {
+    if (Select_Arts[ewk->master_id] == 0) {
+        ewk->wu.routine_no[0]++;
+        ewk->wu.disp_flag = 1;
+    }
+}
+
+static s32 e50_move_late(WORK_Other* ewk, const WORK_Other* pwk, u16 sw) {
+    switch (ewk->wu.routine_no[0]) {
+    case 2:
+        if (e50_release_or_hold(ewk, pwk, sw)) {
+            return 0;
+        }
+
+        char_move(&ewk->wu);
+        return 0;
+
+    case 3:
+        if (--ewk->wu.dir_timer != 0) {
+            return 0;
+        }
+
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0]++;
+        return 1;
+
+    default:
+        push_effect_work(&ewk->wu);
+        return 1;
+    }
+}
+
 void effect_50_move(WORK_Other* ewk) {
     WORK_Other* pwk;
     u16 sw;
 
-    if (ewk->master_id) {
-        sw = p2sw_0 & 3;
-    } else {
-        sw = p1sw_0 & 3;
-    }
+    sw = e50_player_switch(ewk->master_id);
 
     if (Sel_Arts_Complete[ewk->master_id] < 0) {
         ewk->wu.routine_no[0] = 3;
@@ -39,62 +117,19 @@ void effect_50_move(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        if (Select_Arts[ewk->master_id] == 0) {
-            ewk->wu.routine_no[0]++;
-            ewk->wu.disp_flag = 1;
-        }
-
+        e50_wait_select(ewk);
         break;
 
     case 1:
-        if (Sel_Arts_Complete[ewk->master_id]) {
-            ewk->wu.routine_no[0] = 3;
-            ewk->wu.dir_timer = 5;
-        } else if (moving_plate_matches_effect(ewk)) {
-            ewk->wu.routine_no[0]++;
-            ewk->wu.char_index++;
-            ewk->wu.dmcal_m += 3;
-            ewk->wu.dmcal_d--;
-            set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-        }
-
-        if (ewk->wu.dm_vital == 0) {
-            char_move(&ewk->wu);
-        }
-
+        e50_await_press(ewk);
         break;
-
-    case 2:
-        if (ewk->wu.cg_type != 0 && sw != ewk->wu.direction) {
-            ewk->wu.routine_no[0] = 1;
-            ewk->wu.char_index--;
-            set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-            ewk->wu.cg_ix = pwk->wu.cg_ix - ewk->wu.cgd_type;
-            char_move_z(&ewk->wu);
-            ewk->wu.cg_ctr = pwk->wu.cg_ctr;
-            ewk->wu.dmcal_m -= 3;
-            ewk->wu.dmcal_d++;
-
-            if (ewk->wu.direction != 1) {
-                break;
-            }
-        }
-
-        char_move(&ewk->wu);
-        break;
-
-    case 3:
-        if (--ewk->wu.dir_timer != 0) {
-            break;
-        }
-
-        ewk->wu.disp_flag = 0;
-        ewk->wu.routine_no[0]++;
-        return;
 
     default:
-        push_effect_work(&ewk->wu);
-        return;
+        if (e50_move_late(ewk, pwk, sw)) {
+            return;
+        }
+
+        break;
     }
 
     ewk->wu.xyz[0].disp.pos = ewk->wu.dmcal_m + Plate_X[ewk->master_id][0];

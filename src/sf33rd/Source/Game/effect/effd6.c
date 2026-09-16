@@ -35,6 +35,73 @@ static s32 game_is_active(void) {
     return EXE_flag == 0 && Game_pause == 0;
 }
 
+static void launch_hana(WORK_Other* ewk) {
+    ewk->wu.dir_old += ewk->wu.dir_step;
+
+    if (ewk->wu.dir_old < 0) {
+        ewk->wu.dir_old = 0;
+        ewk->wu.routine_no[1]++;
+        ewk->wu.dir_timer = 24;
+    }
+
+    add_pos_dir_064(&ewk->wu, ewk->wu.dir_old);
+    char_move(&ewk->wu);
+}
+
+static void hold_hana(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+
+    if (--ewk->wu.dir_timer <= 0) {
+        ewk->wu.routine_no[1]++;
+        ewk->wu.disp_flag = 2;
+        ewk->wu.dir_timer = 12;
+    }
+}
+
+static void finish_hana(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+
+    if (--ewk->wu.dir_timer <= 0) {
+        ewk->wu.routine_no[0]++;
+        ewk->wu.disp_flag = 0;
+    }
+}
+
+static void advance_hana(WORK_Other* ewk) {
+    switch (ewk->wu.routine_no[1]) {
+    case 0:
+        launch_hana(ewk);
+        break;
+
+    case 1:
+        hold_hana(ewk);
+        break;
+
+    default:
+        finish_hana(ewk);
+        break;
+    }
+}
+
+static void update_hana(WORK_Other* ewk) {
+    if (ewk->wu.dead_f == 1 || Suicide[0] != 0) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0]++;
+        return;
+    }
+
+    if (sa_stop_check() == 0) {
+        if (game_is_active()) {
+            advance_hana(ewk);
+        }
+
+        ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
+        ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
+    }
+
+    sort_push_request(&ewk->wu);
+}
+
 void effect_D6_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -45,56 +112,7 @@ void effect_D6_move(WORK_Other* ewk) {
         /* fallthrough */
 
     case 1:
-        if (ewk->wu.dead_f == 1 || Suicide[0] != 0) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0]++;
-            break;
-        }
-
-        if (sa_stop_check() == 0) {
-            if (game_is_active()) {
-                switch (ewk->wu.routine_no[1]) {
-                case 0:
-                    ewk->wu.dir_old += ewk->wu.dir_step;
-
-                    if (ewk->wu.dir_old < 0) {
-                        ewk->wu.dir_old = 0;
-                        ewk->wu.routine_no[1]++;
-                        ewk->wu.dir_timer = 24;
-                    }
-
-                    add_pos_dir_064(&ewk->wu, ewk->wu.dir_old);
-                    char_move(&ewk->wu);
-                    break;
-
-                case 1:
-                    char_move(&ewk->wu);
-
-                    if (--ewk->wu.dir_timer <= 0) {
-                        ewk->wu.routine_no[1]++;
-                        ewk->wu.disp_flag = 2;
-                        ewk->wu.dir_timer = 12;
-                    }
-
-                    break;
-
-                default:
-                    char_move(&ewk->wu);
-
-                    if (--ewk->wu.dir_timer <= 0) {
-                        ewk->wu.routine_no[0]++;
-                        ewk->wu.disp_flag = 0;
-                    }
-
-                    break;
-                }
-            }
-
-            ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
-            ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
-        }
-
-        sort_push_request(&ewk->wu);
+        update_hana(ewk);
         break;
 
     case 2:
@@ -107,7 +125,7 @@ void effect_D6_move(WORK_Other* ewk) {
     }
 }
 
-s32 effect_D6_init(WORK_Other* wk, s16 dr, s16 sp, s16 dl, s16 acc) {
+s32 effect_D6_init_params(WORK_Other* wk, const EffectD6Init* init) {
     WORK_Other* ewk;
     s16 ix;
 
@@ -125,9 +143,9 @@ s32 effect_D6_init(WORK_Other* wk, s16 dr, s16 sp, s16 dl, s16 acc) {
     ewk->wu.my_col_mode = wk->wu.my_col_mode;
     ewk->wu.my_col_code = wk->wu.my_col_code;
     ewk->wu.cgromtype = 1;
-    ewk->wu.direction = dr;
-    ewk->wu.dir_old = (sp * acc) / 16;
-    ewk->wu.dir_step = (dl * acc) / 16;
+    ewk->wu.direction = init->direction;
+    ewk->wu.dir_old = (init->speed * init->acceleration) / 16;
+    ewk->wu.dir_step = (init->delta * init->acceleration) / 16;
     ewk->master_id = ewk->wu.blink_timing = wk->master_id;
     ewk->wu.xyz[0].disp.pos = wk->wu.position_x;
     ewk->wu.xyz[1].disp.pos = wk->wu.position_y;

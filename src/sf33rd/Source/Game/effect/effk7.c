@@ -21,6 +21,16 @@ static s32 should_end_effect(const WORK_Other* ewk, const PLW* mwk) {
 }
 
 
+static void k7_restore_master(const WORK_Other* ewk, PLW* mwk) {
+    mwk->metamorphose = 0;
+    mwk->metamor_over = 0;
+    mwk->att_plus = 8;
+    mwk->def_plus = 8;
+    mwk->wu.my_col_mode = ewk->wu.my_col_mode;
+    mwk->wu.my_col_code = ewk->wu.my_col_code;
+    mwk->wu.disp_flag = 1;
+}
+
 void effect_K7_move(WORK_Other* ewk) {
     PLW* mwk = (PLW*)ewk->my_master;
 
@@ -33,13 +43,7 @@ void effect_K7_move(WORK_Other* ewk) {
         if (should_end_effect(ewk, mwk)) {
             ewk->wu.routine_no[0] = 3;
             metamor_color_restore(mwk->wu.id);
-            mwk->metamorphose = 0;
-            mwk->metamor_over = 0;
-            mwk->att_plus = 8;
-            mwk->def_plus = 8;
-            mwk->wu.my_col_mode = ewk->wu.my_col_mode;
-            mwk->wu.my_col_code = ewk->wu.my_col_code;
-            mwk->wu.disp_flag = 1;
+            k7_restore_master(ewk, mwk);
         } else if (EXE_flag == 0 && Game_pause == 0) {
             K7_move_type_0(ewk, mwk);
         }
@@ -47,13 +51,7 @@ void effect_K7_move(WORK_Other* ewk) {
         break;
 
     case 2:
-        mwk->metamorphose = 0;
-        mwk->metamor_over = 0;
-        mwk->att_plus = 8;
-        mwk->def_plus = 8;
-        mwk->wu.my_col_mode = ewk->wu.my_col_mode;
-        mwk->wu.my_col_code = ewk->wu.my_col_code;
-        mwk->wu.disp_flag = 1;
+        k7_restore_master(ewk, mwk);
         /* fallthrough */
 
     default:
@@ -62,26 +60,92 @@ void effect_K7_move(WORK_Other* ewk) {
     }
 }
 
+static void k7_become_opponent(WORK_Other* ewk, PLW* mwk) {
+    if (mwk->wu.cg_type != 20) {
+        return;
+    }
+
+    ewk->wu.routine_no[1] = 1;
+    ewk->wu.direction = mwk->player_number;
+    ewk->wu.charset_id = mwk->wu.charset_id;
+    mwk->player_number = ((PLW*)mwk->wu.target_adrs)->player_number;
+    mwk->wu.charset_id = ((PLW*)mwk->wu.target_adrs)->wu.charset_id;
+    set_base_data_metamorphose(mwk, mwk->wu.id + 1 & 1);
+    mwk->att_plus = 10;
+    mwk->def_plus = 6;
+
+    if (mwk->wu.operator == 0) {
+        Next_Be_Free(mwk);
+    }
+}
+
+static s32 k7_wait_super_end(WORK_Other* ewk, PLW* mwk) {
+    if (mwk->dead_flag != 0) {
+        ewk->wu.routine_no[1] = 9;
+        return 1;
+    }
+
+    if (mwk->sa->ok == -1) {
+        return 1;
+    }
+
+    ewk->wu.routine_no[1] = 3;
+    mwk->metamor_over = 1;
+    return 0;
+}
+
+static void k7_rebirth(WORK_Other* ewk, PLW* mwk) {
+    if (K7_mt0_rebirth_check(mwk) == 0) {
+        return;
+    }
+
+    if (pcon_rno[0] != 1) {
+        ewk->wu.routine_no[1] = 9;
+        return;
+    }
+
+    ewk->wu.routine_no[1] = 4;
+    mwk->wu.routine_no[1] = 4;
+    mwk->wu.routine_no[2] = 33;
+    mwk->wu.routine_no[3] = 0;
+    mwk->wu.cg_type = 0;
+    mwk->wu.cg_hit_ix = 0;
+    mwk->wu.cg_ja = mwk->wu.hit_ix_table[mwk->wu.cg_hit_ix];
+    set_jugde_area(&mwk->wu);
+}
+
+static void k7_restore_self(WORK_Other* ewk, PLW* mwk) {
+    if (mwk->wu.cg_type != 30) {
+        return;
+    }
+
+    ewk->wu.routine_no[1] = 5;
+    mwk->player_number = ewk->wu.direction;
+    mwk->wu.charset_id = ewk->wu.charset_id;
+    set_base_data_metamorphose(mwk, mwk->wu.id);
+    metamor_color_restore(mwk->wu.id);
+
+    if (mwk->wu.operator == 0) {
+        Next_Be_Free(mwk);
+    }
+}
+
+static void K7_move_type_0_late(WORK_Other* ewk, PLW* mwk) {
+    switch (ewk->wu.routine_no[1]) {
+    case 4:
+        k7_restore_self(ewk, mwk);
+        break;
+
+    case 5:
+        ewk->wu.routine_no[0] = 2;
+        break;
+    }
+}
+
 void K7_move_type_0(WORK_Other* ewk, PLW* mwk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        if (mwk->wu.cg_type != 20) {
-            break;
-        }
-
-        ewk->wu.routine_no[1] = 1;
-        ewk->wu.direction = mwk->player_number;
-        ewk->wu.charset_id = mwk->wu.charset_id;
-        mwk->player_number = ((PLW*)mwk->wu.target_adrs)->player_number;
-        mwk->wu.charset_id = ((PLW*)mwk->wu.target_adrs)->wu.charset_id;
-        set_base_data_metamorphose(mwk, mwk->wu.id + 1 & 1);
-        mwk->att_plus = 10;
-        mwk->def_plus = 6;
-
-        if (mwk->wu.operator == 0) {
-            Next_Be_Free(mwk);
-        }
-
+        k7_become_opponent(ewk, mwk);
         break;
 
     case 1:
@@ -96,58 +160,18 @@ void K7_move_type_0(WORK_Other* ewk, PLW* mwk) {
         /* fallthrough */
 
     case 2:
-        if (mwk->dead_flag != 0) {
-            ewk->wu.routine_no[1] = 9;
+        if (k7_wait_super_end(ewk, mwk)) {
             break;
         }
 
-        if (mwk->sa->ok == -1) {
-            break;
-        }
-
-        ewk->wu.routine_no[1] = 3;
-        mwk->metamor_over = 1;
         /* fallthrough */
 
     case 3:
-        if (K7_mt0_rebirth_check(mwk) == 0) {
-            break;
-        }
-
-        if (pcon_rno[0] != 1) {
-            ewk->wu.routine_no[1] = 9;
-            break;
-        }
-
-        ewk->wu.routine_no[1] = 4;
-        mwk->wu.routine_no[1] = 4;
-        mwk->wu.routine_no[2] = 33;
-        mwk->wu.routine_no[3] = 0;
-        mwk->wu.cg_type = 0;
-        mwk->wu.cg_hit_ix = 0;
-        mwk->wu.cg_ja = mwk->wu.hit_ix_table[mwk->wu.cg_hit_ix];
-        set_jugde_area(&mwk->wu);
+        k7_rebirth(ewk, mwk);
         break;
 
-    case 4:
-        if (mwk->wu.cg_type != 30) {
-            break;
-        }
-
-        ewk->wu.routine_no[1] = 5;
-        mwk->player_number = ewk->wu.direction;
-        mwk->wu.charset_id = ewk->wu.charset_id;
-        set_base_data_metamorphose(mwk, mwk->wu.id);
-        metamor_color_restore(mwk->wu.id);
-
-        if (mwk->wu.operator == 0) {
-            Next_Be_Free(mwk);
-        }
-
-        break;
-
-    case 5:
-        ewk->wu.routine_no[0] = 2;
+    default:
+        K7_move_type_0_late(ewk, mwk);
         break;
     }
 }

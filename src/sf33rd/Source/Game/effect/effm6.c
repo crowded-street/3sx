@@ -18,44 +18,58 @@ static s32 game_is_active(void) {
     return !EXE_flag && !Game_pause;
 }
 
-void effect_M6_move(WORK_Other* ewk) {
+static void effm6_spawn(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.disp_flag = 1;
+    set_char_move_init(&ewk->wu, 0, 0x69);
+}
+
+static void effm6_animate(WORK_Other* ewk) {
     WORK_Other* oya = (WORK_Other*)ewk->my_master;
 
+    if (game_is_active()) {
+        if (oya->wu.routine_no[0] >= 2) {
+            ewk->wu.routine_no[0]++;
+            set_char_move_init(&ewk->wu, 0, 0x6A);
+        } else {
+            char_move(&ewk->wu);
+        }
+    }
+
+    ewk->wu.xyz[0].cal = oya->wu.xyz[0].cal;
+    suzi_sync_pos_set(ewk);
+    sort_push_request(&ewk->wu);
+}
+
+static void effm6_fade(WORK_Other* ewk) {
+    WORK_Other* oya = (WORK_Other*)ewk->my_master;
+
+    if (!EXE_flag && !Game_pause) {
+        char_move(&ewk->wu);
+
+        if (ewk->wu.cg_type == 1) {
+            ewk->wu.routine_no[0]++;
+            ewk->wu.disp_flag = 0;
+        }
+    }
+
+    ewk->wu.xyz[0].cal = oya->wu.xyz[0].cal;
+    suzi_sync_pos_set(ewk);
+    sort_push_request(&ewk->wu);
+}
+
+void effect_M6_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.disp_flag = 1;
-        set_char_move_init(&ewk->wu, 0, 0x69);
+        effm6_spawn(ewk);
         break;
 
     case 1:
-        if (game_is_active()) {
-            if (oya->wu.routine_no[0] >= 2) {
-                ewk->wu.routine_no[0]++;
-                set_char_move_init(&ewk->wu, 0, 0x6A);
-            } else {
-                char_move(&ewk->wu);
-            }
-        }
-
-        ewk->wu.xyz[0].cal = oya->wu.xyz[0].cal;
-        suzi_sync_pos_set(ewk);
-        sort_push_request(&ewk->wu);
+        effm6_animate(ewk);
         break;
 
     case 2:
-        if (!EXE_flag && !Game_pause) {
-            char_move(&ewk->wu);
-
-            if (ewk->wu.cg_type == 1) {
-                ewk->wu.routine_no[0]++;
-                ewk->wu.disp_flag = 0;
-            }
-        }
-
-        ewk->wu.xyz[0].cal = oya->wu.xyz[0].cal;
-        suzi_sync_pos_set(ewk);
-        sort_push_request(&ewk->wu);
+        effm6_fade(ewk);
         break;
 
     case 3:

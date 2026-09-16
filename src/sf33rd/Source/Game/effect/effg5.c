@@ -34,50 +34,57 @@ static s32 game_is_active(void) {
     return EXE_flag == 0 && Game_pause == 0;
 }
 
+static void effg5_spawn(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.disp_flag = 1;
+    ewk->wu.my_col_mode = 0x4200;
+    ewk->wu.my_col_code = 0x2020;
+    add_pos_dir_064(&ewk->wu, ewk->wu.dir_old * 4);
+    set_char_move_init(&ewk->wu, 0, (random_16() & 1) + 8);
+}
+
+static void effg5_animate(WORK_Other* ewk) {
+    if (ewk->wu.dead_f == 1) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0]++;
+        return;
+    }
+
+    if (Pause_Hit_Marks) {
+        return;
+    }
+
+    if (game_is_active()) {
+        ewk->wu.dir_old += ewk->wu.dir_step;
+
+        if (ewk->wu.dir_old < 0) {
+            ewk->wu.dir_old = 0;
+        }
+
+        add_pos_dir_064(&ewk->wu, ewk->wu.dir_old);
+        char_move(&ewk->wu);
+
+        if (ewk->wu.cg_type == 0xFF || ewk->wu.dir_old < 0) {
+            ewk->wu.disp_flag = 0;
+            ewk->wu.routine_no[0]++;
+            return;
+        }
+    }
+
+    ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
+    ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
+    sort_push_request8(&ewk->wu);
+}
+
 void effect_G5_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.my_col_mode = 0x4200;
-        ewk->wu.my_col_code = 0x2020;
-        add_pos_dir_064(&ewk->wu, ewk->wu.dir_old * 4);
-        set_char_move_init(&ewk->wu, 0, (random_16() & 1) + 8);
+        effg5_spawn(ewk);
         /* fallthrough */
 
     case 1:
-        if (ewk->wu.dead_f == 1) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0]++;
-            break;
-        }
-
-        if (Pause_Hit_Marks) {
-            break;
-        }
-
-        if (game_is_active()) {
-            ewk->wu.dir_old += ewk->wu.dir_step;
-
-            if (ewk->wu.dir_old < 0) {
-                ewk->wu.dir_old = 0;
-            }
-
-            add_pos_dir_064(&ewk->wu, ewk->wu.dir_old);
-            char_move(&ewk->wu);
-
-            if (ewk->wu.cg_type == 0xFF || ewk->wu.dir_old < 0) {
-                ewk->wu.disp_flag = 0;
-                ewk->wu.routine_no[0]++;
-                break;
-            }
-        }
-
-        ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
-        ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
-        sort_push_request8(&ewk->wu);
+        effg5_animate(ewk);
         break;
-
     case 2:
         ewk->wu.routine_no[0] = 3;
         break;

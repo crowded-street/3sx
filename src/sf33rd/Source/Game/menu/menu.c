@@ -302,9 +302,9 @@ static void menu_select_confirm(struct _TASK* task_ptr) {
         task_ptr->r_no[2]++;
         Menu_Suicide[0] = 1;
         Menu_Cursor_Y[0] = 1;
-        effect_10_init(0, 0, 3, 3, 1, 0x13, 0xC);
-        effect_10_init(0, 1, 0, 0, 1, 0x14, 0xF);
-        effect_10_init(0, 1, 1, 1, 1, 0x1A, 0xF);
+        effect_10_init(&(Effect10Init){0, 0, 3, 3, 1, 0x13, 0xC});
+        effect_10_init(&(Effect10Init){0, 1, 0, 0, 1, 0x14, 0xF});
+        effect_10_init(&(Effect10Init){0, 1, 1, 1, 1, 0x1A, 0xF});
         SE_selected();
         break;
     }
@@ -317,17 +317,17 @@ static void initialize_pause_menu(struct _TASK* task_ptr) {
     Menu_Suicide[0] = 0;
     Menu_Suicide[1] = 0;
     Menu_Suicide[2] = 0;
-    effect_10_init(0, 0, 0, 0, 0, 0x14, 0xC);
-    effect_10_init(0, 0, 2, 2, 0, 0x16, 0x10);
+    effect_10_init(&(Effect10Init){0, 0, 0, 0, 0, 0x14, 0xC});
+    effect_10_init(&(Effect10Init){0, 0, 2, 2, 0, 0x16, 0x10});
     switch (Mode_Type) {
     case MODE_VERSUS:
-        effect_10_init(0, 0, 1, 5, 0, 0x10, 0xE);
+        effect_10_init(&(Effect10Init){0, 0, 1, 5, 0, 0x10, 0xE});
         break;
     case MODE_REPLAY:
-        effect_10_init(0, 0, 1, 4, 0, 0x15, 0xE);
+        effect_10_init(&(Effect10Init){0, 0, 1, 4, 0, 0x15, 0xE});
         break;
     default:
-        effect_10_init(0, 0, 1, 1, 0, 0x11, 0xE);
+        effect_10_init(&(Effect10Init){0, 0, 1, 1, 0, 0x11, 0xE});
         break;
     }
 }
@@ -459,22 +459,22 @@ void Setup_Button_Sub(s16 x, s16 y, s16 master_player) {
     s16 ix;
     s16 s1;
 
-    effect_10_init(0, 7, 99, 0, master_player, x + 7, y + 20);
-    effect_10_init(0, 7, 99, 1, master_player, x + 29, y + 20);
+    effect_10_init(&(Effect10Init){0, 7, 99, 0, master_player, x + 7, y + 20});
+    effect_10_init(&(Effect10Init){0, 7, 99, 1, master_player, x + 29, y + 20});
 
     for (ix = 0; ix < 8; ix++, s1 = y += 2) {
-        effect_10_init(0, 5, ix, ix, master_player, x, y);
-        effect_10_init(1, 5, ix, ix, master_player, x + 22, y);
-        effect_10_init(0, 2, ix, Convert_Buff[1][0][ix], master_player, x + 3, y);
-        effect_10_init(1, 2, ix, Convert_Buff[1][1][ix], master_player, x + 25, y);
+        effect_10_init(&(Effect10Init){0, 5, ix, ix, master_player, x, y});
+        effect_10_init(&(Effect10Init){1, 5, ix, ix, master_player, x + 22, y});
+        effect_10_init(&(Effect10Init){0, 2, ix, Convert_Buff[1][0][ix], master_player, x + 3, y});
+        effect_10_init(&(Effect10Init){1, 2, ix, Convert_Buff[1][1][ix], master_player, x + 25, y});
     }
 
-    effect_10_init(0, 3, 8, Convert_Buff[1][0][8], master_player, x, y);
-    effect_10_init(1, 3, 8, Convert_Buff[1][1][8], master_player, x + 22, y);
-    effect_10_init(0, 4, 9, 0, master_player, x, y + 2);
-    effect_10_init(1, 4, 9, 0, master_player, x + 22, y + 2);
-    effect_10_init(0, 0, 10, 2, master_player, x, y + 4);
-    effect_10_init(1, 0, 10, 2, master_player, x + 22, y + 4);
+    effect_10_init(&(Effect10Init){0, 3, 8, Convert_Buff[1][0][8], master_player, x, y});
+    effect_10_init(&(Effect10Init){1, 3, 8, Convert_Buff[1][1][8], master_player, x + 22, y});
+    effect_10_init(&(Effect10Init){0, 4, 9, 0, master_player, x, y + 2});
+    effect_10_init(&(Effect10Init){1, 4, 9, 0, master_player, x + 22, y + 2});
+    effect_10_init(&(Effect10Init){0, 0, 10, 2, master_player, x, y + 4});
+    effect_10_init(&(Effect10Init){1, 0, 10, 2, master_player, x + 22, y + 4});
 }
 
 void Button_Exit_Check_in_Game(struct _TASK* task_ptr, s16 PL_id) {
@@ -916,9 +916,9 @@ void Training_Exit_Sub(struct _TASK* task_ptr) {
     task_ptr->r_no[2]++;
     Menu_Suicide[0] = 1;
     Menu_Cursor_Y[0] = 1;
-    effect_10_init(0, 0, 3, 6, 1, 17, 12);
-    effect_10_init(0, 1, 0, 0, 1, 20, 15);
-    effect_10_init(0, 1, 1, 1, 1, 26, 15);
+    effect_10_init(&(Effect10Init){0, 0, 3, 6, 1, 17, 12});
+    effect_10_init(&(Effect10Init){0, 1, 0, 0, 1, 20, 15});
+    effect_10_init(&(Effect10Init){0, 1, 1, 1, 1, 26, 15});
 }
 
 static void wait_for_character_change_load(struct _TASK* task_ptr) {
@@ -1081,9 +1081,9 @@ static void handle_end_replay_selection(struct _TASK* task_ptr) {
             SE_selected();
             Menu_Suicide[0] = 1;
             Menu_Cursor_Y[0] = 1;
-            effect_10_init(0, 0, 3, 3, 1, 0x13, 0xE);
-            effect_10_init(0, 1, 0, 0, 1, 0x14, 0x10);
-            effect_10_init(0, 1, 1, 1, 1, 0x1A, 0x10);
+            effect_10_init(&(Effect10Init){0, 0, 3, 3, 1, 0x13, 0xE});
+            effect_10_init(&(Effect10Init){0, 1, 0, 0, 1, 0x14, 0x10});
+            effect_10_init(&(Effect10Init){0, 1, 1, 1, 1, 0x1A, 0x10});
             break;
         }
 
@@ -1116,8 +1116,8 @@ static void setup_end_replay_menu(struct _TASK* task_ptr) {
     for (ix = 0; ix < 4; ix++) {
         Menu_Suicide[ix] = 0;
     }
-    effect_10_init(0, 0, 0, 4, 0, 0x14, 0xE);
-    effect_10_init(0, 6, 1, 2, 0, 0x16, 0x10);
+    effect_10_init(&(Effect10Init){0, 0, 0, 4, 0, 0x14, 0xE});
+    effect_10_init(&(Effect10Init){0, 6, 1, 2, 0, 0x16, 0x10});
 }
 
 static void handle_end_replay_confirmation(struct _TASK* task_ptr) {

@@ -1044,7 +1044,7 @@ static s32 car_part_is_finishing(const WORK* c2wk) {
     return c2wk->routine_no[0] == 2 && c2wk->routine_no[1] == 1;
 }
 
-static void initialize_C3_effect(WORK_Other* ewk) {
+static void initialize_car_part_C3(WORK_Other* ewk) {
     ewk->wu.routine_no[0]++;
     ewk->wu.disp_flag = 1;
     ewk->wu.charset_id = 17;
@@ -1060,78 +1060,91 @@ static void initialize_C3_effect(WORK_Other* ewk) {
     clear_attack_num(&ewk->wu);
 }
 
+static void update_car_part_C3(WORK_Other* ewk) {
+    if (ewk->wu.dead_f == 1) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0] = 2;
+        ewk->wu.routine_no[1] = 1;
+        return;
+    }
+
+    ewk->wu.dir_old = bs2_sync_bomb(&ewk->wu);
+
+    if (game_is_active()) {
+        effC3_main_process(ewk);
+    }
+
+    if (ewk->wu.dir_old == 0) {
+        hit_push_request(&ewk->wu);
+    }
+
+    bs2_display_C3(&ewk->wu);
+}
+
+static void wait_for_car_part_C3(WORK_Other* ewk) {
+    if (check_effc2_p2_rno(&ewk->wu) == 0) {
+        bs2_display_C3(&ewk->wu);
+        return;
+    }
+
+    ewk->wu.disp_flag = 0;
+    clear_parts_hit_data(&ewk->wu);
+
+    if (ewk->wu.type != 3) {
+        ewk->wu.routine_no[1] = 1;
+    } else {
+        ewk->wu.routine_no[1] = 10;
+    }
+}
+
+static void sync_destroyed_car_part_C3(WORK_Other* ewk) {
+    switch (get_efffC3_nsc(&ewk->wu, (WORK*)ewk->wu.my_effadrs)) {
+    case 0:
+        ewk->wu.disp_flag = 0;
+        break;
+
+    case 1:
+        ewk->wu.disp_flag = 1;
+        break;
+
+    default:
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[1] = 1;
+        break;
+    }
+
+    sort_push_request(&ewk->wu);
+}
+
+static void finish_car_part_C3(WORK_Other* ewk) {
+    switch (ewk->wu.routine_no[1]) {
+    case 0:
+        wait_for_car_part_C3(ewk);
+        break;
+
+    case 1:
+        ewk->wu.routine_no[0] = 3;
+        ewk->wu.routine_no[1] = 0;
+        break;
+
+    case 10:
+        sync_destroyed_car_part_C3(ewk);
+        break;
+    }
+}
 
 void effect_C3_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        initialize_C3_effect(ewk);
+        initialize_car_part_C3(ewk);
         break;
 
     case 1:
-        if (ewk->wu.dead_f == 1) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0] = 2;
-            ewk->wu.routine_no[1] = 1;
-            break;
-        }
-
-        ewk->wu.dir_old = bs2_sync_bomb(&ewk->wu);
-
-        if (game_is_active()) {
-            effC3_main_process(ewk);
-        }
-
-        if (ewk->wu.dir_old == 0) {
-            hit_push_request(&ewk->wu);
-        }
-
-        bs2_display_C3(&ewk->wu);
+        update_car_part_C3(ewk);
         break;
 
     case 2:
-        switch (ewk->wu.routine_no[1]) {
-        case 0:
-            if (check_effc2_p2_rno(&ewk->wu) == 0) {
-                bs2_display_C3(&ewk->wu);
-                break;
-            }
-
-            ewk->wu.disp_flag = 0;
-            clear_parts_hit_data(&ewk->wu);
-
-            if (ewk->wu.type != 3) {
-                ewk->wu.routine_no[1] = 1;
-            } else {
-                ewk->wu.routine_no[1] = 10;
-            }
-
-            break;
-
-        case 1:
-            ewk->wu.routine_no[0] = 3;
-            ewk->wu.routine_no[1] = 0;
-            break;
-
-        case 10:
-            switch (get_efffC3_nsc(&ewk->wu, (WORK*)ewk->wu.my_effadrs)) {
-            case 0:
-                ewk->wu.disp_flag = 0;
-                break;
-
-            case 1:
-                ewk->wu.disp_flag = 1;
-                break;
-
-            default:
-                ewk->wu.disp_flag = 0;
-                ewk->wu.routine_no[1] = 1;
-                break;
-            }
-
-            sort_push_request(&ewk->wu);
-            break;
-        }
-
+        finish_car_part_C3(ewk);
         break;
 
     default:
@@ -1167,18 +1180,47 @@ void clear_parts_hit_data(WORK* wk) {
     wk->h_han = &wk->hand_adrs[wk->cg_ja.bhix + wk->cg_ja.haix];
 }
 
+static void break_car_part_C3(WORK_Other* ewk) {
+    ewk->wu.routine_no[0] = 2;
+    ewk->wu.routine_no[1] = 0;
+    ewk->wu.routine_no[2] = 0;
+    bs2_get_parts_break(&ewk->wu);
+    set_char_move_init2(&ewk->wu, 0, ewk->wu.dir_step + 7, ewk->wu.scr_mv_x, 0);
+
+    if (ewk->wu.vital_old < 7) {
+        setup_effK2_sync_bomb(&ewk->wu);
+    }
+}
+
+static void apply_car_part_damage_C3(WORK_Other* ewk) {
+    if (check_parts_break_level(&ewk->wu)) {
+        setup_effK2(&ewk->wu);
+    }
+
+    if (!setup_effK3(&ewk->wu)) {
+        setup_effK4(&ewk->wu);
+    }
+
+    ewk->wu.routine_no[1] = 0;
+    ewk->wu.routine_no[2] = 0;
+}
+
+static void process_car_part_damage_C3(WORK_Other* ewk) {
+    switch (ewk->wu.routine_no[2]) {
+    case 0:
+        c3_new_damage(&ewk->wu);
+        ewk->wu.routine_no[2] = 1;
+        break;
+
+    case 1:
+        apply_car_part_damage_C3(ewk);
+        break;
+    }
+}
+
 void effC3_main_process(WORK_Other* ewk) {
     if (ewk->wu.dir_old) {
-        ewk->wu.routine_no[0] = 2;
-        ewk->wu.routine_no[1] = 0;
-        ewk->wu.routine_no[2] = 0;
-        bs2_get_parts_break(&ewk->wu);
-        set_char_move_init2(&ewk->wu, 0, ewk->wu.dir_step + 7, ewk->wu.scr_mv_x, 0);
-
-        if (ewk->wu.vital_old < 7) {
-            setup_effK2_sync_bomb(&ewk->wu);
-        }
-
+        break_car_part_C3(ewk);
         return;
     }
 
@@ -1187,26 +1229,7 @@ void effC3_main_process(WORK_Other* ewk) {
         break;
 
     case 1:
-        switch (ewk->wu.routine_no[2]) {
-        case 0:
-            c3_new_damage(&ewk->wu);
-            ewk->wu.routine_no[2] = 1;
-            break;
-
-        case 1:
-            if (check_parts_break_level(&ewk->wu)) {
-                setup_effK2(&ewk->wu);
-            }
-
-            if (!setup_effK3(&ewk->wu)) {
-                setup_effK4(&ewk->wu);
-            }
-
-            ewk->wu.routine_no[1] = 0;
-            ewk->wu.routine_no[2] = 0;
-            break;
-        }
-
+        process_car_part_damage_C3(ewk);
         break;
     }
 

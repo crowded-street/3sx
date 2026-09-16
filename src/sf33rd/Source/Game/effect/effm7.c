@@ -38,92 +38,114 @@ void effect_M7_move(WORK_Other* ewk) {
     }
 }
 
-void effm7_move(WORK_Other* ewk) {
+static void effm7_spawn(WORK_Other* ewk) {
     s16 id_w;
+
+    ewk->wu.routine_no[1]++;
+    ewk->wu.disp_flag = 1;
+    id_w = ewk->master_id ^ 1;
+    ewk->wu.rl_flag ^= plw[id_w].wu.rl_flag;
+
+    if (plw[id_w].wu.rl_flag) {
+        ewk->wu.xyz[0].disp.pos = plw[id_w].wu.xyz[0].disp.pos - ewk->wu.xyz[0].disp.pos;
+    } else {
+        ewk->wu.xyz[0].disp.pos = plw[id_w].wu.xyz[0].disp.pos + ewk->wu.xyz[0].disp.pos;
+    }
+
+    set_char_move_init(&ewk->wu, 0, 0);
+}
+
+static void effm7_wait(WORK_Other* ewk) {
+    ewk->wu.old_rno[1]--;
+    ewk->wu.old_rno[0]--;
+
+    if (ewk->wu.old_rno[0] < 0) {
+        ewk->wu.routine_no[1]++;
+    }
+}
+
+static void effm7_fly(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+
+    ewk->wu.old_rno[1]--;
+
+    if (ewk->wu.old_rno[1] < 0) {
+        ewk->wu.routine_no[1]++;
+        set_char_move_init(&ewk->wu, 1, 0x6C);
+    }
+}
+
+static void effm7_burst(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+
+    if (ewk->wu.cg_type != 1) {
+        return;
+    }
+
+    ewk->wu.routine_no[1]++;
+    ewk->wu.mvxy.a[0].sp = 0;
+    ewk->wu.mvxy.d[0].sp = 0;
+    ewk->wu.mvxy.a[1].sp = 0x78000;
+    ewk->wu.mvxy.d[1].sp = -0x6000;
+}
+
+static void effm7_fall(WORK_Other* ewk) {
+    add_y_sub(&ewk->wu);
+    char_move(&ewk->wu);
+
+    if (ewk->wu.cg_type != 2) {
+        return;
+    }
+
+    ewk->wu.routine_no[1]++;
+    ewk->wu.mvxy.d[0].sp = 0;
+
+    if (ewk->wu.rl_flag) {
+        ewk->wu.mvxy.a[0].sp = 0x80000;
+    } else {
+        ewk->wu.mvxy.a[0].sp = -0x80000;
+    }
+
+    ewk->wu.mvxy.a[1].sp = -0x8000;
+    ewk->wu.mvxy.d[1].sp = 0x4000;
+}
+
+static void effm7_leave(WORK_Other* ewk) {
+    add_x_sub(&ewk->wu);
+    add_y_sub(&ewk->wu);
+
+    if (!range_x_check3(ewk, 208)) {
+        ewk->wu.routine_no[0] = 99;
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[1]++;
+    }
+}
+
+void effm7_move(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        ewk->wu.routine_no[1]++;
-        ewk->wu.disp_flag = 1;
-        id_w = ewk->master_id ^ 1;
-        ewk->wu.rl_flag ^= plw[id_w].wu.rl_flag;
-
-        if (plw[id_w].wu.rl_flag) {
-            ewk->wu.xyz[0].disp.pos = plw[id_w].wu.xyz[0].disp.pos - ewk->wu.xyz[0].disp.pos;
-        } else {
-            ewk->wu.xyz[0].disp.pos = plw[id_w].wu.xyz[0].disp.pos + ewk->wu.xyz[0].disp.pos;
-        }
-
-        set_char_move_init(&ewk->wu, 0, 0);
+        effm7_spawn(ewk);
         break;
 
     case 1:
-        ewk->wu.old_rno[1]--;
-        ewk->wu.old_rno[0]--;
-
-        if (ewk->wu.old_rno[0] < 0) {
-            ewk->wu.routine_no[1]++;
-        }
-
+        effm7_wait(ewk);
         break;
 
     case 2:
-        char_move(&ewk->wu);
-
-        ewk->wu.old_rno[1]--;
-
-        if (ewk->wu.old_rno[1] < 0) {
-            ewk->wu.routine_no[1]++;
-            set_char_move_init(&ewk->wu, 1, 0x6C);
-        }
-
+        effm7_fly(ewk);
         break;
 
     case 3:
-        char_move(&ewk->wu);
-
-        if (ewk->wu.cg_type != 1) {
-            break;
-        }
-
-        ewk->wu.routine_no[1]++;
-        ewk->wu.mvxy.a[0].sp = 0;
-        ewk->wu.mvxy.d[0].sp = 0;
-        ewk->wu.mvxy.a[1].sp = 0x78000;
-        ewk->wu.mvxy.d[1].sp = -0x6000;
+        effm7_burst(ewk);
         break;
 
     case 4:
-        add_y_sub(&ewk->wu);
-        char_move(&ewk->wu);
-
-        if (ewk->wu.cg_type != 2) {
-            break;
-        }
-
-        ewk->wu.routine_no[1]++;
-        ewk->wu.mvxy.d[0].sp = 0;
-
-        if (ewk->wu.rl_flag) {
-            ewk->wu.mvxy.a[0].sp = 0x80000;
-        } else {
-            ewk->wu.mvxy.a[0].sp = -0x80000;
-        }
-
-        ewk->wu.mvxy.a[1].sp = -0x8000;
-        ewk->wu.mvxy.d[1].sp = 0x4000;
+        effm7_fall(ewk);
         break;
 
     case 5:
-        add_x_sub(&ewk->wu);
-        add_y_sub(&ewk->wu);
-
-        if (!range_x_check3(ewk, 208)) {
-            ewk->wu.routine_no[0] = 99;
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[1]++;
-        }
-
+        effm7_leave(ewk);
         break;
     }
 }

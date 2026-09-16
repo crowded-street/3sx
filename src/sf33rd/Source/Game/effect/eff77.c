@@ -20,24 +20,110 @@ const s16 eff77_data_tbl[7][2] = { { 64, 0 }, { 2, 0 }, { 1, 1 }, { 32, 1 }, { 2
 
 const u32 eff77_col_tbl[2] = { 0xFFFFFFFF, 0xFF000000 };
 
-static s32 game_is_inactive(void) {
-    return Game_pause || EXE_flag;
-}
-
-
 static s32 effect_update_is_blocked(void) {
     return Game_pause || EXE_flag;
 }
 
-
-void effect_77_move(WORK_Other* ewk) {
+static void set_stage_backgrounds_77(void (*set_background)(u16)) {
+    u16 bg = ake_bg_off[bg_w.stage];
+    u16 mask = 1;
+    u16 assign;
     s16 i;
-    u16 bg;
-    u16 mask;
 
-    u16 assign1;
-    u16 assign2;
-    u16 assign3;
+    for (i = 0; i < 4; i++, assign = mask *= 2) {
+        if (bg & mask) {
+            set_background(1 << i);
+        }
+    }
+}
+
+static s32 initialize_effect_77(WORK_Other* ewk) {
+    if (effect_update_is_blocked()) {
+        return 0;
+    }
+
+    ewk->wu.routine_no[0]++;
+    plw[0].wu.disp_flag = 0;
+    plw[1].wu.disp_flag = 0;
+
+    if (ewk->wu.type == 0) {
+        Extra_Break = 1;
+    }
+
+    return 1;
+}
+
+static void start_effect_77(WORK_Other* ewk) {
+    if (effect_update_is_blocked()) {
+        return;
+    }
+
+    ewk->wu.routine_no[0]++;
+    sa_pa_flag = 1;
+    set_stage_backgrounds_77(Bg_Off_R);
+    ewk->wu.old_rno[0] = eff77_data_tbl[ewk->wu.type][0];
+    ewk->wu.old_rno[1] = eff77_data_tbl[ewk->wu.type][1];
+    overwrite_panel(eff77_col_tbl[ewk->wu.old_rno[1]], 0x46);
+}
+
+static s32 prepare_effect_77(WORK_Other* ewk) {
+    if (effect_update_is_blocked()) {
+        overwrite_panel(eff77_col_tbl[ewk->wu.old_rno[1]], 0x46);
+        return 0;
+    }
+
+    ewk->wu.routine_no[0]++;
+    set_stage_backgrounds_77(Bg_Off_R);
+    sa_pa_flag = 1;
+    return 1;
+}
+
+static void update_effect_77(WORK_Other* ewk) {
+    if (Suicide[6]) {
+        ewk->wu.old_rno[0] = 0;
+    }
+
+    if (!Game_pause && !EXE_flag) {
+        ewk->wu.old_rno[0]--;
+
+        if (ewk->wu.old_rno[0] <= 0) {
+            sa_pa_flag = 0;
+            ewk->wu.routine_no[0]++;
+            plw[0].wu.disp_flag = 1;
+            plw[1].wu.disp_flag = 1;
+            overwrite_panel(eff77_col_tbl[ewk->wu.old_rno[1]], 0x46);
+            set_stage_backgrounds_77(Bg_On_R);
+            return;
+        }
+
+        sa_pa_flag = 1;
+    }
+
+    overwrite_panel(eff77_col_tbl[ewk->wu.old_rno[1]], 0x46);
+}
+
+static void finish_effect_77(WORK_Other* ewk) {
+    if (effect_update_is_blocked()) {
+        return;
+    }
+
+    ewk->wu.routine_no[0]++;
+
+    if (ewk->wu.type == 0) {
+        Extra_Break = 0;
+    }
+}
+
+static void dispose_effect_77(WORK_Other* ewk) {
+    if (!Game_pause && !EXE_flag) {
+        sa_pa_flag = 0;
+        all_cgps_put_back(&ewk->wu);
+        push_effect_work(&ewk->wu);
+    }
+}
+
+static void prepare_frame_77(WORK_Other* ewk) {
+    s16 i;
 
     another_bg[0] = another_bg[1] = 0;
     Flash_MT[0] = Flash_MT[1] = 0;
@@ -49,115 +135,46 @@ void effect_77_move(WORK_Other* ewk) {
     for (i = 0; i < 3; i++) {
         scr_calc(i);
     }
+}
+
+static void run_initial_state_77(WORK_Other* ewk) {
+    if (initialize_effect_77(ewk)) {
+        start_effect_77(ewk);
+    }
+}
+
+static void run_prepare_state_77(WORK_Other* ewk) {
+    if (prepare_effect_77(ewk)) {
+        update_effect_77(ewk);
+    }
+}
+
+void effect_77_move(WORK_Other* ewk) {
+    prepare_frame_77(ewk);
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-if (game_is_inactive()) {
-            break;
-        }
-
-        ewk->wu.routine_no[0]++;
-        plw[0].wu.disp_flag = 0;
-        plw[1].wu.disp_flag = 0;
-
-        if (ewk->wu.type == 0) {
-            Extra_Break = 1;
-        }
-
-        /* fallthrough */
+        run_initial_state_77(ewk);
+        break;
 
     case 1:
-        if (effect_update_is_blocked()) {
-            break;
-        }
-
-        ewk->wu.routine_no[0]++;
-        sa_pa_flag = 1;
-        bg = ake_bg_off[bg_w.stage];
-        mask = 1;
-
-        for (i = 0; i < 4; i++, assign1 = mask *= 2) {
-            if (bg & mask) {
-                Bg_Off_R(1 << i);
-            }
-        }
-
-        ewk->wu.old_rno[0] = eff77_data_tbl[ewk->wu.type][0];
-        ewk->wu.old_rno[1] = eff77_data_tbl[ewk->wu.type][1];
-        overwrite_panel(eff77_col_tbl[ewk->wu.old_rno[1]], 0x46);
+        start_effect_77(ewk);
         break;
 
     case 2:
-        if (Game_pause || EXE_flag) {
-            overwrite_panel(eff77_col_tbl[ewk->wu.old_rno[1]], 0x46);
-            break;
-        }
-
-        ewk->wu.routine_no[0]++;
-        bg = ake_bg_off[bg_w.stage];
-        mask = 1;
-
-        for (i = 0; i < 4; i++, assign2 = mask *= 2) {
-            if (bg & mask) {
-                Bg_Off_R(1 << i);
-            }
-        }
-
-        sa_pa_flag = 1;
-        /* fallthrough */
+        run_prepare_state_77(ewk);
+        break;
 
     case 3:
-        if (Suicide[6]) {
-            ewk->wu.old_rno[0] = 0;
-        }
-
-        if (!Game_pause && !EXE_flag) {
-            ewk->wu.old_rno[0]--;
-
-            if (ewk->wu.old_rno[0] <= 0) {
-                sa_pa_flag = 0;
-                ewk->wu.routine_no[0]++;
-                plw[0].wu.disp_flag = 1;
-                plw[1].wu.disp_flag = 1;
-                overwrite_panel(eff77_col_tbl[ewk->wu.old_rno[1]], 0x46);
-                bg = ake_bg_off[bg_w.stage];
-                mask = 1;
-
-                for (i = 0; i < 4; i++, assign3 = mask *= 2) {
-                    if (bg & mask) {
-                        Bg_On_R(1 << i);
-                    }
-                }
-
-                break;
-            }
-
-            sa_pa_flag = 1;
-        }
-
-        overwrite_panel(eff77_col_tbl[ewk->wu.old_rno[1]], 0x46);
+        update_effect_77(ewk);
         break;
 
     case 4:
-        if (Game_pause || EXE_flag) {
-            break;
-        }
-
-        ewk->wu.routine_no[0]++;
-
-        if (ewk->wu.type == 0) {
-            Extra_Break = 0;
-        }
-
+        finish_effect_77(ewk);
         break;
 
     default:
-        if (!Game_pause && !EXE_flag) {
-            sa_pa_flag = 0;
-            all_cgps_put_back(&ewk->wu);
-            push_effect_work(&ewk->wu);
-        }
-
+        dispose_effect_77(ewk);
         break;
     }
 }

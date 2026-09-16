@@ -130,82 +130,137 @@ static s32 effect_update_is_blocked(void) {
     return (EXE_flag != 0) || (Game_pause != 0);
 }
 
-static s32 master_state_requires_shutdown(const WORK_Other* ewk, const WORK* mwk) {
-    return ((ewk->wu.dmcal_m & 1) && (ewk->wu.old_pos[1] != mwk->xyz[1].disp.pos)) ||
-           ((ewk->wu.dmcal_m & 2) && (mwk->disp_flag == 0)) ||
-           ((ewk->wu.dmcal_m & 4) && (ewk->wu.dm_vital != mwk->dm_count_up)) ||
-           ((ewk->wu.dmcal_m & 8) &&
-            ((ewk->wu.old_rno[0] != mwk->routine_no[0]) || (ewk->wu.old_rno[1] != mwk->routine_no[1]) ||
-             (ewk->wu.old_rno[2] != mwk->routine_no[2])));
+/* Non-zero while the master has not moved since the effect last sampled it.
+ * Both arms of the position check ask this; they differ only in whether a hit
+ * stop also has to be clear. */
+static s32 g6_master_unmoved(const WORK_Other* ewk, const WORK* mwk) {
+    return (ewk->wu.old_pos[0] == mwk->xyz[0].disp.pos) && (ewk->wu.old_pos[1] == mwk->xyz[1].disp.pos);
 }
 
+static s32 master_changed_height(const WORK_Other* ewk, const WORK* mwk) {
+    return (ewk->wu.dmcal_m & 1) && (ewk->wu.old_pos[1] != mwk->xyz[1].disp.pos);
+}
+
+static s32 master_went_blank(const WORK_Other* ewk, const WORK* mwk) {
+    return (ewk->wu.dmcal_m & 2) && (mwk->disp_flag == 0);
+}
+
+static s32 master_took_damage(const WORK_Other* ewk, const WORK* mwk) {
+    return (ewk->wu.dmcal_m & 4) && (ewk->wu.dm_vital != mwk->dm_count_up);
+}
+
+static s32 master_changed_state(const WORK_Other* ewk, const WORK* mwk) {
+    return (ewk->wu.dmcal_m & 8) &&
+           ((ewk->wu.old_rno[0] != mwk->routine_no[0]) || (ewk->wu.old_rno[1] != mwk->routine_no[1]) ||
+            (ewk->wu.old_rno[2] != mwk->routine_no[2]));
+}
+
+static s32 master_state_requires_shutdown(const WORK_Other* ewk, const WORK* mwk) {
+    return master_changed_height(ewk, mwk) || master_went_blank(ewk, mwk) ||
+           master_took_damage(ewk, mwk) || master_changed_state(ewk, mwk);
+}
+
+
+/* Step to the state that hands the work slot back. Three conditions reach this;
+ * in the original the two later ones jumped to a label inside the first. */
+static void g6_begin_shutdown(WORK_Other* ewk) {
+    ewk->wu.routine_no[0] += 1;
+}
+
+static void effg6_spawn(WORK_Other* ewk) {
+    ewk->wu.routine_no[0] += 1;
+    ewk->wu.dmcal_m = effg6_data[ewk->wu.type][0];
+    ewk->wu.dir_timer = effg6_data[ewk->wu.type][1];
+    ewk->wu.next_x = effg6_data[ewk->wu.type][2];
+    ewk->wu.next_y = effg6_data[ewk->wu.type][3];
+    ewk->wu.mvxy.a[0].sp = effg6_data[ewk->wu.type][4];
+    ewk->wu.mvxy.a[1].sp = effg6_data[ewk->wu.type][5];
+    ewk->wu.now_koc = effg6_data[ewk->wu.type][6];
+    ewk->wu.direction = effg6_data[ewk->wu.type][7];
+
+    if (ewk->wu.rl_flag) {
+        ewk->wu.next_x = -ewk->wu.next_x;
+    }
+
+    ewk->wu.mvxy.a[0].sp *= 256;
+    ewk->wu.mvxy.a[1].sp *= 256;
+    ewk->wu.disp_flag = ewk->wu.now_koc / 256;
+    ewk->wu.now_koc &= 0xFF;
+}
+
+static void effg6_emit(WORK_Other* ewk, const WORK* mwk) {
+    ewk->wu.old_pos[0] = mwk->xyz[0].disp.pos;
+    ewk->wu.old_pos[1] = mwk->xyz[1].disp.pos;
+    ewk->wu.xyz[0].disp.pos = ewk->wu.old_pos[0] + ewk->wu.next_x;
+    ewk->wu.xyz[1].disp.pos = ewk->wu.old_pos[1] + ewk->wu.next_y;
+    ewk->wu.position_z = mwk->position_z;
+    effect_G9_init(&ewk->wu);
+}
+
+static s32 g6_life_timer_expired(WORK_Other* ewk) {
+    if (ewk->wu.dmcal_m & 0x10) {
+        if (ewk->wu.dir_timer-- <= 0) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+static s32 g6_stopped_and_unmoved(const WORK_Other* ewk, const WORK* mwk) {
+    return (mwk->hit_stop == 0) && g6_master_unmoved(ewk, mwk);
+}
+
+static void effg6_update(WORK_Other* ewk, const WORK* mwk) {
+    if (g6_life_timer_expired(ewk)) {
+        g6_begin_shutdown(ewk);
+        return;
+    }
+
+    if (ewk->wu.now_koc & (players_timer + ewk->wu.blink_timing)) {
+        return;
+    }
+
+    if (ewk->wu.dmcal_m & 0x20) {
+        if (g6_stopped_and_unmoved(ewk, mwk)) {
+            g6_begin_shutdown(ewk);
+            return;
+        }
+    } else if (g6_master_unmoved(ewk, mwk)) {
+        return;
+    }
+
+    effg6_emit(ewk, mwk);
+}
+
+static void effg6_track(WORK_Other* ewk, const WORK* mwk) {
+    if (ewk->wu.dead_f == 1) {
+        ewk->wu.routine_no[0] += 1;
+        return;
+    }
+
+    if (master_state_requires_shutdown(ewk, mwk)) {
+        g6_begin_shutdown(ewk);
+        return;
+    }
+
+    if (effect_update_is_blocked()) {
+        return;
+    }
+
+    effg6_update(ewk, mwk);
+}
 
 void effect_G6_move(WORK_Other* ewk) {
     WORK* mwk = (WORK*)ewk->my_master;
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0] += 1;
-        ewk->wu.dmcal_m = effg6_data[ewk->wu.type][0];
-        ewk->wu.dir_timer = effg6_data[ewk->wu.type][1];
-        ewk->wu.next_x = effg6_data[ewk->wu.type][2];
-        ewk->wu.next_y = effg6_data[ewk->wu.type][3];
-        ewk->wu.mvxy.a[0].sp = effg6_data[ewk->wu.type][4];
-        ewk->wu.mvxy.a[1].sp = effg6_data[ewk->wu.type][5];
-        ewk->wu.now_koc = effg6_data[ewk->wu.type][6];
-        ewk->wu.direction = effg6_data[ewk->wu.type][7];
-
-        if (ewk->wu.rl_flag) {
-            ewk->wu.next_x = -ewk->wu.next_x;
-        }
-
-        ewk->wu.mvxy.a[0].sp *= 256;
-        ewk->wu.mvxy.a[1].sp *= 256;
-        ewk->wu.disp_flag = ewk->wu.now_koc / 256;
-        ewk->wu.now_koc &= 0xFF;
+        effg6_spawn(ewk);
         /* fallthrough */
 
     case 1:
-        if (ewk->wu.dead_f == 1) {
-            ewk->wu.routine_no[0] += 1;
-            return;
-        }
-
-        if (master_state_requires_shutdown(ewk, mwk)) {
-        block_22:
-            ewk->wu.routine_no[0] += 1;
-            return;
-        }
-
-        if (effect_update_is_blocked()) {
-            break;
-        }
-
-        if (ewk->wu.dmcal_m & 0x10) {
-            if (ewk->wu.dir_timer-- <= 0) {
-                goto block_22;
-            }
-        }
-
-        if (ewk->wu.now_koc & (players_timer + ewk->wu.blink_timing)) {
-            break;
-        }
-
-        if (ewk->wu.dmcal_m & 0x20) {
-            if ((mwk->hit_stop == 0) && (ewk->wu.old_pos[0] == mwk->xyz[0].disp.pos) &&
-                (ewk->wu.old_pos[1] == mwk->xyz[1].disp.pos)) {
-                goto block_22;
-            }
-        } else if ((ewk->wu.old_pos[0] == mwk->xyz[0].disp.pos) && (ewk->wu.old_pos[1] == mwk->xyz[1].disp.pos)) {
-            break;
-        }
-
-        ewk->wu.old_pos[0] = mwk->xyz[0].disp.pos;
-        ewk->wu.old_pos[1] = mwk->xyz[1].disp.pos;
-        ewk->wu.xyz[0].disp.pos = ewk->wu.old_pos[0] + ewk->wu.next_x;
-        ewk->wu.xyz[1].disp.pos = ewk->wu.old_pos[1] + ewk->wu.next_y;
-        ewk->wu.position_z = mwk->position_z;
-        effect_G9_init(&ewk->wu);
+        effg6_track(ewk, mwk);
         break;
 
     case 2:

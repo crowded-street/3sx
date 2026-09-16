@@ -36,6 +36,35 @@ const u8 Rewrite_Color_Data_08[2][13][2] = { { { 30, 2 },
                                                { 0, 0 },
                                                { 0, 0 } } };
 
+/* Wait for the score display to be armed. If the panel is showing, start the
+ * colour cycle; if not, the effect is finished before it starts. */
+static void e08_await_start(WORK_Other* ewk) {
+    if (Suicide[5] & 1) {
+        if (PB_Status & 3) {
+            ewk->wu.routine_no[0]++;
+            ewk->wu.dir_timer = 1;
+            ewk->wu.dir_step = 0;
+        } else {
+            ewk->wu.routine_no[0] = 99;
+        }
+    }
+}
+
+/* Step to the next colour when its timer runs out; the 0xFF entry ends the
+ * table and the effect with it. */
+static void e08_step_colour(WORK_Other* ewk) {
+    if (--ewk->wu.dir_timer == 0) {
+        ewk->wu.my_col_code = Rewrite_Color_Data_08[ewk->master_priority][ewk->wu.dir_step][0] + 0;
+        ewk->wu.dir_timer = Rewrite_Color_Data_08[ewk->master_priority][ewk->wu.dir_step][1];
+
+        if (ewk->wu.dir_timer == 0xFF) {
+            ewk->wu.routine_no[0] = 99;
+        } else {
+            ewk->wu.dir_step++;
+        }
+    }
+}
+
 void effect_08_move(WORK_Other* ewk) {
     if (Suicide[5] & 0x80) {
         push_effect_work(&ewk->wu);
@@ -44,37 +73,18 @@ void effect_08_move(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        if (Suicide[5] & 1) {
-            if (PB_Status & 3) {
-                ewk->wu.routine_no[0]++;
-                ewk->wu.dir_timer = 1;
-                ewk->wu.dir_step = 0;
-            } else {
-                ewk->wu.routine_no[0] = 99;
-            }
-        }
-
+        e08_await_start(ewk);
         break;
 
     case 1:
-        if (--ewk->wu.dir_timer == 0) {
-            ewk->wu.my_col_code = Rewrite_Color_Data_08[ewk->master_priority][ewk->wu.dir_step][0] + 0;
-            ewk->wu.dir_timer = Rewrite_Color_Data_08[ewk->master_priority][ewk->wu.dir_step][1];
-
-            if (ewk->wu.dir_timer == 0xFF) {
-                ewk->wu.routine_no[0] = 99;
-            } else {
-                ewk->wu.dir_step++;
-            }
-        }
-
+        e08_step_colour(ewk);
         break;
     }
 
     sc_ram_to_vram_opc(ewk->wu.type, ewk->wu.position_x, ewk->wu.position_y, ewk->wu.my_col_code);
 }
 
-s32 effect_08_init(s8 sc_num, s8 x, s8 y, u16 atr, s16 color_type) {
+s32 effect_08_init(const Effect08Init* p) {
     WORK_Other* ewk;
     s16 ix;
 
@@ -86,11 +96,11 @@ s32 effect_08_init(s8 sc_num, s8 x, s8 y, u16 atr, s16 color_type) {
     ewk->wu.be_flag = 1;
     ewk->wu.id = 8;
     ewk->wu.work_id = 16;
-    ewk->wu.type = sc_num + 0;
-    ewk->wu.position_x = x;
-    ewk->wu.position_y = y;
-    ewk->wu.my_col_code = atr;
-    ewk->master_priority = color_type;
+    ewk->wu.type = p->sc_num + 0;
+    ewk->wu.position_x = p->x;
+    ewk->wu.position_y = p->y;
+    ewk->wu.my_col_code = p->atr;
+    ewk->master_priority = p->color_type;
     effect_08_move((WORK_Other*)ewk);
     return 0;
 }

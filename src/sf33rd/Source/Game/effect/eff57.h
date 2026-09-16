@@ -18,8 +18,19 @@ typedef enum MenuHeader {
     MENU_HEADER_TRAINING
 } MenuHeader;
 
+typedef struct {
+    s16 direction;
+    MenuHeader header;
+    s16 target_bg;
+    s16 character_index;
+    s16 option;
+} Effect57Init;
+
 void effect_57_move(WORK_Other* ewk);
 void EFF57_KILL(WORK_Other* ewk);
-s32 effect_57_init(s16 dir_old, MenuHeader ID, s16 Target_BG, s16 char_ix, s16 option);
+s32 effect_57_init_params(Effect57Init params);
+
+#define effect_57_init(dir_old, ID, Target_BG, char_ix, option)                                                        \
+    effect_57_init_params((Effect57Init) { dir_old, ID, Target_BG, char_ix, option })
 
 #endif

@@ -212,54 +212,89 @@ static void update_matching_delay_K5(WORK* ewk, GOTCP* gotcp) {
     }
 }
 
-void get_okuri_time(WORK* ewk, WORK* mwk, MVJ* mvj) {
-    GOTCP gotcp;
+typedef enum {
+    K5_TIMING_CONTINUE,
+    K5_TIMING_DECODED,
+    K5_TIMING_STOP
+} K5TimingResult;
+
+static K5TimingResult process_hit_index_K5(WORK* ewk, MVJ* mvj, GOTCP* gotcp, u16 now_mf) {
     ST st;
+
+    st.l = gotcp->cpl[2];
+    st.l *= 8;
+    ewk->cg_hit_ix = st.w.h & 0x1FF;
+
+    if (ewk->old_rno[1] == ewk->cg_hit_ix) {
+        update_matching_delay_K5(ewk, gotcp);
+        return K5_TIMING_CONTINUE;
+    }
+
+    if (ewk->old_rno[0] >= 2) {
+        K5_decode_new_hit_index(ewk, mvj, now_mf);
+        ewk->routine_no[1] = 1;
+        return K5_TIMING_DECODED;
+    }
+
+    return K5_TIMING_STOP;
+}
+
+static K5TimingResult process_control_entry_K5(WORK* ewk, WORK* mwk, GOTCP* gotcp, s16* exc) {
+    if (k5_exc_check[gotcp->cps[0]] == 2) {
+        return K5_TIMING_STOP;
+    }
+
+    if (k5_exc_check[gotcp->cps[0]]) {
+        return K5_TIMING_CONTINUE;
+    }
+
+    if ((*exc)++ >= 4) {
+        return K5_TIMING_STOP;
+    }
+
+    update_K5_control_flow(ewk, mwk, gotcp);
+    return K5_TIMING_CONTINUE;
+}
+
+static K5TimingResult scan_extended_timing_K5(WORK* ewk, WORK* mwk, MVJ* mvj) {
+    GOTCP gotcp;
     s16 exc;
-    u16 now_mf;
+    u16 now_mf = mwk->cg_ja.mf.full;
 
-    if (frame_uses_extended_timing(mwk)) {
-        now_mf = mwk->cg_ja.mf.full;
-        exc = 0;
-        ewk->old_rno[0] = mwk->cg_ctr;
-        ewk->cg_ix = mwk->cg_ix;
+    exc = 0;
+    ewk->old_rno[0] = mwk->cg_ctr;
+    ewk->cg_ix = mwk->cg_ix;
 
-        while (1) {
-            ewk->cg_ix += mwk->cgd_type;
-            gotcp.cpl = &mwk->set_char_ad[ewk->cg_ix];
+    while (1) {
+        ewk->cg_ix += mwk->cgd_type;
+        gotcp.cpl = &mwk->set_char_ad[ewk->cg_ix];
 
-            if (gotcp.cps[0] >= 0x100) {
-                st.l = gotcp.cpl[2];
-                st.l *= 8;
-                ewk->cg_hit_ix = st.w.h & 0x1FF;
+        if (gotcp.cps[0] >= 0x100) {
+            K5TimingResult result = process_hit_index_K5(ewk, mvj, &gotcp, now_mf);
 
-                if (ewk->old_rno[1] == ewk->cg_hit_ix) {
-                    update_matching_delay_K5(ewk, &gotcp);
-                    continue;
-                }
-
-                if (ewk->old_rno[0] >= 2) {
-                    K5_decode_new_hit_index(ewk, mvj, now_mf);
-                    ewk->routine_no[1] = 1;
-                    return;
-                }
-
-                break;
-            }
-
-            if (k5_exc_check[gotcp.cps[0]] == 2) {
-                break;
-            }
-
-            if (k5_exc_check[gotcp.cps[0]]) {
+            if (result == K5_TIMING_CONTINUE) {
                 continue;
             }
 
-            if (exc++ >= 4) {
-                break;
+            if (result == K5_TIMING_DECODED) {
+                return K5_TIMING_DECODED;
             }
 
-            update_K5_control_flow(ewk, mwk, &gotcp);
+            break;
+        }
+
+        if (process_control_entry_K5(ewk, mwk, &gotcp, &exc) == K5_TIMING_STOP) {
+            break;
+        }
+    }
+
+    return K5_TIMING_STOP;
+}
+
+void get_okuri_time(WORK* ewk, WORK* mwk, MVJ* mvj) {
+    if (frame_uses_extended_timing(mwk)) {
+        if (scan_extended_timing_K5(ewk, mwk, mvj) == K5_TIMING_DECODED) {
+            return;
         }
     }
 

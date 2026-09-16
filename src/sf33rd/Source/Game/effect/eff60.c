@@ -28,6 +28,24 @@ static s32 can_update_flash_effect(void) {
     return !EXE_flag && !Game_pause && !EXE_obroll;
 }
 
+static void update_flash_animation(WORK_Other* ewk) {
+    if (ewk->wu.type < 3) {
+        ewk->wu.disp_flag = 1;
+        char_move(&ewk->wu);
+    } else {
+        ewk->wu.old_rno[1]--;
+
+        if (ewk->wu.old_rno[1] <= 0) {
+            ewk->wu.disp_flag ^= 1;
+            ewk->wu.old_rno[1] = ewk->wu.old_rno[0];
+
+            if (ewk->wu.hit_stop) {
+                char_move(&ewk->wu);
+            }
+        }
+    }
+}
+
 void effect_60_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -44,21 +62,7 @@ void effect_60_move(WORK_Other* ewk) {
         }
 
         if (can_update_flash_effect()) {
-            if (ewk->wu.type < 3) {
-                ewk->wu.disp_flag = 1;
-                char_move(&ewk->wu);
-            } else {
-                ewk->wu.old_rno[1]--;
-
-                if (ewk->wu.old_rno[1] <= 0) {
-                    ewk->wu.disp_flag ^= 1;
-                    ewk->wu.old_rno[1] = ewk->wu.old_rno[0];
-
-                    if (ewk->wu.hit_stop) {
-                        char_move(&ewk->wu);
-                    }
-                }
-            }
+            update_flash_animation(ewk);
         }
 
         disp_pos_trans_entry_rs(ewk);

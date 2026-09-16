@@ -54,6 +54,68 @@ void effect_L7_move(WORK_Other* ewk) {
     }
 }
 
+static void effl7_start_drift(WORK_Other* ewk) {
+    ewk->wu.routine_no[1] += 1;
+    set_char_move_init2(&ewk->wu, 0, 0, 3, 1);
+
+    if (ewk->wu.rl_flag) {
+        ewk->wu.mvxy.a[0].sp = 0x20000;
+    } else {
+        ewk->wu.mvxy.a[0].sp = -0x20000;
+    }
+
+    ewk->wu.mvxy.a[1].sp = 0;
+}
+
+static void effl7_spill(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+
+    if (ewk->wu.cg_type == 0xFF) {
+        effl7_start_drift(ewk);
+    }
+}
+
+static void effl7_move_late(WORK_Other* ewk) {
+    switch (ewk->wu.routine_no[1]) {
+    case 4:
+        effl7_spill(ewk);
+        break;
+
+    case 5:
+        char_move(&ewk->wu);
+        add_x_sub(&ewk->wu);
+
+        if (range_x_check3(ewk, 64) == 0) {
+            ewk->wu.routine_no[1] += 1;
+            ewk->wu.disp_flag = 0;
+            ewk->wu.kage_flag = 0;
+        }
+
+        break;
+
+    case 6:
+        ewk->wu.routine_no[1] += 1;
+        ewk->wu.routine_no[0] += 1;
+        break;
+
+    default:
+        // Do nothing
+        break;
+    }
+}
+
+static void effl7_fly(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+    add_x_sub(&ewk->wu);
+    add_y_sub(&ewk->wu);
+    ewk->wu.old_rno[0]--;
+
+    if (ewk->wu.old_rno[0] <= 0) {
+        ewk->wu.routine_no[1] += 1;
+        set_char_move_init(&ewk->wu, 0, 1);
+    }
+}
+
 void effl7_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -70,20 +132,7 @@ void effl7_move(WORK_Other* ewk) {
         break;
 
     case 1:
-        char_move(&ewk->wu);
-        add_x_sub(&ewk->wu);
-        add_y_sub(&ewk->wu);
-        ewk->wu.old_rno[0]--;
-
-        if (ewk->wu.old_rno[0] <= 0) {
-            ewk->wu.routine_no[1] += 1;
-            set_char_move_init(&ewk->wu, 0, 1);
-        }
-
-        break;
-
-    default:
-        // Do nothing
+        effl7_fly(ewk);
         break;
 
     case 2:
@@ -106,41 +155,42 @@ void effl7_move(WORK_Other* ewk) {
 
         break;
 
-    case 4:
-        char_move(&ewk->wu);
-
-        if (ewk->wu.cg_type == 0xFF) {
-            ewk->wu.routine_no[1] += 1;
-            set_char_move_init2(&ewk->wu, 0, 0, 3, 1);
-
-            if (ewk->wu.rl_flag) {
-                ewk->wu.mvxy.a[0].sp = 0x20000;
-            } else {
-                ewk->wu.mvxy.a[0].sp = -0x20000;
-            }
-
-            ewk->wu.mvxy.a[1].sp = 0;
-        }
-
-        break;
-
-    case 5:
-        char_move(&ewk->wu);
-        add_x_sub(&ewk->wu);
-
-        if (range_x_check3(ewk, 64) == 0) {
-            ewk->wu.routine_no[1] += 1;
-            ewk->wu.disp_flag = 0;
-            ewk->wu.kage_flag = 0;
-        }
-
-        break;
-
-    case 6:
-        ewk->wu.routine_no[1] += 1;
-        ewk->wu.routine_no[0] += 1;
+    default:
+        effl7_move_late(ewk);
         break;
     }
+}
+
+static void effl7_place_entry_left(WORK_Other* ewk, const WORK* wk) {
+    if (wk->xyz[0].disp.pos < bg_w.bgw[1].wxy[0].disp.pos) {
+        ewk->wu.xyz[0].disp.pos = wk->xyz[0].disp.pos - 256;
+    } else {
+        ewk->wu.xyz[0].disp.pos = bg_w.bgw[1].wxy[0].disp.pos - (bg_w.pos_offset + 32);
+    }
+}
+
+static void effl7_place_entry_right(WORK_Other* ewk, const WORK* wk) {
+    if (wk->xyz[0].disp.pos > bg_w.bgw[1].wxy[0].disp.pos) {
+        ewk->wu.xyz[0].disp.pos = wk->xyz[0].disp.pos + 256;
+    } else {
+        ewk->wu.xyz[0].disp.pos = bg_w.bgw[1].wxy[0].disp.pos + (bg_w.pos_offset + 32);
+    }
+}
+
+static s32 effl7_entry_blocked(const WORK* wk) {
+    if ((wk->work_id == 1) && (((PLW*)wk)->player_number != My_char[wk->id])) {
+        return 1;
+    }
+
+    if (poison_flag[wk->id]) {
+        return 1;
+    }
+
+    if (wk->id) {
+        return !(p2sw_0 & 1);
+    }
+
+    return !(p1sw_0 & 1);
 }
 
 s32 effect_L7_init(WORK* wk, s32 /* unused */) {
@@ -148,19 +198,7 @@ s32 effect_L7_init(WORK* wk, s32 /* unused */) {
     s16 ix;
     s16 kind_w;
 
-    if ((wk->work_id == 1) && (((PLW*)wk)->player_number != My_char[wk->id])) {
-        return 0;
-    }
-
-    if (poison_flag[wk->id]) {
-        return 0;
-    }
-
-    if (wk->id) {
-        if (!(p2sw_0 & 1)) {
-            return 0;
-        }
-    } else if (!(p1sw_0 & 1)) {
+    if (effl7_entry_blocked(wk)) {
         return 0;
     }
 
@@ -181,20 +219,10 @@ s32 effect_L7_init(WORK* wk, s32 /* unused */) {
     ewk->wu.rl_flag = wk->rl_flag;
 
     if (wk->rl_flag) {
-        if (wk->xyz[0].disp.pos < bg_w.bgw[1].wxy[0].disp.pos) {
-            ewk->wu.xyz[0].disp.pos = wk->xyz[0].disp.pos - 256;
-        } else {
-            ewk->wu.xyz[0].disp.pos = bg_w.bgw[1].wxy[0].disp.pos - (bg_w.pos_offset + 32);
-        }
-
+        effl7_place_entry_left(ewk, wk);
         ewk->wu.old_rno[1] = wk->xyz[0].disp.pos - 32;
     } else {
-        if (wk->xyz[0].disp.pos > bg_w.bgw[1].wxy[0].disp.pos) {
-            ewk->wu.xyz[0].disp.pos = wk->xyz[0].disp.pos + 256;
-        } else {
-            ewk->wu.xyz[0].disp.pos = bg_w.bgw[1].wxy[0].disp.pos + (bg_w.pos_offset + 32);
-        }
-
+        effl7_place_entry_right(ewk, wk);
         ewk->wu.old_rno[1] = wk->xyz[0].disp.pos + 32;
     }
 

@@ -15,6 +15,37 @@
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 
+static void eff81_launch(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.disp_flag = 1;
+    ewk->wu.mvxy.a[0].sp = 0xE0000;
+    ewk->wu.mvxy.d[0].sp = 0x10000;
+    ewk->wu.xyz[0].disp.pos = bg_w.bgw[1].xy[0].disp.pos - 416;
+    ewk->wu.xyz[1].disp.pos = bg_w.bgw[1].xy[1].disp.pos - 24;
+    ewk->wu.hit_quake = bg_w.bgw[1].xy[0].disp.pos - 16;
+    set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+}
+
+static void eff81_drift(WORK_Other* ewk) {
+    ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
+    ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
+}
+
+static void eff81_rise(WORK_Other* ewk) {
+    eff81_drift(ewk);
+
+    if (ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
+        ewk->wu.routine_no[0]++;
+        ewk->wu.dir_timer = 39;
+    }
+}
+
+static void eff81_wait(WORK_Other* ewk) {
+    if (--ewk->wu.dir_timer == 0) {
+        ewk->wu.routine_no[0]++;
+    }
+}
+
 void effect_81_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -22,37 +53,19 @@ void effect_81_move(WORK_Other* ewk) {
             return;
         }
 
-        ewk->wu.routine_no[0]++;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.mvxy.a[0].sp = 0xE0000;
-        ewk->wu.mvxy.d[0].sp = 0x10000;
-        ewk->wu.xyz[0].disp.pos = bg_w.bgw[1].xy[0].disp.pos - 416;
-        ewk->wu.xyz[1].disp.pos = bg_w.bgw[1].xy[1].disp.pos - 24;
-        ewk->wu.hit_quake = bg_w.bgw[1].xy[0].disp.pos - 16;
-        set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+        eff81_launch(ewk);
         break;
 
     case 1:
-        ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
-        ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
-
-        if (ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
-            ewk->wu.routine_no[0]++;
-            ewk->wu.dir_timer = 39;
-        }
-
+        eff81_rise(ewk);
         break;
 
     case 2:
-        if (--ewk->wu.dir_timer == 0) {
-            ewk->wu.routine_no[0]++;
-        }
-
+        eff81_wait(ewk);
         break;
 
     case 3:
-        ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
-        ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
+        eff81_drift(ewk);
 
         if (Ck_Range_Out_S(ewk, ewk->wu.my_family - 1, 240)) {
             ewk->wu.routine_no[0]++;

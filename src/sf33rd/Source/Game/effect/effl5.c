@@ -48,6 +48,37 @@ void effect_L5_move(WORK_Other* ewk) {
     }
 }
 
+static void hukuromoji_wait_open(WORK_Other* ewk, const WORK_Other* oya_ptr) {
+    ewk->wu.hit_stop -= 1;
+
+    if (ewk->wu.hit_stop < 0) {
+        ewk->wu.routine_no[1] += 1;
+        Sound_SE(oya_ptr->wu.dir_old + 1);
+    }
+}
+
+static void hukuromoji_shrink(WORK_Other* ewk) {
+    ewk->wu.my_mr.size.x -= 6;
+    ewk->wu.my_mr.size.y -= 6;
+
+    if (ewk->wu.my_mr.size.x < 64) {
+        ewk->wu.routine_no[1] += 1;
+        ewk->wu.my_mr.size.x = 63;
+        ewk->wu.my_mr.size.y = 63;
+        ewk->wu.hit_stop = 4;
+        set_char_move_init2(&ewk->wu, 0, 2, 7, 0);
+    }
+}
+
+static void hukuromoji_hold(WORK_Other* ewk) {
+    ewk->wu.hit_stop -= 1;
+
+    if (ewk->wu.hit_stop <= 0) {
+        ewk->wu.routine_no[1] += 1;
+        rf_b2_flag = 1;
+    }
+}
+
 void hukuromoji_move(WORK_Other* ewk) {
     WORK_Other* oya_ptr = (WORK_Other*)ewk->my_master;
 
@@ -63,39 +94,15 @@ void hukuromoji_move(WORK_Other* ewk) {
         break;
 
     case 1:
-        ewk->wu.hit_stop -= 1;
-
-        if (ewk->wu.hit_stop < 0) {
-            ewk->wu.routine_no[1] += 1;
-            Sound_SE(oya_ptr->wu.dir_old + 1);
-            return;
-        }
-
+        hukuromoji_wait_open(ewk, oya_ptr);
         break;
 
     case 2:
-        ewk->wu.my_mr.size.x -= 6;
-        ewk->wu.my_mr.size.y -= 6;
-
-        if (ewk->wu.my_mr.size.x < 64) {
-            ewk->wu.routine_no[1] += 1;
-            ewk->wu.my_mr.size.x = 63;
-            ewk->wu.my_mr.size.y = 63;
-            ewk->wu.hit_stop = 4;
-            set_char_move_init2(&ewk->wu, 0, 2, 7, 0);
-            return;
-        }
-
+        hukuromoji_shrink(ewk);
         break;
 
     case 3:
-        ewk->wu.hit_stop -= 1;
-
-        if (ewk->wu.hit_stop <= 0) {
-            ewk->wu.routine_no[1] += 1;
-            rf_b2_flag = 1;
-        }
-
+        hukuromoji_hold(ewk);
         break;
 
     case 4:

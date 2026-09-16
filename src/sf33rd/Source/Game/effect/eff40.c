@@ -80,7 +80,7 @@ void EFF40_ARROW(WORK_Other* ewk) {
     }
 }
 
-s32 effect_40_init(s16 id, s16 type, s16 char_ix, s16 sync_bg, s16 master_player, s16 master_priority) {
+s32 effect_40_init(const Effect40Init* p) {
     WORK_Other* ewk;
     s16 ix;
 
@@ -94,28 +94,28 @@ s32 effect_40_init(s16 id, s16 type, s16 char_ix, s16 sync_bg, s16 master_player
     ewk->wu.id = 40;
     ewk->wu.work_id = 16;
     ewk->wu.my_col_code = 0x1AC;
-    ewk->master_id = id;
-    ewk->wu.type = type;
-    ewk->wu.routine_no[0] = type;
-    ewk->wu.char_index = char_ix;
-    ewk->wu.dir_step = char_ix;
-    ewk->wu.my_family = sync_bg + 1;
-    ewk->master_player = master_player;
-    ewk->master_priority = master_priority;
+    ewk->master_id = p->id;
+    ewk->wu.type = p->type;
+    ewk->wu.routine_no[0] = p->type;
+    ewk->wu.char_index = p->char_ix;
+    ewk->wu.dir_step = p->char_ix;
+    ewk->wu.my_family = p->sync_bg + 1;
+    ewk->master_player = p->master_player;
+    ewk->master_priority = p->master_priority;
     *ewk->wu.char_table = _sel_pl_char_table;
     ewk->wu.my_mts = 13;
     ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
-    ewk->wu.position_x = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + Pos_Data_40[type][0];
-    ewk->wu.position_y = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + Pos_Data_40[type][1];
+    ewk->wu.position_x = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + Pos_Data_40[p->type][0];
+    ewk->wu.position_y = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + Pos_Data_40[p->type][1];
 
     // Display lower when displayed on netplay menu
-    if (id == 2) {
+    if (p->id == 2) {
         ewk->wu.position_y -= 44;
     }
 
-    ewk->wu.position_z = Pos_Data_40[type][2];
+    ewk->wu.position_z = Pos_Data_40[p->type][2];
 
-    if (master_priority < 2) {
+    if (p->master_priority < 2) {
         set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
     } else {
         set_char_move_init2(&ewk->wu, 0, 76, (ewk->master_priority / 2) + 1, 0);

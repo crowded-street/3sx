@@ -20,54 +20,61 @@ static s32 effect_can_update(void) {
 }
 
 
-void effect_G9_move(WORK_Other* ewk) {
+static void effg9_spawn(WORK_Other* ewk) {
     s16 rnd_ix;
 
-    switch (ewk->wu.routine_no[0]) {
-    case 0:
-        ewk->wu.routine_no[0] += 1;
-        ewk->wu.disp_flag = ewk->wu.type;
-        ewk->wu.xyz[0].disp.pos += g9_pos_hos[random_16()];
-        rnd_ix = random_16();
-        ewk->wu.xyz[1].disp.pos += g9_pos_hos[rnd_ix];
+    ewk->wu.routine_no[0] += 1;
+    ewk->wu.disp_flag = ewk->wu.type;
+    ewk->wu.xyz[0].disp.pos += g9_pos_hos[random_16()];
+    rnd_ix = random_16();
+    ewk->wu.xyz[1].disp.pos += g9_pos_hos[rnd_ix];
 
-        if (g9_pos_hos[rnd_ix] > 1) {
-            ewk->wu.position_z = 67;
-        } else {
-            ewk->wu.position_z = 33;
+    if (g9_pos_hos[rnd_ix] > 1) {
+        ewk->wu.position_z = 67;
+    } else {
+        ewk->wu.position_z = 33;
+    }
+
+    set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+}
+
+static void effg9_animate(WORK_Other* ewk) {
+    if (ewk->wu.dead_f == 1) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0] += 1;
+        return;
+    }
+
+    if (Pause_Hit_Marks) {
+        return;
+    }
+
+    if (effect_can_update()) {
+        char_move(&ewk->wu);
+
+        if (ewk->wu.cg_type == 0xFF) {
+            ewk->wu.disp_flag = 0;
+            ewk->wu.routine_no[0] += 1;
+            return;
         }
 
-        set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+        add_mvxy_speed(&ewk->wu);
+    }
+
+    ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
+    ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
+    sort_push_request8(&ewk->wu);
+}
+
+void effect_G9_move(WORK_Other* ewk) {
+    switch (ewk->wu.routine_no[0]) {
+    case 0:
+        effg9_spawn(ewk);
         /* fallthrough */
 
     case 1:
-        if (ewk->wu.dead_f == 1) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0] += 1;
-            break;
-        }
-
-        if (Pause_Hit_Marks) {
-            break;
-        }
-
-        if (effect_can_update()) {
-            char_move(&ewk->wu);
-
-            if (ewk->wu.cg_type == 0xFF) {
-                ewk->wu.disp_flag = 0;
-                ewk->wu.routine_no[0] += 1;
-                break;
-            }
-
-            add_mvxy_speed(&ewk->wu);
-        }
-
-        ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
-        ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
-        sort_push_request8(&ewk->wu);
+        effg9_animate(ewk);
         break;
-
     case 2:
         ewk->wu.routine_no[0] = 3;
         break;

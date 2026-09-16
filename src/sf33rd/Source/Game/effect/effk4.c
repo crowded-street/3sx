@@ -44,47 +44,54 @@ static s32 game_is_active(void) {
     return EXE_flag == 0 && Game_pause == 0;
 }
 
+static void effk4_spawn(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.disp_flag = 1;
+    ewk->wu.blink_timing = ewk->master_id;
+    get_init_position_effK4(&ewk->wu);
+    get_init_speed_and_timer_effK4(&ewk->wu);
+    ewk->wu.position_z = 24;
+    set_char_move_init(&ewk->wu, 0, effK4_char_sel_table[ewk->wu.dm_attlv][random_16()]);
+}
+
+static void effk4_animate(WORK_Other* ewk) {
+    if (ewk->wu.dead_f == 1 || Suicide[0] != 0) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0] = 2;
+        return;
+    }
+
+    if (game_is_active()) {
+        char_move(&ewk->wu);
+        add_mvxy_speed(&ewk->wu);
+        cal_mvxy_speed(&ewk->wu);
+
+        if (ewk->wu.kage_hy) {
+            ewk->wu.kage_hy--;
+        } else {
+            ewk->wu.disp_flag = 2;
+        }
+
+        if (--ewk->wu.kage_prio < 0) {
+            ewk->wu.disp_flag = 0;
+            ewk->wu.routine_no[0] = 2;
+        }
+    }
+
+    ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
+    ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
+    sort_push_request(&ewk->wu);
+}
+
 void effect_K4_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.blink_timing = ewk->master_id;
-        get_init_position_effK4(&ewk->wu);
-        get_init_speed_and_timer_effK4(&ewk->wu);
-        ewk->wu.position_z = 24;
-        set_char_move_init(&ewk->wu, 0, effK4_char_sel_table[ewk->wu.dm_attlv][random_16()]);
+        effk4_spawn(ewk);
         /* fallthrough */
 
     case 1:
-        if (ewk->wu.dead_f == 1 || Suicide[0] != 0) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0] = 2;
-            break;
-        }
-
-        if (game_is_active()) {
-            char_move(&ewk->wu);
-            add_mvxy_speed(&ewk->wu);
-            cal_mvxy_speed(&ewk->wu);
-
-            if (ewk->wu.kage_hy) {
-                ewk->wu.kage_hy--;
-            } else {
-                ewk->wu.disp_flag = 2;
-            }
-
-            if (--ewk->wu.kage_prio < 0) {
-                ewk->wu.disp_flag = 0;
-                ewk->wu.routine_no[0] = 2;
-            }
-        }
-
-        ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
-        ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
-        sort_push_request(&ewk->wu);
+        effk4_animate(ewk);
         break;
-
     case 2:
         ewk->wu.routine_no[0] = 3;
         break;

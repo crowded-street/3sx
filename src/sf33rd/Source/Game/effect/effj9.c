@@ -17,54 +17,65 @@ s16 get_c2_quake(WORK* c2wk);
 
 const s16 c2quake_table[19] = { 0, 3, 3, 2, 2, 1, 1, 1, 0, 0, 0, -1, -1, -1, -2, -2, -3, -3, 0 };
 
-void effect_J9_move(WORK_Other* ewk) {
-    WORK* c2wk = (WORK*)ewk->my_master;
+static void effj9_spawn(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.charset_id = 17;
+    set_char_base_data(&ewk->wu);
+    ewk->wu.my_col_mode = 0x4400;
+    ewk->wu.my_col_code = 0x21FF;
+    ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
+    ewk->wu.position_z = ewk->wu.my_priority = 68;
+    effect_00_init(&ewk->wu);
+    ewk->wu.next_x = 0;
+}
 
-    switch (ewk->wu.routine_no[0]) {
+static void effj9_step(WORK_Other* ewk, WORK* c2wk) {
+    switch (ewk->wu.routine_no[1]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.charset_id = 17;
-        set_char_base_data(&ewk->wu);
-        ewk->wu.my_col_mode = 0x4400;
-        ewk->wu.my_col_code = 0x21FF;
-        ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
-        ewk->wu.position_z = ewk->wu.my_priority = 68;
-        effect_00_init(&ewk->wu);
-        ewk->wu.next_x = 0;
+        ewk->wu.routine_no[1]++;
+        ewk->wu.disp_flag = 1;
+        set_char_move_init(&ewk->wu, 0, 0x44);
         break;
 
     case 1:
-        if (ewk->wu.dead_f == 1) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0]++;
-            break;
-        }
+        ewk->wu.next_x = get_c2_quake(c2wk);
 
-        switch (ewk->wu.routine_no[1]) {
-        case 0:
+        if (c2wk->char_index == 0x47) {
+            ewk->wu.next_x = 0;
             ewk->wu.routine_no[1]++;
-            ewk->wu.disp_flag = 1;
-            set_char_move_init(&ewk->wu, 0, 0x44);
-            break;
-
-        case 1:
-            ewk->wu.next_x = get_c2_quake(c2wk);
-
-            if (c2wk->char_index == 0x47) {
-                ewk->wu.next_x = 0;
-                ewk->wu.routine_no[1]++;
-                set_char_move_init(&ewk->wu, 0, 0x45);
-            }
-
-            break;
-
-        default:
-            ewk->wu.xyz[0].disp.pos = c2wk->xyz[0].disp.pos;
-            break;
+            set_char_move_init(&ewk->wu, 0, 0x45);
         }
 
-        player_hosei_data(ewk, c2wk->dir_timer, 0);
-        effJ9_trans(&ewk->wu);
+        break;
+
+    default:
+        ewk->wu.xyz[0].disp.pos = c2wk->xyz[0].disp.pos;
+        break;
+    }
+}
+
+static void effj9_animate(WORK_Other* ewk) {
+    WORK* c2wk = (WORK*)ewk->my_master;
+
+    if (ewk->wu.dead_f == 1) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0]++;
+        return;
+    }
+
+    effj9_step(ewk, c2wk);
+    player_hosei_data(ewk, c2wk->dir_timer, 0);
+    effJ9_trans(&ewk->wu);
+}
+
+void effect_J9_move(WORK_Other* ewk) {
+    switch (ewk->wu.routine_no[0]) {
+    case 0:
+        effj9_spawn(ewk);
+        break;
+
+    case 1:
+        effj9_animate(ewk);
         break;
 
     case 2:

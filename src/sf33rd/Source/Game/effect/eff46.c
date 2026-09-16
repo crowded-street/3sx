@@ -49,26 +49,43 @@ if (can_update_effect()) {
     }
 }
 
-void eff46_move(WORK_Other* ewk) {
+static void eff46_wait_appear(WORK_Other* ewk) {
     s16 work2;
 
+    char_move(&ewk->wu);
+
+    if (!eff46_appear_check(ewk)) {
+        return;
+    }
+
+    ewk->wu.routine_no[1]++;
+    work2 = random_16();
+
+    if (work2 & 1) {
+        set_char_move_init(&ewk->wu, 0, 44);
+    } else {
+        set_char_move_init(&ewk->wu, 0, 45);
+    }
+}
+
+static void eff46_fly(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+    add_x_sub(&ewk->wu);
+
+    if (ewk->wu.xyz[1].disp.pos >= ewk->wu.old_rno[0]) {
+        add_y_sub(&ewk->wu);
+    }
+
+    if (!range_x_check3(ewk, 64)) {
+        ewk->wu.routine_no[0]++;
+        ewk->wu.disp_flag = 0;
+    }
+}
+
+void eff46_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        char_move(&ewk->wu);
-
-        if (!eff46_appear_check(ewk)) {
-            break;
-        }
-
-        ewk->wu.routine_no[1]++;
-        work2 = random_16();
-
-        if (work2 & 1) {
-            set_char_move_init(&ewk->wu, 0, 44);
-        } else {
-            set_char_move_init(&ewk->wu, 0, 45);
-        }
-
+        eff46_wait_appear(ewk);
         break;
 
     case 1:
@@ -81,18 +98,7 @@ void eff46_move(WORK_Other* ewk) {
         break;
 
     case 2:
-        char_move(&ewk->wu);
-        add_x_sub(&ewk->wu);
-
-        if (ewk->wu.xyz[1].disp.pos >= ewk->wu.old_rno[0]) {
-            add_y_sub(&ewk->wu);
-        }
-
-        if (!range_x_check3(ewk, 64)) {
-            ewk->wu.routine_no[0]++;
-            ewk->wu.disp_flag = 0;
-        }
-
+        eff46_fly(ewk);
         break;
 
     default:

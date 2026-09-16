@@ -15,49 +15,62 @@ static s32 master_effect_has_finished(const WORK_Other* mwk) {
 }
 
 
-void effect_J0_move(WORK_Other* ewk) {
+/* Non-zero while this effect may advance: the game is running and the master is
+ * not in hit stop. */
+static s32 j0_updates_enabled(const PLW* mwk) {
+    return !EXE_flag && !Game_pause && mwk->wu.hit_stop <= 0;
+}
+
+static void effj0_spawn(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.cg_att_ix = 0;
+    ewk->wu.cg_hit_ix = 0;
+    sort_push_request(&ewk->wu);
+}
+
+static void effj0_animate(WORK_Other* ewk) {
     WORK_Other* mwk = (WORK_Other*)ewk->my_master;
     WORK_Other* cwk = (WORK_Other*)ewk->wu.target_adrs;
     WORK* sub_w = (WORK*)cwk->wu.target_adrs;
     ImageBuff* image_buff = (ImageBuff*)sub_w + 9;
 
+    if (ewk->wu.dead_f == 1) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0] = 2;
+        return;
+    }
+
+    if (master_effect_has_finished(mwk)) {
+        ewk->wu.routine_no[0] = 2;
+        ewk->wu.disp_flag = 0;
+        return;
+    }
+
+    if (j0_updates_enabled(mwk)) {
+        if (--ewk->wu.dir_timer == 0) {
+            ewk->wu.routine_no[0] = 2;
+            return;
+        }
+
+        ewk->wu.position_x = image_buff[ewk->wu.dir_step].pos_x;
+        ewk->wu.position_y = image_buff[ewk->wu.dir_step].pos_y;
+    }
+
+    ewk->wu.old_cgnum = ewk->wu.cg_number = mwk->wu.cg_number;
+    ewk->wu.rl_flag = mwk->wu.rl_flag;
+    ewk->wu.cg_flip = mwk->wu.cg_flip;
+    sort_push_request(&ewk->wu);
+}
+
+void effect_J0_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.cg_att_ix = 0;
-        ewk->wu.cg_hit_ix = 0;
-        sort_push_request(&ewk->wu);
+        effj0_spawn(ewk);
         break;
 
     case 1:
-        if (ewk->wu.dead_f == 1) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0] = 2;
-            break;
-        }
-
-        if (master_effect_has_finished(mwk)) {
-            ewk->wu.routine_no[0] = 2;
-            ewk->wu.disp_flag = 0;
-            break;
-        }
-
-        if (!EXE_flag && !Game_pause && mwk->wu.hit_stop <= 0) {
-            if (--ewk->wu.dir_timer == 0) {
-                ewk->wu.routine_no[0] = 2;
-                break;
-            }
-
-            ewk->wu.position_x = image_buff[ewk->wu.dir_step].pos_x;
-            ewk->wu.position_y = image_buff[ewk->wu.dir_step].pos_y;
-        }
-
-        ewk->wu.old_cgnum = ewk->wu.cg_number = mwk->wu.cg_number;
-        ewk->wu.rl_flag = mwk->wu.rl_flag;
-        ewk->wu.cg_flip = mwk->wu.cg_flip;
-        sort_push_request(&ewk->wu);
+        effj0_animate(ewk);
         break;
-
     case 2:
         ewk->wu.routine_no[0] = 3;
         break;

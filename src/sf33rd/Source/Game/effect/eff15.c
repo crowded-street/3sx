@@ -33,57 +33,72 @@ void effect_15_move(WORK_Other* ewk) {
     }
 }
 
+/* Show the stone and launch it. Type 1 comes in from further right and falls
+ * faster; the rest use the slower arc. */
+static void e15_start(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.disp_flag = 1;
+    set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+
+    if (ewk->wu.type == 1) {
+        ewk->wu.mvxy.a[0].sp = 0x8000;
+        ewk->wu.mvxy.d[0].sp = 0;
+        ewk->wu.mvxy.a[1].sp = -0x28000;
+        ewk->wu.mvxy.d[1].sp = -0x6000;
+        ewk->wu.xyz[0].disp.pos = 640;
+        ewk->wu.old_rno[2] = 64;
+        return;
+    }
+
+    ewk->wu.mvxy.a[0].sp = -0x8000;
+    ewk->wu.mvxy.d[0].sp = 0;
+    ewk->wu.mvxy.a[1].sp = 0;
+    ewk->wu.mvxy.d[1].sp = -0x4000;
+    ewk->wu.xyz[0].disp.pos = 576;
+    ewk->wu.old_rno[2] = 72;
+}
+
+/* Fall until the stone reaches its landing height, then switch to the landing
+ * animation. */
+static void e15_fall(WORK_Other* ewk) {
+    if (game_is_active()) {
+        char_move(&ewk->wu);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
+
+        if (ewk->wu.xyz[1].disp.pos < ewk->wu.old_rno[2]) {
+            ewk->wu.routine_no[0]++;
+            set_char_move_init(&ewk->wu, 0, 41);
+        }
+    }
+}
+
+/* Run the landing animation out, then hide the stone. */
+static void e15_land(WORK_Other* ewk) {
+    if (animation_can_advance()) {
+        char_move(&ewk->wu);
+
+        if (ewk->wu.cg_type) {
+            ewk->wu.routine_no[0]++;
+            ewk->wu.disp_flag = 0;
+        }
+    }
+}
+
 void eff15_koishi(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.disp_flag = 1;
-        set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-
-        if (ewk->wu.type == 1) {
-            ewk->wu.mvxy.a[0].sp = 0x8000;
-            ewk->wu.mvxy.d[0].sp = 0;
-            ewk->wu.mvxy.a[1].sp = -0x28000;
-            ewk->wu.mvxy.d[1].sp = -0x6000;
-            ewk->wu.xyz[0].disp.pos = 640;
-            ewk->wu.old_rno[2] = 64;
-            break;
-        }
-
-        ewk->wu.mvxy.a[0].sp = -0x8000;
-        ewk->wu.mvxy.d[0].sp = 0;
-        ewk->wu.mvxy.a[1].sp = 0;
-        ewk->wu.mvxy.d[1].sp = -0x4000;
-        ewk->wu.xyz[0].disp.pos = 576;
-        ewk->wu.old_rno[2] = 72;
+        e15_start(ewk);
         break;
 
     case 1:
-if (game_is_active()) {
-            char_move(&ewk->wu);
-            add_x_sub(&ewk->wu);
-            add_y_sub(&ewk->wu);
-
-            if (ewk->wu.xyz[1].disp.pos < ewk->wu.old_rno[2]) {
-                ewk->wu.routine_no[0]++;
-                set_char_move_init(&ewk->wu, 0, 41);
-            }
-        }
-
+        e15_fall(ewk);
         suzi_sync_pos_set(ewk);
         sort_push_request(&ewk->wu);
         break;
 
     case 2:
-        if (animation_can_advance()) {
-            char_move(&ewk->wu);
-
-            if (ewk->wu.cg_type) {
-                ewk->wu.routine_no[0]++;
-                ewk->wu.disp_flag = 0;
-            }
-        }
-
+        e15_land(ewk);
         suzi_sync_pos_set(ewk);
         sort_push_request(&ewk->wu);
         break;

@@ -48,68 +48,80 @@ static s32 game_is_active(void) {
 }
 
 
+static void eff41_draw(WORK_Other* ewk, PLW* mwk) {
+    eff41_main_process[sa_sign_data[ewk->wu.type][4]](ewk, mwk);
+    ewk->wu.cg_type = 0;
+
+    if (ewk->wu.extra_col != 0) {
+        push_color_trans_req(ewk->wu.extra_col & 0x1FF, 10);
+        ewk->wu.extra_col = 0;
+    }
+
+    sort_push_request(&ewk->wu);
+}
+
+static void eff41_spawn(WORK_Other* ewk, PLW* mwk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.routine_no[1] = 0;
+    ewk->wu.disp_flag = 1;
+    ewk->wu.my_col_mode = 0x4200;
+    ewk->wu.my_col_code = 0xA;
+    ewk->wu.position_z = 24;
+
+    switch (sa_sign_data[ewk->wu.type][3]) {
+    case 1:
+        sa_gauge_flash[mwk->wu.id] |= 4;
+        break;
+    case 2:
+        sa_gauge_flash[mwk->wu.id] |= 4;
+        break;
+    }
+
+    set_char_move_init(&ewk->wu, 0, sa_sign_data[ewk->wu.type][2]);
+}
+
+static void eff41_animate(WORK_Other* ewk, PLW* mwk) {
+    const s32 should_end_effect = ewk->wu.dead_f == 1 || mwk->wu.routine_no[1] != 4;
+
+    if (should_end_effect) {
+        ewk->wu.routine_no[0]++;
+        ewk->wu.disp_flag = 0;
+        return;
+    }
+
+    if (game_is_active()) {
+        if (ewk->wu.hit_stop) {
+            ewk->wu.hit_stop--;
+        } else {
+            char_move(&ewk->wu);
+        }
+    }
+
+    if (ewk->wu.cg_type == 4) {
+        ewk->wu.cg_type = 0;
+        effect_D9_init(mwk, 7);
+    }
+
+    if (ewk->wu.cg_type == 0xFF) {
+        ewk->wu.routine_no[0]++;
+        ewk->wu.disp_flag = 0;
+        return;
+    }
+
+    eff41_draw(ewk, mwk);
+}
+
 void effect_41_move(WORK_Other* ewk) {
     PLW* mwk = (PLW*)ewk->my_master;
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.routine_no[1] = 0;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.my_col_mode = 0x4200;
-        ewk->wu.my_col_code = 0xA;
-        ewk->wu.position_z = 24;
-
-        switch (sa_sign_data[ewk->wu.type][3]) {
-        case 1:
-            sa_gauge_flash[mwk->wu.id] |= 4;
-            break;
-        case 2:
-            sa_gauge_flash[mwk->wu.id] |= 4;
-            break;
-        }
-
-        set_char_move_init(&ewk->wu, 0, sa_sign_data[ewk->wu.type][2]);
-        goto jump;
+        eff41_spawn(ewk, mwk);
+        eff41_draw(ewk, mwk);
+        break;
 
     case 1:
-        const s32 should_end_effect = ewk->wu.dead_f == 1 || mwk->wu.routine_no[1] != 4;
-
-        if (should_end_effect) {
-            ewk->wu.routine_no[0]++;
-            ewk->wu.disp_flag = 0;
-            break;
-        }
-
-if (game_is_active()) {
-            if (ewk->wu.hit_stop) {
-                ewk->wu.hit_stop--;
-            } else {
-                char_move(&ewk->wu);
-            }
-        }
-
-        if (ewk->wu.cg_type == 4) {
-            ewk->wu.cg_type = 0;
-            effect_D9_init(mwk, 7);
-        }
-
-        if (ewk->wu.cg_type == 0xFF) {
-            ewk->wu.routine_no[0]++;
-            ewk->wu.disp_flag = 0;
-            return;
-        }
-
-    jump:
-        eff41_main_process[sa_sign_data[ewk->wu.type][4]](ewk, mwk);
-        ewk->wu.cg_type = 0;
-
-        if (ewk->wu.extra_col != 0) {
-            push_color_trans_req(ewk->wu.extra_col & 0x1FF, 10);
-            ewk->wu.extra_col = 0;
-        }
-
-        sort_push_request(&ewk->wu);
+        eff41_animate(ewk, mwk);
         break;
 
     case 2:

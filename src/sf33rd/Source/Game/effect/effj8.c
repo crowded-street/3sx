@@ -85,40 +85,62 @@ void dragonfly_l_move_1(WORK_Other* ewk) {
     dragonfly_direction_move_1(ewk, 0);
 }
 
-s16 dragonfly_l_move_2(WORK_Other* ewk) {
+static s16 dragonfly_direction_move_2(WORK_Other* ewk, s32 (*outside_bounds)(WORK_Other*),
+                                      s32 (*ready_to_turn)(WORK_Other*)) {
     char_move(&ewk->wu);
     add_x_sub(&ewk->wu);
     add_y_sub(&ewk->wu);
 
-    if (ewk->wu.xyz[0].disp.pos <= bg_w.bgw[1].l_limit2 - bg_w.pos_offset - 24) {
+    if (outside_bounds(ewk)) {
         dragonfly_stop_timer(ewk);
         return 99;
     }
 
-    if (ewk->wu.mvxy.a[0].sp < -0x2FFFF) {
+    if (ready_to_turn(ewk)) {
         return 1;
     }
 
     return 0;
 }
 
-s16 dragonfly_l_move_3(WORK_Other* ewk) {
+static s32 dragonfly_left_outside_bounds(WORK_Other* ewk) {
+    return ewk->wu.xyz[0].disp.pos <= bg_w.bgw[1].l_limit2 - bg_w.pos_offset - 24;
+}
+
+static s32 dragonfly_left_ready_to_turn(WORK_Other* ewk) {
+    return ewk->wu.mvxy.a[0].sp < -0x2FFFF;
+}
+
+s16 dragonfly_l_move_2(WORK_Other* ewk) {
+    return dragonfly_direction_move_2(ewk, dragonfly_left_outside_bounds, dragonfly_left_ready_to_turn);
+}
+
+static s16 dragonfly_direction_move_3(WORK_Other* ewk, s32 (*outside_bounds)(WORK_Other*),
+                                      s32 (*finished_turn)(WORK_Other*)) {
     add_x_sub(&ewk->wu);
     add_y_sub(&ewk->wu);
 
-    if (ewk->wu.xyz[0].disp.pos <= bg_w.bgw[1].l_limit2 - bg_w.pos_offset - 24) {
+    if (outside_bounds(ewk)) {
         dragonfly_stop_timer(ewk);
         set_char_move_init(&ewk->wu, 0, 6);
         return 99;
     }
 
-    if (ewk->wu.mvxy.a[0].sp >= 0) {
+    if (finished_turn(ewk)) {
         dragonfly_stop_timer(ewk);
         set_char_move_init(&ewk->wu, 0, 6);
         return 1;
     }
 
     return 0;
+}
+
+static s32 dragonfly_left_finished_turn(WORK_Other* ewk) {
+    return ewk->wu.mvxy.a[0].sp >= 0;
+}
+
+s16 dragonfly_l_move_3(WORK_Other* ewk) {
+    return dragonfly_direction_move_3(ewk, dragonfly_left_outside_bounds, dragonfly_left_finished_turn);
 }
 
 static s16 dragonfly_turn_move_4(WORK_Other* ewk) {
@@ -146,32 +168,33 @@ static void update_dragonfly_wait(WORK_Other* ewk) {
     }
 }
 
-void dragonfly_l_move(WORK_Other* ewk) {
+static void dragonfly_direction_move(WORK_Other* ewk, void (*move_0)(WORK_Other*), void (*move_1)(WORK_Other*),
+                                     s16 (*move_2)(WORK_Other*), s16 (*move_3)(WORK_Other*),
+                                     s16 (*move_4)(WORK_Other*)) {
     switch (ewk->wu.routine_no[2]) {
     case 0:
         ewk->wu.routine_no[2]++;
-        dragonfly_l_move_0(ewk);
+        move_0(ewk);
         /* fallthrough */
 
     case 1:
         ewk->wu.routine_no[2]++;
-        dragonfly_l_move_1(ewk);
+        move_1(ewk);
         break;
 
     case 2:
-        ewk->wu.routine_no[2] += dragonfly_l_move_2(ewk);
+        ewk->wu.routine_no[2] += move_2(ewk);
         break;
 
     case 3:
-        ewk->wu.routine_no[2] += dragonfly_l_move_3(ewk);
+        ewk->wu.routine_no[2] += move_3(ewk);
         break;
 
     case 4:
         char_move(&ewk->wu);
 
-        if (dragonfly_l_move_4(ewk)) {
+        if (move_4(ewk)) {
             ewk->wu.routine_no[2] = 1;
-            break;
         }
 
         break;
@@ -180,6 +203,11 @@ void dragonfly_l_move(WORK_Other* ewk) {
         update_dragonfly_wait(ewk);
         break;
     }
+}
+
+void dragonfly_l_move(WORK_Other* ewk) {
+    dragonfly_direction_move(ewk, dragonfly_l_move_0, dragonfly_l_move_1, dragonfly_l_move_2, dragonfly_l_move_3,
+                             dragonfly_l_move_4);
 }
 
 void dragonfly_r_move_0(WORK_Other* ewk) {
@@ -197,40 +225,24 @@ void dragonfly_r_move_1(WORK_Other* ewk) {
     dragonfly_direction_move_1(ewk, 1);
 }
 
+static s32 dragonfly_right_outside_bounds(WORK_Other* ewk) {
+    return ewk->wu.xyz[0].disp.pos > bg_w.bgw[1].r_limit2 + bg_w.pos_offset + 24;
+}
+
+static s32 dragonfly_right_ready_to_turn(WORK_Other* ewk) {
+    return ewk->wu.mvxy.a[0].sp < 0x30001;
+}
+
 s16 dragonfly_r_move_2(WORK_Other* ewk) {
-    char_move(&ewk->wu);
-    add_x_sub(&ewk->wu);
-    add_y_sub(&ewk->wu);
+    return dragonfly_direction_move_2(ewk, dragonfly_right_outside_bounds, dragonfly_right_ready_to_turn);
+}
 
-    if (ewk->wu.xyz[0].disp.pos > bg_w.bgw[1].r_limit2 + bg_w.pos_offset + 24) {
-        dragonfly_stop_timer(ewk);
-        return 99;
-    }
-
-    if (ewk->wu.mvxy.a[0].sp < 0x30001) {
-        return 1;
-    }
-
-    return 0;
+static s32 dragonfly_right_finished_turn(WORK_Other* ewk) {
+    return ewk->wu.mvxy.a[0].sp <= 0;
 }
 
 s16 dragonfly_r_move_3(WORK_Other* ewk) {
-    add_x_sub(&ewk->wu);
-    add_y_sub(&ewk->wu);
-
-    if (ewk->wu.xyz[0].disp.pos >= bg_w.bgw[1].r_limit2 + bg_w.pos_offset + 24) {
-        dragonfly_stop_timer(ewk);
-        set_char_move_init(&ewk->wu, 0, 6);
-        return 99;
-    }
-
-    if (ewk->wu.mvxy.a[0].sp <= 0) {
-        dragonfly_stop_timer(ewk);
-        set_char_move_init(&ewk->wu, 0, 6);
-        return 1;
-    }
-
-    return 0;
+    return dragonfly_direction_move_3(ewk, dragonfly_right_outside_bounds, dragonfly_right_finished_turn);
 }
 
 s16 dragonfly_r_move_4(WORK_Other* ewk) {
@@ -238,38 +250,8 @@ s16 dragonfly_r_move_4(WORK_Other* ewk) {
 }
 
 void dragonfly_r_move(WORK_Other* ewk) {
-    switch (ewk->wu.routine_no[2]) {
-    case 0:
-        ewk->wu.routine_no[2]++;
-        dragonfly_r_move_0(ewk);
-        /* fallthrough */
-
-    case 1:
-        ewk->wu.routine_no[2]++;
-        dragonfly_r_move_1(ewk);
-        break;
-
-    case 2:
-        ewk->wu.routine_no[2] += dragonfly_r_move_2(ewk);
-        break;
-
-    case 3:
-        ewk->wu.routine_no[2] += dragonfly_r_move_3(ewk);
-        break;
-
-    case 4:
-        char_move(&ewk->wu);
-
-        if (dragonfly_r_move_4(ewk)) {
-            ewk->wu.routine_no[2] = 1;
-        }
-
-        break;
-
-    default:
-        update_dragonfly_wait(ewk);
-        break;
-    }
+    dragonfly_direction_move(ewk, dragonfly_r_move_0, dragonfly_r_move_1, dragonfly_r_move_2, dragonfly_r_move_3,
+                             dragonfly_r_move_4);
 }
 
 void dragonfly_move_0000(WORK_Other* ewk) {
@@ -339,40 +321,60 @@ static void update_dragonfly_initial_wait_J8(WORK_Other* ewk) {
     }
 }
 
-void dragonfly_move_0001(WORK_Other* ewk) {
+static void dragonfly_direction_sequence(WORK_Other* ewk, s16 rl_flag, s32 move_each_frame,
+                                         s32 continue_after_launch, void (*update_initial_wait)(WORK_Other*),
+                                         void (*move_1)(WORK_Other*), s16 (*move_2)(WORK_Other*),
+                                         s16 (*move_3)(WORK_Other*), void (*update_turn)(WORK_Other*)) {
+    if (move_each_frame) {
+        char_move(&ewk->wu);
+    }
+
     switch (ewk->wu.routine_no[2]) {
     case 0:
-        char_move(&ewk->wu);
+        if (!move_each_frame) {
+            char_move(&ewk->wu);
+        }
+
         ewk->wu.routine_no[2]++;
-        ewk->wu.rl_flag = 1;
+        ewk->wu.rl_flag = rl_flag;
         dragonfly_stop_timer(ewk);
         break;
 
     case 1:
-        update_dragonfly_initial_wait_J8(ewk);
+        update_initial_wait(ewk);
         break;
 
     case 2:
         ewk->wu.routine_no[2]++;
-        dragonfly_l_move_1(ewk);
+        move_1(ewk);
+
+        if (!continue_after_launch) {
+            break;
+        }
+
         /* fallthrough */
 
     case 3:
-        ewk->wu.routine_no[2] += dragonfly_l_move_2(ewk);
+        ewk->wu.routine_no[2] += move_2(ewk);
         break;
 
     case 4:
-        ewk->wu.routine_no[2] += dragonfly_l_move_3(ewk);
+        ewk->wu.routine_no[2] += move_3(ewk);
         break;
 
     case 5:
-        update_dragonfly_left_turn_J8(ewk);
+        update_turn(ewk);
         break;
 
     default:
         update_dragonfly_wait(ewk);
         break;
     }
+}
+
+void dragonfly_move_0001(WORK_Other* ewk) {
+    dragonfly_direction_sequence(ewk, 1, 0, 1, update_dragonfly_initial_wait_J8, dragonfly_l_move_1,
+                                 dragonfly_l_move_2, dragonfly_l_move_3, update_dragonfly_left_turn_J8);
 }
 
 void dragonfly_move_0004(WORK_Other* ewk) {
@@ -434,40 +436,8 @@ static void update_dragonfly_wait_step_J8(WORK_Other* ewk) {
 }
 
 void dragonfly_move_0005(WORK_Other* ewk) {
-    char_move(&ewk->wu);
-
-    switch (ewk->wu.routine_no[2]) {
-    case 0:
-        ewk->wu.routine_no[2]++;
-        ewk->wu.rl_flag = 0;
-        dragonfly_stop_timer(ewk);
-        break;
-
-    case 1:
-        update_dragonfly_wait_step_J8(ewk);
-        break;
-
-    case 2:
-        ewk->wu.routine_no[2]++;
-        dragonfly_r_move_1(ewk);
-        break;
-
-    case 3:
-        ewk->wu.routine_no[2] += dragonfly_r_move_2(ewk);
-        break;
-
-    case 4:
-        ewk->wu.routine_no[2] += dragonfly_r_move_3(ewk);
-        break;
-
-    case 5:
-        update_dragonfly_right_turn_J8(ewk);
-        break;
-
-    default:
-        update_dragonfly_wait(ewk);
-        break;
-    }
+    dragonfly_direction_sequence(ewk, 0, 1, 0, update_dragonfly_wait_step_J8, dragonfly_r_move_1,
+                                 dragonfly_r_move_2, dragonfly_r_move_3, update_dragonfly_right_turn_J8);
 }
 
 void dragonfly_stop_timer(WORK_Other* ewk) {

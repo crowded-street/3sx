@@ -51,7 +51,7 @@ void effect_91_move(WORK_Other* ewk) {
     sort_push_request4(&ewk->wu);
 }
 
-s32 effect_91_init(s16 master_id, s16 type, s16 target_bg, s16 char_ix, s16 char_ix2, s16 master_player) {
+s32 effect_91_init(const Effect91Init* p) {
     WORK_Other* ewk;
     s16 ix;
 
@@ -65,16 +65,16 @@ s32 effect_91_init(s16 master_id, s16 type, s16 target_bg, s16 char_ix, s16 char
     ewk->wu.id = 91;
     ewk->wu.work_id = 16;
     ewk->wu.my_col_code = 428;
-    ewk->master_id = master_id;
-    ewk->wu.my_family = target_bg + 1;
+    ewk->master_id = p->master_id;
+    ewk->wu.my_family = p->target_bg + 1;
     ewk->wu.char_table[0] = _sel_pl_char_table;
-    ewk->wu.type = type;
-    ewk->master_player = master_player;
+    ewk->wu.type = p->type;
+    ewk->master_player = p->master_player;
     ewk->wu.my_mts = 13;
     ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
-    ewk->wu.position_x = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + EFF91_Pos_Data[master_id][ewk->wu.type][0];
-    ewk->wu.position_y = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + EFF91_Pos_Data[master_id][ewk->wu.type][1];
+    ewk->wu.position_x = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + EFF91_Pos_Data[p->master_id][ewk->wu.type][0];
+    ewk->wu.position_y = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + EFF91_Pos_Data[p->master_id][ewk->wu.type][1];
     ewk->wu.position_z = 68;
-    set_char_move_init2(&ewk->wu, 0, char_ix, char_ix2 + 1, 0);
+    set_char_move_init2(&ewk->wu, 0, p->char_ix, p->char_ix2 + 1, 0);
     return 0;
 }

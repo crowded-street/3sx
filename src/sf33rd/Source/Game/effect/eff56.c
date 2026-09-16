@@ -24,29 +24,35 @@ static s32 is_bonus_stage_20(void) {
 }
 
 
+static void eff56_start_table(void) {
+    if (is_bonus_stage_20()) {
+        ci_pointer = bonus_ci_color_tbl;
+        ci_col = *ci_pointer++;
+        ci_timer = *ci_pointer++;
+    } else {
+        ci_pointer = ci_color_tbl;
+        ci_col = *ci_pointer++;
+        ci_timer = *ci_pointer++;
+    }
+}
+
+static void eff56_paint(u8 type, u8 atr) {
+    if (type < 7) {
+        ci_set(type, atr);
+    } else {
+        nw_set(type - 7, atr);
+    }
+}
+
 void effect_56_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0]++;
-
-if (is_bonus_stage_20()) {
-            ci_pointer = bonus_ci_color_tbl;
-            ci_col = *ci_pointer++;
-            ci_timer = *ci_pointer++;
-        } else {
-            ci_pointer = ci_color_tbl;
-            ci_col = *ci_pointer++;
-            ci_timer = *ci_pointer++;
-        }
-
+        eff56_start_table();
         /* fallthrough */
 
     case 1:
-        if (ewk->wu.type < 7) {
-            ci_set(ewk->wu.type, ci_col);
-        } else {
-            nw_set(ewk->wu.type - 7, ci_col);
-        }
+        eff56_paint(ewk->wu.type, ci_col);
 
         break;
 
@@ -57,11 +63,7 @@ if (is_bonus_stage_20()) {
             return;
         }
 
-        if (ewk->wu.type < 7) {
-            ci_set(ewk->wu.type, 20);
-        } else {
-            nw_set(ewk->wu.type - 7, 20);
-        }
+        eff56_paint(ewk->wu.type, 20);
 
         return;
     }

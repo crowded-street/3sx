@@ -23,60 +23,64 @@ const u16 bunkai_numobj_G0[10] = { 27159, 27160, 27161, 27162, 27163, 27164, 271
 const CONN Result_Score[6] = { { 40, 0, 0, 27159 }, { 32, 0, 0, 27159 }, { 24, 0, 0, 27159 },
                                { 16, 0, 0, 27159 }, { 8, 0, 0, 27159 },  { 0, 0, 0, 27159 } };
 
-void effect_G0_move(WORK_Other* ewk) {
-    switch (ewk->wu.routine_no[0]) {
+static void effg0_wait_in(WORK_Other* ewk) {
+    switch (ewk->wu.routine_no[1]) {
     case 0:
-        switch (ewk->wu.routine_no[1]) {
-        case 0:
-            if (--ewk->wu.dir_timer) {
-                break;
-            }
-
-            ewk->wu.routine_no[0] = 1;
-            ewk->wu.routine_no[1] = 0;
-            ewk->wu.disp_flag = 1;
-            ewk->wu.old_cgnum = 0;
-            /* fallthrough */
-
-        default:
-            effG0_trans(&ewk->wu);
+        if (--ewk->wu.dir_timer) {
             break;
+        }
+
+        ewk->wu.routine_no[0] = 1;
+        ewk->wu.routine_no[1] = 0;
+        ewk->wu.disp_flag = 1;
+        ewk->wu.old_cgnum = 0;
+        /* fallthrough */
+
+    default:
+        effG0_trans(&ewk->wu);
+        break;
+    }
+}
+
+static void effg0_slide(WORK_Other* ewk) {
+    switch (ewk->wu.routine_no[1]) {
+    case 0:
+        ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
+        ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
+
+        if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
+            ewk->wu.routine_no[1]++;
+            ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
+            Order_Dir[ewk->wu.dir_old] = 0;
         }
 
         break;
 
     case 1:
-        Check_Die_G0((WORK_Other_CONN*)ewk);
-
-        switch (ewk->wu.routine_no[1]) {
+        switch (Order[ewk->wu.dir_old]) {
         case 0:
-            ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
-            ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
-
-            if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
-                ewk->wu.routine_no[1]++;
-                ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
-                Order_Dir[ewk->wu.dir_old] = 0;
-            }
-
             break;
 
         case 1:
-            switch (Order[ewk->wu.dir_old]) {
-            case 0:
-                break;
-
-            case 1:
-                Flash_G0((WORK_Other_CONN*)ewk);
-                break;
-            }
-
+            Flash_G0((WORK_Other_CONN*)ewk);
             break;
         }
 
-        effG0_trans(&ewk->wu);
+        break;
+    }
+}
+
+void effect_G0_move(WORK_Other* ewk) {
+    switch (ewk->wu.routine_no[0]) {
+    case 0:
+        effg0_wait_in(ewk);
         break;
 
+    case 1:
+        Check_Die_G0((WORK_Other_CONN*)ewk);
+        effg0_slide(ewk);
+        effG0_trans(&ewk->wu);
+        break;
     case 2:
         ewk->wu.routine_no[0] = 3;
         break;
@@ -107,9 +111,33 @@ void effG0_trans(WORK* ewk) {
     sort_push_request3(ewk);
 }
 
-void Flash_G0(WORK_Other_CONN* ewk) {
+static void flash_g0_shift(WORK_Other_CONN* ewk, s16 step) {
     s16 ix;
 
+    for (ix = 0; ix < ewk->num_of_conn; ix++) {
+        ewk->conn[ix].chr += step;
+    }
+}
+
+static void flash_g0_hide(WORK_Other_CONN* ewk) {
+    if (--ewk->wu.dir_timer != 0) {
+        return;
+    }
+
+    flash_g0_shift(ewk, -10);
+
+    if (--ewk->wu.vital_new == 0) {
+        Order[ewk->wu.dir_old] = 0;
+        ewk->wu.routine_no[1] = 0;
+        ewk->wu.routine_no[2] = 0;
+        return;
+    }
+
+    ewk->wu.routine_no[2] = 1;
+    ewk->wu.dir_timer = 3;
+}
+
+void Flash_G0(WORK_Other_CONN* ewk) {
     switch (ewk->wu.routine_no[2]) {
     case 0:
         ewk->wu.routine_no[2]++;
@@ -124,31 +152,11 @@ void Flash_G0(WORK_Other_CONN* ewk) {
 
         ewk->wu.routine_no[2] = 2;
         ewk->wu.dir_timer = 3;
-
-        for (ix = 0; ix < ewk->num_of_conn; ix++) {
-            ewk->conn[ix].chr += 10;
-        }
-
+        flash_g0_shift(ewk, 10);
         break;
 
     case 2:
-        if (--ewk->wu.dir_timer != 0) {
-            break;
-        }
-
-        for (ix = 0; ix < ewk->num_of_conn; ix++) {
-            ewk->conn[ix].chr -= 10;
-        }
-
-        if (--ewk->wu.vital_new == 0) {
-            Order[ewk->wu.dir_old] = 0;
-            ewk->wu.routine_no[1] = 0;
-            ewk->wu.routine_no[2] = 0;
-            break;
-        }
-
-        ewk->wu.routine_no[2] = 1;
-        ewk->wu.dir_timer = 3;
+        flash_g0_hide(ewk);
         break;
     }
 }

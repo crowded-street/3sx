@@ -21,9 +21,54 @@ static bool Is_Training_Hitbox_Display_Active() {
     return Mode_Type == MODE_NORMAL_TRAINING && Is_Training_Hitbox_Display_Enabled();
 }
 
-void effect_00_move(WORK_Other_JUDGE* ewk) {
+static void eff00_set_disp_bit(WORK_Other_JUDGE* ewk, u16 dip) {
+    dip = (dip >> 8) & 0xF;
+    ewk->ja_disp_bit = jdb[dip];
+    // ewk->curr_ja = Debug_w[17];
+    ewk->curr_ja = 0;
+}
+
+static void eff00_draw_boxes(WORK_Other_JUDGE* ewk) {
     u16 dip;
 
+    if (ewk->wu.dead_f == 1) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0] = 2;
+        return;
+    }
+
+    if (((WORK*)ewk->my_master)->waku_work_index != ewk->wu.myself) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0] = 2;
+        return;
+    }
+
+    dip = get_dip_modoki(ewk->wu.type);
+    ewk->ja_disp_bit = 0;
+
+    if (ewk->master_work_id != 1) {
+        switch (dip & 0x2000) {
+        default:
+            eff00_set_disp_bit(ewk, dip);
+            break;
+
+        case 0:
+            break;
+        }
+    } else if (dip & 0x1000) {
+        eff00_set_disp_bit(ewk, dip);
+    }
+
+    renewal_table_address(ewk, (WORK*)ewk->my_master);
+
+    if (ewk->wu.type) {
+        renewal_table_data(ewk);
+    }
+
+    sort_push_request2((WORK_Other*)ewk);
+}
+
+void effect_00_move(WORK_Other_JUDGE* ewk) {
     ewk->fade_cja += 2;
     ewk->fade_cja &= 0xFF;
 
@@ -38,46 +83,8 @@ void effect_00_move(WORK_Other_JUDGE* ewk) {
         break;
 
     case 1:
-        if (ewk->wu.dead_f == 1) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0] = 2;
-            break;
-        }
-
-        if (((WORK*)ewk->my_master)->waku_work_index != ewk->wu.myself) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0] = 2;
-            break;
-        }
-
-        dip = get_dip_modoki(ewk->wu.type);
-        ewk->ja_disp_bit = 0;
-
-        if (ewk->master_work_id != 1) {
-            switch (dip & 0x2000) {
-            default:
-                goto jump;
-
-            case 0:
-                break;
-            }
-        } else if (dip & 0x1000) {
-        jump:
-            dip = (dip >> 8) & 0xF;
-            ewk->ja_disp_bit = jdb[dip];
-            // ewk->curr_ja = Debug_w[17];
-            ewk->curr_ja = 0;
-        }
-
-        renewal_table_address(ewk, (WORK*)ewk->my_master);
-
-        if (ewk->wu.type) {
-            renewal_table_data(ewk);
-        }
-
-        sort_push_request2((WORK_Other*)ewk);
+        eff00_draw_boxes(ewk);
         break;
-
     default:
     case 2:
         push_effect_work(&ewk->wu);
@@ -122,40 +129,36 @@ void renewal_table_address(WORK_Other_JUDGE* ewk, WORK* twk) {
     ewk->wu.position_y = twk->xyz[1].disp.pos;
 }
 
+static u16* copy_ja_row(WORK_Other_JUDGE* ewk, s16 row, u16* mm) {
+    s16 j;
+
+    for (j = 0; j < 4; j++) {
+        ewk->jx[row][j] = *mm++;
+    }
+
+    return mm;
+}
+
 void renewal_table_data(WORK_Other_JUDGE* ewk) {
     u16* mm;
     s16 i;
-    s16 j;
 
     for (mm = (u16*)ewk->wu.h_bod, i = 0; i < 4; i++) {
-        for (j = 0; j < 4; j++) {
-            ewk->jx[i][j] = *mm++;
-        }
+        mm = copy_ja_row(ewk, i, mm);
     }
 
     for (mm = (u16*)ewk->wu.h_han, i = 0; i < 4; i++) {
-        for (j = 0; j < 4; j++) {
-            ewk->jx[i + 4][j] = *mm++;
-        }
+        mm = copy_ja_row(ewk, i + 4, mm);
     }
 
-    for (mm = (u16*)ewk->wu.h_cat, j = 0; j < 4; j++) {
-        ewk->jx[8][j] = *mm++;
-    }
-
-    for (mm = (u16*)ewk->wu.h_cau, j = 0; j < 4; j++) {
-        ewk->jx[9][j] = *mm++;
-    }
+    mm = copy_ja_row(ewk, 8, (u16*)ewk->wu.h_cat);
+    mm = copy_ja_row(ewk, 9, (u16*)ewk->wu.h_cau);
 
     for (mm = (u16*)ewk->wu.h_att, i = 0; i < 4; i++) {
-        for (j = 0; j < 4; j++) {
-            ewk->jx[i + 10][j] = *mm++;
-        }
+        mm = copy_ja_row(ewk, i + 10, mm);
     }
 
-    for (mm = (u16*)ewk->wu.h_hos, j = 0; j < 4; j++) {
-        ewk->jx[14][j] = *mm++;
-    }
+    mm = copy_ja_row(ewk, 14, (u16*)ewk->wu.h_hos);
 }
 
 s32 effect_00_init(WORK* wk) {

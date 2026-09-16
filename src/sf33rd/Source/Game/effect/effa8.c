@@ -204,7 +204,7 @@ void effect_A8_move(WORK_Other_CONN* ewk) {
     }
 }
 
-s32 effect_A8_init(s16 id, u8 dir_old, s16 sync_bg, s16 master_player, s16 cursor_index, s16 char_ix, s16 pos_index) {
+s32 effect_A8_init(const EffectA8Init* p) {
     WORK_Other_CONN* ewk;
     s16 ix;
 
@@ -217,13 +217,13 @@ s32 effect_A8_init(s16 id, u8 dir_old, s16 sync_bg, s16 master_player, s16 curso
     ewk->wu.id = 108;
     ewk->wu.work_id = 16;
     ewk->wu.my_col_code = 0x1AC;
-    ewk->master_id = id;
-    ewk->wu.dir_old = dir_old;
-    ewk->wu.my_family = sync_bg + 1;
-    ewk->master_player = master_player;
-    ewk->wu.type = cursor_index;
-    ewk->wu.old_cgnum = char_ix;
-    ewk->wu.dir_step = pos_index;
+    ewk->master_id = p->id;
+    ewk->wu.dir_old = p->dir_old;
+    ewk->wu.my_family = p->sync_bg + 1;
+    ewk->master_player = p->master_player;
+    ewk->wu.type = p->cursor_index;
+    ewk->wu.old_cgnum = p->char_ix;
+    ewk->wu.dir_step = p->pos_index;
     ewk->wu.my_mts = 14;
     ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
     ewk->wu.position_x = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + Pos_Data_A8[ewk->wu.dir_step][0];

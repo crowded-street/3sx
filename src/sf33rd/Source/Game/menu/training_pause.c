@@ -365,9 +365,9 @@ static s32 exit_normal_training_pause(struct _TASK* task_ptr) {
         SE_selected();
         Menu_Suicide[0] = 1;
         Menu_Cursor_Y[0] = 1;
-        effect_10_init(0, 0, 3, 6, 1, 17, 12);
-        effect_10_init(0, 1, 0, 0, 1, 20, 15);
-        effect_10_init(0, 1, 1, 1, 1, 26, 15);
+        effect_10_init(&(Effect10Init){0, 0, 3, 6, 1, 17, 12});
+        effect_10_init(&(Effect10Init){0, 1, 0, 0, 1, 20, 15});
+        effect_10_init(&(Effect10Init){0, 1, 1, 1, 1, 26, 15});
         break;
     }
     return 0;
@@ -415,9 +415,9 @@ s32 Pause_in_Normal_Tr(struct _TASK* task_ptr) {
             Menu_Suicide[ix] = 0;
         }
 
-        effect_10_init(0, 6, 0, 0, 0, 20, 12);
-        effect_10_init(0, 6, 1, 1, 0, 18, 14);
-        effect_10_init(0, 6, 2, 2, 0, 22, 16);
+        effect_10_init(&(Effect10Init){0, 6, 0, 0, 0, 20, 12});
+        effect_10_init(&(Effect10Init){0, 6, 1, 1, 0, 18, 14});
+        effect_10_init(&(Effect10Init){0, 6, 2, 2, 0, 22, 16});
         break;
 
     case 2:

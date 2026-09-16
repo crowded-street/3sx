@@ -70,43 +70,54 @@ s32 effect_C4_init(s16 id, s16 letter_type, s16 cursor_index, s16 master_player)
     return 0;
 }
 
-void Setup_Letter_C4(WORK_Other_CONN* ewk) {
-    s16 x;
-    s16 ix;
-    u8* ptr;
-
+static u8* get_letter_data_C4(const WORK_Other_CONN* ewk) {
     if (ewk->master_id) {
-        ptr = (u8*)Ex_Letter_Data[Menu_Page_Buff][ewk->wu.char_index]
-                                 [save_w[1].extra_option.contents[Menu_Page_Buff][ewk->wu.type]];
-    } else {
-        ptr = (u8*)Ex_Title_Data[Menu_Page_Buff][ewk->wu.char_index];
+        return (u8*)Ex_Letter_Data[Menu_Page_Buff][ewk->wu.char_index]
+                                  [save_w[1].extra_option.contents[Menu_Page_Buff][ewk->wu.type]];
     }
 
-    ix = 0;
-    x = 0;
+    return (u8*)Ex_Title_Data[Menu_Page_Buff][ewk->wu.char_index];
+}
+
+static s32 advance_letter_spacing_C4(u8 character, s16* x) {
+    if (character == ' ') {
+        *x += 8;
+        return 1;
+    }
+
+    if (character == '/') {
+        *x += 4;
+        return 1;
+    }
+
+    return 0;
+}
+
+static void set_letter_color_C4(WORK_Other_CONN* ewk, s16 ix) {
+    if (!ewk->master_id) {
+        return;
+    }
+
+    if (save_w[1].extra_option.contents[Menu_Page_Buff][ewk->wu.type] !=
+        save_w[0].extra_option.contents[Menu_Page_Buff][ewk->wu.type]) {
+        ewk->conn[ix].col = 0x18;
+    } else {
+        ewk->conn[ix].col = 0;
+    }
+}
+
+void Setup_Letter_C4(WORK_Other_CONN* ewk) {
+    s16 x = 0;
+    s16 ix = 0;
+    u8* ptr = get_letter_data_C4(ewk);
 
     while (*ptr != '\0') {
-        if (*ptr == ' ') {
-            x += 8;
+        if (advance_letter_spacing_C4(*ptr, &x)) {
             ptr++;
             continue;
         }
 
-        if (*ptr == '/') {
-            x += 4;
-            ptr++;
-            continue;
-        }
-
-        if (ewk->master_id) {
-            if (save_w[1].extra_option.contents[Menu_Page_Buff][ewk->wu.type] !=
-                save_w[0].extra_option.contents[Menu_Page_Buff][ewk->wu.type]) {
-                ewk->conn[ix].col = 0x18;
-            } else {
-                ewk->conn[ix].col = 0;
-            }
-        }
-
+        set_letter_color_C4(ewk, ix);
         ewk->conn[ix].nx = x;
         ewk->conn[ix].ny = 0;
         ewk->conn[ix].chr = *ptr + 0x70A7;

@@ -149,8 +149,7 @@ void EFF64_CHAR_CHANGE(WORK_Other_CONN* /* unused */) {}
 
 void EFF64_SUDDENLY(WORK_Other_CONN* /* unused */) {}
 
-s32 effect_64_init(u8 dir_old, s16 sync_bg, s16 master_player, s16 letter_type, s16 cursor_index, u16 char_offset,
-                   s16 pos_index, s16 convert_id, s16 convert_id2) {
+s32 effect_64_init(const Effect64Init* p) {
     WORK_Other_CONN* ewk;
     s16 ix;
 
@@ -162,16 +161,16 @@ s32 effect_64_init(u8 dir_old, s16 sync_bg, s16 master_player, s16 letter_type, 
     ewk->wu.be_flag = 1;
     ewk->wu.id = 64;
     ewk->wu.work_id = 16;
-    ewk->wu.my_family = sync_bg + 1;
+    ewk->wu.my_family = p->sync_bg + 1;
     ewk->wu.my_col_code = 0x1AC;
-    ewk->wu.dir_step = pos_index;
-    ewk->wu.type = cursor_index;
-    ewk->wu.char_index = letter_type;
-    ewk->wu.dir_old = dir_old;
-    ewk->master_player = master_player;
-    ewk->wu.old_cgnum = char_offset;
-    ewk->master_priority = convert_id;
-    ewk->wu.cg_type = convert_id2;
+    ewk->wu.dir_step = p->pos_index;
+    ewk->wu.type = p->cursor_index;
+    ewk->wu.char_index = p->letter_type;
+    ewk->wu.dir_old = p->dir_old;
+    ewk->master_player = p->master_player;
+    ewk->wu.old_cgnum = p->char_offset;
+    ewk->master_priority = p->convert_id;
+    ewk->wu.cg_type = p->convert_id2;
     ewk->wu.my_mts = 13;
     ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
     Disp_64_Sub(ewk);

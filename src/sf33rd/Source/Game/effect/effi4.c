@@ -87,49 +87,58 @@ void effect_i4_hit_sub(WORK_Other* ewk) {
     }
 }
 
+static void effi4_rise(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+
+    if (!ewk->wu.cg_type) {
+        return;
+    }
+
+    ewk->wu.type = 2;
+
+    if (eff_hit_check2(ewk, 0, 2)) {
+        ewk->wu.routine_no[3]++;
+        return;
+    }
+
+    if (ewk->wu.cg_type == 0xFF) {
+        eff_hit_flag[1] = 0;
+        ewk->wu.routine_no[1] = 0;
+        ewk->wu.type = 1;
+    }
+}
+
+static void effi4_strike(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+
+    if (ewk->wu.cg_type) {
+        ewk->wu.routine_no[3]++;
+        set_char_move_init(&ewk->wu, 0, 26);
+        return;
+    }
+}
+
+static void effi4_finish(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+
+    if (ewk->wu.cg_type == 0xFF) {
+        ewk->wu.routine_no[1] = 99;
+        ewk->wu.routine_no[0] = 2;
+    }
+}
+
 void effi4_down_to_up(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[3]) {
     case 0:
-        char_move(&ewk->wu);
-
-        if (!ewk->wu.cg_type) {
-            break;
-        }
-
-        ewk->wu.type = 2;
-
-        if (eff_hit_check2(ewk, 0, 2)) {
-            ewk->wu.routine_no[3]++;
-            break;
-        }
-
-        if (ewk->wu.cg_type == 0xFF) {
-            eff_hit_flag[1] = 0;
-            ewk->wu.routine_no[1] = 0;
-            ewk->wu.type = 1;
-        }
-
+        effi4_rise(ewk);
         break;
 
     case 1:
-        char_move(&ewk->wu);
-
-        if (ewk->wu.cg_type) {
-            ewk->wu.routine_no[3]++;
-            set_char_move_init(&ewk->wu, 0, 26);
-            break;
-        }
-
+        effi4_strike(ewk);
         break;
 
     case 2:
-        char_move(&ewk->wu);
-
-        if (ewk->wu.cg_type == 0xFF) {
-            ewk->wu.routine_no[1] = 99;
-            ewk->wu.routine_no[0] = 2;
-        }
-
+        effi4_finish(ewk);
         break;
     }
 }

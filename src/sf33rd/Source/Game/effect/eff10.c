@@ -50,6 +50,22 @@ static s32 pause_input_is_blocked(void) {
 }
 
 
+/* Button-image rows 2 and 5 swap places on the second interface layout, so the
+ * image index needs shifting for those two rows only. */
+static s16 e10_row_correction(const WORK_Other* ewk) {
+    if (ewk->wu.type == 5 && Interface_Type[ewk->master_id] == 1) {
+        if (ewk->master_priority == 2) {
+            return 4;
+        }
+
+        if (ewk->master_priority == 5) {
+            return 2;
+        }
+    }
+
+    return 0;
+}
+
 void effect_10_move(WORK_Other* ewk) {
     s16 color;
     s16 correct_index;
@@ -64,22 +80,12 @@ void effect_10_move(WORK_Other* ewk) {
         return;
     }
 
-    correct_index = 0;
+    correct_index = e10_row_correction(ewk);
 
     if (ewk->master_priority != Menu_Cursor_Y[ewk->master_id]) {
         color = 9;
     } else {
         color = 5;
-    }
-
-    if (ewk->wu.type == 5 && Interface_Type[ewk->master_id] == 1) {
-        if (ewk->master_priority == 2) {
-            correct_index = 4;
-        }
-
-        if (ewk->master_priority == 5) {
-            correct_index = 2;
-        }
     }
 
     if (Contents_Check_Data[ewk->wu.type] == 1) {
@@ -109,7 +115,7 @@ void effect_10_move(WORK_Other* ewk) {
     }
 }
 
-s32 effect_10_init(s16 id, u8 Type, u8 Type_in_Type, u8 dir_step, u8 Death_Type, s16 pos_x, s16 pos_y) {
+s32 effect_10_init(const Effect10Init* p) {
     WORK_Other* ewk;
     s16 ix;
 
@@ -121,12 +127,12 @@ s32 effect_10_init(s16 id, u8 Type, u8 Type_in_Type, u8 dir_step, u8 Death_Type,
     ewk->wu.be_flag = 1;
     ewk->wu.id = 10;
     ewk->wu.work_id = 16;
-    ewk->master_id = id;
-    ewk->wu.type = Type;
-    ewk->master_priority = Type_in_Type;
-    ewk->wu.cg_type = dir_step;
-    ewk->master_player = Death_Type;
-    ewk->wu.xyz[0].disp.pos = pos_x;
-    ewk->wu.xyz[1].disp.pos = pos_y;
+    ewk->master_id = p->id;
+    ewk->wu.type = p->Type;
+    ewk->master_priority = p->Type_in_Type;
+    ewk->wu.cg_type = p->dir_step;
+    ewk->master_player = p->Death_Type;
+    ewk->wu.xyz[0].disp.pos = p->pos_x;
+    ewk->wu.xyz[1].disp.pos = p->pos_y;
     return 0;
 }

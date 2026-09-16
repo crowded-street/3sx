@@ -21,41 +21,58 @@ static s32 master_presentation_changed(const WORK_Other* ewk, const WORK* mwk) {
 }
 
 
+/* Take the screen over: show the effect, raise the seraph flag and switch the
+ * background layer for it. */
+static void k8_start(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.disp_flag = 1;
+    seraph_flag = 1;
+    Bg_Disp_Switch(1);
+    ewk->wu.my_priority = ewk->wu.position_z = 67;
+    ewk->wu.my_mr_flag = 1;
+    ewk->wu.my_mr.size.x = 127;
+    ewk->wu.my_mr.size.y = 127;
+    set_char_move_init(&ewk->wu, 0, 0x8F);
+}
+
+/* One frame of the effect. Non-zero when it was killed outright, which is the
+ * one path that skips the colour and sort requests; a master that has moved on
+ * still runs them this frame, as it did before. */
+static s32 k8_run(WORK_Other* ewk, const WORK* mwk) {
+    if (ewk->wu.dead_f != 0) {
+        Bg_Y_Sitei(0U, 0);
+        Bg_Disp_Switch(0);
+        seraph_flag = 0;
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0] = 3;
+        return 1;
+    }
+
+    if (EXE_flag == 0 && Game_pause == 0) {
+        char_move(&ewk->wu);
+
+        if (master_presentation_changed(ewk, mwk)) {
+            ewk->wu.routine_no[0] = 2;
+            Bg_Y_Sitei(0, 0);
+            seraph_flag = 0;
+            Bg_Disp_Switch(0);
+        }
+    }
+
+    return 0;
+}
+
 void effect_K8_move(WORK_Other* ewk) {
     WORK* mwk = (WORK*)ewk->my_master;
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.disp_flag = 1;
-        seraph_flag = 1;
-        Bg_Disp_Switch(1);
-        ewk->wu.my_priority = ewk->wu.position_z = 67;
-        ewk->wu.my_mr_flag = 1;
-        ewk->wu.my_mr.size.x = 127;
-        ewk->wu.my_mr.size.y = 127;
-        set_char_move_init(&ewk->wu, 0, 0x8F);
+        k8_start(ewk);
         break;
 
     case 1:
-        if (ewk->wu.dead_f != 0) {
-            Bg_Y_Sitei(0U, 0);
-            Bg_Disp_Switch(0);
-            seraph_flag = 0;
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0] = 3;
+        if (k8_run(ewk, mwk)) {
             break;
-        }
-
-        if (EXE_flag == 0 && Game_pause == 0) {
-            char_move(&ewk->wu);
-
-            if (master_presentation_changed(ewk, mwk)) {
-                ewk->wu.routine_no[0] = 2;
-                Bg_Y_Sitei(0, 0);
-                seraph_flag = 0;
-                Bg_Disp_Switch(0);
-            }
         }
 
         push_color_trans_req(ewk->wu.cg_type + 0x62, ewk->wu.my_col_code);

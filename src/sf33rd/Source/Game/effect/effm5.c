@@ -26,97 +26,99 @@ static s32 game_is_active(void) {
     return !EXE_flag && !Game_pause;
 }
 
-void effect_M5_move(WORK_Other* ewk) {
-    switch (ewk->wu.routine_no[0]) {
-    case 0:
-        if (game_is_active()) {
-            ewk->wu.routine_no[0]++;
-            ewk->wu.disp_flag = 1;
-            set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-            Sound_SE(ewk->master_id * 0x300 + 0x134);
-        }
-
-        break;
-
-    case 1:
-        if (!EXE_flag && !Game_pause) {
-            char_move(&ewk->wu);
-            ewk->wu.old_rno[0]--;
-
-            if (ewk->wu.old_rno[0] < 1) {
-                ewk->wu.routine_no[0]++;
-                Appear_car_stop[ewk->master_id] = 1;
-                set_char_move_init(&ewk->wu, 0, 0x68);
-
-                if (Demo_Flag != 0) {
-                    SsRequestPan(0x135, 0x40, 0x40, 0, 2);
-                }
-            } else {
-                add_x_sub(&ewk->wu);
-            }
-        }
-
-        suzi_sync_pos_set(ewk);
-        sort_push_request(&ewk->wu);
-        break;
-
-    case 2:
-        if (!EXE_flag && !Game_pause) {
-            char_move(&ewk->wu);
-
-            if (ewk->wu.cg_type == 1) {
-                ewk->wu.routine_no[0]++;
-                ewk->wu.old_rno[0] = 0x14;
-            } else if (ewk->wu.cg_type == 2) {
-                demo_car_flag[ewk->master_id] = 1;
-            }
-        }
-
-        suzi_sync_pos_set(ewk);
-        sort_push_request(&ewk->wu);
-        break;
-
-    case 3:
-        if (!EXE_flag && !Game_pause) {
-            ewk->wu.old_rno[0]--;
-
-            if (ewk->wu.old_rno[0] < 0) {
-                ewk->wu.routine_no[0]++;
-                ewk->wu.old_rno[0] = 0x30;
-
-                if (ewk->wu.rl_flag) {
-                    ewk->wu.mvxy.a[0].sp = -0x20000;
-                    ewk->wu.mvxy.d[0].sp = -0x1000;
-                } else {
-                    ewk->wu.mvxy.a[0].sp = 0x20000;
-                    ewk->wu.mvxy.d[0].sp = 0x1000;
-                }
-            }
-        }
-
-        suzi_sync_pos_set(ewk);
-        sort_push_request(&ewk->wu);
-        break;
-
-    case 4:
-        if (!EXE_flag && !Game_pause) {
-            ewk->wu.old_rno[0]--;
-
-            if (ewk->wu.old_rno[0] < 0) {
-                ewk->wu.routine_no[0]++;
-            } else {
-                add_x_sub(&ewk->wu);
-            }
-        }
-
-        suzi_sync_pos_set(ewk);
-        sort_push_request(&ewk->wu);
-        break;
-
-    case 5:
+/* The car appears once the round is running: show it, start its animation and
+ * play its engine sound. */
+static void m5_start_car(WORK_Other* ewk) {
+    if (game_is_active()) {
         ewk->wu.routine_no[0]++;
-        demo_car_flag[ewk->master_id] = 0;
-        ewk->wu.disp_flag = 0;
+        ewk->wu.disp_flag = 1;
+        set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+        Sound_SE(ewk->master_id * 0x300 + 0x134);
+    }
+}
+
+/* Drive in until the timer runs out, then stop the car and - in the demo - pan
+ * the sound. */
+static void m5_drive_in(WORK_Other* ewk) {
+    if (!EXE_flag && !Game_pause) {
+        char_move(&ewk->wu);
+        ewk->wu.old_rno[0]--;
+
+        if (ewk->wu.old_rno[0] < 1) {
+            ewk->wu.routine_no[0]++;
+            Appear_car_stop[ewk->master_id] = 1;
+            set_char_move_init(&ewk->wu, 0, 0x68);
+
+            if (Demo_Flag != 0) {
+                SsRequestPan(0x135, 0x40, 0x40, 0, 2);
+            }
+        } else {
+            add_x_sub(&ewk->wu);
+        }
+    }
+}
+
+/* Hold while the stop animation plays; cel type 1 ends it, cel type 2 is where
+ * the demo takes the car over. */
+static void m5_wait_for_stop(WORK_Other* ewk) {
+    if (!EXE_flag && !Game_pause) {
+        char_move(&ewk->wu);
+
+        if (ewk->wu.cg_type == 1) {
+            ewk->wu.routine_no[0]++;
+            ewk->wu.old_rno[0] = 0x14;
+        } else if (ewk->wu.cg_type == 2) {
+            demo_car_flag[ewk->master_id] = 1;
+        }
+    }
+}
+
+/* Wait out the pause, then set the car moving again in its facing direction. */
+static void m5_begin_drive_off(WORK_Other* ewk) {
+    if (!EXE_flag && !Game_pause) {
+        ewk->wu.old_rno[0]--;
+
+        if (ewk->wu.old_rno[0] < 0) {
+            ewk->wu.routine_no[0]++;
+            ewk->wu.old_rno[0] = 0x30;
+
+            if (ewk->wu.rl_flag) {
+                ewk->wu.mvxy.a[0].sp = -0x20000;
+                ewk->wu.mvxy.d[0].sp = -0x1000;
+            } else {
+                ewk->wu.mvxy.a[0].sp = 0x20000;
+                ewk->wu.mvxy.d[0].sp = 0x1000;
+            }
+        }
+    }
+}
+
+/* Drive off until the timer runs out. */
+static void m5_drive_off(WORK_Other* ewk) {
+    if (!EXE_flag && !Game_pause) {
+        ewk->wu.old_rno[0]--;
+
+        if (ewk->wu.old_rno[0] < 0) {
+            ewk->wu.routine_no[0]++;
+        } else {
+            add_x_sub(&ewk->wu);
+        }
+    }
+}
+
+/* Hide the car and release the demo's hold on it. */
+static void m5_finish(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    demo_car_flag[ewk->master_id] = 0;
+    ewk->wu.disp_flag = 0;
+}
+
+/* The states after the car has driven off: hide it, idle one frame, then hand
+ * the work slot back. The case labels are the original ones. */
+static void m5_teardown(WORK_Other* ewk) {
+    switch (ewk->wu.routine_no[0]) {
+    case 5:
+        m5_finish(ewk);
         break;
 
     case 6:
@@ -126,6 +128,42 @@ void effect_M5_move(WORK_Other* ewk) {
     default:
         all_cgps_put_back(&ewk->wu);
         push_effect_work(&ewk->wu);
+        break;
+    }
+}
+
+void effect_M5_move(WORK_Other* ewk) {
+    switch (ewk->wu.routine_no[0]) {
+    case 0:
+        m5_start_car(ewk);
+        break;
+
+    case 1:
+        m5_drive_in(ewk);
+        suzi_sync_pos_set(ewk);
+        sort_push_request(&ewk->wu);
+        break;
+
+    case 2:
+        m5_wait_for_stop(ewk);
+        suzi_sync_pos_set(ewk);
+        sort_push_request(&ewk->wu);
+        break;
+
+    case 3:
+        m5_begin_drive_off(ewk);
+        suzi_sync_pos_set(ewk);
+        sort_push_request(&ewk->wu);
+        break;
+
+    case 4:
+        m5_drive_off(ewk);
+        suzi_sync_pos_set(ewk);
+        sort_push_request(&ewk->wu);
+        break;
+
+    default:
+        m5_teardown(ewk);
         break;
     }
 }

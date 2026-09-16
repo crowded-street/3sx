@@ -22,57 +22,82 @@ const s32 efff2_sp_tbl1[10][2] = { { -0xC000, 0 }, { -0x1800, 0 }, { 0x2000, 0 }
 
 const s16 efff2_timer_tbl[16] = { 60, 0, 40, 90, 20, 10, 8, 130, 1, 34, 50, 70, 6, 80, 22, 100 };
 
-void effect_F2_move(WORK_Other* ewk) {
+/* Show the bird and give it a random wait before it takes off. */
+static void f2_start(WORK_Other* ewk) {
     s16 work;
 
+    ewk->wu.routine_no[1]++;
+    ewk->wu.disp_flag = 1;
+    set_char_move_init2(&ewk->wu, 0, ewk->wu.old_rno[4], ewk->wu.char_index, 0);
+    work = random_16();
+    work &= 0xF;
+    ewk->wu.old_rno[5] = efff2_timer_tbl[work];
+}
+
+/* Count the perch wait down; when it expires the take-off begins. */
+static void f2_await_timer(WORK_Other* ewk) {
+    ewk->wu.old_rno[5]--;
+
+    if (ewk->wu.old_rno[5] <= 0) {
+        ewk->wu.routine_no[1]++;
+    }
+}
+
+/* Run the take-off animation until its launch cel, then set the flight speeds
+ * for this bird's type. */
+static void f2_await_launch_cel(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+
+    if (ewk->wu.cg_type == 9) {
+        ewk->wu.routine_no[1]++;
+        ewk->wu.cg_type = 0;
+        ewk->wu.mvxy.a[0].sp = efff2_sp_tbl1[ewk->wu.type][0];
+        ewk->wu.mvxy.d[0].sp = efff2_sp_tbl1[ewk->wu.type][1];
+        ewk->wu.mvxy.a[1].sp = -0x18000;
+        ewk->wu.mvxy.d[1].sp = -0x400;
+    }
+}
+
+/* Fly one frame. Non-zero once the bird has climbed out of view and been
+ * recycled back to its perch, which is where the original skipped the trans
+ * call for that frame. */
+static s32 f2_fly(WORK_Other* ewk) {
+    add_x_sub(&ewk->wu);
+    add_y_sub(&ewk->wu);
+
+    if (ewk->wu.xyz[1].disp.pos < 256) {
+        ewk->wu.routine_no[1] = 0;
+        ewk->wu.xyz[0].disp.pos = efff2_data_tbl1[ewk->wu.type][1];
+        ewk->wu.xyz[1].disp.pos = efff2_data_tbl1[ewk->wu.type][2];
+        ewk->wu.old_rno[4] = 19;
+        ewk->wu.char_index = 1;
+        return 1;
+    }
+
+    return 0;
+}
+
+void effect_F2_move(WORK_Other* ewk) {
     if (ewk->wu.old_rno[6] < end_w.r_no_2) {
         ewk->wu.routine_no[1] = 99;
     }
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
-        ewk->wu.routine_no[1]++;
-        ewk->wu.disp_flag = 1;
-        set_char_move_init2(&ewk->wu, 0, ewk->wu.old_rno[4], ewk->wu.char_index, 0);
-        work = random_16();
-        work &= 0xF;
-        ewk->wu.old_rno[5] = efff2_timer_tbl[work];
+        f2_start(ewk);
         break;
 
     case 1:
-        ewk->wu.old_rno[5]--;
-
-        if (ewk->wu.old_rno[5] <= 0) {
-            ewk->wu.routine_no[1]++;
-        }
-
+        f2_await_timer(ewk);
         break;
 
     case 2:
-        char_move(&ewk->wu);
-
-        if (ewk->wu.cg_type == 9) {
-            ewk->wu.routine_no[1]++;
-            ewk->wu.cg_type = 0;
-            ewk->wu.mvxy.a[0].sp = efff2_sp_tbl1[ewk->wu.type][0];
-            ewk->wu.mvxy.d[0].sp = efff2_sp_tbl1[ewk->wu.type][1];
-            ewk->wu.mvxy.a[1].sp = -0x18000;
-            ewk->wu.mvxy.d[1].sp = -0x400;
-        }
-
+        f2_await_launch_cel(ewk);
         disp_pos_trans_entry(ewk);
         break;
 
     case 3:
-        add_x_sub(&ewk->wu);
-        add_y_sub(&ewk->wu);
-
-        if (ewk->wu.xyz[1].disp.pos < 256) {
-            ewk->wu.routine_no[1] = 0;
-            ewk->wu.xyz[0].disp.pos = efff2_data_tbl1[ewk->wu.type][1];
-            ewk->wu.xyz[1].disp.pos = efff2_data_tbl1[ewk->wu.type][2];
-            ewk->wu.old_rno[4] = 19;
-            ewk->wu.char_index = 1;
+        if (f2_fly(ewk)) {
             break;
         }
 

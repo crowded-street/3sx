@@ -21,6 +21,100 @@ s16 END_OF_95;
 const s16 eff95_data_tbl[10][4] = { { 0, 0, 0, 0 }, { 0, 0, 1, 1 }, { 2, 2, 3, 3 }, { 4, 4, 5, 5 }, { 6, 6, 6, 7 },
                                     { 7, 7, 8, 8 }, { 8, 9, 9, 9 }, { 9, 9, 9, 9 }, { 9, 9, 9, 9 }, { 9, 9, 9, 9 } };
 
+static void show_finished_countdown_95(WORK_Other* ewk) {
+    ewk->wu.routine_no[0] = 3;
+    ewk->wu.dir_step = 0;
+    set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+}
+
+static void show_continue_number_95(WORK_Other* ewk) {
+    ewk->wu.old_rno[5] = 6;
+    ewk->wu.old_rno[6] = 6;
+    ewk->wu.dir_step = 9;
+    set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+}
+
+static void update_changed_count_95(WORK_Other* ewk) {
+    if (!(ewk->wu.dmcal_m = Continue_Count[LOSER])) {
+        if (Continue_Cut[Loser_id]) {
+            show_finished_countdown_95(ewk);
+        } else {
+            show_continue_number_95(ewk);
+        }
+    } else if (Continue_Count[LOSER] < 0) {
+        show_finished_countdown_95(ewk);
+    } else {
+        show_continue_number_95(ewk);
+    }
+}
+
+static void update_decreasing_count_95(WORK_Other* ewk) {
+    ewk->wu.old_rno[5] = ewk->wu.old_rno[5] - 1;
+
+    if (ewk->wu.old_rno[5] <= 0) {
+        ewk->wu.old_rno[5] = 6;
+        ewk->wu.dir_step = ewk->wu.dir_step - 1;
+
+        if (ewk->wu.dir_step <= 0) {
+            ewk->wu.dir_step = 0;
+        }
+
+        set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+    }
+}
+
+static void update_table_count_95(WORK_Other* ewk) {
+    ewk->wu.old_rno[6] = ewk->wu.old_rno[6] - 1;
+
+    if (ewk->wu.old_rno[6] <= 0) {
+        ewk->wu.old_rno[6] = 6;
+    }
+
+    RND_95 = (random_16() >> 1) & 3;
+    ewk->wu.dir_step = eff95_data_tbl[ewk->wu.old_rno[6]][RND_95];
+    set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+}
+
+static void update_random_count_95(WORK_Other* ewk) {
+    RND_95 = (random_16() >> 1) & 7;
+    RND_95 = RND_95 + 3;
+
+    if (RND_95 > 9) {
+        RND_95 = 0;
+    }
+
+    ewk->wu.dir_step = RND_95;
+    set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+}
+
+static void update_steady_count_95(WORK_Other* ewk) {
+    switch (ewk->wu.vital_new) {
+    case 4:
+        update_decreasing_count_95(ewk);
+        break;
+
+    case 8:
+        update_table_count_95(ewk);
+        break;
+
+    default:
+        update_random_count_95(ewk);
+        break;
+    }
+}
+
+static void update_countdown_95(WORK_Other* ewk) {
+    if (ewk->wu.dmcal_m != Continue_Count[LOSER]) {
+        update_changed_count_95(ewk);
+    } else {
+        update_steady_count_95(ewk);
+    }
+
+    if (Break_Into) {
+        ewk->wu.routine_no[0] = 2;
+    }
+}
+
 void effect_95_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -33,76 +127,7 @@ void effect_95_move(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (ewk->wu.dmcal_m != (Continue_Count[LOSER])) {
-            if (!(ewk->wu.dmcal_m = Continue_Count[LOSER])) {
-                if (Continue_Cut[Loser_id]) {
-                    ewk->wu.routine_no[0] = 3;
-                    ewk->wu.dir_step = 0;
-                    set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
-                } else {
-                    ewk->wu.old_rno[5] = 6;
-                    ewk->wu.old_rno[6] = 6;
-                    ewk->wu.dir_step = 9;
-                    set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
-                }
-            } else if (Continue_Count[LOSER] < 0) {
-                ewk->wu.routine_no[0] = 3;
-                ewk->wu.dir_step = 0;
-                set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
-            } else {
-                ewk->wu.old_rno[5] = 6;
-                ewk->wu.old_rno[6] = 6;
-                ewk->wu.dir_step = 9;
-                set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
-            }
-        } else {
-            switch (ewk->wu.vital_new) {
-            case 4:
-                ewk->wu.old_rno[5] = ewk->wu.old_rno[5] - 1;
-
-                if (ewk->wu.old_rno[5] <= 0) {
-                    ewk->wu.old_rno[5] = 6;
-                    ewk->wu.dir_step = ewk->wu.dir_step - 1;
-
-                    if (ewk->wu.dir_step <= 0) {
-                        ewk->wu.dir_step = 0;
-                    }
-
-                    set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
-                }
-
-                break;
-
-            case 8:
-                ewk->wu.old_rno[6] = ewk->wu.old_rno[6] - 1;
-
-                if (ewk->wu.old_rno[6] <= 0) {
-                    ewk->wu.old_rno[6] = 6;
-                }
-
-                RND_95 = (random_16() >> 1) & 3;
-                ewk->wu.dir_step = eff95_data_tbl[ewk->wu.old_rno[6]][RND_95];
-                set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
-                break;
-
-            default:
-                RND_95 = (random_16() >> 1) & 7;
-                RND_95 = RND_95 + 3;
-
-                if (RND_95 > 9) {
-                    RND_95 = 0;
-                }
-
-                ewk->wu.dir_step = RND_95;
-                set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
-                break;
-            }
-        }
-
-        if (Break_Into) {
-            ewk->wu.routine_no[0] = 2;
-        }
-
+        update_countdown_95(ewk);
         break;
 
     case 2:

@@ -107,89 +107,95 @@ static s32 should_end_effect(const WORK_Other* ewk) {
     return ewk->wu.dead_f == 1 || Suicide[0] != 0;
 }
 
+static void initialize_effect_03(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.disp_flag = plef_data[ewk->wu.type].dspf;
+    ewk->wu.blink_timing = ewk->master_id;
+
+    if (plef_data[ewk->wu.type].sel_rl) {
+        ewk->wu.rl_flag = ewk->wu.rl_waza;
+    }
+
+    if (ewk->wu.rl_flag) {
+        ewk->wu.position_x = ewk->wu.xyz[0].disp.pos + plef_data[ewk->wu.type].hx;
+    } else {
+        ewk->wu.position_x = ewk->wu.xyz[0].disp.pos - plef_data[ewk->wu.type].hx;
+    }
+
+    ewk->wu.position_y = ewk->wu.xyz[1].disp.pos + plef_data[ewk->wu.type].hy;
+    ewk->wu.position_z = ewk->wu.xyz[2].disp.pos + plef_data[ewk->wu.type].hz;
+
+    if (plef_data[ewk->wu.type].sel_pri) {
+        ewk->wu.position_z = plef_data[ewk->wu.type].hz;
+    }
+
+    if (plef_data[ewk->wu.type].sel_col) {
+        ewk->wu.my_col_code = plef_data[ewk->wu.type].color | 0x2000;
+    } else {
+        ewk->wu.my_col_code += plef_data[ewk->wu.type].color;
+    }
+
+    ewk->wu.my_mts = 14;
+    set_char_move_init(&ewk->wu, 0, plef_data[ewk->wu.type].chix);
+
+    if (plef_data[ewk->wu.type].ichi) {
+        ewk->wu.xyz[0].disp.pos = plef_data[ewk->wu.type].hx;
+        ewk->wu.xyz[1].disp.pos = plef_data[ewk->wu.type].hy;
+        ewk->wu.xyz[2].disp.pos = plef_data[ewk->wu.type].hz;
+
+        if (ewk->wu.rl_flag == 0) {
+            ewk->wu.xyz[0].disp.pos = -ewk->wu.xyz[0].disp.pos;
+        }
+    } else {
+        ewk->wu.xyz[0].disp.pos = ewk->wu.position_x;
+        ewk->wu.xyz[1].disp.pos = ewk->wu.position_y;
+        ewk->wu.xyz[2].disp.pos = ewk->wu.position_z;
+    }
+
+    if (ewk->wu.type == 146) {
+        ewk->wu.my_mr_flag = 1;
+        ewk->wu.my_mr.size.x = 127;
+        ewk->wu.my_mr.size.y = 63;
+    }
+}
+
+static void update_active_effect_03(WORK_Other* ewk) {
+    if (should_end_effect(ewk)) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0]++;
+        return;
+    }
+
+    if (Pause_Hit_Marks) {
+        return;
+    }
+
+    if (game_is_active()) {
+        char_move(&ewk->wu);
+
+        if (ewk->wu.cg_type) {
+            if (ewk->wu.cg_type == 0xFF) {
+                ewk->wu.disp_flag = 0;
+                ewk->wu.routine_no[0]++;
+                return;
+            }
+
+            ewk->wu.disp_flag = 2;
+        }
+    }
+
+    eff03_disp_pos(&ewk->wu, (WORK*)ewk->my_master);
+    sort_push_request(&ewk->wu);
+}
 
 void effect_03_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.disp_flag = plef_data[ewk->wu.type].dspf;
-        ewk->wu.blink_timing = ewk->master_id;
-
-        if (plef_data[ewk->wu.type].sel_rl) {
-            ewk->wu.rl_flag = ewk->wu.rl_waza;
-        }
-
-        if (ewk->wu.rl_flag) {
-            ewk->wu.position_x = ewk->wu.xyz[0].disp.pos + plef_data[ewk->wu.type].hx;
-        } else {
-            ewk->wu.position_x = ewk->wu.xyz[0].disp.pos - plef_data[ewk->wu.type].hx;
-        }
-
-        ewk->wu.position_y = ewk->wu.xyz[1].disp.pos + plef_data[ewk->wu.type].hy;
-        ewk->wu.position_z = ewk->wu.xyz[2].disp.pos + plef_data[ewk->wu.type].hz;
-
-        if (plef_data[ewk->wu.type].sel_pri) {
-            ewk->wu.position_z = plef_data[ewk->wu.type].hz;
-        }
-
-        if (plef_data[ewk->wu.type].sel_col) {
-            ewk->wu.my_col_code = plef_data[ewk->wu.type].color | 0x2000;
-        } else {
-            ewk->wu.my_col_code += plef_data[ewk->wu.type].color;
-        }
-
-        ewk->wu.my_mts = 14;
-        set_char_move_init(&ewk->wu, 0, plef_data[ewk->wu.type].chix);
-
-        if (plef_data[ewk->wu.type].ichi) {
-            ewk->wu.xyz[0].disp.pos = plef_data[ewk->wu.type].hx;
-            ewk->wu.xyz[1].disp.pos = plef_data[ewk->wu.type].hy;
-            ewk->wu.xyz[2].disp.pos = plef_data[ewk->wu.type].hz;
-
-            if (ewk->wu.rl_flag == 0) {
-                ewk->wu.xyz[0].disp.pos = -ewk->wu.xyz[0].disp.pos;
-            }
-        } else {
-            ewk->wu.xyz[0].disp.pos = ewk->wu.position_x;
-            ewk->wu.xyz[1].disp.pos = ewk->wu.position_y;
-            ewk->wu.xyz[2].disp.pos = ewk->wu.position_z;
-        }
-
-        if (ewk->wu.type == 146) {
-            ewk->wu.my_mr_flag = 1;
-            ewk->wu.my_mr.size.x = 127;
-            ewk->wu.my_mr.size.y = 63;
-        }
-
+        initialize_effect_03(ewk);
         /* fallthrough */
 
     case 1:
-        if (should_end_effect(ewk)) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0]++;
-            break;
-        }
-
-        if (Pause_Hit_Marks) {
-            break;
-        }
-
-if (game_is_active()) {
-            char_move(&ewk->wu);
-
-            if (ewk->wu.cg_type) {
-                if (ewk->wu.cg_type == 0xFF) {
-                    ewk->wu.disp_flag = 0;
-                    ewk->wu.routine_no[0]++;
-                    break;
-                }
-
-                ewk->wu.disp_flag = 2;
-            }
-        }
-
-        eff03_disp_pos(&ewk->wu, (WORK*)ewk->my_master);
-        sort_push_request(&ewk->wu);
+        update_active_effect_03(ewk);
         break;
 
     case 2:

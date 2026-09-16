@@ -51,16 +51,145 @@ static s32 effect_update_is_blocked(void) {
     return EXE_flag != 0 || Game_pause != 0;
 }
 
+static s32 swallow_movement_is_blocked(const WORK_Other* ewk, const PLW* mwk, s32 rl) {
+    return (ewk->wu.dmcal_d || mwk->sa_stop_flag) &&
+           (!ewk->wu.dmcal_d || rl != ewk->wu.rl_flag || mwk->sa_stop_flag);
+}
+
+static void update_swallowed_shells(WORK_Other* ewk, WORK* wk) {
+    WORK* swk;
+    s32 rl;
+    s32 add_x;
+    s32 i;
+    s32 j;
+
+    for (j = 0; j < 8; j++) {
+        if (wk->shell_ix[j] == -1) {
+            continue;
+        }
+
+        swk = (WORK*)frw[wk->shell_ix[j]];
+
+        if (!swk->be_flag) {
+            continue;
+        }
+
+        if (ewk->wu.xyz[0].cal < swk->xyz[0].cal) {
+            rl = 1;
+        } else {
+            rl = 0;
+        }
+
+        i = distance2speed(ewk, swk, 0);
+        ewk->wu.mvxy.a[0].sp = swallow_speeds[i];
+        ewk->wu.mvxy.d[0].sp = 0;
+        ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
+        add_x = -ewk->wu.mvxy.a[0].sp;
+
+        if (rl) {
+            swk->xyz[0].cal -= add_x;
+        } else {
+            swk->xyz[0].cal += add_x;
+        }
+    }
+}
+
+typedef enum {
+    SUCTION_ACTIVE,
+    SUCTION_INACTIVE
+} SuctionState;
+
+static SuctionState update_suction_lifecycle(WORK_Other* ewk, const PLW* mwk) {
+    if (ewk->wu.dead_f == 1) {
+        ewk->wu.routine_no[0]++;
+        return SUCTION_INACTIVE;
+    }
+
+    if (mwk->wu.routine_no[1] != 4) {
+        ewk->wu.dir_timer = 0;
+        ewk->wu.routine_no[0]++;
+        return SUCTION_INACTIVE;
+    }
+
+    ewk->wu.dir_timer -= 1;
+
+    if (ewk->wu.dir_timer <= 0) {
+        ewk->wu.routine_no[0]++;
+        return SUCTION_INACTIVE;
+    }
+
+    if (effect_update_is_blocked()) {
+        return SUCTION_INACTIVE;
+    }
+
+    return SUCTION_ACTIVE;
+}
+
+static s32 suction_direction(WORK_Other* ewk, const PLW* wk) {
+    if (ewk->wu.xyz[0].cal < wk->wu.xyz[0].cal) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static void update_swallowed_player(WORK_Other* ewk, PLW* wk, s32 rl) {
+    s32 add_x;
+    s32 add_y;
+    s32 i;
+
+    i = distance2speed(ewk, &wk->wu, 0);
+    ewk->wu.mvxy.a[0].sp = swallow_speeds[i];
+    ewk->wu.mvxy.d[0].sp = 0;
+    i = distance2speed(ewk, &wk->wu, 1);
+    ewk->wu.mvxy.a[1].sp = swallow_speeds[i];
+    ewk->wu.mvxy.d[1].sp = 0;
+    ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
+    ewk->wu.mvxy.a[1].sp += ewk->wu.mvxy.d[1].sp;
+    add_x = ewk->wu.mvxy.a[0].sp;
+    add_y = -ewk->wu.mvxy.a[1].sp;
+
+    if (ewk->wu.dmcal_m == -1) {
+        add_x = -add_x;
+        add_y = -add_y;
+    }
+
+    if (wk->wu.swallow_no_effect == 0) {
+        if (rl) {
+            wk->wu.xyz[0].cal -= add_x;
+        } else {
+            wk->wu.xyz[0].cal += add_x;
+        }
+
+        wk->wu.xyz[1].cal += add_y;
+    }
+}
+
+static void update_active_suction(WORK_Other* ewk, PLW* wk, PLW* mwk) {
+    s32 rl;
+
+    if (update_suction_lifecycle(ewk, mwk) == SUCTION_INACTIVE) {
+        return;
+    }
+
+    rl = suction_direction(ewk, wk);
+
+    if (swallow_movement_is_blocked(ewk, mwk, rl)) {
+        return;
+    }
+
+    update_swallowed_player(ewk, wk, rl);
+
+    if (ewk->wu.dmcal_m != -1) {
+        return;
+    }
+
+    update_swallowed_shells(ewk, &wk->wu);
+}
 
 void effect_D4_move(WORK_Other* ewk) {
     PLW* wk = (PLW*)ewk->wu.target_adrs;
     PLW* mwk = (PLW*)ewk->my_master;
-    WORK* swk;
-    s32 rl;
-    s32 add_x;
-    s32 add_y;
-    s32 i;
-    s32 j;
 
     ewk->wu.position_x = mwk->wu.position_x;
     ewk->wu.position_y = mwk->wu.position_y;
@@ -72,99 +201,7 @@ void effect_D4_move(WORK_Other* ewk) {
         /* fallthrough */
 
     case 1:
-        if (ewk->wu.dead_f == 1) {
-            ewk->wu.routine_no[0]++;
-            break;
-        }
-
-        if (mwk->wu.routine_no[1] != 4) {
-            ewk->wu.dir_timer = 0;
-            ewk->wu.routine_no[0]++;
-            break;
-        }
-
-        ewk->wu.dir_timer -= 1;
-
-        if (ewk->wu.dir_timer <= 0) {
-            ewk->wu.routine_no[0]++;
-            break;
-        }
-
-        if (effect_update_is_blocked()) {
-            break;
-        }
-
-        if (ewk->wu.xyz[0].cal < wk->wu.xyz[0].cal) {
-            rl = 1;
-        } else {
-            rl = 0;
-        }
-
-        if ((ewk->wu.dmcal_d || mwk->sa_stop_flag) &&
-            (!ewk->wu.dmcal_d || rl != ewk->wu.rl_flag || mwk->sa_stop_flag)) {
-            break;
-        }
-
-        i = distance2speed(ewk, &wk->wu, 0);
-        ewk->wu.mvxy.a[0].sp = swallow_speeds[i];
-        ewk->wu.mvxy.d[0].sp = 0;
-        i = distance2speed(ewk, &wk->wu, 1);
-        ewk->wu.mvxy.a[1].sp = swallow_speeds[i];
-        ewk->wu.mvxy.d[1].sp = 0;
-        ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
-        ewk->wu.mvxy.a[1].sp += ewk->wu.mvxy.d[1].sp;
-        add_x = ewk->wu.mvxy.a[0].sp;
-        add_y = -ewk->wu.mvxy.a[1].sp;
-
-        if (ewk->wu.dmcal_m == -1) {
-            add_x = -add_x;
-            add_y = -add_y;
-        }
-
-        if (wk->wu.swallow_no_effect == 0) {
-            if (rl) {
-                wk->wu.xyz[0].cal -= add_x;
-            } else {
-                wk->wu.xyz[0].cal += add_x;
-            }
-
-            wk->wu.xyz[1].cal += add_y;
-        }
-
-        if (ewk->wu.dmcal_m != -1) {
-            break;
-        }
-
-        for (j = 0; j < 8; j++) {
-            if (wk->wu.shell_ix[j] == -1) {
-                continue;
-            }
-
-            swk = (WORK*)frw[wk->wu.shell_ix[j]];
-
-            if (!swk->be_flag) {
-                continue;
-            }
-
-            if (ewk->wu.xyz[0].cal < swk->xyz[0].cal) {
-                rl = 1;
-            } else {
-                rl = 0;
-            }
-
-            i = distance2speed(ewk, swk, 0);
-            ewk->wu.mvxy.a[0].sp = swallow_speeds[i];
-            ewk->wu.mvxy.d[0].sp = 0;
-            ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
-            add_x = -ewk->wu.mvxy.a[0].sp;
-
-            if (rl) {
-                swk->xyz[0].cal -= add_x;
-            } else {
-                swk->xyz[0].cal += add_x;
-            }
-        }
-
+        update_active_suction(ewk, wk, mwk);
         break;
 
     case 2:
@@ -174,8 +211,7 @@ void effect_D4_move(WORK_Other* ewk) {
     }
 }
 
-s32 distance2speed(WORK_Other* ewk, WORK* wk, s32 dir) {
-    s32 y = 0;
+static s32 horizontal_swallow_distance(WORK_Other* ewk, WORK* wk) {
     s32 x = 0;
 
     if (ewk->wu.xyz[0].disp.pos < wk->xyz[0].disp.pos) {
@@ -189,6 +225,11 @@ s32 distance2speed(WORK_Other* ewk, WORK* wk, s32 dir) {
     }
 
     x >>= 4;
+    return x;
+}
+
+static s32 vertical_swallow_distance(WORK_Other* ewk, WORK* wk) {
+    s32 y = 0;
 
     if (ewk->wu.xyz[1].disp.pos < wk->xyz[1].disp.pos) {
         y = wk->xyz[1].disp.pos - ewk->wu.xyz[1].disp.pos;
@@ -199,6 +240,12 @@ s32 distance2speed(WORK_Other* ewk, WORK* wk, s32 dir) {
     }
 
     y >>= 4;
+    return y;
+}
+
+s32 distance2speed(WORK_Other* ewk, WORK* wk, s32 dir) {
+    s32 x = horizontal_swallow_distance(ewk, wk);
+    s32 y = vertical_swallow_distance(ewk, wk);
 
     if (dir == 0) {
         return swallow_areas_x[y][x];

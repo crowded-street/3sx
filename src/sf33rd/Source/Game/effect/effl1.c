@@ -142,69 +142,72 @@ static s32 should_end_effect(const WORK_Other_CONN* ewk) {
     return ewk->wu.dead_f == 1 || Suicide[2] != 0;
 }
 
-static void initialize_L1_effect(WORK_Other_CONN* ewk) {
-    ewk->wu.routine_no[0]++;
-    ewk->wu.disp_flag = effL1_base_data[ewk->wu.type][3];
-    ewk->wu.dir_timer = effL1_base_data[ewk->wu.type][4];
-    ewk->wu.old_cgnum = 0;
-    ewk->wu.my_col_code = 0x90;
-
-    if (effL1_base_data[ewk->wu.type][2]) {
-        Setup_Color_L1((WORK_Other*)ewk);
+static void update_grade_display(WORK_Other_CONN* ewk) {
+    if (--ewk->wu.dir_timer < 0) {
+        ewk->wu.dir_timer = 0;
+        ewk->wu.disp_flag = 1;
     }
 
-    ewk->wu.my_family = effL1_base_data[ewk->wu.type][1];
-    ewk->wu.position_z = ewk->wu.my_priority = effL1_base_data[ewk->wu.type][0];
-    ewk->wu.position_x = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos;
-    ewk->wu.position_y = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos;
-    effL1_item_init[ewk->wu.type](ewk);
-    effL1_trans(&ewk->wu);
+    grade_data_disp();
 }
 
-static void update_L1_active_display(WORK_Other_CONN* ewk) {
+static void update_mark_animation(WORK_Other_CONN* ewk) {
     s16 i;
+
+    if (--ewk->wu.dir_timer < 0) {
+        ewk->wu.dir_timer = ewk->wu.dir_step;
+        ewk->wu.direction = (ewk->wu.direction + 1) & ewk->wu.dir_old;
+
+        for (i = 0; i < ewk->num_of_conn; i++) {
+            ewk->conn[i].chr = ewk->conn[ewk->num_of_conn + ewk->wu.direction].chr;
+        }
+    }
+}
+
+static void update_active_effect(WORK_Other_CONN* ewk) {
+    if (should_end_effect(ewk)) {
+        ewk->wu.routine_no[0] = 2;
+        ewk->wu.type = 0;
+        ewk->wu.disp_flag = 0;
+        return;
+    }
 
     switch (ewk->wu.type) {
     case 1:
-        if (--ewk->wu.dir_timer < 0) {
-            ewk->wu.dir_timer = 0;
-            ewk->wu.disp_flag = 1;
-        }
-
-        grade_data_disp();
+        update_grade_display(ewk);
         break;
 
     case 10:
-        if (--ewk->wu.dir_timer < 0) {
-            ewk->wu.dir_timer = ewk->wu.dir_step;
-            ewk->wu.direction = (ewk->wu.direction + 1) & ewk->wu.dir_old;
-
-            for (i = 0; i < ewk->num_of_conn; i++) {
-                ewk->conn[i].chr = ewk->conn[ewk->num_of_conn + ewk->wu.direction].chr;
-            }
-        }
-
+        update_mark_animation(ewk);
         break;
     }
+
+    effL1_trans(&ewk->wu);
 }
 
 void effect_L1_move(WORK_Other_CONN* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        initialize_L1_effect(ewk);
+        ewk->wu.routine_no[0]++;
+        ewk->wu.disp_flag = effL1_base_data[ewk->wu.type][3];
+        ewk->wu.dir_timer = effL1_base_data[ewk->wu.type][4];
+        ewk->wu.old_cgnum = 0;
+        ewk->wu.my_col_code = 0x90;
+
+        if (effL1_base_data[ewk->wu.type][2]) {
+            Setup_Color_L1((WORK_Other*)ewk);
+        }
+
+        ewk->wu.my_family = effL1_base_data[ewk->wu.type][1];
+        ewk->wu.position_z = ewk->wu.my_priority = effL1_base_data[ewk->wu.type][0];
+        ewk->wu.position_x = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos;
+        ewk->wu.position_y = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos;
+        effL1_item_init[ewk->wu.type](ewk);
+        effL1_trans(&ewk->wu);
         break;
 
     case 1:
-        if (should_end_effect(ewk)) {
-            ewk->wu.routine_no[0] = 2;
-            ewk->wu.type = 0;
-            ewk->wu.disp_flag = 0;
-            break;
-        }
-
-        update_L1_active_display(ewk);
-
-        effL1_trans(&ewk->wu);
+        update_active_effect(ewk);
         break;
 
     case 2:
@@ -283,21 +286,31 @@ void effL1_k_grade_init(WORK_Other_CONN* ewk) {
     ewk->wu.position_x -= 384;
 }
 
-void effL1_w_score_init(WORK_Other_CONN* ewk) {
+static void apply_score_digits(WORK_Other_CONN* ewk, const CONN* score_data) {
     s16 i;
 
-    effL1_suuchi_bunkai_sub(ewk, WGJ_Score);
-    ewk->num_of_conn = 8;
-
     for (i = 0; i < 8; i++) {
-        ewk->conn[i] = gj_score[i];
+        if (score_data) {
+            ewk->conn[i] = score_data[i];
+        }
+
         ewk->conn[i].chr += ewk->wu.shell_ix[i];
     }
+}
+
+void effL1_w_score_init(WORK_Other_CONN* ewk) {
+    effL1_suuchi_bunkai_sub(ewk, WGJ_Score);
+    ewk->num_of_conn = 8;
+    apply_score_digits(ewk, gj_score);
 
     ewk->wu.position_x -= 384;
 }
 
-static void normalize_L1_graph_percentage(WORK_Other_CONN* ewk) {
+void effL1_w_graph_init(WORK_Other_CONN* ewk) {
+    s16 i;
+
+    ewk->wu.direction = grade_get_my_point_percentage((s32)Winner_id, (s16)(ewk->wu.type - 3));
+
     if (ewk->wu.direction) {
         ewk->wu.direction /= 2;
 
@@ -308,9 +321,12 @@ static void normalize_L1_graph_percentage(WORK_Other_CONN* ewk) {
 
     ewk->wu.dir_step = ewk->wu.direction % 10;
     ewk->wu.direction /= 10;
-}
 
-static void finalize_L1_graph(WORK_Other_CONN* ewk) {
+    for (i = 0; i < 6; i++) {
+        ewk->conn[i] = gj_bar[i];
+        ewk->conn[i].ny -= (ewk->wu.type - 3) * 4;
+    }
+
     ewk->num_of_conn = ewk->wu.direction;
 
     if (ewk->wu.dir_step) {
@@ -319,21 +335,6 @@ static void finalize_L1_graph(WORK_Other_CONN* ewk) {
     }
 
     ewk->wu.position_x -= 384;
-}
-
-void effL1_w_graph_init(WORK_Other_CONN* ewk) {
-    s16 i;
-
-    ewk->wu.direction = grade_get_my_point_percentage((s32)Winner_id, (s16)(ewk->wu.type - 3));
-
-    normalize_L1_graph_percentage(ewk);
-
-    for (i = 0; i < 6; i++) {
-        ewk->conn[i] = gj_bar[i];
-        ewk->conn[i].ny -= (ewk->wu.type - 3) * 4;
-    }
-
-    finalize_L1_graph(ewk);
 }
 
 void effL1_k_graph_init(WORK_Other_CONN* ewk) {
@@ -345,14 +346,30 @@ void effL1_k_graph_init(WORK_Other_CONN* ewk) {
         ewk->wu.direction = grade_get_cm_point_percentage((s32)kakushi_ix, (s16)(ewk->wu.type - 16));
     }
 
-    normalize_L1_graph_percentage(ewk);
+    if (ewk->wu.direction) {
+        ewk->wu.direction /= 2;
+
+        if (ewk->wu.direction == 0) {
+            ewk->wu.direction = 1;
+        }
+    }
+
+    ewk->wu.dir_step = ewk->wu.direction % 10;
+    ewk->wu.direction /= 10;
 
     for (i = 0; i < 6; i++) {
         ewk->conn[i] = gj_bar2[i];
         ewk->conn[i].ny -= (ewk->wu.type - 16) * 3;
     }
 
-    finalize_L1_graph(ewk);
+    ewk->num_of_conn = ewk->wu.direction;
+
+    if (ewk->wu.dir_step) {
+        ewk->conn[ewk->num_of_conn].chr = (ewk->conn[ewk->num_of_conn].chr - 10) + ewk->wu.dir_step;
+        ewk->num_of_conn++;
+    }
+
+    ewk->wu.position_x -= 384;
 }
 
 void effL1_f_stage_p_init(WORK_Other_CONN* ewk) {
@@ -410,24 +427,27 @@ void effL1_f_grade_init(WORK_Other_CONN* ewk) {
     ewk->prio_reverse = 1;
 }
 
-void effL1_f_mk_spp_init(WORK_Other_CONN* ewk) {
+static s16 copy_completed_marks(WORK_Other_CONN* ewk, const CONN* mark_data, s16 mark_count) {
     s16 i;
     s16 k = 0;
 
+    for (i = 0; i < mark_count; i++) {
+        if (judge_final[WGJ_Target][Play_Type].fr_sort_data[i][3]) {
+            ewk->conn[k] = mark_data[i];
+            k++;
+        }
+    }
+
+    return k;
+}
+
+void effL1_f_mk_spp_init(WORK_Other_CONN* ewk) {
+    s16 k;
+
     if (judge_final[WGJ_Target][Play_Type].vs_cpu_result[15] == -1) {
-        for (i = 0; i < 10; i++) {
-            if (judge_final[WGJ_Target][Play_Type].fr_sort_data[i][3]) {
-                ewk->conn[k] = gj_f_mk_spp[i];
-                k++;
-            }
-        }
+        k = copy_completed_marks(ewk, gj_f_mk_spp, 10);
     } else {
-        for (i = 0; i < 11; i++) {
-            if (judge_final[WGJ_Target][Play_Type].fr_sort_data[i][3]) {
-                ewk->conn[k] = gj_f_mk_spp_Q[i];
-                k++;
-            }
-        }
+        k = copy_completed_marks(ewk, gj_f_mk_spp_Q, 11);
     }
 
     ewk->num_of_conn = k;
@@ -456,30 +476,26 @@ void effL1_f_mk_all_init(WORK_Other_CONN* ewk) {
     }
 }
 
-void effL1_f_kz_cont_init(WORK_Other_CONN* ewk) {
+static void copy_continuation_digits(WORK_Other_CONN* ewk, const CONN* digit_data, s16 digit_count) {
     s16 i;
 
+    for (i = 0; i < digit_count; i++) {
+        ewk->conn[i] = digit_data[i];
+    }
+}
+
+void effL1_f_kz_cont_init(WORK_Other_CONN* ewk) {
     effL1_suuchi_bunkai_sub(ewk, judge_final[WGJ_Target][Play_Type].keizoku);
     ewk->num_of_conn = 7;
-
-    for (i = 0; i < 7; i++) {
-        ewk->conn[i] = gj_f_kz_cont[i];
-    }
-
+    copy_continuation_digits(ewk, gj_f_kz_cont, 7);
     ewk->conn[6].chr += ewk->wu.shell_ix[0];
     ewk->conn[5].chr += ewk->wu.shell_ix[1];
 }
 
 void effL1_f_kz_spp_init(WORK_Other_CONN* ewk) {
-    s16 i;
-
     effL1_suuchi_bunkai_sub(ewk, judge_final[WGJ_Target][Play_Type].sp_point);
     ewk->num_of_conn = 8;
-
-    for (i = 0; i < 8; i++) {
-        ewk->conn[i] = gj_f_kz_spp[i];
-    }
-
+    copy_continuation_digits(ewk, gj_f_kz_spp, 8);
     ewk->conn[7].chr += ewk->wu.shell_ix[0];
     ewk->conn[6].chr += ewk->wu.shell_ix[1];
 }
@@ -494,9 +510,7 @@ void effL1_f_score_init(WORK_Other_CONN* ewk) {
         ewk->conn[i] = gj_f_score[i];
     }
 
-    for (i = 0; i < 8; i++) {
-        ewk->conn[i].chr += ewk->wu.shell_ix[i];
-    }
+    apply_score_digits(ewk, NULL);
 }
 
 void effL1_suuchi_bunkai_sub(WORK_Other_CONN* ewk, u32 tsc) {

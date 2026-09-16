@@ -113,7 +113,7 @@ static void initialize_game_options(struct _TASK* task_ptr) {
     }
     Menu_Cursor_Move = 0xA;
     for (ix = 0; ix < 0xA; ix++) {
-        effect_64_init(ix + 0x5D, 0, 2, Setup_Index_64[ix], ix, 0x70A7, ix + 1, 0, 0);
+        effect_64_init(&(Effect64Init){ix + 0x5D, 0, 2, Setup_Index_64[ix], ix, 0x70A7, ix + 1, 0, 0});
         Order[ix + 0x5D] = 1;
         Order_Dir[ix + 0x5D] = 4;
         Order_Timer[ix + 0x5D] = ix + 0x14;
@@ -223,11 +223,11 @@ static void initialize_button_rows(const ButtonRowLayout* layout) {
     for (ix = 0; ix < layout->count; ix++) {
         display_index = ix == layout->count - 1 ? layout->final_display_index : layout->display_index;
         action_index = ix + layout->action_offset;
-        effect_23_init(0, ix + layout->base_1p, 0, 2, display_index, ix, 0x70A7, action_index, layout->action_type);
+        effect_23_init(&(Effect23Init){0, ix + layout->base_1p, 0, 2, display_index, ix, 0x70A7, action_index, layout->action_type});
         Order[ix + layout->base_1p] = 1;
         Order_Dir[ix + layout->base_1p] = 4;
         Order_Timer[ix + layout->base_1p] = ix + 0x14;
-        effect_23_init(1, ix + layout->base_2p, 0, 2, display_index, ix, 0x70A7, action_index, layout->action_type);
+        effect_23_init(&(Effect23Init){1, ix + layout->base_2p, 0, 2, display_index, ix, 0x70A7, action_index, layout->action_type});
         Order[ix + layout->base_2p] = 1;
         Order_Dir[ix + layout->base_2p] = 4;
         Order_Timer[ix + layout->base_2p] = ix + 0x14;
@@ -490,7 +490,7 @@ void Return_Option_Mode_Sub(struct _TASK* task_ptr) {
 static void initialize_screen_adjust_controls(void) {
     s16 ix;
     for (ix = 0; ix < 4; ix++) {
-        effect_63_init(ix + 0x66, 0, 2, ix, ix);
+        effect_63_init(&(Effect63Init){ix + 0x66, 0, 2, ix, ix});
         Order[ix + 0x66] = 1;
         Order_Dir[ix + 0x66] = 4;
         Order_Timer[ix + 0x66] = ix + 0x14;
@@ -542,7 +542,7 @@ void Screen_Adjust(struct _TASK* task_ptr) {
 
         initialize_screen_adjust_controls();
 
-        effect_64_init(0x6A, 0, 2, 9, 4, 0x7047, 18, 2, 0);
+        effect_64_init(&(Effect64Init){0x6A, 0, 2, 9, 4, 0x7047, 18, 2, 0});
         Order[0x6A] = 1;
         Order_Dir[0x6A] = 4;
         Order_Timer[0x6A] = 0x18;

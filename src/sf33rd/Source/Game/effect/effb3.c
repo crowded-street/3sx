@@ -28,6 +28,43 @@ void fight_vanish(WORK_Other* ewk);
 
 // Funcs
 
+/* Take the master's mirror size and draw - the phases where this effect is just
+ * a copy of what the master is doing. */
+static void b3_follow_master_mirror(WORK_Other* ewk) {
+    ewk->wu.my_mr.size.x = oya_adrs->wu.my_mr.size.x;
+    ewk->wu.my_mr.size.y = oya_adrs->wu.my_mr.size.y;
+    disp_pos_trans_entry5(ewk);
+}
+
+/* The master's fight phases and its end states. The case labels are the master's
+ * own routine numbers, unchanged - this is the same switch, split so neither
+ * half carries all eleven arms. */
+static void b3_fight_phase(WORK_Other* ewk) {
+    switch (oya_adrs->wu.routine_no[0]) {
+    case 4:
+        fight_move(ewk);
+        break;
+
+    case 7:
+        fight_col_move(ewk);
+        break;
+
+    case 8:
+        fight_vanish(ewk);
+        break;
+
+    case 9:
+    case 10:
+    case 99:
+        ewk->wu.disp_flag = 0;
+        break;
+
+    default:
+        push_effect_work(&ewk->wu);
+        break;
+    }
+}
+
 void effect_B3_move(WORK_Other* ewk) {
     oya_adrs = (WORK_Other*)ewk->my_master;
 
@@ -50,31 +87,11 @@ void effect_B3_move(WORK_Other* ewk) {
     case 3:
     case 5:
     case 6:
-        ewk->wu.my_mr.size.x = oya_adrs->wu.my_mr.size.x;
-        ewk->wu.my_mr.size.y = oya_adrs->wu.my_mr.size.y;
-        disp_pos_trans_entry5(ewk);
-        break;
-
-    case 4:
-        fight_move(ewk);
-        break;
-
-    case 7:
-        fight_col_move(ewk);
-        break;
-
-    case 8:
-        fight_vanish(ewk);
-        break;
-
-    case 9:
-    case 10:
-    case 99:
-        ewk->wu.disp_flag = 0;
+        b3_follow_master_mirror(ewk);
         break;
 
     default:
-        push_effect_work(&ewk->wu);
+        b3_fight_phase(ewk);
         break;
     }
 }

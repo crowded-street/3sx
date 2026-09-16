@@ -19,83 +19,98 @@ static s32 master_is_in_effect_state(const WORK* mtwk) {
 }
 
 
-void effect_E8_move(WORK_Other* ewk) {
-    PLW* mwk = (PLW*)ewk->my_master;
-    WORK_Other* cwk = (WORK_Other*)ewk->wu.target_adrs;
-    WORK* mtwk;
+static void effe8_spawn(WORK_Other* ewk, PLW* mwk) {
+    ewk->wu.type = ewk->wu.charset_id;
+    ewk->wu.cg_att_ix = 0;
+    ewk->wu.cg_hit_ix = 0;
 
-    switch (ewk->wu.routine_no[0]) {
-    case 0:
+    if (ewk->wu.type >= ewk->wu.charset_id) {
         ewk->wu.type = ewk->wu.charset_id;
-        ewk->wu.cg_att_ix = 0;
-        ewk->wu.cg_hit_ix = 0;
+        ewk->wu.routine_no[0] = 1;
+    }
 
-        if (ewk->wu.type >= ewk->wu.charset_id) {
-            ewk->wu.type = ewk->wu.charset_id;
-            ewk->wu.routine_no[0] = 1;
+    effe8_zanzou_process(ewk, mwk);
+    effE8_trans(ewk, mwk);
+}
+
+static void effe8_step(WORK_Other* ewk, PLW* mwk, const WORK_Other* cwk) {
+    switch (ewk->wu.routine_no[1]) {
+    case 0:
+        if (cwk->wu.routine_no[0] != 1 || cwk->wu.routine_no[1] != 1) {
+            ewk->wu.routine_no[1] = 1;
         }
 
         effe8_zanzou_process(ewk, mwk);
         effE8_trans(ewk, mwk);
         break;
 
-    case 1:
-        if (ewk->wu.dead_f == 1) {
+    default:
+        ewk->wu.type -= ewk->wu.rl_waza;
+
+        if (ewk->wu.type <= 0) {
             ewk->wu.disp_flag = 0;
             ewk->wu.routine_no[0] = 2;
-            break;
-        }
-
-        if (Game_pause == 0x81) {
-            effE8_trans(ewk, mwk);
-            break;
-        }
-
-        switch (ewk->wu.routine_no[1]) {
-        case 0:
-            if (cwk->wu.routine_no[0] != 1 || cwk->wu.routine_no[1] != 1) {
-                ewk->wu.routine_no[1] = 1;
-            }
-
+        } else {
             effe8_zanzou_process(ewk, mwk);
             effE8_trans(ewk, mwk);
-            break;
-
-        default:
-            ewk->wu.type -= ewk->wu.rl_waza;
-
-            if (ewk->wu.type <= 0) {
-                ewk->wu.disp_flag = 0;
-                ewk->wu.routine_no[0] = 2;
-            } else {
-                effe8_zanzou_process(ewk, mwk);
-                effE8_trans(ewk, mwk);
-            }
-
-            break;
         }
 
+        break;
+    }
+}
+
+static void effe8_animate(WORK_Other* ewk, PLW* mwk, const WORK_Other* cwk) {
+    if (ewk->wu.dead_f == 1) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0] = 2;
+        return;
+    }
+
+    if (Game_pause == 0x81) {
+        effE8_trans(ewk, mwk);
+        return;
+    }
+
+    effe8_step(ewk, mwk, cwk);
+}
+
+static void effe8_wait_master(WORK_Other* ewk, const PLW* mwk) {
+    WORK* mtwk;
+
+    if (pcon_rno[0] != 2) {
+        mtwk = (WORK*)mwk->wu.target_adrs;
+
+        if (master_is_in_effect_state(mtwk)) {
+            return;
+        }
+    }
+
+    ewk->wu.routine_no[0] = 3;
+}
+
+void effect_E8_move(WORK_Other* ewk) {
+    PLW* mwk = (PLW*)ewk->my_master;
+    WORK_Other* cwk = (WORK_Other*)ewk->wu.target_adrs;
+
+    switch (ewk->wu.routine_no[0]) {
+    case 0:
+        effe8_spawn(ewk, mwk);
+        break;
+
+    case 1:
+        effe8_animate(ewk, mwk, cwk);
         break;
 
     case 2:
-        if (pcon_rno[0] != 2) {
-            mtwk = (WORK*)mwk->wu.target_adrs;
-
-            if (master_is_in_effect_state(mtwk)) {
-                break;
-            }
-        }
-
-        ewk->wu.routine_no[0] = 3;
+        effe8_wait_master(ewk, mwk);
         break;
-
     default:
         push_effect_work(&ewk->wu);
         break;
     }
 }
 
-void effe8_zanzou_process(WORK_Other* ewk, PLW* mwk) {
+static void effe8_set_position(WORK_Other* ewk, const PLW* mwk) {
     if (ewk->wu.old_rno[5]) {
         if (ewk->wu.type == 0) {
             ewk->wu.position_x = mwk->wu.position_x;
@@ -108,6 +123,22 @@ void effe8_zanzou_process(WORK_Other* ewk, PLW* mwk) {
         ewk->wu.position_x = zanzou_table[ewk->master_id][ewk->wu.type].pos_x;
         ewk->wu.position_y = zanzou_table[ewk->master_id][ewk->wu.type].pos_y;
     }
+}
+
+static void effe8_set_color(WORK_Other* ewk, const PLW* mwk) {
+    if (ewk->wu.old_rno[4]) {
+        if (ewk->wu.olc_work_ix[2] && mwk->metamorphose) {
+            ewk->wu.extra_col = after_image_color[ewk->wu.old_rno[4] + ewk->wu.rl_waza - 1][(ewk->master_id + 1) & 1];
+        } else {
+            ewk->wu.extra_col = after_image_color[ewk->wu.old_rno[4] + ewk->wu.rl_waza - 1][ewk->master_id];
+        }
+    } else {
+        ewk->wu.extra_col = mwk->wu.current_colcd;
+    }
+}
+
+void effe8_zanzou_process(WORK_Other* ewk, PLW* mwk) {
+    effe8_set_position(ewk, mwk);
 
     ewk->wu.position_z = mwk->wu.position_z;
 
@@ -127,15 +158,7 @@ void effe8_zanzou_process(WORK_Other* ewk, PLW* mwk) {
         ewk->wu.position_z += ewk->wu.rl_waza;
     }
 
-    if (ewk->wu.old_rno[4]) {
-        if (ewk->wu.olc_work_ix[2] && mwk->metamorphose) {
-            ewk->wu.extra_col = after_image_color[ewk->wu.old_rno[4] + ewk->wu.rl_waza - 1][(ewk->master_id + 1) & 1];
-        } else {
-            ewk->wu.extra_col = after_image_color[ewk->wu.old_rno[4] + ewk->wu.rl_waza - 1][ewk->master_id];
-        }
-    } else {
-        ewk->wu.extra_col = mwk->wu.current_colcd;
-    }
+    effe8_set_color(ewk, mwk);
 
     if (ewk->wu.old_rno[1]) {
         get_attdata_of_illusion(ewk);

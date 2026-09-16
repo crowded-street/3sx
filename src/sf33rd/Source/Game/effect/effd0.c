@@ -26,6 +26,110 @@ const s32 effd0_data_tbl[9][4] = { { 0x4000, -0x800, -0x6000, -0x400 }, { -0x400
 
 const s16 effd0_conter[9] = { 32, 40, 30, 48, 64, 16, 32, 36, 72 };
 
+static void effd0_spawn(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.disp_flag = 1;
+    ewk->wu.old_rno[1] = 0;
+    set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+}
+
+static void effd0_rise(WORK_Other* ewk) {
+    if (should_end_effect_d0(ewk)) {
+        ewk->wu.routine_no[0] = 99;
+        return;
+    }
+
+    char_move(&ewk->wu);
+
+    if (ewk->wu.cg_type) {
+        ewk->wu.routine_no[0]++;
+        set_char_move_init(&ewk->wu, 0, 15);
+        d0_speed_set(&ewk->wu, ewk->wu.old_rno[1]);
+        ewk->wu.xyz[1].disp.pos += 96;
+
+        if (ewk->wu.rl_flag) {
+            ewk->wu.xyz[0].disp.pos += 22;
+        } else {
+            ewk->wu.xyz[0].disp.pos -= 22;
+        }
+    }
+
+    pl_eff_trans_entry(ewk);
+}
+
+static void effd0_turn(WORK_Other* ewk) {
+    if (should_end_effect_d0(ewk)) {
+        ewk->wu.routine_no[0] = 99;
+        return;
+    }
+
+    ewk->wu.old_rno[0]--;
+
+    if (ewk->wu.old_rno[0] < 0) {
+        d0_speed_set(&ewk->wu, ewk->wu.old_rno[1]);
+    } else {
+        char_move(&ewk->wu);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
+    }
+
+    if (ewk->wu.xyz[1].disp.pos < 0) {
+        ewk->wu.routine_no[0]++;
+        set_char_move_init(&ewk->wu, 0, 16);
+    }
+
+    pl_eff_trans_entry(ewk);
+}
+
+static void effd0_fall(WORK_Other* ewk) {
+    if (should_end_effect_d0(ewk)) {
+        ewk->wu.routine_no[0] = 99;
+        return;
+    }
+
+    char_move(&ewk->wu);
+
+    if (ewk->wu.cg_type) {
+        ewk->wu.routine_no[0]++;
+    }
+
+    pl_eff_trans_entry(ewk);
+}
+
+static void effd0_land(WORK_Other* ewk) {
+    if (should_end_effect_d0(ewk)) {
+        ewk->wu.routine_no[0] = 99;
+        return;
+    }
+
+    pl_eff_trans_entry(ewk);
+}
+
+static void effd0_finish(WORK_Other* ewk) {
+    ewk->wu.disp_flag = 0;
+    ewk->wu.routine_no[0]++;
+}
+
+static void effd0_move_late(WORK_Other* ewk) {
+    switch (ewk->wu.routine_no[0]) {
+    case 3:
+        effd0_fall(ewk);
+        break;
+
+    case 4:
+        effd0_land(ewk);
+        break;
+
+    case 99:
+        effd0_finish(ewk);
+        break;
+
+    default:
+        push_effect_work(&ewk->wu);
+        break;
+    }
+}
+
 void effect_D0_move(WORK_Other* ewk) {
     if (Exec_Wipe) {
         ewk->wu.no_death_attack = 1;
@@ -33,91 +137,19 @@ void effect_D0_move(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.old_rno[1] = 0;
-        set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+        effd0_spawn(ewk);
         break;
 
     case 1:
-        if (should_end_effect_d0(ewk)) {
-            ewk->wu.routine_no[0] = 99;
-            break;
-        }
-
-        char_move(&ewk->wu);
-
-        if (ewk->wu.cg_type) {
-            ewk->wu.routine_no[0]++;
-            set_char_move_init(&ewk->wu, 0, 15);
-            d0_speed_set(&ewk->wu, ewk->wu.old_rno[1]);
-            ewk->wu.xyz[1].disp.pos += 96;
-
-            if (ewk->wu.rl_flag) {
-                ewk->wu.xyz[0].disp.pos += 22;
-            } else {
-                ewk->wu.xyz[0].disp.pos -= 22;
-            }
-        }
-
-        pl_eff_trans_entry(ewk);
+        effd0_rise(ewk);
         break;
 
     case 2:
-        if (should_end_effect_d0(ewk)) {
-            ewk->wu.routine_no[0] = 99;
-            break;
-        }
-
-        ewk->wu.old_rno[0]--;
-
-        if (ewk->wu.old_rno[0] < 0) {
-            d0_speed_set(&ewk->wu, ewk->wu.old_rno[1]);
-        } else {
-            char_move(&ewk->wu);
-            add_x_sub(&ewk->wu);
-            add_y_sub(&ewk->wu);
-        }
-
-        if (ewk->wu.xyz[1].disp.pos < 0) {
-            ewk->wu.routine_no[0]++;
-            set_char_move_init(&ewk->wu, 0, 16);
-        }
-
-        pl_eff_trans_entry(ewk);
-        break;
-
-    case 3:
-        if (should_end_effect_d0(ewk)) {
-            ewk->wu.routine_no[0] = 99;
-            break;
-        }
-
-        char_move(&ewk->wu);
-
-        if (ewk->wu.cg_type) {
-            ewk->wu.routine_no[0]++;
-        }
-
-        pl_eff_trans_entry(ewk);
-        break;
-
-    case 4:
-        if (should_end_effect_d0(ewk)) {
-            ewk->wu.routine_no[0] = 99;
-            break;
-        }
-
-        pl_eff_trans_entry(ewk);
-        break;
-
-    case 99:
-        ewk->wu.disp_flag = 0;
-        ewk->wu.routine_no[0]++;
+        effd0_turn(ewk);
         break;
 
     default:
-        push_effect_work(&ewk->wu);
+        effd0_move_late(ewk);
         break;
     }
 }

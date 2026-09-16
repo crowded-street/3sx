@@ -20,53 +20,65 @@ const s16 panel_pos_hosei[8][4][2] = {
     { { -23, 112 }, { 0, 0 }, { 0, 0 }, { -23, 112 } }, { { -86, 60 }, { 0, 0 }, { 0, 0 }, { -86, 60 } }
 };
 
-void effect_37_move(WORK_Other* ewk) {
-    WORK* mwk = (WORK*)ewk->my_master;
+static void eff37_spawn(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.disp_flag = 0;
+    ewk->wu.my_col_mode = 0x4200;
+    ewk->wu.my_col_code = (ewk->wu.type == 1) + 0x28;
+    set_char_move_init2(&ewk->wu, 0, 0, plw[ewk->wu.type].player_number + 1, 0);
+
+    if (plw[0].player_number == plw[1].player_number) {
+        effect_H2_init(&ewk->wu, ewk->wu.charset_id, ewk->wu.type);
+        return;
+    }
+}
+
+static void eff37_place_panel(WORK_Other* ewk, const WORK* mwk) {
     s16 ix;
 
+    ewk->wu.disp_flag = 1;
+
+    if (mwk->cg_type == 0xFF) {
+        ix = 3;
+    } else {
+        ix = mwk->cg_type - 1;
+    }
+
+    if (ewk->wu.rl_waza) {
+        ewk->wu.position_x = mwk->position_x - panel_pos_hosei[ewk->wu.charset_id][ix][0];
+    } else {
+        ewk->wu.position_x = mwk->position_x + panel_pos_hosei[ewk->wu.charset_id][ix][0];
+    }
+
+    ewk->wu.position_y = mwk->position_y + panel_pos_hosei[ewk->wu.charset_id][ix][1];
+}
+
+static void eff37_animate(WORK_Other* ewk) {
+    WORK* mwk = (WORK*)ewk->my_master;
+
+    if (ewk->wu.dead_f == 1) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0] = 2;
+        return;
+    }
+
+    if (mwk->cg_type) {
+        eff37_place_panel(ewk, mwk);
+    } else {
+        ewk->wu.disp_flag = 0;
+    }
+
+    sort_push_request(&ewk->wu);
+}
+
+void effect_37_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.disp_flag = 0;
-        ewk->wu.my_col_mode = 0x4200;
-        ewk->wu.my_col_code = (ewk->wu.type == 1) + 0x28;
-        set_char_move_init2(&ewk->wu, 0, 0, plw[ewk->wu.type].player_number + 1, 0);
-
-        if (plw[0].player_number == plw[1].player_number) {
-            effect_H2_init(&ewk->wu, ewk->wu.charset_id, ewk->wu.type);
-            break;
-        }
-
+        eff37_spawn(ewk);
         break;
 
     case 1:
-        if (ewk->wu.dead_f == 1) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0] = 2;
-            break;
-        }
-
-        if (mwk->cg_type) {
-            ewk->wu.disp_flag = 1;
-
-            if (mwk->cg_type == 0xFF) {
-                ix = 3;
-            } else {
-                ix = mwk->cg_type - 1;
-            }
-
-            if (ewk->wu.rl_waza) {
-                ewk->wu.position_x = mwk->position_x - panel_pos_hosei[ewk->wu.charset_id][ix][0];
-            } else {
-                ewk->wu.position_x = mwk->position_x + panel_pos_hosei[ewk->wu.charset_id][ix][0];
-            }
-
-            ewk->wu.position_y = mwk->position_y + panel_pos_hosei[ewk->wu.charset_id][ix][1];
-        } else {
-            ewk->wu.disp_flag = 0;
-        }
-
-        sort_push_request(&ewk->wu);
+        eff37_animate(ewk);
         break;
 
     case 2:

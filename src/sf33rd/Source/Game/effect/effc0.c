@@ -23,56 +23,79 @@ static s32 should_end_effect_c0(const WORK_Other* ewk) {
     return ewk->wu.dead_f == 1 || Suicide[0] != 0;
 }
 
-void effect_C0_move(WORK_Other* ewk) {
-    PLW* mwk = (PLW*)ewk->my_master;
+/* Non-zero while this effect may advance: the game is running and the master is
+ * not frozen by a super art. */
+static s32 c0_updates_enabled(const PLW* mwk) {
+    return EXE_flag == 0 && Game_pause == 0 && mwk->sa_stop_flag != 1;
+}
+
+static void effc0_spawn(WORK_Other* ewk, const PLW* mwk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.disp_flag = 1;
+    ewk->wu.my_col_mode = 0x4200;
+    ewk->wu.my_col_code = 0x2020;
+    set_char_move_init(&ewk->wu, 0, plhos_data[mwk->player_number][2]);
+}
+
+static void effc0_advance_frames(WORK_Other* ewk, const PLW* mwk) {
     s16 i;
     s16 hok;
 
+    if (mwk->cp->lgp > 13) {
+        hok = 3;
+    } else {
+        hok = hok_table_ef[mwk->cp->lgp / 2];
+    }
+
+    for (i = 0; i < hok; i++) {
+        char_move(&ewk->wu);
+    }
+}
+
+static void effc0_follow_master(WORK_Other* ewk, const PLW* mwk) {
+    ewk->wu.position_x = mwk->wu.position_x;
+
+    if (mwk->wu.rl_flag) {
+        ewk->wu.position_x += plhos_data[mwk->player_number][0];
+    } else {
+        ewk->wu.position_x -= plhos_data[mwk->player_number][0];
+    }
+
+    ewk->wu.position_y = mwk->wu.position_y + plhos_data[mwk->player_number][1];
+    ewk->wu.position_z = mwk->wu.position_z - 4;
+    sort_push_request8(&ewk->wu);
+}
+
+static void effc0_track(WORK_Other* ewk, PLW* mwk) {
+    if (should_end_effect_c0(ewk)) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0]++;
+        return;
+    }
+
+    if (mwk->wu.routine_no[1] != 1 || mwk->wu.routine_no[2] != 25) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0]++;
+        return;
+    }
+
+    if (c0_updates_enabled(mwk)) {
+        effc0_advance_frames(ewk, mwk);
+    }
+
+    effc0_follow_master(ewk, mwk);
+}
+
+void effect_C0_move(WORK_Other* ewk) {
+    PLW* mwk = (PLW*)ewk->my_master;
+
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.my_col_mode = 0x4200;
-        ewk->wu.my_col_code = 0x2020;
-        set_char_move_init(&ewk->wu, 0, plhos_data[mwk->player_number][2]);
+        effc0_spawn(ewk, mwk);
         /* fallthrough */
 
     case 1:
-        if (should_end_effect_c0(ewk)) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0]++;
-            break;
-        }
-
-        if (mwk->wu.routine_no[1] != 1 || mwk->wu.routine_no[2] != 25) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0]++;
-            break;
-        }
-
-        if (EXE_flag == 0 && Game_pause == 0 && mwk->sa_stop_flag != 1) {
-            if (mwk->cp->lgp > 13) {
-                hok = 3;
-            } else {
-                hok = hok_table_ef[mwk->cp->lgp / 2];
-            }
-
-            for (i = 0; i < hok; i++) {
-                char_move(&ewk->wu);
-            }
-        }
-
-        ewk->wu.position_x = mwk->wu.position_x;
-
-        if (mwk->wu.rl_flag) {
-            ewk->wu.position_x += plhos_data[mwk->player_number][0];
-        } else {
-            ewk->wu.position_x -= plhos_data[mwk->player_number][0];
-        }
-
-        ewk->wu.position_y = mwk->wu.position_y + plhos_data[mwk->player_number][1];
-        ewk->wu.position_z = mwk->wu.position_z - 4;
-        sort_push_request8(&ewk->wu);
+        effc0_track(ewk, mwk);
         break;
 
     case 2:

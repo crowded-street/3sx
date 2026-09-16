@@ -28,41 +28,50 @@ static s32 effect_can_advance(void) {
 }
 
 
-void effect_29_move(WORK_Other* ewk) {
+/* Count the hidden interval down, then show the effect and start its
+ * animation. */
+static void e29_await_reappear(WORK_Other* ewk) {
+    if (can_update_effect()) {
+        ewk->wu.old_rno[0]--;
+
+        if (ewk->wu.old_rno[0] <= 0) {
+            ewk->wu.routine_no[0]++;
+            ewk->wu.disp_flag = 1;
+            set_char_move_init(&ewk->wu, 0, 0);
+        }
+    }
+}
+
+/* Run the animation out, then hide the effect again and pick the next interval
+ * from the table at random. */
+static void e29_show_until_done(WORK_Other* ewk) {
     s16 work;
 
+    if (effect_can_advance()) {
+        char_move(&ewk->wu);
+
+        if (ewk->wu.cg_type) {
+            ewk->wu.routine_no[0] = 0;
+            ewk->wu.disp_flag = 0;
+            work = random_16();
+            work &= 7;
+            ewk->wu.old_rno[0] = eff29_vanish_time[work];
+        }
+    }
+}
+
+void effect_29_move(WORK_Other* ewk) {
     if (obr_no_disp_check()) {
         return;
     }
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-if (can_update_effect()) {
-            ewk->wu.old_rno[0]--;
-
-            if (ewk->wu.old_rno[0] <= 0) {
-                ewk->wu.routine_no[0]++;
-                ewk->wu.disp_flag = 1;
-                set_char_move_init(&ewk->wu, 0, 0);
-                break;
-            }
-        }
-
+        e29_await_reappear(ewk);
         break;
 
     case 1:
-        if (effect_can_advance()) {
-            char_move(&ewk->wu);
-
-            if (ewk->wu.cg_type) {
-                ewk->wu.routine_no[0] = 0;
-                ewk->wu.disp_flag = 0;
-                work = random_16();
-                work &= 7;
-                ewk->wu.old_rno[0] = eff29_vanish_time[work];
-            }
-        }
-
+        e29_show_until_done(ewk);
         disp_pos_trans_entry_r(ewk);
         break;
 

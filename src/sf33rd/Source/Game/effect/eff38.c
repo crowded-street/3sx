@@ -388,31 +388,42 @@ static void set_initial_target_38(WORK_Other* ewk, s16 Play_Status) {
     }
 }
 
+typedef struct {
+    s16 x_offset;
+    s16 priority;
+    s32 x_speed;
+    s32 x_acceleration;
+} PortraitMotion38;
+
+static void initialize_portrait_motion_38(WORK_Other* ewk, const PortraitMotion38* motion) {
+    ewk->wu.xyz[0].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + motion->x_offset;
+    ewk->wu.position_z = motion->priority;
+    ewk->wu.mvxy.a[0].sp = motion->x_speed;
+    ewk->wu.mvxy.d[0].sp = motion->x_acceleration;
+    ewk->wu.mvxy.d[1].sp = 0;
+}
+
 static void initialize_player_one_portrait_38(WORK_Other* ewk, s16 PL_id, s16 Your_Char) {
+    const PortraitMotion38 motion = { -272, 77, 0xF0000, 0x8000 };
+
     if (Your_Char != 0x7F && My_char[PL_id] == 0) {
         ewk->wu.dir_step = 0x17;
     }
 
-    ewk->wu.xyz[0].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos - 272;
-    ewk->wu.position_z = 77;
-    ewk->wu.mvxy.a[0].sp = 0xF0000;
-    ewk->wu.mvxy.d[0].sp = 0x8000;
-    ewk->wu.mvxy.d[1].sp = 0;
+    initialize_portrait_motion_38(ewk, &motion);
 }
 
 static void initialize_player_two_portrait_38(WORK_Other* ewk, s16 PL_id) {
+    const PortraitMotion38 motion = { 272, 75, -0xF0000, -0x8000 };
+
     if (My_char[PL_id] == 21) {
         ewk->wu.dir_step++;
     }
 
-    ewk->wu.xyz[0].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + 272;
-    ewk->wu.position_z = 75;
-    ewk->wu.mvxy.a[0].sp = -0xF0000;
-    ewk->wu.mvxy.d[0].sp = -0x8000;
-    ewk->wu.mvxy.d[1].sp = 0;
+    initialize_portrait_motion_38(ewk, &motion);
 }
 
-s32 effect_38_init(s16 PL_id, s16 dir_old, s16 Your_Char, s16 Play_Status, s16 Target_BG) {
+s32 effect_38_init_params(Effect38Init params) {
     WORK_Other* ewk;
     s16 ix;
 
@@ -425,28 +436,28 @@ s32 effect_38_init(s16 PL_id, s16 dir_old, s16 Your_Char, s16 Play_Status, s16 T
     ewk->wu.id = 38;
     ewk->wu.work_id = 16;
     ewk->wu.my_col_code = 0x90;
-    ewk->wu.my_family = Target_BG + 1;
+    ewk->wu.my_family = params.target_bg + 1;
     ewk->wu.xyz[1].disp.pos = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + 16;
     ewk->wu.char_index = 2;
     *ewk->wu.char_table = _sel_pl_char_table;
-    ewk->master_id = PL_id;
-    ewk->wu.dir_old = Play_Status;
-    ewk->wu.dir_old = dir_old;
-    ewk->wu.vital_old = Your_Char;
+    ewk->master_id = params.player_id;
+    ewk->wu.dir_old = params.play_status;
+    ewk->wu.dir_old = params.direction;
+    ewk->wu.vital_old = params.character;
     ewk->wu.my_mts = 13;
     ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
 
-    select_initial_character_38(ewk, PL_id, Your_Char);
+    select_initial_character_38(ewk, params.player_id, params.character);
 
-    ewk->wu.rl_flag = PL_id ^ 1;
+    ewk->wu.rl_flag = params.player_id ^ 1;
 
-    if (PL_id) {
-        initialize_player_two_portrait_38(ewk, PL_id);
+    if (params.player_id) {
+        initialize_player_two_portrait_38(ewk, params.player_id);
     } else {
-        initialize_player_one_portrait_38(ewk, PL_id, Your_Char);
+        initialize_player_one_portrait_38(ewk, params.player_id, params.character);
     }
 
-    set_initial_target_38(ewk, Play_Status);
+    set_initial_target_38(ewk, params.play_status);
 
     return 0;
 }

@@ -33,6 +33,24 @@ static s32 break_check_is_irrelevant(const WORK_Other* ewk) {
 }
 
 
+static void eff59_move_late(WORK_Other* ewk) {
+    switch (ewk->wu.routine_no[0]) {
+    case 3:
+        ewk->wu.routine_no[0] = 99;
+        return;
+
+    case 4:
+        ewk->wu.position_x = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos;
+        ewk->wu.position_y = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos - 16;
+        EFF59_Trans(ewk);
+        return;
+
+    default:
+        push_effect_work(&ewk->wu);
+        return;
+    }
+}
+
 void effect_59_move(WORK_Other* ewk) {
     WORK_Other* mwk = (WORK_Other*)ewk->my_master;
 
@@ -72,18 +90,8 @@ void effect_59_move(WORK_Other* ewk) {
 
         break;
 
-    case 3:
-        ewk->wu.routine_no[0] = 99;
-        return;
-
-    case 4:
-        ewk->wu.position_x = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos;
-        ewk->wu.position_y = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos - 16;
-        EFF59_Trans(ewk);
-        return;
-
     default:
-        push_effect_work(&ewk->wu);
+        eff59_move_late(ewk);
         return;
     }
 

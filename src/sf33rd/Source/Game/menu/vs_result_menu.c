@@ -127,16 +127,16 @@ static void initialize_vs_result(struct _TASK* task_ptr) {
     effect_66_init(139, 25, 0, 0, -1, -1, -0x7FF9);
     Order[139] = 3;
     Order_Timer[139] = 1;
-    effect_A0_init(0, VS_Win_Record[0], 0, 3, 0, 0, 0);
-    effect_A0_init(0, VS_Win_Record[1], 1, 3, 0, 0, 0);
+    effect_A0_init(&(EffectA0Init){0, VS_Win_Record[0], 0, 3, 0, 0, 0});
+    effect_A0_init(&(EffectA0Init){0, VS_Win_Record[1], 1, 3, 0, 0, 0});
     calculate_vs_win_percentages(win_percentages);
 
-    effect_A0_init(0, win_percentages[0], 2, 3, 0, 0, 0);
-    effect_A0_init(0, win_percentages[1], 3, 3, 0, 0, 0);
+    effect_A0_init(&(EffectA0Init){0, win_percentages[0], 2, 3, 0, 0, 0});
+    effect_A0_init(&(EffectA0Init){0, win_percentages[1], 3, 3, 0, 0, 0});
 
     for (ix = 0, s4 = char_ix2 = 22; ix < 3; ix++, s3 = char_ix2++) {
-        effect_91_init(0, ix, 0, 71, char_ix2, 0);
-        effect_91_init(1, ix, 0, 71, char_ix2, 0);
+        effect_91_init(&(Effect91Init){0, ix, 0, 71, char_ix2, 0});
+        effect_91_init(&(Effect91Init){1, ix, 0, 71, char_ix2, 0});
     }
 
     Setup_Win_Lose_OBJ();

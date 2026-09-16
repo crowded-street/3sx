@@ -50,39 +50,64 @@ const CONN bbbs_score[4][8] = { { { -64, 164, 0, 32474 },
 void eff16_trans(WORK* ewk);
 static s16 score_bunkai_eff16(WORK_Other_CONN* ewk, u32 tsc);
 
+/* Lay the score out and show it. The shadow flag picks the layer, and with it
+ * the clear level. */
+static void e16_start(WORK_Other* ewk) {
+    ewk->wu.routine_no[1]++;
+    ewk->wu.disp_flag = 1;
+    ewk->wu.old_cgnum = 0;
+    ewk->free = score_bunkai_eff16((WORK_Other_CONN*)ewk, Continue_Coin[ewk->wu.type] + Score[ewk->wu.type][0]);
+    ewk->wu.direction = ewk->free;
+    ewk->free = 0;
+    ewk->wu.dir_timer = 0;
+
+    if (ewk->wu.kage_prio) {
+        ewk->wu.position_z = 29;
+        ewk->wu.my_clear_level = 128;
+        return;
+    }
+
+    ewk->wu.position_z = 67;
+}
+
+/* Reveal the score one digit every three frames, and move on once the whole
+ * figure is up. */
+static void e16_reveal_digits(WORK_Other* ewk) {
+    if (--ewk->wu.dir_timer <= 0) {
+        ewk->wu.dir_timer = 3;
+        ewk->free++;
+
+        if (ewk->free >= ewk->wu.direction) {
+            ewk->wu.routine_no[0] = 1;
+            ewk->wu.routine_no[1] = 0;
+        }
+    }
+}
+
+/* Keep the score on screen, re-laying it out each frame so it tracks a value
+ * that is still changing. */
+static void e16_hold(WORK_Other* ewk) {
+    if (ewk->wu.dead_f == 1) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.type = 0;
+        ewk->wu.routine_no[0] = 2;
+        return;
+    }
+
+    ewk->free = score_bunkai_eff16((WORK_Other_CONN*)ewk, Continue_Coin[ewk->wu.type] + Score[ewk->wu.type][0]);
+    eff16_trans(&ewk->wu);
+}
+
 void effect_16_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
         switch (ewk->wu.routine_no[1]) {
         case 0:
-            ewk->wu.routine_no[1]++;
-            ewk->wu.disp_flag = 1;
-            ewk->wu.old_cgnum = 0;
-            ewk->free = score_bunkai_eff16((WORK_Other_CONN*)ewk, Continue_Coin[ewk->wu.type] + Score[ewk->wu.type][0]);
-            ewk->wu.direction = ewk->free;
-            ewk->free = 0;
-            ewk->wu.dir_timer = 0;
-
-            if (ewk->wu.kage_prio) {
-                ewk->wu.position_z = 29;
-                ewk->wu.my_clear_level = 128;
-                break;
-            }
-
-            ewk->wu.position_z = 67;
+            e16_start(ewk);
             break;
 
         case 1:
-            if (--ewk->wu.dir_timer <= 0) {
-                ewk->wu.dir_timer = 3;
-                ewk->free++;
-
-                if (ewk->free >= ewk->wu.direction) {
-                    ewk->wu.routine_no[0] = 1;
-                    ewk->wu.routine_no[1] = 0;
-                }
-            }
-
+            e16_reveal_digits(ewk);
             break;
         }
 
@@ -90,15 +115,7 @@ void effect_16_move(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (ewk->wu.dead_f == 1) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.type = 0;
-            ewk->wu.routine_no[0] = 2;
-            break;
-        }
-
-        ewk->free = score_bunkai_eff16((WORK_Other_CONN*)ewk, Continue_Coin[ewk->wu.type] + Score[ewk->wu.type][0]);
-        eff16_trans(&ewk->wu);
+        e16_hold(ewk);
         break;
 
     case 2:

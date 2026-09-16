@@ -1729,11 +1729,11 @@ void Handicap_1st() {
     Order_Timer[121] = 1;
     effect_66_init(122, 34, 0, 2, 71, 19, 0);
     Order[122] = 5;
-    effect_99_init(0, 0, 0x7047, 0, 0, 0);
-    effect_99_init(1, 0, 0x7047, 1, 1, 0);
-    effect_99_init(255, 1, 0x7047, 2, 2, 0);
-    effect_99_init(255, 1, 0x70A7, 3, 3, 0);
-    effect_99_init(255, 1, 0x70A7, 4, 4, 0);
+    effect_99_init(&(Effect99Init){0, 0, 0x7047, 0, 0, 0});
+    effect_99_init(&(Effect99Init){1, 0, 0x7047, 1, 1, 0});
+    effect_99_init(&(Effect99Init){255, 1, 0x7047, 2, 2, 0});
+    effect_99_init(&(Effect99Init){255, 1, 0x70A7, 3, 3, 0});
+    effect_99_init(&(Effect99Init){255, 1, 0x70A7, 4, 4, 0});
 }
 
 void Handicap_2nd() {

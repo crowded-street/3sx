@@ -31,88 +31,34 @@ static s32 cursor_position_changed(const WORK_Other* ewk) {
 }
 
 
-void effect_D8_move(WORK_Other* ewk) {
-    s16 offset_x;
+/* In either training mode the challenger's face waits until the select screen
+ * has moved on - the effect does nothing at all until then. */
+static s32 d8_waiting_for_training_partner(const WORK_Other* ewk) {
+    return ((Mode_Type == MODE_NORMAL_TRAINING) || (Mode_Type == MODE_PARRY_TRAINING)) &&
+           (ewk->master_id == New_Challenger) && (S_No[3] < 2);
+}
 
-    ewk->wu.hit_quake += 1;
-
-    switch (ewk->wu.routine_no[0]) {
-    case 0:
-        if (((Mode_Type == MODE_NORMAL_TRAINING) || (Mode_Type == MODE_PARRY_TRAINING)) &&
-            (ewk->master_id == New_Challenger) && (S_No[3] < 2)) {
-            return;
-        }
-
-        if (Complete_Face <= 0) {
-            ewk->wu.routine_no[0] += 1;
-            ewk->wu.dir_timer = 10;
-        }
-
-        break;
-
-    case 1:
-        if (--ewk->wu.dir_timer == 0) {
-            ewk->wu.routine_no[0] += 1;
-            ewk->wu.disp_flag = 1;
-            set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-        }
-
-        break;
-
-    case 2:
-        if (cursor_position_changed(ewk)) {
-            ewk->wu.vital_new = Cursor_X[ewk->master_id];
-            ewk->wu.vital_old = Cursor_Y[ewk->master_id];
-
-            if (Play_Type == 1) {
-                offset_x = Setup_Face_Offset_X(99);
-            } else {
-                offset_x = Setup_Face_Offset_X(Play_Type_1st);
-            }
-
-            Setup_EffD8_Pos(ewk, offset_x);
-            set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, (ewk->wu.cg_ix / ewk->wu.cgd_type) + 1, 0);
-        }
-
-        if (Sel_PL_Complete[ewk->master_id]) {
-            ewk->wu.routine_no[0] += 1;
-            ewk->wu.dir_timer = 20;
-            ewk->wu.char_index += 1;
-            set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-        } else {
-            char_move(&ewk->wu);
-        }
-
-        break;
-
-    case 3:
-        if (--ewk->wu.dir_timer) {
-            char_move(&ewk->wu);
-        } else {
-            ewk->wu.routine_no[0] += 1;
-            Sel_PL_Complete[ewk->master_id] = -0x8000;
-
-            if (Select_Start[ewk->master_id] == 0) {
-                Select_Timer = 0x20;
-            }
-
-            Unit_Of_Timer = UNIT_OF_TIMER_MAX;
-            ewk->wu.char_index += 1;
-            set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-        }
-
-        break;
-
-    case 4:
+/* Hold until the portrait artwork is ready, then start the appear delay. */
+static void d8_await_face_ready(WORK_Other* ewk) {
+    if (Complete_Face <= 0) {
         ewk->wu.routine_no[0] += 1;
-        ewk->wu.disp_flag = 0;
-        break;
-
-    default:
-        push_effect_work(&ewk->wu);
-        return;
+        ewk->wu.dir_timer = 10;
     }
+}
 
+/* Run the appear delay out, then show the face and start its animation. */
+static void d8_await_appear_delay(WORK_Other* ewk) {
+    if (--ewk->wu.dir_timer == 0) {
+        ewk->wu.routine_no[0] += 1;
+        ewk->wu.disp_flag = 1;
+        set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+    }
+}
+
+/* Copy the work position out and hand the face to the renderer. Faces on the
+ * near layer flicker between two depths each frame, which is what hit_quake
+ * counts here. */
+static void d8_place_and_push(WORK_Other* ewk) {
     ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
     ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
 
@@ -125,6 +71,92 @@ void effect_D8_move(WORK_Other* ewk) {
     }
 
     sort_push_request4(&ewk->wu);
+}
+
+/* Track the select cursor: when it moves, re-place the face and restart its
+ * animation at the matching frame. Once this player has locked in, start the
+ * confirm animation instead. */
+static void d8_follow_cursor(WORK_Other* ewk) {
+    s16 offset_x;
+
+    if (cursor_position_changed(ewk)) {
+        ewk->wu.vital_new = Cursor_X[ewk->master_id];
+        ewk->wu.vital_old = Cursor_Y[ewk->master_id];
+
+        if (Play_Type == 1) {
+            offset_x = Setup_Face_Offset_X(99);
+        } else {
+            offset_x = Setup_Face_Offset_X(Play_Type_1st);
+        }
+
+        Setup_EffD8_Pos(ewk, offset_x);
+        set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, (ewk->wu.cg_ix / ewk->wu.cgd_type) + 1, 0);
+    }
+
+    if (Sel_PL_Complete[ewk->master_id]) {
+        ewk->wu.routine_no[0] += 1;
+        ewk->wu.dir_timer = 20;
+        ewk->wu.char_index += 1;
+        set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+    } else {
+        char_move(&ewk->wu);
+    }
+}
+
+/* Run the confirm animation out, then lock the selection in and hand the select
+ * timer over. */
+static void d8_confirm_selection(WORK_Other* ewk) {
+    if (--ewk->wu.dir_timer) {
+        char_move(&ewk->wu);
+    } else {
+        ewk->wu.routine_no[0] += 1;
+        Sel_PL_Complete[ewk->master_id] = -0x8000;
+
+        if (Select_Start[ewk->master_id] == 0) {
+            Select_Timer = 0x20;
+        }
+
+        Unit_Of_Timer = UNIT_OF_TIMER_MAX;
+        ewk->wu.char_index += 1;
+        set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+    }
+}
+
+void effect_D8_move(WORK_Other* ewk) {
+    ewk->wu.hit_quake += 1;
+
+    switch (ewk->wu.routine_no[0]) {
+    case 0:
+        if (d8_waiting_for_training_partner(ewk)) {
+            return;
+        }
+
+        d8_await_face_ready(ewk);
+        break;
+
+    case 1:
+        d8_await_appear_delay(ewk);
+        break;
+
+    case 2:
+        d8_follow_cursor(ewk);
+        break;
+
+    case 3:
+        d8_confirm_selection(ewk);
+        break;
+
+    case 4:
+        ewk->wu.routine_no[0] += 1;
+        ewk->wu.disp_flag = 0;
+        break;
+
+    default:
+        push_effect_work(&ewk->wu);
+        return;
+    }
+
+    d8_place_and_push(ewk);
 }
 
 s32 effect_D8_init(s16 PL_id, s16 Type) {

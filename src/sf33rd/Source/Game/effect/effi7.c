@@ -35,50 +35,59 @@ static s32 game_is_active(void) {
     return EXE_flag == 0 && Game_pause == 0;
 }
 
-void effect_I7_move(WORK_Other* ewk) {
+static void effi7_spawn(WORK_Other* ewk) {
     PLW* mwk = (PLW*)ewk->my_master;
 
+    ewk->wu.routine_no[0]++;
+    ewk->wu.disp_flag = 1;
+    ewk->wu.my_col_mode = 0x4200;
+    ewk->wu.my_col_code = 0x2020;
+    effI7_pos_hosei(ewk, &mwk->wu);
+    ewk->wu.position_z = mwk->wu.position_z - 4;
+    set_char_move_init(&ewk->wu, 0, ex_sign_data[ewk->wu.type][2]);
+    sort_push_request(&ewk->wu);
+}
+
+static void effi7_animate(WORK_Other* ewk) {
+    PLW* mwk = (PLW*)ewk->my_master;
+
+    if (ewk->wu.dead_f == 1 || mwk->wu.routine_no[1] != 4) {
+        ewk->wu.routine_no[0]++;
+        ewk->wu.disp_flag = 0;
+        return;
+    }
+
+    if (game_is_active()) {
+        if (ewk->wu.hit_stop) {
+            ewk->wu.hit_stop--;
+        } else {
+            char_move(&ewk->wu);
+        }
+    }
+
+    if (ewk->wu.cg_type == 0xFF) {
+        ewk->wu.routine_no[0]++;
+        ewk->wu.disp_flag = 0;
+        return;
+    }
+
+    if (ex_sign_data[ewk->wu.type][3]) {
+        effI7_pos_hosei(ewk, &mwk->wu);
+    }
+
+    ewk->wu.position_z = mwk->wu.position_z - 4;
+    sort_push_request(&ewk->wu);
+}
+
+void effect_I7_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.my_col_mode = 0x4200;
-        ewk->wu.my_col_code = 0x2020;
-        effI7_pos_hosei(ewk, &mwk->wu);
-        ewk->wu.position_z = mwk->wu.position_z - 4;
-        set_char_move_init(&ewk->wu, 0, ex_sign_data[ewk->wu.type][2]);
-        sort_push_request(&ewk->wu);
+        effi7_spawn(ewk);
         break;
 
     case 1:
-        if (ewk->wu.dead_f == 1 || mwk->wu.routine_no[1] != 4) {
-            ewk->wu.routine_no[0]++;
-            ewk->wu.disp_flag = 0;
-            break;
-        }
-
-        if (game_is_active()) {
-            if (ewk->wu.hit_stop) {
-                ewk->wu.hit_stop--;
-            } else {
-                char_move(&ewk->wu);
-            }
-        }
-
-        if (ewk->wu.cg_type == 0xFF) {
-            ewk->wu.routine_no[0]++;
-            ewk->wu.disp_flag = 0;
-            break;
-        }
-
-        if (ex_sign_data[ewk->wu.type][3]) {
-            effI7_pos_hosei(ewk, &mwk->wu);
-        }
-
-        ewk->wu.position_z = mwk->wu.position_z - 4;
-        sort_push_request(&ewk->wu);
+        effi7_animate(ewk);
         break;
-
     case 2:
         ewk->wu.routine_no[0] = 3;
         break;

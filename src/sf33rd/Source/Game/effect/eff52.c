@@ -75,6 +75,31 @@ void EFF52_SUDDENLY(WORK_Other* ewk) {
     }
 }
 
+/* Arrived: snap to the target, release the order slot and go idle. Both
+ * directions of travel end here; only the comparison that decides "arrived"
+ * differs, and that stays at the call site. */
+static void e52_settle_at_target(WORK_Other* ewk) {
+    ewk->wu.routine_no[0] = 0;
+    Order[ewk->wu.dir_old] = 0;
+    ewk->wu.routine_no[6] = 0;
+    ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
+}
+
+/* Move one frame under the current acceleration, and settle once the target is
+ * reached. */
+static void e52_travel(WORK_Other* ewk) {
+    ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
+    ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
+
+    if (0 < ewk->wu.mvxy.a[0].sp) {
+        if (ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
+            e52_settle_at_target(ewk);
+        }
+    } else if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
+        e52_settle_at_target(ewk);
+    }
+}
+
 void EFF52_SLIDE_IN(WORK_Other* ewk) {
     if (Order[ewk->wu.dir_old] == 4) {
         ewk->wu.routine_no[0] = 4;
@@ -93,23 +118,7 @@ void EFF52_SLIDE_IN(WORK_Other* ewk) {
         break;
 
     default:
-        ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
-        ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
-
-        if (0 < ewk->wu.mvxy.a[0].sp) {
-            if (ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
-                ewk->wu.routine_no[0] = 0;
-                Order[ewk->wu.dir_old] = 0;
-                ewk->wu.routine_no[6] = 0;
-                ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
-            }
-        } else if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
-            ewk->wu.routine_no[0] = 0;
-            Order[ewk->wu.dir_old] = 0;
-            ewk->wu.routine_no[6] = 0;
-            ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
-        }
-
+        e52_travel(ewk);
         break;
     }
 }

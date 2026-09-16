@@ -28,112 +28,153 @@ static s32 should_end_parts_effect(const WORK_Other* ewk, const WORK* mwk) {
     return ewk->wu.dead_f == 1 || mwk->olc_work_ix[ewk->wu.type] != ewk->wu.myself;
 }
 
+/* Player 1's primary part is stored mirrored, so it reads one cel further on
+ * when the fighter faces left. Both the cel pick and the parts-data load need
+ * this. */
+static s32 is_mirrored_primary_part(const WORK_Other* ewk, const PLW* mwk) {
+    return ewk->wu.type == 0 && mwk->player_number == 0 && mwk->wu.rl_flag;
+}
+
+/* Run the part's own cel timer down and, when it expires, step to the next cel
+ * - the table's jump target if it has one, otherwise the following cel. */
+static void advance_parts_cel_timer(WORK_Other* ewk, WORK* mwk) {
+    if (--ewk->wu.cg_ctr == 0) {
+        if (ewk->wu.overlap_char_tbl->parts_nix) {
+            ewk->wu.cg_ix = ewk->wu.overlap_char_tbl->parts_nix;
+        } else {
+            ewk->wu.cg_ix++;
+        }
+
+        ewk->wu.now_koc = ewk->wu.cg_ix;
+        get_new_parts_data(ewk, (PLW*)mwk);
+    }
+}
+
+/* Pick the part's cel for this frame: follow the master's overlap index when it
+ * moved, otherwise run the part's own cel timer down while the super-art freeze
+ * is not on. */
+static void advance_parts_animation(WORK_Other* ewk, WORK* mwk) {
+    if (ewk->wu.cg_olc.olc_ix[ewk->wu.type] != mwk->cg_olc.olc_ix[ewk->wu.type]) {
+        ewk->wu.cg_olc.olc_ix[ewk->wu.type] = ewk->wu.cg_ix = mwk->cg_olc.olc_ix[ewk->wu.type];
+        ewk->wu.now_koc = ewk->wu.cg_ix;
+
+        if (is_mirrored_primary_part(ewk, (PLW*)mwk)) {
+            ewk->wu.now_koc++;
+        }
+
+        get_new_parts_data(ewk, (PLW*)mwk);
+    } else if (((PLW*)mwk)->sa_stop_flag == 0) {
+        advance_parts_cel_timer(ewk, mwk);
+    }
+}
+
+/* Place the part against the master this frame: copy its position and facing,
+ * apply the part's own flip and offsets, then bias the depth by the part slot. */
+static void place_part_on_master(WORK_Other* ewk, WORK* mwk) {
+    ewk->wu.position_x = mwk->position_x;
+    ewk->wu.position_y = mwk->position_y;
+    ewk->wu.position_z = mwk->position_z;
+    ewk->wu.rl_flag = mwk->rl_flag;
+    ewk->wu.cg_flip = ewk->wu.overlap_char_tbl->parts_flip & 3;
+
+    if (ewk->wu.overlap_char_tbl->parts_flip & 4) {
+        ewk->wu.cg_flip ^= mwk->cg_flip;
+
+        if (mwk->cg_flip & 1) {
+            ewk->wu.rl_flag = (ewk->wu.rl_flag + 1) & 1;
+        }
+    }
+
+    if (ewk->wu.rl_flag) {
+        ewk->wu.position_x -= ewk->wu.overlap_char_tbl->parts_hos_x;
+    } else {
+        ewk->wu.position_x += ewk->wu.overlap_char_tbl->parts_hos_x;
+    }
+
+    ewk->wu.position_y += ewk->wu.overlap_char_tbl->parts_hos_y;
+
+    if (ewk->wu.overlap_char_tbl->parts_flip & 4 && mwk->cg_flip & 2) {
+        ewk->wu.position_y -= ewk->wu.overlap_char_tbl->parts_hos_y * 2;
+    }
+
+    if (ewk->wu.overlap_char_tbl->parts_prio == 2) {
+        ewk->wu.position_z -= (ewk->wu.type + 1) * 2;
+    } else {
+        ewk->wu.position_z += (ewk->wu.type + 1) * 2;
+    }
+}
+
+/* Hand the part to the renderer, inheriting the master's colour and its
+ * multi-tap slot unless the part carries its own. */
+static void push_part_for_display(WORK_Other* ewk, WORK* mwk) {
+    set_parts_disp_flag(ewk, (PLW*)mwk);
+
+    if (ewk->wu.overlap_char_tbl->parts_colcd == 0) {
+        ewk->wu.my_col_code = mwk->my_col_code;
+        ewk->wu.extra_col = mwk->extra_col;
+        ewk->wu.extra_col_2 = mwk->extra_col_2;
+    }
+
+    if (ewk->wu.overlap_char_tbl->parts_mts) {
+        ewk->wu.my_mts = 14;
+    } else {
+        ewk->wu.my_mts = mwk->my_mts;
+    }
+
+    sort_push_request(&ewk->wu);
+}
+
+/* Take the master's ROM type and blink timing, and start with no cel. */
+static void initialize_parts_effect(WORK_Other* ewk, WORK* mwk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.cgromtype = mwk->cgromtype;
+    ewk->wu.cg_number = ewk->wu.old_cgnum = 0;
+    ewk->wu.blink_timing = mwk->blink_timing;
+    ewk->wu.cg_olc.olc_ix[ewk->wu.type] = 0;
+}
+
+/* One frame of a live part. Every exit here ended the frame in the original -
+ * the early returns and the two `break`s alike, since nothing followed the
+ * switch. */
+static void update_parts_effect(WORK_Other* ewk, WORK* mwk) {
+    if (should_end_parts_effect(ewk, mwk)) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0]++;
+        return;
+    }
+
+    if (mwk->cg_olc.olc_ix[ewk->wu.type] == 0) {
+        ewk->wu.cg_olc.olc_ix[ewk->wu.type] = 0;
+        return;
+    }
+
+    if (game_is_active()) {
+        advance_parts_animation(ewk, mwk);
+
+        if (ewk->wu.cg_number == 0) {
+            return;
+        }
+
+        place_part_on_master(ewk, mwk);
+    }
+
+    if (ewk->wu.cg_number == 0) {
+        return;
+    }
+
+    push_part_for_display(ewk, mwk);
+}
+
 void effect_01_move(WORK_Other* ewk) {
     WORK* mwk = (WORK*)ewk->my_master;
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.cgromtype = mwk->cgromtype;
-        ewk->wu.cg_number = ewk->wu.old_cgnum = 0;
-        ewk->wu.blink_timing = mwk->blink_timing;
-        ewk->wu.cg_olc.olc_ix[ewk->wu.type] = 0;
-        return;
+        initialize_parts_effect(ewk, mwk);
+        break;
 
     case 1:
-        if (should_end_parts_effect(ewk, mwk)) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0]++;
-            return;
-        }
-
-        if (mwk->cg_olc.olc_ix[ewk->wu.type] == 0) {
-            ewk->wu.cg_olc.olc_ix[ewk->wu.type] = 0;
-            return;
-        }
-
-if (game_is_active()) {
-            if (ewk->wu.cg_olc.olc_ix[ewk->wu.type] != mwk->cg_olc.olc_ix[ewk->wu.type]) {
-                ewk->wu.cg_olc.olc_ix[ewk->wu.type] = ewk->wu.cg_ix = mwk->cg_olc.olc_ix[ewk->wu.type];
-                ewk->wu.now_koc = ewk->wu.cg_ix;
-
-                const s32 is_mirrored_primary_part =
-                    ewk->wu.type == 0 && ((PLW*)mwk)->player_number == 0 && mwk->rl_flag;
-
-                if (is_mirrored_primary_part) {
-                    ewk->wu.now_koc++;
-                }
-
-                get_new_parts_data(ewk, (PLW*)mwk);
-            } else if (((PLW*)mwk)->sa_stop_flag == 0) {
-                if (--ewk->wu.cg_ctr == 0) {
-                    if (ewk->wu.overlap_char_tbl->parts_nix) {
-                        ewk->wu.cg_ix = ewk->wu.overlap_char_tbl->parts_nix;
-                    } else {
-                        ewk->wu.cg_ix++;
-                    }
-
-                    ewk->wu.now_koc = ewk->wu.cg_ix;
-                    get_new_parts_data(ewk, (PLW*)mwk);
-                }
-            }
-
-            if (ewk->wu.cg_number == 0) {
-                break;
-            }
-
-            ewk->wu.position_x = mwk->position_x;
-            ewk->wu.position_y = mwk->position_y;
-            ewk->wu.position_z = mwk->position_z;
-            ewk->wu.rl_flag = mwk->rl_flag;
-            ewk->wu.cg_flip = ewk->wu.overlap_char_tbl->parts_flip & 3;
-
-            if (ewk->wu.overlap_char_tbl->parts_flip & 4) {
-                ewk->wu.cg_flip ^= mwk->cg_flip;
-
-                if (mwk->cg_flip & 1) {
-                    ewk->wu.rl_flag = (ewk->wu.rl_flag + 1) & 1;
-                }
-            }
-
-            if (ewk->wu.rl_flag) {
-                ewk->wu.position_x -= ewk->wu.overlap_char_tbl->parts_hos_x;
-            } else {
-                ewk->wu.position_x += ewk->wu.overlap_char_tbl->parts_hos_x;
-            }
-
-            ewk->wu.position_y += ewk->wu.overlap_char_tbl->parts_hos_y;
-
-            if (ewk->wu.overlap_char_tbl->parts_flip & 4 && mwk->cg_flip & 2) {
-                ewk->wu.position_y -= ewk->wu.overlap_char_tbl->parts_hos_y * 2;
-            }
-
-            if (ewk->wu.overlap_char_tbl->parts_prio == 2) {
-                ewk->wu.position_z -= (ewk->wu.type + 1) * 2;
-            } else {
-                ewk->wu.position_z += (ewk->wu.type + 1) * 2;
-            }
-        }
-
-        if (ewk->wu.cg_number == 0) {
-            break;
-        }
-
-        set_parts_disp_flag(ewk, (PLW*)mwk);
-
-        if (ewk->wu.overlap_char_tbl->parts_colcd == 0) {
-            ewk->wu.my_col_code = mwk->my_col_code;
-            ewk->wu.extra_col = mwk->extra_col;
-            ewk->wu.extra_col_2 = mwk->extra_col_2;
-        }
-
-        if (ewk->wu.overlap_char_tbl->parts_mts) {
-            ewk->wu.my_mts = 14;
-        } else {
-            ewk->wu.my_mts = mwk->my_mts;
-        }
-
-        sort_push_request(&ewk->wu);
+        update_parts_effect(ewk, mwk);
         break;
 
     case 2:
@@ -143,16 +184,9 @@ if (game_is_active()) {
     }
 }
 
-void get_new_parts_data(WORK_Other* ewk, PLW* mwk) {
-    ewk->wu.now_koc = ewk->wu.cg_ix;
-
-    if (ewk->wu.type == 0 && mwk->player_number == 0 && mwk->wu.rl_flag) {
-        ewk->wu.now_koc++;
-    }
-
-    ewk->wu.overlap_char_tbl = mwk->wu.overlap_char_tbl + ewk->wu.now_koc;
-    ewk->wu.cg_ctr = ewk->wu.overlap_char_tbl->parts_timer;
-
+/* Colour mode: mode 1 follows the master's opponent, any other non-zero mode
+ * comes from the table, and zero inherits the master's own. */
+static void apply_parts_colour_mode(WORK_Other* ewk, PLW* mwk) {
     if (ewk->wu.overlap_char_tbl->parts_colmd) {
         if (ewk->wu.overlap_char_tbl->parts_colmd == 1) {
             ewk->wu.my_col_mode = ((WORK*)mwk->wu.target_adrs)->my_col_mode;
@@ -162,7 +196,15 @@ void get_new_parts_data(WORK_Other* ewk, PLW* mwk) {
     } else {
         ewk->wu.my_col_mode = mwk->wu.my_col_mode;
     }
+}
 
+/* Colour code: a part with its own code takes it from the table and adds the
+ * master's unless bit 0x2000 is set; otherwise it inherits the master's code
+ * and extra colours.
+ *
+ * NOTE: the inherit path assigns my_col_code twice. Preserved as found; see
+ * AGENTS.md on arcade-accurate oddities. */
+static void apply_parts_colour_code(WORK_Other* ewk, PLW* mwk) {
     if (ewk->wu.overlap_char_tbl->parts_colcd) {
         ewk->wu.extra_col = 0;
         ewk->wu.extra_col_2 = 0;
@@ -177,6 +219,20 @@ void get_new_parts_data(WORK_Other* ewk, PLW* mwk) {
         ewk->wu.extra_col = mwk->wu.extra_col;
         ewk->wu.extra_col_2 = mwk->wu.extra_col_2;
     }
+}
+
+void get_new_parts_data(WORK_Other* ewk, PLW* mwk) {
+    ewk->wu.now_koc = ewk->wu.cg_ix;
+
+    if (is_mirrored_primary_part(ewk, mwk)) {
+        ewk->wu.now_koc++;
+    }
+
+    ewk->wu.overlap_char_tbl = mwk->wu.overlap_char_tbl + ewk->wu.now_koc;
+    ewk->wu.cg_ctr = ewk->wu.overlap_char_tbl->parts_timer;
+
+    apply_parts_colour_mode(ewk, mwk);
+    apply_parts_colour_code(ewk, mwk);
 
     ewk->wu.cg_number = ewk->wu.overlap_char_tbl->parts_char;
 }

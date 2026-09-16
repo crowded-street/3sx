@@ -203,32 +203,43 @@ s32 effect_C9_init(PLW* arg0, u8 data) {
     return 0;
 }
 
-void setup_EJG_index() {
-    s16 i;
-    s16 gra;
-
+/* How far apart the two judges' grades are, whichever way round they fall. */
+static s16 ejg_grade_gap(void) {
     if (judge_gals[0].grade < judge_gals[1].grade) {
-        gra = judge_gals[1].grade - judge_gals[0].grade;
-    } else {
-        gra = judge_gals[0].grade - judge_gals[1].grade;
+        return judge_gals[1].grade - judge_gals[0].grade;
     }
 
-    if (gra > 5) {
+    return judge_gals[0].grade - judge_gals[1].grade;
+}
+
+/* A one-sided decision: every judge shows the same gal, terminated by 0xFF.
+ * Only which gal differs between the two winners. */
+static void set_ejg_all(s16 gal) {
+    EJG_index[0] = gal;
+    EJG_index[1] = gal;
+    EJG_index[2] = gal;
+    EJG_index[3] = 0xFF;
+}
+
+/* The close-grades case: each judge takes its gal from the table, which
+ * alternates on the game timer. */
+static void set_ejg_from_table(void) {
+    s16 i;
+
+    for (i = 0; i < 4; i++) {
+        EJG_index[i] = sel_ejg_ix_table[Winner_id][Game_timer & 1][i];
+    }
+}
+
+void setup_EJG_index() {
+    if (ejg_grade_gap() > 5) {
         if (Winner_id) {
-            EJG_index[0] = 1;
-            EJG_index[1] = 1;
-            EJG_index[2] = 1;
-            EJG_index[3] = 0xFF;
+            set_ejg_all(1);
         } else {
-            EJG_index[0] = 0;
-            EJG_index[1] = 0;
-            EJG_index[2] = 0;
-            EJG_index[3] = 0xFF;
+            set_ejg_all(0);
         }
     } else {
-        for (i = 0; i < 4; i++) {
-            EJG_index[i] = sel_ejg_ix_table[Winner_id][Game_timer & 1][i];
-        }
+        set_ejg_from_table();
     }
 }
 

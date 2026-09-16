@@ -25,59 +25,68 @@ s16 old_mes_no3;
 s16 old_mes_no_pl;
 s16 mes_timer;
 
+static void effb8_wait(WORK_Other_CONN* ewk) {
+    ewk->wu.my_mts = 12;
+    mes_timer = mes_timer - 1;
+
+    if (--mes_timer > 0) {
+        return;
+    }
+
+    ewk->wu.routine_no[0]++;
+    get_message_conn_data(ewk, 0, ewk->master_player, mes_already);
+    ewk->wu.disp_flag = 1;
+    ewk->wu.vitality = 240;
+    mes_timer = 55;
+    ewk->wu.mvxy.a[0].sp = -0x100000;
+    ewk->wu.mvxy.d[0].sp = 0;
+    ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos - 152;
+    ewk->wu.mvxy.a[0].sp = -0x100000;
+    ewk->wu.mvxy.d[0].sp = 0;
+}
+
+static void effb8_slide_in(WORK_Other_CONN* ewk) {
+    if (Suicide[2] == 1) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0] = 3;
+        return;
+    }
+
+    ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
+    ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
+
+    if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
+        ewk->wu.routine_no[0] = 2;
+        ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
+    }
+
+    ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
+    ewk->wu.cg_number++;
+    ewk->wu.cg_number &= 0x7FFF;
+    sort_push_request3(&ewk->wu);
+}
+
+static void effb8_hold(WORK_Other_CONN* ewk) {
+    if (Suicide[2] == 1) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0]++;
+        return;
+    }
+
+    sort_push_request3(&ewk->wu);
+}
+
 void effect_B8_move(WORK_Other_CONN* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.my_mts = 12;
-        mes_timer = mes_timer - 1;
-
-        if (--mes_timer > 0) {
-            break;
-        }
-
-        ewk->wu.routine_no[0]++;
-        get_message_conn_data(ewk, 0, ewk->master_player, mes_already);
-        ewk->wu.disp_flag = 1;
-        ewk->wu.vitality = 240;
-        mes_timer = 55;
-        ewk->wu.mvxy.a[0].sp = -0x100000;
-        ewk->wu.mvxy.d[0].sp = 0;
-        ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos - 152;
-        ewk->wu.mvxy.a[0].sp = -0x100000;
-        ewk->wu.mvxy.d[0].sp = 0;
+        effb8_wait(ewk);
         break;
-
     case 1:
-        if (Suicide[2] == 1) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0] = 3;
-            break;
-        }
-
-        ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
-        ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
-
-        if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
-            ewk->wu.routine_no[0] = 2;
-            ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
-        }
-
-        ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
-        ewk->wu.cg_number++;
-        ewk->wu.cg_number &= 0x7FFF;
-        sort_push_request3(&ewk->wu);
+        effb8_slide_in(ewk);
         break;
-
     case 2:
-        if (Suicide[2] == 1) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0]++;
-            break;
-        }
-
-        sort_push_request3(&ewk->wu);
+        effb8_hold(ewk);
         break;
-
     case 3:
         ewk->wu.routine_no[0]++;
         break;

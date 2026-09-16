@@ -21,6 +21,30 @@ static s32 can_update_effect(void) {
     return !EXE_flag && !Game_pause && !EXE_obroll;
 }
 
+static void effj6_spawn(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.disp_flag = 1;
+
+    if (eff_hit_flag[ewk->wu.type]) {
+        ewk->wu.routine_no[0] = 4;
+        set_char_move_init(&ewk->wu, 0, 3);
+    } else {
+        set_char_move_init(&ewk->wu, 0, 4);
+    }
+}
+
+static void effj6_wait_master(WORK_Other* ewk, const WORK_Other* oya_ptr) {
+    if (oya_ptr->wu.routine_no[0] >= 2) {
+        ewk->wu.routine_no[0]++;
+    }
+}
+
+static void effj6_hit(WORK_Other* ewk) {
+    if (can_update_effect()) {
+        effect_j6_hit_sub(ewk);
+    }
+}
+
 void effect_J6_move(WORK_Other* ewk) {
     WORK_Other* oya_ptr;
 
@@ -32,31 +56,16 @@ void effect_J6_move(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.disp_flag = 1;
-
-        if (eff_hit_flag[ewk->wu.type]) {
-            ewk->wu.routine_no[0] = 4;
-            set_char_move_init(&ewk->wu, 0, 3);
-        } else {
-            set_char_move_init(&ewk->wu, 0, 4);
-        }
-
+        effj6_spawn(ewk);
         break;
 
     case 1:
-        if (oya_ptr->wu.routine_no[0] >= 2) {
-            ewk->wu.routine_no[0]++;
-        }
-
+        effj6_wait_master(ewk, oya_ptr);
         disp_pos_trans_entry_r(ewk);
         break;
 
     case 2:
-        if (can_update_effect()) {
-            effect_j6_hit_sub(ewk);
-        }
-
+        effj6_hit(ewk);
         disp_pos_trans_entry_r(ewk);
         break;
 
