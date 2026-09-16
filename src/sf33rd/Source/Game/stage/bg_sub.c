@@ -614,10 +614,23 @@ void scr_12_22() {
     x_right_check(meri);
 }
 
+static void classify_screen_positions(s16 work[2], s8 st[2]) {
+    s8 i;
+
+    for (i = 0; i < 2; i++) {
+        if (0 <= work[i] && work[i] < 0x40) {
+            st[i] = 1;
+        } else if (work[i] >= 0x140 && work[i] < 0x180) {
+            st[i] = 2;
+        } else {
+            st[i] = 0;
+        }
+    }
+}
+
 void bg_base_x_move_sub() {
     s16 work[2];
     s8 st[2];
-    s8 i;
     s16 bg_pos;
 
     bg_pos = ideal_w.iw[0].disp.pos - bg_w.pos_offset;
@@ -650,15 +663,7 @@ void bg_base_x_move_sub() {
         work[1] = 0x17F;
     }
 
-    for (i = 0; i < 2; i++) {
-        if (0 <= work[i] && work[i] < 0x40) {
-            st[i] = 1;
-        } else if (work[i] >= 0x140 && work[i] < 0x180) {
-            st[i] = 2;
-        } else {
-            st[i] = 0;
-        }
-    }
+    classify_screen_positions(work, st);
 
     scr_x_mv_jp[(st[0] << 4) + st[1]]();
 }
