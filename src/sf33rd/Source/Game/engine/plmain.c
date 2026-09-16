@@ -739,6 +739,24 @@ static void update_super_art_ready(PLW* wk) {
     }
 }
 
+/* State 2 of the plainest super-art machine: spend the stock, or give the state
+ * up because the art never started. */
+static void spend_or_abandon_super_art(PLW* wk) {
+    if (wk->sa->saeff_ok == -1) {
+        if (!pcon_dp_flag) {
+            wk->sa->store -= 1;
+        }
+
+        wk->sa->saeff_ok = 0;
+        wk->sa->sa_rno = 0;
+        wk->sa->ok = 0;
+    } else if ((wk->sa->saeff_ok != 1) || (wk->wu.routine_no[1] != 4)) {
+        wk->sa->saeff_ok = 0;
+        wk->sa->sa_rno = 0;
+        wk->sa->ok = 0;
+    }
+}
+
 void sag_union_0(PLW* wk) { // 🟢
     switch (wk->sa->sa_rno) {
     case 0:
@@ -750,20 +768,7 @@ void sag_union_0(PLW* wk) { // 🟢
         break;
 
     case 2:
-        if (wk->sa->saeff_ok == -1) {
-            if (!pcon_dp_flag) {
-                wk->sa->store -= 1;
-            }
-
-            wk->sa->saeff_ok = 0;
-            wk->sa->sa_rno = 0;
-            wk->sa->ok = 0;
-        } else if ((wk->sa->saeff_ok != 1) || (wk->wu.routine_no[1] != 4)) {
-            wk->sa->saeff_ok = 0;
-            wk->sa->sa_rno = 0;
-            wk->sa->ok = 0;
-        }
-
+        spend_or_abandon_super_art(wk);
         break;
 
     default:
@@ -856,6 +861,22 @@ void sag_union_1(PLW* wk) { // 🟢
     }
 }
 
+/* State 2 of the gauge-emptying machine. Not shared with
+ * spend_or_abandon_super_art: this one also clears the gauge and moves to
+ * state 3 rather than 0, and its abandon test is one term shorter. */
+static void spend_or_abandon_gauge_art(PLW* wk) {
+    if (wk->sa->saeff_ok == -1) {
+        wk->sa->store = wk->sa->store + -1;
+        wk->sa->gauge.i = 0;
+        wk->sa->saeff_ok = 0;
+        wk->sa->sa_rno = 3;
+    } else if (wk->sa->saeff_ok != 1) {
+        wk->sa->saeff_ok = 0;
+        wk->sa->sa_rno = 0;
+        wk->sa->ok = 0;
+    }
+}
+
 void sag_union_3(PLW* wk) { // 🟢
     switch (wk->sa->sa_rno) {
     case 0:
@@ -872,17 +893,7 @@ void sag_union_3(PLW* wk) { // 🟢
         break;
 
     case 2:
-        if (wk->sa->saeff_ok == -1) {
-            wk->sa->store = wk->sa->store + -1;
-            wk->sa->gauge.i = 0;
-            wk->sa->saeff_ok = 0;
-            wk->sa->sa_rno = 3;
-        } else if (wk->sa->saeff_ok != 1) {
-            wk->sa->saeff_ok = 0;
-            wk->sa->sa_rno = 0;
-            wk->sa->ok = 0;
-        }
-
+        spend_or_abandon_gauge_art(wk);
         break;
 
     case 3:
