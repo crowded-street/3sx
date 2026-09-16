@@ -40,6 +40,15 @@ void addSAAttribute(u8* kow, u16* koa);
 void check_omop_vital(PLW* wk);
 s16 select_hit_stop(s16 ms, s16 sb);
 
+static s32 zuru_timer_is_running(const PLW* wk) {
+    return Timer_Freeze == 0 && wk->wu.hit_stop == 0 && wk->zuru_timer > 0;
+}
+
+static s32 only_this_player_is_moving(const PLW* wk, const WORK* emwk) {
+    return (wk->wu.routine_no[3] == 0) && ((wk->wu.routine_no[1] == 1) || (wk->wu.routine_no[1] == 3)) &&
+           (emwk->routine_no[1] != 1) && (emwk->routine_no[1] != 3);
+}
+
 void Player_move(PLW* wk, u16 lv_data) { // 🟡
     // CPS3 has a pre-recorded replay path here, but it seems to be unreachable from normal gameplay, so it's omitted.
     s16 i;
@@ -325,7 +334,7 @@ void player_mv_4000(PLW* wk) { // 🟡
     if (!check_hit_stop(wk)) {
         plmain_lv_02[wk->wu.routine_no[1]](wk);
 
-        if (Timer_Freeze == 0 && wk->wu.hit_stop == 0 && wk->zuru_timer > 0) {
+        if (zuru_timer_is_running(wk)) {
             wk->zuru_timer -= 2;
         }
 
@@ -385,8 +394,7 @@ s16 check_hit_stop(PLW* wk) { // 🟢
             char_move(&wk->wu);
         }
 
-        if ((wk->wu.routine_no[3] == 0) && ((wk->wu.routine_no[1] == 1) || (wk->wu.routine_no[1] == 3)) &&
-            (emwk->routine_no[1] != 1) && (emwk->routine_no[1] != 3)) {
+        if (only_this_player_is_moving(wk, emwk)) {
             num = 0;
         }
 

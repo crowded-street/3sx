@@ -143,6 +143,16 @@ const s16 grade_t_table[32][2] = { { 0, 20 },       { 75, 20 },     { 150, 20 },
                                    { 1750, 3000 },  { 1800, 4000 }, { 1850, 5000 }, { 1900, 6000 }, { 1940, 8000 },
                                    { 1980, 10000 }, { 2020, 20000 } };
 
+static s32 round_is_cpu_controlled(s16 ix) {
+    return (Mode_Type != MODE_REPLAY) && (Mode_Type != MODE_VERSUS) && (Round_Operator[ix] == 0);
+}
+
+static s32 guard_was_not_deliberate(WORK* as, PLW* ds, s8 gddir) {
+    return (ds->guard_flag != 3) && (as->att.guard & 0x3F) && (ds->wu.xyz[1].disp.pos < 2) &&
+           (as->work_id != 1 || !as->jump_att_flag || !(ds->cp->sw_new & 0xF)) && (!(ds->cp->sw_new & 1)) &&
+           (!(ds->saishin_lvdir & gddir)) && ((ds->cp->waza_flag[3] + ds->cp->waza_flag[4]) == 0);
+}
+
 void grade_check_work_1st_init(s16 ix, s16 ix2) {
     s16 i;
 
@@ -437,7 +447,7 @@ void grade_makeup_stage_parameter(s16 ix) {
     s16 bs;
     s16 qc;
 
-    if ((Mode_Type != MODE_REPLAY) && (Mode_Type != MODE_VERSUS) && (Round_Operator[ix] == 0)) {
+    if (round_is_cpu_controlled(ix)) {
         grade_makeup_stage_para_com(ix);
         return;
     }
@@ -1218,9 +1228,7 @@ void check_guard_miss(WORK* as, PLW* ds, s8 gddir) {
 
     judge_item[ds->wu.id][Play_Type].grd_mcnt++;
 
-    if ((ds->guard_flag != 3) && (as->att.guard & 0x3F) && (ds->wu.xyz[1].disp.pos < 2) &&
-        (as->work_id != 1 || !as->jump_att_flag || !(ds->cp->sw_new & 0xF)) && (!(ds->cp->sw_new & 1)) &&
-        (!(ds->saishin_lvdir & gddir)) && ((ds->cp->waza_flag[3] + ds->cp->waza_flag[4]) == 0)) {
+    if (guard_was_not_deliberate(as, ds, gddir)) {
         return;
     }
 
