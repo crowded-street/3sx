@@ -472,25 +472,45 @@ s32 check_be_car_object() {
     return ((PLW*)com->wu.my_effadrs)->wu.be_flag != 0;
 }
 
+/* The three velocity pairings hoseishitemo_eenka tests. a[0] is the horizontal
+ * component and a[1] the vertical, so these say "rising while moving one way"
+ * and so on; the signs are the original's, not an interpretation of them. */
+static s32 rising_while_x_negative(const WORK* wk) {
+    return wk->mvxy.a[1].real.h > 0 && wk->mvxy.a[0].real.h < 0;
+}
+
+static s32 falling_while_x_positive(const WORK* wk) {
+    return wk->mvxy.a[1].real.h < 0 && wk->mvxy.a[0].real.h > 0;
+}
+
+static s32 rising_while_x_positive(const WORK* wk) {
+    return wk->mvxy.a[1].real.h > 0 && wk->mvxy.a[0].real.h > 0;
+}
+
+/* Above the bonus-stage floor, or on the way down. */
+static s32 clear_of_floor_or_falling(WORK* wk) {
+    return wk->cg_jphos + cal_top_of_position_y(wk) > bs2_floor[2] || wk->mvxy.a[1].real.h < 0;
+}
+
 s16 hoseishitemo_eenka(WORK* wk, s16 tx) {
     s16 rnum = 0;
 
-    if (wk->cg_jphos + cal_top_of_position_y(wk) > bs2_floor[2] || wk->mvxy.a[1].real.h < 0) {
+    if (clear_of_floor_or_falling(wk)) {
         switch ((wk->xyz[0].disp.pos < tx) + (wk->rl_flag != 0) * 2) {
         case 1:
         case 2:
-            if (wk->mvxy.a[1].real.h > 0 && wk->mvxy.a[0].real.h < 0) {
+            if (rising_while_x_negative(wk)) {
                 rnum = 1;
             }
 
-            if (wk->mvxy.a[1].real.h < 0 && wk->mvxy.a[0].real.h > 0) {
+            if (falling_while_x_positive(wk)) {
                 rnum = 1;
             }
 
             break;
 
         default:
-            if (wk->mvxy.a[1].real.h > 0 && wk->mvxy.a[0].real.h > 0) {
+            if (rising_while_x_positive(wk)) {
                 rnum = 1;
             }
         }
