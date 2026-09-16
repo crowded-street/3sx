@@ -552,34 +552,29 @@ s32 comm_smhf(WORK* wk, UNK11* ctc) {
     return 1;
 }
 
-s32 comm_ngme(WORK* wk, UNK11* /* unused */) {
+/* comm_ngme and comm_ngem throw the work they hit into the same routine, one
+ * with its second number 1 and the other 2. */
+static s32 throw_hit_work(WORK* wk, s32 kind) {
     WORK* emwk;
 
     emwk = (WORK*)wk->hit_adrs;
     emwk->routine_no[1] = 3;
-    emwk->routine_no[2] = 1;
+    emwk->routine_no[2] = kind;
     emwk->routine_no[3] = 1;
 
     if (test_flag) {
-        wk->cmyd.pat = 1;
+        wk->cmyd.pat = kind;
     }
 
     return 1;
 }
 
+s32 comm_ngme(WORK* wk, UNK11* /* unused */) {
+    return throw_hit_work(wk, 1);
+}
+
 s32 comm_ngem(WORK* wk, UNK11* /* unused */) {
-    WORK* emwk;
-
-    emwk = (WORK*)wk->hit_adrs;
-    emwk->routine_no[1] = 3;
-    emwk->routine_no[2] = 2;
-    emwk->routine_no[3] = 1;
-
-    if (test_flag) {
-        wk->cmyd.pat = 2;
-    }
-
-    return 1;
+    return throw_hit_work(wk, 2);
 }
 
 s32 comm_iflb(WORK* wk, UNK11* ctc) {
