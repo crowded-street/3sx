@@ -1240,10 +1240,22 @@ static void draw_later_special_stage(u8 bgnm, s32 xx[2], s32 yy[2], s32 global_i
     }
 }
 
-static s32 draw_early_special_stage(u8 bgnm, s32 xx[2], s32 yy[2], s32 global_index, s32 palOffset,
-                                    PPGDataList* curDataList) {
+static s32 draw_and_advance_judgment_stage(u8 bgnm, s32* xx, s32* yy, s32 global_index, s32 palOffset,
+                                           PPGDataList* curDataList) {
     u32 vtxColor;
 
+    if (judge_flag == 1 && bgnm == 1) {
+        vtxColor = 0xFFA0A0A0;
+    } else {
+        vtxColor = 0xFFFFFFFF;
+    }
+
+    draw_stage02_tiles(bgnm, xx, yy, global_index, vtxColor, palOffset, curDataList);
+    return advance_stage02_state(bgnm);
+}
+
+static s32 draw_early_special_stage(u8 bgnm, s32 xx[2], s32 yy[2], s32 global_index, s32 palOffset,
+                                    PPGDataList* curDataList) {
     switch (tokusyu_stage) {
     case 1:
         draw_stage03_tiles(bgnm, xx, yy, global_index, palOffset, curDataList);
@@ -1254,15 +1266,7 @@ static s32 draw_early_special_stage(u8 bgnm, s32 xx[2], s32 yy[2], s32 global_in
         break;
 
     case 2:
-        if (judge_flag == 1 && bgnm == 1) {
-            vtxColor = 0xFFA0A0A0;
-        } else {
-            vtxColor = 0xFFFFFFFF;
-        }
-
-        draw_stage02_tiles(bgnm, xx, yy, global_index, vtxColor, palOffset, curDataList);
-
-        if (advance_stage02_state(bgnm)) {
+        if (draw_and_advance_judgment_stage(bgnm, xx, yy, global_index, palOffset, curDataList)) {
             return 1;
         }
         break;
