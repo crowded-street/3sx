@@ -497,6 +497,126 @@ static void advance_combo_write_index(s8 PL, s8 stock_capacity) {
     }
 }
 
+/* The display queue is full, so this combo's score is awarded at once rather
+ * than queued for the animation to pay out. */
+/* The score a combo is worth when the queue is full, by record kind. */
+static u32 full_queue_score(s8 PLS, s8 KIND, u32 score) {
+    switch (KIND) {
+    case 2:
+        if (sa_kind == 2) {
+            score += 20000;
+        } else {
+            score += 30000;
+        }
+        break;
+
+    case 3:
+        if (sa_kind == 2) {
+            score = 20000;
+        } else {
+            score = 30000;
+        }
+        break;
+
+    case 4:
+        score = 1500;
+        grade_get_first_attack(PLS);
+        break;
+
+    case 6:
+        score = paring_counter[PLS] * 100;
+        break;
+    }
+
+    return score;
+}
+
+static void award_score_without_queueing(s8 PL, s8 PLS, s8 KIND, u32 score) {
+    score = full_queue_score(PLS, KIND, score);
+
+    if (score >= 1000000) {
+        score = 999900;
+    }
+
+    SCORE_PLUS(PLS, score);
+
+    if (versus_rules_apply(PLS)) {
+        Score_Sub();
+    }
+
+    return;
+}
+
+/* Queue the record for the window animation to draw and pay out. */
+/* The score a queued combo record is worth, by record kind. Not shared with
+ * full_queue_score: this one has two extra arms, and its kind 5 also clears the
+ * record's pts_flag, so it touches state the other does not. */
+static u32 queued_record_score(s8 PL, s8 PLS, s8 KIND, u32 score) {
+    switch (KIND) {
+    case 0:
+    case 1:
+        break;
+
+    case 2:
+        if (sa_kind == 2) {
+            score += 20000;
+        } else {
+            score += 30000;
+        }
+        break;
+
+    case 3:
+        if (sa_kind == 2) {
+            score = 20000;
+        } else {
+            score = 30000;
+        }
+        break;
+
+    case 4:
+        score = 1500;
+        grade_get_first_attack(PLS);
+        break;
+
+    case 5:
+        score = 0;
+        cmst_buff[PL][cst_write[PL]].pts_flag = 0;
+        break;
+
+    case 6:
+        score = paring_counter[PLS] * 100;
+        break;
+    }
+
+    return score;
+}
+
+static void queue_combo_record(s8 PL, s8 PLS, s8 KIND, u32 score, s8 stock_capacity) {
+    cmb_stock[PL]++;
+    cmst_buff[PL][cst_write[PL]].routine_num = 0;
+    cmst_buff[PL][cst_write[PL]].hit_hi = (u8)hit_num / 10;
+    cmst_buff[PL][cst_write[PL]].hit_low = (u8)hit_num - (cmst_buff[PL][cst_write[PL]].hit_hi * 10);
+    cmst_buff[PL][cst_write[PL]].kind = KIND;
+
+    if (ArcadeBalance_IsEnabled()) {
+        // CPS3 ties delayed score display only to the opposing operator.
+        cmst_buff[PL][cst_write[PL]].pts_flag = plw[PLS].wu.operator != 0;
+    } else if (score_is_shown_immediately(PLS)) {
+        cmst_buff[PL][cst_write[PL]].pts_flag = 1;
+    } else {
+        cmst_buff[PL][cst_write[PL]].pts_flag = 0;
+    }
+
+    score = queued_record_score(PL, PLS, KIND, score);
+
+    if (score >= 1000000) {
+        score = 999900;
+    }
+
+    write_score_digits(PL, score);
+    advance_combo_write_index(PL, stock_capacity);
+}
+
 void combo_window_push(s8 PL, s8 KIND) { // 🟡
     u32 score;
     s8 PLS;
@@ -516,103 +636,11 @@ void combo_window_push(s8 PL, s8 KIND) { // 🟡
     const s8 stock_capacity = ArcadeBalance_IsEnabled() ? 4 : 5;
 
     if (cmb_stock[PL] == stock_capacity) {
-        switch (KIND) {
-        case 2:
-            if (sa_kind == 2) {
-                score += 20000;
-            } else {
-                score += 30000;
-            }
-            break;
-
-        case 3:
-            if (sa_kind == 2) {
-                score = 20000;
-            } else {
-                score = 30000;
-            }
-            break;
-
-        case 4:
-            score = 1500;
-            grade_get_first_attack(PLS);
-            break;
-
-        case 6:
-            score = paring_counter[PLS] * 100;
-            break;
-        }
-
-        if (score >= 1000000) {
-            score = 999900;
-        }
-
-        SCORE_PLUS(PLS, score);
-
-        if (versus_rules_apply(PLS)) {
-            Score_Sub();
-        }
-
+        award_score_without_queueing(PL, PLS, KIND, score);
         return;
-    } else {
-        cmb_stock[PL]++;
-        cmst_buff[PL][cst_write[PL]].routine_num = 0;
-        cmst_buff[PL][cst_write[PL]].hit_hi = (u8)hit_num / 10;
-        cmst_buff[PL][cst_write[PL]].hit_low = (u8)hit_num - (cmst_buff[PL][cst_write[PL]].hit_hi * 10);
-        cmst_buff[PL][cst_write[PL]].kind = KIND;
-
-        if (ArcadeBalance_IsEnabled()) {
-            // CPS3 ties delayed score display only to the opposing operator.
-            cmst_buff[PL][cst_write[PL]].pts_flag = plw[PLS].wu.operator != 0;
-        } else if (score_is_shown_immediately(PLS)) {
-            cmst_buff[PL][cst_write[PL]].pts_flag = 1;
-        } else {
-            cmst_buff[PL][cst_write[PL]].pts_flag = 0;
-        }
-
-        switch (KIND) {
-        case 0:
-        case 1:
-            break;
-
-        case 2:
-            if (sa_kind == 2) {
-                score += 20000;
-            } else {
-                score += 30000;
-            }
-            break;
-
-        case 3:
-            if (sa_kind == 2) {
-                score = 20000;
-            } else {
-                score = 30000;
-            }
-            break;
-
-        case 4:
-            score = 1500;
-            grade_get_first_attack(PLS);
-            break;
-
-        case 5:
-            score = 0;
-            cmst_buff[PL][cst_write[PL]].pts_flag = 0;
-            break;
-
-        case 6:
-            score = paring_counter[PLS] * 100;
-            break;
-        }
-
-        if (score >= 1000000) {
-            score = 999900;
-        }
-
-        write_score_digits(PL, score);
-        advance_combo_write_index(PL, stock_capacity);
     }
+
+    queue_combo_record(PL, PLS, KIND, score, stock_capacity);
 }
 
 /* Animating one queued combo record that shows a score: the message slides in,
