@@ -25,42 +25,49 @@ static s32 i9_timer_expired(WORK_Other* ewk, const PLW* mwk) {
     return !EXE_flag && !Game_pause && mwk->wu.hit_stop <= 0 && --ewk->wu.dir_timer == 0;
 }
 
+static void effi9_spawn(WORK_Other* ewk, WORK_Other* mwk, ImageBuff* image_buff) {
+    s16 i;
+
+    ewk->wu.routine_no[0]++;
+    init_image_buff(mwk, image_buff);
+    push_image_buff(mwk, image_buff);
+
+    for (i = ewk->wu.dmcal_d; i > 0; i--) {
+        effect_J0_init(ewk, mwk, i * ewk->wu.dmcal_m);
+    }
+}
+
+static void effi9_track(WORK_Other* ewk, WORK_Other* mwk, ImageBuff* image_buff) {
+    push_image_buff(mwk, image_buff);
+
+    if (ewk->wu.dead_f == 1) {
+        ewk->wu.routine_no[0]++;
+        return;
+    }
+
+    if (master_effect_has_finished(mwk)) {
+        ewk->wu.routine_no[0] = 2;
+        ewk->wu.disp_flag = 0;
+        return;
+    }
+
+    if (i9_timer_expired(ewk, mwk)) {
+        ewk->wu.routine_no[0] = 2;
+    }
+}
+
 void effect_I9_move(WORK_Other* ewk) {
     WORK* sub_w = (WORK*)ewk->wu.target_adrs;
     ImageBuff* image_buff = (ImageBuff*)(sub_w->routine_no);
     WORK_Other* mwk = (WORK_Other*)ewk->my_master;
-    s16 i;
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        init_image_buff(mwk, image_buff);
-        push_image_buff(mwk, image_buff);
-
-        for (i = ewk->wu.dmcal_d; i > 0; i--) {
-            effect_J0_init(ewk, mwk, i * ewk->wu.dmcal_m);
-        }
-
+        effi9_spawn(ewk, mwk, image_buff);
         break;
 
     case 1:
-        push_image_buff(mwk, image_buff);
-
-        if (ewk->wu.dead_f == 1) {
-            ewk->wu.routine_no[0]++;
-            break;
-        }
-
-        if (master_effect_has_finished(mwk)) {
-            ewk->wu.routine_no[0] = 2;
-            ewk->wu.disp_flag = 0;
-            break;
-        }
-
-        if (i9_timer_expired(ewk, mwk)) {
-            ewk->wu.routine_no[0] = 2;
-        }
-
+        effi9_track(ewk, mwk, image_buff);
         break;
 
     case 2:
