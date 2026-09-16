@@ -630,72 +630,48 @@ s32 comm_ccch(WORK* wk, UNK11* ctc) {
     return 1;
 }
 
-s32 comm_wset(WORK* wk, UNK11* ctc) {
+/* comm_wset and comm_wswk run the same seven operations on a command work
+ * register; they differ only in where the right-hand operand comes from. */
+static s32 apply_cmwk_op(WORK* wk, UNK11* ctc, s16 operand) {
     switch (ctc->ix) {
     default:
-        wk->cmwk[ctc->koc & 0xF] = ctc->pat;
+        wk->cmwk[ctc->koc & 0xF] = operand;
         break;
 
     case 1:
-        wk->cmwk[ctc->koc & 0xF] &= ctc->pat;
+        wk->cmwk[ctc->koc & 0xF] &= operand;
         break;
 
     case 2:
-        wk->cmwk[ctc->koc & 0xF] |= ctc->pat;
+        wk->cmwk[ctc->koc & 0xF] |= operand;
         break;
 
     case 3:
-        wk->cmwk[ctc->koc & 0xF] += ctc->pat;
+        wk->cmwk[ctc->koc & 0xF] += operand;
         break;
 
     case 4:
-        wk->cmwk[ctc->koc & 0xF] -= ctc->pat;
+        wk->cmwk[ctc->koc & 0xF] -= operand;
         break;
 
     case 5:
-        wk->cmwk[ctc->koc & 0xF] *= ctc->pat;
+        wk->cmwk[ctc->koc & 0xF] *= operand;
         break;
 
     case 6:
-        wk->cmwk[ctc->koc & 0xF] /= ctc->pat;
+        wk->cmwk[ctc->koc & 0xF] /= operand;
         break;
     }
 
     return 1;
 }
 
+s32 comm_wset(WORK* wk, UNK11* ctc) {
+    return apply_cmwk_op(wk, ctc, ctc->pat);
+}
+
 s32 comm_wswk(WORK* wk, UNK11* ctc) {
-    switch (ctc->ix) {
-    default:
-        wk->cmwk[ctc->koc & 0xF] = wk->cmwk[ctc->pat & 0xF];
-        break;
-
-    case 1:
-        wk->cmwk[ctc->koc & 0xF] &= wk->cmwk[ctc->pat & 0xF];
-        break;
-
-    case 2:
-        wk->cmwk[ctc->koc & 0xF] |= wk->cmwk[ctc->pat & 0xF];
-        break;
-
-    case 3:
-        wk->cmwk[ctc->koc & 0xF] += wk->cmwk[ctc->pat & 0xF];
-        break;
-
-    case 4:
-        wk->cmwk[ctc->koc & 0xF] -= wk->cmwk[ctc->pat & 0xF];
-        break;
-
-    case 5:
-        wk->cmwk[ctc->koc & 0xF] *= wk->cmwk[ctc->pat & 0xF];
-        break;
-
-    case 6:
-        wk->cmwk[ctc->koc & 0xF] /= wk->cmwk[ctc->pat & 0xF];
-        break;
-    }
-
-    return 1;
+    return apply_cmwk_op(wk, ctc, wk->cmwk[ctc->pat & 0xF]);
 }
 
 s32 comm_wadd(WORK* wk, UNK11* ctc) {
