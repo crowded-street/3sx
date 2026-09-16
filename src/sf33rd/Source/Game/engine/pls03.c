@@ -1659,74 +1659,59 @@ static s32 meoshi_lever_matches(const PLW* wk, s16 tdat, s16 wdat) {
     return 0;
 }
 
-s32 check_meoshi_cancel(PLW* wk) { // 🟢
-    s16 i;
+/* Outcome of the meoshi cancel gates:
+ *   0 - no cancel
+ *   1 - cancel, and set up the next attack
+ *   2 - cancel as a target-combo continuation
+ */
+static s32 meoshi_cancel_gate(PLW* wk) {
     s16 tdat;
     s16 wdat;
 
-    wk->permited_koa |= 0x10;
-
-    if (wk->wu.meoshi_hit_flag == 0) {
-        return 0;
-    }
-
-    tdat = wk->wu.cg_meoshi & 0x8F;
-
-    switch (tdat) {
-    default:
-        wdat = cnmc_conv_data[wk->cp->sw_new & 0xF];
-        tdat &= 0xF;
-
-        if (!meoshi_lever_matches(wk, tdat, wdat)) {
-            return 0;
-        }
-
-        /* fallthrough */
-
-    case 0:
-        if ((tdat = wk->wu.cg_meoshi & 0x770) == 0) {
-            if (!(wk->wu.cg_meoshi & 0x800)) {
-                return 0;
-            }
-
-            break;
-        }
-
-        wdat = wk->cp->sw_new & 0x770;
-
-        if (wdat & ~tdat) {
-            return 0;
-        }
-
-        if (shot_data_convert(wk->cp->sw_now) >= 0) {
-            if ((wk->wu.cg_meoshi & 0x800)) {
-                break;
-            }
-
-            goto end;
-        }
-
-        if (!(wk->wu.cg_cancel & 0x80)) {
-            return 0;
-        }
-
-        wdat = wk->cp->sw_off & 0x770;
-
-        if (wdat & ~tdat) {
-            return 0;
-        }
-
-        if (shot_data_convert(wk->cp->sw_off) < 0) {
-            return 0;
-        }
-
+    if ((tdat = wk->wu.cg_meoshi & 0x770) == 0) {
         if (!(wk->wu.cg_meoshi & 0x800)) {
             return 0;
         }
 
-        break;
+        return 1;
     }
 
+    wdat = wk->cp->sw_new & 0x770;
+
+    if (wdat & ~tdat) {
+        return 0;
+    }
+
+    if (shot_data_convert(wk->cp->sw_now) >= 0) {
+        if ((wk->wu.cg_meoshi & 0x800)) {
+            return 1;
+        }
+
+        return 2;
+    }
+
+    if (!(wk->wu.cg_cancel & 0x80)) {
+        return 0;
+    }
+
+    wdat = wk->cp->sw_off & 0x770;
+
+    if (wdat & ~tdat) {
+        return 0;
+    }
+
+    if (shot_data_convert(wk->cp->sw_off) < 0) {
+        return 0;
+    }
+
+    if (!(wk->wu.cg_meoshi & 0x800)) {
+        return 0;
+    }
+
+    return 1;
+}
+
+static s32 commit_meoshi_cancel(PLW* wk) {
     if (wk->wu.cg_meoshi & 0x1000) {
         if (char_move_cmms3(wk) == 0) {
             return 0;
@@ -1747,8 +1732,9 @@ s32 check_meoshi_cancel(PLW* wk) { // 🟢
     wk->tc_1st_flag = 1;
     pp_pulpara_remake_at_init2(wk);
     return 1;
+}
 
-end:
+static s32 continue_target_combo(PLW* wk) {
     if ((wk->tc_1st_flag == 0) && wk->wu.now_koc == 4) {
         grade_add_target_combo(wk->wu.id);
     }
@@ -1756,6 +1742,39 @@ end:
     check_nm_attack(wk);
     wk->tc_1st_flag = 1;
     return 1;
+}
+
+s32 check_meoshi_cancel(PLW* wk) { // 🟢
+    s16 tdat;
+    s16 wdat;
+
+    wk->permited_koa |= 0x10;
+
+    if (wk->wu.meoshi_hit_flag == 0) {
+        return 0;
+    }
+
+    tdat = wk->wu.cg_meoshi & 0x8F;
+
+    if (tdat != 0) {
+        wdat = cnmc_conv_data[wk->cp->sw_new & 0xF];
+        tdat &= 0xF;
+
+        if (!meoshi_lever_matches(wk, tdat, wdat)) {
+            return 0;
+        }
+    }
+
+    switch (meoshi_cancel_gate(wk)) {
+    case 1:
+        return commit_meoshi_cancel(wk);
+
+    case 2:
+        return continue_target_combo(wk);
+
+    default:
+        return 0;
+    }
 }
 
 const s16 gml_real_lever_data[16] = { 0, 6, 2, 10, 4, 0, 8, 5, 1, 9, 0, 0, 4, 8, 4, 8 };
