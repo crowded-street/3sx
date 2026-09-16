@@ -68,50 +68,61 @@ s32 comm_ps_x(WORK* wk, UNK11* ctc) {
     return 1;
 }
 
-s32 comm_ps_y(WORK* wk, UNK11* ctc) {
+/* A player work's own Y set, which is the only one that has to keep the rider
+ * of the bonus-stage car above the floor. */
+static void set_player_y(WORK* wk, UNK11* ctc) {
     WORK* emwk;
 
+    switch (ctc->koc) {
+    case 0:
+        // CPS3 compares to 21 here
+        if (on_bonus_car_below_floor(wk, ctc)) {
+            wk->xyz[1].disp.pos = bs2_floor[2];
+        } else {
+            wk->xyz[1].disp.pos = ctc->pat;
+        }
+
+        break;
+
+    case 2:
+        wk->xyz[1].disp.pos = ctc->pat;
+        /* fallthrough */
+
+    default:
+        emwk = (WORK*)wk->target_adrs;
+        emwk->xyz[1].disp.pos = ctc->pat;
+        break;
+    }
+}
+
+/* The same set for any other work, which has no car to stand on. */
+static void set_other_y(WORK* wk, UNK11* ctc) {
+    WORK* emwk;
+
+    switch (ctc->koc) {
+    case 0:
+        wk->xyz[1].disp.pos = ctc->pat;
+        break;
+
+    case 2:
+        wk->xyz[1].disp.pos = ctc->pat;
+        /* fallthrough */
+
+    default:
+        emwk = (WORK*)wk->target_adrs;
+        emwk->xyz[1].disp.pos = ctc->pat;
+        break;
+    }
+}
+
+s32 comm_ps_y(WORK* wk, UNK11* ctc) {
     if (wk->work_id == 1) {
-        switch (ctc->koc) {
-        case 0:
-            // CPS3 compares to 21 here
-            if (on_bonus_car_below_floor(wk, ctc)) {
-                wk->xyz[1].disp.pos = bs2_floor[2];
-            } else {
-                wk->xyz[1].disp.pos = ctc->pat;
-            }
-
-            break;
-
-        case 2:
-            wk->xyz[1].disp.pos = ctc->pat;
-            /* fallthrough */
-
-        default:
-            emwk = (WORK*)wk->target_adrs;
-            emwk->xyz[1].disp.pos = ctc->pat;
-            break;
-        }
-
-        return 1;
-    } else {
-        switch (ctc->koc) {
-        case 0:
-            wk->xyz[1].disp.pos = ctc->pat;
-            break;
-
-        case 2:
-            wk->xyz[1].disp.pos = ctc->pat;
-            /* fallthrough */
-
-        default:
-            emwk = (WORK*)wk->target_adrs;
-            emwk->xyz[1].disp.pos = ctc->pat;
-            break;
-        }
-
+        set_player_y(wk, ctc);
         return 1;
     }
+
+    set_other_y(wk, ctc);
+    return 1;
 }
 
 s32 comm_paxy(WORK* wk, UNK11* ctc) {
