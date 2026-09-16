@@ -18,6 +18,13 @@ static s32 master_effect_has_finished(const WORK_Other* mwk) {
 }
 
 
+/* Non-zero on the frame the effect's timer runs out. The decrement sits behind
+ * the pause checks and the master's hit stop, so neither a paused frame nor a
+ * frozen one consumes a tick - exactly as the original condition had it. */
+static s32 i9_timer_expired(WORK_Other* ewk, const PLW* mwk) {
+    return !EXE_flag && !Game_pause && mwk->wu.hit_stop <= 0 && --ewk->wu.dir_timer == 0;
+}
+
 void effect_I9_move(WORK_Other* ewk) {
     WORK* sub_w = (WORK*)ewk->wu.target_adrs;
     ImageBuff* image_buff = (ImageBuff*)(sub_w->routine_no);
@@ -50,7 +57,7 @@ void effect_I9_move(WORK_Other* ewk) {
             break;
         }
 
-        if (!EXE_flag && !Game_pause && mwk->wu.hit_stop <= 0 && --ewk->wu.dir_timer == 0) {
+        if (i9_timer_expired(ewk, mwk)) {
             ewk->wu.routine_no[0] = 2;
         }
 
