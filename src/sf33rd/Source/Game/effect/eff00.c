@@ -122,40 +122,36 @@ void renewal_table_address(WORK_Other_JUDGE* ewk, WORK* twk) {
     ewk->wu.position_y = twk->xyz[1].disp.pos;
 }
 
+static u16* copy_ja_row(WORK_Other_JUDGE* ewk, s16 row, u16* mm) {
+    s16 j;
+
+    for (j = 0; j < 4; j++) {
+        ewk->jx[row][j] = *mm++;
+    }
+
+    return mm;
+}
+
 void renewal_table_data(WORK_Other_JUDGE* ewk) {
     u16* mm;
     s16 i;
-    s16 j;
 
     for (mm = (u16*)ewk->wu.h_bod, i = 0; i < 4; i++) {
-        for (j = 0; j < 4; j++) {
-            ewk->jx[i][j] = *mm++;
-        }
+        mm = copy_ja_row(ewk, i, mm);
     }
 
     for (mm = (u16*)ewk->wu.h_han, i = 0; i < 4; i++) {
-        for (j = 0; j < 4; j++) {
-            ewk->jx[i + 4][j] = *mm++;
-        }
+        mm = copy_ja_row(ewk, i + 4, mm);
     }
 
-    for (mm = (u16*)ewk->wu.h_cat, j = 0; j < 4; j++) {
-        ewk->jx[8][j] = *mm++;
-    }
-
-    for (mm = (u16*)ewk->wu.h_cau, j = 0; j < 4; j++) {
-        ewk->jx[9][j] = *mm++;
-    }
+    mm = copy_ja_row(ewk, 8, (u16*)ewk->wu.h_cat);
+    mm = copy_ja_row(ewk, 9, (u16*)ewk->wu.h_cau);
 
     for (mm = (u16*)ewk->wu.h_att, i = 0; i < 4; i++) {
-        for (j = 0; j < 4; j++) {
-            ewk->jx[i + 10][j] = *mm++;
-        }
+        mm = copy_ja_row(ewk, i + 10, mm);
     }
 
-    for (mm = (u16*)ewk->wu.h_hos, j = 0; j < 4; j++) {
-        ewk->jx[14][j] = *mm++;
-    }
+    mm = copy_ja_row(ewk, 14, (u16*)ewk->wu.h_hos);
 }
 
 s32 effect_00_init(WORK* wk) {
