@@ -317,6 +317,31 @@ void chainex_spat_cancel_kidou(WORK* wk) { // 🔴
 }
 
 /// Universal overhead check
+/* The universal overhead's input requirement, which the DIP switch swaps
+ * between a dedicated command and the default two-button input. Returns 1
+ * wherever check_leap_attack returned 0. */
+static s32 leap_input_is_missing(const PLW* wk) {
+    if (wk->spmv_ng_flag2 & DIP2_UNIVERSAL_OVERHEAD_DEFAULT_INPUT_ENABLED) {
+        if (wk->cp->ca25 == 0) {
+            return 1;
+        }
+
+        if (wk->cp->sw_lvbt & 0xF) {
+            return 1;
+        }
+    } else {
+        if (wk->cp->waza_flag[14] == 0) {
+            return 1;
+        }
+
+        if (!(wk->cp->sw_now & 0x770)) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 s32 check_leap_attack(PLW* wk) { // 🟡
     if (wk->spmv_ng_flag2 & DIP2_UNIVERSAL_OVERHEAD_DISABLED) {
         return 0;
@@ -328,22 +353,8 @@ s32 check_leap_attack(PLW* wk) { // 🟡
 
     wk->permited_koa |= 0x200;
 
-    if (wk->spmv_ng_flag2 & DIP2_UNIVERSAL_OVERHEAD_DEFAULT_INPUT_ENABLED) {
-        if (wk->cp->ca25 == 0) {
-            return 0;
-        }
-
-        if (wk->cp->sw_lvbt & 0xF) {
-            return 0;
-        }
-    } else {
-        if (wk->cp->waza_flag[14] == 0) {
-            return 0;
-        }
-
-        if (!(wk->cp->sw_now & 0x770)) {
-            return 0;
-        }
+    if (leap_input_is_missing(wk)) {
+        return 0;
     }
 
     if (player_is_airborne_off_car(wk)) {
