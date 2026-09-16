@@ -906,49 +906,39 @@ void sast_control(s8 Stpl_Num) {
     sast_max_control(Stpl_Num);
 }
 
+/* The two players' gauges use different colour numbers for the same state.
+ * Which pair belongs to which state stays at the call sites. */
+static void set_spgcol_number(s8 Stpl_Num, s16 p1_col, s16 p2_col) {
+    if (Stpl_Num == 0) {
+        spg_dat[0].spgcol_number = p1_col;
+    } else {
+        spg_dat[1].spgcol_number = p2_col;
+    }
+}
+
 void sast_color_chenge(s8 Stpl_Num) {
     if (plw[Stpl_Num].sa->gauge_type == 1 && plw[Stpl_Num].sa->ok == -1) {
         col = 1;
 
-        if (Stpl_Num == 0) {
-            spg_dat[0].spgcol_number = 14;
-        } else {
-            spg_dat[1].spgcol_number = 142;
-        }
+        set_spgcol_number(Stpl_Num, 14, 142);
 
         return;
     } else if (plw[Stpl_Num].sa->store) {
         col = 1;
 
-        if (Stpl_Num == 0) {
-            spg_dat[0].spgcol_number = 18;
-        } else {
-            spg_dat[1].spgcol_number = 146;
-        }
+        set_spgcol_number(Stpl_Num, 18, 146);
     } else {
         col = 0;
 
-        if (Stpl_Num == 0) {
-            spg_dat[0].spgcol_number = 17;
-        } else {
-            spg_dat[1].spgcol_number = 145;
-        }
+        set_spgcol_number(Stpl_Num, 17, 145);
     }
 }
 
 void sa_color_chenge(s8 Stpl_Num) {
     if (spg_dat[Stpl_Num].kind) {
-        if (Stpl_Num == 0) {
-            spg_dat[0].spgcol_number = 18;
-        } else {
-            spg_dat[1].spgcol_number = 146;
-        }
+        set_spgcol_number(Stpl_Num, 18, 146);
     } else {
-        if (Stpl_Num == 0) {
-            spg_dat[0].spgcol_number = 17;
-        } else {
-            spg_dat[1].spgcol_number = 145;
-        }
+        set_spgcol_number(Stpl_Num, 17, 145);
     }
 }
 
