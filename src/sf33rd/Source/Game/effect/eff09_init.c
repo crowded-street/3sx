@@ -62,6 +62,38 @@ static s32 effect_09_init2_is_blocked_test_effect(u8 data) {
     return test_flag && data >= 32 && data < 41;
 }
 
+static const s16* configure_effect_09_init2_late(WORK_Other* ewk, const WORK* wk, u8 data, const s16* data_ptr) {
+    switch (data) {
+    case 34:
+        push_color_trans_req(0x51, 0xA);
+        /* fallthrough */
+
+    case 35:
+    case 38:
+    case 39:
+    case 40:
+        ewk->wu.my_col_code = 0xA;
+        data_ptr++;
+        ewk->wu.my_mts = 0x10;
+        break;
+
+    case 41:
+        ewk->wu.my_col_code = *data_ptr++;
+        ewk->wu.my_col_code += wk->my_col_code;
+        ewk->wu.my_mr_flag = 1;
+        ewk->wu.my_mr.size.x = 127;
+        ewk->wu.my_mr.size.y = 127;
+        break;
+
+    default:
+        ewk->wu.my_col_code = *data_ptr++;
+        ewk->wu.my_col_code += wk->my_col_code;
+        break;
+    }
+
+    return data_ptr;
+}
+
 static const s16* configure_effect_09_init2(WORK_Other* ewk, const WORK* wk, u8 data, const s16* data_ptr) {
     switch (data) {
     case 18:
@@ -90,31 +122,8 @@ static const s16* configure_effect_09_init2(WORK_Other* ewk, const WORK* wk, u8 
         ewk->wu.my_mts = 7;
         break;
 
-    case 34:
-        push_color_trans_req(0x51, 0xA);
-        /* fallthrough */
-
-    case 35:
-    case 38:
-    case 39:
-    case 40:
-        ewk->wu.my_col_code = 0xA;
-        data_ptr++;
-        ewk->wu.my_mts = 0x10;
-        break;
-
-    case 41:
-        ewk->wu.my_col_code = *data_ptr++;
-        ewk->wu.my_col_code += wk->my_col_code;
-        ewk->wu.my_mr_flag = 1;
-        ewk->wu.my_mr.size.x = 127;
-        ewk->wu.my_mr.size.y = 127;
-        break;
-
     default:
-        ewk->wu.my_col_code = *data_ptr++;
-        ewk->wu.my_col_code += wk->my_col_code;
-        break;
+        return configure_effect_09_init2_late(ewk, wk, data, data_ptr);
     }
 
     return data_ptr;
