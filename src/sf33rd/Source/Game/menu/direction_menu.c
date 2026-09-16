@@ -136,7 +136,7 @@ void System_Direction(struct _TASK* task_ptr) {
         Order_Timer[0x6D] = 1;
         effect_04_init(1, 3, 0, 0x48);
         Convert_Buff[3][0][0] = Direction_Working[1];
-        effect_64_init(0x61U, 0, 1, 0xA, 0, 0x7047, 0xB, 3, 0);
+        effect_64_init(&(Effect64Init){0x61U, 0, 1, 0xA, 0, 0x7047, 0xB, 3, 0});
         Order[0x61] = 1;
         Order_Dir[0x61] = 4;
         Order_Timer[0x61] = 0x14;

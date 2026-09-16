@@ -62,7 +62,7 @@ static void initialize_sound_test(struct _TASK* task_ptr) {
                 Order[ix + 0x57] = 1;
                 Order_Dir[ix + 0x57] = 4;
                 Order_Timer[ix + 0x57] = ix + 0x14;
-                effect_64_init(ix + 0x57, 0, 2, ixSoundMenuItem[ix] + 1, ix, 0x7047, ix + 0xC, 3, 1);
+                effect_64_init(&(Effect64Init){ix + 0x57, 0, 2, ixSoundMenuItem[ix] + 1, ix, 0x7047, ix + 0xC, 3, 1});
             }
         }
 

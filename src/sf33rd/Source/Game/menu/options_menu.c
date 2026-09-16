@@ -113,7 +113,7 @@ static void initialize_game_options(struct _TASK* task_ptr) {
     }
     Menu_Cursor_Move = 0xA;
     for (ix = 0; ix < 0xA; ix++) {
-        effect_64_init(ix + 0x5D, 0, 2, Setup_Index_64[ix], ix, 0x70A7, ix + 1, 0, 0);
+        effect_64_init(&(Effect64Init){ix + 0x5D, 0, 2, Setup_Index_64[ix], ix, 0x70A7, ix + 1, 0, 0});
         Order[ix + 0x5D] = 1;
         Order_Dir[ix + 0x5D] = 4;
         Order_Timer[ix + 0x5D] = ix + 0x14;
@@ -542,7 +542,7 @@ void Screen_Adjust(struct _TASK* task_ptr) {
 
         initialize_screen_adjust_controls();
 
-        effect_64_init(0x6A, 0, 2, 9, 4, 0x7047, 18, 2, 0);
+        effect_64_init(&(Effect64Init){0x6A, 0, 2, 9, 4, 0x7047, 18, 2, 0});
         Order[0x6A] = 1;
         Order_Dir[0x6A] = 4;
         Order_Timer[0x6A] = 0x18;
