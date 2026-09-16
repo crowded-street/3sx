@@ -124,6 +124,23 @@ static bool run_active_cancel_checks(PLW* wk) {
     return false;
 }
 
+/* The cancel window: it runs down while the hit stop is over, and while it is
+ * open the cancel checks may take the move. */
+static s32 cancel_window_took_over(PLW* wk) {
+    if (wk->cancel_timer && wk->wu.hit_stop == 0) {
+        wk->cancel_timer--;
+    }
+
+    return wk->cancel_timer && run_active_cancel_checks(wk);
+}
+
+/* On the ground, or riding the bonus car, the attack's landing is checked. */
+static void check_landed_attack(PLW* wk) {
+    if (wk->wu.xyz[1].disp.pos == 0 || wk->bs2_on_car != 0) {
+        jumping_cg_type_check(wk);
+    }
+}
+
 /* Everything that can take the attack away from the player mid-move: the
  * ground check, a cancel inside its window, a full-gauge attack, and the
  * triangle jump. Returns 1 when one of them took over. */
@@ -132,11 +149,7 @@ static s32 attack_was_interrupted(PLW* wk) {
         return 1;
     }
 
-    if (wk->cancel_timer && wk->wu.hit_stop == 0) {
-        wk->cancel_timer--;
-    }
-
-    if (wk->cancel_timer && run_active_cancel_checks(wk)) {
+    if (cancel_window_took_over(wk)) {
         return 1;
     }
 
@@ -160,9 +173,7 @@ void process_attack(PLW* wk) { // 🟢
     }
 
     if (!check_cg_cancel_data(wk) && wk->wu.routine_no[3] != 0) {
-        if (wk->wu.xyz[1].disp.pos == 0 || wk->bs2_on_car != 0) {
-            jumping_cg_type_check(wk);
-        }
+        check_landed_attack(wk);
     }
 }
 
