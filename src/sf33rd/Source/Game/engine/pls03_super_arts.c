@@ -261,13 +261,23 @@ s16 check_super_arts_attack(PLW* wk) { // 🟡
     return rnum;
 }
 
+/* The slot carries neither of the two bits that make it an EX-capable art. */
+static s32 slot_has_no_ex_bits(const PLW* wk, s16 ix) {
+    return !(wk->cp->btix[ix] & 0x600);
+}
+
+/* The fourth EX art is charged but the max-gauge art is not the one armed. */
+static s32 fourth_ex_art_is_locked(const PLW* wk) {
+    return wk->sa->ex4th_full && (wk->sa->mp != 1);
+}
+
 static bool should_skip_dc_slot(PLW* wk, s16 ix, s16 j) {
     if (ArcadeBalance_IsEnabled()) {
-        if ((j == 3) && !(wk->cp->btix[ix] & 0x600)) {
+        if ((j == 3) && slot_has_no_ex_bits(wk, ix)) {
             return true;
         }
     } else {
-        if ((j == 3) && (!(wk->cp->btix[ix] & 0x600) || (wk->sa->ex4th_full && (wk->sa->mp != 1)))) {
+        if ((j == 3) && (slot_has_no_ex_bits(wk, ix) || fourth_ex_art_is_locked(wk))) {
             return true;
         }
     }
