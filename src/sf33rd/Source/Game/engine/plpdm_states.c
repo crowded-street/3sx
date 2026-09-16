@@ -225,6 +225,58 @@ void Damage_07000(PLW* wk) {
     }
 }
 
+/* The knockback an attack level gives, by the direction the work was already
+ * moving. Each case keeps its own percentages and its own table row. */
+static void remake_speeds_by_direction(WORK* wk, s16 ix, s32 ay) {
+    switch (ix) {
+    case 0:
+        wk->mvxy.a[0].sp = (wk->mvxy.a[0].sp * 80) / 100;
+        wk->mvxy.a[1].sp = (wk->mvxy.a[1].sp * 120) / 100;
+        cal_initial_speed_y(wk, ris_data_table[0][wk->dm_attlv], wk->xyz[1].disp.pos);
+        wk->mvxy.a[1].sp += (ay * 60) / 100;
+        break;
+
+    case 1:
+        wk->mvxy.a[0].sp = (wk->mvxy.a[0].sp * 75) / 100;
+        wk->mvxy.a[1].sp = (wk->mvxy.a[1].sp * 100) / 100;
+        cal_initial_speed_y(wk, ris_data_table[1][wk->dm_attlv], wk->xyz[1].disp.pos);
+        wk->mvxy.a[1].sp += (ay * 35) / 100;
+        break;
+
+    case 2:
+        wk->mvxy.a[0].sp = (wk->mvxy.a[0].sp * 70) / 100;
+        wk->mvxy.a[1].sp = (wk->mvxy.a[1].sp * 80) / 100;
+        cal_initial_speed_y(wk, ris_data_table[2][wk->dm_attlv], wk->xyz[1].disp.pos);
+        wk->mvxy.a[1].sp += (ay * 20) / 100;
+        break;
+
+    case 3:
+        wk->mvxy.a[0].sp = (wk->mvxy.a[0].sp * 80) / 100;
+        wk->mvxy.a[1].sp = (wk->mvxy.a[1].sp - 0x8000) - 0x8000;
+        wk->mvxy.a[1].sp += (ay * 10) / 100;
+        break;
+
+    default:
+        wk->mvxy.a[0].sp = (wk->mvxy.a[0].sp * 90) / 100;
+        wk->mvxy.a[1].sp = wk->mvxy.a[1].sp + 0xFFFE0000;
+        break;
+    }
+}
+
+/* With no attack level the work keeps its own arc, damped horizontally and -
+ * when it was already falling - vertically. */
+static void remake_speeds_unattacked(WORK* wk, s32 ay, s32 dy) {
+    wk->mvxy.a[0].sp = (wk->mvxy.a[0].sp * 120) / 100;
+
+    if (ay >= 0) {
+        wk->mvxy.a[1].sp = ay;
+    } else {
+        wk->mvxy.a[1].sp = (ay * 60) / 100;
+    }
+
+    wk->mvxy.d[1].sp = dy;
+}
+
 s32 remake_initial_speeds(WORK* wk) {
     s16 ix;
     s32 ay = wk->mvxy.a[1].sp;
@@ -238,49 +290,9 @@ s32 remake_initial_speeds(WORK* wk) {
     ix = dir32_guard_air[cal_move_dir_forecast(wk, 5)];
 
     if (wk->dm_attlv) {
-        switch (ix) {
-        case 0:
-            wk->mvxy.a[0].sp = (wk->mvxy.a[0].sp * 80) / 100;
-            wk->mvxy.a[1].sp = (wk->mvxy.a[1].sp * 120) / 100;
-            cal_initial_speed_y(wk, ris_data_table[0][wk->dm_attlv], wk->xyz[1].disp.pos);
-            wk->mvxy.a[1].sp += (ay * 60) / 100;
-            break;
-
-        case 1:
-            wk->mvxy.a[0].sp = (wk->mvxy.a[0].sp * 75) / 100;
-            wk->mvxy.a[1].sp = (wk->mvxy.a[1].sp * 100) / 100;
-            cal_initial_speed_y(wk, ris_data_table[1][wk->dm_attlv], wk->xyz[1].disp.pos);
-            wk->mvxy.a[1].sp += (ay * 35) / 100;
-            break;
-
-        case 2:
-            wk->mvxy.a[0].sp = (wk->mvxy.a[0].sp * 70) / 100;
-            wk->mvxy.a[1].sp = (wk->mvxy.a[1].sp * 80) / 100;
-            cal_initial_speed_y(wk, ris_data_table[2][wk->dm_attlv], wk->xyz[1].disp.pos);
-            wk->mvxy.a[1].sp += (ay * 20) / 100;
-            break;
-
-        case 3:
-            wk->mvxy.a[0].sp = (wk->mvxy.a[0].sp * 80) / 100;
-            wk->mvxy.a[1].sp = (wk->mvxy.a[1].sp - 0x8000) - 0x8000;
-            wk->mvxy.a[1].sp += (ay * 10) / 100;
-            break;
-
-        default:
-            wk->mvxy.a[0].sp = (wk->mvxy.a[0].sp * 90) / 100;
-            wk->mvxy.a[1].sp = wk->mvxy.a[1].sp + 0xFFFE0000;
-            break;
-        }
+        remake_speeds_by_direction(wk, ix, ay);
     } else {
-        wk->mvxy.a[0].sp = (wk->mvxy.a[0].sp * 120) / 100;
-
-        if (ay >= 0) {
-            wk->mvxy.a[1].sp = ay;
-        } else {
-            wk->mvxy.a[1].sp = (ay * 60) / 100;
-        }
-
-        wk->mvxy.d[1].sp = dy;
+        remake_speeds_unattacked(wk, ay, dy);
     }
 
     if ((wk->xyz[1].disp.pos < 12) && (cal_move_quantity3(wk, 3) <= 0)) {
