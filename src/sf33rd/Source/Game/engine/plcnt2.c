@@ -344,6 +344,14 @@ void move_P2_move_P1_bonus(s16* field_work) {
     }
 }
 
+/* One player's leftover correction is pushed into the other. The two arms of
+ * check_damage_hosei_bonus that do this, and the two gotos that used to jump
+ * into them, differ only in which way round it goes. */
+static void transfer_hosei(s16 from, s16 to) {
+    plw[to].wu.xyz[0].disp.pos += plw[from].hosei_amari;
+    plw[to].muriyari_ugoku += plw[from].hosei_amari;
+}
+
 void check_damage_hosei_bonus() {
     plw[0].muriyari_ugoku = plw[0].hosei_amari;
     plw[1].muriyari_ugoku = plw[1].hosei_amari;
@@ -354,9 +362,7 @@ void check_damage_hosei_bonus() {
             break;
         }
 
-    one:
-        plw[1].wu.xyz[0].disp.pos += plw[0].hosei_amari;
-        plw[1].muriyari_ugoku += plw[0].hosei_amari;
+        transfer_hosei(0, 1);
         break;
 
     case 2:
@@ -364,19 +370,19 @@ void check_damage_hosei_bonus() {
             break;
         }
 
-    two:
-        plw[0].wu.xyz[0].disp.pos += plw[1].hosei_amari;
-        plw[0].muriyari_ugoku += plw[1].hosei_amari;
+        transfer_hosei(1, 0);
         break;
 
     case 3:
         if (plw[0].hos_fi_flag == plw[1].hos_fi_flag) {
             if (plw[0].tsukamare_f) {
-                goto one;
+                transfer_hosei(0, 1);
+                break;
             }
 
             if (plw[1].tsukamare_f) {
-                goto two;
+                transfer_hosei(1, 0);
+                break;
             }
         }
 
