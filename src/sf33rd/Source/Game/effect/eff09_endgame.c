@@ -26,17 +26,31 @@
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 
-static void initialize_eff09_22000(WORK_Other* ewk) {
+static void eff09_endgame_abort_on_test(WORK_Other* ewk) {
+    if (test_flag) {
+        ewk->wu.routine_no[1] = 99;
+    }
+}
+
+static s32 eff09_endgame_updates_enabled(void) {
+    return !EXE_flag && !Game_pause;
+}
+
+static void start_eff09_endgame_effect(WORK_Other* ewk) {
     ewk->wu.routine_no[1]++;
     ewk->wu.disp_flag = 1;
     ewk->wu.dead_f = 1;
     set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
 }
 
+static void initialize_eff09_22000(WORK_Other* ewk) {
+    start_eff09_endgame_effect(ewk);
+}
+
 static void advance_eff09_22000_parent_animation(WORK_Other* ewk, const WORK* oya_ptr) {
     s16 work;
 
-    if (!EXE_flag && !Game_pause) {
+    if (eff09_endgame_updates_enabled()) {
         if (oya_ptr->cg_type == 99) {
             ewk->wu.routine_no[1]++;
             set_char_move_init(&ewk->wu, 0, 62);
@@ -49,7 +63,7 @@ static void advance_eff09_22000_parent_animation(WORK_Other* ewk, const WORK* oy
 }
 
 static void advance_eff09_22000_animation(WORK_Other* ewk) {
-    if (!EXE_flag && !Game_pause) {
+    if (eff09_endgame_updates_enabled()) {
         char_move(&ewk->wu);
 
         if (ewk->wu.cg_type == 0xFF) {
@@ -62,9 +76,7 @@ static void advance_eff09_22000_animation(WORK_Other* ewk) {
 void eff09_22000(WORK_Other* ewk) {
     WORK* oya_ptr;
 
-    if (test_flag) {
-        ewk->wu.routine_no[1] = 99;
-    }
+    eff09_endgame_abort_on_test(ewk);
 
     oya_ptr = (WORK*)ewk->my_master;
 
@@ -106,7 +118,7 @@ static void initialize_eff09_23000(WORK_Other* ewk) {
 }
 
 static void advance_eff09_23000_launch(WORK_Other* ewk) {
-    if (!EXE_flag && !Game_pause) {
+    if (eff09_endgame_updates_enabled()) {
         char_move(&ewk->wu);
 
         if (ewk->wu.cg_type == 0xFF) {
@@ -125,7 +137,7 @@ static void advance_eff09_23000_launch(WORK_Other* ewk) {
 }
 
 static void advance_eff09_23000_exit(WORK_Other* ewk) {
-    if (!EXE_flag && !Game_pause) {
+    if (eff09_endgame_updates_enabled()) {
         char_move(&ewk->wu);
         add_x_sub(&ewk->wu);
 
@@ -138,9 +150,7 @@ static void advance_eff09_23000_exit(WORK_Other* ewk) {
 void eff09_23000(WORK_Other* ewk) {
     WORK* oya_ptr;
 
-    if (test_flag) {
-        ewk->wu.routine_no[1] = 99;
-    }
+    eff09_endgame_abort_on_test(ewk);
 
     oya_ptr = (WORK*)ewk->my_master;
 
@@ -196,7 +206,7 @@ static void advance_eff09_24000_parent_animation(WORK_Other* ewk, const WORK* oy
 }
 
 static void advance_eff09_24000_launch(WORK_Other* ewk) {
-    if (!EXE_flag && !Game_pause) {
+    if (eff09_endgame_updates_enabled()) {
         char_move(&ewk->wu);
 
         if (ewk->wu.cg_type == 9) {
@@ -219,7 +229,7 @@ static void advance_eff09_24000_launch(WORK_Other* ewk) {
 }
 
 static void advance_eff09_24000_exit(WORK_Other* ewk) {
-    if (!EXE_flag && !Game_pause) {
+    if (eff09_endgame_updates_enabled()) {
         char_move(&ewk->wu);
         add_x_sub(&ewk->wu);
 
@@ -236,9 +246,7 @@ static void advance_eff09_24000_exit(WORK_Other* ewk) {
 void eff09_24000(WORK_Other* ewk) {
     WORK* oya_ptr;
 
-    if (test_flag) {
-        ewk->wu.routine_no[1] = 99;
-    }
+    eff09_endgame_abort_on_test(ewk);
 
     oya_ptr = (WORK*)ewk->my_master;
 
@@ -269,10 +277,7 @@ void eff09_24000(WORK_Other* ewk) {
 }
 
 static void initialize_eff09_25000(WORK_Other* ewk) {
-    ewk->wu.routine_no[1]++;
-    ewk->wu.disp_flag = 1;
-    ewk->wu.dead_f = 1;
-    set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+    start_eff09_endgame_effect(ewk);
     ewk->wu.mvxy.d[0].sp = 0;
     ewk->wu.mvxy.d[1].sp = -0x6000;
 
@@ -290,7 +295,7 @@ static void initialize_eff09_25000(WORK_Other* ewk) {
 }
 
 static void advance_eff09_25000(WORK_Other* ewk) {
-    if (!EXE_flag && !Game_pause) {
+    if (eff09_endgame_updates_enabled()) {
         char_move(&ewk->wu);
         add_x_sub(&ewk->wu);
         add_y_sub(&ewk->wu);
