@@ -234,6 +234,46 @@ void Catch_04000(PLW* wk) { // 🟢
     }
 }
 
+/* The animation frames that mean something while the catch is on the ground:
+ * go airborne, add to the movement data, or replace it. */
+static void apply_grounded_catch_frame(PLW* wk) {
+    switch (wk->wu.cg_type) {
+    case 1:
+        wk->wu.routine_no[3] = 2;
+        wk->wu.cg_type = 0;
+        break;
+
+    case 20:
+        add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+        break;
+
+    case 22:
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+        break;
+    }
+}
+
+/* The same while it is airborne. There is no frame 22 here, and frame 1 puts
+ * the catch back on the ground. */
+static void apply_airborne_catch_frame(PLW* wk) {
+    switch (wk->wu.cg_type) {
+    case 1:
+        wk->wu.routine_no[3] = 1;
+        wk->wu.cg_type = 0;
+        break;
+
+    case 20:
+        add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+        break;
+    }
+}
+
 void Catch_05000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -243,44 +283,13 @@ void Catch_05000(PLW* wk) { // 🟢
 
     case 1:
         char_move(&wk->wu);
-        switch (wk->wu.cg_type) {
-        case 1:
-            wk->wu.routine_no[3] = 2;
-            wk->wu.cg_type = 0;
-            break;
-
-        case 20:
-            add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-            break;
-
-        case 22:
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-            break;
-        }
-
+        apply_grounded_catch_frame(wk);
         catch_cg_type_check(wk);
         break;
 
     case 2:
         jumping_union_process(&wk->wu, 1);
-
-        switch (wk->wu.cg_type) {
-        case 1:
-            wk->wu.routine_no[3] = 1;
-            wk->wu.cg_type = 0;
-            break;
-
-        case 20:
-            add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-            break;
-        }
-
+        apply_airborne_catch_frame(wk);
         catch_cg_type_check(wk);
         break;
 
