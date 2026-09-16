@@ -548,6 +548,17 @@ s32 FUN_06120790(PLW* wk) { // 🔵
 }
 
 /// Taunt check
+/* A taunt is refused while the lever is held. Hugo is checked against a
+ * narrower mask than everyone else - that is the existing FIXME, reported and
+ * left exactly as it was. */
+static s32 taunt_lever_is_held(const PLW* wk) {
+    if (wk->player_number == CHAR_HUGO) { // FIXME: Make Hugo's taunt work with Start
+        return wk->cp->sw_lvbt & 0xE;
+    }
+
+    return wk->cp->sw_lvbt & 0xF;
+}
+
 s32 check_chouhatsu(PLW* wk) { // 🟢 Same overall but differs because of Start and DIP switches
     if (wk->spmv_ng_flag & DIP_TAUNT_DISABLED) {
         return 0;
@@ -563,11 +574,7 @@ s32 check_chouhatsu(PLW* wk) { // 🟢 Same overall but differs because of Start
         return 0;
     }
 
-    if (wk->player_number == CHAR_HUGO) { // FIXME: Make Hugo's taunt work with Start
-        if (wk->cp->sw_lvbt & 0xE) {
-            return 0;
-        }
-    } else if (wk->cp->sw_lvbt & 0xF) {
+    if (taunt_lever_is_held(wk)) {
         return 0;
     }
 
