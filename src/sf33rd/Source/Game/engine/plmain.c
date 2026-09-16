@@ -545,6 +545,48 @@ void about_gauge_process(PLW* wk) { // 🟡
     }
 }
 
+/* mpg_union's case 2: the max-gauge art being spent, or the state being unwound
+ * because it was not. Moved out whole, so the fallthrough from case 1 into
+ * default survives and every `break` still leaves the switch it always left. */
+static void spend_max_gauge(PLW* wk) {
+    switch (wk->sa->saeff_mp) {
+    case -1:
+        if (!pcon_dp_flag) {
+            wk->sa->store = 0;
+            wk->sa->gauge.i = 0;
+        }
+
+        if (!ArcadeBalance_IsEnabled()) {
+            // CPS3 clears this meter state without the port's super-art bug workaround.
+            sag_bug_fix(wk->wu.id);
+        }
+
+        wk->sa->saeff_mp = 0;
+        wk->sa->mp_rno = 0;
+        wk->sa->mp = 0;
+
+        if (!ArcadeBalance_IsEnabled()) {
+            // The port delays the next super-art gain for 20 frames; CPS3 does not.
+            sag_inc_timer[wk->wu.id] = 20;
+        }
+
+        break;
+
+    case 1:
+        if (wk->wu.routine_no[1] == 4) {
+            break;
+        }
+
+        /* fallthrough */
+
+    default:
+        wk->sa->saeff_mp = 0;
+        wk->sa->mp_rno = 0;
+        wk->sa->mp = 0;
+        break;
+    }
+}
+
 void mpg_union(PLW* wk) { // 🟡
     switch (wk->sa->mp_rno) {
     case 0:
@@ -568,42 +610,7 @@ void mpg_union(PLW* wk) { // 🟡
         break;
 
     case 2:
-        switch (wk->sa->saeff_mp) {
-        case -1:
-            if (!pcon_dp_flag) {
-                wk->sa->store = 0;
-                wk->sa->gauge.i = 0;
-            }
-
-            if (!ArcadeBalance_IsEnabled()) {
-                // CPS3 clears this meter state without the port's super-art bug workaround.
-                sag_bug_fix(wk->wu.id);
-            }
-
-            wk->sa->saeff_mp = 0;
-            wk->sa->mp_rno = 0;
-            wk->sa->mp = 0;
-
-            if (!ArcadeBalance_IsEnabled()) {
-                // The port delays the next super-art gain for 20 frames; CPS3 does not.
-                sag_inc_timer[wk->wu.id] = 20;
-            }
-
-            break;
-
-        case 1:
-            if (wk->wu.routine_no[1] == 4) {
-                break;
-            }
-
-            /* fallthrough */
-
-        default:
-            wk->sa->saeff_mp = 0;
-            wk->sa->mp_rno = 0;
-            wk->sa->mp = 0;
-            break;
-        }
+        spend_max_gauge(wk);
 
         break;
 
