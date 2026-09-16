@@ -594,6 +594,25 @@ from the shared shape before calling it a plateau. Extract the runs, measure, an
 then judge. A file can look identical to its neighbour in the review and still have most
 of a point in it.
 
+### Never apply the same split across an already-duplicated family
+
+The rule above is about two arms inside one function. This one is about several
+functions, and it costs more.
+
+When CodeScene already reports a group of functions as duplicates of each other, applying
+the *same* extraction to each of them multiplies the duplication instead of reducing it.
+Three near-identical functions split the same way become six near-identical halves, and
+the detector prices the larger group.
+
+Measured in `pls03.c`: `check_full_gauge_attack`, `check_full_gauge_attack2` and
+`check_super_arts_attack_dc` were one duplication group of three. Splitting each on its
+grounded/airborne seam - the identical split that had just paid on `check_special_attack`,
+which was *not* in a duplication group - took the file 2.26 -> 2.12 and was reverted.
+
+**So check the duplication groups in the review before extracting.** A split that pays on
+a lone function will usually cost on a member of a duplicate family. Fix the family first,
+if a legal recipe can, or leave it alone.
+
 ### Two mirrored arms are cheaper left together
 
 The commonest remaining smell in this codebase is a Bumpy Road whose two bumps are the
