@@ -135,6 +135,35 @@ u16 check_illegal_lever_data(u16 data) { // 🔴
     return data;
 }
 
+/* How the super-art gauge starts a round, which the two DIP switches between
+ * them decide: empty, or full for a demo. Skipped entirely under arcade
+ * balance, as in the original, and the fallthrough from the round-reset case
+ * into the demo case is preserved. */
+static void reset_super_art_gauge_for_round(PLW* wk) {
+    if (!ArcadeBalance_IsEnabled()) {
+        wk->omop_vital_timer = 40;
+
+        switch (wk->spmv_ng_flag2 & (DIP2_SA_GAUGE_ROUND_RESET_DISABLED | DIP2_SA_GAUGE_MAX_START_DISABLED)) {
+        case DIP2_SA_GAUGE_MAX_START_DISABLED:
+            clear_super_arts_point(wk);
+            spgauge_cont_init();
+            break;
+
+        case DIP2_SA_GAUGE_ROUND_RESET_DISABLED:
+            if (Round_num != 0) {
+                break;
+            }
+
+            /* fallthrough */
+
+        case 0:
+            demo_set_sa_full(wk->sa);
+            spgauge_cont_demo_init();
+            break;
+        }
+    }
+}
+
 void player_mv_0000(PLW* wk) { // 🟡
     s16 i;
 
@@ -205,28 +234,7 @@ void player_mv_0000(PLW* wk) { // 🟡
         metamor_color_restore(wk->wu.id);
     }
 
-    if (!ArcadeBalance_IsEnabled()) {
-        wk->omop_vital_timer = 40;
-
-        switch (wk->spmv_ng_flag2 & (DIP2_SA_GAUGE_ROUND_RESET_DISABLED | DIP2_SA_GAUGE_MAX_START_DISABLED)) {
-        case DIP2_SA_GAUGE_MAX_START_DISABLED:
-            clear_super_arts_point(wk);
-            spgauge_cont_init();
-            break;
-
-        case DIP2_SA_GAUGE_ROUND_RESET_DISABLED:
-            if (Round_num != 0) {
-                break;
-            }
-
-            /* fallthrough */
-
-        case 0:
-            demo_set_sa_full(wk->sa);
-            spgauge_cont_demo_init();
-            break;
-        }
-    }
+    reset_super_art_gauge_for_round(wk);
 
     about_gauge_process(wk);
 }
