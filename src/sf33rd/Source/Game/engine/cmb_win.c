@@ -453,6 +453,12 @@ void SCORE_PLUS(s8 PL, u32 PTS) { // 🟡
     }
 }
 
+/* Outside arcade balance, the combo's score is shown at once in versus and
+ * training, and whenever the other side is a human player. */
+static s32 score_is_shown_immediately(s8 PLS) {
+    return Mode_Type == MODE_VERSUS || Mode_Type == 5 || plw[PLS].wu.operator;
+}
+
 void combo_window_push(s8 PL, s8 KIND) { // 🟡
     u32 score;
     s8 PLS;
@@ -523,7 +529,7 @@ void combo_window_push(s8 PL, s8 KIND) { // 🟡
         if (ArcadeBalance_IsEnabled()) {
             // CPS3 ties delayed score display only to the opposing operator.
             cmst_buff[PL][cst_write[PL]].pts_flag = plw[PLS].wu.operator != 0;
-        } else if (Mode_Type == MODE_VERSUS || Mode_Type == 5 || plw[PLS].wu.operator) {
+        } else if (score_is_shown_immediately(PLS)) {
             cmst_buff[PL][cst_write[PL]].pts_flag = 1;
         } else {
             cmst_buff[PL][cst_write[PL]].pts_flag = 0;
