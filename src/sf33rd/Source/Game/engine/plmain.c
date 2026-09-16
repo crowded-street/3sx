@@ -702,6 +702,29 @@ void eag_union(PLW* wk) { // 🟡
     }
 }
 
+/* The unreachable-state reset the super-art machines fall back on, shared
+ * verbatim by sag_union_0, sag_union_3 and sag_union_ps2. sag_union_1's reset
+ * also clears dtm_mul and is left where it is. */
+static void clear_super_art_state(PLW* wk) {
+    wk->sa->sa_rno = 0;
+    wk->sa->ok = 0;
+    wk->sa->store = 0;
+    wk->sa->saeff_ok = 0;
+}
+
+/* State 0, shared verbatim by sag_union_0 and sag_union_1: take a stock and
+ * become ready. sag_union_3's version does not count the art and is left where
+ * it is. */
+static void arm_super_art_on_stock(PLW* wk) {
+    if (wk->sa->store != 0) {
+        wk->sa->sa_rno = 1;
+        wk->sa->ok = 1;
+        wk->sa->id_arts += 1;
+    }
+
+    wk->sa->saeff_ok = 0;
+}
+
 /* State 1 of the super-art machine, shared verbatim by sag_union_0,
  * sag_union_1 and sag_union_3: drop back to state 0 if the stock went away,
  * otherwise advance when the art has been asked for. sag_union_ps2 has its own
@@ -719,13 +742,7 @@ static void update_super_art_ready(PLW* wk) {
 void sag_union_0(PLW* wk) { // 🟢
     switch (wk->sa->sa_rno) {
     case 0:
-        if (wk->sa->store != 0) {
-            wk->sa->sa_rno = 1;
-            wk->sa->ok = 1;
-            wk->sa->id_arts += 1;
-        }
-
-        wk->sa->saeff_ok = 0;
+        arm_super_art_on_stock(wk);
         break;
 
     case 1:
@@ -750,10 +767,7 @@ void sag_union_0(PLW* wk) { // 🟢
         break;
 
     default:
-        wk->sa->sa_rno = 0;
-        wk->sa->ok = 0;
-        wk->sa->store = 0;
-        wk->sa->saeff_ok = 0;
+        clear_super_art_state(wk);
         break;
     }
 }
@@ -775,13 +789,7 @@ static void mark_art_attack_for(PLW* wk, u8 character) {
 void sag_union_1(PLW* wk) { // 🟢
     switch (wk->sa->sa_rno) {
     case 0:
-        if (wk->sa->store != 0) {
-            wk->sa->sa_rno = 1;
-            wk->sa->ok = 1;
-            wk->sa->id_arts += 1;
-        }
-
-        wk->sa->saeff_ok = 0;
+        arm_super_art_on_stock(wk);
         break;
 
     case 1:
@@ -882,10 +890,7 @@ void sag_union_3(PLW* wk) { // 🟢
         break;
 
     default:
-        wk->sa->sa_rno = 0;
-        wk->sa->ok = 0;
-        wk->sa->store = 0;
-        wk->sa->saeff_ok = 0;
+        clear_super_art_state(wk);
         break;
     }
 }
@@ -1052,10 +1057,7 @@ static void sag_union_ps2_active(PLW* wk) {
         break;
 
     default:
-        wk->sa->sa_rno = 0;
-        wk->sa->ok = 0;
-        wk->sa->store = 0;
-        wk->sa->saeff_ok = 0;
+        clear_super_art_state(wk);
         break;
     }
 }
