@@ -27,54 +27,70 @@ static s32 judgement_is_blocked(void) {
 }
 
 
+static void eff33_spawn(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.disp_flag = 1;
+    ewk->wu.kage_flag = 1;
+    ewk->wu.kage_hx = 0;
+    ewk->wu.kage_hy = -10;
+    ewk->wu.kage_prio = 71;
+    ewk->wu.kage_char = 16;
+    set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+}
+
+static void eff33_wait_judgement(WORK_Other* ewk) {
+    suzi_sync_pos_set(ewk);
+    sort_push_request(&ewk->wu);
+
+    if (judgement_is_blocked()) {
+        return;
+    }
+
+    ewk->wu.routine_no[0]++;
+}
+
+static void eff33_show_result(WORK_Other* ewk) {
+if (game_is_active()) {
+        ewk->wu.routine_no[0]++;
+        ewk->wu.char_index = WinLoseID[ewk->master_id][Winner_id] + 10;
+        set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+    }
+
+    suzi_sync_pos_set(ewk);
+    sort_push_request(&ewk->wu);
+}
+
+static void eff33_animate(WORK_Other* ewk) {
+    if (!EXE_flag && !Game_pause) {
+        if (ewk->wu.dead_f == 1 || Suicide[0] != 0) {
+            ewk->wu.disp_flag = 0;
+            ewk->wu.routine_no[0]++;
+            return;
+        }
+
+        char_move(&ewk->wu);
+    }
+
+    suzi_sync_pos_set(ewk);
+    sort_push_request(&ewk->wu);
+}
+
 void effect_33_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.kage_flag = 1;
-        ewk->wu.kage_hx = 0;
-        ewk->wu.kage_hy = -10;
-        ewk->wu.kage_prio = 71;
-        ewk->wu.kage_char = 16;
-        set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+        eff33_spawn(ewk);
         break;
 
     case 1:
-        suzi_sync_pos_set(ewk);
-        sort_push_request(&ewk->wu);
-
-        if (judgement_is_blocked()) {
-            break;
-        }
-
-        ewk->wu.routine_no[0]++;
+        eff33_wait_judgement(ewk);
         break;
 
     case 2:
-if (game_is_active()) {
-            ewk->wu.routine_no[0]++;
-            ewk->wu.char_index = WinLoseID[ewk->master_id][Winner_id] + 10;
-            set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-        }
-
-        suzi_sync_pos_set(ewk);
-        sort_push_request(&ewk->wu);
+        eff33_show_result(ewk);
         break;
 
     case 3:
-        if (!EXE_flag && !Game_pause) {
-            if (ewk->wu.dead_f == 1 || Suicide[0] != 0) {
-                ewk->wu.disp_flag = 0;
-                ewk->wu.routine_no[0]++;
-                break;
-            }
-
-            char_move(&ewk->wu);
-        }
-
-        suzi_sync_pos_set(ewk);
-        sort_push_request(&ewk->wu);
+        eff33_animate(ewk);
         break;
 
     case 4:
