@@ -327,15 +327,48 @@ static void count_one_bonus_hit(void) {
     C_Timer = 3;
 }
 
+/* The result panel and the score it starts from. */
+static void show_bonus_stage_total() {
+    C_No[2]++;
+    C_Timer = 20;
+    effect_08_init(&(Effect08Init){ 7, 0, 1, 15, 0 });
+    Disp_Score_Buff[0] = Bonus_Score;
+    effect_14_init(0, 35, 11, 15);
+}
+
+/* Leaving the bonus result: the next phase, and the music fading out. */
+static void leave_bonus_result() {
+    C_No[1]++;
+    C_No[2] = 0;
+    C_No[3] = 0;
+    C_Timer = 10;
+    Forbid_Break = 0;
+    Suicide[5] = 1;
+    Check_Fade_Out_BGM(546);
+}
+
+/* The bonus result's later states: the perfect bonus, and leaving. Case labels
+ * are the originals. */
+static void run_bonus_result_late() {
+    switch (C_No[2]) {
+    case 3:
+        run_bonus_perfect_result_phase();
+        break;
+
+    default:
+        if (Cut_Cut_C_Timer() == 0) {
+            leave_bonus_result();
+        }
+
+        break;
+    }
+}
+
 void Game_Manage_12_4() {
     switch (C_No[2]) {
     case 0:
         if (bonus_cut_and_timer_finished()) {
-            C_No[2]++;
-            C_Timer = 20;
-            effect_08_init(&(Effect08Init){7, 0, 1, 15, 0});
-            Disp_Score_Buff[0] = Bonus_Score;
-            effect_14_init(0, 35, 11, 15);
+            show_bonus_stage_total();
         }
 
         break;
@@ -356,21 +389,8 @@ void Game_Manage_12_4() {
 
         break;
 
-    case 3:
-        run_bonus_perfect_result_phase();
-        break;
-
     default:
-        if (Cut_Cut_C_Timer() == 0) {
-            C_No[1]++;
-            C_No[2] = 0;
-            C_No[3] = 0;
-            C_Timer = 10;
-            Forbid_Break = 0;
-            Suicide[5] = 1;
-            Check_Fade_Out_BGM(546);
-        }
-
+        run_bonus_result_late();
         break;
     }
 }
