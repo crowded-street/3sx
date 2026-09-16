@@ -483,6 +483,52 @@ static void select_nm_attack_level_4010(PLW* wk, s16 kos, s16 level) {
     }
 }
 
+/* Which attack table and level a low-attack pattern selects. The nine patterns
+ * shared the is_blocked_by_hikusugi guard character for character, so that
+ * moves to the single arm they now share and only the selection stays here.
+ *
+ * The three select functions cannot be merged: they differ in two table names
+ * each, which is one more than Recipe D allows. */
+static void select_nm_attack_for_pat_status(PLW* wk, s16 kos) {
+    switch (wk->wu.pat_status) {
+    case 20:
+        select_nm_attack_level_3010(wk, kos, 3);
+        break;
+
+    case 14:
+        select_nm_attack_level_3010(wk, kos, 6);
+        break;
+
+    case 26:
+        select_nm_attack_level_3010(wk, kos, 9);
+        break;
+
+    case 22:
+        select_nm_attack_level_2010(wk, kos, 2);
+        break;
+
+    case 16:
+        select_nm_attack_level_2010(wk, kos, 5);
+        break;
+
+    case 28:
+        select_nm_attack_level_2010(wk, kos, 8);
+        break;
+
+    case 24:
+        select_nm_attack_level_4010(wk, kos, 4);
+        break;
+
+    case 18:
+        select_nm_attack_level_4010(wk, kos, 7);
+        break;
+
+    case 30:
+        select_nm_attack_level_4010(wk, kos, 10);
+        break;
+    }
+}
+
 s32 check_nm_attack(PLW* wk) { // 🟡
     s16 kos;
     s16 koa;
@@ -495,75 +541,19 @@ s32 check_nm_attack(PLW* wk) { // 🟡
 
     switch (wk->wu.pat_status) {
     case 20:
-        if (is_blocked_by_hikusugi(wk)) {
-            return 0;
-        }
-
-        select_nm_attack_level_3010(wk, kos, 3);
-        break;
-
     case 14:
-        if (is_blocked_by_hikusugi(wk)) {
-            return 0;
-        }
-
-        select_nm_attack_level_3010(wk, kos, 6);
-        break;
-
     case 26:
-        if (is_blocked_by_hikusugi(wk)) {
-            return 0;
-        }
-
-        select_nm_attack_level_3010(wk, kos, 9);
-        break;
-
     case 22:
-        if (is_blocked_by_hikusugi(wk)) {
-            return 0;
-        }
-
-        select_nm_attack_level_2010(wk, kos, 2);
-        break;
-
     case 16:
-        if (is_blocked_by_hikusugi(wk)) {
-            return 0;
-        }
-
-        select_nm_attack_level_2010(wk, kos, 5);
-        break;
-
     case 28:
-        if (is_blocked_by_hikusugi(wk)) {
-            return 0;
-        }
-
-        select_nm_attack_level_2010(wk, kos, 8);
-        break;
-
     case 24:
-        if (is_blocked_by_hikusugi(wk)) {
-            return 0;
-        }
-
-        select_nm_attack_level_4010(wk, kos, 4);
-        break;
-
     case 18:
-        if (is_blocked_by_hikusugi(wk)) {
-            return 0;
-        }
-
-        select_nm_attack_level_4010(wk, kos, 7);
-        break;
-
     case 30:
         if (is_blocked_by_hikusugi(wk)) {
             return 0;
         }
 
-        select_nm_attack_level_4010(wk, kos, 10);
+        select_nm_attack_for_pat_status(wk, kos);
         break;
 
     default:
