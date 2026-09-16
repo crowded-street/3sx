@@ -1794,35 +1794,21 @@ void Pool_Score(s16 PL_id) {
     }
 }
 
+/* The seven conditions that rule a CPU break-in out, in the order the original
+ * tested them. `||` short-circuits left to right, so each is still reached only
+ * when the earlier ones were false, and none of them has a side effect. */
+static s32 break_in_is_ruled_out(s16 PL_id) {
+    return (Round_Result & 0x8000) || Break_Com[PL_id][17] || Continue_Coin[PL_id] ||
+           (VS_Index[PL_id] < 7 || VS_Index[PL_id] >= 9) || Straight_Flag[PL_id] ||
+           (judge_final[Player_id][0].sp_point < 2) ||
+           (Super_Arts_Finish[PL_id] < BIC_SA_Data[0][save_w[Present_Mode].Battle_Number[Play_Type]]);
+}
+
 s32 Check_Break_Into_CPU(s16 PL_id) {
     Break_Into_CPU = 0;
     Battle_Q[PL_id] = 0;
 
-    if (Round_Result & 0x8000) {
-        return 0;
-    }
-
-    if (Break_Com[PL_id][17]) {
-        return 0;
-    }
-
-    if (Continue_Coin[PL_id]) {
-        return 0;
-    }
-
-    if (VS_Index[PL_id] < 7 || VS_Index[PL_id] >= 9) {
-        return 0;
-    }
-
-    if (Straight_Flag[PL_id]) {
-        return 0;
-    }
-
-    if (judge_final[Player_id][0].sp_point < 2) {
-        return 0;
-    }
-
-    if (Super_Arts_Finish[PL_id] < BIC_SA_Data[0][save_w[Present_Mode].Battle_Number[Play_Type]]) {
+    if (break_in_is_ruled_out(PL_id)) {
         return 0;
     }
 
