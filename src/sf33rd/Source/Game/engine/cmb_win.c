@@ -806,6 +806,38 @@ static void run_scored_combo_window(s8 PL) {
 }
 
 /* The same for a record with no score to show - the message only. */
+/* Hold the finished message on screen, then either hand over to the scored
+ * animation or retire the record and free its queue slot. Every `return` in the
+ * original left the switch with nothing after it. */
+static void hold_then_retire_plain_record(s8 PL) {
+    if (!(Game_pause & 0x80)) {
+        cmst_buff[PL][cst_read[PL]].timer[1]--;
+
+        if (cmst_buff[PL][cst_read[PL]].timer[1]) {
+            draw_combo_message_now(PL);
+
+            return;
+        }
+    } else {
+        draw_combo_message_now(PL);
+
+        return;
+    }
+
+    if (cmst_buff[PL][cst_read[PL]].pts_flag) {
+        cmst_buff[PL][cst_read[PL]].routine_num++;
+        return;
+    }
+
+    if (cst_read[PL] == (ArcadeBalance_IsEnabled() ? 3 : 4)) {
+        cst_read[PL] = 0;
+    } else {
+        cst_read[PL]++;
+    }
+
+    cmb_stock[PL]--;
+}
+
 static void run_plain_combo_window(s8 PL) {
     switch ((cmst_buff[PL][cst_read[PL]].routine_num)) {
     case 0:
@@ -830,32 +862,7 @@ static void run_plain_combo_window(s8 PL) {
         break;
 
     case 2:
-        if (!(Game_pause & 0x80)) {
-            cmst_buff[PL][cst_read[PL]].timer[1]--;
-
-            if (cmst_buff[PL][cst_read[PL]].timer[1]) {
-                draw_combo_message_now(PL);
-
-                return;
-            }
-        } else {
-            draw_combo_message_now(PL);
-
-            return;
-        }
-
-        if (cmst_buff[PL][cst_read[PL]].pts_flag) {
-            cmst_buff[PL][cst_read[PL]].routine_num++;
-            return;
-        }
-
-        if (cst_read[PL] == (ArcadeBalance_IsEnabled() ? 3 : 4)) {
-            cst_read[PL] = 0;
-        } else {
-            cst_read[PL]++;
-        }
-
-        cmb_stock[PL]--;
+        hold_then_retire_plain_record(PL);
         break;
     }
 }
