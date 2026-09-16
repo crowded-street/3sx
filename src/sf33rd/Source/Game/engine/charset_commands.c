@@ -460,9 +460,11 @@ s32 comm_if_s(WORK* wk, UNK11* ctc) {
     return jump_on_shot_equal(wk, ctc, my_shdat, shdat);
 }
 
-s32 comm_rapp(WORK* wk, UNK11* ctc) {
+/* The four rapid-fire opcodes differ only in which waza_flag they watch: a
+ * work of its own asks about its own player, a helper work about its master. */
+static s32 jump_on_waza_flag(WORK* wk, UNK11* ctc, s32 waza_index) {
     if (wk->work_id == 1) {
-        if (wcp[wk->id].waza_flag[9]) {
+        if (wcp[wk->id].waza_flag[waza_index]) {
             setup_comm_back(wk);
             set_char_move_init2(wk, ctc->koc, ctc->ix, ctc->pat, 1);
             return 0;
@@ -471,7 +473,7 @@ s32 comm_rapp(WORK* wk, UNK11* ctc) {
         return 1;
     }
 
-    if (wcp[((WORK_Other*)wk)->master_id & 1].waza_flag[9]) {
+    if (wcp[((WORK_Other*)wk)->master_id & 1].waza_flag[waza_index]) {
         setup_comm_back(wk);
         set_char_move_init2(wk, ctc->koc, ctc->ix, ctc->pat, 1);
         return 0;
@@ -480,24 +482,12 @@ s32 comm_rapp(WORK* wk, UNK11* ctc) {
     return 1;
 }
 
+s32 comm_rapp(WORK* wk, UNK11* ctc) {
+    return jump_on_waza_flag(wk, ctc, 9);
+}
+
 s32 comm_rapk(WORK* wk, UNK11* ctc) {
-    if (wk->work_id == 1) {
-        if (wcp[wk->id].waza_flag[11]) {
-            setup_comm_back(wk);
-            set_char_move_init2(wk, ctc->koc, ctc->ix, ctc->pat, 1);
-            return 0;
-        }
-
-        return 1;
-    }
-
-    if (wcp[((WORK_Other*)wk)->master_id & 1].waza_flag[11]) {
-        setup_comm_back(wk);
-        set_char_move_init2(wk, ctc->koc, ctc->ix, ctc->pat, 1);
-        return 0;
-    }
-
-    return 1;
+    return jump_on_waza_flag(wk, ctc, 11);
 }
 
 s32 comm_gets(WORK* wk, UNK11* /* unused */) {
@@ -789,43 +779,11 @@ s32 comm_wclt2(WORK* wk, UNK11* ctc) {
 }
 
 s32 comm_rapp2(WORK* wk, UNK11* ctc) {
-    if (wk->work_id == 1) {
-        if (wcp[wk->id].waza_flag[8]) {
-            setup_comm_back(wk);
-            set_char_move_init2(wk, ctc->koc, ctc->ix, ctc->pat, 1);
-            return 0;
-        }
-
-        return 1;
-    }
-
-    if (wcp[((WORK_Other*)wk)->master_id & 1].waza_flag[8]) {
-        setup_comm_back(wk);
-        set_char_move_init2(wk, ctc->koc, ctc->ix, ctc->pat, 1);
-        return 0;
-    }
-
-    return 1;
+    return jump_on_waza_flag(wk, ctc, 8);
 }
 
 s32 comm_rapk2(WORK* wk, UNK11* ctc) {
-    if (wk->work_id == 1) {
-        if (wcp[wk->id].waza_flag[10]) {
-            setup_comm_back(wk);
-            set_char_move_init2(wk, ctc->koc, ctc->ix, ctc->pat, 1);
-            return 0;
-        }
-
-        return 1;
-    }
-
-    if (wcp[((WORK_Other*)wk)->master_id & 1].waza_flag[10]) {
-        setup_comm_back(wk);
-        set_char_move_init2(wk, ctc->koc, ctc->ix, ctc->pat, 1);
-        return 0;
-    }
-
-    return 1;
+    return jump_on_waza_flag(wk, ctc, 10);
 }
 
 s32 comm_iflg(WORK* wk, UNK11* ctc) {
