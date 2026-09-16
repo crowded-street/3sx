@@ -480,6 +480,22 @@ void reqPlayerDraw() { // 🔴
     sort_push_request(&plw[1].wu);
 }
 
+static s32 background_is_free(void) {
+    return bg_app_stop == 0 && bg_app == 0;
+}
+
+static s32 player_is_past_intro(s16 ix) {
+    return (plw[ix].wu.routine_no[1] == 1) && (plw[ix].wu.routine_no[2] == 0) && (plw[ix].wu.routine_no[3] > 2);
+}
+
+static s32 round_is_in_play(void) {
+    return pcon_rno[0] == 2 && pcon_rno[1] == 0 && pcon_rno[2] == 2;
+}
+
+static s32 player_has_no_body_box(s16 ix) {
+    return plw[ix].wu.cg_ja.boix == 0 && plw[ix].wu.cg_ja.cuix == 0 && plw[ix].wu.pat_status == 38;
+}
+
 void plcnt_init() { // 🟡
     if (!ArcadeBalance_IsEnabled()) {
         plw[0].reserv_add_y = plw[1].reserv_add_y = 0;
@@ -982,7 +998,7 @@ void move_P1_move_P2() { // 🟢
         Player_move(&plw[0], processed_lvbt(Convert_User_Setting(0)));
     }
 
-    if (bg_app_stop == 0 && bg_app == 0 && set_field_hosei_flag(&plw[0], scrr, 1) != 0) {
+    if (background_is_free() && set_field_hosei_flag(&plw[0], scrr, 1) != 0) {
         set_field_hosei_flag(&plw[0], scrl, 0);
     }
 
@@ -990,7 +1006,7 @@ void move_P1_move_P2() { // 🟢
         Player_move(&plw[1], processed_lvbt(Convert_User_Setting(1)));
     }
 
-    if (bg_app_stop == 0 && bg_app == 0 && set_field_hosei_flag(&plw[1], scrr, 1) != 0) {
+    if (background_is_free() && set_field_hosei_flag(&plw[1], scrr, 1) != 0) {
         set_field_hosei_flag(&plw[1], scrl, 0);
     }
 }
@@ -1000,7 +1016,7 @@ void move_P2_move_P1() { // 🟢
         Player_move(&plw[1], processed_lvbt(Convert_User_Setting(1)));
     }
 
-    if (bg_app_stop == 0 && bg_app == 0 && set_field_hosei_flag(&plw[1], scrr, 1) != 0) {
+    if (background_is_free() && set_field_hosei_flag(&plw[1], scrr, 1) != 0) {
         set_field_hosei_flag(&plw[1], scrl, 0);
     }
 
@@ -1008,7 +1024,7 @@ void move_P2_move_P1() { // 🟢
         Player_move(&plw[0], processed_lvbt(Convert_User_Setting(0)));
     }
 
-    if (bg_app_stop == 0 && bg_app == 0 && set_field_hosei_flag(&plw[0], scrr, 1) != 0) {
+    if (background_is_free() && set_field_hosei_flag(&plw[0], scrr, 1) != 0) {
         set_field_hosei_flag(&plw[0], scrl, 0);
     }
 }
@@ -1064,7 +1080,7 @@ void check_damage_hosei_nage(PLW* as, PLW* ds) { // 🟢
             return;
         }
 
-        if (bg_app_stop == 0 && bg_app == 0 && set_field_hosei_flag(as, scrr, 1) != 0) {
+        if (background_is_free() && set_field_hosei_flag(as, scrr, 1) != 0) {
             set_field_hosei_flag(as, scrl, 0);
         }
 
@@ -1231,7 +1247,7 @@ s32 check_sa_type_rebirth(PLW* wk) { // 🟢
 s16 nekorobi_check(s8 ix) { // 🟢
     s16 rnum = 0;
 
-    if ((plw[ix].wu.routine_no[1] == 1) && (plw[ix].wu.routine_no[2] == 0) && (plw[ix].wu.routine_no[3] > 2)) {
+    if (player_is_past_intro(ix)) {
         rnum = 1;
     }
 
@@ -1589,11 +1605,11 @@ s16 check_combo_end(s16 ix) { // 🟢
         return 1;
     }
 
-    if (pcon_rno[0] == 2 && pcon_rno[1] == 0 && pcon_rno[2] == 2) {
+    if (round_is_in_play()) {
         return 0;
     }
 
-    if (plw[ix].wu.cg_ja.boix == 0 && plw[ix].wu.cg_ja.cuix == 0 && plw[ix].wu.pat_status == 38) {
+    if (player_has_no_body_box(ix)) {
         return 0;
     }
 
