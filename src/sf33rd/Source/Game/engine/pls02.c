@@ -380,6 +380,34 @@ s16 meri_case_switch(s16 meri) { // 🟢
     return meri;
 }
 
+/* The two hit boxes as they are actually compared: the player's box raised by
+ * its jump correction, the effect's lowered by its height. Both are copies -
+ * neither box on the work is written. */
+static s16 body_touch_overlap(PLW* hmw, WORK* efw, const s16* dad0, const s16* dad1) {
+    s16 dad2[4];
+    s16 dad3[4];
+
+    dad2[0] = dad0[0];
+    dad2[1] = dad0[1];
+    dad2[2] = dad0[2];
+    dad2[3] = dad0[3];
+    dad3[0] = dad1[0];
+    dad3[1] = dad1[1];
+    dad3[2] = dad1[2];
+    dad3[3] = dad1[3];
+
+    if (hmw->wu.cg_jphos) {
+        dad2[2] += hmw->wu.cg_jphos;
+        dad2[3] -= hmw->wu.cg_jphos;
+    }
+
+    if (efw->xyz[1].disp.pos) {
+        dad3[2] -= efw->xyz[1].disp.pos;
+    }
+
+    return hit_check_subroutine(&hmw->wu, efw, &dad2[0], &dad3[0]);
+}
+
 void check_body_touch2() {
     PLW* hmw;
     PLW* cmw;
@@ -388,8 +416,6 @@ void check_body_touch2() {
     s16* dad1;
     s16 meri;
     s16 ix;
-    s16 dad2[4];
-    s16 dad3[4];
 
     if (plw[0].wu.operator) {
         hmw = &plw[0];
@@ -406,25 +432,7 @@ void check_body_touch2() {
         dad1 = &efw->hosei_adrs[ix].hos_box[0];
 
         if (!hoseishitemo_eenka(&hmw->wu, efw->xyz[0].disp.pos + (dad1[0] + dad1[1] / 2))) {
-            dad2[0] = dad0[0];
-            dad2[1] = dad0[1];
-            dad2[2] = dad0[2];
-            dad2[3] = dad0[3];
-            dad3[0] = dad1[0];
-            dad3[1] = dad1[1];
-            dad3[2] = dad1[2];
-            dad3[3] = dad1[3];
-
-            if (hmw->wu.cg_jphos) {
-                dad2[2] += hmw->wu.cg_jphos;
-                dad2[3] -= hmw->wu.cg_jphos;
-            }
-
-            if (efw->xyz[1].disp.pos) {
-                dad3[2] -= efw->xyz[1].disp.pos;
-            }
-
-            meri = hit_check_subroutine(&hmw->wu, efw, &dad2[0], &dad3[0]);
+            meri = body_touch_overlap(hmw, efw, dad0, dad1);
 
             if (meri != 0) {
                 meri = meri_case_switch(meri);
