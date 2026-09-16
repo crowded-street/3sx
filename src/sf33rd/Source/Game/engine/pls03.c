@@ -783,6 +783,15 @@ static s32 check_special_attack_grounded(PLW* wk) {
     return 0;
 }
 
+/* The four reasons an airborne slot is passed over, in the order the original
+ * tested them. `||` short-circuits left to right, so each test is still reached
+ * only when every earlier one was false. */
+static s32 airborne_slot_is_skipped(const PLW* wk, s16 i) {
+    return ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_22) && chainex_check[wk->wu.id][i - 20]) ||
+           (wk->cp->waza_flag[i] == -1) || slot_blocked_by_super(wk, i) ||
+           ((wk->cp->btix[i] & 0x2000) && (wk->wu.mvxy.a[0].sp < 0));
+}
+
 static s32 check_special_attack_airborne(PLW* wk) {
     s16 i;
     s16 j;
@@ -801,19 +810,7 @@ static s32 check_special_attack_airborne(PLW* wk) {
     conpane = &wk->cp->sw_lvbt;
 
     for (i = 46; i < 56; i++) {
-        if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_22) && chainex_check[wk->wu.id][i - 20]) {
-            continue;
-        }
-
-        if (wk->cp->waza_flag[i] == -1) {
-            continue;
-        }
-
-        if (slot_blocked_by_super(wk, i)) {
-            continue;
-        }
-
-        if ((wk->cp->btix[i] & 0x2000) && (wk->wu.mvxy.a[0].sp < 0)) {
+        if (airborne_slot_is_skipped(wk, i)) {
             continue;
         }
 
