@@ -417,51 +417,51 @@ static void commit_timer_art_stock(s8 side) {
 }
 
 void wipe_check() { // 🟡 CPS3 clears an active timer-SA meter at wipe start
-    if (Old_Stop_SG) {
-        if (wipe_just_started()) {
-            // Stop_SG is raised one frame before WipeOut advances; CPS3 clears on that first wipe frame.
-            restore_gauge_after_timer_art(0);
-            restore_gauge_after_timer_art(1);
-
-            // Preserve the pending post-wipe UI cleanup while remembering that the meter state is committed.
-            Exec_Wipe_F = -1;
-        }
-
-        if (Exec_Wipe != 0) {
-            return;
-        }
-
-        if (Exec_Wipe_F == 1) {
-            return;
-        }
-
-        Exec_Wipe_F = 1;
-
-        if (spg_dat[0].time == 1 && time_clear[0] == 1) {
-            if (spg_dat[0].time_no_clear == 0) {
-                spgauge_work_clear(0);
-                sc_clear(1, 25, 4, 26);
-                sast_color_chenge(0);
-                spgauge_wipe_write(0);
-            } else {
-                satime_ko_after_clear(0);
-            }
-        }
-
-        if (spg_dat[1].time == 1 && time_clear[1] == 1) {
-            if (spg_dat[1].time_no_clear == 0) {
-                spgauge_work_clear(1);
-                sc_clear(43, 25, 46, 26);
-                sast_color_chenge(1);
-                spgauge_wipe_write(1);
-            } else {
-                satime_ko_after_clear(1);
-            }
-        }
-
-    } else {
+    if (!Old_Stop_SG) {
         commit_timer_art_stock(0);
         commit_timer_art_stock(1);
+        return;
+    }
+
+    if (wipe_just_started()) {
+        // Stop_SG is raised one frame before WipeOut advances; CPS3 clears on that first wipe frame.
+        restore_gauge_after_timer_art(0);
+        restore_gauge_after_timer_art(1);
+
+        // Preserve the pending post-wipe UI cleanup while remembering that the meter state is committed.
+        Exec_Wipe_F = -1;
+    }
+
+    if (Exec_Wipe != 0) {
+        return;
+    }
+
+    if (Exec_Wipe_F == 1) {
+        return;
+    }
+
+    Exec_Wipe_F = 1;
+
+    if (spg_dat[0].time == 1 && time_clear[0] == 1) {
+        if (spg_dat[0].time_no_clear == 0) {
+            spgauge_work_clear(0);
+            sc_clear(1, 25, 4, 26);
+            sast_color_chenge(0);
+            spgauge_wipe_write(0);
+        } else {
+            satime_ko_after_clear(0);
+        }
+    }
+
+    if (spg_dat[1].time == 1 && time_clear[1] == 1) {
+        if (spg_dat[1].time_no_clear == 0) {
+            spgauge_work_clear(1);
+            sc_clear(43, 25, 46, 26);
+            sast_color_chenge(1);
+            spgauge_wipe_write(1);
+        } else {
+            satime_ko_after_clear(1);
+        }
     }
 }
 
