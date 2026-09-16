@@ -60,6 +60,34 @@ void spgauge_work_clear(s8 Stpl_Num);
 void spgauge_wipe_write(s8 Stpl_Num);
 void sa_waku_trans(s8 Stpl_Num, s8 Spg_Col);
 
+static s32 ex_gauge_shows_max(s8 Stpl_Num) {
+    return (spg_dat[Stpl_Num].ex_flag == 1 && omop_use_ex_gauge_ix[Stpl_Num] == 0) &&
+           (spg_dat[Stpl_Num].max_old == 1 || max_rno2[Stpl_Num] == 1);
+}
+
+static s32 sa_gauge_should_flash(s8 Spg_Num) {
+    return sast_now[Spg_Num] == 0 && spg_dat[Spg_Num].flag2 == 0 && sa_gauge_flash[Spg_Num] != 0;
+}
+
+static s32 sa_stock_just_filled(s8 Spg_Num) {
+    return plw[Spg_Num].sa->store == plw[Spg_Num].sa->store_max && spg_dat[Spg_Num].max_old == 0 &&
+           spg_dat[Spg_Num].max == 0;
+}
+
+static s32 sa_gauge_colour_is_live(s8 Spg_Num) {
+    return (plw[Spg_Num].sa->ex != 0 || spg_dat[Spg_Num].ex_flag == 1 || spg_dat[Spg_Num].sa_flag == 1) &&
+           !Game_pause;
+}
+
+static s32 sa_gauge_may_redraw(s8 Spg_Num) {
+    return max2[Spg_Num] != 1 && spg_dat[Spg_Num].max == 0 && spg_dat[Spg_Num].flag == 0 &&
+           spg_dat[Spg_Num].max_old == 0 && spg_dat[Spg_Num].time_no_clear == 0;
+}
+
+static s32 sa_gauge_may_redraw_stpl(s8 Stpl_Num) {
+    return max2[Stpl_Num] == 0 && spg_dat[Stpl_Num].max_old == 0 && spg_dat[Stpl_Num].sa_mukou == 0;
+}
+
 void spgauge_cont_init() {
     s8 lpy;
 
@@ -271,7 +299,7 @@ void spgauge_control(s8 Spg_Num) {
         spg_dat[Spg_Num].ex_flag = 1;
         spg_dat[Spg_Num].timer = 16;
         sa_gauge_flash[Spg_Num] &= ~2;
-    } else if (sast_now[Spg_Num] == 0 && spg_dat[Spg_Num].flag2 == 0 && sa_gauge_flash[Spg_Num] != 0) {
+    } else if (sa_gauge_should_flash(Spg_Num)) {
         spgauge_sound_request(Spg_Num);
 
         if (super_arts[Spg_Num].gt2 == 1) {
@@ -282,8 +310,7 @@ void spgauge_control(s8 Spg_Num) {
             time_flag[Spg_Num] = 0;
         }
 
-        if (plw[Spg_Num].sa->store == plw[Spg_Num].sa->store_max && spg_dat[Spg_Num].max_old == 0 &&
-            spg_dat[Spg_Num].max == 0) {
+        if (sa_stock_just_filled(Spg_Num)) {
             spg_dat[Spg_Num].max = 1;
         } else {
             spg_dat[Spg_Num].max = 0;
@@ -326,8 +353,7 @@ void spgauge_control(s8 Spg_Num) {
         sast_control(Spg_Num);
     }
 
-    if ((plw[Spg_Num].sa->ex != 0 || spg_dat[Spg_Num].ex_flag == 1 || spg_dat[Spg_Num].sa_flag == 1) &&
-        !Game_pause) {
+    if (sa_gauge_colour_is_live(Spg_Num)) {
         sagauge_color_chenge(Spg_Num);
     }
 
@@ -338,8 +364,7 @@ void spgauge_control(s8 Spg_Num) {
             spg_dat[Spg_Num].current_spg = plw[Spg_Num].sa->gauge.s.h;
         }
 
-        if (max2[Spg_Num] != 1 && spg_dat[Spg_Num].max == 0 && spg_dat[Spg_Num].flag == 0 &&
-            spg_dat[Spg_Num].max_old == 0 && spg_dat[Spg_Num].time_no_clear == 0) {
+        if (sa_gauge_may_redraw(Spg_Num)) {
             sa_gauge_trans(Spg_Num);
         }
     }
@@ -610,8 +635,7 @@ void sast_control(s8 Stpl_Num) {
                 return;
             }
 
-            if ((spg_dat[Stpl_Num].ex_flag == 1 && omop_use_ex_gauge_ix[Stpl_Num] == 0) &&
-                (spg_dat[Stpl_Num].max_old == 1 || max_rno2[Stpl_Num] == 1)) {
+            if (ex_gauge_shows_max(Stpl_Num)) {
                 break;
             }
 
@@ -723,8 +747,7 @@ void sast_control(s8 Stpl_Num) {
             max2[Stpl_Num] = 0;
         }
 
-        if ((spg_dat[Stpl_Num].ex_flag == 1 && omop_use_ex_gauge_ix[Stpl_Num] == 0) &&
-            (spg_dat[Stpl_Num].max_old == 1 || max_rno2[Stpl_Num] == 1)) {
+        if (ex_gauge_shows_max(Stpl_Num)) {
             break;
         }
 
@@ -738,7 +761,7 @@ void sast_control(s8 Stpl_Num) {
         sa_stock_trans(spg_dat[Stpl_Num].spg_level, col, Stpl_Num);
         sa_waku_trans(Stpl_Num, col);
 
-        if (max2[Stpl_Num] == 0 && spg_dat[Stpl_Num].max_old == 0 && spg_dat[Stpl_Num].sa_mukou == 0) {
+        if (sa_gauge_may_redraw_stpl(Stpl_Num)) {
             sa_gauge_trans(Stpl_Num);
         }
 
