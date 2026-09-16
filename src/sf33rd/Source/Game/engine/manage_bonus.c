@@ -516,6 +516,34 @@ static void leave_car_result(void) {
     Check_Fade_Out_BGM(546);
 }
 
+/* The car result's later states: counting the units, the pause after the
+ * count, and leaving. Case labels are the originals. */
+static void run_car_result_late() {
+    switch (C_No[2]) {
+    case 3:
+        if (bonus_cut_and_timer_finished()) {
+            count_one_car_unit();
+        }
+
+        break;
+
+    case 4:
+        if (--C_Timer == 0) {
+            C_No[2]++;
+            C_Timer = 30;
+        }
+
+        break;
+
+    default:
+        if (Cut_Cut_C_Timer() == 0) {
+            leave_car_result();
+        }
+
+        break;
+    }
+}
+
 void Game_Manage_12_8() {
     switch (C_No[2]) {
     case 0:
@@ -537,26 +565,8 @@ void Game_Manage_12_8() {
 
         break;
 
-    case 3:
-        if (bonus_cut_and_timer_finished()) {
-            count_one_car_unit();
-        }
-
-        break;
-
-    case 4:
-        if (--C_Timer == 0) {
-            C_No[2]++;
-            C_Timer = 30;
-        }
-
-        break;
-
     default:
-        if (Cut_Cut_C_Timer() == 0) {
-            leave_car_result();
-        }
-
+        run_car_result_late();
         break;
     }
 }
