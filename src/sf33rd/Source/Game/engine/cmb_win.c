@@ -649,17 +649,23 @@ void combo_window_push(s8 PL, s8 KIND) { // 🟡
 
 /* Animating one queued combo record that shows a score: the message slides in,
  * then the points, then the record is held and retired. */
+/* Draw the combo message at its current slide position. Written out four times
+ * across the two window animations, identically. */
+static void draw_combo_message_now(s8 PL) {
+    combo_message_set(
+        PL,
+        cmst_buff[PL][cst_read[PL]].kind,
+        cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[0] - 1],
+        cmst_buff[PL][cst_read[PL]].x_posnum[0],
+        cmst_buff[PL][cst_read[PL]].hit_hi,
+        cmst_buff[PL][cst_read[PL]].hit_low
+    );
+}
+
 /* Redraw the message at its current slide position. */
 static void draw_combo_message(s8 PL) {
     if (cmst_buff[PL][cst_read[PL]].x_posnum[0] != 0) {
-        combo_message_set(
-            PL,
-            cmst_buff[PL][cst_read[PL]].kind,
-            cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[0] - 1],
-            cmst_buff[PL][cst_read[PL]].x_posnum[0],
-            cmst_buff[PL][cst_read[PL]].hit_hi,
-            cmst_buff[PL][cst_read[PL]].hit_low
-        );
+        draw_combo_message_now(PL);
     }
 }
 
@@ -775,28 +781,14 @@ static void run_scored_combo_window(s8 PL) {
             cmst_buff[PL][cst_read[PL]].timer[1]--;
 
             if (cmst_buff[PL][cst_read[PL]].timer[1]) {
-                combo_message_set(
-                    PL,
-                    cmst_buff[PL][cst_read[PL]].kind,
-                    cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[0] - 1],
-                    cmst_buff[PL][cst_read[PL]].x_posnum[0],
-                    cmst_buff[PL][cst_read[PL]].hit_hi,
-                    cmst_buff[PL][cst_read[PL]].hit_low
-                );
+                draw_combo_message_now(PL);
 
                 draw_combo_points_at(PL, (cmst_buff[PL][cst_read[PL]].move[1] - 1));
 
                 return;
             }
         } else {
-            combo_message_set(
-                PL,
-                cmst_buff[PL][cst_read[PL]].kind,
-                cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[0] - 1],
-                cmst_buff[PL][cst_read[PL]].x_posnum[0],
-                cmst_buff[PL][cst_read[PL]].hit_hi,
-                cmst_buff[PL][cst_read[PL]].hit_low
-            );
+            draw_combo_message_now(PL);
             draw_combo_points_at(PL, (cmst_buff[PL][cst_read[PL]].move[1] - 1));
             return;
         }
@@ -833,14 +825,7 @@ static void run_plain_combo_window(s8 PL) {
             }
         }
 
-        combo_message_set(
-            PL,
-            cmst_buff[PL][cst_read[PL]].kind,
-            cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[0] - 1],
-            cmst_buff[PL][cst_read[PL]].x_posnum[0],
-            cmst_buff[PL][cst_read[PL]].hit_hi,
-            cmst_buff[PL][cst_read[PL]].hit_low
-        );
+        draw_combo_message_now(PL);
 
         break;
 
@@ -849,26 +834,12 @@ static void run_plain_combo_window(s8 PL) {
             cmst_buff[PL][cst_read[PL]].timer[1]--;
 
             if (cmst_buff[PL][cst_read[PL]].timer[1]) {
-                combo_message_set(
-                    PL,
-                    cmst_buff[PL][cst_read[PL]].kind,
-                    cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[0] - 1],
-                    cmst_buff[PL][cst_read[PL]].x_posnum[0],
-                    cmst_buff[PL][cst_read[PL]].hit_hi,
-                    cmst_buff[PL][cst_read[PL]].hit_low
-                );
+                draw_combo_message_now(PL);
 
                 return;
             }
         } else {
-            combo_message_set(
-                PL,
-                cmst_buff[PL][cst_read[PL]].kind,
-                cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[0] - 1],
-                cmst_buff[PL][cst_read[PL]].x_posnum[0],
-                cmst_buff[PL][cst_read[PL]].hit_hi,
-                cmst_buff[PL][cst_read[PL]].hit_low
-            );
+            draw_combo_message_now(PL);
 
             return;
         }
