@@ -1518,6 +1518,18 @@ void pl_lvr_set() { // 🟢
     wcp[cmd_id].lgp += lever_gacha_tbl[(cmd_pl->cp->sw_now / 256) & 7] * 1;
 }
 
+/* Advances one hold counter and returns the next. The two loops differed
+ * only in which bit they tested. */
+static s16* bump_or_reset_count(s16* counter, s32 pressed) {
+    if (pressed) {
+        *counter += 1;
+    } else {
+        *counter = 0;
+    }
+
+    return counter + 1;
+}
+
 void sw_pick_up() { // 🟢
     s16 i;
     s16* cnt_address1;
@@ -1527,24 +1539,12 @@ void sw_pick_up() { // 🟢
     cnt_address1 = &chk_pl->up_cnt;
 
     for (i = 0; i < 10; i++) {
-        if (chk_pl->sw_new & sw_work) {
-            *cnt_address1 += 1;
-        } else {
-            *cnt_address1 = 0;
-        }
-
-        cnt_address1++;
+        cnt_address1 = bump_or_reset_count(cnt_address1, chk_pl->sw_new & sw_work);
         sw_work *= 2;
     }
 
     for (i = 0; i < 4; i++) {
-        if (chk_pl->sw_new & lvr_chk_tbl[0][i]) {
-            *cnt_address1 += 1;
-        } else {
-            *cnt_address1 = 0;
-        }
-
-        cnt_address1++;
+        cnt_address1 = bump_or_reset_count(cnt_address1, chk_pl->sw_new & lvr_chk_tbl[0][i]);
     }
 
     wcp[cmd_id].sw_new = chk_pl->sw_new;
