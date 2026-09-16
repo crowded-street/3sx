@@ -356,12 +356,10 @@ void player_mv_4000(PLW* wk) { // 🟡
     about_gauge_process(wk);
 }
 
-s16 check_hit_stop(PLW* wk) { // 🟢
-    s16 num;
-    WORK* emwk = (WORK*)wk->wu.target_adrs;
-
-    num = 0;
-
+/* The two stops competing for the same frame. Returns 1 in the case where the
+ * damage stop won, which ended check_hit_stop at once - before the
+ * sa_stop_flag test at its foot, so the caller returns straight away too. */
+static s32 damage_stop_wins(PLW* wk) {
     if ((wk->wu.dm_stop != 0) && (wk->wu.hit_stop != 0)) {
         if (wk->wu.routine_no[3]) {
             wk->wu.hit_stop = select_hit_stop(wk->wu.hit_stop, wk->wu.dm_stop);
@@ -369,30 +367,50 @@ s16 check_hit_stop(PLW* wk) { // 🟢
         } else {
             wk->wu.dm_stop = select_hit_stop(wk->wu.dm_stop, wk->wu.hit_stop);
             wk->wu.hit_stop = 0;
-            return 0;
+            return 1;
         }
+    }
+
+    return 0;
+}
+
+/* One frame of hit stop counting off, including the super-art freeze handing
+ * back control part way through. A negative hit_stop counts the other way and
+ * keeps animating, as in the original. */
+static void tick_hit_stop(PLW* wk) {
+    if (wk->wu.hit_stop > 0) {
+        wk->wu.hit_stop--;
+
+        if (wk->sa_stop_flag == 2) {
+            if (wk->just_sa_stop_timer == Game_timer) {
+                wk->wu.hit_stop++;
+            }
+
+            if (wk->wu.hit_stop <= wk->sa_stop_sai) {
+                wk->sa_stop_lvdir = wk->cp->sw_lvbt;
+                wk->sa_stop_flag = 1;
+            }
+        }
+    } else {
+        wk->wu.hit_stop++;
+        char_move(&wk->wu);
+    }
+}
+
+s16 check_hit_stop(PLW* wk) { // 🟢
+    s16 num;
+    WORK* emwk = (WORK*)wk->wu.target_adrs;
+
+    num = 0;
+
+    if (damage_stop_wins(wk)) {
+        return 0;
     }
 
     if (wk->wu.hit_stop) {
         num = 1;
 
-        if (wk->wu.hit_stop > 0) {
-            wk->wu.hit_stop--;
-
-            if (wk->sa_stop_flag == 2) {
-                if (wk->just_sa_stop_timer == Game_timer) {
-                    wk->wu.hit_stop++;
-                }
-
-                if (wk->wu.hit_stop <= wk->sa_stop_sai) {
-                    wk->sa_stop_lvdir = wk->cp->sw_lvbt;
-                    wk->sa_stop_flag = 1;
-                }
-            }
-        } else {
-            wk->wu.hit_stop++;
-            char_move(&wk->wu);
-        }
+        tick_hit_stop(wk);
 
         if (only_this_player_is_moving(wk, emwk)) {
             num = 0;
