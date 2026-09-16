@@ -79,6 +79,31 @@ static void select_horizontal_zoom_request_later(u16 p1zoom, u16 zoom_wk) {
     }
 }
 
+static void select_horizontal_zoom_request_middle(u16 p1zoom, u16 zoom_wk) {
+    switch (p1zoom & 0xE200) {
+    case 0x200:
+        switch (zoom_wk) {
+        case 0x2000:
+        case 0x0:
+        case 0x4000:
+        case 0x2200:
+            zoom_request_flag = 0x100;
+            scr_req_x = plw[0].wu.xyz[0].disp.pos;
+            break;
+
+        case 0x200:
+            zoom_request_flag = 0x100;
+            scr_req_x = (plw[0].wu.xyz[0].disp.pos + plw[1].wu.xyz[0].disp.pos) >> 1;
+            break;
+        }
+        break;
+
+    default:
+        select_horizontal_zoom_request_later(p1zoom, zoom_wk);
+        break;
+    }
+}
+
 static void select_horizontal_zoom_request(u16 p1zoom, u16 p2zoom) {
     u16 zoom_wk;
 
@@ -109,25 +134,8 @@ static void select_horizontal_zoom_request(u16 p1zoom, u16 p2zoom) {
         }
         break;
 
-    case 0x200:
-        switch (zoom_wk) {
-        case 0x2000:
-        case 0x0:
-        case 0x4000:
-        case 0x2200:
-            zoom_request_flag = 0x100;
-            scr_req_x = plw[0].wu.xyz[0].disp.pos;
-            break;
-
-        case 0x200:
-            zoom_request_flag = 0x100;
-            scr_req_x = (plw[0].wu.xyz[0].disp.pos + plw[1].wu.xyz[0].disp.pos) >> 1;
-            break;
-        }
-        break;
-
     default:
-        select_horizontal_zoom_request_later(p1zoom, zoom_wk);
+        select_horizontal_zoom_request_middle(p1zoom, zoom_wk);
         break;
     }
 }
