@@ -316,19 +316,26 @@ void Game_Manage_2_0() {
     Switch_Screen_Init(0);
 }
 
-s32 Wait_Seek_Time() {
+/* Reset both players' separation tracking. Wait_Seek_Time cleared it in two of
+ * its arms with the same pair of nested loops. */
+static void clear_separate_areas(void) {
     s16 ix;
     s16 ix2;
+
+    for (ix = 0; ix < 2; ix++) {
+        for (ix2 = 0; ix2 < 3; ix2++) {
+            Separate_Area[ix][ix2] = 0;
+            Shell_Separate_Area[ix][ix2] = 0;
+        }
+    }
+}
+
+s32 Wait_Seek_Time() {
 
     switch (Play_Mode) {
     case 1:
         if (Mode_Type != MODE_NETWORK) {
-            for (ix = 0; ix < 2; ix++) {
-                for (ix2 = 0; ix2 < 3; ix2++) {
-                    Separate_Area[ix][ix2] = 0;
-                    Shell_Separate_Area[ix][ix2] = 0;
-                }
-            }
+            clear_separate_areas();
 
             return 1;
         }
@@ -347,12 +354,7 @@ s32 Wait_Seek_Time() {
             return 1;
         }
 
-        for (ix = 0; ix < 2; ix++) {
-            for (ix2 = 0; ix2 < 3; ix2++) {
-                Separate_Area[ix][ix2] = 0;
-                Shell_Separate_Area[ix][ix2] = 0;
-            }
-        }
+        clear_separate_areas();
 
         if (--Lag_Timer == 0) {
             Lag_Timer = Lag_Ptr[0];
