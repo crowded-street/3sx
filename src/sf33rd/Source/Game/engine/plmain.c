@@ -1371,16 +1371,34 @@ static s32 timed_regain_is_blocked(PLW* wk) {
     return 0;
 }
 
-void check_omop_vital(PLW* wk) { // 🔴
-    if (pcon_dp_flag) {
+static void regain_while_idle(PLW* wk) {
+    if (idle_regain_is_blocked(wk)) {
         return;
+    }
+
+    gain_one_vitality(wk);
+}
+
+/* Health does not move at all while the game is paused, while the player is
+ * dead, or during a super stop. */
+static s32 vital_is_frozen(PLW* wk) {
+    if (pcon_dp_flag) {
+        return 1;
     }
 
     if (wk->dead_flag) {
-        return;
+        return 1;
     }
 
     if (sa_stop_check()) {
+        return 1;
+    }
+
+    return 0;
+}
+
+void check_omop_vital(PLW* wk) { // 🔴
+    if (vital_is_frozen(wk)) {
         return;
     }
 
@@ -1395,11 +1413,7 @@ void check_omop_vital(PLW* wk) { // 🔴
         break;
 
     case 2:
-        if (idle_regain_is_blocked(wk)) {
-            break;
-        }
-
-        gain_one_vitality(wk);
+        regain_while_idle(wk);
         break;
 
     case 3:
