@@ -81,6 +81,26 @@ static void commit_special_attack(PLW* wk, s16 i, s16 j) {
     }
 }
 
+/* The meter side of the EX gate, for a character that is not metamorphosed.
+ * Returns 0 wherever ex_slot_is_allowed refused the slot. The `wk->sa->ex = -1`
+ * that spends the EX stock stays inside the test it belongs to, in the position
+ * the original had it. */
+static s32 ex_meter_allows_slot(PLW* wk, s16 i) {
+    if ((wk->sa->mp == -1) || (wk->sa->ok == -1)) {
+        return 0;
+    }
+
+    if (wk->cp->btix[i] & 0x400) {
+        if ((wk->spmv_ng_flag2 & DIP2_EX_MOVE_DISABLED) || (wk->sa->ex != 1)) {
+            return 0;
+        }
+
+        wk->sa->ex = -1;
+    }
+
+    return 1;
+}
+
 /* The j == 3 slot of a special is the EX gate. Returns 0 wherever the original
  * moved on to the next j, and 1 where it fell through to the commit. The
  * `wk->sa->ex = -1` consumption stays inside the test it belongs to, in the same
@@ -102,18 +122,8 @@ static s32 ex_slot_is_allowed(PLW* wk, s16 i, u32 specials_disabled) {
         if (wk->cp->btix[i] & 0x400) {
             return 0;
         }
-    } else {
-        if ((wk->sa->mp == -1) || (wk->sa->ok == -1)) {
-            return 0;
-        }
-
-        if (wk->cp->btix[i] & 0x400) {
-            if ((wk->spmv_ng_flag2 & DIP2_EX_MOVE_DISABLED) || (wk->sa->ex != 1)) {
-                return 0;
-            }
-
-            wk->sa->ex = -1;
-        }
+    } else if (!ex_meter_allows_slot(wk, i)) {
+        return 0;
     }
 
     return 1;
