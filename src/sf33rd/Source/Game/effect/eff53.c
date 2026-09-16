@@ -21,55 +21,65 @@ static s32 cannot_update_effect(void) {
 }
 
 
-void effect_53_move(WORK_Other* ewk) {
+/* Count the hidden interval down, then start a blink run. */
+static void e53_await_appear(WORK_Other* ewk) {
+    ewk->wu.old_rno[2]--;
+
+    if (ewk->wu.old_rno[2] <= 0) {
+        ewk->wu.routine_no[0]++;
+        ewk->wu.old_rno[0] = 30;
+        ewk->wu.old_rno[1] = 0;
+        ewk->wu.disp_flag = 1;
+    }
+}
+
+/* Toggle visibility every 30 frames. After six off-phases the run is over and
+ * the effect hides for a fresh random interval from the table. */
+static void e53_blink(WORK_Other* ewk) {
     s16 work;
 
+    ewk->wu.old_rno[0]--;
+
+    if (ewk->wu.old_rno[0] > 0) {
+        return;
+    }
+
+    ewk->wu.disp_flag ^= 1;
+    ewk->wu.old_rno[0] = 30;
+
+    if (ewk->wu.disp_flag) {
+        return;
+    }
+
+    ewk->wu.old_rno[1]++;
+
+    if (ewk->wu.old_rno[1] < 6) {
+        return;
+    }
+
+    ewk->wu.routine_no[0] = 0;
+    work = random_16();
+    work &= 7;
+    ewk->wu.old_rno[2] = eff53_vanish_time[work];
+    ewk->wu.disp_flag = 0;
+}
+
+void effect_53_move(WORK_Other* ewk) {
     if (obr_no_disp_check()) {
         return;
     }
 
-if (cannot_update_effect()) {
+    if (cannot_update_effect()) {
         return;
     }
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.old_rno[2]--;
-
-        if (ewk->wu.old_rno[2] <= 0) {
-            ewk->wu.routine_no[0]++;
-            ewk->wu.old_rno[0] = 30;
-            ewk->wu.old_rno[1] = 0;
-            ewk->wu.disp_flag = 1;
-        }
-
+        e53_await_appear(ewk);
         break;
 
     case 1:
-        ewk->wu.old_rno[0]--;
-
-        if (ewk->wu.old_rno[0] > 0) {
-            break;
-        }
-
-        ewk->wu.disp_flag ^= 1;
-        ewk->wu.old_rno[0] = 30;
-
-        if (ewk->wu.disp_flag) {
-            break;
-        }
-
-        ewk->wu.old_rno[1]++;
-
-        if (ewk->wu.old_rno[1] < 6) {
-            break;
-        }
-
-        ewk->wu.routine_no[0] = 0;
-        work = random_16();
-        work &= 7;
-        ewk->wu.old_rno[2] = eff53_vanish_time[work];
-        ewk->wu.disp_flag = 0;
+        e53_blink(ewk);
         break;
 
     default:
