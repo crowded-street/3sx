@@ -27,6 +27,36 @@
 
 
 /// Check EX SA attack
+/* The gates a grounded EX super-art slot must pass before its command is even
+ * looked at. Returns 1 wherever the original returned 0 without firing. */
+static s32 grounded_ex_slot_is_blocked(PLW* wk, u8 slot_ix, s8 always) {
+    if (wk->spmv_ng_flag & DIP_UNKNOWN_30) {
+        return 1;
+    }
+
+    if (slot_ix == 0) {
+        return 1;
+    }
+
+    if (slot_ix > 0x1C) {
+        return 1;
+    }
+
+    if (always && !(wk->cp->btix[slot_ix] & 0x100)) {
+        return 1;
+    }
+
+    if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && chainex_check[wk->wu.id][slot_ix - 20]) {
+        return 1;
+    }
+
+    if (wk->cancel_timer == 0) {
+        wk->permited_koa |= 0x40;
+    }
+
+    return is_blocked_by_arcade_switch(wk, slot_ix);
+}
+
 /* One grounded EX super-art slot: every gate it must pass, then the
  * command match that fires it. Returns 1 when the art started.
  *
@@ -39,31 +69,7 @@ static s32 try_grounded_ex_super(PLW* wk, u8 slot_ix, s8 always) {
     u16 cusw;
     u16 exsw;
 
-    if (wk->spmv_ng_flag & DIP_UNKNOWN_30) {
-        return 0;
-    }
-
-    if (slot_ix == 0) {
-        return 0;
-    }
-
-    if (slot_ix > 0x1C) {
-        return 0;
-    }
-
-    if (always && !(wk->cp->btix[slot_ix] & 0x100)) {
-        return 0;
-    }
-
-    if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && chainex_check[wk->wu.id][slot_ix - 20]) {
-        return 0;
-    }
-
-    if (wk->cancel_timer == 0) {
-        wk->permited_koa |= 0x40;
-    }
-
-    if (is_blocked_by_arcade_switch(wk, slot_ix)) {
+    if (grounded_ex_slot_is_blocked(wk, slot_ix, always)) {
         return 0;
     }
 

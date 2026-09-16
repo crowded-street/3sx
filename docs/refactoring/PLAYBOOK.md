@@ -619,6 +619,29 @@ from the shared shape before calling it a plateau. Extract the runs, measure, an
 then judge. A file can look identical to its neighbour in the review and still have most
 of a point in it.
 
+### Between two twin arms, extract from one of them only
+
+When a function's two arms are structural twins that Recipe D may not merge - they differ
+in a comparison operator, an offset, or a constant - extracting the *same* helper from both
+creates a new twin pair, and the duplication the metric then sees costs more than the
+complexity removed. Extracting from **one arm only** keeps the win and creates no twin.
+
+Measured on `pls03_super_arts.c`'s `try_grounded_ex_super` / `try_airborne_ex_super`, whose
+gate chains differ only in a DIP constant and `>` against `<`:
+
+| What was done | Score |
+| --- | --- |
+| baseline | 5.32 |
+| gate chain extracted from **both** arms | 5.29 |
+| gate chain extracted from the **grounded arm only** | **5.46** |
+
+The asymmetry looks wrong and reads slightly odd in the source, so say in the commit
+message that the other arm was left inline deliberately and why. The alternative - a
+symmetric pair of near-identical predicates - is worse by every measure the tool reports.
+
+This is the same force behind *Two mirrored arms are cheaper left together* below; the
+difference is that here one arm can still be improved for free.
+
 ### Do not extract an arm that is still too big
 
 Recipe E on a `switch` arm pays only if the piece you lift out comes in **under the
