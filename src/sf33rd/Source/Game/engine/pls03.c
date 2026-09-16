@@ -26,6 +26,18 @@ extern const s16 cmdshot_conv_tbl[32];
 
 u16 decode_wst_data(PLW* wk, u16 cmd, s16 cmd_ex);
 
+static s32 player_is_grounded_or_on_car(const PLW* wk) {
+    return ((Bonus_Game_Flag == 0x14) && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0);
+}
+
+static s32 player_is_airborne_off_car(const PLW* wk) {
+    return ((Bonus_Game_Flag != 0x14) || !wk->bs2_on_car) && (wk->wu.xyz[1].disp.pos > 0);
+}
+
+static s32 slot_blocked_by_super(const PLW* wk, s16 i) {
+    return (wk->cp->btix[i] & 0x1000) && (wk->metamorphose || (wk->sa->ok != -1));
+}
+
 void hissatsu_setup_union(PLW* wk, s16 rno) { // 🟢
     wk->wu.routine_no[1] = 4;
     wk->wu.routine_no[2] = rno;
@@ -72,7 +84,7 @@ s32 check_full_gauge_attack(PLW* wk, s8 always) { // 🟡
         return 0;
     }
 
-    if (((Bonus_Game_Flag == 0x14) && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
+    if (player_is_grounded_or_on_car(wk)) {
         if (wk->spmv_ng_flag & DIP_UNKNOWN_30) {
             return 0;
         }
@@ -233,7 +245,7 @@ s32 check_full_gauge_attack2(PLW* wk, s8 always) { // 🟡
         return 0;
     }
 
-    if (((Bonus_Game_Flag == 0x14) && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
+    if (player_is_grounded_or_on_car(wk)) {
         if (wk->spmv_ng_flag & DIP_UNKNOWN_30) {
             return 0;
         }
@@ -436,7 +448,7 @@ s32 check_super_arts_attack_dc(PLW* wk) { // 🟡
         wk->permited_koa |= 1;
     }
 
-    if (((Bonus_Game_Flag == 0x14) && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
+    if (player_is_grounded_or_on_car(wk)) {
         if (wk->spmv_ng_flag & DIP_UNKNOWN_30) {
             return 0;
         }
@@ -578,7 +590,7 @@ s32 execute_super_arts(PLW* wk) { // 🟡
         return 0;
     }
 
-    if (((Bonus_Game_Flag == 0x14) && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
+    if (player_is_grounded_or_on_car(wk)) {
         if (wk->spmv_ng_flag & DIP_UNKNOWN_30) {
             return 0;
         }
@@ -668,7 +680,7 @@ s32 check_special_attack(PLW* wk) { // 🟡
         return 0;
     }
 
-    if (((Bonus_Game_Flag == 0x14) && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
+    if (player_is_grounded_or_on_car(wk)) {
         conpane = &wk->cp->sw_lvbt;
 
         for (i = 28; i < 38; i++) {
@@ -684,7 +696,7 @@ s32 check_special_attack(PLW* wk) { // 🟡
                 continue;
             }
 
-            if ((wk->cp->btix[i] & 0x1000) && (wk->metamorphose || (wk->sa->ok != -1))) {
+            if (slot_blocked_by_super(wk, i)) {
                 continue;
             }
 
@@ -778,7 +790,7 @@ s32 check_special_attack(PLW* wk) { // 🟡
                 continue;
             }
 
-            if ((wk->cp->btix[i] & 0x1000) && (wk->metamorphose || (wk->sa->ok != -1))) {
+            if (slot_blocked_by_super(wk, i)) {
                 continue;
             }
 
@@ -924,7 +936,7 @@ s32 check_leap_attack(PLW* wk) { // 🟡
         }
     }
 
-    if (((Bonus_Game_Flag != 0x14) || !wk->bs2_on_car) && (wk->wu.xyz[1].disp.pos > 0)) {
+    if (player_is_airborne_off_car(wk)) {
         return 0;
     }
 
@@ -1064,7 +1076,7 @@ s32 check_nm_attack(PLW* wk) { // 🟡
         break;
 
     default:
-        if (((Bonus_Game_Flag != 0x14) || !wk->bs2_on_car) && (wk->wu.xyz[1].disp.pos > 0)) {
+        if (player_is_airborne_off_car(wk)) {
             return 0;
         }
 
