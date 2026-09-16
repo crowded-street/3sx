@@ -1175,25 +1175,29 @@ void check_23() { // 🟢
     }
 }
 
+/* Does the lever satisfy this step, under whichever of the three matching modes
+ * the step asks for? sw_work is set only in the exact-match mode, as in the
+ * original - the other two modes leave it alone. */
+static s32 lever_satisfies_step(u16 sw_lever) {
+    if (waza_ptr->w_lvr & 0x8000) {
+        sw_work = waza_ptr->w_lvr & 0xF;
+        return sw_lever == sw_work;
+    }
+
+    if (waza_ptr->w_lvr == 0) {
+        return sw_lever == 0;
+    }
+
+    return sw_lever & waza_ptr->w_lvr;
+}
+
 static void run_lever_command_check(u16 sw_lever) {
     if (dead_lvr_check()) {
         return;
     }
 
-    if (waza_ptr->w_lvr & 0x8000) {
-        sw_work = waza_ptr->w_lvr & 0xF;
-
-        if (sw_lever == sw_work) {
-            finish_or_advance_command();
-        }
-    } else if (waza_ptr->w_lvr == 0) {
-        if (sw_lever == 0) {
-            finish_or_advance_command();
-        }
-    } else {
-        if (sw_lever & waza_ptr->w_lvr) {
-            finish_or_advance_command();
-        }
+    if (lever_satisfies_step(sw_lever)) {
+        finish_or_advance_command();
     }
 }
 
