@@ -418,6 +418,8 @@ Recipe X both refuse to merge.
 | `pls03.c` | see below | `decode_wst_data`'s twelve command encodings; `waza_select`'s five arms differ in two table names each |
 | `cmd_main_checks.c` | 6.08 | `check_10`/`check_12` differ in two places - a gate condition and which flag-clear they call; `check_18`/`check_19` and `check_0`/`check_21` differ semantically too |
 | `pls00_normal_states.c` | 6.15 | every remaining Complex Method sits in a duplication group; the `nm_*` handlers are near-miss siblings throughout |
+| `plpnm.c` | 6.54 | 28 of its functions sit in one duplication group - the Normal_* state handlers are near-miss siblings, as in every other state file |
+| `manage.c` | 9.92 | `Game_Manage_7_3`'s two identical test arms; clearing the bump means deleting the dead condition, which the catalogue forbids |
 | `eff93.c` | 9.38 | the two slide-outs differ only in a comparison operator, which may not be parameterised |
 | `effa2.c` | 9.34 | every state returns past a shared tail, so no state can move to a helper without a 0/1 protocol per arm |
 | `effa9.c` | 9.16 | near-miss siblings |

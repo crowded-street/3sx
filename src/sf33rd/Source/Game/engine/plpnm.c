@@ -53,6 +53,12 @@ void Normal_37000(PLW* wk);
 void Normal_38000(PLW* wk);
 void Normal_39000(PLW* wk);
 void Normal_40000(PLW* wk);
+/* Still alive, and not already sitting in the very first pattern of the first
+ * animation set. */
+static s32 alive_and_not_in_first_pattern(const PLW* wk) {
+    return wk->wu.vital_new >= 0 && (wk->wu.now_koc != 0 || wk->wu.char_index != 0);
+}
+
 void Normal_41000(PLW* wk);
 void Normal_42000(PLW* wk);
 void Normal_47000(PLW* wk);
@@ -674,6 +680,35 @@ void Normal_31000(PLW* wk) { // 🟡
     }
 }
 
+/* Entering the parry state: absorb the hit, turn to face the attacker if the
+ * parry came from behind, award the gauge and play the sound. */
+static void begin_parry(PLW* wk) {
+    wk->wu.routine_no[3]++;
+
+    // CPS3 leaves damage-stop and vitality untouched in this guard state.
+    if (!ArcadeBalance_IsEnabled() && wk->wu.dm_stop > 0) {
+        wk->wu.dm_stop = -wk->wu.dm_stop;
+    }
+
+    set_hit_stop_hit_quake(&wk->wu);
+
+    if (wk->wu.rl_flag != ((wk->wu.dm_rl + 1) & 1)) {
+        wk->wu.rl_flag = ((wk->wu.dm_rl + 1) & 1);
+        wk->wu.mvxy.a[0].sp = -wk->wu.mvxy.a[0].sp;
+        wk->wu.mvxy.d[0].sp = -wk->wu.mvxy.d[0].sp;
+    }
+
+    remake_mvxy_PoSB(&wk->wu);
+    set_char_move_init(&wk->wu, 0, 27);
+    add_sp_arts_gauge_paring(wk);
+
+    if (!ArcadeBalance_IsEnabled()) {
+        subtract_dm_vital(wk);
+    }
+
+    pp_pulpara_blocking(&wk->wu);
+}
+
 void Normal_35000(PLW* wk) { // 🟡
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority - 1;
@@ -683,30 +718,7 @@ void Normal_35000(PLW* wk) { // 🟡
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-
-        // CPS3 leaves damage-stop and vitality untouched in this guard state.
-        if (!ArcadeBalance_IsEnabled() && wk->wu.dm_stop > 0) {
-            wk->wu.dm_stop = -wk->wu.dm_stop;
-        }
-
-        set_hit_stop_hit_quake(&wk->wu);
-
-        if (wk->wu.rl_flag != ((wk->wu.dm_rl + 1) & 1)) {
-            wk->wu.rl_flag = ((wk->wu.dm_rl + 1) & 1);
-            wk->wu.mvxy.a[0].sp = -wk->wu.mvxy.a[0].sp;
-            wk->wu.mvxy.d[0].sp = -wk->wu.mvxy.d[0].sp;
-        }
-
-        remake_mvxy_PoSB(&wk->wu);
-        set_char_move_init(&wk->wu, 0, 27);
-        add_sp_arts_gauge_paring(wk);
-
-        if (!ArcadeBalance_IsEnabled()) {
-            subtract_dm_vital(wk);
-        }
-
-        pp_pulpara_blocking(&wk->wu);
+        begin_parry(wk);
         break;
 
     case 1:
@@ -806,7 +818,7 @@ void Normal_41000(PLW* wk) { // 🟡
     if ((Mode_Type == MODE_NORMAL_TRAINING) || (Mode_Type == MODE_PARRY_TRAINING)) {
         switch (wk->wu.routine_no[3]) {
         case 0:
-            if (wk->wu.vital_new >= 0 && (wk->wu.now_koc != 0 || wk->wu.char_index != 0)) {
+            if (alive_and_not_in_first_pattern(wk)) {
                 set_char_move_init(&wk->wu, 0, 0);
             }
 
