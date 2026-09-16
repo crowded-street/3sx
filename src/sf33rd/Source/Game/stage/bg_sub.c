@@ -880,6 +880,17 @@ static void start_zoom_frame(s16 work) {
     }
 }
 
+static void lower_zoom_frame() {
+    Frame_Down((u16)bg_w.center_x, (u16)bg_w.center_y, 1);
+    bg_w.bg_f_x++;
+    bg_w.bg_f_y++;
+
+    if (bg_w.bg_f_x == 64) {
+        bg_w.frame_flag = 0;
+        Zoomf_Init();
+    }
+}
+
 static void advance_zoom_frame(s16 work2) {
     if (work2) {
         if (bg_w.bg_f_x > bg_w.frame_deff) {
@@ -890,24 +901,10 @@ static void advance_zoom_frame(s16 work2) {
         }
 
         if (bg_w.bg_f_x < bg_w.frame_deff) {
-            Frame_Down((u16)bg_w.center_x, (u16)bg_w.center_y, 1);
-            bg_w.bg_f_x++;
-            bg_w.bg_f_y++;
-
-            if (bg_w.bg_f_x == 64) {
-                bg_w.frame_flag = 0;
-                Zoomf_Init();
-            }
+            lower_zoom_frame();
         }
     } else if (bg_w.bg_f_x < 64) {
-        Frame_Down((u16)bg_w.center_x, (u16)bg_w.center_y, 1);
-        bg_w.bg_f_x++;
-        bg_w.bg_f_y++;
-
-        if (bg_w.bg_f_x == 64) {
-            bg_w.frame_flag = 0;
-            Zoomf_Init();
-        }
+        lower_zoom_frame();
     }
 }
 
