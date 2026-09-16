@@ -495,6 +495,19 @@ A name that disappears from the file entirely is a **FAIL**: something was delet
 moved. Anything else that does not match the two rows above wants explaining before it
 lands.
 
+**Renaming a helper you extracted earlier reads as a vanished call**, because the tool
+sees only that the old name is gone. Renaming a `static` that no other file can see is
+legal - the prohibition is on renaming functions across files - so declare it and run
+again:
+
+```bash
+python tools/refactor_guard.py --calls --renamed old_name=new_name <file>
+```
+
+The declaration rewrites the old name in the *before* fingerprint and nothing else, so
+the counts still have to balance: a call genuinely dropped in the same commit still
+FAILs. Do not reach for it to silence a name you did not rename.
+
 It does not see *reordering*. Nothing mechanical in this repo does, which is why the
 prohibition on reordering side effects is absolute rather than advisory.
 
