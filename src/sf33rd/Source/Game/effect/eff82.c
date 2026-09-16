@@ -104,6 +104,25 @@ void effect_82_move(WORK_Other* ewk) {
     }
 }
 
+/* Facing right: come in from the right, from beyond the master when it is
+ * already past the stage centre, otherwise from the edge. */
+static void e82_enter_facing_right(WORK_Other* ewk, const WORK* wk) {
+    if (wk->xyz[0].disp.pos > bg_w.bgw[1].wxy[0].disp.pos) {
+        ewk->wu.xyz[0].disp.pos = wk->xyz[0].disp.pos + 256;
+    } else {
+        ewk->wu.xyz[0].disp.pos = bg_w.bgw[1].wxy[0].disp.pos + (bg_w.pos_offset + 32);
+    }
+}
+
+/* Facing left: the mirror of the above. */
+static void e82_enter_facing_left(WORK_Other* ewk, const WORK* wk) {
+    if (wk->xyz[0].disp.pos < bg_w.bgw[1].wxy[0].disp.pos) {
+        ewk->wu.xyz[0].disp.pos = wk->xyz[0].disp.pos - 256;
+    } else {
+        ewk->wu.xyz[0].disp.pos = bg_w.bgw[1].wxy[0].disp.pos - (bg_w.pos_offset + 32);
+    }
+}
+
 s32 effect_82_init(WORK* wk) {
     WORK_Other* ewk;
     s16 ix;
@@ -125,20 +144,10 @@ s32 effect_82_init(WORK* wk) {
     ewk->wu.rl_flag = wk->rl_flag;
 
     if (wk->rl_flag) {
-        if (wk->xyz[0].disp.pos > bg_w.bgw[1].wxy[0].disp.pos) {
-            ewk->wu.xyz[0].disp.pos = wk->xyz[0].disp.pos + 256;
-        } else {
-            ewk->wu.xyz[0].disp.pos = bg_w.bgw[1].wxy[0].disp.pos + (bg_w.pos_offset + 32);
-        }
-
+        e82_enter_facing_right(ewk, wk);
         ewk->wu.old_rno[1] = wk->xyz[0].disp.pos + 56;
     } else {
-        if (wk->xyz[0].disp.pos < bg_w.bgw[1].wxy[0].disp.pos) {
-            ewk->wu.xyz[0].disp.pos = wk->xyz[0].disp.pos - 256;
-        } else {
-            ewk->wu.xyz[0].disp.pos = bg_w.bgw[1].wxy[0].disp.pos - (bg_w.pos_offset + 32);
-        }
-
+        e82_enter_facing_left(ewk, wk);
         ewk->wu.old_rno[1] = wk->xyz[0].disp.pos - 56;
     }
 
