@@ -23,6 +23,12 @@ static s32 should_end_effect_c0(const WORK_Other* ewk) {
     return ewk->wu.dead_f == 1 || Suicide[0] != 0;
 }
 
+/* Non-zero while this effect may advance: the game is running and the master is
+ * not frozen by a super art. */
+static s32 c0_updates_enabled(const PLW* mwk) {
+    return EXE_flag == 0 && Game_pause == 0 && mwk->sa_stop_flag != 1;
+}
+
 void effect_C0_move(WORK_Other* ewk) {
     PLW* mwk = (PLW*)ewk->my_master;
     s16 i;
@@ -50,7 +56,7 @@ void effect_C0_move(WORK_Other* ewk) {
             break;
         }
 
-        if (EXE_flag == 0 && Game_pause == 0 && mwk->sa_stop_flag != 1) {
+        if (c0_updates_enabled(mwk)) {
             if (mwk->cp->lgp > 13) {
                 hok = 3;
             } else {
