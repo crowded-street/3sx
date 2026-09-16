@@ -312,6 +312,21 @@ static void begin_ex_gauge_flash(s8 Spg_Num) {
 
 /* A super art being armed or spent: set the display up for whichever it is,
  * including the stock-just-filled and match-ending cases. */
+/* An art fired as the round ends: a timer gauge is kept rather than cleared,
+ * and the art counts as void except for the one character and state that
+ * still count it. */
+static void settle_art_flash_at_round_end(s8 Spg_Num) {
+    if ((spg_dat[Spg_Num].time) == 1) {
+        spg_dat[Spg_Num].time_no_clear = 1;
+    }
+
+    if (My_char[Spg_Num] == 0 && ((plw[Spg_Num].sa->ok) == -1)) {
+        spg_dat[Spg_Num].sa_mukou = 0;
+    } else {
+        spg_dat[Spg_Num].sa_mukou = 1;
+    }
+}
+
 static void begin_super_art_flash(s8 Spg_Num) {
     spgauge_sound_request(Spg_Num);
 
@@ -342,15 +357,7 @@ static void begin_super_art_flash(s8 Spg_Num) {
         spg_dat[Spg_Num].timer = 51;
 
         if (Conclusion_Flag != 0) {
-            if ((spg_dat[Spg_Num].time) == 1) {
-                spg_dat[Spg_Num].time_no_clear = 1;
-            }
-
-            if (My_char[Spg_Num] == 0 && ((plw[Spg_Num].sa->ok) == -1)) {
-                spg_dat[Spg_Num].sa_mukou = 0;
-            } else {
-                spg_dat[Spg_Num].sa_mukou = 1;
-            }
+            settle_art_flash_at_round_end(Spg_Num);
         }
 
         sa_gauge_flash[Spg_Num] &= ~4;
