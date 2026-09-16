@@ -1894,6 +1894,21 @@ s32 Check_BI_Grade(s16 PL_id) {
     return 1;
 }
 
+/* Once the screen switch has finished, hand control to the ending sequence. */
+static void hand_over_to_ending_screen(void) {
+    if (Switch_Screen(0)) {
+        G_No[1] = 11;
+        G_No[2] = 0;
+        G_No[3] = 0;
+        E_No[0] = 9;
+        E_No[1] = 0;
+        E_No[2] = 0;
+        E_No[3] = 0;
+        effect_work_kill_mod_plcol();
+        Cover_Timer = 21;
+    }
+}
+
 void Game_Manage_11th() {
     switch (C_No[1]) {
     case 0:
@@ -1927,18 +1942,7 @@ void Game_Manage_11th() {
         break;
 
     case 4:
-        if (Switch_Screen(0)) {
-            G_No[1] = 11;
-            G_No[2] = 0;
-            G_No[3] = 0;
-            E_No[0] = 9;
-            E_No[1] = 0;
-            E_No[2] = 0;
-            E_No[3] = 0;
-            effect_work_kill_mod_plcol();
-            Cover_Timer = 21;
-        }
-
+        hand_over_to_ending_screen();
         break;
     }
 }
