@@ -447,6 +447,20 @@ void Game_Manage_12_7() {
 
 /* The car stage's result intro: spawn the banner, wait for it, then hold.
  * Moved out whole, so the inner switch keeps its own labels and `break`s. */
+/* The hold at the end of the car result's intro: a button press shortens it,
+ * and when it runs out the result moves on. */
+static void run_car_result_intro_hold() {
+    if (C_Timer < 11 && Scene_Cut) {
+        C_Timer = 1;
+    }
+
+    if (--C_Timer == 0) {
+        C_No[2]++;
+        C_No[3] = 0;
+        C_Timer = 30;
+    }
+}
+
 static void run_car_result_intro(void) {
     switch (C_No[3]) {
     case 0:
@@ -467,16 +481,7 @@ static void run_car_result_intro(void) {
         break;
 
     case 2:
-        if (C_Timer < 11 && Scene_Cut) {
-            C_Timer = 1;
-        }
-
-        if (--C_Timer == 0) {
-            C_No[2]++;
-            C_No[3] = 0;
-            C_Timer = 30;
-        }
-
+        run_car_result_intro_hold();
         break;
     }
 }
