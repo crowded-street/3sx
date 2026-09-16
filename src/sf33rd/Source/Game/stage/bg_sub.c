@@ -384,11 +384,7 @@ static void chase_x_start_check() {
     }
 }
 
-static void chase_y_start_check() {
-    s16 work;
-    s16 work2;
-
-    if (zoom_request_flag & 0xF000) {
+static void start_requested_y_chase() {
         bg_w.chase_flag |= 0x10;
         bg_w.chase_flag &= ~0x20;
         bg_w.old_chase_flag |= 0x10;
@@ -406,6 +402,14 @@ static void chase_y_start_check() {
             chase_time_y = 6;
             cal_bg_speed_data_y(bgw_ptr->fam_no, chase_time_y, chase_y);
         }
+}
+
+static void chase_y_start_check() {
+    s16 work;
+    s16 work2;
+
+    if (zoom_request_flag & 0xF000) {
+        start_requested_y_chase();
     } else {
         work = zoom_req_flag_old & 0xF000;
         work2 = ~(zoom_request_flag & 0xF000);
