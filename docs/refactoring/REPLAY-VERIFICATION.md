@@ -84,6 +84,37 @@ is not a substitute for that judgement, and it is not what the time is for.
 If a pre-push run ever does diverge, bisect with the same tool: the seed and frame are
 reported, and every commit is reachable as a worktree.
 
+## The baseline has to be your branch point
+
+`origin/main` is the obvious baseline and it is the wrong one as soon as main moves. The
+checksum this harness records has already changed shape once - `fix(replay): stabilize
+verification on Windows` moved `Stress_RecordState` out of `save_state` and into
+`process_events`, where it re-gathers the state - so a build from one side of that commit
+cannot be compared with a build from the other at all. Every seed diverges, on a branch
+that changed nothing.
+
+That happened in this campaign: main gained five commits mid-session, and runs that had
+been clean started failing on work that was provably untouched. The branch's own base
+verified clean against itself.
+
+So: **compare against the commit your branch actually started from**, not against whatever
+`origin/main` points at now.
+
+```bash
+tools/replay_verify.sh $(git merge-base origin/main HEAD)
+```
+
+`replay_verify.sh` warns when the baseline is not an ancestor of HEAD, and says how many
+commits the baseline carries that your tree does not.
+
+## Read the verdict, not the tail
+
+Every run ends with one line, `REPLAY OK` or `REPLAY FAILED`, and the script exits
+non-zero on divergence. Both exist because a diverging run looks like a passing one if you
+read only the last couple of lines: the per-seed output ends with whichever seed ran last,
+and a run where six seeds diverged and two did not will show two reassuring `identical`
+lines at the bottom. Check the verdict line or the exit status.
+
 ## What it does not cover
 
 This is the part that matters, and it is why replay verification **supplements**

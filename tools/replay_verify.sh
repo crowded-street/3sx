@@ -51,6 +51,18 @@ else
     echo "==> reusing baseline build at $BASELINE"
 fi
 
+# The state checksum this harness records has changed shape before now, so a
+# build from one side of such a change cannot be compared with one from the
+# other. If the baseline is not an ancestor of HEAD, it carries commits this
+# tree does not, and any of them can move the trace for reasons that have
+# nothing to do with the change under test.
+if ! git -C "$REPO" merge-base --is-ancestor "$BASELINE" HEAD 2>/dev/null; then
+    AHEAD="$(git -C "$REPO" rev-list --count HEAD.."$BASELINE" 2>/dev/null || echo '?')"
+    echo "!!  WARNING: $BASELINE is NOT an ancestor of HEAD - it has $AHEAD commit(s) this tree lacks."
+    echo "!!  Divergences below may come from those, not from your change."
+    echo "!!  Use the branch point instead:  tools/replay_verify.sh \$(git merge-base $BASELINE HEAD)"
+fi
+
 echo "==> building baseline (Debug)"
 cmake -S "$BASE_TREE" -B "$BASE_TREE/build-dbg" -DCMAKE_BUILD_TYPE=Debug >/dev/null
 cmake --build "$BASE_TREE/build-dbg" -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc)" >/dev/null
@@ -58,6 +70,19 @@ cmake --build "$BASE_TREE/build-dbg" -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc
 exe() { find "$1" -name 3SX -type f -perm -u+x | head -1; }
 
 echo "==> comparing $SEEDS seeds x $FRAMES frames"
+set +e
 "$PY" "$REPO/tools/compare_stress_replays.py" \
     "$(exe "$BASE_TREE/build-dbg")" "$(exe "$REPO/build-dbg")" \
     --seed 1 --seeds "$SEEDS" --frames "$FRAMES"
+STATUS=$?
+set -e
+
+# The verdict goes last and says which it is in one line, so that reading only
+# the tail of this output cannot leave you believing a diverging run passed.
+echo
+if [ "$STATUS" -eq 0 ]; then
+    echo "REPLAY OK - $SEEDS seeds identical against $BASELINE"
+else
+    echo "REPLAY FAILED - divergence against $BASELINE (see the seed lines above)"
+fi
+exit "$STATUS"
