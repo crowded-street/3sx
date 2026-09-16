@@ -1204,6 +1204,11 @@ static void settle_single_ko(void) {
     }
 }
 
+/* Neither player came back from the double KO. Both are asked, in order. */
+static s32 both_resurrections_declined() {
+    return (check_sa_resurrection(&plw[0]) == 0) && (check_sa_resurrection(&plw[1]) == 0);
+}
+
 /* Both players are down and neither came back: the round is a draw. */
 static void settle_double_ko() {
     Conclusion_Flag = 1;
@@ -1231,7 +1236,7 @@ void settle_check() { // 🟡
             break;
 
         case 3:
-            if ((check_sa_resurrection(&plw[0]) == 0) && (check_sa_resurrection(&plw[1]) == 0)) {
+            if (both_resurrections_declined()) {
                 settle_double_ko();
             } else {
                 continue;
