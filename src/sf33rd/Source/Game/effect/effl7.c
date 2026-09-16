@@ -54,24 +54,31 @@ void effect_L7_move(WORK_Other* ewk) {
     }
 }
 
+static void effl7_start_drift(WORK_Other* ewk) {
+    ewk->wu.routine_no[1] += 1;
+    set_char_move_init2(&ewk->wu, 0, 0, 3, 1);
+
+    if (ewk->wu.rl_flag) {
+        ewk->wu.mvxy.a[0].sp = 0x20000;
+    } else {
+        ewk->wu.mvxy.a[0].sp = -0x20000;
+    }
+
+    ewk->wu.mvxy.a[1].sp = 0;
+}
+
+static void effl7_spill(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+
+    if (ewk->wu.cg_type == 0xFF) {
+        effl7_start_drift(ewk);
+    }
+}
+
 static void effl7_move_late(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 4:
-        char_move(&ewk->wu);
-
-        if (ewk->wu.cg_type == 0xFF) {
-            ewk->wu.routine_no[1] += 1;
-            set_char_move_init2(&ewk->wu, 0, 0, 3, 1);
-
-            if (ewk->wu.rl_flag) {
-                ewk->wu.mvxy.a[0].sp = 0x20000;
-            } else {
-                ewk->wu.mvxy.a[0].sp = -0x20000;
-            }
-
-            ewk->wu.mvxy.a[1].sp = 0;
-        }
-
+        effl7_spill(ewk);
         break;
 
     case 5:
@@ -97,6 +104,18 @@ static void effl7_move_late(WORK_Other* ewk) {
     }
 }
 
+static void effl7_fly(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+    add_x_sub(&ewk->wu);
+    add_y_sub(&ewk->wu);
+    ewk->wu.old_rno[0]--;
+
+    if (ewk->wu.old_rno[0] <= 0) {
+        ewk->wu.routine_no[1] += 1;
+        set_char_move_init(&ewk->wu, 0, 1);
+    }
+}
+
 void effl7_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -113,16 +132,7 @@ void effl7_move(WORK_Other* ewk) {
         break;
 
     case 1:
-        char_move(&ewk->wu);
-        add_x_sub(&ewk->wu);
-        add_y_sub(&ewk->wu);
-        ewk->wu.old_rno[0]--;
-
-        if (ewk->wu.old_rno[0] <= 0) {
-            ewk->wu.routine_no[1] += 1;
-            set_char_move_init(&ewk->wu, 0, 1);
-        }
-
+        effl7_fly(ewk);
         break;
 
     case 2:
@@ -148,6 +158,22 @@ void effl7_move(WORK_Other* ewk) {
     default:
         effl7_move_late(ewk);
         break;
+    }
+}
+
+static void effl7_place_entry_left(WORK_Other* ewk, const WORK* wk) {
+    if (wk->xyz[0].disp.pos < bg_w.bgw[1].wxy[0].disp.pos) {
+        ewk->wu.xyz[0].disp.pos = wk->xyz[0].disp.pos - 256;
+    } else {
+        ewk->wu.xyz[0].disp.pos = bg_w.bgw[1].wxy[0].disp.pos - (bg_w.pos_offset + 32);
+    }
+}
+
+static void effl7_place_entry_right(WORK_Other* ewk, const WORK* wk) {
+    if (wk->xyz[0].disp.pos > bg_w.bgw[1].wxy[0].disp.pos) {
+        ewk->wu.xyz[0].disp.pos = wk->xyz[0].disp.pos + 256;
+    } else {
+        ewk->wu.xyz[0].disp.pos = bg_w.bgw[1].wxy[0].disp.pos + (bg_w.pos_offset + 32);
     }
 }
 
@@ -193,20 +219,10 @@ s32 effect_L7_init(WORK* wk, s32 /* unused */) {
     ewk->wu.rl_flag = wk->rl_flag;
 
     if (wk->rl_flag) {
-        if (wk->xyz[0].disp.pos < bg_w.bgw[1].wxy[0].disp.pos) {
-            ewk->wu.xyz[0].disp.pos = wk->xyz[0].disp.pos - 256;
-        } else {
-            ewk->wu.xyz[0].disp.pos = bg_w.bgw[1].wxy[0].disp.pos - (bg_w.pos_offset + 32);
-        }
-
+        effl7_place_entry_left(ewk, wk);
         ewk->wu.old_rno[1] = wk->xyz[0].disp.pos - 32;
     } else {
-        if (wk->xyz[0].disp.pos > bg_w.bgw[1].wxy[0].disp.pos) {
-            ewk->wu.xyz[0].disp.pos = wk->xyz[0].disp.pos + 256;
-        } else {
-            ewk->wu.xyz[0].disp.pos = bg_w.bgw[1].wxy[0].disp.pos + (bg_w.pos_offset + 32);
-        }
-
+        effl7_place_entry_right(ewk, wk);
         ewk->wu.old_rno[1] = wk->xyz[0].disp.pos + 32;
     }
 
