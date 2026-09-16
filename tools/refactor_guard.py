@@ -151,12 +151,23 @@ def calls(src: str) -> Counter:
     Anything else wants explaining. A name that disappears entirely is a FAIL.
     """
     out = Counter()
-    for m in CALL_RE.finditer(strip_comments(src)):
+    for m in CALL_RE.finditer(strip_preprocessor_lines(strip_comments(src))):
         name = m.group(1)
         if name in NOT_CALLS:
             continue
         out[name] += 1
     return out
+
+
+def strip_preprocessor_lines(src: str) -> str:
+    """Drop #define, #include and friends before counting calls.
+
+    A function-like macro's definition line - `#define LO_2_BYTES(_val) ...` -
+    reads as a call to the name it defines, so moving a macro into a header made
+    the call fingerprint say a call had vanished. A macro *definition* is not a
+    call; its *uses* still are, and those are counted as before.
+    """
+    return re.sub(r"^[ \t]*#[^\n]*(?:\\\n[^\n]*)*", "", src, flags=re.MULTILINE)
 
 
 def report_call_changes(rel: str, before: Counter, after: Counter, strict: bool) -> bool:
