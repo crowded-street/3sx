@@ -235,7 +235,11 @@ s16 check_rl_on_car(PLW* wk) { // 🟢
     return update_car_area_flags(wk);
 }
 
-s32 saishin_bs2_area_car(PLW* wk) { // 🟡
+/* The same two car-area questions as update_car_area_flags, asked of this
+ * frame's position rather than the previous one's, and with a strict comparison
+ * on the roof rather than an inclusive one. Returns 1 during the dramatic
+ * pause, where saishin_bs2_area_car returned 1 immediately. */
+static s32 update_latest_car_area_flags(PLW* wk) {
     wk->bs2_area_car2 = 0;
     wk->bs2_over_car2 = 0;
 
@@ -249,6 +253,14 @@ s32 saishin_bs2_area_car(PLW* wk) { // 🟡
 
     if (wk->wu.xyz[1].disp.pos + wk->wu.cg_jphos > bs2_floor[2]) {
         wk->bs2_over_car2 = 1;
+    }
+
+    return 0;
+}
+
+s32 saishin_bs2_area_car(PLW* wk) { // 🟡
+    if (update_latest_car_area_flags(wk)) {
+        return 1;
     }
 
     if (ArcadeBalance_IsEnabled()) {
@@ -366,7 +378,9 @@ void check_extra_jump_timer(PLW* wk) { // 🟡
     }
 }
 
-void remake_sankaku_tobi_mvxy(WORK* wk, u8 kabe) { // 🟡
+/* Which way a triangle jump leaves the wall. With no wall named, the player
+ * turns toward the middle of the stage. */
+static void face_away_from_wall(WORK* wk, u8 kabe) {
     if (kabe == 1) {
         wk->rl_flag = 0;
     }
@@ -382,6 +396,10 @@ void remake_sankaku_tobi_mvxy(WORK* wk, u8 kabe) { // 🟡
             wk->rl_flag = 1;
         }
     }
+}
+
+void remake_sankaku_tobi_mvxy(WORK* wk, u8 kabe) { // 🟡
+    face_away_from_wall(wk, kabe);
 
     if (wk->mvxy.a[0].sp < 0) {
         wk->mvxy.a[0].sp = -wk->mvxy.a[0].sp;
