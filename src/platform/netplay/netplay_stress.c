@@ -25,6 +25,7 @@ static bool stress_pending = false;
 static bool stress_running = false;
 static bool stress_finished = false;
 static bool stress_waiting_for_match = false;
+static u32 stress_seed = 0;
 static u32 stress_rng = 0;
 static int stress_check_distance = 0;
 static int stress_frame_limit = 0;
@@ -32,6 +33,8 @@ static int stress_frames_run = 0;
 static int stress_desyncs = 0;
 static int stress_boot_timer = 0;
 static const char* stress_out_dir = ".";
+static SDL_IOStream* boot_trace_io = NULL;
+static SDL_IOStream* state_trace_io = NULL;
 
 // Only the first re-simulation that disagrees is worth keeping.
 static bool stress_pair_dumped = false;
@@ -110,42 +113,50 @@ void Stress_SetOutputDir(const char* directory) {
     }
 }
 
-static void initialize_state_trace(const char* name) {
+static void initialize_state_trace(const char* name, SDL_IOStream** stream) {
     char path[512];
     Stress_Path(path, sizeof(path), name);
 
-    SDL_IOStream* io = SDL_IOFromFile(path, "w");
+    *stream = SDL_IOFromFile(path, "w");
 
-    if (io != NULL) {
-        SDL_IOprintf(io, "frame,checksum\n");
-        SDL_CloseIO(io);
+    if (*stream != NULL) {
+        SDL_IOprintf(*stream, "frame,checksum\n");
+        SDL_FlushIO(*stream);
     }
 }
 
-static void append_state_trace(const char* name, int frame, u32 checksum) {
-    char path[512];
-    Stress_Path(path, sizeof(path), name);
-
-    SDL_IOStream* io = SDL_IOFromFile(path, "a");
-
-    if (io == NULL) {
+static void append_state_trace(SDL_IOStream* stream, int frame, u32 checksum) {
+    if (stream == NULL) {
         return;
     }
 
-    SDL_IOprintf(io, "%d,%08X\n", frame, checksum);
-    SDL_CloseIO(io);
+    SDL_IOprintf(stream, "%d,%08X\n", frame, checksum);
+    SDL_FlushIO(stream);
+}
+
+static void close_state_traces() {
+    if (boot_trace_io != NULL) {
+        SDL_CloseIO(boot_trace_io);
+        boot_trace_io = NULL;
+    }
+
+    if (state_trace_io != NULL) {
+        SDL_CloseIO(state_trace_io);
+        state_trace_io = NULL;
+    }
 }
 
 void Stress_Begin(int seed, int check_distance, int frames) {
     // A zero seed would make xorshift produce nothing but zeroes.
-    stress_rng = seed != 0 ? (u32)seed : 1;
+    stress_seed = seed != 0 ? (u32)seed : 1;
+    stress_rng = stress_seed;
 
     stress_check_distance = check_distance > 0 ? check_distance : STRESS_CHECK_DISTANCE_DEFAULT;
     stress_frame_limit = frames;
     stress_pending = true;
 
-    initialize_state_trace(BOOT_TRACE_NAME);
-    initialize_state_trace(STATE_TRACE_NAME);
+    initialize_state_trace(BOOT_TRACE_NAME, &boot_trace_io);
+    initialize_state_trace(STATE_TRACE_NAME, &state_trace_io);
 
 #if DEBUG
     // Both simulations of a frame have to still be in the buffer when the desync
@@ -158,7 +169,7 @@ void Stress_Begin(int seed, int check_distance, int frames) {
 }
 
 void Stress_RecordBootState(u32 checksum) {
-    append_state_trace(BOOT_TRACE_NAME, stress_boot_timer, checksum);
+    append_state_trace(boot_trace_io, stress_boot_timer, checksum);
 }
 
 void Stress_RecordState(int frame, u32 checksum) {
@@ -166,7 +177,7 @@ void Stress_RecordState(int frame, u32 checksum) {
         return;
     }
 
-    append_state_trace(STATE_TRACE_NAME, frame, checksum);
+    append_state_trace(state_trace_io, frame, checksum);
 }
 
 bool Stress_IsRequested() {
@@ -286,6 +297,11 @@ void Stress_Tick() {
     stress_waiting_for_match = false;
     stress_running = true;
 
+    // Menu and asset-loading duration can vary between platforms and runs.
+    // Start gameplay from the requested seed so those timing differences do
+    // not change the generated fight inputs.
+    stress_rng = stress_seed;
+
     // Both sides have to read their lever from the session. A CPU-controlled
     // player derives it from cpu_algorithm() instead, whose state isn't part of
     // the saved State, so it would diverge on every rollback.
@@ -306,6 +322,7 @@ void Stress_OnFrameAdvanced() {
         // the game draw a player from an MTS slot that has since been freed.
         Stress_Trace("exiting: match ended after %d frames, %d desync(s)", stress_frames_run, stress_desyncs);
         stress_finished = true;
+        close_state_traces();
         App_Exit();
         return;
     }
@@ -317,6 +334,7 @@ void Stress_OnFrameAdvanced() {
     if (stress_frame_limit > 0 && stress_frames_run >= stress_frame_limit) {
         Stress_Trace("exiting: frame limit reached after %d frames, %d desync(s)", stress_frames_run, stress_desyncs);
         stress_finished = true;
+        close_state_traces();
         App_Exit();
     }
 }
@@ -336,6 +354,7 @@ void Stress_OnDesync(int frame) {
     // The dumps are left for compare_states.py.
     Stress_Trace("exiting: desync found after %d frames", stress_frames_run);
     stress_finished = true;
+    close_state_traces();
     App_Exit();
 }
 

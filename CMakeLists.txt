@@ -140,7 +140,7 @@ target_compile_options(3sx PRIVATE
 
     -fno-strict-aliasing
 
-    ${DISABLED_WARNINGS}
+    $<$<COMPILE_LANGUAGE:C>:${DISABLED_WARNINGS}>
 
     $<$<OR:$<CONFIG:Debug>,$<BOOL:${THREESX_STATCHECK}>>:-Wno-unused-function>
     # $<$<CONFIG:Debug>:-Wno-unused-variable>
@@ -148,7 +148,11 @@ target_compile_options(3sx PRIVATE
     $<$<OR:$<CONFIG:Debug>,$<BOOL:${THREESX_STATCHECK}>>:-Wno-unused-but-set-variable>
 )
 
-if(NOT PSP AND (CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_C_COMPILER_ID STREQUAL "GNU"))
+if(NOT PSP
+   AND NOT WIN32
+   AND (CMAKE_C_COMPILER_ID STREQUAL "Clang"
+        OR CMAKE_C_COMPILER_ID STREQUAL "AppleClang"
+        OR CMAKE_C_COMPILER_ID STREQUAL "GNU"))
     target_compile_options(3sx PRIVATE
         $<$<CONFIG:Debug>:-fsanitize=address>
         $<$<CONFIG:Debug>:-fno-omit-frame-pointer>
