@@ -610,6 +610,14 @@ s32 comm_quay(WORK* /* unused */, UNK11* ctc) {
     return 1;
 }
 
+/* One character's taunt shot pattern is ignored after a KO while the DIP switch
+ * that disables post-KO taunts is set. Character 16 and the 0x440 pattern are
+ * the original's, not a guess at which character that is. */
+static s32 taunt_shot_is_suppressed(WORK* wk, u16 my_shdat) {
+    return wk->work_id == 1 && ((PLW*)wk)->player_number == 16 && ((PLW*)wk)->spmv_ng_flag & DIP_TAUNT_AFTER_KO_DISABLED &&
+           my_shdat == 0x440 && pcon_dp_flag;
+}
+
 s32 comm_if_s(WORK* wk, UNK11* ctc) {
     u16 shdat;
     u16 my_shdat;
@@ -622,8 +630,7 @@ s32 comm_if_s(WORK* wk, UNK11* ctc) {
 
     shdat = get_comm_if_shot(wk);
 
-    if (wk->work_id == 1 && ((PLW*)wk)->player_number == 16 && ((PLW*)wk)->spmv_ng_flag & DIP_TAUNT_AFTER_KO_DISABLED &&
-        my_shdat == 0x440 && pcon_dp_flag) {
+    if (taunt_shot_is_suppressed(wk, my_shdat)) {
         shdat = 0;
     }
 
@@ -849,17 +856,29 @@ s32 comm_mvix(WORK* wk, UNK11* ctc) {
     return 1;
 }
 
+/* This work's own super art is the one the script asks about, and it is
+ * running. Character 18 is excluded, as in the original. */
+static s32 own_art_is_running(WORK* wk, UNK11* ctc) {
+    return My_char[wk->id] != 18 && ((PLW*)wk)->sa->kind_of_arts == ctc->koc && ((PLW*)wk)->sa->ok == -1;
+}
+
+/* The same question asked of an effect's master player. It checks work_id where
+ * the other checks the character, so the two are not merged. */
+static s32 master_art_is_running(PLW* pwk, UNK11* ctc) {
+    return pwk->wu.work_id == 1 && pwk->sa->kind_of_arts == ctc->koc && pwk->sa->ok == -1;
+}
+
 s32 comm_sajp(WORK* wk, UNK11* ctc) {
     PLW* pwk;
 
     if (wk->work_id == 1) {
-        if (My_char[wk->id] != 18 && ((PLW*)wk)->sa->kind_of_arts == ctc->koc && ((PLW*)wk)->sa->ok == -1) {
+        if (own_art_is_running(wk, ctc)) {
             return decord_if_jump(wk, ctc, ctc->ix);
         }
     } else {
         pwk = (PLW*)((WORK_Other*)wk)->my_master;
 
-        if (pwk->wu.work_id == 1 && pwk->sa->kind_of_arts == ctc->koc && pwk->sa->ok == -1) {
+        if (master_art_is_running(pwk, ctc)) {
             return decord_if_jump(&pwk->wu, ctc, ctc->ix);
         }
     }
