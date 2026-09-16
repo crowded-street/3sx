@@ -86,9 +86,32 @@ void combo_cont_init() { // 🟡
     SDL_zero(cmst_buff);
 }
 
-void combo_cont_main() { // 🟡
+/* One frame of both players' combo windows. The order the two players are
+ * stepped in alternates with Game_timer, which matters when both are in a combo
+ * at once; while paused only the window animation runs. Both kept as they were. */
+static void step_both_combo_windows(void) {
     s8 i;
 
+    if (Game_pause == 0) {
+        if (Game_timer & 1) {
+            for (i = 0; i < 2; i++) {
+                combo_control(i);
+                combo_window_trans(i);
+            }
+        } else {
+            for (i = 1; i > -1; i--) {
+                combo_control(i);
+                combo_window_trans(i);
+            }
+        }
+    } else {
+        for (i = 0; i < 2; i++) {
+            combo_window_trans(i);
+        }
+    }
+}
+
+void combo_cont_main() { // 🟡
     if (Stop_Combo) {
         // CPS3 resets active combo state here; the port normally defers it.
         if (Demo_Flag && !ArcadeBalance_IsEnabled()) {
@@ -104,23 +127,7 @@ void combo_cont_main() { // 🟡
     }
 
     if (Demo_Flag != 0) {
-        if (Game_pause == 0) {
-            if (Game_timer & 1) {
-                for (i = 0; i < 2; i++) {
-                    combo_control(i);
-                    combo_window_trans(i);
-                }
-            } else {
-                for (i = 1; i > -1; i--) {
-                    combo_control(i);
-                    combo_window_trans(i);
-                }
-            }
-        } else {
-            for (i = 0; i < 2; i++) {
-                combo_window_trans(i);
-            }
-        }
+        step_both_combo_windows();
 
         cmb_all_stock[0] = cmb_stock[0] + cmb_stock[1];
     }
