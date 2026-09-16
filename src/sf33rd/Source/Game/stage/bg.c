@@ -1064,6 +1064,20 @@ static s32 advance_stage19_state(u8 bgnm) {
     return 0;
 }
 
+static s32 advance_stage03_state(u8 bgnm) {
+    if (is_exe_or_pause_active()) {
+        return 1;
+    }
+
+    if (bgnm == 0) {
+        advance_stage03_player_rw_state();
+        return 0;
+    }
+
+    advance_stage03_flash_state();
+    return 0;
+}
+
 void scr_trans(u8 bgnm) {
     PPGDataList* curDataList;
     s32 xx[2];
@@ -1093,16 +1107,9 @@ void scr_trans(u8 bgnm) {
     case 1:
         draw_stage03_tiles(bgnm, xx, yy, global_index, palOffset, curDataList);
 
-        if (is_exe_or_pause_active()) {
+        if (advance_stage03_state(bgnm)) {
             return;
         }
-
-        if (bgnm == 0) {
-            advance_stage03_player_rw_state();
-            break;
-        }
-
-        advance_stage03_flash_state();
         break;
 
     case 2:
