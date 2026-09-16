@@ -465,7 +465,10 @@ static void chase_x_move() {
 }
 
 static void chase_y_move() {
-    if (bg_w.chase_flag & 0xF0) {
+    if (!(bg_w.chase_flag & 0xF0)) {
+        return;
+    }
+
         if (bg_w.chase_flag & 0x10) {
             chase_time_y -= 1;
 
@@ -493,8 +496,7 @@ static void chase_y_move() {
             bgw_ptr->chase_xy[1].disp.low = 0;
         }
 
-        bg_w.bg2_sp_y = bgw_ptr->chase_xy[1].disp.pos - bgw_ptr->pos_y_work;
-    }
+    bg_w.bg2_sp_y = bgw_ptr->chase_xy[1].disp.pos - bgw_ptr->pos_y_work;
 }
 
 void chase_xy_move() {
