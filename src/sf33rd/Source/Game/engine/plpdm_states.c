@@ -875,6 +875,33 @@ void Damage_29000(PLW* wk) {
     }
 }
 
+/* Hitting the wall: the work is handed to state 18 with a fresh arc, the
+ * attribute effects are replayed, and the screen shakes. */
+static void bounce_damage_30000(PLW* wk) {
+    wk->wu.routine_no[2] = 18;
+    wk->wu.routine_no[3] = 1;
+    set_char_move_init(&wk->wu, 6, wk->as->data_ix);
+    wk->wu.dm_butt_type++;
+    setup_butt_own_data(&wk->wu);
+    cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->as->data_ix][wk->wu.dm_attlv], wk->wu.xyz[1].disp.pos);
+    get_sky_dm_timer(wk);
+
+    if (wk->wu.dm_attribute) {
+        setup_accessories(wk, wk->wu.pat_status);
+
+        if (wk->wu.dm_attribute != 2) {
+            effect_D9_init(wk, (u8)wk->wu.dm_attribute);
+        }
+    }
+
+    wk->wu.hit_stop = 3;
+    wk->wu.hit_quake = 0;
+    bg_w.quake_x_index = 6;
+    pp_screen_quake(bg_w.quake_x_index);
+    effect_I3_init(&wk->wu, 1);
+    subtract_cu_vital(wk);
+}
+
 void Damage_30000(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -905,28 +932,7 @@ void Damage_30000(PLW* wk) {
             break;
         }
 
-        wk->wu.routine_no[2] = 18;
-        wk->wu.routine_no[3] = 1;
-        set_char_move_init(&wk->wu, 6, wk->as->data_ix);
-        wk->wu.dm_butt_type++;
-        setup_butt_own_data(&wk->wu);
-        cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->as->data_ix][wk->wu.dm_attlv], wk->wu.xyz[1].disp.pos);
-        get_sky_dm_timer(wk);
-
-        if (wk->wu.dm_attribute) {
-            setup_accessories(wk, wk->wu.pat_status);
-
-            if (wk->wu.dm_attribute != 2) {
-                effect_D9_init(wk, (u8)wk->wu.dm_attribute);
-            }
-        }
-
-        wk->wu.hit_stop = 3;
-        wk->wu.hit_quake = 0;
-        bg_w.quake_x_index = 6;
-        pp_screen_quake(bg_w.quake_x_index);
-        effect_I3_init(&wk->wu, 1);
-        subtract_cu_vital(wk);
+        bounce_damage_30000(wk);
         break;
 
     case 3:
