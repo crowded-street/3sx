@@ -1160,6 +1160,10 @@ void bg_move_common() {
     bg_y_move_check();
 }
 
+static s32 should_load_bg_texture() {
+    return G_No[0] != 2 || G_No[1] != 2 || G_No[2] != 2;
+}
+
 void bg_initialize() {
     const s16* ptr;
     u8 i;
@@ -1178,7 +1182,7 @@ void bg_initialize() {
     y_sitei_flag = 0;
     y_sitei_pos = 0;
 
-    if (G_No[0] != 2 || G_No[1] != 2 || G_No[2] != 2) {
+    if (should_load_bg_texture()) {
         Bg_Texture_Load_EX();
     }
 
