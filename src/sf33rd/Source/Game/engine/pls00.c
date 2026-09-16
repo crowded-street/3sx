@@ -216,29 +216,31 @@ static s32 try_special_or_taunt_cancel(PLW* wk) {
     return check_special_attack(wk) || check_chouhatsu(wk);
 }
 
-s32 check_cg_cancel_data(PLW* wk) { // 🟡
-    if (wk->wu.cg_cancel == 0) {
-        return 0;
+/* The cancels only a hit allows: the two DIP switches that take them away, and
+ * the super-art and special-move cancels themselves. */
+static s32 try_hit_cancels(PLW* wk) {
+    if (wk->spmv_ng_flag2 & DIP2_SPECIAL_MOVE_SUPER_ART_CANCEL_DISABLED) {
+        apply_special_move_cancel_mask(wk);
     }
 
-    if (wk->wu.meoshi_hit_flag != 0) {
-        if (wk->spmv_ng_flag2 & DIP2_SPECIAL_MOVE_SUPER_ART_CANCEL_DISABLED) {
-            apply_special_move_cancel_mask(wk);
-        }
-
-        if ((wk->spmv_ng_flag2 & DIP2_SUPER_ART_CANCEL_DISABLED) && (wk->wu.kind_of_waza & 0xF8)) {
-            wk->wu.cg_cancel &= 0xBF;
-        }
-
-        if ((wk->wu.cg_cancel & 0x40) && try_super_art_cancel(wk)) {
-            return 1;
-        }
-
-        if ((wk->wu.cg_cancel & 0x20) && try_special_or_taunt_cancel(wk)) {
-            return 1;
-        }
+    if ((wk->spmv_ng_flag2 & DIP2_SUPER_ART_CANCEL_DISABLED) && (wk->wu.kind_of_waza & 0xF8)) {
+        wk->wu.cg_cancel &= 0xBF;
     }
 
+    if ((wk->wu.cg_cancel & 0x40) && try_super_art_cancel(wk)) {
+        return 1;
+    }
+
+    if ((wk->wu.cg_cancel & 0x20) && try_special_or_taunt_cancel(wk)) {
+        return 1;
+    }
+
+    return 0;
+}
+
+/* The cancels that do not need a hit: rapid fire, push-out, and chaining into
+ * another normal. */
+static s32 try_chain_cancels(PLW* wk) {
     if ((wk->wu.cg_cancel & 16) && check_renda_cancel(wk)) {
         return 1;
     }
@@ -247,14 +249,11 @@ s32 check_cg_cancel_data(PLW* wk) { // 🟡
         return 1;
     }
 
-    if (normal_attack_cancels_into_new(wk)) {
-        return 1;
-    }
+    return normal_attack_cancels_into_new(wk);
+}
 
-    if (wk->wu.meoshi_hit_flag == 0) {
-        return 0;
-    }
-
+/* And the two movement cancels, which need a hit again. */
+static s32 try_movement_cancels(PLW* wk) {
     if ((wk->wu.cg_cancel & 2) && check_F_R_dash(wk)) {
         return 1;
     }
@@ -265,6 +264,28 @@ s32 check_cg_cancel_data(PLW* wk) { // 🟡
     }
 
     return 0;
+}
+
+s32 check_cg_cancel_data(PLW* wk) { // 🟡
+    if (wk->wu.cg_cancel == 0) {
+        return 0;
+    }
+
+    if (wk->wu.meoshi_hit_flag != 0) {
+        if (try_hit_cancels(wk)) {
+            return 1;
+        }
+    }
+
+    if (try_chain_cancels(wk)) {
+        return 1;
+    }
+
+    if (wk->wu.meoshi_hit_flag == 0) {
+        return 0;
+    }
+
+    return try_movement_cancels(wk);
 }
 
 const s8 lvdir_conv[4] = { 0, 2, 1, 0 };
