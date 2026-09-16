@@ -693,6 +693,24 @@ void bg_base_x_move_sub() {
     scr_x_mv_jp[(st[0] << 4) + st[1]]();
 }
 
+static s16 adjust_bg_x_step(s16 mvstep) {
+    if (mvstep) {
+        if (mvstep < 0) {
+            if (mvstep < -bg_w.max_x) {
+                mvstep = -bg_w.max_x;
+            }
+            mvstep = -remake_x_mvstep(-mvstep);
+        } else {
+            if (mvstep > bg_w.max_x) {
+                mvstep = bg_w.max_x;
+            }
+            mvstep = remake_x_mvstep(mvstep);
+        }
+    }
+
+    return mvstep;
+}
+
 static void move_bg_base_x() {
     s16 mvstep, old_work;
 
@@ -710,19 +728,7 @@ static void move_bg_base_x() {
     ideal_w.iw[0].cal = 0;
     ideal_w.iw[0].disp.pos = mvstep;
 
-    if (mvstep) {
-        if (mvstep < 0) {
-            if (mvstep < -bg_w.max_x) {
-                mvstep = -bg_w.max_x;
-            }
-            mvstep = -remake_x_mvstep(-mvstep);
-        } else {
-            if (mvstep > bg_w.max_x) {
-                mvstep = bg_w.max_x;
-            }
-            mvstep = remake_x_mvstep(mvstep);
-        }
-    }
+    mvstep = adjust_bg_x_step(mvstep);
 
     ideal_w.iw[0].disp.pos = mvstep;
     Bg_mv_tw(ideal_w.iw[0].cal, 0);
