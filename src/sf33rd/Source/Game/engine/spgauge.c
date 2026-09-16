@@ -796,6 +796,47 @@ static void sast_timer_control(s8 Stpl_Num) {
  * 6.95 against 7.81 for leaving them - the new helpers are near-twins of
  * run_timer_state_1 and run_timer_state_3 and the duplication costs more than
  * the complexity removed. */
+/* The flash is over. Either the EX gauge is showing MAX, in which case the
+ * caller takes over and draws it, or the stock display settles back to its
+ * normal colours here. Returns 1 for the first case. */
+static s32 settle_max_display(s8 Stpl_Num) {
+    if (plw[Stpl_Num].sa->store == plw[Stpl_Num].sa->store_max) {
+        max2[Stpl_Num] = 1;
+    }
+
+    if (spg_dat[Stpl_Num].sa_mukou == 1) {
+        max2[Stpl_Num] = 0;
+    }
+
+    if (ex_gauge_shows_max(Stpl_Num)) {
+        return 1;
+    }
+
+    if (spg_dat[Stpl_Num].max_old != 0 && spg_dat[Stpl_Num].sa_mukou == 0) {
+        sa_moji_trans(Stpl_Num, 0, 0);
+        spg_dat[Stpl_Num].max_old = 0;
+    }
+
+    sast_color_chenge(Stpl_Num);
+    spg_dat[Stpl_Num].spg_level = plw[Stpl_Num].sa->store;
+    sa_stock_trans(spg_dat[Stpl_Num].spg_level, col, Stpl_Num);
+    sa_waku_trans(Stpl_Num, col);
+
+    if (sa_gauge_may_redraw_stpl(Stpl_Num)) {
+        sa_gauge_trans(Stpl_Num);
+    }
+
+    spg_dat[Stpl_Num].flag = 0;
+    spg_dat[Stpl_Num].max_rno = 2;
+    spg_dat[Stpl_Num].sa_flag = 0;
+    spg_dat[Stpl_Num].ex_flag = 0;
+    spg_dat[Stpl_Num].sa_mukou = 0;
+
+    spg_dat[Stpl_Num].flag2 = 0;
+    sast_now[Stpl_Num] = 0;
+    return 0;
+}
+
 static void sast_max_control(s8 Stpl_Num) {
     switch (spg_dat[Stpl_Num].max_rno) {
     case 0:
@@ -818,40 +859,10 @@ static void sast_max_control(s8 Stpl_Num) {
             return;
         }
 
-        if (plw[Stpl_Num].sa->store == plw[Stpl_Num].sa->store_max) {
-            max2[Stpl_Num] = 1;
-        }
-
-        if (spg_dat[Stpl_Num].sa_mukou == 1) {
-            max2[Stpl_Num] = 0;
-        }
-
-        if (ex_gauge_shows_max(Stpl_Num)) {
+        if (settle_max_display(Stpl_Num)) {
             break;
         }
 
-        if (spg_dat[Stpl_Num].max_old != 0 && spg_dat[Stpl_Num].sa_mukou == 0) {
-            sa_moji_trans(Stpl_Num, 0, 0);
-            spg_dat[Stpl_Num].max_old = 0;
-        }
-
-        sast_color_chenge(Stpl_Num);
-        spg_dat[Stpl_Num].spg_level = plw[Stpl_Num].sa->store;
-        sa_stock_trans(spg_dat[Stpl_Num].spg_level, col, Stpl_Num);
-        sa_waku_trans(Stpl_Num, col);
-
-        if (sa_gauge_may_redraw_stpl(Stpl_Num)) {
-            sa_gauge_trans(Stpl_Num);
-        }
-
-        spg_dat[Stpl_Num].flag = 0;
-        spg_dat[Stpl_Num].max_rno = 2;
-        spg_dat[Stpl_Num].sa_flag = 0;
-        spg_dat[Stpl_Num].ex_flag = 0;
-        spg_dat[Stpl_Num].sa_mukou = 0;
-
-        spg_dat[Stpl_Num].flag2 = 0;
-        sast_now[Stpl_Num] = 0;
         /* fallthrough */
 
     default:
