@@ -104,17 +104,8 @@ static void select_horizontal_zoom_request_middle(u16 p1zoom, u16 zoom_wk) {
     }
 }
 
-static void select_horizontal_zoom_request(u16 p1zoom, u16 p2zoom) {
-    u16 zoom_wk;
-
-    zoom_wk = p2zoom & 0xE200;
-
-    switch (p1zoom & 0xE200) {
-    case 0x4000:
-        break;
-
-    case 0x2000:
-        switch (zoom_wk) {
+static void select_horizontal_2000_zoom_request(u16 zoom_wk) {
+    switch (zoom_wk) {
         case 0x4000:
             zoom_request_flag = 0x100;
             scr_req_x = plw[0].wu.xyz[0].disp.pos;
@@ -131,7 +122,20 @@ static void select_horizontal_zoom_request(u16 p1zoom, u16 p2zoom) {
             zoom_request_flag = 0x100;
             scr_req_x = plw[1].wu.xyz[0].disp.pos;
             break;
-        }
+    }
+}
+
+static void select_horizontal_zoom_request(u16 p1zoom, u16 p2zoom) {
+    u16 zoom_wk;
+
+    zoom_wk = p2zoom & 0xE200;
+
+    switch (p1zoom & 0xE200) {
+    case 0x4000:
+        break;
+
+    case 0x2000:
+        select_horizontal_2000_zoom_request(zoom_wk);
         break;
 
     default:
