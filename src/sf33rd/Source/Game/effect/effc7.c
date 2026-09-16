@@ -30,54 +30,63 @@ static s32 game_is_active(void) {
     return EXE_flag == 0 && Game_pause == 0;
 }
 
-void effect_C7_move(WORK_Other* ewk) {
+static void effc7_spawn(WORK_Other* ewk) {
     WORK* mwk = (WORK*)ewk->my_master;
 
+    ewk->wu.routine_no[0]++;
+    ewk->wu.disp_flag = 1;
+    ewk->wu.xyz[2].disp.pos = 26;
+    ewk->wu.next_z = mwk->position_z;
+
+    if (mwk->rl_flag) {
+        ewk->wu.position_x = mwk->position_x + paring_mark_data[ewk->wu.direction][ewk->master_player][0];
+    } else {
+        ewk->wu.position_x = mwk->position_x - paring_mark_data[ewk->wu.direction][ewk->master_player][0];
+    }
+
+    ewk->wu.position_y = mwk->position_y + paring_mark_data[ewk->wu.direction][ewk->master_player][1];
+
+    if (ewk->wu.position_z == ewk->wu.xyz[2].disp.pos) {
+        ewk->wu.position_z = ewk->wu.next_z;
+    } else {
+        ewk->wu.position_z = ewk->wu.xyz[2].disp.pos;
+    }
+
+    set_char_move_init(&ewk->wu, 0, 0);
+    effc7_sort_push(&ewk->wu, mwk);
+}
+
+static void effc7_animate(WORK_Other* ewk) {
+    WORK* mwk = (WORK*)ewk->my_master;
+
+    if (ewk->wu.dead_f == 1) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0]++;
+        return;
+    }
+
+    if (game_is_active()) {
+        char_move(&ewk->wu);
+
+        if (ewk->wu.cg_type == 0xFF) {
+            ewk->wu.disp_flag = 0;
+            ewk->wu.routine_no[0]++;
+            return;
+        }
+    }
+
+    effc7_sort_push(&ewk->wu, mwk);
+}
+
+void effect_C7_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.xyz[2].disp.pos = 26;
-        ewk->wu.next_z = mwk->position_z;
-
-        if (mwk->rl_flag) {
-            ewk->wu.position_x = mwk->position_x + paring_mark_data[ewk->wu.direction][ewk->master_player][0];
-        } else {
-            ewk->wu.position_x = mwk->position_x - paring_mark_data[ewk->wu.direction][ewk->master_player][0];
-        }
-
-        ewk->wu.position_y = mwk->position_y + paring_mark_data[ewk->wu.direction][ewk->master_player][1];
-
-        if (ewk->wu.position_z == ewk->wu.xyz[2].disp.pos) {
-            ewk->wu.position_z = ewk->wu.next_z;
-        } else {
-            ewk->wu.position_z = ewk->wu.xyz[2].disp.pos;
-        }
-
-        set_char_move_init(&ewk->wu, 0, 0);
-        effc7_sort_push(&ewk->wu, mwk);
+        effc7_spawn(ewk);
         break;
 
     case 1:
-        if (ewk->wu.dead_f == 1) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0]++;
-            break;
-        }
-
-        if (game_is_active()) {
-            char_move(&ewk->wu);
-
-            if (ewk->wu.cg_type == 0xFF) {
-                ewk->wu.disp_flag = 0;
-                ewk->wu.routine_no[0]++;
-                break;
-            }
-        }
-
-        effc7_sort_push(&ewk->wu, mwk);
+        effc7_animate(ewk);
         break;
-
     case 2:
         ewk->wu.routine_no[0] = 3;
         break;
