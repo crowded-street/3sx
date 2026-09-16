@@ -45,6 +45,18 @@ static u16 check_xcopy_filter_se_req(WORK* wk);
 void check_cgd_patdat2(WORK* wk);
 void setup_metamor_kezuri(WORK* wk);
 
+static s32 on_bonus_car_below_floor(const WORK* wk, const UNK11* ctc) {
+    return bg_w.stage == 20 && ((PLW*)wk)->bs2_on_car && ctc->pat < bs2_floor[2];
+}
+
+static s32 is_cancellable_normal(const WORK* wk) {
+    return !(wk->kow & 0xF8) && (wk->routine_no[1] == 4) && (wk->routine_no[2] < 16);
+}
+
+static s32 target_combo_is_blocked(const WORK* wk) {
+    return (WK_AS_PLW->spmv_ng_flag2 & DIP2_TARGET_COMBO_DISABLED) && (wk->cg_cancel & 8) && !(wk->kow & 0xF8);
+}
+
 void set_char_move_init(WORK* wk, s16 koc, s16 index) {
     wk->now_koc = koc;
     wk->char_index = index;
@@ -788,7 +800,7 @@ s32 comm_ps_y(WORK* wk, UNK11* ctc) {
         switch (ctc->koc) {
         case 0:
             // CPS3 compares to 21 here
-            if (bg_w.stage == 20 && ((PLW*)wk)->bs2_on_car && ctc->pat < bs2_floor[2]) {
+            if (on_bonus_car_below_floor(wk, ctc)) {
                 wk->xyz[1].disp.pos = bs2_floor[2];
             } else {
                 wk->xyz[1].disp.pos = ctc->pat;
@@ -2428,7 +2440,7 @@ void check_cgd_patdat(WORK* wk) {
     }
 
     if (wk->work_id == 1) {
-        if ((WK_AS_PLW->spmv_ng_flag2 & DIP2_TARGET_COMBO_DISABLED) && (wk->cg_cancel & 8) && !(wk->kow & 0xF8)) {
+        if (target_combo_is_blocked(wk)) {
             if (wk->kow & 6) {
                 wk->cg_cancel &= 0xF7;
                 wk->cg_meoshi = 0;
@@ -2453,7 +2465,7 @@ void check_cgd_patdat(WORK* wk) {
             wk->cg_cancel |= 0x60;
         }
 
-        if (!(wk->kow & 0xF8) && (wk->routine_no[1] == 4) && (wk->routine_no[2] < 16)) {
+        if (is_cancellable_normal(wk)) {
             switch (plpat_rno_filter[wk->routine_no[2]]) {
             case 9:
                 if (wk->routine_no[3] != 1) {
