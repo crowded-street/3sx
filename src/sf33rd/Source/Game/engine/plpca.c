@@ -421,23 +421,34 @@ static void apply_damage_to_vitality(PLW* wk) {
     }
 }
 
+/* The hit was fatal: the round ends, and the first death of the round also
+ * starts the slow-motion finish. */
+static void kill_player(PLW* wk) {
+    wk->wu.vital_new = -1;
+    wk->dead_flag = 1;
+    dead_voice_flag = true;
+
+    if (!round_slow_flag) {
+        set_conclusion_slow();
+        round_slow_flag = true;
+    }
+}
+
+/* It was not: the stun meter takes the hit instead, and fills. */
+static void add_stun_damage(PLW* wk) {
+    wk->py->now.quantity.h += wk->wu.dm_piyo;
+
+    if (wk->py->now.quantity.h >= wk->py->genkai) {
+        wk->py->now.timer = 0;
+        wk->py->flag = 1;
+    }
+}
+
 static void resolve_death_or_stun(PLW* wk) {
     if (wk->wu.vital_new < 0) {
-        wk->wu.vital_new = -1;
-        wk->dead_flag = 1;
-        dead_voice_flag = true;
-
-        if (!round_slow_flag) {
-            set_conclusion_slow();
-            round_slow_flag = true;
-        }
+        kill_player(wk);
     } else if (wk->py->flag == 0) {
-        wk->py->now.quantity.h += wk->wu.dm_piyo;
-
-        if (wk->py->now.quantity.h >= wk->py->genkai) {
-            wk->py->now.timer = 0;
-            wk->py->flag = 1;
-        }
+        add_stun_damage(wk);
     }
 }
 
