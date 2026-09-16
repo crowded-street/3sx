@@ -443,6 +443,26 @@ void check_dmpat_to_dmpat(PLW* /* unused */) {
     // Do nothing
 }
 
+/* Out of reach for the airborne damage-correction flag. Rising and falling have
+ * different limits, and the comparisons keep the original's polarity. */
+static s32 too_far_for_air_hosei(const PLW* wk, s16 disx) {
+    if (wk->wu.mvxy.a[1].real.h <= 0) {
+        return disx > 96;
+    }
+
+    return disx > 160;
+}
+
+/* The same question on the other dm_work_id path, which reaches less far. Not
+ * merged with the one above: both limits differ, which is two values. */
+static s32 too_far_for_ground_hosei(const PLW* wk, s16 disx) {
+    if (wk->wu.mvxy.a[1].real.h <= 0) {
+        return disx > 80;
+    }
+
+    return disx > 128;
+}
+
 void set_dm_hos_flag_sky(PLW* wk) {
     PLW* twk = (PLW*)wk->wu.target_adrs;
     s16 disx = wk->wu.xyz[0].disp.pos - twk->wu.xyz[0].disp.pos;
@@ -452,11 +472,7 @@ void set_dm_hos_flag_sky(PLW* wk) {
     }
 
     if (wk->wu.dm_work_id & 8) {
-        if (wk->wu.mvxy.a[1].real.h <= 0) {
-            if (disx > 96) {
-                return;
-            }
-        } else if (disx > 160) {
+        if (too_far_for_air_hosei(wk, disx)) {
             return;
         }
 
@@ -472,11 +488,7 @@ void set_dm_hos_flag_sky(PLW* wk) {
         return;
     }
 
-    if (wk->wu.mvxy.a[1].real.h <= 0) {
-        if (disx > 80) {
-            return;
-        }
-    } else if (disx > 128) {
+    if (too_far_for_ground_hosei(wk, disx)) {
         return;
     }
 

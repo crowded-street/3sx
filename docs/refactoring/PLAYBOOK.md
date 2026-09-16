@@ -720,6 +720,30 @@ that the other arm was left inline deliberately and why.
 This is the same force behind *Two mirrored arms are cheaper left together* below; the
 difference is that here one arm can still be improved for free.
 
+### Retry a rejected extraction once the file has improved
+
+A measurement is only valid for the file as it stood. The cost of a new
+near-twin is weighed against everything else the file is already carrying, so an
+extraction that measured negative early can measure strongly positive later,
+with no change to the extraction itself.
+
+Measured on `plpdm.c`'s `set_dm_hos_flag_sky`. Naming its two distance checks -
+which cannot be merged, since both limits differ - was tried twice, the same
+edit both times:
+
+| When | File score before | After |
+| --- | --- | --- |
+| with five other findings still open | 7.15 | 6.99 |
+| after those were cleared | 8.66 | **9.53** |
+
+The second time it was worth +0.87. Nothing about the edit changed; what changed
+is that it had become the file's last real finding, so clearing it was worth far
+more than the twin pair costs.
+
+So: keep a note of what you rejected and why, and come back to it when the file
+is close to done. The rejections worth revisiting are the ones refused for
+duplication cost rather than for a rule.
+
 ### Clear the functions just over the threshold first
 
 A finding is worth score only while it exists. Taking a function from cc 25 to cc 20 keeps
