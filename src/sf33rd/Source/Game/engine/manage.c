@@ -1720,18 +1720,9 @@ s32 Judge_Next_Disposal() {
     return 0;
 }
 
-void Quick_Entry() {
-    s8 grade;
-
-    if (Check_Entry_Again()) {
-        Forbid_Break = 0;
-        Extra_Break = 0;
-    }
-
-    if (PL_Wins[Winner_id] < save_w[Present_Mode].Battle_Number[Play_Type] + 1) {
-        return;
-    }
-
+/* A human loser is offered a continue. Outside arcade the side stays marked as
+ * a player whatever the continue does, which is the original's shape. */
+static void offer_continue_to_loser(void) {
     if (plw[LOSER].wu.operator) {
         Loser_Sub();
 
@@ -1741,6 +1732,11 @@ void Quick_Entry() {
 
         Be_Continue();
     }
+}
+
+/* In versus, keep the winner's best grade of the session. */
+static void record_versus_best_grade(void) {
+    s8 grade;
 
     if (Play_Type == 1) {
         grade = judge_item[Winner_id][1].grade;
@@ -1749,6 +1745,20 @@ void Quick_Entry() {
             Best_Grade[Winner_id] = grade;
         }
     }
+}
+
+void Quick_Entry() {
+    if (Check_Entry_Again()) {
+        Forbid_Break = 0;
+        Extra_Break = 0;
+    }
+
+    if (PL_Wins[Winner_id] < save_w[Present_Mode].Battle_Number[Play_Type] + 1) {
+        return;
+    }
+
+    offer_continue_to_loser();
+    record_versus_best_grade();
 }
 
 s32 Check_Entry_Again() {
