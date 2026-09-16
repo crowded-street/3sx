@@ -858,6 +858,15 @@ s32 Check_Disp_Combo() {
 }
 
 void Game_Manage_7_3() {
+    // NOTE: the two arms below are identical - whichever way this test goes, the
+    // same countdown runs and the same early return happens, so the condition
+    // has no effect. That looks like a mistake and is left exactly as it is:
+    // the campaign reports what it finds and changes nothing. If one side was
+    // meant to use a different timer, fixing it is a behaviour change and needs
+    // a decision, not a refactor.
+    //
+    // Lifting the pair into a helper was tried and reverted: it moved the two
+    // bumps into the helper rather than removing them, and measured flat.
     if (Play_Type == 0 && Perfect_Flag == 0) {
         if (--C_Timer) {
             return;
