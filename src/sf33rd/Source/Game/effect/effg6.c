@@ -147,6 +147,12 @@ static s32 master_state_requires_shutdown(const WORK_Other* ewk, const WORK* mwk
 }
 
 
+/* Step to the state that hands the work slot back. Three conditions reach this;
+ * in the original the two later ones jumped to a label inside the first. */
+static void g6_begin_shutdown(WORK_Other* ewk) {
+    ewk->wu.routine_no[0] += 1;
+}
+
 void effect_G6_move(WORK_Other* ewk) {
     WORK* mwk = (WORK*)ewk->my_master;
 
@@ -179,8 +185,7 @@ void effect_G6_move(WORK_Other* ewk) {
         }
 
         if (master_state_requires_shutdown(ewk, mwk)) {
-        block_22:
-            ewk->wu.routine_no[0] += 1;
+            g6_begin_shutdown(ewk);
             return;
         }
 
@@ -190,7 +195,8 @@ void effect_G6_move(WORK_Other* ewk) {
 
         if (ewk->wu.dmcal_m & 0x10) {
             if (ewk->wu.dir_timer-- <= 0) {
-                goto block_22;
+                g6_begin_shutdown(ewk);
+                return;
             }
         }
 
@@ -200,7 +206,8 @@ void effect_G6_move(WORK_Other* ewk) {
 
         if (ewk->wu.dmcal_m & 0x20) {
             if ((mwk->hit_stop == 0) && g6_master_unmoved(ewk, mwk)) {
-                goto block_22;
+                g6_begin_shutdown(ewk);
+                return;
             }
         } else if (g6_master_unmoved(ewk, mwk)) {
             break;
