@@ -345,12 +345,8 @@ void bg_chase_move() {
     }
 }
 
-static void chase_x_start_check() {
-    s16 work;
-    s16 work2;
-
-    if (zoom_request_flag & 0xF00) {
-        if (chase_x != scr_req_x) {
+static void start_requested_x_chase() {
+    if (chase_x != scr_req_x) {
             chase_x = scr_req_x;
 
             if (bgw_ptr->zuubun) {
@@ -364,7 +360,15 @@ static void chase_x_start_check() {
             bg_w.chase_flag |= 1;
             bg_w.chase_flag &= ~2;
             bg_w.old_chase_flag = 1;
-        }
+    }
+}
+
+static void chase_x_start_check() {
+    s16 work;
+    s16 work2;
+
+    if (zoom_request_flag & 0xF00) {
+        start_requested_x_chase();
     } else {
         work = zoom_req_flag_old & 0xF00;
         work2 = ~(zoom_request_flag & 0xF00);
