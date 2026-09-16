@@ -906,6 +906,18 @@ void settle_type_30000() {
     }
 }
 
+/* The winner has stopped moving: both sides go into their end-of-round
+ * routines and the slow-motion finish starts. */
+static void begin_slow_victory() {
+    pcon_rno[2]++;
+    set_victory_routines();
+    plw[Winner_id].wu.cg_type = 0;
+    grade_set_round_result(Winner_id + 0);
+    plw[0].image_setup_flag = plw[1].image_setup_flag = 0;
+    plw[Winner_id].wu.dir_timer = 60;
+    set_conclusion_slow();
+}
+
 void settle_type_40000() {
     switch (pcon_rno[2]) {
     case 0:
@@ -923,13 +935,7 @@ void settle_type_40000() {
 
     case 2:
         if (footwork_check(Winner_id)) {
-            pcon_rno[2]++;
-            set_victory_routines();
-            plw[Winner_id].wu.cg_type = 0;
-            grade_set_round_result(Winner_id + 0);
-            plw[0].image_setup_flag = plw[1].image_setup_flag = 0;
-            plw[Winner_id].wu.dir_timer = 60;
-            set_conclusion_slow();
+            begin_slow_victory();
         }
 
         break;
