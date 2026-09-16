@@ -907,6 +907,31 @@ void Damage_30000(PLW* wk) {
     }
 }
 
+/* The spin: every other frame advances the animation, and when the timer runs
+ * out the work is handed to state 18 as a fresh fall. */
+static void spin_damage_31000(PLW* wk) {
+    if (wk->wu.dir_timer & 1) {
+        char_move(&wk->wu);
+    }
+
+    wk->wu.cg_hit_ix = 1;
+    wk->wu.cg_ja = wk->wu.hit_ix_table[1];
+    set_jugde_area(&wk->wu);
+
+    if (--wk->wu.dir_timer >= 0) {
+        return;
+    }
+
+    set_char_move_init(&wk->wu, 6, 17);
+    wk->wu.cg_wca_ix++;
+    char_move_wca(&wk->wu);
+    wk->wu.routine_no[2] = 18;
+    wk->wu.routine_no[3] = 2;
+    setup_butt_own_data(&wk->wu);
+    cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->as->char_ix][wk->wu.dm_attlv], wk->wu.xyz[1].disp.pos);
+    get_sky_dm_timer(wk);
+}
+
 void Damage_31000(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -943,26 +968,7 @@ void Damage_31000(PLW* wk) {
         break;
 
     case 3:
-        if (wk->wu.dir_timer & 1) {
-            char_move(&wk->wu);
-        }
-
-        wk->wu.cg_hit_ix = 1;
-        wk->wu.cg_ja = wk->wu.hit_ix_table[1];
-        set_jugde_area(&wk->wu);
-
-        if (--wk->wu.dir_timer >= 0) {
-            break;
-        }
-
-        set_char_move_init(&wk->wu, 6, 17);
-        wk->wu.cg_wca_ix++;
-        char_move_wca(&wk->wu);
-        wk->wu.routine_no[2] = 18;
-        wk->wu.routine_no[3] = 2;
-        setup_butt_own_data(&wk->wu);
-        cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->as->char_ix][wk->wu.dm_attlv], wk->wu.xyz[1].disp.pos);
-        get_sky_dm_timer(wk);
+        spin_damage_31000(wk);
         break;
     }
 }
