@@ -619,6 +619,25 @@ from the shared shape before calling it a plateau. Extract the runs, measure, an
 then judge. A file can look identical to its neighbour in the review and still have most
 of a point in it.
 
+### Do not extract an arm that is still too big
+
+Recipe E on a `switch` arm pays only if the piece you lift out comes in **under the
+thresholds** - cyclomatic complexity 9 and 70 lines. If it does not, the file trades one
+flagged function for two and the score falls.
+
+Measured on `plmain.c`'s `sag_union_ps2`. Lifting out case 2's whole `gt2` dispatch was
+worth **+0.30** (4.38 -> 4.68): the piece landed at cc 16 and the parent dropped from
+cc 44. Going one level further and lifting the `gt2 == 1` arm out of *that* cost
+**-0.14** (4.68 -> 4.54): the new helper was 74 lines at cc 22, so the file gained a
+second Complex Method *and* a second Large Method while the parent only fell to cc 16.
+Reverted.
+
+Check the arm's own size before extracting it. When an arm is too big to help as a
+function but too complex to leave, name a **pure predicate inside it** instead - that
+lowers the parent's complexity without creating a second flagged function.
+`vital_drain_is_paused` in `check_omop_vital` is the worked example, +0.05 where an arm
+extraction would have cost.
+
 ### Never apply the same split across an already-duplicated family
 
 The rule above is about two arms inside one function. This one is about several
