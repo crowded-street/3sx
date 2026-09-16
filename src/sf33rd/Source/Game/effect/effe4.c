@@ -18,14 +18,21 @@ static s32 should_disable_vibration(const PLW* mwk) {
 }
 
 
+/* Non-zero when this effect should not run at all: the master has adopted a
+ * different one, this one is already dead, or the game is not in either
+ * training mode. */
+static s32 e4_effect_not_wanted(const WORK_Other* ewk, const PLW* mwk) {
+    return mwk->wu.E4_work_index != ewk->wu.myself || ewk->wu.dead_f != 0 ||
+           (Mode_Type != MODE_NORMAL_TRAINING && Mode_Type != MODE_PARRY_TRAINING);
+}
+
 void effect_E4_move(WORK_Other* ewk) {
     PLW* mwk = (PLW*)ewk->my_master;
     s16 num;
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        if (mwk->wu.E4_work_index != ewk->wu.myself || ewk->wu.dead_f != 0 ||
-            (Mode_Type != MODE_NORMAL_TRAINING && Mode_Type != MODE_PARRY_TRAINING)) {
+        if (e4_effect_not_wanted(ewk, mwk)) {
             ewk->wu.routine_no[0] = 2;
             break;
         }
