@@ -19,8 +19,16 @@ void plcnt_b2_die();
 
 void (*const player_bonus2_process[3])() = { plcnt_b_init, plcnt_b2_move, plcnt_b2_die };
 
+static s32 control_may_run(void) {
+    return ((pcon_rno[0] + pcon_rno[1]) == 0) || (!Game_pause && !EXE_flag);
+}
+
+static s32 round_is_in_play(void) {
+    return pcon_rno[0] == 2 && pcon_rno[1] == 0 && pcon_rno[2] == 2;
+}
+
 s32 Player_control_bonus2() {
-    if (((pcon_rno[0] + pcon_rno[1]) == 0) || (!Game_pause && !EXE_flag)) {
+    if (control_may_run()) {
         players_timer++;
         players_timer &= 0x7FFF;
         player_bonus2_process[pcon_rno[0]]();
@@ -50,7 +58,7 @@ s32 Player_control_bonus2() {
         store_player_after_image_data();
     }
 
-    if (pcon_rno[0] == 2 && pcon_rno[1] == 0 && pcon_rno[2] == 2) {
+    if (round_is_in_play()) {
         return 1;
     }
 

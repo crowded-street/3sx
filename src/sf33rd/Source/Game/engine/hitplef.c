@@ -10,6 +10,14 @@
 #include "sf33rd/Source/Game/engine/pow_pow.h"
 #include "sf33rd/Source/Game/io/pulpul.h"
 
+static s32 is_paired_shell(const WORK_Other* ds) {
+    return ds->wu.work_id == 2 && (ds->wu.id == 122 || ds->wu.id == 123);
+}
+
+static s32 is_unpaired_shell(const WORK_Other* ds) {
+    return ds->wu.work_id == 2 && ds->wu.id != 122 && ds->wu.id != 123;
+}
+
 void player_at_vs_effect_dm(s16 ix2, s16 ix) {
     PLW* as = (PLW*)q_hit_push[ix2];
     WORK_Other* ds = (WORK_Other*)q_hit_push[ix];
@@ -24,7 +32,7 @@ void player_at_vs_effect_dm(s16 ix2, s16 ix) {
         ds->wu.dm_vital = 256;
     }
 
-    if (ds->wu.work_id == 2 && (ds->wu.id == 122 || ds->wu.id == 123)) {
+    if (is_paired_shell(ds)) {
         if (ds->wu.xyz[1].disp.pos <= 0) {
             as->wu.hf.hit.player = 2;
         } else {
@@ -51,7 +59,7 @@ void player_at_vs_effect_dm(s16 ix2, s16 ix) {
 
     dm_status_copy(&as->wu, &ds->wu);
 
-    if (ds->wu.work_id == 2 && ds->wu.id != 122 && ds->wu.id != 123) {
+    if (is_unpaired_shell(ds)) {
         as->wu.att_hit_ok = 1;
         as->wu.hit_stop /= 2;
         ds->wu.dm_stop /= 2;
