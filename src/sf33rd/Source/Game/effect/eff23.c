@@ -159,8 +159,7 @@ void EFF23_CHAR_CHANGE(WORK_Other_CONN* /* unused */) {}
 
 void EFF23_SUDDENLY(WORK_Other_CONN* /* unused */) {}
 
-s32 effect_23_init(s16 id, u8 dir_old, s16 sync_bg, s16 master_player, s16 letter_type, s16 cursor_index,
-                   u16 char_offset, s16 pos_index, s16 type) {
+s32 effect_23_init(const Effect23Init* p) {
     WORK_Other_CONN* ewk;
     s16 ix;
 
@@ -173,15 +172,15 @@ s32 effect_23_init(s16 id, u8 dir_old, s16 sync_bg, s16 master_player, s16 lette
     ewk->wu.id = 23;
     ewk->wu.work_id = 16;
     ewk->wu.my_col_code = 0x1AC;
-    ewk->master_id = id;
-    ewk->wu.dir_old = dir_old;
-    ewk->wu.my_family = sync_bg + 1;
-    ewk->master_player = master_player;
-    ewk->wu.char_index = letter_type;
-    ewk->wu.type = cursor_index;
-    ewk->wu.old_cgnum = char_offset;
-    ewk->wu.dir_step = pos_index;
-    ewk->master_priority = type;
+    ewk->master_id = p->id;
+    ewk->wu.dir_old = p->dir_old;
+    ewk->wu.my_family = p->sync_bg + 1;
+    ewk->master_player = p->master_player;
+    ewk->wu.char_index = p->letter_type;
+    ewk->wu.type = p->cursor_index;
+    ewk->wu.old_cgnum = p->char_offset;
+    ewk->wu.dir_step = p->pos_index;
+    ewk->master_priority = p->type;
     ewk->wu.my_mts = 13;
     ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
     Setup_23_Sub(ewk);

@@ -223,11 +223,11 @@ static void initialize_button_rows(const ButtonRowLayout* layout) {
     for (ix = 0; ix < layout->count; ix++) {
         display_index = ix == layout->count - 1 ? layout->final_display_index : layout->display_index;
         action_index = ix + layout->action_offset;
-        effect_23_init(0, ix + layout->base_1p, 0, 2, display_index, ix, 0x70A7, action_index, layout->action_type);
+        effect_23_init(&(Effect23Init){0, ix + layout->base_1p, 0, 2, display_index, ix, 0x70A7, action_index, layout->action_type});
         Order[ix + layout->base_1p] = 1;
         Order_Dir[ix + layout->base_1p] = 4;
         Order_Timer[ix + layout->base_1p] = ix + 0x14;
-        effect_23_init(1, ix + layout->base_2p, 0, 2, display_index, ix, 0x70A7, action_index, layout->action_type);
+        effect_23_init(&(Effect23Init){1, ix + layout->base_2p, 0, 2, display_index, ix, 0x70A7, action_index, layout->action_type});
         Order[ix + layout->base_2p] = 1;
         Order_Dir[ix + layout->base_2p] = 4;
         Order_Timer[ix + layout->base_2p] = ix + 0x14;
