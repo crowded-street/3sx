@@ -165,6 +165,28 @@ void plcnt_b_init() {
     move_player_work_bonus();
 }
 
+/* Both players hit each other on the same frame. A double KO stops the game
+ * harder than a single one. */
+static void settle_simultaneous_hit() {
+    subtract_dm_vital_aiuchi(&plw[0]);
+    subtract_dm_vital_aiuchi(&plw[1]);
+
+    if ((plw[0].dead_flag != 0) && (plw[1].dead_flag != 0)) {
+        plw[0].wu.hit_stop = plw[1].wu.hit_stop = 2;
+        plw[0].wu.dm_stop = plw[1].wu.dm_stop = 0;
+        plw[0].wu.hit_quake = plw[1].wu.hit_quake = 4;
+        plw[0].wu.dm_quake = plw[1].wu.dm_quake = 0;
+        return;
+    }
+
+    if ((plw[0].dead_flag != 0) || (plw[1].dead_flag != 0)) {
+        plw[0].wu.hit_stop = plw[1].wu.hit_stop = 4;
+        plw[0].wu.dm_stop = plw[1].wu.dm_stop = 0;
+        plw[0].wu.hit_quake = plw[1].wu.hit_quake = 8;
+        plw[0].wu.dm_quake = plw[1].wu.dm_quake = 0;
+    }
+}
+
 void plcnt_b_move() {
     if (No_Death) {
         plw[0].wu.dm_vital = plw[1].wu.dm_vital = 0;
@@ -177,20 +199,7 @@ void plcnt_b_move() {
     move_player_work_bonus();
 
     if (aiuchi_flag) {
-        subtract_dm_vital_aiuchi(&plw[0]);
-        subtract_dm_vital_aiuchi(&plw[1]);
-
-        if ((plw[0].dead_flag != 0) && (plw[1].dead_flag != 0)) {
-            plw[0].wu.hit_stop = plw[1].wu.hit_stop = 2;
-            plw[0].wu.dm_stop = plw[1].wu.dm_stop = 0;
-            plw[0].wu.hit_quake = plw[1].wu.hit_quake = 4;
-            plw[0].wu.dm_quake = plw[1].wu.dm_quake = 0;
-        } else if ((plw[0].dead_flag != 0) || (plw[1].dead_flag != 0)) {
-            plw[0].wu.hit_stop = plw[1].wu.hit_stop = 4;
-            plw[0].wu.dm_stop = plw[1].wu.dm_stop = 0;
-            plw[0].wu.hit_quake = plw[1].wu.hit_quake = 8;
-            plw[0].wu.dm_quake = plw[1].wu.dm_quake = 0;
-        }
+        settle_simultaneous_hit();
     }
 
     if (Bonus_Stage_RNO[0] == 2) {
