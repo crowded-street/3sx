@@ -38,75 +38,95 @@ u8 sbcd(u8 a, u8 b) {
     return d;
 }
 
-void effect_A5_move(WORK_Other* ewk) {
-    if (is_timer_disabled_present_mode()) {
+static void effa5_count_down(WORK_Other* ewk) {
+    if (!Check_Sleep_A5(ewk)) {
         return;
+    }
+
+    if (--Unit_Of_Timer) {
+        return;
+    }
+
+    Unit_Of_Timer = 60;
+    bcdext = 0;
+
+    if ((Select_Timer = sbcd(1, Select_Timer)) == 0) {
+        ewk->wu.routine_no[0]++;
+        ewk->wu.dir_timer = 30;
+    }
+}
+
+static void effa5_time_up(WORK_Other* ewk) {
+    if (!Check_Sleep_A5(ewk)) {
+        return;
+    }
+
+    if (Select_Timer) {
+        ewk->wu.routine_no[0] = 1;
+        Unit_Of_Timer = 60;
+    } else if (--ewk->wu.dir_timer == 0) {
+        Time_Over = 1;
+        ewk->wu.routine_no[0]++;
+    }
+}
+
+static void effa5_held_over(WORK_Other* ewk) {
+    if (!Check_Sleep_A5(ewk)) {
+        return;
+    }
+
+    Time_Over = 1;
+
+    if (Select_Timer) {
+        ewk->wu.routine_no[0] = 1;
+        Unit_Of_Timer = 60;
+    }
+}
+
+static void effa5_wait_start(WORK_Other* ewk) {
+    if (Time_Stop == 0) {
+        ewk->wu.routine_no[0]++;
+    }
+}
+
+static s32 effa5_timer_paused(void) {
+    if (is_timer_disabled_present_mode()) {
+        return 1;
     }
 
 #if DEBUG
     if (debug_config.time_stop) {
-        return;
+        return 1;
     }
 #endif
 
     if (Break_Into) {
+        return 1;
+    }
+
+    return 0;
+}
+
+void effect_A5_move(WORK_Other* ewk) {
+    if (effa5_timer_paused()) {
         return;
     }
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        if (Time_Stop == 0) {
-            ewk->wu.routine_no[0]++;
-        }
-
+        effa5_wait_start(ewk);
         break;
 
     case 1:
-        if (!Check_Sleep_A5(ewk)) {
-            break;
-        }
-
-        if (--Unit_Of_Timer) {
-            break;
-        }
-
-        Unit_Of_Timer = 60;
-        bcdext = 0;
-
-        if ((Select_Timer = sbcd(1, Select_Timer)) == 0) {
-            ewk->wu.routine_no[0]++;
-            ewk->wu.dir_timer = 30;
-        }
-
+        effa5_count_down(ewk);
         break;
 
     case 2:
-        if (!Check_Sleep_A5(ewk)) {
-            break;
-        }
-
-        if (Select_Timer) {
-            ewk->wu.routine_no[0] = 1;
-            Unit_Of_Timer = 60;
-        } else if (--ewk->wu.dir_timer == 0) {
-            Time_Over = 1;
-            ewk->wu.routine_no[0]++;
-        }
-
+        effa5_time_up(ewk);
         break;
 
     case 3:
-        if (!Check_Sleep_A5(ewk)) {
-            break;
-        }
-
-        Time_Over = 1;
-
-        if (Select_Timer) {
-            ewk->wu.routine_no[0] = 1;
-            Unit_Of_Timer = 60;
-        }
-
+        effa5_held_over(ewk);
         break;
 
     default:
