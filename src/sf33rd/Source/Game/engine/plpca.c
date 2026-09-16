@@ -325,6 +325,30 @@ void Catch_06000(PLW* wk) { // 🟡
     }
 }
 
+/* Frame 30 starts the run: the movement data is loaded and the catch moves on
+ * to its running state. */
+static void start_catch07_run(PLW* wk) {
+    if (wk->wu.cg_type != 30) {
+        return;
+    }
+
+    setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+    wk->wu.mvxy.index++;
+    wk->wu.routine_no[3] = 2;
+    wk->wu.cg_type = 0;
+    cat07_running_check(&wk->wu);
+}
+
+/* Once the target is against the thrower again, the catch finishes. */
+static void finish_catch07_when_close(PLW* wk) {
+    if (!((PLW*)wk->wu.target_adrs)->micchaku_flag) {
+        return;
+    }
+
+    char_move_z(&wk->wu);
+    wk->wu.routine_no[3] = 5;
+}
+
 void Catch_07000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -337,15 +361,7 @@ void Catch_07000(PLW* wk) { // 🟢
 
     case 1:
         char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 30) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.routine_no[3] = 2;
-            wk->wu.cg_type = 0;
-            cat07_running_check(&wk->wu);
-        }
-
+        start_catch07_run(wk);
         catch_cg_type_check(wk);
         break;
 
@@ -371,12 +387,7 @@ void Catch_07000(PLW* wk) { // 🟢
 
     case 4:
         jumping_union_process(&wk->wu, 6);
-
-        if (((PLW*)wk->wu.target_adrs)->micchaku_flag) {
-            char_move_z(&wk->wu);
-            wk->wu.routine_no[3] = 5;
-        }
-
+        finish_catch07_when_close(wk);
         catch_cg_type_check(wk);
         break;
 
