@@ -171,30 +171,32 @@ static void demo90_base_later_states() {
     }
 }
 
-void demo90_base() {
+static void wait_for_demo90_appearance() {
     s16 chk_pl;
 
+    chk_pl = 0;
+
+    if (plw->player_number == 9 && plw[1].player_number == 9) {
+        if (Appear_hv[0]) {
+            chk_pl = 1;
+        }
+    } else if (plw[1].player_number == 9) {
+        chk_pl = 1;
+    }
+
+    if (Appear_free[chk_pl]) {
+        bgw_ptr->r_no_1++;
+    }
+}
+
+void demo90_base() {
     if (EXE_flag || Game_pause) {
         return;
     }
 
     switch (bgw_ptr->r_no_1) {
     case 0:
-        chk_pl = 0;
-
-        if (plw->player_number == 9 && plw[1].player_number == 9) {
-            if (Appear_hv[0]) {
-                chk_pl = 1;
-            }
-        } else if (plw[1].player_number == 9) {
-            chk_pl = 1;
-        }
-
-        if (Appear_free[chk_pl]) {
-            bgw_ptr->r_no_1++;
-            break;
-        }
-
+        wait_for_demo90_appearance();
         break;
 
     default:
