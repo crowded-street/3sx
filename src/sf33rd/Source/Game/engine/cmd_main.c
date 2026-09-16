@@ -21,19 +21,8 @@ void (*chk_move_jp[28])() = { check_init, check_0,  check_1,  check_2,  check_3,
                               check_13,   check_14, check_15, check_16, check_16, check_18, check_19,
                               check_20,   check_21, check_22, check_23, check_24, check_25, check_26 };
 
-/* Both call sites sit at the end of an if/else arm with nothing after the
+/* Every call site sits at the end of an if/else arm with nothing after the
  * chain, so the early return here is the same exit as the original's. */
-static void advance_when_shot_count_reached(void) {
-    if (waza_ptr->shot_ok >= waza_ptr->free1) {
-        if (*waza_ptr->w_ptr == 28) {
-            command_ok();
-            return;
-        }
-
-        check_next();
-    }
-}
-
 static void finish_or_advance_command(void) {
     if (*waza_ptr->w_ptr == 28) {
         command_ok();
@@ -41,6 +30,12 @@ static void finish_or_advance_command(void) {
     }
 
     check_next();
+}
+
+static void advance_when_shot_count_reached(void) {
+    if (waza_ptr->shot_ok >= waza_ptr->free1) {
+        finish_or_advance_command();
+    }
 }
 
 static s32 lever_held_and_move_allowed(void) {
@@ -221,26 +216,14 @@ void check_0() { // 🟢
         sw_work = waza_ptr->w_lvr & 0xF;
 
         if (sw_lever == sw_work) {
-            if (*waza_ptr->w_ptr == 28) {
-                command_ok();
-            } else {
-                check_next();
-            }
+            finish_or_advance_command();
         }
     } else if (waza_ptr->w_lvr == 0) {
         if (sw_lever == 0) {
-            if (*waza_ptr->w_ptr == 28) {
-                command_ok();
-            } else {
-                check_next();
-            }
+            finish_or_advance_command();
         }
     } else if (chk_pl->now_lvbt & 0xF && sw_lever & waza_ptr->w_lvr) {
-        if (*waza_ptr->w_ptr == 28) {
-            command_ok();
-        } else {
-            check_next();
-        }
+        finish_or_advance_command();
     }
 }
 
@@ -310,11 +293,7 @@ void check_2() { // 🟢
         if (waza_ptr->uni0.tame.flag && sw_work == 0) {
             waza_ptr->uni0.tame.flag = 0;
 
-            if (*waza_ptr->w_ptr == 28) {
-                command_ok();
-            } else {
-                check_next();
-            }
+            finish_or_advance_command();
 
             return;
         }
@@ -559,12 +538,7 @@ static void resolve_extended_lever_command() {
 
     if (waza_ptr->w_lvr == 0) {
         if (chk_pl->new_lvbt == 0) {
-            if (*waza_ptr->w_ptr == 28) {
-                command_ok();
-                return;
-            }
-
-            check_next();
+            finish_or_advance_command();
         }
     } else if ((chk_pl->old_lvbt & 0xF) != (chk_pl->new_lvbt & 0xF)) {
         if (chk_pl->sw_lever == sw_work) {
@@ -592,12 +566,7 @@ void check_9() { // 🟢
         resolve_extended_lever_command();
     } else if (waza_ptr->w_lvr == 0) {
         if (chk_pl->new_lvbt == 0) {
-            if (*waza_ptr->w_ptr == 28) {
-                command_ok();
-                return;
-            }
-
-            check_next();
+            finish_or_advance_command();
             return;
         }
 
@@ -606,12 +575,7 @@ void check_9() { // 🟢
         }
     } else if ((chk_pl->old_lvbt & 0xF) != (chk_pl->new_lvbt & 0xF)) {
         if (chk_pl->sw_lever & waza_ptr->w_lvr) {
-            if (*waza_ptr->w_ptr == 28) {
-                command_ok();
-                return;
-            }
-
-            check_next();
+            finish_or_advance_command();
             return;
         }
 
@@ -1287,21 +1251,11 @@ static void run_lever_command_check(u16 sw_lever) {
         sw_work = waza_ptr->w_lvr & 0xF;
 
         if (sw_lever == sw_work) {
-            if (*waza_ptr->w_ptr == 28) {
-                command_ok();
-                return;
-            }
-
-            check_next();
+            finish_or_advance_command();
         }
     } else if (waza_ptr->w_lvr == 0) {
         if (sw_lever == 0) {
-            if (*waza_ptr->w_ptr == 28) {
-                command_ok();
-                return;
-            }
-
-            check_next();
+            finish_or_advance_command();
         }
     } else {
         if (sw_lever & waza_ptr->w_lvr) {
@@ -1339,12 +1293,7 @@ void check_26() { // 🟢
 
         if (sw_lever != sw_work) {
             if (sw_now_lvr != sw_work && waza_ptr->uni0.tame.flag) {
-                if (*waza_ptr->w_ptr == 28) {
-                    command_ok();
-                    return;
-                }
-
-                check_next();
+                finish_or_advance_command();
             }
         } else {
             waza_ptr->uni0.tame.flag = 1;
