@@ -1013,40 +1013,24 @@ void move_player_work() { // 🟡
     }
 }
 
-void move_P1_move_P2() { // 🟢
-    if (plw[0].do_not_move == 0) {
-        Player_move(&plw[0], processed_lvbt(Convert_User_Setting(0)));
+static void move_one_player(s16 i) {
+    if (plw[i].do_not_move == 0) {
+        Player_move(&plw[i], processed_lvbt(Convert_User_Setting(i)));
     }
 
-    if (background_is_free() && set_field_hosei_flag(&plw[0], scrr, 1) != 0) {
-        set_field_hosei_flag(&plw[0], scrl, 0);
-    }
-
-    if (plw[1].do_not_move == 0) {
-        Player_move(&plw[1], processed_lvbt(Convert_User_Setting(1)));
-    }
-
-    if (background_is_free() && set_field_hosei_flag(&plw[1], scrr, 1) != 0) {
-        set_field_hosei_flag(&plw[1], scrl, 0);
+    if (background_is_free() && set_field_hosei_flag(&plw[i], scrr, 1) != 0) {
+        set_field_hosei_flag(&plw[i], scrl, 0);
     }
 }
 
+void move_P1_move_P2() { // 🟢
+    move_one_player(0);
+    move_one_player(1);
+}
+
 void move_P2_move_P1() { // 🟢
-    if (plw[1].do_not_move == 0) {
-        Player_move(&plw[1], processed_lvbt(Convert_User_Setting(1)));
-    }
-
-    if (background_is_free() && set_field_hosei_flag(&plw[1], scrr, 1) != 0) {
-        set_field_hosei_flag(&plw[1], scrl, 0);
-    }
-
-    if (plw[0].do_not_move == 0) {
-        Player_move(&plw[0], processed_lvbt(Convert_User_Setting(0)));
-    }
-
-    if (background_is_free() && set_field_hosei_flag(&plw[0], scrr, 1) != 0) {
-        set_field_hosei_flag(&plw[0], scrl, 0);
-    }
+    move_one_player(1);
+    move_one_player(0);
 }
 
 void store_player_after_image_data() {
