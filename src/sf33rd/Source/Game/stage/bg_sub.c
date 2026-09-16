@@ -844,9 +844,22 @@ void bg_y_move_check() {
     bgw_ptr->wxy[1].cal = bgw_ptr->xy[1].cal;
 }
 
-static void start_zoom_frame(s16 work) {
+static void set_zoom_center_x() {
     s16 pos_w;
 
+    if (bg_w.bgw[1].zuubun != 0) {
+        bg_w.center_x = scr_req_x + 512;
+        pos_w = bg_w.bgw[1].wxy[0].disp.pos + 512;
+    } else {
+        bg_w.center_x = scr_req_x;
+        pos_w = bg_w.bgw[1].wxy[0].disp.pos;
+    }
+
+    pos_w -= bg_w.pos_offset;
+    bg_w.center_x -= pos_w;
+}
+
+static void start_zoom_frame(s16 work) {
     if (work && !bg_w.frame_flag) {
         bg_w.frame_flag = 1;
         bg_w.old_frame_flag = 1;
@@ -857,27 +870,9 @@ static void start_zoom_frame(s16 work) {
         }
 
         if (scr_req_x < bg_w.bgw[1].l_limit2) {
-            if (bg_w.bgw[1].zuubun != 0) {
-                bg_w.center_x = scr_req_x + 512;
-                pos_w = bg_w.bgw[1].wxy[0].disp.pos + 512;
-            } else {
-                bg_w.center_x = scr_req_x;
-                pos_w = bg_w.bgw[1].wxy[0].disp.pos;
-            }
-
-            pos_w -= bg_w.pos_offset;
-            bg_w.center_x -= pos_w;
+            set_zoom_center_x();
         } else if (bg_w.bgw[1].r_limit2 < scr_req_x) {
-            if (bg_w.bgw[1].zuubun != 0) {
-                bg_w.center_x = scr_req_x + 512;
-                pos_w = bg_w.bgw[1].wxy[0].disp.pos + 512;
-            } else {
-                bg_w.center_x = scr_req_x;
-                pos_w = bg_w.bgw[1].wxy[0].disp.pos;
-            }
-
-            pos_w -= bg_w.pos_offset;
-            bg_w.center_x -= pos_w;
+            set_zoom_center_x();
         } else {
             bg_w.center_x = 192;
             bg_w.center_y = 224;
