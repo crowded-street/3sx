@@ -845,6 +845,177 @@ void sag_union_3(PLW* wk) { // 🟢
         break;
     }
 }
+/* The gt2 dispatch that was case 2 of sag_union_ps2's switch: what the super
+ * art does once it is stored and running. Moved out whole, so every `break`
+ * still belongs to the switch it belonged to before. */
+static void sag_union_ps2_active(PLW* wk) {
+    switch (wk->sa->gt2) {
+    case 0:
+        switch (wk->sa->saeff_ok) {
+        case -1:
+            if (!pcon_dp_flag) {
+                if (wk->sa->ex4th_exec) {
+                    wk->sa->store = 0;
+                } else {
+                    wk->sa->store--;
+                }
+            }
+
+            sag_bug_fix(wk->wu.id);
+            wk->sa->saeff_ok = 0;
+            wk->sa->sa_rno = 0;
+            wk->sa->ok = 0;
+            sag_inc_timer[wk->wu.id] = 20;
+            break;
+
+        case 1:
+            if (wk->wu.routine_no[1] == 4) {
+                break;
+            }
+
+            /* fallthrough */
+
+        default:
+            wk->sa->saeff_ok = 0;
+            wk->sa->sa_rno = 0;
+            wk->sa->ok = 0;
+            break;
+        }
+
+        break;
+
+    case 1:
+        switch (wk->sa->sa_rno2) {
+        case 0:
+            switch (wk->sa->saeff_ok) {
+            case -1:
+                if (!pcon_dp_flag) {
+                    if (wk->sa->ex4th_exec) {
+                        wk->sa->store = 0;
+                    } else {
+                        wk->sa->store--;
+                    }
+                }
+
+                sag_bug_fix(wk->wu.id);
+
+                if (wk->sa->mp == 1) {
+                    wk->sa->bacckup_g_h = 0;
+                } else {
+                    wk->sa->bacckup_g_h = wk->sa->gauge.s.h;
+                }
+
+                wk->sa->gauge.s.h = wk->sa->gauge_len;
+                wk->sa->gauge.s.l = -1;
+                wk->sa->sa_rno2 = 1;
+                wk->sa->saeff_ok = 0;
+                break;
+
+            case 1:
+                if (wk->wu.routine_no[1] == 4) {
+                    break;
+                }
+
+                /* fallthrough */
+
+            default:
+                wk->sa->saeff_ok = 0;
+                wk->sa->sa_rno = 0;
+                wk->sa->ok = 0;
+                wk->sa->dtm_mul = 1;
+                break;
+            }
+
+            break;
+
+        case 1:
+            if (Timer_Freeze != 0) {
+                break;
+            }
+
+            wk->sa->sa_rno2 = 2;
+            /* fallthrough */
+
+        case 2:
+            if ((wk->sa_stop_flag != 1) && (((PLW*)wk->wu.target_adrs)->sa_stop_flag != 1)) {
+                wk->sa->gauge.i -= wk->sa->dtm * wk->sa->dtm_mul;
+            }
+
+            if (wk->sa->gauge.s.h <= 0 || Suicide[6] != 0) {
+                wk->sa->gauge.i = 0;
+                wk->sa->ok = 0;
+                wk->sa->sa_rno = 0;
+                wk->sa->dtm_mul = 1;
+                wk->sa->gauge.s.h = wk->sa->bacckup_g_h;
+                sag_inc_timer[wk->wu.id] = 20;
+                break;
+            }
+
+            if (My_char[wk->wu.id] == CHAR_YUN) {
+                addSAAttribute(&wk->wu.kind_of_waza, &wk->wu.at_koa);
+            }
+
+            if (My_char[wk->wu.id] == CHAR_YANG) {
+                wk->wu.kind_of_waza |= 32;
+                wk->wu.at_koa = 128;
+            }
+
+            if (My_char[wk->wu.id] == CHAR_MAKOTO) {
+                wk->wu.kind_of_waza |= 32;
+                wk->wu.at_koa = 128;
+            }
+
+            if (My_char[wk->wu.id] == CHAR_TWELVE) {
+                wk->wu.kind_of_waza |= 32;
+                wk->wu.at_koa = 128;
+            }
+
+            if ((My_char[wk->wu.id] == CHAR_ORO) && (wk->sa->kind_of_arts == 2)) {
+                wk->wu.att.dipsw |= 0x10;
+            }
+
+            break;
+        }
+
+        break;
+
+    case 3:
+        switch (wk->sa->sa_rno2) {
+        case 0:
+            switch (wk->sa->saeff_ok) {
+            case -1:
+                sag_bug_fix(wk->wu.id);
+                wk->sa->store--;
+                wk->sa->saeff_ok = 0;
+                wk->sa->sa_rno2 = 1;
+                break;
+
+            case 1:
+                break;
+
+            default:
+                wk->sa->saeff_ok = 0;
+                wk->sa->sa_rno = 0;
+                wk->sa->ok = 0;
+            }
+
+            break;
+
+        default:
+            break;
+        }
+
+        break;
+
+    default:
+        wk->sa->sa_rno = 0;
+        wk->sa->ok = 0;
+        wk->sa->store = 0;
+        wk->sa->saeff_ok = 0;
+        break;
+    }
+}
+
 void sag_union_ps2(PLW* wk) { // 🔴
     switch (wk->sa->sa_rno) {
     case 0:
@@ -878,171 +1049,7 @@ void sag_union_ps2(PLW* wk) { // 🔴
         break;
 
     case 2:
-        switch (wk->sa->gt2) {
-        case 0:
-            switch (wk->sa->saeff_ok) {
-            case -1:
-                if (!pcon_dp_flag) {
-                    if (wk->sa->ex4th_exec) {
-                        wk->sa->store = 0;
-                    } else {
-                        wk->sa->store--;
-                    }
-                }
-
-                sag_bug_fix(wk->wu.id);
-                wk->sa->saeff_ok = 0;
-                wk->sa->sa_rno = 0;
-                wk->sa->ok = 0;
-                sag_inc_timer[wk->wu.id] = 20;
-                break;
-
-            case 1:
-                if (wk->wu.routine_no[1] == 4) {
-                    break;
-                }
-
-                /* fallthrough */
-
-            default:
-                wk->sa->saeff_ok = 0;
-                wk->sa->sa_rno = 0;
-                wk->sa->ok = 0;
-                break;
-            }
-
-            break;
-
-        case 1:
-            switch (wk->sa->sa_rno2) {
-            case 0:
-                switch (wk->sa->saeff_ok) {
-                case -1:
-                    if (!pcon_dp_flag) {
-                        if (wk->sa->ex4th_exec) {
-                            wk->sa->store = 0;
-                        } else {
-                            wk->sa->store--;
-                        }
-                    }
-
-                    sag_bug_fix(wk->wu.id);
-
-                    if (wk->sa->mp == 1) {
-                        wk->sa->bacckup_g_h = 0;
-                    } else {
-                        wk->sa->bacckup_g_h = wk->sa->gauge.s.h;
-                    }
-
-                    wk->sa->gauge.s.h = wk->sa->gauge_len;
-                    wk->sa->gauge.s.l = -1;
-                    wk->sa->sa_rno2 = 1;
-                    wk->sa->saeff_ok = 0;
-                    break;
-
-                case 1:
-                    if (wk->wu.routine_no[1] == 4) {
-                        break;
-                    }
-
-                    /* fallthrough */
-
-                default:
-                    wk->sa->saeff_ok = 0;
-                    wk->sa->sa_rno = 0;
-                    wk->sa->ok = 0;
-                    wk->sa->dtm_mul = 1;
-                    break;
-                }
-
-                break;
-
-            case 1:
-                if (Timer_Freeze != 0) {
-                    break;
-                }
-
-                wk->sa->sa_rno2 = 2;
-                /* fallthrough */
-
-            case 2:
-                if ((wk->sa_stop_flag != 1) && (((PLW*)wk->wu.target_adrs)->sa_stop_flag != 1)) {
-                    wk->sa->gauge.i -= wk->sa->dtm * wk->sa->dtm_mul;
-                }
-
-                if (wk->sa->gauge.s.h <= 0 || Suicide[6] != 0) {
-                    wk->sa->gauge.i = 0;
-                    wk->sa->ok = 0;
-                    wk->sa->sa_rno = 0;
-                    wk->sa->dtm_mul = 1;
-                    wk->sa->gauge.s.h = wk->sa->bacckup_g_h;
-                    sag_inc_timer[wk->wu.id] = 20;
-                    break;
-                }
-
-                if (My_char[wk->wu.id] == CHAR_YUN) {
-                    addSAAttribute(&wk->wu.kind_of_waza, &wk->wu.at_koa);
-                }
-
-                if (My_char[wk->wu.id] == CHAR_YANG) {
-                    wk->wu.kind_of_waza |= 32;
-                    wk->wu.at_koa = 128;
-                }
-
-                if (My_char[wk->wu.id] == CHAR_MAKOTO) {
-                    wk->wu.kind_of_waza |= 32;
-                    wk->wu.at_koa = 128;
-                }
-
-                if (My_char[wk->wu.id] == CHAR_TWELVE) {
-                    wk->wu.kind_of_waza |= 32;
-                    wk->wu.at_koa = 128;
-                }
-
-                if ((My_char[wk->wu.id] == CHAR_ORO) && (wk->sa->kind_of_arts == 2)) {
-                    wk->wu.att.dipsw |= 0x10;
-                }
-
-                break;
-            }
-
-            break;
-
-        case 3:
-            switch (wk->sa->sa_rno2) {
-            case 0:
-                switch (wk->sa->saeff_ok) {
-                case -1:
-                    sag_bug_fix(wk->wu.id);
-                    wk->sa->store--;
-                    wk->sa->saeff_ok = 0;
-                    wk->sa->sa_rno2 = 1;
-                    break;
-
-                case 1:
-                    break;
-
-                default:
-                    wk->sa->saeff_ok = 0;
-                    wk->sa->sa_rno = 0;
-                    wk->sa->ok = 0;
-                }
-
-                break;
-
-            default:
-                break;
-            }
-
-            break;
-
-        default:
-            wk->sa->sa_rno = 0;
-            wk->sa->ok = 0;
-            wk->sa->store = 0;
-            wk->sa->saeff_ok = 0;
-            break;
-        }
+        sag_union_ps2_active(wk);
 
         break;
     }
