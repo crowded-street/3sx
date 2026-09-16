@@ -32,6 +32,45 @@ static s32 a9_hide_if_gone(WORK_Other* ewk) {
     return 0;
 }
 
+static void effa9_wait_on_screen(WORK_Other* ewk) {
+    if (!Ck_Range_Out_S(ewk, ewk->wu.my_family - 1, ewk->wu.vital_new)) {
+        ewk->wu.disp_flag = 1;
+        ewk->wu.routine_no[0]++;
+    }
+}
+
+static void effa9_watch_loser(WORK_Other* ewk) {
+    if (a9_hide_if_gone(ewk)) {
+        return;
+    }
+
+    if (ewk->wu.char_index == 55) {
+        if (E_07_Flag[LOSER]) {
+            ewk->wu.routine_no[0]++;
+            ewk->wu.dir_timer = 20;
+            SsRequest(0x62);
+        }
+
+        return;
+    }
+
+    if (ewk->wu.char_index == 57) {
+        char_move(&ewk->wu);
+    }
+}
+
+static void effa9_play_out(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+
+    if (--ewk->wu.dir_timer == 0) {
+        if (ewk->wu.cg_type == 1) {
+            ewk->wu.dir_timer = 1;
+        } else {
+            ewk->wu.routine_no[0] = 4;
+        }
+    }
+}
+
 void effect_A9_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -40,45 +79,15 @@ void effect_A9_move(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (!Ck_Range_Out_S(ewk, ewk->wu.my_family - 1, ewk->wu.vital_new)) {
-            ewk->wu.disp_flag = 1;
-            ewk->wu.routine_no[0]++;
-        }
-
+        effa9_wait_on_screen(ewk);
         break;
 
     case 2:
-        if (a9_hide_if_gone(ewk)) {
-            break;
-        }
-
-        if (ewk->wu.char_index == 55) {
-            if (E_07_Flag[LOSER]) {
-                ewk->wu.routine_no[0]++;
-                ewk->wu.dir_timer = 20;
-                SsRequest(0x62);
-            }
-
-            break;
-        }
-
-        if (ewk->wu.char_index == 57) {
-            char_move(&ewk->wu);
-        }
-
+        effa9_watch_loser(ewk);
         break;
 
     case 3:
-        char_move(&ewk->wu);
-
-        if (--ewk->wu.dir_timer == 0) {
-            if (ewk->wu.cg_type == 1) {
-                ewk->wu.dir_timer = 1;
-            } else {
-                ewk->wu.routine_no[0] = 4;
-            }
-        }
-
+        effa9_play_out(ewk);
         break;
 
     case 4:
@@ -123,6 +132,32 @@ s32 effect_A9_init(s16 Char_Index, s16 Option, s16 Pos_Index, s16 Option2) {
     return 0;
 }
 
+static void setup_a9_late(WORK_Other* ewk, s16 Char_Index, s16 Option) {
+    switch (Char_Index) {
+    case 80:
+    case 58:
+    case 60:
+    case 59:
+        ewk->wu.dir_step = Option;
+        break;
+    }
+}
+
+static void setup_a9_mid(WORK_Other* ewk, s16 Char_Index, s16 Option) {
+    switch (Char_Index) {
+    case 12:
+    case 16:
+    case 79:
+    case 6:
+        ewk->wu.dir_step = Option;
+        break;
+
+    default:
+        setup_a9_late(ewk, Char_Index, Option);
+        break;
+    }
+}
+
 void Setup_A9(WORK_Other* ewk, s16 Char_Index, s16 Option, s16 Option2) {
     switch (Char_Index) {
     case 32:
@@ -135,15 +170,11 @@ void Setup_A9(WORK_Other* ewk, s16 Char_Index, s16 Option, s16 Option2) {
     case 33:
     case 34:
     case 81:
-    case 12:
-    case 16:
-    case 79:
-    case 6:
-    case 80:
-    case 58:
-    case 60:
-    case 59:
         ewk->wu.dir_step = Option;
+        break;
+
+    default:
+        setup_a9_mid(ewk, Char_Index, Option);
         break;
     }
 }
