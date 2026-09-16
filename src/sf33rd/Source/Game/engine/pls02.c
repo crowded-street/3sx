@@ -691,49 +691,62 @@ s32 random_16_bg() {
     return random_tbl_16_bg[Random_ix16_bg];
 }
 
-s8 get_guard_direction(WORK* as, WORK* ds) { // 🟢 Differs only in the new guard judgment branch
-    s16 result;
-    s8 num;
+/* Which way the defender must hold to block, decided from the two positions.
+ * 1 forward, 2 backward, 3 either. */
+static s8 guard_direction_from_positions(const WORK* as, const WORK* ds) {
+    s16 result = as->xyz[0].disp.pos - ds->xyz[0].disp.pos;
 
-    if (as->work_id == 1) {
-        result = as->xyz[0].disp.pos - ds->xyz[0].disp.pos;
+    if (result) {
+        if (result < 0) {
+            if (ds->rl_flag) {
+                return 1; // forward
+            }
 
-        if (result) {
-            if (result < 0) {
-                if (ds->rl_flag) {
-                    num = 1; // forward
-                } else {
-                    num = 2; // backward
-                }
-            } else {
-                if (ds->rl_flag) {
-                    num = 2;
-                } else {
-                    num = 1;
-                }
-            }
-        } else {
-            num = 3; // any
+            return 2; // backward
         }
-    } else if (((PLW*)ds)->spmv_ng_flag & DIP_NEW_GUARD_JUDGMENT_ENABLED) {
-        if ((as->rl_flag + ds->rl_flag) & 1) {
-            if (ds->work_id != 1) {
-                num = 2;
-            } else if (ds->rl_flag == ds->rl_waza) {
-                num = 2;
-            } else {
-                num = 3;
-            }
-        } else {
-            num = 3;
+
+        if (ds->rl_flag) {
+            return 2;
         }
-    } else if ((as->rl_flag + ds->rl_flag) & 1) {
-        num = 2;
-    } else {
-        num = 3;
+
+        return 1;
     }
 
-    return num;
+    return 3; // any
+}
+
+/* The DIP-switched newer rule, which also looks at whether the defender is
+ * facing the way their move faces. */
+static s8 guard_direction_new_judgment(const WORK* as, const WORK* ds) {
+    if ((as->rl_flag + ds->rl_flag) & 1) {
+        if (ds->work_id != 1) {
+            return 2;
+        }
+
+        if (ds->rl_flag == ds->rl_waza) {
+            return 2;
+        }
+
+        return 3;
+    }
+
+    return 3;
+}
+
+s8 get_guard_direction(WORK* as, WORK* ds) { // 🟢 Differs only in the new guard judgment branch
+    if (as->work_id == 1) {
+        return guard_direction_from_positions(as, ds);
+    }
+
+    if (((PLW*)ds)->spmv_ng_flag & DIP_NEW_GUARD_JUDGMENT_ENABLED) {
+        return guard_direction_new_judgment(as, ds);
+    }
+
+    if ((as->rl_flag + ds->rl_flag) & 1) {
+        return 2;
+    }
+
+    return 3;
 }
 
 s16 cal_attdir(WORK* wk) { // 🟢
