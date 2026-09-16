@@ -28,11 +28,6 @@
 #include "sf33rd/Source/Game/system/sysdir.h"
 #include "sf33rd/Source/Game/engine/charset_internal.h"
 
-
-static s32 on_bonus_car_below_floor(const WORK* wk, const UNK11* ctc) {
-    return bg_w.stage == 20 && ((PLW*)wk)->bs2_on_car && ctc->pat < bs2_floor[2];
-}
-
 s32 comm_dummy(WORK* /* unused */, UNK11* /* unused */) {
     return 1;
 }
@@ -325,199 +320,16 @@ s32 comm_care(WORK* wk, UNK11* ctc) {
 }
 
 // Player set XY
-s32 comm_psxy(WORK* wk, UNK11* ctc) {
-    WORK* emwk;
-
-    switch (ctc->koc) {
-    case 0:
-        wk->xyz[0].disp.pos = ctc->ix;
-        wk->xyz[1].disp.pos = ctc->pat;
-        break;
-
-    case 2:
-        wk->xyz[0].disp.pos = ctc->ix;
-        wk->xyz[1].disp.pos = ctc->pat;
-        /* fallthrough */
-
-    default:
-        emwk = (WORK*)wk->target_adrs;
-        emwk->xyz[0].disp.pos = ctc->ix;
-        emwk->xyz[1].disp.pos = ctc->pat;
-        break;
-    }
-
-    return 1;
-}
 
 // Player set X
-s32 comm_ps_x(WORK* wk, UNK11* ctc) {
-    WORK* emwk;
-
-    switch (ctc->koc) {
-    case 0:
-        wk->xyz[0].disp.pos = ctc->ix;
-        break;
-
-    case 2:
-        wk->xyz[0].disp.pos = ctc->ix;
-        /* fallthrough */
-
-    default:
-        emwk = (WORK*)wk->target_adrs;
-        emwk->xyz[0].disp.pos = ctc->ix;
-        break;
-    }
-
-    return 1;
-}
 
 // Player set Y
-s32 comm_ps_y(WORK* wk, UNK11* ctc) {
-    WORK* emwk;
-
-    if (wk->work_id == 1) {
-        switch (ctc->koc) {
-        case 0:
-            // CPS3 compares to 21 here
-            if (on_bonus_car_below_floor(wk, ctc)) {
-                wk->xyz[1].disp.pos = bs2_floor[2];
-            } else {
-                wk->xyz[1].disp.pos = ctc->pat;
-            }
-
-            break;
-
-        case 2:
-            wk->xyz[1].disp.pos = ctc->pat;
-            /* fallthrough */
-
-        default:
-            emwk = (WORK*)wk->target_adrs;
-            emwk->xyz[1].disp.pos = ctc->pat;
-            break;
-        }
-
-        return 1;
-    } else {
-        switch (ctc->koc) {
-        case 0:
-            wk->xyz[1].disp.pos = ctc->pat;
-            break;
-
-        case 2:
-            wk->xyz[1].disp.pos = ctc->pat;
-            /* fallthrough */
-
-        default:
-            emwk = (WORK*)wk->target_adrs;
-            emwk->xyz[1].disp.pos = ctc->pat;
-            break;
-        }
-
-        return 1;
-    }
-}
 
 // Player add XY
-s32 comm_paxy(WORK* wk, UNK11* ctc) {
-    WORK* emwk;
-
-    switch (ctc->koc) {
-    case 0:
-        if (wk->rl_flag) {
-            wk->xyz[0].cal += ctc->ix << 8;
-        } else {
-            wk->xyz[0].cal -= ctc->ix << 8;
-        }
-
-        wk->xyz[1].cal += ctc->pat << 8;
-        break;
-
-    case 2:
-        if (wk->rl_flag) {
-            wk->xyz[0].cal += ctc->ix << 8;
-        } else {
-            wk->xyz[0].cal -= ctc->ix << 8;
-        }
-
-        wk->xyz[1].cal += ctc->pat << 8;
-        /* fallthrough */
-
-    default:
-        emwk = (WORK*)wk->target_adrs;
-
-        if (emwk->rl_flag) {
-            emwk->xyz[0].cal += ctc->ix << 8;
-        } else {
-            emwk->xyz[0].cal -= ctc->ix << 8;
-        }
-
-        emwk->xyz[1].cal += ctc->pat << 8;
-        break;
-    }
-
-    return 1;
-}
 
 // Player add X
-s32 comm_pa_x(WORK* wk, UNK11* ctc) {
-    WORK* emwk;
-
-    switch (ctc->koc) {
-    case 0:
-        if (wk->rl_flag) {
-            wk->xyz[0].cal += ctc->ix << 8;
-        } else {
-            wk->xyz[0].cal -= ctc->ix << 8;
-        }
-
-        break;
-
-    case 2:
-        if (wk->rl_flag) {
-            wk->xyz[0].cal += ctc->ix << 8;
-        } else {
-            wk->xyz[0].cal -= ctc->ix << 8;
-        }
-
-        /* fallthrough */
-
-    default:
-        emwk = (WORK*)wk->target_adrs;
-
-        if (emwk->rl_flag) {
-            emwk->xyz[0].cal += ctc->ix << 8;
-        } else {
-            emwk->xyz[0].cal -= ctc->ix << 8;
-        }
-
-        break;
-    }
-
-    return 1;
-}
 
 // Player add Y
-s32 comm_pa_y(WORK* wk, UNK11* ctc) {
-    WORK* emwk;
-
-    switch (ctc->koc) {
-    case 0:
-        wk->xyz[1].cal += ctc->pat << 8;
-        break;
-
-    case 2:
-        wk->xyz[1].cal += ctc->pat << 8;
-        /* fallthrough */
-
-    default:
-        emwk = (WORK*)wk->target_adrs;
-        emwk->xyz[1].cal += ctc->pat << 8;
-        break;
-    }
-
-    return 1;
-}
 
 s32 comm_exec(WORK* wk, UNK11* ctc) {
     effinitjptbl[ctc->koc](wk, (u8)ctc->ix);
@@ -538,16 +350,6 @@ s32 comm_rngc(WORK* wk, UNK11* ctc) {
     } else {
         return decord_if_jump(wk, ctc, ctc->ix);
     }
-}
-
-s32 comm_mxyt(WORK* wk, UNK11* ctc) {
-    if (ctc->koc) {
-        setup_mvxy_data(wk, ctc->koc);
-    } else {
-        reset_mvxy_data(wk);
-    }
-
-    return 1;
 }
 
 s32 comm_pjmp(WORK* wk, UNK11* ctc) {
@@ -793,68 +595,9 @@ s32 comm_iflb(WORK* wk, UNK11* ctc) {
     return decord_if_jump(wk, ctc, ctc->pat);
 }
 
-s32 comm_asxy(WORK* wk, UNK11* ctc) {
-    s16* from_rom2 = &wk->step_xy_table[ctc->koc];
-    s32 st = *from_rom2++;
-
-    st <<= 8;
-
-    if (wk->rl_flag) {
-        wk->xyz[0].cal += st;
-    } else {
-        wk->xyz[0].cal -= st;
-    }
-
-    st = *from_rom2;
-    st <<= 8;
-    wk->xyz[1].cal += st;
-    return 1;
-}
-
-s32 comm_schx(WORK* wk, UNK11* ctc) {
-    switch (ctc->koc) {
-    case 0:
-        wk->mvxy.a[0].sp = (wk->mvxy.a[0].sp * ctc->ix) / ctc->pat;
-        break;
-
-    case 2:
-        wk->mvxy.a[0].sp = (wk->mvxy.a[0].sp * ctc->ix) / ctc->pat;
-        /* fallthrough */
-
-    case 1:
-        wk->mvxy.d[0].sp = (wk->mvxy.d[0].sp * ctc->ix) / ctc->pat;
-        break;
-    }
-
-    return 1;
-}
-
-s32 comm_schy(WORK* wk, UNK11* ctc) {
-    switch (ctc->koc) {
-    case 0:
-        wk->mvxy.a[1].sp = (wk->mvxy.a[1].sp * ctc->ix) / ctc->pat;
-        break;
-
-    case 2:
-        wk->mvxy.a[1].sp = (wk->mvxy.a[1].sp * ctc->ix) / ctc->pat;
-        /* fallthrough */
-
-    case 1:
-        wk->mvxy.d[1].sp = (wk->mvxy.d[1].sp * ctc->ix) / ctc->pat;
-        break;
-    }
-
-    return 1;
-}
-
 s32 comm_back(WORK* wk, UNK11* /* unused */) {
     set_char_move_init2(wk, wk->cmbk.koc, wk->cmbk.ix, wk->cmbk.pat, 0);
     return 0;
-}
-
-s32 comm_mvix(WORK* wk, UNK11* ctc) {
-    wk->mvxy.index = ctc->koc;
-    return 1;
 }
 
 /* This work's own super art is the one the script asks about, and it is
@@ -1097,73 +840,6 @@ s32 comm_iflg(WORK* wk, UNK11* ctc) {
     return decord_if_jump(wk, ctc, ctc->pat);
 }
 
-s32 comm_mpcy(WORK* wk, UNK11* ctc) {
-    s16 ans = 0;
-
-    switch (ctc->ix) {
-    case 1:
-        if (wk->xyz[1].disp.pos > ctc->koc) {
-            ans = 1;
-        }
-
-        break;
-
-    case 2:
-        if (wk->xyz[1].disp.pos < ctc->koc) {
-            ans = 1;
-        }
-
-        break;
-
-    default:
-        if (wk->xyz[1].disp.pos == ctc->koc) {
-            ans = 1;
-        }
-
-        break;
-    }
-
-    if (ans == 0) {
-        return 1;
-    }
-
-    return decord_if_jump(wk, ctc, ctc->pat);
-}
-
-s32 comm_epcy(WORK* wk, UNK11* ctc) {
-    WORK* emwk = (WORK*)wk->target_adrs;
-    s16 ans = 0;
-
-    switch (ctc->ix) {
-    case 1:
-        if (emwk->xyz[1].disp.pos > ctc->koc) {
-            ans = 1;
-        }
-
-        break;
-
-    case 2:
-        if (emwk->xyz[1].disp.pos < ctc->koc) {
-            ans = 1;
-        }
-
-        break;
-
-    default:
-        if (emwk->xyz[1].disp.pos == ctc->koc) {
-            ans = 1;
-        }
-
-        break;
-    }
-
-    if (ans == 0) {
-        return 1;
-    }
-
-    return decord_if_jump(wk, ctc, ctc->pat);
-}
-
 s32 comm_imgs(PLW* wk, UNK11* ctc) {
     PLW* tk;
 
@@ -1205,99 +881,6 @@ s32 comm_imgc(PLW* wk, UNK11* ctc) {
 
     case 1:
         tk->image_setup_flag = 0;
-        break;
-    }
-
-    return 1;
-}
-
-s32 comm_rvxy(WORK* wk, UNK11* ctc) {
-    WORK* emwk = (WORK*)wk->target_adrs;
-
-    switch (ctc->koc) {
-    case 0:
-        if (wk->rl_flag) {
-            wk->xyz[0].cal = emwk->xyz[0].cal + (ctc->ix << 8);
-        } else {
-            wk->xyz[0].cal = emwk->xyz[0].cal - (ctc->ix << 8);
-        }
-
-        wk->xyz[1].cal = emwk->xyz[1].cal + (ctc->pat << 8);
-        break;
-
-    case 2:
-        if (wk->rl_flag) {
-            wk->xyz[0].cal = emwk->xyz[0].cal + (ctc->ix << 8);
-        } else {
-            wk->xyz[0].cal = emwk->xyz[0].cal - (ctc->ix << 8);
-        }
-
-        wk->xyz[1].cal = emwk->xyz[1].cal + (ctc->pat << 8);
-        /* fallthrough */
-
-    default:
-        if (wk->rl_flag) {
-            emwk->xyz[0].cal = wk->xyz[0].cal + (ctc->ix << 8);
-        } else {
-            emwk->xyz[0].cal = wk->xyz[0].cal - (ctc->ix << 8);
-        }
-
-        emwk->xyz[1].cal = wk->xyz[1].cal + (ctc->pat << 8);
-        break;
-    }
-
-    return 1;
-}
-
-s32 comm_rv_x(WORK* wk, UNK11* ctc) {
-    WORK* emwk = (WORK*)wk->target_adrs;
-
-    switch (ctc->koc) {
-    case 0:
-        if (wk->rl_flag) {
-            wk->xyz[0].cal = emwk->xyz[0].cal + (ctc->ix << 8);
-        } else {
-            wk->xyz[0].cal = emwk->xyz[0].cal - (ctc->ix << 8);
-        }
-
-        break;
-
-    case 2:
-        if (wk->rl_flag) {
-            wk->xyz[0].cal = emwk->xyz[0].cal + (ctc->ix << 8);
-        } else {
-            wk->xyz[0].cal = emwk->xyz[0].cal - (ctc->ix << 8);
-        }
-
-        /* fallthrough */
-
-    default:
-        if (wk->rl_flag) {
-            emwk->xyz[0].cal = wk->xyz[0].cal + (ctc->ix << 8);
-        } else {
-            emwk->xyz[0].cal = wk->xyz[0].cal - (ctc->ix << 8);
-        }
-
-        break;
-    }
-
-    return 1;
-}
-
-s32 comm_rv_y(WORK* wk, UNK11* ctc) {
-    WORK* emwk = (WORK*)wk->target_adrs;
-
-    switch (ctc->koc) {
-    case 0:
-        wk->xyz[1].cal = emwk->xyz[1].cal + (ctc->pat << 8);
-        break;
-
-    case 2:
-        wk->xyz[1].cal = emwk->xyz[1].cal + (ctc->pat << 8);
-        /* fallthrough */
-
-    default:
-        emwk->xyz[1].cal = wk->xyz[1].cal + (ctc->pat << 8);
         break;
     }
 
@@ -1409,131 +992,6 @@ s32 comm_retmj(PLW* wk, UNK11* /* unused */) {
     setupCharTableData(&wk->wu, 0, 1);
     wk->meoshi_jump_flag = 0;
     return 0;
-}
-
-static void apply_koc_sp_op(s32* target, s16 ix, s32 patl) {
-    switch (ix) {
-    default:
-        *target = patl;
-        break;
-
-    case 1:
-        *target &= patl;
-        break;
-
-    case 2:
-        *target |= patl;
-        break;
-
-    case 3:
-        *target += patl;
-        break;
-
-    case 4:
-        *target -= patl;
-        break;
-
-    case 5:
-        *target *= patl;
-        break;
-
-    case 6:
-        *target /= patl;
-        break;
-    }
-}
-
-s32 comm_sstx(WORK* wk, UNK11* ctc) {
-    SST sstx;
-
-    sstx.patl = 0;
-    sstx.pats.h = ctc->pat;
-    sstx.patl >>= 8;
-
-    switch (ctc->koc) {
-    case 0:
-        apply_koc_sp_op(&wk->mvxy.a[0].sp, ctc->ix, sstx.patl);
-        break;
-
-    case 2:
-        apply_koc_sp_op(&wk->mvxy.a[0].sp, ctc->ix, sstx.patl);
-
-        /* fallthrough */
-
-    case 1:
-        apply_koc_sp_op(&wk->mvxy.d[0].sp, ctc->ix, sstx.patl);
-        break;
-
-    default:
-        wk->mvxy.kop[0] = ctc->pat;
-        break;
-    }
-
-    return 1;
-}
-
-/* The seven ways a script command can combine a value into a speed field.
- * comm_ssty wrote this switch out three times, identical apart from which field
- * it targets, so the field is the parameter - passed by address, which is the
- * single difference between the three copies. Case labels are unchanged. */
-static void apply_ssty_op(s32* target, s16 ix, s32 patl) {
-    switch (ix) {
-    default:
-        *target = patl;
-        break;
-
-    case 1:
-        *target &= patl;
-        break;
-
-    case 2:
-        *target |= patl;
-        break;
-
-    case 3:
-        *target += patl;
-        break;
-
-    case 4:
-        *target -= patl;
-        break;
-
-    case 5:
-        *target *= patl;
-        break;
-
-    case 6:
-        *target /= patl;
-        break;
-    }
-}
-
-s32 comm_ssty(WORK* wk, UNK11* ctc) {
-    SST ssty;
-
-    ssty.patl = 0;
-    ssty.pats.h = ctc->pat;
-    ssty.patl >>= 8;
-
-    switch (ctc->koc) {
-    case 0:
-        apply_ssty_op(&wk->mvxy.a[1].sp, ctc->ix, ssty.patl);
-        break;
-
-    case 2:
-        apply_ssty_op(&wk->mvxy.a[1].sp, ctc->ix, ssty.patl);
-        /* fallthrough */
-
-    case 1:
-        apply_ssty_op(&wk->mvxy.d[1].sp, ctc->ix, ssty.patl);
-        break;
-
-    default:
-        wk->mvxy.kop[1] = ctc->pat;
-        break;
-    }
-
-    return 1;
 }
 
 s32 comm_ngda(WORK* wk, UNK11* ctc) {
