@@ -111,6 +111,33 @@ static void start_barrel_throw(PLW* wk) {
     wk->wu.mvxy.d[1].sp = bbbs_jump_level[bbbs_table[bbbs_type][Bonus_Stage_Level][Bonus_Stage_Tix].jmplv][1];
 }
 
+/* Bonus-stage states 4 and up: waiting for the throw to finish, running the
+ * last timer out, and ending the stage. Case labels are the originals. */
+static void run_bbbs_late_stage_step(PLW* wk) {
+    switch (Bonus_Stage_RNO[1]) {
+    case 4:
+        if (barrel_throw_is_finished(wk)) {
+            Bonus_Stage_RNO[1] = 0;
+        }
+
+        break;
+
+    case 5:
+        if (--wk->wu.dir_timer < 1) {
+            Bonus_Stage_RNO[1] = 6;
+            Allow_a_battle_f = 0;
+        }
+
+        break;
+
+    case 6:
+        Bonus_Stage_RNO[0] = 2;
+        Bonus_Stage_RNO[1] = 0;
+        Allow_a_battle_f = 0;
+        break;
+    }
+}
+
 /* One step of the bonus stage's own state machine. */
 static void run_bbbs_stage_step(PLW* wk) {
     switch (Bonus_Stage_RNO[1]) {
@@ -138,25 +165,8 @@ static void run_bbbs_stage_step(PLW* wk) {
 
         break;
 
-    case 4:
-        if (barrel_throw_is_finished(wk)) {
-            Bonus_Stage_RNO[1] = 0;
-        }
-
-        break;
-
-    case 5:
-        if (--wk->wu.dir_timer < 1) {
-            Bonus_Stage_RNO[1] = 6;
-            Allow_a_battle_f = 0;
-        }
-
-        break;
-
-    case 6:
-        Bonus_Stage_RNO[0] = 2;
-        Bonus_Stage_RNO[1] = 0;
-        Allow_a_battle_f = 0;
+    default:
+        run_bbbs_late_stage_step(wk);
         break;
     }
 }
