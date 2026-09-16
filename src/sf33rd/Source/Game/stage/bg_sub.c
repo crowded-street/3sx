@@ -1190,6 +1190,27 @@ static s32 should_load_bg_texture() {
     return G_No[0] != 2 || G_No[1] != 2 || G_No[2] != 2;
 }
 
+static void reset_bg_family_slots() {
+    u8 i;
+
+    for (i = 0; i < 7; i++) {
+        bg_w.bgw[i].pos_x_work = bg_w.bgw[i].pos_y_work = 0;
+        bg_w.bgw[i].zuubun = 0;
+        bg_w.bgw[i].xy[0].cal = 0;
+        bg_w.bgw[i].xy[1].cal = 0;
+        bg_w.bgw[i].wxy[0].cal = 0;
+        bg_w.bgw[i].wxy[1].cal = 0;
+        bg_w.bgw[i].hos_xy[0].cal = 0;
+        bg_w.bgw[i].hos_xy[1].cal = 0;
+        bg_w.bgw[i].speed_x = 0;
+        bg_w.bgw[i].speed_y = 0;
+        bg_w.bgw[i].rewrite_flag = 0;
+        bg_w.bgw[i].fam_no = i;
+        bg_w.bgw[i].r_no_1 = bg_w.bgw[i].r_no_2 = 0;
+        bg_w.bgw[i].speed_x = 0;
+    }
+}
+
 void bg_initialize() {
     const s16* ptr;
     u8 i;
@@ -1215,22 +1236,7 @@ void bg_initialize() {
     Bg_Kakikae_Set();
     bg_w.pos_offset = 0xC0;
 
-    for (i = 0; i < 7; i++) {
-        bg_w.bgw[i].pos_x_work = bg_w.bgw[i].pos_y_work = 0;
-        bg_w.bgw[i].zuubun = 0;
-        bg_w.bgw[i].xy[0].cal = 0;
-        bg_w.bgw[i].xy[1].cal = 0;
-        bg_w.bgw[i].wxy[0].cal = 0;
-        bg_w.bgw[i].wxy[1].cal = 0;
-        bg_w.bgw[i].hos_xy[0].cal = 0;
-        bg_w.bgw[i].hos_xy[1].cal = 0;
-        bg_w.bgw[i].speed_x = 0;
-        bg_w.bgw[i].speed_y = 0;
-        bg_w.bgw[i].rewrite_flag = 0;
-        bg_w.bgw[i].fam_no = i;
-        bg_w.bgw[i].r_no_1 = bg_w.bgw[i].r_no_2 = 0;
-        bg_w.bgw[i].speed_x = 0;
-    }
+    reset_bg_family_slots();
 
     bg_w.scr_stop = 0;
     bg_w.frame_flag = 0;
