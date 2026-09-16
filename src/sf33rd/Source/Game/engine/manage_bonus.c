@@ -489,6 +489,33 @@ static void count_one_car_unit(void) {
     award_one_car_unit();
 }
 
+/* Show the car stage's total and set up the tally, or skip straight to the
+ * wrap-up when nothing was scored. */
+static void show_car_stage_total(void) {
+    C_No[2]++;
+    C_Timer = 20;
+    Score[Player_id][0] += Bonus_Score;
+    effect_08_init(&(Effect08Init){7, 0, 1, 15, 0});
+    Disp_Score_Buff[0] = Bonus_Score;
+    effect_14_init(0, 35, 11, 15);
+
+    if (Bonus_Game_result == 0) {
+        C_No[2] = 99;
+        C_Timer = 120;
+    }
+}
+
+/* Hand the car stage's result back to the round flow. */
+static void leave_car_result(void) {
+    C_No[1]++;
+    C_No[2] = 0;
+    C_No[3] = 0;
+    C_Timer = 10;
+    Forbid_Break = 0;
+    Suicide[5] = -128;
+    Check_Fade_Out_BGM(546);
+}
+
 void Game_Manage_12_8() {
     switch (C_No[2]) {
     case 0:
@@ -497,17 +524,7 @@ void Game_Manage_12_8() {
 
     case 1:
         if (bonus_cut_and_timer_finished()) {
-            C_No[2]++;
-            C_Timer = 20;
-            Score[Player_id][0] += Bonus_Score;
-            effect_08_init(&(Effect08Init){7, 0, 1, 15, 0});
-            Disp_Score_Buff[0] = Bonus_Score;
-            effect_14_init(0, 35, 11, 15);
-
-            if (Bonus_Game_result == 0) {
-                C_No[2] = 99;
-                C_Timer = 120;
-            }
+            show_car_stage_total();
         }
 
         break;
@@ -537,13 +554,7 @@ void Game_Manage_12_8() {
 
     default:
         if (Cut_Cut_C_Timer() == 0) {
-            C_No[1]++;
-            C_No[2] = 0;
-            C_No[3] = 0;
-            C_Timer = 10;
-            Forbid_Break = 0;
-            Suicide[5] = -128;
-            Check_Fade_Out_BGM(546);
+            leave_car_result();
         }
 
         break;
