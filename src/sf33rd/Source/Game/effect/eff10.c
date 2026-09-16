@@ -109,7 +109,7 @@ void effect_10_move(WORK_Other* ewk) {
     }
 }
 
-s32 effect_10_init(s16 id, u8 Type, u8 Type_in_Type, u8 dir_step, u8 Death_Type, s16 pos_x, s16 pos_y) {
+s32 effect_10_init(const Effect10Init* p) {
     WORK_Other* ewk;
     s16 ix;
 
@@ -121,12 +121,12 @@ s32 effect_10_init(s16 id, u8 Type, u8 Type_in_Type, u8 dir_step, u8 Death_Type,
     ewk->wu.be_flag = 1;
     ewk->wu.id = 10;
     ewk->wu.work_id = 16;
-    ewk->master_id = id;
-    ewk->wu.type = Type;
-    ewk->master_priority = Type_in_Type;
-    ewk->wu.cg_type = dir_step;
-    ewk->master_player = Death_Type;
-    ewk->wu.xyz[0].disp.pos = pos_x;
-    ewk->wu.xyz[1].disp.pos = pos_y;
+    ewk->master_id = p->id;
+    ewk->wu.type = p->Type;
+    ewk->master_priority = p->Type_in_Type;
+    ewk->wu.cg_type = p->dir_step;
+    ewk->master_player = p->Death_Type;
+    ewk->wu.xyz[0].disp.pos = p->pos_x;
+    ewk->wu.xyz[1].disp.pos = p->pos_y;
     return 0;
 }
