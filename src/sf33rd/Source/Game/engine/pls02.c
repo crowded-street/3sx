@@ -1105,11 +1105,10 @@ static s32 gauge_gain_is_blocked(SA_WORK* wk, s16 ix, s16 asag, u8 mf) {
     return 0;
 }
 
-void add_super_arts_gauge(SA_WORK* wk, s16 ix, s16 asag, u8 mf) { // 🟡
-    if (gauge_gain_is_blocked(wk, ix, asag, mf)) {
-        return;
-    }
-
+/* The gain the script asked for, after the flat bonus, the first-round bonus
+ * and the character's own gauge rate. Off arcade balance it never rounds down
+ * to nothing. */
+static s16 scaled_gauge_gain(s16 ix, s16 asag) {
     asag = asag * 120 / 100;
 
     if (save_w[Present_Mode].Battle_Number[Play_Type] == 0) {
@@ -1124,6 +1123,39 @@ void add_super_arts_gauge(SA_WORK* wk, s16 ix, s16 asag, u8 mf) { // 🟡
         }
     }
 
+    return asag;
+}
+
+/* One stock is full. What happens to the rest of the bar depends on whether
+ * there is another stock to fill. */
+static void bank_full_gauge(SA_WORK* wk) {
+    wk->store += 1;
+
+    if (wk->store < wk->store_max) {
+        wk->gauge.s.h -= wk->gauge_len;
+        return;
+    }
+
+    wk->store = wk->store_max;
+
+    if (ArcadeBalance_IsEnabled()) {
+        if (wk->gauge_type != 1) {
+            wk->gauge.i = 0;
+        } else {
+            wk->gauge.s.h = wk->gauge_len;
+        }
+    } else {
+        wk->gauge.i = 0;
+    }
+}
+
+
+void add_super_arts_gauge(SA_WORK* wk, s16 ix, s16 asag, u8 mf) { // 🟡
+    if (gauge_gain_is_blocked(wk, ix, asag, mf)) {
+        return;
+    }
+
+    asag = scaled_gauge_gain(ix, asag);
     wk->gauge.s.h += asag;
     wk->gauge.s.l = -1;
 
@@ -1131,24 +1163,7 @@ void add_super_arts_gauge(SA_WORK* wk, s16 ix, s16 asag, u8 mf) { // 🟡
         return;
     }
 
-    wk->store += 1;
-
-    if (wk->store < wk->store_max) {
-        wk->gauge.s.h -= wk->gauge_len;
-    } else {
-        wk->store = wk->store_max;
-
-        if (ArcadeBalance_IsEnabled()) {
-            if (wk->gauge_type != 1) {
-                wk->gauge.i = 0;
-            } else {
-                wk->gauge.s.h = wk->gauge_len;
-            }
-        } else {
-            wk->gauge.i = 0;
-        }
-    }
-
+    bank_full_gauge(wk);
     sa_gauge_flash[ix] |= 1;
 }
 
