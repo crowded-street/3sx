@@ -642,6 +642,30 @@ symmetric pair of near-identical predicates - is worse by every measure the tool
 This is the same force behind *Two mirrored arms are cheaper left together* below; the
 difference is that here one arm can still be improved for free.
 
+### Clear the functions just over the threshold first
+
+A finding is worth score only while it exists. Taking a function from cc 25 to cc 20 keeps
+the Complex Method finding and pays almost nothing; taking one from cc 10 to cc 6 removes
+the finding outright and pays properly. So work the list from the **bottom** - the
+functions barely over the threshold - not the top.
+
+Measured on `pls03.c` in one run, all of them one small Recipe E or P each:
+
+| Function | cc before -> after | Score |
+| --- | --- | --- |
+| `check_leap_attack` | 10 -> 6 | +0.14 |
+| `check_chouhatsu` | 10 -> 8 | +0.15 |
+| `ex_slot_is_allowed` | 11 -> 5 | +0.17 |
+| `meoshi_cancel_gate` | 10 -> 6 | +0.16 |
+
+Together **+0.62**, from four extractions of a dozen lines each. The same file's
+`check_special_attack_airborne`, a much larger piece of work on a cc 23 function, was worth
++0.13 on its own.
+
+This does not mean never touch the big ones - a big function that can be brought *under*
+the threshold is worth more than any of these. It means: when a big one cannot be brought
+under, spend the time on the small ones instead.
+
 ### For a Complex Conditional, name the whole condition, not its parts
 
 CodeScene counts the logical operators in the expression **at the branch**. Replacing the
