@@ -1094,6 +1094,17 @@ void add_sp_arts_gauge_maxbit(PLW* wk) { // 🔴
 }
 #endif
 
+/* A super art that is already running blocks the gain. The two balance modes
+ * ask that differently: arcade balance looks at the art's own ok flag, the
+ * console rules at whether any art is available. */
+static s32 super_art_blocks_gauge_gain(SA_WORK* wk) {
+    if (ArcadeBalance_IsEnabled()) {
+        return wk->ok == -1;
+    }
+
+    return super_arts_unavailable(wk);
+}
+
 /* The states in which no gauge moves at all: the test menu, a move flagged not
  * to charge, a super art already running or unavailable, the pause and the
  * bonus stages. */
@@ -1106,14 +1117,8 @@ static s32 game_state_blocks_gauge_gain(SA_WORK* wk, u8 mf) {
         return 1;
     }
 
-    if (ArcadeBalance_IsEnabled()) {
-        if (wk->ok == -1) {
-            return 1;
-        }
-    } else {
-        if (super_arts_unavailable(wk)) {
-            return 1;
-        }
+    if (super_art_blocks_gauge_gain(wk)) {
+        return 1;
     }
 
     if (pcon_dp_flag) {
