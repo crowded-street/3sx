@@ -310,6 +310,17 @@ void remake_mvxy_PoGR(WORK* wk) { // 🟢
 }
 
 /// Check player push box collision and push them if needed
+/* Which way the two bodies are pushed apart. While both are on the ground the
+ * answer is the stage-wide ichikannkei flag; otherwise it comes from their
+ * positions. Returns non-zero for the case check_body_touch labelled `one`. */
+static s32 p1_is_pushed_forward(PLW* p1w, PLW* p2w) {
+    if (p1w->wu.old_pos[1] < 1 && p2w->wu.old_pos[1] < 1) {
+        return ichikannkei;
+    }
+
+    return check_work_position(&p1w->wu, &p2w->wu);
+}
+
 void check_body_touch() { // 🟢
     PLW* p1w = &plw[0];
     PLW* p2w = &plw[1];
@@ -321,15 +332,7 @@ void check_body_touch() { // 🟢
         if (meri != 0) {
             meri = meri_case_switch(meri);
 
-            if (p1w->wu.old_pos[1] < 1 && p2w->wu.old_pos[1] < 1) {
-                if (ichikannkei) {
-                    goto one;
-                }
-
-                goto two;
-            }
-
-            if (check_work_position(&p1w->wu, &p2w->wu)) {
+            if (p1_is_pushed_forward(p1w, p2w)) {
                 goto one;
             }
 
