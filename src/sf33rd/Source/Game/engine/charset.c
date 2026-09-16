@@ -591,6 +591,112 @@ static int catch_table_offset(Character thrown_character) {
     }
 }
 
+/* A blocked target combo loses its chain and its push-out, except for the one
+ * pattern class that only has part of its push-out taken away. */
+static void apply_target_combo_block(WORK* wk) {
+    if (!target_combo_is_blocked(wk)) {
+        return;
+    }
+
+    if (wk->kow & 6) {
+        wk->cg_cancel &= 0xF7;
+        wk->cg_meoshi = 0;
+        return;
+    }
+
+    if (wk->cg_meoshi & 0x110) {
+        wk->cg_meoshi &= 0xF99F;
+        return;
+    }
+
+    wk->cg_cancel &= 0xF7;
+    wk->cg_meoshi = 0;
+}
+
+/* Super-art to super-art cancelling: the DIP switch either takes the cancel
+ * away or marks the hit that would have used it. */
+static void apply_sa_cancel_flags(WORK* wk) {
+    if (WK_AS_PLW->spmv_ng_flag2 & DIP2_SA_TO_SA_CANCEL_DISABLED) {
+        if (wk->kow & 0x60) {
+            wk->cg_cancel &= 0xBF;
+        }
+
+        return;
+    }
+
+    if ((wk->kow & 0x60) && (wk->cg_cancel & 0x40)) {
+        wk->meoshi_hit_flag = 1;
+    }
+}
+
+/* The chain-combo tables, by the kind of move this pattern belongs to. Each
+ * chain is gated on its own DIP switch, and two characters have their own
+ * table. */
+static void apply_chain_cancel(WORK* wk) {
+    switch (plpat_rno_filter[wk->routine_no[2]]) {
+    case 9:
+        if (wk->routine_no[3] != 1) {
+            break;
+        }
+
+        /* fallthrough */
+
+    case 1:
+        if (!(WK_AS_PLW->spmv_ng_flag2 & DIP2_ALL_MOVES_CANCELLABLE_BY_HIGH_JUMP_DISABLED)) {
+            wk->cg_cancel |= 1;
+        }
+
+        if (!(WK_AS_PLW->spmv_ng_flag2 & DIP2_ALL_MOVES_CANCELLABLE_BY_DASH_DISABLED)) {
+            wk->cg_cancel |= 2;
+        }
+
+        if (!(WK_AS_PLW->spmv_ng_flag2 & DIP2_GROUND_CHAIN_COMBO_DISABLED)) {
+            if (WK_AS_PLW->player_number == 4) {
+                wk->cg_meoshi = chain_hidou_nm_ground_table[wk->kow & 7];
+                wk->cg_cancel |= 8;
+                return;
+            }
+
+            wk->cg_meoshi = chain_normal_ground_table[wk->kow & 7];
+            wk->cg_cancel |= 8;
+            return;
+        }
+
+        break;
+
+    case 2:
+        if (!(WK_AS_PLW->spmv_ng_flag2 & DIP2_AIR_CHAIN_COMBO_DISABLED) && !hikusugi_check(wk)) {
+            if (WK_AS_PLW->player_number == 7) {
+                wk->cg_meoshi = chain_hidou_nm_air_table[wk->kow & 7];
+                wk->cg_cancel |= 8;
+                return;
+            }
+
+            wk->cg_meoshi = chain_normal_air_table[wk->kow & 7];
+            wk->cg_cancel |= 8;
+        }
+
+        break;
+    }
+
+}
+
+/* Everything a player work does to its cancel flags once the pattern data is
+ * read: the target-combo block, the super-art cancel DIP switches, the
+ * special-cancel window, and the chain combo tables. */
+static void apply_player_cancel_flags(WORK* wk) {
+    apply_target_combo_block(wk);
+    apply_sa_cancel_flags(wk);
+
+    if (special_cancel_window_is_open(wk)) {
+        wk->cg_cancel |= 0x60;
+    }
+
+    if (is_cancellable_normal(wk)) {
+        apply_chain_cancel(wk);
+    }
+}
+
 void check_cgd_patdat(WORK* wk) {
     ST st;
 
@@ -678,77 +784,7 @@ void check_cgd_patdat(WORK* wk) {
     }
 
     if (wk->work_id == 1) {
-        if (target_combo_is_blocked(wk)) {
-            if (wk->kow & 6) {
-                wk->cg_cancel &= 0xF7;
-                wk->cg_meoshi = 0;
-            } else if (wk->cg_meoshi & 0x110) {
-                wk->cg_meoshi &= 0xF99F;
-            } else {
-                wk->cg_cancel &= 0xF7;
-                wk->cg_meoshi = 0;
-            }
-        }
-
-        if (WK_AS_PLW->spmv_ng_flag2 & DIP2_SA_TO_SA_CANCEL_DISABLED) {
-            if (wk->kow & 0x60) {
-                wk->cg_cancel &= 0xBF;
-            }
-        } else if ((wk->kow & 0x60) && (wk->cg_cancel & 0x40)) {
-            wk->meoshi_hit_flag = 1;
-        }
-
-        if (special_cancel_window_is_open(wk)) {
-            wk->cg_cancel |= 0x60;
-        }
-
-        if (is_cancellable_normal(wk)) {
-            switch (plpat_rno_filter[wk->routine_no[2]]) {
-            case 9:
-                if (wk->routine_no[3] != 1) {
-                    break;
-                }
-
-                /* fallthrough */
-
-            case 1:
-                if (!(WK_AS_PLW->spmv_ng_flag2 & DIP2_ALL_MOVES_CANCELLABLE_BY_HIGH_JUMP_DISABLED)) {
-                    wk->cg_cancel |= 1;
-                }
-
-                if (!(WK_AS_PLW->spmv_ng_flag2 & DIP2_ALL_MOVES_CANCELLABLE_BY_DASH_DISABLED)) {
-                    wk->cg_cancel |= 2;
-                }
-
-                if (!(WK_AS_PLW->spmv_ng_flag2 & DIP2_GROUND_CHAIN_COMBO_DISABLED)) {
-                    if (WK_AS_PLW->player_number == 4) {
-                        wk->cg_meoshi = chain_hidou_nm_ground_table[wk->kow & 7];
-                        wk->cg_cancel |= 8;
-                        return;
-                    }
-
-                    wk->cg_meoshi = chain_normal_ground_table[wk->kow & 7];
-                    wk->cg_cancel |= 8;
-                    return;
-                }
-
-                break;
-
-            case 2:
-                if (!(WK_AS_PLW->spmv_ng_flag2 & DIP2_AIR_CHAIN_COMBO_DISABLED) && !hikusugi_check(wk)) {
-                    if (WK_AS_PLW->player_number == 7) {
-                        wk->cg_meoshi = chain_hidou_nm_air_table[wk->kow & 7];
-                        wk->cg_cancel |= 8;
-                        return;
-                    }
-
-                    wk->cg_meoshi = chain_normal_air_table[wk->kow & 7];
-                    wk->cg_cancel |= 8;
-                }
-
-                break;
-            }
-        }
+        apply_player_cancel_flags(wk);
     }
 }
 
