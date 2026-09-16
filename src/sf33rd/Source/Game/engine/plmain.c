@@ -852,6 +852,29 @@ static void drain_gauge_while_art_runs(PLW* wk) {
     }
 }
 
+/* The frame the art's effect fires on: the stock is spent and the bar filled.
+ * Anything else here means the art did not start, and the state is cleared. */
+static void spend_stock_or_abandon_art(PLW* wk) {
+    if (wk->sa->saeff_ok == -1) {
+        if (!pcon_dp_flag) {
+            wk->sa->store -= 1;
+        }
+
+        wk->sa->gauge.s.h = wk->sa->gauge_len;
+        wk->sa->gauge.s.l = -1;
+        wk->sa->sa_rno = 3;
+        wk->sa->saeff_ok = 0;
+        return;
+    }
+
+    if ((wk->sa->saeff_ok != 1) || (wk->wu.routine_no[1] != 4)) {
+        wk->sa->saeff_ok = 0;
+        wk->sa->sa_rno = 0;
+        wk->sa->ok = 0;
+        wk->sa->dtm_mul = 1;
+    }
+}
+
 void sag_union_1(PLW* wk) { // 🟢
     switch (wk->sa->sa_rno) {
     case 0:
@@ -863,22 +886,7 @@ void sag_union_1(PLW* wk) { // 🟢
         break;
 
     case 2:
-        if (wk->sa->saeff_ok == -1) {
-            if (!pcon_dp_flag) {
-                wk->sa->store -= 1;
-            }
-
-            wk->sa->gauge.s.h = wk->sa->gauge_len;
-            wk->sa->gauge.s.l = -1;
-            wk->sa->sa_rno = 3;
-            wk->sa->saeff_ok = 0;
-        } else if ((wk->sa->saeff_ok != 1) || (wk->wu.routine_no[1] != 4)) {
-            wk->sa->saeff_ok = 0;
-            wk->sa->sa_rno = 0;
-            wk->sa->ok = 0;
-            wk->sa->dtm_mul = 1;
-        }
-
+        spend_stock_or_abandon_art(wk);
         break;
 
     case 3:
