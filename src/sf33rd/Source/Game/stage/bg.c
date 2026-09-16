@@ -734,6 +734,30 @@ static s32 remap_stage19_default_chip(s32 global_index_real) {
     return global_index_real;
 }
 
+static void select_stage19_flash_sequence() {
+    switch (stage_flash) {
+    case 0:
+    case 1:
+        rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr = rw191;
+        rw_dat[0].rw_cnt = 1;
+        stage_ftimer = stage19_loop_tbl2[stage_ftimer];
+        break;
+
+    case 2:
+    case 3:
+        rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr = rw192;
+        rw_dat[0].rw_cnt = 1;
+        stage_ftimer = stage19_loop_tbl2[stage_ftimer];
+        break;
+
+    default:
+        rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr = rw190;
+        rw_dat[0].rw_cnt = 2;
+        stage_ftimer = stage19_loop_tbl1[stage_ftimer];
+        break;
+    }
+}
+
 static void advance_stage19_flash_state() {
     rw_dat[0].rw_cnt--;
 
@@ -758,28 +782,7 @@ static void advance_stage19_flash_state() {
 
     stage_flash = random_16_bg();
     stage_ftimer = random_16_bg();
-
-    switch (stage_flash) {
-    case 0:
-    case 1:
-        rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr = rw191;
-        rw_dat[0].rw_cnt = 1;
-        stage_ftimer = stage19_loop_tbl2[stage_ftimer];
-        break;
-
-    case 2:
-    case 3:
-        rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr = rw192;
-        rw_dat[0].rw_cnt = 1;
-        stage_ftimer = stage19_loop_tbl2[stage_ftimer];
-        break;
-
-    default:
-        rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr = rw190;
-        rw_dat[0].rw_cnt = 2;
-        stage_ftimer = stage19_loop_tbl1[stage_ftimer];
-        break;
-    }
+    select_stage19_flash_sequence();
 }
 
 static void advance_stage19_loop_state() {
