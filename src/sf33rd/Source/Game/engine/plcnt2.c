@@ -207,6 +207,27 @@ void plcnt_b_move() {
     }
 }
 
+/* Both players have stopped moving in the bonus stage. */
+static s32 both_bonus_players_settled() {
+    return footwork_check_bns(0) && footwork_check_bns(1);
+}
+
+/* Both have reached the end of their end-of-stage routine. */
+static s32 both_bonus_routines_finished() {
+    return (plw[0].wu.routine_no[3] == 9) && (plw[1].wu.routine_no[3] == 9);
+}
+
+/* The stage is over: both players go into the same end routine. */
+static void end_bonus_stage() {
+    complete_victory_pause();
+    plw[0].wu.routine_no[2] = 40;
+    plw[1].wu.routine_no[2] = 40;
+    plw[0].wu.routine_no[1] = plw[1].wu.routine_no[1] = 0;
+    plw[0].wu.routine_no[3] = plw[1].wu.routine_no[3] = 0;
+    plw[0].wu.cg_type = plw[1].wu.cg_type = 0;
+    pcon_rno[2]++;
+}
+
 void plcnt_b_die() {
     plw[0].wu.dm_vital = plw[1].wu.dm_vital = 0;
 
@@ -218,24 +239,18 @@ void plcnt_b_die() {
         /* fallthrough */
 
     case 1:
-        if (footwork_check_bns(0) && footwork_check_bns(1)) {
+        if (both_bonus_players_settled()) {
             pcon_rno[2]++;
         }
 
         break;
 
     case 2:
-        complete_victory_pause();
-        plw[0].wu.routine_no[2] = 40;
-        plw[1].wu.routine_no[2] = 40;
-        plw[0].wu.routine_no[1] = plw[1].wu.routine_no[1] = 0;
-        plw[0].wu.routine_no[3] = plw[1].wu.routine_no[3] = 0;
-        plw[0].wu.cg_type = plw[1].wu.cg_type = 0;
-        pcon_rno[2]++;
+        end_bonus_stage();
         break;
 
     case 3:
-        if ((plw[0].wu.routine_no[3] == 9) && (plw[1].wu.routine_no[3] == 9)) {
+        if (both_bonus_routines_finished()) {
             pcon_rno[2]++;
         }
 
