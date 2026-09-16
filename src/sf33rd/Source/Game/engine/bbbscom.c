@@ -75,6 +75,26 @@ static void advance_to_next_barrel(PLW* wk) {
     }
 }
 
+/* The thrower has finished the animation this table entry asked for. */
+static s32 barrel_throw_is_finished(PLW* wk) {
+    return wk->wu.routine_no[1] == 4 && wk->wu.routine_no[2] == 31 && wk->wu.routine_no[3] == 3;
+}
+
+/* The throw itself: the animation, the number of barrels, and the jump speeds
+ * this table entry names. */
+static void start_barrel_throw(PLW* wk) {
+    Bonus_Stage_RNO[1] = 3;
+    wk->wu.routine_no[1] = 4;
+    wk->wu.routine_no[2] = 31;
+    wk->wu.routine_no[3] = 0;
+    wk->wu.char_index = 71;
+    wk->wu.cmwk[5] = bbbs_table[bbbs_type][Bonus_Stage_Level][Bonus_Stage_Tix].kosuu;
+    wk->wu.mvxy.d[0].sp = 0;
+    wk->wu.mvxy.a[0].sp = 0;
+    wk->wu.mvxy.a[1].sp = bbbs_jump_level[bbbs_table[bbbs_type][Bonus_Stage_Level][Bonus_Stage_Tix].jmplv][0];
+    wk->wu.mvxy.d[1].sp = bbbs_jump_level[bbbs_table[bbbs_type][Bonus_Stage_Level][Bonus_Stage_Tix].jmplv][1];
+}
+
 /* One step of the bonus stage's own state machine. */
 static void run_bbbs_stage_step(PLW* wk) {
     switch (Bonus_Stage_RNO[1]) {
@@ -90,16 +110,7 @@ static void run_bbbs_stage_step(PLW* wk) {
         break;
 
     case 2:
-        Bonus_Stage_RNO[1] = 3;
-        wk->wu.routine_no[1] = 4;
-        wk->wu.routine_no[2] = 31;
-        wk->wu.routine_no[3] = 0;
-        wk->wu.char_index = 71;
-        wk->wu.cmwk[5] = bbbs_table[bbbs_type][Bonus_Stage_Level][Bonus_Stage_Tix].kosuu;
-        wk->wu.mvxy.d[0].sp = 0;
-        wk->wu.mvxy.a[0].sp = 0;
-        wk->wu.mvxy.a[1].sp = bbbs_jump_level[bbbs_table[bbbs_type][Bonus_Stage_Level][Bonus_Stage_Tix].jmplv][0];
-        wk->wu.mvxy.d[1].sp = bbbs_jump_level[bbbs_table[bbbs_type][Bonus_Stage_Level][Bonus_Stage_Tix].jmplv][1];
+        start_barrel_throw(wk);
         break;
 
     case 3:
@@ -112,7 +123,7 @@ static void run_bbbs_stage_step(PLW* wk) {
         break;
 
     case 4:
-        if (wk->wu.routine_no[1] == 4 && wk->wu.routine_no[2] == 31 && wk->wu.routine_no[3] == 3) {
+        if (barrel_throw_is_finished(wk)) {
             Bonus_Stage_RNO[1] = 0;
         }
 
