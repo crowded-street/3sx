@@ -1155,43 +1155,50 @@ void setup_settle_rno(s16 kos) { // 🟢
     pcon_dp_flag = true;
 }
 
+/* Settles a round where exactly one player is down. Winner_id and Loser_id
+ * are already set by the caller; the original reached this body from case 1
+ * with a goto into case 2. */
+static void settle_single_ko(void) {
+    if (check_sa_resurrection(&plw[Loser_id]) != 0) {
+        return;
+    }
+
+    setup_gouki_wins();
+    Round_Result |= plw[Loser_id].wu.dm_koa;
+
+    if ((Round_Result & 0x800) && gouki_wins) {
+        if (!ArcadeBalance_IsEnabled()) {
+            Forbid_Break = -1;
+        }
+
+        Shin_Gouki_BGM = 1;
+        Control_Music_Fade(0x96);
+        setup_settle_rno(4);
+        return;
+    }
+
+    setup_settle_rno(0);
+    Conclusion_Flag = 1;
+    Conclusion_Type = 0;
+
+    if (Demo_Flag) {
+        request_center_message(0);
+    }
+}
+
 void settle_check() { // 🟡
     while (1) {
         switch ((plw[0].dead_flag) + (plw[1].dead_flag * 2)) {
         case 1:
             Winner_id = 1;
             Loser_id = 0;
-            goto jump;
+            settle_single_ko();
+            break;
 
         case 2:
             Winner_id = 0;
             Loser_id = 1;
-
-        jump:
-            if (check_sa_resurrection(&plw[Loser_id]) == 0) {
-                setup_gouki_wins();
-                Round_Result |= plw[Loser_id].wu.dm_koa;
-
-                if ((Round_Result & 0x800) && gouki_wins) {
-                    if (!ArcadeBalance_IsEnabled()) {
-                        Forbid_Break = -1;
-                    }
-
-                    Shin_Gouki_BGM = 1;
-                    Control_Music_Fade(0x96);
-                    setup_settle_rno(4);
-                    break;
-                }
-
-                setup_settle_rno(0);
-                Conclusion_Flag = 1;
-                Conclusion_Type = 0;
-
-                if (Demo_Flag) {
-                    request_center_message(0);
-                }
-            }
-
+            settle_single_ko();
             break;
 
         case 3:

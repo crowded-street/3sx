@@ -56,6 +56,12 @@ targeted playtesting rather than replacing it.
 - **Specific moves only by luck.** Random inputs will land some specials; a particular
   super motion is unlikely in any given run. A clean result is not evidence that a
   named move still works.
+- **The round never ends.** Measured: at 7200 frames - two minutes of game time - the
+  session still exits with *frame limit reached*, not *match ended*. Random flailing does
+  not deal enough damage for a KO, and `Stress_OnFrameAdvanced` exits the moment the
+  fight state ends anyway. So **no KO, round-end, win-pose or settle path is executed**,
+  however many seeds you run. `settle_check`, `check_sa_resurrection` and everything
+  downstream of them are invisible to this harness.
 
 A file such as `manage.c` (round and continue flow) or `plmain2.c` (bonus stages) is
 barely touched by this harness even when the run is clean.
