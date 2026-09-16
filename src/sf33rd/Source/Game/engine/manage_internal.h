@@ -36,4 +36,36 @@ s32 Bonus_Cut_Sub();
 void Check_Fade_Out_BGM(s16 Time);
 s16 Check_Time_Over();
 
+/* Defined in manage_result.c - the scoring, grading and continue helpers the
+ * phase machine in manage.c calls into. All already had external linkage. */
+void Check_Naming(s16 PL_id);
+s32 Check_Ending();
+s32 Check_Ending_Sub();
+void Additional_Bonus(s16 PL_id);
+u32 Setup_Comp_Bonus();
+void Setup_Win_Mark();
+void Check_Perfect(s16 PL_id);
+void Update_VS_Data();
+void BGM_Fade_Sub();
+void BGM_Control();
+void Setup_BGM_Fade_In(s16 Time);
+void Check_Stage_BGM();
+void Check_Conclusion_Type();
+void chkComWins();
+void Update_BI_Term();
+void Ck_Win_Record();
+void Update_Level_Control();
+s32 Judge_Next_Disposal();
+void Quick_Entry();
+s32 Check_Entry_Again();
+void Loser_Sub();
+void Be_Continue();
+void Disp_Winner();
+void Pool_Score(s16 PL_id);
+s32 Check_Break_Into_CPU(s16 PL_id);
+void Judge_Winner();
+s32 Check_Disp_Winner();
+void Check_Fade_Out_BGM(s16 Time);
+s32 Check_BI_Grade(s16 PL_id);
+
 #endif // MANAGE_INTERNAL_H
