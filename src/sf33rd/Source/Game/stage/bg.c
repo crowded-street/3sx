@@ -1420,7 +1420,7 @@ void Frame_Down(u16 x, u16 y, u16 add) {
     Frame_Adgjust(x, y);
 }
 
-void Frame_Adgjust(u16 pos_x, u16 pos_y) {
+static void adjust_frame_x(u16 pos_x) {
     u16 buff;
 
     if (zoom_add >= 0x40) {
@@ -1438,6 +1438,10 @@ void Frame_Adgjust(u16 pos_x, u16 pos_y) {
         buff &= 0x1FF;
         scrn_adgjust_x = buff;
     }
+}
+
+static void adjust_frame_y(u16 pos_y) {
+    u16 buff;
 
     if (zoom_add >= 0x40) {
         buff = zoom_add;
@@ -1462,6 +1466,11 @@ void Frame_Adgjust(u16 pos_x, u16 pos_y) {
             scrn_adgjust_y += 1;
         }
     }
+}
+
+void Frame_Adgjust(u16 pos_x, u16 pos_y) {
+    adjust_frame_x(pos_x);
+    adjust_frame_y(pos_y);
 }
 
 void Scrn_Pos_Init() {
