@@ -27,6 +27,17 @@
 
 
 /// Check EX SA attack
+/* The caller asked for a slot that must already be armed, and it is not. */
+static s32 slot_needs_arming_and_is_not(const PLW* wk, u8 slot_ix, s8 always) {
+    return always && !(wk->cp->btix[slot_ix] & 0x100);
+}
+
+/* The chain-cancel record says this slot has already been used this chain, and
+ * the DIP switch that enforces that is set. */
+static s32 chain_cancel_already_used(const PLW* wk, u8 slot_ix) {
+    return (wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && chainex_check[wk->wu.id][slot_ix - 20];
+}
+
 /* The gates a grounded EX super-art slot must pass before its command is even
  * looked at. Returns 1 wherever the original returned 0 without firing. */
 static s32 grounded_ex_slot_is_blocked(PLW* wk, u8 slot_ix, s8 always) {
@@ -42,11 +53,11 @@ static s32 grounded_ex_slot_is_blocked(PLW* wk, u8 slot_ix, s8 always) {
         return 1;
     }
 
-    if (always && !(wk->cp->btix[slot_ix] & 0x100)) {
+    if (slot_needs_arming_and_is_not(wk, slot_ix, always)) {
         return 1;
     }
 
-    if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && chainex_check[wk->wu.id][slot_ix - 20]) {
+    if (chain_cancel_already_used(wk, slot_ix)) {
         return 1;
     }
 
