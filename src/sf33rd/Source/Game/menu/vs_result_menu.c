@@ -135,8 +135,8 @@ static void initialize_vs_result(struct _TASK* task_ptr) {
     effect_A0_init(0, win_percentages[1], 3, 3, 0, 0, 0);
 
     for (ix = 0, s4 = char_ix2 = 22; ix < 3; ix++, s3 = char_ix2++) {
-        effect_91_init(0, ix, 0, 71, char_ix2, 0);
-        effect_91_init(1, ix, 0, 71, char_ix2, 0);
+        effect_91_init(&(Effect91Init){0, ix, 0, 71, char_ix2, 0});
+        effect_91_init(&(Effect91Init){1, ix, 0, 71, char_ix2, 0});
     }
 
     Setup_Win_Lose_OBJ();
