@@ -14,6 +14,13 @@ void effJ2_trans(WORK* ewk);
 
 const CONN bbbs_nando_large[2] = { { 92, 78, 0, 0x7EC7 }, { -20, 78, 0, 0x7EC6 } };
 
+/* Non-zero when the effect is done: killed, interrupted by the break-in, or its
+ * own timer has run out. The decrement is last, so it only happens when the
+ * first two are false - exactly as the original condition had it. */
+static s32 j2_effect_over(WORK_Other_CONN* ewk) {
+    return ewk->wu.dead_f == 1 || Break_Into || --ewk->wu.dir_timer <= 0;
+}
+
 void effect_J2_move(WORK_Other_CONN* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -39,7 +46,7 @@ void effect_J2_move(WORK_Other_CONN* ewk) {
         break;
 
     case 1:
-        if (ewk->wu.dead_f == 1 || Break_Into || --ewk->wu.dir_timer <= 0) {
+        if (j2_effect_over(ewk)) {
             ewk->wu.disp_flag = 0;
             ewk->wu.routine_no[0] = 2;
         } else {
