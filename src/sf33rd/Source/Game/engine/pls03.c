@@ -715,6 +715,15 @@ static s32 ex_slot_is_allowed(PLW* wk, s16 i, u32 specials_disabled) {
     return 1;
 }
 
+/* The four reasons a grounded slot is passed over, in the order the original
+ * tested them. They are not the airborne four: this one checks a live shell
+ * where the airborne one checks downward momentum. */
+static s32 grounded_slot_is_skipped(PLW* wk, s16 i) {
+    return ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_22) && chainex_check[wk->wu.id][i - 20]) ||
+           (wk->cp->waza_flag[i] == -1) || ((wk->cp->btix[i] & 0x800) && shell_live_check(wk, i)) ||
+           slot_blocked_by_super(wk, i);
+}
+
 static s32 check_special_attack_grounded(PLW* wk) {
     s16 i;
     s16 j;
@@ -725,19 +734,7 @@ static s32 check_special_attack_grounded(PLW* wk) {
     conpane = &wk->cp->sw_lvbt;
 
     for (i = 28; i < 38; i++) {
-        if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_22) && chainex_check[wk->wu.id][i - 20]) {
-            continue;
-        }
-
-        if (wk->cp->waza_flag[i] == -1) {
-            continue;
-        }
-
-        if ((wk->cp->btix[i] & 0x800) && shell_live_check(wk, i)) {
-            continue;
-        }
-
-        if (slot_blocked_by_super(wk, i)) {
+        if (grounded_slot_is_skipped(wk, i)) {
             continue;
         }
 
