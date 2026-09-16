@@ -750,42 +750,48 @@ static void show_max_stock_and_stop(s8 Stpl_Num) {
 }
 
 /* The timer-art half of sast_control: the art's own display, state by state. */
-static void sast_timer_control(s8 Stpl_Num) {
+/* Timer states 3 and up. Returns 1 when the caller should go on to show the
+ * MAX stock, which is where the original's break went. */
+static s32 run_late_timer_state(s8 Stpl_Num) {
     switch (spg_dat[Stpl_Num].time_rno) {
-    case 0:
-        if (run_timer_state_0(Stpl_Num)) {
-            break;
-        }
-
-        return;
-
-    case 1:
-        run_timer_state_1(Stpl_Num);
-        return;
-
-    case 2:
-        run_timer_state_2(Stpl_Num);
-        return;
-
     case 3:
-        if (run_timer_state_3(Stpl_Num)) {
-            break;
-        }
-
-        return;
+        return run_timer_state_3(Stpl_Num);
 
     case 4:
         run_timer_state_4(Stpl_Num);
-        return;
+        return 0;
 
     default:
     case 5:
         sast_now[Stpl_Num] = 0;
-        return;
+        return 0;
     }
+}
 
-    show_max_stock_and_stop(Stpl_Num);
-    return;
+/* Timer states 0 to 2, with the rest behind default. Case labels are the
+ * originals. */
+static s32 run_timer_state(s8 Stpl_Num) {
+    switch (spg_dat[Stpl_Num].time_rno) {
+    case 0:
+        return run_timer_state_0(Stpl_Num);
+
+    case 1:
+        run_timer_state_1(Stpl_Num);
+        return 0;
+
+    case 2:
+        run_timer_state_2(Stpl_Num);
+        return 0;
+
+    default:
+        return run_late_timer_state(Stpl_Num);
+    }
+}
+
+static void sast_timer_control(s8 Stpl_Num) {
+    if (run_timer_state(Stpl_Num)) {
+        show_max_stock_and_stop(Stpl_Num);
+    }
 }
 
 /* The max-stock half: no art running, just the stock display settling. Its
