@@ -617,6 +617,24 @@ void mpg_union(PLW* wk) { // 🟡
     }
 }
 
+/* Paying for an EX move: out of the current bar if it covers the cost, or by
+ * spending a stock and taking the shortfall out of the next bar. Skipped while
+ * pcon_dp_flag is set, as in the original. */
+static void spend_ex_gauge(PLW* wk) {
+    if (!pcon_dp_flag) {
+        if (wk->sa->gauge_type == 1 && wk->sa->store == wk->sa->store_max) {
+            wk->sa->gauge.i = 0;
+        }
+
+        if (wk->sa->gauge.s.h >= use_ex_gauge[omop_use_ex_gauge_ix[wk->wu.id]]) {
+            wk->sa->gauge.s.h -= use_ex_gauge[omop_use_ex_gauge_ix[wk->wu.id]];
+        } else {
+            wk->sa->store--;
+            wk->sa->gauge.s.h += wk->sa->gauge_len - use_ex_gauge[omop_use_ex_gauge_ix[wk->wu.id]];
+        }
+    }
+}
+
 void eag_union(PLW* wk) { // 🟡
     switch (wk->sa->ex_rno) {
     case 0:
@@ -651,18 +669,7 @@ void eag_union(PLW* wk) { // 🟡
         break;
 
     case 2:
-        if (!pcon_dp_flag) {
-            if (wk->sa->gauge_type == 1 && wk->sa->store == wk->sa->store_max) {
-                wk->sa->gauge.i = 0;
-            }
-
-            if (wk->sa->gauge.s.h >= use_ex_gauge[omop_use_ex_gauge_ix[wk->wu.id]]) {
-                wk->sa->gauge.s.h -= use_ex_gauge[omop_use_ex_gauge_ix[wk->wu.id]];
-            } else {
-                wk->sa->store--;
-                wk->sa->gauge.s.h += wk->sa->gauge_len - use_ex_gauge[omop_use_ex_gauge_ix[wk->wu.id]];
-            }
-        }
+        spend_ex_gauge(wk);
 
         if (!ArcadeBalance_IsEnabled()) {
             // CPS3 clears this meter state without the port's super-art bug workaround.
