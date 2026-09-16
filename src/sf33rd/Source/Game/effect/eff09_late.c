@@ -29,6 +29,24 @@
 extern const s16 eff09_data2[43][8];
 extern const s32 eff09_19000_tbl[3][4];
 
+static s32 eff09_late_updates_enabled(void) {
+    return !EXE_flag && !Game_pause;
+}
+
+static void load_eff09_19000_speeds(WORK_Other* ewk) {
+    ewk->wu.mvxy.a[0].sp = eff09_19000_tbl[ewk->wu.routine_no[1]][0];
+    ewk->wu.mvxy.d[0].sp = eff09_19000_tbl[ewk->wu.routine_no[1]][1];
+    ewk->wu.mvxy.a[1].sp = eff09_19000_tbl[ewk->wu.routine_no[1]][2];
+    ewk->wu.mvxy.d[1].sp = eff09_19000_tbl[ewk->wu.routine_no[1]][3];
+    ewk->wu.routine_no[1]++;
+}
+
+static void show_eff09_late_effect(WORK_Other* ewk) {
+    ewk->wu.disp_flag = 1;
+    ewk->wu.dead_f = 1;
+    set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+}
+
 static void initialize_eff09_17000(WORK_Other* ewk) {
     ewk->wu.routine_no[1]++;
     ewk->wu.disp_flag = 1;
@@ -39,7 +57,7 @@ static void initialize_eff09_17000(WORK_Other* ewk) {
 }
 
 static void advance_eff09_17000(WORK_Other* ewk, const WORK* oya_ptr) {
-    if (!EXE_flag && !Game_pause) {
+    if (eff09_late_updates_enabled()) {
         char_move(&ewk->wu);
 
         if (oya_ptr->cg_type == 9) {
@@ -92,9 +110,7 @@ void eff09_17000(WORK_Other* ewk) {
 
 static void initialize_eff09_18000(WORK_Other* ewk, const WORK* oya_ptr) {
     ewk->wu.routine_no[1]++;
-    ewk->wu.disp_flag = 1;
-    ewk->wu.dead_f = 1;
-    set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+    show_eff09_late_effect(ewk);
 
     if (oya_ptr->rl_flag) {
         if (oya_ptr->xyz[0].disp.pos < bg_w.bgw[1].wxy[0].disp.pos) {
@@ -115,7 +131,7 @@ static void initialize_eff09_18000(WORK_Other* ewk, const WORK* oya_ptr) {
 }
 
 static void advance_eff09_18000(WORK_Other* ewk) {
-    if (!EXE_flag && !Game_pause) {
+    if (eff09_late_updates_enabled()) {
         char_move(&ewk->wu);
         ewk->wu.old_rno[0]--;
 
@@ -159,41 +175,31 @@ void eff09_18000(WORK_Other* ewk) {
 }
 
 static void initialize_eff09_19000(WORK_Other* ewk) {
-    ewk->wu.disp_flag = 1;
-    ewk->wu.dead_f = 1;
-    set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-    ewk->wu.mvxy.a[0].sp = eff09_19000_tbl[ewk->wu.routine_no[1]][0];
-    ewk->wu.mvxy.d[0].sp = eff09_19000_tbl[ewk->wu.routine_no[1]][1];
-    ewk->wu.mvxy.a[1].sp = eff09_19000_tbl[ewk->wu.routine_no[1]][2];
-    ewk->wu.mvxy.d[1].sp = eff09_19000_tbl[ewk->wu.routine_no[1]][3];
-    ewk->wu.routine_no[1]++;
+    show_eff09_late_effect(ewk);
+    load_eff09_19000_speeds(ewk);
+}
+
+static s32 eff09_19000_reached_floor(WORK_Other* ewk) {
+    if (!eff09_late_updates_enabled()) {
+        return 0;
+    }
+
+    add_x_sub(&ewk->wu);
+    add_y_sub(&ewk->wu);
+    return ewk->wu.xyz[1].disp.pos < 64;
 }
 
 static void advance_eff09_19000_bounce(WORK_Other* ewk) {
-    if (!EXE_flag && !Game_pause) {
-        add_x_sub(&ewk->wu);
-        add_y_sub(&ewk->wu);
-
-        if (ewk->wu.xyz[1].disp.pos < 64) {
-            ewk->wu.xyz[1].cal = 0x3F0000;
-            ewk->wu.mvxy.a[0].sp = eff09_19000_tbl[ewk->wu.routine_no[1]][0];
-            ewk->wu.mvxy.d[0].sp = eff09_19000_tbl[ewk->wu.routine_no[1]][1];
-            ewk->wu.mvxy.a[1].sp = eff09_19000_tbl[ewk->wu.routine_no[1]][2];
-            ewk->wu.mvxy.d[1].sp = eff09_19000_tbl[ewk->wu.routine_no[1]][3];
-            ewk->wu.routine_no[1]++;
-        }
+    if (eff09_19000_reached_floor(ewk)) {
+        ewk->wu.xyz[1].cal = 0x3F0000;
+        load_eff09_19000_speeds(ewk);
     }
 }
 
 static void advance_eff09_19000_exit(WORK_Other* ewk) {
-    if (!EXE_flag && !Game_pause) {
-        add_x_sub(&ewk->wu);
-        add_y_sub(&ewk->wu);
-
-        if (ewk->wu.xyz[1].disp.pos < 64) {
-            ewk->wu.routine_no[1]++;
-            ewk->wu.disp_flag = 0;
-        }
+    if (eff09_19000_reached_floor(ewk)) {
+        ewk->wu.routine_no[1]++;
+        ewk->wu.disp_flag = 0;
     }
 }
 
@@ -250,7 +256,7 @@ static void advance_eff09_20000_right(WORK_Other* ewk, WORK* oya_ptr) {
 }
 
 static void advance_eff09_20000(WORK_Other* ewk, WORK* oya_ptr) {
-    if (!EXE_flag && !Game_pause) {
+    if (eff09_late_updates_enabled()) {
         char_move(&ewk->wu);
 
         if (oya_ptr->id) {
