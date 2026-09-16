@@ -572,6 +572,28 @@ void samoji_control(s8 Stpl_Num) {
     }
 }
 
+/* Alternate the stock display between its two colours while the flash timer
+ * runs. Written out three times - twice in sast_control's timer states and once
+ * in its max state - identically apart from one copy spelling `else { if }`
+ * where the others spell `else if`. */
+static void flash_stock_display(s8 Stpl_Num) {
+    spg_dat[Stpl_Num].timer2--;
+
+    if (spg_dat[Stpl_Num].kind == 0) {
+        if (spg_dat[Stpl_Num].timer2 == 0) {
+            sa_stock_trans(spg_dat[Stpl_Num].spg_level, 0, Stpl_Num);
+            sa_waku_trans(Stpl_Num, 0);
+            spg_dat[Stpl_Num].kind = 1;
+            spg_dat[Stpl_Num].timer2 = 2;
+        }
+    } else if (spg_dat[Stpl_Num].timer2 == 0) {
+        sa_stock_trans(spg_dat[Stpl_Num].spg_level, 1, Stpl_Num);
+        sa_waku_trans(Stpl_Num, 1);
+        spg_dat[Stpl_Num].kind = 0;
+        spg_dat[Stpl_Num].timer2 = 2;
+    }
+}
+
 void sast_control(s8 Stpl_Num) {
     sast_now[Stpl_Num] = 1;
 
@@ -598,21 +620,7 @@ void sast_control(s8 Stpl_Num) {
             spg_dat[Stpl_Num].timer--;
 
             if (sa_stock_display_is_settled(Stpl_Num)) {
-                spg_dat[Stpl_Num].timer2--;
-
-                if (spg_dat[Stpl_Num].kind == 0) {
-                    if (spg_dat[Stpl_Num].timer2 == 0) {
-                        sa_stock_trans(spg_dat[Stpl_Num].spg_level, 0, Stpl_Num);
-                        sa_waku_trans(Stpl_Num, 0);
-                        spg_dat[Stpl_Num].kind = 1;
-                        spg_dat[Stpl_Num].timer2 = 2;
-                    }
-                } else if (spg_dat[Stpl_Num].timer2 == 0) {
-                    sa_stock_trans(spg_dat[Stpl_Num].spg_level, 1, Stpl_Num);
-                    sa_waku_trans(Stpl_Num, 1);
-                    spg_dat[Stpl_Num].kind = 0;
-                    spg_dat[Stpl_Num].timer2 = 2;
-                }
+                flash_stock_display(Stpl_Num);
 
                 return;
             }
@@ -650,23 +658,7 @@ void sast_control(s8 Stpl_Num) {
             spg_dat[Stpl_Num].timer--;
 
             if (spg_dat[Stpl_Num].timer) {
-                spg_dat[Stpl_Num].timer2--;
-
-                if (spg_dat[Stpl_Num].kind == 0) {
-                    if (spg_dat[Stpl_Num].timer2 == 0) {
-                        sa_stock_trans(spg_dat[Stpl_Num].spg_level, 0, Stpl_Num);
-                        sa_waku_trans(Stpl_Num, 0);
-                        spg_dat[Stpl_Num].kind = 1;
-                        spg_dat[Stpl_Num].timer2 = 2;
-                    }
-                } else {
-                    if (spg_dat[Stpl_Num].timer2 == 0) {
-                        sa_stock_trans(spg_dat[Stpl_Num].spg_level, 1, Stpl_Num);
-                        sa_waku_trans(Stpl_Num, 1);
-                        spg_dat[Stpl_Num].kind = 0;
-                        spg_dat[Stpl_Num].timer2 = 2;
-                    }
-                }
+                flash_stock_display(Stpl_Num);
 
                 return;
             }
@@ -756,21 +748,7 @@ void sast_control(s8 Stpl_Num) {
         spg_dat[Stpl_Num].timer--;
 
         if (spg_dat[Stpl_Num].timer) {
-            spg_dat[Stpl_Num].timer2--;
-
-            if (spg_dat[Stpl_Num].kind == 0) {
-                if (spg_dat[Stpl_Num].timer2 == 0) {
-                    sa_stock_trans(spg_dat[Stpl_Num].spg_level, 0, Stpl_Num);
-                    sa_waku_trans(Stpl_Num, 0);
-                    spg_dat[Stpl_Num].kind = 1;
-                    spg_dat[Stpl_Num].timer2 = 2;
-                }
-            } else if (spg_dat[Stpl_Num].timer2 == 0) {
-                sa_stock_trans(spg_dat[Stpl_Num].spg_level, 1, Stpl_Num);
-                sa_waku_trans(Stpl_Num, 1);
-                spg_dat[Stpl_Num].kind = 0;
-                spg_dat[Stpl_Num].timer2 = 2;
-            }
+            flash_stock_display(Stpl_Num);
 
             return;
         }
