@@ -42,41 +42,61 @@ static s32 cpu_is_off_the_bonus_car(WORK* wk) {
     return (Bonus_Game_Flag == 20) && (wk->operator != 0) && (saishin_bs2_area_car((PLW*)wk) == 0);
 }
 
-static u16 select_defense_kind(PLW* wk) {
-    u16 rnum = 0;
-
-    switch (wk->wu.routine_no[2]) {
-    case 27:
-        if (wk->cp->sw_new & 2) {
-            rnum = 3;
-        } else if (chcgp_hos[wk->player_number] && check_attbox_dir(wk)) {
-            rnum = 2;
-        }
-
-        break;
-
-    case 28:
-        if (wk->cp->sw_new & 2) {
-            rnum = 3;
-        } else if (chcgp_hos[wk->player_number] && (check_attbox_dir(wk) == 0)) {
-            rnum = 1;
-        }
-
-        break;
-
-    case 29:
-        if (!(wk->cp->sw_new & 2)) {
-            if (check_attbox_dir(wk)) {
-                rnum = 2;
-            } else {
-                rnum = 1;
-            }
-        }
-
-        break;
+/* Guarding high: the guard button takes priority, otherwise a correction may
+ * turn it into a crouching guard. */
+static u16 defense_kind_from_high(PLW* wk) {
+    if (wk->cp->sw_new & 2) {
+        return 3;
     }
 
-    return rnum;
+    if (chcgp_hos[wk->player_number] && check_attbox_dir(wk)) {
+        return 2;
+    }
+
+    return 0;
+}
+
+/* Guarding low. Not shared with the high version: it tests check_attbox_dir the
+ * other way round and yields a different kind. */
+static u16 defense_kind_from_low(PLW* wk) {
+    if (wk->cp->sw_new & 2) {
+        return 3;
+    }
+
+    if (chcgp_hos[wk->player_number] && (check_attbox_dir(wk) == 0)) {
+        return 1;
+    }
+
+    return 0;
+}
+
+/* Guarding with no committed height: the attack box picks the kind, and the
+ * guard button suppresses the choice entirely. */
+static u16 defense_kind_from_either(PLW* wk) {
+    if (wk->cp->sw_new & 2) {
+        return 0;
+    }
+
+    if (check_attbox_dir(wk)) {
+        return 2;
+    }
+
+    return 1;
+}
+
+static u16 select_defense_kind(PLW* wk) {
+    switch (wk->wu.routine_no[2]) {
+    case 27:
+        return defense_kind_from_high(wk);
+
+    case 28:
+        return defense_kind_from_low(wk);
+
+    case 29:
+        return defense_kind_from_either(wk);
+    }
+
+    return 0;
 }
 
 static void apply_defense_kind(PLW* wk, u16 rnum) {
