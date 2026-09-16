@@ -38,44 +38,48 @@ static void begin_bonus_stage(PLW* wk) {
     effect_H0_init(&wk->wu);
 }
 
+/* The player is idle again, so the next table entry is read. Which state the
+ * stage goes to depends on whether that entry has a timer and whether it has
+ * any barrels; the end of the table ends the stage. */
+static void advance_to_next_barrel(PLW* wk) {
+    if (wk->wu.routine_no[1] != 0) {
+        return;
+    }
+
+    if (wk->wu.routine_no[2] != 1 && (wk->wu.routine_no[2] < 36 || wk->wu.routine_no[2] > 38)) {
+        return;
+    }
+
+    Bonus_Stage_Tix++;
+
+    if (bbbs_table[bbbs_type][Bonus_Stage_Level][Bonus_Stage_Tix].timer == -1) {
+        Bonus_Stage_RNO[0] = 2;
+        Bonus_Stage_RNO[1] = 0;
+        return;
+    }
+
+    if ((wk->wu.dir_timer = bbbs_table[bbbs_type][Bonus_Stage_Level][Bonus_Stage_Tix].timer)) {
+        if (bbbs_table[bbbs_type][Bonus_Stage_Level][Bonus_Stage_Tix].kosuu) {
+            Bonus_Stage_RNO[1] = 1;
+        } else {
+            Bonus_Stage_RNO[1] = 5;
+        }
+
+        return;
+    }
+
+    if (bbbs_table[bbbs_type][Bonus_Stage_Level][Bonus_Stage_Tix].kosuu) {
+        Bonus_Stage_RNO[1] = 2;
+    } else {
+        Bonus_Stage_RNO[1] = 6;
+    }
+}
+
 /* One step of the bonus stage's own state machine. */
 static void run_bbbs_stage_step(PLW* wk) {
     switch (Bonus_Stage_RNO[1]) {
     case 0:
-        if (wk->wu.routine_no[1] != 0) {
-            break;
-        }
-
-        if (wk->wu.routine_no[2] != 1 && (wk->wu.routine_no[2] < 36 || wk->wu.routine_no[2] > 38)) {
-            break;
-        }
-
-        Bonus_Stage_Tix++;
-
-        if (bbbs_table[bbbs_type][Bonus_Stage_Level][Bonus_Stage_Tix].timer == -1) {
-            Bonus_Stage_RNO[0] = 2;
-            Bonus_Stage_RNO[1] = 0;
-            break;
-        }
-
-        if ((wk->wu.dir_timer = bbbs_table[bbbs_type][Bonus_Stage_Level][Bonus_Stage_Tix].timer)) {
-            if (bbbs_table[bbbs_type][Bonus_Stage_Level][Bonus_Stage_Tix].kosuu) {
-                Bonus_Stage_RNO[1] = 1;
-                break;
-            } else {
-                Bonus_Stage_RNO[1] = 5;
-                break;
-            }
-        } else {
-            if (bbbs_table[bbbs_type][Bonus_Stage_Level][Bonus_Stage_Tix].kosuu) {
-                Bonus_Stage_RNO[1] = 2;
-                break;
-            } else {
-                Bonus_Stage_RNO[1] = 6;
-                break;
-            }
-        }
-
+        advance_to_next_barrel(wk);
         break;
 
     case 1:
