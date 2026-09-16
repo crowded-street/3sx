@@ -35,6 +35,14 @@ void plcnt_b_die();
 
 void (*const player_bonus_process[3])() = { plcnt_b_init, plcnt_b_move, plcnt_b_die };
 
+static s32 hosei_transfer_blocked(s16 i) {
+    return (!plw[i].tsukami_f || plw[i].kind_of_catch != 1) && (plw[i].tsukamare_f | plw[i].dm_hos_flag) == 0;
+}
+
+static s32 round_is_in_play(void) {
+    return pcon_rno[0] == 2 && pcon_rno[1] == 0 && pcon_rno[2] == 2;
+}
+
 s32 Player_control_bonus() {
     if (((pcon_rno[0] + pcon_rno[1]) == 0) || (!Game_pause && !EXE_flag)) {
         players_timer++;
@@ -62,7 +70,7 @@ s32 Player_control_bonus() {
         store_player_after_image_data();
     }
 
-    if (pcon_rno[0] == 2 && pcon_rno[1] == 0 && pcon_rno[2] == 2) {
+    if (round_is_in_play()) {
         return 1;
     }
 
@@ -317,8 +325,7 @@ void check_damage_hosei_bonus() {
 
     switch ((plw[0].hosei_amari != 0) + ((plw[1].hosei_amari != 0) * 2)) {
     case 1:
-        if ((!plw[0].tsukami_f || plw[0].kind_of_catch != 1) &&
-            (plw[0].tsukamare_f | plw[0].dm_hos_flag) == 0) {
+        if (hosei_transfer_blocked(0)) {
             break;
         }
 
@@ -328,8 +335,7 @@ void check_damage_hosei_bonus() {
         break;
 
     case 2:
-        if ((!plw[1].tsukami_f || plw[1].kind_of_catch != 1) &&
-            (plw[1].tsukamare_f | plw[1].dm_hos_flag) == 0) {
+        if (hosei_transfer_blocked(1)) {
             break;
         }
 

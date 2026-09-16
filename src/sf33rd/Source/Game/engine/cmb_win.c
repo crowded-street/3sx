@@ -50,6 +50,14 @@ const u16 combo_score_tbl[12][2] = { { 300, 200 },   { 500, 400 },   { 1000, 600
                                      { 2000, 800 },  { 3000, 600 },  { 4000, 800 },  { 5000, 1000 },
                                      { 6000, 2000 }, { 8000, 2000 }, { 9000, 3000 }, { 10000, 4000 } };
 
+static s32 round_lost_by(s32 PL) {
+    return Conclusion_Flag && Conclusion_Type == 0 && Loser_id == PL;
+}
+
+static s32 versus_rules_apply(s32 PLS) {
+    return (!ArcadeBalance_IsEnabled() && Mode_Type == MODE_VERSUS) || plw[PLS].wu.operator;
+}
+
 void combo_cont_init() { // 🟡
     u8 i;
 
@@ -322,7 +330,7 @@ void hit_combo_check(s8 PL) { // 🟢
 }
 
 s32 arts_finish_check(s8 PL) { // 🟢
-    if (Conclusion_Flag && Conclusion_Type == 0 && Loser_id == PL && sarts_finish_flag[PL]) {
+    if (round_lost_by(PL) && sarts_finish_flag[PL]) {
         return 1;
     }
 
@@ -330,7 +338,7 @@ s32 arts_finish_check(s8 PL) { // 🟢
 }
 
 s32 arts_finish_check2(u8 PL) { // 🟢
-    if (Conclusion_Flag && Conclusion_Type == 0 && Loser_id == PL && (plw[PL].cb->new_dm & 0x3F) >= 32) {
+    if (round_lost_by(PL) && (plw[PL].cb->new_dm & 0x3F) >= 32) {
         return 1;
     }
 
@@ -473,7 +481,7 @@ void combo_window_push(s8 PL, s8 KIND) { // 🟡
 
         SCORE_PLUS(PLS, score);
 
-        if ((!ArcadeBalance_IsEnabled() && Mode_Type == MODE_VERSUS) || plw[PLS].wu.operator) {
+        if (versus_rules_apply(PLS)) {
             Score_Sub();
         }
 
@@ -671,7 +679,7 @@ void combo_window_trans(s8 PL) { // 🟡
 
                 SCORE_PLUS(PLS, cmst_buff[PL][cst_read[PL]].pts);
 
-                if ((!ArcadeBalance_IsEnabled() && Mode_Type == MODE_VERSUS) || plw[PLS].wu.operator) {
+                if (versus_rules_apply(PLS)) {
                     Score_Sub();
                 }
             }
