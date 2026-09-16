@@ -211,9 +211,15 @@ void combo_hensuu_clear(s8 PL) { // 🟡
     tr_data[PL].total_damage = 0;
 }
 
+/* The reversal-pattern record only means anything while the player is in one
+ * particular damage state; every other state makes it stale. */
+static s32 rp_state_is_stale(s8 PL) {
+    return plw[PL].wu.routine_no[1] != 1 || plw[PL].wu.routine_no[2] != 17 || plw[PL].wu.routine_no[3] == 0 ||
+           plw[PL].wu.routine_no[3] == 3;
+}
+
 void combo_rp_clear_check(s8 PL) { // 🟢
-    if (plw[PL].wu.routine_no[1] != 1 || plw[PL].wu.routine_no[2] != 17 || plw[PL].wu.routine_no[3] == 0 ||
-        plw[PL].wu.routine_no[3] == 3) {
+    if (rp_state_is_stale(PL)) {
         SDL_zerop(plw[PL].rp);
     }
 }
@@ -247,6 +253,14 @@ void first_attack_pts_check(s8 PL) { // 🟢
     }
 }
 
+/* The frames in which an attack counts as a reversal: coming out of a damage
+ * state into an attack, past the first few patterns, and not during the
+ * dramatic pause. */
+static s32 reversal_window_is_open(s8 PL) {
+    return plw[PL].wu.routine_no[1] == 4 && plw[PL].wu.old_rno[1] == 1 && !pcon_dp_flag &&
+           plw[PL].wu.routine_no[2] >= 0x10;
+}
+
 s32 reversal_check(s8 PL) { // 🟢
     s8 PLS;
 
@@ -254,8 +268,7 @@ s32 reversal_check(s8 PL) { // 🟢
         return 0;
     }
 
-    if (plw[PL].wu.routine_no[1] == 4 && plw[PL].wu.old_rno[1] == 1 && !pcon_dp_flag &&
-        plw[PL].wu.routine_no[2] >= 0x10) {
+    if (reversal_window_is_open(PL)) {
         rever_attack[PL] = 1;
 
         if (PL == 0) {
