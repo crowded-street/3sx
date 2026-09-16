@@ -1185,6 +1185,17 @@ static void settle_single_ko(void) {
     }
 }
 
+/* Both players are down and neither came back: the round is a draw. */
+static void settle_double_ko() {
+    Conclusion_Flag = 1;
+    Conclusion_Type = 1;
+    setup_settle_rno(1);
+
+    if (Demo_Flag) {
+        request_center_message(1);
+    }
+}
+
 void settle_check() { // 🟡
     while (1) {
         switch ((plw[0].dead_flag) + (plw[1].dead_flag * 2)) {
@@ -1202,13 +1213,7 @@ void settle_check() { // 🟡
 
         case 3:
             if ((check_sa_resurrection(&plw[0]) == 0) && (check_sa_resurrection(&plw[1]) == 0)) {
-                Conclusion_Flag = 1;
-                Conclusion_Type = 1;
-                setup_settle_rno(1);
-
-                if (Demo_Flag) {
-                    request_center_message(1);
-                }
+                settle_double_ko();
             } else {
                 continue;
             }
