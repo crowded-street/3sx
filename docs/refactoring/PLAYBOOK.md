@@ -415,7 +415,7 @@ Recipe X both refuse to merge.
 | `eff68.c` | 9.09 | five waypoint steps differing in their timers and targets; sharing their identical runs leaves the smell unmoved |
 | `eff78.c` | 9.55 | `crow_flap` and `crow_take_off` differ in five values; splitting `crow_fuss_move` exposes it, -0.17 |
 | `grade.c` | 5.52 | the table-scan idiom below - not duplication between siblings, and the first plateau of a different kind |
-| `pls03.c` | see below | `decode_wst_data`'s twelve command encodings; `waza_select`'s five arms differ in two table names each |
+| `pls03.c` | 7.31 | `decode_wst_data`'s twelve command encodings; `waza_select`'s five arms differ in two table names each; `check_nm_attack`'s nine arms share a guard that cannot be hoisted without duplicating their case labels |
 | `cmd_main_checks.c` | 6.08 | `check_10`/`check_12` differ in two places - a gate condition and which flag-clear they call; `check_18`/`check_19` and `check_0`/`check_21` differ semantically too |
 | `pls00_normal_states.c` | 6.15 | every remaining Complex Method sits in a duplication group; the `nm_*` handlers are near-miss siblings throughout |
 | `plpnm.c` | 6.54 | 28 of its functions sit in one duplication group - the Normal_* state handlers are near-miss siblings, as in every other state file |
@@ -720,6 +720,29 @@ that the other arm was left inline deliberately and why.
 
 This is the same force behind *Two mirrored arms are cheaper left together* below; the
 difference is that here one arm can still be improved for free.
+
+### Grouping case labels duplicates them, and the guard will say so
+
+A switch whose arms share an opening guard looks like a Recipe C candidate: group the
+labels into one arm, write the guard once, and move what differs into a helper that
+switches on the same expression again. It is behaviour-preserving, and it is not legal.
+
+Each label ends up written **twice** - once in the grouped arm and once in the helper - and
+`refactor_guard.py` reports it as a substituted constant:
+
+```
+FAIL  a constant was substituted
+      removed x8  num 0
+      added   x1  num 14 ... 30   (all nine labels)
+```
+
+The rule that catches this is the same one that forbids renumbering states, and the hazard
+is real rather than bureaucratic: a dispatch written in two places will eventually be
+changed in one of them. `pls03.c`'s `check_nm_attack` was refactored this way, measured
+-0.04, tripped the guard, and was reverted.
+
+**A FAIL is a stop, including when the replay is clean and the reasoning looks sound.** The
+replay agreed with that change; it was still wrong.
 
 ### Retry a rejected extraction once the file has improved
 
