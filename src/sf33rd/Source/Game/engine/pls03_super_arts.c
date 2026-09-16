@@ -271,13 +271,20 @@ static s32 fourth_ex_art_is_locked(const PLW* wk) {
     return wk->sa->ex4th_full && (wk->sa->mp != 1);
 }
 
+/* Outside arcade balance, the fourth strength is skipped either because the slot
+ * has no EX bits at all or because the fourth EX art is charged while the
+ * max-gauge art is not the one armed. */
+static s32 ex_strength_is_unavailable(const PLW* wk, s16 ix, s16 j) {
+    return (j == 3) && (slot_has_no_ex_bits(wk, ix) || fourth_ex_art_is_locked(wk));
+}
+
 static bool should_skip_dc_slot(PLW* wk, s16 ix, s16 j) {
     if (ArcadeBalance_IsEnabled()) {
         if ((j == 3) && slot_has_no_ex_bits(wk, ix)) {
             return true;
         }
     } else {
-        if ((j == 3) && (slot_has_no_ex_bits(wk, ix) || fourth_ex_art_is_locked(wk))) {
+        if (ex_strength_is_unavailable(wk, ix, j)) {
             return true;
         }
     }
