@@ -147,10 +147,27 @@ static s32 round_is_cpu_controlled(s16 ix) {
     return (Mode_Type != MODE_REPLAY) && (Mode_Type != MODE_VERSUS) && (Round_Operator[ix] == 0);
 }
 
+/* There was something to guard: a grounded defender, not already committed to a
+ * guard, against an attack that can be guarded at all. */
+static s32 attack_was_guardable(const WORK* as, const PLW* ds) {
+    return (ds->guard_flag != 3) && (as->att.guard & 0x3F) && (ds->wu.xyz[1].disp.pos < 2);
+}
+
+/* Not the case of a jumping attack met with a lever direction, which counts as
+ * a deliberate guard even though the defender pressed nothing else. */
+static s32 not_jump_attack_met_with_lever(const WORK* as, const PLW* ds) {
+    return as->work_id != 1 || !as->jump_att_flag || !(ds->cp->sw_new & 0xF);
+}
+
+/* The defender did nothing that amounts to guarding: no guard button, no lever
+ * toward the guard direction, and no guard-capable move armed. */
+static s32 no_guard_input_from(const PLW* ds, s8 gddir) {
+    return (!(ds->cp->sw_new & 1)) && (!(ds->saishin_lvdir & gddir)) &&
+           ((ds->cp->waza_flag[3] + ds->cp->waza_flag[4]) == 0);
+}
+
 static s32 guard_was_not_deliberate(WORK* as, PLW* ds, s8 gddir) {
-    return (ds->guard_flag != 3) && (as->att.guard & 0x3F) && (ds->wu.xyz[1].disp.pos < 2) &&
-           (as->work_id != 1 || !as->jump_att_flag || !(ds->cp->sw_new & 0xF)) && (!(ds->cp->sw_new & 1)) &&
-           (!(ds->saishin_lvdir & gddir)) && ((ds->cp->waza_flag[3] + ds->cp->waza_flag[4]) == 0);
+    return attack_was_guardable(as, ds) && not_jump_attack_met_with_lever(as, ds) && no_guard_input_from(ds, gddir);
 }
 
 void grade_check_work_1st_init(s16 ix, s16 ix2) {
