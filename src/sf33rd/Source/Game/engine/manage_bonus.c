@@ -153,17 +153,44 @@ void Game_Manage_12_2() {
     cpExitTask(TASK_PAUSE);
 }
 
+/* The ball stage's final score: the per-ball total, a perfect bonus for each
+ * half if it was earned, and the running score, clamped at the display's
+ * maximum. */
+static u32 ball_stage_final_score(void) {
+    u32 xx = Bonus_Game_result * 1000;
+
+    if (Stock_Bonus_Game_Result >= 20) {
+        xx += Ball_Perfect_PTS[0][Bonus_Stage_Level];
+    }
+
+    if (Bonus_Game_ex_result >= 20) {
+        xx += Ball_Perfect_PTS[1][Bonus_Stage_Level];
+    }
+
+    xx += Score[Player_id][0];
+
+    if (xx >= 99999900) {
+        xx = 99999900;
+    }
+
+    return xx;
+}
+
+/* Put the result message and its two effects on screen once the cut has run. */
+static void announce_bonus_result(void) {
+    if (Cut_Cut_C_Timer() == 0) {
+        C_No[2]++;
+        C_Timer = 10;
+        request_center_message(4);
+        effect_58_init(6, 1, 155);
+        effect_58_init(6, 60, 156);
+    }
+}
+
 void Game_Manage_12_3() {
     switch (C_No[2]) {
     case 0:
-        if (Cut_Cut_C_Timer() == 0) {
-            C_No[2]++;
-            C_Timer = 10;
-            request_center_message(4);
-            effect_58_init(6, 1, 155);
-            effect_58_init(6, 60, 156);
-        }
-
+        announce_bonus_result();
         break;
 
     case 1:
@@ -542,23 +569,7 @@ u32 Setup_Final_Score(s16 Type) {
     u32 xx;
 
     if (Type == 21) {
-        xx = Bonus_Game_result * 1000;
-
-        if (Stock_Bonus_Game_Result >= 20) {
-            xx += Ball_Perfect_PTS[0][Bonus_Stage_Level];
-        }
-
-        if (Bonus_Game_ex_result >= 20) {
-            xx += Ball_Perfect_PTS[1][Bonus_Stage_Level];
-        }
-
-        xx += Score[Player_id][0];
-
-        if (xx >= 99999900) {
-            xx = 99999900;
-        }
-
-        return xx;
+        return ball_stage_final_score();
     }
 
     switch (Bonus_Game_result) {
