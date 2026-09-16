@@ -42,6 +42,40 @@ Reading `src/platform/netplay/netplay_stress.c`:
 So it exercises the fight loop: movement, normals, guard, hit detection, damage, stun,
 gauges, throws, and round end.
 
+## What it costs, and how often to run it
+
+Measured on an 8-core M-series Mac, with the baseline worktree and build cached
+(`replay_verify.sh` only rebuilds the baseline when the ref actually moves):
+
+| Run | Wall clock | Saved states compared |
+| --- | --- | --- |
+| 8 seeds x 600 frames | **22 s** | ~10,100 |
+| 8 seeds x 1200 frames (default) | **~35 s** | ~15,000 |
+| 12 seeds x 1800 frames | **91 s** | ~29,000 |
+| 30 seeds x 3600 frames | **~8 min** | ~126,000 |
+
+`compare_stress_replays.py` runs the seeds concurrently (`--jobs`, defaulting to one
+per CPU). The runs are independent processes writing to separate directories, so this
+changes wall-clock time only, never the traces. Before this, the same work ran serially
+and 12 x 1800 took six minutes rather than ninety seconds.
+
+**Widen the seeds, not the frames.** Seeds parallelise; frames do not. Doubling the
+seed count is close to free until the cores run out, while doubling the frames doubles
+the critical path. Seed diversity is also the better buy for finding a refactoring bug:
+a mis-extracted branch either gets exercised in the first few hundred frames or is not
+reached at all, whereas a longer run mostly revisits states it has already covered.
+
+The resulting cadence:
+
+- **Per commit: the default `tools/replay_verify.sh origin/main`** (8 x 1200, ~35 s).
+  Cheap enough to run on every commit, which is the point - a divergence caught here
+  is one commit wide and reverts cleanly.
+- **Before a PR: `tools/replay_verify.sh origin/main 30 3600`** (~8 min).
+
+If a wide run ever does diverge on a batch that passed its per-commit gates, bisect
+with the same tool: the seed and frame are reported, and every commit is reachable as
+a worktree.
+
 ## What it does not cover
 
 This is the part that matters, and it is why replay verification **supplements**

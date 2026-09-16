@@ -4,13 +4,18 @@
 #
 #   tools/replay_verify.sh <baseline-ref> [seeds] [frames]
 #
+# The defaults are the per-commit gate: 8 seeds x 1200 frames, about 35s once
+# the baseline build is cached. Seeds run in parallel, so widening the seed
+# count is much cheaper than lengthening the runs - prefer more seeds.
+# Before opening a PR, run the wide gate: tools/replay_verify.sh origin/main 30 3600
+#
 # Needs no ROM. Builds both sides Debug, because --stress lives behind
 # NETPLAY_ENABLED and only the Debug configuration defines it.
 set -euo pipefail
 
 BASELINE="${1:-origin/main}"
-SEEDS="${2:-12}"
-FRAMES="${3:-1800}"
+SEEDS="${2:-8}"
+FRAMES="${3:-1200}"
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 WORK="${TMPDIR:-/tmp}/3sx-replay-verify"
