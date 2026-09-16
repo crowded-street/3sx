@@ -130,6 +130,19 @@ static void resolve_tame_flag_or_reset_timer() {
     }
 }
 
+/* check_1's charge step for a masked lever. Unlike the 0x8000 arm above it,
+ * the countdown itself is skipped once the flag is set - that is the original's
+ * shape, not a simplification of it. */
+static void charge_until_tame_flag_set(void) {
+    if (!waza_ptr->uni0.tame.flag) {
+        waza_ptr->free1--;
+
+        if (waza_ptr->free1 < 0) {
+            waza_ptr->uni0.tame.flag = 1;
+        }
+    }
+}
+
 void check_1() { // 🟢
     if (dead_lvr_check()) {
         return;
@@ -149,13 +162,7 @@ void check_1() { // 🟢
         }
     } else {
         if (sw_work & chk_pl->sw_lever) {
-            if (!waza_ptr->uni0.tame.flag) {
-                waza_ptr->free1--;
-
-                if (waza_ptr->free1 < 0) {
-                    waza_ptr->uni0.tame.flag = 1;
-                }
-            }
+            charge_until_tame_flag_set();
         } else {
             resolve_tame_flag_or_reset_timer();
         }
