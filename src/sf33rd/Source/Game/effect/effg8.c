@@ -16,6 +16,47 @@
 
 const s32 effg8_sp_tbl[28][4];
 
+static void effg8_spawn(WORK_Other* ewk) {
+    ewk->wu.routine_no[0] += 1;
+    ewk->wu.disp_flag = 0;
+    ewk->wu.my_mr_flag = 1;
+    ewk->wu.my_mr.size.x = 0;
+    ewk->wu.my_mr.size.y = 0;
+    set_char_move_init(&ewk->wu, 0, 17);
+    ewk->wu.old_rno[3] = random_16();
+    ewk->wu.old_rno[0] = 192;
+    ewk->wu.old_rno[1] = 128;
+    ewk->wu.xyz[0].disp.pos = ewk->wu.old_rno[0];
+    ewk->wu.xyz[1].disp.pos = ewk->wu.old_rno[1];
+    ewk->wu.mvxy.a[0].sp = effg8_sp_tbl[ewk->wu.old_rno[2]][0];
+    ewk->wu.mvxy.d[0].sp = effg8_sp_tbl[ewk->wu.old_rno[2]][1];
+    ewk->wu.mvxy.a[1].sp = effg8_sp_tbl[ewk->wu.old_rno[2]][2];
+    ewk->wu.mvxy.d[1].sp = effg8_sp_tbl[ewk->wu.old_rno[2]][3];
+}
+
+static void effg8_grow(WORK_Other* ewk) {
+    ewk->wu.my_mr.size.x += 2;
+    ewk->wu.my_mr.size.y += 2;
+
+    if (ewk->wu.my_mr.size.x >= 63) {
+        ewk->wu.routine_no[0] += 1;
+    }
+}
+
+static void effg8_drift(WORK_Other* ewk) {
+    add_x_sub(&ewk->wu);
+    add_y_sub(&ewk->wu);
+
+    if (effg8_range_check(ewk)) {
+        ewk->wu.routine_no[0] = 99;
+        return;
+    }
+
+    ewk->wu.position_x = (ewk->wu.xyz[0].disp.pos & 0xFFFF);
+    ewk->wu.position_y = (ewk->wu.xyz[1].disp.pos & 0xFFFF);
+    sort_push_request4(&ewk->wu);
+}
+
 void effect_G8_move(WORK_Other* ewk) {
     if (!akebono_flag) {
         ewk->wu.routine_no[0] = 99;
@@ -23,21 +64,7 @@ void effect_G8_move(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0] += 1;
-        ewk->wu.disp_flag = 0;
-        ewk->wu.my_mr_flag = 1;
-        ewk->wu.my_mr.size.x = 0;
-        ewk->wu.my_mr.size.y = 0;
-        set_char_move_init(&ewk->wu, 0, 17);
-        ewk->wu.old_rno[3] = random_16();
-        ewk->wu.old_rno[0] = 192;
-        ewk->wu.old_rno[1] = 128;
-        ewk->wu.xyz[0].disp.pos = ewk->wu.old_rno[0];
-        ewk->wu.xyz[1].disp.pos = ewk->wu.old_rno[1];
-        ewk->wu.mvxy.a[0].sp = effg8_sp_tbl[ewk->wu.old_rno[2]][0];
-        ewk->wu.mvxy.d[0].sp = effg8_sp_tbl[ewk->wu.old_rno[2]][1];
-        ewk->wu.mvxy.a[1].sp = effg8_sp_tbl[ewk->wu.old_rno[2]][2];
-        ewk->wu.mvxy.d[1].sp = effg8_sp_tbl[ewk->wu.old_rno[2]][3];
+        effg8_spawn(ewk);
         break;
 
     case 1:
@@ -52,27 +79,11 @@ void effect_G8_move(WORK_Other* ewk) {
         /* fallthrough */
 
     case 2:
-        ewk->wu.my_mr.size.x += 2;
-        ewk->wu.my_mr.size.y += 2;
-
-        if (ewk->wu.my_mr.size.x >= 63) {
-            ewk->wu.routine_no[0] += 1;
-        }
-
+        effg8_grow(ewk);
         /* fallthrough */
 
     case 3:
-        add_x_sub(&ewk->wu);
-        add_y_sub(&ewk->wu);
-
-        if (effg8_range_check(ewk)) {
-            ewk->wu.routine_no[0] = 99;
-            break;
-        }
-
-        ewk->wu.position_x = (ewk->wu.xyz[0].disp.pos & 0xFFFF);
-        ewk->wu.position_y = (ewk->wu.xyz[1].disp.pos & 0xFFFF);
-        sort_push_request4(&ewk->wu);
+        effg8_drift(ewk);
         break;
 
     default:
