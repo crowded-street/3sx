@@ -424,29 +424,23 @@ const s16** kizetsu_timer_table[9] = { tsuujyou_dageki,   hissatsu_dageki,   tsu
                                        hissatsu_nage,     super_arts_dageki, super_arts_nage,
                                        super_arts_dageki, super_arts_nage,   super_arts_dageki };
 
-void Player_control() { // 🟡 This func lacks the trailing part of its CPS3 counterpart
-    pulpul_scene = 1;
-
-    if (pcon_rno[0] + pcon_rno[1] != 0) {
-        if (Game_pause || EXE_flag) {
-            goto end;
-        } else {
-            if (!pcon_dp_flag) {
-                if (--vital_inc_timer > 50) {
-                    vital_inc_timer = 50;
-                }
-
-                if (--vital_dec_timer > 40) {
-                    vital_dec_timer = 40;
-                }
-            } else {
-                vital_inc_timer = 50;
-                vital_dec_timer = 40;
-                sag_inc_timer[0] = sag_inc_timer[1] = 20;
-            }
+static void update_vital_timers(void) {
+    if (!pcon_dp_flag) {
+        if (--vital_inc_timer > 50) {
+            vital_inc_timer = 50;
         }
-    }
 
+        if (--vital_dec_timer > 40) {
+            vital_dec_timer = 40;
+        }
+    } else {
+        vital_inc_timer = 50;
+        vital_dec_timer = 40;
+        sag_inc_timer[0] = sag_inc_timer[1] = 20;
+    }
+}
+
+static void run_player_frame(void) {
     players_timer++;
     players_timer &= 0x7FFF;
     set_scrrrl();
@@ -467,6 +461,20 @@ void Player_control() { // 🟡 This func lacks the trailing part of its CPS3 co
     add_next_position(&plw[0]);
     add_next_position(&plw[1]);
     check_cg_zoom();
+}
+
+void Player_control() { // 🟡 This func lacks the trailing part of its CPS3 counterpart
+    pulpul_scene = 1;
+
+    if (pcon_rno[0] + pcon_rno[1] != 0) {
+        if (Game_pause || EXE_flag) {
+            goto end;
+        } else {
+            update_vital_timers();
+        }
+    }
+
+    run_player_frame();
 
 end:
     if (Game_pause != 0x81) {
