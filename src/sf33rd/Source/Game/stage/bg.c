@@ -1233,12 +1233,16 @@ void bgDrawOneScreen(s32 bgnum, s32 gixbase, s32* xx, s32* yy, s32 /* unused */,
     }
 }
 
+static bool is_bg_chip_outside_screen() {
+    return (scrDrawPos->x >= 384.0f) || (scrDrawPos[3].x < 0.0f) || (scrDrawPos->y >= 224.0f) ||
+           (scrDrawPos[3].y < 0.0f);
+}
+
 void bgDrawOneChip(s32 x, s32 y, s32 xs, s32 ys, s32 gbix, u32 vtxCol, s32 ofsPal) {
     if ((No_Trans == 0) && ppgCheckTextureNumber(0, gbix)) {
         ppgCalScrPosition(x, y, xs, ys);
 
-        if ((scrDrawPos->x >= 384.0f) || (scrDrawPos[3].x < 0.0f) || (scrDrawPos->y >= 224.0f) ||
-            (scrDrawPos[3].y < 0.0f)) {
+        if (is_bg_chip_outside_screen()) {
             return;
         }
 
