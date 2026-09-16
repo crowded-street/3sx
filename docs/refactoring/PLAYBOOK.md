@@ -410,6 +410,22 @@ Recipe X both refuse to merge.
 | `com_sub_command_term.c` | 9.09 | two pairs of airborne twins, one state number apart |
 | `eff09.c` | 8.54 | five near-miss pairs; `adjust_sean_ball_left`/`_right` differ in five values |
 | `eff09_animation.c`, `eff09_endgame.c`, `eff09_late.c` | 8.81 | the same near-miss family |
+| `eff02.c` | 9.06 | near-miss siblings |
+| `eff55.c` | 9.42 | the rise and the fall differ in three values; splitting the states exposes it, -0.33 |
+| `eff68.c` | 9.09 | five waypoint steps differing in their timers and targets; sharing their identical runs leaves the smell unmoved |
+| `eff78.c` | 9.55 | `crow_flap` and `crow_take_off` differ in five values; splitting `crow_fuss_move` exposes it, -0.17 |
+| `eff93.c` | 9.38 | the two slide-outs differ only in a comparison operator, which may not be parameterised |
+| `effa2.c` | 9.34 | every state returns past a shared tail, so no state can move to a helper without a 0/1 protocol per arm |
+| `effa9.c` | 9.16 | near-miss siblings |
+| `effb5.c` | 9.58 | `goto case_1` jumps from state 2 into the middle of state 1 |
+| `effd1.c` | 9.92 | `fall_data_set`'s two mirrored aiming arms - see the rule below |
+| `effe9.c` | 9.92 | `effe9_panel_shape`'s two mirrored arms - see the rule below |
+| `eff09_init.c` | 9.68 | ten case labels left after one split; a second split makes three dispatchers that read as duplicates, -0.30 |
+| `eff11.c` | 9.13 | near-miss siblings |
+| `effg6.c`, `eff00.c` | 9.21-9.22 | near-miss siblings |
+| `effect.c` | 9.38 | four functions whose two arms walk the same list in mirror - see the rule below |
+| `efff6.c` | 9.09 | near-miss siblings |
+| `effm2.c` | 9.53 | the two cat routines' dispatchers read as duplicates once their states are named |
 
 ---
 
@@ -540,6 +556,34 @@ a defect introduced by it.** So:
   against 0.87 of score - keep the higher score and record the file as plateaued.
 - Never "fix" sibling similarity by merging two state machines that differ only in their
   state numbering. That needs a literal change and is forbidden.
+
+### Two mirrored arms are cheaper left together
+
+The commonest remaining smell in this codebase is a Bumpy Road whose two bumps are the
+arms of one `if (rl_flag)` - the same statements written once for each facing, differing
+in a sign, an offset or a comparison. Extracting each arm into its own helper clears the
+Bumpy Road and is perfectly legal. It also **costs between 0.2 and 0.6**, every time,
+because the two helpers are then near-identical functions and the duplication detector
+prices that above the nesting removed.
+
+Measured this way: `effd1.c` 9.92 -> 9.38, `effe9.c` 9.92 -> 9.38, `effl7.c` 9.61 -> 9.09,
+`effect.c` 9.38 -> 9.16.
+
+So: leave a mirrored pair inline and record the file as plateaued. The move is still worth
+trying once on a file where the two arms are *not* mirrors - where they do genuinely
+different work - and there it usually pays.
+
+### Overall Code Complexity is a whole-file average
+
+`Overall Code Complexity` is the mean cyclomatic complexity over every function in the
+file, so it moves when you add a function, not only when you change one. A single
+extraction can clear `Complex Method` on the function you targeted and trip
+`Overall Code Complexity` for the file, leaving the score lower than before - `effl7.c`
+measured 9.61, then 9.31 after one extraction, then 10.00 after three.
+
+When a file shows `Overall Code Complexity`, measure the *set* of extractions together
+rather than reverting the first one that looks like a loss. Say so in the commit message
+when that is why several extractions share a commit.
 
 ---
 
