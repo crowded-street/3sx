@@ -431,6 +431,37 @@ void Damage_16000(PLW* wk) {
     }
 }
 
+/* The airborne part of state 17: the flight itself, the landing, the pause
+ * counter, and the auto air recovery that hands the work to state 23. */
+static void fly_damage_17000(PLW* wk) {
+    jumping_union_process(&wk->wu, 3);
+    set_dm_hos_flag_sky(wk);
+
+    if (wk->wu.cg_ja.boix == 0) {
+        wk->guard_flag = 0;
+    }
+
+    if (wk->wu.routine_no[3] == 3) {
+        wk->guard_flag = 0;
+        wk->tsukamarenai_flag = 7;
+        combo_rp_clear_check(wk->wu.id);
+        return;
+    }
+
+    if (wk->wu.cmwk[14] > 0 && --wk->wu.cmwk[14] == 0) {
+        char_move_wca(&wk->wu);
+    }
+
+    if (!(wk->spmv_ng_flag & DIP_AUTO_AIR_RECOVERY_DISABLED) && wk->wu.mvxy.a[1].real.h < -2) {
+        wk->wu.routine_no[1] = 0;
+        wk->wu.routine_no[2] = 23;
+        wk->wu.routine_no[3] = 1;
+        exset_char_move_init(&wk->wu, wk->wu.now_koc, dm17_to_nm23_change[wk->player_number]);
+    }
+
+    wk->tsukamarenai_flag = 7;
+}
+
 void Damage_17000(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -451,32 +482,7 @@ void Damage_17000(PLW* wk) {
         /* fallthrough */
 
     case 2:
-        jumping_union_process(&wk->wu, 3);
-        set_dm_hos_flag_sky(wk);
-
-        if (wk->wu.cg_ja.boix == 0) {
-            wk->guard_flag = 0;
-        }
-
-        if (wk->wu.routine_no[3] == 3) {
-            wk->guard_flag = 0;
-            wk->tsukamarenai_flag = 7;
-            combo_rp_clear_check(wk->wu.id);
-            break;
-        }
-
-        if (wk->wu.cmwk[14] > 0 && --wk->wu.cmwk[14] == 0) {
-            char_move_wca(&wk->wu);
-        }
-
-        if (!(wk->spmv_ng_flag & DIP_AUTO_AIR_RECOVERY_DISABLED) && wk->wu.mvxy.a[1].real.h < -2) {
-            wk->wu.routine_no[1] = 0;
-            wk->wu.routine_no[2] = 23;
-            wk->wu.routine_no[3] = 1;
-            exset_char_move_init(&wk->wu, wk->wu.now_koc, dm17_to_nm23_change[wk->player_number]);
-        }
-
-        wk->tsukamarenai_flag = 7;
+        fly_damage_17000(wk);
         break;
 
     case 3:
