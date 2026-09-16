@@ -75,9 +75,37 @@ static s32 game_is_active(void) {
 }
 
 
-void effect_22_move(WORK_Other* ewk) {
+/* Put the flake back at the top with the next speed set from the table. The
+ * four speeds are read in order through a walking pointer, and the set index
+ * cycles through four. */
+static void e22_respawn_flake(WORK_Other* ewk) {
     const s32* ptr;
 
+    ewk->wu.routine_no[0]++;
+    ptr = &snow_sp[ewk->wu.old_rno[0]][ewk->wu.type][0];
+    ewk->wu.mvxy.a[0].sp = *ptr++;
+    ewk->wu.mvxy.d[0].sp = *ptr++;
+    ewk->wu.mvxy.a[1].sp = *ptr++;
+    ewk->wu.mvxy.d[1].sp = *ptr++;
+    ewk->wu.xyz[0].disp.pos = snow_pos_tbl[ewk->wu.type][0];
+    ewk->wu.xyz[1].disp.pos = snow_pos_tbl[ewk->wu.type][1];
+    ewk->wu.old_rno[0]++;
+    ewk->wu.old_rno[0] &= 3;
+}
+
+/* Fall until the flake reaches the bottom, then send it back for a respawn. */
+static void e22_fall(WORK_Other* ewk) {
+    if (game_is_active()) {
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
+
+        if (ewk->wu.xyz[1].disp.pos <= 23) {
+            ewk->wu.routine_no[0] = 1;
+        }
+    }
+}
+
+void effect_22_move(WORK_Other* ewk) {
     if (obr_no_disp_check()) {
         return;
     }
@@ -98,28 +126,11 @@ void effect_22_move(WORK_Other* ewk) {
         /* fallthrough */
 
     case 1:
-        ewk->wu.routine_no[0]++;
-        ptr = &snow_sp[ewk->wu.old_rno[0]][ewk->wu.type][0];
-        ewk->wu.mvxy.a[0].sp = *ptr++;
-        ewk->wu.mvxy.d[0].sp = *ptr++;
-        ewk->wu.mvxy.a[1].sp = *ptr++;
-        ewk->wu.mvxy.d[1].sp = *ptr++;
-        ewk->wu.xyz[0].disp.pos = snow_pos_tbl[ewk->wu.type][0];
-        ewk->wu.xyz[1].disp.pos = snow_pos_tbl[ewk->wu.type][1];
-        ewk->wu.old_rno[0]++;
-        ewk->wu.old_rno[0] &= 3;
+        e22_respawn_flake(ewk);
         break;
 
     case 2:
-if (game_is_active()) {
-            add_x_sub(&ewk->wu);
-            add_y_sub(&ewk->wu);
-
-            if (ewk->wu.xyz[1].disp.pos <= 23) {
-                ewk->wu.routine_no[0] = 1;
-            }
-        }
-
+        e22_fall(ewk);
         disp_pos_trans_entry_r(ewk);
         break;
 
