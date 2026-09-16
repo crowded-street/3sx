@@ -235,40 +235,32 @@ s32 comm_asxy(WORK* wk, UNK11* ctc) {
     return 1;
 }
 
-s32 comm_schx(WORK* wk, UNK11* ctc) {
+/* comm_schx and comm_schy scale a work's speed by ix/pat; they differ only in
+ * which axis of mvxy they scale. */
+static s32 scale_speed_on_axis(WORK* wk, UNK11* ctc, s32 axis) {
     switch (ctc->koc) {
     case 0:
-        wk->mvxy.a[0].sp = (wk->mvxy.a[0].sp * ctc->ix) / ctc->pat;
+        wk->mvxy.a[axis].sp = (wk->mvxy.a[axis].sp * ctc->ix) / ctc->pat;
         break;
 
     case 2:
-        wk->mvxy.a[0].sp = (wk->mvxy.a[0].sp * ctc->ix) / ctc->pat;
+        wk->mvxy.a[axis].sp = (wk->mvxy.a[axis].sp * ctc->ix) / ctc->pat;
         /* fallthrough */
 
     case 1:
-        wk->mvxy.d[0].sp = (wk->mvxy.d[0].sp * ctc->ix) / ctc->pat;
+        wk->mvxy.d[axis].sp = (wk->mvxy.d[axis].sp * ctc->ix) / ctc->pat;
         break;
     }
 
     return 1;
 }
 
+s32 comm_schx(WORK* wk, UNK11* ctc) {
+    return scale_speed_on_axis(wk, ctc, 0);
+}
+
 s32 comm_schy(WORK* wk, UNK11* ctc) {
-    switch (ctc->koc) {
-    case 0:
-        wk->mvxy.a[1].sp = (wk->mvxy.a[1].sp * ctc->ix) / ctc->pat;
-        break;
-
-    case 2:
-        wk->mvxy.a[1].sp = (wk->mvxy.a[1].sp * ctc->ix) / ctc->pat;
-        /* fallthrough */
-
-    case 1:
-        wk->mvxy.d[1].sp = (wk->mvxy.d[1].sp * ctc->ix) / ctc->pat;
-        break;
-    }
-
-    return 1;
+    return scale_speed_on_axis(wk, ctc, 1);
 }
 
 s32 comm_mvix(WORK* wk, UNK11* ctc) {
