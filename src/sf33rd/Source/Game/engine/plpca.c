@@ -407,42 +407,49 @@ void Catch_08000(PLW* wk) { // 🟢
     }
 }
 
+static void apply_damage_to_vitality(PLW* wk) {
+    if (wk->wu.dm_vital) {
+        Additinal_Score_DM((WORK_Other*)wk->wu.dmg_adrs, wk->wu.dm_ten_ix);
+        add_sp_arts_gauge_hit_dm(wk);
+    }
+
+    // Local extra-option setting 5 intentionally suppresses damage; CPS3 has no equivalent option.
+    if (omop_vital_ix[wk->wu.id] == 5) {
+        wk->wu.dm_vital = 0;
+    }
+
+    wk->wu.vital_new -= wk->wu.dm_vital;
+
+    if (wk->wu.dm_nodeathattack && wk->wu.vital_new < 0) {
+        wk->wu.vital_new = 0;
+    }
+}
+
+static void resolve_death_or_stun(PLW* wk) {
+    if (wk->wu.vital_new < 0) {
+        wk->wu.vital_new = -1;
+        wk->dead_flag = 1;
+        dead_voice_flag = true;
+
+        if (!round_slow_flag) {
+            set_conclusion_slow();
+            round_slow_flag = true;
+        }
+    } else if (wk->py->flag == 0) {
+        wk->py->now.quantity.h += wk->wu.dm_piyo;
+
+        if (wk->py->now.quantity.h >= wk->py->genkai) {
+            wk->py->now.timer = 0;
+            wk->py->flag = 1;
+        }
+    }
+}
+
 void subtract_cu_vital(PLW* wk) { // 🟡
     if (wk->wu.dm_vital != 0) {
         if (wk->dead_flag == 0) {
-            if (wk->wu.dm_vital) {
-                Additinal_Score_DM((WORK_Other*)wk->wu.dmg_adrs, wk->wu.dm_ten_ix);
-                add_sp_arts_gauge_hit_dm(wk);
-            }
-
-            // Local extra-option setting 5 intentionally suppresses damage; CPS3 has no equivalent option.
-            if (omop_vital_ix[wk->wu.id] == 5) {
-                wk->wu.dm_vital = 0;
-            }
-
-            wk->wu.vital_new -= wk->wu.dm_vital;
-
-            if (wk->wu.dm_nodeathattack && wk->wu.vital_new < 0) {
-                wk->wu.vital_new = 0;
-            }
-
-            if (wk->wu.vital_new < 0) {
-                wk->wu.vital_new = -1;
-                wk->dead_flag = 1;
-                dead_voice_flag = true;
-
-                if (!round_slow_flag) {
-                    set_conclusion_slow();
-                    round_slow_flag = true;
-                }
-            } else if (wk->py->flag == 0) {
-                wk->py->now.quantity.h += wk->wu.dm_piyo;
-
-                if (wk->py->now.quantity.h >= wk->py->genkai) {
-                    wk->py->now.timer = 0;
-                    wk->py->flag = 1;
-                }
-            }
+            apply_damage_to_vitality(wk);
+            resolve_death_or_stun(wk);
         }
 
         pp_pulpara_remake_dm_all(&wk->wu); // Port-only controller feedback; CPS3 has no equivalent call.
