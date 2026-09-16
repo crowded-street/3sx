@@ -849,9 +849,10 @@ u16 check_xcopy_filter_se_req(WORK* wk) {
     return voif + 0x600;
 }
 
-void check_cgd_patdat2(WORK* wk) {
+/* The same pattern-type fields as apply_cgd_type_fields, for the second read
+ * path: no step offset and no effect here, so the two are not merged. */
+static void apply_cgd_type_fields2(WORK* wk) {
     ST st;
-    u16* seadrs;
 
     switch (wk->cgd_type) {
     case 6:
@@ -875,6 +876,12 @@ void check_cgd_patdat2(WORK* wk) {
 
         break;
     }
+}
+
+void check_cgd_patdat2(WORK* wk) {
+    u16* seadrs;
+
+    apply_cgd_type_fields2(wk);
 
     wk->cg_jphos = jphos_table[wk->cg_olc_ix & 0xF];
     wk->cg_olc_ix >>= 4;
