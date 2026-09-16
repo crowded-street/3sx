@@ -60,6 +60,35 @@ void stngauge_cont_main() {
     }
 }
 
+static s32 player_is_stunned(u8 pl) {
+    return ((plw[pl].wu.routine_no[1] == 1) && (plw[pl].wu.routine_no[2] == 0x19) &&
+            (plw[pl].wu.routine_no[3] != 0)) ||
+           (plw[pl].py->flag == 1);
+}
+
+static void blink_stun_gauge(u8 pl) {
+    if (sdat[pl].g_or_s == 0) {
+        if (No_Trans == 0) {
+            stun_mark_write(pl, sdat[pl].slen);
+            stun_put(pl, sdat[pl].cstn);
+        }
+
+        if (sdat[pl].stimer == 0) {
+            sdat[pl].g_or_s = 1;
+            sdat[pl].stimer = 2;
+        }
+    } else {
+        if (No_Trans == 0) {
+            stun_put(pl, sdat[pl].cstn);
+        }
+
+        if (sdat[pl].stimer == 0) {
+            sdat[pl].g_or_s = 0;
+            sdat[pl].stimer = 2;
+        }
+    }
+}
+
 void stngauge_control(u8 pl) {
     if (!sdat[pl].proccess_dead) {
         if (plw[pl].dead_flag) {
@@ -68,9 +97,7 @@ void stngauge_control(u8 pl) {
             return;
         }
 
-        if (((plw[pl].wu.routine_no[1] == 1) && (plw[pl].wu.routine_no[2] == 0x19) &&
-             (plw[pl].wu.routine_no[3] != 0)) ||
-            (plw[pl].py->flag == 1)) {
+        if (player_is_stunned(pl)) {
             sdat[pl].sflag = 1;
 
             if (sdat[pl].osflag == 0) {
@@ -81,26 +108,7 @@ void stngauge_control(u8 pl) {
                 sdat[pl].stimer--;
             }
 
-            if (sdat[pl].g_or_s == 0) {
-                if (No_Trans == 0) {
-                    stun_mark_write(pl, sdat[pl].slen);
-                    stun_put(pl, sdat[pl].cstn);
-                }
-
-                if (sdat[pl].stimer == 0) {
-                    sdat[pl].g_or_s = 1;
-                    sdat[pl].stimer = 2;
-                }
-            } else {
-                if (No_Trans == 0) {
-                    stun_put(pl, sdat[pl].cstn);
-                }
-
-                if (sdat[pl].stimer == 0) {
-                    sdat[pl].g_or_s = 0;
-                    sdat[pl].stimer = 2;
-                }
-            }
+            blink_stun_gauge(pl);
 
             sdat[pl].osflag = sdat[pl].sflag;
             return;
