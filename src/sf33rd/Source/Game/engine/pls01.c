@@ -704,38 +704,35 @@ s32 check_hurimuki(WORK* wk) { // 🟢
     return 1;
 }
 
-s16 check_walking_lv_dir(PLW* wk) { // 🟢
-    s16 rnum = 0;
-
+static s16 walk_dir_needs_restart(PLW* wk) {
     switch (wk->cp->lever_dir) {
     case 1:
-        if (wk->wu.routine_no[2] != 3) {
-            rnum = 1;
-        }
-
-        break;
+        return wk->wu.routine_no[2] != 3;
 
     case 2:
-        if (wk->wu.routine_no[2] != 4) {
-            rnum = 1;
-        }
-
-        break;
+        return wk->wu.routine_no[2] != 4;
 
     default:
-        rnum = 1;
-        break;
+        return 1;
+    }
+}
+
+static void begin_walking(PLW* wk) {
+    if (wk->wu.pat_status < 32) {
+        wk->wu.routine_no[2] = 1;
+    } else {
+        wk->wu.routine_no[2] = 9;
     }
 
-    if (rnum) {
-        if (wk->wu.pat_status < 32) {
-            wk->wu.routine_no[2] = 1;
-        } else {
-            wk->wu.routine_no[2] = 9;
-        }
+    wk->wu.routine_no[1] = 0;
+    wk->wu.routine_no[3] = 0;
+}
 
-        wk->wu.routine_no[1] = 0;
-        wk->wu.routine_no[3] = 0;
+s16 check_walking_lv_dir(PLW* wk) { // 🟢
+    s16 rnum = walk_dir_needs_restart(wk);
+
+    if (rnum) {
+        begin_walking(wk);
     }
 
     return rnum;
