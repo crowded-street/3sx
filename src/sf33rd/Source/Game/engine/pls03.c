@@ -141,6 +141,17 @@ static s32 grounded_slot_is_skipped(PLW* wk, s16 i) {
 /* The four button strengths of one grounded special slot, strongest first. The
  * mirror of try_airborne_special_strengths; the two differ in which DIP switch
  * they read and in both table offsets, so they are not merged. */
+/* Whether this button strength must be passed over. The fourth strength is the
+ * EX slot and has its own gate; the other three only check the DIP switch. The
+ * sense stays negative, as the original's two `continue`s had it. */
+static s32 ground_strength_is_blocked(PLW* wk, s16 i, s16 j) {
+    if (j == 3) {
+        return !ex_slot_is_allowed(wk, i, DIP_GROUND_SPECIALS_DISABLED);
+    }
+
+    return wk->spmv_ng_flag & DIP_GROUND_SPECIALS_DISABLED;
+}
+
 static s32 try_grounded_special_strengths(PLW* wk, s16 i, u16 cusw) {
     s16 j;
     u16 exsw;
@@ -152,11 +163,7 @@ static s32 try_grounded_special_strengths(PLW* wk, s16 i, u16 cusw) {
             continue;
         }
 
-        if (j == 3) {
-            if (!ex_slot_is_allowed(wk, i, DIP_GROUND_SPECIALS_DISABLED)) {
-                continue;
-            }
-        } else if (wk->spmv_ng_flag & DIP_GROUND_SPECIALS_DISABLED) {
+        if (ground_strength_is_blocked(wk, i, j)) {
             continue;
         }
 
@@ -222,6 +229,17 @@ static s32 airborne_slot_is_skipped(const PLW* wk, s16 i) {
  * check_special_attack_grounded keeps its own copy of this loop. The two differ
  * in which DIP switch they read and in both table offsets, so sharing would mean
  * changing literals, and extracting from both would only create a twin pair. */
+/* Whether this button strength must be passed over. The fourth strength is the
+ * EX slot and has its own gate; the other three only check the DIP switch. The
+ * sense stays negative, as the original's two `continue`s had it. */
+static s32 air_strength_is_blocked(PLW* wk, s16 i, s16 j) {
+    if (j == 3) {
+        return !ex_slot_is_allowed(wk, i, DIP_AIR_SPECIALS_DISABLED);
+    }
+
+    return wk->spmv_ng_flag & DIP_AIR_SPECIALS_DISABLED;
+}
+
 static s32 try_airborne_special_strengths(PLW* wk, s16 i, u16 cusw) {
     s16 j;
     u16 exsw;
@@ -233,11 +251,7 @@ static s32 try_airborne_special_strengths(PLW* wk, s16 i, u16 cusw) {
             continue;
         }
 
-        if (j == 3) {
-            if (!ex_slot_is_allowed(wk, i, DIP_AIR_SPECIALS_DISABLED)) {
-                continue;
-            }
-        } else if (wk->spmv_ng_flag & DIP_AIR_SPECIALS_DISABLED) {
+        if (air_strength_is_blocked(wk, i, j)) {
             continue;
         }
 
