@@ -156,6 +156,35 @@ void Damage_04000(PLW* wk) {
         break;
     }
 }
+/* Holding the guard: the block animation runs down a counter. Landing hands
+ * the work to state 5, and the counter running out to state 38. */
+static void hold_guard_07000(PLW* wk) {
+    jumping_union_process(&wk->wu, 3);
+    set_dm_hos_flag_grd(wk);
+    add_dm_step_tbl(wk, 0);
+    wk->wu.cmwk[14]--;
+
+    if (wk->wu.routine_no[3] == 3) {
+        if (wk->wu.cmwk[14] <= 0) {
+            wk->wu.cmwk[14] = 1;
+        }
+
+        wk->wu.routine_no[2] = 5;
+        wk->wu.routine_no[3] = 2;
+        setup_smoke_type(wk);
+        return;
+    }
+
+    if (wk->wu.cmwk[14] <= 0) {
+        wk->wu.routine_no[1] = 0;
+        wk->wu.routine_no[2] = 38;
+        wk->wu.routine_no[3] = 1;
+        wk->wu.cg_type = 0;
+        wk->wu.cg_next_ix = 0;
+        char_move_wca(&wk->wu);
+    }
+}
+
 void Damage_07000(PLW* wk) {
     wk->guard_flag = 0;
     wk->guard_chuu = guard_kind[wk->wu.routine_no[2] - 4];
@@ -192,31 +221,7 @@ void Damage_07000(PLW* wk) {
         /* fallthrough */
 
     case 2:
-        jumping_union_process(&wk->wu, 3);
-        set_dm_hos_flag_grd(wk);
-        add_dm_step_tbl(wk, 0);
-        wk->wu.cmwk[14]--;
-
-        if (wk->wu.routine_no[3] == 3) {
-            if (wk->wu.cmwk[14] <= 0) {
-                wk->wu.cmwk[14] = 1;
-            }
-
-            wk->wu.routine_no[2] = 5;
-            wk->wu.routine_no[3] = 2;
-            setup_smoke_type(wk);
-            break;
-        }
-
-        if (wk->wu.cmwk[14] <= 0) {
-            wk->wu.routine_no[1] = 0;
-            wk->wu.routine_no[2] = 38;
-            wk->wu.routine_no[3] = 1;
-            wk->wu.cg_type = 0;
-            wk->wu.cg_next_ix = 0;
-            char_move_wca(&wk->wu);
-        }
-
+        hold_guard_07000(wk);
         break;
 
     case 3:
