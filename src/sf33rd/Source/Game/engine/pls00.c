@@ -166,32 +166,38 @@ void process_attack(PLW* wk) { // 🟢
     }
 }
 
-static void apply_special_move_cancel_mask(PLW* wk) {
-    if (wk->wu.routine_no[1] == 4) {
-        switch (wk->player_number) {
-        case CHAR_IBUKI:
-            if (wk->wu.routine_no[2] != 25 && !(wk->wu.kind_of_waza & 0xF8)) {
-                wk->wu.cg_cancel &= 0x9F;
-            }
-
-            break;
-
-        case CHAR_TWELVE:
-            if (wk->wu.routine_no[2] != 17 && !(wk->wu.kind_of_waza & 0xF8)) {
-                wk->wu.cg_cancel &= 0x9F;
-            }
-
-            break;
-
-        default:
-            if (!(wk->wu.kind_of_waza & 0xF8)) {
-                wk->wu.cg_cancel &= 0x9F;
-            }
-
-            break;
-        }
-    } else if (!(wk->wu.kind_of_waza & 0xF8)) {
+/* A normal loses its super-art cancel bits. A move that is already a special
+ * keeps them, which is what the kind_of_waza test asks. */
+static void clear_sa_cancel_bits(PLW* wk) {
+    if (!(wk->wu.kind_of_waza & 0xF8)) {
         wk->wu.cg_cancel &= 0x9F;
+    }
+}
+
+static void apply_special_move_cancel_mask(PLW* wk) {
+    if (wk->wu.routine_no[1] != 4) {
+        clear_sa_cancel_bits(wk);
+        return;
+    }
+
+    switch (wk->player_number) {
+    case CHAR_IBUKI:
+        if (wk->wu.routine_no[2] != 25) {
+            clear_sa_cancel_bits(wk);
+        }
+
+        break;
+
+    case CHAR_TWELVE:
+        if (wk->wu.routine_no[2] != 17) {
+            clear_sa_cancel_bits(wk);
+        }
+
+        break;
+
+    default:
+        clear_sa_cancel_bits(wk);
+        break;
     }
 }
 
