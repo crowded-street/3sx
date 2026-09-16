@@ -329,26 +329,34 @@ s32 paring_check(s8 PL) { // 🟢
     return 0;
 }
 
+/* The first art slot that was used decides the record kind: a finished super art
+ * scores a bonus that depends on which half of the table the slot came from,
+ * and anything else is an ordinary special combo. Both of the original's
+ * `return`s left hit_combo_check with nothing after them. */
+static void push_combo_for_used_art(s8 PL, s8 lpx) {
+    if (arts_finish_check(PL)) {
+        if (lpx < 8) {
+            bonus_pts[PL] += 2;
+            sa_kind = 2;
+        } else {
+            bonus_pts[PL] += 3;
+            sa_kind = 3;
+        }
+
+        combo_window_push(PL, 2);
+        return;
+    }
+
+    combo_window_push(PL, 1);
+}
+
 void hit_combo_check(s8 PL) { // 🟢
     s32* sa_ptr = (s32*)plw[PL].cb->kind_of[4][0];
     s8 lpx;
 
     for (lpx = 0; lpx < 20; lpx++) {
         if (!(*sa_ptr++ == 0)) {
-            if (arts_finish_check(PL)) {
-                if (lpx < 8) {
-                    bonus_pts[PL] += 2;
-                    sa_kind = 2;
-                } else {
-                    bonus_pts[PL] += 3;
-                    sa_kind = 3;
-                }
-
-                combo_window_push(PL, 2);
-                return;
-            }
-
-            combo_window_push(PL, 1);
+            push_combo_for_used_art(PL, lpx);
             return;
         }
     }
