@@ -843,6 +843,16 @@ void settle_type_10000() {
     }
 }
 
+/* Both players have stopped moving. */
+static s32 both_players_settled() {
+    return footwork_check(0) && footwork_check(1);
+}
+
+/* Both players have reached the end of their end-of-round routine. */
+static s32 both_end_routines_finished() {
+    return (plw[0].wu.routine_no[3] == 9) && (plw[1].wu.routine_no[3] == 9);
+}
+
 /* A timeout: equal health is a draw and goes to its own state, otherwise both
  * sides go into their end-of-round routines. */
 static void settle_timeout_result() {
@@ -871,7 +881,7 @@ void settle_type_20000() {
         /* fallthrough */
 
     case 1:
-        if (footwork_check(0) && footwork_check(1)) {
+        if (both_players_settled()) {
             pcon_rno[2]++;
         }
 
@@ -882,7 +892,7 @@ void settle_type_20000() {
         break;
 
     case 3:
-        if ((plw[0].wu.routine_no[3] == 9) && (plw[1].wu.routine_no[3] == 9)) {
+        if (both_end_routines_finished()) {
             pcon_rno[2]++;
         }
 
