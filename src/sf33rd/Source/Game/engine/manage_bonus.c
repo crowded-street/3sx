@@ -425,41 +425,74 @@ void Game_Manage_12_7() {
     effect_58_init(6, 10, 169);
 }
 
+/* The car stage's result intro: spawn the banner, wait for it, then hold.
+ * Moved out whole, so the inner switch keeps its own labels and `break`s. */
+static void run_car_result_intro(void) {
+    switch (C_No[3]) {
+    case 0:
+        Next_Step = 0;
+
+        if (effect_35_init(60, 10) == 0) {
+            C_No[3]++;
+        }
+
+        break;
+
+    case 1:
+        if (Next_Step) {
+            C_No[3]++;
+            C_Timer = 20;
+        }
+
+        break;
+
+    case 2:
+        if (C_Timer < 11 && Scene_Cut) {
+            C_Timer = 1;
+        }
+
+        if (--C_Timer == 0) {
+            C_No[2]++;
+            C_No[3] = 0;
+            C_Timer = 30;
+        }
+
+        break;
+    }
+}
+
+/* A thousand points, the running total and the sound. Written out twice in the
+ * car tally - once on the last unit and once on every other - identically. */
+static void award_one_car_unit(void) {
+    Bonus_Score += 1000;
+    Score[Player_id][0] += 1000;
+    Disp_Score_Buff[0] = Bonus_Score;
+    Sound_SE(100);
+}
+
+/* Tick one unit off the car tally. The original's `break` on the last unit left
+ * the switch with nothing after it, so it is a `return` here.
+ *
+ * NOTE: the last-unit path assigns C_Timer twice in a row, 30 and then 3, so
+ * the 30 never takes effect. That looks like a mistake and is left exactly as
+ * it is - reported, not fixed. */
+static void count_one_car_unit(void) {
+    if (bcounter_down(0) == 0) {
+        C_No[2]++;
+        C_Timer = 30;
+        C_Timer = 3;
+        award_one_car_unit();
+        return;
+    }
+
+    C_Timer = 3;
+    award_one_car_unit();
+}
+
 void Game_Manage_12_8() {
     switch (C_No[2]) {
     case 0:
-        switch (C_No[3]) {
-        case 0:
-            Next_Step = 0;
-
-            if (effect_35_init(60, 10) == 0) {
-                C_No[3]++;
-            }
-
-            break;
-
-        case 1:
-            if (Next_Step) {
-                C_No[3]++;
-                C_Timer = 20;
-            }
-
-            break;
-
-        case 2:
-            if (C_Timer < 11 && Scene_Cut) {
-                C_Timer = 1;
-            }
-
-            if (--C_Timer == 0) {
-                C_No[2]++;
-                C_No[3] = 0;
-                C_Timer = 30;
-            }
-
-            break;
-        }
-
+        run_car_result_intro();
         break;
 
     case 1:
@@ -489,22 +522,7 @@ void Game_Manage_12_8() {
 
     case 3:
         if (bonus_cut_and_timer_finished()) {
-            if (bcounter_down(0) == 0) {
-                C_No[2]++;
-                C_Timer = 30;
-                C_Timer = 3;
-                Bonus_Score += 1000;
-                Score[Player_id][0] += 1000;
-                Disp_Score_Buff[0] = Bonus_Score;
-                Sound_SE(100);
-                break;
-            }
-
-            C_Timer = 3;
-            Bonus_Score += 1000;
-            Score[Player_id][0] += 1000;
-            Disp_Score_Buff[0] = Bonus_Score;
-            Sound_SE(100);
+            count_one_car_unit();
         }
 
         break;
