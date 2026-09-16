@@ -582,10 +582,10 @@ static void setup_menu_page_effects(s16 mode_type, s16* display_index) {
         setup_extra_page_items(display_index);
     }
 
-    effect_40_init(mode_type, 0, 0x48, 0, 2, 1);
-    effect_40_init(mode_type, 1, 0x49, 0, 2, 1);
-    effect_40_init(mode_type, 2, 0x4A, 0, 2, 0);
-    effect_40_init(mode_type, 3, 0x4B, 0, 2, 2);
+    effect_40_init(&(Effect40Init){mode_type, 0, 0x48, 0, 2, 1});
+    effect_40_init(&(Effect40Init){mode_type, 1, 0x49, 0, 2, 1});
+    effect_40_init(&(Effect40Init){mode_type, 2, 0x4A, 0, 2, 0});
+    effect_40_init(&(Effect40Init){mode_type, 3, 0x4B, 0, 2, 2});
 }
 
 static void configure_extra_direction_page(void) {

@@ -85,10 +85,10 @@ void Setup_Netplay_Menu(struct _TASK* task_ptr) {
         }
 
         // EXIT button
-        effect_40_init(2, 0, 0x48, 0, 2, 1);
-        effect_40_init(2, 1, 0x49, 0, 2, 1);
-        effect_40_init(2, 2, 0x4A, 0, 2, 0);
-        effect_40_init(2, 3, 0x4B, 0, 2, 2);
+        effect_40_init(&(Effect40Init){2, 0, 0x48, 0, 2, 1});
+        effect_40_init(&(Effect40Init){2, 1, 0x49, 0, 2, 1});
+        effect_40_init(&(Effect40Init){2, 2, 0x4A, 0, 2, 0});
+        effect_40_init(&(Effect40Init){2, 3, 0x4B, 0, 2, 2});
 
         break;
     }
