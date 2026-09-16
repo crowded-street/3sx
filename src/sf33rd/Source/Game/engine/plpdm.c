@@ -316,6 +316,13 @@ void first_TtktV_union(PLW* wk, s16 num, s16 dv) {
     }
 }
 
+/* A quick stand needs the option enabled, the roll actually taken, and a player
+ * who is alive, not dizzy and not in the dramatic pause. */
+static s32 quick_stand_is_allowed(const PLW* wk) {
+    return !(wk->spmv_ng_flag2 & DIP2_QUICK_STAND_DISABLED) && wk->ukemi_success && (wk->dead_flag == 0) &&
+           (wk->py->flag == 0) && (wk->wu.vital_new > 0) && (pcon_dp_flag == 0);
+}
+
 void buttobi_chakuchi_cg_type_check(PLW* wk) {
     switch (wk->wu.cg_type) {
     case 9:
@@ -338,8 +345,7 @@ void buttobi_chakuchi_cg_type_check(PLW* wk) {
         break;
 
     case 5:
-        if (!(wk->spmv_ng_flag2 & DIP2_QUICK_STAND_DISABLED) && wk->ukemi_success && (wk->dead_flag == 0) &&
-            (wk->py->flag == 0) && (wk->wu.vital_new > 0) && (pcon_dp_flag == 0)) {
+        if (quick_stand_is_allowed(wk)) {
             wk->wu.routine_no[2] = oki_select_table2[wk->wu.rl_waza + (wk->wu.rl_flag * 2)];
             wk->wu.routine_no[3] = 0;
             add_sp_arts_gauge_ukemi(wk);
