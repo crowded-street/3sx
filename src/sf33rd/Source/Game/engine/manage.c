@@ -1174,6 +1174,59 @@ void Game_Manage_9th() {
     }
 }
 
+/* Once the screen switch has finished, hand over to whichever screen comes
+ * next - the winner continuing straight on, or the versus result. The
+ * original's `break` inside the free-continue arm left the switch with nothing
+ * after it, so it is a `return` here. */
+static void hand_over_after_round(void) {
+    if (Switch_Screen(0)) {
+        effect_work_quick_init();
+        judge_flag = 0;
+        SE_All_Off();
+        Check_Naming(0);
+        Check_Naming(1);
+        pcon_rno[0] = 0;
+        pcon_rno[1] = 0;
+        pcon_rno[2] = 0;
+        pcon_rno[3] = 0;
+        appear_type = APPEAR_TYPE_ANIMATED;
+        Continue_Coin2[WINNER] = 0;
+
+        if (winner_continues_freely()) {
+            G_No[1] = 3;
+            G_No[2] = 0;
+            G_No[3] = 0;
+            M_No[0] = 0;
+            M_No[1] = 0;
+            M_No[2] = 0;
+            M_No[3] = 0;
+            E_No[0] = 5;
+            E_No[1] = 0;
+            E_No[2] = 0;
+            E_No[3] = 0;
+            Check_Ending();
+            Continue_Coin2[WINNER] = 0;
+            Clear_Flash_No();
+            return;
+        }
+
+        G_No[1] = 4;
+        G_No[2] = 0;
+        G_No[3] = 0;
+        M_No[0] = 0;
+        M_No[1] = 0;
+        M_No[2] = 0;
+        M_No[3] = 0;
+        E_No[0] = 6;
+        E_No[1] = 0;
+        E_No[2] = 0;
+        E_No[3] = 0;
+        E_07_Flag[0] = 0;
+        E_07_Flag[1] = 0;
+        Clear_Flash_No();
+    }
+}
+
 void Game_Manage_10th() {
     switch (C_No[1]) {
     case 0:
@@ -1189,53 +1242,7 @@ void Game_Manage_10th() {
         break;
 
     case 1:
-        if (Switch_Screen(0)) {
-            effect_work_quick_init();
-            judge_flag = 0;
-            SE_All_Off();
-            Check_Naming(0);
-            Check_Naming(1);
-            pcon_rno[0] = 0;
-            pcon_rno[1] = 0;
-            pcon_rno[2] = 0;
-            pcon_rno[3] = 0;
-            appear_type = APPEAR_TYPE_ANIMATED;
-            Continue_Coin2[WINNER] = 0;
-
-            if (winner_continues_freely()) {
-                G_No[1] = 3;
-                G_No[2] = 0;
-                G_No[3] = 0;
-                M_No[0] = 0;
-                M_No[1] = 0;
-                M_No[2] = 0;
-                M_No[3] = 0;
-                E_No[0] = 5;
-                E_No[1] = 0;
-                E_No[2] = 0;
-                E_No[3] = 0;
-                Check_Ending();
-                Continue_Coin2[WINNER] = 0;
-                Clear_Flash_No();
-                break;
-            }
-
-            G_No[1] = 4;
-            G_No[2] = 0;
-            G_No[3] = 0;
-            M_No[0] = 0;
-            M_No[1] = 0;
-            M_No[2] = 0;
-            M_No[3] = 0;
-            E_No[0] = 6;
-            E_No[1] = 0;
-            E_No[2] = 0;
-            E_No[3] = 0;
-            E_07_Flag[0] = 0;
-            E_07_Flag[1] = 0;
-            Clear_Flash_No();
-        }
-
+        hand_over_after_round();
         break;
     }
 }
