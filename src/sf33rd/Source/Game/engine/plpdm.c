@@ -537,6 +537,26 @@ static void apply_vital_underflow_or_piyo(PLW* wk) {
     }
 }
 
+/* Rumble the pad for a hit, except in the seven reaction states that do not.
+ * The case labels are the reaction numbers the rest of the engine uses and are
+ * unchanged, including their order. */
+static void rumble_for_damage(PLW* wk) {
+    switch (wk->wu.routine_no[2]) {
+    case 1:
+    case 2:
+    case 3:
+    case 12:
+    case 13:
+    case 19:
+    case 16:
+        break;
+
+    default:
+        pp_pulpara_remake_dm_all(&wk->wu);
+        break;
+    }
+}
+
 /* Taking the damage off the player's vitality, with the vital option that
  * zeroes it first and the two floors at zero after. subtract_dm_vital and
  * subtract_dm_vital_aiuchi ran this identically; the one statement that differs
@@ -580,20 +600,7 @@ void subtract_dm_vital(PLW* wk) {
     }
 
     if (wk->guard_chuu == 0) {
-        switch (wk->wu.routine_no[2]) {
-        case 1:
-        case 2:
-        case 3:
-        case 12:
-        case 13:
-        case 19:
-        case 16:
-            break;
-
-        default:
-            pp_pulpara_remake_dm_all(&wk->wu);
-            break;
-        }
+        rumble_for_damage(wk);
     }
 
     if (Mode_Type == MODE_NORMAL_TRAINING && (Training_ID != wk->wu.id)) {
