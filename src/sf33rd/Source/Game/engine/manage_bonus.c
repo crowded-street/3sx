@@ -681,45 +681,57 @@ u32 Setup_Final_Score(s16 Type) {
     return xx;
 }
 
-s32 Bonus_Cut_Sub() {
-    if (Scene_Cut) {
-        Sound_SE(100);
-        Bonus_Game_result = 0;
-        Score[Player_id][0] = Final_Bonus_Score;
-
-        if (Score[Player_id][0] >= 99999900) {
-            Score[Player_id][0] = 99999900;
-        }
-
-        if (Disp_Bonus_Contents == 0) {
-            effect_08_init(&(Effect08Init){7, 0, 1, 15, 0});
-        }
-
-        if (Bonus_Type == 21) {
-            if (Disp_Bonus_Contents == 0) {
-                Disp_Score_Buff[0] = Stock_Bonus_Game_Result * 1000;
-                effect_14_init(0, 35, 11, 15);
-            }
-
-            Disp_Bonus_Perfect();
-            Flash_Bonus_Perfect();
-            C_No[2] = 3;
-            C_No[3] = 99;
-            return C_Timer = 90;
-        }
-
-        bcounter_down(1);
-
-        if (Disp_Bonus_Contents == 0) {
-            Disp_Score_Buff[0] = Bonus_Score_Plus;
-            effect_14_init(0, 35, 11, 15);
-        }
-
-        C_No[2] = 4;
-        C_No[3] = 99;
-        return C_Timer = 90;
+/* Cutting the barrel stage's result: the perfect panel is shown at once and
+ * the stage jumps to its perfect state. */
+static s32 cut_to_barrel_result() {
+    if (Disp_Bonus_Contents == 0) {
+        Disp_Score_Buff[0] = Stock_Bonus_Game_Result * 1000;
+        effect_14_init(0, 35, 11, 15);
     }
 
-    return 0;
+    Disp_Bonus_Perfect();
+    Flash_Bonus_Perfect();
+    C_No[2] = 3;
+    C_No[3] = 99;
+    return C_Timer = 90;
+}
+
+/* Cutting any other bonus stage's result: the counter is run down and the
+ * score panel shown. */
+static s32 cut_to_car_result() {
+    bcounter_down(1);
+
+    if (Disp_Bonus_Contents == 0) {
+        Disp_Score_Buff[0] = Bonus_Score_Plus;
+        effect_14_init(0, 35, 11, 15);
+    }
+
+    C_No[2] = 4;
+    C_No[3] = 99;
+    return C_Timer = 90;
+}
+
+s32 Bonus_Cut_Sub() {
+    if (!Scene_Cut) {
+        return 0;
+    }
+
+    Sound_SE(100);
+    Bonus_Game_result = 0;
+    Score[Player_id][0] = Final_Bonus_Score;
+
+    if (Score[Player_id][0] >= 99999900) {
+        Score[Player_id][0] = 99999900;
+    }
+
+    if (Disp_Bonus_Contents == 0) {
+        effect_08_init(&(Effect08Init){ 7, 0, 1, 15, 0 });
+    }
+
+    if (Bonus_Type == 21) {
+        return cut_to_barrel_result();
+    }
+
+    return cut_to_car_result();
 }
 
