@@ -1313,16 +1313,20 @@ void bgRWWorkUpdate() {
 static s32 remap_screen_chip(s32 bgnum, s32 gbix) {
     s32 i;
 
-    if (rw_bg_flag[bgnum] && rw_num) {
-        for (i = 0; i < rw_num; i++) {
-            if (bgnum == rw_dat[i].bg_num && gbix == rw_dat[i].rwgbix) {
-                gbix = rw_dat[i].gbix;
-                if (!(ppgCheckTextureNumber(0, gbix))) {
-                    ppgSetupCurrentDataList(&ppgRwBgList);
-                }
-                break;
-            }
+    if (!(rw_bg_flag[bgnum] && rw_num)) {
+        return gbix;
+    }
+
+    for (i = 0; i < rw_num; i++) {
+        if (bgnum != rw_dat[i].bg_num || gbix != rw_dat[i].rwgbix) {
+            continue;
         }
+
+        gbix = rw_dat[i].gbix;
+        if (!(ppgCheckTextureNumber(0, gbix))) {
+            ppgSetupCurrentDataList(&ppgRwBgList);
+        }
+        break;
     }
 
     return gbix;
