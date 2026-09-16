@@ -979,6 +979,26 @@ void check_20() { // 🟢
     // Do nothing
 }
 
+/* check_21's charged-lever arm. The one `command_ok(); return;` inside it left
+ * check_21 with nothing after the if/else chain, so returning from the helper
+ * reaches the same place. */
+static void resolve_charged_lever_command(u16 sw_lever) {
+    sw_work = waza_ptr->w_lvr & 0xF;
+    if (sw_work == 0) {
+        if (sw_lever == 0) {
+            if (((*waza_ptr->w_ptr)) == 0x1C) {
+                command_ok();
+                return;
+            }
+            check_next();
+        }
+    } else if (chk_pl->now_lvbt & 0xF) {
+        if (sw_lever == sw_work) {
+            finish_or_advance_command();
+        }
+    }
+}
+
 void check_21() { // 🟢
     u16 sw_lever;
 
@@ -995,20 +1015,7 @@ void check_21() { // 🟢
     }
 
     if (waza_ptr->w_lvr & 0x8000) {
-        sw_work = waza_ptr->w_lvr & 0xF;
-        if (sw_work == 0) {
-            if (sw_lever == 0) {
-                if (((*waza_ptr->w_ptr)) == 0x1C) {
-                    command_ok();
-                    return;
-                }
-                check_next();
-            }
-        } else if (chk_pl->now_lvbt & 0xF) {
-            if (sw_lever == sw_work) {
-                finish_or_advance_command();
-            }
-        }
+        resolve_charged_lever_command(sw_lever);
     } else if (waza_ptr->w_lvr == 0) {
         if (sw_lever == 0) {
             finish_or_advance_command();
