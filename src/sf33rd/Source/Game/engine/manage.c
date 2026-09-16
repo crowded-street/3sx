@@ -1401,6 +1401,41 @@ void Check_Perfect(s16 PL_id) {
     win_type[PL_id][PL_Wins[PL_id]] = 3;
 }
 
+/* A human player beating a CPU opponent in the arcade run: record the opponent,
+ * advance the ladder, and raise the difficulty a step. The original returned
+ * from Update_VS_Data at the end of this block either way, which is the return
+ * at the call site. */
+static void record_arcade_win(void) {
+    SC_Personal_Time[WINNER] = Control_Time;
+    Stage_Continue[WINNER] = 0;
+    Request_Disp_Rank[LOSER][0] = -1;
+    Request_Disp_Rank[LOSER][1] = -1;
+    Request_Disp_Rank[LOSER][2] = -1;
+    Request_Disp_Rank[LOSER][3] = -1;
+    Stock_Com_Color[WINNER] = -1;
+    Stock_Com_Arts[WINNER] = -1;
+    EM_History[WINNER][VS_Index[WINNER]] = EM_id;
+    Result_Timer[WINNER] += 30;
+
+    if (EM_id == 17) {
+        Break_Com[WINNER][EM_id] = (s8)(VS_Index[WINNER]);
+    } else {
+        VS_Index[WINNER]++;
+        Break_Com[WINNER][EM_id] = 1;
+    }
+
+    if (PL_Wins[LOSER]) {
+        Straight_Counter[WINNER] = 0;
+        Straight_Flag[WINNER] = 1;
+    }
+
+    if (++Round_Level <= 7) {
+        return;
+    }
+
+    Round_Level = 7;
+}
+
 void Update_VS_Data() {
     if (PL_Wins[Winner_id] >= save_w[Present_Mode].Battle_Number[Play_Type] + 1) {
         WINNER = Winner_id;
@@ -1413,34 +1448,7 @@ void Update_VS_Data() {
         }
 
         if (Round_Operator[WINNER]) {
-            SC_Personal_Time[WINNER] = Control_Time;
-            Stage_Continue[WINNER] = 0;
-            Request_Disp_Rank[LOSER][0] = -1;
-            Request_Disp_Rank[LOSER][1] = -1;
-            Request_Disp_Rank[LOSER][2] = -1;
-            Request_Disp_Rank[LOSER][3] = -1;
-            Stock_Com_Color[WINNER] = -1;
-            Stock_Com_Arts[WINNER] = -1;
-            EM_History[WINNER][VS_Index[WINNER]] = EM_id;
-            Result_Timer[WINNER] += 30;
-
-            if (EM_id == 17) {
-                Break_Com[WINNER][EM_id] = (s8)(VS_Index[WINNER]);
-            } else {
-                VS_Index[WINNER]++;
-                Break_Com[WINNER][EM_id] = 1;
-            }
-
-            if (PL_Wins[LOSER]) {
-                Straight_Counter[WINNER] = 0;
-                Straight_Flag[WINNER] = 1;
-            }
-
-            if (++Round_Level <= 7) {
-                return;
-            }
-
-            Round_Level = 7;
+            record_arcade_win();
             return;
         }
 
@@ -1453,6 +1461,22 @@ void Update_VS_Data() {
     }
 
     Score[Loser_id][0] = Stock_Score[Loser_id];
+}
+
+/* One step of the music fading back in: raise the volume every other frame
+ * until it reaches zero, then stop fading. */
+static void step_bgm_fade_in(void) {
+    if (--BGM_Timer[1] == 0) {
+        BGM_Timer[1] = 2;
+
+        if (++BGM_Vol == 0) {
+            BGM_No[1] = 0;
+        }
+    }
+
+    if (!Music_Fade) {
+        SsBgmControl(0, BGM_Vol);
+    }
 }
 
 void BGM_Fade_Sub() {
@@ -1470,18 +1494,7 @@ void BGM_Fade_Sub() {
         break;
 
     default:
-        if (--BGM_Timer[1] == 0) {
-            BGM_Timer[1] = 2;
-
-            if (++BGM_Vol == 0) {
-                BGM_No[1] = 0;
-            }
-        }
-
-        if (!Music_Fade) {
-            SsBgmControl(0, BGM_Vol);
-        }
-
+        step_bgm_fade_in();
         break;
     }
 }
