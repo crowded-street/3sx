@@ -444,6 +444,18 @@ void remake_sankaku_tobi_mvxy(WORK* wk, u8 kabe) { // 🟡
     }
 }
 
+static s16 dash_kind_from_waza_flags(PLW* wk) {
+    return (wk->cp->waza_flag[0] != 0) + (wk->cp->waza_flag[1] != 0) * 2;
+}
+
+static s16 dash_kind_from_lever(PLW* wk) {
+    if (wk->cp->lever_dir < 2) {
+        return 1;
+    }
+
+    return 2;
+}
+
 static s16 start_forward_dash(PLW* wk) {
     if (wk->spmv_ng_flag & DIP_FORWARD_DASH_DISABLED) {
         return 0;
@@ -476,7 +488,7 @@ s16 check_F_R_dash(PLW* wk) { // 🟢
         }
     }
 
-    num = (wk->cp->waza_flag[0] != 0) + (wk->cp->waza_flag[1] != 0) * 2;
+    num = dash_kind_from_waza_flags(wk);
     rnum = 0;
 
     while (1) {
@@ -490,15 +502,8 @@ s16 check_F_R_dash(PLW* wk) { // 🟢
             break;
 
         case 3:
-            if (wk->cp->lever_dir < 2) {
-                num = 1;
-                continue;
-            } else {
-                num = 2;
-                continue;
-            }
-
-            break;
+            num = dash_kind_from_lever(wk);
+            continue;
         }
 
         break;
