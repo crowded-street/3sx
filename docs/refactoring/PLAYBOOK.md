@@ -414,6 +414,8 @@ Recipe X both refuse to merge.
 | `eff55.c` | 9.42 | the rise and the fall differ in three values; splitting the states exposes it, -0.33 |
 | `eff68.c` | 9.09 | five waypoint steps differing in their timers and targets; sharing their identical runs leaves the smell unmoved |
 | `eff78.c` | 9.55 | `crow_flap` and `crow_take_off` differ in five values; splitting `crow_fuss_move` exposes it, -0.17 |
+| `grade.c` | 5.52 | the table-scan idiom below - not duplication between siblings, and the first plateau of a different kind |
+| `pls03.c` | see below | `decode_wst_data`'s twelve command encodings; `waza_select`'s five arms differ in two table names each |
 | `eff93.c` | 9.38 | the two slide-outs differ only in a comparison operator, which may not be parameterised |
 | `effa2.c` | 9.34 | every state returns past a shared tail, so no state can move to a helper without a 0/1 protocol per arm |
 | `effa9.c` | 9.16 | near-miss siblings |
@@ -428,6 +430,42 @@ Recipe X both refuse to merge.
 | `effm2.c` | 9.53 | the two cat routines' dispatchers read as duplicates once their states are named |
 
 ---
+
+### The table-scan idiom, and why `grade.c` stops
+
+`grade.c` is the first plateau in this campaign that is **not** duplication between sibling
+state machines. Its six big functions are built almost entirely out of one idiom, repeated
+about twenty times:
+
+```c
+for (i = 0; i < 23; i++) {
+    if (num < grade_t_meichuuritsu2[i + 1][0]) {
+        break;
+    }
+}
+
+point2 = grade_t_meichuuritsu2[i][1];
+```
+
+Find the first row of a threshold table the value falls under, then take that row's score.
+Each occurrence differs in **three** things: the table, its row count, and the value being
+compared. Recipe D allows one differing value, and the prohibition on parameterising more
+than one is the point of that rule, so the idiom cannot be shared. Recipe C does not reach
+it either - the runs are not identical. Recipe E does not apply, because the loops are not
+nested: they sit at depth 1, one after another.
+
+So `get_offence_total` (cc 12), `get_defence_total` (cc 17), `get_ex_point_total` (cc 15),
+`makeup_final_grade` (cc 20), `grade_makeup_stage_parameter` (cc 21) and
+`get_tech_pts_total` (cc 26) all stay flagged. Splitting any of them leaves both halves
+over the threshold, for the arithmetic reason recorded above.
+
+**Recommendation for the project owner, not an action taken here.** A narrow extension
+would unblock this whole file: allow a helper to take a *table, its length, and the value
+to look up* when the extracted body is character-for-character identical across every call
+site and each call site passes its own table verbatim. That is mechanically checkable - the
+literal fingerprint stays OK, and `--calls` sees the usual deduplication signature. It is
+also strictly narrower than Recipe A, which the owner has already authorised on public
+signatures. Until that is approved, `grade.c` is done.
 
 ## The verification loop
 
