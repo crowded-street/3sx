@@ -45,6 +45,11 @@ static u16 check_xcopy_filter_se_req(WORK* wk);
 void check_cgd_patdat2(WORK* wk);
 void setup_metamor_kezuri(WORK* wk);
 
+static s32 special_cancel_window_is_open(const WORK* wk) {
+    return !(WK_AS_PLW->spmv_ng_flag2 & DIP2_SPECIAL_TO_SPECIAL_CANCEL_DISABLED) && !(wk->kow & 0x60) &&
+           (wk->kow & 0xF8) && (wk->cg_cancel & 0x40);
+}
+
 static s32 on_bonus_car_below_floor(const WORK* wk, const UNK11* ctc) {
     return bg_w.stage == 20 && ((PLW*)wk)->bs2_on_car && ctc->pat < bs2_floor[2];
 }
@@ -2460,8 +2465,7 @@ void check_cgd_patdat(WORK* wk) {
             wk->meoshi_hit_flag = 1;
         }
 
-        if (!(WK_AS_PLW->spmv_ng_flag2 & DIP2_SPECIAL_TO_SPECIAL_CANCEL_DISABLED) && !(wk->kow & 0x60) &&
-            (wk->kow & 0xF8) && (wk->cg_cancel & 0x40)) {
+        if (special_cancel_window_is_open(wk)) {
             wk->cg_cancel |= 0x60;
         }
 

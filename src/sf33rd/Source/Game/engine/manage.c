@@ -148,6 +148,22 @@ const u8 BIC_SA_Data[2][4] = { { 3, 5, 7, 9 }, { 1, 1, 1, 1 } };
 
 const u32 Ball_Perfect_PTS[2][5] = { { 20000, 30000, 50000, 80000, 120000 }, { 10000, 20000, 40000, 80000, 160000 } };
 
+static s32 boss_intro_is_due(void) {
+    return Play_Type == 0 && (EM_id == 0 || (My_char[Player_id] == 0 && EM_id == 1)) &&
+           !(Introduce_Boss[Player_id][1] & 0x80);
+}
+
+static s32 arcade_run_reaches_ending(void) {
+    return Play_Type == 0 && Mode_Type == MODE_ARCADE &&
+           PL_Wins[Winner_id] >= save_w[Present_Mode].Battle_Number[Play_Type] && VS_Index[Winner_id] > 8 &&
+           plw[Winner_id].wu.operator != 0 && E_Number[Loser_id][0] != 2;
+}
+
+static s32 round_has_a_decision(void) {
+    return plw[0].wu.vital_new != plw[1].wu.vital_new || Mode_Type == MODE_NORMAL_TRAINING ||
+           Mode_Type == MODE_PARRY_TRAINING;
+}
+
 static s32 cockpit_is_shown(void) {
     return Mode_Type != MODE_NORMAL_TRAINING && Mode_Type != MODE_PARRY_TRAINING && omop_cockpit;
 }
@@ -508,8 +524,7 @@ void Game_Manage_2_4() {
         vital_dec_timer = 40;
         sag_inc_timer[0] = sag_inc_timer[1] = 0;
 
-        if (Play_Type == 0 && (EM_id == 0 || (My_char[Player_id] == 0 && EM_id == 1)) &&
-            !(Introduce_Boss[Player_id][1] & 0x80)) {
+        if (boss_intro_is_due()) {
             Introduce_Boss[Player_id][1] |= 128;
             Check_Stage_BGM();
         }
@@ -539,9 +554,7 @@ void Game_Manage_3rd() {
 }
 
 void setFinishType() {
-    if (Play_Type == 0 && Mode_Type == MODE_ARCADE &&
-        PL_Wins[Winner_id] >= save_w[Present_Mode].Battle_Number[Play_Type] && VS_Index[Winner_id] > 8 &&
-        plw[Winner_id].wu.operator != 0 && E_Number[Loser_id][0] != 2) {
+    if (arcade_run_reaches_ending()) {
         E_Number[Loser_id][0] = 99;
     }
 
@@ -598,8 +611,7 @@ void Game_Manage_4th() {
     default:
         SsRequest(143);
 
-        if (plw[0].wu.vital_new != plw[1].wu.vital_new || Mode_Type == MODE_NORMAL_TRAINING ||
-            Mode_Type == MODE_PARRY_TRAINING) {
+        if (round_has_a_decision()) {
             C_No[0] = 6;
             Round_Result |= 1;
             setFinishType();

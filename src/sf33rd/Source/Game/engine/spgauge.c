@@ -88,6 +88,15 @@ static s32 sa_gauge_may_redraw_stpl(s8 Stpl_Num) {
     return max2[Stpl_Num] == 0 && spg_dat[Stpl_Num].max_old == 0 && spg_dat[Stpl_Num].sa_mukou == 0;
 }
 
+static s32 sa_stock_display_is_settled(s8 Stpl_Num) {
+    return (!spg_dat[Stpl_Num].sa_mukou || spg_dat[Stpl_Num].timer != 0) &&
+           (spg_dat[Stpl_Num].spg_level == plw[Stpl_Num].sa->store);
+}
+
+static s32 wipe_just_started(void) {
+    return ArcadeBalance_IsEnabled() && Exec_Wipe != 0 && Exec_Wipe_F == 0;
+}
+
 void spgauge_cont_init() {
     s8 lpy;
 
@@ -372,7 +381,7 @@ void spgauge_control(s8 Spg_Num) {
 
 void wipe_check() { // 🟡 CPS3 clears an active timer-SA meter at wipe start
     if (Old_Stop_SG) {
-        if (ArcadeBalance_IsEnabled() && Exec_Wipe != 0 && Exec_Wipe_F == 0) {
+        if (wipe_just_started()) {
             // Stop_SG is raised one frame before WipeOut advances; CPS3 clears on that first wipe frame.
             if (spg_dat[0].time == 1 && time_clear[0] == 1) {
                 plw[0].sa->gauge.s.h = plw[0].sa->bacckup_g_h;
@@ -560,8 +569,7 @@ void sast_control(s8 Stpl_Num) {
         case 1:
             spg_dat[Stpl_Num].timer--;
 
-            if ((!spg_dat[Stpl_Num].sa_mukou || spg_dat[Stpl_Num].timer != 0) &&
-                (spg_dat[Stpl_Num].spg_level == plw[Stpl_Num].sa->store)) {
+            if (sa_stock_display_is_settled(Stpl_Num)) {
                 spg_dat[Stpl_Num].timer2--;
 
                 if (spg_dat[Stpl_Num].kind == 0) {
