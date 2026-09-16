@@ -26,54 +26,62 @@ static s32 effect_update_is_blocked(void) {
 }
 
 
-void effect_H9_move(WORK_Other_CONN* ewk) {
-    switch (ewk->wu.routine_no[0]) {
+static void effh9_count_up(WORK_Other_CONN* ewk) {
+    switch (ewk->wu.routine_no[1]) {
     case 0:
-        switch (ewk->wu.routine_no[1]) {
-        case 0:
-            ewk->wu.routine_no[1]++;
-            ewk->wu.disp_flag = 1;
-            ewk->wu.old_cgnum = 0;
-            ewk->wu.position_z = ewk->wu.my_priority = 9;
-            ewk->wu.direction = 0;
-            ewk->wu.dir_timer = 0;
-            nokori_ball_effH9(ewk, ewk->wu.direction);
-            break;
-
-        case 1:
-            if (effect_update_is_blocked()) {
-                break;
-            }
-
-            if (--ewk->wu.dir_timer > 0) {
-                break;
-            }
-
-            ewk->wu.dir_timer = 3;
-            ewk->wu.direction++;
-            nokori_ball_effH9(ewk, ewk->wu.direction);
-
-            if (ewk->wu.direction >= Bonus_Game_Work) {
-                ewk->wu.routine_no[0] = 1;
-                ewk->wu.routine_no[1] = 0;
-            }
-
-            break;
-        }
-
-        effH9_trans(&ewk->wu);
+        ewk->wu.routine_no[1]++;
+        ewk->wu.disp_flag = 1;
+        ewk->wu.old_cgnum = 0;
+        ewk->wu.position_z = ewk->wu.my_priority = 9;
+        ewk->wu.direction = 0;
+        ewk->wu.dir_timer = 0;
+        nokori_ball_effH9(ewk, ewk->wu.direction);
         break;
 
     case 1:
-        if (ewk->wu.dead_f == 1) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.type = 0;
-            ewk->wu.routine_no[0] = 2;
+        if (effect_update_is_blocked()) {
             break;
         }
 
-        nokori_ball_effH9(ewk, Bonus_Game_Work);
-        effH9_trans(&ewk->wu);
+        if (--ewk->wu.dir_timer > 0) {
+            break;
+        }
+
+        ewk->wu.dir_timer = 3;
+        ewk->wu.direction++;
+        nokori_ball_effH9(ewk, ewk->wu.direction);
+
+        if (ewk->wu.direction >= Bonus_Game_Work) {
+            ewk->wu.routine_no[0] = 1;
+            ewk->wu.routine_no[1] = 0;
+        }
+
+        break;
+    }
+
+    effH9_trans(&ewk->wu);
+}
+
+static void effh9_show(WORK_Other_CONN* ewk) {
+    if (ewk->wu.dead_f == 1) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.type = 0;
+        ewk->wu.routine_no[0] = 2;
+        return;
+    }
+
+    nokori_ball_effH9(ewk, Bonus_Game_Work);
+    effH9_trans(&ewk->wu);
+}
+
+void effect_H9_move(WORK_Other_CONN* ewk) {
+    switch (ewk->wu.routine_no[0]) {
+    case 0:
+        effh9_count_up(ewk);
+        break;
+
+    case 1:
+        effh9_show(ewk);
         break;
 
     case 2:
