@@ -15,6 +15,12 @@ static s32 master_effect_has_finished(const WORK_Other* mwk) {
 }
 
 
+/* Non-zero while this effect may advance: the game is running and the master is
+ * not in hit stop. */
+static s32 j0_updates_enabled(const PLW* mwk) {
+    return !EXE_flag && !Game_pause && mwk->wu.hit_stop <= 0;
+}
+
 void effect_J0_move(WORK_Other* ewk) {
     WORK_Other* mwk = (WORK_Other*)ewk->my_master;
     WORK_Other* cwk = (WORK_Other*)ewk->wu.target_adrs;
@@ -42,7 +48,7 @@ void effect_J0_move(WORK_Other* ewk) {
             break;
         }
 
-        if (!EXE_flag && !Game_pause && mwk->wu.hit_stop <= 0) {
+        if (j0_updates_enabled(mwk)) {
             if (--ewk->wu.dir_timer == 0) {
                 ewk->wu.routine_no[0] = 2;
                 break;
