@@ -781,6 +781,19 @@ static void set_victory_routines() {
     plw[Loser_id].wu.routine_no[3] = 0;
 }
 
+/* Waiting for the loser to hit the ground. Either that or the timer running
+ * out lets the winner act. */
+static void wait_for_loser_to_fall() {
+    if (nekorobi_check(Loser_id)) {
+        pcon_rno[2]++;
+        plw[Winner_id].wkey_flag = 1;
+    }
+
+    if (--plw[Winner_id].wu.dir_timer == 0) {
+        plw[Winner_id].wkey_flag = 1;
+    }
+}
+
 void settle_type_00000() {
     switch (pcon_rno[2]) {
     case 0:
@@ -789,15 +802,7 @@ void settle_type_00000() {
         /* fallthrough */
 
     case 1:
-        if (nekorobi_check(Loser_id)) {
-            pcon_rno[2]++;
-            plw[Winner_id].wkey_flag = 1;
-        }
-
-        if (--plw[Winner_id].wu.dir_timer == 0) {
-            plw[Winner_id].wkey_flag = 1;
-        }
-
+        wait_for_loser_to_fall();
         break;
 
     case 2:
