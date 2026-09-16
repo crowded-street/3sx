@@ -189,6 +189,29 @@ s8 get_weight_point(WORK* wk) { // 🟢
     return wk->dm_weight - wk->weight_level + 3;
 }
 
+/* kop 1 means the acceleration is allowed to bring the speed to a stop but not
+ * to push it past zero: whichever side it started on, crossing over clears
+ * both the speed and the acceleration. */
+static void accelerate_until_sign_flips(WORK* wk, s16 i) {
+    if (wk->mvxy.a[i].sp >= 0) {
+        wk->mvxy.a[i].sp += wk->mvxy.d[i].sp;
+
+        if (wk->mvxy.a[i].sp < 0) {
+            wk->mvxy.d[i].sp = 0;
+            wk->mvxy.a[i].sp = 0;
+        }
+
+        return;
+    }
+
+    wk->mvxy.a[i].sp += wk->mvxy.d[i].sp;
+
+    if (wk->mvxy.a[i].sp >= 0) {
+        wk->mvxy.d[i].sp = 0;
+        wk->mvxy.a[i].sp = 0;
+    }
+}
+
 void cal_mvxy_speed(WORK* wk) { // 🟢
     s16 i;
 
@@ -199,21 +222,7 @@ void cal_mvxy_speed(WORK* wk) { // 🟢
             break;
 
         case 1:
-            if (wk->mvxy.a[i].sp >= 0) {
-                wk->mvxy.a[i].sp += wk->mvxy.d[i].sp;
-
-                if (wk->mvxy.a[i].sp < 0) {
-                    wk->mvxy.d[i].sp = 0;
-                    wk->mvxy.a[i].sp = 0;
-                }
-            } else {
-                wk->mvxy.a[i].sp += wk->mvxy.d[i].sp;
-
-                if (wk->mvxy.a[i].sp >= 0) {
-                    wk->mvxy.d[i].sp = 0;
-                    wk->mvxy.a[i].sp = 0;
-                }
-            }
+            accelerate_until_sign_flips(wk, i);
             break;
         }
     }
