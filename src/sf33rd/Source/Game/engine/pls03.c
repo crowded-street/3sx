@@ -257,17 +257,42 @@ static s32 try_airborne_special_strengths(PLW* wk, s16 i, u16 cusw) {
     return 0;
 }
 
+/* Rising and still low: a special cannot be cancelled into another one here,
+ * unless arcade balance or the DIP switch says otherwise. Returns 1 wherever
+ * check_special_attack_airborne returned 0 at its top. */
+static s32 air_special_cancel_is_blocked(const PLW* wk) {
+    if ((wk->wu.mvxy.a[1].sp > 0) && (wk->wu.xyz[1].disp.pos < 32)) {
+        if (ArcadeBalance_IsEnabled()) {
+            return 1;
+        } else if (wk->spmv_ng_flag2 & DIP2_SPECIAL_TO_SPECIAL_CANCEL_DISABLED) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+/* A slot whose button index is 0x80 fires on the slot alone, with no strength
+ * to choose, so it commits at strength 0. */
+static void commit_airborne_button_special(PLW* wk, s16 i) {
+    setup_comm_back(&wk->wu);
+
+    if (ArcadeBalance_IsEnabled()) {
+        wk->as = &asstbl_lv_9900_a_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][(i - 38) * 4];
+    } else {
+        wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(i)][(i - 46) * 4];
+    }
+
+    commit_special_attack(wk, i, 0);
+}
+
 static s32 check_special_attack_airborne(PLW* wk) {
     s16 i;
     u16 cusw;
     u16* conpane;
 
-    if ((wk->wu.mvxy.a[1].sp > 0) && (wk->wu.xyz[1].disp.pos < 32)) {
-        if (ArcadeBalance_IsEnabled()) {
-            return 0;
-        } else if (wk->spmv_ng_flag2 & DIP2_SPECIAL_TO_SPECIAL_CANCEL_DISABLED) {
-            return 0;
-        }
+    if (air_special_cancel_is_blocked(wk)) {
+        return 0;
     }
 
     conpane = &wk->cp->sw_lvbt;
@@ -292,16 +317,7 @@ static s32 check_special_attack_airborne(PLW* wk) {
                 return 1;
             }
         } else if (wk->cp->waza_flag[i]) {
-            setup_comm_back(&wk->wu);
-
-            if (ArcadeBalance_IsEnabled()) {
-                wk->as = &asstbl_lv_9900_a_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][(i - 38) * 4];
-            } else {
-                wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(i)][(i - 46) * 4];
-            }
-
-            commit_special_attack(wk, i, 0);
-
+            commit_airborne_button_special(wk, i);
             return 1;
         }
     }
