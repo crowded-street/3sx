@@ -713,6 +713,20 @@ const u8
           31, 30, 30, 30, 30, 30, 29, 29, 29, 29, 29, 28, 28, 28, 28, 28, 28, 27, 27, 27, 27, 27, 27, 27 }
     };
 
+static void scale_down_to_table_range(s16* y1, s16* y2) {
+    if (*y1 > *y2) {
+        while (*y1 >= 0x80) {
+            *y1 >>= 1;
+            *y2 >>= 1;
+        }
+    } else {
+        while (*y2 >= 0x80) {
+            *y1 >>= 1;
+            *y2 >>= 1;
+        }
+    }
+}
+
 s16 caldir_pos_256(s16 x1, s16 x2, s16 y1, s16 y2) {
     s16 yhan;
     s16 tent = yhan = 0;
@@ -736,17 +750,7 @@ s16 caldir_pos_256(s16 x1, s16 x2, s16 y1, s16 y2) {
         break;
     }
 
-    if (y1 > y2) {
-        while (y1 >= 0x80) {
-            y1 >>= 1;
-            y2 >>= 1;
-        }
-    } else {
-        while (y2 >= 0x80) {
-            y1 >>= 1;
-            y2 >>= 1;
-        }
-    }
+    scale_down_to_table_range(&y1, &y2);
 
     tent += dir_sel_table[y1][y2];
 
@@ -782,17 +786,7 @@ s16 cal_move_quantity2(s16 x1, s16 x2, s16 y1, s16 y2) {
     x1 = y1;
     x2 = y2;
 
-    if (y1 > y2) {
-        while (y1 >= 0x80) {
-            y1 >>= 1;
-            y2 >>= 1;
-        }
-    } else {
-        while (y2 >= 0x80) {
-            y1 >>= 1;
-            y2 >>= 1;
-        }
-    }
+    scale_down_to_table_range(&y1, &y2);
 
     kakudo = dir_sel_table[y1][y2];
     ms.psi = (x1 * rate_256_table[kakudo][0]);
