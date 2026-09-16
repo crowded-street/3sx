@@ -151,29 +151,15 @@ s32 check_rl_flag(WORK* wk) { // 🟢
     return wk->rl_flag == wk->rl_waza;
 }
 
-void set_rl_waza(PLW* wk) { // 🟢
-    WORK* em;
-    s16 result;
-
-    if (Bonus_Game_Flag == 20) {
-        if (wk->wu.operator != 0) {
-            if (wk->wu.xyz[0].disp.pos < bs2_hosei[0] || wk->wu.xyz[0].disp.pos > bs2_hosei[1]) {
-                goto end;
-            }
-
-            if (((result = wk->cp->sw_lvbt & 0xF) != 0) && !(result & 3)) {
-                wk->wu.rl_waza = (result & 8) != 0;
-                return;
-            }
-        }
-
-        wk->wu.rl_waza = wk->wu.rl_flag;
-        return;
-    }
-
-end:
-    em = (WORK*)wk->wu.target_adrs;
-    result = wk->wu.xyz[0].disp.pos - em->xyz[0].disp.pos;
+/* Face the opponent: whoever is to the left faces right. Standing exactly on
+ * top of them takes the opposite of their own facing.
+ *
+ * This was the `end:` label in set_rl_waza, reached both by falling out of the
+ * bonus-stage branch and by a `goto` from inside it. Both call it and return,
+ * which is what the label's code did at its end. */
+static void face_the_opponent(PLW* wk) {
+    WORK* em = (WORK*)wk->wu.target_adrs;
+    s16 result = wk->wu.xyz[0].disp.pos - em->xyz[0].disp.pos;
 
     if (result) {
         if (result > 0) {
@@ -186,22 +172,35 @@ end:
     }
 }
 
-s16 check_rl_on_car(PLW* wk) { // 🟢
-    s16 rnum;
+void set_rl_waza(PLW* wk) { // 🟢
+    s16 result;
 
-    if (Bonus_Game_Flag != 20) {
-        return 0;
+    if (Bonus_Game_Flag == 20) {
+        if (wk->wu.operator != 0) {
+            if (wk->wu.xyz[0].disp.pos < bs2_hosei[0] || wk->wu.xyz[0].disp.pos > bs2_hosei[1]) {
+                face_the_opponent(wk);
+                return;
+            }
+
+            if (((result = wk->cp->sw_lvbt & 0xF) != 0) && !(result & 3)) {
+                wk->wu.rl_waza = (result & 8) != 0;
+                return;
+            }
+        }
+
+        wk->wu.rl_waza = wk->wu.rl_flag;
+        return;
     }
 
-    if (wk->wu.operator == 0) {
-        return 0;
-    }
+    face_the_opponent(wk);
+}
 
-    if (bs2_floor[2] == 0) {
-        return 0;
-    }
+/* Where the player is relative to the bonus-stage car: over its body, over the
+ * narrower correction band, and above its roof. Returns whether the correction
+ * band applies, which is what check_rl_on_car returns. */
+static s16 update_car_area_flags(PLW* wk) {
+    s16 rnum = 0;
 
-    rnum = 0;
     wk->bs2_area_car = 0;
     wk->bs2_over_car = 0;
 
@@ -218,6 +217,22 @@ s16 check_rl_on_car(PLW* wk) { // 🟢
     }
 
     return rnum;
+}
+
+s16 check_rl_on_car(PLW* wk) { // 🟢
+    if (Bonus_Game_Flag != 20) {
+        return 0;
+    }
+
+    if (wk->wu.operator == 0) {
+        return 0;
+    }
+
+    if (bs2_floor[2] == 0) {
+        return 0;
+    }
+
+    return update_car_area_flags(wk);
 }
 
 s32 saishin_bs2_area_car(PLW* wk) { // 🟡
