@@ -1202,19 +1202,22 @@ s16 check_buttobi_type2(PLW* wk) { // 🟢
     return rn;
 }
 
+/* The lever direction the player is taken to be holding, read through the
+ * table for the way they face. The masking stays at the call sites, so the
+ * index passed here is the same expression each of them already computed. */
+static void set_saishin_lvdir(PLW* ds, s32 lever_index) {
+    if (ds->wu.rl_flag) {
+        ds->saishin_lvdir = convert_saishin_lvdir[1][lever_index];
+    } else {
+        ds->saishin_lvdir = convert_saishin_lvdir[0][lever_index];
+    }
+}
+
 void setup_saishin_lvdir(PLW* ds, s8 gddir) { // 🟢
     if (ds->sa_stop_flag == 1) {
-        if (ds->wu.rl_flag) {
-            ds->saishin_lvdir = convert_saishin_lvdir[1][ds->sa_stop_lvdir & 0xC];
-        } else {
-            ds->saishin_lvdir = convert_saishin_lvdir[0][ds->sa_stop_lvdir & 0xC];
-        }
+        set_saishin_lvdir(ds, ds->sa_stop_lvdir & 0xC);
     } else {
-        if (ds->wu.rl_flag) {
-            ds->saishin_lvdir = convert_saishin_lvdir[1][ds->cp->sw_lvbt & 0xC];
-        } else {
-            ds->saishin_lvdir = convert_saishin_lvdir[0][ds->cp->sw_lvbt & 0xC];
-        }
+        set_saishin_lvdir(ds, ds->cp->sw_lvbt & 0xC);
     }
 
     if (absolute_guard_is_live(ds)) {
