@@ -1094,26 +1094,33 @@ static s32 winner_queued_another_battle(void) {
     return Play_Type != 1 && Round_Operator[WINNER] && Battle_Q[WINNER];
 }
 
+/* The match is over once the winner has enough round wins; otherwise this is
+ * just the end of a round. Both `break`s left the switch with nothing after
+ * them, so each is a `return` here. */
+static void settle_match_or_next_round(void) {
+    if (PL_Wins[Winner_id] >= save_w[Present_Mode].Battle_Number[Play_Type] + 1) {
+        C_No[0]++;
+        C_No[1] = 0;
+        C_Timer = 75;
+        cpExitTask(TASK_PAUSE);
+
+        if (winner_queued_another_battle()) {
+            C_No[0] = 10;
+        }
+
+        return;
+    }
+
+    C_No[1]++;
+    C_Timer = 60;
+    Stop_Combo = 1;
+    BGM_Timer[1] = 1;
+}
+
 void Game_Manage_9th() {
     switch (C_No[1]) {
     case 0:
-        if (PL_Wins[Winner_id] >= save_w[Present_Mode].Battle_Number[Play_Type] + 1) {
-            C_No[0]++;
-            C_No[1] = 0;
-            C_Timer = 75;
-            cpExitTask(TASK_PAUSE);
-
-            if (winner_queued_another_battle()) {
-                C_No[0] = 10;
-            }
-
-            break;
-        }
-
-        C_No[1]++;
-        C_Timer = 60;
-        Stop_Combo = 1;
-        BGM_Timer[1] = 1;
+        settle_match_or_next_round();
         break;
 
     case 1:
