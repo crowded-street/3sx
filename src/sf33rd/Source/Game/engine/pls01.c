@@ -278,15 +278,21 @@ static s32 update_latest_car_area_flags(PLW* wk) {
     return 0;
 }
 
+static s32 balanced_and_not_over_car(PLW* wk) {
+    return ArcadeBalance_IsEnabled() && !wk->bs2_over_car;
+}
+
+static s32 unbalanced_and_rising_off_car(PLW* wk) {
+    return !ArcadeBalance_IsEnabled() && wk->wu.mvxy.a[1].sp >= 2;
+}
+
 s32 saishin_bs2_area_car(PLW* wk) { // 🟡
     if (update_latest_car_area_flags(wk)) {
         return 1;
     }
 
-    if (ArcadeBalance_IsEnabled()) {
-        if (!wk->bs2_over_car) {
-            return 0;
-        }
+    if (balanced_and_not_over_car(wk)) {
+        return 0;
     }
 
     if (wk->bs2_over_car2) {
@@ -297,10 +303,8 @@ s32 saishin_bs2_area_car(PLW* wk) { // 🟡
         return 1;
     }
 
-    if (!ArcadeBalance_IsEnabled()) {
-        if (wk->wu.mvxy.a[1].sp >= 2) {
-            return 1;
-        }
+    if (unbalanced_and_rising_off_car(wk)) {
+        return 1;
     }
 
     return 0;
