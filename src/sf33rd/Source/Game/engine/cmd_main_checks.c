@@ -789,6 +789,28 @@ static void reset_tame_flag_or_charge(s32 w_int_on_release) {
     }
 }
 
+/* check_14's charge window running out while the move is still armed. The
+ * original's `return` left check_14 with nothing after the if/else chain, so
+ * returning from the helper reaches the same place. */
+static void close_tame_window_if_elapsed(void) {
+    if (waza_ptr->w_int <= 0) {
+        if (waza_ptr->uni0.tame.flag) {
+            wcp[cmd_id].waza_flag[waza_type[cmd_id]] = wcp[cmd_id].reset[waza_type[cmd_id]];
+            waza_ptr->uni0.tame.flag = 0;
+
+            if (waza_type[cmd_id] & 1) {
+                waza_ptr->w_int = 10;
+            } else {
+                waza_ptr->w_int = 6;
+            }
+            return;
+        }
+
+        waza_ptr->uni0.tame.flag = 0;
+        waza_ptr->w_int = waza_ptr->free1;
+    }
+}
+
 void check_14() { // 🟢
     waza_ptr->w_int--;
 
@@ -801,22 +823,7 @@ void check_14() { // 🟢
     }
 
     if (wcp[cmd_id].waza_flag[waza_type[cmd_id]]) {
-        if (waza_ptr->w_int <= 0) {
-            if (waza_ptr->uni0.tame.flag) {
-                wcp[cmd_id].waza_flag[waza_type[cmd_id]] = wcp[cmd_id].reset[waza_type[cmd_id]];
-                waza_ptr->uni0.tame.flag = 0;
-
-                if (waza_type[cmd_id] & 1) {
-                    waza_ptr->w_int = 10;
-                } else {
-                    waza_ptr->w_int = 6;
-                }
-                return;
-            }
-
-            waza_ptr->uni0.tame.flag = 0;
-            waza_ptr->w_int = waza_ptr->free1;
-        }
+        close_tame_window_if_elapsed();
     } else if (waza_type[cmd_id] & 1) {
         reset_tame_flag_or_charge(0xA);
     } else {
