@@ -423,8 +423,11 @@ void chase_start_check() {
 }
 
 static void chase_x_move() {
-    if (bg_w.chase_flag & 0xF) {
-        bg_w.bg2_sp_x2 = bg_w.bg2_sp_x = 0;
+    if (!(bg_w.chase_flag & 0xF)) {
+        return;
+    }
+
+    bg_w.bg2_sp_x2 = bg_w.bg2_sp_x = 0;
 
         if (bg_w.chase_flag & 1) {
             chase_time_x -= 1;
@@ -458,8 +461,7 @@ static void chase_x_move() {
             bgw_ptr->chase_xy[0].disp.low = 0;
         }
 
-        bg_w.bg2_sp_x = bg_w.bg2_sp_x2 = bgw_ptr->chase_xy[0].disp.pos - bgw_ptr->pos_x_work;
-    }
+    bg_w.bg2_sp_x = bg_w.bg2_sp_x2 = bgw_ptr->chase_xy[0].disp.pos - bgw_ptr->pos_x_work;
 }
 
 static void chase_y_move() {
