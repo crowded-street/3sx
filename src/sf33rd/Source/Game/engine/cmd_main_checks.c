@@ -273,19 +273,29 @@ static bool try_reset_on_tame_field(s16* field, s32 w_int_value) {
     return false;
 }
 
+/* Count how long each punch button has been held.
+ *
+ * The kick arm below keeps its copy inline. The two differ in three mask
+ * literals, so Recipe D cannot merge them, and extracting both was measured at
+ * 5.90 against 6.08 for extracting this one - the twin pair costs more than the
+ * second extraction saves, even though the parent clears either way. */
+static void count_held_punches(void) {
+    if (chk_pl->sw_now & 0x10) {
+        waza_ptr->uni0.tame.flag++;
+    }
+
+    if (chk_pl->sw_now & 0x20) {
+        waza_ptr->uni0.tame.shot_flag++;
+    }
+
+    if (chk_pl->sw_now & 0x40) {
+        waza_ptr->uni0.tame.shot_flag2++;
+    }
+}
+
 void check_4() { // 🟢
     if (waza_ptr->w_lvr == 0x10) {
-        if (chk_pl->sw_now & 0x10) {
-            waza_ptr->uni0.tame.flag++;
-        }
-
-        if (chk_pl->sw_now & 0x20) {
-            waza_ptr->uni0.tame.shot_flag++;
-        }
-
-        if (chk_pl->sw_now & 0x40) {
-            waza_ptr->uni0.tame.shot_flag2++;
-        }
+        count_held_punches();
     } else {
         if (chk_pl->sw_now & 0x100) {
             waza_ptr->uni0.tame.flag++;
