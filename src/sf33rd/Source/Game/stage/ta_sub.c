@@ -68,6 +68,16 @@ void sync_fam_set3(s16 my_fam) {
     Family_Set_W(my_fam + 1, pos_work_x, pos_work_y);
 }
 
+static s32 is_x_in_range(WORK_Other* ewk, s16 work2, s16 work3) {
+    if (work2 > ewk->wu.xyz[0].disp.pos) {
+        return 0;
+    } else if (ewk->wu.xyz[0].disp.pos > work3) {
+        return 0;
+    }
+
+    return 1;
+}
+
 s32 range_x_check(WORK_Other* ewk) {
     s16 pos_x_work;
     s16 work2;
@@ -87,13 +97,7 @@ s32 range_x_check(WORK_Other* ewk) {
         work3 = pos_x_work + 193;
     }
 
-    if (work2 > ewk->wu.xyz[0].disp.pos) {
-        return 0;
-    } else if (ewk->wu.xyz[0].disp.pos > work3) {
-        return 0;
-    }
-
-    return 1;
+    return is_x_in_range(ewk, work2, work3);
 }
 
 s32 range_x_check3(WORK_Other* ewk, s16 optional_range) {
@@ -110,13 +114,7 @@ s32 range_x_check3(WORK_Other* ewk, s16 optional_range) {
     work2 = pos_x_work - 192 - optional_range;
     work3 = 192 + pos_x_work + optional_range;
 
-    if (work2 > ewk->wu.xyz[0].disp.pos) {
-        return 0;
-    } else if (ewk->wu.xyz[0].disp.pos > work3) {
-        return 0;
-    }
-
-    return 1;
+    return is_x_in_range(ewk, work2, work3);
 }
 
 s32 range_y_check(WORK_Other* ewk) {
