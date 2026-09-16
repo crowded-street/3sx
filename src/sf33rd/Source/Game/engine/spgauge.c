@@ -463,6 +463,13 @@ void satime_ko_after_clear(s8 Stpl_Num) {
     plw[Stpl_Num].sa->bacckup_g_h = 0;
 }
 
+/* One side's super-art timer digits are both enabled and being operated. The
+ * two call sites tested the same pair of arrays at index 0 and 1, which is the
+ * single differing value. */
+static s32 time_digit_is_showing(s16 side) {
+    return time_flag[side] == 1 && time_operate[side] == 1;
+}
+
 void sa_time_moji_send() {
     if (time_flag[0] == 0 && time_flag[1] == 0) {
         return;
@@ -474,11 +481,11 @@ void sa_time_moji_send() {
         return;
     }
 
-    if (time_flag[0] == 1 && time_operate[0] == 1) {
+    if (time_digit_is_showing(0)) {
         scfont_sqput2(1, 25, 11, 0, 2, sa_time_data_tbl[time_num][0], 0, 4, 2);
     }
 
-    if (time_flag[1] == 1 && time_operate[1] == 1) {
+    if (time_digit_is_showing(1)) {
         scfont_sqput2(43, 25, 11, 0, 2, sa_time_data_tbl[time_num][1], 0, 4, 2);
     }
 
