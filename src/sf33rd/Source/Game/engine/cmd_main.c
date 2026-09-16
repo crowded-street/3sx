@@ -21,6 +21,19 @@ void (*chk_move_jp[28])() = { check_init, check_0,  check_1,  check_2,  check_3,
                               check_13,   check_14, check_15, check_16, check_16, check_18, check_19,
                               check_20,   check_21, check_22, check_23, check_24, check_25, check_26 };
 
+/* Both call sites sit at the end of an if/else arm with nothing after the
+ * chain, so the early return here is the same exit as the original's. */
+static void advance_when_shot_count_reached(void) {
+    if (waza_ptr->shot_ok >= waza_ptr->free1) {
+        if (*waza_ptr->w_ptr == 28) {
+            command_ok();
+            return;
+        }
+
+        check_next();
+    }
+}
+
 static void finish_or_advance_command(void) {
     if (*waza_ptr->w_ptr == 28) {
         command_ok();
@@ -981,27 +994,13 @@ void check_15() { // 🟢
         if (chk_pl->sw_lever == sw_work) {
             waza_ptr->shot_ok++;
 
-            if (waza_ptr->shot_ok >= waza_ptr->free1) {
-                if (*waza_ptr->w_ptr == 28) {
-                    command_ok();
-                    return;
-                }
-
-                check_next();
-            }
+            advance_when_shot_count_reached();
         }
     } else if (waza_ptr->w_lvr == 0) {
         if (chk_pl->sw_lever == 0) {
             waza_ptr->shot_ok += 1;
 
-            if (waza_ptr->shot_ok >= waza_ptr->free1) {
-                if (*waza_ptr->w_ptr == 28) {
-                    command_ok();
-                    return;
-                }
-
-                check_next();
-            }
+            advance_when_shot_count_reached();
         }
     } else if (
         lever_changed_and_shot_counted()
