@@ -396,19 +396,32 @@ void spgauge_control(s8 Spg_Num) {
     refresh_gauge_display(Spg_Num);
 }
 
+/* On the first wipe frame, a player still showing a timer super art has their
+ * gauge put back to what it was before the art started. The two sides were
+ * written out separately and differed only in the index. */
+static void restore_gauge_after_timer_art(s8 side) {
+    if (spg_dat[side].time == 1 && time_clear[side] == 1) {
+        plw[side].sa->gauge.s.h = plw[side].sa->bacckup_g_h;
+        spg_dat[side].current_spg = plw[side].sa->gauge.s.h;
+    }
+}
+
+/* Before the wipe, commit a player's stock level and mark their timer cleared.
+ * Also index-only duplication between the two sides. */
+static void commit_timer_art_stock(s8 side) {
+    if (spg_dat[side].time_no_clear == 1 || plw[side].sa->ok == -1) {
+        plw[side].sa->ok = 0;
+        time_clear[side] = 1;
+        spg_dat[side].spg_level = plw[side].sa->store;
+    }
+}
+
 void wipe_check() { // 🟡 CPS3 clears an active timer-SA meter at wipe start
     if (Old_Stop_SG) {
         if (wipe_just_started()) {
             // Stop_SG is raised one frame before WipeOut advances; CPS3 clears on that first wipe frame.
-            if (spg_dat[0].time == 1 && time_clear[0] == 1) {
-                plw[0].sa->gauge.s.h = plw[0].sa->bacckup_g_h;
-                spg_dat[0].current_spg = plw[0].sa->gauge.s.h;
-            }
-
-            if (spg_dat[1].time == 1 && time_clear[1] == 1) {
-                plw[1].sa->gauge.s.h = plw[1].sa->bacckup_g_h;
-                spg_dat[1].current_spg = plw[1].sa->gauge.s.h;
-            }
+            restore_gauge_after_timer_art(0);
+            restore_gauge_after_timer_art(1);
 
             // Preserve the pending post-wipe UI cleanup while remembering that the meter state is committed.
             Exec_Wipe_F = -1;
@@ -447,17 +460,8 @@ void wipe_check() { // 🟡 CPS3 clears an active timer-SA meter at wipe start
         }
 
     } else {
-        if (spg_dat[0].time_no_clear == 1 || plw[0].sa->ok == -1) {
-            plw[0].sa->ok = 0;
-            time_clear[0] = 1;
-            spg_dat[0].spg_level = plw[0].sa->store;
-        }
-
-        if (spg_dat[1].time_no_clear == 1 || plw[1].sa->ok == -1) {
-            plw[1].sa->ok = 0;
-            time_clear[1] = 1;
-            spg_dat[1].spg_level = plw[1].sa->store;
-        }
+        commit_timer_art_stock(0);
+        commit_timer_art_stock(1);
     }
 }
 
