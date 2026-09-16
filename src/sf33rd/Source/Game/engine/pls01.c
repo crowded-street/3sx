@@ -444,6 +444,14 @@ void remake_sankaku_tobi_mvxy(WORK* wk, u8 kabe) { // 🟡
     }
 }
 
+static s16 is_airborne_outside_bonus_car(PLW* wk) {
+    if (Bonus_Game_Flag != 20 || !wk->bs2_on_car) {
+        return wk->wu.xyz[1].disp.pos > 0;
+    }
+
+    return 0;
+}
+
 static s16 dash_kind_from_waza_flags(PLW* wk) {
     return (wk->cp->waza_flag[0] != 0) + (wk->cp->waza_flag[1] != 0) * 2;
 }
@@ -482,10 +490,8 @@ s16 check_F_R_dash(PLW* wk) { // 🟢
     s16 num;
     s16 rnum;
 
-    if (Bonus_Game_Flag != 20 || !wk->bs2_on_car) {
-        if (wk->wu.xyz[1].disp.pos > 0) {
-            return 0;
-        }
+    if (is_airborne_outside_bonus_car(wk)) {
+        return 0;
     }
 
     num = dash_kind_from_waza_flags(wk);
