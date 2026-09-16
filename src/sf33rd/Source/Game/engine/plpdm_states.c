@@ -518,26 +518,31 @@ void Damage_17000(PLW* wk) {
     }
 }
 
+/* The launch into state 18: the arc from the attack level, and the attribute
+ * effects that go with the hit. */
+static void begin_damage_18000(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
+    set_char_move_init(&wk->wu, 6, wk->as->char_ix);
+    check_dmpat_to_dmpat(wk);
+    buttobi_add_y_check(wk);
+    setup_butt_own_data(&wk->wu);
+    cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->as->char_ix][wk->wu.dm_attlv], wk->wu.xyz[1].disp.pos);
+    get_sky_dm_timer(wk);
+
+    if (wk->wu.dm_attribute) {
+        setup_accessories(wk, wk->wu.pat_status);
+
+        if (wk->wu.dm_attribute != 2) {
+            effect_D9_init(wk, (u8)wk->wu.dm_attribute);
+        }
+    }
+}
+
 void Damage_18000(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
-        set_char_move_init(&wk->wu, 6, wk->as->char_ix);
-        check_dmpat_to_dmpat(wk);
-        buttobi_add_y_check(wk);
-        setup_butt_own_data(&wk->wu);
-        cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->as->char_ix][wk->wu.dm_attlv], wk->wu.xyz[1].disp.pos);
-        get_sky_dm_timer(wk);
-
-        if (wk->wu.dm_attribute) {
-            setup_accessories(wk, wk->wu.pat_status);
-
-            if (wk->wu.dm_attribute != 2) {
-                effect_D9_init(wk, (u8)wk->wu.dm_attribute);
-            }
-        }
-
+        begin_damage_18000(wk);
         break;
 
     case 1:
