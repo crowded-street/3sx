@@ -408,8 +408,8 @@ Recipe X both refuse to merge.
 | `com_sub_air_term.c` | 9.68 | `ORO_JA_Term` at cc 9; clearing it makes a twin of `ORO_HJA_Term_Airborne` and costs 0.87 |
 | `com_sub_attack.c` | 9.09 | the two normal-attack wind-ups differ in two statements |
 | `com_sub_command_term.c` | 9.09 | two pairs of airborne twins, one state number apart |
-| `eff09.c` | 8.54 | five near-miss pairs; `adjust_sean_ball_left`/`_right` differ in five values |
-| `eff09_animation.c`, `eff09_endgame.c`, `eff09_late.c` | 8.81 | the same near-miss family |
+| `eff09.c` | 8.54 | see *The eff09 family* below |
+| `eff09_animation.c`, `eff09_endgame.c`, `eff09_late.c` | 8.81 | see *The eff09 family* below |
 | `eff02.c` | 9.06 | near-miss siblings |
 | `eff55.c` | 9.42 | the rise and the fall differ in three values; splitting the states exposes it, -0.33 |
 | `eff68.c` | 9.09 | five waypoint steps differing in their timers and targets; sharing their identical runs leaves the smell unmoved |
@@ -556,6 +556,37 @@ a defect introduced by it.** So:
   against 0.87 of score - keep the higher score and record the file as plateaued.
 - Never "fix" sibling similarity by merging two state machines that differ only in their
   state numbering. That needs a literal change and is forbidden.
+
+### The eff09 family: duplication that is only shape
+
+`eff09.c` and its three split files are the campaign's hardest plateau, and the reason is
+worth stating exactly, because every legal move has now been tried and measured.
+
+Their Code Duplication comes from five pairs, and each pair is one of two kinds:
+
+- **Dispatchers that differ only in which functions they call.** `eff09_4000` against
+  `eff09_27000`, `eff09_17000` against `eff09_18000`: same switch, same labels, same
+  shape, different callees. Merging them means passing function pointers, which is not a
+  recipe in this catalogue.
+- **Bodies that differ in three to five values.** `adjust_sean_ball_left` against
+  `_right` differ in a bit mask, two array slots and two thresholds. Recipe D allows one
+  differing value, and Recipe C only extracts runs that are byte-identical.
+
+What was tried, all of it measured at **8.54, unchanged**:
+
+- Recipe C on the 18 copies of `suzi_sync_pos_set` + `sort_push_request` - a real dedup of
+  36 lines into 18, which cleared one pair and let a sixth surface in its place.
+- Recipe C on the shared prefix and middle of the two ball initialisers, and Recipe D on
+  their launch, which differs only in a flight time.
+- Recipe C on the burst setup shared by `eff09_0000` and `eff09_8000`.
+
+All were reverted under rule 2: the score was flat and the smell did not move. What is
+left duplicated is the shape of the state machines themselves, which is the artifact
+described above, not a defect to chase.
+
+**Do not spend another session here.** If the file is ever to reach 10.00 it needs the
+one thing the catalogue forbids - merging sibling state machines - and that is a
+behaviour risk no score is worth.
 
 ### Two mirrored arms are cheaper left together
 
