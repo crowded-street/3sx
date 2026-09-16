@@ -23,9 +23,12 @@ to a smaller model, restrict it to the Recipe P steps and leave the rest.
 > a legitimate CPS3 ROM dump requires owning genuine CPS3 arcade hardware, which this
 > project's no-piracy policy won't work around (see `docs/statcheck.md`, `AGENTS.md`).
 > This file is CRITICAL risk - a silent behaviour change corrupts gameplay or breaks rollback
-> determinism and the build will not catch it. Verify with manual playtesting instead of
-> statcheck: follow the recipes exactly, one recipe per commit, build + `refactor_guard.py`
-> after every commit, and call out what changed so playtesting can be targeted.
+> determinism and the build will not catch it. Verify with `tools/replay_verify.sh
+> origin/main`, which compares per-frame rollback-state hashes between a baseline build
+> and yours and needs no ROM; read `docs/refactoring/REPLAY-VERIFICATION.md` for what it
+> covers and what it does not. Follow the recipes exactly, one recipe per commit, build +
+> `refactor_guard.py` after every commit, and call out what the harness could not reach so
+> the remaining playtesting can be targeted.
 
 ## 1. Read these first
 

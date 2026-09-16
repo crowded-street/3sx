@@ -41,9 +41,17 @@ across harnesses.
   stood up: a legitimate CPS3 ROM dump requires owning genuine CPS3 arcade hardware,
   which this project's no-piracy policy won't work around (`docs/statcheck.md`,
   `AGENTS.md`). This is not "not yet" - treat it as indefinite. Track B files may be
-  refactored; verification is manual playtesting instead of statcheck. Still follow the
-  closed recipe catalogue exactly, one recipe per commit, build + `refactor_guard.py`
-  after every commit, and flag CRITICAL-risk files clearly so playtesting is targeted.
+  refactored. Still follow the closed recipe catalogue exactly, one recipe per commit,
+  and build + `refactor_guard.py` after every commit.
+- **Verification is replay-trace comparison, plus targeted playtesting for what it
+  cannot reach.** `tools/replay_verify.sh origin/main` feeds identical generated inputs
+  to a baseline build and your build and compares their per-frame rollback-state hashes.
+  It needs no ROM - it compares two builds of 3SX, not a build against a CPS3 dump - and
+  it reports the first divergence by seed and frame. It covers the fight loop and
+  nothing else: CPU AI is excluded by design, and so are arcade, bonus and training
+  flows. Read [`docs/refactoring/REPLAY-VERIFICATION.md`](docs/refactoring/REPLAY-VERIFICATION.md)
+  before relying on a clean result, and keep flagging CRITICAL-risk files so the
+  playtesting that remains is targeted.
 - **A Code Health score of 4.00 is a milestone, not the finish line.** It marks leaving
   the Red band, and the task files use it as a stopping point for weaker models that
   should hand the file on rather than attempt the transformations needing data-flow
