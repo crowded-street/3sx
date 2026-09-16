@@ -1050,6 +1050,20 @@ static s32 advance_stage02_state(u8 bgnm) {
     return 0;
 }
 
+static s32 advance_stage19_state(u8 bgnm) {
+    if (is_exe_or_pause_active()) {
+        return 1;
+    }
+
+    if (bgnm != 1) {
+        return 0;
+    }
+
+    advance_stage19_flash_state();
+    advance_stage19_loop_state();
+    return 0;
+}
+
 void scr_trans(u8 bgnm) {
     PPGDataList* curDataList;
     s32 xx[2];
@@ -1127,16 +1141,9 @@ void scr_trans(u8 bgnm) {
             }
         }
 
-        if (is_exe_or_pause_active()) {
+        if (advance_stage19_state(bgnm)) {
             return;
         }
-
-        if (bgnm != 1) {
-            break;
-        }
-
-        advance_stage19_flash_state();
-        advance_stage19_loop_state();
         break;
 
     case 5:
