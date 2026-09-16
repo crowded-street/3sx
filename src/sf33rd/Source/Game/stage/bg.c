@@ -970,17 +970,9 @@ static void draw_stage04_suzi(u8 bgnm) {
     }
 }
 
-void scr_trans(u8 bgnm) {
-    PPGDataList* curDataList;
+static void prepare_stage_tile_bounds(u8 bgnm, s32 xx[2], s32 yy[2]) {
     Vec3 point[2];
-    s32 xx[2];
-    s32 yy[2];
     s32 x;
-    s32 y;
-    s32 global_index;
-    s32 global_index_real;
-    s32 palOffset;
-    u32 vtxColor;
 
     njUnitMatrix(0);
     njScale(0, 1.0f, -1.0f, 1.0f);
@@ -1027,6 +1019,20 @@ void scr_trans(u8 bgnm) {
     njGetMatrix(&BgMATRIX[bgnm + 1]);
     njTranslate(0, 0, 1024.0, PrioBase[bg_priority[bgnm]]);
     njScale(0, 1.0, -1.0, 1.0);
+}
+
+void scr_trans(u8 bgnm) {
+    PPGDataList* curDataList;
+    s32 xx[2];
+    s32 yy[2];
+    s32 x;
+    s32 y;
+    s32 global_index;
+    s32 global_index_real;
+    s32 palOffset;
+    u32 vtxColor;
+
+    prepare_stage_tile_bounds(bgnm, xx, yy);
 
     palOffset = bgPalCodeOffset[bgnm];
 
