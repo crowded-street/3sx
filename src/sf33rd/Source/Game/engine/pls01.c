@@ -444,6 +444,28 @@ void remake_sankaku_tobi_mvxy(WORK* wk, u8 kabe) { // 🟡
     }
 }
 
+static s16 start_forward_dash(PLW* wk) {
+    if (wk->spmv_ng_flag & DIP_FORWARD_DASH_DISABLED) {
+        return 0;
+    }
+
+    wk->wu.routine_no[1] = 0;
+    wk->wu.routine_no[2] = 5;
+    wk->wu.routine_no[3] = 0;
+    return 1;
+}
+
+static s16 start_back_dash(PLW* wk) {
+    if (wk->spmv_ng_flag & DIP_BACK_DASH_DISABLED) {
+        return 0;
+    }
+
+    wk->wu.routine_no[1] = 0;
+    wk->wu.routine_no[2] = 6;
+    wk->wu.routine_no[3] = 0;
+    return 1;
+}
+
 s16 check_F_R_dash(PLW* wk) { // 🟢
     s16 num;
     s16 rnum;
@@ -460,23 +482,11 @@ s16 check_F_R_dash(PLW* wk) { // 🟢
     while (1) {
         switch (num) {
         case 1:
-            if (!(wk->spmv_ng_flag & DIP_FORWARD_DASH_DISABLED)) {
-                wk->wu.routine_no[1] = 0;
-                wk->wu.routine_no[2] = 5;
-                wk->wu.routine_no[3] = 0;
-                rnum = 1;
-            }
-
+            rnum = start_forward_dash(wk);
             break;
 
         case 2:
-            if (!(wk->spmv_ng_flag & DIP_BACK_DASH_DISABLED)) {
-                wk->wu.routine_no[1] = 0;
-                wk->wu.routine_no[2] = 6;
-                wk->wu.routine_no[3] = 0;
-                rnum = 1;
-            }
-
+            rnum = start_back_dash(wk);
             break;
 
         case 3:
