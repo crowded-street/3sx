@@ -83,6 +83,42 @@ void Bg_TexInit() {
     ppgAkaneList.pal = &ppgAkanePal;
 }
 
+static void set_default_kakikae() {
+    u8 i;
+    const bgrw_data_tbl_elem* rwtbl_ptr;
+    s8 rw;
+
+    if (bg_w.stage == 7) {
+        tokusyu_stage = 4;
+    } else {
+        tokusyu_stage = 0;
+    }
+
+    rw_num = 0;
+
+    for (i = 0; i < 4; i++) {
+        rw_bg_flag[i] = 0;
+    }
+
+    for (i = 0; i < 8; i++) {
+        rw = bgrw_on[bg_w.stage][i];
+
+        if (rw == -1) {
+            break;
+        }
+
+        rw_num += 1;
+
+        rwtbl_ptr = &bgrw_data_tbl[rw];
+        rw_dat[i].bg_num = rwtbl_ptr->bg_num;
+        rw_bg_flag[rw_dat[i].bg_num] = 1;
+        rw_dat[i].rwgbix = rwtbl_ptr->rwgbix;
+        rw_dat[i].rwd_ptr = rw_dat[i].brw_ptr = rwtbl_ptr->rw_ptr;
+        rw_dat[i].rw_cnt = *rw_dat[i].rwd_ptr++;
+        rw_dat[i].gbix = *rw_dat[i].rwd_ptr++;
+    }
+}
+
 void Bg_Kakikae_Set() {
     u8 i;
     const bgrw_data_tbl_elem* rwtbl_ptr;
@@ -143,36 +179,7 @@ void Bg_Kakikae_Set() {
         break;
 
     default:
-        if (bg_w.stage == 7) {
-            tokusyu_stage = 4;
-        } else {
-            tokusyu_stage = 0;
-        }
-
-        rw_num = 0;
-
-        for (i = 0; i < 4; i++) {
-            rw_bg_flag[i] = 0;
-        }
-
-        for (i = 0; i < 8; i++) {
-            rw = bgrw_on[bg_w.stage][i];
-
-            if (rw == -1) {
-                break;
-            }
-
-            rw_num += 1;
-
-            rwtbl_ptr = &bgrw_data_tbl[rw];
-            rw_dat[i].bg_num = rwtbl_ptr->bg_num;
-            rw_bg_flag[rw_dat[i].bg_num] = 1;
-            rw_dat[i].rwgbix = rwtbl_ptr->rwgbix;
-            rw_dat[i].rwd_ptr = rw_dat[i].brw_ptr = rwtbl_ptr->rw_ptr;
-            rw_dat[i].rw_cnt = *rw_dat[i].rwd_ptr++;
-            rw_dat[i].gbix = *rw_dat[i].rwd_ptr++;
-        }
-
+        set_default_kakikae();
         break;
     }
 }
