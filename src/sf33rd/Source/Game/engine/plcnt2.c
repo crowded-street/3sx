@@ -283,18 +283,21 @@ void move_player_work_bonus() {
     move_P2_move_P1_bonus(*bs_scrrrl);
 }
 
+/* One player's bonus-stage step: move, then correct against the near field
+ * edge and, if that moved them, the far one. Both bonus orderings do this to
+ * each player; only the order differs. */
+static void move_one_bonus_player(PLW* wk, s32 setting, s16 near_edge, s16 far_edge) {
+    Player_move_bonus(wk, processed_lvbt(Convert_User_Setting(setting)));
+
+    if (set_field_hosei_flag(wk, near_edge, 1) != 0) {
+        set_field_hosei_flag(wk, far_edge, 0);
+    }
+}
+
 void move_P1_move_P2_bonus(s16* field_work) {
-    Player_move_bonus(&plw[0], processed_lvbt(Convert_User_Setting(0)));
+    move_one_bonus_player(&plw[0], 0, field_work[0], field_work[1]);
 
-    if (set_field_hosei_flag(&plw[0], field_work[0], 1) != 0) {
-        set_field_hosei_flag(&plw[0], field_work[1], 0);
-    }
-
-    Player_move_bonus(&plw[1], processed_lvbt(Convert_User_Setting(1)));
-
-    if (set_field_hosei_flag(&plw[1], field_work[2], 1) != 0) {
-        set_field_hosei_flag(&plw[1], field_work[3], 0);
-    }
+    move_one_bonus_player(&plw[1], 1, field_work[2], field_work[3]);
 
     if (Bonus_Game_Flag == 20) {
         plw[1].wu.disp_flag = 0;
@@ -302,17 +305,9 @@ void move_P1_move_P2_bonus(s16* field_work) {
 }
 
 void move_P2_move_P1_bonus(s16* field_work) {
-    Player_move_bonus(&plw[1], processed_lvbt(Convert_User_Setting(1)));
+    move_one_bonus_player(&plw[1], 1, field_work[2], field_work[3]);
 
-    if (set_field_hosei_flag(&plw[1], field_work[2], 1) != 0) {
-        set_field_hosei_flag(&plw[1], field_work[3], 0);
-    }
-
-    Player_move_bonus(&plw[0], processed_lvbt(Convert_User_Setting(0)));
-
-    if (set_field_hosei_flag(&plw[0], field_work[0], 1) != 0) {
-        set_field_hosei_flag(&plw[0], field_work[1], 0);
-    }
+    move_one_bonus_player(&plw[0], 0, field_work[0], field_work[1]);
 
     if (Bonus_Game_Flag == 20) {
         plw[0].wu.disp_flag = 0;
