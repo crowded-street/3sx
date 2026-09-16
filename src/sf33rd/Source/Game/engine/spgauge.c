@@ -852,6 +852,12 @@ void sa_color_chenge(s8 Stpl_Num) {
     }
 }
 
+/* Player 2's gauge is at its top level, or was on the previous frame. The
+ * three tests are the original's, in order. */
+static s32 p2_gauge_is_at_top(void) {
+    return spg_dat[1].max == 1 || spg_dat[1].max_old == 1 || spg_dat[1].spg_level == spg_dat[1].spg_maxlevel;
+}
+
 void sagauge_color_chenge(s8 Stpl_Num) {
     if (spg_dat[Stpl_Num].no_chgcol) {
         return;
@@ -867,7 +873,7 @@ void sagauge_color_chenge(s8 Stpl_Num) {
 
     if (Stpl_Num == 0) {
         sq_paint_chenge(6, 26, spg_dat[0].spg_len, 1, sagauge_colchg_tbl[spg_dat[0].gauge_flash_col][0]);
-    } else if (spg_dat[1].max == 1 || spg_dat[1].max_old == 1 || spg_dat[1].spg_level == spg_dat[1].spg_maxlevel) {
+    } else if (p2_gauge_is_at_top()) {
         sq_paint_chenge(
             42 - spg_dat[1].spg_len, 26, spg_dat[1].mass_len, 1, sagauge_colchg_tbl[spg_dat[1].gauge_flash_col][1]);
         sq_paint_chenge(42 - spg_dat[1].spg_len + spg_dat[1].mass_len,
