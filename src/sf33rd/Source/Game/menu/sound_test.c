@@ -67,13 +67,13 @@ static void initialize_sound_test(struct _TASK* task_ptr) {
         }
 
         Order_Dir[0x78] = 0;
-        effect_A8_init(0, 0x78, 0, 2, 4, 0x70A7, 0);
+        effect_A8_init(&(EffectA8Init){0, 0x78, 0, 2, 4, 0x70A7, 0});
         Order_Dir[0x79] = 1;
-        effect_A8_init(0, 0x79, 0, 2, 4, 0x70A7, 1);
-        effect_A8_init(3, 0x7A, 0, 2, 4, 0x70A7, 3);
+        effect_A8_init(&(EffectA8Init){0, 0x79, 0, 2, 4, 0x70A7, 1});
+        effect_A8_init(&(EffectA8Init){3, 0x7A, 0, 2, 4, 0x70A7, 3});
         Convert_Buff[3][1][4] = 0;
         Order_Dir[0x7B] = 0;
-        effect_A8_init(2, 0x7B, 0, 2, 4, 0x70A7, 2);
+        effect_A8_init(&(EffectA8Init){2, 0x7B, 0, 2, 4, 0x70A7, 2});
 
         {
             s16 unused_s2;
