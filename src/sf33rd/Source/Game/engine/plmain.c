@@ -663,37 +663,48 @@ static void spend_ex_gauge(PLW* wk) {
     }
 }
 
-void eag_union(PLW* wk) { // 🟡
-    switch (wk->sa->ex_rno) {
-    case 0:
-        // CPS3 uses Akuma and Shin Akuma here; the port uses Akuma and Gill.
-        if (wk->player_number == CHAR_AKUMA || wk->player_number == CHAR_GILL) {
-            if (wk->sa->store != 0) {
-                wk->sa->ex_rno = 1;
-                wk->sa->ex = 1;
-            }
-        } else if ((wk->sa->store != 0) || (wk->sa->gauge.s.h >= use_ex_gauge[omop_use_ex_gauge_ix[wk->wu.id]])) {
+/* EX state 0: the move becomes available once there is a stock or enough gauge
+ * for one. */
+static void arm_ex_when_affordable(PLW* wk) {
+    // CPS3 uses Akuma and Shin Akuma here; the port uses Akuma and Gill.
+    if (wk->player_number == CHAR_AKUMA || wk->player_number == CHAR_GILL) {
+        if (wk->sa->store != 0) {
             wk->sa->ex_rno = 1;
             wk->sa->ex = 1;
         }
+    } else if ((wk->sa->store != 0) || (wk->sa->gauge.s.h >= use_ex_gauge[omop_use_ex_gauge_ix[wk->wu.id]])) {
+        wk->sa->ex_rno = 1;
+        wk->sa->ex = 1;
+    }
+}
 
+/* EX state 1: the move becomes unavailable again, or is fired. Not shared with
+ * arm_ex_when_affordable above: the comparisons are inverted, `||` becomes
+ * `&&`, and this one has a third arm. */
+static void disarm_or_fire_ex(PLW* wk) {
+    // CPS3 uses Akuma and Shin Akuma here; the port uses Akuma and Gill.
+    if (wk->player_number == CHAR_AKUMA || wk->player_number == CHAR_GILL) {
+        if (wk->sa->store == 0) {
+            wk->sa->ex_rno = 0;
+            wk->sa->ex = 0;
+        }
+    } else if ((wk->sa->store == 0) && (wk->sa->gauge.s.h < use_ex_gauge[omop_use_ex_gauge_ix[wk->wu.id]])) {
+        wk->sa->ex_rno = 0;
+        wk->sa->ex = 0;
+    } else if (wk->sa->ex == -1) {
+        wk->sa->ex_rno = 2;
+        sa_gauge_flash[wk->wu.id] |= 2;
+    }
+}
+
+void eag_union(PLW* wk) { // 🟡
+    switch (wk->sa->ex_rno) {
+    case 0:
+        arm_ex_when_affordable(wk);
         break;
 
     case 1:
-        // CPS3 uses Akuma and Shin Akuma here; the port uses Akuma and Gill.
-        if (wk->player_number == CHAR_AKUMA || wk->player_number == CHAR_GILL) {
-            if (wk->sa->store == 0) {
-                wk->sa->ex_rno = 0;
-                wk->sa->ex = 0;
-            }
-        } else if ((wk->sa->store == 0) && (wk->sa->gauge.s.h < use_ex_gauge[omop_use_ex_gauge_ix[wk->wu.id]])) {
-            wk->sa->ex_rno = 0;
-            wk->sa->ex = 0;
-        } else if (wk->sa->ex == -1) {
-            wk->sa->ex_rno = 2;
-            sa_gauge_flash[wk->wu.id] |= 2;
-        }
-
+        disarm_or_fire_ex(wk);
         break;
 
     case 2:
