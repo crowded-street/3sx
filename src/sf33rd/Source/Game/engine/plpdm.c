@@ -177,6 +177,18 @@ const u16 exdm_ix_data[2][20][5] = {
       { 16, 20, 1, 0, 21532 },  { 65530, 0, 1, 0, 23315 }, { 23, 2, 1, 0, 25264 },    { 9, 22, 1, 0, 26103 } }
 };
 
+static s32 is_mid_body_hit_on_0x44(const PLW* wk) {
+    return wk->as->char_ix == 0x44 && (wk->dm_point == 2 || wk->dm_point == 3);
+}
+
+static s32 winner_during_dramatic_pause(const PLW* wk) {
+    return pcon_dp_flag && Conclusion_Type != 1 && wk->wu.id == Winner_id;
+}
+
+static s32 is_selectable_projectile(const WORK* tk) {
+    return tk->work_id != 1 && tk->id == 13 && tama_select[tk->type] != 0;
+}
+
 static s32 target_is_gill_resurrecting(const PLW* twk) {
     return twk->player_number == 0 && twk->wu.now_koc == 5 && twk->wu.char_index == 59;
 }
@@ -812,7 +824,7 @@ void Damage_24000(PLW* wk) {
         wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
         wk->dm_step_tbl = _dm_step_data[_select_hit_dsd[wk->wu.dm_impact][get_weight_point(&wk->wu)]];
 
-        if (wk->as->char_ix == 0x44 && (wk->dm_point == 2 || wk->dm_point == 3)) {
+        if (is_mid_body_hit_on_0x44(wk)) {
             set_char_move_init(&wk->wu, 1, 0x45);
         } else {
             wk->zuru_timer = 0;
@@ -1605,7 +1617,7 @@ s32 setup_kuzureochi(PLW* wk) { // 🟡
     }
 
     if (!ArcadeBalance_IsEnabled()) {
-        if (pcon_dp_flag && Conclusion_Type != 1 && wk->wu.id == Winner_id) {
+        if (winner_during_dramatic_pause(wk)) {
             wk->wu.vital_new = 0;
             return 0;
         }
@@ -1647,7 +1659,7 @@ void get_catch_off_data(PLW* wk, s16 ix) {
 void check_bullet_damage(PLW* wk) {
     WORK* tk = (WORK*)wk->wu.dmg_adrs;
 
-    if (tk->work_id != 1 && tk->id == 13 && tama_select[tk->type] != 0) {
+    if (is_selectable_projectile(tk)) {
         wk->bullet_hcnt += tama_select[tk->type];
         wk->bhcnt_timer = 800;
     }

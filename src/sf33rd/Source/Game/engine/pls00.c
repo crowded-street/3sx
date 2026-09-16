@@ -33,6 +33,15 @@ void (*const plpnm_xxxxx_arcade[59])(PLW* wk);
 void (*const plpdm_xxxxx[32])(PLW* wk);
 void (*const plpdm_xxxxx_arcade[39])(PLW* wk);
 
+static s32 is_elena_special_36(const PLW* wk) {
+    return wk->player_number == CHAR_ELENA && wk->wu.now_koc == 0 && wk->wu.char_index == 36;
+}
+
+/* Runs check_nm_attack as the last term, exactly where the original did. */
+static s32 normal_attack_cancels_into_new(PLW* wk) {
+    return (wk->wu.cg_cancel & 4) && ((wk->cp->sw_now & 0x770) != wk->current_attack) && check_nm_attack(wk);
+}
+
 void check_lever_data(PLW* wk) { // 🟢
     if (wk->wu.routine_no[0] == 4) {
         process_ndcca[wk->wu.routine_no[1]](wk);
@@ -922,7 +931,7 @@ void nm_36000(PLW* wk) { // 🟢
             wk->wu.routine_no[2] = 1;
             wk->wu.routine_no[3] = 0;
         }
-    } else if (wk->player_number == CHAR_ELENA && wk->wu.now_koc == 0 && wk->wu.char_index == 36) {
+    } else if (is_elena_special_36(wk)) {
         exset_char_move_init(&wk->wu, 0, 0);
         wk->wu.routine_no[2] = 1;
         wk->wu.routine_no[3] = 1;
@@ -1457,7 +1466,7 @@ s32 check_cg_cancel_data(PLW* wk) { // 🟡
         return 1;
     }
 
-    if ((wk->wu.cg_cancel & 4) && ((wk->cp->sw_now & 0x770) != wk->current_attack) && check_nm_attack(wk)) {
+    if (normal_attack_cancels_into_new(wk)) {
         return 1;
     }
 
