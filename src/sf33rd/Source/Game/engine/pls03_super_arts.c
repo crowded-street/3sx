@@ -437,6 +437,26 @@ s32 check_super_arts_attack_dc(PLW* wk) { // 🟡
     }
 }
 
+/* The gates a grounded super art must pass before it starts. The airborne arm
+ * keeps its own copy inline: it tests a different DIP switch and `<` rather
+ * than `>`, so the two cannot be merged, and extracting from both would only
+ * create a twin pair. */
+static s32 grounded_art_is_blocked(PLW* wk) {
+    if (wk->spmv_ng_flag & DIP_UNKNOWN_30) {
+        return 1;
+    }
+
+    if (wk->sa->ok != 1) {
+        return 1;
+    }
+
+    if (wk->sa->nmsa_g_ix > 0x1C) {
+        return 1;
+    }
+
+    return is_blocked_by_arcade_switch(wk, wk->sa->nmsa_g_ix);
+}
+
 s32 execute_super_arts(PLW* wk) { // 🟡
     if (wk->cancel_timer == 0) {
         wk->permited_koa |= 1;
@@ -447,19 +467,7 @@ s32 execute_super_arts(PLW* wk) { // 🟡
     }
 
     if (player_is_grounded_or_on_car(wk)) {
-        if (wk->spmv_ng_flag & DIP_UNKNOWN_30) {
-            return 0;
-        }
-
-        if (wk->sa->ok != 1) {
-            return 0;
-        }
-
-        if (wk->sa->nmsa_g_ix > 0x1C) {
-            return 0;
-        }
-
-        if (is_blocked_by_arcade_switch(wk, wk->sa->nmsa_g_ix)) {
+        if (grounded_art_is_blocked(wk)) {
             return 0;
         }
 
