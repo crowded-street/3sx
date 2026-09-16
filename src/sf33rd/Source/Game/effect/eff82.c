@@ -28,9 +28,48 @@ static s32 animation_can_advance(void) {
 }
 
 
+/* Travel until close enough to the master, then sound the effect and start the
+ * depth move. */
+static void e82_approach(WORK_Other* ewk, const WORK* oya_ptr) {
+    s16 work;
+
+    if (game_is_active()) {
+        ewk->wu.old_rno[0]--;
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
+        work = ewk->wu.xyz[0].disp.pos - oya_ptr->xyz[0].disp.pos;
+
+        if (work < 0) {
+            work = -work;
+        }
+
+        if (work < 113) {
+            ewk->wu.routine_no[0]++;
+            Sound_SE((ewk->master_id * 768) + 350);
+            char_move_z(&ewk->wu);
+        }
+    }
+}
+
+/* Keep closing while the timer runs, then signal the master and switch to the
+ * finishing animation. */
+static void e82_close_in(WORK_Other* ewk, WORK* oya_ptr) {
+    if (animation_can_advance()) {
+        char_move(&ewk->wu);
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
+        ewk->wu.old_rno[0]--;
+
+        if (ewk->wu.old_rno[0] <= 0) {
+            ewk->wu.routine_no[0]++;
+            oya_ptr->cmwk[1] = 9;
+            set_char_move_init(&ewk->wu, 0, 42);
+        }
+    }
+}
+
 void effect_82_move(WORK_Other* ewk) {
     WORK* oya_ptr = (WORK*)ewk->my_master;
-    s16 work;
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -43,41 +82,13 @@ void effect_82_move(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (game_is_active()) {
-            ewk->wu.old_rno[0]--;
-            add_x_sub(&ewk->wu);
-            add_y_sub(&ewk->wu);
-            work = ewk->wu.xyz[0].disp.pos - oya_ptr->xyz[0].disp.pos;
-
-            if (work < 0) {
-                work = -work;
-            }
-
-            if (work < 113) {
-                ewk->wu.routine_no[0]++;
-                Sound_SE((ewk->master_id * 768) + 350);
-                char_move_z(&ewk->wu);
-            }
-        }
-
+        e82_approach(ewk, oya_ptr);
         suzi_sync_pos_set(ewk);
         sort_push_request(&ewk->wu);
         break;
 
     case 2:
-        if (animation_can_advance()) {
-            char_move(&ewk->wu);
-            add_x_sub(&ewk->wu);
-            add_y_sub(&ewk->wu);
-            ewk->wu.old_rno[0]--;
-
-            if (ewk->wu.old_rno[0] <= 0) {
-                ewk->wu.routine_no[0]++;
-                oya_ptr->cmwk[1] = 9;
-                set_char_move_init(&ewk->wu, 0, 42);
-            }
-        }
-
+        e82_close_in(ewk, oya_ptr);
         suzi_sync_pos_set(ewk);
         sort_push_request(&ewk->wu);
         break;
