@@ -629,6 +629,48 @@ static void apply_sa_cancel_flags(WORK* wk) {
     }
 }
 
+/* On the ground: the high-jump and dash cancels have a DIP switch each, and
+ * the chain table has one of its own. Character 4 has its own table. */
+static void apply_ground_chain_cancel(WORK* wk) {
+    if (!(WK_AS_PLW->spmv_ng_flag2 & DIP2_ALL_MOVES_CANCELLABLE_BY_HIGH_JUMP_DISABLED)) {
+        wk->cg_cancel |= 1;
+    }
+
+    if (!(WK_AS_PLW->spmv_ng_flag2 & DIP2_ALL_MOVES_CANCELLABLE_BY_DASH_DISABLED)) {
+        wk->cg_cancel |= 2;
+    }
+
+    if (WK_AS_PLW->spmv_ng_flag2 & DIP2_GROUND_CHAIN_COMBO_DISABLED) {
+        return;
+    }
+
+    if (WK_AS_PLW->player_number == 4) {
+        wk->cg_meoshi = chain_hidou_nm_ground_table[wk->kow & 7];
+        wk->cg_cancel |= 8;
+        return;
+    }
+
+    wk->cg_meoshi = chain_normal_ground_table[wk->kow & 7];
+    wk->cg_cancel |= 8;
+}
+
+/* In the air, where the chain is also refused too low to the ground.
+ * Character 7 has its own table. */
+static void apply_air_chain_cancel(WORK* wk) {
+    if ((WK_AS_PLW->spmv_ng_flag2 & DIP2_AIR_CHAIN_COMBO_DISABLED) || hikusugi_check(wk)) {
+        return;
+    }
+
+    if (WK_AS_PLW->player_number == 7) {
+        wk->cg_meoshi = chain_hidou_nm_air_table[wk->kow & 7];
+        wk->cg_cancel |= 8;
+        return;
+    }
+
+    wk->cg_meoshi = chain_normal_air_table[wk->kow & 7];
+    wk->cg_cancel |= 8;
+}
+
 /* The chain-combo tables, by the kind of move this pattern belongs to. Each
  * chain is gated on its own DIP switch, and two characters have their own
  * table. */
@@ -642,43 +684,13 @@ static void apply_chain_cancel(WORK* wk) {
         /* fallthrough */
 
     case 1:
-        if (!(WK_AS_PLW->spmv_ng_flag2 & DIP2_ALL_MOVES_CANCELLABLE_BY_HIGH_JUMP_DISABLED)) {
-            wk->cg_cancel |= 1;
-        }
-
-        if (!(WK_AS_PLW->spmv_ng_flag2 & DIP2_ALL_MOVES_CANCELLABLE_BY_DASH_DISABLED)) {
-            wk->cg_cancel |= 2;
-        }
-
-        if (!(WK_AS_PLW->spmv_ng_flag2 & DIP2_GROUND_CHAIN_COMBO_DISABLED)) {
-            if (WK_AS_PLW->player_number == 4) {
-                wk->cg_meoshi = chain_hidou_nm_ground_table[wk->kow & 7];
-                wk->cg_cancel |= 8;
-                return;
-            }
-
-            wk->cg_meoshi = chain_normal_ground_table[wk->kow & 7];
-            wk->cg_cancel |= 8;
-            return;
-        }
-
+        apply_ground_chain_cancel(wk);
         break;
 
     case 2:
-        if (!(WK_AS_PLW->spmv_ng_flag2 & DIP2_AIR_CHAIN_COMBO_DISABLED) && !hikusugi_check(wk)) {
-            if (WK_AS_PLW->player_number == 7) {
-                wk->cg_meoshi = chain_hidou_nm_air_table[wk->kow & 7];
-                wk->cg_cancel |= 8;
-                return;
-            }
-
-            wk->cg_meoshi = chain_normal_air_table[wk->kow & 7];
-            wk->cg_cancel |= 8;
-        }
-
+        apply_air_chain_cancel(wk);
         break;
     }
-
 }
 
 /* Everything a player work does to its cancel flags once the pattern data is
