@@ -38,15 +38,31 @@ static void begin_bonus_stage(PLW* wk) {
     effect_H0_init(&wk->wu);
 }
 
+/* The idle patterns are 1 and the 36-38 run; anything else means the thrower
+ * is busy. */
+static s32 thrower_pattern_is_not_idle(PLW* wk) {
+    return wk->wu.routine_no[2] != 1 && (wk->wu.routine_no[2] < 36 || wk->wu.routine_no[2] > 38);
+}
+
+/* The thrower is between barrels: not in a move, and standing in one of the
+ * idle patterns the stage uses. */
+static s32 thrower_is_idle(PLW* wk) {
+    if (wk->wu.routine_no[1] != 0) {
+        return 0;
+    }
+
+    if (thrower_pattern_is_not_idle(wk)) {
+        return 0;
+    }
+
+    return 1;
+}
+
 /* The player is idle again, so the next table entry is read. Which state the
  * stage goes to depends on whether that entry has a timer and whether it has
  * any barrels; the end of the table ends the stage. */
 static void advance_to_next_barrel(PLW* wk) {
-    if (wk->wu.routine_no[1] != 0) {
-        return;
-    }
-
-    if (wk->wu.routine_no[2] != 1 && (wk->wu.routine_no[2] < 36 || wk->wu.routine_no[2] > 38)) {
+    if (!thrower_is_idle(wk)) {
         return;
     }
 
