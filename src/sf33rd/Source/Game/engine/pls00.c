@@ -124,26 +124,37 @@ static bool run_active_cancel_checks(PLW* wk) {
     return false;
 }
 
+/* Everything that can take the attack away from the player mid-move: the
+ * ground check, a cancel inside its window, a full-gauge attack, and the
+ * triangle jump. Returns 1 when one of them took over. */
+static s32 attack_was_interrupted(PLW* wk) {
+    if (check_ashimoto_ex(wk)) {
+        return 1;
+    }
+
+    if (wk->cancel_timer && wk->wu.hit_stop == 0) {
+        wk->cancel_timer--;
+    }
+
+    if (wk->cancel_timer && run_active_cancel_checks(wk)) {
+        return 1;
+    }
+
+    if (wk->wu.routine_no[2] < 16 && check_full_gauge_attack(wk, 1)) {
+        wk->wu.cg_cancel &= 0;
+        return 1;
+    }
+
+    if (wk->wu.routine_no[2] == 3 && check_sankaku_tobi(wk)) {
+        return 1;
+    }
+
+    return 0;
+}
+
 void process_attack(PLW* wk) { // 🟢
     if (wk->wu.routine_no[3] != 0) {
-        if (check_ashimoto_ex(wk)) {
-            return;
-        }
-
-        if (wk->cancel_timer && wk->wu.hit_stop == 0) {
-            wk->cancel_timer--;
-        }
-
-        if (wk->cancel_timer && run_active_cancel_checks(wk)) {
-            return;
-        }
-
-        if (wk->wu.routine_no[2] < 16 && check_full_gauge_attack(wk, 1)) {
-            wk->wu.cg_cancel &= 0;
-            return;
-        }
-
-        if (wk->wu.routine_no[2] == 3 && check_sankaku_tobi(wk)) {
+        if (attack_was_interrupted(wk)) {
             return;
         }
     }
