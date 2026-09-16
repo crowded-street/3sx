@@ -798,6 +798,20 @@ static s32 falling_within_height(const PLW* wk, s16 cmd_ex) {
     return (wk->wu.mvxy.a[1].sp <= 0) && cmd_ex_check(wk->wu.xyz[1].disp.pos, cmd_ex);
 }
 
+/* Rising, holding exactly this lever direction, and within the step's height.
+ * The falling twin below is a separate predicate: the two differ in `>` against
+ * `<=`, which Recipe D may not parameterise. */
+static s32 rising_with_lever_at_height(PLW* wk, u16 lever, s16 cmd_ex) {
+    return (wk->wu.mvxy.a[1].sp > 0) && (lever == (wk->cp->sw_new & 0xF)) &&
+           cmd_ex_check(wk->wu.xyz[1].disp.pos, cmd_ex);
+}
+
+/* Falling, holding exactly this lever direction, and within the step's height. */
+static s32 falling_with_lever_at_height(PLW* wk, u16 lever, s16 cmd_ex) {
+    return (wk->wu.mvxy.a[1].sp <= 0) && (lever == (wk->cp->sw_new & 0xF)) &&
+           cmd_ex_check(wk->wu.xyz[1].disp.pos, cmd_ex);
+}
+
 u16 decode_wst_data(PLW* wk, u16 cmd, s16 cmd_ex) { // 🟢
     u16 lever;
     u16 rnum;
@@ -851,16 +865,14 @@ u16 decode_wst_data(PLW* wk, u16 cmd, s16 cmd_ex) { // 🟢
         break;
 
     case 0xA000:
-        if ((wk->wu.mvxy.a[1].sp > 0) && (lever == (wk->cp->sw_new & 0xF)) &&
-            cmd_ex_check(wk->wu.xyz[1].disp.pos, cmd_ex)) {
+        if (rising_with_lever_at_height(wk, lever, cmd_ex)) {
             rnum = 1;
         }
 
         break;
 
     case 0x9000:
-        if ((wk->wu.mvxy.a[1].sp <= 0) && (lever == (wk->cp->sw_new & 0xF)) &&
-            cmd_ex_check(wk->wu.xyz[1].disp.pos, cmd_ex)) {
+        if (falling_with_lever_at_height(wk, lever, cmd_ex)) {
             rnum = 1;
         }
 
