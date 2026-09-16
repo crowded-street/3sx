@@ -16,36 +16,43 @@ static s32 should_end_effect(const WORK_Other* ewk) {
     return ewk->wu.dead_f == 1 || Suicide[6] != 0;
 }
 
+static void eff96_spawn(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.char_table[0] = _ef13_char_table;
+    set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+}
+
+static void eff96_animate(WORK_Other* ewk) {
+    if (should_end_effect(ewk)) {
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0]++;
+        return;
+    }
+
+    if (ewk->wu.hit_stop) {
+        ewk->wu.hit_stop--;
+    } else if (EXE_flag == 0 && Game_pause == 0) {
+        char_move(&ewk->wu);
+
+        if (ewk->wu.cg_type == 0xFF) {
+            ewk->wu.disp_flag = 0;
+            ewk->wu.routine_no[0]++;
+            return;
+        }
+    }
+
+    sort_push_request(&ewk->wu);
+}
+
 void effect_96_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.char_table[0] = _ef13_char_table;
-        set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+        eff96_spawn(ewk);
         /* fallthrough */
 
     case 1:
-        if (should_end_effect(ewk)) {
-            ewk->wu.disp_flag = 0;
-            ewk->wu.routine_no[0]++;
-            break;
-        }
-
-        if (ewk->wu.hit_stop) {
-            ewk->wu.hit_stop--;
-        } else if (EXE_flag == 0 && Game_pause == 0) {
-            char_move(&ewk->wu);
-
-            if (ewk->wu.cg_type == 0xFF) {
-                ewk->wu.disp_flag = 0;
-                ewk->wu.routine_no[0]++;
-                break;
-            }
-        }
-
-        sort_push_request(&ewk->wu);
+        eff96_animate(ewk);
         break;
-
     case 2:
         ewk->wu.routine_no[0] = 3;
         break;
