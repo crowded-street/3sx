@@ -373,9 +373,29 @@ void buttobi_add_y_check(PLW* wk) {
     }
 }
 
+/* Which of the four smoke effects the accumulated damage earns. The thresholds
+ * and the order they are tested in are the original's; only the assignment to a
+ * shared local becomes a return. */
+static u8 smoke_type_for(s16 total) {
+    u8 ix = 0;
+
+    if (total >= 48) {
+        ix = 1;
+
+        if (total >= 64) {
+            ix = 2;
+
+            if (total >= 80) {
+                ix = 3;
+            }
+        }
+    }
+
+    return ix;
+}
+
 void setup_smoke_type(PLW* wk) {
     s8* step_tbl;
-    u8 ix;
     s16 i;
     s16 total;
 
@@ -391,21 +411,7 @@ void setup_smoke_type(PLW* wk) {
     }
 
     if (total >= 32) {
-        ix = 0;
-
-        if (total >= 48) {
-            ix = 1;
-
-            if (total >= 64) {
-                ix = 2;
-
-                if (total >= 80) {
-                    ix = 3;
-                }
-            }
-        }
-
-        effect_G6_init(&wk->wu, ix);
+        effect_G6_init(&wk->wu, smoke_type_for(total));
     }
 }
 
