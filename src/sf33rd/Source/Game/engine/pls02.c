@@ -592,6 +592,37 @@ s32 set_field_hosei_flag(PLW* pl, s16 pos, s16 ix) { // 🟢
     return 1;
 }
 
+/* The two works are level in X and face the same way. Which of them is
+ * standing on the ground then decides who counts as in front. */
+static s16 position_from_ground_contact(WORK* p1, WORK* p2) {
+    switch ((p1->xyz[1].disp.pos == 0) + (p2->xyz[1].disp.pos == 0) * 2) {
+    case 1:
+        if (p1->rl_flag) {
+            return 0;
+        }
+
+        return 1;
+
+    case 2:
+        if (ArcadeBalance_IsEnabled()) {
+            if (p2->rl_flag) {
+                return 0;
+            }
+
+            return 1;
+        }
+
+        if (p2->rl_flag) {
+            return 1;
+        }
+
+        return 0;
+
+    default:
+        return 0;
+    }
+}
+
 s16 check_work_position(WORK* p1, WORK* p2) { // 🟡
     s16 result = p1->xyz[0].disp.pos - p2->xyz[0].disp.pos;
     s16 num;
@@ -609,36 +640,7 @@ s16 check_work_position(WORK* p1, WORK* p2) { // 🟡
             num = 1;
         }
     } else {
-        switch ((p1->xyz[1].disp.pos == 0) + (p2->xyz[1].disp.pos == 0) * 2) {
-        case 1:
-            if (p1->rl_flag) {
-                num = 0;
-            } else {
-                num = 1;
-            }
-            break;
-
-        case 2:
-            if (ArcadeBalance_IsEnabled()) {
-                if (p2->rl_flag) {
-                    num = 0;
-                } else {
-                    num = 1;
-                }
-            } else {
-                if (p2->rl_flag) {
-                    num = 1;
-                } else {
-                    num = 0;
-                }
-            }
-
-            break;
-
-        default:
-            num = 0;
-            break;
-        }
+        num = position_from_ground_contact(p1, p2);
     }
 
     return num;
