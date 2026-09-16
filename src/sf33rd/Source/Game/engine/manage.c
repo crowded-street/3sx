@@ -1456,6 +1456,19 @@ void BGM_Fade_Sub() {
     }
 }
 
+/* Start the stage's music. One opponent gets a fixed track rather than the
+ * stage's own; that is the original's special case and its number. */
+static void start_stage_bgm(void) {
+    BGM_No[0] = 0;
+
+    if (Play_Type == 0 && EM_id == 17) {
+        Stage_BGM(17, Round_num);
+        return;
+    }
+
+    Stage_BGM(bg_w.stage, Round_num);
+}
+
 void BGM_Control() {
     switch (BGM_No[0]) {
     case 0:
@@ -1469,14 +1482,7 @@ void BGM_Control() {
         /* fallthrough */
 
     case 2:
-        BGM_No[0] = 0;
-
-        if (Play_Type == 0 && EM_id == 17) {
-            Stage_BGM(17, Round_num);
-            break;
-        }
-
-        Stage_BGM(bg_w.stage, Round_num);
+        start_stage_bgm();
         break;
 
     case 3:
