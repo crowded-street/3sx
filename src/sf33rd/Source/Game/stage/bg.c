@@ -184,9 +184,28 @@ void Bg_Kakikae_Set() {
     }
 }
 
-void Ed_Kakikae_Set(s16 type) {
+static void set_default_ending_kakikae(s16 type) {
     u8 i;
     s8 rw;
+
+    if (edrw_num[type][0] != -1) {
+        rw = edrw_num[type][0];
+
+        for (i = 0; i < edrw_num[type][1]; i++) {
+            const edrw_data* edrw_data_ptr = &edrw_data_tbl[rw + i];
+            rw_num += 1;
+            rw_dat[i].bg_num = edrw_data_ptr->bg_num;
+            rw_bg_flag[rw_dat[i].bg_num] = 1;
+            rw_dat[i].rwgbix = edrw_data_ptr->rwgbix;
+            rw_dat[i].rwd_ptr = rw_dat[i].brw_ptr = edrw_data_ptr->rw_ptr;
+            rw_dat[i].rw_cnt = *rw_dat[i].rwd_ptr++;
+            rw_dat[i].gbix = *rw_dat[i].rwd_ptr++;
+        }
+    }
+}
+
+void Ed_Kakikae_Set(s16 type) {
+    u8 i;
 
     rw_num = 0;
 
@@ -214,21 +233,7 @@ void Ed_Kakikae_Set(s16 type) {
         break;
 
     default:
-        if (edrw_num[type][0] != -1) {
-            rw = edrw_num[type][0];
-
-            for (i = 0; i < edrw_num[type][1]; i++) {
-                const edrw_data* edrw_data_ptr = &edrw_data_tbl[rw + i];
-                rw_num += 1;
-                rw_dat[i].bg_num = edrw_data_ptr->bg_num;
-                rw_bg_flag[rw_dat[i].bg_num] = 1;
-                rw_dat[i].rwgbix = edrw_data_ptr->rwgbix;
-                rw_dat[i].rwd_ptr = rw_dat[i].brw_ptr = edrw_data_ptr->rw_ptr;
-                rw_dat[i].rw_cnt = *rw_dat[i].rwd_ptr++;
-                rw_dat[i].gbix = *rw_dat[i].rwd_ptr++;
-            }
-        }
-
+        set_default_ending_kakikae(type);
         break;
     }
 }
