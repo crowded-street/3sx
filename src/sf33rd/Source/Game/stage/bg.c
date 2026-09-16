@@ -1024,6 +1024,32 @@ static void prepare_stage_tile_bounds(u8 bgnm, s32 xx[2], s32 yy[2]) {
     njScale(0, 1.0, -1.0, 1.0);
 }
 
+static s32 advance_stage02_state(u8 bgnm) {
+    if (is_exe_or_pause_active()) {
+        return 1;
+    }
+
+    if (bgnm != 1) {
+        return 0;
+    }
+
+    yang_timer--;
+
+    if (yang_timer != 0) {
+        return 0;
+    }
+
+    yang_timer = 4;
+    yang_ix++;
+
+    if (yang_ix == 4) {
+        yang_ix = 0;
+    }
+
+    yang_ix_plus = yang_ix << 5;
+    return 0;
+}
+
 void scr_trans(u8 bgnm) {
     PPGDataList* curDataList;
     s32 xx[2];
@@ -1074,28 +1100,9 @@ void scr_trans(u8 bgnm) {
 
         draw_stage02_tiles(bgnm, xx, yy, global_index, vtxColor, palOffset, curDataList);
 
-        if (is_exe_or_pause_active()) {
+        if (advance_stage02_state(bgnm)) {
             return;
         }
-
-        if (bgnm != 1) {
-            break;
-        }
-
-        yang_timer--;
-
-        if (yang_timer != 0) {
-            break;
-        }
-
-        yang_timer = 4;
-        yang_ix++;
-
-        if (yang_ix == 4) {
-            yang_ix = 0;
-        }
-
-        yang_ix_plus = yang_ix << 5;
         break;
 
     case 3:
