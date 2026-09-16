@@ -290,6 +290,43 @@ static void run_bonus_perfect_result_phase(void) {
     }
 }
 
+/* Tick one unit off the bonus tally: award its thousand points and its sound,
+ * or move on to the perfect bonus or the wrap-up once the tally is empty. Every
+ * `break` in the original left the switch with nothing after it, so each is a
+ * `return` here. */
+static void count_one_bonus_hit(void) {
+    if (Bonus_Game_result == 0 && !(PB_Status & 2)) {
+        C_No[2] = 4;
+        C_Timer = 30;
+        return;
+    }
+
+    if (Bonus_Game_result == 0) {
+        Bonus_Game_result = 1;
+    } else {
+        Bonus_Score += 1000;
+        Score[Player_id][0] += 1000;
+        Disp_Score_Buff[0] = Bonus_Score;
+        Sound_SE(100);
+    }
+
+    if (--Bonus_Game_result == 0) {
+        C_No[2]++;
+
+        if (PB_Status) {
+            C_No[3] = 1;
+            C_Timer = 10;
+            return;
+        }
+
+        C_No[3] = 0;
+        C_Timer = 20;
+        return;
+    }
+
+    C_Timer = 3;
+}
+
 void Game_Manage_12_4() {
     switch (C_No[2]) {
     case 0:
@@ -314,36 +351,7 @@ void Game_Manage_12_4() {
 
     case 2:
         if (bonus_cut_and_timer_finished()) {
-            if (Bonus_Game_result == 0 && !(PB_Status & 2)) {
-                C_No[2] = 4;
-                C_Timer = 30;
-                break;
-            }
-
-            if (Bonus_Game_result == 0) {
-                Bonus_Game_result = 1;
-            } else {
-                Bonus_Score += 1000;
-                Score[Player_id][0] += 1000;
-                Disp_Score_Buff[0] = Bonus_Score;
-                Sound_SE(100);
-            }
-
-            if (--Bonus_Game_result == 0) {
-                C_No[2]++;
-
-                if (PB_Status) {
-                    C_No[3] = 1;
-                    C_Timer = 10;
-                    break;
-                }
-
-                C_No[3] = 0;
-                C_Timer = 20;
-                break;
-            }
-
-            C_Timer = 3;
+            count_one_bonus_hit();
         }
 
         break;
