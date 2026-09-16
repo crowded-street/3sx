@@ -1147,6 +1147,14 @@ const u8 plpdm_mvkind[32] = { 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
 
 const u8 plpxx_kind[5] = { 0, 1, 0, 1, 0 };
 
+/* The four states that hold the draining vitality still, in the order the
+ * original tested them. Each was its own `break` out of case 0; `||`
+ * short-circuits the same way, and none of the four has a side effect. */
+static s32 vital_drain_is_paused(const PLW* wk) {
+    return vital_dec_timer || ((wk->wu.routine_no[1] == 0) && !(plpnm_mvkind[wk->wu.routine_no[2]] & 1)) ||
+           ((wk->wu.routine_no[1] == 1) && !(plpdm_mvkind[wk->wu.routine_no[2]] & 1)) || (wk->wu.routine_no[1] == 3);
+}
+
 void check_omop_vital(PLW* wk) { // 🔴
     if (pcon_dp_flag) {
         return;
@@ -1167,19 +1175,7 @@ void check_omop_vital(PLW* wk) { // 🔴
 
     switch (omop_vital_ix[wk->wu.id]) {
     case 0:
-        if (vital_dec_timer) {
-            break;
-        }
-
-        if ((wk->wu.routine_no[1] == 0) && !(plpnm_mvkind[wk->wu.routine_no[2]] & 1)) {
-            break;
-        }
-
-        if ((wk->wu.routine_no[1] == 1) && !(plpdm_mvkind[wk->wu.routine_no[2]] & 1)) {
-            break;
-        }
-
-        if (wk->wu.routine_no[1] == 3) {
+        if (vital_drain_is_paused(wk)) {
             break;
         }
 
