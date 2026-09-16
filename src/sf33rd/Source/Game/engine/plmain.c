@@ -702,6 +702,20 @@ void eag_union(PLW* wk) { // 🟡
     }
 }
 
+/* State 1 of the super-art machine, shared verbatim by sag_union_0,
+ * sag_union_1 and sag_union_3: drop back to state 0 if the stock went away,
+ * otherwise advance when the art has been asked for. sag_union_ps2 has its own
+ * version with a gt2 test in it and is not included. */
+static void update_super_art_ready(PLW* wk) {
+    if (wk->sa->store == 0) {
+        wk->sa->sa_rno = 0;
+        wk->sa->ok = 0;
+    } else if (wk->sa->ok == -1) {
+        wk->sa->sa_rno = 2;
+        wk->sa->saeff_ok = 1;
+    }
+}
+
 void sag_union_0(PLW* wk) { // 🟢
     switch (wk->sa->sa_rno) {
     case 0:
@@ -715,14 +729,7 @@ void sag_union_0(PLW* wk) { // 🟢
         break;
 
     case 1:
-        if (wk->sa->store == 0) {
-            wk->sa->sa_rno = 0;
-            wk->sa->ok = 0;
-        } else if (wk->sa->ok == -1) {
-            wk->sa->sa_rno = 2;
-            wk->sa->saeff_ok = 1;
-        }
-
+        update_super_art_ready(wk);
         break;
 
     case 2:
@@ -778,14 +785,7 @@ void sag_union_1(PLW* wk) { // 🟢
         break;
 
     case 1:
-        if (wk->sa->store == 0) {
-            wk->sa->sa_rno = 0;
-            wk->sa->ok = 0;
-        } else if (wk->sa->ok == -1) {
-            wk->sa->sa_rno = 2;
-            wk->sa->saeff_ok = 1;
-        }
-
+        update_super_art_ready(wk);
         break;
 
     case 2:
@@ -860,14 +860,7 @@ void sag_union_3(PLW* wk) { // 🟢
         break;
 
     case 1:
-        if (wk->sa->store == 0) {
-            wk->sa->sa_rno = 0;
-            wk->sa->ok = 0;
-        } else if (wk->sa->ok == -1) {
-            wk->sa->sa_rno = 2;
-            wk->sa->saeff_ok = 1;
-        }
-
+        update_super_art_ready(wk);
         break;
 
     case 2:
