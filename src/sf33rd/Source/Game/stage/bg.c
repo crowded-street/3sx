@@ -523,23 +523,47 @@ static u16 load_ending_rewrite_textures(void* loadAdrs, u32 loadSize, u8 j, u8 x
     return accnum;
 }
 
+static u16 load_ending_screen_textures(s16 type, void* loadAdrs, u32 loadSize, u8 j, u16 accnum) {
+    u32 tgbix[2];
+    u32 mask;
+    u8 i;
+    u8 k;
+    u32 assign2;
+
+    tgbix[0] = bgtex_ending_gbix[type][j * 2];
+    tgbix[1] = bgtex_ending_gbix[type][(j * 2) + 1];
+    mask = 0x80000000;
+    ppgSetupCurrentDataList(&ppgBgList[j]);
+    ppgSetupTexChunk_1st(NULL, loadAdrs, loadSize, (j * 64) + 100, 64, 0, 0);
+    ppgSetupTexChunk_1st_Accnum(0, accnum);
+
+    for (k = 0; k < 2; k++) {
+        for (i = 0; i < 32; i++, assign2 = mask >>= 1) {
+            if (mask & tgbix[k]) {
+                accnum = ppgSetupTexChunk_2nd(NULL, i + ((j * 64) + 100 + (k * 32)));
+                ppgSetupTexChunk_3rd(NULL, i + ((j * 64) + 100 + (k * 32)), 1);
+            }
+        }
+
+        mask = 0x80000000;
+    }
+
+    return accnum;
+}
+
 void Bg_Texture_Load_Ending(s16 type) {
     void* loadAdrs;
     u32 loadSize;
     u16 accnum;
-    u32 tgbix[2];
     u32 prio;
-    u32 mask;
     u32 pmask;
     s16 key1;
     u8 i;
     u8 j;
-    u8 k;
     u8 x;
     u8 shift;
 
     u32 assign;
-    u32 assign2;
 
     rw_num = 0;
     Bg_TexInit();
@@ -561,23 +585,7 @@ void Bg_Texture_Load_Ending(s16 type) {
     }
 
     for (accnum = 0, j = 0; j < bg_w.scrno; j++) {
-        tgbix[0] = bgtex_ending_gbix[type][j * 2];
-        tgbix[1] = bgtex_ending_gbix[type][(j * 2) + 1];
-        mask = 0x80000000;
-        ppgSetupCurrentDataList(&ppgBgList[j]);
-        ppgSetupTexChunk_1st(NULL, loadAdrs, loadSize, (j * 64) + 100, 64, 0, 0);
-        ppgSetupTexChunk_1st_Accnum(0, accnum);
-
-        for (k = 0; k < 2; k++) {
-            for (i = 0; i < 32; i++, assign2 = mask >>= 1) {
-                if (mask & tgbix[k]) {
-                    accnum = ppgSetupTexChunk_2nd(NULL, i + ((j * 64) + 100 + (k * 32)));
-                    ppgSetupTexChunk_3rd(NULL, i + ((j * 64) + 100 + (k * 32)), 1);
-                }
-            }
-
-            mask = 0x80000000;
-        }
+        accnum = load_ending_screen_textures(type, loadAdrs, loadSize, j, accnum);
     }
 
     x = ending_rewrite_scr[type];
