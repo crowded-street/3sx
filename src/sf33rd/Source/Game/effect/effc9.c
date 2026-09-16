@@ -221,9 +221,17 @@ static void set_ejg_all(s16 gal) {
     EJG_index[3] = 0xFF;
 }
 
-void setup_EJG_index() {
+/* The close-grades case: each judge takes its gal from the table, which
+ * alternates on the game timer. */
+static void set_ejg_from_table(void) {
     s16 i;
 
+    for (i = 0; i < 4; i++) {
+        EJG_index[i] = sel_ejg_ix_table[Winner_id][Game_timer & 1][i];
+    }
+}
+
+void setup_EJG_index() {
     if (ejg_grade_gap() > 5) {
         if (Winner_id) {
             set_ejg_all(1);
@@ -231,9 +239,7 @@ void setup_EJG_index() {
             set_ejg_all(0);
         }
     } else {
-        for (i = 0; i < 4; i++) {
-            EJG_index[i] = sel_ejg_ix_table[Winner_id][Game_timer & 1][i];
-        }
+        set_ejg_from_table();
     }
 }
 
