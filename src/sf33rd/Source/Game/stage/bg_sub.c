@@ -271,8 +271,21 @@ static void select_vertical_zoom_request(u16 p1zoom, u16 p2zoom) {
     }
 }
 
-void check_cg_zoom() {
+static void update_fighter_screen_positions() {
     s16 i;
+
+    for (i = 0; i < 2; i++) {
+        if (plw[i].scr_pos_set_flag) {
+            plw[i].wu.scr_mv_x = plw[i].wu.xyz[0].disp.pos;
+            plw[i].wu.scr_mv_y = plw[i].wu.xyz[1].disp.pos;
+        } else if (plw[i].tsukamare_f) {
+            plw[i].wu.scr_mv_x = plw[(i + 1) & 1].wu.xyz[0].disp.pos;
+            plw[i].wu.scr_mv_y = plw[(i + 1) & 1].wu.xyz[1].disp.pos;
+        }
+    }
+}
+
+void check_cg_zoom() {
     u16 p1zoom;
     u16 p2zoom;
     u16 zmlv;
@@ -298,15 +311,7 @@ void check_cg_zoom() {
     zoom_req_flag_old = zoom_request_flag;
     zoom_request_flag = 0;
 
-    for (i = 0; i < 2; i++) {
-        if (plw[i].scr_pos_set_flag) {
-            plw[i].wu.scr_mv_x = plw[i].wu.xyz[0].disp.pos;
-            plw[i].wu.scr_mv_y = plw[i].wu.xyz[1].disp.pos;
-        } else if (plw[i].tsukamare_f) {
-            plw[i].wu.scr_mv_x = plw[(i + 1) & 1].wu.xyz[0].disp.pos;
-            plw[i].wu.scr_mv_y = plw[(i + 1) & 1].wu.xyz[1].disp.pos;
-        }
-    }
+    update_fighter_screen_positions();
 
     select_horizontal_zoom_request(p1zoom, p2zoom);
     select_vertical_zoom_request(p1zoom, p2zoom);
