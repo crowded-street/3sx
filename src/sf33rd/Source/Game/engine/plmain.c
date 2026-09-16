@@ -823,6 +823,35 @@ static void mark_art_attack_for(PLW* wk, u8 character) {
     }
 }
 
+/* State 4: the gauge draining while the art runs, and the per-character attack
+ * attributes that go with it. The drain is skipped while either player is in a
+ * super-art freeze.
+ *
+ * State 2 is deliberately left inline. Lifting it as well measured 6.69 against
+ * 6.94 - the file already has two spend_or_abandon helpers, and a third makes
+ * the duplication among them cost more than the complexity it removes. */
+static void drain_gauge_while_art_runs(PLW* wk) {
+    if ((wk->sa_stop_flag != 1) && (((PLW*)wk->wu.target_adrs)->sa_stop_flag != 1)) {
+        wk->sa->gauge.i -= wk->sa->dtm * wk->sa->dtm_mul;
+    }
+
+    if (wk->sa->gauge.s.h < 1) {
+        wk->sa->gauge.i = 0;
+        wk->sa->ok = 0;
+        wk->sa->sa_rno = 0;
+        wk->sa->dtm_mul = 1;
+    } else {
+        mark_art_attack_for(wk, CHAR_YUN);
+        mark_art_attack_for(wk, CHAR_YANG);
+        mark_art_attack_for(wk, CHAR_MAKOTO);
+        mark_art_attack_for(wk, CHAR_TWELVE);
+
+        if ((My_char[wk->wu.id] == CHAR_ORO) && (wk->sa->kind_of_arts == 2)) {
+            wk->wu.att.dipsw |= 0x10;
+        }
+    }
+}
+
 void sag_union_1(PLW* wk) { // 🟢
     switch (wk->sa->sa_rno) {
     case 0:
@@ -861,26 +890,7 @@ void sag_union_1(PLW* wk) { // 🟢
         /* fallthrough */
 
     case 4:
-        if ((wk->sa_stop_flag != 1) && (((PLW*)wk->wu.target_adrs)->sa_stop_flag != 1)) {
-            wk->sa->gauge.i -= wk->sa->dtm * wk->sa->dtm_mul;
-        }
-
-        if (wk->sa->gauge.s.h < 1) {
-            wk->sa->gauge.i = 0;
-            wk->sa->ok = 0;
-            wk->sa->sa_rno = 0;
-            wk->sa->dtm_mul = 1;
-        } else {
-            mark_art_attack_for(wk, CHAR_YUN);
-            mark_art_attack_for(wk, CHAR_YANG);
-            mark_art_attack_for(wk, CHAR_MAKOTO);
-            mark_art_attack_for(wk, CHAR_TWELVE);
-
-            if ((My_char[wk->wu.id] == CHAR_ORO) && (wk->sa->kind_of_arts == 2)) {
-                wk->wu.att.dipsw |= 0x10;
-            }
-        }
-
+        drain_gauge_while_art_runs(wk);
         break;
 
     default:

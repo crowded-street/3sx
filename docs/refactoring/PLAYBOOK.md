@@ -692,6 +692,24 @@ So the rule is not "always one arm". It is: **extract both only if that clears t
 parent's findings; otherwise extract one.** Same arithmetic as *Do not extract an arm that
 is still too big*, applied to the parent rather than the piece.
 
+**And weigh each arm against the twin family it would join, not just its own twin.** The
+cost of a new near-twin grows with how many near-twins the file already has, so an arm that
+would be the third or fourth member of a family is dearer than one that would be the
+second - even when the parent clears either way.
+
+Measured on `plmain.c`'s `sag_union_1`, cc 17 with two liftable states:
+
+| What was done | Score |
+| --- | --- |
+| baseline | 6.94 |
+| states 2 and 4 both lifted | 6.69 |
+| state 4 only | **7.09** |
+
+The parent cleared its finding in both of the last two. The difference is that state 2's
+helper would have been the *third* `spend_or_abandon`-shaped function in the file, while
+state 4's has no close relative. So: before lifting an arm, look at what is already in the
+file, not only at what the arm is paired with.
+
 Where one arm is the answer, the asymmetry reads slightly odd, so say in the commit message
 that the other arm was left inline deliberately and why.
 
