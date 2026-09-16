@@ -25,7 +25,7 @@ void effect_A0_move(WORK_Other_CONN* ewk) {
     sort_push_request3(&ewk->wu);
 }
 
-s32 effect_A0_init(s16 type, u16 disp_target, s16 pos_index, s16 old_rno, s16 zero, s16 target_bg, s16 master_player) {
+s32 effect_A0_init(const EffectA0Init* p) {
     WORK_Other_CONN* ewk;
     s16 ix;
 
@@ -39,16 +39,16 @@ s32 effect_A0_init(s16 type, u16 disp_target, s16 pos_index, s16 old_rno, s16 ze
     ewk->wu.id = 100;
     ewk->wu.work_id = 16;
     ewk->wu.my_col_code = 428;
-    ewk->wu.type = type;
-    ewk->wu.my_family = target_bg + 1;
-    ewk->master_player = master_player;
+    ewk->wu.type = p->type;
+    ewk->wu.my_family = p->target_bg + 1;
+    ewk->master_player = p->master_player;
     ewk->wu.my_mts = 13;
     ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
-    ewk->wu.position_x = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + Pos_Data_A0[pos_index][0];
-    ewk->wu.position_y = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + Pos_Data_A0[pos_index][1];
-    ewk->wu.position_z = Pos_Data_A0[pos_index][2];
-    Convert_16_10_3(ewk, disp_target);
-    Setup_A0_Sub(ewk, old_rno, zero);
+    ewk->wu.position_x = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + Pos_Data_A0[p->pos_index][0];
+    ewk->wu.position_y = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + Pos_Data_A0[p->pos_index][1];
+    ewk->wu.position_z = Pos_Data_A0[p->pos_index][2];
+    Convert_16_10_3(ewk, p->disp_target);
+    Setup_A0_Sub(ewk, p->old_rno, p->zero);
     return 0;
 }
 
