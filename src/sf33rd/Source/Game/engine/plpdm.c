@@ -323,6 +323,41 @@ static s32 quick_stand_is_allowed(const PLW* wk) {
            (wk->py->flag == 0) && (wk->wu.vital_new > 0) && (pcon_dp_flag == 0);
 }
 
+/* Landing from a knockdown keeps drifting the way the player was already
+ * moving. The `break` inside was the switch arm's exit with nothing after it,
+ * so it is a `return` here. */
+static void drift_on_landing(PLW* wk) {
+    if (wk->wu.mvxy.a[0].sp > 0) {
+        add_mvxy_speed_direct(&wk->wu, 128, 0);
+        return;
+    }
+
+    if (wk->wu.mvxy.a[0].sp < 0) {
+        add_mvxy_speed_direct(&wk->wu, -128, 0);
+    }
+}
+
+/* The same drift at half the speed, preceded by the quick-stand chance. Not
+ * shared with drift_on_landing: the two speeds differ in both the forward and
+ * the backward literal, which is two values, not the one Recipe D allows. */
+static void quick_stand_or_drift(PLW* wk) {
+    if (quick_stand_is_allowed(wk)) {
+        wk->wu.routine_no[2] = oki_select_table2[wk->wu.rl_waza + (wk->wu.rl_flag * 2)];
+        wk->wu.routine_no[3] = 0;
+        add_sp_arts_gauge_ukemi(wk);
+        grade_add_quick_stand(wk->wu.id);
+    }
+
+    if (wk->wu.mvxy.a[0].sp > 0) {
+        add_mvxy_speed_direct(&wk->wu, 64, 0);
+        return;
+    }
+
+    if (wk->wu.mvxy.a[0].sp < 0) {
+        add_mvxy_speed_direct(&wk->wu, -64, 0);
+    }
+}
+
 void buttobi_chakuchi_cg_type_check(PLW* wk) {
     switch (wk->wu.cg_type) {
     case 9:
@@ -333,34 +368,11 @@ void buttobi_chakuchi_cg_type_check(PLW* wk) {
         break;
 
     case 2:
-        if (wk->wu.mvxy.a[0].sp > 0) {
-            add_mvxy_speed_direct(&wk->wu, 128, 0);
-            break;
-        }
-
-        if (wk->wu.mvxy.a[0].sp < 0) {
-            add_mvxy_speed_direct(&wk->wu, -128, 0);
-        }
-
+        drift_on_landing(wk);
         break;
 
     case 5:
-        if (quick_stand_is_allowed(wk)) {
-            wk->wu.routine_no[2] = oki_select_table2[wk->wu.rl_waza + (wk->wu.rl_flag * 2)];
-            wk->wu.routine_no[3] = 0;
-            add_sp_arts_gauge_ukemi(wk);
-            grade_add_quick_stand(wk->wu.id);
-        }
-
-        if (wk->wu.mvxy.a[0].sp > 0) {
-            add_mvxy_speed_direct(&wk->wu, 64, 0);
-            break;
-        }
-
-        if (wk->wu.mvxy.a[0].sp < 0) {
-            add_mvxy_speed_direct(&wk->wu, -64, 0);
-        }
-
+        quick_stand_or_drift(wk);
         break;
     }
 }
