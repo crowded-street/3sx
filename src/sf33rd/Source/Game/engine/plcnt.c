@@ -949,68 +949,67 @@ void settle_type_40000() {
     }
 }
 
+/* A pending Y offset is applied once, off arcade balance. Both players are
+ * asked the same question. */
+static void apply_reserved_y(PLW* wk) {
+    if (wk->reserv_add_y) {
+        wk->wu.xyz[1].disp.pos += wk->reserv_add_y;
+        wk->reserv_add_y = 0;
+    }
+}
+
+/* Whichever player a rank names moves first. Rank 1 is P1, rank 2 is P2, and
+ * anything else means this rank does not decide - the caller tries the next
+ * one. */
+static s32 move_players_by(s32 rank) {
+    switch (rank) {
+    case 1:
+        move_P1_move_P2();
+        return 1;
+
+    case 2:
+        move_P2_move_P1();
+        return 1;
+
+    default:
+        return 0;
+    }
+}
+
+/* The order the two players move in: a throw decides it, then which side is
+ * human, then which side is in a super art, and failing all three the frame
+ * parity. */
+static void move_players_in_priority_order() {
+    if (move_players_by(plw[0].tsukami_f + (plw[1].tsukami_f * 2))) {
+        return;
+    }
+
+    if (move_players_by(plw[0].wu.operator + (plw[1].wu.operator * 2))) {
+        return;
+    }
+
+    if (move_players_by((plw[0].wu.routine_no[1] == 4) + ((plw[1].wu.routine_no[1] == 4) * 2))) {
+        return;
+    }
+
+    if (Game_timer & 1) {
+        move_P1_move_P2();
+    } else {
+        move_P2_move_P1();
+    }
+}
+
 void move_player_work() { // 🟡
     if (!ArcadeBalance_IsEnabled()) {
-        if (plw[0].reserv_add_y) {
-            plw[0].wu.xyz[1].disp.pos += plw[0].reserv_add_y;
-            plw[0].reserv_add_y = 0;
-        }
-
-        if (plw[1].reserv_add_y) {
-            plw[1].wu.xyz[1].disp.pos += plw[1].reserv_add_y;
-            plw[1].reserv_add_y = 0;
-        }
+        apply_reserved_y(&plw[0]);
+        apply_reserved_y(&plw[1]);
     }
 
     ichikannkei = check_work_position(&plw[0].wu, &plw[1].wu);
     set_rl_waza(&plw[0]);
     set_rl_waza(&plw[1]);
     Timer_Freeze = 0;
-
-    switch (plw[0].tsukami_f + (plw[1].tsukami_f * 2)) {
-    case 1:
-        move_P1_move_P2();
-        break;
-
-    case 2:
-        move_P2_move_P1();
-        break;
-
-    default:
-        switch (plw[0].wu.operator + (plw[1].wu.operator * 2)) {
-        case 1:
-            move_P1_move_P2();
-            break;
-
-        case 2:
-            move_P2_move_P1();
-            break;
-
-        default:
-            switch ((plw[0].wu.routine_no[1] == 4) + ((plw[1].wu.routine_no[1] == 4) * 2)) {
-            case 1:
-                move_P1_move_P2();
-                break;
-
-            case 2:
-                move_P2_move_P1();
-                break;
-
-            default:
-                if (Game_timer & 1) {
-                    move_P1_move_P2();
-                } else {
-                    move_P2_move_P1();
-                }
-
-                break;
-            }
-
-            break;
-        }
-
-        break;
-    }
+    move_players_in_priority_order();
 }
 
 static void move_one_player(s16 i) {
