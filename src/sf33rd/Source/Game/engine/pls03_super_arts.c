@@ -275,6 +275,37 @@ static bool should_skip_dc_slot(PLW* wk, s16 ix, s16 j) {
     return false;
 }
 
+/* The gates a grounded double-cancel super-art slot must pass. Returns 1
+ * wherever check_super_arts_attack_dc returned 0 without firing.
+ *
+ * The airborne arm keeps its own copy inline. The two differ in `>` against `<`
+ * and in which table they index, so Recipe D may not merge them, and extracting
+ * from both would only trade one flagged function for a twin pair - see
+ * "Between two twin arms, extract from one of them only" in the playbook. */
+static s32 grounded_dc_slot_is_blocked(PLW* wk) {
+    if (wk->spmv_ng_flag & DIP_UNKNOWN_30) {
+        return 1;
+    }
+
+    if (wk->sa->nmsa_g_ix == 0) {
+        return 1;
+    }
+
+    if (wk->sa->nmsa_g_ix > 0x1C) {
+        return 1;
+    }
+
+    if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && chainex_check[wk->wu.id][wk->sa->nmsa_g_ix - 20]) {
+        return 1;
+    }
+
+    if (is_blocked_by_arcade_switch(wk, wk->sa->nmsa_g_ix)) {
+        return 1;
+    }
+
+    return wk->cp->waza_flag[wk->sa->nmsa_g_ix] == -1;
+}
+
 s32 check_super_arts_attack_dc(PLW* wk) { // 🟡
     s16 j;
     u16 cusw;
@@ -294,31 +325,11 @@ s32 check_super_arts_attack_dc(PLW* wk) { // 🟡
     }
 
     if (player_is_grounded_or_on_car(wk)) {
-        if (wk->spmv_ng_flag & DIP_UNKNOWN_30) {
-            return 0;
-        }
-
-        if (wk->sa->nmsa_g_ix == 0) {
-            return 0;
-        }
-
-        if (wk->sa->nmsa_g_ix > 0x1C) {
-            return 0;
-        }
-
-        if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && chainex_check[wk->wu.id][wk->sa->nmsa_g_ix - 20]) {
-            return 0;
-        }
-
-        if (is_blocked_by_arcade_switch(wk, wk->sa->nmsa_g_ix)) {
+        if (grounded_dc_slot_is_blocked(wk)) {
             return 0;
         }
 
         conpane = &wk->cp->sw_lvbt;
-
-        if (wk->cp->waza_flag[wk->sa->nmsa_g_ix] == -1) {
-            return 0;
-        }
 
         if (((wk->cp->btix[wk->sa->nmsa_g_ix] & 0xFF) != 0x80) && wk->cp->waza_flag[wk->sa->nmsa_g_ix]) {
             cusw = conpane[wk->cp->btix[wk->sa->nmsa_g_ix] & 0xFF];
