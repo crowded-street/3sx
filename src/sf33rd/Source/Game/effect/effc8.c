@@ -20,10 +20,70 @@ static s32 game_is_active(void) {
     return !EXE_flag && !Game_pause;
 }
 
+static void effc8_follow_master(WORK_Other* ewk, const PLW* oya_pl) {
+    s16 work;
+
+    switch (oya_pl->wu.routine_no[3]) {
+    case 1:
+        break;
+
+    case 0:
+    case 2:
+        if (oya_pl->wu.cg_ix != ewk->wu.cg_ix) {
+            work = oya_pl->wu.cg_ix / oya_pl->wu.cgd_type + 1;
+            set_char_move_init2(&ewk->wu, 0, 12, work + 1, 0);
+            ewk->wu.cg_ix = oya_pl->wu.cg_ix;
+        }
+
+        break;
+
+    case 3:
+        ewk->wu.routine_no[0]++;
+        break;
+    }
+}
+
+static void effc8_launch(WORK_Other* ewk, const PLW* oya_pl) {
+    const s32* ptr;
+
+    ewk->wu.routine_no[0]++;
+    set_char_move_init(&ewk->wu, 0, 13);
+    ptr = effc8_data_tbl;
+
+    if (oya_pl->wu.id) {
+        ewk->wu.xyz[0].disp.pos += 61;
+        ewk->wu.mvxy.a[0].sp = *ptr++;
+        ewk->wu.mvxy.d[0].sp = *ptr++;
+        ewk->wu.mvxy.a[1].sp = *ptr++;
+        ewk->wu.mvxy.d[1].sp = *ptr++;
+    } else {
+        ewk->wu.xyz[0].disp.pos -= 61;
+        ewk->wu.mvxy.a[0].sp = -*ptr;
+        ptr++;
+        ewk->wu.mvxy.d[0].sp = -*ptr;
+        ptr++;
+        ewk->wu.mvxy.a[1].sp = *ptr++;
+        ewk->wu.mvxy.d[1].sp = *ptr++;
+    }
+
+    ewk->wu.xyz[1].disp.pos = 137;
+}
+
+static void effc8_fly(WORK_Other* ewk) {
+    if (game_is_active()) {
+        add_x_sub(&ewk->wu);
+        add_y_sub(&ewk->wu);
+        char_move(&ewk->wu);
+
+        if (ewk->wu.cg_type) {
+            ewk->wu.routine_no[0]++;
+            ewk->wu.disp_flag = 0;
+        }
+    }
+}
+
 void effect_C8_move(WORK_Other* ewk) {
     PLW* oya_pl = (PLW*)ewk->my_master;
-    s16 work;
-    const s32* ptr;
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -33,65 +93,17 @@ void effect_C8_move(WORK_Other* ewk) {
         break;
 
     case 1:
-        switch (oya_pl->wu.routine_no[3]) {
-        case 1:
-            break;
-
-        case 0:
-        case 2:
-            if (oya_pl->wu.cg_ix != ewk->wu.cg_ix) {
-                work = oya_pl->wu.cg_ix / oya_pl->wu.cgd_type + 1;
-                set_char_move_init2(&ewk->wu, 0, 12, work + 1, 0);
-                ewk->wu.cg_ix = oya_pl->wu.cg_ix;
-            }
-
-            break;
-
-        case 3:
-            ewk->wu.routine_no[0]++;
-            break;
-        }
-
+        effc8_follow_master(ewk, oya_pl);
         pl_eff_trans_entry(ewk);
         break;
 
     case 2:
-        ewk->wu.routine_no[0]++;
-        set_char_move_init(&ewk->wu, 0, 13);
-        ptr = effc8_data_tbl;
-
-        if (oya_pl->wu.id) {
-            ewk->wu.xyz[0].disp.pos += 61;
-            ewk->wu.mvxy.a[0].sp = *ptr++;
-            ewk->wu.mvxy.d[0].sp = *ptr++;
-            ewk->wu.mvxy.a[1].sp = *ptr++;
-            ewk->wu.mvxy.d[1].sp = *ptr++;
-        } else {
-            ewk->wu.xyz[0].disp.pos -= 61;
-            ewk->wu.mvxy.a[0].sp = -*ptr;
-            ptr++;
-            ewk->wu.mvxy.d[0].sp = -*ptr;
-            ptr++;
-            ewk->wu.mvxy.a[1].sp = *ptr++;
-            ewk->wu.mvxy.d[1].sp = *ptr++;
-        }
-
-        ewk->wu.xyz[1].disp.pos = 137;
+        effc8_launch(ewk, oya_pl);
         pl_eff_trans_entry(ewk);
         break;
 
     case 3:
-        if (game_is_active()) {
-            add_x_sub(&ewk->wu);
-            add_y_sub(&ewk->wu);
-            char_move(&ewk->wu);
-
-            if (ewk->wu.cg_type) {
-                ewk->wu.routine_no[0]++;
-                ewk->wu.disp_flag = 0;
-            }
-        }
-
+        effc8_fly(ewk);
         pl_eff_trans_entry(ewk);
         break;
 
