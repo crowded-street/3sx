@@ -16,6 +16,13 @@ static s32 should_end_effect(const WORK_Other* ewk) {
     return ewk->wu.dead_f == 1 || Suicide[0] != 0;
 }
 
+/* Non-zero on the frame the effect's timer runs out. 0x7FFF means it has no
+ * timer at all, and the decrement sits behind the pause checks, so a paused
+ * frame does not consume one - exactly as the original condition had it. */
+static s32 j4_timer_expired(WORK_Other* ewk) {
+    return ewk->wu.dir_timer != 0x7FFF && !Game_pause && !EXE_flag && --ewk->wu.dir_timer <= 0;
+}
+
 void effect_J4_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -51,7 +58,7 @@ void effect_J4_move(WORK_Other* ewk) {
             break;
         }
 
-        if (ewk->wu.dir_timer != 0x7FFF && !Game_pause && !EXE_flag && --ewk->wu.dir_timer <= 0) {
+        if (j4_timer_expired(ewk)) {
         jump:
             ewk->wu.routine_no[0]++;
 
