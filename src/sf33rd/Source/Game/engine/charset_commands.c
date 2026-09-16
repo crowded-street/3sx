@@ -93,6 +93,19 @@ s32 comm_addr(WORK* wk, UNK11* ctc) {
     return 1;
 }
 
+/* Take the script's `ix` branch when the test passed and its `pat` branch when
+ * it did not. comm_if_l wrote this out three times, once per lever mode; the
+ * three tests differ and stay at their call sites, and all three are free of
+ * side effects, so evaluating one before the call is the same as evaluating it
+ * in the `if`. */
+static s32 jump_ix_or_pat(WORK* wk, UNK11* ctc, s32 matched) {
+    if (matched) {
+        return decord_if_jump(wk, ctc, ctc->ix);
+    }
+
+    return decord_if_jump(wk, ctc, ctc->pat);
+}
+
 s32 comm_if_l(WORK* wk, UNK11* ctc) {
     u16 lvdat;
     u16 my_lvdat;
@@ -106,23 +119,11 @@ s32 comm_if_l(WORK* wk, UNK11* ctc) {
     lvdat = get_comm_if_lever(wk);
 
     if (!(my_lvdat & 0x7FFF)) {
-        if (lvdat == 0) {
-            return decord_if_jump(wk, ctc, ctc->ix);
-        } else {
-            return decord_if_jump(wk, ctc, ctc->pat);
-        }
+        return jump_ix_or_pat(wk, ctc, lvdat == 0);
     } else if (my_lvdat & 0x8000) {
-        if (lvdat == (my_lvdat & 0xF)) {
-            return decord_if_jump(wk, ctc, ctc->ix);
-        } else {
-            return decord_if_jump(wk, ctc, ctc->pat);
-        }
+        return jump_ix_or_pat(wk, ctc, lvdat == (my_lvdat & 0xF));
     } else {
-        if (lvdat & my_lvdat) {
-            return decord_if_jump(wk, ctc, ctc->ix);
-        } else {
-            return decord_if_jump(wk, ctc, ctc->pat);
-        }
+        return jump_ix_or_pat(wk, ctc, lvdat & my_lvdat);
     }
 }
 
