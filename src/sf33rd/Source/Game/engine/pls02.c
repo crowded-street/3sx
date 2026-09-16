@@ -1057,44 +1057,56 @@ void add_sp_arts_gauge_maxbit(PLW* wk) { // 🔴
 }
 #endif
 
-void add_super_arts_gauge(SA_WORK* wk, s16 ix, s16 asag, u8 mf) { // 🟡
+/* Every reason the gauge does not move at all: the test menu, a move flagged
+ * not to charge, a super art already running or unavailable, the pause and
+ * bonus states, a character whose gauge bonus is zero, a gain that is not
+ * positive, and a gauge already full. */
+static s32 gauge_gain_is_blocked(SA_WORK* wk, s16 ix, s16 asag, u8 mf) {
     if (test_flag) {
-        return;
+        return 1;
     }
 
     if (mf) {
-        return;
+        return 1;
     }
 
     if (ArcadeBalance_IsEnabled()) {
         if (wk->ok == -1) {
-            return;
+            return 1;
         }
     } else {
         if (super_arts_unavailable(wk)) {
-            return;
+            return 1;
         }
     }
 
     if (pcon_dp_flag) {
-        return;
+        return 1;
     }
 
     if (Bonus_Game_Flag) {
-        return;
+        return 1;
     }
 
     if (sa_gauge_omake[omop_sa_gauge_ix[ix]] == 0) {
-        return;
+        return 1;
     }
 
     if (!ArcadeBalance_IsEnabled()) {
         if (asag <= 0) {
-            return;
+            return 1;
         }
     }
 
     if (wk->store == wk->store_max) {
+        return 1;
+    }
+
+    return 0;
+}
+
+void add_super_arts_gauge(SA_WORK* wk, s16 ix, s16 asag, u8 mf) { // 🟡
+    if (gauge_gain_is_blocked(wk, ix, asag, mf)) {
         return;
     }
 
