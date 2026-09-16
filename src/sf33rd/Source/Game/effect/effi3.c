@@ -26,47 +26,53 @@ static s32 i3_effect_expired(WORK_Other* ewk, const WORK* mwk) {
             (ewk->wu.now_koc != mwk->now_koc || ewk->wu.char_index != mwk->char_index));
 }
 
-void effect_I3_move(WORK_Other* ewk) {
-    WORK* mwk = (WORK*)ewk->my_master;
+static void effi3_spawn(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    bg_stop = 1;
 
-    switch (ewk->wu.routine_no[0]) {
-    case 0:
-        ewk->wu.routine_no[0]++;
-        bg_stop = 1;
-
-        switch (i3_data[ewk->wu.type].sour) {
-        case 1:
-            if ((ewk->wu.dir_timer = ewk->wu.hit_stop) < 0) {
-                ewk->wu.dir_timer = -ewk->wu.dir_timer;
-            }
-
-            break;
-
-        case 2:
-            ewk->wu.dir_timer = ewk->wu.cg_type;
-            break;
-
-        default:
-            ewk->wu.dir_timer = i3_data[ewk->wu.type].tm;
-            break;
+    switch (i3_data[ewk->wu.type].sour) {
+    case 1:
+        if ((ewk->wu.dir_timer = ewk->wu.hit_stop) < 0) {
+            ewk->wu.dir_timer = -ewk->wu.dir_timer;
         }
 
+        break;
+
+    case 2:
+        ewk->wu.dir_timer = ewk->wu.cg_type;
+        break;
+
+    default:
+        ewk->wu.dir_timer = i3_data[ewk->wu.type].tm;
+        break;
+    }
+}
+
+static void effi3_animate(WORK_Other* ewk) {
+    WORK* mwk = (WORK*)ewk->my_master;
+
+    if (should_end_effect(ewk)) {
+        ewk->wu.routine_no[0]++;
+        return;
+    }
+
+    if (EXE_flag != 0 || Game_pause != 0) {
+        return;
+    }
+
+    if (i3_effect_expired(ewk, mwk)) {
+        ewk->wu.routine_no[0] = 2;
+    }
+}
+
+void effect_I3_move(WORK_Other* ewk) {
+    switch (ewk->wu.routine_no[0]) {
+    case 0:
+        effi3_spawn(ewk);
         /* fallthrough */
 
     case 1:
-        if (should_end_effect(ewk)) {
-            ewk->wu.routine_no[0]++;
-            break;
-        }
-
-        if (EXE_flag != 0 || Game_pause != 0) {
-            break;
-        }
-
-        if (i3_effect_expired(ewk, mwk)) {
-            ewk->wu.routine_no[0] = 2;
-        }
-
+        effi3_animate(ewk);
         break;
 
     case 2:
