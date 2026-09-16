@@ -621,16 +621,30 @@ s32 set_field_hosei_flag(PLW* pl, s16 pos, s16 ix) { // 🟢
     return 1;
 }
 
+/* A work that faces right is behind, one that faces left is in front. */
+static s16 front_from_facing(WORK* wk) {
+    if (wk->rl_flag) {
+        return 0;
+    }
+
+    return 1;
+}
+
+/* One work is clearly further along X than the other. */
+static s16 front_from_x_gap(s16 result) {
+    if (result > 0) {
+        return 1;
+    }
+
+    return 0;
+}
+
 /* The two works are level in X and face the same way. Which of them is
  * standing on the ground then decides who counts as in front. */
 static s16 position_from_ground_contact(WORK* p1, WORK* p2) {
     switch ((p1->xyz[1].disp.pos == 0) + (p2->xyz[1].disp.pos == 0) * 2) {
     case 1:
-        if (p1->rl_flag) {
-            return 0;
-        }
-
-        return 1;
+        return front_from_facing(p1);
 
     case 2:
         if (ArcadeBalance_IsEnabled()) {
@@ -657,17 +671,9 @@ s16 check_work_position(WORK* p1, WORK* p2) { // 🟡
     s16 num;
 
     if (result) {
-        if (result > 0) {
-            num = 1;
-        } else {
-            num = 0;
-        }
+        num = front_from_x_gap(result);
     } else if (p1->rl_flag + p2->rl_flag & 1) {
-        if (p1->rl_flag) {
-            num = 0;
-        } else {
-            num = 1;
-        }
+        num = front_from_facing(p1);
     } else {
         num = position_from_ground_contact(p1, p2);
     }
