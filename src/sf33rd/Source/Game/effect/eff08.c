@@ -74,7 +74,7 @@ void effect_08_move(WORK_Other* ewk) {
     sc_ram_to_vram_opc(ewk->wu.type, ewk->wu.position_x, ewk->wu.position_y, ewk->wu.my_col_code);
 }
 
-s32 effect_08_init(s8 sc_num, s8 x, s8 y, u16 atr, s16 color_type) {
+s32 effect_08_init(const Effect08Init* p) {
     WORK_Other* ewk;
     s16 ix;
 
@@ -86,11 +86,11 @@ s32 effect_08_init(s8 sc_num, s8 x, s8 y, u16 atr, s16 color_type) {
     ewk->wu.be_flag = 1;
     ewk->wu.id = 8;
     ewk->wu.work_id = 16;
-    ewk->wu.type = sc_num + 0;
-    ewk->wu.position_x = x;
-    ewk->wu.position_y = y;
-    ewk->wu.my_col_code = atr;
-    ewk->master_priority = color_type;
+    ewk->wu.type = p->sc_num + 0;
+    ewk->wu.position_x = p->x;
+    ewk->wu.position_y = p->y;
+    ewk->wu.my_col_code = p->atr;
+    ewk->master_priority = p->color_type;
     effect_08_move((WORK_Other*)ewk);
     return 0;
 }

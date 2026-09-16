@@ -2110,7 +2110,7 @@ void Game_Manage_12_4() {
         if (Bonus_Cut_Sub() == 0 && --C_Timer == 0) {
             C_No[2]++;
             C_Timer = 20;
-            effect_08_init(7, 0, 1, 15, 0);
+            effect_08_init(&(Effect08Init){7, 0, 1, 15, 0});
             Disp_Score_Buff[0] = Bonus_Score;
             effect_14_init(0, 35, 11, 15);
         }
@@ -2273,7 +2273,7 @@ void Game_Manage_12_8() {
             C_No[2]++;
             C_Timer = 20;
             Score[Player_id][0] += Bonus_Score;
-            effect_08_init(7, 0, 1, 15, 0);
+            effect_08_init(&(Effect08Init){7, 0, 1, 15, 0});
             Disp_Score_Buff[0] = Bonus_Score;
             effect_14_init(0, 35, 11, 15);
 
@@ -2355,22 +2355,22 @@ u8 Check_Bonus_Perfect() {
 void Disp_Bonus_Perfect() {
     switch (PB_Status) {
     case 1:
-        effect_08_init(6, 0, 5, 15, 0);
+        effect_08_init(&(Effect08Init){6, 0, 5, 15, 0});
         Disp_Score_Buff[0] = Ball_Perfect_PTS[0][Bonus_Stage_Level];
         effect_14_init(0, 35, 15, 15);
         break;
 
     case 2:
-        effect_08_init(6, 0, 5, 26, 1);
+        effect_08_init(&(Effect08Init){6, 0, 5, 26, 1});
         Disp_Score_Buff[1] = Ball_Perfect_PTS[1][Bonus_Stage_Level];
         effect_14_init(1, 35, 15, 26);
         break;
 
     case 3:
-        effect_08_init(6, 0, 5, 15, 0);
+        effect_08_init(&(Effect08Init){6, 0, 5, 15, 0});
         Disp_Score_Buff[0] = Ball_Perfect_PTS[0][Bonus_Stage_Level];
         effect_14_init(0, 35, 15, 15);
-        effect_08_init(6, 0, 9, 26, 1);
+        effect_08_init(&(Effect08Init){6, 0, 9, 26, 1});
         Disp_Score_Buff[1] = Ball_Perfect_PTS[1][Bonus_Stage_Level];
         effect_14_init(1, 35, 19, 26);
         break;
@@ -2455,7 +2455,7 @@ s32 Bonus_Cut_Sub() {
         }
 
         if (Disp_Bonus_Contents == 0) {
-            effect_08_init(7, 0, 1, 15, 0);
+            effect_08_init(&(Effect08Init){7, 0, 1, 15, 0});
         }
 
         if (Bonus_Type == 21) {
