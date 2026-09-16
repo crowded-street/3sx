@@ -50,6 +50,16 @@
 #include "sf33rd/Source/Game/ui/sc_sub.h"
 #include "sf33rd/Source/Game/engine/manage_internal.h"
 
+/* The cut animation has finished and the phase timer has run out. Nine of the
+ * bonus stage's phases open with this exact test.
+ *
+ * `--C_Timer` sits on the right of the `&&`, so the timer is only counted down
+ * once the cut is over. That short-circuit is load-bearing, which is why the
+ * whole test moves together rather than being split in two. */
+static s32 bonus_cut_and_timer_finished(void) {
+    return Bonus_Cut_Sub() == 0 && --C_Timer == 0;
+}
+
 void Game_Manage_12th() {
     void (*SC12_Jmp_Tbl[10])() = { Game_Manage_12_0, Game_Manage_12_1, Game_Manage_12_2, Game_Manage_12_3,
                                    Game_Manage_12_4, Game_Manage_12_5, Game_Manage_12_1, Game_Manage_12_7,
@@ -224,7 +234,7 @@ void Game_Manage_12_3() {
 static void run_bonus_perfect_result_phase(void) {
     switch (C_No[3]) {
     case 0:
-        if (Bonus_Cut_Sub() == 0 && --C_Timer == 0) {
+        if (bonus_cut_and_timer_finished()) {
             C_No[2]++;
             C_Timer = 30;
             Bonus_Game_result = Stock_Bonus_Game_Result;
@@ -233,7 +243,7 @@ static void run_bonus_perfect_result_phase(void) {
         break;
 
     case 1:
-        if (Bonus_Cut_Sub() == 0 && --C_Timer == 0) {
+        if (bonus_cut_and_timer_finished()) {
             C_No[3]++;
             C_Timer = 10;
             Disp_Bonus_Perfect();
@@ -242,7 +252,7 @@ static void run_bonus_perfect_result_phase(void) {
         break;
 
     case 2:
-        if (Bonus_Cut_Sub() == 0 && --C_Timer == 0) {
+        if (bonus_cut_and_timer_finished()) {
             C_No[3]++;
             C_Timer = 40;
 
@@ -277,7 +287,7 @@ static void run_bonus_perfect_result_phase(void) {
 void Game_Manage_12_4() {
     switch (C_No[2]) {
     case 0:
-        if (Bonus_Cut_Sub() == 0 && --C_Timer == 0) {
+        if (bonus_cut_and_timer_finished()) {
             C_No[2]++;
             C_Timer = 20;
             effect_08_init(&(Effect08Init){7, 0, 1, 15, 0});
@@ -288,7 +298,7 @@ void Game_Manage_12_4() {
         break;
 
     case 1:
-        if (Bonus_Cut_Sub() == 0 && --C_Timer == 0) {
+        if (bonus_cut_and_timer_finished()) {
             C_No[2]++;
             C_Timer = 1;
             Bonus_Score = 0;
@@ -297,7 +307,7 @@ void Game_Manage_12_4() {
         break;
 
     case 2:
-        if (Bonus_Cut_Sub() == 0 && --C_Timer == 0) {
+        if (bonus_cut_and_timer_finished()) {
             if (Bonus_Game_result == 0 && !(PB_Status & 2)) {
                 C_No[2] = 4;
                 C_Timer = 30;
@@ -439,7 +449,7 @@ void Game_Manage_12_8() {
         break;
 
     case 1:
-        if (Bonus_Cut_Sub() == 0 && --C_Timer == 0) {
+        if (bonus_cut_and_timer_finished()) {
             C_No[2]++;
             C_Timer = 20;
             Score[Player_id][0] += Bonus_Score;
@@ -456,7 +466,7 @@ void Game_Manage_12_8() {
         break;
 
     case 2:
-        if (Bonus_Cut_Sub() == 0 && --C_Timer == 0) {
+        if (bonus_cut_and_timer_finished()) {
             C_No[2]++;
             C_Timer = 1;
         }
@@ -464,7 +474,7 @@ void Game_Manage_12_8() {
         break;
 
     case 3:
-        if (Bonus_Cut_Sub() == 0 && --C_Timer == 0) {
+        if (bonus_cut_and_timer_finished()) {
             if (bcounter_down(0) == 0) {
                 C_No[2]++;
                 C_Timer = 30;
