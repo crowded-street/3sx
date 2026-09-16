@@ -67,6 +67,28 @@ void Damage_00000(PLW* wk) {
     }
 }
 
+/* While the animation runs, a cg_type of 1 is the frame that moves the work. */
+static void move_damage_01000(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 1) {
+        add_mvxy_speed(&wk->wu);
+        cal_mvxy_speed(&wk->wu);
+    }
+}
+
+/* The same frame, later in the state, ends the movement instead of continuing
+ * it. */
+static void land_damage_01000(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 1) {
+        wk->wu.routine_no[3] = 3;
+        wk->wu.cg_type = 0;
+        add_mvxy_speed(&wk->wu);
+    }
+}
+
 void Damage_01000(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -78,23 +100,11 @@ void Damage_01000(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 1) {
-            add_mvxy_speed(&wk->wu);
-            cal_mvxy_speed(&wk->wu);
-        }
+        move_damage_01000(wk);
         break;
 
     case 2:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 1) {
-            wk->wu.routine_no[3] = 3;
-            wk->wu.cg_type = 0;
-            add_mvxy_speed(&wk->wu);
-        }
-
+        land_damage_01000(wk);
         break;
 
     case 3:
