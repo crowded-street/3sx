@@ -268,31 +268,39 @@ s32 comm_mvix(WORK* wk, UNK11* ctc) {
     return 1;
 }
 
-s32 comm_mpcy(WORK* wk, UNK11* ctc) {
+/* comm_mpcy and comm_epcy ask the same question - is this Y above, below or
+ * equal to the script's value - of two different works. */
+static s16 compare_y_to_koc(WORK* target, UNK11* ctc) {
     s16 ans = 0;
 
     switch (ctc->ix) {
     case 1:
-        if (wk->xyz[1].disp.pos > ctc->koc) {
+        if (target->xyz[1].disp.pos > ctc->koc) {
             ans = 1;
         }
 
         break;
 
     case 2:
-        if (wk->xyz[1].disp.pos < ctc->koc) {
+        if (target->xyz[1].disp.pos < ctc->koc) {
             ans = 1;
         }
 
         break;
 
     default:
-        if (wk->xyz[1].disp.pos == ctc->koc) {
+        if (target->xyz[1].disp.pos == ctc->koc) {
             ans = 1;
         }
 
         break;
     }
+
+    return ans;
+}
+
+s32 comm_mpcy(WORK* wk, UNK11* ctc) {
+    s16 ans = compare_y_to_koc(wk, ctc);
 
     if (ans == 0) {
         return 1;
@@ -302,31 +310,7 @@ s32 comm_mpcy(WORK* wk, UNK11* ctc) {
 }
 
 s32 comm_epcy(WORK* wk, UNK11* ctc) {
-    WORK* emwk = (WORK*)wk->target_adrs;
-    s16 ans = 0;
-
-    switch (ctc->ix) {
-    case 1:
-        if (emwk->xyz[1].disp.pos > ctc->koc) {
-            ans = 1;
-        }
-
-        break;
-
-    case 2:
-        if (emwk->xyz[1].disp.pos < ctc->koc) {
-            ans = 1;
-        }
-
-        break;
-
-    default:
-        if (emwk->xyz[1].disp.pos == ctc->koc) {
-            ans = 1;
-        }
-
-        break;
-    }
+    s16 ans = compare_y_to_koc((WORK*)wk->target_adrs, ctc);
 
     if (ans == 0) {
         return 1;
