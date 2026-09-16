@@ -151,24 +151,28 @@ void effl7_move(WORK_Other* ewk) {
     }
 }
 
+static s32 effl7_entry_blocked(const WORK* wk) {
+    if ((wk->work_id == 1) && (((PLW*)wk)->player_number != My_char[wk->id])) {
+        return 1;
+    }
+
+    if (poison_flag[wk->id]) {
+        return 1;
+    }
+
+    if (wk->id) {
+        return !(p2sw_0 & 1);
+    }
+
+    return !(p1sw_0 & 1);
+}
+
 s32 effect_L7_init(WORK* wk, s32 /* unused */) {
     WORK_Other* ewk;
     s16 ix;
     s16 kind_w;
 
-    if ((wk->work_id == 1) && (((PLW*)wk)->player_number != My_char[wk->id])) {
-        return 0;
-    }
-
-    if (poison_flag[wk->id]) {
-        return 0;
-    }
-
-    if (wk->id) {
-        if (!(p2sw_0 & 1)) {
-            return 0;
-        }
-    } else if (!(p1sw_0 & 1)) {
+    if (effl7_entry_blocked(wk)) {
         return 0;
     }
 
