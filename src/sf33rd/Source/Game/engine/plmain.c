@@ -744,6 +744,20 @@ void sag_union_0(PLW* wk) { // 🟢
     }
 }
 
+/* Four of sag_union_1's character tests had byte-identical bodies and differed
+ * only in which character they named, so the character is the parameter and each
+ * call site keeps its own constant.
+ *
+ * Deliberately not shared with sag_union_ps2, which runs the same four tests
+ * written with 32 and 128 rather than 0x20 and 0x80, and routes CHAR_YUN through
+ * addSAAttribute instead. Those are different literals and a different call. */
+static void mark_art_attack_for(PLW* wk, u8 character) {
+    if (My_char[wk->wu.id] == character) {
+        wk->wu.kind_of_waza |= 0x20;
+        wk->wu.at_koa = 0x80;
+    }
+}
+
 void sag_union_1(PLW* wk) { // 🟢
     switch (wk->sa->sa_rno) {
     case 0:
@@ -805,25 +819,10 @@ void sag_union_1(PLW* wk) { // 🟢
             wk->sa->sa_rno = 0;
             wk->sa->dtm_mul = 1;
         } else {
-            if (My_char[wk->wu.id] == CHAR_YUN) {
-                wk->wu.kind_of_waza |= 0x20;
-                wk->wu.at_koa = 0x80;
-            }
-
-            if (My_char[wk->wu.id] == CHAR_YANG) {
-                wk->wu.kind_of_waza |= 0x20;
-                wk->wu.at_koa = 0x80;
-            }
-
-            if (My_char[wk->wu.id] == CHAR_MAKOTO) {
-                wk->wu.kind_of_waza |= 0x20;
-                wk->wu.at_koa = 0x80;
-            }
-
-            if (My_char[wk->wu.id] == CHAR_TWELVE) {
-                wk->wu.kind_of_waza |= 0x20;
-                wk->wu.at_koa = 0x80;
-            }
+            mark_art_attack_for(wk, CHAR_YUN);
+            mark_art_attack_for(wk, CHAR_YANG);
+            mark_art_attack_for(wk, CHAR_MAKOTO);
+            mark_art_attack_for(wk, CHAR_TWELVE);
 
             if ((My_char[wk->wu.id] == CHAR_ORO) && (wk->sa->kind_of_arts == 2)) {
                 wk->wu.att.dipsw |= 0x10;
