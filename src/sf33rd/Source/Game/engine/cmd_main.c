@@ -21,6 +21,22 @@ void (*chk_move_jp[28])() = { check_init, check_0,  check_1,  check_2,  check_3,
                               check_13,   check_14, check_15, check_16, check_16, check_18, check_19,
                               check_20,   check_21, check_22, check_23, check_24, check_25, check_26 };
 
+static s32 lever_held_and_move_allowed(void) {
+    return (cmd_pl->wu.xyz[1].disp.pos > 0 || (waza_type[cmd_id] != 5 && waza_type[cmd_id] != 6)) &&
+           chk_pl->now_lvbt & 0xF;
+}
+
+/* Counts shot_ok as part of the test, exactly where the original did. */
+static s32 lever_changed_and_shot_counted(void) {
+    return ((chk_pl->old_lvbt & 0xF) != (chk_pl->new_lvbt & 0xF)) && (chk_pl->sw_lever & waza_ptr->w_lvr) &&
+           (waza_ptr->shot_ok += 1, waza_ptr->shot_ok < waza_ptr->free1 == 0);
+}
+
+static s32 no_dead_key_is_held(void) {
+    return (!waza_ptr->w_dead || waza_ptr->w_dead != chk_pl->sw_new) &&
+           (!waza_ptr->w_dead2 || waza_ptr->w_dead2 != chk_pl->sw_new);
+}
+
 void waza_check(PLW* pl) { // 🟢
     cmd_pl = pl;
     cmd_id = cmd_pl->wu.id;
@@ -659,8 +675,7 @@ void check_10() { // 🟢
         break;
 
     case 1:
-        if ((cmd_pl->wu.xyz[1].disp.pos > 0 || (waza_type[cmd_id] != 5 && waza_type[cmd_id] != 6)) &&
-            chk_pl->now_lvbt & 0xF) {
+        if (lever_held_and_move_allowed()) {
             if (chk_pl->sw_lever == waza_ptr->w_lvr) {
                 waza_ptr->shot_ok++;
                 wcp[cmd_id].waza_flag[waza_type[cmd_id]] = wcp[cmd_id].reset[waza_type[cmd_id]];
@@ -990,8 +1005,7 @@ void check_15() { // 🟢
             }
         }
     } else if (
-        ((chk_pl->old_lvbt & 0xF) != (chk_pl->new_lvbt & 0xF)) && (chk_pl->sw_lever & waza_ptr->w_lvr) &&
-        (waza_ptr->shot_ok += 1, waza_ptr->shot_ok < waza_ptr->free1 == 0)
+        lever_changed_and_shot_counted()
     ) {
         if (*waza_ptr->w_ptr == 0x1C) {
             command_ok();
@@ -1377,8 +1391,7 @@ void command_ok_move(s16 waza_num) { // 🟢
 }
 
 s32 dead_lvr_check() { // 🟢
-    if ((!waza_ptr->w_dead || waza_ptr->w_dead != chk_pl->sw_new) &&
-        (!waza_ptr->w_dead2 || waza_ptr->w_dead2 != chk_pl->sw_new)) {
+    if (no_dead_key_is_held()) {
         return 0;
     }
 
