@@ -97,6 +97,44 @@ static s32 wipe_just_started(void) {
     return ArcadeBalance_IsEnabled() && Exec_Wipe != 0 && Exec_Wipe_F == 0;
 }
 
+/* The part of a gauge's setup that is the same however it is being set up:
+ * the flash state, the timer-art flag, and the mass-meter geometry derived
+ * from the bar length. Written out identically by the four init paths. */
+static void finish_gauge_init(s8 pl) {
+    spg_dat[pl].gauge_flash_time = 2;
+    spg_dat[pl].gauge_flash_col = 0;
+    spg_dat[pl].sa_flag = 0;
+    spg_dat[pl].ex_flag = 0;
+    spg_dat[pl].no_chgcol = 0;
+    spg_dat[pl].time_no_clear = 0;
+    spg_dat[pl].sa_mukou = 0;
+    sa_gauge_flash[pl] = 0;
+    spg_dat[pl].spgptbl_ptr = spgauge_postbl[pl];
+
+    if (super_arts[pl].gauge_type == 1) {
+        spg_dat[pl].time = 1;
+        time_flag[pl] = 1;
+    } else {
+        spg_dat[pl].time = 0;
+        time_flag[pl] = 0;
+    }
+
+    spg_dat[pl].mass_len = spg_dat[pl].spg_len - 5;
+
+    if (spg_dat[pl].spg_len & 1) {
+        spg_dat[pl].mchar = 5;
+    } else {
+        spg_dat[pl].mass_len = spg_dat[pl].mass_len - 1;
+        spg_dat[pl].mchar = 6;
+    }
+
+    spg_dat[pl].mass_len /= 2;
+    time_operate[pl] = 0;
+    sast_now[pl] = 0;
+    max2[pl] = 0;
+    max_rno2[pl] = 0;
+}
+
 void spgauge_cont_init() {
     s8 lpy;
 
@@ -120,38 +158,7 @@ void spgauge_cont_init() {
         spg_dat[lpy].max_old = 0;
         spg_dat[lpy].max_rno = 0;
         spg_dat[lpy].time_rno = 0;
-        spg_dat[lpy].gauge_flash_time = 2;
-        spg_dat[lpy].gauge_flash_col = 0;
-        spg_dat[lpy].sa_flag = 0;
-        spg_dat[lpy].ex_flag = 0;
-        spg_dat[lpy].no_chgcol = 0;
-        spg_dat[lpy].time_no_clear = 0;
-        spg_dat[lpy].sa_mukou = 0;
-        sa_gauge_flash[lpy] = 0;
-        spg_dat[lpy].spgptbl_ptr = spgauge_postbl[lpy];
-
-        if (super_arts[lpy].gauge_type == 1) {
-            spg_dat[lpy].time = 1;
-            time_flag[lpy] = 1;
-        } else {
-            spg_dat[lpy].time = 0;
-            time_flag[lpy] = 0;
-        }
-
-        spg_dat[lpy].mass_len = spg_dat[lpy].spg_len - 5;
-
-        if (spg_dat[lpy].spg_len & 1) {
-            spg_dat[lpy].mchar = 5;
-        } else {
-            spg_dat[lpy].mass_len = spg_dat[lpy].mass_len - 1;
-            spg_dat[lpy].mchar = 6;
-        }
-
-        spg_dat[lpy].mass_len /= 2;
-        time_operate[lpy] = 0;
-        sast_now[lpy] = 0;
-        max2[lpy] = 0;
-        max_rno2[lpy] = 0;
+        finish_gauge_init(lpy);
     }
 
     spg_dat[0].spgcol_number = 17;
@@ -192,38 +199,7 @@ static void init_demo_gauge(s8 lpy) {
     spg_dat[lpy].max_old = 1;
     spg_dat[lpy].max_rno = 2;
     spg_dat[lpy].time_rno = 5;
-    spg_dat[lpy].gauge_flash_time = 2;
-    spg_dat[lpy].gauge_flash_col = 0;
-    spg_dat[lpy].sa_flag = 0;
-    spg_dat[lpy].ex_flag = 0;
-    spg_dat[lpy].no_chgcol = 0;
-    spg_dat[lpy].time_no_clear = 0;
-    spg_dat[lpy].sa_mukou = 0;
-    sa_gauge_flash[lpy] = 0;
-    spg_dat[lpy].spgptbl_ptr = spgauge_postbl[lpy];
-
-    if (super_arts[lpy].gauge_type == 1) {
-        spg_dat[lpy].time = 1;
-        time_flag[lpy] = 1;
-    } else {
-        spg_dat[lpy].time = 0;
-        time_flag[lpy] = 0;
-    }
-
-    spg_dat[lpy].mass_len = spg_dat[lpy].spg_len - 5;
-
-    if (spg_dat[lpy].spg_len & 1) {
-        spg_dat[lpy].mchar = 5;
-    } else {
-        spg_dat[lpy].mass_len = spg_dat[lpy].mass_len - 1;
-        spg_dat[lpy].mchar = 6;
-    }
-
-    spg_dat[lpy].mass_len /= 2;
-    time_operate[lpy] = 0;
-    sast_now[lpy] = 0;
-    max2[lpy] = 0;
-    max_rno2[lpy] = 0;
+    finish_gauge_init(lpy);
 }
 
 void spgauge_cont_demo_init() {
@@ -1193,38 +1169,7 @@ void tr_spgauge_cont_init(s8 pl) {
     spg_dat[pl].max_old = 0;
     spg_dat[pl].max_rno = 0;
     spg_dat[pl].time_rno = 0;
-    spg_dat[pl].gauge_flash_time = 2;
-    spg_dat[pl].gauge_flash_col = 0;
-    spg_dat[pl].sa_flag = 0;
-    spg_dat[pl].ex_flag = 0;
-    spg_dat[pl].no_chgcol = 0;
-    spg_dat[pl].time_no_clear = 0;
-    spg_dat[pl].sa_mukou = 0;
-    sa_gauge_flash[pl] = 0;
-    spg_dat[pl].spgptbl_ptr = spgauge_postbl[pl];
-
-    if (super_arts[pl].gauge_type == 1) {
-        spg_dat[pl].time = 1;
-        time_flag[pl] = 1;
-    } else {
-        spg_dat[pl].time = 0;
-        time_flag[pl] = 0;
-    }
-
-    spg_dat[pl].mass_len = spg_dat[pl].spg_len - 5;
-
-    if (spg_dat[pl].spg_len & 1) {
-        spg_dat[pl].mchar = 5;
-    } else {
-        spg_dat[pl].mass_len = spg_dat[pl].mass_len - 1;
-        spg_dat[pl].mchar = 6;
-    }
-
-    spg_dat[pl].mass_len /= 2;
-    time_operate[pl] = 0;
-    sast_now[pl] = 0;
-    max2[pl] = 0;
-    max_rno2[pl] = 0;
+    finish_gauge_init(pl);
 
     if (pl == 0) {
         spg_dat[0].spgcol_number = 17;
@@ -1264,38 +1209,7 @@ void tr_spgauge_cont_init2(s8 pl) {
     spg_dat[pl].max_old = 1;
     spg_dat[pl].max_rno = 2;
     spg_dat[pl].time_rno = 5;
-    spg_dat[pl].gauge_flash_time = 2;
-    spg_dat[pl].gauge_flash_col = 0;
-    spg_dat[pl].sa_flag = 0;
-    spg_dat[pl].ex_flag = 0;
-    spg_dat[pl].no_chgcol = 0;
-    spg_dat[pl].time_no_clear = 0;
-    spg_dat[pl].sa_mukou = 0;
-    sa_gauge_flash[pl] = 0;
-    spg_dat[pl].spgptbl_ptr = spgauge_postbl[pl];
-
-    if (super_arts[pl].gauge_type == 1) {
-        spg_dat[pl].time = 1;
-        time_flag[pl] = 1;
-    } else {
-        spg_dat[pl].time = 0;
-        time_flag[pl] = 0;
-    }
-
-    spg_dat[pl].mass_len = spg_dat[pl].spg_len - 5;
-
-    if (spg_dat[pl].spg_len & 1) {
-        spg_dat[pl].mchar = 5;
-    } else {
-        spg_dat[pl].mass_len = spg_dat[pl].mass_len - 1;
-        spg_dat[pl].mchar = 6;
-    }
-
-    spg_dat[pl].mass_len /= 2;
-    time_operate[pl] = 0;
-    sast_now[pl] = 0;
-    max2[pl] = 0;
-    max_rno2[pl] = 0;
+    finish_gauge_init(pl);
 
     if (pl == 0) {
         spg_dat[0].spgcol_number = 17;
