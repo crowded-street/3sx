@@ -177,6 +177,22 @@ const u16 exdm_ix_data[2][20][5] = {
       { 16, 20, 1, 0, 21532 },  { 65530, 0, 1, 0, 23315 }, { 23, 2, 1, 0, 25264 },    { 9, 22, 1, 0, 26103 } }
 };
 
+static s32 target_is_gill_resurrecting(const PLW* twk) {
+    return twk->player_number == 0 && twk->wu.now_koc == 5 && twk->wu.char_index == 59;
+}
+
+static s32 damage_interrupts_current_action(const PLW* wk) {
+    return wk->wu.dm_vital && (wk->wu.routine_no[1] != 1 || wk->wu.routine_no[2] > 11 || wk->wu.routine_no[3] != 0);
+}
+
+static s32 chip_damage_would_be_fatal(const PLW* wk) {
+    return wk->wu.dm_guard_success == -1 && wk->wu.vital_old > 0 && wk->wu.vital_new < 0 && wk->wu.vital_new > -3;
+}
+
+static s32 action_is_in_damage_range(const PLW* wk) {
+    return wk->wu.routine_no[2] > 19 && wk->wu.routine_no[2] < 88 && wk->wu.routine_no[2] != 70;
+}
+
 void Player_damage(PLW* wk) {
     setup_damage_process_flags(wk);
 
@@ -1337,7 +1353,7 @@ void set_dm_hos_flag_sky(PLW* wk) {
         return;
     }
 
-    if (twk->player_number == 0 && twk->wu.now_koc == 5 && twk->wu.char_index == 59) {
+    if (target_is_gill_resurrecting(twk)) {
         return;
     }
 
@@ -1373,7 +1389,7 @@ void set_dm_hos_flag_grd(PLW* wk) {
         return;
     }
 
-    if (twk->player_number == 0 && twk->wu.now_koc == 5 && twk->wu.char_index == 59) {
+    if (target_is_gill_resurrecting(twk)) {
         return;
     }
 
@@ -1420,7 +1436,7 @@ static void apply_vital_underflow_or_piyo(PLW* wk) {
 
 void subtract_dm_vital(PLW* wk) {
     if (wk->dead_flag == 0) {
-        if (wk->wu.dm_vital && (wk->wu.routine_no[1] != 1 || wk->wu.routine_no[2] > 11 || wk->wu.routine_no[3] != 0)) {
+        if (damage_interrupts_current_action(wk)) {
             Additinal_Score_DM((WORK_Other*)wk->wu.dmg_adrs, wk->wu.dm_ten_ix);
         }
 
@@ -1440,7 +1456,7 @@ void subtract_dm_vital(PLW* wk) {
 
         wk->wu.vital_new -= wk->wu.dm_vital;
 
-        if (wk->wu.dm_guard_success == -1 && wk->wu.vital_old > 0 && wk->wu.vital_new < 0 && wk->wu.vital_new > -3) {
+        if (chip_damage_would_be_fatal(wk)) {
             wk->wu.vital_new = 0;
         }
 
@@ -1478,7 +1494,7 @@ void subtract_dm_vital(PLW* wk) {
 
 void subtract_dm_vital_aiuchi(PLW* wk) {
     if (wk->dead_flag == 0) {
-        if (wk->wu.dm_vital && (wk->wu.routine_no[1] != 1 || wk->wu.routine_no[2] > 11 || wk->wu.routine_no[3] != 0)) {
+        if (damage_interrupts_current_action(wk)) {
             Additinal_Score_DM((WORK_Other*)wk->wu.dmg_adrs, wk->wu.dm_ten_ix);
         }
 
@@ -1496,7 +1512,7 @@ void subtract_dm_vital_aiuchi(PLW* wk) {
 
         wk->wu.vital_new -= wk->wu.dm_vital;
 
-        if (wk->wu.dm_guard_success == -1 && wk->wu.vital_old > 0 && wk->wu.vital_new < 0 && wk->wu.vital_new > -3) {
+        if (chip_damage_would_be_fatal(wk)) {
             wk->wu.vital_new = 0;
         }
 
@@ -1540,7 +1556,7 @@ void get_damage_reaction_data(PLW* wk) {
 
     if (wk->dead_flag) {
         wk->wu.routine_no[2] = dd_convert[wk->wu.routine_no[2]][wk->wu.dm_attlv];
-        if (wk->wu.routine_no[2] > 19 && wk->wu.routine_no[2] < 88 && wk->wu.routine_no[2] != 70) {
+        if (action_is_in_damage_range(wk)) {
             wk->wu.routine_no[2] = check_buttobi_type2(wk);
         }
     }
