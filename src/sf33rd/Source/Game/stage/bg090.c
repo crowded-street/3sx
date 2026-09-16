@@ -146,6 +146,31 @@ void bg090_demo_check() {
     bgw_ptr->xy[1].cal = bgw_ptr->wxy[1].cal = bgw_ptr->speed_y * pos_w;
 }
 
+static void demo90_base_later_states() {
+    switch (bgw_ptr->r_no_1) {
+    case 1:
+        bgw_ptr->xy[1].cal -= bgw_ptr->speed_y * 0xA;
+        bgw_ptr->wxy[1].cal -= bgw_ptr->speed_y * 0xA;
+
+        if (bgw_ptr->xy[1].disp.pos <= 0) {
+            bgw_ptr->r_no_1++;
+            bgw_ptr->xy[1].cal = 0;
+            bgw_ptr->wxy[1].cal = 0;
+            break;
+        }
+        break;
+
+    case 2:
+        if (Appear_end == 2) {
+            bgw_ptr->r_no_0++;
+            bgw_ptr->r_no_1 = 0;
+            bgw_ptr->xy[1].cal = 0;
+            bgw_ptr->wxy[1].cal = 0;
+        }
+        break;
+    }
+}
+
 void demo90_base() {
     s16 chk_pl;
 
@@ -172,25 +197,8 @@ void demo90_base() {
 
         break;
 
-    case 1:
-        bgw_ptr->xy[1].cal -= bgw_ptr->speed_y * 0xA;
-        bgw_ptr->wxy[1].cal -= bgw_ptr->speed_y * 0xA;
-
-        if (bgw_ptr->xy[1].disp.pos <= 0) {
-            bgw_ptr->r_no_1++;
-            bgw_ptr->xy[1].cal = 0;
-            bgw_ptr->wxy[1].cal = 0;
-            break;
-        }
-        break;
-
-    case 2:
-        if (Appear_end == 2) {
-            bgw_ptr->r_no_0++;
-            bgw_ptr->r_no_1 = 0;
-            bgw_ptr->xy[1].cal = 0;
-            bgw_ptr->wxy[1].cal = 0;
-        }
+    default:
+        demo90_base_later_states();
         break;
     }
 }
