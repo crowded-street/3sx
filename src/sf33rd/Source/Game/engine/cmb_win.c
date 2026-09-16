@@ -499,23 +499,27 @@ static void advance_combo_write_index(s8 PL, s8 stock_capacity) {
 
 /* The display queue is full, so this combo's score is awarded at once rather
  * than queued for the animation to pay out. */
+/* The super-art combo bonus, which depends on which art it was. Both score
+ * functions used these two values twice each - once added to the running score
+ * and once replacing it - so only the value is shared here; whether it is added
+ * or assigned stays at the call site. */
+static u32 super_art_bonus(void) {
+    if (sa_kind == 2) {
+        return 20000;
+    }
+
+    return 30000;
+}
+
 /* The score a combo is worth when the queue is full, by record kind. */
 static u32 full_queue_score(s8 PLS, s8 KIND, u32 score) {
     switch (KIND) {
     case 2:
-        if (sa_kind == 2) {
-            score += 20000;
-        } else {
-            score += 30000;
-        }
+        score += super_art_bonus();
         break;
 
     case 3:
-        if (sa_kind == 2) {
-            score = 20000;
-        } else {
-            score = 30000;
-        }
+        score = super_art_bonus();
         break;
 
     case 4:
@@ -558,19 +562,11 @@ static u32 queued_record_score(s8 PL, s8 PLS, s8 KIND, u32 score) {
         break;
 
     case 2:
-        if (sa_kind == 2) {
-            score += 20000;
-        } else {
-            score += 30000;
-        }
+        score += super_art_bonus();
         break;
 
     case 3:
-        if (sa_kind == 2) {
-            score = 20000;
-        } else {
-            score = 30000;
-        }
+        score = super_art_bonus();
         break;
 
     case 4:
