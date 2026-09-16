@@ -1088,11 +1088,10 @@ void add_sp_arts_gauge_maxbit(PLW* wk) { // 🔴
 }
 #endif
 
-/* Every reason the gauge does not move at all: the test menu, a move flagged
- * not to charge, a super art already running or unavailable, the pause and
- * bonus states, a character whose gauge bonus is zero, a gain that is not
- * positive, and a gauge already full. */
-static s32 gauge_gain_is_blocked(SA_WORK* wk, s16 ix, s16 asag, u8 mf) {
+/* The states in which no gauge moves at all: the test menu, a move flagged not
+ * to charge, a super art already running or unavailable, the pause and the
+ * bonus stages. */
+static s32 game_state_blocks_gauge_gain(SA_WORK* wk, u8 mf) {
     if (test_flag) {
         return 1;
     }
@@ -1119,6 +1118,12 @@ static s32 gauge_gain_is_blocked(SA_WORK* wk, s16 ix, s16 asag, u8 mf) {
         return 1;
     }
 
+    return 0;
+}
+
+/* The gain itself is worth nothing: this character's gauge bonus is zero, the
+ * gain is not positive, or the gauge is already full. */
+static s32 gauge_gain_is_worthless(SA_WORK* wk, s16 ix, s16 asag) {
     if (sa_gauge_omake[omop_sa_gauge_ix[ix]] == 0) {
         return 1;
     }
@@ -1134,6 +1139,14 @@ static s32 gauge_gain_is_blocked(SA_WORK* wk, s16 ix, s16 asag, u8 mf) {
     }
 
     return 0;
+}
+
+static s32 gauge_gain_is_blocked(SA_WORK* wk, s16 ix, s16 asag, u8 mf) {
+    if (game_state_blocks_gauge_gain(wk, mf)) {
+        return 1;
+    }
+
+    return gauge_gain_is_worthless(wk, ix, asag);
 }
 
 /* The gain the script asked for, after the flat bonus, the first-round bonus
