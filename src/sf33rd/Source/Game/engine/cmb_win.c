@@ -645,6 +645,42 @@ static void slide_combo_message(s8 PL) {
 
 /* Move the points display one digit-step along. Once it is fully out the `else`
  * arm keeps it drawn where it stopped. */
+/* Draw the points row at a given slide position. Written out four times in the
+ * points slide, identical apart from that position - twice at the row's resting
+ * place and twice mid-slide. */
+static void draw_combo_points_at(s8 PL, s16 posnum) {
+    combo_pts_set(
+        PL,
+        cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[1] - 1],
+        posnum,
+        &cmst_buff[PL][cst_read[PL]].pts_digit[0],
+        cmst_buff[PL][cst_read[PL]].first_digit
+    );
+}
+
+/* One step of the points row sliding out, or the step that finishes it and sets
+ * the end flag. The two draws differ in where they put the row: mid-slide it
+ * follows x_posnum, and at the end it sits at its resting place. */
+static void step_points_slide(s8 PL) {
+    if (cmst_buff[PL][cst_read[PL]].x_posnum[1] < (cmst_buff[PL][cst_read[PL]].move[1] + 2)) {
+        if (cmst_buff[PL][cst_read[PL]].x_posnum[1] < cmst_buff[PL][cst_read[PL]].move[1]) {
+            if (cmst_buff[PL][cst_read[PL]].x_posnum[1] != 0) {
+                draw_combo_points_at(PL, cmst_buff[PL][cst_read[PL]].x_posnum[1]);
+            }
+        } else if (cmst_buff[PL][cst_read[PL]].x_posnum[1] != 0) {
+            draw_combo_points_at(PL, (cmst_buff[PL][cst_read[PL]].move[1] - 1));
+        }
+
+        if (!(Game_pause & 0x80)) {
+            cmst_buff[PL][cst_read[PL]].x_posnum[1]++;
+        }
+    } else {
+        end_flag[PL] |= 2;
+
+        draw_combo_points_at(PL, (cmst_buff[PL][cst_read[PL]].move[1] - 1));
+    }
+}
+
 static void slide_combo_points(s8 PL) {
     if (!(end_flag[PL] & 2)) {
         if (!(Game_pause & 0x80)) {
@@ -652,50 +688,10 @@ static void slide_combo_points(s8 PL) {
         }
 
         if (cmst_buff[PL][cst_read[PL]].timer[0] < 0) {
-            if (cmst_buff[PL][cst_read[PL]].x_posnum[1] < (cmst_buff[PL][cst_read[PL]].move[1] + 2)) {
-                if (cmst_buff[PL][cst_read[PL]].x_posnum[1] < cmst_buff[PL][cst_read[PL]].move[1]) {
-                    if (cmst_buff[PL][cst_read[PL]].x_posnum[1] != 0) {
-                        combo_pts_set(
-                            PL,
-                            cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[1] - 1],
-                            cmst_buff[PL][cst_read[PL]].x_posnum[1],
-                            &cmst_buff[PL][cst_read[PL]].pts_digit[0],
-                            cmst_buff[PL][cst_read[PL]].first_digit
-                        );
-                    }
-                } else if (cmst_buff[PL][cst_read[PL]].x_posnum[1] != 0) {
-                    combo_pts_set(
-                        PL,
-                        cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[1] - 1],
-                        (cmst_buff[PL][cst_read[PL]].move[1] - 1),
-                        &cmst_buff[PL][cst_read[PL]].pts_digit[0],
-                        cmst_buff[PL][cst_read[PL]].first_digit
-                    );
-                }
-
-                if (!(Game_pause & 0x80)) {
-                    cmst_buff[PL][cst_read[PL]].x_posnum[1]++;
-                }
-            } else {
-                end_flag[PL] |= 2;
-
-                combo_pts_set(
-                    PL,
-                    cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[1] - 1],
-                    (cmst_buff[PL][cst_read[PL]].move[1] - 1),
-                    &cmst_buff[PL][cst_read[PL]].pts_digit[0],
-                    cmst_buff[PL][cst_read[PL]].first_digit
-                );
-            }
+            step_points_slide(PL);
         }
     } else {
-        combo_pts_set(
-            PL,
-            cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[1] - 1],
-            (cmst_buff[PL][cst_read[PL]].move[1] - 1),
-            &cmst_buff[PL][cst_read[PL]].pts_digit[0],
-            cmst_buff[PL][cst_read[PL]].first_digit
-        );
+        draw_combo_points_at(PL, (cmst_buff[PL][cst_read[PL]].move[1] - 1));
     }
 }
 
@@ -756,13 +752,7 @@ static void run_scored_combo_window(s8 PL) {
                     cmst_buff[PL][cst_read[PL]].hit_low
                 );
 
-                combo_pts_set(
-                    PL,
-                    cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[1] - 1],
-                    (cmst_buff[PL][cst_read[PL]].move[1] - 1),
-                    &cmst_buff[PL][cst_read[PL]].pts_digit[0],
-                    cmst_buff[PL][cst_read[PL]].first_digit
-                );
+                draw_combo_points_at(PL, (cmst_buff[PL][cst_read[PL]].move[1] - 1));
 
                 return;
             }
@@ -775,13 +765,7 @@ static void run_scored_combo_window(s8 PL) {
                 cmst_buff[PL][cst_read[PL]].hit_hi,
                 cmst_buff[PL][cst_read[PL]].hit_low
             );
-            combo_pts_set(
-                PL,
-                cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[1] - 1],
-                (cmst_buff[PL][cst_read[PL]].move[1] - 1),
-                &cmst_buff[PL][cst_read[PL]].pts_digit[0],
-                cmst_buff[PL][cst_read[PL]].first_digit
-            );
+            draw_combo_points_at(PL, (cmst_buff[PL][cst_read[PL]].move[1] - 1));
             return;
         }
 
