@@ -598,22 +598,30 @@ static s32 master_art_is_running(PLW* pwk, UNK11* ctc) {
     return pwk->wu.work_id == 1 && pwk->sa->kind_of_arts == ctc->koc && pwk->sa->ok == -1;
 }
 
-s32 comm_sajp(WORK* wk, UNK11* ctc) {
-    PLW* pwk;
-
-    if (wk->work_id == 1) {
-        if (own_art_is_running(wk, ctc)) {
-            return decord_if_jump(wk, ctc, ctc->ix);
-        }
-    } else {
-        pwk = (PLW*)((WORK_Other*)wk)->my_master;
-
-        if (master_art_is_running(pwk, ctc)) {
-            return decord_if_jump(&pwk->wu, ctc, ctc->ix);
-        }
+static s32 jump_on_own_art(WORK* wk, UNK11* ctc) {
+    if (own_art_is_running(wk, ctc)) {
+        return decord_if_jump(wk, ctc, ctc->ix);
     }
 
     return 1;
+}
+
+static s32 jump_on_master_art(WORK* wk, UNK11* ctc) {
+    PLW* pwk = (PLW*)((WORK_Other*)wk)->my_master;
+
+    if (master_art_is_running(pwk, ctc)) {
+        return decord_if_jump(&pwk->wu, ctc, ctc->ix);
+    }
+
+    return 1;
+}
+
+s32 comm_sajp(WORK* wk, UNK11* ctc) {
+    if (wk->work_id == 1) {
+        return jump_on_own_art(wk, ctc);
+    }
+
+    return jump_on_master_art(wk, ctc);
 }
 
 s32 comm_ccch(WORK* wk, UNK11* ctc) {
