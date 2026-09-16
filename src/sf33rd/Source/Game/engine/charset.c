@@ -697,13 +697,12 @@ static void apply_player_cancel_flags(WORK* wk) {
     }
 }
 
-void check_cgd_patdat(WORK* wk) {
+/* The parts of a pattern that only the richer pattern types carry: the step
+ * offset, the pattern status, the hit and attack indices, and the effect the
+ * pattern fires. */
+static void apply_cgd_type_fields(WORK* wk) {
     ST st;
-
-    u16* seAdrs;
     s16* from_rom2;
-
-    setupCharTableData(wk, 0, 0);
 
     switch (wk->cgd_type) {
     case 6:
@@ -747,6 +746,14 @@ void check_cgd_patdat(WORK* wk) {
 
         break;
     }
+}
+
+void check_cgd_patdat(WORK* wk) {
+    u16* seAdrs;
+
+    setupCharTableData(wk, 0, 0);
+
+    apply_cgd_type_fields(wk);
 
     wk->cg_jphos = jphos_table[wk->cg_olc_ix & 0xF];
     wk->cg_olc_ix >>= 4;
