@@ -1609,6 +1609,15 @@ void clear_super_arts_point(PLW* wk) { // 🟡
     }
 }
 
+/* A combo ends when the player is not guarding. */
+static s16 combo_end_from_guard(s16 ix) {
+    if (plw[ix].guard_flag == 0) {
+        return 0;
+    }
+
+    return 1;
+}
+
 s16 check_combo_end(s16 ix) { // 🟢
     s16 rnum;
 
@@ -1636,16 +1645,12 @@ s16 check_combo_end(s16 ix) { // 🟢
         return 0;
     }
 
+    /* Both arms of this test are the same in the original: whether the guard
+     * flag changed this frame does not affect the answer. Left as written. */
     if (plw[ix].old_gdflag != plw[ix].guard_flag) {
-        if (plw[ix].guard_flag == 0) {
-            rnum = 0;
-        } else {
-            rnum = 1;
-        }
-    } else if (plw[ix].guard_flag == 0) {
-        rnum = 0;
+        rnum = combo_end_from_guard(ix);
     } else {
-        rnum = 1;
+        rnum = combo_end_from_guard(ix);
     }
 
     return rnum;
