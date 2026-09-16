@@ -1464,6 +1464,12 @@ static void adjust_frame_x(u16 pos_x) {
     }
 }
 
+static void fix_frame_y_adjustment() {
+    if (scrn_adgjust_y == -0x14) {
+        scrn_adgjust_y += 1;
+    }
+}
+
 static void adjust_frame_y(u16 pos_y) {
     u16 buff;
 
@@ -1474,10 +1480,6 @@ static void adjust_frame_y(u16 pos_y) {
         buff >>= 6;
         buff &= 0x1FF;
         scrn_adgjust_y = -buff;
-
-        if (scrn_adgjust_y == -0x14) {
-            scrn_adgjust_y += 1;
-        }
     } else {
         buff = 0x40;
         buff -= zoom_add;
@@ -1485,11 +1487,9 @@ static void adjust_frame_y(u16 pos_y) {
         buff >>= 6;
         buff &= 0x1FF;
         scrn_adgjust_y = buff;
-
-        if (scrn_adgjust_y == -0x14) {
-            scrn_adgjust_y += 1;
-        }
     }
+
+    fix_frame_y_adjustment();
 }
 
 void Frame_Adgjust(u16 pos_x, u16 pos_y) {
