@@ -84,7 +84,7 @@ void effect_99_move(WORK_Other_CONN* ewk) {
     sort_push_request3(&ewk->wu);
 }
 
-s32 effect_99_init(s16 id, s16 type, s16 char_offset, s16 letter_index, s16 pos_index, s16 master_player) {
+s32 effect_99_init(const Effect99Init* p) {
     WORK_Other_CONN* ewk;
     s16 ix;
 
@@ -99,17 +99,17 @@ s32 effect_99_init(s16 id, s16 type, s16 char_offset, s16 letter_index, s16 pos_
     ewk->wu.work_id = 16;
     ewk->wu.my_col_code = 0x1AC;
     ewk->wu.my_family = 3;
-    ewk->master_id = id;
-    ewk->wu.type = type;
-    ewk->wu.old_cgnum = char_offset;
-    ewk->wu.dir_step = letter_index;
-    ewk->master_priority = pos_index;
-    ewk->master_player = master_player;
+    ewk->master_id = p->id;
+    ewk->wu.type = p->type;
+    ewk->wu.old_cgnum = p->char_offset;
+    ewk->wu.dir_step = p->letter_index;
+    ewk->master_priority = p->pos_index;
+    ewk->master_player = p->master_player;
     ewk->wu.my_mts = 13;
     ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
-    ewk->wu.position_x = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + Pos_Data_99[pos_index][0];
-    ewk->wu.position_y = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + Pos_Data_99[pos_index][1];
-    ewk->wu.position_z = Pos_Data_99[pos_index][2];
+    ewk->wu.position_x = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + Pos_Data_99[p->pos_index][0];
+    ewk->wu.position_y = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos + Pos_Data_99[p->pos_index][1];
+    ewk->wu.position_z = Pos_Data_99[p->pos_index][2];
     return 0;
 }
 
