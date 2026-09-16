@@ -319,38 +319,38 @@ s32 comm_epcy(WORK* wk, UNK11* ctc) {
     return decord_if_jump(wk, ctc, ctc->pat);
 }
 
+/* The three relative-set opcodes place one work at an offset from the other,
+ * with X mirrored by the script work's facing. dest and src swap between the
+ * arms; facing never does. */
+static void set_relative_x(WORK* dest, WORK* src, WORK* facing, UNK11* ctc) {
+    if (facing->rl_flag) {
+        dest->xyz[0].cal = src->xyz[0].cal + (ctc->ix << 8);
+    } else {
+        dest->xyz[0].cal = src->xyz[0].cal - (ctc->ix << 8);
+    }
+}
+
+static void set_relative_y(WORK* dest, WORK* src, UNK11* ctc) {
+    dest->xyz[1].cal = src->xyz[1].cal + (ctc->pat << 8);
+}
+
 s32 comm_rvxy(WORK* wk, UNK11* ctc) {
     WORK* emwk = (WORK*)wk->target_adrs;
 
     switch (ctc->koc) {
     case 0:
-        if (wk->rl_flag) {
-            wk->xyz[0].cal = emwk->xyz[0].cal + (ctc->ix << 8);
-        } else {
-            wk->xyz[0].cal = emwk->xyz[0].cal - (ctc->ix << 8);
-        }
-
-        wk->xyz[1].cal = emwk->xyz[1].cal + (ctc->pat << 8);
+        set_relative_x(wk, emwk, wk, ctc);
+        set_relative_y(wk, emwk, ctc);
         break;
 
     case 2:
-        if (wk->rl_flag) {
-            wk->xyz[0].cal = emwk->xyz[0].cal + (ctc->ix << 8);
-        } else {
-            wk->xyz[0].cal = emwk->xyz[0].cal - (ctc->ix << 8);
-        }
-
-        wk->xyz[1].cal = emwk->xyz[1].cal + (ctc->pat << 8);
+        set_relative_x(wk, emwk, wk, ctc);
+        set_relative_y(wk, emwk, ctc);
         /* fallthrough */
 
     default:
-        if (wk->rl_flag) {
-            emwk->xyz[0].cal = wk->xyz[0].cal + (ctc->ix << 8);
-        } else {
-            emwk->xyz[0].cal = wk->xyz[0].cal - (ctc->ix << 8);
-        }
-
-        emwk->xyz[1].cal = wk->xyz[1].cal + (ctc->pat << 8);
+        set_relative_x(emwk, wk, wk, ctc);
+        set_relative_y(emwk, wk, ctc);
         break;
     }
 
@@ -362,30 +362,15 @@ s32 comm_rv_x(WORK* wk, UNK11* ctc) {
 
     switch (ctc->koc) {
     case 0:
-        if (wk->rl_flag) {
-            wk->xyz[0].cal = emwk->xyz[0].cal + (ctc->ix << 8);
-        } else {
-            wk->xyz[0].cal = emwk->xyz[0].cal - (ctc->ix << 8);
-        }
-
+        set_relative_x(wk, emwk, wk, ctc);
         break;
 
     case 2:
-        if (wk->rl_flag) {
-            wk->xyz[0].cal = emwk->xyz[0].cal + (ctc->ix << 8);
-        } else {
-            wk->xyz[0].cal = emwk->xyz[0].cal - (ctc->ix << 8);
-        }
-
+        set_relative_x(wk, emwk, wk, ctc);
         /* fallthrough */
 
     default:
-        if (wk->rl_flag) {
-            emwk->xyz[0].cal = wk->xyz[0].cal + (ctc->ix << 8);
-        } else {
-            emwk->xyz[0].cal = wk->xyz[0].cal - (ctc->ix << 8);
-        }
-
+        set_relative_x(emwk, wk, wk, ctc);
         break;
     }
 
@@ -397,15 +382,15 @@ s32 comm_rv_y(WORK* wk, UNK11* ctc) {
 
     switch (ctc->koc) {
     case 0:
-        wk->xyz[1].cal = emwk->xyz[1].cal + (ctc->pat << 8);
+        set_relative_y(wk, emwk, ctc);
         break;
 
     case 2:
-        wk->xyz[1].cal = emwk->xyz[1].cal + (ctc->pat << 8);
+        set_relative_y(wk, emwk, ctc);
         /* fallthrough */
 
     default:
-        emwk->xyz[1].cal = wk->xyz[1].cal + (ctc->pat << 8);
+        set_relative_y(emwk, wk, ctc);
         break;
     }
 
