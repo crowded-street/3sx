@@ -889,6 +889,17 @@ void sag_union_3(PLW* wk) { // 🟢
         break;
     }
 }
+/* The sag_union_ps2 side of the same three tests. A separate helper from
+ * mark_art_attack_for on purpose: that one is written with 0x20 and 0x80, this
+ * one with 32 and 128. The values agree, the literals do not, and rewriting a
+ * literal is not a refactor. */
+static void mark_ps2_art_attack_for(PLW* wk, u8 character) {
+    if (My_char[wk->wu.id] == character) {
+        wk->wu.kind_of_waza |= 32;
+        wk->wu.at_koa = 128;
+    }
+}
+
 /* The gt2 dispatch that was case 2 of sag_union_ps2's switch: what the super
  * art does once it is stored and running. Moved out whole, so every `break`
  * still belongs to the switch it belonged to before. */
@@ -999,20 +1010,9 @@ static void sag_union_ps2_active(PLW* wk) {
                 addSAAttribute(&wk->wu.kind_of_waza, &wk->wu.at_koa);
             }
 
-            if (My_char[wk->wu.id] == CHAR_YANG) {
-                wk->wu.kind_of_waza |= 32;
-                wk->wu.at_koa = 128;
-            }
-
-            if (My_char[wk->wu.id] == CHAR_MAKOTO) {
-                wk->wu.kind_of_waza |= 32;
-                wk->wu.at_koa = 128;
-            }
-
-            if (My_char[wk->wu.id] == CHAR_TWELVE) {
-                wk->wu.kind_of_waza |= 32;
-                wk->wu.at_koa = 128;
-            }
+            mark_ps2_art_attack_for(wk, CHAR_YANG);
+            mark_ps2_art_attack_for(wk, CHAR_MAKOTO);
+            mark_ps2_art_attack_for(wk, CHAR_TWELVE);
 
             if ((My_char[wk->wu.id] == CHAR_ORO) && (wk->sa->kind_of_arts == 2)) {
                 wk->wu.att.dipsw |= 0x10;
