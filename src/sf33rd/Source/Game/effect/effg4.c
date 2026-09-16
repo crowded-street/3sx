@@ -30,41 +30,49 @@ static s32 game_is_active(void) {
     return EXE_flag == 0 && Game_pause == 0;
 }
 
+static void effg4_spawn(WORK_Other* ewk) {
+    ewk->wu.routine_no[0]++;
+    ewk->wu.disp_flag = 1;
+
+    if (ewk->wu.rl_flag) {
+        ewk->wu.position_x = ewk->wu.xyz[0].disp.pos + gill_eff_data[ewk->wu.type].hx;
+    } else {
+        ewk->wu.position_x = ewk->wu.xyz[0].disp.pos - gill_eff_data[ewk->wu.type].hx;
+    }
+
+    ewk->wu.position_y = ewk->wu.xyz[1].disp.pos + gill_eff_data[ewk->wu.type].hy;
+    ewk->wu.position_z = ewk->wu.xyz[2].disp.pos + gill_eff_data[ewk->wu.type].hz;
+    set_char_move_init(&ewk->wu, 0, gill_eff_data[ewk->wu.type].chix);
+}
+
+static void effg4_animate(WORK_Other* ewk) {
+    if (ewk->wu.dead_f == 1) {
+        ewk->wu.routine_no[0]++;
+        ewk->wu.disp_flag = 0;
+        return;
+    }
+
+    if (game_is_active()) {
+        char_move(&ewk->wu);
+
+        if (ewk->wu.cg_type == 0xFF) {
+            ewk->wu.disp_flag = 0;
+            ewk->wu.routine_no[0]++;
+            return;
+        }
+    }
+
+    sort_push_request(&ewk->wu);
+}
+
 void effect_G4_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        ewk->wu.routine_no[0]++;
-        ewk->wu.disp_flag = 1;
-
-        if (ewk->wu.rl_flag) {
-            ewk->wu.position_x = ewk->wu.xyz[0].disp.pos + gill_eff_data[ewk->wu.type].hx;
-        } else {
-            ewk->wu.position_x = ewk->wu.xyz[0].disp.pos - gill_eff_data[ewk->wu.type].hx;
-        }
-
-        ewk->wu.position_y = ewk->wu.xyz[1].disp.pos + gill_eff_data[ewk->wu.type].hy;
-        ewk->wu.position_z = ewk->wu.xyz[2].disp.pos + gill_eff_data[ewk->wu.type].hz;
-        set_char_move_init(&ewk->wu, 0, gill_eff_data[ewk->wu.type].chix);
+        effg4_spawn(ewk);
         /* fallthrough */
 
     case 1:
-        if (ewk->wu.dead_f == 1) {
-            ewk->wu.routine_no[0]++;
-            ewk->wu.disp_flag = 0;
-            break;
-        }
-
-        if (game_is_active()) {
-            char_move(&ewk->wu);
-
-            if (ewk->wu.cg_type == 0xFF) {
-                ewk->wu.disp_flag = 0;
-                ewk->wu.routine_no[0]++;
-                break;
-            }
-        }
-
-        sort_push_request(&ewk->wu);
+        effg4_animate(ewk);
         break;
 
     case 2:
