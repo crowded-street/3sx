@@ -41,26 +41,28 @@ void EFF69_WAIT(WORK_Other* ewk) {
     }
 }
 
+/* Arrived: snap to the target, release the order slot if this effect still owns
+ * it, and go idle. Both directions of travel end here; only the comparison that
+ * decides "arrived" differs, and that stays at the call site. */
+static void e69_settle_at_target(WORK_Other* ewk) {
+    if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
+        Order[ewk->wu.dir_old] = 0;
+    }
+
+    ewk->wu.routine_no[0] = 0;
+    ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
+}
+
 static void update_slide_in_position(WORK_Other* ewk) {
     ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
     ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
 
     if (0 < ewk->wu.mvxy.a[0].sp) {
         if (ewk->wu.hit_quake <= ewk->wu.xyz[0].disp.pos) {
-            if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
-                Order[ewk->wu.dir_old] = 0;
-            }
-
-            ewk->wu.routine_no[0] = 0;
-            ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
+            e69_settle_at_target(ewk);
         }
     } else if (ewk->wu.hit_quake >= ewk->wu.xyz[0].disp.pos) {
-        if (Order[ewk->wu.dir_old] == ewk->wu.routine_no[0]) {
-            Order[ewk->wu.dir_old] = 0;
-        }
-
-        ewk->wu.routine_no[0] = 0;
-        ewk->wu.xyz[0].disp.pos = ewk->wu.hit_quake;
+        e69_settle_at_target(ewk);
     }
 }
 
