@@ -803,6 +803,42 @@ static void dispatch_by_pat_status(PLW* wk, void (*on_low_pat_status)(WORK*), vo
     }
 }
 
+/* Everything a player can start from this state, in the order nm_31000 tried
+ * them: the two EX gauges, the super art, a special, a taunt, a throw, the
+ * universal overhead, and finally a normal. Each `break` in the original left
+ * the switch with nothing after it, so returning here reaches the same place. */
+static void try_any_attack(PLW* wk) {
+    if (check_full_gauge_attack(wk, 0)) {
+        return;
+    }
+
+    if (check_full_gauge_attack2(wk, 0)) {
+        return;
+    }
+
+    if (check_super_arts_attack(wk)) {
+        return;
+    }
+
+    if (check_special_attack(wk)) {
+        return;
+    }
+
+    if (check_chouhatsu(wk)) {
+        return;
+    }
+
+    if (check_catch_attack(wk)) {
+        return;
+    }
+
+    if (check_leap_attack(wk)) {
+        return;
+    }
+
+    check_nm_attack(wk);
+}
+
 void nm_31000(PLW* wk) { // 🟢
     if (wk->wu.routine_no[3] == 0) {
         return;
@@ -810,35 +846,7 @@ void nm_31000(PLW* wk) { // 🟢
 
     switch (wk->wu.cg_type) {
     case 0:
-        if (check_full_gauge_attack(wk, 0)) {
-            break;
-        }
-
-        if (check_full_gauge_attack2(wk, 0)) {
-            break;
-        }
-
-        if (check_super_arts_attack(wk)) {
-            break;
-        }
-
-        if (check_special_attack(wk)) {
-            break;
-        }
-
-        if (check_chouhatsu(wk)) {
-            break;
-        }
-
-        if (check_catch_attack(wk)) {
-            break;
-        }
-
-        if (check_leap_attack(wk)) {
-            break;
-        }
-
-        check_nm_attack(wk);
+        try_any_attack(wk);
         break;
 
     case 64:
