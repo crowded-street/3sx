@@ -21,6 +21,70 @@ static s32 both_players_completed_selection(void) {
 }
 
 
+static void eff70_wait_in(WORK_Other* ewk) {
+    if (--ewk->wu.dir_timer == 0) {
+        ewk->wu.routine_no[0]++;
+        ewk->wu.disp_flag = 1;
+        ewk->wu.position_x = ewk->wu.xyz[0].disp.pos & 0xFFFF;
+        ewk->wu.position_y = ewk->wu.xyz[1].disp.pos & 0xFFFF;
+        set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
+        sort_push_request4(&ewk->wu);
+    }
+}
+
+static void eff70_open(WORK_Other* ewk) {
+    char_move(&ewk->wu);
+
+    if (ewk->wu.cg_type) {
+        Complete_Face--;
+        ewk->wu.routine_no[0]++;
+        ewk->wu.char_index = 0;
+        set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
+    }
+
+    sort_push_request4(&ewk->wu);
+}
+
+static void eff70_hold(WORK_Other* ewk) {
+    if (both_players_completed_selection()) {
+        ewk->wu.routine_no[0]++;
+        ewk->wu.dir_timer = 30;
+    }
+
+    sort_push_request4(&ewk->wu);
+}
+
+static void eff70_start_close(WORK_Other* ewk) {
+    if (--ewk->wu.dir_timer == 0) {
+        ewk->wu.routine_no[0]++;
+        ewk->wu.my_mr_flag = 1;
+        ewk->wu.my_mr.size.x = 63;
+        ewk->wu.my_mr.size.y = 63;
+        ewk->wu.mvxy.a[0].sp = 0x80000;
+    }
+
+    sort_push_request4(&ewk->wu);
+}
+
+static void eff70_close(WORK_Other* ewk) {
+    if ((ewk->wu.my_mr.size.x -= ewk->wu.mvxy.a[0].real.h) <= 0) {
+        ewk->wu.my_mr.size.x = 0;
+    }
+
+    if ((ewk->wu.my_mr.size.y -= ewk->wu.mvxy.a[0].real.h) <= 0) {
+        ewk->wu.my_mr.size.y = 0;
+    }
+
+    if (ewk->wu.my_mr.size.x <= 0 && ewk->wu.my_mr.size.y <= 0) {
+        ewk->wu.routine_no[1]++;
+        ewk->wu.my_mr_flag = 0;
+        ewk->wu.disp_flag = 0;
+        return;
+    }
+
+    sort_push_request4(&ewk->wu);
+}
+
 void effect_70_move(WORK_Other* ewk) {
     if (Suicide[0] == 1) {
         ewk->wu.routine_no[0] = 99;
@@ -30,68 +94,23 @@ void effect_70_move(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        if (--ewk->wu.dir_timer == 0) {
-            ewk->wu.routine_no[0]++;
-            ewk->wu.disp_flag = 1;
-            ewk->wu.position_x = ewk->wu.xyz[0].disp.pos & 0xFFFF;
-            ewk->wu.position_y = ewk->wu.xyz[1].disp.pos & 0xFFFF;
-            set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-            sort_push_request4(&ewk->wu);
-        }
-
+        eff70_wait_in(ewk);
         break;
 
     case 1:
-        char_move(&ewk->wu);
-
-        if (ewk->wu.cg_type) {
-            Complete_Face--;
-            ewk->wu.routine_no[0]++;
-            ewk->wu.char_index = 0;
-            set_char_move_init2(&ewk->wu, 0, ewk->wu.char_index, ewk->wu.dir_step + 1, 0);
-        }
-
-        sort_push_request4(&ewk->wu);
+        eff70_open(ewk);
         /* fallthrough */
 
     case 2:
-        if (both_players_completed_selection()) {
-            ewk->wu.routine_no[0]++;
-            ewk->wu.dir_timer = 30;
-        }
-
-        sort_push_request4(&ewk->wu);
+        eff70_hold(ewk);
         break;
 
     case 3:
-        if (--ewk->wu.dir_timer == 0) {
-            ewk->wu.routine_no[0]++;
-            ewk->wu.my_mr_flag = 1;
-            ewk->wu.my_mr.size.x = 63;
-            ewk->wu.my_mr.size.y = 63;
-            ewk->wu.mvxy.a[0].sp = 0x80000;
-        }
-
-        sort_push_request4(&ewk->wu);
+        eff70_start_close(ewk);
         break;
 
     case 4:
-        if ((ewk->wu.my_mr.size.x -= ewk->wu.mvxy.a[0].real.h) <= 0) {
-            ewk->wu.my_mr.size.x = 0;
-        }
-
-        if ((ewk->wu.my_mr.size.y -= ewk->wu.mvxy.a[0].real.h) <= 0) {
-            ewk->wu.my_mr.size.y = 0;
-        }
-
-        if (ewk->wu.my_mr.size.x <= 0 && ewk->wu.my_mr.size.y <= 0) {
-            ewk->wu.routine_no[1]++;
-            ewk->wu.my_mr_flag = 0;
-            ewk->wu.disp_flag = 0;
-            break;
-        }
-
-        sort_push_request4(&ewk->wu);
+        eff70_close(ewk);
         break;
 
     default:
