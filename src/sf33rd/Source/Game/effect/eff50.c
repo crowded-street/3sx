@@ -61,15 +61,51 @@ static s32 e50_release_or_hold(WORK_Other* ewk, const WORK_Other* pwk, u16 sw) {
     return 0;
 }
 
+static u16 e50_player_switch(s16 master_id) {
+    if (master_id) {
+        return p2sw_0 & 3;
+    }
+
+    return p1sw_0 & 3;
+}
+
+static void e50_wait_select(WORK_Other* ewk) {
+    if (Select_Arts[ewk->master_id] == 0) {
+        ewk->wu.routine_no[0]++;
+        ewk->wu.disp_flag = 1;
+    }
+}
+
+static s32 e50_move_late(WORK_Other* ewk, const WORK_Other* pwk, u16 sw) {
+    switch (ewk->wu.routine_no[0]) {
+    case 2:
+        if (e50_release_or_hold(ewk, pwk, sw)) {
+            return 0;
+        }
+
+        char_move(&ewk->wu);
+        return 0;
+
+    case 3:
+        if (--ewk->wu.dir_timer != 0) {
+            return 0;
+        }
+
+        ewk->wu.disp_flag = 0;
+        ewk->wu.routine_no[0]++;
+        return 1;
+
+    default:
+        push_effect_work(&ewk->wu);
+        return 1;
+    }
+}
+
 void effect_50_move(WORK_Other* ewk) {
     WORK_Other* pwk;
     u16 sw;
 
-    if (ewk->master_id) {
-        sw = p2sw_0 & 3;
-    } else {
-        sw = p1sw_0 & 3;
-    }
+    sw = e50_player_switch(ewk->master_id);
 
     if (Sel_Arts_Complete[ewk->master_id] < 0) {
         ewk->wu.routine_no[0] = 3;
@@ -81,37 +117,19 @@ void effect_50_move(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[0]) {
     case 0:
-        if (Select_Arts[ewk->master_id] == 0) {
-            ewk->wu.routine_no[0]++;
-            ewk->wu.disp_flag = 1;
-        }
-
+        e50_wait_select(ewk);
         break;
 
     case 1:
         e50_await_press(ewk);
         break;
 
-    case 2:
-        if (e50_release_or_hold(ewk, pwk, sw)) {
-            break;
-        }
-
-        char_move(&ewk->wu);
-        break;
-
-    case 3:
-        if (--ewk->wu.dir_timer != 0) {
-            break;
-        }
-
-        ewk->wu.disp_flag = 0;
-        ewk->wu.routine_no[0]++;
-        return;
-
     default:
-        push_effect_work(&ewk->wu);
-        return;
+        if (e50_move_late(ewk, pwk, sw)) {
+            return;
+        }
+
+        break;
     }
 
     ewk->wu.xyz[0].disp.pos = ewk->wu.dmcal_m + Plate_X[ewk->master_id][0];
