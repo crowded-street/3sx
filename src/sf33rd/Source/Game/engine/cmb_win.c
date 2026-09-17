@@ -89,25 +89,33 @@ void combo_cont_init() { // 🟡
 /* One frame of both players' combo windows. The order the two players are
  * stepped in alternates with Game_timer, which matters when both are in a combo
  * at once; while paused only the window animation runs. Both kept as they were. */
+/* One player's combo window: stepped, then drawn. */
+static void step_one_combo_window(s8 i) {
+    combo_control(i);
+    combo_window_trans(i);
+}
+
 static void step_both_combo_windows(void) {
     s8 i;
 
-    if (Game_pause == 0) {
-        if (Game_timer & 1) {
-            for (i = 0; i < 2; i++) {
-                combo_control(i);
-                combo_window_trans(i);
-            }
-        } else {
-            for (i = 1; i > -1; i--) {
-                combo_control(i);
-                combo_window_trans(i);
-            }
-        }
-    } else {
+    if (Game_pause != 0) {
         for (i = 0; i < 2; i++) {
             combo_window_trans(i);
         }
+
+        return;
+    }
+
+    if (Game_timer & 1) {
+        for (i = 0; i < 2; i++) {
+            step_one_combo_window(i);
+        }
+
+        return;
+    }
+
+    for (i = 1; i > -1; i--) {
+        step_one_combo_window(i);
     }
 }
 
