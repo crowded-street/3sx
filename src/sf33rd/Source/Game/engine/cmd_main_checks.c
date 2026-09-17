@@ -169,32 +169,46 @@ void check_1() { // 🟢
     }
 }
 
+/* The buttons are still held, so the charge timer runs down; reaching zero
+ * sets the charge flag once. */
+static void charge_while_buttons_held() {
+    if (waza_ptr->uni0.tame.flag) {
+        return;
+    }
+
+    waza_ptr->free2--;
+
+    if (waza_ptr->free2 < 0) {
+        waza_ptr->uni0.tame.flag = 1;
+    }
+}
+
+/* They are not: releasing them after a full charge fires the command, and
+ * anything else restarts the timer and runs the entry's own timer down. */
+static void release_or_restart_charge() {
+    if (waza_ptr->uni0.tame.flag && sw_work == 0) {
+        waza_ptr->uni0.tame.flag = 0;
+
+        finish_or_advance_command();
+
+        return;
+    }
+
+    waza_ptr->free2 = waza_ptr->free1;
+    waza_ptr->w_int--;
+
+    if (waza_ptr->w_int < 0) {
+        waza_ptr->w_type = 0;
+    }
+}
+
 void check_2() { // 🟢
     sw_work = chk_pl->sw_new & waza_ptr->w_lvr;
 
     if (waza_ptr->w_lvr == sw_work) {
-        if (!waza_ptr->uni0.tame.flag) {
-            waza_ptr->free2--;
-
-            if (waza_ptr->free2 < 0) {
-                waza_ptr->uni0.tame.flag = 1;
-            }
-        }
+        charge_while_buttons_held();
     } else {
-        if (waza_ptr->uni0.tame.flag && sw_work == 0) {
-            waza_ptr->uni0.tame.flag = 0;
-
-            finish_or_advance_command();
-
-            return;
-        }
-
-        waza_ptr->free2 = waza_ptr->free1;
-        waza_ptr->w_int--;
-
-        if (waza_ptr->w_int < 0) {
-            waza_ptr->w_type = 0;
-        }
+        release_or_restart_charge();
     }
 }
 
