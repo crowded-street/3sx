@@ -149,37 +149,9 @@ static void end_main_run_staff_roll() {
 
 /* Everything from the fade out onward: the staff roll and the ending's own end.
  * Labels are the original ones. */
-static void normal_ending_after_scenes() {
+/* The staff roll and the hold that ends the ending. */
+static void normal_ending_credits() {
     switch (end_w.r_no_0) {
-    case 4:
-        if (end_no_cut == 0) {
-            fadeout_to_staff_roll();
-        } else {
-            end_w.r_no_0++;
-        }
-
-        Forbid_Break = -1;
-        break;
-
-    case 5:
-        end_main_enter_staff_roll();
-
-        Forbid_Break = -1;
-        break;
-
-    case 6:
-        overwrite_panel(0xFF000000, 0x12);
-        end_w.r_no_0++;
-        break;
-
-    case 7:
-        end_w.r_no_0++;
-        overwrite_panel(0xFF000000, 0x12);
-        Request_Fade(6);
-        end_no_cut = 1;
-        Forbid_Break = -1;
-        break;
-
     case 8:
         if (end_fade_complete()) {
             end_w.r_no_0++;
@@ -212,6 +184,43 @@ static void normal_ending_after_scenes() {
 
     case 12:
         ending_all_end = 1;
+        break;
+    }
+}
+
+static void normal_ending_after_scenes() {
+    switch (end_w.r_no_0) {
+    case 4:
+        if (end_no_cut == 0) {
+            fadeout_to_staff_roll();
+        } else {
+            end_w.r_no_0++;
+        }
+
+        Forbid_Break = -1;
+        break;
+
+    case 5:
+        end_main_enter_staff_roll();
+
+        Forbid_Break = -1;
+        break;
+
+    case 6:
+        overwrite_panel(0xFF000000, 0x12);
+        end_w.r_no_0++;
+        break;
+
+    case 7:
+        end_w.r_no_0++;
+        overwrite_panel(0xFF000000, 0x12);
+        Request_Fade(6);
+        end_no_cut = 1;
+        Forbid_Break = -1;
+        break;
+
+    default:
+        normal_ending_credits();
         break;
     }
 }
