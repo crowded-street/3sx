@@ -832,58 +832,50 @@ u16 get_nearing_range(s16 pnum, s16 kos) {
     return nrange;
 }
 
+/* Every arm of waza_select picks between an arcade table and the PS2 one the
+ * same way, indexing the first with the converted character number and the
+ * second with the raw one. Only the pair of tables differs, and each arm passes
+ * its own two by name. */
+static const u16* select_waza_table(const PLW* wk, s16 kos, AsstblCharRows* arcade, AsstblCharRows* ps2) {
+    if (ArcadeBalance_IsEnabled()) {
+        return arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos];
+    }
+
+    return ps2[wk->player_number][kos];
+}
+
 s32 waza_select(PLW* wk, s16 kos, s16 sf) { // 🟢
     const u16* wst;
 
     switch (sf) {
     case 0:
-        if (ArcadeBalance_IsEnabled()) {
-            wst = asstbl_lv_0000_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos];
-        } else {
-            wst = _asstbl_lv_0000[wk->player_number][kos];
-        }
+        wst = select_waza_table(wk, kos, asstbl_lv_0000_arcade, _asstbl_lv_0000);
 
         break;
 
     case 1:
-        if (ArcadeBalance_IsEnabled()) {
-            wst = asstbl_lv_1000_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos];
-        } else {
-            wst = _asstbl_lv_1000[wk->player_number][kos];
-        }
+        wst = select_waza_table(wk, kos, asstbl_lv_1000_arcade, _asstbl_lv_1000);
 
         break;
 
     case 2:
     case 5:
     case 8:
-        if (ArcadeBalance_IsEnabled()) {
-            wst = asstbl_lv_2000_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos];
-        } else {
-            wst = _asstbl_lv_2000[wk->player_number][kos];
-        }
+        wst = select_waza_table(wk, kos, asstbl_lv_2000_arcade, _asstbl_lv_2000);
 
         break;
 
     case 3:
     case 6:
     case 9:
-        if (ArcadeBalance_IsEnabled()) {
-            wst = asstbl_lv_3000_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos];
-        } else {
-            wst = _asstbl_lv_3000[wk->player_number][kos];
-        }
+        wst = select_waza_table(wk, kos, asstbl_lv_3000_arcade, _asstbl_lv_3000);
 
         break;
 
     case 4:
     case 7:
     case 10:
-        if (ArcadeBalance_IsEnabled()) {
-            wst = asstbl_lv_4000_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos];
-        } else {
-            wst = _asstbl_lv_4000[wk->player_number][kos];
-        }
+        wst = select_waza_table(wk, kos, asstbl_lv_4000_arcade, _asstbl_lv_4000);
 
         break;
 
