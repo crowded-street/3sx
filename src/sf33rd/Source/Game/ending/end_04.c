@@ -260,6 +260,16 @@ static void end_04_step_frame_zoom(s16 interval, s16 end_timer) {
     }
 }
 
+/* Start the frame zoom at a centre, with the number of notches it has to run. The
+ * three scenes that do this differed only in those three values. */
+static void end_04_begin_frame_zoom(s16 center_x, s16 center_y, s16 notches) {
+    bg_w.center_x = center_x;
+    bg_w.center_y = center_y;
+    Frame_Up(bg_w.center_x, bg_w.center_y, 0x1E);
+    bg_w.frame_deff = notches;
+    bg_w.frame_vol = 1;
+}
+
 void end_401_2000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -270,11 +280,7 @@ void end_401_2000() {
         bgw_ptr->xy[1].disp.pos = end_4_pos[end_w.r_no_2][1];
         bgw_ptr->abs_x = 512;
         bgw_ptr->abs_y = 0;
-        bg_w.center_x = 0xC0;
-        bg_w.center_y = 0x70;
-        Frame_Up(bg_w.center_x, bg_w.center_y, 0x1E);
-        bg_w.frame_deff = 0x33;
-        bg_w.frame_vol = 1;
+        end_04_begin_frame_zoom(0xC0, 0x70, 0x33);
         break;
 
     case 1:
@@ -301,11 +307,7 @@ void end_401_3000() {
     case 1:
         bgw_ptr->r_no_1++;
         Zoomf_Init();
-        bg_w.center_x = 176;
-        bg_w.center_y = 128;
-        Frame_Up(bg_w.center_x, bg_w.center_y, 0x1E);
-        bg_w.frame_deff = 48;
-        bg_w.frame_vol = 1;
+        end_04_begin_frame_zoom(176, 128, 48);
         /* fallthrough */
 
     case 2:
@@ -329,11 +331,7 @@ void end_401_4000() {
     case 1:
         bgw_ptr->r_no_1++;
         Zoomf_Init();
-        bg_w.center_x = 160;
-        bg_w.center_y = 128;
-        Frame_Up(bg_w.center_x, bg_w.center_y, 0x1E);
-        bg_w.frame_deff = 0x2E;
-        bg_w.frame_vol = 1;
+        end_04_begin_frame_zoom(160, 128, 0x2E);
         /* fallthrough */
 
     case 2:
