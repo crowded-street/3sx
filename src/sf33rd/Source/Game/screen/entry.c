@@ -234,15 +234,21 @@ void Entry_03() {
     }
 }
 
-void Entry_03_1st() {
+/* The first frame of a screen: advance the sub-state once, then step both players.
+ * Entry_03_1st, Entry_06_1st and Entry_07_1st differed only in the jump index. */
+static void Begin_Entry_Step(s16 Jump_Index) {
     switch (E_No[2]) {
     case 0:
         E_No[2] += 1;
         break;
     }
 
-    Entry_Main_Sub(0, 4);
-    Entry_Main_Sub(1, 4);
+    Entry_Main_Sub(0, Jump_Index);
+    Entry_Main_Sub(1, Jump_Index);
+}
+
+void Entry_03_1st() {
+    Begin_Entry_Step(4);
 }
 
 void Entry_03_2nd() {
@@ -372,14 +378,7 @@ void Entry_06() {
 }
 
 void Entry_06_1st() {
-    switch (E_No[2]) {
-    case 0:
-        E_No[2] += 1;
-        break;
-    }
-
-    Entry_Main_Sub(0, 7);
-    Entry_Main_Sub(1, 7);
+    Begin_Entry_Step(7);
 }
 
 void Entry_06_2nd() {
@@ -459,14 +458,7 @@ void Entry_07() {
 }
 
 void Entry_07_1st() {
-    switch (E_No[2]) {
-    case 0:
-        E_No[2] += 1;
-        break;
-    }
-
-    Entry_Main_Sub(0, 8);
-    Entry_Main_Sub(1, 8);
+    Begin_Entry_Step(8);
 }
 
 void Entry_07_2nd() {
