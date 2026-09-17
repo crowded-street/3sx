@@ -83,20 +83,29 @@ void Check_Auto_Cut();
 u8 SEL_CPU_X;
 s16 Start_X;
 
-s16 Next_CPU() {
-    void (*Next_CPU_Tbl[12])() = { Next_CPU_1st,   Next_CPU_2nd,   Next_CPU_3rd,       Next_CPU_4th,
-                                   Next_CPU_5th,   Next_CPU_6th,   Next_Bonus_1st,     Next_Bonus_2nd,
-                                   Next_Bonus_3rd, Next_Bonus_End, Wait_Load_Complete, Wait_Load_Complete2 };
-
+/* Every scene dispatcher runs the same frame: stand aside while a break-in is
+ * pending, clear the result, sample the cut button, step the scene and report.
+ * Next_CPU, After_Bonus and Next_Q differed only in the table they index, and
+ * each passes its own by name. The return type is SEL_CPU_X's own, so each
+ * caller widens it exactly as `return SEL_CPU_X;` did. */
+static u8 Run_Scene_Step(void (*const step_table[])()) {
     if (Break_Into) {
         return 0;
     }
 
     SEL_CPU_X = 0;
     Scene_Cut = Cut_Cut_Cut();
-    Next_CPU_Tbl[SC_No[0]]();
+    step_table[SC_No[0]]();
     Time_Over = false;
     return SEL_CPU_X;
+}
+
+s16 Next_CPU() {
+    void (*Next_CPU_Tbl[12])() = { Next_CPU_1st,   Next_CPU_2nd,   Next_CPU_3rd,       Next_CPU_4th,
+                                   Next_CPU_5th,   Next_CPU_6th,   Next_Bonus_1st,     Next_Bonus_2nd,
+                                   Next_Bonus_3rd, Next_Bonus_End, Wait_Load_Complete, Wait_Load_Complete2 };
+
+    return Run_Scene_Step(Next_CPU_Tbl);
 }
 
 void Next_CPU_1st() {
@@ -504,15 +513,7 @@ s32 After_Bonus() {
                                       Next_CPU_3rd,    Next_CPU_4th,    Wait_Load_Complete2, Next_Bonus_End,
                                       Next_Bonus_End,  Next_Bonus_End,  Wait_Load_Complete3 };
 
-    if (Break_Into) {
-        return 0;
-    }
-
-    SEL_CPU_X = 0;
-    Scene_Cut = Cut_Cut_Cut();
-    After_Bonus_Tbl[SC_No[0]]();
-    Time_Over = false;
-    return SEL_CPU_X;
+    return Run_Scene_Step(After_Bonus_Tbl);
 }
 
 void After_Bonus_1st() {
@@ -934,15 +935,7 @@ s16 Next_Q() {
         Next_Q_1st, Next_Q_2nd, Next_Q_3rd, Wait_Load_Complete, Wait_Load_Complete, Next_CPU_6th
     };
 
-    if (Break_Into) {
-        return 0;
-    }
-
-    SEL_CPU_X = 0;
-    Scene_Cut = Cut_Cut_Cut();
-    Next_Q_Tbl[SC_No[0]]();
-    Time_Over = false;
-    return SEL_CPU_X;
+    return Run_Scene_Step(Next_Q_Tbl);
 }
 
 void Next_Q_1st() {
