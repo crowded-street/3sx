@@ -16,6 +16,16 @@
 
 void att_ahj_table_reader(PLW* wk);
 
+/* Ten attack openings in this file start the same way: land, face the way the
+ * move was buffered, and start the level-5 animation. What each one does next -
+ * a movement row, an initial speed, nothing at all - stays at its call site. */
+static void begin_uni_attack(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    wk->wu.rl_flag = wk->wu.rl_waza;
+    hoken_muriyari_chakuchi(wk);
+    set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+}
+
 void Att_DUMMY(PLW* /* unused */) {}
 
 void Att_METAMOR_WAIT(PLW* wk) {
@@ -138,10 +148,7 @@ void Att_HADOUKEN(PLW* wk) {
 void Att_HADOUKEN2(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        hoken_muriyari_chakuchi(wk);
-        set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+        begin_uni_attack(wk);
         break;
 
     case 1:
@@ -166,10 +173,7 @@ void Att_NM_OKIAGARI(PLW* wk) {
 void Att_SHOURYUUKEN(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        hoken_muriyari_chakuchi(wk);
-        set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+        begin_uni_attack(wk);
         reset_mvxy_data(&wk->wu);
         wk->wu.mvxy.index = wk->as->r_no;
         break;
@@ -213,10 +217,7 @@ void Att_SHOURYUUKEN(PLW* wk) {
 void Att_SENPUUKYAKU(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        hoken_muriyari_chakuchi(wk);
-        set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+        begin_uni_attack(wk);
         reset_mvxy_data(&wk->wu);
         wk->wu.mvxy.index = wk->as->data_ix;
         break;
@@ -254,10 +255,7 @@ void Att_SENPUUKYAKU(PLW* wk) {
 void Att_SENPUUKYAKU2(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        hoken_muriyari_chakuchi(wk);
-        set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+        begin_uni_attack(wk);
         setup_mvxy_data(&wk->wu, wk->as->data_ix);
         cal_initial_speed_y(&wk->wu, wk->as->r_no, 0);
         break;
@@ -312,10 +310,7 @@ static void abisegeri_descend(PLW* wk) {
 void Att_ABISEGERI(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        hoken_muriyari_chakuchi(wk);
-        set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+        begin_uni_attack(wk);
         setup_mvxy_data(&wk->wu, wk->as->r_no);
         break;
 
@@ -348,10 +343,7 @@ void Att_ABISEGERI(PLW* wk) {
 void Att_SHOURYUUREPPA(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        hoken_muriyari_chakuchi(wk);
-        set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+        begin_uni_attack(wk);
         reset_mvxy_data(&wk->wu);
         wk->wu.mvxy.index = wk->as->r_no;
         break;
@@ -405,10 +397,7 @@ void Att_SHOURYUUREPPA(PLW* wk) {
 void Att_SHINSHOURYUUKEN(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        hoken_muriyari_chakuchi(wk);
-        set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+        begin_uni_attack(wk);
         reset_mvxy_data(&wk->wu);
         break;
 
@@ -599,10 +588,7 @@ static void tenshin_recover(PLW* wk) {
 void Att_TENSHINSENKYUUTAI(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        hoken_muriyari_chakuchi(wk);
-        set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+        begin_uni_attack(wk);
         reset_mvxy_data(&wk->wu);
         wk->wu.mvxy.index = wk->as->r_no;
         break;
@@ -735,10 +721,7 @@ void Att_SLIDE_and_JUMP(PLW* wk) {
 void Att_JINNCHUUWATARI(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        hoken_muriyari_chakuchi(wk);
-        set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+        begin_uni_attack(wk);
         wk->wu.mvxy.index = wk->as->data_ix;
         break;
 
@@ -778,10 +761,7 @@ void Att_JINNCHUUWATARI(PLW* wk) {
 void Att_HOMING_JUMP(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        hoken_muriyari_chakuchi(wk);
-        set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+        begin_uni_attack(wk);
         wk->wu.mvxy.index = wk->as->data_ix;
         break;
 
