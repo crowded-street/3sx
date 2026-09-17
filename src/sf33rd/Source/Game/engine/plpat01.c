@@ -65,6 +65,44 @@ void Att_PL01_DDT(PLW* wk) {
     }
 }
 
+/* The taunt's markers: 40 pays the super-art gauge, 20 and 30 each raise both
+ * bonuses by their own amounts, 64 grades the action. The two ceilings are
+ * applied every frame, outside the switch, as they were. */
+static void pl01_taunt_markers(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 40) {
+        wk->wu.cg_type = 0;
+        add_sp_arts_gauge_tokushu(wk);
+    }
+
+    switch (wk->wu.cg_type) {
+    case 20:
+        wk->wu.cg_type = 0;
+        wk->tk_dageki += 3;
+        wk->tk_nage += 2;
+        break;
+
+    case 30:
+        wk->wu.cg_type = 0;
+        wk->tk_dageki += 2;
+        wk->tk_nage += 2;
+        break;
+
+    case 64:
+        grade_add_personal_action(wk->wu.id);
+        break;
+    }
+
+    if (wk->tk_dageki > 12) {
+        wk->tk_dageki = 12;
+    }
+
+    if (wk->tk_nage > 16) {
+        wk->tk_nage = 16;
+    }
+}
+
 void Att_PL01_TOKUSHUKOUDOU(PLW* wk) {
     wk->scr_pos_set_flag = 0;
 
@@ -77,39 +115,7 @@ void Att_PL01_TOKUSHUKOUDOU(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 40) {
-            wk->wu.cg_type = 0;
-            add_sp_arts_gauge_tokushu(wk);
-        }
-
-        switch (wk->wu.cg_type) {
-        case 20:
-            wk->wu.cg_type = 0;
-            wk->tk_dageki += 3;
-            wk->tk_nage += 2;
-            break;
-
-        case 30:
-            wk->wu.cg_type = 0;
-            wk->tk_dageki += 2;
-            wk->tk_nage += 2;
-            break;
-
-        case 64:
-            grade_add_personal_action(wk->wu.id);
-            break;
-        }
-
-        if (wk->tk_dageki > 12) {
-            wk->tk_dageki = 12;
-        }
-
-        if (wk->tk_nage > 16) {
-            wk->tk_nage = 16;
-        }
-
+        pl01_taunt_markers(wk);
         break;
     }
 }

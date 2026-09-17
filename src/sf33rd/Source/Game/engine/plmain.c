@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/engine/plmain.h"
+#include "sf33rd/Source/Game/engine/plmain_internal.h"
 #include "arcade/arcade_balance.h"
 #include "common.h"
 #include "constants.h"
@@ -33,11 +34,7 @@
 
 void plmv_1010(PLW* wk);
 void plmv_1020(PLW* wk, s16 step);
-void mpg_union(PLW* wk);
-void eag_union(PLW* wk);
-void sag_union(PLW* wk);
 void addSAAttribute(u8* kow, u16* koa);
-void check_omop_vital(PLW* wk);
 s16 select_hit_stop(s16 ms, s16 sb);
 
 static s32 zuru_timer_is_running(const PLW* wk) {
@@ -340,6 +337,19 @@ void player_mv_3000(PLW* wk) { // 🟡
     }
 }
 
+/* The slide timer counts down while it is running, and the flag follows it. */
+static void run_zuru_timer(PLW* wk) {
+    if (zuru_timer_is_running(wk)) {
+        wk->zuru_timer -= 2;
+    }
+
+    if (wk->zuru_timer < 0) {
+        wk->zuru_flag = true;
+    } else {
+        wk->zuru_flag = false;
+    }
+}
+
 void player_mv_4000(PLW* wk) { // 🟡
     wk->permited_koa = 0;
     check_extra_jump_timer(wk);
@@ -355,15 +365,7 @@ void player_mv_4000(PLW* wk) { // 🟡
     if (!check_hit_stop(wk)) {
         plmain_lv_02[wk->wu.routine_no[1]](wk);
 
-        if (zuru_timer_is_running(wk)) {
-            wk->zuru_timer -= 2;
-        }
-
-        if (wk->zuru_timer < 0) {
-            wk->zuru_flag = true;
-        } else {
-            wk->zuru_flag = false;
-        }
+        run_zuru_timer(wk);
 
         if (!ArcadeBalance_IsEnabled()) {
             check_omop_vital(wk);
@@ -418,6 +420,24 @@ static void tick_hit_stop(PLW* wk) {
     }
 }
 
+/* A frame of hit stop freezes this player, unless it is the only one moving -
+ * and the frame it ends on may start a cancelled move. */
+static s16 run_hit_stop(PLW* wk, WORK* emwk) {
+    s16 num = 1;
+
+    tick_hit_stop(wk);
+
+    if (only_this_player_is_moving(wk, emwk)) {
+        num = 0;
+    }
+
+    if ((wk->wu.hit_stop == 0) && (wk->hsjp_ok != 0)) {
+        char_move_cmhs(wk);
+    }
+
+    return num;
+}
+
 s16 check_hit_stop(PLW* wk) { // 🟢
     s16 num;
     WORK* emwk = (WORK*)wk->wu.target_adrs;
@@ -429,17 +449,7 @@ s16 check_hit_stop(PLW* wk) { // 🟢
     }
 
     if (wk->wu.hit_stop) {
-        num = 1;
-
-        tick_hit_stop(wk);
-
-        if (only_this_player_is_moving(wk, emwk)) {
-            num = 0;
-        }
-
-        if ((wk->wu.hit_stop == 0) && (wk->hsjp_ok != 0)) {
-            char_move_cmhs(wk);
-        }
+        num = run_hit_stop(wk, emwk);
     }
 
     if (wk->sa_stop_flag) {
@@ -501,32 +511,25 @@ static void tick_stun_recovery(PLW* wk) {
 
 /* The one-button super-art debug option. Compiled away entirely in a release
  * build, as the block it came from was. */
+#if DEBUG
+/* Each of the six super-art slots is armed the same way, and a slot the
+ * character does not have is left alone. */
+static void arm_super_art_slot(PLW* wk, u8 slot_ix) {
+    if (slot_ix != 0) {
+        wk->cp->waza_flag[slot_ix] = 9;
+    }
+}
+#endif
+
 static void arm_one_button_super_arts(PLW* wk) {
 #if DEBUG
     if (debug_config.one_button_sa) {
-        if (wk->sa->nmsa_g_ix != 0) {
-            wk->cp->waza_flag[wk->sa->nmsa_g_ix] = 9;
-        }
-
-        if (wk->sa->exsa_g_ix != 0) {
-            wk->cp->waza_flag[wk->sa->exsa_g_ix] = 9;
-        }
-
-        if (wk->sa->exs2_g_ix != 0) {
-            wk->cp->waza_flag[wk->sa->exs2_g_ix] = 9;
-        }
-
-        if (wk->sa->nmsa_a_ix != 0) {
-            wk->cp->waza_flag[wk->sa->nmsa_a_ix] = 9;
-        }
-
-        if (wk->sa->exsa_a_ix != 0) {
-            wk->cp->waza_flag[wk->sa->exsa_a_ix] = 9;
-        }
-
-        if (wk->sa->exs2_a_ix != 0) {
-            wk->cp->waza_flag[wk->sa->exs2_a_ix] = 9;
-        }
+        arm_super_art_slot(wk, wk->sa->nmsa_g_ix);
+        arm_super_art_slot(wk, wk->sa->exsa_g_ix);
+        arm_super_art_slot(wk, wk->sa->exs2_g_ix);
+        arm_super_art_slot(wk, wk->sa->nmsa_a_ix);
+        arm_super_art_slot(wk, wk->sa->exsa_a_ix);
+        arm_super_art_slot(wk, wk->sa->exs2_a_ix);
     }
 #else
     (void)wk;
@@ -553,678 +556,6 @@ void look_after_timers(PLW* wk) { // 🟡
     tick_stun_recovery(wk);
 
     arm_one_button_super_arts(wk);
-}
-
-void about_gauge_process(PLW* wk) { // 🟡
-    eag_union(wk);
-    sag_union(wk);
-    mpg_union(wk);
-
-    // CPS3 has no equivalent max-gauge bit update.
-    if (!ArcadeBalance_IsEnabled()) {
-        add_sp_arts_gauge_maxbit(wk);
-    }
-}
-
-/* mpg_union's case 2: the max-gauge art being spent, or the state being unwound
- * because it was not. Moved out whole, so the fallthrough from case 1 into
- * default survives and every `break` still leaves the switch it always left. */
-static void spend_max_gauge(PLW* wk) {
-    switch (wk->sa->saeff_mp) {
-    case -1:
-        if (!pcon_dp_flag) {
-            wk->sa->store = 0;
-            wk->sa->gauge.i = 0;
-        }
-
-        if (!ArcadeBalance_IsEnabled()) {
-            // CPS3 clears this meter state without the port's super-art bug workaround.
-            sag_bug_fix(wk->wu.id);
-        }
-
-        wk->sa->saeff_mp = 0;
-        wk->sa->mp_rno = 0;
-        wk->sa->mp = 0;
-
-        if (!ArcadeBalance_IsEnabled()) {
-            // The port delays the next super-art gain for 20 frames; CPS3 does not.
-            sag_inc_timer[wk->wu.id] = 20;
-        }
-
-        break;
-
-    case 1:
-        if (wk->wu.routine_no[1] == 4) {
-            break;
-        }
-
-        /* fallthrough */
-
-    default:
-        wk->sa->saeff_mp = 0;
-        wk->sa->mp_rno = 0;
-        wk->sa->mp = 0;
-        break;
-    }
-}
-
-void mpg_union(PLW* wk) { // 🟡
-    switch (wk->sa->mp_rno) {
-    case 0:
-        if (wk->sa->store == wk->sa->store_max) {
-            wk->sa->mp_rno = 1;
-            wk->sa->mp = 1;
-        }
-
-        wk->sa->saeff_mp = 0;
-        break;
-
-    case 1:
-        if (wk->sa->store < wk->sa->store_max) {
-            wk->sa->mp_rno = 0;
-            wk->sa->mp = 0;
-        } else if (wk->sa->mp == -1) {
-            wk->sa->mp_rno = 2;
-            wk->sa->saeff_mp = 1;
-        }
-
-        break;
-
-    case 2:
-        spend_max_gauge(wk);
-
-        break;
-
-    default:
-        wk->sa->mp_rno = 0;
-        wk->sa->mp = 0;
-        wk->sa->store = 0;
-        wk->sa->gauge.i = 0;
-        wk->sa->saeff_mp = 0;
-        break;
-    }
-}
-
-/* Paying for an EX move: out of the current bar if it covers the cost, or by
- * spending a stock and taking the shortfall out of the next bar. Skipped while
- * pcon_dp_flag is set, as in the original. */
-static void spend_ex_gauge(PLW* wk) {
-    if (!pcon_dp_flag) {
-        if (wk->sa->gauge_type == 1 && wk->sa->store == wk->sa->store_max) {
-            wk->sa->gauge.i = 0;
-        }
-
-        if (wk->sa->gauge.s.h >= use_ex_gauge[omop_use_ex_gauge_ix[wk->wu.id]]) {
-            wk->sa->gauge.s.h -= use_ex_gauge[omop_use_ex_gauge_ix[wk->wu.id]];
-        } else {
-            wk->sa->store--;
-            wk->sa->gauge.s.h += wk->sa->gauge_len - use_ex_gauge[omop_use_ex_gauge_ix[wk->wu.id]];
-        }
-    }
-}
-
-/* EX state 0: the move becomes available once there is a stock or enough gauge
- * for one. */
-static void arm_ex_when_affordable(PLW* wk) {
-    // CPS3 uses Akuma and Shin Akuma here; the port uses Akuma and Gill.
-    if (wk->player_number == CHAR_AKUMA || wk->player_number == CHAR_GILL) {
-        if (wk->sa->store != 0) {
-            wk->sa->ex_rno = 1;
-            wk->sa->ex = 1;
-        }
-    } else if ((wk->sa->store != 0) || (wk->sa->gauge.s.h >= use_ex_gauge[omop_use_ex_gauge_ix[wk->wu.id]])) {
-        wk->sa->ex_rno = 1;
-        wk->sa->ex = 1;
-    }
-}
-
-/* EX state 1: the move becomes unavailable again, or is fired. Not shared with
- * arm_ex_when_affordable above: the comparisons are inverted, `||` becomes
- * `&&`, and this one has a third arm. */
-static void disarm_or_fire_ex(PLW* wk) {
-    // CPS3 uses Akuma and Shin Akuma here; the port uses Akuma and Gill.
-    if (wk->player_number == CHAR_AKUMA || wk->player_number == CHAR_GILL) {
-        if (wk->sa->store == 0) {
-            wk->sa->ex_rno = 0;
-            wk->sa->ex = 0;
-        }
-    } else if ((wk->sa->store == 0) && (wk->sa->gauge.s.h < use_ex_gauge[omop_use_ex_gauge_ix[wk->wu.id]])) {
-        wk->sa->ex_rno = 0;
-        wk->sa->ex = 0;
-    } else if (wk->sa->ex == -1) {
-        wk->sa->ex_rno = 2;
-        sa_gauge_flash[wk->wu.id] |= 2;
-    }
-}
-
-void eag_union(PLW* wk) { // 🟡
-    switch (wk->sa->ex_rno) {
-    case 0:
-        arm_ex_when_affordable(wk);
-        break;
-
-    case 1:
-        disarm_or_fire_ex(wk);
-        break;
-
-    case 2:
-        spend_ex_gauge(wk);
-
-        if (!ArcadeBalance_IsEnabled()) {
-            // CPS3 clears this meter state without the port's super-art bug workaround.
-            sag_bug_fix(wk->wu.id);
-        }
-
-        wk->sa->ex_rno = 0;
-        wk->sa->ex = 0;
-
-        if (!ArcadeBalance_IsEnabled()) {
-            // The port delays the next super-art gain for 20 frames; CPS3 does not.
-            sag_inc_timer[wk->wu.id] = 20;
-        }
-
-        break;
-
-    default:
-        wk->sa->ex_rno = 0;
-        wk->sa->ex = 0;
-        wk->sa->store = 0;
-        wk->sa->gauge.i = 0;
-        break;
-    }
-}
-
-/* An art that is not going to run: the request, the state machine and the
- * ready flag all go back to nothing. */
-static void abandon_super_art(PLW* wk) {
-    wk->sa->saeff_ok = 0;
-    wk->sa->sa_rno = 0;
-    wk->sa->ok = 0;
-}
-
-/* The unreachable-state reset the super-art machines fall back on, shared
- * verbatim by sag_union_0, sag_union_3 and sag_union_ps2. sag_union_1's reset
- * also clears dtm_mul and is left where it is. */
-static void clear_super_art_state(PLW* wk) {
-    wk->sa->sa_rno = 0;
-    wk->sa->ok = 0;
-    wk->sa->store = 0;
-    wk->sa->saeff_ok = 0;
-}
-
-/* State 0, shared verbatim by sag_union_0 and sag_union_1: take a stock and
- * become ready. sag_union_3's version does not count the art and is left where
- * it is. */
-static void arm_super_art_on_stock(PLW* wk) {
-    if (wk->sa->store != 0) {
-        wk->sa->sa_rno = 1;
-        wk->sa->ok = 1;
-        wk->sa->id_arts += 1;
-    }
-
-    wk->sa->saeff_ok = 0;
-}
-
-/* State 1 of the super-art machine, shared verbatim by sag_union_0,
- * sag_union_1 and sag_union_3: drop back to state 0 if the stock went away,
- * otherwise advance when the art has been asked for. sag_union_ps2 has its own
- * version with a gt2 test in it and is not included. */
-static void update_super_art_ready(PLW* wk) {
-    if (wk->sa->store == 0) {
-        wk->sa->sa_rno = 0;
-        wk->sa->ok = 0;
-    } else if (wk->sa->ok == -1) {
-        wk->sa->sa_rno = 2;
-        wk->sa->saeff_ok = 1;
-    }
-}
-
-/* State 2 of the plainest super-art machine: spend the stock, or give the state
- * up because the art never started. */
-static void spend_or_abandon_super_art(PLW* wk) {
-    if (wk->sa->saeff_ok == -1) {
-        if (!pcon_dp_flag) {
-            wk->sa->store -= 1;
-        }
-
-        abandon_super_art(wk);
-    } else if ((wk->sa->saeff_ok != 1) || (wk->wu.routine_no[1] != 4)) {
-        abandon_super_art(wk);
-    }
-}
-
-void sag_union_0(PLW* wk) { // 🟢
-    switch (wk->sa->sa_rno) {
-    case 0:
-        arm_super_art_on_stock(wk);
-        break;
-
-    case 1:
-        update_super_art_ready(wk);
-        break;
-
-    case 2:
-        spend_or_abandon_super_art(wk);
-        break;
-
-    default:
-        clear_super_art_state(wk);
-        break;
-    }
-}
-
-/* Four of sag_union_1's character tests had byte-identical bodies and differed
- * only in which character they named, so the character is the parameter and each
- * call site keeps its own constant.
- *
- * Deliberately not shared with sag_union_ps2, which runs the same four tests
- * written with 32 and 128 rather than 0x20 and 0x80, and routes CHAR_YUN through
- * addSAAttribute instead. Those are different literals and a different call. */
-static void mark_art_attack_for(PLW* wk, u8 character) {
-    if (My_char[wk->wu.id] == character) {
-        wk->wu.kind_of_waza |= 0x20;
-        wk->wu.at_koa = 0x80;
-    }
-}
-
-/* State 4: the gauge draining while the art runs, and the per-character attack
- * attributes that go with it. The drain is skipped while either player is in a
- * super-art freeze.
- *
- * State 2 is deliberately left inline. Lifting it as well measured 6.69 against
- * 6.94 - the file already has two spend_or_abandon helpers, and a third makes
- * the duplication among them cost more than the complexity it removes. */
-static void drain_gauge_while_art_runs(PLW* wk) {
-    if ((wk->sa_stop_flag != 1) && (((PLW*)wk->wu.target_adrs)->sa_stop_flag != 1)) {
-        wk->sa->gauge.i -= wk->sa->dtm * wk->sa->dtm_mul;
-    }
-
-    if (wk->sa->gauge.s.h < 1) {
-        wk->sa->gauge.i = 0;
-        wk->sa->ok = 0;
-        wk->sa->sa_rno = 0;
-        wk->sa->dtm_mul = 1;
-    } else {
-        mark_art_attack_for(wk, CHAR_YUN);
-        mark_art_attack_for(wk, CHAR_YANG);
-        mark_art_attack_for(wk, CHAR_MAKOTO);
-        mark_art_attack_for(wk, CHAR_TWELVE);
-
-        if ((My_char[wk->wu.id] == CHAR_ORO) && (wk->sa->kind_of_arts == 2)) {
-            wk->wu.att.dipsw |= 0x10;
-        }
-    }
-}
-
-/* The frame the art's effect fires on: the stock is spent and the bar filled.
- * Anything else here means the art did not start, and the state is cleared. */
-static void spend_stock_or_abandon_art(PLW* wk) {
-    if (wk->sa->saeff_ok == -1) {
-        if (!pcon_dp_flag) {
-            wk->sa->store -= 1;
-        }
-
-        wk->sa->gauge.s.h = wk->sa->gauge_len;
-        wk->sa->gauge.s.l = -1;
-        wk->sa->sa_rno = 3;
-        wk->sa->saeff_ok = 0;
-        return;
-    }
-
-    if ((wk->sa->saeff_ok != 1) || (wk->wu.routine_no[1] != 4)) {
-        abandon_super_art(wk);
-        wk->sa->dtm_mul = 1;
-    }
-}
-
-void sag_union_1(PLW* wk) { // 🟢
-    switch (wk->sa->sa_rno) {
-    case 0:
-        arm_super_art_on_stock(wk);
-        break;
-
-    case 1:
-        update_super_art_ready(wk);
-        break;
-
-    case 2:
-        spend_stock_or_abandon_art(wk);
-        break;
-
-    case 3:
-        if (Timer_Freeze) {
-            break;
-        }
-
-        wk->sa->sa_rno = 4;
-        /* fallthrough */
-
-    case 4:
-        drain_gauge_while_art_runs(wk);
-        break;
-
-    default:
-        wk->sa->sa_rno = 0;
-        wk->sa->ok = 0;
-        wk->sa->store = 0;
-        wk->sa->saeff_ok = 0;
-        wk->sa->dtm_mul = 1;
-        break;
-    }
-}
-
-/* State 2 of the gauge-emptying machine. Not shared with
- * spend_or_abandon_super_art: this one also clears the gauge and moves to
- * state 3 rather than 0, and its abandon test is one term shorter. */
-static void spend_or_abandon_gauge_art(PLW* wk) {
-    if (wk->sa->saeff_ok == -1) {
-        wk->sa->store = wk->sa->store + -1;
-        wk->sa->gauge.i = 0;
-        wk->sa->saeff_ok = 0;
-        wk->sa->sa_rno = 3;
-    } else if (wk->sa->saeff_ok != 1) {
-        abandon_super_art(wk);
-    }
-}
-
-void sag_union_3(PLW* wk) { // 🟢
-    switch (wk->sa->sa_rno) {
-    case 0:
-        if (wk->sa->store != 0) {
-            wk->sa->sa_rno = 1;
-            wk->sa->ok = 1;
-        }
-
-        wk->sa->saeff_ok = 0;
-        break;
-
-    case 1:
-        update_super_art_ready(wk);
-        break;
-
-    case 2:
-        spend_or_abandon_gauge_art(wk);
-        break;
-
-    case 3:
-        // Do nothing
-        break;
-
-    default:
-        clear_super_art_state(wk);
-        break;
-    }
-}
-/* The sag_union_ps2 side of the same three tests. A separate helper from
- * mark_art_attack_for on purpose: that one is written with 0x20 and 0x80, this
- * one with 32 and 128. The values agree, the literals do not, and rewriting a
- * literal is not a refactor. */
-static void mark_ps2_art_attack_for(PLW* wk, u8 character) {
-    if (My_char[wk->wu.id] == character) {
-        wk->wu.kind_of_waza |= 32;
-        wk->wu.at_koa = 128;
-    }
-}
-
-/* The gt2 dispatch that was case 2 of sag_union_ps2's switch: what the super
- * art does once it is stored and running. Moved out whole, so every `break`
- * still belongs to the switch it belonged to before. */
-/* gauge type 0: the art is paid for once and then simply stops. */
-static void sag_ps2_instant_art(PLW* wk) {
-    switch (wk->sa->saeff_ok) {
-    case -1:
-        if (!pcon_dp_flag) {
-            if (wk->sa->ex4th_exec) {
-                wk->sa->store = 0;
-            } else {
-                wk->sa->store--;
-            }
-        }
-
-        sag_bug_fix(wk->wu.id);
-        abandon_super_art(wk);
-        sag_inc_timer[wk->wu.id] = 20;
-        break;
-
-    case 1:
-        if (wk->wu.routine_no[1] == 4) {
-            break;
-        }
-
-        /* fallthrough */
-
-    default:
-        abandon_super_art(wk);
-        break;
-    }
-}
-
-/* gauge type 1: the bar is filled, then drained frame by frame while the art
- * runs, and the characters whose arts mark their attacks are marked here. */
-/* Starting a timed art: the stock is paid for, the bar is filled, and the
- * height it had is remembered so it can come back afterwards. */
-static void sag_ps2_timed_begin(PLW* wk) {
-    switch (wk->sa->saeff_ok) {
-    case -1:
-        if (!pcon_dp_flag) {
-            if (wk->sa->ex4th_exec) {
-                wk->sa->store = 0;
-            } else {
-                wk->sa->store--;
-            }
-        }
-
-        sag_bug_fix(wk->wu.id);
-
-        if (wk->sa->mp == 1) {
-            wk->sa->bacckup_g_h = 0;
-        } else {
-            wk->sa->bacckup_g_h = wk->sa->gauge.s.h;
-        }
-
-        wk->sa->gauge.s.h = wk->sa->gauge_len;
-        wk->sa->gauge.s.l = -1;
-        wk->sa->sa_rno2 = 1;
-        wk->sa->saeff_ok = 0;
-        break;
-
-    case 1:
-        if (wk->wu.routine_no[1] == 4) {
-            break;
-        }
-
-        /* fallthrough */
-
-    default:
-        abandon_super_art(wk);
-        wk->sa->dtm_mul = 1;
-        break;
-    }
-}
-
-/* Running a timed art: the bar drains every frame that neither player is in a
- * super stop, and the characters whose arts mark their attacks are marked
- * here. Emptying the bar ends the art and restores what was left. */
-static void sag_ps2_timed_drain(PLW* wk) {
-    if ((wk->sa_stop_flag != 1) && (((PLW*)wk->wu.target_adrs)->sa_stop_flag != 1)) {
-        wk->sa->gauge.i -= wk->sa->dtm * wk->sa->dtm_mul;
-    }
-
-    if (wk->sa->gauge.s.h <= 0 || Suicide[6] != 0) {
-        wk->sa->gauge.i = 0;
-        wk->sa->ok = 0;
-        wk->sa->sa_rno = 0;
-        wk->sa->dtm_mul = 1;
-        wk->sa->gauge.s.h = wk->sa->bacckup_g_h;
-        sag_inc_timer[wk->wu.id] = 20;
-        return;
-    }
-
-    if (My_char[wk->wu.id] == CHAR_YUN) {
-        addSAAttribute(&wk->wu.kind_of_waza, &wk->wu.at_koa);
-    }
-
-    mark_ps2_art_attack_for(wk, CHAR_YANG);
-    mark_ps2_art_attack_for(wk, CHAR_MAKOTO);
-    mark_ps2_art_attack_for(wk, CHAR_TWELVE);
-
-    if ((My_char[wk->wu.id] == CHAR_ORO) && (wk->sa->kind_of_arts == 2)) {
-        wk->wu.att.dipsw |= 0x10;
-    }
-}
-
-static void sag_ps2_timed_art(PLW* wk) {
-    switch (wk->sa->sa_rno2) {
-    case 0:
-        sag_ps2_timed_begin(wk);
-        break;
-
-    case 1:
-        if (Timer_Freeze != 0) {
-            break;
-        }
-
-        wk->sa->sa_rno2 = 2;
-        /* fallthrough */
-
-    case 2:
-        sag_ps2_timed_drain(wk);
-        break;
-    }
-}
-
-/* gauge type 3: paid for, with no drain of its own. */
-static void sag_ps2_stored_art(PLW* wk) {
-    switch (wk->sa->sa_rno2) {
-    case 0:
-        switch (wk->sa->saeff_ok) {
-        case -1:
-            sag_bug_fix(wk->wu.id);
-            wk->sa->store--;
-            wk->sa->saeff_ok = 0;
-            wk->sa->sa_rno2 = 1;
-            break;
-
-        case 1:
-            break;
-
-        default:
-            abandon_super_art(wk);
-        }
-
-        break;
-
-    default:
-        break;
-    }
-}
-
-static void sag_union_ps2_active(PLW* wk) {
-    switch (wk->sa->gt2) {
-    case 0:
-        sag_ps2_instant_art(wk);
-        break;
-
-    case 1:
-        sag_ps2_timed_art(wk);
-        break;
-
-    case 3:
-        sag_ps2_stored_art(wk);
-        break;
-
-    default:
-        clear_super_art_state(wk);
-        break;
-    }
-}
-
-/* Armed and waiting: losing the last stock disarms the art, and the request
- * flag fires it. A gauge type 0 art starts from an empty remembered bar. */
-static void fire_ps2_art_when_ready(PLW* wk) {
-    if (wk->sa->store == 0) {
-        wk->sa->sa_rno = 0;
-        wk->sa->ok = 0;
-        return;
-    }
-
-    if (wk->sa->ok == -1) {
-        wk->sa->sa_rno = 2;
-        wk->sa->sa_rno2 = 0;
-        wk->sa->saeff_ok = 1;
-
-        if (wk->sa->gt2 == 0) {
-            wk->sa->bacckup_g_h = 0;
-        }
-    }
-}
-
-void sag_union_ps2(PLW* wk) { // 🔴
-    switch (wk->sa->sa_rno) {
-    case 0:
-        if (wk->sa->store) {
-            wk->sa->sa_rno = 1;
-            wk->sa->ok = 1;
-            wk->sa->id_arts++;
-        }
-
-        wk->sa->saeff_ok = 0;
-        break;
-
-    case 1:
-        fire_ps2_art_when_ready(wk);
-        break;
-
-    case 2:
-        sag_union_ps2_active(wk);
-
-        break;
-    }
-}
-
-void sag_union(PLW* wk) { // 🟡
-    // Arcade Balance selects the CPS3 super-art state machine; the port state machine remains available otherwise.
-    if (ArcadeBalance_IsEnabled()) {
-        void (*const sag_union_cps3_jump_table[4])(PLW* wk) = { sag_union_0, sag_union_1, sag_union_0, sag_union_3 };
-        sag_union_cps3_jump_table[wk->sa->gauge_type](wk);
-    } else {
-        sag_union_ps2(wk);
-    }
-}
-
-void addSAAttribute(u8* kow, u16* koa) { // 🔴
-    switch (*kow & 0x78) {
-    case 0:
-    case 8:
-        *kow = 0x20;
-        *koa = 0x80;
-        break;
-
-    case 16:
-    case 24:
-        *kow = 0x28;
-        *koa = 0x100;
-        break;
-    }
-}
-
-void demo_set_sa_full(SA_WORK* sa) { // 🟡
-    sa->sa_rno = 1;
-    sa->ok = 1;
-    sa->store = sa->store_max;
-    sa->id_arts++;
-
-    if (ArcadeBalance_IsEnabled()) {
-        if (sa->gauge_type == 1) {
-            sa->gauge.s.h = sa->gauge_len;
-            sa->dtm_mul = 1;
-        }
-    } else {
-        // The port initializes a zero gauge regardless of gauge type.
-        sa->gauge.s.h = 0;
-        sa->gauge.s.l = 0;
-        sa->dtm_mul = 1;
-    }
 }
 
 void get_saikinnno_idouryou(PLW* wk) { // 🟢
@@ -1273,158 +604,3 @@ const u8 plpdm_mvkind[32] = { 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
                               0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 };
 
 const u8 plpxx_kind[5] = { 0, 1, 0, 1, 0 };
-
-/* The four states that hold the draining vitality still, in the order the
- * original tested them. Each was its own `break` out of case 0; `||`
- * short-circuits the same way, and none of the four has a side effect. */
-static s32 vital_drain_is_paused(const PLW* wk) {
-    return vital_dec_timer || ((wk->wu.routine_no[1] == 0) && !(plpnm_mvkind[wk->wu.routine_no[2]] & 1)) ||
-           ((wk->wu.routine_no[1] == 1) && !(plpdm_mvkind[wk->wu.routine_no[2]] & 1)) || (wk->wu.routine_no[1] == 3);
-}
-
-/* The second of the two player-one states that hold the vitality drain: a
- * specific pattern of a specific attack routine. The three numbers are the
- * original's. */
-static s32 in_second_credit_pose(const PLW* wk) {
-    return (wk->wu.routine_no[1] == 4) && (wk->wu.routine_no[2] == 22) && (wk->wu.pat_status == 23);
-}
-
-/* The vitality drain itself, and the death it ends in. Every `break` in the
- * original left the switch with nothing after it, so each is a `return` here.
- *
- * The player-one credit-check states are the two that hold the drain without
- * being a pause: the game is waiting on a coin, not on the player. */
-static void drain_vitality(PLW* wk) {
-    if (vital_drain_is_paused(wk)) {
-        return;
-    }
-
-    if (wk->player_number == 0) {
-        if ((wk->wu.routine_no[1] == 4) && (wk->wu.routine_no[2] == 21)) {
-            if (ca_check_flag == 0) {
-                ca_check_flag = 1;
-            }
-
-            return;
-        }
-
-        if (in_second_credit_pose(wk)) {
-            return;
-        }
-    }
-
-    wk->wu.vital_new--;
-
-    if (wk->wu.vital_new < 0) {
-        wk->wu.vital_new = -1;
-        wk->wu.dm_koa = 4;
-        wk->dead_flag = 1;
-        wk->guard_flag = 3;
-        ca_check_flag = 0;
-        return;
-    }
-}
-
-/* One point of health back, up to the bar's length. */
-static void gain_one_vitality(PLW* wk) {
-    wk->wu.vital_new++;
-
-    if (wk->wu.vital_new > 160) {
-        wk->wu.vital_new = 160;
-    }
-}
-
-/* Mode 2 only regains while the player is idle, and only on the frames the
- * regain timer allows. */
-static s32 idle_regain_is_blocked(PLW* wk) {
-    if (vital_inc_timer) {
-        return 1;
-    }
-
-    if (wk->wu.routine_no[1] != 0) {
-        return 1;
-    }
-
-    if (!(plpnm_mvkind[wk->wu.routine_no[2]] & 2)) {
-        return 1;
-    }
-
-    return 0;
-}
-
-/* Mode 3 stops regaining while the player is in one of the plpxx states, and
- * for a while after leaving one. */
-static s32 timed_regain_is_blocked(PLW* wk) {
-    if (plpxx_kind[wk->wu.routine_no[1]]) {
-        return 1;
-    }
-
-    if (plpxx_kind[wk->wu.old_rno[1]]) {
-        wk->omop_vital_timer = 40;
-    }
-
-    if (wk->omop_vital_timer) {
-        wk->omop_vital_timer--;
-        return 1;
-    }
-
-    return 0;
-}
-
-static void regain_while_idle(PLW* wk) {
-    if (idle_regain_is_blocked(wk)) {
-        return;
-    }
-
-    gain_one_vitality(wk);
-}
-
-/* Health does not move at all while the game is paused, while the player is
- * dead, or during a super stop. */
-static s32 vital_is_frozen(PLW* wk) {
-    if (pcon_dp_flag) {
-        return 1;
-    }
-
-    if (wk->dead_flag) {
-        return 1;
-    }
-
-    if (sa_stop_check()) {
-        return 1;
-    }
-
-    return 0;
-}
-
-void check_omop_vital(PLW* wk) { // 🔴
-    if (vital_is_frozen(wk)) {
-        return;
-    }
-
-    if (wk->resurrection_resv) {
-        wk->wu.vital_new = -1;
-        return;
-    }
-
-    switch (omop_vital_ix[wk->wu.id]) {
-    case 0:
-        drain_vitality(wk);
-        break;
-
-    case 2:
-        regain_while_idle(wk);
-        break;
-
-    case 3:
-        if (timed_regain_is_blocked(wk)) {
-            break;
-        }
-
-        /* fallthrough */
-
-    case 4:
-        gain_one_vitality(wk);
-        break;
-    }
-}

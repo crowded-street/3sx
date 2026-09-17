@@ -68,6 +68,23 @@ static s32 player_is_stunned(u8 pl) {
            (plw[pl].py->flag == 1);
 }
 
+/* Redraw the gauge at its current value, unless the screen is held. Three
+ * places do exactly this. */
+static void draw_stun_gauge(u8 pl) {
+    if (No_Trans == 0) {
+        stun_put(pl, sdat[pl].cstn);
+    }
+}
+
+/* When the blink timer runs out, swap which half of the blink is showing and
+ * restart it. The two arms differ only in which half comes next. */
+static void start_next_blink_phase(u8 pl, s8 next) {
+    if (sdat[pl].stimer == 0) {
+        sdat[pl].g_or_s = next;
+        sdat[pl].stimer = 2;
+    }
+}
+
 static void blink_stun_gauge(u8 pl) {
     if (sdat[pl].g_or_s == 0) {
         if (No_Trans == 0) {
@@ -75,20 +92,42 @@ static void blink_stun_gauge(u8 pl) {
             stun_put(pl, sdat[pl].cstn);
         }
 
-        if (sdat[pl].stimer == 0) {
-            sdat[pl].g_or_s = 1;
-            sdat[pl].stimer = 2;
-        }
+        start_next_blink_phase(pl, 1);
     } else {
-        if (No_Trans == 0) {
-            stun_put(pl, sdat[pl].cstn);
-        }
+        draw_stun_gauge(pl);
 
-        if (sdat[pl].stimer == 0) {
-            sdat[pl].g_or_s = 0;
-            sdat[pl].stimer = 2;
-        }
+        start_next_blink_phase(pl, 0);
     }
+}
+
+/* While the player is stunned the gauge holds at its limit, counts its timer
+ * down outside pause, and blinks. */
+static void hold_stun_gauge(u8 pl) {
+    sdat[pl].sflag = 1;
+
+    if (sdat[pl].osflag == 0) {
+        sdat[pl].cstn = piyori_type[pl].genkai;
+    }
+
+    if (!EXE_flag && !Game_pause) {
+        sdat[pl].stimer--;
+    }
+
+    blink_stun_gauge(pl);
+
+    sdat[pl].osflag = sdat[pl].sflag;
+}
+
+/* The frame the stun ends on: the gauge goes back to the live quantity and is
+ * drawn once. The osflag store appears twice, as it did in the original. */
+static void release_stun_gauge(u8 pl) {
+    sdat[pl].osflag = sdat[pl].sflag;
+    sdat[pl].g_or_s = 0;
+    sdat[pl].stimer = 2;
+    sdat[pl].cstn = plw[pl].py->now.quantity.h;
+    sdat[pl].osflag = sdat[pl].sflag;
+
+    draw_stun_gauge(pl);
 }
 
 void stngauge_control(u8 pl) {
@@ -103,34 +142,14 @@ void stngauge_control(u8 pl) {
     }
 
     if (player_is_stunned(pl)) {
-        sdat[pl].sflag = 1;
-
-        if (sdat[pl].osflag == 0) {
-            sdat[pl].cstn = piyori_type[pl].genkai;
-        }
-
-        if (!EXE_flag && !Game_pause) {
-            sdat[pl].stimer--;
-        }
-
-        blink_stun_gauge(pl);
-
-        sdat[pl].osflag = sdat[pl].sflag;
+        hold_stun_gauge(pl);
         return;
     }
 
     sdat[pl].sflag = 0;
 
     if (sdat[pl].osflag == 1) {
-        sdat[pl].osflag = sdat[pl].sflag;
-        sdat[pl].g_or_s = 0;
-        sdat[pl].stimer = 2;
-        sdat[pl].cstn = plw[pl].py->now.quantity.h;
-        sdat[pl].osflag = sdat[pl].sflag;
-
-        if (No_Trans == 0) {
-            stun_put(pl, sdat[pl].cstn);
-        }
+        release_stun_gauge(pl);
         return;
     }
 
@@ -138,9 +157,7 @@ void stngauge_control(u8 pl) {
         sdat[pl].cstn = plw[pl].py->now.quantity.h;
     }
 
-    if (No_Trans == 0) {
-        stun_put(pl, sdat[pl].cstn);
-    }
+    draw_stun_gauge(pl);
 }
 
 void stngauge_work_clear() {

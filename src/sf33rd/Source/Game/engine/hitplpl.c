@@ -33,6 +33,96 @@ static s32 neither_side_has_priority(PLW* as, PLW* ds) {
     return !(as->wu.kind_of_waza & 6) && !(ds->wu.att.dipsw & 0x60) && !(ds->wu.kind_of_waza & 4);
 }
 
+/* The attacker's damage survives the trade and the defender's is cancelled. */
+static void keep_attacker_damage(s16 ix2, s16 ix) {
+    hs[ix2].flag.results &= 0x1101;
+    hs[ix].flag.results &= 0x1110;
+}
+
+/* The other way round: the defender's damage survives. */
+static void keep_defender_damage(s16 ix2, s16 ix) {
+    hs[ix2].flag.results &= 0x1110;
+    hs[ix].flag.results &= 0x1101;
+}
+
+/* The defender's damage is cancelled and the trade is settled. Both the strong
+ * and the special case end this way, character for character. */
+static s32 defender_loses(s16 ix2, s16 ix) {
+    keep_defender_damage(ix2, ix);
+    return 1;
+}
+
+/* A strong attacker: an overriding defender is untouched, one that outranks it
+ * cancels the trade, anything weaker loses its damage. */
+static s32 strong_attack_settles(PLW* ds, s16 ix2, s16 ix) {
+    if (!(ds->wu.att.dipsw & 0x40)) {
+        if (defender_outranks_attacker(ds)) {
+            return 1;
+        }
+
+        return defender_loses(ix2, ix);
+    }
+
+    return 0;
+}
+
+/* A special attacker against a defender with no priority of its own: another
+ * special trades, anything else loses its damage. */
+static s32 special_attack_settles(PLW* ds, s16 ix2, s16 ix) {
+    if (defender_has_no_priority(ds)) {
+        if (ds->wu.kind_of_waza & 2) {
+            return 1;
+        }
+
+        return defender_loses(ix2, ix);
+    }
+
+    return 0;
+}
+
+/* Neither side has priority: the defender's own special is what settles it. */
+static s32 plain_attack_settles(PLW* ds) {
+    if (!(ds->wu.kind_of_waza & 2)) {
+        return 1;
+    }
+
+    return 0;
+}
+
+/* Who wins when both sides connect on the same frame. Returns 1 when the trade
+ * is settled here - the caller stops and falls to the shared tail, having
+ * already had keep_defender_damage called if that is the outcome - and 0 when
+ * none of the cases claimed it, which is when the attacker's damage stands.
+ *
+ * Every `break` in the original arm became a `return 1` and the fall past the
+ * cascade became `return 0`, so each path reaches the same place it did. */
+static s32 trade_settled(PLW* as, PLW* ds, s16 ix2, s16 ix) {
+    if (as->wu.att.dipsw & 0x40) {
+        if (!(ds->wu.att.dipsw & 0x40)) {
+            keep_defender_damage(ix2, ix);
+            return 1;
+        }
+
+        return 1;
+    }
+
+    /* These two attacker cases ran the same block in the original; they
+     * share it here, with both tests kept as they were written. */
+    if ((as->wu.att.dipsw & 0x20) || (as->wu.kind_of_waza & 4)) {
+        return strong_attack_settles(ds, ix2, ix);
+    }
+
+    if (as->wu.kind_of_waza & 2) {
+        return special_attack_settles(ds, ix2, ix);
+    }
+
+    if (neither_side_has_priority(as, ds)) {
+        return plain_attack_settles(ds);
+    }
+
+    return 0;
+}
+
 void player_at_vs_player_dm(s16 ix2, s16 ix) {
     PLW* as = (PLW*)q_hit_push[ix2];
     PLW* ds = (PLW*)q_hit_push[ix];
@@ -51,46 +141,12 @@ void player_at_vs_player_dm(s16 ix2, s16 ix) {
             break;
         }
 
-        if (as->wu.att.dipsw & 0x40) {
-            if (!(ds->wu.att.dipsw & 0x40)) {
-                goto two;
-            }
-
+        if (trade_settled(as, ds, ix2, ix)) {
             break;
         }
 
-        /* These two attacker cases ran the same block in the original; they
-         * share it here, with both tests kept as they were written. */
-        if ((as->wu.att.dipsw & 0x20) || (as->wu.kind_of_waza & 4)) {
-            if (!(ds->wu.att.dipsw & 0x40)) {
-                if (defender_outranks_attacker(ds)) {
-                    break;
-                }
-
-                goto two;
-            }
-        } else if (as->wu.kind_of_waza & 2) {
-            if (defender_has_no_priority(ds)) {
-                if (ds->wu.kind_of_waza & 2) {
-                    break;
-                }
-
-                goto two;
-            }
-        } else if (neither_side_has_priority(as, ds)) {
-            if (!(ds->wu.kind_of_waza & 2)) {
-                break;
-            }
-        }
-
-        hs[ix2].flag.results &= 0x1101;
-        hs[ix].flag.results &= 0x1110;
+        keep_attacker_damage(ix2, ix);
         return;
-
-    two:
-        hs[ix2].flag.results &= 0x1110;
-        hs[ix].flag.results &= 0x1101;
-        break;
     }
 
     pp_pulpara_hit(&as->wu);

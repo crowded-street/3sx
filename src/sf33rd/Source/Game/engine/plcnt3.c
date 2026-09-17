@@ -27,6 +27,13 @@ static s32 round_is_in_play(void) {
     return pcon_rno[0] == 2 && pcon_rno[1] == 0 && pcon_rno[2] == 2;
 }
 
+/* Both players ask for their push-out the same way. */
+static void request_hit_push(PLW* wk) {
+    if (!wk->zuru_flag && !wk->zettai_muteki_flag) {
+        hit_push_request(&wk->wu);
+    }
+}
+
 s32 Player_control_bonus2() {
     if (control_may_run()) {
         players_timer++;
@@ -41,13 +48,8 @@ s32 Player_control_bonus2() {
         set_quake(&plw[0]);
         set_quake(&plw[1]);
 
-        if (!plw[0].zuru_flag && !plw[0].zettai_muteki_flag) {
-            hit_push_request(&plw[0].wu);
-        }
-
-        if (!plw[1].zuru_flag && !plw[1].zettai_muteki_flag) {
-            hit_push_request(&plw[1].wu);
-        }
+        request_hit_push(&plw[0]);
+        request_hit_push(&plw[1]);
 
         add_next_position(plw);
         add_next_position(&plw[1]);
@@ -102,6 +104,16 @@ static void end_bonus2_for(s16 ix) {
     }
 }
 
+/* Both of these wait for the two players together, and the state only advances
+ * once neither is still moving. */
+static s32 both_players_settled() {
+    return footwork_check_bns(0) && footwork_check_bns(1);
+}
+
+static s32 both_players_finished_bonus2() {
+    return (plw[0].wu.routine_no[3] == 9) && (plw[1].wu.routine_no[3] == 9);
+}
+
 void plcnt_b2_die() {
     plw[0].wu.dm_vital = plw[1].wu.dm_vital = 0;
 
@@ -113,7 +125,7 @@ void plcnt_b2_die() {
         /* fallthrough */
 
     case 1:
-        if (footwork_check_bns(0) && footwork_check_bns(1)) {
+        if (both_players_settled()) {
             pcon_rno[2]++;
         }
 
@@ -128,7 +140,7 @@ void plcnt_b2_die() {
         break;
 
     case 3:
-        if ((plw[0].wu.routine_no[3] == 9) && (plw[1].wu.routine_no[3] == 9)) {
+        if (both_players_finished_bonus2()) {
             pcon_rno[2]++;
         }
 

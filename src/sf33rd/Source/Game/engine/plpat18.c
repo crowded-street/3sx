@@ -76,6 +76,34 @@ void Att_PL18_NINGENBAKUDAN(PLW* wk) {
     }
 }
 
+/* Marker 40 pays the super-art gauge and raises the spirit bonus against its
+ * ceiling. */
+static void pl18_pay_gauge_and_spirit(PLW* wk) {
+    if (wk->wu.cg_type == 40) {
+        wk->wu.cg_type = 0;
+        add_sp_arts_gauge_tokushu(wk);
+        wk->tk_konjyou += 4;
+
+        if (wk->tk_konjyou > 12) {
+            wk->tk_konjyou = 12;
+        }
+    }
+}
+
+/* Marker 64 ends the taunt and slows the stun recovery - once only, where the
+ * other characters allow three. */
+static void pl18_end_taunt(PLW* wk) {
+    if (wk->wu.cg_type == 64) {
+        grade_add_personal_action(wk->wu.id);
+        wk->wu.routine_no[3]++;
+
+        if (wk->tk_success <= 0) {
+            wk->tk_success++;
+            wk->py->recover = (wk->py->recover * 120) / 100;
+        }
+    }
+}
+
 void Att_PL18_TOKUSHUKOUDOU(PLW* wk) {
     wk->scr_pos_set_flag = 0;
 
@@ -89,27 +117,8 @@ void Att_PL18_TOKUSHUKOUDOU(PLW* wk) {
 
     case 1:
         char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 40) {
-            wk->wu.cg_type = 0;
-            add_sp_arts_gauge_tokushu(wk);
-            wk->tk_konjyou += 4;
-
-            if (wk->tk_konjyou > 12) {
-                wk->tk_konjyou = 12;
-            }
-        }
-
-        if (wk->wu.cg_type == 64) {
-            grade_add_personal_action(wk->wu.id);
-            wk->wu.routine_no[3]++;
-
-            if (wk->tk_success <= 0) {
-                wk->tk_success++;
-                wk->py->recover = (wk->py->recover * 120) / 100;
-            }
-        }
-
+        pl18_pay_gauge_and_spirit(wk);
+        pl18_end_taunt(wk);
         break;
 
     default:

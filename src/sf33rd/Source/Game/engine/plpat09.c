@@ -45,6 +45,17 @@ void pl09_extra_attack(PLW* wk) {
     pl09_exatt_table[wk->wu.routine_no[2] - 16](wk);
 }
 
+/* Marker 20 loads the next movement row. Att_SP_YAGYOUDAMA's airborne and
+ * grounded arms wrote this identically; its case 1 is a near miss - it steps the
+ * state as well - and stays inline. */
+static void take_next_row_on_marker_20(PLW* wk) {
+    if (wk->wu.cg_type == 20) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.cg_type = 0;
+        wk->wu.mvxy.index++;
+    }
+}
+
 void Att_SP_YAGYOUDAMA(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -68,11 +79,7 @@ void Att_SP_YAGYOUDAMA(PLW* wk) {
         break;
 
     case 2:
-        if (wk->wu.cg_type == 20) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.cg_type = 0;
-            wk->wu.mvxy.index++;
-        }
+        take_next_row_on_marker_20(wk);
 
         if (wk->wu.cg_type == 1) {
             wk->wu.cg_type = 0;
@@ -86,11 +93,7 @@ void Att_SP_YAGYOUDAMA(PLW* wk) {
     case 3:
         char_move(&wk->wu);
 
-        if (wk->wu.cg_type == 20) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.cg_type = 0;
-            wk->wu.mvxy.index++;
-        }
+        take_next_row_on_marker_20(wk);
 
         if (wk->wu.cg_type == 1) {
             wk->wu.cg_type = 0;
@@ -171,6 +174,39 @@ s32 set_tenguiwa(PLW* wk, u8 data) {
     return 0;
 }
 
+/* The taunt itself. Marker 40 pays the super-art gauge, marker 20 counts another
+ * success up to 13, marker 30 ends it. While it runs, the stun timer recovers at
+ * the rate that count selects. The 30 arm's `break` left the switch with nothing
+ * after it, so a return is the same exit. */
+static void tokushu_taunt_frames(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 40) {
+        wk->wu.cg_type = 0;
+        add_sp_arts_gauge_tokushu(wk);
+    }
+
+    if (wk->wu.cg_type == 20) {
+        wk->wu.cg_type = 0;
+
+        if (++wk->tk_success > 13) {
+            wk->tk_success = 13;
+        }
+    }
+
+    if (wk->wu.cg_type == 30) {
+        wk->wu.routine_no[3]++;
+        wk->wu.cg_type = 0;
+        return;
+    }
+
+    wk->py->now.timer -= wk->py->recover * pl09_tk_table[wk->tk_success] / 100;
+
+    if (wk->py->now.quantity.h <= 0) {
+        wk->py->now.timer = 0;
+    }
+}
+
 void Att_PL09_TOKUSHUKOUDOU(PLW* wk) {
     wk->scr_pos_set_flag = 0;
 
@@ -184,33 +220,7 @@ void Att_PL09_TOKUSHUKOUDOU(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 40) {
-            wk->wu.cg_type = 0;
-            add_sp_arts_gauge_tokushu(wk);
-        }
-
-        if (wk->wu.cg_type == 20) {
-            wk->wu.cg_type = 0;
-
-            if (++wk->tk_success > 13) {
-                wk->tk_success = 13;
-            }
-        }
-
-        if (wk->wu.cg_type == 30) {
-            wk->wu.routine_no[3]++;
-            wk->wu.cg_type = 0;
-            break;
-        }
-
-        wk->py->now.timer -= wk->py->recover * pl09_tk_table[wk->tk_success] / 100;
-
-        if (wk->py->now.quantity.h <= 0) {
-            wk->py->now.timer = 0;
-        }
-
+        tokushu_taunt_frames(wk);
         break;
 
     default:
@@ -221,6 +231,19 @@ void Att_PL09_TOKUSHUKOUDOU(PLW* wk) {
         }
 
         break;
+    }
+}
+
+/* The grounded frames: marker 1 sends the move back into the air, to state 2 on
+ * the first pass and state 3 afterwards. Case 3 is the mirror of this and is
+ * deliberately left inline - extracting it too would make a twin pair, and one
+ * extraction already takes the caller under the threshold. */
+static void jinnchuu_ex_grounded(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 1) {
+        wk->wu.cg_type = 0;
+        wk->wu.routine_no[3] = (wk->wu.routine_no[1] == 0) ? 2 : 3;
     }
 }
 
@@ -256,74 +279,91 @@ void Att_JINNCHUUWATARI_EX(PLW* wk) {
         break;
 
     case 4:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 1) {
-            wk->wu.cg_type = 0;
-            wk->wu.routine_no[3] = (wk->wu.routine_no[1] == 0) ? 2 : 3;
-        }
-
+        jinnchuu_ex_grounded(wk);
         break;
     }
+}
+
+/* kop 0 aims at the opponent, offset by the row for that character, and mirrors
+ * the result back across the player when the facing does not match the side the
+ * opponent is on. kop 1's midpoint form is the near twin of this and stays
+ * inline: one extraction already takes the caller under the threshold. */
+static s16 homing_target_x(const PLW* wk, const PLW* twk) {
+    s16 ex;
+
+    if (wk->wu.xyz[0].disp.pos < twk->wu.xyz[0].disp.pos) {
+        ex = twk->wu.xyz[0].disp.pos - homing_hos[wk->pl09_dat_index][twk->player_number][0];
+
+        if (!wk->wu.rl_flag) {
+            ex = wk->wu.xyz[0].disp.pos - (ex - wk->wu.xyz[0].disp.pos);
+        }
+    } else {
+        ex = twk->wu.xyz[0].disp.pos + homing_hos[wk->pl09_dat_index][twk->player_number][0];
+
+        if (wk->wu.rl_flag) {
+            ex = wk->wu.xyz[0].disp.pos + (wk->wu.xyz[0].disp.pos - ex);
+        }
+    }
+
+    return ex;
+}
+
+/* Marker 30 aims the homing jump. kop 0 targets the opponent at the row's offset
+ * and mirrors the result when the player faces the other way; kop 1 aims at the
+ * midpoint between the two. Either way the facing correction and the state step
+ * follow. The target work and the kop row are passed in so they are read once,
+ * as the original read them. */
+static void homing_aim_on_marker_30(PLW* wk, PLW* twk, const s16* curr_kop) {
+    s16 ex;
+    s16 ey;
+
+    if (wk->wu.cg_type != 30) {
+        return;
+    }
+
+    setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+    wk->wu.mvxy.index++;
+
+    switch (curr_kop[0]) {
+    case 0:
+        ex = homing_target_x(wk, twk);
+        ey = homing_hos[wk->pl09_dat_index][twk->player_number][1];
+        wk->wu.mvxy.a[0].sp = 0;
+        cal_initial_speed(&wk->wu, curr_kop[1], ex, ey);
+        wk->pl09_dat_index++;
+        break;
+
+    case 1:
+        ex = wk->wu.xyz[0].disp.pos;
+
+        if (wk->wu.xyz[0].disp.pos < twk->wu.xyz[0].disp.pos) {
+            ex += (twk->wu.xyz[0].disp.pos - wk->wu.xyz[0].disp.pos) / 2;
+        } else {
+            ex -= (wk->wu.xyz[0].disp.pos - twk->wu.xyz[0].disp.pos) / 2;
+        }
+
+        ey = homing_hos[wk->pl09_dat_index][twk->player_number][1];
+        wk->wu.mvxy.a[0].sp = 0;
+        cal_initial_speed(&wk->wu, curr_kop[1], ex, ey);
+        wk->pl09_dat_index++;
+        break;
+    }
+
+    if (wk->wu.rl_flag == 0) {
+        wk->wu.mvxy.a[0].sp = -wk->wu.mvxy.a[0].sp;
+        wk->wu.mvxy.d[0].sp = -wk->wu.mvxy.d[0].sp;
+    }
+
+    wk->wu.routine_no[3]++;
+    wk->wu.cg_type = 0;
+    add_mvxy_speed(&wk->wu);
 }
 
 void mvxy_table_reader(PLW* wk) {
     PLW* twk = (PLW*)wk->wu.target_adrs;
     const s16* curr_kop = &homing_kop[wk->pl09_dat_index][0];
-    s16 ex;
-    s16 ey;
 
-    if (wk->wu.cg_type == 30) {
-        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-        wk->wu.mvxy.index++;
-
-        switch (curr_kop[0]) {
-        case 0:
-            if (wk->wu.xyz[0].disp.pos < twk->wu.xyz[0].disp.pos) {
-                ex = twk->wu.xyz[0].disp.pos - homing_hos[wk->pl09_dat_index][twk->player_number][0];
-
-                if (!wk->wu.rl_flag) {
-                    ex = wk->wu.xyz[0].disp.pos - (ex - wk->wu.xyz[0].disp.pos);
-                }
-            } else {
-                ex = twk->wu.xyz[0].disp.pos + homing_hos[wk->pl09_dat_index][twk->player_number][0];
-
-                if (wk->wu.rl_flag) {
-                    ex = wk->wu.xyz[0].disp.pos + (wk->wu.xyz[0].disp.pos - ex);
-                }
-            }
-
-            ey = homing_hos[wk->pl09_dat_index][twk->player_number][1];
-            wk->wu.mvxy.a[0].sp = 0;
-            cal_initial_speed(&wk->wu, curr_kop[1], ex, ey);
-            wk->pl09_dat_index++;
-            break;
-
-        case 1:
-            ex = wk->wu.xyz[0].disp.pos;
-
-            if (wk->wu.xyz[0].disp.pos < twk->wu.xyz[0].disp.pos) {
-                ex += (twk->wu.xyz[0].disp.pos - wk->wu.xyz[0].disp.pos) / 2;
-            } else {
-                ex -= (wk->wu.xyz[0].disp.pos - twk->wu.xyz[0].disp.pos) / 2;
-            }
-
-            ey = homing_hos[wk->pl09_dat_index][twk->player_number][1];
-            wk->wu.mvxy.a[0].sp = 0;
-            cal_initial_speed(&wk->wu, curr_kop[1], ex, ey);
-            wk->pl09_dat_index++;
-            break;
-        }
-
-        if (wk->wu.rl_flag == 0) {
-            wk->wu.mvxy.a[0].sp = -wk->wu.mvxy.a[0].sp;
-            wk->wu.mvxy.d[0].sp = -wk->wu.mvxy.d[0].sp;
-        }
-
-        wk->wu.routine_no[3]++;
-        wk->wu.cg_type = 0;
-        add_mvxy_speed(&wk->wu);
-    }
+    homing_aim_on_marker_30(wk, twk, curr_kop);
 
     if (wk->wu.cg_type == 20) {
         setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);

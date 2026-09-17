@@ -36,20 +36,48 @@
 #include "sf33rd/Source/Game/engine/pls02.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/io/pulpul.h"
+#include "sf33rd/Source/Game/engine/plpat_internal.h"
 
-s16 ja_nmj_rno_change(WORK* wk);
 void Attack_07000(PLW* wk);
 void get_cancel_timer(PLW* wk);
-void check_ja_nmj_dummy_RTNM(PLW* wk);
-u8 get_cjdR(PLW*);
 
 void (*const plpat_lv_00[16])(PLW* wk);
 void (*const plxx_extra_attack_table[])();
 
-const u8* cjdr_karaburi_table[20];
-const u8* cjdr_hits_table[20];
-const u8* cjdr_blocking_table[20];
-const u8* cjdr_defense_table[20];
+
+/* The first frame of an attack clears its per-attack bookkeeping; every later frame
+ * only refreshes the pad feedback. */
+static void reset_attack_entry_state(PLW* wk) {
+    if (wk->wu.routine_no[3] != 0) {
+        // Port-only controller feedback; it does not affect attack behavior.
+        pp_pulpara_remake_at(wk);
+        return;
+    }
+
+    wk->caution_flag = 1;
+    wk->dm_vital_backup = 0;
+    wk->dm_vital_use = 0;
+    wk->total_att_hit_ok = 0;
+    wk->hsjp_ok = 0;
+
+    if (!ArcadeBalance_IsEnabled() && wk->wu.routine_no[2] < 16) {
+        // Chain EX bookkeeping is port-only and absent from CPS3.
+        clear_chainex_check(wk->wu.id);
+    }
+}
+
+/* A cg_prio of 1 pushes the player in front of the opponent, anything else behind. */
+static void bias_next_z_by_cg_prio(PLW* wk) {
+    if (!wk->wu.cg_prio) {
+        return;
+    }
+
+    if (wk->wu.cg_prio == 1) {
+        wk->wu.next_z += 4;
+    } else {
+        wk->wu.next_z -= 4;
+    }
+}
 
 void Player_attack(PLW* wk) { // 🟡
     wk->wu.next_z = wk->wu.my_priority;
@@ -73,21 +101,7 @@ void Player_attack(PLW* wk) { // 🟡
     wk->wu.swallow_no_effect = 0; // Port-only visual suppression; CPS3 does not reset this effect flag here.
     check_em_tk_power_off(wk, (PLW*)wk->wu.target_adrs);
 
-    if (wk->wu.routine_no[3] == 0) {
-        wk->caution_flag = 1;
-        wk->dm_vital_backup = 0;
-        wk->dm_vital_use = 0;
-        wk->total_att_hit_ok = 0;
-        wk->hsjp_ok = 0;
-
-        if (!ArcadeBalance_IsEnabled() && wk->wu.routine_no[2] < 16) {
-            // Chain EX bookkeeping is port-only and absent from CPS3.
-            clear_chainex_check(wk->wu.id);
-        }
-    } else {
-        // Port-only controller feedback; it does not affect attack behavior.
-        pp_pulpara_remake_at(wk);
-    }
+    reset_attack_entry_state(wk);
 
     jumping_guard_type_check(wk);
 
@@ -101,13 +115,20 @@ void Player_attack(PLW* wk) { // 🟡
 
     wk->wu.next_z = ((PLW*)wk->wu.target_adrs)->wu.my_priority - 3;
 
-    if (wk->wu.cg_prio) {
-        if (wk->wu.cg_prio == 1) {
-            wk->wu.next_z += 4;
-        } else {
-            wk->wu.next_z -= 4;
-        }
-    }
+    bias_next_z_by_cg_prio(wk);
+}
+
+/* The opening frame shared by the level-4 ground attacks: land, face the way the
+ * move was buffered, take the cancel timer, start the animation. Attack_01000
+ * and Attack_02000 follow it with their own setup_mvxy_data call, which stays at
+ * the call site. */
+static void begin_ground_attack(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    hoken_muriyari_chakuchi(wk);
+    wk->wu.rl_flag = wk->wu.rl_waza;
+    setup_lvdir_after_autodir(wk);
+    get_cancel_timer(wk);
+    set_char_move_init(&wk->wu, 4, wk->as->char_ix);
 }
 
 void Attack_00000(PLW* wk) { // 🟢
@@ -115,12 +136,7 @@ void Attack_00000(PLW* wk) { // 🟢
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        hoken_muriyari_chakuchi(wk);
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        setup_lvdir_after_autodir(wk);
-        get_cancel_timer(wk);
-        set_char_move_init(&wk->wu, 4, wk->as->char_ix);
+        begin_ground_attack(wk);
         break;
 
     case 1:
@@ -136,28 +152,29 @@ void Attack_00000(PLW* wk) { // 🟢
     }
 }
 
+/* The animation's 1 marker starts the movement and hands control to state 2.
+ * Attack_01000, Attack_02000 and Attack_09000 said this identically; each one's
+ * `break` had nothing between it and the arm's own break. Attack_05000 is left
+ * alone - it fires effect_G6_init as well, a second difference. */
+static void launch_on_mvxy_marker(PLW* wk) {
+    if (wk->wu.cg_type == 1) {
+        add_mvxy_speed(&wk->wu);
+        wk->wu.routine_no[3] = 2;
+        wk->wu.cg_type = 0;
+    }
+}
+
 void Attack_01000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        hoken_muriyari_chakuchi(wk);
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        setup_lvdir_after_autodir(wk);
-        get_cancel_timer(wk);
-        set_char_move_init(&wk->wu, 4, wk->as->char_ix);
+        begin_ground_attack(wk);
         setup_mvxy_data(&wk->wu, wk->as->data_ix);
         break;
 
     case 1:
         char_move(&wk->wu);
 
-        if (wk->wu.cg_type == 1) {
-            add_mvxy_speed(&wk->wu);
-            wk->wu.routine_no[3] = 2;
-            wk->wu.cg_type = 0;
-            break;
-        }
-
+        launch_on_mvxy_marker(wk);
         break;
 
     case 2:
@@ -173,25 +190,14 @@ void Attack_01000(PLW* wk) { // 🟢
 void Attack_02000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        hoken_muriyari_chakuchi(wk);
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        setup_lvdir_after_autodir(wk);
-        get_cancel_timer(wk);
-        set_char_move_init(&wk->wu, 4, wk->as->char_ix);
+        begin_ground_attack(wk);
         setup_mvxy_data(&wk->wu, wk->as->data_ix);
         break;
 
     case 1:
         char_move(&wk->wu);
 
-        if (wk->wu.cg_type == 1) {
-            add_mvxy_speed(&wk->wu);
-            wk->wu.routine_no[3] = 2;
-            wk->wu.cg_type = 0;
-            break;
-        }
-
+        launch_on_mvxy_marker(wk);
         break;
 
     case 2:
@@ -211,18 +217,49 @@ void Attack_02000(PLW* wk) { // 🟢
     }
 }
 
+/* On the ground - or standing on the bonus-stage car - the attack starts from a
+ * landed pose, so the unit is re-initialised before the animation is set. */
+static s32 is_standing_for_ja_attack(const PLW* wk) {
+    return (Bonus_Game_Flag == 20 && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0);
+}
+
+static void init_ja_attack_from_ground(PLW* wk) {
+    if (is_standing_for_ja_attack(wk)) {
+        hoken_muriyari_chakuchi(wk);
+        wk->wu.rl_flag = wk->wu.rl_waza;
+        setup_lvdir_after_autodir(wk);
+        Normal_18000_init_unit(wk, wk->wu.pat_status);
+    }
+}
+
+/* The dummy-RTNM window, which only runs while the jump is still airborne. The
+ * arm's inner break left the switch with nothing after it, so returning here is
+ * the same exit. */
+static void step_ja_nmj_dummy(PLW* wk) {
+    if (wk->wu.routine_no[3] == 3) {
+        return;
+    }
+
+    check_ja_nmj_dummy_RTNM(wk);
+
+    if (wk->wu.cg_type != 0x40) {
+        return;
+    }
+
+    if (!(wk->spmv_ng_flag & 0x100000) && ja_nmj_rno_change(&wk->wu)) {
+        wk->wu.routine_no[1] = 0;
+        wk->wu.routine_no[3] = 1;
+    }
+
+    wk->wu.cg_type = 0;
+}
+
 void Attack_03000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
         get_cancel_timer(wk);
-        if ((Bonus_Game_Flag == 20 && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
-            hoken_muriyari_chakuchi(wk);
-            wk->wu.rl_flag = wk->wu.rl_waza;
-            setup_lvdir_after_autodir(wk);
-            Normal_18000_init_unit(wk, wk->wu.pat_status);
-        }
-
+        init_ja_attack_from_ground(wk);
         set_char_move_init(&wk->wu, 4, wk->as->char_ix);
         break;
 
@@ -237,21 +274,7 @@ void Attack_03000(PLW* wk) { // 🟢
 
     case 2:
         jumping_union_process(&wk->wu, 3);
-
-        if (wk->wu.routine_no[3] != 3) {
-            check_ja_nmj_dummy_RTNM(wk);
-
-            if (wk->wu.cg_type == 0x40) {
-                if (!(wk->spmv_ng_flag & 0x100000) && ja_nmj_rno_change(&wk->wu)) {
-                    wk->wu.routine_no[1] = 0;
-                    wk->wu.routine_no[3] = 1;
-                }
-
-                wk->wu.cg_type = 0;
-                break;
-            }
-        }
-
+        step_ja_nmj_dummy(wk);
         break;
 
     case 3:
@@ -260,149 +283,11 @@ void Attack_03000(PLW* wk) { // 🟢
     }
 }
 
-s16 ja_nmj_rno_change(WORK* wk) { // 🟢
-    s16 rnum = 0;
-
-    switch (wk->pat_status) {
-    case 20:
-        wk->routine_no[2] = 21;
-        rnum = 1;
-        break;
-
-    case 14:
-        wk->routine_no[2] = 18;
-        rnum = 1;
-        break;
-
-    case 26:
-        wk->routine_no[2] = 24;
-        rnum = 1;
-        break;
-
-    case 22:
-        wk->routine_no[2] = 22;
-        rnum = 1;
-        break;
-
-    case 16:
-        wk->routine_no[2] = 19;
-        rnum = 1;
-        break;
-
-    case 28:
-        wk->routine_no[2] = 25;
-        rnum = 1;
-        break;
-
-    case 24:
-        wk->routine_no[2] = 23;
-        rnum = 1;
-        break;
-
-    case 18:
-        wk->routine_no[2] = 20;
-        rnum = 1;
-        break;
-
-    case 30:
-        wk->routine_no[2] = 26;
-        rnum = 1;
-        break;
-    }
-
-    return rnum;
-}
-
-void check_ja_nmj_dummy_RTNM(PLW* wk) { // 🟢
-    if (wk->wu.xyz[1].disp.pos <= 0) {
-        wk->ja_nmj_rno = 0;
-        return;
-    }
-
-    switch (wk->ja_nmj_rno) {
-    case 0:
-        if ((wk->wu.cg_ja.atix != 0) || (wk->wu.cg_ja.caix != 0)) {
-            wk->ja_nmj_rno = 1;
-        }
-
-        break;
-
-    case 1:
-        if (((wk->wu.cg_ja.atix == 0) && (wk->wu.cg_ja.caix == 0)) || !wk->wu.att_hit_ok) {
-            wk->ja_nmj_cnt = get_cjdR(wk);
-            wk->ja_nmj_rno = 2;
-        }
-
-        break;
-
-    case 2:
-        if (((wk->wu.cg_ja.atix != 0) || (wk->wu.cg_ja.caix != 0)) && wk->wu.att_hit_ok) {
-            wk->ja_nmj_rno = 1;
-            break;
-        }
-
-        if (!--wk->ja_nmj_cnt) {
-            wk->ja_nmj_rno = 3;
-        }
-
-        break;
-
-    default:
-        if ((wk->wu.cg_ja.atix != 0) || (wk->wu.cg_ja.caix != 0)) {
-            if (wk->wu.att_hit_ok) {
-                wk->ja_nmj_rno = 1;
-                break;
-            }
-        } else if (wk->wu.cg_type == 0) {
-            wk->wu.cg_type = 64;
-        }
-
-        break;
-    }
-}
-
-u8 get_cjdR(PLW* wk) { // 🟢
-    s16 w_ix = (wk->wu.kind_of_waza & 6);
-    w_ix += ((wk->wu.hf.hit.player & 0xA2) != 0);
-
-    if (wk->wu.att_hit_ok || (wk->wu.hf.hit.player == 0)) {
-        goto case0;
-    }
-
-    if (wk->wu.hf.hit.player & 3) {
-        goto case1;
-    }
-
-    if (wk->wu.hf.hit.player & 0xC0) {
-        goto case2;
-    }
-
-    if (wk->wu.hf.hit.player & 0x30) {
-        goto case3;
-    }
-
-case0:
-    return cjdr_karaburi_table[wk->player_number][w_ix];
-
-case1:
-    return cjdr_hits_table[wk->player_number][w_ix];
-
-case2:
-    return cjdr_blocking_table[wk->player_number][w_ix];
-
-case3:
-    return cjdr_defense_table[wk->player_number][w_ix];
-}
 
 void Attack_04000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        hoken_muriyari_chakuchi(wk);
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        setup_lvdir_after_autodir(wk);
-        get_cancel_timer(wk);
-        set_char_move_init(&wk->wu, 4, wk->as->char_ix);
+        begin_ground_attack(wk);
         break;
 
     case 1:
@@ -463,6 +348,16 @@ void Attack_06000(PLW* wk) { // 🟢
     Attack_07000(wk);
 }
 
+/* The animation's 20 marker hands the move its buffered facing back. Four arms
+ * across Attack_07000 and Attack_09000 said this identically; in the two that
+ * ended with a `break` there was nothing between it and the arm's own break. */
+static void face_waza_direction_on_marker(PLW* wk) {
+    if (wk->wu.cg_type == 20) {
+        wk->wu.cg_type = 0;
+        wk->wu.rl_flag = wk->wu.rl_waza;
+    }
+}
+
 void Attack_07000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -471,49 +366,57 @@ void Attack_07000(PLW* wk) { // 🟢
         get_cancel_timer(wk);
         set_char_move_init(&wk->wu, 5, wk->as->char_ix);
 
-        if (wk->wu.cg_type == 20) {
-            wk->wu.cg_type = 0;
-            wk->wu.rl_flag = wk->wu.rl_waza;
-            break;
-        }
-
+        face_waza_direction_on_marker(wk);
         break;
 
     case 1:
         char_move(&wk->wu);
 
-        if (wk->wu.cg_type == 20) {
-            wk->wu.cg_type = 0;
-            wk->wu.rl_flag = wk->wu.rl_waza;
-        }
+        face_waza_direction_on_marker(wk);
 
         break;
     }
 }
 
-void Attack_08000(PLW* wk) { // 🟢
+/* The opening frame of the multi-step air attack. Started from the ground it
+ * picks its movement row from the pattern status, capped at row 10. */
+static void begin_stepped_air_attack(PLW* wk) {
     s16 ixx;
 
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
+    wk->wu.routine_no[3]++;
 
-        if (wk->wu.xyz[1].disp.pos <= 0) {
-            wk->wu.rl_flag = wk->wu.rl_waza;
-            wk->wu.xyz[1].disp.pos = 0;
+    if (wk->wu.xyz[1].disp.pos <= 0) {
+        wk->wu.rl_flag = wk->wu.rl_waza;
+        wk->wu.xyz[1].disp.pos = 0;
 
-            ixx = ((wk->wu.pat_status - 20) / 2 & 3) + 9;
+        ixx = ((wk->wu.pat_status - 20) / 2 & 3) + 9;
 
-            if (ixx > 11) {
-                ixx = 10;
-            }
-
-            setup_mvxy_data(&wk->wu, ixx);
+        if (ixx > 11) {
+            ixx = 10;
         }
 
-        get_cancel_timer(wk);
-        set_char_move_init(&wk->wu, 4, (s16)((wk->as->char_ix)));
-        wk->wu.mvxy.index = wk->as->data_ix;
+        setup_mvxy_data(&wk->wu, ixx);
+    }
+
+    get_cancel_timer(wk);
+    set_char_move_init(&wk->wu, 4, (s16)((wk->as->char_ix)));
+    wk->wu.mvxy.index = wk->as->data_ix;
+}
+
+/* Each 20 marker in the airborne arm folds the next movement row in and steps
+ * the index on. The arm's `break` left the switch with nothing after it. */
+static void advance_stepped_air_attack(PLW* wk) {
+    if ((wk->wu.routine_no[3] != 3) && (wk->wu.cg_type == 20)) {
+        add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.cg_type = 0;
+        wk->wu.mvxy.index++;
+    }
+}
+
+void Attack_08000(PLW* wk) { // 🟢
+    switch (wk->wu.routine_no[3]) {
+    case 0:
+        begin_stepped_air_attack(wk);
         break;
 
     case 1:
@@ -534,14 +437,7 @@ void Attack_08000(PLW* wk) { // 🟢
 
     case 2:
         jumping_union_process(&wk->wu, 3);
-
-        if ((wk->wu.routine_no[3] != 3) && (wk->wu.cg_type == 20)) {
-            add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.cg_type = 0;
-            wk->wu.mvxy.index++;
-            break;
-        }
-
+        advance_stepped_air_attack(wk);
         break;
 
     case 3:
@@ -559,29 +455,15 @@ void Attack_09000(PLW* wk) { // 🟢
         set_char_move_init(&wk->wu, 5, wk->as->char_ix);
         setup_mvxy_data(&wk->wu, wk->as->data_ix);
 
-        if (wk->wu.cg_type == 20) {
-            wk->wu.cg_type = 0;
-            wk->wu.rl_flag = wk->wu.rl_waza;
-            break;
-        }
-
+        face_waza_direction_on_marker(wk);
         break;
 
     case 1:
         char_move(&wk->wu);
 
-        if (wk->wu.cg_type == 20) {
-            wk->wu.cg_type = 0;
-            wk->wu.rl_flag = wk->wu.rl_waza;
-        }
+        face_waza_direction_on_marker(wk);
 
-        if (wk->wu.cg_type == 1) {
-            add_mvxy_speed(&wk->wu);
-            wk->wu.routine_no[3] = 2;
-            wk->wu.cg_type = 0;
-            break;
-        }
-
+        launch_on_mvxy_marker(wk);
         break;
 
     case 2:
@@ -589,6 +471,59 @@ void Attack_09000(PLW* wk) { // 🟢
         break;
 
     case 3:
+        char_move(&wk->wu);
+        break;
+    }
+}
+
+/* Whatever the leap attack ran into decides how its horizontal speed is cut and
+ * which of the two landing states it drops to. Each arm's `break` left the
+ * switch immediately, so a return is the same exit. */
+static void deflect_leap_attack_on_contact(PLW* wk) {
+    if (!((wk->wu.routine_no[3] != 4) && wk->wu.hf.hit.player)) {
+        return;
+    }
+
+    if ((wk->wu.hf.hit.player & 3) != 0) {
+        wk->wu.mvxy.a[0].sp /= 4;
+        wk->wu.routine_no[3] = 4;
+        return;
+    }
+
+    if ((wk->wu.hf.hit.player & 0x30) != 0) {
+        wk->wu.mvxy.a[0].sp /= 4;
+        wk->wu.mvxy.a[1].sp = 0;
+        wk->wu.routine_no[3] = 3;
+        return;
+    }
+
+    if ((wk->wu.hf.hit.player & 0xC0) != 0) {
+        wk->wu.mvxy.a[0].sp /= 2;
+        wk->wu.mvxy.a[0].sp = -wk->wu.mvxy.a[0].sp;
+        wk->wu.mvxy.a[1].sp = 0;
+        wk->wu.routine_no[3] = 4;
+    }
+}
+
+/* The recovery half of the leap attack, from the direction hold onwards. The case
+ * labels are the original ones and the arms keep their order, so states 3, 4 and
+ * 5 still read as those numbers; a value outside them did nothing before and
+ * still does nothing. */
+static void leap_attack_recover(PLW* wk) {
+    switch (wk->wu.routine_no[3]) {
+    case 3:
+        if (--wk->wu.dir_timer > 0) {
+            break;
+        }
+
+        wk->wu.routine_no[3] = 4;
+        /* fallthrough */
+
+    case 4:
+        jumping_union_process(&wk->wu, 5);
+        break;
+
+    case 5:
         char_move(&wk->wu);
         break;
     }
@@ -624,46 +559,20 @@ void Attack_10000(PLW* wk) { // 🟢
 
     case 2:
         jumping_union_process(&wk->wu, 4);
-
-        if ((wk->wu.routine_no[3] != 4) && wk->wu.hf.hit.player) {
-            if ((wk->wu.hf.hit.player & 3) != 0) {
-                wk->wu.mvxy.a[0].sp /= 4;
-                wk->wu.routine_no[3] = 4;
-                break;
-            }
-
-            if ((wk->wu.hf.hit.player & 0x30) != 0) {
-                wk->wu.mvxy.a[0].sp /= 4;
-                wk->wu.mvxy.a[1].sp = 0;
-                wk->wu.routine_no[3] = 3;
-                break;
-            }
-
-            if ((wk->wu.hf.hit.player & 0xC0) != 0) {
-                wk->wu.mvxy.a[0].sp /= 2;
-                wk->wu.mvxy.a[0].sp = -wk->wu.mvxy.a[0].sp;
-                wk->wu.mvxy.a[1].sp = 0;
-                wk->wu.routine_no[3] = 4;
-            }
-        }
-
+        deflect_leap_attack_on_contact(wk);
         break;
 
-    case 3:
-        if (--wk->wu.dir_timer > 0) {
-            break;
-        }
-
-        wk->wu.routine_no[3] = 4;
-        /* fallthrough */
-
-    case 4:
-        jumping_union_process(&wk->wu, 5);
+    default:
+        leap_attack_recover(wk);
         break;
+    }
+}
 
-    case 5:
-        char_move(&wk->wu);
-        break;
+/* While the cat-break timer is still open the break stays reserved. Three arms
+ * across Attack_14000 and Attack_15000 said this the same way. */
+static void reserve_cat_break_if_open(PLW* wk) {
+    if (wk->cat_break_ok_timer) {
+        wk->cat_break_reserve = 1;
     }
 }
 
@@ -684,47 +593,56 @@ void Attack_14000(PLW* wk) { // 🟡
         char_move(&wk->wu);
 
         if (ArcadeBalance_IsEnabled()) {
-            if (wk->cat_break_ok_timer) {
-                wk->cat_break_reserve = 1;
-            }
+            reserve_cat_break_if_open(wk);
         }
 
         break;
     }
 
     if (!ArcadeBalance_IsEnabled()) {
-        if (wk->cat_break_ok_timer) {
-            wk->cat_break_reserve = 1;
-        }
+        reserve_cat_break_if_open(wk);
+    }
+}
+
+/* The opening frame of the cat-break attack: land if it started on the ground,
+ * open the break window, start the animation. */
+static void begin_cat_break_attack(PLW* wk) {
+    wk->wu.routine_no[3]++;
+
+    if (wk->wu.xyz[1].disp.pos <= 0) {
+        wk->wu.rl_flag = wk->wu.rl_waza;
+        setup_lvdir_after_autodir(wk);
+        wk->wu.xyz[1].disp.pos = 0;
+        Normal_18000_init_unit(wk, wk->wu.pat_status);
+    }
+
+    wk->cat_break_ok_timer = 6;
+    set_char_move_init(&wk->wu, 4, wk->as->char_ix);
+
+    if (!ArcadeBalance_IsEnabled() && wk->cat_break_ok_timer) {
+        // The port reserves cat-break on the initialization frame; CPS3 starts checking next frame.
+        wk->cat_break_reserve = 1;
+    }
+}
+
+/* The airborne arm's own reserve, which also requires the jump not to have
+ * finished. That second term is why it cannot share reserve_cat_break_if_open.
+ * Its `break` left the switch with nothing after it, so a return is the same
+ * exit. */
+static void reserve_cat_break_while_airborne(PLW* wk) {
+    if ((wk->wu.routine_no[3] != 3) && wk->cat_break_ok_timer) {
+        wk->cat_break_reserve = 1;
     }
 }
 
 void Attack_15000(PLW* wk) { // 🟡
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-
-        if (wk->wu.xyz[1].disp.pos <= 0) {
-            wk->wu.rl_flag = wk->wu.rl_waza;
-            setup_lvdir_after_autodir(wk);
-            wk->wu.xyz[1].disp.pos = 0;
-            Normal_18000_init_unit(wk, wk->wu.pat_status);
-        }
-
-        wk->cat_break_ok_timer = 6;
-        set_char_move_init(&wk->wu, 4, wk->as->char_ix);
-
-        if (!ArcadeBalance_IsEnabled() && wk->cat_break_ok_timer) {
-            // The port reserves cat-break on the initialization frame; CPS3 starts checking next frame.
-            wk->cat_break_reserve = 1;
-        }
-
+        begin_cat_break_attack(wk);
         break;
 
     case 1:
-        if (wk->cat_break_ok_timer) {
-            wk->cat_break_reserve = 1;
-        }
+        reserve_cat_break_if_open(wk);
 
         if ((wk->wu.mvxy.a[1].sp > 0) && (wk->wu.xyz[1].disp.pos < 0)) {
             add_mvxy_speed(&wk->wu);
@@ -736,12 +654,7 @@ void Attack_15000(PLW* wk) { // 🟡
 
     case 2:
         jumping_union_process(&wk->wu, 3);
-
-        if ((wk->wu.routine_no[3] != 3) && wk->cat_break_ok_timer) {
-            wk->cat_break_reserve = 1;
-            break;
-        }
-
+        reserve_cat_break_while_airborne(wk);
         break;
 
     case 3:
@@ -779,40 +692,3 @@ void (*const plxx_extra_attack_table[])() = {
     pl10_extra_attack, pl11_extra_attack, pl12_extra_attack, pl13_extra_attack, pl14_extra_attack,
     pl16_extra_attack, pl17_extra_attack, pl18_extra_attack, pl19_extra_attack, pl20_extra_attack
 };
-
-const u8 cjdr_karaburi_type3[8] = { 255, 255, 255, 255, 255, 255, 255, 255 };
-
-const u8* cjdr_karaburi_table[20] = {
-    cjdr_karaburi_type3, cjdr_karaburi_type3, cjdr_karaburi_type3, cjdr_karaburi_type3, cjdr_karaburi_type3,
-    cjdr_karaburi_type3, cjdr_karaburi_type3, cjdr_karaburi_type3, cjdr_karaburi_type3, cjdr_karaburi_type3,
-    cjdr_karaburi_type3, cjdr_karaburi_type3, cjdr_karaburi_type3, cjdr_karaburi_type3, cjdr_karaburi_type3,
-    cjdr_karaburi_type3, cjdr_karaburi_type3, cjdr_karaburi_type3, cjdr_karaburi_type3, cjdr_karaburi_type3
-};
-
-const u8 cjdr_hits_type3[8] = { 255, 255, 255, 255, 255, 255, 255, 255 };
-
-const u8* cjdr_hits_table[20] = {
-    cjdr_hits_type3, cjdr_hits_type3, cjdr_hits_type3, cjdr_hits_type3, cjdr_hits_type3,
-    cjdr_hits_type3, cjdr_hits_type3, cjdr_hits_type3, cjdr_hits_type3, cjdr_hits_type3,
-    cjdr_hits_type3, cjdr_hits_type3, cjdr_hits_type3, cjdr_hits_type3, cjdr_hits_type3,
-    cjdr_hits_type3, cjdr_hits_type3, cjdr_hits_type3, cjdr_hits_type3, cjdr_hits_type3,
-};
-
-const u8 cjdr_blocking_type0[8] = { 16, 7, 18, 9, 20, 11, 20, 11 };
-const u8 cjdr_blocking_type1[8] = { 17, 8, 19, 10, 21, 12, 21, 12 };
-const u8 cjdr_blocking_type2[8] = { 18, 9, 20, 11, 22, 13, 22, 13 };
-
-const u8* cjdr_blocking_table[20] = {
-    cjdr_blocking_type0, cjdr_blocking_type1, cjdr_blocking_type1, cjdr_blocking_type1, cjdr_blocking_type0,
-    cjdr_blocking_type2, cjdr_blocking_type1, cjdr_blocking_type0, cjdr_blocking_type1, cjdr_blocking_type1,
-    cjdr_blocking_type1, cjdr_blocking_type0, cjdr_blocking_type1, cjdr_blocking_type2, cjdr_blocking_type0,
-    cjdr_blocking_type1, cjdr_blocking_type1, cjdr_blocking_type1, cjdr_blocking_type2, cjdr_blocking_type1
-};
-
-const u8 cjdr_defense_type3[8] = { 255, 255, 255, 255, 255, 255, 255, 255 };
-
-const u8* cjdr_defense_table[20] = { cjdr_defense_type3, cjdr_defense_type3, cjdr_defense_type3, cjdr_defense_type3,
-                                     cjdr_defense_type3, cjdr_defense_type3, cjdr_defense_type3, cjdr_defense_type3,
-                                     cjdr_defense_type3, cjdr_defense_type3, cjdr_defense_type3, cjdr_defense_type3,
-                                     cjdr_defense_type3, cjdr_defense_type3, cjdr_defense_type3, cjdr_defense_type3,
-                                     cjdr_defense_type3, cjdr_defense_type3, cjdr_defense_type3, cjdr_defense_type3 };

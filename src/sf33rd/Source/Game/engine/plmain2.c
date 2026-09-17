@@ -159,6 +159,18 @@ void player_mvbs_0000(PLW* wk) {
     }
 }
 
+/* The bonus game's target is not a player: it starts in its own state, at its
+ * own place on the stage. */
+static void place_bonus_game_target(PLW* wk) {
+    if ((wk->wu.operator == 0) && (Bonus_Game_Flag == 20)) {
+        wk->wu.routine_no[1] = 0;
+        wk->wu.routine_no[2] = 51;
+        wk->wu.routine_no[3] = 0;
+        wk->wu.xyz[0].disp.pos = 468;
+        wk->wu.xyz[1].disp.pos = 0;
+    }
+}
+
 void player_mvbs_1000(PLW* wk) {
     switch (appear_type) {
     case APPEAR_TYPE_NON_ANIMATED:
@@ -187,14 +199,7 @@ void player_mvbs_1000(PLW* wk) {
         break;
     }
 
-    if ((wk->wu.operator == 0) && (Bonus_Game_Flag == 20)) {
-        wk->wu.routine_no[1] = 0;
-        wk->wu.routine_no[2] = 51;
-        wk->wu.routine_no[3] = 0;
-        wk->wu.xyz[0].disp.pos = 468;
-        wk->wu.xyz[1].disp.pos = 0;
-    }
-
+    place_bonus_game_target(wk);
     Player_normal(wk);
 }
 

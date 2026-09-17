@@ -56,6 +56,32 @@ void Att_PL07_SA2(PLW* wk) {
     }
 }
 
+/* The travelling frames: marker 20 takes the next row, 21 resets it, 30 ends the
+ * travel. */
+static void pl07_at1_travel(PLW* wk) {
+    char_move(&wk->wu);
+    cal_mvxy_speed(&wk->wu);
+    add_mvxy_speed(&wk->wu);
+
+    switch (wk->wu.cg_type) {
+    case 20:
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+        break;
+
+    case 21:
+        reset_mvxy_data(&wk->wu);
+        wk->wu.cg_type = 0;
+        break;
+
+    case 30:
+        wk->wu.routine_no[3] = 2;
+        wk->wu.cg_type = 0;
+        break;
+    }
+}
+
 void Att_PL07_AT1(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -68,28 +94,7 @@ void Att_PL07_AT1(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-        cal_mvxy_speed(&wk->wu);
-        add_mvxy_speed(&wk->wu);
-
-        switch (wk->wu.cg_type) {
-        case 20:
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-            break;
-
-        case 21:
-            reset_mvxy_data(&wk->wu);
-            wk->wu.cg_type = 0;
-            break;
-
-        case 30:
-            wk->wu.routine_no[3] = 2;
-            wk->wu.cg_type = 0;
-            break;
-        }
-
+        pl07_at1_travel(wk);
         break;
     case 2:
         char_move(&wk->wu);
@@ -207,6 +212,43 @@ void Att_PL07_SA3(PLW* wk) {
     }
 }
 
+/* The taunt's gauge and row markers. */
+static void pl07_taunt_markers(PLW* wk) {
+    if (wk->wu.cg_type == 40) {
+        wk->wu.cg_type = 0;
+        add_sp_arts_gauge_tokushu(wk);
+    }
+
+    if (wk->wu.cg_type == 20) {
+        wk->wu.cg_type = 0;
+        wk->wu.mvxy.index++;
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+    }
+}
+
+/* The taunt's payoff: marker 30 adds fourteen to both bonuses, each capped at
+ * 28 - and the caps are applied every frame, not only on the marker, which is
+ * how the original read. */
+static void pl07_taunt_bonus(PLW* wk) {
+    if (wk->wu.cg_type == 30) {
+        wk->wu.cg_type = 0;
+        wk->tk_dageki += 14;
+        wk->tk_nage += 14;
+    }
+
+    if (wk->tk_dageki > 28) {
+        wk->tk_dageki = 28;
+    }
+
+    if (wk->tk_nage > 28) {
+        wk->tk_nage = 28;
+    }
+
+    if (wk->wu.cg_type == 64) {
+        grade_add_personal_action(wk->wu.id);
+    }
+}
+
 void Att_PL07_TOKUSHUKOUDOU(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -232,18 +274,7 @@ void Att_PL07_TOKUSHUKOUDOU(PLW* wk) {
 
     case 2:
         jumping_union_process(&wk->wu, 3);
-
-        if (wk->wu.cg_type == 40) {
-            wk->wu.cg_type = 0;
-            add_sp_arts_gauge_tokushu(wk);
-        }
-
-        if (wk->wu.cg_type == 20) {
-            wk->wu.cg_type = 0;
-            wk->wu.mvxy.index++;
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-        }
-
+        pl07_taunt_markers(wk);
         break;
 
     case 3:
@@ -252,25 +283,7 @@ void Att_PL07_TOKUSHUKOUDOU(PLW* wk) {
 
     case 4:
         jumping_union_process(&wk->wu, 3);
-
-        if (wk->wu.cg_type == 30) {
-            wk->wu.cg_type = 0;
-            wk->tk_dageki += 14;
-            wk->tk_nage += 14;
-        }
-
-        if (wk->tk_dageki > 28) {
-            wk->tk_dageki = 28;
-        }
-
-        if (wk->tk_nage > 28) {
-            wk->tk_nage = 28;
-        }
-
-        if (wk->wu.cg_type == 64) {
-            grade_add_personal_action(wk->wu.id);
-        }
-
+        pl07_taunt_bonus(wk);
         break;
     }
 }

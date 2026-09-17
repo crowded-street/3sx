@@ -17,6 +17,49 @@ void pl16_extra_attack(PLW* wk) {
     pl16_exatt_table[wk->wu.routine_no[2] - 16](wk);
 }
 
+/* The taunt's markers: 30 and 50 each raise a bonus to a floor rather than by an
+ * amount, 40 pays the super-art gauge, and 64 ends the taunt, grades it and slows
+ * the stun recovery up to three times. */
+static void pl16_taunt_markers(PLW* wk) {
+    char_move(&wk->wu);
+
+    switch (wk->wu.cg_type) {
+    case 30:
+        wk->wu.cg_type = 0;
+
+        if (wk->tk_konjyou == 0) {
+            wk->tk_konjyou = 6;
+        }
+
+        break;
+
+    case 40:
+        wk->wu.cg_type = 0;
+        add_sp_arts_gauge_tokushu(wk);
+        break;
+
+    case 50:
+        wk->wu.cg_type = 0;
+
+        if (wk->tk_dageki < 10) {
+            wk->tk_dageki = 10;
+        }
+
+        break;
+
+    case 64:
+        grade_add_personal_action(wk->wu.id);
+        wk->wu.routine_no[3]++;
+
+        if (wk->tk_success < 3) {
+            wk->tk_success++;
+            wk->py->recover = (wk->py->recover * 110) / 100;
+        }
+
+        break;
+    }
+}
+
 void Att_PL16_TOKUSHUKOUDOU(PLW* wk) {
     wk->scr_pos_set_flag = 0;
 
@@ -29,44 +72,7 @@ void Att_PL16_TOKUSHUKOUDOU(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-
-        switch (wk->wu.cg_type) {
-        case 30:
-            wk->wu.cg_type = 0;
-
-            if (wk->tk_konjyou == 0) {
-                wk->tk_konjyou = 6;
-            }
-
-            break;
-
-        case 40:
-            wk->wu.cg_type = 0;
-            add_sp_arts_gauge_tokushu(wk);
-            break;
-
-        case 50:
-            wk->wu.cg_type = 0;
-
-            if (wk->tk_dageki < 10) {
-                wk->tk_dageki = 10;
-            }
-
-            break;
-
-        case 64:
-            grade_add_personal_action(wk->wu.id);
-            wk->wu.routine_no[3]++;
-
-            if (wk->tk_success < 3) {
-                wk->tk_success++;
-                wk->py->recover = (wk->py->recover * 110) / 100;
-            }
-
-            break;
-        }
-
+        pl16_taunt_markers(wk);
         break;
 
     default:

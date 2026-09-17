@@ -21,9 +21,48 @@ void pl08_extra_attack(PLW* wk) {
     pl08_exatt_table[wk->wu.routine_no[2] - 16](wk);
 }
 
-void Att_PL08_HEALING(PLW* wk) {
+/* Holding a punch or kick while healing cancels it. */
+static void cancel_healing_on_attack(PLW* wk) {
     u16 cpsw;
 
+    if (wk->wu.cmwk[0]) {
+        cpsw = (wk->cp->sw_now & 0x770);
+        cpsw >>= 4;
+
+        if (pl08_hcs_tbl[cpsw & 7] || pl08_hcs_tbl[(cpsw >> 4) & 7]) {
+            wk->wu.cmwk[0] = 0;
+            char_move_cmms(&wk->wu);
+        }
+    }
+}
+
+/* Each healing marker restores its own amount, and the total is capped at the
+ * player's own vitality. The cap runs whether or not the debug flag suppressed
+ * the restore, as it did before. */
+static void restore_vitality_on_marker(PLW* wk) {
+    if (!pcon_dp_flag) {
+        switch (wk->wu.cg_type) {
+        case 24:
+            wk->wu.vital_new += 3;
+            break;
+
+        case 22:
+            wk->wu.vital_new += 2;
+            break;
+
+        case 20:
+            wk->wu.vital_new += 1;
+            break;
+        }
+    }
+
+    if (wk->wu.vital_new > wk->wu.vitality) {
+        wk->wu.vital_new = wk->wu.vitality;
+        wk->sa_healing = 1;
+    }
+}
+
+void Att_PL08_HEALING(PLW* wk) {
     wk->scr_pos_set_flag = 0;
 
     switch (wk->wu.routine_no[3]) {
@@ -35,39 +74,30 @@ void Att_PL08_HEALING(PLW* wk) {
 
     case 1:
         char_move(&wk->wu);
-
-        if (wk->wu.cmwk[0]) {
-            cpsw = (wk->cp->sw_now & 0x770);
-            cpsw >>= 4;
-
-            if (pl08_hcs_tbl[cpsw & 7] || pl08_hcs_tbl[(cpsw >> 4) & 7]) {
-                wk->wu.cmwk[0] = 0;
-                char_move_cmms(&wk->wu);
-            }
-        }
-
-        if (!pcon_dp_flag) {
-            switch (wk->wu.cg_type) {
-            case 24:
-                wk->wu.vital_new += 3;
-                break;
-
-            case 22:
-                wk->wu.vital_new += 2;
-                break;
-
-            case 20:
-                wk->wu.vital_new += 1;
-                break;
-            }
-        }
-
-        if (wk->wu.vital_new > wk->wu.vitality) {
-            wk->wu.vital_new = wk->wu.vitality;
-            wk->sa_healing = 1;
-        }
-
+        cancel_healing_on_attack(wk);
+        restore_vitality_on_marker(wk);
         break;
+    }
+}
+
+/* The taunt's markers: 40 pays the super-art gauge, 64 adds six to the stun bonus
+ * against a ceiling of 24 and grades the personal action. */
+static void pl08_taunt_markers(PLW* wk) {
+    char_move(&wk->wu);
+    if (wk->wu.cg_type == 40) {
+        wk->wu.cg_type = 0;
+        add_sp_arts_gauge_tokushu(wk);
+    }
+
+    if (wk->wu.cg_type == 64) {
+        wk->wu.routine_no[3]++;
+        wk->tk_kizetsu += 6;
+
+        if (wk->tk_kizetsu > 24) {
+            wk->tk_kizetsu = 24;
+        }
+
+        grade_add_personal_action(wk->wu.id);
     }
 }
 
@@ -83,23 +113,7 @@ void Att_PL08_TOKUSHUKOUDOU(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-        if (wk->wu.cg_type == 40) {
-            wk->wu.cg_type = 0;
-            add_sp_arts_gauge_tokushu(wk);
-        }
-
-        if (wk->wu.cg_type == 64) {
-            wk->wu.routine_no[3]++;
-            wk->tk_kizetsu += 6;
-
-            if (wk->tk_kizetsu > 24) {
-                wk->tk_kizetsu = 24;
-            }
-
-            grade_add_personal_action(wk->wu.id);
-        }
-
+        pl08_taunt_markers(wk);
         break;
 
     default:

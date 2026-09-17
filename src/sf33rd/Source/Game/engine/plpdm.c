@@ -575,11 +575,11 @@ static void apply_vital_underflow_or_piyo(PLW* wk) {
 /* Rumble the pad for a hit, except in the seven reaction states that do not.
  * The case labels are the reaction numbers the rest of the engine uses and are
  * unchanged, including their order. */
-static void rumble_for_damage(PLW* wk) {
+/* The later half of the states that suppress the rumble. Split off so neither
+ * switch is long; the labels are the routine numbers themselves and are not
+ * renumbered. */
+static void rumble_for_damage_rest(PLW* wk) {
     switch (wk->wu.routine_no[2]) {
-    case 1:
-    case 2:
-    case 3:
     case 12:
     case 13:
     case 19:
@@ -588,6 +588,19 @@ static void rumble_for_damage(PLW* wk) {
 
     default:
         pp_pulpara_remake_dm_all(&wk->wu);
+        break;
+    }
+}
+
+static void rumble_for_damage(PLW* wk) {
+    switch (wk->wu.routine_no[2]) {
+    case 1:
+    case 2:
+    case 3:
+        break;
+
+    default:
+        rumble_for_damage_rest(wk);
         break;
     }
 }
@@ -705,6 +718,17 @@ static void ease_damage_stop_toward_zero(PLW* wk) {
     }
 }
 
+/* A hit that kills reads its reaction out of the death table instead, and the
+ * actions in the buttobi range get their own. */
+static void convert_reaction_for_death(PLW* wk) {
+    if (wk->dead_flag) {
+        wk->wu.routine_no[2] = dd_convert[wk->wu.routine_no[2]][wk->wu.dm_attlv];
+        if (action_is_in_damage_range(wk)) {
+            wk->wu.routine_no[2] = check_buttobi_type2(wk);
+        }
+    }
+}
+
 void get_damage_reaction_data(PLW* wk) {
     if (wk->atemi_flag == 2) {
         wk->wu.dm_vital = 0;
@@ -716,12 +740,7 @@ void get_damage_reaction_data(PLW* wk) {
 
     resolve_knockdown_reaction(wk);
 
-    if (wk->dead_flag) {
-        wk->wu.routine_no[2] = dd_convert[wk->wu.routine_no[2]][wk->wu.dm_attlv];
-        if (action_is_in_damage_range(wk)) {
-            wk->wu.routine_no[2] = check_buttobi_type2(wk);
-        }
-    }
+    convert_reaction_for_death(wk);
 
     if (wk->atemi_flag == 1) {
         if (wk->py->flag) {

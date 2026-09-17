@@ -516,6 +516,71 @@ static s32 select_standing_nm_attack(PLW* wk, s16 kos) {
     return 1;
 }
 
+/* Every crouching and jumping stance starts its normal the same way: the
+ * too-low test first, then the selector for that stance's family at that
+ * stance's level. Only the call differs, and each stance writes its own. */
+static s32 start_nm_attack(PLW* wk, s16 kos, s16 level, void (*select)(PLW*, s16, s16)) {
+    if (is_blocked_by_hikusugi(wk)) {
+        return 0;
+    }
+
+    select(wk, kos, level);
+    return 1;
+}
+
+/* The jumping stances and the standing fallback, split off so neither half of
+ * the stance dispatch is long. The case labels are the ones decode_wst_data
+ * writes into pat_status; they are not renumbered. */
+static s32 begin_jumping_nm_attack(PLW* wk, s16 kos) {
+    switch (wk->wu.pat_status) {
+    case 24:
+        return start_nm_attack(wk, kos, 4, select_nm_attack_level_4010);
+
+    case 18:
+        return start_nm_attack(wk, kos, 7, select_nm_attack_level_4010);
+
+    case 30:
+        return start_nm_attack(wk, kos, 10, select_nm_attack_level_4010);
+
+    default:
+        if (!select_standing_nm_attack(wk, kos)) {
+            return 0;
+        }
+
+        break;
+    }
+
+    return 1;
+}
+
+/* Which normal attack the current stance starts, and whether one starts at
+ * all: every crouching and jumping stance is blocked by the same too-low
+ * test first, and the standing case answers for itself. */
+static s32 begin_nm_attack(PLW* wk, s16 kos) {
+    switch (wk->wu.pat_status) {
+    case 20:
+        return start_nm_attack(wk, kos, 3, select_nm_attack_level_3010);
+
+    case 14:
+        return start_nm_attack(wk, kos, 6, select_nm_attack_level_3010);
+
+    case 26:
+        return start_nm_attack(wk, kos, 9, select_nm_attack_level_3010);
+
+    case 22:
+        return start_nm_attack(wk, kos, 2, select_nm_attack_level_2010);
+
+    case 16:
+        return start_nm_attack(wk, kos, 5, select_nm_attack_level_2010);
+
+    case 28:
+        return start_nm_attack(wk, kos, 8, select_nm_attack_level_2010);
+
+    default:
+        return begin_jumping_nm_attack(wk, kos);
+    }
+}
+
 s32 check_nm_attack(PLW* wk) { // 🟡
     s16 kos;
 
@@ -525,85 +590,8 @@ s32 check_nm_attack(PLW* wk) { // 🟡
         return 0;
     }
 
-    switch (wk->wu.pat_status) {
-    case 20:
-        if (is_blocked_by_hikusugi(wk)) {
-            return 0;
-        }
-
-        select_nm_attack_level_3010(wk, kos, 3);
-        break;
-
-    case 14:
-        if (is_blocked_by_hikusugi(wk)) {
-            return 0;
-        }
-
-        select_nm_attack_level_3010(wk, kos, 6);
-        break;
-
-    case 26:
-        if (is_blocked_by_hikusugi(wk)) {
-            return 0;
-        }
-
-        select_nm_attack_level_3010(wk, kos, 9);
-        break;
-
-    case 22:
-        if (is_blocked_by_hikusugi(wk)) {
-            return 0;
-        }
-
-        select_nm_attack_level_2010(wk, kos, 2);
-        break;
-
-    case 16:
-        if (is_blocked_by_hikusugi(wk)) {
-            return 0;
-        }
-
-        select_nm_attack_level_2010(wk, kos, 5);
-        break;
-
-    case 28:
-        if (is_blocked_by_hikusugi(wk)) {
-            return 0;
-        }
-
-        select_nm_attack_level_2010(wk, kos, 8);
-        break;
-
-    case 24:
-        if (is_blocked_by_hikusugi(wk)) {
-            return 0;
-        }
-
-        select_nm_attack_level_4010(wk, kos, 4);
-        break;
-
-    case 18:
-        if (is_blocked_by_hikusugi(wk)) {
-            return 0;
-        }
-
-        select_nm_attack_level_4010(wk, kos, 7);
-        break;
-
-    case 30:
-        if (is_blocked_by_hikusugi(wk)) {
-            return 0;
-        }
-
-        select_nm_attack_level_4010(wk, kos, 10);
-        break;
-
-    default:
-        if (!select_standing_nm_attack(wk, kos)) {
-            return 0;
-        }
-
-        break;
+    if (!begin_nm_attack(wk, kos)) {
+        return 0;
     }
 
     setup_comm_back(&wk->wu);

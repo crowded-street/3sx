@@ -95,22 +95,26 @@ static void step_one_combo_window(s8 i) {
     combo_window_trans(i);
 }
 
+/* The two players in order, doing the same thing to each. The two ascending
+ * passes below differ only in what that is. */
+static void for_each_player(void (*step)(s8)) {
+    s8 i;
+
+    for (i = 0; i < 2; i++) {
+        step(i);
+    }
+}
+
 static void step_both_combo_windows(void) {
     s8 i;
 
     if (Game_pause != 0) {
-        for (i = 0; i < 2; i++) {
-            combo_window_trans(i);
-        }
-
+        for_each_player(combo_window_trans);
         return;
     }
 
     if (Game_timer & 1) {
-        for (i = 0; i < 2; i++) {
-            step_one_combo_window(i);
-        }
-
+        for_each_player(step_one_combo_window);
         return;
     }
 

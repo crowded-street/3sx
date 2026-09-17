@@ -51,9 +51,9 @@ void nm_01000(PLW* wk) { // 🟡
     check_F_R_walk(wk);
 }
 
-/* The six attacks every path tries first, in this order: both full-gauge
- * attacks, the super art, the special, the taunt and the throw. */
-static bool run_attack_checks_before_leap(PLW* wk) {
+/* The three checks every attack path tries first: both full-gauge attacks and
+ * the super art. */
+static bool run_gauge_attack_checks(PLW* wk) {
     if (check_full_gauge_attack(wk, 0)) {
         return true;
     }
@@ -63,6 +63,16 @@ static bool run_attack_checks_before_leap(PLW* wk) {
     }
 
     if (check_super_arts_attack(wk)) {
+        return true;
+    }
+
+    return false;
+}
+
+/* The six attacks every path tries first, in this order: both full-gauge
+ * attacks, the super art, the special, the taunt and the throw. */
+static bool run_attack_checks_before_leap(PLW* wk) {
+    if (run_gauge_attack_checks(wk)) {
         return true;
     }
 
@@ -277,6 +287,28 @@ void nm_13000(PLW* wk) { // 🔵
     }
 }
 
+/* Which of the three landing states this jump goes to, taken from the
+ * direction the lever settled on. */
+static void enter_jump_from_16000(PLW* wk) {
+    check_jump_rl_dir(wk);
+
+    switch (wk->jpdir) {
+    case JUMP_DIR_FORWARD:
+        wk->wu.routine_no[2] = 21;
+        break;
+
+    case JUMP_DIR_BACKWARD:
+        wk->wu.routine_no[2] = 23;
+        break;
+
+    default:
+        wk->wu.routine_no[2] = 22;
+        break;
+    }
+
+    wk->wu.routine_no[3] = 0;
+}
+
 void nm_16000(PLW* wk) { // 🟢
     set_new_jpdir(wk);
 
@@ -286,38 +318,14 @@ void nm_16000(PLW* wk) { // 🟢
 
     switch (wk->wu.cg_type) {
     case 0xFF:
-        check_jump_rl_dir(wk);
-
-        switch (wk->jpdir) {
-        case JUMP_DIR_FORWARD:
-            wk->wu.routine_no[2] = 21;
-            break;
-
-        case JUMP_DIR_BACKWARD:
-            wk->wu.routine_no[2] = 23;
-            break;
-
-        default:
-            wk->wu.routine_no[2] = 22;
-            break;
-        }
-
-        wk->wu.routine_no[3] = 0;
+        enter_jump_from_16000(wk);
         break;
 
     case 1:
         break;
     }
 
-    if (check_full_gauge_attack(wk, 0)) {
-        return;
-    }
-
-    if (check_full_gauge_attack2(wk, 0)) {
-        return;
-    }
-
-    if (check_super_arts_attack(wk)) {
+    if (run_gauge_attack_checks(wk)) {
         return;
     }
 
@@ -332,6 +340,27 @@ void nm_16000(PLW* wk) { // 🟢
     check_leap_attack(wk);
 }
 
+/* The same choice from 17000, which lands in its own three states. */
+static void enter_jump_from_17000(PLW* wk) {
+    check_jump_rl_dir(wk);
+
+    switch (wk->jpdir) {
+    case JUMP_DIR_FORWARD:
+        wk->wu.routine_no[2] = 24;
+        break;
+
+    case JUMP_DIR_BACKWARD:
+        wk->wu.routine_no[2] = 26;
+        break;
+
+    default:
+        wk->wu.routine_no[2] = 25;
+        break;
+    }
+
+    wk->wu.routine_no[3] = 0;
+}
+
 void nm_17000(PLW* wk) { // 🟢 The only difference is DIP switch handling
     set_new_jpdir(wk);
 
@@ -340,35 +369,11 @@ void nm_17000(PLW* wk) { // 🟢 The only difference is DIP switch handling
     }
 
     if (wk->wu.cg_type == 0xFF) {
-        check_jump_rl_dir(wk);
-
-        switch (wk->jpdir) {
-        case JUMP_DIR_FORWARD:
-            wk->wu.routine_no[2] = 24;
-            break;
-
-        case JUMP_DIR_BACKWARD:
-            wk->wu.routine_no[2] = 26;
-            break;
-
-        default:
-            wk->wu.routine_no[2] = 25;
-            break;
-        }
-
-        wk->wu.routine_no[3] = 0;
+        enter_jump_from_17000(wk);
         return;
     }
 
-    if (check_full_gauge_attack(wk, 0)) {
-        return;
-    }
-
-    if (check_full_gauge_attack2(wk, 0)) {
-        return;
-    }
-
-    if (check_super_arts_attack(wk)) {
+    if (run_gauge_attack_checks(wk)) {
         return;
     }
 
@@ -943,15 +948,7 @@ void nm_51000(PLW* /* unused */) { // 🟢
 }
 
 void nm_52000(PLW* wk) { // 🟢
-    if (check_full_gauge_attack(wk, 0)) {
-        return;
-    }
-
-    if (check_full_gauge_attack2(wk, 0)) {
-        return;
-    }
-
-    if (check_super_arts_attack(wk)) {
+    if (run_gauge_attack_checks(wk)) {
         return;
     }
 

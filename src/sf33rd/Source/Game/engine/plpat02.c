@@ -19,10 +19,30 @@ void pl02_extra_attack(PLW* wk) {
     pl02_exatt_table[wk->wu.routine_no[2] - 16](wk);
 }
 
-void Att_DENJINHADOUKEN(PLW* wk) {
+/* On the charge frame, the animation is advanced once more per level of charge
+ * held - a fully charged Denjin skips five frames ahead. */
+static void advance_denjin_charge(PLW* wk) {
     s16 i;
     s16 lgix;
 
+    if (!(wk->wu.now_koc == 8 && wk->wu.char_index == 13)) {
+        return;
+    }
+
+    if (wk->cp->lgp > 13) {
+        lgix = 5;
+    } else {
+        lgix = lgix_table[wk->cp->lgp / 2];
+    }
+
+    if (lgix) {
+        for (i = 0; i < lgix; i++) {
+            char_move(&wk->wu);
+        }
+    }
+}
+
+void Att_DENJINHADOUKEN(PLW* wk) {
     wk->scr_pos_set_flag = 0;
 
     switch (wk->wu.routine_no[3]) {
@@ -35,22 +55,29 @@ void Att_DENJINHADOUKEN(PLW* wk) {
 
     case 1:
         char_move(&wk->wu);
-
-        if (wk->wu.now_koc == 8 && wk->wu.char_index == 13) {
-            if (wk->cp->lgp > 13) {
-                lgix = 5;
-            } else {
-                lgix = lgix_table[wk->cp->lgp / 2];
-            }
-
-            if (lgix) {
-                for (i = 0; i < lgix; i++) {
-                    char_move(&wk->wu);
-                }
-            }
-        }
-
+        advance_denjin_charge(wk);
         break;
+    }
+}
+
+/* The taunt's markers: 40 pays the super-art gauge, 64 ends it and slows the stun
+ * recovery, up to three times. */
+static void pl02_taunt_markers(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 40) {
+        wk->wu.cg_type = 0;
+        add_sp_arts_gauge_tokushu(wk);
+    }
+
+    if (wk->wu.cg_type == 64) {
+        wk->wu.routine_no[3]++;
+
+        if (wk->tk_success < 3) {
+            wk->tk_success++;
+            wk->py->recover = (wk->py->recover * 110) / 100;
+            grade_add_personal_action(wk->wu.id);
+        }
     }
 }
 
@@ -66,23 +93,7 @@ void Att_PL02_TOKUSHUKOUDOU(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 40) {
-            wk->wu.cg_type = 0;
-            add_sp_arts_gauge_tokushu(wk);
-        }
-
-        if (wk->wu.cg_type == 64) {
-            wk->wu.routine_no[3]++;
-
-            if (wk->tk_success < 3) {
-                wk->tk_success++;
-                wk->py->recover = (wk->py->recover * 110) / 100;
-                grade_add_personal_action(wk->wu.id);
-            }
-        }
-
+        pl02_taunt_markers(wk);
         break;
 
     default:

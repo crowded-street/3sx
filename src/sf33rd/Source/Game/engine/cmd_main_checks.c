@@ -1145,6 +1145,58 @@ void check_22() { // 🟢
     }
 }
 
+/* While the window is still open, the lever ends the step three ways: back
+ * to neutral advances, the down bit clears the flag and advances, and any
+ * other direction clears the flag and drops the command. Running out of
+ * window advances too. */
+static void watch_lever_during_window(void) {
+    waza_ptr->w_int -= 1;
+    waza_ptr->free3 -= 1;
+
+    if (((waza_ptr->w_int)) > 0) {
+        if (chk_pl->sw_lever == 0) {
+            waza_ptr->shot_ok++;
+            return;
+        }
+
+        if (chk_pl->sw_lever & 8) {
+            wcp[cmd_id].waza_flag[(waza_type[cmd_id])] = 0;
+            waza_ptr->shot_ok++;
+            return;
+        }
+
+        if (chk_pl->sw_lever != ((waza_ptr->w_lvr))) {
+            wcp[cmd_id].waza_flag[(waza_type[cmd_id])] = 0;
+            waza_ptr->w_type = 0;
+            return;
+        }
+    } else {
+        wcp[cmd_id].waza_flag[(waza_type[cmd_id])] = 0;
+        waza_ptr->shot_ok++;
+    }
+}
+
+/* Once the window has closed, the same lever readings are taken from
+ * sw_now instead, and the spare counter running out drops the command. */
+static void watch_lever_after_window(void) {
+    waza_ptr->free3--;
+
+    if (waza_ptr->free3 < 0) {
+        waza_ptr->w_type = 0;
+        return;
+    }
+
+    if ((chk_pl->sw_now & 8) || !(chk_pl->sw_now != waza_ptr->w_lvr)) {
+        wcp[cmd_id].waza_flag[waza_type[cmd_id]] = 0;
+        return;
+    }
+
+    if (chk_pl->sw_now & 0xF) {
+        wcp[cmd_id].waza_flag[waza_type[cmd_id]] = 0;
+        waza_ptr->w_type = 0;
+    }
+}
+
 void check_23() { // 🟢
     switch (waza_ptr->shot_ok) {
     case 0:
@@ -1166,51 +1218,11 @@ void check_23() { // 🟢
         break;
 
     case 2:
-        waza_ptr->w_int -= 1;
-        waza_ptr->free3 -= 1;
-
-        if (((waza_ptr->w_int)) > 0) {
-            if (chk_pl->sw_lever == 0) {
-                waza_ptr->shot_ok++;
-                break;
-            }
-
-            if (chk_pl->sw_lever & 8) {
-                wcp[cmd_id].waza_flag[(waza_type[cmd_id])] = 0;
-                waza_ptr->shot_ok++;
-                break;
-            }
-
-            if (chk_pl->sw_lever != ((waza_ptr->w_lvr))) {
-                wcp[cmd_id].waza_flag[(waza_type[cmd_id])] = 0;
-                waza_ptr->w_type = 0;
-                break;
-            }
-        } else {
-            wcp[cmd_id].waza_flag[(waza_type[cmd_id])] = 0;
-            waza_ptr->shot_ok++;
-        }
-
+        watch_lever_during_window();
         break;
 
     case 3:
-        waza_ptr->free3--;
-
-        if (waza_ptr->free3 < 0) {
-            waza_ptr->w_type = 0;
-            break;
-        }
-
-        if ((chk_pl->sw_now & 8) || !(chk_pl->sw_now != waza_ptr->w_lvr)) {
-            wcp[cmd_id].waza_flag[waza_type[cmd_id]] = 0;
-            break;
-        }
-
-        if (chk_pl->sw_now & 0xF) {
-            wcp[cmd_id].waza_flag[waza_type[cmd_id]] = 0;
-            waza_ptr->w_type = 0;
-        }
-
+        watch_lever_after_window();
         break;
     }
 }
