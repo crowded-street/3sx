@@ -412,6 +412,15 @@ static s8 Debug_Bonus_Type() {
 }
 #endif
 
+/* The later bonus stage, unless this run has already had it. */
+static s8 Late_Bonus_If_Untaken() {
+    if (Completion_Bonus[Player_id][1] & 0x80) {
+        return 0;
+    }
+
+    return 21;
+}
+
 s8 Check_Bonus_Type() {
 #if DEBUG
     if (debug_config.bonus_stage_override != 0) {
@@ -424,11 +433,7 @@ s8 Check_Bonus_Type() {
     }
 
     if (VS_Index[Player_id] >= 6) {
-        if (Completion_Bonus[Player_id][1] & 0x80) {
-            return 0;
-        }
-
-        return 21;
+        return Late_Bonus_If_Untaken();
     }
 
     if (VS_Index[Player_id] >= 3) {
