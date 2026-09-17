@@ -575,6 +575,93 @@ the program can reach.
 
 ---
 
+## Recipe R - Resolve a Goto Chain
+
+**Use when:** CodeScene reports *Complex Method* on a function whose complexity is mostly
+`goto`. CodeScene counts each `goto` as a branch, so a function built from a chain of
+`if (...) goto label;` scores roughly twice its apparent complexity and no other recipe in
+this catalogue reaches it - E, G, X and P all leave the jumps exactly where they were.
+
+This shape is common in the decompiled code: the Ghidra output for a chain of early
+returns comes back as a chain of jumps to labels that each return.
+
+**Added 2026-09-17** under the project owner's standing authorisation to write new recipes
+when a transformation is behaviour-preserving by construction.
+
+**How:**
+
+1. Check the preconditions below. If any of them fails, stop - this is not the shape.
+2. Replace each `goto L;` with a **verbatim copy** of the `return` statement that stands
+   under `L`. Character for character: the same expression, the same subscripts, the same
+   casts.
+3. Delete every label that is now unreferenced, together with the return beneath it.
+4. The one label that was also reachable by falling off the end of the code above keeps
+   its return, unlabelled, as the function's tail.
+
+**Preconditions, all of them:**
+
+- **Every label in the chain holds exactly one statement, and it is a `return`.** Not a
+  block, not an assignment first. If any label has work under it, this recipe does not
+  apply.
+- **The labels sit consecutively at the end of the function**, so each one's `return`
+  makes it impossible to fall from one label into the next. If a label can be reached by
+  fallthrough from another label's body, the chain encodes an order and deleting it
+  changes behaviour.
+- **Every `goto` jumps forward, into that trailing group.** A backward jump is a loop and
+  is out of scope.
+- **The conditions are not touched.** The `if`s keep their operators, their operands and
+  their order; only the jump becomes the return it jumped to.
+- **Nothing else in the function references the labels.**
+
+**Before:**
+
+```c
+u8 pick_row(Work *w, s16 ix) {
+    if (w->missed)      goto miss;
+    if (w->flags & 3)   goto hit;
+    if (w->flags & 0xC0) goto block;
+miss:
+    return miss_table[w->id][ix];
+hit:
+    return hit_table[w->id][ix];
+block:
+    return block_table[w->id][ix];
+}
+```
+
+**After:**
+
+```c
+u8 pick_row(Work *w, s16 ix) {
+    if (w->missed) {
+        return miss_table[w->id][ix];
+    }
+
+    if (w->flags & 3) {
+        return hit_table[w->id][ix];
+    }
+
+    if (w->flags & 0xC0) {
+        return block_table[w->id][ix];
+    }
+
+    return miss_table[w->id][ix];
+}
+```
+
+Note the tail: the original fell off the last `if` into `miss:`, so the miss row is
+returned twice and that repetition is correct. Do not "tidy" it by reordering the tests to
+avoid it - that would reorder the conditions, which is forbidden.
+
+**What the guard shows.** Literals are **added, none removed** - the copied return brings
+its own subscripts - and `--calls` is unchanged, because a table subscript is not a call.
+A removed literal here means a return was rewritten rather than copied, and that is a FAIL.
+
+**This is control flow.** Like Recipe F, a Recipe R commit belongs in the genuinely
+high-risk tier of the verification loop: run `tools/replay_verify.sh` on it.
+
+---
+
 ## Known plateaus
 
 A plateau is a result, not a failure: the point where no legal recipe raises the score
