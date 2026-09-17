@@ -349,6 +349,36 @@ static void finish_catch07_when_close(PLW* wk) {
     wk->wu.routine_no[3] = 5;
 }
 
+/* The flight and the landing of the running throw: the hold before the target
+ * is caught up with, the catch itself, and the two states after it. Case
+ * labels are the originals. */
+static void run_catch07_flight(PLW* wk) {
+    switch (wk->wu.routine_no[3]) {
+    case 3:
+        jumping_union_process(&wk->wu, 6);
+
+        if (--wk->wu.dir_timer <= 0) {
+            wk->wu.routine_no[3] = 4;
+        }
+
+        break;
+
+    case 4:
+        jumping_union_process(&wk->wu, 6);
+        finish_catch07_when_close(wk);
+        catch_cg_type_check(wk);
+        break;
+
+    case 5:
+        jumping_union_process(&wk->wu, 6);
+        break;
+
+    case 6:
+        char_move(&wk->wu);
+        break;
+    }
+}
+
 void Catch_07000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -376,27 +406,8 @@ void Catch_07000(PLW* wk) { // 🟢
 
         break;
 
-    case 3:
-        jumping_union_process(&wk->wu, 6);
-
-        if (--wk->wu.dir_timer <= 0) {
-            wk->wu.routine_no[3] = 4;
-        }
-
-        break;
-
-    case 4:
-        jumping_union_process(&wk->wu, 6);
-        finish_catch07_when_close(wk);
-        catch_cg_type_check(wk);
-        break;
-
-    case 5:
-        jumping_union_process(&wk->wu, 6);
-        break;
-
-    case 6:
-        char_move(&wk->wu);
+    default:
+        run_catch07_flight(wk);
         break;
     }
 }
