@@ -15,6 +15,15 @@
 #include "sf33rd/Source/Game/engine/pls01.h"
 #include "sf33rd/Source/Game/engine/pls02.h"
 
+/* Land, face the way the move was buffered, and start the level-5 animation.
+ * Four of this character's attacks open with exactly these four lines. */
+static void begin_pl09_attack(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    wk->wu.rl_flag = wk->wu.rl_waza;
+    hoken_muriyari_chakuchi(wk);
+    set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+}
+
 void mvxy_table_reader(PLW* wk);
 
 const u8 tenguiwa_stand_by[2][8] = { { 24, 25, 26, 27, 28, 29, 30, 30 }, { 31, 32, 33, 34, 35, 34, 33, 31 } };
@@ -56,13 +65,36 @@ static void take_next_row_on_marker_20(PLW* wk) {
     }
 }
 
+/* Airborne: marker 1 drops back to the ground state instead of stepping the
+ * union. Its `break` left the switch with nothing after it. */
+static void yagyoudama_airborne(PLW* wk) {
+    take_next_row_on_marker_20(wk);
+
+    if (wk->wu.cg_type == 1) {
+        wk->wu.cg_type = 0;
+        wk->wu.routine_no[3] = 3;
+        return;
+    }
+
+    jumping_union_process(&wk->wu, 3);
+}
+
+/* Grounded: marker 1 sends it back into the air. */
+static void yagyoudama_grounded(PLW* wk) {
+    char_move(&wk->wu);
+
+    take_next_row_on_marker_20(wk);
+
+    if (wk->wu.cg_type == 1) {
+        wk->wu.cg_type = 0;
+        wk->wu.routine_no[3] = 2;
+    }
+}
+
 void Att_SP_YAGYOUDAMA(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        hoken_muriyari_chakuchi(wk);
-        set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+        begin_pl09_attack(wk);
         wk->wu.mvxy.index = wk->as->r_no;
         break;
 
@@ -79,27 +111,11 @@ void Att_SP_YAGYOUDAMA(PLW* wk) {
         break;
 
     case 2:
-        take_next_row_on_marker_20(wk);
-
-        if (wk->wu.cg_type == 1) {
-            wk->wu.cg_type = 0;
-            wk->wu.routine_no[3] = 3;
-            break;
-        }
-
-        jumping_union_process(&wk->wu, 3);
+        yagyoudama_airborne(wk);
         break;
 
     case 3:
-        char_move(&wk->wu);
-
-        take_next_row_on_marker_20(wk);
-
-        if (wk->wu.cg_type == 1) {
-            wk->wu.cg_type = 0;
-            wk->wu.routine_no[3] = 2;
-        }
-
+        yagyoudama_grounded(wk);
         break;
     }
 }
@@ -235,10 +251,7 @@ static void jinnchuu_ex_grounded(PLW* wk) {
 void Att_JINNCHUUWATARI_EX(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        hoken_muriyari_chakuchi(wk);
-        set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+        begin_pl09_attack(wk);
         wk->pl09_dat_index = wk->as->r_no;
         wk->wu.mvxy.index = wk->as->data_ix;
         break;
@@ -267,6 +280,17 @@ void Att_JINNCHUUWATARI_EX(PLW* wk) {
         jinnchuu_ex_grounded(wk);
         break;
     }
+}
+
+/* Both kop arms finish the aim the same way: take the height from the row, clear
+ * the horizontal speed, solve the arc and step to the next row. Only the x they
+ * solved for differs, and it is passed in. */
+static void aim_at_homing_height(PLW* wk, const PLW* twk, const s16* curr_kop, s16 ex) {
+    s16 ey = homing_hos[wk->pl09_dat_index][twk->player_number][1];
+
+    wk->wu.mvxy.a[0].sp = 0;
+    cal_initial_speed(&wk->wu, curr_kop[1], ex, ey);
+    wk->pl09_dat_index++;
 }
 
 /* kop 0 aims at the opponent, offset by the row for that character, and mirrors
@@ -312,10 +336,7 @@ static void homing_aim_on_marker_30(PLW* wk, PLW* twk, const s16* curr_kop) {
     switch (curr_kop[0]) {
     case 0:
         ex = homing_target_x(wk, twk);
-        ey = homing_hos[wk->pl09_dat_index][twk->player_number][1];
-        wk->wu.mvxy.a[0].sp = 0;
-        cal_initial_speed(&wk->wu, curr_kop[1], ex, ey);
-        wk->pl09_dat_index++;
+        aim_at_homing_height(wk, twk, curr_kop, ex);
         break;
 
     case 1:
@@ -327,10 +348,7 @@ static void homing_aim_on_marker_30(PLW* wk, PLW* twk, const s16* curr_kop) {
             ex -= (wk->wu.xyz[0].disp.pos - twk->wu.xyz[0].disp.pos) / 2;
         }
 
-        ey = homing_hos[wk->pl09_dat_index][twk->player_number][1];
-        wk->wu.mvxy.a[0].sp = 0;
-        cal_initial_speed(&wk->wu, curr_kop[1], ex, ey);
-        wk->pl09_dat_index++;
+        aim_at_homing_height(wk, twk, curr_kop, ex);
         break;
     }
 
@@ -364,10 +382,7 @@ void Att_PL09_EX_TENGUIWA(PLW* wk) {
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        hoken_muriyari_chakuchi(wk);
-        set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+        begin_pl09_attack(wk);
         wk->sa->dtm_mul = 2;
         break;
 
@@ -380,10 +395,7 @@ void Att_PL09_EX_TENGUIWA(PLW* wk) {
 void Att_PL09_EX_KISHINRIKI(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        hoken_muriyari_chakuchi(wk);
-        set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+        begin_pl09_attack(wk);
         reset_mvxy_data(&wk->wu);
         wk->wu.mvxy.index = wk->as->r_no;
         wk->sa->dtm_mul = 16;
