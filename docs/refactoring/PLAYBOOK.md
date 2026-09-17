@@ -1519,6 +1519,49 @@ So when a file is a set of sibling state machines and the finding is the mean:
    That is forbidden outright, which made the smaller extraction set the only way
    through.
 
+---
+
+### Against a twin family, share what they agree on before you split what they do not
+
+*Choose which arms to extract so no two dispatchers end up bare* says to spend the
+mean's extractions on the machines least like their siblings. There is a better move to
+try first, and it broke three plateaus this campaign had written off.
+
+**A twin family has two kinds of material in it.** The arms are near misses - they differ
+in a state number, a table, an operator - and lifting one makes another twin. But the
+*runs inside those arms* are very often identical, character for character, across the
+whole family: an opening, a marker, a launch tail. Those cost nothing to share, because
+the helper has exactly one definition and so has nothing to twin with, and each one still
+counts in the denominator of the mean.
+
+So the order is: **Recipe C and Recipe D over the shared runs first, and only then Recipe E
+over whatever arms the mean still needs.** Every shared run you take is one fewer arm you
+have to risk.
+
+Measured on three files whose notes all said the smells could not both be cleared:
+
+| File | Was | Now | What the runs were |
+| --- | --- | --- | --- |
+| `plpdm_states_late.c` | 9.38 | **10.00** | the sky flight, the turn away from the attacker, the step-and-start-WCA pair - then one ordinary extraction |
+| `plpdm_states.c` | 9.38 | **10.00** | those three plus the level-6 animation start, the knock-back arc, the ground launch |
+| `plpat07.c` | 9.38 | **10.00** | one three-line opening shared by three attacks - which then let four arms be chosen instead of five |
+
+`plpat07.c` is the clearest statement of why it works. Three separate five-extraction sets
+had been measured there, each clearing the mean and each landing back on 9.38 with a new
+duplicate pair. One shared opening changed the count needed from five to four, and four
+was few enough to take only from the machines with no close relative.
+
+**Finding the runs is mechanical.** Search the file for repeated contiguous line
+sequences - two lines up to six or so, indented, inside function bodies - and rank them by
+how many copies each has. Anything with two or more copies and no differences is a Recipe C
+candidate; anything differing in one value is Recipe D's.
+
+A caveat worth stating: where a run is shared across a **Recipe S split**, each file needs
+its own `static` copy, because widening a `static` to bridge the two is forbidden.
+`plpdm_states.c` and `plpdm_states_late.c` carry three such pairs. That is real duplication
+that the metric does not see, and it is the price of the split rather than a reason to
+avoid it.
+
 ### A file can be too big for its own mean
 
 `plmain.c` is the case that shows what *Overall Code Complexity is a whole-file average*
