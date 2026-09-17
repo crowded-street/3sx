@@ -454,34 +454,28 @@ static void Lower_Vital_Handicap(s16 PL_id) {
     }
 }
 
-u16 Handicap_Vital_Move_Sub(u16 sw, s16 PL_id) {
-    if (PL_id == 0) {
-        switch (sw) {
-        case SWK_LEFT:
-            Raise_Vital_Handicap(PL_id);
+/* Both players use the same two arms; they disagree only on which way round the
+ * lever reads, so each passes its own pair of steps by name. */
+static u16 Move_Vital_Handicap(u16 sw, s16 PL_id, void (*on_left)(s16), void (*on_right)(s16)) {
+    switch (sw) {
+    case SWK_LEFT:
+        on_left(PL_id);
+        return SWK_LEFT;
 
-            return SWK_LEFT;
-
-        case SWK_RIGHT:
-            Lower_Vital_Handicap(PL_id);
-
-            return SWK_RIGHT;
-        }
-    } else {
-        switch (sw) {
-        case SWK_LEFT:
-            Lower_Vital_Handicap(PL_id);
-
-            return SWK_LEFT;
-
-        case SWK_RIGHT:
-            Raise_Vital_Handicap(PL_id);
-
-            return SWK_RIGHT;
-        }
+    case SWK_RIGHT:
+        on_right(PL_id);
+        return SWK_RIGHT;
     }
 
     return 0;
+}
+
+u16 Handicap_Vital_Move_Sub(u16 sw, s16 PL_id) {
+    if (PL_id == 0) {
+        return Move_Vital_Handicap(sw, PL_id, Raise_Vital_Handicap, Lower_Vital_Handicap);
+    }
+
+    return Move_Vital_Handicap(sw, PL_id, Lower_Vital_Handicap, Raise_Vital_Handicap);
 }
 
 void Handicap_Stage_Select(s16 PL_id) {
