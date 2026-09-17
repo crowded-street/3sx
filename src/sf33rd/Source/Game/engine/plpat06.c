@@ -149,6 +149,23 @@ void Att_PL06_HASHIRI_NAGE(PLW* wk) {
     }
 }
 
+/* Marker 30 raises both the strike and the spirit bonus, each against its own
+ * ceiling. The throw bonus on marker 20 is a single value against a single
+ * ceiling and is left inline; lifting it too would make the pair twins. */
+static void pl06_add_strike_bonus(PLW* wk) {
+    wk->wu.cg_type = 0;
+    wk->tk_dageki += 6;
+    wk->tk_konjyou += 2;
+
+    if (wk->tk_dageki > 6) {
+        wk->tk_dageki = 6;
+    }
+
+    if (wk->tk_konjyou > 8) {
+        wk->tk_konjyou = 8;
+    }
+}
+
 /* The taunt's markers: 40 pays the super-art gauge, then 20 and 30 each add to
  * their own bonuses against their own ceilings and 64 grades the action. The 40
  * test sits outside the switch in the original, and clearing cg_type there is
@@ -173,18 +190,7 @@ static void pl06_taunt_markers(PLW* wk) {
         break;
 
     case 30:
-        wk->wu.cg_type = 0;
-        wk->tk_dageki += 6;
-        wk->tk_konjyou += 2;
-
-        if (wk->tk_dageki > 6) {
-            wk->tk_dageki = 6;
-        }
-
-        if (wk->tk_konjyou > 8) {
-            wk->tk_konjyou = 8;
-        }
-
+        pl06_add_strike_bonus(wk);
         break;
 
     case 64:
