@@ -369,26 +369,24 @@ void Entry_06_1st() {
     Begin_Entry_Step(7);
 }
 
+/* One entrant takes a controller, and starts a fresh grade record unless continuing.
+ * The two sides differed only in the player index. */
+static void Give_Operator_To(s16 PL_id) {
+    if (E_07_Flag[PL_id]) {
+        plw[PL_id].wu.operator = 1;
+        Operator_Status[PL_id] = 1;
+
+        if (Continue_Coin[PL_id] == 0) {
+            grade_check_work_1st_init(PL_id, 0);
+        }
+    }
+}
+
 /* Whoever broke into this screen takes a controller, and starts a fresh grade record
  * unless they are continuing. Shared verbatim by the three screens that hand over. */
 static void Give_Operator_To_Entrants() {
-    if (E_07_Flag[0]) {
-        plw[0].wu.operator = 1;
-        Operator_Status[0] = 1;
-
-        if (Continue_Coin[0] == 0) {
-            grade_check_work_1st_init(0, 0);
-        }
-    }
-
-    if (E_07_Flag[1]) {
-        plw[1].wu.operator = 1;
-        Operator_Status[1] = 1;
-
-        if (Continue_Coin[1] == 0) {
-            grade_check_work_1st_init(1, 0);
-        }
-    }
+    Give_Operator_To(0);
+    Give_Operator_To(1);
 
     E_07_Flag[0] = 0;
     E_07_Flag[1] = 0;
