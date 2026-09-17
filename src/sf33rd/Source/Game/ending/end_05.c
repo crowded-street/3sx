@@ -300,27 +300,9 @@ static void end_500_0008_scroll_past(s16 mark, u8 char_num) {
     }
 }
 
-void end_500_0008() {
+/* The last stretch of the scroll: the flag drop, the shake ending and the run out. */
+static void end_500_0008_final_scroll() {
     switch (bgw_ptr->r_no_1) {
-    case 0:
-        bgw_ptr->r_no_1++;
-        /* fallthrough */
-
-    case 1:
-        end_500_0008_scroll_past(-240, 0x12);
-
-        break;
-
-    case 2:
-        end_500_0008_scroll_past(-624, 0x14);
-
-        break;
-
-    case 3:
-        end_500_0008_scroll_past(-1008, 0x15);
-
-        break;
-
     case 4:
         end_5_bg0_move_sub();
         end_500_quake_y_sub();
@@ -351,6 +333,33 @@ void end_500_0008() {
             end_w.timer = 18;
         }
 
+        break;
+    }
+}
+
+void end_500_0008() {
+    switch (bgw_ptr->r_no_1) {
+    case 0:
+        bgw_ptr->r_no_1++;
+        /* fallthrough */
+
+    case 1:
+        end_500_0008_scroll_past(-240, 0x12);
+
+        break;
+
+    case 2:
+        end_500_0008_scroll_past(-624, 0x14);
+
+        break;
+
+    case 3:
+        end_500_0008_scroll_past(-1008, 0x15);
+
+        break;
+
+    default:
+        end_500_0008_final_scroll();
         break;
     }
 }
