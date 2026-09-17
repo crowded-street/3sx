@@ -549,13 +549,16 @@ void Entry_08_1st() {
     }
 }
 
-void Entry_08_2nd() {
+/* The tail both the naming screen and the final-grade screen run: step any player who is
+ * not breaking in, then cover the screen and hand the game to whoever did. Entry_08_2nd
+ * and Entry_10_2nd were identical apart from the jump index. */
+static void Finish_Entry_And_Start_Game(s16 Jump_Index) {
     if (E_07_Flag[0] == 0) {
-        Entry_Main_Sub(0, 9);
+        Entry_Main_Sub(0, Jump_Index);
     }
 
     if (E_07_Flag[1] == 0) {
-        Entry_Main_Sub(1, 9);
+        Entry_Main_Sub(1, Jump_Index);
     }
 
     switch (E_No[2]) {
@@ -608,6 +611,10 @@ void Entry_08_2nd() {
 
         break;
     }
+}
+
+void Entry_08_2nd() {
+    Finish_Entry_And_Start_Game(9);
 }
 
 void Entry_10() {
@@ -661,64 +668,7 @@ void Entry_10_1st() {
 }
 
 void Entry_10_2nd() {
-    if (E_07_Flag[0] == 0) {
-        Entry_Main_Sub(0, 10);
-    }
-
-    if (E_07_Flag[1] == 0) {
-        Entry_Main_Sub(1, 10);
-    }
-
-    switch (E_No[2]) {
-    case 0:
-        E_No[2] += 1;
-
-        if ((E_Number[LOSER][0] == 8) && (E_Number[LOSER][1] == 1)) {
-            Clear_Personal_Data(LOSER);
-        }
-
-        Switch_Screen_Init(1);
-        break;
-
-    default:
-        if (Switch_Screen(1) != 0) {
-            Cover_Timer = 23;
-            G_No[1] = 1;
-            G_No[2] = 0;
-            G_No[3] = 0;
-            E_No[0] = 2;
-            E_No[1] = 0;
-            E_No[2] = 0;
-            E_No[3] = 0;
-
-            if (E_07_Flag[0]) {
-                plw[0].wu.operator = 1;
-                Operator_Status[0] = 1;
-
-                if (Continue_Coin[0] == 0) {
-                    grade_check_work_1st_init(0, 0);
-                }
-            }
-
-            if (E_07_Flag[1]) {
-                plw[1].wu.operator = 1;
-                Operator_Status[1] = 1;
-
-                if (Continue_Coin[1] == 0) {
-                    grade_check_work_1st_init(1, 0);
-                }
-            }
-
-            E_07_Flag[0] = 0;
-            E_07_Flag[1] = 0;
-            Request_Disp_Rank[0][0] = -1;
-            Request_Disp_Rank[0][1] = -1;
-            Request_Disp_Rank[1][0] = -1;
-            Request_Disp_Rank[1][1] = -1;
-        }
-
-        break;
-    }
+    Finish_Entry_And_Start_Game(10);
 }
 
 void Entry_Main_Sub(s16 PL_id, s16 Jump_Index) {
