@@ -1191,13 +1191,23 @@ void Break_Into_Sub(s16 PL_id, s16 Jump_Index) {
     }
 }
 
+/* A break-in is held off while the round forbids it or an extra is running. */
+static s32 Break_Is_Forbidden() {
+    return Forbid_Break || Extra_Break;
+}
+
+/* Outside the final screen, one player's pending break-in locks the other out. */
+static s32 Other_Player_Is_Breaking_In(s16 PL_id) {
+    return (E_No[0] != 10) && Request_Break[PL_id ^ 1];
+}
+
 s32 Ck_Break_Into(u16 Sw_0, u16 Sw_1, s16 PL_id) {
-    if ((E_No[0] != 10) && Request_Break[PL_id ^ 1]) {
+    if (Other_Player_Is_Breaking_In(PL_id)) {
         return 0;
     }
 
     if (Request_Break[PL_id]) {
-        if (Forbid_Break || Extra_Break) {
+        if (Break_Is_Forbidden()) {
             return 0;
         }
 
@@ -1214,7 +1224,7 @@ s32 Ck_Break_Into(u16 Sw_0, u16 Sw_1, s16 PL_id) {
 
     Continue_Score_Sub(PL_id);
 
-    if (Forbid_Break || Extra_Break) {
+    if (Break_Is_Forbidden()) {
         Request_Break[PL_id] = 1;
     } else {
         Game_pause = 1;
