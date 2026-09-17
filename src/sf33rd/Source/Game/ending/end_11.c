@@ -95,49 +95,54 @@ static void end_11_commit_fixed_position() {
     bgw_ptr->abs_y = 0;
 }
 
+/* Which effects and message this scene opens with. */
+static void end_b00_0000_scene_setup() {
+    switch (end_w.r_no_2) {
+    case 0:
+        Bg_Off_W(1);
+        effect_E6_init(0x60);
+        Rewrite_End_Message(1);
+        break;
+
+    case 2:
+        Bg_Off_W(1);
+        effect_E6_init(0x62);
+        Rewrite_End_Message(0);
+        break;
+
+    case 4:
+        effect_E6_init(0x65);
+        effect_E6_init(0x66);
+        effect_E6_init(0x67);
+        effect_E6_init(0x68);
+        Rewrite_End_Message(3);
+        break;
+
+    case 5:
+        effect_E6_init(0x69);
+        effect_E6_init(0x6A);
+        effect_E6_init(0x6D);
+        effect_E6_init(0x6E);
+        effect_E6_init(0x6B);
+        Rewrite_End_Message(4);
+        break;
+
+    case 6:
+        effect_E6_init(0x6C);
+        Rewrite_End_Message(5);
+        end_fade_flag = 1;
+        end_fade_timer = timer_b_tbl[end_w.r_no_2] - 120;
+        break;
+    }
+}
+
 void end_b00_0000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
         end_11_open_scene();
         end_11_commit_fixed_position();
 
-        switch (end_w.r_no_2) {
-        case 0:
-            Bg_Off_W(1);
-            effect_E6_init(0x60);
-            Rewrite_End_Message(1);
-            break;
-
-        case 2:
-            Bg_Off_W(1);
-            effect_E6_init(0x62);
-            Rewrite_End_Message(0);
-            break;
-
-        case 4:
-            effect_E6_init(0x65);
-            effect_E6_init(0x66);
-            effect_E6_init(0x67);
-            effect_E6_init(0x68);
-            Rewrite_End_Message(3);
-            break;
-
-        case 5:
-            effect_E6_init(0x69);
-            effect_E6_init(0x6A);
-            effect_E6_init(0x6D);
-            effect_E6_init(0x6E);
-            effect_E6_init(0x6B);
-            Rewrite_End_Message(4);
-            break;
-
-        case 6:
-            effect_E6_init(0x6C);
-            Rewrite_End_Message(5);
-            end_fade_flag = 1;
-            end_fade_timer = timer_b_tbl[end_w.r_no_2] - 120;
-            break;
-        }
+        end_b00_0000_scene_setup();
 
         break;
 
