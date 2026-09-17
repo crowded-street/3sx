@@ -275,6 +275,34 @@ void renew_judge_final_work(s16 ix, s16 pt) {
     }
 }
 
+/* What the two bonus stages are worth, each skipped when it was not played. */
+static s16 bonus_stage_grade_points(s16 ix, s16 pt) {
+    s16 i;
+    s16 tt = 0;
+
+    if (judge_final[ix][pt].vs_cpu_grade[13] != -1) {
+        for (i = 0; i < 3; i++) {
+            if (judge_final[ix][pt].vs_cpu_grade[13] < grade_t_f_bss_ball[i + 1][0]) {
+                break;
+            }
+        }
+
+        tt += grade_t_f_bss_ball[i][1];
+    }
+
+    if (judge_final[ix][pt].vs_cpu_grade[14] != -1) {
+        for (i = 0; i < 3; i++) {
+            if (judge_final[ix][pt].vs_cpu_grade[14] < grade_t_f_bss_car[i + 1][0]) {
+                break;
+            }
+        }
+
+        tt += grade_t_f_bss_car[i][1];
+    }
+
+    return tt;
+}
+
 /* What clearing the game is worth: the clear itself, the continues used, the
  * grade-up points, and each bonus stage that was played. */
 static s16 all_clear_bonus(s16 ix, s16 pt) {
@@ -299,26 +327,7 @@ static s16 all_clear_bonus(s16 ix, s16 pt) {
 
     tt += grade_t_f_gradeup[i][1];
 
-    if (judge_final[ix][pt].vs_cpu_grade[13] != -1) {
-        for (i = 0; i < 3; i++) {
-            if (judge_final[ix][pt].vs_cpu_grade[13] < grade_t_f_bss_ball[i + 1][0]) {
-                break;
-            }
-        }
-
-        tt += grade_t_f_bss_ball[i][1];
-    }
-
-    if (judge_final[ix][pt].vs_cpu_grade[14] != -1) {
-        for (i = 0; i < 3; i++) {
-            if (judge_final[ix][pt].vs_cpu_grade[14] < grade_t_f_bss_car[i + 1][0]) {
-                break;
-            }
-        }
-
-        tt += grade_t_f_bss_car[i][1];
-    }
-
+    tt += bonus_stage_grade_points(ix, pt);
     return tt;
 }
 
