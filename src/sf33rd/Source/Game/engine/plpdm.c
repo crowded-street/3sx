@@ -718,6 +718,17 @@ static void ease_damage_stop_toward_zero(PLW* wk) {
     }
 }
 
+/* A hit that kills reads its reaction out of the death table instead, and the
+ * actions in the buttobi range get their own. */
+static void convert_reaction_for_death(PLW* wk) {
+    if (wk->dead_flag) {
+        wk->wu.routine_no[2] = dd_convert[wk->wu.routine_no[2]][wk->wu.dm_attlv];
+        if (action_is_in_damage_range(wk)) {
+            wk->wu.routine_no[2] = check_buttobi_type2(wk);
+        }
+    }
+}
+
 void get_damage_reaction_data(PLW* wk) {
     if (wk->atemi_flag == 2) {
         wk->wu.dm_vital = 0;
@@ -729,12 +740,7 @@ void get_damage_reaction_data(PLW* wk) {
 
     resolve_knockdown_reaction(wk);
 
-    if (wk->dead_flag) {
-        wk->wu.routine_no[2] = dd_convert[wk->wu.routine_no[2]][wk->wu.dm_attlv];
-        if (action_is_in_damage_range(wk)) {
-            wk->wu.routine_no[2] = check_buttobi_type2(wk);
-        }
-    }
+    convert_reaction_for_death(wk);
 
     if (wk->atemi_flag == 1) {
         if (wk->py->flag) {
