@@ -37,27 +37,29 @@ void stngauge_cont_init() {
 void stngauge_cont_main() {
     u8 i;
 
-    if (omop_cockpit != 0) {
-        if (gauge_stop_flag[0] == 0) {
-            stngauge_control(0);
-        } else {
-            stun_put(0, sdat->cstn);
-        }
-
-        if (gauge_stop_flag[1] == 0) {
-            stngauge_control(1);
-        } else {
-            stun_put(1, sdat[1].cstn);
-        }
-
-        for (i = 0; i < 2; i++) {
-            if (omop_st_bar_disp[i]) {
-                stun_base_put(i, sdat[i].slen);
-            }
-        }
-
-        stun_gauge_waku_write(sdat->slen, sdat[1].slen);
+    if (omop_cockpit == 0) {
+        return;
     }
+
+    if (gauge_stop_flag[0] == 0) {
+        stngauge_control(0);
+    } else {
+        stun_put(0, sdat->cstn);
+    }
+
+    if (gauge_stop_flag[1] == 0) {
+        stngauge_control(1);
+    } else {
+        stun_put(1, sdat[1].cstn);
+    }
+
+    for (i = 0; i < 2; i++) {
+        if (omop_st_bar_disp[i]) {
+            stun_base_put(i, sdat[i].slen);
+        }
+    }
+
+    stun_gauge_waku_write(sdat->slen, sdat[1].slen);
 }
 
 static s32 player_is_stunned(u8 pl) {
