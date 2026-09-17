@@ -25,7 +25,6 @@ sys.path.insert(0, str(TOOLS_DIR))
 from stress_desync import run_dir_for  # noqa: E402
 
 TRACE_NAME = "state-trace.csv"
-BOOT_TRACE_NAME = "boot-state-trace.csv"
 TraceRow = tuple[str, int, str]
 
 
@@ -82,11 +81,8 @@ def read_trace(path: Path) -> list[tuple[int, str]]:
 
 
 def read_complete_trace(gameplay_path: Path) -> list[TraceRow]:
-    boot_path = gameplay_path.parent / BOOT_TRACE_NAME
-    boot_trace = read_trace(boot_path) if boot_path.exists() else []
-    boot_rows = [("boot", frame, checksum) for frame, checksum in boot_trace]
     gameplay_rows = [("gameplay", frame, checksum) for frame, checksum in read_trace(gameplay_path)]
-    return boot_rows + gameplay_rows
+    return gameplay_rows
 
 
 def first_difference(

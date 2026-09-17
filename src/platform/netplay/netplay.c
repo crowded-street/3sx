@@ -499,7 +499,6 @@ static void save_state(GekkoGameEvent* event) {
 
     if (!is_resimulation) {
         state_buffer_checksum[slot] = checksum;
-        Stress_RecordState(frame, checksum);
     } else if (Stress_IsRunning() && checksum != state_buffer_checksum[slot]) {
         Stress_OnResimulationDiverged(frame, state_buffer_checksum[slot], checksum);
     }
@@ -521,6 +520,15 @@ static void load_state(const State* src) {
     frwctr = es->frwctr;
     frwctr_min = es->frwctr_min;
 }
+
+#if DEBUG
+static void record_stress_state(int frame) {
+    State state;
+    gather_state(&state);
+    clean_state_pointers(&state);
+    Stress_RecordState(frame, calculate_checksum(&state));
+}
+#endif
 
 static void load_state_from_event(GekkoGameEvent* event) {
     const State* src = (State*)event->data.load.state;
@@ -681,6 +689,9 @@ static void process_events(bool drawing_allowed) {
             frames_rolled_back += rolling_back ? 1 : 0;
 
             if (Stress_IsRunning() && !rolling_back) {
+#if DEBUG
+                record_stress_state(event->data.adv.frame);
+#endif
                 Stress_OnFrameAdvanced();
             }
             break;

@@ -46,6 +46,15 @@ s32 bgPalCodeOffset[8];
 BG bg_w;
 RW_DATA rw_dat[20];
 
+typedef struct {
+    u8 bgnm;
+    s32* xx;
+    s32* yy;
+    s32 global_index;
+    s32 pal_offset;
+    PPGDataList* data_list;
+} StageDrawContext;
+
 static void bgRWWorkUpdate();
 static void select_bg_list_for_reindexed_chip(s32 global_index_real);
 static s32 remap_stage03_player_chip(s32 global_index_real);
@@ -1240,43 +1249,50 @@ static void draw_later_special_stage(u8 bgnm, s32 xx[2], s32 yy[2], s32 global_i
     }
 }
 
-static s32 draw_early_special_stage(u8 bgnm, s32 xx[2], s32 yy[2], s32 global_index, s32 palOffset,
-                                    PPGDataList* curDataList) {
+static s32 draw_and_advance_judgment_stage(u8 bgnm, s32* xx, s32* yy, s32 global_index, s32 palOffset,
+                                           PPGDataList* curDataList) {
     u32 vtxColor;
 
+    if (judge_flag == 1 && bgnm == 1) {
+        vtxColor = 0xFFA0A0A0;
+    } else {
+        vtxColor = 0xFFFFFFFF;
+    }
+
+    draw_stage02_tiles(bgnm, xx, yy, global_index, vtxColor, palOffset, curDataList);
+    return advance_stage02_state(bgnm);
+}
+
+static s32 draw_early_special_stage(const StageDrawContext* context) {
     switch (tokusyu_stage) {
     case 1:
-        draw_stage03_tiles(bgnm, xx, yy, global_index, palOffset, curDataList);
+        draw_stage03_tiles(context->bgnm, context->xx, context->yy, context->global_index, context->pal_offset,
+                           context->data_list);
 
-        if (advance_stage03_state(bgnm)) {
+        if (advance_stage03_state(context->bgnm)) {
             return 1;
         }
         break;
 
     case 2:
-        if (judge_flag == 1 && bgnm == 1) {
-            vtxColor = 0xFFA0A0A0;
-        } else {
-            vtxColor = 0xFFFFFFFF;
-        }
-
-        draw_stage02_tiles(bgnm, xx, yy, global_index, vtxColor, palOffset, curDataList);
-
-        if (advance_stage02_state(bgnm)) {
+        if (draw_and_advance_judgment_stage(context->bgnm, context->xx, context->yy, context->global_index,
+                                            context->pal_offset, context->data_list)) {
             return 1;
         }
         break;
 
     case 3:
-        draw_stage19_tiles(bgnm, xx, yy, global_index, palOffset, curDataList);
+        draw_stage19_tiles(context->bgnm, context->xx, context->yy, context->global_index, context->pal_offset,
+                           context->data_list);
 
-        if (advance_stage19_state(bgnm)) {
+        if (advance_stage19_state(context->bgnm)) {
             return 1;
         }
         break;
 
     default:
-        draw_later_special_stage(bgnm, xx, yy, global_index, palOffset, curDataList);
+        draw_later_special_stage(context->bgnm, context->xx, context->yy, context->global_index, context->pal_offset,
+                                 context->data_list);
         break;
     }
 
@@ -1285,6 +1301,7 @@ static s32 draw_early_special_stage(u8 bgnm, s32 xx[2], s32 yy[2], s32 global_in
 
 void scr_trans(u8 bgnm) {
     PPGDataList* curDataList;
+    StageDrawContext draw_context;
     s32 xx[2];
     s32 yy[2];
     s32 global_index;
@@ -1304,7 +1321,14 @@ void scr_trans(u8 bgnm) {
     ppgSetupCurrentDataList(&ppgBgList[bgnm]);
     curDataList = &ppgBgList[bgnm];
 
-    if (draw_early_special_stage(bgnm, xx, yy, global_index, palOffset, curDataList)) {
+    draw_context.bgnm = bgnm;
+    draw_context.xx = xx;
+    draw_context.yy = yy;
+    draw_context.global_index = global_index;
+    draw_context.pal_offset = palOffset;
+    draw_context.data_list = curDataList;
+
+    if (draw_early_special_stage(&draw_context)) {
         return;
     }
 }
