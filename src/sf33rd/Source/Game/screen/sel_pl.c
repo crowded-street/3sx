@@ -1070,6 +1070,12 @@ u16 Auto_Repeat_Sub_Wife(s16 PL_id) {
     return 0;
 }
 
+/* Any of the three super-art plates still animating. */
+static s32 Any_Plate_Is_Disposing(s16 PL_id) {
+    return Plate_Disposal_No[PL_id][0] != 0 || Plate_Disposal_No[PL_id][1] != 0 ||
+           Plate_Disposal_No[PL_id][2] != 0;
+}
+
 void Sel_Arts_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
     u16 lever_sw;
 
@@ -1085,7 +1091,7 @@ void Sel_Arts_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
         return;
     }
 
-    if (Plate_Disposal_No[PL_id][0] != 0 || Plate_Disposal_No[PL_id][1] != 0 || Plate_Disposal_No[PL_id][2] != 0) {
+    if (Any_Plate_Is_Disposing(PL_id)) {
         return;
     }
 
