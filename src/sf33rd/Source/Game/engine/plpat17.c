@@ -26,6 +26,28 @@ void pl17_extra_attack(PLW* wk) {
     pl17_exatt_table[wk->wu.routine_no[2] - 16](wk);
 }
 
+/* Marker 21 resets the movement data and restarts the attack at state 2. Three
+ * arms of Att_PL17_AT1 wrote this identically. */
+static void restart_at_state_2_on_marker_21(PLW* wk) {
+    if (wk->wu.cg_type == 21) {
+        reset_mvxy_data(&wk->wu);
+        wk->wu.cg_type = 0;
+        wk->wu.routine_no[3] = 2;
+    }
+}
+
+/* Marker 20 takes the next movement row and hands the attack to state 3. Two
+ * arms wrote this identically; the marker-30 blocks beside them are near misses
+ * - one assigns state 4 and the other does not - and stay inline. */
+static void take_row_and_enter_state_3(PLW* wk) {
+    if (wk->wu.cg_type == 20) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.routine_no[3] = 3;
+        wk->wu.cg_type = 0;
+    }
+}
+
 void Att_PL17_AT1(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -62,12 +84,7 @@ void Att_PL17_AT1(PLW* wk) {
     case 2:
         char_move(&wk->wu);
 
-        if (wk->wu.cg_type == 20) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.routine_no[3] = 3;
-            wk->wu.cg_type = 0;
-        }
+        take_row_and_enter_state_3(wk);
 
         if (wk->wu.cg_type == 30) {
             setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
@@ -93,11 +110,7 @@ void Att_PL17_AT1(PLW* wk) {
                 wk->wu.cg_type = 0;
             }
 
-            if (wk->wu.cg_type == 21) {
-                reset_mvxy_data(&wk->wu);
-                wk->wu.cg_type = 0;
-                wk->wu.routine_no[3] = 2;
-            }
+            restart_at_state_2_on_marker_21(wk);
 
             if (wk->wu.cg_type == 25) {
                 wk->wu.cg_type = 0;
@@ -112,18 +125,9 @@ void Att_PL17_AT1(PLW* wk) {
         cal_mvxy_speed(&wk->wu);
         add_mvxy_speed(&wk->wu);
 
-        if (wk->wu.cg_type == 20) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.routine_no[3] = 3;
-            wk->wu.cg_type = 0;
-        }
+        take_row_and_enter_state_3(wk);
 
-        if (wk->wu.cg_type == 21) {
-            reset_mvxy_data(&wk->wu);
-            wk->wu.cg_type = 0;
-            wk->wu.routine_no[3] = 2;
-        }
+        restart_at_state_2_on_marker_21(wk);
 
         if (wk->wu.cg_type == 30) {
             setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
@@ -138,11 +142,7 @@ void Att_PL17_AT1(PLW* wk) {
         jumping_union_process(&wk->wu, 2);
 
         if (wk->wu.routine_no[3] != 2) {
-            if (wk->wu.cg_type == 21) {
-                reset_mvxy_data(&wk->wu);
-                wk->wu.cg_type = 0;
-                wk->wu.routine_no[3] = 2;
-            }
+            restart_at_state_2_on_marker_21(wk);
 
             if (wk->wu.cg_type == 26) {
                 wk->wu.cg_type = 0;
