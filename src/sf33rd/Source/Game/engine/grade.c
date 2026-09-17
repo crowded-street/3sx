@@ -467,6 +467,42 @@ void grade_makeup_judgement_gals() {
     }
 }
 
+/* What the winner's streak is worth. In arcade play it goes straight into the
+ * extra points; in the other modes it is returned to the caller's running
+ * total, from whichever of the two streak tables applies. */
+static s16 winner_streak_points(s16 ix) {
+    s16 i;
+
+    if (Play_Type == 0) {
+        for (i = 0; i < 10; i++) {
+            if (judge_item[ix][Play_Type].no_lose < grade_t_straight[i + 1][0]) {
+                break;
+            }
+        }
+
+        judge_item[ix][Play_Type].ex_point_total += grade_t_straight[i][1];
+        return 0;
+    }
+
+    if (judge_item[ix][Play_Type].renshou) {
+        for (i = 0; i < 7; i++) {
+            if (judge_item[ix][Play_Type].renshou < grade_t_renshou[i + 1][0]) {
+                break;
+            }
+        }
+
+        return grade_t_renshou[i][1];
+    }
+
+    for (i = 0; i < 7; i++) {
+        if (judge_item[ix][Play_Type].em_renshou < grade_t_em_renshou[i + 1][0]) {
+            break;
+        }
+    }
+
+    return grade_t_em_renshou[i][1];
+}
+
 void grade_makeup_stage_parameter(s16 ix) {
     s16 i;
     s16 grade;
@@ -497,31 +533,7 @@ void grade_makeup_stage_parameter(s16 ix) {
     }
 
     if (ix == WINNER) {
-        if (Play_Type == 0) {
-            for (i = 0; i < 10; i++) {
-                if (judge_item[ix][Play_Type].no_lose < grade_t_straight[i + 1][0]) {
-                    break;
-                }
-            }
-
-            judge_item[ix][Play_Type].ex_point_total += grade_t_straight[i][1];
-        } else if (judge_item[ix][Play_Type].renshou) {
-            for (i = 0; i < 7; i++) {
-                if (judge_item[ix][Play_Type].renshou < grade_t_renshou[i + 1][0]) {
-                    break;
-                }
-            }
-
-            point += grade_t_renshou[i][1];
-        } else {
-            for (i = 0; i < 7; i++) {
-                if (judge_item[ix][Play_Type].em_renshou < grade_t_em_renshou[i + 1][0]) {
-                    break;
-                }
-            }
-
-            point += grade_t_em_renshou[i][1];
-        }
+        point += winner_streak_points(ix);
     }
 
     point = judge_item[ix][Play_Type].offence_total + judge_item[ix][Play_Type].defence_total +
