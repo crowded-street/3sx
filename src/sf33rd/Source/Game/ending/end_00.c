@@ -291,28 +291,39 @@ void end_000_0003() {
     }
 }
 
-/* Shake the panel around Gill's resting position, on the quake's own timer. */
-static void end00_quake_from_stop_pos() {
+/* Tick the quake's own timer and step its frame. Reports whether the frame moved,
+ * which is what each shake does its work under. */
+static s32 end00_quake_stepped() {
     if (gill_quake_flag && (bgw_ptr->r_limit--, bgw_ptr->r_limit < 1)) {
         bgw_ptr->frame_deff++;
         bgw_ptr->frame_deff &= 0x1F;
         bgw_ptr->r_limit = end00_quake_timer[bgw_ptr->frame_deff];
+        return 1;
+    }
+
+    return 0;
+}
+
+/* Follow a shake with the absolute position the scroller reads. */
+static void end00_quake_commit() {
+    bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
+    bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+}
+
+/* Shake the panel around Gill's resting position, on the quake's own timer. */
+static void end00_quake_from_stop_pos() {
+    if (end00_quake_stepped()) {
         bgw_ptr->xy[1].disp.pos = gill_stop_pos[0];
         bgw_ptr->xy[1].disp.pos += end00_quake_tbl[bgw_ptr->frame_deff];
-        bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+        end00_quake_commit();
     }
 }
 
 /* Shake the panel around wherever it already is. */
 static void end00_quake_in_place() {
-    if (gill_quake_flag && (bgw_ptr->r_limit--, bgw_ptr->r_limit < 1)) {
-        bgw_ptr->frame_deff++;
-        bgw_ptr->frame_deff &= 0x1F;
-        bgw_ptr->r_limit = end00_quake_timer[bgw_ptr->frame_deff];
+    if (end00_quake_stepped()) {
         bgw_ptr->xy[1].disp.pos += end00_quake_tbl2[bgw_ptr->frame_deff];
-        bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+        end00_quake_commit();
     }
 }
 
