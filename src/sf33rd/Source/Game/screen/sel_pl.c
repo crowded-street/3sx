@@ -1018,6 +1018,38 @@ void Auto_Repeat_Sub(s16 PL_id) {
     }
 }
 
+/* State 1 of the super-art cursor repeat: drop it if the lever left the direction it
+ * started on, otherwise tick it and report the direction each time it fires. Every
+ * path that fell out of the switch reached the function's `return 0`. */
+static u16 Tick_Wife_Repeat(s16 PL_id, u16 sw) {
+    sw &= Auto_Cursor[PL_id];
+
+    if (sw) {
+        if (Auto_Timer[PL_id] -= 1) {
+            return 0;
+        }
+
+        Auto_Timer[PL_id] = Repeat_Time_Data_Wife[Auto_Index[PL_id]++];
+
+        if (Auto_Index[PL_id] > 2) {
+            Auto_Index[PL_id] = 2;
+        }
+
+        if (sw & SWK_UP) {
+            return SWK_UP;
+        }
+
+        if (sw & SWK_DOWN) {
+            return SWK_DOWN;
+        }
+
+        return 0;
+    }
+
+    Auto_No[PL_id] = 0;
+    return 0;
+}
+
 u16 Auto_Repeat_Sub_Wife(s16 PL_id) {
     u16 sw;
 
@@ -1048,32 +1080,7 @@ u16 Auto_Repeat_Sub_Wife(s16 PL_id) {
         break;
 
     case 1:
-        sw &= Auto_Cursor[PL_id];
-
-        if (sw) {
-            if (Auto_Timer[PL_id] -= 1) {
-                break;
-            }
-
-            Auto_Timer[PL_id] = Repeat_Time_Data_Wife[Auto_Index[PL_id]++];
-
-            if (Auto_Index[PL_id] > 2) {
-                Auto_Index[PL_id] = 2;
-            }
-
-            if (sw & SWK_UP) {
-                return SWK_UP;
-            }
-
-            if (sw & SWK_DOWN) {
-                return SWK_DOWN;
-            }
-
-            break;
-        }
-
-        Auto_No[PL_id] = 0;
-        break;
+        return Tick_Wife_Repeat(PL_id, sw);
     }
 
     return 0;
