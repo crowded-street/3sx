@@ -645,18 +645,17 @@ static s32 stick_to_left_limit(PLW* pl, s16 pos) {
     return 1;
 }
 
-s32 set_field_hosei_flag(PLW* pl, s16 pos, s16 ix) { // 🟢
-    while (1) {
-        if (ix) {
-            if (!stick_to_right_limit(pl, pos)) {
-                break;
-            }
-        } else {
-            if (!stick_to_left_limit(pl, pos)) {
-                break;
-            }
-        }
+/* Which limit applies, and whether the player is against it. */
+static s32 player_is_against_limit(PLW* pl, s16 pos, s16 ix) {
+    if (ix) {
+        return stick_to_right_limit(pl, pos);
+    }
 
+    return stick_to_left_limit(pl, pos);
+}
+
+s32 set_field_hosei_flag(PLW* pl, s16 pos, s16 ix) { // 🟢
+    if (player_is_against_limit(pl, pos, ix)) {
         return 0;
     }
 
