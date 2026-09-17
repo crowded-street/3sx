@@ -287,6 +287,28 @@ void nm_13000(PLW* wk) { // 🔵
     }
 }
 
+/* Which of the three landing states this jump goes to, taken from the
+ * direction the lever settled on. */
+static void enter_jump_from_16000(PLW* wk) {
+    check_jump_rl_dir(wk);
+
+    switch (wk->jpdir) {
+    case JUMP_DIR_FORWARD:
+        wk->wu.routine_no[2] = 21;
+        break;
+
+    case JUMP_DIR_BACKWARD:
+        wk->wu.routine_no[2] = 23;
+        break;
+
+    default:
+        wk->wu.routine_no[2] = 22;
+        break;
+    }
+
+    wk->wu.routine_no[3] = 0;
+}
+
 void nm_16000(PLW* wk) { // 🟢
     set_new_jpdir(wk);
 
@@ -296,23 +318,7 @@ void nm_16000(PLW* wk) { // 🟢
 
     switch (wk->wu.cg_type) {
     case 0xFF:
-        check_jump_rl_dir(wk);
-
-        switch (wk->jpdir) {
-        case JUMP_DIR_FORWARD:
-            wk->wu.routine_no[2] = 21;
-            break;
-
-        case JUMP_DIR_BACKWARD:
-            wk->wu.routine_no[2] = 23;
-            break;
-
-        default:
-            wk->wu.routine_no[2] = 22;
-            break;
-        }
-
-        wk->wu.routine_no[3] = 0;
+        enter_jump_from_16000(wk);
         break;
 
     case 1:
@@ -334,6 +340,27 @@ void nm_16000(PLW* wk) { // 🟢
     check_leap_attack(wk);
 }
 
+/* The same choice from 17000, which lands in its own three states. */
+static void enter_jump_from_17000(PLW* wk) {
+    check_jump_rl_dir(wk);
+
+    switch (wk->jpdir) {
+    case JUMP_DIR_FORWARD:
+        wk->wu.routine_no[2] = 24;
+        break;
+
+    case JUMP_DIR_BACKWARD:
+        wk->wu.routine_no[2] = 26;
+        break;
+
+    default:
+        wk->wu.routine_no[2] = 25;
+        break;
+    }
+
+    wk->wu.routine_no[3] = 0;
+}
+
 void nm_17000(PLW* wk) { // 🟢 The only difference is DIP switch handling
     set_new_jpdir(wk);
 
@@ -342,23 +369,7 @@ void nm_17000(PLW* wk) { // 🟢 The only difference is DIP switch handling
     }
 
     if (wk->wu.cg_type == 0xFF) {
-        check_jump_rl_dir(wk);
-
-        switch (wk->jpdir) {
-        case JUMP_DIR_FORWARD:
-            wk->wu.routine_no[2] = 24;
-            break;
-
-        case JUMP_DIR_BACKWARD:
-            wk->wu.routine_no[2] = 26;
-            break;
-
-        default:
-            wk->wu.routine_no[2] = 25;
-            break;
-        }
-
-        wk->wu.routine_no[3] = 0;
+        enter_jump_from_17000(wk);
         return;
     }
 
