@@ -823,32 +823,12 @@ static s32 defence_rate_points(s16 ix, s16 ix2) {
 
 /* The three kinds of blocking, each with its own table. */
 static s32 blocking_points(s16 ix) {
-    s16 i;
     s32 num = 0;
 
-    for (i = 0; i < 10; i++) {
-        if (judge_item[ix][Play_Type].nml_blocking < grade_t_def_nmlblock[i + 1][0]) {
-            break;
-        }
-    }
+    num += grade_table_points(grade_t_def_nmlblock, 10, judge_item[ix][Play_Type].nml_blocking);
+    num += grade_table_points(grade_t_def_rpdblock, 10, judge_item[ix][Play_Type].rpd_blocking);
+    num += grade_table_points(grade_t_def_grdblock, 8, judge_item[ix][Play_Type].grd_blocking);
 
-    num += grade_t_def_nmlblock[i][1];
-
-    for (i = 0; i < 10; i++) {
-        if (judge_item[ix][Play_Type].rpd_blocking < grade_t_def_rpdblock[i + 1][0]) {
-            break;
-        }
-    }
-
-    num += grade_t_def_rpdblock[i][1];
-
-    for (i = 0; i < 8; i++) {
-        if (judge_item[ix][Play_Type].grd_blocking < grade_t_def_grdblock[i + 1][0]) {
-            break;
-        }
-    }
-
-    num += grade_t_def_grdblock[i][1];
     return num;
 }
 
