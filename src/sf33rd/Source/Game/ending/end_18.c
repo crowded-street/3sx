@@ -78,6 +78,16 @@ void end_1800_move() {
     end_1800_move_jp[end_w.r_no_2]();
 }
 
+/* Flip the panel between its two frames on a one-frame timer. */
+static void end_18_toggle_frame() {
+    bgw_ptr->free--;
+
+    if (bgw_ptr->free <= 0) {
+        bgw_ptr->free = 1;
+        bgw_ptr->l_limit ^= 1;
+    }
+}
+
 void end_1800_0001() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -119,12 +129,7 @@ void end_1800_0001() {
         break;
 
     case 1:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->free = 1;
-            bgw_ptr->l_limit ^= 1;
-        }
+        end_18_toggle_frame();
 
         break;
     }
@@ -173,12 +178,7 @@ void end_1800_0006() {
         break;
 
     case 1:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->free = 1;
-            bgw_ptr->l_limit ^= 1;
-        }
+        end_18_toggle_frame();
 
         break;
     }
@@ -195,12 +195,7 @@ void end_1800_0008() {
         break;
 
     case 1:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->free = 1;
-            bgw_ptr->l_limit ^= 1;
-        }
+        end_18_toggle_frame();
 
         break;
     }
