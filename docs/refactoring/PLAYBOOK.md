@@ -624,7 +624,8 @@ Recipe X both refuse to merge.
 | `plpdm_states.c` | 9.38 | Overall Code Complexity only; every further arm extraction makes a twin of an existing `begin_damage_*` and costs 0.84 |
 | `caldir.c` | 8.81 | `cal_all_speed_data` and `cal_delta_speed` take 6 arguments each. Recipe A would clear it, but one of their 62 call sites is in `plpat00.c`, which this branch may not touch |
 | `charset.c` | 9.68 | `set_char_move_init2` takes 5 arguments; same reason - one of its 59 call sites is in `plpat00.c` |
-| `plmain.c` | 9.38 | Overall Code Complexity only - the whole-file mean over **65** functions, so one extraction moves it by about 0.08 and three moved it not at all. Four measured extractions were reverted; two more tripped *Lines of Code in a Single File* and made a twin of `plmv_1010`, measuring 8.03. At 1430 lines this file wants **Recipe S** before anything else |
+| `plmain.c` | **10.00** | *was 9.38.* Three Recipe S splits, then the extractions that had measured flat before them - see *A file can be too big for its own mean* below. 1430 lines and 65 functions became 606 and 35, plus `plmain_arts.c`, `plmain_ps2_arts.c` and `plmain_vital.c`, all at 10.00 |
+| `plmain_arts.c` | **10.00** | split from `plmain.c`. Almost any pair of helpers named out of its gauge state machines reads as a duplicate: naming `mpg_union`'s arms twins it with `eag_union`, and naming `spend_max_gauge`'s firing arm twins it with `spend_and_disarm_ex`, both -0.57. What paid was Recipe C, which removes a run instead of naming an arm |
 | `hitplpl.c` | 8.59 | `player_at_vs_player_dm` is one `while (1)` whose arms leave through `break` and `goto two`; no arm can move to a helper without a numeric verdict protocol |
 | `cmd_main.c` | 9.39 | `latch_sw_lvbt_bit_0x80` and `_0x800` differ only in their four case labels and two masks; splitting each in two trades their Complex Method for a Code Duplication pair at no net gain |
 | `cmb_win.c` | **10.00** | *was 9.92.* Recipe F: two of the three passes over the players differed only in what they called |
@@ -1325,3 +1326,36 @@ The test to apply before making the split:
 
 Measure it either way - the two cases differ by less than half a point and neither is
 predictable from reading the code.
+
+### A file can be too big for its own mean
+
+`plmain.c` is the case that shows what *Overall Code Complexity is a whole-file average*
+means in practice. At 1430 lines and 65 functions its mean was 4.4 against a threshold near
+3.8, and **one extraction moves a 65-function mean by about 0.01**. Three good extractions
+measured flat. Two more measured **8.03**, because in a file that size there is always
+something for a new helper to twin with, and past 1400 lines *Lines of Code in a Single
+File* is waiting as well.
+
+Three Recipe S splits fixed it, in this order, and none of them moved the score on its own:
+
+| Split | plmain.c after | What it took to clear the new file |
+| --- | --- | --- |
+| the port's super-art states -> `plmain_ps2_arts.c` | 1203 lines, 9.38 | 4 extractions, 9.38 -> 10.00 |
+| the vitality drain -> `plmain_vital.c` | 1051 lines, 9.38 | 2 extractions, 9.38 -> 10.00 |
+| the gauges and CPS3 arts -> `plmain_arts.c` | 606 lines, 9.38 | 4 extractions, 9.38 -> 10.00 |
+
+Then the three extractions that had measured flat in the 65-function file took what was
+left of `plmain.c` from 9.38 to **10.00** unchanged. Nothing about them got better; the
+denominator got smaller.
+
+**So when a file shows only Overall Code Complexity, count its functions before extracting
+anything.** Under about twenty, two extractions will clear it - `bbbscom.c` and
+`manage_result.c` each took one commit. Over about forty, extraction is the wrong tool and
+the file needs splitting first.
+
+One more thing a split does, worth knowing because it flatters the score: **a duplication
+pair in different files is not a duplication finding.** `sag_union_0` and
+`sag_union_ps2_active` are two dispatchers that share a shape and agree on nothing else;
+the first split put them in different files and the finding went away without a line of
+either changing. Say so in the commit message when it happens - it is a real improvement in
+how the code is organised, but it is not the detector being satisfied by better code.
