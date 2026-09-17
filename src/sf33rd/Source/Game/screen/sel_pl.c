@@ -106,6 +106,11 @@ const u8 Repeat_Time_Data[3] = { 26, 9, 7 };
 
 const u8 Repeat_Time_Data_Wife[3] = { 1, 1, 1 };
 
+/* The cursor is frozen while this player has confirmed or the grid is scrolling. */
+static s32 Cursor_Is_Held() {
+    return Stop_Cursor[ID] != 0 || Face_Move != 0;
+}
+
 s16 Select_Player() {
     SEL_PL_X = 0;
 
@@ -600,7 +605,7 @@ static void Commit_Player_Choice() {
 }
 
 void Sel_PL_3rd() {
-    if (Stop_Cursor[ID] != 0 || Face_Move != 0) {
+    if (Cursor_Is_Held()) {
         return;
     }
 
@@ -690,7 +695,7 @@ void Sel_PL_4th() {
 }
 
 void Sel_PL_5th() {
-    if (Stop_Cursor[ID] != 0 || Face_Move != 0) {
+    if (Cursor_Is_Held()) {
         return;
     }
 
