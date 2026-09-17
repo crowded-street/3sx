@@ -429,6 +429,22 @@ static s16 body_touch_overlap(PLW* hmw, WORK* efw, const s16* dad0, const s16* d
     return hit_check_subroutine(&hmw->wu, efw, &dad2[0], &dad3[0]);
 }
 
+/* The two ways the bonus-stage car pushes the human player apart from it. They
+ * are mirrors - the sign of the shift, which micchaku_flag blocks it, and which
+ * side each hos_em_flag names - which is three differences, so they stay as two
+ * helpers rather than one parameterised by direction. */
+static void push_home_player_forward(PLW* hmw, PLW* cmw, s16 meri) {
+    hmw->wu.xyz[0].disp.pos += (meri) * (hmw->micchaku_flag != 1);
+    hmw->hos_em_flag = 2;
+    cmw->hos_em_flag = 1;
+}
+
+static void push_home_player_back(PLW* hmw, PLW* cmw, s16 meri) {
+    hmw->wu.xyz[0].disp.pos -= (meri) * (hmw->micchaku_flag != 2);
+    hmw->hos_em_flag = 1;
+    cmw->hos_em_flag = 2;
+}
+
 void check_body_touch2() {
     PLW* hmw;
     PLW* cmw;
@@ -459,9 +475,11 @@ void check_body_touch2() {
                 meri = meri_case_switch(meri);
 
                 if (!check_work_position_bonus(&hmw->wu, efw->xyz[0].disp.pos + (dad1[0] + dad1[1] / 2))) {
-                    goto two;
+                    push_home_player_back(hmw, cmw, meri);
+                    return;
                 } else {
-                    goto one;
+                    push_home_player_forward(hmw, cmw, meri);
+                    return;
                 }
             }
         }
@@ -469,19 +487,6 @@ void check_body_touch2() {
 
     hmw->hos_em_flag = 0;
     cmw->hos_em_flag = 0;
-    return;
-
-one:
-    hmw->wu.xyz[0].disp.pos += (meri) * (hmw->micchaku_flag != 1);
-    hmw->hos_em_flag = 2;
-    cmw->hos_em_flag = 1;
-    return;
-
-two:
-    hmw->wu.xyz[0].disp.pos -= (meri) * (hmw->micchaku_flag != 2);
-    hmw->hos_em_flag = 1;
-    cmw->hos_em_flag = 2;
-    return;
 }
 
 s32 check_be_car_object() {
