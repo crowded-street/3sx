@@ -103,14 +103,20 @@ void end_000_move() {
     end_000_jp[end_w.r_no_2]();
 }
 
+/* Open a scene: step the state and put the panel where this scene starts, with the
+ * absolute position the scroller reads following it. */
+static void end_00_open_scene() {
+    bgw_ptr->r_no_1++;
+    bgw_ptr->xy[0].disp.pos = end_0_pos[end_w.r_no_2][0];
+    bgw_ptr->xy[1].disp.pos = end_0_pos[end_w.r_no_2][1];
+    bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
+    bgw_ptr->abs_y = 0;
+}
+
 void end_000_0000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_0_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_0_pos[end_w.r_no_2][1];
-        bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
-        bgw_ptr->abs_y = 0;
+        end_00_open_scene();
         Bg_On_W(1);
         effect_E6_init(0xA8);
         Rewrite_End_Message(1);
@@ -203,11 +209,7 @@ static void end_000_0001_after_gill() {
 void end_000_0001() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_0_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_0_pos[end_w.r_no_2][1];
-        bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
-        bgw_ptr->abs_y = 0;
+        end_00_open_scene();
         Bg_On_W(1);
         effect_E6_init(0xA9);
         effect_E6_init(0xAB);
@@ -249,11 +251,7 @@ void end_000_0002() {
         overwrite_panel(0xFFFFFFFF, 0x17);
 
         if (Request_Fade(2)) {
-            bgw_ptr->r_no_1++;
-            bgw_ptr->xy[0].disp.pos = end_0_pos[end_w.r_no_2][0];
-            bgw_ptr->xy[1].disp.pos = end_0_pos[end_w.r_no_2][1];
-            bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
-            bgw_ptr->abs_y = 0;
+            end_00_open_scene();
             effect_E6_init(0xAC);
             end_no_cut = 1;
         }
@@ -277,11 +275,7 @@ void end_000_0002() {
 void end_000_0003() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_0_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_0_pos[end_w.r_no_2][1];
-        bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
-        bgw_ptr->abs_y = 0;
+        end_00_open_scene();
         effect_E6_init(0xAD);
         Rewrite_End_Message(4);
         break;
