@@ -80,6 +80,27 @@ void Att_PL08_HEALING(PLW* wk) {
     }
 }
 
+/* The taunt's markers: 40 pays the super-art gauge, 64 adds six to the stun bonus
+ * against a ceiling of 24 and grades the personal action. */
+static void pl08_taunt_markers(PLW* wk) {
+    char_move(&wk->wu);
+    if (wk->wu.cg_type == 40) {
+        wk->wu.cg_type = 0;
+        add_sp_arts_gauge_tokushu(wk);
+    }
+
+    if (wk->wu.cg_type == 64) {
+        wk->wu.routine_no[3]++;
+        wk->tk_kizetsu += 6;
+
+        if (wk->tk_kizetsu > 24) {
+            wk->tk_kizetsu = 24;
+        }
+
+        grade_add_personal_action(wk->wu.id);
+    }
+}
+
 void Att_PL08_TOKUSHUKOUDOU(PLW* wk) {
     wk->scr_pos_set_flag = 0;
 
@@ -92,23 +113,7 @@ void Att_PL08_TOKUSHUKOUDOU(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-        if (wk->wu.cg_type == 40) {
-            wk->wu.cg_type = 0;
-            add_sp_arts_gauge_tokushu(wk);
-        }
-
-        if (wk->wu.cg_type == 64) {
-            wk->wu.routine_no[3]++;
-            wk->tk_kizetsu += 6;
-
-            if (wk->tk_kizetsu > 24) {
-                wk->tk_kizetsu = 24;
-            }
-
-            grade_add_personal_action(wk->wu.id);
-        }
-
+        pl08_taunt_markers(wk);
         break;
 
     default:
