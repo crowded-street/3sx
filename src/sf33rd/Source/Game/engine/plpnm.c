@@ -166,6 +166,22 @@ static void run_simple_normal_state(PLW* wk, s16 index) {
     }
 }
 
+/* The same, for the states that first turn the character to face the way the
+ * move wants. Three states differ in one value, the pattern index. */
+static void run_facing_normal_state(PLW* wk, s16 index) {
+    switch (wk->wu.routine_no[3]) {
+    case 0:
+        wk->wu.routine_no[3]++;
+        wk->wu.rl_flag = wk->wu.rl_waza;
+        set_char_move_init(&wk->wu, 0, index);
+        break;
+
+    case 1:
+        char_move(&wk->wu);
+        break;
+    }
+}
+
 /* In a mirror match the two players are drawn one in front of the other. The
  * states that put this player in front, and the ones that put them behind,
  * each wrote the same three lines out - twenty and nine times. */
@@ -190,17 +206,7 @@ void Normal_01000(PLW* wk) { // 🟢
 void Normal_02000(PLW* wk) { // 🟢
     raise_z_when_mirrored(wk);
 
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        set_char_move_init(&wk->wu, 0, 1);
-        break;
-
-    case 1:
-        char_move(&wk->wu);
-        break;
-    }
+    run_facing_normal_state(wk, 1);
 }
 
 void Normal_03000(PLW* wk) { // 🟢
@@ -337,17 +343,7 @@ void Normal_06000(PLW* wk) { // 🟢
 }
 
 void nm_06_0000(PLW* wk) { // 🟢
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        set_char_move_init(&wk->wu, 0, 5);
-        break;
-
-    case 1:
-        char_move(&wk->wu);
-        break;
-    }
+    run_facing_normal_state(wk, 5);
 }
 
 void nm_06_0100(PLW* wk) { // 🟢
@@ -446,17 +442,7 @@ void Normal_09000(PLW* wk) { // 🟢
 void Normal_10000(PLW* wk) { // 🟢
     lower_z_when_mirrored(wk);
 
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        set_char_move_init(&wk->wu, 0, 8);
-        break;
-
-    case 1:
-        char_move(&wk->wu);
-        break;
-    }
+    run_facing_normal_state(wk, 8);
 }
 
 void Normal_11000(PLW* wk) { // 🔵
