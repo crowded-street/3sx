@@ -88,6 +88,15 @@ void end_1000_move() {
     end_1000_jp[end_w.r_no_2]();
 }
 
+/* Count the scene's hold down and move on when it runs out. */
+static void end_10_wait_out_hold() {
+    bgw_ptr->free--;
+
+    if (bgw_ptr->free <= 0) {
+        bgw_ptr->r_no_1++;
+    }
+}
+
 void end_1000_0000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -133,11 +142,7 @@ void end_1000_1000() {
         break;
 
     case 1:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->r_no_1++;
-        }
+        end_10_wait_out_hold();
 
         break;
 
@@ -244,11 +249,7 @@ void end_1001_1000() {
         break;
 
     case 1:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->r_no_1++;
-        }
+        end_10_wait_out_hold();
 
         break;
 
@@ -288,11 +289,7 @@ void end_1002_1000() {
         break;
 
     case 1:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->r_no_1++;
-        }
+        end_10_wait_out_hold();
 
         break;
 
@@ -332,11 +329,7 @@ void end_1003_1000() {
         break;
 
     case 1:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->r_no_1++;
-        }
+        end_10_wait_out_hold();
 
         end_bg_pos_hosei(5);
         end_fam_set(5);
