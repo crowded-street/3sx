@@ -350,6 +350,28 @@ static void shouryuureppa_enter_fall(PLW* wk) {
     }
 }
 
+/* The rising frames. Marker 20 feeds the next row, marker 30 starts the fall, and
+ * marker 40 with the right buttons still held cancels into routine 6. */
+static void shouryuureppa_rise(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 20) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.routine_no[3] = 2;
+        wk->wu.cg_type = 0;
+    }
+
+    shouryuureppa_enter_fall(wk);
+
+    if (wk->wu.cg_type == 40 && (wk->cp->sw_new & 0x770) == 0x70) {
+        wk->wu.routine_no[1] = 0;
+        wk->wu.routine_no[2] = 6;
+        wk->wu.routine_no[3] = 0;
+        wk->wu.cg_type = 0;
+    }
+}
+
 void Att_SHOURYUUREPPA(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -359,24 +381,7 @@ void Att_SHOURYUUREPPA(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 20) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.routine_no[3] = 2;
-            wk->wu.cg_type = 0;
-        }
-
-        shouryuureppa_enter_fall(wk);
-
-        if (wk->wu.cg_type == 40 && (wk->cp->sw_new & 0x770) == 0x70) {
-            wk->wu.routine_no[1] = 0;
-            wk->wu.routine_no[2] = 6;
-            wk->wu.routine_no[3] = 0;
-            wk->wu.cg_type = 0;
-        }
-
+        shouryuureppa_rise(wk);
         break;
 
     case 2:
