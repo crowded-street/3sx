@@ -336,50 +336,43 @@ static void show_credit_line(s16 t) {
     set_credit_string(&(CreditString){ t, x, y, a, sf3_staff[name_ptr].name });
 }
 
+/* One pair of credit lines, and on to the next entry. */
+static void show_credit_pair() {
+    show_credit_line(20);
+    name_ptr++;
+    show_credit_line(20);
+    name_ptr++;
+}
+
 /* Show the next page of credits: one pair of lines, and up to four more pairs while
  * the table says the following entry has no gap before it. */
 static void show_next_credit_page() {
     name_timer = sf3_staff[name_ptr].next;
-    show_credit_line(20);
-    name_ptr++;
-    show_credit_line(20);
-    name_ptr++;
+    show_credit_pair();
 
     if (sf3_staff[name_ptr].next != 0) {
         return;
     }
 
-    show_credit_line(20);
-    name_ptr++;
-    show_credit_line(20);
-    name_ptr++;
+    show_credit_pair();
 
     if (sf3_staff[name_ptr].next != 0) {
         return;
     }
 
-    show_credit_line(20);
-    name_ptr++;
-    show_credit_line(20);
-    name_ptr++;
+    show_credit_pair();
 
     if (sf3_staff[name_ptr].next != 0) {
         return;
     }
 
-    show_credit_line(20);
-    name_ptr++;
-    show_credit_line(20);
-    name_ptr++;
+    show_credit_pair();
 
     if (sf3_staff[name_ptr].next != 0) {
         return;
     }
 
-    show_credit_line(20);
-    name_ptr++;
-    show_credit_line(20);
-    name_ptr++;
+    show_credit_pair();
 }
 
 /* The roll has reached the next entry. Stop at the table's terminator; otherwise show
