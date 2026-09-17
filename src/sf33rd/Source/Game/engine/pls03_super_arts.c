@@ -178,27 +178,33 @@ static s32 try_airborne_ex_strengths(PLW* wk, u8 slot_ix, u16 cusw) {
     return try_ex_strengths(wk, slot_ix, cusw, select_airborne_ex_table);
 }
 
+/* The five reasons an airborne EX super cannot start, in the order the original
+ * tested them. */
+static s32 airborne_ex_slot_is_blocked(PLW* wk, u8 slot_ix, s8 always) {
+    if (wk->spmv_ng_flag & DIP_UNKNOWN_31) {
+        return 1;
+    }
+
+    if (slot_ix == 0) {
+        return 1;
+    }
+
+    if (slot_ix < 0x1C) {
+        return 1;
+    }
+
+    if (slot_needs_arming_and_is_not(wk, slot_ix, always)) {
+        return 1;
+    }
+
+    return chain_cancel_already_used(wk, slot_ix);
+}
+
 static s32 try_airborne_ex_super(PLW* wk, u8 slot_ix, s8 always) {
     u16* conpane;
     u16 cusw;
 
-    if (wk->spmv_ng_flag & DIP_UNKNOWN_31) {
-        return 0;
-    }
-
-    if (slot_ix == 0) {
-        return 0;
-    }
-
-    if (slot_ix < 0x1C) {
-        return 0;
-    }
-
-    if (slot_needs_arming_and_is_not(wk, slot_ix, always)) {
-        return 0;
-    }
-
-    if (chain_cancel_already_used(wk, slot_ix)) {
+    if (airborne_ex_slot_is_blocked(wk, slot_ix, always)) {
         return 0;
     }
 
