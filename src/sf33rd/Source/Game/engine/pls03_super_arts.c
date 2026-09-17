@@ -76,6 +76,25 @@ static s32 grounded_ex_slot_is_blocked(PLW* wk, u8 slot_ix, s8 always) {
  * u8, the field's own type - and each caller passes its own field. */
 /* The same for the grounded EX super. It stays separate from the airborne
  * one: the table it reaches into and the offset within it are both different. */
+/* Once an EX strength matches, both the grounded and the airborne path finish
+ * identically: drop the cancel, mark the meter spent, set the union up from that
+ * strength's command entry, and - outside arcade balance - record the chain-EX
+ * use. The `- 20` is what both wrote, airborne included, even though its table
+ * lookup above uses 38; that asymmetry is the original's and is left alone. */
+static s32 launch_ex_strength(PLW* wk, u8 slot_ix, s16 j) {
+    wk->wu.cg_cancel = 0;
+    wk->sa->mp = -1;
+    hissatsu_setup_union(wk, wk->cp->waza_r[slot_ix][j]);
+    waza_compel_all_init2(wk);
+
+    if (!ArcadeBalance_IsEnabled()) {
+        chainex_check[wk->wu.id][slot_ix - 20] = 1;
+        chainex_spat_cancel_kidou(&wk->wu);
+    }
+
+    return 1;
+}
+
 static s32 try_grounded_ex_strengths(PLW* wk, u8 slot_ix, u16 cusw) {
     s16 j;
     u16 exsw;
@@ -98,17 +117,7 @@ static s32 try_grounded_ex_strengths(PLW* wk, u8 slot_ix, u16 cusw) {
                                          [j + (slot_ix - 20) * 4];
             }
 
-            wk->wu.cg_cancel = 0;
-            wk->sa->mp = -1;
-            hissatsu_setup_union(wk, wk->cp->waza_r[slot_ix][j]);
-            waza_compel_all_init2(wk);
-
-            if (!ArcadeBalance_IsEnabled()) {
-                chainex_check[wk->wu.id][slot_ix - 20] = 1;
-                chainex_spat_cancel_kidou(&wk->wu);
-            }
-
-            return 1;
+            return launch_ex_strength(wk, slot_ix, j);
         }
     }
 
@@ -170,17 +179,7 @@ static s32 try_airborne_ex_strengths(PLW* wk, u8 slot_ix, u16 cusw) {
                                          [j + (slot_ix - 38) * 4];
             }
 
-            wk->wu.cg_cancel = 0;
-            wk->sa->mp = -1;
-            hissatsu_setup_union(wk, wk->cp->waza_r[slot_ix][j]);
-            waza_compel_all_init2(wk);
-
-            if (!ArcadeBalance_IsEnabled()) {
-                chainex_check[wk->wu.id][slot_ix - 20] = 1;
-                chainex_spat_cancel_kidou(&wk->wu);
-            }
-
-            return 1;
+            return launch_ex_strength(wk, slot_ix, j);
         }
     }
 
