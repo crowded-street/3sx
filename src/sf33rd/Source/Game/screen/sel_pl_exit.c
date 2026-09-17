@@ -53,6 +53,7 @@
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/ui/sc_sub.h"
 #include "sf33rd/Source/Game/screen/sel_pl_exit.h"
+#include "sf33rd/Source/Game/screen/sel_pl_faces.h"
 
 void Exit_1st();
 void Exit_2nd();
@@ -76,7 +77,6 @@ void Handicap_Vital_Select(s16 PL_id);
 void Handicap_Stage_Select(s16 PL_id);
 
 /* Defined in sel_pl.c, which this screen returns to. */
-void Go_Away_Red_Lines();
 u8 Setup_Battle_Country();
 extern u8 SEL_PL_X;
 
