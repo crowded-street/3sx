@@ -300,6 +300,18 @@ void Att_KUUCHUUHISSATU(PLW* wk) {
     }
 }
 
+/* The wall bounce itself: reposition against the limit the player now faces,
+ * start the bounce animation, drop into state 5 and fire the effect. Both arms
+ * of Att_AIRDASH wrote this run identically; what differs - the kabe_check3
+ * test and the way each one flips rl_flag - stays at the call sites. */
+static void bounce_off_wall(PLW* wk) {
+    wk->wu.xyz[0].disp.pos = wk->wu.rl_flag ? bg_w.bgw[1].l_limit2 - 192 : bg_w.bgw[1].r_limit2 + 192;
+    set_char_move_init(&wk->wu, 5, 65);
+    wk->wu.routine_no[3] = 5;
+    wk->wu.cg_type = 0;
+    effect_I3_init(&wk->wu, 4);
+}
+
 void Att_AIRDASH(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -315,11 +327,7 @@ void Att_AIRDASH(PLW* wk) {
 
         if (kabe_check3(wk) != 0) {
             wk->wu.rl_flag = (wk->wu.rl_flag + 1) & 1;
-            wk->wu.xyz[0].disp.pos = wk->wu.rl_flag ? bg_w.bgw[1].l_limit2 - 192 : bg_w.bgw[1].r_limit2 + 192;
-            set_char_move_init(&wk->wu, 5, 65);
-            wk->wu.routine_no[3] = 5;
-            wk->wu.cg_type = 0;
-            effect_I3_init(&wk->wu, 4);
+            bounce_off_wall(wk);
             break;
         }
 
@@ -353,11 +361,7 @@ void Att_AIRDASH(PLW* wk) {
 
         if (kabe_check3(wk)) {
             wk->wu.rl_flag = wk->wu.rl_flag + 1 & 1;
-            wk->wu.xyz[0].disp.pos = wk->wu.rl_flag ? bg_w.bgw[1].l_limit2 - 192 : bg_w.bgw[1].r_limit2 + 192;
-            set_char_move_init(&wk->wu, 5, 65);
-            wk->wu.routine_no[3] = 5;
-            wk->wu.cg_type = 0;
-            effect_I3_init(&wk->wu, 4);
+            bounce_off_wall(wk);
         }
 
         break;
