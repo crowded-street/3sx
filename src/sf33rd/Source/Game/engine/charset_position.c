@@ -164,47 +164,36 @@ s32 comm_paxy(WORK* wk, UNK11* ctc) {
     return 1;
 }
 
-s32 comm_pa_x(WORK* wk, UNK11* ctc) {
+/* The single-axis relative moves share one shape: koc says whether the offset
+ * lands on this work, on its target, or on both. Only which offset is applied
+ * differs between them. */
+static s32 add_offset_by_koc(WORK* wk, UNK11* ctc, void (*add_offset)(WORK*, UNK11*)) {
     WORK* emwk;
 
     switch (ctc->koc) {
     case 0:
-        add_script_x_offset(wk, ctc);
+        add_offset(wk, ctc);
         break;
 
     case 2:
-        add_script_x_offset(wk, ctc);
+        add_offset(wk, ctc);
         /* fallthrough */
 
     default:
         emwk = (WORK*)wk->target_adrs;
-
-        add_script_x_offset(emwk, ctc);
+        add_offset(emwk, ctc);
         break;
     }
 
     return 1;
 }
 
+s32 comm_pa_x(WORK* wk, UNK11* ctc) {
+    return add_offset_by_koc(wk, ctc, add_script_x_offset);
+}
+
 s32 comm_pa_y(WORK* wk, UNK11* ctc) {
-    WORK* emwk;
-
-    switch (ctc->koc) {
-    case 0:
-        add_script_y_offset(wk, ctc);
-        break;
-
-    case 2:
-        add_script_y_offset(wk, ctc);
-        /* fallthrough */
-
-    default:
-        emwk = (WORK*)wk->target_adrs;
-        add_script_y_offset(emwk, ctc);
-        break;
-    }
-
-    return 1;
+    return add_offset_by_koc(wk, ctc, add_script_y_offset);
 }
 
 s32 comm_mxyt(WORK* wk, UNK11* ctc) {
