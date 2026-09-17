@@ -410,6 +410,32 @@ static s32 try_grounded_dc_strengths(PLW* wk, u16 cusw) {
  * cannot merge the pair. Extracting both was measured against extracting one -
  * see the commit - and both won here because it brought the parent under the
  * threshold. */
+/* Fire the airborne direct cancel at strength j: the art it names, the
+ * cancel state it leaves behind, and the chain-EX bookkeeping the console
+ * rules add. */
+static void fire_airborne_dc(PLW* wk, s16 j) {
+    setup_comm_back(&wk->wu);
+
+    if (ArcadeBalance_IsEnabled()) {
+        wk->as = &asstbl_lv_9900_a_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)]
+                                         [j + (wk->sa->nmsa_a_ix - 38) * 4];
+    } else {
+        wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(wk->sa->nmsa_a_ix)]
+                                 [j + (wk->sa->nmsa_a_ix - 38) * 4];
+        wk->sa->ex4th_exec = (j == 3) * wk->sa->ex4th_full;
+    }
+
+    wk->wu.cg_cancel = 0;
+    wk->sa->ok = -1;
+    hissatsu_setup_union(wk, wk->cp->waza_r[wk->sa->nmsa_a_ix][j]);
+    waza_compel_all_init2(wk);
+
+    if (!ArcadeBalance_IsEnabled()) {
+        chainex_check[wk->wu.id][wk->sa->nmsa_a_ix - 20] = 1;
+        chainex_spat_cancel_kidou(&wk->wu);
+    }
+}
+
 static s32 try_airborne_dc_strengths(PLW* wk, u16 cusw) {
     s16 j;
     u16 exsw;
@@ -422,27 +448,7 @@ static s32 try_airborne_dc_strengths(PLW* wk, u16 cusw) {
         exsw = cusw & cmdshot_conv_tbl[wk->cp->exdt[wk->sa->nmsa_a_ix][j]];
 
         if (exsw == cmdshot_conv_tbl[wk->cp->exdt[wk->sa->nmsa_a_ix][j] & 0xF]) {
-            setup_comm_back(&wk->wu);
-
-            if (ArcadeBalance_IsEnabled()) {
-                wk->as = &asstbl_lv_9900_a_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)]
-                                                 [j + (wk->sa->nmsa_a_ix - 38) * 4];
-            } else {
-                wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(wk->sa->nmsa_a_ix)]
-                                         [j + (wk->sa->nmsa_a_ix - 38) * 4];
-                wk->sa->ex4th_exec = (j == 3) * wk->sa->ex4th_full;
-            }
-
-            wk->wu.cg_cancel = 0;
-            wk->sa->ok = -1;
-            hissatsu_setup_union(wk, wk->cp->waza_r[wk->sa->nmsa_a_ix][j]);
-            waza_compel_all_init2(wk);
-
-            if (!ArcadeBalance_IsEnabled()) {
-                chainex_check[wk->wu.id][wk->sa->nmsa_a_ix - 20] = 1;
-                chainex_spat_cancel_kidou(&wk->wu);
-            }
-
+            fire_airborne_dc(wk, j);
             return 1;
         }
     }
