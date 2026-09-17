@@ -619,31 +619,11 @@ static void clear_lower_priority_waza_flags() {
     }
 }
 
-void check_10() { // 🟢
+/* The half of the dash command that watches the lever come back: the window
+ * it has to happen in, the release itself, and the timeout. Case labels are
+ * the originals. */
+static void run_check_10_release() {
     switch (waza_ptr->shot_ok) {
-    case 0:
-        if (chk_pl->sw_lever == 0) {
-            waza_ptr->shot_ok++;
-        }
-        break;
-
-    case 1:
-        if (lever_held_and_move_allowed()) {
-            if (chk_pl->sw_lever == waza_ptr->w_lvr) {
-                waza_ptr->shot_ok++;
-                wcp[cmd_id].waza_flag[waza_type[cmd_id]] = wcp[cmd_id].reset[waza_type[cmd_id]];
-                waza_ptr->free3 = wcp[cmd_id].reset[waza_type[cmd_id]] + 10;
-                waza_ptr->w_int = 6;
-
-                clear_lower_priority_waza_flags();
-            } else {
-                waza_ptr->shot_ok = 0;
-                break;
-            }
-        }
-
-        break;
-
     case 2:
         waza_ptr->w_int--;
         waza_ptr->free3--;
@@ -699,6 +679,37 @@ void check_10() { // 🟢
             waza_ptr->w_type = 0;
         }
 
+        break;
+    }
+}
+
+void check_10() { // 🟢
+    switch (waza_ptr->shot_ok) {
+    case 0:
+        if (chk_pl->sw_lever == 0) {
+            waza_ptr->shot_ok++;
+        }
+        break;
+
+    case 1:
+        if (lever_held_and_move_allowed()) {
+            if (chk_pl->sw_lever == waza_ptr->w_lvr) {
+                waza_ptr->shot_ok++;
+                wcp[cmd_id].waza_flag[waza_type[cmd_id]] = wcp[cmd_id].reset[waza_type[cmd_id]];
+                waza_ptr->free3 = wcp[cmd_id].reset[waza_type[cmd_id]] + 10;
+                waza_ptr->w_int = 6;
+
+                clear_lower_priority_waza_flags();
+            } else {
+                waza_ptr->shot_ok = 0;
+                break;
+            }
+        }
+
+        break;
+
+    default:
+        run_check_10_release();
         break;
     }
 }
