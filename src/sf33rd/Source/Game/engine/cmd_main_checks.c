@@ -479,6 +479,22 @@ void check_7() { // 🟢
     }
 }
 
+/* The lever moved this frame: landing on the direction the command wants
+ * advances it, anything else ends it. */
+static void advance_on_extended_lever_move() {
+    if (chk_pl->sw_lever == sw_work) {
+        if (*waza_ptr->w_ptr == 0x1C) {
+            command_ok();
+            return;
+        }
+
+        check_next();
+        return;
+    }
+
+    waza_ptr->w_type = 0;
+}
+
 static void resolve_extended_lever_command() {
     sw_work = waza_ptr->w_lvr & 0xF;
 
@@ -487,17 +503,7 @@ static void resolve_extended_lever_command() {
             finish_or_advance_command();
         }
     } else if ((chk_pl->old_lvbt & 0xF) != (chk_pl->new_lvbt & 0xF)) {
-        if (chk_pl->sw_lever == sw_work) {
-            if (*waza_ptr->w_ptr == 0x1C) {
-                command_ok();
-                return;
-            }
-
-            check_next();
-            return;
-        }
-
-        waza_ptr->w_type = 0;
+        advance_on_extended_lever_move();
     }
 }
 
@@ -1069,16 +1075,26 @@ void check_20() { // 🟢
 /* check_21's charged-lever arm. The one `command_ok(); return;` inside it left
  * check_21 with nothing after the if/else chain, so returning from the helper
  * reaches the same place. */
+/* The neutral form of the charged lever command: it advances when the lever
+ * is at rest. */
+static void advance_on_neutral_lever(u16 sw_lever) {
+    if (sw_lever != 0) {
+        return;
+    }
+
+    if (((*waza_ptr->w_ptr)) == 0x1C) {
+        command_ok();
+        return;
+    }
+
+    check_next();
+}
+
 static void resolve_charged_lever_command(u16 sw_lever) {
     sw_work = waza_ptr->w_lvr & 0xF;
+
     if (sw_work == 0) {
-        if (sw_lever == 0) {
-            if (((*waza_ptr->w_ptr)) == 0x1C) {
-                command_ok();
-                return;
-            }
-            check_next();
-        }
+        advance_on_neutral_lever(sw_lever);
     } else if (chk_pl->now_lvbt & 0xF) {
         if (sw_lever == sw_work) {
             finish_or_advance_command();
