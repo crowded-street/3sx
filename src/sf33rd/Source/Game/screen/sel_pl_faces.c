@@ -231,47 +231,53 @@ void OBJ_Control() {
     OBJ_Jmp_Tbl[SO_No[0]]();
 }
 
+/* The one-player layout: this player's portrait, name plate and art panels, and the
+ * headings that slide in with them. */
+static void Setup_Single_Select_OBJ() {
+    SO_No[0] = 1;
+    effect_38_init(Aborigine, Aborigine + 11, 127, 0, 2);
+    Order[Aborigine + 11] = 1;
+    Order_Timer[Aborigine + 11] = 35;
+    effect_52_init(Aborigine, 37);
+    Order[37] = 1;
+    Order_Timer[37] = 30;
+    Order_Dir[37] = 0;
+    effect_K6_init(Aborigine, Aborigine + 31, 31, 2);
+    Order[Aborigine + 31] = 1;
+    Order_Timer[Aborigine + 31] = 35;
+    Order_Dir[Aborigine + 31] = 0;
+    effect_K6_init(Aborigine, Aborigine + 25, 25, 2);
+    Order[Aborigine + 25] = 1;
+    Order_Timer[Aborigine + 25] = 35;
+    Order_Dir[Aborigine + 25] = 0;
+    Order[0] = 1;
+    Order_Timer[0] = 40;
+    Order_Dir[0] = 4;
+    Order[1] = 1;
+    Order_Timer[1] = 45;
+    Order_Dir[1] = 4;
+    Order[3] = 1;
+    Order_Timer[3] = 45;
+    Order_Dir[3] = 4;
+    effect_39_init(Aborigine, Aborigine + 13, 127, 2, 1);
+    Order[Aborigine + 13] = 1;
+    Order_Timer[Aborigine + 13] = 35;
+    Order_Dir[Aborigine + 13] = 0;
+    effect_42_init(5);
+    Order[5] = 1;
+    Order_Timer[5] = 45;
+    Order_Dir[5] = 4;
+    effect_42_init(6);
+    Order[6] = 1;
+    Order_Timer[6] = 45;
+    Order_Dir[6] = 4;
+}
+
 void OBJ_1st() {
     Setup_EFF69();
 
     if (Select_Status[0] != 3) {
-        SO_No[0] = 1;
-        effect_38_init(Aborigine, Aborigine + 11, 127, 0, 2);
-        Order[Aborigine + 11] = 1;
-        Order_Timer[Aborigine + 11] = 35;
-        effect_52_init(Aborigine, 37);
-        Order[37] = 1;
-        Order_Timer[37] = 30;
-        Order_Dir[37] = 0;
-        effect_K6_init(Aborigine, Aborigine + 31, 31, 2);
-        Order[Aborigine + 31] = 1;
-        Order_Timer[Aborigine + 31] = 35;
-        Order_Dir[Aborigine + 31] = 0;
-        effect_K6_init(Aborigine, Aborigine + 25, 25, 2);
-        Order[Aborigine + 25] = 1;
-        Order_Timer[Aborigine + 25] = 35;
-        Order_Dir[Aborigine + 25] = 0;
-        Order[0] = 1;
-        Order_Timer[0] = 40;
-        Order_Dir[0] = 4;
-        Order[1] = 1;
-        Order_Timer[1] = 45;
-        Order_Dir[1] = 4;
-        Order[3] = 1;
-        Order_Timer[3] = 45;
-        Order_Dir[3] = 4;
-        effect_39_init(Aborigine, Aborigine + 13, 127, 2, 1);
-        Order[Aborigine + 13] = 1;
-        Order_Timer[Aborigine + 13] = 35;
-        Order_Dir[Aborigine + 13] = 0;
-        effect_42_init(5);
-        Order[5] = 1;
-        Order_Timer[5] = 45;
-        Order_Dir[5] = 4;
-        effect_42_init(6);
-        Order[6] = 1;
-        Order_Timer[6] = 45;
-        Order_Dir[6] = 4;
+        Setup_Single_Select_OBJ();
         return;
     }
 
