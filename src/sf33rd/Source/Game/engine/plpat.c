@@ -673,6 +673,30 @@ static void deflect_leap_attack_on_contact(PLW* wk) {
     }
 }
 
+/* The recovery half of the leap attack, from the direction hold onwards. The case
+ * labels are the original ones and the arms keep their order, so states 3, 4 and
+ * 5 still read as those numbers; a value outside them did nothing before and
+ * still does nothing. */
+static void leap_attack_recover(PLW* wk) {
+    switch (wk->wu.routine_no[3]) {
+    case 3:
+        if (--wk->wu.dir_timer > 0) {
+            break;
+        }
+
+        wk->wu.routine_no[3] = 4;
+        /* fallthrough */
+
+    case 4:
+        jumping_union_process(&wk->wu, 5);
+        break;
+
+    case 5:
+        char_move(&wk->wu);
+        break;
+    }
+}
+
 void Attack_10000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -706,20 +730,8 @@ void Attack_10000(PLW* wk) { // 🟢
         deflect_leap_attack_on_contact(wk);
         break;
 
-    case 3:
-        if (--wk->wu.dir_timer > 0) {
-            break;
-        }
-
-        wk->wu.routine_no[3] = 4;
-        /* fallthrough */
-
-    case 4:
-        jumping_union_process(&wk->wu, 5);
-        break;
-
-    case 5:
-        char_move(&wk->wu);
+    default:
+        leap_attack_recover(wk);
         break;
     }
 }
