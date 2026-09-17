@@ -935,6 +935,59 @@ static s32 Begin_Auto_Repeat(s16 PL_id, u16 sw, u16 direction_bit, s8 cursor) {
     return 0;
 }
 
+/* State 0: no repeat running - arm one if a lever direction is held. */
+static void Arm_Auto_Repeat(s16 PL_id, u16 sw) {
+    if (Begin_Auto_Repeat(PL_id, sw, SWK_RIGHT, 8)) {
+        return;
+    }
+
+    if (Begin_Auto_Repeat(PL_id, sw, SWK_LEFT, 4)) {
+        return;
+    }
+
+    if (Begin_Auto_Repeat(PL_id, sw, SWK_UP, 1)) {
+        return;
+    }
+
+    Begin_Auto_Repeat(PL_id, sw, SWK_DOWN, 2);
+}
+
+/* State 1: a repeat is running - drop it if the lever moved, otherwise tick it and
+ * step the cursor each time it fires. */
+static void Tick_Auto_Repeat(s16 PL_id, u16 sw) {
+    if (sw != Auto_Cursor[PL_id]) {
+        Auto_No[PL_id] = 0;
+        return;
+    }
+
+    if (Auto_Timer[PL_id] -= 1) {
+        return;
+    }
+
+    Auto_Timer[PL_id] = Repeat_Time_Data[Auto_Index[PL_id]];
+    Auto_Index[PL_id]++;
+
+    if ((Auto_Index[PL_id]) > 2) {
+        Auto_Index[PL_id] = 2;
+    }
+
+    if (sw & SWK_RIGHT) {
+        Sel_PL_Sub_CR(PL_id);
+    }
+
+    if (sw & SWK_LEFT) {
+        Sel_PL_Sub_CL(PL_id);
+    }
+
+    if (sw & SWK_UP) {
+        Sel_PL_Sub_CU(PL_id);
+    }
+
+    if (sw & SWK_DOWN) {
+        Sel_PL_Sub_CD(PL_id);
+    }
+}
+
 void Auto_Repeat_Sub(s16 PL_id) {
     u16 sw;
 
@@ -956,55 +1009,11 @@ void Auto_Repeat_Sub(s16 PL_id) {
 
     switch (Auto_No[PL_id]) {
     case 0:
-        if (Begin_Auto_Repeat(PL_id, sw, SWK_RIGHT, 8)) {
-            break;
-        }
-
-        if (Begin_Auto_Repeat(PL_id, sw, SWK_LEFT, 4)) {
-            break;
-        }
-
-        if (Begin_Auto_Repeat(PL_id, sw, SWK_UP, 1)) {
-            break;
-        }
-
-        Begin_Auto_Repeat(PL_id, sw, SWK_DOWN, 2);
-
+        Arm_Auto_Repeat(PL_id, sw);
         break;
 
     case 1:
-        if (sw != Auto_Cursor[PL_id]) {
-            Auto_No[PL_id] = 0;
-            break;
-        }
-
-        if (Auto_Timer[PL_id] -= 1) {
-            break;
-        }
-
-        Auto_Timer[PL_id] = Repeat_Time_Data[Auto_Index[PL_id]];
-        Auto_Index[PL_id]++;
-
-        if ((Auto_Index[PL_id]) > 2) {
-            Auto_Index[PL_id] = 2;
-        }
-
-        if (sw & SWK_RIGHT) {
-            Sel_PL_Sub_CR(PL_id);
-        }
-
-        if (sw & SWK_LEFT) {
-            Sel_PL_Sub_CL(PL_id);
-        }
-
-        if (sw & SWK_UP) {
-            Sel_PL_Sub_CU(PL_id);
-        }
-
-        if (sw & SWK_DOWN) {
-            Sel_PL_Sub_CD(PL_id);
-        }
-
+        Tick_Auto_Repeat(PL_id, sw);
         break;
     }
 }
