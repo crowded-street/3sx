@@ -116,6 +116,11 @@ static s32 In_A_Training_Mode() {
     return Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING;
 }
 
+/* At least one seat has no operator, so a CPU opponent has to be chosen. */
+static s32 Either_Side_Is_CPU() {
+    return plw[0].wu.operator == 0 || plw[1].wu.operator == 0;
+}
+
 s16 Select_Player() {
     SEL_PL_X = 0;
 
@@ -726,7 +731,7 @@ void Sel_PL_5th() {
         S_No[3] = 1;
     }
 
-    if (plw[0].wu.operator == 0 || plw[1].wu.operator == 0) {
+    if (Either_Side_Is_CPU()) {
         Check_Boss(ID);
     }
 }
