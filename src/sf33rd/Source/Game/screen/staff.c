@@ -412,6 +412,32 @@ static s32 advance_credit_roll() {
     return 0;
 }
 
+/* One frame of the roll: a shortcut ends it, the gap timer runs down, and when it
+ * expires the next entry and then the next page of names go up. */
+static void run_credit_roll() {
+    if (check_shortcut() != 0) {
+        staff_r_no = 4;
+        end_w.timer = 0;
+    } else {
+        roll_rate_t2 = 1;
+    }
+
+    if (end_w.timer >= 0) {
+        end_w.timer = end_w.timer - roll_rate_t2;
+    } else {
+        if (advance_credit_roll()) {
+            return;
+        }
+    }
+
+    if (name_timer >= 0) {
+        name_timer = name_timer - roll_rate_t2;
+        return;
+    }
+
+    show_next_credit_page();
+}
+
 s32 staff_credits(u32 /* unused */) {
     s16 x;
     s16 y;
@@ -439,27 +465,7 @@ s32 staff_credits(u32 /* unused */) {
         break;
 
     case 1:
-        if (check_shortcut() != 0) {
-            staff_r_no = 4;
-            end_w.timer = 0;
-        } else {
-            roll_rate_t2 = 1;
-        }
-
-        if (end_w.timer >= 0) {
-            end_w.timer = end_w.timer - roll_rate_t2;
-        } else {
-            if (advance_credit_roll()) {
-                break;
-            }
-        }
-
-        if (name_timer >= 0) {
-            name_timer = name_timer - roll_rate_t2;
-            break;
-        }
-
-        show_next_credit_page();
+        run_credit_roll();
         break;
 
     case 2:
