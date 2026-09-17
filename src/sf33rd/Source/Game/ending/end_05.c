@@ -287,6 +287,19 @@ void end_500_0007() {
     }
 }
 
+/* Scroll on, shaking, until the panel passes a mark - then start the effect that
+ * belongs to it. Three of the scene's states differed only in the mark and the
+ * effect. */
+static void end_500_0008_scroll_past(s16 mark, u8 char_num) {
+    end_5_bg0_move_sub();
+    end_500_quake_y_sub();
+
+    if (bgw_ptr->xy[0].disp.pos < mark) {
+        bgw_ptr->r_no_1++;
+        effect_E6_init(char_num);
+    }
+}
+
 void end_500_0008() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -294,35 +307,17 @@ void end_500_0008() {
         /* fallthrough */
 
     case 1:
-        end_5_bg0_move_sub();
-        end_500_quake_y_sub();
-
-        if (bgw_ptr->xy[0].disp.pos < -240) {
-            bgw_ptr->r_no_1++;
-            effect_E6_init(0x12);
-        }
+        end_500_0008_scroll_past(-240, 0x12);
 
         break;
 
     case 2:
-        end_5_bg0_move_sub();
-        end_500_quake_y_sub();
-
-        if (bgw_ptr->xy[0].disp.pos < -624) {
-            bgw_ptr->r_no_1++;
-            effect_E6_init(0x14);
-        }
+        end_500_0008_scroll_past(-624, 0x14);
 
         break;
 
     case 3:
-        end_5_bg0_move_sub();
-        end_500_quake_y_sub();
-
-        if (bgw_ptr->xy[0].disp.pos < -1008) {
-            bgw_ptr->r_no_1++;
-            effect_E6_init(0x15);
-        }
+        end_500_0008_scroll_past(-1008, 0x15);
 
         break;
 
