@@ -11,6 +11,27 @@
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/rendering/texcash.h"
 
+/* The car stage's first frame: the two players swap texture slots, the car is
+ * placed, and its props are created. */
+static void place_car_and_props(PLW* wk) {
+    if (wk->wu.id) {
+        purge_texcash_work(4);
+        wk->wu.my_mts = 3;
+
+    } else {
+        purge_texcash_work(3);
+        wk->wu.my_mts = 4;
+    }
+
+    make_texcash_work(5);
+    wk->wu.xyz[0].disp.pos = 468;
+    wk->wu.xyz[1].disp.pos = 0;
+    effect_C2_init(&wk->wu, 0);
+    effect_16_init(wk, 0);
+    effect_16_init(wk, 1);
+    Bonus_Stage_RNO[1] = 1;
+}
+
 void bbbs_com_execute2(PLW* wk) {
     switch (Bonus_Stage_RNO[0]) {
     case 0:
@@ -26,23 +47,7 @@ void bbbs_com_execute2(PLW* wk) {
             break;
         }
 
-        if (wk->wu.id) {
-            purge_texcash_work(4);
-            wk->wu.my_mts = 3;
-
-        } else {
-            purge_texcash_work(3);
-            wk->wu.my_mts = 4;
-        }
-
-        make_texcash_work(5);
-        wk->wu.xyz[0].disp.pos = 468;
-        wk->wu.xyz[1].disp.pos = 0;
-        effect_C2_init(&wk->wu, 0);
-        effect_16_init(wk, 0);
-        effect_16_init(wk, 1);
-        Bonus_Stage_RNO[1] = 1;
-
+        place_car_and_props(wk);
         break;
 
     case 1:
