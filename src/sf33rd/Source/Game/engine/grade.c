@@ -467,6 +467,28 @@ void grade_makeup_judgement_gals() {
     }
 }
 
+/* Write this stage's result into the arcade record. An interrupting Q goes in
+ * the last slot and leaves the stage counter alone; a normal opponent takes
+ * the next slot and advances it. Returns whether it was the Q. */
+static s16 record_vs_cpu_result(s16 ix, s16 point, s16 grade) {
+    s16 qc;
+    s16 plnum;
+
+    if ((qc = rannyuu_Q_check((ix + 1) & 1))) {
+        judge_final[ix][Play_Type].vs_cpu_result[15] = point;
+        judge_final[ix][Play_Type].vs_cpu_grade[15] = grade;
+        judge_final[ix][Play_Type].vs_cpu_player[15] = judge_final[ix][Play_Type].vcr_ix;
+        return qc;
+    }
+
+    plnum = old_my_char_check(My_char[(ix + 1) & 1], 0);
+    judge_final[ix][Play_Type].vs_cpu_result[judge_final[ix][Play_Type].vcr_ix] = point;
+    judge_final[ix][Play_Type].vs_cpu_grade[judge_final[ix][Play_Type].vcr_ix] = grade;
+    judge_final[ix][Play_Type].vs_cpu_player[judge_final[ix][Play_Type].vcr_ix] = plnum;
+    judge_final[ix][Play_Type].vcr_ix += 1;
+    return qc;
+}
+
 /* What the winner's streak is worth. In arcade play it goes straight into the
  * extra points; in the other modes it is returned to the caller's running
  * total, from whichever of the two streak tables applies. */
@@ -506,7 +528,6 @@ static s16 winner_streak_points(s16 ix) {
 void grade_makeup_stage_parameter(s16 ix) {
     s16 i;
     s16 grade;
-    s16 plnum;
     s16 point = 0;
     s16 bs;
     s16 qc;
@@ -548,18 +569,7 @@ void grade_makeup_stage_parameter(s16 ix) {
             break;
 
         default:
-            if ((qc = rannyuu_Q_check((ix + 1) & 1))) {
-                judge_final[ix][Play_Type].vs_cpu_result[15] = point;
-                judge_final[ix][Play_Type].vs_cpu_grade[15] = grade;
-                judge_final[ix][Play_Type].vs_cpu_player[15] = judge_final[ix][Play_Type].vcr_ix;
-            } else {
-                plnum = old_my_char_check(My_char[(ix + 1) & 1], 0);
-                judge_final[ix][Play_Type].vs_cpu_result[judge_final[ix][Play_Type].vcr_ix] = point;
-                judge_final[ix][Play_Type].vs_cpu_grade[judge_final[ix][Play_Type].vcr_ix] = grade;
-                judge_final[ix][Play_Type].vs_cpu_player[judge_final[ix][Play_Type].vcr_ix] = plnum;
-                judge_final[ix][Play_Type].vcr_ix += 1;
-            }
-
+            qc = record_vs_cpu_result(ix, point, grade);
             judge_item[ix][Play_Type].grade = grade;
             break;
         }
