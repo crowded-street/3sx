@@ -59,51 +59,63 @@ const s16 metareb_pos[20][2] = { { 1, 9 },  { 14, 19 }, { 5, 31 }, { 8, 24 },  {
                                  { 6, 35 }, { 15, 24 }, { 6, 26 }, { 8, 24 },  { 5, 31 },  { 4, 32 }, { 1, 9 },
                                  { 5, 30 }, { 1, 23 },  { 6, 22 }, { 13, 25 }, { -4, 22 }, { 0, 17 } };
 
+/* The rebirth places the player back on the ground: near the floor it drops to a
+ * fixed -8, otherwise it steps back by the per-character offset in metareb_pos,
+ * horizontally in whichever direction the move was buffered. */
+static void begin_metamor_rebirth(PLW* wk) {
+    wk->wu.routine_no[3] = 1;
+    wk->wu.rl_flag = wk->wu.rl_waza;
+    reset_mvxy_data(&wk->wu);
+
+    if (wk->wu.xyz[1].disp.pos < 3) {
+        wk->wu.xyz[1].disp.pos = -8;
+    } else {
+        wk->wu.xyz[1].disp.pos -= metareb_pos[wk->player_number][1];
+
+        if (wk->wu.rl_flag) {
+            wk->wu.xyz[0].disp.pos += metareb_pos[wk->player_number][0];
+        } else {
+            wk->wu.xyz[0].disp.pos -= metareb_pos[wk->player_number][0];
+        }
+    }
+
+    set_char_move_init(&wk->wu, 5, 1);
+    wk->metamor_over = 0;
+}
+
+/* Marker 31 arms the hitboxes, marker 40 launches. The 31 arm's `break` left the
+ * switch with nothing after it. */
+static void metamor_rebirth_markers(PLW* wk) {
+    char_move(&wk->wu);
+    if (wk->wu.cg_type == 31) {
+        wk->wu.cg_type = 0;
+        wk->caution_flag = 0;
+        wk->wu.cg_ja = wk->wu.hit_ix_table[wk->wu.cg_hit_ix];
+        set_jugde_area(&wk->wu);
+        return;
+    }
+
+    if (wk->wu.cg_type == 40) {
+        wk->wu.routine_no[3] = 2;
+        wk->wu.mvxy.a[0].sp = 0;
+        wk->wu.mvxy.a[1].sp = 0;
+        wk->wu.mvxy.d[0].sp = 0;
+        wk->wu.mvxy.d[1].sp = -0x8000;
+        wk->wu.mvxy.kop[0] = wk->wu.mvxy.kop[1] = 0;
+        wk->scr_pos_set_flag = 1;
+    }
+}
+
 void Att_METAMOR_REBIRTH(PLW* wk) {
     wk->scr_pos_set_flag = 0;
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3] = 1;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        reset_mvxy_data(&wk->wu);
-
-        if (wk->wu.xyz[1].disp.pos < 3) {
-            wk->wu.xyz[1].disp.pos = -8;
-        } else {
-            wk->wu.xyz[1].disp.pos -= metareb_pos[wk->player_number][1];
-
-            if (wk->wu.rl_flag) {
-                wk->wu.xyz[0].disp.pos += metareb_pos[wk->player_number][0];
-            } else {
-                wk->wu.xyz[0].disp.pos -= metareb_pos[wk->player_number][0];
-            }
-        }
-
-        set_char_move_init(&wk->wu, 5, 1);
-        wk->metamor_over = 0;
+        begin_metamor_rebirth(wk);
         break;
 
     case 1:
-        char_move(&wk->wu);
-        if (wk->wu.cg_type == 31) {
-            wk->wu.cg_type = 0;
-            wk->caution_flag = 0;
-            wk->wu.cg_ja = wk->wu.hit_ix_table[wk->wu.cg_hit_ix];
-            set_jugde_area(&wk->wu);
-            break;
-        }
-
-        if (wk->wu.cg_type == 40) {
-            wk->wu.routine_no[3] = 2;
-            wk->wu.mvxy.a[0].sp = 0;
-            wk->wu.mvxy.a[1].sp = 0;
-            wk->wu.mvxy.d[0].sp = 0;
-            wk->wu.mvxy.d[1].sp = -0x8000;
-            wk->wu.mvxy.kop[0] = wk->wu.mvxy.kop[1] = 0;
-            wk->scr_pos_set_flag = 1;
-        }
-
+        metamor_rebirth_markers(wk);
         break;
 
     case 2:
