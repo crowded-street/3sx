@@ -1281,13 +1281,18 @@ s32 Ck_Break_Into_SP(u16 Sw_0, u16 Sw_1, s16 PL_id) {
     return ENTRY_X = 1;
 }
 
-void Break_Into_02(s16 /* unused */) {
-    plw[New_Challenger].wu.operator = 1;
-    Operator_Status[New_Challenger] = 1;
+/* Every break-in path opens by clearing the incoming player's entry state. */
+static void Clear_New_Challenger_Entry() {
     E_Number[New_Challenger][0] = 0;
     E_Number[New_Challenger][1] = 0;
     E_Number[New_Challenger][2] = 0;
     E_Number[New_Challenger][3] = 0;
+}
+
+void Break_Into_02(s16 /* unused */) {
+    plw[New_Challenger].wu.operator = 1;
+    Operator_Status[New_Challenger] = 1;
+    Clear_New_Challenger_Entry();
 
     if (Continue_Coin[New_Challenger] == 0) {
         grade_check_work_1st_init(New_Challenger, 0);
@@ -1302,10 +1307,7 @@ void Break_Into_04(s16 /* unused */) {
     E_No[1] += 1;
     E_No[2] = 0;
     E_Timer = 150;
-    E_Number[New_Challenger][0] = 0;
-    E_Number[New_Challenger][1] = 0;
-    E_Number[New_Challenger][2] = 0;
-    E_Number[New_Challenger][3] = 0;
+    Clear_New_Challenger_Entry();
     effect_A2_init(0);
     sound_all_off();
     Sound_SE(0xB6);
@@ -1317,10 +1319,7 @@ void Break_Into_05(s16 PL_id) {
     Stop_Combo = 1;
     E_No[1] += 1;
     E_No[2] = 0;
-    E_Number[New_Challenger][0] = 0;
-    E_Number[New_Challenger][1] = 0;
-    E_Number[New_Challenger][2] = 0;
-    E_Number[New_Challenger][3] = 0;
+    Clear_New_Challenger_Entry();
 
     if ((Play_Type == 0) && (Conclusion_Flag != 0) && (plw[Champion].wu.operator == 0)) {
         E_Timer = 1;
@@ -1348,10 +1347,7 @@ void Break_Into_05(s16 PL_id) {
 }
 
 void Break_Into_07(s16 PL_id) {
-    E_Number[New_Challenger][0] = 0;
-    E_Number[New_Challenger][1] = 0;
-    E_Number[New_Challenger][2] = 0;
-    E_Number[New_Challenger][3] = 0;
+    Clear_New_Challenger_Entry();
     E_07_Flag[PL_id] = 1;
 
     if (E_07_Flag[0] != 0 && E_07_Flag[1] != 0) {
@@ -1364,10 +1360,7 @@ void Break_Into_07(s16 PL_id) {
 }
 
 void Break_Into_08(s16 PL_id) {
-    E_Number[New_Challenger][0] = 0;
-    E_Number[New_Challenger][1] = 0;
-    E_Number[New_Challenger][2] = 0;
-    E_Number[New_Challenger][3] = 0;
+    Clear_New_Challenger_Entry();
     E_07_Flag[PL_id] = 1;
 
     if (E_07_Flag[0] != 0 && E_07_Flag[1] != 0) {
@@ -1387,10 +1380,7 @@ void Break_Into_08(s16 PL_id) {
 }
 
 void Break_Into_09(s16 PL_id) {
-    E_Number[New_Challenger][0] = 0;
-    E_Number[New_Challenger][1] = 0;
-    E_Number[New_Challenger][2] = 0;
-    E_Number[New_Challenger][3] = 0;
+    Clear_New_Challenger_Entry();
     E_07_Flag[PL_id] = 1;
 
     if (E_07_Flag[0] != 0 && E_07_Flag[1] != 0) {
@@ -1404,10 +1394,7 @@ void Break_Into_09(s16 PL_id) {
 }
 
 void Break_Into_10(s16 PL_id) {
-    E_Number[New_Challenger][0] = 0;
-    E_Number[New_Challenger][1] = 0;
-    E_Number[New_Challenger][2] = 0;
-    E_Number[New_Challenger][3] = 0;
+    Clear_New_Challenger_Entry();
     E_07_Flag[PL_id] = 1;
 
     if (E_07_Flag[0] != 0 && E_07_Flag[1] != 0) {
