@@ -34,21 +34,25 @@ static s32 zuru_timer_is_running(const PLW* wk) {
     return (Timer_Freeze == 0) && (wk->wu.hit_stop == 0) && (wk->zuru_timer > 0);
 }
 
-static void read_bonus_lever(PLW* wk, u16 lv_data) {
-    if (wk->wu.operator) {
-        if (wk->metamor_over) {
-            wk->cp->sw_lvbt = 0;
-        } else {
-            wk->cp->sw_lvbt = lv_data;
-        }
+/* A CPU side in a bonus stage is driven by the stage's own script, and holds
+ * no lever of its own. The two stages have a script each. */
+static void run_bonus_stage_script(PLW* wk) {
+    if (Bonus_Game_Flag == 21) {
+        bbbs_com_execute(wk);
     } else {
-        if (Bonus_Game_Flag == 21) {
-            bbbs_com_execute(wk);
-        } else {
-            bbbs_com_execute2(wk);
-        }
+        bbbs_com_execute2(wk);
+    }
 
+    wk->cp->sw_lvbt = 0;
+}
+
+static void read_bonus_lever(PLW* wk, u16 lv_data) {
+    if (!wk->wu.operator) {
+        run_bonus_stage_script(wk);
+    } else if (wk->metamor_over) {
         wk->cp->sw_lvbt = 0;
+    } else {
+        wk->cp->sw_lvbt = lv_data;
     }
 
     if (wk->dead_flag) {
