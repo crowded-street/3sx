@@ -817,11 +817,12 @@ s16 get_defence_total(s16 ix, s16 wf) {
     return num;
 }
 
-s16 get_tech_pts_total(s16 ix) {
+/* The eight scored items that make up the technical total: the leap attack,
+ * the target combo, the normal throw, the throw escape, the quick stand, the
+ * personal action, the reversal and the command move. */
+static s16 tech_pts_items(s16 ix) {
     s16 i;
     s16 point = 0;
-
-    point += grade_t_first_attack[judge_item[ix][Play_Type].first_attack];
 
     for (i = 0; i < 9; i++) {
         if (judge_item[ix][Play_Type].leap_attack < grade_t_leap_attack[i + 1][0]) {
@@ -847,6 +848,7 @@ s16 get_tech_pts_total(s16 ix) {
 
     point += grade_t_nml_nage[i][1];
 
+
     for (i = 0; i < 5; i++) {
         if (judge_item[ix][Play_Type].grap_def < grade_t_grap_def[i + 1][0]) {
             break;
@@ -871,6 +873,7 @@ s16 get_tech_pts_total(s16 ix) {
 
     point += grade_t_personal_act[i][1];
 
+
     for (i = 0; i < 7; i++) {
         if (judge_item[ix][Play_Type].reversal < grade_t_reversal[i + 1][0]) {
             break;
@@ -886,6 +889,15 @@ s16 get_tech_pts_total(s16 ix) {
     }
 
     point += grade_t_command_waza[i][1];
+
+
+    return point;
+}
+
+/* And the super art, scored from the table for the number of stocks it has. */
+static s16 tech_pts_super_art(s16 ix) {
+    s16 i;
+    s16 point = 0;
 
     switch (plw[ix].sa->store_max) {
     case 1:
@@ -919,6 +931,15 @@ s16 get_tech_pts_total(s16 ix) {
         break;
     }
 
+    return point;
+}
+
+s16 get_tech_pts_total(s16 ix) {
+    s16 point = 0;
+
+    point += grade_t_first_attack[judge_item[ix][Play_Type].first_attack];
+    point += tech_pts_items(ix);
+    point += tech_pts_super_art(ix);
     return point;
 }
 
