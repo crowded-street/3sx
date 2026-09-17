@@ -643,7 +643,6 @@ static s32 offence_rate_points(s16 ix, s16 ix2) {
     s32 num;
     s32 num2;
     s32 point2 = 0;
-    s16 i;
 
     num2 = judge_item[ix2][Play_Type].guard_succ + judge_item[ix2][Play_Type].nml_blocking +
            judge_item[ix2][Play_Type].rpd_blocking + judge_item[ix2][Play_Type].grd_blocking +
@@ -657,13 +656,7 @@ static s32 offence_rate_points(s16 ix, s16 ix2) {
 
     last_judge_dada[ix][0] = remake_2_10(num, 3);
 
-    for (i = 0; i < 23; i++) {
-        if (num < grade_t_meichuuritsu2[i + 1][0]) {
-            break;
-        }
-    }
-
-    point2 = grade_t_meichuuritsu2[i][1];
+    point2 = grade_table_points(grade_t_meichuuritsu2, 23, num);
 
     if (judge_item[ix][Play_Type].att_renew) {
         num = (num2 * 100) / judge_item[ix][Play_Type].att_renew;
@@ -682,13 +675,7 @@ static s32 offence_rate_points(s16 ix, s16 ix2) {
 
     last_judge_dada[ix][2] = remake_2_10(num, 3);
 
-    for (i = 0; i < 20; i++) {
-        if (num < grade_t_meichuuritsu3[i + 1][0]) {
-            break;
-        }
-    }
-
-    point2 *= grade_t_meichuuritsu3[i][1];
+    point2 *= grade_table_points(grade_t_meichuuritsu3, 20, num);
     point2 /= 32;
 
     return point2;
