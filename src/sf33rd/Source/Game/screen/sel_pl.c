@@ -726,21 +726,9 @@ u16 Disposal_Of_Diagonal(u16 sw) {
     return sw &= (SWK_LEFT | SWK_RIGHT);
 }
 
-void Sel_PL_Sub(s16 PL_id, u16 sw) {
-    Cursor_Move[PL_id] = 0;
-
-    if (Sel_PL_Complete[PL_id]) {
-        return;
-    }
-
-    if (Time_Over) {
-        sw = SWK_WEST;
-    }
-
-    if (sw == 0) {
-        Auto_Repeat_Sub(PL_id);
-    }
-
+/* Once the cursor timer runs out, step the cursor in whichever direction is held and
+ * set the hold before it may step again. */
+static void Step_Face_Cursor(s16 PL_id, u16 sw) {
     if ((Cursor_Timer[PL_id] -= 1) == 0) {
         Cursor_Timer[PL_id] = 1;
 
@@ -758,6 +746,24 @@ void Sel_PL_Sub(s16 PL_id, u16 sw) {
             Sel_PL_Sub_CD(PL_id);
         }
     }
+}
+
+void Sel_PL_Sub(s16 PL_id, u16 sw) {
+    Cursor_Move[PL_id] = 0;
+
+    if (Sel_PL_Complete[PL_id]) {
+        return;
+    }
+
+    if (Time_Over) {
+        sw = SWK_WEST;
+    }
+
+    if (sw == 0) {
+        Auto_Repeat_Sub(PL_id);
+    }
+
+    Step_Face_Cursor(PL_id, sw);
 
     if (Cursor_Move[PL_id]) {
         Sound_SE(ID + 96);
