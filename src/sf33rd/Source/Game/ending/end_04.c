@@ -176,6 +176,17 @@ void end_401_move() {
     end_401_jp[end_w.r_no_2]();
 }
 
+/* Slide the panel left until it reaches its mark. */
+static void end_04_slide_to_mark() {
+    bgw_ptr->xy[0].cal -= bgw_ptr->speed_x;
+
+    if (bgw_ptr->xy[0].disp.pos < 161) {
+        bgw_ptr->r_no_1++;
+    }
+
+    bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
+}
+
 void end_401_0000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -187,13 +198,7 @@ void end_401_0000() {
         break;
 
     case 1:
-        bgw_ptr->xy[0].cal -= bgw_ptr->speed_x;
-
-        if (bgw_ptr->xy[0].disp.pos < 161) {
-            bgw_ptr->r_no_1++;
-        }
-
-        bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
+        end_04_slide_to_mark();
         break;
 
     case 2:
@@ -360,13 +365,7 @@ void end_402_0000() {
         break;
 
     case 1:
-        bgw_ptr->xy[0].cal -= bgw_ptr->speed_x;
-
-        if (bgw_ptr->xy[0].disp.pos < 161) {
-            bgw_ptr->r_no_1++;
-        }
-
-        bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
+        end_04_slide_to_mark();
         break;
 
     case 2:
