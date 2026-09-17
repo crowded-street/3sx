@@ -190,6 +190,63 @@ faithful ports get broken.
 
 ---
 
+## Recipe V - Verbatim Values
+
+**Use when:** a fixed skeleton is repeated many times and the instances differ in **two or
+more literals**, so Recipe D refuses them, while Recipe C finds no identical run because
+the literals sit in the middle of the skeleton rather than at one end.
+
+**Added 2026-09-17** under the project owner's standing authorisation, and measured on
+`next_cpu.c`'s `Setup_PL_Color` - cc 55, 141 lines, and fifteen copies of one `if`:
+
+```c
+    if (Player_Color[PL_id ^ 1] == 7 && id_0 == id_1) {
+        Player_Color[PL_id] = 10;
+    } else {
+        Player_Color[PL_id] = 7;
+    }
+```
+
+Fifteen of those, differing only in their pair of colours, became
+
+```c
+    Take_Player_Color(PL_id, 7, 10, id_0 == id_1);
+```
+
+**5.35 -> 5.79**, and the function's cyclomatic complexity fell by thirty.
+
+**Why this is not Recipe D's forbidden case.** Recipe D refuses two differences because of
+*mapping*: with two varying values there is somewhere for the pair to be crossed, and a
+helper that picks between them can silently swap two arms. Recipe V removes that risk the
+way Recipes T and F already do - **every varying literal is written out, in full, in
+positional order, at its own call site**, so an arm's values cannot be mis-paired without
+the single call line showing it, and the helper does nothing with them that the block did
+not already do.
+
+**Preconditions, all of them:**
+
+- **The skeleton is identical character for character** in every instance apart from the
+  literals. Not nearly identical - if a comparison operator, a subscript or a statement
+  differs anywhere, those instances are not one family and Recipe D's refusal stands.
+- **Only literals vary.** A varying *expression* is not this recipe. A varying callee is
+  Recipe F's.
+- **The helper performs exactly the operations that were there**, in the same order. It may
+  test a parameter only where the block tested that same literal. It must not choose
+  between two parameters, index with one, or compute from one.
+- **Three or more instances.** Two is Recipe D's near-miss case and stays refused; this
+  recipe is for a family large enough that the skeleton is plainly one idiom.
+- **A condition hoisted into an argument must be pure.** Where the skeleton's test
+  short-circuits, passing the right-hand side as an argument evaluates it every time.
+  That is only legal when it reads locals or plain memory and calls nothing - in
+  `Setup_PL_Color`, `id_0 == id_1` compares two `s8` locals. If the operand calls a
+  function, reads volatile state, or could trap, leave the family alone.
+
+**What the guard shows.** The deduplication WARN, with **one copy of each literal removed
+per instance** and every value still present at its call site. A *value* leaving the
+fingerprint means it did not travel to the call site and the merge is wrong.
+
+---
+
 ## Recipe C - Extract Common Part
 
 **Use when:** CodeScene reports *Code Duplication* and the blocks share a **contiguous
