@@ -81,6 +81,14 @@ void check_next() { // 🟢
     }
 }
 
+/* The lever is exactly where the command wants it. check_0's first two arms
+ * asked this identically and differ in one value, the direction wanted. */
+static void advance_when_lever_is(u16 sw_lever, u16 want) {
+    if (sw_lever == want) {
+        finish_or_advance_command();
+    }
+}
+
 void check_0() { // 🟢
     u16 sw_lever;
 
@@ -98,14 +106,9 @@ void check_0() { // 🟢
 
     if (waza_ptr->w_lvr & 0x8000) {
         sw_work = waza_ptr->w_lvr & 0xF;
-
-        if (sw_lever == sw_work) {
-            finish_or_advance_command();
-        }
+        advance_when_lever_is(sw_lever, sw_work);
     } else if (waza_ptr->w_lvr == 0) {
-        if (sw_lever == 0) {
-            finish_or_advance_command();
-        }
+        advance_when_lever_is(sw_lever, 0);
     } else if (chk_pl->now_lvbt & 0xF && sw_lever & waza_ptr->w_lvr) {
         finish_or_advance_command();
     }
