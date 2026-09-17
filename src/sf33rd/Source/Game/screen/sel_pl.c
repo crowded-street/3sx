@@ -1096,22 +1096,32 @@ static void Confirm_Arts_Selection(s16 PL_id, u16 sw) {
     }
 }
 
-void Sel_Arts_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
-    u16 lever_sw;
-
+/* The super-art cursor is locked while this player has already chosen, while a plate
+ * is moving, and while any plate is still animating out. */
+static s32 Arts_Cursor_Is_Locked(s16 PL_id) {
     if (Sel_Arts_Complete[PL_id]) {
-        return;
+        return 1;
     }
 
     if (Moving_Plate_Counter[PL_id]) {
-        return;
+        return 1;
     }
 
     if (Moving_Plate[PL_id]) {
-        return;
+        return 1;
     }
 
     if (Any_Plate_Is_Disposing(PL_id)) {
+        return 1;
+    }
+
+    return 0;
+}
+
+void Sel_Arts_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
+    u16 lever_sw;
+
+    if (Arts_Cursor_Is_Locked(PL_id)) {
         return;
     }
 
