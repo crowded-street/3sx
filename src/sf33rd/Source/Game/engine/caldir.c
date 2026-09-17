@@ -916,6 +916,18 @@ void cmsd_y_delta_speed(MotionState* cc) {
     cmsd_all_y_speed_data(cc);
 }
 
+/* Both speed calculations end the same way: the computed speeds and
+ * accelerations go back into the work, and the leftover sub-pixels are added
+ * to its position. */
+static void store_motion_result(WORK* wk, const MotionState* bb) {
+    wk->mvxy.a[0].sp = bb->spx;
+    wk->mvxy.d[0].sp = bb->dlx;
+    wk->mvxy.a[1].sp = bb->spy;
+    wk->mvxy.d[1].sp = bb->dly;
+    wk->xyz[0].cal += bb->amx;
+    wk->xyz[1].cal += bb->amy;
+}
+
 void cal_all_speed_data(WORK* wk, s16 tm, s16 x1, s16 y1, s8 xsw, s8 ysw) {
     MotionState bb;
 
@@ -940,12 +952,7 @@ void cal_all_speed_data(WORK* wk, s16 tm, s16 x1, s16 y1, s8 xsw, s8 ysw) {
         cmsd_all_y_speed_data(&bb);
     }
 
-    wk->mvxy.a[0].sp = bb.spx;
-    wk->mvxy.d[0].sp = bb.dlx;
-    wk->mvxy.a[1].sp = bb.spy;
-    wk->mvxy.d[1].sp = bb.dly;
-    wk->xyz[0].cal += bb.amx;
-    wk->xyz[1].cal += bb.amy;
+    store_motion_result(wk, &bb);
     wk->mvxy.kop[0] = wk->mvxy.kop[1] = 0;
 }
 
@@ -1022,12 +1029,7 @@ void cal_delta_speed(WORK* wk, s16 tm, s16 x1, s16 y1, s8 xsw, s8 ysw) {
         cmsd_y_delta_speed(&bb);
     }
 
-    wk->mvxy.a[0].sp = bb.spx;
-    wk->mvxy.d[0].sp = bb.dlx;
-    wk->mvxy.a[1].sp = bb.spy;
-    wk->mvxy.d[1].sp = bb.dly;
-    wk->xyz[0].cal += bb.amx;
-    wk->xyz[1].cal += bb.amy;
+    store_motion_result(wk, &bb);
 }
 
 s16 cal_top_of_position_y(WORK* wk) {
