@@ -352,6 +352,46 @@ to cope with a new case.
 **Group the scans by what they score.** Nine scans behind one helper is fine; three
 helpers of three scans each read as duplicates of one another and the score falls.
 
+**The same argument covers a table *selection*, not just a scan.** Where several arms
+choose between the same two tables the same way and differ only in which pair they name,
+one helper can take the pair:
+
+```c
+static const u16* select_waza_table(const PLW* wk, s16 kos, AsstblCharRows* arcade, AsstblCharRows* ps2) {
+    if (ArcadeBalance_IsEnabled()) {
+        return arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos];
+    }
+
+    return ps2[wk->player_number][kos];
+}
+```
+
+and each arm passes its own two by name:
+
+```c
+    wst = select_waza_table(wk, kos, asstbl_lv_2000_arcade, _asstbl_lv_2000);
+```
+
+This is two differing values, which Recipe D refuses, and it is safe for Recipe T's reason
+rather than Recipe D's: **both tables are written out verbatim at the call site, and the
+helper does nothing with them but the two subscripts it already performed.** The moment it
+tests one, picks between them on anything but the flag that was already there, or computes
+an index from a parameter, that argument is gone and this is Recipe D's forbidden case.
+
+The preconditions are Recipe T's, plus one:
+
+- The selection rule is identical in every arm - the same flag, the same subscripts on
+  each side. If one arm indexes the arcade table differently, the arms are not one family.
+- Tables of different first extent are fine and are the usual case: `[20][6][2]` and
+  `[21][6][2]` both decay to the same parameter type. **The extents that remain must be
+  named in a header**, for the reason the array-typed-parameter rule below gives - written
+  out, the `[6][2]` is two literals new to the `.c` and the guard reads the pair as a
+  substitution.
+
+Measured on `pls03.c`'s `waza_select`, whose five arms each chose between an arcade table
+and the PS2 one: **8.08 -> 8.19**, cc 20 -> 15, and five copies of the `ArcadeBalance`
+branch collapsed into one.
+
 ---
 
 ## Recipe F - Action Parameter
