@@ -350,6 +350,31 @@ void Next_CPU_4th_2_Sub() {
     }
 }
 
+/* Sub-state 2: scroll the backgrounds into the boss VS layout, place the VS objects
+ * and start the two name banners moving in. */
+static void Setup_Boss_VS_Screen() {
+    Switch_Screen(1);
+    SC_No[1]++;
+    bgPalCodeOffset[0] = 144;
+    bg_w.bgw[0].wxy[0].disp.pos += 512;
+    bg_w.bgw[1].wxy[1].disp.pos = 512;
+    bg_w.bgw[3].wxy[1].disp.pos += 512;
+    Setup_BG(0, bg_w.bgw[0].wxy[0].disp.pos, bg_w.bgw[0].wxy[1].disp.pos);
+    Setup_BG(1, bg_w.bgw[1].wxy[0].disp.pos, bg_w.bgw[1].wxy[1].disp.pos);
+    Setup_BG(3, bg_w.bgw[3].wxy[0].disp.pos, bg_w.bgw[3].wxy[1].disp.pos);
+    Setup_VS_OBJ(1);
+    Suicide[0] = 1;
+    Next_Step = 0;
+    Order[67] = 1;
+    Order_Timer[67] = 10;
+    Order_Dir[67] = 8;
+    effect_76_init(67);
+    Order[68] = 1;
+    Order_Timer[68] = 10;
+    Order_Dir[68] = 4;
+    effect_76_init(68);
+}
+
 void Next_CPU_5th() {
     switch (SC_No[1]) {
     case 0:
@@ -366,26 +391,7 @@ void Next_CPU_5th() {
         break;
 
     case 2:
-        Switch_Screen(1);
-        SC_No[1]++;
-        bgPalCodeOffset[0] = 144;
-        bg_w.bgw[0].wxy[0].disp.pos += 512;
-        bg_w.bgw[1].wxy[1].disp.pos = 512;
-        bg_w.bgw[3].wxy[1].disp.pos += 512;
-        Setup_BG(0, bg_w.bgw[0].wxy[0].disp.pos, bg_w.bgw[0].wxy[1].disp.pos);
-        Setup_BG(1, bg_w.bgw[1].wxy[0].disp.pos, bg_w.bgw[1].wxy[1].disp.pos);
-        Setup_BG(3, bg_w.bgw[3].wxy[0].disp.pos, bg_w.bgw[3].wxy[1].disp.pos);
-        Setup_VS_OBJ(1);
-        Suicide[0] = 1;
-        Next_Step = 0;
-        Order[67] = 1;
-        Order_Timer[67] = 10;
-        Order_Dir[67] = 8;
-        effect_76_init(67);
-        Order[68] = 1;
-        Order_Timer[68] = 10;
-        Order_Dir[68] = 4;
-        effect_76_init(68);
+        Setup_Boss_VS_Screen();
         break;
 
     case 3:
