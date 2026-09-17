@@ -289,6 +289,37 @@ void Attack_03000(PLW* wk) { // 🟢
     }
 }
 
+/* The later half of the jump-attack rno mapping. The labels are the original
+ * pattern-status numbers and the helper returns the same 0 the caller started
+ * with when none of them matches, so an unlisted status still changes nothing. */
+static s16 ja_nmj_rno_change_rest(WORK* wk) {
+    s16 rnum = 0;
+
+    switch (wk->pat_status) {
+    case 28:
+        wk->routine_no[2] = 25;
+        rnum = 1;
+        break;
+
+    case 24:
+        wk->routine_no[2] = 23;
+        rnum = 1;
+        break;
+
+    case 18:
+        wk->routine_no[2] = 20;
+        rnum = 1;
+        break;
+
+    case 30:
+        wk->routine_no[2] = 26;
+        rnum = 1;
+        break;
+    }
+
+    return rnum;
+}
+
 s16 ja_nmj_rno_change(WORK* wk) { // 🟢
     s16 rnum = 0;
 
@@ -318,24 +349,8 @@ s16 ja_nmj_rno_change(WORK* wk) { // 🟢
         rnum = 1;
         break;
 
-    case 28:
-        wk->routine_no[2] = 25;
-        rnum = 1;
-        break;
-
-    case 24:
-        wk->routine_no[2] = 23;
-        rnum = 1;
-        break;
-
-    case 18:
-        wk->routine_no[2] = 20;
-        rnum = 1;
-        break;
-
-    case 30:
-        wk->routine_no[2] = 26;
-        rnum = 1;
+    default:
+        rnum = ja_nmj_rno_change_rest(wk);
         break;
     }
 
