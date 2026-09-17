@@ -144,6 +144,22 @@ static void pl17_at1_air_markers(PLW* wk) {
 
 }
 
+/* A wall bounce saved on an earlier frame re-centres the player 142 either side
+ * of the stage centre, on the side they face, and restarts the attack. */
+static void recentre_after_wall_bounce(PLW* wk) {
+    if (wk->rl_save) {
+        wk->rl_save = 0;
+        wk->wu.routine_no[3] = 2;
+        wk->wu.xyz[0].disp.pos = get_center_position();
+
+        if (wk->wu.rl_flag) {
+            wk->wu.xyz[0].disp.pos -= 142;
+        } else {
+            wk->wu.xyz[0].disp.pos += 142;
+        }
+    }
+}
+
 /* The wall phase: the union's markers, the saved wall bounce that re-centres the
  * player 142 either side of the stage centre, and the wall test that sets it. */
 static void pl17_at1_wall_phase(PLW* wk) {
@@ -162,17 +178,7 @@ static void pl17_at1_wall_phase(PLW* wk) {
             wk->wu.mvxy.d[0].sp = 0;
         }
 
-        if (wk->rl_save) {
-            wk->rl_save = 0;
-            wk->wu.routine_no[3] = 2;
-            wk->wu.xyz[0].disp.pos = get_center_position();
-
-            if (wk->wu.rl_flag) {
-                wk->wu.xyz[0].disp.pos -= 142;
-            } else {
-                wk->wu.xyz[0].disp.pos += 142;
-            }
-        }
+        recentre_after_wall_bounce(wk);
     }
 
     if ((wk->wu.routine_no[3] == 5) && (kabe_check(&wk->wu))) {
@@ -180,7 +186,6 @@ static void pl17_at1_wall_phase(PLW* wk) {
         reset_mvxy_data(&wk->wu);
         wk->rl_save = 1;
     }
-
 }
 
 void Att_PL17_AT1(PLW* wk) {
