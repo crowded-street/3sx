@@ -283,6 +283,32 @@ void Att_SENPUUKYAKU2(PLW* wk) {
     }
 }
 
+/* Once the union hands over to state 3 the vertical speed is flattened and a kop
+ * of 2 is stepped back to 1. */
+static void abisegeri_settle_on_land(PLW* wk) {
+    if (wk->wu.routine_no[3] == 3) {
+        if (wk->wu.mvxy.kop[0] == 2) {
+            wk->wu.mvxy.kop[0] = 1;
+        }
+
+        wk->wu.mvxy.d[1].sp = 0;
+        wk->wu.mvxy.a[1].sp = 0;
+    }
+}
+
+/* The descent, which either end marker stops. */
+static void abisegeri_descend(PLW* wk) {
+    cal_mvxy_speed(&wk->wu);
+    add_mvxy_speed(&wk->wu);
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 64 || wk->wu.cg_type == 0xFF) {
+        wk->wu.routine_no[3]++;
+        wk->wu.mvxy.d[0].sp = 0;
+        wk->wu.mvxy.a[0].sp = 0;
+    }
+}
+
 void Att_ABISEGERI(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -306,29 +332,11 @@ void Att_ABISEGERI(PLW* wk) {
 
     case 2:
         jumping_union_process(&wk->wu, 3);
-
-        if (wk->wu.routine_no[3] == 3) {
-            if (wk->wu.mvxy.kop[0] == 2) {
-                wk->wu.mvxy.kop[0] = 1;
-            }
-
-            wk->wu.mvxy.d[1].sp = 0;
-            wk->wu.mvxy.a[1].sp = 0;
-        }
-
+        abisegeri_settle_on_land(wk);
         break;
 
     case 3:
-        cal_mvxy_speed(&wk->wu);
-        add_mvxy_speed(&wk->wu);
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 64 || wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[3]++;
-            wk->wu.mvxy.d[0].sp = 0;
-            wk->wu.mvxy.a[0].sp = 0;
-        }
-
+        abisegeri_descend(wk);
         break;
 
     default:
