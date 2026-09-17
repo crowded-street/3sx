@@ -634,16 +634,16 @@ void grade_makeup_bonus_parameter(s16 ix) {
     }
 }
 
-s16 get_offence_total(s16 ix) {
+/* The three offence ratios - how much of what landed was clean, how much of
+ * the attacks made connected at all, and how often the opponent's guard
+ * failed - combined into the score they make together. Each is recorded for
+ * the result screen on the way. */
+static s32 offence_rate_points(s16 ix, s16 ix2) {
     s32 num;
     s32 num2;
-    s32 point;
-    s32 point2;
+    s32 point2 = 0;
     s16 i;
-    s16 ix2;
 
-    ix2 = (ix + 1) & 1;
-    point = point2 = 0;
     num2 = judge_item[ix2][Play_Type].guard_succ + judge_item[ix2][Play_Type].nml_blocking +
            judge_item[ix2][Play_Type].rpd_blocking + judge_item[ix2][Play_Type].grd_blocking +
            judge_item[ix][Play_Type].clean_hits;
@@ -690,7 +690,16 @@ s16 get_offence_total(s16 ix) {
     point2 *= grade_t_meichuuritsu3[i][1];
     point2 /= 32;
 
-    point = point2;
+    return point2;
+}
+
+s16 get_offence_total(s16 ix) {
+    s32 point;
+    s16 i;
+    s16 ix2;
+
+    ix2 = (ix + 1) & 1;
+    point = offence_rate_points(ix, ix2);
 
     for (i = 0; i < 4; i++) {
         if (judge_item[ix][Play_Type].em_stun < grade_t_em_stun[i + 1][0]) {
