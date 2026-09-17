@@ -1146,32 +1146,32 @@ const s16 cnmc_z_lever_data[16][8] = { { -1, -1, -1, -1, -1, -1, -1, -1 }, { 4, 
                                        { 1, 4, 5, 7, -1, -1, -1, -1 },     { 3, 5, 6, 9, -1, -1, -1, -1 },
                                        { 1, 4, 7, 3, 6, 9, -1, -1 },       { 1, 4, 7, 5, 3, 6, 9, -1 } };
 
-static s32 meoshi_lever_matches(const PLW* wk, s16 tdat, s16 wdat) {
+/* One row of lever data, scanned to its -1 terminator. The two meoshi tables
+ * differ in the table and in the row length; both are written out at the call
+ * site, and the row is subscripted there too, so the scan itself takes an
+ * ordinary `const s16*` and no array extent enters this file as a literal. */
+static s32 lever_row_matches(const s16* row, s16 count, s16 wdat) {
     s16 i;
 
-    if (wk->wu.cg_meoshi & 0x80) {
-        for (i = 0; i < 6; i++) {
-            if (cnmc_Z_lever_data[tdat][i] == -1) {
-                return 0;
-            }
-
-            if (wdat == cnmc_Z_lever_data[tdat][i]) {
-                return 1;
-            }
+    for (i = 0; i < count; i++) {
+        if (row[i] == -1) {
+            return 0;
         }
-    } else {
-        for (i = 0; i < 8; i++) {
-            if (cnmc_z_lever_data[tdat][i] == -1) {
-                return 0;
-            }
 
-            if (wdat == cnmc_z_lever_data[tdat][i]) {
-                return 1;
-            }
+        if (wdat == row[i]) {
+            return 1;
         }
     }
 
     return 0;
+}
+
+static s32 meoshi_lever_matches(const PLW* wk, s16 tdat, s16 wdat) {
+    if (wk->wu.cg_meoshi & 0x80) {
+        return lever_row_matches(cnmc_Z_lever_data[tdat], 6, wdat);
+    }
+
+    return lever_row_matches(cnmc_z_lever_data[tdat], 8, wdat);
 }
 
 /* Outcome of the meoshi cancel gates:
