@@ -19,10 +19,28 @@ void pl02_extra_attack(PLW* wk) {
     pl02_exatt_table[wk->wu.routine_no[2] - 16](wk);
 }
 
-void Att_DENJINHADOUKEN(PLW* wk) {
+/* On the charge frame, the animation is advanced once more per level of charge
+ * held - a fully charged Denjin skips five frames ahead. */
+static void advance_denjin_charge(PLW* wk) {
     s16 i;
     s16 lgix;
 
+    if (wk->wu.now_koc == 8 && wk->wu.char_index == 13) {
+        if (wk->cp->lgp > 13) {
+            lgix = 5;
+        } else {
+            lgix = lgix_table[wk->cp->lgp / 2];
+        }
+
+        if (lgix) {
+            for (i = 0; i < lgix; i++) {
+                char_move(&wk->wu);
+            }
+        }
+    }
+}
+
+void Att_DENJINHADOUKEN(PLW* wk) {
     wk->scr_pos_set_flag = 0;
 
     switch (wk->wu.routine_no[3]) {
@@ -35,21 +53,7 @@ void Att_DENJINHADOUKEN(PLW* wk) {
 
     case 1:
         char_move(&wk->wu);
-
-        if (wk->wu.now_koc == 8 && wk->wu.char_index == 13) {
-            if (wk->cp->lgp > 13) {
-                lgix = 5;
-            } else {
-                lgix = lgix_table[wk->cp->lgp / 2];
-            }
-
-            if (lgix) {
-                for (i = 0; i < lgix; i++) {
-                    char_move(&wk->wu);
-                }
-            }
-        }
-
+        advance_denjin_charge(wk);
         break;
     }
 }
