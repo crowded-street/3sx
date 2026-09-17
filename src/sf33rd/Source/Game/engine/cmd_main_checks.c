@@ -347,34 +347,38 @@ void check_5() { // 🟢
     }
 }
 
-void check_6() { // 🟢
-    s16 i;
-    u16 lvr_work;
+/* The timer ran out: the next command entry is read and the four-direction
+ * state starts again. */
+static void restart_four_direction_command() {
+    cmd_tbl_ptr += 12;
+    waza_ptr->w_type = *cmd_tbl_ptr++;
+    waza_ptr->w_int = *cmd_tbl_ptr++;
+    waza_ptr->free2 = *cmd_tbl_ptr++;
+    waza_ptr->w_lvr = *cmd_tbl_ptr++;
+    waza_ptr->w_ptr = cmd_tbl_ptr;
+    waza_ptr->uni0.tame.flag = 0;
+    waza_ptr->uni0.tame.shot_flag = 0;
+    waza_ptr->uni0.tame.shot_flag2 = 0;
+    waza_ptr->free1 = 14;
+    waza_ptr->shot_ok = 0;
+}
 
-    waza_ptr->w_int--;
+/* It did not: the window between directions runs down instead, and losing it
+ * clears what has been collected. */
+static void tick_four_direction_window() {
+    waza_ptr->free1--;
 
-    if (waza_ptr->w_int < 0) {
-        cmd_tbl_ptr += 12;
-        waza_ptr->w_type = *cmd_tbl_ptr++;
-        waza_ptr->w_int = *cmd_tbl_ptr++;
-        waza_ptr->free2 = *cmd_tbl_ptr++;
-        waza_ptr->w_lvr = *cmd_tbl_ptr++;
-        waza_ptr->w_ptr = cmd_tbl_ptr;
-        waza_ptr->uni0.tame.flag = 0;
-        waza_ptr->uni0.tame.shot_flag = 0;
-        waza_ptr->uni0.tame.shot_flag2 = 0;
+    if (waza_ptr->free1 <= 0) {
         waza_ptr->free1 = 14;
         waza_ptr->shot_ok = 0;
-    } else {
-        waza_ptr->free1--;
-
-        if (waza_ptr->free1 <= 0) {
-            waza_ptr->free1 = 14;
-            waza_ptr->shot_ok = 0;
-        }
     }
+}
 
-    lvr_work = 1 & 0xFFFF;
+/* Each of the four directions the lever is on this frame is collected, and
+ * holding one refreshes the window. */
+static void collect_held_lever_direction() {
+    s16 i;
+    u16 lvr_work = 1 & 0xFFFF;
 
     for (i = 0; i < 4; i++) {
         if (chk_pl->sw_lever == lvr_work) {
@@ -384,6 +388,18 @@ void check_6() { // 🟢
 
         lvr_work *= 2;
     }
+}
+
+void check_6() { // 🟢
+    waza_ptr->w_int--;
+
+    if (waza_ptr->w_int < 0) {
+        restart_four_direction_command();
+    } else {
+        tick_four_direction_window();
+    }
+
+    collect_held_lever_direction();
 
     if (waza_ptr->shot_ok == 15) {
         if (*waza_ptr->w_ptr == 28) {
