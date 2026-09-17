@@ -9,6 +9,16 @@
 #include "sf33rd/Source/Game/engine/pls02.h"
 #include "sf33rd/Source/Game/io/pulpul.h"
 
+/* The defender's attack carries no priority of its own. */
+static s32 defender_has_no_priority(PLW* ds) {
+    return !(ds->wu.att.dipsw & 0x60) && !(ds->wu.kind_of_waza & 4);
+}
+
+/* Neither attack carries priority, which is the last case the trade has. */
+static s32 neither_side_has_priority(PLW* as, PLW* ds) {
+    return !(as->wu.kind_of_waza & 6) && !(ds->wu.att.dipsw & 0x60) && !(ds->wu.kind_of_waza & 4);
+}
+
 void player_at_vs_player_dm(s16 ix2, s16 ix) {
     PLW* as = (PLW*)q_hit_push[ix2];
     PLW* ds = (PLW*)q_hit_push[ix];
@@ -60,14 +70,14 @@ void player_at_vs_player_dm(s16 ix2, s16 ix) {
                 goto two;
             }
         } else if (as->wu.kind_of_waza & 2) {
-            if (!(ds->wu.att.dipsw & 0x60) && !(ds->wu.kind_of_waza & 4)) {
+            if (defender_has_no_priority(ds)) {
                 if (ds->wu.kind_of_waza & 2) {
                     break;
                 }
 
                 goto two;
             }
-        } else if (!(as->wu.kind_of_waza & 6) && !(ds->wu.att.dipsw & 0x60) && !(ds->wu.kind_of_waza & 4)) {
+        } else if (neither_side_has_priority(as, ds)) {
             if (!(ds->wu.kind_of_waza & 2)) {
                 break;
             }
