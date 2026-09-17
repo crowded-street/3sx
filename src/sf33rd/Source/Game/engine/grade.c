@@ -683,27 +683,13 @@ static s32 offence_rate_points(s16 ix, s16 ix2) {
 
 s16 get_offence_total(s16 ix) {
     s32 point;
-    s16 i;
     s16 ix2;
 
     ix2 = (ix + 1) & 1;
     point = offence_rate_points(ix, ix2);
 
-    for (i = 0; i < 4; i++) {
-        if (judge_item[ix][Play_Type].em_stun < grade_t_em_stun[i + 1][0]) {
-            break;
-        }
-    }
-
-    point += grade_t_em_stun[i][1];
-
-    for (i = 0; i < 18; i++) {
-        if (judge_item[ix][Play_Type].max_combo < grade_t_max_combo[i + 1][0]) {
-            break;
-        }
-    }
-
-    point += grade_t_max_combo[i][1];
+    point += grade_table_points(grade_t_em_stun, 4, judge_item[ix][Play_Type].em_stun);
+    point += grade_table_points(grade_t_max_combo, 18, judge_item[ix][Play_Type].max_combo);
 
     return point;
 }
