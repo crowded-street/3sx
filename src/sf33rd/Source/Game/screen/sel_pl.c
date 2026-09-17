@@ -835,6 +835,11 @@ void Sel_PL_Sub(s16 PL_id, u16 sw) {
     Correct_Control_Time(PL_id);
 }
 
+/* Whether the face the cursor now sits on may be picked in this mode. */
+static s32 Face_Under_Cursor_Is_Selectable(s16 PL_id) {
+    return permission_player[Present_Mode].ok[Face_Cursor_Data[Cursor_Y[PL_id]][Cursor_X[PL_id]]];
+}
+
 void Sel_PL_Sub_CR(s16 PL_id) {
     if (Cursor_X[PL_id] == 7) {
         return;
@@ -862,7 +867,7 @@ void Sel_PL_Sub_CR(s16 PL_id) {
 
             break;
         }
-    } while (!permission_player[Present_Mode].ok[Face_Cursor_Data[Cursor_Y[PL_id]][Cursor_X[PL_id]]]);
+    } while (!Face_Under_Cursor_Is_Selectable(PL_id));
 }
 
 /* Having stepped up a row, wrap to the bottom of the previous column when the step
@@ -904,7 +909,7 @@ void Sel_PL_Sub_CL(s16 PL_id) {
         Cursor_Y[PL_id]--;
 
         Wrap_Cursor_Up_Column(PL_id);
-    } while (!permission_player[Present_Mode].ok[Face_Cursor_Data[Cursor_Y[PL_id]][Cursor_X[PL_id]]]);
+    } while (!Face_Under_Cursor_Is_Selectable(PL_id));
 }
 
 void Sel_PL_Sub_CU(s16 PL_id) {
@@ -935,7 +940,7 @@ void Sel_PL_Sub_CU(s16 PL_id) {
 
             break;
         }
-    } while (!permission_player[Present_Mode].ok[Face_Cursor_Data[Cursor_Y[PL_id]][Cursor_X[PL_id]]]);
+    } while (!Face_Under_Cursor_Is_Selectable(PL_id));
 }
 
 void Sel_PL_Sub_CD(s16 PL_id) {
@@ -966,7 +971,7 @@ void Sel_PL_Sub_CD(s16 PL_id) {
 
             break;
         }
-    } while (!permission_player[Present_Mode].ok[Face_Cursor_Data[Cursor_Y[PL_id]][Cursor_X[PL_id]]]);
+    } while (!Face_Under_Cursor_Is_Selectable(PL_id));
 }
 
 /* Arm the auto-repeat for one lever direction, and report whether it fired - the
