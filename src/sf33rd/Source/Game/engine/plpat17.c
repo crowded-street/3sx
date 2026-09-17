@@ -288,6 +288,53 @@ void Att_PL17_AT2(PLW* wk) {
     }
 }
 
+/* The taunt's markers: 40 pays the super-art gauge, 10 and 20 each add ten to the
+ * damage bonus against their own ceiling, and 30 ends the taunt and slows the
+ * stun recovery, up to three times. The 10 and 20 arms differ in their ceiling
+ * and in whether the personal action is graded - two differences, so they stay
+ * as they are. */
+static void pl17_taunt_markers(PLW* wk) {
+    char_move(&wk->wu);
+
+    switch (wk->wu.cg_type) {
+    case 40:
+        wk->wu.cg_type = 0;
+        add_sp_arts_gauge_tokushu(wk);
+        break;
+
+    case 10:
+        wk->wu.cg_type = 0;
+        wk->tk_dageki += 10;
+
+        if (wk->tk_dageki > 10) {
+            wk->tk_dageki = 10;
+        }
+
+        grade_add_personal_action(wk->wu.id);
+        break;
+
+    case 20:
+        wk->wu.cg_type = 0;
+        wk->tk_dageki += 10;
+
+        if (wk->tk_dageki > 20) {
+            wk->tk_dageki = 20;
+        }
+
+        break;
+
+    case 30:
+        wk->wu.routine_no[3]++;
+
+        if (wk->tk_success < 3) {
+            wk->tk_success++;
+            wk->py->recover = (wk->py->recover * 110) / 100;
+        }
+
+        break;
+    }
+}
+
 void Att_PL17_TOKUSHUKOUDOU(PLW* wk) {
     wk->scr_pos_set_flag = 0;
 
@@ -300,46 +347,7 @@ void Att_PL17_TOKUSHUKOUDOU(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-
-        switch (wk->wu.cg_type) {
-        case 40:
-            wk->wu.cg_type = 0;
-            add_sp_arts_gauge_tokushu(wk);
-            break;
-
-        case 10:
-            wk->wu.cg_type = 0;
-            wk->tk_dageki += 10;
-
-            if (wk->tk_dageki > 10) {
-                wk->tk_dageki = 10;
-            }
-
-            grade_add_personal_action(wk->wu.id);
-            break;
-
-        case 20:
-            wk->wu.cg_type = 0;
-            wk->tk_dageki += 10;
-
-            if (wk->tk_dageki > 20) {
-                wk->tk_dageki = 20;
-            }
-
-            break;
-
-        case 30:
-            wk->wu.routine_no[3]++;
-
-            if (wk->tk_success < 3) {
-                wk->tk_success++;
-                wk->py->recover = (wk->py->recover * 110) / 100;
-            }
-
-            break;
-        }
-
+        pl17_taunt_markers(wk);
         break;
 
     default:
