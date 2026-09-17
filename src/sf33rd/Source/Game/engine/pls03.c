@@ -30,6 +30,17 @@ s32 player_is_grounded_or_on_car(const PLW* wk) {
     return ((Bonus_Game_Flag == 0x14) && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0);
 }
 
+/* Enter the attack's routine and clear the per-attack hit state. Two checks
+ * write this out identically; the third puts a cancel_timer reset in the middle
+ * of it, which is a difference, so it stays inline. */
+static void begin_attack_routine(PLW* wk) {
+    set_attack_routine_number(wk);
+    wk->wu.paring_attack_flag = 0;
+    wk->wu.meoshi_hit_flag = 0;
+    wk->wu.att_hit_ok = 0;
+    wk->wu.hf.hit_flag = 0;
+}
+
 static s32 player_is_airborne_off_car(const PLW* wk) {
     return ((Bonus_Game_Flag != 0x14) || !wk->bs2_on_car) && (wk->wu.xyz[1].disp.pos > 0);
 }
@@ -609,11 +620,7 @@ s32 check_nm_attack(PLW* wk) { // 🟡
 
     setup_comm_back(&wk->wu);
     wk->current_attack = shot_data_refresh(kos);
-    set_attack_routine_number(wk);
-    wk->wu.paring_attack_flag = 0;
-    wk->wu.meoshi_hit_flag = 0;
-    wk->wu.att_hit_ok = 0;
-    wk->wu.hf.hit_flag = 0;
+    begin_attack_routine(wk);
     wk->wu.cg_cancel &= 0xF8;
     return 1;
 }
@@ -674,11 +681,7 @@ s32 check_chouhatsu(PLW* wk) { // 🟢 Same overall but differs because of Start
     }
 
     setup_comm_back(&wk->wu);
-    set_attack_routine_number(wk);
-    wk->wu.paring_attack_flag = 0;
-    wk->wu.meoshi_hit_flag = 0;
-    wk->wu.att_hit_ok = 0;
-    wk->wu.hf.hit_flag = 0;
+    begin_attack_routine(wk);
     return 1;
 }
 
@@ -716,6 +719,12 @@ const u8 nml_catch_h2_ok[2][21] = { { 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 
 
 /* Arcade balance has a separate crouching throw, and a character may be
  * allowed one and not the other. */
+/* Bit 0x10 of the character's catch table says whether that catch exists at all;
+ * row 0 is the grounded table and row 1 the airborne one. */
+static s32 catch_is_disabled_for_character(const PLW* wk, s16 row) {
+    return !(nml_catch_h2_ok[row][CHAR_3SX_TO_ARCADE(wk->player_number)] & 0x10);
+}
+
 static s32 resolve_arcade_ground_catch(PLW* wk, s16 kos) {
     if (wk->cp->sw_lvbt & 1) {
         return 0;
@@ -734,7 +743,7 @@ static s32 resolve_arcade_ground_catch(PLW* wk, s16 kos) {
 }
 
 static s32 resolve_ground_catch_target(PLW* wk, s16 kos) {
-    if (!(nml_catch_h2_ok[0][CHAR_3SX_TO_ARCADE(wk->player_number)] & 0x10)) {
+    if (catch_is_disabled_for_character(wk, 0)) {
         return 0;
     }
 
@@ -751,7 +760,7 @@ static s32 resolve_ground_catch_target(PLW* wk, s16 kos) {
 }
 
 static s32 resolve_air_catch_target(PLW* wk, s16 kos) {
-    if (!(nml_catch_h2_ok[1][CHAR_3SX_TO_ARCADE(wk->player_number)] & 0x10)) {
+    if (catch_is_disabled_for_character(wk, 1)) {
         return 0;
     }
 
