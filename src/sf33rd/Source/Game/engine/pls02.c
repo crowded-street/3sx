@@ -445,14 +445,50 @@ static void push_home_player_back(PLW* hmw, PLW* cmw, s16 meri) {
     cmw->hos_em_flag = 2;
 }
 
-void check_body_touch2() {
-    PLW* hmw;
-    PLW* cmw;
+/* Whether the bonus-stage car pushed the player this frame. Returns 1 when a
+ * push happened - the helper has already applied it - and 0 when nothing
+ * touched, which is when the caller clears both flags. Each test that used to
+ * nest the next one is a guard here. */
+static s32 resolve_car_body_touch(PLW* hmw, PLW* cmw) {
     WORK* efw;
     s16* dad0;
     s16* dad1;
     s16 meri;
     s16 ix;
+
+    if (saishin_bs2_on_car(hmw)) {
+        return 0;
+    }
+
+    efw = (WORK*)cmw->wu.my_effadrs;
+    ix = (sel_hosei_tbl_ix[hmw->player_number]) + 1 + ((efw->dir_timer == 1) * 2);
+    dad0 = &hmw->wu.hosei_adrs[1].hos_box[0];
+    dad1 = &efw->hosei_adrs[ix].hos_box[0];
+
+    if (hoseishitemo_eenka(&hmw->wu, efw->xyz[0].disp.pos + (dad1[0] + dad1[1] / 2))) {
+        return 0;
+    }
+
+    meri = body_touch_overlap(hmw, efw, dad0, dad1);
+
+    if (meri == 0) {
+        return 0;
+    }
+
+    meri = meri_case_switch(meri);
+
+    if (!check_work_position_bonus(&hmw->wu, efw->xyz[0].disp.pos + (dad1[0] + dad1[1] / 2))) {
+        push_home_player_back(hmw, cmw, meri);
+        return 1;
+    }
+
+    push_home_player_forward(hmw, cmw, meri);
+    return 1;
+}
+
+void check_body_touch2() {
+    PLW* hmw;
+    PLW* cmw;
 
     if (plw[0].wu.operator) {
         hmw = &plw[0];
@@ -462,27 +498,8 @@ void check_body_touch2() {
         cmw = &plw[0];
     }
 
-    if (!saishin_bs2_on_car(hmw)) {
-        efw = (WORK*)cmw->wu.my_effadrs;
-        ix = (sel_hosei_tbl_ix[hmw->player_number]) + 1 + ((efw->dir_timer == 1) * 2);
-        dad0 = &hmw->wu.hosei_adrs[1].hos_box[0];
-        dad1 = &efw->hosei_adrs[ix].hos_box[0];
-
-        if (!hoseishitemo_eenka(&hmw->wu, efw->xyz[0].disp.pos + (dad1[0] + dad1[1] / 2))) {
-            meri = body_touch_overlap(hmw, efw, dad0, dad1);
-
-            if (meri != 0) {
-                meri = meri_case_switch(meri);
-
-                if (!check_work_position_bonus(&hmw->wu, efw->xyz[0].disp.pos + (dad1[0] + dad1[1] / 2))) {
-                    push_home_player_back(hmw, cmw, meri);
-                    return;
-                } else {
-                    push_home_player_forward(hmw, cmw, meri);
-                    return;
-                }
-            }
-        }
+    if (resolve_car_body_touch(hmw, cmw)) {
+        return;
     }
 
     hmw->hos_em_flag = 0;
