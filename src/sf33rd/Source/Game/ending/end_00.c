@@ -121,43 +121,10 @@ void end_000_0000() {
 
 s16 end_0_1_time[1] = { 360 };
 
-void end_000_0001() {
+/* Everything after Gill has appeared: the hold, the flash, and the fade out to the
+ * next scene. Labels are the original ones. */
+static void end_000_0001_after_gill() {
     switch (bgw_ptr->r_no_1) {
-    case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_0_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_0_pos[end_w.r_no_2][1];
-        bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
-        bgw_ptr->abs_y = 0;
-        Bg_On_W(1);
-        effect_E6_init(0xA9);
-        effect_E6_init(0xAB);
-        Rewrite_End_Message(2);
-        bgw_ptr->free = end_0_1_time[0];
-        break;
-
-    case 1:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free < 1) {
-            bgw_ptr->r_no_1++;
-            bgw_ptr->free = gill_time[0];
-            effect_E6_init(0xAA);
-        }
-
-        break;
-
-    case 2:
-        if (!bgw_ptr->free--) {
-            bgw_ptr->r_no_1++;
-            end_no_cut = 1;
-            fade_prio = pika_prio[1];
-            bgw_ptr->free = gill_time[7];
-            bgw_ptr->l_limit = bgw_ptr->r_limit = 0;
-        }
-
-        break;
-
     case 3:
         bgw_ptr->free--;
 
@@ -215,6 +182,49 @@ void end_000_0001() {
             end_w.timer = 0;
         }
 
+        break;
+    }
+}
+
+void end_000_0001() {
+    switch (bgw_ptr->r_no_1) {
+    case 0:
+        bgw_ptr->r_no_1++;
+        bgw_ptr->xy[0].disp.pos = end_0_pos[end_w.r_no_2][0];
+        bgw_ptr->xy[1].disp.pos = end_0_pos[end_w.r_no_2][1];
+        bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
+        bgw_ptr->abs_y = 0;
+        Bg_On_W(1);
+        effect_E6_init(0xA9);
+        effect_E6_init(0xAB);
+        Rewrite_End_Message(2);
+        bgw_ptr->free = end_0_1_time[0];
+        break;
+
+    case 1:
+        bgw_ptr->free--;
+
+        if (bgw_ptr->free < 1) {
+            bgw_ptr->r_no_1++;
+            bgw_ptr->free = gill_time[0];
+            effect_E6_init(0xAA);
+        }
+
+        break;
+
+    case 2:
+        if (!bgw_ptr->free--) {
+            bgw_ptr->r_no_1++;
+            end_no_cut = 1;
+            fade_prio = pika_prio[1];
+            bgw_ptr->free = gill_time[7];
+            bgw_ptr->l_limit = bgw_ptr->r_limit = 0;
+        }
+
+        break;
+
+    default:
+        end_000_0001_after_gill();
         break;
     }
 }
