@@ -45,6 +45,52 @@ static void keep_defender_damage(s16 ix2, s16 ix) {
     hs[ix].flag.results &= 0x1101;
 }
 
+/* Who wins when both sides connect on the same frame. Returns 1 when the trade
+ * is settled here - the caller stops and falls to the shared tail, having
+ * already had keep_defender_damage called if that is the outcome - and 0 when
+ * none of the cases claimed it, which is when the attacker's damage stands.
+ *
+ * Every `break` in the original arm became a `return 1` and the fall past the
+ * cascade became `return 0`, so each path reaches the same place it did. */
+static s32 trade_settled(PLW* as, PLW* ds, s16 ix2, s16 ix) {
+    if (as->wu.att.dipsw & 0x40) {
+        if (!(ds->wu.att.dipsw & 0x40)) {
+            keep_defender_damage(ix2, ix);
+            return 1;
+        }
+
+        return 1;
+    }
+
+    /* These two attacker cases ran the same block in the original; they
+     * share it here, with both tests kept as they were written. */
+    if ((as->wu.att.dipsw & 0x20) || (as->wu.kind_of_waza & 4)) {
+        if (!(ds->wu.att.dipsw & 0x40)) {
+            if (defender_outranks_attacker(ds)) {
+                return 1;
+            }
+
+            keep_defender_damage(ix2, ix);
+            return 1;
+        }
+    } else if (as->wu.kind_of_waza & 2) {
+        if (defender_has_no_priority(ds)) {
+            if (ds->wu.kind_of_waza & 2) {
+                return 1;
+            }
+
+            keep_defender_damage(ix2, ix);
+            return 1;
+        }
+    } else if (neither_side_has_priority(as, ds)) {
+        if (!(ds->wu.kind_of_waza & 2)) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 void player_at_vs_player_dm(s16 ix2, s16 ix) {
     PLW* as = (PLW*)q_hit_push[ix2];
     PLW* ds = (PLW*)q_hit_push[ix];
@@ -63,39 +109,8 @@ void player_at_vs_player_dm(s16 ix2, s16 ix) {
             break;
         }
 
-        if (as->wu.att.dipsw & 0x40) {
-            if (!(ds->wu.att.dipsw & 0x40)) {
-                keep_defender_damage(ix2, ix);
-                break;
-            }
-
+        if (trade_settled(as, ds, ix2, ix)) {
             break;
-        }
-
-        /* These two attacker cases ran the same block in the original; they
-         * share it here, with both tests kept as they were written. */
-        if ((as->wu.att.dipsw & 0x20) || (as->wu.kind_of_waza & 4)) {
-            if (!(ds->wu.att.dipsw & 0x40)) {
-                if (defender_outranks_attacker(ds)) {
-                    break;
-                }
-
-                keep_defender_damage(ix2, ix);
-                break;
-            }
-        } else if (as->wu.kind_of_waza & 2) {
-            if (defender_has_no_priority(ds)) {
-                if (ds->wu.kind_of_waza & 2) {
-                    break;
-                }
-
-                keep_defender_damage(ix2, ix);
-                break;
-            }
-        } else if (neither_side_has_priority(as, ds)) {
-            if (!(ds->wu.kind_of_waza & 2)) {
-                break;
-            }
         }
 
         keep_attacker_damage(ix2, ix);
