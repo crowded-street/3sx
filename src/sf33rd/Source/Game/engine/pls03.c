@@ -1226,16 +1226,31 @@ static s32 meoshi_release_cancels(PLW* wk, s16 tdat) {
     return 1;
 }
 
+/* A button went down this frame: the 0x800 flag decides which kind of cancel
+ * the caller reports. */
+static s32 meoshi_cancel_on_press(const PLW* wk) {
+    if ((wk->wu.cg_meoshi & 0x800)) {
+        return 1;
+    }
+
+    return 2;
+}
+
+/* The cancel names no buttons: only the 0x800 flag lets it through. */
+static s32 meoshi_cancel_without_buttons(const PLW* wk) {
+    if (!(wk->wu.cg_meoshi & 0x800)) {
+        return 0;
+    }
+
+    return 1;
+}
+
 static s32 meoshi_cancel_gate(PLW* wk) {
     s16 tdat;
     s16 wdat;
 
     if ((tdat = wk->wu.cg_meoshi & 0x770) == 0) {
-        if (!(wk->wu.cg_meoshi & 0x800)) {
-            return 0;
-        }
-
-        return 1;
+        return meoshi_cancel_without_buttons(wk);
     }
 
     wdat = wk->cp->sw_new & 0x770;
@@ -1245,11 +1260,7 @@ static s32 meoshi_cancel_gate(PLW* wk) {
     }
 
     if (shot_data_convert(wk->cp->sw_now) >= 0) {
-        if ((wk->wu.cg_meoshi & 0x800)) {
-            return 1;
-        }
-
-        return 2;
+        return meoshi_cancel_on_press(wk);
     }
 
     return meoshi_release_cancels(wk, tdat);
