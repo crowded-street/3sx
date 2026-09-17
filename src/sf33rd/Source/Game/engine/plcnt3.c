@@ -90,6 +90,18 @@ void plcnt_b2_move() {
     }
 }
 
+/* A human player goes into the end-of-stage routine; a CPU one is simply
+ * marked finished. Both players are asked the same way. */
+static void end_bonus2_for(s16 ix) {
+    if (plw[ix].wu.operator) {
+        plw[ix].wu.routine_no[1] = 0;
+        plw[ix].wu.routine_no[2] = 40;
+        plw[ix].wu.routine_no[3] = 0;
+    } else {
+        plw[ix].wu.routine_no[3] = 9;
+    }
+}
+
 void plcnt_b2_die() {
     plw[0].wu.dm_vital = plw[1].wu.dm_vital = 0;
 
@@ -109,23 +121,8 @@ void plcnt_b2_die() {
 
     case 2:
         complete_victory_pause();
-
-        if (plw[0].wu.operator) {
-            plw[0].wu.routine_no[1] = 0;
-            plw[0].wu.routine_no[2] = 40;
-            plw[0].wu.routine_no[3] = 0;
-        } else {
-            plw[0].wu.routine_no[3] = 9;
-        }
-
-        if (plw[1].wu.operator) {
-            plw[1].wu.routine_no[1] = 0;
-            plw[1].wu.routine_no[2] = 40;
-            plw[1].wu.routine_no[3] = 0;
-        } else {
-            plw[1].wu.routine_no[3] = 9;
-        }
-
+        end_bonus2_for(0);
+        end_bonus2_for(1);
         plw[0].wu.cg_type = plw[1].wu.cg_type = 0;
         pcon_rno[2]++;
         break;
