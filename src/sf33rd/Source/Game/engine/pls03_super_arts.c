@@ -481,27 +481,33 @@ static s32 try_grounded_dc(PLW* wk) {
 
 /* The airborne one, which has four more gates of its own before the same
  * button-group test. */
+/* The five reasons an airborne direct cancel cannot start, in the order the
+ * original tested them. */
+static s32 airborne_dc_slot_is_blocked(const PLW* wk) {
+    if (wk->spmv_ng_flag & DIP_UNKNOWN_31) {
+        return 1;
+    }
+
+    if (wk->sa->nmsa_a_ix == 0) {
+        return 1;
+    }
+
+    if (wk->sa->nmsa_a_ix < 0x1C) {
+        return 1;
+    }
+
+    if (chain_cancel_already_used(wk, wk->sa->nmsa_a_ix)) {
+        return 1;
+    }
+
+    return is_blocked_by_arcade_switch(wk, wk->sa->nmsa_a_ix);
+}
+
 static s32 try_airborne_dc(PLW* wk) {
     u16 cusw;
     u16* conpane;
 
-    if (wk->spmv_ng_flag & DIP_UNKNOWN_31) {
-        return 0;
-    }
-
-    if (wk->sa->nmsa_a_ix == 0) {
-        return 0;
-    }
-
-    if (wk->sa->nmsa_a_ix < 0x1C) {
-        return 0;
-    }
-
-    if (chain_cancel_already_used(wk, wk->sa->nmsa_a_ix)) {
-        return 0;
-    }
-
-    if (is_blocked_by_arcade_switch(wk, wk->sa->nmsa_a_ix)) {
+    if (airborne_dc_slot_is_blocked(wk)) {
         return 0;
     }
 
