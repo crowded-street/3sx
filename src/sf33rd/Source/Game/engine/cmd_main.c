@@ -115,6 +115,28 @@ static const void* get_commands(s16 char_num) { // 🔴
     }
 }
 
+/* One command's own matcher, if it is enabled at all. */
+static void step_one_command(s16 j, intptr_t* adrs) {
+    if (wcp[cmd_id].waza_flag[j] == -1) {
+        return;
+    }
+
+    waza_type[cmd_id] = j;
+    cmd_tbl_ptr = (s16*)adrs[j];
+    waza_ptr = &waza_work[cmd_id][j];
+    chk_move_jp[waza_ptr->w_type]();
+}
+
+/* And the move behind a command that matched this frame. */
+static void run_one_matched_command(s16 j) {
+    if ((wcp[cmd_id].waza_flag[j] == -1) || (wcp[cmd_id].waza_flag[j] == 0)) {
+        return;
+    }
+
+    waza_ptr = &waza_work[cmd_id][j];
+    command_ok_move(j);
+}
+
 void cmd_move() { // 🟢
     s16 j;
     intptr_t* adrs;
@@ -123,19 +145,11 @@ void cmd_move() { // 🟢
     adrs = get_commands(cmd_pl->player_number);
 
     for (j = 0; j < 56; j++) {
-        if (wcp[cmd_id].waza_flag[j] != -1) {
-            waza_type[cmd_id] = j;
-            cmd_tbl_ptr = (s16*)adrs[j];
-            waza_ptr = &waza_work[cmd_id][j];
-            chk_move_jp[waza_ptr->w_type]();
-        }
+        step_one_command(j, adrs);
     }
 
     for (j = 0; j < 56; j++) {
-        if ((wcp[cmd_id].waza_flag[j] != -1) && (wcp[cmd_id].waza_flag[j] != 0)) {
-            waza_ptr = &waza_work[cmd_id][j];
-            command_ok_move(j);
-        }
+        run_one_matched_command(j);
     }
 }
 
