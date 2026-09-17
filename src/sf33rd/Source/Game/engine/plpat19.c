@@ -28,23 +28,30 @@ void pl19_extra_attack(PLW* wk) {
     pl19_exatt_table[wk->wu.routine_no[2] - 16](wk);
 }
 
+/* The transformation starts only if its effect could be spawned; outside the
+ * bonus stage that is what decides between the full animation and the two-frame
+ * fallback at state 9. */
+static void begin_metamorphose(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    wk->wu.rl_flag = wk->wu.rl_waza;
+    hoken_muriyari_chakuchi(wk);
+    reset_mvxy_data(&wk->wu);
+    wk->metamorphose = 0;
+    wk->metamor_over = 0;
+
+    if ((Bonus_Game_Flag != 20) && (effect_K7_init(wk) != -1)) {
+        set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+        return;
+    }
+
+    set_char_move_init(&wk->wu, 5, wk->as->char_ix + 2);
+    wk->wu.routine_no[3] = 9;
+}
+
 void Att_METAMORPHOSE(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        hoken_muriyari_chakuchi(wk);
-        reset_mvxy_data(&wk->wu);
-        wk->metamorphose = 0;
-        wk->metamor_over = 0;
-
-        if ((Bonus_Game_Flag != 20) && (effect_K7_init(wk) != -1)) {
-            set_char_move_init(&wk->wu, 5, wk->as->char_ix);
-            break;
-        }
-
-        set_char_move_init(&wk->wu, 5, wk->as->char_ix + 2);
-        wk->wu.routine_no[3] = 9;
+        begin_metamorphose(wk);
         break;
 
     case 1:
@@ -113,23 +120,10 @@ static void step_union_flight(PLW* wk, s16 landed_rno) {
     }
 }
 
-/* The travelling frames of the super art. Three more markers can arrive here on
- * top of the shared row advance: a reset that ends the travel, the snap that
- * places the player 224 above the opponent, and either end marker. */
-static void sa_dra_travel(PLW* wk) {
+/* Marker 30 teleports the player onto the opponent, 224 above them, clamped to
+ * the floor. */
+static void snap_above_target(PLW* wk) {
     PLW* emwk;
-
-    char_move(&wk->wu);
-    add_mvxy_speed(&wk->wu);
-    cal_mvxy_speed(&wk->wu);
-
-    take_next_mvxy_row(wk);
-
-    if (wk->wu.cg_type == 21) {
-        reset_mvxy_data(&wk->wu);
-        wk->wu.routine_no[3] = 5;
-        wk->wu.cg_type = 0;
-    }
 
     if (wk->wu.cg_type == 30) {
         wk->wu.cg_type = 0;
@@ -144,6 +138,25 @@ static void sa_dra_travel(PLW* wk) {
             wk->wu.xyz[1].disp.pos = 0;
         }
     }
+}
+
+/* The travelling frames of the super art. Three more markers can arrive here on
+ * top of the shared row advance: a reset that ends the travel, the snap that
+ * places the player 224 above the opponent, and either end marker. */
+static void sa_dra_travel(PLW* wk) {
+    char_move(&wk->wu);
+    add_mvxy_speed(&wk->wu);
+    cal_mvxy_speed(&wk->wu);
+
+    take_next_mvxy_row(wk);
+
+    if (wk->wu.cg_type == 21) {
+        reset_mvxy_data(&wk->wu);
+        wk->wu.routine_no[3] = 5;
+        wk->wu.cg_type = 0;
+    }
+
+    snap_above_target(wk);
 
     if ((wk->wu.cg_type == 64) || (wk->wu.cg_type == 0xFF)) {
         wk->wu.routine_no[3] = 5;
@@ -275,6 +288,24 @@ void Att_EX__D_R_A(PLW* wk) {
     }
 }
 
+/* The travelling frames of the aerial finisher: the shared row advance, the
+ * reset marker that steps the state on, and the shared end markers. */
+static void kuuchuu_travel(PLW* wk) {
+    char_move(&wk->wu);
+    add_mvxy_speed(&wk->wu);
+    cal_mvxy_speed(&wk->wu);
+
+    take_next_mvxy_row(wk);
+
+    if (wk->wu.cg_type == 21) {
+        reset_mvxy_data(&wk->wu);
+        wk->wu.routine_no[3]++;
+        wk->wu.cg_type = 0;
+    }
+
+    finish_on_end_marker(wk);
+}
+
 void Att_KUUCHUUHISSATU(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -291,20 +322,7 @@ void Att_KUUCHUUHISSATU(PLW* wk) {
         break;
 
     case 2:
-        char_move(&wk->wu);
-        add_mvxy_speed(&wk->wu);
-        cal_mvxy_speed(&wk->wu);
-
-        take_next_mvxy_row(wk);
-
-        if (wk->wu.cg_type == 21) {
-            reset_mvxy_data(&wk->wu);
-            wk->wu.routine_no[3]++;
-            wk->wu.cg_type = 0;
-        }
-
-        finish_on_end_marker(wk);
-
+        kuuchuu_travel(wk);
         break;
     default:
         char_move(&wk->wu);
