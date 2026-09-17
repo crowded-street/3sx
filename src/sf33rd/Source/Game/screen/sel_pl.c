@@ -1076,6 +1076,26 @@ static s32 Any_Plate_Is_Disposing(s16 PL_id) {
            Plate_Disposal_No[PL_id][2] != 0;
 }
 
+/* An attack button confirms the super art: lock it in, remember it, and note the
+ * character this player took it with. */
+static void Confirm_Arts_Selection(s16 PL_id, u16 sw) {
+    if (sw & SWK_ATTACKS) {
+        Stop_Cursor[ID] = 1;
+        Slide_Type = PL_id;
+        Sel_Arts_Complete[PL_id] = 1;
+        Last_Super_Arts[PL_id] = Super_Arts[PL_id] = Arts_Y[PL_id];
+        Sound_SE(ID + 98);
+        Sound_SE(*Free_Ptr[PL_id]++);
+        Setup_ID();
+
+        if (Used_char[PL_id] != My_char[PL_id]) {
+            Last_Player_id = PL_id;
+        }
+
+        Used_char[PL_id] = My_char[PL_id];
+    }
+}
+
 void Sel_Arts_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
     u16 lever_sw;
 
@@ -1127,21 +1147,7 @@ void Sel_Arts_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
         }
     }
 
-    if (sw & SWK_ATTACKS) {
-        Stop_Cursor[ID] = 1;
-        Slide_Type = PL_id;
-        Sel_Arts_Complete[PL_id] = 1;
-        Last_Super_Arts[PL_id] = Super_Arts[PL_id] = Arts_Y[PL_id];
-        Sound_SE(ID + 98);
-        Sound_SE(*Free_Ptr[PL_id]++);
-        Setup_ID();
-
-        if (Used_char[PL_id] != My_char[PL_id]) {
-            Last_Player_id = PL_id;
-        }
-
-        Used_char[PL_id] = My_char[PL_id];
-    }
+    Confirm_Arts_Selection(PL_id, sw);
 }
 
 void Correct_Control_Time(s16 PL_id) {
