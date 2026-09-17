@@ -1182,6 +1182,20 @@ static s32 Arts_Cursor_Is_Locked(s16 PL_id) {
     return 0;
 }
 
+/* Step the super-art cursor down one plate, wrapping to the top. */
+static void Move_Arts_Cursor_Down(s16 PL_id, u16 sw) {
+    if (sw & SWK_DOWN) {
+        Sound_SE(ID + 96);
+        Moving_Plate[PL_id] = 2;
+        Moving_Plate_Counter[PL_id] = 3;
+        OK_Priority[PL_id] = 0;
+
+        if ((Arts_Y[PL_id] += 1) > 2) {
+            Arts_Y[PL_id] = 0;
+        }
+    }
+}
+
 void Sel_Arts_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
     u16 lever_sw;
 
@@ -1199,16 +1213,7 @@ void Sel_Arts_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
         sw |= Auto_Repeat_Sub_Wife(PL_id);
     }
 
-    if (sw & SWK_DOWN) {
-        Sound_SE(ID + 96);
-        Moving_Plate[PL_id] = 2;
-        Moving_Plate_Counter[PL_id] = 3;
-        OK_Priority[PL_id] = 0;
-
-        if ((Arts_Y[PL_id] += 1) > 2) {
-            Arts_Y[PL_id] = 0;
-        }
-    }
+    Move_Arts_Cursor_Down(PL_id, sw);
 
     if (sw & SWK_UP) {
         Sound_SE(ID + 96);
