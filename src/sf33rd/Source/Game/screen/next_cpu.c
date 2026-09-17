@@ -796,27 +796,11 @@ static void Fade_Out_Before_Cut() {
     }
 }
 
-void Select_CPU_3rd() {
+/* The presentation half of the VS scene, from the cards onward. The case labels are
+ * the original ones, so a sub-state still reads as the number the rest of the file
+ * uses, and a value matching none of them does nothing, as before. */
+static void Select_CPU_3rd_Presentation() {
     switch (SC_No[1]) {
-    case 0:
-        Select_CPU_Character();
-        break;
-
-    case 1:
-        if ((S_Timer -= 1) == 0) {
-            SC_No[1] = 4;
-        }
-
-        break;
-
-    case 2:
-        Await_Player_Load();
-        break;
-
-    case 3:
-        Hold_Before_Cards();
-        break;
-
     case 4:
         Start_VS_Presentation();
         break;
@@ -843,6 +827,33 @@ void Select_CPU_3rd() {
 
         Advance_Scene_On_Timeout();
 
+        break;
+    }
+}
+
+void Select_CPU_3rd() {
+    switch (SC_No[1]) {
+    case 0:
+        Select_CPU_Character();
+        break;
+
+    case 1:
+        if ((S_Timer -= 1) == 0) {
+            SC_No[1] = 4;
+        }
+
+        break;
+
+    case 2:
+        Await_Player_Load();
+        break;
+
+    case 3:
+        Hold_Before_Cards();
+        break;
+
+    default:
+        Select_CPU_3rd_Presentation();
         break;
     }
 }
