@@ -108,6 +108,17 @@ void end_1600_0000() {
     }
 }
 
+/* Hold on the blacked-out panel, then end the scene. */
+static void end_1600_1000_hold_blank() {
+    overwrite_panel(0xFF000000, 0x17);
+    bgw_ptr->free--;
+
+    if (bgw_ptr->free <= 0) {
+        bgw_ptr->r_no_1++;
+        end_w.timer = 0;
+    }
+}
+
 void end_1600_1000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -132,13 +143,7 @@ void end_1600_1000() {
         break;
 
     case 3:
-        overwrite_panel(0xFF000000, 0x17);
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->r_no_1++;
-            end_w.timer = 0;
-        }
+        end_1600_1000_hold_blank();
 
         break;
 
