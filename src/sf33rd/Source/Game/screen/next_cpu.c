@@ -945,6 +945,23 @@ void Next_Bonus_2nd() {
     }
 }
 
+/* The tail of the bonus intro: a cut shortens the hold, and the scene only ends once
+ * the player load has arrived - otherwise it retries a frame at a time. */
+static void Leave_Bonus_Intro() {
+    if (Scene_Cut) {
+        S_Timer = 1;
+    }
+
+    if ((S_Timer -= 1) == 0) {
+        if (!Check_PL_Load()) {
+            S_Timer = 1;
+            return;
+        }
+
+        SC_No[0] = 11;
+    }
+}
+
 void Next_Bonus_3rd() {
     switch (SC_No[1]) {
     case 0:
@@ -961,18 +978,7 @@ void Next_Bonus_3rd() {
         break;
 
     default:
-        if (Scene_Cut) {
-            S_Timer = 1;
-        }
-
-        if ((S_Timer -= 1) == 0) {
-            if (!Check_PL_Load()) {
-                S_Timer = 1;
-                break;
-            }
-
-            SC_No[0] = 11;
-        }
+        Leave_Bonus_Intro();
 
         break;
     }
