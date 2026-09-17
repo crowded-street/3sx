@@ -111,6 +111,11 @@ static s32 Cursor_Is_Held() {
     return Stop_Cursor[ID] != 0 || Face_Move != 0;
 }
 
+/* Either of the two training modes. */
+static s32 In_A_Training_Mode() {
+    return Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING;
+}
+
 s16 Select_Player() {
     SEL_PL_X = 0;
 
@@ -438,7 +443,7 @@ static void Begin_Arts_Selection() {
         Cursor_Timer[ID2] = 40;
         Go_Away_Red_Lines();
 
-        if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
+        if (In_A_Training_Mode()) {
             S_No[3] = 1;
             return;
         }
@@ -717,7 +722,7 @@ void Sel_PL_5th() {
 
     SP_No[ID][0]++;
 
-    if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
+    if (In_A_Training_Mode()) {
         S_No[3] = 1;
     }
 
