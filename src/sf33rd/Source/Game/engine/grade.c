@@ -510,16 +510,9 @@ static s16 versus_streak_points(s16 ix) {
 }
 
 static s16 winner_streak_points(s16 ix) {
-    s16 i;
-
     if (Play_Type == 0) {
-        for (i = 0; i < 10; i++) {
-            if (judge_item[ix][Play_Type].no_lose < grade_t_straight[i + 1][0]) {
-                break;
-            }
-        }
-
-        judge_item[ix][Play_Type].ex_point_total += grade_t_straight[i][1];
+        judge_item[ix][Play_Type].ex_point_total +=
+            grade_table_points(grade_t_straight, 10, judge_item[ix][Play_Type].no_lose);
         return 0;
     }
 
