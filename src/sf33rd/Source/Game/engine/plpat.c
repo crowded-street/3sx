@@ -225,18 +225,45 @@ void Attack_02000(PLW* wk) { // 🟢
     }
 }
 
+/* On the ground - or standing on the bonus-stage car - the attack starts from a
+ * landed pose, so the unit is re-initialised before the animation is set. */
+static void init_ja_attack_from_ground(PLW* wk) {
+    if ((Bonus_Game_Flag == 20 && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
+        hoken_muriyari_chakuchi(wk);
+        wk->wu.rl_flag = wk->wu.rl_waza;
+        setup_lvdir_after_autodir(wk);
+        Normal_18000_init_unit(wk, wk->wu.pat_status);
+    }
+}
+
+/* The dummy-RTNM window, which only runs while the jump is still airborne. The
+ * arm's inner break left the switch with nothing after it, so returning here is
+ * the same exit. */
+static void step_ja_nmj_dummy(PLW* wk) {
+    if (wk->wu.routine_no[3] == 3) {
+        return;
+    }
+
+    check_ja_nmj_dummy_RTNM(wk);
+
+    if (wk->wu.cg_type != 0x40) {
+        return;
+    }
+
+    if (!(wk->spmv_ng_flag & 0x100000) && ja_nmj_rno_change(&wk->wu)) {
+        wk->wu.routine_no[1] = 0;
+        wk->wu.routine_no[3] = 1;
+    }
+
+    wk->wu.cg_type = 0;
+}
+
 void Attack_03000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
         get_cancel_timer(wk);
-        if ((Bonus_Game_Flag == 20 && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
-            hoken_muriyari_chakuchi(wk);
-            wk->wu.rl_flag = wk->wu.rl_waza;
-            setup_lvdir_after_autodir(wk);
-            Normal_18000_init_unit(wk, wk->wu.pat_status);
-        }
-
+        init_ja_attack_from_ground(wk);
         set_char_move_init(&wk->wu, 4, wk->as->char_ix);
         break;
 
@@ -251,21 +278,7 @@ void Attack_03000(PLW* wk) { // 🟢
 
     case 2:
         jumping_union_process(&wk->wu, 3);
-
-        if (wk->wu.routine_no[3] != 3) {
-            check_ja_nmj_dummy_RTNM(wk);
-
-            if (wk->wu.cg_type == 0x40) {
-                if (!(wk->spmv_ng_flag & 0x100000) && ja_nmj_rno_change(&wk->wu)) {
-                    wk->wu.routine_no[1] = 0;
-                    wk->wu.routine_no[3] = 1;
-                }
-
-                wk->wu.cg_type = 0;
-                break;
-            }
-        }
-
+        step_ja_nmj_dummy(wk);
         break;
 
     case 3:
