@@ -18,11 +18,16 @@ void pl06_extra_attack(PLW* wk) {
     pl06_exatt_table[wk->wu.routine_no[2] - 16](wk);
 }
 
-/* The run's markers: 20 takes the next row, 30 jumps to the data row and hands
- * over to the union, 40 resets, 60 and 70 go to the throw. */
-static void pl06_run_markers(PLW* wk) {
-    char_move(&wk->wu);
-
+/* The three markers the run and the throw read the same way: 20 takes the next
+ * movement row, 30 jumps the index to the data row and hands over to the union,
+ * 40 resets the movement.
+ *
+ * The labels are the original numbers and each caller reaches this from a new
+ * `default` arm. That is safe because the labels are mutually exclusive: a
+ * cg_type of 20 used to match the caller's own arm and now falls to the default
+ * and matches the same label here, and a cg_type matching none of them did
+ * nothing before and does nothing now - neither switch has a default of its own. */
+static void pl06_common_markers(PLW* wk) {
     switch (wk->wu.cg_type) {
     case 20:
         setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
@@ -41,6 +46,18 @@ static void pl06_run_markers(PLW* wk) {
     case 40:
         reset_mvxy_data(&wk->wu);
         wk->wu.cg_type = 0;
+        break;
+    }
+}
+
+/* The run's markers: 20 takes the next row, 30 jumps to the data row and hands
+ * over to the union, 40 resets, 60 and 70 go to the throw. */
+static void pl06_run_markers(PLW* wk) {
+    char_move(&wk->wu);
+
+    switch (wk->wu.cg_type) {
+    default:
+        pl06_common_markers(wk);
         break;
 
     case 60:
@@ -77,23 +94,8 @@ static void pl06_throw_markers(PLW* wk) {
     char_move(&wk->wu);
 
     switch (wk->wu.cg_type) {
-    case 20:
-        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-        wk->wu.mvxy.index++;
-        wk->wu.cg_type = 0;
-        break;
-
-    case 30:
-        wk->wu.mvxy.index = wk->as->data_ix;
-        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-        wk->wu.mvxy.index++;
-        wk->wu.routine_no[3] = 2;
-        wk->wu.cg_type = 0;
-        break;
-
-    case 40:
-        reset_mvxy_data(&wk->wu);
-        wk->wu.cg_type = 0;
+    default:
+        pl06_common_markers(wk);
         break;
 
     case 50:
