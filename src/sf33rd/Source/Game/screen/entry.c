@@ -939,6 +939,25 @@ void Entry_Continue_Sub(s16 PL_id) {
     }
 }
 
+/* Off the last screen, a player goes to the naming screen if they ranked and to game
+ * over if they did not - without waiting on the other player. */
+static void Rank_Or_Game_Over(s16 PL_id) {
+    Setup_Final_Grade();
+
+    if (Check_Ranking(PL_id) != 0) {
+        E_Number[PL_id][0] = 2;
+        Request_Disp_Rank[PL_id][0] = Rank_In[PL_id][0];
+        Request_Disp_Rank[PL_id][1] = Rank_In[PL_id][1];
+        Request_Disp_Rank[PL_id][2] = Rank_In[PL_id][2];
+        Request_Disp_Rank[PL_id][3] = Rank_In[PL_id][3];
+        return;
+    }
+
+    E_Number[PL_id][0] = 8;
+    E_Number[PL_id][1] = 0;
+    return;
+}
+
 void Setup_Next_Step(s16 PL_id) {
     s16 xx;
 
@@ -951,19 +970,7 @@ void Setup_Next_Step(s16 PL_id) {
     }
 
     if (E_No[0] != 7) {
-        Setup_Final_Grade();
-
-        if (Check_Ranking(PL_id) != 0) {
-            E_Number[PL_id][0] = 2;
-            Request_Disp_Rank[PL_id][0] = Rank_In[PL_id][0];
-            Request_Disp_Rank[PL_id][1] = Rank_In[PL_id][1];
-            Request_Disp_Rank[PL_id][2] = Rank_In[PL_id][2];
-            Request_Disp_Rank[PL_id][3] = Rank_In[PL_id][3];
-            return;
-        }
-
-        E_Number[PL_id][0] = 8;
-        E_Number[PL_id][1] = 0;
+        Rank_Or_Game_Over(PL_id);
         return;
     }
 
