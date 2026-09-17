@@ -719,6 +719,17 @@ static void Select_CPU_Character() {
     }
 }
 
+/* The super-art panel is shown only in the modes that let a super art be picked, and
+ * only against a real opponent. */
+static s32 Super_Art_Panel_Is_Shown() {
+    return check_use_all_SA() == 0 && check_without_SA() == 0 && EM_id != 0;
+}
+
+/* A boss with an introduction to play before the fight. */
+static s32 Boss_Has_Speech() {
+    return 8 <= VS_Index[Player_id] && Check_EM_Speech();
+}
+
 /* Sub-state 4: bring the VS presentation up - the two fighter cards, the super-art
  * panel when one is shown, the scroll target and the background sweep. */
 static void Start_VS_Presentation() {
@@ -729,7 +740,7 @@ static void Start_VS_Presentation() {
     Order[COM_id + 11] = 1;
     Order_Timer[COM_id + 11] = 1;
 
-    if (check_use_all_SA() == 0 && check_without_SA() == 0 && EM_id != 0) {
+    if (Super_Art_Panel_Is_Shown()) {
         effect_98_init(COM_id, COM_id + 0x28, Super_Arts[COM_id], 2);
         Order[COM_id + 40] = 1;
         Order_Timer[COM_id + 40] = 1;
@@ -742,7 +753,7 @@ static void Start_VS_Presentation() {
     Target_BG_X[3] = bg_w.bgw[3].wxy[0].disp.pos + 480;
     Offset_BG_X[3] = 0;
 
-    if (8 <= VS_Index[Player_id] && Check_EM_Speech()) {
+    if (Boss_Has_Speech()) {
         SC_No[1] = 5;
         Order[67] = 1;
         Order_Timer[67] = 10;
