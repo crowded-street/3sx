@@ -1321,7 +1321,22 @@ different attempts to remove it were measured:
 
 The difference is the twin. `settle_double_ko` has no sibling; the two wall sides of
 `set_field_hosei_flag` differ in three places and become a duplication group the moment
-they are separate functions. **Extract the body, keep the loop** is the move that pays.
+they are separate functions.
+
+**Then the twin was broken, and the same rewrite took the file to 10.00.** `pls02.c` held
+a *latent* pair - `setup_move_data_easy` and `read_adrs_store_mvxy`, not flagged on their
+own but counted against anything new - and once Recipe C had taken the four lines they
+share, the ledger changed completely:
+
+| Move | Before the latent twin was broken | After |
+| --- | --- | --- |
+| split the two wall sides | 9.31 -> 9.02 | 9.31 -> **9.92** |
+| then remove the `while (1)` | -0.70, twice | 9.92 -> **10.00** |
+
+So the rule is not "keep the loop". It is: **a `while (1)` whose every path returns or
+breaks is not a loop, and removing it is free - but only once the file can afford the
+functions that removing it creates.** Count the latent pairs first; if the body you are
+about to lift has a sibling, take that sibling's shared run before you lift anything.
 
 ---
 
