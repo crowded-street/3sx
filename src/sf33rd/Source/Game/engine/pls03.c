@@ -776,6 +776,16 @@ static s32 resolve_air_catch_target(PLW* wk, s16 kos) {
     return 1;
 }
 
+/* Which catch the pattern status calls for. The two resolvers are asked the same
+ * question and answer the same way, so the caller only needs the one test. */
+static s32 resolve_catch_target(PLW* wk, s16 kos) {
+    if ((wk->wu.pat_status < 0xE) || (wk->wu.pat_status > 0x1E)) {
+        return resolve_ground_catch_target(wk, kos);
+    }
+
+    return resolve_air_catch_target(wk, kos);
+}
+
 s32 check_catch_attack(PLW* wk) { // 🟡
     s16 kos;
 
@@ -795,14 +805,8 @@ s32 check_catch_attack(PLW* wk) { // 🟡
 
     kos = ((wk->cp->sw_new & 4) != 0) + (((wk->cp->sw_new & 8) != 0) * 2);
 
-    if ((wk->wu.pat_status < 0xE) || (wk->wu.pat_status > 0x1E)) {
-        if (!resolve_ground_catch_target(wk, kos)) {
-            return 0;
-        }
-    } else {
-        if (!resolve_air_catch_target(wk, kos)) {
-            return 0;
-        }
+    if (!resolve_catch_target(wk, kos)) {
+        return 0;
     }
 
     setup_comm_back(&wk->wu);
