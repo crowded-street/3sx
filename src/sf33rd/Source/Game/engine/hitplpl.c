@@ -45,19 +45,9 @@ void player_at_vs_player_dm(s16 ix2, s16 ix) {
             break;
         }
 
-        if (as->wu.att.dipsw & 0x20) {
-            if (!(ds->wu.att.dipsw & 0x40)) {
-                if (ds->wu.att.dipsw & 0x20) {
-                    break;
-                }
-
-                if (ds->wu.kind_of_waza & 4) {
-                    break;
-                }
-
-                goto two;
-            }
-        } else if (as->wu.kind_of_waza & 4) {
+        /* These two attacker cases ran the same block in the original; they
+         * share it here, with both tests kept as they were written. */
+        if ((as->wu.att.dipsw & 0x20) || (as->wu.kind_of_waza & 4)) {
             if (!(ds->wu.att.dipsw & 0x40)) {
                 if (ds->wu.att.dipsw & 0x20) {
                     break;
