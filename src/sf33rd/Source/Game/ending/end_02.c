@@ -84,14 +84,19 @@ void end_200_move() {
     end_200_jp[end_w.r_no_2]();
 }
 
+/* Put the panel where this scene starts. */
+static void end_02_place_panel_at_scene_start() {
+    bgw_ptr->xy[0].disp.pos = end_2_pos[end_w.r_no_2][0];
+    bgw_ptr->xy[1].disp.pos = end_2_pos[end_w.r_no_2][1];
+}
+
 void end_200_0000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
         Rewrite_End_Message(1);
         Bg_On_W(1);
-        bgw_ptr->xy[0].disp.pos = end_2_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_2_pos[end_w.r_no_2][1];
+        end_02_place_panel_at_scene_start();
         bgw_ptr->free = 0x1E;
         break;
 
@@ -122,8 +127,7 @@ void end_200_1000() {
     case 0:
         bgw_ptr->r_no_1++;
         Rewrite_End_Message(2);
-        bgw_ptr->xy[0].disp.pos = end_2_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_2_pos[end_w.r_no_2][1];
+        end_02_place_panel_at_scene_start();
         bgw_ptr->speed_x = 0x4000;
         bgw_ptr->free = 3;
         bgw_ptr->l_limit = 0;
@@ -167,8 +171,7 @@ void end_200_3000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_2_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_2_pos[end_w.r_no_2][1];
+        end_02_place_panel_at_scene_start();
 
         switch (end_w.r_no_2) {
         case 3:
@@ -212,8 +215,7 @@ void end_201_1000() {
     case 0:
         bgw_ptr->r_no_1++;
         Bg_On_W(2);
-        bgw_ptr->xy[0].disp.pos = end_2_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_2_pos[end_w.r_no_2][1];
+        end_02_place_panel_at_scene_start();
         bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
         bgw_ptr->speed_x = 0x4000;
         bgw_ptr->free = 4;
@@ -234,8 +236,7 @@ void end_201_3000() {
     case 0:
         bgw_ptr->r_no_1++;
         Bg_On_W(2);
-        bgw_ptr->xy[0].disp.pos = end_2_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_2_pos[end_w.r_no_2][1];
+        end_02_place_panel_at_scene_start();
 
         if (end_w.r_no_2 == 3) {
             bgw_ptr->free = 4;
@@ -306,8 +307,7 @@ void end_202_4000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_2_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_2_pos[end_w.r_no_2][1];
+        end_02_place_panel_at_scene_start();
         effect_E6_init(0x80);
         break;
 
