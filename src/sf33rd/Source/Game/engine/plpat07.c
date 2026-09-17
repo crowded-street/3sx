@@ -18,12 +18,18 @@ void pl07_extra_attack(PLW* wk) {
     pl07_exatt_table[wk->wu.routine_no[2] - 16](wk);
 }
 
+/* Land, then face the way the move was buffered. Three of this character's
+ * attacks open with exactly these three lines. */
+static void begin_pl07_attack(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    hoken_muriyari_chakuchi(wk);
+    wk->wu.rl_flag = wk->wu.rl_waza;
+}
+
 void Att_PL07_SA2(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        hoken_muriyari_chakuchi(wk);
-        wk->wu.rl_flag = wk->wu.rl_waza;
+        begin_pl07_attack(wk);
         reset_mvxy_data(&wk->wu);
         wk->wu.mvxy.index = wk->as->r_no;
         set_char_move_init(&wk->wu, 5, wk->as->char_ix);
@@ -56,6 +62,17 @@ void Att_PL07_SA2(PLW* wk) {
     }
 }
 
+/* Marker 1 loads the row the union leg flies on and hands over to it. */
+static void pl07_at1_enter_union(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 1) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.routine_no[3] = 3;
+        wk->wu.cg_type = 0;
+    }
+}
+
 /* The travelling frames: marker 20 takes the next row, 21 resets it, 30 ends the
  * travel. */
 static void pl07_at1_travel(PLW* wk) {
@@ -85,9 +102,7 @@ static void pl07_at1_travel(PLW* wk) {
 void Att_PL07_AT1(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        hoken_muriyari_chakuchi(wk);
-        wk->wu.rl_flag = wk->wu.rl_waza;
+        begin_pl07_attack(wk);
         set_char_move_init(&wk->wu, 5, wk->as->char_ix);
         reset_mvxy_data(&wk->wu);
         wk->wu.mvxy.index = wk->as->r_no;
@@ -97,14 +112,7 @@ void Att_PL07_AT1(PLW* wk) {
         pl07_at1_travel(wk);
         break;
     case 2:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 1) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.routine_no[3] = 3;
-            wk->wu.cg_type = 0;
-        }
-
+        pl07_at1_enter_union(wk);
         break;
 
     case 3:
@@ -155,6 +163,15 @@ void Att_PL07_AT2(PLW* wk) {
     }
 }
 
+/* Marker 20 hands the third attack to the union leg. */
+static void pl07_at3_wind_up(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 20) {
+        wk->wu.routine_no[3]++;
+    }
+}
+
 void Att_PL07_AT3(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -163,12 +180,7 @@ void Att_PL07_AT3(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 20) {
-            wk->wu.routine_no[3]++;
-        }
-
+        pl07_at3_wind_up(wk);
         break;
 
     case 2:
@@ -178,6 +190,22 @@ void Att_PL07_AT3(PLW* wk) {
     case 3:
         char_move(&wk->wu);
         break;
+    }
+}
+
+/* While the union has not landed, markers 20 and 30 each load their own movement
+ * row. */
+static void pl07_sa3_union_markers(PLW* wk) {
+    if (wk->wu.routine_no[3] != 2) {
+        if (wk->wu.cg_type == 20) {
+            setup_mvxy_data(&wk->wu, wk->as->data_ix);
+            wk->wu.cg_type = 0;
+        }
+
+        if (wk->wu.cg_type == 30) {
+            setup_mvxy_data(&wk->wu, wk->as->r_no);
+            wk->wu.cg_type = 0;
+        }
     }
 }
 
@@ -192,23 +220,24 @@ void Att_PL07_SA3(PLW* wk) {
     case 1:
         jumping_union_process(&wk->wu, 2);
 
-        if (wk->wu.routine_no[3] != 2) {
-            if (wk->wu.cg_type == 20) {
-                setup_mvxy_data(&wk->wu, wk->as->data_ix);
-                wk->wu.cg_type = 0;
-            }
-
-            if (wk->wu.cg_type == 30) {
-                setup_mvxy_data(&wk->wu, wk->as->r_no);
-                wk->wu.cg_type = 0;
-            }
-        }
-
+        pl07_sa3_union_markers(wk);
         break;
 
     case 2:
         char_move(&wk->wu);
         break;
+    }
+}
+
+/* Marker 20 launches the taunt into its union leg. */
+static void pl07_taunt_launch(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 20) {
+        wk->wu.cg_type = 0;
+        wk->wu.routine_no[3]++;
+        add_mvxy_speed(&wk->wu);
+        cal_mvxy_speed(&wk->wu);
     }
 }
 
@@ -252,24 +281,14 @@ static void pl07_taunt_bonus(PLW* wk) {
 void Att_PL07_TOKUSHUKOUDOU(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        hoken_muriyari_chakuchi(wk);
-        wk->wu.rl_flag = wk->wu.rl_waza;
+        begin_pl07_attack(wk);
         setup_mvxy_data(&wk->wu, wk->as->data_ix);
         wk->wu.mvxy.index++;
         set_char_move_init(&wk->wu, 5, wk->as->char_ix);
         break;
 
     case 1:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 20) {
-            wk->wu.cg_type = 0;
-            wk->wu.routine_no[3]++;
-            add_mvxy_speed(&wk->wu);
-            cal_mvxy_speed(&wk->wu);
-        }
-
+        pl07_taunt_launch(wk);
         break;
 
     case 2:
