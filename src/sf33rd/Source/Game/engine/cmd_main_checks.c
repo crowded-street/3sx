@@ -882,6 +882,17 @@ void check_14() { // 🟢
     }
 }
 
+/* The lever is where the command wants it, so this repetition counts. The two
+ * arms of check_15 that do this differ in one value, the direction wanted;
+ * one wrote its increment as ++ and the other as += 1. */
+static void count_shot_when_lever_matches(u16 want) {
+    if (chk_pl->sw_lever == want) {
+        waza_ptr->shot_ok++;
+
+        advance_when_shot_count_reached();
+    }
+}
+
 void check_15() { // 🟢
     waza_ptr->w_int--;
 
@@ -896,18 +907,9 @@ void check_15() { // 🟢
 
     if (waza_ptr->w_lvr & 0x8000) {
         sw_work = waza_ptr->w_lvr & 0xF;
-
-        if (chk_pl->sw_lever == sw_work) {
-            waza_ptr->shot_ok++;
-
-            advance_when_shot_count_reached();
-        }
+        count_shot_when_lever_matches(sw_work);
     } else if (waza_ptr->w_lvr == 0) {
-        if (chk_pl->sw_lever == 0) {
-            waza_ptr->shot_ok += 1;
-
-            advance_when_shot_count_reached();
-        }
+        count_shot_when_lever_matches(0);
     } else if (
         lever_changed_and_shot_counted()
     ) {
