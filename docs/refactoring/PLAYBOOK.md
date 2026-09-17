@@ -473,6 +473,40 @@ static s32 comm_pa_y(PLW* wk, CTC* ctc) { return dispatch_by_koc(wk, ctc, add_sc
   struct field, never chosen at run time. Recipe F replaces a duplicated skeleton; it does
   not introduce dispatch the program did not have.
 
+**More than one callee may differ, on the same argument.** Added 2026-09-17 under the
+project owner's standing authorisation, and measured on `entry.c`'s five screen
+dispatchers, which were identical apart from *two* callees each:
+
+```c
+void Entry_03() {
+    switch (E_No[1]) {
+    case 0:      Entry_03_1st();  break;
+    default:     Entry_03_2nd();  break;
+    }
+}
+```
+
+Five of those, differing only in the pair they name, became
+`Entry_Screen_Step(Entry_03_1st, Entry_03_2nd)` and four siblings like it: **4.36 ->
+4.74**, and five of the file's eight duplication groups went at once.
+
+The safety argument is unchanged by the count, and that is the point. What makes Recipe F
+safe is not that one thing varies but that **every varying name is written out verbatim at
+its own call site, and the helper does nothing with any of them except call it.** A second
+pointer cannot be mis-mapped against the first: both are positional parameters named in
+full at every call site, so there is no place for a pair to be crossed that reading the one
+line would not show. Adding a third would be the same.
+
+What does *not* relax:
+
+- **Only callees may differ.** If the arms also differ in a statement, an operator or a
+  value, Recipe F still does not apply - that remains Recipe D's forbidden near-miss.
+- **The helper still only calls them.** The moment it tests a pointer, compares two of
+  them, or picks between them, the differences have been generalised and this is forbidden
+  again.
+- Every other precondition above stands: identical signatures, unchanged arguments, nothing
+  widened from `static`, and the pointer passed as a bare name rather than stored.
+
 **The guard needs telling.** `--calls` counts a name as a call only when a `(` follows it,
 so a callee now passed by pointer reads as a vanished call and FAILs. Declare each one:
 
