@@ -1415,6 +1415,42 @@ The test to apply before making the split:
 Measure it either way - the two cases differ by less than half a point and neither is
 predictable from reading the code.
 
+---
+
+### Choose which arms to extract so no two dispatchers end up bare
+
+*Overall Code Complexity is a whole-file average* says to extract until the mean
+drops. `plpatuni.c` shows the constraint that comes with it: **an extraction
+shrinks its caller, and a state machine shrunk to nothing but `case N: helper(wk);
+break;` looks exactly like every other state machine shrunk the same way.**
+
+Measured, three ways, on the same file:
+
+| Set | Extractions | Score | What held it |
+| --- | --- | --- | --- |
+| none | - | 9.38 | Overall Code Complexity |
+| all seven bumpy arms | 7 | **9.09** | Code Duplication across five bare dispatchers |
+| the same set minus two | 4 | **10.00** | nothing |
+
+The seven-arm set cleared the mean and lost more than it gained. Two of its
+extractions emptied `Att_SHOURYUUKEN` and `Att_SENPUUKYAKU`, which then matched
+three dispatchers that were already skeletons, and CodeScene raised a five-function
+duplicate group. Leaving those two arms inline cost nothing - four extractions
+were already enough for the mean - and no family formed.
+
+So when a file is a set of sibling state machines and the finding is the mean:
+
+1. Count how many extractions the mean actually needs before doing any. It is
+   usually fewer than the number of arms that could be extracted.
+2. Spend them on the machines that are **least** like their siblings - a distinct
+   label set, a distinct opening - and leave the near-twins holding their arms.
+3. If the duplicate family forms anyway, check whether Recipe S can separate the
+   twins **before** reverting. In `plpatuni.c` it could not: the openings the
+   siblings share, `begin_uni_attack` and `begin_uni_attack_at_row`, are `static`
+   and called from every part of the file, so no cut avoids widening a `static`.
+   That is forbidden outright, which made the smaller extraction set the only way
+   through.
+
 ### A file can be too big for its own mean
 
 `plmain.c` is the case that shows what *Overall Code Complexity is a whole-file average*
