@@ -152,6 +152,19 @@ static void sa_dra_travel(PLW* wk) {
     }
 }
 
+/* The lift-off frame: the 20 marker loads the first movement row and hands over
+ * to the union. Unlike take_next_mvxy_row this one steps the state rather than
+ * the row index. */
+static void sa_dra_lift_off(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 20) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.cg_type = 0;
+        wk->wu.routine_no[3]++;
+    }
+}
+
 void Att_SA__D_R_A(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -161,14 +174,7 @@ void Att_SA__D_R_A(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 20) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.cg_type = 0;
-            wk->wu.routine_no[3]++;
-        }
-
+        sa_dra_lift_off(wk);
         break;
 
     case 2:
