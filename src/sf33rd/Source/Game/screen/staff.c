@@ -440,6 +440,21 @@ static void run_credit_roll() {
     show_next_credit_page();
 }
 
+/* The pause either side of the roll: run the timer down, then move on - or skip it
+ * entirely on a shortcut. */
+static void wait_out_credit_pause() {
+    if (end_w.timer >= 0) {
+        end_w.timer = end_w.timer - roll_rate_t2;
+    } else {
+        staff_r_no++;
+    }
+
+    if (check_shortcut() != 0) {
+        staff_r_no = 4;
+        end_w.timer = 0;
+    }
+}
+
 s32 staff_credits(u32 /* unused */) {
     s16 x;
     s16 y;
@@ -472,17 +487,7 @@ s32 staff_credits(u32 /* unused */) {
 
     case 2:
     case 3:
-        if (end_w.timer >= 0) {
-            end_w.timer = end_w.timer - roll_rate_t2;
-        } else {
-            staff_r_no++;
-        }
-
-        if (check_shortcut() != 0) {
-            staff_r_no = 4;
-            end_w.timer = 0;
-        }
-
+        wait_out_credit_pause();
         break;
 
     default:
