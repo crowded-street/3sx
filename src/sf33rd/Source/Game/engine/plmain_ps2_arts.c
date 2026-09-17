@@ -37,18 +37,24 @@ static void mark_ps2_art_attack_for(PLW* wk, u8 character) {
  * art does once it is stored and running. Moved out whole, so every `break`
  * still belongs to the switch it belonged to before. */
 /* gauge type 0: the art is paid for once and then simply stops. */
+/* Starting an art costs a stock - all of them for the fourth EX - unless the
+ * practice flag is set, and clears the meter bug either way. */
+static void spend_one_art_stock(PLW* wk) {
+    if (!pcon_dp_flag) {
+        if (wk->sa->ex4th_exec) {
+            wk->sa->store = 0;
+        } else {
+            wk->sa->store--;
+        }
+    }
+
+    sag_bug_fix(wk->wu.id);
+}
+
 static void sag_ps2_instant_art(PLW* wk) {
     switch (wk->sa->saeff_ok) {
     case -1:
-        if (!pcon_dp_flag) {
-            if (wk->sa->ex4th_exec) {
-                wk->sa->store = 0;
-            } else {
-                wk->sa->store--;
-            }
-        }
-
-        sag_bug_fix(wk->wu.id);
+        spend_one_art_stock(wk);
         abandon_super_art(wk);
         sag_inc_timer[wk->wu.id] = 20;
         break;
@@ -73,15 +79,7 @@ static void sag_ps2_instant_art(PLW* wk) {
 static void sag_ps2_timed_begin(PLW* wk) {
     switch (wk->sa->saeff_ok) {
     case -1:
-        if (!pcon_dp_flag) {
-            if (wk->sa->ex4th_exec) {
-                wk->sa->store = 0;
-            } else {
-                wk->sa->store--;
-            }
-        }
-
-        sag_bug_fix(wk->wu.id);
+        spend_one_art_stock(wk);
 
         if (wk->sa->mp == 1) {
             wk->sa->bacckup_g_h = 0;
@@ -112,21 +110,10 @@ static void sag_ps2_timed_begin(PLW* wk) {
 /* Running a timed art: the bar drains every frame that neither player is in a
  * super stop, and the characters whose arts mark their attacks are marked
  * here. Emptying the bar ends the art and restores what was left. */
-static void sag_ps2_timed_drain(PLW* wk) {
-    if ((wk->sa_stop_flag != 1) && (((PLW*)wk->wu.target_adrs)->sa_stop_flag != 1)) {
-        wk->sa->gauge.i -= wk->sa->dtm * wk->sa->dtm_mul;
-    }
-
-    if (wk->sa->gauge.s.h <= 0 || Suicide[6] != 0) {
-        wk->sa->gauge.i = 0;
-        wk->sa->ok = 0;
-        wk->sa->sa_rno = 0;
-        wk->sa->dtm_mul = 1;
-        wk->sa->gauge.s.h = wk->sa->bacckup_g_h;
-        sag_inc_timer[wk->wu.id] = 20;
-        return;
-    }
-
+/* Five characters' arts change what their attacks count as while the art runs.
+ * Yun takes the shared attribute, three take the port's own, and Oro's second
+ * art sets a dipsw bit instead. */
+static void mark_running_art_attack(PLW* wk) {
     if (My_char[wk->wu.id] == CHAR_YUN) {
         addSAAttribute(&wk->wu.kind_of_waza, &wk->wu.at_koa);
     }
@@ -138,6 +125,30 @@ static void sag_ps2_timed_drain(PLW* wk) {
     if ((My_char[wk->wu.id] == CHAR_ORO) && (wk->sa->kind_of_arts == 2)) {
         wk->wu.att.dipsw |= 0x10;
     }
+}
+
+/* The art ends when the gauge empties: put the bar back to its backup height
+ * and hold the next gain off. */
+static void end_art_and_restore_gauge(PLW* wk) {
+    wk->sa->gauge.i = 0;
+    wk->sa->ok = 0;
+    wk->sa->sa_rno = 0;
+    wk->sa->dtm_mul = 1;
+    wk->sa->gauge.s.h = wk->sa->bacckup_g_h;
+    sag_inc_timer[wk->wu.id] = 20;
+}
+
+static void sag_ps2_timed_drain(PLW* wk) {
+    if ((wk->sa_stop_flag != 1) && (((PLW*)wk->wu.target_adrs)->sa_stop_flag != 1)) {
+        wk->sa->gauge.i -= wk->sa->dtm * wk->sa->dtm_mul;
+    }
+
+    if (wk->sa->gauge.s.h <= 0 || Suicide[6] != 0) {
+        end_art_and_restore_gauge(wk);
+        return;
+    }
+
+    mark_running_art_attack(wk);
 }
 
 static void sag_ps2_timed_art(PLW* wk) {
@@ -226,16 +237,22 @@ static void fire_ps2_art_when_ready(PLW* wk) {
     }
 }
 
+/* State 0 arms the art as soon as there is a stock to spend, and clears the
+ * effect flag either way. */
+static void arm_art_on_stock(PLW* wk) {
+    if (wk->sa->store) {
+        wk->sa->sa_rno = 1;
+        wk->sa->ok = 1;
+        wk->sa->id_arts++;
+    }
+
+    wk->sa->saeff_ok = 0;
+}
+
 void sag_union_ps2(PLW* wk) { // 🔴
     switch (wk->sa->sa_rno) {
     case 0:
-        if (wk->sa->store) {
-            wk->sa->sa_rno = 1;
-            wk->sa->ok = 1;
-            wk->sa->id_arts++;
-        }
-
-        wk->sa->saeff_ok = 0;
+        arm_art_on_stock(wk);
         break;
 
     case 1:
