@@ -18,6 +18,55 @@ void pl20_extra_attack(PLW* wk) {
     pl20_exatt_table[wk->wu.routine_no[2] - 16](wk);
 }
 
+/* The travelling frames, written identically in Att_PL20_AT1 and Att_PL20_AT3:
+ * marker 20 takes the next row, 25 adds to it, 30 loads the data row and falls
+ * through into 35, which takes the next row and hands over to state 2. */
+static void pl20_travel_markers(PLW* wk) {
+    char_move(&wk->wu);
+    add_mvxy_speed(&wk->wu);
+    cal_mvxy_speed(&wk->wu);
+
+    switch (wk->wu.cg_type) {
+    case 20:
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+        break;
+
+    case 25:
+        add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+        break;
+
+    case 30:
+        setup_mvxy_data(&wk->wu, wk->as->data_ix);
+        wk->wu.routine_no[3] = 2;
+        wk->wu.cg_type = 0;
+        /* fallthrough */
+
+    case 35:
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.routine_no[3] = 2;
+        wk->wu.cg_type = 0;
+        break;
+    }
+}
+
+/* After the union, marker 20 takes the next row and sends the attack round
+ * again. The same two functions wrote this identically too. */
+static void pl20_restart_on_marker_20(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 20) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.routine_no[3] = 1;
+        wk->wu.cg_type = 0;
+    }
+}
+
 void Att_PL20_AT1(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -30,37 +79,7 @@ void Att_PL20_AT1(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-        add_mvxy_speed(&wk->wu);
-        cal_mvxy_speed(&wk->wu);
-
-        switch (wk->wu.cg_type) {
-        case 20:
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-            break;
-
-        case 25:
-            add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-            break;
-
-        case 30:
-            setup_mvxy_data(&wk->wu, wk->as->data_ix);
-            wk->wu.routine_no[3] = 2;
-            wk->wu.cg_type = 0;
-            /* fallthrough */
-
-        case 35:
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.routine_no[3] = 2;
-            wk->wu.cg_type = 0;
-            break;
-        }
-
+        pl20_travel_markers(wk);
         break;
 
     case 2:
@@ -68,15 +87,7 @@ void Att_PL20_AT1(PLW* wk) {
         break;
 
     case 3:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 20) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.routine_no[3] = 1;
-            wk->wu.cg_type = 0;
-        }
-
+        pl20_restart_on_marker_20(wk);
         break;
     }
 }
@@ -167,37 +178,7 @@ void Att_PL20_AT3(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-        add_mvxy_speed(&wk->wu);
-        cal_mvxy_speed(&wk->wu);
-
-        switch (wk->wu.cg_type) {
-        case 20:
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-            break;
-
-        case 25:
-            add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-            break;
-
-        case 30:
-            setup_mvxy_data(&wk->wu, wk->as->data_ix);
-            wk->wu.routine_no[3] = 2;
-            wk->wu.cg_type = 0;
-            /* fallthrough */
-
-        case 35:
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.routine_no[3] = 2;
-            wk->wu.cg_type = 0;
-            break;
-        }
-
+        pl20_travel_markers(wk);
         break;
 
     case 2:
@@ -205,15 +186,7 @@ void Att_PL20_AT3(PLW* wk) {
         break;
 
     case 3:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 20) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.routine_no[3] = 1;
-            wk->wu.cg_type = 0;
-        }
-
+        pl20_restart_on_marker_20(wk);
         break;
     }
 }
