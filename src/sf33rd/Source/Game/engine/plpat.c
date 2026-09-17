@@ -541,29 +541,45 @@ void Attack_07000(PLW* wk) { // 🟢
     }
 }
 
-void Attack_08000(PLW* wk) { // 🟢
+/* The opening frame of the multi-step air attack. Started from the ground it
+ * picks its movement row from the pattern status, capped at row 10. */
+static void begin_stepped_air_attack(PLW* wk) {
     s16 ixx;
 
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
+    wk->wu.routine_no[3]++;
 
-        if (wk->wu.xyz[1].disp.pos <= 0) {
-            wk->wu.rl_flag = wk->wu.rl_waza;
-            wk->wu.xyz[1].disp.pos = 0;
+    if (wk->wu.xyz[1].disp.pos <= 0) {
+        wk->wu.rl_flag = wk->wu.rl_waza;
+        wk->wu.xyz[1].disp.pos = 0;
 
-            ixx = ((wk->wu.pat_status - 20) / 2 & 3) + 9;
+        ixx = ((wk->wu.pat_status - 20) / 2 & 3) + 9;
 
-            if (ixx > 11) {
-                ixx = 10;
-            }
-
-            setup_mvxy_data(&wk->wu, ixx);
+        if (ixx > 11) {
+            ixx = 10;
         }
 
-        get_cancel_timer(wk);
-        set_char_move_init(&wk->wu, 4, (s16)((wk->as->char_ix)));
-        wk->wu.mvxy.index = wk->as->data_ix;
+        setup_mvxy_data(&wk->wu, ixx);
+    }
+
+    get_cancel_timer(wk);
+    set_char_move_init(&wk->wu, 4, (s16)((wk->as->char_ix)));
+    wk->wu.mvxy.index = wk->as->data_ix;
+}
+
+/* Each 20 marker in the airborne arm folds the next movement row in and steps
+ * the index on. The arm's `break` left the switch with nothing after it. */
+static void advance_stepped_air_attack(PLW* wk) {
+    if ((wk->wu.routine_no[3] != 3) && (wk->wu.cg_type == 20)) {
+        add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.cg_type = 0;
+        wk->wu.mvxy.index++;
+    }
+}
+
+void Attack_08000(PLW* wk) { // 🟢
+    switch (wk->wu.routine_no[3]) {
+    case 0:
+        begin_stepped_air_attack(wk);
         break;
 
     case 1:
@@ -584,14 +600,7 @@ void Attack_08000(PLW* wk) { // 🟢
 
     case 2:
         jumping_union_process(&wk->wu, 3);
-
-        if ((wk->wu.routine_no[3] != 3) && (wk->wu.cg_type == 20)) {
-            add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.cg_type = 0;
-            wk->wu.mvxy.index++;
-            break;
-        }
-
+        advance_stepped_air_attack(wk);
         break;
 
     case 3:
