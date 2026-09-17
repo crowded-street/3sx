@@ -710,6 +710,42 @@ static void Await_Screen_Settled(s16 PL_id) {
     }
 }
 
+/* E_Number 2: settle for a moment, then run the ranking-name entry. */
+static void Run_Naming_Screen(s16 PL_id) {
+    switch (E_Number[PL_id][1]) {
+    case 0:
+        E_Number[PL_id][1] += 1;
+        Personal_Timer[PL_id] = 30;
+        break;
+
+    case 1:
+        if (!--Personal_Timer[PL_id]) {
+            E_Number[PL_id][1] += 1;
+            Naming_Init(PL_id);
+            return;
+        }
+
+        break;
+
+    case 2:
+        Run_Name_Entry(PL_id);
+        break;
+    }
+}
+
+/* E_Number 8: the game-over hold, either still counting down or already over. */
+static void Run_Game_Over_Screen(s16 PL_id) {
+    switch (E_Number[PL_id][1]) {
+    case 0:
+        In_Game_Sub(PL_id);
+        break;
+
+    case 1:
+        In_Over_Sub(PL_id);
+        break;
+    }
+}
+
 void Entry_Main_Sub(s16 PL_id, s16 Jump_Index) {
     ENTRY_X = 0;
 
@@ -723,25 +759,7 @@ void Entry_Main_Sub(s16 PL_id, s16 Jump_Index) {
         break;
 
     case 2:
-        switch (E_Number[PL_id][1]) {
-        case 0:
-            E_Number[PL_id][1] += 1;
-            Personal_Timer[PL_id] = 30;
-            break;
-
-        case 1:
-            if (!--Personal_Timer[PL_id]) {
-                E_Number[PL_id][1] += 1;
-                Naming_Init(PL_id);
-                return;
-            }
-
-            break;
-
-        case 2:
-            Run_Name_Entry(PL_id);
-            break;
-        }
+        Run_Naming_Screen(PL_id);
 
         break;
 
@@ -750,15 +768,7 @@ void Entry_Main_Sub(s16 PL_id, s16 Jump_Index) {
         break;
 
     case 8:
-        switch (E_Number[PL_id][1]) {
-        case 0:
-            In_Game_Sub(PL_id);
-            break;
-
-        case 1:
-            In_Over_Sub(PL_id);
-            break;
-        }
+        Run_Game_Over_Screen(PL_id);
 
         break;
 
