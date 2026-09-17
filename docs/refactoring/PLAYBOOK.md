@@ -613,17 +613,21 @@ when a transformation is behaviour-preserving by construction.
 
 **Preconditions, all of them:**
 
-- **Every label in the chain holds exactly one statement, and it is a `return`.** Not a
-  block, not an assignment first. If any label has work under it, this recipe does not
-  apply.
-- **The labels sit consecutively at the end of the function**, so each one's `return`
-  makes it impossible to fall from one label into the next. If a label can be reached by
-  fallthrough from another label's body, the chain encodes an order and deleting it
-  changes behaviour.
-- **Every `goto` jumps forward, into that trailing group.** A backward jump is a loop and
-  is out of scope.
+- **Every label in the chain ends in an unconditional transfer** - a `return`, or a
+  `break` that leaves the enclosing loop or switch - and holds nothing after it. The
+  common case is a label holding exactly one `return`; a label holding a short fixed
+  sequence that *ends* in the transfer is the same shape and is allowed, but keep the
+  sequence to one or two statements, or extract it (Recipe E) before applying this one so
+  the copies do not become a duplication finding of their own.
+- **No label can be reached by falling into it.** Each label is entered only by its
+  `goto`s, or by falling off the end of the code above into the *first* of them. If
+  control can fall from one label's body into the next, the chain encodes an order and
+  deleting it changes behaviour.
+- **Every `goto` jumps forward, and stays inside the same construct.** A backward jump is
+  a loop and is out of scope; a jump that leaves a loop or switch is not a transfer this
+  recipe can copy.
 - **The conditions are not touched.** The `if`s keep their operators, their operands and
-  their order; only the jump becomes the return it jumped to.
+  their order; only the jump becomes the statements it jumped to.
 - **Nothing else in the function references the labels.**
 
 **Before:**
