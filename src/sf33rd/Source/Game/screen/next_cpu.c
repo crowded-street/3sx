@@ -714,6 +714,88 @@ static void Select_CPU_Character() {
     }
 }
 
+/* Sub-state 4: bring the VS presentation up - the two fighter cards, the super-art
+ * panel when one is shown, the scroll target and the background sweep. */
+static void Start_VS_Presentation() {
+    SC_No[1] = 6;
+    Order[Player_id + 11] = 4;
+    Order_Timer[Player_id + 11] = 5;
+    effect_38_init(COM_id, COM_id + 11, My_char[COM_id], 1, 2);
+    Order[COM_id + 11] = 1;
+    Order_Timer[COM_id + 11] = 1;
+
+    if (check_use_all_SA() == 0 && check_without_SA() == 0 && EM_id != 0) {
+        effect_98_init(COM_id, COM_id + 0x28, Super_Arts[COM_id], 2);
+        Order[COM_id + 40] = 1;
+        Order_Timer[COM_id + 40] = 1;
+    }
+
+    effect_75_init(42, 3, 2);
+    Order[42] = 3;
+    Order_Timer[42] = 1;
+    Order_Dir[42] = 3;
+    Target_BG_X[3] = bg_w.bgw[3].wxy[0].disp.pos + 480;
+    Offset_BG_X[3] = 0;
+
+    if (8 <= VS_Index[Player_id] && Check_EM_Speech()) {
+        SC_No[1] = 5;
+        Order[67] = 1;
+        Order_Timer[67] = 10;
+        Order_Dir[67] = 8;
+        effect_76_init(67);
+        Order[68] = 1;
+        Order_Timer[68] = 10;
+        Order_Dir[68] = 4;
+        effect_76_init(68);
+    }
+
+    Next_Step = 0;
+    Cut_Scroll = 2;
+    bg_mvxy.a[0].sp = 0x200000;
+    bg_mvxy.d[0].sp = 0x18000;
+    effect_58_init(12, 1, 3);
+}
+
+/* Sub-state 2: hold until the player load is queued, retrying a frame at a time. */
+static void Await_Player_Load() {
+    if ((S_Timer -= 1) < 51) {
+        if (Check_LDREQ_Queue_Direct(9)) {
+            SC_No[1]++;
+        } else {
+            S_Timer = 1;
+        }
+    }
+}
+
+/* Sub-state 3: a cut shortens the pause to nothing; otherwise run it out. */
+static void Hold_Before_Cards() {
+    if (Scene_Cut) {
+        S_Timer = 1;
+    }
+
+    if ((S_Timer -= 1) == 0) {
+        SC_No[1]++;
+    }
+}
+
+/* Sub-state 7: a cut shortens the tail, and the BGM fades once it is short enough. */
+static void Fade_Out_Before_Cut() {
+    switch (SC_No[2]) {
+    case 0:
+        if (Scene_Cut) {
+            S_Timer = 9;
+        }
+
+        if (S_Timer < 10) {
+            S_Timer = 9;
+            SC_No[2]++;
+            SsBgmFadeOut(0x1000);
+        }
+
+        break;
+    }
+}
+
 void Select_CPU_3rd() {
     switch (SC_No[1]) {
     case 0:
@@ -728,65 +810,15 @@ void Select_CPU_3rd() {
         break;
 
     case 2:
-        if ((S_Timer -= 1) < 51) {
-            if (Check_LDREQ_Queue_Direct(9)) {
-                SC_No[1]++;
-            } else {
-                S_Timer = 1;
-            }
-        }
-
+        Await_Player_Load();
         break;
 
     case 3:
-        if (Scene_Cut) {
-            S_Timer = 1;
-        }
-
-        if ((S_Timer -= 1) == 0) {
-            SC_No[1]++;
-        }
-
+        Hold_Before_Cards();
         break;
 
     case 4:
-        SC_No[1] = 6;
-        Order[Player_id + 11] = 4;
-        Order_Timer[Player_id + 11] = 5;
-        effect_38_init(COM_id, COM_id + 11, My_char[COM_id], 1, 2);
-        Order[COM_id + 11] = 1;
-        Order_Timer[COM_id + 11] = 1;
-
-        if (check_use_all_SA() == 0 && check_without_SA() == 0 && EM_id != 0) {
-            effect_98_init(COM_id, COM_id + 0x28, Super_Arts[COM_id], 2);
-            Order[COM_id + 40] = 1;
-            Order_Timer[COM_id + 40] = 1;
-        }
-
-        effect_75_init(42, 3, 2);
-        Order[42] = 3;
-        Order_Timer[42] = 1;
-        Order_Dir[42] = 3;
-        Target_BG_X[3] = bg_w.bgw[3].wxy[0].disp.pos + 480;
-        Offset_BG_X[3] = 0;
-
-        if (8 <= VS_Index[Player_id] && Check_EM_Speech()) {
-            SC_No[1] = 5;
-            Order[67] = 1;
-            Order_Timer[67] = 10;
-            Order_Dir[67] = 8;
-            effect_76_init(67);
-            Order[68] = 1;
-            Order_Timer[68] = 10;
-            Order_Dir[68] = 4;
-            effect_76_init(68);
-        }
-
-        Next_Step = 0;
-        Cut_Scroll = 2;
-        bg_mvxy.a[0].sp = 0x200000;
-        bg_mvxy.d[0].sp = 0x18000;
-        effect_58_init(12, 1, 3);
+        Start_VS_Presentation();
         break;
 
     case 5:
@@ -807,20 +839,7 @@ void Select_CPU_3rd() {
         break;
 
     case 7:
-        switch (SC_No[2]) {
-        case 0:
-            if (Scene_Cut) {
-                S_Timer = 9;
-            }
-
-            if (S_Timer < 10) {
-                S_Timer = 9;
-                SC_No[2]++;
-                SsBgmFadeOut(0x1000);
-            }
-
-            break;
-        }
+        Fade_Out_Before_Cut();
 
         Advance_Scene_On_Timeout();
 
