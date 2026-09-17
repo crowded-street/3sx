@@ -139,11 +139,18 @@ void add_to_mvxy_data(WORK* wk, u16 ix) { // 🟢
     wk->mvxy.kop[1] = adrs[5];
 }
 
-void setup_move_data_easy(WORK* wk, const s16* adrs, s16 prx, s16 pry) { // 🟢
+/* The horizontal pair of a movement row, both words shifted into place. The two
+ * readers below open with exactly these four lines; what differs is only which
+ * columns their vertical half and their kop values come from. */
+static void store_mvxy_x_from(WORK* wk, const s16* adrs) {
     wk->mvxy.a[0].sp = adrs[0];
     wk->mvxy.a[0].sp <<= 8;
     wk->mvxy.d[0].sp = adrs[1];
     wk->mvxy.d[0].sp <<= 8;
+}
+
+void setup_move_data_easy(WORK* wk, const s16* adrs, s16 prx, s16 pry) { // 🟢
+    store_mvxy_x_from(wk, adrs);
     wk->mvxy.kop[0] = prx;
     wk->mvxy.a[1].sp = adrs[2];
     wk->mvxy.a[1].sp <<= 8;
@@ -173,10 +180,7 @@ void setup_butt_own_data(WORK* wk) { // 🟢
 }
 
 void read_adrs_store_mvxy(WORK* wk, s16* adrs) { // 🟢
-    wk->mvxy.a[0].sp = adrs[0];
-    wk->mvxy.a[0].sp <<= 8;
-    wk->mvxy.d[0].sp = adrs[1];
-    wk->mvxy.d[0].sp <<= 8;
+    store_mvxy_x_from(wk, adrs);
     wk->mvxy.kop[0] = adrs[2];
     wk->mvxy.a[1].sp = adrs[3];
     wk->mvxy.a[1].sp <<= 8;
