@@ -313,11 +313,23 @@ void set_credit_string(s32 t, s32 x, s32 y, s32 a, const char* s) {
     effect_H6_init(&init_args);
 }
 
-s32 staff_credits(u32 /* unused */) {
-    s16 t;
+/* Place the credit line name_ptr is on: its position and colour come from the table,
+ * the fade time from the caller. Written out thirteen times, ten with a 20-frame
+ * fade and three with 240. */
+static void show_credit_line(s16 t) {
     s16 x;
     s16 y;
     s16 a;
+
+    x = sf3_staff[name_ptr].x;
+    y = sf3_staff[name_ptr].y;
+    a = sf3_staff[name_ptr].atr;
+    set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
+}
+
+s32 staff_credits(u32 /* unused */) {
+    s16 x;
+    s16 y;
 
     switch (staff_r_no) {
     case 0:
@@ -368,29 +380,17 @@ s32 staff_credits(u32 /* unused */) {
             }
 
             name_timer = 0x7FFF;
-            t = 240;
-            x = sf3_staff[name_ptr].x;
-            y = sf3_staff[name_ptr].y;
-            a = sf3_staff[name_ptr].atr;
-            set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
+            show_credit_line(240);
             end_w.timer = sf3_staff[name_ptr].next;
             name_ptr++;
 
             if (0 >= end_w.timer) {
-                t = 240;
-                x = sf3_staff[name_ptr].x;
-                y = sf3_staff[name_ptr].y;
-                a = sf3_staff[name_ptr].atr;
-                set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
+                show_credit_line(240);
                 end_w.timer = sf3_staff[name_ptr].next;
                 name_ptr++;
 
                 if (0 >= end_w.timer) {
-                    t = 240;
-                    x = sf3_staff[name_ptr].x;
-                    y = sf3_staff[name_ptr].y;
-                    a = sf3_staff[name_ptr].atr;
-                    set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
+                    show_credit_line(240);
                     end_w.timer = 0xF0;
                     name_ptr++;
                 }
@@ -403,73 +403,33 @@ s32 staff_credits(u32 /* unused */) {
         }
 
         name_timer = sf3_staff[name_ptr].next;
-        t = 20;
-        x = sf3_staff[name_ptr].x;
-        y = sf3_staff[name_ptr].y;
-        a = sf3_staff[name_ptr].atr;
-        set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
+        show_credit_line(20);
         name_ptr++;
-        t = 20;
-        x = sf3_staff[name_ptr].x;
-        y = sf3_staff[name_ptr].y;
-        a = sf3_staff[name_ptr].atr;
-        set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
+        show_credit_line(20);
         name_ptr++;
 
         if (sf3_staff[name_ptr].next == 0) {
-            t = 20;
-            x = sf3_staff[name_ptr].x;
-            y = sf3_staff[name_ptr].y;
-            a = sf3_staff[name_ptr].atr;
-            set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
+            show_credit_line(20);
             name_ptr++;
-            t = 20;
-            x = sf3_staff[name_ptr].x;
-            y = sf3_staff[name_ptr].y;
-            a = sf3_staff[name_ptr].atr;
-            set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
+            show_credit_line(20);
             name_ptr++;
 
             if (sf3_staff[name_ptr].next == 0) {
-                t = 20;
-                x = sf3_staff[name_ptr].x;
-                y = sf3_staff[name_ptr].y;
-                a = sf3_staff[name_ptr].atr;
-                set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
+                show_credit_line(20);
                 name_ptr++;
-                t = 20;
-                x = sf3_staff[name_ptr].x;
-                y = sf3_staff[name_ptr].y;
-                a = sf3_staff[name_ptr].atr;
-                set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
+                show_credit_line(20);
                 name_ptr++;
 
                 if (sf3_staff[name_ptr].next == 0) {
-                    t = 20;
-                    x = sf3_staff[name_ptr].x;
-                    y = sf3_staff[name_ptr].y;
-                    a = sf3_staff[name_ptr].atr;
-                    set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
+                    show_credit_line(20);
                     name_ptr++;
-                    t = 20;
-                    x = sf3_staff[name_ptr].x;
-                    y = sf3_staff[name_ptr].y;
-                    a = sf3_staff[name_ptr].atr;
-                    set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
+                    show_credit_line(20);
                     name_ptr++;
 
                     if (sf3_staff[name_ptr].next == 0) {
-                        t = 20;
-                        x = sf3_staff[name_ptr].x;
-                        y = sf3_staff[name_ptr].y;
-                        a = sf3_staff[name_ptr].atr;
-                        set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
+                        show_credit_line(20);
                         name_ptr++;
-                        t = 20;
-                        x = sf3_staff[name_ptr].x;
-                        y = sf3_staff[name_ptr].y;
-                        a = sf3_staff[name_ptr].atr;
-                        set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
+                        show_credit_line(20);
                         name_ptr++;
                     }
                 }
