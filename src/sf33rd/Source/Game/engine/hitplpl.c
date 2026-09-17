@@ -45,6 +45,13 @@ static void keep_defender_damage(s16 ix2, s16 ix) {
     hs[ix].flag.results &= 0x1101;
 }
 
+/* The defender's damage is cancelled and the trade is settled. Both the strong
+ * and the special case end this way, character for character. */
+static s32 defender_loses(s16 ix2, s16 ix) {
+    keep_defender_damage(ix2, ix);
+    return 1;
+}
+
 /* A strong attacker: an overriding defender is untouched, one that outranks it
  * cancels the trade, anything weaker loses its damage. */
 static s32 strong_attack_settles(PLW* ds, s16 ix2, s16 ix) {
@@ -53,8 +60,7 @@ static s32 strong_attack_settles(PLW* ds, s16 ix2, s16 ix) {
             return 1;
         }
 
-        keep_defender_damage(ix2, ix);
-        return 1;
+        return defender_loses(ix2, ix);
     }
 
     return 0;
@@ -68,8 +74,7 @@ static s32 special_attack_settles(PLW* ds, s16 ix2, s16 ix) {
             return 1;
         }
 
-        keep_defender_damage(ix2, ix);
-        return 1;
+        return defender_loses(ix2, ix);
     }
 
     return 0;
