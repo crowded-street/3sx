@@ -129,8 +129,13 @@ NOT_CALLS = frozenset(
 
 CALL_RE = re.compile(r"\b([A-Za-z_][A-Za-z_0-9]*)\s*\(")
 
+#: An identifier that is *not* followed by "(" - how a function reads once it is
+#: passed by pointer rather than called. Only names declared with --fnptr are
+#: looked up here.
+BARE_NAME_RE = re.compile(r"\b([A-Za-z_][A-Za-z_0-9]*)\b(?!\s*\()")
 
-def calls(src: str) -> Counter:
+
+def calls(src: str, fnptrs: frozenset = frozenset()) -> Counter:
     """Multiset of called function names, ignoring definitions and declarations.
 
     This catches the failure mode a literal fingerprint misses: a call dropped
@@ -149,13 +154,26 @@ def calls(src: str) -> Counter:
                               its definition
 
     Anything else wants explaining. A name that disappears entirely is a FAIL.
+
+    `fnptrs` names functions the agent has declared are now passed by pointer
+    (Recipe F). A name handed to a helper as `f` rather than written `f(...)`
+    stops matching CALL_RE, so the fingerprint would read it as a vanished
+    call; each bare mention of a declared name counts as one call instead. The
+    declaration is the agent's, not a guess, so the counts still have to
+    balance afterwards - the check keeps its strength.
     """
+    cleaned = strip_preprocessor_lines(strip_comments(src))
     out = Counter()
-    for m in CALL_RE.finditer(strip_preprocessor_lines(strip_comments(src))):
+    for m in CALL_RE.finditer(cleaned):
         name = m.group(1)
         if name in NOT_CALLS:
             continue
         out[name] += 1
+    if fnptrs:
+        for m in BARE_NAME_RE.finditer(cleaned):
+            name = m.group(1)
+            if name in fnptrs:
+                out[name] += 1
     return out
 
 
@@ -216,7 +234,8 @@ def apply_renames(counts: Counter, renames: dict) -> Counter:
     return out
 
 
-def check_calls(rel: str, base: str, strict: bool = False, renames: dict | None = None) -> bool:
+def check_calls(rel: str, base: str, strict: bool = False, renames: dict | None = None,
+                fnptrs: frozenset = frozenset()) -> bool:
     """Compare the call fingerprint of one file against `base`."""
     before = git_show(base, rel)
     if before is None:
@@ -229,7 +248,8 @@ def check_calls(rel: str, base: str, strict: bool = False, renames: dict | None 
         return False
 
     after = path.read_text(encoding="utf-8", errors="replace")
-    return report_call_changes(rel, apply_renames(calls(before), renames or {}), calls(after), strict)
+    return report_call_changes(rel, apply_renames(calls(before), renames or {}),
+                               calls(after, fnptrs), strict)
 
 
 def strip_include_lines(src: str) -> str:
@@ -416,7 +436,8 @@ def check_combined(rels: list[str], base: str, strict: bool) -> bool:
     return report_combined_changes(*counts, strict)
 
 
-def check_calls_combined(rels: list[str], base: str, strict: bool, renames: dict) -> bool:
+def check_calls_combined(rels: list[str], base: str, strict: bool, renames: dict,
+                         fnptrs: frozenset = frozenset()) -> bool:
     """Compare the call fingerprint of a group of files as one.
 
     This is the check Recipe S needs. A split moves whole functions into a new
@@ -435,7 +456,7 @@ def check_calls_combined(rels: list[str], base: str, strict: bool, renames: dict
         if not path.is_file():
             print("FAIL  " + rel + "  (deleted from working tree)")
             return False
-        after += calls(path.read_text(encoding="utf-8", errors="replace"))
+        after += calls(path.read_text(encoding="utf-8", errors="replace"), fnptrs)
 
     return report_call_changes("combined group", apply_renames(before, renames), after, strict)
 
@@ -458,7 +479,13 @@ def main() -> int:
                     help="declare that a file-local static was renamed, so --calls does "
                          "not read it as a vanished call. Repeatable. Renaming a function "
                          "another file can see is not a campaign refactor.")
+    ap.add_argument("--fnptr", action="append", metavar="NAME", default=[],
+                    help="declare that NAME is now passed by pointer instead of called "
+                         "directly (Recipe F), so --calls counts the bare mention as the "
+                         "call it replaced. Repeatable.")
     args = ap.parse_args()
+
+    fnptrs = frozenset(name.strip() for name in args.fnptr)
 
     renames = {}
     for pair in args.renamed:
@@ -475,7 +502,7 @@ def main() -> int:
     if args.combined:
         group = [p.replace("\\", "/") for p in targets]
         if args.calls:
-            passed = check_calls_combined(group, args.base, args.strict, renames)
+            passed = check_calls_combined(group, args.base, args.strict, renames, fnptrs)
         else:
             passed = check_combined(group, args.base, args.strict)
         if not passed:
@@ -491,7 +518,7 @@ def main() -> int:
     for rel in targets:
         rel = rel.replace("\\", "/")
         if args.calls:
-            passed = check_calls(rel, args.base, args.strict, renames)
+            passed = check_calls(rel, args.base, args.strict, renames, fnptrs)
         else:
             passed = check(rel, args.base, args.strict)
         if not passed:
