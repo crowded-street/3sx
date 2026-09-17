@@ -241,6 +241,10 @@ not already do.
   `Setup_PL_Color`, `id_0 == id_1` compares two `s8` locals. If the operand calls a
   function, reads volatile state, or could trap, leave the family alone.
 
+**Where the skeleton ends inside control flow**, the helper returns `0` or `1` and each
+caller branches on it, exactly as Recipe C prescribes. Return nothing else - a verdict
+wider than a yes/no is the helper deciding something, which this recipe does not allow.
+
 **What the guard shows.** The deduplication WARN, with **one copy of each literal removed
 per instance** and every value still present at its call site. A *value* leaving the
 fingerprint means it did not travel to the call site and the merge is wrong.
