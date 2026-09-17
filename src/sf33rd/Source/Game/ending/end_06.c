@@ -300,7 +300,9 @@ void end_601_move() {
     end_601_jp[end_w.r_no_2]();
 }
 
-void end_601_0000() {
+/* end_601_0000 and end_601_3000 were byte-identical: show the family and put the
+ * panel where the scene starts. */
+static void end_06_show_family_at_scene_start() {
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
@@ -314,6 +316,10 @@ void end_601_0000() {
     case 1:
         break;
     }
+}
+
+void end_601_0000() {
+    end_06_show_family_at_scene_start();
 }
 
 void end_601_1000() {
@@ -389,17 +395,5 @@ void end_601_2000() {
 }
 
 void end_601_3000() {
-    switch (bgw_ptr->r_no_1) {
-    case 0:
-        bgw_ptr->r_no_1++;
-        Bg_On_W(1 << bgw_ptr->fam_no);
-        bgw_ptr->xy[0].disp.pos = end_6_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_6_pos[end_w.r_no_2][1];
-        bgw_ptr->abs_x = 512;
-        bgw_ptr->abs_y = 0;
-        break;
-
-    case 1:
-        break;
-    }
+    end_06_show_family_at_scene_start();
 }
