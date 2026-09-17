@@ -482,6 +482,34 @@ void end_e00_5000() {
     }
 }
 
+/* The fade out at the end of the scene, and the panel it leaves behind. The
+ * fallthrough from 4 into 5 travels with them. */
+static void end_e00_6000_fade() {
+    switch (bgw_ptr->r_no_1) {
+    case 3:
+        if (Request_Fade(3)) {
+            end_no_cut = 1;
+            bgw_ptr->r_no_1++;
+        }
+
+        break;
+
+    case 4:
+        if (end_fade_complete()) {
+            bgw_ptr->r_no_1++;
+            end_no_cut = 0;
+            end_w.timer = 10;
+            overwrite_panel(0xFFFFFFFF, 0x17);
+        }
+
+        /* fallthrough */
+
+    case 5:
+        overwrite_panel(0xFFFFFFFF, 0x17);
+        break;
+    }
+}
+
 void end_e00_6000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -513,26 +541,8 @@ void end_e00_6000() {
 
         break;
 
-    case 3:
-        if (Request_Fade(3)) {
-            end_no_cut = 1;
-            bgw_ptr->r_no_1++;
-        }
-
-        break;
-
-    case 4:
-        if (end_fade_complete()) {
-            bgw_ptr->r_no_1++;
-            end_no_cut = 0;
-            end_w.timer = 10;
-            overwrite_panel(0xFFFFFFFF, 0x17);
-        }
-
-        /* fallthrough */
-
-    case 5:
-        overwrite_panel(0xFFFFFFFF, 0x17);
+    default:
+        end_e00_6000_fade();
         break;
     }
 }
