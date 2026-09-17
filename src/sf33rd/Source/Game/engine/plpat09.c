@@ -45,6 +45,17 @@ void pl09_extra_attack(PLW* wk) {
     pl09_exatt_table[wk->wu.routine_no[2] - 16](wk);
 }
 
+/* Marker 20 loads the next movement row. Att_SP_YAGYOUDAMA's airborne and
+ * grounded arms wrote this identically; its case 1 is a near miss - it steps the
+ * state as well - and stays inline. */
+static void take_next_row_on_marker_20(PLW* wk) {
+    if (wk->wu.cg_type == 20) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.cg_type = 0;
+        wk->wu.mvxy.index++;
+    }
+}
+
 void Att_SP_YAGYOUDAMA(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -68,11 +79,7 @@ void Att_SP_YAGYOUDAMA(PLW* wk) {
         break;
 
     case 2:
-        if (wk->wu.cg_type == 20) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.cg_type = 0;
-            wk->wu.mvxy.index++;
-        }
+        take_next_row_on_marker_20(wk);
 
         if (wk->wu.cg_type == 1) {
             wk->wu.cg_type = 0;
@@ -86,11 +93,7 @@ void Att_SP_YAGYOUDAMA(PLW* wk) {
     case 3:
         char_move(&wk->wu);
 
-        if (wk->wu.cg_type == 20) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.cg_type = 0;
-            wk->wu.mvxy.index++;
-        }
+        take_next_row_on_marker_20(wk);
 
         if (wk->wu.cg_type == 1) {
             wk->wu.cg_type = 0;
