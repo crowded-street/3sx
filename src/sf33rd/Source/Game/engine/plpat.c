@@ -772,26 +772,41 @@ void Attack_14000(PLW* wk) { // 🟡
     }
 }
 
+/* The opening frame of the cat-break attack: land if it started on the ground,
+ * open the break window, start the animation. */
+static void begin_cat_break_attack(PLW* wk) {
+    wk->wu.routine_no[3]++;
+
+    if (wk->wu.xyz[1].disp.pos <= 0) {
+        wk->wu.rl_flag = wk->wu.rl_waza;
+        setup_lvdir_after_autodir(wk);
+        wk->wu.xyz[1].disp.pos = 0;
+        Normal_18000_init_unit(wk, wk->wu.pat_status);
+    }
+
+    wk->cat_break_ok_timer = 6;
+    set_char_move_init(&wk->wu, 4, wk->as->char_ix);
+
+    if (!ArcadeBalance_IsEnabled() && wk->cat_break_ok_timer) {
+        // The port reserves cat-break on the initialization frame; CPS3 starts checking next frame.
+        wk->cat_break_reserve = 1;
+    }
+}
+
+/* The airborne arm's own reserve, which also requires the jump not to have
+ * finished. That second term is why it cannot share reserve_cat_break_if_open.
+ * Its `break` left the switch with nothing after it, so a return is the same
+ * exit. */
+static void reserve_cat_break_while_airborne(PLW* wk) {
+    if ((wk->wu.routine_no[3] != 3) && wk->cat_break_ok_timer) {
+        wk->cat_break_reserve = 1;
+    }
+}
+
 void Attack_15000(PLW* wk) { // 🟡
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-
-        if (wk->wu.xyz[1].disp.pos <= 0) {
-            wk->wu.rl_flag = wk->wu.rl_waza;
-            setup_lvdir_after_autodir(wk);
-            wk->wu.xyz[1].disp.pos = 0;
-            Normal_18000_init_unit(wk, wk->wu.pat_status);
-        }
-
-        wk->cat_break_ok_timer = 6;
-        set_char_move_init(&wk->wu, 4, wk->as->char_ix);
-
-        if (!ArcadeBalance_IsEnabled() && wk->cat_break_ok_timer) {
-            // The port reserves cat-break on the initialization frame; CPS3 starts checking next frame.
-            wk->cat_break_reserve = 1;
-        }
-
+        begin_cat_break_attack(wk);
         break;
 
     case 1:
@@ -807,12 +822,7 @@ void Attack_15000(PLW* wk) { // 🟡
 
     case 2:
         jumping_union_process(&wk->wu, 3);
-
-        if ((wk->wu.routine_no[3] != 3) && wk->cat_break_ok_timer) {
-            wk->cat_break_reserve = 1;
-            break;
-        }
-
+        reserve_cat_break_while_airborne(wk);
         break;
 
     case 3:
