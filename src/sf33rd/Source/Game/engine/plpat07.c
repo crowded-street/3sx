@@ -212,6 +212,43 @@ void Att_PL07_SA3(PLW* wk) {
     }
 }
 
+/* The taunt's gauge and row markers. */
+static void pl07_taunt_markers(PLW* wk) {
+    if (wk->wu.cg_type == 40) {
+        wk->wu.cg_type = 0;
+        add_sp_arts_gauge_tokushu(wk);
+    }
+
+    if (wk->wu.cg_type == 20) {
+        wk->wu.cg_type = 0;
+        wk->wu.mvxy.index++;
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+    }
+}
+
+/* The taunt's payoff: marker 30 adds fourteen to both bonuses, each capped at
+ * 28 - and the caps are applied every frame, not only on the marker, which is
+ * how the original read. */
+static void pl07_taunt_bonus(PLW* wk) {
+    if (wk->wu.cg_type == 30) {
+        wk->wu.cg_type = 0;
+        wk->tk_dageki += 14;
+        wk->tk_nage += 14;
+    }
+
+    if (wk->tk_dageki > 28) {
+        wk->tk_dageki = 28;
+    }
+
+    if (wk->tk_nage > 28) {
+        wk->tk_nage = 28;
+    }
+
+    if (wk->wu.cg_type == 64) {
+        grade_add_personal_action(wk->wu.id);
+    }
+}
+
 void Att_PL07_TOKUSHUKOUDOU(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -237,18 +274,7 @@ void Att_PL07_TOKUSHUKOUDOU(PLW* wk) {
 
     case 2:
         jumping_union_process(&wk->wu, 3);
-
-        if (wk->wu.cg_type == 40) {
-            wk->wu.cg_type = 0;
-            add_sp_arts_gauge_tokushu(wk);
-        }
-
-        if (wk->wu.cg_type == 20) {
-            wk->wu.cg_type = 0;
-            wk->wu.mvxy.index++;
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-        }
-
+        pl07_taunt_markers(wk);
         break;
 
     case 3:
@@ -257,25 +283,7 @@ void Att_PL07_TOKUSHUKOUDOU(PLW* wk) {
 
     case 4:
         jumping_union_process(&wk->wu, 3);
-
-        if (wk->wu.cg_type == 30) {
-            wk->wu.cg_type = 0;
-            wk->tk_dageki += 14;
-            wk->tk_nage += 14;
-        }
-
-        if (wk->tk_dageki > 28) {
-            wk->tk_dageki = 28;
-        }
-
-        if (wk->tk_nage > 28) {
-            wk->tk_nage = 28;
-        }
-
-        if (wk->wu.cg_type == 64) {
-            grade_add_personal_action(wk->wu.id);
-        }
-
+        pl07_taunt_bonus(wk);
         break;
     }
 }
