@@ -528,6 +528,31 @@ static s32 start_nm_attack(PLW* wk, s16 kos, s16 level, void (*select)(PLW*, s16
     return 1;
 }
 
+/* The jumping stances and the standing fallback, split off so neither half of
+ * the stance dispatch is long. The case labels are the ones decode_wst_data
+ * writes into pat_status; they are not renumbered. */
+static s32 begin_jumping_nm_attack(PLW* wk, s16 kos) {
+    switch (wk->wu.pat_status) {
+    case 24:
+        return start_nm_attack(wk, kos, 4, select_nm_attack_level_4010);
+
+    case 18:
+        return start_nm_attack(wk, kos, 7, select_nm_attack_level_4010);
+
+    case 30:
+        return start_nm_attack(wk, kos, 10, select_nm_attack_level_4010);
+
+    default:
+        if (!select_standing_nm_attack(wk, kos)) {
+            return 0;
+        }
+
+        break;
+    }
+
+    return 1;
+}
+
 /* Which normal attack the current stance starts, and whether one starts at
  * all: every crouching and jumping stance is blocked by the same too-low
  * test first, and the standing case answers for itself. */
@@ -551,24 +576,9 @@ static s32 begin_nm_attack(PLW* wk, s16 kos) {
     case 28:
         return start_nm_attack(wk, kos, 8, select_nm_attack_level_2010);
 
-    case 24:
-        return start_nm_attack(wk, kos, 4, select_nm_attack_level_4010);
-
-    case 18:
-        return start_nm_attack(wk, kos, 7, select_nm_attack_level_4010);
-
-    case 30:
-        return start_nm_attack(wk, kos, 10, select_nm_attack_level_4010);
-
     default:
-        if (!select_standing_nm_attack(wk, kos)) {
-            return 0;
-        }
-
-        break;
+        return begin_jumping_nm_attack(wk, kos);
     }
-
-    return 1;
 }
 
 s32 check_nm_attack(PLW* wk) { // 🟡
