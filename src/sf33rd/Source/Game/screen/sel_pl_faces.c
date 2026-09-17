@@ -138,21 +138,28 @@ void Face_1st() {
     }
 }
 
+/* Both players are in: park the grid on the third page and start it sliding, toward
+ * whichever side the local player sits on. */
+static void Scroll_Faces_For_Confirm() {
+    Face_No[0] = 3;
+    Face_MV_Time = 1;
+
+    if (Aborigine == 1) {
+        Face_MV_Request = 2;
+        bg_mvxy.a[0].sp = -0x90000;
+        bg_mvxy.d[0].sp = -0x8000;
+        return;
+    }
+
+    Face_MV_Request = 1;
+    bg_mvxy.a[0].sp = 0x90000;
+    bg_mvxy.d[0].sp = 0x8000;
+    return;
+}
+
 void Face_2nd() {
     if (Select_Status[0] == 3 && Face_MV_Request == 0) {
-        Face_No[0] = 3;
-        Face_MV_Time = 1;
-
-        if (Aborigine == 1) {
-            Face_MV_Request = 2;
-            bg_mvxy.a[0].sp = -0x90000;
-            bg_mvxy.d[0].sp = -0x8000;
-            return;
-        }
-
-        Face_MV_Request = 1;
-        bg_mvxy.a[0].sp = 0x90000;
-        bg_mvxy.d[0].sp = 0x8000;
+        Scroll_Faces_For_Confirm();
         return;
     }
 
