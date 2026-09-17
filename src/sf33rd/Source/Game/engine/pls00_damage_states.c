@@ -34,42 +34,47 @@ static void reset_dm_stop_after_parry(PLW* wk) {
     }
 }
 
-void process_damage(PLW* wk) { // 🟡
-    s32 csw;
+/* Semi-auto parry: each of the four guard states has a parry state to turn
+ * into. The four are written out because grouping their case labels would
+ * duplicate them. */
+static void convert_guard_to_parry(PLW* wk) {
+    s32 csw = 0;
 
+    switch (wk->wu.routine_no[2]) {
+    case 4:
+        wk->wu.routine_no[1] = 0;
+        wk->wu.routine_no[2] = 31;
+        csw = 1;
+        break;
+
+    case 5:
+        wk->wu.routine_no[1] = 0;
+        wk->wu.routine_no[2] = 32;
+        csw = 1;
+        break;
+
+    case 6:
+        wk->wu.routine_no[1] = 0;
+        wk->wu.routine_no[2] = 33;
+        csw = 1;
+        break;
+
+    case 7:
+        wk->wu.routine_no[1] = 0;
+        wk->wu.routine_no[2] = 34;
+        csw = 1;
+        break;
+    }
+
+    if (csw) {
+        reset_dm_stop_after_parry(wk);
+    }
+}
+
+void process_damage(PLW* wk) { // 🟡
     if (wk->wu.routine_no[3] == 0) {
         if (!(wk->spmv_ng_flag & DIP_SEMI_AUTO_PARRY_DISABLED)) {
-            csw = 0;
-
-            switch (wk->wu.routine_no[2]) {
-            case 4:
-                wk->wu.routine_no[1] = 0;
-                wk->wu.routine_no[2] = 31;
-                csw = 1;
-                break;
-
-            case 5:
-                wk->wu.routine_no[1] = 0;
-                wk->wu.routine_no[2] = 32;
-                csw = 1;
-                break;
-
-            case 6:
-                wk->wu.routine_no[1] = 0;
-                wk->wu.routine_no[2] = 33;
-                csw = 1;
-                break;
-
-            case 7:
-                wk->wu.routine_no[1] = 0;
-                wk->wu.routine_no[2] = 34;
-                csw = 1;
-                break;
-            }
-
-            if (csw) {
-                reset_dm_stop_after_parry(wk);
-            }
+            convert_guard_to_parry(wk);
         }
 
         return;
