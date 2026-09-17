@@ -1158,6 +1158,32 @@ s32 Flash_Please(s16 PL_id) {
     return 0;
 }
 
+/* The four screens that hand over rather than interrupt a fight. The case labels are
+ * the original ones, so a jump index still reads as the number the rest of the file
+ * uses; a value matching none of them did nothing before and still does nothing. */
+static void Break_Into_Handover(s16 PL_id, s16 Jump_Index) {
+    switch (Jump_Index) {
+    case 7:
+        Break_Into_07(PL_id);
+        break;
+
+    case 8:
+        Break_Into_08(PL_id);
+        break;
+
+    case 9:
+        Break_Into_09(PL_id);
+        break;
+
+    case 10:
+        Break_Into_10(PL_id);
+        break;
+
+    default:
+        break;
+    }
+}
+
 void Break_Into_Sub(s16 PL_id, s16 Jump_Index) {
     switch (Jump_Index) {
     case 0:
@@ -1176,23 +1202,8 @@ void Break_Into_Sub(s16 PL_id, s16 Jump_Index) {
         Break_Into_05(PL_id);
         break;
 
-    case 7:
-        Break_Into_07(PL_id);
-        break;
-
-    case 8:
-        Break_Into_08(PL_id);
-        break;
-
-    case 9:
-        Break_Into_09(PL_id);
-        break;
-
-    case 10:
-        Break_Into_10(PL_id);
-        break;
-
     default:
+        Break_Into_Handover(PL_id, Jump_Index);
         break;
     }
 }
