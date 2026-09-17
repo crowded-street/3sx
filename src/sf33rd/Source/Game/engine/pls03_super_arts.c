@@ -438,11 +438,75 @@ static s32 try_airborne_dc_strengths(PLW* wk, u16 cusw) {
     return 0;
 }
 
+/* The grounded direct cancel: the slot has to be free, and the command's own
+ * button group has to be one this art reads. */
+static s32 try_grounded_dc(PLW* wk) {
+    u16 cusw;
+    u16* conpane;
+
+    if (grounded_dc_slot_is_blocked(wk)) {
+        return 0;
+    }
+
+    conpane = &wk->cp->sw_lvbt;
+
+    if (((wk->cp->btix[wk->sa->nmsa_g_ix] & 0xFF) != 0x80) && wk->cp->waza_flag[wk->sa->nmsa_g_ix]) {
+        cusw = conpane[wk->cp->btix[wk->sa->nmsa_g_ix] & 0xFF];
+
+        if (try_grounded_dc_strengths(wk, cusw)) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+/* The airborne one, which has four more gates of its own before the same
+ * button-group test. */
+static s32 try_airborne_dc(PLW* wk) {
+    u16 cusw;
+    u16* conpane;
+
+    if (wk->spmv_ng_flag & DIP_UNKNOWN_31) {
+        return 0;
+    }
+
+    if (wk->sa->nmsa_a_ix == 0) {
+        return 0;
+    }
+
+    if (wk->sa->nmsa_a_ix < 0x1C) {
+        return 0;
+    }
+
+    if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && chainex_check[wk->wu.id][wk->sa->nmsa_a_ix - 20]) {
+        return 0;
+    }
+
+    if (is_blocked_by_arcade_switch(wk, wk->sa->nmsa_a_ix)) {
+        return 0;
+    }
+
+    conpane = &wk->cp->sw_lvbt;
+
+    if (wk->cp->waza_flag[wk->sa->nmsa_a_ix] == -1) {
+        return 0;
+    }
+
+    if (((wk->cp->btix[wk->sa->nmsa_a_ix] & 0xFF) != 0x80) && (wk->cp->waza_flag[wk->sa->nmsa_a_ix])) {
+        cusw = conpane[wk->cp->btix[wk->sa->nmsa_a_ix] & 0xFF];
+
+        if (try_airborne_dc_strengths(wk, cusw)) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 s32 check_super_arts_attack_dc(PLW* wk) { // 🟡
     s16 j;
-    u16 cusw;
     u16 exsw;
-    u16* conpane;
 
     if (wk->sa->ok != 1) {
         return 0;
@@ -457,58 +521,10 @@ s32 check_super_arts_attack_dc(PLW* wk) { // 🟡
     }
 
     if (player_is_grounded_or_on_car(wk)) {
-        if (grounded_dc_slot_is_blocked(wk)) {
-            return 0;
-        }
-
-        conpane = &wk->cp->sw_lvbt;
-
-        if (((wk->cp->btix[wk->sa->nmsa_g_ix] & 0xFF) != 0x80) && wk->cp->waza_flag[wk->sa->nmsa_g_ix]) {
-            cusw = conpane[wk->cp->btix[wk->sa->nmsa_g_ix] & 0xFF];
-
-            if (try_grounded_dc_strengths(wk, cusw)) {
-                return 1;
-            }
-        }
-
-        return 0;
-    } else {
-        if (wk->spmv_ng_flag & DIP_UNKNOWN_31) {
-            return 0;
-        }
-
-        if (wk->sa->nmsa_a_ix == 0) {
-            return 0;
-        }
-
-        if (wk->sa->nmsa_a_ix < 0x1C) {
-            return 0;
-        }
-
-        if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && chainex_check[wk->wu.id][wk->sa->nmsa_a_ix - 20]) {
-            return 0;
-        }
-
-        if (is_blocked_by_arcade_switch(wk, wk->sa->nmsa_a_ix)) {
-            return 0;
-        }
-
-        conpane = &wk->cp->sw_lvbt;
-
-        if (wk->cp->waza_flag[wk->sa->nmsa_a_ix] == -1) {
-            return 0;
-        }
-
-        if (((wk->cp->btix[wk->sa->nmsa_a_ix] & 0xFF) != 0x80) && (wk->cp->waza_flag[wk->sa->nmsa_a_ix])) {
-            cusw = conpane[wk->cp->btix[wk->sa->nmsa_a_ix] & 0xFF];
-
-            if (try_airborne_dc_strengths(wk, cusw)) {
-                return 1;
-            }
-        }
-
-        return 0;
+        return try_grounded_dc(wk);
     }
+
+    return try_airborne_dc(wk);
 }
 
 /* The gates a grounded super art must pass before it starts. The airborne arm
