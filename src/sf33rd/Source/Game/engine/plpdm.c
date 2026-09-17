@@ -537,27 +537,38 @@ void get_sky_dm_timer(PLW* wk) {
     wk->zuru_timer = sky_dm_zuru_table[omop_otedama_ix[(wk->wu.id + 1) & 1]][wk->zuru_ix_counter];
 }
 
+/* The hit was fatal. A hit that was being blocked is recorded as a chip-damage
+ * death, and the first death of the round starts the slow-motion finish. */
+static void kill_by_damage(PLW* wk) {
+    wk->wu.vital_new = -1;
+    wk->dead_flag = 1;
+    dead_voice_flag = true;
+
+    if (wk->wu.dm_guard_success != -1) {
+        wk->kezurijini_flag = 1;
+    }
+
+    if (!round_slow_flag) {
+        set_conclusion_slow();
+        round_slow_flag = true;
+    }
+}
+
+/* It was not: the stun meter takes the hit instead, and fills. */
+static void add_piyo_damage(PLW* wk) {
+    wk->py->now.quantity.h += wk->wu.dm_piyo;
+
+    if (wk->py->now.quantity.h >= wk->py->genkai) {
+        wk->py->now.timer = 0;
+        wk->py->flag = 1;
+    }
+}
+
 static void apply_vital_underflow_or_piyo(PLW* wk) {
     if (wk->wu.vital_new < 0) {
-        wk->wu.vital_new = -1;
-        wk->dead_flag = 1;
-        dead_voice_flag = true;
-
-        if (wk->wu.dm_guard_success != -1) {
-            wk->kezurijini_flag = 1;
-        }
-
-        if (!round_slow_flag) {
-            set_conclusion_slow();
-            round_slow_flag = true;
-        }
+        kill_by_damage(wk);
     } else if (wk->py->flag == 0) {
-        wk->py->now.quantity.h += wk->wu.dm_piyo;
-
-        if (wk->py->now.quantity.h >= wk->py->genkai) {
-            wk->py->now.timer = 0;
-            wk->py->flag = 1;
-        }
+        add_piyo_damage(wk);
     }
 }
 
