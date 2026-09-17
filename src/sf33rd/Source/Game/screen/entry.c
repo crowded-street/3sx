@@ -1096,18 +1096,24 @@ static void update_press_start_prompt(s16 PL_id) {
     }
 }
 
+/* Arm the press-start flasher, skipping straight to the continue prompt for the
+ * loser on the continue screen. */
+static void Begin_Flash_Cycle(s16 PL_id) {
+    F_No1[PL_id] += 1;
+    F_No0[PL_id] = 0;
+    F_No2[PL_id] = 0;
+    F_No3[PL_id] = 0;
+    F_Timer[PL_id] = 1;
+
+    if ((E_No[0] == 6) && (PL_id == LOSER)) {
+        F_No1[PL_id] = 3;
+    }
+}
+
 s32 Flash_Start(s16 PL_id) {
     switch (F_No1[PL_id]) {
     case 0:
-        F_No1[PL_id] += 1;
-        F_No0[PL_id] = 0;
-        F_No2[PL_id] = 0;
-        F_No3[PL_id] = 0;
-        F_Timer[PL_id] = 1;
-
-        if ((E_No[0] == 6) && (PL_id == LOSER)) {
-            F_No1[PL_id] = 3;
-        }
+        Begin_Flash_Cycle(PL_id);
 
         break;
 
