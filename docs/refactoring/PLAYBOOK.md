@@ -883,6 +883,22 @@ Recipe X both refuse to merge.
 | `plpdm.c` | **10.00** | *was 9.61.* Recipe X on the rumble suppression list, then Recipe E on the death conversion |
 | `bbbscom.c` | **10.00** | *was 9.38.* Overall Code Complexity only, and two Recipe E extractions cleared it - the file has 15 functions, so the mean moves at once. Compare `plmain.c` above, where 65 functions make the same move worthless |
 | `manage_result.c` | **10.00** | *was 9.38.* One Recipe D on `BGM_Control`'s two waits, for the same reason |
+| `entry.c` | **10.00** | *was 4.02.* Recipe D on the two identical 2nd-phase screens, Recipe F on the five dispatchers, Recipe C on the three runs the hand-over shares, then eight extractions and Recipe S for `entry_break_in.c` |
+| `entry_break_in.c` | **10.00** | split from `entry.c`. Two Recipe X splits on the break-in dispatch and one Recipe E on `Break_Into_05`'s arms |
+| `next_cpu.c` | **10.00** | *was 5.35.* Recipe V on `Setup_PL_Color`'s fifteen colour arms - the case the recipe was written for - then Recipe D on the three scene dispatchers, and Recipe S for `next_cpu_setup.c` |
+| `next_cpu_setup.c` | **10.00** | split from `next_cpu.c`. One shared run and one arm |
+| `sel_pl.c` | **10.00** | *was 5.73.* Two Recipe S splits first - the file was 1537 LoC - then Recipe V on the auto-repeat directions and nine extractions and named conditions |
+| `sel_pl_exit.c` | **10.00** | split from `sel_pl.c`. Recipe D on the two handicap steps, then Recipe F on the two switches that name them in opposite order |
+| `sel_pl_faces.c` | **10.00** | split from `sel_pl.c`. One arm of `Face_2nd` and one of `OBJ_1st`'s two layouts |
+| `n_input.c`, `staff.c`, `ranking.c`, `gameover.c`, `win.c`, `continue.c` | **10.00** | the rest of the screen folder. `staff.c` wanted Recipe D on thirteen copies of one credit line and Recipe A on `set_credit_string`'s five arguments |
+| `vs_shell.c`, `sel_data.c` | n/a | pure `const` data tables with no functions; CodeScene returns no score and the catalogue puts them out of scope |
+| `end_00.c` | **10.00** | *was 7.68.* See *Retry a rejected extraction* - the same edit measured flat twice and then worth 1.19 |
+| `end_02.c`, `end_03.c`, `end_06.c`, `end_11.c`, `end_13.c`, `end_main.c` | **10.00** | the rest of the ending folder that could be cleared |
+| `end_14.c` | 8.03 | *was 6.85.* Four eight-label dispatchers need Recipe X, and the splits leave two near-twin pairs. `end_e00_0000_col_sub` and its twin differ by one statement in the innermost position, which needs a tri-state verdict that neither Recipe C nor E allows |
+| `end_04.c` | 8.81 | *was 8.28.* Five shared runs taken. The last family will not merge because `end_402_1000` writes a redundant `break;` inside an `if` whose arm breaks anyway - so the three skeletons are not identical, and deleting it is forbidden |
+| `end_05.c` | 8.81 | *was 8.24.* Two near-miss pairs; one writes `Request_Fade(1) != 0` where the other writes `Request_Fade(3)` |
+| `end_10.c`, `end_12.c`, `end_16.c`, `end_17.c`, `end_18.c`, `end_20.c` | 9.38 | all the same shape: one or two **two-instance** Recipe V families left. Recipe V asks for three, and relaxing that to two is exactly the near-miss merge Recipe D refuses |
+| `end_01.c` | 9.60 | a measured refusal. `end_100_0000` is cc 14 with seven labels, so only a dedup plus a split gets under; that clears Complex Method and raises Overall Code Complexity in its place, and the nine-function mean will not come down. The whole sequence measured -0.22 and was reverted |
 
 ---
 
@@ -1220,6 +1236,24 @@ more than the twin pair costs.
 So: keep a note of what you rejected and why, and come back to it when the file
 is close to done. The rejections worth revisiting are the ones refused for
 duplication cost rather than for a rule.
+
+`end_00.c` is the sharpest version of this, because the same edit was measured three
+times without changing a character of it:
+
+| When | Score |
+| --- | --- |
+| with Complex Method still open on three functions | 7.86, flat |
+| with one of the two duplication pairs still open | 8.81, flat |
+| with that pair cleared first | 8.81 -> **10.00** |
+
+The edit was a four-copy Recipe C on the scene opening, and both times it was reverted
+under rule 2 because it cleared no finding. What changed on the third attempt is that
+`end_000_0000` and `end_000_0003` had become the file's **last** duplication group, so
+dissolving it was worth the whole of the remaining finding instead of a share of it.
+
+**So the order to work a duplication-heavy file is: clear the other findings first, then
+take the shared runs.** Taking the runs early is not wrong, but it measures flat, and
+rule 2 will make you revert work you will only have to redo.
 
 ### Clear the functions just over the threshold first
 
@@ -1671,6 +1705,32 @@ its own `static` copy, because widening a `static` to bridge the two is forbidde
 `plpdm_states.c` and `plpdm_states_late.c` carry three such pairs. That is real duplication
 that the metric does not see, and it is the price of the split rather than a reason to
 avoid it.
+
+### For the file mean, move branches - do not just remove lines
+
+*Overall Code Complexity is a whole-file average* says the mean moves when you add a
+function. True, but it is only half of it, and the half that matters less.
+
+The mean is total cyclomatic complexity over function count. A Recipe C extraction of a
+run of **straight-line** code adds one to the denominator and nothing to the numerator,
+so it moves the mean by about `mean / n`. On a nine-function file that is not enough, and
+two of them in a row will still measure flat.
+
+Measured on `end_11.c`, whose only finding was the mean:
+
+| Move | Score |
+| --- | --- |
+| a four-copy shared run, cc 1 helper | 9.38, flat |
+| plus a three-copy shared run, cc 1 helper | 9.38, flat |
+| plus lifting a cc 7 inner `switch` out of the largest function | **10.00** |
+
+The third move adds a function *and* takes six branches out of the function that was
+carrying them. That is what the mean responds to.
+
+So when a file is left with Overall Code Complexity alone, **look for the largest
+function and split its branching**, rather than hunting more duplicate runs. `end_13.c`
+and `end_03.c` cleared the same way, each on a single extraction from the heaviest
+function in the file.
 
 ### A file can be too big for its own mean
 
