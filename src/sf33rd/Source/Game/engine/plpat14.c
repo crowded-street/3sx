@@ -303,6 +303,33 @@ void Att_PL14_AT3(PLW* wk) {
     }
 }
 
+/* The taunt's markers: 40 pays the super-art gauge, 64 adds to the damage and
+ * stun bonuses against their own ceilings and grades the personal action. */
+static void pl14_taunt_markers(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 40) {
+        wk->wu.cg_type = 0;
+        add_sp_arts_gauge_tokushu(wk);
+    }
+
+    if (wk->wu.cg_type == 64) {
+        wk->wu.cg_type = 0;
+        wk->tk_dageki += 14;
+        wk->tk_kizetsu += 9;
+
+        if (wk->tk_dageki > 14) {
+            wk->tk_dageki = 14;
+        }
+
+        if (wk->tk_kizetsu > 9) {
+            wk->tk_kizetsu = 9;
+        }
+
+        grade_add_personal_action(wk->wu.id);
+    }
+}
+
 void Att_PL14_TOKUSHUKOUDOU(PLW* wk) {
     wk->scr_pos_set_flag = 0;
 
@@ -315,29 +342,7 @@ void Att_PL14_TOKUSHUKOUDOU(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 40) {
-            wk->wu.cg_type = 0;
-            add_sp_arts_gauge_tokushu(wk);
-        }
-
-        if (wk->wu.cg_type == 64) {
-            wk->wu.cg_type = 0;
-            wk->tk_dageki += 14;
-            wk->tk_kizetsu += 9;
-
-            if (wk->tk_dageki > 14) {
-                wk->tk_dageki = 14;
-            }
-
-            if (wk->tk_kizetsu > 9) {
-                wk->tk_kizetsu = 9;
-            }
-
-            grade_add_personal_action(wk->wu.id);
-        }
-
+        pl14_taunt_markers(wk);
         break;
     }
 }
