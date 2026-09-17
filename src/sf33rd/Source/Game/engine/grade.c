@@ -711,14 +711,14 @@ s16 get_offence_total(s16 ix) {
     return point;
 }
 
-s16 get_defence_total(s16 ix, s16 wf) {
-    s32 num = 0;
+/* The two defence ratios: how much of the opponent's offence was stopped, and
+ * how much of this player's was clean. Both are recorded for the result
+ * screen before they are scored. */
+static s32 defence_rate_points(s16 ix, s16 ix2) {
     s16 i;
-    s16 ix2;
+    s32 num = 0;
     s32 point;
     s32 point2;
-
-    ix2 = (ix + 1) & 1;
 
     if (judge_item[ix2][Play_Type].att_renew) {
         point2 = ((judge_item[ix2][Play_Type].att_renew - judge_item[ix2][Play_Type].clean_hits) * 100) /
@@ -759,6 +759,17 @@ s16 get_defence_total(s16 ix, s16 wf) {
     }
 
     num += point;
+
+    return num;
+}
+
+s16 get_defence_total(s16 ix, s16 wf) {
+    s32 num;
+    s16 i;
+    s16 ix2;
+
+    ix2 = (ix + 1) & 1;
+    num = defence_rate_points(ix, ix2);
 
     if (wf) {
         for (i = 0; i < 12; i++) {
