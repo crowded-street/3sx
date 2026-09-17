@@ -199,6 +199,25 @@ static void pl14_at3_wind_up(PLW* wk, PLW* twk) {
 
 }
 
+/* While the leg has not returned to its landed state, marker 20 keeps feeding
+ * movement rows and the catch box is retargeted at whichever character the
+ * opponent is. The union leg and the regrab wrote this out the same way, against
+ * state 1 and state 2 - that number is the one value Recipe D allows as a
+ * parameter. The regrab's copy also put a redundant pair of parentheses around
+ * twk->player_number; that is the same subexpression, not a second difference. */
+static void pl14_at3_feed_and_track(PLW* wk, PLW* twk, s16 landed_rno) {
+    if ((wk->wu.routine_no[3] != landed_rno) && (wk->wu.cg_type == 20)) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+    }
+
+    if ((wk->wu.routine_no[3] != landed_rno) && wk->wu.cg_ja.caix) {
+        wk->wu.cg_ja.caix = pl14_HYAKKI_dat[twk->player_number];
+        wk->wu.h_cat = wk->wu.catch_adrs + wk->wu.cg_ja.caix;
+    }
+}
+
 /* The union leg: marker 1 goes to the regrab, marker 20 feeds rows, and the
  * catch box is retargeted at the opponent while the union has not returned. */
 static void pl14_at3_union_leg(PLW* wk, PLW* twk) {
@@ -209,16 +228,7 @@ static void pl14_at3_union_leg(PLW* wk, PLW* twk) {
         wk->wu.routine_no[3] = 4;
     }
 
-    if ((wk->wu.routine_no[3] != 1) && (wk->wu.cg_type == 20)) {
-        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-        wk->wu.mvxy.index++;
-        wk->wu.cg_type = 0;
-    }
-
-    if ((wk->wu.routine_no[3] != 1) && wk->wu.cg_ja.caix) {
-        wk->wu.cg_ja.caix = pl14_HYAKKI_dat[twk->player_number];
-        wk->wu.h_cat = wk->wu.catch_adrs + wk->wu.cg_ja.caix;
-    }
+    pl14_at3_feed_and_track(wk, twk, 1);
 
 }
 
@@ -257,16 +267,7 @@ static void pl14_at3_regrab(PLW* wk, PLW* twk) {
         wk->wu.routine_no[3] = 2;
     }
 
-    if ((wk->wu.routine_no[3] != 2) && (wk->wu.cg_type == 20)) {
-        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-        wk->wu.mvxy.index++;
-        wk->wu.cg_type = 0;
-    }
-
-    if ((wk->wu.routine_no[3] != 2) && wk->wu.cg_ja.caix) {
-        wk->wu.cg_ja.caix = pl14_HYAKKI_dat[(twk->player_number)];
-        wk->wu.h_cat = wk->wu.catch_adrs + wk->wu.cg_ja.caix;
-    }
+    pl14_at3_feed_and_track(wk, twk, 2);
 
 }
 
