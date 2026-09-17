@@ -26,6 +26,33 @@ static void begin_uni_attack(PLW* wk) {
     set_char_move_init(&wk->wu, 5, wk->as->char_ix);
 }
 
+/* Four openings reset the movement data and start from a row of their own. Only
+ * the row differs, which is the one value Recipe D allows as a parameter. */
+static void begin_uni_attack_at_row(PLW* wk, s16 row) {
+    begin_uni_attack(wk);
+    reset_mvxy_data(&wk->wu);
+    wk->wu.mvxy.index = row;
+}
+
+/* The two homing openings take their row without resetting first. */
+static void begin_ahj_attack(PLW* wk) {
+    begin_uni_attack(wk);
+    wk->wu.mvxy.index = wk->as->data_ix;
+}
+
+/* Att_CHOUCHUURENGEKI and Att_SLIDE_and_JUMP open with the same six lines, in an
+ * order of their own: they land before setting the facing, where the other ten
+ * openings do it the other way round. That ordering is why they are not
+ * begin_uni_attack call sites, and it is preserved here. */
+static void begin_slide_attack(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    hoken_muriyari_chakuchi(wk);
+    wk->wu.rl_flag = wk->wu.rl_waza;
+    reset_mvxy_data(&wk->wu);
+    wk->wu.mvxy.index = wk->as->r_no;
+    set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+}
+
 void Att_DUMMY(PLW* /* unused */) {}
 
 /* The wait ends the frame the 30 marker stops arriving, and the launch speed is
@@ -206,9 +233,7 @@ static void shouryuuken_rise(PLW* wk) {
 void Att_SHOURYUUKEN(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        begin_uni_attack(wk);
-        reset_mvxy_data(&wk->wu);
-        wk->wu.mvxy.index = wk->as->r_no;
+        begin_uni_attack_at_row(wk, wk->as->r_no);
         break;
 
     case 1:
@@ -250,9 +275,7 @@ static void senpuukyaku_union_step(PLW* wk) {
 void Att_SENPUUKYAKU(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        begin_uni_attack(wk);
-        reset_mvxy_data(&wk->wu);
-        wk->wu.mvxy.index = wk->as->data_ix;
+        begin_uni_attack_at_row(wk, wk->as->data_ix);
         break;
 
     case 1:
@@ -399,9 +422,7 @@ static void shouryuureppa_rise(PLW* wk) {
 void Att_SHOURYUUREPPA(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        begin_uni_attack(wk);
-        reset_mvxy_data(&wk->wu);
-        wk->wu.mvxy.index = wk->as->r_no;
+        begin_uni_attack_at_row(wk, wk->as->r_no);
         break;
 
     case 1:
@@ -628,9 +649,7 @@ static void tenshin_recover(PLW* wk) {
 void Att_TENSHINSENKYUUTAI(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        begin_uni_attack(wk);
-        reset_mvxy_data(&wk->wu);
-        wk->wu.mvxy.index = wk->as->r_no;
+        begin_uni_attack_at_row(wk, wk->as->r_no);
         break;
 
     case 1:
@@ -655,12 +674,7 @@ void Att_TENSHINSENKYUUTAI(PLW* wk) {
 void Att_CHOUCHUURENGEKI(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        hoken_muriyari_chakuchi(wk);
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        reset_mvxy_data(&wk->wu);
-        wk->wu.mvxy.index = wk->as->r_no;
-        set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+        begin_slide_attack(wk);
         break;
 
     default:
@@ -737,12 +751,7 @@ static void slide_jump(PLW* wk) {
 void Att_SLIDE_and_JUMP(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        hoken_muriyari_chakuchi(wk);
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        reset_mvxy_data(&wk->wu);
-        wk->wu.mvxy.index = wk->as->r_no;
-        set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+        begin_slide_attack(wk);
         break;
 
     case 1:
@@ -792,8 +801,7 @@ static void jinnchuu_grounded(PLW* wk) {
 void Att_JINNCHUUWATARI(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        begin_uni_attack(wk);
-        wk->wu.mvxy.index = wk->as->data_ix;
+        begin_ahj_attack(wk);
         break;
 
     case 1:
@@ -814,8 +822,7 @@ void Att_JINNCHUUWATARI(PLW* wk) {
 void Att_HOMING_JUMP(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        begin_uni_attack(wk);
-        wk->wu.mvxy.index = wk->as->data_ix;
+        begin_ahj_attack(wk);
         break;
 
     case 1:
