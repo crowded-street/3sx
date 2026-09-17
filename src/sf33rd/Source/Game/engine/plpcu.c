@@ -180,6 +180,31 @@ void Caught_03000(PLW* /* unused */, PLW* /* unused */) { // 🟢
     // Do nothing
 }
 
+/* Leaving a caught state: a dead player falls, anyone else is put down. One
+ * port-specific animation also names the state to go to next; CPS3 does not
+ * have it. */
+static void advance_caught_animation(PLW* wk) {
+    if (!ArcadeBalance_IsEnabled() && wk->wu.now_koc == 3 && wk->wu.char_index == 60) {
+        // This port-specific caught animation is not present in CPS3.
+        if (wk->dead_flag) {
+            char_move_cmms(&wk->wu);
+        } else {
+            char_move_z(&wk->wu);
+        }
+
+        wk->wu.cmmd.koc = 1;
+        wk->wu.cmmd.ix = 12;
+        wk->wu.cmmd.pat = 1;
+        return;
+    }
+
+    if (wk->dead_flag) {
+        char_move_cmms(&wk->wu);
+    } else {
+        char_move_z(&wk->wu);
+    }
+}
+
 void caught_cg_type_check(PLW* wk, PLW* emwk) { // 🟡
     switch (wk->wu.cg_type) {
     case 2:
@@ -194,22 +219,7 @@ void caught_cg_type_check(PLW* wk, PLW* emwk) { // 🟡
         break;
 
     case 9:
-        if (!ArcadeBalance_IsEnabled() && wk->wu.now_koc == 3 && wk->wu.char_index == 60) {
-            // This port-specific caught animation is not present in CPS3.
-            if (wk->dead_flag) {
-                char_move_cmms(&wk->wu);
-            } else {
-                char_move_z(&wk->wu);
-            }
-
-            wk->wu.cmmd.koc = 1;
-            wk->wu.cmmd.ix = 12;
-            wk->wu.cmmd.pat = 1;
-        } else if (wk->dead_flag) {
-            char_move_cmms(&wk->wu);
-        } else {
-            char_move_z(&wk->wu);
-        }
+        advance_caught_animation(wk);
 
         wk->wu.routine_no[1] = wk->wu.cmmd.koc;
         wk->wu.routine_no[2] = wk->wu.cmmd.ix;
