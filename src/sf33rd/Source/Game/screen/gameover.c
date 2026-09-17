@@ -39,33 +39,38 @@ s16 Game_Over() {
     return GAME_OVER_X;
 }
 
+/* Sub-state 0: scroll the backgrounds into the game-over layout, start its music and
+ * put the winner's banner up. */
+static void Begin_Game_Over_Scene() {
+    GO_No[1] += 1;
+    Unsubstantial_BG[3] = 1;
+    Target_BG_X[3] = bg_w.bgw[3].wxy[0].disp.pos + 466;
+    Offset_BG_X[3] = 0;
+    Target_BG_X[1] = bg_w.bgw[1].wxy[0].disp.pos + 458;
+    Offset_BG_X[1] = 0;
+    bg_mvxy.a[0].sp = 0xE0000;
+    bg_mvxy.d[0].sp = 0;
+    effect_A9_init(0x20, 5, 0x12, 0);
+    BGM_Request(59);
+    Next_Step = 0;
+
+    effect_58_init(0xC, 1, 3);
+    effect_58_init(0xC, 1, 1);
+    effect_58_init(0xF, 5, 2);
+    effect_58_init(0x10, 5, 2);
+
+    if (Break_Com[WINNER][0]) {
+        effect_76_init(0x38);
+        Order[0x38] = 3;
+        Order_Timer[0x38] = 1;
+        return;
+    }
+}
+
 void GameOver_1st() {
     switch (GO_No[1]) {
     case 0:
-        GO_No[1] += 1;
-        Unsubstantial_BG[3] = 1;
-        Target_BG_X[3] = bg_w.bgw[3].wxy[0].disp.pos + 466;
-        Offset_BG_X[3] = 0;
-        Target_BG_X[1] = bg_w.bgw[1].wxy[0].disp.pos + 458;
-        Offset_BG_X[1] = 0;
-        bg_mvxy.a[0].sp = 0xE0000;
-        bg_mvxy.d[0].sp = 0;
-        effect_A9_init(0x20, 5, 0x12, 0);
-        BGM_Request(59);
-        Next_Step = 0;
-
-        effect_58_init(0xC, 1, 3);
-        effect_58_init(0xC, 1, 1);
-        effect_58_init(0xF, 5, 2);
-        effect_58_init(0x10, 5, 2);
-
-        if (Break_Com[WINNER][0]) {
-            effect_76_init(0x38);
-            Order[0x38] = 3;
-            Order_Timer[0x38] = 1;
-            return;
-        }
-
+        Begin_Game_Over_Scene();
         break;
 
     case 1:
