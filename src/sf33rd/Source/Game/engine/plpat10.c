@@ -66,6 +66,42 @@ void Att_PL10_TOKUSHUKOUDOU(PLW* wk) {
     }
 }
 
+/* The slide travels along the facing saved when it started, not the current one.
+ * Only once the players are touching does it read its markers: 21 sends it back
+ * to state 1, 30 loads the next row. The early `break` left the switch with
+ * nothing after it, so a return is the same exit. */
+static void pl10_slide_along(PLW* wk) {
+    char_move(&wk->wu);
+    cal_mvxy_speed(&wk->wu);
+
+    if (wk->rl_save) {
+        wk->wu.xyz[0].cal += wk->wu.mvxy.a[0].sp;
+    } else {
+        wk->wu.xyz[0].cal -= wk->wu.mvxy.a[0].sp;
+    }
+
+    wk->wu.xyz[1].cal += wk->wu.mvxy.a[1].sp;
+
+    if (!wk->micchaku_flag) {
+        return;
+    }
+
+    char_move_z(&wk->wu);
+
+    if (wk->wu.cg_type == 21) {
+        reset_mvxy_data(&wk->wu);
+        wk->wu.cg_type = 0;
+        wk->wu.routine_no[3] = 1;
+    }
+
+    if (wk->wu.cg_type == 30) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.a[1].sp = wk->wu.mvxy.d[1].sp = wk->wu.mvxy.kop[1] = 0;
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+    }
+}
+
 void Att_PL10_MACH_SLIDE2(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -96,36 +132,7 @@ void Att_PL10_MACH_SLIDE2(PLW* wk) {
         break;
 
     case 3:
-        char_move(&wk->wu);
-        cal_mvxy_speed(&wk->wu);
-
-        if (wk->rl_save) {
-            wk->wu.xyz[0].cal += wk->wu.mvxy.a[0].sp;
-        } else {
-            wk->wu.xyz[0].cal -= wk->wu.mvxy.a[0].sp;
-        }
-
-        wk->wu.xyz[1].cal += wk->wu.mvxy.a[1].sp;
-
-        if (!wk->micchaku_flag) {
-            break;
-        }
-
-        char_move_z(&wk->wu);
-
-        if (wk->wu.cg_type == 21) {
-            reset_mvxy_data(&wk->wu);
-            wk->wu.cg_type = 0;
-            wk->wu.routine_no[3] = 1;
-        }
-
-        if (wk->wu.cg_type == 30) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.a[1].sp = wk->wu.mvxy.d[1].sp = wk->wu.mvxy.kop[1] = 0;
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-        }
-
+        pl10_slide_along(wk);
         break;
     }
 }
