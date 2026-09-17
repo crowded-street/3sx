@@ -258,6 +258,20 @@ void Entry_03_1st() {
     Begin_Entry_Step(4);
 }
 
+/* Put the screen back to the in-game state: raise the cover and rewind both the game
+ * and entry state machines. Shared by the character select, the VS screen and the
+ * naming and final-grade tail. */
+static void Reset_To_Game_Screen() {
+    Cover_Timer = 23;
+    G_No[1] = 1;
+    G_No[2] = 0;
+    G_No[3] = 0;
+    E_No[0] = 2;
+    E_No[1] = 0;
+    E_No[2] = 0;
+    E_No[3] = 0;
+}
+
 void Entry_03_2nd() {
     switch (E_No[2]) {
     case 0:
@@ -276,14 +290,7 @@ void Entry_03_2nd() {
 
     case 1:
         if (Switch_Screen(1) != 0) {
-            Cover_Timer = 23;
-            G_No[1] = 1;
-            G_No[2] = 0;
-            G_No[3] = 0;
-            E_No[0] = 2;
-            E_No[1] = 0;
-            E_No[2] = 0;
-            E_No[3] = 0;
+            Reset_To_Game_Screen();
             plw[New_Challenger].wu.operator = 1;
             Operator_Status[New_Challenger] = 1;
             Sel_Arts_Complete[Champion] = -1;
@@ -470,14 +477,7 @@ void Entry_07_2nd() {
 
     default:
         if (Switch_Screen(1) != 0) {
-            Cover_Timer = 23;
-            G_No[1] = 1;
-            G_No[2] = 0;
-            G_No[3] = 0;
-            E_No[0] = 2;
-            E_No[1] = 0;
-            E_No[2] = 0;
-            E_No[3] = 0;
+            Reset_To_Game_Screen();
 
             Give_Operator_To_Entrants();
         }
@@ -528,14 +528,7 @@ static void Finish_Entry_And_Start_Game(s16 Jump_Index) {
 
     default:
         if (Switch_Screen(1) != 0) {
-            Cover_Timer = 23;
-            G_No[1] = 1;
-            G_No[2] = 0;
-            G_No[3] = 0;
-            E_No[0] = 2;
-            E_No[1] = 0;
-            E_No[2] = 0;
-            E_No[3] = 0;
+            Reset_To_Game_Screen();
 
             Give_Operator_To_Entrants();
             Request_Disp_Rank[0][0] = -1;
