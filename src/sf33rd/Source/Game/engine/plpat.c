@@ -225,8 +225,12 @@ void Attack_02000(PLW* wk) { // 🟢
 
 /* On the ground - or standing on the bonus-stage car - the attack starts from a
  * landed pose, so the unit is re-initialised before the animation is set. */
+static s32 is_standing_for_ja_attack(const PLW* wk) {
+    return (Bonus_Game_Flag == 20 && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0);
+}
+
 static void init_ja_attack_from_ground(PLW* wk) {
-    if ((Bonus_Game_Flag == 20 && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
+    if (is_standing_for_ja_attack(wk)) {
         hoken_muriyari_chakuchi(wk);
         wk->wu.rl_flag = wk->wu.rl_waza;
         setup_lvdir_after_autodir(wk);
