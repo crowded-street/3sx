@@ -82,12 +82,17 @@ void end_b00_move() {
     end_b00_jp[end_w.r_no_2]();
 }
 
+/* Open a scene: step the state and put the panel where this scene starts. */
+static void end_11_open_scene() {
+    bgw_ptr->r_no_1++;
+    bgw_ptr->xy[0].disp.pos = end_b_pos[end_w.r_no_2][0];
+    bgw_ptr->xy[1].disp.pos = end_b_pos[end_w.r_no_2][1];
+}
+
 void end_b00_0000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_b_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_b_pos[end_w.r_no_2][1];
+        end_11_open_scene();
         bgw_ptr->abs_x = 512;
         bgw_ptr->abs_y = 0;
 
@@ -166,9 +171,7 @@ void end_b00_1000() {
 void end_b00_3000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_b_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_b_pos[end_w.r_no_2][1];
+        end_11_open_scene();
         bgw_ptr->abs_y = 0;
         Bg_On_W(1);
         bg_w.quake_y_index = 24;
@@ -211,9 +214,7 @@ void end_b01_move() {
 void end_b01_0000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_b_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_b_pos[end_w.r_no_2][1];
+        end_11_open_scene();
 
         if (end_w.r_no_2 == 1) {
             bgw_ptr->speed_y = 0x100000;
@@ -243,9 +244,7 @@ void end_b01_0000() {
 void end_b01_3000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_b_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_b_pos[end_w.r_no_2][1];
+        end_11_open_scene();
         bgw_ptr->abs_x = 512;
         bgw_ptr->abs_y = 0;
         Bg_On_W(2U);
