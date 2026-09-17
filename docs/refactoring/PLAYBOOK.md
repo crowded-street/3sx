@@ -510,6 +510,19 @@ void term(Work *w, s16 a) {
 Anything that ran after the switch - a trailing lever merge, a sort request - stays in the
 caller, after its switch, where it ran before.
 
+**The group may also be chosen by what two switches agree on.** When two sibling state
+machines are a Code Duplication pair because several of their arms are identical, the same
+move breaks the pair: put the arms they share in one helper, and let *both* switches reach
+it from a new `default`. Measured on `plpat06.c`'s run and throw markers, which agree on
+arms 20, 30 and 40 and disagree on the rest: 8.81 -> 9.38, and the finding went.
+
+The safety argument is the one above plus one more step. Case labels are mutually
+exclusive, so a `cg_type` of 20 that used to match the caller's own arm now falls to the
+`default` and matches the same label in the helper. A value matching none of the labels did
+nothing before, and still does nothing - **provided neither caller had a `default` of its
+own and the helper does not add one.** If either switch already has a `default`, this
+variant does not apply: the values that used to reach it would now reach the helper first.
+
 ---
 
 ## Recipe A - Parameter Object
@@ -720,6 +733,8 @@ Recipe X both refuse to merge.
 | `plpat17.c` | **10.00** | *was 8.17.* Recipe D on AT1's repeated markers, then all six of its arms, then the taunt's and finally Recipe P on the bonus-car test |
 | `plpat14.c` | **10.00** | *was 8.75.* Arm extractions on all four attacks; the twin AT3 exposed was closed by Recipe D on the tail the union leg and the regrab share |
 | `plpat07.c` | 9.38 | Overall Code Complexity over ten functions, and every way of clearing it trades for Code Duplication. Three five-extraction sets were measured, each clearing the mean and each landing back on 9.38: AT2 twins SA3 once both have a called arm, and `pl07_sa2_travel` twins `pl07_at1_travel` once both marker switches are lifted. A four-extraction set does not reach the mean. Left with the mean flagged and no twin, since that is the state the campaign's changes did not create |
+| `plpat20.c` | **10.00** | *was 8.93.* AT1 and AT3 turned out to share two arms outright, not as near misses; after Recipe D on those, arm extractions cleared the rest |
+| `plpat06.c` | **10.00** | *was 9.11.* The run and throw marker switches are the case Recipe X's shared-arm variant was written for - see the recipe |
 | `plmain.c` | **10.00** | *was 9.38.* Three Recipe S splits, then the extractions that had measured flat before them - see *A file can be too big for its own mean* below. 1430 lines and 65 functions became 606 and 35, plus `plmain_arts.c`, `plmain_ps2_arts.c` and `plmain_vital.c`, all at 10.00 |
 | `plmain_arts.c` | **10.00** | split from `plmain.c`. Almost any pair of helpers named out of its gauge state machines reads as a duplicate: naming `mpg_union`'s arms twins it with `eag_union`, and naming `spend_max_gauge`'s firing arm twins it with `spend_and_disarm_ex`, both -0.57. What paid was Recipe C, which removes a run instead of naming an arm |
 | `hitplpl.c` | 8.59 | `player_at_vs_player_dm` is one `while (1)` whose arms leave through `break` and `goto two`; no arm can move to a helper without a numeric verdict protocol |
