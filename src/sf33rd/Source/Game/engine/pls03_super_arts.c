@@ -137,11 +137,50 @@ static s32 try_grounded_ex_super(PLW* wk, u8 slot_ix, s8 always) {
  * check_full_gauge_attack and check_full_gauge_attack2 were byte-identical
  * apart from which slot field they read, so the slot index is the parameter -
  * u8, the field's own type - and each caller passes its own field. */
+/* Try each strength of the airborne EX super in turn, strongest first, and
+ * fire the first one whose buttons are all held. */
+static s32 try_airborne_ex_strengths(PLW* wk, u8 slot_ix, u16 cusw) {
+    s16 j;
+    u16 exsw;
+
+    for (j = 3; j >= 0; j--) {
+        if ((j == 3) && !(wk->cp->btix[slot_ix] & 0x600)) {
+            continue;
+        }
+
+        exsw = cusw & cmdshot_conv_tbl[wk->cp->exdt[slot_ix][j]];
+
+        if (exsw == cmdshot_conv_tbl[wk->cp->exdt[slot_ix][j] & 0xF]) {
+            setup_comm_back(&wk->wu);
+
+            if (ArcadeBalance_IsEnabled()) {
+                wk->as = &asstbl_lv_9900_a_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)]
+                                                 [j + (slot_ix - 38) * 4];
+            } else {
+                wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(slot_ix)]
+                                         [j + (slot_ix - 38) * 4];
+            }
+
+            wk->wu.cg_cancel = 0;
+            wk->sa->mp = -1;
+            hissatsu_setup_union(wk, wk->cp->waza_r[slot_ix][j]);
+            waza_compel_all_init2(wk);
+
+            if (!ArcadeBalance_IsEnabled()) {
+                chainex_check[wk->wu.id][slot_ix - 20] = 1;
+                chainex_spat_cancel_kidou(&wk->wu);
+            }
+
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 static s32 try_airborne_ex_super(PLW* wk, u8 slot_ix, s8 always) {
     u16* conpane;
-    s16 j;
     u16 cusw;
-    u16 exsw;
 
     if (wk->spmv_ng_flag & DIP_UNKNOWN_31) {
         return 0;
@@ -180,37 +219,7 @@ static s32 try_airborne_ex_super(PLW* wk, u8 slot_ix, s8 always) {
     if (((wk->cp->btix[slot_ix] & 0xFF) != 0x80) && wk->cp->waza_flag[slot_ix]) {
         cusw = conpane[wk->cp->btix[slot_ix] & 0xFF];
 
-        for (j = 3; j >= 0; j--) {
-            if ((j == 3) && !(wk->cp->btix[slot_ix] & 0x600)) {
-                continue;
-            }
-
-            exsw = cusw & cmdshot_conv_tbl[wk->cp->exdt[slot_ix][j]];
-
-            if (exsw == cmdshot_conv_tbl[wk->cp->exdt[slot_ix][j] & 0xF]) {
-                setup_comm_back(&wk->wu);
-
-                if (ArcadeBalance_IsEnabled()) {
-                    wk->as = &asstbl_lv_9900_a_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)]
-                                                     [j + (slot_ix - 38) * 4];
-                } else {
-                    wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(slot_ix)]
-                                             [j + (slot_ix - 38) * 4];
-                }
-
-                wk->wu.cg_cancel = 0;
-                wk->sa->mp = -1;
-                hissatsu_setup_union(wk, wk->cp->waza_r[slot_ix][j]);
-                waza_compel_all_init2(wk);
-
-                if (!ArcadeBalance_IsEnabled()) {
-                    chainex_check[wk->wu.id][slot_ix - 20] = 1;
-                    chainex_spat_cancel_kidou(&wk->wu);
-                }
-
-                return 1;
-            }
-        }
+        return try_airborne_ex_strengths(wk, slot_ix, cusw);
     }
 
     return 0;
