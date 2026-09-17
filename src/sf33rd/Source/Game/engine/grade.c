@@ -894,40 +894,35 @@ static s16 tech_pts_items(s16 ix) {
     return point;
 }
 
+/* The super-art score. The three stock counts scanned the same length with
+ * the same value and differed in one thing: which table. */
+static s16 sa_stock_points(s16 ix, const GradeRow* table) {
+    s16 i;
+
+    for (i = 0; i < 5; i++) {
+        if (judge_item[ix][Play_Type].sa_exec < table[i + 1][0]) {
+            break;
+        }
+    }
+
+    return table[i][1];
+}
+
 /* And the super art, scored from the table for the number of stocks it has. */
 static s16 tech_pts_super_art(s16 ix) {
-    s16 i;
     s16 point = 0;
 
     switch (plw[ix].sa->store_max) {
     case 1:
-        for (i = 0; i < 5; i++) {
-            if (judge_item[ix][Play_Type].sa_exec < grade_t_sa_stock_1[i + 1][0]) {
-                break;
-            }
-        }
-
-        point += grade_t_sa_stock_1[i][1];
+        point += sa_stock_points(ix, grade_t_sa_stock_1);
         break;
 
     case 2:
-        for (i = 0; i < 5; i++) {
-            if (judge_item[ix][Play_Type].sa_exec < grade_t_sa_stock_2[i + 1][0]) {
-                break;
-            }
-        }
-
-        point += grade_t_sa_stock_2[i][1];
+        point += sa_stock_points(ix, grade_t_sa_stock_2);
         break;
 
     default:
-        for (i = 0; i < 5; i++) {
-            if (judge_item[ix][Play_Type].sa_exec < grade_t_sa_stock_3[i + 1][0]) {
-                break;
-            }
-        }
-
-        point += grade_t_sa_stock_3[i][1];
+        point += sa_stock_points(ix, grade_t_sa_stock_3);
         break;
     }
 

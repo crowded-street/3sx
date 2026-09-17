@@ -4,6 +4,12 @@
 #include "structs.h"
 #include "types.h"
 
+/* One row of a grade scoring table: the threshold the scanned value is
+ * compared against, and the points awarded at or above it. The tables are
+ * declared in grade.c as `const s16 name[N][2]`, and this is the type of a
+ * pointer into one of them. */
+typedef const s16 GradeRow[2];
+
 typedef struct {
     s16 offence_total;
     s16 defence_total;
