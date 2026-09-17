@@ -41,6 +41,49 @@ static s32 is_mid_body_hit_on_0x44(const PLW* wk) {
     return wk->as->char_ix == 0x44 && (wk->dm_point == 2 || wk->dm_point == 3);
 }
 
+/* The knock-back arc, which one state reaches without the animation start. */
+static void setup_buttobi_arc(PLW* wk) {
+    buttobi_add_y_check(wk);
+    setup_butt_own_data(&wk->wu);
+}
+
+/* Start the level-6 damage animation, carry any pattern-to-pattern state over,
+ * and set that arc up. Two states open this way. */
+static void begin_buttobi_animation(PLW* wk) {
+    set_char_move_init(&wk->wu, 6, wk->as->char_ix);
+    check_dmpat_to_dmpat(wk);
+    setup_buttobi_arc(wk);
+}
+
+/* Solve the rise from the character's own buttobi time and start the sky timer.
+ * Two states launch from the ground this way. */
+static void launch_buttobi_from_ground(PLW* wk) {
+    cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->as->char_ix][wk->wu.dm_attlv], 0);
+    get_sky_dm_timer(wk);
+}
+
+/* Three runs the damage states write out identically; the same three the late
+ * states share, kept file-local on each side because a `static` may not be
+ * widened to bridge the two.
+ *
+ * The sky flight's hos flag and its union step. */
+static void enter_sky_flight(PLW* wk) {
+    set_dm_hos_flag_sky(wk);
+    first_flight_union(wk, 3, 3);
+}
+
+/* Take the attacker's facing and turn away from it. */
+static void face_away_from_attacker(PLW* wk) {
+    wk->wu.dm_rl = ((WORK*)wk->wu.dmg_adrs)->rl_flag;
+    wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
+}
+
+/* Step the state on and start the with-cancel animation. */
+static void begin_wca_state(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    char_move_wca_init(&wk->wu);
+}
+
 void Damage_00000(PLW* wk) {
     wk->wu.next_z = 30;
 
@@ -393,8 +436,7 @@ static void run_zuru_damage_sequence(PLW* wk, s32 ttktv_arg) {
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
-        wk->wu.dm_rl = ((WORK*)wk->wu.dmg_adrs)->rl_flag;
-        wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
+        face_away_from_attacker(wk);
         wk->dm_ix = wk->as->char_ix + wk->wu.dm_attlv;
         set_char_move_init(&wk->wu, 1, wk->dm_ix);
         setup_butt_own_data(&wk->wu);
@@ -404,8 +446,7 @@ static void run_zuru_damage_sequence(PLW* wk, s32 ttktv_arg) {
         break;
 
     case 1:
-        wk->wu.routine_no[3]++;
-        char_move_wca_init(&wk->wu);
+        begin_wca_state(wk);
         /* fallthrough */
 
     case 2:
@@ -430,15 +471,12 @@ void Damage_16000(PLW* wk) {
         wk->wu.routine_no[3]++;
         wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
         set_char_move_init(&wk->wu, 6, wk->as->char_ix);
-        buttobi_add_y_check(wk);
-        setup_butt_own_data(&wk->wu);
-        cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->as->char_ix][wk->wu.dm_attlv], 0);
-        get_sky_dm_timer(wk);
+        setup_buttobi_arc(wk);
+        launch_buttobi_from_ground(wk);
         break;
 
     case 1:
-        wk->wu.routine_no[3]++;
-        char_move_wca_init(&wk->wu);
+        begin_wca_state(wk);
         /* fallthrough */
 
     case 2:
@@ -493,17 +531,13 @@ void Damage_17000(PLW* wk) {
     case 0:
         wk->wu.routine_no[3]++;
         wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
-        set_char_move_init(&wk->wu, 6, wk->as->char_ix);
-        check_dmpat_to_dmpat(wk);
-        buttobi_add_y_check(wk);
-        setup_butt_own_data(&wk->wu);
+        begin_buttobi_animation(wk);
         cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->as->char_ix][wk->wu.dm_attlv], wk->wu.xyz[1].disp.pos);
         get_sky_dm_timer(wk);
         break;
 
     case 1:
-        wk->wu.routine_no[3]++;
-        char_move_wca_init(&wk->wu);
+        begin_wca_state(wk);
         wk->wu.cmwk[14] = _damage_pause_table[3][wk->wu.dm_attlv];
         /* fallthrough */
 
@@ -550,13 +584,11 @@ void Damage_18000(PLW* wk) {
             break;
         }
 
-        wk->wu.routine_no[3]++;
-        char_move_wca_init(&wk->wu);
+        begin_wca_state(wk);
         /* fallthrough */
 
     case 2:
-        set_dm_hos_flag_sky(wk);
-        first_flight_union(wk, 3, 3);
+        enter_sky_flight(wk);
         break;
 
     case 3:
@@ -570,14 +602,9 @@ void Damage_19000(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
-        wk->wu.dm_rl = ((WORK*)wk->wu.dmg_adrs)->rl_flag;
-        wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
-        set_char_move_init(&wk->wu, 6, wk->as->char_ix);
-        check_dmpat_to_dmpat(wk);
-        buttobi_add_y_check(wk);
-        setup_butt_own_data(&wk->wu);
-        cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->as->char_ix][wk->wu.dm_attlv], 0);
-        get_sky_dm_timer(wk);
+        face_away_from_attacker(wk);
+        begin_buttobi_animation(wk);
+        launch_buttobi_from_ground(wk);
         break;
 
     case 1:
@@ -585,13 +612,11 @@ void Damage_19000(PLW* wk) {
             break;
         }
 
-        wk->wu.routine_no[3]++;
-        char_move_wca_init(&wk->wu);
+        begin_wca_state(wk);
         /* fallthrough */
 
     case 2:
-        set_dm_hos_flag_sky(wk);
-        first_flight_union(wk, 3, 3);
+        enter_sky_flight(wk);
         break;
 
     case 3:
@@ -605,8 +630,7 @@ static void run_flight_damage_sequence(PLW* wk, s32 flight_arg) {
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
-        wk->wu.dm_rl = ((WORK*)wk->wu.dmg_adrs)->rl_flag;
-        wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
+        face_away_from_attacker(wk);
         setup_butt_own_data(&wk->wu);
         buttobi_add_y_check(wk);
         set_char_move_init(&wk->wu, 6, wk->as->char_ix);
@@ -615,8 +639,7 @@ static void run_flight_damage_sequence(PLW* wk, s32 flight_arg) {
         break;
 
     case 1:
-        wk->wu.routine_no[3]++;
-        char_move_wca_init(&wk->wu);
+        begin_wca_state(wk);
         /* fallthrough */
 
     case 2:

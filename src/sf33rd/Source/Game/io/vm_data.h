@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-extern u8* Replay_File_Name[];
-extern u8* SysDir_File_Name[];
+extern const char* Replay_File_Name[];
+extern const char* SysDir_File_Name[];
 
 #endif

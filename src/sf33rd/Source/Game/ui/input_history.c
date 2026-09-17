@@ -79,18 +79,19 @@ void InputHistory_Append(u16 lvbt, u8 player) {
 }
 
 void InputHistory_Render() {
-    GlyphPosition pos;
-    const float z = PrioBase[2];
+    glyph_renderer_state.z = PrioBase[2];
 
     for (int i = 0; i < 2; i++) {
-        pos.y = INPUT_HISTORY_OFFSET_TOP;
+        glyph_renderer_state.position.y = INPUT_HISTORY_OFFSET_TOP;
         InputHistory* history = &input_history[i];
 
         for (int j = 0; j < INPUT_HISTORY_MAX; j++) {
+            glyph_renderer_state.color = GLYPH_COLOR_WHITE;
+
             if (i == 0) {
-                pos.x = INPUT_HISTORY_HORIZONTAL_PADDING;
+                glyph_renderer_state.position.x = INPUT_HISTORY_HORIZONTAL_PADDING;
             } else {
-                pos.x = 384 - INPUT_HISTORY_RESERVED_WIDTH - INPUT_HISTORY_HORIZONTAL_PADDING;
+                glyph_renderer_state.position.x = 384 - INPUT_HISTORY_RESERVED_WIDTH - INPUT_HISTORY_HORIZONTAL_PADDING;
             }
 
             const u8 item_index = (history->end + INPUT_HISTORY_MAX - j - 1) % INPUT_HISTORY_MAX;
@@ -103,40 +104,34 @@ void InputHistory_Render() {
             // Digits
 
             if (item->count == 1) {
-                pos.x += 16;
-            } else if (item->count < 10) {
-                pos.x += 8;
-                GlyphRenderer_DrawDigit(item->count, pos, GLYPH_COLOR_WHITE, z);
-                pos.x += 8;
+                GlyphRenderer_DrawString("  ");
             } else {
-                GlyphRenderer_DrawDigit(item->count / 10, pos, GLYPH_COLOR_WHITE, z);
-                pos.x += 8;
-                GlyphRenderer_DrawDigit(item->count % 10, pos, GLYPH_COLOR_WHITE, z);
-                pos.x += 8;
+                GlyphRenderer_DrawString("%2d", item->count);
             }
 
-            pos.x += 1;
+            glyph_renderer_state.position.x += 1;
 
             // Lever
 
             const u16 lever = item->lvbt & 0xF;
-            GlyphRenderer_DrawGlyph(lever_to_glyph[lever], pos, GLYPH_COLOR_WHITE, z);
-            pos.x += 9;
+            GlyphRenderer_DrawGlyph(lever_to_glyph[lever]);
+            glyph_renderer_state.position.x += 1;
 
             // Attacks
 
-            for (int k = 0; k < 6; k++) {
+            for (int k = 0; k < SDL_arraysize(attack_bits); k++) {
                 const AttackBitDescription* attack_bit = &attack_bits[k];
 
                 if (!(item->lvbt & (1 << attack_bit->bit))) {
                     continue;
                 }
 
-                GlyphRenderer_DrawGlyph(attack_bit->glyph, pos, attack_bit->color, z);
-                pos.x += 9;
+                glyph_renderer_state.color = attack_bit->color;
+                GlyphRenderer_DrawGlyph(attack_bit->glyph);
+                glyph_renderer_state.position.x += 1;
             }
 
-            pos.y += 9;
+            glyph_renderer_state.position.y += GLYPH_SIZE + 1;
         }
     }
 }

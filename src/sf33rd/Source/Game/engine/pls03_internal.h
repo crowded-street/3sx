@@ -10,6 +10,12 @@
 
 /* The command-to-shot conversion table both halves index into. Declared here
  * rather than in each .c so the split did not duplicate the declaration. */
+/* One character's rows in an asstbl table: six slots of two words. Named here
+ * so a selector can take either the arcade table or the PS2 one without their
+ * extents becoming literals in the .c file - the precondition Recipe T sets for
+ * an array-typed parameter. */
+typedef const u16 AsstblCharRows[6][2];
+
 extern const s16 cmdshot_conv_tbl[32];
 
 /* Defined in pls03.c. The super arts and the specials both gate on it. */

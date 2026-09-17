@@ -76,7 +76,47 @@ static s32 grounded_ex_slot_is_blocked(PLW* wk, u8 slot_ix, s8 always) {
  * u8, the field's own type - and each caller passes its own field. */
 /* The same for the grounded EX super. It stays separate from the airborne
  * one: the table it reaches into and the offset within it are both different. */
-static s32 try_grounded_ex_strengths(PLW* wk, u8 slot_ix, u16 cusw) {
+/* Once an EX strength matches, both the grounded and the airborne path finish
+ * identically: drop the cancel, mark the meter spent, set the union up from that
+ * strength's command entry, and - outside arcade balance - record the chain-EX
+ * use. The `- 20` is what both wrote, airborne included, even though its table
+ * lookup above uses 38; that asymmetry is the original's and is left alone. */
+static s32 launch_ex_strength(PLW* wk, u8 slot_ix, s16 j) {
+    wk->wu.cg_cancel = 0;
+    wk->sa->mp = -1;
+    hissatsu_setup_union(wk, wk->cp->waza_r[slot_ix][j]);
+    waza_compel_all_init2(wk);
+
+    if (!ArcadeBalance_IsEnabled()) {
+        chainex_check[wk->wu.id][slot_ix - 20] = 1;
+        chainex_spat_cancel_kidou(&wk->wu);
+    }
+
+    return 1;
+}
+
+/* Where a grounded EX strength's animation set lives. */
+static void select_grounded_ex_table(PLW* wk, u8 slot_ix, s16 j) {
+    if (ArcadeBalance_IsEnabled()) {
+        wk->as = &asstbl_lv_9900_g_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][j + (slot_ix - 20) * 4];
+    } else {
+        wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(slot_ix)][j + (slot_ix - 20) * 4];
+    }
+}
+
+/* The airborne one, whose slot base is 38 where the grounded side's is 20. */
+static void select_airborne_ex_table(PLW* wk, u8 slot_ix, s16 j) {
+    if (ArcadeBalance_IsEnabled()) {
+        wk->as = &asstbl_lv_9900_a_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][j + (slot_ix - 38) * 4];
+    } else {
+        wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(slot_ix)][j + (slot_ix - 38) * 4];
+    }
+}
+
+/* The strength scan both EX paths run, walking the four strengths from 3 down
+ * and skipping 3 unless the slot carries the EX bits. The only thing the two
+ * differed in was which table the match selects, so that call is the parameter. */
+static s32 try_ex_strengths(PLW* wk, u8 slot_ix, u16 cusw, void (*select_table)(PLW*, u8, s16)) {
     s16 j;
     u16 exsw;
 
@@ -89,30 +129,16 @@ static s32 try_grounded_ex_strengths(PLW* wk, u8 slot_ix, u16 cusw) {
 
         if (exsw == cmdshot_conv_tbl[wk->cp->exdt[slot_ix][j] & 0xF]) {
             setup_comm_back(&wk->wu);
-
-            if (ArcadeBalance_IsEnabled()) {
-                wk->as = &asstbl_lv_9900_g_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)]
-                                                 [j + (slot_ix - 20) * 4];
-            } else {
-                wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(slot_ix)]
-                                         [j + (slot_ix - 20) * 4];
-            }
-
-            wk->wu.cg_cancel = 0;
-            wk->sa->mp = -1;
-            hissatsu_setup_union(wk, wk->cp->waza_r[slot_ix][j]);
-            waza_compel_all_init2(wk);
-
-            if (!ArcadeBalance_IsEnabled()) {
-                chainex_check[wk->wu.id][slot_ix - 20] = 1;
-                chainex_spat_cancel_kidou(&wk->wu);
-            }
-
-            return 1;
+            select_table(wk, slot_ix, j);
+            return launch_ex_strength(wk, slot_ix, j);
         }
     }
 
     return 0;
+}
+
+static s32 try_grounded_ex_strengths(PLW* wk, u8 slot_ix, u16 cusw) {
+    return try_ex_strengths(wk, slot_ix, cusw, select_grounded_ex_table);
 }
 
 static s32 try_grounded_ex_super(PLW* wk, u8 slot_ix, s8 always) {
@@ -149,65 +175,36 @@ static s32 try_grounded_ex_super(PLW* wk, u8 slot_ix, s8 always) {
 /* Try each strength of the airborne EX super in turn, strongest first, and
  * fire the first one whose buttons are all held. */
 static s32 try_airborne_ex_strengths(PLW* wk, u8 slot_ix, u16 cusw) {
-    s16 j;
-    u16 exsw;
+    return try_ex_strengths(wk, slot_ix, cusw, select_airborne_ex_table);
+}
 
-    for (j = 3; j >= 0; j--) {
-        if ((j == 3) && !(wk->cp->btix[slot_ix] & 0x600)) {
-            continue;
-        }
-
-        exsw = cusw & cmdshot_conv_tbl[wk->cp->exdt[slot_ix][j]];
-
-        if (exsw == cmdshot_conv_tbl[wk->cp->exdt[slot_ix][j] & 0xF]) {
-            setup_comm_back(&wk->wu);
-
-            if (ArcadeBalance_IsEnabled()) {
-                wk->as = &asstbl_lv_9900_a_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)]
-                                                 [j + (slot_ix - 38) * 4];
-            } else {
-                wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(slot_ix)]
-                                         [j + (slot_ix - 38) * 4];
-            }
-
-            wk->wu.cg_cancel = 0;
-            wk->sa->mp = -1;
-            hissatsu_setup_union(wk, wk->cp->waza_r[slot_ix][j]);
-            waza_compel_all_init2(wk);
-
-            if (!ArcadeBalance_IsEnabled()) {
-                chainex_check[wk->wu.id][slot_ix - 20] = 1;
-                chainex_spat_cancel_kidou(&wk->wu);
-            }
-
-            return 1;
-        }
+/* The five reasons an airborne EX super cannot start, in the order the original
+ * tested them. */
+static s32 airborne_ex_slot_is_blocked(PLW* wk, u8 slot_ix, s8 always) {
+    if (wk->spmv_ng_flag & DIP_UNKNOWN_31) {
+        return 1;
     }
 
-    return 0;
+    if (slot_ix == 0) {
+        return 1;
+    }
+
+    if (slot_ix < 0x1C) {
+        return 1;
+    }
+
+    if (slot_needs_arming_and_is_not(wk, slot_ix, always)) {
+        return 1;
+    }
+
+    return chain_cancel_already_used(wk, slot_ix);
 }
 
 static s32 try_airborne_ex_super(PLW* wk, u8 slot_ix, s8 always) {
     u16* conpane;
     u16 cusw;
 
-    if (wk->spmv_ng_flag & DIP_UNKNOWN_31) {
-        return 0;
-    }
-
-    if (slot_ix == 0) {
-        return 0;
-    }
-
-    if (slot_ix < 0x1C) {
-        return 0;
-    }
-
-    if (slot_needs_arming_and_is_not(wk, slot_ix, always)) {
-        return 0;
-    }
-
-    if (chain_cancel_already_used(wk, slot_ix)) {
+    if (airborne_ex_slot_is_blocked(wk, slot_ix, always)) {
         return 0;
     }
 
@@ -234,12 +231,22 @@ static s32 try_airborne_ex_super(PLW* wk, u8 slot_ix, s8 always) {
     return 0;
 }
 
-s32 check_full_gauge_attack(PLW* wk, s8 always) {
+/* Neither full-gauge attack can start unless the meter is exactly full and the
+ * debug pause is off. Both wrote these two guards out identically. */
+static s32 full_gauge_attack_is_blocked(const PLW* wk) {
     if (wk->sa->mp != 1) {
-        return 0;
+        return 1;
     }
 
     if (pcon_dp_flag) {
+        return 1;
+    }
+
+    return 0;
+}
+
+s32 check_full_gauge_attack(PLW* wk, s8 always) {
+    if (full_gauge_attack_is_blocked(wk)) {
         return 0;
     }
 
@@ -251,11 +258,7 @@ s32 check_full_gauge_attack(PLW* wk, s8 always) {
 }
 
 s32 check_full_gauge_attack2(PLW* wk, s8 always) {
-    if (wk->sa->mp != 1) {
-        return 0;
-    }
-
-    if (pcon_dp_flag) {
+    if (full_gauge_attack_is_blocked(wk)) {
         return 0;
     }
 
@@ -571,6 +574,23 @@ static s32 grounded_art_is_blocked(PLW* wk) {
     return is_blocked_by_arcade_switch(wk, wk->sa->nmsa_g_ix);
 }
 
+/* Both super arts finish the same way: drop the current cancel, mark the art
+ * spent, set the union up from the slot's first command entry, and - outside
+ * arcade balance - latch the gauge type. Only the slot index differs, which is
+ * the one value Recipe D allows as a parameter. */
+static s32 launch_super_art(PLW* wk, s16 slot_ix) {
+    wk->wu.cg_cancel = 0;
+    wk->sa->ok = -1;
+    hissatsu_setup_union(wk, wk->cp->waza_r[slot_ix][0]);
+    waza_compel_all_init2(wk);
+
+    if (!ArcadeBalance_IsEnabled()) {
+        wk->sa->gt2 = wk->sa->gauge_type;
+    }
+
+    return 1;
+}
+
 /* Starting a grounded super art once its gates have passed. */
 static s32 start_grounded_super_art(PLW* wk) {
     if (grounded_art_is_blocked(wk)) {
@@ -586,16 +606,7 @@ static s32 start_grounded_super_art(PLW* wk) {
         wk->sa->ex4th_exec = 0;
     }
 
-    wk->wu.cg_cancel = 0;
-    wk->sa->ok = -1;
-    hissatsu_setup_union(wk, wk->cp->waza_r[wk->sa->nmsa_g_ix][0]);
-    waza_compel_all_init2(wk);
-
-    if (!ArcadeBalance_IsEnabled()) {
-        wk->sa->gt2 = wk->sa->gauge_type;
-    }
-
-    return 1;
+    return launch_super_art(wk, wk->sa->nmsa_g_ix);
 }
 
 /* The airborne equivalent. Its gates are still inline here where the grounded
@@ -627,16 +638,7 @@ static s32 start_airborne_super_art(PLW* wk) {
         wk->sa->ex4th_exec = 0;
     }
 
-    wk->wu.cg_cancel = 0;
-    wk->sa->ok = -1;
-    hissatsu_setup_union(wk, wk->cp->waza_r[wk->sa->nmsa_a_ix][0]);
-    waza_compel_all_init2(wk);
-
-    if (!ArcadeBalance_IsEnabled()) {
-        wk->sa->gt2 = wk->sa->gauge_type;
-    }
-
-    return 1;
+    return launch_super_art(wk, wk->sa->nmsa_a_ix);
 }
 
 s32 execute_super_arts(PLW* wk) { // 🟡

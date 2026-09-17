@@ -12,7 +12,7 @@
 
 const u8 Contents_Check_Data[8] = { 0, 0, 1, 1, 0, 0, 0, 0 };
 
-const s8* button_string_data[8][12] = {
+const char* button_string_data[8][12] = {
     { "CONTINUE",
       "BUTTON CONFIG.",
       "EXIT",

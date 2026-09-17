@@ -20,7 +20,7 @@ void EFF64_SUDDENLY(WORK_Other_CONN* /* unused */);
 void Disp_64_Sub(WORK_Other_CONN* ewk);
 void Setup_Letter_64(WORK_Other_CONN* ewk, s16 disp_index);
 
-const s8* Letter_Data_64[15][16] = {
+const char* Letter_Data_64[15][16] = {
     { "\"OFF\"", "\"/ON/\"", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
     { "#;;;;;;;",
       "##;;;;;;",

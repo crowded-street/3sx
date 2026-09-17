@@ -6,7 +6,7 @@
 
 typedef struct H6InitArgs {
     s16 timer;
-    s8* str;
+    const char* str;
     s16 x;
     s16 y;
     s16 original_color;

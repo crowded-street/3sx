@@ -15,6 +15,15 @@
 #include "sf33rd/Source/Game/engine/pls01.h"
 #include "sf33rd/Source/Game/engine/pls02.h"
 
+/* Land, face the way the move was buffered, and start the level-5 animation.
+ * Four of this character's attacks open with exactly these four lines. */
+static void begin_pl09_attack(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    wk->wu.rl_flag = wk->wu.rl_waza;
+    hoken_muriyari_chakuchi(wk);
+    set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+}
+
 void mvxy_table_reader(PLW* wk);
 
 const u8 tenguiwa_stand_by[2][8] = { { 24, 25, 26, 27, 28, 29, 30, 30 }, { 31, 32, 33, 34, 35, 34, 33, 31 } };
@@ -56,13 +65,36 @@ static void take_next_row_on_marker_20(PLW* wk) {
     }
 }
 
+/* Airborne: marker 1 drops back to the ground state instead of stepping the
+ * union. Its `break` left the switch with nothing after it. */
+static void yagyoudama_airborne(PLW* wk) {
+    take_next_row_on_marker_20(wk);
+
+    if (wk->wu.cg_type == 1) {
+        wk->wu.cg_type = 0;
+        wk->wu.routine_no[3] = 3;
+        return;
+    }
+
+    jumping_union_process(&wk->wu, 3);
+}
+
+/* Grounded: marker 1 sends it back into the air. */
+static void yagyoudama_grounded(PLW* wk) {
+    char_move(&wk->wu);
+
+    take_next_row_on_marker_20(wk);
+
+    if (wk->wu.cg_type == 1) {
+        wk->wu.cg_type = 0;
+        wk->wu.routine_no[3] = 2;
+    }
+}
+
 void Att_SP_YAGYOUDAMA(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        hoken_muriyari_chakuchi(wk);
-        set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+        begin_pl09_attack(wk);
         wk->wu.mvxy.index = wk->as->r_no;
         break;
 
@@ -79,98 +111,67 @@ void Att_SP_YAGYOUDAMA(PLW* wk) {
         break;
 
     case 2:
-        take_next_row_on_marker_20(wk);
-
-        if (wk->wu.cg_type == 1) {
-            wk->wu.cg_type = 0;
-            wk->wu.routine_no[3] = 3;
-            break;
-        }
-
-        jumping_union_process(&wk->wu, 3);
+        yagyoudama_airborne(wk);
         break;
 
     case 3:
-        char_move(&wk->wu);
-
-        take_next_row_on_marker_20(wk);
-
-        if (wk->wu.cg_type == 1) {
-            wk->wu.cg_type = 0;
-            wk->wu.routine_no[3] = 2;
-        }
-
+        yagyoudama_grounded(wk);
         break;
     }
 }
 
-s32 set_tenguiwa(PLW* wk, u8 data) {
+/* Spawning one tenguiwa set: the rocks themselves, then the shells the player
+ * owns are walked and the first few given their positions from the set's table.
+ *
+ * The stand-by set and the EX set differed in four things - which stand-by row
+ * the rocks come from, how many rocks, which position table, and which slot is
+ * the last - and every one of them is written out at its own call site and only
+ * counted or indexed here. That is Recipe T's case.
+ *
+ * The two shell guards were written differently, `continue` on one side and a
+ * nested `if` on the other. They are the same loop; this is the `continue`
+ * form. */
+static void place_tenguiwa_set(PLW* wk, const TenguiwaSet* set) {
     s16 i;
     s16 j;
     u16 num;
-    const u8* tengu;
     WORK* tmw;
 
-    if (!data) {
-        tengu = tenguiwa_stand_by[0];
-
-        for (i = 0; i < 3; i++) {
-            effect_13_init(&wk->wu, tengu[random_16() & 7]);
-        }
-
-        for (j = 0, i = 0; i < 8; i++) {
-            if (!get_my_shell_ix(&wk->wu, i, &tmw)) {
-                continue;
-            }
-
-            num = tmw->type - 24;
-
-            if (num < 36) {
-                tmw->old_pos[0] = tenguiwa_pos_hosei[j][0];
-                tmw->old_pos[1] = tenguiwa_pos_hosei[j][1];
-                tmw->old_pos[2] = tenguiwa_pos_hosei[j][2];
-                tmw->scr_mv_x = tenguiwa_pos_hosei[j][3];
-                tmw->scr_mv_y = tenguiwa_pos_hosei[j][4];
-                tmw->direction = tenguiwa_pos_hosei[j][5];
-
-                j++;
-
-                if (j > 2) {
-                    break;
-                }
-            }
-        }
-
-        return 0;
-    }
-
-    tengu = tenguiwa_stand_by[1];
-
-    for (i = 0; i < 5; i++) {
-        effect_13_init(&wk->wu, tengu[random_16() & 7]);
+    for (i = 0; i < set->rock_count; i++) {
+        effect_13_init(&wk->wu, set->tengu[random_16() & 7]);
     }
 
     for (j = 0, i = 0; i < 8; i++) {
-        if (get_my_shell_ix(&wk->wu, i, &tmw)) {
-            num = tmw->type - 24;
+        if (!get_my_shell_ix(&wk->wu, i, &tmw)) {
+            continue;
+        }
 
-            if (num < 36) {
-                tmw->old_pos[0] = tenguiwa_pos_hosei2[j][0];
-                tmw->old_pos[1] = tenguiwa_pos_hosei2[j][1];
-                tmw->old_pos[2] = tenguiwa_pos_hosei2[j][2];
-                tmw->scr_mv_x = tenguiwa_pos_hosei2[j][3];
-                tmw->scr_mv_y = tenguiwa_pos_hosei2[j][4];
-                tmw->direction = tenguiwa_pos_hosei2[j][5];
+        num = tmw->type - 24;
 
-                j++;
+        if (num < 36) {
+            tmw->old_pos[0] = set->pos[j][0];
+            tmw->old_pos[1] = set->pos[j][1];
+            tmw->old_pos[2] = set->pos[j][2];
+            tmw->scr_mv_x = set->pos[j][3];
+            tmw->scr_mv_y = set->pos[j][4];
+            tmw->direction = set->pos[j][5];
 
-                if (j > 4) {
-                    break;
-                }
+            j++;
+
+            if (j > set->last_slot) {
+                break;
             }
         }
     }
+}
 
+s32 set_tenguiwa(PLW* wk, u8 data) {
+    if (!data) {
+        place_tenguiwa_set(wk, &(TenguiwaSet){ tenguiwa_stand_by[0], 3, tenguiwa_pos_hosei, 2 });
+        return 0;
+    }
+
+    place_tenguiwa_set(wk, &(TenguiwaSet){ tenguiwa_stand_by[1], 5, tenguiwa_pos_hosei2, 4 });
     return 0;
 }
 
@@ -250,10 +251,7 @@ static void jinnchuu_ex_grounded(PLW* wk) {
 void Att_JINNCHUUWATARI_EX(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        hoken_muriyari_chakuchi(wk);
-        set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+        begin_pl09_attack(wk);
         wk->pl09_dat_index = wk->as->r_no;
         wk->wu.mvxy.index = wk->as->data_ix;
         break;
@@ -284,25 +282,48 @@ void Att_JINNCHUUWATARI_EX(PLW* wk) {
     }
 }
 
+/* Both kop arms finish the aim the same way: take the height from the row, clear
+ * the horizontal speed, solve the arc and step to the next row. Only the x they
+ * solved for differs, and it is passed in. */
+static void aim_at_homing_height(PLW* wk, const PLW* twk, const s16* curr_kop, s16 ex) {
+    s16 ey = homing_hos[wk->pl09_dat_index][twk->player_number][1];
+
+    wk->wu.mvxy.a[0].sp = 0;
+    cal_initial_speed(&wk->wu, curr_kop[1], ex, ey);
+    wk->pl09_dat_index++;
+}
+
 /* kop 0 aims at the opponent, offset by the row for that character, and mirrors
  * the result back across the player when the facing does not match the side the
  * opponent is on. kop 1's midpoint form is the near twin of this and stays
  * inline: one extraction already takes the caller under the threshold. */
+/* The opponent is to the right: aim short of them by the row's offset, and mirror
+ * that back across the player when the facing does not match.
+ *
+ * Only this arm is lifted. Its mirror stays inline: the two differ in the sign of
+ * both operations and in which way rl_flag is tested, so as two functions they
+ * would be a duplication pair, and one arm is enough to clear the bump. */
+static s16 homing_target_x_from_left(const PLW* wk, const PLW* twk) {
+    s16 ex = twk->wu.xyz[0].disp.pos - homing_hos[wk->pl09_dat_index][twk->player_number][0];
+
+    if (!wk->wu.rl_flag) {
+        ex = wk->wu.xyz[0].disp.pos - (ex - wk->wu.xyz[0].disp.pos);
+    }
+
+    return ex;
+}
+
 static s16 homing_target_x(const PLW* wk, const PLW* twk) {
     s16 ex;
 
     if (wk->wu.xyz[0].disp.pos < twk->wu.xyz[0].disp.pos) {
-        ex = twk->wu.xyz[0].disp.pos - homing_hos[wk->pl09_dat_index][twk->player_number][0];
+        return homing_target_x_from_left(wk, twk);
+    }
 
-        if (!wk->wu.rl_flag) {
-            ex = wk->wu.xyz[0].disp.pos - (ex - wk->wu.xyz[0].disp.pos);
-        }
-    } else {
-        ex = twk->wu.xyz[0].disp.pos + homing_hos[wk->pl09_dat_index][twk->player_number][0];
+    ex = twk->wu.xyz[0].disp.pos + homing_hos[wk->pl09_dat_index][twk->player_number][0];
 
-        if (wk->wu.rl_flag) {
-            ex = wk->wu.xyz[0].disp.pos + (wk->wu.xyz[0].disp.pos - ex);
-        }
+    if (wk->wu.rl_flag) {
+        ex = wk->wu.xyz[0].disp.pos + (wk->wu.xyz[0].disp.pos - ex);
     }
 
     return ex;
@@ -327,10 +348,7 @@ static void homing_aim_on_marker_30(PLW* wk, PLW* twk, const s16* curr_kop) {
     switch (curr_kop[0]) {
     case 0:
         ex = homing_target_x(wk, twk);
-        ey = homing_hos[wk->pl09_dat_index][twk->player_number][1];
-        wk->wu.mvxy.a[0].sp = 0;
-        cal_initial_speed(&wk->wu, curr_kop[1], ex, ey);
-        wk->pl09_dat_index++;
+        aim_at_homing_height(wk, twk, curr_kop, ex);
         break;
 
     case 1:
@@ -342,10 +360,7 @@ static void homing_aim_on_marker_30(PLW* wk, PLW* twk, const s16* curr_kop) {
             ex -= (wk->wu.xyz[0].disp.pos - twk->wu.xyz[0].disp.pos) / 2;
         }
 
-        ey = homing_hos[wk->pl09_dat_index][twk->player_number][1];
-        wk->wu.mvxy.a[0].sp = 0;
-        cal_initial_speed(&wk->wu, curr_kop[1], ex, ey);
-        wk->pl09_dat_index++;
+        aim_at_homing_height(wk, twk, curr_kop, ex);
         break;
     }
 
@@ -379,10 +394,7 @@ void Att_PL09_EX_TENGUIWA(PLW* wk) {
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        hoken_muriyari_chakuchi(wk);
-        set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+        begin_pl09_attack(wk);
         wk->sa->dtm_mul = 2;
         break;
 
@@ -395,10 +407,7 @@ void Att_PL09_EX_TENGUIWA(PLW* wk) {
 void Att_PL09_EX_KISHINRIKI(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        hoken_muriyari_chakuchi(wk);
-        set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+        begin_pl09_attack(wk);
         reset_mvxy_data(&wk->wu);
         wk->wu.mvxy.index = wk->as->r_no;
         wk->sa->dtm_mul = 16;

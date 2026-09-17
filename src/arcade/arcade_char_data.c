@@ -648,6 +648,7 @@ static const CgRemapRange ibuki_cg_ranges[] = {
 
 static const CgRemapRange elena_cg_ranges[] = {
     { .first = 0x70C8, .last = 0x70D2, .delta = -0x42E5 },
+    { .first = 0x9D22, .last = 0x9D24, .delta = -0x6F42 },
     { .first = 0x9C88, .last = 0x9CC1, .delta = -0x6F08 },
 };
 

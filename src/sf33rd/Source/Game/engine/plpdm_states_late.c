@@ -63,6 +63,27 @@ static void shake_off_kizetsu(PLW* wk) {
     setup_kuzureochi(wk);
 }
 
+/* Three runs the late damage states write out identically.
+ *
+ * The sky flight's hos flag and its union step; three states open case 2 with
+ * exactly these two lines. */
+static void enter_sky_flight(PLW* wk) {
+    set_dm_hos_flag_sky(wk);
+    first_flight_union(wk, 3, 3);
+}
+
+/* Take the attacker's facing and turn away from it. */
+static void face_away_from_attacker(PLW* wk) {
+    wk->wu.dm_rl = ((WORK*)wk->wu.dmg_adrs)->rl_flag;
+    wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
+}
+
+/* Step the state on and start the with-cancel animation. */
+static void begin_wca_state(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    char_move_wca_init(&wk->wu);
+}
+
 void Damage_25000(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -122,13 +143,11 @@ void Damage_26000(PLW* wk) {
         break;
 
     case 1:
-        wk->wu.routine_no[3]++;
-        char_move_wca_init(&wk->wu);
+        begin_wca_state(wk);
         /* fallthrough */
 
     case 2:
-        set_dm_hos_flag_sky(wk);
-        first_flight_union(wk, 3, 3);
+        enter_sky_flight(wk);
 
         if (wk->wu.routine_no[3] == 3 && wk->player_number == 8) {
             wk->wu.rl_flag = (wk->wu.rl_flag + 1) & 1;
@@ -156,8 +175,7 @@ void Damage_27000(PLW* wk) {
         break;
 
     case 1:
-        wk->wu.routine_no[3]++;
-        char_move_wca_init(&wk->wu);
+        begin_wca_state(wk);
         /* fallthrough */
 
     default:
@@ -276,17 +294,23 @@ static void bounce_damage_30000(PLW* wk) {
     subtract_cu_vital(wk);
 }
 
+/* The launch that opens Damage_30000: face away, start the level-6 animation,
+ * carry any pattern-to-pattern state over, and solve the rise from the
+ * character's own buttobi time. */
+static void begin_damage_30000(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    face_away_from_attacker(wk);
+    set_char_move_init(&wk->wu, 6, wk->as->char_ix);
+    check_dmpat_to_dmpat(wk);
+    buttobi_add_y_check(wk);
+    setup_butt_own_data(&wk->wu);
+    cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->as->char_ix][wk->wu.dm_attlv], 0);
+}
+
 void Damage_30000(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.dm_rl = ((WORK*)wk->wu.dmg_adrs)->rl_flag;
-        wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
-        set_char_move_init(&wk->wu, 6, wk->as->char_ix);
-        check_dmpat_to_dmpat(wk);
-        buttobi_add_y_check(wk);
-        setup_butt_own_data(&wk->wu);
-        cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->as->char_ix][wk->wu.dm_attlv], 0);
+        begin_damage_30000(wk);
         break;
 
     case 1:
@@ -294,13 +318,11 @@ void Damage_30000(PLW* wk) {
             break;
         }
 
-        wk->wu.routine_no[3]++;
-        char_move_wca_init(&wk->wu);
+        begin_wca_state(wk);
         /* fallthrough */
 
     case 2:
-        set_dm_hos_flag_sky(wk);
-        first_flight_union(wk, 3, 3);
+        enter_sky_flight(wk);
 
         if (wk->wu.routine_no[3] == 3 || !wk->hos_fi_flag) {
             break;
@@ -345,8 +367,7 @@ void Damage_31000(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
-        wk->wu.dm_rl = ((WORK*)wk->wu.dmg_adrs)->rl_flag;
-        wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
+        face_away_from_attacker(wk);
 
         if (wk->wu.xyz[1].disp.pos <= 0) {
             wk->wu.xyz[1].disp.pos = 1;
@@ -358,13 +379,11 @@ void Damage_31000(PLW* wk) {
         break;
 
     case 1:
-        wk->wu.routine_no[3]++;
-        char_move_wca_init(&wk->wu);
+        begin_wca_state(wk);
         /* fallthrough */
 
     case 2:
-        set_dm_hos_flag_sky(wk);
-        first_flight_union(wk, 3, 3);
+        enter_sky_flight(wk);
 
         if (wk->wu.routine_no[3] != 3) {
             break;

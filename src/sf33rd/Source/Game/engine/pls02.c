@@ -139,11 +139,18 @@ void add_to_mvxy_data(WORK* wk, u16 ix) { // 🟢
     wk->mvxy.kop[1] = adrs[5];
 }
 
-void setup_move_data_easy(WORK* wk, const s16* adrs, s16 prx, s16 pry) { // 🟢
+/* The horizontal pair of a movement row, both words shifted into place. The two
+ * readers below open with exactly these four lines; what differs is only which
+ * columns their vertical half and their kop values come from. */
+static void store_mvxy_x_from(WORK* wk, const s16* adrs) {
     wk->mvxy.a[0].sp = adrs[0];
     wk->mvxy.a[0].sp <<= 8;
     wk->mvxy.d[0].sp = adrs[1];
     wk->mvxy.d[0].sp <<= 8;
+}
+
+void setup_move_data_easy(WORK* wk, const s16* adrs, s16 prx, s16 pry) { // 🟢
+    store_mvxy_x_from(wk, adrs);
     wk->mvxy.kop[0] = prx;
     wk->mvxy.a[1].sp = adrs[2];
     wk->mvxy.a[1].sp <<= 8;
@@ -173,10 +180,7 @@ void setup_butt_own_data(WORK* wk) { // 🟢
 }
 
 void read_adrs_store_mvxy(WORK* wk, s16* adrs) { // 🟢
-    wk->mvxy.a[0].sp = adrs[0];
-    wk->mvxy.a[0].sp <<= 8;
-    wk->mvxy.d[0].sp = adrs[1];
-    wk->mvxy.d[0].sp <<= 8;
+    store_mvxy_x_from(wk, adrs);
     wk->mvxy.kop[0] = adrs[2];
     wk->mvxy.a[1].sp = adrs[3];
     wk->mvxy.a[1].sp <<= 8;
@@ -429,14 +433,66 @@ static s16 body_touch_overlap(PLW* hmw, WORK* efw, const s16* dad0, const s16* d
     return hit_check_subroutine(&hmw->wu, efw, &dad2[0], &dad3[0]);
 }
 
-void check_body_touch2() {
-    PLW* hmw;
-    PLW* cmw;
+/* The two ways the bonus-stage car pushes the human player apart from it. They
+ * are mirrors - the sign of the shift, which micchaku_flag blocks it, and which
+ * side each hos_em_flag names - which is three differences, so they stay as two
+ * helpers rather than one parameterised by direction. */
+static void push_home_player_forward(PLW* hmw, PLW* cmw, s16 meri) {
+    hmw->wu.xyz[0].disp.pos += (meri) * (hmw->micchaku_flag != 1);
+    hmw->hos_em_flag = 2;
+    cmw->hos_em_flag = 1;
+}
+
+static void push_home_player_back(PLW* hmw, PLW* cmw, s16 meri) {
+    hmw->wu.xyz[0].disp.pos -= (meri) * (hmw->micchaku_flag != 2);
+    hmw->hos_em_flag = 1;
+    cmw->hos_em_flag = 2;
+}
+
+/* Whether the bonus-stage car pushed the player this frame. Returns 1 when a
+ * push happened - the helper has already applied it - and 0 when nothing
+ * touched, which is when the caller clears both flags. Each test that used to
+ * nest the next one is a guard here. */
+static s32 resolve_car_body_touch(PLW* hmw, PLW* cmw) {
     WORK* efw;
     s16* dad0;
     s16* dad1;
     s16 meri;
     s16 ix;
+
+    if (saishin_bs2_on_car(hmw)) {
+        return 0;
+    }
+
+    efw = (WORK*)cmw->wu.my_effadrs;
+    ix = (sel_hosei_tbl_ix[hmw->player_number]) + 1 + ((efw->dir_timer == 1) * 2);
+    dad0 = &hmw->wu.hosei_adrs[1].hos_box[0];
+    dad1 = &efw->hosei_adrs[ix].hos_box[0];
+
+    if (hoseishitemo_eenka(&hmw->wu, efw->xyz[0].disp.pos + (dad1[0] + dad1[1] / 2))) {
+        return 0;
+    }
+
+    meri = body_touch_overlap(hmw, efw, dad0, dad1);
+
+    if (meri == 0) {
+        return 0;
+    }
+
+    meri = meri_case_switch(meri);
+
+    if (!check_work_position_bonus(&hmw->wu, efw->xyz[0].disp.pos + (dad1[0] + dad1[1] / 2))) {
+        push_home_player_back(hmw, cmw, meri);
+        return 1;
+    }
+
+    push_home_player_forward(hmw, cmw, meri);
+    return 1;
+}
+
+void check_body_touch2() {
+    PLW* hmw;
+    PLW* cmw;
 
     if (plw[0].wu.operator) {
         hmw = &plw[0];
@@ -446,42 +502,12 @@ void check_body_touch2() {
         cmw = &plw[0];
     }
 
-    if (!saishin_bs2_on_car(hmw)) {
-        efw = (WORK*)cmw->wu.my_effadrs;
-        ix = (sel_hosei_tbl_ix[hmw->player_number]) + 1 + ((efw->dir_timer == 1) * 2);
-        dad0 = &hmw->wu.hosei_adrs[1].hos_box[0];
-        dad1 = &efw->hosei_adrs[ix].hos_box[0];
-
-        if (!hoseishitemo_eenka(&hmw->wu, efw->xyz[0].disp.pos + (dad1[0] + dad1[1] / 2))) {
-            meri = body_touch_overlap(hmw, efw, dad0, dad1);
-
-            if (meri != 0) {
-                meri = meri_case_switch(meri);
-
-                if (!check_work_position_bonus(&hmw->wu, efw->xyz[0].disp.pos + (dad1[0] + dad1[1] / 2))) {
-                    goto two;
-                } else {
-                    goto one;
-                }
-            }
-        }
+    if (resolve_car_body_touch(hmw, cmw)) {
+        return;
     }
 
     hmw->hos_em_flag = 0;
     cmw->hos_em_flag = 0;
-    return;
-
-one:
-    hmw->wu.xyz[0].disp.pos += (meri) * (hmw->micchaku_flag != 1);
-    hmw->hos_em_flag = 2;
-    cmw->hos_em_flag = 1;
-    return;
-
-two:
-    hmw->wu.xyz[0].disp.pos -= (meri) * (hmw->micchaku_flag != 2);
-    hmw->hos_em_flag = 1;
-    cmw->hos_em_flag = 2;
-    return;
 }
 
 s32 check_be_car_object() {
@@ -572,46 +598,64 @@ s16 check_work_position_bonus(WORK* hm, s16 tx) { // 🟢
     return num;
 }
 
-s32 set_field_hosei_flag(PLW* pl, s16 pos, s16 ix) { // 🟢
-    s16 hami;
+/* Sticking to the right-hand limit. Returns 1 when the player is against it -
+ * the flags are already set - and 0 when they are clear of it. */
+static s32 stick_to_right_limit(PLW* pl, s16 pos) {
+    s16 hami = pl->wu.xyz[0].disp.pos + satse[pl->player_number] - pos;
 
-    while (1) {
-        if (ix) {
-            hami = pl->wu.xyz[0].disp.pos + satse[pl->player_number] - pos;
-
-            if (hami) {
-                if (hami >= 0) {
-                    pl->wu.xyz[0].disp.pos -= hami;
-                    pl->micchaku_flag = 1;
-                    pl->hos_fi_flag = 1;
-                    pl->hosei_amari = -hami;
-                } else {
-                    break;
-                }
-            } else {
-                pl->micchaku_flag = 1;
-                pl->hos_fi_flag = 0;
-                pl->hosei_amari = 0;
-            }
+    if (hami) {
+        if (hami >= 0) {
+            pl->wu.xyz[0].disp.pos -= hami;
+            pl->micchaku_flag = 1;
+            pl->hos_fi_flag = 1;
+            pl->hosei_amari = -hami;
         } else {
-            hami = pl->wu.xyz[0].disp.pos - satse[pl->player_number] - pos;
-
-            if (hami) {
-                if (hami <= 0) {
-                    pl->wu.xyz[0].disp.pos -= hami;
-                    pl->micchaku_flag = 2;
-                    pl->hos_fi_flag = 2;
-                    pl->hosei_amari = -hami;
-                } else {
-                    break;
-                }
-            } else {
-                pl->micchaku_flag = 2;
-                pl->hos_fi_flag = 0;
-                pl->hosei_amari = 0;
-            }
+            return 0;
         }
+    } else {
+        pl->micchaku_flag = 1;
+        pl->hos_fi_flag = 0;
+        pl->hosei_amari = 0;
+    }
 
+    return 1;
+}
+
+/* The left-hand limit. It differs in the sign of the satse offset, in the
+ * direction of the comparison, and in the flag values - three differences, and
+ * one of them a comparison operator, so the two stay apart. */
+static s32 stick_to_left_limit(PLW* pl, s16 pos) {
+    s16 hami = pl->wu.xyz[0].disp.pos - satse[pl->player_number] - pos;
+
+    if (hami) {
+        if (hami <= 0) {
+            pl->wu.xyz[0].disp.pos -= hami;
+            pl->micchaku_flag = 2;
+            pl->hos_fi_flag = 2;
+            pl->hosei_amari = -hami;
+        } else {
+            return 0;
+        }
+    } else {
+        pl->micchaku_flag = 2;
+        pl->hos_fi_flag = 0;
+        pl->hosei_amari = 0;
+    }
+
+    return 1;
+}
+
+/* Which limit applies, and whether the player is against it. */
+static s32 player_is_against_limit(PLW* pl, s16 pos, s16 ix) {
+    if (ix) {
+        return stick_to_right_limit(pl, pos);
+    }
+
+    return stick_to_left_limit(pl, pos);
+}
+
+s32 set_field_hosei_flag(PLW* pl, s16 pos, s16 ix) { // 🟢
+    if (player_is_against_limit(pl, pos, ix)) {
         return 0;
     }
 

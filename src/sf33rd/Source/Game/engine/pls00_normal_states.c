@@ -20,6 +20,33 @@
 #include "sf33rd/Source/Game/system/sysdir.h"
 #include "sf33rd/Source/Game/engine/pls00_internal.h"
 
+/* The end-of-animation marker sends the state back to standing. Three states
+ * wrote this out; the 0/1 protocol is Recipe C's for a run that ends in a
+ * return. */
+static s32 animation_ended_to_nm_01000(PLW* wk) {
+    if (wk->wu.cg_type == 0xFF) {
+        TO_nm_01000(&wk->wu);
+        return 1;
+    }
+
+    return 0;
+}
+
+/* The same marker, for the three states that fall back to crouching instead. */
+static s32 animation_ended_to_nm_09000(PLW* wk) {
+    if (wk->wu.cg_type == 0xFF) {
+        TO_nm_09000(&wk->wu);
+        return 1;
+    }
+
+    return 0;
+}
+
+/* Nothing runs on the frame a state is entered. Five states open with this. */
+static s32 state_not_started(const PLW* wk) {
+    return wk->wu.routine_no[3] == 0;
+}
+
 void nm_27_cg_type_check(PLW* wk);
 static bool run_common_nm_attack_checks(PLW* wk);
 
@@ -142,8 +169,7 @@ static bool run_common_nm_attack_checks_no_turn(PLW* wk) {
 }
 
 void nm_02000(PLW* wk) { // 🟡
-    if (wk->wu.cg_type == 0xFF) {
-        TO_nm_01000(&wk->wu);
+    if (animation_ended_to_nm_01000(wk)) {
         return;
     }
 
@@ -192,8 +218,7 @@ void nm_05000(PLW* wk) { // 🟢
 }
 
 void nm_07000(PLW* wk) { // 🟡
-    if (wk->wu.cg_type == 0xFF) {
-        TO_nm_01000(&wk->wu);
+    if (animation_ended_to_nm_01000(wk)) {
         return;
     }
 
@@ -213,8 +238,7 @@ void nm_07000(PLW* wk) { // 🟡
 }
 
 void nm_08000(PLW* wk) { // 🟡
-    if (wk->wu.cg_type == 0xFF) {
-        TO_nm_09000(&wk->wu);
+    if (animation_ended_to_nm_09000(wk)) {
         return;
     }
 
@@ -261,8 +285,7 @@ void nm_09000(PLW* wk) { // 🟡
 }
 
 void nm_10000(PLW* wk) { // 🟡
-    if (wk->wu.cg_type == 0xFF) {
-        TO_nm_09000(&wk->wu);
+    if (animation_ended_to_nm_09000(wk)) {
         return;
     }
 
@@ -312,7 +335,7 @@ static void enter_jump_from_16000(PLW* wk) {
 void nm_16000(PLW* wk) { // 🟢
     set_new_jpdir(wk);
 
-    if (wk->wu.routine_no[3] == 0) {
+    if (state_not_started(wk)) {
         return;
     }
 
@@ -364,7 +387,7 @@ static void enter_jump_from_17000(PLW* wk) {
 void nm_17000(PLW* wk) { // 🟢 The only difference is DIP switch handling
     set_new_jpdir(wk);
 
-    if (wk->wu.routine_no[3] == 0) {
+    if (state_not_started(wk)) {
         return;
     }
 
@@ -484,6 +507,20 @@ static void handle_jump_defense_state(PLW* wk) {
     check_cg_cancel_data(wk);
 }
 
+/* Clearing the guard and handing over to the jump attack, which two arms do
+ * together. */
+static void enter_jump_attack_state(PLW* wk) {
+    reset_guard_for_new_state(wk);
+    handle_jump_attack_state(wk);
+}
+
+/* The same for the jump defense. */
+static void enter_jump_defense_state(PLW* wk) {
+    reset_guard_for_new_state(wk);
+    handle_jump_defense_state(wk);
+}
+
+
 static bool run_forward_jump_checks(PLW* wk) {
     if (run_early_attack_checks(wk)) {
         return true;
@@ -557,13 +594,11 @@ static void jumping_cg_type_low_pat(PLW* wk) {
         break;
 
     case 2:
-        reset_guard_for_new_state(wk);
-        handle_jump_attack_state(wk);
+        enter_jump_attack_state(wk);
         break;
 
     case 7:
-        reset_guard_for_new_state(wk);
-        handle_jump_defense_state(wk);
+        enter_jump_defense_state(wk);
         break;
 
     case 3:
@@ -595,13 +630,11 @@ static void jumping_cg_type_high_pat(PLW* wk) {
         break;
 
     case 2:
-        reset_guard_for_new_state(wk);
-        handle_jump_attack_state(wk);
+        enter_jump_attack_state(wk);
         break;
 
     case 7:
-        reset_guard_for_new_state(wk);
-        handle_jump_defense_state(wk);
+        enter_jump_defense_state(wk);
         break;
 
     case 3:
@@ -651,8 +684,7 @@ static bool run_common_nm_attack_checks(PLW* wk) {
 }
 
 void nm_27000(PLW* wk) { // 🟡
-    if (wk->wu.cg_type == 0xFF) {
-        TO_nm_01000(&wk->wu);
+    if (animation_ended_to_nm_01000(wk)) {
         return;
     }
 
@@ -690,7 +722,7 @@ static void rewind_script_if_not_defending(PLW* wk) {
 }
 
 void nm_27_cg_type_check(PLW* wk) { // 🟢
-    if (wk->wu.routine_no[3] == 0) {
+    if (state_not_started(wk)) {
         return;
     }
 
@@ -721,8 +753,7 @@ void nm_27_cg_type_check(PLW* wk) { // 🟢
 }
 
 void nm_29000(PLW* wk) { // 🟡
-    if (wk->wu.cg_type == 0xFF) {
-        TO_nm_09000(&wk->wu);
+    if (animation_ended_to_nm_09000(wk)) {
         return;
     }
 
@@ -768,7 +799,7 @@ static void try_any_attack(PLW* wk) {
 }
 
 void nm_31000(PLW* wk) { // 🟢
-    if (wk->wu.routine_no[3] == 0) {
+    if (state_not_started(wk)) {
         return;
     }
 
@@ -788,7 +819,7 @@ void nm_31000(PLW* wk) { // 🟢
 }
 
 void nm_34000(PLW* wk) { // 🟢
-    if (wk->wu.routine_no[3] == 0) {
+    if (state_not_started(wk)) {
         return;
     }
 

@@ -13,7 +13,7 @@
 #include "sf33rd/Source/Game/system/work_sys.h"
 
 // Rows are Menu_Page - 1: the logged-out page has no items of its own.
-s8* Netplay_Letter_Data[2][4][2] = {
+const char* Netplay_Letter_Data[2][4][2] = {
     {
         {
             "",
@@ -52,7 +52,7 @@ s8* Netplay_Letter_Data[2][4][2] = {
     },
 };
 
-s8* Netplay_Title_Data[2][4] = {
+const char* Netplay_Title_Data[2][4] = {
     {
         "FIND MATCH/..................",
         "LOGOUT ACCOUNT/..............",
@@ -127,13 +127,13 @@ s32 effect_A4_init(s16 id, s16 letter_type, s16 cursor_index, s16 master_player)
 void Setup_Letter_A4(WORK_Other_CONN* ewk) {
     s16 x;
     s16 ix;
-    u8* ptr;
+    const char* ptr;
 
     if (ewk->master_id) {
-        ptr = (u8*)Netplay_Letter_Data[Menu_Page_Buff - 1][ewk->wu.char_index]
-                                      [save_w[1].extra_option.contents[Menu_Page_Buff][ewk->wu.type]];
+        ptr = Netplay_Letter_Data[Menu_Page_Buff - 1][ewk->wu.char_index]
+                                 [save_w[1].extra_option.contents[Menu_Page_Buff][ewk->wu.type]];
     } else {
-        ptr = (u8*)Netplay_Title_Data[Menu_Page_Buff - 1][ewk->wu.char_index];
+        ptr = Netplay_Title_Data[Menu_Page_Buff - 1][ewk->wu.char_index];
     }
 
     ix = 0;

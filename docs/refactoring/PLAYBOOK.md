@@ -352,6 +352,46 @@ to cope with a new case.
 **Group the scans by what they score.** Nine scans behind one helper is fine; three
 helpers of three scans each read as duplicates of one another and the score falls.
 
+**The same argument covers a table *selection*, not just a scan.** Where several arms
+choose between the same two tables the same way and differ only in which pair they name,
+one helper can take the pair:
+
+```c
+static const u16* select_waza_table(const PLW* wk, s16 kos, AsstblCharRows* arcade, AsstblCharRows* ps2) {
+    if (ArcadeBalance_IsEnabled()) {
+        return arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos];
+    }
+
+    return ps2[wk->player_number][kos];
+}
+```
+
+and each arm passes its own two by name:
+
+```c
+    wst = select_waza_table(wk, kos, asstbl_lv_2000_arcade, _asstbl_lv_2000);
+```
+
+This is two differing values, which Recipe D refuses, and it is safe for Recipe T's reason
+rather than Recipe D's: **both tables are written out verbatim at the call site, and the
+helper does nothing with them but the two subscripts it already performed.** The moment it
+tests one, picks between them on anything but the flag that was already there, or computes
+an index from a parameter, that argument is gone and this is Recipe D's forbidden case.
+
+The preconditions are Recipe T's, plus one:
+
+- The selection rule is identical in every arm - the same flag, the same subscripts on
+  each side. If one arm indexes the arcade table differently, the arms are not one family.
+- Tables of different first extent are fine and are the usual case: `[20][6][2]` and
+  `[21][6][2]` both decay to the same parameter type. **The extents that remain must be
+  named in a header**, for the reason the array-typed-parameter rule below gives - written
+  out, the `[6][2]` is two literals new to the `.c` and the guard reads the pair as a
+  substitution.
+
+Measured on `pls03.c`'s `waza_select`, whose five arms each chose between an arcade table
+and the PS2 one: **8.08 -> 8.19**, cc 20 -> 15, and five copies of the `ArcadeBalance`
+branch collapsed into one.
+
 ---
 
 ## Recipe F - Action Parameter
@@ -701,11 +741,11 @@ Recipe X both refuse to merge.
 | `eff68.c` | 9.09 | five waypoint steps differing in their timers and targets; sharing their identical runs leaves the smell unmoved |
 | `eff78.c` | 9.55 | `crow_flap` and `crow_take_off` differ in five values; splitting `crow_fuss_move` exposes it, -0.17 |
 | `grade.c` | **10.00** | *was 8.67.* The table-scan idiom below, cleared by Recipe T: the seventeen scans share one loop and each call site keeps its own table, bound and value. The last finding, `makeup_spp_frdat`, was an ordinary Recipe E |
-| `pls03.c` | 8.08 | *was 7.60.* `check_nm_attack` is cleared - Recipe E named the stance switch, Recipe F collapsed its nine arms to one line each, Recipe X split what was left. What remains is `decode_wst_data`'s twelve command encodings and `waza_select`'s five arms, which differ in two table names each; splitting either was measured at -0.04 and -0.06 |
-| `cmd_main_checks.c` | 7.50 | *was 7.12.* `check_10` and `check_12` were merged - see *Break the twin first* below - and `check_23`'s two lever windows are named (Recipe E, +0.38). What is left is `run_dash_release_states`, whose states 2 and 3 are one statement away from `check_23`'s: extracting them the same way costs 0.19 in duplication, and merging them is blocked because the twins also differ in `--` versus `-= 1`. The `check_18`/`check_19` pair differ in three places |
-| `pls00_normal_states.c` | 7.55 | *was 7.07.* Recipe C on the gauge-and-super check trio (+0.07) and Recipe E on each jump's landing choice (+0.41) cleared both Complex Methods. What is left is Code Duplication between state twins: `nm_16000`/`nm_17000` differ in three state numbers, the `nm_*` guard chains differ in their members and their order, and the low/high jump dispatches differ in three of five arms - sharing the two arms they have in common was measured flat and reverted |
+| `pls03.c` | 8.92 | *was 8.08.* Recipe T twice, Recipe E on the leap and catch tests, then two shared runs for the mean. `decode_wst_data`'s twelve encodings and `waza_select`'s eleven case labels are what remain, and neither loses a branch without renumbering states |
+| `cmd_main_checks.c` | 7.50 | The hardest file left. Its mean is 4.34 over 64 functions and needs **thirteen** more, which is far more than the duplicate web can absorb - every arm lifted joins one of three families. Sharing the runs was tried too (`load_waza_command_header`, `command_terminator_reached`) and measured flat, because the findings here are five Bumpy Roads and three Complex Methods rather than the mean alone |
+| `pls00_normal_states.c` | 8.03 | *was 7.55.* Five shared runs - the two end-of-animation markers, the entry-frame guard, and the two jump hand-overs - cleared Overall Code Complexity. What is left is a Code Duplication web between the state machines themselves, which no run reaches: sharing the two arms `jumping_cg_type_low_pat` and `jumping_cg_type_high_pat` agree on (Recipe X's variant) measured flat, and the gate chains differ in their members and their order |
 | `plpnm.c` | 7.52 | what is left of the 28-function group are state machines differing in two or more values; the two parry states keep Duff-style `case` arms that cannot be split |
-| `pls03_super_arts.c` | 7.61 | *was 7.57.* The airborne paths now reuse the named gates the grounded ones had (+0.04, +0.02), and `try_airborne_dc`'s five guards became a predicate (-0.02, Complex Method cleared, kept). The last Complex Method, `try_airborne_ex_super` at cc 11, cannot follow: naming its guards the way `grounded_ex_slot_is_blocked` is named costs **0.23**, because it makes two twin pairs at once - the two predicates, and the two `try_*_ex_super` bodies, which then differ in exactly two calls and so are out of Recipe F's reach. The halves also differ in the table each reaches into and the offset within it; splitting the airborne strength loop's firing paid +0.06, doing the same to its grounded twin cost 0.17 |
+| `pls03_super_arts.c` | 9.92 | *was 7.61.* Recipe C on the full-gauge guards and the EX strength launch, Recipe D on the super-art launch tail, Recipe F on the EX strength scan, and the airborne EX guard chain the table had previously recorded at -0.23. `try_grounded_dc_strengths`' Bumpy Road is what remains, and the direct-cancel side is a grounded/airborne mirror **at every level**: lifting its match body makes three twin pairs at once - the two `fire_*_dc`, the two `try_*_dc_strengths` and the two `try_*_dc` - and measures 9.92 -> 9.09. Breaking the outermost pair first with Recipe P on the button-group test does not change that |
 | `manage.c` | 9.92 | `Game_Manage_7_3`'s two identical test arms; clearing the bump means deleting the dead condition, which the catalogue forbids |
 | `plcnt3.c` | **10.00** | *was 9.50.* Recipe D on the two push-out requests and Recipe P on the two both-players waits, measured as a set |
 | `plmain2.c` | **10.00** | *was 9.68.* Recipe E on the bonus-game placement. Extracting the other candidate block instead measures 9.38 - it twins with `plmv_b_1010` |
@@ -722,21 +762,22 @@ Recipe X both refuse to merge.
 | `effect.c` | 9.38 | four functions whose two arms walk the same list in mirror - see the rule below |
 | `efff6.c` | 9.09 | near-miss siblings |
 | `effm2.c` | 9.53 | the two cat routines' dispatchers read as duplicates once their states are named |
-| `plcnt.c` | 9.47 | `settle_type_40000` at cc 10 and `check_combo_end` at cc 9; extracting from either costs 0.38-0.55 to the file's other guard predicates |
-| `pls02.c` | 9.31 | `set_field_hosei_flag`'s two wall sides differ in three places, and `check_body_touch2` cannot lose its fourth nesting level without adding gotos, which measured -0.29 |
+| `plcnt.c` | **10.00** | *was 9.47.* Recipe X on the victory pause and Recipe P on the hit-state pair cleared both Complex Methods and pushed the file over 1000 lines; Recipe S split the per-player setup into `plcnt_setup.c` |
+| `plcnt_setup.c` | 9.38 | split from `plcnt.c`. Recipe C took the run both super-art setups open with; `remake_sa_store_max` and `remake_sa_gauge_len` remain, differing in the table, the index, a multiplier, the clamp bounds - and in `<=` against `<`, which may never be parameterised |
+| `pls02.c` | **10.00** | *was 9.31.* Recipe R on `check_body_touch2`'s goto chain, Recipe E to lift the bonus-car block out of its nesting, then Recipe C on the latent `store_mvxy_x_from` twin - which is what finally made the wall-side split and the `while (1)` removal pay. See *An arm that ends in `break` inside a `while (1)`* for the ledger |
 | `charset_position.c` | **10.00** | *was 9.09.* Recipe F merged the two `pa` axes through the `koc` skeleton; naming `comm_ps_x`'s one-line position set (Recipe E) is what stopped it reading as a copy of `set_other_y`, and the `rv` pair fell out with it |
-| `plpdm_states.c` | 9.38 | Overall Code Complexity only, and 1036 lines with 39 functions. Recipe S split off `plpdm_states_late.c`, which made the mean reachable in principle - but see the row below: it is not reachable in practice, because of what these particular functions are |
-| `plpdm_states_late.c` | 9.38 | split from `plpdm_states.c`. **The clearest case in the campaign of two smells that cannot both be cleared.** Three extractions left the mean where it was; a fourth cleared Overall Code Complexity and immediately raised Code Duplication, because every `Damage_*` state is a four-arm dispatch whose first arm sets a launch up, and the moment that arm is a call two of them read alike. Tried on `Damage_30000` and on `Damage_31000` separately: both land on 9.38 with the smells exchanged. Left with the mean flagged and no twin, since that is the state my own changes did not create |
-| `caldir.c` | 8.81 | `cal_all_speed_data` and `cal_delta_speed` take 6 arguments each. Recipe A would clear it, but one of their 62 call sites is in `plpat00.c`, which this branch may not touch |
-| `charset.c` | 9.68 | `set_char_move_init2` takes 5 arguments; same reason - one of its 59 call sites is in `plpat00.c` |
+| `plpdm_states.c` | **10.00** | *was 9.38.* Six shared runs, no arm lifted - see *Against a twin family, share what they agree on* |
+| `plpdm_states_late.c` | **10.00** | *was 9.38.* Three shared runs and one ordinary extraction |
+| `caldir.c` | 8.81 | Two findings, both immovable from inside the engine folder. **Excess Number of Function Arguments**: `cal_all_speed_data` and `cal_delta_speed` take 6 each, and Recipe A would clear it - but their call sites are spread across the effect and animation folders, not just the engine one, so the rewrite leaves this branch's scope. (An earlier note blamed a single call site in `plpat00.c`; that was too narrow - the real count is 62 across three folders.) **Code Duplication**: three x/y mirror pairs, each differing in five field names and a callee, which no recipe reaches - see *Two mirrored arms are cheaper left together* |
+| `charset.c` | 9.68 | `set_char_move_init2` takes 5 arguments; same shape as `caldir.c` and the same reason, measured properly this time: **155** call sites, 111 of them in the effect folder and 13 in animation. Recipe A here is an effect-folder change wearing an engine-folder hat |
 | `plpat.c` | **10.00** | *was 6.15.* Five extractions and three dedups cleared every function, then Recipe S moved the jump-attack dummy-RTNM group to `plpat_ja.c` to bring the 42-function mean down |
 | `plpat_ja.c` | **10.00** | split from `plpat.c`. `get_cjdR`'s goto chain was the last Complex Method and the reason **Recipe R** exists; the nine rno-mapping arms then went behind one Recipe D helper, whose cc of 1 is what took the mean under the threshold |
 | `plpat19.c` | **10.00** | *was 7.14.* Three Recipe D/C passes over the shared flight and marker blocks, then arm extractions, then three more for the mean |
 | `plpatuni.c` | **10.00** | *was 7.37.* See *Choose which arms to extract so no two dispatchers end up bare* - the seven-extraction set scored 9.09, the same set minus two scored 10.00 |
-| `plpat09.c` | 8.36 | `set_tenguiwa` is two near-twin rock placements - three rocks from one table, five from another, with differently shaped shell guards - at cc 13, four bumps and nesting 4. Every legal way to break it was measured and every one costs: both halves extracted 8.36 -> 8.15 (twin pair), the deeper half alone 8.15 (the parent twins with the helper), Recipe G on the deeper half's guard 7.43 -> 7.24 (it *adds* a branch and a bump). Recipe D on the shared six-line placement measures flat and was reverted under rule 3. The other functions are clear |
+| `plpat09.c` | 9.92 | *was 8.36.* Sharing `set_tenguiwa`'s two rock placements (Recipe T) instead of splitting them, Recipe A on the resulting five arguments, four more functions for the mean, then one arm of `homing_target_x`. What is left is `place_tenguiwa_set`'s shell loop, whose two bumps are its `continue` guard and its body - merging them needs `<` to become `>=` |
 | `plpat17.c` | **10.00** | *was 8.17.* Recipe D on AT1's repeated markers, then all six of its arms, then the taunt's and finally Recipe P on the bonus-car test |
 | `plpat14.c` | **10.00** | *was 8.75.* Arm extractions on all four attacks; the twin AT3 exposed was closed by Recipe D on the tail the union leg and the regrab share |
-| `plpat07.c` | 9.38 | Overall Code Complexity over ten functions, and every way of clearing it trades for Code Duplication. Three five-extraction sets were measured, each clearing the mean and each landing back on 9.38: AT2 twins SA3 once both have a called arm, and `pl07_sa2_travel` twins `pl07_at1_travel` once both marker switches are lifted. A four-extraction set does not reach the mean. Left with the mean flagged and no twin, since that is the state the campaign's changes did not create |
+| `plpat07.c` | **10.00** | *was 9.38.* One shared opening changed the count of arms needed from five to four, and four could be chosen to miss the twins |
 | `plpat20.c` | **10.00** | *was 8.93.* AT1 and AT3 turned out to share two arms outright, not as near misses; after Recipe D on those, arm extractions cleared the rest |
 | `plpat06.c` | **10.00** | *was 9.11.* The run and throw marker switches are the case Recipe X's shared-arm variant was written for - see the recipe |
 | `plmain.c` | **10.00** | *was 9.38.* Three Recipe S splits, then the extractions that had measured flat before them - see *A file can be too big for its own mean* below. 1430 lines and 65 functions became 606 and 35, plus `plmain_arts.c`, `plmain_ps2_arts.c` and `plmain_vital.c`, all at 10.00 |
@@ -1280,7 +1321,22 @@ different attempts to remove it were measured:
 
 The difference is the twin. `settle_double_ko` has no sibling; the two wall sides of
 `set_field_hosei_flag` differ in three places and become a duplication group the moment
-they are separate functions. **Extract the body, keep the loop** is the move that pays.
+they are separate functions.
+
+**Then the twin was broken, and the same rewrite took the file to 10.00.** `pls02.c` held
+a *latent* pair - `setup_move_data_easy` and `read_adrs_store_mvxy`, not flagged on their
+own but counted against anything new - and once Recipe C had taken the four lines they
+share, the ledger changed completely:
+
+| Move | Before the latent twin was broken | After |
+| --- | --- | --- |
+| split the two wall sides | 9.31 -> 9.02 | 9.31 -> **9.92** |
+| then remove the `while (1)` | -0.70, twice | 9.92 -> **10.00** |
+
+So the rule is not "keep the loop". It is: **a `while (1)` whose every path returns or
+breaks is not a loop, and removing it is free - but only once the file can afford the
+functions that removing it creates.** Count the latent pairs first; if the body you are
+about to lift has a sibling, take that sibling's shared run before you lift anything.
 
 ---
 
@@ -1477,6 +1533,49 @@ So when a file is a set of sibling state machines and the finding is the mean:
    and called from every part of the file, so no cut avoids widening a `static`.
    That is forbidden outright, which made the smaller extraction set the only way
    through.
+
+---
+
+### Against a twin family, share what they agree on before you split what they do not
+
+*Choose which arms to extract so no two dispatchers end up bare* says to spend the
+mean's extractions on the machines least like their siblings. There is a better move to
+try first, and it broke three plateaus this campaign had written off.
+
+**A twin family has two kinds of material in it.** The arms are near misses - they differ
+in a state number, a table, an operator - and lifting one makes another twin. But the
+*runs inside those arms* are very often identical, character for character, across the
+whole family: an opening, a marker, a launch tail. Those cost nothing to share, because
+the helper has exactly one definition and so has nothing to twin with, and each one still
+counts in the denominator of the mean.
+
+So the order is: **Recipe C and Recipe D over the shared runs first, and only then Recipe E
+over whatever arms the mean still needs.** Every shared run you take is one fewer arm you
+have to risk.
+
+Measured on three files whose notes all said the smells could not both be cleared:
+
+| File | Was | Now | What the runs were |
+| --- | --- | --- | --- |
+| `plpdm_states_late.c` | **10.00** | *was 9.38.* Three shared runs and one ordinary extraction |
+| `plpdm_states.c` | **10.00** | *was 9.38.* Six shared runs, no arm lifted - see *Against a twin family, share what they agree on* |
+| `plpat07.c` | **10.00** | *was 9.38.* One shared opening changed the count of arms needed from five to four, and four could be chosen to miss the twins |
+
+`plpat07.c` is the clearest statement of why it works. Three separate five-extraction sets
+had been measured there, each clearing the mean and each landing back on 9.38 with a new
+duplicate pair. One shared opening changed the count needed from five to four, and four
+was few enough to take only from the machines with no close relative.
+
+**Finding the runs is mechanical.** Search the file for repeated contiguous line
+sequences - two lines up to six or so, indented, inside function bodies - and rank them by
+how many copies each has. Anything with two or more copies and no differences is a Recipe C
+candidate; anything differing in one value is Recipe D's.
+
+A caveat worth stating: where a run is shared across a **Recipe S split**, each file needs
+its own `static` copy, because widening a `static` to bridge the two is forbidden.
+`plpdm_states.c` and `plpdm_states_late.c` carry three such pairs. That is real duplication
+that the metric does not see, and it is the price of the split rather than a reason to
+avoid it.
 
 ### A file can be too big for its own mean
 

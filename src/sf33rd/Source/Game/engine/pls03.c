@@ -30,6 +30,17 @@ s32 player_is_grounded_or_on_car(const PLW* wk) {
     return ((Bonus_Game_Flag == 0x14) && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0);
 }
 
+/* Enter the attack's routine and clear the per-attack hit state. Two checks
+ * write this out identically; the third puts a cancel_timer reset in the middle
+ * of it, which is a difference, so it stays inline. */
+static void begin_attack_routine(PLW* wk) {
+    set_attack_routine_number(wk);
+    wk->wu.paring_attack_flag = 0;
+    wk->wu.meoshi_hit_flag = 0;
+    wk->wu.att_hit_ok = 0;
+    wk->wu.hf.hit_flag = 0;
+}
+
 static s32 player_is_airborne_off_car(const PLW* wk) {
     return ((Bonus_Game_Flag != 0x14) || !wk->bs2_on_car) && (wk->wu.xyz[1].disp.pos > 0);
 }
@@ -390,26 +401,39 @@ void chainex_spat_cancel_kidou(WORK* wk) { // 🔴
 /* The universal overhead's input requirement, which the DIP switch swaps
  * between a dedicated command and the default two-button input. Returns 1
  * wherever check_leap_attack returned 0. */
-static s32 leap_input_is_missing(const PLW* wk) {
-    if (wk->spmv_ng_flag2 & DIP2_UNIVERSAL_OVERHEAD_DEFAULT_INPUT_ENABLED) {
-        if (wk->cp->ca25 == 0) {
-            return 1;
-        }
+/* With the universal-overhead DIP on, the leap reads its dedicated button and
+ * refuses while any lever direction is held. */
+static s32 leap_overhead_input_is_missing(const PLW* wk) {
+    if (wk->cp->ca25 == 0) {
+        return 1;
+    }
 
-        if (wk->cp->sw_lvbt & 0xF) {
-            return 1;
-        }
-    } else {
-        if (wk->cp->waza_flag[14] == 0) {
-            return 1;
-        }
-
-        if (!(wk->cp->sw_now & 0x770)) {
-            return 1;
-        }
+    if (wk->cp->sw_lvbt & 0xF) {
+        return 1;
     }
 
     return 0;
+}
+
+/* Without it, the leap is a command and needs a button actually held. */
+static s32 leap_command_input_is_missing(const PLW* wk) {
+    if (wk->cp->waza_flag[14] == 0) {
+        return 1;
+    }
+
+    if (!(wk->cp->sw_now & 0x770)) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static s32 leap_input_is_missing(const PLW* wk) {
+    if (wk->spmv_ng_flag2 & DIP2_UNIVERSAL_OVERHEAD_DEFAULT_INPUT_ENABLED) {
+        return leap_overhead_input_is_missing(wk);
+    }
+
+    return leap_command_input_is_missing(wk);
 }
 
 s32 check_leap_attack(PLW* wk) { // 🟡
@@ -596,11 +620,7 @@ s32 check_nm_attack(PLW* wk) { // 🟡
 
     setup_comm_back(&wk->wu);
     wk->current_attack = shot_data_refresh(kos);
-    set_attack_routine_number(wk);
-    wk->wu.paring_attack_flag = 0;
-    wk->wu.meoshi_hit_flag = 0;
-    wk->wu.att_hit_ok = 0;
-    wk->wu.hf.hit_flag = 0;
+    begin_attack_routine(wk);
     wk->wu.cg_cancel &= 0xF8;
     return 1;
 }
@@ -661,11 +681,7 @@ s32 check_chouhatsu(PLW* wk) { // 🟢 Same overall but differs because of Start
     }
 
     setup_comm_back(&wk->wu);
-    set_attack_routine_number(wk);
-    wk->wu.paring_attack_flag = 0;
-    wk->wu.meoshi_hit_flag = 0;
-    wk->wu.att_hit_ok = 0;
-    wk->wu.hf.hit_flag = 0;
+    begin_attack_routine(wk);
     return 1;
 }
 
@@ -703,6 +719,12 @@ const u8 nml_catch_h2_ok[2][21] = { { 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 
 
 /* Arcade balance has a separate crouching throw, and a character may be
  * allowed one and not the other. */
+/* Bit 0x10 of the character's catch table says whether that catch exists at all;
+ * row 0 is the grounded table and row 1 the airborne one. */
+static s32 catch_is_disabled_for_character(const PLW* wk, s16 row) {
+    return !(nml_catch_h2_ok[row][CHAR_3SX_TO_ARCADE(wk->player_number)] & 0x10);
+}
+
 static s32 resolve_arcade_ground_catch(PLW* wk, s16 kos) {
     if (wk->cp->sw_lvbt & 1) {
         return 0;
@@ -721,7 +743,7 @@ static s32 resolve_arcade_ground_catch(PLW* wk, s16 kos) {
 }
 
 static s32 resolve_ground_catch_target(PLW* wk, s16 kos) {
-    if (!(nml_catch_h2_ok[0][CHAR_3SX_TO_ARCADE(wk->player_number)] & 0x10)) {
+    if (catch_is_disabled_for_character(wk, 0)) {
         return 0;
     }
 
@@ -738,7 +760,7 @@ static s32 resolve_ground_catch_target(PLW* wk, s16 kos) {
 }
 
 static s32 resolve_air_catch_target(PLW* wk, s16 kos) {
-    if (!(nml_catch_h2_ok[1][CHAR_3SX_TO_ARCADE(wk->player_number)] & 0x10)) {
+    if (catch_is_disabled_for_character(wk, 1)) {
         return 0;
     }
 
@@ -763,6 +785,16 @@ static s32 resolve_air_catch_target(PLW* wk, s16 kos) {
     return 1;
 }
 
+/* Which catch the pattern status calls for. The two resolvers are asked the same
+ * question and answer the same way, so the caller only needs the one test. */
+static s32 resolve_catch_target(PLW* wk, s16 kos) {
+    if ((wk->wu.pat_status < 0xE) || (wk->wu.pat_status > 0x1E)) {
+        return resolve_ground_catch_target(wk, kos);
+    }
+
+    return resolve_air_catch_target(wk, kos);
+}
+
 s32 check_catch_attack(PLW* wk) { // 🟡
     s16 kos;
 
@@ -782,14 +814,8 @@ s32 check_catch_attack(PLW* wk) { // 🟡
 
     kos = ((wk->cp->sw_new & 4) != 0) + (((wk->cp->sw_new & 8) != 0) * 2);
 
-    if ((wk->wu.pat_status < 0xE) || (wk->wu.pat_status > 0x1E)) {
-        if (!resolve_ground_catch_target(wk, kos)) {
-            return 0;
-        }
-    } else {
-        if (!resolve_air_catch_target(wk, kos)) {
-            return 0;
-        }
+    if (!resolve_catch_target(wk, kos)) {
+        return 0;
     }
 
     setup_comm_back(&wk->wu);
@@ -832,58 +858,50 @@ u16 get_nearing_range(s16 pnum, s16 kos) {
     return nrange;
 }
 
+/* Every arm of waza_select picks between an arcade table and the PS2 one the
+ * same way, indexing the first with the converted character number and the
+ * second with the raw one. Only the pair of tables differs, and each arm passes
+ * its own two by name. */
+static const u16* select_waza_table(const PLW* wk, s16 kos, AsstblCharRows* arcade, AsstblCharRows* ps2) {
+    if (ArcadeBalance_IsEnabled()) {
+        return arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos];
+    }
+
+    return ps2[wk->player_number][kos];
+}
+
 s32 waza_select(PLW* wk, s16 kos, s16 sf) { // 🟢
     const u16* wst;
 
     switch (sf) {
     case 0:
-        if (ArcadeBalance_IsEnabled()) {
-            wst = asstbl_lv_0000_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos];
-        } else {
-            wst = _asstbl_lv_0000[wk->player_number][kos];
-        }
+        wst = select_waza_table(wk, kos, asstbl_lv_0000_arcade, _asstbl_lv_0000);
 
         break;
 
     case 1:
-        if (ArcadeBalance_IsEnabled()) {
-            wst = asstbl_lv_1000_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos];
-        } else {
-            wst = _asstbl_lv_1000[wk->player_number][kos];
-        }
+        wst = select_waza_table(wk, kos, asstbl_lv_1000_arcade, _asstbl_lv_1000);
 
         break;
 
     case 2:
     case 5:
     case 8:
-        if (ArcadeBalance_IsEnabled()) {
-            wst = asstbl_lv_2000_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos];
-        } else {
-            wst = _asstbl_lv_2000[wk->player_number][kos];
-        }
+        wst = select_waza_table(wk, kos, asstbl_lv_2000_arcade, _asstbl_lv_2000);
 
         break;
 
     case 3:
     case 6:
     case 9:
-        if (ArcadeBalance_IsEnabled()) {
-            wst = asstbl_lv_3000_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos];
-        } else {
-            wst = _asstbl_lv_3000[wk->player_number][kos];
-        }
+        wst = select_waza_table(wk, kos, asstbl_lv_3000_arcade, _asstbl_lv_3000);
 
         break;
 
     case 4:
     case 7:
     case 10:
-        if (ArcadeBalance_IsEnabled()) {
-            wst = asstbl_lv_4000_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos];
-        } else {
-            wst = _asstbl_lv_4000[wk->player_number][kos];
-        }
+        wst = select_waza_table(wk, kos, asstbl_lv_4000_arcade, _asstbl_lv_4000);
 
         break;
 
@@ -1154,32 +1172,32 @@ const s16 cnmc_z_lever_data[16][8] = { { -1, -1, -1, -1, -1, -1, -1, -1 }, { 4, 
                                        { 1, 4, 5, 7, -1, -1, -1, -1 },     { 3, 5, 6, 9, -1, -1, -1, -1 },
                                        { 1, 4, 7, 3, 6, 9, -1, -1 },       { 1, 4, 7, 5, 3, 6, 9, -1 } };
 
-static s32 meoshi_lever_matches(const PLW* wk, s16 tdat, s16 wdat) {
+/* One row of lever data, scanned to its -1 terminator. The two meoshi tables
+ * differ in the table and in the row length; both are written out at the call
+ * site, and the row is subscripted there too, so the scan itself takes an
+ * ordinary `const s16*` and no array extent enters this file as a literal. */
+static s32 lever_row_matches(const s16* row, s16 count, s16 wdat) {
     s16 i;
 
-    if (wk->wu.cg_meoshi & 0x80) {
-        for (i = 0; i < 6; i++) {
-            if (cnmc_Z_lever_data[tdat][i] == -1) {
-                return 0;
-            }
-
-            if (wdat == cnmc_Z_lever_data[tdat][i]) {
-                return 1;
-            }
+    for (i = 0; i < count; i++) {
+        if (row[i] == -1) {
+            return 0;
         }
-    } else {
-        for (i = 0; i < 8; i++) {
-            if (cnmc_z_lever_data[tdat][i] == -1) {
-                return 0;
-            }
 
-            if (wdat == cnmc_z_lever_data[tdat][i]) {
-                return 1;
-            }
+        if (wdat == row[i]) {
+            return 1;
         }
     }
 
     return 0;
+}
+
+static s32 meoshi_lever_matches(const PLW* wk, s16 tdat, s16 wdat) {
+    if (wk->wu.cg_meoshi & 0x80) {
+        return lever_row_matches(cnmc_Z_lever_data[tdat], 6, wdat);
+    }
+
+    return lever_row_matches(cnmc_z_lever_data[tdat], 8, wdat);
 }
 
 /* Outcome of the meoshi cancel gates:

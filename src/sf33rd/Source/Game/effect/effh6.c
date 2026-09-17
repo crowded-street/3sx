@@ -127,7 +127,7 @@ static s16 select_h6_standard_character(s8 character, s16 c) {
     return chr;
 }
 
-static void populate_h6_connections(WORK_Other_CONN* ewk, s8* su, s16 Original_Color) {
+static void populate_h6_connections(WORK_Other_CONN* ewk, const char* su, s16 Original_Color) {
     s16 i;
     s16 x;
     s16 c;
@@ -135,7 +135,7 @@ static void populate_h6_connections(WORK_Other_CONN* ewk, s8* su, s16 Original_C
     ewk->wu.my_col_code = 0;
 
     for (x = 0, i = 0; *su != '\0'; i += 9, su++) {
-        if ((c = code_tab[*su]) == -1) {
+        if ((c = code_tab[(int)*su]) == -1) {
             continue;
         }
 
@@ -163,7 +163,7 @@ s32 effect_H6_init(const H6InitArgs* args) {
     WORK_Other_CONN* ewk;
     s16 x;
     s16 timer = args->timer;
-    s8* su = args->str;
+    const char* su = args->str;
     s16 X = args->x;
     s16 Y = args->y;
     s16 Original_Color = args->original_color;
