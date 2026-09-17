@@ -603,9 +603,9 @@ Recipe X both refuse to merge.
 | `plpnm.c` | 7.52 | what is left of the 28-function group are state machines differing in two or more values; the two parry states keep Duff-style `case` arms that cannot be split |
 | `pls03_super_arts.c` | 7.61 | *was 7.57.* The airborne paths now reuse the named gates the grounded ones had (+0.04, +0.02), and `try_airborne_dc`'s five guards became a predicate (-0.02, Complex Method cleared, kept). The last Complex Method, `try_airborne_ex_super` at cc 11, cannot follow: naming its guards the way `grounded_ex_slot_is_blocked` is named costs **0.23**, because it makes two twin pairs at once - the two predicates, and the two `try_*_ex_super` bodies, which then differ in exactly two calls and so are out of Recipe F's reach. The halves also differ in the table each reaches into and the offset within it; splitting the airborne strength loop's firing paid +0.06, doing the same to its grounded twin cost 0.17 |
 | `manage.c` | 9.92 | `Game_Manage_7_3`'s two identical test arms; clearing the bump means deleting the dead condition, which the catalogue forbids |
-| `plcnt3.c` | 9.50 | naming its two paired tests, or sharing its push-out request, each makes a twin of something already in the file |
-| `plmain2.c` | 9.68 | `player_mvbs_1000`'s animated arm cannot leave without making a twin of the car-rider block beside it |
-| `stun.c` | 9.53 | the blink's two phase flips read as twins of the two per-player gauge blocks |
+| `plcnt3.c` | **10.00** | *was 9.50.* Recipe D on the two push-out requests and Recipe P on the two both-players waits, measured as a set |
+| `plmain2.c` | **10.00** | *was 9.68.* Recipe E on the bonus-game placement. Extracting the other candidate block instead measures 9.38 - it twins with `plmv_b_1010` |
+| `stun.c` | **10.00** | *was 9.53.* Three extractions measured as a set (Recipe E twice, Recipe D once), then one more Recipe D for the redraw |
 | `eff93.c` | 9.38 | the two slide-outs differ only in a comparison operator, which may not be parameterised |
 | `effa2.c` | 9.34 | every state returns past a shared tail, so no state can move to a helper without a 0/1 protocol per arm |
 | `effa9.c` | 9.16 | near-miss siblings |
@@ -624,8 +624,13 @@ Recipe X both refuse to merge.
 | `plpdm_states.c` | 9.38 | Overall Code Complexity only; every further arm extraction makes a twin of an existing `begin_damage_*` and costs 0.84 |
 | `caldir.c` | 8.81 | `cal_all_speed_data` and `cal_delta_speed` take 6 arguments each. Recipe A would clear it, but one of their 62 call sites is in `plpat00.c`, which this branch may not touch |
 | `charset.c` | 9.68 | `set_char_move_init2` takes 5 arguments; same reason - one of its 59 call sites is in `plpat00.c` |
+| `plmain.c` | 9.38 | Overall Code Complexity only - the whole-file mean over **65** functions, so one extraction moves it by about 0.08 and three moved it not at all. Four measured extractions were reverted; two more tripped *Lines of Code in a Single File* and made a twin of `plmv_1010`, measuring 8.03. At 1430 lines this file wants **Recipe S** before anything else |
 | `hitplpl.c` | 8.59 | `player_at_vs_player_dm` is one `while (1)` whose arms leave through `break` and `goto two`; no arm can move to a helper without a numeric verdict protocol |
 | `cmd_main.c` | 9.39 | `latch_sw_lvbt_bit_0x80` and `_0x800` differ only in their four case labels and two masks; splitting each in two trades their Complex Method for a Code Duplication pair at no net gain |
+| `cmb_win.c` | **10.00** | *was 9.92.* Recipe F: two of the three passes over the players differed only in what they called |
+| `plpdm.c` | **10.00** | *was 9.61.* Recipe X on the rumble suppression list, then Recipe E on the death conversion |
+| `bbbscom.c` | **10.00** | *was 9.38.* Overall Code Complexity only, and two Recipe E extractions cleared it - the file has 15 functions, so the mean moves at once. Compare `plmain.c` above, where 65 functions make the same move worthless |
+| `manage_result.c` | **10.00** | *was 9.38.* One Recipe D on `BGM_Control`'s two waits, for the same reason |
 
 ---
 
