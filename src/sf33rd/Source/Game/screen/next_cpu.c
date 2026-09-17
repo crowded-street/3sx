@@ -207,6 +207,15 @@ static void Select_Next_CPU_Character() {
     S_Timer = 100;
 }
 
+/* Tick the scene timer and, when it runs out, move to the next scene from its top. */
+static void Advance_Scene_On_Timeout() {
+    if ((S_Timer -= 1) == 0) {
+        SC_No[0]++;
+        SC_No[1] = 0;
+        SC_No[2] = 0;
+    }
+}
+
 void Next_CPU_3rd() {
     switch (SC_No[1]) {
     case 0:
@@ -225,11 +234,7 @@ void Next_CPU_3rd() {
             break;
         }
 
-        if ((S_Timer -= 1) == 0) {
-            SC_No[0]++;
-            SC_No[1] = 0;
-            SC_No[2] = 0;
-        }
+        Advance_Scene_On_Timeout();
 
         break;
 
@@ -264,11 +269,7 @@ void Next_CPU_3rd() {
             break;
         }
 
-        if ((S_Timer -= 1) == 0) {
-            SC_No[0]++;
-            SC_No[1] = 0;
-            SC_No[2] = 0;
-        }
+        Advance_Scene_On_Timeout();
 
         break;
     }
@@ -820,11 +821,7 @@ void Select_CPU_3rd() {
             break;
         }
 
-        if ((S_Timer -= 1) == 0) {
-            SC_No[0]++;
-            SC_No[1] = 0;
-            SC_No[2] = 0;
-        }
+        Advance_Scene_On_Timeout();
 
         break;
     }
@@ -889,11 +886,7 @@ void Next_Bonus_2nd() {
             break;
         }
 
-        if ((S_Timer -= 1) == 0) {
-            SC_No[0]++;
-            SC_No[1] = 0;
-            SC_No[2] = 0;
-        }
+        Advance_Scene_On_Timeout();
 
         break;
     }
