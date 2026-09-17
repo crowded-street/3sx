@@ -435,44 +435,47 @@ void Handicap_Vital_Select(s16 PL_id) {
     Handicap_Vital_Move_Sub(IO_Result, PL_id);
 }
 
+/* One notch more vitality handicap, up to the maximum. The click only plays when the
+ * setting actually moved. */
+static void Raise_Vital_Handicap(s16 PL_id) {
+    if ((Vital_Handicap[Present_Mode][PL_id] += 1) > 7) {
+        Vital_Handicap[Present_Mode][PL_id] = 7;
+    } else {
+        SE_dir_cursor_move();
+    }
+}
+
+/* One notch less, down to none. */
+static void Lower_Vital_Handicap(s16 PL_id) {
+    if ((Vital_Handicap[Present_Mode][PL_id] -= 1) < 0) {
+        Vital_Handicap[Present_Mode][PL_id] = 0;
+    } else {
+        SE_dir_cursor_move();
+    }
+}
+
 u16 Handicap_Vital_Move_Sub(u16 sw, s16 PL_id) {
     if (PL_id == 0) {
         switch (sw) {
         case SWK_LEFT:
-            if ((Vital_Handicap[Present_Mode][PL_id] += 1) > 7) {
-                Vital_Handicap[Present_Mode][PL_id] = 7;
-            } else {
-                SE_dir_cursor_move();
-            }
+            Raise_Vital_Handicap(PL_id);
 
             return SWK_LEFT;
 
         case SWK_RIGHT:
-            if ((Vital_Handicap[Present_Mode][PL_id] -= 1) < 0) {
-                Vital_Handicap[Present_Mode][PL_id] = 0;
-            } else {
-                SE_dir_cursor_move();
-            }
+            Lower_Vital_Handicap(PL_id);
 
             return SWK_RIGHT;
         }
     } else {
         switch (sw) {
         case SWK_LEFT:
-            if ((Vital_Handicap[Present_Mode][PL_id] -= 1) < 0) {
-                Vital_Handicap[Present_Mode][PL_id] = 0;
-            } else {
-                SE_dir_cursor_move();
-            }
+            Lower_Vital_Handicap(PL_id);
 
             return SWK_LEFT;
 
         case SWK_RIGHT:
-            if ((Vital_Handicap[Present_Mode][PL_id] += 1) > 7) {
-                Vital_Handicap[Present_Mode][PL_id] = 7;
-            } else {
-                SE_dir_cursor_move();
-            }
+            Raise_Vital_Handicap(PL_id);
 
             return SWK_RIGHT;
         }
