@@ -262,19 +262,25 @@ static void Reset_To_Game_Screen() {
     E_No[3] = 0;
 }
 
+/* Both screens wait out the same timer before covering up, and retry a frame at a
+ * time while a break-in load is still pending. */
+static void Await_Break_In_Load() {
+    if (--E_Timer == 0) {
+        if (!Check_LDREQ_Break()) {
+            E_No[2] += 1;
+            Switch_Screen_Init(1);
+            return;
+        }
+
+        E_Timer = 1;
+        return;
+    }
+}
+
 void Entry_03_2nd() {
     switch (E_No[2]) {
     case 0:
-        if (--E_Timer == 0) {
-            if (!Check_LDREQ_Break()) {
-                E_No[2] += 1;
-                Switch_Screen_Init(1);
-                return;
-            }
-
-            E_Timer = 1;
-            return;
-        }
+        Await_Break_In_Load();
 
         break;
 
@@ -314,16 +320,7 @@ void Entry_04_1st() {
 void Entry_04_2nd() {
     switch (E_No[2]) {
     case 0:
-        if (--E_Timer == 0) {
-            if (!Check_LDREQ_Break()) {
-                E_No[2] += 1;
-                Switch_Screen_Init(1);
-                return;
-            }
-
-            E_Timer = 1;
-            return;
-        }
+        Await_Break_In_Load();
 
         break;
 
