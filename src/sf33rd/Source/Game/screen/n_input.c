@@ -112,6 +112,18 @@ void Name_Scs_Input_init() {
     Scs_char_move();
 }
 
+/* Give up on the rest of the name: pad it out with blanks and move to the end state.
+ * Run both when the clock runs out and when the player picks END. */
+static void Fill_Name_With_Blanks() {
+    s16 i;
+
+    name_ptr->r_no_0 = 6;
+
+    for (i = name_ptr->index; i < 4; i++) {
+        name_ptr->code[i] = 44;
+    }
+}
+
 void Name_Scs_Input_comm() {
     s16 work;
     s16 i;
@@ -120,11 +132,7 @@ void Name_Scs_Input_comm() {
     name_limit_timer[name_ptr->id]--;
 
     if (name_limit_timer[name_ptr->id] < 0 || name_ptr->timer < 0) {
-        name_ptr->r_no_0 = 6;
-
-        for (i = name_ptr->index; i < 4; i++) {
-            name_ptr->code[i] = 44;
-        }
+        Fill_Name_With_Blanks();
     } else {
         work = Name_Input_sub();
 
@@ -167,11 +175,7 @@ void Name_Scs_Input_comm() {
             break;
 
         case 3:
-            name_ptr->r_no_0 = 6;
-
-            for (i = name_ptr->index; i < 4; i++) {
-                name_ptr->code[i] = 44;
-            }
+            Fill_Name_With_Blanks();
             break;
         }
     }
