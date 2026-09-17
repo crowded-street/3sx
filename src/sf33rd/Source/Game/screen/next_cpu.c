@@ -394,6 +394,46 @@ static void Setup_Boss_VS_Screen() {
     effect_76_init(68);
 }
 
+/* Sub-state 6: when the hold runs out, fade the boss intro in and start its music. */
+static void Start_Boss_Intro() {
+    if (!(S_Timer -= 1)) {
+        FadeInit();
+        FadeIn(0, 4, 8);
+        SC_No[1]++;
+        Forbid_Break = 0;
+        Suicide[3] = 1;
+        effect_43_init(1, 0);
+        BGM_Request(0x33);
+        S_Timer = 0xb2;
+    }
+}
+
+/* Sub-state 7: run the fade to completion, then mark this boss as introduced. */
+static void Finish_Boss_Intro() {
+    S_Timer--;
+
+    if (FadeIn(0, 4, 8)) {
+        SC_No[1]++;
+
+        if (S_Timer < 0) {
+            S_Timer = 1;
+        }
+
+        Introduce_Boss[Player_id][VS_Index[Player_id] - 8] |= 1;
+    }
+}
+
+/* The tail: a cut shortens the hold, and the scene ends when it runs out. */
+static void Leave_Boss_Intro() {
+    if (Scene_Cut) {
+        S_Timer = 1;
+    }
+
+    if ((S_Timer -= 1) == 0) {
+        SC_No[0] = 10;
+    }
+}
+
 void Next_CPU_5th() {
     switch (SC_No[1]) {
     case 0:
@@ -441,42 +481,17 @@ void Next_CPU_5th() {
         break;
 
     case 6:
-        if (!(S_Timer -= 1)) {
-            FadeInit();
-            FadeIn(0, 4, 8);
-            SC_No[1]++;
-            Forbid_Break = 0;
-            Suicide[3] = 1;
-            effect_43_init(1, 0);
-            BGM_Request(0x33);
-            S_Timer = 0xb2;
-        }
+        Start_Boss_Intro();
 
         break;
 
     case 7:
-        S_Timer--;
-
-        if (FadeIn(0, 4, 8)) {
-            SC_No[1]++;
-
-            if (S_Timer < 0) {
-                S_Timer = 1;
-            }
-
-            Introduce_Boss[Player_id][VS_Index[Player_id] - 8] |= 1;
-        }
+        Finish_Boss_Intro();
 
         break;
 
     default:
-        if (Scene_Cut) {
-            S_Timer = 1;
-        }
-
-        if ((S_Timer -= 1) == 0) {
-            SC_No[0] = 10;
-        }
+        Leave_Boss_Intro();
 
         break;
     }
