@@ -1346,11 +1346,21 @@ void Break_Into_05(s16 PL_id) {
     cpExitTask(TASK_PAUSE);
 }
 
-void Break_Into_07(s16 PL_id) {
+/* The opening all three break-in paths share: register this entrant, and report
+ * whether that was the second one - in which case the caller does nothing more. */
+static s32 Register_Break_In_Both_Ready(s16 PL_id) {
     Clear_New_Challenger_Entry();
     E_07_Flag[PL_id] = 1;
 
     if (E_07_Flag[0] != 0 && E_07_Flag[1] != 0) {
+        return 1;
+    }
+
+    return 0;
+}
+
+void Break_Into_07(s16 PL_id) {
+    if (Register_Break_In_Both_Ready(PL_id)) {
         return;
     }
 
@@ -1360,10 +1370,7 @@ void Break_Into_07(s16 PL_id) {
 }
 
 void Break_Into_08(s16 PL_id) {
-    Clear_New_Challenger_Entry();
-    E_07_Flag[PL_id] = 1;
-
-    if (E_07_Flag[0] != 0 && E_07_Flag[1] != 0) {
+    if (Register_Break_In_Both_Ready(PL_id)) {
         return;
     }
 
@@ -1382,10 +1389,7 @@ void Break_Into_08(s16 PL_id) {
 /* Break_Into_09 and Break_Into_10 were byte-identical: the challenger takes the
  * champion's seat once both entrants are not still waiting. */
 static void Break_In_As_Champion(s16 PL_id) {
-    Clear_New_Challenger_Entry();
-    E_07_Flag[PL_id] = 1;
-
-    if (E_07_Flag[0] != 0 && E_07_Flag[1] != 0) {
+    if (Register_Break_In_Both_Ready(PL_id)) {
         return;
     }
 
