@@ -234,12 +234,22 @@ static s32 try_airborne_ex_super(PLW* wk, u8 slot_ix, s8 always) {
     return 0;
 }
 
-s32 check_full_gauge_attack(PLW* wk, s8 always) {
+/* Neither full-gauge attack can start unless the meter is exactly full and the
+ * debug pause is off. Both wrote these two guards out identically. */
+static s32 full_gauge_attack_is_blocked(const PLW* wk) {
     if (wk->sa->mp != 1) {
-        return 0;
+        return 1;
     }
 
     if (pcon_dp_flag) {
+        return 1;
+    }
+
+    return 0;
+}
+
+s32 check_full_gauge_attack(PLW* wk, s8 always) {
+    if (full_gauge_attack_is_blocked(wk)) {
         return 0;
     }
 
@@ -251,11 +261,7 @@ s32 check_full_gauge_attack(PLW* wk, s8 always) {
 }
 
 s32 check_full_gauge_attack2(PLW* wk, s8 always) {
-    if (wk->sa->mp != 1) {
-        return 0;
-    }
-
-    if (pcon_dp_flag) {
+    if (full_gauge_attack_is_blocked(wk)) {
         return 0;
     }
 
