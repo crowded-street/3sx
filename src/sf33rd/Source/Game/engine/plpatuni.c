@@ -28,6 +28,21 @@ static void begin_uni_attack(PLW* wk) {
 
 void Att_DUMMY(PLW* /* unused */) {}
 
+/* The wait ends the frame the 30 marker stops arriving, and the launch speed is
+ * set up for the union. */
+static void metamor_wait_launch(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type != 30) {
+        wk->wu.routine_no[3] = 3;
+        wk->wu.mvxy.a[0].sp = 0;
+        wk->wu.mvxy.a[1].sp = 0;
+        wk->wu.mvxy.d[0].sp = 0;
+        wk->wu.mvxy.d[1].sp = -0x8000;
+        wk->wu.mvxy.kop[0] = wk->wu.mvxy.kop[1] = 0;
+    }
+}
+
 void Att_METAMOR_WAIT(PLW* wk) {
     wk->scr_pos_set_flag = 0;
 
@@ -42,17 +57,7 @@ void Att_METAMOR_WAIT(PLW* wk) {
         break;
 
     case 2:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type != 30) {
-            wk->wu.routine_no[3] = 3;
-            wk->wu.mvxy.a[0].sp = 0;
-            wk->wu.mvxy.a[1].sp = 0;
-            wk->wu.mvxy.d[0].sp = 0;
-            wk->wu.mvxy.d[1].sp = -0x8000;
-            wk->wu.mvxy.kop[0] = wk->wu.mvxy.kop[1] = 0;
-        }
-
+        metamor_wait_launch(wk);
         break;
 
     case 3:
@@ -170,6 +175,34 @@ void Att_NM_OKIAGARI(PLW* wk) {
     }
 }
 
+/* The rise, driven by three markers: the next row, an added row, and the 30 that
+ * hands over to the union at state 3. The 30 arm has no break in the original
+ * and none is added - it is the last arm. */
+static void shouryuuken_rise(PLW* wk) {
+    char_move(&wk->wu);
+    add_mvxy_speed(&wk->wu);
+    cal_mvxy_speed(&wk->wu);
+
+    switch (wk->wu.cg_type) {
+    case 20:
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+        break;
+
+    case 25:
+        add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+        break;
+
+    case 30:
+        setup_mvxy_data(&wk->wu, wk->as->data_ix);
+        wk->wu.routine_no[3] = 3;
+        wk->wu.cg_type = 0;
+    }
+}
+
 void Att_SHOURYUUKEN(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -179,29 +212,7 @@ void Att_SHOURYUUKEN(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-        add_mvxy_speed(&wk->wu);
-        cal_mvxy_speed(&wk->wu);
-
-        switch (wk->wu.cg_type) {
-        case 20:
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-            break;
-
-        case 25:
-            add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-            break;
-
-        case 30:
-            setup_mvxy_data(&wk->wu, wk->as->data_ix);
-            wk->wu.routine_no[3] = 3;
-            wk->wu.cg_type = 0;
-        }
-
+        shouryuuken_rise(wk);
         break;
 
     case 3:
@@ -214,6 +225,28 @@ void Att_SHOURYUUKEN(PLW* wk) {
     }
 }
 
+/* The launch: marker 20 loads the first row and hands over to the union. */
+static void senpuukyaku_spin_up(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 20) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.routine_no[3]++;
+        wk->wu.cg_type = 0;
+        add_mvxy_speed(&wk->wu);
+    }
+}
+
+/* While airborne, marker 20 adds to the current row rather than replacing it. */
+static void senpuukyaku_union_step(PLW* wk) {
+    if (wk->wu.routine_no[3] != 3 && wk->wu.cg_type == 20) {
+        add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+    }
+}
+
 void Att_SENPUUKYAKU(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -223,27 +256,12 @@ void Att_SENPUUKYAKU(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 20) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.routine_no[3]++;
-            wk->wu.cg_type = 0;
-            add_mvxy_speed(&wk->wu);
-        }
-
+        senpuukyaku_spin_up(wk);
         break;
 
     case 2:
         jumping_union_process(&wk->wu, 3);
-
-        if (wk->wu.routine_no[3] != 3 && wk->wu.cg_type == 20) {
-            add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-        }
-
+        senpuukyaku_union_step(wk);
         break;
 
     case 3:
@@ -433,6 +451,24 @@ void Att_SHINSHOURYUUKEN(PLW* wk) {
     }
 }
 
+/* The airborne markers. The 30 arm returned out of Att_KUUCHUUNICHIRINSHOU
+ * outright; here it returns out of the helper and the caller's `break` follows,
+ * which reaches the same place because nothing ran after that switch. */
+static void nichirinshou_markers(PLW* wk) {
+    if (wk->wu.routine_no[3] != 2) {
+        if (wk->wu.cg_type == 20) {
+            add_to_mvxy_data(&wk->wu, wk->as->data_ix);
+            wk->wu.cg_type = 0;
+        }
+
+        if (wk->wu.cg_type == 30) {
+            add_to_mvxy_data(&wk->wu, wk->as->r_no);
+            wk->wu.cg_type = 0;
+            return;
+        }
+    }
+}
+
 void Att_KUUCHUUNICHIRINSHOU(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -443,19 +479,7 @@ void Att_KUUCHUUNICHIRINSHOU(PLW* wk) {
     case 1:
         jumping_union_process(&wk->wu, 2);
 
-        if (wk->wu.routine_no[3] != 2) {
-            if (wk->wu.cg_type == 20) {
-                add_to_mvxy_data(&wk->wu, wk->as->data_ix);
-                wk->wu.cg_type = 0;
-            }
-
-            if (wk->wu.cg_type == 30) {
-                add_to_mvxy_data(&wk->wu, wk->as->r_no);
-                wk->wu.cg_type = 0;
-                return;
-            }
-        }
-
+        nichirinshou_markers(wk);
         break;
 
     case 2:
@@ -736,6 +760,35 @@ void Att_SLIDE_and_JUMP(PLW* wk) {
     }
 }
 
+/* Airborne: marker 20 feeds the next row, marker 1 drops back to the ground
+ * state instead of stepping the union. That arm's `break` left the switch with
+ * nothing after it. */
+static void jinnchuu_airborne(PLW* wk) {
+    if (wk->wu.cg_type == 20) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.cg_type = 0;
+        wk->wu.mvxy.index++;
+    }
+
+    if (wk->wu.cg_type == 1) {
+        wk->wu.cg_type = 0;
+        wk->wu.routine_no[3] = 3;
+        return;
+    }
+
+    jumping_union_process(&wk->wu, 3);
+}
+
+/* Grounded: marker 1 sends it back into the air. */
+static void jinnchuu_grounded(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 1) {
+        wk->wu.cg_type = 0;
+        wk->wu.routine_no[3] = 2;
+    }
+}
+
 void Att_JINNCHUUWATARI(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -749,29 +802,11 @@ void Att_JINNCHUUWATARI(PLW* wk) {
         break;
 
     case 2:
-        if (wk->wu.cg_type == 20) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.cg_type = 0;
-            wk->wu.mvxy.index++;
-        }
-
-        if (wk->wu.cg_type == 1) {
-            wk->wu.cg_type = 0;
-            wk->wu.routine_no[3] = 3;
-            break;
-        }
-
-        jumping_union_process(&wk->wu, 3);
+        jinnchuu_airborne(wk);
         break;
 
     case 3:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 1) {
-            wk->wu.cg_type = 0;
-            wk->wu.routine_no[3] = 2;
-        }
-
+        jinnchuu_grounded(wk);
         break;
     }
 }
