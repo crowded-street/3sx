@@ -161,6 +161,20 @@ void Next_CPU_2nd() {
 
 /* Sub-state 0: run the character select until both sides are settled, queue the
  * fighters, and set the pause before the VS screen. */
+#if DEBUG
+/* The debug character override, applied on both sides of building the fighter
+ * queue - four copies of the same two tests. */
+static void Apply_Character_Overrides() {
+    if (debug_config.character_override[0]) {
+        My_char[0] = debug_config.character_override[0] - 1;
+    }
+
+    if (debug_config.character_override[1]) {
+        My_char[1] = debug_config.character_override[1] - 1;
+    }
+}
+#endif
+
 static void Select_Next_CPU_Character() {
     if (Player_id) {
         Sel_CPU_Sub(1, ~p2sw_1 & p2sw_0, p2sw_0);
@@ -176,26 +190,14 @@ static void Select_Next_CPU_Character() {
     SC_No[2] = 0;
 
 #if DEBUG
-    if (debug_config.character_override[0]) {
-        My_char[0] = debug_config.character_override[0] - 1;
-    }
-
-    if (debug_config.character_override[1]) {
-        My_char[1] = debug_config.character_override[1] - 1;
-    }
+    Apply_Character_Overrides();
 #endif
 
     Push_LDREQ_Queue_Player(COM_id, My_char[COM_id]);
     Setup_Next_Fighter();
 
 #if DEBUG
-    if (debug_config.character_override[0]) {
-        My_char[0] = debug_config.character_override[0] - 1;
-    }
-
-    if (debug_config.character_override[1]) {
-        My_char[1] = debug_config.character_override[1] - 1;
-    }
+    Apply_Character_Overrides();
 #endif
 
     if (VS_Index[Player_id] < 8) {
@@ -694,26 +696,14 @@ void Select_CPU_3rd() {
         SC_No[1]++;
 
 #if DEBUG
-        if (debug_config.character_override[0]) {
-            My_char[0] = debug_config.character_override[0] - 1;
-        }
-
-        if (debug_config.character_override[1]) {
-            My_char[1] = debug_config.character_override[1] - 1;
-        }
+        Apply_Character_Overrides();
 #endif
 
         Push_LDREQ_Queue_Player(COM_id, My_char[COM_id]);
         Setup_Next_Fighter();
 
 #if DEBUG
-        if (debug_config.character_override[0]) {
-            My_char[0] = debug_config.character_override[0] - 1;
-        }
-
-        if (debug_config.character_override[1]) {
-            My_char[1] = debug_config.character_override[1] - 1;
-        }
+        Apply_Character_Overrides();
 #endif
 
         if (VS_Index[Player_id] < 8) {
