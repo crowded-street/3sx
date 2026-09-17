@@ -139,6 +139,21 @@ static void run_bbbs_late_stage_step(PLW* wk) {
 }
 
 /* One step of the bonus stage's own state machine. */
+/* The pause between barrels, and the frame the script cues the release on. */
+static void wait_before_throw(PLW* wk) {
+    if (--wk->wu.dir_timer < 1) {
+        Bonus_Stage_RNO[1] = 2;
+    }
+}
+
+static void release_barrel_on_cue(PLW* wk) {
+    if (wk->wu.cg_type == 20) {
+        wk->wu.cg_type = 0;
+        setup_effI8(wk, &bbbs_table[bbbs_type][Bonus_Stage_Level][Bonus_Stage_Tix]);
+        Bonus_Stage_RNO[1] = 4;
+    }
+}
+
 static void run_bbbs_stage_step(PLW* wk) {
     switch (Bonus_Stage_RNO[1]) {
     case 0:
@@ -146,10 +161,7 @@ static void run_bbbs_stage_step(PLW* wk) {
         break;
 
     case 1:
-        if (--wk->wu.dir_timer < 1) {
-            Bonus_Stage_RNO[1] = 2;
-        }
-
+        wait_before_throw(wk);
         break;
 
     case 2:
@@ -157,12 +169,7 @@ static void run_bbbs_stage_step(PLW* wk) {
         break;
 
     case 3:
-        if (wk->wu.cg_type == 20) {
-            wk->wu.cg_type = 0;
-            setup_effI8(wk, &bbbs_table[bbbs_type][Bonus_Stage_Level][Bonus_Stage_Tix]);
-            Bonus_Stage_RNO[1] = 4;
-        }
-
+        release_barrel_on_cue(wk);
         break;
 
     default:
