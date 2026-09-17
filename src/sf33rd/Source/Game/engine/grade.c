@@ -293,27 +293,14 @@ static s16 grade_table_points(const GradeRow* table, s32 count, s32 value) {
 
 /* What the two bonus stages are worth, each skipped when it was not played. */
 static s16 bonus_stage_grade_points(s16 ix, s16 pt) {
-    s16 i;
     s16 tt = 0;
 
     if (judge_final[ix][pt].vs_cpu_grade[13] != -1) {
-        for (i = 0; i < 3; i++) {
-            if (judge_final[ix][pt].vs_cpu_grade[13] < grade_t_f_bss_ball[i + 1][0]) {
-                break;
-            }
-        }
-
-        tt += grade_t_f_bss_ball[i][1];
+        tt += grade_table_points(grade_t_f_bss_ball, 3, judge_final[ix][pt].vs_cpu_grade[13]);
     }
 
     if (judge_final[ix][pt].vs_cpu_grade[14] != -1) {
-        for (i = 0; i < 3; i++) {
-            if (judge_final[ix][pt].vs_cpu_grade[14] < grade_t_f_bss_car[i + 1][0]) {
-                break;
-            }
-        }
-
-        tt += grade_t_f_bss_car[i][1];
+        tt += grade_table_points(grade_t_f_bss_car, 3, judge_final[ix][pt].vs_cpu_grade[14]);
     }
 
     return tt;
