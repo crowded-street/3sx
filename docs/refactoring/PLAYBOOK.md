@@ -437,6 +437,16 @@ Recipe X both refuse to merge.
 | `pls02.c` | 9.31 | `set_field_hosei_flag`'s two wall sides differ in three places, and `check_body_touch2` cannot lose its fourth nesting level without adding gotos, which measured -0.29 |
 | `charset_position.c` | 9.09 | four opcodes share a `koc` dispatch skeleton and differ only in the action each arm performs; the only way to merge them is a function-pointer parameter, which the catalogue does not have |
 | `plpdm_states.c` | 9.38 | Overall Code Complexity only; every further arm extraction makes a twin of an existing `begin_damage_*` and costs 0.84 |
+| `caldir.c` | 8.81 | `cal_all_speed_data` and `cal_delta_speed` take 6 arguments each. Recipe A would clear it, but one of their 62 call sites is in `plpat00.c`, which this branch may not touch |
+| `charset.c` | 9.68 | `set_char_move_init2` takes 5 arguments; same reason - one of its 59 call sites is in `plpat00.c` |
+| `hitplpl.c` | 8.59 | `player_at_vs_player_dm` is one `while (1)` whose arms leave through `break` and `goto two`; no arm can move to a helper without a numeric verdict protocol |
+| `cmd_main.c` | 9.39 | `latch_sw_lvbt_bit_0x80` and `_0x800` differ only in their four case labels and two masks; splitting each in two trades their Complex Method for a Code Duplication pair at no net gain |
+| `grade.c` | 6.87 | the table-scan idiom below. Every remaining Complex Method is a run of scans that differ in three values - the table, its length and the value scanned |
+| `cmd_main_checks.c` | 7.12 | `check_23` and the `check_18`/`check_19` pair; splitting any of them trades Complex Method for Code Duplication |
+| `pls00_normal_states.c` | 7.07 | `nm_16000`/`nm_17000` differ in three state numbers, and the `nm_*` guard chains differ in their members and their order |
+| `plpnm.c` | 7.38 | what is left of the 28-function group are state machines differing in two or more values |
+| `pls03.c` | 7.60 | `decode_wst_data`'s twelve encodings and `waza_select`'s five table pairs; splitting either measured -0.04 and -0.06 |
+| `pls03_super_arts.c` | 7.45 | the grounded and airborne halves differ in the table each reaches into and the offset within it |
 
 ---
 
@@ -968,3 +978,85 @@ different attempts to remove it were measured:
 The difference is the twin. `settle_double_ko` has no sibling; the two wall sides of
 `set_field_hosei_flag` differ in three places and become a duplication group the moment
 they are separate functions. **Extract the body, keep the loop** is the move that pays.
+
+---
+
+### Break the twin first, then split the survivor
+
+`cmd_main_checks.c` held two dash commands, `check_10` and `check_12`, that
+CodeScene reported as a duplication pair and that were both Complex Methods at
+cc 18 and 19. Splitting either one alone had been the obvious move; splitting
+both was the obvious trap. What actually worked was a sequence:
+
+1. **Recipe X on one of them.** States 2 and up of `check_10` moved behind
+   `default:` into a helper. +0.28, and `check_10` left the duplication group -
+   it no longer looks like its twin.
+2. **Then read the twin again.** With `check_10` reshaped, `check_12`'s states
+   2, 3 and 4 turned out to be byte-for-byte identical to the helper that had
+   just been extracted. It became a **Recipe D** call to the same helper, not a
+   second split. +0.36, fifty duplicated lines gone, and `check_12` left the
+   group too.
+
+The lesson generalises: when two functions are reported as a duplication pair
+and both are too complex, do not split them symmetrically. Split one, then
+re-read the other against the helper that came out. Often the second function
+can *call* the first's helper, which is a merge rather than a second split -
+and a merge never creates a new twin.
+
+### The guard's literal fingerprint blocks array-typed parameters
+
+Recipe D on a family of table scans wants a parameter of array type:
+
+```c
+static s16 sa_stock_points(s16 ix, const s16 table[][2]);
+```
+
+That `2` is a literal new to the file. Against the literals the merge removes -
+four `0`s, four `1`s and two `5`s from the three loops it collapses -
+`refactor_guard.py` reads the combination as *a constant was substituted* and
+**FAILs**. The refactor is legal; the fingerprint cannot tell it from a
+substitution.
+
+The fix is to name the row type in a header:
+
+```c
+/* grade.h */
+typedef const s16 GradeRow[2];
+```
+
+and write the parameter as `const GradeRow* table`. The `.c` file then gains no
+literal at all and the guard reads the expected deduplication signature; the
+header's own run is the legal "literals added, none removed". This is not a way
+around the guard - the transformation is the same one either way - it is a way
+to write the type where types belong so the fingerprint stays readable.
+
+### The table-scan idiom, measured
+
+`grade.c` is built from this shape, seventeen times:
+
+```c
+    for (i = 0; i < N; i++) {
+        if (VALUE < TABLE[i + 1][0]) {
+            break;
+        }
+    }
+
+    point += TABLE[i][1];
+```
+
+Three things differ between instances: the table, its length, and the value
+scanned. That is more than one, so **Recipe D does not apply**, and a
+`grade_table_points(table, count, value)` helper - which is what the code
+obviously wants - is outside the catalogue.
+
+What is legal, and what took the file from 5.52 to 6.87:
+
+- **Group the scans by what they score**, not one function per scan. Nine scans
+  in one helper is fine; three helpers of three scans each read as duplicates of
+  one another and cost 0.09.
+- **Recipe D still applies where only the table differs.** The super-art score
+  scanned the same length with the same value from three tables; that is one
+  difference and it merged.
+- **Extract the non-scan work.** The ratio calculations in `get_offence_total`
+  and `get_defence_total`, and the all-clear bonus in `makeup_final_grade`, are
+  ordinary Recipe E extractions and were worth 0.20, 0.15 and 0.11.
