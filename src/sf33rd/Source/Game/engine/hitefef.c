@@ -9,14 +9,11 @@
 #include "sf33rd/Source/Game/engine/hitcheck.h"
 #include "sf33rd/Source/Game/engine/pow_pow.h"
 
-void effect_at_vs_effect_dm(s16 ix2, s16 ix) {
-    WORK_Other* as = (WORK_Other*)q_hit_push[ix2];
-    WORK_Other* ds = (WORK_Other*)q_hit_push[ix];
-
-    ds->wu.dm_rl = as->wu.rl_flag;
-    as->wu.dm_rl = ds->wu.rl_flag;
-    cal_hit_mark_pos(&as->wu, &ds->wu, ix2, ix);
-
+/* How much the two effects take off each other. Two shells trade fixed
+ * damage, and one of them may be reflected; a shell against the one work that
+ * has its own health trades what each of them has left; the two special ids
+ * go through the normal damage calculation; anything else takes a flat hit. */
+static void apply_effect_vs_effect_damage(WORK_Other* as, WORK_Other* ds) {
     if (ds->wu.att.dipsw & 2) {
         if (as->wu.att.dipsw & 2) {
             ds->wu.dm_vital = 128;
@@ -31,7 +28,11 @@ void effect_at_vs_effect_dm(s16 ix2, s16 ix) {
                 as->wu.att_hit_ok = 1;
             }
         }
-    } else if (ds->wu.id == 13) {
+
+        return;
+    }
+
+    if (ds->wu.id == 13) {
         switch (as->wu.work_id) {
         case 4:
             ds->wu.dm_vital = as->wu.vital_new;
@@ -50,12 +51,28 @@ void effect_at_vs_effect_dm(s16 ix2, s16 ix) {
         default:
             break;
         }
-    } else if (ds->wu.id == 122 || ds->wu.id == 123) {
+
+        return;
+    }
+
+    if (ds->wu.id == 122 || ds->wu.id == 123) {
         cal_damage_vitality((PLW*)as, (PLW*)ds);
         as->wu.dm_vital = 256;
-    } else {
-        ds->wu.dm_vital = 256;
+        return;
     }
+
+    ds->wu.dm_vital = 256;
+}
+
+void effect_at_vs_effect_dm(s16 ix2, s16 ix) {
+    WORK_Other* as = (WORK_Other*)q_hit_push[ix2];
+    WORK_Other* ds = (WORK_Other*)q_hit_push[ix];
+
+    ds->wu.dm_rl = as->wu.rl_flag;
+    as->wu.dm_rl = ds->wu.rl_flag;
+    cal_hit_mark_pos(&as->wu, &ds->wu, ix2, ix);
+
+    apply_effect_vs_effect_damage(as, ds);
 
     if (ds->wu.xyz[1].disp.pos > 0) {
         as->wu.hf.hit.effect = 2;
