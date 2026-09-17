@@ -979,6 +979,24 @@ s16 get_tech_pts_total(s16 ix) {
     return point;
 }
 
+/* The guard-blocking appeal, kept apart from the other two so neither half is
+ * a long run of scans. */
+static s16 guard_appeal_points(s16 ix) {
+    s16 i;
+
+    if (judge_item[ix][Play_Type].app_grd_block == -1) {
+        return 0;
+    }
+
+    for (i = 0; i < 6; i++) {
+        if (judge_item[ix][Play_Type].app_grd_block < grade_t_app_grdblock[i + 1][0]) {
+            break;
+        }
+    }
+
+    return grade_t_app_grdblock[i][1];
+}
+
 /* The three blocking-appeal bonuses. Each is skipped when its counter was
  * never set. */
 static s16 appeal_block_points(s16 ix) {
@@ -1005,15 +1023,7 @@ static s16 appeal_block_points(s16 ix) {
         point += grade_t_app_rpdblock[i][1];
     }
 
-    if (judge_item[ix][Play_Type].app_grd_block != -1) {
-        for (i = 0; i < 6; i++) {
-            if (judge_item[ix][Play_Type].app_grd_block < grade_t_app_grdblock[i + 1][0]) {
-                break;
-            }
-        }
-
-        point += grade_t_app_grdblock[i][1];
-    }
+    point += guard_appeal_points(ix);
 
 
     return point;
