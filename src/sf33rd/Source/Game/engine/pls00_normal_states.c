@@ -51,9 +51,9 @@ void nm_01000(PLW* wk) { // 🟡
     check_F_R_walk(wk);
 }
 
-/* The six attacks every path tries first, in this order: both full-gauge
- * attacks, the super art, the special, the taunt and the throw. */
-static bool run_attack_checks_before_leap(PLW* wk) {
+/* The three checks every attack path tries first: both full-gauge attacks and
+ * the super art. */
+static bool run_gauge_attack_checks(PLW* wk) {
     if (check_full_gauge_attack(wk, 0)) {
         return true;
     }
@@ -63,6 +63,16 @@ static bool run_attack_checks_before_leap(PLW* wk) {
     }
 
     if (check_super_arts_attack(wk)) {
+        return true;
+    }
+
+    return false;
+}
+
+/* The six attacks every path tries first, in this order: both full-gauge
+ * attacks, the super art, the special, the taunt and the throw. */
+static bool run_attack_checks_before_leap(PLW* wk) {
+    if (run_gauge_attack_checks(wk)) {
         return true;
     }
 
@@ -309,15 +319,7 @@ void nm_16000(PLW* wk) { // 🟢
         break;
     }
 
-    if (check_full_gauge_attack(wk, 0)) {
-        return;
-    }
-
-    if (check_full_gauge_attack2(wk, 0)) {
-        return;
-    }
-
-    if (check_super_arts_attack(wk)) {
+    if (run_gauge_attack_checks(wk)) {
         return;
     }
 
@@ -360,15 +362,7 @@ void nm_17000(PLW* wk) { // 🟢 The only difference is DIP switch handling
         return;
     }
 
-    if (check_full_gauge_attack(wk, 0)) {
-        return;
-    }
-
-    if (check_full_gauge_attack2(wk, 0)) {
-        return;
-    }
-
-    if (check_super_arts_attack(wk)) {
+    if (run_gauge_attack_checks(wk)) {
         return;
     }
 
@@ -943,15 +937,7 @@ void nm_51000(PLW* /* unused */) { // 🟢
 }
 
 void nm_52000(PLW* wk) { // 🟢
-    if (check_full_gauge_attack(wk, 0)) {
-        return;
-    }
-
-    if (check_full_gauge_attack2(wk, 0)) {
-        return;
-    }
-
-    if (check_super_arts_attack(wk)) {
+    if (run_gauge_attack_checks(wk)) {
         return;
     }
 
