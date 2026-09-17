@@ -603,7 +603,23 @@ static u32 queued_record_score(s8 PL, s8 PLS, s8 KIND, u32 score) {
     return score;
 }
 
-static void queue_combo_record(s8 PL, s8 PLS, s8 KIND, u32 score, s8 stock_capacity) {
+/* The five values queue_combo_record is driven by. The field order is the
+ * parameter order it used to take, and the types are the same. */
+typedef struct {
+    s8 PL;
+    s8 PLS;
+    s8 KIND;
+    u32 score;
+    s8 stock_capacity;
+} ComboRecordArgs;
+
+static void queue_combo_record(const ComboRecordArgs* args) {
+    s8 PL = args->PL;
+    s8 PLS = args->PLS;
+    s8 KIND = args->KIND;
+    u32 score = args->score;
+    s8 stock_capacity = args->stock_capacity;
+
     cmb_stock[PL]++;
     cmst_buff[PL][cst_write[PL]].routine_num = 0;
     cmst_buff[PL][cst_write[PL]].hit_hi = (u8)hit_num / 10;
@@ -652,7 +668,7 @@ void combo_window_push(s8 PL, s8 KIND) { // 🟡
         return;
     }
 
-    queue_combo_record(PL, PLS, KIND, score, stock_capacity);
+    queue_combo_record(&(ComboRecordArgs){ PL, PLS, KIND, score, stock_capacity });
 }
 
 /* Animating one queued combo record that shows a score: the message slides in,
