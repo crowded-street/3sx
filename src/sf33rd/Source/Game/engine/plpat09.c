@@ -234,6 +234,19 @@ void Att_PL09_TOKUSHUKOUDOU(PLW* wk) {
     }
 }
 
+/* The grounded frames: marker 1 sends the move back into the air, to state 2 on
+ * the first pass and state 3 afterwards. Case 3 is the mirror of this and is
+ * deliberately left inline - extracting it too would make a twin pair, and one
+ * extraction already takes the caller under the threshold. */
+static void jinnchuu_ex_grounded(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 1) {
+        wk->wu.cg_type = 0;
+        wk->wu.routine_no[3] = (wk->wu.routine_no[1] == 0) ? 2 : 3;
+    }
+}
+
 void Att_JINNCHUUWATARI_EX(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -266,13 +279,7 @@ void Att_JINNCHUUWATARI_EX(PLW* wk) {
         break;
 
     case 4:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 1) {
-            wk->wu.cg_type = 0;
-            wk->wu.routine_no[3] = (wk->wu.routine_no[1] == 0) ? 2 : 3;
-        }
-
+        jinnchuu_ex_grounded(wk);
         break;
     }
 }
