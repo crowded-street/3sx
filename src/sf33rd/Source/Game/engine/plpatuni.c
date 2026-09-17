@@ -340,6 +340,17 @@ void Att_ABISEGERI(PLW* wk) {
     }
 }
 
+/* Marker 20 takes the next movement row and hands the move to state 2. Four arms
+ * across Att_SHOURYUUREPPA and Att_SLIDE_and_JUMP wrote this identically. */
+static void take_row_and_enter_state_2(PLW* wk) {
+    if (wk->wu.cg_type == 20) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.routine_no[3] = 2;
+        wk->wu.cg_type = 0;
+    }
+}
+
 /* Marker 30 drops the move into its falling state. Both the rising arm and the
  * union arm of Att_SHOURYUUREPPA wrote this identically. */
 static void shouryuureppa_enter_fall(PLW* wk) {
@@ -355,12 +366,7 @@ static void shouryuureppa_enter_fall(PLW* wk) {
 static void shouryuureppa_rise(PLW* wk) {
     char_move(&wk->wu);
 
-    if (wk->wu.cg_type == 20) {
-        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-        wk->wu.mvxy.index++;
-        wk->wu.routine_no[3] = 2;
-        wk->wu.cg_type = 0;
-    }
+    take_row_and_enter_state_2(wk);
 
     shouryuureppa_enter_fall(wk);
 
@@ -411,12 +417,7 @@ void Att_SHINSHOURYUUKEN(PLW* wk) {
     case 1:
         char_move(&wk->wu);
 
-        if (wk->wu.cg_type == 20) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.routine_no[3] = 2;
-            wk->wu.cg_type = 0;
-        }
+        take_row_and_enter_state_2(wk);
 
         break;
 
@@ -672,12 +673,7 @@ void Att_SLIDE_and_JUMP(PLW* wk) {
     case 1:
         char_move(&wk->wu);
 
-        if (wk->wu.cg_type == 20) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.routine_no[3] = 2;
-            wk->wu.cg_type = 0;
-        }
+        take_row_and_enter_state_2(wk);
 
         if (wk->wu.cg_type == 30) {
             setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
@@ -709,12 +705,7 @@ void Att_SLIDE_and_JUMP(PLW* wk) {
         cal_mvxy_speed(&wk->wu);
         add_mvxy_speed(&wk->wu);
 
-        if (wk->wu.cg_type == 20) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.routine_no[3] = 2;
-            wk->wu.cg_type = 0;
-        }
+        take_row_and_enter_state_2(wk);
 
         if (wk->wu.cg_type == 21) {
             reset_mvxy_data(&wk->wu);
