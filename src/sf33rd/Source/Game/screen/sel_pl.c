@@ -1297,6 +1297,20 @@ void Sel_PL_Sub_CD(s16 PL_id) {
     } while (!permission_player[Present_Mode].ok[Face_Cursor_Data[Cursor_Y[PL_id]][Cursor_X[PL_id]]]);
 }
 
+/* Arm the auto-repeat for one lever direction, and report whether it fired - the
+ * four directions differed only in the lever bit and the cursor code. */
+static s32 Begin_Auto_Repeat(s16 PL_id, u16 sw, u16 direction_bit, s8 cursor) {
+    if (sw & direction_bit) {
+        Auto_No[PL_id] = 1;
+        Auto_Cursor[PL_id] = cursor;
+        Auto_Timer[PL_id] = Repeat_Time_Data[0];
+        Auto_Index[PL_id] = 1;
+        return 1;
+    }
+
+    return 0;
+}
+
 void Auto_Repeat_Sub(s16 PL_id) {
     u16 sw;
 
@@ -1318,36 +1332,19 @@ void Auto_Repeat_Sub(s16 PL_id) {
 
     switch (Auto_No[PL_id]) {
     case 0:
-        if (sw & SWK_RIGHT) {
-            Auto_No[PL_id] = 1;
-            Auto_Cursor[PL_id] = 8;
-            Auto_Timer[PL_id] = Repeat_Time_Data[0];
-            Auto_Index[PL_id] = 1;
+        if (Begin_Auto_Repeat(PL_id, sw, SWK_RIGHT, 8)) {
             break;
         }
 
-        if (sw & SWK_LEFT) {
-            Auto_No[PL_id] = 1;
-            Auto_Cursor[PL_id] = 4;
-            Auto_Timer[PL_id] = Repeat_Time_Data[0];
-            Auto_Index[PL_id] = 1;
+        if (Begin_Auto_Repeat(PL_id, sw, SWK_LEFT, 4)) {
             break;
         }
 
-        if (sw & SWK_UP) {
-            Auto_No[PL_id] = 1;
-            Auto_Cursor[PL_id] = 1;
-            Auto_Timer[PL_id] = Repeat_Time_Data[0];
-            Auto_Index[PL_id] = 1;
+        if (Begin_Auto_Repeat(PL_id, sw, SWK_UP, 1)) {
             break;
         }
 
-        if (sw & SWK_DOWN) {
-            Auto_No[PL_id] = 1;
-            Auto_Cursor[PL_id] = 2;
-            Auto_Timer[PL_id] = Repeat_Time_Data[0];
-            Auto_Index[PL_id] = 1;
-        }
+        Begin_Auto_Repeat(PL_id, sw, SWK_DOWN, 2);
 
         break;
 
