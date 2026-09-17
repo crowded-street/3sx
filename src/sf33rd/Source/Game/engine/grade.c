@@ -849,27 +849,14 @@ static s16 guard_appeal_points(s16 ix) {
 /* The three blocking-appeal bonuses. Each is skipped when its counter was
  * never set. */
 static s16 appeal_block_points(s16 ix) {
-    s16 i;
     s16 point = 0;
 
     if (judge_item[ix][Play_Type].app_nml_block != -1) {
-        for (i = 0; i < 6; i++) {
-            if (judge_item[ix][Play_Type].app_nml_block < grade_t_app_nmlblock[i + 1][0]) {
-                break;
-            }
-        }
-
-        point += grade_t_app_nmlblock[i][1];
+        point += grade_table_points(grade_t_app_nmlblock, 6, judge_item[ix][Play_Type].app_nml_block);
     }
 
     if (judge_item[ix][Play_Type].app_rpd_block != -1) {
-        for (i = 0; i < 6; i++) {
-            if (judge_item[ix][Play_Type].app_rpd_block < grade_t_app_rpdblock[i + 1][0]) {
-                break;
-            }
-        }
-
-        point += grade_t_app_rpdblock[i][1];
+        point += grade_table_points(grade_t_app_rpdblock, 6, judge_item[ix][Play_Type].app_rpd_block);
     }
 
     point += guard_appeal_points(ix);
