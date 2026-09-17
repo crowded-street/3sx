@@ -124,6 +124,25 @@ s16 Select_Player() {
     return SEL_PL_X;
 }
 
+/* Entering training: reset the training work and hand the idle pad the other
+ * player's switches, so both sides read the same stick. */
+static void Enter_Training_Mode() {
+    S_No[3]++;
+    Default_Training_Data(0);
+    Record_Data_Tr = 0;
+    Training_Disp_Work_Clear();
+    Menu_Cursor_X[0] = 0;
+    Training_Cursor = 0;
+
+    if (Champion) {
+        p1sw_0 = p2sw_0;
+        p1sw_1 = p2sw_0;
+    } else {
+        p2sw_0 = p1sw_0;
+        p2sw_1 = p1sw_0;
+    }
+}
+
 void Switch_Work() {
     if (Mode_Type != MODE_NORMAL_TRAINING && Mode_Type != MODE_PARRY_TRAINING) {
         return;
@@ -140,20 +159,7 @@ void Switch_Work() {
         break;
 
     case 1:
-        S_No[3]++;
-        Default_Training_Data(0);
-        Record_Data_Tr = 0;
-        Training_Disp_Work_Clear();
-        Menu_Cursor_X[0] = 0;
-        Training_Cursor = 0;
-
-        if (Champion) {
-            p1sw_0 = p2sw_0;
-            p1sw_1 = p2sw_0;
-        } else {
-            p2sw_0 = p1sw_0;
-            p2sw_1 = p1sw_0;
-        }
+        Enter_Training_Mode();
 
         break;
 
