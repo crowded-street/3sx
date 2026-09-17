@@ -104,73 +104,58 @@ void Att_SP_YAGYOUDAMA(PLW* wk) {
     }
 }
 
-s32 set_tenguiwa(PLW* wk, u8 data) {
+/* Spawning one tenguiwa set: the rocks themselves, then the shells the player
+ * owns are walked and the first few given their positions from the set's table.
+ *
+ * The stand-by set and the EX set differed in four things - which stand-by row
+ * the rocks come from, how many rocks, which position table, and which slot is
+ * the last - and every one of them is written out at its own call site and only
+ * counted or indexed here. That is Recipe T's case.
+ *
+ * The two shell guards were written differently, `continue` on one side and a
+ * nested `if` on the other. They are the same loop; this is the `continue`
+ * form. */
+static void place_tenguiwa_set(PLW* wk, const u8* tengu, s16 rock_count, TenguiwaPosRow* pos, s16 last_slot) {
     s16 i;
     s16 j;
     u16 num;
-    const u8* tengu;
     WORK* tmw;
 
-    if (!data) {
-        tengu = tenguiwa_stand_by[0];
-
-        for (i = 0; i < 3; i++) {
-            effect_13_init(&wk->wu, tengu[random_16() & 7]);
-        }
-
-        for (j = 0, i = 0; i < 8; i++) {
-            if (!get_my_shell_ix(&wk->wu, i, &tmw)) {
-                continue;
-            }
-
-            num = tmw->type - 24;
-
-            if (num < 36) {
-                tmw->old_pos[0] = tenguiwa_pos_hosei[j][0];
-                tmw->old_pos[1] = tenguiwa_pos_hosei[j][1];
-                tmw->old_pos[2] = tenguiwa_pos_hosei[j][2];
-                tmw->scr_mv_x = tenguiwa_pos_hosei[j][3];
-                tmw->scr_mv_y = tenguiwa_pos_hosei[j][4];
-                tmw->direction = tenguiwa_pos_hosei[j][5];
-
-                j++;
-
-                if (j > 2) {
-                    break;
-                }
-            }
-        }
-
-        return 0;
-    }
-
-    tengu = tenguiwa_stand_by[1];
-
-    for (i = 0; i < 5; i++) {
+    for (i = 0; i < rock_count; i++) {
         effect_13_init(&wk->wu, tengu[random_16() & 7]);
     }
 
     for (j = 0, i = 0; i < 8; i++) {
-        if (get_my_shell_ix(&wk->wu, i, &tmw)) {
-            num = tmw->type - 24;
+        if (!get_my_shell_ix(&wk->wu, i, &tmw)) {
+            continue;
+        }
 
-            if (num < 36) {
-                tmw->old_pos[0] = tenguiwa_pos_hosei2[j][0];
-                tmw->old_pos[1] = tenguiwa_pos_hosei2[j][1];
-                tmw->old_pos[2] = tenguiwa_pos_hosei2[j][2];
-                tmw->scr_mv_x = tenguiwa_pos_hosei2[j][3];
-                tmw->scr_mv_y = tenguiwa_pos_hosei2[j][4];
-                tmw->direction = tenguiwa_pos_hosei2[j][5];
+        num = tmw->type - 24;
 
-                j++;
+        if (num < 36) {
+            tmw->old_pos[0] = pos[j][0];
+            tmw->old_pos[1] = pos[j][1];
+            tmw->old_pos[2] = pos[j][2];
+            tmw->scr_mv_x = pos[j][3];
+            tmw->scr_mv_y = pos[j][4];
+            tmw->direction = pos[j][5];
 
-                if (j > 4) {
-                    break;
-                }
+            j++;
+
+            if (j > last_slot) {
+                break;
             }
         }
     }
+}
 
+s32 set_tenguiwa(PLW* wk, u8 data) {
+    if (!data) {
+        place_tenguiwa_set(wk, tenguiwa_stand_by[0], 3, tenguiwa_pos_hosei, 2);
+        return 0;
+    }
+
+    place_tenguiwa_set(wk, tenguiwa_stand_by[1], 5, tenguiwa_pos_hosei2, 4);
     return 0;
 }
 
