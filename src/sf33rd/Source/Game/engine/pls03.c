@@ -483,9 +483,41 @@ static void select_nm_attack_level_4010(PLW* wk, s16 kos, s16 level) {
     }
 }
 
+/* The standing and crouching attacks, which are chosen from a different pair
+ * of tables depending on whether the lever is down. Returns 0 when the player
+ * is in the air and no attack is chosen at all. */
+static s32 select_standing_nm_attack(PLW* wk, s16 kos) {
+    s16 koa;
+
+    if (player_is_airborne_off_car(wk)) {
+        return 0;
+    }
+
+    if (wk->cp->sw_lvbt & 2) {
+        koa = waza_select(wk, kos, 1);
+
+        if (ArcadeBalance_IsEnabled()) {
+            wk->as = &asstbl_lv_1010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
+        } else {
+            wk->as = &_asstbl_lv_1010[wk->player_number][kos][koa];
+        }
+
+        return 1;
+    }
+
+    koa = waza_select(wk, kos, 0);
+
+    if (ArcadeBalance_IsEnabled()) {
+        wk->as = &asstbl_lv_0010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
+    } else {
+        wk->as = &_asstbl_lv_0010[wk->player_number][kos][koa];
+    }
+
+    return 1;
+}
+
 s32 check_nm_attack(PLW* wk) { // 🟡
     s16 kos;
-    s16 koa;
 
     wk->permited_koa |= 4;
 
@@ -567,26 +599,8 @@ s32 check_nm_attack(PLW* wk) { // 🟡
         break;
 
     default:
-        if (player_is_airborne_off_car(wk)) {
+        if (!select_standing_nm_attack(wk, kos)) {
             return 0;
-        }
-
-        if (wk->cp->sw_lvbt & 2) {
-            koa = waza_select(wk, kos, 1);
-
-            if (ArcadeBalance_IsEnabled()) {
-                wk->as = &asstbl_lv_1010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
-            } else {
-                wk->as = &_asstbl_lv_1010[wk->player_number][kos][koa];
-            }
-        } else {
-            koa = waza_select(wk, kos, 0);
-
-            if (ArcadeBalance_IsEnabled()) {
-                wk->as = &asstbl_lv_0010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos][koa];
-            } else {
-                wk->as = &_asstbl_lv_0010[wk->player_number][kos][koa];
-            }
         }
 
         break;
