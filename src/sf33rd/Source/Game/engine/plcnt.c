@@ -1663,6 +1663,11 @@ static s16 combo_end_from_guard(s16 ix) {
     return 1;
 }
 
+/* routine_no[1] of 1 or 3 is the pair of states a combo can still run through. */
+static s32 player_is_not_in_a_hit_state(s16 ix) {
+    return plw[ix].wu.routine_no[1] != 1 && plw[ix].wu.routine_no[1] != 3;
+}
+
 s16 check_combo_end(s16 ix) { // 🟢
     s16 rnum;
 
@@ -1686,7 +1691,7 @@ s16 check_combo_end(s16 ix) { // 🟢
         return 0;
     }
 
-    if (plw[ix].wu.routine_no[1] != 1 && plw[ix].wu.routine_no[1] != 3) {
+    if (player_is_not_in_a_hit_state(ix)) {
         return 0;
     }
 
