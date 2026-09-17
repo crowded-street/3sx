@@ -346,9 +346,21 @@ void define_name_input() {
     name_ptr->code[2] = 12;
 }
 
+/* Of the places this player took, the best one - the lowest position number. */
+static s16 Best_Rank_Slot(s16 joui) {
+    s16 j;
+
+    for (j = joui + 1; j < 4; j++) {
+        if (Rank_In[name_ptr->id][j] >= 0 && Rank_In[name_ptr->id][joui] > Rank_In[name_ptr->id][j]) {
+            joui = j;
+        }
+    }
+
+    return joui;
+}
+
 void ranking_state_check() {
     s16 joui;
-    s16 j;
 
     name_ptr->rank = -1;
 
@@ -358,11 +370,7 @@ void ranking_state_check() {
         }
     }
 
-    for (j = joui + 1; j < 4; j++) {
-        if (Rank_In[name_ptr->id][j] >= 0 && Rank_In[name_ptr->id][joui] > Rank_In[name_ptr->id][j]) {
-            joui = j;
-        }
-    }
+    joui = Best_Rank_Slot(joui);
 
     name_ptr->rank_in = name_ptr->rank = Rank_In[name_ptr->id][joui];
     name_ptr->rank_status = name_ptr->status = rank_stage_tbl[joui];
