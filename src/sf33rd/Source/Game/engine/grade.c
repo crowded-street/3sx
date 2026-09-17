@@ -795,15 +795,7 @@ static s16 tech_pts_items(s16 ix) {
 /* The super-art score. The three stock counts scanned the same length with
  * the same value and differed in one thing: which table. */
 static s16 sa_stock_points(s16 ix, const GradeRow* table) {
-    s16 i;
-
-    for (i = 0; i < 5; i++) {
-        if (judge_item[ix][Play_Type].sa_exec < table[i + 1][0]) {
-            break;
-        }
-    }
-
-    return table[i][1];
+    return grade_table_points(table, 5, judge_item[ix][Play_Type].sa_exec);
 }
 
 /* And the super art, scored from the table for the number of stocks it has. */
