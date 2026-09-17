@@ -432,6 +432,15 @@ void Scs_char_move() {
     }
 }
 
+/* A character that just changed restarts its flash from the top. */
+static void Restart_Flash_On_Change() {
+    if (name_ptr->old_code[nsc_ptr->type] != name_ptr->code[nsc_ptr->type]) {
+        nsc_ptr->n_disp_flag = 0;
+        nsc_ptr->f_cnt = 0;
+        nsc_ptr->tenmetsu_flag = 0;
+    }
+}
+
 void Scs_move_sub() {
     switch (nsc_ptr->r_no_0) {
     case 0:
@@ -460,11 +469,7 @@ void Scs_move_sub() {
         break;
     }
 
-    if (name_ptr->old_code[nsc_ptr->type] != name_ptr->code[nsc_ptr->type]) {
-        nsc_ptr->n_disp_flag = 0;
-        nsc_ptr->f_cnt = 0;
-        nsc_ptr->tenmetsu_flag = 0;
-    }
+    Restart_Flash_On_Change();
 }
 
 void current_sc_move2() {
