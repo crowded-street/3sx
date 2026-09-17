@@ -994,6 +994,20 @@ void Setup_Next_Step(s16 PL_id) {
     E_Number[PL_id][1] = 1;
 }
 
+/* The last stretch of the game-over wait: hold the player out of the entry list on
+ * the two screens that end it, and otherwise release them back to it. */
+static void Finish_Game_Over_Wait(s16 PL_id) {
+    if (--Personal_Timer[PL_id] == 0) {
+        if ((E_No[0] == 10) || (E_No[0] == 8)) {
+            E_Number[PL_id][0] = 99;
+            return;
+        }
+
+        Clear_Personal_Data(PL_id);
+        Clear_Flash_No();
+    }
+}
+
 void In_Game_Sub(s16 PL_id) {
     switch (E_Number[PL_id][2]) {
     case 0:
@@ -1024,15 +1038,7 @@ void In_Game_Sub(s16 PL_id) {
         break;
 
     default:
-        if (--Personal_Timer[PL_id] == 0) {
-            if ((E_No[0] == 10) || (E_No[0] == 8)) {
-                E_Number[PL_id][0] = 99;
-                return;
-            }
-
-            Clear_Personal_Data(PL_id);
-            Clear_Flash_No();
-        }
+        Finish_Game_Over_Wait(PL_id);
 
         break;
     }
