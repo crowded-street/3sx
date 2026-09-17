@@ -405,6 +405,41 @@ void end_001_move() {
     end_001_jp[end_w.r_no_2]();
 }
 
+/* The shake that runs once the scene has settled. Labels are the original ones, and
+ * the fallthrough chain from 3 down to 6 travels with them. */
+static void end_001_0004_shake() {
+    switch (bgw_ptr->r_no_1) {
+    case 3:
+        if (end_etc_flag) {
+            bgw_ptr->r_no_1++;
+            bgw_ptr->r_limit = gill_time[6];
+        }
+
+        /* fallthrough */
+
+    case 4:
+        bgw_ptr->r_no_1++;
+        /* fallthrough */
+
+    case 5:
+    case 6:
+        bgw_ptr->r_limit--;
+
+        if (bgw_ptr->r_limit < 1) {
+            bgw_ptr->frame_deff++;
+            bgw_ptr->frame_deff &= 0x1F;
+            bgw_ptr->r_limit = end00_quake_timer[bgw_ptr->frame_deff];
+            bgw_ptr->xy[0].disp.pos = end_0_pos[end_w.r_no_2][0];
+            bgw_ptr->xy[1].disp.pos = 48;
+            bgw_ptr->xy[1].disp.pos += end00_quake_tbl2[bgw_ptr->frame_deff];
+            bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
+            bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+        }
+
+        break;
+    }
+}
+
 void end_001_0004() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -435,33 +470,8 @@ void end_001_0004() {
         bgw_ptr->r_no_1++;
         break;
 
-    case 3:
-        if (end_etc_flag) {
-            bgw_ptr->r_no_1++;
-            bgw_ptr->r_limit = gill_time[6];
-        }
-
-        /* fallthrough */
-
-    case 4:
-        bgw_ptr->r_no_1++;
-        /* fallthrough */
-
-    case 5:
-    case 6:
-        bgw_ptr->r_limit--;
-
-        if (bgw_ptr->r_limit < 1) {
-            bgw_ptr->frame_deff++;
-            bgw_ptr->frame_deff &= 0x1F;
-            bgw_ptr->r_limit = end00_quake_timer[bgw_ptr->frame_deff];
-            bgw_ptr->xy[0].disp.pos = end_0_pos[end_w.r_no_2][0];
-            bgw_ptr->xy[1].disp.pos = 48;
-            bgw_ptr->xy[1].disp.pos += end00_quake_tbl2[bgw_ptr->frame_deff];
-            bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
-            bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
-        }
-
+    default:
+        end_001_0004_shake();
         break;
     }
 }
