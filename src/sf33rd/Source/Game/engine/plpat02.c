@@ -25,17 +25,19 @@ static void advance_denjin_charge(PLW* wk) {
     s16 i;
     s16 lgix;
 
-    if (wk->wu.now_koc == 8 && wk->wu.char_index == 13) {
-        if (wk->cp->lgp > 13) {
-            lgix = 5;
-        } else {
-            lgix = lgix_table[wk->cp->lgp / 2];
-        }
+    if (!(wk->wu.now_koc == 8 && wk->wu.char_index == 13)) {
+        return;
+    }
 
-        if (lgix) {
-            for (i = 0; i < lgix; i++) {
-                char_move(&wk->wu);
-            }
+    if (wk->cp->lgp > 13) {
+        lgix = 5;
+    } else {
+        lgix = lgix_table[wk->cp->lgp / 2];
+    }
+
+    if (lgix) {
+        for (i = 0; i < lgix; i++) {
+            char_move(&wk->wu);
         }
     }
 }
