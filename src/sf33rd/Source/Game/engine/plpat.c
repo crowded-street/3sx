@@ -358,6 +358,32 @@ static s32 ja_hitbox_active_and_live(const PLW* wk) {
     return ((wk->wu.cg_ja.atix != 0) || (wk->wu.cg_ja.caix != 0)) && wk->wu.att_hit_ok;
 }
 
+/* State 2 counts the window down, unless a box came back up while the attack can
+ * still connect - then the window restarts. */
+static void tick_ja_dummy_countdown(PLW* wk) {
+    if (ja_hitbox_active_and_live(wk)) {
+        wk->ja_nmj_rno = 1;
+        return;
+    }
+
+    if (!--wk->ja_nmj_cnt) {
+        wk->ja_nmj_rno = 3;
+    }
+}
+
+/* The expired window: a live box restarts it, and with no box at all the unit is
+ * pushed into cg_type 64 so the caller's rno change can fire. */
+static void hold_ja_dummy_state(PLW* wk) {
+    if (ja_hitbox_active(wk)) {
+        if (wk->wu.att_hit_ok) {
+            wk->ja_nmj_rno = 1;
+            return;
+        }
+    } else if (wk->wu.cg_type == 0) {
+        wk->wu.cg_type = 64;
+    }
+}
+
 void check_ja_nmj_dummy_RTNM(PLW* wk) { // 🟢
     if (wk->wu.xyz[1].disp.pos <= 0) {
         wk->ja_nmj_rno = 0;
@@ -381,27 +407,11 @@ void check_ja_nmj_dummy_RTNM(PLW* wk) { // 🟢
         break;
 
     case 2:
-        if (ja_hitbox_active_and_live(wk)) {
-            wk->ja_nmj_rno = 1;
-            break;
-        }
-
-        if (!--wk->ja_nmj_cnt) {
-            wk->ja_nmj_rno = 3;
-        }
-
+        tick_ja_dummy_countdown(wk);
         break;
 
     default:
-        if (ja_hitbox_active(wk)) {
-            if (wk->wu.att_hit_ok) {
-                wk->ja_nmj_rno = 1;
-                break;
-            }
-        } else if (wk->wu.cg_type == 0) {
-            wk->wu.cg_type = 64;
-        }
-
+        hold_ja_dummy_state(wk);
         break;
     }
 }
