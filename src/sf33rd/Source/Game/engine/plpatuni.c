@@ -659,6 +659,57 @@ void Att_CHOUCHUURENGEKI(PLW* wk) {
     }
 }
 
+/* The slide itself: marker 20 continues it, marker 30 turns it into the jump. */
+static void slide_run(PLW* wk) {
+    char_move(&wk->wu);
+
+    take_row_and_enter_state_2(wk);
+
+    if (wk->wu.cg_type == 30) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.a[1].sp = wk->wu.mvxy.d[1].sp = wk->wu.mvxy.kop[1] = 0;
+        wk->wu.mvxy.index++;
+        wk->wu.routine_no[3] = 3;
+        wk->wu.cg_type = 0;
+    }
+
+    if (wk->wu.routine_no[3] != 1) {
+        add_mvxy_speed(&wk->wu);
+    }
+}
+
+/* While the union has not returned to state 1, marker 20 still feeds rows. */
+static void slide_union_step(PLW* wk) {
+    if ((wk->wu.routine_no[3] != 1) && (wk->wu.cg_type == 20)) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+    }
+}
+
+/* The jump half. Its marker-30 block is a near miss of the slide's - that one
+ * also assigns state 3 - so the two stay apart. */
+static void slide_jump(PLW* wk) {
+    char_move(&wk->wu);
+    cal_mvxy_speed(&wk->wu);
+    add_mvxy_speed(&wk->wu);
+
+    take_row_and_enter_state_2(wk);
+
+    if (wk->wu.cg_type == 21) {
+        reset_mvxy_data(&wk->wu);
+        wk->wu.cg_type = 0;
+        wk->wu.routine_no[3] = 1;
+    }
+
+    if (wk->wu.cg_type == 30) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.a[1].sp = wk->wu.mvxy.d[1].sp = wk->wu.mvxy.kop[1] = 0;
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+    }
+}
+
 void Att_SLIDE_and_JUMP(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -671,55 +722,16 @@ void Att_SLIDE_and_JUMP(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-
-        take_row_and_enter_state_2(wk);
-
-        if (wk->wu.cg_type == 30) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.a[1].sp = wk->wu.mvxy.d[1].sp = wk->wu.mvxy.kop[1] = 0;
-            wk->wu.mvxy.index++;
-            wk->wu.routine_no[3] = 3;
-            wk->wu.cg_type = 0;
-        }
-
-        if (wk->wu.routine_no[3] != 1) {
-            add_mvxy_speed(&wk->wu);
-        }
-
+        slide_run(wk);
         break;
 
     case 2:
         jumping_union_process(&wk->wu, 1);
-
-        if ((wk->wu.routine_no[3] != 1) && (wk->wu.cg_type == 20)) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-        }
-
+        slide_union_step(wk);
         break;
 
     case 3:
-        char_move(&wk->wu);
-        cal_mvxy_speed(&wk->wu);
-        add_mvxy_speed(&wk->wu);
-
-        take_row_and_enter_state_2(wk);
-
-        if (wk->wu.cg_type == 21) {
-            reset_mvxy_data(&wk->wu);
-            wk->wu.cg_type = 0;
-            wk->wu.routine_no[3] = 1;
-        }
-
-        if (wk->wu.cg_type == 30) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.a[1].sp = wk->wu.mvxy.d[1].sp = wk->wu.mvxy.kop[1] = 0;
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-        }
-
+        slide_jump(wk);
         break;
     }
 }
