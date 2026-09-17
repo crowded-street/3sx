@@ -209,6 +209,24 @@ static void Select_Next_CPU_Character() {
     S_Timer = 100;
 }
 
+/* Sub-state 7: a cut shortens the tail, and the BGM fades once it is short enough. */
+static void Fade_Out_Before_Cut(u16 fade_time) {
+    switch (SC_No[2]) {
+    case 0:
+        if (Scene_Cut) {
+            S_Timer = 9;
+        }
+
+        if (S_Timer < 10) {
+            S_Timer = 9;
+            SC_No[2]++;
+            SsBgmFadeOut(fade_time);
+        }
+
+        break;
+    }
+}
+
 /* Tick the scene timer and, when it runs out, move to the next scene from its top. */
 static void Advance_Scene_On_Timeout() {
     if ((S_Timer -= 1) == 0) {
@@ -256,20 +274,7 @@ void Next_CPU_3rd() {
         break;
 
     case 3:
-        switch (SC_No[2]) {
-        case 0:
-            if (Scene_Cut) {
-                S_Timer = 9;
-            }
-
-            if (S_Timer < 10) {
-                S_Timer = 9;
-                SC_No[2]++;
-                SsBgmFadeOut(0x1000U);
-            }
-
-            break;
-        }
+        Fade_Out_Before_Cut(0x1000U);
 
         Advance_Scene_On_Timeout();
 
@@ -778,24 +783,6 @@ static void Hold_Before_Cards() {
     }
 }
 
-/* Sub-state 7: a cut shortens the tail, and the BGM fades once it is short enough. */
-static void Fade_Out_Before_Cut() {
-    switch (SC_No[2]) {
-    case 0:
-        if (Scene_Cut) {
-            S_Timer = 9;
-        }
-
-        if (S_Timer < 10) {
-            S_Timer = 9;
-            SC_No[2]++;
-            SsBgmFadeOut(0x1000);
-        }
-
-        break;
-    }
-}
-
 /* The presentation half of the VS scene, from the cards onward. The case labels are
  * the original ones, so a sub-state still reads as the number the rest of the file
  * uses, and a value matching none of them does nothing, as before. */
@@ -823,7 +810,7 @@ static void Select_CPU_3rd_Presentation() {
         break;
 
     case 7:
-        Fade_Out_Before_Cut();
+        Fade_Out_Before_Cut(0x1000);
 
         Advance_Scene_On_Timeout();
 
@@ -902,20 +889,7 @@ void Next_Bonus_2nd() {
         break;
 
     case 1:
-        switch (SC_No[2]) {
-        case 0:
-            if (Scene_Cut) {
-                S_Timer = 9;
-            }
-
-            if (S_Timer < 10) {
-                S_Timer = 9;
-                SC_No[2]++;
-                SsBgmFadeOut(0x1000);
-            }
-
-            break;
-        }
+        Fade_Out_Before_Cut(0x1000);
 
         Advance_Scene_On_Timeout();
 
