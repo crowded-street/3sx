@@ -1077,6 +1077,24 @@ static s32 Move_Selection_Plate(s16 PL_id, u16 lever_sw, u16 direction_bit, s8 d
     return 0;
 }
 
+/* An attack button confirms the selection: lock it in, tell the engine which
+ * character it is, and play the pick-up voice unless this is a boss. */
+static void Confirm_EM_Selection(s16 PL_id, u16 sw) {
+    if (sw & SWK_ATTACKS) {
+        Sel_EM_Complete[PL_id] = 1;
+        EM_id = EM_List[Player_id][Temporary_EM[Player_id] - 1];
+        My_char[COM_id] = EM_id;
+        Time_Stop = 2;
+
+        if (VS_Index[PL_id] < 8) {
+            Sound_SE(ID + 98);
+            Sound_SE(Voice_EM_Random_Data[random_16()]);
+        }
+
+        Last_Selected_EM[PL_id] = Temporary_EM[PL_id];
+    }
+}
+
 void Sel_CPU_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
     u16 lever_sw;
 
@@ -1106,19 +1124,7 @@ void Sel_CPU_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
         return;
     }
 
-    if (sw & SWK_ATTACKS) {
-        Sel_EM_Complete[PL_id] = 1;
-        EM_id = EM_List[Player_id][Temporary_EM[Player_id] - 1];
-        My_char[COM_id] = EM_id;
-        Time_Stop = 2;
-
-        if (VS_Index[PL_id] < 8) {
-            Sound_SE(ID + 98);
-            Sound_SE(Voice_EM_Random_Data[random_16()]);
-        }
-
-        Last_Selected_EM[PL_id] = Temporary_EM[PL_id];
-    }
+    Confirm_EM_Selection(PL_id, sw);
 }
 
 void Setup_EM_List() {
