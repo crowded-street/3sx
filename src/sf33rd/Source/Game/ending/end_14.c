@@ -581,6 +581,45 @@ void end_e01_move() {
     end_101_jp[end_w.r_no_2]();
 }
 
+/* The second half of the middle scene: the drift down, the colour cycle and the slide
+ * to rest. Labels are the original ones, fallthroughs included. */
+static void end_e01_0000_settle() {
+    switch (bgw_ptr->r_no_1) {
+    case 3:
+        bgw_ptr->xy[1].cal -= 0x18000;
+        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+        break;
+
+    case 4:
+        bgw_ptr->r_no_1++;
+        bgw_ptr->free = 7;
+        bgw_ptr->l_limit = 0;
+        /* fallthrough */
+
+    case 5:
+        if (end_e00_0000_col_sub2()) {
+            bgw_ptr->r_no_1++;
+        }
+
+        /* fallthrough */
+
+    case 6:
+        bgw_ptr->xy[1].cal -= 0x4000;
+
+        if (bgw_ptr->xy[1].disp.pos < -311) {
+            bgw_ptr->r_no_1++;
+            bgw_ptr->xy[1].cal = 0xFEC80000;
+            end_w.timer = 20;
+        }
+
+        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+        break;
+
+    case 7:
+        break;
+    }
+}
+
 void end_e01_0000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -614,37 +653,8 @@ void end_e01_0000() {
         bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
         break;
 
-    case 3:
-        bgw_ptr->xy[1].cal -= 0x18000;
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
-        break;
-
-    case 4:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->free = 7;
-        bgw_ptr->l_limit = 0;
-        /* fallthrough */
-
-    case 5:
-        if (end_e00_0000_col_sub2()) {
-            bgw_ptr->r_no_1++;
-        }
-
-        /* fallthrough */
-
-    case 6:
-        bgw_ptr->xy[1].cal -= 0x4000;
-
-        if (bgw_ptr->xy[1].disp.pos < -311) {
-            bgw_ptr->r_no_1++;
-            bgw_ptr->xy[1].cal = 0xFEC80000;
-            end_w.timer = 20;
-        }
-
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
-        break;
-
-    case 7:
+    default:
+        end_e01_0000_settle();
         break;
     }
 }
