@@ -517,19 +517,25 @@ void current_sc_move2() {
     }
 }
 
-void start_cut_check(s16 pl_id) {
+/* The player cut the naming short: jump to the end state and blank whatever they had
+ * not yet entered. */
+static void Cut_Remaining_Name() {
     s16 i;
 
-    if (Naming_Cut[pl_id]) {
-        if (name_ptr->r_no_0 < 6) {
-            name_ptr->r_no_0 = 6;
-        }
+    if (name_ptr->r_no_0 < 6) {
+        name_ptr->r_no_0 = 6;
+    }
 
-        for (i = 0; i < 3; i++) {
-            if (name_ptr->end_flag[i] == 0) {
-                name_ptr->code[i] = 44;
-            }
+    for (i = 0; i < 3; i++) {
+        if (name_ptr->end_flag[i] == 0) {
+            name_ptr->code[i] = 44;
         }
+    }
+}
+
+void start_cut_check(s16 pl_id) {
+    if (Naming_Cut[pl_id]) {
+        Cut_Remaining_Name();
     }
 }
 
