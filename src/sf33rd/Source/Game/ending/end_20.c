@@ -92,12 +92,17 @@ void end_2000_move() {
     end_2000_jp[end_w.r_no_2]();
 }
 
+/* Put the panel where this scene starts. */
+static void end_20_place_panel_at_scene_start() {
+    bgw_ptr->xy[0].disp.pos = end_20_pos[end_w.r_no_2][0];
+    bgw_ptr->xy[1].disp.pos = end_20_pos[end_w.r_no_2][1];
+}
+
 void end_2000_0000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_20_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_20_pos[end_w.r_no_2][1];
+        end_20_place_panel_at_scene_start();
         bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
         effect_E6_init(0x3E);
         Rewrite_End_Message(1);
@@ -117,8 +122,7 @@ void end_2000_0001() {
     case 0:
         bgw_ptr->r_no_1++;
         Bg_On_W(1);
-        bgw_ptr->xy[0].disp.pos = end_20_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_20_pos[end_w.r_no_2][1];
+        end_20_place_panel_at_scene_start();
         bgw_ptr->abs_x = 512;
         bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
         Rewrite_End_Message(2);
@@ -160,8 +164,7 @@ void end_2000_0002() {
             break;
         }
 
-        bgw_ptr->xy[0].disp.pos = end_20_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_20_pos[end_w.r_no_2][1];
+        end_20_place_panel_at_scene_start();
         bgw_ptr->abs_x = 512;
         bgw_ptr->abs_y = 0;
         break;
@@ -176,8 +179,7 @@ void end_2000_0003() {
     case 0:
         bgw_ptr->r_no_1++;
         Bg_Off_W(1);
-        bgw_ptr->xy[0].disp.pos = end_20_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_20_pos[end_w.r_no_2][1];
+        end_20_place_panel_at_scene_start();
         bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
         bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
         Rewrite_End_Message(4);
@@ -202,8 +204,7 @@ void end_2000_0005() {
     case 0:
         bgw_ptr->r_no_1++;
         Bg_On_W(1);
-        bgw_ptr->xy[0].disp.pos = end_20_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_20_pos[end_w.r_no_2][1];
+        end_20_place_panel_at_scene_start();
         bgw_ptr->abs_x = 512;
         bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
         effect_E6_init(0x44);
@@ -251,8 +252,7 @@ void end_2001_0000() {
     case 0:
         bgw_ptr->r_no_1++;
         Bg_On_W(2);
-        bgw_ptr->xy[0].disp.pos = end_20_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_20_pos[end_w.r_no_2][1];
+        end_20_place_panel_at_scene_start();
         effect_E6_init(0x38);
         break;
 
@@ -265,8 +265,7 @@ void end_2001_0002() {
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_20_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_20_pos[end_w.r_no_2][1];
+        end_20_place_panel_at_scene_start();
         bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
         effect_E6_init(0x41);
         break;
@@ -288,8 +287,7 @@ void end_2001_0003() {
         bgw_ptr->abs_x = 512;
         bgw_ptr->abs_y = 0;
         ls_cnt1 = 0;
-        bgw_ptr->xy[0].disp.pos = end_20_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_20_pos[end_w.r_no_2][1];
+        end_20_place_panel_at_scene_start();
         /* fallthrough */
 
     case 1:
@@ -311,8 +309,7 @@ void end_2001_0005() {
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_20_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_20_pos[end_w.r_no_2][1];
+        end_20_place_panel_at_scene_start();
         bgw_ptr->abs_x = 512;
         bgw_ptr->abs_y = 0;
         /* fallthrough */
