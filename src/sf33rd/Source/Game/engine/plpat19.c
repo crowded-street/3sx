@@ -67,6 +67,31 @@ const s16 dra_em_tall[20][2] = { { 24, 16 }, { 28, 16 }, { 16, 16 }, { 16, 16 },
                                  { 18, 16 }, { 28, 16 }, { 25, 16 }, { 16, 16 }, { 16, 16 }, { 16, 16 }, { 24, 16 },
                                  { 16, 16 }, { 16, 16 }, { 16, 16 }, { 24, 16 }, { 20, 16 }, { 20, 16 } };
 
+/* The airborne leg of a flying attack. While jumping_union_process has not yet
+ * handed over to the landed state it keeps feeding the next movement row on the
+ * animation's 20 marker; once it has, the vertical speed is flattened and a
+ * kop of 2 is stepped back to 1.
+ *
+ * Four arms across Att_SA__D_R_A, Att_EX__D_R_A and Att_KUUCHUUHISSATU wrote
+ * this out, differing only in which state counts as landed - one value, which
+ * is what Recipe D allows. */
+static void step_union_flight(PLW* wk, s16 landed_rno) {
+    if ((wk->wu.routine_no[3] != landed_rno) && (wk->wu.cg_type == 20)) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+    }
+
+    if (wk->wu.routine_no[3] == landed_rno) {
+        if (wk->wu.mvxy.kop[0] == 2) {
+            wk->wu.mvxy.kop[0] = 1;
+        }
+
+        wk->wu.mvxy.d[1].sp = 0;
+        wk->wu.mvxy.a[1].sp = 0;
+    }
+}
+
 void Att_SA__D_R_A(PLW* wk) {
     PLW* emwk;
 
@@ -91,20 +116,7 @@ void Att_SA__D_R_A(PLW* wk) {
     case 2:
         jumping_union_process(&wk->wu, 3);
 
-        if ((wk->wu.routine_no[3] != 3) && (wk->wu.cg_type == 20)) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-        }
-
-        if (wk->wu.routine_no[3] == 3) {
-            if (wk->wu.mvxy.kop[0] == 2) {
-                wk->wu.mvxy.kop[0] = 1;
-            }
-
-            wk->wu.mvxy.d[1].sp = 0;
-            wk->wu.mvxy.a[1].sp = 0;
-        }
+        step_union_flight(wk, 3);
 
         break;
 
@@ -150,20 +162,7 @@ void Att_SA__D_R_A(PLW* wk) {
     case 4:
         jumping_union_process(&wk->wu, 5);
 
-        if ((wk->wu.routine_no[3] != 5) && (wk->wu.cg_type == 20)) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-        }
-
-        if (wk->wu.routine_no[3] == 5) {
-            if (wk->wu.mvxy.kop[0] == 2) {
-                wk->wu.mvxy.kop[0] = 1;
-            }
-
-            wk->wu.mvxy.d[1].sp = 0;
-            wk->wu.mvxy.a[1].sp = 0;
-        }
+        step_union_flight(wk, 5);
 
         break;
 
@@ -220,20 +219,7 @@ void Att_EX__D_R_A(PLW* wk) {
     case 2:
         jumping_union_process(&wk->wu, 3);
 
-        if ((wk->wu.routine_no[3] != 3) && (wk->wu.cg_type == 20)) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-        }
-
-        if (wk->wu.routine_no[3] == 3) {
-            if (wk->wu.mvxy.kop[0] == 2) {
-                wk->wu.mvxy.kop[0] = 1;
-            }
-
-            wk->wu.mvxy.d[1].sp = 0;
-            wk->wu.mvxy.a[1].sp = 0;
-        }
+        step_union_flight(wk, 3);
 
         break;
 
@@ -273,20 +259,7 @@ void Att_KUUCHUUHISSATU(PLW* wk) {
     case 1:
         jumping_union_process(&wk->wu, 2);
 
-        if ((wk->wu.routine_no[3] != 2) && (wk->wu.cg_type == 20)) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-        }
-
-        if (wk->wu.routine_no[3] == 2) {
-            if (wk->wu.mvxy.kop[0] == 2) {
-                wk->wu.mvxy.kop[0] = 1;
-            }
-
-            wk->wu.mvxy.d[1].sp = 0;
-            wk->wu.mvxy.a[1].sp = 0;
-        }
+        step_union_flight(wk, 2);
 
         break;
 
