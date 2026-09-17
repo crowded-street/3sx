@@ -147,6 +147,50 @@ void Att_PL06_HASHIRI_NAGE(PLW* wk) {
     }
 }
 
+/* The taunt's markers: 40 pays the super-art gauge, then 20 and 30 each add to
+ * their own bonuses against their own ceilings and 64 grades the action. The 40
+ * test sits outside the switch in the original, and clearing cg_type there is
+ * what stops that frame reaching any switch arm - so it stays where it was. */
+static void pl06_taunt_markers(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 40) {
+        wk->wu.cg_type = 0;
+        add_sp_arts_gauge_tokushu(wk);
+    }
+
+    switch (wk->wu.cg_type) {
+    case 20:
+        wk->wu.cg_type = 0;
+        wk->tk_nage += 8;
+
+        if (wk->tk_nage > 8) {
+            wk->tk_nage = 8;
+        }
+
+        break;
+
+    case 30:
+        wk->wu.cg_type = 0;
+        wk->tk_dageki += 6;
+        wk->tk_konjyou += 2;
+
+        if (wk->tk_dageki > 6) {
+            wk->tk_dageki = 6;
+        }
+
+        if (wk->tk_konjyou > 8) {
+            wk->tk_konjyou = 8;
+        }
+
+        break;
+
+    case 64:
+        grade_add_personal_action(wk->wu.id);
+        break;
+    }
+}
+
 void Att_PL06_TOKUSHUKOUDOU(PLW* wk) {
     wk->scr_pos_set_flag = 0;
 
@@ -159,44 +203,7 @@ void Att_PL06_TOKUSHUKOUDOU(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 40) {
-            wk->wu.cg_type = 0;
-            add_sp_arts_gauge_tokushu(wk);
-        }
-
-        switch (wk->wu.cg_type) {
-        case 20:
-            wk->wu.cg_type = 0;
-            wk->tk_nage += 8;
-
-            if (wk->tk_nage > 8) {
-                wk->tk_nage = 8;
-            }
-
-            break;
-
-        case 30:
-            wk->wu.cg_type = 0;
-            wk->tk_dageki += 6;
-            wk->tk_konjyou += 2;
-
-            if (wk->tk_dageki > 6) {
-                wk->tk_dageki = 6;
-            }
-
-            if (wk->tk_konjyou > 8) {
-                wk->tk_konjyou = 8;
-            }
-
-            break;
-
-        case 64:
-            grade_add_personal_action(wk->wu.id);
-            break;
-        }
-
+        pl06_taunt_markers(wk);
         break;
     }
 }
