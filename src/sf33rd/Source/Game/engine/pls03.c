@@ -390,26 +390,39 @@ void chainex_spat_cancel_kidou(WORK* wk) { // 🔴
 /* The universal overhead's input requirement, which the DIP switch swaps
  * between a dedicated command and the default two-button input. Returns 1
  * wherever check_leap_attack returned 0. */
-static s32 leap_input_is_missing(const PLW* wk) {
-    if (wk->spmv_ng_flag2 & DIP2_UNIVERSAL_OVERHEAD_DEFAULT_INPUT_ENABLED) {
-        if (wk->cp->ca25 == 0) {
-            return 1;
-        }
+/* With the universal-overhead DIP on, the leap reads its dedicated button and
+ * refuses while any lever direction is held. */
+static s32 leap_overhead_input_is_missing(const PLW* wk) {
+    if (wk->cp->ca25 == 0) {
+        return 1;
+    }
 
-        if (wk->cp->sw_lvbt & 0xF) {
-            return 1;
-        }
-    } else {
-        if (wk->cp->waza_flag[14] == 0) {
-            return 1;
-        }
-
-        if (!(wk->cp->sw_now & 0x770)) {
-            return 1;
-        }
+    if (wk->cp->sw_lvbt & 0xF) {
+        return 1;
     }
 
     return 0;
+}
+
+/* Without it, the leap is a command and needs a button actually held. */
+static s32 leap_command_input_is_missing(const PLW* wk) {
+    if (wk->cp->waza_flag[14] == 0) {
+        return 1;
+    }
+
+    if (!(wk->cp->sw_now & 0x770)) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static s32 leap_input_is_missing(const PLW* wk) {
+    if (wk->spmv_ng_flag2 & DIP2_UNIVERSAL_OVERHEAD_DEFAULT_INPUT_ENABLED) {
+        return leap_overhead_input_is_missing(wk);
+    }
+
+    return leap_command_input_is_missing(wk);
 }
 
 s32 check_leap_attack(PLW* wk) { // 🟡
