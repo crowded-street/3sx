@@ -229,7 +229,11 @@ void clear_kizetsu_point(PLW* wk) { // 🟢
     wk->py->recover = pl_nr_piyo_tbl[wk->player_number];
 }
 
-void set_super_arts_status(s16 ix) { // 🟢
+/* The run both super-art setups open with, character for character: pick the row
+ * - the DC table when the player is on a command select or has no art - then
+ * copy the six move indices, the fourth-EX flag and the gauge type across. The
+ * row is returned because each caller reads more fields from it afterwards. */
+static const SA_DATA* apply_shared_sa_status(s16 ix) {
     const SA_DATA* saptr;
 
     if (cmd_sel[ix] || no_sa[ix]) {
@@ -247,6 +251,12 @@ void set_super_arts_status(s16 ix) { // 🟢
     super_arts[ix].exs2_a_ix = saptr->exs2_a_ix;
     super_arts[ix].ex4th_full = saptr->ex4th_full;
     super_arts[ix].gauge_type = saptr->gauge_type;
+
+    return saptr;
+}
+
+void set_super_arts_status(s16 ix) { // 🟢
+    const SA_DATA* saptr = apply_shared_sa_status(ix);
     super_arts[ix].gt2 = saptr->gauge_type;
     super_arts[ix].gauge_len = remake_sa_gauge_len(ix, saptr->gauge_len);
     super_arts[ix].store_max = remake_sa_store_max(ix, saptr->store_max);
@@ -288,23 +298,7 @@ s16 remake_sa_gauge_len(s16 ix, s16 gauge_len) { // 🔴
 }
 
 void set_super_arts_status_dc(s16 ix) { // 🔴
-    const SA_DATA* saptr;
-
-    if (cmd_sel[ix] || no_sa[ix]) {
-        saptr = &super_arts_DATA[My_char[ix]][Super_Arts[ix]];
-    } else {
-        saptr = &super_arts_data[My_char[ix]][Super_Arts[ix]];
-    }
-
-    super_arts[ix].kind_of_arts = Super_Arts[ix];
-    super_arts[ix].nmsa_g_ix = saptr->nmsa_g_ix;
-    super_arts[ix].exsa_g_ix = saptr->exsa_g_ix;
-    super_arts[ix].exs2_g_ix = saptr->exs2_g_ix;
-    super_arts[ix].nmsa_a_ix = saptr->nmsa_a_ix;
-    super_arts[ix].exsa_a_ix = saptr->exsa_a_ix;
-    super_arts[ix].exs2_a_ix = saptr->exs2_a_ix;
-    super_arts[ix].ex4th_full = saptr->ex4th_full;
-    super_arts[ix].gauge_type = saptr->gauge_type;
+    const SA_DATA* saptr = apply_shared_sa_status(ix);
     super_arts[ix].gauge_len = remake_sa_gauge_len(ix, saptr->gauge_len);
     super_arts[ix].store_max = remake_sa_store_max(ix, saptr->store_max);
     super_arts[ix].dtm = saptr->dtm;
