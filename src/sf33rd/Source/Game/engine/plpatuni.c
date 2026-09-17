@@ -340,6 +340,16 @@ void Att_ABISEGERI(PLW* wk) {
     }
 }
 
+/* Marker 30 drops the move into its falling state. Both the rising arm and the
+ * union arm of Att_SHOURYUUREPPA wrote this identically. */
+static void shouryuureppa_enter_fall(PLW* wk) {
+    if (wk->wu.cg_type == 30) {
+        setup_mvxy_data(&wk->wu, wk->as->data_ix);
+        wk->wu.routine_no[3] = 3;
+        wk->wu.cg_type = 0;
+    }
+}
+
 void Att_SHOURYUUREPPA(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -358,11 +368,7 @@ void Att_SHOURYUUREPPA(PLW* wk) {
             wk->wu.cg_type = 0;
         }
 
-        if (wk->wu.cg_type == 30) {
-            setup_mvxy_data(&wk->wu, wk->as->data_ix);
-            wk->wu.routine_no[3] = 3;
-            wk->wu.cg_type = 0;
-        }
+        shouryuureppa_enter_fall(wk);
 
         if (wk->wu.cg_type == 40 && (wk->cp->sw_new & 0x770) == 0x70) {
             wk->wu.routine_no[1] = 0;
@@ -376,11 +382,7 @@ void Att_SHOURYUUREPPA(PLW* wk) {
     case 2:
         jumping_union_process(&wk->wu, 1);
 
-        if (wk->wu.cg_type == 30) {
-            setup_mvxy_data(&wk->wu, wk->as->data_ix);
-            wk->wu.routine_no[3] = 3;
-            wk->wu.cg_type = 0;
-        }
+        shouryuureppa_enter_fall(wk);
 
         break;
 
