@@ -387,6 +387,21 @@ void grade_final_grade_bonus() {
     Score[WGJ_Target][Final_Play_Type[WGJ_Target]] += bonus_point;
 }
 
+/* Flag every fight in the sorted record whose grade beat the one before it,
+ * and count them into the grade-up points. */
+static void mark_spp_improvements(s16 ix, s16 pt, u8* dmw) {
+    s16 i;
+
+    judge_final[ix][pt].sp_point = 0;
+
+    for (i = 1; i < judge_final[ix][pt].fr_ix; i++) {
+        if ((*(dmw + (((((i))) * 4) + 1))) > (*(dmw + ((((i)-1) * 4) + 1)))) {
+            judge_final[ix][pt].sp_point += 1;
+            *(dmw + ((((i)) * 4) + 3)) = 1;
+        }
+    }
+}
+
 void makeup_spp_frdat(s16 ix, s16 pt) {
     s16 i;
     s16 j;
@@ -413,14 +428,7 @@ void makeup_spp_frdat(s16 ix, s16 pt) {
         *(dmw + (((j)) * 4)) = k;
     }
 
-    judge_final[ix][pt].sp_point = 0;
-
-    for (i = 1; i < judge_final[ix][pt].fr_ix; i++) {
-        if ((*(dmw + (((((i))) * 4) + 1))) > (*(dmw + ((((i)-1) * 4) + 1)))) {
-            judge_final[ix][pt].sp_point += 1;
-            *(dmw + ((((i)) * 4) + 3)) = 1;
-        }
-    }
+    mark_spp_improvements(ix, pt, dmw);
 }
 
 void grade_makeup_round_parameter(s16 ix) {
