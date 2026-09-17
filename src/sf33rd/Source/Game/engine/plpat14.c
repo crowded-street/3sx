@@ -157,6 +157,17 @@ void Att_PL14_AT2(PLW* wk) {
     }
 }
 
+/* Marker 20 takes the next movement row and hands the attack to state 2. Two arms
+ * of Att_PL14_AT3 wrote this identically. */
+static void take_row_and_enter_state_2(PLW* wk) {
+    if (wk->wu.cg_type == 20) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.routine_no[3] = 2;
+        wk->wu.cg_type = 0;
+    }
+}
+
 void Att_PL14_AT3(PLW* wk) {
     PLW* twk = (PLW*)wk->wu.target_adrs;
 
@@ -173,12 +184,7 @@ void Att_PL14_AT3(PLW* wk) {
     case 1:
         char_move(&wk->wu);
 
-        if (wk->wu.cg_type == 20) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.routine_no[3] = 2;
-            wk->wu.cg_type = 0;
-        }
+        take_row_and_enter_state_2(wk);
 
         if (wk->wu.cg_type == 30) {
             setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
@@ -220,12 +226,7 @@ void Att_PL14_AT3(PLW* wk) {
         cal_mvxy_speed(&wk->wu);
         add_mvxy_speed(&wk->wu);
 
-        if (wk->wu.cg_type == 20) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.routine_no[3] = 2;
-            wk->wu.cg_type = 0;
-        }
+        take_row_and_enter_state_2(wk);
 
         if (wk->wu.cg_type == 21) {
             reset_mvxy_data(&wk->wu);
