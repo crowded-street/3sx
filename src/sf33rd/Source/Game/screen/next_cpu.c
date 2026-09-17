@@ -1060,6 +1060,23 @@ void Next_Q_3rd() {
     }
 }
 
+/* One lever direction: start the plate moving, unless the selection is already
+ * there - in which case the caller stops, as both arms did. */
+static s32 Move_Selection_Plate(s16 PL_id, u16 lever_sw, u16 direction_bit, s8 direction) {
+    if (lever_sw & direction_bit) {
+        if (Temporary_EM[Player_id] == direction) {
+            return 1;
+        }
+
+        Sound_SE(PL_id + 96);
+        Moving_Plate[PL_id] = direction;
+        Moving_Plate_Counter[PL_id] = 2;
+        Temporary_EM[Player_id] = direction;
+    }
+
+    return 0;
+}
+
 void Sel_CPU_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
     u16 lever_sw;
 
@@ -1081,26 +1098,12 @@ void Sel_CPU_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
 
     lever_sw = sw & (SWK_UP | SWK_DOWN);
 
-    if (lever_sw & SWK_DOWN) {
-        if (Temporary_EM[Player_id] == 2) {
-            return;
-        }
-
-        Sound_SE(PL_id + 96);
-        Moving_Plate[PL_id] = 2;
-        Moving_Plate_Counter[PL_id] = 2;
-        Temporary_EM[Player_id] = 2;
+    if (Move_Selection_Plate(PL_id, lever_sw, SWK_DOWN, 2)) {
+        return;
     }
 
-    if (lever_sw & SWK_UP) {
-        if (Temporary_EM[Player_id] == 1) {
-            return;
-        }
-
-        Sound_SE(PL_id + 96);
-        Moving_Plate[PL_id] = 1;
-        Moving_Plate_Counter[PL_id] = 2;
-        Temporary_EM[Player_id] = 1;
+    if (Move_Selection_Plate(PL_id, lever_sw, SWK_UP, 1)) {
+        return;
     }
 
     if (sw & SWK_ATTACKS) {
