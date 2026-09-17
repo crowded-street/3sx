@@ -275,6 +275,22 @@ void renew_judge_final_work(s16 ix, s16 pt) {
     }
 }
 
+/* Find the first row of a threshold table that the value falls under, and take
+ * the points from the row before it. Every scored item in this file is one of
+ * these scans; they differ only in the table, its row count, and the value
+ * being scanned, all three of which stay at the call site. */
+static s16 grade_table_points(const GradeRow* table, s32 count, s32 value) {
+    s16 i;
+
+    for (i = 0; i < count; i++) {
+        if (value < table[i + 1][0]) {
+            break;
+        }
+    }
+
+    return table[i][1];
+}
+
 /* What the two bonus stages are worth, each skipped when it was not played. */
 static s16 bonus_stage_grade_points(s16 ix, s16 pt) {
     s16 i;
@@ -862,75 +878,16 @@ s16 get_defence_total(s16 ix, s16 wf) {
  * the target combo, the normal throw, the throw escape, the quick stand, the
  * personal action, the reversal and the command move. */
 static s16 tech_pts_items(s16 ix) {
-    s16 i;
     s16 point = 0;
 
-    for (i = 0; i < 9; i++) {
-        if (judge_item[ix][Play_Type].leap_attack < grade_t_leap_attack[i + 1][0]) {
-            break;
-        }
-    }
-
-    point += grade_t_leap_attack[i][1];
-
-    for (i = 0; i < 7; i++) {
-        if (judge_item[ix][Play_Type].target_combo < grade_t_target_combo[i + 1][0]) {
-            break;
-        }
-    }
-
-    point += grade_t_target_combo[i][1];
-
-    for (i = 0; i < 9; i++) {
-        if (judge_item[ix][Play_Type].nml_nage < grade_t_nml_nage[i + 1][0]) {
-            break;
-        }
-    }
-
-    point += grade_t_nml_nage[i][1];
-
-
-    for (i = 0; i < 5; i++) {
-        if (judge_item[ix][Play_Type].grap_def < grade_t_grap_def[i + 1][0]) {
-            break;
-        }
-    }
-
-    point += grade_t_grap_def[i][1];
-
-    for (i = 0; i < 3; i++) {
-        if (judge_item[ix][Play_Type].quick_stand < grade_t_quick_stand[i + 1][0]) {
-            break;
-        }
-    }
-
-    point += grade_t_quick_stand[i][1];
-
-    for (i = 0; i < 3; i++) {
-        if (judge_item[ix][Play_Type].personal_act < grade_t_personal_act[i + 1][0]) {
-            break;
-        }
-    }
-
-    point += grade_t_personal_act[i][1];
-
-
-    for (i = 0; i < 7; i++) {
-        if (judge_item[ix][Play_Type].reversal < grade_t_reversal[i + 1][0]) {
-            break;
-        }
-    }
-
-    point += grade_t_reversal[i][1];
-
-    for (i = 0; i < 8; i++) {
-        if (judge_item[ix][Play_Type].comwaza < grade_t_command_waza[i + 1][0]) {
-            break;
-        }
-    }
-
-    point += grade_t_command_waza[i][1];
-
+    point += grade_table_points(grade_t_leap_attack, 9, judge_item[ix][Play_Type].leap_attack);
+    point += grade_table_points(grade_t_target_combo, 7, judge_item[ix][Play_Type].target_combo);
+    point += grade_table_points(grade_t_nml_nage, 9, judge_item[ix][Play_Type].nml_nage);
+    point += grade_table_points(grade_t_grap_def, 5, judge_item[ix][Play_Type].grap_def);
+    point += grade_table_points(grade_t_quick_stand, 3, judge_item[ix][Play_Type].quick_stand);
+    point += grade_table_points(grade_t_personal_act, 3, judge_item[ix][Play_Type].personal_act);
+    point += grade_table_points(grade_t_reversal, 7, judge_item[ix][Play_Type].reversal);
+    point += grade_table_points(grade_t_command_waza, 8, judge_item[ix][Play_Type].comwaza);
 
     return point;
 }
