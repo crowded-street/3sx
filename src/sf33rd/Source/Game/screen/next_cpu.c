@@ -1171,6 +1171,17 @@ void Setup_Com_Color() {
     Com_Color_Shot = 16;
 }
 
+/* Every colour arm makes the same choice: take the colour the button asks for, unless
+ * the other player is already on it with the same character, in which case take the
+ * alternate. The two colours are written out at each call site. */
+static void Take_Player_Color(s16 PL_id, s8 wanted, s8 alternate, s32 same_char) {
+    if (Player_Color[PL_id ^ 1] == wanted && same_char) {
+        Player_Color[PL_id] = alternate;
+    } else {
+        Player_Color[PL_id] = wanted;
+    }
+}
+
 void Setup_PL_Color(s16 PL_id, u16 sw) {
     s8 id_0;
     s8 id_1;
@@ -1203,142 +1214,67 @@ void Setup_PL_Color(s16 PL_id, u16 sw) {
         case SWK_WEST:
         case SWK_NORTH:
         case SWK_RIGHT_SHOULDER:
-            if (Player_Color[PL_id ^ 1] == 0 && id_0 == id_1) {
-                Player_Color[PL_id] = 1;
-            } else {
-                Player_Color[PL_id] = 0;
-            }
-
+            Take_Player_Color(PL_id, 0, 1, id_0 == id_1);
             break;
 
         default:
-            if (Player_Color[PL_id ^ 1] == 1 && id_0 == id_1) {
-                Player_Color[PL_id] = 0;
-            } else {
-                Player_Color[PL_id] = 1;
-            }
-
+            Take_Player_Color(PL_id, 1, 0, id_0 == id_1);
             break;
         }
     } else if (sw_new & SWK_START) {
         switch (sw) {
         case SWK_WEST:
-            if (Player_Color[PL_id ^ 1] == 7 && id_0 == id_1) {
-                Player_Color[PL_id] = 10;
-            } else {
-                Player_Color[PL_id] = 7;
-            }
-
+            Take_Player_Color(PL_id, 7, 10, id_0 == id_1);
             break;
 
         case SWK_NORTH:
-            if (Player_Color[PL_id ^ 1] == 8 && id_0 == id_1) {
-                Player_Color[PL_id] = 11;
-            } else {
-                Player_Color[PL_id] = 8;
-            }
-
+            Take_Player_Color(PL_id, 8, 11, id_0 == id_1);
             break;
 
         case SWK_RIGHT_SHOULDER:
-            if (Player_Color[PL_id ^ 1] == 9 && id_0 == id_1) {
-                Player_Color[PL_id] = 12;
-            } else {
-                Player_Color[PL_id] = 9;
-            }
-
+            Take_Player_Color(PL_id, 9, 12, id_0 == id_1);
             break;
 
         case SWK_SOUTH:
-            if (Player_Color[PL_id ^ 1] == 10 && id_0 == id_1) {
-                Player_Color[PL_id] = 7;
-            } else {
-                Player_Color[PL_id] = 10;
-            }
-
+            Take_Player_Color(PL_id, 10, 7, id_0 == id_1);
             break;
 
         case SWK_EAST:
-            if (Player_Color[PL_id ^ 1] == 11 && id_0 == id_1) {
-                Player_Color[PL_id] = 8;
-            } else {
-                Player_Color[PL_id] = 11;
-            }
-
+            Take_Player_Color(PL_id, 11, 8, id_0 == id_1);
             break;
 
         default:
-            if (Player_Color[PL_id ^ 1] == 12 && id_0 == id_1) {
-                Player_Color[PL_id] = 9;
-            } else {
-                Player_Color[PL_id] = 12;
-            }
-
+            Take_Player_Color(PL_id, 12, 9, id_0 == id_1);
             break;
         }
     } else {
         switch (sw) {
         case SWK_WEST | SWK_RIGHT_SHOULDER | SWK_EAST:
-            if (Player_Color[PL_id ^ 1] == 6 && id_0 == id_1) {
-                Player_Color[PL_id] = 0;
-            } else {
-                Player_Color[PL_id] = 6;
-            }
-
+            Take_Player_Color(PL_id, 6, 0, id_0 == id_1);
             break;
 
         case SWK_WEST:
-            if (Player_Color[PL_id ^ 1] == 0 && id_0 == id_1) {
-                Player_Color[PL_id] = 3;
-            } else {
-                Player_Color[PL_id] = 0;
-            }
-
+            Take_Player_Color(PL_id, 0, 3, id_0 == id_1);
             break;
 
         case SWK_NORTH:
-            if (Player_Color[PL_id ^ 1] == 1 && id_0 == id_1) {
-                Player_Color[PL_id] = 4;
-            } else {
-                Player_Color[PL_id] = 1;
-            }
-
+            Take_Player_Color(PL_id, 1, 4, id_0 == id_1);
             break;
 
         case SWK_RIGHT_SHOULDER:
-            if (Player_Color[PL_id ^ 1] == 2 && id_0 == id_1) {
-                Player_Color[PL_id] = 5;
-            } else {
-                Player_Color[PL_id] = 2;
-            }
-
+            Take_Player_Color(PL_id, 2, 5, id_0 == id_1);
             break;
 
         case SWK_SOUTH:
-            if (Player_Color[PL_id ^ 1] == 3 && id_0 == id_1) {
-                Player_Color[PL_id] = 0;
-            } else {
-                Player_Color[PL_id] = 3;
-            }
-
+            Take_Player_Color(PL_id, 3, 0, id_0 == id_1);
             break;
 
         case SWK_EAST:
-            if (Player_Color[PL_id ^ 1] == 4 && id_0 == id_1) {
-                Player_Color[PL_id] = 1;
-            } else {
-                Player_Color[PL_id] = 4;
-            }
-
+            Take_Player_Color(PL_id, 4, 1, id_0 == id_1);
             break;
 
         default:
-            if (Player_Color[PL_id ^ 1] == 5 && id_0 == id_1) {
-                Player_Color[PL_id] = 2;
-            } else {
-                Player_Color[PL_id] = 5;
-            }
-
+            Take_Player_Color(PL_id, 5, 2, id_0 == id_1);
             break;
         }
     }
