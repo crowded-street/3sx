@@ -222,6 +222,29 @@ void Name_Scs_Finish() {
     Scs_char_move();
 }
 
+/* No button pressed: the lever walks the character under the cursor round the
+ * alphabet, wrapping at either end. */
+static s32 Step_Name_Character(u16 sw_data, u16 sw_up_w) {
+    if (sw_data & 0xC) {
+        if (auto_n_check(4, 0, sw_data, sw_up_w)) {
+            name_ptr->code[name_ptr->index]--;
+
+            if (name_ptr->code[name_ptr->index] < 0) {
+                name_ptr->code[name_ptr->index] = 46;
+            }
+        }
+        if (auto_n_check(8, 1, sw_data, sw_up_w)) {
+            name_ptr->code[name_ptr->index]++;
+
+            if (name_ptr->code[name_ptr->index] > 46) {
+                name_ptr->code[name_ptr->index] = 0;
+            }
+        }
+    }
+
+    return 0;
+}
+
 s32 Name_Input_sub() {
     u16 sw_up_w;
     u16 sw_data;
@@ -248,24 +271,7 @@ s32 Name_Input_sub() {
             return 1;
         }
     } else {
-        if (sw_data & 0xC) {
-            if (auto_n_check(4, 0, sw_data, sw_up_w)) {
-                name_ptr->code[name_ptr->index]--;
-
-                if (name_ptr->code[name_ptr->index] < 0) {
-                    name_ptr->code[name_ptr->index] = 46;
-                }
-            }
-            if (auto_n_check(8, 1, sw_data, sw_up_w)) {
-                name_ptr->code[name_ptr->index]++;
-
-                if (name_ptr->code[name_ptr->index] > 46) {
-                    name_ptr->code[name_ptr->index] = 0;
-                }
-            }
-        }
-
-        return 0;
+        return Step_Name_Character(sw_data, sw_up_w);
     }
 }
 
