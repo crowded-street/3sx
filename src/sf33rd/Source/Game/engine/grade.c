@@ -525,19 +525,54 @@ static s16 winner_streak_points(s16 ix) {
     return grade_t_em_renshou[i][1];
 }
 
+/* The arcade record for one stage. A bonus stage is not recorded at all; a
+ * loss on a normal stage takes its entry back out again, and a loss to an
+ * interrupting Q clears the slot it was written to. */
+static void record_arcade_stage_grade(s16 ix, s16 point, s16 grade) {
+    s16 bs = 0;
+    s16 qc = 0;
+
+    switch (bg_w.stage) {
+    case 21:
+    case 20:
+        bs = 1;
+        break;
+
+    default:
+        qc = record_vs_cpu_result(ix, point, grade);
+        judge_item[ix][Play_Type].grade = grade;
+        break;
+    }
+
+    grade_makeup_final_parameter(ix, Play_Type + 0);
+
+    if (ix == WINNER) {
+        return;
+    }
+
+    if (bs != 0) {
+        return;
+    }
+
+    if (qc) {
+        judge_final[ix][Play_Type].vs_cpu_result[15] = -1;
+        judge_final[ix][Play_Type].vs_cpu_grade[15] = -1;
+        judge_final[ix][Play_Type].vs_cpu_player[15] = -1;
+        return;
+    }
+
+    judge_final[ix][Play_Type].vcr_ix--;
+}
+
 void grade_makeup_stage_parameter(s16 ix) {
     s16 i;
     s16 grade;
     s16 point = 0;
-    s16 bs;
-    s16 qc;
 
     if (round_is_cpu_controlled(ix)) {
         grade_makeup_stage_para_com(ix);
         return;
     }
-
-    qc = bs = 0;
 
     if (judge_item[ix][Play_Type].round == 0) {
         judge_item[ix][Play_Type].round = 1;
@@ -561,40 +596,12 @@ void grade_makeup_stage_parameter(s16 ix) {
             judge_item[ix][Play_Type].tech_pts_total + judge_item[ix][Play_Type].ex_point_total;
     grade = get_grade_ix(point);
 
-    if (Play_Type == 0) {
-        switch (bg_w.stage) {
-        case 21:
-        case 20:
-            bs = 1;
-            break;
-
-        default:
-            qc = record_vs_cpu_result(ix, point, grade);
-            judge_item[ix][Play_Type].grade = grade;
-            break;
-        }
-
-        grade_makeup_final_parameter(ix, Play_Type + 0);
-
-        if (ix == WINNER) {
-            return;
-        }
-
-        if (bs != 0) {
-            return;
-        }
-
-        if (qc) {
-            judge_final[ix][Play_Type].vs_cpu_result[15] = -1;
-            judge_final[ix][Play_Type].vs_cpu_grade[15] = -1;
-            judge_final[ix][Play_Type].vs_cpu_player[15] = -1;
-            return;
-        } else {
-            judge_final[ix][Play_Type].vcr_ix--;
-        }
-    } else {
+    if (Play_Type != 0) {
         judge_item[ix][Play_Type].grade = grade;
+        return;
     }
+
+    record_arcade_stage_grade(ix, point, grade);
 }
 
 s32 rannyuu_Q_check(s16 ix) {
