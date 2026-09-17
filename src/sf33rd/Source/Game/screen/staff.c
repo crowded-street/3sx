@@ -336,33 +336,41 @@ static void show_next_credit_page() {
     show_credit_line(20);
     name_ptr++;
 
-    if (sf3_staff[name_ptr].next == 0) {
-        show_credit_line(20);
-        name_ptr++;
-        show_credit_line(20);
-        name_ptr++;
-
-        if (sf3_staff[name_ptr].next == 0) {
-            show_credit_line(20);
-            name_ptr++;
-            show_credit_line(20);
-            name_ptr++;
-
-            if (sf3_staff[name_ptr].next == 0) {
-                show_credit_line(20);
-                name_ptr++;
-                show_credit_line(20);
-                name_ptr++;
-
-                if (sf3_staff[name_ptr].next == 0) {
-                    show_credit_line(20);
-                    name_ptr++;
-                    show_credit_line(20);
-                    name_ptr++;
-                }
-            }
-        }
+    if (sf3_staff[name_ptr].next != 0) {
+        return;
     }
+
+    show_credit_line(20);
+    name_ptr++;
+    show_credit_line(20);
+    name_ptr++;
+
+    if (sf3_staff[name_ptr].next != 0) {
+        return;
+    }
+
+    show_credit_line(20);
+    name_ptr++;
+    show_credit_line(20);
+    name_ptr++;
+
+    if (sf3_staff[name_ptr].next != 0) {
+        return;
+    }
+
+    show_credit_line(20);
+    name_ptr++;
+    show_credit_line(20);
+    name_ptr++;
+
+    if (sf3_staff[name_ptr].next != 0) {
+        return;
+    }
+
+    show_credit_line(20);
+    name_ptr++;
+    show_credit_line(20);
+    name_ptr++;
 }
 
 s32 staff_credits(u32 /* unused */) {
