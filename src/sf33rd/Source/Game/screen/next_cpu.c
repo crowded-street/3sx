@@ -159,52 +159,58 @@ void Next_CPU_2nd() {
     NC_Cut_Sub();
 }
 
+/* Sub-state 0: run the character select until both sides are settled, queue the
+ * fighters, and set the pause before the VS screen. */
+static void Select_Next_CPU_Character() {
+    if (Player_id) {
+        Sel_CPU_Sub(1, ~p2sw_1 & p2sw_0, p2sw_0);
+    } else {
+        Sel_CPU_Sub(0, ~p1sw_1 & p1sw_0, p1sw_0);
+    }
+
+    if (!Sel_EM_Complete[Player_id]) {
+        return;
+    }
+
+    SC_No[1]++;
+    SC_No[2] = 0;
+
+#if DEBUG
+    if (debug_config.character_override[0]) {
+        My_char[0] = debug_config.character_override[0] - 1;
+    }
+
+    if (debug_config.character_override[1]) {
+        My_char[1] = debug_config.character_override[1] - 1;
+    }
+#endif
+
+    Push_LDREQ_Queue_Player(COM_id, My_char[COM_id]);
+    Setup_Next_Fighter();
+
+#if DEBUG
+    if (debug_config.character_override[0]) {
+        My_char[0] = debug_config.character_override[0] - 1;
+    }
+
+    if (debug_config.character_override[1]) {
+        My_char[1] = debug_config.character_override[1] - 1;
+    }
+#endif
+
+    if (VS_Index[Player_id] < 8) {
+        S_Timer = 50;
+        return;
+    }
+
+    SC_No[1] = 2;
+    S_Timer = 100;
+}
+
 void Next_CPU_3rd() {
     switch (SC_No[1]) {
     case 0:
-        if (Player_id) {
-            Sel_CPU_Sub(1, ~p2sw_1 & p2sw_0, p2sw_0);
-        } else {
-            Sel_CPU_Sub(0, ~p1sw_1 & p1sw_0, p1sw_0);
-        }
-
-        if (!Sel_EM_Complete[Player_id]) {
-            break;
-        }
-
-        SC_No[1]++;
-        SC_No[2] = 0;
-
-#if DEBUG
-        if (debug_config.character_override[0]) {
-            My_char[0] = debug_config.character_override[0] - 1;
-        }
-
-        if (debug_config.character_override[1]) {
-            My_char[1] = debug_config.character_override[1] - 1;
-        }
-#endif
-
-        Push_LDREQ_Queue_Player(COM_id, My_char[COM_id]);
-        Setup_Next_Fighter();
-
-#if DEBUG
-        if (debug_config.character_override[0]) {
-            My_char[0] = debug_config.character_override[0] - 1;
-        }
-
-        if (debug_config.character_override[1]) {
-            My_char[1] = debug_config.character_override[1] - 1;
-        }
-#endif
-
-        if (VS_Index[Player_id] < 8) {
-            S_Timer = 50;
-            break;
-        }
-
-        SC_No[1] = 2;
-        S_Timer = 100;
+        Select_Next_CPU_Character();
         break;
 
     case 1:
