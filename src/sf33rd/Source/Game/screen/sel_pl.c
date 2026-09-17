@@ -932,27 +932,9 @@ void Sel_PL_2nd() {
     }
 }
 
-void Sel_PL_3rd() {
-    if (Stop_Cursor[ID] != 0 || Face_Move != 0) {
-        return;
-    }
-
-    if (Demo_Flag == 0) {
-        if (ID) {
-            Sel_PL_Sub(1, Check_Demo_Data(1));
-        } else {
-            Sel_PL_Sub(0, Check_Demo_Data(0));
-        }
-    } else if (ID) {
-        Sel_PL_Sub(1, Deley_Shot_Sub(1));
-    } else {
-        Sel_PL_Sub(0, Deley_Shot_Sub(0));
-    }
-
-    if (Sel_PL_Complete[ID] >= 0) {
-        return;
-    }
-
+/* Once a character is chosen: queue it, stop the cursor, and start a fresh grade
+ * record unless this player is continuing. */
+static void Commit_Player_Choice() {
 #if DEBUG
     if (debug_config.character_override[0]) {
         My_char[0] = debug_config.character_override[0] - 1;
@@ -985,6 +967,30 @@ void Sel_PL_3rd() {
     }
 
     Check_Same_CPU(ID);
+}
+
+void Sel_PL_3rd() {
+    if (Stop_Cursor[ID] != 0 || Face_Move != 0) {
+        return;
+    }
+
+    if (Demo_Flag == 0) {
+        if (ID) {
+            Sel_PL_Sub(1, Check_Demo_Data(1));
+        } else {
+            Sel_PL_Sub(0, Check_Demo_Data(0));
+        }
+    } else if (ID) {
+        Sel_PL_Sub(1, Deley_Shot_Sub(1));
+    } else {
+        Sel_PL_Sub(0, Deley_Shot_Sub(0));
+    }
+
+    if (Sel_PL_Complete[ID] >= 0) {
+        return;
+    }
+
+    Commit_Player_Choice();
 }
 
 u16 Deley_Shot_Sub(s16 PL_id) {
