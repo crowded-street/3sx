@@ -38,6 +38,28 @@ void about_gauge_process(PLW* wk) { // 🟡
     }
 }
 
+/* Both ways out of a spent max gauge clear the same three meter fields. */
+static void clear_super_art_meter(PLW* wk) {
+    wk->sa->saeff_mp = 0;
+    wk->sa->mp_rno = 0;
+    wk->sa->mp = 0;
+}
+
+/* Two things the port does when a gauge is spent and CPS3 does not: clear the
+ * super-art meter bug, and hold the next gain off for twenty frames. Both the
+ * EX gauge and the max gauge did each of them, in the same place. */
+static void clear_meter_bug_on_port(PLW* wk) {
+    if (!ArcadeBalance_IsEnabled()) {
+        sag_bug_fix(wk->wu.id);
+    }
+}
+
+static void hold_next_art_gain_on_port(PLW* wk) {
+    if (!ArcadeBalance_IsEnabled()) {
+        sag_inc_timer[wk->wu.id] = 20;
+    }
+}
+
 /* mpg_union's case 2: the max-gauge art being spent, or the state being unwound
  * because it was not. Moved out whole, so the fallthrough from case 1 into
  * default survives and every `break` still leaves the switch it always left. */
@@ -49,19 +71,11 @@ static void spend_max_gauge(PLW* wk) {
             wk->sa->gauge.i = 0;
         }
 
-        if (!ArcadeBalance_IsEnabled()) {
-            // CPS3 clears this meter state without the port's super-art bug workaround.
-            sag_bug_fix(wk->wu.id);
-        }
+        clear_meter_bug_on_port(wk);
 
-        wk->sa->saeff_mp = 0;
-        wk->sa->mp_rno = 0;
-        wk->sa->mp = 0;
+        clear_super_art_meter(wk);
 
-        if (!ArcadeBalance_IsEnabled()) {
-            // The port delays the next super-art gain for 20 frames; CPS3 does not.
-            sag_inc_timer[wk->wu.id] = 20;
-        }
+        hold_next_art_gain_on_port(wk);
 
         break;
 
@@ -73,9 +87,7 @@ static void spend_max_gauge(PLW* wk) {
         /* fallthrough */
 
     default:
-        wk->sa->saeff_mp = 0;
-        wk->sa->mp_rno = 0;
-        wk->sa->mp = 0;
+        clear_super_art_meter(wk);
         break;
     }
 }
@@ -169,6 +181,19 @@ static void disarm_or_fire_ex(PLW* wk) {
     }
 }
 
+/* Spending the EX gauge disarms it, and on the port also clears the meter bug
+ * and holds the next super-art gain off. */
+static void spend_and_disarm_ex(PLW* wk) {
+    spend_ex_gauge(wk);
+
+    clear_meter_bug_on_port(wk);
+
+    wk->sa->ex_rno = 0;
+    wk->sa->ex = 0;
+
+    hold_next_art_gain_on_port(wk);
+}
+
 void eag_union(PLW* wk) { // 🟡
     switch (wk->sa->ex_rno) {
     case 0:
@@ -180,21 +205,7 @@ void eag_union(PLW* wk) { // 🟡
         break;
 
     case 2:
-        spend_ex_gauge(wk);
-
-        if (!ArcadeBalance_IsEnabled()) {
-            // CPS3 clears this meter state without the port's super-art bug workaround.
-            sag_bug_fix(wk->wu.id);
-        }
-
-        wk->sa->ex_rno = 0;
-        wk->sa->ex = 0;
-
-        if (!ArcadeBalance_IsEnabled()) {
-            // The port delays the next super-art gain for 20 frames; CPS3 does not.
-            sag_inc_timer[wk->wu.id] = 20;
-        }
-
+        spend_and_disarm_ex(wk);
         break;
 
     default:
@@ -306,6 +317,19 @@ static void mark_art_attack_for(PLW* wk, u8 character) {
  * State 2 is deliberately left inline. Lifting it as well measured 6.69 against
  * 6.94 - the file already has two spend_or_abandon helpers, and a third makes
  * the duplication among them cost more than the complexity it removes. */
+/* Five characters' arts change what their attacks count as while the art runs;
+ * Oro's second art sets a dipsw bit instead. */
+static void mark_running_art_attack(PLW* wk) {
+    mark_art_attack_for(wk, CHAR_YUN);
+    mark_art_attack_for(wk, CHAR_YANG);
+    mark_art_attack_for(wk, CHAR_MAKOTO);
+    mark_art_attack_for(wk, CHAR_TWELVE);
+
+    if ((My_char[wk->wu.id] == CHAR_ORO) && (wk->sa->kind_of_arts == 2)) {
+        wk->wu.att.dipsw |= 0x10;
+    }
+}
+
 static void drain_gauge_while_art_runs(PLW* wk) {
     if ((wk->sa_stop_flag != 1) && (((PLW*)wk->wu.target_adrs)->sa_stop_flag != 1)) {
         wk->sa->gauge.i -= wk->sa->dtm * wk->sa->dtm_mul;
@@ -317,14 +341,7 @@ static void drain_gauge_while_art_runs(PLW* wk) {
         wk->sa->sa_rno = 0;
         wk->sa->dtm_mul = 1;
     } else {
-        mark_art_attack_for(wk, CHAR_YUN);
-        mark_art_attack_for(wk, CHAR_YANG);
-        mark_art_attack_for(wk, CHAR_MAKOTO);
-        mark_art_attack_for(wk, CHAR_TWELVE);
-
-        if ((My_char[wk->wu.id] == CHAR_ORO) && (wk->sa->kind_of_arts == 2)) {
-            wk->wu.att.dipsw |= 0x10;
-        }
+        mark_running_art_attack(wk);
     }
 }
 
