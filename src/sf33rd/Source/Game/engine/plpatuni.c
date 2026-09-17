@@ -508,6 +508,86 @@ void Att_KUUCHUUJINNCHUUWATARI(PLW* wk) {
     }
 }
 
+/* The spin itself. Four markers can arrive - the next movement row, a reset, the
+ * jump into recovery, and the hand-over to the union at state 2 - and a grab
+ * flag on either side cuts the spin short into state 4. */
+static void tenshin_spin(PLW* wk) {
+    char_move(&wk->wu);
+
+    switch (wk->wu.cg_type) {
+    case 20:
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+        break;
+
+    case 40:
+        reset_mvxy_data(&wk->wu);
+        wk->wu.cg_type = 0;
+        break;
+
+    case 50:
+        wk->wu.routine_no[3] = 4;
+        wk->wu.cg_type = 0;
+        break;
+
+    case 30:
+        wk->wu.mvxy.index = wk->as->data_ix;
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.routine_no[3] = 2;
+        wk->wu.cg_type = 0;
+        break;
+    }
+
+    add_mvxy_speed(&wk->wu);
+    cal_mvxy_speed(&wk->wu);
+
+    if (wk->wu.routine_no[3] != 4 && wk->hos_fi_flag | wk->hos_em_flag) {
+        char_move_cmj4(&wk->wu);
+        wk->wu.routine_no[3] = 4;
+    }
+}
+
+/* While the union has not landed, marker 30 still feeds the next row. */
+static void tenshin_union_step(PLW* wk) {
+    if (wk->wu.routine_no[3] != 3 && wk->wu.cg_type == 30) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+    }
+}
+
+/* Recovery reads the same markers as the spin minus the 50 that brought it here,
+ * so the two switches are near misses rather than duplicates and stay apart. */
+static void tenshin_recover(PLW* wk) {
+    char_move(&wk->wu);
+
+    switch (wk->wu.cg_type) {
+    case 20:
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+        break;
+
+    case 40:
+        reset_mvxy_data(&wk->wu);
+        wk->wu.cg_type = 0;
+        break;
+
+    case 30:
+        wk->wu.mvxy.index = wk->as->data_ix;
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.routine_no[3] = 2;
+        wk->wu.cg_type = 0;
+        break;
+    }
+
+    add_mvxy_speed(&wk->wu);
+    cal_mvxy_speed(&wk->wu);
+}
+
 void Att_TENSHINSENKYUUTAI(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -520,53 +600,12 @@ void Att_TENSHINSENKYUUTAI(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-
-        switch (wk->wu.cg_type) {
-        case 20:
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-            break;
-
-        case 40:
-            reset_mvxy_data(&wk->wu);
-            wk->wu.cg_type = 0;
-            break;
-
-        case 50:
-            wk->wu.routine_no[3] = 4;
-            wk->wu.cg_type = 0;
-            break;
-
-        case 30:
-            wk->wu.mvxy.index = wk->as->data_ix;
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.routine_no[3] = 2;
-            wk->wu.cg_type = 0;
-            break;
-        }
-
-        add_mvxy_speed(&wk->wu);
-        cal_mvxy_speed(&wk->wu);
-
-        if (wk->wu.routine_no[3] != 4 && wk->hos_fi_flag | wk->hos_em_flag) {
-            char_move_cmj4(&wk->wu);
-            wk->wu.routine_no[3] = 4;
-        }
-
+        tenshin_spin(wk);
         break;
 
     case 2:
         jumping_union_process(&wk->wu, 3);
-
-        if (wk->wu.routine_no[3] != 3 && wk->wu.cg_type == 30) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-        }
-
+        tenshin_union_step(wk);
         break;
 
     case 3:
@@ -574,31 +613,7 @@ void Att_TENSHINSENKYUUTAI(PLW* wk) {
         break;
 
     case 4:
-        char_move(&wk->wu);
-
-        switch (wk->wu.cg_type) {
-        case 20:
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-            break;
-
-        case 40:
-            reset_mvxy_data(&wk->wu);
-            wk->wu.cg_type = 0;
-            break;
-
-        case 30:
-            wk->wu.mvxy.index = wk->as->data_ix;
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.routine_no[3] = 2;
-            wk->wu.cg_type = 0;
-            break;
-        }
-
-        add_mvxy_speed(&wk->wu);
-        cal_mvxy_speed(&wk->wu);
+        tenshin_recover(wk);
         break;
     }
 }
