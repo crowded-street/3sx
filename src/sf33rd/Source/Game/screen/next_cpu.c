@@ -288,6 +288,25 @@ void Next_CPU_3rd() {
     }
 }
 
+/* The tail of the CPU intro: a cut shortens the hold, and where it goes next depends
+ * on which screen asked for the intro. */
+static void Leave_CPU_Intro() {
+    if (Scene_Cut) {
+        S_Timer = 1;
+    }
+
+    if ((S_Timer -= 1) != 0) {
+        return;
+    }
+
+    if (G_No[1] == 5 || G_No[1] == 10) {
+        SC_No[0] = 10;
+        return;
+    }
+
+    SC_No[0] = 6;
+}
+
 void Next_CPU_4th() {
     switch (SC_No[1]) {
     case 0:
@@ -304,20 +323,7 @@ void Next_CPU_4th() {
         break;
 
     default:
-        if (Scene_Cut) {
-            S_Timer = 1;
-        }
-
-        if ((S_Timer -= 1) != 0) {
-            break;
-        }
-
-        if (G_No[1] == 5 || G_No[1] == 10) {
-            SC_No[0] = 10;
-            break;
-        }
-
-        SC_No[0] = 6;
+        Leave_CPU_Intro();
         break;
     }
 }
