@@ -138,6 +138,15 @@ static void Show_Result_Screen() {
     }
 }
 
+/* The last hold: when it runs out the screen is over and the BGM fades with it. */
+static void End_Game_Over_Screen() {
+    if (--G_Timer == 0) {
+        GO_No[0] += 1;
+        SsBgmFadeOut(0x222);
+        GAME_OVER_X = 1;
+    }
+}
+
 void GameOver_2nd() {
     switch (GO_No[1]) {
     case 0:
@@ -197,11 +206,7 @@ void GameOver_2nd() {
         /* fallthrough */
 
     default:
-        if (--G_Timer == 0) {
-            GO_No[0] += 1;
-            SsBgmFadeOut(0x222);
-            GAME_OVER_X = 1;
-        }
+        End_Game_Over_Screen();
 
         break;
     }
