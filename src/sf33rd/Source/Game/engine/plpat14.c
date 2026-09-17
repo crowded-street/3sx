@@ -168,100 +168,130 @@ static void take_row_and_enter_state_2(PLW* wk) {
     }
 }
 
+/* The opening frame. */
+static void begin_pl14_at3(PLW* wk, PLW* twk) {
+    wk->wu.routine_no[3]++;
+    hoken_muriyari_chakuchi(wk);
+    wk->wu.rl_flag = wk->wu.rl_waza;
+    reset_mvxy_data(&wk->wu);
+    wk->wu.mvxy.index = wk->as->r_no;
+    set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+}
+
+/* The wind-up: marker 20 goes to state 2, marker 30 kills the vertical speed and
+ * goes to state 3, and either way the speed is applied once the state has moved. */
+static void pl14_at3_wind_up(PLW* wk, PLW* twk) {
+    char_move(&wk->wu);
+
+    take_row_and_enter_state_2(wk);
+
+    if (wk->wu.cg_type == 30) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.a[1].sp = wk->wu.mvxy.d[1].sp = wk->wu.mvxy.kop[1] = 0;
+        wk->wu.mvxy.index++;
+        wk->wu.routine_no[3] = 3;
+        wk->wu.cg_type = 0;
+    }
+
+    if (wk->wu.routine_no[3] != 1) {
+        add_mvxy_speed(&wk->wu);
+    }
+
+}
+
+/* The union leg: marker 1 goes to the regrab, marker 20 feeds rows, and the
+ * catch box is retargeted at the opponent while the union has not returned. */
+static void pl14_at3_union_leg(PLW* wk, PLW* twk) {
+    jumping_union_process(&wk->wu, 1);
+
+    if (wk->wu.cg_type == 1) {
+        wk->wu.cg_type = 0;
+        wk->wu.routine_no[3] = 4;
+    }
+
+    if ((wk->wu.routine_no[3] != 1) && (wk->wu.cg_type == 20)) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+    }
+
+    if ((wk->wu.routine_no[3] != 1) && wk->wu.cg_ja.caix) {
+        wk->wu.cg_ja.caix = pl14_HYAKKI_dat[twk->player_number];
+        wk->wu.h_cat = wk->wu.catch_adrs + wk->wu.cg_ja.caix;
+    }
+
+}
+
+/* The descent and its three markers. Its marker-30 block is a near miss of the
+ * wind-up's - that one assigns state 3 as well - so they stay apart. */
+static void pl14_at3_descent(PLW* wk, PLW* twk) {
+    char_move(&wk->wu);
+    cal_mvxy_speed(&wk->wu);
+    add_mvxy_speed(&wk->wu);
+
+    take_row_and_enter_state_2(wk);
+
+    if (wk->wu.cg_type == 21) {
+        reset_mvxy_data(&wk->wu);
+        wk->wu.cg_type = 0;
+        wk->wu.routine_no[3] = 1;
+    }
+
+    if (wk->wu.cg_type == 30) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.a[1].sp = wk->wu.mvxy.d[1].sp = wk->wu.mvxy.kop[1] = 0;
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+    }
+
+}
+
+/* The regrab, the near twin of the union leg against state 2 rather than 1. It
+ * is extracted because AT3 is a Large Method that only clears if every arm goes;
+ * see the playbook's rule on twin arms. */
+static void pl14_at3_regrab(PLW* wk, PLW* twk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 1) {
+        wk->wu.cg_type = 0;
+        wk->wu.routine_no[3] = 2;
+    }
+
+    if ((wk->wu.routine_no[3] != 2) && (wk->wu.cg_type == 20)) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+    }
+
+    if ((wk->wu.routine_no[3] != 2) && wk->wu.cg_ja.caix) {
+        wk->wu.cg_ja.caix = pl14_HYAKKI_dat[(twk->player_number)];
+        wk->wu.h_cat = wk->wu.catch_adrs + wk->wu.cg_ja.caix;
+    }
+
+}
+
 void Att_PL14_AT3(PLW* wk) {
     PLW* twk = (PLW*)wk->wu.target_adrs;
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        hoken_muriyari_chakuchi(wk);
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        reset_mvxy_data(&wk->wu);
-        wk->wu.mvxy.index = wk->as->r_no;
-        set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+        begin_pl14_at3(wk, twk);
         break;
 
     case 1:
-        char_move(&wk->wu);
-
-        take_row_and_enter_state_2(wk);
-
-        if (wk->wu.cg_type == 30) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.a[1].sp = wk->wu.mvxy.d[1].sp = wk->wu.mvxy.kop[1] = 0;
-            wk->wu.mvxy.index++;
-            wk->wu.routine_no[3] = 3;
-            wk->wu.cg_type = 0;
-        }
-
-        if (wk->wu.routine_no[3] != 1) {
-            add_mvxy_speed(&wk->wu);
-        }
-
+        pl14_at3_wind_up(wk, twk);
         break;
 
     case 2:
-        jumping_union_process(&wk->wu, 1);
-
-        if (wk->wu.cg_type == 1) {
-            wk->wu.cg_type = 0;
-            wk->wu.routine_no[3] = 4;
-        }
-
-        if ((wk->wu.routine_no[3] != 1) && (wk->wu.cg_type == 20)) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-        }
-
-        if ((wk->wu.routine_no[3] != 1) && wk->wu.cg_ja.caix) {
-            wk->wu.cg_ja.caix = pl14_HYAKKI_dat[twk->player_number];
-            wk->wu.h_cat = wk->wu.catch_adrs + wk->wu.cg_ja.caix;
-        }
-
+        pl14_at3_union_leg(wk, twk);
         break;
 
     case 3:
-        char_move(&wk->wu);
-        cal_mvxy_speed(&wk->wu);
-        add_mvxy_speed(&wk->wu);
-
-        take_row_and_enter_state_2(wk);
-
-        if (wk->wu.cg_type == 21) {
-            reset_mvxy_data(&wk->wu);
-            wk->wu.cg_type = 0;
-            wk->wu.routine_no[3] = 1;
-        }
-
-        if (wk->wu.cg_type == 30) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.a[1].sp = wk->wu.mvxy.d[1].sp = wk->wu.mvxy.kop[1] = 0;
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-        }
-
+        pl14_at3_descent(wk, twk);
         break;
 
     case 4:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 1) {
-            wk->wu.cg_type = 0;
-            wk->wu.routine_no[3] = 2;
-        }
-
-        if ((wk->wu.routine_no[3] != 2) && (wk->wu.cg_type == 20)) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-        }
-
-        if ((wk->wu.routine_no[3] != 2) && wk->wu.cg_ja.caix) {
-            wk->wu.cg_ja.caix = pl14_HYAKKI_dat[(twk->player_number)];
-            wk->wu.h_cat = wk->wu.catch_adrs + wk->wu.cg_ja.caix;
-        }
-
+        pl14_at3_regrab(wk, twk);
         break;
     }
 }
