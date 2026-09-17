@@ -45,6 +45,45 @@ static void keep_defender_damage(s16 ix2, s16 ix) {
     hs[ix].flag.results &= 0x1101;
 }
 
+/* A strong attacker: an overriding defender is untouched, one that outranks it
+ * cancels the trade, anything weaker loses its damage. */
+static s32 strong_attack_settles(PLW* ds, s16 ix2, s16 ix) {
+    if (!(ds->wu.att.dipsw & 0x40)) {
+        if (defender_outranks_attacker(ds)) {
+            return 1;
+        }
+
+        keep_defender_damage(ix2, ix);
+        return 1;
+    }
+
+    return 0;
+}
+
+/* A special attacker against a defender with no priority of its own: another
+ * special trades, anything else loses its damage. */
+static s32 special_attack_settles(PLW* ds, s16 ix2, s16 ix) {
+    if (defender_has_no_priority(ds)) {
+        if (ds->wu.kind_of_waza & 2) {
+            return 1;
+        }
+
+        keep_defender_damage(ix2, ix);
+        return 1;
+    }
+
+    return 0;
+}
+
+/* Neither side has priority: the defender's own special is what settles it. */
+static s32 plain_attack_settles(PLW* ds) {
+    if (!(ds->wu.kind_of_waza & 2)) {
+        return 1;
+    }
+
+    return 0;
+}
+
 /* Who wins when both sides connect on the same frame. Returns 1 when the trade
  * is settled here - the caller stops and falls to the shared tail, having
  * already had keep_defender_damage called if that is the outcome - and 0 when
@@ -65,27 +104,15 @@ static s32 trade_settled(PLW* as, PLW* ds, s16 ix2, s16 ix) {
     /* These two attacker cases ran the same block in the original; they
      * share it here, with both tests kept as they were written. */
     if ((as->wu.att.dipsw & 0x20) || (as->wu.kind_of_waza & 4)) {
-        if (!(ds->wu.att.dipsw & 0x40)) {
-            if (defender_outranks_attacker(ds)) {
-                return 1;
-            }
+        return strong_attack_settles(ds, ix2, ix);
+    }
 
-            keep_defender_damage(ix2, ix);
-            return 1;
-        }
-    } else if (as->wu.kind_of_waza & 2) {
-        if (defender_has_no_priority(ds)) {
-            if (ds->wu.kind_of_waza & 2) {
-                return 1;
-            }
+    if (as->wu.kind_of_waza & 2) {
+        return special_attack_settles(ds, ix2, ix);
+    }
 
-            keep_defender_damage(ix2, ix);
-            return 1;
-        }
-    } else if (neither_side_has_priority(as, ds)) {
-        if (!(ds->wu.kind_of_waza & 2)) {
-            return 1;
-        }
+    if (neither_side_has_priority(as, ds)) {
+        return plain_attack_settles(ds);
     }
 
     return 0;
