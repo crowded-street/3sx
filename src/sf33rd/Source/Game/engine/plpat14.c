@@ -110,6 +110,31 @@ void Att_PL14_AT1(PLW* wk) {
     }
 }
 
+/* AT2's markers: 10 steps the state on, 20 replaces the movement row and 30 adds
+ * to it. */
+static void pl14_at2_markers(PLW* wk) {
+    char_move(&wk->wu);
+
+    switch (wk->wu.cg_type) {
+    case 10:
+        wk->wu.routine_no[3]++;
+        wk->wu.cg_type = 0;
+        break;
+
+    case 20:
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+        break;
+
+    case 30:
+        add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+        break;
+    }
+}
+
 void Att_PL14_AT2(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -119,26 +144,7 @@ void Att_PL14_AT2(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-
-        switch (wk->wu.cg_type) {
-        case 10:
-            wk->wu.routine_no[3]++;
-            wk->wu.cg_type = 0;
-            break;
-
-        case 20:
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-            break;
-
-        case 30:
-            add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-            break;
-        }
+        pl14_at2_markers(wk);
         break;
 
     case 2:
