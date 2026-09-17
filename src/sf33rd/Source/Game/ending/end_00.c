@@ -124,6 +124,17 @@ s16 end_0_1_time[1] = { 360 };
 /* Everything after Gill has appeared: the hold, the flash, and the fade out to the
  * next scene. Labels are the original ones. */
 /* The fade out itself, and the panel it leaves behind. */
+/* Hold on the blank panel, then end the scene. */
+static void end_000_0001_hold_blank() {
+    overwrite_panel(0xFFFFFFFF, 0x17);
+    bgw_ptr->free--;
+
+    if (bgw_ptr->free < 0) {
+        bgw_ptr->r_no_1++;
+        end_w.timer = 0;
+    }
+}
+
 static void end_000_0001_fade_out() {
     switch (bgw_ptr->r_no_1) {
     case 6:
@@ -151,13 +162,7 @@ static void end_000_0001_fade_out() {
         break;
 
     case 9:
-        overwrite_panel(0xFFFFFFFF, 0x17);
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free < 0) {
-            bgw_ptr->r_no_1++;
-            end_w.timer = 0;
-        }
+        end_000_0001_hold_blank();
 
         break;
     }
