@@ -488,6 +488,22 @@ void Setup_Face(s16 y) {
     Flash_Rank_Time += Flash_Rank_Interval;
 }
 
+/* Draw the score's eight digits, leading zeros suppressed. */
+static void Draw_Score_Digits(const s16 Digit[], s16 First_Digit, s16 y) {
+    s16 i;
+    u32 xx;
+    u32 assign3;
+    u32 assign4;
+
+    for (i = 0, assign3 = xx = 7; i < 8; i++, assign4 = xx--) {
+        Flash_Rank_Time += Flash_Rank_Interval;
+        Rank_Pos_X += 16;
+        if (First_Digit >= xx) {
+            effect_67_init(26, Rank_Pos_X, Rank_Pos_Y, 180, Digit[xx] + 75, 10, y, 0);
+        }
+    }
+}
+
 void Setup_Score(s16 y) {
     s16 i;
     s16 First_Digit;
@@ -497,8 +513,6 @@ void Setup_Score(s16 y) {
 
     u32 assign1;
     u32 assign2;
-    u32 assign3;
-    u32 assign4;
 
     Score_Buff = Ranking_Data[Rank].score;
     First_Digit = -1;
@@ -515,13 +529,7 @@ void Setup_Score(s16 y) {
         First_Digit = 0;
     }
 
-    for (i = 0, assign3 = xx = 7; i < 8; i++, assign4 = xx--) {
-        Flash_Rank_Time += Flash_Rank_Interval;
-        Rank_Pos_X += 16;
-        if (First_Digit >= xx) {
-            effect_67_init(26, Rank_Pos_X, Rank_Pos_Y, 180, Digit[xx] + 75, 10, y, 0);
-        }
-    }
+    Draw_Score_Digits(Digit, First_Digit, y);
 
     Rank_Pos_X += 24;
 }
