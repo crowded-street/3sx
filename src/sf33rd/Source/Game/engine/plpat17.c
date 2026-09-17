@@ -48,6 +48,12 @@ static void take_row_and_enter_state_3(PLW* wk) {
     }
 }
 
+/* Outside the bonus stage, or in it but not on the car, the attack starts from
+ * the floor. */
+static s32 not_riding_the_bonus_car(const PLW* wk) {
+    return Bonus_Game_Flag != 20 || (Bonus_Game_Flag == 20 && wk->bs2_on_car == 0);
+}
+
 /* The opening frame. Outside the bonus-stage car the attack always starts from
  * the floor. */
 static void begin_pl17_at1(PLW* wk) {
@@ -58,7 +64,7 @@ static void begin_pl17_at1(PLW* wk) {
     setup_mvxy_data(&wk->wu, wk->as->r_no);
     wk->wu.mvxy.index = wk->as->data_ix;
 
-    if (Bonus_Game_Flag != 20 || (Bonus_Game_Flag == 20 && wk->bs2_on_car == 0)) {
+    if (not_riding_the_bonus_car(wk)) {
         wk->wu.xyz[1].disp.pos = 0;
     }
 
