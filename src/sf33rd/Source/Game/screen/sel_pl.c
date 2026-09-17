@@ -865,6 +865,34 @@ void Sel_PL_Sub_CR(s16 PL_id) {
     } while (!permission_player[Present_Mode].ok[Face_Cursor_Data[Cursor_Y[PL_id]][Cursor_X[PL_id]]]);
 }
 
+/* Having stepped up a row, wrap to the bottom of the previous column when the step
+ * ran off the top. Each column has its own bottom row. */
+static void Wrap_Cursor_Up_Column(s16 PL_id) {
+    switch (Cursor_X[PL_id]) {
+    case 0:
+        if (Cursor_Y[PL_id] <= 0) {
+            Cursor_Y[PL_id] = 1;
+            Cursor_X[PL_id] = 6;
+        }
+        break;
+
+    case 1:
+        if (Cursor_Y[PL_id] < 0) {
+            Cursor_Y[PL_id] = 2;
+            Cursor_X[PL_id] = 0;
+        }
+        break;
+
+    default:
+        if (Cursor_Y[PL_id] < 0) {
+            Cursor_Y[PL_id] = 2;
+            Cursor_X[PL_id]--;
+        }
+
+        break;
+    }
+}
+
 void Sel_PL_Sub_CL(s16 PL_id) {
     if (Cursor_X[PL_id] == 7) {
         return;
@@ -875,29 +903,7 @@ void Sel_PL_Sub_CL(s16 PL_id) {
     do {
         Cursor_Y[PL_id]--;
 
-        switch (Cursor_X[PL_id]) {
-        case 0:
-            if (Cursor_Y[PL_id] <= 0) {
-                Cursor_Y[PL_id] = 1;
-                Cursor_X[PL_id] = 6;
-            }
-            break;
-
-        case 1:
-            if (Cursor_Y[PL_id] < 0) {
-                Cursor_Y[PL_id] = 2;
-                Cursor_X[PL_id] = 0;
-            }
-            break;
-
-        default:
-            if (Cursor_Y[PL_id] < 0) {
-                Cursor_Y[PL_id] = 2;
-                Cursor_X[PL_id]--;
-            }
-
-            break;
-        }
+        Wrap_Cursor_Up_Column(PL_id);
     } while (!permission_player[Present_Mode].ok[Face_Cursor_Data[Cursor_Y[PL_id]][Cursor_X[PL_id]]]);
 }
 
