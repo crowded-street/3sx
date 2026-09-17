@@ -623,6 +623,30 @@ void Sel_PL_3rd() {
     Commit_Player_Choice();
 }
 
+/* State 0: nothing latched yet. The three-button art shortcut and the buttons that
+ * cannot be combined go straight through; anything else starts the latch window.
+ * The arm's `break` fell to the function's `return lever`, which is what it
+ * returns here. */
+static u16 Begin_Delayed_Shot(s16 PL_id, u16 sw, u16 lever) {
+    if (!(sw & SWK_ATTACKS)) {
+        return lever;
+    }
+
+    if (sw == (SWK_WEST | SWK_RIGHT_SHOULDER | SWK_EAST)) {
+        return lever | (SWK_WEST | SWK_RIGHT_SHOULDER | SWK_EAST);
+    }
+
+    if (sw & (SWK_NORTH | SWK_SOUTH | SWK_RIGHT_TRIGGER | SWK_START)) {
+        return sw | lever;
+    }
+
+    Color7[PL_id] = sw;
+    Deley_Shot_No[PL_id] = 1;
+    Deley_Shot_Timer[PL_id] = 3;
+
+    return lever;
+}
+
 u16 Deley_Shot_Sub(s16 PL_id) {
     u16 sw;
     u16 lever;
@@ -638,22 +662,7 @@ u16 Deley_Shot_Sub(s16 PL_id) {
 
     switch (Deley_Shot_No[PL_id]) {
     case 0:
-        if (!(sw & SWK_ATTACKS)) {
-            break;
-        }
-
-        if (sw == (SWK_WEST | SWK_RIGHT_SHOULDER | SWK_EAST)) {
-            return lever | (SWK_WEST | SWK_RIGHT_SHOULDER | SWK_EAST);
-        }
-
-        if (sw & (SWK_NORTH | SWK_SOUTH | SWK_RIGHT_TRIGGER | SWK_START)) {
-            return sw | lever;
-        }
-
-        Color7[PL_id] = sw;
-        Deley_Shot_No[PL_id] = 1;
-        Deley_Shot_Timer[PL_id] = 3;
-
+        lever = Begin_Delayed_Shot(PL_id, sw, lever);
         break;
 
     case 1:
