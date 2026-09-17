@@ -327,6 +327,22 @@ s16 ja_nmj_rno_change(WORK* wk) { // 🟢
     return rnum;
 }
 
+/* The jump-attack hitboxes: either the attack box or the catch box is up. */
+static s32 ja_hitbox_active(const PLW* wk) {
+    return (wk->wu.cg_ja.atix != 0) || (wk->wu.cg_ja.caix != 0);
+}
+
+/* Both boxes are down, or the attack can no longer connect - either way the
+ * dummy-RTNM countdown may start. */
+static s32 ja_hitbox_down_or_spent(const PLW* wk) {
+    return ((wk->wu.cg_ja.atix == 0) && (wk->wu.cg_ja.caix == 0)) || !wk->wu.att_hit_ok;
+}
+
+/* A box is up again and it can still connect, so the countdown restarts. */
+static s32 ja_hitbox_active_and_live(const PLW* wk) {
+    return ((wk->wu.cg_ja.atix != 0) || (wk->wu.cg_ja.caix != 0)) && wk->wu.att_hit_ok;
+}
+
 void check_ja_nmj_dummy_RTNM(PLW* wk) { // 🟢
     if (wk->wu.xyz[1].disp.pos <= 0) {
         wk->ja_nmj_rno = 0;
@@ -335,14 +351,14 @@ void check_ja_nmj_dummy_RTNM(PLW* wk) { // 🟢
 
     switch (wk->ja_nmj_rno) {
     case 0:
-        if ((wk->wu.cg_ja.atix != 0) || (wk->wu.cg_ja.caix != 0)) {
+        if (ja_hitbox_active(wk)) {
             wk->ja_nmj_rno = 1;
         }
 
         break;
 
     case 1:
-        if (((wk->wu.cg_ja.atix == 0) && (wk->wu.cg_ja.caix == 0)) || !wk->wu.att_hit_ok) {
+        if (ja_hitbox_down_or_spent(wk)) {
             wk->ja_nmj_cnt = get_cjdR(wk);
             wk->ja_nmj_rno = 2;
         }
@@ -350,7 +366,7 @@ void check_ja_nmj_dummy_RTNM(PLW* wk) { // 🟢
         break;
 
     case 2:
-        if (((wk->wu.cg_ja.atix != 0) || (wk->wu.cg_ja.caix != 0)) && wk->wu.att_hit_ok) {
+        if (ja_hitbox_active_and_live(wk)) {
             wk->ja_nmj_rno = 1;
             break;
         }
@@ -362,7 +378,7 @@ void check_ja_nmj_dummy_RTNM(PLW* wk) { // 🟢
         break;
 
     default:
-        if ((wk->wu.cg_ja.atix != 0) || (wk->wu.cg_ja.caix != 0)) {
+        if (ja_hitbox_active(wk)) {
             if (wk->wu.att_hit_ok) {
                 wk->ja_nmj_rno = 1;
                 break;
