@@ -284,6 +284,17 @@ void Regular_OBJ_Sub(s16 PL_id, s16 Dir) {
     effect_E0_init(Dir, 1, 0);
 }
 
+/* One grade column of the history strip. An unplayed stage reads as -1 and is shown
+ * as grade 0. */
+static void Show_Grade_Column(s16 grade) {
+    if (grade == -1) {
+        grade = 0;
+    }
+
+    effect_A9_init(80, grade, 17, 0);
+    Offset_BG_X[3] += 88;
+}
+
 void Setup_History_OBJ() {
     s16 q_index = Break_Com[Player_id][17];
     s16 xx;
@@ -304,12 +315,7 @@ void Setup_History_OBJ() {
         effect_A9_init(12, EM_History[Player_id][xx], 16, 0);
         grade = judge_final[Player_id][0].vs_cpu_grade[xx];
 
-        if (grade == -1) {
-            grade = 0;
-        }
-
-        effect_A9_init(80, grade, 17, 0);
-        Offset_BG_X[3] += 88;
+        Show_Grade_Column(grade);
 
         if (q_index == 0 || (q_index - 1) != xx) {
             continue;
@@ -320,12 +326,7 @@ void Setup_History_OBJ() {
         effect_A9_init(12, 17, 16, 0);
         grade = judge_final[Player_id]->vs_cpu_grade[15];
 
-        if (grade == -1) {
-            grade = 0;
-        }
-
-        effect_A9_init(80, grade, 17, 0);
-        Offset_BG_X[3] += 88;
+        Show_Grade_Column(grade);
     }
 
     Offset_BG_X[3] -= 40;
