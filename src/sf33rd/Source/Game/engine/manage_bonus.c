@@ -252,6 +252,28 @@ static void award_perfect_bonus(void) {
     Flash_Bonus_Perfect();
 }
 
+/* The perfect bonus itself and the pause after it. Case labels are the
+ * originals. */
+static void run_bonus_perfect_award() {
+    switch (C_No[3]) {
+    case 2:
+        if (bonus_cut_and_timer_finished()) {
+            award_perfect_bonus();
+            break;
+        }
+
+        break;
+
+    default:
+        if (--C_Timer == 0) {
+            C_No[2]++;
+            C_Timer = 30;
+        }
+
+        break;
+    }
+}
+
 static void run_bonus_perfect_result_phase(void) {
     switch (C_No[3]) {
     case 0:
@@ -272,20 +294,8 @@ static void run_bonus_perfect_result_phase(void) {
 
         break;
 
-    case 2:
-        if (bonus_cut_and_timer_finished()) {
-            award_perfect_bonus();
-            break;
-        }
-
-        break;
-
     default:
-        if (--C_Timer == 0) {
-            C_No[2]++;
-            C_Timer = 30;
-        }
-
+        run_bonus_perfect_award();
         break;
     }
 }
