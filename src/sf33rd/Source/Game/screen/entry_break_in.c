@@ -57,15 +57,10 @@ static void Break_Into_Handover(s16 PL_id, s16 Jump_Index) {
     }
 }
 
-void Break_Into_Sub(s16 PL_id, s16 Jump_Index) {
+/* The screens that interrupt a running fight. Labels unchanged; anything they do not
+ * match carries on to the hand-over screens, as it did when all the arms sat together. */
+static void Break_Into_Interrupt(s16 PL_id, s16 Jump_Index) {
     switch (Jump_Index) {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-        Break_Into_02(PL_id);
-        break;
-
     case 4:
     case 6:
         Break_Into_04(PL_id);
@@ -77,6 +72,21 @@ void Break_Into_Sub(s16 PL_id, s16 Jump_Index) {
 
     default:
         Break_Into_Handover(PL_id, Jump_Index);
+        break;
+    }
+}
+
+void Break_Into_Sub(s16 PL_id, s16 Jump_Index) {
+    switch (Jump_Index) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+        Break_Into_02(PL_id);
+        break;
+
+    default:
+        Break_Into_Interrupt(PL_id, Jump_Index);
         break;
     }
 }
