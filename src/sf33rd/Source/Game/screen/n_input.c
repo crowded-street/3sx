@@ -228,15 +228,20 @@ void Name_Scs_Finish() {
 
 /* No button pressed: the lever walks the character under the cursor round the
  * alphabet, wrapping at either end. */
+/* Lever down: step back one character, wrapping to the end of the alphabet. */
+static void Step_Name_Character_Back(u16 sw_data, u16 sw_up_w) {
+    if (auto_n_check(4, 0, sw_data, sw_up_w)) {
+        name_ptr->code[name_ptr->index]--;
+
+        if (name_ptr->code[name_ptr->index] < 0) {
+            name_ptr->code[name_ptr->index] = 46;
+        }
+    }
+}
+
 static s32 Step_Name_Character(u16 sw_data, u16 sw_up_w) {
     if (sw_data & 0xC) {
-        if (auto_n_check(4, 0, sw_data, sw_up_w)) {
-            name_ptr->code[name_ptr->index]--;
-
-            if (name_ptr->code[name_ptr->index] < 0) {
-                name_ptr->code[name_ptr->index] = 46;
-            }
-        }
+        Step_Name_Character_Back(sw_data, sw_up_w);
         if (auto_n_check(8, 1, sw_data, sw_up_w)) {
             name_ptr->code[name_ptr->index]++;
 
