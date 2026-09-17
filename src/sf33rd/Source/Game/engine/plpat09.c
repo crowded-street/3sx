@@ -297,21 +297,33 @@ static void aim_at_homing_height(PLW* wk, const PLW* twk, const s16* curr_kop, s
  * the result back across the player when the facing does not match the side the
  * opponent is on. kop 1's midpoint form is the near twin of this and stays
  * inline: one extraction already takes the caller under the threshold. */
+/* The opponent is to the right: aim short of them by the row's offset, and mirror
+ * that back across the player when the facing does not match.
+ *
+ * Only this arm is lifted. Its mirror stays inline: the two differ in the sign of
+ * both operations and in which way rl_flag is tested, so as two functions they
+ * would be a duplication pair, and one arm is enough to clear the bump. */
+static s16 homing_target_x_from_left(const PLW* wk, const PLW* twk) {
+    s16 ex = twk->wu.xyz[0].disp.pos - homing_hos[wk->pl09_dat_index][twk->player_number][0];
+
+    if (!wk->wu.rl_flag) {
+        ex = wk->wu.xyz[0].disp.pos - (ex - wk->wu.xyz[0].disp.pos);
+    }
+
+    return ex;
+}
+
 static s16 homing_target_x(const PLW* wk, const PLW* twk) {
     s16 ex;
 
     if (wk->wu.xyz[0].disp.pos < twk->wu.xyz[0].disp.pos) {
-        ex = twk->wu.xyz[0].disp.pos - homing_hos[wk->pl09_dat_index][twk->player_number][0];
+        return homing_target_x_from_left(wk, twk);
+    }
 
-        if (!wk->wu.rl_flag) {
-            ex = wk->wu.xyz[0].disp.pos - (ex - wk->wu.xyz[0].disp.pos);
-        }
-    } else {
-        ex = twk->wu.xyz[0].disp.pos + homing_hos[wk->pl09_dat_index][twk->player_number][0];
+    ex = twk->wu.xyz[0].disp.pos + homing_hos[wk->pl09_dat_index][twk->player_number][0];
 
-        if (wk->wu.rl_flag) {
-            ex = wk->wu.xyz[0].disp.pos + (wk->wu.xyz[0].disp.pos - ex);
-        }
+    if (wk->wu.rl_flag) {
+        ex = wk->wu.xyz[0].disp.pos + (wk->wu.xyz[0].disp.pos - ex);
     }
 
     return ex;
