@@ -93,6 +93,11 @@ void GameOver_1st() {
     }
 }
 
+/* Neither side is entering a ranking name, so the game-over screen need not wait. */
+static s32 Neither_Player_Is_Naming() {
+    return (E_Number[0][0] != 2) && (E_Number[1][0] != 2);
+}
+
 void GameOver_2nd() {
     switch (GO_No[1]) {
     case 0:
@@ -144,7 +149,7 @@ void GameOver_2nd() {
             BGM_Request(54);
             Ignore_Entry[LOSER] = 0;
 
-            if ((E_Number[0][0] != 2) && (E_Number[1][0] != 2)) {
+            if (Neither_Player_Is_Naming()) {
                 GO_No[1] += 2;
                 G_Timer = 60;
                 return;
@@ -157,7 +162,7 @@ void GameOver_2nd() {
         break;
 
     case 5:
-        if ((E_Number[0][0] != 2) && (E_Number[1][0] != 2)) {
+        if (Neither_Player_Is_Naming()) {
             GO_No[1] += 1;
             G_Timer = 60;
             return;
