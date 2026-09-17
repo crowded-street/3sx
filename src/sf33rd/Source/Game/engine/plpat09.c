@@ -174,6 +174,39 @@ s32 set_tenguiwa(PLW* wk, u8 data) {
     return 0;
 }
 
+/* The taunt itself. Marker 40 pays the super-art gauge, marker 20 counts another
+ * success up to 13, marker 30 ends it. While it runs, the stun timer recovers at
+ * the rate that count selects. The 30 arm's `break` left the switch with nothing
+ * after it, so a return is the same exit. */
+static void tokushu_taunt_frames(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 40) {
+        wk->wu.cg_type = 0;
+        add_sp_arts_gauge_tokushu(wk);
+    }
+
+    if (wk->wu.cg_type == 20) {
+        wk->wu.cg_type = 0;
+
+        if (++wk->tk_success > 13) {
+            wk->tk_success = 13;
+        }
+    }
+
+    if (wk->wu.cg_type == 30) {
+        wk->wu.routine_no[3]++;
+        wk->wu.cg_type = 0;
+        return;
+    }
+
+    wk->py->now.timer -= wk->py->recover * pl09_tk_table[wk->tk_success] / 100;
+
+    if (wk->py->now.quantity.h <= 0) {
+        wk->py->now.timer = 0;
+    }
+}
+
 void Att_PL09_TOKUSHUKOUDOU(PLW* wk) {
     wk->scr_pos_set_flag = 0;
 
@@ -187,33 +220,7 @@ void Att_PL09_TOKUSHUKOUDOU(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 40) {
-            wk->wu.cg_type = 0;
-            add_sp_arts_gauge_tokushu(wk);
-        }
-
-        if (wk->wu.cg_type == 20) {
-            wk->wu.cg_type = 0;
-
-            if (++wk->tk_success > 13) {
-                wk->tk_success = 13;
-            }
-        }
-
-        if (wk->wu.cg_type == 30) {
-            wk->wu.routine_no[3]++;
-            wk->wu.cg_type = 0;
-            break;
-        }
-
-        wk->py->now.timer -= wk->py->recover * pl09_tk_table[wk->tk_success] / 100;
-
-        if (wk->py->now.quantity.h <= 0) {
-            wk->py->now.timer = 0;
-        }
-
+        tokushu_taunt_frames(wk);
         break;
 
     default:
