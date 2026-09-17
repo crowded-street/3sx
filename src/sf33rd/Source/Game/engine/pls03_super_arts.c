@@ -95,7 +95,28 @@ static s32 launch_ex_strength(PLW* wk, u8 slot_ix, s16 j) {
     return 1;
 }
 
-static s32 try_grounded_ex_strengths(PLW* wk, u8 slot_ix, u16 cusw) {
+/* Where a grounded EX strength's animation set lives. */
+static void select_grounded_ex_table(PLW* wk, u8 slot_ix, s16 j) {
+    if (ArcadeBalance_IsEnabled()) {
+        wk->as = &asstbl_lv_9900_g_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][j + (slot_ix - 20) * 4];
+    } else {
+        wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(slot_ix)][j + (slot_ix - 20) * 4];
+    }
+}
+
+/* The airborne one, whose slot base is 38 where the grounded side's is 20. */
+static void select_airborne_ex_table(PLW* wk, u8 slot_ix, s16 j) {
+    if (ArcadeBalance_IsEnabled()) {
+        wk->as = &asstbl_lv_9900_a_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][j + (slot_ix - 38) * 4];
+    } else {
+        wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(slot_ix)][j + (slot_ix - 38) * 4];
+    }
+}
+
+/* The strength scan both EX paths run, walking the four strengths from 3 down
+ * and skipping 3 unless the slot carries the EX bits. The only thing the two
+ * differed in was which table the match selects, so that call is the parameter. */
+static s32 try_ex_strengths(PLW* wk, u8 slot_ix, u16 cusw, void (*select_table)(PLW*, u8, s16)) {
     s16 j;
     u16 exsw;
 
@@ -108,20 +129,16 @@ static s32 try_grounded_ex_strengths(PLW* wk, u8 slot_ix, u16 cusw) {
 
         if (exsw == cmdshot_conv_tbl[wk->cp->exdt[slot_ix][j] & 0xF]) {
             setup_comm_back(&wk->wu);
-
-            if (ArcadeBalance_IsEnabled()) {
-                wk->as = &asstbl_lv_9900_g_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)]
-                                                 [j + (slot_ix - 20) * 4];
-            } else {
-                wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(slot_ix)]
-                                         [j + (slot_ix - 20) * 4];
-            }
-
+            select_table(wk, slot_ix, j);
             return launch_ex_strength(wk, slot_ix, j);
         }
     }
 
     return 0;
+}
+
+static s32 try_grounded_ex_strengths(PLW* wk, u8 slot_ix, u16 cusw) {
+    return try_ex_strengths(wk, slot_ix, cusw, select_grounded_ex_table);
 }
 
 static s32 try_grounded_ex_super(PLW* wk, u8 slot_ix, s8 always) {
@@ -158,32 +175,7 @@ static s32 try_grounded_ex_super(PLW* wk, u8 slot_ix, s8 always) {
 /* Try each strength of the airborne EX super in turn, strongest first, and
  * fire the first one whose buttons are all held. */
 static s32 try_airborne_ex_strengths(PLW* wk, u8 slot_ix, u16 cusw) {
-    s16 j;
-    u16 exsw;
-
-    for (j = 3; j >= 0; j--) {
-        if ((j == 3) && !(wk->cp->btix[slot_ix] & 0x600)) {
-            continue;
-        }
-
-        exsw = cusw & cmdshot_conv_tbl[wk->cp->exdt[slot_ix][j]];
-
-        if (exsw == cmdshot_conv_tbl[wk->cp->exdt[slot_ix][j] & 0xF]) {
-            setup_comm_back(&wk->wu);
-
-            if (ArcadeBalance_IsEnabled()) {
-                wk->as = &asstbl_lv_9900_a_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)]
-                                                 [j + (slot_ix - 38) * 4];
-            } else {
-                wk->as = &_assadr_lv_9900[wk->player_number][cmdixconv(slot_ix)]
-                                         [j + (slot_ix - 38) * 4];
-            }
-
-            return launch_ex_strength(wk, slot_ix, j);
-        }
-    }
-
-    return 0;
+    return try_ex_strengths(wk, slot_ix, cusw, select_airborne_ex_table);
 }
 
 static s32 try_airborne_ex_super(PLW* wk, u8 slot_ix, s8 always) {
