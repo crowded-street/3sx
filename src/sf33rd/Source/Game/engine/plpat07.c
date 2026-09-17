@@ -56,6 +56,32 @@ void Att_PL07_SA2(PLW* wk) {
     }
 }
 
+/* The travelling frames: marker 20 takes the next row, 21 resets it, 30 ends the
+ * travel. */
+static void pl07_at1_travel(PLW* wk) {
+    char_move(&wk->wu);
+    cal_mvxy_speed(&wk->wu);
+    add_mvxy_speed(&wk->wu);
+
+    switch (wk->wu.cg_type) {
+    case 20:
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+        break;
+
+    case 21:
+        reset_mvxy_data(&wk->wu);
+        wk->wu.cg_type = 0;
+        break;
+
+    case 30:
+        wk->wu.routine_no[3] = 2;
+        wk->wu.cg_type = 0;
+        break;
+    }
+}
+
 void Att_PL07_AT1(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -68,28 +94,7 @@ void Att_PL07_AT1(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-        cal_mvxy_speed(&wk->wu);
-        add_mvxy_speed(&wk->wu);
-
-        switch (wk->wu.cg_type) {
-        case 20:
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-            break;
-
-        case 21:
-            reset_mvxy_data(&wk->wu);
-            wk->wu.cg_type = 0;
-            break;
-
-        case 30:
-            wk->wu.routine_no[3] = 2;
-            wk->wu.cg_type = 0;
-            break;
-        }
-
+        pl07_at1_travel(wk);
         break;
     case 2:
         char_move(&wk->wu);
