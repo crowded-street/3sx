@@ -619,10 +619,11 @@ static void clear_lower_priority_waza_flags() {
     }
 }
 
-/* The half of the dash command that watches the lever come back: the window
- * it has to happen in, the release itself, and the timeout. Case labels are
- * the originals. */
-static void run_check_10_release() {
+/* The half of a dash command that watches the lever come back: the window it
+ * has to happen in, the release itself, and the timeout. check_10 and check_12
+ * had these three states written out byte for byte identically. Case labels
+ * are the originals. */
+static void run_dash_release_states() {
     switch (waza_ptr->shot_ok) {
     case 2:
         waza_ptr->w_int--;
@@ -709,7 +710,7 @@ void check_10() { // 🟢
         break;
 
     default:
-        run_check_10_release();
+        run_dash_release_states();
         break;
     }
 }
@@ -793,61 +794,8 @@ void check_12() { // 🟢
 
         break;
 
-    case 2:
-        waza_ptr->w_int--;
-        waza_ptr->free3--;
-
-        if (waza_ptr->w_int > 0) {
-            if (chk_pl->sw_lever == 0) {
-                waza_ptr->shot_ok++;
-                break;
-            }
-
-            if (chk_pl->sw_lever & 8) {
-                wcp[cmd_id].waza_flag[waza_type[cmd_id]] = 0;
-                waza_ptr->shot_ok++;
-                break;
-            }
-
-            if (chk_pl->sw_lever != waza_ptr->w_lvr) {
-                wcp[cmd_id].waza_flag[waza_type[cmd_id]] = 0;
-                waza_ptr->shot_ok++;
-                break;
-            }
-        } else {
-            wcp[cmd_id].waza_flag[waza_type[cmd_id]] = 0;
-            waza_ptr->shot_ok++;
-        }
-
-        break;
-
-    case 3:
-        waza_ptr->free3--;
-
-        if (waza_ptr->free3 < 0) {
-            waza_ptr->w_type = 0;
-            break;
-        }
-
-        if ((chk_pl->sw_now & 8) || !(chk_pl->sw_now != waza_ptr->w_lvr)) {
-            wcp[cmd_id].waza_flag[waza_type[cmd_id]] = 0;
-            break;
-        }
-
-        if (chk_pl->sw_now & 0xF) {
-            waza_ptr->shot_ok++;
-            wcp[cmd_id].waza_flag[waza_type[cmd_id]] = 0;
-        }
-
-        break;
-
-    case 4:
-        waza_ptr->free3--;
-
-        if (waza_ptr->free3 < 0) {
-            waza_ptr->w_type = 0;
-        }
-
+    default:
+        run_dash_release_states();
         break;
     }
 }
