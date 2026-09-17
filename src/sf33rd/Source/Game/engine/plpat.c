@@ -431,11 +431,17 @@ void check_ja_nmj_dummy_RTNM(PLW* wk) { // 🟢
     }
 }
 
+/* Nothing was hit this frame: either the attack can still connect or it touched
+ * nothing at all. */
+static s32 ja_attack_never_landed(const PLW* wk) {
+    return wk->wu.att_hit_ok || (wk->wu.hf.hit.player == 0);
+}
+
 u8 get_cjdR(PLW* wk) { // 🟢
     s16 w_ix = (wk->wu.kind_of_waza & 6);
     w_ix += ((wk->wu.hf.hit.player & 0xA2) != 0);
 
-    if (wk->wu.att_hit_ok || (wk->wu.hf.hit.player == 0)) {
+    if (ja_attack_never_landed(wk)) {
         goto case0;
     }
 
