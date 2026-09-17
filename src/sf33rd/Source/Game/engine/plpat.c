@@ -51,6 +51,40 @@ const u8* cjdr_hits_table[20];
 const u8* cjdr_blocking_table[20];
 const u8* cjdr_defense_table[20];
 
+/* The first frame of an attack clears its per-attack bookkeeping; every later frame
+ * only refreshes the pad feedback. */
+static void reset_attack_entry_state(PLW* wk) {
+    if (wk->wu.routine_no[3] != 0) {
+        // Port-only controller feedback; it does not affect attack behavior.
+        pp_pulpara_remake_at(wk);
+        return;
+    }
+
+    wk->caution_flag = 1;
+    wk->dm_vital_backup = 0;
+    wk->dm_vital_use = 0;
+    wk->total_att_hit_ok = 0;
+    wk->hsjp_ok = 0;
+
+    if (!ArcadeBalance_IsEnabled() && wk->wu.routine_no[2] < 16) {
+        // Chain EX bookkeeping is port-only and absent from CPS3.
+        clear_chainex_check(wk->wu.id);
+    }
+}
+
+/* A cg_prio of 1 pushes the player in front of the opponent, anything else behind. */
+static void bias_next_z_by_cg_prio(PLW* wk) {
+    if (!wk->wu.cg_prio) {
+        return;
+    }
+
+    if (wk->wu.cg_prio == 1) {
+        wk->wu.next_z += 4;
+    } else {
+        wk->wu.next_z -= 4;
+    }
+}
+
 void Player_attack(PLW* wk) { // 🟡
     wk->wu.next_z = wk->wu.my_priority;
     wk->running_f = 0;
@@ -73,21 +107,7 @@ void Player_attack(PLW* wk) { // 🟡
     wk->wu.swallow_no_effect = 0; // Port-only visual suppression; CPS3 does not reset this effect flag here.
     check_em_tk_power_off(wk, (PLW*)wk->wu.target_adrs);
 
-    if (wk->wu.routine_no[3] == 0) {
-        wk->caution_flag = 1;
-        wk->dm_vital_backup = 0;
-        wk->dm_vital_use = 0;
-        wk->total_att_hit_ok = 0;
-        wk->hsjp_ok = 0;
-
-        if (!ArcadeBalance_IsEnabled() && wk->wu.routine_no[2] < 16) {
-            // Chain EX bookkeeping is port-only and absent from CPS3.
-            clear_chainex_check(wk->wu.id);
-        }
-    } else {
-        // Port-only controller feedback; it does not affect attack behavior.
-        pp_pulpara_remake_at(wk);
-    }
+    reset_attack_entry_state(wk);
 
     jumping_guard_type_check(wk);
 
@@ -101,13 +121,7 @@ void Player_attack(PLW* wk) { // 🟡
 
     wk->wu.next_z = ((PLW*)wk->wu.target_adrs)->wu.my_priority - 3;
 
-    if (wk->wu.cg_prio) {
-        if (wk->wu.cg_prio == 1) {
-            wk->wu.next_z += 4;
-        } else {
-            wk->wu.next_z -= 4;
-        }
-    }
+    bias_next_z_by_cg_prio(wk);
 }
 
 void Attack_00000(PLW* wk) { // 🟢
