@@ -400,38 +400,48 @@ void Ranking_Sub() {
     Bg_Family_Set();
 }
 
+/* The cpu_grade column's grade icon, with an unplayed record reading as 0. */
+static s16 Cpu_Grade_Index() {
+    s16 Char_Index;
+
+    if (Ranking_Data[Rank].cpu_grade == -1) {
+        Char_Index = 0;
+    } else {
+        Char_Index = Ranking_Data[Rank].cpu_grade;
+    }
+
+    return Char_Index;
+}
+
+/* The grade column's grade icon, with an unplayed record reading as 0. */
+static s16 Grade_Index() {
+    s16 Char_Index;
+
+    if (Ranking_Data[Rank].grade == -1) {
+        Char_Index = 0;
+    } else {
+        Char_Index = Ranking_Data[Rank].grade;
+    }
+
+    return Char_Index;
+}
+
 void Setup_grade(s16 y) {
     s16 Char_Index;
 
     switch (Rank_Type) {
     case 0:
-        if (Ranking_Data[Rank].cpu_grade == -1) {
-            Char_Index = 0;
-        } else {
-            Char_Index = Ranking_Data[Rank].cpu_grade;
-        }
+        Char_Index = Cpu_Grade_Index();
         break;
 
     case 5:
-        if (Ranking_Data[Rank].grade == -1) {
-            Char_Index = 0;
-        } else {
-            Char_Index = Ranking_Data[Rank].grade;
-        }
+        Char_Index = Grade_Index();
         /* fallthrough */
     case 10:
-        if (Ranking_Data[Rank].cpu_grade == -1) {
-            Char_Index = 0;
-        } else {
-            Char_Index = Ranking_Data[Rank].cpu_grade;
-        }
+        Char_Index = Cpu_Grade_Index();
         /* fallthrough */
     case 15:
-        if (Ranking_Data[Rank].grade == -1) {
-            Char_Index = 0;
-        } else {
-            Char_Index = Ranking_Data[Rank].grade;
-        }
+        Char_Index = Grade_Index();
         break;
     }
 
