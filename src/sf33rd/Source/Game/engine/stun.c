@@ -68,6 +68,14 @@ static s32 player_is_stunned(u8 pl) {
            (plw[pl].py->flag == 1);
 }
 
+/* Redraw the gauge at its current value, unless the screen is held. Three
+ * places do exactly this. */
+static void draw_stun_gauge(u8 pl) {
+    if (No_Trans == 0) {
+        stun_put(pl, sdat[pl].cstn);
+    }
+}
+
 /* When the blink timer runs out, swap which half of the blink is showing and
  * restart it. The two arms differ only in which half comes next. */
 static void start_next_blink_phase(u8 pl, s8 next) {
@@ -86,9 +94,7 @@ static void blink_stun_gauge(u8 pl) {
 
         start_next_blink_phase(pl, 1);
     } else {
-        if (No_Trans == 0) {
-            stun_put(pl, sdat[pl].cstn);
-        }
+        draw_stun_gauge(pl);
 
         start_next_blink_phase(pl, 0);
     }
@@ -121,9 +127,7 @@ static void release_stun_gauge(u8 pl) {
     sdat[pl].cstn = plw[pl].py->now.quantity.h;
     sdat[pl].osflag = sdat[pl].sflag;
 
-    if (No_Trans == 0) {
-        stun_put(pl, sdat[pl].cstn);
-    }
+    draw_stun_gauge(pl);
 }
 
 void stngauge_control(u8 pl) {
@@ -153,9 +157,7 @@ void stngauge_control(u8 pl) {
         sdat[pl].cstn = plw[pl].py->now.quantity.h;
     }
 
-    if (No_Trans == 0) {
-        stun_put(pl, sdat[pl].cstn);
-    }
+    draw_stun_gauge(pl);
 }
 
 void stngauge_work_clear() {
