@@ -269,6 +269,169 @@ because the call sites lose the run's literals while the helper brings its own r
 
 ---
 
+## Recipe T - Shared Table Scan
+
+**Use when:** a function is built out of the same **threshold-table scan** repeated several
+times, and the instances differ only in the table, its row count, and the value scanned -
+so Recipe D's single-difference rule refuses them and Recipe C finds no identical run
+because the table name sits inside the loop.
+
+This is the idiom `grade.c` is made of:
+
+```c
+for (i = 0; i < 23; i++) {
+    if (num < grade_t_meichuuritsu2[i + 1][0]) {
+        break;
+    }
+}
+
+point2 = grade_t_meichuuritsu2[i][1];
+```
+
+Three things vary, which is why this needed its own entry rather than a relaxation of
+Recipe D. It is safe for a different reason than Recipe D is: **all three varying things
+are values copied verbatim from the call site**, and the only code that moves is the loop
+itself, which moves once and unchanged. Nothing is generalised; the scan is not rewritten
+to cope with a new case.
+
+**How:**
+
+1. Name the table's **row type in a header**, next to the tables' own declarations:
+
+   ```c
+   /* grade.h */
+   typedef const s16 GradeRow[2];
+   ```
+
+   This is not cosmetic. Written directly, the parameter is `const s16 table[][2]`, and
+   that `2` is a literal new to the `.c` file; against the literals the merge removes,
+   `refactor_guard.py` reads the pair as *a constant was substituted* and FAILs. With the
+   row type named, the `.c` gains no literal and the fingerprint reads the deduplication
+   it actually is.
+
+2. Extract **one** `static` helper holding the scan, character for character as it stands:
+
+   ```c
+   static s16 table_points(const GradeRow* table, s16 count, s16 value) {
+       s16 i;
+
+       for (i = 0; i < count; i++) {
+           if (value < table[i + 1][0]) {
+               break;
+           }
+       }
+
+       return table[i][1];
+   }
+   ```
+
+3. Each call site passes **its own** table by name, **its own** bound, and **its own**
+   scanned expression, each written exactly as it appears today. The bound stays a literal
+   at the call site - it is not derived with `sizeof`, and it is not moved into the table.
+
+4. The helper returns the row's score and does nothing else. It does not accumulate into
+   `point`, clamp, or take a second table.
+
+**Preconditions, all of them:**
+
+- The loop body is identical across every instance apart from the table name, the bound,
+  and the scanned value. If the comparison operator, the `+ 1`, or the column indices
+  differ anywhere, those instances are not one family - leave them.
+- Every table has the same row type. A family scanning `const s16 t[N][2]` and one
+  scanning `const s16 t[N][3]` are two families, and merging them would be a type change.
+- The tables themselves are never touched, reordered, or re-declared. Recipe T reads them
+  through a pointer; the `const` arrays stay exactly as they are.
+- `refactor_guard.py` on the `.c` file must come back **OK**, not WARN. A literal moving
+  means the bound or an index did not travel verbatim. The header's own diff is the legal
+  "literals added, none removed".
+
+**Group the scans by what they score.** Nine scans behind one helper is fine; three
+helpers of three scans each read as duplicates of one another and the score falls.
+
+---
+
+## Recipe F - Action Parameter
+
+**Use when:** two or more functions - or two or more arms of one `switch` - share a control
+skeleton that is identical character for character **except for the name of one function
+being called**. Recipe D allows a differing *value*; this is the same shape with a differing
+*callee*, which no existing recipe reaches.
+
+**Before:**
+
+```c
+static s32 comm_pa_x(PLW* wk, CTC* ctc) {
+    switch (ctc->koc) {
+    case 0:  add_script_x_offset(wk, ctc);  break;
+    case 2:  add_script_x_offset(wk, ctc);  /* fallthrough */
+    default: emwk = (WORK*)wk->target_adrs; add_script_x_offset(emwk, ctc); break;
+    }
+    return 1;
+}
+
+static s32 comm_pa_y(PLW* wk, CTC* ctc) {
+    switch (ctc->koc) {
+    case 0:  add_script_y_offset(wk, ctc);  break;
+    case 2:  add_script_y_offset(wk, ctc);  /* fallthrough */
+    default: emwk = (WORK*)wk->target_adrs; add_script_y_offset(emwk, ctc); break;
+    }
+    return 1;
+}
+```
+
+**After:**
+
+```c
+static s32 dispatch_by_koc(PLW* wk, CTC* ctc, void (*action)(PLW*, CTC*)) {
+    switch (ctc->koc) {
+    case 0:  action(wk, ctc);  break;
+    case 2:  action(wk, ctc);  /* fallthrough */
+    default: emwk = (WORK*)wk->target_adrs; action(emwk, ctc); break;
+    }
+    return 1;
+}
+
+static s32 comm_pa_x(PLW* wk, CTC* ctc) { return dispatch_by_koc(wk, ctc, add_script_x_offset); }
+static s32 comm_pa_y(PLW* wk, CTC* ctc) { return dispatch_by_koc(wk, ctc, add_script_y_offset); }
+```
+
+**Preconditions, all of them:**
+
+- **Exactly one call differs.** If the arms differ in a second callee, in a literal, or in
+  a statement, Recipe F does not apply - that is the near-miss case Recipe D forbids, and
+  it stays forbidden.
+- **The callees' signatures are identical**, parameter for parameter, return type included.
+  The parameter is written with that exact prototype. Casting a function pointer to make
+  two signatures fit is a type change and is forbidden outright - it is also undefined
+  behaviour.
+- **The arguments at the call are unchanged**, in the same order, with the same
+  expressions. `action(emwk, ctc)` is legal because `add_script_x_offset(emwk, ctc)` was
+  what stood there.
+- **Nothing becomes non-`static` to be pointed at.** Taking the address of a file-local
+  function is fine; widening linkage so a helper in another file can be named here is not,
+  and is not what this recipe is for.
+- The pointer is passed **as a bare name at the call site**, never stored in a table or a
+  struct field, never chosen at run time. Recipe F replaces a duplicated skeleton; it does
+  not introduce dispatch the program did not have.
+
+**The guard needs telling.** `--calls` counts a name as a call only when a `(` follows it,
+so a callee now passed by pointer reads as a vanished call and FAILs. Declare each one:
+
+```bash
+python tools/refactor_guard.py --calls --fnptr add_script_x_offset \
+                               --fnptr add_script_y_offset src/.../charset_position.c
+```
+
+The declaration is yours, not a guess by the tool: the counts still have to balance
+afterwards, and the expected signature is Recipe C/D's - each shared callee drops by the
+copies removed, and the new helper is `+1` per call site plus `+1` for its definition.
+
+**This is control flow.** Every application of Recipe F reroutes a call through a pointer,
+so it belongs in the *genuinely high risk* tier of the verification loop: run
+`tools/replay_verify.sh` on it, not just the build and the guards.
+
+---
+
 ## Recipe X - Split Dispatch
 
 **Use when:** CodeScene reports *Complex Method* on a function whose complexity is mostly
@@ -475,13 +638,12 @@ So `get_offence_total` (cc 12), `get_defence_total` (cc 17), `get_ex_point_total
 `get_tech_pts_total` (cc 26) all stay flagged. Splitting any of them leaves both halves
 over the threshold, for the arithmetic reason recorded above.
 
-**Recommendation for the project owner, not an action taken here.** A narrow extension
-would unblock this whole file: allow a helper to take a *table, its length, and the value
-to look up* when the extracted body is character-for-character identical across every call
-site and each call site passes its own table verbatim. That is mechanically checkable - the
-literal fingerprint stays OK, and `--calls` sees the usual deduplication signature. It is
-also strictly narrower than Recipe A, which the owner has already authorised on public
-signatures. Until that is approved, `grade.c` is done.
+**This is now Recipe T.** The project owner authorised the narrow extension the paragraph
+above asked for: a helper may take a *table, its length, and the value to look up* when the
+extracted body is character-for-character identical across every call site and each call
+site passes its own table verbatim. It is mechanically checkable - the literal fingerprint
+stays OK, and `--calls` sees the usual deduplication signature - and it is strictly
+narrower than Recipe A. See *Recipe T - Shared Table Scan* above for the preconditions.
 
 ## The verification loop
 
@@ -1025,7 +1187,8 @@ and write the parameter as `const GradeRow* table`. The `.c` file then gains no
 literal at all and the guard reads the expected deduplication signature; the
 header's own run is the legal "literals added, none removed". This is not a way
 around the guard - the transformation is the same one either way - it is a way
-to write the type where types belong so the fingerprint stays readable.
+to write the type where types belong so the fingerprint stays readable. It is a
+precondition of **Recipe T**, not an optional tidying.
 
 ### The table-scan idiom, measured
 
@@ -1042,11 +1205,11 @@ to write the type where types belong so the fingerprint stays readable.
 ```
 
 Three things differ between instances: the table, its length, and the value
-scanned. That is more than one, so **Recipe D does not apply**, and a
-`grade_table_points(table, count, value)` helper - which is what the code
-obviously wants - is outside the catalogue.
-
-What is legal, and what took the file from 5.52 to 6.87:
+scanned. That is more than one, so **Recipe D does not apply**; the
+`grade_table_points(table, count, value)` helper the code obviously wants is
+**Recipe T**, added to the catalogue afterwards. The rules below are what was
+legal before Recipe T existed, and they still hold for a family Recipe T's
+preconditions refuse:
 
 - **Group the scans by what they score**, not one function per scan. Nine scans
   in one helper is fine; three helpers of three scans each read as duplicates of
