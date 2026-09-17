@@ -788,23 +788,10 @@ static s32 defence_rate_points(s16 ix, s16 ix2) {
     return num;
 }
 
-s16 get_defence_total(s16 ix, s16 wf) {
-    s32 num;
+/* The three kinds of blocking, each with its own table. */
+static s32 blocking_points(s16 ix) {
     s16 i;
-    s16 ix2;
-
-    ix2 = (ix + 1) & 1;
-    num = defence_rate_points(ix, ix2);
-
-    if (wf) {
-        for (i = 0; i < 12; i++) {
-            if (judge_item[ix][Play_Type].vitality < grade_t_nokori_vital[i + 1][0]) {
-                break;
-            }
-        }
-
-        num += grade_t_nokori_vital[i][1];
-    }
+    s32 num = 0;
 
     for (i = 0; i < 10; i++) {
         if (judge_item[ix][Play_Type].nml_blocking < grade_t_def_nmlblock[i + 1][0]) {
@@ -829,7 +816,28 @@ s16 get_defence_total(s16 ix, s16 wf) {
     }
 
     num += grade_t_def_grdblock[i][1];
+    return num;
+}
 
+s16 get_defence_total(s16 ix, s16 wf) {
+    s32 num;
+    s16 i;
+    s16 ix2;
+
+    ix2 = (ix + 1) & 1;
+    num = defence_rate_points(ix, ix2);
+
+    if (wf) {
+        for (i = 0; i < 12; i++) {
+            if (judge_item[ix][Play_Type].vitality < grade_t_nokori_vital[i + 1][0]) {
+                break;
+            }
+        }
+
+        num += grade_t_nokori_vital[i][1];
+    }
+
+    num += blocking_points(ix);
     return num;
 }
 
