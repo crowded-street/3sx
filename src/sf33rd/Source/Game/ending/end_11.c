@@ -89,12 +89,17 @@ static void end_11_open_scene() {
     bgw_ptr->xy[1].disp.pos = end_b_pos[end_w.r_no_2][1];
 }
 
+/* The fixed absolute position the scroller reads for this scene. */
+static void end_11_commit_fixed_position() {
+    bgw_ptr->abs_x = 512;
+    bgw_ptr->abs_y = 0;
+}
+
 void end_b00_0000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
         end_11_open_scene();
-        bgw_ptr->abs_x = 512;
-        bgw_ptr->abs_y = 0;
+        end_11_commit_fixed_position();
 
         switch (end_w.r_no_2) {
         case 0:
@@ -148,8 +153,7 @@ void end_b00_1000() {
         Bg_On_W(1);
         bgw_ptr->xy[0].disp.pos = end_b_pos[end_w.r_no_2][0];
         bgw_ptr->xy[1].disp.pos = end_b_pos[end_w.r_no_2][1];
-        bgw_ptr->abs_x = 512;
-        bgw_ptr->abs_y = 0;
+        end_11_commit_fixed_position();
         end_etc_flag = 0;
         effect_E6_init(0x61);
         Rewrite_End_Message(0);
@@ -245,8 +249,7 @@ void end_b01_3000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
         end_11_open_scene();
-        bgw_ptr->abs_x = 512;
-        bgw_ptr->abs_y = 0;
+        end_11_commit_fixed_position();
         Bg_On_W(2U);
         break;
 
