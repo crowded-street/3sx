@@ -123,32 +123,9 @@ s16 end_0_1_time[1] = { 360 };
 
 /* Everything after Gill has appeared: the hold, the flash, and the fade out to the
  * next scene. Labels are the original ones. */
-static void end_000_0001_after_gill() {
+/* The fade out itself, and the panel it leaves behind. */
+static void end_000_0001_fade_out() {
     switch (bgw_ptr->r_no_1) {
-    case 3:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free < 1) {
-            bgw_ptr->r_no_1++;
-            bgw_ptr->free = gill_time[1];
-        }
-
-        break;
-
-    case 4:
-        bgw_ptr->r_no_1++;
-        end_etc_flag = 1;
-        break;
-
-    case 5:
-        if (!bgw_ptr->free--) {
-            bgw_ptr->r_no_1++;
-            Fade_Flag = 0;
-            bgw_ptr->free = 300;
-        }
-
-        break;
-
     case 6:
         if (!bgw_ptr->free--) {
             bgw_ptr->r_no_1++;
@@ -182,6 +159,38 @@ static void end_000_0001_after_gill() {
             end_w.timer = 0;
         }
 
+        break;
+    }
+}
+
+static void end_000_0001_after_gill() {
+    switch (bgw_ptr->r_no_1) {
+    case 3:
+        bgw_ptr->free--;
+
+        if (bgw_ptr->free < 1) {
+            bgw_ptr->r_no_1++;
+            bgw_ptr->free = gill_time[1];
+        }
+
+        break;
+
+    case 4:
+        bgw_ptr->r_no_1++;
+        end_etc_flag = 1;
+        break;
+
+    case 5:
+        if (!bgw_ptr->free--) {
+            bgw_ptr->r_no_1++;
+            Fade_Flag = 0;
+            bgw_ptr->free = 300;
+        }
+
+        break;
+
+    default:
+        end_000_0001_fade_out();
         break;
     }
 }
