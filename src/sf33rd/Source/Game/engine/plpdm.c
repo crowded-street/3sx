@@ -575,11 +575,11 @@ static void apply_vital_underflow_or_piyo(PLW* wk) {
 /* Rumble the pad for a hit, except in the seven reaction states that do not.
  * The case labels are the reaction numbers the rest of the engine uses and are
  * unchanged, including their order. */
-static void rumble_for_damage(PLW* wk) {
+/* The later half of the states that suppress the rumble. Split off so neither
+ * switch is long; the labels are the routine numbers themselves and are not
+ * renumbered. */
+static void rumble_for_damage_rest(PLW* wk) {
     switch (wk->wu.routine_no[2]) {
-    case 1:
-    case 2:
-    case 3:
     case 12:
     case 13:
     case 19:
@@ -588,6 +588,19 @@ static void rumble_for_damage(PLW* wk) {
 
     default:
         pp_pulpara_remake_dm_all(&wk->wu);
+        break;
+    }
+}
+
+static void rumble_for_damage(PLW* wk) {
+    switch (wk->wu.routine_no[2]) {
+    case 1:
+    case 2:
+    case 3:
+        break;
+
+    default:
+        rumble_for_damage_rest(wk);
         break;
     }
 }
