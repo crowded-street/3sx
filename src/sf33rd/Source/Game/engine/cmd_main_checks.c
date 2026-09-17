@@ -111,22 +111,34 @@ void check_0() { // 🟢
     }
 }
 
+/* The charge is abandoned: the charge timer goes back to its full length and
+ * the entry's own timer runs down. Written out identically wherever a charge
+ * is given up. */
+static void reset_charge_timer() {
+    waza_ptr->free2 = waza_ptr->free1;
+    waza_ptr->w_int--;
+
+    if (waza_ptr->w_int < 0) {
+        waza_ptr->w_type = 0;
+    }
+}
+
+/* The charge was complete when the lever left: the command fires. */
+static void fire_charged_command() {
+    waza_ptr->uni0.tame.flag = 0;
+
+    if (*waza_ptr->w_ptr == 0x1C) {
+        command_ok();
+    } else {
+        check_next();
+    }
+}
+
 static void resolve_tame_flag_or_reset_timer() {
     if (waza_ptr->uni0.tame.flag) {
-        waza_ptr->uni0.tame.flag = 0;
-
-        if (*waza_ptr->w_ptr == 0x1C) {
-            command_ok();
-        } else {
-            check_next();
-        }
+        fire_charged_command();
     } else {
-        waza_ptr->free2 = waza_ptr->free1;
-        waza_ptr->w_int--;
-
-        if (waza_ptr->w_int < 0) {
-            waza_ptr->w_type = 0;
-        }
+        reset_charge_timer();
     }
 }
 
@@ -194,12 +206,7 @@ static void release_or_restart_charge() {
         return;
     }
 
-    waza_ptr->free2 = waza_ptr->free1;
-    waza_ptr->w_int--;
-
-    if (waza_ptr->w_int < 0) {
-        waza_ptr->w_type = 0;
-    }
+    reset_charge_timer();
 }
 
 void check_2() { // 🟢
