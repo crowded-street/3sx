@@ -168,32 +168,24 @@ u8 get_cjdR(PLW* wk) { // 🟢
     w_ix += ((wk->wu.hf.hit.player & 0xA2) != 0);
 
     if (ja_attack_never_landed(wk)) {
-        goto case0;
+        return cjdr_karaburi_table[wk->player_number][w_ix];
     }
 
     if (wk->wu.hf.hit.player & 3) {
-        goto case1;
+        return cjdr_hits_table[wk->player_number][w_ix];
     }
 
     if (wk->wu.hf.hit.player & 0xC0) {
-        goto case2;
+        return cjdr_blocking_table[wk->player_number][w_ix];
     }
 
     if (wk->wu.hf.hit.player & 0x30) {
-        goto case3;
+        return cjdr_defense_table[wk->player_number][w_ix];
     }
 
-case0:
+    /* The last test fell into the case0 label, so the karaburi row is what an
+     * unmatched hit mask returned. */
     return cjdr_karaburi_table[wk->player_number][w_ix];
-
-case1:
-    return cjdr_hits_table[wk->player_number][w_ix];
-
-case2:
-    return cjdr_blocking_table[wk->player_number][w_ix];
-
-case3:
-    return cjdr_defense_table[wk->player_number][w_ix];
 }
 
 const u8 cjdr_karaburi_type3[8] = { 255, 255, 255, 255, 255, 255, 255, 255 };
