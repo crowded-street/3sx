@@ -830,6 +830,24 @@ void nm_37000(PLW* wk) { // 🟢
     nm_09000(wk);
 }
 
+/* The triangle jump and the double jump are console-only additions; arcade
+ * balance has neither. */
+static bool try_console_air_moves(PLW* wk) {
+    if (ArcadeBalance_IsEnabled()) {
+        return false;
+    }
+
+    if (check_sankaku_tobi(wk)) {
+        return true;
+    }
+
+    if (check_air_jump(wk)) {
+        return true;
+    }
+
+    return false;
+}
+
 void nm_38000(PLW* wk) { // 🟡
     bool in_air = true;
 
@@ -842,14 +860,8 @@ void nm_38000(PLW* wk) { // 🟡
             return;
         }
 
-        if (!ArcadeBalance_IsEnabled()) {
-            if (check_sankaku_tobi(wk)) {
-                return;
-            }
-
-            if (check_air_jump(wk)) {
-                return;
-            }
+        if (try_console_air_moves(wk)) {
+            return;
         }
     }
 
