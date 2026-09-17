@@ -289,15 +289,24 @@ static s32 check_shortcut() {
     return 0;
 }
 
-void set_credit_string(s32 t, s32 x, s32 y, s32 a, const char* s) {
+/* set_credit_string's parameters, in their original order and types. */
+typedef struct {
+    s32 t;
+    s32 x;
+    s32 y;
+    s32 a;
+    const char* s;
+} CreditString;
+
+void set_credit_string(const CreditString* args) {
     char* su;
     s16 xu;
     s16 yu;
     s16 mojisuu;
 
-    su = s;
-    xu = x;
-    yu = y;
+    su = args->s;
+    xu = args->x;
+    yu = args->y;
 
     if (*su == 0x3F || *su == 0x60) {
         su++;
@@ -309,7 +318,7 @@ void set_credit_string(s32 t, s32 x, s32 y, s32 a, const char* s) {
     xu += (bg_w.bgw[5].xy[0].disp.pos) - 192;
     yu += bg_w.bgw[5].position_y;
 
-    H6InitArgs init_args = { .timer = t, .str = su, .x = xu, .y = yu, .original_color = a };
+    H6InitArgs init_args = { .timer = args->t, .str = su, .x = xu, .y = yu, .original_color = args->a };
     effect_H6_init(&init_args);
 }
 
@@ -324,7 +333,7 @@ static void show_credit_line(s16 t) {
     x = sf3_staff[name_ptr].x;
     y = sf3_staff[name_ptr].y;
     a = sf3_staff[name_ptr].atr;
-    set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
+    set_credit_string(&(CreditString){ t, x, y, a, sf3_staff[name_ptr].name });
 }
 
 /* Show the next page of credits: one pair of lines, and up to four more pairs while
