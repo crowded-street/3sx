@@ -502,25 +502,11 @@ static s16 record_vs_cpu_result(s16 ix, s16 point, s16 grade) {
 /* Outside arcade the streak is scored from one of two tables: this player's
  * own win streak, or the opponent's. */
 static s16 versus_streak_points(s16 ix) {
-    s16 i;
-
     if (judge_item[ix][Play_Type].renshou) {
-        for (i = 0; i < 7; i++) {
-            if (judge_item[ix][Play_Type].renshou < grade_t_renshou[i + 1][0]) {
-                break;
-            }
-        }
-
-        return grade_t_renshou[i][1];
+        return grade_table_points(grade_t_renshou, 7, judge_item[ix][Play_Type].renshou);
     }
 
-    for (i = 0; i < 7; i++) {
-        if (judge_item[ix][Play_Type].em_renshou < grade_t_em_renshou[i + 1][0]) {
-            break;
-        }
-    }
-
-    return grade_t_em_renshou[i][1];
+    return grade_table_points(grade_t_em_renshou, 7, judge_item[ix][Play_Type].em_renshou);
 }
 
 static s16 winner_streak_points(s16 ix) {
