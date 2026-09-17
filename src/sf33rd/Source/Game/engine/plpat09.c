@@ -115,14 +115,14 @@ void Att_SP_YAGYOUDAMA(PLW* wk) {
  * The two shell guards were written differently, `continue` on one side and a
  * nested `if` on the other. They are the same loop; this is the `continue`
  * form. */
-static void place_tenguiwa_set(PLW* wk, const u8* tengu, s16 rock_count, TenguiwaPosRow* pos, s16 last_slot) {
+static void place_tenguiwa_set(PLW* wk, const TenguiwaSet* set) {
     s16 i;
     s16 j;
     u16 num;
     WORK* tmw;
 
-    for (i = 0; i < rock_count; i++) {
-        effect_13_init(&wk->wu, tengu[random_16() & 7]);
+    for (i = 0; i < set->rock_count; i++) {
+        effect_13_init(&wk->wu, set->tengu[random_16() & 7]);
     }
 
     for (j = 0, i = 0; i < 8; i++) {
@@ -133,16 +133,16 @@ static void place_tenguiwa_set(PLW* wk, const u8* tengu, s16 rock_count, Tenguiw
         num = tmw->type - 24;
 
         if (num < 36) {
-            tmw->old_pos[0] = pos[j][0];
-            tmw->old_pos[1] = pos[j][1];
-            tmw->old_pos[2] = pos[j][2];
-            tmw->scr_mv_x = pos[j][3];
-            tmw->scr_mv_y = pos[j][4];
-            tmw->direction = pos[j][5];
+            tmw->old_pos[0] = set->pos[j][0];
+            tmw->old_pos[1] = set->pos[j][1];
+            tmw->old_pos[2] = set->pos[j][2];
+            tmw->scr_mv_x = set->pos[j][3];
+            tmw->scr_mv_y = set->pos[j][4];
+            tmw->direction = set->pos[j][5];
 
             j++;
 
-            if (j > last_slot) {
+            if (j > set->last_slot) {
                 break;
             }
         }
@@ -151,11 +151,11 @@ static void place_tenguiwa_set(PLW* wk, const u8* tengu, s16 rock_count, Tenguiw
 
 s32 set_tenguiwa(PLW* wk, u8 data) {
     if (!data) {
-        place_tenguiwa_set(wk, tenguiwa_stand_by[0], 3, tenguiwa_pos_hosei, 2);
+        place_tenguiwa_set(wk, &(TenguiwaSet){ tenguiwa_stand_by[0], 3, tenguiwa_pos_hosei, 2 });
         return 0;
     }
 
-    place_tenguiwa_set(wk, tenguiwa_stand_by[1], 5, tenguiwa_pos_hosei2, 4);
+    place_tenguiwa_set(wk, &(TenguiwaSet){ tenguiwa_stand_by[1], 5, tenguiwa_pos_hosei2, 4 });
     return 0;
 }
 
