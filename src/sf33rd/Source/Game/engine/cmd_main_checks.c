@@ -1091,9 +1091,18 @@ void check_21() { // 🟢
     }
 }
 
-void check_22() { // 🟢
+/* Mark whichever of the eight lever positions the lever is on this frame. */
+static void collect_circle_lever_position() {
     s16 i;
 
+    for (i = 0; i < 8; i++) {
+        if (chk_pl->sw_lever == chk22_tbl[i]) {
+            waza_ptr->free3 |= 1 << i;
+        }
+    }
+}
+
+void check_22() { // 🟢
     waza_ptr->w_int--;
 
     if (waza_ptr->w_int < 0) {
@@ -1112,11 +1121,7 @@ void check_22() { // 🟢
         waza_ptr->free3 = 0;
     }
 
-    for (i = 0; i < 8; i++) {
-        if (chk_pl->sw_lever == chk22_tbl[i]) {
-            waza_ptr->free3 |= 1 << i;
-        }
-    }
+    collect_circle_lever_position();
 
     if (waza_ptr->free3 == 0xFF) {
         if (((*waza_ptr->w_ptr)) == 0x1C) {
