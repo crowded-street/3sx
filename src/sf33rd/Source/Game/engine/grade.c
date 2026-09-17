@@ -858,29 +858,16 @@ static s16 appeal_block_points(s16 ix) {
 }
 
 s16 get_ex_point_total(s16 ix, s16 wf) {
-    s16 i;
     s16 point;
 
     point = 0;
 
     if (wf) {
-        for (i = 0; i < 20; i++) {
-            if (judge_item[ix][Play_Type].tairyokusa < grade_t_tairyokusa[i + 1][0]) {
-                break;
-            }
-        }
-
-        point += grade_t_tairyokusa[i][1];
+        point += grade_table_points(grade_t_tairyokusa, 20, judge_item[ix][Play_Type].tairyokusa);
         point += grade_t_round_result[judge_item[ix][Play_Type].kimarite];
     }
 
-    for (i = 0; i < 5; i++) {
-        if (judge_item[ix][Play_Type].onaji_waza < grade_t_onaji_waza[i + 1][0]) {
-            break;
-        }
-    }
-
-    point += grade_t_onaji_waza[i][1];
+    point += grade_table_points(grade_t_onaji_waza, 5, judge_item[ix][Play_Type].onaji_waza);
 
     point += appeal_block_points(ix);
     return point;
