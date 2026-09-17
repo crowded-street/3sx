@@ -206,6 +206,22 @@ void end_d00_4000() {
     }
 }
 
+/* Nudge the panel up and down on alternate frames. */
+static void end_d00_6000_shake() {
+    bgw_ptr->free++;
+    bgw_ptr->free &= 1;
+
+    if (bgw_ptr->free) {
+        bgw_ptr->xy[1].disp.pos += 8;
+        bgw_ptr->abs_y += 8;
+        return;
+    }
+
+    bgw_ptr->xy[1].disp.pos -= 8;
+    bgw_ptr->abs_y -= 8;
+    return;
+}
+
 void end_d00_6000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -234,17 +250,7 @@ void end_d00_6000() {
 
     case 2:
         if (!end_etc_flag) {
-            bgw_ptr->free++;
-            bgw_ptr->free &= 1;
-
-            if (bgw_ptr->free) {
-                bgw_ptr->xy[1].disp.pos += 8;
-                bgw_ptr->abs_y += 8;
-                break;
-            }
-
-            bgw_ptr->xy[1].disp.pos -= 8;
-            bgw_ptr->abs_y -= 8;
+            end_d00_6000_shake();
             break;
         }
 
@@ -253,17 +259,7 @@ void end_d00_6000() {
         break;
 
     case 3:
-        bgw_ptr->free++;
-        bgw_ptr->free &= 1;
-
-        if (bgw_ptr->free) {
-            bgw_ptr->xy[1].disp.pos += 8;
-            bgw_ptr->abs_y += 8;
-            break;
-        }
-
-        bgw_ptr->xy[1].disp.pos -= 8;
-        bgw_ptr->abs_y -= 8;
+        end_d00_6000_shake();
         break;
     }
 }
