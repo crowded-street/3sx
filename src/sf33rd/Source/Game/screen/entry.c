@@ -898,6 +898,23 @@ s32 Credit_Continue_2P() {
     return ENTRY_X;
 }
 
+/* One tick of the continue countdown: a cut ends it early, the timer ends it when it
+ * runs out, and the step after it is chosen once the credits are spent. */
+static void Count_Down_Continue(s16 PL_id) {
+    if (Check_Count_Cut(PL_id, 8)) {
+        Continue_Cut[PL_id] = 1;
+    } else if (--Personal_Timer[PL_id]) {
+        return;
+    }
+
+    if (--Continue_Count[PL_id] >= 0) {
+        Personal_Timer[PL_id] = 60;
+        return;
+    }
+
+    Setup_Next_Step(PL_id);
+}
+
 void Entry_Continue_Sub(s16 PL_id) {
     if ((Continue_Count_Down[PL_id] == 0) && save_w[1].extra_option.contents[3][5]) {
         SSPutStr(DE_X[PL_id], 0, 9, "     CONTINUE?", TopHUDPriority);
@@ -915,18 +932,7 @@ void Entry_Continue_Sub(s16 PL_id) {
         break;
 
     case 1:
-        if (Check_Count_Cut(PL_id, 8)) {
-            Continue_Cut[PL_id] = 1;
-        } else if (--Personal_Timer[PL_id]) {
-            break;
-        }
-
-        if (--Continue_Count[PL_id] >= 0) {
-            Personal_Timer[PL_id] = 60;
-            return;
-        }
-
-        Setup_Next_Step(PL_id);
+        Count_Down_Continue(PL_id);
 
         break;
     }
