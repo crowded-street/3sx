@@ -516,15 +516,10 @@ static s32 select_standing_nm_attack(PLW* wk, s16 kos) {
     return 1;
 }
 
-s32 check_nm_attack(PLW* wk) { // 🟡
-    s16 kos;
-
-    wk->permited_koa |= 4;
-
-    if ((kos = shot_data_convert(wk->cp->sw_now)) < 0) {
-        return 0;
-    }
-
+/* Which normal attack the current stance starts, and whether one starts at
+ * all: every crouching and jumping stance is blocked by the same too-low
+ * test first, and the standing case answers for itself. */
+static s32 begin_nm_attack(PLW* wk, s16 kos) {
     switch (wk->wu.pat_status) {
     case 20:
         if (is_blocked_by_hikusugi(wk)) {
@@ -604,6 +599,22 @@ s32 check_nm_attack(PLW* wk) { // 🟡
         }
 
         break;
+    }
+
+    return 1;
+}
+
+s32 check_nm_attack(PLW* wk) { // 🟡
+    s16 kos;
+
+    wk->permited_koa |= 4;
+
+    if ((kos = shot_data_convert(wk->cp->sw_now)) < 0) {
+        return 0;
+    }
+
+    if (!begin_nm_attack(wk, kos)) {
+        return 0;
     }
 
     setup_comm_back(&wk->wu);
