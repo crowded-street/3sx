@@ -155,6 +155,15 @@ static void End_Game_Over_Screen() {
 /* The half after the result is on screen: the fade in, the wait for naming, and the
  * two holds that end the screen. Labels unchanged, so a sub-state still reads as
  * the number the rest of the file uses. */
+/* Sub-state 6: hold the result up, then start the per-player result timer. */
+static void Hold_Result_Screen() {
+    if (--G_Timer == 0) {
+        GO_No[1] += 1;
+        G_Timer = Result_Timer[Player_id];
+        return;
+    }
+}
+
 static void GameOver_2nd_After_Result() {
     switch (GO_No[1]) {
     case 4:
@@ -172,11 +181,7 @@ static void GameOver_2nd_After_Result() {
         break;
 
     case 6:
-        if (--G_Timer == 0) {
-            GO_No[1] += 1;
-            G_Timer = Result_Timer[Player_id];
-            return;
-        }
+        Hold_Result_Screen();
 
         break;
 
