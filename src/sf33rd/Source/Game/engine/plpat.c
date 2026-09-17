@@ -717,6 +717,14 @@ void Attack_10000(PLW* wk) { // 🟢
     }
 }
 
+/* While the cat-break timer is still open the break stays reserved. Three arms
+ * across Attack_14000 and Attack_15000 said this the same way. */
+static void reserve_cat_break_if_open(PLW* wk) {
+    if (wk->cat_break_ok_timer) {
+        wk->cat_break_reserve = 1;
+    }
+}
+
 void Attack_14000(PLW* wk) { // 🟡
     wk->scr_pos_set_flag = 0;
 
@@ -734,18 +742,14 @@ void Attack_14000(PLW* wk) { // 🟡
         char_move(&wk->wu);
 
         if (ArcadeBalance_IsEnabled()) {
-            if (wk->cat_break_ok_timer) {
-                wk->cat_break_reserve = 1;
-            }
+            reserve_cat_break_if_open(wk);
         }
 
         break;
     }
 
     if (!ArcadeBalance_IsEnabled()) {
-        if (wk->cat_break_ok_timer) {
-            wk->cat_break_reserve = 1;
-        }
+        reserve_cat_break_if_open(wk);
     }
 }
 
@@ -772,9 +776,7 @@ void Attack_15000(PLW* wk) { // 🟡
         break;
 
     case 1:
-        if (wk->cat_break_ok_timer) {
-            wk->cat_break_reserve = 1;
-        }
+        reserve_cat_break_if_open(wk);
 
         if ((wk->wu.mvxy.a[1].sp > 0) && (wk->wu.xyz[1].disp.pos < 0)) {
             add_mvxy_speed(&wk->wu);
