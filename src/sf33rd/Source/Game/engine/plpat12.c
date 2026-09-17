@@ -20,30 +20,64 @@ void pl12_extra_attack(PLW* wk) {
     pl12_exatt_table[wk->wu.routine_no[2] - 16](wk);
 }
 
+/* The opening frame. A transformed player, or one whose effect could not be
+ * spawned, uses the alternative animation one index along. */
+static void begin_pl12_taunt(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    wk->wu.rl_flag = wk->wu.rl_waza;
+    hoken_muriyari_chakuchi(wk);
+    wk->wu.mvxy.index = wk->as->data_ix;
+    wk->wu.cmwk[6] = 0;
+    wk->wu.cmwk[7] = 0;
+    wk->tk_success++;
+
+    if (wk->metamorphose) {
+        set_char_move_init(&wk->wu, 5, wk->as->char_ix + 1);
+        return;
+    }
+
+    if (effect_D7_init(wk)) {
+        set_char_move_init(&wk->wu, 5, wk->as->char_ix + 1);
+        return;
+    }
+
+    set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+}
+
+/* The union leg. The script's own flag pays the super-art gauge and steps the
+ * row on, marker 20 loads the row and marker 30 raises the stun bonus against
+ * its ceiling. jumping_union_process runs after the flag test, as it did. */
+static void pl12_taunt_union_leg(PLW* wk) {
+    if (wk->wu.cmwk[7] != 0) {
+        char_move_cmj4(&wk->wu);
+        wk->wu.cmwk[7] = 0;
+        wk->wu.mvxy.index++;
+        add_sp_arts_gauge_tokushu(wk);
+    }
+
+    jumping_union_process(&wk->wu, 3);
+
+    if (wk->wu.cg_type == 20) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.cg_type = 0;
+    }
+
+    if (wk->wu.cg_type == 30) {
+        wk->wu.cg_type = 0;
+        wk->tk_kizetsu += 4;
+
+        if (wk->tk_kizetsu > 12) {
+            wk->tk_kizetsu = 12;
+        }
+    }
+}
+
 void Att_PL12_TOKUSHUKOUDOU(PLW* wk) { // 🟢
     wk->scr_pos_set_flag = 0;
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        hoken_muriyari_chakuchi(wk);
-        wk->wu.mvxy.index = wk->as->data_ix;
-        wk->wu.cmwk[6] = 0;
-        wk->wu.cmwk[7] = 0;
-        wk->tk_success++;
-
-        if (wk->metamorphose) {
-            set_char_move_init(&wk->wu, 5, wk->as->char_ix + 1);
-            break;
-        }
-
-        if (effect_D7_init(wk)) {
-            set_char_move_init(&wk->wu, 5, wk->as->char_ix + 1);
-            break;
-        }
-
-        set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+        begin_pl12_taunt(wk);
         break;
 
     case 1:
@@ -59,29 +93,7 @@ void Att_PL12_TOKUSHUKOUDOU(PLW* wk) { // 🟢
         break;
 
     case 2:
-        if (wk->wu.cmwk[7] != 0) {
-            char_move_cmj4(&wk->wu);
-            wk->wu.cmwk[7] = 0;
-            wk->wu.mvxy.index++;
-            add_sp_arts_gauge_tokushu(wk);
-        }
-
-        jumping_union_process(&wk->wu, 3);
-
-        if (wk->wu.cg_type == 20) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.cg_type = 0;
-        }
-
-        if (wk->wu.cg_type == 30) {
-            wk->wu.cg_type = 0;
-            wk->tk_kizetsu += 4;
-
-            if (wk->tk_kizetsu > 12) {
-                wk->tk_kizetsu = 12;
-            }
-        }
-
+        pl12_taunt_union_leg(wk);
         break;
 
     case 3:
