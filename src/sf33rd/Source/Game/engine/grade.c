@@ -331,7 +331,10 @@ static s16 all_clear_bonus(s16 ix, s16 pt) {
     return tt;
 }
 
-void makeup_final_grade(s16 ix, s16 pt) {
+/* Add up what every stage scored, record the average of them, and hand the
+ * total back. The interrupting Q's stage counts as one more when it was
+ * played. */
+static s16 total_and_average_stage_points(s16 ix, s16 pt) {
     s16 i;
     s16 tt = 0;
     s16 dt;
@@ -356,6 +359,12 @@ void makeup_final_grade(s16 ix, s16 pt) {
     }
 
     judge_final[ix][pt].vs_cpu_grade[11] = get_grade_ix(judge_final[ix][pt].vs_cpu_result[11]);
+    return tt;
+}
+
+void makeup_final_grade(s16 ix, s16 pt) {
+    s16 i;
+    s16 tt = total_and_average_stage_points(ix, pt);
 
     if (judge_final[ix][pt].vs_cpu_result[15] != -1) {
         tt /= 11;
