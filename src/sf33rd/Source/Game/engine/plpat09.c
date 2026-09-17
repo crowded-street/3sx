@@ -284,6 +284,30 @@ void Att_JINNCHUUWATARI_EX(PLW* wk) {
     }
 }
 
+/* kop 0 aims at the opponent, offset by the row for that character, and mirrors
+ * the result back across the player when the facing does not match the side the
+ * opponent is on. kop 1's midpoint form is the near twin of this and stays
+ * inline: one extraction already takes the caller under the threshold. */
+static s16 homing_target_x(const PLW* wk, const PLW* twk) {
+    s16 ex;
+
+    if (wk->wu.xyz[0].disp.pos < twk->wu.xyz[0].disp.pos) {
+        ex = twk->wu.xyz[0].disp.pos - homing_hos[wk->pl09_dat_index][twk->player_number][0];
+
+        if (!wk->wu.rl_flag) {
+            ex = wk->wu.xyz[0].disp.pos - (ex - wk->wu.xyz[0].disp.pos);
+        }
+    } else {
+        ex = twk->wu.xyz[0].disp.pos + homing_hos[wk->pl09_dat_index][twk->player_number][0];
+
+        if (wk->wu.rl_flag) {
+            ex = wk->wu.xyz[0].disp.pos + (wk->wu.xyz[0].disp.pos - ex);
+        }
+    }
+
+    return ex;
+}
+
 /* Marker 30 aims the homing jump. kop 0 targets the opponent at the row's offset
  * and mirrors the result when the player faces the other way; kop 1 aims at the
  * midpoint between the two. Either way the facing correction and the state step
@@ -302,20 +326,7 @@ static void homing_aim_on_marker_30(PLW* wk, PLW* twk, const s16* curr_kop) {
 
     switch (curr_kop[0]) {
     case 0:
-        if (wk->wu.xyz[0].disp.pos < twk->wu.xyz[0].disp.pos) {
-            ex = twk->wu.xyz[0].disp.pos - homing_hos[wk->pl09_dat_index][twk->player_number][0];
-
-            if (!wk->wu.rl_flag) {
-                ex = wk->wu.xyz[0].disp.pos - (ex - wk->wu.xyz[0].disp.pos);
-            }
-        } else {
-            ex = twk->wu.xyz[0].disp.pos + homing_hos[wk->pl09_dat_index][twk->player_number][0];
-
-            if (wk->wu.rl_flag) {
-                ex = wk->wu.xyz[0].disp.pos + (wk->wu.xyz[0].disp.pos - ex);
-            }
-        }
-
+        ex = homing_target_x(wk, twk);
         ey = homing_hos[wk->pl09_dat_index][twk->player_number][1];
         wk->wu.mvxy.a[0].sp = 0;
         cal_initial_speed(&wk->wu, curr_kop[1], ex, ey);
