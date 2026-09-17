@@ -598,43 +598,62 @@ s16 check_work_position_bonus(WORK* hm, s16 tx) { // 🟢
     return num;
 }
 
-s32 set_field_hosei_flag(PLW* pl, s16 pos, s16 ix) { // 🟢
-    s16 hami;
+/* Sticking to the right-hand limit. Returns 1 when the player is against it -
+ * the flags are already set - and 0 when they are clear of it. */
+static s32 stick_to_right_limit(PLW* pl, s16 pos) {
+    s16 hami = pl->wu.xyz[0].disp.pos + satse[pl->player_number] - pos;
 
+    if (hami) {
+        if (hami >= 0) {
+            pl->wu.xyz[0].disp.pos -= hami;
+            pl->micchaku_flag = 1;
+            pl->hos_fi_flag = 1;
+            pl->hosei_amari = -hami;
+        } else {
+            return 0;
+        }
+    } else {
+        pl->micchaku_flag = 1;
+        pl->hos_fi_flag = 0;
+        pl->hosei_amari = 0;
+    }
+
+    return 1;
+}
+
+/* The left-hand limit. It differs in the sign of the satse offset, in the
+ * direction of the comparison, and in the flag values - three differences, and
+ * one of them a comparison operator, so the two stay apart. */
+static s32 stick_to_left_limit(PLW* pl, s16 pos) {
+    s16 hami = pl->wu.xyz[0].disp.pos - satse[pl->player_number] - pos;
+
+    if (hami) {
+        if (hami <= 0) {
+            pl->wu.xyz[0].disp.pos -= hami;
+            pl->micchaku_flag = 2;
+            pl->hos_fi_flag = 2;
+            pl->hosei_amari = -hami;
+        } else {
+            return 0;
+        }
+    } else {
+        pl->micchaku_flag = 2;
+        pl->hos_fi_flag = 0;
+        pl->hosei_amari = 0;
+    }
+
+    return 1;
+}
+
+s32 set_field_hosei_flag(PLW* pl, s16 pos, s16 ix) { // 🟢
     while (1) {
         if (ix) {
-            hami = pl->wu.xyz[0].disp.pos + satse[pl->player_number] - pos;
-
-            if (hami) {
-                if (hami >= 0) {
-                    pl->wu.xyz[0].disp.pos -= hami;
-                    pl->micchaku_flag = 1;
-                    pl->hos_fi_flag = 1;
-                    pl->hosei_amari = -hami;
-                } else {
-                    break;
-                }
-            } else {
-                pl->micchaku_flag = 1;
-                pl->hos_fi_flag = 0;
-                pl->hosei_amari = 0;
+            if (!stick_to_right_limit(pl, pos)) {
+                break;
             }
         } else {
-            hami = pl->wu.xyz[0].disp.pos - satse[pl->player_number] - pos;
-
-            if (hami) {
-                if (hami <= 0) {
-                    pl->wu.xyz[0].disp.pos -= hami;
-                    pl->micchaku_flag = 2;
-                    pl->hos_fi_flag = 2;
-                    pl->hosei_amari = -hami;
-                } else {
-                    break;
-                }
-            } else {
-                pl->micchaku_flag = 2;
-                pl->hos_fi_flag = 0;
-                pl->hosei_amari = 0;
+            if (!stick_to_left_limit(pl, pos)) {
+                break;
             }
         }
 
