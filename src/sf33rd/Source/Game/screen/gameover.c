@@ -147,35 +147,11 @@ static void End_Game_Over_Screen() {
     }
 }
 
-void GameOver_2nd() {
+/* The half after the result is on screen: the fade in, the wait for naming, and the
+ * two holds that end the screen. Labels unchanged, so a sub-state still reads as
+ * the number the rest of the file uses. */
+static void GameOver_2nd_After_Result() {
     switch (GO_No[1]) {
-    case 0:
-        GO_No[1] += 1;
-        /* fallthrough */
-
-    case 1:
-        GO_No[1] += 1;
-        Forbid_Break = 0;
-        FadeInit();
-        return;
-
-    case 2:
-        Build_Result_Screen();
-
-        break;
-
-    case 3:
-        FadeOut(1, 8, 8);
-
-        if (--Cover_Timer == 0) {
-            GO_No[1] += 1;
-            Forbid_Break = -1;
-            FadeInit();
-            return;
-        }
-
-        break;
-
     case 4:
         Show_Result_Screen();
 
@@ -208,6 +184,41 @@ void GameOver_2nd() {
     default:
         End_Game_Over_Screen();
 
+        break;
+    }
+}
+
+void GameOver_2nd() {
+    switch (GO_No[1]) {
+    case 0:
+        GO_No[1] += 1;
+        /* fallthrough */
+
+    case 1:
+        GO_No[1] += 1;
+        Forbid_Break = 0;
+        FadeInit();
+        return;
+
+    case 2:
+        Build_Result_Screen();
+
+        break;
+
+    case 3:
+        FadeOut(1, 8, 8);
+
+        if (--Cover_Timer == 0) {
+            GO_No[1] += 1;
+            Forbid_Break = -1;
+            FadeInit();
+            return;
+        }
+
+        break;
+
+    default:
+        GameOver_2nd_After_Result();
         break;
     }
 }
