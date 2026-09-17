@@ -939,6 +939,28 @@ static void begin_slow_victory() {
     set_conclusion_slow();
 }
 
+/* The victory pause and the wait for the winner's pose to finish. The case labels
+ * are the original ones, and neither this switch nor the caller's has a default
+ * of its own, so a pcon_rno[2] outside 0..4 still does nothing. */
+static void settle_type_40000_pause(PLW* winner) {
+    switch (pcon_rno[2]) {
+    case 3:
+        if (--winner->wu.dir_timer <= 0) {
+            complete_victory_pause();
+            pcon_rno[2] += 1;
+        }
+
+        break;
+
+    case 4:
+        if (winner->wu.routine_no[3] == 9) {
+            pcon_rno[2] += 1;
+        }
+
+        break;
+    }
+}
+
 void settle_type_40000() {
     switch (pcon_rno[2]) {
     case 0:
@@ -961,19 +983,8 @@ void settle_type_40000() {
 
         break;
 
-    case 3:
-        if (--plw[Winner_id].wu.dir_timer <= 0) {
-            complete_victory_pause();
-            pcon_rno[2] += 1;
-        }
-
-        break;
-
-    case 4:
-        if (plw[Winner_id].wu.routine_no[3] == 9) {
-            pcon_rno[2] += 1;
-        }
-
+    default:
+        settle_type_40000_pause(&plw[Winner_id]);
         break;
     }
 }
