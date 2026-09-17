@@ -47,21 +47,26 @@ s32 comm_psxy(WORK* wk, UNK11* ctc) {
     return 1;
 }
 
+/* Where a script's absolute X set lands. */
+static void set_disp_x(WORK* wk, UNK11* ctc) {
+    wk->xyz[0].disp.pos = ctc->ix;
+}
+
 s32 comm_ps_x(WORK* wk, UNK11* ctc) {
     WORK* emwk;
 
     switch (ctc->koc) {
     case 0:
-        wk->xyz[0].disp.pos = ctc->ix;
+        set_disp_x(wk, ctc);
         break;
 
     case 2:
-        wk->xyz[0].disp.pos = ctc->ix;
+        set_disp_x(wk, ctc);
         /* fallthrough */
 
     default:
         emwk = (WORK*)wk->target_adrs;
-        emwk->xyz[0].disp.pos = ctc->ix;
+        set_disp_x(emwk, ctc);
         break;
     }
 
