@@ -33,6 +33,18 @@ static s32 neither_side_has_priority(PLW* as, PLW* ds) {
     return !(as->wu.kind_of_waza & 6) && !(ds->wu.att.dipsw & 0x60) && !(ds->wu.kind_of_waza & 4);
 }
 
+/* The attacker's damage survives the trade and the defender's is cancelled. */
+static void keep_attacker_damage(s16 ix2, s16 ix) {
+    hs[ix2].flag.results &= 0x1101;
+    hs[ix].flag.results &= 0x1110;
+}
+
+/* The other way round: the defender's damage survives. */
+static void keep_defender_damage(s16 ix2, s16 ix) {
+    hs[ix2].flag.results &= 0x1110;
+    hs[ix].flag.results &= 0x1101;
+}
+
 void player_at_vs_player_dm(s16 ix2, s16 ix) {
     PLW* as = (PLW*)q_hit_push[ix2];
     PLW* ds = (PLW*)q_hit_push[ix];
@@ -53,7 +65,8 @@ void player_at_vs_player_dm(s16 ix2, s16 ix) {
 
         if (as->wu.att.dipsw & 0x40) {
             if (!(ds->wu.att.dipsw & 0x40)) {
-                goto two;
+                keep_defender_damage(ix2, ix);
+                break;
             }
 
             break;
@@ -67,7 +80,8 @@ void player_at_vs_player_dm(s16 ix2, s16 ix) {
                     break;
                 }
 
-                goto two;
+                keep_defender_damage(ix2, ix);
+                break;
             }
         } else if (as->wu.kind_of_waza & 2) {
             if (defender_has_no_priority(ds)) {
@@ -75,7 +89,8 @@ void player_at_vs_player_dm(s16 ix2, s16 ix) {
                     break;
                 }
 
-                goto two;
+                keep_defender_damage(ix2, ix);
+                break;
             }
         } else if (neither_side_has_priority(as, ds)) {
             if (!(ds->wu.kind_of_waza & 2)) {
@@ -83,14 +98,8 @@ void player_at_vs_player_dm(s16 ix2, s16 ix) {
             }
         }
 
-        hs[ix2].flag.results &= 0x1101;
-        hs[ix].flag.results &= 0x1110;
+        keep_attacker_damage(ix2, ix);
         return;
-
-    two:
-        hs[ix2].flag.results &= 0x1110;
-        hs[ix].flag.results &= 0x1101;
-        break;
     }
 
     pp_pulpara_hit(&as->wu);
