@@ -664,6 +664,22 @@ static void Run_Name_Entry(s16 PL_id) {
 
 /* E_Number 3: the player holds until the screen settles, then goes either to the
  * naming screen or straight to game over. */
+/* Sub-state 1: once the screen settles, go to game over - or back to the head of the
+ * entry list if it settled on the character select. */
+static void Settle_To_Game_Over(s16 PL_id) {
+    if ((E_No[0] == 8) || (E_No[0] == 2)) {
+        E_Number[PL_id][0] = 8;
+        E_Number[PL_id][1] = 1;
+        E_Number[PL_id][2] = 0;
+        E_Number[PL_id][3] = 0;
+
+        if (E_No[0] == 2) {
+            E_Number[PL_id][1] = 0;
+            return;
+        }
+    }
+}
+
 static void Await_Screen_Settled(s16 PL_id) {
     switch (E_Number[PL_id][1]) {
     case 0:
@@ -679,17 +695,7 @@ static void Await_Screen_Settled(s16 PL_id) {
         break;
 
     case 1:
-        if ((E_No[0] == 8) || (E_No[0] == 2)) {
-            E_Number[PL_id][0] = 8;
-            E_Number[PL_id][1] = 1;
-            E_Number[PL_id][2] = 0;
-            E_Number[PL_id][3] = 0;
-
-            if (E_No[0] == 2) {
-                E_Number[PL_id][1] = 0;
-                return;
-            }
-        }
+        Settle_To_Game_Over(PL_id);
 
         break;
     }
