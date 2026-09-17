@@ -158,6 +158,18 @@ void Attack_00000(PLW* wk) { // 🟢
     }
 }
 
+/* The animation's 1 marker starts the movement and hands control to state 2.
+ * Attack_01000, Attack_02000 and Attack_09000 said this identically; each one's
+ * `break` had nothing between it and the arm's own break. Attack_05000 is left
+ * alone - it fires effect_G6_init as well, a second difference. */
+static void launch_on_mvxy_marker(PLW* wk) {
+    if (wk->wu.cg_type == 1) {
+        add_mvxy_speed(&wk->wu);
+        wk->wu.routine_no[3] = 2;
+        wk->wu.cg_type = 0;
+    }
+}
+
 void Attack_01000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -168,13 +180,7 @@ void Attack_01000(PLW* wk) { // 🟢
     case 1:
         char_move(&wk->wu);
 
-        if (wk->wu.cg_type == 1) {
-            add_mvxy_speed(&wk->wu);
-            wk->wu.routine_no[3] = 2;
-            wk->wu.cg_type = 0;
-            break;
-        }
-
+        launch_on_mvxy_marker(wk);
         break;
 
     case 2:
@@ -197,13 +203,7 @@ void Attack_02000(PLW* wk) { // 🟢
     case 1:
         char_move(&wk->wu);
 
-        if (wk->wu.cg_type == 1) {
-            add_mvxy_speed(&wk->wu);
-            wk->wu.routine_no[3] = 2;
-            wk->wu.cg_type = 0;
-            break;
-        }
-
+        launch_on_mvxy_marker(wk);
         break;
 
     case 2:
@@ -534,6 +534,16 @@ void Attack_06000(PLW* wk) { // 🟢
     Attack_07000(wk);
 }
 
+/* The animation's 20 marker hands the move its buffered facing back. Four arms
+ * across Attack_07000 and Attack_09000 said this identically; in the two that
+ * ended with a `break` there was nothing between it and the arm's own break. */
+static void face_waza_direction_on_marker(PLW* wk) {
+    if (wk->wu.cg_type == 20) {
+        wk->wu.cg_type = 0;
+        wk->wu.rl_flag = wk->wu.rl_waza;
+    }
+}
+
 void Attack_07000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -542,21 +552,13 @@ void Attack_07000(PLW* wk) { // 🟢
         get_cancel_timer(wk);
         set_char_move_init(&wk->wu, 5, wk->as->char_ix);
 
-        if (wk->wu.cg_type == 20) {
-            wk->wu.cg_type = 0;
-            wk->wu.rl_flag = wk->wu.rl_waza;
-            break;
-        }
-
+        face_waza_direction_on_marker(wk);
         break;
 
     case 1:
         char_move(&wk->wu);
 
-        if (wk->wu.cg_type == 20) {
-            wk->wu.cg_type = 0;
-            wk->wu.rl_flag = wk->wu.rl_waza;
-        }
+        face_waza_direction_on_marker(wk);
 
         break;
     }
@@ -639,29 +641,15 @@ void Attack_09000(PLW* wk) { // 🟢
         set_char_move_init(&wk->wu, 5, wk->as->char_ix);
         setup_mvxy_data(&wk->wu, wk->as->data_ix);
 
-        if (wk->wu.cg_type == 20) {
-            wk->wu.cg_type = 0;
-            wk->wu.rl_flag = wk->wu.rl_waza;
-            break;
-        }
-
+        face_waza_direction_on_marker(wk);
         break;
 
     case 1:
         char_move(&wk->wu);
 
-        if (wk->wu.cg_type == 20) {
-            wk->wu.cg_type = 0;
-            wk->wu.rl_flag = wk->wu.rl_waza;
-        }
+        face_waza_direction_on_marker(wk);
 
-        if (wk->wu.cg_type == 1) {
-            add_mvxy_speed(&wk->wu);
-            wk->wu.routine_no[3] = 2;
-            wk->wu.cg_type = 0;
-            break;
-        }
-
+        launch_on_mvxy_marker(wk);
         break;
 
     case 2:
