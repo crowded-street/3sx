@@ -88,6 +88,15 @@ void end_600_move() {
     end_600_jp[end_w.r_no_2]();
 }
 
+/* Put the panel where this scene starts, with the fixed absolute position the
+ * scroller reads. */
+static void end_06_place_panel_at_scene_start() {
+    bgw_ptr->xy[0].disp.pos = end_6_pos[end_w.r_no_2][0];
+    bgw_ptr->xy[1].disp.pos = end_6_pos[end_w.r_no_2][1];
+    bgw_ptr->abs_x = 512;
+    bgw_ptr->abs_y = 0;
+}
+
 void end_600_0000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -209,10 +218,7 @@ void end_600_3000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_6_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_6_pos[end_w.r_no_2][1];
-        bgw_ptr->abs_x = 512;
-        bgw_ptr->abs_y = 0;
+        end_06_place_panel_at_scene_start();
         Rewrite_End_Message(3);
         effect_E6_init(0x2D);
         effect_E6_init(0x2E);
@@ -241,10 +247,7 @@ void end_600_4000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_6_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_6_pos[end_w.r_no_2][1];
-        bgw_ptr->abs_x = 512;
-        bgw_ptr->abs_y = 0;
+        end_06_place_panel_at_scene_start();
         Rewrite_End_Message(4);
         break;
 
@@ -257,10 +260,7 @@ void end_600_5000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_6_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_6_pos[end_w.r_no_2][1];
-        bgw_ptr->abs_x = 512;
-        bgw_ptr->abs_y = 0;
+        end_06_place_panel_at_scene_start();
         Rewrite_End_Message(5);
         bgw_ptr->free = 0x1E;
         end_fade_flag = 1;
@@ -307,10 +307,7 @@ static void end_06_show_family_at_scene_start() {
     case 0:
         bgw_ptr->r_no_1++;
         Bg_On_W(1 << bgw_ptr->fam_no);
-        bgw_ptr->xy[0].disp.pos = end_6_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_6_pos[end_w.r_no_2][1];
-        bgw_ptr->abs_x = 512;
-        bgw_ptr->abs_y = 0;
+        end_06_place_panel_at_scene_start();
         break;
 
     case 1:
@@ -327,10 +324,7 @@ void end_601_1000() {
     case 0:
         bgw_ptr->r_no_1++;
         Bg_On_W(1 << bgw_ptr->fam_no);
-        bgw_ptr->xy[0].disp.pos = end_6_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_6_pos[end_w.r_no_2][1];
-        bgw_ptr->abs_x = 512;
-        bgw_ptr->abs_y = 0;
+        end_06_place_panel_at_scene_start();
         break;
 
     case 1:
