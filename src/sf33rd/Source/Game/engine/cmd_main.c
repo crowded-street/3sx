@@ -226,6 +226,21 @@ static u16 latch_sw_lvbt_bit_0x800(u16 work2, u16 hana2, u16 sw_0) {
     return sw_0;
 }
 
+/* Swap the two horizontal lever bits, so the lever reads the way the player
+ * faces. Both cases that need it - riding the bonus car, and a move that
+ * reverses the lever - did this identically. */
+static u16 mirror_lever_left_right(u16 sw_0) {
+    u16 sw_work = sw_0 & 0xC;
+
+    if (sw_work) {
+        sw_0 &= 0xFF3;
+        sw_work ^= 0xC;
+        sw_0 |= sw_work;
+    }
+
+    return sw_0;
+}
+
 void pl_lvr_set() { // 🟢
     u16 sw_work;
     u16 work2;
@@ -237,21 +252,10 @@ void pl_lvr_set() { // 🟢
 
     if (check_rl_on_car(cmd_pl)) {
         if (cmd_pl->wu.rl_flag) {
-            sw_work = (sw_0 & 0xC);
-            if (sw_work) {
-                sw_0 &= 0xFF3;
-                sw_work ^= 0xC;
-                sw_0 |= sw_work;
-            }
+            sw_0 = mirror_lever_left_right(sw_0);
         }
     } else if (cmd_pl->wu.rl_waza) {
-        sw_work = sw_0 & 0xC;
-
-        if (sw_work) {
-            sw_0 &= 0xFF3;
-            sw_work ^= 0xC;
-            sw_0 |= sw_work;
-        }
+        sw_0 = mirror_lever_left_right(sw_0);
     }
 
     wcp[cmd_id].old_now = chk_pl->sw_now;
