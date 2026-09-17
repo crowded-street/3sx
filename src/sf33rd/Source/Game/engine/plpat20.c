@@ -92,6 +92,40 @@ void Att_PL20_AT1(PLW* wk) {
     }
 }
 
+/* Marker 30 loads the descent row and steps the state on. */
+static void pl20_at2_load_descent(PLW* wk) {
+    if (wk->wu.cg_type == 30) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.routine_no[3]++;
+        wk->wu.cg_type = 0;
+    }
+}
+
+/* Once the union hands over to state 4 the vertical speed is flattened and a kop
+ * of 2 is stepped back to 1. */
+static void pl20_at2_settle_on_land(PLW* wk) {
+    if (wk->wu.routine_no[3] == 4) {
+        if (wk->wu.mvxy.kop[0] == 2) {
+            wk->wu.mvxy.kop[0] = 1;
+        }
+
+        wk->wu.mvxy.a[1].sp = wk->wu.mvxy.d[1].sp = 0;
+    }
+}
+
+/* The descent, which marker 20 ends. State 4 falls into this, so the helper is
+ * reached from both arms exactly as the original fell through. */
+static void pl20_at2_descend(PLW* wk) {
+    cal_mvxy_speed(&wk->wu);
+    add_mvxy_speed(&wk->wu);
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 20) {
+        wk->wu.routine_no[3]++;
+        reset_mvxy_data(&wk->wu);
+    }
+}
+
 void Att_PL20_AT2(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -116,26 +150,12 @@ void Att_PL20_AT2(PLW* wk) {
 
     case 2:
         jumping_union_process(&wk->wu, 4);
-
-        if (wk->wu.cg_type == 30) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.routine_no[3]++;
-            wk->wu.cg_type = 0;
-        }
-
+        pl20_at2_load_descent(wk);
         break;
 
     case 3:
         jumping_union_process(&wk->wu, 4);
-
-        if (wk->wu.routine_no[3] == 4) {
-            if (wk->wu.mvxy.kop[0] == 2) {
-                wk->wu.mvxy.kop[0] = 1;
-            }
-
-            wk->wu.mvxy.a[1].sp = wk->wu.mvxy.d[1].sp = 0;
-        }
-
+        pl20_at2_settle_on_land(wk);
         break;
 
     case 4:
@@ -144,15 +164,7 @@ void Att_PL20_AT2(PLW* wk) {
         /* fallthrough */
 
     case 5:
-        cal_mvxy_speed(&wk->wu);
-        add_mvxy_speed(&wk->wu);
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 20) {
-            wk->wu.routine_no[3]++;
-            reset_mvxy_data(&wk->wu);
-        }
-
+        pl20_at2_descend(wk);
         break;
 
     default:
