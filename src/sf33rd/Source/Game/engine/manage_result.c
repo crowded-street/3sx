@@ -322,15 +322,21 @@ static void start_stage_bgm(void) {
     Stage_BGM(bg_w.stage, Round_num);
 }
 
+/* Both waits in the BGM sequence count the same timer down and step on when it
+ * reaches zero. */
+static void advance_bgm_step_when_timer_ends() {
+    if (--BGM_Timer[0] == 0) {
+        BGM_No[0]++;
+    }
+}
+
 void BGM_Control() {
     switch (BGM_No[0]) {
     case 0:
         return;
 
     case 1:
-        if (--BGM_Timer[0] == 0) {
-            BGM_No[0]++;
-        }
+        advance_bgm_step_when_timer_ends();
 
         /* fallthrough */
 
@@ -339,9 +345,7 @@ void BGM_Control() {
         break;
 
     case 3:
-        if (--BGM_Timer[0] == 0) {
-            BGM_No[0]++;
-        }
+        advance_bgm_step_when_timer_ends();
 
         /* fallthrough */
 
