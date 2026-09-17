@@ -22,6 +22,21 @@ void pl14_extra_attack(PLW* wk) {
     pl14_exatt_table[wk->wu.routine_no[2] - 16](wk);
 }
 
+/* The attack drifts along the facing saved when it started, not the current one,
+ * so a turn mid-move does not reverse it. Both arms of Att_PL14_AT1 wrote this
+ * identically. */
+static void drift_along_saved_facing(PLW* wk) {
+    cal_mvxy_speed(&wk->wu);
+
+    if (wk->rl_save) {
+        wk->wu.xyz[0].cal += wk->wu.mvxy.a[0].sp;
+    } else {
+        wk->wu.xyz[0].cal -= wk->wu.mvxy.a[0].sp;
+    }
+
+    wk->wu.xyz[1].cal += wk->wu.mvxy.a[1].sp;
+}
+
 void Att_PL14_AT1(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -37,15 +52,7 @@ void Att_PL14_AT1(PLW* wk) {
 
     case 1:
         char_move(&wk->wu);
-        cal_mvxy_speed(&wk->wu);
-
-        if (wk->rl_save) {
-            wk->wu.xyz[0].cal += wk->wu.mvxy.a[0].sp;
-        } else {
-            wk->wu.xyz[0].cal -= wk->wu.mvxy.a[0].sp;
-        }
-
-        wk->wu.xyz[1].cal += wk->wu.mvxy.a[1].sp;
+        drift_along_saved_facing(wk);
 
         switch (wk->wu.cg_type) {
         case 10:
@@ -68,15 +75,7 @@ void Att_PL14_AT1(PLW* wk) {
 
     default:
         char_move(&wk->wu);
-        cal_mvxy_speed(&wk->wu);
-
-        if (wk->rl_save) {
-            wk->wu.xyz[0].cal += wk->wu.mvxy.a[0].sp;
-        } else {
-            wk->wu.xyz[0].cal -= wk->wu.mvxy.a[0].sp;
-        }
-
-        wk->wu.xyz[1].cal += wk->wu.mvxy.a[1].sp;
+        drift_along_saved_facing(wk);
         wk->wu.rl_flag = wk->wu.rl_waza;
 
         if ((wk->wu.mvxy.a[0].sp != 0) && wk->old_pos_data[0] == wk->old_pos_data[1]) {
