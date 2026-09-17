@@ -1477,20 +1477,27 @@ s8 Check_Bonus_Stage() {
     return Completion_Bonus[Player_id][Bonus_Type - 20] = 1;
 }
 
+#if DEBUG
+/* Which bonus stage the debug override asks for, once it is known to be set. */
+static s8 Debug_Bonus_Type() {
+    if (debug_config.bonus_stage_override == 1) {
+        Completion_Bonus[Player_id][0] = 0;
+        return 20;
+    }
+
+    if (debug_config.bonus_stage_override == 2) {
+        Completion_Bonus[Player_id][1] = 0;
+        return 21;
+    }
+
+    return 0;
+}
+#endif
+
 s8 Check_Bonus_Type() {
 #if DEBUG
     if (debug_config.bonus_stage_override != 0) {
-        if (debug_config.bonus_stage_override == 1) {
-            Completion_Bonus[Player_id][0] = 0;
-            return 20;
-        }
-
-        if (debug_config.bonus_stage_override == 2) {
-            Completion_Bonus[Player_id][1] = 0;
-            return 21;
-        }
-
-        return 0;
+        return Debug_Bonus_Type();
     }
 #endif
 
