@@ -311,6 +311,25 @@ static void end00_quake_in_place() {
     }
 }
 
+/* Gill rises out of shot, fading as he goes, still shaking. */
+static void end_000_0004_ascend() {
+    bgw_ptr->max_x_limit += bgw_ptr->speed_y;
+    bgw_ptr->xy[1].cal = bgw_ptr->max_x_limit;
+    bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+
+    if (bgw_ptr->l_limit < 30) {
+        FadeOut(1, 8, 8);
+    }
+
+    if (!(bgw_ptr->l_limit--)) {
+        bgw_ptr->r_no_1++;
+        ToneDown(0xFF, 0);
+        FadeInit();
+    }
+
+    end00_quake_in_place();
+}
+
 void end_000_0004() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -369,21 +388,7 @@ void end_000_0004() {
         /* fallthrough */
 
     case 5:
-        bgw_ptr->max_x_limit += bgw_ptr->speed_y;
-        bgw_ptr->xy[1].cal = bgw_ptr->max_x_limit;
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
-
-        if (bgw_ptr->l_limit < 30) {
-            FadeOut(1, 8, 8);
-        }
-
-        if (!(bgw_ptr->l_limit--)) {
-            bgw_ptr->r_no_1++;
-            ToneDown(0xFF, 0);
-            FadeInit();
-        }
-
-        end00_quake_in_place();
+        end_000_0004_ascend();
 
         break;
 
