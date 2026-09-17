@@ -414,13 +414,16 @@ Recipe X both refuse to merge.
 | `eff55.c` | 9.42 | the rise and the fall differ in three values; splitting the states exposes it, -0.33 |
 | `eff68.c` | 9.09 | five waypoint steps differing in their timers and targets; sharing their identical runs leaves the smell unmoved |
 | `eff78.c` | 9.55 | `crow_flap` and `crow_take_off` differ in five values; splitting `crow_fuss_move` exposes it, -0.17 |
-| `grade.c` | 5.52 | the table-scan idiom below - not duplication between siblings, and the first plateau of a different kind |
-| `pls03.c` | 7.31 | `decode_wst_data`'s twelve command encodings; `waza_select`'s five arms differ in two table names each; `check_nm_attack`'s nine arms share a guard that cannot be hoisted without duplicating their case labels |
-| `cmd_main_checks.c` | 6.08 | `check_10`/`check_12` differ in two places - a gate condition and which flag-clear they call; `check_18`/`check_19` and `check_0`/`check_21` differ semantically too |
-| `pls00_normal_states.c` | 6.15 | every remaining Complex Method sits in a duplication group; the `nm_*` handlers are near-miss siblings throughout |
-| `plpnm.c` | 6.54 | 28 of its functions sit in one duplication group - the Normal_* state handlers are near-miss siblings, as in every other state file |
-| `pls03_super_arts.c` | 6.47 | `check_super_arts_attack_dc` at cc 19 is the last free finding, and naming its airborne gates was measured three times - at 6.19, 6.28 and 6.47 - and cost 0.09 every time. The file's duplication group is already eight grounded/airborne twins; a ninth costs more than the clear is worth |
+| `grade.c` | 8.67 | the table-scan idiom below. `tech_pts_items` is eight scans that differ in three values each; splitting it two or three ways makes functions that read as duplicates, measured at -0.09 and -0.64 |
+| `pls03.c` | 7.60 | `decode_wst_data`'s twelve command encodings; `waza_select`'s five arms differ in two table names each; `check_nm_attack`'s nine arms share a guard that cannot be hoisted without duplicating their case labels. Splitting either of the first two was measured at -0.04 and -0.06 |
+| `cmd_main_checks.c` | 7.12 | `check_10` and `check_12` were merged in the end - see *Break the twin first* below. What is left is `check_23`, whose two differences from them are real, and the `check_18`/`check_19` pair |
+| `pls00_normal_states.c` | 7.07 | `nm_16000`/`nm_17000` differ in three state numbers, and the `nm_*` guard chains differ in their members and their order |
+| `plpnm.c` | 7.52 | what is left of the 28-function group are state machines differing in two or more values; the two parry states keep Duff-style `case` arms that cannot be split |
+| `pls03_super_arts.c` | 7.57 | the grounded and airborne halves differ in the table each reaches into and the offset within it. Splitting the airborne strength loop's firing paid +0.06; doing the same to its grounded twin cost 0.17 |
 | `manage.c` | 9.92 | `Game_Manage_7_3`'s two identical test arms; clearing the bump means deleting the dead condition, which the catalogue forbids |
+| `plcnt3.c` | 9.50 | naming its two paired tests, or sharing its push-out request, each makes a twin of something already in the file |
+| `plmain2.c` | 9.68 | `player_mvbs_1000`'s animated arm cannot leave without making a twin of the car-rider block beside it |
+| `stun.c` | 9.53 | the blink's two phase flips read as twins of the two per-player gauge blocks |
 | `eff93.c` | 9.38 | the two slide-outs differ only in a comparison operator, which may not be parameterised |
 | `effa2.c` | 9.34 | every state returns past a shared tail, so no state can move to a helper without a 0/1 protocol per arm |
 | `effa9.c` | 9.16 | near-miss siblings |
@@ -441,16 +444,10 @@ Recipe X both refuse to merge.
 | `charset.c` | 9.68 | `set_char_move_init2` takes 5 arguments; same reason - one of its 59 call sites is in `plpat00.c` |
 | `hitplpl.c` | 8.59 | `player_at_vs_player_dm` is one `while (1)` whose arms leave through `break` and `goto two`; no arm can move to a helper without a numeric verdict protocol |
 | `cmd_main.c` | 9.39 | `latch_sw_lvbt_bit_0x80` and `_0x800` differ only in their four case labels and two masks; splitting each in two trades their Complex Method for a Code Duplication pair at no net gain |
-| `grade.c` | 6.87 | the table-scan idiom below. Every remaining Complex Method is a run of scans that differ in three values - the table, its length and the value scanned |
-| `cmd_main_checks.c` | 7.12 | `check_23` and the `check_18`/`check_19` pair; splitting any of them trades Complex Method for Code Duplication |
-| `pls00_normal_states.c` | 7.07 | `nm_16000`/`nm_17000` differ in three state numbers, and the `nm_*` guard chains differ in their members and their order |
-| `plpnm.c` | 7.38 | what is left of the 28-function group are state machines differing in two or more values |
-| `pls03.c` | 7.60 | `decode_wst_data`'s twelve encodings and `waza_select`'s five table pairs; splitting either measured -0.04 and -0.06 |
-| `pls03_super_arts.c` | 7.45 | the grounded and airborne halves differ in the table each reaches into and the offset within it |
 
 ---
 
-### The table-scan idiom, and why `grade.c` stops
+### The table-scan idiom, and where `grade.c` stops
 
 `grade.c` is the first plateau in this campaign that is **not** duplication between sibling
 state machines. Its six big functions are built almost entirely out of one idiom, repeated
