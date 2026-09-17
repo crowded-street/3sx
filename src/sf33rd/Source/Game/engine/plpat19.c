@@ -455,52 +455,67 @@ void Att_pl19_TOKUSHUKOUDOU(PLW* wk) {
     }
 }
 
-void Att_AIR_A_X_E(PLW* wk) {
-    switch (wk->wu.routine_no[3]) {
-    case 0:
+/* The opening frame: a non-negative vertical speed is replaced by the table's
+ * row 64, shifted into place. */
+static void begin_air_axe(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+    wk->wu.mvxy.index = wk->as->r_no;
+
+    if (wk->wu.mvxy.d[1].sp >= 0) {
+        wk->wu.mvxy.d[1].sp = wk->wu.move_xy_table[64];
+        wk->wu.mvxy.d[1].sp <<= 8;
+    }
+
+    wk->wu.mvxy.kop[1] = 0;
+}
+
+/* The launch frames: marker 1 steps the state on, marker 20 takes the next row.
+ * The row advance is not the shared take_next_mvxy_row - this one clears cg_type
+ * before stepping the index, a different order of side effects. */
+static void air_axe_launch(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 1) {
         wk->wu.routine_no[3]++;
-        set_char_move_init(&wk->wu, 5, wk->as->char_ix);
-        wk->wu.mvxy.index = wk->as->r_no;
+    }
 
-        if (wk->wu.mvxy.d[1].sp >= 0) {
-            wk->wu.mvxy.d[1].sp = wk->wu.move_xy_table[64];
-            wk->wu.mvxy.d[1].sp <<= 8;
-        }
+    if (wk->wu.cg_type == 20) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.cg_type = 0;
+        wk->wu.mvxy.index++;
+    }
+}
 
-        wk->wu.mvxy.kop[1] = 0;
-        break;
-
-    case 1:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 1) {
-            wk->wu.routine_no[3]++;
-        }
-
+/* The airborne markers, which only run while the union has not yet landed. */
+static void air_axe_markers(PLW* wk) {
+    if (wk->wu.routine_no[3] != 3) {
         if (wk->wu.cg_type == 20) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+            add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
             wk->wu.cg_type = 0;
             wk->wu.mvxy.index++;
         }
 
+        if (wk->wu.cg_type == 30) {
+            setup_mvxy_data(&wk->wu, wk->as->data_ix);
+            wk->wu.cg_type = 0;
+        }
+    }
+}
+
+void Att_AIR_A_X_E(PLW* wk) {
+    switch (wk->wu.routine_no[3]) {
+    case 0:
+        begin_air_axe(wk);
+        break;
+
+    case 1:
+        air_axe_launch(wk);
         break;
 
     case 2:
         jumping_union_process(&wk->wu, 3);
-
-        if (wk->wu.routine_no[3] != 3) {
-            if (wk->wu.cg_type == 20) {
-                add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-                wk->wu.cg_type = 0;
-                wk->wu.mvxy.index++;
-            }
-
-            if (wk->wu.cg_type == 30) {
-                setup_mvxy_data(&wk->wu, wk->as->data_ix);
-                wk->wu.cg_type = 0;
-            }
-        }
-
+        air_axe_markers(wk);
         break;
 
     case 3:
