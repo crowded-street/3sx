@@ -256,6 +256,20 @@ void end_600_4000() {
     }
 }
 
+/* Cycle the panel's four frames, three game frames each. */
+static void end_600_5000_cycle_frames() {
+    bgw_ptr->free--;
+
+    if (bgw_ptr->free <= 0) {
+        bgw_ptr->free = 3;
+        bgw_ptr->l_limit++;
+
+        if (bgw_ptr->l_limit >= 4) {
+            bgw_ptr->l_limit = 0;
+        }
+    }
+}
+
 void end_600_5000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -279,16 +293,7 @@ void end_600_5000() {
         break;
 
     case 2:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->free = 3;
-            bgw_ptr->l_limit++;
-
-            if (bgw_ptr->l_limit >= 4) {
-                bgw_ptr->l_limit = 0;
-            }
-        }
+        end_600_5000_cycle_frames();
 
         break;
     }
