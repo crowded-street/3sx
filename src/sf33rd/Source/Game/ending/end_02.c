@@ -195,6 +195,18 @@ void end_201_move() {
     end_201_jp[end_w.r_no_2]();
 }
 
+/* Slide the panel left until it reaches its mark. The two scenes that do this
+ * differ only in the mark. */
+static void end_02_slide_left_to(s16 mark) {
+    bgw_ptr->xy[0].cal -= bgw_ptr->speed_x;
+
+    if (bgw_ptr->xy[0].disp.pos < mark) {
+        bgw_ptr->r_no_1++;
+    }
+
+    bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
+}
+
 void end_201_1000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -209,13 +221,7 @@ void end_201_1000() {
         break;
 
     case 1:
-        bgw_ptr->xy[0].cal -= bgw_ptr->speed_x;
-
-        if (bgw_ptr->xy[0].disp.pos < 193) {
-            bgw_ptr->r_no_1++;
-        }
-
-        bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
+        end_02_slide_left_to(193);
         break;
 
     case 2:
@@ -262,13 +268,7 @@ void end_202_1000() {
         break;
 
     case 1:
-        bgw_ptr->xy[0].cal -= bgw_ptr->speed_x;
-
-        if (bgw_ptr->xy[0].disp.pos < 129) {
-            bgw_ptr->r_no_1++;
-        }
-
-        bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
+        end_02_slide_left_to(129);
         break;
 
     case 2:
