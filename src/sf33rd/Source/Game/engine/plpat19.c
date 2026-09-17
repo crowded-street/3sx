@@ -422,26 +422,33 @@ s32 kabe_check3(PLW* wk) {
     return (wk->wu.rl_flag + wk->micchaku_flag == 2);
 }
 
+/* Which personal action starts depends on what is available: no super art picks
+ * animation 62, a hidden or oddly-coloured player picks 64, and everything else
+ * gets the full 63. Each arm's `break` left the switch with nothing after it. */
+static void begin_personal_action(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    wk->wu.rl_flag = wk->wu.rl_waza;
+    hoken_muriyari_chakuchi(wk);
+
+    if (wk->sa->ok == -1) {
+        wk->wu.routine_no[3] = 2;
+        set_char_move_init(&wk->wu, 5, 62);
+        return;
+    }
+
+    if (wk->wu.disp_flag != 1 || wk->wu.my_col_mode != 0x4200) {
+        wk->wu.routine_no[3] = 2;
+        set_char_move_init(&wk->wu, 5, 64);
+        return;
+    }
+
+    set_char_move_init(&wk->wu, 5, 63);
+}
+
 void Att_pl19_TOKUSHUKOUDOU(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        hoken_muriyari_chakuchi(wk);
-
-        if (wk->sa->ok == -1) {
-            wk->wu.routine_no[3] = 2;
-            set_char_move_init(&wk->wu, 5, 62);
-            break;
-        }
-
-        if (wk->wu.disp_flag != 1 || wk->wu.my_col_mode != 0x4200) {
-            wk->wu.routine_no[3] = 2;
-            set_char_move_init(&wk->wu, 5, 64);
-            break;
-        }
-
-        set_char_move_init(&wk->wu, 5, 63);
+        begin_personal_action(wk);
         break;
 
     case 1:
