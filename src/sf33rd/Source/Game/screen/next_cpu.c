@@ -434,35 +434,10 @@ static void Leave_Boss_Intro() {
     }
 }
 
-void Next_CPU_5th() {
+/* The boss introduction itself, from the screen revival onward. Labels unchanged, so
+ * a sub-state still reads as the number the rest of the file uses. */
+static void Next_CPU_5th_Boss_Intro() {
     switch (SC_No[1]) {
-    case 0:
-        SC_No[1]++;
-        Switch_Screen_Init(1);
-        break;
-
-    case 1:
-        if (Switch_Screen(1) != 0) {
-            SC_No[1]++;
-            Cover_Timer = 9;
-        }
-
-        break;
-
-    case 2:
-        Setup_Boss_VS_Screen();
-        break;
-
-    case 3:
-        Switch_Screen(1);
-
-        if ((Cover_Timer -= 1) == 0) {
-            SC_No[1]++;
-            Switch_Screen_Init(1);
-        }
-
-        break;
-
     case 4:
         if (Switch_Screen_Revival(1) != 0) {
             SC_No[1]++;
@@ -493,6 +468,41 @@ void Next_CPU_5th() {
     default:
         Leave_Boss_Intro();
 
+        break;
+    }
+}
+
+void Next_CPU_5th() {
+    switch (SC_No[1]) {
+    case 0:
+        SC_No[1]++;
+        Switch_Screen_Init(1);
+        break;
+
+    case 1:
+        if (Switch_Screen(1) != 0) {
+            SC_No[1]++;
+            Cover_Timer = 9;
+        }
+
+        break;
+
+    case 2:
+        Setup_Boss_VS_Screen();
+        break;
+
+    case 3:
+        Switch_Screen(1);
+
+        if ((Cover_Timer -= 1) == 0) {
+            SC_No[1]++;
+            Switch_Screen_Init(1);
+        }
+
+        break;
+
+    default:
+        Next_CPU_5th_Boss_Intro();
         break;
     }
 }
