@@ -837,6 +837,25 @@ void Normal_42000(PLW* wk) { // 🟢
     }
 }
 
+/* The throw escape's first frame: the facing, the pattern and movement data
+ * its row names, a fixed hit stop, and the gauge and grade it earns. */
+static void begin_throw_escape_state(PLW* wk, const s16* datix) {
+    wk->wu.routine_no[3]++;
+    wk->wu.rl_flag = wk->wu.rl_waza;
+
+    if (datix[2]) {
+        wk->wu.xyz[1].disp.pos = 0;
+    }
+
+    set_char_move_init(&wk->wu, 0, datix[0]);
+    setup_mvxy_data(&wk->wu, datix[1]);
+    wk->wu.hit_stop = -18;
+    wk->wu.hit_quake = 0;
+    wk->wu.dm_stop = wk->wu.dm_quake = 0;
+    add_sp_arts_gauge_nagenuke(wk);
+    grade_add_grap_def(wk->wu.id);
+}
+
 void Normal_47000(PLW* wk) { // 🟢
     const s16* datix = nmCE_data[wk->wu.routine_no[2] - 47];
 
@@ -844,20 +863,7 @@ void Normal_47000(PLW* wk) { // 🟢
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-
-        if (datix[2]) {
-            wk->wu.xyz[1].disp.pos = 0;
-        }
-
-        set_char_move_init(&wk->wu, 0, datix[0]);
-        setup_mvxy_data(&wk->wu, datix[1]);
-        wk->wu.hit_stop = -18;
-        wk->wu.hit_quake = 0;
-        wk->wu.dm_stop = wk->wu.dm_quake = 0;
-        add_sp_arts_gauge_nagenuke(wk);
-        grade_add_grap_def(wk->wu.id);
+        begin_throw_escape_state(wk, datix);
         break;
 
     case 1:
