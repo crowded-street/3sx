@@ -698,7 +698,6 @@ s16 get_offence_total(s16 ix) {
  * how much of this player's was clean. Both are recorded for the result
  * screen before they are scored. */
 static s32 defence_rate_points(s16 ix, s16 ix2) {
-    s16 i;
     s32 num = 0;
     s32 point;
     s32 point2;
@@ -712,13 +711,7 @@ static s32 defence_rate_points(s16 ix, s16 ix2) {
 
     last_judge_dada[ix][3] = remake_2_10(point2, 3);
 
-    for (i = 0; i < 13; i++) {
-        if (point2 < grade_t_bougyoritsu2[i + 1][0]) {
-            break;
-        }
-    }
-
-    num += grade_t_bougyoritsu2[i][1];
+    num += grade_table_points(grade_t_bougyoritsu2, 13, point2);
     point2 = judge_item[ix][Play_Type].clean_hits + judge_item[ix2][Play_Type].guard_succ;
 
     if (judge_item[ix][Play_Type].att_renew) {
@@ -729,13 +722,7 @@ static s32 defence_rate_points(s16 ix, s16 ix2) {
 
     last_judge_dada[ix][4] = remake_2_10(point2, 3);
 
-    for (i = 0; i < 12; i++) {
-        if (point2 < grade_t_bougyoritsu3[i + 1][0]) {
-            break;
-        }
-    }
-
-    point = grade_t_bougyoritsu3[i][1];
+    point = grade_table_points(grade_t_bougyoritsu3, 12, point2);
 
     if (judge_item[ix2][Play_Type].att_renew == 0) {
         point = (point * 200) / 100;
