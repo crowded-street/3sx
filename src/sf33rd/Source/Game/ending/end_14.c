@@ -353,6 +353,35 @@ void end_e00_2000() {
     }
 }
 
+/* The fade out to the next scene, and the panel wipe that follows it. */
+static void end_e00_3000_fade() {
+    switch (bgw_ptr->r_no_1) {
+    case 3:
+        if (Request_Fade(3)) {
+            end_no_cut = 1;
+            bgw_ptr->r_no_1++;
+        }
+
+        break;
+
+    case 4:
+        if (end_fade_complete()) {
+            bgw_ptr->r_no_1++;
+            end_no_cut = 0;
+            end_w.timer = 10;
+            overwrite_panel(0xFFFFFFFF, 0x17);
+            Frame_Down(0xC0, 0x30, 0x10);
+        }
+
+        break;
+
+    case 5:
+        Frame_Down(0xC0, 0x30, 3);
+        overwrite_panel(0xFFFFFFFF, 0x17);
+        break;
+    }
+}
+
 void end_e00_3000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -381,28 +410,8 @@ void end_e00_3000() {
 
         break;
 
-    case 3:
-        if (Request_Fade(3)) {
-            end_no_cut = 1;
-            bgw_ptr->r_no_1++;
-        }
-
-        break;
-
-    case 4:
-        if (end_fade_complete()) {
-            bgw_ptr->r_no_1++;
-            end_no_cut = 0;
-            end_w.timer = 10;
-            overwrite_panel(0xFFFFFFFF, 0x17);
-            Frame_Down(0xC0, 0x30, 0x10);
-        }
-
-        break;
-
-    case 5:
-        Frame_Down(0xC0, 0x30, 3);
-        overwrite_panel(0xFFFFFFFF, 0x17);
+    default:
+        end_e00_3000_fade();
         break;
     }
 }
