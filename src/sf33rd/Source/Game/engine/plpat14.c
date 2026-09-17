@@ -37,6 +37,56 @@ static void drift_along_saved_facing(PLW* wk) {
     wk->wu.xyz[1].cal += wk->wu.mvxy.a[1].sp;
 }
 
+/* The grounded markers: 10 steps the state on and falls into 20, which takes the
+ * next movement row; 21 resets it. */
+static void pl14_at1_ground_markers(PLW* wk) {
+    char_move(&wk->wu);
+    drift_along_saved_facing(wk);
+
+    switch (wk->wu.cg_type) {
+    case 10:
+        wk->wu.routine_no[3]++;
+        /* fallthrough */
+
+    case 20:
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+        break;
+
+    case 21:
+        reset_mvxy_data(&wk->wu);
+        wk->wu.cg_type = 0;
+        break;
+    }
+}
+
+/* The later markers. The switch is a near miss of the grounded one - it has no 10
+ * arm and its 21 arm also re-sorts the depth - so the two stay apart. */
+static void pl14_at1_air_markers(PLW* wk) {
+    char_move(&wk->wu);
+    drift_along_saved_facing(wk);
+    wk->wu.rl_flag = wk->wu.rl_waza;
+
+    if ((wk->wu.mvxy.a[0].sp != 0) && wk->old_pos_data[0] == wk->old_pos_data[1]) {
+        char_move_z(&wk->wu);
+    }
+
+    switch (wk->wu.cg_type) {
+    case 20:
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+        break;
+
+    case 21:
+        reset_mvxy_data(&wk->wu);
+        wk->wu.cg_type = 0;
+        char_move_z(&wk->wu);
+        break;
+    }
+}
+
 void Att_PL14_AT1(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -51,51 +101,11 @@ void Att_PL14_AT1(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-        drift_along_saved_facing(wk);
-
-        switch (wk->wu.cg_type) {
-        case 10:
-            wk->wu.routine_no[3]++;
-            /* fallthrough */
-
-        case 20:
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-            break;
-
-        case 21:
-            reset_mvxy_data(&wk->wu);
-            wk->wu.cg_type = 0;
-            break;
-        }
-
+        pl14_at1_ground_markers(wk);
         break;
 
     default:
-        char_move(&wk->wu);
-        drift_along_saved_facing(wk);
-        wk->wu.rl_flag = wk->wu.rl_waza;
-
-        if ((wk->wu.mvxy.a[0].sp != 0) && wk->old_pos_data[0] == wk->old_pos_data[1]) {
-            char_move_z(&wk->wu);
-        }
-
-        switch (wk->wu.cg_type) {
-        case 20:
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-            break;
-
-        case 21:
-            reset_mvxy_data(&wk->wu);
-            wk->wu.cg_type = 0;
-            char_move_z(&wk->wu);
-            break;
-        }
-
+        pl14_at1_air_markers(wk);
         break;
     }
 }
