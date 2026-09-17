@@ -463,6 +463,40 @@ void Att_KUUCHUUNICHIRINSHOU(PLW* wk) {
     }
 }
 
+/* The launch frames: marker 1 steps the state on, marker 20 takes the next row. */
+static void kuuchuu_jinnchuu_launch(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 1) {
+        wk->wu.routine_no[3]++;
+    }
+
+    if (wk->wu.cg_type == 20) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.cg_type = 0;
+        wk->wu.mvxy.index++;
+    }
+}
+
+/* The airborne markers, which stop once the union has landed. That early `break`
+ * left the switch with nothing after it, so a return is the same exit. */
+static void kuuchuu_jinnchuu_markers(PLW* wk) {
+    if (wk->wu.routine_no[3] == 3) {
+        return;
+    }
+
+    if (wk->wu.cg_type == 20) {
+        add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.cg_type = 0;
+        wk->wu.mvxy.index++;
+    }
+
+    if (wk->wu.cg_type == 30) {
+        setup_mvxy_data(&wk->wu, wk->as->data_ix);
+        wk->wu.cg_type = 0;
+    }
+}
+
 void Att_KUUCHUUJINNCHUUWATARI(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -472,38 +506,12 @@ void Att_KUUCHUUJINNCHUUWATARI(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 1) {
-            wk->wu.routine_no[3]++;
-        }
-
-        if (wk->wu.cg_type == 20) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.cg_type = 0;
-            wk->wu.mvxy.index++;
-        }
-
+        kuuchuu_jinnchuu_launch(wk);
         break;
 
     case 2:
         jumping_union_process(&wk->wu, 3);
-
-        if (wk->wu.routine_no[3] == 3) {
-            break;
-        }
-
-        if (wk->wu.cg_type == 20) {
-            add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.cg_type = 0;
-            wk->wu.mvxy.index++;
-        }
-
-        if (wk->wu.cg_type == 30) {
-            setup_mvxy_data(&wk->wu, wk->as->data_ix);
-            wk->wu.cg_type = 0;
-        }
-
+        kuuchuu_jinnchuu_markers(wk);
         break;
 
     case 3:
