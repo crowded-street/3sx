@@ -341,9 +341,13 @@ to cope with a new case.
   scanning `const s16 t[N][3]` are two families, and merging them would be a type change.
 - The tables themselves are never touched, reordered, or re-declared. Recipe T reads them
   through a pointer; the `const` arrays stay exactly as they are.
-- `refactor_guard.py` on the `.c` file must come back **OK**, not WARN. A literal moving
-  means the bound or an index did not travel verbatim. The header's own diff is the legal
-  "literals added, none removed".
+- **The bounds and the scanned values are still there afterwards.** The expected literal
+  fingerprint is the deduplication WARN - *copies removed, every value still present* -
+  and the counts say exactly what was collapsed: eight scans sharing one loop read as
+  `removed x14 num 0` and `removed x14 num 1`, sixteen of each in the loops against two of
+  each kept in the helper. If a *bound* leaves the fingerprint, it did not travel to the
+  call site and the merge is wrong. The header's own diff is the legal "literals added,
+  none removed".
 
 **Group the scans by what they score.** Nine scans behind one helper is fine; three
 helpers of three scans each read as duplicates of one another and the score falls.
@@ -397,9 +401,24 @@ static s32 comm_pa_y(PLW* wk, CTC* ctc) { return dispatch_by_koc(wk, ctc, add_sc
 
 **Preconditions, all of them:**
 
-- **Exactly one call differs.** If the arms differ in a second callee, in a literal, or in
-  a statement, Recipe F does not apply - that is the near-miss case Recipe D forbids, and
-  it stays forbidden.
+- **Exactly one call differs, and nothing else.** If the arms differ in a second callee or
+  in a statement, Recipe F does not apply - that is the near-miss case Recipe D forbids,
+  and it stays forbidden.
+- **The call may differ whole** - the callee *and* the arguments it is given. The nine
+  attack stances in `pls03.c` differ in which selector they call and at which level, and
+  both travel into the helper's argument list at each arm:
+
+  ```c
+  case 20:
+      return start_nm_attack(wk, kos, 3, select_nm_attack_level_3010);
+  ```
+
+  This is not "parameterise two differences". It is safe for the reason Recipe T is safe:
+  every varying part is written out verbatim at its own call site, so no arm's pair can be
+  mis-mapped, and the helper **does nothing with those parameters except pass them
+  straight to the call**. It must not test them, index with them, or compute from them -
+  the moment it does, the differences have been generalised and this is Recipe D's
+  forbidden case again.
 - **The callees' signatures are identical**, parameter for parameter, return type included.
   The parameter is written with that exact prototype. Casting a function pointer to make
   two signatures fit is a type change and is forbidden outright - it is also undefined
@@ -577,8 +596,8 @@ Recipe X both refuse to merge.
 | `eff55.c` | 9.42 | the rise and the fall differ in three values; splitting the states exposes it, -0.33 |
 | `eff68.c` | 9.09 | five waypoint steps differing in their timers and targets; sharing their identical runs leaves the smell unmoved |
 | `eff78.c` | 9.55 | `crow_flap` and `crow_take_off` differ in five values; splitting `crow_fuss_move` exposes it, -0.17 |
-| `grade.c` | 8.67 | the table-scan idiom below. `tech_pts_items` is eight scans that differ in three values each; splitting it two or three ways makes functions that read as duplicates, measured at -0.09 and -0.64 |
-| `pls03.c` | 7.60 | `decode_wst_data`'s twelve command encodings; `waza_select`'s five arms differ in two table names each; `check_nm_attack`'s nine arms share a guard that cannot be hoisted without duplicating their case labels. Splitting either of the first two was measured at -0.04 and -0.06 |
+| `grade.c` | **10.00** | *was 8.67.* The table-scan idiom below, cleared by Recipe T: the seventeen scans share one loop and each call site keeps its own table, bound and value. The last finding, `makeup_spp_frdat`, was an ordinary Recipe E |
+| `pls03.c` | 8.08 | *was 7.60.* `check_nm_attack` is cleared - Recipe E named the stance switch, Recipe F collapsed its nine arms to one line each, Recipe X split what was left. What remains is `decode_wst_data`'s twelve command encodings and `waza_select`'s five arms, which differ in two table names each; splitting either was measured at -0.04 and -0.06 |
 | `cmd_main_checks.c` | 7.12 | `check_10` and `check_12` were merged in the end - see *Break the twin first* below. What is left is `check_23`, whose two differences from them are real, and the `check_18`/`check_19` pair |
 | `pls00_normal_states.c` | 7.07 | `nm_16000`/`nm_17000` differ in three state numbers, and the `nm_*` guard chains differ in their members and their order |
 | `plpnm.c` | 7.52 | what is left of the 28-function group are state machines differing in two or more values; the two parry states keep Duff-style `case` arms that cannot be split |
@@ -601,7 +620,7 @@ Recipe X both refuse to merge.
 | `effm2.c` | 9.53 | the two cat routines' dispatchers read as duplicates once their states are named |
 | `plcnt.c` | 9.47 | `settle_type_40000` at cc 10 and `check_combo_end` at cc 9; extracting from either costs 0.38-0.55 to the file's other guard predicates |
 | `pls02.c` | 9.31 | `set_field_hosei_flag`'s two wall sides differ in three places, and `check_body_touch2` cannot lose its fourth nesting level without adding gotos, which measured -0.29 |
-| `charset_position.c` | 9.09 | four opcodes share a `koc` dispatch skeleton and differ only in the action each arm performs; the only way to merge them is a function-pointer parameter, which the catalogue does not have |
+| `charset_position.c` | **10.00** | *was 9.09.* Recipe F merged the two `pa` axes through the `koc` skeleton; naming `comm_ps_x`'s one-line position set (Recipe E) is what stopped it reading as a copy of `set_other_y`, and the `rv` pair fell out with it |
 | `plpdm_states.c` | 9.38 | Overall Code Complexity only; every further arm extraction makes a twin of an existing `begin_damage_*` and costs 0.84 |
 | `caldir.c` | 8.81 | `cal_all_speed_data` and `cal_delta_speed` take 6 arguments each. Recipe A would clear it, but one of their 62 call sites is in `plpat00.c`, which this branch may not touch |
 | `charset.c` | 9.68 | `set_char_move_init2` takes 5 arguments; same reason - one of its 59 call sites is in `plpat00.c` |
@@ -610,10 +629,10 @@ Recipe X both refuse to merge.
 
 ---
 
-### The table-scan idiom, and where `grade.c` stops
+### The table-scan idiom, and how `grade.c` was unblocked
 
-`grade.c` is the first plateau in this campaign that is **not** duplication between sibling
-state machines. Its six big functions are built almost entirely out of one idiom, repeated
+`grade.c` was the first plateau in this campaign that was **not** duplication between
+sibling state machines. Its six big functions are built almost entirely out of one idiom, repeated
 about twenty times:
 
 ```c
@@ -633,17 +652,21 @@ than one is the point of that rule, so the idiom cannot be shared. Recipe C does
 it either - the runs are not identical. Recipe E does not apply, because the loops are not
 nested: they sit at depth 1, one after another.
 
-So `get_offence_total` (cc 12), `get_defence_total` (cc 17), `get_ex_point_total` (cc 15),
-`makeup_final_grade` (cc 20), `grade_makeup_stage_parameter` (cc 21) and
-`get_tech_pts_total` (cc 26) all stay flagged. Splitting any of them leaves both halves
-over the threshold, for the arithmetic reason recorded above.
+That left `get_offence_total`, `get_defence_total`, `get_ex_point_total`,
+`makeup_final_grade`, `grade_makeup_stage_parameter` and `get_tech_pts_total` all flagged,
+with splitting any of them leaving both halves over the threshold, for the arithmetic
+reason recorded above.
 
 **This is now Recipe T.** The project owner authorised the narrow extension the paragraph
 above asked for: a helper may take a *table, its length, and the value to look up* when the
 extracted body is character-for-character identical across every call site and each call
-site passes its own table verbatim. It is mechanically checkable - the literal fingerprint
-stays OK, and `--calls` sees the usual deduplication signature - and it is strictly
+site passes its own table verbatim. It is mechanically checkable, and it is strictly
 narrower than Recipe A. See *Recipe T - Shared Table Scan* above for the preconditions.
+
+Applied, it took `grade.c` from **8.67 to 10.00** in eleven commits, one per function: the
+Complex Method went with the first, and each remaining Bumpy Road cleared as its own
+function's scans collapsed. The one finding Recipe T did not reach, `makeup_spp_frdat`,
+was three unrelated loops and wanted an ordinary Recipe E.
 
 ## The verification loop
 
@@ -1220,3 +1243,55 @@ preconditions refuse:
 - **Extract the non-scan work.** The ratio calculations in `get_offence_total`
   and `get_defence_total`, and the all-clear bonus in `makeup_final_grade`, are
   ordinary Recipe E extractions and were worth 0.20, 0.15 and 0.11.
+
+### Recipe F pays only once the arms are already one statement
+
+`pls03.c`'s `check_nm_attack` is the case that shows the ordering. Its nine stance arms
+each read:
+
+```c
+case 20:
+    if (is_blocked_by_hikusugi(wk)) {
+        return 0;
+    }
+
+    select_nm_attack_level_3010(wk, kos, 3);
+    break;
+```
+
+Applying Recipe F straight to that buys **nothing**: the arm keeps its `if`, so each arm
+still costs two decisions and the cyclomatic complexity does not move. The guard cannot be
+hoisted out of the switch either - `default:` does not have it.
+
+What worked was three commits in this order, +0.48 between them:
+
+1. **Recipe E first.** The whole switch answers one question, so it becomes
+   `begin_nm_attack(wk, kos)` returning 0/1 and the caller keeps its early return and its
+   tail. That clears Large Method, and - the point - it makes the arms' `return 0` and
+   their fall-through into two values of one return.
+2. **Then Recipe F.** Now each arm collapses to
+   `return start_nm_attack(wk, kos, 3, select_nm_attack_level_3010);` - one decision, the
+   `case` itself. cc 21 -> 12.
+3. **Then Recipe X.** Twelve is still over the threshold, but nine one-line arms split
+   cleanly: the three jumping stances and the standing fallback move behind `default:`,
+   labels unchanged, and both halves come in under it. cc 12 -> cleared.
+
+The general rule: **Recipe F removes the duplicated skeleton, not the branching inside
+it.** If an arm still contains a conditional after the shared call is factored out, find
+the recipe that turns that conditional into a return value first - usually Recipe E on the
+whole dispatch - and apply Recipe F to what is left.
+
+### What a Recipe F commit looks like to the guard
+
+Measured on `charset_position.c` and `pls03.c`:
+
+| Check | Reads |
+| --- | --- |
+| literal | the deduplication WARN - the duplicate `case` labels and guard returns are gone, every other value still present |
+| `--calls` | the shared callee drops by the copies removed; the new helper is `+1` per call site and `+1` for its definition |
+| `--calls` noise | `+1 void` and `+N` for the *parameter's* own name - a declarator and a pointer call both scan as calls. Expected, and it appears on every Recipe F |
+
+Without `--fnptr`, each callee now passed by pointer reads as **a call vanished** and the
+guard FAILs a legal refactor. Declaring it is not a way around the check: the counts still
+have to balance, and a callee that really did vanish would show up as an unexplained
+removal.
