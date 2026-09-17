@@ -922,17 +922,11 @@ void check_15() { // 🟢
     }
 }
 
-void check_16() { // 🟢
+/* Count how many of the three buttons in this group were pressed this frame.
+ * Command type 17 watches the punches, anything else the kicks. */
+static void count_pressed_buttons_in_group() {
     s16 i;
     u16 w_flag;
-
-    waza_ptr->w_int--;
-
-    if (waza_ptr->w_int < 0) {
-        waza_ptr->w_type = 0;
-        waza_ptr->shot_ok = 0;
-        return;
-    }
 
     if (waza_ptr->w_type == 17) {
         sw_work = chk_pl->sw_now & 0x70;
@@ -952,6 +946,18 @@ void check_16() { // 🟢
 
         w_flag *= 2;
     }
+}
+
+void check_16() { // 🟢
+    waza_ptr->w_int--;
+
+    if (waza_ptr->w_int < 0) {
+        waza_ptr->w_type = 0;
+        waza_ptr->shot_ok = 0;
+        return;
+    }
+
+    count_pressed_buttons_in_group();
 
     if (waza_ptr->shot_ok >= waza_ptr->w_lvr) {
         waza_ptr->shot_ok = 0;
