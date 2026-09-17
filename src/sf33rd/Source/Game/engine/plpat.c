@@ -637,6 +637,35 @@ void Attack_09000(PLW* wk) { // 🟢
     }
 }
 
+/* Whatever the leap attack ran into decides how its horizontal speed is cut and
+ * which of the two landing states it drops to. Each arm's `break` left the
+ * switch immediately, so a return is the same exit. */
+static void deflect_leap_attack_on_contact(PLW* wk) {
+    if (!((wk->wu.routine_no[3] != 4) && wk->wu.hf.hit.player)) {
+        return;
+    }
+
+    if ((wk->wu.hf.hit.player & 3) != 0) {
+        wk->wu.mvxy.a[0].sp /= 4;
+        wk->wu.routine_no[3] = 4;
+        return;
+    }
+
+    if ((wk->wu.hf.hit.player & 0x30) != 0) {
+        wk->wu.mvxy.a[0].sp /= 4;
+        wk->wu.mvxy.a[1].sp = 0;
+        wk->wu.routine_no[3] = 3;
+        return;
+    }
+
+    if ((wk->wu.hf.hit.player & 0xC0) != 0) {
+        wk->wu.mvxy.a[0].sp /= 2;
+        wk->wu.mvxy.a[0].sp = -wk->wu.mvxy.a[0].sp;
+        wk->wu.mvxy.a[1].sp = 0;
+        wk->wu.routine_no[3] = 4;
+    }
+}
+
 void Attack_10000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -667,29 +696,7 @@ void Attack_10000(PLW* wk) { // 🟢
 
     case 2:
         jumping_union_process(&wk->wu, 4);
-
-        if ((wk->wu.routine_no[3] != 4) && wk->wu.hf.hit.player) {
-            if ((wk->wu.hf.hit.player & 3) != 0) {
-                wk->wu.mvxy.a[0].sp /= 4;
-                wk->wu.routine_no[3] = 4;
-                break;
-            }
-
-            if ((wk->wu.hf.hit.player & 0x30) != 0) {
-                wk->wu.mvxy.a[0].sp /= 4;
-                wk->wu.mvxy.a[1].sp = 0;
-                wk->wu.routine_no[3] = 3;
-                break;
-            }
-
-            if ((wk->wu.hf.hit.player & 0xC0) != 0) {
-                wk->wu.mvxy.a[0].sp /= 2;
-                wk->wu.mvxy.a[0].sp = -wk->wu.mvxy.a[0].sp;
-                wk->wu.mvxy.a[1].sp = 0;
-                wk->wu.routine_no[3] = 4;
-            }
-        }
-
+        deflect_leap_attack_on_contact(wk);
         break;
 
     case 3:
