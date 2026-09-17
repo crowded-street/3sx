@@ -146,6 +146,22 @@ static void end_e00_0000_settle() {
     }
 }
 
+/* Scroll the panel and its ghost together, clamping the panel at the top and
+ * wrapping it once the ghost has gone past. */
+static void end_e00_0000_scroll_pair() {
+    bgw_ptr->xy[1].cal -= 0x18000;
+    gxy.xy[1].cal = gxy.xy[1].cal - 0x18000;
+    bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+
+    if (bgw_ptr->xy[1].disp.pos < 0) {
+        bgw_ptr->xy[1].disp.pos = 0;
+    }
+
+    if (gxy.xy[1].disp.pos < -223) {
+        bgw_ptr->xy[1].disp.pos = 752;
+    }
+}
+
 void end_e00_0000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -184,17 +200,7 @@ void end_e00_0000() {
         break;
 
     case 3:
-        bgw_ptr->xy[1].cal -= 0x18000;
-        gxy.xy[1].cal = gxy.xy[1].cal - 0x18000;
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
-
-        if (bgw_ptr->xy[1].disp.pos < 0) {
-            bgw_ptr->xy[1].disp.pos = 0;
-        }
-
-        if (gxy.xy[1].disp.pos < -223) {
-            bgw_ptr->xy[1].disp.pos = 752;
-        }
+        end_e00_0000_scroll_pair();
 
         break;
 
