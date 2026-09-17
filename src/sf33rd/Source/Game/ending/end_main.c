@@ -138,6 +138,15 @@ static void end_main_settle_after_roll() {
     }
 }
 
+/* Run the staff roll, and move on when it finishes. */
+static void end_main_run_staff_roll() {
+    scr_calc(5);
+
+    if (staff_credits(end_staff_flag)) {
+        end_w.r_no_0++;
+    }
+}
+
 void normal_ending(s16 pl_num) {
     switch (end_w.r_no_0) {
     case 0:
@@ -215,11 +224,7 @@ void normal_ending(s16 pl_num) {
         break;
 
     case 9:
-        scr_calc(5);
-
-        if (staff_credits(end_staff_flag)) {
-            end_w.r_no_0++;
-        }
+        end_main_run_staff_roll();
 
         break;
 
