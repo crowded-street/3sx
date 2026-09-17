@@ -110,6 +110,42 @@ void end_e00_move() {
     end_e00_jp[end_w.r_no_2]();
 }
 
+/* The second half of the opening scene: the colour cycle and the slide to rest. The
+ * case labels are the original ones, and the fallthroughs from 4 into 5 and 5 into
+ * 6 travel with them. */
+static void end_e00_0000_settle() {
+    switch (bgw_ptr->r_no_1) {
+    case 4:
+        bgw_ptr->r_no_1++;
+        bgw_ptr->free = 7;
+        bgw_ptr->l_limit = 0;
+        g_kakikae[0] = 1;
+        /* fallthrough */
+
+    case 5:
+        if (end_e00_0000_col_sub()) {
+            bgw_ptr->r_no_1++;
+        }
+
+        /* fallthrough */
+
+    case 6:
+        bgw_ptr->xy[1].cal -= 0x4000;
+
+        if (bgw_ptr->xy[1].disp.pos < 713) {
+            bgw_ptr->r_no_1++;
+            bgw_ptr->xy[1].cal = 0x2C80000;
+            end_w.timer = 20;
+        }
+
+        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+        break;
+
+    case 7:
+        break;
+    }
+}
+
 void end_e00_0000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -162,33 +198,8 @@ void end_e00_0000() {
 
         break;
 
-    case 4:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->free = 7;
-        bgw_ptr->l_limit = 0;
-        g_kakikae[0] = 1;
-        /* fallthrough */
-
-    case 5:
-        if (end_e00_0000_col_sub()) {
-            bgw_ptr->r_no_1++;
-        }
-
-        /* fallthrough */
-
-    case 6:
-        bgw_ptr->xy[1].cal -= 0x4000;
-
-        if (bgw_ptr->xy[1].disp.pos < 713) {
-            bgw_ptr->r_no_1++;
-            bgw_ptr->xy[1].cal = 0x2C80000;
-            end_w.timer = 20;
-        }
-
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
-        break;
-
-    case 7:
+    default:
+        end_e00_0000_settle();
         break;
     }
 }
