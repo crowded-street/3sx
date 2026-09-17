@@ -1285,6 +1285,12 @@ void Break_Into_04(s16 /* unused */) {
     Request_LDREQ_Break();
 }
 
+/* The break-in lands on a settled screen: normal play, the round already concluded,
+ * and nobody sitting in the champion's seat. */
+static s32 No_Fight_To_Interrupt() {
+    return (Play_Type == 0) && (Conclusion_Flag != 0) && (plw[Champion].wu.operator == 0);
+}
+
 void Break_Into_05(s16 PL_id) {
     Break_Into = 1;
     Stop_Combo = 1;
@@ -1292,7 +1298,7 @@ void Break_Into_05(s16 PL_id) {
     E_No[2] = 0;
     Clear_New_Challenger_Entry();
 
-    if ((Play_Type == 0) && (Conclusion_Flag != 0) && (plw[Champion].wu.operator == 0)) {
+    if (No_Fight_To_Interrupt()) {
         E_Timer = 1;
 
         if (LOSER != New_Challenger) {
