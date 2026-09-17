@@ -638,47 +638,127 @@ void Entry_10_2nd() {
     Finish_Entry_And_Start_Game(10);
 }
 
-void Entry_Main_Sub(s16 PL_id, s16 Jump_Index) {
-    ENTRY_X = 0;
+/* E_Number 0: the slot is free. Offer it to a player who is not already in, unless the
+ * screen is one of the two that shut entry down instead. */
+static void Offer_Free_Entry(s16 PL_id, s16 Jump_Index) {
+    if (!Ignore_Entry[LOSER]) {
+        if ((E_No[0] == 10) || (E_No[0] == 8)) {
+            E_Number[PL_id][0] = 99;
+            return;
+        }
 
-    switch (E_Number[PL_id][0]) {
+        if (plw[PL_id].wu.operator == 0) {
+            Entry_Common_Sub(PL_id, Jump_Index);
+            return;
+        }
+    }
+}
+
+/* E_Number 1: the player is on the continue countdown. Take a break-in if one is
+ * pending, otherwise keep the countdown running. */
+static void Run_Continue_Countdown(s16 PL_id, s16 Jump_Index) {
+    if (PL_id) {
+        if (Credit_Continue_2P() != 0) {
+            Break_Into_Sub(PL_id, Jump_Index);
+        }
+    } else if (Credit_Continue_1P() != 0) {
+        Break_Into_Sub(PL_id, Jump_Index);
+    }
+
+    if (Request_Break[PL_id]) {
+        E_Number[PL_id][0] = 0;
+        E_Number[PL_id][1] = 0;
+        E_Number[PL_id][2] = 0;
+        E_Number[PL_id][3] = 0;
+        return;
+    }
+
+    if ((E_Number[PL_id][0] == 1) && (E_07_Flag[PL_id ^ 1] == 0)) {
+        Entry_Continue_Sub(PL_id);
+        return;
+    }
+}
+
+/* E_Number 2 sub-state 2: the player is typing their name into the ranking table. */
+static void Run_Name_Entry(s16 PL_id) {
+    if (!(Forbid_Break != 1)) {
+        return;
+    }
+
+    if (PL_id == 0) {
+        Naming_Cut_Sub_1P();
+    } else {
+        Naming_Cut_Sub_2P();
+    }
+
+    if (!Name_Input(PL_id)) {
+        return;
+    }
+
+    Name_In_Sub(PL_id);
+
+    if (Naming_Cut[PL_id]) {
+        Clear_Personal_Data(PL_id);
+        return;
+    }
+
+    E_Number[PL_id][2] = 0;
+    E_Number[PL_id][3] = 0;
+
+    if (E_No[0] == 8) {
+        E_Number[PL_id][0] = 8;
+        E_Number[PL_id][1] = 1;
+        return;
+    }
+
+    E_Number[PL_id][0] = 8;
+    E_Number[PL_id][1] = 0;
+    return;
+}
+
+/* E_Number 3: the player holds until the screen settles, then goes either to the
+ * naming screen or straight to game over. */
+static void Await_Screen_Settled(s16 PL_id) {
+    switch (E_Number[PL_id][1]) {
     case 0:
-        if (!Ignore_Entry[LOSER]) {
-            if ((E_No[0] == 10) || (E_No[0] == 8)) {
-                E_Number[PL_id][0] = 99;
-                return;
-            }
-
-            if (plw[PL_id].wu.operator == 0) {
-                Entry_Common_Sub(PL_id, Jump_Index);
-                return;
-            }
+        if ((E_No[0] == 8) || (E_No[0] == 2)) {
+            E_Number[PL_id][0] = 2;
+            E_Number[PL_id][1] = 2;
+            E_Number[PL_id][2] = 0;
+            E_Number[PL_id][3] = 0;
+            Naming_Init(PL_id);
+            return;
         }
 
         break;
 
     case 1:
-        if (PL_id) {
-            if (Credit_Continue_2P() != 0) {
-                Break_Into_Sub(PL_id, Jump_Index);
-            }
-        } else if (Credit_Continue_1P() != 0) {
-            Break_Into_Sub(PL_id, Jump_Index);
-        }
-
-        if (Request_Break[PL_id]) {
-            E_Number[PL_id][0] = 0;
-            E_Number[PL_id][1] = 0;
+        if ((E_No[0] == 8) || (E_No[0] == 2)) {
+            E_Number[PL_id][0] = 8;
+            E_Number[PL_id][1] = 1;
             E_Number[PL_id][2] = 0;
             E_Number[PL_id][3] = 0;
-            return;
+
+            if (E_No[0] == 2) {
+                E_Number[PL_id][1] = 0;
+                return;
+            }
         }
 
-        if ((E_Number[PL_id][0] == 1) && (E_07_Flag[PL_id ^ 1] == 0)) {
-            Entry_Continue_Sub(PL_id);
-            return;
-        }
+        break;
+    }
+}
 
+void Entry_Main_Sub(s16 PL_id, s16 Jump_Index) {
+    ENTRY_X = 0;
+
+    switch (E_Number[PL_id][0]) {
+    case 0:
+        Offer_Free_Entry(PL_id, Jump_Index);
+        break;
+
+    case 1:
+        Run_Continue_Countdown(PL_id, Jump_Index);
         break;
 
     case 2:
@@ -698,73 +778,14 @@ void Entry_Main_Sub(s16 PL_id, s16 Jump_Index) {
             break;
 
         case 2:
-            if (!(Forbid_Break != 1)) {
-                break;
-            }
-
-            if (PL_id == 0) {
-                Naming_Cut_Sub_1P();
-            } else {
-                Naming_Cut_Sub_2P();
-            }
-
-            if (!Name_Input(PL_id)) {
-                break;
-            }
-
-            Name_In_Sub(PL_id);
-
-            if (Naming_Cut[PL_id]) {
-                Clear_Personal_Data(PL_id);
-                return;
-            }
-
-            E_Number[PL_id][2] = 0;
-            E_Number[PL_id][3] = 0;
-
-            if (E_No[0] == 8) {
-                E_Number[PL_id][0] = 8;
-                E_Number[PL_id][1] = 1;
-                return;
-            }
-
-            E_Number[PL_id][0] = 8;
-            E_Number[PL_id][1] = 0;
-            return;
+            Run_Name_Entry(PL_id);
+            break;
         }
 
         break;
 
     case 3:
-        switch (E_Number[PL_id][1]) {
-        case 0:
-            if ((E_No[0] == 8) || (E_No[0] == 2)) {
-                E_Number[PL_id][0] = 2;
-                E_Number[PL_id][1] = 2;
-                E_Number[PL_id][2] = 0;
-                E_Number[PL_id][3] = 0;
-                Naming_Init(PL_id);
-                return;
-            }
-
-            break;
-
-        case 1:
-            if ((E_No[0] == 8) || (E_No[0] == 2)) {
-                E_Number[PL_id][0] = 8;
-                E_Number[PL_id][1] = 1;
-                E_Number[PL_id][2] = 0;
-                E_Number[PL_id][3] = 0;
-
-                if (E_No[0] == 2) {
-                    E_Number[PL_id][1] = 0;
-                    return;
-                }
-            }
-
-            break;
-        }
-
+        Await_Screen_Settled(PL_id);
         break;
 
     case 8:
