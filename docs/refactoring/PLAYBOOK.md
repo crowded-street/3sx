@@ -598,8 +598,8 @@ Recipe X both refuse to merge.
 | `eff78.c` | 9.55 | `crow_flap` and `crow_take_off` differ in five values; splitting `crow_fuss_move` exposes it, -0.17 |
 | `grade.c` | **10.00** | *was 8.67.* The table-scan idiom below, cleared by Recipe T: the seventeen scans share one loop and each call site keeps its own table, bound and value. The last finding, `makeup_spp_frdat`, was an ordinary Recipe E |
 | `pls03.c` | 8.08 | *was 7.60.* `check_nm_attack` is cleared - Recipe E named the stance switch, Recipe F collapsed its nine arms to one line each, Recipe X split what was left. What remains is `decode_wst_data`'s twelve command encodings and `waza_select`'s five arms, which differ in two table names each; splitting either was measured at -0.04 and -0.06 |
-| `cmd_main_checks.c` | 7.12 | `check_10` and `check_12` were merged in the end - see *Break the twin first* below. What is left is `check_23`, whose two differences from them are real, and the `check_18`/`check_19` pair |
-| `pls00_normal_states.c` | 7.07 | `nm_16000`/`nm_17000` differ in three state numbers, and the `nm_*` guard chains differ in their members and their order |
+| `cmd_main_checks.c` | 7.50 | *was 7.12.* `check_10` and `check_12` were merged - see *Break the twin first* below - and `check_23`'s two lever windows are named (Recipe E, +0.38). What is left is `run_dash_release_states`, whose states 2 and 3 are one statement away from `check_23`'s: extracting them the same way costs 0.19 in duplication, and merging them is blocked because the twins also differ in `--` versus `-= 1`. The `check_18`/`check_19` pair differ in three places |
+| `pls00_normal_states.c` | 7.55 | *was 7.07.* Recipe C on the gauge-and-super check trio (+0.07) and Recipe E on each jump's landing choice (+0.41) cleared both Complex Methods. What is left is Code Duplication between state twins: `nm_16000`/`nm_17000` differ in three state numbers, the `nm_*` guard chains differ in their members and their order, and the low/high jump dispatches differ in three of five arms - sharing the two arms they have in common was measured flat and reverted |
 | `plpnm.c` | 7.52 | what is left of the 28-function group are state machines differing in two or more values; the two parry states keep Duff-style `case` arms that cannot be split |
 | `pls03_super_arts.c` | 7.57 | the grounded and airborne halves differ in the table each reaches into and the offset within it. Splitting the airborne strength loop's firing paid +0.06; doing the same to its grounded twin cost 0.17 |
 | `manage.c` | 9.92 | `Game_Manage_7_3`'s two identical test arms; clearing the bump means deleting the dead condition, which the catalogue forbids |
@@ -1295,3 +1295,28 @@ Without `--fnptr`, each callee now passed by pointer reads as **a call vanished*
 guard FAILs a legal refactor. Declaring it is not a way around the check: the counts still
 have to balance, and a callee that really did vanish would show up as an unexplained
 removal.
+
+### A split on a duplicate-family member can still pay, if it clears two smells
+
+*Never apply the same split across an already-duplicated family* stands, but it is a rule
+about cost, not a prohibition, and `pls00_normal_states.c` is the case where the cost was
+worth paying.
+
+`nm_16000` and `nm_17000` were already one duplication group, and both were Complex Method
+at cc 10. Each opens by reading the settled lever direction and picking one of three
+landing states, differing only in which three. Extracting that block from both makes
+exactly the twin pair the rule warns about - `enter_jump_from_16000` and
+`enter_jump_from_17000` are duplicates of each other - and the score still went **7.14 ->
+7.55**, because two Complex Methods left the review and only one duplication pair arrived,
+into a group that already existed.
+
+The test to apply before making the split:
+
+- **How many smells does it clear?** Two Complex Methods is worth a duplication pair; one
+  Bumpy Road usually is not.
+- **Was the group already there?** Adding a pair to a group of fifteen functions moves the
+  duplication finding hardly at all. Creating the *first* duplication group in a clean file
+  is what costs.
+
+Measure it either way - the two cases differ by less than half a point and neither is
+predictable from reading the code.
