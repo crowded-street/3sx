@@ -41,34 +41,46 @@ static s32 in_second_credit_pose(const PLW* wk) {
  *
  * The player-one credit-check states are the two that hold the drain without
  * being a pause: the game is waiting on a coin, not on the player. */
+/* The first player's drain stops in two more places than anyone else's: the
+ * pose that latches the check flag, and the second-credit pose. */
+static s32 first_player_drain_is_held(PLW* wk) {
+    if (wk->player_number != 0) {
+        return 0;
+    }
+
+    if ((wk->wu.routine_no[1] == 4) && (wk->wu.routine_no[2] == 21)) {
+        if (ca_check_flag == 0) {
+            ca_check_flag = 1;
+        }
+
+        return 1;
+    }
+
+    return in_second_credit_pose(wk);
+}
+
+/* An empty bar is a death, and the damage that reads as having caused it. */
+static void kill_on_empty_vitality(PLW* wk) {
+    wk->wu.vital_new = -1;
+    wk->wu.dm_koa = 4;
+    wk->dead_flag = 1;
+    wk->guard_flag = 3;
+    ca_check_flag = 0;
+}
+
 static void drain_vitality(PLW* wk) {
     if (vital_drain_is_paused(wk)) {
         return;
     }
 
-    if (wk->player_number == 0) {
-        if ((wk->wu.routine_no[1] == 4) && (wk->wu.routine_no[2] == 21)) {
-            if (ca_check_flag == 0) {
-                ca_check_flag = 1;
-            }
-
-            return;
-        }
-
-        if (in_second_credit_pose(wk)) {
-            return;
-        }
+    if (first_player_drain_is_held(wk)) {
+        return;
     }
 
     wk->wu.vital_new--;
 
     if (wk->wu.vital_new < 0) {
-        wk->wu.vital_new = -1;
-        wk->wu.dm_koa = 4;
-        wk->dead_flag = 1;
-        wk->guard_flag = 3;
-        ca_check_flag = 0;
-        return;
+        kill_on_empty_vitality(wk);
     }
 }
 
