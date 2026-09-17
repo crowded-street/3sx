@@ -204,34 +204,40 @@ void Att_SA__D_R_A(PLW* wk) {
     }
 }
 
-void Att_EX__D_R_A(PLW* wk) {
+/* The opening frame aims the EX version at the opponent: the target offset comes
+ * from dra_em_tall, and a left-facing player has both components negated after
+ * the delta speed is solved. */
+static void aim_ex_dra_at_target(PLW* wk) {
     PLW* twk;
     s16 ex;
     s16 ey;
 
+    wk->wu.routine_no[3]++;
+    wk->wu.rl_flag = wk->wu.rl_waza;
+    set_char_move_init(&wk->wu, 5, wk->as->char_ix);
+    setup_mvxy_data(&wk->wu, wk->as->r_no);
+    twk = (PLW*)wk->wu.target_adrs;
+
+    if (wk->wu.rl_flag) {
+        ex = twk->wu.position_x - dra_em_tall[twk->player_number][0];
+    } else {
+        ex = twk->wu.position_x + dra_em_tall[twk->player_number][0];
+    }
+
+    ey = dra_em_tall[twk->player_number][1];
+    wk->wu.mvxy.a[0].sp = 0;
+    cal_delta_speed(&wk->wu, 8, ex, ey, 2, 2);
+
+    if (wk->wu.rl_flag == 0) {
+        wk->wu.mvxy.a[0].sp = -wk->wu.mvxy.a[0].sp;
+        wk->wu.mvxy.d[0].sp = -wk->wu.mvxy.d[0].sp;
+    }
+}
+
+void Att_EX__D_R_A(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        set_char_move_init(&wk->wu, 5, wk->as->char_ix);
-        setup_mvxy_data(&wk->wu, wk->as->r_no);
-        twk = (PLW*)wk->wu.target_adrs;
-
-        if (wk->wu.rl_flag) {
-            ex = twk->wu.position_x - dra_em_tall[twk->player_number][0];
-        } else {
-            ex = twk->wu.position_x + dra_em_tall[twk->player_number][0];
-        }
-
-        ey = dra_em_tall[twk->player_number][1];
-        wk->wu.mvxy.a[0].sp = 0;
-        cal_delta_speed(&wk->wu, 8, ex, ey, 2, 2);
-
-        if (wk->wu.rl_flag == 0) {
-            wk->wu.mvxy.a[0].sp = -wk->wu.mvxy.a[0].sp;
-            wk->wu.mvxy.d[0].sp = -wk->wu.mvxy.d[0].sp;
-        }
-
+        aim_ex_dra_at_target(wk);
         break;
     case 1:
         char_move(&wk->wu);
