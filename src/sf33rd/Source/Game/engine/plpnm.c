@@ -760,9 +760,10 @@ void Normal_41000(PLW* wk) { // 🟡
     lose_player(wk);
 }
 
-void Normal_42000(PLW* wk) { // 🟢
-    const s16* dadr = nmPB_data[wk->wu.routine_no[2] - 42];
-
+/* Both parry states put the player in front unless the opponent's pattern
+ * already claims that depth, and both mark the hosei flag for the same set of
+ * work kinds. */
+static void set_parry_depth_and_hosei(PLW* wk) {
     if (((WORK*)wk->wu.target_adrs)->cg_prio != 2) {
         wk->wu.next_z = 32;
     }
@@ -770,6 +771,12 @@ void Normal_42000(PLW* wk) { // 🟢
     if (wk->wu.dm_work_id & 11) {
         wk->dm_hos_flag = 1;
     }
+}
+
+void Normal_42000(PLW* wk) { // 🟢
+    const s16* dadr = nmPB_data[wk->wu.routine_no[2] - 42];
+
+    set_parry_depth_and_hosei(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -827,13 +834,7 @@ void Normal_42000(PLW* wk) { // 🟢
 void Normal_47000(PLW* wk) { // 🟢
     const s16* datix = nmCE_data[wk->wu.routine_no[2] - 47];
 
-    if (((WORK*)wk->wu.target_adrs)->cg_prio != 2) {
-        wk->wu.next_z = 32;
-    }
-
-    if (wk->wu.dm_work_id & 11) {
-        wk->dm_hos_flag = 1;
-    }
+    set_parry_depth_and_hosei(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
