@@ -236,6 +236,22 @@ static void Advance_Scene_On_Timeout() {
     }
 }
 
+/* Sub-state 2: once the pause is nearly out, go on to the VS screen - or off to the
+ * boss speech scene when this opponent has one. */
+static void Branch_On_EM_Speech() {
+    if ((S_Timer -= 1) < 71) {
+        if (Check_EM_Speech() == 0) {
+            SC_No[1]++;
+        } else {
+            SC_No[0] = 4;
+            SC_No[1] = 0;
+        }
+
+        SC_No[2] = 0;
+        return;
+    }
+}
+
 void Next_CPU_3rd() {
     switch (SC_No[1]) {
     case 0:
@@ -259,17 +275,7 @@ void Next_CPU_3rd() {
         break;
 
     case 2:
-        if ((S_Timer -= 1) < 71) {
-            if (Check_EM_Speech() == 0) {
-                SC_No[1]++;
-            } else {
-                SC_No[0] = 4;
-                SC_No[1] = 0;
-            }
-
-            SC_No[2] = 0;
-            break;
-        }
+        Branch_On_EM_Speech();
 
         break;
 
