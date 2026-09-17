@@ -226,6 +226,16 @@ static u16 latch_sw_lvbt_bit_0x800(u16 work2, u16 hana2, u16 sw_0) {
     return sw_0;
 }
 
+/* A punch-and-kick pair is held when both of its bits are set. The three
+ * pairs asked this identically; each keeps its own mask at the call site. */
+static s16 both_buttons_held(u16 sw_work, u16 mask) {
+    if ((sw_work & mask) == mask) {
+        return 1;
+    }
+
+    return 0;
+}
+
 /* Swap the two horizontal lever bits, so the lever reads the way the player
  * faces. Both cases that need it - riding the bonus car, and a move that
  * reverses the lever - did this identically. */
@@ -287,22 +297,9 @@ void pl_lvr_set() { // 🟢
     chk_pl->shot_ud = ((chk_pl->shot_up) | (chk_pl->shot_down));
     sw_work = ((chk_pl->sw_now) | (wcp[cmd_id].old_now));
 
-    if ((sw_work & 0x110) == 0x110) {
-        wcp[cmd_id].ca14 = 1;
-    } else {
-        wcp[cmd_id].ca14 = 0;
-    }
-
-    if ((sw_work & 0x220) == 0x220) {
-        wcp[cmd_id].ca25 = 1;
-    } else {
-        wcp[cmd_id].ca25 = 0;
-    }
-    if ((sw_work & 0x440) == 0x440) {
-        wcp[cmd_id].ca36 = 1;
-    } else {
-        wcp[cmd_id].ca36 = 0;
-    }
+    wcp[cmd_id].ca14 = both_buttons_held(sw_work, 0x110);
+    wcp[cmd_id].ca25 = both_buttons_held(sw_work, 0x220);
+    wcp[cmd_id].ca36 = both_buttons_held(sw_work, 0x440);
 
     wcp[cmd_id].lgp = lever_gacha_tbl[cmd_pl->cp->sw_now & 0xF] * 4;
     wcp[cmd_id].lgp += lever_gacha_tbl[cmd_pl->cp->sw_off & 0xF] * 2;
