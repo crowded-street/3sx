@@ -424,29 +424,23 @@ const s16** kizetsu_timer_table[9] = { tsuujyou_dageki,   hissatsu_dageki,   tsu
                                        hissatsu_nage,     super_arts_dageki, super_arts_nage,
                                        super_arts_dageki, super_arts_nage,   super_arts_dageki };
 
-void Player_control() { // 🟡 This func lacks the trailing part of its CPS3 counterpart
-    pulpul_scene = 1;
-
-    if (pcon_rno[0] + pcon_rno[1] != 0) {
-        if (Game_pause || EXE_flag) {
-            goto end;
-        } else {
-            if (!pcon_dp_flag) {
-                if (--vital_inc_timer > 50) {
-                    vital_inc_timer = 50;
-                }
-
-                if (--vital_dec_timer > 40) {
-                    vital_dec_timer = 40;
-                }
-            } else {
-                vital_inc_timer = 50;
-                vital_dec_timer = 40;
-                sag_inc_timer[0] = sag_inc_timer[1] = 20;
-            }
+static void update_vital_timers(void) {
+    if (!pcon_dp_flag) {
+        if (--vital_inc_timer > 50) {
+            vital_inc_timer = 50;
         }
-    }
 
+        if (--vital_dec_timer > 40) {
+            vital_dec_timer = 40;
+        }
+    } else {
+        vital_inc_timer = 50;
+        vital_dec_timer = 40;
+        sag_inc_timer[0] = sag_inc_timer[1] = 20;
+    }
+}
+
+static void run_player_frame(void) {
     players_timer++;
     players_timer &= 0x7FFF;
     set_scrrrl();
@@ -467,6 +461,20 @@ void Player_control() { // 🟡 This func lacks the trailing part of its CPS3 co
     add_next_position(&plw[0]);
     add_next_position(&plw[1]);
     check_cg_zoom();
+}
+
+void Player_control() { // 🟡 This func lacks the trailing part of its CPS3 counterpart
+    pulpul_scene = 1;
+
+    if (pcon_rno[0] + pcon_rno[1] != 0) {
+        if (Game_pause || EXE_flag) {
+            goto end;
+        } else {
+            update_vital_timers();
+        }
+    }
+
+    run_player_frame();
 
 end:
     if (Game_pause != 0x81) {
@@ -478,6 +486,22 @@ void reqPlayerDraw() { // 🔴
     move_effect_work(6);
     sort_push_request(&plw[0].wu);
     sort_push_request(&plw[1].wu);
+}
+
+static s32 background_is_free(void) {
+    return bg_app_stop == 0 && bg_app == 0;
+}
+
+static s32 player_is_past_intro(s16 ix) {
+    return (plw[ix].wu.routine_no[1] == 1) && (plw[ix].wu.routine_no[2] == 0) && (plw[ix].wu.routine_no[3] > 2);
+}
+
+static s32 round_is_in_play(void) {
+    return pcon_rno[0] == 2 && pcon_rno[1] == 0 && pcon_rno[2] == 2;
+}
+
+static s32 player_has_no_body_box(s16 ix) {
+    return plw[ix].wu.cg_ja.boix == 0 && plw[ix].wu.cg_ja.cuix == 0 && plw[ix].wu.pat_status == 38;
 }
 
 void plcnt_init() { // 🟡
@@ -647,11 +671,7 @@ void pli_0002() { // 🟡
     // Effect M4 may be an unused effect from NG/2I
 }
 
-void plcnt_move() { // 🟢
-    if (time_over_check() != 0) {
-        return;
-    }
-
+static void apply_debug_overrides(void) {
 #if DEBUG
     if (debug_config.player_invincible[0]) {
         plw[0].wu.dm_vital = 0;
@@ -669,6 +689,53 @@ void plcnt_move() { // 🟢
         plw[1].wu.vital_new = 0;
     }
 #endif
+}
+
+static void apply_aiuchi_stop(void) {
+if (aiuchi_flag) {
+    subtract_dm_vital_aiuchi(&plw[0]);
+    subtract_dm_vital_aiuchi(&plw[1]);
+
+    if ((plw[0].dead_flag != 0) && (plw[1].dead_flag != 0)) {
+        plw[0].wu.hit_stop = plw[1].wu.hit_stop = 2;
+        plw[0].wu.dm_stop = plw[1].wu.dm_stop = 0;
+        plw[0].wu.hit_quake = plw[1].wu.hit_quake = 4;
+        plw[0].wu.dm_quake = plw[1].wu.dm_quake = 0;
+    } else if ((plw[0].dead_flag != 0) || (plw[1].dead_flag != 0)) {
+        plw[0].wu.hit_stop = plw[1].wu.hit_stop = 4;
+        plw[0].wu.dm_stop = plw[1].wu.dm_stop = 0;
+        plw[0].wu.hit_quake = plw[1].wu.hit_quake = 8;
+        plw[0].wu.dm_quake = plw[1].wu.dm_quake = 0;
+    }
+}
+}
+
+static void finish_round_effects(void) {
+if (pcon_rno[0] == 2) {
+    if (Round_Result & 0x980) {
+        if ((Round_Result & 0x800) && gouki_wins) {
+            effect_D3_init(1);
+        } else {
+            effect_D3_init(0);
+        }
+    }
+
+    if ((plw[0].kezurijini_flag == 1) || (plw[1].kezurijini_flag == 1)) {
+        Round_Result |= 0x200;
+    }
+
+    if (Winner_id != Loser_id) {
+        grade_store_vitality(Winner_id + 0);
+    }
+}
+}
+
+void plcnt_move() { // 🟢
+    if (time_over_check() != 0) {
+        return;
+    }
+
+    apply_debug_overrides();
 
     if (No_Death) {
         plw[0].wu.dm_vital = plw[1].wu.dm_vital = 0;
@@ -685,42 +752,11 @@ void plcnt_move() { // 🟢
 
     move_player_work();
 
-    if (aiuchi_flag) {
-        subtract_dm_vital_aiuchi(&plw[0]);
-        subtract_dm_vital_aiuchi(&plw[1]);
-
-        if ((plw[0].dead_flag != 0) && (plw[1].dead_flag != 0)) {
-            plw[0].wu.hit_stop = plw[1].wu.hit_stop = 2;
-            plw[0].wu.dm_stop = plw[1].wu.dm_stop = 0;
-            plw[0].wu.hit_quake = plw[1].wu.hit_quake = 4;
-            plw[0].wu.dm_quake = plw[1].wu.dm_quake = 0;
-        } else if ((plw[0].dead_flag != 0) || (plw[1].dead_flag != 0)) {
-            plw[0].wu.hit_stop = plw[1].wu.hit_stop = 4;
-            plw[0].wu.dm_stop = plw[1].wu.dm_stop = 0;
-            plw[0].wu.hit_quake = plw[1].wu.hit_quake = 8;
-            plw[0].wu.dm_quake = plw[1].wu.dm_quake = 0;
-        }
-    }
+    apply_aiuchi_stop();
 
     settle_check();
 
-    if (pcon_rno[0] == 2) {
-        if (Round_Result & 0x980) {
-            if ((Round_Result & 0x800) && gouki_wins) {
-                effect_D3_init(1);
-            } else {
-                effect_D3_init(0);
-            }
-        }
-
-        if ((plw[0].kezurijini_flag == 1) || (plw[1].kezurijini_flag == 1)) {
-            Round_Result |= 0x200;
-        }
-
-        if (Winner_id != Loser_id) {
-            grade_store_vitality(Winner_id + 0);
-        }
-    }
+    finish_round_effects();
 
     grade_check_tairyokusa();
 }
@@ -735,6 +771,29 @@ void plcnt_die() { // 🟢
     }
 }
 
+/* The winner goes into its victory routine and the loser into its defeat one.
+ * Written out identically by settle_type_00000 and settle_type_40000. */
+static void set_victory_routines() {
+    plw[Winner_id].wu.routine_no[2] = 40;
+    plw[Winner_id].wu.routine_no[3] = 0;
+    plw[Loser_id].wu.routine_no[1] = 0;
+    plw[Loser_id].wu.routine_no[2] = 41;
+    plw[Loser_id].wu.routine_no[3] = 0;
+}
+
+/* Waiting for the loser to hit the ground. Either that or the timer running
+ * out lets the winner act. */
+static void wait_for_loser_to_fall() {
+    if (nekorobi_check(Loser_id)) {
+        pcon_rno[2]++;
+        plw[Winner_id].wkey_flag = 1;
+    }
+
+    if (--plw[Winner_id].wu.dir_timer == 0) {
+        plw[Winner_id].wkey_flag = 1;
+    }
+}
+
 void settle_type_00000() {
     switch (pcon_rno[2]) {
     case 0:
@@ -743,26 +802,14 @@ void settle_type_00000() {
         /* fallthrough */
 
     case 1:
-        if (nekorobi_check(Loser_id)) {
-            pcon_rno[2]++;
-            plw[Winner_id].wkey_flag = 1;
-        }
-
-        if (--plw[Winner_id].wu.dir_timer == 0) {
-            plw[Winner_id].wkey_flag = 1;
-        }
-
+        wait_for_loser_to_fall();
         break;
 
     case 2:
         if (footwork_check(Winner_id)) {
             grade_set_round_result(Winner_id + 0);
             pcon_rno[2]++;
-            plw[Winner_id].wu.routine_no[2] = 40;
-            plw[Winner_id].wu.routine_no[3] = 0;
-            plw[Loser_id].wu.routine_no[1] = 0;
-            plw[Loser_id].wu.routine_no[2] = 41;
-            plw[Loser_id].wu.routine_no[3] = 0;
+            set_victory_routines();
             plw[0].wu.cg_type = plw[1].wu.cg_type = 0;
             plw[0].image_setup_flag = plw[1].image_setup_flag = 0;
             complete_victory_pause();
@@ -796,6 +843,35 @@ void settle_type_10000() {
     }
 }
 
+/* Both players have stopped moving. */
+static s32 both_players_settled() {
+    return footwork_check(0) && footwork_check(1);
+}
+
+/* Both players have reached the end of their end-of-round routine. */
+static s32 both_end_routines_finished() {
+    return (plw[0].wu.routine_no[3] == 9) && (plw[1].wu.routine_no[3] == 9);
+}
+
+/* A timeout: equal health is a draw and goes to its own state, otherwise both
+ * sides go into their end-of-round routines. */
+static void settle_timeout_result() {
+    complete_victory_pause();
+
+    if (plw[0].wu.vital_new == plw[1].wu.vital_new) {
+        pcon_rno[2] = 4;
+        return;
+    }
+
+    grade_set_round_result(Winner_id + 0);
+    plw[Winner_id].wu.routine_no[2] = 40;
+    plw[Loser_id].wu.routine_no[2] = 41;
+    plw[0].wu.routine_no[1] = plw[1].wu.routine_no[1] = 0;
+    plw[0].wu.routine_no[3] = plw[1].wu.routine_no[3] = 0;
+    plw[0].wu.cg_type = plw[1].wu.cg_type = 0;
+    pcon_rno[2]++;
+}
+
 void settle_type_20000() {
     switch (pcon_rno[2]) {
     case 0:
@@ -805,31 +881,18 @@ void settle_type_20000() {
         /* fallthrough */
 
     case 1:
-        if (footwork_check(0) && footwork_check(1)) {
+        if (both_players_settled()) {
             pcon_rno[2]++;
         }
 
         break;
 
     case 2:
-        complete_victory_pause();
-
-        if (plw[0].wu.vital_new == plw[1].wu.vital_new) {
-            pcon_rno[2] = 4;
-            return;
-        }
-
-        grade_set_round_result(Winner_id + 0);
-        plw[Winner_id].wu.routine_no[2] = 40;
-        plw[Loser_id].wu.routine_no[2] = 41;
-        plw[0].wu.routine_no[1] = plw[1].wu.routine_no[1] = 0;
-        plw[0].wu.routine_no[3] = plw[1].wu.routine_no[3] = 0;
-        plw[0].wu.cg_type = plw[1].wu.cg_type = 0;
-        pcon_rno[2]++;
+        settle_timeout_result();
         break;
 
     case 3:
-        if ((plw[0].wu.routine_no[3] == 9) && (plw[1].wu.routine_no[3] == 9)) {
+        if (both_end_routines_finished()) {
             pcon_rno[2]++;
         }
 
@@ -864,6 +927,18 @@ void settle_type_30000() {
     }
 }
 
+/* The winner has stopped moving: both sides go into their end-of-round
+ * routines and the slow-motion finish starts. */
+static void begin_slow_victory() {
+    pcon_rno[2]++;
+    set_victory_routines();
+    plw[Winner_id].wu.cg_type = 0;
+    grade_set_round_result(Winner_id + 0);
+    plw[0].image_setup_flag = plw[1].image_setup_flag = 0;
+    plw[Winner_id].wu.dir_timer = 60;
+    set_conclusion_slow();
+}
+
 void settle_type_40000() {
     switch (pcon_rno[2]) {
     case 0:
@@ -881,17 +956,7 @@ void settle_type_40000() {
 
     case 2:
         if (footwork_check(Winner_id)) {
-            pcon_rno[2]++;
-            plw[Winner_id].wu.routine_no[2] = 40;
-            plw[Winner_id].wu.routine_no[3] = 0;
-            plw[Loser_id].wu.routine_no[1] = 0;
-            plw[Loser_id].wu.routine_no[2] = 41;
-            plw[Loser_id].wu.routine_no[3] = 0;
-            plw[Winner_id].wu.cg_type = 0;
-            grade_set_round_result(Winner_id + 0);
-            plw[0].image_setup_flag = plw[1].image_setup_flag = 0;
-            plw[Winner_id].wu.dir_timer = 60;
-            set_conclusion_slow();
+            begin_slow_victory();
         }
 
         break;
@@ -913,104 +978,87 @@ void settle_type_40000() {
     }
 }
 
+/* A pending Y offset is applied once, off arcade balance. Both players are
+ * asked the same question. */
+static void apply_reserved_y(PLW* wk) {
+    if (wk->reserv_add_y) {
+        wk->wu.xyz[1].disp.pos += wk->reserv_add_y;
+        wk->reserv_add_y = 0;
+    }
+}
+
+/* Whichever player a rank names moves first. Rank 1 is P1, rank 2 is P2, and
+ * anything else means this rank does not decide - the caller tries the next
+ * one. */
+static s32 move_players_by(s32 rank) {
+    switch (rank) {
+    case 1:
+        move_P1_move_P2();
+        return 1;
+
+    case 2:
+        move_P2_move_P1();
+        return 1;
+
+    default:
+        return 0;
+    }
+}
+
+/* The order the two players move in: a throw decides it, then which side is
+ * human, then which side is in a super art, and failing all three the frame
+ * parity. */
+static void move_players_in_priority_order() {
+    if (move_players_by(plw[0].tsukami_f + (plw[1].tsukami_f * 2))) {
+        return;
+    }
+
+    if (move_players_by(plw[0].wu.operator + (plw[1].wu.operator * 2))) {
+        return;
+    }
+
+    if (move_players_by((plw[0].wu.routine_no[1] == 4) + ((plw[1].wu.routine_no[1] == 4) * 2))) {
+        return;
+    }
+
+    if (Game_timer & 1) {
+        move_P1_move_P2();
+    } else {
+        move_P2_move_P1();
+    }
+}
+
 void move_player_work() { // 🟡
     if (!ArcadeBalance_IsEnabled()) {
-        if (plw[0].reserv_add_y) {
-            plw[0].wu.xyz[1].disp.pos += plw[0].reserv_add_y;
-            plw[0].reserv_add_y = 0;
-        }
-
-        if (plw[1].reserv_add_y) {
-            plw[1].wu.xyz[1].disp.pos += plw[1].reserv_add_y;
-            plw[1].reserv_add_y = 0;
-        }
+        apply_reserved_y(&plw[0]);
+        apply_reserved_y(&plw[1]);
     }
 
     ichikannkei = check_work_position(&plw[0].wu, &plw[1].wu);
     set_rl_waza(&plw[0]);
     set_rl_waza(&plw[1]);
     Timer_Freeze = 0;
+    move_players_in_priority_order();
+}
 
-    switch (plw[0].tsukami_f + (plw[1].tsukami_f * 2)) {
-    case 1:
-        move_P1_move_P2();
-        break;
+static void move_one_player(s16 i) {
+    if (plw[i].do_not_move == 0) {
+        Player_move(&plw[i], processed_lvbt(Convert_User_Setting(i)));
+    }
 
-    case 2:
-        move_P2_move_P1();
-        break;
-
-    default:
-        switch (plw[0].wu.operator + (plw[1].wu.operator * 2)) {
-        case 1:
-            move_P1_move_P2();
-            break;
-
-        case 2:
-            move_P2_move_P1();
-            break;
-
-        default:
-            switch ((plw[0].wu.routine_no[1] == 4) + ((plw[1].wu.routine_no[1] == 4) * 2)) {
-            case 1:
-                move_P1_move_P2();
-                break;
-
-            case 2:
-                move_P2_move_P1();
-                break;
-
-            default:
-                if (Game_timer & 1) {
-                    move_P1_move_P2();
-                } else {
-                    move_P2_move_P1();
-                }
-
-                break;
-            }
-
-            break;
-        }
-
-        break;
+    if (background_is_free() && set_field_hosei_flag(&plw[i], scrr, 1) != 0) {
+        set_field_hosei_flag(&plw[i], scrl, 0);
     }
 }
 
 void move_P1_move_P2() { // 🟢
-    if (plw[0].do_not_move == 0) {
-        Player_move(&plw[0], processed_lvbt(Convert_User_Setting(0)));
-    }
-
-    if (bg_app_stop == 0 && bg_app == 0 && set_field_hosei_flag(&plw[0], scrr, 1) != 0) {
-        set_field_hosei_flag(&plw[0], scrl, 0);
-    }
-
-    if (plw[1].do_not_move == 0) {
-        Player_move(&plw[1], processed_lvbt(Convert_User_Setting(1)));
-    }
-
-    if (bg_app_stop == 0 && bg_app == 0 && set_field_hosei_flag(&plw[1], scrr, 1) != 0) {
-        set_field_hosei_flag(&plw[1], scrl, 0);
-    }
+    move_one_player(0);
+    move_one_player(1);
 }
 
 void move_P2_move_P1() { // 🟢
-    if (plw[1].do_not_move == 0) {
-        Player_move(&plw[1], processed_lvbt(Convert_User_Setting(1)));
-    }
-
-    if (bg_app_stop == 0 && bg_app == 0 && set_field_hosei_flag(&plw[1], scrr, 1) != 0) {
-        set_field_hosei_flag(&plw[1], scrl, 0);
-    }
-
-    if (plw[0].do_not_move == 0) {
-        Player_move(&plw[0], processed_lvbt(Convert_User_Setting(0)));
-    }
-
-    if (bg_app_stop == 0 && bg_app == 0 && set_field_hosei_flag(&plw[0], scrr, 1) != 0) {
-        set_field_hosei_flag(&plw[0], scrl, 0);
-    }
+    move_one_player(1);
+    move_one_player(0);
 }
 
 void store_player_after_image_data() {
@@ -1064,7 +1112,7 @@ void check_damage_hosei_nage(PLW* as, PLW* ds) { // 🟢
             return;
         }
 
-        if (bg_app_stop == 0 && bg_app == 0 && set_field_hosei_flag(as, scrr, 1) != 0) {
+        if (background_is_free() && set_field_hosei_flag(as, scrr, 1) != 0) {
             set_field_hosei_flag(as, scrl, 0);
         }
 
@@ -1135,54 +1183,71 @@ void setup_settle_rno(s16 kos) { // 🟢
     pcon_dp_flag = true;
 }
 
+/* Settles a round where exactly one player is down. Winner_id and Loser_id
+ * are already set by the caller; the original reached this body from case 1
+ * with a goto into case 2. */
+static void settle_single_ko(void) {
+    if (check_sa_resurrection(&plw[Loser_id]) != 0) {
+        return;
+    }
+
+    setup_gouki_wins();
+    Round_Result |= plw[Loser_id].wu.dm_koa;
+
+    if ((Round_Result & 0x800) && gouki_wins) {
+        if (!ArcadeBalance_IsEnabled()) {
+            Forbid_Break = -1;
+        }
+
+        Shin_Gouki_BGM = 1;
+        Control_Music_Fade(0x96);
+        setup_settle_rno(4);
+        return;
+    }
+
+    setup_settle_rno(0);
+    Conclusion_Flag = 1;
+    Conclusion_Type = 0;
+
+    if (Demo_Flag) {
+        request_center_message(0);
+    }
+}
+
+/* Neither player came back from the double KO. Both are asked, in order. */
+static s32 both_resurrections_declined() {
+    return (check_sa_resurrection(&plw[0]) == 0) && (check_sa_resurrection(&plw[1]) == 0);
+}
+
+/* Both players are down and neither came back: the round is a draw. */
+static void settle_double_ko() {
+    Conclusion_Flag = 1;
+    Conclusion_Type = 1;
+    setup_settle_rno(1);
+
+    if (Demo_Flag) {
+        request_center_message(1);
+    }
+}
+
 void settle_check() { // 🟡
     while (1) {
         switch ((plw[0].dead_flag) + (plw[1].dead_flag * 2)) {
         case 1:
             Winner_id = 1;
             Loser_id = 0;
-            goto jump;
+            settle_single_ko();
+            break;
 
         case 2:
             Winner_id = 0;
             Loser_id = 1;
-
-        jump:
-            if (check_sa_resurrection(&plw[Loser_id]) == 0) {
-                setup_gouki_wins();
-                Round_Result |= plw[Loser_id].wu.dm_koa;
-
-                if ((Round_Result & 0x800) && gouki_wins) {
-                    if (!ArcadeBalance_IsEnabled()) {
-                        Forbid_Break = -1;
-                    }
-
-                    Shin_Gouki_BGM = 1;
-                    Control_Music_Fade(0x96);
-                    setup_settle_rno(4);
-                    break;
-                }
-
-                setup_settle_rno(0);
-                Conclusion_Flag = 1;
-                Conclusion_Type = 0;
-
-                if (Demo_Flag) {
-                    request_center_message(0);
-                }
-            }
-
+            settle_single_ko();
             break;
 
         case 3:
-            if ((check_sa_resurrection(&plw[0]) == 0) && (check_sa_resurrection(&plw[1]) == 0)) {
-                Conclusion_Flag = 1;
-                Conclusion_Type = 1;
-                setup_settle_rno(1);
-
-                if (Demo_Flag) {
-                    request_center_message(1);
-                }
+            if (both_resurrections_declined()) {
+                settle_double_ko();
             } else {
                 continue;
             }
@@ -1231,7 +1296,7 @@ s32 check_sa_type_rebirth(PLW* wk) { // 🟢
 s16 nekorobi_check(s8 ix) { // 🟢
     s16 rnum = 0;
 
-    if ((plw[ix].wu.routine_no[1] == 1) && (plw[ix].wu.routine_no[2] == 0) && (plw[ix].wu.routine_no[3] > 2)) {
+    if (player_is_past_intro(ix)) {
         rnum = 1;
     }
 
@@ -1578,6 +1643,15 @@ void clear_super_arts_point(PLW* wk) { // 🟡
     }
 }
 
+/* A combo ends when the player is not guarding. */
+static s16 combo_end_from_guard(s16 ix) {
+    if (plw[ix].guard_flag == 0) {
+        return 0;
+    }
+
+    return 1;
+}
+
 s16 check_combo_end(s16 ix) { // 🟢
     s16 rnum;
 
@@ -1589,11 +1663,11 @@ s16 check_combo_end(s16 ix) { // 🟢
         return 1;
     }
 
-    if (pcon_rno[0] == 2 && pcon_rno[1] == 0 && pcon_rno[2] == 2) {
+    if (round_is_in_play()) {
         return 0;
     }
 
-    if (plw[ix].wu.cg_ja.boix == 0 && plw[ix].wu.cg_ja.cuix == 0 && plw[ix].wu.pat_status == 38) {
+    if (player_has_no_body_box(ix)) {
         return 0;
     }
 
@@ -1605,16 +1679,12 @@ s16 check_combo_end(s16 ix) { // 🟢
         return 0;
     }
 
+    /* Both arms of this test are the same in the original: whether the guard
+     * flag changed this frame does not affect the answer. Left as written. */
     if (plw[ix].old_gdflag != plw[ix].guard_flag) {
-        if (plw[ix].guard_flag == 0) {
-            rnum = 0;
-        } else {
-            rnum = 1;
-        }
-    } else if (plw[ix].guard_flag == 0) {
-        rnum = 0;
+        rnum = combo_end_from_guard(ix);
     } else {
-        rnum = 1;
+        rnum = combo_end_from_guard(ix);
     }
 
     return rnum;

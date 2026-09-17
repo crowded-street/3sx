@@ -414,6 +414,16 @@ Recipe X both refuse to merge.
 | `eff55.c` | 9.42 | the rise and the fall differ in three values; splitting the states exposes it, -0.33 |
 | `eff68.c` | 9.09 | five waypoint steps differing in their timers and targets; sharing their identical runs leaves the smell unmoved |
 | `eff78.c` | 9.55 | `crow_flap` and `crow_take_off` differ in five values; splitting `crow_fuss_move` exposes it, -0.17 |
+| `grade.c` | 8.67 | the table-scan idiom below. `tech_pts_items` is eight scans that differ in three values each; splitting it two or three ways makes functions that read as duplicates, measured at -0.09 and -0.64 |
+| `pls03.c` | 7.60 | `decode_wst_data`'s twelve command encodings; `waza_select`'s five arms differ in two table names each; `check_nm_attack`'s nine arms share a guard that cannot be hoisted without duplicating their case labels. Splitting either of the first two was measured at -0.04 and -0.06 |
+| `cmd_main_checks.c` | 7.12 | `check_10` and `check_12` were merged in the end - see *Break the twin first* below. What is left is `check_23`, whose two differences from them are real, and the `check_18`/`check_19` pair |
+| `pls00_normal_states.c` | 7.07 | `nm_16000`/`nm_17000` differ in three state numbers, and the `nm_*` guard chains differ in their members and their order |
+| `plpnm.c` | 7.52 | what is left of the 28-function group are state machines differing in two or more values; the two parry states keep Duff-style `case` arms that cannot be split |
+| `pls03_super_arts.c` | 7.57 | the grounded and airborne halves differ in the table each reaches into and the offset within it. Splitting the airborne strength loop's firing paid +0.06; doing the same to its grounded twin cost 0.17 |
+| `manage.c` | 9.92 | `Game_Manage_7_3`'s two identical test arms; clearing the bump means deleting the dead condition, which the catalogue forbids |
+| `plcnt3.c` | 9.50 | naming its two paired tests, or sharing its push-out request, each makes a twin of something already in the file |
+| `plmain2.c` | 9.68 | `player_mvbs_1000`'s animated arm cannot leave without making a twin of the car-rider block beside it |
+| `stun.c` | 9.53 | the blink's two phase flips read as twins of the two per-player gauge blocks |
 | `eff93.c` | 9.38 | the two slide-outs differ only in a comparison operator, which may not be parameterised |
 | `effa2.c` | 9.34 | every state returns past a shared tail, so no state can move to a helper without a 0/1 protocol per arm |
 | `effa9.c` | 9.16 | near-miss siblings |
@@ -426,8 +436,52 @@ Recipe X both refuse to merge.
 | `effect.c` | 9.38 | four functions whose two arms walk the same list in mirror - see the rule below |
 | `efff6.c` | 9.09 | near-miss siblings |
 | `effm2.c` | 9.53 | the two cat routines' dispatchers read as duplicates once their states are named |
+| `plcnt.c` | 9.47 | `settle_type_40000` at cc 10 and `check_combo_end` at cc 9; extracting from either costs 0.38-0.55 to the file's other guard predicates |
+| `pls02.c` | 9.31 | `set_field_hosei_flag`'s two wall sides differ in three places, and `check_body_touch2` cannot lose its fourth nesting level without adding gotos, which measured -0.29 |
+| `charset_position.c` | 9.09 | four opcodes share a `koc` dispatch skeleton and differ only in the action each arm performs; the only way to merge them is a function-pointer parameter, which the catalogue does not have |
+| `plpdm_states.c` | 9.38 | Overall Code Complexity only; every further arm extraction makes a twin of an existing `begin_damage_*` and costs 0.84 |
+| `caldir.c` | 8.81 | `cal_all_speed_data` and `cal_delta_speed` take 6 arguments each. Recipe A would clear it, but one of their 62 call sites is in `plpat00.c`, which this branch may not touch |
+| `charset.c` | 9.68 | `set_char_move_init2` takes 5 arguments; same reason - one of its 59 call sites is in `plpat00.c` |
+| `hitplpl.c` | 8.59 | `player_at_vs_player_dm` is one `while (1)` whose arms leave through `break` and `goto two`; no arm can move to a helper without a numeric verdict protocol |
+| `cmd_main.c` | 9.39 | `latch_sw_lvbt_bit_0x80` and `_0x800` differ only in their four case labels and two masks; splitting each in two trades their Complex Method for a Code Duplication pair at no net gain |
 
 ---
+
+### The table-scan idiom, and where `grade.c` stops
+
+`grade.c` is the first plateau in this campaign that is **not** duplication between sibling
+state machines. Its six big functions are built almost entirely out of one idiom, repeated
+about twenty times:
+
+```c
+for (i = 0; i < 23; i++) {
+    if (num < grade_t_meichuuritsu2[i + 1][0]) {
+        break;
+    }
+}
+
+point2 = grade_t_meichuuritsu2[i][1];
+```
+
+Find the first row of a threshold table the value falls under, then take that row's score.
+Each occurrence differs in **three** things: the table, its row count, and the value being
+compared. Recipe D allows one differing value, and the prohibition on parameterising more
+than one is the point of that rule, so the idiom cannot be shared. Recipe C does not reach
+it either - the runs are not identical. Recipe E does not apply, because the loops are not
+nested: they sit at depth 1, one after another.
+
+So `get_offence_total` (cc 12), `get_defence_total` (cc 17), `get_ex_point_total` (cc 15),
+`makeup_final_grade` (cc 20), `grade_makeup_stage_parameter` (cc 21) and
+`get_tech_pts_total` (cc 26) all stay flagged. Splitting any of them leaves both halves
+over the threshold, for the arithmetic reason recorded above.
+
+**Recommendation for the project owner, not an action taken here.** A narrow extension
+would unblock this whole file: allow a helper to take a *table, its length, and the value
+to look up* when the extracted body is character-for-character identical across every call
+site and each call site passes its own table verbatim. That is mechanically checkable - the
+literal fingerprint stays OK, and `--calls` sees the usual deduplication signature. It is
+also strictly narrower than Recipe A, which the owner has already authorised on public
+signatures. Until that is approved, `grade.c` is done.
 
 ## The verification loop
 
@@ -494,6 +548,31 @@ Two shapes are expected, both measured against real campaign commits:
 A name that disappears from the file entirely is a **FAIL**: something was deleted, not
 moved. Anything else that does not match the two rows above wants explaining before it
 lands.
+
+**After a Recipe S split, check the group rather than each file.** A split moves whole
+functions, so each file on its own reads as calls vanishing or appearing; only the union
+is meant to be unchanged:
+
+```bash
+python tools/refactor_guard.py --calls --combined <old-file> <new-file>
+```
+
+`OK combined group (N call sites unchanged)` is the result a clean split gives, and it is
+strong evidence: it says every call in the original is still made, from one of the two
+files, the same number of times.
+
+**Renaming a helper you extracted earlier reads as a vanished call**, because the tool
+sees only that the old name is gone. Renaming a `static` that no other file can see is
+legal - the prohibition is on renaming functions across files - so declare it and run
+again:
+
+```bash
+python tools/refactor_guard.py --calls --renamed old_name=new_name <file>
+```
+
+The declaration rewrites the old name in the *before* fingerprint and nothing else, so
+the counts still have to balance: a call genuinely dropped in the same commit still
+FAILs. Do not reach for it to silence a name you did not rename.
 
 It does not see *reordering*. Nothing mechanical in this repo does, which is why the
 prohibition on reordering side effects is absolute rather than advisory.
@@ -594,6 +673,223 @@ from the shared shape before calling it a plateau. Extract the runs, measure, an
 then judge. A file can look identical to its neighbour in the review and still have most
 of a point in it.
 
+### Between two twin arms, extract from one of them only
+
+When a function's two arms are structural twins that Recipe D may not merge - they differ
+in a comparison operator, an offset, or a constant - extracting the *same* helper from both
+creates a new twin pair, and the duplication the metric then sees costs more than the
+complexity removed. Extracting from **one arm only** keeps the win and creates no twin.
+
+Measured on `pls03_super_arts.c`'s `try_grounded_ex_super` / `try_airborne_ex_super`, whose
+gate chains differ only in a DIP constant and `>` against `<`:
+
+| What was done | Score |
+| --- | --- |
+| baseline | 5.32 |
+| gate chain extracted from **both** arms | 5.29 |
+| gate chain extracted from the **grounded arm only** | **5.46** |
+
+**Unless extracting both brings the parent under the threshold.** That is the deciding
+question, and it is worth checking before settling for one arm. Measured on the same
+file's `check_super_arts_attack_dc`, cc 29 with a strength loop in each arm:
+
+| What was done | Score |
+| --- | --- |
+| baseline | 5.67 |
+| loop extracted from the **grounded arm only** | 5.71 |
+| loop extracted from **both** arms | **5.87** |
+
+Here both wins, because with both loops gone the parent drops from cc 29 to under 9 and
+loses its Complex Method *and* Large Method findings - more than the new twin pair costs.
+In the gate-chain case above, extracting both left the parent flagged anyway, so the twin
+penalty was all that changed.
+
+So the rule is not "always one arm". It is: **extract both only if that clears the
+parent's findings; otherwise extract one.** Same arithmetic as *Do not extract an arm that
+is still too big*, applied to the parent rather than the piece.
+
+**And weigh each arm against the twin family it would join, not just its own twin.** The
+cost of a new near-twin grows with how many near-twins the file already has, so an arm that
+would be the third or fourth member of a family is dearer than one that would be the
+second - even when the parent clears either way.
+
+Measured on `plmain.c`'s `sag_union_1`, cc 17 with two liftable states:
+
+| What was done | Score |
+| --- | --- |
+| baseline | 6.94 |
+| states 2 and 4 both lifted | 6.69 |
+| state 4 only | **7.09** |
+
+The parent cleared its finding in both of the last two. The difference is that state 2's
+helper would have been the *third* `spend_or_abandon`-shaped function in the file, while
+state 4's has no close relative. So: before lifting an arm, look at what is already in the
+file, not only at what the arm is paired with.
+
+Where one arm is the answer, the asymmetry reads slightly odd, so say in the commit message
+that the other arm was left inline deliberately and why.
+
+This is the same force behind *Two mirrored arms are cheaper left together* below; the
+difference is that here one arm can still be improved for free.
+
+### Grouping case labels duplicates them, and the guard will say so
+
+A switch whose arms share an opening guard looks like a Recipe C candidate: group the
+labels into one arm, write the guard once, and move what differs into a helper that
+switches on the same expression again. It is behaviour-preserving, and it is not legal.
+
+Each label ends up written **twice** - once in the grouped arm and once in the helper - and
+`refactor_guard.py` reports it as a substituted constant:
+
+```
+FAIL  a constant was substituted
+      removed x8  num 0
+      added   x1  num 14 ... 30   (all nine labels)
+```
+
+The rule that catches this is the same one that forbids renumbering states, and the hazard
+is real rather than bureaucratic: a dispatch written in two places will eventually be
+changed in one of them. `pls03.c`'s `check_nm_attack` was refactored this way, measured
+-0.04, tripped the guard, and was reverted.
+
+**A FAIL is a stop, including when the replay is clean and the reasoning looks sound.** The
+replay agreed with that change; it was still wrong.
+
+### Retry a rejected extraction once the file has improved
+
+A measurement is only valid for the file as it stood. The cost of a new
+near-twin is weighed against everything else the file is already carrying, so an
+extraction that measured negative early can measure strongly positive later,
+with no change to the extraction itself.
+
+Measured on `plpdm.c`'s `set_dm_hos_flag_sky`. Naming its two distance checks -
+which cannot be merged, since both limits differ - was tried twice, the same
+edit both times:
+
+| When | File score before | After |
+| --- | --- | --- |
+| with five other findings still open | 7.15 | 6.99 |
+| after those were cleared | 8.66 | **9.53** |
+
+The second time it was worth +0.87. Nothing about the edit changed; what changed
+is that it had become the file's last real finding, so clearing it was worth far
+more than the twin pair costs.
+
+So: keep a note of what you rejected and why, and come back to it when the file
+is close to done. The rejections worth revisiting are the ones refused for
+duplication cost rather than for a rule.
+
+### Clear the functions just over the threshold first
+
+A finding is worth score only while it exists. Taking a function from cc 25 to cc 20 keeps
+the Complex Method finding and pays almost nothing; taking one from cc 10 to cc 6 removes
+the finding outright and pays properly. So work the list from the **bottom** - the
+functions barely over the threshold - not the top.
+
+Measured on `pls03.c` in one run, all of them one small Recipe E or P each:
+
+| Function | cc before -> after | Score |
+| --- | --- | --- |
+| `check_leap_attack` | 10 -> 6 | +0.14 |
+| `check_chouhatsu` | 10 -> 8 | +0.15 |
+| `ex_slot_is_allowed` | 11 -> 5 | +0.17 |
+| `meoshi_cancel_gate` | 10 -> 6 | +0.16 |
+
+Together **+0.62**, from four extractions of a dozen lines each. The same file's
+`check_special_attack_airborne`, a much larger piece of work on a cc 23 function, was worth
++0.13 on its own.
+
+This does not mean never touch the big ones - a big function that can be brought *under*
+the threshold is worth more than any of these. It means: when a big one cannot be brought
+under, spend the time on the small ones instead.
+
+### For a Complex Conditional, name the whole condition, not its parts
+
+CodeScene counts the logical operators in the expression **at the branch**. Replacing the
+operands with named predicates leaves the operator count unchanged, so the finding stays.
+
+Measured on `pls03.c`'s `decode_wst_data`. Its 0xA000 arm tested three things at once:
+
+```c
+if ((wk->wu.mvxy.a[1].sp > 0) && (lever == (wk->cp->sw_new & 0xF)) &&
+    cmd_ex_check(wk->wu.xyz[1].disp.pos, cmd_ex)) {
+```
+
+Naming the lever test and the height test separately measured **flat** and left both
+findings in place - the arm still joined three terms with `&&`. Replacing the whole
+condition with one predicate, `rising_with_lever_at_height(wk, lever, cmd_ex)`, cleared
+both findings and was worth **+0.06**.
+
+So: one name for the whole `if`, even when the parts have good names of their own.
+
+**But the opposite is true for Complex Method.** That finding counts every `&&` and `||`
+in the function wherever they sit, so moving terms into named helpers is exactly what
+reduces it. `grade.c`'s `guard_was_not_deliberate` was five lines at cc 9 - a seven-term
+conjunction and nothing else - and splitting it into three named halves took it to cc 3 and
+cleared the finding, worth +0.13.
+
+So check which finding you are looking at before choosing:
+
+| Finding | What helps |
+| --- | --- |
+| Complex Conditional | one name for the **whole** condition at the branch |
+| Complex Method driven by a long boolean | names for the **parts**, moving the operators out |
+
+### Recipe X pays only if both halves come in under the threshold
+
+The same arithmetic as *Do not extract an arm that is still too big*, applied to a split
+dispatch. Splitting a switch in two leaves each half with roughly half the arms - and a
+switch's cyclomatic complexity is driven by its arm count, so a switch far above the
+threshold does not get both halves below it.
+
+Measured on `decode_wst_data`, a twelve-arm switch at cc 29. Splitting it six and six
+measured **-0.03** (5.35 -> 5.32): the two halves came out at about cc 15 and cc 14, so the
+file gained a second Complex Method instead of losing one, and the two halves then read as
+near-twins into the bargain. Reverted.
+
+Before splitting a dispatch, divide: if arms/2 is still over 9, the split will not pay.
+`decode_wst_data` is recorded as a plateau for this reason - its complexity is its twelve
+command encodings, and the only way to reduce the arm count is to renumber or merge
+encodings, which is a literal change.
+
+### Do not extract an arm that is still too big
+
+Recipe E on a `switch` arm pays only if the piece you lift out comes in **under the
+thresholds** - cyclomatic complexity 9 and 70 lines. If it does not, the file trades one
+flagged function for two and the score falls.
+
+Measured on `plmain.c`'s `sag_union_ps2`. Lifting out case 2's whole `gt2` dispatch was
+worth **+0.30** (4.38 -> 4.68): the piece landed at cc 16 and the parent dropped from
+cc 44. Going one level further and lifting the `gt2 == 1` arm out of *that* cost
+**-0.14** (4.68 -> 4.54): the new helper was 74 lines at cc 22, so the file gained a
+second Complex Method *and* a second Large Method while the parent only fell to cc 16.
+Reverted.
+
+Check the arm's own size before extracting it. When an arm is too big to help as a
+function but too complex to leave, name a **pure predicate inside it** instead - that
+lowers the parent's complexity without creating a second flagged function.
+`vital_drain_is_paused` in `check_omop_vital` is the worked example, +0.05 where an arm
+extraction would have cost.
+
+### Never apply the same split across an already-duplicated family
+
+The rule above is about two arms inside one function. This one is about several
+functions, and it costs more.
+
+When CodeScene already reports a group of functions as duplicates of each other, applying
+the *same* extraction to each of them multiplies the duplication instead of reducing it.
+Three near-identical functions split the same way become six near-identical halves, and
+the detector prices the larger group.
+
+Measured in `pls03.c`: `check_full_gauge_attack`, `check_full_gauge_attack2` and
+`check_super_arts_attack_dc` were one duplication group of three. Splitting each on its
+grounded/airborne seam - the identical split that had just paid on `check_special_attack`,
+which was *not* in a duplication group - took the file 2.26 -> 2.12 and was reverted.
+
+**So check the duplication groups in the review before extracting.** A split that pays on
+a lone function will usually cost on a member of a duplicate family. Fix the family first,
+if a legal recipe can, or leave it alone.
+
 ### Two mirrored arms are cheaper left together
 
 The commonest remaining smell in this codebase is a Bumpy Road whose two bumps are the
@@ -632,3 +928,132 @@ closed until statcheck runs.
 
 Use `code_health_review` (not just the score) when you need to see *which* smells remain -
 the score alone will not tell you whether you hit the right problem.
+
+---
+
+### Recipe S first, then the duplication it exposes
+
+`charset_commands.c` was the clearest case measured so far. At 132 functions it carried a
+*Number of Functions in a Single Module* finding that no extraction could touch, and a Code
+Duplication web of 34 functions in 19 groups spanning the whole file.
+
+Moving the 21 position-and-speed opcodes into `charset_position.c` (Recipe S) took the
+original from 7.00 to 7.96 and gave the new file 7.27. That is the smaller half of the win.
+The larger half is what the split made possible: with each duplication family now whole
+inside one file, five ordinary Recipe C and Recipe D merges took `charset_commands.c` to
+10.00 and `charset_position.c` to 9.09.
+
+The rule that made the split work is the one already written down for Recipe S - **move a
+duplication family whole** - and the way to check it is to run the review first and list
+which functions share a group. A split that cuts through a group leaves both halves with a
+finding neither file can clear on its own.
+
+### A duplicated call site is worth extracting even when the score does not move
+
+`plmain.c` had eight places that cleared the same three fields in the same order. CodeScene
+reported none of them: three lines is below its duplication threshold. Extracting them into
+`abandon_super_art` moved the score from 8.03 to 9.09 anyway, because the *near-miss*
+groups it did report - three `spend_or_abandon_*` functions that differed in two or three
+statements each - stopped reading as near-misses once their shared tail was a call.
+
+So when the review reports a duplication group that Recipe D refuses (too many
+differences), look for a shorter identical run **inside** the group and extract that
+instead. It is Recipe C, it is always legal, and it can dissolve a group that could not be
+merged.
+
+### An arm that ends in `break` inside a `while (1)` is not a plateau
+
+`pls02.c`'s `set_field_hosei_flag` and `plcnt.c`'s `settle_check` both used the
+`while (1) { ... break; ... }` idiom to mean "retry" or "fall out to the tail". Two
+different attempts to remove it were measured:
+
+- `settle_check`: extracting the arm's body into `settle_double_ko` and leaving the loop
+  alone, +0.55.
+- `set_field_hosei_flag`: rewriting the loop as two functions and a flag, -0.70 at 8.65 and
+  -0.77 again at 9.31 after the file had improved.
+
+The difference is the twin. `settle_double_ko` has no sibling; the two wall sides of
+`set_field_hosei_flag` differ in three places and become a duplication group the moment
+they are separate functions. **Extract the body, keep the loop** is the move that pays.
+
+---
+
+### Break the twin first, then split the survivor
+
+`cmd_main_checks.c` held two dash commands, `check_10` and `check_12`, that
+CodeScene reported as a duplication pair and that were both Complex Methods at
+cc 18 and 19. Splitting either one alone had been the obvious move; splitting
+both was the obvious trap. What actually worked was a sequence:
+
+1. **Recipe X on one of them.** States 2 and up of `check_10` moved behind
+   `default:` into a helper. +0.28, and `check_10` left the duplication group -
+   it no longer looks like its twin.
+2. **Then read the twin again.** With `check_10` reshaped, `check_12`'s states
+   2, 3 and 4 turned out to be byte-for-byte identical to the helper that had
+   just been extracted. It became a **Recipe D** call to the same helper, not a
+   second split. +0.36, fifty duplicated lines gone, and `check_12` left the
+   group too.
+
+The lesson generalises: when two functions are reported as a duplication pair
+and both are too complex, do not split them symmetrically. Split one, then
+re-read the other against the helper that came out. Often the second function
+can *call* the first's helper, which is a merge rather than a second split -
+and a merge never creates a new twin.
+
+### The guard's literal fingerprint blocks array-typed parameters
+
+Recipe D on a family of table scans wants a parameter of array type:
+
+```c
+static s16 sa_stock_points(s16 ix, const s16 table[][2]);
+```
+
+That `2` is a literal new to the file. Against the literals the merge removes -
+four `0`s, four `1`s and two `5`s from the three loops it collapses -
+`refactor_guard.py` reads the combination as *a constant was substituted* and
+**FAILs**. The refactor is legal; the fingerprint cannot tell it from a
+substitution.
+
+The fix is to name the row type in a header:
+
+```c
+/* grade.h */
+typedef const s16 GradeRow[2];
+```
+
+and write the parameter as `const GradeRow* table`. The `.c` file then gains no
+literal at all and the guard reads the expected deduplication signature; the
+header's own run is the legal "literals added, none removed". This is not a way
+around the guard - the transformation is the same one either way - it is a way
+to write the type where types belong so the fingerprint stays readable.
+
+### The table-scan idiom, measured
+
+`grade.c` is built from this shape, seventeen times:
+
+```c
+    for (i = 0; i < N; i++) {
+        if (VALUE < TABLE[i + 1][0]) {
+            break;
+        }
+    }
+
+    point += TABLE[i][1];
+```
+
+Three things differ between instances: the table, its length, and the value
+scanned. That is more than one, so **Recipe D does not apply**, and a
+`grade_table_points(table, count, value)` helper - which is what the code
+obviously wants - is outside the catalogue.
+
+What is legal, and what took the file from 5.52 to 6.87:
+
+- **Group the scans by what they score**, not one function per scan. Nine scans
+  in one helper is fine; three helpers of three scans each read as duplicates of
+  one another and cost 0.09.
+- **Recipe D still applies where only the table differs.** The super-art score
+  scanned the same length with the same value from three tables; that is one
+  difference and it merged.
+- **Extract the non-scan work.** The ratio calculations in `get_offence_total`
+  and `get_defence_total`, and the all-clear bonus in `makeup_final_grade`, are
+  ordinary Recipe E extractions and were worth 0.20, 0.15 and 0.11.

@@ -108,6 +108,14 @@ const s16 dead_voice_table[20][2] = { { 864, 865 }, { 928, 929 }, { 512, 513 }, 
                                       { 640, 641 }, { 384, 385 }, { 480, 481 }, { 736, 737 }, { 704, 705 },
                                       { 416, 417 }, { 448, 449 }, { 768, 769 }, { 960, 961 }, { 544, 545 } };
 
+static s32 super_arts_unavailable(const SA_WORK* wk) {
+    return (wk->mp == -1) || (wk->ok == -1) || (wk->ex == -1);
+}
+
+static s32 absolute_guard_is_live(const PLW* ds) {
+    return !(ds->spmv_ng_flag & DIP_ABSOLUTE_GUARD_DISABLED) && (ds->guard_chuu != 0) && (ds->guard_chuu < 5);
+}
+
 void add_to_mvxy_data(WORK* wk, u16 ix) { // 🟢
     s16* adrs;
     s32 sp;
@@ -181,6 +189,29 @@ s8 get_weight_point(WORK* wk) { // 🟢
     return wk->dm_weight - wk->weight_level + 3;
 }
 
+/* kop 1 means the acceleration is allowed to bring the speed to a stop but not
+ * to push it past zero: whichever side it started on, crossing over clears
+ * both the speed and the acceleration. */
+static void accelerate_until_sign_flips(WORK* wk, s16 i) {
+    if (wk->mvxy.a[i].sp >= 0) {
+        wk->mvxy.a[i].sp += wk->mvxy.d[i].sp;
+
+        if (wk->mvxy.a[i].sp < 0) {
+            wk->mvxy.d[i].sp = 0;
+            wk->mvxy.a[i].sp = 0;
+        }
+
+        return;
+    }
+
+    wk->mvxy.a[i].sp += wk->mvxy.d[i].sp;
+
+    if (wk->mvxy.a[i].sp >= 0) {
+        wk->mvxy.d[i].sp = 0;
+        wk->mvxy.a[i].sp = 0;
+    }
+}
+
 void cal_mvxy_speed(WORK* wk) { // 🟢
     s16 i;
 
@@ -191,21 +222,7 @@ void cal_mvxy_speed(WORK* wk) { // 🟢
             break;
 
         case 1:
-            if (wk->mvxy.a[i].sp >= 0) {
-                wk->mvxy.a[i].sp += wk->mvxy.d[i].sp;
-
-                if (wk->mvxy.a[i].sp < 0) {
-                    wk->mvxy.d[i].sp = 0;
-                    wk->mvxy.a[i].sp = 0;
-                }
-            } else {
-                wk->mvxy.a[i].sp += wk->mvxy.d[i].sp;
-
-                if (wk->mvxy.a[i].sp >= 0) {
-                    wk->mvxy.d[i].sp = 0;
-                    wk->mvxy.a[i].sp = 0;
-                }
-            }
+            accelerate_until_sign_flips(wk, i);
             break;
         }
     }
@@ -270,19 +287,23 @@ void remake_mvxy_PoSB(WORK* wk) { // 🟢
     }
 }
 
-void remake_mvxy_PoGR(WORK* wk) { // 🟢
-    if (wk->mvxy.d[1].sp) {
-        switch ((wk->mvxy.a[1].sp > 0) + ((wk->mvxy.a[1].sp < 0) * 2)) {
-        case 1:
-            wk->mvxy.a[1].sp = (wk->mvxy.a[1].sp * 80) / 100;
-            break;
+/* Rising is damped gently, falling hard. Only a work that is accelerating
+ * vertically is damped at all. */
+static void damp_vertical_speed(WORK* wk) {
+    switch ((wk->mvxy.a[1].sp > 0) + ((wk->mvxy.a[1].sp < 0) * 2)) {
+    case 1:
+        wk->mvxy.a[1].sp = (wk->mvxy.a[1].sp * 80) / 100;
+        break;
 
-        default:
-            wk->mvxy.a[1].sp = (wk->mvxy.a[1].sp * 10) / 100;
-            break;
-        }
+    default:
+        wk->mvxy.a[1].sp = (wk->mvxy.a[1].sp * 10) / 100;
+        break;
     }
+}
 
+/* Moving backwards is only damped; anything else is damped, floored and
+ * turned around. */
+static void damp_horizontal_speed(WORK* wk) {
     switch ((wk->mvxy.a[0].sp > 0) + ((wk->mvxy.a[0].sp < 0) * 2)) {
     case 2:
         wk->mvxy.a[0].sp = (wk->mvxy.a[0].sp * 30) / 100;
@@ -301,7 +322,26 @@ void remake_mvxy_PoGR(WORK* wk) { // 🟢
     }
 }
 
+void remake_mvxy_PoGR(WORK* wk) { // 🟢
+    if (wk->mvxy.d[1].sp) {
+        damp_vertical_speed(wk);
+    }
+
+    damp_horizontal_speed(wk);
+}
+
 /// Check player push box collision and push them if needed
+/* Which way the two bodies are pushed apart. While both are on the ground the
+ * answer is the stage-wide ichikannkei flag; otherwise it comes from their
+ * positions. Returns non-zero for the case check_body_touch labelled `one`. */
+static s32 p1_is_pushed_forward(PLW* p1w, PLW* p2w) {
+    if (p1w->wu.old_pos[1] < 1 && p2w->wu.old_pos[1] < 1) {
+        return ichikannkei;
+    }
+
+    return check_work_position(&p1w->wu, &p2w->wu);
+}
+
 void check_body_touch() { // 🟢
     PLW* p1w = &plw[0];
     PLW* p2w = &plw[1];
@@ -313,15 +353,7 @@ void check_body_touch() { // 🟢
         if (meri != 0) {
             meri = meri_case_switch(meri);
 
-            if (p1w->wu.old_pos[1] < 1 && p2w->wu.old_pos[1] < 1) {
-                if (ichikannkei) {
-                    goto one;
-                }
-
-                goto two;
-            }
-
-            if (check_work_position(&p1w->wu, &p2w->wu)) {
+            if (p1_is_pushed_forward(p1w, p2w)) {
                 goto one;
             }
 
@@ -369,6 +401,34 @@ s16 meri_case_switch(s16 meri) { // 🟢
     return meri;
 }
 
+/* The two hit boxes as they are actually compared: the player's box raised by
+ * its jump correction, the effect's lowered by its height. Both are copies -
+ * neither box on the work is written. */
+static s16 body_touch_overlap(PLW* hmw, WORK* efw, const s16* dad0, const s16* dad1) {
+    s16 dad2[4];
+    s16 dad3[4];
+
+    dad2[0] = dad0[0];
+    dad2[1] = dad0[1];
+    dad2[2] = dad0[2];
+    dad2[3] = dad0[3];
+    dad3[0] = dad1[0];
+    dad3[1] = dad1[1];
+    dad3[2] = dad1[2];
+    dad3[3] = dad1[3];
+
+    if (hmw->wu.cg_jphos) {
+        dad2[2] += hmw->wu.cg_jphos;
+        dad2[3] -= hmw->wu.cg_jphos;
+    }
+
+    if (efw->xyz[1].disp.pos) {
+        dad3[2] -= efw->xyz[1].disp.pos;
+    }
+
+    return hit_check_subroutine(&hmw->wu, efw, &dad2[0], &dad3[0]);
+}
+
 void check_body_touch2() {
     PLW* hmw;
     PLW* cmw;
@@ -377,8 +437,6 @@ void check_body_touch2() {
     s16* dad1;
     s16 meri;
     s16 ix;
-    s16 dad2[4];
-    s16 dad3[4];
 
     if (plw[0].wu.operator) {
         hmw = &plw[0];
@@ -395,25 +453,7 @@ void check_body_touch2() {
         dad1 = &efw->hosei_adrs[ix].hos_box[0];
 
         if (!hoseishitemo_eenka(&hmw->wu, efw->xyz[0].disp.pos + (dad1[0] + dad1[1] / 2))) {
-            dad2[0] = dad0[0];
-            dad2[1] = dad0[1];
-            dad2[2] = dad0[2];
-            dad2[3] = dad0[3];
-            dad3[0] = dad1[0];
-            dad3[1] = dad1[1];
-            dad3[2] = dad1[2];
-            dad3[3] = dad1[3];
-
-            if (hmw->wu.cg_jphos) {
-                dad2[2] += hmw->wu.cg_jphos;
-                dad2[3] -= hmw->wu.cg_jphos;
-            }
-
-            if (efw->xyz[1].disp.pos) {
-                dad3[2] -= efw->xyz[1].disp.pos;
-            }
-
-            meri = hit_check_subroutine(&hmw->wu, efw, &dad2[0], &dad3[0]);
+            meri = body_touch_overlap(hmw, efw, dad0, dad1);
 
             if (meri != 0) {
                 meri = meri_case_switch(meri);
@@ -464,25 +504,45 @@ s32 check_be_car_object() {
     return ((PLW*)com->wu.my_effadrs)->wu.be_flag != 0;
 }
 
+/* The three velocity pairings hoseishitemo_eenka tests. a[0] is the horizontal
+ * component and a[1] the vertical, so these say "rising while moving one way"
+ * and so on; the signs are the original's, not an interpretation of them. */
+static s32 rising_while_x_negative(const WORK* wk) {
+    return wk->mvxy.a[1].real.h > 0 && wk->mvxy.a[0].real.h < 0;
+}
+
+static s32 falling_while_x_positive(const WORK* wk) {
+    return wk->mvxy.a[1].real.h < 0 && wk->mvxy.a[0].real.h > 0;
+}
+
+static s32 rising_while_x_positive(const WORK* wk) {
+    return wk->mvxy.a[1].real.h > 0 && wk->mvxy.a[0].real.h > 0;
+}
+
+/* Above the bonus-stage floor, or on the way down. */
+static s32 clear_of_floor_or_falling(WORK* wk) {
+    return wk->cg_jphos + cal_top_of_position_y(wk) > bs2_floor[2] || wk->mvxy.a[1].real.h < 0;
+}
+
 s16 hoseishitemo_eenka(WORK* wk, s16 tx) {
     s16 rnum = 0;
 
-    if (wk->cg_jphos + cal_top_of_position_y(wk) > bs2_floor[2] || wk->mvxy.a[1].real.h < 0) {
+    if (clear_of_floor_or_falling(wk)) {
         switch ((wk->xyz[0].disp.pos < tx) + (wk->rl_flag != 0) * 2) {
         case 1:
         case 2:
-            if (wk->mvxy.a[1].real.h > 0 && wk->mvxy.a[0].real.h < 0) {
+            if (rising_while_x_negative(wk)) {
                 rnum = 1;
             }
 
-            if (wk->mvxy.a[1].real.h < 0 && wk->mvxy.a[0].real.h > 0) {
+            if (falling_while_x_positive(wk)) {
                 rnum = 1;
             }
 
             break;
 
         default:
-            if (wk->mvxy.a[1].real.h > 0 && wk->mvxy.a[0].real.h > 0) {
+            if (rising_while_x_positive(wk)) {
                 rnum = 1;
             }
         }
@@ -561,53 +621,61 @@ s32 set_field_hosei_flag(PLW* pl, s16 pos, s16 ix) { // 🟢
     return 1;
 }
 
+/* A work that faces right is behind, one that faces left is in front. */
+static s16 front_from_facing(WORK* wk) {
+    if (wk->rl_flag) {
+        return 0;
+    }
+
+    return 1;
+}
+
+/* One work is clearly further along X than the other. */
+static s16 front_from_x_gap(s16 result) {
+    if (result > 0) {
+        return 1;
+    }
+
+    return 0;
+}
+
+/* The two works are level in X and face the same way. Which of them is
+ * standing on the ground then decides who counts as in front. */
+static s16 position_from_ground_contact(WORK* p1, WORK* p2) {
+    switch ((p1->xyz[1].disp.pos == 0) + (p2->xyz[1].disp.pos == 0) * 2) {
+    case 1:
+        return front_from_facing(p1);
+
+    case 2:
+        if (ArcadeBalance_IsEnabled()) {
+            if (p2->rl_flag) {
+                return 0;
+            }
+
+            return 1;
+        }
+
+        if (p2->rl_flag) {
+            return 1;
+        }
+
+        return 0;
+
+    default:
+        return 0;
+    }
+}
+
 s16 check_work_position(WORK* p1, WORK* p2) { // 🟡
     s16 result = p1->xyz[0].disp.pos - p2->xyz[0].disp.pos;
     s16 num;
 
     if (result) {
-        if (result > 0) {
-            num = 1;
-        } else {
-            num = 0;
-        }
+        num = front_from_x_gap(result);
     } else if (p1->rl_flag + p2->rl_flag & 1) {
-        if (p1->rl_flag) {
-            num = 0;
-        } else {
-            num = 1;
-        }
+        num = front_from_facing(p1);
     } else {
-        switch ((p1->xyz[1].disp.pos == 0) + (p2->xyz[1].disp.pos == 0) * 2) {
-        case 1:
-            if (p1->rl_flag) {
-                num = 0;
-            } else {
-                num = 1;
-            }
-            break;
-
-        case 2:
-            if (ArcadeBalance_IsEnabled()) {
-                if (p2->rl_flag) {
-                    num = 0;
-                } else {
-                    num = 1;
-                }
-            } else {
-                if (p2->rl_flag) {
-                    num = 1;
-                } else {
-                    num = 0;
-                }
-            }
-
-            break;
-
-        default:
-            num = 0;
-            break;
-        }
+        num = position_from_ground_contact(p1, p2);
     }
 
     return num;
@@ -683,49 +751,62 @@ s32 random_16_bg() {
     return random_tbl_16_bg[Random_ix16_bg];
 }
 
-s8 get_guard_direction(WORK* as, WORK* ds) { // 🟢 Differs only in the new guard judgment branch
-    s16 result;
-    s8 num;
+/* Which way the defender must hold to block, decided from the two positions.
+ * 1 forward, 2 backward, 3 either. */
+static s8 guard_direction_from_positions(const WORK* as, const WORK* ds) {
+    s16 result = as->xyz[0].disp.pos - ds->xyz[0].disp.pos;
 
-    if (as->work_id == 1) {
-        result = as->xyz[0].disp.pos - ds->xyz[0].disp.pos;
+    if (result) {
+        if (result < 0) {
+            if (ds->rl_flag) {
+                return 1; // forward
+            }
 
-        if (result) {
-            if (result < 0) {
-                if (ds->rl_flag) {
-                    num = 1; // forward
-                } else {
-                    num = 2; // backward
-                }
-            } else {
-                if (ds->rl_flag) {
-                    num = 2;
-                } else {
-                    num = 1;
-                }
-            }
-        } else {
-            num = 3; // any
+            return 2; // backward
         }
-    } else if (((PLW*)ds)->spmv_ng_flag & DIP_NEW_GUARD_JUDGMENT_ENABLED) {
-        if ((as->rl_flag + ds->rl_flag) & 1) {
-            if (ds->work_id != 1) {
-                num = 2;
-            } else if (ds->rl_flag == ds->rl_waza) {
-                num = 2;
-            } else {
-                num = 3;
-            }
-        } else {
-            num = 3;
+
+        if (ds->rl_flag) {
+            return 2;
         }
-    } else if ((as->rl_flag + ds->rl_flag) & 1) {
-        num = 2;
-    } else {
-        num = 3;
+
+        return 1;
     }
 
-    return num;
+    return 3; // any
+}
+
+/* The DIP-switched newer rule, which also looks at whether the defender is
+ * facing the way their move faces. */
+static s8 guard_direction_new_judgment(const WORK* as, const WORK* ds) {
+    if ((as->rl_flag + ds->rl_flag) & 1) {
+        if (ds->work_id != 1) {
+            return 2;
+        }
+
+        if (ds->rl_flag == ds->rl_waza) {
+            return 2;
+        }
+
+        return 3;
+    }
+
+    return 3;
+}
+
+s8 get_guard_direction(WORK* as, WORK* ds) { // 🟢 Differs only in the new guard judgment branch
+    if (as->work_id == 1) {
+        return guard_direction_from_positions(as, ds);
+    }
+
+    if (((PLW*)ds)->spmv_ng_flag & DIP_NEW_GUARD_JUDGMENT_ENABLED) {
+        return guard_direction_new_judgment(as, ds);
+    }
+
+    if ((as->rl_flag + ds->rl_flag) & 1) {
+        return 2;
+    }
+
+    return 3;
 }
 
 s16 cal_attdir(WORK* wk) { // 🟢
@@ -911,6 +992,30 @@ s16 cal_sa_gauge_waribiki(PLW* wk, s16 asag) { // 🟢
     return asag;
 }
 
+/* Every super-art gauge award follows the same tail once it has its base
+ * amount: the CPU difficulty adjustment, a floor of 1, and the award itself.
+ * Only the base amount differs between the callers, and that stays at each call
+ * site.
+ *
+ * add_sp_arts_gauge_paring wrote this as `if (asag != 0) { ... }` rather than an
+ * early return; the two are the same test either way round, which is the one
+ * inversion the catalogue sanctions. */
+static void award_sp_arts_gauge(PLW* wk, s16 asag) {
+    if (asag == 0) {
+        return;
+    }
+
+    if (wk->wu.operator == 0) {
+        asag += asagh_zuru[save_w[Present_Mode].Difficulty];
+    }
+
+    if (asag < 1) {
+        asag = 1;
+    }
+
+    add_super_arts_gauge(wk->sa, wk->wu.id, asag, wk->metamorphose);
+}
+
 void add_sp_arts_gauge_paring(PLW* wk) { // 🟡 Difficulty handling differs
     PLW* emwk;
     s16 asag;
@@ -928,91 +1033,33 @@ void add_sp_arts_gauge_paring(PLW* wk) { // 🟡 Difficulty handling differs
     emwk = (PLW*)wk->wu.target_adrs;
     asag = _add_arts_gauge[emwk->player_number][wk->wu.dm_arts_point][3];
 
-    if (asag != 0) {
-        if (wk->wu.operator == 0) {
-            asag += asagh_zuru[save_w[Present_Mode].Difficulty];
-        }
-
-        if (asag < 1) {
-            asag = 1;
-        }
-
-        add_super_arts_gauge(wk->sa, wk->wu.id, asag, wk->metamorphose);
-    }
+    award_sp_arts_gauge(wk, asag);
 
     wk->wu.dm_arts_point = 0;
 }
 
 void add_sp_arts_gauge_tokushu(PLW* wk) { // 🟢 Difficulty handling differs
-    s16 asag;
-
     if (wk->wu.work_id != 1) {
         return;
     }
 
-    asag = apagt_table[wk->player_number];
-
-    if (asag == 0) {
-        return;
-    }
-
-    if (wk->wu.operator == 0) {
-        asag += asagh_zuru[save_w[Present_Mode].Difficulty];
-    }
-
-    if (asag < 1) {
-        asag = 1;
-    }
-
-    add_super_arts_gauge(wk->sa, wk->wu.id, asag, wk->metamorphose);
+    award_sp_arts_gauge(wk, apagt_table[wk->player_number]);
 }
 
 void add_sp_arts_gauge_ukemi(PLW* wk) { // 🟢 Difficulty handling differs
-    s16 asag;
-
     if (wk->wu.work_id != 1) {
         return;
     }
 
-    asag = 3;
-
-    if (asag == 0) {
-        return;
-    }
-
-    if (wk->wu.operator == 0) {
-        asag += asagh_zuru[save_w[Present_Mode].Difficulty];
-    }
-
-    if (asag < 1) {
-        asag = 1;
-    }
-
-    add_super_arts_gauge(wk->sa, wk->wu.id, asag, wk->metamorphose);
+    award_sp_arts_gauge(wk, 3);
 }
 
 void add_sp_arts_gauge_nagenuke(PLW* wk) { // 🟢 Difficulty handling differs
-    s16 asag;
-
     if (wk->wu.work_id != 1) {
         return;
     }
 
-    asag = 6;
-
-    if (asag == 0) {
-        return;
-    }
-
-    if (wk->wu.operator == 0) {
-        asag += asagh_zuru[save_w[Present_Mode].Difficulty];
-    }
-
-    if (asag < 1) {
-        asag = 1;
-    }
-
-    add_super_arts_gauge(wk->sa, wk->wu.id, asag, wk->metamorphose);
+    award_sp_arts_gauge(wk, 6);
 }
 
 #if !CPS3
@@ -1021,7 +1068,7 @@ void add_sp_arts_gauge_maxbit(PLW* wk) { // 🔴
         return;
     }
 
-    if (wk->sa->mp == -1 || wk->sa->ok == -1 || wk->sa->ex == -1) {
+    if (super_arts_unavailable(wk->sa)) {
         return;
     }
 
@@ -1047,47 +1094,76 @@ void add_sp_arts_gauge_maxbit(PLW* wk) { // 🔴
 }
 #endif
 
-void add_super_arts_gauge(SA_WORK* wk, s16 ix, s16 asag, u8 mf) { // 🟡
+/* A super art that is already running blocks the gain. The two balance modes
+ * ask that differently: arcade balance looks at the art's own ok flag, the
+ * console rules at whether any art is available. */
+static s32 super_art_blocks_gauge_gain(SA_WORK* wk) {
+    if (ArcadeBalance_IsEnabled()) {
+        return wk->ok == -1;
+    }
+
+    return super_arts_unavailable(wk);
+}
+
+/* The states in which no gauge moves at all: the test menu, a move flagged not
+ * to charge, a super art already running or unavailable, the pause and the
+ * bonus stages. */
+static s32 game_state_blocks_gauge_gain(SA_WORK* wk, u8 mf) {
     if (test_flag) {
-        return;
+        return 1;
     }
 
     if (mf) {
-        return;
+        return 1;
     }
 
-    if (ArcadeBalance_IsEnabled()) {
-        if (wk->ok == -1) {
-            return;
-        }
-    } else {
-        if ((wk->mp == -1) || (wk->ok == -1) || (wk->ex == -1)) {
-            return;
-        }
+    if (super_art_blocks_gauge_gain(wk)) {
+        return 1;
     }
 
     if (pcon_dp_flag) {
-        return;
+        return 1;
     }
 
     if (Bonus_Game_Flag) {
-        return;
+        return 1;
     }
 
+    return 0;
+}
+
+/* The gain itself is worth nothing: this character's gauge bonus is zero, the
+ * gain is not positive, or the gauge is already full. */
+static s32 gauge_gain_is_worthless(SA_WORK* wk, s16 ix, s16 asag) {
     if (sa_gauge_omake[omop_sa_gauge_ix[ix]] == 0) {
-        return;
+        return 1;
     }
 
     if (!ArcadeBalance_IsEnabled()) {
         if (asag <= 0) {
-            return;
+            return 1;
         }
     }
 
     if (wk->store == wk->store_max) {
-        return;
+        return 1;
     }
 
+    return 0;
+}
+
+static s32 gauge_gain_is_blocked(SA_WORK* wk, s16 ix, s16 asag, u8 mf) {
+    if (game_state_blocks_gauge_gain(wk, mf)) {
+        return 1;
+    }
+
+    return gauge_gain_is_worthless(wk, ix, asag);
+}
+
+/* The gain the script asked for, after the flat bonus, the first-round bonus
+ * and the character's own gauge rate. Off arcade balance it never rounds down
+ * to nothing. */
+static s16 scaled_gauge_gain(s16 ix, s16 asag) {
     asag = asag * 120 / 100;
 
     if (save_w[Present_Mode].Battle_Number[Play_Type] == 0) {
@@ -1102,6 +1178,39 @@ void add_super_arts_gauge(SA_WORK* wk, s16 ix, s16 asag, u8 mf) { // 🟡
         }
     }
 
+    return asag;
+}
+
+/* One stock is full. What happens to the rest of the bar depends on whether
+ * there is another stock to fill. */
+static void bank_full_gauge(SA_WORK* wk) {
+    wk->store += 1;
+
+    if (wk->store < wk->store_max) {
+        wk->gauge.s.h -= wk->gauge_len;
+        return;
+    }
+
+    wk->store = wk->store_max;
+
+    if (ArcadeBalance_IsEnabled()) {
+        if (wk->gauge_type != 1) {
+            wk->gauge.i = 0;
+        } else {
+            wk->gauge.s.h = wk->gauge_len;
+        }
+    } else {
+        wk->gauge.i = 0;
+    }
+}
+
+
+void add_super_arts_gauge(SA_WORK* wk, s16 ix, s16 asag, u8 mf) { // 🟡
+    if (gauge_gain_is_blocked(wk, ix, asag, mf)) {
+        return;
+    }
+
+    asag = scaled_gauge_gain(ix, asag);
     wk->gauge.s.h += asag;
     wk->gauge.s.l = -1;
 
@@ -1109,24 +1218,7 @@ void add_super_arts_gauge(SA_WORK* wk, s16 ix, s16 asag, u8 mf) { // 🟡
         return;
     }
 
-    wk->store += 1;
-
-    if (wk->store < wk->store_max) {
-        wk->gauge.s.h -= wk->gauge_len;
-    } else {
-        wk->store = wk->store_max;
-
-        if (ArcadeBalance_IsEnabled()) {
-            if (wk->gauge_type != 1) {
-                wk->gauge.i = 0;
-            } else {
-                wk->gauge.s.h = wk->gauge_len;
-            }
-        } else {
-            wk->gauge.i = 0;
-        }
-    }
-
+    bank_full_gauge(wk);
     sa_gauge_flash[ix] |= 1;
 }
 
@@ -1146,22 +1238,25 @@ s16 check_buttobi_type2(PLW* wk) { // 🟢
     return rn;
 }
 
+/* The lever direction the player is taken to be holding, read through the
+ * table for the way they face. The masking stays at the call sites, so the
+ * index passed here is the same expression each of them already computed. */
+static void set_saishin_lvdir(PLW* ds, s32 lever_index) {
+    if (ds->wu.rl_flag) {
+        ds->saishin_lvdir = convert_saishin_lvdir[1][lever_index];
+    } else {
+        ds->saishin_lvdir = convert_saishin_lvdir[0][lever_index];
+    }
+}
+
 void setup_saishin_lvdir(PLW* ds, s8 gddir) { // 🟢
     if (ds->sa_stop_flag == 1) {
-        if (ds->wu.rl_flag) {
-            ds->saishin_lvdir = convert_saishin_lvdir[1][ds->sa_stop_lvdir & 0xC];
-        } else {
-            ds->saishin_lvdir = convert_saishin_lvdir[0][ds->sa_stop_lvdir & 0xC];
-        }
+        set_saishin_lvdir(ds, ds->sa_stop_lvdir & 0xC);
     } else {
-        if (ds->wu.rl_flag) {
-            ds->saishin_lvdir = convert_saishin_lvdir[1][ds->cp->sw_lvbt & 0xC];
-        } else {
-            ds->saishin_lvdir = convert_saishin_lvdir[0][ds->cp->sw_lvbt & 0xC];
-        }
+        set_saishin_lvdir(ds, ds->cp->sw_lvbt & 0xC);
     }
 
-    if (!(ds->spmv_ng_flag & DIP_ABSOLUTE_GUARD_DISABLED) && (ds->guard_chuu != 0) && (ds->guard_chuu < 5)) {
+    if (absolute_guard_is_live(ds)) {
         ds->saishin_lvdir = gddir;
     }
 }

@@ -7,10 +7,12 @@ behavioral divergence reproducible by seed and frame.
 
 import argparse
 import csv
+import os
 import shutil
 import subprocess
 import sys
 import tempfile
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from dataclasses import dataclass
 from itertools import zip_longest
@@ -102,7 +104,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--frames", type=int, default=600, help="Gameplay frames per seed.")
     parser.add_argument("--timeout", type=int, default=300, help="Maximum seconds for each run.")
     parser.add_argument("--output", type=Path, help="Keep traces in this directory instead of a temporary one.")
+    parser.add_argument(
+        "--jobs",
+        type=int,
+        default=0,
+        help="Replay runs to execute concurrently. 0 (the default) uses one per CPU. "
+        "The runs are independent processes writing to separate directories, so this "
+        "only changes wall-clock time, never the traces.",
+    )
     args = parser.parse_args()
+
+    if args.jobs <= 0:
+        args.jobs = os.cpu_count() or 1
 
     for executable in (args.baseline, args.candidate):
         if not executable.is_file():
@@ -122,7 +135,8 @@ def output_directory(requested: Path | None) -> Iterator[Path]:
         yield Path(temporary)
 
 
-def compare_seed(args: argparse.Namespace, output_root: Path, seed: int) -> int:
+def replay_seed(args: argparse.Namespace, output_root: Path, seed: int) -> tuple[int, Path, Path]:
+    """Run both builds for one seed. Returns the two trace paths, or raises."""
     seed_dir = output_root / f"seed-{seed}"
 
     if seed_dir.exists():
@@ -131,13 +145,12 @@ def compare_seed(args: argparse.Namespace, output_root: Path, seed: int) -> int:
     baseline_run = TraceRun(args.baseline, seed, args.frames, args.timeout)
     candidate_run = TraceRun(args.candidate, seed, args.frames, args.timeout)
 
-    try:
-        baseline_path = run_trace(baseline_run, seed_dir / "baseline")
-        candidate_path = run_trace(candidate_run, seed_dir / "candidate")
-    except RuntimeError as error:
-        print(f"seed {seed}: ERROR: {error}")
-        return 2
+    baseline_path = run_trace(baseline_run, seed_dir / "baseline")
+    candidate_path = run_trace(candidate_run, seed_dir / "candidate")
+    return seed, baseline_path, candidate_path
 
+
+def report_seed(output_root: Path, seed: int, baseline_path: Path, candidate_path: Path) -> int:
     baseline = read_complete_trace(baseline_path)
     candidate = read_complete_trace(candidate_path)
     difference = first_difference(baseline, candidate)
@@ -150,18 +163,33 @@ def compare_seed(args: argparse.Namespace, output_root: Path, seed: int) -> int:
     print(f"seed {seed}: DIVERGED at trace row {index}")
     print(f"  baseline:  {baseline_row}")
     print(f"  candidate: {candidate_row}")
-    print(f"  traces: {seed_dir}")
+    print(f"  traces: {output_root / f'seed-{seed}'}")
     return 1
 
 
 def compare_seeds(args: argparse.Namespace, output_root: Path) -> int:
-    for seed in range(args.seed, args.seed + args.seeds):
-        result = compare_seed(args, output_root, seed)
+    seeds = range(args.seed, args.seed + args.seeds)
 
-        if result != 0:
-            return result
+    # Each seed's two runs are independent processes in their own directories, so
+    # they parallelise cleanly. Results are still reported in seed order, and the
+    # exit code is still that of the lowest-numbered seed that failed.
+    with ThreadPoolExecutor(max_workers=args.jobs) as pool:
+        futures = {seed: pool.submit(replay_seed, args, output_root, seed) for seed in seeds}
 
-    return 0
+        worst = 0
+        for seed in seeds:
+            try:
+                _, baseline_path, candidate_path = futures[seed].result()
+            except RuntimeError as error:
+                print(f"seed {seed}: ERROR: {error}")
+                return 2
+
+            result = report_seed(output_root, seed, baseline_path, candidate_path)
+
+            if result != 0 and worst == 0:
+                worst = result
+
+        return worst
 
 
 def main() -> int:

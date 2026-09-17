@@ -10,6 +10,46 @@
 #include "sf33rd/Source/Game/engine/pow_pow.h"
 #include "sf33rd/Source/Game/io/pulpul.h"
 
+static s32 is_paired_shell(const WORK_Other* ds) {
+    return ds->wu.work_id == 2 && (ds->wu.id == 122 || ds->wu.id == 123);
+}
+
+static s32 is_unpaired_shell(const WORK_Other* ds) {
+    return ds->wu.work_id == 2 && ds->wu.id != 122 && ds->wu.id != 123;
+}
+
+/* Which hit flag the player records: a paired shell has its own pair of
+ * values, and within each pair the flag says whether the effect was on the
+ * ground. */
+static void set_effect_hit_flag(PLW* as, WORK_Other* ds) {
+    if (is_paired_shell(ds)) {
+        if (ds->wu.xyz[1].disp.pos <= 0) {
+            as->wu.hf.hit.player = 2;
+        } else {
+            as->wu.hf.hit.player = 1;
+        }
+
+        return;
+    }
+
+    if (ds->wu.xyz[1].disp.pos <= 0) {
+        as->wu.hf.hit.player = 32;
+    } else {
+        as->wu.hf.hit.player = 16;
+    }
+}
+
+/* And which spark it fires, by what the effect is. */
+static void show_effect_hit_spark(PLW* as, WORK_Other* ds) {
+    if (ds->wu.att.dipsw & 2) {
+        effect_02_init(&as->wu, 2, 2, ds->wu.dm_rl);
+    } else if (ds->wu.id != 13) {
+        effect_02_init(&as->wu, 2, 1, ds->wu.dm_rl);
+    } else if (ds->wu.charset_id == 2) {
+        effect_02_init(&as->wu, 2, 2, ds->wu.dm_rl);
+    }
+}
+
 void player_at_vs_effect_dm(s16 ix2, s16 ix) {
     PLW* as = (PLW*)q_hit_push[ix2];
     WORK_Other* ds = (WORK_Other*)q_hit_push[ix];
@@ -24,34 +64,18 @@ void player_at_vs_effect_dm(s16 ix2, s16 ix) {
         ds->wu.dm_vital = 256;
     }
 
-    if (ds->wu.work_id == 2 && (ds->wu.id == 122 || ds->wu.id == 123)) {
-        if (ds->wu.xyz[1].disp.pos <= 0) {
-            as->wu.hf.hit.player = 2;
-        } else {
-            as->wu.hf.hit.player = 1;
-        }
-    } else if (ds->wu.xyz[1].disp.pos <= 0) {
-        as->wu.hf.hit.player = 32;
-    } else {
-        as->wu.hf.hit.player = 16;
-    }
+    set_effect_hit_flag(as, ds);
 
     ds->wu.routine_no[1] = 1;
     ds->wu.routine_no[2] = 0;
 
     if (ds->wu.work_id != 2 || ds->wu.id != 0x87) {
-        if (ds->wu.att.dipsw & 2) {
-            effect_02_init(&as->wu, 2, 2, ds->wu.dm_rl);
-        } else if (ds->wu.id != 13) {
-            effect_02_init(&as->wu, 2, 1, ds->wu.dm_rl);
-        } else if (ds->wu.charset_id == 2) {
-            effect_02_init(&as->wu, 2, 2, ds->wu.dm_rl);
-        }
+        show_effect_hit_spark(as, ds);
     }
 
     dm_status_copy(&as->wu, &ds->wu);
 
-    if (ds->wu.work_id == 2 && ds->wu.id != 122 && ds->wu.id != 123) {
+    if (is_unpaired_shell(ds)) {
         as->wu.att_hit_ok = 1;
         as->wu.hit_stop /= 2;
         ds->wu.dm_stop /= 2;

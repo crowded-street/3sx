@@ -53,6 +53,12 @@ void Normal_37000(PLW* wk);
 void Normal_38000(PLW* wk);
 void Normal_39000(PLW* wk);
 void Normal_40000(PLW* wk);
+/* Still alive, and not already sitting in the very first pattern of the first
+ * animation set. */
+static s32 alive_and_not_in_first_pattern(const PLW* wk) {
+    return wk->wu.vital_new >= 0 && (wk->wu.now_koc != 0 || wk->wu.char_index != 0);
+}
+
 void Normal_41000(PLW* wk);
 void Normal_42000(PLW* wk);
 void Normal_47000(PLW* wk);
@@ -145,15 +151,13 @@ void Normal_00000(PLW* wk) { // 🟢
     appear_player(wk);
 }
 
-void Normal_01000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
-
+/* The plainest normal state there is: start the pattern on the first frame,
+ * then run it. Five states differ in one value, the pattern index. */
+static void run_simple_normal_state(PLW* wk, s16 index) {
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
-        set_char_move_init(&wk->wu, 0, 0);
+        set_char_move_init(&wk->wu, 0, index);
         break;
 
     case 1:
@@ -162,16 +166,14 @@ void Normal_01000(PLW* wk) { // 🟢
     }
 }
 
-void Normal_02000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
-
+/* The same, for the states that first turn the character to face the way the
+ * move wants. Three states differ in one value, the pattern index. */
+static void run_facing_normal_state(PLW* wk, s16 index) {
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
         wk->wu.rl_flag = wk->wu.rl_waza;
-        set_char_move_init(&wk->wu, 0, 1);
+        set_char_move_init(&wk->wu, 0, index);
         break;
 
     case 1:
@@ -180,10 +182,35 @@ void Normal_02000(PLW* wk) { // 🟢
     }
 }
 
-void Normal_03000(PLW* wk) { // 🟢
+/* In a mirror match the two players are drawn one in front of the other. The
+ * states that put this player in front, and the ones that put them behind,
+ * each wrote the same three lines out - twenty and nine times. */
+static void raise_z_when_mirrored(PLW* wk) {
+    if (wk->the_same_players) {
+        wk->wu.next_z = wk->wu.my_priority + 1;
+    }
+}
+
+static void lower_z_when_mirrored(PLW* wk) {
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority - 1;
     }
+}
+
+void Normal_01000(PLW* wk) { // 🟢
+    raise_z_when_mirrored(wk);
+
+    run_simple_normal_state(wk, 0);
+}
+
+void Normal_02000(PLW* wk) { // 🟢
+    raise_z_when_mirrored(wk);
+
+    run_facing_normal_state(wk, 1);
+}
+
+void Normal_03000(PLW* wk) { // 🟢
+    lower_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -204,9 +231,7 @@ void Normal_03000(PLW* wk) { // 🟢
 }
 
 void Normal_04000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -225,9 +250,7 @@ void Normal_04000(PLW* wk) { // 🟢
 }
 
 void Normal_05000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority - 1;
-    }
+    lower_z_when_mirrored(wk);
 
     wk->running_f = 1;
     wk->guard_flag = 3;
@@ -311,9 +334,7 @@ void nm_05_0100(PLW* wk) { // 🟢
 }
 
 void Normal_06000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     wk->running_f = 2;
     wk->guard_flag = 3;
@@ -322,17 +343,7 @@ void Normal_06000(PLW* wk) { // 🟢
 }
 
 void nm_06_0000(PLW* wk) { // 🟢
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        set_char_move_init(&wk->wu, 0, 5);
-        break;
-
-    case 1:
-        char_move(&wk->wu);
-        break;
-    }
+    run_facing_normal_state(wk, 5);
 }
 
 void nm_06_0100(PLW* wk) { // 🟢
@@ -411,78 +422,31 @@ void nm_06_0200(PLW* wk) { // 🟢
 }
 
 void Normal_07000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority - 1;
-    }
+    lower_z_when_mirrored(wk);
 
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        set_char_move_init(&wk->wu, 0, 11);
-        break;
-
-    case 1:
-        char_move(&wk->wu);
-        break;
-    }
+    run_simple_normal_state(wk, 11);
 }
 
 void Normal_08000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority - 1;
-    }
+    lower_z_when_mirrored(wk);
 
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        set_char_move_init(&wk->wu, 0, 6);
-        break;
-
-    case 1:
-        char_move(&wk->wu);
-        break;
-    }
+    run_simple_normal_state(wk, 6);
 }
 
 void Normal_09000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority - 1;
-    }
+    lower_z_when_mirrored(wk);
 
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        set_char_move_init(&wk->wu, 0, 7);
-        break;
-
-    case 1:
-        char_move(&wk->wu);
-        break;
-    }
+    run_simple_normal_state(wk, 7);
 }
 
 void Normal_10000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority - 1;
-    }
+    lower_z_when_mirrored(wk);
 
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        set_char_move_init(&wk->wu, 0, 8);
-        break;
-
-    case 1:
-        char_move(&wk->wu);
-        break;
-    }
+    run_facing_normal_state(wk, 8);
 }
 
 void Normal_11000(PLW* wk) { // 🔵
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority - 1;
-    }
+    lower_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -501,9 +465,7 @@ void Normal_11000(PLW* wk) { // 🔵
 }
 
 void Normal_12000(PLW* wk) { // 🔵
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -522,26 +484,13 @@ void Normal_12000(PLW* wk) { // 🔵
 }
 
 void Normal_13000(PLW* wk) { // 🔵
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        set_char_move_init(&wk->wu, 0, 50);
-        break;
-
-    case 1:
-        char_move(&wk->wu);
-        break;
-    }
+    run_simple_normal_state(wk, 50);
 }
 
 void Normal_16000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     wk->guard_flag = 3;
 
@@ -559,9 +508,7 @@ void Normal_16000(PLW* wk) { // 🟢
 }
 
 void Normal_17000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     wk->guard_flag = 3;
 
@@ -579,9 +526,7 @@ void Normal_17000(PLW* wk) { // 🟢
 }
 
 void Normal_18000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -618,9 +563,7 @@ void Normal_18000_init_unit(PLW* wk, u8 ps) { // 🟢
 }
 
 void Normal_27000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -674,39 +617,43 @@ void Normal_31000(PLW* wk) { // 🟡
     }
 }
 
-void Normal_35000(PLW* wk) { // 🟡
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority - 1;
+/* Entering the parry state: absorb the hit, turn to face the attacker if the
+ * parry came from behind, award the gauge and play the sound. */
+static void begin_parry(PLW* wk) {
+    wk->wu.routine_no[3]++;
+
+    // CPS3 leaves damage-stop and vitality untouched in this guard state.
+    if (!ArcadeBalance_IsEnabled() && wk->wu.dm_stop > 0) {
+        wk->wu.dm_stop = -wk->wu.dm_stop;
     }
+
+    set_hit_stop_hit_quake(&wk->wu);
+
+    if (wk->wu.rl_flag != ((wk->wu.dm_rl + 1) & 1)) {
+        wk->wu.rl_flag = ((wk->wu.dm_rl + 1) & 1);
+        wk->wu.mvxy.a[0].sp = -wk->wu.mvxy.a[0].sp;
+        wk->wu.mvxy.d[0].sp = -wk->wu.mvxy.d[0].sp;
+    }
+
+    remake_mvxy_PoSB(&wk->wu);
+    set_char_move_init(&wk->wu, 0, 27);
+    add_sp_arts_gauge_paring(wk);
+
+    if (!ArcadeBalance_IsEnabled()) {
+        subtract_dm_vital(wk);
+    }
+
+    pp_pulpara_blocking(&wk->wu);
+}
+
+void Normal_35000(PLW* wk) { // 🟡
+    lower_z_when_mirrored(wk);
 
     wk->guard_chuu = guard_kind[wk->wu.routine_no[2] - 27];
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-
-        // CPS3 leaves damage-stop and vitality untouched in this guard state.
-        if (!ArcadeBalance_IsEnabled() && wk->wu.dm_stop > 0) {
-            wk->wu.dm_stop = -wk->wu.dm_stop;
-        }
-
-        set_hit_stop_hit_quake(&wk->wu);
-
-        if (wk->wu.rl_flag != ((wk->wu.dm_rl + 1) & 1)) {
-            wk->wu.rl_flag = ((wk->wu.dm_rl + 1) & 1);
-            wk->wu.mvxy.a[0].sp = -wk->wu.mvxy.a[0].sp;
-            wk->wu.mvxy.d[0].sp = -wk->wu.mvxy.d[0].sp;
-        }
-
-        remake_mvxy_PoSB(&wk->wu);
-        set_char_move_init(&wk->wu, 0, 27);
-        add_sp_arts_gauge_paring(wk);
-
-        if (!ArcadeBalance_IsEnabled()) {
-            subtract_dm_vital(wk);
-        }
-
-        pp_pulpara_blocking(&wk->wu);
+        begin_parry(wk);
         break;
 
     case 1:
@@ -729,25 +676,19 @@ void Normal_35000(PLW* wk) { // 🟡
 }
 
 void Normal_36000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     char_move(&wk->wu);
 }
 
 void Normal_37000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     char_move(&wk->wu);
 }
 
 void Normal_38000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -764,9 +705,7 @@ void Normal_38000(PLW* wk) { // 🟢
 }
 
 void Normal_39000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority - 1;
-    }
+    lower_z_when_mirrored(wk);
 
     if (wk->wu.routine_no[3]) {
         char_move(&wk->wu);
@@ -806,7 +745,7 @@ void Normal_41000(PLW* wk) { // 🟡
     if ((Mode_Type == MODE_NORMAL_TRAINING) || (Mode_Type == MODE_PARRY_TRAINING)) {
         switch (wk->wu.routine_no[3]) {
         case 0:
-            if (wk->wu.vital_new >= 0 && (wk->wu.now_koc != 0 || wk->wu.char_index != 0)) {
+            if (alive_and_not_in_first_pattern(wk)) {
                 set_char_move_init(&wk->wu, 0, 0);
             }
 
@@ -821,9 +760,10 @@ void Normal_41000(PLW* wk) { // 🟡
     lose_player(wk);
 }
 
-void Normal_42000(PLW* wk) { // 🟢
-    const s16* dadr = nmPB_data[wk->wu.routine_no[2] - 42];
-
+/* Both parry states put the player in front unless the opponent's pattern
+ * already claims that depth, and both mark the hosei flag for the same set of
+ * work kinds. */
+static void set_parry_depth_and_hosei(PLW* wk) {
     if (((WORK*)wk->wu.target_adrs)->cg_prio != 2) {
         wk->wu.next_z = 32;
     }
@@ -831,26 +771,38 @@ void Normal_42000(PLW* wk) { // 🟢
     if (wk->wu.dm_work_id & 11) {
         wk->dm_hos_flag = 1;
     }
+}
+
+/* The parry's first frame: the facing, the pattern and movement data its row
+ * names, the flash, the gauge it earns, and a hit stop that always counts
+ * down from negative. */
+static void begin_parry_state(PLW* wk, const s16* dadr) {
+    wk->wu.routine_no[3]++;
+    wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
+
+    if (dadr[2]) {
+        wk->wu.xyz[1].disp.pos = 0;
+    }
+
+    set_char_move_init(&wk->wu, 0, dadr[0]);
+    setup_mvxy_data(&wk->wu, dadr[1]);
+    Flash_MT[wk->wu.id] = 2;
+    add_sp_arts_gauge_paring(wk);
+    set_hit_stop_hit_quake(&wk->wu);
+
+    if (wk->wu.hit_stop > 0) {
+        wk->wu.hit_stop = -wk->wu.hit_stop;
+    }
+}
+
+void Normal_42000(PLW* wk) { // 🟢
+    const s16* dadr = nmPB_data[wk->wu.routine_no[2] - 42];
+
+    set_parry_depth_and_hosei(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
-
-        if (dadr[2]) {
-            wk->wu.xyz[1].disp.pos = 0;
-        }
-
-        set_char_move_init(&wk->wu, 0, dadr[0]);
-        setup_mvxy_data(&wk->wu, dadr[1]);
-        Flash_MT[wk->wu.id] = 2;
-        add_sp_arts_gauge_paring(wk);
-        set_hit_stop_hit_quake(&wk->wu);
-
-        if (wk->wu.hit_stop > 0) {
-            wk->wu.hit_stop = -wk->wu.hit_stop;
-        }
-
+        begin_parry_state(wk, dadr);
         break;
 
     case 1:
@@ -885,33 +837,33 @@ void Normal_42000(PLW* wk) { // 🟢
     }
 }
 
+/* The throw escape's first frame: the facing, the pattern and movement data
+ * its row names, a fixed hit stop, and the gauge and grade it earns. */
+static void begin_throw_escape_state(PLW* wk, const s16* datix) {
+    wk->wu.routine_no[3]++;
+    wk->wu.rl_flag = wk->wu.rl_waza;
+
+    if (datix[2]) {
+        wk->wu.xyz[1].disp.pos = 0;
+    }
+
+    set_char_move_init(&wk->wu, 0, datix[0]);
+    setup_mvxy_data(&wk->wu, datix[1]);
+    wk->wu.hit_stop = -18;
+    wk->wu.hit_quake = 0;
+    wk->wu.dm_stop = wk->wu.dm_quake = 0;
+    add_sp_arts_gauge_nagenuke(wk);
+    grade_add_grap_def(wk->wu.id);
+}
+
 void Normal_47000(PLW* wk) { // 🟢
     const s16* datix = nmCE_data[wk->wu.routine_no[2] - 47];
 
-    if (((WORK*)wk->wu.target_adrs)->cg_prio != 2) {
-        wk->wu.next_z = 32;
-    }
-
-    if (wk->wu.dm_work_id & 11) {
-        wk->dm_hos_flag = 1;
-    }
+    set_parry_depth_and_hosei(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-
-        if (datix[2]) {
-            wk->wu.xyz[1].disp.pos = 0;
-        }
-
-        set_char_move_init(&wk->wu, 0, datix[0]);
-        setup_mvxy_data(&wk->wu, datix[1]);
-        wk->wu.hit_stop = -18;
-        wk->wu.hit_quake = 0;
-        wk->wu.dm_stop = wk->wu.dm_quake = 0;
-        add_sp_arts_gauge_nagenuke(wk);
-        grade_add_grap_def(wk->wu.id);
+        begin_throw_escape_state(wk, datix);
         break;
 
     case 1:
@@ -1045,9 +997,7 @@ void Normal_51000(PLW* wk) { // 🟢
 void Normal_52000(PLW* wk) { // 🟢
     wk->guard_flag = 3;
 
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -1074,9 +1024,7 @@ void Normal_52000(PLW* wk) { // 🟢
 }
 
 void Normal_53000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -1116,9 +1064,7 @@ void Normal_53000(PLW* wk) { // 🟢
 }
 
 void Normal_54000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -1144,9 +1090,7 @@ void Normal_54000(PLW* wk) { // 🟢
 }
 
 void Normal_55000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     wk->bs2_on_car = 0;
 
@@ -1201,9 +1145,7 @@ void make_nm55_init_sp(PLW* wk) { // 🟢
 }
 
 void Normal_56000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     wk->bs2_on_car = 0;
 
@@ -1252,9 +1194,7 @@ void nm56_char_select(PLW* wk) { // 🟢
 }
 
 void Normal_57000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -1304,9 +1244,7 @@ void nm57_dir_select(PLW* wk) { // 🟢
 }
 
 void Normal_58000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:

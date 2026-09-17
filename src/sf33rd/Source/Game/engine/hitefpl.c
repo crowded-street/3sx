@@ -13,6 +13,45 @@
 
 void setup_dm_rl_pldm(WORK* as, WORK* ds);
 
+static s32 is_crouching_stance(const PLW* ds) {
+    return (ds->wu.pat_status == 32 || ds->wu.pat_status == 3) || ds->wu.pat_status == 25;
+}
+
+static s32 is_jumping_stance(const PLW* ds) {
+    return ds->wu.pat_status == 7 || ds->wu.pat_status == 23 || ds->wu.pat_status == 35;
+}
+
+static s32 is_airborne_stance(const PLW* ds) {
+    return ds->wu.pat_status == 1 || ds->wu.pat_status == 21 || ds->wu.pat_status == 37;
+}
+
+static void apply_stance_damage_scale(PLW* ds) {
+    if (is_crouching_stance(ds)) {
+        ds->wu.dm_vital = (ds->wu.dm_vital * 125) / 100;
+    } else if (is_jumping_stance(ds)) {
+        ds->wu.dm_vital = (ds->wu.dm_vital * 150) / 100;
+    } else if (is_airborne_stance(ds)) {
+        ds->wu.dm_vital *= 2;
+    }
+}
+
+static void apply_owner_damage_modifiers(WORK_Other* as, PLW* ds, PLW* ms) {
+    if (ms->wu.work_id == 1) {
+        if (as->wu.olc_work_ix[3] == 2) {
+            ds->wu.dm_vital = ds->wu.dm_vital * (as->wu.olc_work_ix[1] + 32) / 32;
+        }
+
+        if (as->wu.olc_work_ix[3] == 4) {
+            ds->wu.dm_vital = ds->wu.dm_vital * (as->wu.olc_work_ix[0] + 32) / 32;
+        }
+
+        ds->utk_dageki = as->wu.olc_work_ix[0];
+        ds->utk_nage = as->wu.olc_work_ix[1];
+        ds->wu.dm_piyo = ds->wu.dm_piyo * (as->wu.olc_work_ix[2] + 32) / 32;
+        ds->utk_kizetsu = as->wu.olc_work_ix[2];
+    }
+}
+
 void effect_at_vs_player_dm(s16 ix2, s16 ix) {
     WORK_Other* as = (WORK_Other*)q_hit_push[ix2];
     PLW* ds = (PLW*)q_hit_push[ix];
@@ -28,30 +67,11 @@ void effect_at_vs_player_dm(s16 ix2, s16 ix) {
     ds->wu.dm_piyo = _add_piyo_gauge[as->master_player][as->wu.att.piyo];
     ds->wu.dm_piyo = ds->wu.dm_piyo * stun_gauge_omake[omop_stun_gauge_add[(ds->wu.id + 1) & 1]] / 32;
 
-    if ((ds->wu.pat_status == 32 || ds->wu.pat_status == 3) || ds->wu.pat_status == 25) {
-        ds->wu.dm_vital = (ds->wu.dm_vital * 125) / 100;
-    } else if (ds->wu.pat_status == 7 || ds->wu.pat_status == 23 || ds->wu.pat_status == 35) {
-        ds->wu.dm_vital = (ds->wu.dm_vital * 150) / 100;
-    } else if (ds->wu.pat_status == 1 || ds->wu.pat_status == 21 || ds->wu.pat_status == 37) {
-        ds->wu.dm_vital *= 2;
-    }
+    apply_stance_damage_scale(ds);
 
     ms = (PLW*)as->my_master;
 
-    if (ms->wu.work_id == 1) {
-        if (as->wu.olc_work_ix[3] == 2) {
-            ds->wu.dm_vital = ds->wu.dm_vital * (as->wu.olc_work_ix[1] + 32) / 32;
-        }
-
-        if (as->wu.olc_work_ix[3] == 4) {
-            ds->wu.dm_vital = ds->wu.dm_vital * (as->wu.olc_work_ix[0] + 32) / 32;
-        }
-
-        ds->utk_dageki = as->wu.olc_work_ix[0];
-        ds->utk_nage = as->wu.olc_work_ix[1];
-        ds->wu.dm_piyo = ds->wu.dm_piyo * (as->wu.olc_work_ix[2] + 32) / 32;
-        ds->utk_kizetsu = as->wu.olc_work_ix[2];
-    }
+    apply_owner_damage_modifiers(as, ds, ms);
 
     as->wu.at_ten_ix = remake_score_index(ds->wu.dm_vital);
     cal_combo_waribiki((PLW*)as, ds);

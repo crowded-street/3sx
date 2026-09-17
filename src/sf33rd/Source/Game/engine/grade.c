@@ -143,6 +143,33 @@ const s16 grade_t_table[32][2] = { { 0, 20 },       { 75, 20 },     { 150, 20 },
                                    { 1750, 3000 },  { 1800, 4000 }, { 1850, 5000 }, { 1900, 6000 }, { 1940, 8000 },
                                    { 1980, 10000 }, { 2020, 20000 } };
 
+static s32 round_is_cpu_controlled(s16 ix) {
+    return (Mode_Type != MODE_REPLAY) && (Mode_Type != MODE_VERSUS) && (Round_Operator[ix] == 0);
+}
+
+/* There was something to guard: a grounded defender, not already committed to a
+ * guard, against an attack that can be guarded at all. */
+static s32 attack_was_guardable(const WORK* as, const PLW* ds) {
+    return (ds->guard_flag != 3) && (as->att.guard & 0x3F) && (ds->wu.xyz[1].disp.pos < 2);
+}
+
+/* Not the case of a jumping attack met with a lever direction, which counts as
+ * a deliberate guard even though the defender pressed nothing else. */
+static s32 not_jump_attack_met_with_lever(const WORK* as, const PLW* ds) {
+    return as->work_id != 1 || !as->jump_att_flag || !(ds->cp->sw_new & 0xF);
+}
+
+/* The defender did nothing that amounts to guarding: no guard button, no lever
+ * toward the guard direction, and no guard-capable move armed. */
+static s32 no_guard_input_from(const PLW* ds, s8 gddir) {
+    return (!(ds->cp->sw_new & 1)) && (!(ds->saishin_lvdir & gddir)) &&
+           ((ds->cp->waza_flag[3] + ds->cp->waza_flag[4]) == 0);
+}
+
+static s32 guard_was_not_deliberate(WORK* as, PLW* ds, s8 gddir) {
+    return attack_was_guardable(as, ds) && not_jump_attack_met_with_lever(as, ds) && no_guard_input_from(ds, gddir);
+}
+
 void grade_check_work_1st_init(s16 ix, s16 ix2) {
     s16 i;
 
@@ -248,7 +275,66 @@ void renew_judge_final_work(s16 ix, s16 pt) {
     }
 }
 
-void makeup_final_grade(s16 ix, s16 pt) {
+/* What the two bonus stages are worth, each skipped when it was not played. */
+static s16 bonus_stage_grade_points(s16 ix, s16 pt) {
+    s16 i;
+    s16 tt = 0;
+
+    if (judge_final[ix][pt].vs_cpu_grade[13] != -1) {
+        for (i = 0; i < 3; i++) {
+            if (judge_final[ix][pt].vs_cpu_grade[13] < grade_t_f_bss_ball[i + 1][0]) {
+                break;
+            }
+        }
+
+        tt += grade_t_f_bss_ball[i][1];
+    }
+
+    if (judge_final[ix][pt].vs_cpu_grade[14] != -1) {
+        for (i = 0; i < 3; i++) {
+            if (judge_final[ix][pt].vs_cpu_grade[14] < grade_t_f_bss_car[i + 1][0]) {
+                break;
+            }
+        }
+
+        tt += grade_t_f_bss_car[i][1];
+    }
+
+    return tt;
+}
+
+/* What clearing the game is worth: the clear itself, the continues used, the
+ * grade-up points, and each bonus stage that was played. */
+static s16 all_clear_bonus(s16 ix, s16 pt) {
+    s16 i;
+    s16 tt = 0;
+
+    tt += grade_t_f_all[judge_final[ix][pt].all_clear];
+
+    for (i = 0; i < 10; i++) {
+        if (judge_final[ix][pt].keizoku < grade_t_f_continue[i + 1][0]) {
+            break;
+        }
+    }
+
+    tt += grade_t_f_continue[i][1];
+
+    for (i = 0; i < 10; i++) {
+        if (judge_final[ix][pt].sp_point < grade_t_f_gradeup[i + 1][0]) {
+            break;
+        }
+    }
+
+    tt += grade_t_f_gradeup[i][1];
+
+    tt += bonus_stage_grade_points(ix, pt);
+    return tt;
+}
+
+/* Add up what every stage scored, record the average of them, and hand the
+ * total back. The interrupting Q's stage counts as one more when it was
+ * played. */
+static s16 total_and_average_stage_points(s16 ix, s16 pt) {
     s16 i;
     s16 tt = 0;
     s16 dt;
@@ -273,6 +359,12 @@ void makeup_final_grade(s16 ix, s16 pt) {
     }
 
     judge_final[ix][pt].vs_cpu_grade[11] = get_grade_ix(judge_final[ix][pt].vs_cpu_result[11]);
+    return tt;
+}
+
+void makeup_final_grade(s16 ix, s16 pt) {
+    s16 i;
+    s16 tt = total_and_average_stage_points(ix, pt);
 
     if (judge_final[ix][pt].vs_cpu_result[15] != -1) {
         tt /= 11;
@@ -289,43 +381,7 @@ void makeup_final_grade(s16 ix, s16 pt) {
     tt += grade_t_f_stage[i][1];
 
     if (judge_final[ix][pt].all_clear) {
-        tt += grade_t_f_all[judge_final[ix][pt].all_clear];
-
-        for (i = 0; i < 10; i++) {
-            if (judge_final[ix][pt].keizoku < grade_t_f_continue[i + 1][0]) {
-                break;
-            }
-        }
-
-        tt += grade_t_f_continue[i][1];
-
-        for (i = 0; i < 10; i++) {
-            if (judge_final[ix][pt].sp_point < grade_t_f_gradeup[i + 1][0]) {
-                break;
-            }
-        }
-
-        tt += grade_t_f_gradeup[i][1];
-
-        if (judge_final[ix][pt].vs_cpu_grade[13] != -1) {
-            for (i = 0; i < 3; i++) {
-                if (judge_final[ix][pt].vs_cpu_grade[13] < grade_t_f_bss_ball[i + 1][0]) {
-                    break;
-                }
-            }
-
-            tt += grade_t_f_bss_ball[i][1];
-        }
-
-        if (judge_final[ix][pt].vs_cpu_grade[14] != -1) {
-            for (i = 0; i < 3; i++) {
-                if (judge_final[ix][pt].vs_cpu_grade[14] < grade_t_f_bss_car[i + 1][0]) {
-                    break;
-                }
-            }
-
-            tt += grade_t_f_bss_car[i][1];
-        }
+        tt += all_clear_bonus(ix, pt);
     }
 
     if (tt < 0) {
@@ -429,20 +485,120 @@ void grade_makeup_judgement_gals() {
     }
 }
 
-void grade_makeup_stage_parameter(s16 ix) {
-    s16 i;
-    s16 grade;
-    s16 plnum;
-    s16 point = 0;
-    s16 bs;
+/* Write this stage's result into the arcade record. An interrupting Q goes in
+ * the last slot and leaves the stage counter alone; a normal opponent takes
+ * the next slot and advances it. Returns whether it was the Q. */
+static s16 record_vs_cpu_result(s16 ix, s16 point, s16 grade) {
     s16 qc;
+    s16 plnum;
 
-    if ((Mode_Type != MODE_REPLAY) && (Mode_Type != MODE_VERSUS) && (Round_Operator[ix] == 0)) {
-        grade_makeup_stage_para_com(ix);
+    if ((qc = rannyuu_Q_check((ix + 1) & 1))) {
+        judge_final[ix][Play_Type].vs_cpu_result[15] = point;
+        judge_final[ix][Play_Type].vs_cpu_grade[15] = grade;
+        judge_final[ix][Play_Type].vs_cpu_player[15] = judge_final[ix][Play_Type].vcr_ix;
+        return qc;
+    }
+
+    plnum = old_my_char_check(My_char[(ix + 1) & 1], 0);
+    judge_final[ix][Play_Type].vs_cpu_result[judge_final[ix][Play_Type].vcr_ix] = point;
+    judge_final[ix][Play_Type].vs_cpu_grade[judge_final[ix][Play_Type].vcr_ix] = grade;
+    judge_final[ix][Play_Type].vs_cpu_player[judge_final[ix][Play_Type].vcr_ix] = plnum;
+    judge_final[ix][Play_Type].vcr_ix += 1;
+    return qc;
+}
+
+/* What the winner's streak is worth. In arcade play it goes straight into the
+ * extra points; in the other modes it is returned to the caller's running
+ * total, from whichever of the two streak tables applies. */
+/* Outside arcade the streak is scored from one of two tables: this player's
+ * own win streak, or the opponent's. */
+static s16 versus_streak_points(s16 ix) {
+    s16 i;
+
+    if (judge_item[ix][Play_Type].renshou) {
+        for (i = 0; i < 7; i++) {
+            if (judge_item[ix][Play_Type].renshou < grade_t_renshou[i + 1][0]) {
+                break;
+            }
+        }
+
+        return grade_t_renshou[i][1];
+    }
+
+    for (i = 0; i < 7; i++) {
+        if (judge_item[ix][Play_Type].em_renshou < grade_t_em_renshou[i + 1][0]) {
+            break;
+        }
+    }
+
+    return grade_t_em_renshou[i][1];
+}
+
+static s16 winner_streak_points(s16 ix) {
+    s16 i;
+
+    if (Play_Type == 0) {
+        for (i = 0; i < 10; i++) {
+            if (judge_item[ix][Play_Type].no_lose < grade_t_straight[i + 1][0]) {
+                break;
+            }
+        }
+
+        judge_item[ix][Play_Type].ex_point_total += grade_t_straight[i][1];
+        return 0;
+    }
+
+    return versus_streak_points(ix);
+}
+
+/* The arcade record for one stage. A bonus stage is not recorded at all; a
+ * loss on a normal stage takes its entry back out again, and a loss to an
+ * interrupting Q clears the slot it was written to. */
+static void record_arcade_stage_grade(s16 ix, s16 point, s16 grade) {
+    s16 bs = 0;
+    s16 qc = 0;
+
+    switch (bg_w.stage) {
+    case 21:
+    case 20:
+        bs = 1;
+        break;
+
+    default:
+        qc = record_vs_cpu_result(ix, point, grade);
+        judge_item[ix][Play_Type].grade = grade;
+        break;
+    }
+
+    grade_makeup_final_parameter(ix, Play_Type + 0);
+
+    if (ix == WINNER) {
         return;
     }
 
-    qc = bs = 0;
+    if (bs != 0) {
+        return;
+    }
+
+    if (qc) {
+        judge_final[ix][Play_Type].vs_cpu_result[15] = -1;
+        judge_final[ix][Play_Type].vs_cpu_grade[15] = -1;
+        judge_final[ix][Play_Type].vs_cpu_player[15] = -1;
+        return;
+    }
+
+    judge_final[ix][Play_Type].vcr_ix--;
+}
+
+void grade_makeup_stage_parameter(s16 ix) {
+    s16 i;
+    s16 grade;
+    s16 point = 0;
+
+    if (round_is_cpu_controlled(ix)) {
+        grade_makeup_stage_para_com(ix);
+        return;
+    }
 
     if (judge_item[ix][Play_Type].round == 0) {
         judge_item[ix][Play_Type].round = 1;
@@ -459,82 +615,19 @@ void grade_makeup_stage_parameter(s16 ix) {
     }
 
     if (ix == WINNER) {
-        if (Play_Type == 0) {
-            for (i = 0; i < 10; i++) {
-                if (judge_item[ix][Play_Type].no_lose < grade_t_straight[i + 1][0]) {
-                    break;
-                }
-            }
-
-            judge_item[ix][Play_Type].ex_point_total += grade_t_straight[i][1];
-        } else if (judge_item[ix][Play_Type].renshou) {
-            for (i = 0; i < 7; i++) {
-                if (judge_item[ix][Play_Type].renshou < grade_t_renshou[i + 1][0]) {
-                    break;
-                }
-            }
-
-            point += grade_t_renshou[i][1];
-        } else {
-            for (i = 0; i < 7; i++) {
-                if (judge_item[ix][Play_Type].em_renshou < grade_t_em_renshou[i + 1][0]) {
-                    break;
-                }
-            }
-
-            point += grade_t_em_renshou[i][1];
-        }
+        point += winner_streak_points(ix);
     }
 
     point = judge_item[ix][Play_Type].offence_total + judge_item[ix][Play_Type].defence_total +
             judge_item[ix][Play_Type].tech_pts_total + judge_item[ix][Play_Type].ex_point_total;
     grade = get_grade_ix(point);
 
-    if (Play_Type == 0) {
-        switch (bg_w.stage) {
-        case 21:
-        case 20:
-            bs = 1;
-            break;
-
-        default:
-            if ((qc = rannyuu_Q_check((ix + 1) & 1))) {
-                judge_final[ix][Play_Type].vs_cpu_result[15] = point;
-                judge_final[ix][Play_Type].vs_cpu_grade[15] = grade;
-                judge_final[ix][Play_Type].vs_cpu_player[15] = judge_final[ix][Play_Type].vcr_ix;
-            } else {
-                plnum = old_my_char_check(My_char[(ix + 1) & 1], 0);
-                judge_final[ix][Play_Type].vs_cpu_result[judge_final[ix][Play_Type].vcr_ix] = point;
-                judge_final[ix][Play_Type].vs_cpu_grade[judge_final[ix][Play_Type].vcr_ix] = grade;
-                judge_final[ix][Play_Type].vs_cpu_player[judge_final[ix][Play_Type].vcr_ix] = plnum;
-                judge_final[ix][Play_Type].vcr_ix += 1;
-            }
-
-            judge_item[ix][Play_Type].grade = grade;
-            break;
-        }
-
-        grade_makeup_final_parameter(ix, Play_Type + 0);
-
-        if (ix == WINNER) {
-            return;
-        }
-
-        if (bs != 0) {
-            return;
-        }
-
-        if (qc) {
-            judge_final[ix][Play_Type].vs_cpu_result[15] = -1;
-            judge_final[ix][Play_Type].vs_cpu_grade[15] = -1;
-            judge_final[ix][Play_Type].vs_cpu_player[15] = -1;
-            return;
-        } else {
-            judge_final[ix][Play_Type].vcr_ix--;
-        }
-    } else {
+    if (Play_Type != 0) {
         judge_item[ix][Play_Type].grade = grade;
+        return;
     }
+
+    record_arcade_stage_grade(ix, point, grade);
 }
 
 s32 rannyuu_Q_check(s16 ix) {
@@ -574,16 +667,16 @@ void grade_makeup_bonus_parameter(s16 ix) {
     }
 }
 
-s16 get_offence_total(s16 ix) {
+/* The three offence ratios - how much of what landed was clean, how much of
+ * the attacks made connected at all, and how often the opponent's guard
+ * failed - combined into the score they make together. Each is recorded for
+ * the result screen on the way. */
+static s32 offence_rate_points(s16 ix, s16 ix2) {
     s32 num;
     s32 num2;
-    s32 point;
-    s32 point2;
+    s32 point2 = 0;
     s16 i;
-    s16 ix2;
 
-    ix2 = (ix + 1) & 1;
-    point = point2 = 0;
     num2 = judge_item[ix2][Play_Type].guard_succ + judge_item[ix2][Play_Type].nml_blocking +
            judge_item[ix2][Play_Type].rpd_blocking + judge_item[ix2][Play_Type].grd_blocking +
            judge_item[ix][Play_Type].clean_hits;
@@ -630,7 +723,16 @@ s16 get_offence_total(s16 ix) {
     point2 *= grade_t_meichuuritsu3[i][1];
     point2 /= 32;
 
-    point = point2;
+    return point2;
+}
+
+s16 get_offence_total(s16 ix) {
+    s32 point;
+    s16 i;
+    s16 ix2;
+
+    ix2 = (ix + 1) & 1;
+    point = offence_rate_points(ix, ix2);
 
     for (i = 0; i < 4; i++) {
         if (judge_item[ix][Play_Type].em_stun < grade_t_em_stun[i + 1][0]) {
@@ -651,14 +753,14 @@ s16 get_offence_total(s16 ix) {
     return point;
 }
 
-s16 get_defence_total(s16 ix, s16 wf) {
-    s32 num = 0;
+/* The two defence ratios: how much of the opponent's offence was stopped, and
+ * how much of this player's was clean. Both are recorded for the result
+ * screen before they are scored. */
+static s32 defence_rate_points(s16 ix, s16 ix2) {
     s16 i;
-    s16 ix2;
+    s32 num = 0;
     s32 point;
     s32 point2;
-
-    ix2 = (ix + 1) & 1;
 
     if (judge_item[ix2][Play_Type].att_renew) {
         point2 = ((judge_item[ix2][Play_Type].att_renew - judge_item[ix2][Play_Type].clean_hits) * 100) /
@@ -700,15 +802,13 @@ s16 get_defence_total(s16 ix, s16 wf) {
 
     num += point;
 
-    if (wf) {
-        for (i = 0; i < 12; i++) {
-            if (judge_item[ix][Play_Type].vitality < grade_t_nokori_vital[i + 1][0]) {
-                break;
-            }
-        }
+    return num;
+}
 
-        num += grade_t_nokori_vital[i][1];
-    }
+/* The three kinds of blocking, each with its own table. */
+static s32 blocking_points(s16 ix) {
+    s16 i;
+    s32 num = 0;
 
     for (i = 0; i < 10; i++) {
         if (judge_item[ix][Play_Type].nml_blocking < grade_t_def_nmlblock[i + 1][0]) {
@@ -733,15 +833,37 @@ s16 get_defence_total(s16 ix, s16 wf) {
     }
 
     num += grade_t_def_grdblock[i][1];
-
     return num;
 }
 
-s16 get_tech_pts_total(s16 ix) {
+s16 get_defence_total(s16 ix, s16 wf) {
+    s32 num;
+    s16 i;
+    s16 ix2;
+
+    ix2 = (ix + 1) & 1;
+    num = defence_rate_points(ix, ix2);
+
+    if (wf) {
+        for (i = 0; i < 12; i++) {
+            if (judge_item[ix][Play_Type].vitality < grade_t_nokori_vital[i + 1][0]) {
+                break;
+            }
+        }
+
+        num += grade_t_nokori_vital[i][1];
+    }
+
+    num += blocking_points(ix);
+    return num;
+}
+
+/* The eight scored items that make up the technical total: the leap attack,
+ * the target combo, the normal throw, the throw escape, the quick stand, the
+ * personal action, the reversal and the command move. */
+static s16 tech_pts_items(s16 ix) {
     s16 i;
     s16 point = 0;
-
-    point += grade_t_first_attack[judge_item[ix][Play_Type].first_attack];
 
     for (i = 0; i < 9; i++) {
         if (judge_item[ix][Play_Type].leap_attack < grade_t_leap_attack[i + 1][0]) {
@@ -767,6 +889,7 @@ s16 get_tech_pts_total(s16 ix) {
 
     point += grade_t_nml_nage[i][1];
 
+
     for (i = 0; i < 5; i++) {
         if (judge_item[ix][Play_Type].grap_def < grade_t_grap_def[i + 1][0]) {
             break;
@@ -791,6 +914,7 @@ s16 get_tech_pts_total(s16 ix) {
 
     point += grade_t_personal_act[i][1];
 
+
     for (i = 0; i < 7; i++) {
         if (judge_item[ix][Play_Type].reversal < grade_t_reversal[i + 1][0]) {
             break;
@@ -807,37 +931,100 @@ s16 get_tech_pts_total(s16 ix) {
 
     point += grade_t_command_waza[i][1];
 
+
+    return point;
+}
+
+/* The super-art score. The three stock counts scanned the same length with
+ * the same value and differed in one thing: which table. */
+static s16 sa_stock_points(s16 ix, const GradeRow* table) {
+    s16 i;
+
+    for (i = 0; i < 5; i++) {
+        if (judge_item[ix][Play_Type].sa_exec < table[i + 1][0]) {
+            break;
+        }
+    }
+
+    return table[i][1];
+}
+
+/* And the super art, scored from the table for the number of stocks it has. */
+static s16 tech_pts_super_art(s16 ix) {
+    s16 point = 0;
+
     switch (plw[ix].sa->store_max) {
     case 1:
-        for (i = 0; i < 5; i++) {
-            if (judge_item[ix][Play_Type].sa_exec < grade_t_sa_stock_1[i + 1][0]) {
-                break;
-            }
-        }
-
-        point += grade_t_sa_stock_1[i][1];
+        point += sa_stock_points(ix, grade_t_sa_stock_1);
         break;
 
     case 2:
-        for (i = 0; i < 5; i++) {
-            if (judge_item[ix][Play_Type].sa_exec < grade_t_sa_stock_2[i + 1][0]) {
-                break;
-            }
-        }
-
-        point += grade_t_sa_stock_2[i][1];
+        point += sa_stock_points(ix, grade_t_sa_stock_2);
         break;
 
     default:
-        for (i = 0; i < 5; i++) {
-            if (judge_item[ix][Play_Type].sa_exec < grade_t_sa_stock_3[i + 1][0]) {
+        point += sa_stock_points(ix, grade_t_sa_stock_3);
+        break;
+    }
+
+    return point;
+}
+
+s16 get_tech_pts_total(s16 ix) {
+    s16 point = 0;
+
+    point += grade_t_first_attack[judge_item[ix][Play_Type].first_attack];
+    point += tech_pts_items(ix);
+    point += tech_pts_super_art(ix);
+    return point;
+}
+
+/* The guard-blocking appeal, kept apart from the other two so neither half is
+ * a long run of scans. */
+static s16 guard_appeal_points(s16 ix) {
+    s16 i;
+
+    if (judge_item[ix][Play_Type].app_grd_block == -1) {
+        return 0;
+    }
+
+    for (i = 0; i < 6; i++) {
+        if (judge_item[ix][Play_Type].app_grd_block < grade_t_app_grdblock[i + 1][0]) {
+            break;
+        }
+    }
+
+    return grade_t_app_grdblock[i][1];
+}
+
+/* The three blocking-appeal bonuses. Each is skipped when its counter was
+ * never set. */
+static s16 appeal_block_points(s16 ix) {
+    s16 i;
+    s16 point = 0;
+
+    if (judge_item[ix][Play_Type].app_nml_block != -1) {
+        for (i = 0; i < 6; i++) {
+            if (judge_item[ix][Play_Type].app_nml_block < grade_t_app_nmlblock[i + 1][0]) {
                 break;
             }
         }
 
-        point += grade_t_sa_stock_3[i][1];
-        break;
+        point += grade_t_app_nmlblock[i][1];
     }
+
+    if (judge_item[ix][Play_Type].app_rpd_block != -1) {
+        for (i = 0; i < 6; i++) {
+            if (judge_item[ix][Play_Type].app_rpd_block < grade_t_app_rpdblock[i + 1][0]) {
+                break;
+            }
+        }
+
+        point += grade_t_app_rpdblock[i][1];
+    }
+
+    point += guard_appeal_points(ix);
+
 
     return point;
 }
@@ -867,36 +1054,7 @@ s16 get_ex_point_total(s16 ix, s16 wf) {
 
     point += grade_t_onaji_waza[i][1];
 
-    if (judge_item[ix][Play_Type].app_nml_block != -1) {
-        for (i = 0; i < 6; i++) {
-            if (judge_item[ix][Play_Type].app_nml_block < grade_t_app_nmlblock[i + 1][0]) {
-                break;
-            }
-        }
-
-        point += grade_t_app_nmlblock[i][1];
-    }
-
-    if (judge_item[ix][Play_Type].app_rpd_block != -1) {
-        for (i = 0; i < 6; i++) {
-            if (judge_item[ix][Play_Type].app_rpd_block < grade_t_app_rpdblock[i + 1][0]) {
-                break;
-            }
-        }
-
-        point += grade_t_app_rpdblock[i][1];
-    }
-
-    if (judge_item[ix][Play_Type].app_grd_block != -1) {
-        for (i = 0; i < 6; i++) {
-            if (judge_item[ix][Play_Type].app_grd_block < grade_t_app_grdblock[i + 1][0]) {
-                break;
-            }
-        }
-
-        point += grade_t_app_grdblock[i][1];
-    }
-
+    point += appeal_block_points(ix);
     return point;
 }
 
@@ -1218,9 +1376,7 @@ void check_guard_miss(WORK* as, PLW* ds, s8 gddir) {
 
     judge_item[ds->wu.id][Play_Type].grd_mcnt++;
 
-    if ((ds->guard_flag != 3) && (as->att.guard & 0x3F) && (ds->wu.xyz[1].disp.pos < 2) &&
-        (as->work_id != 1 || !as->jump_att_flag || !(ds->cp->sw_new & 0xF)) && (!(ds->cp->sw_new & 1)) &&
-        (!(ds->saishin_lvdir & gddir)) && ((ds->cp->waza_flag[3] + ds->cp->waza_flag[4]) == 0)) {
+    if (guard_was_not_deliberate(as, ds, gddir)) {
         return;
     }
 

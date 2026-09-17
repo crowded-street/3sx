@@ -84,24 +84,35 @@ void Player_catch(PLW* wk) { // 🟡
 /// Check throw break and adjust state accordingly
 /// @param wk Throwing player object
 /// @param tk Thrown player object
-void check_nagenuke(PLW* wk, PLW* tk) { // 🟢
-    if (tk->wu.work_id != 1) {          // Must be a player
-        return;
+/* Every reason a throw cannot be broken: the other work is not a player, it
+ * is in a throw that cannot be escaped, the break window has closed, the
+ * thrower is not in the state that allows it, or the command was not entered. */
+static s32 nagenuke_is_refused(PLW* wk, PLW* tk) {
+    if (tk->wu.work_id != 1) { // Must be a player
+        return 1;
     }
 
     if (!tk->cat_break_reserve && tk->hazusenai_flag) {
-        return;
+        return 1;
     }
 
     if (!wk->cat_break_ok_timer) {
-        return;
+        return 1;
     }
 
     if (wk->wu.routine_no[1] != 2) {
-        return;
+        return 1;
     }
 
     if (!check_nagenuke_cmd(tk)) {
+        return 1;
+    }
+
+    return 0;
+}
+
+void check_nagenuke(PLW* wk, PLW* tk) { // 🟢
+    if (nagenuke_is_refused(wk, tk)) {
         return;
     }
 
@@ -133,11 +144,13 @@ void Catch_00000(PLW* /* unused */) { // 🟢
 }
 
 /// Start and process catch animation
-void Catch_01000(PLW* wk) { // 🟢
+/* Holding a catch: start the pattern, then run it. Catch_01000 and Catch_02000
+ * differ in one thing, which pattern index they start. */
+static void run_catch_hold(PLW* wk, s16 index) {
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
-        set_char_move_init_ca(wk, 2, wk->wu.char_index);
+        set_char_move_init_ca(wk, 2, index);
         break;
 
     case 1:
@@ -147,19 +160,13 @@ void Catch_01000(PLW* wk) { // 🟢
     }
 }
 
+void Catch_01000(PLW* wk) { // 🟢
+    run_catch_hold(wk, wk->wu.char_index);
+}
+
 /// Weight level version of `Catch_01000`
 void Catch_02000(PLW* wk) { // 🟢
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        set_char_move_init_ca(wk, 2, wk->wu.char_index + ((WORK*)wk->wu.hit_adrs)->weight_level);
-        break;
-
-    case 1:
-        char_move(&wk->wu);
-        catch_cg_type_check(wk);
-        break;
-    }
+    run_catch_hold(wk, wk->wu.char_index + ((WORK*)wk->wu.hit_adrs)->weight_level);
 }
 
 void Catch_03000(PLW* wk) { // 🟢
@@ -227,6 +234,46 @@ void Catch_04000(PLW* wk) { // 🟢
     }
 }
 
+/* The animation frames that mean something while the catch is on the ground:
+ * go airborne, add to the movement data, or replace it. */
+static void apply_grounded_catch_frame(PLW* wk) {
+    switch (wk->wu.cg_type) {
+    case 1:
+        wk->wu.routine_no[3] = 2;
+        wk->wu.cg_type = 0;
+        break;
+
+    case 20:
+        add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+        break;
+
+    case 22:
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+        break;
+    }
+}
+
+/* The same while it is airborne. There is no frame 22 here, and frame 1 puts
+ * the catch back on the ground. */
+static void apply_airborne_catch_frame(PLW* wk) {
+    switch (wk->wu.cg_type) {
+    case 1:
+        wk->wu.routine_no[3] = 1;
+        wk->wu.cg_type = 0;
+        break;
+
+    case 20:
+        add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+        break;
+    }
+}
+
 void Catch_05000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -236,44 +283,13 @@ void Catch_05000(PLW* wk) { // 🟢
 
     case 1:
         char_move(&wk->wu);
-        switch (wk->wu.cg_type) {
-        case 1:
-            wk->wu.routine_no[3] = 2;
-            wk->wu.cg_type = 0;
-            break;
-
-        case 20:
-            add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-            break;
-
-        case 22:
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-            break;
-        }
-
+        apply_grounded_catch_frame(wk);
         catch_cg_type_check(wk);
         break;
 
     case 2:
         jumping_union_process(&wk->wu, 1);
-
-        switch (wk->wu.cg_type) {
-        case 1:
-            wk->wu.routine_no[3] = 1;
-            wk->wu.cg_type = 0;
-            break;
-
-        case 20:
-            add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-            break;
-        }
-
+        apply_airborne_catch_frame(wk);
         catch_cg_type_check(wk);
         break;
 
@@ -309,6 +325,60 @@ void Catch_06000(PLW* wk) { // 🟡
     }
 }
 
+/* Frame 30 starts the run: the movement data is loaded and the catch moves on
+ * to its running state. */
+static void start_catch07_run(PLW* wk) {
+    if (wk->wu.cg_type != 30) {
+        return;
+    }
+
+    setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+    wk->wu.mvxy.index++;
+    wk->wu.routine_no[3] = 2;
+    wk->wu.cg_type = 0;
+    cat07_running_check(&wk->wu);
+}
+
+/* Once the target is against the thrower again, the catch finishes. */
+static void finish_catch07_when_close(PLW* wk) {
+    if (!((PLW*)wk->wu.target_adrs)->micchaku_flag) {
+        return;
+    }
+
+    char_move_z(&wk->wu);
+    wk->wu.routine_no[3] = 5;
+}
+
+/* The flight and the landing of the running throw: the hold before the target
+ * is caught up with, the catch itself, and the two states after it. Case
+ * labels are the originals. */
+static void run_catch07_flight(PLW* wk) {
+    switch (wk->wu.routine_no[3]) {
+    case 3:
+        jumping_union_process(&wk->wu, 6);
+
+        if (--wk->wu.dir_timer <= 0) {
+            wk->wu.routine_no[3] = 4;
+        }
+
+        break;
+
+    case 4:
+        jumping_union_process(&wk->wu, 6);
+        finish_catch07_when_close(wk);
+        catch_cg_type_check(wk);
+        break;
+
+    case 5:
+        jumping_union_process(&wk->wu, 6);
+        break;
+
+    case 6:
+        char_move(&wk->wu);
+        break;
+    }
+}
+
 void Catch_07000(PLW* wk) { // 🟢
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -321,15 +391,7 @@ void Catch_07000(PLW* wk) { // 🟢
 
     case 1:
         char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 30) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.routine_no[3] = 2;
-            wk->wu.cg_type = 0;
-            cat07_running_check(&wk->wu);
-        }
-
+        start_catch07_run(wk);
         catch_cg_type_check(wk);
         break;
 
@@ -344,32 +406,8 @@ void Catch_07000(PLW* wk) { // 🟢
 
         break;
 
-    case 3:
-        jumping_union_process(&wk->wu, 6);
-
-        if (--wk->wu.dir_timer <= 0) {
-            wk->wu.routine_no[3] = 4;
-        }
-
-        break;
-
-    case 4:
-        jumping_union_process(&wk->wu, 6);
-
-        if (((PLW*)wk->wu.target_adrs)->micchaku_flag) {
-            char_move_z(&wk->wu);
-            wk->wu.routine_no[3] = 5;
-        }
-
-        catch_cg_type_check(wk);
-        break;
-
-    case 5:
-        jumping_union_process(&wk->wu, 6);
-        break;
-
-    case 6:
-        char_move(&wk->wu);
+    default:
+        run_catch07_flight(wk);
         break;
     }
 }
@@ -407,42 +445,60 @@ void Catch_08000(PLW* wk) { // 🟢
     }
 }
 
+static void apply_damage_to_vitality(PLW* wk) {
+    if (wk->wu.dm_vital) {
+        Additinal_Score_DM((WORK_Other*)wk->wu.dmg_adrs, wk->wu.dm_ten_ix);
+        add_sp_arts_gauge_hit_dm(wk);
+    }
+
+    // Local extra-option setting 5 intentionally suppresses damage; CPS3 has no equivalent option.
+    if (omop_vital_ix[wk->wu.id] == 5) {
+        wk->wu.dm_vital = 0;
+    }
+
+    wk->wu.vital_new -= wk->wu.dm_vital;
+
+    if (wk->wu.dm_nodeathattack && wk->wu.vital_new < 0) {
+        wk->wu.vital_new = 0;
+    }
+}
+
+/* The hit was fatal: the round ends, and the first death of the round also
+ * starts the slow-motion finish. */
+static void kill_player(PLW* wk) {
+    wk->wu.vital_new = -1;
+    wk->dead_flag = 1;
+    dead_voice_flag = true;
+
+    if (!round_slow_flag) {
+        set_conclusion_slow();
+        round_slow_flag = true;
+    }
+}
+
+/* It was not: the stun meter takes the hit instead, and fills. */
+static void add_stun_damage(PLW* wk) {
+    wk->py->now.quantity.h += wk->wu.dm_piyo;
+
+    if (wk->py->now.quantity.h >= wk->py->genkai) {
+        wk->py->now.timer = 0;
+        wk->py->flag = 1;
+    }
+}
+
+static void resolve_death_or_stun(PLW* wk) {
+    if (wk->wu.vital_new < 0) {
+        kill_player(wk);
+    } else if (wk->py->flag == 0) {
+        add_stun_damage(wk);
+    }
+}
+
 void subtract_cu_vital(PLW* wk) { // 🟡
     if (wk->wu.dm_vital != 0) {
         if (wk->dead_flag == 0) {
-            if (wk->wu.dm_vital) {
-                Additinal_Score_DM((WORK_Other*)wk->wu.dmg_adrs, wk->wu.dm_ten_ix);
-                add_sp_arts_gauge_hit_dm(wk);
-            }
-
-            // Local extra-option setting 5 intentionally suppresses damage; CPS3 has no equivalent option.
-            if (omop_vital_ix[wk->wu.id] == 5) {
-                wk->wu.dm_vital = 0;
-            }
-
-            wk->wu.vital_new -= wk->wu.dm_vital;
-
-            if (wk->wu.dm_nodeathattack && wk->wu.vital_new < 0) {
-                wk->wu.vital_new = 0;
-            }
-
-            if (wk->wu.vital_new < 0) {
-                wk->wu.vital_new = -1;
-                wk->dead_flag = 1;
-                dead_voice_flag = true;
-
-                if (!round_slow_flag) {
-                    set_conclusion_slow();
-                    round_slow_flag = true;
-                }
-            } else if (wk->py->flag == 0) {
-                wk->py->now.quantity.h += wk->wu.dm_piyo;
-
-                if (wk->py->now.quantity.h >= wk->py->genkai) {
-                    wk->py->now.timer = 0;
-                    wk->py->flag = 1;
-                }
-            }
+            apply_damage_to_vitality(wk);
+            resolve_death_or_stun(wk);
         }
 
         pp_pulpara_remake_dm_all(&wk->wu); // Port-only controller feedback; CPS3 has no equivalent call.
@@ -457,6 +513,30 @@ void subtract_cu_vital(PLW* wk) { // 🟡
     wk->wu.dm_piyo = 0;
 }
 
+/* The frame a catch does its damage on: the hit itself, its effect, and the
+ * recovery window the caught player gets afterwards. */
+static void apply_catch_hit(PLW* wk, PLW* emwk) {
+    wk->wu.cg_type = 4;
+    subtract_cu_vital(emwk);
+    set_catch_hit_mark_pos(&wk->wu, &emwk->wu);
+    effect_02_init(&wk->wu, 0, 1, wk->wu.rl_flag);
+
+    // Port-only controller feedback; CPS3 omits these calls.
+    pp_pulpara_remake_at_hit(wk);
+    pp_pulpara_hit(&wk->wu);
+    pp_pulpara_remake_dm_all(&emwk->wu);
+
+    if (emwk->backup_ok_timer) {
+        emwk->uot_cd_ok_flag = 1;
+        emwk->ukemi_ok_timer = emwk->backup_ok_timer;
+    } else {
+        emwk->uot_cd_ok_flag = 0;
+        emwk->ukemi_ok_timer = 0;
+    }
+
+    emwk->ukemi_success = 0;
+}
+
 void catch_cg_type_check(PLW* wk) { // 🟡
     PLW* emwk = (PLW*)wk->wu.hit_adrs;
 
@@ -469,25 +549,7 @@ void catch_cg_type_check(PLW* wk) { // 🟡
         break;
 
     case 3:
-        wk->wu.cg_type = 4;
-        subtract_cu_vital(emwk);
-        set_catch_hit_mark_pos(&wk->wu, &emwk->wu);
-        effect_02_init(&wk->wu, 0, 1, wk->wu.rl_flag);
-
-        // Port-only controller feedback; CPS3 omits these calls.
-        pp_pulpara_remake_at_hit(wk);
-        pp_pulpara_hit(&wk->wu);
-        pp_pulpara_remake_dm_all(&emwk->wu);
-
-        if (emwk->backup_ok_timer) {
-            emwk->uot_cd_ok_flag = 1;
-            emwk->ukemi_ok_timer = emwk->backup_ok_timer;
-        } else {
-            emwk->uot_cd_ok_flag = 0;
-            emwk->ukemi_ok_timer = 0;
-        }
-
-        emwk->ukemi_success = 0;
+        apply_catch_hit(wk, emwk);
         break;
 
     case 5:

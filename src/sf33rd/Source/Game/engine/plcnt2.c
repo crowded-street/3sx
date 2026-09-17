@@ -35,8 +35,29 @@ void plcnt_b_die();
 
 void (*const player_bonus_process[3])() = { plcnt_b_init, plcnt_b_move, plcnt_b_die };
 
+static s32 hosei_transfer_blocked(s16 i) {
+    return (!plw[i].tsukami_f || plw[i].kind_of_catch != 1) && (plw[i].tsukamare_f | plw[i].dm_hos_flag) == 0;
+}
+
+static s32 round_is_in_play(void) {
+    return pcon_rno[0] == 2 && pcon_rno[1] == 0 && pcon_rno[2] == 2;
+}
+
+/* The bonus stage runs either before it has started at all, or whenever the
+ * game is neither paused nor in the test menu. */
+static s32 bonus_players_should_run() {
+    return ((pcon_rno[0] + pcon_rno[1]) == 0) || (!Game_pause && !EXE_flag);
+}
+
+/* Both players ask for their push-out the same way. */
+static void request_hit_push(PLW* wk) {
+    if (!wk->zuru_flag && !wk->zettai_muteki_flag) {
+        hit_push_request(&wk->wu);
+    }
+}
+
 s32 Player_control_bonus() {
-    if (((pcon_rno[0] + pcon_rno[1]) == 0) || (!Game_pause && !EXE_flag)) {
+    if (bonus_players_should_run()) {
         players_timer++;
         players_timer &= 0x7FFF;
         player_bonus_process[pcon_rno[0]]();
@@ -45,13 +66,8 @@ s32 Player_control_bonus() {
         set_quake(&plw[0]);
         set_quake(&plw[1]);
 
-        if (!plw[0].zuru_flag && !plw[0].zettai_muteki_flag) {
-            hit_push_request(&plw[0].wu);
-        }
-
-        if (!plw[1].zuru_flag && !plw[1].zettai_muteki_flag) {
-            hit_push_request(&plw[1].wu);
-        }
+        request_hit_push(&plw[0]);
+        request_hit_push(&plw[1]);
 
         add_next_position(plw);
         add_next_position(&plw[1]);
@@ -62,69 +78,82 @@ s32 Player_control_bonus() {
         store_player_after_image_data();
     }
 
-    if (pcon_rno[0] == 2 && pcon_rno[1] == 0 && pcon_rno[2] == 2) {
+    if (round_is_in_play()) {
         return 1;
     }
 
     return 0;
 }
 
+/* Both works and the round-level flags go back to nothing. */
+static void clear_bonus_players() {
+    pcon_rno[1] = 2;
+    SDL_zeroa(plw);
+    setup_base_and_other_data();
+    pcon_dp_flag = false;
+    round_slow_flag = false;
+    dead_voice_flag = false;
+    another_bg[0] = another_bg[1] = 0;
+    plw[0].scr_pos_set_flag = plw[1].scr_pos_set_flag = 1;
+    clear_super_arts_point(&plw[0]);
+    clear_super_arts_point(&plw[1]);
+
+    if (Bonus_Game_Flag == 21) {
+        setup_bs_scrrrl_bs();
+    }
+}
+
+/* Both works have to be ready, and the battle allowed, before the stage runs. */
+static void start_bonus_stage() {
+    if (plw[0].wu.routine_no[0] != 3) {
+        return;
+    }
+
+    if (plw[1].wu.routine_no[0] != 3) {
+        return;
+    }
+
+    if (!Allow_a_battle_f) {
+        return;
+    }
+
+    pcon_rno[0] = 1;
+    pcon_rno[1] = 0;
+    plw[0].wu.routine_no[0] = 4;
+    plw[1].wu.routine_no[0] = 4;
+    ca_check_flag = 1;
+}
+
+/* A human player keeps the parry counter it came in with; a CPU one starts at
+ * nothing. */
+static void setup_bonus_parry_counters() {
+    pcon_rno[1] = 3;
+
+    if (plw[0].wu.operator) {
+        paring_ctr_vs[0][0] = paring_ctr_ori[0];
+    } else {
+        paring_ctr_vs[0][0] = 0;
+    }
+
+    if (plw[1].wu.operator) {
+        paring_ctr_vs[0][1] = paring_ctr_ori[1];
+    } else {
+        paring_ctr_vs[0][1] = 0;
+    }
+}
+
 void plcnt_b_init() {
     switch (pcon_rno[1]) {
     case 0:
-        pcon_rno[1] = 2;
-        SDL_zeroa(plw);
-        setup_base_and_other_data();
-        pcon_dp_flag = false;
-        round_slow_flag = false;
-        dead_voice_flag = false;
-        another_bg[0] = another_bg[1] = 0;
-        plw[0].scr_pos_set_flag = plw[1].scr_pos_set_flag = 1;
-        clear_super_arts_point(&plw[0]);
-        clear_super_arts_point(&plw[1]);
-
-        if (Bonus_Game_Flag == 21) {
-            setup_bs_scrrrl_bs();
-        }
-
+        clear_bonus_players();
         break;
 
     case 1:
-        if (plw[0].wu.routine_no[0] != 3) {
-            break;
-        }
-
-        if (plw[1].wu.routine_no[0] != 3) {
-            break;
-        }
-
-        if (!Allow_a_battle_f) {
-            break;
-        }
-
-        pcon_rno[0] = 1;
-        pcon_rno[1] = 0;
-        plw[0].wu.routine_no[0] = 4;
-        plw[1].wu.routine_no[0] = 4;
-        ca_check_flag = 1;
-
+        start_bonus_stage();
         break;
 
     case 2:
-        pcon_rno[1] = 3;
-
-        if (plw[0].wu.operator) {
-            paring_ctr_vs[0][0] = paring_ctr_ori[0];
-        } else {
-            paring_ctr_vs[0][0] = 0;
-        }
-
-        if (plw[1].wu.operator) {
-            paring_ctr_vs[0][1] = paring_ctr_ori[1];
-        } else {
-            paring_ctr_vs[0][1] = 0;
-        }
-
+        setup_bonus_parry_counters();
         break;
 
     case 3:
@@ -134,6 +163,28 @@ void plcnt_b_init() {
     }
 
     move_player_work_bonus();
+}
+
+/* Both players hit each other on the same frame. A double KO stops the game
+ * harder than a single one. */
+static void settle_simultaneous_hit() {
+    subtract_dm_vital_aiuchi(&plw[0]);
+    subtract_dm_vital_aiuchi(&plw[1]);
+
+    if ((plw[0].dead_flag != 0) && (plw[1].dead_flag != 0)) {
+        plw[0].wu.hit_stop = plw[1].wu.hit_stop = 2;
+        plw[0].wu.dm_stop = plw[1].wu.dm_stop = 0;
+        plw[0].wu.hit_quake = plw[1].wu.hit_quake = 4;
+        plw[0].wu.dm_quake = plw[1].wu.dm_quake = 0;
+        return;
+    }
+
+    if ((plw[0].dead_flag != 0) || (plw[1].dead_flag != 0)) {
+        plw[0].wu.hit_stop = plw[1].wu.hit_stop = 4;
+        plw[0].wu.dm_stop = plw[1].wu.dm_stop = 0;
+        plw[0].wu.hit_quake = plw[1].wu.hit_quake = 8;
+        plw[0].wu.dm_quake = plw[1].wu.dm_quake = 0;
+    }
 }
 
 void plcnt_b_move() {
@@ -148,25 +199,33 @@ void plcnt_b_move() {
     move_player_work_bonus();
 
     if (aiuchi_flag) {
-        subtract_dm_vital_aiuchi(&plw[0]);
-        subtract_dm_vital_aiuchi(&plw[1]);
-
-        if ((plw[0].dead_flag != 0) && (plw[1].dead_flag != 0)) {
-            plw[0].wu.hit_stop = plw[1].wu.hit_stop = 2;
-            plw[0].wu.dm_stop = plw[1].wu.dm_stop = 0;
-            plw[0].wu.hit_quake = plw[1].wu.hit_quake = 4;
-            plw[0].wu.dm_quake = plw[1].wu.dm_quake = 0;
-        } else if ((plw[0].dead_flag != 0) || (plw[1].dead_flag != 0)) {
-            plw[0].wu.hit_stop = plw[1].wu.hit_stop = 4;
-            plw[0].wu.dm_stop = plw[1].wu.dm_stop = 0;
-            plw[0].wu.hit_quake = plw[1].wu.hit_quake = 8;
-            plw[0].wu.dm_quake = plw[1].wu.dm_quake = 0;
-        }
+        settle_simultaneous_hit();
     }
 
     if (Bonus_Stage_RNO[0] == 2) {
         pcon_rno[0] = 2;
     }
+}
+
+/* Both players have stopped moving in the bonus stage. */
+static s32 both_bonus_players_settled() {
+    return footwork_check_bns(0) && footwork_check_bns(1);
+}
+
+/* Both have reached the end of their end-of-stage routine. */
+static s32 both_bonus_routines_finished() {
+    return (plw[0].wu.routine_no[3] == 9) && (plw[1].wu.routine_no[3] == 9);
+}
+
+/* The stage is over: both players go into the same end routine. */
+static void end_bonus_stage() {
+    complete_victory_pause();
+    plw[0].wu.routine_no[2] = 40;
+    plw[1].wu.routine_no[2] = 40;
+    plw[0].wu.routine_no[1] = plw[1].wu.routine_no[1] = 0;
+    plw[0].wu.routine_no[3] = plw[1].wu.routine_no[3] = 0;
+    plw[0].wu.cg_type = plw[1].wu.cg_type = 0;
+    pcon_rno[2]++;
 }
 
 void plcnt_b_die() {
@@ -180,24 +239,18 @@ void plcnt_b_die() {
         /* fallthrough */
 
     case 1:
-        if (footwork_check_bns(0) && footwork_check_bns(1)) {
+        if (both_bonus_players_settled()) {
             pcon_rno[2]++;
         }
 
         break;
 
     case 2:
-        complete_victory_pause();
-        plw[0].wu.routine_no[2] = 40;
-        plw[1].wu.routine_no[2] = 40;
-        plw[0].wu.routine_no[1] = plw[1].wu.routine_no[1] = 0;
-        plw[0].wu.routine_no[3] = plw[1].wu.routine_no[3] = 0;
-        plw[0].wu.cg_type = plw[1].wu.cg_type = 0;
-        pcon_rno[2]++;
+        end_bonus_stage();
         break;
 
     case 3:
-        if ((plw[0].wu.routine_no[3] == 9) && (plw[1].wu.routine_no[3] == 9)) {
+        if (both_bonus_routines_finished()) {
             pcon_rno[2]++;
         }
 
@@ -275,18 +328,21 @@ void move_player_work_bonus() {
     move_P2_move_P1_bonus(*bs_scrrrl);
 }
 
+/* One player's bonus-stage step: move, then correct against the near field
+ * edge and, if that moved them, the far one. Both bonus orderings do this to
+ * each player; only the order differs. */
+static void move_one_bonus_player(PLW* wk, s32 setting, s16 near_edge, s16 far_edge) {
+    Player_move_bonus(wk, processed_lvbt(Convert_User_Setting(setting)));
+
+    if (set_field_hosei_flag(wk, near_edge, 1) != 0) {
+        set_field_hosei_flag(wk, far_edge, 0);
+    }
+}
+
 void move_P1_move_P2_bonus(s16* field_work) {
-    Player_move_bonus(&plw[0], processed_lvbt(Convert_User_Setting(0)));
+    move_one_bonus_player(&plw[0], 0, field_work[0], field_work[1]);
 
-    if (set_field_hosei_flag(&plw[0], field_work[0], 1) != 0) {
-        set_field_hosei_flag(&plw[0], field_work[1], 0);
-    }
-
-    Player_move_bonus(&plw[1], processed_lvbt(Convert_User_Setting(1)));
-
-    if (set_field_hosei_flag(&plw[1], field_work[2], 1) != 0) {
-        set_field_hosei_flag(&plw[1], field_work[3], 0);
-    }
+    move_one_bonus_player(&plw[1], 1, field_work[2], field_work[3]);
 
     if (Bonus_Game_Flag == 20) {
         plw[1].wu.disp_flag = 0;
@@ -294,20 +350,38 @@ void move_P1_move_P2_bonus(s16* field_work) {
 }
 
 void move_P2_move_P1_bonus(s16* field_work) {
-    Player_move_bonus(&plw[1], processed_lvbt(Convert_User_Setting(1)));
+    move_one_bonus_player(&plw[1], 1, field_work[2], field_work[3]);
 
-    if (set_field_hosei_flag(&plw[1], field_work[2], 1) != 0) {
-        set_field_hosei_flag(&plw[1], field_work[3], 0);
-    }
-
-    Player_move_bonus(&plw[0], processed_lvbt(Convert_User_Setting(0)));
-
-    if (set_field_hosei_flag(&plw[0], field_work[0], 1) != 0) {
-        set_field_hosei_flag(&plw[0], field_work[1], 0);
-    }
+    move_one_bonus_player(&plw[0], 0, field_work[0], field_work[1]);
 
     if (Bonus_Game_Flag == 20) {
         plw[0].wu.disp_flag = 0;
+    }
+}
+
+/* One player's leftover correction is pushed into the other. The two arms of
+ * check_damage_hosei_bonus that do this, and the two gotos that used to jump
+ * into them, differ only in which way round it goes. */
+static void transfer_hosei(s16 from, s16 to) {
+    plw[to].wu.xyz[0].disp.pos += plw[from].hosei_amari;
+    plw[to].muriyari_ugoku += plw[from].hosei_amari;
+}
+
+/* Both players have a correction left over. It only goes anywhere when they
+ * are correcting the same way and one of them is being thrown; then it goes
+ * to the other one. */
+static void transfer_hosei_to_thrower() {
+    if (plw[0].hos_fi_flag != plw[1].hos_fi_flag) {
+        return;
+    }
+
+    if (plw[0].tsukamare_f) {
+        transfer_hosei(0, 1);
+        return;
+    }
+
+    if (plw[1].tsukamare_f) {
+        transfer_hosei(1, 0);
     }
 }
 
@@ -317,38 +391,23 @@ void check_damage_hosei_bonus() {
 
     switch ((plw[0].hosei_amari != 0) + ((plw[1].hosei_amari != 0) * 2)) {
     case 1:
-        if ((!plw[0].tsukami_f || plw[0].kind_of_catch != 1) &&
-            (plw[0].tsukamare_f | plw[0].dm_hos_flag) == 0) {
+        if (hosei_transfer_blocked(0)) {
             break;
         }
 
-    one:
-        plw[1].wu.xyz[0].disp.pos += plw[0].hosei_amari;
-        plw[1].muriyari_ugoku += plw[0].hosei_amari;
+        transfer_hosei(0, 1);
         break;
 
     case 2:
-        if ((!plw[1].tsukami_f || plw[1].kind_of_catch != 1) &&
-            (plw[1].tsukamare_f | plw[1].dm_hos_flag) == 0) {
+        if (hosei_transfer_blocked(1)) {
             break;
         }
 
-    two:
-        plw[0].wu.xyz[0].disp.pos += plw[1].hosei_amari;
-        plw[0].muriyari_ugoku += plw[1].hosei_amari;
+        transfer_hosei(1, 0);
         break;
 
     case 3:
-        if (plw[0].hos_fi_flag == plw[1].hos_fi_flag) {
-            if (plw[0].tsukamare_f) {
-                goto one;
-            }
-
-            if (plw[1].tsukamare_f) {
-                goto two;
-            }
-        }
-
+        transfer_hosei_to_thrower();
         break;
     }
 

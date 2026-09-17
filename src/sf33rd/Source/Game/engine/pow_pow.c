@@ -53,6 +53,24 @@ void cal_damage_vitality_eff(WORK_Other* as, PLW* ds) {
     }
 }
 
+/* Outside versus and replay, a CPU-controlled side scores nothing for the mode
+ * being played. */
+static s32 arcade_score_is_for_cpu_side(s16 id) {
+    return (Mode_Type != MODE_VERSUS) && (Mode_Type != MODE_REPLAY) && !plw[id].wu.operator;
+}
+
+/* The score for the mode being played, capped where the display runs out.
+ * Both arms of Additinal_Score_DM's mode test wrote it out identically; only
+ * the extra condition on the first arm differed, and it is now part of the
+ * one guard. */
+static void add_play_type_score(s16 id, u16 ix) {
+    Score[id][Play_Type] += Score_Data[ix];
+
+    if (Score[id][Play_Type] >= 99999900) {
+        Score[id][Play_Type] = 99999900;
+    }
+}
+
 void Additinal_Score_DM(WORK_Other* wk, u16 ix) {
     s16 id;
 
@@ -72,21 +90,9 @@ void Additinal_Score_DM(WORK_Other* wk, u16 ix) {
         Score[id][2] = 99999900;
     }
 
-    if ((Mode_Type != MODE_VERSUS) && (Mode_Type != MODE_REPLAY)) {
-        if (!plw[id].wu.operator) {
-            return;
-        }
-
-        Score[id][Play_Type] += Score_Data[ix];
-
-        if (Score[id][Play_Type] >= 99999900) {
-            Score[id][Play_Type] = 99999900;
-        }
-    } else {
-        Score[id][Play_Type] += Score_Data[ix];
-
-        if (Score[id][Play_Type] >= 99999900) {
-            Score[id][Play_Type] = 99999900;
-        }
+    if (arcade_score_is_for_cpu_side(id)) {
+        return;
     }
+
+    add_play_type_score(id, ix);
 }

@@ -33,6 +33,87 @@ const s16 dir32_sel_tbl[2][32] = {
 
 const s16 chcgp_hos[20] = { 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1 };
 
+static s32 not_a_wall_jump_pattern(const PLW* wk) {
+    return (wk->wu.pat_status != 20) && (wk->wu.pat_status != 24) && (wk->wu.pat_status != 26) &&
+           (wk->wu.pat_status != 30);
+}
+
+static s32 cpu_is_off_the_bonus_car(WORK* wk) {
+    return (Bonus_Game_Flag == 20) && (wk->operator != 0) && (saishin_bs2_area_car((PLW*)wk) == 0);
+}
+
+/* Guarding high: the guard button takes priority, otherwise a correction may
+ * turn it into a crouching guard. */
+static u16 defense_kind_from_high(PLW* wk) {
+    if (wk->cp->sw_new & 2) {
+        return 3;
+    }
+
+    if (chcgp_hos[wk->player_number] && check_attbox_dir(wk)) {
+        return 2;
+    }
+
+    return 0;
+}
+
+/* Guarding low. Not shared with the high version: it tests check_attbox_dir the
+ * other way round and yields a different kind. */
+static u16 defense_kind_from_low(PLW* wk) {
+    if (wk->cp->sw_new & 2) {
+        return 3;
+    }
+
+    if (chcgp_hos[wk->player_number] && (check_attbox_dir(wk) == 0)) {
+        return 1;
+    }
+
+    return 0;
+}
+
+/* Guarding with no committed height: the attack box picks the kind, and the
+ * guard button suppresses the choice entirely. */
+static u16 defense_kind_from_either(PLW* wk) {
+    if (wk->cp->sw_new & 2) {
+        return 0;
+    }
+
+    if (check_attbox_dir(wk)) {
+        return 2;
+    }
+
+    return 1;
+}
+
+static u16 select_defense_kind(PLW* wk) {
+    switch (wk->wu.routine_no[2]) {
+    case 27:
+        return defense_kind_from_high(wk);
+
+    case 28:
+        return defense_kind_from_low(wk);
+
+    case 29:
+        return defense_kind_from_either(wk);
+    }
+
+    return 0;
+}
+
+static void apply_defense_kind(PLW* wk, u16 rnum) {
+    if (rnum) {
+        wk->wu.routine_no[2] = rnum + 26;
+        set_char_move_init(&wk->wu, 0, rnum + 28);
+
+        while (1) {
+            if (wk->wu.cg_type == 1) {
+                break;
+            }
+
+            char_move_z(&wk->wu);
+        }
+    }
+}
+
 s32 sa_stop_check() { // 🟢
     if (plw[0].sa_stop_flag != 0) {
         return 1;
@@ -90,29 +171,15 @@ s32 check_rl_flag(WORK* wk) { // 🟢
     return wk->rl_flag == wk->rl_waza;
 }
 
-void set_rl_waza(PLW* wk) { // 🟢
-    WORK* em;
-    s16 result;
-
-    if (Bonus_Game_Flag == 20) {
-        if (wk->wu.operator != 0) {
-            if (wk->wu.xyz[0].disp.pos < bs2_hosei[0] || wk->wu.xyz[0].disp.pos > bs2_hosei[1]) {
-                goto end;
-            }
-
-            if (((result = wk->cp->sw_lvbt & 0xF) != 0) && !(result & 3)) {
-                wk->wu.rl_waza = (result & 8) != 0;
-                return;
-            }
-        }
-
-        wk->wu.rl_waza = wk->wu.rl_flag;
-        return;
-    }
-
-end:
-    em = (WORK*)wk->wu.target_adrs;
-    result = wk->wu.xyz[0].disp.pos - em->xyz[0].disp.pos;
+/* Face the opponent: whoever is to the left faces right. Standing exactly on
+ * top of them takes the opposite of their own facing.
+ *
+ * This was the `end:` label in set_rl_waza, reached both by falling out of the
+ * bonus-stage branch and by a `goto` from inside it. Both call it and return,
+ * which is what the label's code did at its end. */
+static void face_the_opponent(PLW* wk) {
+    WORK* em = (WORK*)wk->wu.target_adrs;
+    s16 result = wk->wu.xyz[0].disp.pos - em->xyz[0].disp.pos;
 
     if (result) {
         if (result > 0) {
@@ -125,22 +192,35 @@ end:
     }
 }
 
-s16 check_rl_on_car(PLW* wk) { // 🟢
-    s16 rnum;
+void set_rl_waza(PLW* wk) { // 🟢
+    s16 result;
 
-    if (Bonus_Game_Flag != 20) {
-        return 0;
+    if (Bonus_Game_Flag == 20) {
+        if (wk->wu.operator != 0) {
+            if (wk->wu.xyz[0].disp.pos < bs2_hosei[0] || wk->wu.xyz[0].disp.pos > bs2_hosei[1]) {
+                face_the_opponent(wk);
+                return;
+            }
+
+            if (((result = wk->cp->sw_lvbt & 0xF) != 0) && !(result & 3)) {
+                wk->wu.rl_waza = (result & 8) != 0;
+                return;
+            }
+        }
+
+        wk->wu.rl_waza = wk->wu.rl_flag;
+        return;
     }
 
-    if (wk->wu.operator == 0) {
-        return 0;
-    }
+    face_the_opponent(wk);
+}
 
-    if (bs2_floor[2] == 0) {
-        return 0;
-    }
+/* Where the player is relative to the bonus-stage car: over its body, over the
+ * narrower correction band, and above its roof. Returns whether the correction
+ * band applies, which is what check_rl_on_car returns. */
+static s16 update_car_area_flags(PLW* wk) {
+    s16 rnum = 0;
 
-    rnum = 0;
     wk->bs2_area_car = 0;
     wk->bs2_over_car = 0;
 
@@ -159,7 +239,27 @@ s16 check_rl_on_car(PLW* wk) { // 🟢
     return rnum;
 }
 
-s32 saishin_bs2_area_car(PLW* wk) { // 🟡
+s16 check_rl_on_car(PLW* wk) { // 🟢
+    if (Bonus_Game_Flag != 20) {
+        return 0;
+    }
+
+    if (wk->wu.operator == 0) {
+        return 0;
+    }
+
+    if (bs2_floor[2] == 0) {
+        return 0;
+    }
+
+    return update_car_area_flags(wk);
+}
+
+/* The same two car-area questions as update_car_area_flags, asked of this
+ * frame's position rather than the previous one's, and with a strict comparison
+ * on the roof rather than an inclusive one. Returns 1 during the dramatic
+ * pause, where saishin_bs2_area_car returned 1 immediately. */
+static s32 update_latest_car_area_flags(PLW* wk) {
     wk->bs2_area_car2 = 0;
     wk->bs2_over_car2 = 0;
 
@@ -175,10 +275,24 @@ s32 saishin_bs2_area_car(PLW* wk) { // 🟡
         wk->bs2_over_car2 = 1;
     }
 
-    if (ArcadeBalance_IsEnabled()) {
-        if (!wk->bs2_over_car) {
-            return 0;
-        }
+    return 0;
+}
+
+static s32 balanced_and_not_over_car(PLW* wk) {
+    return ArcadeBalance_IsEnabled() && !wk->bs2_over_car;
+}
+
+static s32 unbalanced_and_rising_off_car(PLW* wk) {
+    return !ArcadeBalance_IsEnabled() && wk->wu.mvxy.a[1].sp >= 2;
+}
+
+s32 saishin_bs2_area_car(PLW* wk) { // 🟡
+    if (update_latest_car_area_flags(wk)) {
+        return 1;
+    }
+
+    if (balanced_and_not_over_car(wk)) {
+        return 0;
     }
 
     if (wk->bs2_over_car2) {
@@ -189,10 +303,8 @@ s32 saishin_bs2_area_car(PLW* wk) { // 🟡
         return 1;
     }
 
-    if (!ArcadeBalance_IsEnabled()) {
-        if (wk->wu.mvxy.a[1].sp >= 2) {
-            return 1;
-        }
+    if (unbalanced_and_rising_off_car(wk)) {
+        return 1;
     }
 
     return 0;
@@ -248,8 +360,7 @@ s32 check_sankaku_tobi(PLW* wk) { // 🟢
         return 0;
     }
 
-    if ((wk->wu.pat_status != 20) && (wk->wu.pat_status != 24) && (wk->wu.pat_status != 26) &&
-        (wk->wu.pat_status != 30)) {
+    if (not_a_wall_jump_pattern(wk)) {
         return 0;
     }
 
@@ -291,7 +402,9 @@ void check_extra_jump_timer(PLW* wk) { // 🟡
     }
 }
 
-void remake_sankaku_tobi_mvxy(WORK* wk, u8 kabe) { // 🟡
+/* Which way a triangle jump leaves the wall. With no wall named, the player
+ * turns toward the middle of the stage. */
+static void face_away_from_wall(WORK* wk, u8 kabe) {
     if (kabe == 1) {
         wk->rl_flag = 0;
     }
@@ -307,6 +420,10 @@ void remake_sankaku_tobi_mvxy(WORK* wk, u8 kabe) { // 🟡
             wk->rl_flag = 1;
         }
     }
+}
+
+void remake_sankaku_tobi_mvxy(WORK* wk, u8 kabe) { // 🟡
+    face_away_from_wall(wk, kabe);
 
     if (wk->mvxy.a[0].sp < 0) {
         wk->mvxy.a[0].sp = -wk->mvxy.a[0].sp;
@@ -331,51 +448,72 @@ void remake_sankaku_tobi_mvxy(WORK* wk, u8 kabe) { // 🟡
     }
 }
 
+static s16 is_airborne_outside_bonus_car(PLW* wk) {
+    if (Bonus_Game_Flag != 20 || !wk->bs2_on_car) {
+        return wk->wu.xyz[1].disp.pos > 0;
+    }
+
+    return 0;
+}
+
+static s16 dash_kind_from_waza_flags(PLW* wk) {
+    return (wk->cp->waza_flag[0] != 0) + (wk->cp->waza_flag[1] != 0) * 2;
+}
+
+static s16 dash_kind_from_lever(PLW* wk) {
+    if (wk->cp->lever_dir < 2) {
+        return 1;
+    }
+
+    return 2;
+}
+
+static s16 start_forward_dash(PLW* wk) {
+    if (wk->spmv_ng_flag & DIP_FORWARD_DASH_DISABLED) {
+        return 0;
+    }
+
+    wk->wu.routine_no[1] = 0;
+    wk->wu.routine_no[2] = 5;
+    wk->wu.routine_no[3] = 0;
+    return 1;
+}
+
+static s16 start_back_dash(PLW* wk) {
+    if (wk->spmv_ng_flag & DIP_BACK_DASH_DISABLED) {
+        return 0;
+    }
+
+    wk->wu.routine_no[1] = 0;
+    wk->wu.routine_no[2] = 6;
+    wk->wu.routine_no[3] = 0;
+    return 1;
+}
+
 s16 check_F_R_dash(PLW* wk) { // 🟢
     s16 num;
     s16 rnum;
 
-    if (Bonus_Game_Flag != 20 || !wk->bs2_on_car) {
-        if (wk->wu.xyz[1].disp.pos > 0) {
-            return 0;
-        }
+    if (is_airborne_outside_bonus_car(wk)) {
+        return 0;
     }
 
-    num = (wk->cp->waza_flag[0] != 0) + (wk->cp->waza_flag[1] != 0) * 2;
+    num = dash_kind_from_waza_flags(wk);
     rnum = 0;
 
     while (1) {
         switch (num) {
         case 1:
-            if (!(wk->spmv_ng_flag & DIP_FORWARD_DASH_DISABLED)) {
-                wk->wu.routine_no[1] = 0;
-                wk->wu.routine_no[2] = 5;
-                wk->wu.routine_no[3] = 0;
-                rnum = 1;
-            }
-
+            rnum = start_forward_dash(wk);
             break;
 
         case 2:
-            if (!(wk->spmv_ng_flag & DIP_BACK_DASH_DISABLED)) {
-                wk->wu.routine_no[1] = 0;
-                wk->wu.routine_no[2] = 6;
-                wk->wu.routine_no[3] = 0;
-                rnum = 1;
-            }
-
+            rnum = start_back_dash(wk);
             break;
 
         case 3:
-            if (wk->cp->lever_dir < 2) {
-                num = 1;
-                continue;
-            } else {
-                num = 2;
-                continue;
-            }
-
-            break;
+            num = dash_kind_from_lever(wk);
+            continue;
         }
 
         break;
@@ -570,38 +708,35 @@ s32 check_hurimuki(WORK* wk) { // 🟢
     return 1;
 }
 
-s16 check_walking_lv_dir(PLW* wk) { // 🟢
-    s16 rnum = 0;
-
+static s16 walk_dir_needs_restart(PLW* wk) {
     switch (wk->cp->lever_dir) {
     case 1:
-        if (wk->wu.routine_no[2] != 3) {
-            rnum = 1;
-        }
-
-        break;
+        return wk->wu.routine_no[2] != 3;
 
     case 2:
-        if (wk->wu.routine_no[2] != 4) {
-            rnum = 1;
-        }
-
-        break;
+        return wk->wu.routine_no[2] != 4;
 
     default:
-        rnum = 1;
-        break;
+        return 1;
+    }
+}
+
+static void begin_walking(PLW* wk) {
+    if (wk->wu.pat_status < 32) {
+        wk->wu.routine_no[2] = 1;
+    } else {
+        wk->wu.routine_no[2] = 9;
     }
 
-    if (rnum) {
-        if (wk->wu.pat_status < 32) {
-            wk->wu.routine_no[2] = 1;
-        } else {
-            wk->wu.routine_no[2] = 9;
-        }
+    wk->wu.routine_no[1] = 0;
+    wk->wu.routine_no[3] = 0;
+}
 
-        wk->wu.routine_no[1] = 0;
-        wk->wu.routine_no[3] = 0;
+s16 check_walking_lv_dir(PLW* wk) { // 🟢
+    s16 rnum = walk_dir_needs_restart(wk);
+
+    if (rnum) {
+        begin_walking(wk);
     }
 
     return rnum;
@@ -700,49 +835,9 @@ s16 check_attbox_dir(PLW* wk) { // 🟢
 u16 check_defense_kind(PLW* wk) { // 🟢
     u16 rnum = 0;
 
-    switch (wk->wu.routine_no[2]) {
-    case 27:
-        if (wk->cp->sw_new & 2) {
-            rnum = 3;
-        } else if (chcgp_hos[wk->player_number] && check_attbox_dir(wk)) {
-            rnum = 2;
-        }
+    rnum = select_defense_kind(wk);
 
-        break;
-
-    case 28:
-        if (wk->cp->sw_new & 2) {
-            rnum = 3;
-        } else if (chcgp_hos[wk->player_number] && (check_attbox_dir(wk) == 0)) {
-            rnum = 1;
-        }
-
-        break;
-
-    case 29:
-        if (!(wk->cp->sw_new & 2)) {
-            if (check_attbox_dir(wk)) {
-                rnum = 2;
-            } else {
-                rnum = 1;
-            }
-        }
-
-        break;
-    }
-
-    if (rnum) {
-        wk->wu.routine_no[2] = rnum + 26;
-        set_char_move_init(&wk->wu, 0, rnum + 28);
-
-        while (1) {
-            if (wk->wu.cg_type == 1) {
-                break;
-            }
-
-            char_move_z(&wk->wu);
-        }
-    }
+    apply_defense_kind(wk, rnum);
 
     return rnum;
 }
@@ -752,7 +847,7 @@ void jumping_union_process(WORK* wk, s16 num) { // 🟢
     cal_mvxy_speed(wk);
     char_move(wk);
 
-    if ((Bonus_Game_Flag == 20) && (wk->operator != 0) && (saishin_bs2_area_car((PLW*)wk) == 0)) {
+    if (cpu_is_off_the_bonus_car(wk)) {
         if (wk->xyz[1].disp.pos + wk->cg_jphos <= bs2_floor[2]) {
             wk->position_y = wk->xyz[1].disp.pos = bs2_floor[2];
             wk->mvxy.a[1].sp = 0;

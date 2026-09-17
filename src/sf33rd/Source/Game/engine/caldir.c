@@ -713,6 +713,24 @@ const u8
           31, 30, 30, 30, 30, 30, 29, 29, 29, 29, 29, 28, 28, 28, 28, 28, 28, 27, 27, 27, 27, 27, 27, 27 }
     };
 
+/* Halve both values until the one named by `larger` fits the table. The two
+ * arms of scale_down_to_table_range differ in one thing: which value is
+ * watched. */
+static void halve_both_until_in_range(s16* y1, s16* y2, const s16* larger) {
+    while (*larger >= 0x80) {
+        *y1 >>= 1;
+        *y2 >>= 1;
+    }
+}
+
+static void scale_down_to_table_range(s16* y1, s16* y2) {
+    if (*y1 > *y2) {
+        halve_both_until_in_range(y1, y2, y1);
+    } else {
+        halve_both_until_in_range(y1, y2, y2);
+    }
+}
+
 s16 caldir_pos_256(s16 x1, s16 x2, s16 y1, s16 y2) {
     s16 yhan;
     s16 tent = yhan = 0;
@@ -736,17 +754,7 @@ s16 caldir_pos_256(s16 x1, s16 x2, s16 y1, s16 y2) {
         break;
     }
 
-    if (y1 > y2) {
-        while (y1 >= 0x80) {
-            y1 >>= 1;
-            y2 >>= 1;
-        }
-    } else {
-        while (y2 >= 0x80) {
-            y1 >>= 1;
-            y2 >>= 1;
-        }
-    }
+    scale_down_to_table_range(&y1, &y2);
 
     tent += dir_sel_table[y1][y2];
 
@@ -782,17 +790,7 @@ s16 cal_move_quantity2(s16 x1, s16 x2, s16 y1, s16 y2) {
     x1 = y1;
     x2 = y2;
 
-    if (y1 > y2) {
-        while (y1 >= 0x80) {
-            y1 >>= 1;
-            y2 >>= 1;
-        }
-    } else {
-        while (y2 >= 0x80) {
-            y1 >>= 1;
-            y2 >>= 1;
-        }
-    }
+    scale_down_to_table_range(&y1, &y2);
 
     kakudo = dir_sel_table[y1][y2];
     ms.psi = (x1 * rate_256_table[kakudo][0]);
@@ -918,6 +916,18 @@ void cmsd_y_delta_speed(MotionState* cc) {
     cmsd_all_y_speed_data(cc);
 }
 
+/* Both speed calculations end the same way: the computed speeds and
+ * accelerations go back into the work, and the leftover sub-pixels are added
+ * to its position. */
+static void store_motion_result(WORK* wk, const MotionState* bb) {
+    wk->mvxy.a[0].sp = bb->spx;
+    wk->mvxy.d[0].sp = bb->dlx;
+    wk->mvxy.a[1].sp = bb->spy;
+    wk->mvxy.d[1].sp = bb->dly;
+    wk->xyz[0].cal += bb->amx;
+    wk->xyz[1].cal += bb->amy;
+}
+
 void cal_all_speed_data(WORK* wk, s16 tm, s16 x1, s16 y1, s8 xsw, s8 ysw) {
     MotionState bb;
 
@@ -942,12 +952,7 @@ void cal_all_speed_data(WORK* wk, s16 tm, s16 x1, s16 y1, s8 xsw, s8 ysw) {
         cmsd_all_y_speed_data(&bb);
     }
 
-    wk->mvxy.a[0].sp = bb.spx;
-    wk->mvxy.d[0].sp = bb.dlx;
-    wk->mvxy.a[1].sp = bb.spy;
-    wk->mvxy.d[1].sp = bb.dly;
-    wk->xyz[0].cal += bb.amx;
-    wk->xyz[1].cal += bb.amy;
+    store_motion_result(wk, &bb);
     wk->mvxy.kop[0] = wk->mvxy.kop[1] = 0;
 }
 
@@ -1024,12 +1029,7 @@ void cal_delta_speed(WORK* wk, s16 tm, s16 x1, s16 y1, s8 xsw, s8 ysw) {
         cmsd_y_delta_speed(&bb);
     }
 
-    wk->mvxy.a[0].sp = bb.spx;
-    wk->mvxy.d[0].sp = bb.dlx;
-    wk->mvxy.a[1].sp = bb.spy;
-    wk->mvxy.d[1].sp = bb.dly;
-    wk->xyz[0].cal += bb.amx;
-    wk->xyz[1].cal += bb.amy;
+    store_motion_result(wk, &bb);
 }
 
 s16 cal_top_of_position_y(WORK* wk) {

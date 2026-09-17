@@ -31,6 +31,7 @@
 #include "sf33rd/Source/Game/ui/sc_sub.h"
 
 #include <SDL3/SDL.h>
+#include "sf33rd/Source/Game/engine/plpdm_internal.h"
 
 void setup_damage_process_flags(PLW* wk);
 void Damage_00000(PLW* wk);
@@ -177,6 +178,31 @@ const u16 exdm_ix_data[2][20][5] = {
       { 16, 20, 1, 0, 21532 },  { 65530, 0, 1, 0, 23315 }, { 23, 2, 1, 0, 25264 },    { 9, 22, 1, 0, 26103 } }
 };
 
+
+static s32 winner_during_dramatic_pause(const PLW* wk) {
+    return pcon_dp_flag && Conclusion_Type != 1 && wk->wu.id == Winner_id;
+}
+
+static s32 is_selectable_projectile(const WORK* tk) {
+    return tk->work_id != 1 && tk->id == 13 && tama_select[tk->type] != 0;
+}
+
+static s32 target_is_gill_resurrecting(const PLW* twk) {
+    return twk->player_number == 0 && twk->wu.now_koc == 5 && twk->wu.char_index == 59;
+}
+
+static s32 damage_interrupts_current_action(const PLW* wk) {
+    return wk->wu.dm_vital && (wk->wu.routine_no[1] != 1 || wk->wu.routine_no[2] > 11 || wk->wu.routine_no[3] != 0);
+}
+
+static s32 chip_damage_would_be_fatal(const PLW* wk) {
+    return wk->wu.dm_guard_success == -1 && wk->wu.vital_old > 0 && wk->wu.vital_new < 0 && wk->wu.vital_new > -3;
+}
+
+static s32 action_is_in_damage_range(const PLW* wk) {
+    return wk->wu.routine_no[2] > 19 && wk->wu.routine_no[2] < 88 && wk->wu.routine_no[2] != 70;
+}
+
 void Player_damage(PLW* wk) {
     setup_damage_process_flags(wk);
 
@@ -236,925 +262,6 @@ void setup_damage_process_flags(PLW* wk) { // TODO: Check this function thorough
     }
 }
 
-void Damage_00000(PLW* wk) {
-    wk->wu.next_z = 30;
-
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->zuru_timer = 0;
-        wk->zuru_ix_counter = 0;
-        set_char_move_init(&wk->wu, 1, wk->as->char_ix);
-        break;
-
-    case 1:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[3]++;
-        }
-
-        break;
-
-    case 2:
-        // Do nothing
-        break;
-    }
-}
-
-void Damage_01000(PLW* wk) {
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3] = 1;
-        wk->zuru_timer = 0;
-        wk->zuru_ix_counter = 0;
-        reset_mvxy_data(&wk->wu);
-        set_char_move_init(&wk->wu, 1, wk->as->char_ix);
-        break;
-
-    case 1:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 1) {
-            add_mvxy_speed(&wk->wu);
-            cal_mvxy_speed(&wk->wu);
-        }
-        break;
-
-    case 2:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 1) {
-            wk->wu.routine_no[3] = 3;
-            wk->wu.cg_type = 0;
-            add_mvxy_speed(&wk->wu);
-        }
-
-        break;
-
-    case 3:
-        jumping_union_process(&wk->wu, 4);
-        break;
-
-    case 4:
-        char_move(&wk->wu);
-        break;
-    }
-
-    if (wk->wu.cg_type == 0xFF || wk->wu.cg_type == 64) {
-        wk->guard_flag = 0;
-    }
-}
-
-void Damage_04000(PLW* wk) {
-    wk->guard_flag = 0;
-    wk->guard_chuu = guard_kind[wk->wu.routine_no[2] - 4];
-    set_dm_hos_flag_grd(wk);
-
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
-
-        if ((wk->wu.dm_quake /= 2) < 4) {
-            wk->wu.dm_quake = 4;
-        }
-
-        set_char_move_init(&wk->wu, 1, wk->as->char_ix);
-        wk->dm_step_tbl = _dm_step_data[_select_grd_dsd[wk->wu.dm_impact][get_weight_point(&wk->wu)]];
-        wk->zuru_timer = 0;
-        wk->zuru_ix_counter = 0;
-        pp_pulpara_guard(&wk->wu);
-        break;
-
-    case 1:
-        wk->wu.routine_no[3]++;
-        setup_smoke_type(wk);
-        wk->wu.cmwk[14] = _guard_pause_table[0][wk->wu.dm_attlv];
-        char_move_wca(&wk->wu);
-        add_dm_step_tbl(wk, 1);
-        break;
-
-    case 2:
-        add_dm_step_tbl(wk, 1);
-
-        if (--wk->wu.cmwk[14] <= 0) {
-            wk->wu.routine_no[3]++;
-            char_move_wca(&wk->wu);
-            break;
-        }
-
-        /* fallthrough */
-
-    default:
-        char_move(&wk->wu);
-        break;
-    }
-}
-void Damage_07000(PLW* wk) {
-    wk->guard_flag = 0;
-    wk->guard_chuu = guard_kind[wk->wu.routine_no[2] - 4];
-
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
-
-        if (remake_initial_speeds(&wk->wu)) {
-            wk->wu.routine_no[2] = 5;
-            wk->wu.routine_no[3] = 0;
-            wk->wu.xyz[1].disp.pos = 0;
-            wk->as = &dm_reaction_table[5];
-            Damage_04000(wk);
-            break;
-        }
-
-        if ((wk->wu.dm_quake /= 2) < 4) {
-            wk->wu.dm_quake = 4;
-        }
-
-        set_char_move_init(&wk->wu, 1, (s16)(wk->as->char_ix));
-        wk->zuru_timer = 0;
-        wk->zuru_ix_counter = 0;
-        pp_pulpara_guard(&wk->wu);
-        break;
-
-    case 1:
-        wk->wu.routine_no[3]++;
-        wk->wu.cmwk[14] = _guard_pause_table[1][wk->wu.dm_attlv];
-        wk->dm_step_tbl = _dm_step_data[_select_grd_dsd[wk->wu.dm_impact][get_weight_point(&wk->wu)]];
-        char_move_wca(&wk->wu);
-        /* fallthrough */
-
-    case 2:
-        jumping_union_process(&wk->wu, 3);
-        set_dm_hos_flag_grd(wk);
-        add_dm_step_tbl(wk, 0);
-        wk->wu.cmwk[14]--;
-
-        if (wk->wu.routine_no[3] == 3) {
-            if (wk->wu.cmwk[14] <= 0) {
-                wk->wu.cmwk[14] = 1;
-            }
-
-            wk->wu.routine_no[2] = 5;
-            wk->wu.routine_no[3] = 2;
-            setup_smoke_type(wk);
-            break;
-        }
-
-        if (wk->wu.cmwk[14] <= 0) {
-            wk->wu.routine_no[1] = 0;
-            wk->wu.routine_no[2] = 38;
-            wk->wu.routine_no[3] = 1;
-            wk->wu.cg_type = 0;
-            wk->wu.cg_next_ix = 0;
-            char_move_wca(&wk->wu);
-        }
-
-        break;
-
-    case 3:
-        char_move(&wk->wu);
-        break;
-    }
-}
-
-s32 remake_initial_speeds(WORK* wk) {
-    s16 ix;
-    s32 ay = wk->mvxy.a[1].sp;
-    s32 dy = wk->mvxy.d[1].sp;
-
-    if ((wk->xyz[1].disp.pos < 8) && (ay <= 0)) {
-        return 1;
-    }
-
-    setup_butt_own_data(wk);
-    ix = dir32_guard_air[cal_move_dir_forecast(wk, 5)];
-
-    if (wk->dm_attlv) {
-        switch (ix) {
-        case 0:
-            wk->mvxy.a[0].sp = (wk->mvxy.a[0].sp * 80) / 100;
-            wk->mvxy.a[1].sp = (wk->mvxy.a[1].sp * 120) / 100;
-            cal_initial_speed_y(wk, ris_data_table[0][wk->dm_attlv], wk->xyz[1].disp.pos);
-            wk->mvxy.a[1].sp += (ay * 60) / 100;
-            break;
-
-        case 1:
-            wk->mvxy.a[0].sp = (wk->mvxy.a[0].sp * 75) / 100;
-            wk->mvxy.a[1].sp = (wk->mvxy.a[1].sp * 100) / 100;
-            cal_initial_speed_y(wk, ris_data_table[1][wk->dm_attlv], wk->xyz[1].disp.pos);
-            wk->mvxy.a[1].sp += (ay * 35) / 100;
-            break;
-
-        case 2:
-            wk->mvxy.a[0].sp = (wk->mvxy.a[0].sp * 70) / 100;
-            wk->mvxy.a[1].sp = (wk->mvxy.a[1].sp * 80) / 100;
-            cal_initial_speed_y(wk, ris_data_table[2][wk->dm_attlv], wk->xyz[1].disp.pos);
-            wk->mvxy.a[1].sp += (ay * 20) / 100;
-            break;
-
-        case 3:
-            wk->mvxy.a[0].sp = (wk->mvxy.a[0].sp * 80) / 100;
-            wk->mvxy.a[1].sp = (wk->mvxy.a[1].sp - 0x8000) - 0x8000;
-            wk->mvxy.a[1].sp += (ay * 10) / 100;
-            break;
-
-        default:
-            wk->mvxy.a[0].sp = (wk->mvxy.a[0].sp * 90) / 100;
-            wk->mvxy.a[1].sp = wk->mvxy.a[1].sp + 0xFFFE0000;
-            break;
-        }
-    } else {
-        wk->mvxy.a[0].sp = (wk->mvxy.a[0].sp * 120) / 100;
-
-        if (ay >= 0) {
-            wk->mvxy.a[1].sp = ay;
-        } else {
-            wk->mvxy.a[1].sp = (ay * 60) / 100;
-        }
-
-        wk->mvxy.d[1].sp = dy;
-    }
-
-    if ((wk->xyz[1].disp.pos < 12) && (cal_move_quantity3(wk, 3) <= 0)) {
-        return 1;
-    }
-
-    return 0;
-}
-
-void Damage_12000(PLW* wk) {
-    set_dm_hos_flag_grd(wk);
-
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
-        wk->dm_ix = wk->as->char_ix + wk->wu.dm_attlv;
-        set_char_move_init(&wk->wu, 1, wk->dm_ix);
-        wk->dm_step_tbl = _dm_step_data[_select_hit_dsd[wk->wu.dm_impact][get_weight_point(&wk->wu)]];
-        wk->zuru_timer = 0;
-        wk->zuru_ix_counter = 0;
-
-        if (wk->wu.dm_attribute) {
-            setup_accessories(wk, wk->wu.pat_status);
-
-            if (wk->wu.dm_attribute != 2) {
-                effect_D9_init(wk, (u8)wk->wu.dm_attribute);
-            }
-        }
-
-        break;
-
-    case 1:
-        wk->wu.routine_no[3]++;
-        setup_smoke_type(wk);
-
-        if (wk->wu.pat_status == 32) {
-            wk->wu.cmwk[14] = _damage_pause_table[1][wk->wu.dm_attlv];
-        } else {
-            wk->wu.cmwk[14] = _damage_pause_table[0][wk->wu.dm_attlv];
-        }
-        if (wk->wu.dm_jump_att_flag) {
-            wk->wu.cmwk[14] = _damage_pause_table[2][wk->wu.dm_attlv];
-        }
-
-        char_move_wca(&wk->wu);
-        add_dm_step_tbl(wk, 1);
-        break;
-
-    case 2:
-        add_dm_step_tbl(wk, 1);
-
-        if (--wk->wu.cmwk[14] <= 0) {
-            wk->wu.routine_no[3]++;
-            char_move_wca(&wk->wu);
-            break;
-        }
-
-        /* fallthrough */
-
-    default:
-        char_move(&wk->wu);
-        break;
-    }
-
-    if (wk->wu.cg_type == 0xFF || wk->wu.cg_type == 0x40) {
-        wk->guard_flag = 0;
-    }
-}
-
-static void run_zuru_damage_sequence(PLW* wk, s32 ttktv_arg) {
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.dm_rl = ((WORK*)wk->wu.dmg_adrs)->rl_flag;
-        wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
-        wk->dm_ix = wk->as->char_ix + wk->wu.dm_attlv;
-        set_char_move_init(&wk->wu, 1, wk->dm_ix);
-        setup_butt_own_data(&wk->wu);
-        wk->wu.mvxy.a[1].sp = wk->wu.mvxy.d[1].sp = wk->wu.mvxy.kop[1] = 0;
-        wk->zuru_timer = 0;
-        wk->zuru_ix_counter = 0;
-        break;
-
-    case 1:
-        wk->wu.routine_no[3]++;
-        char_move_wca_init(&wk->wu);
-        /* fallthrough */
-
-    case 2:
-        wk->dm_hos_flag = 1;
-        first_TtktV_union(wk, 3, ttktv_arg);
-        break;
-
-    case 3:
-        char_move(&wk->wu);
-        buttobi_chakuchi_cg_type_check(wk);
-        break;
-    }
-}
-
-void Damage_14000(PLW* wk) {
-    run_zuru_damage_sequence(wk, 4);
-}
-
-void Damage_16000(PLW* wk) {
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
-        set_char_move_init(&wk->wu, 6, wk->as->char_ix);
-        buttobi_add_y_check(wk);
-        setup_butt_own_data(&wk->wu);
-        cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->as->char_ix][wk->wu.dm_attlv], 0);
-        get_sky_dm_timer(wk);
-        break;
-
-    case 1:
-        wk->wu.routine_no[3]++;
-        char_move_wca_init(&wk->wu);
-        /* fallthrough */
-
-    case 2:
-        wk->dm_hos_flag = 1;
-        first_flight_union(wk, 3, 3);
-        break;
-
-    case 3:
-        char_move(&wk->wu);
-        buttobi_chakuchi_cg_type_check(wk);
-        break;
-    }
-
-    if (wk->wu.cg_type == 0xFF || wk->wu.cg_type == 0x40) {
-        wk->guard_flag = 0;
-    }
-}
-
-void Damage_17000(PLW* wk) {
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
-        set_char_move_init(&wk->wu, 6, wk->as->char_ix);
-        check_dmpat_to_dmpat(wk);
-        buttobi_add_y_check(wk);
-        setup_butt_own_data(&wk->wu);
-        cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->as->char_ix][wk->wu.dm_attlv], wk->wu.xyz[1].disp.pos);
-        get_sky_dm_timer(wk);
-        break;
-
-    case 1:
-        wk->wu.routine_no[3]++;
-        char_move_wca_init(&wk->wu);
-        wk->wu.cmwk[14] = _damage_pause_table[3][wk->wu.dm_attlv];
-        /* fallthrough */
-
-    case 2:
-        jumping_union_process(&wk->wu, 3);
-        set_dm_hos_flag_sky(wk);
-
-        if (wk->wu.cg_ja.boix == 0) {
-            wk->guard_flag = 0;
-        }
-
-        if (wk->wu.routine_no[3] == 3) {
-            wk->guard_flag = 0;
-            wk->tsukamarenai_flag = 7;
-            combo_rp_clear_check(wk->wu.id);
-            break;
-        }
-
-        if (wk->wu.cmwk[14] > 0 && --wk->wu.cmwk[14] == 0) {
-            char_move_wca(&wk->wu);
-        }
-
-        if (!(wk->spmv_ng_flag & DIP_AUTO_AIR_RECOVERY_DISABLED) && wk->wu.mvxy.a[1].real.h < -2) {
-            wk->wu.routine_no[1] = 0;
-            wk->wu.routine_no[2] = 23;
-            wk->wu.routine_no[3] = 1;
-            exset_char_move_init(&wk->wu, wk->wu.now_koc, dm17_to_nm23_change[wk->player_number]);
-        }
-
-        wk->tsukamarenai_flag = 7;
-        break;
-
-    case 3:
-        char_move(&wk->wu);
-        wk->guard_flag = 0;
-        break;
-    }
-}
-
-void Damage_18000(PLW* wk) {
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
-        set_char_move_init(&wk->wu, 6, wk->as->char_ix);
-        check_dmpat_to_dmpat(wk);
-        buttobi_add_y_check(wk);
-        setup_butt_own_data(&wk->wu);
-        cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->as->char_ix][wk->wu.dm_attlv], wk->wu.xyz[1].disp.pos);
-        get_sky_dm_timer(wk);
-
-        if (wk->wu.dm_attribute) {
-            setup_accessories(wk, wk->wu.pat_status);
-
-            if (wk->wu.dm_attribute != 2) {
-                effect_D9_init(wk, (u8)wk->wu.dm_attribute);
-            }
-        }
-
-        break;
-
-    case 1:
-        if (setup_kuuchuu_nmdm(wk)) {
-            break;
-        }
-
-        wk->wu.routine_no[3]++;
-        char_move_wca_init(&wk->wu);
-        /* fallthrough */
-
-    case 2:
-        set_dm_hos_flag_sky(wk);
-        first_flight_union(wk, 3, 3);
-        break;
-
-    case 3:
-        char_move(&wk->wu);
-        buttobi_chakuchi_cg_type_check(wk);
-        break;
-    }
-}
-
-void Damage_19000(PLW* wk) {
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.dm_rl = ((WORK*)wk->wu.dmg_adrs)->rl_flag;
-        wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
-        set_char_move_init(&wk->wu, 6, wk->as->char_ix);
-        check_dmpat_to_dmpat(wk);
-        buttobi_add_y_check(wk);
-        setup_butt_own_data(&wk->wu);
-        cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->as->char_ix][wk->wu.dm_attlv], 0);
-        get_sky_dm_timer(wk);
-        break;
-
-    case 1:
-        if (setup_kuuchuu_nmdm(wk)) {
-            break;
-        }
-
-        wk->wu.routine_no[3]++;
-        char_move_wca_init(&wk->wu);
-        /* fallthrough */
-
-    case 2:
-        set_dm_hos_flag_sky(wk);
-        first_flight_union(wk, 3, 3);
-        break;
-
-    case 3:
-        char_move(&wk->wu);
-        buttobi_chakuchi_cg_type_check(wk);
-        break;
-    }
-}
-
-static void run_flight_damage_sequence(PLW* wk, s32 flight_arg) {
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.dm_rl = ((WORK*)wk->wu.dmg_adrs)->rl_flag;
-        wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
-        setup_butt_own_data(&wk->wu);
-        buttobi_add_y_check(wk);
-        set_char_move_init(&wk->wu, 6, wk->as->char_ix);
-        check_dmpat_to_dmpat(wk);
-        get_sky_dm_timer(wk);
-        break;
-
-    case 1:
-        wk->wu.routine_no[3]++;
-        char_move_wca_init(&wk->wu);
-        /* fallthrough */
-
-    case 2:
-        set_dm_hos_flag_sky(wk);
-        first_flight_union(wk, 3, flight_arg);
-        break;
-
-    case 3:
-        char_move(&wk->wu);
-        buttobi_chakuchi_cg_type_check(wk);
-        break;
-    }
-}
-
-void Damage_20000(PLW* wk) {
-    run_flight_damage_sequence(wk, 4);
-}
-
-void Damage_21000(PLW* wk) {
-    run_zuru_damage_sequence(wk, 2);
-}
-
-void Damage_23000(PLW* wk) {
-    run_flight_damage_sequence(wk, 2);
-}
-
-void Damage_24000(PLW* wk) {
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
-        wk->dm_step_tbl = _dm_step_data[_select_hit_dsd[wk->wu.dm_impact][get_weight_point(&wk->wu)]];
-
-        if (wk->as->char_ix == 0x44 && (wk->dm_point == 2 || wk->dm_point == 3)) {
-            set_char_move_init(&wk->wu, 1, 0x45);
-        } else {
-            wk->zuru_timer = 0;
-            wk->zuru_ix_counter = 0;
-            set_char_move_init(&wk->wu, 1, wk->as->char_ix);
-        }
-
-        break;
-
-    case 1:
-        wk->wu.routine_no[3]++;
-        wk->wu.cmwk[14] = _damage_pause_table[0][wk->wu.dm_attlv];
-        char_move_wca(&wk->wu);
-        add_dm_step_tbl(wk, 1);
-        break;
-
-    case 2:
-        add_dm_step_tbl(wk, 1);
-
-        if (--wk->wu.cmwk[14] <= 0) {
-            wk->wu.routine_no[3]++;
-            char_move_wca(&wk->wu);
-            break;
-        }
-
-        /* fallthrough */
-
-    default:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 1) {
-            wk->wu.routine_no[2] = 0;
-            wk->wu.routine_no[3] = 1;
-        }
-
-        break;
-    }
-}
-
-void Damage_25000(PLW* wk) {
-    s16 i;
-    s16 hok;
-
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        set_char_move_init(&wk->wu, 1, wk->as->char_ix);
-        wk->py->flag = 0;
-        wk->py->time = kizetsu_timer_table[(wk->kizetsu_kow & 0xF8) / 8][(wk->kizetsu_kow & 7) / 2][random_16()];
-        wk->zuru_timer = 0;
-        wk->zuru_ix_counter = 0;
-        SDL_zerop(wk->rp);
-        check_em_tk_power_off(wk, (PLW*)wk->wu.target_adrs);
-        grade_add_em_stun((wk->wu.id + 1) & 1);
-        break;
-
-    case 1:
-        if ((pcon_dp_flag != 0) && (wk->py->time > 48)) {
-            wk->py->time = 48;
-        }
-
-        wk->py->time -= wk->cp->lgp / 2;
-
-        if (wk->cp->lgp > 13) {
-            hok = 5;
-        } else {
-            hok = hok_table[wk->cp->lgp / 2];
-        }
-
-        for (i = 0; i < hok; i++) {
-            char_move(&wk->wu);
-        }
-
-        setup_kuzureochi(wk);
-        break;
-    }
-
-    if (wk->wu.cg_se) {
-        pulpul_request(wk->wu.id, 48);
-        wk->wu.cg_se = 0;
-    }
-}
-
-void Damage_26000(PLW* wk) {
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        set_char_move_init(&wk->wu, 6, wk->as->char_ix);
-        check_dmpat_to_dmpat(wk);
-        buttobi_add_y_check(wk);
-        setup_butt_own_data(&wk->wu);
-        wk->wu.mvxy.d[1].sp = (wk->wu.mvxy.d[1].sp * 80) / 100;
-        cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->as->char_ix][wk->wu.dm_attlv], 0);
-        wk->wu.mvxy.a[0].real.h = wk->move_power;
-        wk->wu.mvxy.a[0].real.l = 0;
-        wk->wu.mvxy.a[0].sp *= 3;
-        wk->wu.mvxy.a[0].sp /= 4;
-        wk->wu.mvxy.d[0].sp = 0;
-
-        if (wk->wu.mvxy.a[0].real.h > 4) {
-            wk->wu.mvxy.a[0].real.h = 4;
-        }
-
-        if (wk->wu.mvxy.a[0].real.h <= 0) {
-            wk->wu.mvxy.a[0].real.h = 1;
-        }
-
-        get_sky_dm_timer(wk);
-        break;
-
-    case 1:
-        wk->wu.routine_no[3]++;
-        char_move_wca_init(&wk->wu);
-        /* fallthrough */
-
-    case 2:
-        set_dm_hos_flag_sky(wk);
-        first_flight_union(wk, 3, 3);
-
-        if (wk->wu.routine_no[3] == 3 && wk->player_number == 8) {
-            wk->wu.rl_flag = (wk->wu.rl_flag + 1) & 1;
-        }
-
-        break;
-
-    case 3:
-        char_move(&wk->wu);
-        buttobi_chakuchi_cg_type_check(wk);
-        break;
-    }
-}
-
-void Damage_27000(PLW* wk) {
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->dm_ix = wk->as->char_ix + wk->wu.dm_attlv;
-        set_char_move_init(&wk->wu, 1, wk->dm_ix);
-        setup_butt_own_data(&wk->wu);
-        wk->wu.mvxy.a[1].sp = wk->wu.mvxy.d[1].sp = wk->wu.mvxy.kop[1] = 0;
-        wk->zuru_timer = 0;
-        wk->zuru_ix_counter = 0;
-        break;
-
-    case 1:
-        wk->wu.routine_no[3]++;
-        char_move_wca_init(&wk->wu);
-        /* fallthrough */
-
-    default:
-        char_move(&wk->wu);
-        buttobi_chakuchi_cg_type_check(wk);
-        break;
-    }
-}
-
-void Damage_28000(PLW* wk) {
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        set_char_move_init(&wk->wu, 6, wk->as->char_ix);
-        buttobi_add_y_check(wk);
-        setup_butt_own_data(&wk->wu);
-        cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->as->char_ix][wk->wu.dm_attlv], wk->wu.xyz[1].disp.pos);
-        get_sky_dm_timer(wk);
-        break;
-
-    case 1:
-        set_dm_hos_flag_sky(wk);
-        first_flight_union(wk, 2, 3);
-        break;
-
-    case 2:
-        char_move(&wk->wu);
-        buttobi_chakuchi_cg_type_check(wk);
-        break;
-    }
-}
-
-void Damage_29000(PLW* wk) {
-    PLW* twk = (PLW*)wk->wu.target_adrs;
-    const u16* datadrs;
-
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.dm_rl = twk->wu.rl_flag;
-
-        if (wk->dm_point > 2) {
-            wk->wu.routine_no[2] = wk->as->data_ix;
-            plpdm_lv_00[wk->wu.routine_no[2]](wk);
-            break;
-        }
-
-        wk->wu.routine_no[3]++;
-        datadrs = exdm_ix_data[wk->wu.dm_exdm_ix][wk->player_number];
-
-        if (twk->wu.rl_flag) {
-            wk->wu.xyz[0].disp.pos = twk->wu.xyz[0].disp.pos - datadrs[0];
-        } else {
-            wk->wu.xyz[0].disp.pos = twk->wu.xyz[0].disp.pos + datadrs[0];
-        }
-
-        wk->wu.xyz[1].disp.pos = twk->wu.xyz[1].disp.pos + datadrs[1];
-        wk->wu.rl_flag = (wk->wu.dm_rl + datadrs[2]) & 1;
-        wk->wu.cg_olc_ix = datadrs[3];
-        wk->wu.cg_olc = wk->wu.olc_ix_table[wk->wu.cg_olc_ix];
-        wk->wu.cg_number = datadrs[4];
-        wk->wu.cg_ctr = 0xFA;
-        wk->wu.cg_flip = 0;
-        wk->wu.cg_type = 0;
-        wk->wu.cg_hit_ix = 0;
-        wk->wu.cg_ja = wk->wu.hit_ix_table[wk->wu.cg_hit_ix];
-        set_jugde_area(&wk->wu);
-        break;
-
-    case 1:
-        wk->wu.routine_no[2] = wk->as->data_ix;
-        wk->wu.routine_no[3]++;
-
-        if (wk->wu.routine_no[2] == 18) {
-            set_char_move_init(&wk->wu, 6, wk->as->char_ix);
-            char_move_wca_init(&wk->wu);
-            buttobi_add_y_check(wk);
-            setup_butt_own_data(&wk->wu);
-            cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->as->char_ix][wk->wu.dm_attlv], wk->wu.xyz[1].disp.pos);
-        } else {
-            setup_butt_own_data(&wk->wu);
-            set_char_move_init(&wk->wu, 6, wk->as->char_ix);
-            char_move_wca_init(&wk->wu);
-            buttobi_add_y_check(wk);
-        }
-
-        get_sky_dm_timer(wk);
-        plpdm_lv_00[wk->wu.routine_no[2]](wk);
-        break;
-    }
-}
-
-void Damage_30000(PLW* wk) {
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.dm_rl = ((WORK*)wk->wu.dmg_adrs)->rl_flag;
-        wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
-        set_char_move_init(&wk->wu, 6, wk->as->char_ix);
-        check_dmpat_to_dmpat(wk);
-        buttobi_add_y_check(wk);
-        setup_butt_own_data(&wk->wu);
-        cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->as->char_ix][wk->wu.dm_attlv], 0);
-        break;
-
-    case 1:
-        if (setup_kuuchuu_nmdm(wk)) {
-            break;
-        }
-
-        wk->wu.routine_no[3]++;
-        char_move_wca_init(&wk->wu);
-        /* fallthrough */
-
-    case 2:
-        set_dm_hos_flag_sky(wk);
-        first_flight_union(wk, 3, 3);
-
-        if (wk->wu.routine_no[3] == 3 || !wk->hos_fi_flag) {
-            break;
-        }
-
-        wk->wu.routine_no[2] = 18;
-        wk->wu.routine_no[3] = 1;
-        set_char_move_init(&wk->wu, 6, wk->as->data_ix);
-        wk->wu.dm_butt_type++;
-        setup_butt_own_data(&wk->wu);
-        cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->as->data_ix][wk->wu.dm_attlv], wk->wu.xyz[1].disp.pos);
-        get_sky_dm_timer(wk);
-
-        if (wk->wu.dm_attribute) {
-            setup_accessories(wk, wk->wu.pat_status);
-
-            if (wk->wu.dm_attribute != 2) {
-                effect_D9_init(wk, (u8)wk->wu.dm_attribute);
-            }
-        }
-
-        wk->wu.hit_stop = 3;
-        wk->wu.hit_quake = 0;
-        bg_w.quake_x_index = 6;
-        pp_screen_quake(bg_w.quake_x_index);
-        effect_I3_init(&wk->wu, 1);
-        subtract_cu_vital(wk);
-        break;
-
-    case 3:
-        char_move(&wk->wu);
-        buttobi_chakuchi_cg_type_check(wk);
-        break;
-    }
-}
-
-void Damage_31000(PLW* wk) {
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.dm_rl = ((WORK*)wk->wu.dmg_adrs)->rl_flag;
-        wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
-
-        if (wk->wu.xyz[1].disp.pos <= 0) {
-            wk->wu.xyz[1].disp.pos = 1;
-        }
-
-        set_char_move_init(&wk->wu, 6, 10);
-        setup_butt_own_data(&wk->wu);
-        get_sky_dm_timer(wk);
-        break;
-
-    case 1:
-        wk->wu.routine_no[3]++;
-        char_move_wca_init(&wk->wu);
-        /* fallthrough */
-
-    case 2:
-        set_dm_hos_flag_sky(wk);
-        first_flight_union(wk, 3, 3);
-
-        if (wk->wu.routine_no[3] != 3) {
-            break;
-        }
-
-        wk->wu.dir_timer = 10;
-        wk->wu.cg_hit_ix = 1;
-        wk->wu.cg_ja = wk->wu.hit_ix_table[1];
-        set_jugde_area(&wk->wu);
-        break;
-
-    case 3:
-        if (wk->wu.dir_timer & 1) {
-            char_move(&wk->wu);
-        }
-
-        wk->wu.cg_hit_ix = 1;
-        wk->wu.cg_ja = wk->wu.hit_ix_table[1];
-        set_jugde_area(&wk->wu);
-
-        if (--wk->wu.dir_timer >= 0) {
-            break;
-        }
-
-        set_char_move_init(&wk->wu, 6, 17);
-        wk->wu.cg_wca_ix++;
-        char_move_wca(&wk->wu);
-        wk->wu.routine_no[2] = 18;
-        wk->wu.routine_no[3] = 2;
-        setup_butt_own_data(&wk->wu);
-        cal_initial_speed_y(&wk->wu, _buttobi_time_table[wk->as->char_ix][wk->wu.dm_attlv], wk->wu.xyz[1].disp.pos);
-        get_sky_dm_timer(wk);
-        break;
-    }
-}
 
 void first_flight_union(PLW* wk, s16 num, s16 dv) {
     jumping_union_process(&wk->wu, num);
@@ -1209,6 +316,48 @@ void first_TtktV_union(PLW* wk, s16 num, s16 dv) {
     }
 }
 
+/* A quick stand needs the option enabled, the roll actually taken, and a player
+ * who is alive, not dizzy and not in the dramatic pause. */
+static s32 quick_stand_is_allowed(const PLW* wk) {
+    return !(wk->spmv_ng_flag2 & DIP2_QUICK_STAND_DISABLED) && wk->ukemi_success && (wk->dead_flag == 0) &&
+           (wk->py->flag == 0) && (wk->wu.vital_new > 0) && (pcon_dp_flag == 0);
+}
+
+/* Landing from a knockdown keeps drifting the way the player was already
+ * moving. The `break` inside was the switch arm's exit with nothing after it,
+ * so it is a `return` here. */
+static void drift_on_landing(PLW* wk) {
+    if (wk->wu.mvxy.a[0].sp > 0) {
+        add_mvxy_speed_direct(&wk->wu, 128, 0);
+        return;
+    }
+
+    if (wk->wu.mvxy.a[0].sp < 0) {
+        add_mvxy_speed_direct(&wk->wu, -128, 0);
+    }
+}
+
+/* The same drift at half the speed, preceded by the quick-stand chance. Not
+ * shared with drift_on_landing: the two speeds differ in both the forward and
+ * the backward literal, which is two values, not the one Recipe D allows. */
+static void quick_stand_or_drift(PLW* wk) {
+    if (quick_stand_is_allowed(wk)) {
+        wk->wu.routine_no[2] = oki_select_table2[wk->wu.rl_waza + (wk->wu.rl_flag * 2)];
+        wk->wu.routine_no[3] = 0;
+        add_sp_arts_gauge_ukemi(wk);
+        grade_add_quick_stand(wk->wu.id);
+    }
+
+    if (wk->wu.mvxy.a[0].sp > 0) {
+        add_mvxy_speed_direct(&wk->wu, 64, 0);
+        return;
+    }
+
+    if (wk->wu.mvxy.a[0].sp < 0) {
+        add_mvxy_speed_direct(&wk->wu, -64, 0);
+    }
+}
+
 void buttobi_chakuchi_cg_type_check(PLW* wk) {
     switch (wk->wu.cg_type) {
     case 9:
@@ -1219,35 +368,11 @@ void buttobi_chakuchi_cg_type_check(PLW* wk) {
         break;
 
     case 2:
-        if (wk->wu.mvxy.a[0].sp > 0) {
-            add_mvxy_speed_direct(&wk->wu, 128, 0);
-            break;
-        }
-
-        if (wk->wu.mvxy.a[0].sp < 0) {
-            add_mvxy_speed_direct(&wk->wu, -128, 0);
-        }
-
+        drift_on_landing(wk);
         break;
 
     case 5:
-        if (!(wk->spmv_ng_flag2 & DIP2_QUICK_STAND_DISABLED) && wk->ukemi_success && (wk->dead_flag == 0) &&
-            (wk->py->flag == 0) && (wk->wu.vital_new > 0) && (pcon_dp_flag == 0)) {
-            wk->wu.routine_no[2] = oki_select_table2[wk->wu.rl_waza + (wk->wu.rl_flag * 2)];
-            wk->wu.routine_no[3] = 0;
-            add_sp_arts_gauge_ukemi(wk);
-            grade_add_quick_stand(wk->wu.id);
-        }
-
-        if (wk->wu.mvxy.a[0].sp > 0) {
-            add_mvxy_speed_direct(&wk->wu, 64, 0);
-            break;
-        }
-
-        if (wk->wu.mvxy.a[0].sp < 0) {
-            add_mvxy_speed_direct(&wk->wu, -64, 0);
-        }
-
+        quick_stand_or_drift(wk);
         break;
     }
 }
@@ -1260,9 +385,29 @@ void buttobi_add_y_check(PLW* wk) {
     }
 }
 
+/* Which of the four smoke effects the accumulated damage earns. The thresholds
+ * and the order they are tested in are the original's; only the assignment to a
+ * shared local becomes a return. */
+static u8 smoke_type_for(s16 total) {
+    u8 ix = 0;
+
+    if (total >= 48) {
+        ix = 1;
+
+        if (total >= 64) {
+            ix = 2;
+
+            if (total >= 80) {
+                ix = 3;
+            }
+        }
+    }
+
+    return ix;
+}
+
 void setup_smoke_type(PLW* wk) {
     s8* step_tbl;
-    u8 ix;
     s16 i;
     s16 total;
 
@@ -1278,21 +423,7 @@ void setup_smoke_type(PLW* wk) {
     }
 
     if (total >= 32) {
-        ix = 0;
-
-        if (total >= 48) {
-            ix = 1;
-
-            if (total >= 64) {
-                ix = 2;
-
-                if (total >= 80) {
-                    ix = 3;
-                }
-            }
-        }
-
-        effect_G6_init(&wk->wu, ix);
+        effect_G6_init(&wk->wu, smoke_type_for(total));
     }
 }
 
@@ -1312,6 +443,26 @@ void check_dmpat_to_dmpat(PLW* /* unused */) {
     // Do nothing
 }
 
+/* Out of reach for the airborne damage-correction flag. Rising and falling have
+ * different limits, and the comparisons keep the original's polarity. */
+static s32 too_far_for_air_hosei(const PLW* wk, s16 disx) {
+    if (wk->wu.mvxy.a[1].real.h <= 0) {
+        return disx > 96;
+    }
+
+    return disx > 160;
+}
+
+/* The same question on the other dm_work_id path, which reaches less far. Not
+ * merged with the one above: both limits differ, which is two values. */
+static s32 too_far_for_ground_hosei(const PLW* wk, s16 disx) {
+    if (wk->wu.mvxy.a[1].real.h <= 0) {
+        return disx > 80;
+    }
+
+    return disx > 128;
+}
+
 void set_dm_hos_flag_sky(PLW* wk) {
     PLW* twk = (PLW*)wk->wu.target_adrs;
     s16 disx = wk->wu.xyz[0].disp.pos - twk->wu.xyz[0].disp.pos;
@@ -1321,11 +472,7 @@ void set_dm_hos_flag_sky(PLW* wk) {
     }
 
     if (wk->wu.dm_work_id & 8) {
-        if (wk->wu.mvxy.a[1].real.h <= 0) {
-            if (disx > 96) {
-                return;
-            }
-        } else if (disx > 160) {
+        if (too_far_for_air_hosei(wk, disx)) {
             return;
         }
 
@@ -1337,15 +484,11 @@ void set_dm_hos_flag_sky(PLW* wk) {
         return;
     }
 
-    if (twk->player_number == 0 && twk->wu.now_koc == 5 && twk->wu.char_index == 59) {
+    if (target_is_gill_resurrecting(twk)) {
         return;
     }
 
-    if (wk->wu.mvxy.a[1].real.h <= 0) {
-        if (disx > 80) {
-            return;
-        }
-    } else if (disx > 128) {
+    if (too_far_for_ground_hosei(wk, disx)) {
         return;
     }
 
@@ -1373,7 +516,7 @@ void set_dm_hos_flag_grd(PLW* wk) {
         return;
     }
 
-    if (twk->player_number == 0 && twk->wu.now_koc == 5 && twk->wu.char_index == 59) {
+    if (target_is_gill_resurrecting(twk)) {
         return;
     }
 
@@ -1394,78 +537,105 @@ void get_sky_dm_timer(PLW* wk) {
     wk->zuru_timer = sky_dm_zuru_table[omop_otedama_ix[(wk->wu.id + 1) & 1]][wk->zuru_ix_counter];
 }
 
+/* The hit was fatal. A hit that was being blocked is recorded as a chip-damage
+ * death, and the first death of the round starts the slow-motion finish. */
+static void kill_by_damage(PLW* wk) {
+    wk->wu.vital_new = -1;
+    wk->dead_flag = 1;
+    dead_voice_flag = true;
+
+    if (wk->wu.dm_guard_success != -1) {
+        wk->kezurijini_flag = 1;
+    }
+
+    if (!round_slow_flag) {
+        set_conclusion_slow();
+        round_slow_flag = true;
+    }
+}
+
+/* It was not: the stun meter takes the hit instead, and fills. */
+static void add_piyo_damage(PLW* wk) {
+    wk->py->now.quantity.h += wk->wu.dm_piyo;
+
+    if (wk->py->now.quantity.h >= wk->py->genkai) {
+        wk->py->now.timer = 0;
+        wk->py->flag = 1;
+    }
+}
+
 static void apply_vital_underflow_or_piyo(PLW* wk) {
     if (wk->wu.vital_new < 0) {
-        wk->wu.vital_new = -1;
-        wk->dead_flag = 1;
-        dead_voice_flag = true;
-
-        if (wk->wu.dm_guard_success != -1) {
-            wk->kezurijini_flag = 1;
-        }
-
-        if (!round_slow_flag) {
-            set_conclusion_slow();
-            round_slow_flag = true;
-        }
+        kill_by_damage(wk);
     } else if (wk->py->flag == 0) {
-        wk->py->now.quantity.h += wk->wu.dm_piyo;
-
-        if (wk->py->now.quantity.h >= wk->py->genkai) {
-            wk->py->now.timer = 0;
-            wk->py->flag = 1;
-        }
+        add_piyo_damage(wk);
     }
+}
+
+/* Rumble the pad for a hit, except in the seven reaction states that do not.
+ * The case labels are the reaction numbers the rest of the engine uses and are
+ * unchanged, including their order. */
+static void rumble_for_damage(PLW* wk) {
+    switch (wk->wu.routine_no[2]) {
+    case 1:
+    case 2:
+    case 3:
+    case 12:
+    case 13:
+    case 19:
+    case 16:
+        break;
+
+    default:
+        pp_pulpara_remake_dm_all(&wk->wu);
+        break;
+    }
+}
+
+/* Taking the damage off the player's vitality, with the vital option that
+ * zeroes it first and the two floors at zero after. subtract_dm_vital and
+ * subtract_dm_vital_aiuchi ran this identically; the one statement that differs
+ * between them - the super-art gauge award - stays at subtract_dm_vital's call
+ * site, before the call, where it was. */
+static void apply_damage_to_vital(PLW* wk) {
+    if (wk->atemi_flag) {
+        wk->dm_vital_backup = wk->wu.dm_vital;
+    } else {
+        wk->dm_vital_backup = 0;
+    }
+
+    wk->dm_vital_use = 0;
+
+    if (omop_vital_ix[wk->wu.id] == 5) {
+        wk->wu.dm_vital = 0;
+    }
+
+    wk->wu.vital_new -= wk->wu.dm_vital;
+
+    if (chip_damage_would_be_fatal(wk)) {
+        wk->wu.vital_new = 0;
+    }
+
+    if (wk->wu.dm_nodeathattack && wk->wu.vital_new < 0) {
+        wk->wu.vital_new = 0;
+    }
+
+    apply_vital_underflow_or_piyo(wk);
 }
 
 void subtract_dm_vital(PLW* wk) {
     if (wk->dead_flag == 0) {
-        if (wk->wu.dm_vital && (wk->wu.routine_no[1] != 1 || wk->wu.routine_no[2] > 11 || wk->wu.routine_no[3] != 0)) {
+        if (damage_interrupts_current_action(wk)) {
             Additinal_Score_DM((WORK_Other*)wk->wu.dmg_adrs, wk->wu.dm_ten_ix);
         }
 
         add_sp_arts_gauge_hit_dm(wk);
 
-        if (wk->atemi_flag) {
-            wk->dm_vital_backup = wk->wu.dm_vital;
-        } else {
-            wk->dm_vital_backup = 0;
-        }
-
-        wk->dm_vital_use = 0;
-
-        if (omop_vital_ix[wk->wu.id] == 5) {
-            wk->wu.dm_vital = 0;
-        }
-
-        wk->wu.vital_new -= wk->wu.dm_vital;
-
-        if (wk->wu.dm_guard_success == -1 && wk->wu.vital_old > 0 && wk->wu.vital_new < 0 && wk->wu.vital_new > -3) {
-            wk->wu.vital_new = 0;
-        }
-
-        if (wk->wu.dm_nodeathattack && wk->wu.vital_new < 0) {
-            wk->wu.vital_new = 0;
-        }
-
-        apply_vital_underflow_or_piyo(wk);
+        apply_damage_to_vital(wk);
     }
 
     if (wk->guard_chuu == 0) {
-        switch (wk->wu.routine_no[2]) {
-        case 1:
-        case 2:
-        case 3:
-        case 12:
-        case 13:
-        case 19:
-        case 16:
-            break;
-
-        default:
-            pp_pulpara_remake_dm_all(&wk->wu);
-            break;
-        }
+        rumble_for_damage(wk);
     }
 
     if (Mode_Type == MODE_NORMAL_TRAINING && (Training_ID != wk->wu.id)) {
@@ -1476,35 +646,21 @@ void subtract_dm_vital(PLW* wk) {
     wk->wu.dm_piyo = 0;
 }
 
+
+/* Applying a trade's damage to a player who is still alive. The order matters:
+ * the vital option that zeroes the damage runs before the subtraction, and the
+ * two floors at zero run after it, as in the original. */
+static void take_aiuchi_damage(PLW* wk) {
+    if (damage_interrupts_current_action(wk)) {
+        Additinal_Score_DM((WORK_Other*)wk->wu.dmg_adrs, wk->wu.dm_ten_ix);
+    }
+
+    apply_damage_to_vital(wk);
+}
+
 void subtract_dm_vital_aiuchi(PLW* wk) {
     if (wk->dead_flag == 0) {
-        if (wk->wu.dm_vital && (wk->wu.routine_no[1] != 1 || wk->wu.routine_no[2] > 11 || wk->wu.routine_no[3] != 0)) {
-            Additinal_Score_DM((WORK_Other*)wk->wu.dmg_adrs, wk->wu.dm_ten_ix);
-        }
-
-        if (wk->atemi_flag) {
-            wk->dm_vital_backup = wk->wu.dm_vital;
-        } else {
-            wk->dm_vital_backup = 0;
-        }
-
-        wk->dm_vital_use = 0;
-
-        if (omop_vital_ix[wk->wu.id] == 5) {
-            wk->wu.dm_vital = 0;
-        }
-
-        wk->wu.vital_new -= wk->wu.dm_vital;
-
-        if (wk->wu.dm_guard_success == -1 && wk->wu.vital_old > 0 && wk->wu.vital_new < 0 && wk->wu.vital_new > -3) {
-            wk->wu.vital_new = 0;
-        }
-
-        if (wk->wu.dm_nodeathattack && wk->wu.vital_new < 0) {
-            wk->wu.vital_new = 0;
-        }
-
-        apply_vital_underflow_or_piyo(wk);
+        take_aiuchi_damage(wk);
     }
 
     pp_pulpara_remake_dm_all(&wk->wu);
@@ -1517,15 +673,12 @@ void subtract_dm_vital_aiuchi(PLW* wk) {
     wk->wu.dm_piyo = 0;
 }
 
-void get_damage_reaction_data(PLW* wk) {
-    if (wk->atemi_flag == 2) {
-        wk->wu.dm_vital = 0;
-        damage_atemi_setup(wk, (PLW*)wk->wu.dmg_adrs);
-        return;
-    }
-
-    subtract_dm_vital(wk);
-
+/* Reaction 88 is "decide the knockdown type": first from the attack, then
+ * overridden to 91 if the victim is dizzy or if air knockdowns are not disabled.
+ * Each test re-reads routine_no[2], so an earlier override stops the later ones
+ * firing - that sequencing is the original's and is why they stay three
+ * separate tests. */
+static void resolve_knockdown_reaction(PLW* wk) {
     if (wk->wu.routine_no[2] == 88) {
         wk->wu.routine_no[2] = check_buttobi_type(wk);
     }
@@ -1537,10 +690,35 @@ void get_damage_reaction_data(PLW* wk) {
     if (!(((PLW*)wk->wu.target_adrs)->spmv_ng_flag & DIP_AIR_KNOCKDOWNS_DISABLED) && wk->wu.routine_no[2] == 88) {
         wk->wu.routine_no[2] = 91;
     }
+}
+
+/* Count the damage stop one frame toward zero, from whichever side it is on. */
+static void ease_damage_stop_toward_zero(PLW* wk) {
+    if (wk->wu.dm_stop) {
+        if (wk->wu.dm_stop > 0) {
+            wk->wu.dm_stop--;
+        }
+
+        if (wk->wu.dm_stop < 0) {
+            wk->wu.dm_stop++;
+        }
+    }
+}
+
+void get_damage_reaction_data(PLW* wk) {
+    if (wk->atemi_flag == 2) {
+        wk->wu.dm_vital = 0;
+        damage_atemi_setup(wk, (PLW*)wk->wu.dmg_adrs);
+        return;
+    }
+
+    subtract_dm_vital(wk);
+
+    resolve_knockdown_reaction(wk);
 
     if (wk->dead_flag) {
         wk->wu.routine_no[2] = dd_convert[wk->wu.routine_no[2]][wk->wu.dm_attlv];
-        if (wk->wu.routine_no[2] > 19 && wk->wu.routine_no[2] < 88 && wk->wu.routine_no[2] != 70) {
+        if (action_is_in_damage_range(wk)) {
             wk->wu.routine_no[2] = check_buttobi_type2(wk);
         }
     }
@@ -1557,15 +735,7 @@ void get_damage_reaction_data(PLW* wk) {
     wk->as = &dm_reaction_table[wk->wu.routine_no[2]];
     wk->wu.routine_no[2] = wk->as->r_no;
 
-    if (wk->wu.dm_stop) {
-        if (wk->wu.dm_stop > 0) {
-            wk->wu.dm_stop--;
-        }
-
-        if (wk->wu.dm_stop < 0) {
-            wk->wu.dm_stop++;
-        }
-    }
+    ease_damage_stop_toward_zero(wk);
 }
 
 void damage_atemi_setup(PLW* wk, PLW* ek) {
@@ -1589,7 +759,7 @@ s32 setup_kuzureochi(PLW* wk) { // 🟡
     }
 
     if (!ArcadeBalance_IsEnabled()) {
-        if (pcon_dp_flag && Conclusion_Type != 1 && wk->wu.id == Winner_id) {
+        if (winner_during_dramatic_pause(wk)) {
             wk->wu.vital_new = 0;
             return 0;
         }
@@ -1631,7 +801,7 @@ void get_catch_off_data(PLW* wk, s16 ix) {
 void check_bullet_damage(PLW* wk) {
     WORK* tk = (WORK*)wk->wu.dmg_adrs;
 
-    if (tk->work_id != 1 && tk->id == 13 && tama_select[tk->type] != 0) {
+    if (is_selectable_projectile(tk)) {
         wk->bullet_hcnt += tama_select[tk->type];
         wk->bhcnt_timer = 800;
     }

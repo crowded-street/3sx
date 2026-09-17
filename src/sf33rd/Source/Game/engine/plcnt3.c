@@ -19,8 +19,16 @@ void plcnt_b2_die();
 
 void (*const player_bonus2_process[3])() = { plcnt_b_init, plcnt_b2_move, plcnt_b2_die };
 
+static s32 control_may_run(void) {
+    return ((pcon_rno[0] + pcon_rno[1]) == 0) || (!Game_pause && !EXE_flag);
+}
+
+static s32 round_is_in_play(void) {
+    return pcon_rno[0] == 2 && pcon_rno[1] == 0 && pcon_rno[2] == 2;
+}
+
 s32 Player_control_bonus2() {
-    if (((pcon_rno[0] + pcon_rno[1]) == 0) || (!Game_pause && !EXE_flag)) {
+    if (control_may_run()) {
         players_timer++;
         players_timer &= 0x7FFF;
         player_bonus2_process[pcon_rno[0]]();
@@ -50,7 +58,7 @@ s32 Player_control_bonus2() {
         store_player_after_image_data();
     }
 
-    if (pcon_rno[0] == 2 && pcon_rno[1] == 0 && pcon_rno[2] == 2) {
+    if (round_is_in_play()) {
         return 1;
     }
 
@@ -82,6 +90,18 @@ void plcnt_b2_move() {
     }
 }
 
+/* A human player goes into the end-of-stage routine; a CPU one is simply
+ * marked finished. Both players are asked the same way. */
+static void end_bonus2_for(s16 ix) {
+    if (plw[ix].wu.operator) {
+        plw[ix].wu.routine_no[1] = 0;
+        plw[ix].wu.routine_no[2] = 40;
+        plw[ix].wu.routine_no[3] = 0;
+    } else {
+        plw[ix].wu.routine_no[3] = 9;
+    }
+}
+
 void plcnt_b2_die() {
     plw[0].wu.dm_vital = plw[1].wu.dm_vital = 0;
 
@@ -101,23 +121,8 @@ void plcnt_b2_die() {
 
     case 2:
         complete_victory_pause();
-
-        if (plw[0].wu.operator) {
-            plw[0].wu.routine_no[1] = 0;
-            plw[0].wu.routine_no[2] = 40;
-            plw[0].wu.routine_no[3] = 0;
-        } else {
-            plw[0].wu.routine_no[3] = 9;
-        }
-
-        if (plw[1].wu.operator) {
-            plw[1].wu.routine_no[1] = 0;
-            plw[1].wu.routine_no[2] = 40;
-            plw[1].wu.routine_no[3] = 0;
-        } else {
-            plw[1].wu.routine_no[3] = 9;
-        }
-
+        end_bonus2_for(0);
+        end_bonus2_for(1);
         plw[0].wu.cg_type = plw[1].wu.cg_type = 0;
         pcon_rno[2]++;
         break;

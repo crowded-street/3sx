@@ -151,12 +151,23 @@ def calls(src: str) -> Counter:
     Anything else wants explaining. A name that disappears entirely is a FAIL.
     """
     out = Counter()
-    for m in CALL_RE.finditer(strip_comments(src)):
+    for m in CALL_RE.finditer(strip_preprocessor_lines(strip_comments(src))):
         name = m.group(1)
         if name in NOT_CALLS:
             continue
         out[name] += 1
     return out
+
+
+def strip_preprocessor_lines(src: str) -> str:
+    """Drop #define, #include and friends before counting calls.
+
+    A function-like macro's definition line - `#define LO_2_BYTES(_val) ...` -
+    reads as a call to the name it defines, so moving a macro into a header made
+    the call fingerprint say a call had vanished. A macro *definition* is not a
+    call; its *uses* still are, and those are counted as before.
+    """
+    return re.sub(r"^[ \t]*#[^\n]*(?:\\\n[^\n]*)*", "", src, flags=re.MULTILINE)
 
 
 def report_call_changes(rel: str, before: Counter, after: Counter, strict: bool) -> bool:
@@ -171,6 +182,10 @@ def report_call_changes(rel: str, before: Counter, after: Counter, strict: bool)
         print("FAIL  " + rel + "  - a call vanished from the file")
         for name in sorted(vanished):
             print("        gone      " + name + " (was called " + str(before[name]) + "x)")
+        if any(after[name] == 0 for name in vanished) and (after - before):
+            print("        if one of these was renamed - legal for a file-local static, never")
+            print("        for a function another file can see - declare it and run again:")
+            print("          --renamed OLD=NEW")
         return False
 
     label = "FAIL " if strict else "WARN "
@@ -186,7 +201,22 @@ def report_call_changes(rel: str, before: Counter, after: Counter, strict: bool)
     return not strict
 
 
-def check_calls(rel: str, base: str, strict: bool = False) -> bool:
+def apply_renames(counts: Counter, renames: dict) -> Counter:
+    """Rewrite old names to new ones in a call fingerprint.
+
+    A renamed file-local static would otherwise read as a vanished call. The
+    rename is declared by the agent rather than guessed, so the check keeps its
+    strength: counts still have to balance after the substitution.
+    """
+    if not renames:
+        return counts
+    out = Counter()
+    for name, count in counts.items():
+        out[renames.get(name, name)] += count
+    return out
+
+
+def check_calls(rel: str, base: str, strict: bool = False, renames: dict | None = None) -> bool:
     """Compare the call fingerprint of one file against `base`."""
     before = git_show(base, rel)
     if before is None:
@@ -199,7 +229,7 @@ def check_calls(rel: str, base: str, strict: bool = False) -> bool:
         return False
 
     after = path.read_text(encoding="utf-8", errors="replace")
-    return report_call_changes(rel, calls(before), calls(after), strict)
+    return report_call_changes(rel, apply_renames(calls(before), renames or {}), calls(after), strict)
 
 
 def strip_include_lines(src: str) -> str:
@@ -386,6 +416,30 @@ def check_combined(rels: list[str], base: str, strict: bool) -> bool:
     return report_combined_changes(*counts, strict)
 
 
+def check_calls_combined(rels: list[str], base: str, strict: bool, renames: dict) -> bool:
+    """Compare the call fingerprint of a group of files as one.
+
+    This is the check Recipe S needs. A split moves whole functions into a new
+    file, so every file on its own reads as calls vanishing or appearing; only
+    the union of the group is meant to be unchanged. Files absent from `base`
+    contribute nothing to the before side, which is exactly right for the new
+    file a split creates.
+    """
+    before = Counter()
+    after = Counter()
+    for rel in rels:
+        old = git_show(base, rel)
+        if old is not None:
+            before += calls(old)
+        path = REPO / rel
+        if not path.is_file():
+            print("FAIL  " + rel + "  (deleted from working tree)")
+            return False
+        after += calls(path.read_text(encoding="utf-8", errors="replace"))
+
+    return report_call_changes("combined group", apply_renames(before, renames), after, strict)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -393,12 +447,25 @@ def main() -> int:
     ap.add_argument("--base", default="HEAD", help="git ref to compare against (default HEAD)")
     ap.add_argument("--all", action="store_true", help="check every changed .c/.cpp")
     ap.add_argument("--combined", action="store_true",
-                    help="compare all supplied files as one literal group")
+                    help="compare all supplied files as one group, so a Recipe S split that "
+                         "moves whole functions between them reads as unchanged. Works with "
+                         "--calls too.")
     ap.add_argument("--strict", action="store_true",
                     help="fail on added literals and reduced-count warnings")
     ap.add_argument("--calls", action="store_true",
                     help="compare called-function fingerprints instead of literals")
+    ap.add_argument("--renamed", action="append", metavar="OLD=NEW", default=[],
+                    help="declare that a file-local static was renamed, so --calls does "
+                         "not read it as a vanished call. Repeatable. Renaming a function "
+                         "another file can see is not a campaign refactor.")
     args = ap.parse_args()
+
+    renames = {}
+    for pair in args.renamed:
+        if "=" not in pair:
+            ap.error("--renamed wants OLD=NEW, got: " + pair)
+        old_name, new_name = pair.split("=", 1)
+        renames[old_name.strip()] = new_name.strip()
 
     targets = changed_files(args.base) if args.all else args.files
     if not targets:
@@ -406,13 +473,28 @@ def main() -> int:
         return 0
 
     if args.combined:
-        return 0 if check_combined([p.replace("\\", "/") for p in targets], args.base, args.strict) else 1
+        group = [p.replace("\\", "/") for p in targets]
+        if args.calls:
+            passed = check_calls_combined(group, args.base, args.strict, renames)
+        else:
+            passed = check_combined(group, args.base, args.strict)
+        if not passed:
+            print()
+            print("BLOCKED - this is not a legal campaign refactor.")
+            return 1
+        print()
+        print("PASS - no call was dropped or duplicated." if args.calls
+              else "PASS - no constant was removed or altered.")
+        return 0
 
     ok = True
     for rel in targets:
         rel = rel.replace("\\", "/")
-        checker = check_calls if args.calls else check
-        if not checker(rel, args.base, args.strict):
+        if args.calls:
+            passed = check_calls(rel, args.base, args.strict, renames)
+        else:
+            passed = check(rel, args.base, args.strict)
+        if not passed:
             ok = False
 
     print()
