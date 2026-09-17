@@ -113,9 +113,46 @@ static void step_union_flight(PLW* wk, s16 landed_rno) {
     }
 }
 
-void Att_SA__D_R_A(PLW* wk) {
+/* The travelling frames of the super art. Three more markers can arrive here on
+ * top of the shared row advance: a reset that ends the travel, the snap that
+ * places the player 224 above the opponent, and either end marker. */
+static void sa_dra_travel(PLW* wk) {
     PLW* emwk;
 
+    char_move(&wk->wu);
+    add_mvxy_speed(&wk->wu);
+    cal_mvxy_speed(&wk->wu);
+
+    take_next_mvxy_row(wk);
+
+    if (wk->wu.cg_type == 21) {
+        reset_mvxy_data(&wk->wu);
+        wk->wu.routine_no[3] = 5;
+        wk->wu.cg_type = 0;
+    }
+
+    if (wk->wu.cg_type == 30) {
+        wk->wu.cg_type = 0;
+        wk->wu.routine_no[3]++;
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        emwk = (PLW*)wk->wu.target_adrs;
+        wk->wu.xyz[0].disp.pos = emwk->wu.xyz[0].disp.pos;
+        wk->wu.xyz[1].disp.pos = emwk->wu.xyz[1].disp.pos + -224;
+
+        if (wk->wu.xyz[1].disp.pos < 0) {
+            wk->wu.xyz[1].disp.pos = 0;
+        }
+    }
+
+    if ((wk->wu.cg_type == 64) || (wk->wu.cg_type == 0xFF)) {
+        wk->wu.routine_no[3] = 5;
+        wk->wu.mvxy.d[0].sp = 0;
+        wk->wu.mvxy.a[0].sp = 0;
+    }
+}
+
+void Att_SA__D_R_A(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
@@ -142,38 +179,7 @@ void Att_SA__D_R_A(PLW* wk) {
         break;
 
     case 3:
-        char_move(&wk->wu);
-        add_mvxy_speed(&wk->wu);
-        cal_mvxy_speed(&wk->wu);
-
-        take_next_mvxy_row(wk);
-
-        if (wk->wu.cg_type == 21) {
-            reset_mvxy_data(&wk->wu);
-            wk->wu.routine_no[3] = 5;
-            wk->wu.cg_type = 0;
-        }
-
-        if (wk->wu.cg_type == 30) {
-            wk->wu.cg_type = 0;
-            wk->wu.routine_no[3]++;
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            emwk = (PLW*)wk->wu.target_adrs;
-            wk->wu.xyz[0].disp.pos = emwk->wu.xyz[0].disp.pos;
-            wk->wu.xyz[1].disp.pos = emwk->wu.xyz[1].disp.pos + -224;
-
-            if (wk->wu.xyz[1].disp.pos < 0) {
-                wk->wu.xyz[1].disp.pos = 0;
-            }
-        }
-
-        if ((wk->wu.cg_type == 64) || (wk->wu.cg_type == 0xFF)) {
-            wk->wu.routine_no[3] = 5;
-            wk->wu.mvxy.d[0].sp = 0;
-            wk->wu.mvxy.a[0].sp = 0;
-        }
-
+        sa_dra_travel(wk);
         break;
 
     case 4:
