@@ -408,39 +408,45 @@ void PL_Sel_1st() {
     }
 }
 
-void PL_Sel_2nd() {
+/* Once a character is chosen, either open the super-art plates or - in the modes with
+ * no art to pick - clear the lines and move straight on. */
+static void Begin_Arts_Selection() {
     s16 ret;
     s16 ret2;
 
+    if (!Sel_PL_Complete[ID2]) {
+        return;
+    }
+
+    ret = check_use_all_SA();
+    ret2 = check_without_SA();
+    ret |= ret2;
+
+    if (ret != 0 || My_char[ID2] == 0) {
+        SP_No[ID2][3]++;
+        Cursor_Timer[ID2] = 40;
+        Go_Away_Red_Lines();
+
+        if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
+            S_No[3] = 1;
+            return;
+        }
+
+        return;
+    }
+
+    SP_No[ID2][1]++;
+    Setup_Plates(ID2, 1);
+    effect_50_init(ID2, 1, 0);
+    effect_50_init(ID2, 1, 1);
+    effect_50_init(ID2, 2, 0);
+    effect_50_init(ID2, 2, 1);
+}
+
+void PL_Sel_2nd() {
     switch (SP_No[ID2][3]) {
     case 0:
-        if (!Sel_PL_Complete[ID2]) {
-            break;
-        }
-
-        ret = check_use_all_SA();
-        ret2 = check_without_SA();
-        ret |= ret2;
-
-        if (ret != 0 || My_char[ID2] == 0) {
-            SP_No[ID2][3]++;
-            Cursor_Timer[ID2] = 40;
-            Go_Away_Red_Lines();
-
-            if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
-                S_No[3] = 1;
-                break;
-            }
-
-            break;
-        }
-
-        SP_No[ID2][1]++;
-        Setup_Plates(ID2, 1);
-        effect_50_init(ID2, 1, 0);
-        effect_50_init(ID2, 1, 1);
-        effect_50_init(ID2, 2, 0);
-        effect_50_init(ID2, 2, 1);
+        Begin_Arts_Selection();
         break;
 
     case 1:
