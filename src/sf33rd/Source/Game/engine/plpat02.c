@@ -58,6 +58,27 @@ void Att_DENJINHADOUKEN(PLW* wk) {
     }
 }
 
+/* The taunt's markers: 40 pays the super-art gauge, 64 ends it and slows the stun
+ * recovery, up to three times. */
+static void pl02_taunt_markers(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 40) {
+        wk->wu.cg_type = 0;
+        add_sp_arts_gauge_tokushu(wk);
+    }
+
+    if (wk->wu.cg_type == 64) {
+        wk->wu.routine_no[3]++;
+
+        if (wk->tk_success < 3) {
+            wk->tk_success++;
+            wk->py->recover = (wk->py->recover * 110) / 100;
+            grade_add_personal_action(wk->wu.id);
+        }
+    }
+}
+
 void Att_PL02_TOKUSHUKOUDOU(PLW* wk) {
     wk->scr_pos_set_flag = 0;
 
@@ -70,23 +91,7 @@ void Att_PL02_TOKUSHUKOUDOU(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 40) {
-            wk->wu.cg_type = 0;
-            add_sp_arts_gauge_tokushu(wk);
-        }
-
-        if (wk->wu.cg_type == 64) {
-            wk->wu.routine_no[3]++;
-
-            if (wk->tk_success < 3) {
-                wk->tk_success++;
-                wk->py->recover = (wk->py->recover * 110) / 100;
-                grade_add_personal_action(wk->wu.id);
-            }
-        }
-
+        pl02_taunt_markers(wk);
         break;
 
     default:
