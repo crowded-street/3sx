@@ -277,9 +277,12 @@ void Att_JINNCHUUWATARI_EX(PLW* wk) {
     }
 }
 
-void mvxy_table_reader(PLW* wk) {
-    PLW* twk = (PLW*)wk->wu.target_adrs;
-    const s16* curr_kop = &homing_kop[wk->pl09_dat_index][0];
+/* Marker 30 aims the homing jump. kop 0 targets the opponent at the row's offset
+ * and mirrors the result when the player faces the other way; kop 1 aims at the
+ * midpoint between the two. Either way the facing correction and the state step
+ * follow. The target work and the kop row are passed in so they are read once,
+ * as the original read them. */
+static void homing_aim_on_marker_30(PLW* wk, PLW* twk, const s16* curr_kop) {
     s16 ex;
     s16 ey;
 
@@ -334,6 +337,13 @@ void mvxy_table_reader(PLW* wk) {
         wk->wu.cg_type = 0;
         add_mvxy_speed(&wk->wu);
     }
+}
+
+void mvxy_table_reader(PLW* wk) {
+    PLW* twk = (PLW*)wk->wu.target_adrs;
+    const s16* curr_kop = &homing_kop[wk->pl09_dat_index][0];
+
+    homing_aim_on_marker_30(wk, twk, curr_kop);
 
     if (wk->wu.cg_type == 20) {
         setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
