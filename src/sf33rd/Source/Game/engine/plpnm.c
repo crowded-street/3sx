@@ -795,6 +795,34 @@ static void begin_parry_state(PLW* wk, const s16* dadr) {
     }
 }
 
+/* Marker 1 launches the parry: step the state, apply the movement, and fire the
+ * landing effect when the row asks for it. */
+static void parry_launch_on_marker_1(PLW* wk, const s16* dadr) {
+    if (wk->wu.cg_type == 1) {
+        wk->wu.routine_no[3]++;
+        add_mvxy_speed(&wk->wu);
+
+        if (dadr[2]) {
+            effect_G6_init(&wk->wu, wk->wu.weight_level);
+        }
+    }
+}
+
+/* The throw escape's version. It clears cg_type as well, which is why it is not
+ * the same block; its inner `break` left the switch with the arm's own break
+ * immediately after, so both paths reached the same place. */
+static void escape_launch_on_marker_1(PLW* wk, const s16* datix) {
+    if (wk->wu.cg_type == 1) {
+        wk->wu.cg_type = 0;
+        wk->wu.routine_no[3]++;
+        add_mvxy_speed(&wk->wu);
+
+        if (datix[2]) {
+            effect_G6_init(&wk->wu, wk->wu.weight_level);
+        }
+    }
+}
+
 void Normal_42000(PLW* wk) { // 🟢
     const s16* dadr = nmPB_data[wk->wu.routine_no[2] - 42];
 
@@ -816,15 +844,7 @@ void Normal_42000(PLW* wk) { // 🟢
             char_move(&wk->wu);
         }
 
-        if (wk->wu.cg_type == 1) {
-            wk->wu.routine_no[3]++;
-            add_mvxy_speed(&wk->wu);
-
-            if (dadr[2]) {
-                effect_G6_init(&wk->wu, wk->wu.weight_level);
-            }
-        }
-
+        parry_launch_on_marker_1(wk, dadr);
         break;
 
     case 3:
@@ -877,17 +897,7 @@ void Normal_47000(PLW* wk) { // 🟢
             char_move(&wk->wu);
         }
 
-        if (wk->wu.cg_type == 1) {
-            wk->wu.cg_type = 0;
-            wk->wu.routine_no[3]++;
-            add_mvxy_speed(&wk->wu);
-
-            if (datix[2]) {
-                effect_G6_init(&wk->wu, wk->wu.weight_level);
-                break;
-            }
-        }
-
+        escape_launch_on_marker_1(wk, datix);
         break;
 
     case 3:
