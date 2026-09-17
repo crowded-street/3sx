@@ -67,6 +67,27 @@ const s16 dra_em_tall[20][2] = { { 24, 16 }, { 28, 16 }, { 16, 16 }, { 16, 16 },
                                  { 18, 16 }, { 28, 16 }, { 25, 16 }, { 16, 16 }, { 16, 16 }, { 16, 16 }, { 24, 16 },
                                  { 16, 16 }, { 16, 16 }, { 16, 16 }, { 24, 16 }, { 20, 16 }, { 20, 16 } };
 
+/* The animation's 20 marker hands over the next movement row and steps the index
+ * on. Three travelling arms wrote this identically. */
+static void take_next_mvxy_row(PLW* wk) {
+    if (wk->wu.cg_type == 20) {
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+    }
+}
+
+/* Either end marker stops the horizontal travel and steps the state on. Two arms
+ * wrote this identically; Att_SA__D_R_A's version is left alone because it
+ * assigns state 5 outright instead of stepping, a second difference. */
+static void finish_on_end_marker(PLW* wk) {
+    if (wk->wu.cg_type == 64 || wk->wu.cg_type == 0xFF) {
+        wk->wu.routine_no[3]++;
+        wk->wu.mvxy.d[0].sp = 0;
+        wk->wu.mvxy.a[0].sp = 0;
+    }
+}
+
 /* The airborne leg of a flying attack. While jumping_union_process has not yet
  * handed over to the landed state it keeps feeding the next movement row on the
  * animation's 20 marker; once it has, the vertical speed is flattened and a
@@ -125,11 +146,7 @@ void Att_SA__D_R_A(PLW* wk) {
         add_mvxy_speed(&wk->wu);
         cal_mvxy_speed(&wk->wu);
 
-        if (wk->wu.cg_type == 20) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-        }
+        take_next_mvxy_row(wk);
 
         if (wk->wu.cg_type == 21) {
             reset_mvxy_data(&wk->wu);
@@ -228,17 +245,9 @@ void Att_EX__D_R_A(PLW* wk) {
         add_mvxy_speed(&wk->wu);
         cal_mvxy_speed(&wk->wu);
 
-        if (wk->wu.cg_type == 20) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-        }
+        take_next_mvxy_row(wk);
 
-        if (wk->wu.cg_type == 64 || wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[3]++;
-            wk->wu.mvxy.d[0].sp = 0;
-            wk->wu.mvxy.a[0].sp = 0;
-        }
+        finish_on_end_marker(wk);
 
         break;
 
@@ -268,11 +277,7 @@ void Att_KUUCHUUHISSATU(PLW* wk) {
         add_mvxy_speed(&wk->wu);
         cal_mvxy_speed(&wk->wu);
 
-        if (wk->wu.cg_type == 20) {
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-        }
+        take_next_mvxy_row(wk);
 
         if (wk->wu.cg_type == 21) {
             reset_mvxy_data(&wk->wu);
@@ -280,11 +285,7 @@ void Att_KUUCHUUHISSATU(PLW* wk) {
             wk->wu.cg_type = 0;
         }
 
-        if (wk->wu.cg_type == 64 || wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[3]++;
-            wk->wu.mvxy.d[0].sp = 0;
-            wk->wu.mvxy.a[0].sp = 0;
-        }
+        finish_on_end_marker(wk);
 
         break;
     default:
