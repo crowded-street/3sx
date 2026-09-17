@@ -577,6 +577,23 @@ static s32 grounded_art_is_blocked(PLW* wk) {
     return is_blocked_by_arcade_switch(wk, wk->sa->nmsa_g_ix);
 }
 
+/* Both super arts finish the same way: drop the current cancel, mark the art
+ * spent, set the union up from the slot's first command entry, and - outside
+ * arcade balance - latch the gauge type. Only the slot index differs, which is
+ * the one value Recipe D allows as a parameter. */
+static s32 launch_super_art(PLW* wk, s16 slot_ix) {
+    wk->wu.cg_cancel = 0;
+    wk->sa->ok = -1;
+    hissatsu_setup_union(wk, wk->cp->waza_r[slot_ix][0]);
+    waza_compel_all_init2(wk);
+
+    if (!ArcadeBalance_IsEnabled()) {
+        wk->sa->gt2 = wk->sa->gauge_type;
+    }
+
+    return 1;
+}
+
 /* Starting a grounded super art once its gates have passed. */
 static s32 start_grounded_super_art(PLW* wk) {
     if (grounded_art_is_blocked(wk)) {
@@ -592,16 +609,7 @@ static s32 start_grounded_super_art(PLW* wk) {
         wk->sa->ex4th_exec = 0;
     }
 
-    wk->wu.cg_cancel = 0;
-    wk->sa->ok = -1;
-    hissatsu_setup_union(wk, wk->cp->waza_r[wk->sa->nmsa_g_ix][0]);
-    waza_compel_all_init2(wk);
-
-    if (!ArcadeBalance_IsEnabled()) {
-        wk->sa->gt2 = wk->sa->gauge_type;
-    }
-
-    return 1;
+    return launch_super_art(wk, wk->sa->nmsa_g_ix);
 }
 
 /* The airborne equivalent. Its gates are still inline here where the grounded
@@ -633,16 +641,7 @@ static s32 start_airborne_super_art(PLW* wk) {
         wk->sa->ex4th_exec = 0;
     }
 
-    wk->wu.cg_cancel = 0;
-    wk->sa->ok = -1;
-    hissatsu_setup_union(wk, wk->cp->waza_r[wk->sa->nmsa_a_ix][0]);
-    waza_compel_all_init2(wk);
-
-    if (!ArcadeBalance_IsEnabled()) {
-        wk->sa->gt2 = wk->sa->gauge_type;
-    }
-
-    return 1;
+    return launch_super_art(wk, wk->sa->nmsa_a_ix);
 }
 
 s32 execute_super_arts(PLW* wk) { // 🟡
