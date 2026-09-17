@@ -1379,7 +1379,9 @@ void Break_Into_08(s16 PL_id) {
     E_Timer = 10;
 }
 
-void Break_Into_09(s16 PL_id) {
+/* Break_Into_09 and Break_Into_10 were byte-identical: the challenger takes the
+ * champion's seat once both entrants are not still waiting. */
+static void Break_In_As_Champion(s16 PL_id) {
     Clear_New_Challenger_Entry();
     E_07_Flag[PL_id] = 1;
 
@@ -1393,18 +1395,12 @@ void Break_Into_09(s16 PL_id) {
     Champion = New_Challenger;
 }
 
+void Break_Into_09(s16 PL_id) {
+    Break_In_As_Champion(PL_id);
+}
+
 void Break_Into_10(s16 PL_id) {
-    Clear_New_Challenger_Entry();
-    E_07_Flag[PL_id] = 1;
-
-    if (E_07_Flag[0] != 0 && E_07_Flag[1] != 0) {
-        return;
-    }
-
-    Break_Into = 1;
-    E_No[1] += 1;
-    E_No[2] = 0;
-    Champion = New_Challenger;
+    Break_In_As_Champion(PL_id);
 }
 
 void Continue_Score_Sub(s16 PL_id) {
