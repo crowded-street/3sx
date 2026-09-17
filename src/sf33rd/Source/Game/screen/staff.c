@@ -373,6 +373,45 @@ static void show_next_credit_page() {
     name_ptr++;
 }
 
+/* The roll has reached the next entry. Stop at the table's terminator; otherwise show
+ * that entry and up to two more that follow it with no gap. Returns 1 where the
+ * original broke out of the switch. */
+static s32 advance_credit_roll() {
+    if (sf3_staff[name_ptr].name == NULL) {
+        staff_r_no = 3;
+        end_w.timer = sf3_staff[name_ptr].next;
+        SsBgmFadeOut(0x88);
+        return 1;
+    }
+
+    if (*sf3_staff[name_ptr].name == 0x3F) {
+        SsBgmFadeOut(0x4E);
+    }
+
+    if (*sf3_staff[name_ptr].name == 0x60) {
+        BGM_Request(0x40);
+    }
+
+    name_timer = 0x7FFF;
+    show_credit_line(240);
+    end_w.timer = sf3_staff[name_ptr].next;
+    name_ptr++;
+
+    if (0 >= end_w.timer) {
+        show_credit_line(240);
+        end_w.timer = sf3_staff[name_ptr].next;
+        name_ptr++;
+
+        if (0 >= end_w.timer) {
+            show_credit_line(240);
+            end_w.timer = 0xF0;
+            name_ptr++;
+        }
+    }
+
+    return 0;
+}
+
 s32 staff_credits(u32 /* unused */) {
     s16 x;
     s16 y;
@@ -410,36 +449,8 @@ s32 staff_credits(u32 /* unused */) {
         if (end_w.timer >= 0) {
             end_w.timer = end_w.timer - roll_rate_t2;
         } else {
-            if (sf3_staff[name_ptr].name == NULL) {
-                staff_r_no = 3;
-                end_w.timer = sf3_staff[name_ptr].next;
-                SsBgmFadeOut(0x88);
+            if (advance_credit_roll()) {
                 break;
-            }
-
-            if (*sf3_staff[name_ptr].name == 0x3F) {
-                SsBgmFadeOut(0x4E);
-            }
-
-            if (*sf3_staff[name_ptr].name == 0x60) {
-                BGM_Request(0x40);
-            }
-
-            name_timer = 0x7FFF;
-            show_credit_line(240);
-            end_w.timer = sf3_staff[name_ptr].next;
-            name_ptr++;
-
-            if (0 >= end_w.timer) {
-                show_credit_line(240);
-                end_w.timer = sf3_staff[name_ptr].next;
-                name_ptr++;
-
-                if (0 >= end_w.timer) {
-                    show_credit_line(240);
-                    end_w.timer = 0xF0;
-                    name_ptr++;
-                }
             }
         }
 
