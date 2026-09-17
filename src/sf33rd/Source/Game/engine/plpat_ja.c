@@ -15,6 +15,14 @@ const u8* cjdr_hits_table[20];
 const u8* cjdr_blocking_table[20];
 const u8* cjdr_defense_table[20];
 
+/* Every arm of both mappings says the same two things: point routine_no[2] at
+ * the successor state and report that a change happened. Only the state number
+ * differs, so it is the one parameter. */
+static s16 set_ja_nmj_routine(WORK* wk, s16 rno) {
+    wk->routine_no[2] = rno;
+    return 1;
+}
+
 /* The later half of the jump-attack rno mapping. The labels are the original
  * pattern-status numbers and the helper returns the same 0 the caller started
  * with when none of them matches, so an unlisted status still changes nothing. */
@@ -23,23 +31,19 @@ static s16 ja_nmj_rno_change_rest(WORK* wk) {
 
     switch (wk->pat_status) {
     case 28:
-        wk->routine_no[2] = 25;
-        rnum = 1;
+        rnum = set_ja_nmj_routine(wk, 25);
         break;
 
     case 24:
-        wk->routine_no[2] = 23;
-        rnum = 1;
+        rnum = set_ja_nmj_routine(wk, 23);
         break;
 
     case 18:
-        wk->routine_no[2] = 20;
-        rnum = 1;
+        rnum = set_ja_nmj_routine(wk, 20);
         break;
 
     case 30:
-        wk->routine_no[2] = 26;
-        rnum = 1;
+        rnum = set_ja_nmj_routine(wk, 26);
         break;
     }
 
@@ -51,28 +55,23 @@ s16 ja_nmj_rno_change(WORK* wk) { // 🟢
 
     switch (wk->pat_status) {
     case 20:
-        wk->routine_no[2] = 21;
-        rnum = 1;
+        rnum = set_ja_nmj_routine(wk, 21);
         break;
 
     case 14:
-        wk->routine_no[2] = 18;
-        rnum = 1;
+        rnum = set_ja_nmj_routine(wk, 18);
         break;
 
     case 26:
-        wk->routine_no[2] = 24;
-        rnum = 1;
+        rnum = set_ja_nmj_routine(wk, 24);
         break;
 
     case 22:
-        wk->routine_no[2] = 22;
-        rnum = 1;
+        rnum = set_ja_nmj_routine(wk, 22);
         break;
 
     case 16:
-        wk->routine_no[2] = 19;
-        rnum = 1;
+        rnum = set_ja_nmj_routine(wk, 19);
         break;
 
     default:
