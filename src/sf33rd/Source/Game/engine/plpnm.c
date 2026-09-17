@@ -151,6 +151,21 @@ void Normal_00000(PLW* wk) { // 🟢
     appear_player(wk);
 }
 
+/* The plainest normal state there is: start the pattern on the first frame,
+ * then run it. Five states differ in one value, the pattern index. */
+static void run_simple_normal_state(PLW* wk, s16 index) {
+    switch (wk->wu.routine_no[3]) {
+    case 0:
+        wk->wu.routine_no[3]++;
+        set_char_move_init(&wk->wu, 0, index);
+        break;
+
+    case 1:
+        char_move(&wk->wu);
+        break;
+    }
+}
+
 /* In a mirror match the two players are drawn one in front of the other. The
  * states that put this player in front, and the ones that put them behind,
  * each wrote the same three lines out - twenty and nine times. */
@@ -169,16 +184,7 @@ static void lower_z_when_mirrored(PLW* wk) {
 void Normal_01000(PLW* wk) { // 🟢
     raise_z_when_mirrored(wk);
 
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        set_char_move_init(&wk->wu, 0, 0);
-        break;
-
-    case 1:
-        char_move(&wk->wu);
-        break;
-    }
+    run_simple_normal_state(wk, 0);
 }
 
 void Normal_02000(PLW* wk) { // 🟢
@@ -422,46 +428,19 @@ void nm_06_0200(PLW* wk) { // 🟢
 void Normal_07000(PLW* wk) { // 🟢
     lower_z_when_mirrored(wk);
 
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        set_char_move_init(&wk->wu, 0, 11);
-        break;
-
-    case 1:
-        char_move(&wk->wu);
-        break;
-    }
+    run_simple_normal_state(wk, 11);
 }
 
 void Normal_08000(PLW* wk) { // 🟢
     lower_z_when_mirrored(wk);
 
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        set_char_move_init(&wk->wu, 0, 6);
-        break;
-
-    case 1:
-        char_move(&wk->wu);
-        break;
-    }
+    run_simple_normal_state(wk, 6);
 }
 
 void Normal_09000(PLW* wk) { // 🟢
     lower_z_when_mirrored(wk);
 
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        set_char_move_init(&wk->wu, 0, 7);
-        break;
-
-    case 1:
-        char_move(&wk->wu);
-        break;
-    }
+    run_simple_normal_state(wk, 7);
 }
 
 void Normal_10000(PLW* wk) { // 🟢
@@ -521,16 +500,7 @@ void Normal_12000(PLW* wk) { // 🔵
 void Normal_13000(PLW* wk) { // 🔵
     raise_z_when_mirrored(wk);
 
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        set_char_move_init(&wk->wu, 0, 50);
-        break;
-
-    case 1:
-        char_move(&wk->wu);
-        break;
-    }
+    run_simple_normal_state(wk, 50);
 }
 
 void Normal_16000(PLW* wk) { // 🟢
