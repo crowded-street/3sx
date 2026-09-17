@@ -372,6 +372,31 @@ void Entry_06_1st() {
     Begin_Entry_Step(7);
 }
 
+/* Whoever broke into this screen takes a controller, and starts a fresh grade record
+ * unless they are continuing. Shared verbatim by the three screens that hand over. */
+static void Give_Operator_To_Entrants() {
+    if (E_07_Flag[0]) {
+        plw[0].wu.operator = 1;
+        Operator_Status[0] = 1;
+
+        if (Continue_Coin[0] == 0) {
+            grade_check_work_1st_init(0, 0);
+        }
+    }
+
+    if (E_07_Flag[1]) {
+        plw[1].wu.operator = 1;
+        Operator_Status[1] = 1;
+
+        if (Continue_Coin[1] == 0) {
+            grade_check_work_1st_init(1, 0);
+        }
+    }
+
+    E_07_Flag[0] = 0;
+    E_07_Flag[1] = 0;
+}
+
 void Entry_06_2nd() {
     if (E_07_Flag[0] == 0) {
         Entry_Main_Sub(0, 7);
@@ -407,26 +432,7 @@ void Entry_06_2nd() {
         E_No[3] = 0;
         Fade_Flag = 0;
 
-        if (E_07_Flag[0]) {
-            plw[0].wu.operator = 1;
-            Operator_Status[0] = 1;
-
-            if (Continue_Coin[0] == 0) {
-                grade_check_work_1st_init(0, 0);
-            }
-        }
-
-        if (E_07_Flag[1]) {
-            plw[1].wu.operator = 1;
-            Operator_Status[1] = 1;
-
-            if (Continue_Coin[1] == 0) {
-                grade_check_work_1st_init(1, 0);
-            }
-        }
-
-        E_07_Flag[0] = 0;
-        E_07_Flag[1] = 0;
+        Give_Operator_To_Entrants();
 
         if (E_Number[LOSER][0] == 5) {
             E_Number[LOSER][0] = 1;
@@ -473,26 +479,7 @@ void Entry_07_2nd() {
             E_No[2] = 0;
             E_No[3] = 0;
 
-            if (E_07_Flag[0]) {
-                plw[0].wu.operator = 1;
-                Operator_Status[0] = 1;
-
-                if (Continue_Coin[0] == 0) {
-                    grade_check_work_1st_init(0, 0);
-                }
-            }
-
-            if (E_07_Flag[1]) {
-                plw[1].wu.operator = 1;
-                Operator_Status[1] = 1;
-
-                if (Continue_Coin[1] == 0) {
-                    grade_check_work_1st_init(1, 0);
-                }
-            }
-
-            E_07_Flag[0] = 0;
-            E_07_Flag[1] = 0;
+            Give_Operator_To_Entrants();
         }
 
         break;
@@ -550,26 +537,7 @@ static void Finish_Entry_And_Start_Game(s16 Jump_Index) {
             E_No[2] = 0;
             E_No[3] = 0;
 
-            if (E_07_Flag[0]) {
-                plw[0].wu.operator = 1;
-                Operator_Status[0] = 1;
-
-                if (Continue_Coin[0] == 0) {
-                    grade_check_work_1st_init(0, 0);
-                }
-            }
-
-            if (E_07_Flag[1]) {
-                plw[1].wu.operator = 1;
-                Operator_Status[1] = 1;
-
-                if (Continue_Coin[1] == 0) {
-                    grade_check_work_1st_init(1, 0);
-                }
-            }
-
-            E_07_Flag[0] = 0;
-            E_07_Flag[1] = 0;
+            Give_Operator_To_Entrants();
             Request_Disp_Rank[0][0] = -1;
             Request_Disp_Rank[0][1] = -1;
             Request_Disp_Rank[1][0] = -1;
