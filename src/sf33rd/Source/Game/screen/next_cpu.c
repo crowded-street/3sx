@@ -1182,6 +1182,83 @@ static void Take_Player_Color(s16 PL_id, s8 wanted, s8 alternate, s32 same_char)
     }
 }
 
+/* Gill has two palettes only. */
+static void Setup_Gill_Color(s16 PL_id, u16 sw, s32 same_char) {
+    switch (sw) {
+    case SWK_WEST:
+    case SWK_NORTH:
+    case SWK_RIGHT_SHOULDER:
+        Take_Player_Color(PL_id, 0, 1, same_char);
+        break;
+
+    default:
+        Take_Player_Color(PL_id, 1, 0, same_char);
+        break;
+    }
+}
+
+/* With start held, the second bank of palettes. */
+static void Setup_Start_Held_Color(s16 PL_id, u16 sw, s32 same_char) {
+    switch (sw) {
+    case SWK_WEST:
+        Take_Player_Color(PL_id, 7, 10, same_char);
+        break;
+
+    case SWK_NORTH:
+        Take_Player_Color(PL_id, 8, 11, same_char);
+        break;
+
+    case SWK_RIGHT_SHOULDER:
+        Take_Player_Color(PL_id, 9, 12, same_char);
+        break;
+
+    case SWK_SOUTH:
+        Take_Player_Color(PL_id, 10, 7, same_char);
+        break;
+
+    case SWK_EAST:
+        Take_Player_Color(PL_id, 11, 8, same_char);
+        break;
+
+    default:
+        Take_Player_Color(PL_id, 12, 9, same_char);
+        break;
+    }
+}
+
+/* The ordinary palette bank. */
+static void Setup_Normal_Color(s16 PL_id, u16 sw, s32 same_char) {
+    switch (sw) {
+    case SWK_WEST | SWK_RIGHT_SHOULDER | SWK_EAST:
+        Take_Player_Color(PL_id, 6, 0, same_char);
+        break;
+
+    case SWK_WEST:
+        Take_Player_Color(PL_id, 0, 3, same_char);
+        break;
+
+    case SWK_NORTH:
+        Take_Player_Color(PL_id, 1, 4, same_char);
+        break;
+
+    case SWK_RIGHT_SHOULDER:
+        Take_Player_Color(PL_id, 2, 5, same_char);
+        break;
+
+    case SWK_SOUTH:
+        Take_Player_Color(PL_id, 3, 0, same_char);
+        break;
+
+    case SWK_EAST:
+        Take_Player_Color(PL_id, 4, 1, same_char);
+        break;
+
+    default:
+        Take_Player_Color(PL_id, 5, 2, same_char);
+        break;
+    }
+}
+
 void Setup_PL_Color(s16 PL_id, u16 sw) {
     s8 id_0;
     s8 id_1;
@@ -1210,73 +1287,11 @@ void Setup_PL_Color(s16 PL_id, u16 sw) {
     }
 
     if (My_char[PL_id] == CHAR_GILL) {
-        switch (sw) {
-        case SWK_WEST:
-        case SWK_NORTH:
-        case SWK_RIGHT_SHOULDER:
-            Take_Player_Color(PL_id, 0, 1, id_0 == id_1);
-            break;
-
-        default:
-            Take_Player_Color(PL_id, 1, 0, id_0 == id_1);
-            break;
-        }
+        Setup_Gill_Color(PL_id, sw, id_0 == id_1);
     } else if (sw_new & SWK_START) {
-        switch (sw) {
-        case SWK_WEST:
-            Take_Player_Color(PL_id, 7, 10, id_0 == id_1);
-            break;
-
-        case SWK_NORTH:
-            Take_Player_Color(PL_id, 8, 11, id_0 == id_1);
-            break;
-
-        case SWK_RIGHT_SHOULDER:
-            Take_Player_Color(PL_id, 9, 12, id_0 == id_1);
-            break;
-
-        case SWK_SOUTH:
-            Take_Player_Color(PL_id, 10, 7, id_0 == id_1);
-            break;
-
-        case SWK_EAST:
-            Take_Player_Color(PL_id, 11, 8, id_0 == id_1);
-            break;
-
-        default:
-            Take_Player_Color(PL_id, 12, 9, id_0 == id_1);
-            break;
-        }
+        Setup_Start_Held_Color(PL_id, sw, id_0 == id_1);
     } else {
-        switch (sw) {
-        case SWK_WEST | SWK_RIGHT_SHOULDER | SWK_EAST:
-            Take_Player_Color(PL_id, 6, 0, id_0 == id_1);
-            break;
-
-        case SWK_WEST:
-            Take_Player_Color(PL_id, 0, 3, id_0 == id_1);
-            break;
-
-        case SWK_NORTH:
-            Take_Player_Color(PL_id, 1, 4, id_0 == id_1);
-            break;
-
-        case SWK_RIGHT_SHOULDER:
-            Take_Player_Color(PL_id, 2, 5, id_0 == id_1);
-            break;
-
-        case SWK_SOUTH:
-            Take_Player_Color(PL_id, 3, 0, id_0 == id_1);
-            break;
-
-        case SWK_EAST:
-            Take_Player_Color(PL_id, 4, 1, id_0 == id_1);
-            break;
-
-        default:
-            Take_Player_Color(PL_id, 5, 2, id_0 == id_1);
-            break;
-        }
+        Setup_Normal_Color(PL_id, sw, id_0 == id_1);
     }
 }
 
