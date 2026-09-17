@@ -507,6 +507,30 @@ static void resolve_extended_lever_command() {
     }
 }
 
+/* The command wants the lever at rest: it advances there, and any other
+ * movement ends it. */
+static void resolve_lever_back_to_neutral() {
+    if (chk_pl->new_lvbt == 0) {
+        finish_or_advance_command();
+        return;
+    }
+
+    if ((chk_pl->old_lvbt & 0xF) != (chk_pl->new_lvbt & 0xF)) {
+        waza_ptr->w_type = 0;
+    }
+}
+
+/* The command wants a direction, and the lever just moved: landing on it
+ * advances, anything else ends the command. */
+static void resolve_lever_onto_direction() {
+    if (chk_pl->sw_lever & waza_ptr->w_lvr) {
+        finish_or_advance_command();
+        return;
+    }
+
+    waza_ptr->w_type = 0;
+}
+
 void check_9() { // 🟢
     waza_ptr->w_int--;
 
@@ -517,21 +541,9 @@ void check_9() { // 🟢
     if (waza_ptr->w_lvr & 0x8000) {
         resolve_extended_lever_command();
     } else if (waza_ptr->w_lvr == 0) {
-        if (chk_pl->new_lvbt == 0) {
-            finish_or_advance_command();
-            return;
-        }
-
-        if ((chk_pl->old_lvbt & 0xF) != (chk_pl->new_lvbt & 0xF)) {
-            waza_ptr->w_type = 0;
-        }
+        resolve_lever_back_to_neutral();
     } else if ((chk_pl->old_lvbt & 0xF) != (chk_pl->new_lvbt & 0xF)) {
-        if (chk_pl->sw_lever & waza_ptr->w_lvr) {
-            finish_or_advance_command();
-            return;
-        }
-
-        waza_ptr->w_type = 0;
+        resolve_lever_onto_direction();
     }
 }
 
