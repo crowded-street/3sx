@@ -293,6 +293,25 @@ void end_e00_1000() {
 
 const u8 end_e00_2000_col_tbl[8] = { 6, 5, 4, 3, 2, 1, 0, 0 };
 
+/* Step the second panel's colour cycle, and move on once it has run its eight
+ * entries. */
+static void end_e00_2000_cycle_colour() {
+    bgw_ptr->free--;
+
+    if (bgw_ptr->free <= 0) {
+        bgw_ptr->l_limit++;
+
+        if (bgw_ptr->l_limit >= 8) {
+            bgw_ptr->r_no_1++;
+            end_w.timer = 120;
+            return;
+        }
+
+        bgw_ptr->free = 8;
+        g_number[1] = end_e00_2000_col_tbl[bgw_ptr->l_limit];
+    }
+}
+
 void end_e00_2000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -323,20 +342,7 @@ void end_e00_2000() {
         break;
 
     case 3:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->l_limit++;
-
-            if (bgw_ptr->l_limit >= 8) {
-                bgw_ptr->r_no_1++;
-                end_w.timer = 120;
-                break;
-            }
-
-            bgw_ptr->free = 8;
-            g_number[1] = end_e00_2000_col_tbl[bgw_ptr->l_limit];
-        }
+        end_e00_2000_cycle_colour();
 
         break;
 
