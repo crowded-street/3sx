@@ -309,26 +309,12 @@ static s16 bonus_stage_grade_points(s16 ix, s16 pt) {
 /* What clearing the game is worth: the clear itself, the continues used, the
  * grade-up points, and each bonus stage that was played. */
 static s16 all_clear_bonus(s16 ix, s16 pt) {
-    s16 i;
     s16 tt = 0;
 
     tt += grade_t_f_all[judge_final[ix][pt].all_clear];
 
-    for (i = 0; i < 10; i++) {
-        if (judge_final[ix][pt].keizoku < grade_t_f_continue[i + 1][0]) {
-            break;
-        }
-    }
-
-    tt += grade_t_f_continue[i][1];
-
-    for (i = 0; i < 10; i++) {
-        if (judge_final[ix][pt].sp_point < grade_t_f_gradeup[i + 1][0]) {
-            break;
-        }
-    }
-
-    tt += grade_t_f_gradeup[i][1];
+    tt += grade_table_points(grade_t_f_continue, 10, judge_final[ix][pt].keizoku);
+    tt += grade_table_points(grade_t_f_gradeup, 10, judge_final[ix][pt].sp_point);
 
     tt += bonus_stage_grade_points(ix, pt);
     return tt;
