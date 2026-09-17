@@ -92,6 +92,17 @@ void Att_PL20_AT1(PLW* wk) {
     }
 }
 
+/* The wind-up: marker 20 hands the attack to the union leg under its own speed. */
+static void pl20_at2_launch(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 20) {
+        wk->wu.routine_no[3]++;
+        wk->wu.cg_type = 0;
+        add_mvxy_speed(&wk->wu);
+    }
+}
+
 /* Marker 30 loads the descent row and steps the state on. */
 static void pl20_at2_load_descent(PLW* wk) {
     if (wk->wu.cg_type == 30) {
@@ -138,14 +149,7 @@ void Att_PL20_AT2(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 20) {
-            wk->wu.routine_no[3]++;
-            wk->wu.cg_type = 0;
-            add_mvxy_speed(&wk->wu);
-        }
-
+        pl20_at2_launch(wk);
         break;
 
     case 2:
