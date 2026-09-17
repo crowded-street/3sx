@@ -203,11 +203,11 @@ static s32 try_airborne_ex_super(PLW* wk, u8 slot_ix, s8 always) {
         return 0;
     }
 
-    if (always && !(wk->cp->btix[slot_ix] & 0x100)) {
+    if (slot_needs_arming_and_is_not(wk, slot_ix, always)) {
         return 0;
     }
 
-    if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && chainex_check[wk->wu.id][slot_ix - 20]) {
+    if (chain_cancel_already_used(wk, slot_ix)) {
         return 0;
     }
 
