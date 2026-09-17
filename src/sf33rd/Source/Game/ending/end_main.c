@@ -147,43 +147,10 @@ static void end_main_run_staff_roll() {
     }
 }
 
-void normal_ending(s16 pl_num) {
+/* Everything from the fade out onward: the staff roll and the ending's own end.
+ * Labels are the original ones. */
+static void normal_ending_after_scenes() {
     switch (end_w.r_no_0) {
-    case 0:
-        end_w.r_no_0++;
-        Switch_Screen(1);
-        Bg_Off_R(7);
-        System_all_clear_Level_B();
-        Cover_Timer = 29;
-        end_main_jp[pl_num](pl_num);
-        break;
-
-    case 1:
-        Switch_Screen(1);
-
-        if (!(Cover_Timer -= 1)) {
-            end_w.r_no_0++;
-            Switch_Screen_Init(1);
-            end_main_jp[pl_num](pl_num);
-        }
-
-        break;
-
-    case 2:
-        if (Switch_Screen_Revival(1)) {
-            end_w.r_no_0++;
-            Ignore_Entry[LOSER] = 0;
-            Forbid_Break = -1;
-        }
-
-        break;
-
-    case 3:
-        end_main_run_scenes(pl_num);
-
-        Forbid_Break = -1;
-        break;
-
     case 4:
         if (end_no_cut == 0) {
             fadeout_to_staff_roll();
@@ -245,6 +212,49 @@ void normal_ending(s16 pl_num) {
 
     case 12:
         ending_all_end = 1;
+        break;
+    }
+}
+
+void normal_ending(s16 pl_num) {
+    switch (end_w.r_no_0) {
+    case 0:
+        end_w.r_no_0++;
+        Switch_Screen(1);
+        Bg_Off_R(7);
+        System_all_clear_Level_B();
+        Cover_Timer = 29;
+        end_main_jp[pl_num](pl_num);
+        break;
+
+    case 1:
+        Switch_Screen(1);
+
+        if (!(Cover_Timer -= 1)) {
+            end_w.r_no_0++;
+            Switch_Screen_Init(1);
+            end_main_jp[pl_num](pl_num);
+        }
+
+        break;
+
+    case 2:
+        if (Switch_Screen_Revival(1)) {
+            end_w.r_no_0++;
+            Ignore_Entry[LOSER] = 0;
+            Forbid_Break = -1;
+        }
+
+        break;
+
+    case 3:
+        end_main_run_scenes(pl_num);
+
+        Forbid_Break = -1;
+        break;
+
+    default:
+        normal_ending_after_scenes();
         break;
     }
 }
