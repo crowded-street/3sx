@@ -189,21 +189,27 @@ void Win_4th() {
     }
 }
 
+/* A cut shortens the win pose; once it is nearly out, fix the tail length and fade
+ * the arcade BGM. */
+static void Begin_Win_Fade_Out() {
+    if (Scene_Cut) {
+        M_Timer = 9;
+    }
+
+    if (M_Timer < 10) {
+        M_Timer = 9;
+        M_No[1] += 1;
+
+        if (Mode_Type == MODE_ARCADE) {
+            SsBgmFadeOut(0x1000);
+        }
+    }
+}
+
 void Win_5th() {
     switch (M_No[1]) {
     case 0:
-        if (Scene_Cut) {
-            M_Timer = 9;
-        }
-
-        if (M_Timer < 10) {
-            M_Timer = 9;
-            M_No[1] += 1;
-
-            if (Mode_Type == MODE_ARCADE) {
-                SsBgmFadeOut(0x1000);
-            }
-        }
+        Begin_Win_Fade_Out();
 
         break;
     }
