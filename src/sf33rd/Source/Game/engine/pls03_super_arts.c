@@ -321,16 +321,10 @@ static s32 ex_strength_is_unavailable(const PLW* wk, s16 ix, s16 j) {
 
 static bool should_skip_dc_slot(PLW* wk, s16 ix, s16 j) {
     if (ArcadeBalance_IsEnabled()) {
-        if ((j == 3) && slot_has_no_ex_bits(wk, ix)) {
-            return true;
-        }
-    } else {
-        if (ex_strength_is_unavailable(wk, ix, j)) {
-            return true;
-        }
+        return (j == 3) && slot_has_no_ex_bits(wk, ix);
     }
 
-    return false;
+    return ex_strength_is_unavailable(wk, ix, j);
 }
 
 /* The gates a grounded double-cancel super-art slot must pass. Returns 1
