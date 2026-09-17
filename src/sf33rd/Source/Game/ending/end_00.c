@@ -335,6 +335,17 @@ static void end_000_0004_ascend() {
     end00_quake_in_place();
 }
 
+/* Drift the panel down at its set speed until the scene's timer runs out. */
+static void end_000_0004_drift() {
+    bgw_ptr->xy[1].cal += bgw_ptr->speed_y;
+    bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+
+    if (!bgw_ptr->l_limit--) {
+        bgw_ptr->r_no_1++;
+        bgw_ptr->l_limit = gill_time[8];
+    }
+}
+
 void end_000_0004() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -351,13 +362,7 @@ void end_000_0004() {
         break;
 
     case 1:
-        bgw_ptr->xy[1].cal += bgw_ptr->speed_y;
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
-
-        if (!bgw_ptr->l_limit--) {
-            bgw_ptr->r_no_1++;
-            bgw_ptr->l_limit = gill_time[8];
-        }
+        end_000_0004_drift();
 
         break;
 
