@@ -318,6 +318,29 @@ static s16* bump_or_reset_count(s16* counter, s32 pressed) {
     return counter + 1;
 }
 
+/* Forward or back, as the player faces. The lever bits are read the same way
+ * either way round; which of the two means "forward" is what the facing
+ * decides. */
+static void set_lever_dir() {
+    s16 i;
+
+    if ((i = wcp[cmd_id].sw_lvbt & 0xC)) {
+        if (cmd_pl->wu.rl_flag) {
+            if (i & 8) {
+                wcp[cmd_id].lever_dir = 1;
+            } else {
+                wcp[cmd_id].lever_dir = 2;
+            }
+        } else if (i & 4) {
+            wcp[cmd_id].lever_dir = 1;
+        } else {
+            wcp[cmd_id].lever_dir = 2;
+        }
+    } else {
+        wcp[cmd_id].lever_dir = 0;
+    }
+}
+
 void sw_pick_up() { // 🟢
     s16 i;
     s16* cnt_address1;
@@ -341,21 +364,7 @@ void sw_pick_up() { // 🟢
     wcp[cmd_id].sw_now = chk_pl->sw_now;
     wcp[cmd_id].sw_off = chk_pl->shot_down;
 
-    if ((i = wcp[cmd_id].sw_lvbt & 0xC)) {
-        if (cmd_pl->wu.rl_flag) {
-            if (i & 8) {
-                wcp[cmd_id].lever_dir = 1;
-            } else {
-                wcp[cmd_id].lever_dir = 2;
-            }
-        } else if (i & 4) {
-            wcp[cmd_id].lever_dir = 1;
-        } else {
-            wcp[cmd_id].lever_dir = 2;
-        }
-    } else {
-        wcp[cmd_id].lever_dir = 0;
-    }
+    set_lever_dir();
 
     if ((chk_pl->left_cnt != 0) && (chk_pl->left_cnt < 12)) {
         wcp[cmd_id].calf = 1;
