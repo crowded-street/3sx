@@ -17,6 +17,38 @@ void pl10_extra_attack(PLW* wk) {
     pl10_exatt_table[wk->wu.routine_no[2] - 16](wk);
 }
 
+/* The taunt's markers: 40 pays the super-art gauge, 20 raises both bonuses, 64
+ * grades the action. The two ceilings are applied every frame, outside the
+ * switch, as they were. */
+static void pl10_taunt_markers(PLW* wk) {
+    char_move(&wk->wu);
+
+    switch (wk->wu.cg_type) {
+    case 40:
+        wk->wu.cg_type = 0;
+        add_sp_arts_gauge_tokushu(wk);
+        break;
+
+    case 20:
+        wk->wu.cg_type = 0;
+        wk->tk_dageki += 10;
+        wk->tk_nage += 2;
+        break;
+
+    case 64:
+        grade_add_personal_action(wk->wu.id);
+        break;
+    }
+
+    if (wk->tk_dageki > 10) {
+        wk->tk_dageki = 10;
+    }
+
+    if (wk->tk_nage > 2) {
+        wk->tk_nage = 2;
+    }
+}
+
 void Att_PL10_TOKUSHUKOUDOU(PLW* wk) {
     wk->scr_pos_set_flag = 0;
 
@@ -29,33 +61,7 @@ void Att_PL10_TOKUSHUKOUDOU(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-
-        switch (wk->wu.cg_type) {
-        case 40:
-            wk->wu.cg_type = 0;
-            add_sp_arts_gauge_tokushu(wk);
-            break;
-
-        case 20:
-            wk->wu.cg_type = 0;
-            wk->tk_dageki += 10;
-            wk->tk_nage += 2;
-            break;
-
-        case 64:
-            grade_add_personal_action(wk->wu.id);
-            break;
-        }
-
-        if (wk->tk_dageki > 10) {
-            wk->tk_dageki = 10;
-        }
-
-        if (wk->tk_nage > 2) {
-            wk->tk_nage = 2;
-        }
-
+        pl10_taunt_markers(wk);
         break;
     }
 }
