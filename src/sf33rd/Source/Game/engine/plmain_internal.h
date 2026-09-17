@@ -22,4 +22,14 @@ void sag_union_ps2(PLW* wk);
  * way the CPS3 one does. */
 void addSAAttribute(u8* kow, u16* koa);
 
+/* Defined in plmain.c, next to the state machines that index them; the OMOP
+ * vitality drain asks the same two questions of a state. The tables themselves
+ * are untouched - only a declaration moved. */
+extern const u8 plpnm_mvkind[59];
+extern const u8 plpdm_mvkind[32];
+extern const u8 plpxx_kind[5];
+
+/* Defined in plmain_vital.c; plmain.c's player_mv_4000 runs it each frame. */
+void check_omop_vital(PLW* wk);
+
 #endif // PLMAIN_INTERNAL_H
