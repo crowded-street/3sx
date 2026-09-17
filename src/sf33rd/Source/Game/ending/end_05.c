@@ -232,27 +232,9 @@ void end_500_quake_y_sub() {
     }
 }
 
-void end_500_0007() {
+/* The hold and the scroll that takes the panel off screen. */
+static void end_500_0007_scroll_out() {
     switch (bgw_ptr->r_no_1) {
-    case 0:
-        overwrite_panel(0xFF000000, 0x17);
-        bgw_ptr->r_no_1++;
-        Bg_Off_W(1);
-        bgw_ptr->xy[0].disp.pos = 512;
-        bgw_ptr->xy[1].disp.pos = 768;
-        bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
-        effect_E6_init(0xF);
-        effect_E6_init(0x49);
-        break;
-
-    case 1:
-        break;
-
-    case 2:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->free = 0x28;
-        break;
-
     case 3:
         bgw_ptr->free--;
 
@@ -283,6 +265,33 @@ void end_500_0007() {
             end_w.timer = 0;
         }
 
+        break;
+    }
+}
+
+void end_500_0007() {
+    switch (bgw_ptr->r_no_1) {
+    case 0:
+        overwrite_panel(0xFF000000, 0x17);
+        bgw_ptr->r_no_1++;
+        Bg_Off_W(1);
+        bgw_ptr->xy[0].disp.pos = 512;
+        bgw_ptr->xy[1].disp.pos = 768;
+        bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
+        effect_E6_init(0xF);
+        effect_E6_init(0x49);
+        break;
+
+    case 1:
+        break;
+
+    case 2:
+        bgw_ptr->r_no_1++;
+        bgw_ptr->free = 0x28;
+        break;
+
+    default:
+        end_500_0007_scroll_out();
         break;
     }
 }
