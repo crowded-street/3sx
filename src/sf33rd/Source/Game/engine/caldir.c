@@ -713,17 +713,21 @@ const u8
           31, 30, 30, 30, 30, 30, 29, 29, 29, 29, 29, 28, 28, 28, 28, 28, 28, 27, 27, 27, 27, 27, 27, 27 }
     };
 
+/* Halve both values until the one named by `larger` fits the table. The two
+ * arms of scale_down_to_table_range differ in one thing: which value is
+ * watched. */
+static void halve_both_until_in_range(s16* y1, s16* y2, const s16* larger) {
+    while (*larger >= 0x80) {
+        *y1 >>= 1;
+        *y2 >>= 1;
+    }
+}
+
 static void scale_down_to_table_range(s16* y1, s16* y2) {
     if (*y1 > *y2) {
-        while (*y1 >= 0x80) {
-            *y1 >>= 1;
-            *y2 >>= 1;
-        }
+        halve_both_until_in_range(y1, y2, y1);
     } else {
-        while (*y2 >= 0x80) {
-            *y1 >>= 1;
-            *y2 >>= 1;
-        }
+        halve_both_until_in_range(y1, y2, y2);
     }
 }
 
