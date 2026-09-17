@@ -497,7 +497,7 @@ static s32 try_airborne_dc(PLW* wk) {
         return 0;
     }
 
-    if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && chainex_check[wk->wu.id][wk->sa->nmsa_a_ix - 20]) {
+    if (chain_cancel_already_used(wk, wk->sa->nmsa_a_ix)) {
         return 0;
     }
 
