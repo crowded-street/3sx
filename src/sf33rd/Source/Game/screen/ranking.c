@@ -232,24 +232,8 @@ void Ranking_01_1st() {
     effect_58_init(1, 1, -1);
 }
 
-void Ranking_01_2nd() {
-    s16 Char_Index;
-
-    Switch_Screen(1);
-    D_No[1]++;
-    D_Timer = 420;
-    Rank_X = 0;
-    Flash_Rank_Time = 0;
-    Rank_Pos_X = bg_w.bgw[0].xy[0].disp.pos - 104;
-    Rank_Pos_Y = bg_w.bgw[0].xy[1].disp.pos + 160;
-    Setup_Ranking_Obj();
-    Setup_Score_Obj();
-    if (Rank_Type == 0) {
-        effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 168, bg_w.bgw[0].xy[1].disp.pos + 32, 180, 5, 20, 0, 0);
-    } else {
-        effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 168, bg_w.bgw[0].xy[1].disp.pos + 32, 180, 5, 20, 0, 0);
-    }
-
+/* The five ranking rows, flashing whichever the players just took. */
+static void Setup_Demo_Rank_Rows() {
     for (Rank = Rank_Type; Rank < (Rank_Type + 5); Rank++) {
         if ((Present_Rank[0] == (Rank - Rank_Type)) || (Present_Rank[1] == (Rank - Rank_Type))) {
             Flash_Rank_Interval = 1;
@@ -274,13 +258,13 @@ void Ranking_01_2nd() {
         Rank_X = 0;
         Flash_Rank_Time = 0;
     }
-    Order[85] = 1;
-    Order_Timer[85] = 180;
-    Order_Dir[85] = Rank_Type + 10;
-    effect_76_init(85);
-    effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 512, bg_w.bgw[0].xy[1].disp.pos + 80, 180, 10, 35, 0, 0);
-    effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 504, bg_w.bgw[0].xy[1].disp.pos + 40, 180, 13, 35, 0, 0);
-    effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 240, bg_w.bgw[0].xy[1].disp.pos + 68, 180, 7, 30, 0, 0);
+}
+
+/* The single-entry record shown beside the table: the CPU grade on the score page and
+ * the win streak on the other. */
+static void Setup_Demo_Rank_Entry() {
+    s16 Char_Index;
+
     base_y_pos = 40;
     switch (Rank_Type) {
     case 0:
@@ -322,7 +306,33 @@ void Ranking_01_2nd() {
         Rank_Pos_X -= 32;
         Setup_Wins2(0);
     }
+}
 
+void Ranking_01_2nd() {
+    Switch_Screen(1);
+    D_No[1]++;
+    D_Timer = 420;
+    Rank_X = 0;
+    Flash_Rank_Time = 0;
+    Rank_Pos_X = bg_w.bgw[0].xy[0].disp.pos - 104;
+    Rank_Pos_Y = bg_w.bgw[0].xy[1].disp.pos + 160;
+    Setup_Ranking_Obj();
+    Setup_Score_Obj();
+    if (Rank_Type == 0) {
+        effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 168, bg_w.bgw[0].xy[1].disp.pos + 32, 180, 5, 20, 0, 0);
+    } else {
+        effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 168, bg_w.bgw[0].xy[1].disp.pos + 32, 180, 5, 20, 0, 0);
+    }
+
+    Setup_Demo_Rank_Rows();
+    Order[85] = 1;
+    Order_Timer[85] = 180;
+    Order_Dir[85] = Rank_Type + 10;
+    effect_76_init(85);
+    effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 512, bg_w.bgw[0].xy[1].disp.pos + 80, 180, 10, 35, 0, 0);
+    effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 504, bg_w.bgw[0].xy[1].disp.pos + 40, 180, 13, 35, 0, 0);
+    effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 240, bg_w.bgw[0].xy[1].disp.pos + 68, 180, 7, 30, 0, 0);
+    Setup_Demo_Rank_Entry();
     Rank -= 10;
     if ((Present_Rank[0] < 5) || (Present_Rank[1] < 5)) {
         D_No[1]++;
