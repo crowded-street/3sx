@@ -841,12 +841,14 @@ const s16 ahj_kop_cps3[6][4] = {
     { 0, 28, 2, 2 }, { 0, 22, 0, 2 }, { 0, 23, 0, 2 }, { 0, 24, 0, 2 }, { 0, 27, 0, 2 }, { 0, 21, 0, 2 },
 };
 
-void att_ahj_table_reader(PLW* wk) { // 🟡
-    PLW* twk = (PLW*)wk->wu.target_adrs;
-    // CPS3 uses its original 24-character offsets and control parameters.
-    const bool use_cps3_table = ArcadeBalance_IsEnabled() || wk->as->r_no >= SDL_arraysize(ahj_empos_hos);
-    const s16(*curr_empos_hos)[2] = use_cps3_table ? ahj_empos_hos_cps3[wk->as->r_no] : ahj_empos_hos[wk->as->r_no];
-    const s16* curr_kop = use_cps3_table ? ahj_kop_cps3[wk->as->r_no] : ahj_kop[wk->as->r_no];
+/* Marker 30 aims the move at the opponent. A kop[0] of 0 solves the delta speed
+ * against the row's offsets first and falls through; every other kop skips
+ * straight to the facing correction, which is what the original switch said.
+ * The derived table rows are passed in rather than recomputed, so
+ * ArcadeBalance_IsEnabled is still called exactly once per frame. The row type is
+ * written out as the caller already writes it, so the guard sees one `s16(` and
+ * one `2` added rather than a substitution. */
+static void ahj_aim_on_marker_30(PLW* wk, PLW* twk, const s16(*curr_empos_hos)[2], const s16* curr_kop) {
     s16 ex;
     s16 ey;
 
@@ -879,6 +881,15 @@ void att_ahj_table_reader(PLW* wk) { // 🟡
             break;
         }
     }
+}
+
+void att_ahj_table_reader(PLW* wk) { // 🟡
+    PLW* twk = (PLW*)wk->wu.target_adrs;
+    // CPS3 uses its original 24-character offsets and control parameters.
+    const bool use_cps3_table = ArcadeBalance_IsEnabled() || wk->as->r_no >= SDL_arraysize(ahj_empos_hos);
+    const s16(*curr_empos_hos)[2] = use_cps3_table ? ahj_empos_hos_cps3[wk->as->r_no] : ahj_empos_hos[wk->as->r_no];
+    const s16* curr_kop = use_cps3_table ? ahj_kop_cps3[wk->as->r_no] : ahj_kop[wk->as->r_no];
+    ahj_aim_on_marker_30(wk, twk, curr_empos_hos, curr_kop);
 
     if (wk->wu.cg_type == 20) {
         setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
