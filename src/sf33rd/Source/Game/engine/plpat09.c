@@ -286,57 +286,59 @@ static void homing_aim_on_marker_30(PLW* wk, PLW* twk, const s16* curr_kop) {
     s16 ex;
     s16 ey;
 
-    if (wk->wu.cg_type == 30) {
-        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-        wk->wu.mvxy.index++;
-
-        switch (curr_kop[0]) {
-        case 0:
-            if (wk->wu.xyz[0].disp.pos < twk->wu.xyz[0].disp.pos) {
-                ex = twk->wu.xyz[0].disp.pos - homing_hos[wk->pl09_dat_index][twk->player_number][0];
-
-                if (!wk->wu.rl_flag) {
-                    ex = wk->wu.xyz[0].disp.pos - (ex - wk->wu.xyz[0].disp.pos);
-                }
-            } else {
-                ex = twk->wu.xyz[0].disp.pos + homing_hos[wk->pl09_dat_index][twk->player_number][0];
-
-                if (wk->wu.rl_flag) {
-                    ex = wk->wu.xyz[0].disp.pos + (wk->wu.xyz[0].disp.pos - ex);
-                }
-            }
-
-            ey = homing_hos[wk->pl09_dat_index][twk->player_number][1];
-            wk->wu.mvxy.a[0].sp = 0;
-            cal_initial_speed(&wk->wu, curr_kop[1], ex, ey);
-            wk->pl09_dat_index++;
-            break;
-
-        case 1:
-            ex = wk->wu.xyz[0].disp.pos;
-
-            if (wk->wu.xyz[0].disp.pos < twk->wu.xyz[0].disp.pos) {
-                ex += (twk->wu.xyz[0].disp.pos - wk->wu.xyz[0].disp.pos) / 2;
-            } else {
-                ex -= (wk->wu.xyz[0].disp.pos - twk->wu.xyz[0].disp.pos) / 2;
-            }
-
-            ey = homing_hos[wk->pl09_dat_index][twk->player_number][1];
-            wk->wu.mvxy.a[0].sp = 0;
-            cal_initial_speed(&wk->wu, curr_kop[1], ex, ey);
-            wk->pl09_dat_index++;
-            break;
-        }
-
-        if (wk->wu.rl_flag == 0) {
-            wk->wu.mvxy.a[0].sp = -wk->wu.mvxy.a[0].sp;
-            wk->wu.mvxy.d[0].sp = -wk->wu.mvxy.d[0].sp;
-        }
-
-        wk->wu.routine_no[3]++;
-        wk->wu.cg_type = 0;
-        add_mvxy_speed(&wk->wu);
+    if (wk->wu.cg_type != 30) {
+        return;
     }
+
+    setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+    wk->wu.mvxy.index++;
+
+    switch (curr_kop[0]) {
+    case 0:
+        if (wk->wu.xyz[0].disp.pos < twk->wu.xyz[0].disp.pos) {
+            ex = twk->wu.xyz[0].disp.pos - homing_hos[wk->pl09_dat_index][twk->player_number][0];
+
+            if (!wk->wu.rl_flag) {
+                ex = wk->wu.xyz[0].disp.pos - (ex - wk->wu.xyz[0].disp.pos);
+            }
+        } else {
+            ex = twk->wu.xyz[0].disp.pos + homing_hos[wk->pl09_dat_index][twk->player_number][0];
+
+            if (wk->wu.rl_flag) {
+                ex = wk->wu.xyz[0].disp.pos + (wk->wu.xyz[0].disp.pos - ex);
+            }
+        }
+
+        ey = homing_hos[wk->pl09_dat_index][twk->player_number][1];
+        wk->wu.mvxy.a[0].sp = 0;
+        cal_initial_speed(&wk->wu, curr_kop[1], ex, ey);
+        wk->pl09_dat_index++;
+        break;
+
+    case 1:
+        ex = wk->wu.xyz[0].disp.pos;
+
+        if (wk->wu.xyz[0].disp.pos < twk->wu.xyz[0].disp.pos) {
+            ex += (twk->wu.xyz[0].disp.pos - wk->wu.xyz[0].disp.pos) / 2;
+        } else {
+            ex -= (wk->wu.xyz[0].disp.pos - twk->wu.xyz[0].disp.pos) / 2;
+        }
+
+        ey = homing_hos[wk->pl09_dat_index][twk->player_number][1];
+        wk->wu.mvxy.a[0].sp = 0;
+        cal_initial_speed(&wk->wu, curr_kop[1], ex, ey);
+        wk->pl09_dat_index++;
+        break;
+    }
+
+    if (wk->wu.rl_flag == 0) {
+        wk->wu.mvxy.a[0].sp = -wk->wu.mvxy.a[0].sp;
+        wk->wu.mvxy.d[0].sp = -wk->wu.mvxy.d[0].sp;
+    }
+
+    wk->wu.routine_no[3]++;
+    wk->wu.cg_type = 0;
+    add_mvxy_speed(&wk->wu);
 }
 
 void mvxy_table_reader(PLW* wk) {
