@@ -51,12 +51,9 @@ void nm_01000(PLW* wk) { // 🟡
     check_F_R_walk(wk);
 }
 
-/* The ten checks both normal-attack paths run first, in this order. */
-static bool run_nm_attack_checks_before_turn(PLW* wk) {
-    if (check_ashimoto(wk)) {
-        return true;
-    }
-
+/* The six attacks every path tries first, in this order: both full-gauge
+ * attacks, the super art, the special, the taunt and the throw. */
+static bool run_attack_checks_before_leap(PLW* wk) {
     if (check_full_gauge_attack(wk, 0)) {
         return true;
     }
@@ -78,6 +75,19 @@ static bool run_nm_attack_checks_before_turn(PLW* wk) {
     }
 
     if (check_catch_attack(wk)) {
+        return true;
+    }
+
+    return false;
+}
+
+/* The ten checks both normal-attack paths run first, in this order. */
+static bool run_nm_attack_checks_before_turn(PLW* wk) {
+    if (check_ashimoto(wk)) {
+        return true;
+    }
+
+    if (run_attack_checks_before_leap(wk)) {
         return true;
     }
 
@@ -388,27 +398,7 @@ void set_new_jpdir(PLW* wk) { // 🟢
 }
 
 static bool run_jump_attack_checks(PLW* wk) {
-    if (check_full_gauge_attack(wk, 0)) {
-        return true;
-    }
-
-    if (check_full_gauge_attack2(wk, 0)) {
-        return true;
-    }
-
-    if (check_super_arts_attack(wk)) {
-        return true;
-    }
-
-    if (check_special_attack(wk)) {
-        return true;
-    }
-
-    if (check_chouhatsu(wk)) {
-        return true;
-    }
-
-    if (check_catch_attack(wk)) {
+    if (run_attack_checks_before_leap(wk)) {
         return true;
     }
 
@@ -450,27 +440,7 @@ static void reset_guard_for_new_state(PLW* wk) {
 }
 
 static bool run_early_attack_checks(PLW* wk) {
-    if (check_full_gauge_attack(wk, 0)) {
-        return true;
-    }
-
-    if (check_full_gauge_attack2(wk, 0)) {
-        return true;
-    }
-
-    if (check_super_arts_attack(wk)) {
-        return true;
-    }
-
-    if (check_special_attack(wk)) {
-        return true;
-    }
-
-    if (check_chouhatsu(wk)) {
-        return true;
-    }
-
-    if (check_catch_attack(wk)) {
+    if (run_attack_checks_before_leap(wk)) {
         return true;
     }
 
@@ -781,27 +751,7 @@ static void dispatch_by_pat_status(PLW* wk, void (*on_low_pat_status)(WORK*), vo
  * universal overhead, and finally a normal. Each `break` in the original left
  * the switch with nothing after it, so returning here reaches the same place. */
 static void try_any_attack(PLW* wk) {
-    if (check_full_gauge_attack(wk, 0)) {
-        return;
-    }
-
-    if (check_full_gauge_attack2(wk, 0)) {
-        return;
-    }
-
-    if (check_super_arts_attack(wk)) {
-        return;
-    }
-
-    if (check_special_attack(wk)) {
-        return;
-    }
-
-    if (check_chouhatsu(wk)) {
-        return;
-    }
-
-    if (check_catch_attack(wk)) {
+    if (run_attack_checks_before_leap(wk)) {
         return;
     }
 
