@@ -222,16 +222,23 @@ void Entry_02() {
     Entry_Main_Sub(1, 2);
 }
 
-void Entry_03() {
+/* The five screen dispatchers - 03, 04, 06, 07 and 08 - were identical apart from
+ * which pair of handlers they named. Both names travel verbatim to the call site
+ * and this helper does nothing with them but call them. */
+static void Entry_Screen_Step(void (*first_frame)(), void (*later_frames)()) {
     switch (E_No[1]) {
     case 0:
-        Entry_03_1st();
+        first_frame();
         break;
 
     default:
-        Entry_03_2nd();
+        later_frames();
         break;
     }
+}
+
+void Entry_03() {
+    Entry_Screen_Step(Entry_03_1st, Entry_03_2nd);
 }
 
 /* The first frame of a screen: advance the sub-state once, then step both players.
@@ -291,15 +298,7 @@ void Entry_03_2nd() {
 }
 
 void Entry_04() {
-    switch (E_No[1]) {
-    case 0:
-        Entry_04_1st();
-        break;
-
-    default:
-        Entry_04_2nd();
-        break;
-    }
+    Entry_Screen_Step(Entry_04_1st, Entry_04_2nd);
 }
 
 void Entry_04_1st() {
@@ -366,15 +365,7 @@ void Entry_04_2nd() {
 }
 
 void Entry_06() {
-    switch (E_No[1]) {
-    case 0:
-        Entry_06_1st();
-        break;
-
-    default:
-        Entry_06_2nd();
-        break;
-    }
+    Entry_Screen_Step(Entry_06_1st, Entry_06_2nd);
 }
 
 void Entry_06_1st() {
@@ -446,15 +437,7 @@ void Entry_06_2nd() {
 }
 
 void Entry_07() {
-    switch (E_No[1]) {
-    case 0:
-        Entry_07_1st();
-        break;
-
-    default:
-        Entry_07_2nd();
-        break;
-    }
+    Entry_Screen_Step(Entry_07_1st, Entry_07_2nd);
 }
 
 void Entry_07_1st() {
@@ -517,15 +500,7 @@ void Entry_07_2nd() {
 }
 
 void Entry_08() {
-    switch (E_No[1]) {
-    case 0:
-        Entry_08_1st();
-        break;
-
-    default:
-        Entry_08_2nd();
-        break;
-    }
+    Entry_Screen_Step(Entry_08_1st, Entry_08_2nd);
 }
 
 void Entry_08_1st() {
