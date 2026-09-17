@@ -472,6 +472,32 @@ void Scs_move_sub() {
     Restart_Flash_On_Change();
 }
 
+/* Run the cursor character's flash cycle, and hand over once the name is finished. */
+static void Flash_Current_Character() {
+    if (name_ptr->r_no_0 > 5) {
+        nsc_ptr->r_no_0++;
+        return;
+    }
+
+    nsc_ptr->f_cnt++;
+
+    if (nsc_ptr->f_cnt > 16) {
+        nsc_ptr->f_cnt = 0;
+        nsc_ptr->n_disp_flag++;
+
+        if (nsc_ptr->n_disp_flag > 2) {
+            nsc_ptr->n_disp_flag = 0;
+        }
+
+        if (nsc_ptr->n_disp_flag != 2) {
+            nsc_ptr->tenmetsu_flag = 0;
+            return;
+        }
+
+        nsc_ptr->tenmetsu_flag = 1;
+    }
+}
+
 void current_sc_move2() {
     if (name_ptr->index != nsc_ptr->c_cnt) {
         return;
@@ -485,28 +511,7 @@ void current_sc_move2() {
         break;
 
     case 1:
-        if (name_ptr->r_no_0 > 5) {
-            nsc_ptr->r_no_0++;
-            break;
-        }
-
-        nsc_ptr->f_cnt++;
-
-        if (nsc_ptr->f_cnt > 16) {
-            nsc_ptr->f_cnt = 0;
-            nsc_ptr->n_disp_flag++;
-
-            if (nsc_ptr->n_disp_flag > 2) {
-                nsc_ptr->n_disp_flag = 0;
-            }
-
-            if (nsc_ptr->n_disp_flag != 2) {
-                nsc_ptr->tenmetsu_flag = 0;
-                break;
-            }
-
-            nsc_ptr->tenmetsu_flag = 1;
-        }
+        Flash_Current_Character();
 
         break;
     }
