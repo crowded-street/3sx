@@ -1027,33 +1027,40 @@ u16 decode_wst_data(PLW* wk, u16 cmd, s16 cmd_ex) { // 🟢
     return rnum;
 }
 
-s16 get_em_body_range(WORK* wk) { // 🟢
-    WORK* em;
-    s16* dad;
-    s16 res_hs;
+/* On the car bonus stage the range is measured to the car's own effect work,
+ * from the middle of its correction box. */
+static s16 body_range_to_bonus_car(WORK* wk) {
+    WORK* em = (WORK*)((WORK*)wk->target_adrs)->my_effadrs;
+    s16* dad = (s16*)(em->hosei_adrs + (get_sel_hosei_tbl_ix(((WORK_Other*)em)->master_player) + 1));
+    s16 res_hs = wk->xyz[0].disp.pos - (em->xyz[0].disp.pos + dad[0] + (dad[1] / 2));
 
-    if (Bonus_Game_Flag == 20 && wk->operator != 0) {
-        em = (WORK*)((WORK*)wk->target_adrs)->my_effadrs;
-        dad = (s16*)(em->hosei_adrs + (get_sel_hosei_tbl_ix(((WORK_Other*)em)->master_player) + 1));
-        res_hs = wk->xyz[0].disp.pos - (em->xyz[0].disp.pos + dad[0] + (dad[1] / 2));
-
-        if (res_hs < 0) {
-            res_hs = -res_hs;
-        }
-
-        res_hs -= (dad[1] / 2);
-        return res_hs;
-    } else {
-        em = (WORK*)wk->target_adrs;
-        res_hs = wk->xyz[0].disp.pos - em->xyz[0].disp.pos;
-
-        if (res_hs < 0) {
-            res_hs = -res_hs;
-        }
-
-        res_hs += em->hosei_adrs[1].hos_box[0];
-        return res_hs;
+    if (res_hs < 0) {
+        res_hs = -res_hs;
     }
+
+    res_hs -= (dad[1] / 2);
+    return res_hs;
+}
+
+/* Otherwise it is measured to the opponent, from the near edge of their box. */
+static s16 body_range_to_opponent(WORK* wk) {
+    WORK* em = (WORK*)wk->target_adrs;
+    s16 res_hs = wk->xyz[0].disp.pos - em->xyz[0].disp.pos;
+
+    if (res_hs < 0) {
+        res_hs = -res_hs;
+    }
+
+    res_hs += em->hosei_adrs[1].hos_box[0];
+    return res_hs;
+}
+
+s16 get_em_body_range(WORK* wk) { // 🟢
+    if (Bonus_Game_Flag == 20 && wk->operator != 0) {
+        return body_range_to_bonus_car(wk);
+    }
+
+    return body_range_to_opponent(wk);
 }
 
 s32 cmd_ex_check(s16 px, s16 cx) { // 🟢
