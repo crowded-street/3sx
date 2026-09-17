@@ -175,6 +175,33 @@ static s32 No_Fight_To_Interrupt() {
     return (Play_Type == 0) && (Conclusion_Flag != 0) && (plw[Champion].wu.operator == 0);
 }
 
+/* Nothing to tear down: come straight back next frame, and mark whether the
+ * challenger is the one who just lost. */
+static void Break_In_Without_A_Fight() {
+    E_Timer = 1;
+
+    if (LOSER != New_Challenger) {
+        E_No[3] = 0xFF;
+    } else {
+        E_No[3] = 0;
+    }
+}
+
+/* A fight is running: bank the champion's score if the round had not finished,
+ * then wind the round down and ask for the break-in load. */
+static void Tear_Down_The_Fight() {
+    E_Timer = 150;
+
+    if (Conclusion_Flag == 0) {
+        Score[Champion][0] = Stage_Stock_Score[Champion];
+    }
+
+    effect_A2_init(0);
+    sound_all_off();
+    Sound_SE(0xB6);
+    Request_LDREQ_Break();
+}
+
 void Break_Into_05(s16 PL_id) {
     Break_Into = 1;
     Stop_Combo = 1;
@@ -183,24 +210,9 @@ void Break_Into_05(s16 PL_id) {
     Clear_New_Challenger_Entry();
 
     if (No_Fight_To_Interrupt()) {
-        E_Timer = 1;
-
-        if (LOSER != New_Challenger) {
-            E_No[3] = 0xFF;
-        } else {
-            E_No[3] = 0;
-        }
+        Break_In_Without_A_Fight();
     } else {
-        E_Timer = 150;
-
-        if (Conclusion_Flag == 0) {
-            Score[Champion][0] = Stage_Stock_Score[Champion];
-        }
-
-        effect_A2_init(0);
-        sound_all_off();
-        Sound_SE(0xB6);
-        Request_LDREQ_Break();
+        Tear_Down_The_Fight();
     }
 
     Stop_Update_Score = 1;
