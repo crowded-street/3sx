@@ -98,6 +98,46 @@ static s32 Neither_Player_Is_Naming() {
     return (E_Number[0][0] != 2) && (E_Number[1][0] != 2);
 }
 
+/* Sub-state 2: once the screen is covered, build the result display behind it. */
+static void Build_Result_Screen() {
+    if (FadeOut(1, 8, 8) != 0) {
+        GO_No[1] += 1;
+        Cover_Timer = 5;
+        Suicide[3] = 1;
+        Suicide[2] = 0;
+
+        if (Break_Com[WINNER][0]) {
+            Setup_BG(0, 0x200, 0);
+            bg_etc_write(PL_Color_Data[My_char[Winner_id]]);
+        }
+
+        Setup_Result_OBJ();
+        effect_76_init(0x41);
+        Order[0x41] = 3;
+        Order_Timer[0x41] = 1;
+        return;
+    }
+}
+
+/* Sub-state 4: once the result is faded in, let break-ins back in and either wait for
+ * the naming screen or start the result timer. */
+static void Show_Result_Screen() {
+    if (FadeIn(1, 8, 8) != 0) {
+        Forbid_Break = 0;
+        BGM_Request(54);
+        Ignore_Entry[LOSER] = 0;
+
+        if (Neither_Player_Is_Naming()) {
+            GO_No[1] += 2;
+            G_Timer = 60;
+            return;
+        }
+
+        GO_No[1] += 1;
+        return;
+    }
+}
+
 void GameOver_2nd() {
     switch (GO_No[1]) {
     case 0:
@@ -111,23 +151,7 @@ void GameOver_2nd() {
         return;
 
     case 2:
-        if (FadeOut(1, 8, 8) != 0) {
-            GO_No[1] += 1;
-            Cover_Timer = 5;
-            Suicide[3] = 1;
-            Suicide[2] = 0;
-
-            if (Break_Com[WINNER][0]) {
-                Setup_BG(0, 0x200, 0);
-                bg_etc_write(PL_Color_Data[My_char[Winner_id]]);
-            }
-
-            Setup_Result_OBJ();
-            effect_76_init(0x41);
-            Order[0x41] = 3;
-            Order_Timer[0x41] = 1;
-            return;
-        }
+        Build_Result_Screen();
 
         break;
 
@@ -144,20 +168,7 @@ void GameOver_2nd() {
         break;
 
     case 4:
-        if (FadeIn(1, 8, 8) != 0) {
-            Forbid_Break = 0;
-            BGM_Request(54);
-            Ignore_Entry[LOSER] = 0;
-
-            if (Neither_Player_Is_Naming()) {
-                GO_No[1] += 2;
-                G_Timer = 60;
-                return;
-            }
-
-            GO_No[1] += 1;
-            return;
-        }
+        Show_Result_Screen();
 
         break;
 
