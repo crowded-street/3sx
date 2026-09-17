@@ -327,6 +327,44 @@ static void show_credit_line(s16 t) {
     set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
 }
 
+/* Show the next page of credits: one pair of lines, and up to four more pairs while
+ * the table says the following entry has no gap before it. */
+static void show_next_credit_page() {
+    name_timer = sf3_staff[name_ptr].next;
+    show_credit_line(20);
+    name_ptr++;
+    show_credit_line(20);
+    name_ptr++;
+
+    if (sf3_staff[name_ptr].next == 0) {
+        show_credit_line(20);
+        name_ptr++;
+        show_credit_line(20);
+        name_ptr++;
+
+        if (sf3_staff[name_ptr].next == 0) {
+            show_credit_line(20);
+            name_ptr++;
+            show_credit_line(20);
+            name_ptr++;
+
+            if (sf3_staff[name_ptr].next == 0) {
+                show_credit_line(20);
+                name_ptr++;
+                show_credit_line(20);
+                name_ptr++;
+
+                if (sf3_staff[name_ptr].next == 0) {
+                    show_credit_line(20);
+                    name_ptr++;
+                    show_credit_line(20);
+                    name_ptr++;
+                }
+            }
+        }
+    }
+}
+
 s32 staff_credits(u32 /* unused */) {
     s16 x;
     s16 y;
@@ -402,40 +440,7 @@ s32 staff_credits(u32 /* unused */) {
             break;
         }
 
-        name_timer = sf3_staff[name_ptr].next;
-        show_credit_line(20);
-        name_ptr++;
-        show_credit_line(20);
-        name_ptr++;
-
-        if (sf3_staff[name_ptr].next == 0) {
-            show_credit_line(20);
-            name_ptr++;
-            show_credit_line(20);
-            name_ptr++;
-
-            if (sf3_staff[name_ptr].next == 0) {
-                show_credit_line(20);
-                name_ptr++;
-                show_credit_line(20);
-                name_ptr++;
-
-                if (sf3_staff[name_ptr].next == 0) {
-                    show_credit_line(20);
-                    name_ptr++;
-                    show_credit_line(20);
-                    name_ptr++;
-
-                    if (sf3_staff[name_ptr].next == 0) {
-                        show_credit_line(20);
-                        name_ptr++;
-                        show_credit_line(20);
-                        name_ptr++;
-                    }
-                }
-            }
-        }
-
+        show_next_credit_page();
         break;
 
     case 2:
