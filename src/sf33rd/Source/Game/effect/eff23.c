@@ -21,7 +21,7 @@ void EFF23_SUDDENLY(WORK_Other_CONN* /* unused */);
 void Setup_23_Sub(WORK_Other_CONN* ewk);
 void Setup_Letter_23(WORK_Other_CONN* ewk, s16 disp_index);
 
-const s8* Letter_Data_23[4][12] = { { "L.PUNCH",
+const char* Letter_Data_23[4][12] = { { "L.PUNCH",
                                       "M.PUNCH",
                                       "H.PUNCH",
                                       "L.KICK",

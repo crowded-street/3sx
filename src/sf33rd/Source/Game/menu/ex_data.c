@@ -12,7 +12,7 @@ const u8 Ex_Menu_Max_Data[4][8] = {
 const u8 Ex_Account_Data[4] = { 0, 8, 16, 24 };
 const u8 Ex_Page_Data[4] = { 7, 7, 4, 6 };
 
-s8* Ex_Letter_Data[4][7][17] = {
+const char* Ex_Letter_Data[4][7][17] = {
     {
         {
             "DECREASE",
@@ -555,7 +555,7 @@ s8* Ex_Letter_Data[4][7][17] = {
     },
 };
 
-s8* Ex_Title_Data[4][7] = {
+const char* Ex_Title_Data[4][7] = {
     {
         "LIFE GAUGE TYPE/.............",
         "1P VITALITY/.................",

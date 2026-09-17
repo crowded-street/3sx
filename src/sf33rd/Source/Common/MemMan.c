@@ -7,7 +7,7 @@ void mmSystemInitialize() {
     mmInitialNumber = 0;
 }
 
-void mmHeapInitialize(_MEMMAN_OBJ* mmobj, u8* adrs, s32 size, s32 unit, s8* format) {
+void mmHeapInitialize(_MEMMAN_OBJ* mmobj, u8* adrs, s32 size, s32 unit) {
     mmobj->oriHead = adrs;
     mmobj->oriSize = size;
     mmobj->ownUnit = unit;

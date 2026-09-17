@@ -80,7 +80,7 @@ static void apply_training_hitbox_display(bool force_off);
 
 typedef struct {
     s16 pos_x;
-    s8* menu;
+    char* menu;
 } LetterData;
 
 extern u8 control_player;

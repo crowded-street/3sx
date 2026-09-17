@@ -157,9 +157,9 @@ uintptr_t flPS2GetSystemTmpBuff(s32 len, s32 align) {
 }
 
 u32 flCreateTextureFromFile(const char* file, u32 flag) {
-    s8* tmp = file;
+    const char* tmp = file;
 
-    while (*tmp != 0) {
+    while (*tmp != '\0') {
         tmp++;
     }
 

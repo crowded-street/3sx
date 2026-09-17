@@ -47,7 +47,7 @@ void ppg_Initialize(void* lcmAdrs, s32 lcmSize) {
         flLogOut("ppg_Initialize: lcmAdrs is NULL");
     }
 
-    mmHeapInitialize(&ppg_w.mm, lcmAdrs, lcmSize, ALIGN_UP(sizeof(_MEMMAN_CELL), 16), "- for PPG -");
+    mmHeapInitialize(&ppg_w.mm, lcmAdrs, lcmSize, ALIGN_UP(sizeof(_MEMMAN_CELL), 16));
 }
 
 void* ppgMallocF(s32 size) {

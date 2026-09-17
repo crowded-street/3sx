@@ -6,37 +6,37 @@
 #include "sf33rd/Source/Game/message/en/pl14end_en.h"
 #include "common.h"
 
-static s8* msgEndPL14_00[1] = { "" };
-static s8* msgEndPL14_01[2] = {
+static char* msgEndPL14_00[1] = { "" };
+static char* msgEndPL14_01[2] = {
     "   This is Deep Sea 3000.                       ",
     "   150m to the destination... Over.             ",
 };
-static s8* msgEndPL14_02[2] = {
+static char* msgEndPL14_02[2] = {
     "   We expect to reach the observation           ",
     "   point in approximately 40 seconds.           ",
 };
-static s8* msgEndPL14_03[2] = {
+static char* msgEndPL14_03[2] = {
     "   Confirmed visual contact with ship.          ",
     "   Switching to phase three... Over.            ",
 };
-static s8* msgEndPL14_04[1] = { "   ...What?!                                    " };
-static s8* msgEndPL14_05[2] = {
+static char* msgEndPL14_04[1] = { "   ...What?!                                    " };
+static char* msgEndPL14_05[2] = {
     "   Is that... a man?!                           ",
     "   No... it can't be!                           ",
 };
-static s8* msgEndPL14_06[1] = { "   This can't be happening...                   " };
-static s8* msgEndPL14_07[2] = {
+static char* msgEndPL14_06[1] = { "   This can't be happening...                   " };
+static char* msgEndPL14_07[2] = {
     "   What? What did you see?!                     ",
     "   Respond!! Over!                              ",
 };
-static s8* msgEndPL14_08[2] = {
+static char* msgEndPL14_08[2] = {
     "   Something is wrong!                          ",
     "   The radio has been cut... Uwaahh!!           ",
 };
-static s8* msgEndPL14_09[1] = { "   Muuuuuuunn!!                                 " };
-static s8* msgEndPL14_10[1] = { "   Tenshou Kaireki Jin!!                        " };
+static char* msgEndPL14_09[1] = { "   Muuuuuuunn!!                                 " };
+static char* msgEndPL14_10[1] = { "   Tenshou Kaireki Jin!!                        " };
 
-static s8** msgEndAdrPL14[11] = {
+static char** msgEndAdrPL14[11] = {
     msgEndPL14_00, msgEndPL14_01, msgEndPL14_02, msgEndPL14_03, msgEndPL14_04, msgEndPL14_05,
     msgEndPL14_06, msgEndPL14_07, msgEndPL14_08, msgEndPL14_09, msgEndPL14_10,
 };

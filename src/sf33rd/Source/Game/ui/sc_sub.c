@@ -179,7 +179,7 @@ int TopHUDFacePriority;
 int TopHUDVitalPriority;
 
 // forward decls
-s32 SSGetDrawSizePro(const s8* str);
+s32 SSGetDrawSizePro(const char* str);
 s16 SSPutStrTexInputPro(u16 x, u16 y, u16 ix);
 void face_base_put();
 void silver_stun_put(u8 Pl_Num, s16 len);
@@ -310,7 +310,7 @@ void Sa_frame_Write() {
     }
 }
 
-void SSPutStrTexInput(u16 x, u16 y, const s8* str) {
+void SSPutStrTexInput(u16 x, u16 y, const char* str) {
     s32 u = ((*str & 0xF) * 8) + 0x80;
     s32 v = ((*str & 0xF0) >> 4) * 8;
 
@@ -339,7 +339,7 @@ void SSPutStrTexInput2(u16 x, u16 y, u8 str) {
     scrscrntex[3].y = (y + 8);
 }
 
-void SSPutStr(u16 x, u16 y, u8 atr, const s8* str, u16 priority) {
+void SSPutStr(u16 x, u16 y, u8 atr, const char* str, u16 priority) {
     if (No_Trans) {
         return;
     }
@@ -424,7 +424,7 @@ s16 SSPutStrTexInputPro(u16 x, u16 y, u16 ix) {
     return slide;
 }
 
-s32 SSGetDrawSizePro(const s8* str) {
+s32 SSGetDrawSizePro(const char* str) {
     s32 ix;
     s32 size = 0;
 
@@ -437,7 +437,7 @@ s32 SSGetDrawSizePro(const s8* str) {
     return size;
 }
 
-void SSPutStr2(u16 x, u16 y, u8 atr, const s8* str) {
+void SSPutStr2(u16 x, u16 y, u8 atr, const char* str) {
     if (No_Trans) {
         return;
     }
@@ -458,7 +458,7 @@ void SSPutStr2(u16 x, u16 y, u8 atr, const s8* str) {
     }
 }
 
-void SSPutStrTexInputB(f32 x, f32 y, s8* str, f32 sc) {
+void SSPutStrTexInputB(f32 x, f32 y, const char* str, f32 sc) {
     s32 u = ((*str & 0xF) * 8) + 128;
     s32 v = ((*str & 0xF0) >> 4) * 8;
 
@@ -485,7 +485,7 @@ void SSPutStrTexInputB2(f32 x, f32 y, s8 str) {
     scrscrntex[1].y = scrscrntex[3].y = (8.0f + y);
 }
 
-void SSPutStr_Bigger(u16 x, u16 y, u8 atr, s8* str, f32 sc, u8 gr, u16 priority) {
+void SSPutStr_Bigger(u16 x, u16 y, u8 atr, const char* str, f32 sc, u8 gr, u16 priority) {
     f32 xx;
     f32 yy;
     u8 i;

@@ -5,7 +5,7 @@
 #include "structs.h"
 #include "types.h"
 
-s32 plReport(s8* format, ...);
+void plReport(char* format, ...);
 void plMemset(void* dst, u32 pat, s32 size);
 void plMemmove(void* dst, void* src, s32 size);
 void* plCalcAddress(s32 x, s32 y, plContext* lpcontext);

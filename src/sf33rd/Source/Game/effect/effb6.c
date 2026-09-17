@@ -23,11 +23,11 @@ void get_message_conn_data(WORK_Other_CONN* ewk, s16 kind, s16 pl, s16 msg);
 static s32 msgConvertObjNum(u8* moji, MessageConversionB6* conversion, u8 hzSel);
 s32 msgCheckCodeSize(u8 data);
 
-static s32 is_spacing_code(u8* text) {
+static s32 is_spacing_code(const char* text) {
     return strcmp(&text[0], "\x81\x40") == 0 || strcmp(&text[0], "\x81\x51") == 0;
 }
 
-const s8* src_han_zen_conv[256] = {
+const char* src_han_zen_conv[256] = {
     "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40",
     "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40",
     "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40",
@@ -59,7 +59,7 @@ const s8* src_han_zen_conv[256] = {
     "\x81\x40", "\x81\x40", "\x81\x40", "\x81\x40"
 };
 
-const s8* src_han_kata[128] = {
+const char* src_han_kata[128] = {
     "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F",
     "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F",
     "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F",
@@ -77,7 +77,7 @@ const s8* src_han_kata[128] = {
     "\x5E\x5F", "\x5E\x5F"
 };
 
-const s8* src_han_alpha[128] = {
+const char* src_han_alpha[128] = {
     "\x61\x00", "\x62\x00", "\x63\x00", "\x64\x00", "\x65\x00", "\x66\x00", "\x67\x00", "\x68\x00", "\x69\x00",
     "\x6A\x00", "\x6B\x00", "\x6C\x00", "\x6D\x00", "\x6E\x00", "\x6F\x00", "\x70\x00", "\x71\x00", "\x72\x00",
     "\x73\x00", "\x74\x00", "\x75\x00", "\x76\x00", "\x77\x00", "\x78\x00", "\x79\x00", "\x7A\x00", "\x21\x00",
@@ -95,7 +95,7 @@ const s8* src_han_alpha[128] = {
     "\x5E\x5F", "\x5E\x5F"
 };
 
-const s8* src_han_alpha2[128] = {
+const char* src_han_alpha2[128] = {
     "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F",
     "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F", "\x5E\x5F",
     "\x5E\x5F", "\x5E\x5F", "\x25\x41", "\x29\x41", "\x28\x41", "\x5E\x41", "\x5E\x5F", "\x7E\x41", "\x5E\x5F",
@@ -113,7 +113,7 @@ const s8* src_han_alpha2[128] = {
     "\x5E\x5F", "\x5E\x5F"
 };
 
-const s8* src_zen_comm[128] = {
+const char* src_zen_comm[128] = {
     "\x55\x50", "\x52\x55", "\x52\x54", "\x52\x44", "\x44\x57", "\x4C\x44", "\x4C\x54", "\x4C\x55", "\x81\x51",
     "\x43\x50", "\x43\x4B", "\x4C\x31", "\x4C\x32", "\x4C\x33", "\x43\x31", "\x43\x32", "\x43\x33", "\x4B\x31",
     "\x4B\x32", "\x82\x4F", "\x82\x50", "\x82\x51", "\x82\x52", "\x82\x53", "\x82\x54", "\x82\x55", "\x82\x56",
@@ -131,7 +131,7 @@ const s8* src_zen_comm[128] = {
     "\x81\x51", "\x81\x51"
 };
 
-const s8* src_zen_hira[128] = {
+const char* src_zen_hira[128] = {
     "\x82\xA0", "\x82\xA2", "\x82\xA4", "\x82\xA6", "\x82\xA8", "\x82\xA9", "\x82\xAB", "\x82\xAD", "\x82\xAF",
     "\x82\xB1", "\x82\xB3", "\x82\xB5", "\x82\xB7", "\x82\xB9", "\x82\xBB", "\x82\xBD", "\x82\xBF", "\x82\xC2",
     "\x82\xC4", "\x82\xC6", "\x82\xC8", "\x82\xC9", "\x82\xCA", "\x82\xCB", "\x82\xCC", "\x82\xCD", "\x82\xD0",
@@ -149,7 +149,7 @@ const s8* src_zen_hira[128] = {
     "\x81\x51", "\x81\x51"
 };
 
-const s8* src_zen_kata[128] = {
+const char* src_zen_kata[128] = {
     "\x83\x41", "\x83\x43", "\x83\x45", "\x83\x47", "\x83\x49", "\x83\x4A", "\x83\x4C", "\x83\x4E", "\x83\x50",
     "\x83\x52", "\x83\x54", "\x83\x56", "\x83\x58", "\x83\x5A", "\x83\x5C", "\x83\x5E", "\x83\x60", "\x83\x63",
     "\x83\x65", "\x83\x67", "\x83\x69", "\x83\x6A", "\x83\x6B", "\x83\x6C", "\x83\x6D", "\x83\x6E", "\x83\x71",
@@ -167,7 +167,7 @@ const s8* src_zen_kata[128] = {
     "\x81\x51", "\x81\x51"
 };
 
-const s8* src_zen_kan0[128] = {
+const char* src_zen_kan0[128] = {
     "\x20\x20", "\x88\xEA", "\x93\xF1", "\x8F\x5C", "\x95\x53", "\x8C\x4E", "\x91\x53", "\x94\x5C", "\x97\x4A",
     "\x9F\x54", "\x8F\xAD", "\x89\xF0", "\x90\xAF", "\x81\x58", "\x89\x69", "\x8E\x8A", "\x8D\x82", "\x8D\xB7",
     "\x96\x68", "\x8F\xE1", "\x8C\xC0", "\x91\xE0", "\x92\xA3", "\x8E\xE3", "\x8B\xAD", "\x90\x88", "\x93\xAE",
@@ -185,7 +185,7 @@ const s8* src_zen_kan0[128] = {
     "\x8E\x6A", "\x94\xF2"
 };
 
-const s8* src_zen_kan1[128] = {
+const char* src_zen_kan1[128] = {
     "\x8D\xA0", "\x81\x51", "\x97\x7E", "\x96\x5D", "\x8A\xE8", "\x90\x94", "\x92\x69", "\x8A\x74", "\x88\xC5",
     "\x8A\xD4", "\x93\xAC", "\x96\xE2", "\x95\xB7", "\x8A\x4A", "\x96\xE5", "\x8A\xC8", "\x8B\x40", "\x81\x51",
     "\x81\x51", "\x91\xE8", "\x88\xD0", "\x8F\xA0", "\x81\x51", "\x8D\x8F", "\x8B\xF0", "\x81\x51", "\x8E\x78",
@@ -203,7 +203,7 @@ const s8* src_zen_kan1[128] = {
     "\x95\xCF", "\x92\xC9"
 };
 
-const s8* src_zen_kan2[128] = {
+const char* src_zen_kan2[128] = {
     "\x96\xFC", "\x94\xE6", "\x90\x4A", "\x90\xF5", "\x8B\xC1", "\x81\x51", "\x8E\x74", "\x90\xAC", "\x8E\xD2",
     "\x8C\xC4", "\x8A\x90", "\x96\xA1", "\x89\x5C", "\x8F\xA5", "\x8D\xC5", "\x91\xD6", "\x81\x51", "\x8D\x4B",
     "\x81\x51", "\x8F\xF0", "\x8C\xF5", "\x90\xC2", "\x95\xE0", "\x97\x70", "\x81\x51", "\x92\x44", "\x91\x9E",
@@ -221,7 +221,7 @@ const s8* src_zen_kan2[128] = {
     "\x8D\x89", "\x8B\x91"
 };
 
-const s8* src_zen_kan3[128] = {
+const char* src_zen_kan3[128] = {
     "\x8E\x77", "\x9D\x86", "\x90\x55", "\x8D\x54", "\x8E\xCC", "\x91\xF0", "\x8A\x7C", "\x8B\xB3", "\x96\xEC",
     "\x98\x59", "\x8D\x81", "\x81\x51", "\x81\x51", "\x95\x7E", "\x8F\xB8", "\x97\xB4", "\x8C\x9D", "\x8D\x55",
     "\x8C\x82", "\x90\x65", "\x90\x56", "\x90\xB0", "\x88\xC3", "\x89\x66", "\x89\xC9", "\x96\xBE", "\x8E\x9E",
@@ -239,7 +239,7 @@ const s8* src_zen_kan3[128] = {
     "\x8B\xC2", "\x94\x7B"
 };
 
-const s8* src_zen_kan4[128] = {
+const char* src_zen_kan4[128] = {
     "\x97\x44", "\x8E\x64", "\x93\x7C", "\x8F\x43", "\x81\x51", "\x96\x6C", "\x91\x9C", "\x8E\x97", "\x90\xE5",
     "\x95\x74", "\x91\x6D", "\x8F\xE4", "\x95\x76", "\x96\xA2", "\x81\x51", "\x96\x7B", "\x81\x51", "\x8D\x90",
     "\x89\xCE", "\x81\x51", "\x8E\xE8", "\x97\xB9", "\x97\x5C", "\x91\xAB", "\x96\xBC", "\x92\x86", "\x8E\x6D",
@@ -257,7 +257,7 @@ const s8* src_zen_kan4[128] = {
     "\x81\x51", "\x81\x51"
 };
 
-const s8* src_zen_kan5[128] = {
+const char* src_zen_kan5[128] = {
     "\x89\xC4", "\x93\x7E", "\x8E\xCA", "\x93\xC1", "\x95\xA8", "\x91\xB0", "\x95\xD7", "\x90\xCC", "\x8A\xEF",
     "\x81\x51", "\x81\x51", "\x92\xED", "\x81\x51", "\x81\x51", "\x91\x7A", "\x8E\x9C", "\x94\xDF", "\x96\x59",
     "\x94\x4F", "\x88\xD3", "\x94\x45", "\x81\x51", "\x8B\x7D", "\x91\xD4", "\x97\x49", "\x8A\xB4", "\x8C\x65",
@@ -275,7 +275,7 @@ const s8* src_zen_kan5[128] = {
     "\x8E\x88", "\x8D\x98"
 };
 
-const s8* src_zen_kan6[128] = {
+const char* src_zen_kan6[128] = {
     "\x8E\x96", "\x91\x95", "\x97\x97", "\x81\x51", "\x81\x51", "\x90\xB7", "\x8A\xF3", "\x81\x51", "\x8E\x6F",
     "\x8C\x99", "\x8F\xEC", "\x8D\x44", "\x8A\xF0", "\x8E\x6E", "\x94\x40", "\x96\xAD", "\x8D\xB8", "\x8E\x55",
     "\x8F\xED", "\x8C\xE0", "\x8D\x86", "\x8F\x88", "\xE0\xF8", "\x90\xED", "\x8F\xF3", "\x82\x6A", "\x82\x6E",
@@ -293,7 +293,7 @@ const s8* src_zen_kan6[128] = {
     "\x94\x52", "\x91\xA4"
 };
 
-const s8* src_zen_kan7[128] = {
+const char* src_zen_kan7[128] = {
     "\x8A\xEB", "\x8C\xAF", "\x90\x8C", "\x95\xA5", "\x89\xCC", "\x95\xB2", "\x8D\xD3", "\x93\x4F", "\x8D\x9C",
     "\x8F\x74", "\x93\xE4", "\x8D\x60", "\x92\x9A", "\x94\x4A", "\x97\x55", "\x89\xBB", "\x8F\x8B", "\x89\x8A",
     "\x90\x7D", "\x94\xC6", "\x8B\xE0", "\x94\xAF", "\x8B\x63", "\x96\xE1", "\x8E\x5A", "\x92\xEB", "\x89\xB9",
@@ -313,9 +313,9 @@ const s8* src_zen_kan7[128] = {
 
 MessageTable** mess_tables[6] = { pl_mes_tbl, pl_tlk_tbl, pl_end_tbl, msgSysDirTbl, msgExtraTbl, msgMenuTbl };
 
-const s8** han_adrs[3] = { src_han_kata, src_han_alpha, src_han_alpha2 };
+const char** han_adrs[3] = { src_han_kata, src_han_alpha, src_han_alpha2 };
 
-const s8** zen_adrs[11] = { src_zen_comm, src_zen_hira, src_zen_kata, src_zen_kan0, src_zen_kan1, src_zen_kan2,
+const char** zen_adrs[11] = { src_zen_comm, src_zen_hira, src_zen_kata, src_zen_kan0, src_zen_kan1, src_zen_kan2,
                             src_zen_kan3, src_zen_kan4, src_zen_kan5, src_zen_kan6, src_zen_kan7 };
 
 static s32 is_double_width_code(u8 data) {
@@ -445,12 +445,12 @@ void get_message_conn_data(WORK_Other_CONN* ewk, s16 kind, s16 pl, s16 msg) {
 }
 
 typedef struct CharacterSearchB6 {
-    const s8*** tables;
+    const char*** tables;
     s32 table_count;
     u16 base_character;
 } CharacterSearchB6;
 
-static const u8* find_character_B6(const u8* text, u16* number, const CharacterSearchB6* search) {
+static const char* find_character_B6(const char* text, u16* number, const CharacterSearchB6* search) {
     s32 i;
     s32 j;
 
@@ -468,17 +468,17 @@ static const u8* find_character_B6(const u8* text, u16* number, const CharacterS
     return NULL;
 }
 
-static const u8* find_han_character(const u8* text, u16* number, s32 table_count) {
+static const char* find_han_character(const char* text, u16* number, s32 table_count) {
     CharacterSearchB6 search = { han_adrs, table_count, 0x7F30 };
     return find_character_B6(text, number, &search);
 }
 
-static const u8* find_zen_character(const u8* text, u16* number) {
+static const char* find_zen_character(const char* text, u16* number) {
     CharacterSearchB6 search = { zen_adrs, 11, 0x80B0 };
     return find_character_B6(text, number, &search);
 }
 
-static s32 prepare_half_width_text_B6(u8* moji, u8* tmpstr) {
+static s32 prepare_half_width_text_B6(u8* moji, char* tmpstr) {
     if (moji[0] == 0x5E) {
         tmpstr[0] = moji[0];
         tmpstr[1] = moji[1];
@@ -491,10 +491,10 @@ static s32 prepare_half_width_text_B6(u8* moji, u8* tmpstr) {
     return 1;
 }
 
-static const u8* find_converted_han_character_3(u8* tmpstr, u16* number) {
+static const char* find_converted_han_character_3(char* tmpstr, u16* number) {
     if (msgCheckCodeSize(tmpstr[0]) == 1) {
-        tmpstr[1] = ((u8**)src_han_zen_conv)[tmpstr[0]][1];
-        tmpstr[0] = ((u8**)src_han_zen_conv)[tmpstr[0]][0];
+        tmpstr[1] = src_han_zen_conv[(u8)tmpstr[0]][1];
+        tmpstr[0] = src_han_zen_conv[(u8)tmpstr[0]][0];
         return find_han_character(&tmpstr[0], number, 3);
     }
 
@@ -516,7 +516,7 @@ static s32 set_wide_message_spacing_B6(s32* spc, s32* hz, u16* num) {
 }
 
 static s32 convert_full_width_message_B6(u8* moji, s32* spc, s32* hz, u16* num) {
-    u8 tmpstr[4];
+    char tmpstr[4];
     s32 rnum;
 
     tmpstr[0] = moji[0];
@@ -553,7 +553,7 @@ static s32 convert_full_width_message_B6(u8* moji, s32* spc, s32* hz, u16* num) 
 }
 
 static s32 convert_half_width_message_B6(u8* moji, s32* spc, s32* hz, u16* num) {
-    u8 tmpstr[4];
+    char tmpstr[4];
     s32 rnum;
 
     rnum = prepare_half_width_text_B6(moji, tmpstr);
