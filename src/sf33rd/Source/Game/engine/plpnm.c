@@ -151,10 +151,23 @@ void Normal_00000(PLW* wk) { // 🟢
     appear_player(wk);
 }
 
-void Normal_01000(PLW* wk) { // 🟢
+/* In a mirror match the two players are drawn one in front of the other. The
+ * states that put this player in front, and the ones that put them behind,
+ * each wrote the same three lines out - twenty and nine times. */
+static void raise_z_when_mirrored(PLW* wk) {
     if (wk->the_same_players) {
         wk->wu.next_z = wk->wu.my_priority + 1;
     }
+}
+
+static void lower_z_when_mirrored(PLW* wk) {
+    if (wk->the_same_players) {
+        wk->wu.next_z = wk->wu.my_priority - 1;
+    }
+}
+
+void Normal_01000(PLW* wk) { // 🟢
+    raise_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -169,9 +182,7 @@ void Normal_01000(PLW* wk) { // 🟢
 }
 
 void Normal_02000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -187,9 +198,7 @@ void Normal_02000(PLW* wk) { // 🟢
 }
 
 void Normal_03000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority - 1;
-    }
+    lower_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -210,9 +219,7 @@ void Normal_03000(PLW* wk) { // 🟢
 }
 
 void Normal_04000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -231,9 +238,7 @@ void Normal_04000(PLW* wk) { // 🟢
 }
 
 void Normal_05000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority - 1;
-    }
+    lower_z_when_mirrored(wk);
 
     wk->running_f = 1;
     wk->guard_flag = 3;
@@ -317,9 +322,7 @@ void nm_05_0100(PLW* wk) { // 🟢
 }
 
 void Normal_06000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     wk->running_f = 2;
     wk->guard_flag = 3;
@@ -417,9 +420,7 @@ void nm_06_0200(PLW* wk) { // 🟢
 }
 
 void Normal_07000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority - 1;
-    }
+    lower_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -434,9 +435,7 @@ void Normal_07000(PLW* wk) { // 🟢
 }
 
 void Normal_08000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority - 1;
-    }
+    lower_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -451,9 +450,7 @@ void Normal_08000(PLW* wk) { // 🟢
 }
 
 void Normal_09000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority - 1;
-    }
+    lower_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -468,9 +465,7 @@ void Normal_09000(PLW* wk) { // 🟢
 }
 
 void Normal_10000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority - 1;
-    }
+    lower_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -486,9 +481,7 @@ void Normal_10000(PLW* wk) { // 🟢
 }
 
 void Normal_11000(PLW* wk) { // 🔵
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority - 1;
-    }
+    lower_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -507,9 +500,7 @@ void Normal_11000(PLW* wk) { // 🔵
 }
 
 void Normal_12000(PLW* wk) { // 🔵
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -528,9 +519,7 @@ void Normal_12000(PLW* wk) { // 🔵
 }
 
 void Normal_13000(PLW* wk) { // 🔵
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -545,9 +534,7 @@ void Normal_13000(PLW* wk) { // 🔵
 }
 
 void Normal_16000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     wk->guard_flag = 3;
 
@@ -565,9 +552,7 @@ void Normal_16000(PLW* wk) { // 🟢
 }
 
 void Normal_17000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     wk->guard_flag = 3;
 
@@ -585,9 +570,7 @@ void Normal_17000(PLW* wk) { // 🟢
 }
 
 void Normal_18000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -624,9 +607,7 @@ void Normal_18000_init_unit(PLW* wk, u8 ps) { // 🟢
 }
 
 void Normal_27000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -710,9 +691,7 @@ static void begin_parry(PLW* wk) {
 }
 
 void Normal_35000(PLW* wk) { // 🟡
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority - 1;
-    }
+    lower_z_when_mirrored(wk);
 
     wk->guard_chuu = guard_kind[wk->wu.routine_no[2] - 27];
 
@@ -741,25 +720,19 @@ void Normal_35000(PLW* wk) { // 🟡
 }
 
 void Normal_36000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     char_move(&wk->wu);
 }
 
 void Normal_37000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     char_move(&wk->wu);
 }
 
 void Normal_38000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -776,9 +749,7 @@ void Normal_38000(PLW* wk) { // 🟢
 }
 
 void Normal_39000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority - 1;
-    }
+    lower_z_when_mirrored(wk);
 
     if (wk->wu.routine_no[3]) {
         char_move(&wk->wu);
@@ -1057,9 +1028,7 @@ void Normal_51000(PLW* wk) { // 🟢
 void Normal_52000(PLW* wk) { // 🟢
     wk->guard_flag = 3;
 
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -1086,9 +1055,7 @@ void Normal_52000(PLW* wk) { // 🟢
 }
 
 void Normal_53000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -1128,9 +1095,7 @@ void Normal_53000(PLW* wk) { // 🟢
 }
 
 void Normal_54000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -1156,9 +1121,7 @@ void Normal_54000(PLW* wk) { // 🟢
 }
 
 void Normal_55000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     wk->bs2_on_car = 0;
 
@@ -1213,9 +1176,7 @@ void make_nm55_init_sp(PLW* wk) { // 🟢
 }
 
 void Normal_56000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     wk->bs2_on_car = 0;
 
@@ -1264,9 +1225,7 @@ void nm56_char_select(PLW* wk) { // 🟢
 }
 
 void Normal_57000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -1316,9 +1275,7 @@ void nm57_dir_select(PLW* wk) { // 🟢
 }
 
 void Normal_58000(PLW* wk) { // 🟢
-    if (wk->the_same_players) {
-        wk->wu.next_z = wk->wu.my_priority + 1;
-    }
+    raise_z_when_mirrored(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
