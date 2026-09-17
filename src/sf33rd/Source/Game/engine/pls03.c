@@ -713,33 +713,39 @@ const u8 nml_catch_h2_ok[2][21] = { { 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 
                                     { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x11, 0x00, 0x11, 0x00,
                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x11, 0x00, 0x00, 0x00, 0x00 } };
 
+/* Arcade balance has a separate crouching throw, and a character may be
+ * allowed one and not the other. */
+static s32 resolve_arcade_ground_catch(PLW* wk, s16 kos) {
+    if (wk->cp->sw_lvbt & 1) {
+        return 0;
+    }
+
+    if (wk->cp->sw_lvbt & 2) {
+        if (!(nml_catch_h2_ok[0][CHAR_3SX_TO_ARCADE(wk->player_number)] & 1)) {
+            return 0;
+        }
+
+        kos += 3;
+    }
+
+    wk->as = &asstbl_lv_A010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos];
+    return 1;
+}
+
 static s32 resolve_ground_catch_target(PLW* wk, s16 kos) {
     if (!(nml_catch_h2_ok[0][CHAR_3SX_TO_ARCADE(wk->player_number)] & 0x10)) {
         return 0;
     }
 
     if (ArcadeBalance_IsEnabled()) {
-        if (wk->cp->sw_lvbt & 1) {
-            return 0;
-        }
-
-        if (wk->cp->sw_lvbt & 2) {
-            if (!(nml_catch_h2_ok[0][CHAR_3SX_TO_ARCADE(wk->player_number)] & 1)) {
-                return 0;
-            }
-
-            kos += 3;
-        }
-
-        wk->as = &asstbl_lv_A010_arcade[CHAR_3SX_TO_ARCADE(wk->player_number)][kos];
-    } else {
-        if (wk->cp->sw_lvbt & 3) {
-            return 0;
-        }
-
-        wk->as = &_asstbl_lv_A010[kos];
+        return resolve_arcade_ground_catch(wk, kos);
     }
 
+    if (wk->cp->sw_lvbt & 3) {
+        return 0;
+    }
+
+    wk->as = &_asstbl_lv_A010[kos];
     return 1;
 }
 
