@@ -21,9 +21,48 @@ void pl08_extra_attack(PLW* wk) {
     pl08_exatt_table[wk->wu.routine_no[2] - 16](wk);
 }
 
-void Att_PL08_HEALING(PLW* wk) {
+/* Holding a punch or kick while healing cancels it. */
+static void cancel_healing_on_attack(PLW* wk) {
     u16 cpsw;
 
+    if (wk->wu.cmwk[0]) {
+        cpsw = (wk->cp->sw_now & 0x770);
+        cpsw >>= 4;
+
+        if (pl08_hcs_tbl[cpsw & 7] || pl08_hcs_tbl[(cpsw >> 4) & 7]) {
+            wk->wu.cmwk[0] = 0;
+            char_move_cmms(&wk->wu);
+        }
+    }
+}
+
+/* Each healing marker restores its own amount, and the total is capped at the
+ * player's own vitality. The cap runs whether or not the debug flag suppressed
+ * the restore, as it did before. */
+static void restore_vitality_on_marker(PLW* wk) {
+    if (!pcon_dp_flag) {
+        switch (wk->wu.cg_type) {
+        case 24:
+            wk->wu.vital_new += 3;
+            break;
+
+        case 22:
+            wk->wu.vital_new += 2;
+            break;
+
+        case 20:
+            wk->wu.vital_new += 1;
+            break;
+        }
+    }
+
+    if (wk->wu.vital_new > wk->wu.vitality) {
+        wk->wu.vital_new = wk->wu.vitality;
+        wk->sa_healing = 1;
+    }
+}
+
+void Att_PL08_HEALING(PLW* wk) {
     wk->scr_pos_set_flag = 0;
 
     switch (wk->wu.routine_no[3]) {
@@ -35,38 +74,8 @@ void Att_PL08_HEALING(PLW* wk) {
 
     case 1:
         char_move(&wk->wu);
-
-        if (wk->wu.cmwk[0]) {
-            cpsw = (wk->cp->sw_now & 0x770);
-            cpsw >>= 4;
-
-            if (pl08_hcs_tbl[cpsw & 7] || pl08_hcs_tbl[(cpsw >> 4) & 7]) {
-                wk->wu.cmwk[0] = 0;
-                char_move_cmms(&wk->wu);
-            }
-        }
-
-        if (!pcon_dp_flag) {
-            switch (wk->wu.cg_type) {
-            case 24:
-                wk->wu.vital_new += 3;
-                break;
-
-            case 22:
-                wk->wu.vital_new += 2;
-                break;
-
-            case 20:
-                wk->wu.vital_new += 1;
-                break;
-            }
-        }
-
-        if (wk->wu.vital_new > wk->wu.vitality) {
-            wk->wu.vital_new = wk->wu.vitality;
-            wk->sa_healing = 1;
-        }
-
+        cancel_healing_on_attack(wk);
+        restore_vitality_on_marker(wk);
         break;
     }
 }
