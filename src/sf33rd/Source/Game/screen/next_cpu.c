@@ -674,45 +674,50 @@ void NC_Cut_Sub() {
     }
 }
 
+/* Sub-state 0: run the select - from the demo script when no one is playing - then
+ * queue the fighters and set the pause before the VS screen. */
+static void Select_CPU_Character() {
+    if (Demo_Flag == 0) {
+        if (Player_id) {
+            Sel_CPU_Sub(1, Check_Demo_Data(1), 0);
+        } else {
+            Sel_CPU_Sub(0, Check_Demo_Data(0), 0);
+        }
+    } else if (Player_id) {
+        Sel_CPU_Sub(1, ~p2sw_1 & p2sw_0, p2sw_0);
+    } else {
+        Sel_CPU_Sub(0, ~p1sw_1 & p1sw_0, p1sw_0);
+    }
+
+    if (!Sel_EM_Complete[Player_id]) {
+        return;
+    }
+
+    SC_No[1]++;
+
+#if DEBUG
+    Apply_Character_Overrides();
+#endif
+
+    Push_LDREQ_Queue_Player(COM_id, My_char[COM_id]);
+    Setup_Next_Fighter();
+
+#if DEBUG
+    Apply_Character_Overrides();
+#endif
+
+    if (VS_Index[Player_id] < 8) {
+        S_Timer = 50;
+    } else {
+        SC_No[1] = 2;
+        S_Timer = 100;
+    }
+}
+
 void Select_CPU_3rd() {
     switch (SC_No[1]) {
     case 0:
-        if (Demo_Flag == 0) {
-            if (Player_id) {
-                Sel_CPU_Sub(1, Check_Demo_Data(1), 0);
-            } else {
-                Sel_CPU_Sub(0, Check_Demo_Data(0), 0);
-            }
-        } else if (Player_id) {
-            Sel_CPU_Sub(1, ~p2sw_1 & p2sw_0, p2sw_0);
-        } else {
-            Sel_CPU_Sub(0, ~p1sw_1 & p1sw_0, p1sw_0);
-        }
-
-        if (!Sel_EM_Complete[Player_id]) {
-            break;
-        }
-
-        SC_No[1]++;
-
-#if DEBUG
-        Apply_Character_Overrides();
-#endif
-
-        Push_LDREQ_Queue_Player(COM_id, My_char[COM_id]);
-        Setup_Next_Fighter();
-
-#if DEBUG
-        Apply_Character_Overrides();
-#endif
-
-        if (VS_Index[Player_id] < 8) {
-            S_Timer = 50;
-        } else {
-            SC_No[1] = 2;
-            S_Timer = 100;
-        }
-
+        Select_CPU_Character();
         break;
 
     case 1:
