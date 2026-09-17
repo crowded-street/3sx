@@ -312,6 +312,50 @@ static void bounce_off_wall(PLW* wk) {
     effect_I3_init(&wk->wu, 4);
 }
 
+/* The dashing frames. A wall ends the dash outright; otherwise the movement
+ * markers feed the next row, add to it, or hand over to the union at state 3.
+ * The wall arm's `break` left the switch with nothing after it. */
+static void airdash_travel(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (kabe_check3(wk) != 0) {
+        wk->wu.rl_flag = (wk->wu.rl_flag + 1) & 1;
+        bounce_off_wall(wk);
+        return;
+    }
+
+    add_mvxy_speed(&wk->wu);
+    cal_mvxy_speed(&wk->wu);
+
+    switch (wk->wu.cg_type) {
+    case 20:
+        setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+        break;
+
+    case 25:
+        add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
+        wk->wu.mvxy.index++;
+        wk->wu.cg_type = 0;
+        break;
+
+    case 30:
+        setup_mvxy_data(&wk->wu, wk->as->data_ix);
+        wk->wu.routine_no[3] = 3;
+        wk->wu.cg_type = 0;
+        break;
+    }
+}
+
+/* The union leg checks the wall too, with its own unparenthesised flip. */
+static void airdash_bounce_if_walled(PLW* wk) {
+    if (kabe_check3(wk)) {
+        wk->wu.rl_flag = wk->wu.rl_flag + 1 & 1;
+        bounce_off_wall(wk);
+    }
+}
+
 void Att_AIRDASH(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -323,47 +367,12 @@ void Att_AIRDASH(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-
-        if (kabe_check3(wk) != 0) {
-            wk->wu.rl_flag = (wk->wu.rl_flag + 1) & 1;
-            bounce_off_wall(wk);
-            break;
-        }
-
-        add_mvxy_speed(&wk->wu);
-        cal_mvxy_speed(&wk->wu);
-
-        switch (wk->wu.cg_type) {
-        case 20:
-            setup_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-            break;
-
-        case 25:
-            add_to_mvxy_data(&wk->wu, wk->wu.mvxy.index);
-            wk->wu.mvxy.index++;
-            wk->wu.cg_type = 0;
-            break;
-
-        case 30:
-            setup_mvxy_data(&wk->wu, wk->as->data_ix);
-            wk->wu.routine_no[3] = 3;
-            wk->wu.cg_type = 0;
-            break;
-        }
-
+        airdash_travel(wk);
         break;
 
     case 3:
         jumping_union_process(&wk->wu, 4);
-
-        if (kabe_check3(wk)) {
-            wk->wu.rl_flag = wk->wu.rl_flag + 1 & 1;
-            bounce_off_wall(wk);
-        }
-
+        airdash_bounce_if_walled(wk);
         break;
 
     case 4:
