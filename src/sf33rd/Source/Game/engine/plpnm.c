@@ -773,6 +773,28 @@ static void set_parry_depth_and_hosei(PLW* wk) {
     }
 }
 
+/* The parry's first frame: the facing, the pattern and movement data its row
+ * names, the flash, the gauge it earns, and a hit stop that always counts
+ * down from negative. */
+static void begin_parry_state(PLW* wk, const s16* dadr) {
+    wk->wu.routine_no[3]++;
+    wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
+
+    if (dadr[2]) {
+        wk->wu.xyz[1].disp.pos = 0;
+    }
+
+    set_char_move_init(&wk->wu, 0, dadr[0]);
+    setup_mvxy_data(&wk->wu, dadr[1]);
+    Flash_MT[wk->wu.id] = 2;
+    add_sp_arts_gauge_paring(wk);
+    set_hit_stop_hit_quake(&wk->wu);
+
+    if (wk->wu.hit_stop > 0) {
+        wk->wu.hit_stop = -wk->wu.hit_stop;
+    }
+}
+
 void Normal_42000(PLW* wk) { // 🟢
     const s16* dadr = nmPB_data[wk->wu.routine_no[2] - 42];
 
@@ -780,23 +802,7 @@ void Normal_42000(PLW* wk) { // 🟢
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = (wk->wu.dm_rl + 1) & 1;
-
-        if (dadr[2]) {
-            wk->wu.xyz[1].disp.pos = 0;
-        }
-
-        set_char_move_init(&wk->wu, 0, dadr[0]);
-        setup_mvxy_data(&wk->wu, dadr[1]);
-        Flash_MT[wk->wu.id] = 2;
-        add_sp_arts_gauge_paring(wk);
-        set_hit_stop_hit_quake(&wk->wu);
-
-        if (wk->wu.hit_stop > 0) {
-            wk->wu.hit_stop = -wk->wu.hit_stop;
-        }
-
+        begin_parry_state(wk, dadr);
         break;
 
     case 1:
