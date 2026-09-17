@@ -337,6 +337,19 @@ void player_mv_3000(PLW* wk) { // 🟡
     }
 }
 
+/* The slide timer counts down while it is running, and the flag follows it. */
+static void run_zuru_timer(PLW* wk) {
+    if (zuru_timer_is_running(wk)) {
+        wk->zuru_timer -= 2;
+    }
+
+    if (wk->zuru_timer < 0) {
+        wk->zuru_flag = true;
+    } else {
+        wk->zuru_flag = false;
+    }
+}
+
 void player_mv_4000(PLW* wk) { // 🟡
     wk->permited_koa = 0;
     check_extra_jump_timer(wk);
@@ -352,15 +365,7 @@ void player_mv_4000(PLW* wk) { // 🟡
     if (!check_hit_stop(wk)) {
         plmain_lv_02[wk->wu.routine_no[1]](wk);
 
-        if (zuru_timer_is_running(wk)) {
-            wk->zuru_timer -= 2;
-        }
-
-        if (wk->zuru_timer < 0) {
-            wk->zuru_flag = true;
-        } else {
-            wk->zuru_flag = false;
-        }
+        run_zuru_timer(wk);
 
         if (!ArcadeBalance_IsEnabled()) {
             check_omop_vital(wk);
@@ -415,6 +420,24 @@ static void tick_hit_stop(PLW* wk) {
     }
 }
 
+/* A frame of hit stop freezes this player, unless it is the only one moving -
+ * and the frame it ends on may start a cancelled move. */
+static s16 run_hit_stop(PLW* wk, WORK* emwk) {
+    s16 num = 1;
+
+    tick_hit_stop(wk);
+
+    if (only_this_player_is_moving(wk, emwk)) {
+        num = 0;
+    }
+
+    if ((wk->wu.hit_stop == 0) && (wk->hsjp_ok != 0)) {
+        char_move_cmhs(wk);
+    }
+
+    return num;
+}
+
 s16 check_hit_stop(PLW* wk) { // 🟢
     s16 num;
     WORK* emwk = (WORK*)wk->wu.target_adrs;
@@ -426,17 +449,7 @@ s16 check_hit_stop(PLW* wk) { // 🟢
     }
 
     if (wk->wu.hit_stop) {
-        num = 1;
-
-        tick_hit_stop(wk);
-
-        if (only_this_player_is_moving(wk, emwk)) {
-            num = 0;
-        }
-
-        if ((wk->wu.hit_stop == 0) && (wk->hsjp_ok != 0)) {
-            char_move_cmhs(wk);
-        }
+        num = run_hit_stop(wk, emwk);
     }
 
     if (wk->sa_stop_flag) {
@@ -498,32 +511,25 @@ static void tick_stun_recovery(PLW* wk) {
 
 /* The one-button super-art debug option. Compiled away entirely in a release
  * build, as the block it came from was. */
+#if DEBUG
+/* Each of the six super-art slots is armed the same way, and a slot the
+ * character does not have is left alone. */
+static void arm_super_art_slot(PLW* wk, u8 slot_ix) {
+    if (slot_ix != 0) {
+        wk->cp->waza_flag[slot_ix] = 9;
+    }
+}
+#endif
+
 static void arm_one_button_super_arts(PLW* wk) {
 #if DEBUG
     if (debug_config.one_button_sa) {
-        if (wk->sa->nmsa_g_ix != 0) {
-            wk->cp->waza_flag[wk->sa->nmsa_g_ix] = 9;
-        }
-
-        if (wk->sa->exsa_g_ix != 0) {
-            wk->cp->waza_flag[wk->sa->exsa_g_ix] = 9;
-        }
-
-        if (wk->sa->exs2_g_ix != 0) {
-            wk->cp->waza_flag[wk->sa->exs2_g_ix] = 9;
-        }
-
-        if (wk->sa->nmsa_a_ix != 0) {
-            wk->cp->waza_flag[wk->sa->nmsa_a_ix] = 9;
-        }
-
-        if (wk->sa->exsa_a_ix != 0) {
-            wk->cp->waza_flag[wk->sa->exsa_a_ix] = 9;
-        }
-
-        if (wk->sa->exs2_a_ix != 0) {
-            wk->cp->waza_flag[wk->sa->exs2_a_ix] = 9;
-        }
+        arm_super_art_slot(wk, wk->sa->nmsa_g_ix);
+        arm_super_art_slot(wk, wk->sa->exsa_g_ix);
+        arm_super_art_slot(wk, wk->sa->exs2_g_ix);
+        arm_super_art_slot(wk, wk->sa->nmsa_a_ix);
+        arm_super_art_slot(wk, wk->sa->exsa_a_ix);
+        arm_super_art_slot(wk, wk->sa->exs2_a_ix);
     }
 #else
     (void)wk;
