@@ -558,6 +558,18 @@ void end_e00_6000() {
     }
 }
 
+/* Scroll the panel up to its resting height. */
+static void end_e00_7000_settle() {
+    bgw_ptr->xy[1].cal -= 0x3000;
+
+    if (bgw_ptr->xy[1].disp.pos < 697) {
+        bgw_ptr->r_no_1++;
+        bgw_ptr->xy[1].cal = 0x2B80000;
+    }
+
+    bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+}
+
 void end_e00_7000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -595,14 +607,7 @@ void end_e00_7000() {
         /* fallthrough */
 
     case 3:
-        bgw_ptr->xy[1].cal -= 0x3000;
-
-        if (bgw_ptr->xy[1].disp.pos < 697) {
-            bgw_ptr->r_no_1++;
-            bgw_ptr->xy[1].cal = 0x2B80000;
-        }
-
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+        end_e00_7000_settle();
         break;
 
     case 4:
