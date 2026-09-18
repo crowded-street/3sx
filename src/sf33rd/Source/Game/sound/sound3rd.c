@@ -305,6 +305,17 @@ void sound_request_for_dc(SoundPatchConfig* rmc, s16 pan) {
     }
 }
 
+/* Queue the selected entry and, the first time round, hand ADX the seamless chain. */
+static void bgm_enter_seamless_playback() {
+    bgm_play_request(bgm_exe.exEntry, 0);
+
+    if (bgm_exe.nowSeamless == 0) {
+        bgm_exe.nowSeamless = 1;
+
+        ADX_StartSeamless();
+    }
+}
+
 /* Lift the pause the play arm left on, if one is still on. */
 static void bgm_resume_if_paused() {
     if (ADX_IsPaused()) {
@@ -416,13 +427,7 @@ void BGM_Server() {
                     bgm_volume_setup(0);
                 }
 
-                bgm_play_request(bgm_exe.exEntry, 0);
-
-                if (bgm_exe.nowSeamless == 0) {
-                    bgm_exe.nowSeamless = 1;
-
-                    ADX_StartSeamless();
-                }
+                bgm_enter_seamless_playback();
             }
         } else {
             bgm_seamless_clear();
@@ -491,13 +496,7 @@ void BGM_Server() {
                         ADX_Stop();
                     }
 
-                    bgm_play_request(bgm_exe.exEntry, 0);
-
-                    if (bgm_exe.nowSeamless == 0) {
-                        bgm_exe.nowSeamless = 1;
-
-                        ADX_StartSeamless();
-                    }
+                    bgm_enter_seamless_playback();
                 }
             } else {
                 bgm_seamless_clear();
