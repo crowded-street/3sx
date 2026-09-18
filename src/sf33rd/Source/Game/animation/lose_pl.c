@@ -56,13 +56,17 @@ void Lose_00000(PLW* wk) {
     Normal_normal_Loser(wk);
 }
 
+static void start_random_judge_loss(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    wk->wu.char_index = random_16();
+    wk->wu.char_index &= 3;
+    set_char_move_init(&wk->wu, 9, wk->wu.char_index + 0x38);
+}
+
 static void play_random_judge_loss(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.char_index = random_16();
-        wk->wu.char_index &= 3;
-        set_char_move_init(&wk->wu, 9, wk->wu.char_index + 0x38);
+        start_random_judge_loss(wk);
         break;
 
     default:
@@ -73,13 +77,17 @@ static void play_random_judge_loss(PLW* wk) {
     }
 }
 
+static void start_random_round_loss(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    wk->wu.char_index = random_16();
+    wk->wu.char_index &= 7;
+    set_char_move_init(&wk->wu, 9, wk->wu.char_index + 0x18);
+}
+
 static void play_random_round_loss(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.char_index = random_16();
-        wk->wu.char_index &= 7;
-        set_char_move_init(&wk->wu, 9, wk->wu.char_index + 0x18);
+        start_random_round_loss(wk);
         break;
 
     case 1:
@@ -138,11 +146,15 @@ void Lose_20000(PLW* wk) {
     update_field_hosei_flags(wk);
 }
 
+static void start_fixed_judge_loss(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    set_char_move_init(&wk->wu, 9, 56);
+}
+
 static void play_fixed_judge_loss(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        set_char_move_init(&wk->wu, 9, 56);
+        start_fixed_judge_loss(wk);
         break;
 
     default:
@@ -153,11 +165,15 @@ static void play_fixed_judge_loss(PLW* wk) {
     }
 }
 
+static void start_fixed_round_loss(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    set_char_move_init(&wk->wu, 9, 24);
+}
+
 static void play_fixed_round_loss(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        set_char_move_init(&wk->wu, 9, 24);
+        start_fixed_round_loss(wk);
         break;
 
     case 1:
@@ -171,19 +187,23 @@ void Lose_30000(PLW* wk) {
     step_loss_anime(wk, play_fixed_judge_loss, play_fixed_round_loss);
 }
 
-void Normal_normal_Loser(PLW* wk) {
+static void start_normal_round_loss(PLW* wk) {
     s16 work;
 
+    wk->wu.routine_no[3]++;
+    work = random_16();
+    work &= 7;
+    set_char_move_init(&wk->wu, 9, work + 0x18);
+}
+
+void Normal_normal_Loser(PLW* wk) {
     if (lose_anime_suspended()) {
         return;
     }
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        work = random_16();
-        work &= 7;
-        set_char_move_init(&wk->wu, 9, work + 0x18);
+        start_normal_round_loss(wk);
         break;
 
     case 1:
@@ -216,6 +236,11 @@ void Judge_normal_loser(PLW* wk) {
     update_field_hosei_flags(wk);
 }
 
+static void start_meta_loss(PLW* wk) {
+    wk->wu.routine_no[3] += 1;
+    set_char_move_init(&wk->wu, 9, meta_lose_tbl[wk->player_number]);
+}
+
 void meta_lose_pause(PLW* wk) {
     bg_app_stop = 1;
 
@@ -225,8 +250,7 @@ void meta_lose_pause(PLW* wk) {
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3] += 1;
-        set_char_move_init(&wk->wu, 9, meta_lose_tbl[wk->player_number]);
+        start_meta_loss(wk);
         break;
 
     case 1:
