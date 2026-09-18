@@ -6,6 +6,7 @@
 
 #include "sf33rd/Source/Game/com/passive/pass11.h"
 #include "sf33rd/Source/Game/com/passive/pass11_internal.h"
+#include "sf33rd/Source/Game/com/passive/pass_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
@@ -383,15 +384,7 @@ void Passive11_0205(PLW* wk) {
 }
 
 void Passive11_0206(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Keep_Away(wk, 0xBF, 1);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_keep_away(wk, 0xBF, 1);
 }
 
 void Passive11_0207(PLW* wk) {
@@ -407,23 +400,7 @@ void Passive11_0209(PLW* wk) {
 }
 
 void Passive11_0210(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Pierce_On(wk);
-        break;
-
-    case 1:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 0xA, 0x700});
-        break;
-
-    case 2:
-        Normal_Attack(wk, 8, 0x402);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_pierce_on_j_command_attack_normal_attack(wk, &(Command_Attack_Args){8, 0x1E, 0xA, 0x700});
 }
 
 void Passive11_0211(PLW* wk) {
@@ -527,19 +504,11 @@ void Passive11_0214(PLW* wk) {
 }
 
 void Passive11_0215(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        SA_Term(wk, &(SA_Term_Args){0x30, 0x31, 0x32, 0x7F});
-        break;
-
-    case 1:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 0xA, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_sa_term_j_command_attack(
+        wk,
+        &(SA_Term_Args){0x30, 0x31, 0x32, 0x7F},
+        &(Command_Attack_Args){8, 0x1C, 0xA, -1}
+    );
 }
 
 void Passive11_0216(PLW* wk) {
@@ -563,19 +532,11 @@ void Passive11_0216(PLW* wk) {
 }
 
 void Passive11_0217(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA8, -0x7FC0, 9, 0x20, 0, -0x7FB0, -1, 0x200});
-        break;
-
-    case 1:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 0xA, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_jump_attack_term_j_command_attack(
+        wk,
+        &(Jump_Term_Args){-0x7FA8, -0x7FC0, 9, 0x20, 0, -0x7FB0, -1, 0x200},
+        &(Command_Attack_Args){8, 0x1C, 0xA, -1}
+    );
 }
 
 void Passive11_0218(PLW* wk) {

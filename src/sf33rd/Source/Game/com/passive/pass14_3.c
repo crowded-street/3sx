@@ -6,6 +6,7 @@
 
 #include "sf33rd/Source/Game/com/passive/pass14.h"
 #include "sf33rd/Source/Game/com/passive/pass14_internal.h"
+#include "sf33rd/Source/Game/com/passive/pass_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
@@ -55,19 +56,7 @@ void Passive14_0088(PLW* wk) {
 }
 
 void Passive14_0089(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, 0xB, 0x102);
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 10, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_normal_attack_command_attack(wk, 0xB, 0x102, &(Command_Attack_Args){8, 0x1F, 10, -1});
 }
 
 void Passive14_0090(PLW* wk) {
@@ -347,15 +336,7 @@ void Passive14_0106(PLW* wk) {
 }
 
 void Passive14_0107(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_wait(wk, 0);
 }
 
 void Passive14_0108(PLW* wk) {
@@ -523,35 +504,11 @@ void Passive14_0128(PLW* wk) {
 }
 
 void Passive14_0129(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0x10, 2);
-        break;
-
-    case 1:
-        Lever_Attack(wk, 8, 0, 0x110);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_lever_attack(wk, 0x10, 0, 0x110);
 }
 
 void Passive14_0130(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0x10, 2);
-        break;
-
-    case 1:
-        Lever_Attack(wk, 8, 1, 0x110);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_lever_attack(wk, 0x10, 1, 0x110);
 }
 
 void Passive14_0131(PLW* wk) {
@@ -623,15 +580,7 @@ void Passive14_0143(PLW* wk) {
 }
 
 void Passive14_0144(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
 }
 
 void Passive14_0145(PLW* wk) {
@@ -830,15 +779,7 @@ void Passive14_0152(PLW* wk) {
 }
 
 void Passive14_0153(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_Attack(wk, 8, 0, 0x20);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_lever_attack(wk, 0, 0x20);
 }
 
 void Passive14_0154(PLW* wk) {

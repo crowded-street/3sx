@@ -6,6 +6,7 @@
 
 #include "sf33rd/Source/Game/com/passive/pass11.h"
 #include "sf33rd/Source/Game/com/passive/pass11_internal.h"
+#include "sf33rd/Source/Game/com/passive/pass_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
@@ -15,17 +16,5 @@ void Passive11_0253(PLW* wk) {
 }
 
 void Passive11_0254(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait_Get_Up(wk, 0, -1);
-        break;
-
-    case 1:
-        Branch_Unit_Area(wk, &(Branch_Menu_Args){6, 0xEF, 0xF7, 0xFB, 0xEC});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_wait_get_up_branch_unit_area(wk, 0, &(Branch_Menu_Args){6, 0xEF, 0xF7, 0xFB, 0xEC});
 }

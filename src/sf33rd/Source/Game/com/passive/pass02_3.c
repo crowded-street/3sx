@@ -6,28 +6,13 @@
 
 #include "sf33rd/Source/Game/com/passive/pass02.h"
 #include "sf33rd/Source/Game/com/passive/pass02_internal.h"
+#include "sf33rd/Source/Game/com/passive/pass_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 
 void Passive02_0117(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Pierce_On(wk);
-        break;
-
-    case 1:
-        Jump(wk, 0);
-        break;
-
-    case 2:
-        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x20, 0x21, 0x40, 0x78}, 4);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_pierce_on_jump_com_random_select(wk, &(Branch_Menu_Args){6, 0x20, 0x21, 0x40, 0x78}, 4);
 }
 
 void Passive02_0118(PLW* wk) {
@@ -79,47 +64,15 @@ void Passive02_0121(PLW* wk) {
 }
 
 void Passive02_0122(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x1E, 10, -1, -1, 0x30, 0, -1, -1, 0xFFFF});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_jump_command_attack_term(wk, &(JCA_Term_Args){8, 0x1E, 10, -1, -1, 0x30, 0, -1, -1, 0xFFFF});
 }
 
 void Passive02_0123(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Pierce_On(wk);
-        break;
-
-    case 1:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 0xA, 0x700});
-        break;
-
-    case 2:
-        Normal_Attack(wk, 8, 0x402);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_pierce_on_j_command_attack_normal_attack(wk, &(Command_Attack_Args){8, 0x1E, 0xA, 0x700});
 }
 
 void Passive02_0124(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Keep_Away(wk, 0xBF, 1);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_keep_away(wk, 0xBF, 1);
 }
 
 void Passive02_0125(PLW* wk) {
@@ -187,15 +140,7 @@ void Passive02_0130(PLW* wk) {
 }
 
 void Passive02_0131(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-0x7FA0, -0x7FD0, 8, 0x40, 0, -1, -1, 0xFFFF});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_hi_jump_attack_term(wk, &(Hi_Jump_Term_Args){-0x7FA0, -0x7FD0, 8, 0x40, 0, -1, -1, 0xFFFF});
 }
 
 void Passive02_0132(PLW* wk) {

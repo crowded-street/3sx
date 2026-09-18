@@ -6,28 +6,13 @@
 
 #include "sf33rd/Source/Game/com/passive/pass18.h"
 #include "sf33rd/Source/Game/com/passive/pass18_internal.h"
+#include "sf33rd/Source/Game/com/passive/pass_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 
 void Passive18_0111(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        EM_Term(wk, &(EM_Term_Params){-1, -0x7FB0, 6, 1, -1});
-        break;
-
-    case 1:
-        Normal_Attack(wk, 0xC, 0x22);
-        break;
-
-    case 2:
-        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x4B, 0x36, 0x3B, 0x70}, 1);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_em_term_normal_attack_com_random_select(wk, 0x22);
 }
 
 void Passive18_0112(PLW* wk) {
@@ -59,15 +44,7 @@ void Passive18_0114(PLW* wk) {
 }
 
 void Passive18_0115(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-1, -0x7FA0, 0xB, 0x200, 0, -0x7FA0, -1, 0x20});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_hi_jump_attack_term(wk, &(Hi_Jump_Term_Args){-1, -0x7FA0, 0xB, 0x200, 0, -0x7FA0, -1, 0x20});
 }
 
 void Passive18_0116(PLW* wk) {
@@ -83,27 +60,7 @@ void Passive18_0118(PLW* wk) {
 }
 
 void Passive18_0119(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_On(wk, 1, 2);
-        break;
-
-    case 1:
-        EM_Term(wk, &(EM_Term_Params){-1, -0x7FD0, 6, 1, -1});
-        break;
-
-    case 2:
-        Check_Store_Lever(wk, 0x1D, 1, -1);
-        break;
-
-    case 3:
-        Branch_Unit_Area(wk, &(Branch_Menu_Args){6, 0x69, 0x6A, 1, 1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_lever_on_em_term_check_store_lever(wk, 0x1D);
 }
 
 void Passive18_0120(PLW* wk) {
@@ -203,15 +160,7 @@ void Passive18_0139(PLW* wk) {
 }
 
 void Passive18_0140(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_wait(wk, 0);
 }
 
 void Passive18_0141(PLW* wk) {
@@ -219,71 +168,27 @@ void Passive18_0141(PLW* wk) {
 }
 
 void Passive18_0142(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Provoke(wk, -1);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_provoke(wk, -1);
 }
 
 void Passive18_0143(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Provoke(wk, 1);
-        break;
-
-    case 1:
-        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x85, 0x86, 0x7F, 0x70}, 1);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_provoke_com_random_select(wk, &(Branch_Menu_Args){6, 0x85, 0x86, 0x7F, 0x70});
 }
 
 void Passive18_0144(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Provoke(wk, 1);
-        break;
-
-    case 1:
-        SA_Term(wk, &(SA_Term_Args){0x2E, 0x2F, 0xFFFF, 0});
-        break;
-
-    case 2:
-        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x85, 0x86, 0x88, 0x70}, 1);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_provoke_sa_term_com_random_select(
+        wk,
+        &(SA_Term_Args){0x2E, 0x2F, 0xFFFF, 0},
+        &(Branch_Menu_Args){6, 0x85, 0x86, 0x88, 0x70}
+    );
 }
 
 void Passive18_0145(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Provoke(wk, 1);
-        break;
-
-    case 1:
-        SA_Term(wk, &(SA_Term_Args){0x2E, 0x2F, 0x30, 0});
-        break;
-
-    case 2:
-        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x85, 0x73, 0x92, 0x93}, 1);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_provoke_sa_term_com_random_select(
+        wk,
+        &(SA_Term_Args){0x2E, 0x2F, 0x30, 0},
+        &(Branch_Menu_Args){6, 0x85, 0x73, 0x92, 0x93}
+    );
 }
 
 void Passive18_0146(PLW* wk) {
@@ -390,19 +295,7 @@ void Passive18_0154(PLW* wk) {
 }
 
 void Passive18_0155(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait(wk, 3);
-        break;
-
-    case 1:
-        Branch_Unit_Area(wk, &(Branch_Menu_Args){6, 0x5B, 0x5B, 0x5A, 0x5A});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_wait_branch_unit_area(wk, 3, &(Branch_Menu_Args){6, 0x5B, 0x5B, 0x5A, 0x5A});
 }
 
 void Passive18_0156(PLW* wk) {
@@ -526,19 +419,12 @@ void Passive18_0162(PLW* wk) {
 }
 
 void Passive18_0163(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        SA_Term(wk, &(SA_Term_Args){0xFFFF, 0xFFFF, 0x30, 0});
-        break;
-
-    case 1:
-        Com_Random_Select(wk, &(Branch_Menu_Args){6, 6, 0x14, 0x16, 0x17}, 1);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_sa_term_com_random_select(
+        wk,
+        &(SA_Term_Args){0xFFFF, 0xFFFF, 0x30, 0},
+        &(Branch_Menu_Args){6, 6, 0x14, 0x16, 0x17},
+        1
+    );
 }
 
 void Passive18_0164(PLW* wk) {
@@ -570,35 +456,11 @@ void Passive18_0167(PLW* wk) {
 }
 
 void Passive18_0168(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait_Get_Up(wk, 0, -1);
-        break;
-
-    case 1:
-        Branch_Unit_Area(wk, &(Branch_Menu_Args){6, 0x69, 0x6A, 1, 1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_wait_get_up_branch_unit_area(wk, 0, &(Branch_Menu_Args){6, 0x69, 0x6A, 1, 1});
 }
 
 void Passive18_0169(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait_Get_Up(wk, 3, -1);
-        break;
-
-    case 1:
-        Branch_Unit_Area(wk, &(Branch_Menu_Args){6, 0x69, 0x6A, 1, 1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_wait_get_up_branch_unit_area(wk, 3, &(Branch_Menu_Args){6, 0x69, 0x6A, 1, 1});
 }
 
 void Passive18_0170(PLW* wk) {
@@ -614,19 +476,7 @@ void Passive18_0172(PLW* wk) {
 }
 
 void Passive18_0173(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait_Get_Up(wk, 0, -1);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 8, 0x42);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_wait_get_up_normal_attack(wk, 0, 0x42);
 }
 
 void Passive18_0174(PLW* wk) {
@@ -722,27 +572,12 @@ void Passive18_0188(PLW* wk) {
 }
 
 void Passive18_0189(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Pierce_On(wk);
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 9, -1});
-        break;
-
-    case 3:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_pierce_on_command_attack_2(
+        wk,
+        &(Command_Attack_Args){8, 0x1C, 10, -1},
+        &(Command_Attack_Args){8, 0x1C, 9, -1},
+        &(Command_Attack_Args){8, 0x1C, 8, -1}
+    );
 }
 
 void Passive18_0190(PLW* wk) {
@@ -758,39 +593,15 @@ void Passive18_0191(PLW* wk) {
 }
 
 void Passive18_0192(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 9, -1});
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_command_attack(wk, &(Command_Attack_Args){8, 0x1C, 9, -1}, &(Command_Attack_Args){8, 0x1C, 8, -1});
 }
 
 void Passive18_0193(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Pierce_On(wk);
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 9, -1});
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_pierce_on_command_attack(
+        wk,
+        &(Command_Attack_Args){8, 0x1C, 9, -1},
+        &(Command_Attack_Args){8, 0x1C, 8, -1}
+    );
 }
 
 void Passive18_0194(PLW* wk) {
@@ -818,17 +629,10 @@ void Passive18_0199(PLW* wk) {
 }
 
 void Passive18_0200(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        SA_Term(wk, &(SA_Term_Args){0x2E, 0x2F, 0xFFFF, 0});
-        break;
-
-    case 1:
-        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0xC, 0x67, 199, 0x26}, 1);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_sa_term_com_random_select(
+        wk,
+        &(SA_Term_Args){0x2E, 0x2F, 0xFFFF, 0},
+        &(Branch_Menu_Args){6, 0xC, 0x67, 199, 0x26},
+        1
+    );
 }

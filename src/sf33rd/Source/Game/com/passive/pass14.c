@@ -5,6 +5,7 @@
 
 #include "sf33rd/Source/Game/com/passive/pass14.h"
 #include "sf33rd/Source/Game/com/passive/pass14_internal.h"
+#include "sf33rd/Source/Game/com/passive/pass_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
@@ -104,43 +105,11 @@ void Passive14_0004(PLW* wk) {
 }
 
 void Passive14_0005(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0x10, 2);
-        break;
-
-    case 1:
-        EM_Term(wk, &(EM_Term_Params){-1, -0x7FF8, 6, 1, -1});
-        break;
-
-    case 2:
-        Lever_Attack(wk, 8, 0, 0x110);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_em_term_lever_attack(wk, 0x10, &(EM_Term_Params){-1, -0x7FF8, 6, 1, -1}, 0);
 }
 
 void Passive14_0006(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0x10, 2);
-        break;
-
-    case 1:
-        EM_Term(wk, &(EM_Term_Params){-1, -0x7FF8, 6, 1, -1});
-        break;
-
-    case 2:
-        Lever_Attack(wk, 8, 1, 0x110);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_em_term_lever_attack(wk, 0x10, &(EM_Term_Params){-1, -0x7FF8, 6, 1, -1}, 1);
 }
 
 void Passive14_0007(PLW* wk) {
@@ -164,19 +133,7 @@ void Passive14_0007(PLW* wk) {
 }
 
 void Passive14_0008(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0x47, 2);
-        break;
-
-    case 1:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_j_command_attack(wk, 0x47, &(Command_Attack_Args){8, 0x1E, 8, -1});
 }
 
 void Passive14_0009(PLW* wk) {
@@ -276,55 +233,28 @@ void Passive14_0011(PLW* wk) {
 }
 
 void Passive14_0012(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0x47, 2);
-        break;
-
-    case 1:
-        EM_Term(wk, &(EM_Term_Params){-1, -0x7FF8, 6, 6, 0x7C});
-        break;
-
-    case 2:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x20, 10, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_em_term_j_command_attack(
+        wk,
+        0x47,
+        &(EM_Term_Params){-1, -0x7FF8, 6, 6, 0x7C},
+        &(Command_Attack_Args){8, 0x20, 10, -1}
+    );
 }
 
 void Passive14_0013(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        EM_Term(wk, &(EM_Term_Params){-1, -0x7F00, 6, 6, 0x7C});
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x21, 10, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_em_term_command_attack(
+        wk,
+        &(EM_Term_Params){-1, -0x7F00, 6, 6, 0x7C},
+        &(Command_Attack_Args){8, 0x21, 10, -1}
+    );
 }
 
 void Passive14_0014(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        EM_Term(wk, &(EM_Term_Params){-1, -0x7FC8, 6, 6, 0x7C});
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_em_term_command_attack(
+        wk,
+        &(EM_Term_Params){-1, -0x7FC8, 6, 6, 0x7C},
+        &(Command_Attack_Args){8, 0x1F, 8, -1}
+    );
 }
 
 void Passive14_0015(PLW* wk) {
@@ -520,19 +450,11 @@ void Passive14_0021(PLW* wk) {
 }
 
 void Passive14_0022(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        EM_Term(wk, &(EM_Term_Params){-1, -0x7FB0, 6, 6, 0x7C});
-        break;
-
-    case 1:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x20, 10, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_em_term_j_command_attack(
+        wk,
+        &(EM_Term_Params){-1, -0x7FB0, 6, 6, 0x7C},
+        &(Command_Attack_Args){8, 0x20, 10, -1}
+    );
 }
 
 void Passive14_0023(PLW* wk) {

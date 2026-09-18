@@ -6,28 +6,18 @@
 
 #include "sf33rd/Source/Game/com/passive/pass04.h"
 #include "sf33rd/Source/Game/com/passive/pass04_internal.h"
+#include "sf33rd/Source/Game/com/passive/pass_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 
 void Passive04_0133(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        EM_Term(wk, &(EM_Term_Params){-0x7F90, -1, 0, 1, -1});
-        break;
-
-    case 1:
-        SA_Term(wk, &(SA_Term_Args){0x35, 0x36, 0x37, 0});
-        break;
-
-    case 2:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_em_term_sa_term_j_command_attack(
+        wk,
+        &(EM_Term_Params){-0x7F90, -1, 0, 1, -1},
+        &(SA_Term_Args){0x35, 0x36, 0x37, 0},
+        &(Command_Attack_Args){8, 0x1C, 10, -1}
+    );
 }
 
 void Passive04_0134(PLW* wk) {
@@ -47,15 +37,7 @@ void Passive04_0135(PLW* wk) {
 }
 
 void Passive04_0136(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_jump(wk, 0);
 }
 
 void Passive04_0137(PLW* wk) {

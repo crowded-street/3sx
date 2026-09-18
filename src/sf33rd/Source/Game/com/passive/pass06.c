@@ -5,6 +5,7 @@
 
 #include "sf33rd/Source/Game/com/passive/pass06.h"
 #include "sf33rd/Source/Game/com/passive/pass06_internal.h"
+#include "sf33rd/Source/Game/com/passive/pass_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
@@ -499,23 +500,7 @@ void Passive06_0032(PLW* wk) {
 }
 
 void Passive06_0033(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0x44, 2);
-        break;
-
-    case 1:
-        EM_Term(wk, &(EM_Term_Params){-1, -0x7FFC, 6, 1, -1});
-        break;
-
-    case 2:
-        Lever_Attack(wk, 8, 0, 0x110);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_em_term_lever_attack(wk, 0x44, &(EM_Term_Params){-1, -0x7FFC, 6, 1, -1}, 0);
 }
 
 void Passive06_0034(PLW* wk) {
@@ -797,19 +782,11 @@ void Passive06_0057(PLW* wk) {
 }
 
 void Passive06_0058(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        SA_Term(wk, &(SA_Term_Args){0xFFFF, 2, 0xFFFF, 0xFFFF});
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 10, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_sa_term_command_attack(
+        wk,
+        &(SA_Term_Args){0xFFFF, 2, 0xFFFF, 0xFFFF},
+        &(Command_Attack_Args){8, 0x1E, 10, -1}
+    );
 }
 
 void Passive06_0059(PLW* wk) {

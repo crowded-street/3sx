@@ -6,6 +6,7 @@
 
 #include "sf33rd/Source/Game/com/passive/pass09.h"
 #include "sf33rd/Source/Game/com/passive/pass09_internal.h"
+#include "sf33rd/Source/Game/com/passive/pass_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
@@ -51,27 +52,11 @@ void Passive09_0125(PLW* wk) {
 }
 
 void Passive09_0126(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 9, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1F, 9, -1});
 }
 
 void Passive09_0127(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 10, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1F, 10, -1});
 }
 
 void Passive09_0128(PLW* wk) {
@@ -83,19 +68,12 @@ void Passive09_0129(PLW* wk) {
 }
 
 void Passive09_0130(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA0, -0x7FA0, 8, 0x100, 0, -0x7F78, -1, 0x40});
-        break;
-
-    case 1:
-        Normal_Attack(wk, 9, 0x40);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_jump_attack_term_normal_attack(
+        wk,
+        &(Jump_Term_Args){-0x7FA0, -0x7FA0, 8, 0x100, 0, -0x7F78, -1, 0x40},
+        9,
+        0x40
+    );
 }
 
 void Passive09_0131(PLW* wk) {
