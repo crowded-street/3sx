@@ -144,6 +144,25 @@ void Appear_00000(PLW* wk) {
     wk->wu.routine_no[3] = 0;
 }
 
+static void start_appear_01000_pose(PLW* wk, s16 work) {
+    switch (wk->wu.routine_no[4]) {
+    case 1:
+        work &= 3;
+        set_char_move_init(&wk->wu, 9, work);
+        break;
+
+    case 2:
+        work &= 3;
+        set_char_move_init(&wk->wu, 9, work + 4);
+        break;
+
+    case 35:
+        work &= 7;
+        set_char_move_init(&wk->wu, 9, work);
+        break;
+    }
+}
+
 void Appear_01000(PLW* wk) {
     s16 work;
 
@@ -154,22 +173,7 @@ void Appear_01000(PLW* wk) {
         bg_app_stop = 1;
         work = random_16();
 
-        switch (wk->wu.routine_no[4]) {
-        case 1:
-            work &= 3;
-            set_char_move_init(&wk->wu, 9, work);
-            break;
-
-        case 2:
-            work &= 3;
-            set_char_move_init(&wk->wu, 9, work + 4);
-            break;
-
-        case 35:
-            work &= 7;
-            set_char_move_init(&wk->wu, 9, work);
-            break;
-        }
+        start_appear_01000_pose(wk, work);
         break;
 
     case 1:
