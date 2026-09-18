@@ -95,16 +95,14 @@ void effect_10_move(WORK_Other* ewk) {
     }
 
     if (ewk->wu.type == 5) {
-        dispButtonImage2(
-            (ewk->wu.xyz[0].disp.pos * 8) - 6,
-            (ewk->wu.xyz[1].disp.pos * 8) - 5,
-            1,
-            22,
-            17,
-            0,
-            ix + correct_index,
-            ewk->master_id
-        );
+        dispButtonImage2(&(ButtonImage){ (ewk->wu.xyz[0].disp.pos * 8) - 6,
+                                        (ewk->wu.xyz[1].disp.pos * 8) - 5,
+                                        1,
+                                        22,
+                                        17,
+                                        0,
+                                        ix + correct_index,
+                                        ewk->master_id });
     } else {
         SSPutStr2(
             ewk->wu.xyz[0].disp.pos,

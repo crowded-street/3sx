@@ -1248,6 +1248,18 @@ Recipe X both refuse to merge.
 | `win_pl_gill.c`, `win_pl_urien.c` | **10.00** | *split out of `win_pl.c`.* Gill's arrived clean; Urien's needed one Recipe X, seven case labels being a floor of cc 8 that the three extractions already made could not reach |
 | `appear.c`, `appear_late.c` | 9.38 each | *was 3.56 for the one file.* Forty-three copies of two handover idioms went first (Recipe D, 3.56 -> 4.33), then the split at Appear_20000 - which needed the campaign-helper exception above - and then Recipe E, X and R on both halves. Both plateau on **Overall Code Complexity alone** - a mean of 4.19 and 4.63 against a threshold of 4, across fifty-three and thirty-eight functions. The plateau was tested, not assumed: a batch of four more Recipe X splits aimed squarely at that mean measured **9.38 -> 8.28**, because four helpers of the same shape become a duplication group among themselves. The mean cannot be walked down by splitting, and the `end_*.c` files sit at the same number |
 | `app_data.c` | n/a | pure `const` data tables, like `se_data.c` |
+| `pause.c`, `reset.c` | **10.00** | *were 8.07 and 9.31.* `pause.c` took one Recipe D - its two menu setups differ by a single `r_no[2]` value - plus a Recipe P, two Recipe E and a Recipe X; `reset.c` took one Recipe P and one Recipe E |
+| `sys_sub.c` | 8.66 | *was 4.83.* Eleven Complex Methods and both Complex Conditionals cleared, then three Recipe S splits. Two functions are **measured refusals, not plateaus**: `Meltw`, whose decompression loop writes six outer locals across any boundary Recipe E could draw, and `Convert_User_Setting`, for the reason in *A varying subscript is not a varying literal* below |
+| `sys_sub_em.c`, `sys_sub_replay.c` | 9.38, 9.31 | *split out of `sys_sub.c`* |
+| `sys_sub_ranking.c` | 8.54 | *split out of `sys_sub.c`.* The four `Check_Sort_*` inserts differ in **a callee and a base offset**. Recipe F allows the callee but nothing else varying, and the offsets sit inside three subscripts where the base-0 instance writes `Ranking_Data[j]` rather than `Ranking_Data[j + 0]` - so no helper is a verbatim move. Recipes D, F, T and N each refuse it for their own reason |
+| `sysdir.c` | 8.80 | *unchanged, and the whole attempt reverted.* `get_system_direction_parameter` is 146 lines of forty independent flag assignments across ten menu pages. Ten per-page helpers clear Complex Method and Large Method but three of them twin: **8.80 -> 8.54**. Five merged helpers break the twins and land back over the complexity threshold: **8.80 -> 8.48**. There is no cut that is neither |
+| `saver.c`, `sys_sub2.c` | **10.00** | already clean at baseline |
+| `work_sys.c` | n/a | CodeScene returns no score |
+| `count.c`, `flash_lp.c`, `input_history.c` | **10.00** | *were 8.24, 8.95 and 9.02.* Ordinary Recipe P/C/D/E work; `flash_lp.c` went 8.95 -> 10.00 on two extractions from one cc-14 function |
+| `sc_sub.c` | 8.47 | *was 4.06.* Four Recipe S splits first, then the folder's headline job: **Recipe A across fifteen functions** and roughly 141 call sites in fifteen files, which is what took Excess Number of Function Arguments off the file. See *Recipe A clears one finding, not fifteen* below |
+| `sc_sub_logo.c` | 9.02 | *split out of `sc_sub.c`.* `hnc_wipeout` went 7.87 -> 9.02 on a single Recipe D of a four-line UV loop, because both copies sat three levels deep - deduplication paid there as nesting relief, not as line count |
+| `sc_sub_transition.c`, `sc_sub_combo.c`, `sc_sub_training.c` | 8.67, 8.56, 9.42 | *split out of `sc_sub.c`.* The transition file's `ToneDown`/`overwrite_panel`/`Akaobi` trio is a measured refusal: structurally identical but differing in a table, a colour and a priority - three values - *and* in their local variable names, so no recipe reaches it and no contiguous run exists to extract |
+| `sc_data.c`, `glyph_renderer.c` | n/a, **10.00** | pure data, and already clean at baseline |
 
 ---
 
@@ -2215,6 +2227,71 @@ So: clear the function-level findings that are *cheap* - the deduplications, the
 the one or two genuinely huge functions - and then **check whether the file is still over its
 size threshold before grinding on**. If it is, the split is the next move, not the tenth
 extraction. `appear.c` was 1593 lines and its split alone measured **6.02 -> 7.50**.
+### Recipe A clears one finding, not fifteen
+
+*Added 2026-09-18, measured on `sc_sub.c`.*
+
+Excess Number of Function Arguments is reported **per function but scored as one
+finding**. `sc_sub.c` had fifteen functions over the threshold, and converting them is
+naturally four or five commits - so four of those commits measure **exactly flat** and only
+the last one moves the score, by 0.50 all at once. An agent applying rule 2 commit by
+commit will revert the first conversion and never discover this.
+
+So: when you start a Recipe A campaign, **count the flagged functions first and commit to
+finishing them**. Say in each commit message how many are left, so a flat score reads as
+progress rather than failure. This is the *measure the pair, not the step* rule with a
+longer horizon.
+
+**Rewrite the call sites mechanically, not by hand.** This matters more for Recipe A than
+for any other recipe in the catalogue, and the reason is that **the guard cannot see the
+error you are most likely to make**. `refactor_guard.py` compares the multiset of literals;
+a compound literal with two fields transposed contains exactly the same values, so it
+reports `OK`. Types often will not catch it either - `scfont_put`'s `cx` and `cy` are both
+`u8`. Parse each call's argument list on top-level commas and wrap the leading *n* verbatim.
+
+Two hazards a script hits that a human editor also hits, but silently:
+
+- **String literals contain commas.** `"@CAPCOM U.S.A., INC. 1999, 2004 ALL RIGHTS
+  RESERVED."` splits into three arguments under a naive comma scan. Track quotes, and
+  assert the argument count per call so a mis-parse stops rather than corrupts.
+- **Re-running the conversion.** A second pass over an already-converted file wraps the
+  wrapper. Skip any call whose first argument already begins with `&(`.
+
+The payoff is worth the care: **7.72 -> 8.22** on `sc_sub.c` for the fifteenth function,
+and the same push took `sc_sub_combo.c` 8.14 -> 8.39 and unblocked an extraction that would
+otherwise have landed straight back on the finding it was trying to clear.
+
+### A varying subscript is not a varying literal
+
+*Added 2026-09-18, on `sys_sub.c`'s `Convert_User_Setting`.*
+
+Recipe V takes a family whose instances differ only in literals. It is tempting to read
+"literal" loosely, and this function is the case that shows why you must not. Its eight
+button blocks are identical apart from two things:
+
+```c
+    if (sw & SWK_WEST) {
+        answer |= Convert_Data[save_w[Present_Mode].Pad_Infor[PL_id].Shot[0]];
+    }
+```
+
+- `SWK_WEST` is **tested** where the block tested that same constant, which Recipe V allows
+  in as many words.
+- `Shot[0]` is a **subscript**. Recipe V forbids a helper indexing with a parameter, and
+  that ban is not bureaucratic: such a helper is choosing which pad slot to read.
+
+The tempting escape is to hoist the whole `Convert_Data[...]` read to the call site and
+pass the *value*, which leaves the helper testing one parameter and returning the other -
+Recipe V's shape exactly. **That is still refused, on the purity precondition.** The
+original evaluates that read only when the button bit is set; hoisting it evaluates it on
+every call. It reads plain memory and calls nothing, but whether `Shot[N]` is always in
+range for `Convert_Data[12]` is a property of saved pad configuration that this file does
+not establish, and Recipe V says to leave a family alone when the hoisted operand *could
+trap*. An out-of-range read that used to happen only on a button press would start
+happening every frame.
+
+The function stays at cc 10, which is the right answer. A refusal you can state is worth
+more than a merge you cannot justify.
 
 ### A file can be too big for its own mean
 

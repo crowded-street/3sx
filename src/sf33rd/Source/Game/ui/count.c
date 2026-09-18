@@ -26,6 +26,12 @@ u8 counter_color;
 bool mugen_flag;
 s8 hoji_counter;
 
+static void write_initial_counter(u8 type) {
+    if (type == 0) {
+        counter_write(4);
+    }
+}
+
 void count_cont_init(u8 type) {
     Counter_hi = save_w[Present_Mode].Time_Limit; // FIXME: use a consistent value in netplay
 
@@ -33,9 +39,7 @@ void count_cont_init(u8 type) {
         mugen_flag = true;
         round_timer = 1;
 
-        if (type == 0) {
-            counter_write(4);
-        }
+        write_initial_counter(type);
     } else {
         mugen_flag = false;
         hoji_counter = HOJI_COUNTER_MAX;
@@ -45,14 +49,28 @@ void count_cont_init(u8 type) {
         math_counter_hi /= 10;
         math_counter_low = Counter_hi - (math_counter_hi * 10);
 
-        if (type == 0) {
-            counter_write(4);
-        }
+        write_initial_counter(type);
     }
 
     flash_r_num = 0;
     flash_col = 0;
     counter_color = 4;
+}
+
+static s32 counter_is_frozen() {
+    if (Allow_a_battle_f == 0 || Demo_Time_Stop != 0) {
+        return 1;
+    }
+
+    if (Break_Into) {
+        return 1;
+    }
+
+    if (sa_stop_check() != 0) {
+        return 1;
+    }
+
+    return 0;
 }
 
 void count_cont_main() {
@@ -72,17 +90,7 @@ void count_cont_main() {
     }
 #endif
 
-    if (Allow_a_battle_f == 0 || Demo_Time_Stop != 0) {
-        counter_write(counter_color);
-        return;
-    }
-
-    if (Break_Into) {
-        counter_write(counter_color);
-        return;
-    }
-
-    if (sa_stop_check() != 0) {
+    if (counter_is_frozen()) {
         counter_write(counter_color);
         return;
     }
@@ -100,14 +108,13 @@ void count_cont_main() {
     counter_write(counter_color);
 }
 
-void counter_control() {
-    if (Counter_hi == 0) {
-        if (No_Trans == 0) {
-            counter_write(counter_color);
-        }
-        return;
+static void write_counter_unless_trans() {
+    if (No_Trans == 0) {
+        counter_write(counter_color);
     }
+}
 
+static void step_counter_flash() {
     if (flash_r_num) {
         if (Counter_hi == 10 && Counter_low == hoji_counter) {
             flash_timer = 0;
@@ -122,17 +129,9 @@ void counter_control() {
         flash_timer = 0;
         counter_flash(0);
     }
+}
 
-    if (Counter_low != 0) {
-        Counter_low -= 1;
-
-        if (No_Trans == 0) {
-            counter_write(counter_color);
-        }
-
-        return;
-    }
-
+static void tick_counter_second() {
     Counter_low = hoji_counter;
     Counter_hi -= 1;
 
@@ -144,10 +143,27 @@ void counter_control() {
     math_counter_hi = Counter_hi;
     math_counter_hi /= 10;
     math_counter_low = Counter_hi - (math_counter_hi * 10);
+}
 
-    if (No_Trans == 0) {
-        counter_write(counter_color);
+void counter_control() {
+    if (Counter_hi == 0) {
+        write_counter_unless_trans();
+        return;
     }
+
+    step_counter_flash();
+
+    if (Counter_low != 0) {
+        Counter_low -= 1;
+
+        write_counter_unless_trans();
+
+        return;
+    }
+
+    tick_counter_second();
+
+    write_counter_unless_trans();
 }
 
 void counter_write(u8 atr) {
@@ -156,27 +172,27 @@ void counter_write(u8 atr) {
     if (omop_cockpit != 0) {
         if (omop_round_timer == 0) {
             for (i = 0; i < 4; i++) {
-                scfont_sqput(i + 22, 1, 9, 2, 31, 2, 1, 3, TopHUDPriority);
+                scfont_sqput(&(ScFontSquare){ i + 22, 1, 9, 2, 31, 2, 1, 3 }, TopHUDPriority);
             }
         } else if (!mugen_flag) {
-            scfont_sqput(22, 0, atr, 2, math_counter_hi << 1, 2, 2, 4, TopHUDPriority);
-            scfont_sqput(24, 0, atr, 2, math_counter_low << 1, 2, 2, 4, TopHUDPriority);
+            scfont_sqput(&(ScFontSquare){ 22, 0, atr, 2, math_counter_hi << 1, 2, 2, 4 }, TopHUDPriority);
+            scfont_sqput(&(ScFontSquare){ 24, 0, atr, 2, math_counter_low << 1, 2, 2, 4 }, TopHUDPriority);
         } else {
-            scfont_sqput(22, 0, 4, 2, 28, 28, 4, 4, TopHUDPriority);
+            scfont_sqput(&(ScFontSquare){ 22, 0, 4, 2, 28, 28, 4, 4 }, TopHUDPriority);
         }
 
-        scfont_sqput(21, 1, 9, 0, 12, 6, 1, 4, TopHUDPriority);
-        scfont_sqput(26, 1, 137, 0, 12, 6, 1, 4, TopHUDPriority);
-        scfont_sqput(22, 4, 9, 0, 3, 18, 4, 1, TopHUDPriority);
+        scfont_sqput(&(ScFontSquare){ 21, 1, 9, 0, 12, 6, 1, 4 }, TopHUDPriority);
+        scfont_sqput(&(ScFontSquare){ 26, 1, 137, 0, 12, 6, 1, 4 }, TopHUDPriority);
+        scfont_sqput(&(ScFontSquare){ 22, 4, 9, 0, 3, 18, 4, 1 }, TopHUDPriority);
     }
 }
 
 void bcounter_write() {
     if (!No_Trans) {
-        scfont_put(21, 4, 0x8F, 2, 20, 6, TopHUDPriority);
-        scfont_sqput(22, 2, 15, 2, math_counter_hi << 1, 6, 2, 3, TopHUDPriority);
-        scfont_sqput(24, 2, 15, 2, math_counter_low << 1, 6, 2, 3, TopHUDPriority);
-        scfont_put(26, 4, 15, 2, 20, 6, TopHUDPriority);
+        scfont_put(&(ScFontCell){ 21, 4, 0x8F, 2, 20, 6 }, TopHUDPriority);
+        scfont_sqput(&(ScFontSquare){ 22, 2, 15, 2, math_counter_hi << 1, 6, 2, 3 }, TopHUDPriority);
+        scfont_sqput(&(ScFontSquare){ 24, 2, 15, 2, math_counter_low << 1, 6, 2, 3 }, TopHUDPriority);
+        scfont_put(&(ScFontCell){ 26, 4, 15, 2, 20, 6 }, TopHUDPriority);
     }
 }
 
@@ -205,8 +221,12 @@ void bcount_cont_init() {
     Time_Stop = 0;
 }
 
+static s32 bonus_counter_halted() {
+    return Break_Into != 0 || sa_stop_check() || Time_Stop != 0 || Allow_a_battle_f == 0;
+}
+
 void bcount_cont_main() {
-    if (Break_Into != 0 || sa_stop_check() || Time_Stop != 0 || Allow_a_battle_f == 0) {
+    if (bonus_counter_halted()) {
         return;
     }
 

@@ -549,9 +549,7 @@ void Training_Menu(struct _TASK* task_ptr) {
     Training_Jmp_Tbl[task_ptr->r_no[1]](task_ptr);
     Akaobi();
     ToneDown(0xAA, 2);
-    SSPutStr_Bigger(
-        training_letter_data[Training_Index].pos_x, 0x18, 9, training_letter_data[Training_Index].menu, 1, 2, 1
-    );
+    SSPutStr_Bigger(&(ScStrBig){ training_letter_data[Training_Index].pos_x, 0x18, 9, training_letter_data[Training_Index].menu }, 1, 2, 1);
 }
 
 void Training_Init(struct _TASK* task_ptr) {

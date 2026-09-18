@@ -426,14 +426,14 @@ void rank_display_set(s16 pl_id) {
         pos_x = 9;
     }
 
-    SSPutDec(pos_x, 0, 8, name_ptr->rank_in + 1, 1);
+    SSPutDec(&(ScDec){ pos_x, 0, 8, name_ptr->rank_in + 1 }, 1);
     rank = name_ptr->rank_in;
 
     if (rank == 4) {
         rank = 3;
     }
 
-    scfont_sqput((pos_x + 1) & 0xFFFF, 0, 8, 0, (rank << 1) & 0xFF, 0x19, 2, 1, 2);
+    scfont_sqput(&(ScFontSquare){ (pos_x + 1) & 0xFFFF, 0, 8, 0, (rank << 1) & 0xFF, 0x19, 2, 1 }, 2);
 }
 
 void Scs_char_move() {

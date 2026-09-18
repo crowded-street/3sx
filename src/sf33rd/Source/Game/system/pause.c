@@ -50,6 +50,24 @@ void Setup_Pause(struct _TASK* task_ptr);
 void Setup_Come_Out(struct _TASK* task_ptr);
 s32 Check_Play_Status(s16 PL_id);
 
+/* The modes with no per-round rule of their own. The case labels are the
+ * original ones, and the terminal `default:` is the one this switch always
+ * had. */
+static PauseActivationType get_pause_activation_type_rest() {
+    switch (Mode_Type) {
+    case MODE_NORMAL_TRAINING:
+    case MODE_PARRY_TRAINING:
+    case MODE_REPLAY:
+        return PAUSE_ACTIVATION_PRESS;
+
+    case MODE_NETWORK:
+        return PAUSE_ACTIVATION_NONE;
+
+    default:
+        return PAUSE_ACTIVATION_NONE;
+    }
+}
+
 static PauseActivationType get_pause_activation_type() {
     switch (Mode_Type) {
     case MODE_VERSUS:
@@ -62,17 +80,27 @@ static PauseActivationType get_pause_activation_type() {
             return PAUSE_ACTIVATION_PRESS;
         }
 
-    case MODE_NORMAL_TRAINING:
-    case MODE_PARRY_TRAINING:
-    case MODE_REPLAY:
-        return PAUSE_ACTIVATION_PRESS;
-
-    case MODE_NETWORK:
-        return PAUSE_ACTIVATION_NONE;
-
     default:
-        return PAUSE_ACTIVATION_NONE;
+        return get_pause_activation_type_rest();
     }
+}
+
+static s32 handle_hold_to_pause(u8 PL_id, u16 current_sw, u16 edge_sw) {
+    if ((edge_sw & SWK_START) && (hold_to_pause_timers[PL_id] == 0)) {
+        hold_to_pause_timers[PL_id] = HOLD_TO_PAUSE_TIMER_MAX;
+    } else if ((current_sw & SWK_START) && (hold_to_pause_timers[PL_id] > 0)) {
+        hold_to_pause_timers[PL_id] -= 1;
+
+        if (hold_to_pause_timers[PL_id] == 0) {
+            hold_to_pause_timers[PL_id ^ 1] = 0;
+            Pause_Type = 1;
+            return PAUSE_X = 1;
+        }
+    } else {
+        hold_to_pause_timers[PL_id] = 0;
+    }
+
+    return 0;
 }
 
 static s32 handle_start_button(u8 PL_id, u16 current_sw, u16 edge_sw) {
@@ -90,31 +118,21 @@ static s32 handle_start_button(u8 PL_id, u16 current_sw, u16 edge_sw) {
         break;
 
     case PAUSE_ACTIVATION_HOLD:
-        if ((edge_sw & SWK_START) && (hold_to_pause_timers[PL_id] == 0)) {
-            hold_to_pause_timers[PL_id] = HOLD_TO_PAUSE_TIMER_MAX;
-        } else if ((current_sw & SWK_START) && (hold_to_pause_timers[PL_id] > 0)) {
-            hold_to_pause_timers[PL_id] -= 1;
-
-            if (hold_to_pause_timers[PL_id] == 0) {
-                hold_to_pause_timers[PL_id ^ 1] = 0;
-                Pause_Type = 1;
-                return PAUSE_X = 1;
-            }
-        } else {
-            hold_to_pause_timers[PL_id] = 0;
-        }
-
-        break;
+        return handle_hold_to_pause(PL_id, current_sw, edge_sw);
     }
 
     return 0;
 }
 
+static s32 pause_task_runs() {
+    return !nowSoftReset() && Mode_Type != MODE_NETWORK && Mode_Type != MODE_NORMAL_TRAINING &&
+           Mode_Type != MODE_PARRY_TRAINING;
+}
+
 void Pause_Task(struct _TASK* task_ptr) {
     void (*Main_Jmp_Tbl[4])(struct _TASK*) = { Pause_Check, Pause_Move, Pause_Sleep, Pause_Die };
 
-    if (!nowSoftReset() && Mode_Type != MODE_NETWORK && Mode_Type != MODE_NORMAL_TRAINING &&
-        Mode_Type != MODE_PARRY_TRAINING) {
+    if (pause_task_runs()) {
         Main_Jmp_Tbl[task_ptr->r_no[0]](task_ptr);
         Flash_Pause(task_ptr);
     }
@@ -201,30 +219,54 @@ void Flash_Pause_4th(struct _TASK* task_ptr) {
 }
 
 void dispControllerWasRemovedMessage(s32 x, s32 y, s32 step) {
-    SSPutStrPro(0, x, y, 9, -1, "Please reconnect");
-    SSPutStrPro(0, x, y + step, 9, -1, "the controller to");
+    SSPutStrPro(&(ScStrPro){ 0, x, y, 9, -1, "Please reconnect" });
+    SSPutStrPro(&(ScStrPro){ 0, x, y + step, 9, -1, "the controller to" });
 
     if (Pause_ID) {
-        SSPutStrPro(0, x, y + step * 2, 9, -1, "controller port 2.");
+        SSPutStrPro(&(ScStrPro){ 0, x, y + step * 2, 9, -1, "controller port 2." });
     } else {
-        SSPutStrPro(0, x, y + step * 2, 9, -1, "controller port 1.");
+        SSPutStrPro(&(ScStrPro){ 0, x, y + step * 2, 9, -1, "controller port 1." });
     }
 }
 
-s32 Check_Pause_Term(u8 PL_id, bool ignore_input) {
+static s32 check_pause_menu_request(u8 PL_id) {
+    if (Present_Mode == 3) {
+        if (Interface_Type[Decide_ID] == 0) {
+            Pause_ID = Decide_ID;
+            Pause_Type = 2;
+            return PAUSE_X = 2;
+        }
+    } else if (Interface_Type[PL_id] == 0 && plw[PL_id].wu.operator) {
+        Pause_Type = 2;
+        return PAUSE_X = 2;
+    }
+
+    return 0;
+}
+
+static s32 pause_term_blocked() {
     if (Demo_Flag == 0) {
-        return 0;
+        return 1;
     }
 
     if (Allow_a_battle_f == 0 || Extra_Break != 0) {
-        return 0;
+        return 1;
     }
 
     if (vm_w.Access != 0 || vm_w.Request != 0) {
-        return PAUSE_X = 0;
+        PAUSE_X = 0;
+        return 1;
     }
 
     if (Exec_Wipe) {
+        return 1;
+    }
+
+    return 0;
+}
+
+s32 Check_Pause_Term(u8 PL_id, bool ignore_input) {
+    if (pause_term_blocked()) {
         return 0;
     }
 
@@ -248,18 +290,7 @@ s32 Check_Pause_Term(u8 PL_id, bool ignore_input) {
         return return_code;
     }
 
-    if (Present_Mode == 3) {
-        if (Interface_Type[Decide_ID] == 0) {
-            Pause_ID = Decide_ID;
-            Pause_Type = 2;
-            return PAUSE_X = 2;
-        }
-    } else if (Interface_Type[PL_id] == 0 && plw[PL_id].wu.operator) {
-        Pause_Type = 2;
-        return PAUSE_X = 2;
-    }
-
-    return 0;
+    return check_pause_menu_request(PL_id);
 }
 
 void Exit_Pause(struct _TASK* task_ptr) {
@@ -290,14 +321,14 @@ void Exit_Pause(struct _TASK* task_ptr) {
     SsBgmHalfVolume(0);
 }
 
-void Setup_Pause(struct _TASK* task_ptr) {
+static void setup_pause_menu(struct _TASK* task_ptr, u8 menu_mode) {
     s16 ix;
 
     SE_selected();
     Pause_Down = 1;
     Game_pause = 0x81;
     task_ptr->r_no[0] = 1;
-    task_ptr->r_no[2] = 1;
+    task_ptr->r_no[2] = menu_mode;
     task_ptr->free[0] = 1;
     cpReadyTask(TASK_MENU, Menu_Task);
     task[TASK_MENU].r_no[0] = 1;
@@ -314,28 +345,12 @@ void Setup_Pause(struct _TASK* task_ptr) {
     spu_all_off();
 }
 
+void Setup_Pause(struct _TASK* task_ptr) {
+    setup_pause_menu(task_ptr, 1);
+}
+
 void Setup_Come_Out(struct _TASK* task_ptr) {
-    s16 ix;
-
-    SE_selected();
-    Pause_Down = 1;
-    Game_pause = 0x81;
-    task_ptr->r_no[0] = 1;
-    task_ptr->r_no[2] = 4;
-    task_ptr->free[0] = 1;
-    cpReadyTask(TASK_MENU, Menu_Task);
-    task[TASK_MENU].r_no[0] = 1;
-    Exit_Menu = 0;
-
-    for (ix = 0; ix < 4; ix++) {
-        Menu_Suicide[ix] = 0;
-    }
-
-    Order[0x8A] = 3;
-    Order_Timer[0x8A] = 1;
-    effect_66_init(0x8A, 9, 2, 7, -1, -1, -0x3FFC);
-    SsBgmHalfVolume(1);
-    spu_all_off();
+    setup_pause_menu(task_ptr, 4);
 }
 
 s32 Check_Play_Status(s16 PL_id) {

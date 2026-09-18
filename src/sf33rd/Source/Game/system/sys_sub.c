@@ -41,28 +41,15 @@
 
 #include <memory.h>
 
-u8 Candidate_Buff[16];
 static bool training_hitbox_display_enabled;
 
 // forward decls
 void Disp_Win_Record_Sub(u16 win_record, s16 zz);
 s32 Setup_Target_PL();
 void Reset_Sub0();
-void Setup_Replay_Header();
-void Get_Replay_Header();
 void Get_Replay(s16 PL_id);
 void Setup_Replay_Buff(s16 PL_id, u16 sw_buff);
 void Replay(s16 PL_id);
-void Check_Partners_Rank(s16 dir_step, s16 PL_id);
-s32 Check_Sort_Score(s16 PL_id);
-s32 Check_Sort_Wins(s16 PL_id);
-s32 Check_Sort_CPU_Grade(s16 PL_id);
-s32 Check_Sort_Grade(s16 PL_id);
-s32 Check_CPU_Grade_Score(s16 PL_id, s16 i);
-s32 Check_Grade_Score(s16 PL_id, s16 i);
-void Setup_Candidate_Buff(s16 PL_id);
-s16 Check_EM_Buff(s16 ix, s16 ok_urien);
-s32 Check_EM_Sub(s16 ix, s16 ok_urien, s16 Rnd);
 
 const u16 Convert_Data[12] = { 0x10, 0x20, 0x40, 0x100, 0x200, 0x400, 0x110, 0x220, 0x440, 0x70, 0x700, 0 };
 
@@ -219,7 +206,7 @@ s16 Check_Count_Cut(s16 PL_id, s16 Limit) {
 }
 
 void Disp_Personal_Count(s16 PL_id, s8 counter) {
-    SSPutDec(DE_X[PL_id] + 14, 0, 9, counter, 0);
+    SSPutDec(&(ScDec){ DE_X[PL_id] + 14, 0, 9, counter }, 0);
 }
 
 void Setup_Play_Type() {
@@ -263,20 +250,50 @@ bool Cut_Cut_Cut() {
     return false;
 }
 
-void Score_Sub() {
-    u32 Score_Buff;
+s32 in_training_mode() {
+    return Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING;
+}
+
+static s32 score_hidden_for_player(s16 PL_id) {
+    return (Mode_Type != MODE_VERSUS && Mode_Type != MODE_REPLAY) && plw[PL_id].wu.operator == 0;
+}
+
+static void put_score_digits(s16 PL_id, u32 Score_Buff) {
     s8 i;
     s8 j;
     s32 xx;
     s8 First_Digit;
     s8 Digit[8];
-    s16 PL_id;
 
     s8 assign1;
     s32 assign2;
     s8 assign3;
 
-    if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
+    for (i = 7, xx = 10000000, assign1 = First_Digit = -1; i > 0; i--, assign2 = xx /= 10) {
+        Digit[i] = Score_Buff / xx;
+        Score_Buff -= Digit[i] * xx;
+
+        if (First_Digit < 0 && Digit[i]) {
+            First_Digit = i;
+        }
+    }
+
+    Digit[0] = Score_Buff;
+
+    if (First_Digit < 0) {
+        First_Digit = 1;
+    }
+
+    for (i = Coin_Message_Data[3][PL_id] - First_Digit, j = First_Digit; j >= 0; j--, assign3 = i++) {
+        score8x16_put(&(ScoreChar){ i, 0, 8, Digit[j] }, TopHUDPriority);
+    }
+}
+
+void Score_Sub() {
+    u32 Score_Buff;
+    s16 PL_id;
+
+    if (in_training_mode()) {
         return;
     }
 
@@ -285,7 +302,7 @@ void Score_Sub() {
     }
 
     for (PL_id = 0; PL_id < 2; PL_id++) {
-        if ((Mode_Type != MODE_VERSUS && Mode_Type != MODE_REPLAY) && plw[PL_id].wu.operator == 0) {
+        if (score_hidden_for_player(PL_id)) {
             continue;
         }
 
@@ -297,62 +314,49 @@ void Score_Sub() {
             Keep_Score[PL_id] = Score_Buff;
         }
 
-        for (i = 7, xx = 10000000, assign1 = First_Digit = -1; i > 0; i--, assign2 = xx /= 10) {
-            Digit[i] = Score_Buff / xx;
-            Score_Buff -= Digit[i] * xx;
-
-            if (First_Digit < 0 && Digit[i]) {
-                First_Digit = i;
-            }
-        }
-
-        Digit[0] = Score_Buff;
-
-        if (First_Digit < 0) {
-            First_Digit = 1;
-        }
-
-        for (i = Coin_Message_Data[3][PL_id] - First_Digit, j = First_Digit; j >= 0; j--, assign3 = i++) {
-            score8x16_put(i, 0, 8, Digit[j], TopHUDPriority);
-        }
+        put_score_digits(PL_id, Score_Buff);
     }
 }
 
-void Disp_Win_Record() {
+static void disp_arcade_win_record() {
     s16 PL_id;
     s16 zz;
 
+    if (Play_Type == 1) {
+        if (Win_Record[0] != 0 || Win_Record[1] != 0) {
+            if (Win_Record[0]) {
+                PL_id = 0;
+                zz = 5;
+            } else {
+                PL_id = 1;
+                zz = 43;
+            }
+        } else {
+            return;
+        }
+    } else if (Win_Record[Player_id] == 0) {
+        return;
+    } else {
+        PL_id = Player_id;
+
+        if (Player_id == 0) {
+            zz = 5;
+        } else {
+            zz = 43;
+        }
+    }
+
+    Disp_Win_Record_Sub(Win_Record[PL_id], zz);
+}
+
+void Disp_Win_Record() {
     if (omop_cockpit == 0) {
         return;
     }
 
     switch (Mode_Type) {
     case MODE_ARCADE:
-        if (Play_Type == 1) {
-            if (Win_Record[0] != 0 || Win_Record[1] != 0) {
-                if (Win_Record[0]) {
-                    PL_id = 0;
-                    zz = 5;
-                } else {
-                    PL_id = 1;
-                    zz = 43;
-                }
-            } else {
-                break;
-            }
-        } else if (Win_Record[Player_id] == 0) {
-            break;
-        } else {
-            PL_id = Player_id;
-
-            if (Player_id == 0) {
-                zz = 5;
-            } else {
-                zz = 43;
-            }
-        }
-
-        Disp_Win_Record_Sub(Win_Record[PL_id], zz);
+        disp_arcade_win_record();
         break;
 
     case MODE_VERSUS:
@@ -380,11 +384,11 @@ void Disp_Win_Record_Sub(u16 win_record, s16 zz) {
 
     switch (win_record) {
     case 1:
-        SSPutStr(zz, 0, 9, "WIN", TopHUDPriority);
+        SSPutStr(&(ScStr){ zz, 0, 9, "WIN" }, TopHUDPriority);
         break;
 
     default:
-        SSPutStr(zz, 0, 9, "WINS", TopHUDPriority);
+        SSPutStr(&(ScStr){ zz, 0, 9, "WINS" }, TopHUDPriority);
         break;
     }
 
@@ -394,19 +398,19 @@ void Disp_Win_Record_Sub(u16 win_record, s16 zz) {
 
     if (xx > 0) {
         First_Digit = 1;
-        SSPutDec(zz - 4, 0, 9, xx, 1);
+        SSPutDec(&(ScDec){ zz - 4, 0, 9, xx }, 1);
     }
 
     Wins_Buff -= xx * 100;
     xx = Wins_Buff / 10;
 
     if (First_Digit != 0 || xx > 0) {
-        SSPutDec(zz - 3, 0, 9, xx, 1);
+        SSPutDec(&(ScDec){ zz - 3, 0, 9, xx }, 1);
     }
 
     Wins_Buff -= xx * 10;
 
-    SSPutDec(zz - 2, 0, 9, Wins_Buff, 1);
+    SSPutDec(&(ScDec){ zz - 2, 0, 9, Wins_Buff }, 1);
 }
 
 s32 Button_Cut_EX(s16* Timer, s16 Limit_Time) {
@@ -733,16 +737,9 @@ void Setup_Default_Game_Option() {
     }
 }
 
-s32 Check_Change_Contents() {
+static s32 convert_buff_differs() {
     s16 ix;
     s16 ix2;
-    s16 page;
-
-    Check_Buff[3][0][0] = Convert_Buff[3][0][0];
-
-    for (ix = 4; ix < 12; ix++) {
-        Check_Buff[3][1][ix] = Convert_Buff[3][1][ix];
-    }
 
     for (ix = 0; ix < 4; ix++) {
         for (ix2 = 0; ix2 < 12; ix2++) {
@@ -756,11 +753,12 @@ s32 Check_Change_Contents() {
         }
     }
 
-    for (page = 0; page < 4; page++) {
-        for (ix = Ex_Page_Data[page]; ix < 8; ix++) {
-            ck_ex_option.contents[page][ix] = save_w[1].extra_option.contents[page][ix];
-        }
-    }
+    return 0;
+}
+
+static s32 extra_option_differs() {
+    s16 ix;
+    s16 ix2;
 
     for (ix = 0; ix < 4; ix++) {
         for (ix2 = 0; ix2 < 8; ix2++) {
@@ -768,6 +766,33 @@ s32 Check_Change_Contents() {
                 return 1;
             }
         }
+    }
+
+    return 0;
+}
+
+s32 Check_Change_Contents() {
+    s16 ix;
+    s16 page;
+
+    Check_Buff[3][0][0] = Convert_Buff[3][0][0];
+
+    for (ix = 4; ix < 12; ix++) {
+        Check_Buff[3][1][ix] = Convert_Buff[3][1][ix];
+    }
+
+    if (convert_buff_differs()) {
+        return 1;
+    }
+
+    for (page = 0; page < 4; page++) {
+        for (ix = Ex_Page_Data[page]; ix < 8; ix++) {
+            ck_ex_option.contents[page][ix] = save_w[1].extra_option.contents[page][ix];
+        }
+    }
+
+    if (extra_option_differs()) {
+        return 1;
     }
 
     return 0;
@@ -785,7 +810,7 @@ void cpRevivalTask() {
 s32 Check_Menu_Task() {
     struct _TASK* task_ptr = &task[TASK_MENU];
 
-    if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
+    if (in_training_mode()) {
         if (task[TASK_MENU].r_no[0] == 7 && task[TASK_MENU].r_no[1] == 7) {
             return 1;
         }
@@ -833,15 +858,7 @@ void Setup_Training_Difficulty() {
 
 void Setup_BG(s16 BG_INDEX, s16 X, s16 Y) {
     Unsubstantial_BG[BG_INDEX] = 1;
-    bg_w.bgw[BG_INDEX].xy[0].disp.pos = X;
-    bg_w.bgw[BG_INDEX].xy[1].disp.pos = Y;
-    bg_w.bgw[BG_INDEX].wxy[0].disp.pos = X;
-    bg_w.bgw[BG_INDEX].wxy[1].disp.pos = Y;
-    bg_w.bgw[BG_INDEX].xy[0].disp.low = 0;
-    bg_w.bgw[BG_INDEX].xy[1].disp.low = 0;
-    bg_w.bgw[BG_INDEX].position_x = X;
-    bg_w.bgw[BG_INDEX].position_y = Y;
-    Bg_Family_Set_Ex(BG_INDEX);
+    Setup_Virtual_BG(BG_INDEX, X, Y);
 }
 
 void Setup_Virtual_BG(s16 BG_INDEX, s16 X, s16 Y) {
@@ -907,9 +924,21 @@ static bool bg_layer_disabled(int i) {
     return false;
 }
 
+static s32 bg_layer_should_transfer(int i) {
+    return (bg_disp_off == 0) && (Screen_Switch_Buffer & (1 << i)) && !bg_layer_disabled(i);
+}
+
+static void calc_unsubstantial_layers() {
+    for (int i = 0; i < 4; i++) {
+        if (Unsubstantial_BG[i]) {
+            scr_calc(i);
+        }
+    }
+}
+
 void BG_Draw_System() {
     for (int i = 0; i < 4; i++) {
-        if ((bg_disp_off == 0) && (Screen_Switch_Buffer & (1 << i)) && !bg_layer_disabled(i)) {
+        if (bg_layer_should_transfer(i)) {
             scr_trans(i);
         } else {
             scr_calc(i);
@@ -917,11 +946,7 @@ void BG_Draw_System() {
     }
 
     if (Play_Game == 0) {
-        for (int i = 0; i < 4; i++) {
-            if (Unsubstantial_BG[i]) {
-                scr_calc(i);
-            }
-        }
+        calc_unsubstantial_layers();
     } else if (Play_Game == 1) {
         Family_Move();
     } else {
@@ -1005,7 +1030,7 @@ void Soft_Reset_Sub() {
     sound_all_off();
     SsBgmHalfVolume(0);
 
-    if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
+    if (in_training_mode()) {
         Set_Training_Hitbox_Display(false);
     }
 
@@ -1049,258 +1074,6 @@ void Reset_Sub0() {
     Play_Mode = 0;
     Replay_Status[0] = 0;
     Replay_Status[1] = 0;
-}
-
-void Check_Replay() {
-    s16 ix;
-
-    if (!Demo_Flag) {
-        return;
-    }
-
-    switch (Play_Mode) {
-    case 1:
-        Replay_Status[0] = 1;
-        Replay_Status[1] = 1;
-
-        if (plw[0].wu.operator == 0) {
-            Replay_Status[0] = 0;
-            CP_No[0][0] = 0;
-        }
-
-        if (plw[1].wu.operator == 0) {
-            Replay_Status[1] = 0;
-            CP_No[1][0] = 0;
-        }
-
-        Condense_Buff[0] = 0xFFFF;
-        Condense_Buff[1] = 0xFFFF;
-        memset(&Replay_w, 0, sizeof(Replay_w));
-
-        if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
-            for (ix = 0; ix < 0x1C1E; ix++) {
-                Replay_w.io_unit.key_buff[0][ix] = 0xF000;
-                Replay_w.io_unit.key_buff[1][ix] = 0xF000;
-            }
-        }
-
-        Setup_Replay_Header();
-
-        for (ix = 0; ix < 14; ix++) {
-            Replay_w.lag[ix] = 1;
-        }
-
-        Lag_Ptr = Replay_w.lag;
-        Lag_Timer = 1;
-        Bg_Kakikae_Set();
-        break;
-
-    case 3:
-        Replay_Status[0] = 3;
-        Replay_Status[1] = 3;
-        CP_No[0][0] = 0;
-        CP_No[1][0] = 0;
-        Vital_Handicap[Present_Mode][0] = Rep_Game_Infor[10].Vital_Handicap[0];
-        Vital_Handicap[Present_Mode][1] = Rep_Game_Infor[10].Vital_Handicap[1];
-        Get_Replay_Header();
-        Lag_Ptr = Replay_w.lag;
-        Lag_Timer = (s8)*Lag_Ptr;
-        Lag_Ptr += 1;
-        Bg_Kakikae_Set();
-        break;
-
-    default:
-        return;
-    }
-
-    Demo_Timer[0] = 0;
-    Demo_Timer[1] = 0;
-    Demo_Ptr[0] = Replay_w.io_unit.key_buff[0];
-    Demo_Ptr[1] = Replay_w.io_unit.key_buff[1];
-}
-
-void Setup_Replay_Header() {
-    s16 ix;
-
-    Rep_Game_Infor[10].stage = bg_w.stage;
-    Rep_Game_Infor[10].Direction_Working = Direction_Working[Present_Mode];
-    Rep_Game_Infor[10].Vital_Handicap[0] = Vital_Handicap[Present_Mode][0];
-    Rep_Game_Infor[10].Vital_Handicap[1] = Vital_Handicap[Present_Mode][1];
-
-    for (ix = 0; ix < 2; ix++) {
-        Rep_Game_Infor[10].player_infor[ix].my_char = My_char[ix];
-        Rep_Game_Infor[10].player_infor[ix].sa = Super_Arts[ix];
-        Rep_Game_Infor[10].player_infor[ix].color = Player_Color[ix];
-        Rep_Game_Infor[10].player_infor[ix].player_type = plw[ix].wu.operator;
-        Rep_Game_Infor[10].Vital_Handicap[ix] = Vital_Handicap[Present_Mode][ix];
-    }
-
-    Rep_Game_Infor[10].Random_ix16 = Random_ix16;
-    Rep_Game_Infor[10].Random_ix32 = Random_ix32;
-    Rep_Game_Infor[10].Random_ix16_ex = Random_ix16_ex;
-    Rep_Game_Infor[10].Random_ix32_ex = Random_ix32_ex;
-    Rep_Game_Infor[10].players_timer = players_timer;
-    Random_ix16_com = Random_ix16;
-    Random_ix32_com = Random_ix32;
-    Random_ix16_ex_com = Random_ix16_ex;
-    Random_ix32_ex_com = Random_ix32_ex;
-    Random_ix16_bg = Random_ix16;
-    Rep_Game_Infor[10].old_mes_no2 = old_mes_no2;
-    Rep_Game_Infor[10].old_mes_no3 = old_mes_no3;
-    Rep_Game_Infor[10].old_mes_no_pl = old_mes_no_pl;
-    Rep_Game_Infor[10].mes_already = mes_already;
-    Replay_w.champion = Champion;
-    Replay_w.full_data = 0;
-}
-
-void Get_Replay_Header() {
-    Random_ix16 = Rep_Game_Infor[10].Random_ix16;
-    Random_ix32 = Rep_Game_Infor[10].Random_ix32;
-    Random_ix16_ex = Rep_Game_Infor[10].Random_ix16_ex;
-    Random_ix32_ex = Rep_Game_Infor[10].Random_ix32_ex;
-    players_timer = Rep_Game_Infor[10].players_timer;
-    old_mes_no2 = Rep_Game_Infor[10].old_mes_no2;
-    old_mes_no3 = Rep_Game_Infor[10].old_mes_no3;
-    old_mes_no_pl = Rep_Game_Infor[10].old_mes_no_pl;
-    mes_already = Rep_Game_Infor[10].mes_already;
-    Random_ix16_com = Random_ix16;
-    Random_ix32_com = Random_ix32;
-    Random_ix16_ex_com = Random_ix16_ex;
-    Random_ix32_ex_com = Random_ix32_ex;
-    Random_ix16_bg = Random_ix16;
-    Champion = Replay_w.champion;
-    New_Challenger = Champion ^ 1;
-    Control_Time = Replay_w.Control_Time_Buff;
-    save_w[Present_Mode].Difficulty = Replay_w.Difficulty;
-}
-
-void Check_Replay_Status(s16 PL_id, u8 Status) {
-    if (Demo_Flag == 0) {
-        return;
-    }
-
-    switch (Status) {
-    case 1:
-        Get_Replay(PL_id);
-        break;
-
-    case 3:
-        Replay(PL_id);
-        break;
-
-    case 2:
-        if (PL_id) {
-            p2sw_0 = 0;
-            break;
-        }
-
-        p1sw_0 = 0;
-        break;
-
-    case 99:
-        // [REPLAY AREA FULL!!]
-        SDL_assert(false);
-        break;
-    }
-}
-
-void Get_Replay(s16 PL_id) {
-    u16 sw_buff;
-
-    if (Game_pause == 0x81) {
-        return;
-    }
-
-    if (PL_id) {
-        sw_buff = p2sw_0;
-    } else {
-        sw_buff = p1sw_0;
-    }
-
-    if (sw_buff == Condense_Buff[PL_id]) {
-        if (Demo_Timer[PL_id] >= 16) {
-            Setup_Replay_Buff(PL_id, sw_buff);
-        } else {
-            Demo_Timer[PL_id]++;
-        }
-    } else {
-        Setup_Replay_Buff(PL_id, sw_buff);
-    }
-}
-
-void Setup_Replay_Buff(s16 PL_id, u16 sw_buff) {
-    u16 buff;
-    u16 timer;
-
-    if (Condense_Buff[PL_id] == 0xFFFF) {
-        Demo_Timer[PL_id] = 1;
-        Condense_Buff[PL_id] = sw_buff;
-        return;
-    }
-
-    timer = Demo_Timer[PL_id] - 1;
-    timer <<= 12;
-    buff = Condense_Buff[PL_id] & 0xFFF;
-    buff |= timer;
-    *Demo_Ptr[PL_id] = buff;
-    Demo_Ptr[PL_id]++;
-
-    if (&Replay_w.io_unit.key_buff[PL_id][7197] < Demo_Ptr[PL_id]) {
-        Replay_Status[PL_id] = 99;
-        Replay_w.full_data |= PL_id + 1;
-        return;
-    }
-
-    Demo_Timer[PL_id] = 1;
-    Condense_Buff[PL_id] = sw_buff;
-}
-
-void Replay(s16 PL_id) {
-    u16 sw;
-    u16 buff;
-
-    if (&Replay_w.io_unit.key_buff[PL_id][7198] < Demo_Ptr[PL_id]) {
-        Replay_Status[0] = 2;
-        Replay_Status[1] = 2;
-
-        if (Mode_Type == MODE_REPLAY) {
-            cpExitTask(TASK_PAUSE);
-            cpReadyTask(TASK_MENU, Menu_Task);
-            task[TASK_MENU].r_no[0] = 13;
-        }
-
-        Demo_Time_Stop = 1;
-        return;
-    }
-
-    if (Game_pause == 0x81) {
-        return;
-    }
-
-    if (Demo_Timer[PL_id] == 0) {
-        sw = *Demo_Ptr[PL_id];
-        Demo_Ptr[PL_id]++;
-        buff = sw;
-        sw &= 0xFFF;
-        Condense_Buff[PL_id] = sw;
-        buff &= 0xF000;
-        buff >>= 12;
-        Demo_Timer[PL_id] = buff + 1;
-    }
-
-    if (plw[PL_id].wu.operator == 0) {
-        if (PL_id) {
-            p2sw_0 = 0;
-        } else {
-            p1sw_0 = 0;
-        }
-    } else if (PL_id) {
-        p2sw_0 = Condense_Buff[PL_id];
-    } else {
-        p1sw_0 = Condense_Buff[PL_id];
-    }
-
-    Demo_Timer[PL_id]--;
 }
 
 s16 Check_SysDir_Page() {
@@ -1429,178 +1202,6 @@ s32 Check_Fade_Complete() {
     return 1;
 }
 
-s32 Check_Ranking(s16 PL_id) {
-    Present_Data[PL_id].name[0] = 12;
-    Present_Data[PL_id].name[1] = 10;
-    Present_Data[PL_id].name[2] = 25;
-    Present_Data[PL_id].player = Stock_My_char[PL_id];
-    Present_Data[PL_id].player_color = Stock_Player_Color[PL_id];
-    Present_Data[PL_id].score = Continue_Coin[PL_id] + Score[PL_id][0];
-    Present_Data[PL_id].wins = Stock_Win_Record[PL_id];
-    Present_Data[PL_id].cpu_grade = judge_final[PL_id]->vs_cpu_grade[12];
-    Present_Data[PL_id].grade = Best_Grade[PL_id];
-
-    if (Break_Com[PL_id][0]) {
-        Present_Data[PL_id].all_clear = 1;
-    } else {
-        Present_Data[PL_id].all_clear = 0;
-    }
-
-    Rank_In[PL_id][0] = Check_Sort_Score(PL_id);
-
-    if (Rank_In[PL_id][0] >= 0 && Rank_In[PL_id ^ 1][0] >= 0) {
-        Check_Partners_Rank(0, PL_id);
-    }
-
-    Rank_In[PL_id][1] = Check_Sort_Wins(PL_id);
-
-    if (Rank_In[PL_id][1] >= 0 && Rank_In[PL_id ^ 1][1] >= 0) {
-        Check_Partners_Rank(1, PL_id);
-    }
-
-    Rank_In[PL_id][2] = Check_Sort_CPU_Grade(PL_id);
-
-    if (Rank_In[PL_id][2]) {
-        Rank_In[PL_id][2] = -1;
-    } else {
-        Rank_In[PL_id ^ 1][2] = -1;
-    }
-
-    Rank_In[PL_id][3] = Check_Sort_Grade(PL_id);
-
-    if (Rank_In[PL_id][3]) {
-        Rank_In[PL_id][3] = -1;
-    } else {
-        Rank_In[PL_id ^ 1][3] = -1;
-    }
-
-    if (Rank_In[PL_id][0] >= 0 || Rank_In[PL_id][1] >= 0 || Rank_In[PL_id][2] >= 0 || Rank_In[PL_id][3] >= 0) {
-        return 1;
-    }
-
-    return 0;
-}
-
-void Check_Partners_Rank(s16 dir_step, s16 PL_id) {
-    if (Rank_In[PL_id][dir_step] > Rank_In[PL_id ^ 1][dir_step]) {
-        return;
-    }
-
-    Rank_In[PL_id ^ 1][dir_step]++;
-
-    if (Rank_In[PL_id ^ 1][dir_step] > 4) {
-        Rank_In[PL_id ^ 1][dir_step] = -1;
-    }
-}
-
-s32 Check_Sort_Score(s16 PL_id) {
-    s16 i;
-    s16 j;
-
-    for (i = 0; i < 5; i++) {
-        if (Ranking_Data[i].score < Present_Data[PL_id].score) {
-            for (j = 3; j >= i; j--) {
-                Ranking_Data[j + 1] = Ranking_Data[j];
-            }
-
-            Ranking_Data[i] = Present_Data[PL_id];
-            return i;
-        }
-    }
-
-    return -1;
-}
-
-s32 Check_Sort_Wins(s16 PL_id) {
-    s16 i;
-    s16 j;
-
-    for (i = 0; i < 5; i++) {
-        if (Ranking_Data[i + 5].wins < Present_Data[PL_id].wins) {
-            for (j = 3; j >= i; j--) {
-                Ranking_Data[j + 6] = Ranking_Data[j + 5];
-            }
-
-            Ranking_Data[i + 5] = Present_Data[PL_id];
-            return i;
-        }
-    }
-
-    return -1;
-}
-
-s32 Check_Sort_CPU_Grade(s16 PL_id) {
-    s16 i;
-    s16 j;
-
-    for (i = 0; i < 5; i++) {
-        if (!Check_CPU_Grade_Score(PL_id, i)) {
-            continue;
-        }
-
-        for (j = 3; j >= i; j--) {
-            Ranking_Data[j + 11] = Ranking_Data[j + 10];
-        }
-
-        Ranking_Data[i + 10] = Present_Data[PL_id];
-        return i;
-    }
-
-    return -1;
-}
-
-s32 Check_Sort_Grade(s16 PL_id) {
-    s16 i;
-    s16 j;
-
-    for (i = 0; i < 5; i++) {
-        if (!Check_Grade_Score(PL_id, i)) {
-            continue;
-        }
-
-        for (j = 3; j >= i; j--) {
-            Ranking_Data[j + 16] = Ranking_Data[j + 15];
-        }
-
-        Ranking_Data[i + 15] = Present_Data[PL_id];
-        return i;
-    }
-
-    return -1;
-}
-
-s32 Check_CPU_Grade_Score(s16 PL_id, s16 i) {
-    if (Ranking_Data[i + 10].cpu_grade > Present_Data[PL_id].cpu_grade) {
-        return 0;
-    }
-
-    if (Ranking_Data[i + 10].cpu_grade < Present_Data[PL_id].cpu_grade) {
-        return 1;
-    }
-
-    if (Ranking_Data[i + 10].score >= Present_Data[PL_id].score) {
-        return 0;
-    }
-
-    return 1;
-}
-
-s32 Check_Grade_Score(s16 PL_id, s16 i) {
-    if (Ranking_Data[i + 15].grade > Present_Data[PL_id].grade) {
-        return 0;
-    }
-
-    if (Ranking_Data[i + 15].grade < Present_Data[PL_id].grade) {
-        return 1;
-    }
-
-    if (Ranking_Data[i + 15].wins >= Present_Data[PL_id].wins) {
-        return 0;
-    }
-
-    return 1;
-}
-
 void Disp_Digit16x24(u32 Score_Buff, s16 Disp_X, s16 Disp_Y, s16 Color) {
     s16 i;
     s16 j;
@@ -1633,195 +1234,40 @@ void Disp_Digit16x24(u32 Score_Buff, s16 Disp_X, s16 Disp_Y, s16 Color) {
     }
 }
 
-void Disp_Copyright() {
+/* The two-line American notice. The case labels are the original ones, so the
+ * countries still read as the same numbers. */
+static void disp_copyright_usa() {
     s32 xres;
 
+    switch (Country) {
+    case 4:
+    case 5:
+    case 6:
+        xres = SSPutStrPro(&(ScStrPro){ 1, 386, 212, 9, -1, "@CAPCOM U.S.A., INC. 1999, 2004 ALL RIGHTS RESERVED." });
+        SSPutStrPro(&(ScStrPro){ 0, xres, 202, 9, -1, "@CAPCOM CO., LTD. 1999, 2004," });
+        break;
+    }
+}
+
+void Disp_Copyright() {
     switch (Country) {
     case 1:
     case 2:
     case 3:
     case 7:
     case 8:
-        SSPutStrPro(1, 386, 208, 9, -1, "@CAPCOM CO., LTD. 1999, 2004 ALL RIGHTS RESERVED.");
-        break;
-
-    case 4:
-    case 5:
-    case 6:
-        xres = SSPutStrPro(1, 386, 212, 9, -1, "@CAPCOM U.S.A., INC. 1999, 2004 ALL RIGHTS RESERVED.");
-        SSPutStrPro(0, xres, 202, 9, -1, "@CAPCOM CO., LTD. 1999, 2004,");
+        SSPutStrPro(&(ScStrPro){ 1, 386, 208, 9, -1, "@CAPCOM CO., LTD. 1999, 2004 ALL RIGHTS RESERVED." });
         break;
 
     default:
+        disp_copyright_usa();
         break;
     }
 }
 
-void Initialize_EM_Candidate(s16 PL_id) {
-    s16 ix;
-    s16 ok_urien = random_16();
-
-    for (ix = 0; ix < 16; ix++) {
-        Candidate_Buff[ix] = 0xFF;
-    }
-
-    Setup_Candidate_Buff(PL_id);
-
-    for (ix = 0; ix < 8; ix++) {
-        EM_Candidate[PL_id][0][ix] = Check_EM_Buff(ix, ok_urien);
-        EM_Candidate[PL_id][1][ix] = Check_EM_Buff(ix, ok_urien);
-    }
-
-    EM_Candidate[PL_id][0][8] = Middle_Class_Boss_Data[My_char[PL_id]];
-    EM_Candidate[PL_id][1][8] = Middle_Class_Boss_Data[My_char[PL_id]];
-
-    if (My_char[PL_id] != 0) {
-        EM_Candidate[PL_id][0][9] = 0;
-        EM_Candidate[PL_id][1][9] = 0;
-    } else {
-        EM_Candidate[PL_id][0][9] = 1;
-        EM_Candidate[PL_id][1][9] = 1;
-    }
-}
-
-void Setup_Candidate_Buff(s16 PL_id) {
-    s16 em;
-    s16 ix;
-    s16 s2;
-
-    for (em = 0, s2 = ix = 1; ix <= 19; ix++) {
-        if (My_char[PL_id] == 0 && ix == 1) {
-            continue;
-        }
-
-        if (ix == My_char[PL_id]) {
-            continue;
-        }
-
-        if (ix == 17) {
-            continue;
-        }
-
-        if (ix == Middle_Class_Boss_Data[My_char[PL_id]]) {
-            continue;
-        }
-
-        if (Break_Com[PL_id][ix]) {
-            continue;
-        }
-
-        Candidate_Buff[em] = ix;
-        em++;
-
-        if (em >= 16) {
-            break;
-        }
-    }
-}
-
-s16 Check_EM_Buff(s16 ix, s16 ok_urien) {
-    s16 em;
-    s16 Rnd = random_16();
-    s16 Next;
-
-    if (Check_EM_Sub(ix, ok_urien, Rnd)) {
-        em = Candidate_Buff[Rnd];
-        Candidate_Buff[Rnd] = 0xFF;
-        return em;
-    }
-
-    Next = random_16() & 1;
-
-    if (Next == 0) {
-        Next = -1;
-    }
-
-    while (1) {
-        if (Check_EM_Sub(ix, ok_urien, Rnd)) {
-            em = Candidate_Buff[Rnd];
-            Candidate_Buff[Rnd] = 0xFF;
-            return em;
-        }
-
-        Rnd += Next;
-
-        if (Rnd < 0) {
-            Rnd = 15;
-        }
-
-        if (Rnd > 15) {
-            Rnd = 0;
-        }
-    }
-}
-
-s32 Check_EM_Sub(s16 ix, s16 ok_urien, s16 Rnd) {
-    s16 em;
-
-    if (Candidate_Buff[Rnd] == 0xFF) {
-        return 0;
-    }
-
-    em = Candidate_Buff[Rnd];
-
-    switch (em) {
-    case 2:
-    case 11:
-    case 6:
-    case 8:
-        if (ix < 4) {
-            return 0;
-        }
-
-        return 1;
-
-    case 14:
-        if (ix < 6) {
-            return 0;
-        }
-
-        return 1;
-
-    case 13:
-        if (ok_urien != 0 && ix < 4) {
-            return 0;
-        }
-
-        return 1;
-
-    default:
-        return 1;
-    }
-}
-
-void Check_Same_CPU(s16 PL_id) {
-    s16 ix;
-    s16 ok_urien;
-
-    if (VS_Index[PL_id] >= 9) {
-        return;
-    }
-
-    if (Last_My_char[PL_id] == My_char[PL_id]) {
-        return;
-    }
-
-    ok_urien = random_16();
-
-    for (ix = 0; ix < 16; ix++) {
-        Candidate_Buff[ix] = 0xFF;
-    }
-
-    Setup_Candidate_Buff(PL_id);
-
-    for (ix = VS_Index[PL_id]; ix < 8; ix++) {
-        EM_Candidate[PL_id][0][ix] = Check_EM_Buff(ix, ok_urien);
-        EM_Candidate[PL_id][1][ix] = Check_EM_Buff(ix, ok_urien);
-    }
-
-    EM_Candidate[PL_id][0][8] = Middle_Class_Boss_Data[My_char[PL_id]];
-    EM_Candidate[PL_id][1][8] = Middle_Class_Boss_Data[My_char[PL_id]];
-}
+/* The candidates with their own slot rule. The case labels are the original
+ * ones, so the characters still read as the same numbers, and the terminal
+ * `default: return 1;` is the one this switch always had. */
 
 void All_Clear_Suicide() {
     s16 ix;

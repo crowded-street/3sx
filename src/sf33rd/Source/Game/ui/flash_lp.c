@@ -13,11 +13,60 @@
 
 const u8 Lamp_Flash_Data[2][2] = { { 0x07, 0x6F }, { 0x1E, 0x03 } };
 
-void Flash_Lamp() {
-    u8 ix;
+static void step_lamp_flash() {
+    switch (Lamp_No) {
+    case 0:
+        Lamp_No = 1;
+        Lamp_Index = 1;
+        Lamp_Timer = 1;
+        /* fallthrough */
+
+    case 1:
+        if (--Lamp_Timer == 0) {
+            if (++Lamp_Index > 1) {
+                Lamp_Index = 0;
+            }
+            Lamp_Color = Lamp_Flash_Data[Lamp_Index][0];
+            Lamp_Timer = Lamp_Flash_Data[Lamp_Index][1];
+        }
+
+        break;
+    }
+}
+
+static void draw_win_marks(u8 ix) {
     u8 ix2p;
     u8 mark;
     u8 color;
+
+    mark = flash_win_type[0][ix];
+
+    if (flash_win_type[0][ix] == 0) {
+        color = 7;
+    } else {
+        color = Lamp_Color;
+    }
+
+    if (flash_win_type[0][ix] == sync_win_type[0][ix]) {
+        scfont_sqput(&(ScFontSquare){ vmark_tbl[ix], 4, color, 0, mark * 2, 26, 2, 1 }, TopHUDPriority);
+    }
+
+    mark = flash_win_type[1][ix];
+    ix2p = ix + 4;
+
+    if (flash_win_type[1][ix] == 0) {
+        color = 7;
+    } else {
+        color = Lamp_Color;
+    }
+
+    if (flash_win_type[1][ix] == sync_win_type[1][ix]) {
+        scfont_sqput(&(ScFontSquare){ vmark_tbl[ix2p], 4, color, 0, mark * 2, 26, 2, 1 }, TopHUDPriority);
+    }
+}
+
+void Flash_Lamp() {
+    u8 ix;
 
     if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
         return;
@@ -28,50 +77,10 @@ void Flash_Lamp() {
     }
 
     if (!Game_pause) {
-        switch (Lamp_No) {
-        case 0:
-            Lamp_No = 1;
-            Lamp_Index = 1;
-            Lamp_Timer = 1;
-            /* fallthrough */
-
-        case 1:
-            if (--Lamp_Timer == 0) {
-                if (++Lamp_Index > 1) {
-                    Lamp_Index = 0;
-                }
-                Lamp_Color = Lamp_Flash_Data[Lamp_Index][0];
-                Lamp_Timer = Lamp_Flash_Data[Lamp_Index][1];
-            }
-
-            break;
-        }
+        step_lamp_flash();
     }
 
     for (ix = 0; ix <= save_w[Present_Mode].Battle_Number[Play_Type]; ix++) {
-        mark = flash_win_type[0][ix];
-
-        if (flash_win_type[0][ix] == 0) {
-            color = 7;
-        } else {
-            color = Lamp_Color;
-        }
-
-        if (flash_win_type[0][ix] == sync_win_type[0][ix]) {
-            scfont_sqput(vmark_tbl[ix], 4, color, 0, mark * 2, 26, 2, 1, TopHUDPriority);
-        }
-
-        mark = flash_win_type[1][ix];
-        ix2p = ix + 4;
-
-        if (flash_win_type[1][ix] == 0) {
-            color = 7;
-        } else {
-            color = Lamp_Color;
-        }
-
-        if (flash_win_type[1][ix] == sync_win_type[1][ix]) {
-            scfont_sqput(vmark_tbl[ix2p], 4, color, 0, mark * 2, 26, 2, 1, TopHUDPriority);
-        }
+        draw_win_marks(ix);
     }
 }
