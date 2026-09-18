@@ -524,7 +524,7 @@ def ffold(path, protos, min_members=3, max_params=3):
     fams = collections.defaultdict(list)
     for name, a, b, is_static in functions(src):
         full = src[a:b]
-        if is_static or not re.match(r'^Passive\d+_\d+$', name) or SWITCH_HEAD not in full:
+        if is_static or not re.match(r'^(Passive\d+_\d+|pattern_\w+)$', name) or SWITCH_HEAD not in full:
             continue
         body = full[full.index('{'):]
         sk, slots = skeleton_with_callees(body, protos)
@@ -587,7 +587,8 @@ def verify(base_ref, paths, quiet=False):
                                                 cwd=ROOT).decode())
         except subprocess.CalledProcessError:
             pass                                    # a file this split created
-        news.append(open(path).read())
+        if os.path.exists(path):
+            news.append(open(path).read())          # else: a file this split removed
     old_bodies, new_bodies = collect(olds), collect(news)
     targets = sorted(n for n in old_bodies if re.match(r'^Passive\d+_\d+$', n))
     bad = 0
