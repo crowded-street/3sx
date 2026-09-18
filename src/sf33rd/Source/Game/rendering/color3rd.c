@@ -230,39 +230,56 @@ void set_hitmark_color() {
     palUpdateGhostCP3(31, 1);
 }
 
+// The default character's file carries a page per shade, so each is converted
+// into its own slot and the six extra pages follow behind them.
+static void spread_player_shading_pages(s16 id) {
+    s16 i;
+    s16 j;
+
+    for (i = 0; i < 64; i++) {
+        ColorRAM[id * 16][i] = palConvSrcToRam(plcol[id]->col[0][Player_Color[id]][i]);
+        ColorRAM[(id * 16) + 8][i] = palConvSrcToRam(plcol[id]->col[1][Player_Color[id]][i]);
+    }
+
+    for (i = 0; i < 6; i++) {
+        for (j = 0; j < 64; j++) {
+            ColorRAM[i + ((id * 16) + 1)][j] = palConvSrcToRam(plcol[id]->col[0][i + 16][j]);
+            ColorRAM[i + ((id * 16) + 9)][j] = palConvSrcToRam(plcol[id]->col[1][i + 16][j]);
+        }
+    }
+}
+
+// Any other character has one bank, written to both the slot and its +512
+// mirror in one pass.
+static void mirror_player_shading_pages(s16 id) {
+    u16* ldadrs;
+    u16* tradrs;
+    s16 i;
+
+    tradrs = (u16*)plcol[id]->col[0][Player_Color[id]];
+    ldadrs = (u16*)ColorRAM[id * 16];
+    for (i = 0; i < 64; i++) {
+        ldadrs[i] = ldadrs[i + 512] = palConvSrcToRam(tradrs[i]);
+    }
+    ldadrs += 64;
+    tradrs = (u16*)plcol[id]->col[0][16];
+    for (i = 0; i < 384; i++) {
+        ldadrs[i] = ldadrs[i + 512] = palConvSrcToRam(tradrs[i]);
+    }
+}
+
 // Type 1 is a player's own colour file: the two shading banks, the six extra
 // pages behind them, and the 256-entry tail that goes to a fixed page per side.
 static void load_player_color_file(s16 id, s16 key) {
     u16* ldadrs;
     u16* tradrs;
     s16 i;
-    s16 j;
 
     plcol[id] = Get_ramcnt_pointer(key);
     if (My_char[id] == 0) {
-        for (i = 0; i < 64; i++) {
-            ColorRAM[id * 16][i] = palConvSrcToRam(plcol[id]->col[0][Player_Color[id]][i]);
-            ColorRAM[(id * 16) + 8][i] = palConvSrcToRam(plcol[id]->col[1][Player_Color[id]][i]);
-        }
-
-        for (i = 0; i < 6; i++) {
-            for (j = 0; j < 64; j++) {
-                ColorRAM[i + ((id * 16) + 1)][j] = palConvSrcToRam(plcol[id]->col[0][i + 16][j]);
-                ColorRAM[i + ((id * 16) + 9)][j] = palConvSrcToRam(plcol[id]->col[1][i + 16][j]);
-            }
-        }
+        spread_player_shading_pages(id);
     } else {
-
-        tradrs = (u16*)plcol[id]->col[0][Player_Color[id]];
-        ldadrs = (u16*)ColorRAM[id * 16];
-        for (i = 0; i < 64; i++) {
-            ldadrs[i] = ldadrs[i + 512] = palConvSrcToRam(tradrs[i]);
-        }
-        ldadrs += 64;
-        tradrs = (u16*)plcol[id]->col[0][16];
-        for (i = 0; i < 384; i++) {
-            ldadrs[i] = ldadrs[i + 512] = palConvSrcToRam(tradrs[i]);
-        }
+        mirror_player_shading_pages(id);
     }
 
     tradrs = plcol[id]->col[0][22];
