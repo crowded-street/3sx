@@ -1383,18 +1383,52 @@ s32 urien_dash_chk(PLW* wk) {
     return 0;
 }
 
+static void urien_dash_launch(PLW* wk) {
+    win_rno[1]++;
+
+    if (urien_dash_chk(wk)) {
+        win_rno[1] = 5;
+    } else {
+        wk->wu.rl_flag = wk->wu.rl_waza;
+        set_char_move_init(&wk->wu, 0, 4);
+        setup_mvxy_data(&wk->wu, 2);
+    }
+}
+
+static void urien_dash_fall(PLW* wk) {
+    add_mvxy_speed(&wk->wu);
+    cal_mvxy_speed(&wk->wu);
+    char_move(&wk->wu);
+
+    if (wk->wu.xyz[1].disp.pos + wk->wu.cg_jphos >= 1) {
+        return;
+    }
+
+    win_rno[1]++;
+    wk->wu.position_y = 0;
+    wk->wu.xyz[1].cal = 0;
+    wk->wu.mvxy.a[1].sp = 0;
+    char_move_cmja(&wk->wu);
+}
+
+static void urien_dash_land(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type != 64) {
+        return;
+    }
+
+    if (urien_dash_chk(wk)) {
+        win_rno[1]++;
+    } else {
+        win_rno[1] = 0;
+    }
+}
+
 void urien_dash(PLW* wk) {
     switch (win_rno[1]) {
     case 0:
-        win_rno[1]++;
-
-        if (urien_dash_chk(wk)) {
-            win_rno[1] = 5;
-        } else {
-            wk->wu.rl_flag = wk->wu.rl_waza;
-            set_char_move_init(&wk->wu, 0, 4);
-            setup_mvxy_data(&wk->wu, 2);
-        }
+        urien_dash_launch(wk);
 
         /* fallthrough */
 
@@ -1409,34 +1443,11 @@ void urien_dash(PLW* wk) {
         break;
 
     case 2:
-        add_mvxy_speed(&wk->wu);
-        cal_mvxy_speed(&wk->wu);
-        char_move(&wk->wu);
-
-        if (wk->wu.xyz[1].disp.pos + wk->wu.cg_jphos >= 1) {
-            break;
-        }
-
-        win_rno[1]++;
-        wk->wu.position_y = 0;
-        wk->wu.xyz[1].cal = 0;
-        wk->wu.mvxy.a[1].sp = 0;
-        char_move_cmja(&wk->wu);
+        urien_dash_fall(wk);
         break;
 
     case 3:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type != 64) {
-            break;
-        }
-
-        if (urien_dash_chk(wk)) {
-            win_rno[1]++;
-        } else {
-            win_rno[1] = 0;
-        }
-
+        urien_dash_land(wk);
         break;
 
     case 4:
