@@ -134,27 +134,7 @@ s32 Setup_Next_Disposal() {
     return 0;
 }
 
-void Check_Reset_IO(struct _TASK* /* unused */, s16 PL_id) {
-    u16 sw;
-    u16 plsw;
-
-    if (Switch_Type == 0) {
-        if (PL_id) {
-            plsw = p2sw_0;
-        } else {
-            plsw = p1sw_0;
-        }
-    } else {
-        plsw = PLsw[PL_id][0];
-    }
-
-    sw = plsw & (SWK_START | SWK_BACK);
-
-    if (sw == 0) {
-        Reset_Status[PL_id] = 0;
-        return;
-    }
-
+static void step_reset_status(s16 PL_id, u16 sw, u16 plsw) {
     switch (Reset_Status[PL_id]) {
     case 0:
         if (sw == (SWK_START | SWK_BACK)) {
@@ -182,4 +162,28 @@ void Check_Reset_IO(struct _TASK* /* unused */, s16 PL_id) {
 
         break;
     }
+}
+
+void Check_Reset_IO(struct _TASK* /* unused */, s16 PL_id) {
+    u16 sw;
+    u16 plsw;
+
+    if (Switch_Type == 0) {
+        if (PL_id) {
+            plsw = p2sw_0;
+        } else {
+            plsw = p1sw_0;
+        }
+    } else {
+        plsw = PLsw[PL_id][0];
+    }
+
+    sw = plsw & (SWK_START | SWK_BACK);
+
+    if (sw == 0) {
+        Reset_Status[PL_id] = 0;
+        return;
+    }
+
+    step_reset_status(PL_id, sw, plsw);
 }
