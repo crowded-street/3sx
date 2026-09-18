@@ -20,7 +20,22 @@ extern f32 PrioBaseOriginal[PRIO_BASE_SIZE];
 // Defined in mtrans.c, where the transfer passes set it before queueing chips.
 extern s32 curr_bright;
 
-s32 seqsStoreChip(f32 x, f32 y, s32 w, s32 h, s32 gix, s32 code, s32 attr, s32 alpha, s32 id);
+// One sprite fragment to queue: where it goes, how big it is, which texture and
+// pattern it comes from, and how it is tinted. These are seqsStoreChip's nine
+// arguments, in the order they were written.
+typedef struct {
+    f32 x;
+    f32 y;
+    s32 w;
+    s32 h;
+    s32 gix;
+    s32 code;
+    s32 attr;
+    s32 alpha;
+    s32 id;
+} SequenceChip;
+
+s32 seqsStoreChip(const SequenceChip* req);
 void appRenewTempPriority(s32 z);
 void appRenewTempPriority_1_Chip();
 

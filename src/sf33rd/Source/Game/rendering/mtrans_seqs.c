@@ -135,16 +135,16 @@ static bool is_sequence_chip_scaled(Sprite2* chip, s32 width, s32 height) {
     return SDL_fabsf(screen_w - (f32)width) > 0.001f || SDL_fabsf(screen_h - (f32)height) > 0.001f;
 }
 
-s32 seqsStoreChip(f32 x, f32 y, s32 w, s32 h, s32 gix, s32 code, s32 attr, s32 alpha, s32 id) {
+s32 seqsStoreChip(const SequenceChip* req) {
     Sprite2* chip;
     s32 u;
     s32 v;
 
     chip = &seqs_w.chip[seqs_w.sprTotal];
-    chip->v[0].x = x;
-    chip->v[0].y = y;
-    chip->v[1].x = x + w;
-    chip->v[1].y = y - h;
+    chip->v[0].x = req->x;
+    chip->v[0].y = req->y;
+    chip->v[1].x = req->x + req->w;
+    chip->v[1].y = req->y - req->h;
     chip->v[0].z = chip->v[1].z = 0.0f;
     njCalcPoint(NULL, &chip->v[0], &chip->v[0]);
     njCalcPoint(NULL, &chip->v[1], &chip->v[1]);
@@ -153,42 +153,42 @@ s32 seqsStoreChip(f32 x, f32 y, s32 w, s32 h, s32 gix, s32 code, s32 attr, s32 a
         return 1;
     }
 
-    if (!(attr & 0x2000)) {
-        u = (code & 0xF) * 16;
-        v = code & 0xF0;
-        chip->tex_code = ppgGetUsingTextureHandle(NULL, gix + (code >> 8));
+    if (!(req->attr & 0x2000)) {
+        u = (req->code & 0xF) * 16;
+        v = req->code & 0xF0;
+        chip->tex_code = ppgGetUsingTextureHandle(NULL, req->gix + (req->code >> 8));
     } else {
-        u = (code & 7) * 32;
-        v = (code & 0x38) * 4;
-        chip->tex_code = ppgGetUsingTextureHandle(NULL, gix + (code >> 6));
+        u = (req->code & 7) * 32;
+        v = (req->code & 0x38) * 4;
+        chip->tex_code = ppgGetUsingTextureHandle(NULL, req->gix + (req->code >> 6));
     }
 
     appRenewTempPriority_1_Chip();
 
-    const bool scaled = is_sequence_chip_scaled(chip, w, h);
+    const bool scaled = is_sequence_chip_scaled(chip, req->w, req->h);
 
     const f32 uv_dx = scaled ? 0.5f : 0.0f;
     const f32 uv_dy = scaled ? 0.5f : 0.0f;
 
-    if (attr & 0x8000) {
+    if (req->attr & 0x8000) {
         chip->t[1].s = (u + uv_dx) / 256.0f;
-        chip->t[0].s = (u + w - uv_dx) / 256.0f;
+        chip->t[0].s = (u + req->w - uv_dx) / 256.0f;
     } else {
         chip->t[0].s = (u + uv_dx) / 256.0f;
-        chip->t[1].s = (u + w - uv_dx) / 256.0f;
+        chip->t[1].s = (u + req->w - uv_dx) / 256.0f;
     }
 
-    if (attr & 0x4000) {
+    if (req->attr & 0x4000) {
         chip->t[1].t = (v + uv_dy) / 256.0f;
-        chip->t[0].t = (v + h - uv_dy) / 256.0f;
+        chip->t[0].t = (v + req->h - uv_dy) / 256.0f;
     } else {
         chip->t[0].t = (v + uv_dy) / 256.0f;
-        chip->t[1].t = (v + h - uv_dy) / 256.0f;
+        chip->t[1].t = (v + req->h - uv_dy) / 256.0f;
     }
 
-    chip->tex_code |= ppgGetUsingPaletteHandle(NULL, attr & 0x1FF) << 16;
-    chip->vertex_color = curr_bright | ((0xFF - alpha) << 24);
-    chip->id = id;
+    chip->tex_code |= ppgGetUsingPaletteHandle(NULL, req->attr & 0x1FF) << 16;
+    chip->vertex_color = curr_bright | ((0xFF - req->alpha) << 24);
+    chip->id = req->id;
     seqs_w.sprTotal += 1;
 
     if (seqs_w.sprTotal > 0x400) {

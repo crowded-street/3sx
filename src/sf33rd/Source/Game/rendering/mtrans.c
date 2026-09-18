@@ -276,29 +276,27 @@ void mlt_obj_disp(MultiTexture* mt, WORK* wk, s32 base_y) {
         dh = ((trsptr->attr & 0x300) >> 5) + 8;
 
         if (!(trsptr->attr & 0x2000)) {
-            rnum = seqsStoreChip(
-                x - (dw * BOOL(attr & 0x8000)),
-                y + (dh * BOOL(attr & 0x4000)),
-                dw,
-                dh,
-                mt->mltgidx16,
-                trsptr->code,
-                palo + ((trsptr->attr ^ attr) & 0xE00F),
-                wk->my_clear_level,
-                mt->id
-            );
+            rnum = seqsStoreChip(&(SequenceChip){
+                       x - (dw * BOOL(attr & 0x8000)),
+                       y + (dh * BOOL(attr & 0x4000)),
+                       dw,
+                       dh,
+                       mt->mltgidx16,
+                       trsptr->code,
+                       palo + ((trsptr->attr ^ attr) & 0xE00F),
+                       wk->my_clear_level,
+                       mt->id });
         } else {
-            rnum = seqsStoreChip(
-                x - dw * BOOL(attr & 0x8000),
-                y + dh * BOOL(attr & 0x4000),
-                dw,
-                dh,
-                mt->mltgidx32,
-                trsptr->code,
-                palo + ((trsptr->attr ^ attr) & 0xE00F),
-                wk->my_clear_level,
-                mt->id
-            );
+            rnum = seqsStoreChip(&(SequenceChip){
+                       x - dw * BOOL(attr & 0x8000),
+                       y + dh * BOOL(attr & 0x4000),
+                       dw,
+                       dh,
+                       mt->mltgidx32,
+                       trsptr->code,
+                       palo + ((trsptr->attr ^ attr) & 0xE00F),
+                       wk->my_clear_level,
+                       mt->id });
         }
 
         if (rnum == 0) {
@@ -353,29 +351,27 @@ void mlt_obj_disp_rgb(MultiTexture* mt, WORK* wk, s32 base_y) {
         dh = ((trsptr->attr & 0x300) >> 5) + 8;
 
         if (!(trsptr->attr & 0x2000)) {
-            rnum = seqsStoreChip(
-                x - (dw * BOOL(attr & 0x8000)),
-                y + (dh * BOOL(attr & 0x4000)),
-                dw,
-                dh,
-                mt->mltgidx16,
-                trsptr->code,
-                (trsptr->attr ^ attr) & 0xE000,
-                wk->my_clear_level,
-                mt->id
-            );
+            rnum = seqsStoreChip(&(SequenceChip){
+                       x - (dw * BOOL(attr & 0x8000)),
+                       y + (dh * BOOL(attr & 0x4000)),
+                       dw,
+                       dh,
+                       mt->mltgidx16,
+                       trsptr->code,
+                       (trsptr->attr ^ attr) & 0xE000,
+                       wk->my_clear_level,
+                       mt->id });
         } else {
-            rnum = seqsStoreChip(
-                x - (dw * BOOL(attr & 0x8000)),
-                y + (dh * BOOL(attr & 0x4000)),
-                dw,
-                dh,
-                mt->mltgidx32,
-                trsptr->code,
-                (trsptr->attr ^ attr) & 0xE000,
-                wk->my_clear_level,
-                mt->id
-            );
+            rnum = seqsStoreChip(&(SequenceChip){
+                       x - (dw * BOOL(attr & 0x8000)),
+                       y + (dh * BOOL(attr & 0x4000)),
+                       dw,
+                       dh,
+                       mt->mltgidx32,
+                       trsptr->code,
+                       (trsptr->attr ^ attr) & 0xE000,
+                       wk->my_clear_level,
+                       mt->id });
         }
 
         if (rnum == 0) {
@@ -443,17 +439,16 @@ typedef struct {
 } ChipPlacement;
 
 static s32 store_trans_chip(const ChipPlacement* p, s32 gidx, s32 code, s32 attr) {
-    return seqsStoreChip(
-        p->x - (p->dw * BOOL(p->flip & 0x8000)),
-        p->y + (p->dh * BOOL(p->flip & 0x4000)),
-        p->dw,
-        p->dh,
-        gidx,
-        code,
-        attr,
-        p->alpha,
-        p->id
-    );
+    return seqsStoreChip(&(SequenceChip){
+               p->x - (p->dw * BOOL(p->flip & 0x8000)),
+               p->y + (p->dh * BOOL(p->flip & 0x4000)),
+               p->dw,
+               p->dh,
+               gidx,
+               code,
+               attr,
+               p->alpha,
+               p->id });
 }
 
 static void store_cached_trans_ext_tiles(const TransRun* run, s32 group) {
