@@ -52,6 +52,13 @@ typedef struct {
 } TextureSource;
 
 typedef struct {
+    s32 x;
+    s32 y;
+    s32 xs;
+    s32 ys;
+} ChipRect;
+
+typedef struct {
     u8 bgnm;
     s32* xx;
     s32* yy;
@@ -77,7 +84,7 @@ static s32 remap_ending_g_kakikae0_chip(s32 global_index_real);
 static s32 remap_ending_g_kakikae1_chip(s32 global_index_real);
 static void bgDrawOneScreen(s32 bgnum, s32 gixbase, s32* xx, s32* yy, s32 /* unused */, s32 ofsPal,
                             PPGDataList* curDataList);
-static void bgDrawOneChip(s32 x, s32 y, s32 xs, s32 ys, s32 gbix, u32 vtxCol, s32 ofsPal);
+static void bgDrawOneChip(const ChipRect* rect, s32 gbix, u32 vtxCol, s32 ofsPal);
 static void bgAkebonoDraw();
 static void ppgCalScrPosition(s32 x, s32 y, s32 xs, s32 ys);
 
@@ -945,7 +952,7 @@ static void draw_stage03_tiles(const StageDrawContext* context) {
                 global_index_real = remap_stage03_background_chip(global_index_real, &vtxColor);
             }
 
-            bgDrawOneChip(x, y, 128, 128, global_index_real, vtxColor, context->pal_offset);
+            bgDrawOneChip(&(ChipRect){ x, y, 128, 128 }, global_index_real, vtxColor, context->pal_offset);
             ppgSetupCurrentDataList(context->data_list);
         }
     }
@@ -967,7 +974,7 @@ static void draw_stage02_tiles(const StageDrawContext* context, u32 vtxColor) {
             if (ppgCheckTextureNumber(0, global_index_real) == 0) {
                 ppgSetupCurrentDataList(&ppgRwBgList);
             }
-            bgDrawOneChip(x, y, 128, 128, global_index_real, vtxColor, context->pal_offset);
+            bgDrawOneChip(&(ChipRect){ x, y, 128, 128 }, global_index_real, vtxColor, context->pal_offset);
             ppgSetupCurrentDataList(context->data_list);
         }
     }
@@ -1124,7 +1131,7 @@ static void draw_stage19_tiles(const StageDrawContext* context) {
             global_index_real = context->global_index + (((y >> 7) << 3) + (x >> 7));
             global_index_real = remap_stage19_chip(context->bgnm, global_index_real);
 
-            bgDrawOneChip(x, y, 128, 128, global_index_real, -1, context->pal_offset);
+            bgDrawOneChip(&(ChipRect){ x, y, 128, 128 }, global_index_real, -1, context->pal_offset);
             ppgSetupCurrentDataList(context->data_list);
         }
     }
@@ -1158,7 +1165,7 @@ static void draw_ending_g_tiles(const StageDrawContext* context) {
             global_index_real = context->global_index + (((y >> 7) << 3) + (x >> 7));
             global_index_real = remap_ending_g_chip(context->bgnm, global_index_real);
 
-            bgDrawOneChip(x, y, 128, 128, global_index_real, -1, context->pal_offset);
+            bgDrawOneChip(&(ChipRect){ x, y, 128, 128 }, global_index_real, -1, context->pal_offset);
             ppgSetupCurrentDataList(context->data_list);
         }
     }
@@ -1189,7 +1196,7 @@ static void draw_ending_c_tiles(const StageDrawContext* context) {
             global_index_real = context->global_index + (((y >> 7) << 3) + (x >> 7));
             global_index_real = remap_ending_c_chip(context->bgnm, global_index_real);
 
-            bgDrawOneChip(x, y, 128, 128, global_index_real, -1, context->pal_offset);
+            bgDrawOneChip(&(ChipRect){ x, y, 128, 128 }, global_index_real, -1, context->pal_offset);
             ppgSetupCurrentDataList(context->data_list);
         }
     }
@@ -1378,7 +1385,7 @@ void bgDrawOneScreen(s32 bgnum, s32 gixbase, s32* xx, s32* yy, s32 /* unused */,
 
             gbix = remap_screen_chip(bgnum, gbix);
 
-            bgDrawOneChip(x, y, 128, 128, gbix, -1, ofsPal);
+            bgDrawOneChip(&(ChipRect){ x, y, 128, 128 }, gbix, -1, ofsPal);
             ppgSetupCurrentDataList(curDataList);
         }
     }
@@ -1389,9 +1396,9 @@ static bool is_bg_chip_outside_screen() {
            (scrDrawPos[3].y < 0.0f);
 }
 
-void bgDrawOneChip(s32 x, s32 y, s32 xs, s32 ys, s32 gbix, u32 vtxCol, s32 ofsPal) {
+void bgDrawOneChip(const ChipRect* rect, s32 gbix, u32 vtxCol, s32 ofsPal) {
     if ((No_Trans == 0) && ppgCheckTextureNumber(0, gbix)) {
-        ppgCalScrPosition(x, y, xs, ys);
+        ppgCalScrPosition(rect->x, rect->y, rect->xs, rect->ys);
 
         if (is_bg_chip_outside_screen()) {
             return;
