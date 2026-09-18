@@ -1528,24 +1528,28 @@ void Frame_Down(u16 x, u16 y, u16 add) {
     Frame_Adgjust(x, y);
 }
 
-static void adjust_frame_x(u16 pos_x) {
+static s32 zoom_adgjust_offset(u16 pos) {
     u16 buff;
 
     if (zoom_add >= 0x40) {
         buff = zoom_add;
         buff -= 0x40;
-        buff *= pos_x;
+        buff *= pos;
         buff >>= 6;
         buff &= 0x1FF;
-        scrn_adgjust_x = -buff;
+        return -buff;
     } else {
         buff = 0x40;
         buff -= zoom_add;
-        buff *= pos_x;
+        buff *= pos;
         buff >>= 6;
         buff &= 0x1FF;
-        scrn_adgjust_x = buff;
+        return buff;
     }
+}
+
+static void adjust_frame_x(u16 pos_x) {
+    scrn_adgjust_x = zoom_adgjust_offset(pos_x);
 }
 
 static void fix_frame_y_adjustment() {
@@ -1555,23 +1559,7 @@ static void fix_frame_y_adjustment() {
 }
 
 static void adjust_frame_y(u16 pos_y) {
-    u16 buff;
-
-    if (zoom_add >= 0x40) {
-        buff = zoom_add;
-        buff -= 0x40;
-        buff *= pos_y + 0x15;
-        buff >>= 6;
-        buff &= 0x1FF;
-        scrn_adgjust_y = -buff;
-    } else {
-        buff = 0x40;
-        buff -= zoom_add;
-        buff *= pos_y + 0x15;
-        buff >>= 6;
-        buff &= 0x1FF;
-        scrn_adgjust_y = buff;
-    }
+    scrn_adgjust_y = zoom_adgjust_offset(pos_y + 0x15);
 
     fix_frame_y_adjustment();
 }
