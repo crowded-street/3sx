@@ -156,29 +156,33 @@ static void select_vertical_zoom_request_last(u16 p1zoom, u16 zoom_wk) {
     }
 }
 
+static void select_vertical_0_zoom_request(u16 zoom_wk) {
+    switch (zoom_wk) {
+    case 0x1000:
+        request_vertical_zoom(plw[0].wu.xyz[1].disp.pos);
+        break;
+
+    case 0x100:
+        request_vertical_zoom(plw[1].wu.xyz[1].disp.pos);
+        break;
+
+    case 0x1100:
+        request_vertical_zoom((plw[0].wu.xyz[1].disp.pos + plw[1].wu.xyz[1].disp.pos) >> 1);
+        break;
+
+    case 0x0:
+        break;
+
+    case 0x4000:
+        request_vertical_zoom(0);
+        break;
+    }
+}
+
 static void select_vertical_zoom_request_later(u16 p1zoom, u16 zoom_wk) {
     switch (p1zoom & 0xD100) {
     case 0x0:
-        switch (zoom_wk) {
-        case 0x1000:
-            request_vertical_zoom(plw[0].wu.xyz[1].disp.pos);
-            break;
-
-        case 0x100:
-            request_vertical_zoom(plw[1].wu.xyz[1].disp.pos);
-            break;
-
-        case 0x1100:
-            request_vertical_zoom((plw[0].wu.xyz[1].disp.pos + plw[1].wu.xyz[1].disp.pos) >> 1);
-            break;
-
-        case 0x0:
-            break;
-
-        case 0x4000:
-            request_vertical_zoom(0);
-            break;
-        }
+        select_vertical_0_zoom_request(zoom_wk);
         break;
 
     default:
