@@ -284,6 +284,29 @@ void Appear_04000(PLW* wk) {
     }
 }
 
+static void launch_appear_05000(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    appear_work[wk->wu.id] = 0x1B;
+
+    if (wk->wu.id) {
+        cal_all_speed_data(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work + 0x60, 0, 2, 0);
+        return;
+    }
+
+    cal_all_speed_data(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work - 0x60, 0, 2, 0);
+}
+
+static void land_appear_05000(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    set_char_move_init2(&wk->wu, 9, 0x17, 9, 0);
+
+    if (wk->wu.id) {
+        wk->wu.xyz[0].disp.pos = bg_w.bgw[1].pos_x_work + 0x58;
+        return;
+    }
+    wk->wu.xyz[0].disp.pos = bg_w.bgw[1].pos_x_work - 0x58;
+}
+
 void Appear_05000(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -298,15 +321,7 @@ void Appear_05000(PLW* wk) {
         appear_work[wk->wu.id]--;
 
         if (appear_work[wk->wu.id] < 0) {
-            wk->wu.routine_no[3]++;
-            appear_work[wk->wu.id] = 0x1B;
-
-            if (wk->wu.id) {
-                cal_all_speed_data(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work + 0x60, 0, 2, 0);
-                return;
-            }
-
-            cal_all_speed_data(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work - 0x60, 0, 2, 0);
+            launch_appear_05000(wk);
         }
         break;
 
@@ -315,14 +330,7 @@ void Appear_05000(PLW* wk) {
         appear_work[wk->wu.id]--;
 
         if (appear_work[wk->wu.id] <= 0) {
-            wk->wu.routine_no[3]++;
-            set_char_move_init2(&wk->wu, 9, 0x17, 9, 0);
-
-            if (wk->wu.id) {
-                wk->wu.xyz[0].disp.pos = bg_w.bgw[1].pos_x_work + 0x58;
-                return;
-            }
-            wk->wu.xyz[0].disp.pos = bg_w.bgw[1].pos_x_work - 0x58;
+            land_appear_05000(wk);
             return;
         }
 
