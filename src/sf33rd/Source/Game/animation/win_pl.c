@@ -326,6 +326,20 @@ void jijii_full(PLW* wk) {
 
 const s16 win_2000_tbl[18] = { 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1 };
 
+static void step_win_anime(PLW* wk, void (*start_anime)(PLW*)) {
+    bg_app_stop = 1;
+
+    switch (wk->wu.routine_no[3]) {
+    case 0:
+        start_anime(wk);
+        break;
+
+    default:
+        Normal_normal_Winner(wk);
+        break;
+    }
+}
+
 static void start_win_02000_pose(PLW* wk) {
     s16 work;
 
@@ -351,17 +365,7 @@ static void start_win_02000_pose(PLW* wk) {
 }
 
 void Win_02000(PLW* wk) {
-    bg_app_stop = 1;
-
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        start_win_02000_pose(wk);
-        break;
-
-    default:
-        Normal_normal_Winner(wk);
-        break;
-    }
+    step_win_anime(wk, start_win_02000_pose);
 }
 
 const s16 Win_3000_tbl[16] = { 42, 34, 33, 42, 32, 42, 32, 35, 42, 34, 33, 42, 32, 42, 32, 35 };
@@ -586,17 +590,7 @@ static void start_win_06000_pose(PLW* wk) {
 }
 
 void Win_06000(PLW* wk) {
-    bg_app_stop = 1;
-
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        start_win_06000_pose(wk);
-        break;
-
-    default:
-        Normal_normal_Winner(wk);
-        break;
-    }
+    step_win_anime(wk, start_win_06000_pose);
 }
 
 void Win_07000(PLW* wk) {
@@ -696,17 +690,7 @@ static void start_win_08000_pose(PLW* wk) {
 }
 
 void Win_08000(PLW* wk) {
-    bg_app_stop = 1;
-
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        start_win_08000_pose(wk);
-        break;
-
-    default:
-        Normal_normal_Winner(wk);
-        break;
-    }
+    step_win_anime(wk, start_win_08000_pose);
 }
 
 void Win_09000(PLW* wk) {
@@ -1274,17 +1258,7 @@ static void start_win_12000_pose(PLW* wk) {
 }
 
 void Win_12000(PLW* wk) {
-    bg_app_stop = 1;
-
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        start_win_12000_pose(wk);
-        break;
-
-    default:
-        Normal_normal_Winner(wk);
-        break;
-    }
+    step_win_anime(wk, start_win_12000_pose);
 }
 
 static void start_win_13000_pose(PLW* wk) {
@@ -1316,17 +1290,7 @@ static void start_win_13000_pose(PLW* wk) {
 }
 
 void Win_13000(PLW* wk) {
-    bg_app_stop = 1;
-
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        start_win_13000_pose(wk);
-        break;
-
-    default:
-        Normal_normal_Winner(wk);
-        break;
-    }
+    step_win_anime(wk, start_win_13000_pose);
 }
 
 void Win_14000(PLW* wk) {
@@ -1486,17 +1450,7 @@ static void start_win_15000_pose(PLW* wk) {
 }
 
 void Win_15000(PLW* wk) {
-    bg_app_stop = 1;
-
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        start_win_15000_pose(wk);
-        break;
-
-    default:
-        Normal_normal_Winner(wk);
-        break;
-    }
+    step_win_anime(wk, start_win_15000_pose);
 }
 
 s16 win_select(PLW* /* unused */, s16 num) {
