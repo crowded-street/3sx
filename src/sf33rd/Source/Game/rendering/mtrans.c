@@ -1312,6 +1312,23 @@ void mlt_obj_matrix(WORK* wk, s32 base_y) {
     }
 }
 
+// The tail of get_mltbuf16's scan: take the slot the scan set aside, or hang if
+// it found none. It returns the slot rather than writing it, because the other
+// exit never comes back.
+static s32 claim_mltbuf16_slot(MultiTexture* mt, s32 b, u32 code, u32 palt) {
+    if (b >= 0) {
+        b = mt->mltnum16 - b;
+        mt->mltcsh16[b].time = mt->mltcshtime16;
+        mt->mltcsh16[b].state = palt;
+        mt->mltcsh16[b].cs.code = code;
+        return b;
+    }
+
+    // CG cache is full. 16x16: %d\n
+    flLogOut("ＣＧキャッシュが一杯になりました。１６×１６ : %d\n", mt->id);
+    while (1) {}
+}
+
 static s32 get_mltbuf16(MultiTexture* mt, u32 code, u32 palt, s32* ret) {
     s32 i;
     s32 b = -1;
@@ -1334,20 +1351,27 @@ static s32 get_mltbuf16(MultiTexture* mt, u32 code, u32 palt, s32* ret) {
         i -= 1;
 
         if (i <= 0) {
-            if (b >= 0) {
-                b = mt->mltnum16 - b;
-                mt->mltcsh16[b].time = mt->mltcshtime16;
-                mt->mltcsh16[b].state = palt;
-                mt->mltcsh16[b].cs.code = code;
-                *ret = b;
-                return 1;
-            }
-
-            // CG cache is full. 16x16: %d\n
-            flLogOut("ＣＧキャッシュが一杯になりました。１６×１６ : %d\n", mt->id);
-            while (1) {}
+            *ret = claim_mltbuf16_slot(mt, b, code, palt);
+            return 1;
         }
     }
+}
+
+// The tail of get_mltbuf32's scan: take the slot the scan set aside, or hang if
+// it found none. It returns the slot rather than writing it, because the other
+// exit never comes back.
+static s32 claim_mltbuf32_slot(MultiTexture* mt, s32 b, u32 code, u32 palt) {
+    if (b >= 0) {
+        b = mt->mltnum32 - b;
+        mt->mltcsh32[b].time = mt->mltcshtime32;
+        mt->mltcsh32[b].state = palt;
+        mt->mltcsh32[b].cs.code = code;
+        return b;
+    }
+
+    // CG cache is full. 32x32 : %d\n
+    flLogOut("ＣＧキャッシュが一杯になりました。３２×３２ : %d\n", mt->id);
+    while (1) {}
 }
 
 static s32 get_mltbuf32(MultiTexture* mt, u32 code, u32 palt, s32* ret) {
@@ -1372,18 +1396,8 @@ static s32 get_mltbuf32(MultiTexture* mt, u32 code, u32 palt, s32* ret) {
         i -= 1;
 
         if (i <= 0) {
-            if (b >= 0) {
-                b = mt->mltnum32 - b;
-                mt->mltcsh32[b].time = mt->mltcshtime32;
-                mt->mltcsh32[b].state = palt;
-                mt->mltcsh32[b].cs.code = code;
-                *ret = b;
-                return 1;
-            }
-
-            // CG cache is full. 32x32 : %d\n
-            flLogOut("ＣＧキャッシュが一杯になりました。３２×３２ : %d\n", mt->id);
-            while (1) {}
+            *ret = claim_mltbuf32_slot(mt, b, code, palt);
+            return 1;
         }
     }
 }
