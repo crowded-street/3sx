@@ -230,17 +230,8 @@ void mlt_obj_disp(MultiTexture* mt, WORK* wk, s32 base_y) {
     setup_bright_and_matrix(wk, base_y);
 
     while (count--) {
-        if (attr & 0x8000) {
-            x += trsptr->x;
-        } else {
-            x -= trsptr->x;
-        }
-
-        if (attr & 0x4000) {
-            y -= trsptr->y;
-        } else {
-            y += trsptr->y;
-        }
+        x = advance_trans_x(x, attr, trsptr);
+        y = advance_trans_y(y, attr, trsptr);
 
         dw = ((trsptr->attr & 0xC00) >> 7) + 8;
         dh = ((trsptr->attr & 0x300) >> 5) + 8;
@@ -316,17 +307,8 @@ void mlt_obj_disp_rgb(MultiTexture* mt, WORK* wk, s32 base_y) {
     setup_bright_and_matrix(wk, base_y);
 
     while (count--) {
-        if (attr & 0x8000) {
-            x += trsptr->x;
-        } else {
-            x -= trsptr->x;
-        }
-
-        if (attr & 0x4000) {
-            y -= trsptr->y;
-        } else {
-            y += trsptr->y;
-        }
+        x = advance_trans_x(x, attr, trsptr);
+        y = advance_trans_y(y, attr, trsptr);
 
         dw = ((trsptr->attr & 0xC00) >> 7) + 8;
         dh = ((trsptr->attr & 0x300) >> 5) + 8;
