@@ -75,9 +75,19 @@ static void set_default_kakikae() {
     }
 }
 
+static void load_rw_slot_from_table(s32 slot, s8 rw) {
+    const bgrw_data_tbl_elem* rwtbl_ptr;
+
+    rwtbl_ptr = &bgrw_data_tbl[rw];
+    rw_dat[slot].bg_num = rwtbl_ptr->bg_num;
+    rw_dat[slot].rwgbix = rwtbl_ptr->rwgbix;
+    rw_dat[slot].rwd_ptr = rw_dat[slot].brw_ptr = rwtbl_ptr->rw_ptr;
+    rw_dat[slot].rw_cnt = *rw_dat[slot].rwd_ptr++;
+    rw_dat[slot].gbix = *rw_dat[slot].rwd_ptr++;
+}
+
 void Bg_Kakikae_Set() {
     u8 i;
-    const bgrw_data_tbl_elem* rwtbl_ptr;
     s8 rw;
 
     switch (bg_w.stage) {
@@ -97,12 +107,7 @@ void Bg_Kakikae_Set() {
         for (i = 0; i < 4; i++) {
             rw = bgrw_on[bg_w.stage][i];
 
-            rwtbl_ptr = &bgrw_data_tbl[rw];
-            rw_dat[i + 1].bg_num = rwtbl_ptr->bg_num;
-            rw_dat[i + 1].rwgbix = rwtbl_ptr->rwgbix;
-            rw_dat[i + 1].rwd_ptr = rw_dat[i + 1].brw_ptr = rwtbl_ptr->rw_ptr;
-            rw_dat[i + 1].rw_cnt = *rw_dat[i + 1].rwd_ptr++;
-            rw_dat[i + 1].gbix = *rw_dat[i + 1].rwd_ptr++;
+            load_rw_slot_from_table(i + 1, rw);
         }
         break;
 
@@ -126,12 +131,7 @@ void Bg_Kakikae_Set() {
 
         rw = bgrw_on[bg_w.stage][0];
 
-        rwtbl_ptr = &bgrw_data_tbl[rw];
-        rw_dat[1].bg_num = rwtbl_ptr->bg_num;
-        rw_dat[1].rwgbix = rwtbl_ptr->rwgbix;
-        rw_dat[1].rwd_ptr = rw_dat[1].brw_ptr = rwtbl_ptr->rw_ptr;
-        rw_dat[1].rw_cnt = *rw_dat[1].rwd_ptr++;
-        rw_dat[1].gbix = *rw_dat[1].rwd_ptr++;
+        load_rw_slot_from_table(1, rw);
         break;
 
     default:
