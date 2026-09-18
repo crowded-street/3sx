@@ -1017,6 +1017,13 @@ void suzi_sync_pos_set(WORK_Other* ewk) {
     ewk->wu.position_y = ewk->wu.xyz[1].disp.pos & 0xFFFF;
 }
 
+static void set_bg_family_position(s32 num_of_bg, s16 x, s16 y) {
+    Scrn_Move_Set(num_of_bg, x, y);
+    x = -x & 0xFFFF;
+    y = (768 - (y & 0xFFFF)) & 0xFFFF;
+    Family_Set_W(num_of_bg + 1, x, y);
+}
+
 void Bg_Family_Set() {
     s8 i;
     s16 x;
@@ -1025,10 +1032,7 @@ void Bg_Family_Set() {
     for (i = 0; i < bg_w.scno; i++) {
         x = bg_w.bgw[i].position_x;
         y = bg_w.bgw[i].position_y;
-        Scrn_Move_Set(i, x, y);
-        x = -x & 0xFFFF;
-        y = (768 - (y & 0xFFFF)) & 0xFFFF;
-        Family_Set_W(i + 1, x, y);
+        set_bg_family_position(i, x, y);
     }
 }
 
@@ -1036,10 +1040,7 @@ void Bg_Family_Set_appoint(s32 num_of_bg) {
     s16 x = bg_w.bgw[num_of_bg].position_x;
     s16 y = bg_w.bgw[num_of_bg].position_y;
 
-    Scrn_Move_Set(num_of_bg, x, y);
-    x = -x & 0xFFFF;
-    y = (768 - (y & 0xFFFF)) & 0xFFFF;
-    Family_Set_W(num_of_bg + 1, x, y);
+    set_bg_family_position(num_of_bg, x, y);
 }
 
 void Bg_Family_Set_2() {
@@ -1051,10 +1052,7 @@ void Bg_Family_Set_2() {
         x = bg_w.bgw[i].position_x;
         y = bg_w.bgw[i].position_y;
         y += 8;
-        Scrn_Move_Set(i, x, y);
-        x = -x & 0xFFFF;
-        y = (768 - (y & 0xFFFF)) & 0xFFFF;
-        Family_Set_W(i + 1, x, y);
+        set_bg_family_position(i, x, y);
     }
 }
 
@@ -1065,10 +1063,7 @@ void Bg_Family_Set_2_appoint(s32 num_of_bg) {
     x = bg_w.bgw[num_of_bg].position_x;
     y = bg_w.bgw[num_of_bg].position_y;
     y += 8;
-    Scrn_Move_Set(num_of_bg, x, y);
-    x = -x & 0xFFFF;
-    y = (768 - (y & 0xFFFF)) & 0xFFFF;
-    Family_Set_W(num_of_bg + 1, x, y);
+    set_bg_family_position(num_of_bg, x, y);
 }
 
 void ake_Family_Set2() {
