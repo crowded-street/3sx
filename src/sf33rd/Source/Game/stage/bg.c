@@ -47,6 +47,11 @@ BG bg_w;
 RW_DATA rw_dat[20];
 
 typedef struct {
+    void* adrs;
+    u32 size;
+} TextureSource;
+
+typedef struct {
     u8 bgnm;
     s32* xx;
     s32* yy;
@@ -337,14 +342,14 @@ static u8 find_first_stage_background(void) {
     return stg;
 }
 
-static u16 load_stage_screen_textures(void* loadAdrs, u32 loadSize, u8 stg, u32 tgbix, u16 accnum) {
+static u16 load_stage_screen_textures(const TextureSource* source, u8 stg, u32 tgbix, u16 accnum) {
     u32 mask;
     u32 assign2;
     u8 i;
 
     mask = 0x80000000;
     ppgSetupCurrentDataList(&ppgBgList[stg]);
-    ppgSetupTexChunk_1st(NULL, loadAdrs, loadSize, (stg * 64) + 0x84, 32, 0, 0);
+    ppgSetupTexChunk_1st(NULL, source->adrs, source->size, (stg * 64) + 0x84, 32, 0, 0);
     ppgSetupTexChunk_1st_Accnum(0, accnum);
 
     for (i = 0; i < 32; i++, assign2 = mask >>= 1) {
@@ -416,7 +421,7 @@ void Bg_Texture_Load_EX() {
 
     for (j = 0; j < bg_w.scrno; j++, assign3 = stg++) {
         tgbix = bgtex_stage_gbix[bg_w.stage][j];
-        accnum = load_stage_screen_textures(loadAdrs, loadSize, stg, tgbix, accnum);
+        accnum = load_stage_screen_textures(&(TextureSource){ loadAdrs, loadSize }, stg, tgbix, accnum);
     }
 
     x = rewrite_scr[bg_w.stage];
