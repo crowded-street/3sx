@@ -244,20 +244,29 @@ static s32 check_pause_menu_request(u8 PL_id) {
     return 0;
 }
 
-s32 Check_Pause_Term(u8 PL_id, bool ignore_input) {
+static s32 pause_term_blocked() {
     if (Demo_Flag == 0) {
-        return 0;
+        return 1;
     }
 
     if (Allow_a_battle_f == 0 || Extra_Break != 0) {
-        return 0;
+        return 1;
     }
 
     if (vm_w.Access != 0 || vm_w.Request != 0) {
-        return PAUSE_X = 0;
+        PAUSE_X = 0;
+        return 1;
     }
 
     if (Exec_Wipe) {
+        return 1;
+    }
+
+    return 0;
+}
+
+s32 Check_Pause_Term(u8 PL_id, bool ignore_input) {
+    if (pause_term_blocked()) {
         return 0;
     }
 
