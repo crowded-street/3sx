@@ -357,6 +357,28 @@ static void bgm_start_current_track() {
     }
 }
 
+/* The fade-in's own start of the track: seamless chain if this one uses one,
+ * otherwise a plain play. Unlike the restart arm it does not settle the volume
+ * here - the fade does that. */
+static void bgm_start_for_fade_in() {
+    if (bgm_plays_seamless_entries()) {
+        if (bgm_seamless_chain_must_restart()) {
+            bgm_exe.exIndex = bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0xFF;
+            bgm_exe.exEntry = bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numStart;
+
+            if (bgm_exe.nowSeamless == 0) {
+                ADX_Stop();
+            }
+
+            bgm_enter_seamless_playback();
+        }
+    } else {
+        bgm_seamless_clear();
+
+        bgm_start_current_track();
+    }
+}
+
 void BGM_Server() {
     if (!(system_init_level & 2)) {
         return;
@@ -493,22 +515,7 @@ void BGM_Server() {
             bgm_fade.in.dex.low = -0x8000;
             bgm_fade.speed = bgm_fade.in.cal / bgm_exe.data;
 
-            if (bgm_plays_seamless_entries()) {
-                if (bgm_seamless_chain_must_restart()) {
-                    bgm_exe.exIndex = bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0xFF;
-                    bgm_exe.exEntry = bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numStart;
-
-                    if (bgm_exe.nowSeamless == 0) {
-                        ADX_Stop();
-                    }
-
-                    bgm_enter_seamless_playback();
-                }
-            } else {
-                bgm_seamless_clear();
-
-                bgm_start_current_track();
-            }
+            bgm_start_for_fade_in();
 
             bgm_resume_if_paused();
 
