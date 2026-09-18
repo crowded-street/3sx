@@ -102,6 +102,12 @@ void count_cont_main() {
     counter_write(counter_color);
 }
 
+static void write_counter_unless_trans() {
+    if (No_Trans == 0) {
+        counter_write(counter_color);
+    }
+}
+
 static void step_counter_flash() {
     if (flash_r_num) {
         if (Counter_hi == 10 && Counter_low == hoji_counter) {
@@ -135,9 +141,7 @@ static void tick_counter_second() {
 
 void counter_control() {
     if (Counter_hi == 0) {
-        if (No_Trans == 0) {
-            counter_write(counter_color);
-        }
+        write_counter_unless_trans();
         return;
     }
 
@@ -146,18 +150,14 @@ void counter_control() {
     if (Counter_low != 0) {
         Counter_low -= 1;
 
-        if (No_Trans == 0) {
-            counter_write(counter_color);
-        }
+        write_counter_unless_trans();
 
         return;
     }
 
     tick_counter_second();
 
-    if (No_Trans == 0) {
-        counter_write(counter_color);
-    }
+    write_counter_unless_trans();
 }
 
 void counter_write(u8 atr) {
