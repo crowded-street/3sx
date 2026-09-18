@@ -1053,23 +1053,12 @@ void sa_gauge_trans(s8 pl_kind) {
         if (spg_work >= spg_dat[pl_kind].current_spg) {
             if (spg_dat[pl_kind].current_spg >= (spg_work - 8)) {
                 spg_offset = spg_dat[pl_kind].current_spg - (i * 8);
-                scfont_put2((&spg_dat[pl_kind].spgptbl_ptr[spg_number])[16 - len],
-                            26,
-                            spg_dat[pl_kind].spgcol_number,
-                            0,
-                            sa_char_ptr[spg_offset],
-                            11);
+                scfont_put2(&(ScFontCell){ (&spg_dat[pl_kind].spgptbl_ptr[spg_number])[16 - len], 26, spg_dat[pl_kind].spgcol_number, 0, sa_char_ptr[spg_offset], 11 });
             } else {
-                scfont_put2((&spg_dat[pl_kind].spgptbl_ptr[spg_number])[16 - len],
-                            26,
-                            spg_dat[pl_kind].spgcol_number,
-                            0,
-                            0,
-                            11);
+                scfont_put2(&(ScFontCell){ (&spg_dat[pl_kind].spgptbl_ptr[spg_number])[16 - len], 26, spg_dat[pl_kind].spgcol_number, 0, 0, 11 });
             }
         } else {
-            scfont_put2(
-                (&spg_dat[pl_kind].spgptbl_ptr[spg_number])[16 - len], 26, spg_dat[pl_kind].spgcol_number, 0, 8, 11);
+            scfont_put2(&(ScFontCell){ (&spg_dat[pl_kind].spgptbl_ptr[spg_number])[16 - len], 26, spg_dat[pl_kind].spgcol_number, 0, 8, 11 });
         }
 
         spg_number++;
@@ -1130,7 +1119,7 @@ void sa_waku_trans(s8 Stpl_Num, s8 Spg_Col) {
 
     if (Stpl_Num == 0) {
         for (lpy = 0; lpy < spg_dat[0].spg_len; lpy++) {
-            scfont_put2(lpy + 6, 27, sa_color_data2_tbl[Spg_Col][0], 0, 15, 12);
+            scfont_put2(&(ScFontCell){ lpy + 6, 27, sa_color_data2_tbl[Spg_Col][0], 0, 15, 12 });
         }
 
         if (cmd_sel[0] == 0 && no_sa[0] == 0) {
@@ -1144,7 +1133,7 @@ void sa_waku_trans(s8 Stpl_Num, s8 Spg_Col) {
     }
 
     for (lpy = 0; lpy < spg_dat[1].spg_len; lpy++) {
-        scfont_put2(41 - lpy, 27, sa_color_data2_tbl[Spg_Col][1], 0, 15, 12);
+        scfont_put2(&(ScFontCell){ 41 - lpy, 27, sa_color_data2_tbl[Spg_Col][1], 0, 15, 12 });
     }
 
     if (cmd_sel[1] == 0 && no_sa[1] == 0) {

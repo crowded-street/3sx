@@ -270,9 +270,7 @@ static void write_sa_frame_range(u8 first, u8 limit) {
     for (j = 0; j < 3; j++) {
         for (i = first; i < limit; i++) {
             if (sa_frame[j][i].atr != 0) {
-                scfont_put(
-                    i, j + 25, sa_frame[j][i].atr, sa_frame[j][i].page, sa_frame[j][i].cx, sa_frame[j][i].cy, 2
-                );
+                scfont_put(&(ScFontCell){ i, j + 25, sa_frame[j][i].atr, sa_frame[j][i].page, sa_frame[j][i].cx, sa_frame[j][i].cy }, 2);
             }
         }
     }
@@ -631,7 +629,14 @@ void SSPutDec3(u16 x, u16 y, u8 atr, s16 dec, u8 size, u8 gr, u16 priority) {
     }
 }
 
-void scfont_put(u16 x, u16 y, u8 atr, u8 page, u8 cx, u8 cy, u16 priority) {
+void scfont_put(const ScFontCell* c, u16 priority) {
+    u16 x = c->x;
+    u16 y = c->y;
+    u8 atr = c->atr;
+    u8 page = c->page;
+    u8 cx = c->cx;
+    u8 cy = c->cy;
+
     s32 u;
     s32 v;
 
@@ -672,7 +677,14 @@ void scfont_put(u16 x, u16 y, u8 atr, u8 page, u8 cx, u8 cy, u16 priority) {
     njDrawSprite(scrscrntex, 4, page, 1);
 }
 
-void scfont_put2(u16 x, u16 y, u8 atr, u8 page, u8 cx, u8 cy) {
+void scfont_put2(const ScFontCell* c) {
+    u16 x = c->x;
+    u16 y = c->y;
+    u8 atr = c->atr;
+    u8 page = c->page;
+    u8 cx = c->cx;
+    u8 cy = c->cy;
+
     sa_frame[y - 25][x].atr = atr;
     sa_frame[y - 25][x].page = page;
     sa_frame[y - 25][x].cx = cx;
@@ -1164,19 +1176,19 @@ void silver_stun_put(u8 Pl_Num, s16 len) {
 
 void sa_stock_trans(s16 St_Num, s16 Spg_Col, s8 Stpl_Num) {
     if (Stpl_Num == 0) {
-        scfont_put2(3, 25, sa_color_data_tbl[Spg_Col], 2, St_Num + 21, 4);
-        scfont_put2(3, 26, sa_color_data_tbl[Spg_Col], 2, St_Num + 21, 5);
+        scfont_put2(&(ScFontCell){ 3, 25, sa_color_data_tbl[Spg_Col], 2, St_Num + 21, 4 });
+        scfont_put2(&(ScFontCell){ 3, 26, sa_color_data_tbl[Spg_Col], 2, St_Num + 21, 5 });
     } else {
-        scfont_put2(44, 25, sa_color_data_tbl[Spg_Col], 2, St_Num + 21, 4);
-        scfont_put2(44, 26, sa_color_data_tbl[Spg_Col], 2, St_Num + 21, 5);
+        scfont_put2(&(ScFontCell){ 44, 25, sa_color_data_tbl[Spg_Col], 2, St_Num + 21, 4 });
+        scfont_put2(&(ScFontCell){ 44, 26, sa_color_data_tbl[Spg_Col], 2, St_Num + 21, 5 });
     }
 }
 
 void sa_fullstock_trans(s16 St_Num, s16 Spg_Col, s8 Stpl_Num) {
     if (Stpl_Num == 0) {
-        scfont_put2(1, 26, sa_color_data_tbl[Spg_Col], 2, St_Num + 21, 6);
+        scfont_put2(&(ScFontCell){ 1, 26, sa_color_data_tbl[Spg_Col], 2, St_Num + 21, 6 });
     } else {
-        scfont_put2(46, 26, sa_color_data_tbl[Spg_Col], 2, St_Num + 21, 7);
+        scfont_put2(&(ScFontCell){ 46, 26, sa_color_data_tbl[Spg_Col], 2, St_Num + 21, 7 });
     }
 }
 
@@ -1235,9 +1247,7 @@ void sc_ram_to_vram_opc(s8 sc_num, s8 x, s8 y, u16 atr) {
     loop = *sc_uv_ptr++;
 
     for (i = 0; i < loop; i++) {
-        scfont_put(
-            sc_pos_ptr[0] + x, sc_pos_ptr[1] + y, atr, sa_ram_vram_col[sc_num][1], sc_uv_ptr[0], sc_uv_ptr[1], 3
-        );
+        scfont_put(&(ScFontCell){ sc_pos_ptr[0] + x, sc_pos_ptr[1] + y, atr, sa_ram_vram_col[sc_num][1], sc_uv_ptr[0], sc_uv_ptr[1] }, 3);
         sc_uv_ptr += 2;
         sc_pos_ptr += 2;
     }

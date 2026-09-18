@@ -62,8 +62,17 @@ void SSPutStr_Bigger(u16 x, u16 y, u8 atr, const char* str, f32 sc, u8 gr, u16 p
 void SSPutDec(u16 x, u16 y, u8 atr, u8 dec, u8 size);
 void SSPutDec3(u16 x, u16 y, u8 atr, s16 dec, u8 size, u8 gr, u16 priority);
 void scfont_sqput3(u16 x, u16 y, u8 atr, u8 page, u16 cx1, u16 cy1, u16 cx2, u16 cy2, u8 gr, u16 priority);
-void scfont_put(u16 x, u16 y, u8 atr, u8 page, u8 cx, u8 cy, u16 priority);
-void scfont_put2(u16 x, u16 y, u8 atr, u8 page, u8 cx, u8 cy);
+typedef struct {
+    u16 x;
+    u16 y;
+    u8 atr;
+    u8 page;
+    u8 cx;
+    u8 cy;
+} ScFontCell;
+
+void scfont_put(const ScFontCell* c, u16 priority);
+void scfont_put2(const ScFontCell* c);
 void scfont_sqput(u16 x, u16 y, u8 atr, u8 page, u8 cx1, u8 cy1, u8 cx2, u8 cy2, u16 priority);
 void scfont_sqput2(u16 x, u16 y, u8 atr, u8 inverse, u8 page, u8 cx1, u8 cy1, u8 cx2, u8 cy2);
 void sc_clear(u16 sposx, u16 sposy, u16 eposx, u16 eposy);

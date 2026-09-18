@@ -173,10 +173,10 @@ void counter_write(u8 atr) {
 
 void bcounter_write() {
     if (!No_Trans) {
-        scfont_put(21, 4, 0x8F, 2, 20, 6, TopHUDPriority);
+        scfont_put(&(ScFontCell){ 21, 4, 0x8F, 2, 20, 6 }, TopHUDPriority);
         scfont_sqput(22, 2, 15, 2, math_counter_hi << 1, 6, 2, 3, TopHUDPriority);
         scfont_sqput(24, 2, 15, 2, math_counter_low << 1, 6, 2, 3, TopHUDPriority);
-        scfont_put(26, 4, 15, 2, 20, 6, TopHUDPriority);
+        scfont_put(&(ScFontCell){ 26, 4, 15, 2, 20, 6 }, TopHUDPriority);
     }
 }
 

@@ -247,10 +247,10 @@ void player_face() {
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    scfont_put(5, 3, 1, 0, 0, 19, TopHUDPriority);
-    scfont_put(5, 4, 1, 0, 0, 20, TopHUDPriority);
-    scfont_put(42, 3, 129, 0, 0, 19, TopHUDPriority);
-    scfont_put(42, 4, 129, 0, 0, 20, TopHUDPriority);
+    scfont_put(&(ScFontCell){ 5, 3, 1, 0, 0, 19 }, TopHUDPriority);
+    scfont_put(&(ScFontCell){ 5, 4, 1, 0, 0, 20 }, TopHUDPriority);
+    scfont_put(&(ScFontCell){ 42, 3, 129, 0, 0, 19 }, TopHUDPriority);
+    scfont_put(&(ScFontCell){ 42, 4, 129, 0, 0, 20 }, TopHUDPriority);
 
     if (Play_Type == 0) {
         return;

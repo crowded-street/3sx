@@ -137,19 +137,19 @@ void combo_pts_set(u8 pl, u8 x, u8 num, s8* pts, s8 digit) {
             return;
         }
 
-        scfont_put(x + 2, 11, 8, 0, 6, 13, 2);
+        scfont_put(&(ScFontCell){ x + 2, 11, 8, 0, 6, 13 }, 2);
 
         if (num < digit + 4) {
             return;
         }
 
-        scfont_put(x + 3, 11, 8, 0, 7, 13, 2);
+        scfont_put(&(ScFontCell){ x + 3, 11, 8, 0, 7, 13 }, 2);
 
     } else {
-        scfont_put(x, 11, 8, 0, 7, 13, 2);
+        scfont_put(&(ScFontCell){ x, 11, 8, 0, 7, 13 }, 2);
 
         if (num > 1) {
-            scfont_put(x - 1, 11, 8, 0, 6, 13, 2);
+            scfont_put(&(ScFontCell){ x - 1, 11, 8, 0, 6, 13 }, 2);
         }
 
         if (num > 2) {
@@ -196,5 +196,5 @@ void naming_set(u8 pl, s16 place, u16 atr, u16 chr) {
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    scfont_put(place + 13 + (pl * 27), 0, atr, 0, rankname_pos_tbl[chr][0], rankname_pos_tbl[chr][1], 2);
+    scfont_put(&(ScFontCell){ place + 13 + (pl * 27), 0, atr, 0, rankname_pos_tbl[chr][0], rankname_pos_tbl[chr][1] }, 2);
 }
