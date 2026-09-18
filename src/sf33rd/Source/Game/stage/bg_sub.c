@@ -430,6 +430,18 @@ void chase_start_check() {
     chase_y_start_check();
 }
 
+static s32 chase_x_step_ended() {
+    chase_time_x -= 1;
+
+    if (chase_time_x > 0) {
+        bg_mvxy.a[0].sp += bg_mvxy.d[0].sp;
+        bgw_ptr->chase_xy[0].cal += bg_mvxy.a[0].sp;
+        return 0;
+    }
+
+    return 1;
+}
+
 static void chase_x_move() {
     if (!(bg_w.chase_flag & 0xF)) {
         return;
@@ -437,37 +449,27 @@ static void chase_x_move() {
 
     bg_w.bg2_sp_x2 = bg_w.bg2_sp_x = 0;
 
-        if (bg_w.chase_flag & 1) {
-            chase_time_x -= 1;
+    if (bg_w.chase_flag & 1) {
+        chase_x_step_ended();
+    }
 
-            if (chase_time_x > 0) {
-                bg_mvxy.a[0].sp += bg_mvxy.d[0].sp;
-                bgw_ptr->chase_xy[0].cal += bg_mvxy.a[0].sp;
-            }
+    if (bg_w.chase_flag & 2) {
+        if (chase_x_step_ended()) {
+            bg_w.chase_flag &= ~0xF;
+            bg_w.old_chase_flag &= ~0xF;
+            bgw_ptr->chase_xy[0].disp.pos = chase_x;
         }
+    }
 
-        if (bg_w.chase_flag & 2) {
-            chase_time_x -= 1;
+    if (bgw_ptr->chase_xy[0].disp.pos > bgw_ptr->r_limit2) {
+        bgw_ptr->chase_xy[0].disp.pos = bgw_ptr->r_limit2;
+        bgw_ptr->chase_xy[0].disp.low = 0;
+    }
 
-            if (chase_time_x > 0) {
-                bg_mvxy.a[0].sp += bg_mvxy.d[0].sp;
-                bgw_ptr->chase_xy[0].cal += bg_mvxy.a[0].sp;
-            } else {
-                bg_w.chase_flag &= ~0xF;
-                bg_w.old_chase_flag &= ~0xF;
-                bgw_ptr->chase_xy[0].disp.pos = chase_x;
-            }
-        }
-
-        if (bgw_ptr->chase_xy[0].disp.pos > bgw_ptr->r_limit2) {
-            bgw_ptr->chase_xy[0].disp.pos = bgw_ptr->r_limit2;
-            bgw_ptr->chase_xy[0].disp.low = 0;
-        }
-
-        if (bgw_ptr->chase_xy[0].disp.pos < bgw_ptr->l_limit2) {
-            bgw_ptr->chase_xy[0].disp.pos = bgw_ptr->l_limit2;
-            bgw_ptr->chase_xy[0].disp.low = 0;
-        }
+    if (bgw_ptr->chase_xy[0].disp.pos < bgw_ptr->l_limit2) {
+        bgw_ptr->chase_xy[0].disp.pos = bgw_ptr->l_limit2;
+        bgw_ptr->chase_xy[0].disp.low = 0;
+    }
 
     bg_w.bg2_sp_x = bg_w.bg2_sp_x2 = bgw_ptr->chase_xy[0].disp.pos - bgw_ptr->pos_x_work;
 }
