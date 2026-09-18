@@ -63,32 +63,115 @@ s32 palFormConv;
 const u16 hitmark_color[128];
 const col_file_data color_file[161];
 
+// State 0: skip the read entirely when the sound bank this request names is
+// already the one loaded. Returns 1 where the original fell through into state
+// 1, and 0 where it broke out of the dispatch.
+static s32 begin_color_file_request(LoadRequest* curr, col_file_data* cfn) {
+    if (fsCheckCommandExecuting()) {
+        return 0;
+    }
+
+    if (cfn->type == 10) {
+        if (cfn->data + 1 == cseGetIdStoredBd(curr->id + 1)) {
+            LDREQ_SetResultFlag(curr, true);
+            curr->status = LDREQ_STATUS_FREE;
+            return 0;
+        }
+    }
+
+    curr->rno = 1;
+    curr->fnum = cfn->apfn;
+
+    if (cfn->apfn == 0xFFFF) {
+        LDREQ_SetResultFlag(curr, true);
+        curr->status = LDREQ_STATUS_FREE;
+    }
+
+    return 1;
+}
+
+static void request_color_file_read(LoadRequest* curr) {
+    s32 err;
+
+    err = fsRequestFileRead(Get_ramcnt_pointer(curr->key));
+
+    if (err == 0) {
+        Push_ramcnt_key(curr->key);
+        fsClose();
+        curr->rno = 0;
+    } else {
+        curr->rno = 4;
+        curr->status = LDREQ_STATUS_RUNNING;
+    }
+}
+
+// State 4: poll the read. A sound bank goes to the SPU and waits in state 5;
+// anything else is a colour file and is converted here and then.
+static void collect_color_file_read(LoadRequest* curr, col_file_data* cfn) {
+    switch (fsCheckFileReaded()) {
+    case FS_READ_IDLE:
+        if (cfn->type == 10) {
+            fsClose();
+
+            cseSendBd2SpuWithId(
+                Get_ramcnt_pointer(curr->key),
+                Get_size_data_ramcnt_key(curr->key),
+                curr->id + 1,
+                cfn->data + 1
+            );
+
+            curr->rno = 5;
+        } else {
+            init_trans_color_ram(curr->id, curr->key, cfn->type, cfn->data);
+            fsClose();
+            LDREQ_SetResultFlag(curr, true);
+            curr->status = LDREQ_STATUS_FREE;
+        }
+
+        break;
+
+    case FS_READ_READING:
+        // Do nothing
+        break;
+
+    case FS_READ_ERROR:
+        Push_ramcnt_key(curr->key);
+        fsClose();
+        curr->status = LDREQ_STATUS_IDLE;
+        curr->rno = 0;
+        break;
+    }
+}
+
+// The two states after the read has been asked for. Reached from
+// q_ldreq_color_data's default, with the original state numbers kept; nothing
+// falls into state 4, because state 3 ends in a break.
+static void q_ldreq_color_data_read(LoadRequest* curr, col_file_data* cfn) {
+    switch (curr->rno) {
+    case 4:
+        collect_color_file_read(curr, cfn);
+        break;
+
+    case 5:
+        Push_ramcnt_key(curr->key);
+        cseMemMapSetPhdAddr(curr->id + 1, csePHDDataTable[cfn->data + 1]);
+        cseTsbSetBankAddr(curr->id + 1, cseTSBDataTable[cfn->data + 1]);
+        sdbd[curr->id + 1] = (s8*)cseTSBDataTable[cfn->data + 1];
+        LDREQ_SetResultFlag(curr, true);
+        curr->status = LDREQ_STATUS_FREE;
+        break;
+    }
+}
+
 void q_ldreq_color_data(LoadRequest* curr) {
     col_file_data* cfn;
-    s32 err;
 
     cfn = (col_file_data*)&color_file[curr->ix];
 
     switch (curr->rno) {
     case 0:
-        if (fsCheckCommandExecuting()) {
+        if (!begin_color_file_request(curr, cfn)) {
             break;
-        }
-
-        if (cfn->type == 10) {
-            if (cfn->data + 1 == cseGetIdStoredBd(curr->id + 1)) {
-                LDREQ_SetResultFlag(curr, true);
-                curr->status = LDREQ_STATUS_FREE;
-                break;
-            }
-        }
-
-        curr->rno = 1;
-        curr->fnum = cfn->apfn;
-
-        if (cfn->apfn == 0xFFFF) {
-            LDREQ_SetResultFlag(curr, true);
-            curr->status = LDREQ_STATUS_FREE;
         }
 
         /* fallthrough */
@@ -110,63 +193,11 @@ void q_ldreq_color_data(LoadRequest* curr) {
         /* fallthrough */
 
     case 3:
-        err = fsRequestFileRead(Get_ramcnt_pointer(curr->key));
-
-        if (err == 0) {
-            Push_ramcnt_key(curr->key);
-            fsClose();
-            curr->rno = 0;
-        } else {
-            curr->rno = 4;
-            curr->status = LDREQ_STATUS_RUNNING;
-        }
-
+        request_color_file_read(curr);
         break;
 
-    case 4:
-        switch (fsCheckFileReaded()) {
-        case FS_READ_IDLE:
-            if (cfn->type == 10) {
-                fsClose();
-
-                cseSendBd2SpuWithId(
-                    Get_ramcnt_pointer(curr->key),
-                    Get_size_data_ramcnt_key(curr->key),
-                    curr->id + 1,
-                    cfn->data + 1
-                );
-
-                curr->rno = 5;
-            } else {
-                init_trans_color_ram(curr->id, curr->key, cfn->type, cfn->data);
-                fsClose();
-                LDREQ_SetResultFlag(curr, true);
-                curr->status = LDREQ_STATUS_FREE;
-            }
-
-            break;
-
-        case FS_READ_READING:
-            // Do nothing
-            break;
-
-        case FS_READ_ERROR:
-            Push_ramcnt_key(curr->key);
-            fsClose();
-            curr->status = LDREQ_STATUS_IDLE;
-            curr->rno = 0;
-            break;
-        }
-
-        break;
-
-    case 5:
-        Push_ramcnt_key(curr->key);
-        cseMemMapSetPhdAddr(curr->id + 1, csePHDDataTable[cfn->data + 1]);
-        cseTsbSetBankAddr(curr->id + 1, cseTSBDataTable[cfn->data + 1]);
-        sdbd[curr->id + 1] = (s8*)cseTSBDataTable[cfn->data + 1];
-        LDREQ_SetResultFlag(curr, true);
-        curr->status = LDREQ_STATUS_FREE;
+    default:
+        q_ldreq_color_data_read(curr, cfn);
         break;
     }
 }
@@ -199,183 +230,202 @@ void set_hitmark_color() {
     palUpdateGhostCP3(31, 1);
 }
 
-void init_trans_color_ram(s16 id, s16 key, u8 type, u16 data) {
+// The default character's file carries a page per shade, so each is converted
+// into its own slot and the six extra pages follow behind them.
+static void spread_player_shading_pages(s16 id) {
+    s16 i;
+    s16 j;
+
+    for (i = 0; i < 64; i++) {
+        ColorRAM[id * 16][i] = palConvSrcToRam(plcol[id]->col[0][Player_Color[id]][i]);
+        ColorRAM[(id * 16) + 8][i] = palConvSrcToRam(plcol[id]->col[1][Player_Color[id]][i]);
+    }
+
+    for (i = 0; i < 6; i++) {
+        for (j = 0; j < 64; j++) {
+            ColorRAM[i + ((id * 16) + 1)][j] = palConvSrcToRam(plcol[id]->col[0][i + 16][j]);
+            ColorRAM[i + ((id * 16) + 9)][j] = palConvSrcToRam(plcol[id]->col[1][i + 16][j]);
+        }
+    }
+}
+
+// Any other character has one bank, written to both the slot and its +512
+// mirror in one pass.
+static void mirror_player_shading_pages(s16 id) {
     u16* ldadrs;
     u16* tradrs;
     s16 i;
-    s16 j;
+
+    tradrs = (u16*)plcol[id]->col[0][Player_Color[id]];
+    ldadrs = (u16*)ColorRAM[id * 16];
+    for (i = 0; i < 64; i++) {
+        ldadrs[i] = ldadrs[i + 512] = palConvSrcToRam(tradrs[i]);
+    }
+    ldadrs += 64;
+    tradrs = (u16*)plcol[id]->col[0][16];
+    for (i = 0; i < 384; i++) {
+        ldadrs[i] = ldadrs[i + 512] = palConvSrcToRam(tradrs[i]);
+    }
+}
+
+// Type 1 is a player's own colour file: the two shading banks, the six extra
+// pages behind them, and the 256-entry tail that goes to a fixed page per side.
+static void load_player_color_file(s16 id, s16 key) {
+    u16* ldadrs;
+    u16* tradrs;
+    s16 i;
+
+    plcol[id] = Get_ramcnt_pointer(key);
+    if (My_char[id] == 0) {
+        spread_player_shading_pages(id);
+    } else {
+        mirror_player_shading_pages(id);
+    }
+
+    tradrs = plcol[id]->col[0][22];
+    if (id) {
+        ldadrs = ColorRAM[506];
+    } else {
+        ldadrs = ColorRAM[502];
+    }
+
+    for (i = 0; i < 256; i++) {
+        ldadrs[i] = palConvSrcToRam(tradrs[i]);
+    }
+
+    Push_ramcnt_key(key);
+    palUpdateGhostCP3(id * 16, 16);
+
+    if (id) {
+        palUpdateGhostCP3(506, 4);
+    } else {
+        palUpdateGhostCP3(502, 4);
+    }
+}
+
+// Type 2 is a flat run of entries dropped straight onto a page, with page 32
+// also seeding the transparent-mask page behind it.
+static void load_flat_color_file(s16 key, u16 data) {
+    u16* ldadrs;
+    u16* tradrs;
+    s16 i;
     s32 size;
 
+    size = Get_size_data_ramcnt_key(key);
+    size = size / 2;
+    tradrs = Get_ramcnt_pointer(key);
+    ldadrs = (u16*)&ColorRAM[data];
+
+    for (i = 0; i < size; i++) {
+        ldadrs[i] = palConvSrcToRam(tradrs[i]);
+    }
+
+    Push_ramcnt_key(key);
+    if (data == 32) {
+        ColorRAM[511][0] = 0;
+        for (i = 1; i < 64; i++) {
+            ColorRAM[511][i] = 0x8000;
+        }
+    }
+
+    palUpdateGhostCP3(data, size / 64);
+}
+
+// id 2 means both players at once, each taking both of its banks from source
+// bank 0 at its own colour.
+static void copy_both_metamor_banks(COL_x1000* dadr) {
+    s16 i;
+
+    for (i = 0; i < 64; i++) {
+        hi_meta[0][0][i] = dadr->col[0][Player_Color[0]][i];
+        hi_meta[0][1][i] = dadr->col[0][Player_Color[0]][i];
+        hi_meta[1][0][i] = dadr->col[0][Player_Color[1]][i];
+        hi_meta[1][1][i] = dadr->col[0][Player_Color[1]][i];
+    }
+}
+
+// Both arms of the one-player case fill the same two metamorphosis banks and
+// differ in a single value: which source bank the second one is taken from.
+static void copy_metamor_banks(s16 id, COL_x1000* dadr, s16 second_bank) {
+    s16 i;
+
+    for (i = 0; i < 64; i++) {
+        hi_meta[id][0][i] = dadr->col[0][Player_Color[id]][i];
+        hi_meta[id][1][i] = dadr->col[second_bank][Player_Color[id]][i];
+    }
+}
+
+// Type 3 fills the metamorphosis source banks. id 2 means both players at once
+// off player 0's bank; otherwise the second bank is taken only when the other
+// player is on the default character.
+static void load_metamor_color_file(s16 id, s16 key) {
+    s16 i;
+
+    COL_x1000* dadr = Get_ramcnt_pointer(key);
+    if (id == 2) {
+        copy_both_metamor_banks(dadr);
+        metamor_color_store(0);
+        metamor_color_store(1);
+    } else {
+        if ((My_char[(id + 1) & 1]) == 0) {
+            copy_metamor_banks(id, dadr, 1);
+        } else {
+            copy_metamor_banks(id, dadr, 0);
+        }
+
+        metamor_color_store(id);
+    }
+    Push_ramcnt_key(key);
+}
+
+// Type 7 takes one 16-entry row per player, each indexed by that player's
+// character and colour, onto the adjacent pages 40 and 41.
+static void load_both_players_meter_color(s16 key) {
+    u16* ldadrs;
+    u16* tradrs;
+    s16 i;
+
+    COL_x2800* adrs = Get_ramcnt_pointer(key);
+    ldadrs = (u16*)&ColorRAM[40];
+    tradrs = (u16*)&ColorRAM[41];
+
+    for (i = 0; i < 16; i++) {
+        ldadrs[i] = palConvSrcToRam(adrs->col[My_char[0]][Player_Color[0]][i]);
+        tradrs[i] = palConvSrcToRam(adrs->col[My_char[1]][Player_Color[1]][i]);
+    }
+
+    Push_ramcnt_key(key);
+    palUpdateGhostCP3(40, 2);
+}
+
+// Types 4, 5 and 6 all fill a colour page and its +8 mirror from the same
+// source run, differing only in how many entries that is. The count stays
+// unsigned at each call site so the loop comparison promotes as it did.
+static void copy_palette_pair(s16 id, u16 data, const u16* src, u32 count) {
+    s16 i;
+    u16* dst = (u16*)&ColorRAM[data + (id * 16)][0];
+
+    for (i = 0; i < count; i++) {
+        dst[i] = palConvSrcToRam(src[i]);
+    }
+
+    dst = (u16*)&ColorRAM[data + (id * 16) + 8][0];
+
+    for (i = 0; i < count; i++) {
+        dst[i] = palConvSrcToRam(src[i]);
+    }
+}
+
+// The meter row, the two sound-bank uploads, and the three types that do
+// nothing. Reached from init_trans_color_ram's default so the labels below are
+// the original numbers - a type named in neither switch still does nothing, as
+// it did when there was no default at all.
+static void init_trans_color_ram_late(s16 id, s16 key, u8 type, u16 data) {
     switch (type) {
-    case 1:
-        plcol[id] = Get_ramcnt_pointer(key);
-        if (My_char[id] == 0) {
-            for (i = 0; i < 64; i++) {
-                ColorRAM[id * 16][i] = palConvSrcToRam(plcol[id]->col[0][Player_Color[id]][i]);
-                ColorRAM[(id * 16) + 8][i] = palConvSrcToRam(plcol[id]->col[1][Player_Color[id]][i]);
-            }
-
-            for (i = 0; i < 6; i++) {
-                for (j = 0; j < 64; j++) {
-                    ColorRAM[i + ((id * 16) + 1)][j] = palConvSrcToRam(plcol[id]->col[0][i + 16][j]);
-                    ColorRAM[i + ((id * 16) + 9)][j] = palConvSrcToRam(plcol[id]->col[1][i + 16][j]);
-                }
-            }
-        } else {
-
-            tradrs = (u16*)plcol[id]->col[0][Player_Color[id]];
-            ldadrs = (u16*)ColorRAM[id * 16];
-            for (i = 0; i < 64; i++) {
-                ldadrs[i] = ldadrs[i + 512] = palConvSrcToRam(tradrs[i]);
-            }
-            ldadrs += 64;
-            tradrs = (u16*)plcol[id]->col[0][16];
-            for (i = 0; i < 384; i++) {
-                ldadrs[i] = ldadrs[i + 512] = palConvSrcToRam(tradrs[i]);
-            }
-        }
-
-        tradrs = plcol[id]->col[0][22];
-        if (id) {
-            ldadrs = ColorRAM[506];
-        } else {
-            ldadrs = ColorRAM[502];
-        }
-
-        for (i = 0; i < 256; i++) {
-            ldadrs[i] = palConvSrcToRam(tradrs[i]);
-        }
-
-        Push_ramcnt_key(key);
-        palUpdateGhostCP3(id * 16, 16);
-
-        if (id) {
-            palUpdateGhostCP3(506, 4);
-        } else {
-            palUpdateGhostCP3(502, 4);
-        }
+    case 7:
+        load_both_players_meter_color(key);
         break;
 
-    case 2:
-        size = Get_size_data_ramcnt_key(key);
-        size = size / 2;
-        tradrs = Get_ramcnt_pointer(key);
-        ldadrs = (u16*)&ColorRAM[data];
-
-        for (i = 0; i < size; i++) {
-            ldadrs[i] = palConvSrcToRam(tradrs[i]);
-        }
-
-        Push_ramcnt_key(key);
-        if (data == 32) {
-            ColorRAM[511][0] = 0;
-            for (i = 1; i < 64; i++) {
-                ColorRAM[511][i] = 0x8000;
-            }
-        }
-
-        palUpdateGhostCP3(data, size / 64);
-        break;
-    case 3: {
-        COL_x1000* dadr = Get_ramcnt_pointer(key);
-        if (id == 2) {
-            for (i = 0; i < 64; i++) {
-                hi_meta[0][0][i] = dadr->col[0][Player_Color[0]][i];
-                hi_meta[0][1][i] = dadr->col[0][Player_Color[0]][i];
-                hi_meta[1][0][i] = dadr->col[0][Player_Color[1]][i];
-                hi_meta[1][1][i] = dadr->col[0][Player_Color[1]][i];
-            }
-
-            metamor_color_store(0);
-            metamor_color_store(1);
-        } else {
-            if ((My_char[(id + 1) & 1]) == 0) {
-                for (i = 0; i < 64; i++) {
-                    hi_meta[id][0][i] = dadr->col[0][Player_Color[id]][i];
-                    hi_meta[id][1][i] = dadr->col[1][Player_Color[id]][i];
-                }
-            } else {
-                for (i = 0; i < 64; i++) {
-                    hi_meta[id][0][i] = dadr->col[0][Player_Color[id]][i];
-                    hi_meta[id][1][i] = dadr->col[0][Player_Color[id]][i];
-                }
-            }
-
-            metamor_color_store(id);
-        }
-        Push_ramcnt_key(key);
-        break;
-    }
-    case 4: {
-        COL_x80* adr = Get_ramcnt_pointer(key);
-        u16* src = (&adr[Player_Color[id]])->col;
-        u16* dst = (u16*)&ColorRAM[data + (id * 16)][0];
-
-        // these unsigned constants are here intentionally, otherwise wouldn't match.
-        for (i = 0; i < 64U; i++) {
-            dst[i] = palConvSrcToRam(src[i]);
-        }
-
-        dst = (u16*)&ColorRAM[data + (id * 16) + 8][0];
-        for (i = 0; i < 64U; i++) {
-            dst[i] = palConvSrcToRam(src[i]);
-        }
-
-        Push_ramcnt_key(key);
-        palUpdateGhostCP3(data + (id * 16), 1);
-        palUpdateGhostCP3(data + ((id * 16) + 8), 1);
-        break;
-    }
-    case 5: {
-        COL_x180* adr = Get_ramcnt_pointer(key);
-        u16* src = (&adr[Player_Color[id]])->col[0];
-        u16* dst = (u16*)&ColorRAM[data + (id * 16)][0];
-        for (i = 0; i < 192U; i++) {
-            dst[i] = palConvSrcToRam(src[i]);
-        }
-
-        dst = (u16*)&ColorRAM[data + (id * 16) + 8][0];
-        for (i = 0; i < 192U; i++) {
-            dst[i] = palConvSrcToRam(src[i]);
-        }
-
-        Push_ramcnt_key(key);
-        palUpdateGhostCP3((data) + (id * 16), 3);
-        palUpdateGhostCP3((data) + ((id * 16) + 8), 3);
-        break;
-    }
-    case 6: {
-        COL_x100* adr = Get_ramcnt_pointer(key);
-        u16* src = (&adr[Player_Color[id]])->col[0];
-        u16* dst = (u16*)&ColorRAM[data + (id * 16)][0];
-
-        for (i = 0; i < 128U; i++) {
-            dst[i] = palConvSrcToRam(src[i]);
-        }
-
-        dst = (u16*)&ColorRAM[data + (id * 16) + 8][0];
-        for (i = 0; i < 128U; i++) {
-            dst[i] = palConvSrcToRam(src[i]);
-        }
-        Push_ramcnt_key(key);
-        palUpdateGhostCP3(data + (id * 16), 2);
-        palUpdateGhostCP3((data) + ((id * 16) + 8), 2);
-        break;
-    }
-    case 7: {
-        COL_x2800* adrs = Get_ramcnt_pointer(key);
-        ldadrs = (u16*)&ColorRAM[40];
-        tradrs = (u16*)&ColorRAM[41];
-
-        for (i = 0; i < 16; i++) {
-            ldadrs[i] = palConvSrcToRam(adrs->col[My_char[0]][Player_Color[0]][i]);
-            tradrs[i] = palConvSrcToRam(adrs->col[My_char[1]][Player_Color[1]][i]);
-        }
-
-        Push_ramcnt_key(key);
-        palUpdateGhostCP3(40, 2);
-        break;
-    }
     case 8:
         cseSendBd2SpuWithId(Get_ramcnt_pointer(key), Get_size_data_ramcnt_key(key), 0, 0);
         Push_ramcnt_key(key);
@@ -392,6 +442,55 @@ void init_trans_color_ram(s16 id, s16 key, u8 type, u16 data) {
     case 0xb:
     case 0xc:
     case 0x61:
+        break;
+    }
+}
+
+void init_trans_color_ram(s16 id, s16 key, u8 type, u16 data) {
+    switch (type) {
+    case 1:
+        load_player_color_file(id, key);
+        break;
+
+    case 2:
+        load_flat_color_file(key, data);
+        break;
+    case 3:
+        load_metamor_color_file(id, key);
+        break;
+
+    case 4: {
+        COL_x80* adr = Get_ramcnt_pointer(key);
+        u16* src = (&adr[Player_Color[id]])->col;
+        // these unsigned constants are here intentionally, otherwise wouldn't match.
+        copy_palette_pair(id, data, src, 64U);
+
+        Push_ramcnt_key(key);
+        palUpdateGhostCP3(data + (id * 16), 1);
+        palUpdateGhostCP3(data + ((id * 16) + 8), 1);
+        break;
+    }
+    case 5: {
+        COL_x180* adr = Get_ramcnt_pointer(key);
+        u16* src = (&adr[Player_Color[id]])->col[0];
+        copy_palette_pair(id, data, src, 192U);
+
+        Push_ramcnt_key(key);
+        palUpdateGhostCP3((data) + (id * 16), 3);
+        palUpdateGhostCP3((data) + ((id * 16) + 8), 3);
+        break;
+    }
+    case 6: {
+        COL_x100* adr = Get_ramcnt_pointer(key);
+        u16* src = (&adr[Player_Color[id]])->col[0];
+        copy_palette_pair(id, data, src, 128U);
+        Push_ramcnt_key(key);
+        palUpdateGhostCP3(data + (id * 16), 2);
+        palUpdateGhostCP3((data) + ((id * 16) + 8), 2);
+        break;
+    }
+    default:
+        init_trans_color_ram_late(id, key, type, data);
         break;
     }
 }

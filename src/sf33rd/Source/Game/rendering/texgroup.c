@@ -32,70 +32,228 @@ TEX_GRP_LD texgrplds[100];
 // forward decls
 s32 load_any_texture_grpnum(u8 grp, u8 kokey);
 
+// A key already held by the other player's half of a shared group is promoted
+// to the both-players type. Types other than 3 and 4 are left alone.
+static void promote_shared_key_type(LoadRequest* curr) {
+    switch (rckey_work[curr->lds->key].type) {
+    case 3:
+        if (curr->id) {
+            rckey_work[curr->lds->key].type = 5;
+        }
+
+        break;
+
+    case 4:
+        if (curr->id == 0) {
+            rckey_work[curr->lds->key].type = 5;
+        }
+
+        break;
+
+    case 5:
+        break;
+    }
+}
+
+// The group is already resident, so the request is answered from what is there
+// rather than read again.
+static void claim_loaded_group(LoadRequest* curr, const TexGroupData* bsd) {
+    switch (bsd->mode) {
+    case TEXGROUP_MODE_CHARACTER:
+    case TEXGROUP_MODE_SHARED:
+        promote_shared_key_type(curr);
+
+        if (rckey_work[curr->lds->key].type == 5) {
+            LDREQ_SetResultFlag(curr, true);
+            curr->status = LDREQ_STATUS_FREE;
+        } else {
+            fatal_error("A duplicate transfer occurred. File number: %d", bsd->apfn);
+        }
+
+        break;
+
+    case TEXGROUP_MODE_NORMAL:
+        rckey_work[curr->lds->key].type = curr->kokey;
+        LDREQ_SetResultFlag(curr, true);
+        curr->status = LDREQ_STATUS_FREE;
+        break;
+    }
+}
+
+// State 0: claim the request, resolve its texture group, and decide whether the
+// group still has to be read off the AFS partition. Returns 1 where the
+// original fell through into state 1, and 0 where it broke out of the dispatch.
+static s32 open_texture_group_request(LoadRequest* curr, const TexGroupData* bsd) {
+    if (fsCheckCommandExecuting()) {
+        return 0;
+    }
+
+    curr->rno = 1;
+    curr->fnum = bsd->apfn;
+
+    if (bsd->apfn == -1) {
+        LDREQ_SetResultFlag(curr, true);
+        curr->status = LDREQ_STATUS_FREE;
+    }
+
+    if (bsd->num_of_1st == 0) {
+        curr->group = obj_group_table[bsd->num_of_1st + 1];
+    } else {
+        curr->group = obj_group_table[bsd->num_of_1st];
+    }
+
+    curr->lds = &texgrplds[curr->group];
+
+    if (curr->lds->ok) {
+        claim_loaded_group(curr, bsd);
+        return 0;
+    }
+
+    return 1;
+}
+
+// State 3: ask for the read. On refusal the key goes back and the request
+// restarts at state 0; nothing runs after the dispatch either way, so the
+// original's early return out of the whole function and this one agree.
+static void request_texture_group_read(LoadRequest* curr) {
+    const s32 err = fsRequestFileRead(Get_ramcnt_pointer(curr->key));
+
+    if (err == 0) {
+        Push_ramcnt_key(curr->key);
+        fsClose();
+        curr->rno = 0;
+        return;
+    }
+
+    curr->rno = 4;
+    curr->status = LDREQ_STATUS_RUNNING;
+}
+
+// Turn the 25 leading offsets into pointers, then the two per-character fixups
+// the PS2 data needs. Both of those are original behaviour and stay as they are.
+static void apply_ps2_char_data_offsets(LoadRequest* curr, CharInitData* dst, u8* ldchd) {
+    for (int i = 0; i < 25; i++) {
+        ((uintptr_t*)dst)[i] = (uintptr_t)ldchd + ((u32*)ldchd)[i];
+    }
+
+    // Q specific code
+    if (curr->ix == 18) {
+        dst->cbca[37] = dst->cbca[3];
+    }
+
+    // Akuma specific code
+    if (curr->ix == 15) {
+        u16* trsbas = (u16*)(((u32*)texgrplds[15].trans_table)[166] + texgrplds[15].trans_table);
+        const int count = *trsbas - 1;
+        *trsbas = count;
+        trsbas += 1;
+
+        TileMapEntry* trsptr = (TileMapEntry*)trsbas;
+        trsptr[0].x += trsptr[1].x;
+        trsptr[0].y += trsptr[1].y;
+        trsptr[0].attr = trsptr[1].attr;
+        trsptr[0].code = trsptr[1].code;
+
+        for (int i = 1; i < count; i++) {
+            trsptr[i] = trsptr[i + 1];
+        }
+    }
+}
+
+// The character init data sits behind the group's textures and has to be turned
+// from offsets into pointers, or replaced wholesale when the arcade balance is
+// on. Returns 0 where the original abandoned the whole request, 1 otherwise.
+static s32 unpack_character_init_data(LoadRequest* curr, const TexGroupData* bsd, u8* ldadr) {
+    u8* ldchd = ldadr + bsd->to_chd;
+
+    // Explanation:
+    //
+    // The code above loads a bunch of data from the AFS partition.
+    // This data includes character init data which starts at `ldchd`.
+    // Data at `ldchd` starts with 25 4-byte ints which are offsets
+    // from `ldchd` to the actual data.
+    //
+    // On PS2 it is okay to just add `ldchd` to each of these offsets
+    // to turn them into pointers, because a 4-byte int can hold a pointer.
+    // However on modern 64-bit platforms pointers are bigger, meaning we
+    // can't add `ldchd` to the offsets inplace. That's why we have to
+    // allocate a separate memory region for `cit` and compute the pointers
+    // that comprise it there.
+    //
+    // Because 25 is the number of members in CharInitData struct, `i` goes
+    // to 25 too.
+
+    const Character character_id = plt_req[curr->id];
+    CharInitData* dst = &char_init_data[plid_data[character_id]];
+
+    if (ArcadeBalance_IsEnabled()) {
+#if ARCADE_ROM
+        const size_t ps2_char_data_size = curr->size - bsd->to_chd;
+        const bool adapted = ArcadeCharData_Apply3SXRenderingConventions(character_id, ldchd, ps2_char_data_size);
+        const CharInitData* arcade_data = ArcadeCharData_Get(character_id);
+
+        SDL_assert(adapted && arcade_data != NULL);
+
+        if (!adapted || arcade_data == NULL) {
+            SDL_LogCritical(
+                SDL_LOG_CATEGORY_APPLICATION,
+                "Could not adapt arcade character data for character %d",
+                character_id
+            );
+            return 0;
+        }
+
+        SDL_copyp(dst, arcade_data);
+#endif
+    } else {
+        apply_ps2_char_data_offsets(curr, dst, ldchd);
+    }
+
+    parabora_own_table[character_id] = dst->prot;
+
+    return 1;
+}
+
+// State 4: poll the read and, once it lands, publish the group's tables and
+// unpack the character init data behind them.
+static void collect_texture_group_read(LoadRequest* curr, const TexGroupData* bsd) {
+    switch (fsCheckFileReaded()) {
+    case FS_READ_IDLE:
+        fsClose();
+        u8* ldadr = Get_ramcnt_pointer(curr->key);
+        curr->lds->texture_table = ldadr + bsd->to_tex;
+        curr->lds->trans_table = ldadr;
+        curr->lds->ok = 1;
+
+        if (bsd->mode == TEXGROUP_MODE_CHARACTER) {
+            if (!unpack_character_init_data(curr, bsd, ldadr)) {
+                return;
+            }
+        }
+
+        LDREQ_SetResultFlag(curr, true);
+        curr->status = LDREQ_STATUS_FREE;
+        break;
+
+    case FS_READ_READING:
+        // Do nothing
+        break;
+
+    case FS_READ_ERROR:
+        Push_ramcnt_key(curr->key);
+        fsClose();
+        curr->status = LDREQ_STATUS_IDLE;
+        curr->rno = 0;
+        break;
+    }
+}
+
 void q_ldreq_texture_group(LoadRequest* curr) {
     const TexGroupData* bsd = &texgrpdat[curr->ix];
 
     switch (curr->rno) {
     case 0:
-        if (fsCheckCommandExecuting()) {
-            break;
-        }
-
-        curr->rno = 1;
-        curr->fnum = bsd->apfn;
-
-        if (bsd->apfn == -1) {
-            LDREQ_SetResultFlag(curr, true);
-            curr->status = LDREQ_STATUS_FREE;
-        }
-
-        if (bsd->num_of_1st == 0) {
-            curr->group = obj_group_table[bsd->num_of_1st + 1];
-        } else {
-            curr->group = obj_group_table[bsd->num_of_1st];
-        }
-
-        curr->lds = &texgrplds[curr->group];
-
-        if (curr->lds->ok) {
-            switch (bsd->mode) {
-            case TEXGROUP_MODE_CHARACTER:
-            case TEXGROUP_MODE_SHARED:
-                switch (rckey_work[curr->lds->key].type) {
-                case 3:
-                    if (curr->id) {
-                        rckey_work[curr->lds->key].type = 5;
-                    }
-
-                    break;
-
-                case 4:
-                    if (curr->id == 0) {
-                        rckey_work[curr->lds->key].type = 5;
-                    }
-
-                    break;
-
-                case 5:
-                    break;
-                }
-
-                if (rckey_work[curr->lds->key].type == 5) {
-                    LDREQ_SetResultFlag(curr, true);
-                    curr->status = LDREQ_STATUS_FREE;
-                } else {
-                    fatal_error("A duplicate transfer occurred. File number: %d", bsd->apfn);
-                }
-
-                break;
-
-            case TEXGROUP_MODE_NORMAL:
-                rckey_work[curr->lds->key].type = curr->kokey;
-                LDREQ_SetResultFlag(curr, true);
-                curr->status = LDREQ_STATUS_FREE;
-                break;
-            }
-
+        if (!open_texture_group_request(curr, bsd)) {
             break;
         }
 
@@ -119,119 +277,11 @@ void q_ldreq_texture_group(LoadRequest* curr) {
         /* fallthrough */
 
     case 3:
-        const s32 err = fsRequestFileRead(Get_ramcnt_pointer(curr->key));
-
-        if (err == 0) {
-            Push_ramcnt_key(curr->key);
-            fsClose();
-            curr->rno = 0;
-            return;
-        }
-
-        curr->rno = 4;
-        curr->status = LDREQ_STATUS_RUNNING;
+        request_texture_group_read(curr);
         break;
 
     case 4:
-        switch (fsCheckFileReaded()) {
-        case FS_READ_IDLE:
-            fsClose();
-            u8* ldadr = Get_ramcnt_pointer(curr->key);
-            curr->lds->texture_table = ldadr + bsd->to_tex;
-            curr->lds->trans_table = ldadr;
-            curr->lds->ok = 1;
-
-            if (bsd->mode == TEXGROUP_MODE_CHARACTER) {
-                u8* ldchd = ldadr + bsd->to_chd;
-
-                // Explanation:
-                //
-                // The code above loads a bunch of data from the AFS partition.
-                // This data includes character init data which starts at `ldchd`.
-                // Data at `ldchd` starts with 25 4-byte ints which are offsets
-                // from `ldchd` to the actual data.
-                //
-                // On PS2 it is okay to just add `ldchd` to each of these offsets
-                // to turn them into pointers, because a 4-byte int can hold a pointer.
-                // However on modern 64-bit platforms pointers are bigger, meaning we
-                // can't add `ldchd` to the offsets inplace. That's why we have to
-                // allocate a separate memory region for `cit` and compute the pointers
-                // that comprise it there.
-                //
-                // Because 25 is the number of members in CharInitData struct, `i` goes
-                // to 25 too.
-
-                const Character character_id = plt_req[curr->id];
-                CharInitData* dst = &char_init_data[plid_data[character_id]];
-
-                if (ArcadeBalance_IsEnabled()) {
-#if ARCADE_ROM
-                    const size_t ps2_char_data_size = curr->size - bsd->to_chd;
-                    const bool adapted =
-                        ArcadeCharData_Apply3SXRenderingConventions(character_id, ldchd, ps2_char_data_size);
-                    const CharInitData* arcade_data = ArcadeCharData_Get(character_id);
-
-                    SDL_assert(adapted && arcade_data != NULL);
-
-                    if (!adapted || arcade_data == NULL) {
-                        SDL_LogCritical(
-                            SDL_LOG_CATEGORY_APPLICATION,
-                            "Could not adapt arcade character data for character %d",
-                            character_id
-                        );
-                        return;
-                    }
-
-                    SDL_copyp(dst, arcade_data);
-#endif
-                } else {
-                    for (int i = 0; i < 25; i++) {
-                        ((uintptr_t*)dst)[i] = (uintptr_t)ldchd + ((u32*)ldchd)[i];
-                    }
-
-                    // Q specific code
-                    if (curr->ix == 18) {
-                        dst->cbca[37] = dst->cbca[3];
-                    }
-
-                    // Akuma specific code
-                    if (curr->ix == 15) {
-                        u16* trsbas = (u16*)(((u32*)texgrplds[15].trans_table)[166] + texgrplds[15].trans_table);
-                        const int count = *trsbas - 1;
-                        *trsbas = count;
-                        trsbas += 1;
-
-                        TileMapEntry* trsptr = (TileMapEntry*)trsbas;
-                        trsptr[0].x += trsptr[1].x;
-                        trsptr[0].y += trsptr[1].y;
-                        trsptr[0].attr = trsptr[1].attr;
-                        trsptr[0].code = trsptr[1].code;
-
-                        for (int i = 1; i < count; i++) {
-                            trsptr[i] = trsptr[i + 1];
-                        }
-                    }
-                }
-
-                parabora_own_table[character_id] = dst->prot;
-            }
-
-            LDREQ_SetResultFlag(curr, true);
-            curr->status = LDREQ_STATUS_FREE;
-            break;
-
-        case FS_READ_READING:
-            // Do nothing
-            break;
-
-        case FS_READ_ERROR:
-            Push_ramcnt_key(curr->key);
-            fsClose();
-            curr->status = LDREQ_STATUS_IDLE;
-            curr->rno = 0;
-            break;
-        }
-
+        collect_texture_group_read(curr, bsd);
         break;
     }
 }
@@ -292,11 +342,10 @@ void purge_texture_group(u8 grp) {
     }
 }
 
-void purge_player_texture(s16 id) {
-    s16 emid;
+// Every key still held jointly by both players is handed to the other player
+// alone before this player's own keys go back.
+static void reassign_shared_select_keys(s16 emid) {
     s16 pkey;
-
-    emid = (id + 1) & 1;
 
     if ((pkey = Search_ramcnt_type(lpt_seldat[2])) != 0) {
         while (1) {
@@ -307,6 +356,10 @@ void purge_player_texture(s16 id) {
             }
         }
     }
+}
+
+static void push_player_select_keys(s16 id) {
+    s16 pkey;
 
     while (1) {
         pkey = Search_ramcnt_type(lpt_seldat[id]);
@@ -317,6 +370,15 @@ void purge_player_texture(s16 id) {
 
         Push_ramcnt_key(pkey);
     }
+}
+
+void purge_player_texture(s16 id) {
+    s16 emid;
+
+    emid = (id + 1) & 1;
+
+    reassign_shared_select_keys(emid);
+    push_player_select_keys(id);
 }
 
 s32 load_any_texture_patnum(u16 patnum, u8 kokey, u8 _unused) {

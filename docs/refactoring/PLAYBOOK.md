@@ -469,6 +469,76 @@ branch collapsed into one.
 
 ---
 
+## Recipe B - Shared Buffer Loop
+
+**Use when:** two or more loops walk a **caller-named buffer** up to a
+**caller-named length** and are otherwise identical character for character - so Recipe D
+refuses them for having two differences, and Recipe C finds no identical run because the
+buffer name sits in the `for`-init and the length in its condition.
+
+This is Recipe T with the `const` table replaced by an ordinary array. Recipe T's
+preconditions are written around a threshold scan over a static table, which is why a
+plain buffer needed its own entry rather than a relaxation.
+
+**Added 2026-09-18** under the project owner's standing authorisation, and measured on
+`texcash.c`'s `search_texcash_free_area`, whose 16- and 32-page halves count their free
+entries the same way:
+
+```c
+    for (mc = mts[ix].mltcsh16, i = 0; i < mts[ix].mltnum16; i++) {
+        if (mc[i].cs.code == -1) {
+            num++;
+        }
+    }
+```
+
+Two of those became
+
+```c
+    num = count_free_cash_entries(mts[ix].mltcsh16, mts[ix].mltnum16);
+```
+
+**8.81 -> 9.16**, cc 9 -> 5, and the function left both Complex Method and Bumpy Road.
+
+**Why this is not Recipe D's forbidden case.** The same argument that makes Recipe T safe:
+**both varying things are written out in full, in positional order, at their own call
+site**, so no pair can be crossed without the one call line showing it, and the loop moves
+once with nothing about it rewritten. The helper does with its parameters exactly what the
+loop did - it indexes the buffer and it bounds the count - and nothing else.
+
+**Preconditions, all of them:**
+
+- **The loop body is identical** across every instance apart from the buffer and the
+  length. If a subscript, a comparison operator or a statement differs anywhere, those
+  instances are not one family and Recipe D's refusal stands.
+- **Only the buffer and its length vary.** A third varying name - an index table, a
+  counter written through - is not this recipe. Extra parameters are how a shared loop
+  turns into a generalised one.
+- **The loop cannot move its own bound.** This is the precondition a plain array needs and
+  a `const` table does not. The original re-reads the length on every pass; the helper
+  takes it by value once. Those agree only if nothing the body writes can reach the length,
+  so the body must write **only its own locals**, or write through a pointer that provably
+  cannot alias the length's storage. If you cannot settle the aliasing by construction,
+  leave the family alone - extract one of the loops with Recipe E instead and accept the
+  asymmetry.
+- **The parameter types are the field types**, not the loop variable's. In
+  `search_texcash_free_area` the counter `i` is `s16` and `mltnum16` is `s32`, so the
+  parameter is `s32` and the comparison promotes exactly as it did before. Narrowing it to
+  match `i` would be a type change and is forbidden.
+- **The buffer parameter is `const` where the loop only reads it.** That is not a type
+  change in the forbidden sense - it constrains the new helper, not any existing
+  declaration - and it is what makes the aliasing precondition checkable.
+- **Two instances are enough**, unlike Recipe V. Recipe V's three-instance rule exists
+  because a family of two skeletons might be two blocks that merely resemble each other;
+  here the skeleton is a single loop with its buffer and bound hoisted, and there is nothing
+  in it for a third case to confirm.
+
+**What the guard shows.** The deduplication WARN - one copy of the loop's own literals
+removed, every value still present, at a call site or in the helper. A *length* leaving the
+fingerprint means it did not travel to the call site and the merge is wrong.
+
+---
+
 ## Recipe F - Action Parameter
 
 **Use when:** two or more functions - or two or more arms of one `switch` - share a control
@@ -548,6 +618,33 @@ static s32 comm_pa_y(PLW* wk, CTC* ctc) { return dispatch_by_koc(wk, ctc, add_sc
   struct field, never chosen at run time. Recipe F replaces a duplicated skeleton; it does
   not introduce dispatch the program did not have.
 
+  **One narrowing of that, added 2026-09-18** and measured on `mtrans.c`'s three extended
+  transfer entry points. Where the fixed arguments plus the pointers would take the shared
+  body over four parameters, the varying parts may travel in a **compound literal built at
+  the call site**:
+
+  ```c
+  void mlt_obj_trans_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
+      mlt_obj_trans_ext_common(
+          mt, wk, base_y, &(ExtTransVariant){ 0, store_cached_trans_ext_tiles, store_new_trans_ext_tiles });
+  }
+  ```
+
+  Three fixed arguments plus two pointers plus a seed value is six, which would have traded
+  a three-function duplication group for an Excess Number of Function Arguments finding.
+  The literal is not the hazard the rule guards against: it is built where it is used,
+  holds bare names only, is never assigned to a variable and never put in a table, and each
+  entry point still targets exactly one pair, fixed at compile time. **No dispatch exists
+  that did not exist before**, which is the whole of the rule's purpose.
+
+  What stays forbidden is the thing the rule was written for: a `static` table of variants
+  indexed at run time, or a variant pointer held in a struct that outlives the call.
+
+  **A value may ride along in that literal**, on Recipe V's argument rather than this one -
+  written out in full at its own call site, with the helper doing nothing with it but
+  assign it where the original assigned it. In `mtrans.c` that value is the pattern code's
+  group seed, `0` at two call sites and `wk->colcd` at the third.
+
 **More than one callee may differ, on the same argument.** Added 2026-09-17 under the
 project owner's standing authorisation, and measured on `entry.c`'s five screen
 dispatchers, which were identical apart from *two* callees each:
@@ -597,6 +694,81 @@ copies removed, and the new helper is `+1` per call site plus `+1` for its defin
 **This is control flow.** Every application of Recipe F reroutes a call through a pointer,
 so it belongs in the *genuinely high risk* tier of the verification loop: run
 `tools/replay_verify.sh` on it, not just the build and the guards.
+
+---
+
+## Recipe W - Shared Call Site
+
+**Use when:** several places make the **same call with the same long argument list**,
+differing only in a small number of argument *expressions*. Recipe D refuses two or more
+differences; Recipe C finds no identical run, because what varies sits in the middle of the
+argument list rather than at one end; and Recipe V does not apply, because what varies are
+expressions rather than literals.
+
+**Added 2026-09-18** under the project owner's standing authorisation, and measured on
+`mtrans.c`, where all nine `store_*` tile passes end each switch arm with the same
+nine-argument call:
+
+```c
+            rnum = seqsStoreChip(
+                x - (dw * BOOL(run->flip & 0x8000)),
+                y + (dh * BOOL(run->flip & 0x4000)),
+                dw,
+                dh,
+                run->mt->mltgidx16,                                  /* <- differs */
+                code,
+                run->palo | ((trsptr->attr ^ run->flip) & 0xC000),   /* <- differs */
+                run->wk->my_clear_level,
+                run->mt->id
+            );
+```
+
+Eighteen of those, identical in seven arguments and differing in two, became
+
+```c
+            rnum = store_trans_chip(&(ChipPlacement){ x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
+                                    run->mt->mltgidx16,
+                                    code,
+                                    run->palo | ((trsptr->attr ^ run->flip) & 0xC000));
+```
+
+**6.15 -> 6.64**, 126 lines out of the file, and two functions left Large Method.
+
+**Why this is safe.** The same argument as Recipes T, V and F: **every varying part is
+written out in full, in positional order, at its own call site**, so no pair can be crossed
+without the one call line showing it, and the helper **does nothing with any parameter but
+pass it to the argument position it already occupied**. It does not test one, index with
+one, or compute from one.
+
+**Preconditions, all of them:**
+
+- **The same callee, the same number of arguments, in every instance.** A differing callee
+  is Recipe F's.
+- **Every argument that is not a parameter of the helper is identical character for
+  character** across all instances. Not nearly identical - a differing parenthesisation or
+  a differing operand order means those instances are not one family.
+- **Every argument is free of side effects.** This is the precondition a call has that a
+  statement does not. The arguments of a call are evaluated in an unspecified order, and
+  the helper changes that order: the shared ones are now computed inside it, after the
+  varying ones have been computed at the call site. That is unobservable only when no
+  argument writes anything, calls anything, or reads volatile state. If one does, leave the
+  family alone.
+- **The helper still comes in at four parameters or fewer.** Where the shared arguments
+  outnumber the varying ones, give the shared ones a parameter object built at the call
+  site, as Recipe A prescribes - `mtrans.c`'s seven shared values plus three varying ones
+  would otherwise have made a ten-argument helper and traded one finding for another.
+- **Check the argument lists mechanically, not by eye.** Eighteen instances of a
+  nine-argument call is more than a reading confirms. Extract every instance's arguments,
+  group them by position, and look at how many distinct spellings each position has; a
+  position with one spelling is shared and a position with several is a parameter. An
+  instance that does not fit is not in the family.
+
+**What the guard shows.** The deduplication WARN, with the shared arguments' literals
+removed once per instance collapsed and every value still present, and `--calls` showing
+the callee and anything inside the shared arguments dropping by the copies removed against
+the helper's `+1` per call site and `+1` for its definition. On `mtrans.c` that read as
+`removed x17 num 32768`, `-17 seqsStoreChip`, `-34 BOOL` and `+19 store_trans_chip` -
+eighteen copies becoming one.
 
 ---
 
@@ -840,6 +1012,8 @@ Recipe X both refuse to merge.
 
 | File | Plateau | Why |
 | --- | --- | --- |
+| `mtrans.c` | 7.55 | *was 2.57 at campaign start, 5.24 at the start of the rendering wave.* What remains is two findings. **Code Duplication** is a web of 16/32 and cached/new/plain near-misses in the nine `store_*` tile passes, each differing in several places at once - the cache lookup, the palette argument and the attribute expression - so Recipe D, F and W all refuse them; `lz_ext_p6_fx` against `lz_ext_p6_cx` and `get_mltbuf16` against `get_mltbuf32` differ in a pointer type, which is a type change. **Lines of Code in a Single File** stands at 1205 and no further legal cut exists: a call-graph pass over the 47 statics shows `advance_trans_x`/`_y` with eleven callers, the six `get_mltbuf*` with three each, and `lz_ext_p6_fx` shared between the tile passes and the melt pass, so every seam the duplication groups suggest runs through a static that Recipe S forbids widening. Splitting out `getObjectHeight`, `mlt_obj_matrix` and `draw_box` was measured - 1272 -> 1205 lines, still flagged, nothing cleared - and reverted under rule 2 |
+| `mtrans_pool.c` | 9.38 | `collect_used_x16_tile_row` against its 32 twin: they differ in the map array's element type, in the operand order of the bit test, in both loop bounds and in the index arithmetic |
 | `com_sub_air_term.c` | 9.68 | `ORO_JA_Term` at cc 9; clearing it makes a twin of `ORO_HJA_Term_Airborne` and costs 0.87 |
 | `com_sub_attack.c` | 9.09 | the two normal-attack wind-ups differ in two statements |
 | `com_sub_command_term.c` | 9.09 | two pairs of airborne twins, one state number apart |
@@ -1032,6 +1206,23 @@ python tools/refactor_guard.py --calls --combined <old-file> <new-file>
 `OK combined group (N call sites unchanged)` is the result a clean split gives, and it is
 strong evidence: it says every call in the original is still made, from one of the two
 files, the same number of times.
+
+**`--combined` is needed for the literal check too, and `--all` cannot do it.** The same
+logic applies to constants: the functions that left took their literals with them, so the
+original file on its own reports them as *gone from the file entirely* and the guard says
+**FAIL**. That is not a defect and it must not be reverted - it is what a split looks like
+from one side of the cut.
+
+```bash
+python tools/refactor_guard.py --combined <old-file> <new-file> [<new-file> ...]
+```
+
+Watch for this after a split, because `--all` checks every changed file **individually**
+and will print `BLOCKED - this is not a legal campaign refactor` over a split that is
+perfectly sound. Verified on `mtrans.c`, `mtrans_seqs.c` and `mtrans_pool.c`: `--all`
+FAILs on `mtrans.c`, the three-file `--combined` run passes on both checks. Run the
+combined form over the whole split group and trust that; if you reach for `--all` on a
+branch that contains a split, read its output knowing it cannot see the group.
 
 **Renaming a helper you extracted earlier reads as a vanished call**, because the tool
 sees only that the old name is gone. Renaming a `static` that no other file can see is

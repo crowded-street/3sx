@@ -32,7 +32,16 @@ void Mtrans_use_trans_mode(WORK* wk, s16 bsy);
 void all_cgps_put_back(WORK* wk);
 s32 set_conn_sprite(WORK_Other_CONN* wk, s16 bsy);
 void set_judge_area_sprite(WORK_Other_JUDGE* wk, s16 bsy);
-void draw_hit_judge_line(f32 px, f32 py, f32 sx, f32 sy, u32 col, u32 attr);
+// The rectangle every judge-box draw is given: origin and extent, in the order
+// the four arguments used to be written.
+typedef struct {
+    f32 px;
+    f32 py;
+    f32 sx;
+    f32 sy;
+} JudgeRect;
+
+void draw_hit_judge_line(const JudgeRect* rect, u32 col, u32 attr);
 void setup_dma_group(u16 num, u32 /* unused */);
 void setup_bonus_car_parts();
 s32 setup_GILL_Opening_Ceremony();

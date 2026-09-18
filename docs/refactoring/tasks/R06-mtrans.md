@@ -206,3 +206,65 @@ Build: PASS / FAIL
 Commits: <sha list>
 Unsure about: <free text, or NONE>
 ```
+
+---
+
+## Result, 2026-09-18
+
+```
+Task: R06 (src/sf33rd/Source/Game/rendering/mtrans.c)
+Baseline score: 2.57 at campaign start, 5.24 at the start of this wave
+Final score:    7.55  (mtrans_seqs.c 10.00, mtrans_pool.c 9.38)
+Steps completed: all six of the original wave were already done; this wave went past them
+Smells cleared:  Excess Number of Function Arguments - all 17 functions, category gone
+                 Large Method            - all 3, category gone
+                 Complex Method          - all 6, category gone
+                 Bumpy Road Ahead        - all 7, category gone
+                 Deep, Nested Complexity - category gone
+                 Overall Code Complexity - category gone
+                 Code Duplication        - 4 of the reported groups dissolved, web remains
+                 Lines of Code in a Single File - 1786 -> 1205, still open
+Steps reverted:  3 (see below)
+Build: PASS
+Replay: wide gate, 30 seeds x 3600 frames against the branch point -
+        108,000 saved states, all identical
+Unsure about: two arcade-accuracy asymmetries, reported below, left as they are
+```
+
+### What moved it
+
+| Move | Score |
+| --- | --- |
+| Recipe A: `TransRun` over the nine `store_*` passes | 5.24 -> 5.05 |
+| Recipe S: the sequence chip queue -> `mtrans_seqs.c` | -> 5.17 |
+| Recipe C: the brightness/matrix opening, 8 copies | -> 5.20 |
+| Recipe C: the group validity check, 8 copies | -> 5.29 |
+| Recipe D: `mlt_obj_disp` calls `advance_trans_x`/`_y` | -> 5.71 |
+| Recipe A: `search_trsptr`, `reload_melt16_tile`, the rgb loads, the ext_2 lookups, `store_trans_rgb_tiles`, `draw_box` | -> 5.88 |
+| Recipe D: the two decompressors' back-reference copies | -> 6.15 |
+| **Recipe W: the chip queue call, 18 copies** | **-> 6.64** |
+| Recipe F: one body for the three `_ext` dispatchers, then for `mlt_obj_trans`/`_cp3` | flat, groups dissolved |
+| Recipe E: the four cache-slot claims | -> 7.27 |
+| Recipe D: `mlt_obj_melt2` shares the validity check | -> 7.55 |
+| Recipe S: the pool bookkeeping -> `mtrans_pool.c` | flat, a pair left the web |
+
+Two recipes were added to the catalogue in the course of this and are written up in
+`PLAYBOOK.md`: **Recipe W - Shared Call Site**, and a narrowing of Recipe F's "never in a
+struct field" rule to permit a compound literal built at the call site.
+
+### Reverted, and why
+
+- **Recipe E on `mlt_obj_melt2`'s 32x32 arm.** Flat at 6.64, no finding cleared, and it
+  raised a new duplication pair against `reload_melt16_tile`.
+- **Recipe D collapsing `init_texcash_2nd`'s four list appends** (in `texcash.c`, the same
+  wave). Legal, flat, cleared nothing - the loops' nesting was untouched.
+- **Recipe S moving `getObjectHeight`, `mlt_obj_matrix` and `draw_box` out.** 1272 -> 1205
+  lines, Lines of Code still flagged, nothing cleared.
+
+### Reported, not fixed
+
+- `get_mltbuf16_ext_2` writes `mc[...].time = 1` where `get_mltbuf32_ext_2` writes
+  `time += 1`, on otherwise mirrored paths. Recorded in `claim_free_x32_slot`'s comment.
+- `mlt_obj_melt2`'s 32x32 arm computes `(attr & 0xC000)` from its saved copy where the
+  16x16 path computes `(trsptr->attr & 0xC000)` from the entry. The two are equal where
+  they stand, but they are not the same expression.

@@ -70,7 +70,11 @@ static u32 get_judge_outline_color(s16 index) {
     return 0xFFFFFFFF;
 }
 
-static void draw_hit_judge_box(f32 px, f32 py, f32 sx, f32 sy, u32 fill_col, u32 outline_col, u32 attr) {
+static void draw_hit_judge_box(const JudgeRect* rect, u32 fill_col, u32 outline_col, u32 attr) {
+    f32 px = rect->px;
+    f32 py = rect->py;
+    f32 sx = rect->sx;
+    f32 sy = rect->sy;
     f32 thickness_sx;
     f32 thickness_sy;
 
@@ -91,11 +95,11 @@ static void draw_hit_judge_box(f32 px, f32 py, f32 sx, f32 sy, u32 fill_col, u32
     thickness_sx = (sx < 1.0f) ? sx : 1.0f;
     thickness_sy = (sy < 1.0f) ? sy : 1.0f;
 
-    draw_hit_judge_line(px, py, sx, sy, fill_col, attr);
-    draw_hit_judge_line(px, py, sx, thickness_sy, outline_col, attr);
-    draw_hit_judge_line(px, py + sy - thickness_sy, sx, thickness_sy, outline_col, attr);
-    draw_hit_judge_line(px, py, thickness_sx, sy, outline_col, attr);
-    draw_hit_judge_line(px + sx - thickness_sx, py, thickness_sx, sy, outline_col, attr);
+    draw_hit_judge_line(&(JudgeRect){ px, py, sx, sy }, fill_col, attr);
+    draw_hit_judge_line(&(JudgeRect){ px, py, sx, thickness_sy }, outline_col, attr);
+    draw_hit_judge_line(&(JudgeRect){ px, py + sy - thickness_sy, sx, thickness_sy }, outline_col, attr);
+    draw_hit_judge_line(&(JudgeRect){ px, py, thickness_sx, sy }, outline_col, attr);
+    draw_hit_judge_line(&(JudgeRect){ px + sx - thickness_sx, py, thickness_sx, sy }, outline_col, attr);
 }
 
 void Init_load_on_memory_data() {
@@ -185,33 +189,33 @@ void set_judge_area_sprite(WORK_Other_JUDGE* wk, s16 bsy) {
                 outline_col = set_color_alpha(outline_col, highlight_alpha);
             }
 
-            draw_hit_judge_box(wk->jx[i][0] * mirror_factor,
-                               wk->jx[i][2],
-                               wk->jx[i][1] * mirror_factor,
-                               wk->jx[i][3],
-                               fill_col,
-                               outline_col,
-                               judge_area_attr[i][1]);
+            draw_hit_judge_box(
+                &(JudgeRect){
+                    wk->jx[i][0] * mirror_factor, wk->jx[i][2], wk->jx[i][1] * mirror_factor, wk->jx[i][3] },
+                fill_col,
+                outline_col,
+                judge_area_attr[i][1]);
         }
     }
     if (wk->ja_disp_bit & 0x8000) {
-        draw_hit_judge_line(-1.0, -1.0, 2.0, 2.0, judge_area_attr[15][0], judge_area_attr[15][1]);
-        draw_hit_judge_line(
-            -2.0, (float)(-wk->wu.position_y - 2), 4.0, 4.0, judge_area_attr[16][0], judge_area_attr[16][1]);
+        draw_hit_judge_line(&(JudgeRect){ -1.0, -1.0, 2.0, 2.0 }, judge_area_attr[15][0], judge_area_attr[15][1]);
+        draw_hit_judge_line(&(JudgeRect){ -2.0, (float)(-wk->wu.position_y - 2), 4.0, 4.0 },
+                            judge_area_attr[16][0],
+                            judge_area_attr[16][1]);
     }
 }
 
-void draw_hit_judge_line(f32 px, f32 py, f32 sx, f32 sy, u32 col, u32 attr) {
+void draw_hit_judge_line(const JudgeRect* rect, u32 col, u32 attr) {
     Vec3 point[2];
     PAL_CURSOR line;
     PAL_CURSOR_P xy[4];
     PAL_CURSOR_COL cc[4];
 
-    point[0].x = px;
-    point[0].y = py;
+    point[0].x = rect->px;
+    point[0].y = rect->py;
     point[0].z = 0.0f;
-    point[1].x = px + sx;
-    point[1].y = py + sy;
+    point[1].x = rect->px + rect->sx;
+    point[1].y = rect->py + rect->sy;
     point[1].z = 0.0f;
     njCalcPoints(NULL, point, point, 2);
     line.p = xy;
@@ -260,30 +264,9 @@ void all_cgps_put_back(WORK* wk) {
     // Do nothing
 }
 
-void Mtrans_use_trans_mode(WORK* wk, s16 bsy) {
-    if (mts_ok[wk->my_mts].be == 0) {
-        // A display request was received before MTS initialization. MTS number: %d\n
-        // Original text: "ＭＴＳの初期化前に表示要求が入りました。ＭＴＳ番号：%d\n"
-        // For some reason MWCC (or mwccgap) removes a single byte from the string, resulting in a mismatch.
-        // single byte.
-        flLogOut("\x82\x6c\x82\x73\x82\x72\x82\xcc\x8f\x89\x8a\xfa\x89\xbb\x91\x4f\x82\xc9\x95\x5c\x8e\xa6\x97\x76\x8b"
-                 "\x81\x82\xaa\x93\xfc\x82\xe8\x82\xdc\x82\xb5\x82\xbd\x81\x42\x82\x6c\x82\x73\x82\x72\x94\xd4\x8d\x86"
-                 "\x81\x46\x25\x64\x0a",
-                 wk->my_mts);
-        return;
-    }
-
-    // Above No_Trans so a frame that skips drawing lands on the same value.
-    if (wk->my_col_mode & 0x400) {
-        wk->my_clear_level = 0x90;
-    }
-
-    if (No_Trans) {
-        return;
-    }
-
-    wk->current_colcd &= 0x1FF;
-
+// The MTS mode picks which transfer routine draws the work. Mode 17 is the only
+// one that remaps the colour code on the way.
+static void dispatch_trans_mode(WORK* wk, s16 bsy) {
     switch (mts[wk->my_mts].mode) {
     case 17:
         wk->colcd = exchange_current_colcd(wk);
@@ -312,6 +295,45 @@ void Mtrans_use_trans_mode(WORK* wk, s16 bsy) {
     }
 }
 
+void Mtrans_use_trans_mode(WORK* wk, s16 bsy) {
+    if (mts_ok[wk->my_mts].be == 0) {
+        // A display request was received before MTS initialization. MTS number: %d\n
+        // Original text: "ＭＴＳの初期化前に表示要求が入りました。ＭＴＳ番号：%d\n"
+        // For some reason MWCC (or mwccgap) removes a single byte from the string, resulting in a mismatch.
+        // single byte.
+        flLogOut("\x82\x6c\x82\x73\x82\x72\x82\xcc\x8f\x89\x8a\xfa\x89\xbb\x91\x4f\x82\xc9\x95\x5c\x8e\xa6\x97\x76\x8b"
+                 "\x81\x82\xaa\x93\xfc\x82\xe8\x82\xdc\x82\xb5\x82\xbd\x81\x42\x82\x6c\x82\x73\x82\x72\x94\xd4\x8d\x86"
+                 "\x81\x46\x25\x64\x0a",
+                 wk->my_mts);
+        return;
+    }
+
+    // Above No_Trans so a frame that skips drawing lands on the same value.
+    if (wk->my_col_mode & 0x400) {
+        wk->my_clear_level = 0x90;
+    }
+
+    if (No_Trans) {
+        return;
+    }
+
+    wk->current_colcd &= 0x1FF;
+
+    dispatch_trans_mode(wk, bsy);
+}
+
+// The catch and caught effects take their palette from the master's slot; every
+// other work of these ids keeps the colour it came in with.
+static s16 catch_effect_color(WORK* wk, s16 col) {
+    WORK* mwk = (WORK*)((WORK_Other*)wk)->my_master;
+
+    if ((wk->id == 147) || (wk->id == 148)) {
+        col = mwk->id * 8 + 4;
+    }
+
+    return col;
+}
+
 s16 exchange_current_colcd(WORK* wk) {
     WORK* mwk;
     s16 col = wk->current_colcd;
@@ -324,12 +346,7 @@ s16 exchange_current_colcd(WORK* wk) {
 
     case 8:
     case 0x10:
-        mwk = (WORK*)((WORK_Other*)wk)->my_master;
-
-        if ((wk->id == 147) || (wk->id == 148)) {
-            col = mwk->id * 8 + 4;
-        }
-
+        col = catch_effect_color(wk, col);
         break;
 
     case 0x20:
@@ -354,22 +371,30 @@ s16 exchange_current_colcd(WORK* wk) {
     return col;
 }
 
-s32 sort_push_request(WORK* wk) {
-    if (wk->my_mts == 0) {
-        return 0;
-    }
+// A player work facing the mirrored way takes the other half of its palette
+// pair. Copied character for character from the branch it came from.
+static s32 player_takes_flipped_palette(WORK* wk) {
+    return (wk->work_id == 1) && ((wk->rl_flag + wk->cg_flip) & 1);
+}
 
-    wk->current_colcd = wk->my_col_code;
+// The same for a work that shares its master's colour code.
+static s32 slave_takes_flipped_palette(WORK* wk) {
+    return (wk->work_id == 0x20) && (wk->my_col_code == ((WORK*)((WORK_Other*)wk)->my_master)->my_col_code) &&
+           ((wk->rl_flag + wk->cg_flip) & 1);
+}
 
-    if ((wk->work_id == 1) && ((wk->rl_flag + wk->cg_flip) & 1)) {
-        wk->current_colcd |= 8;
-    }
+static s32 has_nothing_to_draw(WORK* wk) {
+    return wk->disp_flag == 0 || wk->cg_number == 0;
+}
 
-    if ((wk->work_id == 0x20) && (wk->my_col_code == ((WORK*)((WORK_Other*)wk)->my_master)->my_col_code) &&
-        ((wk->rl_flag + wk->cg_flip) & 1)) {
-        wk->current_colcd |= 8;
-    }
+static s32 blinked_out_this_frame(WORK* wk) {
+    return (wk->disp_flag == 2) && ((wk->blink_timing + Game_timer & 1));
+}
 
+// extra_col_2 then extra_col, each overriding the colour code when set.
+// sort_push_request, sort_push_request3 and sort_push_request4 all carried this
+// block, identical character for character.
+static void apply_extra_col_override(WORK* wk) {
     if (wk->extra_col_2) {
         wk->current_colcd = wk->extra_col_2;
     }
@@ -377,12 +402,30 @@ s32 sort_push_request(WORK* wk) {
     if (wk->extra_col) {
         wk->current_colcd = wk->extra_col;
     }
+}
 
-    if (wk->disp_flag == 0 || wk->cg_number == 0) {
+s32 sort_push_request(WORK* wk) {
+    if (wk->my_mts == 0) {
+        return 0;
+    }
+
+    wk->current_colcd = wk->my_col_code;
+
+    if (player_takes_flipped_palette(wk)) {
+        wk->current_colcd |= 8;
+    }
+
+    if (slave_takes_flipped_palette(wk)) {
+        wk->current_colcd |= 8;
+    }
+
+    apply_extra_col_override(wk);
+
+    if (has_nothing_to_draw(wk)) {
         return 1;
     }
 
-    if ((wk->disp_flag == 2) && ((wk->blink_timing + Game_timer & 1))) {
+    if (blinked_out_this_frame(wk)) {
         return 1;
     }
 
@@ -412,13 +455,7 @@ s32 sort_push_request3(WORK* wk) {
 
     wk->current_colcd = wk->my_col_code;
 
-    if (wk->extra_col_2) {
-        wk->current_colcd = wk->extra_col_2;
-    }
-
-    if (wk->extra_col) {
-        wk->current_colcd = wk->extra_col;
-    }
+    apply_extra_col_override(wk);
 
     if (wk->disp_flag == 0) {
         return 1;
@@ -435,30 +472,36 @@ s32 sort_push_request3(WORK* wk) {
     return 2;
 }
 
+// sort_push_request4's own blink test. It is the same value as
+// blinked_out_this_frame's but not the same characters - the parentheses sit
+// differently - so the two are kept apart rather than merged.
+static s32 blink_skips_this_frame(WORK* wk) {
+    return (wk->disp_flag == 2) && ((wk->blink_timing + Game_timer) & 1);
+}
+
+// Two ids are exempt from the judge-mode brightness override.
+static s32 takes_judge_brightness(WORK* wk) {
+    return (wk->id != 0x4C) && (wk->id != 0x46);
+}
+
 s32 sort_push_request4(WORK* wk) {
     if (wk->my_mts == 0) {
         return 0;
     }
 
-    if (wk->disp_flag == 0 || wk->cg_number == 0) {
+    if (has_nothing_to_draw(wk)) {
         return 1;
     }
 
-    if ((wk->disp_flag == 2) && ((wk->blink_timing + Game_timer) & 1)) {
+    if (blink_skips_this_frame(wk)) {
         return 1;
     }
 
     wk->current_colcd = wk->my_col_code;
 
-    if (wk->extra_col_2) {
-        wk->current_colcd = wk->extra_col_2;
-    }
+    apply_extra_col_override(wk);
 
-    if (wk->extra_col) {
-        wk->current_colcd = wk->extra_col;
-    }
-
-    if ((wk->id != 0x4C) && (wk->id != 0x46)) {
+    if (takes_judge_brightness(wk)) {
         if (judge_flag) {
             if (wk->position_z < 0x48) {
                 wk->my_bright_type = 1;
@@ -493,6 +536,57 @@ s32 sort_push_request8(WORK* wk) {
     return sort_push_request(wk);
 }
 
+// Three blink speeds, each a triangle wave off Interrupt_Timer. A blink_timing
+// the switch does not name leaves the alpha alone, as it did before.
+static void apply_blink_pulse(const WORK* wk, PAL_CURSOR_COL* oricol_p) {
+    switch (wk->blink_timing) {
+    case 1:
+        if (Interrupt_Timer & 0x80) {
+            oricol_p->argb.a = (wk->my_clear_level + (0x80 - (Interrupt_Timer & 0x7F)));
+        } else {
+            oricol_p->argb.a = (wk->my_clear_level + (Interrupt_Timer & 0x7F));
+        }
+
+        break;
+
+    case 0:
+        if (Interrupt_Timer & 0x40) {
+            oricol_p->argb.a = (wk->my_clear_level + (0x40 - (Interrupt_Timer & 0x3F)));
+        } else {
+            oricol_p->argb.a = (wk->my_clear_level + (Interrupt_Timer & 0x3F));
+        }
+
+        break;
+
+    case 2:
+        if (Interrupt_Timer & 0x20) {
+            oricol_p->argb.a = (wk->my_clear_level + (0x20 - (Interrupt_Timer & 0x1F)));
+        } else {
+            oricol_p->argb.a = (wk->my_clear_level + (Interrupt_Timer & 0x1F));
+        }
+
+        break;
+    }
+}
+
+// The shell box's colour, with the blink pulse folded into its alpha. Both
+// sort_push_requestA and sort_push_requestB open with exactly this run.
+static PAL_CURSOR_COL blink_adjusted_box_color(const WORK* wk) {
+    PAL_CURSOR_COL oricol;
+
+    oricol.color = box_color_attr[wk->my_col_code & 0x1FF][0];
+
+    if (wk->my_clear_level) {
+        oricol.argb.a = wk->my_clear_level;
+    }
+
+    if (wk->disp_flag == 2) {
+        apply_blink_pulse(wk, &oricol);
+    }
+
+    return oricol;
+}
+
 s32 sort_push_requestA(WORK* wk) {
     PAL_CURSOR_COL oricol;
     s16 i;
@@ -506,42 +600,7 @@ s32 sort_push_requestA(WORK* wk) {
         return 1;
     }
 
-    oricol.color = box_color_attr[wk->my_col_code & 0x1FF][0];
-
-    if (wk->my_clear_level) {
-        oricol.argb.a = wk->my_clear_level;
-    }
-
-    if (wk->disp_flag == 2) {
-        switch (wk->blink_timing) {
-        case 1:
-            if (Interrupt_Timer & 0x80) {
-                oricol.argb.a = (wk->my_clear_level + (0x80 - (Interrupt_Timer & 0x7F)));
-            } else {
-                oricol.argb.a = (wk->my_clear_level + (Interrupt_Timer & 0x7F));
-            }
-
-            break;
-
-        case 0:
-            if (Interrupt_Timer & 0x40) {
-                oricol.argb.a = (wk->my_clear_level + (0x40 - (Interrupt_Timer & 0x3F)));
-            } else {
-                oricol.argb.a = (wk->my_clear_level + (Interrupt_Timer & 0x3F));
-            }
-
-            break;
-
-        case 2:
-            if (Interrupt_Timer & 0x20) {
-                oricol.argb.a = (wk->my_clear_level + (0x20 - (Interrupt_Timer & 0x1F)));
-            } else {
-                oricol.argb.a = (wk->my_clear_level + (Interrupt_Timer & 0x1F));
-            }
-
-            break;
-        }
-    }
+    oricol = blink_adjusted_box_color(wk);
 
     mlt_obj_matrix(wk, base_y_pos);
 
@@ -551,27 +610,27 @@ s32 sort_push_requestA(WORK* wk) {
         mf = 1;
     }
 
-    draw_box((f32)(wk->shell_ix[0] * mf),
-             (f32)(wk->shell_ix[2]),
-             (f32)(wk->shell_ix[1] * mf),
-             (f32)(wk->shell_ix[3]),
+    draw_box(&(BoxRect){ (f32)(wk->shell_ix[0] * mf),
+                         (f32)(wk->shell_ix[2]),
+                         (f32)(wk->shell_ix[1] * mf),
+                         (f32)(wk->shell_ix[3]) },
              oricol.color,
              box_color_attr[wk->my_col_code][1],
              wk->position_z);
 
     for (i = 0; i < wk->charset_id; i++) {
-        draw_box((f32)((wk->shell_ix[0] - (i + 1) * 2) * mf),
-                 (f32)(wk->shell_ix[2] + (1 << (i + 1))),
-                 (f32)(mf * (wk->shell_ix[1] + (i + 1) * 2 * 2)),
-                 (f32)(wk->shell_ix[3] - (1 << (i + 1)) * 2),
+        draw_box(&(BoxRect){ (f32)((wk->shell_ix[0] - (i + 1) * 2) * mf),
+                             (f32)(wk->shell_ix[2] + (1 << (i + 1))),
+                             (f32)(mf * (wk->shell_ix[1] + (i + 1) * 2 * 2)),
+                             (f32)(wk->shell_ix[3] - (1 << (i + 1)) * 2) },
                  oricol.color,
                  box_color_attr[wk->my_col_code][1],
                  wk->position_z);
 
-        draw_box((f32)(mf * (wk->shell_ix[0] + (1 << (i + 1)))),
-                 (f32)(wk->shell_ix[2] - (i + 1) * 2),
-                 (f32)(mf * (wk->shell_ix[1] - (1 << (i + 1)) * 2)),
-                 (f32)(wk->shell_ix[3] + (i + 1) * 2 * 2),
+        draw_box(&(BoxRect){ (f32)(mf * (wk->shell_ix[0] + (1 << (i + 1)))),
+                             (f32)(wk->shell_ix[2] - (i + 1) * 2),
+                             (f32)(mf * (wk->shell_ix[1] - (1 << (i + 1)) * 2)),
+                             (f32)(wk->shell_ix[3] + (i + 1) * 2 * 2) },
                  oricol.color,
                  box_color_attr[wk->my_col_code][1],
                  wk->position_z);
@@ -593,42 +652,7 @@ s32 sort_push_requestB(WORK* wk) {
         return 1;
     }
 
-    oricol.color = box_color_attr[wk->my_col_code & 0x1FF][0];
-
-    if (wk->my_clear_level) {
-        oricol.argb.a = wk->my_clear_level;
-    }
-
-    if (wk->disp_flag == 2) {
-        switch (wk->blink_timing) {
-        case 1:
-            if (Interrupt_Timer & 0x80) {
-                oricol.argb.a = (wk->my_clear_level + (0x80 - (Interrupt_Timer & 0x7F)));
-            } else {
-                oricol.argb.a = (wk->my_clear_level + (Interrupt_Timer & 0x7F));
-            }
-
-            break;
-
-        case 0:
-            if (Interrupt_Timer & 0x40) {
-                oricol.argb.a = (wk->my_clear_level + (0x40 - (Interrupt_Timer & 0x3F)));
-            } else {
-                oricol.argb.a = (wk->my_clear_level + (Interrupt_Timer & 0x3F));
-            }
-
-            break;
-
-        case 2:
-            if (Interrupt_Timer & 0x20) {
-                oricol.argb.a = (wk->my_clear_level + (0x20 - (Interrupt_Timer & 0x1F)));
-            } else {
-                oricol.argb.a = (wk->my_clear_level + (Interrupt_Timer & 0x1F));
-            }
-
-            break;
-        }
-    }
+    oricol = blink_adjusted_box_color(wk);
 
     mlt_obj_matrix(wk, 0);
 
@@ -638,27 +662,27 @@ s32 sort_push_requestB(WORK* wk) {
         mf = 1;
     }
 
-    draw_box((f32)(wk->shell_ix[0] * mf),
-             (f32)(wk->shell_ix[2]),
-             (f32)(wk->shell_ix[1] * mf),
-             (f32)(wk->shell_ix[3]),
+    draw_box(&(BoxRect){ (f32)(wk->shell_ix[0] * mf),
+                         (f32)(wk->shell_ix[2]),
+                         (f32)(wk->shell_ix[1] * mf),
+                         (f32)(wk->shell_ix[3]) },
              oricol.color,
              box_color_attr[wk->my_col_code][1],
              wk->position_z);
 
     for (i = 0; i < wk->charset_id; i++) {
-        draw_box((f32)(mf * (wk->shell_ix[0] - (i + 1) * 2)),
-                 (f32)(wk->shell_ix[2] + (1 << (i + 1))),
-                 (f32)(mf * (wk->shell_ix[1] + (i + 1) * 2 * 2)),
-                 (f32)(wk->shell_ix[3] - (1 << (i + 1)) * 2),
+        draw_box(&(BoxRect){ (f32)(mf * (wk->shell_ix[0] - (i + 1) * 2)),
+                             (f32)(wk->shell_ix[2] + (1 << (i + 1))),
+                             (f32)(mf * (wk->shell_ix[1] + (i + 1) * 2 * 2)),
+                             (f32)(wk->shell_ix[3] - (1 << (i + 1)) * 2) },
                  oricol.color,
                  box_color_attr[wk->my_col_code][1],
                  wk->position_z);
 
-        draw_box((f32)(mf * (wk->shell_ix[0] + (1 << (i + 1)))),
-                 (f32)(wk->shell_ix[2] - (i + 1) * 2),
-                 (f32)(mf * (wk->shell_ix[1] - (1 << (i + 1)) * 2)),
-                 (f32)(wk->shell_ix[3] + (i + 1) * 2 * 2),
+        draw_box(&(BoxRect){ (f32)(mf * (wk->shell_ix[0] + (1 << (i + 1)))),
+                             (f32)(wk->shell_ix[2] - (i + 1) * 2),
+                             (f32)(mf * (wk->shell_ix[1] - (1 << (i + 1)) * 2)),
+                             (f32)(wk->shell_ix[3] + (i + 1) * 2 * 2) },
                  oricol.color,
                  box_color_attr[wk->my_col_code][1],
                  wk->position_z);

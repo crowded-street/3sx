@@ -37,27 +37,32 @@ extern const s16 mts_OB_page[22][2];
 extern const MTSBase mts_base[24];
 void clear_texcash_work(s16 ix);
 
-void search_texcash_free_area(s16 ix) {
-    PatternState* mc;
+// The 16- and 32-page halves count their free entries with the same loop. Both
+// the buffer and its length are named in full at each call site, and the loop
+// writes nothing but its own counter, so the length cannot move under it.
+static s16 count_free_cash_entries(const PatternState* mc, s32 count) {
     s16 i;
     s16 num = 0;
 
-    for (mc = mts[ix].mltcsh16, i = 0; i < mts[ix].mltnum16; i++) {
+    for (i = 0; i < count; i++) {
         if (mc[i].cs.code == -1) {
             num++;
         }
     }
+
+    return num;
+}
+
+void search_texcash_free_area(s16 ix) {
+    s16 num;
+
+    num = count_free_cash_entries(mts[ix].mltcsh16, mts[ix].mltnum16);
 
     if (num < mts_ok[ix].min16) {
         mts_ok[ix].min16 = num;
     }
 
-    num = 0;
-    for (mc = mts[ix].mltcsh32, i = 0; i < mts[ix].mltnum32; i++) {
-        if (mc[i].cs.code == -1) {
-            num++;
-        }
-    }
+    num = count_free_cash_entries(mts[ix].mltcsh32, mts[ix].mltnum32);
 
     if (num < mts_ok[ix].min32) {
         mts_ok[ix].min32 = num;
@@ -92,6 +97,39 @@ void init_texcash_before_process() {
     }
 }
 
+// Walk the 16-page cache back to front, sending every entry to the free or the
+// used list. Highest index first, which is the order the pools expect.
+static void partition_16_pages(s16 ix, TexturePoolFree* tf, TexturePoolUsed* tu) {
+    PatternState* mc;
+    s16 i;
+
+    mc = mts[ix].mltcsh16;
+
+    for (i = mts[ix].mltnum16 - 1; i >= 0; i--) {
+        if (mc[i].cs.code == -1) {
+            tf->x16_free[tf->x16] = i;
+            tf->x16 += 1;
+        } else {
+            tu->x16_used[tu->x16] = i;
+            tu->x16 += 1;
+        }
+    }
+}
+
+// Rebuild the collection's index of patterns that still have time on them.
+static void collect_live_patterns(PatternCollection* cp) {
+    s16 i;
+
+    cp->kazu = 0;
+
+    for (i = 0; i < 0x40; i++) {
+        if (cp->patt[i].time) {
+            cp->adr[cp->kazu] = &cp->patt[i];
+            cp->kazu += 1;
+        }
+    }
+}
+
 void init_texcash_2nd(s16 ix) {
     PatternState* mc;
     PatternCollection* cp;
@@ -106,17 +144,8 @@ void init_texcash_2nd(s16 ix) {
     tf->x16 = 0;
     tu->x32 = 0;
     tu->x16 = 0;
-    mc = mts[ix].mltcsh16;
 
-    for (i = mts[ix].mltnum16 - 1; i >= 0; i--) {
-        if (mc[i].cs.code == -1) {
-            tf->x16_free[tf->x16] = i;
-            tf->x16 += 1;
-        } else {
-            tu->x16_used[tu->x16] = i;
-            tu->x16 += 1;
-        }
-    }
+    partition_16_pages(ix, tf, tu);
 
     mc = mts[ix].mltcsh32;
 
@@ -130,43 +159,60 @@ void init_texcash_2nd(s16 ix) {
         }
     }
 
-    cp->kazu = 0;
+    collect_live_patterns(cp);
+}
 
-    for (i = 0; i < 0x40; i++) {
-        if (cp->patt[i].time) {
-            cp->adr[cp->kazu] = &cp->patt[i];
-            cp->kazu += 1;
+// Tick every live pattern in the slot's collection and release the pages of any
+// whose time has just run out.
+static void expire_texcash_patterns(s16 num) {
+    s16 i;
+
+    for (i = 0; i < mts[num].cpat->kazu; i++) {
+        if ((--mts[num].cpat->adr[i]->time) == 0) {
+            makeup_tpu_free(mts[num].mltnum16 / 256, mts[num].mltnum32 / 64, &mts[num].cpat->adr[i]->map);
+
+            if ((tpu_free->x16 != mts[num].cpat->adr[i]->x16) || (tpu_free->x32 != mts[num].cpat->adr[i]->x32)) {
+                SDL_assert(false);
+            }
+
+            update_with_tpu_free(mts[num].mltcsh16, mts[num].mltcsh32);
         }
     }
 }
 
+static void update_texcash_slot(s16 num) {
+    if (mts[num].ext) {
+        expire_texcash_patterns(num);
+    } else {
+        if ((mts[num].mltcshtime16 + mts[num].mltcshtime32) != 0) {
+            mlt_obj_trans_update(&mts[num]);
+        }
+    }
+
+    search_texcash_free_area(num);
+}
+
 void texture_cash_update() {
-    s16 i;
     s16 num;
 
     for (num = 0; num < 24; num++) {
         if (mts_ok[num].be != 0) {
-            if (mts[num].ext) {
-                for (i = 0; i < mts[num].cpat->kazu; i++) {
-                    if ((--mts[num].cpat->adr[i]->time) == 0) {
-                        makeup_tpu_free(mts[num].mltnum16 / 256, mts[num].mltnum32 / 64, &mts[num].cpat->adr[i]->map);
-
-                        if ((tpu_free->x16 != mts[num].cpat->adr[i]->x16) ||
-                            (tpu_free->x32 != mts[num].cpat->adr[i]->x32)) {
-                            SDL_assert(false);
-                        }
-
-                        update_with_tpu_free(mts[num].mltcsh16, mts[num].mltcsh32);
-                    }
-                }
-            } else {
-                if ((mts[num].mltcshtime16 + mts[num].mltcshtime32) != 0) {
-                    mlt_obj_trans_update(&mts[num]);
-                }
-            }
-
-            search_texcash_free_area(num);
+            update_texcash_slot(num);
         }
+    }
+}
+
+// The two halves of update_with_tpu_free do this to one entry each; the entry
+// is the only thing that differs between them.
+static void age_released_entry(PatternState* mc) {
+    mc->time -= 1;
+
+    if (mc->time < 0) {
+        SDL_assert(false);
+    }
+
+    if (mc->time <= 0) {
+        mc->cs.code = -1;
     }
 }
 
@@ -174,27 +220,11 @@ void update_with_tpu_free(PatternState* mc16, PatternState* mc32) {
     s16 i;
 
     for (i = 0; i < tpu_free->x16; i++) {
-        mc16[tpu_free->x16_used[i]].time -= 1;
-
-        if (mc16[tpu_free->x16_used[i]].time < 0) {
-            SDL_assert(false);
-        }
-
-        if (mc16[tpu_free->x16_used[i]].time <= 0) {
-            mc16[tpu_free->x16_used[i]].cs.code = -1;
-        }
+        age_released_entry(&mc16[tpu_free->x16_used[i]]);
     }
 
     for (i = 0; i < tpu_free->x32; i++) {
-        mc32[tpu_free->x32_used[i]].time -= 1;
-
-        if (mc32[tpu_free->x32_used[i]].time < 0) {
-            SDL_assert(false);
-        }
-
-        if (mc32[tpu_free->x32_used[i]].time <= 0) {
-            mc32[tpu_free->x32_used[i]].cs.code = -1;
-        }
+        age_released_entry(&mc32[tpu_free->x32_used[i]]);
     }
 }
 
@@ -212,75 +242,77 @@ void make_texcash_work(s16 ix) {
     u32 page16;
     u32 page32;
 
+    // fatal_error is __dead2, so reaching the end of this branch is impossible
+    // and the rest of the function is the original else arm, one level out.
     if (mts_ok[ix].be) {
         if ((Test_ramcnt_key(mts_ok[ix].key0) != 0) && (Test_ramcnt_key(mts_ok[ix].key1) != 0)) {
             return;
         }
 
         fatal_error("make_texcash_work: TEXCASH KEY ERROR");
-    } else {
-        if (ix == 7) {
-            page16 = mts_OB_page[bg_w.stage][0];
-            page32 = mts_OB_page[bg_w.stage][1];
-            mts_ob_curr_stage = bg_w.stage;
-        } else {
-            page16 = mts_base[ix].p16;
-            page32 = mts_base[ix].p32;
-        }
-
-        mts[ix].mltnum16 = (u32)page16 << 8;
-        mts[ix].mltnum32 = page32 << 6;
-        mts[ix].mltnum = (u32)page16 + page32;
-        mts[ix].mltgidx16 = mts_base[ix].gix;
-        mts[ix].mltgidx32 = (u32)page16 + mts_base[ix].gix;
-        mts[ix].mltcshtime16 = mts_base[ix].life16;
-        mts[ix].mltcshtime32 = mts_base[ix].life32;
-
-        if ((mts[ix].ext = ((mts_base[ix].mode & 0x2000) != 0))) {
-            memreq = (mts[ix].mltnum16 * 8) + (mts[ix].mltnum32 * 8) + sizeof(PatternCollection) +
-                     sizeof(TexturePoolFree) + sizeof(TexturePoolUsed);
-            mts_ok[ix].key0 = Pull_ramcnt_key(memreq, mts_base[ix].type, 0, 0);
-            adrs = Get_ramcnt_pointer(mts_ok[ix].key0);
-            mts[ix].mltcsh16 = (PatternState*)adrs;
-            adrs += mts[ix].mltnum16 * 8;
-            mts[ix].mltcsh32 = (PatternState*)adrs;
-            adrs += mts[ix].mltnum32 * 8;
-            mts[ix].cpat = (PatternCollection*)adrs;
-            adrs += sizeof(PatternCollection);
-            mts[ix].tpf = (TexturePoolFree*)adrs;
-            adrs += sizeof(TexturePoolFree);
-            mts[ix].tpu = (TexturePoolUsed*)adrs;
-            SDL_zerop(mts[ix].cpat);
-            SDL_zerop(mts[ix].tpf);
-            SDL_zerop(mts[ix].tpu);
-            init_texcash_2nd(ix);
-        } else {
-            memreq = mts[ix].mltnum16 * 8 + mts[ix].mltnum32 * 8;
-            mts_ok[ix].key0 = Pull_ramcnt_key(memreq, mts_base[ix].type, 0, 0);
-            adrs = Get_ramcnt_pointer(mts_ok[ix].key0);
-            mts[ix].mltcsh16 = (PatternState*)adrs;
-            adrs += mts[ix].mltnum16 * 8;
-            mts[ix].mltcsh32 = (PatternState*)adrs;
-        }
-
-        mts[ix].mltbuf = texcash_melt_buffer;
-        memreq = ((mts_base[ix].mode & 4) != 0) + 1;
-        memreq *= (mts[ix].mltnum << 0x10);
-        mts_ok[ix].key1 = Pull_ramcnt_key(memreq, mts_base[ix].type, 0, 0);
-        mts[ix].attribute = mts_base[ix].attribute;
-        mlt_obj_trans_init(&mts[ix], mts_base[ix].mode, Get_ramcnt_pointer(mts_ok[ix].key1));
-
-        if (mts[ix].ext) {
-            init_texcash_2nd(ix);
-        }
-
-        mts[ix].id = ix;
-        mts[ix].mode = mts_base[ix].mode & 0xFF;
-        mts_ok[ix].be = 1;
-        mts_ok[ix].mincg = 0;
-        mts_ok[ix].min16 = 0x7FFF;
-        mts_ok[ix].min32 = 0x7FFF;
     }
+
+    if (ix == 7) {
+        page16 = mts_OB_page[bg_w.stage][0];
+        page32 = mts_OB_page[bg_w.stage][1];
+        mts_ob_curr_stage = bg_w.stage;
+    } else {
+        page16 = mts_base[ix].p16;
+        page32 = mts_base[ix].p32;
+    }
+
+    mts[ix].mltnum16 = (u32)page16 << 8;
+    mts[ix].mltnum32 = page32 << 6;
+    mts[ix].mltnum = (u32)page16 + page32;
+    mts[ix].mltgidx16 = mts_base[ix].gix;
+    mts[ix].mltgidx32 = (u32)page16 + mts_base[ix].gix;
+    mts[ix].mltcshtime16 = mts_base[ix].life16;
+    mts[ix].mltcshtime32 = mts_base[ix].life32;
+
+    if ((mts[ix].ext = ((mts_base[ix].mode & 0x2000) != 0))) {
+        memreq = (mts[ix].mltnum16 * 8) + (mts[ix].mltnum32 * 8) + sizeof(PatternCollection) +
+                 sizeof(TexturePoolFree) + sizeof(TexturePoolUsed);
+        mts_ok[ix].key0 = Pull_ramcnt_key(memreq, mts_base[ix].type, 0, 0);
+        adrs = Get_ramcnt_pointer(mts_ok[ix].key0);
+        mts[ix].mltcsh16 = (PatternState*)adrs;
+        adrs += mts[ix].mltnum16 * 8;
+        mts[ix].mltcsh32 = (PatternState*)adrs;
+        adrs += mts[ix].mltnum32 * 8;
+        mts[ix].cpat = (PatternCollection*)adrs;
+        adrs += sizeof(PatternCollection);
+        mts[ix].tpf = (TexturePoolFree*)adrs;
+        adrs += sizeof(TexturePoolFree);
+        mts[ix].tpu = (TexturePoolUsed*)adrs;
+        SDL_zerop(mts[ix].cpat);
+        SDL_zerop(mts[ix].tpf);
+        SDL_zerop(mts[ix].tpu);
+        init_texcash_2nd(ix);
+    } else {
+        memreq = mts[ix].mltnum16 * 8 + mts[ix].mltnum32 * 8;
+        mts_ok[ix].key0 = Pull_ramcnt_key(memreq, mts_base[ix].type, 0, 0);
+        adrs = Get_ramcnt_pointer(mts_ok[ix].key0);
+        mts[ix].mltcsh16 = (PatternState*)adrs;
+        adrs += mts[ix].mltnum16 * 8;
+        mts[ix].mltcsh32 = (PatternState*)adrs;
+    }
+
+    mts[ix].mltbuf = texcash_melt_buffer;
+    memreq = ((mts_base[ix].mode & 4) != 0) + 1;
+    memreq *= (mts[ix].mltnum << 0x10);
+    mts_ok[ix].key1 = Pull_ramcnt_key(memreq, mts_base[ix].type, 0, 0);
+    mts[ix].attribute = mts_base[ix].attribute;
+    mlt_obj_trans_init(&mts[ix], mts_base[ix].mode, Get_ramcnt_pointer(mts_ok[ix].key1));
+
+    if (mts[ix].ext) {
+        init_texcash_2nd(ix);
+    }
+
+    mts[ix].id = ix;
+    mts[ix].mode = mts_base[ix].mode & 0xFF;
+    mts_ok[ix].be = 1;
+    mts_ok[ix].mincg = 0;
+    mts_ok[ix].min16 = 0x7FFF;
+    mts_ok[ix].min32 = 0x7FFF;
 }
 
 void Clear_texcash_work() {
