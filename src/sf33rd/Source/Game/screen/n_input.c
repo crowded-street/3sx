@@ -433,7 +433,7 @@ void rank_display_set(s16 pl_id) {
         rank = 3;
     }
 
-    scfont_sqput((pos_x + 1) & 0xFFFF, 0, 8, 0, (rank << 1) & 0xFF, 0x19, 2, 1, 2);
+    scfont_sqput(&(ScFontSquare){ (pos_x + 1) & 0xFFFF, 0, 8, 0, (rank << 1) & 0xFF, 0x19, 2, 1 }, 2);
 }
 
 void Scs_char_move() {

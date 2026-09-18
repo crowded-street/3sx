@@ -58,26 +58,26 @@ void combo_message_set(u8 pl, u8 kind, u8 x, u8 num, u8 hi, u8 low) {
     case 0:
         if (pl == 0) {
             if (hi != 0) {
-                scfont_sqput(x, 7, 8, 0, hi, 6, 1, 2, 2);
+                scfont_sqput(&(ScFontSquare){ x, 7, 8, 0, hi, 6, 1, 2 }, 2);
             }
 
             if (num > 1) {
-                scfont_sqput(x + 1, 7, 8, 0, low, 6, 1, 2, 2);
+                scfont_sqput(&(ScFontSquare){ x + 1, 7, 8, 0, low, 6, 1, 2 }, 2);
             }
 
             if (num > 3) {
-                scfont_sqput(x + 3, 7, 8, 2, combo_mtbl[kind][0], combo_mtbl[kind][1], xw, 2, 2);
+                scfont_sqput(&(ScFontSquare){ x + 3, 7, 8, 2, combo_mtbl[kind][0], combo_mtbl[kind][1], xw, 2 }, 2);
                 return;
             }
         } else {
-            scfont_sqput(xw2, 7, 8, 2, (combo_mtbl[kind][0] + combo_mtbl[kind][2]) - xw, combo_mtbl[kind][1], xw, 2, 2);
+            scfont_sqput(&(ScFontSquare){ xw2, 7, 8, 2, (combo_mtbl[kind][0] + combo_mtbl[kind][2]) - xw, combo_mtbl[kind][1], xw, 2 }, 2);
 
             if (xw2 > 1) {
-                scfont_sqput(xw2 - 2, 7, 8, 0, low, 6, 1, 2, 2);
+                scfont_sqput(&(ScFontSquare){ xw2 - 2, 7, 8, 0, low, 6, 1, 2 }, 2);
             }
 
             if ((xw2 > 2) && (hi != 0)) {
-                scfont_sqput(xw2 - 3, 7, 8, 0, hi, 6, 1, 2, 2);
+                scfont_sqput(&(ScFontSquare){ xw2 - 3, 7, 8, 0, hi, 6, 1, 2 }, 2);
                 return;
             }
         }
@@ -89,9 +89,9 @@ void combo_message_set(u8 pl, u8 kind, u8 x, u8 num, u8 hi, u8 low) {
     case 5:
     case 6:
         if (pl == 0) {
-            scfont_sqput(x, 7, 8, 2, combo_mtbl[kind][0], combo_mtbl[kind][1], xw, 2, 2);
+            scfont_sqput(&(ScFontSquare){ x, 7, 8, 2, combo_mtbl[kind][0], combo_mtbl[kind][1], xw, 2 }, 2);
         } else {
-            scfont_sqput(xw2, 7, 8, 2, (combo_mtbl[kind][0] + combo_mtbl[kind][2]) - xw, combo_mtbl[kind][1], xw, 2, 2);
+            scfont_sqput(&(ScFontSquare){ xw2, 7, 8, 2, (combo_mtbl[kind][0] + combo_mtbl[kind][2]) - xw, combo_mtbl[kind][1], xw, 2 }, 2);
         }
 
         break;
@@ -178,7 +178,7 @@ void score8x16_put(u16 x, u16 y, u8 atr, u8 chr, u8 priority) {
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    scfont_sqput(x, y, atr, 0, chr, 6, 1, 2, priority);
+    scfont_sqput(&(ScFontSquare){ x, y, atr, 0, chr, 6, 1, 2 }, priority);
 }
 
 void score16x24_put(u16 x, u16 y, u8 atr, u8 chr) {
@@ -187,7 +187,7 @@ void score16x24_put(u16 x, u16 y, u8 atr, u8 chr) {
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    scfont_sqput(x, y, atr, 2, chr * 2, 6, 2, 3, 2);
+    scfont_sqput(&(ScFontSquare){ x, y, atr, 2, chr * 2, 6, 2, 3 }, 2);
 }
 
 void naming_set(u8 pl, s16 place, u16 atr, u16 chr) {

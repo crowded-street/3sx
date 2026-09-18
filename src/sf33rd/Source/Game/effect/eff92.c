@@ -24,7 +24,7 @@ void effect_92_move(WORK_Other* ewk) {
 
         if (ewk->wu.type == 0xFF) {
             ewk->wu.type = win_type[ewk->master_id][ewk->wu.dir_step];
-            scfont_sqput(vmark_tbl[ewk->wu.dir_step + (ewk->master_id << 2)], 4, 7, 0, ewk->wu.type << 1, 26, 2, 1, 2);
+            scfont_sqput(&(ScFontSquare){ vmark_tbl[ewk->wu.dir_step + (ewk->master_id << 2)], 4, 7, 0, ewk->wu.type << 1, 26, 2, 1 }, 2);
         }
 
         if (ewk->wu.dir_timer == 99) {

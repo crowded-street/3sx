@@ -99,7 +99,7 @@ void vital_control(u8 pl) {
 }
 
 void vital_parts_allwrite(u8 Pl_Num) {
-    scfont_sqput(Pl_Num * 27, 2, 1, 0, Pl_Num, Pl_Num + 30, 21, 1, TopHUDVitalPriority);
+    scfont_sqput(&(ScFontSquare){ Pl_Num * 27, 2, 1, 0, Pl_Num, Pl_Num + 30, 21, 1 }, TopHUDVitalPriority);
 
     if (omop_vt_bar_disp[Pl_Num] == 0) {
         silver_vital_put(Pl_Num);

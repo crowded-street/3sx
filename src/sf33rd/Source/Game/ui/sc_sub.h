@@ -73,7 +73,18 @@ typedef struct {
 
 void scfont_put(const ScFontCell* c, u16 priority);
 void scfont_put2(const ScFontCell* c);
-void scfont_sqput(u16 x, u16 y, u8 atr, u8 page, u8 cx1, u8 cy1, u8 cx2, u8 cy2, u16 priority);
+typedef struct {
+    u16 x;
+    u16 y;
+    u8 atr;
+    u8 page;
+    u8 cx1;
+    u8 cy1;
+    u8 cx2;
+    u8 cy2;
+} ScFontSquare;
+
+void scfont_sqput(const ScFontSquare* c, u16 priority);
 void scfont_sqput2(u16 x, u16 y, u8 atr, u8 inverse, u8 page, u8 cx1, u8 cy1, u8 cx2, u8 cy2);
 void sc_clear(u16 sposx, u16 sposy, u16 eposx, u16 eposy);
 void vital_put(u8 Pl_Num, s8 atr, s16 vital, u8 kind, u16 priority);

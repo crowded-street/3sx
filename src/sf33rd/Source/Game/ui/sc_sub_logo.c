@@ -263,29 +263,9 @@ void player_face() {
     grade_tmp = Keep_Grade[Champion] - 1;
 
     if (grade_tmp < 0x18) {
-        scfont_sqput(
-            (Champion * 41) + 1,
-            1,
-            27,
-            2,
-            Grade_Pos_TBL[grade_tmp][0],
-            Grade_Pos_TBL[grade_tmp][1],
-            5,
-            1,
-            TopHUDPriority
-        );
+        scfont_sqput(&(ScFontSquare){ (Champion * 41) + 1, 1, 27, 2, Grade_Pos_TBL[grade_tmp][0], Grade_Pos_TBL[grade_tmp][1], 5, 1 }, TopHUDPriority);
     } else {
-        scfont_sqput(
-            (Champion * 41) + 1,
-            1,
-            28,
-            2,
-            Grade_Pos_TBL[grade_tmp][0],
-            Grade_Pos_TBL[grade_tmp][1],
-            5,
-            1,
-            TopHUDPriority
-        );
+        scfont_sqput(&(ScFontSquare){ (Champion * 41) + 1, 1, 28, 2, Grade_Pos_TBL[grade_tmp][0], Grade_Pos_TBL[grade_tmp][1], 5, 1 }, TopHUDPriority);
     }
 }
 
