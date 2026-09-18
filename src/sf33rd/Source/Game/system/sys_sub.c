@@ -263,18 +263,40 @@ bool Cut_Cut_Cut() {
     return false;
 }
 
-void Score_Sub() {
-    u32 Score_Buff;
+static void put_score_digits(s16 PL_id, u32 Score_Buff) {
     s8 i;
     s8 j;
     s32 xx;
     s8 First_Digit;
     s8 Digit[8];
-    s16 PL_id;
 
     s8 assign1;
     s32 assign2;
     s8 assign3;
+
+    for (i = 7, xx = 10000000, assign1 = First_Digit = -1; i > 0; i--, assign2 = xx /= 10) {
+        Digit[i] = Score_Buff / xx;
+        Score_Buff -= Digit[i] * xx;
+
+        if (First_Digit < 0 && Digit[i]) {
+            First_Digit = i;
+        }
+    }
+
+    Digit[0] = Score_Buff;
+
+    if (First_Digit < 0) {
+        First_Digit = 1;
+    }
+
+    for (i = Coin_Message_Data[3][PL_id] - First_Digit, j = First_Digit; j >= 0; j--, assign3 = i++) {
+        score8x16_put(i, 0, 8, Digit[j], TopHUDPriority);
+    }
+}
+
+void Score_Sub() {
+    u32 Score_Buff;
+    s16 PL_id;
 
     if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
         return;
@@ -297,24 +319,7 @@ void Score_Sub() {
             Keep_Score[PL_id] = Score_Buff;
         }
 
-        for (i = 7, xx = 10000000, assign1 = First_Digit = -1; i > 0; i--, assign2 = xx /= 10) {
-            Digit[i] = Score_Buff / xx;
-            Score_Buff -= Digit[i] * xx;
-
-            if (First_Digit < 0 && Digit[i]) {
-                First_Digit = i;
-            }
-        }
-
-        Digit[0] = Score_Buff;
-
-        if (First_Digit < 0) {
-            First_Digit = 1;
-        }
-
-        for (i = Coin_Message_Data[3][PL_id] - First_Digit, j = First_Digit; j >= 0; j--, assign3 = i++) {
-            score8x16_put(i, 0, 8, Digit[j], TopHUDPriority);
-        }
+        put_score_digits(PL_id, Score_Buff);
     }
 }
 
