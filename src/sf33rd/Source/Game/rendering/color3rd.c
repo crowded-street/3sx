@@ -331,6 +331,17 @@ static void load_flat_color_file(s16 key, u16 data) {
     palUpdateGhostCP3(data, size / 64);
 }
 
+// Both arms of the one-player case fill the same two metamorphosis banks and
+// differ in a single value: which source bank the second one is taken from.
+static void copy_metamor_banks(s16 id, COL_x1000* dadr, s16 second_bank) {
+    s16 i;
+
+    for (i = 0; i < 64; i++) {
+        hi_meta[id][0][i] = dadr->col[0][Player_Color[id]][i];
+        hi_meta[id][1][i] = dadr->col[second_bank][Player_Color[id]][i];
+    }
+}
+
 // Type 3 fills the metamorphosis source banks. id 2 means both players at once
 // off player 0's bank; otherwise the second bank is taken only when the other
 // player is on the default character.
@@ -350,15 +361,9 @@ static void load_metamor_color_file(s16 id, s16 key) {
         metamor_color_store(1);
     } else {
         if ((My_char[(id + 1) & 1]) == 0) {
-            for (i = 0; i < 64; i++) {
-                hi_meta[id][0][i] = dadr->col[0][Player_Color[id]][i];
-                hi_meta[id][1][i] = dadr->col[1][Player_Color[id]][i];
-            }
+            copy_metamor_banks(id, dadr, 1);
         } else {
-            for (i = 0; i < 64; i++) {
-                hi_meta[id][0][i] = dadr->col[0][Player_Color[id]][i];
-                hi_meta[id][1][i] = dadr->col[0][Player_Color[id]][i];
-            }
+            copy_metamor_banks(id, dadr, 0);
         }
 
         metamor_color_store(id);
