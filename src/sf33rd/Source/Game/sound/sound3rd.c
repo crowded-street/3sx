@@ -460,11 +460,9 @@ static void bgm_fade_in_step() {
     }
 }
 
-void BGM_Server() {
-    if (!(system_init_level & 2)) {
-        return;
-    }
-
+/* Take a pending request into the execution record, and cancel the play outright for a
+ * track whose table entry is marked unplayable. */
+static void bgm_latch_request() {
     if (bgm_req.req) {
         bgm_req.req = 0;
         bgm_exe.kind = bgm_req.kind;
@@ -479,7 +477,83 @@ void BGM_Server() {
         if (bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0x8000) {
             bgm_exe.kind = 0;
         }
+}
+}
+
+/* Start a track from a stop: seamless chain if it has one, otherwise a paused plain
+ * play. */
+static void bgm_begin_playback() {
+    ADX_Stop();
+
+    if (bgm_plays_seamless_entries()) {
+        bgm_exe.exIndex = bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0xFF;
+        bgm_exe.exEntry = bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numStart;
+        bgm_volume_setup(0);
+        ADX_Pause(1);
+
+        bgm_play_request(bgm_exe.exEntry, 0);
+        bgm_exe.nowSeamless = 1;
+
+        ADX_StartSeamless();
+    } else {
+        bgm_seamless_clear();
+        bgm_volume_setup(0);
+
+        ADX_Pause(1);
+
+        bgm_start_current_track();
+}
+
+current_bgm = bgm_exe.code;
+bgm_exe.kind = 0;
+}
+
+/* Restart a track that may already be playing, leaving a live seamless chain alone. */
+static void bgm_restart_playback() {
+    if (bgm_plays_seamless_entries()) {
+        if (bgm_seamless_chain_must_restart()) {
+            bgm_exe.exIndex = bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0xFF;
+            bgm_exe.exEntry = bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numStart;
+
+            if (bgm_exe.nowSeamless == 0) {
+                ADX_Stop();
+                bgm_volume_setup(0);
+            }
+
+            bgm_enter_seamless_playback();
+        }
+    } else {
+        bgm_seamless_clear();
+        bgm_volume_setup(0);
+
+        bgm_start_current_track();
+}
+
+bgm_resume_if_paused();
+
+current_bgm = bgm_exe.code;
+bgm_exe.kind = 0;
+}
+
+/* Queue the next entry of a running seamless chain, looping at its end. */
+static void bgm_advance_seamless_chain() {
+    if (bgm_exe.nowSeamless && (ADX_GetNumFiles() <= 0)) {
+        bgm_exe.exEntry += 1;
+
+        if (bgm_exe.exEntry > bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numEnd) {
+            bgm_exe.exEntry = bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numLoop;
+        }
+
+        bgm_play_request(bgm_exe.exEntry, 0);
     }
+}
+
+void BGM_Server() {
+    if (!(system_init_level & 2)) {
+        return;
+    }
+
+    bgm_latch_request();
 
     if (bgm_exe.code != 0) {
         bgm_vol_mix = bgm_level * bgm_table[sys_w.bgm_type][bgm_exe.code].vol / 15;
@@ -494,29 +568,7 @@ void BGM_Server() {
         break;
 
     case 2:
-        ADX_Stop();
-
-        if (bgm_plays_seamless_entries()) {
-            bgm_exe.exIndex = bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0xFF;
-            bgm_exe.exEntry = bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numStart;
-            bgm_volume_setup(0);
-            ADX_Pause(1);
-
-            bgm_play_request(bgm_exe.exEntry, 0);
-            bgm_exe.nowSeamless = 1;
-
-            ADX_StartSeamless();
-        } else {
-            bgm_seamless_clear();
-            bgm_volume_setup(0);
-
-            ADX_Pause(1);
-
-            bgm_start_current_track();
-        }
-
-        current_bgm = bgm_exe.code;
-        bgm_exe.kind = 0;
+        bgm_begin_playback();
         break;
 
     case 3:
@@ -526,29 +578,7 @@ void BGM_Server() {
         break;
 
     case 4:
-        if (bgm_plays_seamless_entries()) {
-            if (bgm_seamless_chain_must_restart()) {
-                bgm_exe.exIndex = bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0xFF;
-                bgm_exe.exEntry = bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numStart;
-
-                if (bgm_exe.nowSeamless == 0) {
-                    ADX_Stop();
-                    bgm_volume_setup(0);
-                }
-
-                bgm_enter_seamless_playback();
-            }
-        } else {
-            bgm_seamless_clear();
-            bgm_volume_setup(0);
-
-            bgm_start_current_track();
-        }
-
-        bgm_resume_if_paused();
-
-        current_bgm = bgm_exe.code;
-        bgm_exe.kind = 0;
+        bgm_restart_playback();
         break;
 
     case 5:
@@ -572,15 +602,7 @@ void BGM_Server() {
         break;
     }
 
-    if (bgm_exe.nowSeamless && (ADX_GetNumFiles() <= 0)) {
-        bgm_exe.exEntry += 1;
-
-        if (bgm_exe.exEntry > bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numEnd) {
-            bgm_exe.exEntry = bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numLoop;
-        }
-
-        bgm_play_request(bgm_exe.exEntry, 0);
-    }
+bgm_advance_seamless_chain();
 }
 
 s32 bgm_separate_check() {
