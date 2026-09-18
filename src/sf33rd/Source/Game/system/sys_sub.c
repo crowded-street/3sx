@@ -1820,6 +1820,30 @@ s16 Check_EM_Buff(s16 ix, s16 ok_urien) {
     }
 }
 
+/* The candidates with their own slot rule. The case labels are the original
+ * ones, so the characters still read as the same numbers, and the terminal
+ * `default: return 1;` is the one this switch always had. */
+static s32 em_allowed_in_late_slot(s16 ix, s16 ok_urien, s16 em) {
+    switch (em) {
+    case 14:
+        if (ix < 6) {
+            return 0;
+        }
+
+        return 1;
+
+    case 13:
+        if (ok_urien != 0 && ix < 4) {
+            return 0;
+        }
+
+        return 1;
+
+    default:
+        return 1;
+    }
+}
+
 s32 Check_EM_Sub(s16 ix, s16 ok_urien, s16 Rnd) {
     s16 em;
 
@@ -1840,22 +1864,8 @@ s32 Check_EM_Sub(s16 ix, s16 ok_urien, s16 Rnd) {
 
         return 1;
 
-    case 14:
-        if (ix < 6) {
-            return 0;
-        }
-
-        return 1;
-
-    case 13:
-        if (ok_urien != 0 && ix < 4) {
-            return 0;
-        }
-
-        return 1;
-
     default:
-        return 1;
+        return em_allowed_in_late_slot(ix, ok_urien, em);
     }
 }
 
