@@ -1017,8 +1017,12 @@ void mlt_obj_trans_cp3_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
     }
 }
 
-static void store_trans_cp3_tiles(MultiTexture* mt, WORK* wk, u32* textbl, TileMapEntry* trsptr, s32 count, s32 flip,
-                                  s32 palo, f32 x, f32 y, PatternCode cc) {
+static void store_trans_cp3_tiles(const TransRun* run) {
+    TileMapEntry* trsptr = run->trsptr;
+    s32 count = run->count;
+    f32 x = run->x;
+    f32 y = run->y;
+    PatternCode cc = run->cc;
     TEX* texptr;
     s32 rnum;
     s32 size;
@@ -1030,57 +1034,57 @@ static void store_trans_cp3_tiles(MultiTexture* mt, WORK* wk, u32* textbl, TileM
     s32 palt;
 
     while (count--) {
-        x = advance_trans_x(x, flip, trsptr);
-        y = advance_trans_y(y, flip, trsptr);
+        x = advance_trans_x(x, run->flip, trsptr);
+        y = advance_trans_y(y, run->flip, trsptr);
 
-        texptr = (TEX*)((uintptr_t)textbl + ((u32*)textbl)[trsptr->code]);
+        texptr = (TEX*)((uintptr_t)run->textbl + ((u32*)run->textbl)[trsptr->code]);
         dw = (s32)(texptr->wh & 0xE0) >> 2;
         dh = (texptr->wh & 0x1C) * 2;
         wh = (texptr->wh & 3) + 1;
         size = (wh * wh) << 6;
         attr = trsptr->attr;
-        palt = (attr & 0x1FF) + palo;
-        attr = (attr ^ flip) & 0xC000;
+        palt = (attr & 0x1FF) + run->palo;
+        attr = (attr ^ run->flip) & 0xC000;
         cc.parts.offset = trsptr->code;
 
         switch (wh) {
         case 1:
         case 2:
-            if (get_mltbuf16(mt, cc.code, 0, &code) != 0) {
-                lz_ext_p6_fx(&((u8*)texptr)[1], mt->mltbuf, size);
-                njReLoadTexturePartNumG(mt->mltgidx16 + (code >> 8), (s8*)mt->mltbuf, code & 0xFF, size);
+            if (get_mltbuf16(run->mt, cc.code, 0, &code) != 0) {
+                lz_ext_p6_fx(&((u8*)texptr)[1], run->mt->mltbuf, size);
+                njReLoadTexturePartNumG(run->mt->mltgidx16 + (code >> 8), (s8*)run->mt->mltbuf, code & 0xFF, size);
             }
 
             rnum = seqsStoreChip(
-                x - (dw * BOOL(flip & 0x8000)),
-                y + (dh * BOOL(flip & 0x4000)),
+                x - (dw * BOOL(run->flip & 0x8000)),
+                y + (dh * BOOL(run->flip & 0x4000)),
                 dw,
                 dh,
-                mt->mltgidx16,
+                run->mt->mltgidx16,
                 code,
                 attr | palt,
-                wk->my_clear_level,
-                mt->id
+                run->wk->my_clear_level,
+                run->mt->id
             );
 
             break;
 
         case 4:
-            if (get_mltbuf32(mt, cc.code, 0, &code) != 0) {
-                lz_ext_p6_fx(&((u8*)texptr)[1], mt->mltbuf, size);
-                njReLoadTexturePartNumG(mt->mltgidx32 + (code >> 6), (s8*)mt->mltbuf, code & 0x3F, size);
+            if (get_mltbuf32(run->mt, cc.code, 0, &code) != 0) {
+                lz_ext_p6_fx(&((u8*)texptr)[1], run->mt->mltbuf, size);
+                njReLoadTexturePartNumG(run->mt->mltgidx32 + (code >> 6), (s8*)run->mt->mltbuf, code & 0x3F, size);
             }
 
             rnum = seqsStoreChip(
-                x - (dw * BOOL(flip & 0x8000)),
-                y + (dh * BOOL(flip & 0x4000)),
+                x - (dw * BOOL(run->flip & 0x8000)),
+                y + (dh * BOOL(run->flip & 0x4000)),
                 dw,
                 dh,
-                mt->mltgidx32,
+                run->mt->mltgidx32,
                 code,
                 attr | 0x2000 | palt,
-                wk->my_clear_level,
-                mt->id
+                run->wk->my_clear_level,
+                run->mt->id
             );
 
             break;
@@ -1145,7 +1149,7 @@ void mlt_obj_trans_cp3(MultiTexture* mt, WORK* wk, s32 base_y) {
 
     mlt_obj_matrix(wk, base_y);
     cc.parts.group = i;
-    store_trans_cp3_tiles(mt, wk, textbl, trsptr, count, flip, palo, x, y, cc);
+    store_trans_cp3_tiles(&(TransRun){ mt, wk, textbl, trsptr, count, flip, palo, x, y, cc });
 
     seqs_w.up[mt->id] = 1;
     appRenewTempPriority(wk->position_z);
