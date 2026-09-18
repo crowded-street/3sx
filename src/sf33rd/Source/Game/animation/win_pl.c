@@ -660,6 +660,20 @@ void Win_09000(PLW* wk) {
     }
 }
 
+static void choose_q_close_action(s16 id_w, s16 work) {
+    if (work & 1) {
+        if (plw[id_w].wu.char_index != 67) {
+            win_rno[0] = 1;
+        } else {
+            win_rno[0] = 3;
+        }
+    } else if (plw[id_w].wu.char_index != 67) {
+        win_rno[0] = 2;
+    } else {
+        win_rno[0] = 4;
+    }
+}
+
 static void choose_q_win_action(PLW* wk, s16 id_w, s16 work) {
     s16 work2;
 
@@ -676,17 +690,7 @@ static void choose_q_win_action(PLW* wk, s16 id_w, s16 work) {
             win_rno[0] = 2;
         }
     } else if (work > 1) {
-        if (work & 1) {
-            if (plw[id_w].wu.char_index != 67) {
-                win_rno[0] = 1;
-            } else {
-                win_rno[0] = 3;
-            }
-        } else if (plw[id_w].wu.char_index != 67) {
-            win_rno[0] = 2;
-        } else {
-            win_rno[0] = 4;
-        }
+        choose_q_close_action(id_w, work);
     } else if (work & 1) {
         win_rno[0] = 1;
     } else {
