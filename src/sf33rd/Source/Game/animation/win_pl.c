@@ -593,79 +593,87 @@ void Win_06000(PLW* wk) {
     step_win_anime(wk, start_win_06000_pose);
 }
 
-void Win_07000(PLW* wk) {
+static void start_win_07000_pose(PLW* wk) {
     s16 work;
 
+    win_rno[0] = win_rno[1] = 0;
+    wk->wu.routine_no[3]++;
+
+    if (winner_on_match_point(wk)) {
+        work = win_select(wk, 7);
+
+        if (work < 4) {
+            if (plw[0].player_number == 5 && plw[1].player_number == 5) {
+                win_rno[0] = 0;
+                set_char_move_init(&wk->wu, 9, work + 32);
+                return;
+            }
+
+            effect_82_init(&wk->wu);
+            win_rno[0] = 1;
+            set_char_move_init(&wk->wu, 9, 60);
+            wk->wu.cmwk[1] = 0;
+            return;
+        }
+
+        if (plw[0].player_number == 5 && plw[1].player_number == 5) {
+            win_rno[0] = 0;
+            set_char_move_init(&wk->wu, 9, work + 32);
+            return;
+        }
+
+        effect_83_init(&wk->wu);
+        win_rno[0] = 2;
+        set_char_move_init(&wk->wu, 9, 60);
+        wk->wu.cmwk[1] = 0;
+        return;
+    }
+
+    win_rno[0] = 0;
+    work = win_select(wk, 7);
+    set_char_move_init(&wk->wu, 9, work + 32);
+}
+
+static void step_win_07000_effect(PLW* wk) {
+    switch (win_rno[0]) {
+    case 0:
+        char_move(&wk->wu);
+        break;
+
+    default:
+        if (win_rno[1] == 0) {
+            if (wk->wu.cmwk[1]) {
+                win_rno[1]++;
+
+                if (win_rno[0] == 1) {
+                    set_char_move_init(&wk->wu, 9, 32);
+                } else {
+                    set_char_move_init(&wk->wu, 9, 37);
+                }
+
+                break;
+            }
+
+            char_move(&wk->wu);
+            break;
+        }
+
+        char_move(&wk->wu);
+    }
+}
+
+void Win_07000(PLW* wk) {
     bg_app_stop = 1;
 
     update_field_hosei_flags(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        win_rno[0] = win_rno[1] = 0;
-        wk->wu.routine_no[3]++;
-
-        if (winner_on_match_point(wk)) {
-            work = win_select(wk, 7);
-
-            if (work < 4) {
-                if (plw[0].player_number == 5 && plw[1].player_number == 5) {
-                    win_rno[0] = 0;
-                    set_char_move_init(&wk->wu, 9, work + 32);
-                    break;
-                }
-
-                effect_82_init(&wk->wu);
-                win_rno[0] = 1;
-                set_char_move_init(&wk->wu, 9, 60);
-                wk->wu.cmwk[1] = 0;
-                break;
-            }
-
-            if (plw[0].player_number == 5 && plw[1].player_number == 5) {
-                win_rno[0] = 0;
-                set_char_move_init(&wk->wu, 9, work + 32);
-                break;
-            }
-
-            effect_83_init(&wk->wu);
-            win_rno[0] = 2;
-            set_char_move_init(&wk->wu, 9, 60);
-            wk->wu.cmwk[1] = 0;
-            break;
-        }
-
-        win_rno[0] = 0;
-        work = win_select(wk, 7);
-        set_char_move_init(&wk->wu, 9, work + 32);
+        start_win_07000_pose(wk);
         break;
 
     default:
-        switch (win_rno[0]) {
-        case 0:
-            char_move(&wk->wu);
-            break;
-
-        default:
-            if (win_rno[1] == 0) {
-                if (wk->wu.cmwk[1]) {
-                    win_rno[1]++;
-
-                    if (win_rno[0] == 1) {
-                        set_char_move_init(&wk->wu, 9, 32);
-                    } else {
-                        set_char_move_init(&wk->wu, 9, 37);
-                    }
-
-                    break;
-                }
-
-                char_move(&wk->wu);
-                break;
-            }
-
-            char_move(&wk->wu);
-        }
+        step_win_07000_effect(wk);
     }
 }
 
