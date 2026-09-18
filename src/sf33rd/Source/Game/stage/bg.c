@@ -537,7 +537,7 @@ static u16 load_ending_rewrite_textures(const TextureSource* source, u8 j, u8 x,
     return accnum;
 }
 
-static u16 load_ending_screen_textures(s16 type, void* loadAdrs, u32 loadSize, u8 j, u16 accnum) {
+static u16 load_ending_screen_textures(s16 type, const TextureSource* source, u8 j, u16 accnum) {
     u32 tgbix[2];
     u32 mask;
     u8 i;
@@ -548,7 +548,7 @@ static u16 load_ending_screen_textures(s16 type, void* loadAdrs, u32 loadSize, u
     tgbix[1] = bgtex_ending_gbix[type][(j * 2) + 1];
     mask = 0x80000000;
     ppgSetupCurrentDataList(&ppgBgList[j]);
-    ppgSetupTexChunk_1st(NULL, loadAdrs, loadSize, (j * 64) + 100, 64, 0, 0);
+    ppgSetupTexChunk_1st(NULL, source->adrs, source->size, (j * 64) + 100, 64, 0, 0);
     ppgSetupTexChunk_1st_Accnum(0, accnum);
 
     for (k = 0; k < 2; k++) {
@@ -599,7 +599,7 @@ void Bg_Texture_Load_Ending(s16 type) {
     }
 
     for (accnum = 0, j = 0; j < bg_w.scrno; j++) {
-        accnum = load_ending_screen_textures(type, loadAdrs, loadSize, j, accnum);
+        accnum = load_ending_screen_textures(type, &(TextureSource){ loadAdrs, loadSize }, j, accnum);
     }
 
     x = ending_rewrite_scr[type];
