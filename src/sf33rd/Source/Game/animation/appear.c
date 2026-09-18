@@ -997,7 +997,8 @@ void Appear_18000(PLW* wk) {
             }
 
             set_char_move_init(&wk->wu, 9, 0x10);
-            goto one;
+            bg_app_stop = 1;
+            break;
         }
 
         Appear_free[wk->wu.id] = 1;
@@ -1012,11 +1013,11 @@ void Appear_18000(PLW* wk) {
 
         if (wk->wu.id) {
             cal_delta_speed(&wk->wu, appear_work[wk->wu.id], (bg_w.bgw[1].pos_x_work + 0x58), 0, 0, 1);
-            goto one;
+            bg_app_stop = 1;
+            break;
         }
         cal_delta_speed(&wk->wu, appear_work[wk->wu.id], (bg_w.bgw[1].pos_x_work - 0x58), 0, 0, 1);
 
-    one:
         bg_app_stop = 1;
         break;
 
