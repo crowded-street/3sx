@@ -828,8 +828,33 @@ void Appear_13000(PLW* wk) {
     }
 }
 
-void Appear_14000(PLW* wk) {
+static void step_appear_14000_partner(PLW* wk, s16 id_w) {
     s16 work;
+
+    switch (Appear_free[id_w]) {
+    case 0:
+        char_move(&wk->wu);
+        break;
+
+    case 1:
+        work = wk->wu.cg_ix / wk->wu.cgd_type;
+        set_char_move_init2(&wk->wu, 0, 0, work + 1, 0);
+        wk->wu.routine_no[2] = 1;
+        wk->wu.routine_no[3] = 1;
+        Appear_end += 1;
+        break;
+
+    case 2:
+        char_move(&wk->wu);
+        if (wk->wu.cg_type == 0xFF) {
+            wk->wu.routine_no[2] = 1;
+            wk->wu.routine_no[3] = 0;
+            Appear_end += 1;
+        }
+    }
+}
+
+void Appear_14000(PLW* wk) {
     s16 id_w = wk->wu.id ^ 1;
 
     switch (wk->wu.routine_no[3]) {
@@ -847,27 +872,7 @@ void Appear_14000(PLW* wk) {
         break;
 
     case 1:
-        switch (Appear_free[id_w]) {
-        case 0:
-            char_move(&wk->wu);
-            break;
-
-        case 1:
-            work = wk->wu.cg_ix / wk->wu.cgd_type;
-            set_char_move_init2(&wk->wu, 0, 0, work + 1, 0);
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 1;
-            Appear_end += 1;
-            break;
-
-        case 2:
-            char_move(&wk->wu);
-            if (wk->wu.cg_type == 0xFF) {
-                wk->wu.routine_no[2] = 1;
-                wk->wu.routine_no[3] = 0;
-                Appear_end += 1;
-            }
-        }
+        step_appear_14000_partner(wk, id_w);
     }
 }
 
