@@ -323,18 +323,31 @@ void Win_04000(PLW* wk) {
     }
 }
 
-void Normal_normal_Winner(PLW* wk) {
+static void start_normal_winner_pose(PLW* wk) {
     s16 work;
 
+    wk->wu.routine_no[3]++;
+    work = win_select(wk, 7);
+    set_char_move_init(&wk->wu, 9, work + 32);
+}
+
+static void start_judge_winner_pose(PLW* wk) {
+    s16 work;
+
+    win_rno[0] = win_rno[1] = 0;
+    wk->wu.routine_no[3]++;
+    work = win_select(wk, 3);
+    set_char_move_init(&wk->wu, 9, work + 52);
+}
+
+void Normal_normal_Winner(PLW* wk) {
     bg_app_stop = 1;
 
     update_field_hosei_flags(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        work = win_select(wk, 7);
-        set_char_move_init(&wk->wu, 9, work + 32);
+        start_normal_winner_pose(wk);
         break;
 
     case 1:
@@ -345,18 +358,13 @@ void Normal_normal_Winner(PLW* wk) {
 }
 
 void Judge_normal_winner(PLW* wk) {
-    s16 work;
-
     bg_app_stop = 1;
 
     update_field_hosei_flags(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        win_rno[0] = win_rno[1] = 0;
-        wk->wu.routine_no[3]++;
-        work = win_select(wk, 3);
-        set_char_move_init(&wk->wu, 9, work + 52);
+        start_judge_winner_pose(wk);
         break;
 
     case 1:
