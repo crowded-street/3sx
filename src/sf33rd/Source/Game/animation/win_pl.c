@@ -1057,54 +1057,66 @@ static void update_bonus_hosei_flags() {
     }
 }
 
+static void start_bonus_timeup_pose(PLW* wk) {
+    if (wk->wu.operator) {
+        if (Time_Over) {
+            set_char_move_init(&wk->wu, 9, 67);
+        } else {
+            set_char_move_init(&wk->wu, 9, 65);
+        }
+
+        return;
+    }
+
+    wk->wu.routine_no[3] = 99;
+}
+
+static void start_bonus_operator_pose(PLW* wk) {
+    if (Bonus_Game_result == 20 || Bonus_Game_ex_result == 20) {
+        set_char_move_init(&wk->wu, 9, 65);
+        return;
+    }
+
+    if (Bonus_Game_result > 10) {
+        set_char_move_init(&wk->wu, 9, 66);
+        return;
+    }
+
+    set_char_move_init(&wk->wu, 9, 67);
+}
+
+static void start_bonus_perfect_pose(PLW* wk) {
+    win_rno[0] = 1;
+
+    if (wk->wu.rl_flag) {
+        wk->wu.mvxy.a[0].sp = 0x20000;
+    } else {
+        wk->wu.mvxy.a[0].sp = -0x20000;
+    }
+
+    wk->wu.mvxy.d[0].sp = 0;
+    wk->wu.mvxy.a[1].sp = 0x80000;
+    wk->wu.mvxy.d[1].sp = -0x6000;
+    win_rno[0] = 0;
+    set_char_move_init(&wk->wu, 9, 66);
+}
+
 static void start_bonus_win_pose(PLW* wk) {
     wk->wu.routine_no[3]++;
     win_rno[0] = win_rno[1] = 0;
 
     if (Bonus_Game_Flag == 20) {
-        if (wk->wu.operator) {
-            if (Time_Over) {
-                set_char_move_init(&wk->wu, 9, 67);
-            } else {
-                set_char_move_init(&wk->wu, 9, 65);
-            }
-
-            return;
-        }
-
-        wk->wu.routine_no[3] = 99;
+        start_bonus_timeup_pose(wk);
         return;
     }
 
     if (wk->wu.operator) {
-        if (Bonus_Game_result == 20 || Bonus_Game_ex_result == 20) {
-            set_char_move_init(&wk->wu, 9, 65);
-            return;
-        }
-
-        if (Bonus_Game_result > 10) {
-            set_char_move_init(&wk->wu, 9, 66);
-            return;
-        }
-
-        set_char_move_init(&wk->wu, 9, 67);
+        start_bonus_operator_pose(wk);
         return;
     }
 
     if (Bonus_Game_result == 20 || Bonus_Game_ex_result == 20) {
-        win_rno[0] = 1;
-
-        if (wk->wu.rl_flag) {
-            wk->wu.mvxy.a[0].sp = 0x20000;
-        } else {
-            wk->wu.mvxy.a[0].sp = -0x20000;
-        }
-
-        wk->wu.mvxy.d[0].sp = 0;
-        wk->wu.mvxy.a[1].sp = 0x80000;
-        wk->wu.mvxy.d[1].sp = -0x6000;
-        win_rno[0] = 0;
-        set_char_move_init(&wk->wu, 9, 66);
+        start_bonus_perfect_pose(wk);
         return;
     }
 
