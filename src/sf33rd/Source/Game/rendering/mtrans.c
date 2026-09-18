@@ -1345,23 +1345,39 @@ static f32 advance_trans_y(f32 y, s32 flip, TileMapEntry* trsptr) {
     return y;
 }
 
-static s32 load_trans_rgb16(MultiTexture* mt, TEX* texptr, s32 size, u32 pattern_code, s32 palt) {
+// One true-colour tile to make resident: where it comes from, how big it is,
+// and which pattern and palette it answers to. These are load_trans_rgb16's
+// and load_trans_rgb32's five arguments, which are the same list in the same
+// order with the same types.
+typedef struct {
+    MultiTexture* mt;
+    TEX* texptr;
+    s32 size;
+    u32 pattern_code;
+    s32 palt;
+} RgbTile;
+
+static s32 load_trans_rgb16(const RgbTile* tile) {
+    MultiTexture* mt = tile->mt;
+    s32 palt = tile->palt;
     s32 code;
 
-    if (get_mltbuf16(mt, pattern_code, palt, &code) != 0) {
-        lz_ext_p6_cx(&((u8*)texptr)[1], (u16*)mt->mltbuf, size, (u16*)(ColorRAM[palt]));
-        njReLoadTexturePartNumG(mt->mltgidx16 + (code >> 8), (s8*)mt->mltbuf, code & 0xFF, size * 2);
+    if (get_mltbuf16(mt, tile->pattern_code, palt, &code) != 0) {
+        lz_ext_p6_cx(&((u8*)tile->texptr)[1], (u16*)mt->mltbuf, tile->size, (u16*)(ColorRAM[palt]));
+        njReLoadTexturePartNumG(mt->mltgidx16 + (code >> 8), (s8*)mt->mltbuf, code & 0xFF, tile->size * 2);
     }
 
     return code;
 }
 
-static s32 load_trans_rgb32(MultiTexture* mt, TEX* texptr, s32 size, u32 pattern_code, s32 palt) {
+static s32 load_trans_rgb32(const RgbTile* tile) {
+    MultiTexture* mt = tile->mt;
+    s32 palt = tile->palt;
     s32 code;
 
-    if (get_mltbuf32(mt, pattern_code, palt, &code) != 0) {
-        lz_ext_p6_cx(&((u8*)texptr)[1], (u16*)mt->mltbuf, size, (u16*)(ColorRAM[palt]));
-        njReLoadTexturePartNumG(mt->mltgidx32 + (code >> 6), (s8*)mt->mltbuf, code & 0x3F, size * 2);
+    if (get_mltbuf32(mt, tile->pattern_code, palt, &code) != 0) {
+        lz_ext_p6_cx(&((u8*)tile->texptr)[1], (u16*)mt->mltbuf, tile->size, (u16*)(ColorRAM[palt]));
+        njReLoadTexturePartNumG(mt->mltgidx32 + (code >> 6), (s8*)mt->mltbuf, code & 0x3F, tile->size * 2);
     }
 
     return code;
@@ -1402,7 +1418,7 @@ static void store_trans_rgb_tiles(MultiTexture* mt, WORK* wk, u32* textbl, TileM
         switch (wh) {
         case 1:
         case 2:
-            code = load_trans_rgb16(mt, texptr, size, cc.code, palt);
+            code = load_trans_rgb16(&(RgbTile){ mt, texptr, size, cc.code, palt });
 
             rnum = seqsStoreChip(
                 x - (dw * BOOL(flip & 0x8000)),
@@ -1418,7 +1434,7 @@ static void store_trans_rgb_tiles(MultiTexture* mt, WORK* wk, u32* textbl, TileM
             break;
 
         case 4:
-            code = load_trans_rgb32(mt, texptr, size, cc.code, palt);
+            code = load_trans_rgb32(&(RgbTile){ mt, texptr, size, cc.code, palt });
 
             rnum = seqsStoreChip(
                 x - (dw * BOOL(flip & 0x8000)),
