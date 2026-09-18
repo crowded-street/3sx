@@ -323,41 +323,45 @@ void Score_Sub() {
     }
 }
 
-void Disp_Win_Record() {
+static void disp_arcade_win_record() {
     s16 PL_id;
     s16 zz;
 
+    if (Play_Type == 1) {
+        if (Win_Record[0] != 0 || Win_Record[1] != 0) {
+            if (Win_Record[0]) {
+                PL_id = 0;
+                zz = 5;
+            } else {
+                PL_id = 1;
+                zz = 43;
+            }
+        } else {
+            return;
+        }
+    } else if (Win_Record[Player_id] == 0) {
+        return;
+    } else {
+        PL_id = Player_id;
+
+        if (Player_id == 0) {
+            zz = 5;
+        } else {
+            zz = 43;
+        }
+    }
+
+    Disp_Win_Record_Sub(Win_Record[PL_id], zz);
+}
+
+void Disp_Win_Record() {
     if (omop_cockpit == 0) {
         return;
     }
 
     switch (Mode_Type) {
     case MODE_ARCADE:
-        if (Play_Type == 1) {
-            if (Win_Record[0] != 0 || Win_Record[1] != 0) {
-                if (Win_Record[0]) {
-                    PL_id = 0;
-                    zz = 5;
-                } else {
-                    PL_id = 1;
-                    zz = 43;
-                }
-            } else {
-                break;
-            }
-        } else if (Win_Record[Player_id] == 0) {
-            break;
-        } else {
-            PL_id = Player_id;
-
-            if (Player_id == 0) {
-                zz = 5;
-            } else {
-                zz = 43;
-            }
-        }
-
-        Disp_Win_Record_Sub(Win_Record[PL_id], zz);
+        disp_arcade_win_record();
         break;
 
     case MODE_VERSUS:
