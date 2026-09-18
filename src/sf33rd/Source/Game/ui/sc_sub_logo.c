@@ -155,7 +155,27 @@ void player_face_init() {
     // Do nothing
 }
 
-void scfont_sqput_face(u16 x, u16 y, u16 atr, u8 page, u8 cx1, u8 cy1, u8 cx2, u8 cy2, u16 priority) {
+typedef struct {
+    u16 x;
+    u16 y;
+    u16 atr;
+    u8 page;
+    u8 cx1;
+    u8 cy1;
+    u8 cx2;
+    u8 cy2;
+} ScFontFace;
+
+void scfont_sqput_face(const ScFontFace* c, u16 priority) {
+    u16 x = c->x;
+    u16 y = c->y;
+    u16 atr = c->atr;
+    u8 page = c->page;
+    u8 cx1 = c->cx1;
+    u8 cy1 = c->cy1;
+    u8 cx2 = c->cx2;
+    u8 cy2 = c->cy2;
+
     s32 u1;
     s32 u2;
     s32 v1;
@@ -208,42 +228,12 @@ void player_face() {
 
     face_base_put();
     ppgSetupCurrentDataList(&ppgScrListFace);
-    scfont_sqput_face(
-        0,
-        3,
-        Player_Color[0] + (My_char[0] * 13),
-        0,
-        Face_Pos_TBL[My_char[0]][0],
-        Face_Pos_TBL[My_char[0]][1],
-        5,
-        3,
-        TopHUDPriority
-    );
+    scfont_sqput_face(&(ScFontFace){ 0, 3, Player_Color[0] + (My_char[0] * 13), 0, Face_Pos_TBL[My_char[0]][0], Face_Pos_TBL[My_char[0]][1], 5, 3 }, TopHUDPriority);
 
     if (My_char[1] == 0) {
-        scfont_sqput_face(
-            0x2B,
-            3,
-            (Player_Color[1] + (My_char[1] * 13)) | 0x8000,
-            0,
-            Face_Pos_TBL[20][0],
-            Face_Pos_TBL[20][1],
-            5,
-            3,
-            TopHUDPriority
-        );
+        scfont_sqput_face(&(ScFontFace){ 0x2B, 3, (Player_Color[1] + (My_char[1] * 13)) | 0x8000, 0, Face_Pos_TBL[20][0], Face_Pos_TBL[20][1], 5, 3 }, TopHUDPriority);
     } else {
-        scfont_sqput_face(
-            0x2B,
-            3,
-            (Player_Color[1] + (My_char[1] * 13)) | 0x8000,
-            0,
-            Face_Pos_TBL[My_char[1]][0],
-            Face_Pos_TBL[My_char[1]][1],
-            5,
-            3,
-            TopHUDPriority
-        );
+        scfont_sqput_face(&(ScFontFace){ 0x2B, 3, (Player_Color[1] + (My_char[1] * 13)) | 0x8000, 0, Face_Pos_TBL[My_char[1]][0], Face_Pos_TBL[My_char[1]][1], 5, 3 }, TopHUDPriority);
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
