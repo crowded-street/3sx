@@ -85,7 +85,7 @@ def param_type(protos, callee, index):
 # parsing
 # --------------------------------------------------------------------------
 
-FUNC = re.compile(r'^(static )?void (\w+)\(PLW\* wk(?:, [^)]*)?\) \{', re.M)
+FUNC = re.compile(r'^(static )?void (\w+)\(\s*PLW\* wk[^)]*\)\s*\{', re.M)
 
 
 def functions(src):
@@ -160,6 +160,27 @@ def snake(name):
     return re.sub(r'(?<=[a-z0-9])(?=[A-Z])', '_', name).lower()
 
 
+COLUMN_LIMIT = 120
+
+
+def signature(name, params):
+    """A definition header wrapped the way .clang-format would wrap it."""
+    flat = 'static void %s(%s) ' % (name, ', '.join(params))
+    if len(flat) <= COLUMN_LIMIT:
+        return flat
+    return 'static void %s(\n    %s\n) ' % (name, ', '.join(params))
+
+
+def call(indent, name, args):
+    """A call statement wrapped the way .clang-format would wrap it."""
+    flat = '%s%s(%s);' % (indent, name, ', '.join(args))
+    if len(flat) <= COLUMN_LIMIT:
+        return flat
+    inner = indent + '    '
+    return '%s%s(\n%s\n%s);' % (indent, name,
+                                 ',\n'.join(inner + a for a in args), indent)
+
+
 # --------------------------------------------------------------------------
 # Recipe V - fold a family onto one skeleton
 # --------------------------------------------------------------------------
@@ -197,7 +218,8 @@ def fold(path, protos, min_members=3, max_params=3):
         for _, callee, _ in slots:
             if not callees or callees[-1] != callee:
                 callees.append(callee)
-        base = 'pattern_' + '_'.join(snake(c) for c in callees if c != 'End_Pattern')
+        steps = [snake(c) for c in callees if c != 'End_Pattern']
+        base = 'pattern_' + '_'.join(steps[:3])
         name, n = base, 2
         while name in used:
             name, n = '%s_%d' % (base, n), n + 1
@@ -220,12 +242,11 @@ def fold(path, protos, min_members=3, max_params=3):
         body = sk
         for i, (value, _, _) in enumerate(slots):
             body = body.replace('\x00%d\x00' % i, names[i] if i in vary else value)
-        helpers.append('static void %s(PLW* wk%s) %s\n'
-                       % (name, ''.join(', %s %s' % p for p in params), body))
+        helpers.append(signature(name, ['PLW* wk'] + ['%s %s' % p for p in params]) + body + '\n')
         for member, a, b, mslots in members:
-            args = ', '.join(mslots[i][0] for i in vary)
-            edits.append((a, b, 'void %s(PLW* wk) {\n    %s(wk, %s);\n}'
-                          % (member, name, args)))
+            args = ['wk'] + [mslots[i][0] for i in vary]
+            edits.append((a, b, 'void %s(PLW* wk) {\n%s\n}'
+                          % (member, call('    ', name, args))))
     if not edits:
         return 0, 0
     return apply(path, src, edits, helpers)
@@ -239,7 +260,7 @@ ARM_SPLIT = re.compile(r'\n\n(?=    (?:case \d+|default):)')
 
 
 def arms_of(full):
-    m = re.match(r'(?:static )?void \w+\(PLW\* wk(?:, [^)]*)?\) \{\n    '
+    m = re.match(r'(?:static )?void \w+\(\s*PLW\* wk[^)]*\)\s*\{\n    '
                  + re.escape(SWITCH_HEAD) + r'\n(.*)\n    \}\n\}$', full, re.S)
     if not m:
         return None, None
@@ -300,7 +321,7 @@ def step_map(src, name, bodies, seen=None):
         raise ValueError('recursive helper %s' % name)
     seen = seen | {name}
     full, params = bodies[name]
-    m = re.match(r'\s*\{\s*(\w+)\(wk(?:, )?(.*?)\);\s*\}\s*$', full, re.S)
+    m = re.match(r'\s*\{\s*(\w+)\(\s*wk\s*(?:,\s*)?(.*?)\s*\);\s*\}\s*$', full, re.S)
     if m and m.group(1) in bodies:
         # a folded one-liner: bind the arguments and inline the skeleton
         target, targs = m.group(1), split_args(m.group(2))
