@@ -75,6 +75,24 @@ static PauseActivationType get_pause_activation_type() {
     }
 }
 
+static s32 handle_hold_to_pause(u8 PL_id, u16 current_sw, u16 edge_sw) {
+    if ((edge_sw & SWK_START) && (hold_to_pause_timers[PL_id] == 0)) {
+        hold_to_pause_timers[PL_id] = HOLD_TO_PAUSE_TIMER_MAX;
+    } else if ((current_sw & SWK_START) && (hold_to_pause_timers[PL_id] > 0)) {
+        hold_to_pause_timers[PL_id] -= 1;
+
+        if (hold_to_pause_timers[PL_id] == 0) {
+            hold_to_pause_timers[PL_id ^ 1] = 0;
+            Pause_Type = 1;
+            return PAUSE_X = 1;
+        }
+    } else {
+        hold_to_pause_timers[PL_id] = 0;
+    }
+
+    return 0;
+}
+
 static s32 handle_start_button(u8 PL_id, u16 current_sw, u16 edge_sw) {
     switch (get_pause_activation_type()) {
     case PAUSE_ACTIVATION_NONE:
@@ -90,21 +108,7 @@ static s32 handle_start_button(u8 PL_id, u16 current_sw, u16 edge_sw) {
         break;
 
     case PAUSE_ACTIVATION_HOLD:
-        if ((edge_sw & SWK_START) && (hold_to_pause_timers[PL_id] == 0)) {
-            hold_to_pause_timers[PL_id] = HOLD_TO_PAUSE_TIMER_MAX;
-        } else if ((current_sw & SWK_START) && (hold_to_pause_timers[PL_id] > 0)) {
-            hold_to_pause_timers[PL_id] -= 1;
-
-            if (hold_to_pause_timers[PL_id] == 0) {
-                hold_to_pause_timers[PL_id ^ 1] = 0;
-                Pause_Type = 1;
-                return PAUSE_X = 1;
-            }
-        } else {
-            hold_to_pause_timers[PL_id] = 0;
-        }
-
-        break;
+        return handle_hold_to_pause(PL_id, current_sw, edge_sw);
     }
 
     return 0;
