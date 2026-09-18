@@ -1193,9 +1193,9 @@ static void draw_ending_c_tiles(const StageDrawContext* context) {
     }
 }
 
-static void draw_ending_stage7(u8 bgnm, s32 xx[2], s32 yy[2], s32 global_index, s32 palOffset,
-                               PPGDataList* curDataList) {
-    bgDrawOneScreen(bgnm, global_index, &xx[0], &yy[0], -1, palOffset, curDataList);
+static void draw_ending_stage7(const StageDrawContext* context) {
+    bgDrawOneScreen(context->bgnm, context->global_index, &context->xx[0], &context->yy[0], -1, context->pal_offset,
+                    context->data_list);
 
     if (EXE_flag != 0) {
         return;
@@ -1205,11 +1205,11 @@ static void draw_ending_stage7(u8 bgnm, s32 xx[2], s32 yy[2], s32 global_index, 
         return;
     }
 
-    if (rw_bg_flag[bgnm] && rw_num) {
+    if (rw_bg_flag[context->bgnm] && rw_num) {
         bgRWWorkUpdate();
     }
 
-    scr_calc2(bgnm);
+    scr_calc2(context->bgnm);
 }
 
 static void draw_later_special_stage(const StageDrawContext* context) {
@@ -1227,8 +1227,7 @@ static void draw_later_special_stage(const StageDrawContext* context) {
         break;
 
     case 7:
-        draw_ending_stage7(context->bgnm, context->xx, context->yy, context->global_index, context->pal_offset,
-                           context->data_list);
+        draw_ending_stage7(context);
         break;
 
     case 4:
