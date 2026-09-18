@@ -215,6 +215,21 @@ void dispControllerWasRemovedMessage(s32 x, s32 y, s32 step) {
     }
 }
 
+static s32 check_pause_menu_request(u8 PL_id) {
+    if (Present_Mode == 3) {
+        if (Interface_Type[Decide_ID] == 0) {
+            Pause_ID = Decide_ID;
+            Pause_Type = 2;
+            return PAUSE_X = 2;
+        }
+    } else if (Interface_Type[PL_id] == 0 && plw[PL_id].wu.operator) {
+        Pause_Type = 2;
+        return PAUSE_X = 2;
+    }
+
+    return 0;
+}
+
 s32 Check_Pause_Term(u8 PL_id, bool ignore_input) {
     if (Demo_Flag == 0) {
         return 0;
@@ -252,18 +267,7 @@ s32 Check_Pause_Term(u8 PL_id, bool ignore_input) {
         return return_code;
     }
 
-    if (Present_Mode == 3) {
-        if (Interface_Type[Decide_ID] == 0) {
-            Pause_ID = Decide_ID;
-            Pause_Type = 2;
-            return PAUSE_X = 2;
-        }
-    } else if (Interface_Type[PL_id] == 0 && plw[PL_id].wu.operator) {
-        Pause_Type = 2;
-        return PAUSE_X = 2;
-    }
-
-    return 0;
+    return check_pause_menu_request(PL_id);
 }
 
 void Exit_Pause(struct _TASK* task_ptr) {
