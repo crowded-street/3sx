@@ -833,15 +833,7 @@ void Setup_Training_Difficulty() {
 
 void Setup_BG(s16 BG_INDEX, s16 X, s16 Y) {
     Unsubstantial_BG[BG_INDEX] = 1;
-    bg_w.bgw[BG_INDEX].xy[0].disp.pos = X;
-    bg_w.bgw[BG_INDEX].xy[1].disp.pos = Y;
-    bg_w.bgw[BG_INDEX].wxy[0].disp.pos = X;
-    bg_w.bgw[BG_INDEX].wxy[1].disp.pos = Y;
-    bg_w.bgw[BG_INDEX].xy[0].disp.low = 0;
-    bg_w.bgw[BG_INDEX].xy[1].disp.low = 0;
-    bg_w.bgw[BG_INDEX].position_x = X;
-    bg_w.bgw[BG_INDEX].position_y = Y;
-    Bg_Family_Set_Ex(BG_INDEX);
+    Setup_Virtual_BG(BG_INDEX, X, Y);
 }
 
 void Setup_Virtual_BG(s16 BG_INDEX, s16 X, s16 Y) {
