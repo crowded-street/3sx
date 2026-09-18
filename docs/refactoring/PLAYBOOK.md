@@ -2431,7 +2431,7 @@ passing silently:
 *Added 2026-09-18.*
 
 Twenty character files, 3488 pattern scripts, **4.90-7.55 before, 76 files at a mean of
-8.76 after**, seventeen of them at 10.00. The sequence was Recipe V per file, Recipe X on
+8.79 after**, eighteen of them at 10.00 and the lowest three at 7.55. The sequence was Recipe V per file, Recipe X on
 the dispatches over the complexity threshold, Recipe S to get under the function-count
 threshold, then Recipe V folder-wide, Recipe D on what that exposed, and Recipe S again on
 the shared skeletons.
@@ -2470,6 +2470,13 @@ Three things were measured and **refused**:
   average from 8.03 to roughly 8.6, because *a duplication pair in different files is not a
   duplication finding*. It removes nothing. The files are already under both thresholds and
   cutting them again would only hide the pairs, so the split stops where the thresholds do.
+- **Grouping the shared skeletons by their opening call instead of by step count.** It is
+  at least as plausible a theme - all the patterns that begin with a walk together - and it
+  measures **7.55 on all five files**, against 8.03, 8.03, 8.81, 7.55, 7.55, 7.55, 10.00,
+  8.03, 10.00 for the nine by-step-count files. Step count is the better theme here for a
+  reason worth remembering: it is the only property of a skeleton that its complexity is a
+  function of, so grouping by it is the one grouping that can put any file under the file
+  mean threshold at all.
 - **Rebalancing the splits after the fold.** The folds shrank the character files by two
   thirds, which leaves some tails small - `pass11_5.c` is two functions. Re-cutting each
   character's files to even sizes was measured and **costs**: `pass11` goes from
