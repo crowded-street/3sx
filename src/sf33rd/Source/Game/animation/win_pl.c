@@ -59,6 +59,12 @@ s16 poison_flag[2];
 
 const s16 winner_type_tbl[20] = { 6, 0, 0, 6, 2, 7, 9, 3, 4, 1, 12, 0, 5, 14, 8, 13, 6, 10, 11, 15 };
 
+static void update_field_hosei_flags(PLW* wk) {
+    if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1)) {
+        set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
+    }
+}
+
 void win_player(PLW* wk) {
     void (*win_jp_tbl[16])(PLW*) = { Win_00000, Win_01000, Win_02000, Win_03000, Win_04000, Win_05000,
                                      Win_06000, Win_07000, Win_08000, Win_09000, Win_10000, Win_11000,
@@ -93,9 +99,7 @@ void Win_01000(PLW* wk) {
 
     bg_app_stop = 1;
 
-    if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1)) {
-        set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-    }
+    update_field_hosei_flags(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -325,9 +329,7 @@ void Win_02000(PLW* wk) {
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1)) {
-            set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-        }
+        update_field_hosei_flags(wk);
 
         wk->wu.routine_no[3]++;
 
@@ -364,9 +366,7 @@ void Win_03000(PLW* wk) {
 
     bg_app_stop = 1;
 
-    if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1)) {
-        set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-    }
+    update_field_hosei_flags(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -416,9 +416,7 @@ void Win_04000(PLW* wk) {
 
     bg_app_stop = 1;
 
-    if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1)) {
-        set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-    }
+    update_field_hosei_flags(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -465,9 +463,7 @@ void Normal_normal_Winner(PLW* wk) {
 
     bg_app_stop = 1;
 
-    if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1)) {
-        set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-    }
+    update_field_hosei_flags(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -488,9 +484,7 @@ void Judge_normal_winner(PLW* wk) {
 
     bg_app_stop = 1;
 
-    if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1)) {
-        set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-    }
+    update_field_hosei_flags(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -512,9 +506,7 @@ void Win_05000(PLW* wk) {
 
     bg_app_stop = 1;
 
-    if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1)) {
-        set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-    }
+    update_field_hosei_flags(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -577,9 +569,7 @@ void Win_06000(PLW* wk) {
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1)) {
-            set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-        }
+        update_field_hosei_flags(wk);
 
         win_rno[0] = win_rno[1] = 0;
         wk->wu.routine_no[3]++;
@@ -606,9 +596,7 @@ void Win_07000(PLW* wk) {
 
     bg_app_stop = 1;
 
-    if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1)) {
-        set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-    }
+    update_field_hosei_flags(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -687,9 +675,7 @@ void Win_08000(PLW* wk) {
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1)) {
-            set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-        }
+        update_field_hosei_flags(wk);
 
         win_rno[0] = win_rno[1] = 0;
         wk->wu.routine_no[3]++;
@@ -720,9 +706,7 @@ void Win_09000(PLW* wk) {
 
     bg_app_stop = 1;
 
-    if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1)) {
-        set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-    }
+    update_field_hosei_flags(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -810,9 +794,7 @@ void Win_10000(PLW* wk) {
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1)) {
-            set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-        }
+        update_field_hosei_flags(wk);
 
         win_rno[0] = win_rno[1] = 0;
         wk->wu.routine_no[3]++;
@@ -1106,9 +1088,7 @@ void Win_11000(PLW* wk) {
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1)) {
-            set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-        }
+        update_field_hosei_flags(wk);
 
         win_rno[0] = win_rno[1] = 0;
         wk->wu.routine_no[3]++;
@@ -1228,9 +1208,7 @@ void twelve_win_backjump(PLW* wk) {
             }
         }
 
-        if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1)) {
-            set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-        }
+        update_field_hosei_flags(wk);
 
         break;
 
@@ -1245,9 +1223,7 @@ void twelve_win_backjump(PLW* wk) {
             wk->wu.xyz[1].cal = 0;
         }
 
-        if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1)) {
-            set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-        }
+        update_field_hosei_flags(wk);
 
         break;
 
@@ -1282,9 +1258,7 @@ void Win_12000(PLW* wk) {
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1)) {
-            set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-        }
+        update_field_hosei_flags(wk);
 
         win_rno[0] = win_rno[1] = 0;
         wk->wu.routine_no[3]++;
@@ -1311,9 +1285,7 @@ void Win_13000(PLW* wk) {
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1)) {
-            set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-        }
+        update_field_hosei_flags(wk);
 
         win_rno[0] = win_rno[1] = 0;
         wk->wu.routine_no[3]++;
@@ -1350,9 +1322,7 @@ void Win_14000(PLW* wk) {
 
     bg_app_stop = 1;
 
-    if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1)) {
-        set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-    }
+    update_field_hosei_flags(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -1493,9 +1463,7 @@ void Win_15000(PLW* wk) {
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1)) {
-            set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-        }
+        update_field_hosei_flags(wk);
 
         win_rno[0] = win_rno[1] = 0;
         wk->wu.routine_no[3]++;
@@ -1622,8 +1590,6 @@ void meta_win_pause(PLW* wk) {
             set_field_hosei_flag(&plw[0], bs_scrrrl[0][1], 0);
         }
     } else {
-        if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1)) {
-            set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-        }
+        update_field_hosei_flags(wk);
     }
 }
