@@ -357,6 +357,42 @@ void Judge_normal_winner(PLW* wk) {
     }
 }
 
+static void start_win_05000_flip(PLW* wk) {
+    set_char_move_init(&wk->wu, 9, 36);
+
+    if (wk->wu.rl_flag) {
+        wk->wu.mvxy.a[0].sp = 0x20000;
+    } else {
+        wk->wu.mvxy.a[0].sp = -0x20000;
+    }
+
+    wk->wu.mvxy.d[0].sp = 0;
+    wk->wu.mvxy.a[1].sp = 0x80000;
+    wk->wu.mvxy.d[1].sp = -0x6000;
+    win_rno[0] = 0;
+}
+
+static void step_win_05000_flip(PLW* wk) {
+    switch (win_rno[1]) {
+    case 0:
+        char_move(&wk->wu);
+        add_x_sub((WORK_Other*)wk);
+        add_y_sub((WORK_Other*)wk);
+
+        if (wk->wu.xyz[1].disp.pos < 0) {
+            win_rno[1]++;
+            wk->wu.xyz[1].cal = 0;
+            char_move_z(&wk->wu);
+        }
+
+        break;
+
+    case 1:
+        char_move(&wk->wu);
+        break;
+    }
+}
+
 void Win_05000(PLW* wk) {
     s16 work;
 
@@ -371,18 +407,7 @@ void Win_05000(PLW* wk) {
 
         if (Round_num >= (save_w[Present_Mode].Battle_Number[Play_Type] * 2) ||
             PL_Wins[wk->wu.id] >= save_w[Present_Mode].Battle_Number[Play_Type]) {
-            set_char_move_init(&wk->wu, 9, 36);
-
-            if (wk->wu.rl_flag) {
-                wk->wu.mvxy.a[0].sp = 0x20000;
-            } else {
-                wk->wu.mvxy.a[0].sp = -0x20000;
-            }
-
-            wk->wu.mvxy.d[0].sp = 0;
-            wk->wu.mvxy.a[1].sp = 0x80000;
-            wk->wu.mvxy.d[1].sp = -0x6000;
-            win_rno[0] = 0;
+            start_win_05000_flip(wk);
             break;
         }
 
@@ -397,24 +422,7 @@ void Win_05000(PLW* wk) {
             break;
         }
 
-        switch (win_rno[1]) {
-        case 0:
-            char_move(&wk->wu);
-            add_x_sub((WORK_Other*)wk);
-            add_y_sub((WORK_Other*)wk);
-
-            if (wk->wu.xyz[1].disp.pos < 0) {
-                win_rno[1]++;
-                wk->wu.xyz[1].cal = 0;
-                char_move_z(&wk->wu);
-            }
-
-            break;
-
-        case 1:
-            char_move(&wk->wu);
-            break;
-        }
+        step_win_05000_flip(wk);
     }
 }
 
