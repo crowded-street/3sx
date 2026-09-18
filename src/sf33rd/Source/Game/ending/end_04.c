@@ -128,6 +128,23 @@ static void end_04_open_scene() {
     bgw_ptr->xy[1].disp.pos = end_4_pos[end_w.r_no_2][1];
 }
 
+/* The hold before the drift: when it runs out, set the drift speeds and the drift's
+ * own timer. Reports whether it fired, for the one caller that wrote a break there.
+ * The three scenes differ only in the two speeds. */
+static s32 end_04_launch_drift(s32 speed_x, s32 speed_y) {
+    bgw_ptr->free--;
+
+    if (bgw_ptr->free <= 0) {
+        bgw_ptr->r_no_1++;
+        bgw_ptr->speed_x = speed_x;
+        bgw_ptr->speed_y = speed_y;
+        bgw_ptr->free = 0xF0;
+        return 1;
+    }
+
+    return 0;
+}
+
 void end_400_1000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -140,14 +157,7 @@ void end_400_1000() {
         break;
 
     case 1:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->r_no_1++;
-            bgw_ptr->speed_x = 0x5000;
-            bgw_ptr->speed_y = 0x3000;
-            bgw_ptr->free = 0xF0;
-        }
+        end_04_launch_drift(0x5000, 0x3000);
 
         break;
 
@@ -216,14 +226,7 @@ void end_401_1000() {
         break;
 
     case 1:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->r_no_1++;
-            bgw_ptr->speed_x = 0xA000;
-            bgw_ptr->speed_y = 0x6000;
-            bgw_ptr->free = 0xF0;
-        }
+        end_04_launch_drift(0xA000, 0x6000);
 
         break;
 
@@ -383,13 +386,7 @@ void end_402_1000() {
         break;
 
     case 1:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->r_no_1++;
-            bgw_ptr->speed_x = 0xA000;
-            bgw_ptr->speed_y = 0x4000;
-            bgw_ptr->free = 0xF0;
+        if (end_04_launch_drift(0xA000, 0x4000)) {
             break;
         }
 
