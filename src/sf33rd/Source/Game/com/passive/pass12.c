@@ -10,6 +10,18 @@
 
 void (*const Passive12_Tbl[231])();
 
+static void passive12_0063_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 0x400A, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
 static void pattern_normal_attack(PLW* wk, s16 reaction, u16 lever_data) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -934,12 +946,8 @@ void Passive12_0063(PLW* wk) {
         Normal_Attack(wk, 8, 0x202);
         break;
 
-    case 6:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 0x400A, -1});
-        break;
-
     default:
-        End_Pattern(wk);
+        passive12_0063_from_step_6(wk);
         break;
     }
 }
