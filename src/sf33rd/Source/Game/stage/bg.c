@@ -946,25 +946,24 @@ static void draw_stage03_tiles(const StageDrawContext* context) {
     }
 }
 
-static void draw_stage02_tiles(u8 bgnm, s32* xx, s32* yy, s32 global_index, u32 vtxColor, s32 palOffset,
-                               PPGDataList* curDataList) {
+static void draw_stage02_tiles(const StageDrawContext* context, u32 vtxColor) {
     s32 x;
     s32 y;
     s32 global_index_real;
 
-    for (y = yy[0]; y < yy[1]; y += 128) {
-        for (x = xx[0]; x < xx[1]; x += 128) {
-            global_index_real = global_index + (((y >> 7) << 3) + (x >> 7));
+    for (y = context->yy[0]; y < context->yy[1]; y += 128) {
+        for (x = context->xx[0]; x < context->xx[1]; x += 128) {
+            global_index_real = context->global_index + (((y >> 7) << 3) + (x >> 7));
 
-            if (bgnm == 1) {
+            if (context->bgnm == 1) {
                 global_index_real += yang_ix_plus;
             }
 
             if (ppgCheckTextureNumber(0, global_index_real) == 0) {
                 ppgSetupCurrentDataList(&ppgRwBgList);
             }
-            bgDrawOneChip(x, y, 128, 128, global_index_real, vtxColor, palOffset);
-            ppgSetupCurrentDataList(curDataList);
+            bgDrawOneChip(x, y, 128, 128, global_index_real, vtxColor, context->pal_offset);
+            ppgSetupCurrentDataList(context->data_list);
         }
     }
 }
@@ -1254,8 +1253,7 @@ static s32 draw_and_advance_judgment_stage(const StageDrawContext* context) {
         vtxColor = 0xFFFFFFFF;
     }
 
-    draw_stage02_tiles(context->bgnm, context->xx, context->yy, context->global_index, vtxColor, context->pal_offset,
-                       context->data_list);
+    draw_stage02_tiles(context, vtxColor);
     return advance_stage02_state(context->bgnm);
 }
 
