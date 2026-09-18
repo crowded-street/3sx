@@ -104,6 +104,35 @@ Uint8 ss_state_flags;                                 /* 0x02079C8C */
 void SsResetBgmChannels();
 Sint32 SsReadDelay(const Uint8* stream, Uint32* delay);
 
+/* The voice state both the BGM start and the broadcast SFX request clear before
+ * they write the fields those two shapes disagree on. */
+static void ss_clear_channel_voice_state(SsChannelState* channel) {
+    channel->unk_10 = 0;
+    channel->unk_14 = 0;
+    channel->unk_18 = 0;
+    channel->unk_1C = 0;
+    channel->unk_20 = 0;
+    channel->unk_3C = 0;
+    channel->unk_3E = 0;
+    channel->unk_40 = 0;
+    channel->unk_42 = 0;
+    channel->unk_44 = 0;
+    channel->unk_46 = 0;
+    channel->unk_48 = 0;
+    channel->unk_4A = 0;
+    channel->unk_4C = 0;
+    channel->unk_4E = 0;
+    channel->unk_50 = 0;
+    channel->unk_52 = 0;
+    channel->unk_54 = 0;
+    channel->unk_5A = 0;
+    channel->unk_5B = 0;
+    channel->unk_5C = 0;
+    channel->unk_5D = 0;
+    channel->unk_65 = 0;
+    channel->unk_6C = 0;
+}
+
 /* The pan descriptor both panned request shapes install. */
 static void ss_setup_pan(SsPanDescriptor* pan, Sint16 pan_control) {
     if (pan_control == -1) {
@@ -161,30 +190,7 @@ void SsRequestCore(Uint16 req_number, Sint16 pan_control) {
             ss_load_default_instrument(channel);
 
             channel->unk_24 = 0;
-            channel->unk_10 = 0;
-            channel->unk_14 = 0;
-            channel->unk_18 = 0;
-            channel->unk_1C = 0;
-            channel->unk_20 = 0;
-            channel->unk_3C = 0;
-            channel->unk_3E = 0;
-            channel->unk_40 = 0;
-            channel->unk_42 = 0;
-            channel->unk_44 = 0;
-            channel->unk_46 = 0;
-            channel->unk_48 = 0;
-            channel->unk_4A = 0;
-            channel->unk_4C = 0;
-            channel->unk_4E = 0;
-            channel->unk_50 = 0;
-            channel->unk_52 = 0;
-            channel->unk_54 = 0;
-            channel->unk_5A = 0;
-            channel->unk_5B = 0;
-            channel->unk_5C = 0;
-            channel->unk_5D = 0;
-            channel->unk_65 = 0;
-            channel->unk_6C = 0;
+            ss_clear_channel_voice_state(channel);
             channel->unk_6E = 0;
             channel->priority = type;
             channel->unk_62 = 0;
@@ -230,30 +236,7 @@ void SsRequestCore(Uint16 req_number, Sint16 pan_control) {
 
             ss_load_default_instrument(channel);
 
-            channel->unk_10 = 0;
-            channel->unk_14 = 0;
-            channel->unk_18 = 0;
-            channel->unk_1C = 0;
-            channel->unk_20 = 0;
-            channel->unk_3C = 0;
-            channel->unk_3E = 0;
-            channel->unk_40 = 0;
-            channel->unk_42 = 0;
-            channel->unk_44 = 0;
-            channel->unk_46 = 0;
-            channel->unk_48 = 0;
-            channel->unk_4A = 0;
-            channel->unk_4C = 0;
-            channel->unk_4E = 0;
-            channel->unk_50 = 0;
-            channel->unk_52 = 0;
-            channel->unk_54 = 0;
-            channel->unk_5A = 0;
-            channel->unk_5B = 0;
-            channel->unk_5C = 0;
-            channel->unk_5D = 0;
-            channel->unk_65 = 0;
-            channel->unk_6C = 0;
+            ss_clear_channel_voice_state(channel);
             channel->unk_6D = 0x40;
             channel->unk_6E = 0;
             channel->priority = type;
