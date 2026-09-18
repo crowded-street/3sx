@@ -32,8 +32,118 @@
 
 void face_base_put();
 
-void SF3_logo(u8 step) {
+static void draw_sf3_logo_open(Vertex* pos, u8 step) {
     s32 i;
+
+    pos[0].x = pos[1].x = 128.0f;
+    pos[2].y = pos[3].y = 128.0f;
+    pos[0].s = pos[1].s = TO_UV_256(pos[0].x);
+    pos[2].t = pos[3].t = TO_UV_256(240.0f);
+
+    for (i = 48; i > 0; i -= 8) {
+        pos[0].y = i + 80;
+        pos[1].y = pos[0].y - step;
+        pos[2].x = 176 - i;
+        pos[3].x = pos[2].x + step;
+        pos[0].t = TO_UV_256(i + 192);
+        pos[1].t = TO_UV_256((i + 192) - step);
+        pos[2].s = TO_UV_256(176 - i);
+        pos[3].s = TO_UV_256((176 - i) + step);
+        ppgWriteQuadWithST_B(pos, -1, NULL, 0, -1);
+    }
+
+    pos[0].y = pos[1].y = 80.0f;
+    pos[2].y = pos[3].y = 128.0f;
+    pos[0].t = pos[1].t = TO_UV_256(192.0f);
+    pos[2].t = pos[3].t = TO_UV_256(240.0f);
+
+    for (i = 128; i < 208; i += 8) {
+        pos[0].x = i;
+        pos[1].x = i + step;
+        pos[2].x = 48.0f + pos[0].x;
+        pos[3].x = 48.0f + pos[1].x;
+        pos[0].s = TO_UV_256(pos[0].x);
+        pos[1].s = TO_UV_256(pos[1].x);
+        pos[2].s = TO_UV_256(pos[2].x);
+        pos[3].s = TO_UV_256(pos[3].x);
+        ppgWriteQuadWithST_B(pos, -1, NULL, 0, -1);
+    }
+
+    pos[0].y = pos[1].y = 80.0f;
+    pos[2].x = pos[3].x = 256.0f;
+    pos[0].t = pos[1].t = TO_UV_256(192.0f);
+    pos[2].s = pos[3].s = TO_UV_256(256.0f);
+
+    for (i = 0; i < 48; i += 8) {
+        pos[0].x = i + 208;
+        pos[1].x = pos[0].x + step;
+        pos[2].y = 128 - i;
+        pos[3].y = pos[2].y - step;
+        pos[0].s = TO_UV_256(pos[0].x);
+        pos[1].s = TO_UV_256(pos[1].x);
+        pos[2].t = TO_UV_256(240 - i);
+        pos[3].t = TO_UV_256((240 - i) - step);
+        ppgWriteQuadWithST_B(pos, -1, NULL, 0, -1);
+    }
+}
+
+static void draw_sf3_logo_close(Vertex* pos, u8 step) {
+    s32 i;
+
+    step -= 8;
+    pos[0].x = pos[1].x = 128.0f;
+    pos[2].y = pos[3].y = 128.0f;
+    pos[0].s = pos[1].s = TO_UV_256(pos[0].x);
+    pos[2].t = pos[3].t = TO_UV_256(240.0f);
+
+    for (i = 40; i >= 0; i -= 8) {
+        pos[1].y = i + 80;
+        pos[0].y = (8.0f + pos[1].y) - step;
+        pos[3].x = (176 - i);
+        pos[2].x = (pos[3].x - 8.0f) + step;
+        pos[0].t = TO_UV_256((i + 200) - step);
+        pos[1].t = TO_UV_256(i + 192);
+        pos[2].s = TO_UV_256((168 - i) + step);
+        pos[3].s = TO_UV_256(176 - i);
+        ppgWriteQuadWithST_B(pos, -1, NULL, 0, -1);
+    }
+
+    pos[0].y = pos[1].y = 80.0f;
+    pos[2].y = pos[3].y = 128.0f;
+    pos[0].t = pos[1].t = TO_UV_256(192.0f);
+    pos[2].t = pos[3].t = TO_UV_256(240.0f);
+
+    for (i = 128; i < 208; i += 8) {
+        pos[0].x = (i + step);
+        pos[1].x = (i + 8);
+        pos[2].x = 48.0f + pos[0].x;
+        pos[3].x = 48.0f + pos[1].x;
+        pos[0].s = TO_UV_256(pos[0].x);
+        pos[1].s = TO_UV_256(pos[1].x);
+        pos[2].s = TO_UV_256(pos[2].x);
+        pos[3].s = TO_UV_256(pos[3].x);
+        ppgWriteQuadWithST_B(pos, -1, NULL, 0, -1);
+    }
+
+    pos[0].y = pos[1].y = 80.0f;
+    pos[2].x = pos[3].x = 256.0f;
+    pos[0].t = pos[1].t = TO_UV_256(192.0f);
+    pos[2].s = pos[3].s = TO_UV_256(256.0f);
+
+    for (i = 0; i < 48; i += 8) {
+        pos[0].x = i + 208 + step;
+        pos[1].x = i + 216;
+        pos[2].y = 128 - i - step;
+        pos[3].y = 120 - i;
+        pos[0].s = TO_UV_256(pos[0].x);
+        pos[1].s = TO_UV_256(pos[1].x);
+        pos[2].t = TO_UV_256(240 - i - step);
+        pos[3].t = TO_UV_256(232 - i);
+        ppgWriteQuadWithST_B(pos, -1, NULL, 0, -1);
+    }
+}
+
+void SF3_logo(u8 step) {
     Vertex pos[4];
 
     if (No_Trans) {
@@ -46,108 +156,9 @@ void SF3_logo(u8 step) {
     pos[0].z = pos[1].z = pos[2].z = pos[3].z = PrioBase[2];
 
     if (step < 9) {
-        pos[0].x = pos[1].x = 128.0f;
-        pos[2].y = pos[3].y = 128.0f;
-        pos[0].s = pos[1].s = TO_UV_256(pos[0].x);
-        pos[2].t = pos[3].t = TO_UV_256(240.0f);
-
-        for (i = 48; i > 0; i -= 8) {
-            pos[0].y = i + 80;
-            pos[1].y = pos[0].y - step;
-            pos[2].x = 176 - i;
-            pos[3].x = pos[2].x + step;
-            pos[0].t = TO_UV_256(i + 192);
-            pos[1].t = TO_UV_256((i + 192) - step);
-            pos[2].s = TO_UV_256(176 - i);
-            pos[3].s = TO_UV_256((176 - i) + step);
-            ppgWriteQuadWithST_B(pos, -1, NULL, 0, -1);
-        }
-
-        pos[0].y = pos[1].y = 80.0f;
-        pos[2].y = pos[3].y = 128.0f;
-        pos[0].t = pos[1].t = TO_UV_256(192.0f);
-        pos[2].t = pos[3].t = TO_UV_256(240.0f);
-
-        for (i = 128; i < 208; i += 8) {
-            pos[0].x = i;
-            pos[1].x = i + step;
-            pos[2].x = 48.0f + pos[0].x;
-            pos[3].x = 48.0f + pos[1].x;
-            pos[0].s = TO_UV_256(pos[0].x);
-            pos[1].s = TO_UV_256(pos[1].x);
-            pos[2].s = TO_UV_256(pos[2].x);
-            pos[3].s = TO_UV_256(pos[3].x);
-            ppgWriteQuadWithST_B(pos, -1, NULL, 0, -1);
-        }
-
-        pos[0].y = pos[1].y = 80.0f;
-        pos[2].x = pos[3].x = 256.0f;
-        pos[0].t = pos[1].t = TO_UV_256(192.0f);
-        pos[2].s = pos[3].s = TO_UV_256(256.0f);
-
-        for (i = 0; i < 48; i += 8) {
-            pos[0].x = i + 208;
-            pos[1].x = pos[0].x + step;
-            pos[2].y = 128 - i;
-            pos[3].y = pos[2].y - step;
-            pos[0].s = TO_UV_256(pos[0].x);
-            pos[1].s = TO_UV_256(pos[1].x);
-            pos[2].t = TO_UV_256(240 - i);
-            pos[3].t = TO_UV_256((240 - i) - step);
-            ppgWriteQuadWithST_B(pos, -1, NULL, 0, -1);
-        }
+        draw_sf3_logo_open(pos, step);
     } else {
-        step -= 8;
-        pos[0].x = pos[1].x = 128.0f;
-        pos[2].y = pos[3].y = 128.0f;
-        pos[0].s = pos[1].s = TO_UV_256(pos[0].x);
-        pos[2].t = pos[3].t = TO_UV_256(240.0f);
-
-        for (i = 40; i >= 0; i -= 8) {
-            pos[1].y = i + 80;
-            pos[0].y = (8.0f + pos[1].y) - step;
-            pos[3].x = (176 - i);
-            pos[2].x = (pos[3].x - 8.0f) + step;
-            pos[0].t = TO_UV_256((i + 200) - step);
-            pos[1].t = TO_UV_256(i + 192);
-            pos[2].s = TO_UV_256((168 - i) + step);
-            pos[3].s = TO_UV_256(176 - i);
-            ppgWriteQuadWithST_B(pos, -1, NULL, 0, -1);
-        }
-
-        pos[0].y = pos[1].y = 80.0f;
-        pos[2].y = pos[3].y = 128.0f;
-        pos[0].t = pos[1].t = TO_UV_256(192.0f);
-        pos[2].t = pos[3].t = TO_UV_256(240.0f);
-
-        for (i = 128; i < 208; i += 8) {
-            pos[0].x = (i + step);
-            pos[1].x = (i + 8);
-            pos[2].x = 48.0f + pos[0].x;
-            pos[3].x = 48.0f + pos[1].x;
-            pos[0].s = TO_UV_256(pos[0].x);
-            pos[1].s = TO_UV_256(pos[1].x);
-            pos[2].s = TO_UV_256(pos[2].x);
-            pos[3].s = TO_UV_256(pos[3].x);
-            ppgWriteQuadWithST_B(pos, -1, NULL, 0, -1);
-        }
-
-        pos[0].y = pos[1].y = 80.0f;
-        pos[2].x = pos[3].x = 256.0f;
-        pos[0].t = pos[1].t = TO_UV_256(192.0f);
-        pos[2].s = pos[3].s = TO_UV_256(256.0f);
-
-        for (i = 0; i < 48; i += 8) {
-            pos[0].x = i + 208 + step;
-            pos[1].x = i + 216;
-            pos[2].y = 128 - i - step;
-            pos[3].y = 120 - i;
-            pos[0].s = TO_UV_256(pos[0].x);
-            pos[1].s = TO_UV_256(pos[1].x);
-            pos[2].t = TO_UV_256(240 - i - step);
-            pos[3].t = TO_UV_256(232 - i);
-            ppgWriteQuadWithST_B(pos, -1, NULL, 0, -1);
-        }
+        draw_sf3_logo_close(pos, step);
     }
 }
 
