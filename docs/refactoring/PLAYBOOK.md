@@ -1411,6 +1411,31 @@ a defect introduced by it.** So:
 - Never "fix" sibling similarity by merging two state machines that differ only in their
   state numbering. That needs a literal change and is forbidden.
 
+### Share the run before splitting the shape
+
+The eff09 rule below says to extract the shared runs before judging whether a file's
+duplication is a plateau. `bg_textures.c` showed the same rule governs the *order* of two
+steps that each measure flat on their own.
+
+`Bg_Kakikae_Set` had three arms, two of them long. Splitting those two arms into their own
+functions - ordinary Recipe X, the obvious move for a mean-complexity finding - measured
+**9.38 -> 8.81**. Each arm carried its own copy of a six-line block that loads a rewrite
+slot out of `bgrw_data_tbl`, and once the arms were functions rather than `case` bodies,
+the duplication detector priced them as a pair.
+
+Sharing that block first (Recipe D, one differing value - the slot) measured **flat**.
+The arms were still inside the switch, so no function-level complexity moved.
+
+Applied in that order, the pair measures **9.38 -> 10.00**.
+
+Neither commit pays alone and each is legal on its own, so rule 2's "keep it if the review
+improved" is not enough to find this: the first commit's review is unchanged. **When a
+split is going to expose a pair, look for what the two halves would then share, and take
+that first.** The reverse ordering is not merely worth less, it is worth *negative* - the
+file ends below where it started.
+
+---
+
 ### The eff09 family: separate the shape from the substance
 
 `eff09.c` and its three split files all sat at 8.54-8.81 on Code Duplication, and the
