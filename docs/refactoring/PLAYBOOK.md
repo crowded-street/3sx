@@ -1012,6 +1012,45 @@ Do not split a file if it would require making a `static` function non-`static`.
 linkage is a behaviour change in the sense that matters here: it changes what the rest of
 the program can reach.
 
+**One exception, added 2026-09-18** under the project owner's standing authorisation, and
+measured on `appear.c`: **a helper this campaign itself created may cross the cut.**
+
+The rule above protects the *decompiled program*. Its reason - "it changes what the rest of
+the program can reach" - is a statement about code that was there before the campaign
+started. A `static` helper introduced by a Recipe D, C or E commit was not there. It is, by
+construction, a verbatim copy of lines that were already inline at every one of its call
+sites, so giving it external linkage exposes nothing the original program did not already
+execute at each of those points.
+
+`appear.c` is the case that forced it. Its first two commits pulled twenty-five copies of
+the appear-finished handover into `mark_appear_finished` and eighteen copies of the
+last-frame test into `finish_appear_on_last_frame`, worth **3.56 -> 4.33** between them.
+Those two helpers are then called from both halves of any cut you can make, so Recipe S as
+written forbade the split that the file needed - and needed badly: at 1593 lines it was in
+the regime below where extraction stops paying. The split measured **6.02 -> 7.50** for
+`appear.c` with `appear_late.c` arriving at 7.95.
+
+**Preconditions, all of them:**
+
+- **The helper must have been created by this campaign**, in a commit on this branch, and
+  its body must still be the verbatim block it was extracted from. Check the commit that
+  introduced it. If you cannot point at that commit, the helper is not yours and this
+  exception does not apply.
+- **No original `static` is widened.** In `appear.c`, `gill_appear_check` and
+  `sean_appear_check` keep exactly the linkage the decompilation gave them. If the split
+  also needs one of those, the split is refused - move the group that does not, or leave
+  the file alone.
+- **The helper is declared in the header the two halves already share**, beside the
+  functions it sits among. Do not invent a third "common" file to hold it.
+- **The group check must come back clean on both runs.** `--combined` and `--calls
+  --combined` over the whole split group; on `appear.c` both returned `OK`, 1564 literals
+  and 371 call sites unchanged. A `--calls` group result that is anything other than `OK`
+  means a call moved rather than travelled, and the split is wrong.
+
+What does *not* relax: this licenses a **linkage** change on a campaign-created helper and
+nothing else. It does not license renaming an original function, moving one between files
+under a new name, or widening an original `static` because the split would be tidier.
+
 ---
 
 ## Recipe R - Resolve a Goto Chain
