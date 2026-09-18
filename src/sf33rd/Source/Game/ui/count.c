@@ -205,8 +205,12 @@ void bcount_cont_init() {
     Time_Stop = 0;
 }
 
+static s32 bonus_counter_halted() {
+    return Break_Into != 0 || sa_stop_check() || Time_Stop != 0 || Allow_a_battle_f == 0;
+}
+
 void bcount_cont_main() {
-    if (Break_Into != 0 || sa_stop_check() || Time_Stop != 0 || Allow_a_battle_f == 0) {
+    if (bonus_counter_halted()) {
         return;
     }
 
