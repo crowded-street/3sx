@@ -1012,6 +1012,8 @@ Recipe X both refuse to merge.
 
 | File | Plateau | Why |
 | --- | --- | --- |
+| `mtrans.c` | 7.55 | *was 2.57 at campaign start, 5.24 at the start of the rendering wave.* What remains is two findings. **Code Duplication** is a web of 16/32 and cached/new/plain near-misses in the nine `store_*` tile passes, each differing in several places at once - the cache lookup, the palette argument and the attribute expression - so Recipe D, F and W all refuse them; `lz_ext_p6_fx` against `lz_ext_p6_cx` and `get_mltbuf16` against `get_mltbuf32` differ in a pointer type, which is a type change. **Lines of Code in a Single File** stands at 1205 and no further legal cut exists: a call-graph pass over the 47 statics shows `advance_trans_x`/`_y` with eleven callers, the six `get_mltbuf*` with three each, and `lz_ext_p6_fx` shared between the tile passes and the melt pass, so every seam the duplication groups suggest runs through a static that Recipe S forbids widening. Splitting out `getObjectHeight`, `mlt_obj_matrix` and `draw_box` was measured - 1272 -> 1205 lines, still flagged, nothing cleared - and reverted under rule 2 |
+| `mtrans_pool.c` | 9.38 | `collect_used_x16_tile_row` against its 32 twin: they differ in the map array's element type, in the operand order of the bit test, in both loop bounds and in the index arithmetic |
 | `com_sub_air_term.c` | 9.68 | `ORO_JA_Term` at cc 9; clearing it makes a twin of `ORO_HJA_Term_Airborne` and costs 0.87 |
 | `com_sub_attack.c` | 9.09 | the two normal-attack wind-ups differ in two statements |
 | `com_sub_command_term.c` | 9.09 | two pairs of airborne twins, one state number apart |
