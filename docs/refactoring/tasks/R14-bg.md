@@ -220,7 +220,8 @@ Smells cleared:  bg.c        - Excess Number of Function Arguments (14 functions
 Steps reverted:  5 (see below)
 Build: PASS
 Replay: per-commit gate on every control-flow and rollback-state change,
-        plus the wide gate, 30 seeds x 3600 frames against the branch point
+        plus the wide gate, 30 seeds x 3600 frames against the branch point -
+        108,000 saved states, all identical
 Unsure about: NONE
 ```
 
@@ -304,6 +305,12 @@ clear until the last function carrying it leaves.
   bumps = 2. Ten duplicated lines went, but nothing measurable moved, so it went back.
 - **Recipe P on `check_cg_zoom`'s merge condition, and Recipe E on the per-fighter
   position update, in `bg_zoom.c`.** Both flat, review byte-identical before and after.
+- **Recipe C on the run `scr_11_22` and `scr_12_21` share in `bg_sub.c`.** The middle
+  five lines - halve the satse difference, take the fighters' midpoint, subtract the ideal
+  screen position - are identical character for character, and sharing them took both
+  functions from 19 lines to 13. Flat, and both stayed in the group with the same numbers:
+  what makes them a pair is the swapped player indices in the two `micchaku_flag` tests,
+  which no recipe reaches, and the run was never the reason. Reverted under rule 2.
 
 ### Two things worth carrying forward
 
