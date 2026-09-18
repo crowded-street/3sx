@@ -110,11 +110,15 @@ static s32 handle_start_button(u8 PL_id, u16 current_sw, u16 edge_sw) {
     return 0;
 }
 
+static s32 pause_task_runs() {
+    return !nowSoftReset() && Mode_Type != MODE_NETWORK && Mode_Type != MODE_NORMAL_TRAINING &&
+           Mode_Type != MODE_PARRY_TRAINING;
+}
+
 void Pause_Task(struct _TASK* task_ptr) {
     void (*Main_Jmp_Tbl[4])(struct _TASK*) = { Pause_Check, Pause_Move, Pause_Sleep, Pause_Die };
 
-    if (!nowSoftReset() && Mode_Type != MODE_NETWORK && Mode_Type != MODE_NORMAL_TRAINING &&
-        Mode_Type != MODE_PARRY_TRAINING) {
+    if (pause_task_runs()) {
         Main_Jmp_Tbl[task_ptr->r_no[0]](task_ptr);
         Flash_Pause(task_ptr);
     }
