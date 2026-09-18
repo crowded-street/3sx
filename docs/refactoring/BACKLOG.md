@@ -16,7 +16,7 @@ Outside the in-round simulation. Safe to refactor with compile verification only
 | ~~[R06](tasks/R06-mtrans.md)~~ | `Game/rendering/mtrans.c` | **7.55** | 2224 | 10 | MEDIUM | plateau 2026-09-18 - split into `mtrans_seqs.c` (10.00) and `mtrans_pool.c` (9.38) |
 | [R10](tasks/R10-opening.md) | `Game/opening/opening.c` | **3.09** | 2997 | 17 | LOW | `TITLE_Move` (cc 11) |
 | [R11](tasks/R11-PPGFile.md) | `Common/PPGFile.c` | **3.49** | 1511 | 11 | MEDIUM | `ppgRenewDotDataSeqs` (cc -) |
-| [R14](tasks/R14-bg.md) | `Game/stage/bg.c` | **3.62** | 1430 | 11 | MEDIUM | `scr_trans` (cc 109) |
+| ~~[R14](tasks/R14-bg.md)~~ | `Game/stage/bg.c` | **9.09** | 1430 | 11 | MEDIUM | plateau 2026-09-18 - split into `bg_textures.c` (10.00); the whole stage folder went with it, see the task report |
 | ~~[R17](tasks/R17-entry.md)~~ | `Game/screen/entry.c` | **10.00** | 1480 | 19 | LOW | done 2026-09-18 - left the Red band; split into `entry_break_in.c` |
 
 ## Track B - manual playtesting required (statcheck indefinitely unavailable)
