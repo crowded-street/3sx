@@ -714,13 +714,9 @@ static void set_bg_family_position(s32 num_of_bg, s16 x, s16 y) {
 
 void Bg_Family_Set() {
     s8 i;
-    s16 x;
-    s16 y;
 
     for (i = 0; i < bg_w.scno; i++) {
-        x = bg_w.bgw[i].position_x;
-        y = bg_w.bgw[i].position_y;
-        set_bg_family_position(i, x, y);
+        Bg_Family_Set_appoint(i);
     }
 }
 
@@ -733,14 +729,9 @@ void Bg_Family_Set_appoint(s32 num_of_bg) {
 
 void Bg_Family_Set_2() {
     s8 i;
-    s16 x;
-    s16 y;
 
     for (i = 0; i < bg_w.scno; i++) {
-        x = bg_w.bgw[i].position_x;
-        y = bg_w.bgw[i].position_y;
-        y += 8;
-        set_bg_family_position(i, x, y);
+        Bg_Family_Set_2_appoint(i);
     }
 }
 
