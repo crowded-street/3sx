@@ -30,6 +30,41 @@
 #include "structs.h"
 #include "core/xbox_buttons.h"
 
+static void draw_combo_hit_count(const ComboMessage* m, u8 xw, u8 xw2) {
+    u8 pl = m->pl;
+    u8 kind = m->kind;
+    u8 x = m->x;
+    u8 num = m->num;
+    u8 hi = m->hi;
+    u8 low = m->low;
+
+    if (pl == 0) {
+        if (hi != 0) {
+            scfont_sqput(&(ScFontSquare){ x, 7, 8, 0, hi, 6, 1, 2 }, 2);
+    }
+
+        if (num > 1) {
+            scfont_sqput(&(ScFontSquare){ x + 1, 7, 8, 0, low, 6, 1, 2 }, 2);
+    }
+
+        if (num > 3) {
+            scfont_sqput(&(ScFontSquare){ x + 3, 7, 8, 2, combo_mtbl[kind][0], combo_mtbl[kind][1], xw, 2 }, 2);
+            return;
+    }
+    } else {
+        scfont_sqput(&(ScFontSquare){ xw2, 7, 8, 2, (combo_mtbl[kind][0] + combo_mtbl[kind][2]) - xw, combo_mtbl[kind][1], xw, 2 }, 2);
+
+        if (xw2 > 1) {
+            scfont_sqput(&(ScFontSquare){ xw2 - 2, 7, 8, 0, low, 6, 1, 2 }, 2);
+    }
+
+        if ((xw2 > 2) && (hi != 0)) {
+            scfont_sqput(&(ScFontSquare){ xw2 - 3, 7, 8, 0, hi, 6, 1, 2 }, 2);
+            return;
+    }
+    }
+}
+
 void combo_message_set(const ComboMessage* m) {
     u8 pl = m->pl;
     u8 kind = m->kind;
@@ -63,32 +98,7 @@ void combo_message_set(const ComboMessage* m) {
     case 2:
     case 1:
     case 0:
-        if (pl == 0) {
-            if (hi != 0) {
-                scfont_sqput(&(ScFontSquare){ x, 7, 8, 0, hi, 6, 1, 2 }, 2);
-            }
-
-            if (num > 1) {
-                scfont_sqput(&(ScFontSquare){ x + 1, 7, 8, 0, low, 6, 1, 2 }, 2);
-            }
-
-            if (num > 3) {
-                scfont_sqput(&(ScFontSquare){ x + 3, 7, 8, 2, combo_mtbl[kind][0], combo_mtbl[kind][1], xw, 2 }, 2);
-                return;
-            }
-        } else {
-            scfont_sqput(&(ScFontSquare){ xw2, 7, 8, 2, (combo_mtbl[kind][0] + combo_mtbl[kind][2]) - xw, combo_mtbl[kind][1], xw, 2 }, 2);
-
-            if (xw2 > 1) {
-                scfont_sqput(&(ScFontSquare){ xw2 - 2, 7, 8, 0, low, 6, 1, 2 }, 2);
-            }
-
-            if ((xw2 > 2) && (hi != 0)) {
-                scfont_sqput(&(ScFontSquare){ xw2 - 3, 7, 8, 0, hi, 6, 1, 2 }, 2);
-                return;
-            }
-        }
-
+        draw_combo_hit_count(m, xw, xw2);
         break;
 
     case 3:
