@@ -60,6 +60,7 @@ void Switch_Priority_76();
 s32 Cut_Cut_Sub(s16 xx);
 bool Cut_Cut_Loser();
 void Soft_Reset_Sub();
+s32 in_training_mode();
 void Check_Replay();
 void Check_Replay_Status(s16 PL_id, u8 Status);
 s16 Check_SysDir_Page();
