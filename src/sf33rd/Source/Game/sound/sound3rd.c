@@ -736,6 +736,19 @@ void SsRequestPan(u16 reqNum, s16 start, s16 /* unused */, s32 /* unused */, s32
     sound_request_for_dc(&rmcode, start);
 }
 
+/* The BGM patch for a bank-2000 or bank-3000 code: port 0 unshifted, and the bank's
+ * own offset when the code came from the PS2 range. */
+static void set_bgm_patch_port(SoundPatchConfig* rmcode, u16 p2s, s16 shifted_port) {
+    rmcode->ptix = 0;
+    rmcode->bank = 0;
+
+    if (p2s) {
+        rmcode->port = shifted_port;
+    } else {
+        rmcode->port = 0;
+    }
+}
+
 /* The SE patch for one of the four (PS2-shifted, mother-tongue) source combinations. */
 static void set_se_patch_for_source(SoundPatchConfig* rmcode, u16 source) {
     switch (source) {
@@ -794,27 +807,11 @@ u16 remake_sound_code_for_DC(u16 code, SoundPatchConfig* rmcode) {
         break;
 
     case 0x2000:
-        rmcode->ptix = 0;
-        rmcode->bank = 0;
-
-        if (p2s) {
-            rmcode->port = 3;
-        } else {
-            rmcode->port = 0;
-        }
-
+        set_bgm_patch_port(rmcode, p2s, 3);
         break;
 
     case 0x3000:
-        rmcode->ptix = 0;
-        rmcode->bank = 0;
-
-        if (p2s) {
-            rmcode->port = -3;
-        } else {
-            rmcode->port = 0;
-        }
-
+        set_bgm_patch_port(rmcode, p2s, -3);
         break;
 
     case 0x8000:
