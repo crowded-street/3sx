@@ -337,50 +337,69 @@ void Appear_05000(PLW* wk) {
     }
 }
 
-void Appear_06000(PLW* wk) {
+static void start_appear_06000(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    switch (wk->wu.routine_no[4]) {
+    case 6:
+        effect_C5_init(wk, 0);
+        break;
+    case 27:
+        effect_C5_init(wk, 1);
+        break;
+    case 40:
+        effect_M5_init(wk);
+        break;
+    }
+    wk->wu.disp_flag = 0;
+    set_char_move_init(&wk->wu, 9, 0x13);
+    bg_app_stop = 1;
+}
+
+static void board_appear_06000_car(PLW* wk) {
     s16 work;
 
+    wk->wu.routine_no[3]++;
+    wk->wu.disp_flag = 1;
+    wk->wu.my_mr_flag = 0;
+    set_char_move_init(&wk->wu, 9, 0x13);
+    wk->wu.position_z = wk->wu.next_z = 0x6E;
+    wk->wu.mvxy.d[0].sp = 0;
+    wk->wu.mvxy.d[1].sp = -0x8000;
+
+    if (wk->wu.routine_no[4] == 0x1B) {
+        appear_work[wk->wu.id] = 0x34;
+    } else {
+        appear_work[wk->wu.id] = 0x2A;
+    }
+
+    work = 88;
+    if (wk->wu.id) {
+        cal_initial_speed(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work + work, 0);
+        return;
+    }
+    cal_initial_speed(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work - work, 0);
+}
+
+static void leave_appear_06000_car(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    if (wk->wu.routine_no[4] == 0x1B) {
+        wk->wu.rl_flag ^= 1;
+        set_char_move_init(&wk->wu, 0, 1);
+    } else {
+        wk->wu.routine_no[2] = 1;
+        wk->wu.routine_no[3] = 0;
+    }
+}
+
+void Appear_06000(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        switch (wk->wu.routine_no[4]) {
-        case 6:
-            effect_C5_init(wk, 0);
-            break;
-        case 27:
-            effect_C5_init(wk, 1);
-            break;
-        case 40:
-            effect_M5_init(wk);
-            break;
-        }
-        wk->wu.disp_flag = 0;
-        set_char_move_init(&wk->wu, 9, 0x13);
-        bg_app_stop = 1;
+        start_appear_06000(wk);
         break;
 
     case 1:
         if (demo_car_flag[wk->wu.id]) {
-            wk->wu.routine_no[3]++;
-            wk->wu.disp_flag = 1;
-            wk->wu.my_mr_flag = 0;
-            set_char_move_init(&wk->wu, 9, 0x13);
-            wk->wu.position_z = wk->wu.next_z = 0x6E;
-            wk->wu.mvxy.d[0].sp = 0;
-            wk->wu.mvxy.d[1].sp = -0x8000;
-
-            if (wk->wu.routine_no[4] == 0x1B) {
-                appear_work[wk->wu.id] = 0x34;
-            } else {
-                appear_work[wk->wu.id] = 0x2A;
-            }
-
-            work = 88;
-            if (wk->wu.id) {
-                cal_initial_speed(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work + work, 0);
-                break;
-            }
-            cal_initial_speed(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work - work, 0);
+            board_appear_06000_car(wk);
         }
         break;
 
@@ -402,14 +421,7 @@ void Appear_06000(PLW* wk) {
     case 3:
         char_move(&wk->wu);
         if (wk->wu.cg_type) {
-            wk->wu.routine_no[3]++;
-            if (wk->wu.routine_no[4] == 0x1B) {
-                wk->wu.rl_flag ^= 1;
-                set_char_move_init(&wk->wu, 0, 1);
-            } else {
-                wk->wu.routine_no[2] = 1;
-                wk->wu.routine_no[3] = 0;
-            }
+            leave_appear_06000_car(wk);
         }
         break;
 
