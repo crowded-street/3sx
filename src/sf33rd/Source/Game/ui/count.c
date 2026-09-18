@@ -57,6 +57,22 @@ void count_cont_init(u8 type) {
     counter_color = 4;
 }
 
+static s32 counter_is_frozen() {
+    if (Allow_a_battle_f == 0 || Demo_Time_Stop != 0) {
+        return 1;
+    }
+
+    if (Break_Into) {
+        return 1;
+    }
+
+    if (sa_stop_check() != 0) {
+        return 1;
+    }
+
+    return 0;
+}
+
 void count_cont_main() {
     if (Bonus_Game_Flag) {
         return;
@@ -74,17 +90,7 @@ void count_cont_main() {
     }
 #endif
 
-    if (Allow_a_battle_f == 0 || Demo_Time_Stop != 0) {
-        counter_write(counter_color);
-        return;
-    }
-
-    if (Break_Into) {
-        counter_write(counter_color);
-        return;
-    }
-
-    if (sa_stop_check() != 0) {
+    if (counter_is_frozen()) {
         counter_write(counter_color);
         return;
     }
