@@ -718,6 +718,17 @@ static void advance_stage03_flash_state() {
     }
 }
 
+static void reload_rw_slot(RW_DATA* slot) {
+    if (slot->rwd_ptr[0] == -1) {
+        slot->rwd_ptr = slot->brw_ptr;
+        slot->rw_cnt = *slot->rwd_ptr++;
+        slot->gbix = *slot->rwd_ptr++;
+    } else {
+        slot->rw_cnt = *slot->rwd_ptr++;
+        slot->gbix = *slot->rwd_ptr++;
+    }
+}
+
 static void advance_stage03_player_rw_state() {
     s32 i;
 
@@ -725,14 +736,7 @@ static void advance_stage03_player_rw_state() {
         rw_dat[i + 1].rw_cnt--;
 
         if (rw_dat[i + 1].rw_cnt == 0) {
-            if (rw_dat[i + 1].rwd_ptr[0] == -1) {
-                rw_dat[i + 1].rwd_ptr = rw_dat[i + 1].brw_ptr;
-                rw_dat[i + 1].rw_cnt = *rw_dat[i + 1].rwd_ptr++;
-                rw_dat[i + 1].gbix = *rw_dat[i + 1].rwd_ptr++;
-            } else {
-                rw_dat[i + 1].rw_cnt = *rw_dat[i + 1].rwd_ptr++;
-                rw_dat[i + 1].gbix = *rw_dat[i + 1].rwd_ptr++;
-            }
+            reload_rw_slot(&rw_dat[i + 1]);
         }
     }
 }
@@ -813,14 +817,7 @@ static void advance_stage19_loop_state() {
         return;
     }
 
-    if (rw_dat[1].rwd_ptr[0] == -1) {
-        rw_dat[1].rwd_ptr = rw_dat[1].brw_ptr;
-        rw_dat[1].rw_cnt = *rw_dat[1].rwd_ptr++;
-        rw_dat[1].gbix = *rw_dat[1].rwd_ptr++;
-    } else {
-        rw_dat[1].rw_cnt = *rw_dat[1].rwd_ptr++;
-        rw_dat[1].gbix = *rw_dat[1].rwd_ptr++;
-    }
+    reload_rw_slot(&rw_dat[1]);
 }
 
 static s32 remap_ending_c_kakikae1_chip(s32 global_index_real) {
@@ -1314,14 +1311,7 @@ void bgRWWorkUpdate() {
         rw_dat[i].rw_cnt--;
 
         if (rw_dat[i].rw_cnt == 0) {
-            if (*rw_dat[i].rwd_ptr == -1) {
-                rw_dat[i].rwd_ptr = rw_dat[i].brw_ptr;
-                rw_dat[i].rw_cnt = *rw_dat[i].rwd_ptr++;
-                rw_dat[i].gbix = *rw_dat[i].rwd_ptr++;
-            } else {
-                rw_dat[i].rw_cnt = *rw_dat[i].rwd_ptr++;
-                rw_dat[i].gbix = *rw_dat[i].rwd_ptr++;
-            }
+            reload_rw_slot(&rw_dat[i]);
         }
     }
 }
