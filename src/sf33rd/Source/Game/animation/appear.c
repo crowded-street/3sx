@@ -942,23 +942,39 @@ s16 gill_appear_check() {
     return 0;
 }
 
+static void start_appear_17000(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    wk->wu.disp_flag = 1;
+
+    if (Gill_Appear_Flag) {
+        appear_data_set(wk, (APPEAR_DATA*)appear_data);
+        Appear_00000(wk);
+        return;
+    }
+
+    set_char_move_init(&wk->wu, 9, 0);
+    bg_app_stop = 1;
+    gSeqStatus[0] = 0;
+    SsRequest(0x3C);
+    set_char_move_init(&wk->wu, 9, 8);
+}
+
+static void finish_appear_17000(PLW* wk) {
+    if (wk->wu.cg_type == 3) {
+        wk->wu.cg_type = 0;
+        SsBgmFadeOut(0xAA);
+    }
+
+    if (wk->wu.cg_type == 0xFF) {
+        mark_appear_finished(wk);
+        Standby_BGM(0x2E);
+    }
+}
+
 void Appear_17000(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.disp_flag = 1;
-
-        if (Gill_Appear_Flag) {
-            appear_data_set(wk, (APPEAR_DATA*)appear_data);
-            Appear_00000(wk);
-            return;
-        }
-
-        set_char_move_init(&wk->wu, 9, 0);
-        bg_app_stop = 1;
-        gSeqStatus[0] = 0;
-        SsRequest(0x3C);
-        set_char_move_init(&wk->wu, 9, 8);
+        start_appear_17000(wk);
         break;
 
     case 1:
@@ -981,15 +997,7 @@ void Appear_17000(PLW* wk) {
     case 3:
         char_move(&wk->wu);
 
-        if (wk->wu.cg_type == 3) {
-            wk->wu.cg_type = 0;
-            SsBgmFadeOut(0xAA);
-        }
-
-        if (wk->wu.cg_type == 0xFF) {
-            mark_appear_finished(wk);
-            Standby_BGM(0x2E);
-        }
+        finish_appear_17000(wk);
 
         break;
     }
