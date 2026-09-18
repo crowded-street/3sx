@@ -2008,7 +2008,7 @@ void mlt_obj_trans_update(MultiTexture* mt) {
     }
 }
 
-void draw_box(f64 arg0, f64 arg1, f64 arg2, f64 arg3, u32 col, u32 attr, s16 prio) {
+void draw_box(const BoxRect* rect, u32 col, u32 attr, s16 prio) {
     f32 px;
     f32 py;
     f32 sx;
@@ -2018,10 +2018,10 @@ void draw_box(f64 arg0, f64 arg1, f64 arg2, f64 arg3, u32 col, u32 attr, s16 pri
     PAL_CURSOR_P xy[4];
     PAL_CURSOR_COL cc[4];
 
-    px = arg0;
-    py = arg1;
-    sx = arg2;
-    sy = arg3;
+    px = rect->arg0;
+    py = rect->arg1;
+    sx = rect->arg2;
+    sy = rect->arg3;
     point[0].x = px;
     point[0].y = py;
     point[0].z = 0.0f;

@@ -610,27 +610,27 @@ s32 sort_push_requestA(WORK* wk) {
         mf = 1;
     }
 
-    draw_box((f32)(wk->shell_ix[0] * mf),
-             (f32)(wk->shell_ix[2]),
-             (f32)(wk->shell_ix[1] * mf),
-             (f32)(wk->shell_ix[3]),
+    draw_box(&(BoxRect){ (f32)(wk->shell_ix[0] * mf),
+                         (f32)(wk->shell_ix[2]),
+                         (f32)(wk->shell_ix[1] * mf),
+                         (f32)(wk->shell_ix[3]) },
              oricol.color,
              box_color_attr[wk->my_col_code][1],
              wk->position_z);
 
     for (i = 0; i < wk->charset_id; i++) {
-        draw_box((f32)((wk->shell_ix[0] - (i + 1) * 2) * mf),
-                 (f32)(wk->shell_ix[2] + (1 << (i + 1))),
-                 (f32)(mf * (wk->shell_ix[1] + (i + 1) * 2 * 2)),
-                 (f32)(wk->shell_ix[3] - (1 << (i + 1)) * 2),
+        draw_box(&(BoxRect){ (f32)((wk->shell_ix[0] - (i + 1) * 2) * mf),
+                             (f32)(wk->shell_ix[2] + (1 << (i + 1))),
+                             (f32)(mf * (wk->shell_ix[1] + (i + 1) * 2 * 2)),
+                             (f32)(wk->shell_ix[3] - (1 << (i + 1)) * 2) },
                  oricol.color,
                  box_color_attr[wk->my_col_code][1],
                  wk->position_z);
 
-        draw_box((f32)(mf * (wk->shell_ix[0] + (1 << (i + 1)))),
-                 (f32)(wk->shell_ix[2] - (i + 1) * 2),
-                 (f32)(mf * (wk->shell_ix[1] - (1 << (i + 1)) * 2)),
-                 (f32)(wk->shell_ix[3] + (i + 1) * 2 * 2),
+        draw_box(&(BoxRect){ (f32)(mf * (wk->shell_ix[0] + (1 << (i + 1)))),
+                             (f32)(wk->shell_ix[2] - (i + 1) * 2),
+                             (f32)(mf * (wk->shell_ix[1] - (1 << (i + 1)) * 2)),
+                             (f32)(wk->shell_ix[3] + (i + 1) * 2 * 2) },
                  oricol.color,
                  box_color_attr[wk->my_col_code][1],
                  wk->position_z);
@@ -662,27 +662,27 @@ s32 sort_push_requestB(WORK* wk) {
         mf = 1;
     }
 
-    draw_box((f32)(wk->shell_ix[0] * mf),
-             (f32)(wk->shell_ix[2]),
-             (f32)(wk->shell_ix[1] * mf),
-             (f32)(wk->shell_ix[3]),
+    draw_box(&(BoxRect){ (f32)(wk->shell_ix[0] * mf),
+                         (f32)(wk->shell_ix[2]),
+                         (f32)(wk->shell_ix[1] * mf),
+                         (f32)(wk->shell_ix[3]) },
              oricol.color,
              box_color_attr[wk->my_col_code][1],
              wk->position_z);
 
     for (i = 0; i < wk->charset_id; i++) {
-        draw_box((f32)(mf * (wk->shell_ix[0] - (i + 1) * 2)),
-                 (f32)(wk->shell_ix[2] + (1 << (i + 1))),
-                 (f32)(mf * (wk->shell_ix[1] + (i + 1) * 2 * 2)),
-                 (f32)(wk->shell_ix[3] - (1 << (i + 1)) * 2),
+        draw_box(&(BoxRect){ (f32)(mf * (wk->shell_ix[0] - (i + 1) * 2)),
+                             (f32)(wk->shell_ix[2] + (1 << (i + 1))),
+                             (f32)(mf * (wk->shell_ix[1] + (i + 1) * 2 * 2)),
+                             (f32)(wk->shell_ix[3] - (1 << (i + 1)) * 2) },
                  oricol.color,
                  box_color_attr[wk->my_col_code][1],
                  wk->position_z);
 
-        draw_box((f32)(mf * (wk->shell_ix[0] + (1 << (i + 1)))),
-                 (f32)(wk->shell_ix[2] - (i + 1) * 2),
-                 (f32)(mf * (wk->shell_ix[1] - (1 << (i + 1)) * 2)),
-                 (f32)(wk->shell_ix[3] + (i + 1) * 2 * 2),
+        draw_box(&(BoxRect){ (f32)(mf * (wk->shell_ix[0] + (1 << (i + 1)))),
+                             (f32)(wk->shell_ix[2] - (i + 1) * 2),
+                             (f32)(mf * (wk->shell_ix[1] - (1 << (i + 1)) * 2)),
+                             (f32)(wk->shell_ix[3] + (i + 1) * 2 * 2) },
                  oricol.color,
                  box_color_attr[wk->my_col_code][1],
                  wk->position_z);
