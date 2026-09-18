@@ -498,6 +498,27 @@ static void start_win_07000_pose(PLW* wk) {
     set_char_move_init(&wk->wu, 9, work + 32);
 }
 
+static void step_win_07000_pose_change(PLW* wk) {
+    if (win_rno[1] == 0) {
+        if (wk->wu.cmwk[1]) {
+            win_rno[1]++;
+
+            if (win_rno[0] == 1) {
+                set_char_move_init(&wk->wu, 9, 32);
+            } else {
+                set_char_move_init(&wk->wu, 9, 37);
+            }
+
+            return;
+        }
+
+        char_move(&wk->wu);
+        return;
+    }
+
+    char_move(&wk->wu);
+}
+
 static void step_win_07000_effect(PLW* wk) {
     switch (win_rno[0]) {
     case 0:
@@ -505,24 +526,7 @@ static void step_win_07000_effect(PLW* wk) {
         break;
 
     default:
-        if (win_rno[1] == 0) {
-            if (wk->wu.cmwk[1]) {
-                win_rno[1]++;
-
-                if (win_rno[0] == 1) {
-                    set_char_move_init(&wk->wu, 9, 32);
-                } else {
-                    set_char_move_init(&wk->wu, 9, 37);
-                }
-
-                break;
-            }
-
-            char_move(&wk->wu);
-            break;
-        }
-
-        char_move(&wk->wu);
+        step_win_07000_pose_change(wk);
     }
 }
 
