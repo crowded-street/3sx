@@ -403,8 +403,8 @@ void toSelectGame(struct _TASK* task_ptr) {
 }
 
 void imgSelectGameButton() {
-    dispButtonImage2(0x74, 0x6B, 0x18, 0x20, 0x1A, 0, 4, 0);
-    dispButtonImage2(0xB2, 0x6B, 0x18, 0x20, 0x1A, 0, 5, 0);
+    dispButtonImage2(&(ButtonImage){ 0x74, 0x6B, 0x18, 0x20, 0x1A, 0, 4, 0 });
+    dispButtonImage2(&(ButtonImage){ 0xB2, 0x6B, 0x18, 0x20, 0x1A, 0, 5, 0 });
 }
 
 static bool is_option_selection_input(void) {

@@ -1266,9 +1266,7 @@ static void set_ps2_button_texture(Sprite* sprite, ButtonIcon icon) {
     sprite->t[3].t = (scrnAddTex1UV[icon][1] + scrnAddTex1UV[icon][3]) / 128.0f;
 }
 
-static void _dispButtonImage(
-    s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, ButtonIcon icon, bool invert_y, int player_id
-) {
+static void _dispButtonImage(const ButtonImage* b, bool invert_y) {
     PAL_CURSOR_COL oricol;
     Sprite prm;
 
@@ -1277,35 +1275,35 @@ static void _dispButtonImage(
     }
 
     oricol.color = 0xFFFFFFFF;
-    oricol.argb.a = (0xFF - cl);
-    prm.v[0].x = px;
-    prm.v[0].y = py;
-    prm.v[3].x = px + sx;
+    oricol.argb.a = (0xFF - b->cl);
+    prm.v[0].x = b->px;
+    prm.v[0].y = b->py;
+    prm.v[3].x = b->px + b->sx;
 
     if (invert_y) {
-        prm.v[3].y = py - sy;
+        prm.v[3].y = b->py - b->sy;
         njCalcPoint(NULL, &prm.v[0], &prm.v[0]);
         njCalcPoint(NULL, &prm.v[3], &prm.v[3]);
     } else {
-        prm.v[3].y = py + sy;
+        prm.v[3].y = b->py + b->sy;
     }
 
-    prm.v[0].z = prm.v[3].z = PrioBase[pz];
+    prm.v[0].z = prm.v[3].z = PrioBase[b->pz];
 
 #if PSP
-    set_ps2_button_texture(&prm, icon);
+    set_ps2_button_texture(&prm, b->icon);
 #else
-    const Input_PadType pad_type = Input_GetPadType(player_id);
+    const Input_PadType pad_type = Input_GetPadType(b->player_id);
 
     switch (pad_type) {
     case INPUT_PAD_TYPE_PLAYSTATION:
-        set_ps2_button_texture(&prm, icon);
+        set_ps2_button_texture(&prm, b->icon);
         break;
 
     case INPUT_PAD_TYPE_UNKNOWN:
     case INPUT_PAD_TYPE_KEYBOARD:
     case INPUT_PAD_TYPE_XBOX:
-        XboxButtons_SetTextureParams(&prm, icon);
+        XboxButtons_SetTextureParams(&prm, b->icon);
         break;
     }
 #endif
@@ -1314,10 +1312,10 @@ static void _dispButtonImage(
     Renderer_DrawSprite(&prm, oricol.color);
 }
 
-void dispButtonImage(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, ButtonIcon icon, int player_id) {
-    _dispButtonImage(px, py, pz, sx, sy, cl, icon, true, player_id);
+void dispButtonImage(const ButtonImage* b) {
+    _dispButtonImage(b, true);
 }
 
-void dispButtonImage2(s32 px, s32 py, s32 pz, s32 sx, s32 sy, s32 cl, ButtonIcon icon, int player_id) {
-    _dispButtonImage(px, py, pz, sx, sy, cl, icon, false, player_id);
+void dispButtonImage2(const ButtonImage* b) {
+    _dispButtonImage(b, false);
 }

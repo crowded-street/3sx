@@ -95,7 +95,8 @@ void effect_23_move(WORK_Other_CONN* ewk) {
     }
 
     if (ewk->wu.type < 8 && ewk->wu.disp_flag) {
-        dispButtonImage(-44, 12, ewk->wu.position_z, 23, 19, ewk->wu.my_clear_level, ewk->wu.type, ewk->master_id);
+        dispButtonImage(
+            &(ButtonImage){ -44, 12, ewk->wu.position_z, 23, 19, ewk->wu.my_clear_level, ewk->wu.type, ewk->master_id });
     }
 }
 
