@@ -84,16 +84,20 @@ static void play_random_round_loss(PLW* wk) {
     }
 }
 
-void Lose_10000(PLW* wk) {
+static void step_loss_anime(PLW* wk, void (*judge_step)(PLW*), void (*round_step)(PLW*)) {
     if (judge_screen_showing()) {
-        play_random_judge_loss(wk);
+        judge_step(wk);
     } else if (lose_anime_suspended()) {
         return;
     } else {
-        play_random_round_loss(wk);
+        round_step(wk);
     }
 
     update_field_hosei_flags(wk);
+}
+
+void Lose_10000(PLW* wk) {
+    step_loss_anime(wk, play_random_judge_loss, play_random_round_loss);
 }
 
 void Lose_20000(PLW* wk) {
@@ -160,15 +164,7 @@ static void play_fixed_round_loss(PLW* wk) {
 }
 
 void Lose_30000(PLW* wk) {
-    if (judge_screen_showing()) {
-        play_fixed_judge_loss(wk);
-    } else if (lose_anime_suspended()) {
-        return;
-    } else {
-        play_fixed_round_loss(wk);
-    }
-
-    update_field_hosei_flags(wk);
+    step_loss_anime(wk, play_fixed_judge_loss, play_fixed_round_loss);
 }
 
 void Normal_normal_Loser(PLW* wk) {
