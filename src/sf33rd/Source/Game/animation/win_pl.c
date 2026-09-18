@@ -742,6 +742,29 @@ void Win_10000(PLW* wk) {
     }
 }
 
+static void choose_twelve_win_pose(PLW* wk, s16 work) {
+    if (Perfect_Flag) {
+        win_rno[0] = 1;
+        set_char_move_init(&wk->wu, 9, 38);
+        effect_L3_init(wk);
+    } else {
+        set_char_move_init(&wk->wu, 9, work + 36);
+        switch (work) {
+        case 0:
+            win_rno[0] = 2;
+            break;
+
+        case 1:
+            break;
+
+        default:
+            effect_L3_init(wk);
+            win_rno[0] = 1;
+            break;
+        }
+    }
+}
+
 void Win_11000(PLW* wk) {
     s16 work;
 
@@ -756,26 +779,7 @@ void Win_11000(PLW* wk) {
         work = win_select(wk, 3);
 
         if (winner_on_match_point(wk)) {
-            if (Perfect_Flag) {
-                win_rno[0] = 1;
-                set_char_move_init(&wk->wu, 9, 38);
-                effect_L3_init(wk);
-            } else {
-                set_char_move_init(&wk->wu, 9, work + 36);
-                switch (work) {
-                case 0:
-                    win_rno[0] = 2;
-                    break;
-
-                case 1:
-                    break;
-
-                default:
-                    effect_L3_init(wk);
-                    win_rno[0] = 1;
-                    break;
-                }
-            }
+            choose_twelve_win_pose(wk, work);
         } else {
             win_rno[0] = 0;
             set_char_move_init(&wk->wu, 9, work + 32);
