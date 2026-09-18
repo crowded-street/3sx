@@ -1130,7 +1130,7 @@ static s32 remap_stage19_chip(u8 bgnm, s32 global_index_real) {
     return global_index_real;
 }
 
-static void draw_stage19_tiles(const StageDrawContext* context) {
+static void draw_remapped_tiles(const StageDrawContext* context, s32 (*remap)(u8, s32)) {
     s32 x;
     s32 y;
     s32 global_index_real;
@@ -1138,12 +1138,16 @@ static void draw_stage19_tiles(const StageDrawContext* context) {
     for (y = context->yy[0]; y < context->yy[1]; y += 128) {
         for (x = context->xx[0]; x < context->xx[1]; x += 128) {
             global_index_real = context->global_index + (((y >> 7) << 3) + (x >> 7));
-            global_index_real = remap_stage19_chip(context->bgnm, global_index_real);
+            global_index_real = remap(context->bgnm, global_index_real);
 
             bgDrawOneChip(&(ChipRect){ x, y, 128, 128 }, global_index_real, -1, context->pal_offset);
             ppgSetupCurrentDataList(context->data_list);
         }
     }
+}
+
+static void draw_stage19_tiles(const StageDrawContext* context) {
+    draw_remapped_tiles(context, remap_stage19_chip);
 }
 
 static s32 remap_ending_g_chip(u8 bgnm, s32 global_index_real) {
@@ -1165,19 +1169,7 @@ static s32 remap_ending_g_chip(u8 bgnm, s32 global_index_real) {
 }
 
 static void draw_ending_g_tiles(const StageDrawContext* context) {
-    s32 x;
-    s32 y;
-    s32 global_index_real;
-
-    for (y = context->yy[0]; y < context->yy[1]; y += 128) {
-        for (x = context->xx[0]; x < context->xx[1]; x += 128) {
-            global_index_real = context->global_index + (((y >> 7) << 3) + (x >> 7));
-            global_index_real = remap_ending_g_chip(context->bgnm, global_index_real);
-
-            bgDrawOneChip(&(ChipRect){ x, y, 128, 128 }, global_index_real, -1, context->pal_offset);
-            ppgSetupCurrentDataList(context->data_list);
-        }
-    }
+    draw_remapped_tiles(context, remap_ending_g_chip);
 }
 
 static s32 remap_ending_c_chip(u8 bgnm, s32 global_index_real) {
@@ -1196,19 +1188,7 @@ static s32 remap_ending_c_chip(u8 bgnm, s32 global_index_real) {
 }
 
 static void draw_ending_c_tiles(const StageDrawContext* context) {
-    s32 x;
-    s32 y;
-    s32 global_index_real;
-
-    for (y = context->yy[0]; y < context->yy[1]; y += 128) {
-        for (x = context->xx[0]; x < context->xx[1]; x += 128) {
-            global_index_real = context->global_index + (((y >> 7) << 3) + (x >> 7));
-            global_index_real = remap_ending_c_chip(context->bgnm, global_index_real);
-
-            bgDrawOneChip(&(ChipRect){ x, y, 128, 128 }, global_index_real, -1, context->pal_offset);
-            ppgSetupCurrentDataList(context->data_list);
-        }
-    }
+    draw_remapped_tiles(context, remap_ending_c_chip);
 }
 
 static void draw_ending_stage7(const StageDrawContext* context) {
