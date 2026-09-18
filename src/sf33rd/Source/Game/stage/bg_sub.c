@@ -697,21 +697,31 @@ void bg_base_x_move_sub() {
     scr_x_mv_jp[(st[0] << 4) + st[1]]();
 }
 
+static s16 remake_leftward_x_step(s16 mvstep) {
+    if (mvstep < -bg_w.max_x) {
+        mvstep = -bg_w.max_x;
+    }
+
+    return -remake_x_mvstep(-mvstep);
+}
+
+static s16 remake_rightward_x_step(s16 mvstep) {
+    if (mvstep > bg_w.max_x) {
+        mvstep = bg_w.max_x;
+    }
+
+    return remake_x_mvstep(mvstep);
+}
+
 static s16 adjust_bg_x_step(s16 mvstep) {
     if (!mvstep) {
         return mvstep;
     }
 
     if (mvstep < 0) {
-        if (mvstep < -bg_w.max_x) {
-            mvstep = -bg_w.max_x;
-        }
-        mvstep = -remake_x_mvstep(-mvstep);
+        mvstep = remake_leftward_x_step(mvstep);
     } else {
-        if (mvstep > bg_w.max_x) {
-            mvstep = bg_w.max_x;
-        }
-        mvstep = remake_x_mvstep(mvstep);
+        mvstep = remake_rightward_x_step(mvstep);
     }
 
     return mvstep;
