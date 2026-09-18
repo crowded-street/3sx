@@ -899,9 +899,13 @@ static bool bg_layer_disabled(int i) {
     return false;
 }
 
+static s32 bg_layer_should_transfer(int i) {
+    return (bg_disp_off == 0) && (Screen_Switch_Buffer & (1 << i)) && !bg_layer_disabled(i);
+}
+
 void BG_Draw_System() {
     for (int i = 0; i < 4; i++) {
-        if ((bg_disp_off == 0) && (Screen_Switch_Buffer & (1 << i)) && !bg_layer_disabled(i)) {
+        if (bg_layer_should_transfer(i)) {
             scr_trans(i);
         } else {
             scr_calc(i);
