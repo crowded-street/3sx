@@ -391,6 +391,19 @@ static s32 blinked_out_this_frame(WORK* wk) {
     return (wk->disp_flag == 2) && ((wk->blink_timing + Game_timer & 1));
 }
 
+// extra_col_2 then extra_col, each overriding the colour code when set.
+// sort_push_request, sort_push_request3 and sort_push_request4 all carried this
+// block, identical character for character.
+static void apply_extra_col_override(WORK* wk) {
+    if (wk->extra_col_2) {
+        wk->current_colcd = wk->extra_col_2;
+    }
+
+    if (wk->extra_col) {
+        wk->current_colcd = wk->extra_col;
+    }
+}
+
 s32 sort_push_request(WORK* wk) {
     if (wk->my_mts == 0) {
         return 0;
@@ -406,13 +419,7 @@ s32 sort_push_request(WORK* wk) {
         wk->current_colcd |= 8;
     }
 
-    if (wk->extra_col_2) {
-        wk->current_colcd = wk->extra_col_2;
-    }
-
-    if (wk->extra_col) {
-        wk->current_colcd = wk->extra_col;
-    }
+    apply_extra_col_override(wk);
 
     if (has_nothing_to_draw(wk)) {
         return 1;
@@ -448,13 +455,7 @@ s32 sort_push_request3(WORK* wk) {
 
     wk->current_colcd = wk->my_col_code;
 
-    if (wk->extra_col_2) {
-        wk->current_colcd = wk->extra_col_2;
-    }
-
-    if (wk->extra_col) {
-        wk->current_colcd = wk->extra_col;
-    }
+    apply_extra_col_override(wk);
 
     if (wk->disp_flag == 0) {
         return 1;
@@ -498,13 +499,7 @@ s32 sort_push_request4(WORK* wk) {
 
     wk->current_colcd = wk->my_col_code;
 
-    if (wk->extra_col_2) {
-        wk->current_colcd = wk->extra_col_2;
-    }
-
-    if (wk->extra_col) {
-        wk->current_colcd = wk->extra_col;
-    }
+    apply_extra_col_override(wk);
 
     if (takes_judge_brightness(wk)) {
         if (judge_flag) {
