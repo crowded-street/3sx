@@ -243,12 +243,12 @@ void Scrscreen_Init() {
     GlyphRenderer_Init();
 }
 
-void Sa_frame_Clear() {
+static void clear_sa_frame_range(u8 first, u8 limit) {
     u8 i;
     u8 j;
 
     for (j = 0; j < 3; j++) {
-        for (i = 0; i < 48; i++) {
+        for (i = first; i < limit; i++) {
             sa_frame[j][i].atr = 0;
             sa_frame[j][i].page = 0;
             sa_frame[j][i].cx = 0;
@@ -257,18 +257,12 @@ void Sa_frame_Clear() {
     }
 }
 
-void Sa_frame_Clear2(u8 pl) {
-    u8 i;
-    u8 j;
+void Sa_frame_Clear() {
+    clear_sa_frame_range(0, 48);
+}
 
-    for (j = 0; j < 3; j++) {
-        for (i = pl * 24; i < (pl * 24) + 24; i++) {
-            sa_frame[j][i].atr = 0;
-            sa_frame[j][i].page = 0;
-            sa_frame[j][i].cx = 0;
-            sa_frame[j][i].cy = 0;
-        }
-    }
+void Sa_frame_Clear2(u8 pl) {
+    clear_sa_frame_range(pl * 24, (pl * 24) + 24);
 }
 
 void Sa_frame_Write() {
