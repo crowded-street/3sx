@@ -559,22 +559,6 @@ void pattern_normal_attack_3(PLW* wk, u16 lever_data, s16 reaction, u16 lever_da
     }
 }
 
-void pattern_normal_attack_6(PLW* wk, s16 reaction, u16 lever_data, u16 lever_data_b) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, reaction, lever_data);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 8, lever_data_b);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
 void pattern_normal_attack_com_random_select(
     PLW* wk, u16 lever_data, const Branch_Menu_Args* p, s16 rnd_type
 ) {

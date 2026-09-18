@@ -763,28 +763,6 @@ void pattern_jump_attack_term_normal_attack_command_attack_2(
     }
 }
 
-void pattern_jump_attack_term_normal_attack_command_attack_3(
-    PLW* wk, const Jump_Term_Args* a, u16 lever_data, const Command_Attack_Args* p
-) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump_Attack_Term(wk, a);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 9, lever_data);
-        break;
-
-    case 2:
-        Command_Attack(wk, p);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
 void pattern_jump_attack_term_normal_attack_j_command_attack(
     PLW* wk, const Jump_Term_Args* a, u16 lever_data, const Command_Attack_Args* p
 ) {

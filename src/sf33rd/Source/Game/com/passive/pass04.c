@@ -437,7 +437,7 @@ void Passive04_0047(PLW* wk) {
 }
 
 void Passive04_0048(PLW* wk) {
-    pattern_normal_attack_6(wk, 8, 0x102, 0x202);
+    pattern_normal_attack_2(wk, 8, 0x102, 0x202);
 }
 
 void Passive04_0049(PLW* wk) {
@@ -449,7 +449,7 @@ void Passive04_0050(PLW* wk) {
 }
 
 void Passive04_0051(PLW* wk) {
-    pattern_normal_attack_6(wk, 8, 0x12, 0x12);
+    pattern_normal_attack_2(wk, 8, 0x12, 0x12);
 }
 
 void Passive04_0052(PLW* wk) {

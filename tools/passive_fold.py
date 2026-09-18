@@ -475,6 +475,45 @@ def reshard(folder, max_lines=900):
     return made
 
 
+def dedup_shared(folder):
+    """Collapse shared skeletons that are byte-identical to one another."""
+    paths = shared_files(folder)
+    groups = collections.defaultdict(list)
+    for path in paths:
+        src = open(path).read()
+        for name, a, b, is_static in functions(src):
+            groups[_shape(src[a:b])].append((path, name, a, b))
+    renames, removals = {}, collections.defaultdict(list)
+    for shape, members in groups.items():
+        if len(members) < 2:
+            continue
+        keeper = sorted(members, key=lambda m: m[1])[0][1]
+        for path, name, a, b in members:
+            if name == keeper:
+                continue
+            renames[name] = keeper
+            removals[path].append((a, b))
+    if not renames:
+        return 0
+    for path in paths:
+        src = open(path).read()
+        for a, b in sorted(removals[path], reverse=True):
+            end = b
+            while src[end:end + 1] == '\n':
+                end += 1
+            src = src[:a] + src[end:]
+        open(path, 'w').write(src)
+    for path in glob.glob(os.path.join(folder, 'pass*.c')) + glob.glob(os.path.join(folder, 'pass*.h')):
+        src = open(path).read()
+        new = src
+        for old, keeper in renames.items():
+            new = re.sub(r'\b%s\b' % old, keeper, new)
+        if new != src:
+            open(path, 'w').write(new)
+    rewrite_shared_header(folder)
+    return len(renames)
+
+
 def gfold(paths, protos, min_members=3, max_params=3, shared=None):
     """Fold families that span the whole folder into one shared skeleton file."""
     sources = {p: open(p).read() for p in paths}
@@ -974,7 +1013,9 @@ def main():
         folder = os.path.dirname(args.files[0])
         sharedp = sorted(glob.glob(os.path.join(folder, 'pass_patterns_*.c')))
         h, e = dedup(args.files, sharedp, os.path.join(folder, 'pass_patterns.h'))
-        print('%d skeletons promoted to the shared files, %d copies removed' % (h, e))
+        d = dedup_shared(folder)
+        print('%d skeletons promoted to the shared files, %d copies removed, '
+              '%d shared duplicates collapsed' % (h, e, d))
         return
     if args.command == 'gfold':
         h, e = gfold(args.files, protos, args.min_members, args.max_params)

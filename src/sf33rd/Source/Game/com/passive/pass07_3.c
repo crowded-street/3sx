@@ -20,7 +20,7 @@ void Passive07_0121(PLW* wk) {
 }
 
 void Passive07_0122(PLW* wk) {
-    pattern_normal_attack_6(wk, 9, 0x102, 0x202);
+    pattern_normal_attack_2(wk, 9, 0x102, 0x202);
 }
 
 void Passive07_0123(PLW* wk) {

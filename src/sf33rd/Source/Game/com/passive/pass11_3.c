@@ -98,7 +98,7 @@ void Passive11_0133(PLW* wk) {
 }
 
 void Passive11_0134(PLW* wk) {
-    pattern_jump_attack_term_normal_attack_command_attack_3(
+    pattern_jump_attack_term_normal_attack_command_attack(
         wk,
         &(Jump_Term_Args){-0x7FA8, -0x7FC0, 9, 0x20, 0, -0x7FB0, -1, 0x200},
         0x40,
@@ -402,7 +402,7 @@ void Passive11_0166(PLW* wk) {
 }
 
 void Passive11_0167(PLW* wk) {
-    pattern_jump_attack_term_normal_attack_command_attack_3(
+    pattern_jump_attack_term_normal_attack_command_attack(
         wk,
         &(Jump_Term_Args){-0x7FA0, -0x7FC0, 9, 0x400, 0, -0x7FB0, -1, 0x200},
         0x402,

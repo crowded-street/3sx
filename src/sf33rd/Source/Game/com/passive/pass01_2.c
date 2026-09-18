@@ -12,7 +12,7 @@
 #include "sf33rd/Source/Game/engine/workuser.h"
 
 void Passive01_0048(PLW* wk) {
-    pattern_normal_attack_6(wk, 8, 0x102, 0x402);
+    pattern_normal_attack_2(wk, 8, 0x102, 0x402);
 }
 
 void Passive01_0049(PLW* wk) {
@@ -404,7 +404,7 @@ void Passive01_0092(PLW* wk) {
 }
 
 void Passive01_0093(PLW* wk) {
-    pattern_normal_attack_6(wk, 8, 0x102, 0x12);
+    pattern_normal_attack_2(wk, 8, 0x102, 0x12);
 }
 
 void Passive01_0094(PLW* wk) {
