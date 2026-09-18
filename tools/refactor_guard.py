@@ -414,8 +414,11 @@ def collect_combined_literals(rels: list[str], base: str) -> tuple[Counter, Coun
             before.update(literals(strip_include_lines(old)))
         path = REPO / rel
         if not path.is_file():
-            print("FAIL  " + rel + "  (deleted from working tree)")
-            return None
+            # A split that ends with the original file gone: it contributes
+            # nothing to the after side, and the group is where its literals
+            # are meant to have landed.
+            print("NOTE  " + rel + "  (removed by this change; its half of the group is empty)")
+            continue
         after.update(literals(strip_include_lines(path.read_text(encoding="utf-8", errors="replace"))))
     return before, after
 
@@ -466,8 +469,8 @@ def check_calls_combined(rels: list[str], base: str, strict: bool, renames: dict
             before += calls(old)
         path = REPO / rel
         if not path.is_file():
-            print("FAIL  " + rel + "  (deleted from working tree)")
-            return False
+            print("NOTE  " + rel + "  (removed by this change; its half of the group is empty)")
+            continue
         after += calls(path.read_text(encoding="utf-8", errors="replace"), fnptrs)
 
     return report_call_changes("combined group", apply_renames(before, renames), after, strict)

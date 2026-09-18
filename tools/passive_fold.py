@@ -421,6 +421,60 @@ def rewrite_shared_header(folder):
     open(header, 'w').write(keep + '\n\n' + '\n'.join(sorted(decls)) + '\n\n#endif\n')
 
 
+SHARED_DOC = """/**
+ * @file %(name)s
+ * COM Passive: pattern skeletons shared by every character
+ *
+ * %(what)s
+ *
+ * A passive pattern script is a switch on the step counter with one engine call
+ * per step, and the same step sequences recur across characters. Each skeleton
+ * here is exactly the body its call sites used to hold, with the arguments of
+ * its calls taken as parameters and written out in full at each call site.
+ */
+
+"""
+
+
+def reshard(folder, max_lines=900):
+    """Redistribute the shared skeletons into files by how many steps they run."""
+    existing = shared_files(folder)
+    includes = re.search(r'(#include[^\n]*\n)+', open(existing[0]).read()).group(0)
+    buckets = collections.defaultdict(list)
+    for path in existing:
+        src = open(path).read()
+        for name, a, b, is_static in functions(src):
+            buckets[len(re.findall(r'case \d+:', src[a:b]))].append((name, src[a:b]))
+    for path in existing:
+        os.remove(path)
+
+    made = []
+    for steps in sorted(buckets):
+        group = sorted(buckets[steps])
+        parts, cur, lines = [], [], 0
+        for item in group:
+            n = item[1].count('\n') + 2
+            if cur and lines + n > max_lines:
+                parts.append(cur)
+                cur, lines = [], 0
+            cur.append(item)
+            lines += n
+        parts.append(cur)
+        for i, part in enumerate(parts):
+            stem = 'pass_patterns_%dstep' % steps
+            name = '%s.c' % stem if i == 0 else '%s_%d.c' % (stem, i + 1)
+            what = 'The %s-step patterns.' % {1: 'one', 2: 'two', 3: 'three', 4: 'four',
+                                              5: 'five', 6: 'six'}.get(steps, steps)
+            if len(parts) > 1:
+                what += ' Part %d of %d, in name order.' % (i + 1, len(parts))
+            open(os.path.join(folder, name), 'w').write(
+                SHARED_DOC % {'name': name, 'what': what} + includes + '\n'
+                + '\n\n'.join(body for _, body in part) + '\n')
+            made.append(name)
+    rewrite_shared_header(folder)
+    return made
+
+
 def gfold(paths, protos, min_members=3, max_params=3, shared=None):
     """Fold families that span the whole folder into one shared skeleton file."""
     sources = {p: open(p).read() for p in paths}
@@ -898,7 +952,7 @@ def split(path, max_funcs=90, max_lines=900):
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('command', choices=['fold', 'gfold', 'dedup', 'ffold', 'xsplit', 'split', 'verify', 'families'])
+    ap.add_argument('command', choices=['fold', 'gfold', 'dedup', 'reshard', 'ffold', 'xsplit', 'split', 'verify', 'families'])
     ap.add_argument('files', nargs='+')
     ap.add_argument('--base', default='HEAD')
     ap.add_argument('--min-members', type=int, default=3)
@@ -912,6 +966,10 @@ def main():
         sys.exit(1 if verify(args.base, args.files) else 0)
 
     protos = load_prototypes()
+    if args.command == 'reshard':
+        made = reshard(os.path.dirname(args.files[0]), args.max_lines)
+        print('shared skeletons in %d files: %s' % (len(made), ', '.join(made)))
+        return
     if args.command == 'dedup':
         folder = os.path.dirname(args.files[0])
         sharedp = sorted(glob.glob(os.path.join(folder, 'pass_patterns_*.c')))
