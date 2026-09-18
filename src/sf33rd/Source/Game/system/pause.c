@@ -290,14 +290,14 @@ void Exit_Pause(struct _TASK* task_ptr) {
     SsBgmHalfVolume(0);
 }
 
-void Setup_Pause(struct _TASK* task_ptr) {
+static void setup_pause_menu(struct _TASK* task_ptr, u8 menu_mode) {
     s16 ix;
 
     SE_selected();
     Pause_Down = 1;
     Game_pause = 0x81;
     task_ptr->r_no[0] = 1;
-    task_ptr->r_no[2] = 1;
+    task_ptr->r_no[2] = menu_mode;
     task_ptr->free[0] = 1;
     cpReadyTask(TASK_MENU, Menu_Task);
     task[TASK_MENU].r_no[0] = 1;
@@ -314,28 +314,12 @@ void Setup_Pause(struct _TASK* task_ptr) {
     spu_all_off();
 }
 
+void Setup_Pause(struct _TASK* task_ptr) {
+    setup_pause_menu(task_ptr, 1);
+}
+
 void Setup_Come_Out(struct _TASK* task_ptr) {
-    s16 ix;
-
-    SE_selected();
-    Pause_Down = 1;
-    Game_pause = 0x81;
-    task_ptr->r_no[0] = 1;
-    task_ptr->r_no[2] = 4;
-    task_ptr->free[0] = 1;
-    cpReadyTask(TASK_MENU, Menu_Task);
-    task[TASK_MENU].r_no[0] = 1;
-    Exit_Menu = 0;
-
-    for (ix = 0; ix < 4; ix++) {
-        Menu_Suicide[ix] = 0;
-    }
-
-    Order[0x8A] = 3;
-    Order_Timer[0x8A] = 1;
-    effect_66_init(0x8A, 9, 2, 7, -1, -1, -0x3FFC);
-    SsBgmHalfVolume(1);
-    spu_all_off();
+    setup_pause_menu(task_ptr, 4);
 }
 
 s32 Check_Play_Status(s16 PL_id) {
