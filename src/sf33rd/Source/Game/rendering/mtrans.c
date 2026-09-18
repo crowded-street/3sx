@@ -170,6 +170,17 @@ static void search_trsptr(void* trstbl, s32 i, s32 n, s32 cods, s32 atrs, s32 co
     }
 }
 
+// A group whose trans table never loaded is not something the draw can recover
+// from, so the original hangs here rather than reading it. Eight copies,
+// identical character for character; this one never returns either.
+static void require_valid_trans_group(s32 i) {
+    if (texgrplds[i].ok == 0) {
+        // The trans data is not valid. Group number: %d\n
+        flLogOut("トランスデータが有効ではありません。グループ番号：%d\n", i);
+        while (1) {}
+    }
+}
+
 // Every mlt_obj_* entry point opens its draw with this: the work's brightness
 // tint, or none, and then the object matrix. Eight copies, identical character
 // for character.
@@ -205,11 +216,7 @@ void mlt_obj_disp(MultiTexture* mt, WORK* wk, s32 base_y) {
         return;
     }
 
-    if (texgrplds[i].ok == 0) {
-        // The trans data is not valid. Group number: %d\n
-        flLogOut("トランスデータが有効ではありません。グループ番号：%d\n", i);
-        while (1) {}
-    }
+    require_valid_trans_group(i);
 
     n -= texgrpdat[i].num_of_1st;
     trsbas = (u16*)(texgrplds[i].trans_table + ((u32*)texgrplds[i].trans_table)[n]);
@@ -296,11 +303,7 @@ void mlt_obj_disp_rgb(MultiTexture* mt, WORK* wk, s32 base_y) {
         return;
     }
 
-    if (texgrplds[i].ok == 0) {
-        // The trans data is not valid. Group number: %d\n
-        flLogOut("トランスデータが有効ではありません。グループ番号：%d\n", i);
-        while (1) {}
-    }
+    require_valid_trans_group(i);
 
     n -= texgrpdat[i].num_of_1st;
     trsbas = (u16*)(texgrplds[i].trans_table + ((u32*)texgrplds[i].trans_table)[n]);
@@ -575,11 +578,7 @@ void mlt_obj_trans_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
         return;
     }
 
-    if (texgrplds[i].ok == 0) {
-        // The trans data is not valid. Group number: %d\n
-        flLogOut("トランスデータが有効ではありません。グループ番号：%d\n", i);
-        while (1) {}
-    }
+    require_valid_trans_group(i);
 
     n -= texgrpdat[i].num_of_1st;
     trsbas = (u16*)(texgrplds[i].trans_table + ((u32*)texgrplds[i].trans_table)[n]);
@@ -729,11 +728,7 @@ void mlt_obj_trans(MultiTexture* mt, WORK* wk, s32 base_y) {
         return;
     }
 
-    if (texgrplds[i].ok == 0) {
-        // The trans data is not valid. Group number: %d\n
-        flLogOut("トランスデータが有効ではありません。グループ番号：%d\n", i);
-        while (1) {}
-    }
+    require_valid_trans_group(i);
 
     n -= texgrpdat[i].num_of_1st;
     trsbas = (u16*)(texgrplds[i].trans_table + ((u32*)texgrplds[i].trans_table)[n]);
@@ -937,11 +932,7 @@ void mlt_obj_trans_cp3_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
         return;
     }
 
-    if (texgrplds[i].ok == 0) {
-        // The trans data is not valid. Group number: %d\n
-        flLogOut("トランスデータが有効ではありません。グループ番号：%d\n", i);
-        while (1) {}
-    }
+    require_valid_trans_group(i);
 
     n -= texgrpdat[i].num_of_1st;
     trsbas = (u16*)(texgrplds[i].trans_table + ((u32*)texgrplds[i].trans_table)[n]);
@@ -1095,11 +1086,7 @@ void mlt_obj_trans_cp3(MultiTexture* mt, WORK* wk, s32 base_y) {
         return;
     }
 
-    if (texgrplds[i].ok == 0) {
-        // The trans data is not valid. Group number: %d\n
-        flLogOut("トランスデータが有効ではありません。グループ番号：%d\n", i);
-        while (1) {}
-    }
+    require_valid_trans_group(i);
 
     n -= texgrpdat[i].num_of_1st;
     trsbas = (u16*)(texgrplds[i].trans_table + ((u32*)texgrplds[i].trans_table)[n]);
@@ -1295,11 +1282,7 @@ void mlt_obj_trans_rgb_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
         return;
     }
 
-    if (texgrplds[i].ok == 0) {
-        // The trans data is not valid. Group number: %d\n
-        flLogOut("トランスデータが有効ではありません。グループ番号：%d\n", i);
-        while (1) {}
-    }
+    require_valid_trans_group(i);
 
     n -= texgrpdat[i].num_of_1st;
     trsbas = (u16*)(texgrplds[i].trans_table + ((u32*)texgrplds[i].trans_table)[n]);
@@ -1487,11 +1470,7 @@ void mlt_obj_trans_rgb(MultiTexture* mt, WORK* wk, s32 base_y) {
         return;
     }
 
-    if (texgrplds[i].ok == 0) {
-        // The trans data is not valid. Group number: %d\n
-        flLogOut("トランスデータが有効ではありません。グループ番号：%d\n", i);
-        while (1) {}
-    }
+    require_valid_trans_group(i);
 
     n -= texgrpdat[i].num_of_1st;
     trsbas = (u16*)(texgrplds[i].trans_table + ((u32*)texgrplds[i].trans_table)[n]);
