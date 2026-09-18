@@ -605,6 +605,43 @@ means it did not travel to the call site and the merge is wrong. `--calls` shows
 callees dropping by the copies removed; if the merged functions had names of their own,
 declare the collapse with `--renamed OLD=NEW` for each of them.
 
+**One value may ride along with the range**, on the argument Recipe F already uses for a
+value travelling beside its pointers: written out in full at its own call site, with the
+helper using it only where the original used that same expression. Measured on `bg.c`'s two
+ending `g_kakikae` remaps, which differ in their range *and* in the column they read -
+`rw_dat[i].rwd_ptr[g_number[0]]` against `[g_number[1]]`:
+
+```c
+    if (g_kakikae[0]) {
+        global_index_real = remap_ending_g_chip_in_range(global_index_real, 0, 12, g_number[0]);
+    }
+
+    if (g_kakikae[1]) {
+        global_index_real = remap_ending_g_chip_in_range(global_index_real, 12, 20, g_number[1]);
+    }
+```
+
+**8.28 -> 8.81**, and the pair became one function.
+
+This is the one place any recipe in this catalogue lets a helper *index* with a parameter,
+so the licence is narrow and the reason is worth stating. Recipe V forbids indexing because
+a helper that indexes with something it chose has generalised the difference: the mapping
+from arm to value now lives inside it, where a crossed pair is invisible. Here nothing is
+chosen. `g_number[0]` is written out at the call site that had it, in positional order, and
+the helper performs the one subscript the original performed, on the value it was handed.
+
+**What does not relax:**
+
+- **Exactly one value, and it is an argument, not a selector.** The helper must not test it,
+  compare two of them, or derive a second value from it. The moment it picks between things
+  with it, this is Recipe D's forbidden near-miss again.
+- **The value's expression must be free of side effects**, for the reason Recipe V gives:
+  the original evaluated it inside the loop, zero times when nothing matched, and the call
+  site now evaluates it once always. That is unobservable only when it reads locals or plain
+  memory and calls nothing. `g_number[0]` is a read of a `u8` array.
+- **Its parameter type is the type the expression already had**, so the promotion at the
+  subscript is the one that happened before. `column` is `u8` because `g_number` is.
+
 ---
 
 ## Recipe F - Action Parameter
