@@ -10,6 +10,18 @@
 
 void (*const Passive01_Tbl[176])();
 
+static void passive01_0025_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Normal_Attack(wk, 8, 0x200);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
 static void pattern_jump_attack_term(PLW* wk, const Jump_Term_Args* a) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -612,12 +624,8 @@ void Passive01_0025(PLW* wk) {
         Normal_Attack(wk, 8, 0x10);
         break;
 
-    case 6:
-        Normal_Attack(wk, 8, 0x200);
-        break;
-
     default:
-        End_Pattern(wk);
+        passive01_0025_from_step_6(wk);
         break;
     }
 }
