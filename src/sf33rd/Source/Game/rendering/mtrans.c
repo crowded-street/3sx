@@ -1433,12 +1433,31 @@ static s32 get_mltbuf16_ext_2(const MltbufExtLookup* look) {
     while (1) {}
 }
 
+// The 32x32 twin of claim_free_x16_slot. Note the `time += 1` where the 16x16
+// one writes `time = 1`; the asymmetry is in the original and is left as it is.
+static s32 claim_free_x32_slot(const MltbufExtLookup* look, PatternState* mc, s32 i) {
+    look->mt->tpf->x32 -= 1;
+    look->mt->tpu->x32_used[i] = look->mt->tpf->x32_free[look->mt->tpf->x32];
+    look->mt->tpu->x32 += 1;
+    mc[look->mt->tpu->x32_used[i]].cs.code = look->code;
+    mc[look->mt->tpu->x32_used[i]].state = look->palt;
+    *look->ret = look->mt->tpu->x32_used[i];
+    mc[look->mt->tpu->x32_used[i]].time += 1;
+
+    if (x32_mapping_set(&look->cp->map, *look->ret)) {
+        look->cp->x32 += 1;
+    }
+
+    return 1;
+}
+
 static s32 get_mltbuf32_ext_2(const MltbufExtLookup* look) {
     PatternState* mc = look->mt->mltcsh32;
     s32 i;
 
     for (i = 0; i < look->mt->tpu->x32; i++) {
-        if ((look->code == mc[look->mt->tpu->x32_used[i]].cs.code) && (look->palt == mc[look->mt->tpu->x32_used[i]].state)) {
+        if ((look->code == mc[look->mt->tpu->x32_used[i]].cs.code) &&
+            (look->palt == mc[look->mt->tpu->x32_used[i]].state)) {
             *look->ret = look->mt->tpu->x32_used[i];
 
             if (x32_mapping_set(&look->cp->map, *look->ret)) {
@@ -1451,19 +1470,7 @@ static s32 get_mltbuf32_ext_2(const MltbufExtLookup* look) {
     }
 
     if (has_free_pattern_slot(i, look->mt->mltnum32, look->mt->tpf->x32)) {
-        look->mt->tpf->x32 -= 1;
-        look->mt->tpu->x32_used[i] = look->mt->tpf->x32_free[look->mt->tpf->x32];
-        look->mt->tpu->x32 += 1;
-        mc[look->mt->tpu->x32_used[i]].cs.code = look->code;
-        mc[look->mt->tpu->x32_used[i]].state = look->palt;
-        *look->ret = look->mt->tpu->x32_used[i];
-        mc[look->mt->tpu->x32_used[i]].time += 1;
-
-        if (x32_mapping_set(&look->cp->map, *look->ret)) {
-            look->cp->x32 += 1;
-        }
-
-        return 1;
+        return claim_free_x32_slot(look, mc, i);
     }
 
     flLogOut("ＣＧキャッシュが一杯になりました。×３２　ＥＸＴ２\n");
