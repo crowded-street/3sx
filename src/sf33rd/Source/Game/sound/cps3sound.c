@@ -104,6 +104,15 @@ Uint8 ss_state_flags;                                 /* 0x02079C8C */
 void SsResetBgmChannels();
 Sint32 SsReadDelay(const Uint8* stream, Uint32* delay);
 
+/* The modulation state both the BGM start and the broadcast SFX request clear. */
+static void ss_clear_channel_mod_state(SsChannelState* channel) {
+    channel->unk_66 = 0;
+    channel->unk_67 = 0;
+    channel->unk_69 = 0;
+    channel->unk_6A = 0;
+    channel->unk_68 = 0;
+}
+
 /* The mix defaults both SFX request shapes write. */
 static void ss_set_sfx_mix_defaults(SsChannelState* channel) {
     channel->unk_62 = 0;
@@ -211,11 +220,7 @@ void SsRequestCore(Uint16 req_number, Sint16 pan_control) {
             channel->unk_56 = 0;
             channel->unk_5F = 0;
             channel->unk_60 = 0x40;
-            channel->unk_66 = 0;
-            channel->unk_67 = 0;
-            channel->unk_69 = 0;
-            channel->unk_6A = 0;
-            channel->unk_68 = 0;
+            ss_clear_channel_mod_state(channel);
             channel->unk_6B = 0;
             channel->unk_6D = 0x40;
             channel->unk_70 = 0;
@@ -252,11 +257,7 @@ void SsRequestCore(Uint16 req_number, Sint16 pan_control) {
             channel->unk_6E = 0;
             channel->priority = type;
             ss_set_sfx_mix_defaults(channel);
-            channel->unk_66 = 0;
-            channel->unk_67 = 0;
-            channel->unk_69 = 0;
-            channel->unk_6A = 0;
-            channel->unk_68 = 0;
+            ss_clear_channel_mod_state(channel);
             channel->unk_6D = 0x40;
             channel->unk_70 = 0;
 
