@@ -170,6 +170,19 @@ static void search_trsptr(void* trstbl, s32 i, s32 n, s32 cods, s32 atrs, s32 co
     }
 }
 
+// Every mlt_obj_* entry point opens its draw with this: the work's brightness
+// tint, or none, and then the object matrix. Eight copies, identical character
+// for character.
+static void setup_bright_and_matrix(WORK* wk, s32 base_y) {
+    if (wk->my_bright_type) {
+        curr_bright = bright_type[wk->my_bright_type - 1][wk->my_bright_level];
+    } else {
+        curr_bright = 0xFFFFFF;
+    }
+
+    mlt_obj_matrix(wk, base_y);
+}
+
 void mlt_obj_disp(MultiTexture* mt, WORK* wk, s32 base_y) {
     u16* trsbas;
     TileMapEntry* trsptr;
@@ -207,13 +220,7 @@ void mlt_obj_disp(MultiTexture* mt, WORK* wk, s32 base_y) {
     attr = flptbl[wk->cg_flip ^ wk->rl_flag];
     palo = wk->colcd & 0xF;
 
-    if (wk->my_bright_type) {
-        curr_bright = bright_type[wk->my_bright_type - 1][wk->my_bright_level];
-    } else {
-        curr_bright = 0xFFFFFF;
-    }
-
-    mlt_obj_matrix(wk, base_y);
+    setup_bright_and_matrix(wk, base_y);
 
     while (count--) {
         if (attr & 0x8000) {
@@ -303,13 +310,7 @@ void mlt_obj_disp_rgb(MultiTexture* mt, WORK* wk, s32 base_y) {
     x = y = 0.0f;
     attr = flptbl[wk->cg_flip ^ wk->rl_flag];
 
-    if (wk->my_bright_type) {
-        curr_bright = bright_type[wk->my_bright_type - 1][wk->my_bright_level];
-    } else {
-        curr_bright = 0xFFFFFF;
-    }
-
-    mlt_obj_matrix(wk, base_y);
+    setup_bright_and_matrix(wk, base_y);
 
     while (count--) {
         if (attr & 0x8000) {
@@ -590,13 +591,7 @@ void mlt_obj_trans_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
     attr = flptbl[wk->cg_flip ^ wk->rl_flag];
     palo = wk->colcd;
 
-    if (wk->my_bright_type) {
-        curr_bright = bright_type[wk->my_bright_type - 1][wk->my_bright_level];
-    } else {
-        curr_bright = 0xFFFFFF;
-    }
-
-    mlt_obj_matrix(wk, base_y);
+    setup_bright_and_matrix(wk, base_y);
     cc.parts.group = 0;
     cc.parts.offset = wk->cg_number;
     ix = check_patcash_ex_trans(mt->cpat, cc.code);
@@ -750,13 +745,7 @@ void mlt_obj_trans(MultiTexture* mt, WORK* wk, s32 base_y) {
     attr = flptbl[wk->cg_flip ^ wk->rl_flag];
     palo = wk->colcd;
 
-    if (wk->my_bright_type) {
-        curr_bright = bright_type[wk->my_bright_type - 1][wk->my_bright_level];
-    } else {
-        curr_bright = 0xFFFFFF;
-    }
-
-    mlt_obj_matrix(wk, base_y);
+    setup_bright_and_matrix(wk, base_y);
     cc.parts.group = i;
     store_trans_tiles(&(TransRun){ mt, wk, textbl, trsptr, count, attr, palo, x, y, cc });
 
@@ -964,13 +953,7 @@ void mlt_obj_trans_cp3_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
     flip = flptbl[wk->cg_flip ^ wk->rl_flag];
     palo = wk->colcd;
 
-    if (wk->my_bright_type) {
-        curr_bright = bright_type[wk->my_bright_type - 1][wk->my_bright_level];
-    } else {
-        curr_bright = 0xFFFFFF;
-    }
-
-    mlt_obj_matrix(wk, base_y);
+    setup_bright_and_matrix(wk, base_y);
     cc.parts.group = 0;
     cc.parts.offset = wk->cg_number;
     ix = check_patcash_ex_trans(mt->cpat, cc.code);
@@ -1128,13 +1111,7 @@ void mlt_obj_trans_cp3(MultiTexture* mt, WORK* wk, s32 base_y) {
     flip = flptbl[wk->cg_flip ^ wk->rl_flag];
     palo = wk->colcd;
 
-    if (wk->my_bright_type) {
-        curr_bright = bright_type[wk->my_bright_type - 1][wk->my_bright_level];
-    } else {
-        curr_bright = 0xFFFFFF;
-    }
-
-    mlt_obj_matrix(wk, base_y);
+    setup_bright_and_matrix(wk, base_y);
     cc.parts.group = i;
     store_trans_cp3_tiles(&(TransRun){ mt, wk, textbl, trsptr, count, flip, palo, x, y, cc });
 
@@ -1334,13 +1311,7 @@ void mlt_obj_trans_rgb_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
     flip = flptbl[wk->cg_flip ^ wk->rl_flag];
     palo = wk->colcd;
 
-    if (wk->my_bright_type) {
-        curr_bright = bright_type[wk->my_bright_type - 1][wk->my_bright_level];
-    } else {
-        curr_bright = 0xFFFFFF;
-    }
-
-    mlt_obj_matrix(wk, base_y);
+    setup_bright_and_matrix(wk, base_y);
     cc.parts.group = wk->colcd;
     cc.parts.offset = wk->cg_number;
     ix = check_patcash_ex_trans(mt->cpat, cc.code);
@@ -1531,13 +1502,7 @@ void mlt_obj_trans_rgb(MultiTexture* mt, WORK* wk, s32 base_y) {
     flip = flptbl[wk->cg_flip ^ wk->rl_flag];
     palo = wk->colcd;
 
-    if (wk->my_bright_type) {
-        curr_bright = bright_type[wk->my_bright_type - 1][wk->my_bright_level];
-    } else {
-        curr_bright = 0xFFFFFF;
-    }
-
-    mlt_obj_matrix(wk, base_y);
+    setup_bright_and_matrix(wk, base_y);
     store_trans_rgb_tiles(mt, wk, textbl, trsptr, count, flip, palo, i);
 
     seqs_w.up[mt->id] = 1;
