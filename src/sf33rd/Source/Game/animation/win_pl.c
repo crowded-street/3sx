@@ -59,6 +59,11 @@ s16 poison_flag[2];
 
 const s16 winner_type_tbl[20] = { 6, 0, 0, 6, 2, 7, 9, 3, 4, 1, 12, 0, 5, 14, 8, 13, 6, 10, 11, 15 };
 
+static s32 winner_on_match_point(const PLW* wk) {
+    return Round_num >= (save_w[Present_Mode].Battle_Number[Play_Type] * 2) ||
+           PL_Wins[wk->wu.id] >= save_w[Present_Mode].Battle_Number[Play_Type] + 1;
+}
+
 static void update_field_hosei_flags(PLW* wk) {
     if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1)) {
         set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
@@ -107,8 +112,7 @@ void Win_01000(PLW* wk) {
         wk->wu.routine_no[3]++;
         work = win_select(wk, 7);
 
-        if (Round_num >= (save_w[Present_Mode].Battle_Number[Play_Type] * 2) ||
-            PL_Wins[wk->wu.id] >= save_w[Present_Mode].Battle_Number[Play_Type] + 1) {
+        if (winner_on_match_point(wk)) {
             if (Round_Result & 0x800) {
                 wk->wu.cmwk[0] = 0;
                 set_char_move_init(&wk->wu, 9, 42);
@@ -336,8 +340,7 @@ void Win_02000(PLW* wk) {
         win_rno[0] = win_rno[1] = 0;
         work = win_select(wk, 3);
 
-        if (Round_num >= (save_w[Present_Mode].Battle_Number[Play_Type] * 2) ||
-            PL_Wins[wk->wu.id] >= save_w[Present_Mode].Battle_Number[Play_Type] + 1) {
+        if (winner_on_match_point(wk)) {
             if (win_2000_tbl[bg_w.bg_index]) {
                 set_char_move_init(&wk->wu, 9, work + 36);
             } else if (work & 1) {
@@ -374,8 +377,7 @@ void Win_03000(PLW* wk) {
         win_rno[0] = win_rno[1] = 0;
         work = win_select(wk, 15);
 
-        if (Round_num >= (save_w[Present_Mode].Battle_Number[Play_Type] * 2) ||
-            PL_Wins[wk->wu.id] >= save_w[Present_Mode].Battle_Number[Play_Type] + 1) {
+        if (winner_on_match_point(wk)) {
             if (bg_w.stage == 7) {
                 set_char_move_init(&wk->wu, 9, 43);
                 break;
@@ -425,8 +427,7 @@ void Win_04000(PLW* wk) {
         win_rno[0] = win_rno[1] = 0;
         work = win_select(wk, 3);
 
-        if (Round_num >= (save_w[Present_Mode].Battle_Number[Play_Type] * 2) ||
-            PL_Wins[wk->wu.id] >= save_w[Present_Mode].Battle_Number[Play_Type] + 1) {
+        if (winner_on_match_point(wk)) {
             set_char_move_init(&wk->wu, 9, work + 36);
             break;
         }
@@ -574,8 +575,7 @@ void Win_06000(PLW* wk) {
         win_rno[0] = win_rno[1] = 0;
         wk->wu.routine_no[3]++;
 
-        if (Round_num >= (save_w[Present_Mode].Battle_Number[Play_Type] * 2) ||
-            PL_Wins[wk->wu.id] >= save_w[Present_Mode].Battle_Number[Play_Type] + 1) {
+        if (winner_on_match_point(wk)) {
             work = win_select(wk, 3);
             set_char_move_init(&wk->wu, 9, work + 36);
         } else {
@@ -603,8 +603,7 @@ void Win_07000(PLW* wk) {
         win_rno[0] = win_rno[1] = 0;
         wk->wu.routine_no[3]++;
 
-        if (Round_num >= (save_w[Present_Mode].Battle_Number[Play_Type] * 2) ||
-            PL_Wins[wk->wu.id] >= save_w[Present_Mode].Battle_Number[Play_Type] + 1) {
+        if (winner_on_match_point(wk)) {
             work = win_select(wk, 7);
 
             if (work < 4) {
@@ -682,10 +681,7 @@ void Win_08000(PLW* wk) {
 
         if (Round_Result & 0x800) {
             set_char_move_init(&wk->wu, 9, 40);
-        } else if (
-            Round_num >= (save_w[Present_Mode].Battle_Number[Play_Type] * 2) ||
-            PL_Wins[wk->wu.id] >= save_w[Present_Mode].Battle_Number[Play_Type] + 1
-        ) {
+        } else if (winner_on_match_point(wk)) {
             work = win_select(wk, 3);
             set_char_move_init(&wk->wu, 9, work + 36);
         } else {
@@ -800,8 +796,7 @@ void Win_10000(PLW* wk) {
         wk->wu.routine_no[3]++;
         work = win_select(wk, 3);
 
-        if (Round_num >= (save_w[Present_Mode].Battle_Number[Play_Type] * 2) ||
-            PL_Wins[wk->wu.id] >= save_w[Present_Mode].Battle_Number[Play_Type] + 1) {
+        if (winner_on_match_point(wk)) {
             work2 = wk->wu.xyz[0].disp.pos - plw[id_w].wu.xyz[0].disp.pos;
 
             if (work2 < 0) {
@@ -1094,8 +1089,7 @@ void Win_11000(PLW* wk) {
         wk->wu.routine_no[3]++;
         work = win_select(wk, 3);
 
-        if (Round_num >= (save_w[Present_Mode].Battle_Number[Play_Type] * 2) ||
-            PL_Wins[wk->wu.id] >= save_w[Present_Mode].Battle_Number[Play_Type] + 1) {
+        if (winner_on_match_point(wk)) {
             if (Perfect_Flag) {
                 win_rno[0] = 1;
                 set_char_move_init(&wk->wu, 9, 38);
@@ -1265,8 +1259,7 @@ void Win_12000(PLW* wk) {
         work = win_select(wk, 7);
         set_char_move_init(&wk->wu, 9, work + 32);
 
-        if (Round_num >= (save_w[Present_Mode].Battle_Number[Play_Type] * 2) ||
-            PL_Wins[wk->wu.id] >= save_w[Present_Mode].Battle_Number[Play_Type] + 1) {
+        if (winner_on_match_point(wk)) {
             effect_M2_init(&wk->wu, 1);
         }
 
@@ -1290,8 +1283,7 @@ void Win_13000(PLW* wk) {
         win_rno[0] = win_rno[1] = 0;
         wk->wu.routine_no[3]++;
 
-        if (Round_num >= (save_w[Present_Mode].Battle_Number[Play_Type] * 2) ||
-            PL_Wins[wk->wu.id] >= save_w[Present_Mode].Battle_Number[Play_Type] + 1) {
+        if (winner_on_match_point(wk)) {
             if (wk->wu.id) {
                 if (p2sw_0 & 1) {
                     set_char_move_init(&wk->wu, 9, 40);
@@ -1329,8 +1321,7 @@ void Win_14000(PLW* wk) {
         win_rno[0] = win_rno[1] = 0;
         wk->wu.routine_no[3]++;
 
-        if (Round_num >= (save_w[Present_Mode].Battle_Number[Play_Type] * 2) ||
-            PL_Wins[wk->wu.id] >= save_w[Present_Mode].Battle_Number[Play_Type] + 1) {
+        if (winner_on_match_point(wk)) {
             work = win_select(wk, 3);
 
             if (!(work & 1)) {
@@ -1468,8 +1459,7 @@ void Win_15000(PLW* wk) {
         win_rno[0] = win_rno[1] = 0;
         wk->wu.routine_no[3]++;
 
-        if (Round_num >= (save_w[Present_Mode].Battle_Number[Play_Type] * 2) ||
-            PL_Wins[wk->wu.id] >= save_w[Present_Mode].Battle_Number[Play_Type] + 1) {
+        if (winner_on_match_point(wk)) {
             work = win_select(wk, 7);
             set_char_move_init(&wk->wu, 9, Win_15000_tbl[work]);
         } else {
