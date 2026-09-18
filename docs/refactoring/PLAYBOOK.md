@@ -670,6 +670,81 @@ so it belongs in the *genuinely high risk* tier of the verification loop: run
 
 ---
 
+## Recipe W - Shared Call Site
+
+**Use when:** several places make the **same call with the same long argument list**,
+differing only in a small number of argument *expressions*. Recipe D refuses two or more
+differences; Recipe C finds no identical run, because what varies sits in the middle of the
+argument list rather than at one end; and Recipe V does not apply, because what varies are
+expressions rather than literals.
+
+**Added 2026-09-18** under the project owner's standing authorisation, and measured on
+`mtrans.c`, where all nine `store_*` tile passes end each switch arm with the same
+nine-argument call:
+
+```c
+            rnum = seqsStoreChip(
+                x - (dw * BOOL(run->flip & 0x8000)),
+                y + (dh * BOOL(run->flip & 0x4000)),
+                dw,
+                dh,
+                run->mt->mltgidx16,                                  /* <- differs */
+                code,
+                run->palo | ((trsptr->attr ^ run->flip) & 0xC000),   /* <- differs */
+                run->wk->my_clear_level,
+                run->mt->id
+            );
+```
+
+Eighteen of those, identical in seven arguments and differing in two, became
+
+```c
+            rnum = store_trans_chip(&(ChipPlacement){ x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
+                                    run->mt->mltgidx16,
+                                    code,
+                                    run->palo | ((trsptr->attr ^ run->flip) & 0xC000));
+```
+
+**6.15 -> 6.64**, 126 lines out of the file, and two functions left Large Method.
+
+**Why this is safe.** The same argument as Recipes T, V and F: **every varying part is
+written out in full, in positional order, at its own call site**, so no pair can be crossed
+without the one call line showing it, and the helper **does nothing with any parameter but
+pass it to the argument position it already occupied**. It does not test one, index with
+one, or compute from one.
+
+**Preconditions, all of them:**
+
+- **The same callee, the same number of arguments, in every instance.** A differing callee
+  is Recipe F's.
+- **Every argument that is not a parameter of the helper is identical character for
+  character** across all instances. Not nearly identical - a differing parenthesisation or
+  a differing operand order means those instances are not one family.
+- **Every argument is free of side effects.** This is the precondition a call has that a
+  statement does not. The arguments of a call are evaluated in an unspecified order, and
+  the helper changes that order: the shared ones are now computed inside it, after the
+  varying ones have been computed at the call site. That is unobservable only when no
+  argument writes anything, calls anything, or reads volatile state. If one does, leave the
+  family alone.
+- **The helper still comes in at four parameters or fewer.** Where the shared arguments
+  outnumber the varying ones, give the shared ones a parameter object built at the call
+  site, as Recipe A prescribes - `mtrans.c`'s seven shared values plus three varying ones
+  would otherwise have made a ten-argument helper and traded one finding for another.
+- **Check the argument lists mechanically, not by eye.** Eighteen instances of a
+  nine-argument call is more than a reading confirms. Extract every instance's arguments,
+  group them by position, and look at how many distinct spellings each position has; a
+  position with one spelling is shared and a position with several is a parameter. An
+  instance that does not fit is not in the family.
+
+**What the guard shows.** The deduplication WARN, with the shared arguments' literals
+removed once per instance collapsed and every value still present, and `--calls` showing
+the callee and anything inside the shared arguments dropping by the copies removed against
+the helper's `+1` per call site and `+1` for its definition. On `mtrans.c` that read as
+`removed x17 num 32768`, `-17 seqsStoreChip`, `-34 BOOL` and `+19 store_trans_chip` -
+eighteen copies becoming one.
+
+---
+
 ## Recipe X - Split Dispatch
 
 **Use when:** CodeScene reports *Complex Method* on a function whose complexity is mostly
