@@ -972,6 +972,17 @@ void q_keeping_action(PLW* wk) {
     }
 }
 
+static void q_start_dash_away(PLW* wk) {
+    set_char_move_init(&wk->wu, 9, 41);
+    wk->wu.mvxy.d[0].sp = 0;
+
+    if (wk->wu.rl_flag) {
+        wk->wu.mvxy.a[0].sp = 0x1C000;
+    } else {
+        wk->wu.mvxy.a[0].sp = -0x1C000;
+    }
+}
+
 void q_leave_after_action(PLW* wk) {
     s16 work;
 
@@ -1002,14 +1013,7 @@ void q_leave_after_action(PLW* wk) {
 
     case 2:
         win_rno[1]++;
-        set_char_move_init(&wk->wu, 9, 41);
-        wk->wu.mvxy.d[0].sp = 0;
-
-        if (wk->wu.rl_flag) {
-            wk->wu.mvxy.a[0].sp = 0x1C000;
-        } else {
-            wk->wu.mvxy.a[0].sp = -0x1C000;
-        }
+        q_start_dash_away(wk);
 
         break;
 
@@ -1034,14 +1038,7 @@ void q_leave_after_action(PLW* wk) {
 
         if (wk->wu.cg_type == 0xFF) {
             win_rno[1]++;
-            set_char_move_init(&wk->wu, 9, 41);
-            wk->wu.mvxy.d[0].sp = 0;
-
-            if (wk->wu.rl_flag) {
-                wk->wu.mvxy.a[0].sp = 0x1C000;
-            } else {
-                wk->wu.mvxy.a[0].sp = -0x1C000;
-            }
+            q_start_dash_away(wk);
         }
 
         break;
