@@ -329,17 +329,17 @@ static void load_stage07_textures(void* loadAdrs, u32 loadSize, u16 accnum) {
     }
 }
 
-static u16 load_rewrite_stage_textures(const TextureSource* source, u8 stg, u8 x, u16 accnum) {
+static u16 load_rewrite_textures(const TextureSource* source, s32 ixNum1st, u8 x, u16 accnum) {
     u8 i;
 
     if (x) {
         ppgSetupCurrentDataList(&ppgRwBgList);
-        ppgSetupTexChunk_1st(NULL, source->adrs, source->size, (stg * 64) + 0x64, x, 0, 0);
+        ppgSetupTexChunk_1st(NULL, source->adrs, source->size, ixNum1st, x, 0, 0);
         ppgSetupTexChunk_1st_Accnum(0, accnum);
 
         for (i = 0; i < x; i++) {
-            accnum = ppgSetupTexChunk_2nd(NULL, i + ((stg * 64) + 0x64));
-            ppgSetupTexChunk_3rd(NULL, i + ((stg * 64) + 0x64), 1);
+            accnum = ppgSetupTexChunk_2nd(NULL, i + ixNum1st);
+            ppgSetupTexChunk_3rd(NULL, i + ixNum1st, 1);
         }
     }
 
@@ -441,7 +441,7 @@ void Bg_Texture_Load_EX() {
     }
 
     x = rewrite_scr[bg_w.stage];
-    accnum = load_rewrite_stage_textures(&(TextureSource){ loadAdrs, loadSize }, stg, x, accnum);
+    accnum = load_rewrite_textures(&(TextureSource){ loadAdrs, loadSize }, (stg * 64) + 0x64, x, accnum);
 
     load_stage07_textures(loadAdrs, loadSize, accnum);
     load_ake_stage_textures();
@@ -536,23 +536,6 @@ static void setup_ending_type14(void* loadAdrs, u32 loadSize, u16 accnum) {
     }
 }
 
-static u16 load_ending_rewrite_textures(const TextureSource* source, u8 j, u8 x, u16 accnum) {
-    u8 i;
-
-    if (x) {
-        ppgSetupCurrentDataList(&ppgRwBgList);
-        ppgSetupTexChunk_1st(NULL, source->adrs, source->size, (j * 64) + 100, x, 0, 0);
-        ppgSetupTexChunk_1st_Accnum(0, accnum);
-
-        for (i = 0; i < x; i++) {
-            accnum = ppgSetupTexChunk_2nd(NULL, i + ((j * 64) + 100));
-            ppgSetupTexChunk_3rd(NULL, i + ((j * 64) + 100), 1);
-        }
-    }
-
-    return accnum;
-}
-
 static u16 load_ending_screen_textures(s16 type, const TextureSource* source, u8 j, u16 accnum) {
     u32 tgbix[2];
     u32 mask;
@@ -619,7 +602,7 @@ void Bg_Texture_Load_Ending(s16 type) {
     }
 
     x = ending_rewrite_scr[type];
-    accnum = load_ending_rewrite_textures(&(TextureSource){ loadAdrs, loadSize }, j, x, accnum);
+    accnum = load_rewrite_textures(&(TextureSource){ loadAdrs, loadSize }, (j * 64) + 100, x, accnum);
 
     switch (type) {
     case 14:
