@@ -1271,6 +1271,45 @@ void Appear_25000(PLW* wk) {
 
 const s16 smoke_check[] = { 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0 };
 
+/* The second half of this entrance: everything from the rise back up onwards.
+ * The case labels are the original ones, so the states still read as the same
+ * numbers. */
+static void step_appear_26000_rise(PLW* wk) {
+    switch (wk->wu.routine_no[3]) {
+    case 4:
+        char_move(&wk->wu);
+        appear_work[wk->wu.id]--;
+
+        if (appear_work[wk->wu.id] < 1) {
+            wk->wu.routine_no[3]++;
+            set_char_move_init2(&wk->wu, 9, 0x10, 3, 0);
+            wk->wu.xyz[1].cal = 0;
+        } else {
+            add_x_sub(&wk->wu);
+            add_y_sub(&wk->wu);
+        }
+
+        break;
+
+    case 5:
+        char_move(&wk->wu);
+
+        if (wk->wu.cg_type == 9) {
+            wk->wu.rl_flag ^= 1;
+            wk->wu.routine_no[3]++;
+        }
+
+        break;
+
+    case 6:
+        char_move(&wk->wu);
+
+        finish_appear_on_last_frame(wk);
+
+        break;
+    }
+}
+
 void Appear_26000(PLW* wk) {
     // s32 effect_86_init(s16 type86);
 
@@ -1328,36 +1367,8 @@ void Appear_26000(PLW* wk) {
 
         break;
 
-    case 4:
-        char_move(&wk->wu);
-        appear_work[wk->wu.id]--;
-
-        if (appear_work[wk->wu.id] < 1) {
-            wk->wu.routine_no[3]++;
-            set_char_move_init2(&wk->wu, 9, 0x10, 3, 0);
-            wk->wu.xyz[1].cal = 0;
-        } else {
-            add_x_sub(&wk->wu);
-            add_y_sub(&wk->wu);
-        }
-
-        break;
-
-    case 5:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 9) {
-            wk->wu.rl_flag ^= 1;
-            wk->wu.routine_no[3]++;
-        }
-
-        break;
-
-    case 6:
-        char_move(&wk->wu);
-
-        finish_appear_on_last_frame(wk);
-
+    default:
+        step_appear_26000_rise(wk);
         break;
     }
 }
