@@ -668,6 +668,22 @@ void Appear_09000(PLW* wk) {
     }
 }
 
+static void walk_appear_10000_in(PLW* wk) {
+    char_move(&wk->wu);
+    add_x_sub(&wk->wu);
+
+    if (wk->wu.id) {
+        if (!(wk->wu.xyz[0].disp.pos <= bg_w.bgw[1].pos_x_work + 0x58)) {
+            return;
+        }
+    } else if (!(wk->wu.xyz[0].disp.pos >= bg_w.bgw[1].pos_x_work - 0x58)) {
+        return;
+    }
+    wk->wu.routine_no[3]++;
+    set_char_move_init(&wk->wu, 9, 0x14);
+    Appear_end++;
+}
+
 void Appear_10000(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -684,19 +700,7 @@ void Appear_10000(PLW* wk) {
         break;
 
     case 1:
-        char_move(&wk->wu);
-        add_x_sub(&wk->wu);
-
-        if (wk->wu.id) {
-            if (!(wk->wu.xyz[0].disp.pos <= bg_w.bgw[1].pos_x_work + 0x58)) {
-                return;
-            }
-        } else if (!(wk->wu.xyz[0].disp.pos >= bg_w.bgw[1].pos_x_work - 0x58)) {
-            return;
-        }
-        wk->wu.routine_no[3]++;
-        set_char_move_init(&wk->wu, 9, 0x14);
-        Appear_end++;
+        walk_appear_10000_in(wk);
         break;
 
     case 2:
