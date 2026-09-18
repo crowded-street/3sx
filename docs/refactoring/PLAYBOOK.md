@@ -618,6 +618,33 @@ static s32 comm_pa_y(PLW* wk, CTC* ctc) { return dispatch_by_koc(wk, ctc, add_sc
   struct field, never chosen at run time. Recipe F replaces a duplicated skeleton; it does
   not introduce dispatch the program did not have.
 
+  **One narrowing of that, added 2026-09-18** and measured on `mtrans.c`'s three extended
+  transfer entry points. Where the fixed arguments plus the pointers would take the shared
+  body over four parameters, the varying parts may travel in a **compound literal built at
+  the call site**:
+
+  ```c
+  void mlt_obj_trans_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
+      mlt_obj_trans_ext_common(
+          mt, wk, base_y, &(ExtTransVariant){ 0, store_cached_trans_ext_tiles, store_new_trans_ext_tiles });
+  }
+  ```
+
+  Three fixed arguments plus two pointers plus a seed value is six, which would have traded
+  a three-function duplication group for an Excess Number of Function Arguments finding.
+  The literal is not the hazard the rule guards against: it is built where it is used,
+  holds bare names only, is never assigned to a variable and never put in a table, and each
+  entry point still targets exactly one pair, fixed at compile time. **No dispatch exists
+  that did not exist before**, which is the whole of the rule's purpose.
+
+  What stays forbidden is the thing the rule was written for: a `static` table of variants
+  indexed at run time, or a variant pointer held in a struct that outlives the call.
+
+  **A value may ride along in that literal**, on Recipe V's argument rather than this one -
+  written out in full at its own call site, with the helper doing nothing with it but
+  assign it where the original assigned it. In `mtrans.c` that value is the pattern code's
+  group seed, `0` at two call sites and `wk->colcd` at the third.
+
 **More than one callee may differ, on the same argument.** Added 2026-09-17 under the
 project owner's standing authorisation, and measured on `entry.c`'s five screen
 dispatchers, which were identical apart from *two* callees each:
