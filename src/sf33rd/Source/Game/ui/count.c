@@ -26,6 +26,12 @@ u8 counter_color;
 bool mugen_flag;
 s8 hoji_counter;
 
+static void write_initial_counter(u8 type) {
+    if (type == 0) {
+        counter_write(4);
+    }
+}
+
 void count_cont_init(u8 type) {
     Counter_hi = save_w[Present_Mode].Time_Limit; // FIXME: use a consistent value in netplay
 
@@ -33,9 +39,7 @@ void count_cont_init(u8 type) {
         mugen_flag = true;
         round_timer = 1;
 
-        if (type == 0) {
-            counter_write(4);
-        }
+        write_initial_counter(type);
     } else {
         mugen_flag = false;
         hoji_counter = HOJI_COUNTER_MAX;
@@ -45,9 +49,7 @@ void count_cont_init(u8 type) {
         math_counter_hi /= 10;
         math_counter_low = Counter_hi - (math_counter_hi * 10);
 
-        if (type == 0) {
-            counter_write(4);
-        }
+        write_initial_counter(type);
     }
 
     flash_r_num = 0;
