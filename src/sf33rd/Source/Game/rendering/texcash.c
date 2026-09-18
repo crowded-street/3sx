@@ -185,31 +185,29 @@ void texture_cash_update() {
     }
 }
 
+// The two halves of update_with_tpu_free do this to one entry each; the entry
+// is the only thing that differs between them.
+static void age_released_entry(PatternState* mc) {
+    mc->time -= 1;
+
+    if (mc->time < 0) {
+        SDL_assert(false);
+    }
+
+    if (mc->time <= 0) {
+        mc->cs.code = -1;
+    }
+}
+
 void update_with_tpu_free(PatternState* mc16, PatternState* mc32) {
     s16 i;
 
     for (i = 0; i < tpu_free->x16; i++) {
-        mc16[tpu_free->x16_used[i]].time -= 1;
-
-        if (mc16[tpu_free->x16_used[i]].time < 0) {
-            SDL_assert(false);
-        }
-
-        if (mc16[tpu_free->x16_used[i]].time <= 0) {
-            mc16[tpu_free->x16_used[i]].cs.code = -1;
-        }
+        age_released_entry(&mc16[tpu_free->x16_used[i]]);
     }
 
     for (i = 0; i < tpu_free->x32; i++) {
-        mc32[tpu_free->x32_used[i]].time -= 1;
-
-        if (mc32[tpu_free->x32_used[i]].time < 0) {
-            SDL_assert(false);
-        }
-
-        if (mc32[tpu_free->x32_used[i]].time <= 0) {
-            mc32[tpu_free->x32_used[i]].cs.code = -1;
-        }
+        age_released_entry(&mc32[tpu_free->x32_used[i]]);
     }
 }
 
