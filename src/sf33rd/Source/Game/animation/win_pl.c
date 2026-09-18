@@ -67,6 +67,13 @@ static void update_field_hosei_flags(PLW* wk) {
     }
 }
 
+static void begin_win_pose(PLW* wk) {
+    update_field_hosei_flags(wk);
+
+    win_rno[0] = win_rno[1] = 0;
+    wk->wu.routine_no[3]++;
+}
+
 void win_player(PLW* wk) {
     void (*win_jp_tbl[16])(PLW*) = { Win_00000, Win_01000, Win_02000, Win_03000, Win_04000, Win_05000,
                                      Win_06000, Win_07000, Win_08000, Win_09000, Win_10000, Win_11000,
@@ -441,10 +448,7 @@ void Win_05000(PLW* wk) {
 static void start_win_06000_pose(PLW* wk) {
     s16 work;
 
-    update_field_hosei_flags(wk);
-
-    win_rno[0] = win_rno[1] = 0;
-    wk->wu.routine_no[3]++;
+    begin_win_pose(wk);
 
     if (winner_on_match_point(wk)) {
         work = win_select(wk, 3);
@@ -551,10 +555,7 @@ void Win_07000(PLW* wk) {
 static void start_win_08000_pose(PLW* wk) {
     s16 work;
 
-    update_field_hosei_flags(wk);
-
-    win_rno[0] = win_rno[1] = 0;
-    wk->wu.routine_no[3]++;
+    begin_win_pose(wk);
 
     if (Round_Result & 0x800) {
         set_char_move_init(&wk->wu, 9, 40);
@@ -704,10 +705,7 @@ static void choose_q_win_action(PLW* wk, s16 id_w, s16 work) {
 static void start_win_10000_pose(PLW* wk, s16 id_w) {
     s16 work;
 
-    update_field_hosei_flags(wk);
-
-    win_rno[0] = win_rno[1] = 0;
-    wk->wu.routine_no[3]++;
+    begin_win_pose(wk);
     work = win_select(wk, 3);
 
     if (winner_on_match_point(wk)) {
@@ -945,10 +943,7 @@ void twelve_win_backjump(PLW* wk) {
 static void start_win_12000_pose(PLW* wk) {
     s16 work;
 
-    update_field_hosei_flags(wk);
-
-    win_rno[0] = win_rno[1] = 0;
-    wk->wu.routine_no[3]++;
+    begin_win_pose(wk);
     work = win_select(wk, 7);
     set_char_move_init(&wk->wu, 9, work + 32);
 
@@ -965,10 +960,7 @@ void Win_12000(PLW* wk) {
 static void start_win_13000_pose(PLW* wk) {
     s16 work;
 
-    update_field_hosei_flags(wk);
-
-    win_rno[0] = win_rno[1] = 0;
-    wk->wu.routine_no[3]++;
+    begin_win_pose(wk);
 
     if (winner_on_match_point(wk)) {
         if (wk->wu.id) {
@@ -1037,10 +1029,7 @@ const s16 Win_15000_tbl[8] = { 38, 37, 40, 39, 38, 40, 39, 36 };
 static void start_win_15000_pose(PLW* wk) {
     s16 work;
 
-    update_field_hosei_flags(wk);
-
-    win_rno[0] = win_rno[1] = 0;
-    wk->wu.routine_no[3]++;
+    begin_win_pose(wk);
 
     if (winner_on_match_point(wk)) {
         work = win_select(wk, 7);
