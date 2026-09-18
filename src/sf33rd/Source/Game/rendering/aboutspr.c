@@ -493,18 +493,10 @@ s32 sort_push_request8(WORK* wk) {
     return sort_push_request(wk);
 }
 
-s32 sort_push_requestA(WORK* wk) {
+// The shell box's colour, with the blink pulse folded into its alpha. Both
+// sort_push_requestA and sort_push_requestB open with exactly this run.
+static PAL_CURSOR_COL blink_adjusted_box_color(const WORK* wk) {
     PAL_CURSOR_COL oricol;
-    s16 i;
-    s16 mf;
-
-    if (No_Trans) {
-        return 2;
-    }
-
-    if (wk->disp_flag == 0) {
-        return 1;
-    }
 
     oricol.color = box_color_attr[wk->my_col_code & 0x1FF][0];
 
@@ -542,6 +534,24 @@ s32 sort_push_requestA(WORK* wk) {
             break;
         }
     }
+
+    return oricol;
+}
+
+s32 sort_push_requestA(WORK* wk) {
+    PAL_CURSOR_COL oricol;
+    s16 i;
+    s16 mf;
+
+    if (No_Trans) {
+        return 2;
+    }
+
+    if (wk->disp_flag == 0) {
+        return 1;
+    }
+
+    oricol = blink_adjusted_box_color(wk);
 
     mlt_obj_matrix(wk, base_y_pos);
 
@@ -593,42 +603,7 @@ s32 sort_push_requestB(WORK* wk) {
         return 1;
     }
 
-    oricol.color = box_color_attr[wk->my_col_code & 0x1FF][0];
-
-    if (wk->my_clear_level) {
-        oricol.argb.a = wk->my_clear_level;
-    }
-
-    if (wk->disp_flag == 2) {
-        switch (wk->blink_timing) {
-        case 1:
-            if (Interrupt_Timer & 0x80) {
-                oricol.argb.a = (wk->my_clear_level + (0x80 - (Interrupt_Timer & 0x7F)));
-            } else {
-                oricol.argb.a = (wk->my_clear_level + (Interrupt_Timer & 0x7F));
-            }
-
-            break;
-
-        case 0:
-            if (Interrupt_Timer & 0x40) {
-                oricol.argb.a = (wk->my_clear_level + (0x40 - (Interrupt_Timer & 0x3F)));
-            } else {
-                oricol.argb.a = (wk->my_clear_level + (Interrupt_Timer & 0x3F));
-            }
-
-            break;
-
-        case 2:
-            if (Interrupt_Timer & 0x20) {
-                oricol.argb.a = (wk->my_clear_level + (0x20 - (Interrupt_Timer & 0x1F)));
-            } else {
-                oricol.argb.a = (wk->my_clear_level + (Interrupt_Timer & 0x1F));
-            }
-
-            break;
-        }
-    }
+    oricol = blink_adjusted_box_color(wk);
 
     mlt_obj_matrix(wk, 0);
 
