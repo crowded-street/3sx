@@ -2450,6 +2450,14 @@ What is left, and why no recipe in the catalogue reaches it:
   shared skeletons by exact step count is the most that grouping can do, and it is worth
   doing: it puts the one- and two-step files under the threshold.
 
+**What the verification was.** `tools/passive_fold.py verify` on every commit -
+3488 pattern functions, 0 differ - plus `refactor_guard.py --combined` and `--calls
+--combined` over the whole folder as a group, and the build. Replay verification was run
+once at the end against the branch point, 12 seeds x 1800 frames, and came back identical.
+That result says nothing about the CPU scripts themselves, which it excludes by design;
+what it is worth is the confirmation that nothing outside the folder moved, which is the
+one thing the equivalence checker cannot tell you.
+
 Three things were measured and **refused**:
 
 - **Recipe F.** The families whose step sequence matches but whose engine call does not
