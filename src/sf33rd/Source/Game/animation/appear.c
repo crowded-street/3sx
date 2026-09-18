@@ -598,6 +598,36 @@ s32 sean_appear_check(PLW* wk, s16 id) {
     return 0;
 }
 
+/* The second half of this entrance: the drop and the landing. The case labels
+ * are the original ones, so the states still read as the same numbers. */
+static void step_appear_09000_drop(PLW* wk) {
+    switch (wk->wu.routine_no[3]) {
+    case 3:
+        char_move(&wk->wu);
+        add_y_sub(&wk->wu);
+
+        if (wk->wu.xyz[1].disp.pos <= 0) {
+            wk->wu.routine_no[3]++;
+            wk->wu.xyz[1].cal = 0;
+            set_char_move_init(&wk->wu, 9, 0x12);
+            Appear_end++;
+            return;
+        }
+
+        break;
+
+    case 4:
+        char_move(&wk->wu);
+
+        if (wk->wu.cg_type == 0xFF) {
+            wk->wu.routine_no[2] = 1;
+            wk->wu.routine_no[3] = 0;
+        }
+
+        break;
+    }
+}
+
 void Appear_09000(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -632,28 +662,8 @@ void Appear_09000(PLW* wk) {
 
         break;
 
-    case 3:
-        char_move(&wk->wu);
-        add_y_sub(&wk->wu);
-
-        if (wk->wu.xyz[1].disp.pos <= 0) {
-            wk->wu.routine_no[3]++;
-            wk->wu.xyz[1].cal = 0;
-            set_char_move_init(&wk->wu, 9, 0x12);
-            Appear_end++;
-            return;
-        }
-
-        break;
-
-    case 4:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-        }
-
+    default:
+        step_appear_09000_drop(wk);
         break;
     }
 }
