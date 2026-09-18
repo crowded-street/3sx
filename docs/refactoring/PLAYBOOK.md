@@ -245,6 +245,20 @@ not already do.
 caller branches on it, exactly as Recipe C prescribes. Return nothing else - a verdict
 wider than a yes/no is the helper deciding something, which this recipe does not allow.
 
+**Open question for the project owner: should three be two?** Six files in `Game/ending`
+plateau at 9.38 with nothing left but a *two-instance* family of this exact shape - one
+skeleton, identical character for character, differing only in literals that would be
+written out at both call sites. `end_18.c`'s pair differs in an effect id and a message
+index; `end_10.c` has two such pairs. Recipe V refuses them only because of the
+three-instance rule.
+
+That rule is not arbitrary and was not relaxed here on the agent's own judgement: with two
+instances there is no third case to confirm the skeleton really is one idiom rather than
+two blocks that happen to look alike this week, and merging two near-misses is precisely
+what Recipe D forbids. But the six files are a measurable cost, and the owner may judge
+the evidence sufficient at two where the skeleton is byte-identical apart from the
+literals. Left as it stands pending that call.
+
 **What the guard shows.** The deduplication WARN, with **one copy of each literal removed
 per instance** and every value still present at its call site. A *value* leaving the
 fingerprint means it did not travel to the call site and the merge is wrong.
