@@ -322,6 +322,18 @@ void Mtrans_use_trans_mode(WORK* wk, s16 bsy) {
     dispatch_trans_mode(wk, bsy);
 }
 
+// The catch and caught effects take their palette from the master's slot; every
+// other work of these ids keeps the colour it came in with.
+static s16 catch_effect_color(WORK* wk, s16 col) {
+    WORK* mwk = (WORK*)((WORK_Other*)wk)->my_master;
+
+    if ((wk->id == 147) || (wk->id == 148)) {
+        col = mwk->id * 8 + 4;
+    }
+
+    return col;
+}
+
 s16 exchange_current_colcd(WORK* wk) {
     WORK* mwk;
     s16 col = wk->current_colcd;
@@ -334,12 +346,7 @@ s16 exchange_current_colcd(WORK* wk) {
 
     case 8:
     case 0x10:
-        mwk = (WORK*)((WORK_Other*)wk)->my_master;
-
-        if ((wk->id == 147) || (wk->id == 148)) {
-            col = mwk->id * 8 + 4;
-        }
-
+        col = catch_effect_color(wk, col);
         break;
 
     case 0x20:
