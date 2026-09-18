@@ -97,6 +97,39 @@ void init_texcash_before_process() {
     }
 }
 
+// Walk the 16-page cache back to front, sending every entry to the free or the
+// used list. Highest index first, which is the order the pools expect.
+static void partition_16_pages(s16 ix, TexturePoolFree* tf, TexturePoolUsed* tu) {
+    PatternState* mc;
+    s16 i;
+
+    mc = mts[ix].mltcsh16;
+
+    for (i = mts[ix].mltnum16 - 1; i >= 0; i--) {
+        if (mc[i].cs.code == -1) {
+            tf->x16_free[tf->x16] = i;
+            tf->x16 += 1;
+        } else {
+            tu->x16_used[tu->x16] = i;
+            tu->x16 += 1;
+        }
+    }
+}
+
+// Rebuild the collection's index of patterns that still have time on them.
+static void collect_live_patterns(PatternCollection* cp) {
+    s16 i;
+
+    cp->kazu = 0;
+
+    for (i = 0; i < 0x40; i++) {
+        if (cp->patt[i].time) {
+            cp->adr[cp->kazu] = &cp->patt[i];
+            cp->kazu += 1;
+        }
+    }
+}
+
 void init_texcash_2nd(s16 ix) {
     PatternState* mc;
     PatternCollection* cp;
@@ -111,17 +144,8 @@ void init_texcash_2nd(s16 ix) {
     tf->x16 = 0;
     tu->x32 = 0;
     tu->x16 = 0;
-    mc = mts[ix].mltcsh16;
 
-    for (i = mts[ix].mltnum16 - 1; i >= 0; i--) {
-        if (mc[i].cs.code == -1) {
-            tf->x16_free[tf->x16] = i;
-            tf->x16 += 1;
-        } else {
-            tu->x16_used[tu->x16] = i;
-            tu->x16 += 1;
-        }
-    }
+    partition_16_pages(ix, tf, tu);
 
     mc = mts[ix].mltcsh32;
 
@@ -135,14 +159,7 @@ void init_texcash_2nd(s16 ix) {
         }
     }
 
-    cp->kazu = 0;
-
-    for (i = 0; i < 0x40; i++) {
-        if (cp->patt[i].time) {
-            cp->adr[cp->kazu] = &cp->patt[i];
-            cp->kazu += 1;
-        }
-    }
+    collect_live_patterns(cp);
 }
 
 // Tick every live pattern in the slot's collection and release the pages of any
