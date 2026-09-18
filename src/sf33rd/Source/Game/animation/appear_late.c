@@ -215,28 +215,11 @@ static void step_appear_26000_rise(PLW* wk) {
     }
 }
 
-void Appear_26000(PLW* wk) {
-    // s32 effect_86_init(s16 type86);
-
+/* The middle states of this entrance, reached from the first level's default
+ * and reaching the last level through its own. The case labels are the
+ * original ones, so the states still read as the same numbers. */
+static void step_appear_26000_impact(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
-    case 0:
-        bg_app_stop = 1;
-        wk->wu.routine_no[3]++;
-        wk->wu.disp_flag = 1;
-        set_char_move_init(&wk->wu, 9, 0x10);
-        appear_work[wk->wu.id] = 0x14;
-        Appear_free[wk->wu.id] = 0;
-        break;
-
-    case 1:
-        appear_work[wk->wu.id]--;
-
-        if (appear_work[wk->wu.id] < 1) {
-            launch_appear_26000(wk);
-        }
-
-        break;
-
     case 2:
         char_move(&wk->wu);
         appear_work[wk->wu.id]--;
@@ -261,6 +244,34 @@ void Appear_26000(PLW* wk) {
 
     default:
         step_appear_26000_rise(wk);
+        break;
+    }
+}
+
+void Appear_26000(PLW* wk) {
+    // s32 effect_86_init(s16 type86);
+
+    switch (wk->wu.routine_no[3]) {
+    case 0:
+        bg_app_stop = 1;
+        wk->wu.routine_no[3]++;
+        wk->wu.disp_flag = 1;
+        set_char_move_init(&wk->wu, 9, 0x10);
+        appear_work[wk->wu.id] = 0x14;
+        Appear_free[wk->wu.id] = 0;
+        break;
+
+    case 1:
+        appear_work[wk->wu.id]--;
+
+        if (appear_work[wk->wu.id] < 1) {
+            launch_appear_26000(wk);
+        }
+
+        break;
+
+    default:
+        step_appear_26000_impact(wk);
         break;
     }
 }
