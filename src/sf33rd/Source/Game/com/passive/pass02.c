@@ -10,6 +10,54 @@
 
 void (*const Passive02_Tbl[133])();
 
+static void passive02_0070_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Normal_Attack(wk, 8, 0x202);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+static void passive02_0071_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Wait(wk, 1);
+        break;
+
+    case 7:
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 10, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+static void passive02_0078_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        EM_Term(wk, &(EM_Term_Params){-0x7F58, -1, 0, 1, -1});
+        break;
+
+    case 7:
+        Wait(wk, 2);
+        break;
+
+    case 8:
+        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
 static void pattern_em_term_j_command_attack(PLW* wk, const EM_Term_Params* p, const Command_Attack_Args* p_b) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -1016,12 +1064,8 @@ void Passive02_0070(PLW* wk) {
         Wait_Get_Up(wk, 0, -1);
         break;
 
-    case 6:
-        Normal_Attack(wk, 8, 0x202);
-        break;
-
     default:
-        End_Pattern(wk);
+        passive02_0070_from_step_6(wk);
         break;
     }
 }
@@ -1052,16 +1096,8 @@ void Passive02_0071(PLW* wk) {
         Command_Attack(wk, &(Command_Attack_Args){8, 0x8016, 10, -1});
         break;
 
-    case 6:
-        Wait(wk, 1);
-        break;
-
-    case 7:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 10, -1});
-        break;
-
     default:
-        End_Pattern(wk);
+        passive02_0071_from_step_6(wk);
         break;
     }
 }
@@ -1192,20 +1228,8 @@ void Passive02_0078(PLW* wk) {
         Check_BOSS_EX(wk, 1, 0xFFFF);
         break;
 
-    case 6:
-        EM_Term(wk, &(EM_Term_Params){-0x7F58, -1, 0, 1, -1});
-        break;
-
-    case 7:
-        Wait(wk, 2);
-        break;
-
-    case 8:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
-        break;
-
     default:
-        End_Pattern(wk);
+        passive02_0078_from_step_6(wk);
         break;
     }
 }
