@@ -212,6 +212,32 @@ void Appear_03000(PLW* wk) {
     }
 }
 
+static void launch_appear_04000(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    app_counter[wk->wu.id] = 0x1C;
+
+    if (wk->wu.id) {
+        cal_all_speed_data(&wk->wu, app_counter[wk->wu.id], bg_w.bgw[1].pos_x_work + 0x58, 0, 0, 1);
+        return;
+    }
+
+    cal_all_speed_data(&wk->wu, app_counter[wk->wu.id], bg_w.bgw[1].pos_x_work - 0x58, 0, 0, 1);
+}
+
+static void land_appear_04000(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    set_char_move_init(&wk->wu, 9, 0x11);
+
+    if (wk->wu.id) {
+        wk->wu.xyz[0].disp.pos = bg_w.bgw[1].pos_x_work + 0x58;
+    } else {
+        wk->wu.xyz[0].disp.pos = bg_w.bgw[1].pos_x_work - 0x58;
+    }
+
+    wk->wu.xyz[0].disp.low = 0;
+    wk->wu.xyz[1].cal = 0;
+}
+
 void Appear_04000(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -225,15 +251,7 @@ void Appear_04000(PLW* wk) {
         char_move(&wk->wu);
 
         if (wk->wu.cg_type == 9) {
-            wk->wu.routine_no[3]++;
-            app_counter[wk->wu.id] = 0x1C;
-
-            if (wk->wu.id) {
-                cal_all_speed_data(&wk->wu, app_counter[wk->wu.id], bg_w.bgw[1].pos_x_work + 0x58, 0, 0, 1);
-                return;
-            }
-
-            cal_all_speed_data(&wk->wu, app_counter[wk->wu.id], bg_w.bgw[1].pos_x_work - 0x58, 0, 0, 1);
+            launch_appear_04000(wk);
             return;
         }
         break;
@@ -243,17 +261,7 @@ void Appear_04000(PLW* wk) {
         app_counter[wk->wu.id]--;
 
         if (app_counter[wk->wu.id] <= 0) {
-            wk->wu.routine_no[3]++;
-            set_char_move_init(&wk->wu, 9, 0x11);
-
-            if (wk->wu.id) {
-                wk->wu.xyz[0].disp.pos = bg_w.bgw[1].pos_x_work + 0x58;
-            } else {
-                wk->wu.xyz[0].disp.pos = bg_w.bgw[1].pos_x_work - 0x58;
-            }
-
-            wk->wu.xyz[0].disp.low = 0;
-            wk->wu.xyz[1].cal = 0;
+            land_appear_04000(wk);
             return;
         }
 
