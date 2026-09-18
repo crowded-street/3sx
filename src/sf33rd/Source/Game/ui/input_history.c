@@ -78,6 +78,20 @@ void InputHistory_Append(u16 lvbt, u8 player) {
     }
 }
 
+static void draw_attack_glyphs(const InputHistoryItem* item) {
+    for (int k = 0; k < SDL_arraysize(attack_bits); k++) {
+        const AttackBitDescription* attack_bit = &attack_bits[k];
+
+        if (!(item->lvbt & (1 << attack_bit->bit))) {
+            continue;
+        }
+
+        glyph_renderer_state.color = attack_bit->color;
+        GlyphRenderer_DrawGlyph(attack_bit->glyph);
+        glyph_renderer_state.position.x += 1;
+    }
+}
+
 void InputHistory_Render() {
     glyph_renderer_state.z = PrioBase[2];
 
@@ -119,17 +133,7 @@ void InputHistory_Render() {
 
             // Attacks
 
-            for (int k = 0; k < SDL_arraysize(attack_bits); k++) {
-                const AttackBitDescription* attack_bit = &attack_bits[k];
-
-                if (!(item->lvbt & (1 << attack_bit->bit))) {
-                    continue;
-                }
-
-                glyph_renderer_state.color = attack_bit->color;
-                GlyphRenderer_DrawGlyph(attack_bit->glyph);
-                glyph_renderer_state.position.x += 1;
-            }
+            draw_attack_glyphs(item);
 
             glyph_renderer_state.position.y += GLYPH_SIZE + 1;
         }
