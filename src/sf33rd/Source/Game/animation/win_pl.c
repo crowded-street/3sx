@@ -783,40 +783,48 @@ void Win_11000(PLW* wk) {
     }
 }
 
+static void twelve_away_launch(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 1) {
+        win_rno[1]++;
+        wk->wu.mvxy.a[0].sp = 0;
+        wk->wu.mvxy.d[0].sp = 0;
+        wk->wu.mvxy.a[1].sp = 0x78000;
+        wk->wu.mvxy.d[1].sp = -0x6000;
+    }
+}
+
+static void twelve_away_turn_aside(PLW* wk) {
+    add_y_sub((WORK_Other*)wk);
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type != 2) {
+        return;
+    }
+
+    win_rno[1]++;
+    wk->wu.mvxy.d[0].sp = 0;
+
+    if (wk->wu.rl_flag) {
+        wk->wu.mvxy.a[0].sp = 0x80000;
+    } else {
+        wk->wu.mvxy.a[0].sp = -0x80000;
+    }
+
+    wk->wu.mvxy.a[1].sp = -0x8000;
+    wk->wu.mvxy.d[1].sp = 0x4000;
+}
+
 void twelve_win_away(PLW* wk) {
     switch (win_rno[1]) {
     case 0:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 1) {
-            win_rno[1]++;
-            wk->wu.mvxy.a[0].sp = 0;
-            wk->wu.mvxy.d[0].sp = 0;
-            wk->wu.mvxy.a[1].sp = 0x78000;
-            wk->wu.mvxy.d[1].sp = -0x6000;
-        }
+        twelve_away_launch(wk);
 
         break;
 
     case 1:
-        add_y_sub((WORK_Other*)wk);
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type != 2) {
-            break;
-        }
-
-        win_rno[1]++;
-        wk->wu.mvxy.d[0].sp = 0;
-
-        if (wk->wu.rl_flag) {
-            wk->wu.mvxy.a[0].sp = 0x80000;
-        } else {
-            wk->wu.mvxy.a[0].sp = -0x80000;
-        }
-
-        wk->wu.mvxy.a[1].sp = -0x8000;
-        wk->wu.mvxy.d[1].sp = 0x4000;
+        twelve_away_turn_aside(wk);
         break;
 
     case 2:
