@@ -712,6 +712,20 @@ const u8 animal_decide_tbl[] = { 0, 1, 2, 3, 4, 5, 0, 2, 0, 1, 2, 3, 4, 5, 0, 0 
 /* The second half of this entrance: everything from the priority swap onwards.
  * The case labels are the original ones, so the states still read as the same
  * numbers. */
+static void dismount_appear_37000(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    set_char_move_init(&wk->wu, 0, 3);
+    app_counter[wk->wu.id] = 0x2a;
+
+    if (wk->wu.id) {
+        cal_all_speed_data(&wk->wu, app_counter[wk->wu.id], bg_w.bgw[1].pos_x_work + 0x58, 0, 0, 0);
+    } else {
+        cal_all_speed_data(&wk->wu, app_counter[wk->wu.id], bg_w.bgw[1].pos_x_work - 0x58, 0, 0, 0);
+    }
+
+    wk->wu.next_z = wk->wu.my_priority;
+}
+
 static void step_appear_37000_ride(PLW* wk, s16 id_w) {
     switch (wk->wu.routine_no[3]) {
     case 4:
@@ -729,17 +743,7 @@ static void step_appear_37000_ride(PLW* wk, s16 id_w) {
         char_move(&wk->wu);
 
         if (wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[3]++;
-            set_char_move_init(&wk->wu, 0, 3);
-            app_counter[wk->wu.id] = 0x2a;
-
-            if (wk->wu.id) {
-                cal_all_speed_data(&wk->wu, app_counter[wk->wu.id], bg_w.bgw[1].pos_x_work + 0x58, 0, 0, 0);
-            } else {
-                cal_all_speed_data(&wk->wu, app_counter[wk->wu.id], bg_w.bgw[1].pos_x_work - 0x58, 0, 0, 0);
-            }
-
-            wk->wu.next_z = wk->wu.my_priority;
+            dismount_appear_37000(wk);
         } else {
             wk->wu.next_z = plw[id_w].wu.my_priority;
         }
