@@ -242,75 +242,77 @@ void make_texcash_work(s16 ix) {
     u32 page16;
     u32 page32;
 
+    // fatal_error is __dead2, so reaching the end of this branch is impossible
+    // and the rest of the function is the original else arm, one level out.
     if (mts_ok[ix].be) {
         if ((Test_ramcnt_key(mts_ok[ix].key0) != 0) && (Test_ramcnt_key(mts_ok[ix].key1) != 0)) {
             return;
         }
 
         fatal_error("make_texcash_work: TEXCASH KEY ERROR");
-    } else {
-        if (ix == 7) {
-            page16 = mts_OB_page[bg_w.stage][0];
-            page32 = mts_OB_page[bg_w.stage][1];
-            mts_ob_curr_stage = bg_w.stage;
-        } else {
-            page16 = mts_base[ix].p16;
-            page32 = mts_base[ix].p32;
-        }
-
-        mts[ix].mltnum16 = (u32)page16 << 8;
-        mts[ix].mltnum32 = page32 << 6;
-        mts[ix].mltnum = (u32)page16 + page32;
-        mts[ix].mltgidx16 = mts_base[ix].gix;
-        mts[ix].mltgidx32 = (u32)page16 + mts_base[ix].gix;
-        mts[ix].mltcshtime16 = mts_base[ix].life16;
-        mts[ix].mltcshtime32 = mts_base[ix].life32;
-
-        if ((mts[ix].ext = ((mts_base[ix].mode & 0x2000) != 0))) {
-            memreq = (mts[ix].mltnum16 * 8) + (mts[ix].mltnum32 * 8) + sizeof(PatternCollection) +
-                     sizeof(TexturePoolFree) + sizeof(TexturePoolUsed);
-            mts_ok[ix].key0 = Pull_ramcnt_key(memreq, mts_base[ix].type, 0, 0);
-            adrs = Get_ramcnt_pointer(mts_ok[ix].key0);
-            mts[ix].mltcsh16 = (PatternState*)adrs;
-            adrs += mts[ix].mltnum16 * 8;
-            mts[ix].mltcsh32 = (PatternState*)adrs;
-            adrs += mts[ix].mltnum32 * 8;
-            mts[ix].cpat = (PatternCollection*)adrs;
-            adrs += sizeof(PatternCollection);
-            mts[ix].tpf = (TexturePoolFree*)adrs;
-            adrs += sizeof(TexturePoolFree);
-            mts[ix].tpu = (TexturePoolUsed*)adrs;
-            SDL_zerop(mts[ix].cpat);
-            SDL_zerop(mts[ix].tpf);
-            SDL_zerop(mts[ix].tpu);
-            init_texcash_2nd(ix);
-        } else {
-            memreq = mts[ix].mltnum16 * 8 + mts[ix].mltnum32 * 8;
-            mts_ok[ix].key0 = Pull_ramcnt_key(memreq, mts_base[ix].type, 0, 0);
-            adrs = Get_ramcnt_pointer(mts_ok[ix].key0);
-            mts[ix].mltcsh16 = (PatternState*)adrs;
-            adrs += mts[ix].mltnum16 * 8;
-            mts[ix].mltcsh32 = (PatternState*)adrs;
-        }
-
-        mts[ix].mltbuf = texcash_melt_buffer;
-        memreq = ((mts_base[ix].mode & 4) != 0) + 1;
-        memreq *= (mts[ix].mltnum << 0x10);
-        mts_ok[ix].key1 = Pull_ramcnt_key(memreq, mts_base[ix].type, 0, 0);
-        mts[ix].attribute = mts_base[ix].attribute;
-        mlt_obj_trans_init(&mts[ix], mts_base[ix].mode, Get_ramcnt_pointer(mts_ok[ix].key1));
-
-        if (mts[ix].ext) {
-            init_texcash_2nd(ix);
-        }
-
-        mts[ix].id = ix;
-        mts[ix].mode = mts_base[ix].mode & 0xFF;
-        mts_ok[ix].be = 1;
-        mts_ok[ix].mincg = 0;
-        mts_ok[ix].min16 = 0x7FFF;
-        mts_ok[ix].min32 = 0x7FFF;
     }
+
+    if (ix == 7) {
+        page16 = mts_OB_page[bg_w.stage][0];
+        page32 = mts_OB_page[bg_w.stage][1];
+        mts_ob_curr_stage = bg_w.stage;
+    } else {
+        page16 = mts_base[ix].p16;
+        page32 = mts_base[ix].p32;
+    }
+
+    mts[ix].mltnum16 = (u32)page16 << 8;
+    mts[ix].mltnum32 = page32 << 6;
+    mts[ix].mltnum = (u32)page16 + page32;
+    mts[ix].mltgidx16 = mts_base[ix].gix;
+    mts[ix].mltgidx32 = (u32)page16 + mts_base[ix].gix;
+    mts[ix].mltcshtime16 = mts_base[ix].life16;
+    mts[ix].mltcshtime32 = mts_base[ix].life32;
+
+    if ((mts[ix].ext = ((mts_base[ix].mode & 0x2000) != 0))) {
+        memreq = (mts[ix].mltnum16 * 8) + (mts[ix].mltnum32 * 8) + sizeof(PatternCollection) +
+                 sizeof(TexturePoolFree) + sizeof(TexturePoolUsed);
+        mts_ok[ix].key0 = Pull_ramcnt_key(memreq, mts_base[ix].type, 0, 0);
+        adrs = Get_ramcnt_pointer(mts_ok[ix].key0);
+        mts[ix].mltcsh16 = (PatternState*)adrs;
+        adrs += mts[ix].mltnum16 * 8;
+        mts[ix].mltcsh32 = (PatternState*)adrs;
+        adrs += mts[ix].mltnum32 * 8;
+        mts[ix].cpat = (PatternCollection*)adrs;
+        adrs += sizeof(PatternCollection);
+        mts[ix].tpf = (TexturePoolFree*)adrs;
+        adrs += sizeof(TexturePoolFree);
+        mts[ix].tpu = (TexturePoolUsed*)adrs;
+        SDL_zerop(mts[ix].cpat);
+        SDL_zerop(mts[ix].tpf);
+        SDL_zerop(mts[ix].tpu);
+        init_texcash_2nd(ix);
+    } else {
+        memreq = mts[ix].mltnum16 * 8 + mts[ix].mltnum32 * 8;
+        mts_ok[ix].key0 = Pull_ramcnt_key(memreq, mts_base[ix].type, 0, 0);
+        adrs = Get_ramcnt_pointer(mts_ok[ix].key0);
+        mts[ix].mltcsh16 = (PatternState*)adrs;
+        adrs += mts[ix].mltnum16 * 8;
+        mts[ix].mltcsh32 = (PatternState*)adrs;
+    }
+
+    mts[ix].mltbuf = texcash_melt_buffer;
+    memreq = ((mts_base[ix].mode & 4) != 0) + 1;
+    memreq *= (mts[ix].mltnum << 0x10);
+    mts_ok[ix].key1 = Pull_ramcnt_key(memreq, mts_base[ix].type, 0, 0);
+    mts[ix].attribute = mts_base[ix].attribute;
+    mlt_obj_trans_init(&mts[ix], mts_base[ix].mode, Get_ramcnt_pointer(mts_ok[ix].key1));
+
+    if (mts[ix].ext) {
+        init_texcash_2nd(ix);
+    }
+
+    mts[ix].id = ix;
+    mts[ix].mode = mts_base[ix].mode & 0xFF;
+    mts_ok[ix].be = 1;
+    mts_ok[ix].mincg = 0;
+    mts_ok[ix].min16 = 0x7FFF;
+    mts_ok[ix].min32 = 0x7FFF;
 }
 
 void Clear_texcash_work() {
