@@ -497,6 +497,39 @@ s32 sort_push_request8(WORK* wk) {
     return sort_push_request(wk);
 }
 
+// Three blink speeds, each a triangle wave off Interrupt_Timer. A blink_timing
+// the switch does not name leaves the alpha alone, as it did before.
+static void apply_blink_pulse(const WORK* wk, PAL_CURSOR_COL* oricol_p) {
+    switch (wk->blink_timing) {
+    case 1:
+        if (Interrupt_Timer & 0x80) {
+            oricol_p->argb.a = (wk->my_clear_level + (0x80 - (Interrupt_Timer & 0x7F)));
+        } else {
+            oricol_p->argb.a = (wk->my_clear_level + (Interrupt_Timer & 0x7F));
+        }
+
+        break;
+
+    case 0:
+        if (Interrupt_Timer & 0x40) {
+            oricol_p->argb.a = (wk->my_clear_level + (0x40 - (Interrupt_Timer & 0x3F)));
+        } else {
+            oricol_p->argb.a = (wk->my_clear_level + (Interrupt_Timer & 0x3F));
+        }
+
+        break;
+
+    case 2:
+        if (Interrupt_Timer & 0x20) {
+            oricol_p->argb.a = (wk->my_clear_level + (0x20 - (Interrupt_Timer & 0x1F)));
+        } else {
+            oricol_p->argb.a = (wk->my_clear_level + (Interrupt_Timer & 0x1F));
+        }
+
+        break;
+    }
+}
+
 // The shell box's colour, with the blink pulse folded into its alpha. Both
 // sort_push_requestA and sort_push_requestB open with exactly this run.
 static PAL_CURSOR_COL blink_adjusted_box_color(const WORK* wk) {
@@ -509,34 +542,7 @@ static PAL_CURSOR_COL blink_adjusted_box_color(const WORK* wk) {
     }
 
     if (wk->disp_flag == 2) {
-        switch (wk->blink_timing) {
-        case 1:
-            if (Interrupt_Timer & 0x80) {
-                oricol.argb.a = (wk->my_clear_level + (0x80 - (Interrupt_Timer & 0x7F)));
-            } else {
-                oricol.argb.a = (wk->my_clear_level + (Interrupt_Timer & 0x7F));
-            }
-
-            break;
-
-        case 0:
-            if (Interrupt_Timer & 0x40) {
-                oricol.argb.a = (wk->my_clear_level + (0x40 - (Interrupt_Timer & 0x3F)));
-            } else {
-                oricol.argb.a = (wk->my_clear_level + (Interrupt_Timer & 0x3F));
-            }
-
-            break;
-
-        case 2:
-            if (Interrupt_Timer & 0x20) {
-                oricol.argb.a = (wk->my_clear_level + (0x20 - (Interrupt_Timer & 0x1F)));
-            } else {
-                oricol.argb.a = (wk->my_clear_level + (Interrupt_Timer & 0x1F));
-            }
-
-            break;
-        }
+        apply_blink_pulse(wk, &oricol);
     }
 
     return oricol;
