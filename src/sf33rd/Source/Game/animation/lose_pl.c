@@ -51,38 +51,46 @@ void Lose_00000(PLW* wk) {
     Normal_normal_Loser(wk);
 }
 
+static void play_random_judge_loss(PLW* wk) {
+    switch (wk->wu.routine_no[3]) {
+    case 0:
+        wk->wu.routine_no[3]++;
+        wk->wu.char_index = random_16();
+        wk->wu.char_index &= 3;
+        set_char_move_init(&wk->wu, 9, wk->wu.char_index + 0x38);
+        break;
+
+    default:
+    case 1:
+    case 9:
+        char_move(&wk->wu);
+        break;
+    }
+}
+
+static void play_random_round_loss(PLW* wk) {
+    switch (wk->wu.routine_no[3]) {
+    case 0:
+        wk->wu.routine_no[3]++;
+        wk->wu.char_index = random_16();
+        wk->wu.char_index &= 7;
+        set_char_move_init(&wk->wu, 9, wk->wu.char_index + 0x18);
+        break;
+
+    case 1:
+    case 9:
+        char_move(&wk->wu);
+        break;
+    }
+}
+
 void Lose_10000(PLW* wk) {
     if (judge_screen_showing()) {
-        switch (wk->wu.routine_no[3]) {
-        case 0:
-            wk->wu.routine_no[3]++;
-            wk->wu.char_index = random_16();
-            wk->wu.char_index &= 3;
-            set_char_move_init(&wk->wu, 9, wk->wu.char_index + 0x38);
-            break;
-
-        default:
-        case 1:
-        case 9:
-            char_move(&wk->wu);
-            break;
-        }
+        play_random_judge_loss(wk);
     } else if (lose_anime_suspended()) {
         return;
     } else {
-        switch (wk->wu.routine_no[3]) {
-        case 0:
-            wk->wu.routine_no[3]++;
-            wk->wu.char_index = random_16();
-            wk->wu.char_index &= 7;
-            set_char_move_init(&wk->wu, 9, wk->wu.char_index + 0x18);
-            break;
-
-        case 1:
-        case 9:
-            char_move(&wk->wu);
-            break;
-        }
+        play_random_round_loss(wk);
     }
 
     update_field_hosei_flags(wk);
