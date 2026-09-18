@@ -812,29 +812,49 @@ void Appear_38000(PLW* wk) {
     }
 }
 
+static void start_appear_39000(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    wk->wu.disp_flag = 1;
+
+    if (Gill_Appear_Flag) {
+        appear_data_set(wk, (APPEAR_DATA*)appear_data);
+        Appear_00000(wk);
+        return;
+    }
+
+    bg_app_stop = 1;
+    set_char_move_init(&wk->wu, 0, 2);
+
+    if (wk->wu.id) {
+        wk->wu.xyz[0].disp.pos = bg_w.bgw[1].pos_x_work + 0x200;
+    }
+
+    setup_mvxy_data(&wk->wu, 0);
+    wk->wu.mvxy.a[0].sp >>= 1;
+    add_mvxy_speed(&wk->wu);
+    wk->wu.mvxy.a[0].sp *= 2;
+}
+
+static void arrive_appear_39000(PLW* wk) {
+    if (wk->wu.id) {
+        if (wk->wu.xyz[0].disp.pos < (bg_w.bgw[1].pos_x_work + 88)) {
+            wk->wu.routine_no[3]++;
+            wk->wu.xyz[0].disp.pos = bg_w.bgw[1].pos_x_work + 88;
+            return;
+        }
+    } else {
+        if (wk->wu.xyz[0].disp.pos > (bg_w.bgw[1].pos_x_work - 88)) {
+            wk->wu.routine_no[3] += 1;
+            wk->wu.xyz[0].disp.pos = (bg_w.bgw[1].pos_x_work - 88);
+            return;
+        }
+    }
+}
+
 void Appear_39000(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.disp_flag = 1;
-
-        if (Gill_Appear_Flag) {
-            appear_data_set(wk, (APPEAR_DATA*)appear_data);
-            Appear_00000(wk);
-            return;
-        }
-
-        bg_app_stop = 1;
-        set_char_move_init(&wk->wu, 0, 2);
-
-        if (wk->wu.id) {
-            wk->wu.xyz[0].disp.pos = bg_w.bgw[1].pos_x_work + 0x200;
-        }
-
-        setup_mvxy_data(&wk->wu, 0);
-        wk->wu.mvxy.a[0].sp >>= 1;
-        add_mvxy_speed(&wk->wu);
-        wk->wu.mvxy.a[0].sp *= 2;
+        start_appear_39000(wk);
         break;
 
     case 1:
@@ -842,19 +862,7 @@ void Appear_39000(PLW* wk) {
         add_mvxy_speed(&wk->wu);
         char_move(&wk->wu);
 
-        if (wk->wu.id) {
-            if (wk->wu.xyz[0].disp.pos < (bg_w.bgw[1].pos_x_work + 88)) {
-                wk->wu.routine_no[3]++;
-                wk->wu.xyz[0].disp.pos = bg_w.bgw[1].pos_x_work + 88;
-                return;
-            }
-        } else {
-            if (wk->wu.xyz[0].disp.pos > (bg_w.bgw[1].pos_x_work - 88)) {
-                wk->wu.routine_no[3] += 1;
-                wk->wu.xyz[0].disp.pos = (bg_w.bgw[1].pos_x_work - 88);
-                return;
-            }
-        }
+        arrive_appear_39000(wk);
 
         break;
 
