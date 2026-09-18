@@ -1697,29 +1697,37 @@ void Initialize_EM_Candidate(s16 PL_id) {
     }
 }
 
+static s32 candidate_is_excluded(s16 PL_id, s16 ix) {
+    if (My_char[PL_id] == 0 && ix == 1) {
+        return 1;
+    }
+
+    if (ix == My_char[PL_id]) {
+        return 1;
+    }
+
+    if (ix == 17) {
+        return 1;
+    }
+
+    if (ix == Middle_Class_Boss_Data[My_char[PL_id]]) {
+        return 1;
+    }
+
+    if (Break_Com[PL_id][ix]) {
+        return 1;
+    }
+
+    return 0;
+}
+
 void Setup_Candidate_Buff(s16 PL_id) {
     s16 em;
     s16 ix;
     s16 s2;
 
     for (em = 0, s2 = ix = 1; ix <= 19; ix++) {
-        if (My_char[PL_id] == 0 && ix == 1) {
-            continue;
-        }
-
-        if (ix == My_char[PL_id]) {
-            continue;
-        }
-
-        if (ix == 17) {
-            continue;
-        }
-
-        if (ix == Middle_Class_Boss_Data[My_char[PL_id]]) {
-            continue;
-        }
-
-        if (Break_Com[PL_id][ix]) {
+        if (candidate_is_excluded(PL_id, ix)) {
             continue;
         }
 
