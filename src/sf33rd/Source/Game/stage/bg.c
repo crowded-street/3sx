@@ -84,8 +84,6 @@ static void advance_stage19_loop_state();
 static bool is_exe_or_pause_active();
 static bool should_update_rw_work(u8 bgnm);
 static s32 remap_ending_nosekae_chip(s32 global_index_real);
-static s32 remap_ending_g_kakikae0_chip(s32 global_index_real);
-static s32 remap_ending_g_kakikae1_chip(s32 global_index_real);
 static void bgDrawOneScreen(const ScreenDraw* screen);
 static void bgDrawOneChip(const ChipRect* rect, s32 gbix, u32 vtxCol, s32 ofsPal);
 static void bgAkebonoDraw();
@@ -314,26 +312,12 @@ static s32 remap_ending_nosekae_chip(s32 global_index_real) {
     return global_index_real;
 }
 
-static s32 remap_ending_g_kakikae0_chip(s32 global_index_real) {
+static s32 remap_ending_g_chip_in_range(s32 global_index_real, s32 first, s32 limit, u8 column) {
     s32 i;
 
-    for (i = 0; i < 12; i++) {
+    for (i = first; i < limit; i++) {
         if (global_index_real == rw_dat[i].rwgbix) {
-            global_index_real = rw_dat[i].rwd_ptr[g_number[0]];
-            select_bg_list_for_reindexed_chip(global_index_real);
-            break;
-        }
-    }
-
-    return global_index_real;
-}
-
-static s32 remap_ending_g_kakikae1_chip(s32 global_index_real) {
-    s32 i;
-
-    for (i = 12; i < 20; i++) {
-        if (global_index_real == rw_dat[i].rwgbix) {
-            global_index_real = rw_dat[i].rwd_ptr[g_number[1]];
+            global_index_real = rw_dat[i].rwd_ptr[column];
             select_bg_list_for_reindexed_chip(global_index_real);
             break;
         }
@@ -573,11 +557,11 @@ static s32 remap_ending_g_chip(u8 bgnm, s32 global_index_real) {
 
     if (bgnm == 0) {
         if (g_kakikae[0]) {
-            global_index_real = remap_ending_g_kakikae0_chip(global_index_real);
+            global_index_real = remap_ending_g_chip_in_range(global_index_real, 0, 12, g_number[0]);
         }
 
         if (g_kakikae[1]) {
-            global_index_real = remap_ending_g_kakikae1_chip(global_index_real);
+            global_index_real = remap_ending_g_chip_in_range(global_index_real, 12, 20, g_number[1]);
         }
     }
 
