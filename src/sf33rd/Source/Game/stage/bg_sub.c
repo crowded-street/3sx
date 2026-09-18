@@ -51,18 +51,21 @@ static void start_requested_x_chase() {
     }
 }
 
-static void chase_x_start_check() {
+static s16 zoom_request_just_released(s32 mask) {
     s16 work;
     s16 work2;
 
+    work = zoom_req_flag_old & mask;
+    work2 = ~(zoom_request_flag & mask);
+    work &= work2;
+    return work;
+}
+
+static void chase_x_start_check() {
     if (zoom_request_flag & 0xF00) {
         start_requested_x_chase();
     } else {
-        work = zoom_req_flag_old & 0xF00;
-        work2 = ~(zoom_request_flag & 0xF00);
-        work &= work2;
-
-        if (work) {
+        if (zoom_request_just_released(0xF00)) {
             bg_w.chase_flag |= 2;
             bg_w.chase_flag &= ~1;
             chase_x = bgw_ptr->wxy[0].disp.pos;
@@ -93,17 +96,10 @@ static void start_requested_y_chase() {
 }
 
 static void chase_y_start_check() {
-    s16 work;
-    s16 work2;
-
     if (zoom_request_flag & 0xF000) {
         start_requested_y_chase();
     } else {
-        work = zoom_req_flag_old & 0xF000;
-        work2 = ~(zoom_request_flag & 0xF000);
-        work &= work2;
-
-        if (work) {
+        if (zoom_request_just_released(0xF000)) {
             bg_w.chase_flag |= 0x20;
             bg_w.chase_flag &= ~0x10;
             chase_y = bgw_ptr->xy[1].disp.pos;
