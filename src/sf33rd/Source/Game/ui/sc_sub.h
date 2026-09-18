@@ -31,6 +31,10 @@ typedef enum ButtonIcon {
 // MARK: - Unhandled
 
 extern SAFrame sa_frame[3][48];
+/* UV coordinates are authored in 256-texel space and normalised on use. */
+#define TO_UV_256(val) ((val) / 256.0f)
+#define TO_UV_256_NEG(val) (TO_UV_256(val))
+
 extern ColoredVertex scrscrntex[4];
 extern s16 Hnc_Num;
 extern FadeData fd_dat;
