@@ -365,11 +365,19 @@ void hnc_wipeinit(u8 atr) {
     }
 }
 
+static void normalise_hnc_uv(ColoredVertex* vtx) {
+    u8 k;
+
+    for (k = 0; k < 4; k++) {
+        vtx[k].u /= 256.0f;
+        vtx[k].v /= 256.0f;
+    }
+}
+
 s32 hnc_wipeout(u8 atr) {
     ColoredVertex vtx[4];
     u8 i;
     u8 j;
-    u8 k;
     s32 ipx;
     s32 ipy;
     s32 ipu;
@@ -403,10 +411,7 @@ s32 hnc_wipeout(u8 atr) {
                 vtx[0].v = vtx[1].v = ipv;
                 vtx[2].v = vtx[3].v = ipv + 24;
 
-                for (k = 0; k < 4; k++) {
-                    vtx[k].u /= 256.0f;
-                    vtx[k].v /= 256.0f;
-                }
+                normalise_hnc_uv(vtx);
 
                 njDrawTexture(vtx, 4, 1, 1);
                 ipx += 8;
@@ -435,10 +440,7 @@ s32 hnc_wipeout(u8 atr) {
             vtx[1].v = vtx[0].v + ((24.0f * len) / 16.0f);
             vtx[2].v = vtx[3].v = vtx[0].v + (24 - (j * 12));
 
-            for (k = 0; k < 4; k++) {
-                vtx[k].u /= 256.0f;
-                vtx[k].v /= 256.0f;
-            }
+            normalise_hnc_uv(vtx);
 
             njDrawTexture(vtx, 4, 1, 1);
             ipy += 12;
