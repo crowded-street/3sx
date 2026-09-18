@@ -200,23 +200,7 @@ void Passive04_0014(PLW* wk) {
 }
 
 void Passive04_0015(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, 8, 0x10);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 8, 0x10);
-        break;
-
-    case 2:
-        Normal_Attack(wk, 8, 0x10);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_normal_attack_7(wk, 0x10, 0x10, 0x10);
 }
 
 void Passive04_0016(PLW* wk) {

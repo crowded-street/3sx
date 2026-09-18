@@ -908,3 +908,23 @@ void pattern_keep_away_wait_get_up_command_attack(PLW* wk, s16 target_pos, s16 o
         break;
     }
 }
+
+void pattern_normal_attack_7(PLW* wk, u16 lever_data, u16 lever_data_b, u16 lever_data_b_b) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Normal_Attack(wk, 8, lever_data);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 8, lever_data_b);
+        break;
+
+    case 2:
+        Normal_Attack(wk, 8, lever_data_b_b);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
