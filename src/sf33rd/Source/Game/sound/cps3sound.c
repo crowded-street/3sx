@@ -104,6 +104,12 @@ Uint8 ss_state_flags;                                 /* 0x02079C8C */
 void SsResetBgmChannels();
 Sint32 SsReadDelay(const Uint8* stream, Uint32* delay);
 
+/* Whether a broadcast SFX request passes this channel by: no track for it, or a
+ * higher-priority voice still sounding on it. */
+static int ss_sfx_channel_rejects_request(const SsChannelState* channel, Uint32 track_offset, Uint8 type) {
+    return (track_offset == 0) || ((channel->priority > type) && ((channel->state & 0x80) == 0));
+}
+
 /* The modulation state both the BGM start and the broadcast SFX request clear. */
 static void ss_clear_channel_mod_state(SsChannelState* channel) {
     channel->unk_66 = 0;
@@ -239,7 +245,7 @@ void SsRequestCore(Uint16 req_number, Sint16 pan_control) {
             SsChannelState* channel = &ss_sfx_channels[i];
             const Uint32 track_offset = SS_READ_BE16(track_offsets + i * 2);
 
-            if ((track_offset == 0) || ((channel->priority > type) && ((channel->state & 0x80) == 0))) {
+            if (ss_sfx_channel_rejects_request(channel, track_offset, type)) {
                 continue;
             }
 
