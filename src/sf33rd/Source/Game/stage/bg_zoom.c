@@ -265,6 +265,18 @@ static void update_fighter_screen_positions() {
     }
 }
 
+static u16 higher_zoom_level(u16 p1zoom, u16 p2zoom) {
+    u16 zmlv;
+
+    zmlv = p1zoom & 0xFF;
+
+    if (zmlv < (p2zoom & 0xFF)) {
+        zmlv = p2zoom & 0xFF;
+    }
+
+    return zmlv;
+}
+
 void check_cg_zoom() {
     u16 p1zoom;
     u16 p2zoom;
@@ -276,11 +288,7 @@ void check_cg_zoom() {
     p2zoom = plw[1].wu.cg_zoom;
 
     if (bg_stop != 0 && !((p1zoom | p2zoom) & 0x4000)) {
-        zmlv = p1zoom & 0xFF;
-
-        if (zmlv < (p2zoom & 0xFF)) {
-            zmlv = p2zoom & 0xFF;
-        }
+        zmlv = higher_zoom_level(p1zoom, p2zoom);
 
         lookp1 = p1zoom >> 8 & 3;
         lookp2 = p2zoom >> 8 & 3;
@@ -296,11 +304,7 @@ void check_cg_zoom() {
     select_horizontal_zoom_request(p1zoom, p2zoom);
     select_vertical_zoom_request(p1zoom, p2zoom);
 
-    zoom_request_level = p1zoom & 0xFF;
-
-    if (zoom_request_level < (p2zoom & 0xFF)) {
-        zoom_request_level = p2zoom & 0xFF;
-    }
+    zoom_request_level = higher_zoom_level(p1zoom, p2zoom);
 
     if (zoom_request_level) {
         zoom_request_flag |= 1;
