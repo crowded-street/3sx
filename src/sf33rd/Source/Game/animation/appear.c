@@ -411,6 +411,21 @@ static void leave_appear_06000_car(PLW* wk) {
     }
 }
 
+static void fly_appear_06000_car(PLW* wk) {
+    char_move(&wk->wu);
+    appear_work[wk->wu.id]--;
+
+    if (*&appear_work[wk->wu.id] <= 0) {
+        wk->wu.routine_no[3]++;
+        wk->wu.xyz[1].cal = 0;
+        set_char_move_init(&wk->wu, 9, 0x10);
+        Appear_end++;
+    } else {
+        add_x_sub(&wk->wu);
+        add_y_sub(&wk->wu);
+    }
+}
+
 void Appear_06000(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -424,18 +439,7 @@ void Appear_06000(PLW* wk) {
         break;
 
     case 2:
-        char_move(&wk->wu);
-        appear_work[wk->wu.id]--;
-
-        if (*&appear_work[wk->wu.id] <= 0) {
-            wk->wu.routine_no[3]++;
-            wk->wu.xyz[1].cal = 0;
-            set_char_move_init(&wk->wu, 9, 0x10);
-            Appear_end++;
-        } else {
-            add_x_sub(&wk->wu);
-            add_y_sub(&wk->wu);
-        }
+        fly_appear_06000_car(wk);
         break;
 
     case 3:
