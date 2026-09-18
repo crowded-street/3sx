@@ -37,27 +37,32 @@ extern const s16 mts_OB_page[22][2];
 extern const MTSBase mts_base[24];
 void clear_texcash_work(s16 ix);
 
-void search_texcash_free_area(s16 ix) {
-    PatternState* mc;
+// The 16- and 32-page halves count their free entries with the same loop. Both
+// the buffer and its length are named in full at each call site, and the loop
+// writes nothing but its own counter, so the length cannot move under it.
+static s16 count_free_cash_entries(const PatternState* mc, s32 count) {
     s16 i;
     s16 num = 0;
 
-    for (mc = mts[ix].mltcsh16, i = 0; i < mts[ix].mltnum16; i++) {
+    for (i = 0; i < count; i++) {
         if (mc[i].cs.code == -1) {
             num++;
         }
     }
+
+    return num;
+}
+
+void search_texcash_free_area(s16 ix) {
+    s16 num;
+
+    num = count_free_cash_entries(mts[ix].mltcsh16, mts[ix].mltnum16);
 
     if (num < mts_ok[ix].min16) {
         mts_ok[ix].min16 = num;
     }
 
-    num = 0;
-    for (mc = mts[ix].mltcsh32, i = 0; i < mts[ix].mltnum32; i++) {
-        if (mc[i].cs.code == -1) {
-            num++;
-        }
-    }
+    num = count_free_cash_entries(mts[ix].mltcsh32, mts[ix].mltnum32);
 
     if (num < mts_ok[ix].min32) {
         mts_ok[ix].min32 = num;
