@@ -138,29 +138,30 @@ static void select_horizontal_zoom_request(u16 p1zoom, u16 p2zoom) {
     }
 }
 
+static void request_vertical_zoom(s16 pos) {
+    zoom_request_flag |= 0x1000;
+    scr_req_y = pos;
+}
+
 static void select_vertical_zoom_request_last(u16 p1zoom, u16 zoom_wk) {
     switch (p1zoom & 0xD100) {
     case 0x1100:
         switch (zoom_wk) {
         case 0x1000:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = plw[0].wu.xyz[1].disp.pos;
+            request_vertical_zoom(plw[0].wu.xyz[1].disp.pos);
             break;
 
         case 0x100:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = plw[1].wu.xyz[1].disp.pos;
+            request_vertical_zoom(plw[1].wu.xyz[1].disp.pos);
             break;
 
         case 0x1100:
         case 0x0:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = (plw[0].wu.xyz[1].disp.pos + plw[1].wu.xyz[1].disp.pos) >> 1;
+            request_vertical_zoom((plw[0].wu.xyz[1].disp.pos + plw[1].wu.xyz[1].disp.pos) >> 1);
             break;
 
         case 0x4000:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = 0;
+            request_vertical_zoom(0);
             break;
         }
         break;
@@ -172,26 +173,22 @@ static void select_vertical_zoom_request_later(u16 p1zoom, u16 zoom_wk) {
     case 0x0:
         switch (zoom_wk) {
         case 0x1000:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = plw[0].wu.xyz[1].disp.pos;
+            request_vertical_zoom(plw[0].wu.xyz[1].disp.pos);
             break;
 
         case 0x100:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = plw[1].wu.xyz[1].disp.pos;
+            request_vertical_zoom(plw[1].wu.xyz[1].disp.pos);
             break;
 
         case 0x1100:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = (plw[0].wu.xyz[1].disp.pos + plw[1].wu.xyz[1].disp.pos) >> 1;
+            request_vertical_zoom((plw[0].wu.xyz[1].disp.pos + plw[1].wu.xyz[1].disp.pos) >> 1);
             break;
 
         case 0x0:
             break;
 
         case 0x4000:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = 0;
+            request_vertical_zoom(0);
             break;
         }
         break;
@@ -209,18 +206,15 @@ static void select_vertical_zoom_request_middle(u16 p1zoom, u16 zoom_wk) {
         case 0x1000:
         case 0x0:
         case 0x1100:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = plw[0].wu.xyz[1].disp.pos;
+            request_vertical_zoom(plw[0].wu.xyz[1].disp.pos);
             break;
 
         case 0x100:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = (plw[0].wu.xyz[1].disp.pos + plw[1].wu.xyz[1].disp.pos) >> 1;
+            request_vertical_zoom((plw[0].wu.xyz[1].disp.pos + plw[1].wu.xyz[1].disp.pos) >> 1);
             break;
 
         case 0x4000:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = 0;
+            request_vertical_zoom(0);
             break;
         }
         break;
@@ -234,20 +228,17 @@ static void select_vertical_zoom_request_middle(u16 p1zoom, u16 zoom_wk) {
 static void select_vertical_1000_zoom_request(u16 zoom_wk) {
     switch (zoom_wk) {
         case 0x1000:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = (plw[0].wu.xyz[1].disp.pos + plw[1].wu.xyz[1].disp.pos) >> 1;
+            request_vertical_zoom((plw[0].wu.xyz[1].disp.pos + plw[1].wu.xyz[1].disp.pos) >> 1);
             break;
 
         case 0x100:
         case 0x0:
         case 0x1100:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = plw[1].wu.xyz[1].disp.pos;
+            request_vertical_zoom(plw[1].wu.xyz[1].disp.pos);
             break;
 
         case 0x4000:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = 0;
+            request_vertical_zoom(0);
             break;
     }
 }
@@ -259,8 +250,7 @@ static void select_vertical_zoom_request(u16 p1zoom, u16 p2zoom) {
 
     switch (p1zoom & 0xD100) {
     case 0x4000:
-        zoom_request_flag |= 0x1000;
-        scr_req_y = 0;
+        request_vertical_zoom(0);
         break;
 
     case 0x1000:
