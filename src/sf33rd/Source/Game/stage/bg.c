@@ -1214,34 +1214,37 @@ static void draw_ending_stage7(u8 bgnm, s32 xx[2], s32 yy[2], s32 global_index, 
     scr_calc2(bgnm);
 }
 
-static void draw_later_special_stage(u8 bgnm, s32 xx[2], s32 yy[2], s32 global_index, s32 palOffset,
-                                     PPGDataList* curDataList) {
+static void draw_later_special_stage(const StageDrawContext* context) {
     switch (tokusyu_stage) {
     case 5:
-        draw_ending_g_tiles(bgnm, xx, yy, global_index, palOffset, curDataList);
+        draw_ending_g_tiles(context->bgnm, context->xx, context->yy, context->global_index, context->pal_offset,
+                            context->data_list);
 
-        scr_calc2(bgnm);
+        scr_calc2(context->bgnm);
         break;
 
     case 6:
-        draw_ending_c_tiles(bgnm, xx, yy, global_index, palOffset, curDataList);
+        draw_ending_c_tiles(context->bgnm, context->xx, context->yy, context->global_index, context->pal_offset,
+                            context->data_list);
 
-        scr_calc2(bgnm);
+        scr_calc2(context->bgnm);
         break;
 
     case 7:
-        draw_ending_stage7(bgnm, xx, yy, global_index, palOffset, curDataList);
+        draw_ending_stage7(context->bgnm, context->xx, context->yy, context->global_index, context->pal_offset,
+                           context->data_list);
         break;
 
     case 4:
-        draw_stage04_suzi(bgnm);
+        draw_stage04_suzi(context->bgnm);
 
         /* fallthrough */
 
     default:
-        bgDrawOneScreen(bgnm, global_index, &xx[0], &yy[0], -1, palOffset, curDataList);
+        bgDrawOneScreen(context->bgnm, context->global_index, &context->xx[0], &context->yy[0], -1,
+                        context->pal_offset, context->data_list);
 
-        if (should_update_rw_work(bgnm)) {
+        if (should_update_rw_work(context->bgnm)) {
             bgRWWorkUpdate();
         }
 
@@ -1291,8 +1294,7 @@ static s32 draw_early_special_stage(const StageDrawContext* context) {
         break;
 
     default:
-        draw_later_special_stage(context->bgnm, context->xx, context->yy, context->global_index, context->pal_offset,
-                                 context->data_list);
+        draw_later_special_stage(context);
         break;
     }
 
