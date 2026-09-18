@@ -25,6 +25,11 @@ static s32 lose_anime_suspended() {
     return (pcon_rno[1] == 0) || (pcon_rno[1] == 4);
 }
 
+static s32 final_defeat_effect_due() {
+    return !Extra_Break && ((Round_num >= (save_w[Present_Mode].Battle_Number[Play_Type]) * 2) ||
+                            (PL_Wins[Winner_id] >= (save_w[Present_Mode].Battle_Number[Play_Type]) + 1));
+}
+
 static void update_field_hosei_flags(PLW* wk) {
     if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1) != 0) {
         set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
@@ -112,8 +117,7 @@ void Lose_20000(PLW* wk) {
     case 0:
         wk->wu.routine_no[3]++;
 
-        if (!Extra_Break && ((Round_num >= (save_w[Present_Mode].Battle_Number[Play_Type]) * 2) ||
-                             (PL_Wins[Winner_id] >= (save_w[Present_Mode].Battle_Number[Play_Type]) + 1))) {
+        if (final_defeat_effect_due()) {
             effect_C1_init(&wk->wu);
         }
 
