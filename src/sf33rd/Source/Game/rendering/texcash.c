@@ -140,32 +140,42 @@ void init_texcash_2nd(s16 ix) {
     }
 }
 
-void texture_cash_update() {
+// Tick every live pattern in the slot's collection and release the pages of any
+// whose time has just run out.
+static void expire_texcash_patterns(s16 num) {
     s16 i;
+
+    for (i = 0; i < mts[num].cpat->kazu; i++) {
+        if ((--mts[num].cpat->adr[i]->time) == 0) {
+            makeup_tpu_free(mts[num].mltnum16 / 256, mts[num].mltnum32 / 64, &mts[num].cpat->adr[i]->map);
+
+            if ((tpu_free->x16 != mts[num].cpat->adr[i]->x16) || (tpu_free->x32 != mts[num].cpat->adr[i]->x32)) {
+                SDL_assert(false);
+            }
+
+            update_with_tpu_free(mts[num].mltcsh16, mts[num].mltcsh32);
+        }
+    }
+}
+
+static void update_texcash_slot(s16 num) {
+    if (mts[num].ext) {
+        expire_texcash_patterns(num);
+    } else {
+        if ((mts[num].mltcshtime16 + mts[num].mltcshtime32) != 0) {
+            mlt_obj_trans_update(&mts[num]);
+        }
+    }
+
+    search_texcash_free_area(num);
+}
+
+void texture_cash_update() {
     s16 num;
 
     for (num = 0; num < 24; num++) {
         if (mts_ok[num].be != 0) {
-            if (mts[num].ext) {
-                for (i = 0; i < mts[num].cpat->kazu; i++) {
-                    if ((--mts[num].cpat->adr[i]->time) == 0) {
-                        makeup_tpu_free(mts[num].mltnum16 / 256, mts[num].mltnum32 / 64, &mts[num].cpat->adr[i]->map);
-
-                        if ((tpu_free->x16 != mts[num].cpat->adr[i]->x16) ||
-                            (tpu_free->x32 != mts[num].cpat->adr[i]->x32)) {
-                            SDL_assert(false);
-                        }
-
-                        update_with_tpu_free(mts[num].mltcsh16, mts[num].mltcsh32);
-                    }
-                }
-            } else {
-                if ((mts[num].mltcshtime16 + mts[num].mltcshtime32) != 0) {
-                    mlt_obj_trans_update(&mts[num]);
-                }
-            }
-
-            search_texcash_free_area(num);
+            update_texcash_slot(num);
         }
     }
 }
