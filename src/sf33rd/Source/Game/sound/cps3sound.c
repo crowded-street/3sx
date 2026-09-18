@@ -104,6 +104,14 @@ Uint8 ss_state_flags;                                 /* 0x02079C8C */
 void SsResetBgmChannels();
 Sint32 SsReadDelay(const Uint8* stream, Uint32* delay);
 
+/* The instrument bank load every request shape opens its channel setup with. */
+static void ss_load_default_instrument(SsChannelState* channel) {
+    const Uint8* instrument_bank = ss_instrument_banks[0];
+    const Uint8* instrument = instrument_bank + SS_READ_BE16(instrument_bank);
+    channel->instrument = instrument;
+    channel->sample_header = &ss_sample_headers[SS_READ_BE16(instrument + 4)];
+}
+
 /* 0x061394D4 */
 void SsRequestCore(Uint16 req_number, Sint16 pan_control) {
     req_number %= ss_request_count;
@@ -138,10 +146,7 @@ void SsRequestCore(Uint16 req_number, Sint16 pan_control) {
             channel->delay = delay << 8;
             channel->state = 0x20;
 
-            const Uint8* instrument_bank = ss_instrument_banks[0];
-            const Uint8* instrument = instrument_bank + SS_READ_BE16(instrument_bank);
-            channel->instrument = instrument;
-            channel->sample_header = &ss_sample_headers[SS_READ_BE16(instrument + 4)];
+            ss_load_default_instrument(channel);
 
             channel->unk_24 = 0;
             channel->unk_10 = 0;
@@ -211,10 +216,7 @@ void SsRequestCore(Uint16 req_number, Sint16 pan_control) {
             channel->delay = delay << 8;
             channel->state = 0;
 
-            const Uint8* instrument_bank = ss_instrument_banks[0];
-            const Uint8* instrument = instrument_bank + SS_READ_BE16(instrument_bank);
-            channel->instrument = instrument;
-            channel->sample_header = &ss_sample_headers[SS_READ_BE16(instrument + 4)];
+            ss_load_default_instrument(channel);
 
             channel->unk_10 = 0;
             channel->unk_14 = 0;
@@ -281,10 +283,7 @@ void SsRequestCore(Uint16 req_number, Sint16 pan_control) {
 
         channel->stream = track;
 
-        const Uint8* instrument_bank = ss_instrument_banks[0];
-        const Uint8* instrument = instrument_bank + SS_READ_BE16(instrument_bank);
-        channel->instrument = instrument;
-        channel->sample_header = &ss_sample_headers[SS_READ_BE16(instrument + 4)];
+        ss_load_default_instrument(channel);
 
         channel->unk_42 = 0;
         channel->unk_48 = 0;
