@@ -104,6 +104,17 @@ Uint8 ss_state_flags;                                 /* 0x02079C8C */
 void SsResetBgmChannels();
 Sint32 SsReadDelay(const Uint8* stream, Uint32* delay);
 
+/* The mix defaults both SFX request shapes write. */
+static void ss_set_sfx_mix_defaults(SsChannelState* channel) {
+    channel->unk_62 = 0;
+    channel->unk_63 = 0x7F;
+    channel->unk_64 = 0x7F;
+    channel->unk_58 = 0;
+    channel->unk_56 = 0;
+    channel->unk_5F = 0;
+    channel->unk_60 = 0x40;
+}
+
 /* The voice state both the BGM start and the broadcast SFX request clear before
  * they write the fields those two shapes disagree on. */
 static void ss_clear_channel_voice_state(SsChannelState* channel) {
@@ -240,13 +251,7 @@ void SsRequestCore(Uint16 req_number, Sint16 pan_control) {
             channel->unk_6D = 0x40;
             channel->unk_6E = 0;
             channel->priority = type;
-            channel->unk_62 = 0;
-            channel->unk_63 = 0x7F;
-            channel->unk_64 = 0x7F;
-            channel->unk_58 = 0;
-            channel->unk_56 = 0;
-            channel->unk_5F = 0;
-            channel->unk_60 = 0x40;
+            ss_set_sfx_mix_defaults(channel);
             channel->unk_66 = 0;
             channel->unk_67 = 0;
             channel->unk_69 = 0;
@@ -281,13 +286,7 @@ void SsRequestCore(Uint16 req_number, Sint16 pan_control) {
         channel->unk_50 = 0;
         channel->unk_52 = 0;
         channel->unk_54 = 0;
-        channel->unk_62 = 0;
-        channel->unk_63 = 0x7F;
-        channel->unk_64 = 0x7F;
-        channel->unk_58 = 0;
-        channel->unk_56 = 0;
-        channel->unk_5F = 0;
-        channel->unk_60 = 0x40;
+        ss_set_sfx_mix_defaults(channel);
         channel->priority = track[0] | 0x80;
         channel->unk_6D = 0x40;
 
