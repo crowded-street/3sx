@@ -81,8 +81,6 @@ static void advance_stage03_player_rw_state();
 static s32 remap_stage19_default_chip(s32 global_index_real);
 static void advance_stage19_flash_state();
 static void advance_stage19_loop_state();
-static s32 remap_ending_c_kakikae1_chip(s32 global_index_real);
-static s32 remap_ending_c_kakikae2_chip(s32 global_index_real);
 static bool is_exe_or_pause_active();
 static bool should_update_rw_work(u8 bgnm);
 static s32 remap_ending_nosekae_chip(s32 global_index_real);
@@ -276,28 +274,10 @@ static void advance_stage19_loop_state() {
     reload_rw_slot(&rw_dat[1]);
 }
 
-static s32 remap_ending_c_kakikae1_chip(s32 global_index_real) {
+static s32 remap_ending_c_chip_in_range(s32 global_index_real, s32 first, s32 limit) {
     s32 i;
 
-    for (i = 0; i < 8; i++) {
-        if (global_index_real == rw_dat[i].rwgbix) {
-            global_index_real = rw_dat[i].rwd_ptr[c_number];
-
-            if (!ppgCheckTextureNumber(0, global_index_real)) {
-                ppgSetupCurrentDataList(&ppgRwBgList);
-            }
-
-            break;
-        }
-    }
-
-    return global_index_real;
-}
-
-static s32 remap_ending_c_kakikae2_chip(s32 global_index_real) {
-    s32 i;
-
-    for (i = 8; i < 16; i++) {
+    for (i = first; i < limit; i++) {
         if (global_index_real == rw_dat[i].rwgbix) {
             global_index_real = rw_dat[i].rwd_ptr[c_number];
 
@@ -612,11 +592,11 @@ static s32 remap_ending_c_chip(u8 bgnm, s32 global_index_real) {
     if (bgnm == 0) {
         switch (c_kakikae) {
         case 1:
-            global_index_real = remap_ending_c_kakikae1_chip(global_index_real);
+            global_index_real = remap_ending_c_chip_in_range(global_index_real, 0, 8);
             break;
 
         case 2:
-            global_index_real = remap_ending_c_kakikae2_chip(global_index_real);
+            global_index_real = remap_ending_c_chip_in_range(global_index_real, 8, 16);
         }
     }
 
