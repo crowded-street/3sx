@@ -1092,6 +1092,46 @@ void Appear_18000(PLW* wk) {
     return;
 }
 
+static void launch_appear_19000(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    wk->wu.my_mr_flag = 0;
+    wk->wu.my_mr.size.x = 0x3F;
+    wk->wu.my_mr.size.y = 0x3F;
+
+    set_char_move_init2(&wk->wu, 9, 0x3D, 4, 0);
+
+    appear_work[wk->wu.id] = 0x20;
+
+    if (wk->wu.id) {
+        cal_all_speed_data(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work + 0x58, 0, 1, 1);
+    } else {
+        cal_all_speed_data(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work - 0x58, 0, 1, 1);
+    }
+
+    if (wk->wu.id == 0) {
+        wk->wu.rl_flag = 1;
+    }
+
+    wk->wu.next_z = wk->wu.my_priority;
+
+    effect_15_init(&wk->wu, 0);
+    effect_15_init(&wk->wu, 1);
+    effect_15_init(&wk->wu, 2);
+}
+
+static void land_appear_19000(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    set_char_move_init(&wk->wu, 9, 0x3E);
+    wk->wu.xyz[1].cal = 0;
+
+    if (wk->wu.id) {
+        Appear_flag[0] = 0;
+        return;
+    }
+
+    Appear_flag[1] = 0;
+}
+
 void Appear_19000(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -1115,30 +1155,7 @@ void Appear_19000(PLW* wk) {
         wk->wu.next_z = 0x56;
 
         if (appear_work[wk->wu.id] < 0) {
-            wk->wu.routine_no[3]++;
-            wk->wu.my_mr_flag = 0;
-            wk->wu.my_mr.size.x = 0x3F;
-            wk->wu.my_mr.size.y = 0x3F;
-
-            set_char_move_init2(&wk->wu, 9, 0x3D, 4, 0);
-
-            appear_work[wk->wu.id] = 0x20;
-
-            if (wk->wu.id) {
-                cal_all_speed_data(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work + 0x58, 0, 1, 1);
-            } else {
-                cal_all_speed_data(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work - 0x58, 0, 1, 1);
-            }
-
-            if (wk->wu.id == 0) {
-                wk->wu.rl_flag = 1;
-            }
-
-            wk->wu.next_z = wk->wu.my_priority;
-
-            effect_15_init(&wk->wu, 0);
-            effect_15_init(&wk->wu, 1);
-            effect_15_init(&wk->wu, 2);
+            launch_appear_19000(wk);
         }
         break;
 
@@ -1146,16 +1163,7 @@ void Appear_19000(PLW* wk) {
         appear_work[wk->wu.id]--;
 
         if (appear_work[wk->wu.id] <= 0) {
-            wk->wu.routine_no[3]++;
-            set_char_move_init(&wk->wu, 9, 0x3E);
-            wk->wu.xyz[1].cal = 0;
-
-            if (wk->wu.id) {
-                Appear_flag[0] = 0;
-                return;
-            }
-
-            Appear_flag[1] = 0;
+            land_appear_19000(wk);
             return;
         }
 
