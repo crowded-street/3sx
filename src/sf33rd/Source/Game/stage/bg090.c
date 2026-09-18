@@ -73,6 +73,35 @@ void bg0902_init00() {
     effect_68_init();
 }
 
+static void init_bg_fam0900() {
+    bgw_ptr->r_no_0++;
+    bgw_ptr->old_pos_x = bgw_ptr->xy[0].disp.pos = bgw_ptr->pos_x_work = 0x200;
+    bgw_ptr->hos_xy[0].cal = bgw_ptr->wxy[0].cal = bgw_ptr->xy[0].cal;
+    bgw_ptr->xy[1].disp.pos = bgw_ptr->pos_y_work = 0;
+
+    switch (bgw_ptr->fam_no) {
+    case 2:
+        bgw_ptr->speed_x = 0xC000;
+        bgw_ptr->speed_y = 0x10000;
+        break;
+
+    case 6:
+        bgw_ptr->speed_x = 0x9000;
+        bgw_ptr->speed_y = 0x10000;
+        break;
+
+    default:
+        bgw_ptr->speed_x = 0x12000;
+        bgw_ptr->speed_y = 0x10000;
+        break;
+    }
+
+    bgw_ptr->xy[0].disp.low = bgw_ptr->xy[1].disp.low = 0;
+    bgw_ptr->y_limit = bgw_ptr->y_limit2 = 0xF0;
+    bg090_demo_check();
+    sync_fam_set3(bgw_ptr->fam_no);
+}
+
 void bg_fam0900() {
     if (win_sp_flag) {
         jijii_win_bg2();
@@ -82,32 +111,7 @@ void bg_fam0900() {
 
     switch (bgw_ptr->r_no_0) {
     case 0:
-        bgw_ptr->r_no_0++;
-        bgw_ptr->old_pos_x = bgw_ptr->xy[0].disp.pos = bgw_ptr->pos_x_work = 0x200;
-        bgw_ptr->hos_xy[0].cal = bgw_ptr->wxy[0].cal = bgw_ptr->xy[0].cal;
-        bgw_ptr->xy[1].disp.pos = bgw_ptr->pos_y_work = 0;
-
-        switch (bgw_ptr->fam_no) {
-        case 2:
-            bgw_ptr->speed_x = 0xC000;
-            bgw_ptr->speed_y = 0x10000;
-            break;
-
-        case 6:
-            bgw_ptr->speed_x = 0x9000;
-            bgw_ptr->speed_y = 0x10000;
-            break;
-
-        default:
-            bgw_ptr->speed_x = 0x12000;
-            bgw_ptr->speed_y = 0x10000;
-            break;
-        }
-
-        bgw_ptr->xy[0].disp.low = bgw_ptr->xy[1].disp.low = 0;
-        bgw_ptr->y_limit = bgw_ptr->y_limit2 = 0xF0;
-        bg090_demo_check();
-        sync_fam_set3(bgw_ptr->fam_no);
+        init_bg_fam0900();
         break;
 
     case 1:
