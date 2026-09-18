@@ -342,11 +342,10 @@ void purge_texture_group(u8 grp) {
     }
 }
 
-void purge_player_texture(s16 id) {
-    s16 emid;
+// Every key still held jointly by both players is handed to the other player
+// alone before this player's own keys go back.
+static void reassign_shared_select_keys(s16 emid) {
     s16 pkey;
-
-    emid = (id + 1) & 1;
 
     if ((pkey = Search_ramcnt_type(lpt_seldat[2])) != 0) {
         while (1) {
@@ -357,6 +356,10 @@ void purge_player_texture(s16 id) {
             }
         }
     }
+}
+
+static void push_player_select_keys(s16 id) {
+    s16 pkey;
 
     while (1) {
         pkey = Search_ramcnt_type(lpt_seldat[id]);
@@ -367,6 +370,15 @@ void purge_player_texture(s16 id) {
 
         Push_ramcnt_key(pkey);
     }
+}
+
+void purge_player_texture(s16 id) {
+    s16 emid;
+
+    emid = (id + 1) & 1;
+
+    reassign_shared_select_keys(emid);
+    push_player_select_keys(id);
 }
 
 s32 load_any_texture_patnum(u16 patnum, u8 kokey, u8 _unused) {
