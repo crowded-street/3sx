@@ -219,13 +219,13 @@ void Flash_Pause_4th(struct _TASK* task_ptr) {
 }
 
 void dispControllerWasRemovedMessage(s32 x, s32 y, s32 step) {
-    SSPutStrPro(0, x, y, 9, -1, "Please reconnect");
-    SSPutStrPro(0, x, y + step, 9, -1, "the controller to");
+    SSPutStrPro(&(ScStrPro){ 0, x, y, 9, -1, "Please reconnect" });
+    SSPutStrPro(&(ScStrPro){ 0, x, y + step, 9, -1, "the controller to" });
 
     if (Pause_ID) {
-        SSPutStrPro(0, x, y + step * 2, 9, -1, "controller port 2.");
+        SSPutStrPro(&(ScStrPro){ 0, x, y + step * 2, 9, -1, "controller port 2." });
     } else {
-        SSPutStrPro(0, x, y + step * 2, 9, -1, "controller port 1.");
+        SSPutStrPro(&(ScStrPro){ 0, x, y + step * 2, 9, -1, "controller port 1." });
     }
 }
 

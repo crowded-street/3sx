@@ -959,23 +959,13 @@ void sagauge_color_chenge(s8 Stpl_Num) {
     spg_dat[Stpl_Num].gauge_flash_time = 2;
 
     if (Stpl_Num == 0) {
-        sq_paint_chenge(6, 26, spg_dat[0].spg_len, 1, sagauge_colchg_tbl[spg_dat[0].gauge_flash_col][0]);
+        sq_paint_chenge(&(SqPaint){ 6, 26, spg_dat[0].spg_len, 1 }, sagauge_colchg_tbl[spg_dat[0].gauge_flash_col][0]);
     } else if (p2_gauge_is_at_top()) {
-        sq_paint_chenge(
-            42 - spg_dat[1].spg_len, 26, spg_dat[1].mass_len, 1, sagauge_colchg_tbl[spg_dat[1].gauge_flash_col][1]);
-        sq_paint_chenge(42 - spg_dat[1].spg_len + spg_dat[1].mass_len,
-                        26,
-                        spg_dat[1].mchar,
-                        1,
-                        sagauge_colchg_tbl[spg_dat[1].gauge_flash_col][0]);
-        sq_paint_chenge(42 - spg_dat[1].spg_len + spg_dat[1].mass_len + spg_dat[1].mchar,
-                        26,
-                        spg_dat[1].mass_len,
-                        1,
-                        sagauge_colchg_tbl[spg_dat[1].gauge_flash_col][1]);
+        sq_paint_chenge(&(SqPaint){ 42 - spg_dat[1].spg_len, 26, spg_dat[1].mass_len, 1 }, sagauge_colchg_tbl[spg_dat[1].gauge_flash_col][1]);
+        sq_paint_chenge(&(SqPaint){ 42 - spg_dat[1].spg_len + spg_dat[1].mass_len, 26, spg_dat[1].mchar, 1 }, sagauge_colchg_tbl[spg_dat[1].gauge_flash_col][0]);
+        sq_paint_chenge(&(SqPaint){ 42 - spg_dat[1].spg_len + spg_dat[1].mass_len + spg_dat[1].mchar, 26, spg_dat[1].mass_len, 1 }, sagauge_colchg_tbl[spg_dat[1].gauge_flash_col][1]);
     } else {
-        sq_paint_chenge(
-            42 - spg_dat[1].spg_len, 26, spg_dat[1].spg_len, 1, sagauge_colchg_tbl[spg_dat[1].gauge_flash_col][1]);
+        sq_paint_chenge(&(SqPaint){ 42 - spg_dat[1].spg_len, 26, spg_dat[1].spg_len, 1 }, sagauge_colchg_tbl[spg_dat[1].gauge_flash_col][1]);
     }
 
     if (spg_dat[Stpl_Num].gauge_flash_col == 3) {

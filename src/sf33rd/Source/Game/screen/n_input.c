@@ -426,7 +426,7 @@ void rank_display_set(s16 pl_id) {
         pos_x = 9;
     }
 
-    SSPutDec(pos_x, 0, 8, name_ptr->rank_in + 1, 1);
+    SSPutDec(&(ScDec){ pos_x, 0, 8, name_ptr->rank_in + 1 }, 1);
     rank = name_ptr->rank_in;
 
     if (rank == 4) {

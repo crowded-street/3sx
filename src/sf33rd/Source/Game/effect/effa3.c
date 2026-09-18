@@ -139,13 +139,7 @@ void effect_A3_move(WORK_Other* ewk) {
         return;
     }
 
-    SSPutStr_Bigger(ewk->wu.xyz[0].disp.pos,
-                    ewk->wu.xyz[1].disp.pos,
-                    get_text_color_A3(ewk),
-                    Letter_Data_A3[ewk->wu.type][get_text_index_A3(ewk)],
-                    1.0f,
-                    get_clear_level_A3(ewk),
-                    get_text_priority_A3(ewk));
+    SSPutStr_Bigger(&(ScStrBig){ ewk->wu.xyz[0].disp.pos, ewk->wu.xyz[1].disp.pos, get_text_color_A3(ewk), Letter_Data_A3[ewk->wu.type][get_text_index_A3(ewk)] }, 1.0f, get_clear_level_A3(ewk), get_text_priority_A3(ewk));
 }
 
 s32 effect_A3_init_params(EffectA3Init init) {

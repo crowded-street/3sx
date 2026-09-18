@@ -325,7 +325,12 @@ void SSPutStrTexInput2(u16 x, u16 y, u8 str) {
     scrscrntex[3].y = (y + 8);
 }
 
-void SSPutStr(u16 x, u16 y, u8 atr, const char* str, u16 priority) {
+void SSPutStr(const ScStr* s, u16 priority) {
+    u16 x = s->x;
+    u16 y = s->y;
+    u8 atr = s->atr;
+    const char* str = s->str;
+
     if (No_Trans) {
         return;
     }
@@ -351,7 +356,14 @@ void SSPutStr(u16 x, u16 y, u8 atr, const char* str, u16 priority) {
     }
 }
 
-s32 SSPutStrPro(u16 flag, u16 x, u16 y, u8 atr, u32 vtxcol, const char* str) {
+s32 SSPutStrPro(const ScStrPro* s) {
+    u16 flag = s->flag;
+    u16 x = s->x;
+    u16 y = s->y;
+    u8 atr = s->atr;
+    u32 vtxcol = s->vtxcol;
+    const char* str = s->str;
+
     s32 usex;
     s16 step;
 
@@ -471,7 +483,12 @@ void SSPutStrTexInputB2(f32 x, f32 y, s8 str) {
     scrscrntex[1].y = scrscrntex[3].y = (8.0f + y);
 }
 
-void SSPutStr_Bigger(u16 x, u16 y, u8 atr, const char* str, f32 sc, u8 gr, u16 priority) {
+void SSPutStr_Bigger(const ScStrBig* s, f32 sc, u8 gr, u16 priority) {
+    u16 x = s->x;
+    u16 y = s->y;
+    u8 atr = s->atr;
+    const char* str = s->str;
+
     f32 xx;
     f32 yy;
     u8 i;
@@ -528,7 +545,12 @@ static void put_dec_high_digits(u16 x, u16 y, const s8* str, u8 size) {
     }
 }
 
-void SSPutDec(u16 x, u16 y, u8 atr, u8 dec, u8 size) {
+void SSPutDec(const ScDec* d, u8 size) {
+    u16 x = d->x;
+    u16 y = d->y;
+    u8 atr = d->atr;
+    u8 dec = d->dec;
+
     s8 str[3];
     u8 work;
     u8 num;
@@ -568,7 +590,12 @@ void SSPutDec(u16 x, u16 y, u8 atr, u8 dec, u8 size) {
     put_dec_high_digits(x, y, str, size);
 }
 
-void SSPutDec3(u16 x, u16 y, u8 atr, s16 dec, u8 size, u8 gr, u16 priority) {
+void SSPutDec3(const ScDec3* d, u8 size, u8 gr, u16 priority) {
+    u16 x = d->x;
+    u16 y = d->y;
+    u8 atr = d->atr;
+    s16 dec = d->dec;
+
     s8 str[3];
     s16 work;
     u8 num;
@@ -840,7 +867,12 @@ void sc_clear(u16 sposx, u16 sposy, u16 eposx, u16 eposy) {
     }
 }
 
-void vital_put(u8 Pl_Num, s8 atr, s16 vital, u8 kind, u16 priority) {
+void vital_put(const VitalBar* v, u16 priority) {
+    u8 Pl_Num = v->Pl_Num;
+    s8 atr = v->atr;
+    s16 vital = v->vital;
+    u8 kind = v->kind;
+
     if (No_Trans) {
         return;
     }
@@ -1249,7 +1281,12 @@ void sc_ram_to_vram_opc(s8 sc_num, s8 x, s8 y, u16 atr) {
     }
 }
 
-void sq_paint_chenge(u16 x, u16 y, u16 sx, u16 sy, u16 atr) {
+void sq_paint_chenge(const SqPaint* q, u16 atr) {
+    u16 x = q->x;
+    u16 y = q->y;
+    u16 sx = q->sx;
+    u16 sy = q->sy;
+
     u16 i;
     u16 j;
 

@@ -55,12 +55,49 @@ void Scrscreen_Init();
 void Sa_frame_Clear();
 void Sa_frame_Clear2(u8 pl);
 void Sa_frame_Write();
-void SSPutStr(u16 x, u16 y, u8 atr, const char* str, u16 priority);
-s32 SSPutStrPro(u16 flag, u16 x, u16 y, u8 atr, u32 vtxcol, const char* str);
+typedef struct {
+    u16 x;
+    u16 y;
+    u8 atr;
+    const char* str;
+} ScStr;
+
+void SSPutStr(const ScStr* s, u16 priority);
+typedef struct {
+    u16 flag;
+    u16 x;
+    u16 y;
+    u8 atr;
+    u32 vtxcol;
+    const char* str;
+} ScStrPro;
+
+s32 SSPutStrPro(const ScStrPro* s);
 void SSPutStr2(u16 x, u16 y, u8 atr, const char* str);
-void SSPutStr_Bigger(u16 x, u16 y, u8 atr, const char* str, f32 sc, u8 gr, u16 priority);
-void SSPutDec(u16 x, u16 y, u8 atr, u8 dec, u8 size);
-void SSPutDec3(u16 x, u16 y, u8 atr, s16 dec, u8 size, u8 gr, u16 priority);
+typedef struct {
+    u16 x;
+    u16 y;
+    u8 atr;
+    const char* str;
+} ScStrBig;
+
+void SSPutStr_Bigger(const ScStrBig* s, f32 sc, u8 gr, u16 priority);
+typedef struct {
+    u16 x;
+    u16 y;
+    u8 atr;
+    u8 dec;
+} ScDec;
+
+void SSPutDec(const ScDec* d, u8 size);
+typedef struct {
+    u16 x;
+    u16 y;
+    u8 atr;
+    s16 dec;
+} ScDec3;
+
+void SSPutDec3(const ScDec3* d, u8 size, u8 gr, u16 priority);
 typedef struct {
     u16 x;
     u16 y;
@@ -110,7 +147,14 @@ typedef struct {
 
 void scfont_sqput2(const ScFontSquareInv* c);
 void sc_clear(u16 sposx, u16 sposy, u16 eposx, u16 eposy);
-void vital_put(u8 Pl_Num, s8 atr, s16 vital, u8 kind, u16 priority);
+typedef struct {
+    u8 Pl_Num;
+    s8 atr;
+    s16 vital;
+    u8 kind;
+} VitalBar;
+
+void vital_put(const VitalBar* v, u16 priority);
 void silver_vital_put(u8 Pl_Num);
 void vital_base_put(u8 Pl_Num);
 void spgauge_base_put(u8 Pl_Num, s16 len);
@@ -146,7 +190,14 @@ void sa_stock_trans(s16 St_Num, s16 Spg_Col, s8 Stpl_Num);
 void sa_fullstock_trans(s16 St_Num, s16 Spg_Col, s8 Stpl_Num);
 void sa_number_write(s8 Stpl_Num, u16 x);
 void sc_ram_to_vram(s8 sc_num);
-void sq_paint_chenge(u16 x, u16 y, u16 sx, u16 sy, u16 atr);
+typedef struct {
+    u16 x;
+    u16 y;
+    u16 sx;
+    u16 sy;
+} SqPaint;
+
+void sq_paint_chenge(const SqPaint* q, u16 atr);
 void fade_cont_init();
 void fade_cont_main();
 void Akaobi();

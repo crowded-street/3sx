@@ -206,7 +206,7 @@ s16 Check_Count_Cut(s16 PL_id, s16 Limit) {
 }
 
 void Disp_Personal_Count(s16 PL_id, s8 counter) {
-    SSPutDec(DE_X[PL_id] + 14, 0, 9, counter, 0);
+    SSPutDec(&(ScDec){ DE_X[PL_id] + 14, 0, 9, counter }, 0);
 }
 
 void Setup_Play_Type() {
@@ -384,11 +384,11 @@ void Disp_Win_Record_Sub(u16 win_record, s16 zz) {
 
     switch (win_record) {
     case 1:
-        SSPutStr(zz, 0, 9, "WIN", TopHUDPriority);
+        SSPutStr(&(ScStr){ zz, 0, 9, "WIN" }, TopHUDPriority);
         break;
 
     default:
-        SSPutStr(zz, 0, 9, "WINS", TopHUDPriority);
+        SSPutStr(&(ScStr){ zz, 0, 9, "WINS" }, TopHUDPriority);
         break;
     }
 
@@ -398,19 +398,19 @@ void Disp_Win_Record_Sub(u16 win_record, s16 zz) {
 
     if (xx > 0) {
         First_Digit = 1;
-        SSPutDec(zz - 4, 0, 9, xx, 1);
+        SSPutDec(&(ScDec){ zz - 4, 0, 9, xx }, 1);
     }
 
     Wins_Buff -= xx * 100;
     xx = Wins_Buff / 10;
 
     if (First_Digit != 0 || xx > 0) {
-        SSPutDec(zz - 3, 0, 9, xx, 1);
+        SSPutDec(&(ScDec){ zz - 3, 0, 9, xx }, 1);
     }
 
     Wins_Buff -= xx * 10;
 
-    SSPutDec(zz - 2, 0, 9, Wins_Buff, 1);
+    SSPutDec(&(ScDec){ zz - 2, 0, 9, Wins_Buff }, 1);
 }
 
 s32 Button_Cut_EX(s16* Timer, s16 Limit_Time) {
@@ -1243,8 +1243,8 @@ static void disp_copyright_usa() {
     case 4:
     case 5:
     case 6:
-        xres = SSPutStrPro(1, 386, 212, 9, -1, "@CAPCOM U.S.A., INC. 1999, 2004 ALL RIGHTS RESERVED.");
-        SSPutStrPro(0, xres, 202, 9, -1, "@CAPCOM CO., LTD. 1999, 2004,");
+        xres = SSPutStrPro(&(ScStrPro){ 1, 386, 212, 9, -1, "@CAPCOM U.S.A., INC. 1999, 2004 ALL RIGHTS RESERVED." });
+        SSPutStrPro(&(ScStrPro){ 0, xres, 202, 9, -1, "@CAPCOM CO., LTD. 1999, 2004," });
         break;
     }
 }
@@ -1256,7 +1256,7 @@ void Disp_Copyright() {
     case 3:
     case 7:
     case 8:
-        SSPutStrPro(1, 386, 208, 9, -1, "@CAPCOM CO., LTD. 1999, 2004 ALL RIGHTS RESERVED.");
+        SSPutStrPro(&(ScStrPro){ 1, 386, 208, 9, -1, "@CAPCOM CO., LTD. 1999, 2004 ALL RIGHTS RESERVED." });
         break;
 
     default:

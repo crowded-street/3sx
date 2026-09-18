@@ -17,7 +17,7 @@ void NetstatsRenderer_Render() {
     char buffer[32];
     SDL_snprintf(buffer, sizeof(buffer), "R:%d P:%d", stats.rollback, stats.ping);
 
-    SSPutStrPro(0, 2, 2, 9, 0xFFFFFFFF, buffer);
+    SSPutStrPro(&(ScStrPro){ 0, 2, 2, 9, 0xFFFFFFFF, buffer });
 }
 
 #endif // NETPLAY_ENABLED

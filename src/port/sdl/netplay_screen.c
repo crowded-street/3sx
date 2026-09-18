@@ -50,7 +50,7 @@ void NetplayScreen_Render() {
             break;
 
         case FISTBUMP_CONNECTING:
-            SSPutStrPro(1, 384, 100, 9, 0xFFFFFFFF, "Connecting to server...");
+            SSPutStrPro(&(ScStrPro){ 1, 384, 100, 9, 0xFFFFFFFF, "Connecting to server..." });
             break;
 
         case FISTBUMP_SENDING_TOKEN:
@@ -60,37 +60,37 @@ void NetplayScreen_Render() {
         case FISTBUMP_AWAITING_LOGIN:
             DAG dag = Fistbump_GetDAG();
 
-            SSPutStrPro(1, 384, 80, 9, 0xFFFFFFFF, "Activation Code:");
-            SSPutStr_Bigger(128, 96, 9, dag.code, 2.0f, 2, 0);
+            SSPutStrPro(&(ScStrPro){ 1, 384, 80, 9, 0xFFFFFFFF, "Activation Code:" });
+            SSPutStr_Bigger(&(ScStrBig){ 128, 96, 9, dag.code }, 2.0f, 2, 0);
 
-            SSPutStrPro(1, 384, 140, 9, 0xFFFFFFFF, "Log-in to the WebUI at:");
-            SSPutStrPro(1, 384, 150, 9, 0xFFFFFFFF, dag.activate_url);
+            SSPutStrPro(&(ScStrPro){ 1, 384, 140, 9, 0xFFFFFFFF, "Log-in to the WebUI at:" });
+            SSPutStrPro(&(ScStrPro){ 1, 384, 150, 9, 0xFFFFFFFF, dag.activate_url });
 
-            SSPutStrPro(1, 384, 200, 9, 0xFFFFFFFF, "Press      to go back.");
+            SSPutStrPro(&(ScStrPro){ 1, 384, 200, 9, 0xFFFFFFFF, "Press      to go back." });
             dispButtonImage2(&(ButtonImage){ 163, 197, 0x18, 0x13, 0xF, 0, 5, 0 });
 
             break;
 
         case FISTBUMP_AWAITING_MATCH:
-            SSPutStrPro(1, 384, 140, 9, 0xFFFFFFFF, "Finding match...");
-            SSPutStrPro(1, 384, 160, 9, 0xFFFFFFFF, "Press      to cancel search.");
+            SSPutStrPro(&(ScStrPro){ 1, 384, 140, 9, 0xFFFFFFFF, "Finding match..." });
+            SSPutStrPro(&(ScStrPro){ 1, 384, 160, 9, 0xFFFFFFFF, "Press      to cancel search." });
             dispButtonImage2(&(ButtonImage){ 143, 157, 0x18, 0x13, 0xF, 0, 5, 0 });
             break;
 
         case FISTBUMP_MATCHED:
             MatchResult* match = Fistbump_GetResult();
 
-            SSPutStrPro(1, 384, 130, 9, 0xFFFFFFFF, "Matched with:");
-            SSPutStrPro(1, 384, 140, 9, 0xFFFFFFFF, match->opponent_name);
+            SSPutStrPro(&(ScStrPro){ 1, 384, 130, 9, 0xFFFFFFFF, "Matched with:" });
+            SSPutStrPro(&(ScStrPro){ 1, 384, 140, 9, 0xFFFFFFFF, match->opponent_name });
 
-            SSPutStrPro(1, 384, 160, 9, 0xFFFFFFFF, "      ACCEPT      DECLINE");
+            SSPutStrPro(&(ScStrPro){ 1, 384, 160, 9, 0xFFFFFFFF, "      ACCEPT      DECLINE" });
             dispButtonImage2(&(ButtonImage){ 121, 157, 0x19, 0x13, 0xF, 0, 4, 0 });
             dispButtonImage2(&(ButtonImage){ 193, 157, 0x19, 0x13, 0xF, 0, 5, 0 });
 
             break;
 
         case FISTBUMP_SENDING_UDP:
-            SSPutStrPro(1, 384, 140, 9, 0xFFFFFFFF, "Starting match...");
+            SSPutStrPro(&(ScStrPro){ 1, 384, 140, 9, 0xFFFFFFFF, "Starting match..." });
             break;
 
         case FISTBUMP_GAME_START:
@@ -116,7 +116,7 @@ void NetplayScreen_Render() {
     }
 
     const char* msg = "Match start!";
-    SSPutStrPro(1, 384, 110, 9, 0xFFFFFFFF, msg);
+    SSPutStrPro(&(ScStrPro){ 1, 384, 110, 9, 0xFFFFFFFF, msg });
 }
 
 #endif // NETPLAY_ENABLED
