@@ -1459,9 +1459,7 @@ s16 win_select(PLW* /* unused */, s16 num) {
     return work;
 }
 
-void bonus_game_win_pause(PLW* wk) {
-    bg_app_stop = 1;
-
+static void update_bonus_hosei_flags() {
     if (set_field_hosei_flag(&plw[1], bs_scrrrl[1][0], 1)) {
         set_field_hosei_flag(&plw[1], bs_scrrrl[1][1], 0);
     }
@@ -1469,6 +1467,12 @@ void bonus_game_win_pause(PLW* wk) {
     if (set_field_hosei_flag(&plw[0], bs_scrrrl[0][0], 1)) {
         set_field_hosei_flag(&plw[0], bs_scrrrl[0][1], 0);
     }
+}
+
+void bonus_game_win_pause(PLW* wk) {
+    bg_app_stop = 1;
+
+    update_bonus_hosei_flags();
 
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -1550,13 +1554,7 @@ void meta_win_pause(PLW* wk) {
     }
 
     if (Bonus_Game_Flag) {
-        if (set_field_hosei_flag(&plw[1], bs_scrrrl[1][0], 1)) {
-            set_field_hosei_flag(&plw[1], bs_scrrrl[1][1], 0);
-        }
-
-        if (set_field_hosei_flag(&plw[0], bs_scrrrl[0][0], 1)) {
-            set_field_hosei_flag(&plw[0], bs_scrrrl[0][1], 0);
-        }
+        update_bonus_hosei_flags();
     } else {
         update_field_hosei_flags(wk);
     }
