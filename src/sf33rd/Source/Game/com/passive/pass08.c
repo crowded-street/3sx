@@ -10,6 +10,86 @@
 
 void (*const Passive08_Tbl[214])();
 
+static void passive08_0056_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Command_Attack(wk, &(Command_Attack_Args){8, 1, -1, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+static void passive08_0066_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Search_Back_Term(wk, 0x60, 1, -1);
+        break;
+
+    case 7:
+        Command_Attack(wk, &(Command_Attack_Args){8, 1, -1, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+static void passive08_0141_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Command_Attack(wk, &(Command_Attack_Args){8, 1, 10, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+static void passive08_0142_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Command_Attack(wk, &(Command_Attack_Args){8, 1, 10, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+static void passive08_0143_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Command_Attack(wk, &(Command_Attack_Args){8, 1, 10, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+static void passive08_0159_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Search_Back_Term(wk, 0x60, 1, -1);
+        break;
+
+    case 7:
+        Command_Attack(wk, &(Command_Attack_Args){8, 1, -1, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
 static void pattern_em_term_j_command_attack(PLW* wk, const EM_Term_Params* p, const Command_Attack_Args* p_b) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -902,12 +982,8 @@ void Passive08_0056(PLW* wk) {
         Search_Back_Term(wk, 0x60, 1, -1);
         break;
 
-    case 6:
-        Command_Attack(wk, &(Command_Attack_Args){8, 1, -1, -1});
-        break;
-
     default:
-        End_Pattern(wk);
+        passive08_0056_from_step_6(wk);
         break;
     }
 }
@@ -1070,16 +1146,8 @@ void Passive08_0066(PLW* wk) {
         Command_Attack(wk, &(Command_Attack_Args){8, 1, -1, -1});
         break;
 
-    case 6:
-        Search_Back_Term(wk, 0x60, 1, -1);
-        break;
-
-    case 7:
-        Command_Attack(wk, &(Command_Attack_Args){8, 1, -1, -1});
-        break;
-
     default:
-        End_Pattern(wk);
+        passive08_0066_from_step_6(wk);
         break;
     }
 }
@@ -2214,12 +2282,8 @@ void Passive08_0141(PLW* wk) {
         Search_Back_Term(wk, 0x60, 1, -1);
         break;
 
-    case 6:
-        Command_Attack(wk, &(Command_Attack_Args){8, 1, 10, -1});
-        break;
-
     default:
-        End_Pattern(wk);
+        passive08_0141_from_step_6(wk);
         break;
     }
 }
@@ -2250,12 +2314,8 @@ void Passive08_0142(PLW* wk) {
         Search_Back_Term(wk, 0x60, 1, -1);
         break;
 
-    case 6:
-        Command_Attack(wk, &(Command_Attack_Args){8, 1, 10, -1});
-        break;
-
     default:
-        End_Pattern(wk);
+        passive08_0142_from_step_6(wk);
         break;
     }
 }
@@ -2286,12 +2346,8 @@ void Passive08_0143(PLW* wk) {
         Search_Back_Term(wk, 0x60, 1, -1);
         break;
 
-    case 6:
-        Command_Attack(wk, &(Command_Attack_Args){8, 1, 10, -1});
-        break;
-
     default:
-        End_Pattern(wk);
+        passive08_0143_from_step_6(wk);
         break;
     }
 }
@@ -2634,16 +2690,8 @@ void Passive08_0159(PLW* wk) {
         Pierce_On(wk);
         break;
 
-    case 6:
-        Search_Back_Term(wk, 0x60, 1, -1);
-        break;
-
-    case 7:
-        Command_Attack(wk, &(Command_Attack_Args){8, 1, -1, -1});
-        break;
-
     default:
-        End_Pattern(wk);
+        passive08_0159_from_step_6(wk);
         break;
     }
 }
