@@ -59,6 +59,10 @@ void appear_work_clear() {
     bg_app_stop = 0;
 }
 
+static s32 same_appear_character(const PLW* wk, s16 pl_num) {
+    return wk->player_number == pl_num && pl_num != 8;
+}
+
 s32 home_visitor_check(PLW* wk) {
     s8 hv_type;
     s16 pl_num;
@@ -72,10 +76,10 @@ s32 home_visitor_check(PLW* wk) {
     }
 
     if (Play_Type) {
-        if (Champion == wk->wu.id && wk->player_number == pl_num && pl_num != 8) {
+        if (Champion == wk->wu.id && same_appear_character(wk, pl_num)) {
             hv_type = 1;
         }
-    } else if (wk->wu.operator && wk->player_number == pl_num && pl_num != 8) {
+    } else if (wk->wu.operator && same_appear_character(wk, pl_num)) {
         hv_type = 1;
     }
 
