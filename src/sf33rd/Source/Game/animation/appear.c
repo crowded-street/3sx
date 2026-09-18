@@ -540,6 +540,26 @@ static void step_appear_07000_jump(PLW* wk) {
     }
 }
 
+/* The airborne half onwards. The case labels are the original ones, so the
+ * states still read as the same numbers, and the 1 -> 2 fallthrough keeps both
+ * its ends in the caller. */
+static void step_appear_07000_land(PLW* wk) {
+    switch (wk->wu.routine_no[3]) {
+    case 3:
+    case 4:
+        step_appear_07000_jump(wk);
+
+        break;
+
+    case 5:
+        char_move(&wk->wu);
+
+        finish_appear_on_last_frame(wk);
+
+        break;
+    }
+}
+
 void Appear_07000(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -561,17 +581,8 @@ void Appear_07000(PLW* wk) {
         }
         break;
 
-    case 3:
-    case 4:
-        step_appear_07000_jump(wk);
-
-        break;
-
-    case 5:
-        char_move(&wk->wu);
-
-        finish_appear_on_last_frame(wk);
-
+    default:
+        step_appear_07000_land(wk);
         break;
     }
 
