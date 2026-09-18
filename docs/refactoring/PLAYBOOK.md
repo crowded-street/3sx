@@ -2325,3 +2325,146 @@ pair in different files is not a duplication finding.** `sag_union_0` and
 the first split put them in different files and the finding went away without a line of
 either changing. Say so in the commit message when it happens - it is a real improvement in
 how the code is organised, but it is not the detector being satisfied by better code.
+
+### Widen the family search before you decide a family is too small
+
+*Added 2026-09-18, measured on `Game/com/passive`.*
+
+Recipe V and Recipe D both ask how many instances a family has, and the answer depends
+entirely on where you looked. Nothing in either recipe says a family lives in one file,
+and in `Game/com/passive` almost none of them do.
+
+The twenty files there are one shape written out 3488 times - a pattern function that
+switches on the CPU script's step counter and runs one engine call per step. Folding
+per file found 25 families in `pass14.c` and covered 122 of its 254 functions. The same
+search run across all twenty files at once found **889 of the 1964 that were left**,
+because the step sequences recur between characters: thirteen of the twenty share one
+pattern that is a walk then a normal attack, and it is the same fifteen lines in all
+thirteen.
+
+The mechanics are unchanged - every varying argument still written out at its own call
+site, types still copied from the callee's own prototype - and the skeletons go in a
+shared file with a header. They are not `static`, and that is the same latitude Recipe S's
+2026-09-18 exception grants, for the same reason: the helper is this campaign's own, its
+body is the verbatim block it was extracted from, and each call site already ran those
+lines inline.
+
+**Order matters, and the wrong order costs a commit.** Folding per file first and folder-
+wide second leaves every character holding its own copy of any skeleton its own scripts
+used three times: twenty copies of `pattern_jump_attack_term`, nineteen of
+`pattern_normal_attack`. 253 of the 339 per-character skeletons turned out to be
+byte-identical to another character's, parameter list included, and a Recipe D pass
+collapsed them to 22 shared definitions. **Fold at the widest scope you can reach first**,
+and the Recipe D pass is not needed at all.
+
+**Re-run to a fixpoint.** Specialising a family (below) changes which functions are left
+over, so a second pass sees families the first could not. On the passive folder the second
+pass found one more family of nineteen and the third found nothing.
+
+### When a fifth value varies, specialise - do not reach for a parameter object
+
+*Added 2026-09-18, measured on `Game/com/passive`.*
+
+Recipe V stops where the varying values would make the helper take more than four
+parameters, and *Recipe A clears one finding, not fifteen* is standing next to it offering
+a parameter object. On a big family that trade is usually wrong: a struct type per
+skeleton is a new declaration in a shared header for every one of them, and the struct
+exists only to get around an argument-count threshold.
+
+The cheaper move is to stop generalising. Parameterise the three slots that keep the most
+members together and **write the remaining values into the skeleton**, specialising the
+family into several. Where a fourth varying value takes one spelling across most of a
+family and another across a handful, the family becomes one skeleton for the majority and
+leaves the rest as they were - a sub-group of fewer than three members is not folded at
+all, because Recipe V's three-instance rule applies to the sub-group and not to the
+family it came from.
+
+On the passive folder, 499 functions were in families the fold had refused for this
+reason. Specialising recovered **378 of them into 69 skeletons**, with no struct types and
+no fifth parameter, and took the folder mean from 8.25 to 8.68.
+
+The safety argument does not change, because specialising *removes* generality rather than
+adding it. A value written into the skeleton is a value that was there before at every one
+of that skeleton's call sites.
+
+### Build the inverse check when the guard cannot see the mistake you will make
+
+*Added 2026-09-18, measured on `Game/com/passive`.*
+
+*Recipe A clears one finding, not fifteen* already records that `refactor_guard.py` cannot
+see a compound literal with two fields transposed: the multiset of literals is identical.
+The passive folder is that hazard at scale - 3488 functions whose entire content is call
+arguments, most of them compound literals, all of them moving to a call site - and the
+answer there was not care, it was a second checker.
+
+`tools/passive_fold.py verify` rebuilds the **step -> statement map** of every pattern
+function on both sides of a change, inlining the campaign's own helpers again, and diffs
+them. Swapping two fields of one `Branch_Menu_Args` at one call site is reported as
+
+    DIFFERS Passive14_0122
+       step 0
+         before: Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x71, 0x71, 0x72, 0x73}, 2); break;
+         after:  Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x71, 0x71, 0x73, 0x72}, 2); break;
+
+It follows a Recipe S split, a rename, a specialised skeleton and a file the split removed,
+because it reads the old side from git and the new side from the group you name.
+
+**The lesson is general.** When a transformation is mechanical enough to be scripted, the
+inverse is usually mechanical too, and a checker that reconstructs the original from the
+result is worth more than any amount of reading. It is worth the most exactly where
+`replay_verify.sh` cannot reach - the passive folder is CPU AI, which replay verification
+excludes by design, so the mechanical equivalence check *is* the verification.
+
+Two failure modes to design out, both of which this checker hit and reported rather than
+passing silently:
+
+- **Parsing that quietly skips.** A wrapped signature, a `void (*step)(PLW*, s16)`
+  parameter whose name is not the last word of its declaration, and a call whose arguments
+  clang-format put one per line each made it skip a function. A checker that skips is worse
+  than no checker. Give it a count to print - "3488 pattern functions, 0 differ" - so a
+  number that drops is visible.
+- **A pipeline that hides the exit code.** `verify ... | tail -1` returns tail's status.
+  Two commits were made on a check that had actually failed. Capture the status.
+
+### Where `Game/com/passive` stopped, and what was refused to get there
+
+*Added 2026-09-18.*
+
+Twenty character files, 3488 pattern scripts, **4.90-7.55 before, 76 files at a mean of
+8.76 after**, seventeen of them at 10.00. The sequence was Recipe V per file, Recipe X on
+the dispatches over the complexity threshold, Recipe S to get under the function-count
+threshold, then Recipe V folder-wide, Recipe D on what that exposed, and Recipe S again on
+the shared skeletons.
+
+What is left, and why no recipe in the catalogue reaches it:
+
+- **678 pattern scripts are one of a kind.** A script that is a switch on the step counter
+  with one call per step is more than 75% skeleton, so CodeScene pairs any two of them, and
+  a file's score tracks how many of its functions are in such a pair almost exactly: 0 is
+  10.00, 3-4 is 9.38, 5-6 is 9.09, 10-12 is 8.28, 13 or more is 8.03. Merging two of them
+  would be parameterising two or more differences, which is Recipe D's forbidden near-miss.
+- **A file of three-arm skeletons has a mean of five however it is cut.** A skeleton's
+  cyclomatic complexity is its step count plus two, so `pass_patterns_3step.c` and
+  `pass_patterns_4step.c` sit at 7.55 on Overall Code Complexity and no legal recipe takes
+  a branch out of a switch that is already the smallest form of what it does. Grouping the
+  shared skeletons by exact step count is the most that grouping can do, and it is worth
+  doing: it puts the one- and two-step files under the threshold.
+
+Three things were measured and **refused**:
+
+- **Recipe F.** The families whose step sequence matches but whose engine call does not
+  cover 60 of the 678, in 13 skeletons. Measured on one file before the folder-wide work it
+  moved the score not at all - 8.03 to 8.03, duplication 24 to 18. Recipe F is the
+  catalogue's one genuinely high-risk recipe, it reroutes a call through a pointer, and
+  replay verification cannot reach CPU AI. 60 functions is not worth that. The measurement
+  is reproducible: `tools/passive_fold.py ffold`.
+- **Splitting finer.** Cutting the character files to about 17 functions each takes the
+  average from 8.03 to roughly 8.6, because *a duplication pair in different files is not a
+  duplication finding*. It removes nothing. The files are already under both thresholds and
+  cutting them again would only hide the pairs, so the split stops where the thresholds do.
+- **Rebalancing the splits after the fold.** The folds shrank the character files by two
+  thirds, which leaves some tails small - `pass11_5.c` is two functions. Re-cutting each
+  character's files to even sizes was measured and **costs**: `pass11` goes from
+  8.28/8.03/9.09/8.03/10.00 to four files at 8.03, `pass18` from a mean of 9.48 to 8.95.
+  The uneven tail is the honest residue of a size-based cut made before the folds, not a
+  boundary chosen to flatter the metric, and rule 2 says leave it.
