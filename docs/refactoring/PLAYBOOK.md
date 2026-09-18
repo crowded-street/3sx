@@ -469,6 +469,76 @@ branch collapsed into one.
 
 ---
 
+## Recipe B - Shared Buffer Loop
+
+**Use when:** two or more loops walk a **caller-named buffer** up to a
+**caller-named length** and are otherwise identical character for character - so Recipe D
+refuses them for having two differences, and Recipe C finds no identical run because the
+buffer name sits in the `for`-init and the length in its condition.
+
+This is Recipe T with the `const` table replaced by an ordinary array. Recipe T's
+preconditions are written around a threshold scan over a static table, which is why a
+plain buffer needed its own entry rather than a relaxation.
+
+**Added 2026-09-18** under the project owner's standing authorisation, and measured on
+`texcash.c`'s `search_texcash_free_area`, whose 16- and 32-page halves count their free
+entries the same way:
+
+```c
+    for (mc = mts[ix].mltcsh16, i = 0; i < mts[ix].mltnum16; i++) {
+        if (mc[i].cs.code == -1) {
+            num++;
+        }
+    }
+```
+
+Two of those became
+
+```c
+    num = count_free_cash_entries(mts[ix].mltcsh16, mts[ix].mltnum16);
+```
+
+**8.81 -> 9.16**, cc 9 -> 5, and the function left both Complex Method and Bumpy Road.
+
+**Why this is not Recipe D's forbidden case.** The same argument that makes Recipe T safe:
+**both varying things are written out in full, in positional order, at their own call
+site**, so no pair can be crossed without the one call line showing it, and the loop moves
+once with nothing about it rewritten. The helper does with its parameters exactly what the
+loop did - it indexes the buffer and it bounds the count - and nothing else.
+
+**Preconditions, all of them:**
+
+- **The loop body is identical** across every instance apart from the buffer and the
+  length. If a subscript, a comparison operator or a statement differs anywhere, those
+  instances are not one family and Recipe D's refusal stands.
+- **Only the buffer and its length vary.** A third varying name - an index table, a
+  counter written through - is not this recipe. Extra parameters are how a shared loop
+  turns into a generalised one.
+- **The loop cannot move its own bound.** This is the precondition a plain array needs and
+  a `const` table does not. The original re-reads the length on every pass; the helper
+  takes it by value once. Those agree only if nothing the body writes can reach the length,
+  so the body must write **only its own locals**, or write through a pointer that provably
+  cannot alias the length's storage. If you cannot settle the aliasing by construction,
+  leave the family alone - extract one of the loops with Recipe E instead and accept the
+  asymmetry.
+- **The parameter types are the field types**, not the loop variable's. In
+  `search_texcash_free_area` the counter `i` is `s16` and `mltnum16` is `s32`, so the
+  parameter is `s32` and the comparison promotes exactly as it did before. Narrowing it to
+  match `i` would be a type change and is forbidden.
+- **The buffer parameter is `const` where the loop only reads it.** That is not a type
+  change in the forbidden sense - it constrains the new helper, not any existing
+  declaration - and it is what makes the aliasing precondition checkable.
+- **Two instances are enough**, unlike Recipe V. Recipe V's three-instance rule exists
+  because a family of two skeletons might be two blocks that merely resemble each other;
+  here the skeleton is a single loop with its buffer and bound hoisted, and there is nothing
+  in it for a third case to confirm.
+
+**What the guard shows.** The deduplication WARN - one copy of the loop's own literals
+removed, every value still present, at a call site or in the helper. A *length* leaving the
+fingerprint means it did not travel to the call site and the merge is wrong.
+
+---
+
 ## Recipe F - Action Parameter
 
 **Use when:** two or more functions - or two or more arms of one `switch` - share a control
