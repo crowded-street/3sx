@@ -28,6 +28,8 @@ extern s16 app_counter[2];
 extern s16 appear_work[2];
 extern s16 Appear_end;
 
+void mark_appear_finished(PLW* wk);
+void finish_appear_on_last_frame(PLW* wk);
 void appear_work_clear();
 s32 home_visitor_check(PLW* wk);
 void appear_data_set(PLW* wk, APPEAR_DATA* dtbl);

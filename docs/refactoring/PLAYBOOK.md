@@ -1012,6 +1012,45 @@ Do not split a file if it would require making a `static` function non-`static`.
 linkage is a behaviour change in the sense that matters here: it changes what the rest of
 the program can reach.
 
+**One exception, added 2026-09-18** under the project owner's standing authorisation, and
+measured on `appear.c`: **a helper this campaign itself created may cross the cut.**
+
+The rule above protects the *decompiled program*. Its reason - "it changes what the rest of
+the program can reach" - is a statement about code that was there before the campaign
+started. A `static` helper introduced by a Recipe D, C or E commit was not there. It is, by
+construction, a verbatim copy of lines that were already inline at every one of its call
+sites, so giving it external linkage exposes nothing the original program did not already
+execute at each of those points.
+
+`appear.c` is the case that forced it. Its first two commits pulled twenty-five copies of
+the appear-finished handover into `mark_appear_finished` and eighteen copies of the
+last-frame test into `finish_appear_on_last_frame`, worth **3.56 -> 4.33** between them.
+Those two helpers are then called from both halves of any cut you can make, so Recipe S as
+written forbade the split that the file needed - and needed badly: at 1593 lines it was in
+the regime below where extraction stops paying. The split measured **6.02 -> 7.50** for
+`appear.c` with `appear_late.c` arriving at 7.95.
+
+**Preconditions, all of them:**
+
+- **The helper must have been created by this campaign**, in a commit on this branch, and
+  its body must still be the verbatim block it was extracted from. Check the commit that
+  introduced it. If you cannot point at that commit, the helper is not yours and this
+  exception does not apply.
+- **No original `static` is widened.** In `appear.c`, `gill_appear_check` and
+  `sean_appear_check` keep exactly the linkage the decompilation gave them. If the split
+  also needs one of those, the split is refused - move the group that does not, or leave
+  the file alone.
+- **The helper is declared in the header the two halves already share**, beside the
+  functions it sits among. Do not invent a third "common" file to hold it.
+- **The group check must come back clean on both runs.** `--combined` and `--calls
+  --combined` over the whole split group; on `appear.c` both returned `OK`, 1564 literals
+  and 371 call sites unchanged. A `--calls` group result that is anything other than `OK`
+  means a call moved rather than travelled, and the split is wrong.
+
+What does *not* relax: this licenses a **linkage** change on a campaign-created helper and
+nothing else. It does not license renaming an original function, moving one between files
+under a new name, or widening an original `static` because the split would be tidier.
+
 ---
 
 ## Recipe R - Resolve a Goto Chain
@@ -1203,6 +1242,12 @@ Recipe X both refuse to merge.
 | `cps3sound.c` | **10.00** | *was 8.65.* `SsRequestCore`'s three request shapes agree on some forty channel writes, so the five shared runs came first and the Recipe E split of the arms last - *Share the run before splitting the shape*, on a file where splitting first would plainly have made a duplication pair. One Recipe P for the channel reject test in between |
 | `sound3rd.c` | **10.00** | *was 6.59*, and the hardest file in the sound folder: `BGM_Server` at cc 57 with 9 bumps and depth 5. Three identical playback blocks (Recipe D) and four more shared runs and predicates took it to cc 21 before any arm was lifted; then six extractions and Recipe X on the kind dispatch. `sound_request_for_dc` and `remake_sound_code_for_DC` each split into a normalising shell plus the dispatch that was their whole complexity, and `latch_bgm_request`'s eleven labels - a floor of cc 12 that no extraction reaches - needed **two** Recipe X levels, each fallthrough kept inside the function holding both its ends |
 | `se_data.c` | n/a | pure `const` data tables with no functions; CodeScene returns no score and the catalogue puts them out of scope |
+| `lose_pl.c` | **10.00** | *was 7.58.* One Recipe D for the scroll-correction block, two Recipe P, then the chain that does the work: six Recipe E extractions turning every `case 0:` body into a named start, which leaves four switches differing in one callee and one Recipe F collapses them |
+| `win_pl.c` | **10.00** | *was 3.56*, and the file that taught the folder its lesson - see *Extraction stops where the next cut would create a twin* below. Twenty copies of one block, thirteen of one predicate, then Recipe E/F on six shared winners, three Recipe S splits, and a last Recipe D pair for the two pose-select idioms |
+| `win_pl_q.c` | 9.02 | *split out of `win_pl.c`.* `q_em_distance_chk` keeps two bumps: its arms differ only in the operand order of one subtraction, which Recipe D does not reach and no operator may be flipped to make them fit. Naming the shared threshold test measured flat and left the finding, so it was reverted |
+| `win_pl_gill.c`, `win_pl_urien.c` | **10.00** | *split out of `win_pl.c`.* Gill's arrived clean; Urien's needed one Recipe X, seven case labels being a floor of cc 8 that the three extractions already made could not reach |
+| `appear.c`, `appear_late.c` | 9.38 each | *was 3.56 for the one file.* Forty-three copies of two handover idioms went first (Recipe D, 3.56 -> 4.33), then the split at Appear_20000 - which needed the campaign-helper exception above - and then Recipe E, X and R on both halves. Both plateau on **Overall Code Complexity alone** - a mean of 4.19 and 4.63 against a threshold of 4, across fifty-three and thirty-eight functions. The plateau was tested, not assumed: a batch of four more Recipe X splits aimed squarely at that mean measured **9.38 -> 8.28**, because four helpers of the same shape become a duplication group among themselves. The mean cannot be walked down by splitting, and the `end_*.c` files sit at the same number |
+| `app_data.c` | n/a | pure `const` data tables, like `se_data.c` |
 
 ---
 
@@ -2113,6 +2158,63 @@ before the first cut:
 Where the chain's last level inherits the original `default:`, the caveat in Recipe X's
 shared-arm variant does not bite: the values that used to reach that `default:` still reach
 it, having matched nothing on the way down.
+
+### Extraction stops where the next cut would create a twin
+
+*Added 2026-09-18, measured across `win_pl.c` and the two `appear` files.*
+
+Recipe E lifts a bump into a named function. Do it to two sibling state machines and you
+have not removed complexity, you have **manufactured a Code Duplication pair** - and
+CodeScene charges more for the pair than it credits for the cyclomatic complexity. This is
+the single most common way a legal extraction measures negative, and it is invisible until
+you run the review.
+
+Three measurements, all reverted:
+
+| Attempt | Result | What happened |
+| --- | --- | --- |
+| `Win_11000`, whole `case 0:` arm lifted | **-0.15**, then **-0.30** on a second cut | `start_win_11000_pose` became a near copy of `start_win_10000_pose`, and `Win_11000` itself joined the thin-dispatcher group. Two new duplication groups |
+| `Appear_05000`, both bumps lifted | **-0.39** | `launch_appear_05000` and `land_appear_05000` read as duplicates of `Appear_04000`'s pair |
+| `Appear_36000`, both bumps lifted | **-0.50** | its state-2 launch reads as a duplicate of `launch_appear_26000` |
+
+Three ways out, in order of preference:
+
+1. **Cut shallower.** Lift only the inner chunk, not the whole arm. `Win_11000` measured
+   **+0.24** when only `choose_twelve_win_pose` came out and the arm stayed.
+2. **Follow through with Recipe F.** If the twin is unavoidable, make it total: extract
+   *every* sibling's arm, then collapse the identical shells behind one function pointer.
+   That is what took `lose_pl.c` and `win_pl.c` to 10.00, and the intermediate Recipe E
+   commit measures flat or negative on its own - `win_pl.c`'s six pose starters read
+   **3.94 -> 3.74** before the collapse took the pair to **4.05**. Commit the two steps
+   separately and say in the message that the first is half of a pair.
+3. **Split instead of extract.** Where the twin is a whole arm, Recipe X moves it without
+   creating a function that resembles anything: `Appear_36000` measured **+0.07** as a
+   chain that put its two bumps in two levels, after lifting them had measured -0.50.
+
+**The corollary: measure the pair, not the step.** Rule 2 says re-measure after every
+commit, and that still holds - but when a step is knowingly half of an E-then-F pair, judge
+the pair and record both numbers in the commit message so the intermediate is not later
+reverted as dead weight.
+
+### Function work stops paying while the file is over its size threshold
+
+*Added 2026-09-18, measured on `win_pl.c` and `appear.c`.*
+
+*Recipe S is the last recipe you apply, never the first* is written to stop agents splitting
+a file they have not yet simplified. It is not a reason to grind a file that is **still over
+the Lines of Code threshold** through a dozen marginal extractions.
+
+While that finding is open, an extraction pays about what it costs: `win_pl.c` returned
++0.15 to +0.20 a step from 3.56, and then turned negative - the LoC finding was open, and
+every helper added lines to a file already over. After three Recipe S splits took it under,
+the very same kind of extraction returned +0.2 to +0.5 a step. `appear.c` is the sharper
+case: `Appear_07000` measured **flat** before the split and the same shape of work measured
+**+0.22 to +0.47** after it.
+
+So: clear the function-level findings that are *cheap* - the deduplications, the predicates,
+the one or two genuinely huge functions - and then **check whether the file is still over its
+size threshold before grinding on**. If it is, the split is the next move, not the tenth
+extraction. `appear.c` was 1593 lines and its split alone measured **6.02 -> 7.50**.
 
 ### A file can be too big for its own mean
 
