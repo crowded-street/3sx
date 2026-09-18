@@ -63,32 +63,95 @@ s32 palFormConv;
 const u16 hitmark_color[128];
 const col_file_data color_file[161];
 
+// State 0: skip the read entirely when the sound bank this request names is
+// already the one loaded. Returns 1 where the original fell through into state
+// 1, and 0 where it broke out of the dispatch.
+static s32 begin_color_file_request(LoadRequest* curr, col_file_data* cfn) {
+    if (fsCheckCommandExecuting()) {
+        return 0;
+    }
+
+    if (cfn->type == 10) {
+        if (cfn->data + 1 == cseGetIdStoredBd(curr->id + 1)) {
+            LDREQ_SetResultFlag(curr, true);
+            curr->status = LDREQ_STATUS_FREE;
+            return 0;
+        }
+    }
+
+    curr->rno = 1;
+    curr->fnum = cfn->apfn;
+
+    if (cfn->apfn == 0xFFFF) {
+        LDREQ_SetResultFlag(curr, true);
+        curr->status = LDREQ_STATUS_FREE;
+    }
+
+    return 1;
+}
+
+static void request_color_file_read(LoadRequest* curr) {
+    s32 err;
+
+    err = fsRequestFileRead(Get_ramcnt_pointer(curr->key));
+
+    if (err == 0) {
+        Push_ramcnt_key(curr->key);
+        fsClose();
+        curr->rno = 0;
+    } else {
+        curr->rno = 4;
+        curr->status = LDREQ_STATUS_RUNNING;
+    }
+}
+
+// State 4: poll the read. A sound bank goes to the SPU and waits in state 5;
+// anything else is a colour file and is converted here and then.
+static void collect_color_file_read(LoadRequest* curr, col_file_data* cfn) {
+    switch (fsCheckFileReaded()) {
+    case FS_READ_IDLE:
+        if (cfn->type == 10) {
+            fsClose();
+
+            cseSendBd2SpuWithId(
+                Get_ramcnt_pointer(curr->key),
+                Get_size_data_ramcnt_key(curr->key),
+                curr->id + 1,
+                cfn->data + 1
+            );
+
+            curr->rno = 5;
+        } else {
+            init_trans_color_ram(curr->id, curr->key, cfn->type, cfn->data);
+            fsClose();
+            LDREQ_SetResultFlag(curr, true);
+            curr->status = LDREQ_STATUS_FREE;
+        }
+
+        break;
+
+    case FS_READ_READING:
+        // Do nothing
+        break;
+
+    case FS_READ_ERROR:
+        Push_ramcnt_key(curr->key);
+        fsClose();
+        curr->status = LDREQ_STATUS_IDLE;
+        curr->rno = 0;
+        break;
+    }
+}
+
 void q_ldreq_color_data(LoadRequest* curr) {
     col_file_data* cfn;
-    s32 err;
 
     cfn = (col_file_data*)&color_file[curr->ix];
 
     switch (curr->rno) {
     case 0:
-        if (fsCheckCommandExecuting()) {
+        if (!begin_color_file_request(curr, cfn)) {
             break;
-        }
-
-        if (cfn->type == 10) {
-            if (cfn->data + 1 == cseGetIdStoredBd(curr->id + 1)) {
-                LDREQ_SetResultFlag(curr, true);
-                curr->status = LDREQ_STATUS_FREE;
-                break;
-            }
-        }
-
-        curr->rno = 1;
-        curr->fnum = cfn->apfn;
-
-        if (cfn->apfn == 0xFFFF) {
-            LDREQ_SetResultFlag(curr, true);
-            curr->status = LDREQ_STATUS_FREE;
         }
 
         /* fallthrough */
@@ -110,54 +173,11 @@ void q_ldreq_color_data(LoadRequest* curr) {
         /* fallthrough */
 
     case 3:
-        err = fsRequestFileRead(Get_ramcnt_pointer(curr->key));
-
-        if (err == 0) {
-            Push_ramcnt_key(curr->key);
-            fsClose();
-            curr->rno = 0;
-        } else {
-            curr->rno = 4;
-            curr->status = LDREQ_STATUS_RUNNING;
-        }
-
+        request_color_file_read(curr);
         break;
 
     case 4:
-        switch (fsCheckFileReaded()) {
-        case FS_READ_IDLE:
-            if (cfn->type == 10) {
-                fsClose();
-
-                cseSendBd2SpuWithId(
-                    Get_ramcnt_pointer(curr->key),
-                    Get_size_data_ramcnt_key(curr->key),
-                    curr->id + 1,
-                    cfn->data + 1
-                );
-
-                curr->rno = 5;
-            } else {
-                init_trans_color_ram(curr->id, curr->key, cfn->type, cfn->data);
-                fsClose();
-                LDREQ_SetResultFlag(curr, true);
-                curr->status = LDREQ_STATUS_FREE;
-            }
-
-            break;
-
-        case FS_READ_READING:
-            // Do nothing
-            break;
-
-        case FS_READ_ERROR:
-            Push_ramcnt_key(curr->key);
-            fsClose();
-            curr->status = LDREQ_STATUS_IDLE;
-            curr->rno = 0;
-            break;
-        }
-
+        collect_color_file_read(curr, cfn);
         break;
 
     case 5:
