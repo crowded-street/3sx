@@ -50,6 +50,24 @@ void Setup_Pause(struct _TASK* task_ptr);
 void Setup_Come_Out(struct _TASK* task_ptr);
 s32 Check_Play_Status(s16 PL_id);
 
+/* The modes with no per-round rule of their own. The case labels are the
+ * original ones, and the terminal `default:` is the one this switch always
+ * had. */
+static PauseActivationType get_pause_activation_type_rest() {
+    switch (Mode_Type) {
+    case MODE_NORMAL_TRAINING:
+    case MODE_PARRY_TRAINING:
+    case MODE_REPLAY:
+        return PAUSE_ACTIVATION_PRESS;
+
+    case MODE_NETWORK:
+        return PAUSE_ACTIVATION_NONE;
+
+    default:
+        return PAUSE_ACTIVATION_NONE;
+    }
+}
+
 static PauseActivationType get_pause_activation_type() {
     switch (Mode_Type) {
     case MODE_VERSUS:
@@ -62,16 +80,8 @@ static PauseActivationType get_pause_activation_type() {
             return PAUSE_ACTIVATION_PRESS;
         }
 
-    case MODE_NORMAL_TRAINING:
-    case MODE_PARRY_TRAINING:
-    case MODE_REPLAY:
-        return PAUSE_ACTIVATION_PRESS;
-
-    case MODE_NETWORK:
-        return PAUSE_ACTIVATION_NONE;
-
     default:
-        return PAUSE_ACTIVATION_NONE;
+        return get_pause_activation_type_rest();
     }
 }
 
