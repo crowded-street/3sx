@@ -414,8 +414,12 @@ s16 getObjectHeight(u16 cgnum) {
     return maxHeight;
 }
 
-static void store_cached_trans_ext_tiles(MultiTexture* mt, WORK* wk, u32* textbl, TileMapEntry* trsptr, s32 count,
-                                         s32 attr, s32 palo, s32 group, f32 x, f32 y, PatternCode cc) {
+static void store_cached_trans_ext_tiles(const TransRun* run, s32 group) {
+    TileMapEntry* trsptr = run->trsptr;
+    s32 count = run->count;
+    f32 x = run->x;
+    f32 y = run->y;
+    PatternCode cc = run->cc;
     TEX* texptr;
     s32 rnum;
     s32 code;
@@ -429,10 +433,10 @@ static void store_cached_trans_ext_tiles(MultiTexture* mt, WORK* wk, u32* textbl
     cc.parts.group = group;
 
     while (count--) {
-        x = advance_trans_x(x, attr, trsptr);
-        y = advance_trans_y(y, attr, trsptr);
+        x = advance_trans_x(x, run->flip, trsptr);
+        y = advance_trans_y(y, run->flip, trsptr);
 
-        texptr = (TEX*)((uintptr_t)textbl + ((u32*)textbl)[trsptr->code]);
+        texptr = (TEX*)((uintptr_t)run->textbl + ((u32*)run->textbl)[trsptr->code]);
         dw = (texptr->wh & 0xE0) >> 2;
         dh = (texptr->wh & 0x1C) * 2;
         wh = (texptr->wh & 3) + 1;
@@ -441,35 +445,35 @@ static void store_cached_trans_ext_tiles(MultiTexture* mt, WORK* wk, u32* textbl
         switch (wh) {
         case 1:
         case 2:
-            code = get_mltbuf16_ext(mt, cc.code, 0);
+            code = get_mltbuf16_ext(run->mt, cc.code, 0);
 
             rnum = seqsStoreChip(
-                x - (dw * BOOL(attr & 0x8000)),
-                y + (dh * BOOL(attr & 0x4000)),
+                x - (dw * BOOL(run->flip & 0x8000)),
+                y + (dh * BOOL(run->flip & 0x4000)),
                 dw,
                 dh,
-                mt->mltgidx16,
+                run->mt->mltgidx16,
                 code,
-                palo | ((trsptr->attr ^ attr) & 0xC000),
-                wk->my_clear_level,
-                mt->id
+                run->palo | ((trsptr->attr ^ run->flip) & 0xC000),
+                run->wk->my_clear_level,
+                run->mt->id
             );
 
             break;
 
         case 4:
-            code = get_mltbuf32_ext(mt, cc.code, 0);
+            code = get_mltbuf32_ext(run->mt, cc.code, 0);
 
             rnum = seqsStoreChip(
-                x - (dw * BOOL(attr & 0x8000)),
-                y + (dh * BOOL(attr & 0x4000)),
+                x - (dw * BOOL(run->flip & 0x8000)),
+                y + (dh * BOOL(run->flip & 0x4000)),
                 dw,
                 dh,
-                mt->mltgidx32,
+                run->mt->mltgidx32,
                 code,
-                palo | (((trsptr->attr ^ attr) & 0xC000) | 0x2000),
-                wk->my_clear_level,
-                mt->id
+                run->palo | (((trsptr->attr ^ run->flip) & 0xC000) | 0x2000),
+                run->wk->my_clear_level,
+                run->mt->id
             );
 
             break;
@@ -615,7 +619,7 @@ void mlt_obj_trans_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
         cp->time = mt->mltcshtime16;
 
         makeup_tpu_free(mt->mltnum16 / 256, mt->mltnum32 / 64, &cp->map);
-        store_cached_trans_ext_tiles(mt, wk, textbl, trsptr, count, attr, palo, i, x, y, cc);
+        store_cached_trans_ext_tiles(&(TransRun){ mt, wk, textbl, trsptr, count, attr, palo, x, y, cc }, i);
 
         seqs_w.up[mt->id] = 1;
         appRenewTempPriority(wk->position_z);
