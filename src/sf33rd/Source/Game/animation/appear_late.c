@@ -625,6 +625,33 @@ void Appear_34000(PLW* wk) {
     }
 }
 
+/* The second half of this entrance: the slide in and the settle. The case
+ * labels are the original ones, so the states still read as the same numbers. */
+static void step_appear_36000_settle(PLW* wk) {
+    switch (wk->wu.routine_no[3]) {
+    case 3:
+        char_move(&wk->wu);
+        app_counter[wk->wu.id]--;
+
+        if (app_counter[wk->wu.id] <= 0) {
+            wk->wu.routine_no[3]++;
+            set_char_move_init2(&wk->wu, 9, 0x11, 0x0A, 0);
+            wk->wu.next_z = wk->wu.my_priority;
+        } else {
+            add_x_sub(&wk->wu);
+        }
+
+        break;
+
+    case 4:
+        char_move(&wk->wu);
+
+        finish_appear_on_last_frame(wk);
+
+        break;
+    }
+}
+
 void Appear_36000(PLW* wk) {
     s16 id_w = wk->wu.id ^ 1;
 
@@ -666,25 +693,8 @@ void Appear_36000(PLW* wk) {
         wk->wu.next_z = plw[id_w].wu.my_priority;
         break;
 
-    case 3:
-        char_move(&wk->wu);
-        app_counter[wk->wu.id]--;
-
-        if (app_counter[wk->wu.id] <= 0) {
-            wk->wu.routine_no[3]++;
-            set_char_move_init2(&wk->wu, 9, 0x11, 0x0A, 0);
-            wk->wu.next_z = wk->wu.my_priority;
-        } else {
-            add_x_sub(&wk->wu);
-        }
-
-        break;
-
-    case 4:
-        char_move(&wk->wu);
-
-        finish_appear_on_last_frame(wk);
-
+    default:
+        step_appear_36000_settle(wk);
         break;
     }
 }
