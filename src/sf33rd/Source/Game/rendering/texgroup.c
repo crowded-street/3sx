@@ -118,6 +118,85 @@ static void request_texture_group_read(LoadRequest* curr) {
     curr->status = LDREQ_STATUS_RUNNING;
 }
 
+// The character init data sits behind the group's textures and has to be turned
+// from offsets into pointers, or replaced wholesale when the arcade balance is
+// on. Returns 0 where the original abandoned the whole request, 1 otherwise.
+static s32 unpack_character_init_data(LoadRequest* curr, const TexGroupData* bsd, u8* ldadr) {
+    u8* ldchd = ldadr + bsd->to_chd;
+
+    // Explanation:
+    //
+    // The code above loads a bunch of data from the AFS partition.
+    // This data includes character init data which starts at `ldchd`.
+    // Data at `ldchd` starts with 25 4-byte ints which are offsets
+    // from `ldchd` to the actual data.
+    //
+    // On PS2 it is okay to just add `ldchd` to each of these offsets
+    // to turn them into pointers, because a 4-byte int can hold a pointer.
+    // However on modern 64-bit platforms pointers are bigger, meaning we
+    // can't add `ldchd` to the offsets inplace. That's why we have to
+    // allocate a separate memory region for `cit` and compute the pointers
+    // that comprise it there.
+    //
+    // Because 25 is the number of members in CharInitData struct, `i` goes
+    // to 25 too.
+
+    const Character character_id = plt_req[curr->id];
+    CharInitData* dst = &char_init_data[plid_data[character_id]];
+
+    if (ArcadeBalance_IsEnabled()) {
+#if ARCADE_ROM
+        const size_t ps2_char_data_size = curr->size - bsd->to_chd;
+        const bool adapted = ArcadeCharData_Apply3SXRenderingConventions(character_id, ldchd, ps2_char_data_size);
+        const CharInitData* arcade_data = ArcadeCharData_Get(character_id);
+
+        SDL_assert(adapted && arcade_data != NULL);
+
+        if (!adapted || arcade_data == NULL) {
+            SDL_LogCritical(
+                SDL_LOG_CATEGORY_APPLICATION,
+                "Could not adapt arcade character data for character %d",
+                character_id
+            );
+            return 0;
+        }
+
+        SDL_copyp(dst, arcade_data);
+#endif
+    } else {
+        for (int i = 0; i < 25; i++) {
+            ((uintptr_t*)dst)[i] = (uintptr_t)ldchd + ((u32*)ldchd)[i];
+        }
+
+        // Q specific code
+        if (curr->ix == 18) {
+            dst->cbca[37] = dst->cbca[3];
+        }
+
+        // Akuma specific code
+        if (curr->ix == 15) {
+            u16* trsbas = (u16*)(((u32*)texgrplds[15].trans_table)[166] + texgrplds[15].trans_table);
+            const int count = *trsbas - 1;
+            *trsbas = count;
+            trsbas += 1;
+
+            TileMapEntry* trsptr = (TileMapEntry*)trsbas;
+            trsptr[0].x += trsptr[1].x;
+            trsptr[0].y += trsptr[1].y;
+            trsptr[0].attr = trsptr[1].attr;
+            trsptr[0].code = trsptr[1].code;
+
+            for (int i = 1; i < count; i++) {
+                trsptr[i] = trsptr[i + 1];
+            }
+        }
+    }
+
+    parabora_own_table[character_id] = dst->prot;
+
+    return 1;
+}
+
 // State 4: poll the read and, once it lands, publish the group's tables and
 // unpack the character init data behind them.
 static void collect_texture_group_read(LoadRequest* curr, const TexGroupData* bsd) {
@@ -130,78 +209,9 @@ static void collect_texture_group_read(LoadRequest* curr, const TexGroupData* bs
         curr->lds->ok = 1;
 
         if (bsd->mode == TEXGROUP_MODE_CHARACTER) {
-            u8* ldchd = ldadr + bsd->to_chd;
-
-            // Explanation:
-            //
-            // The code above loads a bunch of data from the AFS partition.
-            // This data includes character init data which starts at `ldchd`.
-            // Data at `ldchd` starts with 25 4-byte ints which are offsets
-            // from `ldchd` to the actual data.
-            //
-            // On PS2 it is okay to just add `ldchd` to each of these offsets
-            // to turn them into pointers, because a 4-byte int can hold a pointer.
-            // However on modern 64-bit platforms pointers are bigger, meaning we
-            // can't add `ldchd` to the offsets inplace. That's why we have to
-            // allocate a separate memory region for `cit` and compute the pointers
-            // that comprise it there.
-            //
-            // Because 25 is the number of members in CharInitData struct, `i` goes
-            // to 25 too.
-
-            const Character character_id = plt_req[curr->id];
-            CharInitData* dst = &char_init_data[plid_data[character_id]];
-
-            if (ArcadeBalance_IsEnabled()) {
-#if ARCADE_ROM
-                const size_t ps2_char_data_size = curr->size - bsd->to_chd;
-                const bool adapted =
-                    ArcadeCharData_Apply3SXRenderingConventions(character_id, ldchd, ps2_char_data_size);
-                const CharInitData* arcade_data = ArcadeCharData_Get(character_id);
-
-                SDL_assert(adapted && arcade_data != NULL);
-
-                if (!adapted || arcade_data == NULL) {
-                    SDL_LogCritical(
-                        SDL_LOG_CATEGORY_APPLICATION,
-                        "Could not adapt arcade character data for character %d",
-                        character_id
-                    );
-                    return;
-                }
-
-                SDL_copyp(dst, arcade_data);
-#endif
-            } else {
-                for (int i = 0; i < 25; i++) {
-                    ((uintptr_t*)dst)[i] = (uintptr_t)ldchd + ((u32*)ldchd)[i];
-                }
-
-                // Q specific code
-                if (curr->ix == 18) {
-                    dst->cbca[37] = dst->cbca[3];
-                }
-
-                // Akuma specific code
-                if (curr->ix == 15) {
-                    u16* trsbas = (u16*)(((u32*)texgrplds[15].trans_table)[166] + texgrplds[15].trans_table);
-                    const int count = *trsbas - 1;
-                    *trsbas = count;
-                    trsbas += 1;
-
-                    TileMapEntry* trsptr = (TileMapEntry*)trsbas;
-                    trsptr[0].x += trsptr[1].x;
-                    trsptr[0].y += trsptr[1].y;
-                    trsptr[0].attr = trsptr[1].attr;
-                    trsptr[0].code = trsptr[1].code;
-
-                    for (int i = 1; i < count; i++) {
-                        trsptr[i] = trsptr[i + 1];
-                    }
-                }
+            if (!unpack_character_init_data(curr, bsd, ldadr)) {
+                return;
             }
-
-            parabora_own_table[character_id] = dst->prot;
         }
 
         LDREQ_SetResultFlag(curr, true);
