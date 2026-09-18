@@ -1500,6 +1500,60 @@ static void update_bonus_hosei_flags() {
     }
 }
 
+static void start_bonus_win_pose(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    win_rno[0] = win_rno[1] = 0;
+
+    if (Bonus_Game_Flag == 20) {
+        if (wk->wu.operator) {
+            if (Time_Over) {
+                set_char_move_init(&wk->wu, 9, 67);
+            } else {
+                set_char_move_init(&wk->wu, 9, 65);
+            }
+
+            return;
+        }
+
+        wk->wu.routine_no[3] = 99;
+        return;
+    }
+
+    if (wk->wu.operator) {
+        if (Bonus_Game_result == 20 || Bonus_Game_ex_result == 20) {
+            set_char_move_init(&wk->wu, 9, 65);
+            return;
+        }
+
+        if (Bonus_Game_result > 10) {
+            set_char_move_init(&wk->wu, 9, 66);
+            return;
+        }
+
+        set_char_move_init(&wk->wu, 9, 67);
+        return;
+    }
+
+    if (Bonus_Game_result == 20 || Bonus_Game_ex_result == 20) {
+        win_rno[0] = 1;
+
+        if (wk->wu.rl_flag) {
+            wk->wu.mvxy.a[0].sp = 0x20000;
+        } else {
+            wk->wu.mvxy.a[0].sp = -0x20000;
+        }
+
+        wk->wu.mvxy.d[0].sp = 0;
+        wk->wu.mvxy.a[1].sp = 0x80000;
+        wk->wu.mvxy.d[1].sp = -0x6000;
+        win_rno[0] = 0;
+        set_char_move_init(&wk->wu, 9, 66);
+        return;
+    }
+
+    set_char_move_init(&wk->wu, 9, 52);
+}
+
 void bonus_game_win_pause(PLW* wk) {
     bg_app_stop = 1;
 
@@ -1507,57 +1561,7 @@ void bonus_game_win_pause(PLW* wk) {
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        win_rno[0] = win_rno[1] = 0;
-
-        if (Bonus_Game_Flag == 20) {
-            if (wk->wu.operator) {
-                if (Time_Over) {
-                    set_char_move_init(&wk->wu, 9, 67);
-                } else {
-                    set_char_move_init(&wk->wu, 9, 65);
-                }
-
-                break;
-            }
-
-            wk->wu.routine_no[3] = 99;
-            break;
-        }
-
-        if (wk->wu.operator) {
-            if (Bonus_Game_result == 20 || Bonus_Game_ex_result == 20) {
-                set_char_move_init(&wk->wu, 9, 65);
-                break;
-            }
-
-            if (Bonus_Game_result > 10) {
-                set_char_move_init(&wk->wu, 9, 66);
-                break;
-            }
-
-            set_char_move_init(&wk->wu, 9, 67);
-            break;
-        }
-
-        if (Bonus_Game_result == 20 || Bonus_Game_ex_result == 20) {
-            win_rno[0] = 1;
-
-            if (wk->wu.rl_flag) {
-                wk->wu.mvxy.a[0].sp = 0x20000;
-            } else {
-                wk->wu.mvxy.a[0].sp = -0x20000;
-            }
-
-            wk->wu.mvxy.d[0].sp = 0;
-            wk->wu.mvxy.a[1].sp = 0x80000;
-            wk->wu.mvxy.d[1].sp = -0x6000;
-            win_rno[0] = 0;
-            set_char_move_init(&wk->wu, 9, 66);
-            break;
-        }
-
-        set_char_move_init(&wk->wu, 9, 52);
+        start_bonus_win_pose(wk);
         break;
 
     case 1:
