@@ -1245,18 +1245,18 @@ static void draw_later_special_stage(const StageDrawContext* context) {
     }
 }
 
-static s32 draw_and_advance_judgment_stage(u8 bgnm, s32* xx, s32* yy, s32 global_index, s32 palOffset,
-                                           PPGDataList* curDataList) {
+static s32 draw_and_advance_judgment_stage(const StageDrawContext* context) {
     u32 vtxColor;
 
-    if (judge_flag == 1 && bgnm == 1) {
+    if (judge_flag == 1 && context->bgnm == 1) {
         vtxColor = 0xFFA0A0A0;
     } else {
         vtxColor = 0xFFFFFFFF;
     }
 
-    draw_stage02_tiles(bgnm, xx, yy, global_index, vtxColor, palOffset, curDataList);
-    return advance_stage02_state(bgnm);
+    draw_stage02_tiles(context->bgnm, context->xx, context->yy, context->global_index, vtxColor, context->pal_offset,
+                       context->data_list);
+    return advance_stage02_state(context->bgnm);
 }
 
 static s32 draw_early_special_stage(const StageDrawContext* context) {
@@ -1270,8 +1270,7 @@ static s32 draw_early_special_stage(const StageDrawContext* context) {
         break;
 
     case 2:
-        if (draw_and_advance_judgment_stage(context->bgnm, context->xx, context->yy, context->global_index,
-                                            context->pal_offset, context->data_list)) {
+        if (draw_and_advance_judgment_stage(context)) {
             return 1;
         }
         break;
