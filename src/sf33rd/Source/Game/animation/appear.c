@@ -472,11 +472,15 @@ const APPEAR_DATA appear_data[] = {
     { -88, 0, -88, 0, 1, 3, 17 },
 };
 
+static s32 appear_07000_mirror_entrance(const PLW* wk) {
+    return plw[wk->wu.id ^ 1].player_number == 12 && bg_w.stage == 12 && bg_w.area == 0;
+}
+
 static void start_appear_07000(PLW* wk) {
     wk->wu.disp_flag = 1;
     bg_app_stop = 1;
 
-    if (plw[wk->wu.id ^ 1].player_number == 12 && bg_w.stage == 12 && bg_w.area == 0) {
+    if (appear_07000_mirror_entrance(wk)) {
         wk->wu.routine_no[4] = 1;
         set_char_move_init(&wk->wu, 9, 17);
         wk->wu.routine_no[3] = 3;
