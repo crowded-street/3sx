@@ -1834,6 +1834,17 @@ static s32 get_free_patcash_index(PatternCollection* padr) {
     while (1) {}
 }
 
+// Both of lz_ext_p6_fx's back-reference cases end in this copy. Only dstptr
+// outlives it - tmpptr and tmp are reassigned before they are read again - so
+// the run comes back as the advanced write pointer.
+static u8* copy_lz_run_8(u8* dstptr, u8* tmpptr, u32 tmp) {
+    while (tmp--) {
+        *dstptr++ = *tmpptr++;
+    }
+
+    return dstptr;
+}
+
 static void lz_ext_p6_fx(u8* srcptr, u8* dstptr, u32 len) {
     u8* endptr = dstptr + len;
     u8* tmpptr;
@@ -1853,9 +1864,7 @@ static void lz_ext_p6_fx(u8* srcptr, u8* dstptr, u32 len) {
             tmpptr = (dstptr - (tmp >> 2)) - 1;
             tmp = (tmp & 3) + 2;
 
-            while (tmp--) {
-                *dstptr++ = *tmpptr++;
-            }
+            dstptr = copy_lz_run_8(dstptr, tmpptr, tmp);
 
             break;
 
@@ -1864,9 +1873,7 @@ static void lz_ext_p6_fx(u8* srcptr, u8* dstptr, u32 len) {
             tmpptr = (dstptr - (tmp >> 6)) - 1;
             tmp = (tmp & 0x3F) + 2;
 
-            while (tmp--) {
-                *dstptr++ = *tmpptr++;
-            }
+            dstptr = copy_lz_run_8(dstptr, tmpptr, tmp);
 
             break;
 
