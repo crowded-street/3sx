@@ -471,16 +471,28 @@ s32 sort_push_request3(WORK* wk) {
     return 2;
 }
 
+// sort_push_request4's own blink test. It is the same value as
+// blinked_out_this_frame's but not the same characters - the parentheses sit
+// differently - so the two are kept apart rather than merged.
+static s32 blink_skips_this_frame(WORK* wk) {
+    return (wk->disp_flag == 2) && ((wk->blink_timing + Game_timer) & 1);
+}
+
+// Two ids are exempt from the judge-mode brightness override.
+static s32 takes_judge_brightness(WORK* wk) {
+    return (wk->id != 0x4C) && (wk->id != 0x46);
+}
+
 s32 sort_push_request4(WORK* wk) {
     if (wk->my_mts == 0) {
         return 0;
     }
 
-    if (wk->disp_flag == 0 || wk->cg_number == 0) {
+    if (has_nothing_to_draw(wk)) {
         return 1;
     }
 
-    if ((wk->disp_flag == 2) && ((wk->blink_timing + Game_timer) & 1)) {
+    if (blink_skips_this_frame(wk)) {
         return 1;
     }
 
@@ -494,7 +506,7 @@ s32 sort_push_request4(WORK* wk) {
         wk->current_colcd = wk->extra_col;
     }
 
-    if ((wk->id != 0x4C) && (wk->id != 0x46)) {
+    if (takes_judge_brightness(wk)) {
         if (judge_flag) {
             if (wk->position_z < 0x48) {
                 wk->my_bright_type = 1;
