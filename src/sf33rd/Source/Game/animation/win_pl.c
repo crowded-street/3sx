@@ -983,32 +983,85 @@ static void q_start_dash_away(PLW* wk) {
     }
 }
 
-void q_leave_after_action(PLW* wk) {
+static void q_leave_turn_to_face(PLW* wk) {
+    if (q_em_dir(wk) == 0) {
+        return;
+    }
+
+    if (wk->wu.direction == wk->wu.rl_flag) {
+        win_rno[1] = 2;
+    } else {
+        win_rno[1] = 1;
+        set_char_move_init(&wk->wu, 9, 40);
+        wk->wu.rl_flag ^= 1;
+    }
+}
+
+static void q_leave_await_turn(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 0xFF) {
+        win_rno[1]++;
+    }
+}
+
+static void q_leave_dash_to_range(PLW* wk) {
+    char_move(&wk->wu);
+    add_x_sub((WORK_Other*)wk);
+
+    if (q_em_distance_chk(wk)) {
+        win_rno[1]++;
+
+        if (win_rno[0] == 2) {
+            set_char_move_init(&wk->wu, 9, 36);
+        } else {
+            set_char_move_init(&wk->wu, 9, 39);
+        }
+    }
+}
+
+static void q_leave_await_pose(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 0xFF) {
+        win_rno[1]++;
+        q_start_dash_away(wk);
+    }
+}
+
+static void q_leave_walk_off_screen(PLW* wk) {
     s16 work;
 
-    switch (win_rno[1]) {
-    case 0:
-        if (q_em_dir(wk) == 0) {
-            break;
-        }
+    char_move(&wk->wu);
+    add_x_sub((WORK_Other*)wk);
 
-        if (wk->wu.direction == wk->wu.rl_flag) {
-            win_rno[1] = 2;
-        } else {
-            win_rno[1] = 1;
-            set_char_move_init(&wk->wu, 9, 40);
-            wk->wu.rl_flag ^= 1;
-        }
+    if (wk->wu.rl_flag) {
+        work = bg_w.bgw[1].wxy[0].disp.pos + bg_w.pos_offset;
+        work += 64;
 
-        break;
-
-    case 1:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 0xFF) {
+        if (work < wk->wu.xyz[0].disp.pos) {
             win_rno[1]++;
         }
 
+        return;
+    }
+
+    work = bg_w.bgw[1].wxy[0].disp.pos - bg_w.pos_offset;
+    work -= 64;
+
+    if (work > wk->wu.xyz[0].disp.pos) {
+        win_rno[1]++;
+    }
+}
+
+void q_leave_after_action(PLW* wk) {
+    switch (win_rno[1]) {
+    case 0:
+        q_leave_turn_to_face(wk);
+        break;
+
+    case 1:
+        q_leave_await_turn(wk);
         break;
 
     case 2:
@@ -1018,53 +1071,15 @@ void q_leave_after_action(PLW* wk) {
         break;
 
     case 3:
-        char_move(&wk->wu);
-        add_x_sub((WORK_Other*)wk);
-
-        if (q_em_distance_chk(wk)) {
-            win_rno[1]++;
-
-            if (win_rno[0] == 2) {
-                set_char_move_init(&wk->wu, 9, 36);
-            } else {
-                set_char_move_init(&wk->wu, 9, 39);
-            }
-        }
-
+        q_leave_dash_to_range(wk);
         break;
 
     case 4:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 0xFF) {
-            win_rno[1]++;
-            q_start_dash_away(wk);
-        }
-
+        q_leave_await_pose(wk);
         break;
 
     case 5:
-        char_move(&wk->wu);
-        add_x_sub((WORK_Other*)wk);
-
-        if (wk->wu.rl_flag) {
-            work = bg_w.bgw[1].wxy[0].disp.pos + bg_w.pos_offset;
-            work += 64;
-
-            if (work < wk->wu.xyz[0].disp.pos) {
-                win_rno[1]++;
-            }
-
-            break;
-        }
-
-        work = bg_w.bgw[1].wxy[0].disp.pos - bg_w.pos_offset;
-        work -= 64;
-
-        if (work > wk->wu.xyz[0].disp.pos) {
-            win_rno[1]++;
-        }
-
+        q_leave_walk_off_screen(wk);
         break;
     }
 }
