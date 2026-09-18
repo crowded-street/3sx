@@ -10,6 +10,34 @@
 
 void (*const Passive07_Tbl[214])();
 
+static void passive07_0063_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+static void passive07_0162_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 10, -1});
+        break;
+
+    case 7:
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x2D, 0xFF, 0xFF, 0xFF}, 2);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
 static void pattern_em_term_j_command_attack(PLW* wk, const EM_Term_Params* p, const Command_Attack_Args* p_b) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -1048,12 +1076,8 @@ void Passive07_0063(PLW* wk) {
         Normal_Attack(wk, 8, 0x402);
         break;
 
-    case 6:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
-        break;
-
     default:
-        End_Pattern(wk);
+        passive07_0063_from_step_6(wk);
         break;
     }
 }
@@ -2695,16 +2719,8 @@ void Passive07_0162(PLW* wk) {
         Normal_Attack(wk, 9, 0x402);
         break;
 
-    case 6:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 10, -1});
-        break;
-
-    case 7:
-        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x2D, 0xFF, 0xFF, 0xFF}, 2);
-        break;
-
     default:
-        End_Pattern(wk);
+        passive07_0162_from_step_6(wk);
         break;
     }
 }
