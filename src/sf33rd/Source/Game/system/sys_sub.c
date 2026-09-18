@@ -1085,62 +1085,70 @@ void Reset_Sub0() {
     Replay_Status[1] = 0;
 }
 
-void Check_Replay() {
+static void start_replay_recording() {
     s16 ix;
 
+    Replay_Status[0] = 1;
+    Replay_Status[1] = 1;
+
+    if (plw[0].wu.operator == 0) {
+        Replay_Status[0] = 0;
+        CP_No[0][0] = 0;
+    }
+
+    if (plw[1].wu.operator == 0) {
+        Replay_Status[1] = 0;
+        CP_No[1][0] = 0;
+    }
+
+    Condense_Buff[0] = 0xFFFF;
+    Condense_Buff[1] = 0xFFFF;
+    memset(&Replay_w, 0, sizeof(Replay_w));
+
+    if (in_training_mode()) {
+        for (ix = 0; ix < 0x1C1E; ix++) {
+            Replay_w.io_unit.key_buff[0][ix] = 0xF000;
+            Replay_w.io_unit.key_buff[1][ix] = 0xF000;
+        }
+    }
+
+    Setup_Replay_Header();
+
+    for (ix = 0; ix < 14; ix++) {
+        Replay_w.lag[ix] = 1;
+    }
+
+    Lag_Ptr = Replay_w.lag;
+    Lag_Timer = 1;
+    Bg_Kakikae_Set();
+}
+
+static void start_replay_playback() {
+    Replay_Status[0] = 3;
+    Replay_Status[1] = 3;
+    CP_No[0][0] = 0;
+    CP_No[1][0] = 0;
+    Vital_Handicap[Present_Mode][0] = Rep_Game_Infor[10].Vital_Handicap[0];
+    Vital_Handicap[Present_Mode][1] = Rep_Game_Infor[10].Vital_Handicap[1];
+    Get_Replay_Header();
+    Lag_Ptr = Replay_w.lag;
+    Lag_Timer = (s8)*Lag_Ptr;
+    Lag_Ptr += 1;
+    Bg_Kakikae_Set();
+}
+
+void Check_Replay() {
     if (!Demo_Flag) {
         return;
     }
 
     switch (Play_Mode) {
     case 1:
-        Replay_Status[0] = 1;
-        Replay_Status[1] = 1;
-
-        if (plw[0].wu.operator == 0) {
-            Replay_Status[0] = 0;
-            CP_No[0][0] = 0;
-        }
-
-        if (plw[1].wu.operator == 0) {
-            Replay_Status[1] = 0;
-            CP_No[1][0] = 0;
-        }
-
-        Condense_Buff[0] = 0xFFFF;
-        Condense_Buff[1] = 0xFFFF;
-        memset(&Replay_w, 0, sizeof(Replay_w));
-
-        if (in_training_mode()) {
-            for (ix = 0; ix < 0x1C1E; ix++) {
-                Replay_w.io_unit.key_buff[0][ix] = 0xF000;
-                Replay_w.io_unit.key_buff[1][ix] = 0xF000;
-            }
-        }
-
-        Setup_Replay_Header();
-
-        for (ix = 0; ix < 14; ix++) {
-            Replay_w.lag[ix] = 1;
-        }
-
-        Lag_Ptr = Replay_w.lag;
-        Lag_Timer = 1;
-        Bg_Kakikae_Set();
+        start_replay_recording();
         break;
 
     case 3:
-        Replay_Status[0] = 3;
-        Replay_Status[1] = 3;
-        CP_No[0][0] = 0;
-        CP_No[1][0] = 0;
-        Vital_Handicap[Present_Mode][0] = Rep_Game_Infor[10].Vital_Handicap[0];
-        Vital_Handicap[Present_Mode][1] = Rep_Game_Infor[10].Vital_Handicap[1];
-        Get_Replay_Header();
-        Lag_Ptr = Replay_w.lag;
-        Lag_Timer = (s8)*Lag_Ptr;
-        Lag_Ptr += 1;
-        Bg_Kakikae_Set();
+        start_replay_playback();
         break;
 
     default:
