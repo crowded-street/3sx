@@ -86,29 +86,52 @@ static void load_rw_slot_from_table(s32 slot, s8 rw) {
     rw_dat[slot].gbix = *rw_dat[slot].rwd_ptr++;
 }
 
-void Bg_Kakikae_Set() {
+static void set_stage03_kakikae() {
     u8 i;
     s8 rw;
 
+    tokusyu_stage = 1;
+    stage_flash = 0;
+    stage_ftimer = 0;
+    rw_dat->rwd_ptr = rw_dat->brw_ptr = (s16*)rw30;
+    rw_dat->rw_cnt = 2;
+
+    for (i = 0; i < 13; i++) {
+        rw_gbix[i] = stage03rw_data_tbl[i];
+    }
+
+    rw3col_ptr = (u32*)rw30col;
+
+    for (i = 0; i < 4; i++) {
+        rw = bgrw_on[bg_w.stage][i];
+
+        load_rw_slot_from_table(i + 1, rw);
+    }
+}
+
+static void set_stage19_kakikae() {
+    u8 i;
+    s8 rw;
+
+    tokusyu_stage = 3;
+    stage_flash = 0;
+    stage_ftimer = 2;
+    rw_dat->rwd_ptr = rw_dat->brw_ptr = (s16*)rw190;
+    rw_dat->rw_cnt = 2;
+
+    for (i = 0; i < 4; i++) {
+        rw_gbix[i] = stage19rw_data_tbl[i];
+    }
+
+    rw = bgrw_on[bg_w.stage][0];
+
+    load_rw_slot_from_table(1, rw);
+}
+
+void Bg_Kakikae_Set() {
     switch (bg_w.stage) {
     case 3:
-        tokusyu_stage = 1;
-        stage_flash = 0;
-        stage_ftimer = 0;
-        rw_dat->rwd_ptr = rw_dat->brw_ptr = (s16*)rw30;
-        rw_dat->rw_cnt = 2;
-
-        for (i = 0; i < 13; i++) {
-            rw_gbix[i] = stage03rw_data_tbl[i];
-        }
-
-        rw3col_ptr = (u32*)rw30col;
-
-        for (i = 0; i < 4; i++) {
-            rw = bgrw_on[bg_w.stage][i];
-
-            load_rw_slot_from_table(i + 1, rw);
-        }
+        set_stage03_kakikae();
         break;
 
     case 10:
@@ -119,19 +142,7 @@ void Bg_Kakikae_Set() {
         break;
 
     case 19:
-        tokusyu_stage = 3;
-        stage_flash = 0;
-        stage_ftimer = 2;
-        rw_dat->rwd_ptr = rw_dat->brw_ptr = (s16*)rw190;
-        rw_dat->rw_cnt = 2;
-
-        for (i = 0; i < 4; i++) {
-            rw_gbix[i] = stage19rw_data_tbl[i];
-        }
-
-        rw = bgrw_on[bg_w.stage][0];
-
-        load_rw_slot_from_table(1, rw);
+        set_stage19_kakikae();
         break;
 
     default:
