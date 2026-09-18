@@ -18,25 +18,7 @@
 #include "structs.h"
 #include "types.h"
 
-void Passive14_0035(PLW* wk);
-void Passive14_0036(PLW* wk);
 void passive14_pattern_em_term_sa_term_j_command_attack(PLW* wk, const EM_Term_Params* p, const SA_Term_Args* p_b);
-void Passive14_0037(PLW* wk);
-void Passive14_0038(PLW* wk);
-void Passive14_0039(PLW* wk);
-void Passive14_0040(PLW* wk);
-void Passive14_0041(PLW* wk);
-void Passive14_0042(PLW* wk);
-void Passive14_0043(PLW* wk);
-void Passive14_0044(PLW* wk);
-void Passive14_0045(PLW* wk);
-void Passive14_0046(PLW* wk);
-void Passive14_0047(PLW* wk);
-void Passive14_0048(PLW* wk);
-void Passive14_0049(PLW* wk);
-void Passive14_0050(PLW* wk);
-void Passive14_0051(PLW* wk);
-void Passive14_0052(PLW* wk);
 void Passive14_0053(PLW* wk);
 void Passive14_0054(PLW* wk);
 void Passive14_0055(PLW* wk);
