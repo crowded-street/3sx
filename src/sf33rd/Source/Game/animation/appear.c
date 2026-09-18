@@ -448,27 +448,62 @@ const APPEAR_DATA appear_data[] = {
     { -88, 0, -88, 0, 1, 3, 17 },
 };
 
+static void start_appear_07000(PLW* wk) {
+    wk->wu.disp_flag = 1;
+    bg_app_stop = 1;
+
+    if (plw[wk->wu.id ^ 1].player_number == 12 && bg_w.stage == 12 && bg_w.area == 0) {
+        wk->wu.routine_no[4] = 1;
+        set_char_move_init(&wk->wu, 9, 17);
+        wk->wu.routine_no[3] = 3;
+    } else {
+        set_char_move_init(&wk->wu, 9, 8);
+        effect_C8_init(wk);
+
+        if (Appear_flag[wk->wu.id]) {
+            wk->wu.routine_no[3]++;
+        } else {
+            wk->wu.routine_no[3] = 2;
+        }
+    }
+}
+
+static void step_appear_07000_jump(PLW* wk) {
+    switch (wk->wu.cg_type) {
+    case 1:
+        wk->wu.mvxy.a[1].sp = 0x30000;
+        wk->wu.mvxy.d[1].sp = 0xffffa000;
+        wk->wu.cg_type = 0;
+        char_move_z(&wk->wu);
+        break;
+
+    case 2:
+    case 3:
+        char_move(&wk->wu);
+        add_y_sub(&wk->wu);
+        if (wk->wu.xyz[1].disp.pos < 0) {
+            wk->wu.xyz[1].disp.pos = wk->wu.position_y = 0;
+            wk->wu.xyz[1].disp.low = 0;
+            char_move_z(&wk->wu);
+        }
+        break;
+
+    case 4:
+        wk->wu.cg_type = 0;
+        char_move_z(&wk->wu);
+        wk->wu.routine_no[3]++;
+        break;
+
+    default:
+        char_move(&wk->wu);
+        break;
+    }
+}
+
 void Appear_07000(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.disp_flag = 1;
-        bg_app_stop = 1;
-
-        if (plw[wk->wu.id ^ 1].player_number == 12 && bg_w.stage == 12 && bg_w.area == 0) {
-            wk->wu.routine_no[4] = 1;
-            set_char_move_init(&wk->wu, 9, 17);
-            wk->wu.routine_no[3] = 3;
-        } else {
-            set_char_move_init(&wk->wu, 9, 8);
-            effect_C8_init(wk);
-
-            if (Appear_flag[wk->wu.id]) {
-                wk->wu.routine_no[3]++;
-            } else {
-                wk->wu.routine_no[3] = 2;
-            }
-        }
-
+        start_appear_07000(wk);
         break;
 
     case 1:
@@ -488,35 +523,7 @@ void Appear_07000(PLW* wk) {
 
     case 3:
     case 4:
-        switch (wk->wu.cg_type) {
-        case 1:
-            wk->wu.mvxy.a[1].sp = 0x30000;
-            wk->wu.mvxy.d[1].sp = 0xffffa000;
-            wk->wu.cg_type = 0;
-            char_move_z(&wk->wu);
-            break;
-
-        case 2:
-        case 3:
-            char_move(&wk->wu);
-            add_y_sub(&wk->wu);
-            if (wk->wu.xyz[1].disp.pos < 0) {
-                wk->wu.xyz[1].disp.pos = wk->wu.position_y = 0;
-                wk->wu.xyz[1].disp.low = 0;
-                char_move_z(&wk->wu);
-            }
-            break;
-
-        case 4:
-            wk->wu.cg_type = 0;
-            char_move_z(&wk->wu);
-            wk->wu.routine_no[3]++;
-            break;
-
-        default:
-            char_move(&wk->wu);
-            break;
-        }
+        step_appear_07000_jump(wk);
 
         break;
 
