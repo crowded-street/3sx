@@ -326,6 +326,11 @@ static s32 remap_ending_g_chip_in_range(s32 global_index_real, s32 first, s32 li
     return global_index_real;
 }
 
+static void draw_chip_and_restore_list(const StageDrawContext* context, const ChipRect* rect, s32 gbix, u32 vtxCol) {
+    bgDrawOneChip(rect, gbix, vtxCol, context->pal_offset);
+    ppgSetupCurrentDataList(context->data_list);
+}
+
 static s32 remap_stage03_background_chip(s32 global_index_real, u32* vtxColor) {
     s32 i;
 
@@ -361,8 +366,7 @@ static void draw_stage03_tiles(const StageDrawContext* context) {
                 global_index_real = remap_stage03_background_chip(global_index_real, &vtxColor);
             }
 
-            bgDrawOneChip(&(ChipRect){ x, y, 128, 128 }, global_index_real, vtxColor, context->pal_offset);
-            ppgSetupCurrentDataList(context->data_list);
+            draw_chip_and_restore_list(context, &(ChipRect){ x, y, 128, 128 }, global_index_real, vtxColor);
         }
     }
 }
@@ -383,8 +387,7 @@ static void draw_stage02_tiles(const StageDrawContext* context, u32 vtxColor) {
             if (ppgCheckTextureNumber(0, global_index_real) == 0) {
                 ppgSetupCurrentDataList(&ppgRwBgList);
             }
-            bgDrawOneChip(&(ChipRect){ x, y, 128, 128 }, global_index_real, vtxColor, context->pal_offset);
-            ppgSetupCurrentDataList(context->data_list);
+            draw_chip_and_restore_list(context, &(ChipRect){ x, y, 128, 128 }, global_index_real, vtxColor);
         }
     }
 }
@@ -540,8 +543,7 @@ static void draw_remapped_tiles(const StageDrawContext* context, s32 (*remap)(u8
             global_index_real = context->global_index + (((y >> 7) << 3) + (x >> 7));
             global_index_real = remap(context->bgnm, global_index_real);
 
-            bgDrawOneChip(&(ChipRect){ x, y, 128, 128 }, global_index_real, -1, context->pal_offset);
-            ppgSetupCurrentDataList(context->data_list);
+            draw_chip_and_restore_list(context, &(ChipRect){ x, y, 128, 128 }, global_index_real, -1);
         }
     }
 }
