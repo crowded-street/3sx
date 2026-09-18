@@ -371,6 +371,26 @@ s16 exchange_current_colcd(WORK* wk) {
     return col;
 }
 
+// A player work facing the mirrored way takes the other half of its palette
+// pair. Copied character for character from the branch it came from.
+static s32 player_takes_flipped_palette(WORK* wk) {
+    return (wk->work_id == 1) && ((wk->rl_flag + wk->cg_flip) & 1);
+}
+
+// The same for a work that shares its master's colour code.
+static s32 slave_takes_flipped_palette(WORK* wk) {
+    return (wk->work_id == 0x20) && (wk->my_col_code == ((WORK*)((WORK_Other*)wk)->my_master)->my_col_code) &&
+           ((wk->rl_flag + wk->cg_flip) & 1);
+}
+
+static s32 has_nothing_to_draw(WORK* wk) {
+    return wk->disp_flag == 0 || wk->cg_number == 0;
+}
+
+static s32 blinked_out_this_frame(WORK* wk) {
+    return (wk->disp_flag == 2) && ((wk->blink_timing + Game_timer & 1));
+}
+
 s32 sort_push_request(WORK* wk) {
     if (wk->my_mts == 0) {
         return 0;
@@ -378,12 +398,11 @@ s32 sort_push_request(WORK* wk) {
 
     wk->current_colcd = wk->my_col_code;
 
-    if ((wk->work_id == 1) && ((wk->rl_flag + wk->cg_flip) & 1)) {
+    if (player_takes_flipped_palette(wk)) {
         wk->current_colcd |= 8;
     }
 
-    if ((wk->work_id == 0x20) && (wk->my_col_code == ((WORK*)((WORK_Other*)wk)->my_master)->my_col_code) &&
-        ((wk->rl_flag + wk->cg_flip) & 1)) {
+    if (slave_takes_flipped_palette(wk)) {
         wk->current_colcd |= 8;
     }
 
@@ -395,11 +414,11 @@ s32 sort_push_request(WORK* wk) {
         wk->current_colcd = wk->extra_col;
     }
 
-    if (wk->disp_flag == 0 || wk->cg_number == 0) {
+    if (has_nothing_to_draw(wk)) {
         return 1;
     }
 
-    if ((wk->disp_flag == 2) && ((wk->blink_timing + Game_timer & 1))) {
+    if (blinked_out_this_frame(wk)) {
         return 1;
     }
 
