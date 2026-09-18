@@ -296,6 +296,13 @@ void Sa_frame_Write() {
     }
 }
 
+static void set_glyph_quad_pos(u16 x, u16 y) {
+    scrscrntex[0].x = x;
+    scrscrntex[3].x = (x + 8);
+    scrscrntex[0].y = y;
+    scrscrntex[3].y = (y + 8);
+}
+
 void SSPutStrTexInput(u16 x, u16 y, const char* str) {
     s32 u = ((*str & 0xF) * 8) + 0x80;
     s32 v = ((*str & 0xF0) >> 4) * 8;
@@ -304,10 +311,7 @@ void SSPutStrTexInput(u16 x, u16 y, const char* str) {
     scrscrntex[3].u = TO_UV_256(u + 8);
     scrscrntex[0].v = TO_UV_256(v);
     scrscrntex[3].v = TO_UV_256(v + 8);
-    scrscrntex[0].x = x;
-    scrscrntex[3].x = (x + 8);
-    scrscrntex[0].y = y;
-    scrscrntex[3].y = (y + 8);
+    set_glyph_quad_pos(x, y);
 }
 
 void SSPutStrTexInput2(u16 x, u16 y, u8 str) {
@@ -319,10 +323,7 @@ void SSPutStrTexInput2(u16 x, u16 y, u8 str) {
     scrscrntex[3].u = TO_UV_256(u + 8);
     scrscrntex[0].v = TO_UV_256(0.0f);
     scrscrntex[3].v = TO_UV_256(8.0f);
-    scrscrntex[0].x = x;
-    scrscrntex[3].x = (x + 8);
-    scrscrntex[0].y = y;
-    scrscrntex[3].y = (y + 8);
+    set_glyph_quad_pos(x, y);
 }
 
 void SSPutStr(const ScStr* s, u16 priority) {
@@ -697,10 +698,7 @@ void scfont_put(const ScFontCell* c, u16 priority) {
         scrscrntex[3].v = TO_UV_256(v + 8);
     }
 
-    scrscrntex[0].x = x;
-    scrscrntex[3].x = (x + 8);
-    scrscrntex[0].y = y;
-    scrscrntex[3].y = (y + 8);
+    set_glyph_quad_pos(x, y);
     njDrawSprite(scrscrntex, 4, page, 1);
 }
 
