@@ -104,6 +104,18 @@ Uint8 ss_state_flags;                                 /* 0x02079C8C */
 void SsResetBgmChannels();
 Sint32 SsReadDelay(const Uint8* stream, Uint32* delay);
 
+/* The pan descriptor both panned request shapes install. */
+static void ss_setup_pan(SsPanDescriptor* pan, Sint16 pan_control) {
+    if (pan_control == -1) {
+        pan->start = 0;
+        pan->end = 0;
+        pan->step = 0;
+        pan->control = -1;
+    } else {
+        *pan = ss_pan_tmp;
+    }
+}
+
 /* The instrument bank load every request shape opens its channel setup with. */
 static void ss_load_default_instrument(SsChannelState* channel) {
     const Uint8* instrument_bank = ss_instrument_banks[0];
@@ -260,14 +272,7 @@ void SsRequestCore(Uint16 req_number, Sint16 pan_control) {
             channel->unk_6D = 0x40;
             channel->unk_70 = 0;
 
-            if (pan_control == -1) {
-                pan->start = 0;
-                pan->end = 0;
-                pan->step = 0;
-                pan->control = -1;
-            } else {
-                *pan = ss_pan_tmp;
-            }
+            ss_setup_pan(pan, pan_control);
 
             ss_channel_aux[i] = 0;
         }
@@ -305,14 +310,7 @@ void SsRequestCore(Uint16 req_number, Sint16 pan_control) {
 
         SsPanDescriptor* pan = &ss_pan_descriptors[channel_index];
 
-        if (pan_control == -1) {
-            pan->start = 0;
-            pan->end = 0;
-            pan->step = 0;
-            pan->control = -1;
-        } else {
-            *pan = ss_pan_tmp;
-        }
+        ss_setup_pan(pan, pan_control);
 
         channel->state = 0;
     }
