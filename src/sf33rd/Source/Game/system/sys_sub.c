@@ -1421,6 +1421,10 @@ s32 Check_Fade_Complete() {
     return 1;
 }
 
+static s32 ranked_in_any_table(s16 PL_id) {
+    return Rank_In[PL_id][0] >= 0 || Rank_In[PL_id][1] >= 0 || Rank_In[PL_id][2] >= 0 || Rank_In[PL_id][3] >= 0;
+}
+
 s32 Check_Ranking(s16 PL_id) {
     Present_Data[PL_id].name[0] = 12;
     Present_Data[PL_id].name[1] = 10;
@@ -1466,7 +1470,7 @@ s32 Check_Ranking(s16 PL_id) {
         Rank_In[PL_id ^ 1][3] = -1;
     }
 
-    if (Rank_In[PL_id][0] >= 0 || Rank_In[PL_id][1] >= 0 || Rank_In[PL_id][2] >= 0 || Rank_In[PL_id][3] >= 0) {
+    if (ranked_in_any_table(PL_id)) {
         return 1;
     }
 
