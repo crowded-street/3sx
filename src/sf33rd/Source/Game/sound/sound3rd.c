@@ -780,25 +780,10 @@ static void set_se_patch_for_source(SoundPatchConfig* rmcode, u16 source) {
     }
 }
 
-u16 remake_sound_code_for_DC(u16 code, SoundPatchConfig* rmcode) {
-    u16 cd;
-    u16 mtf;
-    u16 p2s;
-    u16 rnum;
-
-    rnum = mtf = p2s = 0;
-
-    if (code >= 0x760) {
-        code -= 0x600;
-        mtf = 1;
-    }
-
-    if (code >= 0x400) {
-        code -= 0x300;
-        p2s = 1;
-    }
-
-    rmcode->code = (cd = sdcode_conv[code]) & 0xFFF;
+/* Fill in the patch for a converted sound code, and report whether the code was one the
+ * table does not know. */
+static u16 assign_sound_patch(SoundPatchConfig* rmcode, u16 cd, u16 p2s, u16 mtf) {
+    u16 rnum = 0;
 
     switch (cd & 0xF000) {
     case 0x0:
@@ -831,6 +816,28 @@ u16 remake_sound_code_for_DC(u16 code, SoundPatchConfig* rmcode) {
     }
 
     return rnum;
+}
+
+u16 remake_sound_code_for_DC(u16 code, SoundPatchConfig* rmcode) {
+    u16 cd;
+    u16 mtf;
+    u16 p2s;
+
+    mtf = p2s = 0;
+
+    if (code >= 0x760) {
+        code -= 0x600;
+        mtf = 1;
+    }
+
+    if (code >= 0x400) {
+        code -= 0x300;
+        p2s = 1;
+    }
+
+    rmcode->code = (cd = sdcode_conv[code]) & 0xFFF;
+
+    return assign_sound_patch(rmcode, cd, p2s, mtf);
 }
 
 void SsRequest(u16 ReqNumber) {
