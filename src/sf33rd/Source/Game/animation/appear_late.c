@@ -414,23 +414,10 @@ static void walk_appear_29000_in(PLW* wk) {
     mark_appear_finished(wk);
 }
 
-void Appear_29000(PLW* wk) {
+/* The later states of this entrance. The case labels are the original ones, so
+ * the states still read as the same numbers. */
+static void step_appear_29000_settle(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
-    case 0:
-        start_appear_29000(wk);
-        break;
-
-    case 1:
-        if (wk->wu.cmwk[1]) {
-            choose_appear_29000_entry(wk);
-        }
-
-        break;
-
-    case 2:
-        walk_appear_29000_in(wk);
-        break;
-
     case 3:
         char_move(&wk->wu);
 
@@ -456,6 +443,29 @@ void Appear_29000(PLW* wk) {
 
         finish_appear_on_last_frame(wk);
 
+        break;
+    }
+}
+
+void Appear_29000(PLW* wk) {
+    switch (wk->wu.routine_no[3]) {
+    case 0:
+        start_appear_29000(wk);
+        break;
+
+    case 1:
+        if (wk->wu.cmwk[1]) {
+            choose_appear_29000_entry(wk);
+        }
+
+        break;
+
+    case 2:
+        walk_appear_29000_in(wk);
+        break;
+
+    default:
+        step_appear_29000_settle(wk);
         break;
     }
 }
