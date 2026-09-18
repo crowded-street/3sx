@@ -1388,12 +1388,31 @@ static s32 get_mltbuf32(MultiTexture* mt, u32 code, u32 palt, s32* ret) {
     }
 }
 
+// Take the next free 16x16 slot, record the pattern in it, and note it in the
+// collection's map.
+static s32 claim_free_x16_slot(const MltbufExtLookup* look, PatternState* mc, s32 i) {
+    look->mt->tpf->x16 -= 1;
+    look->mt->tpu->x16_used[i] = look->mt->tpf->x16_free[look->mt->tpf->x16];
+    look->mt->tpu->x16 += 1;
+    mc[look->mt->tpu->x16_used[i]].cs.code = look->code;
+    mc[look->mt->tpu->x16_used[i]].state = look->palt;
+    *look->ret = look->mt->tpu->x16_used[i];
+    mc[look->mt->tpu->x16_used[i]].time = 1;
+
+    if (x16_mapping_set(&look->cp->map, *look->ret)) {
+        look->cp->x16 += 1;
+    }
+
+    return 1;
+}
+
 static s32 get_mltbuf16_ext_2(const MltbufExtLookup* look) {
     PatternState* mc = look->mt->mltcsh16;
     s32 i;
 
     for (i = 0; i < look->mt->tpu->x16; i++) {
-        if ((look->code == mc[look->mt->tpu->x16_used[i]].cs.code) && (look->palt == mc[look->mt->tpu->x16_used[i]].state)) {
+        if ((look->code == mc[look->mt->tpu->x16_used[i]].cs.code) &&
+            (look->palt == mc[look->mt->tpu->x16_used[i]].state)) {
             *look->ret = look->mt->tpu->x16_used[i];
 
             if (x16_mapping_set(&look->cp->map, *look->ret)) {
@@ -1406,19 +1425,7 @@ static s32 get_mltbuf16_ext_2(const MltbufExtLookup* look) {
     }
 
     if (has_free_pattern_slot(i, look->mt->mltnum16, look->mt->tpf->x16)) {
-        look->mt->tpf->x16 -= 1;
-        look->mt->tpu->x16_used[i] = look->mt->tpf->x16_free[look->mt->tpf->x16];
-        look->mt->tpu->x16 += 1;
-        mc[look->mt->tpu->x16_used[i]].cs.code = look->code;
-        mc[look->mt->tpu->x16_used[i]].state = look->palt;
-        *look->ret = look->mt->tpu->x16_used[i];
-        mc[look->mt->tpu->x16_used[i]].time = 1;
-
-        if (x16_mapping_set(&look->cp->map, *look->ret)) {
-            look->cp->x16 += 1;
-        }
-
-        return 1;
+        return claim_free_x16_slot(look, mc, i);
     }
 
     // CG cache is full. x16 EXT2\n
