@@ -305,6 +305,28 @@ void sound_request_for_dc(SoundPatchConfig* rmc, s16 pan) {
     }
 }
 
+/* Start whatever track `bgm_exe.code` names: from memory when the matching ADX set is
+ * resident, otherwise through the file request path. */
+static void bgm_start_current_track() {
+    if (adx_NowOnMemoryType == sys_w.bgm_type) {
+        switch (bgm_exe.code) {
+        case 0x33:
+            ADX_StartMem(adx_VS, sizeof(adx_VS));
+            break;
+
+        case 0x39:
+            ADX_StartMem(adx_EmSel, sizeof(adx_EmSel));
+            break;
+
+        default:
+            bgm_play_request(bgm_exe.code, 1);
+            break;
+        }
+    } else {
+        bgm_play_request(bgm_exe.code, 1);
+    }
+}
+
 void BGM_Server() {
     if (!(system_init_level & 2)) {
         return;
@@ -357,23 +379,7 @@ void BGM_Server() {
 
             ADX_Pause(1);
 
-            if (adx_NowOnMemoryType == sys_w.bgm_type) {
-                switch (bgm_exe.code) {
-                case 0x33:
-                    ADX_StartMem(adx_VS, sizeof(adx_VS));
-                    break;
-
-                case 0x39:
-                    ADX_StartMem(adx_EmSel, sizeof(adx_EmSel));
-                    break;
-
-                default:
-                    bgm_play_request(bgm_exe.code, 1);
-                    break;
-                }
-            } else {
-                bgm_play_request(bgm_exe.code, 1);
-            }
+            bgm_start_current_track();
         }
 
         current_bgm = bgm_exe.code;
@@ -409,23 +415,7 @@ void BGM_Server() {
             bgm_seamless_clear();
             bgm_volume_setup(0);
 
-            if (adx_NowOnMemoryType == sys_w.bgm_type) {
-                switch (bgm_exe.code) {
-                case 0x33:
-                    ADX_StartMem(adx_VS, sizeof(adx_VS));
-                    break;
-
-                case 0x39:
-                    ADX_StartMem(adx_EmSel, sizeof(adx_EmSel));
-                    break;
-
-                default:
-                    bgm_play_request(bgm_exe.code, 1);
-                    break;
-                }
-            } else {
-                bgm_play_request(bgm_exe.code, 1);
-            }
+            bgm_start_current_track();
         }
 
         if (ADX_IsPaused()) {
@@ -501,23 +491,7 @@ void BGM_Server() {
             } else {
                 bgm_seamless_clear();
 
-                if (adx_NowOnMemoryType == sys_w.bgm_type) {
-                    switch (bgm_exe.code) {
-                    case 0x33:
-                        ADX_StartMem(adx_VS, sizeof(adx_VS));
-                        break;
-
-                    case 0x39:
-                        ADX_StartMem(adx_EmSel, sizeof(adx_EmSel));
-                        break;
-
-                    default:
-                        bgm_play_request(bgm_exe.code, 1);
-                        break;
-                    }
-                } else {
-                    bgm_play_request(bgm_exe.code, 1);
-                }
+                bgm_start_current_track();
             }
 
             if (ADX_IsPaused()) {
