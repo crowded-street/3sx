@@ -1199,6 +1199,10 @@ Recipe X both refuse to merge.
 | `end_05.c` | 8.81 | *was 8.24.* Two near-miss pairs; one writes `Request_Fade(1) != 0` where the other writes `Request_Fade(3)` |
 | `end_10.c`, `end_12.c`, `end_16.c`, `end_17.c`, `end_18.c`, `end_20.c` | 9.38 | all the same shape: one or two **two-instance** Recipe V families left. Recipe V asks for three, and relaxing that to two is exactly the near-miss merge Recipe D refuses |
 | `end_01.c` | 9.60 | a measured refusal. `end_100_0000` is cc 14 with seven labels, so only a dedup plus a split gets under; that clears Complex Method and raises Overall Code Complexity in its place, and the nine-function mean will not come down. The whole sequence measured -0.22 and was reverted |
+| `se.c` | **10.00** | *was 8.95.* One Recipe P. Naming `Stage_BGM`'s four-term arcade-Gill test cleared the Complex Conditional, and the `Se_Myself`/`Se_Myself_Die` duplication group went with it - in a file this small the added function moved the pair under the detector's threshold |
+| `cps3sound.c` | **10.00** | *was 8.65.* `SsRequestCore`'s three request shapes agree on some forty channel writes, so the five shared runs came first and the Recipe E split of the arms last - *Share the run before splitting the shape*, on a file where splitting first would plainly have made a duplication pair. One Recipe P for the channel reject test in between |
+| `sound3rd.c` | **10.00** | *was 6.59*, and the hardest file in the sound folder: `BGM_Server` at cc 57 with 9 bumps and depth 5. Three identical playback blocks (Recipe D) and four more shared runs and predicates took it to cc 21 before any arm was lifted; then six extractions and Recipe X on the kind dispatch. `sound_request_for_dc` and `remake_sound_code_for_DC` each split into a normalising shell plus the dispatch that was their whole complexity, and `latch_bgm_request`'s eleven labels - a floor of cc 12 that no extraction reaches - needed **two** Recipe X levels, each fallthrough kept inside the function holding both its ends |
+| `se_data.c` | n/a | pure `const` data tables with no functions; CodeScene returns no score and the catalogue puts them out of scope |
 
 ---
 
@@ -2073,6 +2077,42 @@ So when a file is left with Overall Code Complexity alone, **look for the larges
 function and split its branching**, rather than hunting more duplicate runs. `end_13.c`
 and `end_03.c` cleared the same way, each on a single extraction from the heaviest
 function in the file.
+
+### Chain Recipe X through successive defaults when the labels alone are the floor
+
+*Recipe X pays only if both halves come in under the threshold* says to divide the arm
+count before splitting. `sound3rd.c`'s `latch_bgm_request` is the case where one division
+is not enough and the answer is not to give up but to divide again.
+
+It had **eleven** case labels, which puts a floor of cc 12 under it: no extraction,
+predicate or dedup reaches a label. One split leaves nine labels on one side and is still
+flagged. Two do not:
+
+| Function | Keeps | cc |
+| --- | --- | --- |
+| `latch_bgm_request` | 5, 7, `default:` -> | 5 |
+| `latch_bgm_play_request` | 9, 2, 4, `default:` -> | 7 |
+| `latch_bgm_simple_request` | 6, 0, 1, 3, 8, the original `default:` | 7 |
+
+Each helper switches on the same expression and keeps the original labels, and each level
+is reached from the level above's `default:`, so the chain is Recipe X applied twice rather
+than anything new. **9.58 -> 10.00**, and all three came in under the threshold.
+
+Two things make a chain like this legal rather than merely tidy, and both want checking
+before the first cut:
+
+- **Every fallthrough stays inside the function that holds both its ends.** Here 5 falls
+  into 7, 9 falls into 2/4, and 0/1/3/8 fall into the terminal `default:` - three pairs,
+  and the split points were chosen so that no pair is separated. A cut through a
+  fallthrough is not a Recipe X split, it is a rewrite of the control flow.
+- **Only the outermost switch may keep a side effect in its expression.** The original
+  switched on `bgm_req.kind = rmc->bank`; the helpers switch on `bgm_req.kind` alone,
+  because the assignment has already happened and nothing on the path to a helper touches
+  it. Repeating the assignment at each level would run it three times.
+
+Where the chain's last level inherits the original `default:`, the caveat in Recipe X's
+shared-arm variant does not bite: the values that used to reach that `default:` still reach
+it, having matched nothing on the way down.
 
 ### A file can be too big for its own mean
 
