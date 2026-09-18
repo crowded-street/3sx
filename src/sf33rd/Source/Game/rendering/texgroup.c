@@ -129,6 +129,37 @@ static void request_texture_group_read(LoadRequest* curr) {
     curr->status = LDREQ_STATUS_RUNNING;
 }
 
+// Turn the 25 leading offsets into pointers, then the two per-character fixups
+// the PS2 data needs. Both of those are original behaviour and stay as they are.
+static void apply_ps2_char_data_offsets(LoadRequest* curr, CharInitData* dst, u8* ldchd) {
+    for (int i = 0; i < 25; i++) {
+        ((uintptr_t*)dst)[i] = (uintptr_t)ldchd + ((u32*)ldchd)[i];
+    }
+
+    // Q specific code
+    if (curr->ix == 18) {
+        dst->cbca[37] = dst->cbca[3];
+    }
+
+    // Akuma specific code
+    if (curr->ix == 15) {
+        u16* trsbas = (u16*)(((u32*)texgrplds[15].trans_table)[166] + texgrplds[15].trans_table);
+        const int count = *trsbas - 1;
+        *trsbas = count;
+        trsbas += 1;
+
+        TileMapEntry* trsptr = (TileMapEntry*)trsbas;
+        trsptr[0].x += trsptr[1].x;
+        trsptr[0].y += trsptr[1].y;
+        trsptr[0].attr = trsptr[1].attr;
+        trsptr[0].code = trsptr[1].code;
+
+        for (int i = 1; i < count; i++) {
+            trsptr[i] = trsptr[i + 1];
+        }
+    }
+}
+
 // The character init data sits behind the group's textures and has to be turned
 // from offsets into pointers, or replaced wholesale when the arcade balance is
 // on. Returns 0 where the original abandoned the whole request, 1 otherwise.
@@ -175,32 +206,7 @@ static s32 unpack_character_init_data(LoadRequest* curr, const TexGroupData* bsd
         SDL_copyp(dst, arcade_data);
 #endif
     } else {
-        for (int i = 0; i < 25; i++) {
-            ((uintptr_t*)dst)[i] = (uintptr_t)ldchd + ((u32*)ldchd)[i];
-        }
-
-        // Q specific code
-        if (curr->ix == 18) {
-            dst->cbca[37] = dst->cbca[3];
-        }
-
-        // Akuma specific code
-        if (curr->ix == 15) {
-            u16* trsbas = (u16*)(((u32*)texgrplds[15].trans_table)[166] + texgrplds[15].trans_table);
-            const int count = *trsbas - 1;
-            *trsbas = count;
-            trsbas += 1;
-
-            TileMapEntry* trsptr = (TileMapEntry*)trsbas;
-            trsptr[0].x += trsptr[1].x;
-            trsptr[0].y += trsptr[1].y;
-            trsptr[0].attr = trsptr[1].attr;
-            trsptr[0].code = trsptr[1].code;
-
-            for (int i = 1; i < count; i++) {
-                trsptr[i] = trsptr[i + 1];
-            }
-        }
+        apply_ps2_char_data_offsets(curr, dst, ldchd);
     }
 
     parabora_own_table[character_id] = dst->prot;
