@@ -102,14 +102,7 @@ void count_cont_main() {
     counter_write(counter_color);
 }
 
-void counter_control() {
-    if (Counter_hi == 0) {
-        if (No_Trans == 0) {
-            counter_write(counter_color);
-        }
-        return;
-    }
-
+static void step_counter_flash() {
     if (flash_r_num) {
         if (Counter_hi == 10 && Counter_low == hoji_counter) {
             flash_timer = 0;
@@ -124,17 +117,9 @@ void counter_control() {
         flash_timer = 0;
         counter_flash(0);
     }
+}
 
-    if (Counter_low != 0) {
-        Counter_low -= 1;
-
-        if (No_Trans == 0) {
-            counter_write(counter_color);
-        }
-
-        return;
-    }
-
+static void tick_counter_second() {
     Counter_low = hoji_counter;
     Counter_hi -= 1;
 
@@ -146,6 +131,29 @@ void counter_control() {
     math_counter_hi = Counter_hi;
     math_counter_hi /= 10;
     math_counter_low = Counter_hi - (math_counter_hi * 10);
+}
+
+void counter_control() {
+    if (Counter_hi == 0) {
+        if (No_Trans == 0) {
+            counter_write(counter_color);
+        }
+        return;
+    }
+
+    step_counter_flash();
+
+    if (Counter_low != 0) {
+        Counter_low -= 1;
+
+        if (No_Trans == 0) {
+            counter_write(counter_color);
+        }
+
+        return;
+    }
+
+    tick_counter_second();
 
     if (No_Trans == 0) {
         counter_write(counter_color);
