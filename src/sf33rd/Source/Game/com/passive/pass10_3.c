@@ -73,7 +73,7 @@ void Passive10_0110(PLW* wk) {
 }
 
 void Passive10_0111(PLW* wk) {
-    passive10_pattern_em_term_normal_attack(wk, &(EM_Term_Params){-1, -0x7FB0, 6, 1, -1}, 0x200);
+    pattern_em_term_normal_attack(wk, &(EM_Term_Params){-1, -0x7FB0, 6, 1, -1}, 0x200);
 }
 
 void Passive10_0112(PLW* wk) {
@@ -101,7 +101,7 @@ void Passive10_0113(PLW* wk) {
 }
 
 void Passive10_0114(PLW* wk) {
-    passive10_pattern_jump_attack_term(wk, &(Jump_Term_Args){-1, 0x20, 8, 0x400, 1, -1, 0x20, 0x400});
+    pattern_jump_attack_term(wk, &(Jump_Term_Args){-1, 0x20, 8, 0x400, 1, -1, 0x20, 0x400});
 }
 
 void Passive10_0115(PLW* wk) {
@@ -125,23 +125,23 @@ void Passive10_0115(PLW* wk) {
 }
 
 void Passive10_0116(PLW* wk) {
-    passive10_pattern_jump_attack_term(wk, &(Jump_Term_Args){-1, 0x20, 8, 0x400, 0, -1, 0x20, 0x400});
+    pattern_jump_attack_term(wk, &(Jump_Term_Args){-1, 0x20, 8, 0x400, 0, -1, 0x20, 0x400});
 }
 
 void Passive10_0117(PLW* wk) {
-    passive10_pattern_jump_attack_term(wk, &(Jump_Term_Args){-1, 0x20, 8, 0x200, 1, -1, 0x20, 0x200});
+    pattern_jump_attack_term(wk, &(Jump_Term_Args){-1, 0x20, 8, 0x200, 1, -1, 0x20, 0x200});
 }
 
 void Passive10_0118(PLW* wk) {
-    passive10_pattern_jump_attack_term(wk, &(Jump_Term_Args){-1, 0x20, 8, 0x200, 0, -1, 0x20, 0x200});
+    pattern_jump_attack_term(wk, &(Jump_Term_Args){-1, 0x20, 8, 0x200, 0, -1, 0x20, 0x200});
 }
 
 void Passive10_0119(PLW* wk) {
-    passive10_pattern_normal_attack(wk, 8, 0x400);
+    pattern_normal_attack(wk, 8, 0x400);
 }
 
 void Passive10_0120(PLW* wk) {
-    passive10_pattern_pierce_on_command_attack(
+    pattern_pierce_on_command_attack(
         wk,
         &(Command_Attack_Args){0xe, 0x1e, 10, -1},
         &(Command_Attack_Args){0xe, 0x1e, 10, -1}
@@ -190,7 +190,7 @@ void Passive10_0123(PLW* wk) {
 }
 
 void Passive10_0124(PLW* wk) {
-    passive10_pattern_normal_attack(wk, 0xd, 0x100);
+    pattern_normal_attack(wk, 0xd, 0x100);
 }
 
 void Passive10_0125(PLW* wk) {
@@ -231,7 +231,7 @@ void Passive10_0126(PLW* wk) {
 }
 
 void Passive10_0127(PLW* wk) {
-    passive10_pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1F, 0xB, 0x700});
+    pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1F, 0xB, 0x700});
 }
 
 static void passive10_0128_from_step_6(PLW* wk) {

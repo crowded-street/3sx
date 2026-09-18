@@ -18,15 +18,7 @@
 #include "structs.h"
 #include "types.h"
 
-void passive04_pattern_command_attack(PLW* wk, const Command_Attack_Args* p);
-void passive04_pattern_normal_attack(PLW* wk, s16 reaction, u16 lever_data);
-void passive04_pattern_em_term_j_command_attack(PLW* wk, const EM_Term_Params* p, const Command_Attack_Args* p_b);
-void passive04_pattern_em_term_command_attack(PLW* wk, const EM_Term_Params* p, const Command_Attack_Args* p_b);
-void passive04_pattern_approach_walk_normal_attack(PLW* wk, s16 reaction, u16 lever_data);
-void passive04_pattern_em_term_normal_attack(PLW* wk, const EM_Term_Params* p, s16 reaction, u16 lever_data);
-void passive04_pattern_jump_attack_term(PLW* wk, const Jump_Term_Args* a);
 void passive04_pattern_approach_walk_wait_get_up_command_attack(PLW* wk, s16 target_pos, const Command_Attack_Args* p);
-void passive04_pattern_wait_get_up_command_attack(PLW* wk, const Command_Attack_Args* p);
 void Passive04_0062(PLW* wk);
 void Passive04_0063(PLW* wk);
 void Passive04_0064(PLW* wk);

@@ -762,3 +762,31 @@ void pattern_pierce_on_command_attack_2(
         break;
     }
 }
+
+void pattern_pierce_on_em_term_normal_attack(PLW* wk, const EM_Term_Params* p, s16 reaction, u16 lever_data) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Pierce_On(wk);
+        break;
+
+    case 1:
+        EM_Term(wk, p);
+        break;
+
+    case 2:
+        Normal_Attack(wk, reaction, 0x42);
+        break;
+
+    case 3:
+        Wait(wk, 5);
+        break;
+
+    case 4:
+        Normal_Attack(wk, 8, lever_data);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}

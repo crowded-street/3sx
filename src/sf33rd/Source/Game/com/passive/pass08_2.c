@@ -88,7 +88,7 @@ void Passive08_0062(PLW* wk) {
 }
 
 void Passive08_0063(PLW* wk) {
-    passive08_pattern_em_term_j_command_attack(
+    pattern_em_term_j_command_attack(
         wk,
         &(EM_Term_Params){-0x7FB0, 0x28, 7, 1, -1},
         &(Command_Attack_Args){8, 0x1C, 10, 0x700}
@@ -212,7 +212,7 @@ void Passive08_0073(PLW* wk) {
 }
 
 void Passive08_0074(PLW* wk) {
-    passive08_pattern_em_term_normal_attack(wk, &(EM_Term_Params){-0x7FC0, -1, 6, 1, -1}, 0x100);
+    pattern_em_term_normal_attack(wk, &(EM_Term_Params){-0x7FC0, -1, 6, 1, -1}, 0x100);
 }
 
 void Passive08_0075(PLW* wk) {
@@ -240,7 +240,7 @@ void Passive08_0076(PLW* wk) {
 }
 
 void Passive08_0077(PLW* wk) {
-    passive08_pattern_normal_attack(wk, 8, 0x400);
+    pattern_normal_attack(wk, 8, 0x400);
 }
 
 void Passive08_0078(PLW* wk) {
@@ -332,7 +332,7 @@ void Passive08_0085(PLW* wk) {
 }
 
 void Passive08_0086(PLW* wk) {
-    passive08_pattern_approach_walk(wk, 0xBF);
+    pattern_approach_walk(wk, 0xBF);
 }
 
 void Passive08_0087(PLW* wk) {
@@ -476,7 +476,7 @@ void Passive08_0094(PLW* wk) {
 }
 
 void Passive08_0095(PLW* wk) {
-    passive08_pattern_normal_attack_command_attack(wk, 9, 0x100, &(Command_Attack_Args){8, 0x1C, 9, -1});
+    pattern_normal_attack_command_attack_2(wk, 9, 0x100, &(Command_Attack_Args){8, 0x1C, 9, -1});
 }
 
 void Passive08_0096(PLW* wk) {
@@ -492,15 +492,15 @@ void Passive08_0097(PLW* wk) {
 }
 
 void Passive08_0098(PLW* wk) {
-    passive08_pattern_normal_attack(wk, 8, 0x40);
+    pattern_normal_attack(wk, 8, 0x40);
 }
 
 void Passive08_0099(PLW* wk) {
-    passive08_pattern_normal_attack(wk, 8, 0x202);
+    pattern_normal_attack(wk, 8, 0x202);
 }
 
 void Passive08_0100(PLW* wk) {
-    passive08_pattern_normal_attack(wk, 8, 0x402);
+    pattern_normal_attack(wk, 8, 0x402);
 }
 
 void Passive08_0101(PLW* wk) {
@@ -532,11 +532,11 @@ void Passive08_0102(PLW* wk) {
 }
 
 void Passive08_0103(PLW* wk) {
-    passive08_pattern_normal_attack_command_attack(wk, 0xB, 0x202, &(Command_Attack_Args){8, 0x1E, 9, -1});
+    pattern_normal_attack_command_attack_2(wk, 0xB, 0x202, &(Command_Attack_Args){8, 0x1E, 9, -1});
 }
 
 void Passive08_0104(PLW* wk) {
-    passive08_pattern_normal_attack_command_attack(wk, 9, 0x402, &(Command_Attack_Args){8, 0x1D, 9, -1});
+    pattern_normal_attack_command_attack_2(wk, 9, 0x402, &(Command_Attack_Args){8, 0x1D, 9, -1});
 }
 
 void Passive08_0105(PLW* wk) {
@@ -564,7 +564,7 @@ void Passive08_0105(PLW* wk) {
 }
 
 void Passive08_0106(PLW* wk) {
-    passive08_pattern_jump_attack_term(wk, &(Jump_Term_Args){-0x7FA8, -0x7FC0, 0xB, 0x200, 0, -0x7FB0, -1, 0x20});
+    pattern_jump_attack_term(wk, &(Jump_Term_Args){-0x7FA8, -0x7FC0, 0xB, 0x200, 0, -0x7FB0, -1, 0x20});
 }
 
 void Passive08_0107(PLW* wk) {
@@ -576,7 +576,7 @@ void Passive08_0107(PLW* wk) {
 }
 
 void Passive08_0108(PLW* wk) {
-    passive08_pattern_em_term_j_command_attack(
+    pattern_em_term_j_command_attack(
         wk,
         &(EM_Term_Params){-1, -0x7FC8, 6, 1, -1},
         &(Command_Attack_Args){8, 0x1D, 9, -1}
@@ -584,7 +584,7 @@ void Passive08_0108(PLW* wk) {
 }
 
 void Passive08_0109(PLW* wk) {
-    passive08_pattern_em_term_j_command_attack(
+    pattern_em_term_j_command_attack(
         wk,
         &(EM_Term_Params){-1, -0x7FC8, 0, 1, -1},
         &(Command_Attack_Args){8, 0x1C, 10, -1}
@@ -640,11 +640,11 @@ void Passive08_0111(PLW* wk) {
 }
 
 void Passive08_0112(PLW* wk) {
-    passive08_pattern_approach_walk(wk, 0x7B);
+    pattern_approach_walk(wk, 0x7B);
 }
 
 void Passive08_0113(PLW* wk) {
-    passive08_pattern_normal_attack(wk, 8, 0x200);
+    pattern_normal_attack(wk, 8, 0x200);
 }
 
 void Passive08_0114(PLW* wk) {
@@ -696,13 +696,13 @@ void Passive08_0116(PLW* wk) {
 }
 
 void Passive08_0117(PLW* wk) {
-    passive08_pattern_normal_attack_command_attack(wk, 9, 0x100, &(Command_Attack_Args){8, 0x1D, 10, -1});
+    pattern_normal_attack_command_attack_2(wk, 9, 0x100, &(Command_Attack_Args){8, 0x1D, 10, -1});
 }
 
 void Passive08_0118(PLW* wk) {
-    passive08_pattern_normal_attack_j_command_attack(wk, 9, 0x100, &(Command_Attack_Args){8, 0x1D, 9, -1});
+    pattern_normal_attack_j_command_attack_2(wk, 9, 0x100, &(Command_Attack_Args){8, 0x1D, 9, -1});
 }
 
 void Passive08_0119(PLW* wk) {
-    passive08_pattern_normal_attack_command_attack(wk, 9, 0x100, &(Command_Attack_Args){8, 0x1D, 8, -1});
+    pattern_normal_attack_command_attack_2(wk, 9, 0x100, &(Command_Attack_Args){8, 0x1D, 8, -1});
 }

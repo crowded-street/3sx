@@ -12,39 +12,39 @@
 #include "sf33rd/Source/Game/engine/workuser.h"
 
 void Passive19_0123(PLW* wk) {
-    passive19_pattern_jump_attack_term(wk, &(Jump_Term_Args){-1, 0x20, 8, 0x400, 2, -1, 0x20, 0x400});
+    pattern_jump_attack_term(wk, &(Jump_Term_Args){-1, 0x20, 8, 0x400, 2, -1, 0x20, 0x400});
 }
 
 void Passive19_0124(PLW* wk) {
-    passive19_pattern_jump_attack_term(wk, &(Jump_Term_Args){-1, 0x20, 8, 0x20, 2, -1, 0x20, 0x20});
+    pattern_jump_attack_term(wk, &(Jump_Term_Args){-1, 0x20, 8, 0x20, 2, -1, 0x20, 0x20});
 }
 
 void Passive19_0125(PLW* wk) {
-    passive19_pattern_jump_attack_term(wk, &(Jump_Term_Args){-1, 0x20, 8, 0x40, 2, -1, 0x20, 0x40});
+    pattern_jump_attack_term(wk, &(Jump_Term_Args){-1, 0x20, 8, 0x40, 2, -1, 0x20, 0x40});
 }
 
 void Passive19_0126(PLW* wk) {
-    passive19_pattern_em_term_normal_attack(wk, &(EM_Term_Params){-1, 0x30, 6, 1, -1}, 0x42);
+    pattern_em_term_normal_attack(wk, &(EM_Term_Params){-1, 0x30, 6, 1, -1}, 0x42);
 }
 
 void Passive19_0127(PLW* wk) {
-    passive19_pattern_normal_attack(wk, 8, 0x40);
+    pattern_normal_attack(wk, 8, 0x40);
 }
 
 void Passive19_0128(PLW* wk) {
-    passive19_pattern_check_ex_j_command_attack(wk, 0x36, &(Command_Attack_Args){8, 0x1F, 9, 0x700});
+    pattern_check_ex_j_command_attack(wk, 0x36, &(Command_Attack_Args){8, 0x1F, 9, 0x700});
 }
 
 void Passive19_0129(PLW* wk) {
-    passive19_pattern_command_attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
+    pattern_command_attack_2(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
 }
 
 void Passive19_0130(PLW* wk) {
-    passive19_pattern_command_attack(wk, &(Command_Attack_Args){8, 0x1E, 9, -1});
+    pattern_command_attack_2(wk, &(Command_Attack_Args){8, 0x1E, 9, -1});
 }
 
 void Passive19_0131(PLW* wk) {
-    passive19_pattern_command_attack(wk, &(Command_Attack_Args){8, 0x1E, 10, -1});
+    pattern_command_attack_2(wk, &(Command_Attack_Args){8, 0x1E, 10, -1});
 }
 
 void Passive19_0132(PLW* wk) {
@@ -56,19 +56,19 @@ void Passive19_0133(PLW* wk) {
 }
 
 void Passive19_0134(PLW* wk) {
-    passive19_pattern_command_attack(wk, &(Command_Attack_Args){8, 0x1D, 10, 0x70});
+    pattern_command_attack_2(wk, &(Command_Attack_Args){8, 0x1D, 10, 0x70});
 }
 
 void Passive19_0135(PLW* wk) {
-    passive19_pattern_check_ex_j_command_attack(wk, 1, &(Command_Attack_Args){8, 0x1F, 10, 0x700});
+    pattern_check_ex_j_command_attack(wk, 1, &(Command_Attack_Args){8, 0x1F, 10, 0x700});
 }
 
 void Passive19_0136(PLW* wk) {
-    passive19_pattern_check_ex_j_command_attack(wk, 0x36, &(Command_Attack_Args){8, 0x1F, 10, 0x700});
+    pattern_check_ex_j_command_attack(wk, 0x36, &(Command_Attack_Args){8, 0x1F, 10, 0x700});
 }
 
 void Passive19_0137(PLW* wk) {
-    passive19_pattern_em_term_command_attack(
+    pattern_em_term_command_attack(
         wk,
         &(EM_Term_Params){-1, -0x7F80, 6, 1, -1},
         &(Command_Attack_Args){8, 0x1E, 10, 0x70}
@@ -76,11 +76,11 @@ void Passive19_0137(PLW* wk) {
 }
 
 void Passive19_0138(PLW* wk) {
-    passive19_pattern_check_ex_j_command_attack(wk, 0x22, &(Command_Attack_Args){8, 0x1F, 10, 0x700});
+    pattern_check_ex_j_command_attack(wk, 0x22, &(Command_Attack_Args){8, 0x1F, 10, 0x700});
 }
 
 void Passive19_0139(PLW* wk) {
-    passive19_pattern_jump_attack(wk, &(Jump_Attack_Args){0xC, 0xD, 0x400, 2});
+    pattern_jump_attack(wk, &(Jump_Attack_Args){0xC, 0xD, 0x400, 2});
 }
 
 void Passive19_0140(PLW* wk) {
@@ -88,7 +88,7 @@ void Passive19_0140(PLW* wk) {
 }
 
 void Passive19_0141(PLW* wk) {
-    passive19_pattern_em_term_normal_attack(wk, &(EM_Term_Params){-1, -0x7FB0, 6, 1, -1}, 0x40);
+    pattern_em_term_normal_attack(wk, &(EM_Term_Params){-1, -0x7FB0, 6, 1, -1}, 0x40);
 }
 
 void Passive19_0142(PLW* wk) {
@@ -160,7 +160,7 @@ void Passive19_0146(PLW* wk) {
 }
 
 void Passive19_0147(PLW* wk) {
-    passive19_pattern_check_ex_j_command_attack(wk, 0x85, &(Command_Attack_Args){8, 0x1F, 10, 0x700});
+    pattern_check_ex_j_command_attack(wk, 0x85, &(Command_Attack_Args){8, 0x1F, 10, 0x700});
 }
 
 void Passive19_0148(PLW* wk) {
@@ -180,18 +180,18 @@ void Passive19_0148(PLW* wk) {
 }
 
 void Passive19_0149(PLW* wk) {
-    passive19_pattern_jump_attack_term(wk, &(Jump_Term_Args){-0x7F70, -1, 8, 0x20, 1, -1, 0x20, 0x20});
+    pattern_jump_attack_term(wk, &(Jump_Term_Args){-0x7F70, -1, 8, 0x20, 1, -1, 0x20, 0x20});
 }
 
 void Passive19_0150(PLW* wk) {
-    passive19_pattern_jump_attack_term_normal_attack(
+    pattern_jump_attack_term_normal_attack_2(
         wk,
         &(Jump_Term_Args){-0x7F70, -0x7FB0, 8, 0x20, 2, -1, -0x7FB0, 0x20}
     );
 }
 
 void Passive19_0151(PLW* wk) {
-    passive19_pattern_normal_attack_2(wk, 0x102, 8, 0x102);
+    pattern_normal_attack_3(wk, 0x102, 8, 0x102);
 }
 
 void Passive19_0152(PLW* wk) {
@@ -215,7 +215,7 @@ void Passive19_0152(PLW* wk) {
 }
 
 void Passive19_0153(PLW* wk) {
-    passive19_pattern_em_term_normal_attack(wk, &(EM_Term_Params){-0x7F70, -1, 6, 1, -1}, 0x402);
+    pattern_em_term_normal_attack(wk, &(EM_Term_Params){-0x7F70, -1, 6, 1, -1}, 0x402);
 }
 
 void Passive19_0154(PLW* wk) {
@@ -247,15 +247,15 @@ void Passive19_0156(PLW* wk) {
 }
 
 void Passive19_0157(PLW* wk) {
-    passive19_pattern_lever_attack(wk, 0, 0x110);
+    pattern_lever_attack(wk, 0, 0x110);
 }
 
 void Passive19_0158(PLW* wk) {
-    passive19_pattern_lever_attack(wk, 1, 0x110);
+    pattern_lever_attack(wk, 1, 0x110);
 }
 
 void Passive19_0159(PLW* wk) {
-    passive19_pattern_normal_attack(wk, 8, 0x110);
+    pattern_normal_attack(wk, 8, 0x110);
 }
 
 void Passive19_0160(PLW* wk) {
@@ -347,15 +347,15 @@ void Passive19_0162(PLW* wk) {
 }
 
 void Passive19_0163(PLW* wk) {
-    passive19_pattern_lever_attack(wk, 0, 0x200);
+    pattern_lever_attack(wk, 0, 0x200);
 }
 
 void Passive19_0164(PLW* wk) {
-    passive19_pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1C, 9, -1});
+    pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1C, 9, -1});
 }
 
 void Passive19_0165(PLW* wk) {
-    passive19_pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
+    pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
 }
 
 void Passive19_0166(PLW* wk) {

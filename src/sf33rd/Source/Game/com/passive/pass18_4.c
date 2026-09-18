@@ -6,12 +6,13 @@
 
 #include "sf33rd/Source/Game/com/passive/pass18.h"
 #include "sf33rd/Source/Game/com/passive/pass18_internal.h"
+#include "sf33rd/Source/Game/com/passive/pass_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 
 void Passive18_0201(PLW* wk) {
-    passive18_pattern_com_random_select(wk, &(Branch_Menu_Args){6, 0xC3, 0xB1, 0xA7, 0xA7}, 4);
+    pattern_com_random_select(wk, &(Branch_Menu_Args){6, 0xC3, 0xB1, 0xA7, 0xA7}, 4);
 }
 
 void Passive18_0202(PLW* wk) {
@@ -39,7 +40,7 @@ void Passive18_0202(PLW* wk) {
 }
 
 void Passive18_0203(PLW* wk) {
-    passive18_pattern_em_term_command_attack(
+    pattern_em_term_command_attack(
         wk,
         &(EM_Term_Params){-0x7F00, -0x7FA0, 6, 1, -1},
         &(Command_Attack_Args){8, 0x1C, 10, -1}

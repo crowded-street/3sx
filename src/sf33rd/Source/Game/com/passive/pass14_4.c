@@ -6,6 +6,7 @@
 
 #include "sf33rd/Source/Game/com/passive/pass14.h"
 #include "sf33rd/Source/Game/com/passive/pass14_internal.h"
+#include "sf33rd/Source/Game/com/passive/pass_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
@@ -131,7 +132,7 @@ void Passive14_0162(PLW* wk) {
 }
 
 void Passive14_0163(PLW* wk) {
-    passive14_pattern_command_attack(wk, &(Command_Attack_Args){8, 1, -1, -1});
+    pattern_command_attack_2(wk, &(Command_Attack_Args){8, 1, -1, -1});
 }
 
 void Passive14_0164(PLW* wk) {
@@ -492,7 +493,7 @@ void Passive14_0176(PLW* wk) {
 }
 
 void Passive14_0177(PLW* wk) {
-    passive14_pattern_com_random_select(wk, &(Branch_Menu_Args){2, 0x3F, 0x40, 0x41, 0x42}, 0);
+    pattern_com_random_select(wk, &(Branch_Menu_Args){2, 0x3F, 0x40, 0x41, 0x42}, 0);
 }
 
 void Passive14_0178(PLW* wk) {
@@ -732,15 +733,15 @@ void Passive14_0193(PLW* wk) {
 }
 
 void Passive14_0194(PLW* wk) {
-    passive14_pattern_com_random_select(wk, &(Branch_Menu_Args){6, 0xB2, 0xB3, 0xB4, 0xB6}, 0);
+    pattern_com_random_select(wk, &(Branch_Menu_Args){6, 0xB2, 0xB3, 0xB4, 0xB6}, 0);
 }
 
 void Passive14_0195(PLW* wk) {
-    passive14_pattern_com_random_select(wk, &(Branch_Menu_Args){6, 0xB9, 0xBB, 0xBC, 0xBD}, 0);
+    pattern_com_random_select(wk, &(Branch_Menu_Args){6, 0xB9, 0xBB, 0xBC, 0xBD}, 0);
 }
 
 void Passive14_0196(PLW* wk) {
-    passive14_pattern_com_random_select(wk, &(Branch_Menu_Args){6, 0xB5, 0xB7, 0xBF, 0xC0}, 0);
+    pattern_com_random_select(wk, &(Branch_Menu_Args){6, 0xB5, 0xB7, 0xBF, 0xC0}, 0);
 }
 
 static void passive14_0197_from_step_6(PLW* wk) {

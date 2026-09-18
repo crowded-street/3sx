@@ -18,28 +18,9 @@
 #include "structs.h"
 #include "types.h"
 
-void passive07_pattern_em_term_j_command_attack(PLW* wk, const EM_Term_Params* p, const Command_Attack_Args* p_b);
-void passive07_pattern_j_command_attack(PLW* wk, const Command_Attack_Args* p);
-void passive07_pattern_normal_attack(PLW* wk, s16 reaction, u16 lever_data);
-void passive07_pattern_normal_attack_j_command_attack(
-    PLW* wk, s16 reaction, u16 lever_data, const Command_Attack_Args* p
-);
 void passive07_pattern_keep_away_wait_get_up(PLW* wk, u16 lever_data, s16 option);
-void passive07_pattern_em_term_normal_attack(PLW* wk, const EM_Term_Params* p, u16 lever_data);
 void passive07_pattern_approach_walk_normal_attack(PLW* wk, s16 reaction, u16 lever_data);
-void passive07_pattern_jump_command_attack_term(PLW* wk, const JCA_Term_Args* a);
-void passive07_pattern_jump_attack_term(PLW* wk, const Jump_Term_Args* a);
-void passive07_pattern_normal_attack_command_attack(
-    PLW* wk, s16 reaction, u16 lever_data, const Command_Attack_Args* p
-);
-void passive07_pattern_command_attack(PLW* wk, const Command_Attack_Args* p);
-void passive07_pattern_forced_guard(PLW* wk, s16 guard_type);
 void passive07_pattern_wait_get_up_j_command_attack(PLW* wk, const Command_Attack_Args* p);
-void passive07_pattern_jump_attack_term_normal_attack_command_attack(
-    PLW* wk, const Jump_Term_Args* a, u16 lever_data, const Command_Attack_Args* p
-);
-void passive07_pattern_lever_attack(PLW* wk, u16 lever, u16 lever_data);
-void passive07_pattern_approach_walk(PLW* wk, s16 target_pos);
 void Passive07_0055(PLW* wk);
 void Passive07_0056(PLW* wk);
 void Passive07_0057(PLW* wk);

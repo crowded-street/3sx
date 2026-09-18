@@ -562,7 +562,7 @@ void Passive14_0242(PLW* wk) {
 }
 
 void Passive14_0243(PLW* wk) {
-    passive14_pattern_com_random_select(wk, &(Branch_Menu_Args){2, 0x26, 0x27, 0x28, 0x29}, 0);
+    pattern_com_random_select(wk, &(Branch_Menu_Args){2, 0x26, 0x27, 0x28, 0x29}, 0);
 }
 
 void Passive14_0244(PLW* wk) {
@@ -582,7 +582,7 @@ void Passive14_0247(PLW* wk) {
 }
 
 void Passive14_0248(PLW* wk) {
-    passive14_pattern_com_random_select(wk, &(Branch_Menu_Args){2, 0x89, 0x8A, 0x8B, 0x8C}, 0);
+    pattern_com_random_select(wk, &(Branch_Menu_Args){2, 0x89, 0x8A, 0x8B, 0x8C}, 0);
 }
 
 void Passive14_0249(PLW* wk) {
@@ -590,7 +590,7 @@ void Passive14_0249(PLW* wk) {
 }
 
 void Passive14_0250(PLW* wk) {
-    passive14_pattern_com_random_select(wk, &(Branch_Menu_Args){6, 0x77, 0x77, 0x78, 0x79}, 2);
+    pattern_com_random_select(wk, &(Branch_Menu_Args){6, 0x77, 0x77, 0x78, 0x79}, 2);
 }
 
 void Passive14_0251(PLW* wk) {

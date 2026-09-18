@@ -18,18 +18,8 @@
 #include "structs.h"
 #include "types.h"
 
-void passive09_pattern_jump_attack_term(PLW* wk, const Jump_Term_Args* a);
-void passive09_pattern_normal_attack(PLW* wk, s16 reaction, u16 lever_data);
-void passive09_pattern_em_term_normal_attack(PLW* wk, const EM_Term_Params* p, u16 lever_data);
 void passive09_pattern_oro_ja_term(PLW* wk, const ORO_Air_Term_Args* a);
-void passive09_pattern_sa_term(PLW* wk, const SA_Term_Args* p);
 void passive09_pattern_com_random_select(PLW* wk, const Branch_Menu_Args* p);
-void passive09_pattern_em_term_j_command_attack(PLW* wk, const EM_Term_Params* p, const Command_Attack_Args* p_b);
-void passive09_pattern_wait_get_up(PLW* wk, u16 lever_data);
-void passive09_pattern_command_attack(PLW* wk, const Command_Attack_Args* p);
-void passive09_pattern_jump_attack_term_normal_attack_command_attack(
-    PLW* wk, const Jump_Term_Args* a, u16 lever_data, const Command_Attack_Args* p
-);
 void passive09_pattern_em_term_adjust_attack(PLW* wk, const EM_Term_Params* p, u16 lever_data);
 void Passive09_0051(PLW* wk);
 void Passive09_0052(PLW* wk);

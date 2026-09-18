@@ -18,29 +18,11 @@
 #include "structs.h"
 #include "types.h"
 
-void passive18_pattern_jump_attack_term(PLW* wk, const Jump_Term_Args* a);
-void passive18_pattern_normal_attack_command_attack(
-    PLW* wk, s16 reaction, u16 lever_data, const Command_Attack_Args* p
-);
-void passive18_pattern_normal_attack(PLW* wk, s16 reaction, u16 lever_data);
-void passive18_pattern_command_attack(PLW* wk, const Command_Attack_Args* p);
-void passive18_pattern_jump_command_attack_term(PLW* wk, const JCA_Term_Args* a);
-void passive18_pattern_em_term_normal_attack(PLW* wk, const EM_Term_Params* p, u16 lever_data);
-void passive18_pattern_jump_attack(PLW* wk, const Jump_Attack_Args* a);
-void passive18_pattern_com_random_select(PLW* wk, const Branch_Menu_Args* p, s16 rnd_type);
-void passive18_pattern_check_ex_command_attack(PLW* wk, s16 next_menu, const Command_Attack_Args* p);
-void passive18_pattern_normal_attack_2(PLW* wk, u16 lever_data, s16 reaction, u16 lever_data_b);
-void passive18_pattern_sa_term_branch_unit_area(PLW* wk, const SA_Term_Args* p, const Branch_Menu_Args* p_b);
 void passive18_pattern_wait_get_up_pierce_on_command_attack(PLW* wk, u16 lever_data, const Command_Attack_Args* p);
-void passive18_pattern_branch_unit_area(PLW* wk, const Branch_Menu_Args* p);
 void passive18_pattern_approach_walk_em_term_normal_attack(
     PLW* wk, s16 target_pos, const EM_Term_Params* p, u16 lever_data
 );
 void passive18_pattern_jump_attack_term_normal_attack(PLW* wk, const Jump_Term_Args* a);
-void passive18_pattern_lever_attack(PLW* wk, u16 lever, u16 lever_data);
-void passive18_pattern_em_term_command_attack(PLW* wk, const EM_Term_Params* p, const Command_Attack_Args* p_b);
-void passive18_pattern_approach_walk(PLW* wk, s16 target_pos);
-void passive18_pattern_hi_jump_command_attack_term(PLW* wk, const JCA_Term_Args* a);
 void Passive18_0040(PLW* wk);
 void Passive18_0041(PLW* wk);
 void Passive18_0042(PLW* wk);

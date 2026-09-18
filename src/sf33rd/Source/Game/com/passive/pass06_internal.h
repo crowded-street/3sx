@@ -18,21 +18,14 @@
 #include "structs.h"
 #include "types.h"
 
-void passive06_pattern_em_term_normal_attack(PLW* wk, const EM_Term_Params* p, u16 lever_data);
-void passive06_pattern_command_attack(PLW* wk, const Command_Attack_Args* p);
-void passive06_pattern_normal_attack(PLW* wk, s16 reaction, u16 lever_data);
 void passive06_pattern_approach_walk_em_term_command_attack(
     PLW* wk, s16 target_pos, const EM_Term_Params* p, const Command_Attack_Args* p_b
 );
-void passive06_pattern_jump_attack_term(PLW* wk, const Jump_Term_Args* a);
 void passive06_pattern_wait_get_up_normal_attack(PLW* wk, u16 lever_data, s16 option, u16 lever_data_b);
 void passive06_pattern_approach_walk_wait_get_up_wait(PLW* wk, u16 lever_data);
 void passive06_pattern_approach_walk_check_ex_pierce_on(PLW* wk, s16 target_pos, s16 next_menu);
 void passive06_pattern_hi_jump_attack_term_normal_attack(PLW* wk, u16 lever_data);
-void passive06_pattern_em_term_command_attack(PLW* wk, const EM_Term_Params* p, const Command_Attack_Args* p_b);
 void passive06_pattern_wait_get_up_com_random_select(PLW* wk, u16 lever_data, const Branch_Menu_Args* p);
-void passive06_pattern_approach_walk(PLW* wk, s16 target_pos);
-void passive06_pattern_jump(PLW* wk, s16 time);
 void Passive06_0067(PLW* wk);
 void Passive06_0068(PLW* wk);
 void Passive06_0069(PLW* wk);

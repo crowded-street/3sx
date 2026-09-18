@@ -387,7 +387,7 @@ SHARED_C = """/**
 
 SHARED_H = """/*
  * Pattern skeletons shared by every character's passive scripts.
- * See pass_patterns.c.
+ * See pass_patterns_1step.c and its siblings.
  */
 
 #ifndef PASS_PATTERNS_H
@@ -473,6 +473,99 @@ def gfold(paths, protos, min_members=3, max_params=3, shared=None):
         open(path, 'w').write(src)
         total += len(es)
     return len(helpers), total
+
+
+# --------------------------------------------------------------------------
+# Recipe D - one copy of a skeleton the characters share verbatim
+# --------------------------------------------------------------------------
+
+def _shape(full):
+    """(body, parameter list) with whitespace normalised, for identity tests."""
+    sig = full[:full.index('{')]
+    params = re.sub(r'^\s*(static )?void \w+\(', '', sig).rstrip().rstrip(')')
+    return re.sub(r'\s+', ' ', full[full.index('{'):]), re.sub(r'\s+', ' ', params)
+
+
+def dedup(paths, shared_paths, header):
+    """Point every verbatim copy of a skeleton at one shared definition."""
+    shared, shared_src = {}, {p: open(p).read() for p in shared_paths}
+    for path, src in shared_src.items():
+        for name, a, b, is_static in functions(src):
+            shared[_shape(src[a:b])] = name
+
+    sources = {p: open(p).read() for p in paths}
+    groups = collections.defaultdict(list)
+    for path, src in sources.items():
+        for name, a, b, is_static in functions(src):
+            full = src[a:b]
+            if not re.match(r'^passive\d+_pattern_', name) or SWITCH_HEAD not in full:
+                continue
+            groups[_shape(full)].append((path, name, a, b, full))
+
+    renames, additions, removals = {}, [], collections.defaultdict(list)
+    for shape, members in groups.items():
+        if shape in shared:
+            target = shared[shape]
+        elif len(members) > 1:
+            base = re.sub(r'_\d+$', '', re.sub(r'^passive\d+_', '', members[0][1]))
+            target, n = base, 2
+            while target in set(shared.values()):
+                target, n = '%s_%d' % (base, n), n + 1
+            additions.append((target, members[0][4],
+                              len(re.findall(r'case \d+:', members[0][4]))))
+            shared[shape] = target
+        else:
+            continue
+        for path, name, a, b, full in members:
+            renames[name] = target
+            removals[path].append((a, b))
+
+    if not renames:
+        return 0, 0
+
+    step_file = {1: '_1step.c', 2: '_2step.c', 3: '_3step.c', 4: '_long.c'}
+    for target, full, cases in additions:
+        dest = [p for p in shared_paths if p.endswith(step_file[min(cases, 4)])][0]
+        text = re.sub(r'^(static )?void \w+\(', 'void %s(' % target, full, count=1)
+        shared_src[dest] = shared_src[dest].rstrip('\n') + '\n\n' + text + '\n'
+    for path, src in shared_src.items():
+        open(path, 'w').write(rewrap(src))
+
+    decls = []
+    for path in shared_paths:
+        src = open(path).read()
+        for name, a, b, is_static in functions(src):
+            decls.append(rewrap(src[a:b][:src[a:b].index('{')].rstrip() + ';'))
+    text = open(header).read()
+    keep = text[:text.index('#include "types.h"') + len('#include "types.h"')]
+    open(header, 'w').write(keep + '\n\n' + '\n'.join(sorted(decls)) + '\n\n#endif\n')
+
+    touched = 0
+    for path, src in sources.items():
+        for a, b in sorted(removals[path], reverse=True):
+            end = b
+            while src[end:end + 1] == '\n':
+                end += 1
+            src = src[:a] + src[end:]
+        for old, new in renames.items():
+            src = re.sub(r'\b%s\b' % old, new, src)
+        if 'pass_patterns.h' not in src:
+            src = src.replace('#include "common.h"',
+                              '#include "sf33rd/Source/Game/com/passive/pass_patterns.h"\n'
+                              '#include "common.h"', 1)
+        open(path, 'w').write(rewrap(src))
+        touched += len(removals[path])
+
+    for internal in sorted(set(glob.glob(os.path.join(
+            os.path.dirname(paths[0]), 'pass*_internal.h')))):
+        text = open(internal).read()
+        gone = re.compile(r'^void (%s)\((?:[^;]*?)\);\n' % '|'.join(map(re.escape, renames)),
+                          re.M | re.S)
+        open(internal, 'w').write(gone.sub('', text))
+    with open(os.path.join(os.path.dirname(paths[0]), '.dedup-renames'), 'w') as fh:
+        for old, new in sorted(renames.items()):
+            fh.write('%s=%s\n' % (old, new))
+    return len(additions), touched
 
 
 # --------------------------------------------------------------------------
@@ -745,7 +838,7 @@ def split(path, max_funcs=90, max_lines=900):
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('command', choices=['fold', 'gfold', 'ffold', 'xsplit', 'split', 'verify', 'families'])
+    ap.add_argument('command', choices=['fold', 'gfold', 'dedup', 'ffold', 'xsplit', 'split', 'verify', 'families'])
     ap.add_argument('files', nargs='+')
     ap.add_argument('--base', default='HEAD')
     ap.add_argument('--min-members', type=int, default=3)
@@ -759,6 +852,12 @@ def main():
         sys.exit(1 if verify(args.base, args.files) else 0)
 
     protos = load_prototypes()
+    if args.command == 'dedup':
+        folder = os.path.dirname(args.files[0])
+        sharedp = sorted(glob.glob(os.path.join(folder, 'pass_patterns_*.c')))
+        h, e = dedup(args.files, sharedp, os.path.join(folder, 'pass_patterns.h'))
+        print('%d skeletons promoted to the shared files, %d copies removed' % (h, e))
+        return
     if args.command == 'gfold':
         h, e = gfold(args.files, protos, args.min_members, args.max_params)
         print('%d shared skeletons, %d pattern functions folded' % (h, e))

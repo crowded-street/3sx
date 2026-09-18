@@ -18,13 +18,6 @@
 #include "structs.h"
 #include "types.h"
 
-void passive10_pattern_jump_attack_term(PLW* wk, const Jump_Term_Args* a);
-void passive10_pattern_em_term_normal_attack(PLW* wk, const EM_Term_Params* p, u16 lever_data);
-void passive10_pattern_normal_attack(PLW* wk, s16 reaction, u16 lever_data);
-void passive10_pattern_pierce_on_command_attack(PLW* wk, const Command_Attack_Args* p, const Command_Attack_Args* p_b);
-void passive10_pattern_normal_attack_2(PLW* wk, s16 reaction, u16 lever_data, u16 lever_data_b);
-void passive10_pattern_j_command_attack(PLW* wk, const Command_Attack_Args* p);
-void passive10_pattern_command_attack(PLW* wk, const Command_Attack_Args* p);
 void Passive10_0050(PLW* wk);
 void Passive10_0051(PLW* wk);
 void Passive10_0052(PLW* wk);

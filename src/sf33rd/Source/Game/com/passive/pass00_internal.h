@@ -18,20 +18,9 @@
 #include "structs.h"
 #include "types.h"
 
-void passive00_pattern_jump_attack_term(PLW* wk, const Jump_Term_Args* a);
-void passive00_pattern_normal_attack(PLW* wk, s16 reaction, u16 lever_data);
-void passive00_pattern_em_term_normal_attack(PLW* wk, const EM_Term_Params* p, u16 lever_data);
-void passive00_pattern_command_attack(PLW* wk, const Command_Attack_Args* p);
-void passive00_pattern_normal_attack_2(PLW* wk, s16 reaction, u16 lever_data, u16 lever_data_b);
 void passive00_pattern_com_random_select(PLW* wk, const Branch_Menu_Args* p);
-void passive00_pattern_j_command_attack(PLW* wk, const Command_Attack_Args* p);
 void passive00_pattern_approach_walk_em_term_lever_attack(PLW* wk, const EM_Term_Params* p, u16 lever, u16 lever_data);
-void passive00_pattern_pierce_on_em_term_normal_attack(PLW* wk, const EM_Term_Params* p, s16 reaction, u16 lever_data);
-void passive00_pattern_lever_attack(PLW* wk, u16 lever, u16 lever_data);
 void passive00_pattern_etc_term_command_attack(PLW* wk, u16 next_menu, const Command_Attack_Args* p);
-void passive00_pattern_hi_jump_attack_term_normal_attack(
-    PLW* wk, const Hi_Jump_Term_Args* a, u16 lever_data, u16 lever_data_b
-);
 void passive00_pattern_jump_attack_term_normal_attack(PLW* wk, const Jump_Term_Args* a, u16 lever_data);
 void Passive00_0051(PLW* wk);
 void Passive00_0052(PLW* wk);
