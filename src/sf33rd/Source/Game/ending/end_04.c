@@ -145,6 +145,20 @@ static s32 end_04_launch_drift(s32 speed_x, s32 speed_y) {
     return 0;
 }
 
+/* Drift the panel along its set speeds until the drift's timer runs out. */
+static void end_04_drift_until_done() {
+    bgw_ptr->free--;
+
+    if (bgw_ptr->free <= 0) {
+        bgw_ptr->r_no_1++;
+    } else {
+        bgw_ptr->xy[0].cal -= bgw_ptr->speed_x;
+        bgw_ptr->xy[1].cal += bgw_ptr->speed_y;
+    }
+
+    end_04_commit_position();
+}
+
 void end_400_1000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -162,16 +176,7 @@ void end_400_1000() {
         break;
 
     case 2:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->r_no_1++;
-        } else {
-            bgw_ptr->xy[0].cal -= bgw_ptr->speed_x;
-            bgw_ptr->xy[1].cal += bgw_ptr->speed_y;
-        }
-
-        end_04_commit_position();
+        end_04_drift_until_done();
         break;
 
     case 3:
@@ -231,16 +236,7 @@ void end_401_1000() {
         break;
 
     case 2:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->r_no_1++;
-        } else {
-            bgw_ptr->xy[0].cal -= bgw_ptr->speed_x;
-            bgw_ptr->xy[1].cal += bgw_ptr->speed_y;
-        }
-
-        end_04_commit_position();
+        end_04_drift_until_done();
         break;
 
     case 3:
@@ -393,16 +389,7 @@ void end_402_1000() {
         break;
 
     case 2:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->r_no_1++;
-        } else {
-            bgw_ptr->xy[0].cal -= bgw_ptr->speed_x;
-            bgw_ptr->xy[1].cal += bgw_ptr->speed_y;
-        }
-
-        end_04_commit_position();
+        end_04_drift_until_done();
         break;
 
     case 3:
