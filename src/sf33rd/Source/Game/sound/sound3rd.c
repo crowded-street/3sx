@@ -305,6 +305,12 @@ void sound_request_for_dc(SoundPatchConfig* rmc, s16 pan) {
     }
 }
 
+/* Whether the seamless chain has to be (re)started: none is running, or the track
+ * asked for is not the one that is. */
+static s32 bgm_seamless_chain_must_restart() {
+    return (bgm_exe.nowSeamless == 0) || (bgm_exe.code != current_bgm);
+}
+
 /* Queue the selected entry and, the first time round, hand ADX the seamless chain. */
 static void bgm_enter_seamless_playback() {
     bgm_play_request(bgm_exe.exEntry, 0);
@@ -418,7 +424,7 @@ void BGM_Server() {
 
     case 4:
         if (bgm_plays_seamless_entries()) {
-            if ((bgm_exe.nowSeamless == 0) || (bgm_exe.code != current_bgm)) {
+            if (bgm_seamless_chain_must_restart()) {
                 bgm_exe.exIndex = bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0xFF;
                 bgm_exe.exEntry = bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numStart;
 
@@ -488,7 +494,7 @@ void BGM_Server() {
             bgm_fade.speed = bgm_fade.in.cal / bgm_exe.data;
 
             if (bgm_plays_seamless_entries()) {
-                if ((bgm_exe.nowSeamless == 0) || (bgm_exe.code != current_bgm)) {
+                if (bgm_seamless_chain_must_restart()) {
                     bgm_exe.exIndex = bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0xFF;
                     bgm_exe.exEntry = bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numStart;
 
