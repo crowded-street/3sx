@@ -67,6 +67,13 @@ static void update_field_hosei_flags(PLW* wk) {
     }
 }
 
+static void start_match_point_win_pose(PLW* wk) {
+    s16 work;
+
+    work = win_select(wk, 3);
+    set_char_move_init(&wk->wu, 9, work + 36);
+}
+
 static void start_default_win_pose(PLW* wk) {
     s16 work;
 
@@ -457,8 +464,7 @@ static void start_win_06000_pose(PLW* wk) {
     begin_win_pose(wk);
 
     if (winner_on_match_point(wk)) {
-        work = win_select(wk, 3);
-        set_char_move_init(&wk->wu, 9, work + 36);
+        start_match_point_win_pose(wk);
     } else {
         start_default_win_pose(wk);
     }
@@ -565,8 +571,7 @@ static void start_win_08000_pose(PLW* wk) {
     if (Round_Result & 0x800) {
         set_char_move_init(&wk->wu, 9, 40);
     } else if (winner_on_match_point(wk)) {
-        work = win_select(wk, 3);
-        set_char_move_init(&wk->wu, 9, work + 36);
+        start_match_point_win_pose(wk);
     } else {
         start_default_win_pose(wk);
     }
@@ -977,8 +982,7 @@ static void start_win_13000_pose(PLW* wk) {
             return;
         }
 
-        work = win_select(wk, 3);
-        set_char_move_init(&wk->wu, 9, work + 36);
+        start_match_point_win_pose(wk);
     } else {
         start_default_win_pose(wk);
     }
