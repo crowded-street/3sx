@@ -267,9 +267,30 @@ void Win_03000(PLW* wk) {
     }
 }
 
+static void start_win_04000_normal_pose(PLW* wk, s16 work) {
+    s16 work2;
+
+    switch (work) {
+    case 1:
+    case 3:
+        if (wk->wu.now_koc == 0 && wk->wu.char_index == 0) {
+            work2 = wk->wu.cg_ix / wk->wu.cgd_type;
+            work2 += 2;
+            set_char_move_init2(&wk->wu, 9, work + 32, work2, 0);
+        } else {
+            set_char_move_init(&wk->wu, 9, work + 32);
+        }
+
+        break;
+
+    default:
+        set_char_move_init(&wk->wu, 9, work + 32);
+        break;
+    }
+}
+
 void Win_04000(PLW* wk) {
     s16 work;
-    s16 work2;
 
     bg_app_stop = 1;
 
@@ -287,23 +308,7 @@ void Win_04000(PLW* wk) {
             break;
         }
 
-        switch (work) {
-        case 1:
-        case 3:
-            if (wk->wu.now_koc == 0 && wk->wu.char_index == 0) {
-                work2 = wk->wu.cg_ix / wk->wu.cgd_type;
-                work2 += 2;
-                set_char_move_init2(&wk->wu, 9, work + 32, work2, 0);
-            } else {
-                set_char_move_init(&wk->wu, 9, work + 32);
-            }
-
-            break;
-
-        default:
-            set_char_move_init(&wk->wu, 9, work + 32);
-            break;
-        }
+        start_win_04000_normal_pose(wk, work);
 
         break;
 
