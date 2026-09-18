@@ -17,6 +17,10 @@ const s16 loser_type_tbl[20] = { 0, 0, 0, 0, 0, 2, 0, 0, 1, 0, 0, 0, 0, 3, 0, 0,
 
 const s16 meta_lose_tbl[20] = { 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 28, 24, 24, 24, 24, 24, 24 };
 
+static s32 judge_screen_showing() {
+    return (pcon_rno[0] == 2) && (pcon_rno[1] == 3);
+}
+
 static void update_field_hosei_flags(PLW* wk) {
     if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1) != 0) {
         set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
@@ -35,7 +39,7 @@ void lose_player(PLW* wk) {
 }
 
 void Lose_00000(PLW* wk) {
-    if ((pcon_rno[0] == 2) && (pcon_rno[1] == 3)) {
+    if (judge_screen_showing()) {
         Judge_normal_loser(wk);
         return;
     }
@@ -44,7 +48,7 @@ void Lose_00000(PLW* wk) {
 }
 
 void Lose_10000(PLW* wk) {
-    if ((pcon_rno[0] == 2) && (pcon_rno[1] == 3)) {
+    if (judge_screen_showing()) {
         switch (wk->wu.routine_no[3]) {
         case 0:
             wk->wu.routine_no[3]++;
@@ -83,7 +87,7 @@ void Lose_10000(PLW* wk) {
 void Lose_20000(PLW* wk) {
     s16 work;
 
-    if ((pcon_rno[0] == 2) && (pcon_rno[1] == 3)) {
+    if (judge_screen_showing()) {
         Judge_normal_loser(wk);
         return;
     }
@@ -115,7 +119,7 @@ void Lose_20000(PLW* wk) {
 }
 
 void Lose_30000(PLW* wk) {
-    if ((pcon_rno[0] == 2) && (pcon_rno[1] == 3)) {
+    if (judge_screen_showing()) {
         switch (wk->wu.routine_no[3]) {
         case 0:
             wk->wu.routine_no[3]++;
