@@ -323,6 +323,23 @@ void Win_04000(PLW* wk) {
     }
 }
 
+static void step_normal_win_anime(PLW* wk, void (*start_pose)(PLW*)) {
+    bg_app_stop = 1;
+
+    update_field_hosei_flags(wk);
+
+    switch (wk->wu.routine_no[3]) {
+    case 0:
+        start_pose(wk);
+        break;
+
+    case 1:
+    case 9:
+        char_move(&wk->wu);
+        break;
+    }
+}
+
 static void start_normal_winner_pose(PLW* wk) {
     s16 work;
 
@@ -341,37 +358,11 @@ static void start_judge_winner_pose(PLW* wk) {
 }
 
 void Normal_normal_Winner(PLW* wk) {
-    bg_app_stop = 1;
-
-    update_field_hosei_flags(wk);
-
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        start_normal_winner_pose(wk);
-        break;
-
-    case 1:
-    case 9:
-        char_move(&wk->wu);
-        break;
-    }
+    step_normal_win_anime(wk, start_normal_winner_pose);
 }
 
 void Judge_normal_winner(PLW* wk) {
-    bg_app_stop = 1;
-
-    update_field_hosei_flags(wk);
-
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        start_judge_winner_pose(wk);
-        break;
-
-    case 1:
-    case 9:
-        char_move(&wk->wu);
-        break;
-    }
+    step_normal_win_anime(wk, start_judge_winner_pose);
 }
 
 static void launch_win_flip(PLW* wk) {
