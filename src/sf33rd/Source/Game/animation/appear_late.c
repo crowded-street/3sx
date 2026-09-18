@@ -681,6 +681,35 @@ static void step_appear_36000_settle(PLW* wk) {
     }
 }
 
+/* The middle state of this entrance, reached from the first level's default
+ * and reaching the last level through its own. The case label is the original
+ * one, so the state still reads as the same number. */
+static void step_appear_36000_slide(PLW* wk, s16 id_w) {
+    switch (wk->wu.routine_no[3]) {
+    case 2:
+        char_move(&wk->wu);
+        app_counter[wk->wu.id]--;
+
+        if (app_counter[wk->wu.id] <= 0) {
+            wk->wu.routine_no[3]++;
+            app_counter[wk->wu.id] = 0x16;
+
+            if (wk->wu.id) {
+                cal_all_speed_data(&wk->wu, app_counter[wk->wu.id], bg_w.bgw[1].pos_x_work + 0x58, 0, 2, 0);
+            } else {
+                cal_all_speed_data(&wk->wu, app_counter[wk->wu.id], bg_w.bgw[1].pos_x_work - 0x58, 0, 2, 0);
+            }
+        }
+
+        wk->wu.next_z = plw[id_w].wu.my_priority;
+        break;
+
+    default:
+        step_appear_36000_settle(wk);
+        break;
+    }
+}
+
 void Appear_36000(PLW* wk) {
     s16 id_w = wk->wu.id ^ 1;
 
@@ -704,26 +733,8 @@ void Appear_36000(PLW* wk) {
 
         break;
 
-    case 2:
-        char_move(&wk->wu);
-        app_counter[wk->wu.id]--;
-
-        if (app_counter[wk->wu.id] <= 0) {
-            wk->wu.routine_no[3]++;
-            app_counter[wk->wu.id] = 0x16;
-
-            if (wk->wu.id) {
-                cal_all_speed_data(&wk->wu, app_counter[wk->wu.id], bg_w.bgw[1].pos_x_work + 0x58, 0, 2, 0);
-            } else {
-                cal_all_speed_data(&wk->wu, app_counter[wk->wu.id], bg_w.bgw[1].pos_x_work - 0x58, 0, 2, 0);
-            }
-        }
-
-        wk->wu.next_z = plw[id_w].wu.my_priority;
-        break;
-
     default:
-        step_appear_36000_settle(wk);
+        step_appear_36000_slide(wk, id_w);
         break;
     }
 }
