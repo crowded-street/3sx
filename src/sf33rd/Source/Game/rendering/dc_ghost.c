@@ -153,10 +153,14 @@ void njDrawTexture(ColoredVertex* polygon, s32 /* unused */, s32 tex, s32 /* unu
     ppgWriteQuadWithST_B(vtx, polygon[0].col, NULL, tex, -1);
 }
 
+static s32 sprite_is_off_screen(const ColoredVertex* polygon) {
+    return (polygon[0].x >= 384.0f) || (polygon[3].x < 0.0f) || (polygon[0].y >= 224.0f) || (polygon[3].y < 0.0f);
+}
+
 void njDrawSprite(ColoredVertex* polygon, s32 /* unused */, s32 tex, s32 /* unused */) {
     Vertex vtx[4];
 
-    if ((polygon[0].x >= 384.0f) || (polygon[3].x < 0.0f) || (polygon[0].y >= 224.0f) || (polygon[3].y < 0.0f)) {
+    if (sprite_is_off_screen(polygon)) {
         return;
     }
 
