@@ -413,6 +413,36 @@ s16 getObjectHeight(u16 cgnum) {
     return maxHeight;
 }
 
+// Every store_* pass queues its chip with this call. Across all eighteen of
+// them the nine arguments are identical character for character except two -
+// which texture index the chip comes from, and its attribute word - and those
+// two are written out in full at each call site. The placement fields are the
+// seven that never differ; the helper passes all of them straight through and
+// does nothing else with them.
+typedef struct {
+    f32 x;
+    f32 y;
+    s32 dw;
+    s32 dh;
+    s32 flip;
+    s32 alpha;
+    s32 id;
+} ChipPlacement;
+
+static s32 store_trans_chip(const ChipPlacement* p, s32 gidx, s32 code, s32 attr) {
+    return seqsStoreChip(
+        p->x - (p->dw * BOOL(p->flip & 0x8000)),
+        p->y + (p->dh * BOOL(p->flip & 0x4000)),
+        p->dw,
+        p->dh,
+        gidx,
+        code,
+        attr,
+        p->alpha,
+        p->id
+    );
+}
+
 static void store_cached_trans_ext_tiles(const TransRun* run, s32 group) {
     TileMapEntry* trsptr = run->trsptr;
     s32 count = run->count;
@@ -445,34 +475,20 @@ static void store_cached_trans_ext_tiles(const TransRun* run, s32 group) {
         case 2:
             code = get_mltbuf16_ext(run->mt, cc.code, 0);
 
-            rnum = seqsStoreChip(
-                x - (dw * BOOL(run->flip & 0x8000)),
-                y + (dh * BOOL(run->flip & 0x4000)),
-                dw,
-                dh,
-                run->mt->mltgidx16,
-                code,
-                run->palo | ((trsptr->attr ^ run->flip) & 0xC000),
-                run->wk->my_clear_level,
-                run->mt->id
-            );
+            rnum = store_trans_chip(&(ChipPlacement){ x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
+                                    run->mt->mltgidx16,
+                                    code,
+                                    run->palo | ((trsptr->attr ^ run->flip) & 0xC000));
 
             break;
 
         case 4:
             code = get_mltbuf32_ext(run->mt, cc.code, 0);
 
-            rnum = seqsStoreChip(
-                x - (dw * BOOL(run->flip & 0x8000)),
-                y + (dh * BOOL(run->flip & 0x4000)),
-                dw,
-                dh,
-                run->mt->mltgidx32,
-                code,
-                run->palo | (((trsptr->attr ^ run->flip) & 0xC000) | 0x2000),
-                run->wk->my_clear_level,
-                run->mt->id
-            );
+            rnum = store_trans_chip(&(ChipPlacement){ x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
+                                    run->mt->mltgidx32,
+                                    code,
+                                    run->palo | (((trsptr->attr ^ run->flip) & 0xC000) | 0x2000));
 
             break;
         }
@@ -522,17 +538,10 @@ static void store_new_trans_ext_tiles(const TransRun* run, s32 group, PatternIns
                 njReLoadTexturePartNumG(run->mt->mltgidx16 + (code >> 8), (s8*)run->mt->mltbuf, code & 0xFF, size);
             }
 
-            rnum = seqsStoreChip(
-                x - (dw * BOOL(run->flip & 0x8000)),
-                y + (dh * BOOL(run->flip & 0x4000)),
-                dw,
-                dh,
-                run->mt->mltgidx16,
-                code,
-                run->palo | ((trsptr->attr ^ run->flip) & 0xC000),
-                run->wk->my_clear_level,
-                run->mt->id
-            );
+            rnum = store_trans_chip(&(ChipPlacement){ x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
+                                    run->mt->mltgidx16,
+                                    code,
+                                    run->palo | ((trsptr->attr ^ run->flip) & 0xC000));
 
             break;
 
@@ -542,17 +551,10 @@ static void store_new_trans_ext_tiles(const TransRun* run, s32 group, PatternIns
                 njReLoadTexturePartNumG(run->mt->mltgidx32 + (code >> 6), (s8*)run->mt->mltbuf, code & 0x3F, size);
             }
 
-            rnum = seqsStoreChip(
-                x - (dw * BOOL(run->flip & 0x8000)),
-                y + (dh * BOOL(run->flip & 0x4000)),
-                dw,
-                dh,
-                run->mt->mltgidx32,
-                code,
-                run->palo | (((trsptr->attr ^ run->flip) & 0xC000) | 0x2000),
-                run->wk->my_clear_level,
-                run->mt->id
-            );
+            rnum = store_trans_chip(&(ChipPlacement){ x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
+                                    run->mt->mltgidx32,
+                                    code,
+                                    run->palo | (((trsptr->attr ^ run->flip) & 0xC000) | 0x2000));
             break;
         }
 
@@ -666,17 +668,10 @@ static void store_trans_tiles(const TransRun* run) {
                 njReLoadTexturePartNumG(run->mt->mltgidx16 + (code >> 8), (s8*)run->mt->mltbuf, code & 0xFF, size);
             }
 
-            rnum = seqsStoreChip(
-                x - (dw * BOOL(run->flip & 0x8000)),
-                y + (dh * BOOL(run->flip & 0x4000)),
-                dw,
-                dh,
-                run->mt->mltgidx16,
-                code,
-                run->palo | ((trsptr->attr ^ run->flip) & 0xC000),
-                run->wk->my_clear_level,
-                run->mt->id
-            );
+            rnum = store_trans_chip(&(ChipPlacement){ x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
+                                    run->mt->mltgidx16,
+                                    code,
+                                    run->palo | ((trsptr->attr ^ run->flip) & 0xC000));
 
             break;
 
@@ -686,17 +681,10 @@ static void store_trans_tiles(const TransRun* run) {
                 njReLoadTexturePartNumG(run->mt->mltgidx32 + (code >> 6), (s8*)run->mt->mltbuf, code & 0x3F, size);
             }
 
-            rnum = seqsStoreChip(
-                x - (dw * BOOL(run->flip & 0x8000)),
-                y + (dh * BOOL(run->flip & 0x4000)),
-                dw,
-                dh,
-                run->mt->mltgidx32,
-                code,
-                run->palo | (((trsptr->attr ^ run->flip) & 0xC000) | 0x2000),
-                run->wk->my_clear_level,
-                run->mt->id
-            );
+            rnum = store_trans_chip(&(ChipPlacement){ x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
+                                    run->mt->mltgidx32,
+                                    code,
+                                    run->palo | (((trsptr->attr ^ run->flip) & 0xC000) | 0x2000));
 
             break;
         }
@@ -793,34 +781,20 @@ static void store_cached_trans_cp3_ext_tiles(const TransRun* run, s32 group) {
         case 2:
             code = get_mltbuf16_ext(run->mt, cc.code, 0);
 
-            rnum = seqsStoreChip(
-                x - (dw * BOOL(run->flip & 0x8000)),
-                y + (dh * BOOL(run->flip & 0x4000)),
-                dw,
-                dh,
-                run->mt->mltgidx16,
-                code,
-                attr | palt,
-                run->wk->my_clear_level,
-                run->mt->id
-            );
+            rnum = store_trans_chip(&(ChipPlacement){ x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
+                                    run->mt->mltgidx16,
+                                    code,
+                                    attr | palt);
 
             break;
 
         case 4:
             code = get_mltbuf32_ext(run->mt, cc.code, 0);
 
-            rnum = seqsStoreChip(
-                x - (dw * BOOL(run->flip & 0x8000)),
-                y + (dh * BOOL(run->flip & 0x4000)),
-                dw,
-                dh,
-                run->mt->mltgidx32,
-                code,
-                (attr | 0x2000) | palt,
-                run->wk->my_clear_level,
-                run->mt->id
-            );
+            rnum = store_trans_chip(&(ChipPlacement){ x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
+                                    run->mt->mltgidx32,
+                                    code,
+                                    (attr | 0x2000) | palt);
 
             break;
         }
@@ -875,17 +849,10 @@ static void store_new_trans_cp3_ext_tiles(const TransRun* run, s32 group, Patter
                 njReLoadTexturePartNumG(run->mt->mltgidx16 + (code >> 8), (s8*)run->mt->mltbuf, code & 0xFF, size);
             }
 
-            rnum = seqsStoreChip(
-                x - (dw * BOOL(run->flip & 0x8000)),
-                y + (dh * BOOL(run->flip & 0x4000)),
-                dw,
-                dh,
-                run->mt->mltgidx16,
-                code,
-                attr | palt,
-                run->wk->my_clear_level,
-                run->mt->id
-            );
+            rnum = store_trans_chip(&(ChipPlacement){ x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
+                                    run->mt->mltgidx16,
+                                    code,
+                                    attr | palt);
 
             break;
 
@@ -895,17 +862,10 @@ static void store_new_trans_cp3_ext_tiles(const TransRun* run, s32 group, Patter
                 njReLoadTexturePartNumG(run->mt->mltgidx32 + (code >> 6), (s8*)run->mt->mltbuf, code & 0x3F, size);
             }
 
-            rnum = seqsStoreChip(
-                x - (dw * BOOL(run->flip & 0x8000)),
-                y + (dh * BOOL(run->flip & 0x4000)),
-                dw,
-                dh,
-                run->mt->mltgidx32,
-                code,
-                (attr | 0x2000) | palt,
-                run->wk->my_clear_level,
-                run->mt->id
-            );
+            rnum = store_trans_chip(&(ChipPlacement){ x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
+                                    run->mt->mltgidx32,
+                                    code,
+                                    (attr | 0x2000) | palt);
 
             break;
         }
@@ -1024,17 +984,10 @@ static void store_trans_cp3_tiles(const TransRun* run) {
                 njReLoadTexturePartNumG(run->mt->mltgidx16 + (code >> 8), (s8*)run->mt->mltbuf, code & 0xFF, size);
             }
 
-            rnum = seqsStoreChip(
-                x - (dw * BOOL(run->flip & 0x8000)),
-                y + (dh * BOOL(run->flip & 0x4000)),
-                dw,
-                dh,
-                run->mt->mltgidx16,
-                code,
-                attr | palt,
-                run->wk->my_clear_level,
-                run->mt->id
-            );
+            rnum = store_trans_chip(&(ChipPlacement){ x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
+                                    run->mt->mltgidx16,
+                                    code,
+                                    attr | palt);
 
             break;
 
@@ -1044,17 +997,10 @@ static void store_trans_cp3_tiles(const TransRun* run) {
                 njReLoadTexturePartNumG(run->mt->mltgidx32 + (code >> 6), (s8*)run->mt->mltbuf, code & 0x3F, size);
             }
 
-            rnum = seqsStoreChip(
-                x - (dw * BOOL(run->flip & 0x8000)),
-                y + (dh * BOOL(run->flip & 0x4000)),
-                dw,
-                dh,
-                run->mt->mltgidx32,
-                code,
-                attr | 0x2000 | palt,
-                run->wk->my_clear_level,
-                run->mt->id
-            );
+            rnum = store_trans_chip(&(ChipPlacement){ x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
+                                    run->mt->mltgidx32,
+                                    code,
+                                    attr | 0x2000 | palt);
 
             break;
         }
@@ -1148,33 +1094,19 @@ static void store_cached_trans_rgb_ext_tiles(const TransRun* run, s32 group) {
         case 2:
             code = get_mltbuf16_ext(run->mt, cc.code, palt);
 
-            rnum = seqsStoreChip(
-                x - (dw * BOOL(run->flip & 0x8000)),
-                y + (dh * BOOL(run->flip & 0x4000)),
-                dw,
-                dh,
-                run->mt->mltgidx16,
-                code,
-                attr,
-                run->wk->my_clear_level,
-                run->mt->id
-            );
+            rnum = store_trans_chip(&(ChipPlacement){ x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
+                                    run->mt->mltgidx16,
+                                    code,
+                                    attr);
             break;
 
         case 4:
             code = get_mltbuf32_ext(run->mt, cc.code, palt);
 
-            rnum = seqsStoreChip(
-                x - (dw * BOOL(run->flip & 0x8000)),
-                y + (dh * BOOL(run->flip & 0x4000)),
-                dw,
-                dh,
-                run->mt->mltgidx32,
-                code,
-                attr | 0x2000,
-                run->wk->my_clear_level,
-                run->mt->id
-            );
+            rnum = store_trans_chip(&(ChipPlacement){ x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
+                                    run->mt->mltgidx32,
+                                    code,
+                                    attr | 0x2000);
             break;
         }
 
@@ -1225,17 +1157,10 @@ static void store_new_trans_rgb_ext_tiles(const TransRun* run, s32 group, Patter
                 njReLoadTexturePartNumG(run->mt->mltgidx16 + (code >> 8), (s8*)run->mt->mltbuf, code & 0xFF, size * 2);
             }
 
-            rnum = seqsStoreChip(
-                x - (dw * BOOL(run->flip & 0x8000)),
-                y + (dh * BOOL(run->flip & 0x4000)),
-                dw,
-                dh,
-                run->mt->mltgidx16,
-                code,
-                attr,
-                run->wk->my_clear_level,
-                run->mt->id
-            );
+            rnum = store_trans_chip(&(ChipPlacement){ x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
+                                    run->mt->mltgidx16,
+                                    code,
+                                    attr);
             break;
 
         case 4:
@@ -1244,17 +1169,10 @@ static void store_new_trans_rgb_ext_tiles(const TransRun* run, s32 group, Patter
                 njReLoadTexturePartNumG(run->mt->mltgidx32 + (code >> 6), (s8*)run->mt->mltbuf, code & 0x3F, size * 2);
             }
 
-            rnum = seqsStoreChip(
-                x - (dw * BOOL(run->flip & 0x8000)),
-                y + (dh * BOOL(run->flip & 0x4000)),
-                dw,
-                dh,
-                run->mt->mltgidx32,
-                code,
-                attr | 0x2000,
-                run->wk->my_clear_level,
-                run->mt->id
-            );
+            rnum = store_trans_chip(&(ChipPlacement){ x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
+                                    run->mt->mltgidx32,
+                                    code,
+                                    attr | 0x2000);
             break;
         }
 
@@ -1448,33 +1366,19 @@ static void store_trans_rgb_tiles(const RgbTileRun* run) {
         case 2:
             code = load_trans_rgb16(&(RgbTile){ run->mt, texptr, size, cc.code, palt });
 
-            rnum = seqsStoreChip(
-                x - (dw * BOOL(run->flip & 0x8000)),
-                y + (dh * BOOL(run->flip & 0x4000)),
-                dw,
-                dh,
-                run->mt->mltgidx16,
-                code,
-                attr,
-                run->wk->my_clear_level,
-                run->mt->id
-            );
+            rnum = store_trans_chip(&(ChipPlacement){ x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
+                                    run->mt->mltgidx16,
+                                    code,
+                                    attr);
             break;
 
         case 4:
             code = load_trans_rgb32(&(RgbTile){ run->mt, texptr, size, cc.code, palt });
 
-            rnum = seqsStoreChip(
-                x - (dw * BOOL(run->flip & 0x8000)),
-                y + (dh * BOOL(run->flip & 0x4000)),
-                dw,
-                dh,
-                run->mt->mltgidx32,
-                code,
-                attr | 0x2000,
-                run->wk->my_clear_level,
-                run->mt->id
-            );
+            rnum = store_trans_chip(&(ChipPlacement){ x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
+                                    run->mt->mltgidx32,
+                                    code,
+                                    attr | 0x2000);
             break;
         }
 
