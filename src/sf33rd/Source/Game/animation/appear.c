@@ -1394,6 +1394,38 @@ void Appear_26000(PLW* wk) {
     }
 }
 
+/* The second half of this entrance: everything from the partner's cue
+ * onwards. The case labels are the original ones, so the states still read as
+ * the same numbers. */
+static void step_appear_28000_dismount(PLW* wk, s16 id_w) {
+    switch (wk->wu.routine_no[3]) {
+    case 3:
+        if (plw[id_w].wu.routine_no[3] >= 3) {
+            wk->wu.routine_no[3]++;
+            appear_work[wk->wu.id] = 20;
+        }
+
+        break;
+
+    case 4:
+        appear_work[wk->wu.id]--;
+
+        if (appear_work[wk->wu.id] < 1) {
+            wk->wu.routine_no[3]++;
+            set_char_move_init2(&wk->wu, 9, 17, 15, 0);
+        }
+
+        break;
+
+    case 5:
+        char_move(&wk->wu);
+
+        finish_appear_on_last_frame(wk);
+
+        break;
+    }
+}
+
 void Appear_28000(PLW* wk) {
     s16 id_w = wk->wu.id ^ 1;
 
@@ -1423,29 +1455,8 @@ void Appear_28000(PLW* wk) {
 
         break;
 
-    case 3:
-        if (plw[id_w].wu.routine_no[3] >= 3) {
-            wk->wu.routine_no[3]++;
-            appear_work[wk->wu.id] = 20;
-        }
-
-        break;
-
-    case 4:
-        appear_work[wk->wu.id]--;
-
-        if (appear_work[wk->wu.id] < 1) {
-            wk->wu.routine_no[3]++;
-            set_char_move_init2(&wk->wu, 9, 17, 15, 0);
-        }
-
-        break;
-
-    case 5:
-        char_move(&wk->wu);
-
-        finish_appear_on_last_frame(wk);
-
+    default:
+        step_appear_28000_dismount(wk, id_w);
         break;
     }
 }
