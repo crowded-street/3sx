@@ -67,6 +67,13 @@ static void update_field_hosei_flags(PLW* wk) {
     }
 }
 
+static void start_default_win_pose(PLW* wk) {
+    s16 work;
+
+    work = win_select(wk, 3);
+    set_char_move_init(&wk->wu, 9, work + 32);
+}
+
 static void begin_win_pose(PLW* wk) {
     update_field_hosei_flags(wk);
 
@@ -430,8 +437,7 @@ void Win_05000(PLW* wk) {
             break;
         }
 
-        work = win_select(wk, 3);
-        set_char_move_init(&wk->wu, 9, work + 32);
+        start_default_win_pose(wk);
         win_rno[0] = 1;
         break;
 
@@ -454,8 +460,7 @@ static void start_win_06000_pose(PLW* wk) {
         work = win_select(wk, 3);
         set_char_move_init(&wk->wu, 9, work + 36);
     } else {
-        work = win_select(wk, 3);
-        set_char_move_init(&wk->wu, 9, work + 32);
+        start_default_win_pose(wk);
     }
 
 }
@@ -563,8 +568,7 @@ static void start_win_08000_pose(PLW* wk) {
         work = win_select(wk, 3);
         set_char_move_init(&wk->wu, 9, work + 36);
     } else {
-        work = win_select(wk, 3);
-        set_char_move_init(&wk->wu, 9, work + 32);
+        start_default_win_pose(wk);
     }
 
 }
@@ -976,8 +980,7 @@ static void start_win_13000_pose(PLW* wk) {
         work = win_select(wk, 3);
         set_char_move_init(&wk->wu, 9, work + 36);
     } else {
-        work = win_select(wk, 3);
-        set_char_move_init(&wk->wu, 9, work + 32);
+        start_default_win_pose(wk);
     }
 
 }
@@ -1007,8 +1010,7 @@ void Win_14000(PLW* wk) {
                 set_char_move_init(&wk->wu, 9, work + 36);
             }
         } else {
-            work = win_select(wk, 3);
-            set_char_move_init(&wk->wu, 9, work + 32);
+            start_default_win_pose(wk);
         }
 
         break;
@@ -1035,8 +1037,7 @@ static void start_win_15000_pose(PLW* wk) {
         work = win_select(wk, 7);
         set_char_move_init(&wk->wu, 9, Win_15000_tbl[work]);
     } else {
-        work = win_select(wk, 3);
-        set_char_move_init(&wk->wu, 9, work + 32);
+        start_default_win_pose(wk);
     }
 
 }
