@@ -201,11 +201,38 @@ void njdp2d_draw() {
     njdp2d_init();
 }
 
+// Walk the priority-sorted chain and splice the new primitive in ahead of the
+// first entry it outranks, or onto the tail if it outranks none.
+static void link_prim_by_priority(s32 ix, f32 pri) {
+    s32 i = njdp2d_w.ix1st;
+    s32 prev = -1;
+
+    while (1) {
+        if (pri > njdp2d_w.prim[i].v[0].z) {
+            if (prev == -1) {
+                njdp2d_w.ix1st = ix;
+                njdp2d_w.prim[ix].next = i;
+            } else {
+                njdp2d_w.prim[prev].next = ix;
+                njdp2d_w.prim[ix].next = i;
+            }
+
+            break;
+        }
+
+        if (njdp2d_w.prim[i].next == -1) {
+            njdp2d_w.prim[i].next = ix;
+            break;
+        }
+
+        prev = i;
+        i = njdp2d_w.prim[i].next;
+    }
+}
+
 // `col` needs to be `uintptr_t` because it sometimes stores a pointer to `WORK`
 void njdp2d_sort(f32* pos, f32 pri, uintptr_t col, s32 flag) {
-    s32 i;
     s32 ix = njdp2d_w.total;
-    s32 prev;
 
     if (ix >= NJDP2D_PRIM_MAX) {
         // The 2D polygon display request has exceeded the buffer\n
@@ -239,30 +266,7 @@ void njdp2d_sort(f32* pos, f32 pri, uintptr_t col, s32 flag) {
     if (njdp2d_w.ix1st == -1) {
         njdp2d_w.ix1st = njdp2d_w.total;
     } else {
-        i = njdp2d_w.ix1st;
-        prev = -1;
-
-        while (1) {
-            if (pri > njdp2d_w.prim[i].v[0].z) {
-                if (prev == -1) {
-                    njdp2d_w.ix1st = ix;
-                    njdp2d_w.prim[ix].next = i;
-                } else {
-                    njdp2d_w.prim[prev].next = ix;
-                    njdp2d_w.prim[ix].next = i;
-                }
-
-                break;
-            }
-
-            if (njdp2d_w.prim[i].next == -1) {
-                njdp2d_w.prim[i].next = ix;
-                break;
-            }
-
-            prev = i;
-            i = njdp2d_w.prim[i].next;
-        }
+        link_prim_by_priority(ix, pri);
     }
 
     njdp2d_w.total += 1;
