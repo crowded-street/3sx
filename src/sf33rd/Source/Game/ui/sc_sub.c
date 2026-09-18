@@ -263,10 +263,22 @@ void Sa_frame_Clear2(u8 pl) {
     clear_sa_frame_range(pl * 24, (pl * 24) + 24);
 }
 
-void Sa_frame_Write() {
+static void write_sa_frame_range(u8 first, u8 limit) {
     u8 i;
     u8 j;
 
+    for (j = 0; j < 3; j++) {
+        for (i = first; i < limit; i++) {
+            if (sa_frame[j][i].atr != 0) {
+                scfont_put(
+                    i, j + 25, sa_frame[j][i].atr, sa_frame[j][i].page, sa_frame[j][i].cx, sa_frame[j][i].cy, 2
+                );
+            }
+        }
+    }
+}
+
+void Sa_frame_Write() {
     if (omop_cockpit == 0) {
         return;
     }
@@ -278,27 +290,11 @@ void Sa_frame_Write() {
     ppgSetupCurrentDataList(&ppgScrList);
 
     if (omop_sa_bar_disp[0]) {
-        for (j = 0; j < 3; j++) {
-            for (i = 0; i < 24; i++) {
-                if (sa_frame[j][i].atr != 0) {
-                    scfont_put(
-                        i, j + 25, sa_frame[j][i].atr, sa_frame[j][i].page, sa_frame[j][i].cx, sa_frame[j][i].cy, 2
-                    );
-                }
-            }
-        }
+        write_sa_frame_range(0, 24);
     }
 
     if (omop_sa_bar_disp[1]) {
-        for (j = 0; j < 3; j++) {
-            for (i = 24; i < 48; i++) {
-                if (sa_frame[j][i].atr != 0) {
-                    scfont_put(
-                        i, j + 25, sa_frame[j][i].atr, sa_frame[j][i].page, sa_frame[j][i].cx, sa_frame[j][i].cy, 2
-                    );
-                }
-            }
-        }
+        write_sa_frame_range(24, 48);
     }
 }
 
