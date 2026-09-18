@@ -32,6 +32,54 @@ TEX_GRP_LD texgrplds[100];
 // forward decls
 s32 load_any_texture_grpnum(u8 grp, u8 kokey);
 
+// A key already held by the other player's half of a shared group is promoted
+// to the both-players type. Types other than 3 and 4 are left alone.
+static void promote_shared_key_type(LoadRequest* curr) {
+    switch (rckey_work[curr->lds->key].type) {
+    case 3:
+        if (curr->id) {
+            rckey_work[curr->lds->key].type = 5;
+        }
+
+        break;
+
+    case 4:
+        if (curr->id == 0) {
+            rckey_work[curr->lds->key].type = 5;
+        }
+
+        break;
+
+    case 5:
+        break;
+    }
+}
+
+// The group is already resident, so the request is answered from what is there
+// rather than read again.
+static void claim_loaded_group(LoadRequest* curr, const TexGroupData* bsd) {
+    switch (bsd->mode) {
+    case TEXGROUP_MODE_CHARACTER:
+    case TEXGROUP_MODE_SHARED:
+        promote_shared_key_type(curr);
+
+        if (rckey_work[curr->lds->key].type == 5) {
+            LDREQ_SetResultFlag(curr, true);
+            curr->status = LDREQ_STATUS_FREE;
+        } else {
+            fatal_error("A duplicate transfer occurred. File number: %d", bsd->apfn);
+        }
+
+        break;
+
+    case TEXGROUP_MODE_NORMAL:
+        rckey_work[curr->lds->key].type = curr->kokey;
+        LDREQ_SetResultFlag(curr, true);
+        curr->status = LDREQ_STATUS_FREE;
+        break;
+    }
+}
+
 // State 0: claim the request, resolve its texture group, and decide whether the
 // group still has to be read off the AFS partition. Returns 1 where the
 // original fell through into state 1, and 0 where it broke out of the dispatch.
@@ -57,44 +105,7 @@ static s32 open_texture_group_request(LoadRequest* curr, const TexGroupData* bsd
     curr->lds = &texgrplds[curr->group];
 
     if (curr->lds->ok) {
-        switch (bsd->mode) {
-        case TEXGROUP_MODE_CHARACTER:
-        case TEXGROUP_MODE_SHARED:
-            switch (rckey_work[curr->lds->key].type) {
-            case 3:
-                if (curr->id) {
-                    rckey_work[curr->lds->key].type = 5;
-                }
-
-                break;
-
-            case 4:
-                if (curr->id == 0) {
-                    rckey_work[curr->lds->key].type = 5;
-                }
-
-                break;
-
-            case 5:
-                break;
-            }
-
-            if (rckey_work[curr->lds->key].type == 5) {
-                LDREQ_SetResultFlag(curr, true);
-                curr->status = LDREQ_STATUS_FREE;
-            } else {
-                fatal_error("A duplicate transfer occurred. File number: %d", bsd->apfn);
-            }
-
-            break;
-
-        case TEXGROUP_MODE_NORMAL:
-            rckey_work[curr->lds->key].type = curr->kokey;
-            LDREQ_SetResultFlag(curr, true);
-            curr->status = LDREQ_STATUS_FREE;
-            break;
-        }
-
+        claim_loaded_group(curr, bsd);
         return 0;
     }
 
