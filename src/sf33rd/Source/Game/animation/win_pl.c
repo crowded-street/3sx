@@ -774,9 +774,75 @@ void Win_09000(PLW* wk) {
     }
 }
 
-void Win_10000(PLW* wk) {
-    s16 work;
+static void choose_q_win_action(PLW* wk, s16 id_w, s16 work) {
     s16 work2;
+
+    work2 = wk->wu.xyz[0].disp.pos - plw[id_w].wu.xyz[0].disp.pos;
+
+    if (work2 < 0) {
+        work2 = -work2;
+    }
+
+    if (work2 > 224) {
+        if (work & 1) {
+            win_rno[0] = 1;
+        } else {
+            win_rno[0] = 2;
+        }
+    } else if (work > 1) {
+        if (work & 1) {
+            if (plw[id_w].wu.char_index != 67) {
+                win_rno[0] = 1;
+            } else {
+                win_rno[0] = 3;
+            }
+        } else if (plw[id_w].wu.char_index != 67) {
+            win_rno[0] = 2;
+        } else {
+            win_rno[0] = 4;
+        }
+    } else if (work & 1) {
+        win_rno[0] = 1;
+    } else {
+        win_rno[0] = 2;
+    }
+}
+
+static void start_win_10000_pose(PLW* wk, s16 id_w) {
+    s16 work;
+
+    update_field_hosei_flags(wk);
+
+    win_rno[0] = win_rno[1] = 0;
+    wk->wu.routine_no[3]++;
+    work = win_select(wk, 3);
+
+    if (winner_on_match_point(wk)) {
+        choose_q_win_action(wk, id_w, work);
+    } else {
+        set_char_move_init(&wk->wu, 9, work + 32);
+    }
+}
+
+static void step_q_win_action(PLW* wk) {
+    switch (win_rno[0]) {
+    case 0:
+        Normal_normal_Winner(wk);
+        break;
+
+    case 1:
+    case 3:
+        q_keeping_action(wk);
+        break;
+
+    case 2:
+    case 4:
+        q_leave_after_action(wk);
+        break;
+    }
+}
+
+void Win_10000(PLW* wk) {
     s16 id_w;
 
     bg_app_stop = 1;
@@ -786,64 +852,11 @@ void Win_10000(PLW* wk) {
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        update_field_hosei_flags(wk);
-
-        win_rno[0] = win_rno[1] = 0;
-        wk->wu.routine_no[3]++;
-        work = win_select(wk, 3);
-
-        if (winner_on_match_point(wk)) {
-            work2 = wk->wu.xyz[0].disp.pos - plw[id_w].wu.xyz[0].disp.pos;
-
-            if (work2 < 0) {
-                work2 = -work2;
-            }
-
-            if (work2 > 224) {
-                if (work & 1) {
-                    win_rno[0] = 1;
-                } else {
-                    win_rno[0] = 2;
-                }
-            } else if (work > 1) {
-                if (work & 1) {
-                    if (plw[id_w].wu.char_index != 67) {
-                        win_rno[0] = 1;
-                    } else {
-                        win_rno[0] = 3;
-                    }
-                } else if (plw[id_w].wu.char_index != 67) {
-                    win_rno[0] = 2;
-                } else {
-                    win_rno[0] = 4;
-                }
-            } else if (work & 1) {
-                win_rno[0] = 1;
-            } else {
-                win_rno[0] = 2;
-            }
-        } else {
-            set_char_move_init(&wk->wu, 9, work + 32);
-        }
-
+        start_win_10000_pose(wk, id_w);
         break;
 
     default:
-        switch (win_rno[0]) {
-        case 0:
-            Normal_normal_Winner(wk);
-            break;
-
-        case 1:
-        case 3:
-            q_keeping_action(wk);
-            break;
-
-        case 2:
-        case 4:
-            q_leave_after_action(wk);
-            break;
-        }
+        step_q_win_action(wk);
     }
 }
 
