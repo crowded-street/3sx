@@ -21,6 +21,10 @@ static s32 judge_screen_showing() {
     return (pcon_rno[0] == 2) && (pcon_rno[1] == 3);
 }
 
+static s32 lose_anime_suspended() {
+    return (pcon_rno[1] == 0) || (pcon_rno[1] == 4);
+}
+
 static void update_field_hosei_flags(PLW* wk) {
     if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1) != 0) {
         set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
@@ -63,7 +67,7 @@ void Lose_10000(PLW* wk) {
             char_move(&wk->wu);
             break;
         }
-    } else if ((pcon_rno[1] == 0) || (pcon_rno[1] == 4)) {
+    } else if (lose_anime_suspended()) {
         return;
     } else {
         switch (wk->wu.routine_no[3]) {
@@ -133,7 +137,7 @@ void Lose_30000(PLW* wk) {
             break;
         }
 
-    } else if ((pcon_rno[1] == 0) || (pcon_rno[1] == 4)) {
+    } else if (lose_anime_suspended()) {
         return;
     } else {
         switch (wk->wu.routine_no[3]) {
@@ -155,7 +159,7 @@ void Lose_30000(PLW* wk) {
 void Normal_normal_Loser(PLW* wk) {
     s16 work;
 
-    if ((pcon_rno[1] == 0) || (pcon_rno[1] == 4)) {
+    if (lose_anime_suspended()) {
         return;
     }
 
@@ -200,7 +204,7 @@ void Judge_normal_loser(PLW* wk) {
 void meta_lose_pause(PLW* wk) {
     bg_app_stop = 1;
 
-    if ((pcon_rno[1] == 0) || (pcon_rno[1] == 4)) {
+    if (lose_anime_suspended()) {
         return;
     }
 
