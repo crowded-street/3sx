@@ -539,6 +539,74 @@ fingerprint means it did not travel to the call site and the merge is wrong.
 
 ---
 
+## Recipe N - Shared Index Range
+
+**Use when:** two or more scans are identical character for character except for the
+**first index and the limit of the range they walk** - so Recipe D refuses them for having
+two differences, Recipe C finds no identical run because the two literals sit in the
+`for`-init and its condition, and Recipe B does not reach them because the buffer is the
+same in every instance and it is the *range* that moves.
+
+This is Recipe B with the pair of varying things changed from *(buffer, length)* to
+*(first, limit)*. It needed its own entry rather than a relaxation of B because B's
+preconditions are written around a caller-named buffer, and here there is none.
+
+**Added 2026-09-18** under the project owner's standing authorisation, and measured on
+`bg.c`'s two ending chip remaps, which scan the same `rw_dat` for the same key and take
+the same replacement, over two halves of it:
+
+```c
+static s32 remap_ending_c_kakikae1_chip(s32 global_index_real) {
+    for (i = 0; i < 8; i++) {          /* the twin runs i = 8; i < 16 */
+        if (global_index_real == rw_dat[i].rwgbix) {
+            global_index_real = rw_dat[i].rwd_ptr[c_number];
+            ...
+```
+
+The two became one helper taking the range, with each arm of the `c_kakikae` dispatch
+naming its own half:
+
+```c
+    case 1:  global_index_real = remap_ending_c_chip_in_range(global_index_real, 0, 8);   break;
+    case 2:  global_index_real = remap_ending_c_chip_in_range(global_index_real, 8, 16);
+```
+
+**Why this is not Recipe D's forbidden case.** The same argument that makes Recipes T, B,
+V, W and F safe: **both varying values are written out in full, in positional order, at
+their own call site**, so no pair can be crossed without the one call line showing it, and
+the loop moves once with nothing about it rewritten. The helper uses `first` only as the
+loop's initial value and `limit` only in the condition it already stood in. It does not
+index with either, test either, or compute from either.
+
+**Preconditions, all of them:**
+
+- **The loop body is identical** across every instance, character for character. If a
+  subscript, a comparison operator, a callee or a statement differs anywhere, those
+  instances are not one family and Recipe D's refusal stands.
+- **Only the first index and the limit vary.** A third varying name or expression is not
+  this recipe.
+- **The comparison is copied, not chosen.** `i < limit` because the original wrote
+  `i < 8`. Turning a `<` into a `<=` to make two instances fit is the forbidden operator
+  change, and two instances that disagree on it are two families.
+- **The loop cannot move its own bound**, exactly as Recipe B requires. The original
+  re-reads the limit on every pass and the helper takes it by value once, so the body must
+  write only its own locals, or write through a pointer that provably cannot alias the
+  limit's storage. In `bg.c` the body assigns one local and calls two `ppg` functions that
+  touch only the texture lists.
+- **The parameter types are the loop variable's**, so the comparison promotes exactly as it
+  did. `remap_ending_c_chip_in_range` takes `s32` because `i` is `s32`.
+- **Two instances are enough**, for Recipe B's reason rather than Recipe V's: the skeleton
+  is a single loop with its range hoisted, and there is nothing in it for a third case to
+  confirm.
+
+**What the guard shows.** The deduplication WARN, with one copy of the body's own literals
+removed and **every bound still present at its call site**. A bound leaving the fingerprint
+means it did not travel to the call site and the merge is wrong. `--calls` shows the body's
+callees dropping by the copies removed; if the merged functions had names of their own,
+declare the collapse with `--renamed OLD=NEW` for each of them.
+
+---
+
 ## Recipe F - Action Parameter
 
 **Use when:** two or more functions - or two or more arms of one `switch` - share a control
