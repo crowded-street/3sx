@@ -512,44 +512,8 @@ void SSPutStr_Bigger(u16 x, u16 y, u8 atr, const char* str, f32 sc, u8 gr, u16 p
     }
 }
 
-void SSPutDec(u16 x, u16 y, u8 atr, u8 dec, u8 size) {
-    s8 str[3];
-    u8 work;
-    u8 num;
-    u8 i;
-    u8 zero_sw;
-
-    if (No_Trans) {
-        return;
-    }
-
-    if (size == 0) {
-        return;
-    }
-
-    ppgSetupCurrentDataList(&ppgScrList);
-    njColorBlendingMode(0, 1);
-    scrscrntex[0].col = scrscrntex[3].col = -1;
-    scrscrntex[0].z = scrscrntex[3].z = PrioBase[2];
-    njSetPaletteBankNumG(1, atr & 0x3F);
-    x = x * 8;
-    y = y * 8;
-    zero_sw = 0;
-    work = 100;
-
-    for (i = 0; i < 3; i++) {
-        for (num = 0; dec + 1 > work; dec = dec - work, num++) {}
-
-        str[i] = num;
-        work = work / 10;
-    }
-
-    SSPutStrTexInput2(x, y, str[2]);
-    njDrawSprite(scrscrntex, 4, 1, 1);
-
-    if (size == 0) {
-        return;
-    }
+static void put_dec_high_digits(u16 x, u16 y, const s8* str, u8 size) {
+    u8 zero_sw = 0;
 
     x -= 16;
 
@@ -568,6 +532,46 @@ void SSPutDec(u16 x, u16 y, u8 atr, u8 dec, u8 size) {
         SSPutStrTexInput2(x, y, str[1]);
         njDrawSprite(scrscrntex, 4, 1, 1);
     }
+}
+
+void SSPutDec(u16 x, u16 y, u8 atr, u8 dec, u8 size) {
+    s8 str[3];
+    u8 work;
+    u8 num;
+    u8 i;
+
+    if (No_Trans) {
+        return;
+    }
+
+    if (size == 0) {
+        return;
+    }
+
+    ppgSetupCurrentDataList(&ppgScrList);
+    njColorBlendingMode(0, 1);
+    scrscrntex[0].col = scrscrntex[3].col = -1;
+    scrscrntex[0].z = scrscrntex[3].z = PrioBase[2];
+    njSetPaletteBankNumG(1, atr & 0x3F);
+    x = x * 8;
+    y = y * 8;
+    work = 100;
+
+    for (i = 0; i < 3; i++) {
+        for (num = 0; dec + 1 > work; dec = dec - work, num++) {}
+
+        str[i] = num;
+        work = work / 10;
+    }
+
+    SSPutStrTexInput2(x, y, str[2]);
+    njDrawSprite(scrscrntex, 4, 1, 1);
+
+    if (size == 0) {
+        return;
+    }
+
+    put_dec_high_digits(x, y, str, size);
 }
 
 void SSPutDec3(u16 x, u16 y, u8 atr, s16 dec, u8 size, u8 gr, u16 priority) {
