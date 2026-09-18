@@ -873,6 +873,13 @@ void silver_vital_put(u8 Pl_Num) {
     njDrawSprite(scrscrntex, 4, 0, 1);
 }
 
+static void fill_quad_corners(PAL_CURSOR_P* pos) {
+    pos[1].x = pos[3].x;
+    pos[1].y = pos[0].y;
+    pos[2].x = pos[0].x;
+    pos[2].y = pos[3].y;
+}
+
 void vital_base_put(u8 Pl_Num) {
     PAL_CURSOR vtx;
     PAL_CURSOR_P pos[4];
@@ -897,10 +904,7 @@ void vital_base_put(u8 Pl_Num) {
 
     pos[0].y = 18.0f;
     pos[3].y = 23.0f;
-    pos[1].x = pos[3].x;
-    pos[1].y = pos[0].y;
-    pos[2].x = pos[0].x;
-    pos[2].y = pos[3].y;
+    fill_quad_corners(pos);
     njDrawPolygon2D(&vtx, 4, PrioBase[TopHUDFacePriority], 96);
 }
 
@@ -936,10 +940,7 @@ void spgauge_base_put(u8 Pl_Num, s16 len) {
 
     pos[0].y = 210.0f;
     pos[3].y = 217.0f;
-    pos[1].x = pos[3].x;
-    pos[1].y = pos[0].y;
-    pos[2].x = pos[0].x;
-    pos[2].y = pos[3].y;
+    fill_quad_corners(pos);
     njDrawPolygon2D(&vtx, 4, PrioBase[4], 96);
 }
 
@@ -1002,10 +1003,7 @@ void stun_base_put(u8 Pl_Num, s16 len) {
 
     pos[0].y = 25.0f;
     pos[3].y = 31.0f;
-    pos[1].x = pos[3].x;
-    pos[1].y = pos[0].y;
-    pos[2].x = pos[0].x;
-    pos[2].y = pos[3].y;
+    fill_quad_corners(pos);
     // Fudged priority to fix overlap with stun_put
     njDrawPolygon2D(&vtx, 4, PrioBase[TopHUDFacePriority + 1], 96);
 }
