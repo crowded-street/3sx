@@ -285,7 +285,7 @@ static void put_score_digits(s16 PL_id, u32 Score_Buff) {
     }
 
     for (i = Coin_Message_Data[3][PL_id] - First_Digit, j = First_Digit; j >= 0; j--, assign3 = i++) {
-        score8x16_put(i, 0, 8, Digit[j], TopHUDPriority);
+        score8x16_put(&(ScoreChar){ i, 0, 8, Digit[j] }, TopHUDPriority);
     }
 }
 

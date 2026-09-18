@@ -30,7 +30,14 @@
 #include "structs.h"
 #include "core/xbox_buttons.h"
 
-void combo_message_set(u8 pl, u8 kind, u8 x, u8 num, u8 hi, u8 low) {
+void combo_message_set(const ComboMessage* m) {
+    u8 pl = m->pl;
+    u8 kind = m->kind;
+    u8 x = m->x;
+    u8 num = m->num;
+    u8 hi = m->hi;
+    u8 low = m->low;
+
     u8 xw;
     u8 xw2;
 
@@ -98,7 +105,12 @@ void combo_message_set(u8 pl, u8 kind, u8 x, u8 num, u8 hi, u8 low) {
     }
 }
 
-void combo_pts_set(u8 pl, u8 x, u8 num, s8* pts, s8 digit) {
+void combo_pts_set(const ComboPoints* p, s8 digit) {
+    u8 pl = p->pl;
+    u8 x = p->x;
+    u8 num = p->num;
+    s8* pts = p->pts;
+
     s8 i;
     s8 j;
 
@@ -114,7 +126,7 @@ void combo_pts_set(u8 pl, u8 x, u8 num, s8* pts, s8 digit) {
 
     if (pl == 0) {
         for (i = digit, assign1 = j = 1; i >= 0; i--, j++, assign2 = x += 1) {
-            score8x16_put(x, 10, 8, pts[i], 2);
+            score8x16_put(&(ScoreChar){ x, 10, 8, pts[i] }, 2);
 
             if (num - j == 0) {
                 return;
@@ -125,13 +137,13 @@ void combo_pts_set(u8 pl, u8 x, u8 num, s8* pts, s8 digit) {
             return;
         }
 
-        score8x16_put(x, 10, 8, 0, 2);
+        score8x16_put(&(ScoreChar){ x, 10, 8, 0 }, 2);
 
         if (num < digit + 2) {
             return;
         }
 
-        score8x16_put(x + 1, 10, 8, 0, 2);
+        score8x16_put(&(ScoreChar){ x + 1, 10, 8, 0 }, 2);
 
         if (num < digit + 3) {
             return;
@@ -153,16 +165,16 @@ void combo_pts_set(u8 pl, u8 x, u8 num, s8* pts, s8 digit) {
         }
 
         if (num > 2) {
-            score8x16_put(x - 2, 10, 8, 0, 2);
+            score8x16_put(&(ScoreChar){ x - 2, 10, 8, 0 }, 2);
         }
 
         if (num > 3) {
-            score8x16_put(x - 3, 10, 8, 0, 2);
+            score8x16_put(&(ScoreChar){ x - 3, 10, 8, 0 }, 2);
         }
 
         if (num > 4) {
             for (i = 0; i <= digit; i++, assign3 = x -= 1) {
-                score8x16_put(x - 4, 10, 8, pts[i], 2);
+                score8x16_put(&(ScoreChar){ x - 4, 10, 8, pts[i] }, 2);
 
                 if (num - i == 0) {
                     break;
@@ -172,7 +184,12 @@ void combo_pts_set(u8 pl, u8 x, u8 num, s8* pts, s8 digit) {
     }
 }
 
-void score8x16_put(u16 x, u16 y, u8 atr, u8 chr, u8 priority) {
+void score8x16_put(const ScoreChar* c, u8 priority) {
+    u16 x = c->x;
+    u16 y = c->y;
+    u8 atr = c->atr;
+    u8 chr = c->chr;
+
     if (No_Trans) {
         return;
     }

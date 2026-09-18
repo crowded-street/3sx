@@ -680,14 +680,7 @@ void combo_window_push(s8 PL, s8 KIND) { // 🟡
 /* Draw the combo message at its current slide position. Written out four times
  * across the two window animations, identically. */
 static void draw_combo_message_now(s8 PL) {
-    combo_message_set(
-        PL,
-        cmst_buff[PL][cst_read[PL]].kind,
-        cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[0] - 1],
-        cmst_buff[PL][cst_read[PL]].x_posnum[0],
-        cmst_buff[PL][cst_read[PL]].hit_hi,
-        cmst_buff[PL][cst_read[PL]].hit_low
-    );
+    combo_message_set(&(ComboMessage){ PL, cmst_buff[PL][cst_read[PL]].kind, cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[0] - 1], cmst_buff[PL][cst_read[PL]].x_posnum[0], cmst_buff[PL][cst_read[PL]].hit_hi, cmst_buff[PL][cst_read[PL]].hit_low });
 }
 
 /* Redraw the message at its current slide position. */
@@ -715,13 +708,7 @@ static void slide_combo_message(s8 PL) {
  * points slide, identical apart from that position - twice at the row's resting
  * place and twice mid-slide. */
 static void draw_combo_points_at(s8 PL, s16 posnum) {
-    combo_pts_set(
-        PL,
-        cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[1] - 1],
-        posnum,
-        &cmst_buff[PL][cst_read[PL]].pts_digit[0],
-        cmst_buff[PL][cst_read[PL]].first_digit
-    );
+    combo_pts_set(&(ComboPoints){ PL, cmb_pos_tbl[PL][cmst_buff[PL][cst_read[PL]].x_posnum[1] - 1], posnum, &cmst_buff[PL][cst_read[PL]].pts_digit[0] }, cmst_buff[PL][cst_read[PL]].first_digit);
 }
 
 /* One step of the points row sliding out, or the step that finishes it and sets
