@@ -99,69 +99,76 @@ void Win_00000(PLW* wk) {
 
 const s16 win_10000_tbl[2][8] = { { 32, 33, 34, 32, 36, 37, 38, 33 }, { 35, 39, 34, 35, 36, 37, 38, 39 } };
 
-void Win_01000(PLW* wk) {
+static void start_win_01000_pose(PLW* wk) {
     s16 work;
 
+    win_rno[0] = win_rno[1] = 0;
+    wk->wu.routine_no[3]++;
+    work = win_select(wk, 7);
+
+    if (winner_on_match_point(wk)) {
+        if (Round_Result & 0x800) {
+            wk->wu.cmwk[0] = 0;
+            set_char_move_init(&wk->wu, 9, 42);
+            win_rno[0] = 3;
+            return;
+        }
+
+        if (bg_w.stage == 9) {
+            set_char_move_init(&wk->wu, 9, 41);
+            win_rno[0] = 1;
+            return;
+        }
+
+        set_char_move_init(&wk->wu, 9, win_10000_tbl[1][work]);
+
+        if (work == 4) {
+            win_rno[0] = 2;
+        }
+
+        return;
+    }
+
+    set_char_move_init(&wk->wu, 9, win_10000_tbl[0][work]);
+
+    if (work == 4) {
+        win_rno[0] = 2;
+    }
+}
+
+static void step_jijii_win_action(PLW* wk) {
+    switch (win_rno[0]) {
+    case 0:
+        char_move(&wk->wu);
+        break;
+
+    case 1:
+        jijii_nebukuro(wk);
+        break;
+
+    case 2:
+        jijii_jump(wk);
+        break;
+
+    case 3:
+        jijii_full(wk);
+        break;
+    }
+}
+
+void Win_01000(PLW* wk) {
     bg_app_stop = 1;
 
     update_field_hosei_flags(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        win_rno[0] = win_rno[1] = 0;
-        wk->wu.routine_no[3]++;
-        work = win_select(wk, 7);
-
-        if (winner_on_match_point(wk)) {
-            if (Round_Result & 0x800) {
-                wk->wu.cmwk[0] = 0;
-                set_char_move_init(&wk->wu, 9, 42);
-                win_rno[0] = 3;
-                break;
-            }
-
-            if (bg_w.stage == 9) {
-                set_char_move_init(&wk->wu, 9, 41);
-                win_rno[0] = 1;
-                break;
-            }
-
-            set_char_move_init(&wk->wu, 9, win_10000_tbl[1][work]);
-
-            if (work == 4) {
-                win_rno[0] = 2;
-            }
-
-            break;
-        }
-
-        set_char_move_init(&wk->wu, 9, win_10000_tbl[0][work]);
-
-        if (work == 4) {
-            win_rno[0] = 2;
-        }
-
+        start_win_01000_pose(wk);
         break;
 
     case 1:
     case 9:
-        switch (win_rno[0]) {
-        case 0:
-            char_move(&wk->wu);
-            break;
-
-        case 1:
-            jijii_nebukuro(wk);
-            break;
-
-        case 2:
-            jijii_jump(wk);
-            break;
-
-        case 3:
-            jijii_full(wk);
-            break;
-        }
+        step_jijii_win_action(wk);
 
         break;
     }
