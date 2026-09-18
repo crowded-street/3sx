@@ -742,16 +742,9 @@ void Setup_Default_Game_Option() {
     }
 }
 
-s32 Check_Change_Contents() {
+static s32 convert_buff_differs() {
     s16 ix;
     s16 ix2;
-    s16 page;
-
-    Check_Buff[3][0][0] = Convert_Buff[3][0][0];
-
-    for (ix = 4; ix < 12; ix++) {
-        Check_Buff[3][1][ix] = Convert_Buff[3][1][ix];
-    }
 
     for (ix = 0; ix < 4; ix++) {
         for (ix2 = 0; ix2 < 12; ix2++) {
@@ -765,11 +758,12 @@ s32 Check_Change_Contents() {
         }
     }
 
-    for (page = 0; page < 4; page++) {
-        for (ix = Ex_Page_Data[page]; ix < 8; ix++) {
-            ck_ex_option.contents[page][ix] = save_w[1].extra_option.contents[page][ix];
-        }
-    }
+    return 0;
+}
+
+static s32 extra_option_differs() {
+    s16 ix;
+    s16 ix2;
 
     for (ix = 0; ix < 4; ix++) {
         for (ix2 = 0; ix2 < 8; ix2++) {
@@ -777,6 +771,33 @@ s32 Check_Change_Contents() {
                 return 1;
             }
         }
+    }
+
+    return 0;
+}
+
+s32 Check_Change_Contents() {
+    s16 ix;
+    s16 page;
+
+    Check_Buff[3][0][0] = Convert_Buff[3][0][0];
+
+    for (ix = 4; ix < 12; ix++) {
+        Check_Buff[3][1][ix] = Convert_Buff[3][1][ix];
+    }
+
+    if (convert_buff_differs()) {
+        return 1;
+    }
+
+    for (page = 0; page < 4; page++) {
+        for (ix = Ex_Page_Data[page]; ix < 8; ix++) {
+            ck_ex_option.contents[page][ix] = save_w[1].extra_option.contents[page][ix];
+        }
+    }
+
+    if (extra_option_differs()) {
+        return 1;
     }
 
     return 0;
