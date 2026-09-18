@@ -1891,6 +1891,16 @@ static void lz_ext_p6_fx(u8* srcptr, u8* dstptr, u32 len) {
     }
 }
 
+// The u16 twin of copy_lz_run_8. The two cannot be one function: these pointers
+// are u16 and those are u8.
+static u16* copy_lz_run_16(u16* dstptr, u16* tmpptr, u32 tmp) {
+    while (tmp--) {
+        *dstptr++ = *tmpptr++;
+    }
+
+    return dstptr;
+}
+
 static void lz_ext_p6_cx(u8* srcptr, u16* dstptr, u32 len, u16* palptr) {
     u16* endptr = dstptr + len;
     u16* tmpptr;
@@ -1910,9 +1920,7 @@ static void lz_ext_p6_cx(u8* srcptr, u16* dstptr, u32 len, u16* palptr) {
             tmpptr = (dstptr - (tmp >> 2)) - 1;
             tmp = (tmp & 3) + 2;
 
-            while (tmp--) {
-                *dstptr++ = *tmpptr++;
-            }
+            dstptr = copy_lz_run_16(dstptr, tmpptr, tmp);
 
             break;
 
@@ -1921,9 +1929,7 @@ static void lz_ext_p6_cx(u8* srcptr, u16* dstptr, u32 len, u16* palptr) {
             tmpptr = (dstptr - (tmp >> 6)) - 1;
             tmp = (tmp & 0x3F) + 2;
 
-            while (tmp--) {
-                *dstptr++ = *tmpptr++;
-            }
+            dstptr = copy_lz_run_16(dstptr, tmpptr, tmp);
 
             break;
 
