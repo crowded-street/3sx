@@ -979,67 +979,75 @@ void Appear_17000(PLW* wk) {
     }
 }
 
-void Appear_18000(PLW* wk) {
+static void start_appear_18000(PLW* wk) {
     s16 work;
 
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.disp_flag = 1;
+    wk->wu.routine_no[3]++;
+    wk->wu.disp_flag = 1;
 
-        if (plw[0].player_number == 8 && plw[1].player_number == 8) {
-            Appear_free[wk->wu.id] = 0;
+    if (plw[0].player_number == 8 && plw[1].player_number == 8) {
+        Appear_free[wk->wu.id] = 0;
 
-            if (wk->wu.id) {
-                wk->wu.xyz[0].disp.pos = bg_w.bgw[1].pos_x_work - 0x3B;
-            } else {
-                wk->wu.xyz[0].disp.pos = bg_w.bgw[1].pos_x_work + 0x3B;
-            }
-
-            set_char_move_init(&wk->wu, 9, 0x10);
-            bg_app_stop = 1;
-            break;
+        if (wk->wu.id) {
+            wk->wu.xyz[0].disp.pos = bg_w.bgw[1].pos_x_work - 0x3B;
+        } else {
+            wk->wu.xyz[0].disp.pos = bg_w.bgw[1].pos_x_work + 0x3B;
         }
 
-        Appear_free[wk->wu.id] = 1;
-        work = random_16();
-        work &= 3;
-        set_char_move_init(&wk->wu, 9, work + 8);
+        set_char_move_init(&wk->wu, 9, 0x10);
+        bg_app_stop = 1;
+        return;
+    }
 
+    Appear_free[wk->wu.id] = 1;
+    work = random_16();
+    work &= 3;
+    set_char_move_init(&wk->wu, 9, work + 8);
+
+    wk->wu.mvxy.a[0].sp = 0;
+    wk->wu.mvxy.a[1].sp = 0x80000;
+
+    appear_work[wk->wu.id] = 0x1F;
+
+    if (wk->wu.id) {
+        cal_delta_speed(&wk->wu, appear_work[wk->wu.id], (bg_w.bgw[1].pos_x_work + 0x58), 0, 0, 1);
+        bg_app_stop = 1;
+        return;
+    }
+    cal_delta_speed(&wk->wu, appear_work[wk->wu.id], (bg_w.bgw[1].pos_x_work - 0x58), 0, 0, 1);
+
+    bg_app_stop = 1;
+}
+
+static void land_appear_18000(PLW* wk) {
+    if (!Appear_free[wk->wu.id]) {
         wk->wu.mvxy.a[0].sp = 0;
         wk->wu.mvxy.a[1].sp = 0x80000;
 
         appear_work[wk->wu.id] = 0x1F;
 
         if (wk->wu.id) {
-            cal_delta_speed(&wk->wu, appear_work[wk->wu.id], (bg_w.bgw[1].pos_x_work + 0x58), 0, 0, 1);
-            bg_app_stop = 1;
-            break;
+            cal_delta_speed(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work + 0x58, 0, 0, 1);
+        } else {
+            cal_delta_speed(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work - 0x58, 0, 0, 1);
         }
-        cal_delta_speed(&wk->wu, appear_work[wk->wu.id], (bg_w.bgw[1].pos_x_work - 0x58), 0, 0, 1);
+    }
 
-        bg_app_stop = 1;
+    wk->wu.cg_type = 0;
+    wk->wu.routine_no[3]++;
+}
+
+void Appear_18000(PLW* wk) {
+    switch (wk->wu.routine_no[3]) {
+    case 0:
+        start_appear_18000(wk);
         break;
 
     case 1:
         char_move(&wk->wu);
 
         if (wk->wu.cg_type == 9) {
-            if (!Appear_free[wk->wu.id]) {
-                wk->wu.mvxy.a[0].sp = 0;
-                wk->wu.mvxy.a[1].sp = 0x80000;
-
-                appear_work[wk->wu.id] = 0x1F;
-
-                if (wk->wu.id) {
-                    cal_delta_speed(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work + 0x58, 0, 0, 1);
-                } else {
-                    cal_delta_speed(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work - 0x58, 0, 0, 1);
-                }
-            }
-
-            wk->wu.cg_type = 0;
-            wk->wu.routine_no[3]++;
+            land_appear_18000(wk);
         }
         break;
 
