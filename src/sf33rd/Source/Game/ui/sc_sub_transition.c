@@ -34,13 +34,49 @@ void WipeInit() {
     WipeLimit = 0;
 }
 
-s32 WipeOut(u8 type) {
+static void draw_wipe_out(u8 type) {
     PAL_CURSOR wipe_pc;
     PAL_CURSOR_P wipe_p[4];
     PAL_CURSOR_COL wipe_col[4];
     s32 i;
     s32 dmylim;
 
+    if (WipeLimit > 7) {
+        dmylim = 7;
+    } else {
+        dmylim = WipeLimit;
+    }
+
+    wipe_pc.p = wipe_p;
+    wipe_pc.col = wipe_col;
+    wipe_pc.tex = 0;
+    wipe_pc.num = 4;
+    wipe_col[0].color = wipe_col[1].color = wipe_col[2].color = wipe_col[3].color = 0xFF000000;
+
+    if (type == 0) {
+        wipe_p[0].x = wipe_p[2].x = 0.0f;
+        wipe_p[1].x = wipe_p[3].x = 384.0f;
+
+        for (i = 224; i > 0; i -= 8) {
+            wipe_p[0].y = wipe_p[1].y = i;
+            wipe_p[2].y = wipe_p[3].y = (i - (dmylim + 1));
+            njDrawPolygon2D(&wipe_pc, 4, PrioBase[0], 32);
+        }
+    } else if (WipeLimit != 8) {
+        wipe_p[0].y = wipe_p[1].y = 0.0f;
+        wipe_p[2].y = wipe_p[3].y = 224.0f;
+
+        for (i = -224; i < 384; i += 8) {
+            wipe_p[0].x = i;
+            wipe_p[1].x = (i + dmylim + 1);
+            wipe_p[2].x = 224.0f + wipe_p[0].x;
+            wipe_p[3].x = 224.0f + wipe_p[1].x;
+            njDrawPolygon2D(&wipe_pc, 4, PrioBase[0], 32);
+        }
+    }
+}
+
+s32 WipeOut(u8 type) {
     if (WipeLimit > 7) {
         overwrite_panel(0xFF000000, 0);
     }
@@ -51,39 +87,7 @@ s32 WipeOut(u8 type) {
     }
 
     if (!No_Trans) {
-        if (WipeLimit > 7) {
-            dmylim = 7;
-        } else {
-            dmylim = WipeLimit;
-        }
-
-        wipe_pc.p = wipe_p;
-        wipe_pc.col = wipe_col;
-        wipe_pc.tex = 0;
-        wipe_pc.num = 4;
-        wipe_col[0].color = wipe_col[1].color = wipe_col[2].color = wipe_col[3].color = 0xFF000000;
-
-        if (type == 0) {
-            wipe_p[0].x = wipe_p[2].x = 0.0f;
-            wipe_p[1].x = wipe_p[3].x = 384.0f;
-
-            for (i = 224; i > 0; i -= 8) {
-                wipe_p[0].y = wipe_p[1].y = i;
-                wipe_p[2].y = wipe_p[3].y = (i - (dmylim + 1));
-                njDrawPolygon2D(&wipe_pc, 4, PrioBase[0], 32);
-            }
-        } else if (WipeLimit != 8) {
-            wipe_p[0].y = wipe_p[1].y = 0.0f;
-            wipe_p[2].y = wipe_p[3].y = 224.0f;
-
-            for (i = -224; i < 384; i += 8) {
-                wipe_p[0].x = i;
-                wipe_p[1].x = (i + dmylim + 1);
-                wipe_p[2].x = 224.0f + wipe_p[0].x;
-                wipe_p[3].x = 224.0f + wipe_p[1].x;
-                njDrawPolygon2D(&wipe_pc, 4, PrioBase[0], 32);
-            }
-        }
+        draw_wipe_out(type);
     }
 
     WipeLimit += 1;
