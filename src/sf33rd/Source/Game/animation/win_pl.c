@@ -326,32 +326,36 @@ void jijii_full(PLW* wk) {
 
 const s16 win_2000_tbl[18] = { 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1 };
 
-void Win_02000(PLW* wk) {
+static void start_win_02000_pose(PLW* wk) {
     s16 work;
 
+    update_field_hosei_flags(wk);
+
+    wk->wu.routine_no[3]++;
+
+    win_rno[0] = win_rno[1] = 0;
+    work = win_select(wk, 3);
+
+    if (winner_on_match_point(wk)) {
+        if (win_2000_tbl[bg_w.bg_index]) {
+            set_char_move_init(&wk->wu, 9, work + 36);
+        } else if (work & 1) {
+            set_char_move_init(&wk->wu, 9, 32);
+        } else {
+            set_char_move_init(&wk->wu, 9, 38);
+        }
+    } else {
+        set_char_move_init(&wk->wu, 9, 32);
+    }
+
+}
+
+void Win_02000(PLW* wk) {
     bg_app_stop = 1;
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        update_field_hosei_flags(wk);
-
-        wk->wu.routine_no[3]++;
-
-        win_rno[0] = win_rno[1] = 0;
-        work = win_select(wk, 3);
-
-        if (winner_on_match_point(wk)) {
-            if (win_2000_tbl[bg_w.bg_index]) {
-                set_char_move_init(&wk->wu, 9, work + 36);
-            } else if (work & 1) {
-                set_char_move_init(&wk->wu, 9, 32);
-            } else {
-                set_char_move_init(&wk->wu, 9, 38);
-            }
-        } else {
-            set_char_move_init(&wk->wu, 9, 32);
-        }
-
+        start_win_02000_pose(wk);
         break;
 
     default:
@@ -563,26 +567,30 @@ void Win_05000(PLW* wk) {
     }
 }
 
-void Win_06000(PLW* wk) {
+static void start_win_06000_pose(PLW* wk) {
     s16 work;
 
+    update_field_hosei_flags(wk);
+
+    win_rno[0] = win_rno[1] = 0;
+    wk->wu.routine_no[3]++;
+
+    if (winner_on_match_point(wk)) {
+        work = win_select(wk, 3);
+        set_char_move_init(&wk->wu, 9, work + 36);
+    } else {
+        work = win_select(wk, 3);
+        set_char_move_init(&wk->wu, 9, work + 32);
+    }
+
+}
+
+void Win_06000(PLW* wk) {
     bg_app_stop = 1;
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        update_field_hosei_flags(wk);
-
-        win_rno[0] = win_rno[1] = 0;
-        wk->wu.routine_no[3]++;
-
-        if (winner_on_match_point(wk)) {
-            work = win_select(wk, 3);
-            set_char_move_init(&wk->wu, 9, work + 36);
-        } else {
-            work = win_select(wk, 3);
-            set_char_move_init(&wk->wu, 9, work + 32);
-        }
-
+        start_win_06000_pose(wk);
         break;
 
     default:
@@ -667,28 +675,32 @@ void Win_07000(PLW* wk) {
     }
 }
 
-void Win_08000(PLW* wk) {
+static void start_win_08000_pose(PLW* wk) {
     s16 work;
 
+    update_field_hosei_flags(wk);
+
+    win_rno[0] = win_rno[1] = 0;
+    wk->wu.routine_no[3]++;
+
+    if (Round_Result & 0x800) {
+        set_char_move_init(&wk->wu, 9, 40);
+    } else if (winner_on_match_point(wk)) {
+        work = win_select(wk, 3);
+        set_char_move_init(&wk->wu, 9, work + 36);
+    } else {
+        work = win_select(wk, 3);
+        set_char_move_init(&wk->wu, 9, work + 32);
+    }
+
+}
+
+void Win_08000(PLW* wk) {
     bg_app_stop = 1;
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        update_field_hosei_flags(wk);
-
-        win_rno[0] = win_rno[1] = 0;
-        wk->wu.routine_no[3]++;
-
-        if (Round_Result & 0x800) {
-            set_char_move_init(&wk->wu, 9, 40);
-        } else if (winner_on_match_point(wk)) {
-            work = win_select(wk, 3);
-            set_char_move_init(&wk->wu, 9, work + 36);
-        } else {
-            work = win_select(wk, 3);
-            set_char_move_init(&wk->wu, 9, work + 32);
-        }
-
+        start_win_08000_pose(wk);
         break;
 
     default:
@@ -1245,24 +1257,28 @@ void twelve_win_backjump(PLW* wk) {
     }
 }
 
-void Win_12000(PLW* wk) {
+static void start_win_12000_pose(PLW* wk) {
     s16 work;
 
+    update_field_hosei_flags(wk);
+
+    win_rno[0] = win_rno[1] = 0;
+    wk->wu.routine_no[3]++;
+    work = win_select(wk, 7);
+    set_char_move_init(&wk->wu, 9, work + 32);
+
+    if (winner_on_match_point(wk)) {
+        effect_M2_init(&wk->wu, 1);
+    }
+
+}
+
+void Win_12000(PLW* wk) {
     bg_app_stop = 1;
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        update_field_hosei_flags(wk);
-
-        win_rno[0] = win_rno[1] = 0;
-        wk->wu.routine_no[3]++;
-        work = win_select(wk, 7);
-        set_char_move_init(&wk->wu, 9, work + 32);
-
-        if (winner_on_match_point(wk)) {
-            effect_M2_init(&wk->wu, 1);
-        }
-
+        start_win_12000_pose(wk);
         break;
 
     default:
@@ -1271,36 +1287,40 @@ void Win_12000(PLW* wk) {
     }
 }
 
-void Win_13000(PLW* wk) {
+static void start_win_13000_pose(PLW* wk) {
     s16 work;
 
+    update_field_hosei_flags(wk);
+
+    win_rno[0] = win_rno[1] = 0;
+    wk->wu.routine_no[3]++;
+
+    if (winner_on_match_point(wk)) {
+        if (wk->wu.id) {
+            if (p2sw_0 & 1) {
+                set_char_move_init(&wk->wu, 9, 40);
+                return;
+            }
+        } else if (p1sw_0 & 1) {
+            set_char_move_init(&wk->wu, 9, 40);
+            return;
+        }
+
+        work = win_select(wk, 3);
+        set_char_move_init(&wk->wu, 9, work + 36);
+    } else {
+        work = win_select(wk, 3);
+        set_char_move_init(&wk->wu, 9, work + 32);
+    }
+
+}
+
+void Win_13000(PLW* wk) {
     bg_app_stop = 1;
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        update_field_hosei_flags(wk);
-
-        win_rno[0] = win_rno[1] = 0;
-        wk->wu.routine_no[3]++;
-
-        if (winner_on_match_point(wk)) {
-            if (wk->wu.id) {
-                if (p2sw_0 & 1) {
-                    set_char_move_init(&wk->wu, 9, 40);
-                    return;
-                }
-            } else if (p1sw_0 & 1) {
-                set_char_move_init(&wk->wu, 9, 40);
-                return;
-            }
-
-            work = win_select(wk, 3);
-            set_char_move_init(&wk->wu, 9, work + 36);
-        } else {
-            work = win_select(wk, 3);
-            set_char_move_init(&wk->wu, 9, work + 32);
-        }
-
+        start_win_13000_pose(wk);
         break;
 
     default:
@@ -1447,26 +1467,30 @@ void urien_dash(PLW* wk) {
 
 const s16 Win_15000_tbl[8] = { 38, 37, 40, 39, 38, 40, 39, 36 };
 
-void Win_15000(PLW* wk) {
+static void start_win_15000_pose(PLW* wk) {
     s16 work;
 
+    update_field_hosei_flags(wk);
+
+    win_rno[0] = win_rno[1] = 0;
+    wk->wu.routine_no[3]++;
+
+    if (winner_on_match_point(wk)) {
+        work = win_select(wk, 7);
+        set_char_move_init(&wk->wu, 9, Win_15000_tbl[work]);
+    } else {
+        work = win_select(wk, 3);
+        set_char_move_init(&wk->wu, 9, work + 32);
+    }
+
+}
+
+void Win_15000(PLW* wk) {
     bg_app_stop = 1;
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        update_field_hosei_flags(wk);
-
-        win_rno[0] = win_rno[1] = 0;
-        wk->wu.routine_no[3]++;
-
-        if (winner_on_match_point(wk)) {
-            work = win_select(wk, 7);
-            set_char_move_init(&wk->wu, 9, Win_15000_tbl[work]);
-        } else {
-            work = win_select(wk, 3);
-            set_char_move_init(&wk->wu, 9, work + 32);
-        }
-
+        start_win_15000_pose(wk);
         break;
 
     default:
