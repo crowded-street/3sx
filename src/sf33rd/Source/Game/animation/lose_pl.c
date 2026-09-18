@@ -56,6 +56,19 @@ void Lose_00000(PLW* wk) {
     Normal_normal_Loser(wk);
 }
 
+static void step_loss_state(PLW* wk, void (*start_anime)(PLW*)) {
+    switch (wk->wu.routine_no[3]) {
+    case 0:
+        start_anime(wk);
+        break;
+
+    case 1:
+    case 9:
+        char_move(&wk->wu);
+        break;
+    }
+}
+
 static void start_random_judge_loss(PLW* wk) {
     wk->wu.routine_no[3]++;
     wk->wu.char_index = random_16();
@@ -85,16 +98,7 @@ static void start_random_round_loss(PLW* wk) {
 }
 
 static void play_random_round_loss(PLW* wk) {
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        start_random_round_loss(wk);
-        break;
-
-    case 1:
-    case 9:
-        char_move(&wk->wu);
-        break;
-    }
+    step_loss_state(wk, start_random_round_loss);
 }
 
 static void step_loss_anime(PLW* wk, void (*judge_step)(PLW*), void (*round_step)(PLW*)) {
@@ -171,16 +175,7 @@ static void start_fixed_round_loss(PLW* wk) {
 }
 
 static void play_fixed_round_loss(PLW* wk) {
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        start_fixed_round_loss(wk);
-        break;
-
-    case 1:
-    case 9:
-        char_move(&wk->wu);
-        break;
-    }
+    step_loss_state(wk, start_fixed_round_loss);
 }
 
 void Lose_30000(PLW* wk) {
@@ -201,16 +196,7 @@ void Normal_normal_Loser(PLW* wk) {
         return;
     }
 
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        start_normal_round_loss(wk);
-        break;
-
-    case 1:
-    case 9:
-        char_move(&wk->wu);
-        break;
-    }
+    step_loss_state(wk, start_normal_round_loss);
 
     update_field_hosei_flags(wk);
 }
@@ -248,16 +234,7 @@ void meta_lose_pause(PLW* wk) {
         return;
     }
 
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        start_meta_loss(wk);
-        break;
-
-    case 1:
-    case 9:
-        char_move(&wk->wu);
-        break;
-    }
+    step_loss_state(wk, start_meta_loss);
 
     update_field_hosei_flags(wk);
 }
