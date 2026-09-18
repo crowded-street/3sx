@@ -736,6 +736,37 @@ void SsRequestPan(u16 reqNum, s16 start, s16 /* unused */, s32 /* unused */, s32
     sound_request_for_dc(&rmcode, start);
 }
 
+/* The SE patch for one of the four (PS2-shifted, mother-tongue) source combinations. */
+static void set_se_patch_for_source(SoundPatchConfig* rmcode, u16 source) {
+    switch (source) {
+    case 0:
+        rmcode->ptix = 1;
+        rmcode->bank = 0;
+        rmcode->port = 0;
+        break;
+
+    case 1:
+        rmcode->ptix = 2;
+        rmcode->bank = 1;
+        rmcode->port = 3;
+        break;
+
+    case 2:
+        rmcode->ptix = 2;
+        rmcode->bank = 1;
+        rmcode->port = 0;
+        rmcode->code += 32;
+        break;
+
+    case 3:
+        rmcode->ptix = 1;
+        rmcode->bank = 0;
+        rmcode->port = 3;
+        rmcode->code += 32;
+        break;
+    }
+}
+
 u16 remake_sound_code_for_DC(u16 code, SoundPatchConfig* rmcode) {
     u16 cd;
     u16 mtf;
@@ -758,33 +789,7 @@ u16 remake_sound_code_for_DC(u16 code, SoundPatchConfig* rmcode) {
 
     switch (cd & 0xF000) {
     case 0x0:
-        switch (p2s + mtf * 2) {
-        case 0:
-            rmcode->ptix = 1;
-            rmcode->bank = 0;
-            rmcode->port = 0;
-            break;
-
-        case 1:
-            rmcode->ptix = 2;
-            rmcode->bank = 1;
-            rmcode->port = 3;
-            break;
-
-        case 2:
-            rmcode->ptix = 2;
-            rmcode->bank = 1;
-            rmcode->port = 0;
-            rmcode->code += 32;
-            break;
-
-        case 3:
-            rmcode->ptix = 1;
-            rmcode->bank = 0;
-            rmcode->port = 3;
-            rmcode->code += 32;
-            break;
-        }
+        set_se_patch_for_source(rmcode, p2s + mtf * 2);
 
         break;
 
