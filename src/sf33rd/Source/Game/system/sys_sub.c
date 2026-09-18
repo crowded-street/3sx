@@ -1675,9 +1675,22 @@ void Disp_Digit16x24(u32 Score_Buff, s16 Disp_X, s16 Disp_Y, s16 Color) {
     }
 }
 
-void Disp_Copyright() {
+/* The two-line American notice. The case labels are the original ones, so the
+ * countries still read as the same numbers. */
+static void disp_copyright_usa() {
     s32 xres;
 
+    switch (Country) {
+    case 4:
+    case 5:
+    case 6:
+        xres = SSPutStrPro(1, 386, 212, 9, -1, "@CAPCOM U.S.A., INC. 1999, 2004 ALL RIGHTS RESERVED.");
+        SSPutStrPro(0, xres, 202, 9, -1, "@CAPCOM CO., LTD. 1999, 2004,");
+        break;
+    }
+}
+
+void Disp_Copyright() {
     switch (Country) {
     case 1:
     case 2:
@@ -1687,14 +1700,8 @@ void Disp_Copyright() {
         SSPutStrPro(1, 386, 208, 9, -1, "@CAPCOM CO., LTD. 1999, 2004 ALL RIGHTS RESERVED.");
         break;
 
-    case 4:
-    case 5:
-    case 6:
-        xres = SSPutStrPro(1, 386, 212, 9, -1, "@CAPCOM U.S.A., INC. 1999, 2004 ALL RIGHTS RESERVED.");
-        SSPutStrPro(0, xres, 202, 9, -1, "@CAPCOM CO., LTD. 1999, 2004,");
-        break;
-
     default:
+        disp_copyright_usa();
         break;
     }
 }
