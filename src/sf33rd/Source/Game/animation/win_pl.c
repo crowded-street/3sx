@@ -219,35 +219,39 @@ const s16 Win_3000_tbl[16] = { 42, 34, 33, 42, 32, 42, 32, 35, 42, 34, 33, 42, 3
 
 const s8 Win_3001_tbl[16] = { 36, 40, 41, 40, 41, 38, 40, 39, 36, 40, 41, 39, 41, 37, 39, 40 };
 
-void Win_03000(PLW* wk) {
+static void start_win_03000_pose(PLW* wk) {
     s16 work;
 
+    wk->wu.routine_no[3]++;
+    win_rno[0] = win_rno[1] = 0;
+    work = win_select(wk, 15);
+
+    if (winner_on_match_point(wk)) {
+        if (bg_w.stage == 7) {
+            set_char_move_init(&wk->wu, 9, 43);
+            return;
+        }
+
+        set_char_move_init(&wk->wu, 9, Win_3001_tbl[work]);
+
+        if (Win_3001_tbl[work] == 41) {
+            win_rno[0] = 1;
+        }
+
+        return;
+    }
+
+    set_char_move_init(&wk->wu, 9, Win_3000_tbl[work]);
+}
+
+void Win_03000(PLW* wk) {
     bg_app_stop = 1;
 
     update_field_hosei_flags(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        win_rno[0] = win_rno[1] = 0;
-        work = win_select(wk, 15);
-
-        if (winner_on_match_point(wk)) {
-            if (bg_w.stage == 7) {
-                set_char_move_init(&wk->wu, 9, 43);
-                break;
-            }
-
-            set_char_move_init(&wk->wu, 9, Win_3001_tbl[work]);
-
-            if (Win_3001_tbl[work] == 41) {
-                win_rno[0] = 1;
-            }
-
-            break;
-        }
-
-        set_char_move_init(&wk->wu, 9, Win_3000_tbl[work]);
+        start_win_03000_pose(wk);
         break;
 
     default:
