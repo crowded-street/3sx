@@ -1,0 +1,914 @@
+/**
+ * @file pass16_2.c
+ * COM Passive: Makoto
+ * Pattern scripts from Passive16_0047 on.
+ */
+
+#include "sf33rd/Source/Game/com/passive/pass16.h"
+#include "sf33rd/Source/Game/com/passive/pass16_internal.h"
+#include "common.h"
+#include "sf33rd/Source/Game/com/com_sub.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
+
+void Passive16_0047(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Normal_Attack(wk, 0xB, 0x102);
+        break;
+
+    case 1:
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0048(PLW* wk) {
+    passive16_pattern_normal_attack_2(wk, 0x102, 8, 0x402);
+}
+
+void Passive16_0049(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        EM_Term(wk, &(EM_Term_Params){-0x7F80, -1, 6, 1, -1});
+        break;
+
+    case 1:
+        Adjust_Attack(wk, 8, 0x20);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0050(PLW* wk) {
+    passive16_pattern_em_term_normal_attack(wk, &(EM_Term_Params){-0x7F80, -1, 6, 1, -1}, 8, 0x200);
+}
+
+void Passive16_0051(PLW* wk) {
+    passive16_pattern_normal_attack_2(wk, 0x220, 0xB, 0x102);
+}
+
+void Passive16_0052(PLW* wk) {
+    passive16_pattern_normal_attack(wk, 8, 0x202);
+}
+
+void Passive16_0053(PLW* wk) {
+    passive16_pattern_command_attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
+}
+
+void Passive16_0054(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Branch_Unit_Area(wk, &(Branch_Menu_Args){6, 0x6A, 0x69, 0x68, 1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0055(PLW* wk) {
+    passive16_pattern_command_attack(wk, &(Command_Attack_Args){8, 0x1E, 9, -1});
+}
+
+void Passive16_0056(PLW* wk) {
+    passive16_pattern_jump_attack_term(wk, &(Jump_Term_Args){-0x7F60, -0x7FA0, 8, 0x200, 0, -0x7FA0, -1, 0x20});
+}
+
+void Passive16_0057(PLW* wk) {
+    passive16_pattern_jump_attack_term(wk, &(Jump_Term_Args){-0x7F60, -0x7FA0, 8, 0x20, 0, -0x7FA0, -1, 0x20});
+}
+
+void Passive16_0058(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Keep_Status(wk, 2, 1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0059(PLW* wk) {
+    passive16_pattern_command_attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
+}
+
+void Passive16_0060(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Forced_Guard(wk, 0);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0061(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        SA_Term(wk, &(SA_Term_Args){0xFFFF, 0x2F, 0x30, 0});
+        break;
+
+    case 1:
+        Approach_Walk(wk, 0x41, 2);
+        break;
+
+    case 2:
+        SA_Term(wk, &(SA_Term_Args){0x2E, 0xFFFF, 0xFFFF, 0x41});
+        break;
+
+    case 3:
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 10, -1});
+        break;
+
+    case 4:
+        Com_Random_Select(wk, &(Branch_Menu_Args){2, 3, 0x38, 0x44, 0x45}, 1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0062(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, 0x37, 2);
+        break;
+
+    case 1:
+        ETC_Term(wk, 0, 2, 0xD);
+        break;
+
+    case 2:
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x9D, 0x9E, 0x9F, 0x9F}, 1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0063(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        ETC_Term(wk, 0, 6, 0x21);
+        break;
+
+    case 1:
+        Lever_Attack(wk, 8, 0, 0x40);
+        break;
+
+    case 2:
+        Lever_Attack(wk, 8, 0, 0x40);
+        break;
+
+    case 3:
+        Lever_Attack(wk, 8, 0, 0x40);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0064(PLW* wk) {
+    passive16_pattern_lever_attack(wk, 0, 0x400);
+}
+
+void Passive16_0065(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, 0x37, 2);
+        break;
+
+    case 1:
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 10, -1});
+        break;
+
+    case 2:
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x42, 0x46, 0x69, 0x4A}, 1);
+        break;
+
+    case 3:
+        Normal_Attack(wk, 8, 0x20);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0066(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, 0x4B, 2);
+        break;
+
+    case 1:
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 10, -1});
+        break;
+
+    case 2:
+        Com_Random_Select(wk, &(Branch_Menu_Args){2, 3, 0x38, 0x44, 0x45}, 1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0067(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, 0x7F, 2);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 8, 0x402);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0068(PLW* wk) {
+    passive16_pattern_jump_attack_term(wk, &(Jump_Term_Args){-0x7F60, -0x7FA0, 8, 0x200, 0, -0x7FA0, -1, 0x400});
+}
+
+void Passive16_0069(PLW* wk) {
+    passive16_pattern_jump_attack(wk, &(Jump_Attack_Args){0xC, 0xF, 0, 0x40});
+}
+
+void Passive16_0070(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, 0x7F, 2);
+        break;
+
+    case 1:
+        Lever_Attack(wk, 8, 0, 0x400);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0071(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, 0x37, 2);
+        break;
+
+    case 1:
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x9D, 0x9E, 0x9F, 0x9F}, 1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0072(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Pierce_On(wk);
+        break;
+
+    case 1:
+        Command_Attack(wk, &(Command_Attack_Args){0xC, 0, 0xB, -1});
+        break;
+
+    case 2:
+        Approach_Walk(wk, 0x4B, 2);
+        break;
+
+    case 3:
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 10, -1});
+        break;
+
+    case 4:
+        Com_Random_Select(wk, &(Branch_Menu_Args){2, 3, 0x38, 0x44, 0x45}, 1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0073(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, 0xBF, 2);
+        break;
+
+    case 1:
+        Branch_Unit_Area(wk, &(Branch_Menu_Args){6, 0x6A, 0x69, 0x68, 1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0074(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, 0x41, 2);
+        break;
+
+    case 1:
+        SA_Term(wk, &(SA_Term_Args){0x2E, 0x2F, 0xFFFF, 0});
+        break;
+
+    case 2:
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 10, -1});
+        break;
+
+    case 3:
+        Com_Random_Select(wk, &(Branch_Menu_Args){2, 3, 0x38, 0x44, 0x45}, 1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0075(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        SA_Term(wk, &(SA_Term_Args){0xFFFF, 0x2F, 0x30, 0});
+        break;
+
+    case 1:
+        Approach_Walk(wk, 0x41, 2);
+        break;
+
+    case 2:
+        SA_Term(wk, &(SA_Term_Args){0x2E, 0xFFFF, 0xFFFF, 0x41});
+        break;
+
+    case 3:
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 10, -1});
+        break;
+
+    case 4:
+        Com_Random_Select(wk, &(Branch_Menu_Args){2, 3, 0x38, 0x44, 0x45}, 1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0076(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        SA_Term(wk, &(SA_Term_Args){0xFFFF, 0x2F, 0x30, 0});
+        break;
+
+    case 1:
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 10, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0077(PLW* wk) {
+    passive16_pattern_jump_attack_term_normal_attack(
+        wk,
+        &(Jump_Term_Args){-0x7F60, -0x7FA0, 0xB, 0x40, 0, -0x7FA0, -1, 0x200}
+    );
+}
+
+void Passive16_0078(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7F60, -0x7FB0, 0xB, 0x100, 0, -0x7FA0, -1, 0x20});
+        break;
+
+    case 1:
+        Normal_Attack(wk, 8, 0x10);
+        break;
+
+    case 2:
+        Normal_Attack(wk, 8, 0x200);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0079(PLW* wk) {
+    passive16_pattern_jump_attack_term_normal_attack(
+        wk,
+        &(Jump_Term_Args){-0x7F60, -0x7FB0, 0xB, 0x20, 0, -0x7FA0, -1, 0x20}
+    );
+}
+
+void Passive16_0080(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-0x7F60, -0x7FA0, 0xB, 0x200, 0, -0x7FA0, -1, 0x400});
+        break;
+
+    case 1:
+        Normal_Attack(wk, 8, 0x200);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0081(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-0x7F60, -0x7FA0, 0xB, 0x100, 0, -0x7FA0, -1, 0x400});
+        break;
+
+    case 1:
+        Normal_Attack(wk, 8, 0x10);
+        break;
+
+    case 2:
+        Normal_Attack(wk, 8, 0x200);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0082(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-0x7F60, -0x7FA0, 0xB, 0x20, 0, -0x7FA0, -1, 0x20});
+        break;
+
+    case 1:
+        Normal_Attack(wk, 8, 0x400);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0083(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-1, -0x7FA0, 0xB, 0x200, 0, -0x7FA0, -1, 0x20});
+        break;
+
+    case 1:
+        Normal_Attack(wk, 8, 0x100);
+        break;
+
+    case 2:
+        Normal_Attack(wk, 8, 0x100);
+        break;
+
+    case 3:
+        Normal_Attack(wk, 8, 0x200);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0084(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Hi_Jump_Attack(wk, &(Jump_Attack_Args){0xC, 0xF, 0x40, 0});
+        break;
+
+    case 1:
+        Normal_Attack(wk, 8, 0x102);
+        break;
+
+    case 2:
+        Normal_Attack(wk, 8, 0x102);
+        break;
+
+    case 3:
+        Normal_Attack(wk, 8, 0x200);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0085(PLW* wk) {
+    passive16_pattern_wait_branch_unit_area(wk, 3, &(Branch_Menu_Args){6, 0x6A, 0x69, 0x68, 1});
+}
+
+void Passive16_0086(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, 0x4B, 2);
+        break;
+
+    case 1:
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FF8, 6, 1, -1});
+        break;
+
+    case 2:
+        SA_Term(wk, &(SA_Term_Args){0x2E, 0x2F, 0x30, 0});
+        break;
+
+    case 3:
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 10, -1});
+        break;
+
+    case 4:
+        Com_Random_Select(wk, &(Branch_Menu_Args){2, 3, 0x38, 0x44, 0x45}, 1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0087(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, 0x4B, 2);
+        break;
+
+    case 1:
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FF8, 6, 1, -1});
+        break;
+
+    case 2:
+        SA_Term(wk, &(SA_Term_Args){0x2E, 0x2F, 0x30, 0});
+        break;
+
+    case 3:
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 10, -1});
+        break;
+
+    case 4:
+        Com_Random_Select(wk, &(Branch_Menu_Args){2, 3, 0x38, 0x44, 0x45}, 1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0088(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, 0x4B, 2);
+        break;
+
+    case 1:
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FF8, 6, 1, -1});
+        break;
+
+    case 2:
+        SA_Term(wk, &(SA_Term_Args){0x2E, 0x2F, 0x30, 0});
+        break;
+
+    case 3:
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 10, -1});
+        break;
+
+    case 4:
+        Com_Random_Select(wk, &(Branch_Menu_Args){2, 3, 0x38, 0x44, 0x45}, 1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0089(PLW* wk) {
+    passive16_pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1C, 8, -1});
+}
+
+void Passive16_0090(PLW* wk) {
+    passive16_pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1C, 9, -1});
+}
+
+void Passive16_0091(PLW* wk) {
+    passive16_pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
+}
+
+void Passive16_0092(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        EM_Term(wk, &(EM_Term_Params){-0x7FF0, -0x7FA0, 6, 1, -1});
+        break;
+
+    case 1:
+        Branch_Unit_Area(wk, &(Branch_Menu_Args){6, 0x59, 0x5A, 0x5B, 1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0093(PLW* wk) {
+    passive16_pattern_normal_attack_2(wk, 0x102, 8, 0x12);
+}
+
+void Passive16_0094(PLW* wk) {
+    passive16_pattern_lever_attack(wk, 0, 0x20);
+}
+
+void Passive16_0095(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Normal_Attack(wk, 8, 0x12);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 8, 0x12);
+        break;
+
+    case 2:
+        Branch_Unit_Area(wk, &(Branch_Menu_Args){6, 0x69, 0x69, 0x68, 1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0096(PLW* wk) {
+    passive16_pattern_em_term_normal_attack(wk, &(EM_Term_Params){-0x7F80, -0x7FC8, 6, 1, -1}, 8, 0x402);
+}
+
+void Passive16_0097(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, 0x37, 2);
+        break;
+
+    case 1:
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FF8, 6, 1, -1});
+        break;
+
+    case 2:
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x9D, 0x9E, 0x9F, 0x9F}, 1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0098(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, 0x37, 2);
+        break;
+
+    case 1:
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FC0, 6, 1, -1});
+        break;
+
+    case 2:
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 10, -1});
+        break;
+
+    case 3:
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x42, 0x46, 0x69, 0x4A}, 1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0099(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-1, -0x7FA0, 0xB, 0x200, 0, -0x7FA0, -1, 0x200});
+        break;
+
+    case 1:
+        Normal_Attack(wk, 8, 0x100);
+        break;
+
+    case 2:
+        Lever_Attack(wk, 8, 0, 0x20);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0100(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, 0x4B, 2);
+        break;
+
+    case 1:
+        Wait_Get_Up(wk, 3, -1);
+        break;
+
+    case 2:
+        SA_Term(wk, &(SA_Term_Args){0x2E, 0x2F, 0x30, 0});
+        break;
+
+    case 3:
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 10, -1});
+        break;
+
+    case 4:
+        Com_Random_Select(wk, &(Branch_Menu_Args){2, 3, 0x38, 0x44, 0x45}, 1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0101(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Normal_Attack(wk, 8, 0x100);
+        break;
+
+    case 1:
+        SA_Term(wk, &(SA_Term_Args){0x2E, 0x2F, 0x30, 0});
+        break;
+
+    case 2:
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 10, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0102(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        EM_Term(wk, &(EM_Term_Params){-0x7F80, -1, 6, 1, -1});
+        break;
+
+    case 1:
+        Lever_Attack(wk, 8, 0, 0x20);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0103(PLW* wk) {
+    passive16_pattern_normal_attack(wk, 8, 0x402);
+}
+
+void Passive16_0104(PLW* wk) {
+    passive16_pattern_jump_command_attack_term(
+        wk,
+        &(JCA_Term_Args){8, 0x2E, 8, -1, -0x7FA0, -0x7FA8, 0, -1, 0x30, 0x400}
+    );
+}
+
+void Passive16_0105(PLW* wk) {
+    passive16_pattern_jump_command_attack_term(
+        wk,
+        &(JCA_Term_Args){8, 0x2E, 9, -1, -0x7FA0, -0x7FA8, 0, -1, 0x30, 0x400}
+    );
+}
+
+void Passive16_0106(PLW* wk) {
+    passive16_pattern_jump_command_attack_term(
+        wk,
+        &(JCA_Term_Args){8, 0x2E, 0xA, -1, -0x7FA0, -0x7FA8, 0, -1, 0x30, 0x400}
+    );
+}
+
+void Passive16_0107(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Search_Back_Term(wk, 0x60, 6, 0x6C);
+        break;
+
+    case 1:
+        Walk(wk, 1, 0x20, 0);
+        break;
+
+    case 2:
+        Wait_Get_Up(wk, 0, -1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0108(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Hi_Jump(wk, 1, 0);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0109(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Search_Back_Term(wk, 0x60, 6, 0x6C);
+        break;
+
+    case 1:
+        Pierce_On(wk);
+        break;
+
+    case 2:
+        Command_Attack(wk, &(Command_Attack_Args){8, 1, 10, -1});
+        break;
+
+    case 3:
+        Wait_Get_Up(wk, 3, -1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void Passive16_0110(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Search_Back_Term(wk, 0x60, 6, 0x6C);
+        break;
+
+    case 1:
+        Walk(wk, 1, 0x38, 0);
+        break;
+
+    case 2:
+        Wait_Get_Up(wk, 3, -1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
