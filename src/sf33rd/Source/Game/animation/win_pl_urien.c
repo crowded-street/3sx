@@ -78,6 +78,32 @@ static void urien_dash_land(PLW* wk) {
     }
 }
 
+/* The recovery half: everything from the landing recovery onwards. The case
+ * labels are the original ones, so the states still read as the same numbers,
+ * and the 4 -> 5 fallthrough keeps both its ends inside this function. */
+static void urien_dash_recover(PLW* wk) {
+    switch (win_rno[1]) {
+    case 4:
+        char_move(&wk->wu);
+
+        if (wk->wu.cg_type != 0xFF) {
+            break;
+        }
+
+        win_rno[1]++;
+        /* fallthrough */
+
+    case 5:
+        win_rno[1]++;
+        set_char_move_init(&wk->wu, 9, 36);
+        break;
+
+    case 6:
+        char_move(&wk->wu);
+        break;
+    }
+}
+
 void urien_dash(PLW* wk) {
     switch (win_rno[1]) {
     case 0:
@@ -103,23 +129,8 @@ void urien_dash(PLW* wk) {
         urien_dash_land(wk);
         break;
 
-    case 4:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type != 0xFF) {
-            break;
-        }
-
-        win_rno[1]++;
-        /* fallthrough */
-
-    case 5:
-        win_rno[1]++;
-        set_char_move_init(&wk->wu, 9, 36);
-        break;
-
-    case 6:
-        char_move(&wk->wu);
+    default:
+        urien_dash_recover(wk);
         break;
     }
 }
