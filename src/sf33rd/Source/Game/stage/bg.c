@@ -59,6 +59,16 @@ typedef struct {
 } ChipRect;
 
 typedef struct {
+    s32 bgnum;
+    s32 gixbase;
+    s32* xx;
+    s32* yy;
+    s32 unused;
+    s32 ofsPal;
+    PPGDataList* curDataList;
+} ScreenDraw;
+
+typedef struct {
     u8 bgnm;
     s32* xx;
     s32* yy;
@@ -82,8 +92,7 @@ static bool should_update_rw_work(u8 bgnm);
 static s32 remap_ending_nosekae_chip(s32 global_index_real);
 static s32 remap_ending_g_kakikae0_chip(s32 global_index_real);
 static s32 remap_ending_g_kakikae1_chip(s32 global_index_real);
-static void bgDrawOneScreen(s32 bgnum, s32 gixbase, s32* xx, s32* yy, s32 /* unused */, s32 ofsPal,
-                            PPGDataList* curDataList);
+static void bgDrawOneScreen(const ScreenDraw* screen);
 static void bgDrawOneChip(const ChipRect* rect, s32 gbix, u32 vtxCol, s32 ofsPal);
 static void bgAkebonoDraw();
 static void ppgCalScrPosition(s32 x, s32 y, s32 xs, s32 ys);
@@ -1203,8 +1212,8 @@ static void draw_ending_c_tiles(const StageDrawContext* context) {
 }
 
 static void draw_ending_stage7(const StageDrawContext* context) {
-    bgDrawOneScreen(context->bgnm, context->global_index, &context->xx[0], &context->yy[0], -1, context->pal_offset,
-                    context->data_list);
+    bgDrawOneScreen(&(ScreenDraw){ context->bgnm, context->global_index, &context->xx[0], &context->yy[0], -1,
+                                   context->pal_offset, context->data_list });
 
     if (EXE_flag != 0) {
         return;
@@ -1245,8 +1254,8 @@ static void draw_later_special_stage(const StageDrawContext* context) {
         /* fallthrough */
 
     default:
-        bgDrawOneScreen(context->bgnm, context->global_index, &context->xx[0], &context->yy[0], -1,
-                        context->pal_offset, context->data_list);
+        bgDrawOneScreen(&(ScreenDraw){ context->bgnm, context->global_index, &context->xx[0], &context->yy[0], -1,
+                                       context->pal_offset, context->data_list });
 
         if (should_update_rw_work(context->bgnm)) {
             bgRWWorkUpdate();
@@ -1376,17 +1385,17 @@ static s32 remap_screen_chip(s32 bgnum, s32 gbix) {
     return gbix;
 }
 
-void bgDrawOneScreen(s32 bgnum, s32 gixbase, s32* xx, s32* yy, s32 /* unused */, s32 ofsPal, PPGDataList* curDataList) {
+void bgDrawOneScreen(const ScreenDraw* screen) {
     s32 x, y, gbix;
 
-    for (y = yy[0]; y < yy[1]; y += 128) {
-        for (x = xx[0]; x < xx[1]; x += 128) {
-            gbix = ((y >> 7) << 3) + (x >> 7) + gixbase;
+    for (y = screen->yy[0]; y < screen->yy[1]; y += 128) {
+        for (x = screen->xx[0]; x < screen->xx[1]; x += 128) {
+            gbix = ((y >> 7) << 3) + (x >> 7) + screen->gixbase;
 
-            gbix = remap_screen_chip(bgnum, gbix);
+            gbix = remap_screen_chip(screen->bgnum, gbix);
 
-            bgDrawOneChip(&(ChipRect){ x, y, 128, 128 }, gbix, -1, ofsPal);
-            ppgSetupCurrentDataList(curDataList);
+            bgDrawOneChip(&(ChipRect){ x, y, 128, 128 }, gbix, -1, screen->ofsPal);
+            ppgSetupCurrentDataList(screen->curDataList);
         }
     }
 }
