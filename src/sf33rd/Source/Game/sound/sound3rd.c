@@ -305,6 +305,12 @@ void sound_request_for_dc(SoundPatchConfig* rmc, s16 pan) {
     }
 }
 
+/* Whether the requested BGM is stitched together from seamless entries rather than
+ * played as one file. */
+static s32 bgm_plays_seamless_entries() {
+    return (bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0x4000) && (bgm_separate_check() != 0);
+}
+
 /* Start whatever track `bgm_exe.code` names: from memory when the matching ADX set is
  * resident, otherwise through the file request path. */
 static void bgm_start_current_track() {
@@ -363,7 +369,7 @@ void BGM_Server() {
     case 2:
         ADX_Stop();
 
-        if ((bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0x4000) && (bgm_separate_check() != 0)) {
+        if (bgm_plays_seamless_entries()) {
             bgm_exe.exIndex = bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0xFF;
             bgm_exe.exEntry = bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numStart;
             bgm_volume_setup(0);
@@ -393,7 +399,7 @@ void BGM_Server() {
         break;
 
     case 4:
-        if ((bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0x4000) && (bgm_separate_check() != 0)) {
+        if (bgm_plays_seamless_entries()) {
             if ((bgm_exe.nowSeamless == 0) || (bgm_exe.code != current_bgm)) {
                 bgm_exe.exIndex = bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0xFF;
                 bgm_exe.exEntry = bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numStart;
@@ -471,7 +477,7 @@ void BGM_Server() {
             bgm_fade.in.dex.low = -0x8000;
             bgm_fade.speed = bgm_fade.in.cal / bgm_exe.data;
 
-            if ((bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0x4000) && (bgm_separate_check() != 0)) {
+            if (bgm_plays_seamless_entries()) {
                 if ((bgm_exe.nowSeamless == 0) || (bgm_exe.code != current_bgm)) {
                     bgm_exe.exIndex = bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0xFF;
                     bgm_exe.exEntry = bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numStart;
