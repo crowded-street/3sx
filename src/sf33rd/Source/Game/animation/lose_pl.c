@@ -17,6 +17,12 @@ const s16 loser_type_tbl[20] = { 0, 0, 0, 0, 0, 2, 0, 0, 1, 0, 0, 0, 0, 3, 0, 0,
 
 const s16 meta_lose_tbl[20] = { 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 28, 24, 24, 24, 24, 24, 24 };
 
+static void update_field_hosei_flags(PLW* wk) {
+    if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1) != 0) {
+        set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
+    }
+}
+
 void lose_player(PLW* wk) {
     void (*lose_jp_tbl[4])(PLW*) = { Lose_00000, Lose_10000, Lose_20000, Lose_30000 };
 
@@ -71,9 +77,7 @@ void Lose_10000(PLW* wk) {
         }
     }
 
-    if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1) != 0) {
-        set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-    }
+    update_field_hosei_flags(wk);
 }
 
 void Lose_20000(PLW* wk) {
@@ -107,9 +111,7 @@ void Lose_20000(PLW* wk) {
         break;
     }
 
-    if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1) != 0) {
-        set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-    }
+    update_field_hosei_flags(wk);
 }
 
 void Lose_30000(PLW* wk) {
@@ -143,9 +145,7 @@ void Lose_30000(PLW* wk) {
         }
     }
 
-    if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1) != 0) {
-        set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-    }
+    update_field_hosei_flags(wk);
 }
 
 void Normal_normal_Loser(PLW* wk) {
@@ -169,9 +169,7 @@ void Normal_normal_Loser(PLW* wk) {
         break;
     }
 
-    if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1) != 0) {
-        set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-    }
+    update_field_hosei_flags(wk);
 }
 
 void Judge_normal_loser(PLW* wk) {
@@ -192,9 +190,7 @@ void Judge_normal_loser(PLW* wk) {
         break;
     }
 
-    if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1) != 0) {
-        set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-    }
+    update_field_hosei_flags(wk);
 }
 
 void meta_lose_pause(PLW* wk) {
@@ -216,7 +212,5 @@ void meta_lose_pause(PLW* wk) {
         break;
     }
 
-    if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1) != 0) {
-        set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-    }
+    update_field_hosei_flags(wk);
 }
