@@ -1207,6 +1207,23 @@ python tools/refactor_guard.py --calls --combined <old-file> <new-file>
 strong evidence: it says every call in the original is still made, from one of the two
 files, the same number of times.
 
+**`--combined` is needed for the literal check too, and `--all` cannot do it.** The same
+logic applies to constants: the functions that left took their literals with them, so the
+original file on its own reports them as *gone from the file entirely* and the guard says
+**FAIL**. That is not a defect and it must not be reverted - it is what a split looks like
+from one side of the cut.
+
+```bash
+python tools/refactor_guard.py --combined <old-file> <new-file> [<new-file> ...]
+```
+
+Watch for this after a split, because `--all` checks every changed file **individually**
+and will print `BLOCKED - this is not a legal campaign refactor` over a split that is
+perfectly sound. Verified on `mtrans.c`, `mtrans_seqs.c` and `mtrans_pool.c`: `--all`
+FAILs on `mtrans.c`, the three-file `--combined` run passes on both checks. Run the
+combined form over the whole split group and trust that; if you reach for `--all` on a
+branch that contains a split, read its output knowing it cannot see the group.
+
 **Renaming a helper you extracted earlier reads as a vanished call**, because the tool
 sees only that the old name is gone. Renaming a `static` that no other file can see is
 legal - the prohibition is on renaming functions across files - so declare it and run
