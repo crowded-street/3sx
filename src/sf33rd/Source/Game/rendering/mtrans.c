@@ -122,6 +122,23 @@ static u16 x32_mapping_set(PatternMap* map, s32 code);
 static f32 advance_trans_x(f32 x, s32 flip, TileMapEntry* trsptr);
 static f32 advance_trans_y(f32 y, s32 flip, TileMapEntry* trsptr);
 
+// The tile run a store_* pass walks: the texture it draws from, the entry it
+// starts at, how many entries are left, and the position and pattern code it
+// carries along. These are the first ten arguments of every store_* function,
+// in the order they were written.
+typedef struct {
+    MultiTexture* mt;
+    WORK* wk;
+    u32* textbl;
+    TileMapEntry* trsptr;
+    s32 count;
+    s32 flip;
+    s32 palo;
+    f32 x;
+    f32 y;
+    PatternCode cc;
+} TransRun;
+
 static bool is_cached_pattern_state(PatternState* mc, u32 code, u32 palt) {
     return (mc->cs.code == code) && (mc->state == palt);
 }
@@ -623,8 +640,12 @@ void mlt_obj_trans_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
     }
 }
 
-static void store_trans_tiles(MultiTexture* mt, WORK* wk, u32* textbl, TileMapEntry* trsptr, s32 count, s32 attr,
-                              s32 palo, f32 x, f32 y, PatternCode cc) {
+static void store_trans_tiles(const TransRun* run) {
+    TileMapEntry* trsptr = run->trsptr;
+    s32 count = run->count;
+    f32 x = run->x;
+    f32 y = run->y;
+    PatternCode cc = run->cc;
     TEX* texptr;
     s32 rnum;
     s32 size;
@@ -634,10 +655,10 @@ static void store_trans_tiles(MultiTexture* mt, WORK* wk, u32* textbl, TileMapEn
     s32 dh;
 
     while (count--) {
-        x = advance_trans_x(x, attr, trsptr);
-        y = advance_trans_y(y, attr, trsptr);
+        x = advance_trans_x(x, run->flip, trsptr);
+        y = advance_trans_y(y, run->flip, trsptr);
 
-        texptr = (TEX*)((uintptr_t)textbl + ((u32*)textbl)[trsptr->code]);
+        texptr = (TEX*)((uintptr_t)run->textbl + ((u32*)run->textbl)[trsptr->code]);
         dw = (texptr->wh & 0xE0) >> 2;
         dh = (texptr->wh & 0x1C) * 2;
         wh = (texptr->wh & 3) + 1;
@@ -647,41 +668,41 @@ static void store_trans_tiles(MultiTexture* mt, WORK* wk, u32* textbl, TileMapEn
         switch (wh) {
         case 1:
         case 2:
-            if (get_mltbuf16(mt, cc.code, 0, &code) != 0) {
-                lz_ext_p6_fx(&((u8*)texptr)[1], mt->mltbuf, size);
-                njReLoadTexturePartNumG(mt->mltgidx16 + (code >> 8), (s8*)mt->mltbuf, code & 0xFF, size);
+            if (get_mltbuf16(run->mt, cc.code, 0, &code) != 0) {
+                lz_ext_p6_fx(&((u8*)texptr)[1], run->mt->mltbuf, size);
+                njReLoadTexturePartNumG(run->mt->mltgidx16 + (code >> 8), (s8*)run->mt->mltbuf, code & 0xFF, size);
             }
 
             rnum = seqsStoreChip(
-                x - (dw * BOOL(attr & 0x8000)),
-                y + (dh * BOOL(attr & 0x4000)),
+                x - (dw * BOOL(run->flip & 0x8000)),
+                y + (dh * BOOL(run->flip & 0x4000)),
                 dw,
                 dh,
-                mt->mltgidx16,
+                run->mt->mltgidx16,
                 code,
-                palo | ((trsptr->attr ^ attr) & 0xC000),
-                wk->my_clear_level,
-                mt->id
+                run->palo | ((trsptr->attr ^ run->flip) & 0xC000),
+                run->wk->my_clear_level,
+                run->mt->id
             );
 
             break;
 
         case 4:
-            if (get_mltbuf32(mt, cc.code, 0, &code) != 0) {
-                lz_ext_p6_fx(&((u8*)texptr)[1], mt->mltbuf, size);
-                njReLoadTexturePartNumG(mt->mltgidx32 + (code >> 6), (s8*)mt->mltbuf, code & 0x3F, size);
+            if (get_mltbuf32(run->mt, cc.code, 0, &code) != 0) {
+                lz_ext_p6_fx(&((u8*)texptr)[1], run->mt->mltbuf, size);
+                njReLoadTexturePartNumG(run->mt->mltgidx32 + (code >> 6), (s8*)run->mt->mltbuf, code & 0x3F, size);
             }
 
             rnum = seqsStoreChip(
-                x - (dw * BOOL(attr & 0x8000)),
-                y + (dh * BOOL(attr & 0x4000)),
+                x - (dw * BOOL(run->flip & 0x8000)),
+                y + (dh * BOOL(run->flip & 0x4000)),
                 dw,
                 dh,
-                mt->mltgidx32,
+                run->mt->mltgidx32,
                 code,
-                palo | (((trsptr->attr ^ attr) & 0xC000) | 0x2000),
-                wk->my_clear_level,
-                mt->id
+                run->palo | (((trsptr->attr ^ run->flip) & 0xC000) | 0x2000),
+                run->wk->my_clear_level,
+                run->mt->id
             );
 
             break;
@@ -746,7 +767,7 @@ void mlt_obj_trans(MultiTexture* mt, WORK* wk, s32 base_y) {
 
     mlt_obj_matrix(wk, base_y);
     cc.parts.group = i;
-    store_trans_tiles(mt, wk, textbl, trsptr, count, attr, palo, x, y, cc);
+    store_trans_tiles(&(TransRun){ mt, wk, textbl, trsptr, count, attr, palo, x, y, cc });
 
     seqs_w.up[mt->id] = 1;
     appRenewTempPriority(wk->position_z);
