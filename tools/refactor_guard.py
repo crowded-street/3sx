@@ -70,9 +70,21 @@ def strip_comments(src: str) -> str:
     return COMMENT_RE.sub(repl, src)
 
 
+def strip_numeric_suffix(tok: str) -> str:
+    """Drop a C integer/float suffix without eating the literal's own digits.
+
+    `f` and `F` are hex digits as well as the float suffix, so stripping them
+    from a hex literal silently rewrites its value: `0x1FF` becomes `0x1` and
+    normalises to 1, which is indistinguishable from the literal `1`. A
+    substituted constant hiding behind that collision would pass the guard.
+    """
+    suffix = "uUlL" if tok[:2].lower() in ("0x", "0b") else "uUlLfF"
+    return tok.rstrip(suffix)
+
+
 def normalise_number(tok: str) -> str:
     """Fold away suffix/format differences that do not change the value."""
-    body = tok.rstrip("uUlLfF")
+    body = strip_numeric_suffix(tok)
     try:
         base = integer_base(body)
         if base is not None:

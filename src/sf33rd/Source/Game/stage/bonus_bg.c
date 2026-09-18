@@ -31,6 +31,11 @@ void bns01() {
     bns01_jmp[bgw_ptr->r_no_0]();
 }
 
+static void finish_bonus_background_init() {
+    bgw_ptr->hos_xy[0].cal = bgw_ptr->wxy[0].cal = bgw_ptr->xy[0].cal;
+    bgw_ptr->zuubun = 0;
+}
+
 static void initialize_bonus_background() {
     bgw_ptr->r_no_0++;
 
@@ -40,8 +45,7 @@ static void initialize_bonus_background() {
         bgw_ptr->old_pos_x = bgw_ptr->xy[0].disp.pos = bgw_ptr->pos_x_work = 0x209;
     }
 
-    bgw_ptr->hos_xy[0].cal = bgw_ptr->wxy[0].cal = bgw_ptr->xy[0].cal;
-    bgw_ptr->zuubun = 0;
+    finish_bonus_background_init();
 }
 
 void bns01_init00() {
@@ -83,8 +87,7 @@ void bns03_init00() {
         bgw_ptr->old_pos_x = bgw_ptr->xy[0].disp.pos = bgw_ptr->pos_x_work = 0x20D;
     }
 
-    bgw_ptr->hos_xy[0].cal = bgw_ptr->wxy[0].cal = bgw_ptr->xy[0].cal;
-    bgw_ptr->zuubun = 0;
+    finish_bonus_background_init();
 }
 
 void bns03_move() {

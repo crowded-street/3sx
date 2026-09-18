@@ -101,29 +101,37 @@ void bg0000_init00() {
     bgw_ptr->old_pos_x = bgw_ptr->hos_xy[0].cal = bgw_ptr->wxy[0].cal = bgw_ptr->xy[0].cal;
 }
 
+static void settle_bg0000_demo_position() {
+    bgw_ptr->r_no_1 += 1;
+    bgw_ptr->wxy[0].disp.pos = 0x1D0;
+    bgw_ptr->wxy[0].disp.low = 0;
+    bgw_ptr->xy[0].cal = bgw_ptr->wxy[0].cal;
+    bgw_ptr->old_pos_x = 0x1D0;
+}
+
+static void advance_bg0000_demo_rightward() {
+    bgw_ptr->wxy[0].cal += bgw_ptr->speed_x;
+
+    if (bgw_ptr->wxy[0].disp.pos > 0x1D0) {
+        settle_bg0000_demo_position();
+        return;
+    }
+}
+
+static void advance_bg0000_demo_leftward() {
+    bgw_ptr->wxy[0].cal -= bgw_ptr->speed_x;
+
+    if (bgw_ptr->wxy[0].disp.pos < 0x1D0) {
+        settle_bg0000_demo_position();
+        return;
+    }
+}
+
 static void advance_bg0000_demo_position() {
     if (bgw_ptr->u_line) {
-        bgw_ptr->wxy[0].cal += bgw_ptr->speed_x;
-
-        if (bgw_ptr->wxy[0].disp.pos > 0x1D0) {
-            bgw_ptr->r_no_1 += 1;
-            bgw_ptr->wxy[0].disp.pos = 0x1D0;
-            bgw_ptr->wxy[0].disp.low = 0;
-            bgw_ptr->xy[0].cal = bgw_ptr->wxy[0].cal;
-            bgw_ptr->old_pos_x = 0x1D0;
-            return;
-        }
+        advance_bg0000_demo_rightward();
     } else {
-        bgw_ptr->wxy[0].cal -= bgw_ptr->speed_x;
-
-        if (bgw_ptr->wxy[0].disp.pos < 0x1D0) {
-            bgw_ptr->r_no_1 += 1;
-            bgw_ptr->wxy[0].disp.pos = 0x1D0;
-            bgw_ptr->wxy[0].disp.low = 0;
-            bgw_ptr->xy[0].cal = bgw_ptr->wxy[0].cal;
-            bgw_ptr->old_pos_x = 0x1D0;
-            return;
-        }
+        advance_bg0000_demo_leftward();
     }
 }
 

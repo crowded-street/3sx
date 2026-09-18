@@ -228,16 +228,19 @@ void pl_eff_trans_entry(WORK_Other* ewk) {
     }
 }
 
+static void add_eff_hit_flags(WORK_Other* ewk) {
+    eff_hit_flag[ewk->wu.type] += eff_hit_check_sub(ewk, &plw[0]);
+    eff_hit_flag[ewk->wu.type] += eff_hit_check_sub(ewk, &plw[1]);
+}
+
 s16 eff_hit_check(WORK_Other* ewk, s16 type) {
     if (!EXE_obroll) {
         if (type) {
             if (pcon_dp_flag) {
-                eff_hit_flag[ewk->wu.type] += eff_hit_check_sub(ewk, &plw[0]);
-                eff_hit_flag[ewk->wu.type] += eff_hit_check_sub(ewk, &plw[1]);
+                add_eff_hit_flags(ewk);
             }
         } else {
-            eff_hit_flag[ewk->wu.type] += eff_hit_check_sub(ewk, &plw[0]);
-            eff_hit_flag[ewk->wu.type] += eff_hit_check_sub(ewk, &plw[1]);
+            add_eff_hit_flags(ewk);
         }
     }
 

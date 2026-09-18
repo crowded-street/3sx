@@ -539,6 +539,111 @@ fingerprint means it did not travel to the call site and the merge is wrong.
 
 ---
 
+## Recipe N - Shared Index Range
+
+**Use when:** two or more scans are identical character for character except for the
+**first index and the limit of the range they walk** - so Recipe D refuses them for having
+two differences, Recipe C finds no identical run because the two literals sit in the
+`for`-init and its condition, and Recipe B does not reach them because the buffer is the
+same in every instance and it is the *range* that moves.
+
+This is Recipe B with the pair of varying things changed from *(buffer, length)* to
+*(first, limit)*. It needed its own entry rather than a relaxation of B because B's
+preconditions are written around a caller-named buffer, and here there is none.
+
+**Added 2026-09-18** under the project owner's standing authorisation, and measured on
+`bg.c`'s two ending chip remaps, which scan the same `rw_dat` for the same key and take
+the same replacement, over two halves of it:
+
+```c
+static s32 remap_ending_c_kakikae1_chip(s32 global_index_real) {
+    for (i = 0; i < 8; i++) {          /* the twin runs i = 8; i < 16 */
+        if (global_index_real == rw_dat[i].rwgbix) {
+            global_index_real = rw_dat[i].rwd_ptr[c_number];
+            ...
+```
+
+The two became one helper taking the range, with each arm of the `c_kakikae` dispatch
+naming its own half:
+
+```c
+    case 1:  global_index_real = remap_ending_c_chip_in_range(global_index_real, 0, 8);   break;
+    case 2:  global_index_real = remap_ending_c_chip_in_range(global_index_real, 8, 16);
+```
+
+**Why this is not Recipe D's forbidden case.** The same argument that makes Recipes T, B,
+V, W and F safe: **both varying values are written out in full, in positional order, at
+their own call site**, so no pair can be crossed without the one call line showing it, and
+the loop moves once with nothing about it rewritten. The helper uses `first` only as the
+loop's initial value and `limit` only in the condition it already stood in. It does not
+index with either, test either, or compute from either.
+
+**Preconditions, all of them:**
+
+- **The loop body is identical** across every instance, character for character. If a
+  subscript, a comparison operator, a callee or a statement differs anywhere, those
+  instances are not one family and Recipe D's refusal stands.
+- **Only the first index and the limit vary.** A third varying name or expression is not
+  this recipe.
+- **The comparison is copied, not chosen.** `i < limit` because the original wrote
+  `i < 8`. Turning a `<` into a `<=` to make two instances fit is the forbidden operator
+  change, and two instances that disagree on it are two families.
+- **The loop cannot move its own bound**, exactly as Recipe B requires. The original
+  re-reads the limit on every pass and the helper takes it by value once, so the body must
+  write only its own locals, or write through a pointer that provably cannot alias the
+  limit's storage. In `bg.c` the body assigns one local and calls two `ppg` functions that
+  touch only the texture lists.
+- **The parameter types are the loop variable's**, so the comparison promotes exactly as it
+  did. `remap_ending_c_chip_in_range` takes `s32` because `i` is `s32`.
+- **Two instances are enough**, for Recipe B's reason rather than Recipe V's: the skeleton
+  is a single loop with its range hoisted, and there is nothing in it for a third case to
+  confirm.
+
+**What the guard shows.** The deduplication WARN, with one copy of the body's own literals
+removed and **every bound still present at its call site**. A bound leaving the fingerprint
+means it did not travel to the call site and the merge is wrong. `--calls` shows the body's
+callees dropping by the copies removed; if the merged functions had names of their own,
+declare the collapse with `--renamed OLD=NEW` for each of them.
+
+**One value may ride along with the range**, on the argument Recipe F already uses for a
+value travelling beside its pointers: written out in full at its own call site, with the
+helper using it only where the original used that same expression. Measured on `bg.c`'s two
+ending `g_kakikae` remaps, which differ in their range *and* in the column they read -
+`rw_dat[i].rwd_ptr[g_number[0]]` against `[g_number[1]]`:
+
+```c
+    if (g_kakikae[0]) {
+        global_index_real = remap_ending_g_chip_in_range(global_index_real, 0, 12, g_number[0]);
+    }
+
+    if (g_kakikae[1]) {
+        global_index_real = remap_ending_g_chip_in_range(global_index_real, 12, 20, g_number[1]);
+    }
+```
+
+**8.28 -> 8.81**, and the pair became one function.
+
+This is the one place any recipe in this catalogue lets a helper *index* with a parameter,
+so the licence is narrow and the reason is worth stating. Recipe V forbids indexing because
+a helper that indexes with something it chose has generalised the difference: the mapping
+from arm to value now lives inside it, where a crossed pair is invisible. Here nothing is
+chosen. `g_number[0]` is written out at the call site that had it, in positional order, and
+the helper performs the one subscript the original performed, on the value it was handed.
+
+**What does not relax:**
+
+- **Exactly one value, and it is an argument, not a selector.** The helper must not test it,
+  compare two of them, or derive a second value from it. The moment it picks between things
+  with it, this is Recipe D's forbidden near-miss again.
+- **The value's expression must be free of side effects**, for the reason Recipe V gives:
+  the original evaluated it inside the loop, zero times when nothing matched, and the call
+  site now evaluates it once always. That is unobservable only when it reads locals or plain
+  memory and calls nothing. `g_number[0]` is a read of a `u8` array.
+- **Its parameter type is the type the expression already had**, so the promotion at the
+  subscript is the one that happened before. `column` is `u8` because `g_number` is.
+
+---
+
 ## Recipe F - Action Parameter
 
 **Use when:** two or more functions - or two or more arms of one `switch` - share a control
@@ -1013,6 +1118,13 @@ Recipe X both refuse to merge.
 | File | Plateau | Why |
 | --- | --- | --- |
 | `mtrans.c` | 7.55 | *was 2.57 at campaign start, 5.24 at the start of the rendering wave.* What remains is two findings. **Code Duplication** is a web of 16/32 and cached/new/plain near-misses in the nine `store_*` tile passes, each differing in several places at once - the cache lookup, the palette argument and the attribute expression - so Recipe D, F and W all refuse them; `lz_ext_p6_fx` against `lz_ext_p6_cx` and `get_mltbuf16` against `get_mltbuf32` differ in a pointer type, which is a type change. **Lines of Code in a Single File** stands at 1205 and no further legal cut exists: a call-graph pass over the 47 statics shows `advance_trans_x`/`_y` with eleven callers, the six `get_mltbuf*` with three each, and `lz_ext_p6_fx` shared between the tile passes and the melt pass, so every seam the duplication groups suggest runs through a static that Recipe S forbids widening. Splitting out `getObjectHeight`, `mlt_obj_matrix` and `draw_box` was measured - 1272 -> 1205 lines, still flagged, nothing cleared - and reverted under rule 2 |
+| `bg.c` | 9.09 | *was 3.62 at campaign start, 7.32 at the start of the stage wave.* Recipe A fourteen times cleared Excess Number of Function Arguments, Recipe S took the texture loading to `bg_textures.c`, and Recipes D, F and N took the reachable duplication. What remains is four chip-remap scanners: `remap_stage19_default_chip` against `remap_stage03_background_chip` differ in their limit *and* in a `*vtxColor` write that only happens on a match, so it cannot travel to the call site and a helper returning both a remapped index and a match verdict is two results; `remap_stage03_player_chip` differs in its key *and* its value, both indexed by the loop variable. A second Recipe S split is blocked by construction, verified against the call graph rather than argued: `draw_remapped_tiles` is called by `draw_stage19_tiles` and both ending drawers, and `draw_chip_and_restore_list` by the stage-02, stage-03 and shared passes, so every placement of an ending/stage line widens at least one `static` |
+| `bg_textures.c` | **10.00** | split from `bg.c`. Recipe D on the rewrite slot load *then* Recipe X on the two special-stage arms - see *Share the run before splitting the shape* |
+| `bg_sub.c` | 9.09 | *was 7.38.* Three Bumpy Roads cleared with Recipes C and E, four dedups, then Recipe S for `bg_zoom.c`. Three mirrored x/y pairs remain: `scr_11_22`/`scr_12_21` swap the player indices in three places, `scr_11_21`/`scr_12_22` differ in `<` against `>` and `-` against `+`, and the two chase start checks differ in five names and two callees |
+| `bg_zoom.c` | 8.54 | split from `bg_sub.c`. The zoom selector chain is four dispatchers per axis with the same shape, so any two left bare read as duplicates: one Recipe X split pays, and the full set of six measures 8.54 -> 8.28. `plpatuni.c`'s lesson again. **A further split by axis measures 8.54 -> 8.81 plus a second file at 9.38 and is refused, not blocked by the code**: exactly one `static` crosses the seam, because `check_cg_zoom` calls both axes' entry points, and Recipe S does not permit widening it. Recorded with the number so the rule can be priced |
+| `bonus_bg.c` | **10.00** | *was 9.38.* A **two-instance** family differing in two literals - the case Recipe V refuses - cleared by Recipe C on the run the two inits end with, without relaxing the three-instance rule |
+| `bg000.c` | **10.00** | *was 9.92, and was wrongly recorded as a plateau.* The two demo arms differ in `+=` against `-=` and `>` against `<`, so splitting them alone costs 0.54; sharing the settle block they both end with is flat alone. Dedup first, then split, is worth 0.08 - see *Share the run before splitting the shape* |
+| `ta_sub.c`, `bg090.c` | **10.00** | *both were 9.38.* One Recipe D and one Recipe E respectively |
 | `mtrans_pool.c` | 9.38 | `collect_used_x16_tile_row` against its 32 twin: they differ in the map array's element type, in the operand order of the bit test, in both loop bounds and in the index arithmetic |
 | `com_sub_air_term.c` | 9.68 | `ORO_JA_Term` at cc 9; clearing it makes a twin of `ORO_HJA_Term_Airborne` and costs 0.87 |
 | `com_sub_attack.c` | 9.09 | the two normal-attack wind-ups differ in two statements |
@@ -1298,6 +1410,31 @@ a defect introduced by it.** So:
   against 0.87 of score - keep the higher score and record the file as plateaued.
 - Never "fix" sibling similarity by merging two state machines that differ only in their
   state numbering. That needs a literal change and is forbidden.
+
+### Share the run before splitting the shape
+
+The eff09 rule below says to extract the shared runs before judging whether a file's
+duplication is a plateau. `bg_textures.c` showed the same rule governs the *order* of two
+steps that each measure flat on their own.
+
+`Bg_Kakikae_Set` had three arms, two of them long. Splitting those two arms into their own
+functions - ordinary Recipe X, the obvious move for a mean-complexity finding - measured
+**9.38 -> 8.81**. Each arm carried its own copy of a six-line block that loads a rewrite
+slot out of `bgrw_data_tbl`, and once the arms were functions rather than `case` bodies,
+the duplication detector priced them as a pair.
+
+Sharing that block first (Recipe D, one differing value - the slot) measured **flat**.
+The arms were still inside the switch, so no function-level complexity moved.
+
+Applied in that order, the pair measures **9.38 -> 10.00**.
+
+Neither commit pays alone and each is legal on its own, so rule 2's "keep it if the review
+improved" is not enough to find this: the first commit's review is unchanged. **When a
+split is going to expose a pair, look for what the two halves would then share, and take
+that first.** The reverse ordering is not merely worth less, it is worth *negative* - the
+file ends below where it started.
+
+---
 
 ### The eff09 family: separate the shape from the substance
 

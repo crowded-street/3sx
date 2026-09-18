@@ -23,318 +23,6 @@ void (*scr_x_mv_jp[35])() = { scr_10_20,   scr_10_21,   scr_10_22,   scr_x_dummy
 static s16 remake_x_mvstep(s16 mvstep);
 static s32 suzi_offset_set_sub(WORK_Other* ewk);
 
-static void select_horizontal_zoom_request_last(u16 p1zoom, u16 zoom_wk) {
-    switch (p1zoom & 0xE200) {
-    case 0x2200:
-        switch (zoom_wk) {
-        case 0x0:
-        case 0x2200:
-        case 0x4000:
-            zoom_request_flag = 0x100;
-            scr_req_x = (plw[0].wu.xyz[0].disp.pos + plw[1].wu.xyz[0].disp.pos) >> 1;
-            break;
-        case 0x2000:
-            zoom_request_flag = 0x100;
-            scr_req_x = plw[0].wu.xyz[0].disp.pos;
-            break;
-        case 0x200:
-            zoom_request_flag = 0x100;
-            scr_req_x = plw[1].wu.xyz[0].disp.pos;
-            break;
-
-            break;
-        }
-        break;
-    }
-}
-
-static void select_horizontal_zoom_request_later(u16 p1zoom, u16 zoom_wk) {
-    switch (p1zoom & 0xE200) {
-    case 0x0:
-        switch (zoom_wk) {
-        case 0x2200:
-            zoom_request_flag = 0x100;
-            scr_req_x = (plw[0].wu.xyz[0].disp.pos + plw[1].wu.xyz[0].disp.pos) >> 1;
-            break;
-
-        case 0x2000:
-            zoom_request_flag = 0x100;
-            scr_req_x = plw[0].wu.xyz[0].disp.pos;
-            break;
-
-        case 0x200:
-            zoom_request_flag = 0x100;
-            scr_req_x = plw[1].wu.xyz[0].disp.pos;
-            break;
-
-        case 0x4000:
-        case 0x0:
-            break;
-        }
-        break;
-
-    default:
-        select_horizontal_zoom_request_last(p1zoom, zoom_wk);
-        break;
-    }
-}
-
-static void select_horizontal_zoom_request_middle(u16 p1zoom, u16 zoom_wk) {
-    switch (p1zoom & 0xE200) {
-    case 0x200:
-        switch (zoom_wk) {
-        case 0x2000:
-        case 0x0:
-        case 0x4000:
-        case 0x2200:
-            zoom_request_flag = 0x100;
-            scr_req_x = plw[0].wu.xyz[0].disp.pos;
-            break;
-
-        case 0x200:
-            zoom_request_flag = 0x100;
-            scr_req_x = (plw[0].wu.xyz[0].disp.pos + plw[1].wu.xyz[0].disp.pos) >> 1;
-            break;
-        }
-        break;
-
-    default:
-        select_horizontal_zoom_request_later(p1zoom, zoom_wk);
-        break;
-    }
-}
-
-static void select_horizontal_2000_zoom_request(u16 zoom_wk) {
-    switch (zoom_wk) {
-        case 0x4000:
-            zoom_request_flag = 0x100;
-            scr_req_x = plw[0].wu.xyz[0].disp.pos;
-            break;
-
-        case 0x2000:
-            zoom_request_flag = 0x100;
-            scr_req_x = (plw[0].wu.xyz[0].disp.pos + plw[1].wu.xyz[0].disp.pos) >> 1;
-            break;
-
-        case 0x200:
-        case 0x0:
-        case 0x2200:
-            zoom_request_flag = 0x100;
-            scr_req_x = plw[1].wu.xyz[0].disp.pos;
-            break;
-    }
-}
-
-static void select_horizontal_zoom_request(u16 p1zoom, u16 p2zoom) {
-    u16 zoom_wk;
-
-    zoom_wk = p2zoom & 0xE200;
-
-    switch (p1zoom & 0xE200) {
-    case 0x4000:
-        break;
-
-    case 0x2000:
-        select_horizontal_2000_zoom_request(zoom_wk);
-        break;
-
-    default:
-        select_horizontal_zoom_request_middle(p1zoom, zoom_wk);
-        break;
-    }
-}
-
-static void select_vertical_zoom_request_last(u16 p1zoom, u16 zoom_wk) {
-    switch (p1zoom & 0xD100) {
-    case 0x1100:
-        switch (zoom_wk) {
-        case 0x1000:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = plw[0].wu.xyz[1].disp.pos;
-            break;
-
-        case 0x100:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = plw[1].wu.xyz[1].disp.pos;
-            break;
-
-        case 0x1100:
-        case 0x0:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = (plw[0].wu.xyz[1].disp.pos + plw[1].wu.xyz[1].disp.pos) >> 1;
-            break;
-
-        case 0x4000:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = 0;
-            break;
-        }
-        break;
-    }
-}
-
-static void select_vertical_zoom_request_later(u16 p1zoom, u16 zoom_wk) {
-    switch (p1zoom & 0xD100) {
-    case 0x0:
-        switch (zoom_wk) {
-        case 0x1000:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = plw[0].wu.xyz[1].disp.pos;
-            break;
-
-        case 0x100:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = plw[1].wu.xyz[1].disp.pos;
-            break;
-
-        case 0x1100:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = (plw[0].wu.xyz[1].disp.pos + plw[1].wu.xyz[1].disp.pos) >> 1;
-            break;
-
-        case 0x0:
-            break;
-
-        case 0x4000:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = 0;
-            break;
-        }
-        break;
-
-    default:
-        select_vertical_zoom_request_last(p1zoom, zoom_wk);
-        break;
-    }
-}
-
-static void select_vertical_zoom_request_middle(u16 p1zoom, u16 zoom_wk) {
-    switch (p1zoom & 0xD100) {
-    case 0x100:
-        switch (zoom_wk) {
-        case 0x1000:
-        case 0x0:
-        case 0x1100:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = plw[0].wu.xyz[1].disp.pos;
-            break;
-
-        case 0x100:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = (plw[0].wu.xyz[1].disp.pos + plw[1].wu.xyz[1].disp.pos) >> 1;
-            break;
-
-        case 0x4000:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = 0;
-            break;
-        }
-        break;
-
-    default:
-        select_vertical_zoom_request_later(p1zoom, zoom_wk);
-        break;
-    }
-}
-
-static void select_vertical_1000_zoom_request(u16 zoom_wk) {
-    switch (zoom_wk) {
-        case 0x1000:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = (plw[0].wu.xyz[1].disp.pos + plw[1].wu.xyz[1].disp.pos) >> 1;
-            break;
-
-        case 0x100:
-        case 0x0:
-        case 0x1100:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = plw[1].wu.xyz[1].disp.pos;
-            break;
-
-        case 0x4000:
-            zoom_request_flag |= 0x1000;
-            scr_req_y = 0;
-            break;
-    }
-}
-
-static void select_vertical_zoom_request(u16 p1zoom, u16 p2zoom) {
-    u16 zoom_wk;
-
-    zoom_wk = p2zoom & 0xD100;
-
-    switch (p1zoom & 0xD100) {
-    case 0x4000:
-        zoom_request_flag |= 0x1000;
-        scr_req_y = 0;
-        break;
-
-    case 0x1000:
-        select_vertical_1000_zoom_request(zoom_wk);
-        break;
-
-    default:
-        select_vertical_zoom_request_middle(p1zoom, zoom_wk);
-        break;
-    }
-}
-
-static void update_fighter_screen_positions() {
-    s16 i;
-
-    for (i = 0; i < 2; i++) {
-        if (plw[i].scr_pos_set_flag) {
-            plw[i].wu.scr_mv_x = plw[i].wu.xyz[0].disp.pos;
-            plw[i].wu.scr_mv_y = plw[i].wu.xyz[1].disp.pos;
-        } else if (plw[i].tsukamare_f) {
-            plw[i].wu.scr_mv_x = plw[(i + 1) & 1].wu.xyz[0].disp.pos;
-            plw[i].wu.scr_mv_y = plw[(i + 1) & 1].wu.xyz[1].disp.pos;
-        }
-    }
-}
-
-void check_cg_zoom() {
-    u16 p1zoom;
-    u16 p2zoom;
-    u16 zmlv;
-    u16 lookp1;
-    u16 lookp2;
-
-    p1zoom = plw[0].wu.cg_zoom;
-    p2zoom = plw[1].wu.cg_zoom;
-
-    if (bg_stop != 0 && !((p1zoom | p2zoom) & 0x4000)) {
-        zmlv = p1zoom & 0xFF;
-
-        if (zmlv < (p2zoom & 0xFF)) {
-            zmlv = p2zoom & 0xFF;
-        }
-
-        lookp1 = p1zoom >> 8 & 3;
-        lookp2 = p2zoom >> 8 & 3;
-        p1zoom = zmlv | (lookp2 << 12 | lookp1 << 8);
-        p2zoom = zmlv | (lookp1 << 12 | lookp2 << 8);
-    }
-
-    zoom_req_flag_old = zoom_request_flag;
-    zoom_request_flag = 0;
-
-    update_fighter_screen_positions();
-
-    select_horizontal_zoom_request(p1zoom, p2zoom);
-    select_vertical_zoom_request(p1zoom, p2zoom);
-
-    zoom_request_level = p1zoom & 0xFF;
-
-    if (zoom_request_level < (p2zoom & 0xFF)) {
-        zoom_request_level = p2zoom & 0xFF;
-    }
-
-    if (zoom_request_level) {
-        zoom_request_flag |= 1;
-    }
-}
-
 void bg_chase_move() {
     if (!Bonus_Game_Flag) {
         chase_start_check();
@@ -363,18 +51,21 @@ static void start_requested_x_chase() {
     }
 }
 
-static void chase_x_start_check() {
+static s16 zoom_request_just_released(s32 mask) {
     s16 work;
     s16 work2;
 
+    work = zoom_req_flag_old & mask;
+    work2 = ~(zoom_request_flag & mask);
+    work &= work2;
+    return work;
+}
+
+static void chase_x_start_check() {
     if (zoom_request_flag & 0xF00) {
         start_requested_x_chase();
     } else {
-        work = zoom_req_flag_old & 0xF00;
-        work2 = ~(zoom_request_flag & 0xF00);
-        work &= work2;
-
-        if (work) {
+        if (zoom_request_just_released(0xF00)) {
             bg_w.chase_flag |= 2;
             bg_w.chase_flag &= ~1;
             chase_x = bgw_ptr->wxy[0].disp.pos;
@@ -405,17 +96,10 @@ static void start_requested_y_chase() {
 }
 
 static void chase_y_start_check() {
-    s16 work;
-    s16 work2;
-
     if (zoom_request_flag & 0xF000) {
         start_requested_y_chase();
     } else {
-        work = zoom_req_flag_old & 0xF000;
-        work2 = ~(zoom_request_flag & 0xF000);
-        work &= work2;
-
-        if (work) {
+        if (zoom_request_just_released(0xF000)) {
             bg_w.chase_flag |= 0x20;
             bg_w.chase_flag &= ~0x10;
             chase_y = bgw_ptr->xy[1].disp.pos;
@@ -430,6 +114,18 @@ void chase_start_check() {
     chase_y_start_check();
 }
 
+static s32 chase_x_step_ended() {
+    chase_time_x -= 1;
+
+    if (chase_time_x > 0) {
+        bg_mvxy.a[0].sp += bg_mvxy.d[0].sp;
+        bgw_ptr->chase_xy[0].cal += bg_mvxy.a[0].sp;
+        return 0;
+    }
+
+    return 1;
+}
+
 static void chase_x_move() {
     if (!(bg_w.chase_flag & 0xF)) {
         return;
@@ -437,39 +133,41 @@ static void chase_x_move() {
 
     bg_w.bg2_sp_x2 = bg_w.bg2_sp_x = 0;
 
-        if (bg_w.chase_flag & 1) {
-            chase_time_x -= 1;
+    if (bg_w.chase_flag & 1) {
+        chase_x_step_ended();
+    }
 
-            if (chase_time_x > 0) {
-                bg_mvxy.a[0].sp += bg_mvxy.d[0].sp;
-                bgw_ptr->chase_xy[0].cal += bg_mvxy.a[0].sp;
-            }
+    if (bg_w.chase_flag & 2) {
+        if (chase_x_step_ended()) {
+            bg_w.chase_flag &= ~0xF;
+            bg_w.old_chase_flag &= ~0xF;
+            bgw_ptr->chase_xy[0].disp.pos = chase_x;
         }
+    }
 
-        if (bg_w.chase_flag & 2) {
-            chase_time_x -= 1;
+    if (bgw_ptr->chase_xy[0].disp.pos > bgw_ptr->r_limit2) {
+        bgw_ptr->chase_xy[0].disp.pos = bgw_ptr->r_limit2;
+        bgw_ptr->chase_xy[0].disp.low = 0;
+    }
 
-            if (chase_time_x > 0) {
-                bg_mvxy.a[0].sp += bg_mvxy.d[0].sp;
-                bgw_ptr->chase_xy[0].cal += bg_mvxy.a[0].sp;
-            } else {
-                bg_w.chase_flag &= ~0xF;
-                bg_w.old_chase_flag &= ~0xF;
-                bgw_ptr->chase_xy[0].disp.pos = chase_x;
-            }
-        }
-
-        if (bgw_ptr->chase_xy[0].disp.pos > bgw_ptr->r_limit2) {
-            bgw_ptr->chase_xy[0].disp.pos = bgw_ptr->r_limit2;
-            bgw_ptr->chase_xy[0].disp.low = 0;
-        }
-
-        if (bgw_ptr->chase_xy[0].disp.pos < bgw_ptr->l_limit2) {
-            bgw_ptr->chase_xy[0].disp.pos = bgw_ptr->l_limit2;
-            bgw_ptr->chase_xy[0].disp.low = 0;
-        }
+    if (bgw_ptr->chase_xy[0].disp.pos < bgw_ptr->l_limit2) {
+        bgw_ptr->chase_xy[0].disp.pos = bgw_ptr->l_limit2;
+        bgw_ptr->chase_xy[0].disp.low = 0;
+    }
 
     bg_w.bg2_sp_x = bg_w.bg2_sp_x2 = bgw_ptr->chase_xy[0].disp.pos - bgw_ptr->pos_x_work;
+}
+
+static s32 chase_y_step_ended() {
+    chase_time_y -= 1;
+
+    if (chase_time_y > 0) {
+        bg_mvxy.a[1].sp += bg_mvxy.d[1].sp;
+        bgw_ptr->chase_xy[1].cal += bg_mvxy.a[1].sp;
+        return 0;
+    }
+
+    return 1;
 }
 
 static void chase_y_move() {
@@ -477,32 +175,22 @@ static void chase_y_move() {
         return;
     }
 
-        if (bg_w.chase_flag & 0x10) {
-            chase_time_y -= 1;
+    if (bg_w.chase_flag & 0x10) {
+        chase_y_step_ended();
+    }
 
-            if (chase_time_y > 0) {
-                bg_mvxy.a[1].sp += bg_mvxy.d[1].sp;
-                bgw_ptr->chase_xy[1].cal += bg_mvxy.a[1].sp;
-            }
+    if (bg_w.chase_flag & 0x20) {
+        if (chase_y_step_ended()) {
+            bg_w.chase_flag &= 0xF;
+            bg_w.old_chase_flag &= 0xF;
+            bgw_ptr->chase_xy[1].disp.pos = chase_y;
         }
+    }
 
-        if (bg_w.chase_flag & 0x20) {
-            chase_time_y -= 1;
-
-            if (chase_time_y > 0) {
-                bg_mvxy.a[1].sp += bg_mvxy.d[1].sp;
-                bgw_ptr->chase_xy[1].cal += bg_mvxy.a[1].sp;
-            } else {
-                bg_w.chase_flag &= 0xF;
-                bg_w.old_chase_flag &= 0xF;
-                bgw_ptr->chase_xy[1].disp.pos = chase_y;
-            }
-        }
-
-        if (bgw_ptr->chase_xy[1].disp.pos > bgw_ptr->y_limit2) {
-            bgw_ptr->chase_xy[1].disp.pos = bgw_ptr->y_limit2;
-            bgw_ptr->chase_xy[1].disp.low = 0;
-        }
+    if (bgw_ptr->chase_xy[1].disp.pos > bgw_ptr->y_limit2) {
+        bgw_ptr->chase_xy[1].disp.pos = bgw_ptr->y_limit2;
+        bgw_ptr->chase_xy[1].disp.low = 0;
+    }
 
     bg_w.bg2_sp_y = bgw_ptr->chase_xy[1].disp.pos - bgw_ptr->pos_y_work;
 }
@@ -693,21 +381,31 @@ void bg_base_x_move_sub() {
     scr_x_mv_jp[(st[0] << 4) + st[1]]();
 }
 
+static s16 remake_leftward_x_step(s16 mvstep) {
+    if (mvstep < -bg_w.max_x) {
+        mvstep = -bg_w.max_x;
+    }
+
+    return -remake_x_mvstep(-mvstep);
+}
+
+static s16 remake_rightward_x_step(s16 mvstep) {
+    if (mvstep > bg_w.max_x) {
+        mvstep = bg_w.max_x;
+    }
+
+    return remake_x_mvstep(mvstep);
+}
+
 static s16 adjust_bg_x_step(s16 mvstep) {
     if (!mvstep) {
         return mvstep;
     }
 
     if (mvstep < 0) {
-        if (mvstep < -bg_w.max_x) {
-            mvstep = -bg_w.max_x;
-        }
-        mvstep = -remake_x_mvstep(-mvstep);
+        mvstep = remake_leftward_x_step(mvstep);
     } else {
-        if (mvstep > bg_w.max_x) {
-            mvstep = bg_w.max_x;
-        }
-        mvstep = remake_x_mvstep(mvstep);
+        mvstep = remake_rightward_x_step(mvstep);
     }
 
     return mvstep;
@@ -1003,18 +701,18 @@ void suzi_sync_pos_set(WORK_Other* ewk) {
     ewk->wu.position_y = ewk->wu.xyz[1].disp.pos & 0xFFFF;
 }
 
+static void set_bg_family_position(s32 num_of_bg, s16 x, s16 y) {
+    Scrn_Move_Set(num_of_bg, x, y);
+    x = -x & 0xFFFF;
+    y = (768 - (y & 0xFFFF)) & 0xFFFF;
+    Family_Set_W(num_of_bg + 1, x, y);
+}
+
 void Bg_Family_Set() {
     s8 i;
-    s16 x;
-    s16 y;
 
     for (i = 0; i < bg_w.scno; i++) {
-        x = bg_w.bgw[i].position_x;
-        y = bg_w.bgw[i].position_y;
-        Scrn_Move_Set(i, x, y);
-        x = -x & 0xFFFF;
-        y = (768 - (y & 0xFFFF)) & 0xFFFF;
-        Family_Set_W(i + 1, x, y);
+        Bg_Family_Set_appoint(i);
     }
 }
 
@@ -1022,25 +720,14 @@ void Bg_Family_Set_appoint(s32 num_of_bg) {
     s16 x = bg_w.bgw[num_of_bg].position_x;
     s16 y = bg_w.bgw[num_of_bg].position_y;
 
-    Scrn_Move_Set(num_of_bg, x, y);
-    x = -x & 0xFFFF;
-    y = (768 - (y & 0xFFFF)) & 0xFFFF;
-    Family_Set_W(num_of_bg + 1, x, y);
+    set_bg_family_position(num_of_bg, x, y);
 }
 
 void Bg_Family_Set_2() {
     s8 i;
-    s16 x;
-    s16 y;
 
     for (i = 0; i < bg_w.scno; i++) {
-        x = bg_w.bgw[i].position_x;
-        y = bg_w.bgw[i].position_y;
-        y += 8;
-        Scrn_Move_Set(i, x, y);
-        x = -x & 0xFFFF;
-        y = (768 - (y & 0xFFFF)) & 0xFFFF;
-        Family_Set_W(i + 1, x, y);
+        Bg_Family_Set_2_appoint(i);
     }
 }
 
@@ -1051,10 +738,7 @@ void Bg_Family_Set_2_appoint(s32 num_of_bg) {
     x = bg_w.bgw[num_of_bg].position_x;
     y = bg_w.bgw[num_of_bg].position_y;
     y += 8;
-    Scrn_Move_Set(num_of_bg, x, y);
-    x = -x & 0xFFFF;
-    y = (768 - (y & 0xFFFF)) & 0xFFFF;
-    Family_Set_W(num_of_bg + 1, x, y);
+    set_bg_family_position(num_of_bg, x, y);
 }
 
 void ake_Family_Set2() {
