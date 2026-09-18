@@ -27,10 +27,14 @@ const u16 BGM_Stage_Data[22] = { 46, 1, 13, 34, 31, 4, 7, 16, 25, 28, 34, 1, 28,
 const s16 SE_Shock_Data[7] = { 285, 286, 287, 288, 289, 305, 306 };
 const s16 Finish_SE_Data[2][7] = { { 305, 306, 285, 286, 287, 288, 272 }, { 292, 293, 290, 291, 287, 288, 272 } };
 
+static s32 is_arcade_gill_stage(void) {
+    return Mode_Type == MODE_ARCADE && Play_Type == 0 && My_char[COM_id] == 17 && Bonus_Game_Flag == 0;
+}
+
 void Stage_BGM(u16 Stage_Number, u16 Round_Number) {
     u16 code;
 
-    if (Mode_Type == MODE_ARCADE && Play_Type == 0 && My_char[COM_id] == 17 && Bonus_Game_Flag == 0) {
+    if (is_arcade_gill_stage()) {
         code = BGM_Stage_Data[17] + bgm_selector[sys_w.bgm_type][Round_Number & 7];
     } else {
         code = BGM_Stage_Data[Stage_Number] + bgm_selector[sys_w.bgm_type][Round_Number & 7];
