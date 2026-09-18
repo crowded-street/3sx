@@ -305,6 +305,13 @@ void sound_request_for_dc(SoundPatchConfig* rmc, s16 pan) {
     }
 }
 
+/* Lift the pause the play arm left on, if one is still on. */
+static void bgm_resume_if_paused() {
+    if (ADX_IsPaused()) {
+        ADX_Pause(0);
+    }
+}
+
 /* Whether the requested BGM is stitched together from seamless entries rather than
  * played as one file. */
 static s32 bgm_plays_seamless_entries() {
@@ -424,9 +431,7 @@ void BGM_Server() {
             bgm_start_current_track();
         }
 
-        if (ADX_IsPaused()) {
-            ADX_Pause(0);
-        }
+        bgm_resume_if_paused();
 
         current_bgm = bgm_exe.code;
         bgm_exe.kind = 0;
@@ -500,9 +505,7 @@ void BGM_Server() {
                 bgm_start_current_track();
             }
 
-            if (ADX_IsPaused()) {
-                ADX_Pause(0);
-            }
+            bgm_resume_if_paused();
 
             bgm_volume_setup(-0x7F);
             current_bgm = bgm_exe.code;
