@@ -70,7 +70,11 @@ static u32 get_judge_outline_color(s16 index) {
     return 0xFFFFFFFF;
 }
 
-static void draw_hit_judge_box(f32 px, f32 py, f32 sx, f32 sy, u32 fill_col, u32 outline_col, u32 attr) {
+static void draw_hit_judge_box(const JudgeRect* rect, u32 fill_col, u32 outline_col, u32 attr) {
+    f32 px = rect->px;
+    f32 py = rect->py;
+    f32 sx = rect->sx;
+    f32 sy = rect->sy;
     f32 thickness_sx;
     f32 thickness_sy;
 
@@ -91,11 +95,11 @@ static void draw_hit_judge_box(f32 px, f32 py, f32 sx, f32 sy, u32 fill_col, u32
     thickness_sx = (sx < 1.0f) ? sx : 1.0f;
     thickness_sy = (sy < 1.0f) ? sy : 1.0f;
 
-    draw_hit_judge_line(px, py, sx, sy, fill_col, attr);
-    draw_hit_judge_line(px, py, sx, thickness_sy, outline_col, attr);
-    draw_hit_judge_line(px, py + sy - thickness_sy, sx, thickness_sy, outline_col, attr);
-    draw_hit_judge_line(px, py, thickness_sx, sy, outline_col, attr);
-    draw_hit_judge_line(px + sx - thickness_sx, py, thickness_sx, sy, outline_col, attr);
+    draw_hit_judge_line(&(JudgeRect){ px, py, sx, sy }, fill_col, attr);
+    draw_hit_judge_line(&(JudgeRect){ px, py, sx, thickness_sy }, outline_col, attr);
+    draw_hit_judge_line(&(JudgeRect){ px, py + sy - thickness_sy, sx, thickness_sy }, outline_col, attr);
+    draw_hit_judge_line(&(JudgeRect){ px, py, thickness_sx, sy }, outline_col, attr);
+    draw_hit_judge_line(&(JudgeRect){ px + sx - thickness_sx, py, thickness_sx, sy }, outline_col, attr);
 }
 
 void Init_load_on_memory_data() {
@@ -185,33 +189,33 @@ void set_judge_area_sprite(WORK_Other_JUDGE* wk, s16 bsy) {
                 outline_col = set_color_alpha(outline_col, highlight_alpha);
             }
 
-            draw_hit_judge_box(wk->jx[i][0] * mirror_factor,
-                               wk->jx[i][2],
-                               wk->jx[i][1] * mirror_factor,
-                               wk->jx[i][3],
-                               fill_col,
-                               outline_col,
-                               judge_area_attr[i][1]);
+            draw_hit_judge_box(
+                &(JudgeRect){
+                    wk->jx[i][0] * mirror_factor, wk->jx[i][2], wk->jx[i][1] * mirror_factor, wk->jx[i][3] },
+                fill_col,
+                outline_col,
+                judge_area_attr[i][1]);
         }
     }
     if (wk->ja_disp_bit & 0x8000) {
-        draw_hit_judge_line(-1.0, -1.0, 2.0, 2.0, judge_area_attr[15][0], judge_area_attr[15][1]);
-        draw_hit_judge_line(
-            -2.0, (float)(-wk->wu.position_y - 2), 4.0, 4.0, judge_area_attr[16][0], judge_area_attr[16][1]);
+        draw_hit_judge_line(&(JudgeRect){ -1.0, -1.0, 2.0, 2.0 }, judge_area_attr[15][0], judge_area_attr[15][1]);
+        draw_hit_judge_line(&(JudgeRect){ -2.0, (float)(-wk->wu.position_y - 2), 4.0, 4.0 },
+                            judge_area_attr[16][0],
+                            judge_area_attr[16][1]);
     }
 }
 
-void draw_hit_judge_line(f32 px, f32 py, f32 sx, f32 sy, u32 col, u32 attr) {
+void draw_hit_judge_line(const JudgeRect* rect, u32 col, u32 attr) {
     Vec3 point[2];
     PAL_CURSOR line;
     PAL_CURSOR_P xy[4];
     PAL_CURSOR_COL cc[4];
 
-    point[0].x = px;
-    point[0].y = py;
+    point[0].x = rect->px;
+    point[0].y = rect->py;
     point[0].z = 0.0f;
-    point[1].x = px + sx;
-    point[1].y = py + sy;
+    point[1].x = rect->px + rect->sx;
+    point[1].y = rect->py + rect->sy;
     point[1].z = 0.0f;
     njCalcPoints(NULL, point, point, 2);
     line.p = xy;
