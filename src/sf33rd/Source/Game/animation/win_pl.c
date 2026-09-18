@@ -834,39 +834,47 @@ void twelve_win_away(PLW* wk) {
     }
 }
 
+static void twelve_backjump_launch(PLW* wk) {
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 1) {
+        win_rno[1]++;
+        wk->wu.mvxy.a[0].sp = 0x30000;
+        wk->wu.mvxy.d[0].sp = 0;
+        wk->wu.mvxy.a[1].sp = 0x78000;
+        wk->wu.mvxy.d[1].sp = -0x5000;
+
+        if (wk->wu.rl_flag) {
+            wk->wu.mvxy.a[0].sp = -wk->wu.mvxy.a[0].sp;
+        }
+    }
+
+    update_field_hosei_flags(wk);
+}
+
+static void twelve_backjump_rise(PLW* wk) {
+    add_y_sub((WORK_Other*)wk);
+    add_x_sub((WORK_Other*)wk);
+    char_move(&wk->wu);
+
+    if (wk->wu.cg_type == 2) {
+        win_rno[1]++;
+        char_move_z(&wk->wu);
+        wk->wu.xyz[1].cal = 0;
+    }
+
+    update_field_hosei_flags(wk);
+}
+
 void twelve_win_backjump(PLW* wk) {
     switch (win_rno[1]) {
     case 0:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 1) {
-            win_rno[1]++;
-            wk->wu.mvxy.a[0].sp = 0x30000;
-            wk->wu.mvxy.d[0].sp = 0;
-            wk->wu.mvxy.a[1].sp = 0x78000;
-            wk->wu.mvxy.d[1].sp = -0x5000;
-
-            if (wk->wu.rl_flag) {
-                wk->wu.mvxy.a[0].sp = -wk->wu.mvxy.a[0].sp;
-            }
-        }
-
-        update_field_hosei_flags(wk);
+        twelve_backjump_launch(wk);
 
         break;
 
     case 1:
-        add_y_sub((WORK_Other*)wk);
-        add_x_sub((WORK_Other*)wk);
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 2) {
-            win_rno[1]++;
-            char_move_z(&wk->wu);
-            wk->wu.xyz[1].cal = 0;
-        }
-
-        update_field_hosei_flags(wk);
+        twelve_backjump_rise(wk);
 
         break;
 
