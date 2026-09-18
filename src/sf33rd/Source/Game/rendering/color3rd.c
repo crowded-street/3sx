@@ -143,6 +143,26 @@ static void collect_color_file_read(LoadRequest* curr, col_file_data* cfn) {
     }
 }
 
+// The two states after the read has been asked for. Reached from
+// q_ldreq_color_data's default, with the original state numbers kept; nothing
+// falls into state 4, because state 3 ends in a break.
+static void q_ldreq_color_data_read(LoadRequest* curr, col_file_data* cfn) {
+    switch (curr->rno) {
+    case 4:
+        collect_color_file_read(curr, cfn);
+        break;
+
+    case 5:
+        Push_ramcnt_key(curr->key);
+        cseMemMapSetPhdAddr(curr->id + 1, csePHDDataTable[cfn->data + 1]);
+        cseTsbSetBankAddr(curr->id + 1, cseTSBDataTable[cfn->data + 1]);
+        sdbd[curr->id + 1] = (s8*)cseTSBDataTable[cfn->data + 1];
+        LDREQ_SetResultFlag(curr, true);
+        curr->status = LDREQ_STATUS_FREE;
+        break;
+    }
+}
+
 void q_ldreq_color_data(LoadRequest* curr) {
     col_file_data* cfn;
 
@@ -176,17 +196,8 @@ void q_ldreq_color_data(LoadRequest* curr) {
         request_color_file_read(curr);
         break;
 
-    case 4:
-        collect_color_file_read(curr, cfn);
-        break;
-
-    case 5:
-        Push_ramcnt_key(curr->key);
-        cseMemMapSetPhdAddr(curr->id + 1, csePHDDataTable[cfn->data + 1]);
-        cseTsbSetBankAddr(curr->id + 1, cseTSBDataTable[cfn->data + 1]);
-        sdbd[curr->id + 1] = (s8*)cseTSBDataTable[cfn->data + 1];
-        LDREQ_SetResultFlag(curr, true);
-        curr->status = LDREQ_STATUS_FREE;
+    default:
+        q_ldreq_color_data_read(curr, cfn);
         break;
     }
 }
