@@ -436,6 +436,28 @@ static void fly_appear_06000_car(PLW* wk) {
     }
 }
 
+/* The later states of this entrance. The case labels are the original ones, so
+ * the states still read as the same numbers. The two trailing position writes
+ * stay in the caller, after its switch, where they ran before. */
+static void step_appear_06000_dismount(PLW* wk) {
+    switch (wk->wu.routine_no[3]) {
+    case 3:
+        char_move(&wk->wu);
+        if (wk->wu.cg_type) {
+            leave_appear_06000_car(wk);
+        }
+        break;
+
+    case 4:
+        char_move(&wk->wu);
+        if (wk->wu.cg_type == 0xFF) {
+            wk->wu.routine_no[2] = 1;
+            wk->wu.routine_no[3] = 0;
+        }
+        break;
+    }
+}
+
 void Appear_06000(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -452,19 +474,8 @@ void Appear_06000(PLW* wk) {
         fly_appear_06000_car(wk);
         break;
 
-    case 3:
-        char_move(&wk->wu);
-        if (wk->wu.cg_type) {
-            leave_appear_06000_car(wk);
-        }
-        break;
-
-    case 4:
-        char_move(&wk->wu);
-        if (wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-        }
+    default:
+        step_appear_06000_dismount(wk);
         break;
     }
 
