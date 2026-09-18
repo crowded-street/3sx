@@ -37,6 +37,12 @@ s16 app_counter[] = { 0, 0 };
 s16 appear_work[] = { 0, 0 };
 s16 Appear_end;
 
+static void mark_appear_finished(PLW* wk) {
+    wk->wu.routine_no[2] = 1;
+    wk->wu.routine_no[3] = 0;
+    Appear_end++;
+}
+
 void appear_work_clear() {
     Appear_end = 0;
     Appear_flag[0] = 0;
@@ -177,9 +183,7 @@ void Appear_01000(PLW* wk) {
     case 3:
         char_move(&wk->wu);
         if (wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-            Appear_end++;
+            mark_appear_finished(wk);
         }
         break;
     }
@@ -197,9 +201,7 @@ void Appear_03000(PLW* wk) {
     case 1:
         char_move(&wk->wu);
         if (wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-            Appear_end++;
+            mark_appear_finished(wk);
         }
     }
 }
@@ -257,9 +259,7 @@ void Appear_04000(PLW* wk) {
         char_move(&wk->wu);
 
         if ((wk->wu.cg_type) == 0xFF) {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-            Appear_end++;
+            mark_appear_finished(wk);
         }
 
         break;
@@ -326,9 +326,7 @@ void Appear_05000(PLW* wk) {
         char_move(&wk->wu);
 
         if (wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-            Appear_end++;
+            mark_appear_finished(wk);
         }
 
         break;
@@ -522,9 +520,7 @@ void Appear_07000(PLW* wk) {
         char_move(&wk->wu);
 
         if (wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-            Appear_end++;
+            mark_appear_finished(wk);
         }
 
         break;
@@ -554,9 +550,7 @@ void Appear_08000(PLW* wk) {
     case 1:
         char_move(&wk->wu);
         if (wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-            Appear_end++;
+            mark_appear_finished(wk);
         }
     }
 }
@@ -800,9 +794,7 @@ void Appear_14000(PLW* wk) {
             return;
         }
 
-        wk->wu.routine_no[2] = 1;
-        wk->wu.routine_no[3] = 0;
-        Appear_end++;
+        mark_appear_finished(wk);
         break;
 
     case 1:
@@ -855,9 +847,7 @@ void Appear_15000(PLW* wk) {
             break;
 
         case 0xFF:
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-            Appear_end++;
+            mark_appear_finished(wk);
             break;
         }
     }
@@ -882,9 +872,7 @@ void Appear_16000(PLW* wk) {
         char_move(&wk->wu);
 
         if (wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-            Appear_end++;
+            mark_appear_finished(wk);
         }
     }
 }
@@ -966,9 +954,7 @@ void Appear_17000(PLW* wk) {
         }
 
         if (wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-            Appear_end++;
+            mark_appear_finished(wk);
             Standby_BGM(0x2E);
         }
 
@@ -1058,9 +1044,7 @@ void Appear_18000(PLW* wk) {
         char_move(&wk->wu);
 
         if (wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-            Appear_end++;
+            mark_appear_finished(wk);
         }
 
         break;
@@ -1143,9 +1127,7 @@ void Appear_19000(PLW* wk) {
         char_move(&wk->wu);
 
         if (wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-            Appear_end++;
+            mark_appear_finished(wk);
         }
 
         break;
@@ -1165,9 +1147,7 @@ void Appear_20000(PLW* wk) {
         char_move(&wk->wu);
 
         if (wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-            Appear_end++;
+            mark_appear_finished(wk);
         }
     }
 }
@@ -1220,9 +1200,7 @@ void Appear_22000(PLW* wk) {
         char_move(&wk->wu);
 
         if (wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-            Appear_end++;
+            mark_appear_finished(wk);
         }
     }
 }
@@ -1370,9 +1348,7 @@ void Appear_26000(PLW* wk) {
         char_move(&wk->wu);
 
         if (wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-            Appear_end++;
+            mark_appear_finished(wk);
         }
 
         break;
@@ -1430,9 +1406,7 @@ void Appear_28000(PLW* wk) {
         char_move(&wk->wu);
 
         if (wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-            Appear_end++;
+            mark_appear_finished(wk);
         }
 
         break;
@@ -1523,18 +1497,14 @@ void Appear_29000(PLW* wk) {
             return;
         }
 
-        wk->wu.routine_no[2] = 1;
-        wk->wu.routine_no[3] = 0;
-        Appear_end++;
+        mark_appear_finished(wk);
         break;
 
     case 3:
         char_move(&wk->wu);
 
         if (wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-            Appear_end++;
+            mark_appear_finished(wk);
         }
         break;
 
@@ -1556,9 +1526,7 @@ void Appear_29000(PLW* wk) {
         char_move(&wk->wu);
 
         if (wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-            Appear_end++;
+            mark_appear_finished(wk);
         }
 
         break;
@@ -1638,9 +1606,7 @@ void Appear_31000(PLW* wk) {
         char_move(&wk->wu);
 
         if (wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-            Appear_end++;
+            mark_appear_finished(wk);
         }
 
         break;
@@ -1708,9 +1674,7 @@ void Appear_33000(PLW* wk) {
         char_move(&wk->wu);
 
         if (wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-            Appear_end++;
+            mark_appear_finished(wk);
         }
     }
 }
@@ -1805,9 +1769,7 @@ void Appear_36000(PLW* wk) {
         char_move(&wk->wu);
 
         if (wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-            Appear_end++;
+            mark_appear_finished(wk);
         }
 
         break;
@@ -1895,9 +1857,7 @@ void Appear_37000(PLW* wk) {
         app_counter[wk->wu.id]--;
 
         if (app_counter[wk->wu.id] < 1) {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-            Appear_end++;
+            mark_appear_finished(wk);
         } else {
             add_x_sub(&wk->wu);
         }
@@ -1925,9 +1885,7 @@ void Appear_38000(PLW* wk) {
         char_move(&wk->wu);
 
         if (wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-            Appear_end++;
+            mark_appear_finished(wk);
         }
     }
 }
@@ -2002,9 +1960,7 @@ void Appear_41000(PLW* wk) {
         app_counter[wk->wu.id]--;
 
         if (app_counter[wk->wu.id] < 0) {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-            Appear_end++;
+            mark_appear_finished(wk);
         }
 
         break;
