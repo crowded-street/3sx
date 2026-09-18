@@ -104,6 +104,199 @@ Uint8 ss_state_flags;                                 /* 0x02079C8C */
 void SsResetBgmChannels();
 Sint32 SsReadDelay(const Uint8* stream, Uint32* delay);
 
+/* Whether a broadcast SFX request passes this channel by: no track for it, or a
+ * higher-priority voice still sounding on it. */
+static int ss_sfx_channel_rejects_request(const SsChannelState* channel, Uint32 track_offset, Uint8 type) {
+    return (track_offset == 0) || ((channel->priority > type) && ((channel->state & 0x80) == 0));
+}
+
+/* The modulation state both the BGM start and the broadcast SFX request clear. */
+static void ss_clear_channel_mod_state(SsChannelState* channel) {
+    channel->unk_66 = 0;
+    channel->unk_67 = 0;
+    channel->unk_69 = 0;
+    channel->unk_6A = 0;
+    channel->unk_68 = 0;
+}
+
+/* The mix defaults both SFX request shapes write. */
+static void ss_set_sfx_mix_defaults(SsChannelState* channel) {
+    channel->unk_62 = 0;
+    channel->unk_63 = 0x7F;
+    channel->unk_64 = 0x7F;
+    channel->unk_58 = 0;
+    channel->unk_56 = 0;
+    channel->unk_5F = 0;
+    channel->unk_60 = 0x40;
+}
+
+/* The voice state both the BGM start and the broadcast SFX request clear before
+ * they write the fields those two shapes disagree on. */
+static void ss_clear_channel_voice_state(SsChannelState* channel) {
+    channel->unk_10 = 0;
+    channel->unk_14 = 0;
+    channel->unk_18 = 0;
+    channel->unk_1C = 0;
+    channel->unk_20 = 0;
+    channel->unk_3C = 0;
+    channel->unk_3E = 0;
+    channel->unk_40 = 0;
+    channel->unk_42 = 0;
+    channel->unk_44 = 0;
+    channel->unk_46 = 0;
+    channel->unk_48 = 0;
+    channel->unk_4A = 0;
+    channel->unk_4C = 0;
+    channel->unk_4E = 0;
+    channel->unk_50 = 0;
+    channel->unk_52 = 0;
+    channel->unk_54 = 0;
+    channel->unk_5A = 0;
+    channel->unk_5B = 0;
+    channel->unk_5C = 0;
+    channel->unk_5D = 0;
+    channel->unk_65 = 0;
+    channel->unk_6C = 0;
+}
+
+/* The pan descriptor both panned request shapes install. */
+static void ss_setup_pan(SsPanDescriptor* pan, Sint16 pan_control) {
+    if (pan_control == -1) {
+        pan->start = 0;
+        pan->end = 0;
+        pan->step = 0;
+        pan->control = -1;
+    } else {
+        *pan = ss_pan_tmp;
+    }
+}
+
+/* The instrument bank load every request shape opens its channel setup with. */
+static void ss_load_default_instrument(SsChannelState* channel) {
+    const Uint8* instrument_bank = ss_instrument_banks[0];
+    const Uint8* instrument = instrument_bank + SS_READ_BE16(instrument_bank);
+    channel->instrument = instrument;
+    channel->sample_header = &ss_sample_headers[SS_READ_BE16(instrument + 4)];
+}
+
+/* Request type 0: start a new BGM, one track per channel. */
+static void ss_start_bgm_request(const Uint8* request, const Uint8* track_offsets, Uint8 type) {
+    SsResetBgmChannels();
+
+    for (int i = 0; i < SDL_arraysize(ss_bgm_channels); i++) {
+        SsChannelState* channel = &ss_bgm_channels[i];
+        const Uint32 track_offset = SS_READ_BE16(track_offsets + i * 2);
+
+        if (track_offset == 0) {
+            channel->state = SS_CHANNEL_STATE_FREE;
+            continue;
+        }
+
+        const Uint8* track = request + track_offset;
+        channel->track = track;
+
+        Uint32 delay;
+        channel->stream = track + SsReadDelay(track, &delay);
+        channel->delay = delay << 8;
+        channel->state = 0x20;
+
+        ss_load_default_instrument(channel);
+
+        channel->unk_24 = 0;
+        ss_clear_channel_voice_state(channel);
+        channel->unk_6E = 0;
+        channel->priority = type;
+        channel->unk_62 = 0;
+        channel->unk_63 = 0;
+        channel->unk_64 = 0x40;
+        channel->unk_58 = 0;
+        channel->unk_56 = 0;
+        channel->unk_5F = 0;
+        channel->unk_60 = 0x40;
+        ss_clear_channel_mod_state(channel);
+        channel->unk_6B = 0;
+        channel->unk_6D = 0x40;
+        channel->unk_70 = 0;
+    }
+
+    if ((ss_state_flags & 8) == 0) {
+        ss_unk_02078D04 = 0x8000;
+    }
+
+    ss_unk_02007EE8 = 0;
+    ss_unk_02079C14 = 0;
+    ss_state_flags |= 2;
+}
+
+/* A broadcast SFX request: every channel with a track and no higher-priority voice. */
+static void ss_start_sfx_request(const Uint8* request, const Uint8* track_offsets, Uint8 type, Sint16 pan_control) {
+    for (int i = 0; i < SDL_arraysize(ss_sfx_channels); i++) {
+        SsPanDescriptor* pan = &ss_pan_descriptors[i];
+        SsChannelState* channel = &ss_sfx_channels[i];
+        const Uint32 track_offset = SS_READ_BE16(track_offsets + i * 2);
+
+        if (ss_sfx_channel_rejects_request(channel, track_offset, type)) {
+            continue;
+        }
+
+        const Uint8* track = request + track_offset;
+
+        Uint32 delay;
+        channel->stream = track + SsReadDelay(track, &delay);
+        channel->delay = delay << 8;
+        channel->state = 0;
+
+        ss_load_default_instrument(channel);
+
+        ss_clear_channel_voice_state(channel);
+        channel->unk_6D = 0x40;
+        channel->unk_6E = 0;
+        channel->priority = type;
+        ss_set_sfx_mix_defaults(channel);
+        ss_clear_channel_mod_state(channel);
+        channel->unk_6D = 0x40;
+        channel->unk_70 = 0;
+
+        ss_setup_pan(pan, pan_control);
+
+        ss_channel_aux[i] = 0;
+    }
+}
+
+/* A compact request that names its channel in the low nibble of the type. */
+static void ss_start_fixed_channel_request(const Uint8* request, Uint8 type, Sint16 pan_control) {
+    const int channel_index = type & 0x0F;
+    SsChannelState* channel = &ss_sfx_channels[channel_index];
+    // In compact, fixed-channel requests track data follows type
+    const Uint8* track = request + 1;
+
+    if (((channel->priority & 0x7F) > (track[0] & 0x7F)) && ((channel->state & 0x80) == 0)) {
+        return;
+    }
+
+    channel->stream = track;
+
+    ss_load_default_instrument(channel);
+
+    channel->unk_42 = 0;
+    channel->unk_48 = 0;
+    channel->unk_4A = 0;
+    channel->unk_4C = 0;
+    channel->unk_4E = 0;
+    channel->unk_50 = 0;
+    channel->unk_52 = 0;
+    channel->unk_54 = 0;
+    ss_set_sfx_mix_defaults(channel);
+    channel->priority = track[0] | 0x80;
+    channel->unk_6D = 0x40;
+
+    SsPanDescriptor* pan = &ss_pan_descriptors[channel_index];
+
+    ss_setup_pan(pan, pan_control);
+
+    channel->state = 0;
+}
+
 /* 0x061394D4 */
 void SsRequestCore(Uint16 req_number, Sint16 pan_control) {
     req_number %= ss_request_count;
@@ -119,203 +312,11 @@ void SsRequestCore(Uint16 req_number, Sint16 pan_control) {
     const Uint8* track_offsets = request + 1;
 
     if (type == 0) {
-        SsResetBgmChannels();
-
-        for (int i = 0; i < SDL_arraysize(ss_bgm_channels); i++) {
-            SsChannelState* channel = &ss_bgm_channels[i];
-            const Uint32 track_offset = SS_READ_BE16(track_offsets + i * 2);
-
-            if (track_offset == 0) {
-                channel->state = SS_CHANNEL_STATE_FREE;
-                continue;
-            }
-
-            const Uint8* track = request + track_offset;
-            channel->track = track;
-
-            Uint32 delay;
-            channel->stream = track + SsReadDelay(track, &delay);
-            channel->delay = delay << 8;
-            channel->state = 0x20;
-
-            const Uint8* instrument_bank = ss_instrument_banks[0];
-            const Uint8* instrument = instrument_bank + SS_READ_BE16(instrument_bank);
-            channel->instrument = instrument;
-            channel->sample_header = &ss_sample_headers[SS_READ_BE16(instrument + 4)];
-
-            channel->unk_24 = 0;
-            channel->unk_10 = 0;
-            channel->unk_14 = 0;
-            channel->unk_18 = 0;
-            channel->unk_1C = 0;
-            channel->unk_20 = 0;
-            channel->unk_3C = 0;
-            channel->unk_3E = 0;
-            channel->unk_40 = 0;
-            channel->unk_42 = 0;
-            channel->unk_44 = 0;
-            channel->unk_46 = 0;
-            channel->unk_48 = 0;
-            channel->unk_4A = 0;
-            channel->unk_4C = 0;
-            channel->unk_4E = 0;
-            channel->unk_50 = 0;
-            channel->unk_52 = 0;
-            channel->unk_54 = 0;
-            channel->unk_5A = 0;
-            channel->unk_5B = 0;
-            channel->unk_5C = 0;
-            channel->unk_5D = 0;
-            channel->unk_65 = 0;
-            channel->unk_6C = 0;
-            channel->unk_6E = 0;
-            channel->priority = type;
-            channel->unk_62 = 0;
-            channel->unk_63 = 0;
-            channel->unk_64 = 0x40;
-            channel->unk_58 = 0;
-            channel->unk_56 = 0;
-            channel->unk_5F = 0;
-            channel->unk_60 = 0x40;
-            channel->unk_66 = 0;
-            channel->unk_67 = 0;
-            channel->unk_69 = 0;
-            channel->unk_6A = 0;
-            channel->unk_68 = 0;
-            channel->unk_6B = 0;
-            channel->unk_6D = 0x40;
-            channel->unk_70 = 0;
-        }
-
-        if ((ss_state_flags & 8) == 0) {
-            ss_unk_02078D04 = 0x8000;
-        }
-
-        ss_unk_02007EE8 = 0;
-        ss_unk_02079C14 = 0;
-        ss_state_flags |= 2;
+        ss_start_bgm_request(request, track_offsets, type);
     } else if ((type & 0x80) == 0) {
-        for (int i = 0; i < SDL_arraysize(ss_sfx_channels); i++) {
-            SsPanDescriptor* pan = &ss_pan_descriptors[i];
-            SsChannelState* channel = &ss_sfx_channels[i];
-            const Uint32 track_offset = SS_READ_BE16(track_offsets + i * 2);
-
-            if ((track_offset == 0) || ((channel->priority > type) && ((channel->state & 0x80) == 0))) {
-                continue;
-            }
-
-            const Uint8* track = request + track_offset;
-
-            Uint32 delay;
-            channel->stream = track + SsReadDelay(track, &delay);
-            channel->delay = delay << 8;
-            channel->state = 0;
-
-            const Uint8* instrument_bank = ss_instrument_banks[0];
-            const Uint8* instrument = instrument_bank + SS_READ_BE16(instrument_bank);
-            channel->instrument = instrument;
-            channel->sample_header = &ss_sample_headers[SS_READ_BE16(instrument + 4)];
-
-            channel->unk_10 = 0;
-            channel->unk_14 = 0;
-            channel->unk_18 = 0;
-            channel->unk_1C = 0;
-            channel->unk_20 = 0;
-            channel->unk_3C = 0;
-            channel->unk_3E = 0;
-            channel->unk_40 = 0;
-            channel->unk_42 = 0;
-            channel->unk_44 = 0;
-            channel->unk_46 = 0;
-            channel->unk_48 = 0;
-            channel->unk_4A = 0;
-            channel->unk_4C = 0;
-            channel->unk_4E = 0;
-            channel->unk_50 = 0;
-            channel->unk_52 = 0;
-            channel->unk_54 = 0;
-            channel->unk_5A = 0;
-            channel->unk_5B = 0;
-            channel->unk_5C = 0;
-            channel->unk_5D = 0;
-            channel->unk_65 = 0;
-            channel->unk_6C = 0;
-            channel->unk_6D = 0x40;
-            channel->unk_6E = 0;
-            channel->priority = type;
-            channel->unk_62 = 0;
-            channel->unk_63 = 0x7F;
-            channel->unk_64 = 0x7F;
-            channel->unk_58 = 0;
-            channel->unk_56 = 0;
-            channel->unk_5F = 0;
-            channel->unk_60 = 0x40;
-            channel->unk_66 = 0;
-            channel->unk_67 = 0;
-            channel->unk_69 = 0;
-            channel->unk_6A = 0;
-            channel->unk_68 = 0;
-            channel->unk_6D = 0x40;
-            channel->unk_70 = 0;
-
-            if (pan_control == -1) {
-                pan->start = 0;
-                pan->end = 0;
-                pan->step = 0;
-                pan->control = -1;
-            } else {
-                *pan = ss_pan_tmp;
-            }
-
-            ss_channel_aux[i] = 0;
-        }
+        ss_start_sfx_request(request, track_offsets, type, pan_control);
     } else {
-        const int channel_index = type & 0x0F;
-        SsChannelState* channel = &ss_sfx_channels[channel_index];
-        // In compact, fixed-channel requests track data follows type
-        const Uint8* track = request + 1;
-
-        if (((channel->priority & 0x7F) > (track[0] & 0x7F)) && ((channel->state & 0x80) == 0)) {
-            return;
-        }
-
-        channel->stream = track;
-
-        const Uint8* instrument_bank = ss_instrument_banks[0];
-        const Uint8* instrument = instrument_bank + SS_READ_BE16(instrument_bank);
-        channel->instrument = instrument;
-        channel->sample_header = &ss_sample_headers[SS_READ_BE16(instrument + 4)];
-
-        channel->unk_42 = 0;
-        channel->unk_48 = 0;
-        channel->unk_4A = 0;
-        channel->unk_4C = 0;
-        channel->unk_4E = 0;
-        channel->unk_50 = 0;
-        channel->unk_52 = 0;
-        channel->unk_54 = 0;
-        channel->unk_62 = 0;
-        channel->unk_63 = 0x7F;
-        channel->unk_64 = 0x7F;
-        channel->unk_58 = 0;
-        channel->unk_56 = 0;
-        channel->unk_5F = 0;
-        channel->unk_60 = 0x40;
-        channel->priority = track[0] | 0x80;
-        channel->unk_6D = 0x40;
-
-        SsPanDescriptor* pan = &ss_pan_descriptors[channel_index];
-
-        if (pan_control == -1) {
-            pan->start = 0;
-            pan->end = 0;
-            pan->step = 0;
-            pan->control = -1;
-        } else {
-            *pan = ss_pan_tmp;
-        }
-
-        channel->state = 0;
+        ss_start_fixed_channel_request(request, type, pan_control);
     }
 }
 

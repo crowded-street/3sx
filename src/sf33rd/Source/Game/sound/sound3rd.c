@@ -238,55 +238,10 @@ void setSeVolume() {
     }
 }
 
-void sound_request_for_dc(SoundPatchConfig* rmc, s16 pan) {
-    if (rmc->ptix != 0x7F) {
-        if (pan < -0x20) {
-            pan = -0x20;
-        }
-
-        if (pan > 0x20) {
-            pan = 0x20;
-        }
-
-        if (rmc->code > 0x7F) {
-            rmc->port = 0;
-        }
-
-        cseTsbRequest(rmc->ptix, rmc->code, 2, 6, pan, 2, rmc->port);
-        return;
-    }
-
-    bgm_req.req = 1;
-
-    switch (bgm_req.kind = rmc->bank) {
-    case 5:
-        if (bgm_exe.kind == 5) {
-            bgm_req.req = 0;
-            break;
-        }
-
-    case 7:
-        bgm_req.data = rmc->port;
-        bgm_req.code = -1;
-        break;
-
-    case 9:
-        if ((adx_now_playing() != 0) && (bgm_exe.code == rmc->code)) {
-            bgm_req.kind = 7;
-            bgm_req.data = 0;
-            bgm_req.code = -1;
-            return;
-        }
-
-        bgm_req.kind = 4;
-        /* fallthrough */
-
-    case 2:
-    case 4:
-        bgm_req.data = 0;
-        bgm_req.code = rmc->code;
-        break;
-
+/* The rest of the request kinds: the volume-and-code form, the four that clear the code,
+ * and everything the table does not name. The case labels are the original ones. */
+static void latch_bgm_simple_request(SoundPatchConfig* rmc) {
+    switch (bgm_req.kind) {
     case 6:
         bgm_req.data = rmc->port;
         bgm_req.code = rmc->code;
@@ -305,11 +260,241 @@ void sound_request_for_dc(SoundPatchConfig* rmc, s16 pan) {
     }
 }
 
-void BGM_Server() {
-    if (!(system_init_level & 2)) {
+/* The play kinds. Kind 9 is a restart that turns into a plain resume when the track asked
+ * for is the one already playing; otherwise it becomes kind 4 and falls into it, exactly as
+ * it did inside the one switch. The case labels are the original ones. */
+static void latch_bgm_play_request(SoundPatchConfig* rmc) {
+    switch (bgm_req.kind) {
+    case 9:
+        if ((adx_now_playing() != 0) && (bgm_exe.code == rmc->code)) {
+            bgm_req.kind = 7;
+            bgm_req.data = 0;
+            bgm_req.code = -1;
+            return;
+        }
+
+        bgm_req.kind = 4;
+        /* fallthrough */
+
+    case 2:
+    case 4:
+        bgm_req.data = 0;
+        bgm_req.code = rmc->code;
+        break;
+
+    default:
+        latch_bgm_simple_request(rmc);
+        break;
+    }
+}
+
+/* Turn a BGM patch into the pending request the server will act on next frame. */
+static void latch_bgm_request(SoundPatchConfig* rmc) {
+    switch (bgm_req.kind = rmc->bank) {
+    case 5:
+        if (bgm_exe.kind == 5) {
+            bgm_req.req = 0;
+            break;
+        }
+
+    case 7:
+        bgm_req.data = rmc->port;
+        bgm_req.code = -1;
+        break;
+
+    default:
+        latch_bgm_play_request(rmc);
+        break;
+    }
+}
+
+/* A sound effect: clamp the pan to the hardware's range and hand the patch to the TSB
+ * driver. */
+static void request_se_with_pan(SoundPatchConfig* rmc, s16 pan) {
+    if (pan < -0x20) {
+        pan = -0x20;
+    }
+
+    if (pan > 0x20) {
+        pan = 0x20;
+    }
+
+    if (rmc->code > 0x7F) {
+        rmc->port = 0;
+    }
+
+    cseTsbRequest(rmc->ptix, rmc->code, 2, 6, pan, 2, rmc->port);
+}
+
+void sound_request_for_dc(SoundPatchConfig* rmc, s16 pan) {
+    if (rmc->ptix != 0x7F) {
+        request_se_with_pan(rmc, pan);
         return;
     }
 
+    bgm_req.req = 1;
+
+    latch_bgm_request(rmc);
+}
+
+/* Whether the seamless chain has to be (re)started: none is running, or the track
+ * asked for is not the one that is. */
+static s32 bgm_seamless_chain_must_restart() {
+    return (bgm_exe.nowSeamless == 0) || (bgm_exe.code != current_bgm);
+}
+
+/* Queue the selected entry and, the first time round, hand ADX the seamless chain. */
+static void bgm_enter_seamless_playback() {
+    bgm_play_request(bgm_exe.exEntry, 0);
+
+    if (bgm_exe.nowSeamless == 0) {
+        bgm_exe.nowSeamless = 1;
+
+        ADX_StartSeamless();
+    }
+}
+
+/* Lift the pause the play arm left on, if one is still on. */
+static void bgm_resume_if_paused() {
+    if (ADX_IsPaused()) {
+        ADX_Pause(0);
+    }
+}
+
+/* Whether the requested BGM is stitched together from seamless entries rather than
+ * played as one file. */
+static s32 bgm_plays_seamless_entries() {
+    return (bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0x4000) && (bgm_separate_check() != 0);
+}
+
+/* Start whatever track `bgm_exe.code` names: from memory when the matching ADX set is
+ * resident, otherwise through the file request path. */
+static void bgm_start_current_track() {
+    if (adx_NowOnMemoryType == sys_w.bgm_type) {
+        switch (bgm_exe.code) {
+        case 0x33:
+            ADX_StartMem(adx_VS, sizeof(adx_VS));
+            break;
+
+        case 0x39:
+            ADX_StartMem(adx_EmSel, sizeof(adx_EmSel));
+            break;
+
+        default:
+            bgm_play_request(bgm_exe.code, 1);
+            break;
+        }
+    } else {
+        bgm_play_request(bgm_exe.code, 1);
+    }
+}
+
+/* The fade-in's own start of the track: seamless chain if this one uses one,
+ * otherwise a plain play. Unlike the restart arm it does not settle the volume
+ * here - the fade does that. */
+static void bgm_start_for_fade_in() {
+    if (bgm_plays_seamless_entries()) {
+        if (bgm_seamless_chain_must_restart()) {
+            bgm_exe.exIndex = bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0xFF;
+            bgm_exe.exEntry = bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numStart;
+
+            if (bgm_exe.nowSeamless == 0) {
+                ADX_Stop();
+            }
+
+            bgm_enter_seamless_playback();
+        }
+    } else {
+        bgm_seamless_clear();
+
+        bgm_start_current_track();
+    }
+}
+
+static void bgm_fade_out_step() {
+    switch (bgm_exe.rno) {
+    case 0:
+        bgm_fade.in.dex.hi = bgm_vol_now;
+        bgm_fade.in.dex.low = -0x8000;
+        bgm_fade.speed = -(bgm_fade.in.cal / bgm_exe.data);
+        bgm_fade.in.cal = 0;
+        bgm_exe.rno = 1;
+        /* fallthrough */
+
+    case 1:
+        if (adx_now_playing() == 0) {
+            bgm_exe.rno = 3;
+            break;
+        } else {
+            bgm_exe.rno = 2;
+            bgm_exe.volume = 0;
+        }
+
+        /* fallthrough */
+
+    case 2:
+        bgm_fade.in.cal += bgm_fade.speed;
+        bgm_volume_setup(bgm_fade.in.dex.hi);
+
+        if (bgm_vol_now) {
+            break;
+        }
+
+        /* fallthrough */
+
+    default:
+        bgm_exe.kind = 1;
+        break;
+    }
+}
+
+static void bgm_fade_in_step() {
+    switch (bgm_exe.rno) {
+    case 0:
+        bgm_fade.in.dex.hi = bgm_vol_mix;
+        bgm_fade.in.dex.low = -0x8000;
+        bgm_fade.speed = bgm_fade.in.cal / bgm_exe.data;
+
+        bgm_start_for_fade_in();
+
+        bgm_resume_if_paused();
+
+        bgm_volume_setup(-0x7F);
+        current_bgm = bgm_exe.code;
+        bgm_exe.rno = 1;
+        bgm_fade.in.dex.hi = -bgm_vol_mix;
+        bgm_fade.in.dex.low = -0x8000;
+        /* fallthrough */
+
+    case 1:
+        if (adx_now_playing() != 0) {
+            bgm_exe.rno = 2;
+            bgm_exe.volume = 0;
+        } else {
+            break;
+        }
+
+        /* fallthrough */
+
+    case 2:
+        bgm_fade.in.cal += bgm_fade.speed;
+        bgm_volume_setup(bgm_fade.in.dex.hi);
+
+        if (bgm_vol_now < bgm_vol_mix) {
+            break;
+        }
+
+        /* fallthrough */
+
+    default:
+        bgm_exe.kind = 0;
+        break;
+    }
+}
+
+/* Take a pending request into the execution record, and cancel the play outright for a
+ * track whose table entry is marked unplayable. */
+static void bgm_latch_request() {
     if (bgm_req.req) {
         bgm_req.req = 0;
         bgm_exe.kind = bgm_req.kind;
@@ -324,7 +509,109 @@ void BGM_Server() {
         if (bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0x8000) {
             bgm_exe.kind = 0;
         }
+}
+}
+
+/* Start a track from a stop: seamless chain if it has one, otherwise a paused plain
+ * play. */
+static void bgm_begin_playback() {
+    ADX_Stop();
+
+    if (bgm_plays_seamless_entries()) {
+        bgm_exe.exIndex = bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0xFF;
+        bgm_exe.exEntry = bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numStart;
+        bgm_volume_setup(0);
+        ADX_Pause(1);
+
+        bgm_play_request(bgm_exe.exEntry, 0);
+        bgm_exe.nowSeamless = 1;
+
+        ADX_StartSeamless();
+    } else {
+        bgm_seamless_clear();
+        bgm_volume_setup(0);
+
+        ADX_Pause(1);
+
+        bgm_start_current_track();
+}
+
+current_bgm = bgm_exe.code;
+bgm_exe.kind = 0;
+}
+
+/* Restart a track that may already be playing, leaving a live seamless chain alone. */
+static void bgm_restart_playback() {
+    if (bgm_plays_seamless_entries()) {
+        if (bgm_seamless_chain_must_restart()) {
+            bgm_exe.exIndex = bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0xFF;
+            bgm_exe.exEntry = bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numStart;
+
+            if (bgm_exe.nowSeamless == 0) {
+                ADX_Stop();
+                bgm_volume_setup(0);
+            }
+
+            bgm_enter_seamless_playback();
+        }
+    } else {
+        bgm_seamless_clear();
+        bgm_volume_setup(0);
+
+        bgm_start_current_track();
+}
+
+bgm_resume_if_paused();
+
+current_bgm = bgm_exe.code;
+bgm_exe.kind = 0;
+}
+
+/* Queue the next entry of a running seamless chain, looping at its end. */
+static void bgm_advance_seamless_chain() {
+    if (bgm_exe.nowSeamless && (ADX_GetNumFiles() <= 0)) {
+        bgm_exe.exEntry += 1;
+
+        if (bgm_exe.exEntry > bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numEnd) {
+            bgm_exe.exEntry = bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numLoop;
+        }
+
+        bgm_play_request(bgm_exe.exEntry, 0);
     }
+}
+
+/* The fade and volume half of the BGM state machine. The case labels are the original
+ * ones, so a kind still reads as the number the rest of the engine uses. */
+static void bgm_serve_fade_and_volume() {
+    switch (bgm_exe.kind) {
+    case 5:
+        bgm_fade_out_step();
+
+        break;
+
+    case 6:
+        bgm_fade_in_step();
+
+        break;
+
+    case 7:
+        bgm_vol_mix = bgm_level * bgm_table[sys_w.bgm_type][current_bgm].vol / 15;
+        bgm_volume_setup(bgm_exe.data);
+        bgm_exe.kind = 0;
+        break;
+
+    case 8:
+        bgm_exe.kind = 0;
+        break;
+    }
+}
+
+void BGM_Server() {
+    if (!(system_init_level & 2)) {
+        return;
+    }
+
+    bgm_latch_request();
 
     if (bgm_exe.code != 0) {
         bgm_vol_mix = bgm_level * bgm_table[sys_w.bgm_type][bgm_exe.code].vol / 15;
@@ -339,45 +626,7 @@ void BGM_Server() {
         break;
 
     case 2:
-        ADX_Stop();
-
-        if ((bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0x4000) && (bgm_separate_check() != 0)) {
-            bgm_exe.exIndex = bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0xFF;
-            bgm_exe.exEntry = bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numStart;
-            bgm_volume_setup(0);
-            ADX_Pause(1);
-
-            bgm_play_request(bgm_exe.exEntry, 0);
-            bgm_exe.nowSeamless = 1;
-
-            ADX_StartSeamless();
-        } else {
-            bgm_seamless_clear();
-            bgm_volume_setup(0);
-
-            ADX_Pause(1);
-
-            if (adx_NowOnMemoryType == sys_w.bgm_type) {
-                switch (bgm_exe.code) {
-                case 0x33:
-                    ADX_StartMem(adx_VS, sizeof(adx_VS));
-                    break;
-
-                case 0x39:
-                    ADX_StartMem(adx_EmSel, sizeof(adx_EmSel));
-                    break;
-
-                default:
-                    bgm_play_request(bgm_exe.code, 1);
-                    break;
-                }
-            } else {
-                bgm_play_request(bgm_exe.code, 1);
-            }
-        }
-
-        current_bgm = bgm_exe.code;
-        bgm_exe.kind = 0;
+        bgm_begin_playback();
         break;
 
     case 3:
@@ -387,197 +636,15 @@ void BGM_Server() {
         break;
 
     case 4:
-        if ((bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0x4000) && (bgm_separate_check() != 0)) {
-            if ((bgm_exe.nowSeamless == 0) || (bgm_exe.code != current_bgm)) {
-                bgm_exe.exIndex = bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0xFF;
-                bgm_exe.exEntry = bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numStart;
-
-                if (bgm_exe.nowSeamless == 0) {
-                    ADX_Stop();
-                    bgm_volume_setup(0);
-                }
-
-                bgm_play_request(bgm_exe.exEntry, 0);
-
-                if (bgm_exe.nowSeamless == 0) {
-                    bgm_exe.nowSeamless = 1;
-
-                    ADX_StartSeamless();
-                }
-            }
-        } else {
-            bgm_seamless_clear();
-            bgm_volume_setup(0);
-
-            if (adx_NowOnMemoryType == sys_w.bgm_type) {
-                switch (bgm_exe.code) {
-                case 0x33:
-                    ADX_StartMem(adx_VS, sizeof(adx_VS));
-                    break;
-
-                case 0x39:
-                    ADX_StartMem(adx_EmSel, sizeof(adx_EmSel));
-                    break;
-
-                default:
-                    bgm_play_request(bgm_exe.code, 1);
-                    break;
-                }
-            } else {
-                bgm_play_request(bgm_exe.code, 1);
-            }
-        }
-
-        if (ADX_IsPaused()) {
-            ADX_Pause(0);
-        }
-
-        current_bgm = bgm_exe.code;
-        bgm_exe.kind = 0;
+        bgm_restart_playback();
         break;
 
-    case 5:
-        switch (bgm_exe.rno) {
-        case 0:
-            bgm_fade.in.dex.hi = bgm_vol_now;
-            bgm_fade.in.dex.low = -0x8000;
-            bgm_fade.speed = -(bgm_fade.in.cal / bgm_exe.data);
-            bgm_fade.in.cal = 0;
-            bgm_exe.rno = 1;
-            /* fallthrough */
-
-        case 1:
-            if (adx_now_playing() == 0) {
-                bgm_exe.rno = 3;
-                break;
-            } else {
-                bgm_exe.rno = 2;
-                bgm_exe.volume = 0;
-            }
-
-            /* fallthrough */
-
-        case 2:
-            bgm_fade.in.cal += bgm_fade.speed;
-            bgm_volume_setup(bgm_fade.in.dex.hi);
-
-            if (bgm_vol_now) {
-                break;
-            }
-
-            /* fallthrough */
-
-        default:
-            bgm_exe.kind = 1;
-            break;
-        }
-
-        break;
-
-    case 6:
-        switch (bgm_exe.rno) {
-        case 0:
-            bgm_fade.in.dex.hi = bgm_vol_mix;
-            bgm_fade.in.dex.low = -0x8000;
-            bgm_fade.speed = bgm_fade.in.cal / bgm_exe.data;
-
-            if ((bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0x4000) && (bgm_separate_check() != 0)) {
-                if ((bgm_exe.nowSeamless == 0) || (bgm_exe.code != current_bgm)) {
-                    bgm_exe.exIndex = bgm_table[sys_w.bgm_type][bgm_exe.code].data & 0xFF;
-                    bgm_exe.exEntry = bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numStart;
-
-                    if (bgm_exe.nowSeamless == 0) {
-                        ADX_Stop();
-                    }
-
-                    bgm_play_request(bgm_exe.exEntry, 0);
-
-                    if (bgm_exe.nowSeamless == 0) {
-                        bgm_exe.nowSeamless = 1;
-
-                        ADX_StartSeamless();
-                    }
-                }
-            } else {
-                bgm_seamless_clear();
-
-                if (adx_NowOnMemoryType == sys_w.bgm_type) {
-                    switch (bgm_exe.code) {
-                    case 0x33:
-                        ADX_StartMem(adx_VS, sizeof(adx_VS));
-                        break;
-
-                    case 0x39:
-                        ADX_StartMem(adx_EmSel, sizeof(adx_EmSel));
-                        break;
-
-                    default:
-                        bgm_play_request(bgm_exe.code, 1);
-                        break;
-                    }
-                } else {
-                    bgm_play_request(bgm_exe.code, 1);
-                }
-            }
-
-            if (ADX_IsPaused()) {
-                ADX_Pause(0);
-            }
-
-            bgm_volume_setup(-0x7F);
-            current_bgm = bgm_exe.code;
-            bgm_exe.rno = 1;
-            bgm_fade.in.dex.hi = -bgm_vol_mix;
-            bgm_fade.in.dex.low = -0x8000;
-            /* fallthrough */
-
-        case 1:
-            if (adx_now_playing() != 0) {
-                bgm_exe.rno = 2;
-                bgm_exe.volume = 0;
-            } else {
-                break;
-            }
-
-            /* fallthrough */
-
-        case 2:
-            bgm_fade.in.cal += bgm_fade.speed;
-            bgm_volume_setup(bgm_fade.in.dex.hi);
-
-            if (bgm_vol_now < bgm_vol_mix) {
-                break;
-            }
-
-            /* fallthrough */
-
-        default:
-            bgm_exe.kind = 0;
-            break;
-        }
-
-        break;
-
-    case 7:
-        bgm_vol_mix = bgm_level * bgm_table[sys_w.bgm_type][current_bgm].vol / 15;
-        bgm_volume_setup(bgm_exe.data);
-        bgm_exe.kind = 0;
-        break;
-
-    case 8:
-        bgm_exe.kind = 0;
+    default:
+        bgm_serve_fade_and_volume();
         break;
     }
 
-    if (bgm_exe.nowSeamless && (ADX_GetNumFiles() <= 0)) {
-        bgm_exe.exEntry += 1;
-
-        if (bgm_exe.exEntry > bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numEnd) {
-            bgm_exe.exEntry = bgm_exdata[sys_w.bgm_type][bgm_exe.exIndex].numLoop;
-        }
-
-        bgm_play_request(bgm_exe.exEntry, 0);
-    }
+    bgm_advance_seamless_chain();
 }
 
 s32 bgm_separate_check() {
@@ -690,80 +757,67 @@ void SsRequestPan(u16 reqNum, s16 start, s16 /* unused */, s32 /* unused */, s32
     sound_request_for_dc(&rmcode, start);
 }
 
-u16 remake_sound_code_for_DC(u16 code, SoundPatchConfig* rmcode) {
-    u16 cd;
-    u16 mtf;
-    u16 p2s;
-    u16 rnum;
+/* The BGM patch for a bank-2000 or bank-3000 code: port 0 unshifted, and the bank's
+ * own offset when the code came from the PS2 range. */
+static void set_bgm_patch_port(SoundPatchConfig* rmcode, u16 p2s, s16 shifted_port) {
+    rmcode->ptix = 0;
+    rmcode->bank = 0;
 
-    rnum = mtf = p2s = 0;
-
-    if (code >= 0x760) {
-        code -= 0x600;
-        mtf = 1;
+    if (p2s) {
+        rmcode->port = shifted_port;
+    } else {
+        rmcode->port = 0;
     }
+}
 
-    if (code >= 0x400) {
-        code -= 0x300;
-        p2s = 1;
+/* The SE patch for one of the four (PS2-shifted, mother-tongue) source combinations. */
+static void set_se_patch_for_source(SoundPatchConfig* rmcode, u16 source) {
+    switch (source) {
+    case 0:
+        rmcode->ptix = 1;
+        rmcode->bank = 0;
+        rmcode->port = 0;
+        break;
+
+    case 1:
+        rmcode->ptix = 2;
+        rmcode->bank = 1;
+        rmcode->port = 3;
+        break;
+
+    case 2:
+        rmcode->ptix = 2;
+        rmcode->bank = 1;
+        rmcode->port = 0;
+        rmcode->code += 32;
+        break;
+
+    case 3:
+        rmcode->ptix = 1;
+        rmcode->bank = 0;
+        rmcode->port = 3;
+        rmcode->code += 32;
+        break;
     }
+}
 
-    rmcode->code = (cd = sdcode_conv[code]) & 0xFFF;
+/* Fill in the patch for a converted sound code, and report whether the code was one the
+ * table does not know. */
+static u16 assign_sound_patch(SoundPatchConfig* rmcode, u16 cd, u16 p2s, u16 mtf) {
+    u16 rnum = 0;
 
     switch (cd & 0xF000) {
     case 0x0:
-        switch (p2s + mtf * 2) {
-        case 0:
-            rmcode->ptix = 1;
-            rmcode->bank = 0;
-            rmcode->port = 0;
-            break;
-
-        case 1:
-            rmcode->ptix = 2;
-            rmcode->bank = 1;
-            rmcode->port = 3;
-            break;
-
-        case 2:
-            rmcode->ptix = 2;
-            rmcode->bank = 1;
-            rmcode->port = 0;
-            rmcode->code += 32;
-            break;
-
-        case 3:
-            rmcode->ptix = 1;
-            rmcode->bank = 0;
-            rmcode->port = 3;
-            rmcode->code += 32;
-            break;
-        }
+        set_se_patch_for_source(rmcode, p2s + mtf * 2);
 
         break;
 
     case 0x2000:
-        rmcode->ptix = 0;
-        rmcode->bank = 0;
-
-        if (p2s) {
-            rmcode->port = 3;
-        } else {
-            rmcode->port = 0;
-        }
-
+        set_bgm_patch_port(rmcode, p2s, 3);
         break;
 
     case 0x3000:
-        rmcode->ptix = 0;
-        rmcode->bank = 0;
-
-        if (p2s) {
-            rmcode->port = -3;
-        } else {
-            rmcode->port = 0;
-        }
-
+        set_bgm_patch_port(rmcode, p2s, -3);
         break;
 
     case 0x8000:
@@ -783,6 +837,28 @@ u16 remake_sound_code_for_DC(u16 code, SoundPatchConfig* rmcode) {
     }
 
     return rnum;
+}
+
+u16 remake_sound_code_for_DC(u16 code, SoundPatchConfig* rmcode) {
+    u16 cd;
+    u16 mtf;
+    u16 p2s;
+
+    mtf = p2s = 0;
+
+    if (code >= 0x760) {
+        code -= 0x600;
+        mtf = 1;
+    }
+
+    if (code >= 0x400) {
+        code -= 0x300;
+        p2s = 1;
+    }
+
+    rmcode->code = (cd = sdcode_conv[code]) & 0xFFF;
+
+    return assign_sound_patch(rmcode, cd, p2s, mtf);
 }
 
 void SsRequest(u16 ReqNumber) {
