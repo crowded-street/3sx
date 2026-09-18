@@ -142,7 +142,21 @@ static bool is_matching_trans_entry(TileMapEntry* trsptr, s32 cods, s32 atrs) {
     return !(trsptr->attr & 0x1000) && (trsptr->code == cods) && ((trsptr->attr & 0xF) == atrs);
 }
 
-static void search_trsptr(void* trstbl, s32 i, s32 n, s32 cods, s32 atrs, s32 codd, s32 atrd) {
+// One rewrite of a melted tile across a group's trans tables: which table and
+// which range of it to walk, the code and attribute to match, and the pair to
+// put in their place. These are search_trsptr's seven arguments, in order.
+typedef struct {
+    void* trstbl;
+    s32 i;
+    s32 n;
+    s32 cods;
+    s32 atrs;
+    s32 codd;
+    s32 atrd;
+} TransSwap;
+
+static void search_trsptr(const TransSwap* sw) {
+    s32 atrd = sw->atrd;
     s32 j;
     u16* tmpbas;
     s32 ctemp;
@@ -151,15 +165,15 @@ static void search_trsptr(void* trstbl, s32 i, s32 n, s32 cods, s32 atrs, s32 co
 
     atrd &= 0x3FFF;
 
-    for (j = i; j < n; j++) {
-        tmpbas = (u16*)(trstbl + ((u32*)trstbl)[j]);
+    for (j = sw->i; j < sw->n; j++) {
+        tmpbas = (u16*)(sw->trstbl + ((u32*)sw->trstbl)[j]);
         ctemp = *tmpbas;
         tmpbas++;
         tmpptr = (TileMapEntry*)tmpbas;
 
         while (ctemp != 0) {
-            if (is_matching_trans_entry(tmpptr, cods, atrs)) {
-                tmpptr->code = codd;
+            if (is_matching_trans_entry(tmpptr, sw->cods, sw->atrs)) {
+                tmpptr->code = sw->codd;
                 tmpptr->attr = (tmpptr->attr & 0xC000) | atrd;
             }
 
@@ -1993,7 +2007,7 @@ static s32 reload_melt16_tile(MultiTexture* mt, TEX* texptr, s32 size, s32 dd, T
     attr = (trsptr->attr & 0xC000) | 0x1000 | dd;
     trsptr->attr |= 0x1000;
     attr |= palt;
-    search_trsptr(trans_table, group_index, group_count, trsptr->code, palt, code, attr);
+    search_trsptr(&(TransSwap){ trans_table, group_index, group_count, trsptr->code, palt, code, attr });
     trsptr->code = code;
     trsptr->attr = attr;
     code += 1;
@@ -2065,7 +2079,7 @@ void mlt_obj_melt2(MultiTexture* mt, u16 cg_number) {
                 attr = (attr & 0xC000) | 0x3000 | dd;
                 trsptr->attr |= 0x1000;
                 attr |= palt;
-                search_trsptr(grplds->trans_table, i, n, trsptr->code, palt, cd32, attr);
+                search_trsptr(&(TransSwap){ grplds->trans_table, i, n, trsptr->code, palt, cd32, attr });
                 trsptr->code = cd32;
                 trsptr->attr = attr;
                 cd32 += 1;
