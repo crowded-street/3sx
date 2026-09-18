@@ -238,21 +238,27 @@ void setSeVolume() {
     }
 }
 
+/* A sound effect: clamp the pan to the hardware's range and hand the patch to the TSB
+ * driver. */
+static void request_se_with_pan(SoundPatchConfig* rmc, s16 pan) {
+    if (pan < -0x20) {
+        pan = -0x20;
+    }
+
+    if (pan > 0x20) {
+        pan = 0x20;
+    }
+
+    if (rmc->code > 0x7F) {
+        rmc->port = 0;
+    }
+
+    cseTsbRequest(rmc->ptix, rmc->code, 2, 6, pan, 2, rmc->port);
+}
+
 void sound_request_for_dc(SoundPatchConfig* rmc, s16 pan) {
     if (rmc->ptix != 0x7F) {
-        if (pan < -0x20) {
-            pan = -0x20;
-        }
-
-        if (pan > 0x20) {
-            pan = 0x20;
-        }
-
-        if (rmc->code > 0x7F) {
-            rmc->port = 0;
-        }
-
-        cseTsbRequest(rmc->ptix, rmc->code, 2, 6, pan, 2, rmc->port);
+        request_se_with_pan(rmc, pan);
         return;
     }
 
