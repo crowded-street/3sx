@@ -118,12 +118,16 @@ u8 Check_SoftReset(s16 PL_id) {
     return RESET_X = 0;
 }
 
+static s32 in_early_game_step() {
+    return (G_No[0] == 1) || ((G_No[0] == 2) && (G_No[1] == 0));
+}
+
 s32 Setup_Next_Disposal() {
     if (Reset_Bootrom) {
         return 1;
     }
 
-    if ((G_No[0] == 1) || ((G_No[0] == 2) && (G_No[1] == 0))) {
+    if (in_early_game_step()) {
         return 1;
     }
 
