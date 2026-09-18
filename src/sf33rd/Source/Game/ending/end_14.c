@@ -110,6 +110,58 @@ void end_e00_move() {
     end_e00_jp[end_w.r_no_2]();
 }
 
+/* The second half of the opening scene: the colour cycle and the slide to rest. The
+ * case labels are the original ones, and the fallthroughs from 4 into 5 and 5 into
+ * 6 travel with them. */
+static void end_e00_0000_settle() {
+    switch (bgw_ptr->r_no_1) {
+    case 4:
+        bgw_ptr->r_no_1++;
+        bgw_ptr->free = 7;
+        bgw_ptr->l_limit = 0;
+        g_kakikae[0] = 1;
+        /* fallthrough */
+
+    case 5:
+        if (end_e00_0000_col_sub()) {
+            bgw_ptr->r_no_1++;
+        }
+
+        /* fallthrough */
+
+    case 6:
+        bgw_ptr->xy[1].cal -= 0x4000;
+
+        if (bgw_ptr->xy[1].disp.pos < 713) {
+            bgw_ptr->r_no_1++;
+            bgw_ptr->xy[1].cal = 0x2C80000;
+            end_w.timer = 20;
+        }
+
+        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+        break;
+
+    case 7:
+        break;
+    }
+}
+
+/* Scroll the panel and its ghost together, clamping the panel at the top and
+ * wrapping it once the ghost has gone past. */
+static void end_e00_0000_scroll_pair() {
+    bgw_ptr->xy[1].cal -= 0x18000;
+    gxy.xy[1].cal = gxy.xy[1].cal - 0x18000;
+    bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+
+    if (bgw_ptr->xy[1].disp.pos < 0) {
+        bgw_ptr->xy[1].disp.pos = 0;
+    }
+
+    if (gxy.xy[1].disp.pos < -223) {
+        bgw_ptr->xy[1].disp.pos = 752;
+    }
+}
+
 void end_e00_0000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -148,47 +200,12 @@ void end_e00_0000() {
         break;
 
     case 3:
-        bgw_ptr->xy[1].cal -= 0x18000;
-        gxy.xy[1].cal = gxy.xy[1].cal - 0x18000;
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
-
-        if (bgw_ptr->xy[1].disp.pos < 0) {
-            bgw_ptr->xy[1].disp.pos = 0;
-        }
-
-        if (gxy.xy[1].disp.pos < -223) {
-            bgw_ptr->xy[1].disp.pos = 752;
-        }
+        end_e00_0000_scroll_pair();
 
         break;
 
-    case 4:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->free = 7;
-        bgw_ptr->l_limit = 0;
-        g_kakikae[0] = 1;
-        /* fallthrough */
-
-    case 5:
-        if (end_e00_0000_col_sub()) {
-            bgw_ptr->r_no_1++;
-        }
-
-        /* fallthrough */
-
-    case 6:
-        bgw_ptr->xy[1].cal -= 0x4000;
-
-        if (bgw_ptr->xy[1].disp.pos < 713) {
-            bgw_ptr->r_no_1++;
-            bgw_ptr->xy[1].cal = 0x2C80000;
-            end_w.timer = 20;
-        }
-
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
-        break;
-
-    case 7:
+    default:
+        end_e00_0000_settle();
         break;
     }
 }
@@ -282,6 +299,25 @@ void end_e00_1000() {
 
 const u8 end_e00_2000_col_tbl[8] = { 6, 5, 4, 3, 2, 1, 0, 0 };
 
+/* Step the second panel's colour cycle, and move on once it has run its eight
+ * entries. */
+static void end_e00_2000_cycle_colour() {
+    bgw_ptr->free--;
+
+    if (bgw_ptr->free <= 0) {
+        bgw_ptr->l_limit++;
+
+        if (bgw_ptr->l_limit >= 8) {
+            bgw_ptr->r_no_1++;
+            end_w.timer = 120;
+            return;
+        }
+
+        bgw_ptr->free = 8;
+        g_number[1] = end_e00_2000_col_tbl[bgw_ptr->l_limit];
+    }
+}
+
 void end_e00_2000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -312,26 +348,42 @@ void end_e00_2000() {
         break;
 
     case 3:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->l_limit++;
-
-            if (bgw_ptr->l_limit >= 8) {
-                bgw_ptr->r_no_1++;
-                end_w.timer = 120;
-                break;
-            }
-
-            bgw_ptr->free = 8;
-            g_number[1] = end_e00_2000_col_tbl[bgw_ptr->l_limit];
-        }
+        end_e00_2000_cycle_colour();
 
         break;
 
     case 4:
         g_kakikae[1] = 0;
         g_number[1] = 0;
+        break;
+    }
+}
+
+/* The fade out to the next scene, and the panel wipe that follows it. */
+static void end_e00_3000_fade() {
+    switch (bgw_ptr->r_no_1) {
+    case 3:
+        if (Request_Fade(3)) {
+            end_no_cut = 1;
+            bgw_ptr->r_no_1++;
+        }
+
+        break;
+
+    case 4:
+        if (end_fade_complete()) {
+            bgw_ptr->r_no_1++;
+            end_no_cut = 0;
+            end_w.timer = 10;
+            overwrite_panel(0xFFFFFFFF, 0x17);
+            Frame_Down(0xC0, 0x30, 0x10);
+        }
+
+        break;
+
+    case 5:
+        Frame_Down(0xC0, 0x30, 3);
+        overwrite_panel(0xFFFFFFFF, 0x17);
         break;
     }
 }
@@ -364,30 +416,22 @@ void end_e00_3000() {
 
         break;
 
-    case 3:
-        if (Request_Fade(3)) {
-            end_no_cut = 1;
-            bgw_ptr->r_no_1++;
-        }
-
-        break;
-
-    case 4:
-        if (end_fade_complete()) {
-            bgw_ptr->r_no_1++;
-            end_no_cut = 0;
-            end_w.timer = 10;
-            overwrite_panel(0xFFFFFFFF, 0x17);
-            Frame_Down(0xC0, 0x30, 0x10);
-        }
-
-        break;
-
-    case 5:
-        Frame_Down(0xC0, 0x30, 3);
-        overwrite_panel(0xFFFFFFFF, 0x17);
+    default:
+        end_e00_3000_fade();
         break;
     }
+}
+
+/* Scroll the panel down to its resting height. */
+static void end_e00_4000_rise() {
+    bgw_ptr->xy[1].cal += 0x4000;
+
+    if (bgw_ptr->xy[1].disp.pos >= 64) {
+        bgw_ptr->r_no_1++;
+        bgw_ptr->xy[1].cal = 0x400000;
+    }
+
+    bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
 }
 
 void end_e00_4000() {
@@ -423,14 +467,7 @@ void end_e00_4000() {
         break;
 
     case 3:
-        bgw_ptr->xy[1].cal += 0x4000;
-
-        if (bgw_ptr->xy[1].disp.pos >= 64) {
-            bgw_ptr->r_no_1++;
-            bgw_ptr->xy[1].cal = 0x400000;
-        }
-
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+        end_e00_4000_rise();
         break;
 
     case 4:
@@ -452,6 +489,34 @@ void end_e00_5000() {
         break;
 
     case 1:
+        break;
+    }
+}
+
+/* The fade out at the end of the scene, and the panel it leaves behind. The
+ * fallthrough from 4 into 5 travels with them. */
+static void end_e00_6000_fade() {
+    switch (bgw_ptr->r_no_1) {
+    case 3:
+        if (Request_Fade(3)) {
+            end_no_cut = 1;
+            bgw_ptr->r_no_1++;
+        }
+
+        break;
+
+    case 4:
+        if (end_fade_complete()) {
+            bgw_ptr->r_no_1++;
+            end_no_cut = 0;
+            end_w.timer = 10;
+            overwrite_panel(0xFFFFFFFF, 0x17);
+        }
+
+        /* fallthrough */
+
+    case 5:
+        overwrite_panel(0xFFFFFFFF, 0x17);
         break;
     }
 }
@@ -487,28 +552,22 @@ void end_e00_6000() {
 
         break;
 
-    case 3:
-        if (Request_Fade(3)) {
-            end_no_cut = 1;
-            bgw_ptr->r_no_1++;
-        }
-
-        break;
-
-    case 4:
-        if (end_fade_complete()) {
-            bgw_ptr->r_no_1++;
-            end_no_cut = 0;
-            end_w.timer = 10;
-            overwrite_panel(0xFFFFFFFF, 0x17);
-        }
-
-        /* fallthrough */
-
-    case 5:
-        overwrite_panel(0xFFFFFFFF, 0x17);
+    default:
+        end_e00_6000_fade();
         break;
     }
+}
+
+/* Scroll the panel up to its resting height. */
+static void end_e00_7000_settle() {
+    bgw_ptr->xy[1].cal -= 0x3000;
+
+    if (bgw_ptr->xy[1].disp.pos < 697) {
+        bgw_ptr->r_no_1++;
+        bgw_ptr->xy[1].cal = 0x2B80000;
+    }
+
+    bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
 }
 
 void end_e00_7000() {
@@ -548,14 +607,7 @@ void end_e00_7000() {
         /* fallthrough */
 
     case 3:
-        bgw_ptr->xy[1].cal -= 0x3000;
-
-        if (bgw_ptr->xy[1].disp.pos < 697) {
-            bgw_ptr->r_no_1++;
-            bgw_ptr->xy[1].cal = 0x2B80000;
-        }
-
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+        end_e00_7000_settle();
         break;
 
     case 4:
@@ -568,6 +620,45 @@ void end_e01_move() {
                                 end_X_com01,  end_X_com01, end_X_com01, end_e01_7000 };
     bgw_ptr = &bg_w.bgw[1];
     end_101_jp[end_w.r_no_2]();
+}
+
+/* The second half of the middle scene: the drift down, the colour cycle and the slide
+ * to rest. Labels are the original ones, fallthroughs included. */
+static void end_e01_0000_settle() {
+    switch (bgw_ptr->r_no_1) {
+    case 3:
+        bgw_ptr->xy[1].cal -= 0x18000;
+        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+        break;
+
+    case 4:
+        bgw_ptr->r_no_1++;
+        bgw_ptr->free = 7;
+        bgw_ptr->l_limit = 0;
+        /* fallthrough */
+
+    case 5:
+        if (end_e00_0000_col_sub2()) {
+            bgw_ptr->r_no_1++;
+        }
+
+        /* fallthrough */
+
+    case 6:
+        bgw_ptr->xy[1].cal -= 0x4000;
+
+        if (bgw_ptr->xy[1].disp.pos < -311) {
+            bgw_ptr->r_no_1++;
+            bgw_ptr->xy[1].cal = 0xFEC80000;
+            end_w.timer = 20;
+        }
+
+        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+        break;
+
+    case 7:
+        break;
+    }
 }
 
 void end_e01_0000() {
@@ -603,37 +694,8 @@ void end_e01_0000() {
         bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
         break;
 
-    case 3:
-        bgw_ptr->xy[1].cal -= 0x18000;
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
-        break;
-
-    case 4:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->free = 7;
-        bgw_ptr->l_limit = 0;
-        /* fallthrough */
-
-    case 5:
-        if (end_e00_0000_col_sub2()) {
-            bgw_ptr->r_no_1++;
-        }
-
-        /* fallthrough */
-
-    case 6:
-        bgw_ptr->xy[1].cal -= 0x4000;
-
-        if (bgw_ptr->xy[1].disp.pos < -311) {
-            bgw_ptr->r_no_1++;
-            bgw_ptr->xy[1].cal = 0xFEC80000;
-            end_w.timer = 20;
-        }
-
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
-        break;
-
-    case 7:
+    default:
+        end_e01_0000_settle();
         break;
     }
 }

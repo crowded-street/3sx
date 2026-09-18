@@ -115,6 +115,50 @@ void end_400_0000() {
     }
 }
 
+/* Follow a move with the absolute position the scroller reads. */
+static void end_04_commit_position() {
+    bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
+    bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+}
+
+/* Open a scene: step the state and put the panel where this scene starts. */
+static void end_04_open_scene() {
+    bgw_ptr->r_no_1++;
+    bgw_ptr->xy[0].disp.pos = end_4_pos[end_w.r_no_2][0];
+    bgw_ptr->xy[1].disp.pos = end_4_pos[end_w.r_no_2][1];
+}
+
+/* The hold before the drift: when it runs out, set the drift speeds and the drift's
+ * own timer. Reports whether it fired, for the one caller that wrote a break there.
+ * The three scenes differ only in the two speeds. */
+static s32 end_04_launch_drift(s32 speed_x, s32 speed_y) {
+    bgw_ptr->free--;
+
+    if (bgw_ptr->free <= 0) {
+        bgw_ptr->r_no_1++;
+        bgw_ptr->speed_x = speed_x;
+        bgw_ptr->speed_y = speed_y;
+        bgw_ptr->free = 0xF0;
+        return 1;
+    }
+
+    return 0;
+}
+
+/* Drift the panel along its set speeds until the drift's timer runs out. */
+static void end_04_drift_until_done() {
+    bgw_ptr->free--;
+
+    if (bgw_ptr->free <= 0) {
+        bgw_ptr->r_no_1++;
+    } else {
+        bgw_ptr->xy[0].cal -= bgw_ptr->speed_x;
+        bgw_ptr->xy[1].cal += bgw_ptr->speed_y;
+    }
+
+    end_04_commit_position();
+}
+
 void end_400_1000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -123,34 +167,16 @@ void end_400_1000() {
         bgw_ptr->free = 0x12C;
         bgw_ptr->xy[0].disp.pos = end_4_pos[end_w.r_no_2][0];
         bgw_ptr->xy[1].disp.pos = end_4_pos[end_w.r_no_2][1];
-        bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+        end_04_commit_position();
         break;
 
     case 1:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->r_no_1++;
-            bgw_ptr->speed_x = 0x5000;
-            bgw_ptr->speed_y = 0x3000;
-            bgw_ptr->free = 0xF0;
-        }
+        end_04_launch_drift(0x5000, 0x3000);
 
         break;
 
     case 2:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->r_no_1++;
-        } else {
-            bgw_ptr->xy[0].cal -= bgw_ptr->speed_x;
-            bgw_ptr->xy[1].cal += bgw_ptr->speed_y;
-        }
-
-        bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+        end_04_drift_until_done();
         break;
 
     case 3:
@@ -165,12 +191,21 @@ void end_401_move() {
     end_401_jp[end_w.r_no_2]();
 }
 
+/* Slide the panel left until it reaches its mark. */
+static void end_04_slide_to_mark() {
+    bgw_ptr->xy[0].cal -= bgw_ptr->speed_x;
+
+    if (bgw_ptr->xy[0].disp.pos < 161) {
+        bgw_ptr->r_no_1++;
+    }
+
+    bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
+}
+
 void end_401_0000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_4_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_4_pos[end_w.r_no_2][1];
+        end_04_open_scene();
         effect_E6_init(0x5D);
         effect_H1_init();
         bgw_ptr->speed_x = 0xC000;
@@ -178,13 +213,7 @@ void end_401_0000() {
         break;
 
     case 1:
-        bgw_ptr->xy[0].cal -= bgw_ptr->speed_x;
-
-        if (bgw_ptr->xy[0].disp.pos < 161) {
-            bgw_ptr->r_no_1++;
-        }
-
-        bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
+        end_04_slide_to_mark();
         break;
 
     case 2:
@@ -195,44 +224,54 @@ void end_401_0000() {
 void end_401_1000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_4_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_4_pos[end_w.r_no_2][1];
+        end_04_open_scene();
         effect_E6_init(0x5F);
         bgw_ptr->free = 0x12C;
-        bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+        end_04_commit_position();
         break;
 
     case 1:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->r_no_1++;
-            bgw_ptr->speed_x = 0xA000;
-            bgw_ptr->speed_y = 0x6000;
-            bgw_ptr->free = 0xF0;
-        }
+        end_04_launch_drift(0xA000, 0x6000);
 
         break;
 
     case 2:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->r_no_1++;
-        } else {
-            bgw_ptr->xy[0].cal -= bgw_ptr->speed_x;
-            bgw_ptr->xy[1].cal += bgw_ptr->speed_y;
-        }
-
-        bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+        end_04_drift_until_done();
         break;
 
     case 3:
         break;
     }
+}
+
+/* Step the frame zoom in one notch every `interval` frames, and end the scene once it
+ * has run all the way. The three scenes that do this differed only in the interval
+ * and in the timer they leave behind. */
+static void end_04_step_frame_zoom(s16 interval, s16 end_timer) {
+    bg_w.frame_vol--;
+
+    if (bg_w.frame_vol <= 0) {
+        bg_w.frame_vol = interval;
+        bg_w.frame_deff--;
+
+        if (bg_w.frame_deff < 0) {
+            bgw_ptr->r_no_1++;
+            end_w.timer = end_timer;
+            return;
+        }
+
+        Frame_Down(bg_w.center_x, bg_w.center_y, 1);
+    }
+}
+
+/* Start the frame zoom at a centre, with the number of notches it has to run. The
+ * three scenes that do this differed only in those three values. */
+static void end_04_begin_frame_zoom(s16 center_x, s16 center_y, s16 notches) {
+    bg_w.center_x = center_x;
+    bg_w.center_y = center_y;
+    Frame_Up(bg_w.center_x, bg_w.center_y, 0x1E);
+    bg_w.frame_deff = notches;
+    bg_w.frame_vol = 1;
 }
 
 void end_401_2000() {
@@ -245,11 +284,7 @@ void end_401_2000() {
         bgw_ptr->xy[1].disp.pos = end_4_pos[end_w.r_no_2][1];
         bgw_ptr->abs_x = 512;
         bgw_ptr->abs_y = 0;
-        bg_w.center_x = 0xC0;
-        bg_w.center_y = 0x70;
-        Frame_Up(bg_w.center_x, bg_w.center_y, 0x1E);
-        bg_w.frame_deff = 0x33;
-        bg_w.frame_vol = 1;
+        end_04_begin_frame_zoom(0xC0, 0x70, 0x33);
         break;
 
     case 1:
@@ -258,20 +293,7 @@ void end_401_2000() {
         /* fallthrough */
 
     case 2:
-        bg_w.frame_vol--;
-
-        if (bg_w.frame_vol <= 0) {
-            bg_w.frame_vol = 1;
-            bg_w.frame_deff--;
-
-            if (bg_w.frame_deff < 0) {
-                bgw_ptr->r_no_1++;
-                end_w.timer = 0;
-                break;
-            }
-
-            Frame_Down(bg_w.center_x, bg_w.center_y, 1);
-        }
+        end_04_step_frame_zoom(1, 0);
 
         break;
 
@@ -283,36 +305,17 @@ void end_401_2000() {
 void end_401_3000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_4_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_4_pos[end_w.r_no_2][1];
+        end_04_open_scene();
         break;
 
     case 1:
         bgw_ptr->r_no_1++;
         Zoomf_Init();
-        bg_w.center_x = 176;
-        bg_w.center_y = 128;
-        Frame_Up(bg_w.center_x, bg_w.center_y, 0x1E);
-        bg_w.frame_deff = 48;
-        bg_w.frame_vol = 1;
+        end_04_begin_frame_zoom(176, 128, 48);
         /* fallthrough */
 
     case 2:
-        bg_w.frame_vol--;
-
-        if (bg_w.frame_vol <= 0) {
-            bg_w.frame_vol = 1;
-            bg_w.frame_deff--;
-
-            if (bg_w.frame_deff < 0) {
-                bgw_ptr->r_no_1++;
-                end_w.timer = 0;
-                break;
-            }
-
-            Frame_Down(bg_w.center_x, bg_w.center_y, 1);
-        }
+        end_04_step_frame_zoom(1, 0);
 
         break;
 
@@ -324,9 +327,7 @@ void end_401_3000() {
 void end_401_4000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_4_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_4_pos[end_w.r_no_2][1];
+        end_04_open_scene();
         end_fade_flag = 1;
         end_fade_timer = timer_4_tbl[end_w.r_no_2] - 120;
         break;
@@ -334,27 +335,11 @@ void end_401_4000() {
     case 1:
         bgw_ptr->r_no_1++;
         Zoomf_Init();
-        bg_w.center_x = 160;
-        bg_w.center_y = 128;
-        Frame_Up(bg_w.center_x, bg_w.center_y, 0x1E);
-        bg_w.frame_deff = 0x2E;
-        bg_w.frame_vol = 1;
+        end_04_begin_frame_zoom(160, 128, 0x2E);
         /* fallthrough */
 
     case 2:
-        bg_w.frame_vol--;
-        if (bg_w.frame_vol <= 0) {
-            bg_w.frame_vol = 2;
-            bg_w.frame_deff--;
-
-            if (bg_w.frame_deff < 0) {
-                bgw_ptr->r_no_1++;
-                end_w.timer = 60;
-                break;
-            }
-
-            Frame_Down(bg_w.center_x, bg_w.center_y, 1);
-        }
+        end_04_step_frame_zoom(2, 60);
 
         break;
 
@@ -373,21 +358,13 @@ void end_402_move() {
 void end_402_0000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_4_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_4_pos[end_w.r_no_2][1];
+        end_04_open_scene();
         bgw_ptr->speed_x = 0x8000;
         bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
         break;
 
     case 1:
-        bgw_ptr->xy[0].cal -= bgw_ptr->speed_x;
-
-        if (bgw_ptr->xy[0].disp.pos < 161) {
-            bgw_ptr->r_no_1++;
-        }
-
-        bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
+        end_04_slide_to_mark();
         break;
 
     case 2:
@@ -398,40 +375,21 @@ void end_402_0000() {
 void end_402_1000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_4_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_4_pos[end_w.r_no_2][1];
+        end_04_open_scene();
         effect_E6_init(0x5E);
         bgw_ptr->free = 0x12C;
-        bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+        end_04_commit_position();
         break;
 
     case 1:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->r_no_1++;
-            bgw_ptr->speed_x = 0xA000;
-            bgw_ptr->speed_y = 0x4000;
-            bgw_ptr->free = 0xF0;
+        if (end_04_launch_drift(0xA000, 0x4000)) {
             break;
         }
 
         break;
 
     case 2:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->r_no_1++;
-        } else {
-            bgw_ptr->xy[0].cal -= bgw_ptr->speed_x;
-            bgw_ptr->xy[1].cal += bgw_ptr->speed_y;
-        }
-
-        bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+        end_04_drift_until_done();
         break;
 
     case 3:

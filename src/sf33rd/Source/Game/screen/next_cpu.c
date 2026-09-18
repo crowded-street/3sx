@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/screen/next_cpu.h"
+#include "sf33rd/Source/Game/screen/next_cpu_setup.h"
 #include "common.h"
 #include "constants.h"
 #include "sf33rd/AcrSDK/common/pad.h"
@@ -68,35 +69,33 @@ void Next_Q_1st();
 void Next_Q_2nd();
 void Next_Q_3rd();
 void Sel_CPU_Sub(s16 PL_id, u16 sw, u16 /* unused */);
-void Setup_EM_List();
-void Setup_Next_Fighter();
-s8 Setup_Com_Arts();
-void Setup_Com_Color();
-void Setup_Regular_OBJ(s16 PL_id);
-void Regular_OBJ_Sub(s16 PL_id, s16 Dir);
-void Setup_History_OBJ();
-void Setup_VS_OBJ(s16 Option);
-s8 Check_Bonus_Type();
-void Setup_Next_Stage(s16 dir_step);
-void Check_Auto_Cut();
 
 u8 SEL_CPU_X;
 s16 Start_X;
 
-s16 Next_CPU() {
-    void (*Next_CPU_Tbl[12])() = { Next_CPU_1st,   Next_CPU_2nd,   Next_CPU_3rd,       Next_CPU_4th,
-                                   Next_CPU_5th,   Next_CPU_6th,   Next_Bonus_1st,     Next_Bonus_2nd,
-                                   Next_Bonus_3rd, Next_Bonus_End, Wait_Load_Complete, Wait_Load_Complete2 };
-
+/* Every scene dispatcher runs the same frame: stand aside while a break-in is
+ * pending, clear the result, sample the cut button, step the scene and report.
+ * Next_CPU, After_Bonus and Next_Q differed only in the table they index, and
+ * each passes its own by name. The return type is SEL_CPU_X's own, so each
+ * caller widens it exactly as `return SEL_CPU_X;` did. */
+static u8 Run_Scene_Step(void (*const step_table[])()) {
     if (Break_Into) {
         return 0;
     }
 
     SEL_CPU_X = 0;
     Scene_Cut = Cut_Cut_Cut();
-    Next_CPU_Tbl[SC_No[0]]();
+    step_table[SC_No[0]]();
     Time_Over = false;
     return SEL_CPU_X;
+}
+
+s16 Next_CPU() {
+    void (*Next_CPU_Tbl[12])() = { Next_CPU_1st,   Next_CPU_2nd,   Next_CPU_3rd,       Next_CPU_4th,
+                                   Next_CPU_5th,   Next_CPU_6th,   Next_Bonus_1st,     Next_Bonus_2nd,
+                                   Next_Bonus_3rd, Next_Bonus_End, Wait_Load_Complete, Wait_Load_Complete2 };
+
+    return Run_Scene_Step(Next_CPU_Tbl);
 }
 
 void Next_CPU_1st() {
@@ -150,52 +149,103 @@ void Next_CPU_2nd() {
     NC_Cut_Sub();
 }
 
+/* Sub-state 0: run the character select until both sides are settled, queue the
+ * fighters, and set the pause before the VS screen. */
+#if DEBUG
+/* The debug character override, applied on both sides of building the fighter
+ * queue - four copies of the same two tests. */
+static void Apply_Character_Overrides() {
+    if (debug_config.character_override[0]) {
+        My_char[0] = debug_config.character_override[0] - 1;
+    }
+
+    if (debug_config.character_override[1]) {
+        My_char[1] = debug_config.character_override[1] - 1;
+    }
+}
+#endif
+
+static void Select_Next_CPU_Character() {
+    if (Player_id) {
+        Sel_CPU_Sub(1, ~p2sw_1 & p2sw_0, p2sw_0);
+    } else {
+        Sel_CPU_Sub(0, ~p1sw_1 & p1sw_0, p1sw_0);
+    }
+
+    if (!Sel_EM_Complete[Player_id]) {
+        return;
+    }
+
+    SC_No[1]++;
+    SC_No[2] = 0;
+
+#if DEBUG
+    Apply_Character_Overrides();
+#endif
+
+    Push_LDREQ_Queue_Player(COM_id, My_char[COM_id]);
+    Setup_Next_Fighter();
+
+#if DEBUG
+    Apply_Character_Overrides();
+#endif
+
+    if (VS_Index[Player_id] < 8) {
+        S_Timer = 50;
+        return;
+    }
+
+    SC_No[1] = 2;
+    S_Timer = 100;
+}
+
+/* Sub-state 7: a cut shortens the tail, and the BGM fades once it is short enough. */
+static void Fade_Out_Before_Cut(u16 fade_time) {
+    switch (SC_No[2]) {
+    case 0:
+        if (Scene_Cut) {
+            S_Timer = 9;
+        }
+
+        if (S_Timer < 10) {
+            S_Timer = 9;
+            SC_No[2]++;
+            SsBgmFadeOut(fade_time);
+        }
+
+        break;
+    }
+}
+
+/* Tick the scene timer and, when it runs out, move to the next scene from its top. */
+static void Advance_Scene_On_Timeout() {
+    if ((S_Timer -= 1) == 0) {
+        SC_No[0]++;
+        SC_No[1] = 0;
+        SC_No[2] = 0;
+    }
+}
+
+/* Sub-state 2: once the pause is nearly out, go on to the VS screen - or off to the
+ * boss speech scene when this opponent has one. */
+static void Branch_On_EM_Speech() {
+    if ((S_Timer -= 1) < 71) {
+        if (Check_EM_Speech() == 0) {
+            SC_No[1]++;
+        } else {
+            SC_No[0] = 4;
+            SC_No[1] = 0;
+        }
+
+        SC_No[2] = 0;
+        return;
+    }
+}
+
 void Next_CPU_3rd() {
     switch (SC_No[1]) {
     case 0:
-        if (Player_id) {
-            Sel_CPU_Sub(1, ~p2sw_1 & p2sw_0, p2sw_0);
-        } else {
-            Sel_CPU_Sub(0, ~p1sw_1 & p1sw_0, p1sw_0);
-        }
-
-        if (!Sel_EM_Complete[Player_id]) {
-            break;
-        }
-
-        SC_No[1]++;
-        SC_No[2] = 0;
-
-#if DEBUG
-        if (debug_config.character_override[0]) {
-            My_char[0] = debug_config.character_override[0] - 1;
-        }
-
-        if (debug_config.character_override[1]) {
-            My_char[1] = debug_config.character_override[1] - 1;
-        }
-#endif
-
-        Push_LDREQ_Queue_Player(COM_id, My_char[COM_id]);
-        Setup_Next_Fighter();
-
-#if DEBUG
-        if (debug_config.character_override[0]) {
-            My_char[0] = debug_config.character_override[0] - 1;
-        }
-
-        if (debug_config.character_override[1]) {
-            My_char[1] = debug_config.character_override[1] - 1;
-        }
-#endif
-
-        if (VS_Index[Player_id] < 8) {
-            S_Timer = 50;
-            break;
-        }
-
-        SC_No[1] = 2;
-        S_Timer = 100;
+        Select_Next_CPU_Character();
         break;
 
     case 1:
@@ -210,53 +260,41 @@ void Next_CPU_3rd() {
             break;
         }
 
-        if ((S_Timer -= 1) == 0) {
-            SC_No[0]++;
-            SC_No[1] = 0;
-            SC_No[2] = 0;
-        }
+        Advance_Scene_On_Timeout();
 
         break;
 
     case 2:
-        if ((S_Timer -= 1) < 71) {
-            if (Check_EM_Speech() == 0) {
-                SC_No[1]++;
-            } else {
-                SC_No[0] = 4;
-                SC_No[1] = 0;
-            }
-
-            SC_No[2] = 0;
-            break;
-        }
+        Branch_On_EM_Speech();
 
         break;
 
     case 3:
-        switch (SC_No[2]) {
-        case 0:
-            if (Scene_Cut) {
-                S_Timer = 9;
-            }
+        Fade_Out_Before_Cut(0x1000U);
 
-            if (S_Timer < 10) {
-                S_Timer = 9;
-                SC_No[2]++;
-                SsBgmFadeOut(0x1000U);
-            }
-
-            break;
-        }
-
-        if ((S_Timer -= 1) == 0) {
-            SC_No[0]++;
-            SC_No[1] = 0;
-            SC_No[2] = 0;
-        }
+        Advance_Scene_On_Timeout();
 
         break;
     }
+}
+
+/* The tail of the CPU intro: a cut shortens the hold, and where it goes next depends
+ * on which screen asked for the intro. */
+static void Leave_CPU_Intro() {
+    if (Scene_Cut) {
+        S_Timer = 1;
+    }
+
+    if ((S_Timer -= 1) != 0) {
+        return;
+    }
+
+    if (G_No[1] == 5 || G_No[1] == 10) {
+        SC_No[0] = 10;
+        return;
+    }
+
+    SC_No[0] = 6;
 }
 
 void Next_CPU_4th() {
@@ -275,20 +313,7 @@ void Next_CPU_4th() {
         break;
 
     default:
-        if (Scene_Cut) {
-            S_Timer = 1;
-        }
-
-        if ((S_Timer -= 1) != 0) {
-            break;
-        }
-
-        if (G_No[1] == 5 || G_No[1] == 10) {
-            SC_No[0] = 10;
-            break;
-        }
-
-        SC_No[0] = 6;
+        Leave_CPU_Intro();
         break;
     }
 }
@@ -334,54 +359,75 @@ void Next_CPU_4th_2_Sub() {
     }
 }
 
-void Next_CPU_5th() {
+/* Sub-state 2: scroll the backgrounds into the boss VS layout, place the VS objects
+ * and start the two name banners moving in. */
+static void Setup_Boss_VS_Screen() {
+    Switch_Screen(1);
+    SC_No[1]++;
+    bgPalCodeOffset[0] = 144;
+    bg_w.bgw[0].wxy[0].disp.pos += 512;
+    bg_w.bgw[1].wxy[1].disp.pos = 512;
+    bg_w.bgw[3].wxy[1].disp.pos += 512;
+    Setup_BG(0, bg_w.bgw[0].wxy[0].disp.pos, bg_w.bgw[0].wxy[1].disp.pos);
+    Setup_BG(1, bg_w.bgw[1].wxy[0].disp.pos, bg_w.bgw[1].wxy[1].disp.pos);
+    Setup_BG(3, bg_w.bgw[3].wxy[0].disp.pos, bg_w.bgw[3].wxy[1].disp.pos);
+    Setup_VS_OBJ(1);
+    Suicide[0] = 1;
+    Next_Step = 0;
+    Order[67] = 1;
+    Order_Timer[67] = 10;
+    Order_Dir[67] = 8;
+    effect_76_init(67);
+    Order[68] = 1;
+    Order_Timer[68] = 10;
+    Order_Dir[68] = 4;
+    effect_76_init(68);
+}
+
+/* Sub-state 6: when the hold runs out, fade the boss intro in and start its music. */
+static void Start_Boss_Intro() {
+    if (!(S_Timer -= 1)) {
+        FadeInit();
+        FadeIn(0, 4, 8);
+        SC_No[1]++;
+        Forbid_Break = 0;
+        Suicide[3] = 1;
+        effect_43_init(1, 0);
+        BGM_Request(0x33);
+        S_Timer = 0xb2;
+    }
+}
+
+/* Sub-state 7: run the fade to completion, then mark this boss as introduced. */
+static void Finish_Boss_Intro() {
+    S_Timer--;
+
+    if (FadeIn(0, 4, 8)) {
+        SC_No[1]++;
+
+        if (S_Timer < 0) {
+            S_Timer = 1;
+        }
+
+        Introduce_Boss[Player_id][VS_Index[Player_id] - 8] |= 1;
+    }
+}
+
+/* The tail: a cut shortens the hold, and the scene ends when it runs out. */
+static void Leave_Boss_Intro() {
+    if (Scene_Cut) {
+        S_Timer = 1;
+    }
+
+    if ((S_Timer -= 1) == 0) {
+        SC_No[0] = 10;
+    }
+}
+
+/* The boss introduction itself, from the screen revival onward. Labels unchanged, so
+ * a sub-state still reads as the number the rest of the file uses. */
+static void Next_CPU_5th_Boss_Intro() {
     switch (SC_No[1]) {
-    case 0:
-        SC_No[1]++;
-        Switch_Screen_Init(1);
-        break;
-
-    case 1:
-        if (Switch_Screen(1) != 0) {
-            SC_No[1]++;
-            Cover_Timer = 9;
-        }
-
-        break;
-
-    case 2:
-        Switch_Screen(1);
-        SC_No[1]++;
-        bgPalCodeOffset[0] = 144;
-        bg_w.bgw[0].wxy[0].disp.pos += 512;
-        bg_w.bgw[1].wxy[1].disp.pos = 512;
-        bg_w.bgw[3].wxy[1].disp.pos += 512;
-        Setup_BG(0, bg_w.bgw[0].wxy[0].disp.pos, bg_w.bgw[0].wxy[1].disp.pos);
-        Setup_BG(1, bg_w.bgw[1].wxy[0].disp.pos, bg_w.bgw[1].wxy[1].disp.pos);
-        Setup_BG(3, bg_w.bgw[3].wxy[0].disp.pos, bg_w.bgw[3].wxy[1].disp.pos);
-        Setup_VS_OBJ(1);
-        Suicide[0] = 1;
-        Next_Step = 0;
-        Order[67] = 1;
-        Order_Timer[67] = 10;
-        Order_Dir[67] = 8;
-        effect_76_init(67);
-        Order[68] = 1;
-        Order_Timer[68] = 10;
-        Order_Dir[68] = 4;
-        effect_76_init(68);
-        break;
-
-    case 3:
-        Switch_Screen(1);
-
-        if ((Cover_Timer -= 1) == 0) {
-            SC_No[1]++;
-            Switch_Screen_Init(1);
-        }
-
-        break;
-
     case 4:
         if (Switch_Screen_Revival(1) != 0) {
             SC_No[1]++;
@@ -400,43 +446,53 @@ void Next_CPU_5th() {
         break;
 
     case 6:
-        if (!(S_Timer -= 1)) {
-            FadeInit();
-            FadeIn(0, 4, 8);
-            SC_No[1]++;
-            Forbid_Break = 0;
-            Suicide[3] = 1;
-            effect_43_init(1, 0);
-            BGM_Request(0x33);
-            S_Timer = 0xb2;
-        }
+        Start_Boss_Intro();
 
         break;
 
     case 7:
-        S_Timer--;
+        Finish_Boss_Intro();
 
-        if (FadeIn(0, 4, 8)) {
+        break;
+
+    default:
+        Leave_Boss_Intro();
+
+        break;
+    }
+}
+
+void Next_CPU_5th() {
+    switch (SC_No[1]) {
+    case 0:
+        SC_No[1]++;
+        Switch_Screen_Init(1);
+        break;
+
+    case 1:
+        if (Switch_Screen(1) != 0) {
             SC_No[1]++;
+            Cover_Timer = 9;
+        }
 
-            if (S_Timer < 0) {
-                S_Timer = 1;
-            }
+        break;
 
-            Introduce_Boss[Player_id][VS_Index[Player_id] - 8] |= 1;
+    case 2:
+        Setup_Boss_VS_Screen();
+        break;
+
+    case 3:
+        Switch_Screen(1);
+
+        if ((Cover_Timer -= 1) == 0) {
+            SC_No[1]++;
+            Switch_Screen_Init(1);
         }
 
         break;
 
     default:
-        if (Scene_Cut) {
-            S_Timer = 1;
-        }
-
-        if ((S_Timer -= 1) == 0) {
-            SC_No[0] = 10;
-        }
-
+        Next_CPU_5th_Boss_Intro();
         break;
     }
 }
@@ -504,15 +560,7 @@ s32 After_Bonus() {
                                       Next_CPU_3rd,    Next_CPU_4th,    Wait_Load_Complete2, Next_Bonus_End,
                                       Next_Bonus_End,  Next_Bonus_End,  Wait_Load_Complete3 };
 
-    if (Break_Into) {
-        return 0;
-    }
-
-    SEL_CPU_X = 0;
-    Scene_Cut = Cut_Cut_Cut();
-    After_Bonus_Tbl[SC_No[0]]();
-    Time_Over = false;
-    return SEL_CPU_X;
+    return Run_Scene_Step(After_Bonus_Tbl);
 }
 
 void After_Bonus_1st() {
@@ -658,126 +706,128 @@ void NC_Cut_Sub() {
     }
 }
 
-void Select_CPU_3rd() {
-    switch (SC_No[1]) {
-    case 0:
-        if (Demo_Flag == 0) {
-            if (Player_id) {
-                Sel_CPU_Sub(1, Check_Demo_Data(1), 0);
-            } else {
-                Sel_CPU_Sub(0, Check_Demo_Data(0), 0);
-            }
-        } else if (Player_id) {
-            Sel_CPU_Sub(1, ~p2sw_1 & p2sw_0, p2sw_0);
+/* Sub-state 0: run the select - from the demo script when no one is playing - then
+ * queue the fighters and set the pause before the VS screen. */
+static void Select_CPU_Character() {
+    if (Demo_Flag == 0) {
+        if (Player_id) {
+            Sel_CPU_Sub(1, Check_Demo_Data(1), 0);
         } else {
-            Sel_CPU_Sub(0, ~p1sw_1 & p1sw_0, p1sw_0);
+            Sel_CPU_Sub(0, Check_Demo_Data(0), 0);
         }
+    } else if (Player_id) {
+        Sel_CPU_Sub(1, ~p2sw_1 & p2sw_0, p2sw_0);
+    } else {
+        Sel_CPU_Sub(0, ~p1sw_1 & p1sw_0, p1sw_0);
+    }
 
-        if (!Sel_EM_Complete[Player_id]) {
-            break;
-        }
+    if (!Sel_EM_Complete[Player_id]) {
+        return;
+    }
 
-        SC_No[1]++;
+    SC_No[1]++;
 
 #if DEBUG
-        if (debug_config.character_override[0]) {
-            My_char[0] = debug_config.character_override[0] - 1;
-        }
-
-        if (debug_config.character_override[1]) {
-            My_char[1] = debug_config.character_override[1] - 1;
-        }
+    Apply_Character_Overrides();
 #endif
 
-        Push_LDREQ_Queue_Player(COM_id, My_char[COM_id]);
-        Setup_Next_Fighter();
+    Push_LDREQ_Queue_Player(COM_id, My_char[COM_id]);
+    Setup_Next_Fighter();
 
 #if DEBUG
-        if (debug_config.character_override[0]) {
-            My_char[0] = debug_config.character_override[0] - 1;
-        }
-
-        if (debug_config.character_override[1]) {
-            My_char[1] = debug_config.character_override[1] - 1;
-        }
+    Apply_Character_Overrides();
 #endif
 
-        if (VS_Index[Player_id] < 8) {
-            S_Timer = 50;
+    if (VS_Index[Player_id] < 8) {
+        S_Timer = 50;
+    } else {
+        SC_No[1] = 2;
+        S_Timer = 100;
+    }
+}
+
+/* The super-art panel is shown only in the modes that let a super art be picked, and
+ * only against a real opponent. */
+static s32 Super_Art_Panel_Is_Shown() {
+    return check_use_all_SA() == 0 && check_without_SA() == 0 && EM_id != 0;
+}
+
+/* A boss with an introduction to play before the fight. */
+static s32 Boss_Has_Speech() {
+    return 8 <= VS_Index[Player_id] && Check_EM_Speech();
+}
+
+/* Sub-state 4: bring the VS presentation up - the two fighter cards, the super-art
+ * panel when one is shown, the scroll target and the background sweep. */
+static void Start_VS_Presentation() {
+    SC_No[1] = 6;
+    Order[Player_id + 11] = 4;
+    Order_Timer[Player_id + 11] = 5;
+    effect_38_init(COM_id, COM_id + 11, My_char[COM_id], 1, 2);
+    Order[COM_id + 11] = 1;
+    Order_Timer[COM_id + 11] = 1;
+
+    if (Super_Art_Panel_Is_Shown()) {
+        effect_98_init(COM_id, COM_id + 0x28, Super_Arts[COM_id], 2);
+        Order[COM_id + 40] = 1;
+        Order_Timer[COM_id + 40] = 1;
+    }
+
+    effect_75_init(42, 3, 2);
+    Order[42] = 3;
+    Order_Timer[42] = 1;
+    Order_Dir[42] = 3;
+    Target_BG_X[3] = bg_w.bgw[3].wxy[0].disp.pos + 480;
+    Offset_BG_X[3] = 0;
+
+    if (Boss_Has_Speech()) {
+        SC_No[1] = 5;
+        Order[67] = 1;
+        Order_Timer[67] = 10;
+        Order_Dir[67] = 8;
+        effect_76_init(67);
+        Order[68] = 1;
+        Order_Timer[68] = 10;
+        Order_Dir[68] = 4;
+        effect_76_init(68);
+    }
+
+    Next_Step = 0;
+    Cut_Scroll = 2;
+    bg_mvxy.a[0].sp = 0x200000;
+    bg_mvxy.d[0].sp = 0x18000;
+    effect_58_init(12, 1, 3);
+}
+
+/* Sub-state 2: hold until the player load is queued, retrying a frame at a time. */
+static void Await_Player_Load() {
+    if ((S_Timer -= 1) < 51) {
+        if (Check_LDREQ_Queue_Direct(9)) {
+            SC_No[1]++;
         } else {
-            SC_No[1] = 2;
-            S_Timer = 100;
-        }
-
-        break;
-
-    case 1:
-        if ((S_Timer -= 1) == 0) {
-            SC_No[1] = 4;
-        }
-
-        break;
-
-    case 2:
-        if ((S_Timer -= 1) < 51) {
-            if (Check_LDREQ_Queue_Direct(9)) {
-                SC_No[1]++;
-            } else {
-                S_Timer = 1;
-            }
-        }
-
-        break;
-
-    case 3:
-        if (Scene_Cut) {
             S_Timer = 1;
         }
+    }
+}
 
-        if ((S_Timer -= 1) == 0) {
-            SC_No[1]++;
-        }
+/* Sub-state 3: a cut shortens the pause to nothing; otherwise run it out. */
+static void Hold_Before_Cards() {
+    if (Scene_Cut) {
+        S_Timer = 1;
+    }
 
-        break;
+    if ((S_Timer -= 1) == 0) {
+        SC_No[1]++;
+    }
+}
 
+/* The presentation half of the VS scene, from the cards onward. The case labels are
+ * the original ones, so a sub-state still reads as the number the rest of the file
+ * uses, and a value matching none of them does nothing, as before. */
+static void Select_CPU_3rd_Presentation() {
+    switch (SC_No[1]) {
     case 4:
-        SC_No[1] = 6;
-        Order[Player_id + 11] = 4;
-        Order_Timer[Player_id + 11] = 5;
-        effect_38_init(COM_id, COM_id + 11, My_char[COM_id], 1, 2);
-        Order[COM_id + 11] = 1;
-        Order_Timer[COM_id + 11] = 1;
-
-        if (check_use_all_SA() == 0 && check_without_SA() == 0 && EM_id != 0) {
-            effect_98_init(COM_id, COM_id + 0x28, Super_Arts[COM_id], 2);
-            Order[COM_id + 40] = 1;
-            Order_Timer[COM_id + 40] = 1;
-        }
-
-        effect_75_init(42, 3, 2);
-        Order[42] = 3;
-        Order_Timer[42] = 1;
-        Order_Dir[42] = 3;
-        Target_BG_X[3] = bg_w.bgw[3].wxy[0].disp.pos + 480;
-        Offset_BG_X[3] = 0;
-
-        if (8 <= VS_Index[Player_id] && Check_EM_Speech()) {
-            SC_No[1] = 5;
-            Order[67] = 1;
-            Order_Timer[67] = 10;
-            Order_Dir[67] = 8;
-            effect_76_init(67);
-            Order[68] = 1;
-            Order_Timer[68] = 10;
-            Order_Dir[68] = 4;
-            effect_76_init(68);
-        }
-
-        Next_Step = 0;
-        Cut_Scroll = 2;
-        bg_mvxy.a[0].sp = 0x200000;
-        bg_mvxy.d[0].sp = 0x18000;
-        effect_58_init(12, 1, 3);
+        Start_VS_Presentation();
         break;
 
     case 5:
@@ -798,27 +848,37 @@ void Select_CPU_3rd() {
         break;
 
     case 7:
-        switch (SC_No[2]) {
-        case 0:
-            if (Scene_Cut) {
-                S_Timer = 9;
-            }
+        Fade_Out_Before_Cut(0x1000);
 
-            if (S_Timer < 10) {
-                S_Timer = 9;
-                SC_No[2]++;
-                SsBgmFadeOut(0x1000);
-            }
+        Advance_Scene_On_Timeout();
 
-            break;
-        }
+        break;
+    }
+}
 
+void Select_CPU_3rd() {
+    switch (SC_No[1]) {
+    case 0:
+        Select_CPU_Character();
+        break;
+
+    case 1:
         if ((S_Timer -= 1) == 0) {
-            SC_No[0]++;
-            SC_No[1] = 0;
-            SC_No[2] = 0;
+            SC_No[1] = 4;
         }
 
+        break;
+
+    case 2:
+        Await_Player_Load();
+        break;
+
+    case 3:
+        Hold_Before_Cards();
+        break;
+
+    default:
+        Select_CPU_3rd_Presentation();
         break;
     }
 }
@@ -867,28 +927,28 @@ void Next_Bonus_2nd() {
         break;
 
     case 1:
-        switch (SC_No[2]) {
-        case 0:
-            if (Scene_Cut) {
-                S_Timer = 9;
-            }
+        Fade_Out_Before_Cut(0x1000);
 
-            if (S_Timer < 10) {
-                S_Timer = 9;
-                SC_No[2]++;
-                SsBgmFadeOut(0x1000);
-            }
-
-            break;
-        }
-
-        if ((S_Timer -= 1) == 0) {
-            SC_No[0]++;
-            SC_No[1] = 0;
-            SC_No[2] = 0;
-        }
+        Advance_Scene_On_Timeout();
 
         break;
+    }
+}
+
+/* The tail of the bonus intro: a cut shortens the hold, and the scene only ends once
+ * the player load has arrived - otherwise it retries a frame at a time. */
+static void Leave_Bonus_Intro() {
+    if (Scene_Cut) {
+        S_Timer = 1;
+    }
+
+    if ((S_Timer -= 1) == 0) {
+        if (!Check_PL_Load()) {
+            S_Timer = 1;
+            return;
+        }
+
+        SC_No[0] = 11;
     }
 }
 
@@ -908,18 +968,7 @@ void Next_Bonus_3rd() {
         break;
 
     default:
-        if (Scene_Cut) {
-            S_Timer = 1;
-        }
-
-        if ((S_Timer -= 1) == 0) {
-            if (!Check_PL_Load()) {
-                S_Timer = 1;
-                break;
-            }
-
-            SC_No[0] = 11;
-        }
+        Leave_Bonus_Intro();
 
         break;
     }
@@ -934,15 +983,7 @@ s16 Next_Q() {
         Next_Q_1st, Next_Q_2nd, Next_Q_3rd, Wait_Load_Complete, Wait_Load_Complete, Next_CPU_6th
     };
 
-    if (Break_Into) {
-        return 0;
-    }
-
-    SEL_CPU_X = 0;
-    Scene_Cut = Cut_Cut_Cut();
-    Next_Q_Tbl[SC_No[0]]();
-    Time_Over = false;
-    return SEL_CPU_X;
+    return Run_Scene_Step(Next_Q_Tbl);
 }
 
 void Next_Q_1st() {
@@ -1037,6 +1078,41 @@ void Next_Q_3rd() {
     }
 }
 
+/* One lever direction: start the plate moving, unless the selection is already
+ * there - in which case the caller stops, as both arms did. */
+static s32 Move_Selection_Plate(s16 PL_id, u16 lever_sw, u16 direction_bit, s8 direction) {
+    if (lever_sw & direction_bit) {
+        if (Temporary_EM[Player_id] == direction) {
+            return 1;
+        }
+
+        Sound_SE(PL_id + 96);
+        Moving_Plate[PL_id] = direction;
+        Moving_Plate_Counter[PL_id] = 2;
+        Temporary_EM[Player_id] = direction;
+    }
+
+    return 0;
+}
+
+/* An attack button confirms the selection: lock it in, tell the engine which
+ * character it is, and play the pick-up voice unless this is a boss. */
+static void Confirm_EM_Selection(s16 PL_id, u16 sw) {
+    if (sw & SWK_ATTACKS) {
+        Sel_EM_Complete[PL_id] = 1;
+        EM_id = EM_List[Player_id][Temporary_EM[Player_id] - 1];
+        My_char[COM_id] = EM_id;
+        Time_Stop = 2;
+
+        if (VS_Index[PL_id] < 8) {
+            Sound_SE(ID + 98);
+            Sound_SE(Voice_EM_Random_Data[random_16()]);
+        }
+
+        Last_Selected_EM[PL_id] = Temporary_EM[PL_id];
+    }
+}
+
 void Sel_CPU_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
     u16 lever_sw;
 
@@ -1058,508 +1134,13 @@ void Sel_CPU_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
 
     lever_sw = sw & (SWK_UP | SWK_DOWN);
 
-    if (lever_sw & SWK_DOWN) {
-        if (Temporary_EM[Player_id] == 2) {
-            return;
-        }
-
-        Sound_SE(PL_id + 96);
-        Moving_Plate[PL_id] = 2;
-        Moving_Plate_Counter[PL_id] = 2;
-        Temporary_EM[Player_id] = 2;
-    }
-
-    if (lever_sw & SWK_UP) {
-        if (Temporary_EM[Player_id] == 1) {
-            return;
-        }
-
-        Sound_SE(PL_id + 96);
-        Moving_Plate[PL_id] = 1;
-        Moving_Plate_Counter[PL_id] = 2;
-        Temporary_EM[Player_id] = 1;
-    }
-
-    if (sw & SWK_ATTACKS) {
-        Sel_EM_Complete[PL_id] = 1;
-        EM_id = EM_List[Player_id][Temporary_EM[Player_id] - 1];
-        My_char[COM_id] = EM_id;
-        Time_Stop = 2;
-
-        if (VS_Index[PL_id] < 8) {
-            Sound_SE(ID + 98);
-            Sound_SE(Voice_EM_Random_Data[random_16()]);
-        }
-
-        Last_Selected_EM[PL_id] = Temporary_EM[PL_id];
-    }
-}
-
-void Setup_EM_List() {
-    if (My_char[Player_id] == 0) {
-        EM_Candidate[Player_id][0][9] = 1;
-        EM_Candidate[Player_id][1][9] = 1;
-    } else {
-        EM_Candidate[Player_id][0][9] = 0;
-        EM_Candidate[Player_id][1][9] = 0;
-    }
-
-    EM_List[Player_id][0] = EM_Candidate[Player_id][0][VS_Index[Player_id]];
-    EM_List[Player_id][1] = EM_Candidate[Player_id][1][VS_Index[Player_id]];
-}
-
-void Setup_Next_Fighter() {
-    paring_counter[COM_id] = 0;
-    paring_bonus_r[COM_id] = 0;
-    My_char[COM_id] = EM_id;
-
-    if (EM_id == 17) {
-        Battle_Country = Q_Country;
-        bg_w.stage = Q_Country;
-    } else {
-        Battle_Country = EM_id;
-
-        if (My_char[Player_id] == 0 && EM_id == 1) {
-            Battle_Country = 0;
-        }
-
-        bg_w.stage = Battle_Country;
-    }
-
-#if DEBUG
-    if (debug_config.stage_override) {
-        Battle_Country = bg_w.stage = debug_config.stage_override - 1;
-    }
-#endif
-
-    Push_LDREQ_Queue_BG(bg_w.stage);
-    bg_w.area = 0;
-    Super_Arts[COM_id] = Stock_Com_Arts[Player_id] = Setup_Com_Arts();
-
-#if DEBUG
-    if (debug_config.cpu_sa) {
-        Super_Arts[COM_id] = debug_config.cpu_sa - 1;
-    }
-#endif
-
-    Setup_Com_Color();
-    Setup_PL_Color(COM_id, Com_Color_Shot);
-}
-
-const u8 Arts_Rnd_Data[8] = { 0, 0, 0, 1, 1, 1, 2, 2 };
-
-s8 Setup_Com_Arts() {
-    if (EM_id == 0) {
-        return 1;
-    }
-
-    if (Stock_Com_Arts[Player_id] == -1) {
-        return Arts_Rnd_Data[random_16() & 7];
-    }
-
-    return Stock_Com_Arts[Player_id];
-}
-
-void Setup_Com_Color() {
-    Com_Color_Shot = Stock_Com_Color[Player_id];
-
-    if (Break_Com[Player_id][EM_id]) {
-        Com_Color_Shot = 1024;
+    if (Move_Selection_Plate(PL_id, lever_sw, SWK_DOWN, 2)) {
         return;
     }
 
-    Com_Color_Shot = 16;
-}
-
-void Setup_PL_Color(s16 PL_id, u16 sw) {
-    s8 id_0;
-    s8 id_1;
-    u16 sw_new = 0;
-
-    if (plw[PL_id ^ 1].wu.operator == 0) {
-        id_0 = -1;
-        id_1 = 1;
-    } else {
-        id_0 = My_char[PL_id];
-        id_1 = My_char[PL_id ^ 1];
-    }
-
-    if (Sel_PL_Complete[PL_id ^ 1] == 0) {
-        id_0 = 127;
-    }
-
-    if (plw[PL_id].wu.operator != 0 && My_char[PL_id] == CHAR_GILL) {
-        sw_new = 0;
-    } else {
-        if (PL_id == 0) {
-            sw_new = p1sw_0;
-        } else {
-            sw_new = p2sw_0;
-        }
-    }
-
-    if (My_char[PL_id] == CHAR_GILL) {
-        switch (sw) {
-        case SWK_WEST:
-        case SWK_NORTH:
-        case SWK_RIGHT_SHOULDER:
-            if (Player_Color[PL_id ^ 1] == 0 && id_0 == id_1) {
-                Player_Color[PL_id] = 1;
-            } else {
-                Player_Color[PL_id] = 0;
-            }
-
-            break;
-
-        default:
-            if (Player_Color[PL_id ^ 1] == 1 && id_0 == id_1) {
-                Player_Color[PL_id] = 0;
-            } else {
-                Player_Color[PL_id] = 1;
-            }
-
-            break;
-        }
-    } else if (sw_new & SWK_START) {
-        switch (sw) {
-        case SWK_WEST:
-            if (Player_Color[PL_id ^ 1] == 7 && id_0 == id_1) {
-                Player_Color[PL_id] = 10;
-            } else {
-                Player_Color[PL_id] = 7;
-            }
-
-            break;
-
-        case SWK_NORTH:
-            if (Player_Color[PL_id ^ 1] == 8 && id_0 == id_1) {
-                Player_Color[PL_id] = 11;
-            } else {
-                Player_Color[PL_id] = 8;
-            }
-
-            break;
-
-        case SWK_RIGHT_SHOULDER:
-            if (Player_Color[PL_id ^ 1] == 9 && id_0 == id_1) {
-                Player_Color[PL_id] = 12;
-            } else {
-                Player_Color[PL_id] = 9;
-            }
-
-            break;
-
-        case SWK_SOUTH:
-            if (Player_Color[PL_id ^ 1] == 10 && id_0 == id_1) {
-                Player_Color[PL_id] = 7;
-            } else {
-                Player_Color[PL_id] = 10;
-            }
-
-            break;
-
-        case SWK_EAST:
-            if (Player_Color[PL_id ^ 1] == 11 && id_0 == id_1) {
-                Player_Color[PL_id] = 8;
-            } else {
-                Player_Color[PL_id] = 11;
-            }
-
-            break;
-
-        default:
-            if (Player_Color[PL_id ^ 1] == 12 && id_0 == id_1) {
-                Player_Color[PL_id] = 9;
-            } else {
-                Player_Color[PL_id] = 12;
-            }
-
-            break;
-        }
-    } else {
-        switch (sw) {
-        case SWK_WEST | SWK_RIGHT_SHOULDER | SWK_EAST:
-            if (Player_Color[PL_id ^ 1] == 6 && id_0 == id_1) {
-                Player_Color[PL_id] = 0;
-            } else {
-                Player_Color[PL_id] = 6;
-            }
-
-            break;
-
-        case SWK_WEST:
-            if (Player_Color[PL_id ^ 1] == 0 && id_0 == id_1) {
-                Player_Color[PL_id] = 3;
-            } else {
-                Player_Color[PL_id] = 0;
-            }
-
-            break;
-
-        case SWK_NORTH:
-            if (Player_Color[PL_id ^ 1] == 1 && id_0 == id_1) {
-                Player_Color[PL_id] = 4;
-            } else {
-                Player_Color[PL_id] = 1;
-            }
-
-            break;
-
-        case SWK_RIGHT_SHOULDER:
-            if (Player_Color[PL_id ^ 1] == 2 && id_0 == id_1) {
-                Player_Color[PL_id] = 5;
-            } else {
-                Player_Color[PL_id] = 2;
-            }
-
-            break;
-
-        case SWK_SOUTH:
-            if (Player_Color[PL_id ^ 1] == 3 && id_0 == id_1) {
-                Player_Color[PL_id] = 0;
-            } else {
-                Player_Color[PL_id] = 3;
-            }
-
-            break;
-
-        case SWK_EAST:
-            if (Player_Color[PL_id ^ 1] == 4 && id_0 == id_1) {
-                Player_Color[PL_id] = 1;
-            } else {
-                Player_Color[PL_id] = 4;
-            }
-
-            break;
-
-        default:
-            if (Player_Color[PL_id ^ 1] == 5 && id_0 == id_1) {
-                Player_Color[PL_id] = 2;
-            } else {
-                Player_Color[PL_id] = 5;
-            }
-
-            break;
-        }
-    }
-}
-
-void Setup_Regular_OBJ(s16 PL_id) {
-    s16 em_id;
-
-    if (VS_Index[Player_id] < 8) {
-        Regular_OBJ_Sub(PL_id, 2);
-        Regular_OBJ_Sub(PL_id, 1);
-        effect_A9_init(16, 5, 10, 0);
-        effect_42_init(9);
-        effect_42_init(10);
-        Order[9] = 0;
-        Order[10] = 0;
-        Order_Timer[9] = 1;
-        Order_Timer[10] = 1;
+    if (Move_Selection_Plate(PL_id, lever_sw, SWK_UP, 1)) {
         return;
     }
 
-    effect_A9_init(33, EM_List[PL_id][1], 5, 0);
-    effect_A9_init(12, EM_List[PL_id][1], 21, 0);
-    effect_A9_init(57, 0, 22, 0);
-    em_id = EM_List[PL_id][1];
-
-    if (chkNameAkuma(em_id, 1)) {
-        em_id = 23;
-    }
-
-    effect_A9_init(34, em_id, 20, 0);
-}
-
-void Regular_OBJ_Sub(s16 PL_id, s16 Dir) {
-    s16 ix = Dir - 1;
-    s16 x;
-
-    effect_A9_init(33, EM_List[PL_id][ix], ix + 4, 0);
-    x = chkNameAkuma(EM_List[PL_id][ix], 9);
-    effect_A9_init(34, x + EM_List[PL_id][ix], ix + 6, 0);
-    effect_A9_init(12, EM_List[PL_id][ix], ix + 8, 0);
-    effect_E0_init(Dir, 0, 0);
-    effect_E0_init(Dir, 1, 0);
-}
-
-void Setup_History_OBJ() {
-    s16 q_index = Break_Com[Player_id][17];
-    s16 xx;
-    s16 ix;
-    s16 grade;
-
-    effect_A9_init(79, 12, 11, 0);
-    Offset_BG_X[3] = 88;
-    effect_A9_init(79, 13, 12, 0);
-    Offset_BG_X[3] += 80;
-
-    for (xx = 0; xx < VS_Index[Player_id]; xx++) {
-        effect_A9_init(79, 13, 12, 0);
-        effect_A9_init(79, xx, 13, 0);
-        effect_A9_init(79, 10, 14, 0);
-        ix = chkNameAkuma(EM_History[Player_id][xx], 6);
-        effect_A9_init(81, ix + EM_History[Player_id][xx], 15, 0);
-        effect_A9_init(12, EM_History[Player_id][xx], 16, 0);
-        grade = judge_final[Player_id][0].vs_cpu_grade[xx];
-
-        if (grade == -1) {
-            grade = 0;
-        }
-
-        effect_A9_init(80, grade, 17, 0);
-        Offset_BG_X[3] += 88;
-
-        if (q_index == 0 || (q_index - 1) != xx) {
-            continue;
-        }
-
-        effect_A9_init(79, 13, 12, 0);
-        effect_A9_init(81, 17, 15, 0);
-        effect_A9_init(12, 17, 16, 0);
-        grade = judge_final[Player_id]->vs_cpu_grade[15];
-
-        if (grade == -1) {
-            grade = 0;
-        }
-
-        effect_A9_init(80, grade, 17, 0);
-        Offset_BG_X[3] += 88;
-    }
-
-    Offset_BG_X[3] -= 40;
-}
-
-void Setup_VS_OBJ(s16 Option) {
-    effect_38_init(0, 11, My_char[0], 1, 0);
-    Order[11] = 3;
-    Order_Timer[11] = 1;
-    effect_38_init(1, 12, My_char[1], 1, 0);
-    Order[12] = 3;
-    Order_Timer[12] = 1;
-    effect_K6_init(0, 35, 35, 0);
-    Order[35] = 3;
-    Order_Timer[35] = 1;
-    effect_K6_init(1, 36, 35, 0);
-    Order[36] = 3;
-    Order_Timer[36] = 1;
-    effect_39_init(0, 17, My_char[0], 0, 0);
-    Order[17] = 3;
-    Order_Timer[17] = 1;
-    effect_39_init(1, 18, My_char[1], 0, 0);
-    Order[18] = 3;
-    Order_Timer[18] = 1;
-    effect_K6_init(0, 29, 29, 0);
-    Order[29] = 3;
-    Order_Timer[29] = 1;
-    effect_K6_init(1, 30, 29, 0);
-    Order[30] = 3;
-    Order_Timer[30] = 1;
-
-    if (My_char[0] != 20) {
-        effect_75_init(42, 3, 0);
-    }
-
-    Order[42] = 3;
-    Order_Timer[42] = 1;
-    Order_Dir[42] = 5;
-
-    if (Option == 0) {
-        effect_43_init(1, 0);
-    }
-}
-
-s8 Check_Bonus_Stage() {
-    Setup_ID();
-    Bonus_Type = Check_Bonus_Type();
-
-    if (Bonus_Type == 0) {
-        return 0;
-    }
-
-    bg_w.stage = Bonus_Type;
-    bg_w.area = 0;
-
-    if (Bonus_Type == 21) {
-        My_char[COM_id] = 0xC;
-    } else {
-        My_char[COM_id] = My_char[Player_id];
-    }
-
-    Setup_Com_Color();
-    Setup_PL_Color(COM_id, Com_Color_Shot);
-    Push_LDREQ_Queue_Player(COM_id, My_char[COM_id]);
-    Push_LDREQ_Queue_BG(Bonus_Type);
-    return Completion_Bonus[Player_id][Bonus_Type - 20] = 1;
-}
-
-s8 Check_Bonus_Type() {
-#if DEBUG
-    if (debug_config.bonus_stage_override != 0) {
-        if (debug_config.bonus_stage_override == 1) {
-            Completion_Bonus[Player_id][0] = 0;
-            return 20;
-        }
-
-        if (debug_config.bonus_stage_override == 2) {
-            Completion_Bonus[Player_id][1] = 0;
-            return 21;
-        }
-
-        return 0;
-    }
-#endif
-
-    if (save_w[Present_Mode].extra_option.contents[0][5] == 0) {
-        return 0;
-    }
-
-    if (VS_Index[Player_id] >= 6) {
-        if (Completion_Bonus[Player_id][1] & 0x80) {
-            return 0;
-        }
-
-        return 21;
-    }
-
-    if (VS_Index[Player_id] >= 3) {
-        if (Completion_Bonus[Player_id][0] & 0x80) {
-            return 0;
-        }
-
-        return 20;
-    }
-
-    return 0;
-}
-
-void Setup_Next_Stage(s16 dir_step) {
-    s16 ix;
-
-    for (ix = 0; ix < 4; ix++) {
-        effect_A9_init(dir_step, ix, ix + 23, 0);
-    }
-}
-
-void Check_Auto_Cut() {
-    if (!Auto_Cut_Sub()) {
-        return;
-    }
-
-    if ((Cut_Scroll -= 1) < 0) {
-        Cut_Scroll = 0;
-    }
-}
-
-s32 Auto_Cut_Sub() {
-    if (plw[0].wu.operator && ~p1sw_1 & p1sw_0 & 0xFF0) {
-        return 1;
-    }
-
-    if (plw[1].wu.operator && ~p2sw_1 & p2sw_0 & 0xFF0) {
-        return 1;
-    }
-
-    return 0;
+    Confirm_EM_Selection(PL_id, sw);
 }

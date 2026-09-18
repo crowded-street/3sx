@@ -108,6 +108,17 @@ void end_1600_0000() {
     }
 }
 
+/* Hold on the blacked-out panel, then end the scene. */
+static void end_1600_1000_hold_blank() {
+    overwrite_panel(0xFF000000, 0x17);
+    bgw_ptr->free--;
+
+    if (bgw_ptr->free <= 0) {
+        bgw_ptr->r_no_1++;
+        end_w.timer = 0;
+    }
+}
+
 void end_1600_1000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -132,13 +143,7 @@ void end_1600_1000() {
         break;
 
     case 3:
-        overwrite_panel(0xFF000000, 0x17);
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->r_no_1++;
-            end_w.timer = 0;
-        }
+        end_1600_1000_hold_blank();
 
         break;
 
@@ -148,13 +153,18 @@ void end_1600_1000() {
     }
 }
 
+/* Open a scene: step the state and put the panel where this scene starts. */
+static void end_16_open_scene() {
+    bgw_ptr->r_no_1++;
+    bgw_ptr->xy[0].disp.pos = end_16_pos[end_w.r_no_2][0];
+    bgw_ptr->xy[1].disp.pos = end_16_pos[end_w.r_no_2][1];
+}
+
 void end_1600_2000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
         overwrite_panel(0xFF000000, 0x17);
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_16_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_16_pos[end_w.r_no_2][1];
+        end_16_open_scene();
         bgw_ptr->abs_x = 512;
         /* fallthrough */
 
@@ -192,9 +202,7 @@ void end_1600_2000() {
 void end_1600_3000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_16_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_16_pos[end_w.r_no_2][1];
+        end_16_open_scene();
         effect_E6_init(0x56);
         Rewrite_End_Message(3);
         bgw_ptr->l_limit2 = 2;
@@ -211,9 +219,7 @@ void end_1600_3000() {
 void end_1600_3100() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_16_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_16_pos[end_w.r_no_2][1];
+        end_16_open_scene();
         effect_E6_init(0x57);
         Rewrite_End_Message(4);
         c_kakikae = 2;

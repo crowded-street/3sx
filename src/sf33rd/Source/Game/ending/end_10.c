@@ -88,6 +88,24 @@ void end_1000_move() {
     end_1000_jp[end_w.r_no_2]();
 }
 
+/* Open a scene: step the state and put the panel where this scene starts. */
+static void end_10_open_scene() {
+    bgw_ptr->r_no_1++;
+    bgw_ptr->xy[0].disp.pos = end_10_pos[end_w.r_no_2][0];
+    bgw_ptr->xy[1].disp.pos = end_10_pos[end_w.r_no_2][1];
+    bgw_ptr->abs_x = 512;
+    bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+}
+
+/* Count the scene's hold down and move on when it runs out. */
+static void end_10_wait_out_hold() {
+    bgw_ptr->free--;
+
+    if (bgw_ptr->free <= 0) {
+        bgw_ptr->r_no_1++;
+    }
+}
+
 void end_1000_0000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -133,11 +151,7 @@ void end_1000_1000() {
         break;
 
     case 1:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->r_no_1++;
-        }
+        end_10_wait_out_hold();
 
         break;
 
@@ -233,22 +247,14 @@ void end_1001_move() {
 void end_1001_1000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_10_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_10_pos[end_w.r_no_2][1];
-        bgw_ptr->abs_x = 512;
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+        end_10_open_scene();
         effect_E6_init(0x4D);
         bgw_ptr->speed_y = 0x8000;
         bgw_ptr->free = 0xB4;
         break;
 
     case 1:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->r_no_1++;
-        }
+        end_10_wait_out_hold();
 
         break;
 
@@ -277,22 +283,14 @@ void end_1002_move() {
 void end_1002_1000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_10_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_10_pos[end_w.r_no_2][1];
-        bgw_ptr->abs_x = 512;
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+        end_10_open_scene();
         effect_E6_init(0x4E);
         bgw_ptr->speed_y = 0xB000;
         bgw_ptr->free = 0xB4;
         break;
 
     case 1:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->r_no_1++;
-        }
+        end_10_wait_out_hold();
 
         break;
 
@@ -320,11 +318,7 @@ void end_1003_move() {
 void end_1003_1000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_10_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_10_pos[end_w.r_no_2][1];
-        bgw_ptr->abs_x = 512;
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+        end_10_open_scene();
         effect_E6_init(0x4F);
         bgw_ptr->free = 0xB4;
         end_bg_pos_hosei(5);
@@ -332,11 +326,7 @@ void end_1003_1000() {
         break;
 
     case 1:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->r_no_1++;
-        }
+        end_10_wait_out_hold();
 
         end_bg_pos_hosei(5);
         end_fam_set(5);
@@ -362,11 +352,7 @@ void end_1003_1000() {
 void end_1003_2000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_10_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_10_pos[end_w.r_no_2][1];
-        bgw_ptr->abs_x = 512;
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+        end_10_open_scene();
         /* fallthrough */
 
     case 1:

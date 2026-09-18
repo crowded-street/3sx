@@ -105,6 +105,16 @@ void end_300_0000() {
     }
 }
 
+/* The fade has finished: release the cut, set the hold and blank the panel. */
+static void end_300_0002_fade_finished() {
+    if (end_fade_complete()) {
+        bgw_ptr->r_no_1++;
+        end_no_cut = 0;
+        end_w.timer = 20;
+        overwrite_panel(0xFFFFFFFF, 0x17);
+    }
+}
+
 void end_300_0002() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -135,12 +145,7 @@ void end_300_0002() {
         break;
 
     case 3:
-        if (end_fade_complete()) {
-            bgw_ptr->r_no_1++;
-            end_no_cut = 0;
-            end_w.timer = 20;
-            overwrite_panel(0xFFFFFFFF, 0x17);
-        }
+        end_300_0002_fade_finished();
 
         break;
 

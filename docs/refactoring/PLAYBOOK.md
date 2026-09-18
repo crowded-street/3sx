@@ -190,6 +190,81 @@ faithful ports get broken.
 
 ---
 
+## Recipe V - Verbatim Values
+
+**Use when:** a fixed skeleton is repeated many times and the instances differ in **two or
+more literals**, so Recipe D refuses them, while Recipe C finds no identical run because
+the literals sit in the middle of the skeleton rather than at one end.
+
+**Added 2026-09-17** under the project owner's standing authorisation, and measured on
+`next_cpu.c`'s `Setup_PL_Color` - cc 55, 141 lines, and fifteen copies of one `if`:
+
+```c
+    if (Player_Color[PL_id ^ 1] == 7 && id_0 == id_1) {
+        Player_Color[PL_id] = 10;
+    } else {
+        Player_Color[PL_id] = 7;
+    }
+```
+
+Fifteen of those, differing only in their pair of colours, became
+
+```c
+    Take_Player_Color(PL_id, 7, 10, id_0 == id_1);
+```
+
+**5.35 -> 5.79**, and the function's cyclomatic complexity fell by thirty.
+
+**Why this is not Recipe D's forbidden case.** Recipe D refuses two differences because of
+*mapping*: with two varying values there is somewhere for the pair to be crossed, and a
+helper that picks between them can silently swap two arms. Recipe V removes that risk the
+way Recipes T and F already do - **every varying literal is written out, in full, in
+positional order, at its own call site**, so an arm's values cannot be mis-paired without
+the single call line showing it, and the helper does nothing with them that the block did
+not already do.
+
+**Preconditions, all of them:**
+
+- **The skeleton is identical character for character** in every instance apart from the
+  literals. Not nearly identical - if a comparison operator, a subscript or a statement
+  differs anywhere, those instances are not one family and Recipe D's refusal stands.
+- **Only literals vary.** A varying *expression* is not this recipe. A varying callee is
+  Recipe F's.
+- **The helper performs exactly the operations that were there**, in the same order. It may
+  test a parameter only where the block tested that same literal. It must not choose
+  between two parameters, index with one, or compute from one.
+- **Three or more instances.** Two is Recipe D's near-miss case and stays refused; this
+  recipe is for a family large enough that the skeleton is plainly one idiom.
+- **A condition hoisted into an argument must be pure.** Where the skeleton's test
+  short-circuits, passing the right-hand side as an argument evaluates it every time.
+  That is only legal when it reads locals or plain memory and calls nothing - in
+  `Setup_PL_Color`, `id_0 == id_1` compares two `s8` locals. If the operand calls a
+  function, reads volatile state, or could trap, leave the family alone.
+
+**Where the skeleton ends inside control flow**, the helper returns `0` or `1` and each
+caller branches on it, exactly as Recipe C prescribes. Return nothing else - a verdict
+wider than a yes/no is the helper deciding something, which this recipe does not allow.
+
+**Open question for the project owner: should three be two?** Six files in `Game/ending`
+plateau at 9.38 with nothing left but a *two-instance* family of this exact shape - one
+skeleton, identical character for character, differing only in literals that would be
+written out at both call sites. `end_18.c`'s pair differs in an effect id and a message
+index; `end_10.c` has two such pairs. Recipe V refuses them only because of the
+three-instance rule.
+
+That rule is not arbitrary and was not relaxed here on the agent's own judgement: with two
+instances there is no third case to confirm the skeleton really is one idiom rather than
+two blocks that happen to look alike this week, and merging two near-misses is precisely
+what Recipe D forbids. But the six files are a measurable cost, and the owner may judge
+the evidence sufficient at two where the skeleton is byte-identical apart from the
+literals. Left as it stands pending that call.
+
+**What the guard shows.** The deduplication WARN, with **one copy of each literal removed
+per instance** and every value still present at its call site. A *value* leaving the
+fingerprint means it did not travel to the call site and the merge is wrong.
+
+---
+
 ## Recipe C - Extract Common Part
 
 **Use when:** CodeScene reports *Code Duplication* and the blocks share a **contiguous
@@ -472,6 +547,40 @@ static s32 comm_pa_y(PLW* wk, CTC* ctc) { return dispatch_by_koc(wk, ctc, add_sc
 - The pointer is passed **as a bare name at the call site**, never stored in a table or a
   struct field, never chosen at run time. Recipe F replaces a duplicated skeleton; it does
   not introduce dispatch the program did not have.
+
+**More than one callee may differ, on the same argument.** Added 2026-09-17 under the
+project owner's standing authorisation, and measured on `entry.c`'s five screen
+dispatchers, which were identical apart from *two* callees each:
+
+```c
+void Entry_03() {
+    switch (E_No[1]) {
+    case 0:      Entry_03_1st();  break;
+    default:     Entry_03_2nd();  break;
+    }
+}
+```
+
+Five of those, differing only in the pair they name, became
+`Entry_Screen_Step(Entry_03_1st, Entry_03_2nd)` and four siblings like it: **4.36 ->
+4.74**, and five of the file's eight duplication groups went at once.
+
+The safety argument is unchanged by the count, and that is the point. What makes Recipe F
+safe is not that one thing varies but that **every varying name is written out verbatim at
+its own call site, and the helper does nothing with any of them except call it.** A second
+pointer cannot be mis-mapped against the first: both are positional parameters named in
+full at every call site, so there is no place for a pair to be crossed that reading the one
+line would not show. Adding a third would be the same.
+
+What does *not* relax:
+
+- **Only callees may differ.** If the arms also differ in a statement, an operator or a
+  value, Recipe F still does not apply - that remains Recipe D's forbidden near-miss.
+- **The helper still only calls them.** The moment it tests a pointer, compares two of
+  them, or picks between them, the differences have been generalised and this is forbidden
+  again.
+- Every other precondition above stands: identical signatures, unchanged arguments, nothing
+  widened from `static`, and the pointer passed as a bare name rather than stored.
 
 **The guard needs telling.** `--calls` counts a name as a call only when a `(` follows it,
 so a callee now passed by pointer reads as a vanished call and FAILs. Declare each one:
@@ -788,6 +897,22 @@ Recipe X both refuse to merge.
 | `plpdm.c` | **10.00** | *was 9.61.* Recipe X on the rumble suppression list, then Recipe E on the death conversion |
 | `bbbscom.c` | **10.00** | *was 9.38.* Overall Code Complexity only, and two Recipe E extractions cleared it - the file has 15 functions, so the mean moves at once. Compare `plmain.c` above, where 65 functions make the same move worthless |
 | `manage_result.c` | **10.00** | *was 9.38.* One Recipe D on `BGM_Control`'s two waits, for the same reason |
+| `entry.c` | **10.00** | *was 4.02.* Recipe D on the two identical 2nd-phase screens, Recipe F on the five dispatchers, Recipe C on the three runs the hand-over shares, then eight extractions and Recipe S for `entry_break_in.c` |
+| `entry_break_in.c` | **10.00** | split from `entry.c`. Two Recipe X splits on the break-in dispatch and one Recipe E on `Break_Into_05`'s arms |
+| `next_cpu.c` | **10.00** | *was 5.35.* Recipe V on `Setup_PL_Color`'s fifteen colour arms - the case the recipe was written for - then Recipe D on the three scene dispatchers, and Recipe S for `next_cpu_setup.c` |
+| `next_cpu_setup.c` | **10.00** | split from `next_cpu.c`. One shared run and one arm |
+| `sel_pl.c` | **10.00** | *was 5.73.* Two Recipe S splits first - the file was 1537 LoC - then Recipe V on the auto-repeat directions and nine extractions and named conditions |
+| `sel_pl_exit.c` | **10.00** | split from `sel_pl.c`. Recipe D on the two handicap steps, then Recipe F on the two switches that name them in opposite order |
+| `sel_pl_faces.c` | **10.00** | split from `sel_pl.c`. One arm of `Face_2nd` and one of `OBJ_1st`'s two layouts |
+| `n_input.c`, `staff.c`, `ranking.c`, `gameover.c`, `win.c`, `continue.c` | **10.00** | the rest of the screen folder. `staff.c` wanted Recipe D on thirteen copies of one credit line and Recipe A on `set_credit_string`'s five arguments |
+| `vs_shell.c`, `sel_data.c` | n/a | pure `const` data tables with no functions; CodeScene returns no score and the catalogue puts them out of scope |
+| `end_00.c` | **10.00** | *was 7.68.* See *Retry a rejected extraction* - the same edit measured flat twice and then worth 1.19 |
+| `end_02.c`, `end_03.c`, `end_06.c`, `end_11.c`, `end_13.c`, `end_main.c` | **10.00** | the rest of the ending folder that could be cleared |
+| `end_14.c` | 8.03 | *was 6.85.* The hardest file in either folder. Four eight-label dispatchers need Recipe X, and the splits leave two near-twin pairs; `end_e00_0000_col_sub` and its twin differ by one statement in the innermost position, which needs a tri-state verdict neither Recipe C nor E allows. Three further shared runs were measured afterwards - the rise, the position commit and the placement - and all three are flat: they reshape the five groups without clearing one, so they were reverted |
+| `end_04.c` | 9.09 | *was 8.28.* Seven shared runs. The redundant `break;` inside `end_402_1000`'s `if` - the arm breaks anyway - looked like a blocker, and the answer was Recipe C's 0/1 protocol rather than deleting it: the helper reports whether it fired and that one caller keeps its break at the call site. What is left is three pairs differing in effect ids and limits |
+| `end_05.c` | 8.81 | *was 8.24.* Two near-miss pairs; one writes `Request_Fade(1) != 0` where the other writes `Request_Fade(3)` |
+| `end_10.c`, `end_12.c`, `end_16.c`, `end_17.c`, `end_18.c`, `end_20.c` | 9.38 | all the same shape: one or two **two-instance** Recipe V families left. Recipe V asks for three, and relaxing that to two is exactly the near-miss merge Recipe D refuses |
+| `end_01.c` | 9.60 | a measured refusal. `end_100_0000` is cc 14 with seven labels, so only a dedup plus a split gets under; that clears Complex Method and raises Overall Code Complexity in its place, and the nine-function mean will not come down. The whole sequence measured -0.22 and was reverted |
 
 ---
 
@@ -1125,6 +1250,24 @@ more than the twin pair costs.
 So: keep a note of what you rejected and why, and come back to it when the file
 is close to done. The rejections worth revisiting are the ones refused for
 duplication cost rather than for a rule.
+
+`end_00.c` is the sharpest version of this, because the same edit was measured three
+times without changing a character of it:
+
+| When | Score |
+| --- | --- |
+| with Complex Method still open on three functions | 7.86, flat |
+| with one of the two duplication pairs still open | 8.81, flat |
+| with that pair cleared first | 8.81 -> **10.00** |
+
+The edit was a four-copy Recipe C on the scene opening, and both times it was reverted
+under rule 2 because it cleared no finding. What changed on the third attempt is that
+`end_000_0000` and `end_000_0003` had become the file's **last** duplication group, so
+dissolving it was worth the whole of the remaining finding instead of a share of it.
+
+**So the order to work a duplication-heavy file is: clear the other findings first, then
+take the shared runs.** Taking the runs early is not wrong, but it measures flat, and
+rule 2 will make you revert work you will only have to redo.
 
 ### Clear the functions just over the threshold first
 
@@ -1576,6 +1719,32 @@ its own `static` copy, because widening a `static` to bridge the two is forbidde
 `plpdm_states.c` and `plpdm_states_late.c` carry three such pairs. That is real duplication
 that the metric does not see, and it is the price of the split rather than a reason to
 avoid it.
+
+### For the file mean, move branches - do not just remove lines
+
+*Overall Code Complexity is a whole-file average* says the mean moves when you add a
+function. True, but it is only half of it, and the half that matters less.
+
+The mean is total cyclomatic complexity over function count. A Recipe C extraction of a
+run of **straight-line** code adds one to the denominator and nothing to the numerator,
+so it moves the mean by about `mean / n`. On a nine-function file that is not enough, and
+two of them in a row will still measure flat.
+
+Measured on `end_11.c`, whose only finding was the mean:
+
+| Move | Score |
+| --- | --- |
+| a four-copy shared run, cc 1 helper | 9.38, flat |
+| plus a three-copy shared run, cc 1 helper | 9.38, flat |
+| plus lifting a cc 7 inner `switch` out of the largest function | **10.00** |
+
+The third move adds a function *and* takes six branches out of the function that was
+carrying them. That is what the mean responds to.
+
+So when a file is left with Overall Code Complexity alone, **look for the largest
+function and split its branching**, rather than hunting more duplicate runs. `end_13.c`
+and `end_03.c` cleared the same way, each on a single extraction from the heaviest
+function in the file.
 
 ### A file can be too big for its own mean
 

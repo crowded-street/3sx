@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/screen/entry.h"
+#include "sf33rd/Source/Game/screen/entry_break_in.h"
 #include "common.h"
 #include "constants.h"
 #include "main.h"
@@ -53,7 +54,6 @@ void Entry_08_1st();
 void Entry_08_2nd();
 void Entry_10_1st();
 void Entry_10_2nd();
-void Break_Into_Sub(s16 PL_id, s16 Jump_Index);
 void Entry_Common_Sub(s16 PL_id, s16 Jump_Index);
 void Entry_Continue_Sub(s16 PL_id);
 void In_Game_Sub(s16 PL_id);
@@ -66,8 +66,6 @@ s32 Credit_Continue_2P();
 void Naming_Cut_Sub_1P();
 void Naming_Cut_Sub_2P();
 void Naming_Init(s16 PL_id);
-s32 Ck_Break_Into_SP(u16 Sw_0, u16 Sw_1, s16 PL_id);
-s32 Ck_Break_Into(u16 Sw_0, u16 Sw_1, s16 PL_id);
 s32 Credit_Sub_1P();
 s32 Credit_Sub_2P();
 s32 Loser_Sub_1P();
@@ -75,14 +73,6 @@ s32 Loser_Sub_2P();
 s32 Flash_Start(s16 PL_id);
 s32 Flash_Please(s16 PL_id);
 void Setup_Next_Step(s16 PL_id);
-void Break_Into_02(s16 PL_id);
-void Break_Into_04(s16 PL_id);
-void Break_Into_05(s16 PL_id);
-void Break_Into_07(s16 PL_id);
-void Break_Into_08(s16 PL_id);
-void Break_Into_09(s16 PL_id);
-void Break_Into_10(s16 PL_id);
-void Continue_Score_Sub(s16 PL_id);
 
 void Entry_Task(struct _TASK* /* unused */) {
     s16 ix;
@@ -222,55 +212,81 @@ void Entry_02() {
     Entry_Main_Sub(1, 2);
 }
 
-void Entry_03() {
+/* The five screen dispatchers - 03, 04, 06, 07 and 08 - were identical apart from
+ * which pair of handlers they named. Both names travel verbatim to the call site
+ * and this helper does nothing with them but call them. */
+static void Entry_Screen_Step(void (*first_frame)(), void (*later_frames)()) {
     switch (E_No[1]) {
     case 0:
-        Entry_03_1st();
+        first_frame();
         break;
 
     default:
-        Entry_03_2nd();
+        later_frames();
         break;
     }
 }
 
-void Entry_03_1st() {
+void Entry_03() {
+    Entry_Screen_Step(Entry_03_1st, Entry_03_2nd);
+}
+
+/* The first frame of a screen: advance the sub-state once, then step both players.
+ * Entry_03_1st, Entry_06_1st and Entry_07_1st differed only in the jump index. */
+static void Begin_Entry_Step(s16 Jump_Index) {
     switch (E_No[2]) {
     case 0:
         E_No[2] += 1;
         break;
     }
 
-    Entry_Main_Sub(0, 4);
-    Entry_Main_Sub(1, 4);
+    Entry_Main_Sub(0, Jump_Index);
+    Entry_Main_Sub(1, Jump_Index);
+}
+
+void Entry_03_1st() {
+    Begin_Entry_Step(4);
+}
+
+/* Put the screen back to the in-game state: raise the cover and rewind both the game
+ * and entry state machines. Shared by the character select, the VS screen and the
+ * naming and final-grade tail. */
+static void Reset_To_Game_Screen() {
+    Cover_Timer = 23;
+    G_No[1] = 1;
+    G_No[2] = 0;
+    G_No[3] = 0;
+    E_No[0] = 2;
+    E_No[1] = 0;
+    E_No[2] = 0;
+    E_No[3] = 0;
+}
+
+/* Both screens wait out the same timer before covering up, and retry a frame at a
+ * time while a break-in load is still pending. */
+static void Await_Break_In_Load() {
+    if (--E_Timer == 0) {
+        if (!Check_LDREQ_Break()) {
+            E_No[2] += 1;
+            Switch_Screen_Init(1);
+            return;
+        }
+
+        E_Timer = 1;
+        return;
+    }
 }
 
 void Entry_03_2nd() {
     switch (E_No[2]) {
     case 0:
-        if (--E_Timer == 0) {
-            if (!Check_LDREQ_Break()) {
-                E_No[2] += 1;
-                Switch_Screen_Init(1);
-                return;
-            }
-
-            E_Timer = 1;
-            return;
-        }
+        Await_Break_In_Load();
 
         break;
 
     case 1:
         if (Switch_Screen(1) != 0) {
-            Cover_Timer = 23;
-            G_No[1] = 1;
-            G_No[2] = 0;
-            G_No[3] = 0;
-            E_No[0] = 2;
-            E_No[1] = 0;
-            E_No[2] = 0;
-            E_No[3] = 0;
+            Reset_To_Game_Screen();
             plw[New_Challenger].wu.operator = 1;
             Operator_Status[New_Challenger] = 1;
             Sel_Arts_Complete[Champion] = -1;
@@ -285,15 +301,7 @@ void Entry_03_2nd() {
 }
 
 void Entry_04() {
-    switch (E_No[1]) {
-    case 0:
-        Entry_04_1st();
-        break;
-
-    default:
-        Entry_04_2nd();
-        break;
-    }
+    Entry_Screen_Step(Entry_04_1st, Entry_04_2nd);
 }
 
 void Entry_04_1st() {
@@ -312,16 +320,7 @@ void Entry_04_1st() {
 void Entry_04_2nd() {
     switch (E_No[2]) {
     case 0:
-        if (--E_Timer == 0) {
-            if (!Check_LDREQ_Break()) {
-                E_No[2] += 1;
-                Switch_Screen_Init(1);
-                return;
-            }
-
-            E_Timer = 1;
-            return;
-        }
+        Await_Break_In_Load();
 
         break;
 
@@ -360,26 +359,34 @@ void Entry_04_2nd() {
 }
 
 void Entry_06() {
-    switch (E_No[1]) {
-    case 0:
-        Entry_06_1st();
-        break;
-
-    default:
-        Entry_06_2nd();
-        break;
-    }
+    Entry_Screen_Step(Entry_06_1st, Entry_06_2nd);
 }
 
 void Entry_06_1st() {
-    switch (E_No[2]) {
-    case 0:
-        E_No[2] += 1;
-        break;
-    }
+    Begin_Entry_Step(7);
+}
 
-    Entry_Main_Sub(0, 7);
-    Entry_Main_Sub(1, 7);
+/* One entrant takes a controller, and starts a fresh grade record unless continuing.
+ * The two sides differed only in the player index. */
+static void Give_Operator_To(s16 PL_id) {
+    if (E_07_Flag[PL_id]) {
+        plw[PL_id].wu.operator = 1;
+        Operator_Status[PL_id] = 1;
+
+        if (Continue_Coin[PL_id] == 0) {
+            grade_check_work_1st_init(PL_id, 0);
+        }
+    }
+}
+
+/* Whoever broke into this screen takes a controller, and starts a fresh grade record
+ * unless they are continuing. Shared verbatim by the three screens that hand over. */
+static void Give_Operator_To_Entrants() {
+    Give_Operator_To(0);
+    Give_Operator_To(1);
+
+    E_07_Flag[0] = 0;
+    E_07_Flag[1] = 0;
 }
 
 void Entry_06_2nd() {
@@ -417,26 +424,7 @@ void Entry_06_2nd() {
         E_No[3] = 0;
         Fade_Flag = 0;
 
-        if (E_07_Flag[0]) {
-            plw[0].wu.operator = 1;
-            Operator_Status[0] = 1;
-
-            if (Continue_Coin[0] == 0) {
-                grade_check_work_1st_init(0, 0);
-            }
-        }
-
-        if (E_07_Flag[1]) {
-            plw[1].wu.operator = 1;
-            Operator_Status[1] = 1;
-
-            if (Continue_Coin[1] == 0) {
-                grade_check_work_1st_init(1, 0);
-            }
-        }
-
-        E_07_Flag[0] = 0;
-        E_07_Flag[1] = 0;
+        Give_Operator_To_Entrants();
 
         if (E_Number[LOSER][0] == 5) {
             E_Number[LOSER][0] = 1;
@@ -447,26 +435,11 @@ void Entry_06_2nd() {
 }
 
 void Entry_07() {
-    switch (E_No[1]) {
-    case 0:
-        Entry_07_1st();
-        break;
-
-    default:
-        Entry_07_2nd();
-        break;
-    }
+    Entry_Screen_Step(Entry_07_1st, Entry_07_2nd);
 }
 
 void Entry_07_1st() {
-    switch (E_No[2]) {
-    case 0:
-        E_No[2] += 1;
-        break;
-    }
-
-    Entry_Main_Sub(0, 8);
-    Entry_Main_Sub(1, 8);
+    Begin_Entry_Step(8);
 }
 
 void Entry_07_2nd() {
@@ -489,35 +462,9 @@ void Entry_07_2nd() {
 
     default:
         if (Switch_Screen(1) != 0) {
-            Cover_Timer = 23;
-            G_No[1] = 1;
-            G_No[2] = 0;
-            G_No[3] = 0;
-            E_No[0] = 2;
-            E_No[1] = 0;
-            E_No[2] = 0;
-            E_No[3] = 0;
+            Reset_To_Game_Screen();
 
-            if (E_07_Flag[0]) {
-                plw[0].wu.operator = 1;
-                Operator_Status[0] = 1;
-
-                if (Continue_Coin[0] == 0) {
-                    grade_check_work_1st_init(0, 0);
-                }
-            }
-
-            if (E_07_Flag[1]) {
-                plw[1].wu.operator = 1;
-                Operator_Status[1] = 1;
-
-                if (Continue_Coin[1] == 0) {
-                    grade_check_work_1st_init(1, 0);
-                }
-            }
-
-            E_07_Flag[0] = 0;
-            E_07_Flag[1] = 0;
+            Give_Operator_To_Entrants();
         }
 
         break;
@@ -525,15 +472,7 @@ void Entry_07_2nd() {
 }
 
 void Entry_08() {
-    switch (E_No[1]) {
-    case 0:
-        Entry_08_1st();
-        break;
-
-    default:
-        Entry_08_2nd();
-        break;
-    }
+    Entry_Screen_Step(Entry_08_1st, Entry_08_2nd);
 }
 
 void Entry_08_1st() {
@@ -549,13 +488,16 @@ void Entry_08_1st() {
     }
 }
 
-void Entry_08_2nd() {
+/* The tail both the naming screen and the final-grade screen run: step any player who is
+ * not breaking in, then cover the screen and hand the game to whoever did. Entry_08_2nd
+ * and Entry_10_2nd were identical apart from the jump index. */
+static void Finish_Entry_And_Start_Game(s16 Jump_Index) {
     if (E_07_Flag[0] == 0) {
-        Entry_Main_Sub(0, 9);
+        Entry_Main_Sub(0, Jump_Index);
     }
 
     if (E_07_Flag[1] == 0) {
-        Entry_Main_Sub(1, 9);
+        Entry_Main_Sub(1, Jump_Index);
     }
 
     switch (E_No[2]) {
@@ -571,35 +513,9 @@ void Entry_08_2nd() {
 
     default:
         if (Switch_Screen(1) != 0) {
-            Cover_Timer = 23;
-            G_No[1] = 1;
-            G_No[2] = 0;
-            G_No[3] = 0;
-            E_No[0] = 2;
-            E_No[1] = 0;
-            E_No[2] = 0;
-            E_No[3] = 0;
+            Reset_To_Game_Screen();
 
-            if (E_07_Flag[0]) {
-                plw[0].wu.operator = 1;
-                Operator_Status[0] = 1;
-
-                if (Continue_Coin[0] == 0) {
-                    grade_check_work_1st_init(0, 0);
-                }
-            }
-
-            if (E_07_Flag[1]) {
-                plw[1].wu.operator = 1;
-                Operator_Status[1] = 1;
-
-                if (Continue_Coin[1] == 0) {
-                    grade_check_work_1st_init(1, 0);
-                }
-            }
-
-            E_07_Flag[0] = 0;
-            E_07_Flag[1] = 0;
+            Give_Operator_To_Entrants();
             Request_Disp_Rank[0][0] = -1;
             Request_Disp_Rank[0][1] = -1;
             Request_Disp_Rank[1][0] = -1;
@@ -608,6 +524,10 @@ void Entry_08_2nd() {
 
         break;
     }
+}
+
+void Entry_08_2nd() {
+    Finish_Entry_And_Start_Game(9);
 }
 
 void Entry_10() {
@@ -661,62 +581,158 @@ void Entry_10_1st() {
 }
 
 void Entry_10_2nd() {
-    if (E_07_Flag[0] == 0) {
-        Entry_Main_Sub(0, 10);
-    }
+    Finish_Entry_And_Start_Game(10);
+}
 
-    if (E_07_Flag[1] == 0) {
-        Entry_Main_Sub(1, 10);
-    }
-
-    switch (E_No[2]) {
-    case 0:
-        E_No[2] += 1;
-
-        if ((E_Number[LOSER][0] == 8) && (E_Number[LOSER][1] == 1)) {
-            Clear_Personal_Data(LOSER);
+/* E_Number 0: the slot is free. Offer it to a player who is not already in, unless the
+ * screen is one of the two that shut entry down instead. */
+static void Offer_Free_Entry(s16 PL_id, s16 Jump_Index) {
+    if (!Ignore_Entry[LOSER]) {
+        if ((E_No[0] == 10) || (E_No[0] == 8)) {
+            E_Number[PL_id][0] = 99;
+            return;
         }
 
-        Switch_Screen_Init(1);
+        if (plw[PL_id].wu.operator == 0) {
+            Entry_Common_Sub(PL_id, Jump_Index);
+            return;
+        }
+    }
+}
+
+/* E_Number 1: the player is on the continue countdown. Take a break-in if one is
+ * pending, otherwise keep the countdown running. */
+static void Run_Continue_Countdown(s16 PL_id, s16 Jump_Index) {
+    if (PL_id) {
+        if (Credit_Continue_2P() != 0) {
+            Break_Into_Sub(PL_id, Jump_Index);
+        }
+    } else if (Credit_Continue_1P() != 0) {
+        Break_Into_Sub(PL_id, Jump_Index);
+    }
+
+    if (Request_Break[PL_id]) {
+        E_Number[PL_id][0] = 0;
+        E_Number[PL_id][1] = 0;
+        E_Number[PL_id][2] = 0;
+        E_Number[PL_id][3] = 0;
+        return;
+    }
+
+    if ((E_Number[PL_id][0] == 1) && (E_07_Flag[PL_id ^ 1] == 0)) {
+        Entry_Continue_Sub(PL_id);
+        return;
+    }
+}
+
+/* E_Number 2 sub-state 2: the player is typing their name into the ranking table. */
+static void Run_Name_Entry(s16 PL_id) {
+    if (!(Forbid_Break != 1)) {
+        return;
+    }
+
+    if (PL_id == 0) {
+        Naming_Cut_Sub_1P();
+    } else {
+        Naming_Cut_Sub_2P();
+    }
+
+    if (!Name_Input(PL_id)) {
+        return;
+    }
+
+    Name_In_Sub(PL_id);
+
+    if (Naming_Cut[PL_id]) {
+        Clear_Personal_Data(PL_id);
+        return;
+    }
+
+    E_Number[PL_id][2] = 0;
+    E_Number[PL_id][3] = 0;
+
+    if (E_No[0] == 8) {
+        E_Number[PL_id][0] = 8;
+        E_Number[PL_id][1] = 1;
+        return;
+    }
+
+    E_Number[PL_id][0] = 8;
+    E_Number[PL_id][1] = 0;
+    return;
+}
+
+/* E_Number 3: the player holds until the screen settles, then goes either to the
+ * naming screen or straight to game over. */
+/* Sub-state 1: once the screen settles, go to game over - or back to the head of the
+ * entry list if it settled on the character select. */
+static void Settle_To_Game_Over(s16 PL_id) {
+    if ((E_No[0] == 8) || (E_No[0] == 2)) {
+        E_Number[PL_id][0] = 8;
+        E_Number[PL_id][1] = 1;
+        E_Number[PL_id][2] = 0;
+        E_Number[PL_id][3] = 0;
+
+        if (E_No[0] == 2) {
+            E_Number[PL_id][1] = 0;
+            return;
+        }
+    }
+}
+
+static void Await_Screen_Settled(s16 PL_id) {
+    switch (E_Number[PL_id][1]) {
+    case 0:
+        if ((E_No[0] == 8) || (E_No[0] == 2)) {
+            E_Number[PL_id][0] = 2;
+            E_Number[PL_id][1] = 2;
+            E_Number[PL_id][2] = 0;
+            E_Number[PL_id][3] = 0;
+            Naming_Init(PL_id);
+            return;
+        }
+
         break;
 
-    default:
-        if (Switch_Screen(1) != 0) {
-            Cover_Timer = 23;
-            G_No[1] = 1;
-            G_No[2] = 0;
-            G_No[3] = 0;
-            E_No[0] = 2;
-            E_No[1] = 0;
-            E_No[2] = 0;
-            E_No[3] = 0;
+    case 1:
+        Settle_To_Game_Over(PL_id);
 
-            if (E_07_Flag[0]) {
-                plw[0].wu.operator = 1;
-                Operator_Status[0] = 1;
+        break;
+    }
+}
 
-                if (Continue_Coin[0] == 0) {
-                    grade_check_work_1st_init(0, 0);
-                }
-            }
+/* E_Number 2: settle for a moment, then run the ranking-name entry. */
+static void Run_Naming_Screen(s16 PL_id) {
+    switch (E_Number[PL_id][1]) {
+    case 0:
+        E_Number[PL_id][1] += 1;
+        Personal_Timer[PL_id] = 30;
+        break;
 
-            if (E_07_Flag[1]) {
-                plw[1].wu.operator = 1;
-                Operator_Status[1] = 1;
-
-                if (Continue_Coin[1] == 0) {
-                    grade_check_work_1st_init(1, 0);
-                }
-            }
-
-            E_07_Flag[0] = 0;
-            E_07_Flag[1] = 0;
-            Request_Disp_Rank[0][0] = -1;
-            Request_Disp_Rank[0][1] = -1;
-            Request_Disp_Rank[1][0] = -1;
-            Request_Disp_Rank[1][1] = -1;
+    case 1:
+        if (!--Personal_Timer[PL_id]) {
+            E_Number[PL_id][1] += 1;
+            Naming_Init(PL_id);
+            return;
         }
 
+        break;
+
+    case 2:
+        Run_Name_Entry(PL_id);
+        break;
+    }
+}
+
+/* E_Number 8: the game-over hold, either still counting down or already over. */
+static void Run_Game_Over_Screen(s16 PL_id) {
+    switch (E_Number[PL_id][1]) {
+    case 0:
+        In_Game_Sub(PL_id);
+        break;
+
+    case 1:
+        In_Over_Sub(PL_id);
         break;
     }
 }
@@ -726,140 +742,24 @@ void Entry_Main_Sub(s16 PL_id, s16 Jump_Index) {
 
     switch (E_Number[PL_id][0]) {
     case 0:
-        if (!Ignore_Entry[LOSER]) {
-            if ((E_No[0] == 10) || (E_No[0] == 8)) {
-                E_Number[PL_id][0] = 99;
-                return;
-            }
-
-            if (plw[PL_id].wu.operator == 0) {
-                Entry_Common_Sub(PL_id, Jump_Index);
-                return;
-            }
-        }
-
+        Offer_Free_Entry(PL_id, Jump_Index);
         break;
 
     case 1:
-        if (PL_id) {
-            if (Credit_Continue_2P() != 0) {
-                Break_Into_Sub(PL_id, Jump_Index);
-            }
-        } else if (Credit_Continue_1P() != 0) {
-            Break_Into_Sub(PL_id, Jump_Index);
-        }
-
-        if (Request_Break[PL_id]) {
-            E_Number[PL_id][0] = 0;
-            E_Number[PL_id][1] = 0;
-            E_Number[PL_id][2] = 0;
-            E_Number[PL_id][3] = 0;
-            return;
-        }
-
-        if ((E_Number[PL_id][0] == 1) && (E_07_Flag[PL_id ^ 1] == 0)) {
-            Entry_Continue_Sub(PL_id);
-            return;
-        }
-
+        Run_Continue_Countdown(PL_id, Jump_Index);
         break;
 
     case 2:
-        switch (E_Number[PL_id][1]) {
-        case 0:
-            E_Number[PL_id][1] += 1;
-            Personal_Timer[PL_id] = 30;
-            break;
-
-        case 1:
-            if (!--Personal_Timer[PL_id]) {
-                E_Number[PL_id][1] += 1;
-                Naming_Init(PL_id);
-                return;
-            }
-
-            break;
-
-        case 2:
-            if (!(Forbid_Break != 1)) {
-                break;
-            }
-
-            if (PL_id == 0) {
-                Naming_Cut_Sub_1P();
-            } else {
-                Naming_Cut_Sub_2P();
-            }
-
-            if (!Name_Input(PL_id)) {
-                break;
-            }
-
-            Name_In_Sub(PL_id);
-
-            if (Naming_Cut[PL_id]) {
-                Clear_Personal_Data(PL_id);
-                return;
-            }
-
-            E_Number[PL_id][2] = 0;
-            E_Number[PL_id][3] = 0;
-
-            if (E_No[0] == 8) {
-                E_Number[PL_id][0] = 8;
-                E_Number[PL_id][1] = 1;
-                return;
-            }
-
-            E_Number[PL_id][0] = 8;
-            E_Number[PL_id][1] = 0;
-            return;
-        }
+        Run_Naming_Screen(PL_id);
 
         break;
 
     case 3:
-        switch (E_Number[PL_id][1]) {
-        case 0:
-            if ((E_No[0] == 8) || (E_No[0] == 2)) {
-                E_Number[PL_id][0] = 2;
-                E_Number[PL_id][1] = 2;
-                E_Number[PL_id][2] = 0;
-                E_Number[PL_id][3] = 0;
-                Naming_Init(PL_id);
-                return;
-            }
-
-            break;
-
-        case 1:
-            if ((E_No[0] == 8) || (E_No[0] == 2)) {
-                E_Number[PL_id][0] = 8;
-                E_Number[PL_id][1] = 1;
-                E_Number[PL_id][2] = 0;
-                E_Number[PL_id][3] = 0;
-
-                if (E_No[0] == 2) {
-                    E_Number[PL_id][1] = 0;
-                    return;
-                }
-            }
-
-            break;
-        }
-
+        Await_Screen_Settled(PL_id);
         break;
 
     case 8:
-        switch (E_Number[PL_id][1]) {
-        case 0:
-            In_Game_Sub(PL_id);
-            break;
-
-        case 1:
-            In_Over_Sub(PL_id);
-            break;
-        }
+        Run_Game_Over_Screen(PL_id);
 
         break;
 
@@ -999,6 +899,23 @@ s32 Credit_Continue_2P() {
     return ENTRY_X;
 }
 
+/* One tick of the continue countdown: a cut ends it early, the timer ends it when it
+ * runs out, and the step after it is chosen once the credits are spent. */
+static void Count_Down_Continue(s16 PL_id) {
+    if (Check_Count_Cut(PL_id, 8)) {
+        Continue_Cut[PL_id] = 1;
+    } else if (--Personal_Timer[PL_id]) {
+        return;
+    }
+
+    if (--Continue_Count[PL_id] >= 0) {
+        Personal_Timer[PL_id] = 60;
+        return;
+    }
+
+    Setup_Next_Step(PL_id);
+}
+
 void Entry_Continue_Sub(s16 PL_id) {
     if ((Continue_Count_Down[PL_id] == 0) && save_w[1].extra_option.contents[3][5]) {
         SSPutStr(DE_X[PL_id], 0, 9, "     CONTINUE?", TopHUDPriority);
@@ -1016,21 +933,29 @@ void Entry_Continue_Sub(s16 PL_id) {
         break;
 
     case 1:
-        if (Check_Count_Cut(PL_id, 8)) {
-            Continue_Cut[PL_id] = 1;
-        } else if (--Personal_Timer[PL_id]) {
-            break;
-        }
-
-        if (--Continue_Count[PL_id] >= 0) {
-            Personal_Timer[PL_id] = 60;
-            return;
-        }
-
-        Setup_Next_Step(PL_id);
+        Count_Down_Continue(PL_id);
 
         break;
     }
+}
+
+/* Off the last screen, a player goes to the naming screen if they ranked and to game
+ * over if they did not - without waiting on the other player. */
+static void Rank_Or_Game_Over(s16 PL_id) {
+    Setup_Final_Grade();
+
+    if (Check_Ranking(PL_id) != 0) {
+        E_Number[PL_id][0] = 2;
+        Request_Disp_Rank[PL_id][0] = Rank_In[PL_id][0];
+        Request_Disp_Rank[PL_id][1] = Rank_In[PL_id][1];
+        Request_Disp_Rank[PL_id][2] = Rank_In[PL_id][2];
+        Request_Disp_Rank[PL_id][3] = Rank_In[PL_id][3];
+        return;
+    }
+
+    E_Number[PL_id][0] = 8;
+    E_Number[PL_id][1] = 0;
+    return;
 }
 
 void Setup_Next_Step(s16 PL_id) {
@@ -1045,19 +970,7 @@ void Setup_Next_Step(s16 PL_id) {
     }
 
     if (E_No[0] != 7) {
-        Setup_Final_Grade();
-
-        if (Check_Ranking(PL_id) != 0) {
-            E_Number[PL_id][0] = 2;
-            Request_Disp_Rank[PL_id][0] = Rank_In[PL_id][0];
-            Request_Disp_Rank[PL_id][1] = Rank_In[PL_id][1];
-            Request_Disp_Rank[PL_id][2] = Rank_In[PL_id][2];
-            Request_Disp_Rank[PL_id][3] = Rank_In[PL_id][3];
-            return;
-        }
-
-        E_Number[PL_id][0] = 8;
-        E_Number[PL_id][1] = 0;
+        Rank_Or_Game_Over(PL_id);
         return;
     }
 
@@ -1087,6 +1000,20 @@ void Setup_Next_Step(s16 PL_id) {
 
     E_Number[PL_id][0] = 3;
     E_Number[PL_id][1] = 1;
+}
+
+/* The last stretch of the game-over wait: hold the player out of the entry list on
+ * the two screens that end it, and otherwise release them back to it. */
+static void Finish_Game_Over_Wait(s16 PL_id) {
+    if (--Personal_Timer[PL_id] == 0) {
+        if ((E_No[0] == 10) || (E_No[0] == 8)) {
+            E_Number[PL_id][0] = 99;
+            return;
+        }
+
+        Clear_Personal_Data(PL_id);
+        Clear_Flash_No();
+    }
 }
 
 void In_Game_Sub(s16 PL_id) {
@@ -1119,15 +1046,7 @@ void In_Game_Sub(s16 PL_id) {
         break;
 
     default:
-        if (--Personal_Timer[PL_id] == 0) {
-            if ((E_No[0] == 10) || (E_No[0] == 8)) {
-                E_Number[PL_id][0] = 99;
-                return;
-            }
-
-            Clear_Personal_Data(PL_id);
-            Clear_Flash_No();
-        }
+        Finish_Game_Over_Wait(PL_id);
 
         break;
     }
@@ -1175,18 +1094,24 @@ static void update_press_start_prompt(s16 PL_id) {
     }
 }
 
+/* Arm the press-start flasher, skipping straight to the continue prompt for the
+ * loser on the continue screen. */
+static void Begin_Flash_Cycle(s16 PL_id) {
+    F_No1[PL_id] += 1;
+    F_No0[PL_id] = 0;
+    F_No2[PL_id] = 0;
+    F_No3[PL_id] = 0;
+    F_Timer[PL_id] = 1;
+
+    if ((E_No[0] == 6) && (PL_id == LOSER)) {
+        F_No1[PL_id] = 3;
+    }
+}
+
 s32 Flash_Start(s16 PL_id) {
     switch (F_No1[PL_id]) {
     case 0:
-        F_No1[PL_id] += 1;
-        F_No0[PL_id] = 0;
-        F_No2[PL_id] = 0;
-        F_No3[PL_id] = 0;
-        F_Timer[PL_id] = 1;
-
-        if ((E_No[0] == 6) && (PL_id == LOSER)) {
-            F_No1[PL_id] = 3;
-        }
+        Begin_Flash_Cycle(PL_id);
 
         break;
 
@@ -1245,239 +1170,6 @@ s32 Flash_Please(s16 PL_id) {
     }
 
     return 0;
-}
-
-void Break_Into_Sub(s16 PL_id, s16 Jump_Index) {
-    switch (Jump_Index) {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-        Break_Into_02(PL_id);
-        break;
-
-    case 4:
-    case 6:
-        Break_Into_04(PL_id);
-        break;
-
-    case 5:
-        Break_Into_05(PL_id);
-        break;
-
-    case 7:
-        Break_Into_07(PL_id);
-        break;
-
-    case 8:
-        Break_Into_08(PL_id);
-        break;
-
-    case 9:
-        Break_Into_09(PL_id);
-        break;
-
-    case 10:
-        Break_Into_10(PL_id);
-        break;
-
-    default:
-        break;
-    }
-}
-
-s32 Ck_Break_Into(u16 Sw_0, u16 Sw_1, s16 PL_id) {
-    if ((E_No[0] != 10) && Request_Break[PL_id ^ 1]) {
-        return 0;
-    }
-
-    if (Request_Break[PL_id]) {
-        if (Forbid_Break || Extra_Break) {
-            return 0;
-        }
-
-        Game_pause = 1;
-        New_Challenger = PL_id;
-        Champion = New_Challenger ^ 1;
-        Request_Break[PL_id] = 0;
-        return ENTRY_X = 1;
-    }
-
-    if (!(~Sw_1 & Sw_0 & 0x4000)) {
-        return 0;
-    }
-
-    Continue_Score_Sub(PL_id);
-
-    if (Forbid_Break || Extra_Break) {
-        Request_Break[PL_id] = 1;
-    } else {
-        Game_pause = 1;
-        New_Challenger = PL_id;
-        Champion = New_Challenger ^ 1;
-        return ENTRY_X = 1;
-    }
-
-    return 0;
-}
-
-s32 Ck_Break_Into_SP(u16 Sw_0, u16 Sw_1, s16 PL_id) {
-    if (!(~Sw_1 & Sw_0 & 0x4000)) {
-        return 0;
-    }
-
-    New_Challenger = PL_id;
-    Champion = New_Challenger ^ 1;
-    return ENTRY_X = 1;
-}
-
-void Break_Into_02(s16 /* unused */) {
-    plw[New_Challenger].wu.operator = 1;
-    Operator_Status[New_Challenger] = 1;
-    E_Number[New_Challenger][0] = 0;
-    E_Number[New_Challenger][1] = 0;
-    E_Number[New_Challenger][2] = 0;
-    E_Number[New_Challenger][3] = 0;
-
-    if (Continue_Coin[New_Challenger] == 0) {
-        grade_check_work_1st_init(New_Challenger, 0);
-    }
-
-    Select_Timer = 0x30;
-    Unit_Of_Timer = UNIT_OF_TIMER_MAX;
-}
-
-void Break_Into_04(s16 /* unused */) {
-    Break_Into = 1;
-    E_No[1] += 1;
-    E_No[2] = 0;
-    E_Timer = 150;
-    E_Number[New_Challenger][0] = 0;
-    E_Number[New_Challenger][1] = 0;
-    E_Number[New_Challenger][2] = 0;
-    E_Number[New_Challenger][3] = 0;
-    effect_A2_init(0);
-    sound_all_off();
-    Sound_SE(0xB6);
-    Request_LDREQ_Break();
-}
-
-void Break_Into_05(s16 PL_id) {
-    Break_Into = 1;
-    Stop_Combo = 1;
-    E_No[1] += 1;
-    E_No[2] = 0;
-    E_Number[New_Challenger][0] = 0;
-    E_Number[New_Challenger][1] = 0;
-    E_Number[New_Challenger][2] = 0;
-    E_Number[New_Challenger][3] = 0;
-
-    if ((Play_Type == 0) && (Conclusion_Flag != 0) && (plw[Champion].wu.operator == 0)) {
-        E_Timer = 1;
-
-        if (LOSER != New_Challenger) {
-            E_No[3] = 0xFF;
-        } else {
-            E_No[3] = 0;
-        }
-    } else {
-        E_Timer = 150;
-
-        if (Conclusion_Flag == 0) {
-            Score[Champion][0] = Stage_Stock_Score[Champion];
-        }
-
-        effect_A2_init(0);
-        sound_all_off();
-        Sound_SE(0xB6);
-        Request_LDREQ_Break();
-    }
-
-    Stop_Update_Score = 1;
-    cpExitTask(TASK_PAUSE);
-}
-
-void Break_Into_07(s16 PL_id) {
-    E_Number[New_Challenger][0] = 0;
-    E_Number[New_Challenger][1] = 0;
-    E_Number[New_Challenger][2] = 0;
-    E_Number[New_Challenger][3] = 0;
-    E_07_Flag[PL_id] = 1;
-
-    if (E_07_Flag[0] != 0 && E_07_Flag[1] != 0) {
-        return;
-    }
-
-    E_No[1] += 1;
-    E_No[2] = 0;
-    Break_Into = 1;
-}
-
-void Break_Into_08(s16 PL_id) {
-    E_Number[New_Challenger][0] = 0;
-    E_Number[New_Challenger][1] = 0;
-    E_Number[New_Challenger][2] = 0;
-    E_Number[New_Challenger][3] = 0;
-    E_07_Flag[PL_id] = 1;
-
-    if (E_07_Flag[0] != 0 && E_07_Flag[1] != 0) {
-        return;
-    }
-
-    Break_Into = 1;
-    E_No[1] += 1;
-    E_No[2] = 0;
-
-    if (Continue_Count[PL_id ^ 1] >= 0) {
-        E_Timer = 60;
-        return;
-    }
-
-    E_Timer = 10;
-}
-
-void Break_Into_09(s16 PL_id) {
-    E_Number[New_Challenger][0] = 0;
-    E_Number[New_Challenger][1] = 0;
-    E_Number[New_Challenger][2] = 0;
-    E_Number[New_Challenger][3] = 0;
-    E_07_Flag[PL_id] = 1;
-
-    if (E_07_Flag[0] != 0 && E_07_Flag[1] != 0) {
-        return;
-    }
-
-    Break_Into = 1;
-    E_No[1] += 1;
-    E_No[2] = 0;
-    Champion = New_Challenger;
-}
-
-void Break_Into_10(s16 PL_id) {
-    E_Number[New_Challenger][0] = 0;
-    E_Number[New_Challenger][1] = 0;
-    E_Number[New_Challenger][2] = 0;
-    E_Number[New_Challenger][3] = 0;
-    E_07_Flag[PL_id] = 1;
-
-    if (E_07_Flag[0] != 0 && E_07_Flag[1] != 0) {
-        return;
-    }
-
-    Break_Into = 1;
-    E_No[1] += 1;
-    E_No[2] = 0;
-    Champion = New_Challenger;
-}
-
-void Continue_Score_Sub(s16 PL_id) {
-    if ((E_Number[PL_id][0] == 1) || (E_Number[PL_id][0] == 5)) {
-        Continue_Coin[PL_id] += 1;
-
-        if (Continue_Coin[PL_id] >= 99) {
-            Continue_Coin[PL_id] = 99;
-        }
-    }
 }
 
 void Correct_BI_Data() {

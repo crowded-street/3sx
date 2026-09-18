@@ -82,52 +82,67 @@ void end_b00_move() {
     end_b00_jp[end_w.r_no_2]();
 }
 
+/* Open a scene: step the state and put the panel where this scene starts. */
+static void end_11_open_scene() {
+    bgw_ptr->r_no_1++;
+    bgw_ptr->xy[0].disp.pos = end_b_pos[end_w.r_no_2][0];
+    bgw_ptr->xy[1].disp.pos = end_b_pos[end_w.r_no_2][1];
+}
+
+/* The fixed absolute position the scroller reads for this scene. */
+static void end_11_commit_fixed_position() {
+    bgw_ptr->abs_x = 512;
+    bgw_ptr->abs_y = 0;
+}
+
+/* Which effects and message this scene opens with. */
+static void end_b00_0000_scene_setup() {
+    switch (end_w.r_no_2) {
+    case 0:
+        Bg_Off_W(1);
+        effect_E6_init(0x60);
+        Rewrite_End_Message(1);
+        break;
+
+    case 2:
+        Bg_Off_W(1);
+        effect_E6_init(0x62);
+        Rewrite_End_Message(0);
+        break;
+
+    case 4:
+        effect_E6_init(0x65);
+        effect_E6_init(0x66);
+        effect_E6_init(0x67);
+        effect_E6_init(0x68);
+        Rewrite_End_Message(3);
+        break;
+
+    case 5:
+        effect_E6_init(0x69);
+        effect_E6_init(0x6A);
+        effect_E6_init(0x6D);
+        effect_E6_init(0x6E);
+        effect_E6_init(0x6B);
+        Rewrite_End_Message(4);
+        break;
+
+    case 6:
+        effect_E6_init(0x6C);
+        Rewrite_End_Message(5);
+        end_fade_flag = 1;
+        end_fade_timer = timer_b_tbl[end_w.r_no_2] - 120;
+        break;
+    }
+}
+
 void end_b00_0000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_b_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_b_pos[end_w.r_no_2][1];
-        bgw_ptr->abs_x = 512;
-        bgw_ptr->abs_y = 0;
+        end_11_open_scene();
+        end_11_commit_fixed_position();
 
-        switch (end_w.r_no_2) {
-        case 0:
-            Bg_Off_W(1);
-            effect_E6_init(0x60);
-            Rewrite_End_Message(1);
-            break;
-
-        case 2:
-            Bg_Off_W(1);
-            effect_E6_init(0x62);
-            Rewrite_End_Message(0);
-            break;
-
-        case 4:
-            effect_E6_init(0x65);
-            effect_E6_init(0x66);
-            effect_E6_init(0x67);
-            effect_E6_init(0x68);
-            Rewrite_End_Message(3);
-            break;
-
-        case 5:
-            effect_E6_init(0x69);
-            effect_E6_init(0x6A);
-            effect_E6_init(0x6D);
-            effect_E6_init(0x6E);
-            effect_E6_init(0x6B);
-            Rewrite_End_Message(4);
-            break;
-
-        case 6:
-            effect_E6_init(0x6C);
-            Rewrite_End_Message(5);
-            end_fade_flag = 1;
-            end_fade_timer = timer_b_tbl[end_w.r_no_2] - 120;
-            break;
-        }
+        end_b00_0000_scene_setup();
 
         break;
 
@@ -143,8 +158,7 @@ void end_b00_1000() {
         Bg_On_W(1);
         bgw_ptr->xy[0].disp.pos = end_b_pos[end_w.r_no_2][0];
         bgw_ptr->xy[1].disp.pos = end_b_pos[end_w.r_no_2][1];
-        bgw_ptr->abs_x = 512;
-        bgw_ptr->abs_y = 0;
+        end_11_commit_fixed_position();
         end_etc_flag = 0;
         effect_E6_init(0x61);
         Rewrite_End_Message(0);
@@ -166,9 +180,7 @@ void end_b00_1000() {
 void end_b00_3000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_b_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_b_pos[end_w.r_no_2][1];
+        end_11_open_scene();
         bgw_ptr->abs_y = 0;
         Bg_On_W(1);
         bg_w.quake_y_index = 24;
@@ -211,9 +223,7 @@ void end_b01_move() {
 void end_b01_0000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_b_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_b_pos[end_w.r_no_2][1];
+        end_11_open_scene();
 
         if (end_w.r_no_2 == 1) {
             bgw_ptr->speed_y = 0x100000;
@@ -243,11 +253,8 @@ void end_b01_0000() {
 void end_b01_3000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_b_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_b_pos[end_w.r_no_2][1];
-        bgw_ptr->abs_x = 512;
-        bgw_ptr->abs_y = 0;
+        end_11_open_scene();
+        end_11_commit_fixed_position();
         Bg_On_W(2U);
         break;
 

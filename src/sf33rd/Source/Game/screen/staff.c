@@ -289,15 +289,24 @@ static s32 check_shortcut() {
     return 0;
 }
 
-void set_credit_string(s32 t, s32 x, s32 y, s32 a, const char* s) {
+/* set_credit_string's parameters, in their original order and types. */
+typedef struct {
+    s32 t;
+    s32 x;
+    s32 y;
+    s32 a;
+    const char* s;
+} CreditString;
+
+void set_credit_string(const CreditString* args) {
     char* su;
     s16 xu;
     s16 yu;
     s16 mojisuu;
 
-    su = s;
-    xu = x;
-    yu = y;
+    su = args->s;
+    xu = args->x;
+    yu = args->y;
 
     if (*su == 0x3F || *su == 0x60) {
         su++;
@@ -309,15 +318,146 @@ void set_credit_string(s32 t, s32 x, s32 y, s32 a, const char* s) {
     xu += (bg_w.bgw[5].xy[0].disp.pos) - 192;
     yu += bg_w.bgw[5].position_y;
 
-    H6InitArgs init_args = { .timer = t, .str = su, .x = xu, .y = yu, .original_color = a };
+    H6InitArgs init_args = { .timer = args->t, .str = su, .x = xu, .y = yu, .original_color = args->a };
     effect_H6_init(&init_args);
 }
 
-s32 staff_credits(u32 /* unused */) {
-    s16 t;
+/* Place the credit line name_ptr is on: its position and colour come from the table,
+ * the fade time from the caller. Written out thirteen times, ten with a 20-frame
+ * fade and three with 240. */
+static void show_credit_line(s16 t) {
     s16 x;
     s16 y;
     s16 a;
+
+    x = sf3_staff[name_ptr].x;
+    y = sf3_staff[name_ptr].y;
+    a = sf3_staff[name_ptr].atr;
+    set_credit_string(&(CreditString){ t, x, y, a, sf3_staff[name_ptr].name });
+}
+
+/* One pair of credit lines, and on to the next entry. */
+static void show_credit_pair() {
+    show_credit_line(20);
+    name_ptr++;
+    show_credit_line(20);
+    name_ptr++;
+}
+
+/* Show the next page of credits: one pair of lines, and up to four more pairs while
+ * the table says the following entry has no gap before it. */
+static void show_next_credit_page() {
+    name_timer = sf3_staff[name_ptr].next;
+    show_credit_pair();
+
+    if (sf3_staff[name_ptr].next != 0) {
+        return;
+    }
+
+    show_credit_pair();
+
+    if (sf3_staff[name_ptr].next != 0) {
+        return;
+    }
+
+    show_credit_pair();
+
+    if (sf3_staff[name_ptr].next != 0) {
+        return;
+    }
+
+    show_credit_pair();
+
+    if (sf3_staff[name_ptr].next != 0) {
+        return;
+    }
+
+    show_credit_pair();
+}
+
+/* The roll has reached the next entry. Stop at the table's terminator; otherwise show
+ * that entry and up to two more that follow it with no gap. Returns 1 where the
+ * original broke out of the switch. */
+static s32 advance_credit_roll() {
+    if (sf3_staff[name_ptr].name == NULL) {
+        staff_r_no = 3;
+        end_w.timer = sf3_staff[name_ptr].next;
+        SsBgmFadeOut(0x88);
+        return 1;
+    }
+
+    if (*sf3_staff[name_ptr].name == 0x3F) {
+        SsBgmFadeOut(0x4E);
+    }
+
+    if (*sf3_staff[name_ptr].name == 0x60) {
+        BGM_Request(0x40);
+    }
+
+    name_timer = 0x7FFF;
+    show_credit_line(240);
+    end_w.timer = sf3_staff[name_ptr].next;
+    name_ptr++;
+
+    if (0 >= end_w.timer) {
+        show_credit_line(240);
+        end_w.timer = sf3_staff[name_ptr].next;
+        name_ptr++;
+
+        if (0 >= end_w.timer) {
+            show_credit_line(240);
+            end_w.timer = 0xF0;
+            name_ptr++;
+        }
+    }
+
+    return 0;
+}
+
+/* One frame of the roll: a shortcut ends it, the gap timer runs down, and when it
+ * expires the next entry and then the next page of names go up. */
+static void run_credit_roll() {
+    if (check_shortcut() != 0) {
+        staff_r_no = 4;
+        end_w.timer = 0;
+    } else {
+        roll_rate_t2 = 1;
+    }
+
+    if (end_w.timer >= 0) {
+        end_w.timer = end_w.timer - roll_rate_t2;
+    } else {
+        if (advance_credit_roll()) {
+            return;
+        }
+    }
+
+    if (name_timer >= 0) {
+        name_timer = name_timer - roll_rate_t2;
+        return;
+    }
+
+    show_next_credit_page();
+}
+
+/* The pause either side of the roll: run the timer down, then move on - or skip it
+ * entirely on a shortcut. */
+static void wait_out_credit_pause() {
+    if (end_w.timer >= 0) {
+        end_w.timer = end_w.timer - roll_rate_t2;
+    } else {
+        staff_r_no++;
+    }
+
+    if (check_shortcut() != 0) {
+        staff_r_no = 4;
+        end_w.timer = 0;
+    }
+}
+
+s32 staff_credits(u32 /* unused */) {
+    s16 x;
+    s16 y;
 
     switch (staff_r_no) {
     case 0:
@@ -342,155 +482,12 @@ s32 staff_credits(u32 /* unused */) {
         break;
 
     case 1:
-        if (check_shortcut() != 0) {
-            staff_r_no = 4;
-            end_w.timer = 0;
-        } else {
-            roll_rate_t2 = 1;
-        }
-
-        if (end_w.timer >= 0) {
-            end_w.timer = end_w.timer - roll_rate_t2;
-        } else {
-            if (sf3_staff[name_ptr].name == NULL) {
-                staff_r_no = 3;
-                end_w.timer = sf3_staff[name_ptr].next;
-                SsBgmFadeOut(0x88);
-                break;
-            }
-
-            if (*sf3_staff[name_ptr].name == 0x3F) {
-                SsBgmFadeOut(0x4E);
-            }
-
-            if (*sf3_staff[name_ptr].name == 0x60) {
-                BGM_Request(0x40);
-            }
-
-            name_timer = 0x7FFF;
-            t = 240;
-            x = sf3_staff[name_ptr].x;
-            y = sf3_staff[name_ptr].y;
-            a = sf3_staff[name_ptr].atr;
-            set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
-            end_w.timer = sf3_staff[name_ptr].next;
-            name_ptr++;
-
-            if (0 >= end_w.timer) {
-                t = 240;
-                x = sf3_staff[name_ptr].x;
-                y = sf3_staff[name_ptr].y;
-                a = sf3_staff[name_ptr].atr;
-                set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
-                end_w.timer = sf3_staff[name_ptr].next;
-                name_ptr++;
-
-                if (0 >= end_w.timer) {
-                    t = 240;
-                    x = sf3_staff[name_ptr].x;
-                    y = sf3_staff[name_ptr].y;
-                    a = sf3_staff[name_ptr].atr;
-                    set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
-                    end_w.timer = 0xF0;
-                    name_ptr++;
-                }
-            }
-        }
-
-        if (name_timer >= 0) {
-            name_timer = name_timer - roll_rate_t2;
-            break;
-        }
-
-        name_timer = sf3_staff[name_ptr].next;
-        t = 20;
-        x = sf3_staff[name_ptr].x;
-        y = sf3_staff[name_ptr].y;
-        a = sf3_staff[name_ptr].atr;
-        set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
-        name_ptr++;
-        t = 20;
-        x = sf3_staff[name_ptr].x;
-        y = sf3_staff[name_ptr].y;
-        a = sf3_staff[name_ptr].atr;
-        set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
-        name_ptr++;
-
-        if (sf3_staff[name_ptr].next == 0) {
-            t = 20;
-            x = sf3_staff[name_ptr].x;
-            y = sf3_staff[name_ptr].y;
-            a = sf3_staff[name_ptr].atr;
-            set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
-            name_ptr++;
-            t = 20;
-            x = sf3_staff[name_ptr].x;
-            y = sf3_staff[name_ptr].y;
-            a = sf3_staff[name_ptr].atr;
-            set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
-            name_ptr++;
-
-            if (sf3_staff[name_ptr].next == 0) {
-                t = 20;
-                x = sf3_staff[name_ptr].x;
-                y = sf3_staff[name_ptr].y;
-                a = sf3_staff[name_ptr].atr;
-                set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
-                name_ptr++;
-                t = 20;
-                x = sf3_staff[name_ptr].x;
-                y = sf3_staff[name_ptr].y;
-                a = sf3_staff[name_ptr].atr;
-                set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
-                name_ptr++;
-
-                if (sf3_staff[name_ptr].next == 0) {
-                    t = 20;
-                    x = sf3_staff[name_ptr].x;
-                    y = sf3_staff[name_ptr].y;
-                    a = sf3_staff[name_ptr].atr;
-                    set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
-                    name_ptr++;
-                    t = 20;
-                    x = sf3_staff[name_ptr].x;
-                    y = sf3_staff[name_ptr].y;
-                    a = sf3_staff[name_ptr].atr;
-                    set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
-                    name_ptr++;
-
-                    if (sf3_staff[name_ptr].next == 0) {
-                        t = 20;
-                        x = sf3_staff[name_ptr].x;
-                        y = sf3_staff[name_ptr].y;
-                        a = sf3_staff[name_ptr].atr;
-                        set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
-                        name_ptr++;
-                        t = 20;
-                        x = sf3_staff[name_ptr].x;
-                        y = sf3_staff[name_ptr].y;
-                        a = sf3_staff[name_ptr].atr;
-                        set_credit_string(t, x, y, a, sf3_staff[name_ptr].name);
-                        name_ptr++;
-                    }
-                }
-            }
-        }
-
+        run_credit_roll();
         break;
 
     case 2:
     case 3:
-        if (end_w.timer >= 0) {
-            end_w.timer = end_w.timer - roll_rate_t2;
-        } else {
-            staff_r_no++;
-        }
-
-        if (check_shortcut() != 0) {
-            staff_r_no = 4;
-            end_w.timer = 0;
-        }
-
+        wait_out_credit_pause();
         break;
 
     default:

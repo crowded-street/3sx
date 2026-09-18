@@ -39,33 +39,38 @@ s16 Game_Over() {
     return GAME_OVER_X;
 }
 
+/* Sub-state 0: scroll the backgrounds into the game-over layout, start its music and
+ * put the winner's banner up. */
+static void Begin_Game_Over_Scene() {
+    GO_No[1] += 1;
+    Unsubstantial_BG[3] = 1;
+    Target_BG_X[3] = bg_w.bgw[3].wxy[0].disp.pos + 466;
+    Offset_BG_X[3] = 0;
+    Target_BG_X[1] = bg_w.bgw[1].wxy[0].disp.pos + 458;
+    Offset_BG_X[1] = 0;
+    bg_mvxy.a[0].sp = 0xE0000;
+    bg_mvxy.d[0].sp = 0;
+    effect_A9_init(0x20, 5, 0x12, 0);
+    BGM_Request(59);
+    Next_Step = 0;
+
+    effect_58_init(0xC, 1, 3);
+    effect_58_init(0xC, 1, 1);
+    effect_58_init(0xF, 5, 2);
+    effect_58_init(0x10, 5, 2);
+
+    if (Break_Com[WINNER][0]) {
+        effect_76_init(0x38);
+        Order[0x38] = 3;
+        Order_Timer[0x38] = 1;
+        return;
+    }
+}
+
 void GameOver_1st() {
     switch (GO_No[1]) {
     case 0:
-        GO_No[1] += 1;
-        Unsubstantial_BG[3] = 1;
-        Target_BG_X[3] = bg_w.bgw[3].wxy[0].disp.pos + 466;
-        Offset_BG_X[3] = 0;
-        Target_BG_X[1] = bg_w.bgw[1].wxy[0].disp.pos + 458;
-        Offset_BG_X[1] = 0;
-        bg_mvxy.a[0].sp = 0xE0000;
-        bg_mvxy.d[0].sp = 0;
-        effect_A9_init(0x20, 5, 0x12, 0);
-        BGM_Request(59);
-        Next_Step = 0;
-
-        effect_58_init(0xC, 1, 3);
-        effect_58_init(0xC, 1, 1);
-        effect_58_init(0xF, 5, 2);
-        effect_58_init(0x10, 5, 2);
-
-        if (Break_Com[WINNER][0]) {
-            effect_76_init(0x38);
-            Order[0x38] = 3;
-            Order_Timer[0x38] = 1;
-            return;
-        }
-
+        Begin_Game_Over_Scene();
         break;
 
     case 1:
@@ -93,6 +98,106 @@ void GameOver_1st() {
     }
 }
 
+/* Neither side is entering a ranking name, so the game-over screen need not wait. */
+static s32 Neither_Player_Is_Naming() {
+    return (E_Number[0][0] != 2) && (E_Number[1][0] != 2);
+}
+
+/* Sub-state 2: once the screen is covered, build the result display behind it. */
+static void Build_Result_Screen() {
+    if (FadeOut(1, 8, 8) != 0) {
+        GO_No[1] += 1;
+        Cover_Timer = 5;
+        Suicide[3] = 1;
+        Suicide[2] = 0;
+
+        if (Break_Com[WINNER][0]) {
+            Setup_BG(0, 0x200, 0);
+            bg_etc_write(PL_Color_Data[My_char[Winner_id]]);
+        }
+
+        Setup_Result_OBJ();
+        effect_76_init(0x41);
+        Order[0x41] = 3;
+        Order_Timer[0x41] = 1;
+        return;
+    }
+}
+
+/* Sub-state 4: once the result is faded in, let break-ins back in and either wait for
+ * the naming screen or start the result timer. */
+static void Show_Result_Screen() {
+    if (FadeIn(1, 8, 8) != 0) {
+        Forbid_Break = 0;
+        BGM_Request(54);
+        Ignore_Entry[LOSER] = 0;
+
+        if (Neither_Player_Is_Naming()) {
+            GO_No[1] += 2;
+            G_Timer = 60;
+            return;
+        }
+
+        GO_No[1] += 1;
+        return;
+    }
+}
+
+/* The last hold: when it runs out the screen is over and the BGM fades with it. */
+static void End_Game_Over_Screen() {
+    if (--G_Timer == 0) {
+        GO_No[0] += 1;
+        SsBgmFadeOut(0x222);
+        GAME_OVER_X = 1;
+    }
+}
+
+/* The half after the result is on screen: the fade in, the wait for naming, and the
+ * two holds that end the screen. Labels unchanged, so a sub-state still reads as
+ * the number the rest of the file uses. */
+/* Sub-state 6: hold the result up, then start the per-player result timer. */
+static void Hold_Result_Screen() {
+    if (--G_Timer == 0) {
+        GO_No[1] += 1;
+        G_Timer = Result_Timer[Player_id];
+        return;
+    }
+}
+
+static void GameOver_2nd_After_Result() {
+    switch (GO_No[1]) {
+    case 4:
+        Show_Result_Screen();
+
+        break;
+
+    case 5:
+        if (Neither_Player_Is_Naming()) {
+            GO_No[1] += 1;
+            G_Timer = 60;
+            return;
+        }
+
+        break;
+
+    case 6:
+        Hold_Result_Screen();
+
+        break;
+
+    case 7:
+        if (Scene_Cut) {
+            G_Timer = 1;
+        }
+        /* fallthrough */
+
+    default:
+        End_Game_Over_Screen();
+
+        break;
+    }
+}
+
 void GameOver_2nd() {
     switch (GO_No[1]) {
     case 0:
@@ -106,23 +211,7 @@ void GameOver_2nd() {
         return;
 
     case 2:
-        if (FadeOut(1, 8, 8) != 0) {
-            GO_No[1] += 1;
-            Cover_Timer = 5;
-            Suicide[3] = 1;
-            Suicide[2] = 0;
-
-            if (Break_Com[WINNER][0]) {
-                Setup_BG(0, 0x200, 0);
-                bg_etc_write(PL_Color_Data[My_char[Winner_id]]);
-            }
-
-            Setup_Result_OBJ();
-            effect_76_init(0x41);
-            Order[0x41] = 3;
-            Order_Timer[0x41] = 1;
-            return;
-        }
+        Build_Result_Screen();
 
         break;
 
@@ -138,55 +227,8 @@ void GameOver_2nd() {
 
         break;
 
-    case 4:
-        if (FadeIn(1, 8, 8) != 0) {
-            Forbid_Break = 0;
-            BGM_Request(54);
-            Ignore_Entry[LOSER] = 0;
-
-            if ((E_Number[0][0] != 2) && (E_Number[1][0] != 2)) {
-                GO_No[1] += 2;
-                G_Timer = 60;
-                return;
-            }
-
-            GO_No[1] += 1;
-            return;
-        }
-
-        break;
-
-    case 5:
-        if ((E_Number[0][0] != 2) && (E_Number[1][0] != 2)) {
-            GO_No[1] += 1;
-            G_Timer = 60;
-            return;
-        }
-
-        break;
-
-    case 6:
-        if (--G_Timer == 0) {
-            GO_No[1] += 1;
-            G_Timer = Result_Timer[Player_id];
-            return;
-        }
-
-        break;
-
-    case 7:
-        if (Scene_Cut) {
-            G_Timer = 1;
-        }
-        /* fallthrough */
-
     default:
-        if (--G_Timer == 0) {
-            GO_No[0] += 1;
-            SsBgmFadeOut(0x222);
-            GAME_OVER_X = 1;
-        }
-
+        GameOver_2nd_After_Result();
         break;
     }
 }

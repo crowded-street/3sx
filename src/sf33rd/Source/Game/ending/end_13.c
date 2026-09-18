@@ -87,15 +87,21 @@ void end_d00_move() {
     end_d00_jp[end_w.r_no_2]();
 }
 
+/* Put the panel where this scene starts, with the fixed absolute position the
+ * scroller reads. */
+static void end_13_place_panel_at_scene_start() {
+    bgw_ptr->xy[0].disp.pos = end_d_pos[end_w.r_no_2][0];
+    bgw_ptr->xy[1].disp.pos = end_d_pos[end_w.r_no_2][1];
+    bgw_ptr->abs_x = 512;
+    bgw_ptr->abs_y = 0;
+}
+
 void end_d00_1000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
         Bg_On_W(1 << bgw_ptr->fam_no);
-        bgw_ptr->xy[0].disp.pos = end_d_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_d_pos[end_w.r_no_2][1];
-        bgw_ptr->abs_x = 512;
-        bgw_ptr->abs_y = 0;
+        end_13_place_panel_at_scene_start();
 
         switch (end_w.r_no_2) {
         case 0:
@@ -206,15 +212,28 @@ void end_d00_4000() {
     }
 }
 
+/* Nudge the panel up and down on alternate frames. */
+static void end_d00_6000_shake() {
+    bgw_ptr->free++;
+    bgw_ptr->free &= 1;
+
+    if (bgw_ptr->free) {
+        bgw_ptr->xy[1].disp.pos += 8;
+        bgw_ptr->abs_y += 8;
+        return;
+    }
+
+    bgw_ptr->xy[1].disp.pos -= 8;
+    bgw_ptr->abs_y -= 8;
+    return;
+}
+
 void end_d00_6000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
         Bg_On_W(1 << bgw_ptr->fam_no);
-        bgw_ptr->xy[0].disp.pos = end_d_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_d_pos[end_w.r_no_2][1];
-        bgw_ptr->abs_x = 512;
-        bgw_ptr->abs_y = 0;
+        end_13_place_panel_at_scene_start();
         effect_E6_init(0x4A);
         bgw_ptr->free = 0x3C;
         Rewrite_End_Message(0);
@@ -234,17 +253,7 @@ void end_d00_6000() {
 
     case 2:
         if (!end_etc_flag) {
-            bgw_ptr->free++;
-            bgw_ptr->free &= 1;
-
-            if (bgw_ptr->free) {
-                bgw_ptr->xy[1].disp.pos += 8;
-                bgw_ptr->abs_y += 8;
-                break;
-            }
-
-            bgw_ptr->xy[1].disp.pos -= 8;
-            bgw_ptr->abs_y -= 8;
+            end_d00_6000_shake();
             break;
         }
 
@@ -253,17 +262,7 @@ void end_d00_6000() {
         break;
 
     case 3:
-        bgw_ptr->free++;
-        bgw_ptr->free &= 1;
-
-        if (bgw_ptr->free) {
-            bgw_ptr->xy[1].disp.pos += 8;
-            bgw_ptr->abs_y += 8;
-            break;
-        }
-
-        bgw_ptr->xy[1].disp.pos -= 8;
-        bgw_ptr->abs_y -= 8;
+        end_d00_6000_shake();
         break;
     }
 }
@@ -272,10 +271,7 @@ void end_d00_7000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_d_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_d_pos[end_w.r_no_2][1];
-        bgw_ptr->abs_x = 512;
-        bgw_ptr->abs_y = 0;
+        end_13_place_panel_at_scene_start();
         Rewrite_End_Message(4);
         end_fade_flag = 1;
         end_fade_timer = timer_d_tbl[end_w.r_no_2] - 120;

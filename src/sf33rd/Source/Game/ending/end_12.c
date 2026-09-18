@@ -119,12 +119,17 @@ void end_C00_0000() {
     }
 }
 
+/* Open a scene: step the state and put the panel where this scene starts. */
+static void end_12_open_scene() {
+    bgw_ptr->r_no_1++;
+    bgw_ptr->xy[0].disp.pos = end_c_pos[end_w.r_no_2][0];
+    bgw_ptr->xy[1].disp.pos = end_c_pos[end_w.r_no_2][1];
+}
+
 void end_C00_1000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_c_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_c_pos[end_w.r_no_2][1];
+        end_12_open_scene();
         bgw_ptr->abs_x = 512;
         bgw_ptr->abs_y = 0;
         effect_E6_init(0x39);
@@ -197,9 +202,7 @@ void end_C00_3000() {
 void end_C00_4000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_c_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_c_pos[end_w.r_no_2][1];
+        end_12_open_scene();
         effect_E6_init(0x3B);
         Rewrite_End_Message(4);
         bgw_ptr->free = 0;
@@ -214,9 +217,7 @@ void end_C00_4000() {
 void end_C00_5000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_c_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_c_pos[end_w.r_no_2][1];
+        end_12_open_scene();
         effect_E6_init(0x3C);
         effect_E6_init(0x99);
         Rewrite_End_Message(5);
@@ -230,9 +231,7 @@ void end_C00_5000() {
 void end_C00_6000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_c_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_c_pos[end_w.r_no_2][1];
+        end_12_open_scene();
         bgw_ptr->free = 0x3C;
         end_fade_flag = 1;
         end_fade_timer = timer_c_tbl[end_w.r_no_2] - 120;

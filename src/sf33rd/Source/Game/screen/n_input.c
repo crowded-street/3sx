@@ -112,6 +112,18 @@ void Name_Scs_Input_init() {
     Scs_char_move();
 }
 
+/* Give up on the rest of the name: pad it out with blanks and move to the end state.
+ * Run both when the clock runs out and when the player picks END. */
+static void Fill_Name_With_Blanks() {
+    s16 i;
+
+    name_ptr->r_no_0 = 6;
+
+    for (i = name_ptr->index; i < 4; i++) {
+        name_ptr->code[i] = 44;
+    }
+}
+
 void Name_Scs_Input_comm() {
     s16 work;
     s16 i;
@@ -120,11 +132,7 @@ void Name_Scs_Input_comm() {
     name_limit_timer[name_ptr->id]--;
 
     if (name_limit_timer[name_ptr->id] < 0 || name_ptr->timer < 0) {
-        name_ptr->r_no_0 = 6;
-
-        for (i = name_ptr->index; i < 4; i++) {
-            name_ptr->code[i] = 44;
-        }
+        Fill_Name_With_Blanks();
     } else {
         work = Name_Input_sub();
 
@@ -167,11 +175,7 @@ void Name_Scs_Input_comm() {
             break;
 
         case 3:
-            name_ptr->r_no_0 = 6;
-
-            for (i = name_ptr->index; i < 4; i++) {
-                name_ptr->code[i] = 44;
-            }
+            Fill_Name_With_Blanks();
             break;
         }
     }
@@ -222,6 +226,34 @@ void Name_Scs_Finish() {
     Scs_char_move();
 }
 
+/* No button pressed: the lever walks the character under the cursor round the
+ * alphabet, wrapping at either end. */
+/* Lever down: step back one character, wrapping to the end of the alphabet. */
+static void Step_Name_Character_Back(u16 sw_data, u16 sw_up_w) {
+    if (auto_n_check(4, 0, sw_data, sw_up_w)) {
+        name_ptr->code[name_ptr->index]--;
+
+        if (name_ptr->code[name_ptr->index] < 0) {
+            name_ptr->code[name_ptr->index] = 46;
+        }
+    }
+}
+
+static s32 Step_Name_Character(u16 sw_data, u16 sw_up_w) {
+    if (sw_data & 0xC) {
+        Step_Name_Character_Back(sw_data, sw_up_w);
+        if (auto_n_check(8, 1, sw_data, sw_up_w)) {
+            name_ptr->code[name_ptr->index]++;
+
+            if (name_ptr->code[name_ptr->index] > 46) {
+                name_ptr->code[name_ptr->index] = 0;
+            }
+        }
+    }
+
+    return 0;
+}
+
 s32 Name_Input_sub() {
     u16 sw_up_w;
     u16 sw_data;
@@ -248,24 +280,7 @@ s32 Name_Input_sub() {
             return 1;
         }
     } else {
-        if (sw_data & 0xC) {
-            if (auto_n_check(4, 0, sw_data, sw_up_w)) {
-                name_ptr->code[name_ptr->index]--;
-
-                if (name_ptr->code[name_ptr->index] < 0) {
-                    name_ptr->code[name_ptr->index] = 46;
-                }
-            }
-            if (auto_n_check(8, 1, sw_data, sw_up_w)) {
-                name_ptr->code[name_ptr->index]++;
-
-                if (name_ptr->code[name_ptr->index] > 46) {
-                    name_ptr->code[name_ptr->index] = 0;
-                }
-            }
-        }
-
-        return 0;
+        return Step_Name_Character(sw_data, sw_up_w);
     }
 }
 
@@ -336,9 +351,21 @@ void define_name_input() {
     name_ptr->code[2] = 12;
 }
 
+/* Of the places this player took, the best one - the lowest position number. */
+static s16 Best_Rank_Slot(s16 joui) {
+    s16 j;
+
+    for (j = joui + 1; j < 4; j++) {
+        if (Rank_In[name_ptr->id][j] >= 0 && Rank_In[name_ptr->id][joui] > Rank_In[name_ptr->id][j]) {
+            joui = j;
+        }
+    }
+
+    return joui;
+}
+
 void ranking_state_check() {
     s16 joui;
-    s16 j;
 
     name_ptr->rank = -1;
 
@@ -348,11 +375,7 @@ void ranking_state_check() {
         }
     }
 
-    for (j = joui + 1; j < 4; j++) {
-        if (Rank_In[name_ptr->id][j] >= 0 && Rank_In[name_ptr->id][joui] > Rank_In[name_ptr->id][j]) {
-            joui = j;
-        }
-    }
+    joui = Best_Rank_Slot(joui);
 
     name_ptr->rank_in = name_ptr->rank = Rank_In[name_ptr->id][joui];
     name_ptr->rank_status = name_ptr->status = rank_stage_tbl[joui];
@@ -422,6 +445,15 @@ void Scs_char_move() {
     }
 }
 
+/* A character that just changed restarts its flash from the top. */
+static void Restart_Flash_On_Change() {
+    if (name_ptr->old_code[nsc_ptr->type] != name_ptr->code[nsc_ptr->type]) {
+        nsc_ptr->n_disp_flag = 0;
+        nsc_ptr->f_cnt = 0;
+        nsc_ptr->tenmetsu_flag = 0;
+    }
+}
+
 void Scs_move_sub() {
     switch (nsc_ptr->r_no_0) {
     case 0:
@@ -450,10 +482,32 @@ void Scs_move_sub() {
         break;
     }
 
-    if (name_ptr->old_code[nsc_ptr->type] != name_ptr->code[nsc_ptr->type]) {
-        nsc_ptr->n_disp_flag = 0;
+    Restart_Flash_On_Change();
+}
+
+/* Run the cursor character's flash cycle, and hand over once the name is finished. */
+static void Flash_Current_Character() {
+    if (name_ptr->r_no_0 > 5) {
+        nsc_ptr->r_no_0++;
+        return;
+    }
+
+    nsc_ptr->f_cnt++;
+
+    if (nsc_ptr->f_cnt > 16) {
         nsc_ptr->f_cnt = 0;
-        nsc_ptr->tenmetsu_flag = 0;
+        nsc_ptr->n_disp_flag++;
+
+        if (nsc_ptr->n_disp_flag > 2) {
+            nsc_ptr->n_disp_flag = 0;
+        }
+
+        if (nsc_ptr->n_disp_flag != 2) {
+            nsc_ptr->tenmetsu_flag = 0;
+            return;
+        }
+
+        nsc_ptr->tenmetsu_flag = 1;
     }
 }
 
@@ -470,46 +524,31 @@ void current_sc_move2() {
         break;
 
     case 1:
-        if (name_ptr->r_no_0 > 5) {
-            nsc_ptr->r_no_0++;
-            break;
-        }
-
-        nsc_ptr->f_cnt++;
-
-        if (nsc_ptr->f_cnt > 16) {
-            nsc_ptr->f_cnt = 0;
-            nsc_ptr->n_disp_flag++;
-
-            if (nsc_ptr->n_disp_flag > 2) {
-                nsc_ptr->n_disp_flag = 0;
-            }
-
-            if (nsc_ptr->n_disp_flag != 2) {
-                nsc_ptr->tenmetsu_flag = 0;
-                break;
-            }
-
-            nsc_ptr->tenmetsu_flag = 1;
-        }
+        Flash_Current_Character();
 
         break;
     }
 }
 
-void start_cut_check(s16 pl_id) {
+/* The player cut the naming short: jump to the end state and blank whatever they had
+ * not yet entered. */
+static void Cut_Remaining_Name() {
     s16 i;
 
-    if (Naming_Cut[pl_id]) {
-        if (name_ptr->r_no_0 < 6) {
-            name_ptr->r_no_0 = 6;
-        }
+    if (name_ptr->r_no_0 < 6) {
+        name_ptr->r_no_0 = 6;
+    }
 
-        for (i = 0; i < 3; i++) {
-            if (name_ptr->end_flag[i] == 0) {
-                name_ptr->code[i] = 44;
-            }
+    for (i = 0; i < 3; i++) {
+        if (name_ptr->end_flag[i] == 0) {
+            name_ptr->code[i] = 44;
         }
+    }
+}
+
+void start_cut_check(s16 pl_id) {
+    if (Naming_Cut[pl_id]) {
+        Cut_Remaining_Name();
     }
 }
 

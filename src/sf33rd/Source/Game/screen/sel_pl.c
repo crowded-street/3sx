@@ -4,6 +4,8 @@
  */
 
 #include "sf33rd/Source/Game/screen/sel_pl.h"
+#include "sf33rd/Source/Game/screen/sel_pl_faces.h"
+#include "sf33rd/Source/Game/screen/sel_pl_exit.h"
 #include "common.h"
 #include "constants.h"
 #include "sf33rd/AcrSDK/common/pad.h"
@@ -64,23 +66,6 @@ void Setup_Face_Sub();
 void Setup_Select_Status();
 u8 Setup_Aborigine();
 void Setup_Cursor_Y();
-void Initialize_BG();
-void Setup_BG_General();
-void Setup_FACE_BG();
-s16 Setup_Face_X();
-s16 Setup_Face_Y();
-void Face_Control();
-void Face_1st();
-void Face_2nd();
-void Face_3rd();
-void Face_4th();
-void Move_Face_BG();
-void OBJ_Control();
-void OBJ_1st();
-void OBJ_2nd();
-void OBJ_3rd();
-void Setup_EFF69();
-void Go_Away_Red_Lines();
 void Player_Select_Control();
 void PL_Sel_1st();
 void PL_Sel_2nd();
@@ -105,26 +90,6 @@ void Sel_PL_Sub_CD(s16 PL_id);
 void Auto_Repeat_Sub(s16 PL_id);
 u16 Auto_Repeat_Sub_Wife(s16 PL_id);
 void Sel_Arts_Sub(s16 PL_id, u16 sw, u16 /* unused */);
-void Check_Exit();
-void Exit_1st();
-void Exit_2nd();
-void Exit_3rd();
-void Exit_4th();
-void Exit_5th();
-void Exit_6th();
-void Exit_7th();
-void Handicap_1st();
-void Handicap_2nd();
-void Handicap_3rd();
-void Handicap_Control();
-void Handicap_1();
-void Handicap_2();
-void Handicap_3();
-void Handicap_4();
-void Handicap_Vital_Select(s16 PL_id);
-u16 Handicap_Vital_Move_Sub(u16 sw, s16 PL_id);
-void Handicap_Stage_Select(s16 PL_id);
-void Handicap_Stage_Move_Sub(u16 sw);
 void Correct_Control_Time(s16 PL_id);
 s32 Check_Boss(s16 PL_id);
 u8 Setup_Battle_Country();
@@ -132,8 +97,6 @@ u8 Setup_Battle_Country();
 u8 SEL_PL_X;
 s16 Play_Type_1st;
 u16 Color7[2];
-u8 Decide_Stage;
-u8 hc3alpha;
 
 const s16 Cursor_Y_Data[6] = { 80, 104, 128, 80, 104, 128 };
 
@@ -142,6 +105,21 @@ const u8 Arts_Y_Data[3][3] = { { 0, 1, 2 }, { 2, 0, 1 }, { 1, 2, 0 } };
 const u8 Repeat_Time_Data[3] = { 26, 9, 7 };
 
 const u8 Repeat_Time_Data_Wife[3] = { 1, 1, 1 };
+
+/* The cursor is frozen while this player has confirmed or the grid is scrolling. */
+static s32 Cursor_Is_Held() {
+    return Stop_Cursor[ID] != 0 || Face_Move != 0;
+}
+
+/* Either of the two training modes. */
+static s32 In_A_Training_Mode() {
+    return Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING;
+}
+
+/* At least one seat has no operator, so a CPU opponent has to be chosen. */
+static s32 Either_Side_Is_CPU() {
+    return plw[0].wu.operator == 0 || plw[1].wu.operator == 0;
+}
 
 s16 Select_Player() {
     SEL_PL_X = 0;
@@ -161,6 +139,25 @@ s16 Select_Player() {
     return SEL_PL_X;
 }
 
+/* Entering training: reset the training work and hand the idle pad the other
+ * player's switches, so both sides read the same stick. */
+static void Enter_Training_Mode() {
+    S_No[3]++;
+    Default_Training_Data(0);
+    Record_Data_Tr = 0;
+    Training_Disp_Work_Clear();
+    Menu_Cursor_X[0] = 0;
+    Training_Cursor = 0;
+
+    if (Champion) {
+        p1sw_0 = p2sw_0;
+        p1sw_1 = p2sw_0;
+    } else {
+        p2sw_0 = p1sw_0;
+        p2sw_1 = p1sw_0;
+    }
+}
+
 void Switch_Work() {
     if (Mode_Type != MODE_NORMAL_TRAINING && Mode_Type != MODE_PARRY_TRAINING) {
         return;
@@ -177,20 +174,7 @@ void Switch_Work() {
         break;
 
     case 1:
-        S_No[3]++;
-        Default_Training_Data(0);
-        Record_Data_Tr = 0;
-        Training_Disp_Work_Clear();
-        Menu_Cursor_X[0] = 0;
-        Training_Cursor = 0;
-
-        if (Champion) {
-            p1sw_0 = p2sw_0;
-            p1sw_1 = p2sw_0;
-        } else {
-            p2sw_0 = p1sw_0;
-            p2sw_1 = p1sw_0;
-        }
+        Enter_Training_Mode();
 
         break;
 
@@ -395,351 +379,6 @@ void Setup_Cursor_Y() {
     }
 }
 
-void Initialize_BG() {
-    Setup_BG_General();
-    Setup_BG(2, 512, 0);
-    Setup_BG(3, 704, 0);
-    Setup_FACE_BG();
-}
-
-void Setup_BG_General() {
-    Zoomf_Init();
-    bg_w.bgw[0].old_pos_x = bg_w.bgw[0].xy[0].disp.pos;
-    bg_pos_hosei2();
-    Bg_Family_Set();
-}
-
-void Setup_FACE_BG() {
-    s16 face_x;
-    s16 face_y;
-
-    Unsubstantial_BG[1] = 1;
-    face_x = Setup_Face_X();
-    face_y = Setup_Face_Y();
-    bg_w.bgw[1].xy[0].disp.pos = face_x;
-    bg_w.bgw[1].xy[1].disp.pos = face_y;
-    bg_w.bgw[1].wxy[0].disp.pos = face_x;
-    bg_w.bgw[1].wxy[1].disp.pos = face_y;
-    bg_w.bgw[1].xy[0].disp.low = 0;
-    bg_w.bgw[1].xy[1].disp.low = 0;
-    bg_w.bgw[1].position_x = face_x;
-    bg_w.bgw[1].position_y = face_y;
-    bg_w.bgw[1].hos_xy[0].disp.pos = bg_w.bgw[1].wxy[0].disp.pos = bg_w.bgw[1].xy[0].disp.pos;
-    Bg_Family_Set_Ex(1);
-}
-
-s16 Setup_Face_X() {
-    if (Play_Type == 1) {
-        return 604;
-    }
-
-    if (Aborigine == 0) {
-        return 512;
-    }
-
-    return 696;
-}
-
-s16 Setup_Face_Y() {
-    if (Play_Type == 1) {
-        return 0;
-    }
-
-    if (Aborigine == 0) {
-        return -24;
-    }
-
-    return 0;
-}
-
-void Face_Control() {
-    void (*Face_Jmp_Tbl[4])() = { Face_1st, Face_2nd, Face_3rd, Face_4th };
-    Face_Jmp_Tbl[Face_No[0]]();
-    Move_Face_BG();
-}
-
-void Face_1st() {
-    if (Select_Status[0] == 3) {
-        Face_No[0] = 3;
-    } else {
-        Face_No[0] = 1;
-    }
-}
-
-void Face_2nd() {
-    if (Select_Status[0] == 3 && Face_MV_Request == 0) {
-        Face_No[0] = 3;
-        Face_MV_Time = 1;
-
-        if (Aborigine == 1) {
-            Face_MV_Request = 2;
-            bg_mvxy.a[0].sp = -0x90000;
-            bg_mvxy.d[0].sp = -0x8000;
-            return;
-        }
-
-        Face_MV_Request = 1;
-        bg_mvxy.a[0].sp = 0x90000;
-        bg_mvxy.d[0].sp = 0x8000;
-        return;
-    }
-
-    if (Sel_PL_Complete[Aborigine]) {
-        Face_MV_Time = 5;
-        Face_No[0]++;
-
-        if (Aborigine == 0) {
-            Face_MV_Request = 4;
-            bg_mvxy.a[0].sp = -0xC0000;
-            bg_mvxy.d[0].sp = -0x8000;
-            return;
-        }
-
-        Face_MV_Request = 3;
-        bg_mvxy.a[0].sp = 0xC0000;
-        bg_mvxy.d[0].sp = 0x8000;
-    }
-}
-
-void Face_3rd() {
-    if (Select_Status[0] != 3) {
-        return;
-    }
-
-    if (Face_MV_Request != 0) {
-        return;
-    }
-
-    Face_No[0]++;
-    Face_MV_Time = 1;
-
-    if (Aborigine == 1) {
-        Face_MV_Request = 2;
-        bg_mvxy.a[0].sp = -0xC0000;
-        bg_mvxy.d[0].sp = -0x8000;
-        return;
-    }
-
-    Face_MV_Request = 1;
-    bg_mvxy.a[0].sp = 0xC0000;
-    bg_mvxy.d[0].sp = 0x8000;
-}
-
-void Face_4th() {}
-
-void Move_Face_BG() {
-    switch (Face_No[1]) {
-    case 0:
-        if (Face_MV_Request) {
-            Face_No[1]++;
-            Face_Move = Face_MV_Request;
-            effect_93_init(Face_Move - 1, Face_MV_Time);
-        }
-
-        break;
-
-    default:
-        if (!(Face_MV_Request = Face_Move)) {
-            Face_No[1] = 0;
-        }
-
-        break;
-    }
-}
-
-void OBJ_Control() {
-    void (*OBJ_Jmp_Tbl[3])() = { OBJ_1st, OBJ_2nd, OBJ_3rd };
-    OBJ_Jmp_Tbl[SO_No[0]]();
-}
-
-void OBJ_1st() {
-    Setup_EFF69();
-
-    if (Select_Status[0] != 3) {
-        SO_No[0] = 1;
-        effect_38_init(Aborigine, Aborigine + 11, 127, 0, 2);
-        Order[Aborigine + 11] = 1;
-        Order_Timer[Aborigine + 11] = 35;
-        effect_52_init(Aborigine, 37);
-        Order[37] = 1;
-        Order_Timer[37] = 30;
-        Order_Dir[37] = 0;
-        effect_K6_init(Aborigine, Aborigine + 31, 31, 2);
-        Order[Aborigine + 31] = 1;
-        Order_Timer[Aborigine + 31] = 35;
-        Order_Dir[Aborigine + 31] = 0;
-        effect_K6_init(Aborigine, Aborigine + 25, 25, 2);
-        Order[Aborigine + 25] = 1;
-        Order_Timer[Aborigine + 25] = 35;
-        Order_Dir[Aborigine + 25] = 0;
-        Order[0] = 1;
-        Order_Timer[0] = 40;
-        Order_Dir[0] = 4;
-        Order[1] = 1;
-        Order_Timer[1] = 45;
-        Order_Dir[1] = 4;
-        Order[3] = 1;
-        Order_Timer[3] = 45;
-        Order_Dir[3] = 4;
-        effect_39_init(Aborigine, Aborigine + 13, 127, 2, 1);
-        Order[Aborigine + 13] = 1;
-        Order_Timer[Aborigine + 13] = 35;
-        Order_Dir[Aborigine + 13] = 0;
-        effect_42_init(5);
-        Order[5] = 1;
-        Order_Timer[5] = 45;
-        Order_Dir[5] = 4;
-        effect_42_init(6);
-        Order[6] = 1;
-        Order_Timer[6] = 45;
-        Order_Dir[6] = 4;
-        return;
-    }
-
-    SO_No[0] = 2;
-    effect_75_init(42, 3, 2);
-    Order[42] = 3;
-    Order_Timer[42] = 1;
-    Order_Dir[42] = 3;
-    effect_38_init(0, 11, 127, 1, 2);
-    Order[11] = 1;
-    Order_Timer[11] = 86;
-    effect_38_init(1, 12, 127, 1, 2);
-    Order[12] = 1;
-    Order_Timer[12] = 86;
-    effect_K6_init(0, 33, 31, 2);
-    Order[33] = 1;
-    Order_Timer[33] = 86;
-    Order_Dir[33] = 0;
-    effect_52_init(0, 38);
-    Order[38] = 3;
-    Order_Timer[38] = 30;
-    effect_K6_init(0, 27, 25, 2);
-    Order[27] = 3;
-    Order_Timer[27] = 86;
-    effect_K6_init(1, 28, 25, 2);
-    Order[28] = 3;
-    Order_Timer[28] = 86;
-    effect_K6_init(1, 34, 31, 2);
-    Order[34] = 1;
-    Order_Timer[34] = 86;
-    Order_Dir[34] = 0;
-    effect_52_init(1, 39);
-    Order[39] = 3;
-    Order_Timer[39] = 30;
-    effect_39_init(0, 15, 127, 2, 0);
-    Order[15] = 1;
-    Order_Timer[15] = 86;
-    Order_Dir[15] = 0;
-    effect_39_init(1, 16, 127, 2, 0);
-    Order[16] = 1;
-    Order_Timer[16] = 86;
-    Order_Dir[16] = 0;
-    Order[4] = 3;
-    Order_Timer[4] = 86;
-    Order_Dir[4] = 255;
-    effect_42_init(7);
-    Order[7] = 0;
-    Order_Timer[7] = 86;
-    effect_42_init(8);
-    Order[8] = 0;
-    Order_Timer[8] = 86;
-}
-
-void OBJ_2nd() {
-    if (Select_Status[0] != 3) {
-        return;
-    }
-
-    SO_No[0]++;
-    effect_75_init(42, 3, 2);
-    Order[42] = 3;
-    Order_Timer[42] = 1;
-    Order_Dir[42] = 3;
-    Order[Aborigine + 11] = 4;
-    Order_Timer[Aborigine + 11] = 1;
-    Select_Start[Aborigine] = 2;
-    effect_38_init(New_Challenger, New_Challenger + 11, 127, 1, 2);
-    Order[New_Challenger + 11] = 1;
-    Order_Timer[New_Challenger + 11] = 1;
-    Go_Away_Red_Lines();
-    Order[Aborigine + 31] = 5;
-    Order_Timer[Aborigine + 31] = 1;
-    Order[Aborigine + 19] = 5;
-    Order_Timer[Aborigine + 19] = 1;
-    Order[Aborigine + 25] = 5;
-    Order_Timer[Aborigine + 25] = 1;
-    Order[Aborigine + 13] = 5;
-    Order_Timer[Aborigine + 13] = 1;
-    Order[37] = 4;
-    Order_Timer[37] = 1;
-    effect_K6_init(0, 33, 31, 2);
-    Order[33] = 1;
-    Order_Timer[33] = 1;
-    Order_Dir[33] = 0;
-    effect_K6_init(0, 27, 25, 2);
-    Order[27] = 1;
-    Order_Timer[27] = 1;
-    Order_Dir[27] = 0;
-    effect_39_init(0, 15, 127, 2, 0);
-    Order[15] = 1;
-    Order_Timer[15] = 1;
-    Order_Dir[15] = 0;
-    effect_K6_init(1, 34, 31, 2);
-    Order[34] = 1;
-    Order_Timer[34] = 1;
-    Order_Dir[34] = 0;
-    effect_K6_init(1, 28, 25, 2);
-    Order[28] = 1;
-    Order_Timer[28] = 1;
-    Order_Dir[28] = 0;
-    effect_39_init(1, 16, 127, 2, 0);
-    Order[16] = 1;
-    Order_Timer[16] = 1;
-    Order_Dir[16] = 0;
-    Order[4] = 3;
-    Order_Timer[4] = 1;
-    Order_Dir[4] = 255;
-    effect_42_init(7);
-    Order[7] = 0;
-    Order_Timer[7] = 1;
-    effect_42_init(8);
-    Order[8] = 0;
-    Order_Timer[8] = 1;
-}
-
-void OBJ_3rd() {}
-
-void Setup_EFF69() {
-    s16 xx;
-
-    for (xx = 0; xx < 5; xx++) {
-        Order[xx] = 0;
-        effect_69_init(xx);
-    }
-}
-
-void Go_Away_Red_Lines() {
-    Order[0] = 2;
-    Order_Timer[0] = 1;
-    Order_Dir[0] = 8;
-    Order[2] = 2;
-    Order_Timer[2] = 1;
-    Order_Dir[2] = 8;
-    Order[1] = 2;
-    Order_Timer[1] = 1;
-    Order_Dir[1] = 8;
-    Order[3] = 2;
-    Order_Timer[3] = 1;
-    Order_Dir[3] = 8;
-    Order[5] = 2;
-    Order[6] = 2;
-    Order_Timer[5] = 1;
-    Order_Timer[6] = 1;
-    Order_Dir[5] = 8;
-    Order_Dir[6] = 8;
-}
-
 void Player_Select_Control() {
     void (*PL_Sel_Jmp_Tbl[5])() = { PL_Sel_1st, PL_Sel_2nd, PL_Sel_3rd, PL_Sel_4th, PL_Sel_5th };
 
@@ -790,39 +429,45 @@ void PL_Sel_1st() {
     }
 }
 
-void PL_Sel_2nd() {
+/* Once a character is chosen, either open the super-art plates or - in the modes with
+ * no art to pick - clear the lines and move straight on. */
+static void Begin_Arts_Selection() {
     s16 ret;
     s16 ret2;
 
+    if (!Sel_PL_Complete[ID2]) {
+        return;
+    }
+
+    ret = check_use_all_SA();
+    ret2 = check_without_SA();
+    ret |= ret2;
+
+    if (ret != 0 || My_char[ID2] == 0) {
+        SP_No[ID2][3]++;
+        Cursor_Timer[ID2] = 40;
+        Go_Away_Red_Lines();
+
+        if (In_A_Training_Mode()) {
+            S_No[3] = 1;
+            return;
+        }
+
+        return;
+    }
+
+    SP_No[ID2][1]++;
+    Setup_Plates(ID2, 1);
+    effect_50_init(ID2, 1, 0);
+    effect_50_init(ID2, 1, 1);
+    effect_50_init(ID2, 2, 0);
+    effect_50_init(ID2, 2, 1);
+}
+
+void PL_Sel_2nd() {
     switch (SP_No[ID2][3]) {
     case 0:
-        if (!Sel_PL_Complete[ID2]) {
-            break;
-        }
-
-        ret = check_use_all_SA();
-        ret2 = check_without_SA();
-        ret |= ret2;
-
-        if (ret != 0 || My_char[ID2] == 0) {
-            SP_No[ID2][3]++;
-            Cursor_Timer[ID2] = 40;
-            Go_Away_Red_Lines();
-
-            if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
-                S_No[3] = 1;
-                break;
-            }
-
-            break;
-        }
-
-        SP_No[ID2][1]++;
-        Setup_Plates(ID2, 1);
-        effect_50_init(ID2, 1, 0);
-        effect_50_init(ID2, 1, 1);
-        effect_50_init(ID2, 2, 0);
-        effect_50_init(ID2, 2, 1);
+        Begin_Arts_Selection();
         break;
 
     case 1:
@@ -932,27 +577,9 @@ void Sel_PL_2nd() {
     }
 }
 
-void Sel_PL_3rd() {
-    if (Stop_Cursor[ID] != 0 || Face_Move != 0) {
-        return;
-    }
-
-    if (Demo_Flag == 0) {
-        if (ID) {
-            Sel_PL_Sub(1, Check_Demo_Data(1));
-        } else {
-            Sel_PL_Sub(0, Check_Demo_Data(0));
-        }
-    } else if (ID) {
-        Sel_PL_Sub(1, Deley_Shot_Sub(1));
-    } else {
-        Sel_PL_Sub(0, Deley_Shot_Sub(0));
-    }
-
-    if (Sel_PL_Complete[ID] >= 0) {
-        return;
-    }
-
+/* Once a character is chosen: queue it, stop the cursor, and start a fresh grade
+ * record unless this player is continuing. */
+static void Commit_Player_Choice() {
 #if DEBUG
     if (debug_config.character_override[0]) {
         My_char[0] = debug_config.character_override[0] - 1;
@@ -987,6 +614,54 @@ void Sel_PL_3rd() {
     Check_Same_CPU(ID);
 }
 
+void Sel_PL_3rd() {
+    if (Cursor_Is_Held()) {
+        return;
+    }
+
+    if (Demo_Flag == 0) {
+        if (ID) {
+            Sel_PL_Sub(1, Check_Demo_Data(1));
+        } else {
+            Sel_PL_Sub(0, Check_Demo_Data(0));
+        }
+    } else if (ID) {
+        Sel_PL_Sub(1, Deley_Shot_Sub(1));
+    } else {
+        Sel_PL_Sub(0, Deley_Shot_Sub(0));
+    }
+
+    if (Sel_PL_Complete[ID] >= 0) {
+        return;
+    }
+
+    Commit_Player_Choice();
+}
+
+/* State 0: nothing latched yet. The three-button art shortcut and the buttons that
+ * cannot be combined go straight through; anything else starts the latch window.
+ * The arm's `break` fell to the function's `return lever`, which is what it
+ * returns here. */
+static u16 Begin_Delayed_Shot(s16 PL_id, u16 sw, u16 lever) {
+    if (!(sw & SWK_ATTACKS)) {
+        return lever;
+    }
+
+    if (sw == (SWK_WEST | SWK_RIGHT_SHOULDER | SWK_EAST)) {
+        return lever | (SWK_WEST | SWK_RIGHT_SHOULDER | SWK_EAST);
+    }
+
+    if (sw & (SWK_NORTH | SWK_SOUTH | SWK_RIGHT_TRIGGER | SWK_START)) {
+        return sw | lever;
+    }
+
+    Color7[PL_id] = sw;
+    Deley_Shot_No[PL_id] = 1;
+    Deley_Shot_Timer[PL_id] = 3;
+
+    return lever;
+}
+
 u16 Deley_Shot_Sub(s16 PL_id) {
     u16 sw;
     u16 lever;
@@ -1002,22 +677,7 @@ u16 Deley_Shot_Sub(s16 PL_id) {
 
     switch (Deley_Shot_No[PL_id]) {
     case 0:
-        if (!(sw & SWK_ATTACKS)) {
-            break;
-        }
-
-        if (sw == (SWK_WEST | SWK_RIGHT_SHOULDER | SWK_EAST)) {
-            return lever | (SWK_WEST | SWK_RIGHT_SHOULDER | SWK_EAST);
-        }
-
-        if (sw & (SWK_NORTH | SWK_SOUTH | SWK_RIGHT_TRIGGER | SWK_START)) {
-            return sw | lever;
-        }
-
-        Color7[PL_id] = sw;
-        Deley_Shot_No[PL_id] = 1;
-        Deley_Shot_Timer[PL_id] = 3;
-
+        lever = Begin_Delayed_Shot(PL_id, sw, lever);
         break;
 
     case 1:
@@ -1045,7 +705,7 @@ void Sel_PL_4th() {
 }
 
 void Sel_PL_5th() {
-    if (Stop_Cursor[ID] != 0 || Face_Move != 0) {
+    if (Cursor_Is_Held()) {
         return;
     }
 
@@ -1067,11 +727,11 @@ void Sel_PL_5th() {
 
     SP_No[ID][0]++;
 
-    if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
+    if (In_A_Training_Mode()) {
         S_No[3] = 1;
     }
 
-    if (plw[0].wu.operator == 0 || plw[1].wu.operator == 0) {
+    if (Either_Side_Is_CPU()) {
         Check_Boss(ID);
     }
 }
@@ -1102,21 +762,9 @@ u16 Disposal_Of_Diagonal(u16 sw) {
     return sw &= (SWK_LEFT | SWK_RIGHT);
 }
 
-void Sel_PL_Sub(s16 PL_id, u16 sw) {
-    Cursor_Move[PL_id] = 0;
-
-    if (Sel_PL_Complete[PL_id]) {
-        return;
-    }
-
-    if (Time_Over) {
-        sw = SWK_WEST;
-    }
-
-    if (sw == 0) {
-        Auto_Repeat_Sub(PL_id);
-    }
-
+/* Once the cursor timer runs out, step the cursor in whichever direction is held and
+ * set the hold before it may step again. */
+static void Step_Face_Cursor(s16 PL_id, u16 sw) {
     if ((Cursor_Timer[PL_id] -= 1) == 0) {
         Cursor_Timer[PL_id] = 1;
 
@@ -1134,6 +782,24 @@ void Sel_PL_Sub(s16 PL_id, u16 sw) {
             Sel_PL_Sub_CD(PL_id);
         }
     }
+}
+
+void Sel_PL_Sub(s16 PL_id, u16 sw) {
+    Cursor_Move[PL_id] = 0;
+
+    if (Sel_PL_Complete[PL_id]) {
+        return;
+    }
+
+    if (Time_Over) {
+        sw = SWK_WEST;
+    }
+
+    if (sw == 0) {
+        Auto_Repeat_Sub(PL_id);
+    }
+
+    Step_Face_Cursor(PL_id, sw);
 
     if (Cursor_Move[PL_id]) {
         Sound_SE(ID + 96);
@@ -1169,6 +835,11 @@ void Sel_PL_Sub(s16 PL_id, u16 sw) {
     Correct_Control_Time(PL_id);
 }
 
+/* Whether the face the cursor now sits on may be picked in this mode. */
+static s32 Face_Under_Cursor_Is_Selectable(s16 PL_id) {
+    return permission_player[Present_Mode].ok[Face_Cursor_Data[Cursor_Y[PL_id]][Cursor_X[PL_id]]];
+}
+
 void Sel_PL_Sub_CR(s16 PL_id) {
     if (Cursor_X[PL_id] == 7) {
         return;
@@ -1196,7 +867,35 @@ void Sel_PL_Sub_CR(s16 PL_id) {
 
             break;
         }
-    } while (!permission_player[Present_Mode].ok[Face_Cursor_Data[Cursor_Y[PL_id]][Cursor_X[PL_id]]]);
+    } while (!Face_Under_Cursor_Is_Selectable(PL_id));
+}
+
+/* Having stepped up a row, wrap to the bottom of the previous column when the step
+ * ran off the top. Each column has its own bottom row. */
+static void Wrap_Cursor_Up_Column(s16 PL_id) {
+    switch (Cursor_X[PL_id]) {
+    case 0:
+        if (Cursor_Y[PL_id] <= 0) {
+            Cursor_Y[PL_id] = 1;
+            Cursor_X[PL_id] = 6;
+        }
+        break;
+
+    case 1:
+        if (Cursor_Y[PL_id] < 0) {
+            Cursor_Y[PL_id] = 2;
+            Cursor_X[PL_id] = 0;
+        }
+        break;
+
+    default:
+        if (Cursor_Y[PL_id] < 0) {
+            Cursor_Y[PL_id] = 2;
+            Cursor_X[PL_id]--;
+        }
+
+        break;
+    }
 }
 
 void Sel_PL_Sub_CL(s16 PL_id) {
@@ -1209,30 +908,8 @@ void Sel_PL_Sub_CL(s16 PL_id) {
     do {
         Cursor_Y[PL_id]--;
 
-        switch (Cursor_X[PL_id]) {
-        case 0:
-            if (Cursor_Y[PL_id] <= 0) {
-                Cursor_Y[PL_id] = 1;
-                Cursor_X[PL_id] = 6;
-            }
-            break;
-
-        case 1:
-            if (Cursor_Y[PL_id] < 0) {
-                Cursor_Y[PL_id] = 2;
-                Cursor_X[PL_id] = 0;
-            }
-            break;
-
-        default:
-            if (Cursor_Y[PL_id] < 0) {
-                Cursor_Y[PL_id] = 2;
-                Cursor_X[PL_id]--;
-            }
-
-            break;
-        }
-    } while (!permission_player[Present_Mode].ok[Face_Cursor_Data[Cursor_Y[PL_id]][Cursor_X[PL_id]]]);
+        Wrap_Cursor_Up_Column(PL_id);
+    } while (!Face_Under_Cursor_Is_Selectable(PL_id));
 }
 
 void Sel_PL_Sub_CU(s16 PL_id) {
@@ -1263,7 +940,7 @@ void Sel_PL_Sub_CU(s16 PL_id) {
 
             break;
         }
-    } while (!permission_player[Present_Mode].ok[Face_Cursor_Data[Cursor_Y[PL_id]][Cursor_X[PL_id]]]);
+    } while (!Face_Under_Cursor_Is_Selectable(PL_id));
 }
 
 void Sel_PL_Sub_CD(s16 PL_id) {
@@ -1294,7 +971,74 @@ void Sel_PL_Sub_CD(s16 PL_id) {
 
             break;
         }
-    } while (!permission_player[Present_Mode].ok[Face_Cursor_Data[Cursor_Y[PL_id]][Cursor_X[PL_id]]]);
+    } while (!Face_Under_Cursor_Is_Selectable(PL_id));
+}
+
+/* Arm the auto-repeat for one lever direction, and report whether it fired - the
+ * four directions differed only in the lever bit and the cursor code. */
+static s32 Begin_Auto_Repeat(s16 PL_id, u16 sw, u16 direction_bit, s8 cursor) {
+    if (sw & direction_bit) {
+        Auto_No[PL_id] = 1;
+        Auto_Cursor[PL_id] = cursor;
+        Auto_Timer[PL_id] = Repeat_Time_Data[0];
+        Auto_Index[PL_id] = 1;
+        return 1;
+    }
+
+    return 0;
+}
+
+/* State 0: no repeat running - arm one if a lever direction is held. */
+static void Arm_Auto_Repeat(s16 PL_id, u16 sw) {
+    if (Begin_Auto_Repeat(PL_id, sw, SWK_RIGHT, 8)) {
+        return;
+    }
+
+    if (Begin_Auto_Repeat(PL_id, sw, SWK_LEFT, 4)) {
+        return;
+    }
+
+    if (Begin_Auto_Repeat(PL_id, sw, SWK_UP, 1)) {
+        return;
+    }
+
+    Begin_Auto_Repeat(PL_id, sw, SWK_DOWN, 2);
+}
+
+/* State 1: a repeat is running - drop it if the lever moved, otherwise tick it and
+ * step the cursor each time it fires. */
+static void Tick_Auto_Repeat(s16 PL_id, u16 sw) {
+    if (sw != Auto_Cursor[PL_id]) {
+        Auto_No[PL_id] = 0;
+        return;
+    }
+
+    if (Auto_Timer[PL_id] -= 1) {
+        return;
+    }
+
+    Auto_Timer[PL_id] = Repeat_Time_Data[Auto_Index[PL_id]];
+    Auto_Index[PL_id]++;
+
+    if ((Auto_Index[PL_id]) > 2) {
+        Auto_Index[PL_id] = 2;
+    }
+
+    if (sw & SWK_RIGHT) {
+        Sel_PL_Sub_CR(PL_id);
+    }
+
+    if (sw & SWK_LEFT) {
+        Sel_PL_Sub_CL(PL_id);
+    }
+
+    if (sw & SWK_UP) {
+        Sel_PL_Sub_CU(PL_id);
+    }
+
+    if (sw & SWK_DOWN) {
+        Sel_PL_Sub_CD(PL_id);
+    }
 }
 
 void Auto_Repeat_Sub(s16 PL_id) {
@@ -1318,74 +1062,45 @@ void Auto_Repeat_Sub(s16 PL_id) {
 
     switch (Auto_No[PL_id]) {
     case 0:
-        if (sw & SWK_RIGHT) {
-            Auto_No[PL_id] = 1;
-            Auto_Cursor[PL_id] = 8;
-            Auto_Timer[PL_id] = Repeat_Time_Data[0];
-            Auto_Index[PL_id] = 1;
-            break;
-        }
-
-        if (sw & SWK_LEFT) {
-            Auto_No[PL_id] = 1;
-            Auto_Cursor[PL_id] = 4;
-            Auto_Timer[PL_id] = Repeat_Time_Data[0];
-            Auto_Index[PL_id] = 1;
-            break;
-        }
-
-        if (sw & SWK_UP) {
-            Auto_No[PL_id] = 1;
-            Auto_Cursor[PL_id] = 1;
-            Auto_Timer[PL_id] = Repeat_Time_Data[0];
-            Auto_Index[PL_id] = 1;
-            break;
-        }
-
-        if (sw & SWK_DOWN) {
-            Auto_No[PL_id] = 1;
-            Auto_Cursor[PL_id] = 2;
-            Auto_Timer[PL_id] = Repeat_Time_Data[0];
-            Auto_Index[PL_id] = 1;
-        }
-
+        Arm_Auto_Repeat(PL_id, sw);
         break;
 
     case 1:
-        if (sw != Auto_Cursor[PL_id]) {
-            Auto_No[PL_id] = 0;
-            break;
-        }
+        Tick_Auto_Repeat(PL_id, sw);
+        break;
+    }
+}
 
+/* State 1 of the super-art cursor repeat: drop it if the lever left the direction it
+ * started on, otherwise tick it and report the direction each time it fires. Every
+ * path that fell out of the switch reached the function's `return 0`. */
+static u16 Tick_Wife_Repeat(s16 PL_id, u16 sw) {
+    sw &= Auto_Cursor[PL_id];
+
+    if (sw) {
         if (Auto_Timer[PL_id] -= 1) {
-            break;
+            return 0;
         }
 
-        Auto_Timer[PL_id] = Repeat_Time_Data[Auto_Index[PL_id]];
-        Auto_Index[PL_id]++;
+        Auto_Timer[PL_id] = Repeat_Time_Data_Wife[Auto_Index[PL_id]++];
 
-        if ((Auto_Index[PL_id]) > 2) {
+        if (Auto_Index[PL_id] > 2) {
             Auto_Index[PL_id] = 2;
         }
 
-        if (sw & SWK_RIGHT) {
-            Sel_PL_Sub_CR(PL_id);
-        }
-
-        if (sw & SWK_LEFT) {
-            Sel_PL_Sub_CL(PL_id);
-        }
-
         if (sw & SWK_UP) {
-            Sel_PL_Sub_CU(PL_id);
+            return SWK_UP;
         }
 
         if (sw & SWK_DOWN) {
-            Sel_PL_Sub_CD(PL_id);
+            return SWK_DOWN;
         }
 
-        break;
+        return 0;
     }
+
+    Auto_No[PL_id] = 0;
+    return 0;
 }
 
 u16 Auto_Repeat_Sub_Wife(s16 PL_id) {
@@ -1418,88 +1133,21 @@ u16 Auto_Repeat_Sub_Wife(s16 PL_id) {
         break;
 
     case 1:
-        sw &= Auto_Cursor[PL_id];
-
-        if (sw) {
-            if (Auto_Timer[PL_id] -= 1) {
-                break;
-            }
-
-            Auto_Timer[PL_id] = Repeat_Time_Data_Wife[Auto_Index[PL_id]++];
-
-            if (Auto_Index[PL_id] > 2) {
-                Auto_Index[PL_id] = 2;
-            }
-
-            if (sw & SWK_UP) {
-                return SWK_UP;
-            }
-
-            if (sw & SWK_DOWN) {
-                return SWK_DOWN;
-            }
-
-            break;
-        }
-
-        Auto_No[PL_id] = 0;
-        break;
+        return Tick_Wife_Repeat(PL_id, sw);
     }
 
     return 0;
 }
 
-void Sel_Arts_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
-    u16 lever_sw;
+/* Any of the three super-art plates still animating. */
+static s32 Any_Plate_Is_Disposing(s16 PL_id) {
+    return Plate_Disposal_No[PL_id][0] != 0 || Plate_Disposal_No[PL_id][1] != 0 ||
+           Plate_Disposal_No[PL_id][2] != 0;
+}
 
-    if (Sel_Arts_Complete[PL_id]) {
-        return;
-    }
-
-    if (Moving_Plate_Counter[PL_id]) {
-        return;
-    }
-
-    if (Moving_Plate[PL_id]) {
-        return;
-    }
-
-    if (Plate_Disposal_No[PL_id][0] != 0 || Plate_Disposal_No[PL_id][1] != 0 || Plate_Disposal_No[PL_id][2] != 0) {
-        return;
-    }
-
-    if (Time_Over) {
-        sw = SWK_WEST;
-    }
-
-    lever_sw = sw & SWK_DIRECTIONS;
-
-    if (lever_sw == 0) {
-        sw |= Auto_Repeat_Sub_Wife(PL_id);
-    }
-
-    if (sw & SWK_DOWN) {
-        Sound_SE(ID + 96);
-        Moving_Plate[PL_id] = 2;
-        Moving_Plate_Counter[PL_id] = 3;
-        OK_Priority[PL_id] = 0;
-
-        if ((Arts_Y[PL_id] += 1) > 2) {
-            Arts_Y[PL_id] = 0;
-        }
-    }
-
-    if (sw & SWK_UP) {
-        Sound_SE(ID + 96);
-        Moving_Plate[PL_id] = 1;
-        Moving_Plate_Counter[PL_id] = 3;
-        OK_Priority[PL_id] = 0;
-
-        if ((Arts_Y[PL_id] -= 1) < 0) {
-            Arts_Y[PL_id] = 2;
-        }
-    }
-
+/* An attack button confirms the super art: lock it in, remember it, and note the
+ * character this player took it with. */
+static void Confirm_Arts_Selection(s16 PL_id, u16 sw) {
     if (sw & SWK_ATTACKS) {
         Stop_Cursor[ID] = 1;
         Slide_Type = PL_id;
@@ -1517,436 +1165,73 @@ void Sel_Arts_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
     }
 }
 
-void Check_Exit() {
-    void (*Sel_Exit_Tbl[10])() = { Exit_1st, Exit_2nd, Exit_3rd,     Exit_4th,     Exit_5th,
-                                   Exit_6th, Exit_7th, Handicap_1st, Handicap_2nd, Handicap_3rd };
-    Sel_Exit_Tbl[Exit_No]();
-}
-
-void Exit_1st() {
-    if (plw[0].wu.operator != 0 && Sel_Arts_Complete[0] >= 0) {
-        return;
+/* The super-art cursor is locked while this player has already chosen, while a plate
+ * is moving, and while any plate is still animating out. */
+static s32 Arts_Cursor_Is_Locked(s16 PL_id) {
+    if (Sel_Arts_Complete[PL_id]) {
+        return 1;
     }
 
-    if (plw[1].wu.operator != 0 && Sel_Arts_Complete[1] >= 0) {
-        return;
+    if (Moving_Plate_Counter[PL_id]) {
+        return 1;
     }
 
-    Go_Away_Red_Lines();
-    Order[4] = 4;
-    Order_Timer[4] = 1;
-    Order[7] = 4;
-    Order[8] = 4;
-    Order_Timer[7] = 1;
-    Order_Timer[8] = 1;
-    Setup_Training_Difficulty();
-
-    if (Mode_Type == MODE_VERSUS && save_w[Present_Mode].Handicap != 0) {
-        Exit_No = 7;
-    } else {
-        Exit_No++;
+    if (Moving_Plate[PL_id]) {
+        return 1;
     }
 
-    if (Demo_Flag) {
-        E_No[0] = 3;
-        E_No[1] = 0;
-        E_No[2] = 0;
-        E_No[3] = 0;
-    }
-}
-
-void Exit_2nd() {
-    s16 xx;
-
-    S_No[1] = 0;
-
-    if (Select_Status[0] == 3) {
-        Exit_No = 3;
-        Last_My_char[0] = My_char[0];
-        Last_My_char[1] = My_char[1];
-        Battle_Country = Setup_Battle_Country();
-        bg_w.stage = Battle_Country;
-        bg_w.area = 0;
-
-#if DEBUG
-        if (debug_config.stage_override) {
-            Battle_Country = bg_w.stage = debug_config.stage_override - 1;
-        }
-#endif
-
-        Push_LDREQ_Queue_BG(bg_w.stage);
-        return;
-    }
-
-    if (Scene_Cut) {
-        Exit_Timer = 1;
-    } else {
-        Exit_Timer = 60;
-    }
-
-    Exit_No++;
-    Last_My_char[Player_id] = My_char[Player_id];
-    Time_Stop = 2;
-
-    for (xx = 0; xx < 4; xx++) {
-        SC_No[xx] = 0;
-    }
-}
-
-void Exit_3rd() {
-    if (!Select_CPU_First()) {
-        return;
-    }
-
-    Exit_No++;
-    S_No[1] = 0;
-    Suicide[3] = 1;
-
-    if (VS_Index[Player_id] >= 9) {
-        EM_Rank = 1;
-        return;
-    }
-
-    EM_Rank = 0;
-}
-
-void Exit_4th() {
-    FadeInit();
-    FadeIn(0, 4, 8);
-    Exit_No++;
-    Forbid_Break = 0;
-    Suicide[0] = 1;
-    Menu_Suicide[0] = 1;
-    bgPalCodeOffset[0] = 144;
-    BGM_Request(51);
-    Exit_Timer = 240;
-    effect_58_init(17, 2, 0);
-
-    if (Select_Status[0] != 3) {
-        effect_K6_init(0, 35, 35, 2);
-        Order[35] = 3;
-        Order_Timer[35] = 1;
-        effect_K6_init(1, 36, 35, 2);
-        Order[36] = 3;
-        Order_Timer[36] = 1;
-        effect_39_init(0, 17, My_char[0], 2, 0);
-        Order[17] = 3;
-        Order_Timer[17] = 1;
-        effect_39_init(1, 18, My_char[1], 2, 0);
-        Order[18] = 3;
-        Order_Timer[18] = 1;
-        effect_K6_init(0, 29, 29, 2);
-        Order[29] = 3;
-        Order_Timer[29] = 1;
-        effect_K6_init(1, 30, 29, 2);
-        Order[30] = 3;
-        Order_Timer[30] = 1;
-    } else if (Win_Record[Champion]) {
-        effect_76_init(72);
-        Order[72] = 3;
-        Order_Timer[72] = 1;
-        effect_76_init(73);
-        Order[73] = 3;
-        Order_Timer[73] = 1;
-    }
-
-    effect_43_init(2, 2);
-    Order[42] = 2;
-    Order_Timer[42] = 1;
-    Order_Dir[42] = 5;
-}
-
-void Exit_5th() {
-    Exit_Timer--;
-
-    if (!FadeIn(0, 4, 8)) {
-        return;
-    }
-
-    Exit_No++;
-
-    if (Exit_Timer < 0) {
-        Exit_Timer = 1;
-    }
-}
-
-void Exit_6th() {
-    if (!Check_PL_Load()) {
-        return;
-    }
-
-    if (!Check_LDREQ_Queue_BG(bg_w.stage)) {
-        return;
-    }
-
-    // We shouldn't skip VS screen in network mode, because that can lead to IO race conditions
-    if (Scene_Cut && (Mode_Type != MODE_NETWORK)) {
-        Exit_Timer = 1;
-    }
-
-    if ((Exit_Timer -= 1) == 0) {
-        Exit_No++;
-        init_omop();
-    }
-}
-
-void Exit_7th() {
-    bg_w.stage = Battle_Country;
-    bg_w.area = 0;
-    SEL_PL_X = 1;
-}
-
-void Handicap_1st() {
-    Exit_No++;
-    Decide_Stage = 0;
-    Menu_Common_Init();
-    Setup_Training_Difficulty();
-    SP_No[0][2] = 0;
-    SP_No[1][2] = 0;
-    effect_66_init(138, 31, 0, 2, -1, -1, -0x7FF8);
-    Order[138] = 3;
-    Order_Timer[138] = 1;
-    effect_66_init(139, 35, 0, 2, 71, 20, 0);
-    Order[139] = 5;
-    effect_66_init(140, 36, 0, 2, 71, 20, 0);
-    Order[140] = 5;
-    effect_66_init(141, 37, 0, 2, 71, 21, 0);
-    Order[141] = 5;
-    effect_66_init(91, 28, 0, 2, 71, 15, 0);
-    Order[91] = 3;
-    Order_Timer[91] = 1;
-    effect_66_init(92, 29, 0, 2, 71, 16, 0);
-    Order[92] = 3;
-    Order_Timer[92] = 1;
-    effect_66_init(93, 30, 0, 2, 71, 17, 0);
-    Order[93] = 3;
-    Order_Timer[93] = 1;
-    effect_66_init(120, 32, 0, 2, 71, 18, 0);
-    Order[120] = 2;
-    Order_Timer[120] = 1;
-    effect_66_init(121, 33, 0, 2, 71, 18, 0);
-    Order[121] = 2;
-    Order_Timer[121] = 1;
-    effect_66_init(122, 34, 0, 2, 71, 19, 0);
-    Order[122] = 5;
-    effect_99_init(&(Effect99Init){0, 0, 0x7047, 0, 0, 0});
-    effect_99_init(&(Effect99Init){1, 0, 0x7047, 1, 1, 0});
-    effect_99_init(&(Effect99Init){255, 1, 0x7047, 2, 2, 0});
-    effect_99_init(&(Effect99Init){255, 1, 0x70A7, 3, 3, 0});
-    effect_99_init(&(Effect99Init){255, 1, 0x70A7, 4, 4, 0});
-}
-
-void Handicap_2nd() {
-    ID2 = 0;
-    Handicap_Control();
-    ID2 = 1;
-    Handicap_Control();
-}
-
-void Handicap_3rd() {
-    if (S_Timer == 9) {
-        SsBgmFadeOut(0x1000);
-    }
-
-    if ((S_Timer -= 1) == 0) {
-        Exit_No = 1;
-    }
-}
-
-void Handicap_Control() {
-    void (*Handicap_Jmp_Tbl[4])() = { Handicap_1, Handicap_2, Handicap_3, Handicap_4 };
-    Handicap_Jmp_Tbl[SP_No[ID2][2]]();
-}
-
-void Handicap_1() {
-    Handicap_Vital_Select(ID2);
-
-    if (!(IO_Result & 0x100)) {
-        return;
-    }
-
-    SE_selected();
-    Order[ID2 + 120] = 5;
-    Order[ID2 + 139] = 6;
-    Order_Timer[ID2 + 139] = 1;
-
-    if (SP_No[ID2 ^ 1][2] == 2) {
-        SP_No[ID2][2] = 1;
-        return;
-    }
-
-    SP_No[ID2][2] = 2;
-
-    if (SP_No[ID2 ^ 1][2] < 3) {
-        Order[122] = 2;
-        Order_Timer[122] = 1;
-    }
-}
-
-void Handicap_2() {
-    u16 sw;
-
-    if (ID2 == 0) {
-        sw = ~p1sw_1 & p1sw_0;
-    } else {
-        sw = ~p2sw_1 & p2sw_0;
-    }
-
-    if (sw & SWK_EAST && Decide_Stage == 0) {
-        SP_No[ID2][2] = 0;
-        SE_selected();
-        Order[ID2 + 139] = 5;
-        Order[ID2 + 120] = 2;
-        Order_Timer[ID2 + 120] = 1;
-        return;
-    }
-
-    if (SP_No[ID2 ^ 1][2] == 0) {
-        SP_No[ID2][2] = 2;
-        Order[122] = 2;
-        Order_Timer[122] = 1;
-    }
-}
-
-u8 hc3alphaadd = { 1 };
-
-void Handicap_3() {
-    Handicap_Stage_Select(ID2);
-
-    if (IO_Result & 0x100) {
-        SP_No[ID2][2]++;
-        SE_selected();
-        Order[141] = 6;
-        Order_Timer[141] = 1;
-        Order[122] = 5;
-        Decide_Stage = 1;
-        return;
-    }
-
-    if (IO_Result & 0x200 && Decide_Stage == 0) {
-        SP_No[ID2][2] = 0;
-        SE_selected();
-        Order[122] = 5;
-        Order[ID2 + 139] = 5;
-        Order[ID2 + 120] = 2;
-        Order_Timer[ID2 + 120] = 1;
-    }
-
-    hc3alpha += hc3alphaadd;
-    hc3alpha &= 0xF;
-
-    if (hc3alpha == 0) {
-        if (hc3alphaadd == 1) {
-            hc3alpha = 16;
-        }
-
-        hc3alphaadd = -hc3alphaadd;
-    }
-
-    if (Decide_Stage != 0) {
-        return;
-    }
-
-    if (ID2) {
-        f32 dmypos[8] = { 296.0f, 90.0f, 296.0f, 98.0f, 284.0f, 90.0f, 268.0f, 112.0f };
-        njdp2d_sort(dmypos, PrioBase[2], (hc3alpha + 48) * 0x1000000 | 0xFFFFFF, 0);
-    } else {
-        f32 dmypos[8] = { 88.0f, 90.0f, 88.0f, 98.0f, 100.0f, 90.0f, 116.0f, 112.0f };
-        njdp2d_sort(dmypos, PrioBase[2], (hc3alpha + 48) * 0x1000000 | 0xFFFFFF, 0);
-    }
-}
-
-void Handicap_4() {
-    if (SP_No[0][2] > 0 && SP_No[1][2] > 0) {
-        Exit_No = 9;
-        S_Timer = 60;
-    }
-}
-
-void Handicap_Vital_Select(s16 PL_id) {
-    Setup_Pad_or_Stick();
-    IO_Result = Check_Menu_Lever(PL_id, 0);
-    Handicap_Vital_Move_Sub(IO_Result, PL_id);
-}
-
-u16 Handicap_Vital_Move_Sub(u16 sw, s16 PL_id) {
-    if (PL_id == 0) {
-        switch (sw) {
-        case SWK_LEFT:
-            if ((Vital_Handicap[Present_Mode][PL_id] += 1) > 7) {
-                Vital_Handicap[Present_Mode][PL_id] = 7;
-            } else {
-                SE_dir_cursor_move();
-            }
-
-            return SWK_LEFT;
-
-        case SWK_RIGHT:
-            if ((Vital_Handicap[Present_Mode][PL_id] -= 1) < 0) {
-                Vital_Handicap[Present_Mode][PL_id] = 0;
-            } else {
-                SE_dir_cursor_move();
-            }
-
-            return SWK_RIGHT;
-        }
-    } else {
-        switch (sw) {
-        case SWK_LEFT:
-            if ((Vital_Handicap[Present_Mode][PL_id] -= 1) < 0) {
-                Vital_Handicap[Present_Mode][PL_id] = 0;
-            } else {
-                SE_dir_cursor_move();
-            }
-
-            return SWK_LEFT;
-
-        case SWK_RIGHT:
-            if ((Vital_Handicap[Present_Mode][PL_id] += 1) > 7) {
-                Vital_Handicap[Present_Mode][PL_id] = 7;
-            } else {
-                SE_dir_cursor_move();
-            }
-
-            return SWK_RIGHT;
-        }
+    if (Any_Plate_Is_Disposing(PL_id)) {
+        return 1;
     }
 
     return 0;
 }
 
-void Handicap_Stage_Select(s16 PL_id) {
-    Setup_Pad_or_Stick();
-    IO_Result = Check_Menu_Lever(PL_id, 0);
-    Handicap_Stage_Move_Sub(IO_Result);
+/* Step the super-art cursor down one plate, wrapping to the top. */
+static void Move_Arts_Cursor_Down(s16 PL_id, u16 sw) {
+    if (sw & SWK_DOWN) {
+        Sound_SE(ID + 96);
+        Moving_Plate[PL_id] = 2;
+        Moving_Plate_Counter[PL_id] = 3;
+        OK_Priority[PL_id] = 0;
+
+        if ((Arts_Y[PL_id] += 1) > 2) {
+            Arts_Y[PL_id] = 0;
+        }
+    }
 }
 
-void Handicap_Stage_Move_Sub(u16 sw) {
-    switch (sw) {
-    case SWK_LEFT:
-        if ((VS_Stage -= 1) < 0) {
-            VS_Stage = 20;
-        }
+void Sel_Arts_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
+    u16 lever_sw;
 
-        if (VS_Stage == 17) {
-            VS_Stage = 16;
-        }
-
-        SE_dir_cursor_move();
-        break;
-
-    case SWK_RIGHT:
-        if ((VS_Stage += 1) > 20) {
-            VS_Stage = 0;
-        }
-
-        if (VS_Stage == 17) {
-            VS_Stage = 18;
-        }
-
-        SE_dir_cursor_move();
-        break;
+    if (Arts_Cursor_Is_Locked(PL_id)) {
+        return;
     }
+
+    if (Time_Over) {
+        sw = SWK_WEST;
+    }
+
+    lever_sw = sw & SWK_DIRECTIONS;
+
+    if (lever_sw == 0) {
+        sw |= Auto_Repeat_Sub_Wife(PL_id);
+    }
+
+    Move_Arts_Cursor_Down(PL_id, sw);
+
+    if (sw & SWK_UP) {
+        Sound_SE(ID + 96);
+        Moving_Plate[PL_id] = 1;
+        Moving_Plate_Counter[PL_id] = 3;
+        OK_Priority[PL_id] = 0;
+
+        if ((Arts_Y[PL_id] -= 1) < 0) {
+            Arts_Y[PL_id] = 2;
+        }
+    }
+
+    Confirm_Arts_Selection(PL_id, sw);
 }
 
 void Correct_Control_Time(s16 PL_id) {

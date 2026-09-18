@@ -232,27 +232,9 @@ void end_500_quake_y_sub() {
     }
 }
 
-void end_500_0007() {
+/* The hold and the scroll that takes the panel off screen. */
+static void end_500_0007_scroll_out() {
     switch (bgw_ptr->r_no_1) {
-    case 0:
-        overwrite_panel(0xFF000000, 0x17);
-        bgw_ptr->r_no_1++;
-        Bg_Off_W(1);
-        bgw_ptr->xy[0].disp.pos = 512;
-        bgw_ptr->xy[1].disp.pos = 768;
-        bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
-        effect_E6_init(0xF);
-        effect_E6_init(0x49);
-        break;
-
-    case 1:
-        break;
-
-    case 2:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->free = 0x28;
-        break;
-
     case 3:
         bgw_ptr->free--;
 
@@ -287,45 +269,49 @@ void end_500_0007() {
     }
 }
 
-void end_500_0008() {
+void end_500_0007() {
     switch (bgw_ptr->r_no_1) {
     case 0:
+        overwrite_panel(0xFF000000, 0x17);
         bgw_ptr->r_no_1++;
-        /* fallthrough */
+        Bg_Off_W(1);
+        bgw_ptr->xy[0].disp.pos = 512;
+        bgw_ptr->xy[1].disp.pos = 768;
+        bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
+        effect_E6_init(0xF);
+        effect_E6_init(0x49);
+        break;
 
     case 1:
-        end_5_bg0_move_sub();
-        end_500_quake_y_sub();
-
-        if (bgw_ptr->xy[0].disp.pos < -240) {
-            bgw_ptr->r_no_1++;
-            effect_E6_init(0x12);
-        }
-
         break;
 
     case 2:
-        end_5_bg0_move_sub();
-        end_500_quake_y_sub();
-
-        if (bgw_ptr->xy[0].disp.pos < -624) {
-            bgw_ptr->r_no_1++;
-            effect_E6_init(0x14);
-        }
-
+        bgw_ptr->r_no_1++;
+        bgw_ptr->free = 0x28;
         break;
 
-    case 3:
-        end_5_bg0_move_sub();
-        end_500_quake_y_sub();
-
-        if (bgw_ptr->xy[0].disp.pos < -1008) {
-            bgw_ptr->r_no_1++;
-            effect_E6_init(0x15);
-        }
-
+    default:
+        end_500_0007_scroll_out();
         break;
+    }
+}
 
+/* Scroll on, shaking, until the panel passes a mark - then start the effect that
+ * belongs to it. Three of the scene's states differed only in the mark and the
+ * effect. */
+static void end_500_0008_scroll_past(s16 mark, u8 char_num) {
+    end_5_bg0_move_sub();
+    end_500_quake_y_sub();
+
+    if (bgw_ptr->xy[0].disp.pos < mark) {
+        bgw_ptr->r_no_1++;
+        effect_E6_init(char_num);
+    }
+}
+
+/* The last stretch of the scroll: the flag drop, the shake ending and the run out. */
+static void end_500_0008_final_scroll() {
+    switch (bgw_ptr->r_no_1) {
     case 4:
         end_5_bg0_move_sub();
         end_500_quake_y_sub();
@@ -356,6 +342,33 @@ void end_500_0008() {
             end_w.timer = 18;
         }
 
+        break;
+    }
+}
+
+void end_500_0008() {
+    switch (bgw_ptr->r_no_1) {
+    case 0:
+        bgw_ptr->r_no_1++;
+        /* fallthrough */
+
+    case 1:
+        end_500_0008_scroll_past(-240, 0x12);
+
+        break;
+
+    case 2:
+        end_500_0008_scroll_past(-624, 0x14);
+
+        break;
+
+    case 3:
+        end_500_0008_scroll_past(-1008, 0x15);
+
+        break;
+
+    default:
+        end_500_0008_final_scroll();
         break;
     }
 }

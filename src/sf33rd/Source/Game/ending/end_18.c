@@ -78,12 +78,27 @@ void end_1800_move() {
     end_1800_move_jp[end_w.r_no_2]();
 }
 
+/* Open a scene: step the state and put the panel where this scene starts. */
+static void end_18_open_scene() {
+    bgw_ptr->r_no_1++;
+    bgw_ptr->xy[0].disp.pos = end_18_pos[end_w.r_no_2][0];
+    bgw_ptr->xy[1].disp.pos = end_18_pos[end_w.r_no_2][1];
+}
+
+/* Flip the panel between its two frames on a one-frame timer. */
+static void end_18_toggle_frame() {
+    bgw_ptr->free--;
+
+    if (bgw_ptr->free <= 0) {
+        bgw_ptr->free = 1;
+        bgw_ptr->l_limit ^= 1;
+    }
+}
+
 void end_1800_0001() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_18_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_18_pos[end_w.r_no_2][1];
+        end_18_open_scene();
 
         switch (end_w.r_no_2) {
         case 1:
@@ -119,12 +134,7 @@ void end_1800_0001() {
         break;
 
     case 1:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->free = 1;
-            bgw_ptr->l_limit ^= 1;
-        }
+        end_18_toggle_frame();
 
         break;
     }
@@ -165,20 +175,13 @@ void end_1800_0005() {
 void end_1800_0006() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_18_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_18_pos[end_w.r_no_2][1];
+        end_18_open_scene();
         effect_E6_init(0x76);
         Rewrite_End_Message(6);
         break;
 
     case 1:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->free = 1;
-            bgw_ptr->l_limit ^= 1;
-        }
+        end_18_toggle_frame();
 
         break;
     }
@@ -187,20 +190,13 @@ void end_1800_0006() {
 void end_1800_0008() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_18_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_18_pos[end_w.r_no_2][1];
+        end_18_open_scene();
         effect_E6_init(0x78);
         Rewrite_End_Message(5);
         break;
 
     case 1:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->free = 1;
-            bgw_ptr->l_limit ^= 1;
-        }
+        end_18_toggle_frame();
 
         break;
     }
@@ -209,9 +205,7 @@ void end_1800_0008() {
 void end_1800_0009() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_18_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_18_pos[end_w.r_no_2][1];
+        end_18_open_scene();
         bgw_ptr->free = 0;
         Rewrite_End_Message(0);
         break;
@@ -233,9 +227,7 @@ void end_1800_0009() {
 void end_1800_0010() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_18_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_18_pos[end_w.r_no_2][1];
+        end_18_open_scene();
         effect_E6_init(0x79);
         effect_E6_init(0xA2);
         bgw_ptr->free = 1;

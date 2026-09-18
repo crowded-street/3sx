@@ -54,9 +54,98 @@ void Ranking_00_1st() {
     Ranking_Sub();
 }
 
-void Ranking_00_2nd() {
+/* The single-entry layouts - the CPU-grade and win-streak records - which show one row
+ * with its face and score rather than a table of five. */
+static void Setup_Single_Rank_Entry() {
     s16 Char_Index;
 
+    Order[85] = 3;
+    Order_Timer[85] = 1;
+    Order_Dir[85] = (u8)Rank_Type;
+    effect_76_init(85);
+    effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 128, bg_w.bgw[0].xy[1].disp.pos + 80, 180, 10, 35, 5, 0);
+    effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 120, bg_w.bgw[0].xy[1].disp.pos + 40, 180, 13, 35, 5, 0);
+    effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos - 144, bg_w.bgw[0].xy[1].disp.pos + 68, 180, 7, 30, 5, 0);
+    base_y_pos = 40;
+    switch (Rank_Type) {
+    case 10:
+        if (Ranking_Data[10].cpu_grade == -1) {
+            Char_Index = 0;
+        } else {
+            Char_Index = Ranking_Data[10].cpu_grade;
+        }
+        break;
+    case 15:
+        if (Ranking_Data[15].grade == -1) {
+            Char_Index = 0;
+        } else {
+            Char_Index = Ranking_Data[15].grade;
+        }
+        break;
+    }
+
+    effect_67_init(0, bg_w.bgw[0].xy[0].disp.pos - 136, bg_w.bgw[0].xy[1].disp.pos + 60, 180, Char_Index, 10, 6, 1);
+    Rank_Pos_X = bg_w.bgw[0].xy[0].disp.pos - 72;
+    Rank_Pos_Y = bg_w.bgw[0].xy[1].disp.pos + 120;
+    Rank_Pos_X += 16;
+    Rank_Pos_Y -= 48;
+    Rank = Rank_Type;
+    Rank_Pos_Y -= 1;
+    Setup_Name(5);
+    Rank_Pos_Y += 1;
+    Rank_Pos_X += 16;
+    Rank_Pos_Y += 1;
+    Rank_Pos_Y += 256;
+    Setup_Face(5);
+    Rank_Pos_Y -= 256;
+    Rank_Pos_Y -= 1;
+    Rank_Pos_X -= 32;
+    Rank_Pos_Y -= 40;
+    if (Rank_Type == 10) {
+        Rank_Pos_X -= 80;
+        Setup_Score(5);
+    } else {
+        Rank_Pos_X -= 32;
+        Setup_Wins2(5);
+    }
+}
+
+/* The five-row table layouts, flashing whichever rows the players just took. */
+static void Setup_Rank_Table() {
+    effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos - 143, bg_w.bgw[0].xy[1].disp.pos + 32, 180, 4, 30, 5, 0);
+    for (Rank = Rank_Type; Rank < (Rank_Type + 5); Rank++) {
+        if ((Present_Rank[0] == (Rank - Rank_Type)) || (Present_Rank[1] == (Rank - Rank_Type))) {
+            Flash_Rank_Interval = 1;
+        } else {
+            Flash_Rank_Interval = 0;
+        }
+
+        Setup_Name(5);
+        if (Rank_Type == 0) {
+            Setup_Score(5);
+            Rank_Pos_X += 3;
+            Setup_grade(5);
+            Rank_Pos_X -= 3;
+        } else {
+            Setup_Wins(5);
+            Setup_grade(5);
+        }
+
+        Setup_Face(5);
+        Rank_Pos_X = bg_w.bgw[0].xy[0].disp.pos - 104;
+        Rank_Pos_Y -= 32;
+        Rank_X = 0;
+        Flash_Rank_Time = 0;
+    }
+
+    if ((Present_Rank[0] < 5) || (Present_Rank[1] < 5)) {
+        D_No[1] += 1;
+    } else {
+        D_No[1] = 4;
+    }
+}
+
+void Ranking_00_2nd() {
     D_No[1]++;
     D_Timer = 1;
     Rank_X = 0;
@@ -65,87 +154,9 @@ void Ranking_00_2nd() {
     Rank_Pos_Y = bg_w.bgw[0].xy[1].disp.pos + 160;
 
     if (Rank_Type >= 10) {
-        Order[85] = 3;
-        Order_Timer[85] = 1;
-        Order_Dir[85] = (u8)Rank_Type;
-        effect_76_init(85);
-        effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 128, bg_w.bgw[0].xy[1].disp.pos + 80, 180, 10, 35, 5, 0);
-        effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 120, bg_w.bgw[0].xy[1].disp.pos + 40, 180, 13, 35, 5, 0);
-        effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos - 144, bg_w.bgw[0].xy[1].disp.pos + 68, 180, 7, 30, 5, 0);
-        base_y_pos = 40;
-        switch (Rank_Type) {
-        case 10:
-            if (Ranking_Data[10].cpu_grade == -1) {
-                Char_Index = 0;
-            } else {
-                Char_Index = Ranking_Data[10].cpu_grade;
-            }
-            break;
-        case 15:
-            if (Ranking_Data[15].grade == -1) {
-                Char_Index = 0;
-            } else {
-                Char_Index = Ranking_Data[15].grade;
-            }
-            break;
-        }
-
-        effect_67_init(0, bg_w.bgw[0].xy[0].disp.pos - 136, bg_w.bgw[0].xy[1].disp.pos + 60, 180, Char_Index, 10, 6, 1);
-        Rank_Pos_X = bg_w.bgw[0].xy[0].disp.pos - 72;
-        Rank_Pos_Y = bg_w.bgw[0].xy[1].disp.pos + 120;
-        Rank_Pos_X += 16;
-        Rank_Pos_Y -= 48;
-        Rank = Rank_Type;
-        Rank_Pos_Y -= 1;
-        Setup_Name(5);
-        Rank_Pos_Y += 1;
-        Rank_Pos_X += 16;
-        Rank_Pos_Y += 1;
-        Rank_Pos_Y += 256;
-        Setup_Face(5);
-        Rank_Pos_Y -= 256;
-        Rank_Pos_Y -= 1;
-        Rank_Pos_X -= 32;
-        Rank_Pos_Y -= 40;
-        if (Rank_Type == 10) {
-            Rank_Pos_X -= 80;
-            Setup_Score(5);
-        } else {
-            Rank_Pos_X -= 32;
-            Setup_Wins2(5);
-        }
+        Setup_Single_Rank_Entry();
     } else {
-        effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos - 143, bg_w.bgw[0].xy[1].disp.pos + 32, 180, 4, 30, 5, 0);
-        for (Rank = Rank_Type; Rank < (Rank_Type + 5); Rank++) {
-            if ((Present_Rank[0] == (Rank - Rank_Type)) || (Present_Rank[1] == (Rank - Rank_Type))) {
-                Flash_Rank_Interval = 1;
-            } else {
-                Flash_Rank_Interval = 0;
-            }
-
-            Setup_Name(5);
-            if (Rank_Type == 0) {
-                Setup_Score(5);
-                Rank_Pos_X += 3;
-                Setup_grade(5);
-                Rank_Pos_X -= 3;
-            } else {
-                Setup_Wins(5);
-                Setup_grade(5);
-            }
-
-            Setup_Face(5);
-            Rank_Pos_X = bg_w.bgw[0].xy[0].disp.pos - 104;
-            Rank_Pos_Y -= 32;
-            Rank_X = 0;
-            Flash_Rank_Time = 0;
-        }
-
-        if ((Present_Rank[0] < 5) || (Present_Rank[1] < 5)) {
-            D_No[1] += 1;
-        } else {
-            D_No[1] = 4;
-        }
+        Setup_Rank_Table();
     }
 
     switch (Rank_Type) {
@@ -221,24 +232,8 @@ void Ranking_01_1st() {
     effect_58_init(1, 1, -1);
 }
 
-void Ranking_01_2nd() {
-    s16 Char_Index;
-
-    Switch_Screen(1);
-    D_No[1]++;
-    D_Timer = 420;
-    Rank_X = 0;
-    Flash_Rank_Time = 0;
-    Rank_Pos_X = bg_w.bgw[0].xy[0].disp.pos - 104;
-    Rank_Pos_Y = bg_w.bgw[0].xy[1].disp.pos + 160;
-    Setup_Ranking_Obj();
-    Setup_Score_Obj();
-    if (Rank_Type == 0) {
-        effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 168, bg_w.bgw[0].xy[1].disp.pos + 32, 180, 5, 20, 0, 0);
-    } else {
-        effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 168, bg_w.bgw[0].xy[1].disp.pos + 32, 180, 5, 20, 0, 0);
-    }
-
+/* The five ranking rows, flashing whichever the players just took. */
+static void Setup_Demo_Rank_Rows() {
     for (Rank = Rank_Type; Rank < (Rank_Type + 5); Rank++) {
         if ((Present_Rank[0] == (Rank - Rank_Type)) || (Present_Rank[1] == (Rank - Rank_Type))) {
             Flash_Rank_Interval = 1;
@@ -263,13 +258,13 @@ void Ranking_01_2nd() {
         Rank_X = 0;
         Flash_Rank_Time = 0;
     }
-    Order[85] = 1;
-    Order_Timer[85] = 180;
-    Order_Dir[85] = Rank_Type + 10;
-    effect_76_init(85);
-    effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 512, bg_w.bgw[0].xy[1].disp.pos + 80, 180, 10, 35, 0, 0);
-    effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 504, bg_w.bgw[0].xy[1].disp.pos + 40, 180, 13, 35, 0, 0);
-    effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 240, bg_w.bgw[0].xy[1].disp.pos + 68, 180, 7, 30, 0, 0);
+}
+
+/* The single-entry record shown beside the table: the CPU grade on the score page and
+ * the win streak on the other. */
+static void Setup_Demo_Rank_Entry() {
+    s16 Char_Index;
+
     base_y_pos = 40;
     switch (Rank_Type) {
     case 0:
@@ -311,7 +306,33 @@ void Ranking_01_2nd() {
         Rank_Pos_X -= 32;
         Setup_Wins2(0);
     }
+}
 
+void Ranking_01_2nd() {
+    Switch_Screen(1);
+    D_No[1]++;
+    D_Timer = 420;
+    Rank_X = 0;
+    Flash_Rank_Time = 0;
+    Rank_Pos_X = bg_w.bgw[0].xy[0].disp.pos - 104;
+    Rank_Pos_Y = bg_w.bgw[0].xy[1].disp.pos + 160;
+    Setup_Ranking_Obj();
+    Setup_Score_Obj();
+    if (Rank_Type == 0) {
+        effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 168, bg_w.bgw[0].xy[1].disp.pos + 32, 180, 5, 20, 0, 0);
+    } else {
+        effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 168, bg_w.bgw[0].xy[1].disp.pos + 32, 180, 5, 20, 0, 0);
+    }
+
+    Setup_Demo_Rank_Rows();
+    Order[85] = 1;
+    Order_Timer[85] = 180;
+    Order_Dir[85] = Rank_Type + 10;
+    effect_76_init(85);
+    effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 512, bg_w.bgw[0].xy[1].disp.pos + 80, 180, 10, 35, 0, 0);
+    effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 504, bg_w.bgw[0].xy[1].disp.pos + 40, 180, 13, 35, 0, 0);
+    effect_67_init(24, bg_w.bgw[0].xy[0].disp.pos + 240, bg_w.bgw[0].xy[1].disp.pos + 68, 180, 7, 30, 0, 0);
+    Setup_Demo_Rank_Entry();
     Rank -= 10;
     if ((Present_Rank[0] < 5) || (Present_Rank[1] < 5)) {
         D_No[1]++;
@@ -379,38 +400,48 @@ void Ranking_Sub() {
     Bg_Family_Set();
 }
 
+/* The cpu_grade column's grade icon, with an unplayed record reading as 0. */
+static s16 Cpu_Grade_Index() {
+    s16 Char_Index;
+
+    if (Ranking_Data[Rank].cpu_grade == -1) {
+        Char_Index = 0;
+    } else {
+        Char_Index = Ranking_Data[Rank].cpu_grade;
+    }
+
+    return Char_Index;
+}
+
+/* The grade column's grade icon, with an unplayed record reading as 0. */
+static s16 Grade_Index() {
+    s16 Char_Index;
+
+    if (Ranking_Data[Rank].grade == -1) {
+        Char_Index = 0;
+    } else {
+        Char_Index = Ranking_Data[Rank].grade;
+    }
+
+    return Char_Index;
+}
+
 void Setup_grade(s16 y) {
     s16 Char_Index;
 
     switch (Rank_Type) {
     case 0:
-        if (Ranking_Data[Rank].cpu_grade == -1) {
-            Char_Index = 0;
-        } else {
-            Char_Index = Ranking_Data[Rank].cpu_grade;
-        }
+        Char_Index = Cpu_Grade_Index();
         break;
 
     case 5:
-        if (Ranking_Data[Rank].grade == -1) {
-            Char_Index = 0;
-        } else {
-            Char_Index = Ranking_Data[Rank].grade;
-        }
+        Char_Index = Grade_Index();
         /* fallthrough */
     case 10:
-        if (Ranking_Data[Rank].cpu_grade == -1) {
-            Char_Index = 0;
-        } else {
-            Char_Index = Ranking_Data[Rank].cpu_grade;
-        }
+        Char_Index = Cpu_Grade_Index();
         /* fallthrough */
     case 15:
-        if (Ranking_Data[Rank].grade == -1) {
-            Char_Index = 0;
-        } else {
-            Char_Index = Ranking_Data[Rank].grade;
-        }
+        Char_Index = Grade_Index();
         break;
     }
 
@@ -457,6 +488,22 @@ void Setup_Face(s16 y) {
     Flash_Rank_Time += Flash_Rank_Interval;
 }
 
+/* Draw the score's eight digits, leading zeros suppressed. */
+static void Draw_Score_Digits(const s16 Digit[], s16 First_Digit, s16 y) {
+    s16 i;
+    u32 xx;
+    u32 assign3;
+    u32 assign4;
+
+    for (i = 0, assign3 = xx = 7; i < 8; i++, assign4 = xx--) {
+        Flash_Rank_Time += Flash_Rank_Interval;
+        Rank_Pos_X += 16;
+        if (First_Digit >= xx) {
+            effect_67_init(26, Rank_Pos_X, Rank_Pos_Y, 180, Digit[xx] + 75, 10, y, 0);
+        }
+    }
+}
+
 void Setup_Score(s16 y) {
     s16 i;
     s16 First_Digit;
@@ -466,8 +513,6 @@ void Setup_Score(s16 y) {
 
     u32 assign1;
     u32 assign2;
-    u32 assign3;
-    u32 assign4;
 
     Score_Buff = Ranking_Data[Rank].score;
     First_Digit = -1;
@@ -484,13 +529,7 @@ void Setup_Score(s16 y) {
         First_Digit = 0;
     }
 
-    for (i = 0, assign3 = xx = 7; i < 8; i++, assign4 = xx--) {
-        Flash_Rank_Time += Flash_Rank_Interval;
-        Rank_Pos_X += 16;
-        if (First_Digit >= xx) {
-            effect_67_init(26, Rank_Pos_X, Rank_Pos_Y, 180, Digit[xx] + 75, 10, y, 0);
-        }
-    }
+    Draw_Score_Digits(Digit, First_Digit, y);
 
     Rank_Pos_X += 24;
 }

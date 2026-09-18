@@ -72,6 +72,159 @@ s8 Ending_main(s16 pl_num) {
     return ending_all_end;
 }
 
+/* Run the ending itself, until either it finishes or the player cuts it short. */
+static void end_main_run_scenes(s16 pl_num) {
+    end_main_move(pl_num);
+
+    if (end_w.end_flag) {
+        end_w.r_no_0++;
+        end_no_cut = 1;
+        effect_work_kill(4, 0x9F);
+        SsBgmFadeOut(0x111);
+    } else if (Cut_Cut_Cut_t()) {
+        end_w.timer = 0;
+        effect_work_kill(4, 0x9F);
+        end_main_move(pl_num);
+        end_fade_flag = 0;
+    }
+}
+
+/* The fade into the staff roll: blank the screen, rewind the background and shut the
+ * ending's own families down. */
+static void end_main_enter_staff_roll() {
+    if (end_fade_complete()) {
+        end_w.r_no_0++;
+        end_w.r_no_2++;
+        overwrite_panel(0xFF000000, 0x12);
+
+        if (end_w.type == 4) {
+            Zoomf_Init();
+        }
+
+        end_w.r_no_0++;
+        end_no_cut = 1;
+        bg_w.bgw[0].xy[0].disp.pos = 256;
+        bg_w.bgw[0].abs_x = 512;
+        bg_w.bgw[0].xy[1].disp.pos = 0;
+        bg_w.bgw[0].abs_y = 0;
+        end_scn_pos_set2();
+        end_bg_pos_hosei2();
+        end_fam_set2();
+        Bg_Off_W(0xF);
+    }
+}
+
+/* After the roll: cut the winner's name entry short if it is still up, and choose how
+ * long to hold before the ending ends. */
+static void end_main_settle_after_roll() {
+    end_w.r_no_0++;
+
+    if (name_wk[WINNER].timer >= 1) {
+        name_wk[WINNER].timer = 0;
+        end_name_cut[WINNER] = 1;
+        end_w.timer = 180;
+
+        if (bgm_play_status() == 2) {
+            SsBgmFadeOut(0xB6);
+        }
+
+        return;
+    }
+
+    end_w.timer = 60;
+
+    if (bgm_play_status() == 2) {
+        SsBgmFadeOut(0x222);
+    }
+}
+
+/* Run the staff roll, and move on when it finishes. */
+static void end_main_run_staff_roll() {
+    scr_calc(5);
+
+    if (staff_credits(end_staff_flag)) {
+        end_w.r_no_0++;
+    }
+}
+
+/* Everything from the fade out onward: the staff roll and the ending's own end.
+ * Labels are the original ones. */
+/* The staff roll and the hold that ends the ending. */
+static void normal_ending_credits() {
+    switch (end_w.r_no_0) {
+    case 8:
+        if (end_fade_complete()) {
+            end_w.r_no_0++;
+            end_no_cut = 0;
+            Bg_Close();
+        }
+
+        Forbid_Break = -1;
+        break;
+
+    case 9:
+        end_main_run_staff_roll();
+
+        break;
+
+    case 10:
+        end_main_settle_after_roll();
+
+        break;
+
+    case 11:
+        end_w.timer--;
+
+        if (end_w.timer < 0) {
+            end_w.r_no_0++;
+            ending_all_end = 1;
+        }
+
+        break;
+
+    case 12:
+        ending_all_end = 1;
+        break;
+    }
+}
+
+static void normal_ending_after_scenes() {
+    switch (end_w.r_no_0) {
+    case 4:
+        if (end_no_cut == 0) {
+            fadeout_to_staff_roll();
+        } else {
+            end_w.r_no_0++;
+        }
+
+        Forbid_Break = -1;
+        break;
+
+    case 5:
+        end_main_enter_staff_roll();
+
+        Forbid_Break = -1;
+        break;
+
+    case 6:
+        overwrite_panel(0xFF000000, 0x12);
+        end_w.r_no_0++;
+        break;
+
+    case 7:
+        end_w.r_no_0++;
+        overwrite_panel(0xFF000000, 0x12);
+        Request_Fade(6);
+        end_no_cut = 1;
+        Forbid_Break = -1;
+        break;
+
+    default:
+        normal_ending_credits();
+        break;
+    }
+}
+
 void normal_ending(s16 pl_num) {
     switch (end_w.r_no_0) {
     case 0:
@@ -104,125 +257,13 @@ void normal_ending(s16 pl_num) {
         break;
 
     case 3:
-        end_main_move(pl_num);
-
-        if (end_w.end_flag) {
-            end_w.r_no_0++;
-            end_no_cut = 1;
-            effect_work_kill(4, 0x9F);
-            SsBgmFadeOut(0x111);
-        } else if (Cut_Cut_Cut_t()) {
-            end_w.timer = 0;
-            effect_work_kill(4, 0x9F);
-            end_main_move(pl_num);
-            end_fade_flag = 0;
-        }
+        end_main_run_scenes(pl_num);
 
         Forbid_Break = -1;
         break;
 
-    case 4:
-        if (end_no_cut == 0) {
-            fadeout_to_staff_roll();
-        } else {
-            end_w.r_no_0++;
-        }
-
-        Forbid_Break = -1;
-        break;
-
-    case 5:
-        if (end_fade_complete()) {
-            end_w.r_no_0++;
-            end_w.r_no_2++;
-            overwrite_panel(0xFF000000, 0x12);
-
-            if (end_w.type == 4) {
-                Zoomf_Init();
-            }
-
-            end_w.r_no_0++;
-            end_no_cut = 1;
-            bg_w.bgw[0].xy[0].disp.pos = 256;
-            bg_w.bgw[0].abs_x = 512;
-            bg_w.bgw[0].xy[1].disp.pos = 0;
-            bg_w.bgw[0].abs_y = 0;
-            end_scn_pos_set2();
-            end_bg_pos_hosei2();
-            end_fam_set2();
-            Bg_Off_W(0xF);
-        }
-
-        Forbid_Break = -1;
-        break;
-
-    case 6:
-        overwrite_panel(0xFF000000, 0x12);
-        end_w.r_no_0++;
-        break;
-
-    case 7:
-        end_w.r_no_0++;
-        overwrite_panel(0xFF000000, 0x12);
-        Request_Fade(6);
-        end_no_cut = 1;
-        Forbid_Break = -1;
-        break;
-
-    case 8:
-        if (end_fade_complete()) {
-            end_w.r_no_0++;
-            end_no_cut = 0;
-            Bg_Close();
-        }
-
-        Forbid_Break = -1;
-        break;
-
-    case 9:
-        scr_calc(5);
-
-        if (staff_credits(end_staff_flag)) {
-            end_w.r_no_0++;
-        }
-
-        break;
-
-    case 10:
-        end_w.r_no_0++;
-
-        if (name_wk[WINNER].timer >= 1) {
-            name_wk[WINNER].timer = 0;
-            end_name_cut[WINNER] = 1;
-            end_w.timer = 180;
-
-            if (bgm_play_status() == 2) {
-                SsBgmFadeOut(0xB6);
-            }
-
-            break;
-        }
-
-        end_w.timer = 60;
-
-        if (bgm_play_status() == 2) {
-            SsBgmFadeOut(0x222);
-        }
-
-        break;
-
-    case 11:
-        end_w.timer--;
-
-        if (end_w.timer < 0) {
-            end_w.r_no_0++;
-            ending_all_end = 1;
-        }
-
-        break;
-
-    case 12:
-        ending_all_end = 1;
+    default:
+        normal_ending_after_scenes();
         break;
     }
 }
