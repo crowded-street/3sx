@@ -785,28 +785,11 @@ static void step_appear_37000_ride(PLW* wk, s16 id_w) {
     }
 }
 
-void Appear_37000(PLW* wk) {
-    s16 id_w = wk->wu.id ^ 1;
-
+/* The middle states of this entrance, reached from the first level's default
+ * and reaching the last level through its own. The case labels are the
+ * original ones, so the states still read as the same numbers. */
+static void step_appear_37000_mount(PLW* wk, s16 id_w) {
     switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.disp_flag = 1;
-        set_char_move_init(&wk->wu, 9, 0x11);
-        bg_app_stop = 1;
-        wk->wu.cmwk[0] = 0;
-        effect_M1_init(&wk->wu);
-        break;
-
-    case 1:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 0xFF) {
-            wk->wu.routine_no[3]++;
-            wk->wu.cmwk[0] = 1;
-        }
-        break;
-
     case 2:
         char_move(&wk->wu);
 
@@ -829,6 +812,34 @@ void Appear_37000(PLW* wk) {
 
     default:
         step_appear_37000_ride(wk, id_w);
+        break;
+    }
+}
+
+void Appear_37000(PLW* wk) {
+    s16 id_w = wk->wu.id ^ 1;
+
+    switch (wk->wu.routine_no[3]) {
+    case 0:
+        wk->wu.routine_no[3]++;
+        wk->wu.disp_flag = 1;
+        set_char_move_init(&wk->wu, 9, 0x11);
+        bg_app_stop = 1;
+        wk->wu.cmwk[0] = 0;
+        effect_M1_init(&wk->wu);
+        break;
+
+    case 1:
+        char_move(&wk->wu);
+
+        if (wk->wu.cg_type == 0xFF) {
+            wk->wu.routine_no[3]++;
+            wk->wu.cmwk[0] = 1;
+        }
+        break;
+
+    default:
+        step_appear_37000_mount(wk, id_w);
         break;
     }
 }
