@@ -548,28 +548,7 @@ void Win_08000(PLW* wk) {
     step_win_anime(wk, start_win_08000_pose);
 }
 
-static void start_win_09000_pose(PLW* wk) {
-    s16 work;
-
-    win_rno[0] = win_rno[1] = 0;
-    wk->wu.routine_no[3]++;
-    work = win_select(wk, 7);
-
-    if (work == 7) {
-        set_char_move_init(&wk->wu, 9, 32);
-    } else {
-        set_char_move_init(&wk->wu, 9, (work) + 32);
-    }
-
-    if (Round_num < (save_w[Present_Mode].Battle_Number[Play_Type] * 2) &&
-        PL_Wins[wk->wu.id] < save_w[Present_Mode].Battle_Number[Play_Type] + 1) {
-        return;
-    }
-
-    if (poison_flag[wk->wu.id]) {
-        return;
-    }
-
+static void start_win_09000_effect(PLW* wk, s16 work) {
     switch (work) {
     case 0:
         effect_L6_init(&wk->wu, 0);
@@ -594,6 +573,31 @@ static void start_win_09000_pose(PLW* wk) {
         win_rno[0] = 1;
         break;
     }
+}
+
+static void start_win_09000_pose(PLW* wk) {
+    s16 work;
+
+    win_rno[0] = win_rno[1] = 0;
+    wk->wu.routine_no[3]++;
+    work = win_select(wk, 7);
+
+    if (work == 7) {
+        set_char_move_init(&wk->wu, 9, 32);
+    } else {
+        set_char_move_init(&wk->wu, 9, (work) + 32);
+    }
+
+    if (Round_num < (save_w[Present_Mode].Battle_Number[Play_Type] * 2) &&
+        PL_Wins[wk->wu.id] < save_w[Present_Mode].Battle_Number[Play_Type] + 1) {
+        return;
+    }
+
+    if (poison_flag[wk->wu.id]) {
+        return;
+    }
+
+    start_win_09000_effect(wk, work);
 }
 
 static void step_win_09000_effect(PLW* wk) {
