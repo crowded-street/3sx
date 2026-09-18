@@ -18,9 +18,6 @@
 #include "structs.h"
 #include "types.h"
 
-void passive06_pattern_approach_walk_em_term_command_attack(
-    PLW* wk, s16 target_pos, const EM_Term_Params* p, const Command_Attack_Args* p_b
-);
 void passive06_pattern_wait_get_up_normal_attack(PLW* wk, u16 lever_data, s16 option, u16 lever_data_b);
 void passive06_pattern_approach_walk_wait_get_up_wait(PLW* wk, u16 lever_data);
 void passive06_pattern_approach_walk_check_ex_pierce_on(PLW* wk, s16 target_pos, s16 next_menu);

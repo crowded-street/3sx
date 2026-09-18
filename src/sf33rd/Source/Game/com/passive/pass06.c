@@ -12,28 +12,6 @@
 
 void (*const Passive06_Tbl[147])();
 
-void passive06_pattern_approach_walk_em_term_command_attack(
-    PLW* wk, s16 target_pos, const EM_Term_Params* p, const Command_Attack_Args* p_b
-) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, target_pos, 2);
-        break;
-
-    case 1:
-        EM_Term(wk, p);
-        break;
-
-    case 2:
-        Command_Attack(wk, p_b);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
 void passive06_pattern_wait_get_up_normal_attack(PLW* wk, u16 lever_data, s16 option, u16 lever_data_b) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -279,7 +257,7 @@ void Passive06_0024(PLW* wk) {
 }
 
 void Passive06_0025(PLW* wk) {
-    passive06_pattern_approach_walk_em_term_command_attack(
+    pattern_approach_walk_em_term_command_attack(
         wk,
         0x70,
         &(EM_Term_Params){-1, -0x7FF8, 6, 1, -1},
@@ -288,7 +266,7 @@ void Passive06_0025(PLW* wk) {
 }
 
 void Passive06_0026(PLW* wk) {
-    passive06_pattern_approach_walk_em_term_command_attack(
+    pattern_approach_walk_em_term_command_attack(
         wk,
         0x68,
         &(EM_Term_Params){-1, -0x7FF8, 6, 1, -1},
@@ -297,7 +275,7 @@ void Passive06_0026(PLW* wk) {
 }
 
 void Passive06_0027(PLW* wk) {
-    passive06_pattern_approach_walk_em_term_command_attack(
+    pattern_approach_walk_em_term_command_attack(
         wk,
         0x60,
         &(EM_Term_Params){-1, -0x7FF8, 6, 1, -1},
@@ -306,7 +284,7 @@ void Passive06_0027(PLW* wk) {
 }
 
 void Passive06_0028(PLW* wk) {
-    passive06_pattern_approach_walk_em_term_command_attack(
+    pattern_approach_walk_em_term_command_attack(
         wk,
         0x80,
         &(EM_Term_Params){-1, -0x7F80, 6, 1, -1},
@@ -315,7 +293,7 @@ void Passive06_0028(PLW* wk) {
 }
 
 void Passive06_0029(PLW* wk) {
-    passive06_pattern_approach_walk_em_term_command_attack(
+    pattern_approach_walk_em_term_command_attack(
         wk,
         0x80,
         &(EM_Term_Params){-1, -0x7F80, 6, 1, -1},
@@ -400,7 +378,7 @@ void Passive06_0038(PLW* wk) {
 }
 
 void Passive06_0039(PLW* wk) {
-    passive06_pattern_approach_walk_em_term_command_attack(
+    pattern_approach_walk_em_term_command_attack(
         wk,
         0x80,
         &(EM_Term_Params){-1, -0x7FB0, 6, 1, -1},
@@ -409,7 +387,7 @@ void Passive06_0039(PLW* wk) {
 }
 
 void Passive06_0040(PLW* wk) {
-    passive06_pattern_approach_walk_em_term_command_attack(
+    pattern_approach_walk_em_term_command_attack(
         wk,
         0x80,
         &(EM_Term_Params){-1, -0x7FB0, 6, 1, -1},

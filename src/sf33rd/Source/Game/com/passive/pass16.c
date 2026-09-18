@@ -204,18 +204,6 @@ void Passive16_0024(PLW* wk) {
     pattern_search_back_term_pierce_on_keep_away_3(wk, 0x89);
 }
 
-static void passive16_0025_from_step_6(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 6:
-        Normal_Attack(wk, 8, 0x200);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
 void Passive16_0025(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -243,7 +231,7 @@ void Passive16_0025(PLW* wk) {
         break;
 
     default:
-        passive16_0025_from_step_6(wk);
+        pattern_normal_attack_from_step_6(wk);
         break;
     }
 }

@@ -38,7 +38,7 @@ void Passive08_0159(PLW* wk) {
         break;
 
     default:
-        passive08_0159_from_step_6(wk);
+        pattern_search_back_term_command_attack_from_step_6(wk);
         break;
     }
 }

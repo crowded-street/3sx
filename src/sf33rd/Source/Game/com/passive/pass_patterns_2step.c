@@ -884,3 +884,35 @@ void pattern_wait_get_up_command_attack(PLW* wk, u16 lever_data, s16 option, con
         break;
     }
 }
+
+void pattern_wait_j_command_attack_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Wait(wk, 3);
+        break;
+
+    case 7:
+        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_search_back_term_command_attack_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Search_Back_Term(wk, 0x60, 1, -1);
+        break;
+
+    case 7:
+        Command_Attack(wk, &(Command_Attack_Args){8, 1, -1, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}

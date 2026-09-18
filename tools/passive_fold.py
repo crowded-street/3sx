@@ -404,6 +404,20 @@ SHARED_H = """/*
 STEP_FILE = {1: '_1step.c', 2: '_2step.c', 3: '_3step.c', 4: '_long.c'}
 
 
+def shared_destination(paths, cases):
+    """The shared file a skeleton of this many steps belongs in.
+
+    `reshard` names them by exact step count and splits an overfull one, so
+    prefer a file for exactly this count and fall back to the by-band naming
+    the first split used.
+    """
+    for want in ('_%dstep.c' % cases, '_%dstep_' % cases, STEP_FILE.get(min(cases, 4), '')):
+        hit = [p for p in paths if want and want in os.path.basename(p)]
+        if hit:
+            return sorted(hit)[0]
+    return sorted(paths)[-1]
+
+
 def shared_files(folder):
     return sorted(glob.glob(os.path.join(folder, 'pass_patterns_*.c')))
 
@@ -605,7 +619,7 @@ def gfold(paths, protos, min_members=3, max_params=3, shared=None):
     existing = shared_files(folder)
     if existing:
         for text, cases in helpers:
-            dest = [p for p in existing if p.endswith(STEP_FILE[min(cases, 4)])][0]
+            dest = shared_destination(existing, cases)
             open(dest, 'a').write('\n' + text)
         rewrite_shared_header(folder)
     else:
@@ -651,7 +665,7 @@ def dedup(paths, shared_paths, header):
     for path, src in sources.items():
         for name, a, b, is_static in functions(src):
             full = src[a:b]
-            if not re.match(r'^passive\d+_pattern_', name) or SWITCH_HEAD not in full:
+            if not re.match(r'^passive\d+_', name) or SWITCH_HEAD not in full:
                 continue
             groups[_shape(full)].append((path, name, a, b, full))
 
@@ -660,7 +674,19 @@ def dedup(paths, shared_paths, header):
         if shape in shared:
             target = shared[shape]
         elif len(members) > 1:
-            base = re.sub(r'_\d+$', '', re.sub(r'^passive\d+_', '', members[0][1]))
+            first = members[0][1]
+            tail = re.match(r'^passive\d+_\d+_from_step_(\d+)$', first)
+            if tail:
+                # A Recipe X tail: name it for the steps it runs, as the fold
+                # names a skeleton, plus the label it starts at.
+                steps = []
+                for callee in re.findall(r'\b([A-Z]\w+)\(', members[0][4]):
+                    if callee != 'End_Pattern' and (not steps or steps[-1] != callee):
+                        steps.append(callee)
+                base = 'pattern_%s_from_step_%s' % ('_'.join(snake(c) for c in steps[:3]),
+                                                    tail.group(1))
+            else:
+                base = re.sub(r'_\d+$', '', re.sub(r'^passive\d+_', '', first))
             target, n = base, 2
             while target in set(shared.values()):
                 target, n = '%s_%d' % (base, n), n + 1
@@ -676,9 +702,8 @@ def dedup(paths, shared_paths, header):
     if not renames:
         return 0, 0
 
-    step_file = {1: '_1step.c', 2: '_2step.c', 3: '_3step.c', 4: '_long.c'}
     for target, full, cases in additions:
-        dest = [p for p in shared_paths if p.endswith(step_file[min(cases, 4)])][0]
+        dest = shared_destination(shared_paths, cases)
         text = re.sub(r'^(static )?void \w+\(', 'void %s(' % target, full, count=1)
         shared_src[dest] = shared_src[dest].rstrip('\n') + '\n\n' + text + '\n'
     for path, src in shared_src.items():

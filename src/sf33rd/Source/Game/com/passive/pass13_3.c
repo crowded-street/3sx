@@ -38,7 +38,7 @@ void Passive13_0113(PLW* wk) {
         break;
 
     default:
-        passive13_0113_from_step_6(wk);
+        pattern_command_attack_from_step_6(wk);
         break;
     }
 }

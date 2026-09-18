@@ -126,7 +126,6 @@ void Passive08_0155(PLW* wk);
 void Passive08_0156(PLW* wk);
 void Passive08_0157(PLW* wk);
 void Passive08_0158(PLW* wk);
-void passive08_0159_from_step_6(PLW* wk);
 void Passive08_0159(PLW* wk);
 void Passive08_0160(PLW* wk);
 void Passive08_0161(PLW* wk);

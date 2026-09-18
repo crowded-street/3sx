@@ -207,30 +207,6 @@ void Passive10_0127(PLW* wk) {
     pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1F, 0xB, 0x700});
 }
 
-static void passive10_0128_from_step_6(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 6:
-        Wait(wk, 0xe);
-        break;
-
-    case 7:
-        Command_Attack(wk, &(Command_Attack_Args){0xe, 0x1e, 0xb, 0x70});
-        break;
-
-    case 8:
-        Wait(wk, 0xe);
-        break;
-
-    case 9:
-        Command_Attack(wk, &(Command_Attack_Args){0xe, 0x1e, 0xb, 0x70});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
 void Passive10_0128(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -258,7 +234,7 @@ void Passive10_0128(PLW* wk) {
         break;
 
     default:
-        passive10_0128_from_step_6(wk);
+        pattern_wait_command_attack_wait_from_step_6(wk);
         break;
     }
 }
@@ -295,18 +271,6 @@ void Passive10_0129(PLW* wk) {
     }
 }
 
-static void passive10_0130_from_step_6(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 6:
-        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x37, 0x37, 0x27, 0x27}, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
 void Passive10_0130(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -334,7 +298,7 @@ void Passive10_0130(PLW* wk) {
         break;
 
     default:
-        passive10_0130_from_step_6(wk);
+        pattern_com_random_select_from_step_6(wk);
         break;
     }
 }
@@ -351,30 +315,6 @@ void Passive10_0131(PLW* wk) {
 
     case 2:
         J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 0xB, 0x700});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
-static void passive10_0132_from_step_6(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 6:
-        Wait(wk, 0xe);
-        break;
-
-    case 7:
-        Command_Attack(wk, &(Command_Attack_Args){0xe, 0x1e, 0xb, 0x70});
-        break;
-
-    case 8:
-        Wait(wk, 0xe);
-        break;
-
-    case 9:
-        Command_Attack(wk, &(Command_Attack_Args){0xe, 0x1e, 0xb, 0x70});
         break;
 
     default:
@@ -410,7 +350,7 @@ void Passive10_0132(PLW* wk) {
         break;
 
     default:
-        passive10_0132_from_step_6(wk);
+        pattern_wait_command_attack_wait_from_step_6(wk);
         break;
     }
 }
@@ -423,30 +363,6 @@ void Passive10_0133(PLW* wk) {
 
     case 1:
         Wait_Get_Up(wk, 0, -1);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
-static void passive10_0134_from_step_6(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 6:
-        Wait(wk, 0xe);
-        break;
-
-    case 7:
-        Command_Attack(wk, &(Command_Attack_Args){0xe, 0x1e, 0xb, 0x70});
-        break;
-
-    case 8:
-        Wait(wk, 0xe);
-        break;
-
-    case 9:
-        Command_Attack(wk, &(Command_Attack_Args){0xe, 0x1e, 0xb, 0x70});
         break;
 
     default:
@@ -482,7 +398,7 @@ void Passive10_0134(PLW* wk) {
         break;
 
     default:
-        passive10_0134_from_step_6(wk);
+        pattern_wait_command_attack_wait_from_step_6(wk);
         break;
     }
 }

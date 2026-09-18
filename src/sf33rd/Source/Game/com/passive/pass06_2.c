@@ -324,7 +324,7 @@ void Passive06_0107(PLW* wk) {
 }
 
 void Passive06_0108(PLW* wk) {
-    passive06_pattern_approach_walk_em_term_command_attack(
+    pattern_approach_walk_em_term_command_attack(
         wk,
         0x80,
         &(EM_Term_Params){-1, -0x7FB0, 6, 1, -1},

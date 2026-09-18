@@ -83,18 +83,6 @@ void Passive07_0062(PLW* wk) {
     pattern_wait_get_up_normal_attack(wk, 3, 0x402);
 }
 
-static void passive07_0063_from_step_6(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 6:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
 void Passive07_0063(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -122,7 +110,7 @@ void Passive07_0063(PLW* wk) {
         break;
 
     default:
-        passive07_0063_from_step_6(wk);
+        pattern_command_attack_from_step_6(wk);
         break;
     }
 }

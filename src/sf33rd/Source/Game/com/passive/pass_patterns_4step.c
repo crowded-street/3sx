@@ -914,3 +914,27 @@ void pattern_wait_get_up_pierce_on_command_attack(PLW* wk, const Command_Attack_
         break;
     }
 }
+
+void pattern_wait_command_attack_wait_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Wait(wk, 0xe);
+        break;
+
+    case 7:
+        Command_Attack(wk, &(Command_Attack_Args){0xe, 0x1e, 0xb, 0x70});
+        break;
+
+    case 8:
+        Wait(wk, 0xe);
+        break;
+
+    case 9:
+        Command_Attack(wk, &(Command_Attack_Args){0xe, 0x1e, 0xb, 0x70});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}

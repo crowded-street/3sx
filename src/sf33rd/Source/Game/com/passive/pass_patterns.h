@@ -92,9 +92,12 @@ void pattern_check_ex_command_attack(PLW* wk, s16 next_menu, const Command_Attac
 void pattern_check_ex_j_command_attack(PLW* wk, s16 next_menu, const Command_Attack_Args* p);
 void pattern_check_ex_wait_j_command_attack(PLW* wk, s16 time, const Command_Attack_Args* p);
 void pattern_com_random_select(PLW* wk, const Branch_Menu_Args* p, s16 rnd_type);
+void pattern_com_random_select_from_step_6(PLW* wk);
 void pattern_command_attack(PLW* wk, const Command_Attack_Args* p, const Command_Attack_Args* p_b);
 void pattern_command_attack_2(PLW* wk, const Command_Attack_Args* p);
 void pattern_command_attack_com_random_select(PLW* wk, const Command_Attack_Args* p, const Branch_Menu_Args* p_b);
+void pattern_command_attack_from_step_6(PLW* wk);
+void pattern_command_attack_from_step_6_2(PLW* wk);
 void pattern_command_attack_normal_attack(PLW* wk, const Command_Attack_Args* p);
 void pattern_em_term_adjust_attack(PLW* wk, const EM_Term_Params* p);
 void pattern_em_term_branch_unit_area(PLW* wk, const EM_Term_Params* p, const Branch_Menu_Args* p_b);
@@ -144,6 +147,7 @@ void pattern_hi_jump_attack_term_normal_attack_4(
 void pattern_hi_jump_attack_term_normal_attack_lever_attack(PLW* wk, const Hi_Jump_Term_Args* a, u16 lever_data);
 void pattern_hi_jump_command_attack_term(PLW* wk, const JCA_Term_Args* a);
 void pattern_j_command_attack(PLW* wk, const Command_Attack_Args* p);
+void pattern_j_command_attack_from_step_6(PLW* wk);
 void pattern_jump(PLW* wk, s16 time);
 void pattern_jump_attack(PLW* wk, const Jump_Attack_Args* a);
 void pattern_jump_attack_term(PLW* wk, const Jump_Term_Args* a);
@@ -209,6 +213,7 @@ void pattern_normal_attack_command_attack_3(PLW* wk, s16 reaction, s16 reaction_
 void pattern_normal_attack_command_attack_4(PLW* wk, s16 reaction, s16 reaction_b, const Command_Attack_Args* p);
 void pattern_normal_attack_command_attack_5(PLW* wk, const Command_Attack_Args* p);
 void pattern_normal_attack_command_attack_6(PLW* wk, s16 reaction, u16 lever_data, const Command_Attack_Args* p);
+void pattern_normal_attack_from_step_6(PLW* wk);
 void pattern_normal_attack_j_command_attack(PLW* wk, s16 reaction, u16 lever_data, const Command_Attack_Args* p);
 void pattern_normal_attack_j_command_attack_2(
     PLW* wk, s16 reaction, u16 lever_data, const Command_Attack_Args* p
@@ -266,10 +271,12 @@ void pattern_sa_term_command_attack(PLW* wk, const SA_Term_Args* p, const Comman
 void pattern_sa_term_command_attack_2(
     PLW* wk, const SA_Term_Args* p, const SA_Term_Args* p_b, const Command_Attack_Args* p_b_b
 );
+void pattern_sa_term_from_step_6(PLW* wk);
 void pattern_sa_term_j_command_attack(PLW* wk, const SA_Term_Args* p, const Command_Attack_Args* p_b);
 void pattern_sa_term_normal_attack(PLW* wk, const SA_Term_Args* p, s16 reaction, u16 lever_data);
 void pattern_search_back_term_command_attack(PLW* wk, s16 move_value, s16 next_menu, const Command_Attack_Args* p);
 void pattern_search_back_term_command_attack_2(PLW* wk, const Command_Attack_Args* p);
+void pattern_search_back_term_command_attack_from_step_6(PLW* wk);
 void pattern_search_back_term_command_attack_sa_term(
     PLW* wk, s16 move_value, s16 next_menu, const Command_Attack_Args* p
 );
@@ -294,6 +301,7 @@ void pattern_wait_attack_complete(PLW* wk, s16 option);
 void pattern_wait_attack_complete_sa_term_wait_attack_complete(PLW* wk, const SA_Term_Args* p);
 void pattern_wait_branch_unit_area(PLW* wk, s16 time, const Branch_Menu_Args* p);
 void pattern_wait_command_attack(PLW* wk, s16 time, const Command_Attack_Args* p);
+void pattern_wait_command_attack_wait_from_step_6(PLW* wk);
 void pattern_wait_get_up(PLW* wk, u16 lever_data, s16 option);
 void pattern_wait_get_up_2(PLW* wk, u16 lever_data);
 void pattern_wait_get_up_branch_unit_area(PLW* wk, u16 lever_data, const Branch_Menu_Args* p);
@@ -327,6 +335,7 @@ void pattern_wait_get_up_search_back_term_jump_attack_term(
     PLW* wk, s16 next_menu, const Jump_Term_Args* a, const Command_Attack_Args* p
 );
 void pattern_wait_j_command_attack(PLW* wk, s16 time, const Command_Attack_Args* p);
+void pattern_wait_j_command_attack_from_step_6(PLW* wk);
 void pattern_walk(PLW* wk, s16 unused);
 void pattern_walk_com_random_select(PLW* wk, s16 time, const Branch_Menu_Args* p, s16 rnd_type);
 

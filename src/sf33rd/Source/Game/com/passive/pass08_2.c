@@ -91,22 +91,6 @@ void Passive08_0065(PLW* wk) {
     );
 }
 
-static void passive08_0066_from_step_6(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 6:
-        Search_Back_Term(wk, 0x60, 1, -1);
-        break;
-
-    case 7:
-        Command_Attack(wk, &(Command_Attack_Args){8, 1, -1, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
 void Passive08_0066(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -134,7 +118,7 @@ void Passive08_0066(PLW* wk) {
         break;
 
     default:
-        passive08_0066_from_step_6(wk);
+        pattern_search_back_term_command_attack_from_step_6(wk);
         break;
     }
 }
