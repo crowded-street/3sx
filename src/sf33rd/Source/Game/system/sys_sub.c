@@ -263,6 +263,14 @@ bool Cut_Cut_Cut() {
     return false;
 }
 
+static s32 in_training_mode() {
+    return Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING;
+}
+
+static s32 score_hidden_for_player(s16 PL_id) {
+    return (Mode_Type != MODE_VERSUS && Mode_Type != MODE_REPLAY) && plw[PL_id].wu.operator == 0;
+}
+
 static void put_score_digits(s16 PL_id, u32 Score_Buff) {
     s8 i;
     s8 j;
@@ -298,7 +306,7 @@ void Score_Sub() {
     u32 Score_Buff;
     s16 PL_id;
 
-    if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
+    if (in_training_mode()) {
         return;
     }
 
@@ -307,7 +315,7 @@ void Score_Sub() {
     }
 
     for (PL_id = 0; PL_id < 2; PL_id++) {
-        if ((Mode_Type != MODE_VERSUS && Mode_Type != MODE_REPLAY) && plw[PL_id].wu.operator == 0) {
+        if (score_hidden_for_player(PL_id)) {
             continue;
         }
 
@@ -815,7 +823,7 @@ void cpRevivalTask() {
 s32 Check_Menu_Task() {
     struct _TASK* task_ptr = &task[TASK_MENU];
 
-    if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
+    if (in_training_mode()) {
         if (task[TASK_MENU].r_no[0] == 7 && task[TASK_MENU].r_no[1] == 7) {
             return 1;
         }
@@ -1031,7 +1039,7 @@ void Soft_Reset_Sub() {
     sound_all_off();
     SsBgmHalfVolume(0);
 
-    if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
+    if (in_training_mode()) {
         Set_Training_Hitbox_Display(false);
     }
 
@@ -1103,7 +1111,7 @@ void Check_Replay() {
         Condense_Buff[1] = 0xFFFF;
         memset(&Replay_w, 0, sizeof(Replay_w));
 
-        if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
+        if (in_training_mode()) {
             for (ix = 0; ix < 0x1C1E; ix++) {
                 Replay_w.io_unit.key_buff[0][ix] = 0xF000;
                 Replay_w.io_unit.key_buff[1][ix] = 0xF000;
