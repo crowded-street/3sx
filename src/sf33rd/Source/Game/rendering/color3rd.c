@@ -356,6 +356,36 @@ static void copy_palette_pair(s16 id, u16 data, const u16* src, u32 count) {
     }
 }
 
+// The meter row, the two sound-bank uploads, and the three types that do
+// nothing. Reached from init_trans_color_ram's default so the labels below are
+// the original numbers - a type named in neither switch still does nothing, as
+// it did when there was no default at all.
+static void init_trans_color_ram_late(s16 id, s16 key, u8 type, u16 data) {
+    switch (type) {
+    case 7:
+        load_both_players_meter_color(key);
+        break;
+
+    case 8:
+        cseSendBd2SpuWithId(Get_ramcnt_pointer(key), Get_size_data_ramcnt_key(key), 0, 0);
+        Push_ramcnt_key(key);
+        break;
+
+    case 10:
+        cseSendBd2SpuWithId(Get_ramcnt_pointer(key), Get_size_data_ramcnt_key(key), id + 1, data + 1);
+        cseMemMapSetPhdAddr(id + 1, csePHDDataTable[data + 1]);
+        cseTsbSetBankAddr(id + 1, cseTSBDataTable[data + 1]);
+        sdbd[id + 1] = (s8*)cseTSBDataTable[data + 1];
+        Push_ramcnt_key(key);
+        break;
+
+    case 0xb:
+    case 0xc:
+    case 0x61:
+        break;
+    }
+}
+
 void init_trans_color_ram(s16 id, s16 key, u8 type, u16 data) {
     switch (type) {
     case 1:
@@ -399,26 +429,8 @@ void init_trans_color_ram(s16 id, s16 key, u8 type, u16 data) {
         palUpdateGhostCP3((data) + ((id * 16) + 8), 2);
         break;
     }
-    case 7:
-        load_both_players_meter_color(key);
-        break;
-
-    case 8:
-        cseSendBd2SpuWithId(Get_ramcnt_pointer(key), Get_size_data_ramcnt_key(key), 0, 0);
-        Push_ramcnt_key(key);
-        break;
-
-    case 10:
-        cseSendBd2SpuWithId(Get_ramcnt_pointer(key), Get_size_data_ramcnt_key(key), id + 1, data + 1);
-        cseMemMapSetPhdAddr(id + 1, csePHDDataTable[data + 1]);
-        cseTsbSetBankAddr(id + 1, cseTSBDataTable[data + 1]);
-        sdbd[id + 1] = (s8*)cseTSBDataTable[data + 1];
-        Push_ramcnt_key(key);
-        break;
-
-    case 0xb:
-    case 0xc:
-    case 0x61:
+    default:
+        init_trans_color_ram_late(id, key, type, data);
         break;
     }
 }
