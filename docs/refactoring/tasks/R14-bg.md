@@ -208,7 +208,7 @@ Unsure about: <free text, or NONE>
 Task: R14 (src/sf33rd/Source/Game/stage/bg.c), widened to the whole stage folder
 Baseline score: 7.32 for bg.c at the start of this wave (3.62 at campaign start)
 Final score:    9.09, plateaued
-Steps completed: 20 commits across 8 files
+Steps completed: 22 commits across 8 files
 Smells cleared:  bg.c        - Excess Number of Function Arguments (14 functions),
                                Lines of Code in a Single File (1351 -> 730)
                  bg_sub.c    - Bumpy Road Ahead (3 functions),
@@ -217,7 +217,8 @@ Smells cleared:  bg.c        - Excess Number of Function Arguments (14 functions
                  bg090.c     - Overall Code Complexity
                  bonus_bg.c  - Code Duplication
                  bg_textures.c - Overall Code Complexity
-Steps reverted:  5 (see below)
+                 bg000.c     - Bumpy Road Ahead
+Steps reverted:  5, and one plateau retracted on re-examination (see below)
 Build: PASS
 Replay: per-commit gate on every control-flow and rollback-state change,
         plus the wide gate, 30 seeds x 3600 frames against the branch point -
@@ -236,7 +237,7 @@ Unsure about: NONE
 | `ta_sub.c` | 9.38 | **10.00** |
 | `bg090.c` | 9.38 | **10.00** |
 | `bonus_bg.c` | 9.38 | **10.00** |
-| `bg000.c` | 9.92 | 9.92 - plateau, unchanged |
+| `bg000.c` | 9.92 | **10.00** |
 | the other 20 files | 10.00 | 10.00 |
 
 ### What moved `bg.c`
@@ -287,8 +288,15 @@ clear until the last function carrying it leaves.
   indices in three places; `scr_11_21`/`scr_12_22` differ in `<` against `>` and `-`
   against `+`; the two chase start checks differ in five names and two callees.
 - **`bg_zoom.c`, 8.54.** The zoom selector chain. See the note below.
-- **`bg000.c`, 9.92.** `advance_bg0000_demo_position`'s two arms differ in `+=` against
-  `-=` and `>` against `<`, which may never be parameterised.
+- **`bg_zoom.c` is blocked by a rule, not by the code.** Splitting the file by axis -
+  the vertical selector chain into its own file - measures **8.54 -> 8.81 plus a new
+  file at 9.38**, because the duplication groups that remain are cross-axis and the cut
+  dissolves them. It is not taken, because exactly one `static` crosses the seam:
+  `check_cg_zoom` calls both axes' entry points, so whichever axis moves, its
+  `select_*_zoom_request` has to gain external linkage. Recipe S forbids that outright,
+  and no placement of the line avoids it - putting `check_cg_zoom` on either side is
+  symmetric. **Recorded with the measurement so the project owner can price the rule**:
+  this is what that prohibition costs on this file.
 
 ### Reverted, and why
 
@@ -300,9 +308,15 @@ clear until the last function carrying it leaves.
   was kept). 8.54 -> 8.28. Every dispatcher in that chain has the same shape, so any two
   left bare twin each other. One split pays; six do not. This is
   `plpatuni.c`'s lesson measured again.
-- **Recipe E on `bg000.c`'s two demo arms.** 9.92 -> 9.38 - the arms twin.
-- **Recipe D on `bg000.c`'s settle block.** Flat, and `advance_bg0000_demo_position` kept
-  bumps = 2. Ten duplicated lines went, but nothing measurable moved, so it went back.
+- ~~**Recipe E on `bg000.c`'s two demo arms.** 9.92 -> 9.38 - the arms twin.~~
+- ~~**Recipe D on `bg000.c`'s settle block.** Flat, and `advance_bg0000_demo_position`
+  kept bumps = 2.~~ **Both reverts were correct and the conclusion drawn from them was
+  not.** Each step measured on its own: the split alone costs 0.54 because the arms carry
+  a copy of the settle block each and twin; the dedup alone is flat because the arms are
+  still `if` bodies and no function-level complexity moves. Applied in that order - dedup,
+  then split - they measure **9.92 -> 10.00**. The file was recorded as plateaued on the
+  strength of two correct individual measurements, one commit after the playbook section
+  saying to look for exactly this. See *Share the run before splitting the shape*.
 - **Recipe P on `check_cg_zoom`'s merge condition, and Recipe E on the per-fighter
   position update, in `bg_zoom.c`.** Both flat, review byte-identical before and after.
 - **Recipe C on the run `scr_11_22` and `scr_12_21` share in `bg_sub.c`.** The middle
