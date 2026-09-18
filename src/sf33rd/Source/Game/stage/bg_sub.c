@@ -474,37 +474,39 @@ static void chase_x_move() {
     bg_w.bg2_sp_x = bg_w.bg2_sp_x2 = bgw_ptr->chase_xy[0].disp.pos - bgw_ptr->pos_x_work;
 }
 
+static s32 chase_y_step_ended() {
+    chase_time_y -= 1;
+
+    if (chase_time_y > 0) {
+        bg_mvxy.a[1].sp += bg_mvxy.d[1].sp;
+        bgw_ptr->chase_xy[1].cal += bg_mvxy.a[1].sp;
+        return 0;
+    }
+
+    return 1;
+}
+
 static void chase_y_move() {
     if (!(bg_w.chase_flag & 0xF0)) {
         return;
     }
 
-        if (bg_w.chase_flag & 0x10) {
-            chase_time_y -= 1;
+    if (bg_w.chase_flag & 0x10) {
+        chase_y_step_ended();
+    }
 
-            if (chase_time_y > 0) {
-                bg_mvxy.a[1].sp += bg_mvxy.d[1].sp;
-                bgw_ptr->chase_xy[1].cal += bg_mvxy.a[1].sp;
-            }
+    if (bg_w.chase_flag & 0x20) {
+        if (chase_y_step_ended()) {
+            bg_w.chase_flag &= 0xF;
+            bg_w.old_chase_flag &= 0xF;
+            bgw_ptr->chase_xy[1].disp.pos = chase_y;
         }
+    }
 
-        if (bg_w.chase_flag & 0x20) {
-            chase_time_y -= 1;
-
-            if (chase_time_y > 0) {
-                bg_mvxy.a[1].sp += bg_mvxy.d[1].sp;
-                bgw_ptr->chase_xy[1].cal += bg_mvxy.a[1].sp;
-            } else {
-                bg_w.chase_flag &= 0xF;
-                bg_w.old_chase_flag &= 0xF;
-                bgw_ptr->chase_xy[1].disp.pos = chase_y;
-            }
-        }
-
-        if (bgw_ptr->chase_xy[1].disp.pos > bgw_ptr->y_limit2) {
-            bgw_ptr->chase_xy[1].disp.pos = bgw_ptr->y_limit2;
-            bgw_ptr->chase_xy[1].disp.low = 0;
-        }
+    if (bgw_ptr->chase_xy[1].disp.pos > bgw_ptr->y_limit2) {
+        bgw_ptr->chase_xy[1].disp.pos = bgw_ptr->y_limit2;
+        bgw_ptr->chase_xy[1].disp.low = 0;
+    }
 
     bg_w.bg2_sp_y = bgw_ptr->chase_xy[1].disp.pos - bgw_ptr->pos_y_work;
 }
