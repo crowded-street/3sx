@@ -307,6 +307,30 @@ static void land_appear_05000(PLW* wk) {
     wk->wu.xyz[0].disp.pos = bg_w.bgw[1].pos_x_work - 0x58;
 }
 
+/* The later states of this entrance. The case labels are the original ones, so
+ * the states still read as the same numbers. */
+static void step_appear_05000_turn(PLW* wk) {
+    switch (wk->wu.routine_no[3]) {
+    case 3:
+        char_move(&wk->wu);
+
+        if ((wk->wu.cg_type) == 9) {
+            wk->wu.routine_no[3]++;
+            wk->wu.rl_flag ^= 1;
+            return;
+        }
+
+        break;
+
+    case 4:
+        char_move(&wk->wu);
+
+        finish_appear_on_last_frame(wk);
+
+        break;
+    }
+}
+
 void Appear_05000(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
@@ -337,22 +361,8 @@ void Appear_05000(PLW* wk) {
         add_x_sub(&wk->wu);
         break;
 
-    case 3:
-        char_move(&wk->wu);
-
-        if ((wk->wu.cg_type) == 9) {
-            wk->wu.routine_no[3]++;
-            wk->wu.rl_flag ^= 1;
-            return;
-        }
-
-        break;
-
-    case 4:
-        char_move(&wk->wu);
-
-        finish_appear_on_last_frame(wk);
-
+    default:
+        step_appear_05000_turn(wk);
         break;
     }
 }
