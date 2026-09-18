@@ -366,9 +366,7 @@ void Judge_normal_winner(PLW* wk) {
     }
 }
 
-static void start_win_05000_flip(PLW* wk) {
-    set_char_move_init(&wk->wu, 9, 36);
-
+static void launch_win_flip(PLW* wk) {
     if (wk->wu.rl_flag) {
         wk->wu.mvxy.a[0].sp = 0x20000;
     } else {
@@ -379,6 +377,12 @@ static void start_win_05000_flip(PLW* wk) {
     wk->wu.mvxy.a[1].sp = 0x80000;
     wk->wu.mvxy.d[1].sp = -0x6000;
     win_rno[0] = 0;
+}
+
+static void start_win_05000_flip(PLW* wk) {
+    set_char_move_init(&wk->wu, 9, 36);
+
+    launch_win_flip(wk);
 }
 
 static void step_win_05000_flip(PLW* wk) {
@@ -1100,16 +1104,7 @@ static void start_bonus_operator_pose(PLW* wk) {
 static void start_bonus_perfect_pose(PLW* wk) {
     win_rno[0] = 1;
 
-    if (wk->wu.rl_flag) {
-        wk->wu.mvxy.a[0].sp = 0x20000;
-    } else {
-        wk->wu.mvxy.a[0].sp = -0x20000;
-    }
-
-    wk->wu.mvxy.d[0].sp = 0;
-    wk->wu.mvxy.a[1].sp = 0x80000;
-    wk->wu.mvxy.d[1].sp = -0x6000;
-    win_rno[0] = 0;
+    launch_win_flip(wk);
     set_char_move_init(&wk->wu, 9, 66);
 }
 
