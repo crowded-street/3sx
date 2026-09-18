@@ -238,20 +238,33 @@ void setSeVolume() {
     }
 }
 
-/* Turn a BGM patch into the pending request the server will act on next frame. */
-static void latch_bgm_request(SoundPatchConfig* rmc) {
-    switch (bgm_req.kind = rmc->bank) {
-    case 5:
-        if (bgm_exe.kind == 5) {
-            bgm_req.req = 0;
-            break;
-        }
-
-    case 7:
+/* The rest of the request kinds: the volume-and-code form, the four that clear the code,
+ * and everything the table does not name. The case labels are the original ones. */
+static void latch_bgm_simple_request(SoundPatchConfig* rmc) {
+    switch (bgm_req.kind) {
+    case 6:
         bgm_req.data = rmc->port;
-        bgm_req.code = -1;
+        bgm_req.code = rmc->code;
         break;
 
+    case 0:
+    case 1:
+    case 3:
+    case 8:
+        bgm_req.data = 0;
+        bgm_req.code = -1;
+        /* fallthrough */
+
+    default:
+        break;
+    }
+}
+
+/* The play kinds. Kind 9 is a restart that turns into a plain resume when the track asked
+ * for is the one already playing; otherwise it becomes kind 4 and falls into it, exactly as
+ * it did inside the one switch. The case labels are the original ones. */
+static void latch_bgm_play_request(SoundPatchConfig* rmc) {
+    switch (bgm_req.kind) {
     case 9:
         if ((adx_now_playing() != 0) && (bgm_exe.code == rmc->code)) {
             bgm_req.kind = 7;
@@ -269,20 +282,28 @@ static void latch_bgm_request(SoundPatchConfig* rmc) {
         bgm_req.code = rmc->code;
         break;
 
-    case 6:
+    default:
+        latch_bgm_simple_request(rmc);
+        break;
+    }
+}
+
+/* Turn a BGM patch into the pending request the server will act on next frame. */
+static void latch_bgm_request(SoundPatchConfig* rmc) {
+    switch (bgm_req.kind = rmc->bank) {
+    case 5:
+        if (bgm_exe.kind == 5) {
+            bgm_req.req = 0;
+            break;
+        }
+
+    case 7:
         bgm_req.data = rmc->port;
-        bgm_req.code = rmc->code;
+        bgm_req.code = -1;
         break;
 
-    case 0:
-    case 1:
-    case 3:
-    case 8:
-        bgm_req.data = 0;
-        bgm_req.code = -1;
-        /* fallthrough */
-
     default:
+        latch_bgm_play_request(rmc);
         break;
     }
 }
