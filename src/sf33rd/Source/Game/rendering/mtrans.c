@@ -93,15 +93,27 @@ static const u32 bright_type[4][16] = { { 0x00FFFFFF,
                                           0x001111FF,
                                           0x000000FF } };
 
+// One lookup in an extended pattern cache: which cache, which pattern and
+// palette, where to put the slot it resolves to, and the collection entry whose
+// map records it. These are get_mltbuf16_ext_2's and get_mltbuf32_ext_2's five
+// arguments, which are the same list in the same order with the same types.
+typedef struct {
+    MultiTexture* mt;
+    u32 code;
+    u32 palt;
+    s32* ret;
+    PatternInstance* cp;
+} MltbufExtLookup;
+
 // forward decls
 static s16 check_patcash_ex_trans(PatternCollection* padr, u32 cg);
 static s32 get_free_patcash_index(PatternCollection* padr);
 static s32 get_mltbuf16(MultiTexture* mt, u32 code, u32 palt, s32* ret);
 static s32 get_mltbuf16_ext(MultiTexture* mt, u32 code, u32 palt);
-static s32 get_mltbuf16_ext_2(MultiTexture* mt, u32 code, u32 palt, s32* ret, PatternInstance* cp);
+static s32 get_mltbuf16_ext_2(const MltbufExtLookup* look);
 static s32 get_mltbuf32(MultiTexture* mt, u32 code, u32 palt, s32* ret);
 static s32 get_mltbuf32_ext(MultiTexture* mt, u32 code, u32 palt);
-static s32 get_mltbuf32_ext_2(MultiTexture* mt, u32 code, u32 palt, s32* ret, PatternInstance* cp);
+static s32 get_mltbuf32_ext_2(const MltbufExtLookup* look);
 static void lz_ext_p6_fx(u8* srcptr, u8* dstptr, u32 len);
 static void lz_ext_p6_cx(u8* srcptr, u16* dstptr, u32 len, u16* palptr);
 static u16 x16_mapping_set(PatternMap* map, s32 code);
@@ -505,7 +517,7 @@ static void store_new_trans_ext_tiles(const TransRun* run, s32 group, PatternIns
         switch (wh) {
         case 1:
         case 2:
-            if (get_mltbuf16_ext_2(run->mt, cc.code, 0, &code, cp) != 0) {
+            if (get_mltbuf16_ext_2(&(MltbufExtLookup){ run->mt, cc.code, 0, &code, cp }) != 0) {
                 lz_ext_p6_fx(&((u8*)texptr)[1], run->mt->mltbuf, size);
                 njReLoadTexturePartNumG(run->mt->mltgidx16 + (code >> 8), (s8*)run->mt->mltbuf, code & 0xFF, size);
             }
@@ -525,7 +537,7 @@ static void store_new_trans_ext_tiles(const TransRun* run, s32 group, PatternIns
             break;
 
         case 4:
-            if (get_mltbuf32_ext_2(run->mt, cc.code, 0, &code, cp) != 0) {
+            if (get_mltbuf32_ext_2(&(MltbufExtLookup){ run->mt, cc.code, 0, &code, cp }) != 0) {
                 lz_ext_p6_fx(&((u8*)texptr)[1], run->mt->mltbuf, size);
                 njReLoadTexturePartNumG(run->mt->mltgidx32 + (code >> 6), (s8*)run->mt->mltbuf, code & 0x3F, size);
             }
@@ -858,7 +870,7 @@ static void store_new_trans_cp3_ext_tiles(const TransRun* run, s32 group, Patter
         switch (wh) {
         case 1:
         case 2:
-            if (get_mltbuf16_ext_2(run->mt, cc.code, 0, &code, cp) != 0) {
+            if (get_mltbuf16_ext_2(&(MltbufExtLookup){ run->mt, cc.code, 0, &code, cp }) != 0) {
                 lz_ext_p6_fx(&((u8*)texptr)[1], run->mt->mltbuf, size);
                 njReLoadTexturePartNumG(run->mt->mltgidx16 + (code >> 8), (s8*)run->mt->mltbuf, code & 0xFF, size);
             }
@@ -878,7 +890,7 @@ static void store_new_trans_cp3_ext_tiles(const TransRun* run, s32 group, Patter
             break;
 
         case 4:
-            if (get_mltbuf32_ext_2(run->mt, cc.code, 0, &code, cp) != 0) {
+            if (get_mltbuf32_ext_2(&(MltbufExtLookup){ run->mt, cc.code, 0, &code, cp }) != 0) {
                 lz_ext_p6_fx(&((u8*)texptr)[1], run->mt->mltbuf, size);
                 njReLoadTexturePartNumG(run->mt->mltgidx32 + (code >> 6), (s8*)run->mt->mltbuf, code & 0x3F, size);
             }
@@ -1208,7 +1220,7 @@ static void store_new_trans_rgb_ext_tiles(const TransRun* run, s32 group, Patter
         switch (wh) {
         case 1:
         case 2:
-            if (get_mltbuf16_ext_2(run->mt, cc.code, palt, &code, cp) != 0) {
+            if (get_mltbuf16_ext_2(&(MltbufExtLookup){ run->mt, cc.code, palt, &code, cp }) != 0) {
                 lz_ext_p6_cx(&((u8*)texptr)[1], (u16*)run->mt->mltbuf, size, (u16*)(ColorRAM[palt]));
                 njReLoadTexturePartNumG(run->mt->mltgidx16 + (code >> 8), (s8*)run->mt->mltbuf, code & 0xFF, size * 2);
             }
@@ -1227,7 +1239,7 @@ static void store_new_trans_rgb_ext_tiles(const TransRun* run, s32 group, Patter
             break;
 
         case 4:
-            if (get_mltbuf32_ext_2(run->mt, cc.code, palt, &code, cp) != 0) {
+            if (get_mltbuf32_ext_2(&(MltbufExtLookup){ run->mt, cc.code, palt, &code, cp }) != 0) {
                 lz_ext_p6_cx(&((u8*)texptr)[1], (u16*)run->mt->mltbuf, size, (u16*)(ColorRAM[palt]));
                 njReLoadTexturePartNumG(run->mt->mltgidx32 + (code >> 6), (s8*)run->mt->mltbuf, code & 0x3F, size * 2);
             }
@@ -1585,34 +1597,34 @@ static s32 get_mltbuf32(MultiTexture* mt, u32 code, u32 palt, s32* ret) {
     }
 }
 
-static s32 get_mltbuf16_ext_2(MultiTexture* mt, u32 code, u32 palt, s32* ret, PatternInstance* cp) {
-    PatternState* mc = mt->mltcsh16;
+static s32 get_mltbuf16_ext_2(const MltbufExtLookup* look) {
+    PatternState* mc = look->mt->mltcsh16;
     s32 i;
 
-    for (i = 0; i < mt->tpu->x16; i++) {
-        if ((code == mc[mt->tpu->x16_used[i]].cs.code) && (palt == mc[mt->tpu->x16_used[i]].state)) {
-            *ret = mt->tpu->x16_used[i];
+    for (i = 0; i < look->mt->tpu->x16; i++) {
+        if ((look->code == mc[look->mt->tpu->x16_used[i]].cs.code) && (look->palt == mc[look->mt->tpu->x16_used[i]].state)) {
+            *look->ret = look->mt->tpu->x16_used[i];
 
-            if (x16_mapping_set(&cp->map, *ret)) {
-                cp->x16 += 1;
-                mc[mt->tpu->x16_used[i]].time += 1;
+            if (x16_mapping_set(&look->cp->map, *look->ret)) {
+                look->cp->x16 += 1;
+                mc[look->mt->tpu->x16_used[i]].time += 1;
             }
 
             return 0;
         }
     }
 
-    if (has_free_pattern_slot(i, mt->mltnum16, mt->tpf->x16)) {
-        mt->tpf->x16 -= 1;
-        mt->tpu->x16_used[i] = mt->tpf->x16_free[mt->tpf->x16];
-        mt->tpu->x16 += 1;
-        mc[mt->tpu->x16_used[i]].cs.code = code;
-        mc[mt->tpu->x16_used[i]].state = palt;
-        *ret = mt->tpu->x16_used[i];
-        mc[mt->tpu->x16_used[i]].time = 1;
+    if (has_free_pattern_slot(i, look->mt->mltnum16, look->mt->tpf->x16)) {
+        look->mt->tpf->x16 -= 1;
+        look->mt->tpu->x16_used[i] = look->mt->tpf->x16_free[look->mt->tpf->x16];
+        look->mt->tpu->x16 += 1;
+        mc[look->mt->tpu->x16_used[i]].cs.code = look->code;
+        mc[look->mt->tpu->x16_used[i]].state = look->palt;
+        *look->ret = look->mt->tpu->x16_used[i];
+        mc[look->mt->tpu->x16_used[i]].time = 1;
 
-        if (x16_mapping_set(&cp->map, *ret)) {
-            cp->x16 += 1;
+        if (x16_mapping_set(&look->cp->map, *look->ret)) {
+            look->cp->x16 += 1;
         }
 
         return 1;
@@ -1623,34 +1635,34 @@ static s32 get_mltbuf16_ext_2(MultiTexture* mt, u32 code, u32 palt, s32* ret, Pa
     while (1) {}
 }
 
-static s32 get_mltbuf32_ext_2(MultiTexture* mt, u32 code, u32 palt, s32* ret, PatternInstance* cp) {
-    PatternState* mc = mt->mltcsh32;
+static s32 get_mltbuf32_ext_2(const MltbufExtLookup* look) {
+    PatternState* mc = look->mt->mltcsh32;
     s32 i;
 
-    for (i = 0; i < mt->tpu->x32; i++) {
-        if ((code == mc[mt->tpu->x32_used[i]].cs.code) && (palt == mc[mt->tpu->x32_used[i]].state)) {
-            *ret = mt->tpu->x32_used[i];
+    for (i = 0; i < look->mt->tpu->x32; i++) {
+        if ((look->code == mc[look->mt->tpu->x32_used[i]].cs.code) && (look->palt == mc[look->mt->tpu->x32_used[i]].state)) {
+            *look->ret = look->mt->tpu->x32_used[i];
 
-            if (x32_mapping_set(&cp->map, *ret)) {
-                cp->x32 += 1;
-                mc[mt->tpu->x32_used[i]].time += 1;
+            if (x32_mapping_set(&look->cp->map, *look->ret)) {
+                look->cp->x32 += 1;
+                mc[look->mt->tpu->x32_used[i]].time += 1;
             }
 
             return 0;
         }
     }
 
-    if (has_free_pattern_slot(i, mt->mltnum32, mt->tpf->x32)) {
-        mt->tpf->x32 -= 1;
-        mt->tpu->x32_used[i] = mt->tpf->x32_free[mt->tpf->x32];
-        mt->tpu->x32 += 1;
-        mc[mt->tpu->x32_used[i]].cs.code = code;
-        mc[mt->tpu->x32_used[i]].state = palt;
-        *ret = mt->tpu->x32_used[i];
-        mc[mt->tpu->x32_used[i]].time += 1;
+    if (has_free_pattern_slot(i, look->mt->mltnum32, look->mt->tpf->x32)) {
+        look->mt->tpf->x32 -= 1;
+        look->mt->tpu->x32_used[i] = look->mt->tpf->x32_free[look->mt->tpf->x32];
+        look->mt->tpu->x32 += 1;
+        mc[look->mt->tpu->x32_used[i]].cs.code = look->code;
+        mc[look->mt->tpu->x32_used[i]].state = look->palt;
+        *look->ret = look->mt->tpu->x32_used[i];
+        mc[look->mt->tpu->x32_used[i]].time += 1;
 
-        if (x32_mapping_set(&cp->map, *ret)) {
-            cp->x32 += 1;
+        if (x32_mapping_set(&look->cp->map, *look->ret)) {
+            look->cp->x32 += 1;
         }
 
         return 1;
