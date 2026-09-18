@@ -99,18 +99,7 @@ void Training_Data_Disp() {
     }
 
     for (i = 0; i < 2; i++) {
-        scfont_sqput3(
-            i + Training_combo_pos_tbl[j],
-            i + 48,
-            13,
-            4,
-            0,
-            176,
-            76,
-            8,
-            i + 5,
-            Training_combo_prio_tbl[i] + (sa_pa_flag * 14) * i
-        );
+        scfont_sqput3(&(ScFontSquareWide){ i + Training_combo_pos_tbl[j], i + 48, 13, 4, 0, 176, 76, 8 }, i + 5, Training_combo_prio_tbl[i] + (sa_pa_flag * 14) * i);
 
         SSPutDec3(
             i + (Training_combo_pos_tbl[j] + 158),
@@ -124,18 +113,7 @@ void Training_Data_Disp() {
     }
 
     for (i = 0; i < 2; i++) {
-        scfont_sqput3(
-            i + (Training_combo_pos_tbl[j] + 1),
-            i + 58,
-            13,
-            4,
-            0,
-            184,
-            134,
-            8,
-            i + 5,
-            Training_combo_prio_tbl[i] + (sa_pa_flag * 14) * i
-        );
+        scfont_sqput3(&(ScFontSquareWide){ i + (Training_combo_pos_tbl[j] + 1), i + 58, 13, 4, 0, 184, 134, 8 }, i + 5, Training_combo_prio_tbl[i] + (sa_pa_flag * 14) * i);
 
         SSPutDec3(
             i + (Training_combo_pos_tbl[j] + 158),
@@ -170,18 +148,7 @@ void Training_Data_Disp() {
     }
 
     for (i = 0; i < 2; i++) {
-        scfont_sqput3(
-            i + (Training_combo_pos_tbl[j] + 1),
-            i + 68,
-            13,
-            4,
-            0,
-            192,
-            98,
-            8,
-            i + 3,
-            Training_combo_prio_tbl[i] + (sa_pa_flag * 14) * i
-        );
+        scfont_sqput3(&(ScFontSquareWide){ i + (Training_combo_pos_tbl[j] + 1), i + 68, 13, 4, 0, 192, 98, 8 }, i + 3, Training_combo_prio_tbl[i] + (sa_pa_flag * 14) * i);
 
         SSPutDec3(
             i + (Training_combo_pos_tbl[j] + 158),

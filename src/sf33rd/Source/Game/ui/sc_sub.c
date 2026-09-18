@@ -746,7 +746,17 @@ void scfont_sqput(const ScFontSquare* c, u16 priority) {
     njDrawSprite(scrscrntex, 4, page, 1);
 }
 
-void scfont_sqput2(u16 x, u16 y, u8 atr, u8 inverse, u8 page, u8 cx1, u8 cy1, u8 cx2, u8 cy2) {
+void scfont_sqput2(const ScFontSquareInv* c) {
+    u16 x = c->x;
+    u16 y = c->y;
+    u8 atr = c->atr;
+    u8 inverse = c->inverse;
+    u8 page = c->page;
+    u8 cx1 = c->cx1;
+    u8 cy1 = c->cy1;
+    u8 cx2 = c->cx2;
+    u8 cy2 = c->cy2;
+
     u8 i;
     u8 j;
 
@@ -771,7 +781,16 @@ void scfont_sqput2(u16 x, u16 y, u8 atr, u8 inverse, u8 page, u8 cx1, u8 cy1, u8
     }
 }
 
-void scfont_sqput3(u16 x, u16 y, u8 atr, u8 page, u16 cx1, u16 cy1, u16 cx2, u16 cy2, u8 gr, u16 priority) {
+void scfont_sqput3(const ScFontSquareWide* c, u8 gr, u16 priority) {
+    u16 x = c->x;
+    u16 y = c->y;
+    u8 atr = c->atr;
+    u8 page = c->page;
+    u16 cx1 = c->cx1;
+    u16 cy1 = c->cy1;
+    u16 cx2 = c->cx2;
+    u16 cy2 = c->cy2;
+
     s32 u1;
     s32 u2;
     s32 v1;
@@ -1068,11 +1087,9 @@ void stun_mark_write(u8 Pl_Num, s16 Len) {
 
 void max_mark_write(s8 Pl_Num, u8 Gauge_Len, u8 Mchar, u8 Mass_Len) {
     if (Pl_Num == 0) {
-        scfont_sqput2(Mass_Len + 6, 26, 17, 0, 0, Max_Pos_TBL[Mchar - 5][0], Max_Pos_TBL[Mchar - 5][1], Mchar, 1);
+        scfont_sqput2(&(ScFontSquareInv){ Mass_Len + 6, 26, 17, 0, 0, Max_Pos_TBL[Mchar - 5][0], Max_Pos_TBL[Mchar - 5][1], Mchar, 1 });
     } else {
-        scfont_sqput2(
-            42 - Gauge_Len + Mass_Len, 26, 17, 0, 0, Max_Pos_TBL[Mchar - 5][0], Max_Pos_TBL[Mchar - 5][1], Mchar, 1
-        );
+        scfont_sqput2(&(ScFontSquareInv){ 42 - Gauge_Len + Mass_Len, 26, 17, 0, 0, Max_Pos_TBL[Mchar - 5][0], Max_Pos_TBL[Mchar - 5][1], Mchar, 1 });
     }
 }
 
@@ -1174,14 +1191,14 @@ void sa_fullstock_trans(s16 St_Num, s16 Spg_Col, s8 Stpl_Num) {
 void sa_number_write(s8 Stpl_Num, u16 x) {
     if (Stpl_Num == 0) {
         if (My_char[0] == 0) {
-            scfont_sqput2(x, 26, 14, 0, 2, 27, 2, 2, 2);
+            scfont_sqput2(&(ScFontSquareInv){ x, 26, 14, 0, 2, 27, 2, 2, 2 });
         } else {
-            scfont_sqput2(x, 26, 14, 0, 2, (Super_Arts[0] * 2) + 21, 2, 2, 2);
+            scfont_sqput2(&(ScFontSquareInv){ x, 26, 14, 0, 2, (Super_Arts[0] * 2) + 21, 2, 2, 2 });
         }
     } else if (My_char[1] == 0) {
-        scfont_sqput2(x, 26, 142, 1, 2, 27, 2, 2, 2);
+        scfont_sqput2(&(ScFontSquareInv){ x, 26, 142, 1, 2, 27, 2, 2, 2 });
     } else {
-        scfont_sqput2(x, 26, 142, 1, 2, (Super_Arts[1] * 2) + 21, 2, 2, 2);
+        scfont_sqput2(&(ScFontSquareInv){ x, 26, 142, 1, 2, (Super_Arts[1] * 2) + 21, 2, 2, 2 });
     }
 }
 

@@ -61,7 +61,18 @@ void SSPutStr2(u16 x, u16 y, u8 atr, const char* str);
 void SSPutStr_Bigger(u16 x, u16 y, u8 atr, const char* str, f32 sc, u8 gr, u16 priority);
 void SSPutDec(u16 x, u16 y, u8 atr, u8 dec, u8 size);
 void SSPutDec3(u16 x, u16 y, u8 atr, s16 dec, u8 size, u8 gr, u16 priority);
-void scfont_sqput3(u16 x, u16 y, u8 atr, u8 page, u16 cx1, u16 cy1, u16 cx2, u16 cy2, u8 gr, u16 priority);
+typedef struct {
+    u16 x;
+    u16 y;
+    u8 atr;
+    u8 page;
+    u16 cx1;
+    u16 cy1;
+    u16 cx2;
+    u16 cy2;
+} ScFontSquareWide;
+
+void scfont_sqput3(const ScFontSquareWide* c, u8 gr, u16 priority);
 typedef struct {
     u16 x;
     u16 y;
@@ -85,7 +96,19 @@ typedef struct {
 } ScFontSquare;
 
 void scfont_sqput(const ScFontSquare* c, u16 priority);
-void scfont_sqput2(u16 x, u16 y, u8 atr, u8 inverse, u8 page, u8 cx1, u8 cy1, u8 cx2, u8 cy2);
+typedef struct {
+    u16 x;
+    u16 y;
+    u8 atr;
+    u8 inverse;
+    u8 page;
+    u8 cx1;
+    u8 cy1;
+    u8 cx2;
+    u8 cy2;
+} ScFontSquareInv;
+
+void scfont_sqput2(const ScFontSquareInv* c);
 void sc_clear(u16 sposx, u16 sposy, u16 eposx, u16 eposy);
 void vital_put(u8 Pl_Num, s8 atr, s16 vital, u8 kind, u16 priority);
 void silver_vital_put(u8 Pl_Num);
