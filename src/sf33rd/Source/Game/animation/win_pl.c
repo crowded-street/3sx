@@ -205,6 +205,62 @@ void jijii_nebukuro(PLW* wk) {
     }
 }
 
+static void jijii_jump_launch(PLW* wk) {
+    char_move(&wk->wu);
+    if (wk->wu.cg_type == 9) {
+        win_rno[1]++;
+
+        if (wk->wu.rl_flag) {
+            wk->wu.mvxy.a[0].sp = 0x60000;
+            wk->wu.mvxy.d[0].sp = 0x1000;
+        } else {
+            wk->wu.mvxy.a[0].sp = -0x60000;
+            wk->wu.mvxy.d[0].sp = -0x1000;
+        }
+
+        wk->wu.mvxy.a[1].sp = 0xA0000;
+        wk->wu.mvxy.d[1].sp = -0x600;
+    }
+}
+
+static void jijii_jump_fly_off(PLW* wk) {
+    if (wk->wu.cg_type != 99) {
+        char_move(&wk->wu);
+    }
+
+    add_x_sub((WORK_Other*)wk);
+    add_y_sub((WORK_Other*)wk);
+
+    if (wk->wu.rl_flag) {
+        if (wk->wu.xyz[0].disp.pos > bg_w.bgw[1].xy[0].disp.pos + 320) {
+            win_rno[1]++;
+            effect_work_kill(3, 13);
+        }
+
+        return;
+    }
+
+    if (wk->wu.xyz[0].disp.pos < bg_w.bgw[1].xy[0].disp.pos - 320) {
+        win_rno[1]++;
+        effect_work_kill(3, 13);
+    }
+}
+
+static void jijii_jump_return(PLW* wk) {
+    win_rno[1]++;
+
+    if (wk->wu.rl_flag) {
+        wk->wu.xyz[0].disp.pos = bg_w.bgw[1].xy[0].disp.pos - 328;
+        wk->wu.mvxy.a[0].sp = 0x18000;
+    } else {
+        wk->wu.xyz[0].disp.pos = bg_w.bgw[1].xy[0].disp.pos + 328;
+        wk->wu.mvxy.a[0].sp = -0x18000;
+    }
+
+    wk->wu.mvxy.d[0].sp = 0;
+    wk->wu.xyz[1].cal = 0;
+}
+
 void jijii_jump(PLW* wk) {
     s16 id_w;
 
@@ -215,45 +271,12 @@ void jijii_jump(PLW* wk) {
 
     switch (win_rno[1]) {
     case 0:
-        char_move(&wk->wu);
-        if (wk->wu.cg_type == 9) {
-            win_rno[1]++;
-
-            if (wk->wu.rl_flag) {
-                wk->wu.mvxy.a[0].sp = 0x60000;
-                wk->wu.mvxy.d[0].sp = 0x1000;
-            } else {
-                wk->wu.mvxy.a[0].sp = -0x60000;
-                wk->wu.mvxy.d[0].sp = -0x1000;
-            }
-
-            wk->wu.mvxy.a[1].sp = 0xA0000;
-            wk->wu.mvxy.d[1].sp = -0x600;
-        }
+        jijii_jump_launch(wk);
 
         break;
 
     case 1:
-        if (wk->wu.cg_type != 99) {
-            char_move(&wk->wu);
-        }
-
-        add_x_sub((WORK_Other*)wk);
-        add_y_sub((WORK_Other*)wk);
-
-        if (wk->wu.rl_flag) {
-            if (wk->wu.xyz[0].disp.pos > bg_w.bgw[1].xy[0].disp.pos + 320) {
-                win_rno[1]++;
-                effect_work_kill(3, 13);
-            }
-
-            break;
-        }
-
-        if (wk->wu.xyz[0].disp.pos < bg_w.bgw[1].xy[0].disp.pos - 320) {
-            win_rno[1]++;
-            effect_work_kill(3, 13);
-        }
+        jijii_jump_fly_off(wk);
 
         break;
 
@@ -270,18 +293,7 @@ void jijii_jump(PLW* wk) {
             break;
         }
 
-        win_rno[1]++;
-
-        if (wk->wu.rl_flag) {
-            wk->wu.xyz[0].disp.pos = bg_w.bgw[1].xy[0].disp.pos - 328;
-            wk->wu.mvxy.a[0].sp = 0x18000;
-        } else {
-            wk->wu.xyz[0].disp.pos = bg_w.bgw[1].xy[0].disp.pos + 328;
-            wk->wu.mvxy.a[0].sp = -0x18000;
-        }
-
-        wk->wu.mvxy.d[0].sp = 0;
-        wk->wu.xyz[1].cal = 0;
+        jijii_jump_return(wk);
         /* fallthrough */
 
     case 4:
