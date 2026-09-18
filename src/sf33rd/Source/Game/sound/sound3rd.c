@@ -548,6 +548,32 @@ static void bgm_advance_seamless_chain() {
     }
 }
 
+/* The fade and volume half of the BGM state machine. The case labels are the original
+ * ones, so a kind still reads as the number the rest of the engine uses. */
+static void bgm_serve_fade_and_volume() {
+    switch (bgm_exe.kind) {
+    case 5:
+        bgm_fade_out_step();
+
+        break;
+
+    case 6:
+        bgm_fade_in_step();
+
+        break;
+
+    case 7:
+        bgm_vol_mix = bgm_level * bgm_table[sys_w.bgm_type][current_bgm].vol / 15;
+        bgm_volume_setup(bgm_exe.data);
+        bgm_exe.kind = 0;
+        break;
+
+    case 8:
+        bgm_exe.kind = 0;
+        break;
+    }
+}
+
 void BGM_Server() {
     if (!(system_init_level & 2)) {
         return;
@@ -581,28 +607,12 @@ void BGM_Server() {
         bgm_restart_playback();
         break;
 
-    case 5:
-        bgm_fade_out_step();
-
-        break;
-
-    case 6:
-        bgm_fade_in_step();
-
-        break;
-
-    case 7:
-        bgm_vol_mix = bgm_level * bgm_table[sys_w.bgm_type][current_bgm].vol / 15;
-        bgm_volume_setup(bgm_exe.data);
-        bgm_exe.kind = 0;
-        break;
-
-    case 8:
-        bgm_exe.kind = 0;
+    default:
+        bgm_serve_fade_and_volume();
         break;
     }
 
-bgm_advance_seamless_chain();
+    bgm_advance_seamless_chain();
 }
 
 s32 bgm_separate_check() {
