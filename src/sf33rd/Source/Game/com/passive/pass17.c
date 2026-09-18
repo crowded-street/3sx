@@ -10,6 +10,18 @@
 
 void (*const Passive17_Tbl[182])();
 
+static void passive17_0025_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Normal_Attack(wk, 8, 0x200);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
 static void pattern_command_attack(PLW* wk, const Command_Attack_Args* p) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -626,12 +638,8 @@ void Passive17_0025(PLW* wk) {
         Normal_Attack(wk, 8, 0x10);
         break;
 
-    case 6:
-        Normal_Attack(wk, 8, 0x200);
-        break;
-
     default:
-        End_Pattern(wk);
+        passive17_0025_from_step_6(wk);
         break;
     }
 }
