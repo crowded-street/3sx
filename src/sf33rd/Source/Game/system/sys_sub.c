@@ -41,7 +41,6 @@
 
 #include <memory.h>
 
-u8 Candidate_Buff[16];
 static bool training_hitbox_display_enabled;
 
 // forward decls
@@ -53,9 +52,6 @@ void Get_Replay_Header();
 void Get_Replay(s16 PL_id);
 void Setup_Replay_Buff(s16 PL_id, u16 sw_buff);
 void Replay(s16 PL_id);
-void Setup_Candidate_Buff(s16 PL_id);
-s16 Check_EM_Buff(s16 ix, s16 ok_urien);
-s32 Check_EM_Sub(s16 ix, s16 ok_urien, s16 Rnd);
 
 const u16 Convert_Data[12] = { 0x10, 0x20, 0x40, 0x100, 0x200, 0x400, 0x110, 0x220, 0x440, 0x70, 0x700, 0 };
 
@@ -1527,189 +1523,9 @@ void Disp_Copyright() {
     }
 }
 
-void Initialize_EM_Candidate(s16 PL_id) {
-    s16 ix;
-    s16 ok_urien = random_16();
-
-    for (ix = 0; ix < 16; ix++) {
-        Candidate_Buff[ix] = 0xFF;
-    }
-
-    Setup_Candidate_Buff(PL_id);
-
-    for (ix = 0; ix < 8; ix++) {
-        EM_Candidate[PL_id][0][ix] = Check_EM_Buff(ix, ok_urien);
-        EM_Candidate[PL_id][1][ix] = Check_EM_Buff(ix, ok_urien);
-    }
-
-    EM_Candidate[PL_id][0][8] = Middle_Class_Boss_Data[My_char[PL_id]];
-    EM_Candidate[PL_id][1][8] = Middle_Class_Boss_Data[My_char[PL_id]];
-
-    if (My_char[PL_id] != 0) {
-        EM_Candidate[PL_id][0][9] = 0;
-        EM_Candidate[PL_id][1][9] = 0;
-    } else {
-        EM_Candidate[PL_id][0][9] = 1;
-        EM_Candidate[PL_id][1][9] = 1;
-    }
-}
-
-static s32 candidate_is_excluded(s16 PL_id, s16 ix) {
-    if (My_char[PL_id] == 0 && ix == 1) {
-        return 1;
-    }
-
-    if (ix == My_char[PL_id]) {
-        return 1;
-    }
-
-    if (ix == 17) {
-        return 1;
-    }
-
-    if (ix == Middle_Class_Boss_Data[My_char[PL_id]]) {
-        return 1;
-    }
-
-    if (Break_Com[PL_id][ix]) {
-        return 1;
-    }
-
-    return 0;
-}
-
-void Setup_Candidate_Buff(s16 PL_id) {
-    s16 em;
-    s16 ix;
-    s16 s2;
-
-    for (em = 0, s2 = ix = 1; ix <= 19; ix++) {
-        if (candidate_is_excluded(PL_id, ix)) {
-            continue;
-        }
-
-        Candidate_Buff[em] = ix;
-        em++;
-
-        if (em >= 16) {
-            break;
-        }
-    }
-}
-
-s16 Check_EM_Buff(s16 ix, s16 ok_urien) {
-    s16 em;
-    s16 Rnd = random_16();
-    s16 Next;
-
-    if (Check_EM_Sub(ix, ok_urien, Rnd)) {
-        em = Candidate_Buff[Rnd];
-        Candidate_Buff[Rnd] = 0xFF;
-        return em;
-    }
-
-    Next = random_16() & 1;
-
-    if (Next == 0) {
-        Next = -1;
-    }
-
-    while (1) {
-        if (Check_EM_Sub(ix, ok_urien, Rnd)) {
-            em = Candidate_Buff[Rnd];
-            Candidate_Buff[Rnd] = 0xFF;
-            return em;
-        }
-
-        Rnd += Next;
-
-        if (Rnd < 0) {
-            Rnd = 15;
-        }
-
-        if (Rnd > 15) {
-            Rnd = 0;
-        }
-    }
-}
-
 /* The candidates with their own slot rule. The case labels are the original
  * ones, so the characters still read as the same numbers, and the terminal
  * `default: return 1;` is the one this switch always had. */
-static s32 em_allowed_in_late_slot(s16 ix, s16 ok_urien, s16 em) {
-    switch (em) {
-    case 14:
-        if (ix < 6) {
-            return 0;
-        }
-
-        return 1;
-
-    case 13:
-        if (ok_urien != 0 && ix < 4) {
-            return 0;
-        }
-
-        return 1;
-
-    default:
-        return 1;
-    }
-}
-
-s32 Check_EM_Sub(s16 ix, s16 ok_urien, s16 Rnd) {
-    s16 em;
-
-    if (Candidate_Buff[Rnd] == 0xFF) {
-        return 0;
-    }
-
-    em = Candidate_Buff[Rnd];
-
-    switch (em) {
-    case 2:
-    case 11:
-    case 6:
-    case 8:
-        if (ix < 4) {
-            return 0;
-        }
-
-        return 1;
-
-    default:
-        return em_allowed_in_late_slot(ix, ok_urien, em);
-    }
-}
-
-void Check_Same_CPU(s16 PL_id) {
-    s16 ix;
-    s16 ok_urien;
-
-    if (VS_Index[PL_id] >= 9) {
-        return;
-    }
-
-    if (Last_My_char[PL_id] == My_char[PL_id]) {
-        return;
-    }
-
-    ok_urien = random_16();
-
-    for (ix = 0; ix < 16; ix++) {
-        Candidate_Buff[ix] = 0xFF;
-    }
-
-    Setup_Candidate_Buff(PL_id);
-
-    for (ix = VS_Index[PL_id]; ix < 8; ix++) {
-        EM_Candidate[PL_id][0][ix] = Check_EM_Buff(ix, ok_urien);
-        EM_Candidate[PL_id][1][ix] = Check_EM_Buff(ix, ok_urien);
-    }
-
-    EM_Candidate[PL_id][0][8] = Middle_Class_Boss_Data[My_char[PL_id]];
-    EM_Candidate[PL_id][1][8] = Middle_Class_Boss_Data[My_char[PL_id]];
-}
 
 void All_Clear_Suicide() {
     s16 ix;
