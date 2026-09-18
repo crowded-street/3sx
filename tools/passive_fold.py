@@ -42,6 +42,7 @@ hand at this scale:
 import argparse
 import collections
 import glob
+import itertools
 import json
 import os
 import re
@@ -400,6 +401,26 @@ SHARED_H = """/*
 """
 
 
+STEP_FILE = {1: '_1step.c', 2: '_2step.c', 3: '_3step.c', 4: '_long.c'}
+
+
+def shared_files(folder):
+    return sorted(glob.glob(os.path.join(folder, 'pass_patterns_*.c')))
+
+
+def rewrite_shared_header(folder):
+    """Regenerate pass_patterns.h from whatever the shared files now define."""
+    decls = []
+    for path in shared_files(folder):
+        src = open(path).read()
+        for name, a, b, is_static in functions(src):
+            decls.append(rewrap(src[a:b][:src[a:b].index('{')].rstrip() + ';'))
+    header = os.path.join(folder, 'pass_patterns.h')
+    text = open(header).read()
+    keep = text[:text.index('#include "types.h"') + len('#include "types.h"')]
+    open(header, 'w').write(keep + '\n\n' + '\n'.join(sorted(decls)) + '\n\n#endif\n')
+
+
 def gfold(paths, protos, min_members=3, max_params=3, shared=None):
     """Fold families that span the whole folder into one shared skeleton file."""
     sources = {p: open(p).read() for p in paths}
@@ -412,14 +433,45 @@ def gfold(paths, protos, min_members=3, max_params=3, shared=None):
             sk, slots = skeletonize(full[full.index('{'):], protos)
             fams[sk].append((path, name, a, b, slots))
 
-    helpers, decls, edits, used = [], [], collections.defaultdict(list), set()
+    folder = os.path.dirname(paths[0])
+    used = set()
+    for path in shared_files(folder):
+        used |= {n for n, a, b, st in functions(open(path).read())}
+    helpers, decls, edits = [], [], collections.defaultdict(list)
+    work = []
     for sk, members in sorted(fams.items(), key=lambda kv: (-len(kv[1]), kv[1][0][1])):
         if len(members) < min_members:
             continue
         slots0 = members[0][4]
         vary = [i for i in range(len(slots0)) if len({m[4][i][0] for m in members}) > 1]
-        if not vary or len(vary) > max_params:
+        if not vary:
             continue
+        if len(vary) <= max_params:
+            work.append((sk, members, vary))
+            continue
+        # More varying arguments than a skeleton may take without tripping Excess
+        # Number of Function Arguments. Parameterise the max_params slots that
+        # keep the most members together and specialise on the rest: the family
+        # becomes several skeletons, each with the other values written into it.
+        best = None
+        for keep in itertools.combinations(vary, max_params):
+            fixed = [i for i in vary if i not in keep]
+            groups = collections.defaultdict(list)
+            for m in members:
+                groups[tuple(m[4][i][0] for i in fixed)].append(m)
+            usable = [g for g in groups.values() if len(g) >= min_members]
+            score = (sum(len(g) for g in usable), -len(usable))
+            if usable and (best is None or score > best[0]):
+                best = (score, list(keep), usable)
+        if best is None:
+            continue
+        for group in best[2]:
+            vary_here = [i for i in best[1] if len({m[4][i][0] for m in group}) > 1]
+            if vary_here:
+                work.append((sk, group, vary_here))
+
+    for sk, members, vary in work:
+        slots0 = members[0][4]
         params, names = [], {}
         for i in vary:
             _, callee, index = slots0[i]
@@ -447,7 +499,8 @@ def gfold(paths, protos, min_members=3, max_params=3, shared=None):
         body = sk
         for i, (value, _, _) in enumerate(slots0):
             body = body.replace('\x00%d\x00' % i, names[i] if i in vary else value)
-        helpers.append(signature(name, ['PLW* wk'] + params, '') + body + '\n')
+        helpers.append((signature(name, ['PLW* wk'] + params, '') + body + '\n',
+                        len(re.findall(r'case \d+:', body))))
         decls.append(signature(name, ['PLW* wk'] + params, '').rstrip() + ';')
         for path, member, a, b, mslots in members:
             args = ['wk'] + [mslots[i][0] for i in vary]
@@ -456,10 +509,17 @@ def gfold(paths, protos, min_members=3, max_params=3, shared=None):
     if not helpers:
         return 0, 0
 
-    folder = os.path.dirname(paths[0])
-    open(os.path.join(folder, 'pass_patterns.c'), 'w').write(SHARED_C + '\n'.join(helpers))
-    open(os.path.join(folder, 'pass_patterns.h'), 'w').write(
-        SHARED_H + '\n'.join(rewrap(d) for d in decls) + '\n\n#endif\n')
+    existing = shared_files(folder)
+    if existing:
+        for text, cases in helpers:
+            dest = [p for p in existing if p.endswith(STEP_FILE[min(cases, 4)])][0]
+            open(dest, 'a').write('\n' + text)
+        rewrite_shared_header(folder)
+    else:
+        open(os.path.join(folder, 'pass_patterns.c'), 'w').write(
+            SHARED_C + '\n'.join(t for t, _ in helpers))
+        open(os.path.join(folder, 'pass_patterns.h'), 'w').write(
+            SHARED_H + '\n'.join(rewrap(d) for d in decls) + '\n\n#endif\n')
 
     total = 0
     for path, es in edits.items():

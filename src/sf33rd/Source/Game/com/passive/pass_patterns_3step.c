@@ -820,3 +820,685 @@ void pattern_jump_attack_term_normal_attack_command_attack(
         break;
     }
 }
+
+void pattern_normal_attack_4(PLW* wk, s16 reaction, s16 reaction_b, u16 lever_data) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Normal_Attack(wk, reaction, 0x102);
+        break;
+
+    case 1:
+        Normal_Attack(wk, reaction_b, lever_data);
+        break;
+
+    case 2:
+        Normal_Attack(wk, 8, 0x402);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_normal_attack_5(PLW* wk, s16 reaction, s16 reaction_b, u16 lever_data) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Normal_Attack(wk, reaction, 0x10);
+        break;
+
+    case 1:
+        Normal_Attack(wk, reaction_b, lever_data);
+        break;
+
+    case 2:
+        Normal_Attack(wk, 8, 0x400);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_em_term_normal_attack_3(PLW* wk, const EM_Term_Params* p, s16 reaction, u16 lever_data) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        EM_Term(wk, p);
+        break;
+
+    case 1:
+        Normal_Attack(wk, reaction, lever_data);
+        break;
+
+    case 2:
+        Normal_Attack(wk, 8, 0x40);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_em_term_normal_attack_4(PLW* wk, const EM_Term_Params* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        EM_Term(wk, p);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 8, 0x12);
+        break;
+
+    case 2:
+        Normal_Attack(wk, 8, 0x12);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_em_term_normal_attack_5(PLW* wk, const EM_Term_Params* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        EM_Term(wk, p);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 8, 0x10);
+        break;
+
+    case 2:
+        Normal_Attack(wk, 8, 0x10);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_em_term_normal_attack_6(PLW* wk, const EM_Term_Params* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        EM_Term(wk, p);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 8, 0x102);
+        break;
+
+    case 2:
+        Normal_Attack(wk, 8, 0x102);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_search_back_term_walk_wait_get_up(PLW* wk, s16 move_value, s16 next_menu, s16 time) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Search_Back_Term(wk, move_value, 6, next_menu);
+        break;
+
+    case 1:
+        Walk(wk, 1, time, 0);
+        break;
+
+    case 2:
+        Wait_Get_Up(wk, 0, -1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_search_back_term_walk_wait_get_up_2(PLW* wk, s16 move_value, s16 next_menu, s16 time) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Search_Back_Term(wk, move_value, 6, next_menu);
+        break;
+
+    case 1:
+        Walk(wk, 1, time, 0);
+        break;
+
+    case 2:
+        Wait_Get_Up(wk, 3, -1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_approach_walk_em_term_normal_attack_2(PLW* wk, s16 target_pos, const EM_Term_Params* p, u16 lever_data) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, target_pos, 2);
+        break;
+
+    case 1:
+        EM_Term(wk, p);
+        break;
+
+    case 2:
+        Normal_Attack(wk, 8, lever_data);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_jump_attack_term_normal_attack_j_command_attack(
+    PLW* wk, const Jump_Term_Args* a, u16 lever_data, const Command_Attack_Args* p
+) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Jump_Attack_Term(wk, a);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 0xB, lever_data);
+        break;
+
+    case 2:
+        J_Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_jump_attack_term_normal_attack_j_command_attack_2(
+    PLW* wk, const Jump_Term_Args* a, u16 lever_data, const Command_Attack_Args* p
+) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Jump_Attack_Term(wk, a);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 9, lever_data);
+        break;
+
+    case 2:
+        J_Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_jump_attack_term_normal_attack_command_attack_2(
+    PLW* wk, const Jump_Term_Args* a, const Command_Attack_Args* p
+) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Jump_Attack_Term(wk, a);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 0xB, 0x202);
+        break;
+
+    case 2:
+        Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_jump_attack_term_normal_attack_command_attack_3(
+    PLW* wk, const Jump_Term_Args* a, u16 lever_data, const Command_Attack_Args* p
+) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Jump_Attack_Term(wk, a);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 9, lever_data);
+        break;
+
+    case 2:
+        Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_normal_attack_command_attack_3(PLW* wk, s16 reaction, s16 reaction_b, const Command_Attack_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Normal_Attack(wk, reaction, 0x102);
+        break;
+
+    case 1:
+        Normal_Attack(wk, reaction_b, 0x202);
+        break;
+
+    case 2:
+        Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_normal_attack_command_attack_4(PLW* wk, s16 reaction, s16 reaction_b, const Command_Attack_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Normal_Attack(wk, reaction, 0x102);
+        break;
+
+    case 1:
+        Normal_Attack(wk, reaction_b, 0x102);
+        break;
+
+    case 2:
+        Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_normal_attack_j_command_attack_3(PLW* wk, u16 lever_data, u16 lever_data_b, const Command_Attack_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Normal_Attack(wk, 9, lever_data);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 9, lever_data_b);
+        break;
+
+    case 2:
+        J_Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_normal_attack_j_command_attack_4(PLW* wk, u16 lever_data, const Command_Attack_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Normal_Attack(wk, 9, lever_data);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 8, 0x42);
+        break;
+
+    case 2:
+        J_Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_normal_attack_j_command_attack_5(PLW* wk, const Command_Attack_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Normal_Attack(wk, 8, 0x10);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 0xB, 0x10);
+        break;
+
+    case 2:
+        J_Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_jump_attack_term_normal_attack_3(PLW* wk, const Jump_Term_Args* a, u16 lever_data, u16 lever_data_b) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Jump_Attack_Term(wk, a);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 8, lever_data);
+        break;
+
+    case 2:
+        Normal_Attack(wk, 8, lever_data_b);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_jump_attack_term_normal_attack_4(PLW* wk, const Jump_Term_Args* a, u16 lever_data, u16 lever_data_b) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Jump_Attack_Term(wk, a);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 0xB, lever_data);
+        break;
+
+    case 2:
+        Normal_Attack(wk, 8, lever_data_b);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_em_term_normal_attack_j_command_attack(
+    PLW* wk, const EM_Term_Params* p, u16 lever_data, const Command_Attack_Args* p_b
+) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        EM_Term(wk, p);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 0xB, lever_data);
+        break;
+
+    case 2:
+        J_Command_Attack(wk, p_b);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_approach_walk_normal_attack_j_command_attack(
+    PLW* wk, s16 target_pos, u16 lever_data, const Command_Attack_Args* p
+) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, target_pos, 2);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 0xB, lever_data);
+        break;
+
+    case 2:
+        J_Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_approach_walk_normal_attack_j_command_attack_2(PLW* wk, s16 target_pos, const Command_Attack_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, target_pos, 2);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 8, 0x20);
+        break;
+
+    case 2:
+        J_Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_approach_walk_em_term_command_attack(
+    PLW* wk, s16 target_pos, const EM_Term_Params* p, const Command_Attack_Args* p_b
+) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, target_pos, 2);
+        break;
+
+    case 1:
+        EM_Term(wk, p);
+        break;
+
+    case 2:
+        Command_Attack(wk, p_b);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_hi_jump_attack_term_normal_attack_lever_attack(PLW* wk, const Hi_Jump_Term_Args* a, u16 lever_data) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Hi_Jump_Attack_Term(wk, a);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 8, 0x100);
+        break;
+
+    case 2:
+        Lever_Attack(wk, 8, 0, lever_data);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_approach_walk_em_term_com_random_select(PLW* wk, s16 target_pos, const Branch_Menu_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, target_pos, 2);
+        break;
+
+    case 1:
+        EM_Term(wk, &(EM_Term_Params){-1, -0x7FF8, 6, 1, -1});
+        break;
+
+    case 2:
+        Com_Random_Select(wk, p, 1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_normal_attack_sa_term_command_attack(PLW* wk, const SA_Term_Args* p, const Command_Attack_Args* p_b) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Normal_Attack(wk, 0xC, 0x202);
+        break;
+
+    case 1:
+        SA_Term(wk, p);
+        break;
+
+    case 2:
+        Command_Attack(wk, p_b);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_normal_attack_sa_term_command_attack_2(
+    PLW* wk, s16 reaction, const SA_Term_Args* p, const Command_Attack_Args* p_b
+) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Normal_Attack(wk, reaction, 0x100);
+        break;
+
+    case 1:
+        SA_Term(wk, p);
+        break;
+
+    case 2:
+        Command_Attack(wk, p_b);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_em_term_lever_attack_normal_attack(PLW* wk, const EM_Term_Params* p, s16 reaction, u16 lever_data) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        EM_Term(wk, p);
+        break;
+
+    case 1:
+        Lever_Attack(wk, reaction, 0, 0x200);
+        break;
+
+    case 2:
+        Normal_Attack(wk, 8, lever_data);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_em_term_normal_attack_command_attack(
+    PLW* wk, const EM_Term_Params* p, u16 lever_data, const Command_Attack_Args* p_b
+) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        EM_Term(wk, p);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 8, lever_data);
+        break;
+
+    case 2:
+        Command_Attack(wk, p_b);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_normal_attack_sa_term_j_command_attack(
+    PLW* wk, u16 lever_data, const SA_Term_Args* p, const Command_Attack_Args* p_b
+) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Normal_Attack(wk, 0xC, lever_data);
+        break;
+
+    case 1:
+        SA_Term(wk, p);
+        break;
+
+    case 2:
+        J_Command_Attack(wk, p_b);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_approach_walk_normal_attack_command_attack(
+    PLW* wk, s16 reaction, u16 lever_data, const Command_Attack_Args* p
+) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, 0x37, 2);
+        break;
+
+    case 1:
+        Normal_Attack(wk, reaction, lever_data);
+        break;
+
+    case 2:
+        Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_approach_walk_normal_attack_3(PLW* wk, s16 target_pos, s16 reaction, u16 lever_data) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, target_pos, 2);
+        break;
+
+    case 1:
+        Normal_Attack(wk, reaction, 0x100);
+        break;
+
+    case 2:
+        Normal_Attack(wk, 8, lever_data);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}

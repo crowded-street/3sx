@@ -133,23 +133,7 @@ void Passive13_0127(PLW* wk) {
 }
 
 void Passive13_0128(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        EM_Term(wk, &(EM_Term_Params){-0x7F80, -0x7FB0, 6, 1, -1});
-        break;
-
-    case 1:
-        Normal_Attack(wk, 8, 0x12);
-        break;
-
-    case 2:
-        Normal_Attack(wk, 8, 0x12);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_em_term_normal_attack_4(wk, &(EM_Term_Params){-0x7F80, -0x7FB0, 6, 1, -1});
 }
 
 void Passive13_0129(PLW* wk) {

@@ -101,115 +101,19 @@ void Passive14_0220(PLW* wk) {
 }
 
 void Passive14_0221(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Search_Back_Term(wk, 0x300, 6, 0xE1);
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 10, -1});
-        break;
-
-    case 2:
-        SA_Term(wk, &(SA_Term_Args){0x34, 0x34, 0x34, 0x47});
-        break;
-
-    case 3:
-        EM_Term(wk, &(EM_Term_Params){-0x7FB0, -1, 5, 6, 1});
-        break;
-
-    case 4:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_search_back_term_command_attack_sa_term_2(wk, 0x300, 0xE1, &(Command_Attack_Args){8, 0x1D, 10, -1});
 }
 
 void Passive14_0222(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Search_Back_Term(wk, 0x80, 6, 0xE1);
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 10, -1});
-        break;
-
-    case 2:
-        SA_Term(wk, &(SA_Term_Args){0x34, 0x34, 0x34, 0x47});
-        break;
-
-    case 3:
-        EM_Term(wk, &(EM_Term_Params){-0x7FB0, -1, 5, 6, 1});
-        break;
-
-    case 4:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_search_back_term_command_attack_sa_term_2(wk, 0x80, 0xE1, &(Command_Attack_Args){8, 0x1D, 10, -1});
 }
 
 void Passive14_0223(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Search_Back_Term(wk, 0x200, 6, 0xE2);
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 8, -1});
-        break;
-
-    case 2:
-        SA_Term(wk, &(SA_Term_Args){0x34, 0x34, 0x34, 0x47});
-        break;
-
-    case 3:
-        EM_Term(wk, &(EM_Term_Params){-0x7FB0, -1, 5, 6, 1});
-        break;
-
-    case 4:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_search_back_term_command_attack_sa_term_2(wk, 0x200, 0xE2, &(Command_Attack_Args){8, 0x1D, 8, -1});
 }
 
 void Passive14_0224(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Search_Back_Term(wk, 0x100, 6, 0xE2);
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 8, -1});
-        break;
-
-    case 2:
-        SA_Term(wk, &(SA_Term_Args){0x34, 0x34, 0x34, 0x47});
-        break;
-
-    case 3:
-        EM_Term(wk, &(EM_Term_Params){-0x7FB0, -1, 5, 6, 1});
-        break;
-
-    case 4:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_search_back_term_command_attack_sa_term_2(wk, 0x100, 0xE2, &(Command_Attack_Args){8, 0x1D, 8, -1});
 }
 
 static void passive14_pattern_command_attack_sa_term_em_term(

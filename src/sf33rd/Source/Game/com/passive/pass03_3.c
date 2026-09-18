@@ -12,23 +12,7 @@
 #include "sf33rd/Source/Game/engine/workuser.h"
 
 void Passive03_0106(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Search_Back_Term(wk, 0x70, 6, 0x68);
-        break;
-
-    case 1:
-        Walk(wk, 1, 0x38, 0);
-        break;
-
-    case 2:
-        Wait_Get_Up(wk, 0, -1);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_search_back_term_walk_wait_get_up(wk, 0x70, 0x68, 0x38);
 }
 
 void Passive03_0107(PLW* wk) {
@@ -77,23 +61,12 @@ void Passive03_0111(PLW* wk) {
 }
 
 void Passive03_0112(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        EM_Term(wk, &(EM_Term_Params){-1, -0x7FB0, 6, 1, -1});
-        break;
-
-    case 1:
-        Normal_Attack(wk, 8, 0x200);
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x20, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_em_term_normal_attack_command_attack(
+        wk,
+        &(EM_Term_Params){-1, -0x7FB0, 6, 1, -1},
+        0x200,
+        &(Command_Attack_Args){8, 0x20, 8, -1}
+    );
 }
 
 void Passive03_0113(PLW* wk) {

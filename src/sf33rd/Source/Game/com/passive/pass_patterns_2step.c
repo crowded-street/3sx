@@ -852,3 +852,163 @@ void pattern_normal_attack_3(PLW* wk, u16 lever_data, s16 reaction, u16 lever_da
         break;
     }
 }
+
+void pattern_search_back_term_command_attack(PLW* wk, s16 move_value, s16 next_menu, const Command_Attack_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Search_Back_Term(wk, move_value, 6, next_menu);
+        break;
+
+    case 1:
+        Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_search_back_term_command_attack_2(PLW* wk, const Command_Attack_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Search_Back_Term(wk, 0x60, 1, -1);
+        break;
+
+    case 1:
+        Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_approach_walk_com_random_select(PLW* wk, s16 target_pos, const Branch_Menu_Args* p, s16 rnd_type) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, target_pos, 2);
+        break;
+
+    case 1:
+        Com_Random_Select(wk, p, rnd_type);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_approach_walk_com_random_select_2(PLW* wk, const Branch_Menu_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, 0xBF, 3);
+        break;
+
+    case 1:
+        Com_Random_Select(wk, p, 0);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_normal_attack_6(PLW* wk, s16 reaction, u16 lever_data, u16 lever_data_b) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Normal_Attack(wk, reaction, lever_data);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 8, lever_data_b);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_normal_attack_com_random_select_2(PLW* wk, s16 reaction, u16 lever_data) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Normal_Attack(wk, reaction, lever_data);
+        break;
+
+    case 1:
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x4B, 0x36, 0x3B, 0x70}, 1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_normal_attack_com_random_select_3(PLW* wk, u16 lever_data) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Normal_Attack(wk, 8, lever_data);
+        break;
+
+    case 1:
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 1, 1, 0xC0, 0xC0}, 4);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_walk_com_random_select(PLW* wk, s16 time, const Branch_Menu_Args* p, s16 rnd_type) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Walk(wk, 1, time, -1);
+        break;
+
+    case 1:
+        Com_Random_Select(wk, p, rnd_type);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_keep_away_com_random_select(PLW* wk, s16 target_pos) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Keep_Away(wk, target_pos, 1);
+        break;
+
+    case 1:
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0xBA, 1, 0xAF, 0x92}, 3);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_keep_away_com_random_select_2(PLW* wk, s16 target_pos, s16 option, const Branch_Menu_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Keep_Away(wk, target_pos, option);
+        break;
+
+    case 1:
+        Com_Random_Select(wk, p, 0);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
