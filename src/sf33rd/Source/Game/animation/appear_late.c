@@ -901,18 +901,18 @@ static void start_appear_39000(PLW* wk) {
 }
 
 static void arrive_appear_39000(PLW* wk) {
-    if (wk->wu.id) {
-        if (wk->wu.xyz[0].disp.pos < (bg_w.bgw[1].pos_x_work + 88)) {
-            wk->wu.routine_no[3]++;
-            wk->wu.xyz[0].disp.pos = bg_w.bgw[1].pos_x_work + 88;
-            return;
-        }
-    } else {
+    if (!wk->wu.id) {
         if (wk->wu.xyz[0].disp.pos > (bg_w.bgw[1].pos_x_work - 88)) {
             wk->wu.routine_no[3] += 1;
             wk->wu.xyz[0].disp.pos = (bg_w.bgw[1].pos_x_work - 88);
-            return;
         }
+
+        return;
+    }
+
+    if (wk->wu.xyz[0].disp.pos < (bg_w.bgw[1].pos_x_work + 88)) {
+        wk->wu.routine_no[3]++;
+        wk->wu.xyz[0].disp.pos = bg_w.bgw[1].pos_x_work + 88;
     }
 }
 
