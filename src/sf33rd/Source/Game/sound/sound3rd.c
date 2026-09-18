@@ -379,6 +379,87 @@ static void bgm_start_for_fade_in() {
     }
 }
 
+static void bgm_fade_out_step() {
+    switch (bgm_exe.rno) {
+    case 0:
+        bgm_fade.in.dex.hi = bgm_vol_now;
+        bgm_fade.in.dex.low = -0x8000;
+        bgm_fade.speed = -(bgm_fade.in.cal / bgm_exe.data);
+        bgm_fade.in.cal = 0;
+        bgm_exe.rno = 1;
+        /* fallthrough */
+
+    case 1:
+        if (adx_now_playing() == 0) {
+            bgm_exe.rno = 3;
+            break;
+        } else {
+            bgm_exe.rno = 2;
+            bgm_exe.volume = 0;
+        }
+
+        /* fallthrough */
+
+    case 2:
+        bgm_fade.in.cal += bgm_fade.speed;
+        bgm_volume_setup(bgm_fade.in.dex.hi);
+
+        if (bgm_vol_now) {
+            break;
+        }
+
+        /* fallthrough */
+
+    default:
+        bgm_exe.kind = 1;
+        break;
+    }
+}
+
+static void bgm_fade_in_step() {
+    switch (bgm_exe.rno) {
+    case 0:
+        bgm_fade.in.dex.hi = bgm_vol_mix;
+        bgm_fade.in.dex.low = -0x8000;
+        bgm_fade.speed = bgm_fade.in.cal / bgm_exe.data;
+
+        bgm_start_for_fade_in();
+
+        bgm_resume_if_paused();
+
+        bgm_volume_setup(-0x7F);
+        current_bgm = bgm_exe.code;
+        bgm_exe.rno = 1;
+        bgm_fade.in.dex.hi = -bgm_vol_mix;
+        bgm_fade.in.dex.low = -0x8000;
+        /* fallthrough */
+
+    case 1:
+        if (adx_now_playing() != 0) {
+            bgm_exe.rno = 2;
+            bgm_exe.volume = 0;
+        } else {
+            break;
+        }
+
+        /* fallthrough */
+
+    case 2:
+        bgm_fade.in.cal += bgm_fade.speed;
+        bgm_volume_setup(bgm_fade.in.dex.hi);
+
+        if (bgm_vol_now < bgm_vol_mix) {
+            break;
+        }
+
+        /* fallthrough */
+
+    default:
+        bgm_exe.kind = 0;
+        break;
+    }
+}
+
 void BGM_Server() {
     if (!(system_init_level & 2)) {
         return;
@@ -471,85 +552,12 @@ void BGM_Server() {
         break;
 
     case 5:
-        switch (bgm_exe.rno) {
-        case 0:
-            bgm_fade.in.dex.hi = bgm_vol_now;
-            bgm_fade.in.dex.low = -0x8000;
-            bgm_fade.speed = -(bgm_fade.in.cal / bgm_exe.data);
-            bgm_fade.in.cal = 0;
-            bgm_exe.rno = 1;
-            /* fallthrough */
-
-        case 1:
-            if (adx_now_playing() == 0) {
-                bgm_exe.rno = 3;
-                break;
-            } else {
-                bgm_exe.rno = 2;
-                bgm_exe.volume = 0;
-            }
-
-            /* fallthrough */
-
-        case 2:
-            bgm_fade.in.cal += bgm_fade.speed;
-            bgm_volume_setup(bgm_fade.in.dex.hi);
-
-            if (bgm_vol_now) {
-                break;
-            }
-
-            /* fallthrough */
-
-        default:
-            bgm_exe.kind = 1;
-            break;
-        }
+        bgm_fade_out_step();
 
         break;
 
     case 6:
-        switch (bgm_exe.rno) {
-        case 0:
-            bgm_fade.in.dex.hi = bgm_vol_mix;
-            bgm_fade.in.dex.low = -0x8000;
-            bgm_fade.speed = bgm_fade.in.cal / bgm_exe.data;
-
-            bgm_start_for_fade_in();
-
-            bgm_resume_if_paused();
-
-            bgm_volume_setup(-0x7F);
-            current_bgm = bgm_exe.code;
-            bgm_exe.rno = 1;
-            bgm_fade.in.dex.hi = -bgm_vol_mix;
-            bgm_fade.in.dex.low = -0x8000;
-            /* fallthrough */
-
-        case 1:
-            if (adx_now_playing() != 0) {
-                bgm_exe.rno = 2;
-                bgm_exe.volume = 0;
-            } else {
-                break;
-            }
-
-            /* fallthrough */
-
-        case 2:
-            bgm_fade.in.cal += bgm_fade.speed;
-            bgm_volume_setup(bgm_fade.in.dex.hi);
-
-            if (bgm_vol_now < bgm_vol_mix) {
-                break;
-            }
-
-            /* fallthrough */
-
-        default:
-            bgm_exe.kind = 0;
-            break;
-        }
+        bgm_fade_in_step();
 
         break;
 
