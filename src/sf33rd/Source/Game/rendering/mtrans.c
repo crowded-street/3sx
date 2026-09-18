@@ -1915,11 +1915,7 @@ void mlt_obj_melt2(MultiTexture* mt, u16 cg_number) {
     ppgSetupCurrentDataList(&mt->texList);
     grplds = &texgrplds[obj_group_table[cg_number]];
 
-    if (grplds->ok == 0) {
-        // The trans data is not valid. Group number: %d\n
-        flLogOut("トランスデータが有効ではありません。グループ番号：%d\n", obj_group_table[cg_number]);
-        while (1) {}
-    }
+    require_valid_trans_group(obj_group_table[cg_number]);
 
     n = *(u32*)grplds->trans_table / 4;
     textbl = (u32*)grplds->texture_table;
