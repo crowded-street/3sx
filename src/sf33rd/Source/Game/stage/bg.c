@@ -1111,19 +1111,18 @@ static s32 remap_stage19_chip(u8 bgnm, s32 global_index_real) {
     return global_index_real;
 }
 
-static void draw_stage19_tiles(u8 bgnm, s32 xx[2], s32 yy[2], s32 global_index, s32 palOffset,
-                               PPGDataList* curDataList) {
+static void draw_stage19_tiles(const StageDrawContext* context) {
     s32 x;
     s32 y;
     s32 global_index_real;
 
-    for (y = yy[0]; y < yy[1]; y += 128) {
-        for (x = xx[0]; x < xx[1]; x += 128) {
-            global_index_real = global_index + (((y >> 7) << 3) + (x >> 7));
-            global_index_real = remap_stage19_chip(bgnm, global_index_real);
+    for (y = context->yy[0]; y < context->yy[1]; y += 128) {
+        for (x = context->xx[0]; x < context->xx[1]; x += 128) {
+            global_index_real = context->global_index + (((y >> 7) << 3) + (x >> 7));
+            global_index_real = remap_stage19_chip(context->bgnm, global_index_real);
 
-            bgDrawOneChip(x, y, 128, 128, global_index_real, -1, palOffset);
-            ppgSetupCurrentDataList(curDataList);
+            bgDrawOneChip(x, y, 128, 128, global_index_real, -1, context->pal_offset);
+            ppgSetupCurrentDataList(context->data_list);
         }
     }
 }
@@ -1280,8 +1279,7 @@ static s32 draw_early_special_stage(const StageDrawContext* context) {
         break;
 
     case 3:
-        draw_stage19_tiles(context->bgnm, context->xx, context->yy, context->global_index, context->pal_offset,
-                           context->data_list);
+        draw_stage19_tiles(context);
 
         if (advance_stage19_state(context->bgnm)) {
             return 1;
