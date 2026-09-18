@@ -135,6 +135,31 @@ static bool is_sequence_chip_scaled(Sprite2* chip, s32 width, s32 height) {
     return SDL_fabsf(screen_w - (f32)width) > 0.001f || SDL_fabsf(screen_h - (f32)height) > 0.001f;
 }
 
+// The chip's texture coordinates, with the half-texel inset a scaled chip needs
+// and the two flips applied by swapping which corner gets which edge.
+static void set_sequence_chip_uvs(Sprite2* chip, const SequenceChip* req, s32 u, s32 v) {
+    const bool scaled = is_sequence_chip_scaled(chip, req->w, req->h);
+
+    const f32 uv_dx = scaled ? 0.5f : 0.0f;
+    const f32 uv_dy = scaled ? 0.5f : 0.0f;
+
+    if (req->attr & 0x8000) {
+        chip->t[1].s = (u + uv_dx) / 256.0f;
+        chip->t[0].s = (u + req->w - uv_dx) / 256.0f;
+    } else {
+        chip->t[0].s = (u + uv_dx) / 256.0f;
+        chip->t[1].s = (u + req->w - uv_dx) / 256.0f;
+    }
+
+    if (req->attr & 0x4000) {
+        chip->t[1].t = (v + uv_dy) / 256.0f;
+        chip->t[0].t = (v + req->h - uv_dy) / 256.0f;
+    } else {
+        chip->t[0].t = (v + uv_dy) / 256.0f;
+        chip->t[1].t = (v + req->h - uv_dy) / 256.0f;
+    }
+}
+
 s32 seqsStoreChip(const SequenceChip* req) {
     Sprite2* chip;
     s32 u;
@@ -165,26 +190,7 @@ s32 seqsStoreChip(const SequenceChip* req) {
 
     appRenewTempPriority_1_Chip();
 
-    const bool scaled = is_sequence_chip_scaled(chip, req->w, req->h);
-
-    const f32 uv_dx = scaled ? 0.5f : 0.0f;
-    const f32 uv_dy = scaled ? 0.5f : 0.0f;
-
-    if (req->attr & 0x8000) {
-        chip->t[1].s = (u + uv_dx) / 256.0f;
-        chip->t[0].s = (u + req->w - uv_dx) / 256.0f;
-    } else {
-        chip->t[0].s = (u + uv_dx) / 256.0f;
-        chip->t[1].s = (u + req->w - uv_dx) / 256.0f;
-    }
-
-    if (req->attr & 0x4000) {
-        chip->t[1].t = (v + uv_dy) / 256.0f;
-        chip->t[0].t = (v + req->h - uv_dy) / 256.0f;
-    } else {
-        chip->t[0].t = (v + uv_dy) / 256.0f;
-        chip->t[1].t = (v + req->h - uv_dy) / 256.0f;
-    }
+    set_sequence_chip_uvs(chip, req, u, v);
 
     chip->tex_code |= ppgGetUsingPaletteHandle(NULL, req->attr & 0x1FF) << 16;
     chip->vertex_color = curr_bright | ((0xFF - req->alpha) << 24);
