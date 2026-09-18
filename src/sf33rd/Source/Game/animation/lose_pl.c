@@ -130,35 +130,42 @@ void Lose_20000(PLW* wk) {
     update_field_hosei_flags(wk);
 }
 
+static void play_fixed_judge_loss(PLW* wk) {
+    switch (wk->wu.routine_no[3]) {
+    case 0:
+        wk->wu.routine_no[3]++;
+        set_char_move_init(&wk->wu, 9, 56);
+        break;
+
+    default:
+    case 1:
+    case 9:
+        char_move(&wk->wu);
+        break;
+    }
+}
+
+static void play_fixed_round_loss(PLW* wk) {
+    switch (wk->wu.routine_no[3]) {
+    case 0:
+        wk->wu.routine_no[3]++;
+        set_char_move_init(&wk->wu, 9, 24);
+        break;
+
+    case 1:
+    case 9:
+        char_move(&wk->wu);
+        break;
+    }
+}
+
 void Lose_30000(PLW* wk) {
     if (judge_screen_showing()) {
-        switch (wk->wu.routine_no[3]) {
-        case 0:
-            wk->wu.routine_no[3]++;
-            set_char_move_init(&wk->wu, 9, 56);
-            break;
-
-        default:
-        case 1:
-        case 9:
-            char_move(&wk->wu);
-            break;
-        }
-
+        play_fixed_judge_loss(wk);
     } else if (lose_anime_suspended()) {
         return;
     } else {
-        switch (wk->wu.routine_no[3]) {
-        case 0:
-            wk->wu.routine_no[3]++;
-            set_char_move_init(&wk->wu, 9, 24);
-            break;
-
-        case 1:
-        case 9:
-            char_move(&wk->wu);
-            break;
-        }
+        play_fixed_round_loss(wk);
     }
 
     update_field_hosei_flags(wk);
