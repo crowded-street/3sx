@@ -928,6 +928,14 @@ static s32 bg_layer_should_transfer(int i) {
     return (bg_disp_off == 0) && (Screen_Switch_Buffer & (1 << i)) && !bg_layer_disabled(i);
 }
 
+static void calc_unsubstantial_layers() {
+    for (int i = 0; i < 4; i++) {
+        if (Unsubstantial_BG[i]) {
+            scr_calc(i);
+        }
+    }
+}
+
 void BG_Draw_System() {
     for (int i = 0; i < 4; i++) {
         if (bg_layer_should_transfer(i)) {
@@ -938,11 +946,7 @@ void BG_Draw_System() {
     }
 
     if (Play_Game == 0) {
-        for (int i = 0; i < 4; i++) {
-            if (Unsubstantial_BG[i]) {
-                scr_calc(i);
-            }
-        }
+        calc_unsubstantial_layers();
     } else if (Play_Game == 1) {
         Family_Move();
     } else {
