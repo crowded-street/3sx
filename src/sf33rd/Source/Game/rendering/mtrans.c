@@ -1395,8 +1395,24 @@ static s32 load_trans_rgb32(const RgbTile* tile) {
     return code;
 }
 
-static void store_trans_rgb_tiles(MultiTexture* mt, WORK* wk, u32* textbl, TileMapEntry* trsptr, s32 count, s32 flip,
-                                  s32 palo, s32 group) {
+// store_trans_rgb_tiles is the ninth store_* pass and the odd one out: its x, y
+// and pattern code are locals it sets up itself rather than arguments, so it
+// cannot take a TransRun without its caller inventing three values. It gets a
+// struct of its own eight arguments instead, in order and in type.
+typedef struct {
+    MultiTexture* mt;
+    WORK* wk;
+    u32* textbl;
+    TileMapEntry* trsptr;
+    s32 count;
+    s32 flip;
+    s32 palo;
+    s32 group;
+} RgbTileRun;
+
+static void store_trans_rgb_tiles(const RgbTileRun* run) {
+    TileMapEntry* trsptr = run->trsptr;
+    s32 count = run->count;
     TEX* texptr;
     s32 rnum;
     f32 x;
@@ -1411,53 +1427,53 @@ static void store_trans_rgb_tiles(MultiTexture* mt, WORK* wk, u32* textbl, TileM
     s32 dh;
 
     x = y = 0.0f;
-    cc.parts.group = group;
+    cc.parts.group = run->group;
 
     while (count--) {
-        x = advance_trans_x(x, flip, trsptr);
-        y = advance_trans_y(y, flip, trsptr);
+        x = advance_trans_x(x, run->flip, trsptr);
+        y = advance_trans_y(y, run->flip, trsptr);
 
-        texptr = (TEX*)((uintptr_t)textbl + ((u32*)textbl)[trsptr->code]);
+        texptr = (TEX*)((uintptr_t)run->textbl + ((u32*)run->textbl)[trsptr->code]);
         dw = (texptr->wh & 0xE0) >> 2;
         dh = (texptr->wh & 0x1C) * 2;
         wh = (texptr->wh & 3) + 1;
         size = (wh * wh) << 6;
         attr = trsptr->attr;
-        palt = (attr & 0x1FF) + palo;
-        attr = (attr ^ flip) & 0xC000;
+        palt = (attr & 0x1FF) + run->palo;
+        attr = (attr ^ run->flip) & 0xC000;
         cc.parts.offset = trsptr->code;
 
         switch (wh) {
         case 1:
         case 2:
-            code = load_trans_rgb16(&(RgbTile){ mt, texptr, size, cc.code, palt });
+            code = load_trans_rgb16(&(RgbTile){ run->mt, texptr, size, cc.code, palt });
 
             rnum = seqsStoreChip(
-                x - (dw * BOOL(flip & 0x8000)),
-                y + (dh * BOOL(flip & 0x4000)),
+                x - (dw * BOOL(run->flip & 0x8000)),
+                y + (dh * BOOL(run->flip & 0x4000)),
                 dw,
                 dh,
-                mt->mltgidx16,
+                run->mt->mltgidx16,
                 code,
                 attr,
-                wk->my_clear_level,
-                mt->id
+                run->wk->my_clear_level,
+                run->mt->id
             );
             break;
 
         case 4:
-            code = load_trans_rgb32(&(RgbTile){ mt, texptr, size, cc.code, palt });
+            code = load_trans_rgb32(&(RgbTile){ run->mt, texptr, size, cc.code, palt });
 
             rnum = seqsStoreChip(
-                x - (dw * BOOL(flip & 0x8000)),
-                y + (dh * BOOL(flip & 0x4000)),
+                x - (dw * BOOL(run->flip & 0x8000)),
+                y + (dh * BOOL(run->flip & 0x4000)),
                 dw,
                 dh,
-                mt->mltgidx32,
+                run->mt->mltgidx32,
                 code,
                 attr | 0x2000,
-                wk->my_clear_level,
-                mt->id
+                run->wk->my_clear_level,
+                run->mt->id
             );
             break;
         }
@@ -1506,7 +1522,7 @@ void mlt_obj_trans_rgb(MultiTexture* mt, WORK* wk, s32 base_y) {
     palo = wk->colcd;
 
     setup_bright_and_matrix(wk, base_y);
-    store_trans_rgb_tiles(mt, wk, textbl, trsptr, count, flip, palo, i);
+    store_trans_rgb_tiles(&(RgbTileRun){ mt, wk, textbl, trsptr, count, flip, palo, i });
 
     seqs_w.up[mt->id] = 1;
     appRenewTempPriority(wk->position_z);
