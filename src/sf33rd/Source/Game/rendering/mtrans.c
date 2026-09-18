@@ -142,6 +142,8 @@ typedef struct {
 void mlt_obj_trans_ext(MultiTexture* mt, WORK* wk, s32 base_y);
 void mlt_obj_trans_cp3_ext(MultiTexture* mt, WORK* wk, s32 base_y);
 void mlt_obj_trans_rgb_ext(MultiTexture* mt, WORK* wk, s32 base_y);
+static void store_trans_tiles(const TransRun* run);
+static void store_trans_cp3_tiles(const TransRun* run);
 static void store_cached_trans_ext_tiles(const TransRun* run, s32 group);
 static void store_new_trans_ext_tiles(const TransRun* run, s32 group, PatternInstance* cp);
 static void store_cached_trans_cp3_ext_tiles(const TransRun* run, s32 group);
@@ -638,53 +640,6 @@ static void store_trans_tiles(const TransRun* run) {
     }
 }
 
-void mlt_obj_trans(MultiTexture* mt, WORK* wk, s32 base_y) {
-    u32* textbl;
-    u16* trsbas;
-    TileMapEntry* trsptr;
-    s32 attr;
-    s32 count;
-    s32 palo;
-    s32 n;
-    s32 i;
-    f32 x;
-    f32 y;
-    PatternCode cc;
-
-    ppgSetupCurrentDataList(&mt->texList);
-
-    if (mt->ext) {
-        mlt_obj_trans_ext(mt, wk, base_y);
-        return;
-    }
-
-    n = wk->cg_number;
-    i = obj_group_table[n];
-
-    if (i == 0) {
-        return;
-    }
-
-    require_valid_trans_group(i);
-
-    n -= texgrpdat[i].num_of_1st;
-    trsbas = (u16*)(texgrplds[i].trans_table + ((u32*)texgrplds[i].trans_table)[n]);
-    textbl = (u32*)texgrplds[i].texture_table;
-    count = *trsbas;
-    trsbas++;
-    trsptr = (TileMapEntry*)trsbas;
-    x = y = 0.0f;
-    attr = flptbl[wk->cg_flip ^ wk->rl_flag];
-    palo = wk->colcd;
-
-    setup_bright_and_matrix(wk, base_y);
-    cc.parts.group = i;
-    store_trans_tiles(&(TransRun){ mt, wk, textbl, trsptr, count, attr, palo, x, y, cc });
-
-    seqs_w.up[mt->id] = 1;
-    appRenewTempPriority(wk->position_z);
-}
-
 static void store_cached_trans_cp3_ext_tiles(const TransRun* run, s32 group) {
     TileMapEntry* trsptr = run->trsptr;
     s32 count = run->count;
@@ -885,7 +840,16 @@ static void store_trans_cp3_tiles(const TransRun* run) {
     }
 }
 
-void mlt_obj_trans_cp3(MultiTexture* mt, WORK* wk, s32 base_y) {
+// mlt_obj_trans and mlt_obj_trans_cp3 differ in nothing but which extended
+// entry point they hand an extended texture to and which tile pass they run.
+// Each names its own pair in full at its own call site; the struct is built
+// there and never stored.
+typedef struct {
+    void (*ext)(MultiTexture* mt, WORK* wk, s32 base_y);
+    void (*store_tiles)(const TransRun* run);
+} TransVariant;
+
+static void mlt_obj_trans_common(MultiTexture* mt, WORK* wk, s32 base_y, const TransVariant* variant) {
     u32* textbl;
     u16* trsbas;
     TileMapEntry* trsptr;
@@ -901,7 +865,7 @@ void mlt_obj_trans_cp3(MultiTexture* mt, WORK* wk, s32 base_y) {
     ppgSetupCurrentDataList(&mt->texList);
 
     if (mt->ext) {
-        mlt_obj_trans_cp3_ext(mt, wk, base_y);
+        variant->ext(mt, wk, base_y);
         return;
     }
 
@@ -926,10 +890,18 @@ void mlt_obj_trans_cp3(MultiTexture* mt, WORK* wk, s32 base_y) {
 
     setup_bright_and_matrix(wk, base_y);
     cc.parts.group = i;
-    store_trans_cp3_tiles(&(TransRun){ mt, wk, textbl, trsptr, count, flip, palo, x, y, cc });
+    variant->store_tiles(&(TransRun){ mt, wk, textbl, trsptr, count, flip, palo, x, y, cc });
 
     seqs_w.up[mt->id] = 1;
     appRenewTempPriority(wk->position_z);
+}
+
+void mlt_obj_trans(MultiTexture* mt, WORK* wk, s32 base_y) {
+    mlt_obj_trans_common(mt, wk, base_y, &(TransVariant){ mlt_obj_trans_ext, store_trans_tiles });
+}
+
+void mlt_obj_trans_cp3(MultiTexture* mt, WORK* wk, s32 base_y) {
+    mlt_obj_trans_common(mt, wk, base_y, &(TransVariant){ mlt_obj_trans_cp3_ext, store_trans_cp3_tiles });
 }
 
 static void store_cached_trans_rgb_ext_tiles(const TransRun* run, s32 group) {
