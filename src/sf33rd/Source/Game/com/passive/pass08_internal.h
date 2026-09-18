@@ -21,7 +21,9 @@
 void passive08_pattern_em_term_j_command_attack(PLW* wk, const EM_Term_Params* p, const Command_Attack_Args* p_b);
 void passive08_pattern_normal_attack(PLW* wk, s16 reaction, u16 lever_data);
 void passive08_pattern_jump_attack_term(PLW* wk, const Jump_Term_Args* a);
-void passive08_pattern_normal_attack_command_attack(PLW* wk, s16 reaction, u16 lever_data, const Command_Attack_Args* p);
+void passive08_pattern_normal_attack_command_attack(
+    PLW* wk, s16 reaction, u16 lever_data, const Command_Attack_Args* p
+);
 void passive08_pattern_keep_away_wait_get_up(PLW* wk, u16 lever_data);
 void passive08_pattern_approach_walk_normal_attack(PLW* wk, s16 reaction, u16 lever_data);
 void passive08_pattern_normal_attack_j_command_attack(

@@ -25,7 +25,9 @@ void passive02_pattern_em_term_normal_attack(PLW* wk, const EM_Term_Params* p, u
 void passive02_pattern_jump_attack_term(PLW* wk, const Jump_Term_Args* a);
 void passive02_pattern_command_attack(PLW* wk, const Command_Attack_Args* p);
 void passive02_pattern_check_boss_next_another_menu(PLW* wk, u16 next_menu);
-void passive02_pattern_normal_attack_command_attack(PLW* wk, s16 reaction, u16 lever_data, const Command_Attack_Args* p);
+void passive02_pattern_normal_attack_command_attack(
+    PLW* wk, s16 reaction, u16 lever_data, const Command_Attack_Args* p
+);
 void passive02_pattern_em_term_lever_attack(PLW* wk, const EM_Term_Params* p, u16 lever, u16 lever_data);
 void Passive02_0065(PLW* wk);
 void Passive02_0066(PLW* wk);
