@@ -138,6 +138,17 @@ typedef struct {
     PatternCode cc;
 } TransRun;
 
+// forward decls, below TransRun because they name it
+void mlt_obj_trans_ext(MultiTexture* mt, WORK* wk, s32 base_y);
+void mlt_obj_trans_cp3_ext(MultiTexture* mt, WORK* wk, s32 base_y);
+void mlt_obj_trans_rgb_ext(MultiTexture* mt, WORK* wk, s32 base_y);
+static void store_cached_trans_ext_tiles(const TransRun* run, s32 group);
+static void store_new_trans_ext_tiles(const TransRun* run, s32 group, PatternInstance* cp);
+static void store_cached_trans_cp3_ext_tiles(const TransRun* run, s32 group);
+static void store_new_trans_cp3_ext_tiles(const TransRun* run, s32 group, PatternInstance* cp);
+static void store_cached_trans_rgb_ext_tiles(const TransRun* run, s32 group);
+static void store_new_trans_rgb_ext_tiles(const TransRun* run, s32 group, PatternInstance* cp);
+
 static bool is_cached_pattern_state(PatternState* mc, u32 code, u32 palt) {
     return (mc->cs.code == code) && (mc->state == palt);
 }
@@ -566,76 +577,6 @@ static void store_new_trans_ext_tiles(const TransRun* run, s32 group, PatternIns
     }
 }
 
-void mlt_obj_trans_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
-    u32* textbl;
-    u16* trsbas;
-    TileMapEntry* trsptr;
-    s32 attr;
-    s32 palo;
-    s32 count;
-    s32 n;
-    s32 i;
-    f32 x;
-    f32 y;
-    s16 ix;
-    PatternCode cc;
-    PatternInstance* cp;
-
-    n = wk->cg_number;
-    i = obj_group_table[n];
-
-    if (i == 0) {
-        return;
-    }
-
-    require_valid_trans_group(i);
-
-    n -= texgrpdat[i].num_of_1st;
-    trsbas = (u16*)(texgrplds[i].trans_table + ((u32*)texgrplds[i].trans_table)[n]);
-    textbl = (u32*)texgrplds[i].texture_table;
-    count = *trsbas;
-    trsbas++;
-    trsptr = (TileMapEntry*)trsbas;
-    x = y = 0.0f;
-    attr = flptbl[wk->cg_flip ^ wk->rl_flag];
-    palo = wk->colcd;
-
-    setup_bright_and_matrix(wk, base_y);
-    cc.parts.group = 0;
-    cc.parts.offset = wk->cg_number;
-    ix = check_patcash_ex_trans(mt->cpat, cc.code);
-
-    if (!(ix < 0)) {
-        cp = mt->cpat->adr[ix];
-        cp->curr_disp = 1;
-        cp->time = mt->mltcshtime16;
-
-        makeup_tpu_free(mt->mltnum16 / 256, mt->mltnum32 / 64, &cp->map);
-        store_cached_trans_ext_tiles(&(TransRun){ mt, wk, textbl, trsptr, count, attr, palo, x, y, cc }, i);
-
-        seqs_w.up[mt->id] = 1;
-        appRenewTempPriority(wk->position_z);
-        return;
-    }
-
-    {
-        ix = get_free_patcash_index(mt->cpat);
-        cp = &mt->cpat->patt[ix];
-        mt->cpat->adr[mt->cpat->kazu] = cp;
-        mt->cpat->kazu += 1;
-        cp->curr_disp = 1;
-        cp->time = mt->mltcshtime16;
-        cp->cg.code = cc.code;
-        cp->x16 = 0;
-        cp->x32 = 0;
-        SDL_zero(cp->map);
-        store_new_trans_ext_tiles(&(TransRun){ mt, wk, textbl, trsptr, count, attr, palo, x, y, cc }, i, cp);
-
-        seqs_w.up[mt->id] = 1;
-        appRenewTempPriority(wk->position_z);
-    }
-}
-
 static void store_trans_tiles(const TransRun* run) {
     TileMapEntry* trsptr = run->trsptr;
     s32 count = run->count;
@@ -878,75 +819,6 @@ static void store_new_trans_cp3_ext_tiles(const TransRun* run, s32 group, Patter
     }
 }
 
-void mlt_obj_trans_cp3_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
-    u32* textbl;
-    u16* trsbas;
-    TileMapEntry* trsptr;
-    s32 flip;
-    s32 palo;
-    s32 count;
-    s32 n;
-    s32 i;
-    f32 x;
-    f32 y;
-    s16 ix;
-    PatternCode cc;
-    PatternInstance* cp;
-
-    n = wk->cg_number;
-    i = obj_group_table[n];
-
-    if (i == 0) {
-        return;
-    }
-
-    require_valid_trans_group(i);
-
-    n -= texgrpdat[i].num_of_1st;
-    trsbas = (u16*)(texgrplds[i].trans_table + ((u32*)texgrplds[i].trans_table)[n]);
-    textbl = (u32*)texgrplds[i].texture_table;
-    count = *trsbas;
-    trsbas++;
-    trsptr = (TileMapEntry*)trsbas;
-    x = y = 0.0f;
-    flip = flptbl[wk->cg_flip ^ wk->rl_flag];
-    palo = wk->colcd;
-
-    setup_bright_and_matrix(wk, base_y);
-    cc.parts.group = 0;
-    cc.parts.offset = wk->cg_number;
-    ix = check_patcash_ex_trans(mt->cpat, cc.code);
-
-    if (!(ix < 0)) {
-        cp = mt->cpat->adr[ix];
-        cp->curr_disp = 1;
-        cp->time = mt->mltcshtime16;
-        makeup_tpu_free(mt->mltnum16 / 256, mt->mltnum32 / 64, &cp->map);
-        store_cached_trans_cp3_ext_tiles(&(TransRun){ mt, wk, textbl, trsptr, count, flip, palo, x, y, cc }, i);
-
-        seqs_w.up[mt->id] = 1;
-        appRenewTempPriority(wk->position_z);
-        return;
-    }
-
-    {
-        ix = get_free_patcash_index(mt->cpat);
-        cp = &mt->cpat->patt[ix];
-        mt->cpat->adr[mt->cpat->kazu] = cp;
-        mt->cpat->kazu += 1;
-        cp->curr_disp = 1;
-        cp->time = mt->mltcshtime16;
-        cp->cg.code = cc.code;
-        cp->x16 = 0;
-        cp->x32 = 0;
-        SDL_zero(cp->map);
-        store_new_trans_cp3_ext_tiles(&(TransRun){ mt, wk, textbl, trsptr, count, flip, palo, x, y, cc }, i, cp);
-
-        seqs_w.up[mt->id] = 1;
-        appRenewTempPriority(wk->position_z);
-    }
-}
-
 static void store_trans_cp3_tiles(const TransRun* run) {
     TileMapEntry* trsptr = run->trsptr;
     s32 count = run->count;
@@ -1184,7 +1056,18 @@ static void store_new_trans_rgb_ext_tiles(const TransRun* run, s32 group, Patter
     }
 }
 
-void mlt_obj_trans_rgb_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
+// The three extended transfer entry points differ in nothing but which pair of
+// tile passes they call and what they seed the pattern code's group with. Each
+// names its own pair and its own seed in full at its own call site; this struct
+// exists only so the shared body stays inside four arguments, and it is built
+// at the call site and never stored.
+typedef struct {
+    s32 group_code;
+    void (*store_cached)(const TransRun* run, s32 group);
+    void (*store_new)(const TransRun* run, s32 group, PatternInstance* cp);
+} ExtTransVariant;
+
+static void mlt_obj_trans_ext_common(MultiTexture* mt, WORK* wk, s32 base_y, const ExtTransVariant* variant) {
     u32* textbl;
     u16* trsbas;
     TileMapEntry* trsptr;
@@ -1221,7 +1104,7 @@ void mlt_obj_trans_rgb_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
     palo = wk->colcd;
 
     setup_bright_and_matrix(wk, base_y);
-    cc.parts.group = wk->colcd;
+    cc.parts.group = variant->group_code;
     cc.parts.offset = wk->cg_number;
     ix = check_patcash_ex_trans(mt->cpat, cc.code);
 
@@ -1230,7 +1113,7 @@ void mlt_obj_trans_rgb_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
         cp->curr_disp = 1;
         cp->time = mt->mltcshtime16;
         makeup_tpu_free(mt->mltnum16 / 256, mt->mltnum32 / 64, &cp->map);
-        store_cached_trans_rgb_ext_tiles(&(TransRun){ mt, wk, textbl, trsptr, count, flip, palo, x, y, cc }, i);
+        variant->store_cached(&(TransRun){ mt, wk, textbl, trsptr, count, flip, palo, x, y, cc }, i);
 
         seqs_w.up[mt->id] = 1;
         appRenewTempPriority(wk->position_z);
@@ -1248,11 +1131,27 @@ void mlt_obj_trans_rgb_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
         cp->x16 = 0;
         cp->x32 = 0;
         SDL_zero(cp->map);
-        store_new_trans_rgb_ext_tiles(&(TransRun){ mt, wk, textbl, trsptr, count, flip, palo, x, y, cc }, i, cp);
+        variant->store_new(&(TransRun){ mt, wk, textbl, trsptr, count, flip, palo, x, y, cc }, i, cp);
 
         seqs_w.up[mt->id] = 1;
         appRenewTempPriority(wk->position_z);
     }
+}
+
+void mlt_obj_trans_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
+    mlt_obj_trans_ext_common(
+        mt, wk, base_y, &(ExtTransVariant){ 0, store_cached_trans_ext_tiles, store_new_trans_ext_tiles });
+}
+
+void mlt_obj_trans_cp3_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
+    mlt_obj_trans_ext_common(
+        mt, wk, base_y, &(ExtTransVariant){ 0, store_cached_trans_cp3_ext_tiles, store_new_trans_cp3_ext_tiles });
+}
+
+void mlt_obj_trans_rgb_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
+    mlt_obj_trans_ext_common(
+        mt, wk, base_y,
+        &(ExtTransVariant){ wk->colcd, store_cached_trans_rgb_ext_tiles, store_new_trans_rgb_ext_tiles });
 }
 
 static f32 advance_trans_x(f32 x, s32 flip, TileMapEntry* trsptr) {
