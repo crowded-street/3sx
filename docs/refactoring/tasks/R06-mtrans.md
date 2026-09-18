@@ -226,7 +226,8 @@ Smells cleared:  Excess Number of Function Arguments - all 17 functions, categor
                  Lines of Code in a Single File - 1786 -> 1205, still open
 Steps reverted:  3 (see below)
 Build: PASS
-Replay: tools/replay_verify.sh, 8 seeds x 1200 frames, identical
+Replay: wide gate, 30 seeds x 3600 frames against the branch point -
+        108,000 saved states, all identical
 Unsure about: two arcade-accuracy asymmetries, reported below, left as they are
 ```
 
