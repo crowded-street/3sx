@@ -238,32 +238,8 @@ void setSeVolume() {
     }
 }
 
-/* A sound effect: clamp the pan to the hardware's range and hand the patch to the TSB
- * driver. */
-static void request_se_with_pan(SoundPatchConfig* rmc, s16 pan) {
-    if (pan < -0x20) {
-        pan = -0x20;
-    }
-
-    if (pan > 0x20) {
-        pan = 0x20;
-    }
-
-    if (rmc->code > 0x7F) {
-        rmc->port = 0;
-    }
-
-    cseTsbRequest(rmc->ptix, rmc->code, 2, 6, pan, 2, rmc->port);
-}
-
-void sound_request_for_dc(SoundPatchConfig* rmc, s16 pan) {
-    if (rmc->ptix != 0x7F) {
-        request_se_with_pan(rmc, pan);
-        return;
-    }
-
-    bgm_req.req = 1;
-
+/* Turn a BGM patch into the pending request the server will act on next frame. */
+static void latch_bgm_request(SoundPatchConfig* rmc) {
     switch (bgm_req.kind = rmc->bank) {
     case 5:
         if (bgm_exe.kind == 5) {
@@ -309,6 +285,35 @@ void sound_request_for_dc(SoundPatchConfig* rmc, s16 pan) {
     default:
         break;
     }
+}
+
+/* A sound effect: clamp the pan to the hardware's range and hand the patch to the TSB
+ * driver. */
+static void request_se_with_pan(SoundPatchConfig* rmc, s16 pan) {
+    if (pan < -0x20) {
+        pan = -0x20;
+    }
+
+    if (pan > 0x20) {
+        pan = 0x20;
+    }
+
+    if (rmc->code > 0x7F) {
+        rmc->port = 0;
+    }
+
+    cseTsbRequest(rmc->ptix, rmc->code, 2, 6, pan, 2, rmc->port);
+}
+
+void sound_request_for_dc(SoundPatchConfig* rmc, s16 pan) {
+    if (rmc->ptix != 0x7F) {
+        request_se_with_pan(rmc, pan);
+        return;
+    }
+
+    bgm_req.req = 1;
+
+    latch_bgm_request(rmc);
 }
 
 /* Whether the seamless chain has to be (re)started: none is running, or the track
