@@ -199,6 +199,24 @@ void set_hitmark_color() {
     palUpdateGhostCP3(31, 1);
 }
 
+// Types 4, 5 and 6 all fill a colour page and its +8 mirror from the same
+// source run, differing only in how many entries that is. The count stays
+// unsigned at each call site so the loop comparison promotes as it did.
+static void copy_palette_pair(s16 id, u16 data, const u16* src, u32 count) {
+    s16 i;
+    u16* dst = (u16*)&ColorRAM[data + (id * 16)][0];
+
+    for (i = 0; i < count; i++) {
+        dst[i] = palConvSrcToRam(src[i]);
+    }
+
+    dst = (u16*)&ColorRAM[data + (id * 16) + 8][0];
+
+    for (i = 0; i < count; i++) {
+        dst[i] = palConvSrcToRam(src[i]);
+    }
+}
+
 void init_trans_color_ram(s16 id, s16 key, u8 type, u16 data) {
     u16* ldadrs;
     u16* tradrs;
@@ -309,17 +327,8 @@ void init_trans_color_ram(s16 id, s16 key, u8 type, u16 data) {
     case 4: {
         COL_x80* adr = Get_ramcnt_pointer(key);
         u16* src = (&adr[Player_Color[id]])->col;
-        u16* dst = (u16*)&ColorRAM[data + (id * 16)][0];
-
         // these unsigned constants are here intentionally, otherwise wouldn't match.
-        for (i = 0; i < 64U; i++) {
-            dst[i] = palConvSrcToRam(src[i]);
-        }
-
-        dst = (u16*)&ColorRAM[data + (id * 16) + 8][0];
-        for (i = 0; i < 64U; i++) {
-            dst[i] = palConvSrcToRam(src[i]);
-        }
+        copy_palette_pair(id, data, src, 64U);
 
         Push_ramcnt_key(key);
         palUpdateGhostCP3(data + (id * 16), 1);
@@ -329,15 +338,7 @@ void init_trans_color_ram(s16 id, s16 key, u8 type, u16 data) {
     case 5: {
         COL_x180* adr = Get_ramcnt_pointer(key);
         u16* src = (&adr[Player_Color[id]])->col[0];
-        u16* dst = (u16*)&ColorRAM[data + (id * 16)][0];
-        for (i = 0; i < 192U; i++) {
-            dst[i] = palConvSrcToRam(src[i]);
-        }
-
-        dst = (u16*)&ColorRAM[data + (id * 16) + 8][0];
-        for (i = 0; i < 192U; i++) {
-            dst[i] = palConvSrcToRam(src[i]);
-        }
+        copy_palette_pair(id, data, src, 192U);
 
         Push_ramcnt_key(key);
         palUpdateGhostCP3((data) + (id * 16), 3);
@@ -347,16 +348,7 @@ void init_trans_color_ram(s16 id, s16 key, u8 type, u16 data) {
     case 6: {
         COL_x100* adr = Get_ramcnt_pointer(key);
         u16* src = (&adr[Player_Color[id]])->col[0];
-        u16* dst = (u16*)&ColorRAM[data + (id * 16)][0];
-
-        for (i = 0; i < 128U; i++) {
-            dst[i] = palConvSrcToRam(src[i]);
-        }
-
-        dst = (u16*)&ColorRAM[data + (id * 16) + 8][0];
-        for (i = 0; i < 128U; i++) {
-            dst[i] = palConvSrcToRam(src[i]);
-        }
+        copy_palette_pair(id, data, src, 128U);
         Push_ramcnt_key(key);
         palUpdateGhostCP3(data + (id * 16), 2);
         palUpdateGhostCP3((data) + ((id * 16) + 8), 2);
