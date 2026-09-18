@@ -158,6 +158,27 @@ const s16 smoke_check[] = { 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1
 /* The second half of this entrance: everything from the rise back up onwards.
  * The case labels are the original ones, so the states still read as the same
  * numbers. */
+static void launch_appear_26000(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    appear_work[wk->wu.id] = 0x14;
+
+    if (wk->wu.id) {
+        cal_all_speed_data(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work + 88, 0, 0, 1);
+    } else {
+        cal_all_speed_data(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work - 88, 0, 0, 1);
+    }
+}
+
+static void land_appear_26000(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    wk->wu.hit_quake = 0x18;
+
+    if (wk->wu.id == 0) {
+        effect_86_init(0);
+    }
+    Sound_SE(0x109);
+}
+
 static void step_appear_26000_rise(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 4:
@@ -211,14 +232,7 @@ void Appear_26000(PLW* wk) {
         appear_work[wk->wu.id]--;
 
         if (appear_work[wk->wu.id] < 1) {
-            wk->wu.routine_no[3]++;
-            appear_work[wk->wu.id] = 0x14;
-
-            if (wk->wu.id) {
-                cal_all_speed_data(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work + 88, 0, 0, 1);
-            } else {
-                cal_all_speed_data(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work - 88, 0, 0, 1);
-            }
+            launch_appear_26000(wk);
         }
 
         break;
@@ -230,13 +244,7 @@ void Appear_26000(PLW* wk) {
         add_y_sub(&wk->wu);
 
         if (wk->wu.xyz[1].disp.pos < 0x41) {
-            wk->wu.routine_no[3]++;
-            wk->wu.hit_quake = 0x18;
-
-            if (wk->wu.id == 0) {
-                effect_86_init(0);
-            }
-            Sound_SE(0x109);
+            land_appear_26000(wk);
         }
 
         break;
