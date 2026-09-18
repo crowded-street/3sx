@@ -79,33 +79,11 @@ s32 q_em_dir(PLW* wk) {
     return 1;
 }
 
-void q_keeping_action(PLW* wk) {
+/* The second half of Q's keep-distance action: everything from the dash
+ * onwards. The case labels are the original ones, so the states still read as
+ * the same numbers. */
+static void q_keep_dash_back(PLW* wk) {
     switch (win_rno[1]) {
-    case 0:
-        if (!q_em_dir(wk)) {
-            break;
-        }
-
-        if (wk->wu.direction == wk->wu.rl_flag) {
-            win_rno[1] = 2;
-            break;
-        }
-
-        win_rno[1] = 1;
-        set_char_move_init(&wk->wu, 9, 40);
-        wk->wu.rl_flag ^= 1;
-        break;
-
-    case 1:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 0xFF) {
-            win_rno[1]++;
-            break;
-        }
-
-        break;
-
     case 2:
         win_rno[1]++;
         set_char_move_init(&wk->wu, 9, 41);
@@ -139,6 +117,39 @@ void q_keeping_action(PLW* wk) {
 
     case 4:
         char_move(&wk->wu);
+        break;
+    }
+}
+
+void q_keeping_action(PLW* wk) {
+    switch (win_rno[1]) {
+    case 0:
+        if (!q_em_dir(wk)) {
+            break;
+        }
+
+        if (wk->wu.direction == wk->wu.rl_flag) {
+            win_rno[1] = 2;
+            break;
+        }
+
+        win_rno[1] = 1;
+        set_char_move_init(&wk->wu, 9, 40);
+        wk->wu.rl_flag ^= 1;
+        break;
+
+    case 1:
+        char_move(&wk->wu);
+
+        if (wk->wu.cg_type == 0xFF) {
+            win_rno[1]++;
+            break;
+        }
+
+        break;
+
+    default:
+        q_keep_dash_back(wk);
         break;
     }
 }
