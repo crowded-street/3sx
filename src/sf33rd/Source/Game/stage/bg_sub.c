@@ -23,6 +23,11 @@ void (*scr_x_mv_jp[35])() = { scr_10_20,   scr_10_21,   scr_10_22,   scr_x_dummy
 static s16 remake_x_mvstep(s16 mvstep);
 static s32 suzi_offset_set_sub(WORK_Other* ewk);
 
+static void request_horizontal_zoom(s16 pos) {
+    zoom_request_flag = 0x100;
+    scr_req_x = pos;
+}
+
 static void select_horizontal_zoom_request_last(u16 p1zoom, u16 zoom_wk) {
     switch (p1zoom & 0xE200) {
     case 0x2200:
@@ -30,16 +35,13 @@ static void select_horizontal_zoom_request_last(u16 p1zoom, u16 zoom_wk) {
         case 0x0:
         case 0x2200:
         case 0x4000:
-            zoom_request_flag = 0x100;
-            scr_req_x = (plw[0].wu.xyz[0].disp.pos + plw[1].wu.xyz[0].disp.pos) >> 1;
+            request_horizontal_zoom((plw[0].wu.xyz[0].disp.pos + plw[1].wu.xyz[0].disp.pos) >> 1);
             break;
         case 0x2000:
-            zoom_request_flag = 0x100;
-            scr_req_x = plw[0].wu.xyz[0].disp.pos;
+            request_horizontal_zoom(plw[0].wu.xyz[0].disp.pos);
             break;
         case 0x200:
-            zoom_request_flag = 0x100;
-            scr_req_x = plw[1].wu.xyz[0].disp.pos;
+            request_horizontal_zoom(plw[1].wu.xyz[0].disp.pos);
             break;
 
             break;
@@ -53,18 +55,15 @@ static void select_horizontal_zoom_request_later(u16 p1zoom, u16 zoom_wk) {
     case 0x0:
         switch (zoom_wk) {
         case 0x2200:
-            zoom_request_flag = 0x100;
-            scr_req_x = (plw[0].wu.xyz[0].disp.pos + plw[1].wu.xyz[0].disp.pos) >> 1;
+            request_horizontal_zoom((plw[0].wu.xyz[0].disp.pos + plw[1].wu.xyz[0].disp.pos) >> 1);
             break;
 
         case 0x2000:
-            zoom_request_flag = 0x100;
-            scr_req_x = plw[0].wu.xyz[0].disp.pos;
+            request_horizontal_zoom(plw[0].wu.xyz[0].disp.pos);
             break;
 
         case 0x200:
-            zoom_request_flag = 0x100;
-            scr_req_x = plw[1].wu.xyz[0].disp.pos;
+            request_horizontal_zoom(plw[1].wu.xyz[0].disp.pos);
             break;
 
         case 0x4000:
@@ -87,13 +86,11 @@ static void select_horizontal_zoom_request_middle(u16 p1zoom, u16 zoom_wk) {
         case 0x0:
         case 0x4000:
         case 0x2200:
-            zoom_request_flag = 0x100;
-            scr_req_x = plw[0].wu.xyz[0].disp.pos;
+            request_horizontal_zoom(plw[0].wu.xyz[0].disp.pos);
             break;
 
         case 0x200:
-            zoom_request_flag = 0x100;
-            scr_req_x = (plw[0].wu.xyz[0].disp.pos + plw[1].wu.xyz[0].disp.pos) >> 1;
+            request_horizontal_zoom((plw[0].wu.xyz[0].disp.pos + plw[1].wu.xyz[0].disp.pos) >> 1);
             break;
         }
         break;
@@ -107,20 +104,17 @@ static void select_horizontal_zoom_request_middle(u16 p1zoom, u16 zoom_wk) {
 static void select_horizontal_2000_zoom_request(u16 zoom_wk) {
     switch (zoom_wk) {
         case 0x4000:
-            zoom_request_flag = 0x100;
-            scr_req_x = plw[0].wu.xyz[0].disp.pos;
+            request_horizontal_zoom(plw[0].wu.xyz[0].disp.pos);
             break;
 
         case 0x2000:
-            zoom_request_flag = 0x100;
-            scr_req_x = (plw[0].wu.xyz[0].disp.pos + plw[1].wu.xyz[0].disp.pos) >> 1;
+            request_horizontal_zoom((plw[0].wu.xyz[0].disp.pos + plw[1].wu.xyz[0].disp.pos) >> 1);
             break;
 
         case 0x200:
         case 0x0:
         case 0x2200:
-            zoom_request_flag = 0x100;
-            scr_req_x = plw[1].wu.xyz[0].disp.pos;
+            request_horizontal_zoom(plw[1].wu.xyz[0].disp.pos);
             break;
     }
 }
