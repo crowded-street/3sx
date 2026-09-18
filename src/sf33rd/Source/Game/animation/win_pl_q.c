@@ -79,56 +79,21 @@ s32 q_em_dir(PLW* wk) {
     return 1;
 }
 
-static void q_keep_turn_to_face(PLW* wk) {
-    if (!q_em_dir(wk)) {
-        return;
-    }
-
-    if (wk->wu.direction == wk->wu.rl_flag) {
-        win_rno[1] = 2;
-        return;
-    }
-
-    win_rno[1] = 1;
-    set_char_move_init(&wk->wu, 9, 40);
-    wk->wu.rl_flag ^= 1;
-}
-
-static void q_keep_start_dash(PLW* wk) {
-    win_rno[1]++;
-    set_char_move_init(&wk->wu, 9, 41);
-    wk->wu.mvxy.d[0].sp = 0;
-
-    if (wk->wu.rl_flag) {
-        wk->wu.mvxy.a[0].sp = 0x1C000;
-        return;
-    }
-
-    wk->wu.mvxy.a[0].sp = -0x1C000;
-}
-
-static void q_keep_dash_to_range(PLW* wk) {
-    char_move(&wk->wu);
-    add_x_sub((WORK_Other*)wk);
-
-    if (!q_em_distance_chk(wk)) {
-        return;
-    }
-
-    win_rno[1]++;
-
-    if (win_rno[0] == 1) {
-        set_char_move_init(&wk->wu, 9, 36);
-        return;
-    }
-
-    set_char_move_init(&wk->wu, 9, 37);
-}
-
 void q_keeping_action(PLW* wk) {
     switch (win_rno[1]) {
     case 0:
-        q_keep_turn_to_face(wk);
+        if (!q_em_dir(wk)) {
+            break;
+        }
+
+        if (wk->wu.direction == wk->wu.rl_flag) {
+            win_rno[1] = 2;
+            break;
+        }
+
+        win_rno[1] = 1;
+        set_char_move_init(&wk->wu, 9, 40);
+        wk->wu.rl_flag ^= 1;
         break;
 
     case 1:
@@ -142,11 +107,34 @@ void q_keeping_action(PLW* wk) {
         break;
 
     case 2:
-        q_keep_start_dash(wk);
+        win_rno[1]++;
+        set_char_move_init(&wk->wu, 9, 41);
+        wk->wu.mvxy.d[0].sp = 0;
+
+        if (wk->wu.rl_flag) {
+            wk->wu.mvxy.a[0].sp = 0x1C000;
+            break;
+        }
+
+        wk->wu.mvxy.a[0].sp = -0x1C000;
         break;
 
     case 3:
-        q_keep_dash_to_range(wk);
+        char_move(&wk->wu);
+        add_x_sub((WORK_Other*)wk);
+
+        if (!q_em_distance_chk(wk)) {
+            break;
+        }
+
+        win_rno[1]++;
+
+        if (win_rno[0] == 1) {
+            set_char_move_init(&wk->wu, 9, 36);
+            break;
+        }
+
+        set_char_move_init(&wk->wu, 9, 37);
         break;
 
     case 4:
