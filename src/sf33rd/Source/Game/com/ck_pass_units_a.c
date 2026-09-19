@@ -62,15 +62,12 @@ s32 VS_GILL_AS(PLW* wk) {
 s32 VS_ALEX_AS(PLW* wk) {
     WORK* em = (WORK*)wk->wu.target_adrs;
 
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){23, 24, 23, -1, -1})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){14, 24, 22, -1, -1})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){14, 56, 37, -1, -1})) {
+    if (check_three_specials(
+            wk,
+            &(SP_Tech_Args){23, 24, 23, -1, -1},
+            &(SP_Tech_Args){14, 24, 22, -1, -1},
+            &(SP_Tech_Args){14, 56, 37, -1, -1}
+        )) {
         return 1;
     }
 
@@ -82,21 +79,11 @@ s32 VS_ALEX_AS(PLW* wk) {
 }
 
 s32 VS_RYU_AS(PLW* wk) {
-    WORK* em = (WORK*)wk->wu.target_adrs;
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){23, 8, 1, -1, 0})) {
+    if (check_two_specials(wk, &(SP_Tech_Args){23, 8, 1, -1, 0}, &(SP_Tech_Args){11, 8, 0, 1, -1})) {
         return 1;
     }
 
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){11, 8, 0, 1, -1})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){11, 32, 4, -1, -1})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){11, 32, 5, 1, -1})) {
+    if (check_two_specials(wk, &(SP_Tech_Args){11, 32, 4, -1, -1}, &(SP_Tech_Args){11, 32, 5, 1, -1})) {
         return 1;
     }
 
@@ -113,25 +100,16 @@ s32 VS_YUN_AS(PLW* wk) {
 }
 
 s32 VS_DUDLEY_AS(PLW* wk) {
-    WORK* em = (WORK*)wk->wu.target_adrs;
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){23, 8, 1, -1, -1})) {
+    if (check_three_specials(
+            wk,
+            &(SP_Tech_Args){23, 8, 1, -1, -1},
+            &(SP_Tech_Args){24, 8, 2, -1, -1},
+            &(SP_Tech_Args){14, 32, 13, -1, -1}
+        )) {
         return 1;
     }
 
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){24, 8, 2, -1, -1})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){14, 32, 13, -1, -1})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){23, 32, 11, -1, -1})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){14, 32, 12, -1, 0})) {
+    if (check_two_specials(wk, &(SP_Tech_Args){23, 32, 11, -1, -1}, &(SP_Tech_Args){14, 32, 12, -1, 0})) {
         return 1;
     }
 
@@ -145,7 +123,7 @@ s32 VS_NECRO_AS(PLW* wk) {
 s32 VS_HUGO_AS(PLW* wk) {
     WORK* em = (WORK*)wk->wu.target_adrs;
 
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){14, 8, 61, -1, -1})) {
+    if (check_one_special(wk, &(SP_Tech_Args){14, 8, 61, -1, -1})) {
         return 1;
     }
 
@@ -157,11 +135,7 @@ s32 VS_HUGO_AS(PLW* wk) {
         return 1;
     }
 
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){19, 24, 58, -1, -1})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){24, 24, 61, 1, -1})) {
+    if (check_two_specials(wk, &(SP_Tech_Args){19, 24, 58, -1, -1}, &(SP_Tech_Args){24, 24, 61, 1, -1})) {
         return 1;
     }
 
@@ -173,21 +147,11 @@ s32 VS_IBUKI_AS(PLW* wk) {
 }
 
 s32 VS_ELENA_AS(PLW* wk) {
-    WORK* em = (WORK*)wk->wu.target_adrs;
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){23, 8, 17, -1, -1})) {
+    if (check_two_specials(wk, &(SP_Tech_Args){23, 8, 17, -1, -1}, &(SP_Tech_Args){23, 32, 14, -1, -1})) {
         return 1;
     }
 
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){23, 32, 14, -1, -1})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){14, 32, 15, -1, -1})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){2, 48, 16, -1, -1})) {
+    if (check_two_specials(wk, &(SP_Tech_Args){14, 32, 15, -1, -1}, &(SP_Tech_Args){2, 48, 16, -1, -1})) {
         return 1;
     }
 
@@ -199,21 +163,11 @@ s32 VS_ORO_AS(PLW* wk) {
 }
 
 s32 VS_KEN_AS(PLW* wk) {
-    WORK* em = (WORK*)wk->wu.target_adrs;
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){11, 8, 0, 1, -1})) {
+    if (check_two_specials(wk, &(SP_Tech_Args){11, 8, 0, 1, -1}, &(SP_Tech_Args){23, 8, 1, -1, 0})) {
         return 1;
     }
 
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){23, 8, 1, -1, 0})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){23, 32, 8, -1, -1})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){23, 32, 6, -1, -1})) {
+    if (check_two_specials(wk, &(SP_Tech_Args){23, 32, 8, -1, -1}, &(SP_Tech_Args){23, 32, 6, -1, -1})) {
         return 1;
     }
 
@@ -258,21 +212,11 @@ s32 VS_REMY_AS(PLW* wk) {
 }
 
 s32 VS_GILL_A(PLW* wk) {
-    WORK* em = (WORK*)wk->wu.target_adrs;
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){11, 8, 0, 1, -1})) {
+    if (check_two_specials(wk, &(SP_Tech_Args){11, 8, 0, 1, -1}, &(SP_Tech_Args){24, 8, 64, 1, -1})) {
         return 1;
     }
 
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){24, 8, 64, 1, -1})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){15, 8, 63, 1, -1})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){24, 8, 61, -1, -1})) {
+    if (check_two_specials(wk, &(SP_Tech_Args){15, 8, 63, 1, -1}, &(SP_Tech_Args){24, 8, 61, -1, -1})) {
         return 1;
     }
 
@@ -282,11 +226,7 @@ s32 VS_GILL_A(PLW* wk) {
 s32 VS_ALEX_A(PLW* wk) {
     WORK* em = (WORK*)wk->wu.target_adrs;
 
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){25, 24, 22, 1, -1})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){24, 24, 115, 1, 0})) {
+    if (check_two_specials(wk, &(SP_Tech_Args){25, 24, 22, 1, -1}, &(SP_Tech_Args){24, 24, 115, 1, 0})) {
         return 1;
     }
 
@@ -294,15 +234,12 @@ s32 VS_ALEX_A(PLW* wk) {
         return 1;
     }
 
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){24, 8, 73, 1, -1})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){15, 8, 30, 1, -1})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){15, 40, 72, 1, -1})) {
+    if (check_three_specials(
+            wk,
+            &(SP_Tech_Args){24, 8, 73, 1, -1},
+            &(SP_Tech_Args){15, 8, 30, 1, -1},
+            &(SP_Tech_Args){15, 40, 72, 1, -1}
+        )) {
         return 1;
     }
 
@@ -310,21 +247,11 @@ s32 VS_ALEX_A(PLW* wk) {
 }
 
 s32 VS_RYU_A(PLW* wk) {
-    WORK* em = (WORK*)wk->wu.target_adrs;
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){11, 8, 0, 1, -1})) {
+    if (check_two_specials(wk, &(SP_Tech_Args){11, 8, 0, 1, -1}, &(SP_Tech_Args){23, 48, 3, -1, -1})) {
         return 1;
     }
 
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){23, 48, 3, -1, -1})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){16, 32, 4, -1, -1})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){11, 32, 5, 1, -1})) {
+    if (check_two_specials(wk, &(SP_Tech_Args){16, 32, 4, -1, -1}, &(SP_Tech_Args){11, 32, 5, 1, -1})) {
         return 1;
     }
 
@@ -345,21 +272,11 @@ s32 VS_DUDLEY_A(PLW* wk) {
 }
 
 s32 VS_NECRO_A(PLW* wk) {
-    WORK* em = (WORK*)wk->wu.target_adrs;
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){24, 8, 38, -1, -1})) {
+    if (check_two_specials(wk, &(SP_Tech_Args){24, 8, 38, -1, -1}, &(SP_Tech_Args){15, 8, 40, -1, -1})) {
         return 1;
     }
 
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){15, 8, 40, -1, -1})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){17, 24, 24, 1, -1})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){11, 32, 41, -1, -1})) {
+    if (check_two_specials(wk, &(SP_Tech_Args){17, 24, 24, 1, -1}, &(SP_Tech_Args){11, 32, 41, -1, -1})) {
         return 1;
     }
 
@@ -369,7 +286,7 @@ s32 VS_NECRO_A(PLW* wk) {
 s32 VS_HUGO_A(PLW* wk) {
     WORK* em = (WORK*)wk->wu.target_adrs;
 
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){19, 24, 58, 1, -1})) {
+    if (check_one_special(wk, &(SP_Tech_Args){19, 24, 58, 1, -1})) {
         return 1;
     }
 
@@ -381,15 +298,12 @@ s32 VS_HUGO_A(PLW* wk) {
         return 1;
     }
 
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){19, 24, 62, 1, -1})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){19, 56, 55, 1, -1})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){24, 24, 61, 1, -1})) {
+    if (check_three_specials(
+            wk,
+            &(SP_Tech_Args){19, 24, 62, 1, -1},
+            &(SP_Tech_Args){19, 56, 55, 1, -1},
+            &(SP_Tech_Args){24, 24, 61, 1, -1}
+        )) {
         return 1;
     }
 
@@ -420,11 +334,7 @@ s32 VS_KEN_A(PLW* wk) {
 s32 VS_SEAN_A(PLW* wk) {
     WORK* em = (WORK*)wk->wu.target_adrs;
 
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){24, 8, 21, 1, -1})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){15, 8, 32, 1, -1})) {
+    if (check_two_specials(wk, &(SP_Tech_Args){24, 8, 21, 1, -1}, &(SP_Tech_Args){15, 8, 32, 1, -1})) {
         return 1;
     }
 
@@ -440,21 +350,11 @@ s32 VS_SEAN_A(PLW* wk) {
 }
 
 s32 VS_URIEN_A(PLW* wk) {
-    WORK* em = (WORK*)wk->wu.target_adrs;
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){11, 8, 0, 1, -1})) {
+    if (check_two_specials(wk, &(SP_Tech_Args){11, 8, 0, 1, -1}, &(SP_Tech_Args){8, 8, 65, 1, -1})) {
         return 1;
     }
 
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){8, 8, 65, 1, -1})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){24, 8, 64, 1, -1})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){15, 8, 63, 1, -1})) {
+    if (check_two_specials(wk, &(SP_Tech_Args){24, 8, 64, 1, -1}, &(SP_Tech_Args){15, 8, 63, 1, -1})) {
         return 1;
     }
 
