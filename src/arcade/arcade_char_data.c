@@ -109,12 +109,10 @@ static Uint16 remap_cg_number(Uint16 value, Character character) {
     return adjusted;
 }
 
-static const void* read_char_table(SDL_IOStream* rom, Location location, Character character) {
-    void* result = SDL_malloc(location.size);
-    SDL_memset(result, 0, location.size);
-
-    // Read script offsets
-    Uint32* offsets = result;
+/* The table of script offsets at the head of a character's data, rebased onto
+ * the buffer. Returns how many there were, which is the one value the block
+ * produced. */
+static int read_script_offsets(SDL_IOStream* rom, Location location, Uint32* offsets) {
     int offset_count = 0;
     SDL_SeekIO(rom, location.offset, SDL_IO_SEEK_SET);
 
@@ -129,6 +127,96 @@ static const void* read_char_table(SDL_IOStream* rom, Location location, Charact
 
         offsets[offset_count] = value - BASE_OFFSET - location.offset;
     }
+    return offset_count;
+}
+
+/* One script: its header, then every entry until the next script's data begins.
+ * The entry layout grows with the script's cgd_type. */
+static void read_script(SDL_IOStream* rom, Uint8* p, const Uint8* end, Character character) {
+    // Read script header
+    Sint16 cgd_type = 0;
+    SDL_ReadS16BE(rom, &cgd_type);
+    SDL_assert(cgd_type == 1 || cgd_type == 2 || cgd_type == 4 || cgd_type == 6);
+    *(Sint16*)p = cgd_type;
+    p += 2;
+
+    for (int i = 0; i < 6; i++) {
+        SDL_ReadU8(rom, p); // pat_status ... sp_tech_id
+        p += 1;
+    }
+
+    while (p < end) {
+        Uint16 code = 0;
+        SDL_ReadU16BE(rom, &code);
+
+        if (code < 0x100) {
+            *(Uint16*)p = code;
+            p += 2;
+
+            for (int i = 0; i < 3; i++) {
+                SDL_ReadS16BE(rom, p); // koc ... pat
+                p += 2;
+            }
+
+            const int left_to_move = SDL_max(cgd_type * 4 - 8, 0);
+            p += left_to_move;
+            SDL_SeekIO(rom, left_to_move, SDL_IO_SEEK_CUR);
+        } else {
+            const Uint8 cg_ctr = code >> 8;
+            const Uint8 cg_type = code & 0xFF;
+            *p++ = cg_type;
+            *p++ = cg_ctr;
+
+            for (int i = 0; i < 2; i++) {
+                SDL_ReadU16BE(rom, p); // cg_se ... cg_olc_ix
+                p += 2;
+            }
+
+            Uint16 cg_number = 0;
+            SDL_ReadU16BE(rom, &cg_number);
+            cg_number = remap_cg_number(cg_number, character);
+            *(Uint16*)p = cg_number;
+            p += 2;
+
+            if (cgd_type >= 4) {
+                Sint16 cg_att_ix = 0;
+                Uint16 cg_hit_ix = 0;
+                SDL_ReadS16BE(rom, &cg_att_ix);
+                SDL_ReadU16BE(rom, &cg_hit_ix);
+
+                *(Uint16*)p = cg_hit_ix;
+                p += 2;
+                *(Sint16*)p = cg_att_ix;
+                p += 2;
+
+                for (int i = 0; i < 4; i++) {
+                    SDL_ReadU8(rom, p); // cg_extdat ... cg_eftype
+                    p += 1;
+                }
+            }
+
+            if (cgd_type == 6) {
+                for (int i = 0; i < 3; i++) {
+                    SDL_ReadU16BE(rom, p); // cg_zoom ... cg_add_xy
+                    p += 2;
+                }
+
+                for (int i = 0; i < 2; i++) {
+                    SDL_ReadU8(rom, p); // cg_next_ix ... cg_status
+                    p += 1;
+                }
+            }
+        }
+    }
+}
+
+static const void* read_char_table(SDL_IOStream* rom, Location location, Character character) {
+    void* result = SDL_malloc(location.size);
+    SDL_memset(result, 0, location.size);
+
+    // Read script offsets
+    Uint32* offsets = result;
+    const int offset_count = read_script_offsets(rom, location, offsets);
 
     // Calculate script sizes
     const size_t script_offsets_size = offset_count * sizeof(Uint32);
@@ -143,83 +231,7 @@ static const void* read_char_table(SDL_IOStream* rom, Location location, Charact
         const Uint32 end_offset = (i == (offset_count - 1)) ? location.size : script_offsets[i + 1] - 8;
 
         SDL_SeekIO(rom, location.offset + start_offset, SDL_IO_SEEK_SET);
-        Uint8* p = (Uint8*)result + start_offset;
-
-        // Read script header
-        Sint16 cgd_type = 0;
-        SDL_ReadS16BE(rom, &cgd_type);
-        SDL_assert(cgd_type == 1 || cgd_type == 2 || cgd_type == 4 || cgd_type == 6);
-        *(Sint16*)p = cgd_type;
-        p += 2;
-
-        for (int i = 0; i < 6; i++) {
-            SDL_ReadU8(rom, p); // pat_status ... sp_tech_id
-            p += 1;
-        }
-
-        while (p < (Uint8*)result + end_offset) {
-            Uint16 code = 0;
-            SDL_ReadU16BE(rom, &code);
-
-            if (code < 0x100) {
-                *(Uint16*)p = code;
-                p += 2;
-
-                for (int i = 0; i < 3; i++) {
-                    SDL_ReadS16BE(rom, p); // koc ... pat
-                    p += 2;
-                }
-
-                const int left_to_move = SDL_max(cgd_type * 4 - 8, 0);
-                p += left_to_move;
-                SDL_SeekIO(rom, left_to_move, SDL_IO_SEEK_CUR);
-            } else {
-                const Uint8 cg_ctr = code >> 8;
-                const Uint8 cg_type = code & 0xFF;
-                *p++ = cg_type;
-                *p++ = cg_ctr;
-
-                for (int i = 0; i < 2; i++) {
-                    SDL_ReadU16BE(rom, p); // cg_se ... cg_olc_ix
-                    p += 2;
-                }
-
-                Uint16 cg_number = 0;
-                SDL_ReadU16BE(rom, &cg_number);
-                cg_number = remap_cg_number(cg_number, character);
-                *(Uint16*)p = cg_number;
-                p += 2;
-
-                if (cgd_type >= 4) {
-                    Sint16 cg_att_ix = 0;
-                    Uint16 cg_hit_ix = 0;
-                    SDL_ReadS16BE(rom, &cg_att_ix);
-                    SDL_ReadU16BE(rom, &cg_hit_ix);
-
-                    *(Uint16*)p = cg_hit_ix;
-                    p += 2;
-                    *(Sint16*)p = cg_att_ix;
-                    p += 2;
-
-                    for (int i = 0; i < 4; i++) {
-                        SDL_ReadU8(rom, p); // cg_extdat ... cg_eftype
-                        p += 1;
-                    }
-                }
-
-                if (cgd_type == 6) {
-                    for (int i = 0; i < 3; i++) {
-                        SDL_ReadU16BE(rom, p); // cg_zoom ... cg_add_xy
-                        p += 2;
-                    }
-
-                    for (int i = 0; i < 2; i++) {
-                        SDL_ReadU8(rom, p); // cg_next_ix ... cg_status
-                        p += 1;
-                    }
-                }
-            }
-        }
+        read_script(rom, (Uint8*)result + start_offset, (Uint8*)result + end_offset, character);
     }
 
     // Cleanup
