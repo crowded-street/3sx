@@ -1,0 +1,453 @@
+/**
+ * @file ck_pass_checks.c
+ * Passive AI logic
+ * The checks a passive script runs against the opponent.
+ */
+
+#include "sf33rd/Source/Game/com/ck_pass.h"
+#include "common.h"
+#include "sf33rd/Source/Game/com/com_data.h"
+#include "sf33rd/Source/Game/com/com_sub.h"
+#include "sf33rd/Source/Game/engine/pls02.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/system/work_sys.h"
+#include "sf33rd/Source/Game/com/ck_pass_internal.h"
+
+s32 Check_Special_Technique(PLW* wk, WORK* em, const SP_Tech_Args* p) {
+    u8 xx;
+
+    if (p->Option == 8 && Attack_Flag[wk->wu.id] != 0) {
+        return 0;
+    }
+
+    if (p->VS_Technique != 23 && Check_Attack_Direction(wk, em)) {
+        return 0;
+    }
+
+    if (Last_Attack_Counter[wk->wu.id] == Attack_Counter[wk->wu.id]) {
+        return 0;
+    }
+
+    xx = em->kind_of_waza & 0xF8;
+
+    if (xx == p->Kind_of_Tech && (em->sp_tech_id == p->SP_Tech_ID)) {
+        if ((p->Option2 == -1 || !(p->Option2 & 8))) {
+            if (p->Option2 == (em->kind_of_waza & 6)) {
+                Last_Attack_Counter[(wk->wu.id)] = Attack_Counter[(wk->wu.id)];
+                return 0;
+            }
+        } else if (!((p->Option2 & 6) & (em->kind_of_waza & 6))) {
+            return 0;
+        }
+
+        if (p->Option == 8) {
+            Counter_Attack[(wk->wu.id)] = 1;
+        }
+
+        if (p->Option == 1) {
+            Counter_Attack[(wk->wu.id)] = 1;
+        }
+
+        VS_Tech[wk->wu.id] = p->VS_Technique;
+
+        return PASSIVE_X = 1;
+    }
+
+    return 0;
+}
+
+s32 Check_Attack_Direction(PLW* wk, WORK* em) {
+    if (wk->wu.xyz[0].disp.pos < em->xyz[0].disp.pos) {
+        if (em->xyz[0].disp.pos > em->old_pos[0]) {
+            return 1;
+        }
+    } else if (em->xyz[0].disp.pos < em->old_pos[0]) {
+        return 1;
+    }
+
+    return 0;
+}
+
+s32 Check_VS_Jump(PLW* wk, PLW* em, s16 Height) {
+    if (em->wu.routine_no[1] == 1) {
+        return 0;
+    }
+
+    if (em->wu.sp_tech_id == 33) {
+        return 0;
+    }
+
+    if (Jump_Pass_Timer[wk->wu.id][Area_Number[wk->wu.id]]) {
+        Jump_Pass_Timer[wk->wu.id][Area_Number[wk->wu.id]]--;
+        return 0;
+    }
+
+    if ((em->wu.mvxy.a[1].real.h) < 0 && (em->wu.xyz[1].disp.pos <= Height)) {
+        return 0;
+    }
+
+    if (Check_Specific_Term(wk, &em->wu, &(Specific_Term_Args){4099, 14, 20, 26})) {
+        return Counter_Attack[wk->wu.id] = 1;
+    }
+
+    if (em->wu.xyz[1].disp.pos == 0) {
+        return 0;
+    }
+
+    if ((em->wu.xyz[1].disp.pos < 32) && (em->wu.mvxy.a[1].real.h > 0)) {
+        return 0;
+    }
+
+    if (em->micchaku_flag) {
+        VS_Tech[wk->wu.id] = 18;
+        return PASSIVE_X = 1;
+    }
+
+    if (Check_Specific_Term(wk, &em->wu, &(Specific_Term_Args){18, 22, 28, 16})) {
+        return 1;
+    }
+
+    VS_Tech[wk->wu.id] = 0;
+    return 0;
+}
+
+s32 Check_Rolling(PLW* wk, WORK* em) {
+    if (em->pat_status != 34) {
+        return 0;
+    }
+
+    if (Check_Attack_Direction(wk, em)) {
+        VS_Tech[wk->wu.id] = 6;
+    } else {
+        VS_Tech[wk->wu.id] = 5;
+    }
+
+    return PASSIVE_X = 1;
+}
+
+s32 Check_Personal_Action(PLW* wk, WORK* em) {
+    if (em->routine_no[1] != 4) {
+        return 0;
+    }
+    if (em->routine_no[2] != 30) {
+        return 0;
+    }
+
+    VS_Tech[wk->wu.id] = 4105;
+
+    return PASSIVE_X = 1;
+}
+
+s32 Check_Specific_Term(PLW* wk, WORK* em, const Specific_Term_Args* p) {
+    VS_Tech[wk->wu.id] = p->VS_Technique;
+
+    if (em->pat_status == p->Status_00) {
+        return PASSIVE_X = 1;
+    }
+
+    if (em->pat_status == p->Status_01) {
+        return PASSIVE_X = 1;
+    }
+
+    if (em->pat_status == p->Status_02) {
+        return PASSIVE_X = 1;
+    }
+
+    return 0;
+}
+
+s32 Check_Dash(PLW* wk, WORK* em, s16 VS_Technique) {
+    if ((em->routine_no[1] == 0) && (em->routine_no[2] == 5) && (em->routine_no[3] != 0)) {
+        VS_Tech[wk->wu.id] = VS_Technique;
+
+        return PASSIVE_X = 1;
+    }
+
+    return 0;
+}
+
+s32 Check_Limited_Attack(PLW* wk, WORK* em, const Limited_Attack_Args* p) {
+    s16 xx;
+    /* The original took this by value and adjusted it per opponent; the copy
+     * keeps that local, which is what a by-value parameter was. */
+    s16 Limit_Number = p->Limit_Number;
+
+    if (Attack_Flag[wk->wu.id] == 0) {
+        return 0;
+    }
+
+    if (Last_Attack_Counter[wk->wu.id] == Attack_Counter[wk->wu.id]) {
+        return 0;
+    }
+
+    if ((em->pat_status != p->PL_Status) || em->kind_of_waza != p->Status_00) {
+        return 0;
+    }
+
+    xx = (em->cg_ix / em->cgd_type);
+
+    if ((((PLW*)em)->player_number == 17) && (p->VS_Technique == 7)) {
+        Limit_Number += 1;
+    }
+
+    if ((((PLW*)em)->player_number == 10) && (p->VS_Technique == 7)) {
+        Limit_Number += 1;
+    }
+
+    if ((((PLW*)em)->player_number == 3) && (p->VS_Technique == 7)) {
+        Limit_Number += 2;
+    }
+
+    if (xx > Limit_Number) {
+        return 0;
+    }
+
+    VS_Tech[wk->wu.id] = p->VS_Technique;
+    Limited_Flag[wk->wu.id] = 1;
+    Counter_Attack[wk->wu.id] = 1;
+
+    return PASSIVE_X = 1;
+}
+
+s32 Check_Limited_Jump_Attack(PLW* wk, WORK* em, u8 PL_Status, s8 Status_00) {
+    if ((em->pat_status != PL_Status) || (em->kind_of_waza != Status_00)) {
+        return 0;
+    }
+
+    return 1;
+}
+
+s32 Check_Stand(PLW* wk, WORK* em, s16 VS_Technique) {
+    if (Attack_Flag[wk->wu.id]) {
+        return 0;
+    }
+
+    if (em->routine_no[1] != 0) {
+        return 0;
+    }
+
+    if ((Standing_Timer[wk->wu.id] += 1) < Standing_Master_Timer[wk->wu.id]) {
+        return 0;
+    }
+
+    Standing_Master_Timer[wk->wu.id] = Setup_Next_Stand_Timer(wk);
+    VS_Tech[wk->wu.id] = VS_Technique;
+
+    return PASSIVE_X = 1;
+}
+
+s32 Setup_Next_Stand_Timer(PLW* wk) {
+    if (EM_Rank != 0) {
+        return Standing_Time_Data[17][Area_Number[wk->wu.id]][(random_16_com() & 7)];
+    }
+
+    return Standing_Time_Data[wk->player_number][Area_Number[wk->wu.id]][(random_16_com() & 7)];
+}
+
+s32 Check_VS_Squat(PLW* wk, WORK* em, const VS_Squat_Args* p) {
+    if (Attack_Flag[wk->wu.id]) {
+        return Squat_Timer[wk->wu.id] = 0;
+    }
+
+    if (em->routine_no[1] != 0) {
+        return Squat_Timer[wk->wu.id] = 0;
+    }
+
+    if (em->xyz[1].disp.pos) {
+        return Squat_Timer[wk->wu.id] = 0;
+    }
+
+    if (em->pat_status != p->Status_00 && em->pat_status != p->Status_01) {
+        return Squat_Timer[wk->wu.id] = 0;
+    }
+
+    if ((Squat_Timer[wk->wu.id] += 1) < Squat_Master_Timer[wk->wu.id]) {
+        return 0;
+    }
+
+    Squat_Master_Timer[wk->wu.id] = Setup_Next_Squat_Timer(wk);
+    VS_Tech[wk->wu.id] = p->VS_Technique;
+
+    return PASSIVE_X = 1;
+}
+
+s32 Setup_Next_Squat_Timer(PLW* wk) {
+    return Squat_Time_Data[Setup_Lv08(0)][(random_16_com() & 7)];
+}
+
+s32 Check_Thrown(PLW* wk, WORK* em) {
+    s16 Rnd;
+    s16 x;
+
+    if (em->xyz[1].disp.pos) {
+        return 0;
+    }
+
+    x = Setup_VS_Catch_Data(wk);
+    Rnd = random_32_com();
+
+    if (x < Rnd) {
+        return 0;
+    }
+
+    switch (Area_Number[wk->wu.id]) {
+    case 0:
+        if (Check_Catch(wk, em, 25)) {
+            return 1;
+        }
+
+        break;
+
+    case 1:
+        if (Check_Catch(wk, em, 25)) {
+            return 1;
+        }
+
+        break;
+
+    default:
+        break;
+    }
+
+    return 0;
+}
+
+s32 Check_Catch(PLW* wk, WORK* em, s16 VS_Technique) {
+    u16 xx;
+
+    if (Demo_Flag == 0) {
+        return 0;
+    }
+
+    if (em->routine_no[1] != 0) {
+        return 0;
+    }
+
+    if (em->xyz[1].disp.pos) {
+        return 0;
+    }
+
+    if (wk->wu.id == 0) {
+        xx = p2sw_0;
+    } else {
+        xx = p1sw_0;
+    }
+
+    if (wk->wu.rl_waza) {
+        if (!(xx & 4)) {
+            return 0;
+        }
+    } else if (!(xx & 8)) {
+        return 0;
+    }
+
+    Counter_Attack[wk->wu.id] = 1;
+    VS_Tech[wk->wu.id] = VS_Technique;
+
+    return PASSIVE_X = 1;
+}
+
+s32 Check_Lie(PLW* wk) {
+    WORK* em;
+    PLW* enemy;
+
+    em = (WORK*)wk->wu.target_adrs;
+    enemy = (PLW*)wk->wu.target_adrs;
+
+    if (Check_Faint(wk, enemy, 2)) {
+        return Select_Passive(wk);
+    }
+
+    if (Check_Specific_Term(wk, em, &(Specific_Term_Args){0, 38, 38, 38})) {
+        return Select_Passive(wk);
+    }
+
+    return 0;
+}
+
+s32 Check_Faint(PLW* wk, PLW* enemy, s16 VS_Technique) {
+    Counter_Attack[wk->wu.id] = 1;
+    VS_Tech[wk->wu.id] = VS_Technique;
+
+    if ((enemy->wu.routine_no[1] == 1) && (enemy->wu.routine_no[2] == 25)) {
+        return 1;
+    }
+
+    return Counter_Attack[wk->wu.id] = 0;
+}
+
+s32 Check_Blow_Off(PLW* wk, WORK* em, s16 VS_Technique) {
+    if (em->routine_no[1] != 1) {
+        return 0;
+    }
+
+    if (PL_Blow_Off_Data[em->routine_no[2]] == 0) {
+        return 0;
+    }
+
+    if (em->xyz[1].disp.pos == 0) {
+        return 0;
+    }
+
+    VS_Tech[(wk->wu.id)] = VS_Technique;
+
+    return PASSIVE_X = 1;
+}
+
+s32 Check_After_Attack(PLW* wk, WORK* em, s16 VS_Technique) {
+    u8 xx;
+
+    if (CP_No[wk->wu.id][0] == 7) {
+        return 0;
+    }
+
+    if (Last_Attack_Counter[wk->wu.id] == Attack_Counter[wk->wu.id]) {
+        return 0;
+    }
+
+    if (em->xyz[1].disp.pos) {
+        return 0;
+    }
+
+    if (em->routine_no[1] != 4) {
+        return 0;
+    }
+
+    Last_Attack_Counter[wk->wu.id] = Attack_Counter[wk->wu.id];
+
+    if (!(em->kind_of_waza & 32) && !(em->kind_of_waza & 48) && !(em->kind_of_waza & 40) && !(em->kind_of_waza & 56) &&
+        !(em->kind_of_waza & 8)) {
+        xx = em->kind_of_waza & 6;
+
+        if (xx == 0) {
+            return 0;
+        }
+
+        if (xx == 2) {
+            return 0;
+        }
+    }
+
+    VS_Tech[wk->wu.id] = VS_Technique;
+
+    return PASSIVE_X = 1;
+}
+
+s32 Check_F_Cross_Chop(PLW* wk, WORK* em, s16 VS_Technique) {
+    if (Last_Attack_Counter[wk->wu.id] == Attack_Counter[wk->wu.id]) {
+        return 0;
+    }
+
+    if ((em->kind_of_waza) != 4) {
+        return 0;
+    }
+
+    if ((em->pat_status != 22) && (em->pat_status != 20) && (em->pat_status != 26) && (em->pat_status != 28)) {
+        return 0;
+    }
+
+    VS_Tech[wk->wu.id] = VS_Technique;
+    Counter_Attack[wk->wu.id] = 1;
+
+    return PASSIVE_X = 1;
+}
