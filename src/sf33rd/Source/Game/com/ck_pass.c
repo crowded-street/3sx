@@ -30,6 +30,68 @@ s32 Ck_Passive_Term(PLW* wk) {
     return PASSIVE_X;
 }
 
+static s32 ken_attacks_in_area_d(PLW* wk, WORK* em) {
+    if (Check_PL_Unit_D(wk)) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static s32 defends_in_area_d(PLW* wk, WORK* em) {
+    if (Check_PL_Unit_DS(wk)) {
+        return 1;
+    }
+
+    if (Check_Stand(wk, em, 4105)) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static s32 ken_options_in_area_d(PLW* wk, WORK* em) {
+    if (Attack_Flag[wk->wu.id]) {
+        return ken_attacks_in_area_d(wk, em);
+    }
+
+    return defends_in_area_d(wk, em);
+}
+
+static s32 attacks_in_area_d(PLW* wk, WORK* em) {
+    Check_PL_Unit_D(wk);
+    return 1;
+
+    return 0;
+}
+
+static s32 hugo_defends_in_area_d(PLW* wk, WORK* em) {
+    if (Check_PL_Unit_DS(wk)) {
+        return 1;
+    }
+
+    Check_Stand(wk, em, 4105);
+    return 1;
+
+    return 0;
+}
+
+static s32 hugo_options_in_area_d(PLW* wk, WORK* em) {
+    if (Attack_Flag[wk->wu.id]) {
+        return attacks_in_area_d(wk, em);
+    }
+
+    return hugo_defends_in_area_d(wk, em);
+}
+
+static s32 gill_options_in_area_d(PLW* wk, WORK* em) {
+    if (Attack_Flag[wk->wu.id]) {
+        return attacks_in_area_d(wk, em);
+    }
+
+    return defends_in_area_d(wk, em);
+}
+
 static s32 attacks_in_area_6(PLW* wk, WORK* em) {
     if (Check_PL_Unit_C(wk)) {
         return 1;
@@ -250,18 +312,8 @@ static void ken_vs_from_area_6(PLW* wk, WORK* em) {
         break;
 
     default:
-        if (Attack_Flag[wk->wu.id]) {
-            if (Check_PL_Unit_D(wk)) {
-                break;
-            }
-        } else {
-            if (Check_PL_Unit_DS(wk)) {
-                break;
-            }
-
-            if (Check_Stand(wk, em, 4105)) {
-                break;
-            }
+        if (ken_options_in_area_d(wk, em)) {
+            break;
         }
 
         Check_Personal_Action(wk, em);
@@ -346,15 +398,7 @@ static void hugo_vs_from_area_6(PLW* wk, WORK* em) {
         break;
 
     default:
-        if (Attack_Flag[wk->wu.id]) {
-            Check_PL_Unit_D(wk);
-            break;
-        } else {
-            if (Check_PL_Unit_DS(wk)) {
-                break;
-            }
-
-            Check_Stand(wk, em, 4105);
+        if (hugo_options_in_area_d(wk, em)) {
             break;
         }
     }
@@ -429,17 +473,8 @@ static void gill_vs_from_area_6(PLW* wk, WORK* em) {
         break;
 
     default:
-        if (Attack_Flag[wk->wu.id]) {
-            Check_PL_Unit_D(wk);
+        if (gill_options_in_area_d(wk, em)) {
             break;
-        } else {
-            if (Check_PL_Unit_DS(wk)) {
-                break;
-            }
-
-            if (Check_Stand(wk, em, 4105)) {
-                break;
-            }
         }
 
         Check_VS_Squat(wk, em, &(VS_Squat_Args){7, 33, 32});
