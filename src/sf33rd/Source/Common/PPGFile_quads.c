@@ -18,6 +18,18 @@
 #include "sf33rd/Source/Common/PPGFile_internal.h"
 
 
+/* The quad is entirely off the 384x224 screen. Written as the original wrote
+ * it - the four bounds ORed together, not the negation of the test below. */
+static s32 quad_is_offscreen(const Vertex* v) {
+    return (v[0].x >= 384.0f) || (v[3].x < 0.0f) || (v[0].y >= 224.0f) || (v[3].y < 0.0f);
+}
+
+/* One transparent-run sub-quad is on screen. Also as written: the four bounds
+ * ANDed, which the caller negates. */
+static s32 quad_is_onscreen(const Vertex* v) {
+    return ((v[0].x < 384.0f) && (v[3].x >= 0.0f) && (v[0].y < 224.0f) && (v[3].y >= 0.0f));
+}
+
 s32 ppgWriteQuadWithST_A(Vertex* pos, u32 col) {
     ppgWriteQuadOnly(pos, col, ppg_w.hanTex | (ppg_w.hanPal << 0x10));
     return 1;
@@ -168,7 +180,7 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, const PPGQuadTransArgs* a) {
     f32 ppghf;
     PPGFileHeader* ppg;
 
-    if ((pos[0].x >= 384.0f) || (pos[3].x < 0.0f) || (pos[0].y >= 224.0f) || (pos[3].y < 0.0f)) {
+    if (quad_is_offscreen(pos)) {
         return 0;
     }
 
@@ -254,8 +266,7 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, const PPGQuadTransArgs* a) {
                     qvtx[3].y = pos->y + (pys * (sy + ys) / ppghf);
                 }
 
-                if (!((qvtx[0].x < 384.0f) && (qvtx[3].x >= 0.0f) && (qvtx[0].y < 224.0f) &&
-                      (qvtx[3].y >= 0.0f))) {
+                if (!quad_is_onscreen(qvtx)) {
                     continue;
                 }
 
