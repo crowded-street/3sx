@@ -112,6 +112,22 @@ s32 ppgSetupCmpChunk(u8* srcAdrs, s32 num, u8* dstAdrs) {
     return 1;
 }
 
+/* One handle per palette in the chunk, each reading the next col_items entries
+ * of the decompressed data. */
+static void ppgCreatePaletteHandles(Palette* pch, plContext* bits, s32 col_items) {
+    s32 i;
+
+    for (i = 0; i < pch->total; i++) {
+        pch->handle[i] = flCreatePaletteHandle(bits, 0);
+
+        if (pch->handle[i] == 0) {
+            flLogOut("ppgSetupPalChunk: Failed to acquire palette handle");
+        }
+
+        bits->ptr = (u8*)bits->ptr + (col_items * bits->bitdepth);
+    }
+}
+
 s32 ppgSetupPalChunk(Palette* pch, const PPGPalChunkArgs* a) {
     PPLFileHeader* ppl;
     plContext bits;
@@ -185,16 +201,7 @@ s32 ppgSetupPalChunk(Palette* pch, const PPGPalChunkArgs* a) {
     }
 
     bits.ptr = mltAdrs;
-
-    for (i = 0; i < pch->total; i++) {
-        pch->handle[i] = flCreatePaletteHandle(&bits, 0);
-
-        if (pch->handle[i] == 0) {
-            flLogOut("ppgSetupPalChunk: Failed to acquire palette handle");
-        }
-
-        bits.ptr = (u8*)bits.ptr + (col_items * bits.bitdepth);
-    }
+    ppgCreatePaletteHandles(pch, &bits, col_items);
 
     if (koCmpr != 0) {
         ppgPushDecBuff(mltAdrs);
