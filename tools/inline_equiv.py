@@ -180,6 +180,40 @@ def inline(body, helpers, depth=0):
     return body
 
 
+def trace(name, fs, locals_, seen=None):
+    """The ordered (callee, arguments) a function runs, helpers expanded.
+
+    Used where a fold moved where a local is computed - a helper that casts
+    `wk->wu.target_adrs` itself instead of taking the caller's `em` runs the
+    same calls with the same arguments, but the text no longer matches. Pass
+    `--local em=(WORK*)wk->wu.target_adrs` and the two sides compare equal.
+    """
+    seen = (seen or set()) | {name}
+    params, body = fs[name]
+    out = []
+    for m in re.finditer(r'\b([A-Za-z_]\w*)\(', body):
+        callee = m.group(1)
+        if callee in ('if', 'while', 'for', 'switch', 'sizeof', 'return'):
+            continue
+        d, k = 1, m.end()
+        while d:
+            if body[k] in '([{':
+                d += 1
+            elif body[k] in ')]}':
+                d -= 1
+            k += 1
+        args = [locals_.get(a, a) for a in split_args(body[m.end():k - 1])]
+        if callee in fs and callee not in seen:
+            sub = dict(zip(fs[callee][0], args))
+            for c, a in trace(callee, fs, locals_, seen):
+                out.append((c, [re.sub(r'\b(%s)\b' % '|'.join(map(re.escape, sub)),
+                                       lambda mm: sub[mm.group(1)], x) if sub else x
+                                for x in a]))
+        else:
+            out.append((callee, args))
+    return out
+
+
 def norm(text):
     return re.sub(r'\s+', ' ', text).strip()
 
@@ -190,6 +224,11 @@ def main():
     ap.add_argument('--base', default='HEAD')
     ap.add_argument('--helper', action='append', default=[],
                     help='a helper this change created; repeat for each')
+    ap.add_argument('--trace', action='store_true',
+                    help='compare ordered call traces instead of text')
+    ap.add_argument('--local', action='append', default=[],
+                    help='NAME=EXPR: a local the fold stopped passing, e.g. '
+                         'em=(WORK*)wk->wu.target_adrs')
     ap.add_argument('--predicate', action='append', default=[],
                     help='a Recipe P named predicate; repeat for each')
     ap.add_argument('--choice', action='append', default=[],
@@ -210,6 +249,10 @@ def main():
             new.update(functions(open(path).read()))
 
     helpers = {h: new[h] for h in args.helper if h in new}
+    # A helper that already existed before the change is inlined on both sides,
+    # so the comparison is between two fully expanded bodies rather than
+    # between an expanded one and a call.
+    was = {h: old[h] for h in args.helper if h in old}
     ladders = {h: new[h] for h in args.ladder if h in new}
     choices = {h: new[h] for h in args.choice if h in new}
     predicates = {h: new[h] for h in args.predicate if h in new}
@@ -228,8 +271,20 @@ def main():
             bad += 1
             continue
         checked += 1
-        before, after = norm(body), norm(inline(unladder(unchoice(unpredicate(new[name][1], predicates), choices),
-                                            ladders), helpers))
+        if args.trace:
+            locals_ = dict(x.split('=', 1) for x in args.local)
+            if trace(name, old, locals_) != trace(name, new, locals_):
+                bad += 1
+                print('DIFFERS %s (call trace)' % name)
+                for x, y in zip(trace(name, old, locals_) + [None] * 40,
+                                trace(name, new, locals_) + [None] * 40):
+                    if x != y:
+                        print('   before: %s\n   after:  %s' % (x, y))
+                        break
+            continue
+        before = norm(inline(body, was))
+        after = norm(inline(unladder(unchoice(unpredicate(new[name][1], predicates), choices),
+                                     ladders), helpers))
         if before != after:
             bad += 1
             print('DIFFERS %s\n   before: %s\n   after:  %s' % (name, before[:300], after[:300]))
