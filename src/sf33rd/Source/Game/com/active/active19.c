@@ -176,23 +176,7 @@ void Pattern19_0037(PLW* wk) {
 }
 
 void Pattern19_0038(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Adjust_Attack(wk, 0xB, 0x42);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 0xB, 0x400);
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 0xA, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_adjust_attack_normal_attack_command_attack(wk, 0x42, 0xB, 0x400);
 }
 
 void Pattern19_0039(PLW* wk) {
@@ -248,19 +232,11 @@ void Pattern19_0051(PLW* wk) {
 }
 
 void Pattern19_0052(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        SA_Term(wk, &(SA_Term_Args){0x2E, 0x2F, 0x30, 0});
-        break;
-
-    case 1:
-        Com_Random_Select(wk, &(Branch_Menu_Args){2, 0x3E, 0x3F, 0x40, 0x40}, 1);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_sa_term_com_random_select(
+        wk,
+        &(SA_Term_Args){0x2E, 0x2F, 0x30, 0},
+        &(Branch_Menu_Args){2, 0x3E, 0x3F, 0x40, 0x40}
+    );
 }
 
 void Pattern19_0053(PLW* wk) {

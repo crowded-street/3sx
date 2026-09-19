@@ -92,19 +92,7 @@ void Pattern00_0018(PLW* wk) {
 }
 
 void Pattern00_0019(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        ETC_Term(wk, 0, 6, 0x99);
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 0xA, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_etc_term_command_attack(wk, 0x99, &(Command_Attack_Args){8, 0x1C, 0xA, -1});
 }
 
 void Pattern00_0020(PLW* wk) {
@@ -156,19 +144,7 @@ void Pattern00_0031(PLW* wk) {
 }
 
 void Pattern00_0032(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Adjust_Attack(wk, 0xB, 0x10);
-        break;
-
-    case 1:
-        Lever_Attack(wk, 8, 1, 0x20);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_adjust_attack_lever_attack_2(wk, 0xB, 0x10, 1);
 }
 
 void Pattern00_0033(PLW* wk) {
@@ -204,19 +180,7 @@ void Pattern00_0036(PLW* wk) {
 }
 
 void Pattern00_0037(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, 9, 0x40);
-        break;
-
-    case 1:
-        Lever_Attack(wk, 8, 1, 0x20);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_normal_attack_lever_attack(wk, 9, 0x40, 1);
 }
 
 void Pattern00_0038(PLW* wk) {
@@ -340,19 +304,7 @@ void Pattern00_0057(PLW* wk) {
 }
 
 void Pattern00_0058(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump(wk, 0);
-        break;
-
-    case 1:
-        Look(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_jump_look(wk, 0);
 }
 
 void Pattern00_0059(PLW* wk) {
@@ -384,19 +336,7 @@ void Pattern00_0065(PLW* wk) {
 }
 
 void Pattern00_0066(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        ETC_Term(wk, 0, 6, 0x9A);
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_etc_term_command_attack(wk, 0x9A, &(Command_Attack_Args){8, 0x1E, 8, -1});
 }
 
 void Pattern00_0067(PLW* wk) {

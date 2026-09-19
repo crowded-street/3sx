@@ -290,3 +290,27 @@ void active_pattern_j_command_attack_from_step_6_2(PLW* wk) {
         break;
     }
 }
+
+void active_pattern_oro_jca_term(PLW* wk, const ORO_JCA_Term_Args* a) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        ORO_JCA_Term(wk, a);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_rapid_command_attack(PLW* wk, const Rapid_Command_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Rapid_Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}

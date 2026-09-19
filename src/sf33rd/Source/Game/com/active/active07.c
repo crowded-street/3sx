@@ -108,23 +108,7 @@ void Pattern07_0006(PLW* wk) {
 }
 
 void Pattern07_0007(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Search_Back_Term(wk, 0x60, 1, -1);
-        break;
-
-    case 1:
-        Pierce_On(wk);
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 1, 0xA, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_search_back_term_pierce_on_command_attack_4(wk, 0x60, 1, -1);
 }
 
 void Pattern07_0008(PLW* wk) {
@@ -349,19 +333,11 @@ void Pattern07_0021(PLW* wk) {
 }
 
 void Pattern07_0022(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA0, -0x7FC0, 8, 0x40, 0, -0x7F90, -1, 0x100});
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 9, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_jump_attack_term_command_attack(
+        wk,
+        &(Jump_Term_Args){-0x7FA0, -0x7FC0, 8, 0x40, 0, -0x7F90, -1, 0x100},
+        &(Command_Attack_Args){8, 0x1F, 9, -1}
+    );
 }
 
 void Pattern07_0023(PLW* wk) {

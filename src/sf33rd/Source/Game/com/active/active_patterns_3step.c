@@ -504,3 +504,191 @@ void active_pattern_adjust_attack_normal_attack_branch_unit_area(PLW* wk) {
         break;
     }
 }
+
+void active_pattern_adjust_attack_normal_attack_command_attack(
+    PLW* wk, u16 lever_data, s16 reaction, u16 lever_data_b
+) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Adjust_Attack(wk, 0xB, lever_data);
+        break;
+
+    case 1:
+        Normal_Attack(wk, reaction, lever_data_b);
+        break;
+
+    case 2:
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 0xA, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_jump_attack_term_normal_attack_j_command_attack_2(PLW* wk, const Command_Attack_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA0, -0x7FC0, 9, 0x40, 0, -0x7FB0, -1, 0x200});
+        break;
+
+    case 1:
+        Normal_Attack(wk, 9, 0x40);
+        break;
+
+    case 2:
+        J_Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_approach_walk_normal_attack_j_command_attack(
+    PLW* wk, s16 target_pos, s16 reaction, u16 lever_data
+) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, target_pos, 2);
+        break;
+
+    case 1:
+        Normal_Attack(wk, reaction, lever_data);
+        break;
+
+    case 2:
+        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 0xA, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_search_back_term_pierce_on_command_attack_4(
+    PLW* wk, s16 move_value, s16 next_action, s16 next_menu
+) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Search_Back_Term(wk, move_value, next_action, next_menu);
+        break;
+
+    case 1:
+        Pierce_On(wk);
+        break;
+
+    case 2:
+        Command_Attack(wk, &(Command_Attack_Args){8, 1, 0xA, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_sa_term_command_attack_2(PLW* wk, const SA_Term_Args* p, const Command_Attack_Args* p_b) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        SA_Term(wk, &(SA_Term_Args){0x35, -1, -1, 0x9F});
+        break;
+
+    case 1:
+        SA_Term(wk, p);
+        break;
+
+    case 2:
+        Command_Attack(wk, p_b);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_jump_attack_term_sa_term_command_attack(
+    PLW* wk, const SA_Term_Args* p, const Command_Attack_Args* p_b
+) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA8, -0x7FC0, 0xB, 0x200, 0, -1, -1, -1});
+        break;
+
+    case 1:
+        SA_Term(wk, p);
+        break;
+
+    case 2:
+        Command_Attack(wk, p_b);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_pierce_on_command_attack_j_command_attack(PLW* wk, const Command_Attack_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Pierce_On(wk);
+        break;
+
+    case 1:
+        Command_Attack(wk, &(Command_Attack_Args){0xC, 0, -1, -1});
+        break;
+
+    case 2:
+        J_Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_pierce_on_j_command_attack_normal_attack(PLW* wk, const Command_Attack_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Pierce_On(wk);
+        break;
+
+    case 1:
+        J_Command_Attack(wk, p);
+        break;
+
+    case 2:
+        Normal_Attack(wk, 8, 0x402);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_approach_walk_look_com_random_select(PLW* wk, s16 target_pos) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, target_pos, 2);
+        break;
+
+    case 1:
+        Look(wk, 2);
+        break;
+
+    case 2:
+        Com_Random_Select(wk, &(Branch_Menu_Args){2, 0x4C, 0x4D, 0x4E, 0x4F}, 0);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}

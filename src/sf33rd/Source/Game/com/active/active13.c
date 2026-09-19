@@ -416,51 +416,11 @@ void Pattern13_0063(PLW* wk) {
 }
 
 void Pattern13_0064(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x8016, 9, -1});
-        break;
-
-    case 1:
-        Check_SA(wk, 2, 0x35);
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x8016, 8, -1});
-        break;
-
-    case 3:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_command_attack_check_sa_command_attack(wk, &(Command_Attack_Args){8, 0x8016, 9, -1});
 }
 
 void Pattern13_0065(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x8016, 0xA, -1});
-        break;
-
-    case 1:
-        Check_SA(wk, 2, 0x35);
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x8016, 8, -1});
-        break;
-
-    case 3:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_command_attack_check_sa_command_attack(wk, &(Command_Attack_Args){8, 0x8016, 0xA, -1});
 }
 
 void Pattern13_0066(PLW* wk) {
@@ -524,19 +484,7 @@ void Pattern13_0073(PLW* wk) {
 }
 
 void Pattern13_0074(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, 8, 0x20);
-        break;
-
-    case 1:
-        Lever_Attack(wk, 8, 0, 0x20);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_normal_attack_lever_attack(wk, 8, 0x20, 0);
 }
 
 void Pattern13_0075(PLW* wk) {

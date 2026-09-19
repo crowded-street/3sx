@@ -288,23 +288,7 @@ void Pattern04_0040(PLW* wk) {
 }
 
 void Pattern04_0041(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0x47, 2);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 0xB, 0x400);
-        break;
-
-    case 2:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 0xA, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_approach_walk_normal_attack_j_command_attack(wk, 0x47, 0xB, 0x400);
 }
 
 void Pattern04_0042(PLW* wk) {

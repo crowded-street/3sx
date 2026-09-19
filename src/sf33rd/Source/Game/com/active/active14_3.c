@@ -12,99 +12,15 @@
 #include "sf33rd/Source/Game/engine/workuser.h"
 
 void Pattern14_0138(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, 9, 0x202);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 0xc, 0x202);
-        break;
-
-    case 2:
-        Pierce_On(wk);
-        break;
-
-    case 3:
-        J_Command_Attack(wk, &(Command_Attack_Args){0xb, 0x20, 8, -1});
-        break;
-
-    case 4:
-        Wait(wk, 5);
-        break;
-
-    case 5:
-        SA_Term(wk, &(SA_Term_Args){0x2f, -1, 0x31, 0x7f});
-        break;
-
-    default:
-        active_pattern_j_command_attack_from_step_6_2(wk);
-        break;
-    }
+    active_pattern_normal_attack_pierce_on_j_command_attack(wk, 0x202);
 }
 
 void Pattern14_0139(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, 9, 0x200);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 0xc, 0x202);
-        break;
-
-    case 2:
-        Pierce_On(wk);
-        break;
-
-    case 3:
-        J_Command_Attack(wk, &(Command_Attack_Args){0xb, 0x20, 9, -1});
-        break;
-
-    case 4:
-        Wait(wk, 3);
-        break;
-
-    case 5:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1e, 9, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_normal_attack_pierce_on_j_command_attack_2(wk, 0xc, 0x202);
 }
 
 void Pattern14_0140(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, 9, 0x200);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 9, 0x200);
-        break;
-
-    case 2:
-        Pierce_On(wk);
-        break;
-
-    case 3:
-        J_Command_Attack(wk, &(Command_Attack_Args){0xb, 0x20, 9, -1});
-        break;
-
-    case 4:
-        Wait(wk, 3);
-        break;
-
-    case 5:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1e, 9, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_normal_attack_pierce_on_j_command_attack_2(wk, 9, 0x200);
 }
 
 void Pattern14_0141(PLW* wk) {

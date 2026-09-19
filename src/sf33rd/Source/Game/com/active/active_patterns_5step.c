@@ -254,3 +254,191 @@ void active_pattern_search_back_term_jump_attack_term_pierce_on(PLW* wk) {
         break;
     }
 }
+
+void active_pattern_jump_attack_term_normal_attack_command_attack_3(
+    PLW* wk, const Command_Attack_Args* p, s16 time, const SA_Term_Args* p_b
+) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA0, -0x7FC0, 9, 0x40, 0, -0x7FB0, -1, 0x200});
+        break;
+
+    case 1:
+        Normal_Attack(wk, 9, 0x40);
+        break;
+
+    case 2:
+        Command_Attack(wk, p);
+        break;
+
+    case 3:
+        Wait(wk, time);
+        break;
+
+    case 4:
+        SA_Term(wk, p_b);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_pierce_on_command_attack_wait(
+    PLW* wk, const Command_Attack_Args* p, const Command_Attack_Args* p_b, const Command_Attack_Args* p_b_b
+) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Pierce_On(wk);
+        break;
+
+    case 1:
+        Command_Attack(wk, p);
+        break;
+
+    case 2:
+        Wait(wk, 0xe);
+        break;
+
+    case 3:
+        Command_Attack(wk, p_b);
+        break;
+
+    case 4:
+        Wait(wk, 0xe);
+        break;
+
+    case 5:
+        Command_Attack(wk, p_b_b);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_approach_walk_jump_attack_term_normal_attack_2(PLW* wk, s16 option) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, 0xbf, option);
+        break;
+
+    case 1:
+        Jump_Attack_Term(wk, &(Jump_Term_Args){0x8058, 0x8038, 0xb, 0x400, 0, 0x8080, -1, 0x400});
+        break;
+
+    case 2:
+        Normal_Attack(wk, 0xb, 0x202);
+        break;
+
+    case 3:
+        Command_Attack(wk, &(Command_Attack_Args){0xc, 0x1f, 10, -1});
+        break;
+
+    case 4:
+        Wait(wk, 1);
+        break;
+
+    case 5:
+        SA_Term(wk, &(SA_Term_Args){0x2f, 0x30, 0x31, 0x7f});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_approach_walk_jump_attack_term_normal_attack_3(PLW* wk, const SA_Term_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, 0xBF, 2);
+        break;
+
+    case 1:
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA8, -0x7FC8, 9, 0x400, 0, -0x7F80, -1, 0x400});
+        break;
+
+    case 2:
+        Normal_Attack(wk, 9, 0x220);
+        break;
+
+    case 3:
+        SA_Term(wk, p);
+        break;
+
+    case 4:
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x77, 0x77, 0x78, 0x79}, 2);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_normal_attack_pierce_on_j_command_attack(PLW* wk, u16 lever_data) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Normal_Attack(wk, 9, lever_data);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 0xc, 0x202);
+        break;
+
+    case 2:
+        Pierce_On(wk);
+        break;
+
+    case 3:
+        J_Command_Attack(wk, &(Command_Attack_Args){0xb, 0x20, 8, -1});
+        break;
+
+    case 4:
+        Wait(wk, 5);
+        break;
+
+    case 5:
+        SA_Term(wk, &(SA_Term_Args){0x2f, -1, 0x31, 0x7f});
+        break;
+
+    default:
+        active_pattern_j_command_attack_from_step_6_2(wk);
+        break;
+    }
+}
+
+void active_pattern_normal_attack_pierce_on_j_command_attack_2(PLW* wk, s16 reaction, u16 lever_data) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Normal_Attack(wk, 9, 0x200);
+        break;
+
+    case 1:
+        Normal_Attack(wk, reaction, lever_data);
+        break;
+
+    case 2:
+        Pierce_On(wk);
+        break;
+
+    case 3:
+        J_Command_Attack(wk, &(Command_Attack_Args){0xb, 0x20, 9, -1});
+        break;
+
+    case 4:
+        Wait(wk, 3);
+        break;
+
+    case 5:
+        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1e, 9, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}

@@ -106,19 +106,11 @@ void Pattern01_0019(PLW* wk) {
 }
 
 void Pattern01_0020(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 0xA, -1});
-        break;
-
-    case 1:
-        Jump_Attack(wk, &(Jump_Attack_Args){8, 0xA, 0x42, 2});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_command_attack_jump_attack(
+        wk,
+        &(Command_Attack_Args){8, 0x1E, 0xA, -1},
+        &(Jump_Attack_Args){8, 0xA, 0x42, 2}
+    );
 }
 
 void Pattern01_0021(PLW* wk) {

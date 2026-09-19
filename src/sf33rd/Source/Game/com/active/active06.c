@@ -236,27 +236,12 @@ void Pattern06_0046(PLW* wk) {
 }
 
 void Pattern06_0047(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Pierce_On(wk);
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 8, -1});
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 9, -1});
-        break;
-
-    case 3:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 0xA, 0x70});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_pierce_on_command_attack_2(
+        wk,
+        &(Command_Attack_Args){8, 0x1F, 8, -1},
+        &(Command_Attack_Args){8, 0x1F, 9, -1},
+        &(Command_Attack_Args){8, 0x1F, 0xA, 0x70}
+    );
 }
 
 void Pattern06_0048(PLW* wk) {

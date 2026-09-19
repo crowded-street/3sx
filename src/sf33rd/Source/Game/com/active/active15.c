@@ -96,19 +96,11 @@ void Pattern15_0019(PLW* wk) {
 }
 
 void Pattern15_0020(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
-        break;
-
-    case 1:
-        Jump_Attack(wk, &(Jump_Attack_Args){8, 0xC, 0x202, 0});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_command_attack_jump_attack(
+        wk,
+        &(Command_Attack_Args){8, 0x1E, 8, -1},
+        &(Jump_Attack_Args){8, 0xC, 0x202, 0}
+    );
 }
 
 void Pattern15_0021(PLW* wk) {
@@ -164,19 +156,7 @@ void Pattern15_0032(PLW* wk) {
 }
 
 void Pattern15_0033(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Adjust_Attack(wk, 8, 0x100);
-        break;
-
-    case 1:
-        Branch_Unit_Area(wk, &(Branch_Menu_Args){2, 1, 0x31, 0x32, 0x33});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_adjust_attack_branch_unit_area(wk, 0x100, &(Branch_Menu_Args){2, 1, 0x31, 0x32, 0x33});
 }
 
 void Pattern15_0034(PLW* wk) {
@@ -256,19 +236,11 @@ void Pattern15_0051(PLW* wk) {
 }
 
 void Pattern15_0052(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        SA_Term(wk, &(SA_Term_Args){0xFFFF, 0x2F, 0x30, 0});
-        break;
-
-    case 1:
-        Com_Random_Select(wk, &(Branch_Menu_Args){2, 0x3E, 0x3E, 0x3F, 0x3F}, 1);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_sa_term_com_random_select(
+        wk,
+        &(SA_Term_Args){0xFFFF, 0x2F, 0x30, 0},
+        &(Branch_Menu_Args){2, 0x3E, 0x3E, 0x3F, 0x3F}
+    );
 }
 
 void Pattern15_0053(PLW* wk) {
@@ -367,15 +339,7 @@ void Pattern15_0065(PLW* wk) {
 }
 
 void Pattern15_0066(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Rapid_Command_Attack(wk, &(Rapid_Command_Args){8, 0x4D, 0x400, 0x78});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_rapid_command_attack(wk, &(Rapid_Command_Args){8, 0x4D, 0x400, 0x78});
 }
 
 void Pattern15_0067(PLW* wk) {
@@ -383,15 +347,7 @@ void Pattern15_0067(PLW* wk) {
 }
 
 void Pattern15_0068(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Rapid_Command_Attack(wk, &(Rapid_Command_Args){8, 0x4D, 0x100, 0x78});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_rapid_command_attack(wk, &(Rapid_Command_Args){8, 0x4D, 0x100, 0x78});
 }
 
 void (*const Pattern15_Tbl[69])(PLW*) = {

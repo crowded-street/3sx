@@ -694,3 +694,195 @@ void active_pattern_lever_on_look(PLW* wk) {
         break;
     }
 }
+
+void active_pattern_adjust_attack_lever_attack_2(PLW* wk, s16 reaction, u16 lever_data, u16 lever) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Adjust_Attack(wk, reaction, lever_data);
+        break;
+
+    case 1:
+        Lever_Attack(wk, 8, lever, 0x20);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_etc_term_command_attack(PLW* wk, u16 next_menu, const Command_Attack_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        ETC_Term(wk, 0, 6, next_menu);
+        break;
+
+    case 1:
+        Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_normal_attack_lever_attack(PLW* wk, s16 reaction, u16 lever_data, u16 lever) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Normal_Attack(wk, reaction, lever_data);
+        break;
+
+    case 1:
+        Lever_Attack(wk, 8, lever, 0x20);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_jump_look(PLW* wk, s16 time) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Jump(wk, time);
+        break;
+
+    case 1:
+        Look(wk, 0);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_command_attack_jump_attack(PLW* wk, const Command_Attack_Args* p, const Jump_Attack_Args* a) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Command_Attack(wk, p);
+        break;
+
+    case 1:
+        Jump_Attack(wk, a);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_command_attack_branch_unit_area(PLW* wk, const Command_Attack_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Command_Attack(wk, p);
+        break;
+
+    case 1:
+        Branch_Unit_Area(wk, &(Branch_Menu_Args){2, 0x31, 0x32, 0x33, 1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_jump_attack_term_command_attack(PLW* wk, const Jump_Term_Args* a, const Command_Attack_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Jump_Attack_Term(wk, a);
+        break;
+
+    case 1:
+        Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_em_term_adjust_attack(PLW* wk, const EM_Term_Params* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        EM_Term(wk, p);
+        break;
+
+    case 1:
+        Adjust_Attack(wk, 8, 0x10);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_keep_away_com_random_select(PLW* wk, const Branch_Menu_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Keep_Away(wk, 0xBF, 1);
+        break;
+
+    case 1:
+        Com_Random_Select(wk, p, 3);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_walk_com_random_select(PLW* wk, const Branch_Menu_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Walk(wk, 1, 0x20, -1);
+        break;
+
+    case 1:
+        Com_Random_Select(wk, p, 3);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_adjust_attack_branch_unit_area(PLW* wk, u16 lever_data, const Branch_Menu_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Adjust_Attack(wk, 8, lever_data);
+        break;
+
+    case 1:
+        Branch_Unit_Area(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_sa_term_com_random_select(PLW* wk, const SA_Term_Args* p, const Branch_Menu_Args* p_b) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        SA_Term(wk, p);
+        break;
+
+    case 1:
+        Com_Random_Select(wk, p_b, 1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
