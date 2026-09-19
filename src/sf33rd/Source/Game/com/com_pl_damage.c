@@ -226,9 +226,43 @@ void Damage_5th(PLW* wk) {
     }
 }
 
-void Damage_6th(PLW* wk) {
+/* Choosing what to do on the way up: which get-up action the level and the roll
+ * pick, and the super art substituted when the table says there is none. The
+ * block is Damage_6th's own. */
+static void pick_get_up_action(PLW* wk) {
     u8 Lv;
     u8 Rnd;
+
+    if (Get_Up_Action_Check_Data[wk->player_number][CP_No[wk->wu.id][1] - 1][Area_Number[wk->wu.id]] == -1) {
+        CP_No[wk->wu.id][1] = Get_Up_Action_Check_Data[wk->player_number][CP_No[wk->wu.id][1]][4];
+    }
+
+    CP_No[wk->wu.id][2]++;
+    CP_Index[wk->wu.id][1] = 0;
+    Lv = Setup_Lv04(0);
+
+    Lv = level_after_demo_overrides(wk, Lv, 3);
+
+    Lv = emLevelRemake(Lv, 4, 0);
+    Rnd = random_32_com() & 3;
+    Rnd *= 2;
+
+    CP_Index[wk->wu.id][0] = Get_Up_Action_Tech_Data[wk->player_number][Lv][Rnd];
+    CP_Index[wk->wu.id][7] = Get_Up_Action_Tech_Data[wk->player_number][Lv][Rnd + 1];
+
+    if (CP_Index[wk->wu.id][0] == 0xFF) {
+        CP_Index[wk->wu.id][0] = Get_Up_Action_Tech_Data[wk->player_number][Lv][0];
+        CP_Index[wk->wu.id][7] = 8;
+
+        if (plw[wk->wu.id].sa->ok &&
+            Arts_Super_Name_Data[wk->player_number][plw[wk->wu.id].sa->kind_of_arts] != -1) {
+            CP_Index[wk->wu.id][0] =
+                Arts_Super_Name_Data[wk->player_number][plw[wk->wu.id].sa->kind_of_arts];
+        }
+    }
+}
+
+void Damage_6th(PLW* wk) {
 
     if (wk->wu.routine_no[3] == 0) {
         CP_No[wk->wu.id][1] = 0;
@@ -253,34 +287,9 @@ void Damage_6th(PLW* wk) {
         }
 
         if (wk->wu.cg_type == 12) {
-            if (Get_Up_Action_Check_Data[wk->player_number][CP_No[wk->wu.id][1] - 1][Area_Number[wk->wu.id]] == -1) {
-                CP_No[wk->wu.id][1] = Get_Up_Action_Check_Data[wk->player_number][CP_No[wk->wu.id][1]][4];
-            }
-
-            CP_No[wk->wu.id][2]++;
-            CP_Index[wk->wu.id][1] = 0;
-            Lv = Setup_Lv04(0);
-
-            Lv = level_after_demo_overrides(wk, Lv, 3);
-
-            Lv = emLevelRemake(Lv, 4, 0);
-            Rnd = random_32_com() & 3;
-            Rnd *= 2;
-
-            CP_Index[wk->wu.id][0] = Get_Up_Action_Tech_Data[wk->player_number][Lv][Rnd];
-            CP_Index[wk->wu.id][7] = Get_Up_Action_Tech_Data[wk->player_number][Lv][Rnd + 1];
-
-            if (CP_Index[wk->wu.id][0] == 0xFF) {
-                CP_Index[wk->wu.id][0] = Get_Up_Action_Tech_Data[wk->player_number][Lv][0];
-                CP_Index[wk->wu.id][7] = 8;
-
-                if (plw[wk->wu.id].sa->ok &&
-                    Arts_Super_Name_Data[wk->player_number][plw[wk->wu.id].sa->kind_of_arts] != -1) {
-                    CP_Index[wk->wu.id][0] =
-                        Arts_Super_Name_Data[wk->player_number][plw[wk->wu.id].sa->kind_of_arts];
-                }
-            }
+            pick_get_up_action(wk);
         }
+
 
         break;
 
