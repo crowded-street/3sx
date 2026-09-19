@@ -1490,27 +1490,7 @@ void pattern_approach_walk_em_term_j_command_attack_2(PLW* wk, const Command_Att
 }
 
 void pattern_command_attack_check_sa_command_attack(PLW* wk, const Command_Attack_Args* p) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Command_Attack(wk, p);
-        break;
-
-    case 1:
-        Check_SA(wk, 2, 0x35);
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x8016, 8, -1});
-        break;
-
-    case 3:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_command_attack_check_sa_command_attack(wk, p);
 }
 
 void pattern_command_attack_approach_walk_em_term_2(PLW* wk, u16 lever) {

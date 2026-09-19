@@ -800,6 +800,79 @@ def dedup(paths, shared_paths, header):
 
 
 # --------------------------------------------------------------------------
+# Recipe V again, between two skeletons: a specialisation calls its general
+# --------------------------------------------------------------------------
+
+def _skel_records(folder, protos):
+    out = []
+    for path in shared_files(folder):
+        src = open(path).read()
+        for name, a, b, is_static in functions(src):
+            full = src[a:b]
+            if SWITCH_HEAD not in full:
+                continue
+            sk, slots = skeletonize(full[full.index('{'):], protos)
+            sig = full[:full.index('{')]
+            params = [(re.search(r'(\w+)\s*$', x) or re.search(r'\(\*(\w+)\)', x)).group(1)
+                      for x in split_args(sig[sig.index('(') + 1:sig.rindex(')')])][1:]
+            out.append({'path': path, 'name': name, 'a': a, 'b': b, 'sk': sk,
+                        'vals': [v for v, _, _ in slots], 'params': params})
+    return out
+
+
+def generalise(folder, protos):
+    """Where one skeleton is another with literals baked in, call the general one.
+
+    gfold splits a family whose varying arguments outnumber max_params into
+    several skeletons, each holding the values it did not parameterise. Those
+    specialisations are the general skeleton with some slots written out, which
+    is Recipe V's own shape one level up: the body moves to one definition and
+    every value it used to hold is written out, in positional order, at the one
+    call that remains.
+    """
+    recs = _skel_records(folder, protos)
+    groups = collections.defaultdict(list)
+    for r in recs:
+        groups[r['sk']].append(r)
+
+    edits = collections.defaultdict(list)
+    for members in groups.values():
+        if len(members) < 2:
+            continue
+        # The general one first: most parameters, then by name for determinism.
+        members.sort(key=lambda r: (-len(r['params']), r['name']))
+        for cand in members:
+            pset = set(cand['params'])
+            slots = [i for i, v in enumerate(cand['vals']) if v in pset]
+            taken = [r for r in members
+                     if r is not cand and not set(r['params']) - pset
+                     and all(cand['vals'][i] in pset or cand['vals'][i] == r['vals'][i]
+                             for i in range(len(cand['vals'])))]
+            if not taken:
+                continue
+            for r in taken:
+                args = ['wk'] + [r['vals'][i] for i in slots]
+                src = open(r['path']).read()
+                head = src[r['a']:r['b']]
+                head = head[:head.index('{')]
+                edits[r['path']].append((r['a'], r['b'],
+                                         head + '{\n' + call('    ', cand['name'], args) + '\n}'))
+                members.remove(r)
+            break
+
+    if not edits:
+        return 0
+    n = 0
+    for path, es in edits.items():
+        src = open(path).read()
+        for a, b, text in sorted(es, key=lambda e: -e[0]):
+            src = src[:a] + text + src[b:]
+        open(path, 'w').write(rewrap(src))
+        n += len(es)
+    return n
+
+
+# --------------------------------------------------------------------------
 # Recipe F - one skeleton, the differing call passed in
 # --------------------------------------------------------------------------
 
@@ -1071,7 +1144,7 @@ def split(path, max_funcs=90, max_lines=900):
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('command', choices=['fold', 'gfold', 'dedup', 'reshard', 'ffold', 'xsplit', 'split', 'verify', 'families'])
+    ap.add_argument('command', choices=['fold', 'gfold', 'dedup', 'reshard', 'ffold', 'xsplit', 'split', 'verify', 'families', 'generalise'])
     ap.add_argument('files', nargs='+')
     ap.add_argument('--base', default='HEAD')
     ap.add_argument('--shared-dir', default=None,
@@ -1104,6 +1177,10 @@ def main():
         d = dedup_shared(folder)
         print('%d skeletons promoted to the shared files, %d copies removed, '
               '%d shared duplicates collapsed' % (h, e, d))
+        return
+    if args.command == 'generalise':
+        n = generalise(shared_dir(args.files), protos)
+        print('%d skeletons now call a more general sibling' % n)
         return
     if args.command == 'gfold':
         h, e = gfold(args.files, protos, args.min_members, args.max_params)

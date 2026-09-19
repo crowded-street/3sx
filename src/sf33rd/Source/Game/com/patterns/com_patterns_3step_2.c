@@ -556,23 +556,7 @@ void pattern_jump_attack_term_normal_attack_j_command_attack_2(
 }
 
 void pattern_jump_attack_term_sa_term_command_attack(PLW* wk, const SA_Term_Args* p, const Command_Attack_Args* p_b) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA8, -0x7FC0, 0xB, 0x200, 0, -1, -1, -1});
-        break;
-
-    case 1:
-        SA_Term(wk, p);
-        break;
-
-    case 2:
-        Command_Attack(wk, p_b);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_jump_attack_term_sa_term_command_attack(wk, p, p_b);
 }
 
 void pattern_jump_attack_term_sa_term_j_command_attack(PLW* wk, const SA_Term_Args* p, const Command_Attack_Args* p_b) {
@@ -798,21 +782,5 @@ void pattern_normal_attack_j_command_attack_4(PLW* wk, u16 lever_data, const Com
 }
 
 void pattern_normal_attack_j_command_attack_5(PLW* wk, const Command_Attack_Args* p) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, 8, 0x10);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 0xB, 0x10);
-        break;
-
-    case 2:
-        J_Command_Attack(wk, p);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_normal_attack_j_command_attack_2(wk, 0xB, 0x10, p);
 }

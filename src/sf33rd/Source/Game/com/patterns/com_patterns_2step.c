@@ -178,19 +178,7 @@ void active_pattern_approach_walk_command_attack(PLW* wk, s16 target_pos, const 
 }
 
 void active_pattern_approach_walk_lever_attack(PLW* wk, s16 target_pos, u16 lever) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, target_pos, 2);
-        break;
-
-    case 1:
-        Lever_Attack(wk, 8, lever, 0x110);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_lever_attack(wk, target_pos, lever, 0x110);
 }
 
 void active_pattern_approach_walk_normal_attack(PLW* wk, s16 target_pos, u16 lever_data) {
@@ -242,19 +230,7 @@ void active_pattern_command_attack_2(PLW* wk, const Command_Attack_Args* p, cons
 }
 
 void active_pattern_command_attack_branch_unit_area(PLW* wk, const Command_Attack_Args* p) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Command_Attack(wk, p);
-        break;
-
-    case 1:
-        Branch_Unit_Area(wk, &(Branch_Menu_Args){2, 0x31, 0x32, 0x33, 1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_command_attack_branch_unit_area(wk, p, &(Branch_Menu_Args){2, 0x31, 0x32, 0x33, 1});
 }
 
 void active_pattern_command_attack_com_random_select(
@@ -566,19 +542,7 @@ void active_pattern_jump_attack_term_j_command_attack(PLW* wk, const Jump_Term_A
 }
 
 void active_pattern_jump_attack_term_normal_attack(PLW* wk, const Jump_Term_Args* a, u16 lever_data) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump_Attack_Term(wk, a);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 8, lever_data);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_jump_attack_term_normal_attack(wk, a, 8, lever_data);
 }
 
 void active_pattern_jump_look(PLW* wk, s16 time) {
@@ -614,19 +578,7 @@ void active_pattern_keep_away_com_random_select(PLW* wk, const Branch_Menu_Args*
 }
 
 void active_pattern_lever_attack_command_attack(PLW* wk, const Command_Attack_Args* p) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_Attack(wk, 8, 0, 0x200);
-        break;
-
-    case 1:
-        Command_Attack(wk, p);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_lever_attack_command_attack(wk, 0, p);
 }
 
 void active_pattern_lever_off_look(PLW* wk) {
@@ -662,19 +614,7 @@ void active_pattern_lever_on_look(PLW* wk) {
 }
 
 void active_pattern_normal_attack_2(PLW* wk, u16 lever_data, u16 lever_data_b) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, 0xB, lever_data);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 8, lever_data_b);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_normal_attack_2(wk, 0xB, lever_data, lever_data_b);
 }
 
 void active_pattern_normal_attack_3(PLW* wk, u16 lever_data, s16 reaction, u16 lever_data_b) {
@@ -694,19 +634,7 @@ void active_pattern_normal_attack_3(PLW* wk, u16 lever_data, s16 reaction, u16 l
 }
 
 void active_pattern_normal_attack_4(PLW* wk, u16 lever_data, u16 lever_data_b) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, 8, lever_data);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 8, lever_data_b);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_normal_attack_2(wk, 8, lever_data, lever_data_b);
 }
 
 void active_pattern_normal_attack_branch_unit_area(PLW* wk, s16 reaction, u16 lever_data, const Branch_Menu_Args* p) {
@@ -776,35 +704,11 @@ void active_pattern_normal_attack_lever_attack(PLW* wk, s16 reaction, u16 lever_
 }
 
 void active_pattern_sa_term_branch_unit_area(PLW* wk, const SA_Term_Args* p) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        SA_Term(wk, p);
-        break;
-
-    case 1:
-        Branch_Unit_Area(wk, &(Branch_Menu_Args){2, 0x41, 0x41, 0x42, 0x43});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_sa_term_branch_unit_area(wk, p, &(Branch_Menu_Args){2, 0x41, 0x41, 0x42, 0x43});
 }
 
 void active_pattern_sa_term_com_random_select(PLW* wk, const SA_Term_Args* p, const Branch_Menu_Args* p_b) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        SA_Term(wk, p);
-        break;
-
-    case 1:
-        Com_Random_Select(wk, p_b, 1);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_sa_term_com_random_select(wk, p, p_b, 1);
 }
 
 void active_pattern_sa_term_command_attack(PLW* wk, const SA_Term_Args* p, const Command_Attack_Args* p_b) {
@@ -872,19 +776,7 @@ void active_pattern_search_back_term_walk_2(PLW* wk, s16 move_value, s16 next_ac
 }
 
 void active_pattern_walk_com_random_select(PLW* wk, const Branch_Menu_Args* p) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Walk(wk, 1, 0x20, -1);
-        break;
-
-    case 1:
-        Com_Random_Select(wk, p, 3);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_walk_com_random_select(wk, 0x20, p, 3);
 }
 
 void pattern_approach_walk_com_random_select(PLW* wk, s16 target_pos, const Branch_Menu_Args* p, s16 rnd_type) {
@@ -1000,19 +892,7 @@ void pattern_em_term_short_range_attack(PLW* wk, const Short_Range_Args* p) {
 }
 
 void pattern_normal_attack_branch_unit_area_2(PLW* wk, s16 reaction, const Branch_Menu_Args* p) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, reaction, 0x102);
-        break;
-
-    case 1:
-        Branch_Unit_Area(wk, p);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_normal_attack_branch_unit_area(wk, reaction, 0x102, p);
 }
 
 void pattern_command_attack_branch_unit_area(PLW* wk, const Command_Attack_Args* p, const Branch_Menu_Args* p_b) {

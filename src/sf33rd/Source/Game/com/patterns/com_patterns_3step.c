@@ -266,23 +266,12 @@ void active_pattern_jump_attack_term_normal_attack_j_command_attack(
 }
 
 void active_pattern_jump_attack_term_normal_attack_j_command_attack_2(PLW* wk, const Command_Attack_Args* p) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA0, -0x7FC0, 9, 0x40, 0, -0x7FB0, -1, 0x200});
-        break;
-
-    case 1:
-        Normal_Attack(wk, 9, 0x40);
-        break;
-
-    case 2:
-        J_Command_Attack(wk, p);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_jump_attack_term_normal_attack_j_command_attack_2(
+        wk,
+        &(Jump_Term_Args){-0x7FA0, -0x7FC0, 9, 0x40, 0, -0x7FB0, -1, 0x200},
+        0x40,
+        p
+    );
 }
 
 void active_pattern_jump_attack_term_sa_term_command_attack(
@@ -512,23 +501,7 @@ void active_pattern_pierce_on_command_attack(PLW* wk, const Command_Attack_Args*
 }
 
 void active_pattern_pierce_on_command_attack_j_command_attack(PLW* wk, const Command_Attack_Args* p) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Pierce_On(wk);
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){0xC, 0, -1, -1});
-        break;
-
-    case 2:
-        J_Command_Attack(wk, p);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_pierce_on_command_attack_j_command_attack(wk, &(Command_Attack_Args){0xC, 0, -1, -1}, p);
 }
 
 void active_pattern_pierce_on_j_command_attack_normal_attack(PLW* wk, const Command_Attack_Args* p) {
@@ -572,23 +545,7 @@ void active_pattern_pierce_on_jump_com_random_select(PLW* wk, const Branch_Menu_
 }
 
 void active_pattern_sa_term_command_attack_2(PLW* wk, const SA_Term_Args* p, const Command_Attack_Args* p_b) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        SA_Term(wk, &(SA_Term_Args){0x35, -1, -1, 0x9F});
-        break;
-
-    case 1:
-        SA_Term(wk, p);
-        break;
-
-    case 2:
-        Command_Attack(wk, p_b);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_sa_term_command_attack_2(wk, &(SA_Term_Args){0x35, -1, -1, 0x9F}, p, p_b);
 }
 
 void active_pattern_search_back_term_jump_look(PLW* wk, s16 move_value, s16 next_action, s16 next_menu) {
@@ -1168,23 +1125,7 @@ void pattern_wait_em_term_j_command_attack(PLW* wk, const Command_Attack_Args* p
 }
 
 void pattern_search_back_term_pierce_on_command_attack_4(PLW* wk, s16 next_menu) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Search_Back_Term(wk, 0x30, 6, next_menu);
-        break;
-
-    case 1:
-        Pierce_On(wk);
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 1, 0xB, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_search_back_term_pierce_on_command_attack(wk, 0x30, 6, next_menu);
 }
 
 void pattern_em_term_sa_term_forced_guard(PLW* wk, const EM_Term_Params* p, const SA_Term_Args* p_b) {

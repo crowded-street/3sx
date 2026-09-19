@@ -16,19 +16,7 @@
 #include "sf33rd/Source/Game/engine/workuser.h"
 
 void pattern_approach_walk_com_random_select_2(PLW* wk, const Branch_Menu_Args* p) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0xBF, 3);
-        break;
-
-    case 1:
-        Com_Random_Select(wk, p, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_approach_walk_com_random_select_2(wk, 0xBF, 3, p);
 }
 
 void pattern_approach_walk_em_term(PLW* wk, s16 target_pos, const EM_Term_Params* p) {
@@ -144,35 +132,11 @@ void pattern_check_ex_j_command_attack(PLW* wk, s16 next_menu, const Command_Att
 }
 
 void pattern_command_attack_com_random_select(PLW* wk, const Command_Attack_Args* p, const Branch_Menu_Args* p_b) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Command_Attack(wk, p);
-        break;
-
-    case 1:
-        Com_Random_Select(wk, p_b, 1);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_command_attack_com_random_select(wk, p, p_b, 1);
 }
 
 void pattern_command_attack_normal_attack(PLW* wk, const Command_Attack_Args* p) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Command_Attack(wk, p);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 8, 0x402);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_command_attack_normal_attack(wk, p, 8, 0x402);
 }
 
 void pattern_em_term_adjust_attack(PLW* wk, const EM_Term_Params* p) {
@@ -224,19 +188,7 @@ void pattern_em_term_com_random_select(PLW* wk, const EM_Term_Params* p, const B
 }
 
 void pattern_em_term_normal_attack(PLW* wk, const EM_Term_Params* p, u16 lever_data) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        EM_Term(wk, p);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 8, lever_data);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_em_term_normal_attack(wk, p, 8, lever_data);
 }
 
 void pattern_etc_term_branch_unit_area(PLW* wk, u32 next_action, u16 next_menu, const Branch_Menu_Args* p) {
@@ -304,35 +256,11 @@ void pattern_jump_attack_term_normal_attack(PLW* wk, const Jump_Term_Args* a, s1
 }
 
 void pattern_jump_attack_term_normal_attack_2(PLW* wk, const Jump_Term_Args* a) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump_Attack_Term(wk, a);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 8, 0x200);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_jump_attack_term_normal_attack(wk, a, 8, 0x200);
 }
 
 void pattern_jump_look(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump(wk, 1);
-        break;
-
-    case 1:
-        Look(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_jump_look(wk, 1);
 }
 
 void pattern_keep_away_com_random_select(PLW* wk, s16 target_pos) {
@@ -384,19 +312,7 @@ void pattern_keep_away_wait_get_up(PLW* wk, s16 target_pos, u16 lever_data, s16 
 }
 
 void pattern_keep_away_wait_get_up_2(PLW* wk, u16 lever_data) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Keep_Away(wk, 0xBF, 0);
-        break;
-
-    case 1:
-        Wait_Get_Up(wk, lever_data, -1);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_keep_away_wait_get_up(wk, 0xBF, lever_data, -1);
 }
 
 void pattern_lever_attack_normal_attack(PLW* wk) {
@@ -482,53 +398,17 @@ void pattern_normal_attack_com_random_select_2(PLW* wk, s16 reaction, u16 lever_
 }
 
 void pattern_normal_attack_com_random_select_3(PLW* wk, u16 lever_data) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, 8, lever_data);
-        break;
-
-    case 1:
-        Com_Random_Select(wk, &(Branch_Menu_Args){6, 1, 1, 0xC0, 0xC0}, 4);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_normal_attack_com_random_select(wk, lever_data, &(Branch_Menu_Args){6, 1, 1, 0xC0, 0xC0}, 4);
 }
 
 void pattern_normal_attack_command_attack_2(
     PLW* wk, s16 reaction, u16 lever_data, const Command_Attack_Args* p
 ) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, reaction, lever_data);
-        break;
-
-    case 1:
-        Command_Attack(wk, p);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_normal_attack_command_attack(wk, reaction, lever_data, p);
 }
 
 void pattern_normal_attack_j_command_attack(PLW* wk, s16 reaction, u16 lever_data, const Command_Attack_Args* p) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, reaction, lever_data);
-        break;
-
-    case 1:
-        J_Command_Attack(wk, p);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_normal_attack_j_command_attack(wk, reaction, lever_data, p);
 }
 
 void pattern_provoke_com_random_select(PLW* wk, const Branch_Menu_Args* p) {

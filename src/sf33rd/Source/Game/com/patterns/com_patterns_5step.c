@@ -1221,31 +1221,7 @@ void pattern_normal_attack_command_attack_wait_2(PLW* wk, u16 lever_data, s16 re
 }
 
 void pattern_approach_walk_jump_attack_term_normal_attack_3(PLW* wk, const SA_Term_Args* p) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0xBF, 2);
-        break;
-
-    case 1:
-        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA8, -0x7FC8, 9, 0x400, 0, -0x7F80, -1, 0x400});
-        break;
-
-    case 2:
-        Normal_Attack(wk, 9, 0x220);
-        break;
-
-    case 3:
-        SA_Term(wk, p);
-        break;
-
-    case 4:
-        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x77, 0x77, 0x78, 0x79}, 2);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_approach_walk_jump_attack_term_normal_attack_3(wk, p);
 }
 
 void pattern_approach_walk_jump_attack_term_normal_attack_4(PLW* wk, const Command_Attack_Args* p) {

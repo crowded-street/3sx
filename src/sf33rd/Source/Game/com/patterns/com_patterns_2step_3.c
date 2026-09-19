@@ -96,19 +96,7 @@ void pattern_wait_get_up_command_attack(PLW* wk, u16 lever_data, s16 option, con
 }
 
 void pattern_wait_get_up_command_attack_2(PLW* wk, const Command_Attack_Args* p) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait_Get_Up(wk, 0, -1);
-        break;
-
-    case 1:
-        Command_Attack(wk, p);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_wait_get_up_command_attack(wk, 0, -1, p);
 }
 
 void pattern_wait_get_up_jump_attack_term(PLW* wk, const Jump_Term_Args* a) {
@@ -144,19 +132,7 @@ void pattern_wait_get_up_lever_attack(PLW* wk, u16 lever_data, u16 lever, u16 le
 }
 
 void pattern_wait_get_up_lever_attack_2(PLW* wk, u16 lever, u16 lever_data) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait_Get_Up(wk, 0, -1);
-        break;
-
-    case 1:
-        Lever_Attack(wk, 8, lever, lever_data);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_wait_get_up_lever_attack(wk, 0, lever, lever_data);
 }
 
 void pattern_wait_get_up_normal_attack(PLW* wk, u16 lever_data, u16 lever_data_b) {
