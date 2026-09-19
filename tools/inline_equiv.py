@@ -67,6 +67,31 @@ def functions(src):
     return out
 
 
+def unchoice(body, choices):
+    """Put back a helper that only chose between two other 1/0 answers.
+
+    `if (C) { return A(...); } return D(...);` called as `if (NAME(...)) break;`
+    came from `if (C) { if (A(...)) break; } else { if (D(...)) break; }`, and
+    that is the only shape this reverses.
+    """
+    shape = re.compile(r'^\s*\{\s*if \((?P<cond>[^\n]*?)\) \{\s*return (?P<a>\w+\([^;]*\));\s*\}'
+                       r'\s*return (?P<d>\w+\([^;]*\));\s*\}\s*$', re.S)
+    for name, (params, hbody) in choices.items():
+        m = shape.match(hbody)
+        if not m:
+            raise ValueError('%s is not a two-way choice' % name)
+        call = re.compile(r'if \(%s\(([^;]*?)\)\) \{\s*break;\s*\}' % re.escape(name))
+        while True:
+            hit = call.search(body)
+            if not hit:
+                break
+            body = (body[:hit.start()]
+                    + 'if (%s) { if (%s) { break; } } else { if (%s) { break; } }'
+                    % (m.group('cond'), m.group('a'), m.group('d'))
+                    + body[hit.end():])
+    return body
+
+
 def unladder(body, ladders):
     """Put a 1/0 ladder helper back inline.
 
@@ -132,6 +157,8 @@ def main():
     ap.add_argument('--base', default='HEAD')
     ap.add_argument('--helper', action='append', default=[],
                     help='a helper this change created; repeat for each')
+    ap.add_argument('--choice', action='append', default=[],
+                    help='a helper that only picks between two 1/0 answers; repeat for each')
     ap.add_argument('--ladder', action='append', default=[],
                     help='a 1/0 helper lifted out of a switch arm; repeat for each')
     args = ap.parse_args()
@@ -149,21 +176,22 @@ def main():
 
     helpers = {h: new[h] for h in args.helper if h in new}
     ladders = {h: new[h] for h in args.ladder if h in new}
-    missing = [h for h in args.helper + args.ladder if h not in new]
+    choices = {h: new[h] for h in args.choice if h in new}
+    missing = [h for h in args.helper + args.ladder + args.choice if h not in new]
     if missing:
         print('no such helper: %s' % ', '.join(missing))
         return 1
 
     bad, checked = 0, 0
     for name, (_, body) in sorted(old.items()):
-        if name in helpers or name in ladders:
+        if name in helpers or name in ladders or name in choices:
             continue
         if name not in new:
             print('MISSING %s' % name)
             bad += 1
             continue
         checked += 1
-        before, after = norm(body), norm(inline(unladder(new[name][1], ladders), helpers))
+        before, after = norm(body), norm(inline(unladder(unchoice(new[name][1], choices), ladders), helpers))
         if before != after:
             bad += 1
             print('DIFFERS %s\n   before: %s\n   after:  %s' % (name, before[:300], after[:300]))
