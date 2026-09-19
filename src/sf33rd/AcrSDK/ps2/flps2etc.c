@@ -641,41 +641,43 @@ static u8* decode_pic_alpha_row(u8* lpdst, u8* lpsrc, const plContext* context) 
     s32 cx;
     s32 ax;
 
-    if (context->bitdepth != 3) {
-        s32 x = 0;
+    if (context->bitdepth == 3) {
+        return lpsrc;
+    }
 
-        while (x < context->width) {
-            ax = *lpsrc++;
+    s32 x = 0;
 
-            if (ax == 0x80) {
-                cx = (lpsrc[0] << 8) | lpsrc[1];
-                lpsrc += 2;
-                x += cx;
+    while (x < context->width) {
+        ax = *lpsrc++;
 
-                while (cx-- != 0) {
-                    lpdst[0] = lpsrc[0];
-                    lpdst += 4;
-                }
+        if (ax == 0x80) {
+            cx = (lpsrc[0] << 8) | lpsrc[1];
+            lpsrc += 2;
+            x += cx;
 
-                lpsrc += 1;
-            } else if (ax > 0x80) {
-                cx = ax - 0x7F;
-                x += cx;
+            while (cx-- != 0) {
+                lpdst[0] = lpsrc[0];
+                lpdst += 4;
+            }
 
-                while (cx-- != 0) {
-                    lpdst[0] = lpsrc[0];
-                    lpdst += 4;
-                }
+            lpsrc += 1;
+        } else if (ax > 0x80) {
+            cx = ax - 0x7F;
+            x += cx;
 
-                lpsrc += 1;
-            } else {
-                cx = ax + 1;
-                x += cx;
+            while (cx-- != 0) {
+                lpdst[0] = lpsrc[0];
+                lpdst += 4;
+            }
 
-                while (cx-- != 0) {
-                    *lpdst = *lpsrc++;
-                    lpdst += 4;
-                }
+            lpsrc += 1;
+        } else {
+            cx = ax + 1;
+            x += cx;
+
+            while (cx-- != 0) {
+                *lpdst = *lpsrc++;
+                lpdst += 4;
             }
         }
     }
