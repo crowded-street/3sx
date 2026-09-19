@@ -553,6 +553,62 @@ static void update_op_108_final_transition(void) {
     }
 }
 
+/* Scene 108 runs thirteen steps, more than a switch can hold under the
+ * complexity threshold. The tail is reached through the default arm, twice
+ * over; no case label is renumbered, and the empty default the scene already
+ * had for an out-of-range step is what each link is written into. */
+static void op_108_move_last() {
+    switch (op_w.r_no_2) {
+    case 8:
+        update_op_108_timed_transition(49);
+        break;
+
+    case 9:
+        update_op_108_scene_49_transition();
+        break;
+
+    case 10:
+        update_op_108_timed_transition(51);
+        break;
+
+    case 11:
+        update_op_108_scene_51_transition();
+        break;
+
+    case 12:
+        update_op_108_final_transition();
+        break;
+    }
+}
+
+static void op_108_move_late() {
+    switch (op_w.r_no_2) {
+    case 3:
+        update_op_108_followup_step();
+        break;
+
+    case 4:
+        update_op_108_timed_transition(45);
+        break;
+
+    case 5:
+        update_op_108_scene_45_transition();
+        break;
+
+    case 6:
+        update_op_108_timed_transition(47);
+        break;
+
+    case 7:
+        update_op_108_scene_47_transition();
+        break;
+
+    default:
+        op_108_move_last();
+        break;
+    }
+}
+
 void op_108_move() {
     switch (op_w.r_no_2) {
     case 0:
@@ -578,46 +634,7 @@ void op_108_move() {
         break;
 
     default:
-        break;
-
-    case 3:
-        update_op_108_followup_step();
-        break;
-
-    case 4:
-        update_op_108_timed_transition(45);
-        break;
-
-    case 5:
-        update_op_108_scene_45_transition();
-        break;
-
-    case 6:
-        update_op_108_timed_transition(47);
-        break;
-
-    case 7:
-        update_op_108_scene_47_transition();
-        break;
-
-    case 8:
-        update_op_108_timed_transition(49);
-        break;
-
-    case 9:
-        update_op_108_scene_49_transition();
-        break;
-
-    case 10:
-        update_op_108_timed_transition(51);
-        break;
-
-    case 11:
-        update_op_108_scene_51_transition();
-        break;
-
-    case 12:
-        update_op_108_final_transition();
+        op_108_move_late();
         break;
     }
 }
