@@ -96,6 +96,32 @@ static void clear_tim2_pixelformat(plContext* dst) {
     dst->pixelformat.al = 0;
     dst->pixelformat.am = 0;
 }
+/* The three direct-colour layouts, reached from the indexed switch's default.
+ * The case labels are the original ones and the switch is on the same
+ * expression, so a format byte that used to match here still matches here, and
+ * one that matched nothing still does nothing. */
+static void set_tim2_direct_format(plContext* dst, u8* lpTim2PictureHead) {
+    switch (lpTim2PictureHead[0x13]) {
+    case 1:
+        dst->bitdepth = 2;
+        dst->pitch = dst->bitdepth * dst->width;
+        set_tim2_pixelformat_16bit(dst);
+        break;
+
+    case 2:
+        dst->bitdepth = 3;
+        dst->pitch = dst->bitdepth * dst->width;
+        set_tim2_pixelformat_24bit(dst);
+        break;
+
+    case 3:
+        dst->bitdepth = 4;
+        dst->pitch = dst->bitdepth * dst->width;
+        set_tim2_pixelformat_32bit(dst);
+        break;
+    }
+}
+
 s32 plTIM2SetContextFromImage(plContext* dst, void* lpbas) {
     u8* lpData;
     u8* lpTim2FileHead;
@@ -140,22 +166,8 @@ s32 plTIM2SetContextFromImage(plContext* dst, void* lpbas) {
             clear_tim2_pixelformat(dst);
             break;
 
-        case 1:
-            dst->bitdepth = 2;
-            dst->pitch = dst->bitdepth * dst->width;
-            set_tim2_pixelformat_16bit(dst);
-            break;
-
-        case 2:
-            dst->bitdepth = 3;
-            dst->pitch = dst->bitdepth * dst->width;
-            set_tim2_pixelformat_24bit(dst);
-            break;
-
-        case 3:
-            dst->bitdepth = 4;
-            dst->pitch = dst->bitdepth * dst->width;
-            set_tim2_pixelformat_32bit(dst);
+        default:
+            set_tim2_direct_format(dst, lpTim2PictureHead);
             break;
         }
 
