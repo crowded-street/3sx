@@ -416,6 +416,48 @@ static void copy_hard_to_soft_map(s32 i, PadButtonMapRow* map) {
     }
 }
 
+/* Which of the three pad kinds this is, from the button profile it reported,
+ * and then the kind's own settings and button map. */
+static void set_pad_id_from_profile(s32 i) {
+    if (ps2slot[i].bprofile & 0xFFFF0000) {
+        if (ps2slot[i].bprofile & 0xFFF00000) {
+            ps2slot[i].pad_id = 2;
+        } else {
+            ps2slot[i].pad_id = 1;
+        }
+    } else {
+        ps2slot[i].pad_id = 0;
+    }
+}
+
+static void set_pad_kind(s32 i) {
+    switch (ps2slot[i].pad_id) {
+    case 0:
+        tarpad_root[i].kind = 1;
+        tarpad_root[i].anstate = 0;
+
+        copy_hard_to_soft_map(i, ps2pad_hard_to_soft_dg);
+
+        break;
+
+    case 1:
+        tarpad_root[i].kind = 1;
+        tarpad_root[i].anstate = 0x60;
+
+        copy_hard_to_soft_map(i, ps2pad_hard_to_soft_ds2);
+
+        break;
+
+    case 2:
+        tarpad_root[i].kind = 1;
+        tarpad_root[i].anstate = 0x73;
+
+        copy_hard_to_soft_map(i, ps2pad_hard_to_soft_ds2);
+
+        break;
+    }
+}
+
 void PADReadSub(s32 i) {
     s32 pstate;
     s32 len;
@@ -454,41 +496,9 @@ void PADReadSub(s32 i) {
             ps2slot[i].vprofile = vprofile[0];
         }
 
-        if (ps2slot[i].bprofile & 0xFFFF0000) {
-            if (ps2slot[i].bprofile & 0xFFF00000) {
-                ps2slot[i].pad_id = 2;
-            } else {
-                ps2slot[i].pad_id = 1;
-            }
-        } else {
-            ps2slot[i].pad_id = 0;
-        }
+        set_pad_id_from_profile(i);
 
-        switch (ps2slot[i].pad_id) {
-        case 0:
-            tarpad_root[i].kind = 1;
-            tarpad_root[i].anstate = 0;
-
-            copy_hard_to_soft_map(i, ps2pad_hard_to_soft_dg);
-
-            break;
-
-        case 1:
-            tarpad_root[i].kind = 1;
-            tarpad_root[i].anstate = 0x60;
-
-            copy_hard_to_soft_map(i, ps2pad_hard_to_soft_ds2);
-
-            break;
-
-        case 2:
-            tarpad_root[i].kind = 1;
-            tarpad_root[i].anstate = 0x73;
-
-            copy_hard_to_soft_map(i, ps2pad_hard_to_soft_ds2);
-
-            break;
-        }
+        set_pad_kind(i);
 
         if (!(ps2slot[i].vprofile & 3)) {
             ps2slot[i].vib = 0;
