@@ -9,17 +9,17 @@ static u32 plmemPullHandle(MEM_MGR* memmgr);
 static void plmemAppendBlockList(MEM_MGR* memmgr, u32 han);
 static void plmemDeleteBlockList(MEM_MGR* memmgr, u32 han);
 
-void plmemInit(MEM_MGR* memmgr, MEM_BLOCK* block, s32 count, void* mem_ptr, s32 memsize, s32 memalign, s32 direction) {
-    memmgr->cnt = count;
-    memmgr->block = block;
-    memmgr->memsize = memsize;
-    memmgr->direction = direction;
-    memmgr->memalign = memalign;
+void plmemInit(MEM_MGR* memmgr, const MemInitArgs* a) {
+    memmgr->cnt = a->count;
+    memmgr->block = a->block;
+    memmgr->memsize = a->memsize;
+    memmgr->direction = a->direction;
+    memmgr->memalign = a->memalign;
 
-    if (direction != 0) {
-        memmgr->memptr = (u8*)(~(memalign - 1) & ((uintptr_t)mem_ptr + memalign - 1));
+    if (a->direction != 0) {
+        memmgr->memptr = (u8*)(~(a->memalign - 1) & ((uintptr_t)a->mem_ptr + a->memalign - 1));
     } else {
-        memmgr->memptr = (u8*)(~(memalign - 1) & ((uintptr_t)mem_ptr + memsize));
+        memmgr->memptr = (u8*)(~(a->memalign - 1) & ((uintptr_t)a->mem_ptr + a->memsize));
     }
 
     memmgr->memnow = memmgr->memptr;
@@ -27,7 +27,7 @@ void plmemInit(MEM_MGR* memmgr, MEM_BLOCK* block, s32 count, void* mem_ptr, s32 
     memmgr->tmemsize = 0;
     memmgr->blocklist = MEM_NULL_HANDLE;
 
-    plMemset(block, 0, count * sizeof(MEM_BLOCK));
+    plMemset(a->block, 0, a->count * sizeof(MEM_BLOCK));
 }
 
 u32 plmemRegister(MEM_MGR* memmgr, s32 len) {

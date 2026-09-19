@@ -6,7 +6,7 @@ MEM_BLOCK sysmemblock[4096];
 MEM_MGR sysmemmgr;
 
 void mflInit(void* mem_ptr, s32 memsize, s32 memalign) {
-    plmemInit(&sysmemmgr, sysmemblock, 0x1000, mem_ptr, memsize, memalign, 1);
+    plmemInit(&sysmemmgr, &(MemInitArgs){ sysmemblock, 0x1000, mem_ptr, memsize, memalign, 1 });
 }
 
 u32 mflGetSpace() {

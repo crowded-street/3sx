@@ -27,7 +27,18 @@ typedef struct {
     u32 blocklist;
 } MEM_MGR;
 
-void plmemInit(MEM_MGR* memmgr, MEM_BLOCK* block, s32 count, void* mem_ptr, s32 memsize, s32 memalign, s32 direction);
+/* The six values plmemInit took beside the manager it fills, in its own
+ * parameter order. */
+typedef struct {
+    MEM_BLOCK* block;
+    s32 count;
+    void* mem_ptr;
+    s32 memsize;
+    s32 memalign;
+    s32 direction;
+} MemInitArgs;
+
+void plmemInit(MEM_MGR* memmgr, const MemInitArgs* a);
 u32 plmemRegister(MEM_MGR* memmgr, s32 len);
 u32 plmemRegisterAlign(MEM_MGR* memmgr, s32 len, s32 align);
 u32 plmemRegisterS(MEM_MGR* memmgr, s32 len);
