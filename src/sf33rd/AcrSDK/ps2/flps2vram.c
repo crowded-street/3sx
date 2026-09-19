@@ -583,20 +583,8 @@ s32 flPS2LockTexture(const FlLockArgs* a) {
 
         break;
 
+    /* Modes 2 and 3 had the same twelve lines written out twice. */
     case 2:
-        if (a->lpflTexture->mem_handle == 0) {
-            buff_ptr = mflTemporaryUse(a->lpflTexture->size);
-        } else {
-            buff_ptr = flPS2GetSystemBuffAdrs(a->lpflTexture->mem_handle);
-        }
-
-        a->lpflTexture->lock_ptr = (uintptr_t)buff_ptr;
-        a->lpcontext->ptr = buff_ptr;
-
-        set_lock_context_format(a->lpcontext, a->lpflTexture->format);
-
-        break;
-
     case 3:
         if (a->lpflTexture->mem_handle == 0) {
             buff_ptr = mflTemporaryUse(a->lpflTexture->size);
