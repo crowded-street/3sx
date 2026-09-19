@@ -634,6 +634,43 @@ static void clear_lower_priority_waza_flags() {
  * has to happen in, the release itself, and the timeout. check_10 and check_12
  * had these three states written out byte for byte identically. Case labels
  * are the originals. */
+/* The dash-release states from 3 on, reached from state 2's default. The case
+ * labels are the original ones and the switch is on the same expression, so a
+ * shot_ok that used to match here still matches here and one that matches
+ * nothing still does nothing. */
+static void run_dash_release_states_from_3() {
+    switch (waza_ptr->shot_ok) {
+    case 3:
+        waza_ptr->free3--;
+
+        if (waza_ptr->free3 < 0) {
+            waza_ptr->w_type = 0;
+            break;
+        }
+
+        if ((chk_pl->sw_now & 8) || !(chk_pl->sw_now != waza_ptr->w_lvr)) {
+            close_waza_window();
+            break;
+        }
+
+        if (chk_pl->sw_now & 0xF) {
+            waza_ptr->shot_ok++;
+            close_waza_window();
+        }
+
+        break;
+
+    case 4:
+        waza_ptr->free3--;
+
+        if (waza_ptr->free3 < 0) {
+            waza_ptr->w_type = 0;
+        }
+
+        break;
+    }
+}
+
 static void run_dash_release_states() {
     switch (waza_ptr->shot_ok) {
     case 2:
@@ -664,33 +701,8 @@ static void run_dash_release_states() {
 
         break;
 
-    case 3:
-        waza_ptr->free3--;
-
-        if (waza_ptr->free3 < 0) {
-            waza_ptr->w_type = 0;
-            break;
-        }
-
-        if ((chk_pl->sw_now & 8) || !(chk_pl->sw_now != waza_ptr->w_lvr)) {
-            close_waza_window();
-            break;
-        }
-
-        if (chk_pl->sw_now & 0xF) {
-            waza_ptr->shot_ok++;
-            close_waza_window();
-        }
-
-        break;
-
-    case 4:
-        waza_ptr->free3--;
-
-        if (waza_ptr->free3 < 0) {
-            waza_ptr->w_type = 0;
-        }
-
+    default:
+        run_dash_release_states_from_3();
         break;
     }
 }
