@@ -68,23 +68,7 @@ void Pattern08_0004(PLW* wk) {
 }
 
 void Pattern08_0005(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_Attack(wk, 8, 0, 0x110);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 8, 0x402);
-        break;
-
-    case 2:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 9, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_lever_attack_normal_attack_j_command_attack(wk, 0x110, 0x402, &(Command_Attack_Args){8, 0x1E, 9, -1});
 }
 
 void Pattern08_0006(PLW* wk) {

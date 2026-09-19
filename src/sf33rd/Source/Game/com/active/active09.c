@@ -272,23 +272,12 @@ void Pattern09_0040(PLW* wk) {
 }
 
 void Pattern09_0041(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        EM_Term(wk, &(EM_Term_Params){-0x7FA0, -1, 5, 1, -1});
-        break;
-
-    case 1:
-        Normal_Attack(wk, 9, 0x40);
-        break;
-
-    case 2:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 0xA, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_em_term_normal_attack_j_command_attack_2(
+        wk,
+        &(EM_Term_Params){-0x7FA0, -1, 5, 1, -1},
+        0x40,
+        &(Command_Attack_Args){8, 0x1C, 0xA, -1}
+    );
 }
 
 void Pattern09_0042(PLW* wk) {
@@ -413,31 +402,12 @@ void Pattern09_0063(PLW* wk) {
 }
 
 void Pattern09_0064(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA0, -0x7FA8, 9, 0x40, 0, -0x7FB0, -1, 0x400});
-        break;
-
-    case 1:
-        Normal_Attack(wk, 9, 0x202);
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){0xC, 0x1E, 0xA, -1});
-        break;
-
-    case 3:
-        Wait(wk, 5);
-        break;
-
-    case 4:
-        SA_Term(wk, &(SA_Term_Args){0x35, 0x64, 0x3A, 0});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_jump_attack_term_normal_attack_command_attack_5(
+        wk,
+        &(Jump_Term_Args){-0x7FA0, -0x7FA8, 9, 0x40, 0, -0x7FB0, -1, 0x400},
+        &(Command_Attack_Args){0xC, 0x1E, 0xA, -1},
+        &(SA_Term_Args){0x35, 0x64, 0x3A, 0}
+    );
 }
 
 void Pattern09_0065(PLW* wk) {
@@ -652,15 +622,7 @@ void Pattern09_0096(PLW* wk) {
 }
 
 void Pattern09_0097(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        ORO_HJCA_Term(wk, &(ORO_JCA_Term_Args){8, 0, 0x40, 0, -0x7FA0, -1, 0x2F, 0xA, -1, -0x7FB0, -0x7FD0, 0x400});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_oro_hjca_term(wk, &(ORO_JCA_Term_Args){8, 0, 0x40, 0, -0x7FA0, -1, 0x2F, 0xA, -1, -0x7FB0, -0x7FD0, 0x400});
 }
 
 void Pattern09_0098(PLW* wk) {

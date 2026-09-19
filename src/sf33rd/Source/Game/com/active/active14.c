@@ -561,31 +561,7 @@ void Pattern14_0057(PLW* wk) {
 }
 
 void Pattern14_0058(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0xBF, 2);
-        break;
-
-    case 1:
-        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA8, -0x7FC8, 9, 0x400, 0, -0x7F80, -1, 0x400});
-        break;
-
-    case 2:
-        Normal_Attack(wk, 9, 0x220);
-        break;
-
-    case 3:
-        Normal_Attack(wk, 0xC, 0x202);
-        break;
-
-    case 4:
-        Command_Attack(wk, &(Command_Attack_Args){0xC, 0x1F, 0xA, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_jump_attack_term_normal_attack_4(wk, &(Command_Attack_Args){0xC, 0x1F, 0xA, -1});
 }
 
 static void pattern14_0059_from_step_6(PLW* wk) {
@@ -637,35 +613,12 @@ void Pattern14_0060(PLW* wk) {
 }
 
 void Pattern14_0061(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0xbf, 2);
-        break;
-
-    case 1:
-        Turn_Over_On(wk);
-        break;
-
-    case 2:
-        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-1, 0x61, 9, 0x202, 0, 0x8080, -1, 0x400});
-        break;
-
-    case 3:
-        Normal_Attack(wk, 9, 0x202);
-        break;
-
-    case 4:
-        SA_Term(wk, &(SA_Term_Args){0x32, 0xffff, 0xffff, 0xbf});
-        break;
-
-    case 5:
-        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x77, 0x77, 0x78, 0x79}, 2);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_turn_over_on_hi_jump_attack_term(
+        wk,
+        0xbf,
+        &(Hi_Jump_Term_Args){-1, 0x61, 9, 0x202, 0, 0x8080, -1, 0x400},
+        &(SA_Term_Args){0x32, 0xffff, 0xffff, 0xbf}
+    );
 }
 
 void Pattern14_0062(PLW* wk) {

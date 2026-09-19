@@ -316,31 +316,7 @@ void Passive07_0091(PLW* wk) {
 }
 
 void Passive07_0092(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0x3B, 2);
-        break;
-
-    case 1:
-        Lever_Attack(wk, 0xC, 0, 0x200);
-        break;
-
-    case 2:
-        SA_Term(wk, &(SA_Term_Args){0x35, 0x36, 0x37, 0});
-        break;
-
-    case 3:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 8, -1});
-        break;
-
-    case 4:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 10, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_lever_attack_sa_term_2(wk, 0x3B, 0x200, &(SA_Term_Args){0x35, 0x36, 0x37, 0});
 }
 
 void Passive07_0093(PLW* wk) {

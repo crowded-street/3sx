@@ -294,23 +294,7 @@ void Pattern01_0053(PLW* wk) {
 }
 
 void Pattern01_0054(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        SA_Term(wk, &(SA_Term_Args){0xFFFF, 0xFFFF, 0x30, 0});
-        break;
-
-    case 1:
-        Approach_Walk(wk, 0xC3, 2);
-        break;
-
-    case 2:
-        Jump_Attack(wk, &(Jump_Attack_Args){8, 0xC, 0x42, 0});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_sa_term_approach_walk_jump_attack(wk);
 }
 
 void Pattern01_0055(PLW* wk) {

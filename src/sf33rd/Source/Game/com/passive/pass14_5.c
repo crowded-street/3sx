@@ -247,35 +247,11 @@ void Passive14_0231(PLW* wk) {
 }
 
 void Passive14_0232(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0xBF, 3);
-        break;
-
-    case 1:
-        Look(wk, 2);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_look(wk, 3);
 }
 
 void Passive14_0233(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0xBF, 2);
-        break;
-
-    case 1:
-        Look(wk, 2);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_look(wk, 2);
 }
 
 void Passive14_0234(PLW* wk) {
@@ -482,21 +458,5 @@ void Passive14_0251(PLW* wk) {
 }
 
 void Passive14_0252(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Check_SA_Full(wk, 6, 0x7C);
-        break;
-
-    case 1:
-        EM_Term(wk, &(EM_Term_Params){-0x7F30, -1, 5, 2, 0});
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x8019, 0xA, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_check_sa_full_em_term_command_attack(wk);
 }

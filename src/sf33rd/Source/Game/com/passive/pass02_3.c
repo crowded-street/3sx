@@ -40,27 +40,11 @@ void Passive02_0120(PLW* wk) {
 }
 
 void Passive02_0121(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7F90, -0x7FC0, 0xB, 0x400, 0, -0x7FB0, -1, 0x20});
-        break;
-
-    case 1:
-        EM_Term(wk, &(EM_Term_Params){-1, -0x8000, 4, 1, -1});
-        break;
-
-    case 2:
-        SA_Term(wk, &(SA_Term_Args){0x35, 0x36, 0x37, 0x7F});
-        break;
-
-    case 3:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 0xA, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_jump_attack_term_em_term_sa_term(
+        wk,
+        &(Jump_Term_Args){-0x7F90, -0x7FC0, 0xB, 0x400, 0, -0x7FB0, -1, 0x20},
+        &(SA_Term_Args){0x35, 0x36, 0x37, 0x7F}
+    );
 }
 
 void Passive02_0122(PLW* wk) {

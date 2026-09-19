@@ -24,19 +24,7 @@ void Passive01_0050(PLW* wk) {
 }
 
 void Passive01_0051(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, 0xB, 0x220);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 0xB, 0x102);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_normal_attack_6(wk, 0xB, 0x220, 0xB);
 }
 
 void Passive01_0052(PLW* wk) {
@@ -76,31 +64,7 @@ void Passive01_0060(PLW* wk) {
 }
 
 void Passive01_0061(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        SA_Term(wk, &(SA_Term_Args){0xFFFF, 0x2F, 0xFFFF, 0});
-        break;
-
-    case 1:
-        Approach_Walk(wk, 0x59, 2);
-        break;
-
-    case 2:
-        SA_Term(wk, &(SA_Term_Args){0x2E, 0xFFFF, 0xFFFF, 0x59});
-        break;
-
-    case 3:
-        Approach_Walk(wk, 0x4F, 2);
-        break;
-
-    case 4:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 0xA, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_sa_term_approach_walk_sa_term_3(wk, &(SA_Term_Args){0xFFFF, 0x2F, 0xFFFF, 0});
 }
 
 void Passive01_0062(PLW* wk) {
@@ -172,51 +136,11 @@ void Passive01_0074(PLW* wk) {
 }
 
 void Passive01_0075(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        SA_Term(wk, &(SA_Term_Args){0xFFFF, 0x2F, 0x30, 0});
-        break;
-
-    case 1:
-        Approach_Walk(wk, 0x59, 2);
-        break;
-
-    case 2:
-        SA_Term(wk, &(SA_Term_Args){0x2E, 0xFFFF, 0xFFFF, 0x59});
-        break;
-
-    case 3:
-        Approach_Walk(wk, 0x4F, 2);
-        break;
-
-    case 4:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 0xA, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_sa_term_approach_walk_sa_term_3(wk, &(SA_Term_Args){0xFFFF, 0x2F, 0x30, 0});
 }
 
 void Passive01_0076(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        SA_Term(wk, &(SA_Term_Args){0xFFFF, 0xFFFF, 0x30, 0});
-        break;
-
-    case 1:
-        Approach_Walk(wk, 0xC3, 2);
-        break;
-
-    case 2:
-        Jump_Attack(wk, &(Jump_Attack_Args){8, 0xC, 0x42, 0});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_sa_term_approach_walk_jump_attack(wk);
 }
 
 void Passive01_0077(PLW* wk) {
@@ -280,75 +204,15 @@ void Passive01_0084(PLW* wk) {
 }
 
 void Passive01_0085(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait(wk, 0xA);
-        break;
-
-    case 1:
-        Com_Random_Select(wk, &(Branch_Menu_Args){6, 5, 9, 0x35, 1}, 1);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_wait_com_random_select(wk, 0xA, &(Branch_Menu_Args){6, 5, 9, 0x35, 1});
 }
 
 void Passive01_0086(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0x59, 2);
-        break;
-
-    case 1:
-        EM_Term(wk, &(EM_Term_Params){-1, -0x7FD8, 6, 1, -1});
-        break;
-
-    case 2:
-        SA_Term(wk, &(SA_Term_Args){0x2E, 0xFFFF, 0xFFFF, 0x59});
-        break;
-
-    case 3:
-        Approach_Walk(wk, 0x4F, 2);
-        break;
-
-    case 4:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 0xA, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_em_term_sa_term_3(wk, &(SA_Term_Args){0x2E, 0xFFFF, 0xFFFF, 0x59});
 }
 
 void Passive01_0087(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0x59, 2);
-        break;
-
-    case 1:
-        EM_Term(wk, &(EM_Term_Params){-1, -0x7FD8, 6, 1, -1});
-        break;
-
-    case 2:
-        SA_Term(wk, &(SA_Term_Args){0x2E, 0x2F, 0xFFFF, 0x59});
-        break;
-
-    case 3:
-        Approach_Walk(wk, 0x4F, 2);
-        break;
-
-    case 4:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 0xA, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_em_term_sa_term_3(wk, &(SA_Term_Args){0x2E, 0x2F, 0xFFFF, 0x59});
 }
 
 void Passive01_0088(PLW* wk) {
@@ -416,23 +280,7 @@ void Passive01_0095(PLW* wk) {
 }
 
 void Passive01_0096(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0x83, 3);
-        break;
-
-    case 1:
-        EM_Term(wk, &(EM_Term_Params){-0x7F80, -0x7FD8, 6, 1, -1});
-        break;
-
-    case 2:
-        Normal_Attack(wk, 8, 0x402);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_em_term_normal_attack_7(wk, &(EM_Term_Params){-0x7F80, -0x7FD8, 6, 1, -1}, 8, 0x402);
 }
 
 void Passive01_0097(PLW* wk) {

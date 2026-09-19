@@ -424,27 +424,7 @@ void Pattern13_0065(PLW* wk) {
 }
 
 void Pattern13_0066(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x8016, 0xA, -1});
-        break;
-
-    case 1:
-        Check_SA(wk, 2, 0x34);
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
-        break;
-
-    case 3:
-        Com_Random_Select(wk, &(Branch_Menu_Args){2, 0x31, 0x31, 0x32, 0x33}, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_command_attack_check_sa_command_attack_2(wk, &(Command_Attack_Args){8, 0x8016, 0xA, -1});
 }
 
 void Pattern13_0067(PLW* wk) {

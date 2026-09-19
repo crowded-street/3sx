@@ -437,27 +437,11 @@ void Passive09_0090(PLW* wk) {
 }
 
 void Passive09_0091(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        EM_Term(wk, &(EM_Term_Params){-0x7FB0, -0x7FF0, 6, 1, -1});
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){0xC, 0x1E, 10, -1});
-        break;
-
-    case 2:
-        Wait(wk, 5);
-        break;
-
-    case 3:
-        SA_Term(wk, &(SA_Term_Args){0x35, 0xFFFF, 0x3A, 0});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_em_term_command_attack_wait(
+        wk,
+        &(Command_Attack_Args){0xC, 0x1E, 10, -1},
+        &(SA_Term_Args){0x35, 0xFFFF, 0x3A, 0}
+    );
 }
 
 void Passive09_0092(PLW* wk) {
@@ -465,27 +449,11 @@ void Passive09_0092(PLW* wk) {
 }
 
 void Passive09_0093(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA0, -0x7FA8, 9, 0x40, 0, -0x7FB0, -1, 0x400});
-        break;
-
-    case 1:
-        Normal_Attack(wk, 9, 0x202);
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){0xC, 0x1E, 10, -1});
-        break;
-
-    case 3:
-        Wait(wk, 5);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_jump_attack_term_normal_attack_command_attack_7(
+        wk,
+        &(Jump_Term_Args){-0x7FA0, -0x7FA8, 9, 0x40, 0, -0x7FB0, -1, 0x400},
+        &(Command_Attack_Args){0xC, 0x1E, 10, -1}
+    );
 }
 
 void Passive09_0094(PLW* wk) {
@@ -682,27 +650,11 @@ void Passive09_0112(PLW* wk) {
 }
 
 void Passive09_0113(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        ORO_HJCA_Term(wk, &(ORO_JCA_Term_Args){8, 1, 0x40, 0, -0x7FA0, -1, 0x2F, 0xA, -1, -0x7FB0, -0x7FD0, 0x400});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_oro_hjca_term(wk, &(ORO_JCA_Term_Args){8, 1, 0x40, 0, -0x7FA0, -1, 0x2F, 0xA, -1, -0x7FB0, -0x7FD0, 0x400});
 }
 
 void Passive09_0114(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        ORO_HJCA_Term(wk, &(ORO_JCA_Term_Args){8, 2, 0x40, 0, -0x7FA0, -1, 0x2F, 0xA, -1, -0x7FB0, -0x7FD0, 0x400});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_oro_hjca_term(wk, &(ORO_JCA_Term_Args){8, 2, 0x40, 0, -0x7FA0, -1, 0x2F, 0xA, -1, -0x7FB0, -0x7FD0, 0x400});
 }
 
 void Passive09_0115(PLW* wk) {

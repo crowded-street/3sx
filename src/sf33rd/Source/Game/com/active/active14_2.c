@@ -275,19 +275,7 @@ void Pattern14_0081(PLW* wk) {
 }
 
 void Pattern14_0082(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, 0xD, 0x20);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 8, 0x102);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_normal_attack_6(wk, 0xD, 0x20, 8);
 }
 
 void Pattern14_0083(PLW* wk) {
@@ -699,19 +687,7 @@ void Pattern14_0119(PLW* wk) {
 }
 
 void Pattern14_0120(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0xBF, 2);
-        break;
-
-    case 1:
-        Look(wk, 2);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_look(wk, 2);
 }
 
 void Pattern14_0121(PLW* wk) {

@@ -63,27 +63,7 @@ void Passive04_0000(PLW* wk) {
 }
 
 void Passive04_0001(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Search_Back_Term(wk, 0x30, 6, 0x58);
-        break;
-
-    case 1:
-        Pierce_On(wk);
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 1, 0xB, -1});
-        break;
-
-    case 3:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 9, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_search_back_term_pierce_on_command_attack_3(wk, &(Command_Attack_Args){8, 0x1F, 9, -1});
 }
 
 void Passive04_0002(PLW* wk) {
@@ -103,27 +83,7 @@ void Passive04_0005(PLW* wk) {
 }
 
 void Passive04_0006(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Search_Back_Term(wk, 0x30, 6, 0x58);
-        break;
-
-    case 1:
-        Pierce_On(wk);
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 1, 0xB, -1});
-        break;
-
-    case 3:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 10, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_search_back_term_pierce_on_command_attack_3(wk, &(Command_Attack_Args){8, 0x1F, 10, -1});
 }
 
 void Passive04_0007(PLW* wk) {
@@ -168,23 +128,7 @@ void Passive04_0012(PLW* wk) {
 }
 
 void Passive04_0013(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Search_Back_Term(wk, 0x30, 6, 0x58);
-        break;
-
-    case 1:
-        Pierce_On(wk);
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 1, 0xB, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_search_back_term_pierce_on_command_attack_4(wk, 0x58);
 }
 
 void Passive04_0014(PLW* wk) {

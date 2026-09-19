@@ -213,19 +213,7 @@ void Passive19_0084(PLW* wk) {
 }
 
 void Passive19_0085(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait(wk, 2);
-        break;
-
-    case 1:
-        Com_Random_Select(wk, &(Branch_Menu_Args){6, 5, 5, 7, 8}, 1);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_wait_com_random_select(wk, 2, &(Branch_Menu_Args){6, 5, 5, 7, 8});
 }
 
 void Passive19_0086(PLW* wk) {
@@ -288,23 +276,7 @@ void Passive19_0095(PLW* wk) {
 }
 
 void Passive19_0096(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Keep_Away(wk, 0x7F, 3);
-        break;
-
-    case 1:
-        EM_Term(wk, &(EM_Term_Params){-0x7F80, -0x7FD8, 6, 1, -1});
-        break;
-
-    case 2:
-        Normal_Attack(wk, 8, 0x402);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_keep_away_em_term_normal_attack(wk, &(EM_Term_Params){-0x7F80, -0x7FD8, 6, 1, -1}, 8, 0x402);
 }
 
 void Passive19_0097(PLW* wk) {

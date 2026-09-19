@@ -12,27 +12,7 @@
 #include "sf33rd/Source/Game/engine/workuser.h"
 
 void Passive00_0112(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Pierce_On(wk);
-        break;
-
-    case 1:
-        EM_Term(wk, &(EM_Term_Params){-1, -0x7FB0, 6, 1, -1});
-        break;
-
-    case 2:
-        Normal_Attack(wk, 8, 0x42);
-        break;
-
-    case 3:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 0xA, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_pierce_on_em_term_normal_attack_3(wk, &(Command_Attack_Args){8, 0x1F, 0xA, -1});
 }
 
 void Passive00_0113(PLW* wk) {
@@ -181,27 +161,7 @@ void Passive00_0129(PLW* wk) {
 }
 
 void Passive00_0130(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Search_Back_Term(wk, 0x50, 6, 0x6E);
-        break;
-
-    case 1:
-        Walk(wk, 1, 0x18, 0);
-        break;
-
-    case 2:
-        EM_Term(wk, &(EM_Term_Params){-1, -0x7FB0, 6, 1, -1});
-        break;
-
-    case 3:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 0xA, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_search_back_term_walk_em_term(wk, &(Command_Attack_Args){8, 0x1C, 0xA, -1});
 }
 
 void Passive00_0131(PLW* wk) {

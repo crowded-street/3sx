@@ -49,23 +49,11 @@ void Passive05_0071(PLW* wk) {
 }
 
 void Passive05_0072(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        EM_Term(wk, &(EM_Term_Params){-0x7F80, -0x7FF8, 5, 1, -1});
-        break;
-
-    case 1:
-        SA_Term(wk, &(SA_Term_Args){0x35, 0xFFFF, 0x37, 0});
-        break;
-
-    case 2:
-        Forced_Guard(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_em_term_sa_term_forced_guard(
+        wk,
+        &(EM_Term_Params){-0x7F80, -0x7FF8, 5, 1, -1},
+        &(SA_Term_Args){0x35, 0xFFFF, 0x37, 0}
+    );
 }
 
 void Passive05_0073(PLW* wk) {
@@ -258,23 +246,11 @@ void Passive05_0090(PLW* wk) {
 }
 
 void Passive05_0091(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        EM_Term(wk, &(EM_Term_Params){-0x7F80, -1, 5, 1, -1});
-        break;
-
-    case 1:
-        SA_Term(wk, &(SA_Term_Args){0x35, 0xFFFF, 0xFFFF, 0});
-        break;
-
-    case 2:
-        Forced_Guard(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_em_term_sa_term_forced_guard(
+        wk,
+        &(EM_Term_Params){-0x7F80, -1, 5, 1, -1},
+        &(SA_Term_Args){0x35, 0xFFFF, 0xFFFF, 0}
+    );
 }
 
 void Passive05_0092(PLW* wk) {

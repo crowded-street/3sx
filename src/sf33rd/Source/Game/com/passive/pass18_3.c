@@ -404,23 +404,7 @@ void Passive18_0187(PLW* wk) {
 }
 
 void Passive18_0188(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 9, -1});
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_command_attack_2(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
 }
 
 void Passive18_0189(PLW* wk) {

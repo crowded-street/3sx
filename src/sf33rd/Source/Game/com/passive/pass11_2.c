@@ -77,19 +77,7 @@ void Passive11_0060(PLW* wk) {
 }
 
 void Passive11_0061(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait_Lie(wk, 0);
-        break;
-
-    case 1:
-        Approach_Walk(wk, 0x47, 2);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_wait_lie_approach_walk(wk, 0x47);
 }
 
 void Passive11_0062(PLW* wk) {
@@ -118,59 +106,15 @@ void Passive11_0065(PLW* wk) {
 }
 
 void Passive11_0066(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait_Get_Up(wk, 0, 0);
-        break;
-
-    case 1:
-        Branch_Wait_Area(wk, &(Branch_Wait_Args){0x14, 0xF, 5, 1});
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 9, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_wait_get_up_branch_wait_area_command_attack(wk, &(Command_Attack_Args){8, 0x1D, 9, -1});
 }
 
 void Passive11_0067(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait_Get_Up(wk, 0, 0);
-        break;
-
-    case 1:
-        Branch_Wait_Area(wk, &(Branch_Wait_Args){0x14, 0xF, 5, 1});
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 10, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_wait_get_up_branch_wait_area_command_attack(wk, &(Command_Attack_Args){8, 0x1D, 10, -1});
 }
 
 void Passive11_0068(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait_Lie(wk, 0);
-        break;
-
-    case 1:
-        Approach_Walk(wk, 0x7F, 2);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_wait_lie_approach_walk(wk, 0x7F);
 }
 
 void Passive11_0069(PLW* wk) {
@@ -310,27 +254,7 @@ void Passive11_0090(PLW* wk) {
 }
 
 void Passive11_0091(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0x47, 2);
-        break;
-
-    case 1:
-        Lever_Attack(wk, 0xC, 1, 0x200);
-        break;
-
-    case 2:
-        SA_Term(wk, &(SA_Term_Args){0x30, 0x31, 0x32, 0x7F});
-        break;
-
-    case 3:
-        Normal_Attack(wk, 8, 0x402);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_lever_attack_sa_term(wk, 0x47, 1, &(SA_Term_Args){0x30, 0x31, 0x32, 0x7F});
 }
 
 void Passive11_0092(PLW* wk) {

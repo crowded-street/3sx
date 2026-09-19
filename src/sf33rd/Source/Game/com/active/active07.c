@@ -684,19 +684,11 @@ void Pattern07_0050(PLW* wk) {
 }
 
 void Pattern07_0051(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-1, -0x7FC8, 8, 0x20, 0, -0x7FA8, -1, 0x200});
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 0xA, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_hi_jump_attack_term_command_attack(
+        wk,
+        &(Hi_Jump_Term_Args){-1, -0x7FC8, 8, 0x20, 0, -0x7FA8, -1, 0x200},
+        &(Command_Attack_Args){8, 0x1D, 0xA, -1}
+    );
 }
 
 void Pattern07_0052(PLW* wk) {
@@ -840,47 +832,11 @@ void Pattern07_0069(PLW* wk) {
 }
 
 void Pattern07_0070(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 0xA, -1});
-        break;
-
-    case 1:
-        EM_Term(wk, &(EM_Term_Params){0x50, -0x7FB0, 8, 1, -1});
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x2E, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_command_attack_em_term_command_attack(wk);
 }
 
 void Pattern07_0071(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 0xA, -1});
-        break;
-
-    case 1:
-        EM_Term(wk, &(EM_Term_Params){0x50, -0x7FB0, 8, 1, -1});
-        break;
-
-    case 2:
-        SA_Term(wk, &(SA_Term_Args){0x48, 0xFFFF, 0xFFFF, 0});
-        break;
-
-    case 3:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x2E, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_command_attack_em_term_sa_term(wk);
 }
 
 void Pattern07_0072(PLW* wk) {

@@ -285,19 +285,7 @@ void Pattern06_0055(PLW* wk) {
 }
 
 void Pattern06_0056(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Turn_Over_On(wk);
-        break;
-
-    case 1:
-        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7F90, -0x7FA8, 8, 0x42, 0, -0x7F68, -1, 0x400});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_turn_over_on_jump_attack_term(wk);
 }
 
 void Pattern06_0057(PLW* wk) {

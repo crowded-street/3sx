@@ -167,23 +167,11 @@ void Passive14_0075(PLW* wk) {
 }
 
 void Passive14_0076(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait_Get_Up(wk, 0, 0);
-        break;
-
-    case 1:
-        Branch_Wait_Area(wk, &(Branch_Wait_Args){0xF, 10, 5, 1});
-        break;
-
-    case 2:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x20, 10, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_wait_get_up_branch_wait_area_j_command_attack(
+        wk,
+        &(Branch_Wait_Args){0xF, 10, 5, 1},
+        &(Command_Attack_Args){8, 0x20, 10, -1}
+    );
 }
 
 void Passive14_0077(PLW* wk) {

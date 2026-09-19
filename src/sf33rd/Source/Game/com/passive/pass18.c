@@ -300,19 +300,7 @@ void Passive18_0037(PLW* wk) {
 }
 
 void Passive18_0038(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        EM_Term(wk, &(EM_Term_Params){-1, -0x7FB8, 6, 1, -1});
-        break;
-
-    case 1:
-        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x2F, 9, -1, -1, 0x40, 1, -1, 0x30, 0x400});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_em_term_jump_command_attack_term(wk, &(EM_Term_Params){-1, -0x7FB8, 6, 1, -1});
 }
 
 void Passive18_0039(PLW* wk) {

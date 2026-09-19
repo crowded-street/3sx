@@ -360,27 +360,7 @@ void Pattern17_0067(PLW* wk) {
 }
 
 void Pattern17_0068(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Pierce_On(wk);
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){9, 0x1F, 8, -1});
-        break;
-
-    case 2:
-        Wait(wk, 2);
-        break;
-
-    case 3:
-        Lever_Attack(wk, 8, 0, 0x20);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_pierce_on_command_attack_wait_3(wk, &(Command_Attack_Args){9, 0x1F, 8, -1});
 }
 
 void Pattern17_0069(PLW* wk) {
@@ -572,55 +552,14 @@ void Pattern17_0077(PLW* wk) {
 }
 
 void Pattern17_0078(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Pierce_On(wk);
-        break;
-
-    case 1:
-        Lever_On(wk, 1, 0xFFFF);
-        break;
-
-    case 2:
-        Lever_Attack(wk, 8, 1, 0x402);
-        break;
-
-    case 3:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 9, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_pierce_on_lever_on_lever_attack(wk);
 }
 
 void Pattern17_0079(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Pierce_On(wk);
-        break;
-
-    case 1:
-        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-1, 0x40, 8, 0x400, 0, -0x7FA0, -1, 0x200});
-        break;
-
-    case 2:
-        Lever_On(wk, 1, 0xFFFF);
-        break;
-
-    case 3:
-        Lever_Attack(wk, 8, 1, 0x402);
-        break;
-
-    case 4:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_pierce_on_hi_jump_attack_term_lever_on_2(
+        wk,
+        &(Hi_Jump_Term_Args){-1, 0x40, 8, 0x400, 0, -0x7FA0, -1, 0x200}
+    );
 }
 
 void Pattern17_0080(PLW* wk) {

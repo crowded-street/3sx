@@ -64,21 +64,5 @@ void Pattern14_0149(PLW* wk) {
 }
 
 void Pattern14_0150(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Check_SA_Full(wk, 6, 0x7C);
-        break;
-
-    case 1:
-        EM_Term(wk, &(EM_Term_Params){-0x7F30, -1, 5, 2, 0});
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x8019, 0xA, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_check_sa_full_em_term_command_attack(wk);
 }

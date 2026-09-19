@@ -44,19 +44,7 @@ void Pattern02_0006(PLW* wk) {
 }
 
 void Pattern02_0007(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Pierce_On(wk);
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 1, 0xB, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_pierce_on_command_attack(wk, &(Command_Attack_Args){8, 1, 0xB, -1});
 }
 
 void Pattern02_0008(PLW* wk) {
@@ -355,19 +343,7 @@ void Pattern02_0061(PLW* wk) {
 }
 
 void Pattern02_0062(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        SA_Term(wk, &(SA_Term_Args){0x35, 0x36, 0xFFFF, 0x47});
-        break;
-
-    case 1:
-        SA_Term(wk, &(SA_Term_Args){0xFFFF, 0xFFFF, 0x19, 0x3C});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_sa_term_2(wk);
 }
 
 void Pattern02_0063(PLW* wk) {
@@ -452,19 +428,7 @@ void Pattern02_0073(PLW* wk) {
 }
 
 void Pattern02_0074(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_Attack(wk, 8, 0, 0x40);
-        break;
-
-    case 1:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 0xA, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_lever_attack_j_command_attack(wk, 0x40, &(Command_Attack_Args){8, 0x1C, 0xA, -1});
 }
 
 void (*const Pattern02_Tbl[75])(PLW*) = {

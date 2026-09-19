@@ -97,23 +97,11 @@ void Passive17_0064(PLW* wk) {
 }
 
 void Passive17_0065(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0x4B, 2);
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
-        break;
-
-    case 2:
-        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x42, 0x46, 0x4A, 0x4A}, 1);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_command_attack_com_random_select_2(
+        wk,
+        &(Command_Attack_Args){8, 0x1E, 8, -1},
+        &(Branch_Menu_Args){6, 0x42, 0x46, 0x4A, 0x4A}
+    );
 }
 
 void Passive17_0066(PLW* wk) {

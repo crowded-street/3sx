@@ -346,15 +346,7 @@ void Passive05_0062(PLW* wk) {
 }
 
 void Passive05_0063(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        SA_Term(wk, &(SA_Term_Args){0x35, 0x36, 0x37, 0x60});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_sa_term(wk, &(SA_Term_Args){0x35, 0x36, 0x37, 0x60});
 }
 
 void Passive05_0064(PLW* wk) {

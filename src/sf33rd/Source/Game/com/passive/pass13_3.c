@@ -141,27 +141,7 @@ void Passive13_0129(PLW* wk) {
 }
 
 void Passive13_0130(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Search_Back_Term(wk, 0x50, 6, 0x6E);
-        break;
-
-    case 1:
-        Walk(wk, 1, 0x18, 0);
-        break;
-
-    case 2:
-        EM_Term(wk, &(EM_Term_Params){-1, -0x7FB0, 6, 1, -1});
-        break;
-
-    case 3:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_search_back_term_walk_em_term(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
 }
 
 void Passive13_0131(PLW* wk) {
@@ -225,75 +205,15 @@ void Passive13_0136(PLW* wk) {
 }
 
 void Passive13_0137(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x8016, 9, -1});
-        break;
-
-    case 1:
-        Check_SA(wk, 2, 0x35);
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x8016, 8, -1});
-        break;
-
-    case 3:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_command_attack_check_sa_command_attack(wk, &(Command_Attack_Args){8, 0x8016, 9, -1});
 }
 
 void Passive13_0138(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x8016, 10, -1});
-        break;
-
-    case 1:
-        Check_SA(wk, 2, 0x35);
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x8016, 8, -1});
-        break;
-
-    case 3:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_command_attack_check_sa_command_attack(wk, &(Command_Attack_Args){8, 0x8016, 10, -1});
 }
 
 void Passive13_0139(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x8016, 10, -1});
-        break;
-
-    case 1:
-        Check_SA(wk, 2, 0x34);
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
-        break;
-
-    case 3:
-        Com_Random_Select(wk, &(Branch_Menu_Args){2, 0x31, 0x31, 0x32, 0x33}, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_command_attack_check_sa_command_attack_2(wk, &(Command_Attack_Args){8, 0x8016, 10, -1});
 }
 
 void Passive13_0140(PLW* wk) {

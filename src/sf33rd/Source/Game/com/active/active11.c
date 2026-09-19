@@ -389,27 +389,7 @@ void Pattern11_0064(PLW* wk) {
 }
 
 void Pattern11_0065(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Pierce_On(wk);
-        break;
-
-    case 1:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 0xA, -1});
-        break;
-
-    case 2:
-        Normal_Attack(wk, 0xC, 0x202);
-        break;
-
-    case 3:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 9, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_pierce_on_j_command_attack_normal_attack(wk, &(Command_Attack_Args){8, 0x1D, 9, -1});
 }
 
 void Pattern11_0066(PLW* wk) {
@@ -525,15 +505,7 @@ void Pattern11_0078(PLW* wk) {
 }
 
 void Pattern11_0079(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_Attack_SP(wk, &(Lever_Attack_SP_Args){8, 0, 0x400, 0x12});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_lever_attack_sp(wk);
 }
 
 void Pattern11_0080(PLW* wk) {
@@ -545,23 +517,7 @@ void Pattern11_0081(PLW* wk) {
 }
 
 void Pattern11_0082(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Pierce_On(wk);
-        break;
-
-    case 1:
-        Lever_Attack(wk, 8, 0, 0x400);
-        break;
-
-    case 2:
-        Lever_Attack(wk, 8, 1, 0x200);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_pierce_on_lever_attack(wk);
 }
 
 void Pattern11_0083(PLW* wk) {
@@ -569,19 +525,7 @@ void Pattern11_0083(PLW* wk) {
 }
 
 void Pattern11_0084(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_Attack_SP(wk, &(Lever_Attack_SP_Args){8, 0, 0x400, 0x12});
-        break;
-
-    case 1:
-        Com_Random_Select(wk, &(Branch_Menu_Args){2, 2, 3, 4, 4}, 4);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_lever_attack_sp_com_random_select(wk, &(Branch_Menu_Args){2, 2, 3, 4, 4});
 }
 
 void Pattern11_0085(PLW* wk) {

@@ -271,23 +271,7 @@ void Pattern18_0051(PLW* wk) {
 }
 
 void Pattern18_0052(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0x41, 2);
-        break;
-
-    case 1:
-        SA_Term(wk, &(SA_Term_Args){0xFFFF, 0x2F, 0xFFFF, 0});
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 0xA, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_sa_term_command_attack_2(wk, 0x41, &(SA_Term_Args){0xFFFF, 0x2F, 0xFFFF, 0});
 }
 
 void Pattern18_0053(PLW* wk) {
@@ -499,23 +483,7 @@ void Pattern18_0102(PLW* wk) {
 }
 
 void Pattern18_0103(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 0xA, -1});
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 9, -1});
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_command_attack_2(wk, &(Command_Attack_Args){8, 0x1C, 0xA, -1});
 }
 
 void Pattern18_0104(PLW* wk) {

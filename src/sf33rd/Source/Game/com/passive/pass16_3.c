@@ -326,19 +326,7 @@ void Passive16_0163(PLW* wk) {
 }
 
 void Passive16_0164(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Pierce_On(wk);
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){0xC, 0, 0xB, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_pierce_on_command_attack(wk, &(Command_Attack_Args){0xC, 0, 0xB, -1});
 }
 
 void Passive16_0165(PLW* wk) {
