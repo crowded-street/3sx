@@ -124,8 +124,8 @@ static s32 defends_in_area_6(PLW* wk, WORK* em) {
     return 0;
 }
 
-static s32 attacks_in_area_5(PLW* wk, WORK* em) {
-    if (Check_PL_Unit_B(wk)) {
+static s32 attacks_in_area_with_unit(PLW* wk, WORK* em, s32 (*unit_check)(PLW*)) {
+    if (unit_check(wk)) {
         return 1;
     }
 
@@ -138,6 +138,30 @@ static s32 attacks_in_area_5(PLW* wk, WORK* em) {
     }
 
     if (Check_Special_Technique(wk, em, &(SP_Tech_Args){15, 0, 33, 1, -1})) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static s32 attacks_in_area_5(PLW* wk, WORK* em) {
+    return attacks_in_area_with_unit(wk, em, Check_PL_Unit_B);
+}
+
+static s32 defends_in_area_with_unit(PLW* wk, WORK* em, s32 (*unit_check)(PLW*)) {
+    if (unit_check(wk)) {
+        return 1;
+    }
+
+    if (Check_After_Attack(wk, em, 28)) {
+        return 1;
+    }
+
+    if (Check_VS_Squat(wk, em, &(VS_Squat_Args){29, 33, 32})) {
+        return 1;
+    }
+
+    if (Check_Stand(wk, em, 4105)) {
         return 1;
     }
 
@@ -145,63 +169,15 @@ static s32 attacks_in_area_5(PLW* wk, WORK* em) {
 }
 
 static s32 defends_in_area_5(PLW* wk, WORK* em) {
-    if (Check_PL_Unit_BS(wk)) {
-        return 1;
-    }
-
-    if (Check_After_Attack(wk, em, 28)) {
-        return 1;
-    }
-
-    if (Check_VS_Squat(wk, em, &(VS_Squat_Args){29, 33, 32})) {
-        return 1;
-    }
-
-    if (Check_Stand(wk, em, 4105)) {
-        return 1;
-    }
-
-    return 0;
+    return defends_in_area_with_unit(wk, em, Check_PL_Unit_BS);
 }
 
 static s32 attacks_in_area_4(PLW* wk, WORK* em) {
-    if (Check_PL_Unit_A(wk)) {
-        return 1;
-    }
-
-    if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args){12, 32, 3, 0})) {
-        return 1;
-    }
-
-    if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args){7, 32, 5, 0})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){15, 0, 33, 1, -1})) {
-        return 1;
-    }
-
-    return 0;
+    return attacks_in_area_with_unit(wk, em, Check_PL_Unit_A);
 }
 
 static s32 defends_in_area_4(PLW* wk, WORK* em) {
-    if (Check_PL_Unit_AS(wk)) {
-        return 1;
-    }
-
-    if (Check_After_Attack(wk, em, 28)) {
-        return 1;
-    }
-
-    if (Check_VS_Squat(wk, em, &(VS_Squat_Args){29, 33, 32})) {
-        return 1;
-    }
-
-    if (Check_Stand(wk, em, 4105)) {
-        return 1;
-    }
-
-    return 0;
+    return defends_in_area_with_unit(wk, em, Check_PL_Unit_AS);
 }
 
 static s32 hugo_attacks_in_area_6(PLW* wk, WORK* em) {
@@ -216,8 +192,8 @@ static s32 hugo_attacks_in_area_6(PLW* wk, WORK* em) {
     return 0;
 }
 
-static s32 hugo_attacks_in_area_5(PLW* wk, WORK* em) {
-    if (Check_PL_Unit_B(wk)) {
+static s32 hugo_attacks_in_area_with_unit(PLW* wk, WORK* em, s32 (*unit_check)(PLW*)) {
+    if (unit_check(wk)) {
         return 1;
     }
 
@@ -232,20 +208,12 @@ static s32 hugo_attacks_in_area_5(PLW* wk, WORK* em) {
     return 0;
 }
 
+static s32 hugo_attacks_in_area_5(PLW* wk, WORK* em) {
+    return hugo_attacks_in_area_with_unit(wk, em, Check_PL_Unit_B);
+}
+
 static s32 hugo_attacks_in_area_4(PLW* wk, WORK* em) {
-    if (Check_PL_Unit_A(wk)) {
-        return 1;
-    }
-
-    if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args){7, 32, 3, 0})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){15, 0, 33, 1, -1})) {
-        return 1;
-    }
-
-    return 0;
+    return hugo_attacks_in_area_with_unit(wk, em, Check_PL_Unit_A);
 }
 
 static s32 hugo_options_in_area_4(PLW* wk, WORK* em) {
