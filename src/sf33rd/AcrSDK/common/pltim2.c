@@ -167,6 +167,36 @@ s32 plTIM2SetContextFromImage(plContext* dst, void* lpbas) {
     return 1;
 }
 
+/* The palette's own dimensions, from the entry count in the picture header.
+ * Returns 0 where the switch returned 0 from its caller, and 1 where it fell
+ * through to the line below. */
+static s32 set_tim2_palette_dimensions(plContext* dst, u8* lpTim2PictureHead) {
+    switch (lpTim2PictureHead[0x13]) {
+    case 4:
+        if (((u16*)lpTim2PictureHead)[0x7] != 0x10) {
+            return 0;
+        }
+
+        dst->width = 0x10;
+        dst->height = 1;
+        break;
+
+    case 5:
+        if (((u16*)lpTim2PictureHead)[0x7] != 0x100) {
+            return 0;
+        }
+
+        dst->width = 0x100;
+        dst->height = 1;
+        break;
+
+    default:
+        return 0;
+    }
+
+    return 1;
+}
+
 s32 plTIM2SetPaletteContextFromImage(plContext* dst, void* lpbas) {
     u8* lpData;
     u8* lpTim2FileHead;
@@ -207,26 +237,7 @@ s32 plTIM2SetPaletteContextFromImage(plContext* dst, void* lpbas) {
         return 0;
     }
 
-    switch (lpTim2PictureHead[0x13]) {
-    case 4:
-        if (((u16*)lpTim2PictureHead)[0x7] != 0x10) {
-            return 0;
-        }
-
-        dst->width = 0x10;
-        dst->height = 1;
-        break;
-
-    case 5:
-        if (((u16*)lpTim2PictureHead)[0x7] != 0x100) {
-            return 0;
-        }
-
-        dst->width = 0x100;
-        dst->height = 1;
-        break;
-
-    default:
+    if (set_tim2_palette_dimensions(dst, lpTim2PictureHead) == 0) {
         return 0;
     }
 
