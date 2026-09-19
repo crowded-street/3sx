@@ -52,6 +52,16 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SWITCH_HEAD = 'switch (CP_Index[wk->wu.id][0]) {'
 
+# The COM script folders share one shape under two names: Game/com/passive
+# spells a script Passive14_0122 and Game/com/active spells it Pattern14_0122,
+# behind dispatchers called Passive14 and Computer14. FAMILY carries which.
+FAMILY = {'script': 'Passive', 'dispatcher': 'Passive', 'shared': 'pass_patterns'}
+
+
+def set_family(name):
+    if name == 'active':
+        FAMILY.update(script='Pattern', dispatcher='Computer', shared='active_patterns')
+
 
 # --------------------------------------------------------------------------
 # prototypes
@@ -419,7 +429,7 @@ def shared_destination(paths, cases):
 
 
 def shared_files(folder):
-    return sorted(glob.glob(os.path.join(folder, 'pass_patterns_*.c')))
+    return sorted(glob.glob(os.path.join(folder, FAMILY['shared'] + '_*.c')))
 
 
 def rewrite_shared_header(folder):
@@ -429,7 +439,7 @@ def rewrite_shared_header(folder):
         src = open(path).read()
         for name, a, b, is_static in functions(src):
             decls.append(rewrap(src[a:b][:src[a:b].index('{')].rstrip() + ';'))
-    header = os.path.join(folder, 'pass_patterns.h')
+    header = os.path.join(folder, FAMILY['shared'] + '.h')
     text = open(header).read()
     keep = text[:text.index('#include "types.h"') + len('#include "types.h"')]
     open(header, 'w').write(keep + '\n\n' + '\n'.join(sorted(decls)) + '\n\n#endif\n')
@@ -475,7 +485,7 @@ def reshard(folder, max_lines=900):
             lines += n
         parts.append(cur)
         for i, part in enumerate(parts):
-            stem = 'pass_patterns_%dstep' % steps
+            stem = FAMILY['shared'] + '_%dstep' % steps
             name = '%s.c' % stem if i == 0 else '%s_%d.c' % (stem, i + 1)
             what = 'The %s-step patterns.' % {1: 'one', 2: 'two', 3: 'three', 4: 'four',
                                               5: 'five', 6: 'six'}.get(steps, steps)
@@ -535,7 +545,8 @@ def gfold(paths, protos, min_members=3, max_params=3, shared=None):
     for path, src in sources.items():
         for name, a, b, is_static in functions(src):
             full = src[a:b]
-            if is_static or not re.match(r'^Passive\d+_\d+$', name) or SWITCH_HEAD not in full:
+            if is_static or not re.match(r'^%s\d+_\d+$' % FAMILY['script'], name) \
+                    or SWITCH_HEAD not in full:
                 continue
             sk, slots = skeletonize(full[full.index('{'):], protos)
             fams[sk].append((path, name, a, b, slots))
@@ -623,9 +634,9 @@ def gfold(paths, protos, min_members=3, max_params=3, shared=None):
             open(dest, 'a').write('\n' + text)
         rewrite_shared_header(folder)
     else:
-        open(os.path.join(folder, 'pass_patterns.c'), 'w').write(
+        open(os.path.join(folder, FAMILY['shared'] + '.c'), 'w').write(
             SHARED_C + '\n'.join(t for t, _ in helpers))
-        open(os.path.join(folder, 'pass_patterns.h'), 'w').write(
+        open(os.path.join(folder, FAMILY['shared'] + '.h'), 'w').write(
             SHARED_H + '\n'.join(rewrap(d) for d in decls) + '\n\n#endif\n')
 
     total = 0
@@ -633,7 +644,7 @@ def gfold(paths, protos, min_members=3, max_params=3, shared=None):
         src = sources[path]
         for a, b, text in sorted(es, key=lambda e: -e[0]):
             src = src[:a] + text + src[b:]
-        if 'pass_patterns.h' not in src:
+        if FAMILY['shared'] + '.h' not in src:
             src = src.replace('#include "common.h"',
                               '#include "sf33rd/Source/Game/com/passive/pass_patterns.h"\n'
                               '#include "common.h"', 1)
@@ -665,7 +676,8 @@ def dedup(paths, shared_paths, header):
     for path, src in sources.items():
         for name, a, b, is_static in functions(src):
             full = src[a:b]
-            if not re.match(r'^passive\d+_', name) or SWITCH_HEAD not in full:
+            if not re.match(r'^%s\d+_' % FAMILY['dispatcher'].lower(), name) \
+                    or SWITCH_HEAD not in full:
                 continue
             groups[_shape(full)].append((path, name, a, b, full))
 
@@ -675,7 +687,7 @@ def dedup(paths, shared_paths, header):
             target = shared[shape]
         elif len(members) > 1:
             first = members[0][1]
-            tail = re.match(r'^passive\d+_\d+_from_step_(\d+)$', first)
+            tail = re.match(r'^%s\d+_\d+_from_step_(\d+)$' % FAMILY['dispatcher'].lower(), first)
             if tail:
                 # A Recipe X tail: name it for the steps it runs, as the fold
                 # names a skeleton, plus the label it starts at.
@@ -686,7 +698,8 @@ def dedup(paths, shared_paths, header):
                 base = 'pattern_%s_from_step_%s' % ('_'.join(snake(c) for c in steps[:3]),
                                                     tail.group(1))
             else:
-                base = re.sub(r'_\d+$', '', re.sub(r'^passive\d+_', '', first))
+                base = re.sub(r'_\d+$', '',
+                              re.sub(r'^%s\d+_' % FAMILY['dispatcher'].lower(), '', first))
             target, n = base, 2
             while target in set(shared.values()):
                 target, n = '%s_%d' % (base, n), n + 1
@@ -727,7 +740,7 @@ def dedup(paths, shared_paths, header):
             src = src[:a] + src[end:]
         for old, new in renames.items():
             src = re.sub(r'\b%s\b' % old, new, src)
-        if 'pass_patterns.h' not in src:
+        if FAMILY['shared'] + '.h' not in src:
             src = src.replace('#include "common.h"',
                               '#include "sf33rd/Source/Game/com/passive/pass_patterns.h"\n'
                               '#include "common.h"', 1)
@@ -795,7 +808,8 @@ def ffold(path, protos, min_members=3, max_params=3):
     fams = collections.defaultdict(list)
     for name, a, b, is_static in functions(src):
         full = src[a:b]
-        if is_static or not re.match(r'^(Passive\d+_\d+|pattern_\w+)$', name) or SWITCH_HEAD not in full:
+        if is_static or not re.match(r'^(%s\d+_\d+|pattern_\w+)$' % FAMILY['script'], name) \
+                or SWITCH_HEAD not in full:
             continue
         body = full[full.index('{'):]
         sk, slots = skeleton_with_callees(body, protos)
@@ -861,7 +875,7 @@ def verify(base_ref, paths, quiet=False):
         if os.path.exists(path):
             news.append(open(path).read())          # else: a file this split removed
     old_bodies, new_bodies = collect(olds), collect(news)
-    targets = sorted(n for n in old_bodies if re.match(r'^Passive\d+_\d+$', n))
+    targets = sorted(n for n in old_bodies if re.match(r'^%s\d+_\d+$' % FAMILY['script'], n))
     bad = 0
     for name in targets:
         if name not in new_bodies:
@@ -943,7 +957,8 @@ def rewrap(text):
 def split(path, max_funcs=90, max_lines=900):
     src = open(path).read()
     stem = os.path.basename(path)[:-2]
-    prefix = re.search(r'^void (Passive\d+)\(PLW\* wk\) \{', src, re.M).group(1).lower() + '_'
+    prefix = re.search(r'^void (%s\d+)\(PLW\* wk\) \{' % FAMILY['dispatcher'],
+                       src, re.M).group(1).lower() + '_'
     for name, a, b, is_static in reversed(functions(src)):
         if name.startswith('pattern_'):
             src = re.sub(r'\b%s\b' % name, prefix + name, src)
@@ -968,7 +983,7 @@ def split(path, max_funcs=90, max_lines=900):
     external = []                       # (name, declaration, comment)
     for name in order:
         users = {where[u] for u in order if u != name and re.search(r'\b%s\(' % name, bodies[u])}
-        if name.startswith('Passive') and where[name] != 0:
+        if name.startswith(FAMILY['script']) and where[name] != 0:
             external.append(name)       # the table in chunk 0 names it
         elif users - {where[name]}:
             external.append(name)
@@ -1019,12 +1034,16 @@ def main():
     ap.add_argument('command', choices=['fold', 'gfold', 'dedup', 'reshard', 'ffold', 'xsplit', 'split', 'verify', 'families'])
     ap.add_argument('files', nargs='+')
     ap.add_argument('--base', default='HEAD')
+    ap.add_argument('--family', default='passive', choices=['passive', 'active'],
+                    help='which COM script folder: passive spells a script '
+                         'Passive14_0122, active spells it Pattern14_0122')
     ap.add_argument('--min-members', type=int, default=3)
     ap.add_argument('--max-params', type=int, default=3)
     ap.add_argument('--max-cases', type=int, default=6)
     ap.add_argument('--max-funcs', type=int, default=90)
     ap.add_argument('--max-lines', type=int, default=900)
     args = ap.parse_args()
+    set_family(args.family)
 
     if args.command == 'verify':
         sys.exit(1 if verify(args.base, args.files) else 0)
@@ -1036,8 +1055,8 @@ def main():
         return
     if args.command == 'dedup':
         folder = os.path.dirname(args.files[0])
-        sharedp = sorted(glob.glob(os.path.join(folder, 'pass_patterns_*.c')))
-        h, e = dedup(args.files, sharedp, os.path.join(folder, 'pass_patterns.h'))
+        sharedp = sorted(glob.glob(os.path.join(folder, FAMILY['shared'] + '_*.c')))
+        h, e = dedup(args.files, sharedp, os.path.join(folder, FAMILY['shared'] + '.h'))
         d = dedup_shared(folder)
         print('%d skeletons promoted to the shared files, %d copies removed, '
               '%d shared duplicates collapsed' % (h, e, d))
