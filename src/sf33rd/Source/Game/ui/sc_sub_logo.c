@@ -239,12 +239,42 @@ void player_face() {
 
     face_base_put();
     ppgSetupCurrentDataList(&ppgScrListFace);
-    scfont_sqput_face(&(ScFontFace){ 0, 3, Player_Color[0] + (My_char[0] * 13), 0, Face_Pos_TBL[My_char[0]][0], Face_Pos_TBL[My_char[0]][1], 5, 3 }, TopHUDPriority);
+    scfont_sqput_face(
+        &(ScFontFace){ 0,
+                       3,
+                       Player_Color[0] + (My_char[0] * 13),
+                       0,
+                       Face_Pos_TBL[My_char[0]][0],
+                       Face_Pos_TBL[My_char[0]][1],
+                       5,
+                       3 },
+        TopHUDPriority
+    );
 
     if (My_char[1] == 0) {
-        scfont_sqput_face(&(ScFontFace){ 0x2B, 3, (Player_Color[1] + (My_char[1] * 13)) | 0x8000, 0, Face_Pos_TBL[20][0], Face_Pos_TBL[20][1], 5, 3 }, TopHUDPriority);
+        scfont_sqput_face(
+            &(ScFontFace){ 0x2B,
+                           3,
+                           (Player_Color[1] + (My_char[1] * 13)) | 0x8000,
+                           0,
+                           Face_Pos_TBL[20][0],
+                           Face_Pos_TBL[20][1],
+                           5,
+                           3 },
+            TopHUDPriority
+        );
     } else {
-        scfont_sqput_face(&(ScFontFace){ 0x2B, 3, (Player_Color[1] + (My_char[1] * 13)) | 0x8000, 0, Face_Pos_TBL[My_char[1]][0], Face_Pos_TBL[My_char[1]][1], 5, 3 }, TopHUDPriority);
+        scfont_sqput_face(
+            &(ScFontFace){ 0x2B,
+                           3,
+                           (Player_Color[1] + (My_char[1] * 13)) | 0x8000,
+                           0,
+                           Face_Pos_TBL[My_char[1]][0],
+                           Face_Pos_TBL[My_char[1]][1],
+                           5,
+                           3 },
+            TopHUDPriority
+        );
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
@@ -264,9 +294,29 @@ void player_face() {
     grade_tmp = Keep_Grade[Champion] - 1;
 
     if (grade_tmp < 0x18) {
-        scfont_sqput(&(ScFontSquare){ (Champion * 41) + 1, 1, 27, 2, Grade_Pos_TBL[grade_tmp][0], Grade_Pos_TBL[grade_tmp][1], 5, 1 }, TopHUDPriority);
+        scfont_sqput(
+            &(ScFontSquare){ (Champion * 41) + 1,
+                             1,
+                             27,
+                             2,
+                             Grade_Pos_TBL[grade_tmp][0],
+                             Grade_Pos_TBL[grade_tmp][1],
+                             5,
+                             1 },
+            TopHUDPriority
+        );
     } else {
-        scfont_sqput(&(ScFontSquare){ (Champion * 41) + 1, 1, 28, 2, Grade_Pos_TBL[grade_tmp][0], Grade_Pos_TBL[grade_tmp][1], 5, 1 }, TopHUDPriority);
+        scfont_sqput(
+            &(ScFontSquare){ (Champion * 41) + 1,
+                             1,
+                             28,
+                             2,
+                             Grade_Pos_TBL[grade_tmp][0],
+                             Grade_Pos_TBL[grade_tmp][1],
+                             5,
+                             1 },
+            TopHUDPriority
+        );
     }
 }
 

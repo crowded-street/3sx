@@ -270,7 +270,15 @@ static void write_sa_frame_range(u8 first, u8 limit) {
     for (j = 0; j < 3; j++) {
         for (i = first; i < limit; i++) {
             if (sa_frame[j][i].atr != 0) {
-                scfont_put(&(ScFontCell){ i, j + 25, sa_frame[j][i].atr, sa_frame[j][i].page, sa_frame[j][i].cx, sa_frame[j][i].cy }, 2);
+                scfont_put(
+                    &(ScFontCell){ i,
+                                   j + 25,
+                                   sa_frame[j][i].atr,
+                                   sa_frame[j][i].page,
+                                   sa_frame[j][i].cx,
+                                   sa_frame[j][i].cy },
+                    2
+                );
             }
         }
     }
@@ -1095,8 +1103,14 @@ void player_name() {
     pl2 = My_char[1];
     pl1 += chkNameAkuma(pl1, 6);
     pl2 += chkNameAkuma(pl2, 6);
-    scfont_sqput(&(ScFontSquare){ 6, 3, 1, 1, Player_Name_Pos_TBL[pl1][0], Player_Name_Pos_TBL[pl1][1], 5, 1 }, TopHUDPriority);
-    scfont_sqput(&(ScFontSquare){ 37, 3, 1, 1, Player_Name_Pos_TBL[pl2][0], Player_Name_Pos_TBL[pl2][1], 5, 1 }, TopHUDPriority);
+    scfont_sqput(
+        &(ScFontSquare){ 6, 3, 1, 1, Player_Name_Pos_TBL[pl1][0], Player_Name_Pos_TBL[pl1][1], 5, 1 },
+        TopHUDPriority
+    );
+    scfont_sqput(
+        &(ScFontSquare){ 37, 3, 1, 1, Player_Name_Pos_TBL[pl2][0], Player_Name_Pos_TBL[pl2][1], 5, 1 },
+        TopHUDPriority
+    );
 }
 
 void stun_mark_write(u8 Pl_Num, s16 Len) {
@@ -1112,14 +1126,44 @@ void stun_mark_write(u8 Pl_Num, s16 Len) {
 
     ppgSetupCurrentDataList(&ppgScrList);
     tlen = Len - 7;
-    scfont_sqput(&(ScFontSquare){ smark_pos_tbl[tlen][Pl_Num], 3, 10, 0, (smark_kind_tbl[tlen] * 4) + 1, 2, smark_kind_tbl[tlen] + 4, 1 }, TopHUDPriority);
+    scfont_sqput(
+        &(ScFontSquare){ smark_pos_tbl[tlen][Pl_Num],
+                         3,
+                         10,
+                         0,
+                         (smark_kind_tbl[tlen] * 4) + 1,
+                         2,
+                         smark_kind_tbl[tlen] + 4,
+                         1 },
+        TopHUDPriority
+    );
 }
 
 void max_mark_write(s8 Pl_Num, u8 Gauge_Len, u8 Mchar, u8 Mass_Len) {
     if (Pl_Num == 0) {
-        scfont_sqput2(&(ScFontSquareInv){ Mass_Len + 6, 26, 17, 0, 0, Max_Pos_TBL[Mchar - 5][0], Max_Pos_TBL[Mchar - 5][1], Mchar, 1 });
+        scfont_sqput2(
+            &(ScFontSquareInv){ Mass_Len + 6,
+                                26,
+                                17,
+                                0,
+                                0,
+                                Max_Pos_TBL[Mchar - 5][0],
+                                Max_Pos_TBL[Mchar - 5][1],
+                                Mchar,
+                                1 }
+        );
     } else {
-        scfont_sqput2(&(ScFontSquareInv){ 42 - Gauge_Len + Mass_Len, 26, 17, 0, 0, Max_Pos_TBL[Mchar - 5][0], Max_Pos_TBL[Mchar - 5][1], Mchar, 1 });
+        scfont_sqput2(
+            &(ScFontSquareInv){ 42 - Gauge_Len + Mass_Len,
+                                26,
+                                17,
+                                0,
+                                0,
+                                Max_Pos_TBL[Mchar - 5][0],
+                                Max_Pos_TBL[Mchar - 5][1],
+                                Mchar,
+                                1 }
+        );
     }
 }
 
@@ -1129,7 +1173,17 @@ void ci_set(u8 type, u8 atr) {
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    scfont_sqput(&(ScFontSquare){ ci_tbl[type][4], ci_tbl[type][5], atr, cip_tbl[type], ci_tbl[type][0], ci_tbl[type][1], ci_tbl[type][2], ci_tbl[type][3] }, 2);
+    scfont_sqput(
+        &(ScFontSquare){ ci_tbl[type][4],
+                         ci_tbl[type][5],
+                         atr,
+                         cip_tbl[type],
+                         ci_tbl[type][0],
+                         ci_tbl[type][1],
+                         ci_tbl[type][2],
+                         ci_tbl[type][3] },
+        2
+    );
 }
 
 void nw_set(u8 PL_num, u8 atr) {
@@ -1139,7 +1193,17 @@ void nw_set(u8 PL_num, u8 atr) {
 
     ppgSetupCurrentDataList(&ppgScrList);
     PL_num += chkNameAkuma(PL_num, 6);
-    scfont_sqput(&(ScFontSquare){ nwdata_tbl[PL_num][3], 9, atr, nwdata_tbl[PL_num][4], nwdata_tbl[PL_num][0], nwdata_tbl[PL_num][1], nwdata_tbl[PL_num][2], 4 }, 2);
+    scfont_sqput(
+        &(ScFontSquare){ nwdata_tbl[PL_num][3],
+                         9,
+                         atr,
+                         nwdata_tbl[PL_num][4],
+                         nwdata_tbl[PL_num][0],
+                         nwdata_tbl[PL_num][1],
+                         nwdata_tbl[PL_num][2],
+                         4 },
+        2
+    );
     scfont_sqput(&(ScFontSquare){ nwdata_tbl[PL_num][5], 9, atr, 2, 17, 22, 13, 4 }, 2);
 }
 
@@ -1273,7 +1337,15 @@ void sc_ram_to_vram_opc(s8 sc_num, s8 x, s8 y, u16 atr) {
     loop = *sc_uv_ptr++;
 
     for (i = 0; i < loop; i++) {
-        scfont_put(&(ScFontCell){ sc_pos_ptr[0] + x, sc_pos_ptr[1] + y, atr, sa_ram_vram_col[sc_num][1], sc_uv_ptr[0], sc_uv_ptr[1] }, 3);
+        scfont_put(
+            &(ScFontCell){ sc_pos_ptr[0] + x,
+                           sc_pos_ptr[1] + y,
+                           atr,
+                           sa_ram_vram_col[sc_num][1],
+                           sc_uv_ptr[0],
+                           sc_uv_ptr[1] },
+            3
+        );
         sc_uv_ptr += 2;
         sc_pos_ptr += 2;
     }
