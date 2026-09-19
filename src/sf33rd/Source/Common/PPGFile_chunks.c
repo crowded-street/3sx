@@ -380,15 +380,43 @@ error_handler:
     flLogOut("ppgSetupTexChunkSeqs: Failed to acquire sprite texture handle");
 }
 
-void ppgRenewDotDataSeqs(Texture* tch, const PPGDotDataArgs* a) {
-    s32 ix;
+/* One block of dot data copied through the linear-to-twiddled index table. The
+ * six arms of ppgRenewDotDataSeqs differ in nothing but the element width, the
+ * side of the block and the stride advance at the end of each row.
+ *
+ * The 0x400 and 0x800 arms walked the table with a `u16*` cursor instead of
+ * subscripting it, which is the same read in the same order: for a side of 0x20
+ * the subscript j + (i << 5) runs 0 to 0x3FF consecutively, and
+ * ppgMakeConvTableTexDC fills every one of those entries with a value between 0
+ * and 0x3FF, so the s16 and u16 reads cannot differ. */
+static void ppgCopyDotBlock8(u8* dstRam, const u8* srcRam, s32 side, s32 advance) {
     s32 i;
     s32 j;
-    u16* dstRam16;
-    u16* srcRam16;
-    u16* tix;
-    u8* dstRam8;
-    u8* srcRam8;
+
+    for (i = 0; i < side; i++) {
+        for (j = 0; j < side; j++) {
+            *dstRam++ = srcRam[dctex_linear[j + (i << 5)]];
+        }
+
+        dstRam += advance;
+    }
+}
+
+static void ppgCopyDotBlock16(u16* dstRam, const u16* srcRam, s32 side, s32 advance) {
+    s32 i;
+    s32 j;
+
+    for (i = 0; i < side; i++) {
+        for (j = 0; j < side; j++) {
+            *dstRam++ = srcRam[dctex_linear[j + (i << 5)]];
+        }
+
+        dstRam += advance;
+    }
+}
+
+void ppgRenewDotDataSeqs(Texture* tch, const PPGDotDataArgs* a) {
+    s32 ix;
 
     if (tch == NULL) {
         tch = ppg_w.cur->tex;
@@ -412,89 +440,27 @@ void ppgRenewDotDataSeqs(Texture* tch, const PPGDotDataArgs* a) {
 
     switch (a->size) {
     case 0x40:
-        srcRam8 = (u8*)a->srcRam;
-        dstRam8 = (u8*)(tch->srcAdrs + tch->srcSize * ix + CODE_0(a->code));
-
-        for (i = 0; i < 8; i++) {
-            for (j = 0; j < 8; j++) {
-                *dstRam8++ = srcRam8[dctex_linear[j + (i << 5)]];
-            }
-
-            dstRam8 += 0xF8;
-        }
-
+        ppgCopyDotBlock8((u8*)(tch->srcAdrs + tch->srcSize * ix + CODE_0(a->code)), (u8*)a->srcRam, 8, 0xF8);
         break;
 
     case 0x100:
-        srcRam8 = (u8*)a->srcRam;
-        dstRam8 = (u8*)(tch->srcAdrs + tch->srcSize * ix + CODE_0(a->code));
-
-        for (i = 0; i < 0x10; i++) {
-            for (j = 0; j < 0x10; j++) {
-                *dstRam8++ = srcRam8[dctex_linear[j + (i << 5)]];
-            }
-
-            dstRam8 += 0xF0;
-        }
-
+        ppgCopyDotBlock8((u8*)(tch->srcAdrs + tch->srcSize * ix + CODE_0(a->code)), (u8*)a->srcRam, 0x10, 0xF0);
         break;
 
     case 0x400:
-        srcRam8 = (u8*)a->srcRam;
-        dstRam8 = (u8*)(tch->srcAdrs + tch->srcSize * ix + CODE_1(a->code));
-        tix = (u16*)dctex_linear;
-
-        for (i = 0; i < 0x20; i++) {
-            for (j = 0; j < 0x20; j++) {
-                *dstRam8++ = srcRam8[*tix++];
-            }
-
-            dstRam8 += 0xE0;
-        }
-
+        ppgCopyDotBlock8((u8*)(tch->srcAdrs + tch->srcSize * ix + CODE_1(a->code)), (u8*)a->srcRam, 0x20, 0xE0);
         break;
 
     case 0x80:
-        srcRam16 = (u16*)a->srcRam;
-        dstRam16 = (u16*)(tch->srcAdrs + tch->srcSize * ix + (CODE_0(a->code)) * 2);
-
-        for (i = 0; i < 8; i++) {
-            for (j = 0; j < 8; j++) {
-                *dstRam16++ = srcRam16[dctex_linear[j + (i << 5)]];
-            }
-
-            dstRam16 += 0xF8;
-        }
-
+        ppgCopyDotBlock16((u16*)(tch->srcAdrs + tch->srcSize * ix + (CODE_0(a->code)) * 2), (u16*)a->srcRam, 8, 0xF8);
         break;
 
     case 0x200:
-        srcRam16 = (u16*)a->srcRam;
-        dstRam16 = (u16*)(tch->srcAdrs + tch->srcSize * ix + (CODE_0(a->code)) * 2);
-
-        for (i = 0; i < 0x10; i++) {
-            for (j = 0; j < 0x10; j++) {
-                *dstRam16++ = srcRam16[dctex_linear[j + (i << 5)]];
-            }
-
-            dstRam16 += 0xF0;
-        }
-
+        ppgCopyDotBlock16((u16*)(tch->srcAdrs + tch->srcSize * ix + (CODE_0(a->code)) * 2), (u16*)a->srcRam, 0x10, 0xF0);
         break;
 
     case 0x800:
-        srcRam16 = (u16*)a->srcRam;
-        dstRam16 = (u16*)(tch->srcAdrs + tch->srcSize * ix + (CODE_1(a->code)) * 2);
-        tix = (u16*)dctex_linear;
-
-        for (i = 0; i < 0x20; i++) {
-            for (j = 0; j < 0x20; j++) {
-                *dstRam16++ = srcRam16[*tix++];
-            }
-
-            dstRam16 += 0xE0;
-        }
-
+        ppgCopyDotBlock16((u16*)(tch->srcAdrs + tch->srcSize * ix + (CODE_1(a->code)) * 2), (u16*)a->srcRam, 0x20, 0xE0);
         break;
     }
 }
