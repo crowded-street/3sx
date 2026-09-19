@@ -1050,21 +1050,9 @@ void check_18() { // 🟢
     open_charged_lever_window(sw_lever);
 }
 
-void check_19() { // 🟢
-    u16 sw_lever;
-
-    waza_ptr->w_int--;
-
-    if (waza_ptr->w_int < 0) {
-        waza_ptr->w_type = 0;
-    }
-
-    sw_lever = chk_pl->sw_lever & 0xF;
-
-    if (dead_lvr_check()) {
-        return;
-    }
-
+/* The same three lever forms for check_19, which opens the window and moves
+ * to the next command rather than restarting the interval. */
+static void advance_on_lever_match(u16 sw_lever) {
     if (waza_ptr->w_lvr & 0x8000) {
         if (chk_pl->now_lvbt & 0xF) {
             sw_work = waza_ptr->w_lvr & 0xF;
@@ -1082,6 +1070,24 @@ void check_19() { // 🟢
         open_waza_window();
         check_next();
     }
+}
+
+void check_19() { // 🟢
+    u16 sw_lever;
+
+    waza_ptr->w_int--;
+
+    if (waza_ptr->w_int < 0) {
+        waza_ptr->w_type = 0;
+    }
+
+    sw_lever = chk_pl->sw_lever & 0xF;
+
+    if (dead_lvr_check()) {
+        return;
+    }
+
+    advance_on_lever_match(sw_lever);
 }
 
 void check_20() { // 🟢
