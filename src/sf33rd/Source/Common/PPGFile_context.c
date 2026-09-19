@@ -89,11 +89,10 @@ void ppgSetupContextFromPPL(PPLFileHeader* ppl, plContext* bits) {
     }
 }
 
-void ppgSetupContextFromPPG(PPGFileHeader* ppg, plContext* bits) {
-    bits->desc = 0;
-    bits->width = ppg->width * 16;
-    bits->height = ppg->height * 16;
-
+/* How wide a pixel is in the chunk, and how the renderer should read it. The
+ * low two bits of the header's pixel field pick between the two CI depths and
+ * the two direct ones. */
+static void set_context_pixel_depth(PPGFileHeader* ppg, plContext* bits) {
     switch (ppg->pixel & 3) {
     case 0:
         if (ppg->pixel & 0x20) {
@@ -122,7 +121,11 @@ void ppgSetupContextFromPPG(PPGFileHeader* ppg, plContext* bits) {
         bits->pitch = bits->width * 4;
         break;
     }
+}
 
+/* The colour layout the chunk's pixels are in. Anything the reader does not
+ * know leaves the format zeroed. */
+static void set_context_pixel_format(PPGFileHeader* ppg, plContext* bits) {
     switch (SDL_Swap16BE(ppg->formARGB)) {
     case 0x1555:
         bits->pixelformat.rl = 5;
@@ -199,4 +202,13 @@ void ppgSetupContextFromPPG(PPGFileHeader* ppg, plContext* bits) {
         bits->pixelformat.am = 0;
         break;
     }
+}
+
+void ppgSetupContextFromPPG(PPGFileHeader* ppg, plContext* bits) {
+    bits->desc = 0;
+    bits->width = ppg->width * 16;
+    bits->height = ppg->height * 16;
+
+    set_context_pixel_depth(ppg, bits);
+    set_context_pixel_format(ppg, bits);
 }
