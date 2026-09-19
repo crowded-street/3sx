@@ -30,7 +30,7 @@ s32 Ck_Passive_Term(PLW* wk) {
     return PASSIVE_X;
 }
 
-static s32 ken_attacks_in_area_6(PLW* wk, WORK* em) {
+static s32 attacks_in_area_6(PLW* wk, WORK* em) {
     if (Check_PL_Unit_C(wk)) {
         return 1;
     }
@@ -46,7 +46,7 @@ static s32 ken_attacks_in_area_6(PLW* wk, WORK* em) {
     return 0;
 }
 
-static s32 ken_defends_in_area_6(PLW* wk, WORK* em) {
+static s32 defends_in_area_6(PLW* wk, WORK* em) {
     if (Check_PL_Unit_CS(wk)) {
         return 1;
     }
@@ -62,7 +62,7 @@ static s32 ken_defends_in_area_6(PLW* wk, WORK* em) {
     return 0;
 }
 
-static s32 ken_attacks_in_area_5(PLW* wk, WORK* em) {
+static s32 attacks_in_area_5(PLW* wk, WORK* em) {
     if (Check_PL_Unit_B(wk)) {
         return 1;
     }
@@ -82,7 +82,7 @@ static s32 ken_attacks_in_area_5(PLW* wk, WORK* em) {
     return 0;
 }
 
-static s32 ken_defends_in_area_5(PLW* wk, WORK* em) {
+static s32 defends_in_area_5(PLW* wk, WORK* em) {
     if (Check_PL_Unit_BS(wk)) {
         return 1;
     }
@@ -102,7 +102,7 @@ static s32 ken_defends_in_area_5(PLW* wk, WORK* em) {
     return 0;
 }
 
-static s32 ken_attacks_in_area_4(PLW* wk, WORK* em) {
+static s32 attacks_in_area_4(PLW* wk, WORK* em) {
     if (Check_PL_Unit_A(wk)) {
         return 1;
     }
@@ -122,7 +122,7 @@ static s32 ken_attacks_in_area_4(PLW* wk, WORK* em) {
     return 0;
 }
 
-static s32 ken_defends_in_area_4(PLW* wk, WORK* em) {
+static s32 defends_in_area_4(PLW* wk, WORK* em) {
     if (Check_PL_Unit_AS(wk)) {
         return 1;
     }
@@ -154,22 +154,6 @@ static s32 hugo_attacks_in_area_6(PLW* wk, WORK* em) {
     return 0;
 }
 
-static s32 hugo_defends_in_area_6(PLW* wk, WORK* em) {
-    if (Check_PL_Unit_CS(wk)) {
-        return 1;
-    }
-
-    if (Check_After_Attack(wk, em, 28)) {
-        return 1;
-    }
-
-    if (Check_Stand(wk, em, 4105)) {
-        return 1;
-    }
-
-    return 0;
-}
-
 static s32 hugo_attacks_in_area_5(PLW* wk, WORK* em) {
     if (Check_PL_Unit_B(wk)) {
         return 1;
@@ -180,26 +164,6 @@ static s32 hugo_attacks_in_area_5(PLW* wk, WORK* em) {
     }
 
     if (Check_Special_Technique(wk, em, &(SP_Tech_Args){15, 0, 33, 1, -1})) {
-        return 1;
-    }
-
-    return 0;
-}
-
-static s32 hugo_defends_in_area_5(PLW* wk, WORK* em) {
-    if (Check_PL_Unit_BS(wk)) {
-        return 1;
-    }
-
-    if (Check_After_Attack(wk, em, 28)) {
-        return 1;
-    }
-
-    if (Check_VS_Squat(wk, em, &(VS_Squat_Args){29, 33, 32})) {
-        return 1;
-    }
-
-    if (Check_Stand(wk, em, 4105)) {
         return 1;
     }
 
@@ -222,147 +186,15 @@ static s32 hugo_attacks_in_area_4(PLW* wk, WORK* em) {
     return 0;
 }
 
-static s32 hugo_defends_in_area_4(PLW* wk, WORK* em) {
-    if (Check_PL_Unit_AS(wk)) {
-        return 1;
-    }
-
-    if (Check_After_Attack(wk, em, 28)) {
-        return 1;
-    }
-
-    if (Check_VS_Squat(wk, em, &(VS_Squat_Args){29, 33, 32})) {
-        return 1;
-    }
-
-    if (Check_Stand(wk, em, 4105)) {
-        return 1;
-    }
-
-    return 0;
-}
-
-static s32 gill_attacks_in_area_6(PLW* wk, WORK* em) {
-    if (Check_PL_Unit_C(wk)) {
-        return 1;
-    }
-
-    if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args){12, 32, 3, 0})) {
-        return 1;
-    }
-
-    if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args){7, 32, 5, 0})) {
-        return 1;
-    }
-
-    return 0;
-}
-
-static s32 gill_defends_in_area_6(PLW* wk, WORK* em) {
-    if (Check_PL_Unit_CS(wk)) {
-        return 1;
-    }
-
-    if (Check_After_Attack(wk, em, 28)) {
-        return 1;
-    }
-
-    if (Check_Stand(wk, em, 4105)) {
-        return 1;
-    }
-
-    return 0;
-}
-
-static s32 gill_attacks_in_area_5(PLW* wk, WORK* em) {
-    if (Check_PL_Unit_B(wk)) {
-        return 1;
-    }
-
-    if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args){12, 32, 3, 0})) {
-        return 1;
-    }
-
-    if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args){7, 32, 5, 0})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){15, 0, 33, 1, -1})) {
-        return 1;
-    }
-
-    return 0;
-}
-
-static s32 gill_defends_in_area_5(PLW* wk, WORK* em) {
-    if (Check_PL_Unit_BS(wk)) {
-        return 1;
-    }
-
-    if (Check_After_Attack(wk, em, 28)) {
-        return 1;
-    }
-
-    if (Check_VS_Squat(wk, em, &(VS_Squat_Args){29, 33, 32})) {
-        return 1;
-    }
-
-    if (Check_Stand(wk, em, 4105)) {
-        return 1;
-    }
-
-    return 0;
-}
-
-static s32 gill_attacks_in_area_4(PLW* wk, WORK* em) {
-    if (Check_PL_Unit_A(wk)) {
-        return 1;
-    }
-
-    if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args){12, 32, 3, 0})) {
-        return 1;
-    }
-
-    if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args){7, 32, 5, 0})) {
-        return 1;
-    }
-
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){15, 0, 33, 1, -1})) {
-        return 1;
-    }
-
-    return 0;
-}
-
-static s32 gill_defends_in_area_4(PLW* wk, WORK* em) {
-    if (Check_PL_Unit_AS(wk)) {
-        return 1;
-    }
-
-    if (Check_After_Attack(wk, em, 28)) {
-        return 1;
-    }
-
-    if (Check_VS_Squat(wk, em, &(VS_Squat_Args){29, 33, 32})) {
-        return 1;
-    }
-
-    if (Check_Stand(wk, em, 4105)) {
-        return 1;
-    }
-
-    return 0;
-}
-
 static void ken_vs_from_area_6(PLW* wk, WORK* em) {
     switch (Passive_Mode + Area_Number[wk->wu.id]) {
     case 6:
         if (Attack_Flag[wk->wu.id]) {
-            if (ken_attacks_in_area_6(wk, em)) {
+            if (attacks_in_area_6(wk, em)) {
                 break;
             }
         } else {
-            if (ken_defends_in_area_6(wk, em)) {
+            if (defends_in_area_6(wk, em)) {
                 break;
             }
         }
@@ -399,11 +231,11 @@ static void ken_vs_from_area_5(PLW* wk, WORK* em) {
     switch (Passive_Mode + Area_Number[wk->wu.id]) {
     case 5:
         if (Attack_Flag[wk->wu.id]) {
-            if (ken_attacks_in_area_5(wk, em)) {
+            if (attacks_in_area_5(wk, em)) {
                 break;
             }
         } else {
-            if (ken_defends_in_area_5(wk, em)) {
+            if (defends_in_area_5(wk, em)) {
                 break;
             }
         }
@@ -425,11 +257,11 @@ static void ken_vs_from_area_4(PLW* wk, WORK* em) {
     switch (Passive_Mode + Area_Number[wk->wu.id]) {
     case 4:
         if (Attack_Flag[wk->wu.id]) {
-            if (ken_attacks_in_area_4(wk, em)) {
+            if (attacks_in_area_4(wk, em)) {
                 break;
             }
         } else {
-            if (ken_defends_in_area_4(wk, em)) {
+            if (defends_in_area_4(wk, em)) {
                 break;
             }
         }
@@ -481,7 +313,7 @@ static void hugo_vs_from_area_6(PLW* wk, WORK* em) {
                 break;
             }
         } else {
-            if (hugo_defends_in_area_6(wk, em)) {
+            if (defends_in_area_6(wk, em)) {
                 break;
             }
         }
@@ -512,7 +344,7 @@ static void hugo_vs_from_area_5(PLW* wk, WORK* em) {
                 break;
             }
         } else {
-            if (hugo_defends_in_area_5(wk, em)) {
+            if (defends_in_area_5(wk, em)) {
                 break;
             }
         }
@@ -534,7 +366,7 @@ static void hugo_vs_from_area_4(PLW* wk, WORK* em) {
                 break;
             }
         } else {
-            if (hugo_defends_in_area_4(wk, em)) {
+            if (defends_in_area_4(wk, em)) {
                 break;
             }
         }
@@ -578,11 +410,11 @@ static void gill_vs_from_area_6(PLW* wk, WORK* em) {
     switch (Passive_Mode + Area_Number[wk->wu.id]) {
     case 6:
         if (Attack_Flag[wk->wu.id]) {
-            if (gill_attacks_in_area_6(wk, em)) {
+            if (attacks_in_area_6(wk, em)) {
                 break;
             }
         } else {
-            if (gill_defends_in_area_6(wk, em)) {
+            if (defends_in_area_6(wk, em)) {
                 break;
             }
         }
@@ -613,11 +445,11 @@ static void gill_vs_from_area_5(PLW* wk, WORK* em) {
     switch (Passive_Mode + Area_Number[wk->wu.id]) {
     case 5:
         if (Attack_Flag[wk->wu.id]) {
-            if (gill_attacks_in_area_5(wk, em)) {
+            if (attacks_in_area_5(wk, em)) {
                 break;
             }
         } else {
-            if (gill_defends_in_area_5(wk, em)) {
+            if (defends_in_area_5(wk, em)) {
                 break;
             }
         }
@@ -635,11 +467,11 @@ static void gill_vs_from_area_4(PLW* wk, WORK* em) {
     switch (Passive_Mode + Area_Number[wk->wu.id]) {
     case 4:
         if (Attack_Flag[wk->wu.id]) {
-            if (gill_attacks_in_area_4(wk, em)) {
+            if (attacks_in_area_4(wk, em)) {
                 break;
             }
         } else {
-            if (gill_defends_in_area_4(wk, em)) {
+            if (defends_in_area_4(wk, em)) {
                 break;
             }
         }
