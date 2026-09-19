@@ -255,6 +255,25 @@ void Com_Initialize(PLW* wk) {
     }
 }
 
+/* Six of the CPU's modes open the same way: being hit, being caught or having
+ * to turn round all take the frame, and the mode does not run. The three checks
+ * are in the order they were in, and each still answers for itself. */
+static s32 mode_was_interrupted(PLW* wk) {
+    if (Check_Damage(wk)) {
+        return 1;
+    }
+
+    if (Check_Caught(wk)) {
+        return 1;
+    }
+
+    if (Check_Flip(wk)) {
+        return 1;
+    }
+
+    return 0;
+}
+
 void Com_Free(PLW* wk) {
     s16 xx;
 
@@ -327,15 +346,7 @@ void Com_Before_Follow(PLW* wk) {
 void Com_Before_Passive(PLW* wk) {
     Lever_Buff[wk->wu.id] = Lever_LR[wk->wu.id];
 
-    if (Check_Damage(wk)) {
-        return;
-    }
-
-    if (Check_Caught(wk)) {
-        return;
-    }
-
-    if (Check_Flip(wk)) {
+    if (mode_was_interrupted(wk)) {
         return;
     }
 
@@ -362,15 +373,7 @@ void Com_Before_Passive(PLW* wk) {
 void Com_Guard(PLW* wk) {
     WORK* em;
 
-    if (Check_Damage(wk)) {
-        return;
-    }
-
-    if (Check_Caught(wk)) {
-        return;
-    }
-
-    if (Check_Flip(wk)) {
+    if (mode_was_interrupted(wk)) {
         return;
     }
 
@@ -624,15 +627,7 @@ void Com_Active(PLW* wk) {
                                        Computer10, Computer11, Computer12, Computer13, Computer14,
                                        Computer15, Computer16, Computer17, Computer18, Computer19 };
 
-    if (Check_Damage(wk)) {
-        return;
-    }
-
-    if (Check_Caught(wk)) {
-        return;
-    }
-
-    if (Check_Flip(wk)) {
+    if (mode_was_interrupted(wk)) {
         return;
     }
 
@@ -645,15 +640,7 @@ void Com_Follow(PLW* wk) {
                                          Follow02, Follow02, Follow02, Follow02, Follow02, Follow02, Follow02,
                                          Follow02, Follow02, Follow02, Follow02, Follow02, Follow02 };
 
-    if (Check_Damage(wk)) {
-        return;
-    }
-
-    if (Check_Caught(wk)) {
-        return;
-    }
-
-    if (Check_Flip(wk)) {
+    if (mode_was_interrupted(wk)) {
         return;
     }
 
@@ -666,15 +653,7 @@ void Com_Passive(PLW* wk) {
                                           Passive07, Passive08, Passive09, Passive10, Passive11, Passive12, Passive13,
                                           Passive14, Passive15, Passive16, Passive17, Passive18, Passive19 };
 
-    if (Check_Damage(wk)) {
-        return;
-    }
-
-    if (Check_Caught(wk)) {
-        return;
-    }
-
-    if (Check_Flip(wk)) {
+    if (mode_was_interrupted(wk)) {
         return;
     }
 
@@ -687,15 +666,7 @@ void Com_VS_Shell(PLW* wk) {
                                            Shell07, Shell03, Shell03, Shell03, Shell11, Shell12, Shell13,
                                            Shell14, Shell11, Shell11, Shell11, Shell11, Shell11 };
 
-    if (Check_Damage(wk)) {
-        return;
-    }
-
-    if (Check_Caught(wk)) {
-        return;
-    }
-
-    if (Check_Flip(wk)) {
+    if (mode_was_interrupted(wk)) {
         return;
     }
 
