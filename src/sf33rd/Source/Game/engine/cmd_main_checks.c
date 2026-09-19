@@ -169,6 +169,20 @@ static void charge_until_tame_flag_set(void) {
     }
 }
 
+/* The charged form: the lever must match exactly, and the charge only counts
+ * once the timer has run past zero. */
+static void charge_on_exact_lever() {
+    if (sw_work == chk_pl->sw_lever) {
+        waza_ptr->free2--;
+
+        if (!waza_ptr->uni0.tame.flag && waza_ptr->free2 < 0) {
+            waza_ptr->uni0.tame.flag = 1;
+        }
+    } else {
+        resolve_tame_flag_or_reset_timer();
+    }
+}
+
 void check_1() { // 🟢
     if (dead_lvr_check()) {
         return;
@@ -177,15 +191,7 @@ void check_1() { // 🟢
     sw_work = waza_ptr->w_lvr & 0xF;
 
     if (waza_ptr->w_lvr & 0x8000) {
-        if (sw_work == chk_pl->sw_lever) {
-            waza_ptr->free2--;
-
-            if (!waza_ptr->uni0.tame.flag && waza_ptr->free2 < 0) {
-                waza_ptr->uni0.tame.flag = 1;
-            }
-        } else {
-            resolve_tame_flag_or_reset_timer();
-        }
+        charge_on_exact_lever();
     } else {
         if (sw_work & chk_pl->sw_lever) {
             charge_until_tame_flag_set();
