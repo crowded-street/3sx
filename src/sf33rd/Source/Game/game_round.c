@@ -73,6 +73,67 @@ static s32 Check_Disp_Ranking();
 
 
 /* The round states: the intro, the fight itself, and the decision. */
+/* What happens once the winner scene is over, which is a whole dispatch on the
+ * game mode. Lifted out of game03_state's first arm unchanged, comments and
+ * all. */
+static void game03_winner_scene_done(void) {
+    switch (Mode_Type) {
+    case MODE_VERSUS:
+    case MODE_NETWORK:
+        G_No[2] += 1;
+        Rep_Game_Infor[10].play_type = 1;
+        Rep_Game_Infor[10].winner = Winner_id;
+        Switch_Screen_Init(0);
+
+        if (Country == 3) {
+            Rep_Game_Infor[10].play_type = 4;
+        }
+
+        break;
+
+        // case MODE_NETWORK:
+        // G_No[2] = 3;
+        // Rep_Game_Infor[10].play_type = 2;
+        // Rep_Game_Infor[10].winner = Winner_id;
+        // Champion = Winner_id;
+        // New_Challenger = Loser_id;
+        // Switch_Screen_Init(0);
+        // break;
+
+    case MODE_REPLAY:
+        G_No[2] = 5;
+        cpReadyTask(TASK_MENU, Menu_Task);
+        task[TASK_MENU].r_no[0] = 8;
+        break;
+
+    default:
+        G_No[1] = 5;
+        G_No[2] = 0;
+        G_No[3] = 0;
+        E_No[0] = 9;
+        E_No[1] = 0;
+        E_No[2] = 0;
+        E_No[3] = 0;
+
+        if (Battle_Q[WINNER]) {
+            G_No[1] = 11;
+            G_No[2] = 3;
+            G_No[3] = 0;
+        }
+
+        Cover_Timer = 24;
+
+        if (Round_Operator[LOSER]) {
+            E_Number[LOSER][0] = 1;
+            E_Number[LOSER][1] = 0;
+            E_Number[LOSER][2] = 0;
+            E_Number[LOSER][3] = 0;
+        }
+
+        break;
+    }
+}
+
 static void game03_state(void) {
     switch (G_No[2]) {
     case 0:
@@ -80,61 +141,7 @@ static void game03_state(void) {
             break;
         }
 
-        switch (Mode_Type) {
-        case MODE_VERSUS:
-        case MODE_NETWORK:
-            G_No[2] += 1;
-            Rep_Game_Infor[10].play_type = 1;
-            Rep_Game_Infor[10].winner = Winner_id;
-            Switch_Screen_Init(0);
-
-            if (Country == 3) {
-                Rep_Game_Infor[10].play_type = 4;
-            }
-
-            break;
-
-            // case MODE_NETWORK:
-            // G_No[2] = 3;
-            // Rep_Game_Infor[10].play_type = 2;
-            // Rep_Game_Infor[10].winner = Winner_id;
-            // Champion = Winner_id;
-            // New_Challenger = Loser_id;
-            // Switch_Screen_Init(0);
-            // break;
-
-        case MODE_REPLAY:
-            G_No[2] = 5;
-            cpReadyTask(TASK_MENU, Menu_Task);
-            task[TASK_MENU].r_no[0] = 8;
-            break;
-
-        default:
-            G_No[1] = 5;
-            G_No[2] = 0;
-            G_No[3] = 0;
-            E_No[0] = 9;
-            E_No[1] = 0;
-            E_No[2] = 0;
-            E_No[3] = 0;
-
-            if (Battle_Q[WINNER]) {
-                G_No[1] = 11;
-                G_No[2] = 3;
-                G_No[3] = 0;
-            }
-
-            Cover_Timer = 24;
-
-            if (Round_Operator[LOSER]) {
-                E_Number[LOSER][0] = 1;
-                E_Number[LOSER][1] = 0;
-                E_Number[LOSER][2] = 0;
-                E_Number[LOSER][3] = 0;
-            }
-
-            break;
-        }
+        game03_winner_scene_done();
 
         break;
 
