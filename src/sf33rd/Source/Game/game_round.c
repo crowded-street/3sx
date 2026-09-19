@@ -134,35 +134,11 @@ static void game03_winner_scene_done(void) {
     }
 }
 
-static void game03_state(void) {
+/* game03_state from its third step on, reached from the first two's default.
+ * The case labels are the original ones and the switch is on the same
+ * expression. */
+static void game03_state_from_step_2(void) {
     switch (G_No[2]) {
-    case 0:
-        if (!Winner_Scene()) {
-            break;
-        }
-
-        game03_winner_scene_done();
-
-        break;
-
-    case 1:
-        if (!Switch_Screen(1)) {
-            break;
-        }
-
-        G_No[2] += 1;
-        E_No[0] = 1;
-        E_No[1] = 2;
-        E_No[2] = 2;
-        E_No[3] = 0;
-        Request_E_No = 0;
-        cpReadyTask(TASK_MENU, Menu_Task);
-        task[TASK_MENU].r_no[1] = 16;
-        Cursor_Y_Pos[0][0] = 0;
-        Cursor_Y_Pos[1][0] = 0;
-        G_Timer = 4;
-        break;
-
     case 2:
         Switch_Screen(1);
 
@@ -199,6 +175,41 @@ static void game03_state(void) {
 
     case 5:
         // Do nothing
+        break;
+    }
+}
+
+static void game03_state(void) {
+    switch (G_No[2]) {
+    case 0:
+        if (!Winner_Scene()) {
+            break;
+        }
+
+        game03_winner_scene_done();
+
+        break;
+
+    case 1:
+        if (!Switch_Screen(1)) {
+            break;
+        }
+
+        G_No[2] += 1;
+        E_No[0] = 1;
+        E_No[1] = 2;
+        E_No[2] = 2;
+        E_No[3] = 0;
+        Request_E_No = 0;
+        cpReadyTask(TASK_MENU, Menu_Task);
+        task[TASK_MENU].r_no[1] = 16;
+        Cursor_Y_Pos[0][0] = 0;
+        Cursor_Y_Pos[1][0] = 0;
+        G_Timer = 4;
+        break;
+
+    default:
+        game03_state_from_step_2();
         break;
     }
 }
