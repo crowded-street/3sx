@@ -156,6 +156,25 @@ uintptr_t flPS2GetSystemTmpBuff(s32 len, s32 align) {
     return now;
 }
 
+/* A three-character file extension, each letter with the two spellings the
+ * original tested. The field order is the order the comparisons were written
+ * in; '2' appears twice because that is what the decompilation compares. */
+typedef struct {
+    char u0;
+    char l0;
+    char u1;
+    char l1;
+    char u2;
+    char l2;
+} FlExtension;
+
+/* The four extension tests were the same five-term comparison four times over,
+ * differing only in the letters. */
+static s32 extension_matches(const char* tmp, const FlExtension* e) {
+    return ((tmp[0] == e->u0) || (tmp[0] == e->l0)) && ((tmp[1] == e->u1) || (tmp[1] == e->l1)) &&
+           ((tmp[2] == e->u2) || (tmp[2] == e->l2));
+}
+
 u32 flCreateTextureFromFile(const char* file, u32 flag) {
     const char* tmp = file;
 
@@ -169,23 +188,19 @@ u32 flCreateTextureFromFile(const char* file, u32 flag) {
 
     tmp++;
 
-    if (((tmp[0] == 'A') || (tmp[0] == 'a')) && ((tmp[1] == 'P') || (tmp[1] == 'p')) &&
-        ((tmp[2] == 'X') || (tmp[2] == 'x'))) {
+    if (extension_matches(tmp, &(FlExtension){ 'A', 'a', 'P', 'p', 'X', 'x' })) {
         return flCreateTextureFromApx(file, flag);
     }
 
-    if (((tmp[0] == 'T') || (tmp[0] == 't')) && ((tmp[1] == 'M') || (tmp[1] == 'm')) &&
-        ((tmp[2] == '2') || (tmp[2] == '2'))) {
+    if (extension_matches(tmp, &(FlExtension){ 'T', 't', 'M', 'm', '2', '2' })) {
         return flCreateTextureFromTim2(file, flag);
     }
 
-    if (((tmp[0] == 'B') || (tmp[0] == 'b')) && ((tmp[1] == 'M') || (tmp[1] == 'm')) &&
-        ((tmp[2] == 'P') || (tmp[2] == 'p'))) {
+    if (extension_matches(tmp, &(FlExtension){ 'B', 'b', 'M', 'm', 'P', 'p' })) {
         return flCreateTextureFromBMP(file, flag);
     }
 
-    if (((tmp[0] == 'P') || (tmp[0] == 'p')) && ((tmp[1] == 'I') || (tmp[1] == 'i')) &&
-        ((tmp[2] == 'C') || (tmp[2] == 'c'))) {
+    if (extension_matches(tmp, &(FlExtension){ 'P', 'p', 'I', 'i', 'C', 'c' })) {
         return flCreateTextureFromPIC(file, flag);
     }
 
