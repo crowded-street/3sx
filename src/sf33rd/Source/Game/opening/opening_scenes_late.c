@@ -261,6 +261,38 @@ static void update_op_112_scene_72_transition(void) {
     }
 }
 
+/* Scene 112 runs nine steps. Its tail is reached through the default arm of the
+ * head, which is what keeps either switch readable; no case label is
+ * renumbered. */
+static void op_112_move_late() {
+    switch (op_w.r_no_2) {
+    case 5:
+        op_112_timed_step(75, 74);
+        break;
+
+    case 6:
+        if (op_112_timed_step(76, 75)) {
+            op_obj_disp = 0;
+            effect_48_init(19);
+        }
+
+        break;
+
+    case 7:
+        op_112_timed_step_disp(77, 76, 1);
+
+        break;
+
+    case 8:
+        op_112_timed_step(78, 77);
+        break;
+
+    default:
+        op_bg_move(78);
+        break;
+    }
+}
+
 void op_112_move() {
     switch (op_w.r_no_2) {
     case 0:
@@ -296,29 +328,8 @@ void op_112_move() {
 
         break;
 
-    case 5:
-        op_112_timed_step(75, 74);
-        break;
-
-    case 6:
-        if (op_112_timed_step(76, 75)) {
-            op_obj_disp = 0;
-            effect_48_init(19);
-        }
-
-        break;
-
-    case 7:
-        op_112_timed_step_disp(77, 76, 1);
-
-        break;
-
-    case 8:
-        op_112_timed_step(78, 77);
-        break;
-
     default:
-        op_bg_move(78);
+        op_112_move_late();
         break;
     }
 }
