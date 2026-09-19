@@ -176,7 +176,12 @@ void ppgWriteQuadOnly2(Vertex* pos, u32 col, u32 texCode) {
     Renderer_DrawSprite(&prm, col);
 }
 
-s32 ppgWriteQuadWithST_B(Vertex* pos, const PPGQuadArgs* a) {
+/* B and B2 resolved their handles identically and differed in nothing but the
+ * pair of writers they handed them to - the quad pair or the sprite pair - and
+ * in how the same shift was spelled. The resolution is written once, with the
+ * two writers as parameters. */
+static s32 ppgWriteQuadWithST_Bx(Vertex* pos, const PPGQuadArgs* a, s32 (*no_list)(Vertex*, u32),
+                                 void (*write)(Vertex*, u32, u32)) {
     /* The original took this by value and advanced it; the copy keeps
      * that local, which is what a by-value parameter was. */
     PPGDataList* tb = a->tb;
@@ -188,7 +193,7 @@ s32 ppgWriteQuadWithST_B(Vertex* pos, const PPGQuadArgs* a) {
         tb = ppg_w.cur;
 
         if (tb == NULL) {
-            return ppgWriteQuadWithST_A(pos, a->col);
+            return no_list(pos, a->col);
         }
     }
 
@@ -210,46 +215,16 @@ s32 ppgWriteQuadWithST_B(Vertex* pos, const PPGQuadArgs* a) {
         }
     }
 
-    ppgWriteQuadOnly(pos, a->col, texhan | (palhan << 0x10));
+    write(pos, a->col, texhan | (palhan << 0x10));
     return 1;
 }
 
+s32 ppgWriteQuadWithST_B(Vertex* pos, const PPGQuadArgs* a) {
+    return ppgWriteQuadWithST_Bx(pos, a, ppgWriteQuadWithST_A, ppgWriteQuadOnly);
+}
+
 s32 ppgWriteQuadWithST_B2(Vertex* pos, const PPGQuadArgs* a) {
-    /* The original took this by value and advanced it; the copy keeps
-     * that local, which is what a by-value parameter was. */
-    PPGDataList* tb = a->tb;
-
-    u16 texhan;
-    u16 palhan = 0;
-
-    if (tb == NULL) {
-        tb = ppg_w.cur;
-
-        if (tb == NULL) {
-            return ppgWriteQuadWithST_A2(pos, a->col);
-        }
-    }
-
-    if (a->tix < 0) {
-        texhan = ppg_w.hanTex;
-    } else {
-        texhan = tb->tex->handle[a->tix - tb->tex->ixNum1st].b16[0];
-
-        if (texhan == 0) {
-            return 0;
-        }
-    }
-
-    if (tb->tex->handle[a->tix - tb->tex->ixNum1st].b16[1] & 0x4000) {
-        if (a->cix < 0) {
-            palhan = ppg_w.hanPal;
-        } else {
-            palhan = tb->pal->handle[a->cix];
-        }
-    }
-
-    ppgWriteQuadOnly2(pos, a->col, texhan | (palhan << 16));
-    return 1;
+    return ppgWriteQuadWithST_Bx(pos, a, ppgWriteQuadWithST_A2, ppgWriteQuadOnly2);
 }
 
 s32 ppgWriteQuadUseTrans(Vertex* pos, const PPGQuadTransArgs* a) {
