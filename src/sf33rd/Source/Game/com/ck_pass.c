@@ -28,110 +28,8 @@ s32 Ck_Passive_Term(PLW* wk) {
     return PASSIVE_X;
 }
 
-void KEN_vs(PLW* wk) {
-    WORK* em = (WORK*)wk->wu.target_adrs;
-
+static void ken_vs_from_area_6(PLW* wk, WORK* em) {
     switch (Passive_Mode + Area_Number[wk->wu.id]) {
-    case 0:
-        Check_Dash(wk, em, 1);
-        break;
-
-    case 1:
-        Check_Dash(wk, em, 1);
-        break;
-
-    case 2:
-        Check_Dash(wk, em, 1);
-        break;
-
-    case 3:
-        Check_Dash(wk, em, 1);
-        break;
-
-    case 4:
-        if (Attack_Flag[wk->wu.id]) {
-            if (Check_PL_Unit_A(wk)) {
-                break;
-            }
-
-            if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args){12, 32, 3, 0})) {
-                break;
-            }
-
-            if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args){7, 32, 5, 0})) {
-                break;
-            }
-
-            if (Check_Special_Technique(wk, em, &(SP_Tech_Args){15, 0, 33, 1, -1})) {
-                break;
-            }
-        } else {
-            if (Check_PL_Unit_AS(wk)) {
-                break;
-            }
-
-            if (Check_After_Attack(wk, em, 28)) {
-                break;
-            }
-
-            if (Check_VS_Squat(wk, em, &(VS_Squat_Args){29, 33, 32})) {
-                break;
-            }
-
-            if (Check_Stand(wk, em, 4105)) {
-                break;
-            }
-        }
-
-        if (Check_VS_Jump(wk, (PLW*)em, 16)) {
-            break;
-        }
-
-        Check_Personal_Action(wk, em);
-        break;
-
-    case 5:
-        if (Attack_Flag[wk->wu.id]) {
-            if (Check_PL_Unit_B(wk)) {
-                break;
-            }
-
-            if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args){12, 32, 3, 0})) {
-                break;
-            }
-
-            if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args){7, 32, 5, 0})) {
-                break;
-            }
-
-            if (Check_Special_Technique(wk, em, &(SP_Tech_Args){15, 0, 33, 1, -1})) {
-                break;
-            }
-        } else {
-            if (Check_PL_Unit_BS(wk)) {
-                break;
-            }
-
-            if (Check_After_Attack(wk, em, 28)) {
-                break;
-            }
-
-            if (Check_VS_Squat(wk, em, &(VS_Squat_Args){29, 33, 32})) {
-                break;
-            }
-
-            if (Check_Stand(wk, em, 4105)) {
-                break;
-            }
-        }
-
-        if (Check_VS_Jump(wk, (PLW*)em, 32)) {
-            break;
-        }
-
-        Check_Personal_Action(wk, em);
-        break;
-
     case 6:
         if (Attack_Flag[wk->wu.id]) {
             if (Check_PL_Unit_C(wk)) {
@@ -183,6 +81,132 @@ void KEN_vs(PLW* wk) {
         }
 
         Check_Personal_Action(wk, em);
+        break;
+    }
+}
+
+static void ken_vs_from_area_5(PLW* wk, WORK* em) {
+    switch (Passive_Mode + Area_Number[wk->wu.id]) {
+    case 5:
+        if (Attack_Flag[wk->wu.id]) {
+            if (Check_PL_Unit_B(wk)) {
+                break;
+            }
+
+            if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args){12, 32, 3, 0})) {
+                break;
+            }
+
+            if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args){7, 32, 5, 0})) {
+                break;
+            }
+
+            if (Check_Special_Technique(wk, em, &(SP_Tech_Args){15, 0, 33, 1, -1})) {
+                break;
+            }
+        } else {
+            if (Check_PL_Unit_BS(wk)) {
+                break;
+            }
+
+            if (Check_After_Attack(wk, em, 28)) {
+                break;
+            }
+
+            if (Check_VS_Squat(wk, em, &(VS_Squat_Args){29, 33, 32})) {
+                break;
+            }
+
+            if (Check_Stand(wk, em, 4105)) {
+                break;
+            }
+        }
+
+        if (Check_VS_Jump(wk, (PLW*)em, 32)) {
+            break;
+        }
+
+        Check_Personal_Action(wk, em);
+        break;
+
+    default:
+        ken_vs_from_area_6(wk, em);
+        break;
+    }
+}
+
+static void ken_vs_from_area_4(PLW* wk, WORK* em) {
+    switch (Passive_Mode + Area_Number[wk->wu.id]) {
+    case 4:
+        if (Attack_Flag[wk->wu.id]) {
+            if (Check_PL_Unit_A(wk)) {
+                break;
+            }
+
+            if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args){12, 32, 3, 0})) {
+                break;
+            }
+
+            if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args){7, 32, 5, 0})) {
+                break;
+            }
+
+            if (Check_Special_Technique(wk, em, &(SP_Tech_Args){15, 0, 33, 1, -1})) {
+                break;
+            }
+        } else {
+            if (Check_PL_Unit_AS(wk)) {
+                break;
+            }
+
+            if (Check_After_Attack(wk, em, 28)) {
+                break;
+            }
+
+            if (Check_VS_Squat(wk, em, &(VS_Squat_Args){29, 33, 32})) {
+                break;
+            }
+
+            if (Check_Stand(wk, em, 4105)) {
+                break;
+            }
+        }
+
+        if (Check_VS_Jump(wk, (PLW*)em, 16)) {
+            break;
+        }
+
+        Check_Personal_Action(wk, em);
+        break;
+
+    default:
+        ken_vs_from_area_5(wk, em);
+        break;
+    }
+}
+
+void KEN_vs(PLW* wk) {
+    WORK* em = (WORK*)wk->wu.target_adrs;
+
+    switch (Passive_Mode + Area_Number[wk->wu.id]) {
+    case 0:
+        Check_Dash(wk, em, 1);
+        break;
+
+    case 1:
+        Check_Dash(wk, em, 1);
+        break;
+
+    case 2:
+        Check_Dash(wk, em, 1);
+        break;
+
+    case 3:
+        Check_Dash(wk, em, 1);
+        break;
+
+    default:
+        ken_vs_from_area_4(wk, em);
         break;
     }
 }
