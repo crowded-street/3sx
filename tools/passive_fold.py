@@ -1023,7 +1023,7 @@ def split(path, max_funcs=90, max_lines=900):
         parts.append(rewrap('\n\n'.join(text)))
 
     banner = head.split('*/')[0] + '*/\n'
-    incl = '\n'.join(includes[:1] + ['#include "sf33rd/Source/Game/com/passive/' + internal + '"']
+    incl = '\n'.join(includes[:1] + ['#include "sf33rd/Source/Game/com/%s/%s"' % (FAMILY['folder'], internal)]
                      + includes[1:]) + '\n'
     middle = re.sub(r'^#include .*\n', '', head.split('*/', 1)[1], flags=re.M).strip('\n')
     open(path, 'w').write(banner + '\n' + incl + '\n' + middle + '\n\n' + parts[0] + '\n\n' + tail)
