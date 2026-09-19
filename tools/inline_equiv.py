@@ -67,6 +67,32 @@ def functions(src):
     return out
 
 
+def unladder(body, ladders):
+    """Put a 1/0 ladder helper back inline.
+
+    A Recipe C extraction out of a `switch` arm turns `if (a) break;` into
+    `if (a) return 1;` inside the helper and leaves `if (helper(...)) break;`
+    behind. Reversing it is the same rewrite backwards, and it is the only way
+    to compare the arm against what it was.
+    """
+    for name, (params, hbody) in ladders.items():
+        pattern = re.compile(r'if \(%s\(([^;]*?)\)\) \{\s*(break|return 1);\s*\}' % re.escape(name))
+        while True:
+            m = pattern.search(body)
+            if not m:
+                break
+            args = split_args(m.group(1))
+            subs = dict(zip(params, args))
+            inner = hbody[1:-1]
+            if subs:
+                inner = re.sub(r'\b(%s)\b' % '|'.join(map(re.escape, subs)),
+                               lambda mm: subs[mm.group(1)], inner)
+            inner = re.sub(r'\s*return 0;\s*$', '', inner)
+            inner = inner.replace('return 1;', m.group(2) + ';')
+            body = body[:m.start()] + inner.strip() + body[m.end():]
+    return body
+
+
 def inline(body, helpers, depth=0):
     if depth > 8:
         raise ValueError('helper recursion too deep')
@@ -106,6 +132,8 @@ def main():
     ap.add_argument('--base', default='HEAD')
     ap.add_argument('--helper', action='append', default=[],
                     help='a helper this change created; repeat for each')
+    ap.add_argument('--ladder', action='append', default=[],
+                    help='a 1/0 helper lifted out of a switch arm; repeat for each')
     args = ap.parse_args()
 
     old, new = {}, {}
@@ -120,25 +148,28 @@ def main():
             new.update(functions(open(path).read()))
 
     helpers = {h: new[h] for h in args.helper if h in new}
-    missing = [h for h in args.helper if h not in new]
+    ladders = {h: new[h] for h in args.ladder if h in new}
+    missing = [h for h in args.helper + args.ladder if h not in new]
     if missing:
         print('no such helper: %s' % ', '.join(missing))
         return 1
 
-    bad = 0
+    bad, checked = 0, 0
     for name, (_, body) in sorted(old.items()):
-        if name in helpers:
+        if name in helpers or name in ladders:
             continue
         if name not in new:
             print('MISSING %s' % name)
             bad += 1
             continue
-        before, after = norm(body), norm(inline(new[name][1], helpers))
+        checked += 1
+        before, after = norm(body), norm(inline(unladder(new[name][1], ladders), helpers))
         if before != after:
             bad += 1
             print('DIFFERS %s\n   before: %s\n   after:  %s' % (name, before[:300], after[:300]))
     print('%s: %d functions, %d differ'
-          % (', '.join(os.path.basename(f) for f in args.files), len(old) - len(helpers), bad))
+          % (', '.join(os.path.basename(f) for f in args.files),
+             checked, bad))
     return 1 if bad else 0
 
 
