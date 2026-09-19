@@ -10,7 +10,8 @@ for the allowed transformations.
 > **Scores here are refreshed from a full sweep; the task files are not.**
 > If a task file's stated baseline does not match what you measure, the task file is
 > stale - check this page before stopping and reporting a mismatch. The current numbers
-> below come from `codehealth-current.json`, swept 2026-09-19.
+> below come from `codehealth-current.json`, swept 2026-09-19 (fourth sweep of that day,
+> after the `Game/com/active` second pass).
 > `codehealth-baseline.json` preserves the original 2026-09-01 sweep and is not updated.
 
 ## Where the whole repository stands
@@ -18,13 +19,13 @@ for the allowed transformations.
 | Band | Score | 2026-09-01 | 2026-09-19 |
 | --- | --- | --- | --- |
 | **Red** - severe debt | 1.0 - 3.9 | 19 | **0** |
-| **Yellow** - problematic debt | 4.0 - 8.9 | 207 | 124 |
-| Green | 9.0 - 9.9 | 158 | 84 |
-| Optimal | 10.0 | 98 | **444** |
-| Total scored | | 482 | 652 |
+| **Yellow** - problematic debt | 4.0 - 8.9 | 207 | 104 |
+| Green | 9.0 - 9.9 | 158 | 87 |
+| Optimal | 10.0 | 98 | **463** |
+| Total scored | | 482 | 654 |
 
 The file count rises because the campaign splits files. Mean Code Health across every
-scorable first-party file is **9.51**.
+scorable first-party file is **9.63**.
 
 ## The Red band is empty
 
@@ -99,8 +100,8 @@ At the 2026-09-01 start: **19 files**, 46,865 lines of code, **330** complex met
 (58 commits), which started at 1.97; the worst single function was `scr_trans` in
 `stage/bg.c` (cyclomatic 109, nesting 9).
 
-At 2026-09-19: **two** of the nineteen are still below 4.0, eight are at 10.00, and
-`scr_trans`'s file is at 9.09. Mean Code Health across the repository is 9.51.
+At 2026-09-19: **none** of the nineteen is still below 4.0, eight are at 10.00, and
+`scr_trans`'s file is at 9.09. Mean Code Health across the repository is 9.63.
 
 ## Folder campaigns
 
