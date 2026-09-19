@@ -128,27 +128,12 @@ void Passive14_0164(PLW* wk) {
 }
 
 void Passive14_0165(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0xBF, 2);
-        break;
-
-    case 1:
-        Wait_Get_Up(wk, 3, 0);
-        break;
-
-    case 2:
-        SA_Term(wk, &(SA_Term_Args){0x32, 0xFFFF, 0xFFFF, 0xBF});
-        break;
-
-    case 3:
-        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x74, 0x74, 0x75, 0x76}, 2);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_wait_get_up_sa_term_com_random_select(
+        wk,
+        0xBF,
+        &(SA_Term_Args){0x32, 0xFFFF, 0xFFFF, 0xBF},
+        &(Com_Random_Select_Step){ &(Branch_Menu_Args){6, 0x74, 0x74, 0x75, 0x76}, 2 }
+    );
 }
 
 static void passive14_pattern_command_attack_com_random_select(PLW* wk, const Branch_Menu_Args* p, s16 rnd_type) {

@@ -44,23 +44,12 @@ void Pattern06_0006(PLW* wk) {
 }
 
 void Pattern06_0007(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0x44, 2);
-        break;
-
-    case 1:
-        EM_Term(wk, &(EM_Term_Params){-1, -0x7FFC, 6, 1, -1});
-        break;
-
-    case 2:
-        Normal_Attack(wk, 8, 0x110);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_em_term_normal_attack_9(
+        wk,
+        0x44,
+        &(EM_Term_Params){-1, -0x7FFC, 6, 1, -1},
+        &(Normal_Attack_Step){ 8, 0x110 }
+    );
 }
 
 void Pattern06_0008(PLW* wk) {

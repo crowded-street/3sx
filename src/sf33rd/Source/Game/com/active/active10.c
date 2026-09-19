@@ -307,19 +307,11 @@ void Pattern10_0056(PLW* wk) {
 }
 
 void Pattern10_0057(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Search_Back_Term(wk, 0x70, 6, 0x12);
-        break;
-
-    case 1:
-        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA0, -0x7FC0, 8, 0x20, 1, -0x7FA0, 8, 0x200});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_search_back_term_jump_attack_term(
+        wk,
+        &(Search_Back_Term_Step){ 0x70, 6, 0x12 },
+        &(Jump_Term_Args){-0x7FA0, -0x7FC0, 8, 0x20, 1, -0x7FA0, 8, 0x200}
+    );
 }
 
 void Pattern10_0058(PLW* wk) {

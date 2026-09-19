@@ -356,19 +356,11 @@ void Pattern13_0055(PLW* wk) {
 }
 
 void Pattern13_0056(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Search_Back_Term(wk, 0x60, 2, 0x10);
-        break;
-
-    case 1:
-        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, -0x7FB8, 8, 0x400, 1, -0x7F90, -1, 0x200});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_search_back_term_jump_attack_term(
+        wk,
+        &(Search_Back_Term_Step){ 0x60, 2, 0x10 },
+        &(Jump_Term_Args){-1, -0x7FB8, 8, 0x400, 1, -0x7F90, -1, 0x200}
+    );
 }
 
 void Pattern13_0057(PLW* wk) {
@@ -396,23 +388,12 @@ void Pattern13_0062(PLW* wk) {
 }
 
 void Pattern13_0063(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        ETC_Term(wk, 7, 2, 0x44);
-        break;
-
-    case 1:
-        Check_SA(wk, 2, 0x44);
-        break;
-
-    case 2:
-        Branch_Unit_Area(wk, &(Branch_Menu_Args){2, 0x40, 0x40, 0x41, 0x42});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_etc_term_check_sa_branch_unit_area(
+        wk,
+        &(ETC_Term_Step){ 7, 2, 0x44 },
+        0x44,
+        &(Branch_Menu_Args){2, 0x40, 0x40, 0x41, 0x42}
+    );
 }
 
 void Pattern13_0064(PLW* wk) {

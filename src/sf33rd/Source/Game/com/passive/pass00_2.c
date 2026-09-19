@@ -12,23 +12,12 @@
 #include "sf33rd/Source/Game/engine/workuser.h"
 
 void Passive00_0051(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, 0xB, 0x220);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 0xB, 0x12);
-        break;
-
-    case 2:
-        Normal_Attack(wk, 8, 0x402);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_normal_attack_7(
+        wk,
+        &(Normal_Attack_Step){ 0xB, 0x220 },
+        &(Normal_Attack_Step){ 0xB, 0x12 },
+        &(Normal_Attack_Step){ 8, 0x402 }
+    );
 }
 
 void Passive00_0052(PLW* wk) {
@@ -40,23 +29,7 @@ void Passive00_0053(PLW* wk) {
 }
 
 void Passive00_0054(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait_Get_Up(wk, 0, -1);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 8, 0x10);
-        break;
-
-    case 2:
-        Normal_Attack(wk, 8, 0x10);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_wait_get_up_normal_attack_3(wk, 0, &(Normal_Attack_Step){ 8, 0x10 }, 0x10);
 }
 
 void Passive00_0055(PLW* wk) {

@@ -390,23 +390,7 @@ void Passive12_0053(PLW* wk) {
 }
 
 void Passive12_0054(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait_Get_Up(wk, 3, -1);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 9, 0x102);
-        break;
-
-    case 2:
-        Normal_Attack(wk, 8, 0x202);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_wait_get_up_normal_attack_3(wk, 3, &(Normal_Attack_Step){ 9, 0x102 }, 0x202);
 }
 
 void Passive12_0055(PLW* wk) {

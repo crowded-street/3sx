@@ -156,23 +156,12 @@ void Pattern08_0012(PLW* wk) {
 }
 
 void Pattern08_0013(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, 8, 0x200);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 0xB, 0x202);
-        break;
-
-    case 2:
-        Normal_Attack(wk, 8, 0x400);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_normal_attack_7(
+        wk,
+        &(Normal_Attack_Step){ 8, 0x200 },
+        &(Normal_Attack_Step){ 0xB, 0x202 },
+        &(Normal_Attack_Step){ 8, 0x400 }
+    );
 }
 
 void Pattern08_0014(PLW* wk) {

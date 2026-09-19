@@ -80,23 +80,7 @@ void Passive16_0126(PLW* wk) {
 }
 
 void Passive16_0127(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_Attack(wk, 0xC, 0, 0x40);
-        break;
-
-    case 1:
-        Lever_Attack(wk, 0xC, 0, 0x40);
-        break;
-
-    case 2:
-        Lever_Attack(wk, 8, 0, 0x40);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_lever_attack_2(wk, &(Lever_Attack_Step){ 0xC, 0, 0x40 }, &(Lever_Attack_Step){ 0xC, 0, 0x40 }, 0x40);
 }
 
 void Passive16_0128(PLW* wk) {

@@ -229,23 +229,12 @@ void Passive16_0033(PLW* wk) {
 }
 
 void Passive16_0034(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, 0xC, 0x10);
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 10, -1});
-        break;
-
-    case 2:
-        Com_Random_Select(wk, &(Branch_Menu_Args){2, 3, 0x38, 0x44, 0x45}, 1);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_normal_attack_command_attack_com_random_select(
+        wk,
+        &(Normal_Attack_Step){ 0xC, 0x10 },
+        &(Command_Attack_Args){8, 0x1F, 10, -1},
+        &(Com_Random_Select_Step){ &(Branch_Menu_Args){2, 3, 0x38, 0x44, 0x45}, 1 }
+    );
 }
 
 void Passive16_0035(PLW* wk) {

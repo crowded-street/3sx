@@ -45,23 +45,12 @@ void Passive14_0006(PLW* wk) {
 }
 
 void Passive14_0007(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0x47, 2);
-        break;
-
-    case 1:
-        EM_Term(wk, &(EM_Term_Params){-1, -0x7FF8, 6, 6, 0x7C});
-        break;
-
-    case 2:
-        Normal_Attack(wk, 0xD, 0x20);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_em_term_normal_attack_9(
+        wk,
+        0x47,
+        &(EM_Term_Params){-1, -0x7FF8, 6, 6, 0x7C},
+        &(Normal_Attack_Step){ 0xD, 0x20 }
+    );
 }
 
 void Passive14_0008(PLW* wk) {

@@ -888,3 +888,29 @@ void pattern_approach_walk_wait_get_up_sa_term(
         break;
     }
 }
+
+void pattern_approach_walk_wait_get_up_sa_term_com_random_select(
+    PLW* wk, s16 target_pos, const SA_Term_Args* p, const Com_Random_Select_Step* com_random_select
+) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, target_pos, 2);
+        break;
+
+    case 1:
+        Wait_Get_Up(wk, 3, 0);
+        break;
+
+    case 2:
+        SA_Term(wk, p);
+        break;
+
+    case 3:
+        Com_Random_Select(wk, com_random_select->p, com_random_select->Rnd_Type);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}

@@ -96,23 +96,7 @@ void Pattern16_0019(PLW* wk) {
 }
 
 void Pattern16_0020(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_Attack(wk, 0xC, 0, 0x40);
-        break;
-
-    case 1:
-        Lever_Attack(wk, 0xC, 0, 0x40);
-        break;
-
-    case 2:
-        Lever_Attack(wk, 8, 0, 0x40);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_lever_attack_2(wk, &(Lever_Attack_Step){ 0xC, 0, 0x40 }, &(Lever_Attack_Step){ 0xC, 0, 0x40 }, 0x40);
 }
 
 void Pattern16_0021(PLW* wk) {
@@ -148,23 +132,7 @@ void Pattern16_0028(PLW* wk) {
 }
 
 void Pattern16_0029(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Adjust_Attack(wk, 0xC, 0x100);
-        break;
-
-    case 1:
-        Adjust_Attack(wk, 8, 0x200);
-        break;
-
-    case 2:
-        Lever_Attack(wk, 8, 0, 0x400);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_adjust_attack_lever_attack(wk, 0xC, &(Adjust_Attack_Step){ 8, 0x200 }, 0x400);
 }
 
 void Pattern16_0030(PLW* wk) {

@@ -890,3 +890,39 @@ void pattern_command_attack_branch_unit_area(PLW* wk, const Command_Attack_Args*
         break;
     }
 }
+
+void pattern_search_back_term_jump_attack_term(
+    PLW* wk, const Search_Back_Term_Step* search_back_term, const Jump_Term_Args* a
+) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Search_Back_Term(wk, search_back_term->Move_Value, search_back_term->Next_Action, search_back_term->Next_Menu);
+        break;
+
+    case 1:
+        Jump_Attack_Term(wk, a);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_check_store_lever_command_attack(
+    PLW* wk, const Check_Store_Lever_Step* check_store_lever, const Command_Attack_Args* p
+) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Check_Store_Lever(wk, check_store_lever->Tech_Number, check_store_lever->Next_Action, check_store_lever->Next_Menu);
+        break;
+
+    case 1:
+        Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}

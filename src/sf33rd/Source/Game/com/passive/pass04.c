@@ -212,23 +212,7 @@ void Passive04_0028(PLW* wk) {
 }
 
 void Passive04_0029(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_Attack(wk, 8, 0, 0x10);
-        break;
-
-    case 1:
-        Lever_Attack(wk, 8, 0, 0x10);
-        break;
-
-    case 2:
-        Lever_Attack(wk, 8, 0, 0x10);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_lever_attack_2(wk, &(Lever_Attack_Step){ 8, 0, 0x10 }, &(Lever_Attack_Step){ 8, 0, 0x10 }, 0x10);
 }
 
 void Passive04_0030(PLW* wk) {

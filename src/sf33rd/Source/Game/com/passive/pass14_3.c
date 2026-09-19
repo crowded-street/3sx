@@ -194,23 +194,12 @@ void Passive14_0111(PLW* wk) {
 }
 
 void Passive14_0112(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0x47, 2);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 0xC, 0x20);
-        break;
-
-    case 2:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 10, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_normal_attack_j_command_attack_3(
+        wk,
+        0x47,
+        &(Normal_Attack_Step){ 0xC, 0x20 },
+        &(Command_Attack_Args){8, 0x1E, 10, -1}
+    );
 }
 
 void Passive14_0113(PLW* wk) {

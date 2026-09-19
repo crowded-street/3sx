@@ -185,23 +185,12 @@ void Passive13_0135(PLW* wk) {
 }
 
 void Passive13_0136(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        ETC_Term(wk, 7, 6, 0x85);
-        break;
-
-    case 1:
-        Check_SA(wk, 2, 0x35);
-        break;
-
-    case 2:
-        Branch_Unit_Area(wk, &(Branch_Menu_Args){6, 0x89, 0x89, 0x8A, 0x8B});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_etc_term_check_sa_branch_unit_area(
+        wk,
+        &(ETC_Term_Step){ 7, 6, 0x85 },
+        0x35,
+        &(Branch_Menu_Args){6, 0x89, 0x89, 0x8A, 0x8B}
+    );
 }
 
 void Passive13_0137(PLW* wk) {
@@ -261,19 +250,11 @@ void Passive13_0150(PLW* wk) {
 }
 
 void Passive13_0151(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Check_Store_Lever(wk, 0x1F, 6, 0x96);
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 9, 0x70});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_check_store_lever_command_attack(
+        wk,
+        &(Check_Store_Lever_Step){ 0x1F, 6, 0x96 },
+        &(Command_Attack_Args){8, 0x1F, 9, 0x70}
+    );
 }
 
 void Passive13_0152(PLW* wk) {

@@ -73,19 +73,11 @@ void Passive09_0002(PLW* wk) {
 }
 
 void Passive09_0003(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Check_Store_Lever(wk, 0x1E, 1, -1);
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_check_store_lever_command_attack(
+        wk,
+        &(Check_Store_Lever_Step){ 0x1E, 1, -1 },
+        &(Command_Attack_Args){8, 0x1E, 8, -1}
+    );
 }
 
 void Passive09_0004(PLW* wk) {
@@ -93,19 +85,11 @@ void Passive09_0004(PLW* wk) {
 }
 
 void Passive09_0005(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Check_Store_Lever(wk, 0x1E, 1, -1);
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_check_store_lever_command_attack(
+        wk,
+        &(Check_Store_Lever_Step){ 0x1E, 1, -1 },
+        &(Command_Attack_Args){8, 0x1E, 8, -1}
+    );
 }
 
 void Passive09_0006(PLW* wk) {

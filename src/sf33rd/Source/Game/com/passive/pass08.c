@@ -314,23 +314,12 @@ void Passive08_0029(PLW* wk) {
 }
 
 void Passive08_0030(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0x3F, 2);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 9, 0x202);
-        break;
-
-    case 2:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 9, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_normal_attack_j_command_attack_3(
+        wk,
+        0x3F,
+        &(Normal_Attack_Step){ 9, 0x202 },
+        &(Command_Attack_Args){8, 0x1E, 9, -1}
+    );
 }
 
 void Passive08_0031(PLW* wk) {
@@ -457,23 +446,7 @@ void Passive08_0053(PLW* wk) {
 }
 
 void Passive08_0054(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait_Get_Up(wk, 3, -1);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 9, 0x102);
-        break;
-
-    case 2:
-        Normal_Attack(wk, 8, 0x202);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_wait_get_up_normal_attack_3(wk, 3, &(Normal_Attack_Step){ 9, 0x102 }, 0x202);
 }
 
 void Passive08_0055(PLW* wk) {

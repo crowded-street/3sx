@@ -326,23 +326,12 @@ void Passive05_0061(PLW* wk) {
 }
 
 void Passive05_0062(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, 0xB, 0x200);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 0xB, 0x20);
-        break;
-
-    case 2:
-        Normal_Attack(wk, 0xB, 0x40);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_normal_attack_7(
+        wk,
+        &(Normal_Attack_Step){ 0xB, 0x200 },
+        &(Normal_Attack_Step){ 0xB, 0x20 },
+        &(Normal_Attack_Step){ 0xB, 0x40 }
+    );
 }
 
 void Passive05_0063(PLW* wk) {
