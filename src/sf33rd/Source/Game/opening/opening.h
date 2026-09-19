@@ -9,6 +9,17 @@ extern s8 op_scrn_end;
 extern s16 title_tex_flag;
 extern s16 op_timer0;
 extern OP_W op_w;
+extern s16 music_scene;
+extern s16 music_time;
+extern s16 op_plmove_timer;
+extern OPBW* opw_ptr;
+extern s16 op_end_flag;
+extern s16 op_demo_index;
+extern s16 op_sound_status;
+extern MVXY op_bg_mvxy[3];
+extern void (*opening_move_jp[19])();
+extern const s16 optsr_tbl[59];
+extern const s16 op_quake_y_tbl0[16];
 
 void TITLE_Init();
 s16 TITLE_Move(u16 type);
