@@ -156,19 +156,7 @@ void Passive08_0070(PLW* wk) {
 }
 
 void Passive08_0071(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait_Lie(wk, 0);
-        break;
-
-    case 1:
-        Jump(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_wait_lie_jump(wk);
 }
 
 void Passive08_0072(PLW* wk) {

@@ -21,19 +21,7 @@ void Passive03_0000(PLW* wk) {
 }
 
 void Passive03_0001(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_Off(wk);
-        break;
-
-    case 1:
-        Look(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_lever_off_look(wk);
 }
 
 void Passive03_0002(PLW* wk) {
@@ -45,15 +33,7 @@ void Passive03_0002(PLW* wk) {
 }
 
 void Passive03_0003(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        VS_Jump_Guard(wk);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_vs_jump_guard(wk);
 }
 
 void Passive03_0004(PLW* wk) {

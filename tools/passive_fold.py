@@ -232,7 +232,8 @@ def fold(path, protos, min_members=3, max_params=3):
             if not callees or callees[-1] != callee:
                 callees.append(callee)
         steps = [snake(c) for c in callees if c != 'End_Pattern']
-        base = FAMILY['prefix'] + 'pattern_' + '_'.join(steps[:3])
+        # A script with no steps at all: every value of the counter ends it.
+        base = FAMILY['prefix'] + 'pattern_' + ('_'.join(steps[:3]) or 'end_immediately')
         name, n = base, 2
         while name in used:
             name, n = '%s_%d' % (base, n), n + 1
@@ -625,7 +626,8 @@ def gfold(paths, protos, min_members=3, max_params=3, shared=None):
             if not callees or callees[-1] != callee:
                 callees.append(callee)
         steps = [snake(c) for c in callees if c != 'End_Pattern']
-        base = FAMILY['prefix'] + 'pattern_' + '_'.join(steps[:3])
+        # A script with no steps at all: every value of the counter ends it.
+        base = FAMILY['prefix'] + 'pattern_' + ('_'.join(steps[:3]) or 'end_immediately')
         name, n = base, 2
         while name in used:
             name, n = '%s_%d' % (base, n), n + 1

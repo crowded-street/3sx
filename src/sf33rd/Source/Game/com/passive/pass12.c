@@ -101,19 +101,7 @@ void Passive12_0000(PLW* wk) {
 }
 
 void Passive12_0001(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_Off(wk);
-        break;
-
-    case 1:
-        Look(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_lever_off_look(wk);
 }
 
 void Passive12_0002(PLW* wk) {

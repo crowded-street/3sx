@@ -249,19 +249,7 @@ void Passive00_0138(PLW* wk) {
 }
 
 void Passive00_0139(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump(wk, 1);
-        break;
-
-    case 1:
-        Look(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_jump_look(wk);
 }
 
 void Passive00_0140(PLW* wk) {

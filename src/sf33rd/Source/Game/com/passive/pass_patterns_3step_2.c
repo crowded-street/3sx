@@ -77,6 +77,26 @@ void pattern_normal_attack_5(PLW* wk, s16 reaction, s16 reaction_b, u16 lever_da
     }
 }
 
+void pattern_normal_attack_7(PLW* wk, u16 lever_data, u16 lever_data_b, u16 lever_data_b_b) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Normal_Attack(wk, 8, lever_data);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 8, lever_data_b);
+        break;
+
+    case 2:
+        Normal_Attack(wk, 8, lever_data_b_b);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
 void pattern_normal_attack_branch_unit_area(PLW* wk, const Branch_Menu_Args* p) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -189,6 +209,26 @@ void pattern_normal_attack_j_command_attack_5(PLW* wk, const Command_Attack_Args
 
     case 2:
         J_Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_normal_attack_j_command_attack_com_random_select_2(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Normal_Attack(wk, 0xB, 0x200);
+        break;
+
+    case 1:
+        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 0xA, -1});
+        break;
+
+    case 2:
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x2D, 0xFF, 0xFF, 0xFF}, 2);
         break;
 
     default:
@@ -357,6 +397,26 @@ void pattern_pierce_on_command_attack_j_command_attack(
 
     case 2:
         J_Command_Attack(wk, p_b);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_pierce_on_command_attack_normal_attack_3(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Pierce_On(wk);
+        break;
+
+    case 1:
+        Command_Attack(wk, &(Command_Attack_Args){0xC, 0, 0xB, -1});
+        break;
+
+    case 2:
+        Normal_Attack(wk, 8, 0x400);
         break;
 
     default:
@@ -539,6 +599,26 @@ void pattern_wait_attack_complete_sa_term_wait_attack_complete(PLW* wk, const SA
 
     case 2:
         Wait_Attack_Complete(wk, 3, 0);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_wait_get_up_command_attack_em_term(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Wait_Get_Up(wk, 3, -1);
+        break;
+
+    case 1:
+        Command_Attack(wk, &(Command_Attack_Args){8, 0, 0xB, -1});
+        break;
+
+    case 2:
+        EM_Term(wk, &(EM_Term_Params){0x7FFF, -1, 1, 1, -1});
         break;
 
     default:

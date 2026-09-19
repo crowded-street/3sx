@@ -47,19 +47,7 @@ void Passive17_0000(PLW* wk) {
 }
 
 void Passive17_0001(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_Off(wk);
-        break;
-
-    case 1:
-        Look(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_lever_off_look(wk);
 }
 
 void Passive17_0002(PLW* wk) {
@@ -71,15 +59,7 @@ void Passive17_0002(PLW* wk) {
 }
 
 void Passive17_0003(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        VS_Jump_Guard(wk);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_vs_jump_guard(wk);
 }
 
 void Passive17_0004(PLW* wk) {
@@ -111,15 +91,7 @@ void Passive17_0009(PLW* wk) {
 }
 
 void Passive17_0010(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Short_Range_Attack(wk, &(Short_Range_Args){8, 0x40, 6, 0x1D});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_short_range_attack(wk);
 }
 
 void Passive17_0011(PLW* wk) {
@@ -187,35 +159,7 @@ void Passive17_0024(PLW* wk) {
 }
 
 void Passive17_0025(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Search_Back_Term(wk, 0x60, 6, 0x6C);
-        break;
-
-    case 1:
-        Pierce_On(wk);
-        break;
-
-    case 2:
-        Keep_Away(wk, 0x89, 0);
-        break;
-
-    case 3:
-        Wait_Get_Up(wk, 3, -1);
-        break;
-
-    case 4:
-        Normal_Attack(wk, 8, 0x10);
-        break;
-
-    case 5:
-        Normal_Attack(wk, 8, 0x10);
-        break;
-
-    default:
-        pattern_normal_attack_from_step_6(wk);
-        break;
-    }
+    pattern_search_back_term_pierce_on_keep_away_5(wk, 0x89);
 }
 
 void Passive17_0026(PLW* wk) {

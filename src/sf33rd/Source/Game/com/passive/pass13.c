@@ -33,19 +33,7 @@ void Passive13_0000(PLW* wk) {
 }
 
 void Passive13_0001(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_Off(wk);
-        break;
-
-    case 1:
-        Look(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_lever_off_look(wk);
 }
 
 void Passive13_0002(PLW* wk) {
@@ -57,15 +45,7 @@ void Passive13_0002(PLW* wk) {
 }
 
 void Passive13_0003(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        VS_Jump_Guard(wk);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_vs_jump_guard(wk);
 }
 
 void Passive13_0004(PLW* wk) {
@@ -102,15 +82,7 @@ void Passive13_0009(PLW* wk) {
 }
 
 void Passive13_0010(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Short_Range_Attack(wk, &(Short_Range_Args){8, 0x40, 6, 0x1D});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_short_range_attack(wk);
 }
 
 void Passive13_0011(PLW* wk) {
@@ -174,31 +146,7 @@ void Passive13_0016(PLW* wk) {
 }
 
 void Passive13_0017(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0x71, 2);
-        break;
-
-    case 1:
-        Wait_Get_Up(wk, 0, -1);
-        break;
-
-    case 2:
-        Normal_Attack(wk, 9, 0x10);
-        break;
-
-    case 3:
-        Normal_Attack(wk, 0xB, 0x20);
-        break;
-
-    case 4:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_wait_get_up_normal_attack_2(wk);
 }
 
 void Passive13_0018(PLW* wk) {

@@ -166,19 +166,7 @@ void Passive03_0129(PLW* wk) {
 }
 
 void Passive03_0130(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Provoke(wk, -1);
-        break;
-
-    case 1:
-        Wait_Get_Up(wk, 0, -1);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_provoke_wait_get_up(wk);
 }
 
 void Passive03_0131(PLW* wk) {

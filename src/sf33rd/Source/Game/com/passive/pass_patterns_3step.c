@@ -119,6 +119,26 @@ void pattern_approach_walk_em_term_normal_attack_2(PLW* wk, s16 target_pos, cons
     }
 }
 
+void pattern_approach_walk_etc_term_com_random_select(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, 0x37, 2);
+        break;
+
+    case 1:
+        ETC_Term(wk, 0, 2, 0xD);
+        break;
+
+    case 2:
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x9D, 0x9E, 0x9F, 0x9F}, 1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
 void pattern_approach_walk_etc_term_lever_attack(PLW* wk, s16 target_pos, u32 next_action, u16 next_menu) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -879,26 +899,6 @@ void pattern_keep_away_wait_get_up_command_attack(PLW* wk, s16 target_pos, s16 o
 
     case 2:
         Command_Attack(wk, p);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
-void pattern_normal_attack_7(PLW* wk, u16 lever_data, u16 lever_data_b, u16 lever_data_b_b) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, 8, lever_data);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 8, lever_data_b);
-        break;
-
-    case 2:
-        Normal_Attack(wk, 8, lever_data_b_b);
         break;
 
     default:

@@ -12,19 +12,7 @@
 #include "sf33rd/Source/Game/engine/workuser.h"
 
 void Passive13_0059(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        ETC_Term(wk, 0, 6, 0x34);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 8, 0x200);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_etc_term_normal_attack(wk);
 }
 
 void Passive13_0060(PLW* wk) {
@@ -112,23 +100,7 @@ void Passive13_0071(PLW* wk) {
 }
 
 void Passive13_0072(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Pierce_On(wk);
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){0xC, 0, 0xB, -1});
-        break;
-
-    case 2:
-        Normal_Attack(wk, 8, 0x400);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_pierce_on_command_attack_normal_attack_3(wk);
 }
 
 void Passive13_0073(PLW* wk) {
@@ -412,19 +384,7 @@ void Passive13_0094(PLW* wk) {
 }
 
 void Passive13_0095(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Walk(wk, 1, 0x30, 0);
-        break;
-
-    case 1:
-        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x59, 0x59, 0x59, 0x5A}, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_walk_com_random_select_2(wk);
 }
 
 void Passive13_0096(PLW* wk) {
@@ -496,27 +456,7 @@ void Passive13_0106(PLW* wk) {
 }
 
 void Passive13_0107(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Pierce_On(wk);
-        break;
-
-    case 1:
-        EM_Term(wk, &(EM_Term_Params){-1, -0x7FD0, 6, 1, -1});
-        break;
-
-    case 2:
-        Normal_Attack(wk, 8, 0x42);
-        break;
-
-    case 3:
-        Normal_Attack(wk, 8, 0x40);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_pierce_on_em_term_normal_attack_2(wk);
 }
 
 void Passive13_0108(PLW* wk) {

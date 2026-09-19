@@ -63,10 +63,46 @@ void pattern_com_random_select(PLW* wk, const Branch_Menu_Args* p, s16 rnd_type)
     }
 }
 
+void pattern_com_random_select_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x37, 0x37, 0x27, 0x27}, 0);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
 void pattern_command_attack_2(PLW* wk, const Command_Attack_Args* p) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
         Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_command_attack_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_command_attack_from_step_6_2(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Command_Attack(wk, &(Command_Attack_Args){8, 1, 10, -1});
         break;
 
     default:
@@ -127,6 +163,18 @@ void pattern_j_command_attack(PLW* wk, const Command_Attack_Args* p) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
         J_Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_j_command_attack_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
         break;
 
     default:
@@ -219,10 +267,34 @@ void pattern_lever_attack(PLW* wk, u16 lever, u16 lever_data) {
     }
 }
 
+void pattern_look(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Look(wk, 0);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
 void pattern_normal_attack(PLW* wk, s16 reaction, u16 lever_data) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
         Normal_Attack(wk, reaction, lever_data);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_normal_attack_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Normal_Attack(wk, 8, 0x200);
         break;
 
     default:
@@ -247,6 +319,42 @@ void pattern_sa_term(PLW* wk, const SA_Term_Args* p) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
         SA_Term(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_sa_term_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        SA_Term(wk, &(SA_Term_Args){0x2F, 0x30, 0x31, 0x7F});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_short_range_attack(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Short_Range_Attack(wk, &(Short_Range_Args){8, 0x40, 6, 0x1D});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_vs_jump_guard(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        VS_Jump_Guard(wk);
         break;
 
     default:
@@ -307,78 +415,6 @@ void pattern_walk(PLW* wk, s16 unused) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
         Walk(wk, 1, 0x20, unused);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
-void pattern_normal_attack_from_step_6(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 6:
-        Normal_Attack(wk, 8, 0x200);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
-void pattern_com_random_select_from_step_6(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 6:
-        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x37, 0x37, 0x27, 0x27}, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
-void pattern_j_command_attack_from_step_6(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 6:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
-void pattern_sa_term_from_step_6(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 6:
-        SA_Term(wk, &(SA_Term_Args){0x2F, 0x30, 0x31, 0x7F});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
-void pattern_command_attack_from_step_6(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 6:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
-void pattern_command_attack_from_step_6_2(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 6:
-        Command_Attack(wk, &(Command_Attack_Args){8, 1, 10, -1});
         break;
 
     default:

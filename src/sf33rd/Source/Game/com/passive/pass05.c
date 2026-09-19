@@ -41,19 +41,7 @@ void Passive05_0005(PLW* wk) {
 }
 
 void Passive05_0006(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_Off(wk);
-        break;
-
-    case 1:
-        Look(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_lever_off_look(wk);
 }
 
 void Passive05_0007(PLW* wk) {
@@ -98,15 +86,7 @@ void Passive05_0013(PLW* wk) {
 }
 
 void Passive05_0014(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        VS_Jump_Guard(wk);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_vs_jump_guard(wk);
 }
 
 void Passive05_0015(PLW* wk) {
@@ -238,19 +218,7 @@ void Passive05_0041(PLW* wk) {
 }
 
 void Passive05_0042(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_Off(wk);
-        break;
-
-    case 1:
-        Look(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_lever_off_look(wk);
 }
 
 void Passive05_0043(PLW* wk) {

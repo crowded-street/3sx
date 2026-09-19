@@ -383,6 +383,22 @@ void pattern_etc_term_branch_unit_area(PLW* wk, u32 next_action, u16 next_menu, 
     }
 }
 
+void pattern_etc_term_normal_attack(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        ETC_Term(wk, 0, 6, 0x34);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 8, 0x200);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
 void pattern_hi_jump_attack_term_normal_attack(PLW* wk, const Hi_Jump_Term_Args* a, u16 lever_data) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -463,6 +479,22 @@ void pattern_jump_attack_term_normal_attack_2(PLW* wk, const Jump_Term_Args* a) 
     }
 }
 
+void pattern_jump_look(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Jump(wk, 1);
+        break;
+
+    case 1:
+        Look(wk, 0);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
 void pattern_keep_away_com_random_select(PLW* wk, s16 target_pos) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -519,6 +551,38 @@ void pattern_keep_away_wait_get_up_2(PLW* wk, u16 lever_data) {
 
     case 1:
         Wait_Get_Up(wk, lever_data, -1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_lever_attack_normal_attack(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Lever_Attack(wk, 8, 0, 0x200);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 8, 0x400);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_lever_off_look(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Lever_Off(wk);
+        break;
+
+    case 1:
+        Look(wk, 0);
         break;
 
     default:
@@ -693,6 +757,22 @@ void pattern_provoke_com_random_select(PLW* wk, const Branch_Menu_Args* p) {
     }
 }
 
+void pattern_provoke_wait_get_up(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Provoke(wk, -1);
+        break;
+
+    case 1:
+        Wait_Get_Up(wk, 0, -1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
 void pattern_sa_term_branch_unit_area(PLW* wk, const SA_Term_Args* p, const Branch_Menu_Args* p_b) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -797,102 +877,6 @@ void pattern_search_back_term_command_attack_2(PLW* wk, const Command_Attack_Arg
 
     case 1:
         Command_Attack(wk, p);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
-void pattern_wait_branch_unit_area(PLW* wk, s16 time, const Branch_Menu_Args* p) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait(wk, time);
-        break;
-
-    case 1:
-        Branch_Unit_Area(wk, p);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
-void pattern_wait_command_attack(PLW* wk, s16 time, const Command_Attack_Args* p) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait(wk, time);
-        break;
-
-    case 1:
-        Command_Attack(wk, p);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
-void pattern_wait_get_up_branch_unit_area(PLW* wk, u16 lever_data, const Branch_Menu_Args* p) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait_Get_Up(wk, lever_data, -1);
-        break;
-
-    case 1:
-        Branch_Unit_Area(wk, p);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
-void pattern_wait_get_up_com_random_select(PLW* wk, u16 lever_data, s16 option, const Branch_Menu_Args* p) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait_Get_Up(wk, lever_data, option);
-        break;
-
-    case 1:
-        Com_Random_Select(wk, p, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
-void pattern_wait_get_up_command_attack(PLW* wk, u16 lever_data, s16 option, const Command_Attack_Args* p) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait_Get_Up(wk, lever_data, option);
-        break;
-
-    case 1:
-        Command_Attack(wk, p);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
-void pattern_wait_j_command_attack_from_step_6(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 6:
-        Wait(wk, 3);
-        break;
-
-    case 7:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
         break;
 
     default:

@@ -206,19 +206,7 @@ void Passive02_0076(PLW* wk) {
 }
 
 void Passive02_0077(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait_Attack_Complete(wk, 3, 1);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 8, 0x402);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_wait_attack_complete_normal_attack(wk);
 }
 
 static void passive02_0078_from_step_6(PLW* wk) {

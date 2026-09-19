@@ -187,19 +187,7 @@ void Passive11_0070(PLW* wk) {
 }
 
 void Passive11_0071(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait_Lie(wk, 0);
-        break;
-
-    case 1:
-        Jump(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_wait_lie_jump(wk);
 }
 
 void Passive11_0072(PLW* wk) {
@@ -423,27 +411,7 @@ void Passive11_0100(PLW* wk) {
 }
 
 void Passive11_0101(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        EM_Term(wk, &(EM_Term_Params){-1, -0x7FD0, 6, 1, -1});
-        break;
-
-    case 1:
-        Normal_Attack(wk, 0xC, 0x202);
-        break;
-
-    case 2:
-        SA_Term(wk, &(SA_Term_Args){0x30, 0x31, 0x32, 0x7F});
-        break;
-
-    case 3:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 9, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_em_term_normal_attack_sa_term(wk);
 }
 
 void Passive11_0102(PLW* wk) {

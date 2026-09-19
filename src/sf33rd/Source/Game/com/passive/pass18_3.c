@@ -208,19 +208,7 @@ void Passive18_0147(PLW* wk) {
 }
 
 void Passive18_0148(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump(wk, 1);
-        break;
-
-    case 1:
-        Look(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_jump_look(wk);
 }
 
 void Passive18_0149(PLW* wk) {
@@ -287,91 +275,15 @@ void Passive18_0159(PLW* wk) {
 }
 
 void Passive18_0160(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Search_Back_Term(wk, 0x30, 2, 0xF);
-        break;
-
-    case 1:
-        Walk(wk, 1, 0x20, 0);
-        break;
-
-    case 2:
-        Wait(wk, 3);
-        break;
-
-    case 3:
-        Walk(wk, 0, 0x30, 0);
-        break;
-
-    case 4:
-        Wait(wk, 9);
-        break;
-
-    case 5:
-        Walk(wk, 0, 0x20, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_search_back_term_walk_wait(wk);
 }
 
 void Passive18_0161(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Search_Back_Term(wk, 0x20, 2, 0x1B);
-        break;
-
-    case 1:
-        Walk(wk, 1, 0x18, 0);
-        break;
-
-    case 2:
-        Wait(wk, 8);
-        break;
-
-    case 3:
-        Search_Back_Term(wk, 0x30, 2, 0x1B);
-        break;
-
-    case 4:
-        Walk(wk, 1, 0x20, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_search_back_term_walk_wait_2(wk);
 }
 
 void Passive18_0162(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Walk(wk, 0, 0x20, 0);
-        break;
-
-    case 1:
-        Search_Back_Term(wk, 0x30, 2, 6);
-        break;
-
-    case 2:
-        Walk(wk, 1, 0x28, 0);
-        break;
-
-    case 3:
-        Wait(wk, 8);
-        break;
-
-    case 4:
-        Walk(wk, 0, 0x20, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_walk_search_back_term_walk(wk);
 }
 
 void Passive18_0163(PLW* wk) {

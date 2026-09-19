@@ -28,23 +28,7 @@ void Passive19_0061(PLW* wk) {
 }
 
 void Passive19_0062(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0x37, 2);
-        break;
-
-    case 1:
-        ETC_Term(wk, 0, 2, 0xD);
-        break;
-
-    case 2:
-        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x9D, 0x9E, 0x9F, 0x9F}, 1);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_etc_term_com_random_select(wk);
 }
 
 void Passive19_0063(PLW* wk) {

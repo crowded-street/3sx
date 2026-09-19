@@ -249,31 +249,7 @@ void Passive12_0148(PLW* wk) {
 }
 
 void Passive12_0149(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Pierce_On(wk);
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0, -1, -1});
-        break;
-
-    case 2:
-        Normal_Attack(wk, 9, 0x102);
-        break;
-
-    case 3:
-        Normal_Attack(wk, 9, 0x202);
-        break;
-
-    case 4:
-        Normal_Attack(wk, 8, 0x402);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_pierce_on_command_attack_normal_attack_4(wk);
 }
 
 void Passive12_0150(PLW* wk) {

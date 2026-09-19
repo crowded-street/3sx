@@ -164,19 +164,7 @@ void Passive12_0178(PLW* wk) {
 }
 
 void Passive12_0179(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_Attack(wk, 8, 0, 0x200);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 8, 0x400);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_lever_attack_normal_attack(wk);
 }
 
 void Passive12_0180(PLW* wk) {
@@ -302,15 +290,7 @@ void Passive12_0197(PLW* wk) {
 }
 
 void Passive12_0198(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        VS_Jump_Guard(wk);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_vs_jump_guard(wk);
 }
 
 void Passive12_0199(PLW* wk) {
@@ -568,27 +548,7 @@ void Passive12_0228(PLW* wk) {
 }
 
 void Passive12_0229(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Pierce_On(wk);
-        break;
-
-    case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0, -1, -1});
-        break;
-
-    case 2:
-        EM_Term(wk, &(EM_Term_Params){-1, -0x7FD0, 6, 1, -1});
-        break;
-
-    case 3:
-        Normal_Attack(wk, 9, 0x402);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_pierce_on_command_attack_em_term(wk);
 }
 
 void Passive12_0230(PLW* wk) {
