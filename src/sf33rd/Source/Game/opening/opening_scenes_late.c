@@ -224,6 +224,14 @@ static bool op_112_sound_ready() {
     return (gSeqStatus[0] >= op_112_sound[op_w.r_no_2]) && (gSeqStatus[0] != 0x70);
 }
 
+/* A step of scene 112 that is timed by a frame counter rather than by the sound
+ * position: the counter ticks, and the step's own entry in op_112_sound is how
+ * many frames it lasts. */
+static bool op_112_timed_step(s16 next, s16 bg) {
+    op_w.mv_ctr += 1;
+    return opening_cue_step(op_w.mv_ctr >= op_112_sound[op_w.r_no_2], next, bg);
+}
+
 static void start_op_112_timed_sequence(void) {
     if (opening_cue_step(op_112_sound_ready(), 71, 70)) {
         op_w.mv_ctr = 0;
@@ -231,14 +239,11 @@ static void start_op_112_timed_sequence(void) {
 }
 
 static void update_op_112_scene_71_transition(void) {
-    op_w.mv_ctr += 1;
-    opening_cue_step(op_w.mv_ctr >= op_112_sound[op_w.r_no_2], 72, 71);
+    op_112_timed_step(72, 71);
 }
 
 static void update_op_112_scene_72_transition(void) {
-    op_w.mv_ctr += 1;
-
-    if (opening_cue_step(op_w.mv_ctr >= op_112_sound[op_w.r_no_2], 73, 72)) {
+    if (op_112_timed_step(73, 72)) {
         op_obj_disp = 0;
         effect_48_init(18);
     }
@@ -275,24 +280,18 @@ void op_112_move() {
         break;
 
     case 4:
-        op_w.mv_ctr += 1;
-
-        if (opening_cue_step(op_w.mv_ctr >= op_112_sound[op_w.r_no_2], 74, 73)) {
+        if (op_112_timed_step(74, 73)) {
             op_obj_disp = 1;
         }
 
         break;
 
     case 5:
-        op_w.mv_ctr += 1;
-
-        opening_cue_step(op_w.mv_ctr >= op_112_sound[op_w.r_no_2], 75, 74);
+        op_112_timed_step(75, 74);
         break;
 
     case 6:
-        op_w.mv_ctr += 1;
-
-        if (opening_cue_step(op_w.mv_ctr >= op_112_sound[op_w.r_no_2], 76, 75)) {
+        if (op_112_timed_step(76, 75)) {
             op_obj_disp = 0;
             effect_48_init(19);
         }
@@ -300,18 +299,14 @@ void op_112_move() {
         break;
 
     case 7:
-        op_w.mv_ctr += 1;
-
-        if (opening_cue_step(op_w.mv_ctr >= op_112_sound[op_w.r_no_2], 77, 76)) {
+        if (op_112_timed_step(77, 76)) {
             op_obj_disp = 1;
         }
 
         break;
 
     case 8:
-        op_w.mv_ctr += 1;
-
-        opening_cue_step(op_w.mv_ctr >= op_112_sound[op_w.r_no_2], 78, 77);
+        op_112_timed_step(78, 77);
         break;
 
     default:
