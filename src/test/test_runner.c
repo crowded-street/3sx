@@ -110,25 +110,36 @@ static Uint16 read_input_buff(SDL_IOStream* io, int player) {
     return buff;
 }
 
+/* One button and one trigger of the pad state, from the recorded input word.
+ * The sixteen copies differ in the field and the flag, and each writes both out
+ * in full at its own call site. */
+static void set_button(bool* out, Uint16 input, Uint16 flag) {
+    *out = (input & flag) ? true : false;
+}
+
+static void set_trigger(Sint16* out, Uint16 input, Uint16 flag) {
+    *out = (input & flag) ? SDL_MAX_SINT16 : 0;
+}
+
 static void apply_input_buffer(int id, Uint16 input) {
     Input_ButtonState state = { 0 };
 
-    state.south = (input & SWK_SOUTH) ? true : false;
-    state.east = (input & SWK_EAST) ? true : false;
-    state.west = (input & SWK_WEST) ? true : false;
-    state.north = (input & SWK_NORTH) ? true : false;
-    state.back = (input & SWK_BACK) ? true : false;
-    state.start = (input & SWK_START) ? true : false;
-    state.left_stick = (input & SWK_LEFT_STICK) ? true : false;
-    state.right_stick = (input & SWK_RIGHT_STICK) ? true : false;
-    state.left_shoulder = (input & SWK_LEFT_SHOULDER) ? true : false;
-    state.right_shoulder = (input & SWK_RIGHT_SHOULDER) ? true : false;
-    state.left_trigger = (input & SWK_LEFT_TRIGGER) ? SDL_MAX_SINT16 : 0;
-    state.right_trigger = (input & SWK_RIGHT_TRIGGER) ? SDL_MAX_SINT16 : 0;
-    state.dpad_up = (input & SWK_UP) ? true : false;
-    state.dpad_down = (input & SWK_DOWN) ? true : false;
-    state.dpad_left = (input & SWK_LEFT) ? true : false;
-    state.dpad_right = (input & SWK_RIGHT) ? true : false;
+    set_button(&state.south, input, SWK_SOUTH);
+    set_button(&state.east, input, SWK_EAST);
+    set_button(&state.west, input, SWK_WEST);
+    set_button(&state.north, input, SWK_NORTH);
+    set_button(&state.back, input, SWK_BACK);
+    set_button(&state.start, input, SWK_START);
+    set_button(&state.left_stick, input, SWK_LEFT_STICK);
+    set_button(&state.right_stick, input, SWK_RIGHT_STICK);
+    set_button(&state.left_shoulder, input, SWK_LEFT_SHOULDER);
+    set_button(&state.right_shoulder, input, SWK_RIGHT_SHOULDER);
+    set_trigger(&state.left_trigger, input, SWK_LEFT_TRIGGER);
+    set_trigger(&state.right_trigger, input, SWK_RIGHT_TRIGGER);
+    set_button(&state.dpad_up, input, SWK_UP);
+    set_button(&state.dpad_down, input, SWK_DOWN);
+    set_button(&state.dpad_left, input, SWK_LEFT);
+    set_button(&state.dpad_right, input, SWK_RIGHT);
 
     StatcheckInput_SetButtonState(id, &state);
 }
