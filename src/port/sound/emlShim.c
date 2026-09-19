@@ -82,6 +82,13 @@ static void UpdateVolPanPitch(struct VWork* voice);
 static int gcVoices();
 
 // Note to pitch from ps2sdk
+/* The note offset has fallen below the table's first entry, or sits exactly on
+ * it with a negative fine offset. Copied character for character from the test
+ * it stood in. */
+static s32 noteOffsetUnderflows(s32 offset1, s32 offset2) {
+    return (offset1 < 0) || ((offset1 == 0) && (offset2 < 0));
+}
+
 static u16 sceSdNote2Pitch(u16 center_note, u16 center_fine, u16 note, short fine) {
     s32 _fine;
     s32 _fine2;
@@ -118,7 +125,7 @@ static u16 sceSdNote2Pitch(u16 center_note, u16 center_fine, u16 note, short fin
     val = val2 - 2;
     offset1 = _note - (val2 * 12);
 
-    if ((offset1 < 0) || ((offset1 == 0) && (offset2 < 0))) {
+    if (noteOffsetUnderflows(offset1, offset2)) {
         offset1 = offset1 + 12;
         val = val2 - 3;
     }
