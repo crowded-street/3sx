@@ -10,7 +10,12 @@
     GS_ASSERT_SAME_SIZE(member);                                                                                       \
     SDL_memcpy(&member, &src->member, sizeof(member))
 
-void GameState_Load(const GameState* src) {
+/* Restoring every global the netcode rolls back in the order the GameState struct declares it. The cuts are
+ * positional - this is a flat list of copies, so there is no nesting to
+ * follow - and they land where the subject changes, or on the module
+ * comments the tail already carried. Nothing is reordered. */
+
+static void load_round_score_and_bonus(const GameState* src) {
     GS_LOAD(Scene_Cut);
     GS_LOAD(Time_Over);
     GS_LOAD(round_timer);
@@ -38,6 +43,9 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(Perfect_Bonus);
     GS_LOAD(Keep_Score);
     GS_LOAD(Disp_Score_Buff);
+}
+
+static void load_match_outcome_and_select(const GameState* src) {
     GS_LOAD(Winner_id);
     GS_LOAD(Loser_id);
     GS_LOAD(Break_Into);
@@ -81,6 +89,9 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(Request_E_No);
     GS_LOAD(Request_G_No);
     GS_LOAD(Present_Rank);
+}
+
+static void load_ranking_demo_and_fight_flags(const GameState* src) {
     GS_LOAD(Best_Grade);
     GS_LOAD(Demo_Type);
     GS_LOAD(Rank_Type);
@@ -131,6 +142,9 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(Continue_Coin);
     GS_LOAD(Ignore_Entry);
     GS_LOAD(Slide_Type);
+}
+
+static void load_plates_colours_and_counters(const GameState* src) {
     GS_LOAD(Moving_Plate);
     GS_LOAD(Naming_Cut);
     GS_LOAD(Moving_Plate_Counter);
@@ -181,6 +195,9 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(Bullet_Counter);
     GS_LOAD(Final_Result_id);
     GS_LOAD(Disp_Win_Name);
+}
+
+static void load_finish_flags_and_entry_lists(const GameState* src) {
     GS_LOAD(Perfect_Counter);
     GS_LOAD(Straight_Counter);
     GS_LOAD(Appear_Q);
@@ -241,6 +258,9 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(Battle_Q);
     GS_LOAD(EM_History);
     GS_LOAD(GO_No);
+}
+
+static void load_continue_and_state_indices(const GameState* src) {
     GS_LOAD(Aborigine);
     GS_LOAD(Continue_Count_Down);
     GS_LOAD(WGJ_Target);
@@ -301,6 +321,9 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(F_No1);
     GS_LOAD(F_No2);
     GS_LOAD(F_No3);
+}
+
+static void load_menu_training_and_timers(const GameState* src) {
     GS_LOAD(keep_condition);
     GS_LOAD(Check_Buff);
     GS_LOAD(Convert_Buff);
@@ -351,6 +374,9 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(D_Timer);
     GS_LOAD(Rank_Pos_X);
     GS_LOAD(Rank_Pos_Y);
+}
+
+static void load_lever_area_and_pattern(const GameState* src) {
     GS_LOAD(E_Timer);
     GS_LOAD(F_Timer);
     GS_LOAD(ENTRY_X);
@@ -411,6 +437,9 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(Guard_Counter);
     GS_LOAD(Limit_Time);
     GS_LOAD(Last_Pattern_Index);
+}
+
+static void load_bonus_stage_records_and_rng(const GameState* src) {
     GS_LOAD(Random_ix16_ex);
     GS_LOAD(Random_ix32_ex);
     GS_LOAD(DE_X);
@@ -460,7 +489,9 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(Random_ix32_ex_com);
     GS_LOAD(Opening_Now);
     GS_LOAD(task);
+}
 
+static void load_player_command_and_combo_state(const GameState* src) {
     // plcnt
 
     GS_LOAD(plw);
@@ -508,7 +539,9 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(cmb_calc_now);
     GS_LOAD(cst_read);
     GS_LOAD(cst_write);
+}
 
+static void load_bg_charset_and_gauge_state(const GameState* src) {
     // bg
 
     GS_LOAD(bg_w);
@@ -549,7 +582,9 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(max2);
     GS_LOAD(max_rno2);
     GS_LOAD(spg_dat);
+}
 
+static void load_vitality_win_and_appear_state(const GameState* src) {
     // stun
 
     GS_LOAD(sdat);
@@ -582,7 +617,9 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(app_counter);
     GS_LOAD(appear_work);
     GS_LOAD(Appear_end);
+}
 
+static void load_bg_data_and_effect_state(const GameState* src) {
     // bg_data
 
     GS_LOAD(y_sitei_pos);
@@ -634,4 +671,20 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(old_mes_no3);
     GS_LOAD(old_mes_no_pl);
     GS_LOAD(mes_timer);
+}
+
+void GameState_Load(const GameState* src) {
+    load_round_score_and_bonus(src);
+    load_match_outcome_and_select(src);
+    load_ranking_demo_and_fight_flags(src);
+    load_plates_colours_and_counters(src);
+    load_finish_flags_and_entry_lists(src);
+    load_continue_and_state_indices(src);
+    load_menu_training_and_timers(src);
+    load_lever_area_and_pattern(src);
+    load_bonus_stage_records_and_rng(src);
+    load_player_command_and_combo_state(src);
+    load_bg_charset_and_gauge_state(src);
+    load_vitality_win_and_appear_state(src);
+    load_bg_data_and_effect_state(src);
 }

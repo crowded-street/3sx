@@ -9,7 +9,12 @@
     GS_ASSERT_SAME_SIZE(member);                                                                                       \
     SDL_memcpy(&dst->member, &member, sizeof(member))
 
-void GameState_Save(GameState* dst) {
+/* Saving every global the netcode rolls back in the order the GameState struct declares it. The cuts are
+ * positional - this is a flat list of copies, so there is no nesting to
+ * follow - and they land where the subject changes, or on the module
+ * comments the tail already carried. Nothing is reordered. */
+
+static void save_round_score_and_bonus(GameState* dst) {
     GS_SAVE(Scene_Cut);
     GS_SAVE(Time_Over);
     GS_SAVE(round_timer);
@@ -37,6 +42,9 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(Perfect_Bonus);
     GS_SAVE(Keep_Score);
     GS_SAVE(Disp_Score_Buff);
+}
+
+static void save_match_outcome_and_select(GameState* dst) {
     GS_SAVE(Winner_id);
     GS_SAVE(Loser_id);
     GS_SAVE(Break_Into);
@@ -80,6 +88,9 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(Request_E_No);
     GS_SAVE(Request_G_No);
     GS_SAVE(Present_Rank);
+}
+
+static void save_ranking_demo_and_fight_flags(GameState* dst) {
     GS_SAVE(Best_Grade);
     GS_SAVE(Demo_Type);
     GS_SAVE(Rank_Type);
@@ -130,6 +141,9 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(Continue_Coin);
     GS_SAVE(Ignore_Entry);
     GS_SAVE(Slide_Type);
+}
+
+static void save_plates_colours_and_counters(GameState* dst) {
     GS_SAVE(Moving_Plate);
     GS_SAVE(Naming_Cut);
     GS_SAVE(Moving_Plate_Counter);
@@ -180,6 +194,9 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(Bullet_Counter);
     GS_SAVE(Final_Result_id);
     GS_SAVE(Disp_Win_Name);
+}
+
+static void save_finish_flags_and_entry_lists(GameState* dst) {
     GS_SAVE(Perfect_Counter);
     GS_SAVE(Straight_Counter);
     GS_SAVE(Appear_Q);
@@ -240,6 +257,9 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(Battle_Q);
     GS_SAVE(EM_History);
     GS_SAVE(GO_No);
+}
+
+static void save_continue_and_state_indices(GameState* dst) {
     GS_SAVE(Aborigine);
     GS_SAVE(Continue_Count_Down);
     GS_SAVE(WGJ_Target);
@@ -300,6 +320,9 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(F_No1);
     GS_SAVE(F_No2);
     GS_SAVE(F_No3);
+}
+
+static void save_menu_training_and_timers(GameState* dst) {
     GS_SAVE(keep_condition);
     GS_SAVE(Check_Buff);
     GS_SAVE(Convert_Buff);
@@ -350,6 +373,9 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(D_Timer);
     GS_SAVE(Rank_Pos_X);
     GS_SAVE(Rank_Pos_Y);
+}
+
+static void save_lever_area_and_pattern(GameState* dst) {
     GS_SAVE(E_Timer);
     GS_SAVE(F_Timer);
     GS_SAVE(ENTRY_X);
@@ -410,6 +436,9 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(Guard_Counter);
     GS_SAVE(Limit_Time);
     GS_SAVE(Last_Pattern_Index);
+}
+
+static void save_bonus_stage_records_and_rng(GameState* dst) {
     GS_SAVE(Random_ix16_ex);
     GS_SAVE(Random_ix32_ex);
     GS_SAVE(DE_X);
@@ -461,7 +490,9 @@ void GameState_Save(GameState* dst) {
     // state deciding when to draw from it isn't saved.
     GS_SAVE(Opening_Now);
     GS_SAVE(task);
+}
 
+static void save_player_command_and_combo_state(GameState* dst) {
     // plcnt
 
     GS_SAVE(plw);
@@ -509,7 +540,9 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(cmb_calc_now);
     GS_SAVE(cst_read);
     GS_SAVE(cst_write);
+}
 
+static void save_bg_charset_and_gauge_state(GameState* dst) {
     // bg
 
     GS_SAVE(bg_w);
@@ -550,7 +583,9 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(max2);
     GS_SAVE(max_rno2);
     GS_SAVE(spg_dat);
+}
 
+static void save_vitality_win_and_appear_state(GameState* dst) {
     // stun
 
     GS_SAVE(sdat);
@@ -583,7 +618,9 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(app_counter);
     GS_SAVE(appear_work);
     GS_SAVE(Appear_end);
+}
 
+static void save_bg_data_and_effect_state(GameState* dst) {
     // bg_data
 
     GS_SAVE(y_sitei_pos);
@@ -635,4 +672,20 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(old_mes_no3);
     GS_SAVE(old_mes_no_pl);
     GS_SAVE(mes_timer);
+}
+
+void GameState_Save(GameState* dst) {
+    save_round_score_and_bonus(dst);
+    save_match_outcome_and_select(dst);
+    save_ranking_demo_and_fight_flags(dst);
+    save_plates_colours_and_counters(dst);
+    save_finish_flags_and_entry_lists(dst);
+    save_continue_and_state_indices(dst);
+    save_menu_training_and_timers(dst);
+    save_lever_area_and_pattern(dst);
+    save_bonus_stage_records_and_rng(dst);
+    save_player_command_and_combo_state(dst);
+    save_bg_charset_and_gauge_state(dst);
+    save_vitality_win_and_appear_state(dst);
+    save_bg_data_and_effect_state(dst);
 }
