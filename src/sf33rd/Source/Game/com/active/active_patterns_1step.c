@@ -266,3 +266,27 @@ void active_pattern_normal_attack_sp(PLW* wk) {
         break;
     }
 }
+
+void active_pattern_j_command_attack_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1e, 8, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_j_command_attack_from_step_6_2(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1e, 10, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}

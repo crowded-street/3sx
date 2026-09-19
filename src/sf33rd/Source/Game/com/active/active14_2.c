@@ -867,18 +867,6 @@ void Pattern14_0136(PLW* wk) {
     active_pattern_com_random_select(wk, &(Branch_Menu_Args){2, 0x84, 0x85, 0x86, 0x87}, 0);
 }
 
-static void pattern14_0137_from_step_6(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 6:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1e, 10, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
 void Pattern14_0137(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -906,7 +894,7 @@ void Pattern14_0137(PLW* wk) {
         break;
 
     default:
-        pattern14_0137_from_step_6(wk);
+        active_pattern_j_command_attack_from_step_6_2(wk);
         break;
     }
 }

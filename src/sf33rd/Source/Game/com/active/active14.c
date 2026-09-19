@@ -316,18 +316,6 @@ void Pattern14_0032(PLW* wk) {
     }
 }
 
-static void pattern14_0033_from_step_6(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 6:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1e, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
 void Pattern14_0033(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -355,7 +343,7 @@ void Pattern14_0033(PLW* wk) {
         break;
 
     default:
-        pattern14_0033_from_step_6(wk);
+        active_pattern_j_command_attack_from_step_6(wk);
         break;
     }
 }
@@ -440,18 +428,6 @@ void Pattern14_0036(PLW* wk) {
     }
 }
 
-static void pattern14_0037_from_step_6(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 6:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1e, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
 void Pattern14_0037(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -479,7 +455,7 @@ void Pattern14_0037(PLW* wk) {
         break;
 
     default:
-        pattern14_0037_from_step_6(wk);
+        active_pattern_j_command_attack_from_step_6(wk);
         break;
     }
 }

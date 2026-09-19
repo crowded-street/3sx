@@ -65,6 +65,8 @@ void active_pattern_hi_jump_attack_term_com_random_select(PLW* wk);
 void active_pattern_hi_jump_command_attack_term(PLW* wk, const JCA_Term_Args* a);
 void active_pattern_j_command_attack(PLW* wk, const Command_Attack_Args* p);
 void active_pattern_j_command_attack_2(PLW* wk, const Command_Attack_Args* p, const Command_Attack_Args* p_b);
+void active_pattern_j_command_attack_from_step_6(PLW* wk);
+void active_pattern_j_command_attack_from_step_6_2(PLW* wk);
 void active_pattern_jump(PLW* wk);
 void active_pattern_jump_attack(PLW* wk, const Jump_Attack_Args* a);
 void active_pattern_jump_attack_term(PLW* wk, const Jump_Term_Args* a);

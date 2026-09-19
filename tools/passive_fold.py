@@ -697,8 +697,11 @@ def dedup(paths, shared_paths, header):
     for path, src in sources.items():
         for name, a, b, is_static in functions(src):
             full = src[a:b]
-            if not re.match(r'^%s\d+_' % FAMILY['dispatcher'].lower(), name) \
-                    or SWITCH_HEAD not in full:
+            # The per-character helpers this campaign made: a Recipe X tail is
+            # named for the script it continues (pattern14_0026_from_step_6) and
+            # a Recipe S rename prefixes the dispatcher (computer14_pattern_*).
+            if not re.match(r'^(%s|%s)\d+_' % (FAMILY['dispatcher'].lower(), FAMILY['script'].lower()),
+                            name) or SWITCH_HEAD not in full:
                 continue
             groups[_shape(full)].append((path, name, a, b, full))
 
@@ -708,7 +711,8 @@ def dedup(paths, shared_paths, header):
             target = shared[shape]
         elif len(members) > 1:
             first = members[0][1]
-            tail = re.match(r'^%s\d+_\d+_from_step_(\d+)$' % FAMILY['dispatcher'].lower(), first)
+            tail = re.match(r'^(?:%s|%s)\d+_\d+_from_step_(\d+)$'
+                            % (FAMILY['dispatcher'].lower(), FAMILY['script'].lower()), first)
             if tail:
                 # A Recipe X tail: name it for the steps it runs, as the fold
                 # names a skeleton, plus the label it starts at.
@@ -716,11 +720,14 @@ def dedup(paths, shared_paths, header):
                 for callee in re.findall(r'\b([A-Z]\w+)\(', members[0][4]):
                     if callee != 'End_Pattern' and (not steps or steps[-1] != callee):
                         steps.append(callee)
-                base = 'pattern_%s_from_step_%s' % ('_'.join(snake(c) for c in steps[:3]),
-                                                    tail.group(1))
+                base = '%spattern_%s_from_step_%s' % (FAMILY['prefix'],
+                                                      '_'.join(snake(c) for c in steps[:3]),
+                                                      tail.group(1))
             else:
                 base = re.sub(r'_\d+$', '',
-                              re.sub(r'^%s\d+_' % FAMILY['dispatcher'].lower(), '', first))
+                              re.sub(r'^(?:%s|%s)\d+_'
+                                     % (FAMILY['dispatcher'].lower(), FAMILY['script'].lower()),
+                                     '', first))
             target, n = base, 2
             while target in set(shared.values()):
                 target, n = '%s_%d' % (base, n), n + 1
