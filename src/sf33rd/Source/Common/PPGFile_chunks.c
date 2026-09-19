@@ -295,6 +295,18 @@ error_handler:
     flLogOut("ppgSetupPalChunkDir: Failed to acquire palette handle");
 }
 
+static void ppgSwapWords(u32* c4, s32 count) {
+    for (int i = 0; i < count; i++) {
+        c4[i] = SDL_Swap32BE(c4[i]);
+    }
+}
+
+static void ppgSwapHalves(u16* c2, s32 count) {
+    for (int i = 0; i < count; i++) {
+        c2[i] = SDL_Swap16BE(c2[i]);
+    }
+}
+
 /* A depth of 0 or 1 byte has nothing to swap, and dendL says the data was read
  * in the target order already. */
 static s32 ppgDataAlreadyInOrder(const PPGEndianArgs* a) {
@@ -307,17 +319,9 @@ void ppgChangeDataEndian(u8* adrs, const PPGEndianArgs* a) {
     }
 
     if (a->col4 != 0) {
-        u32* c4 = adrs;
-
-        for (int i = 0; i < a->size / 4; i++) {
-            c4[i] = SDL_Swap32BE(c4[i]);
-        }
+        ppgSwapWords((u32*)adrs, a->size / 4);
     } else {
-        u16* c2 = adrs;
-
-        for (int i = 0; i < a->size / 2; i++) {
-            c2[i] = SDL_Swap16BE(c2[i]);
-        }
+        ppgSwapHalves((u16*)adrs, a->size / 2);
     }
 }
 
