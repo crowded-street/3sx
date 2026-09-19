@@ -944,6 +944,76 @@ static void upload_pending_data(SDL_GPUCommandBuffer* command_buffer, _TextureUp
     SDL_EndGPUCopyPass(copy_pass);
 }
 
+// Which pipeline a quad draws with, and the samplers that go with it.
+static void bind_quad_pipeline(SDL_GPURenderPass* canvas_pass, const _Quad* quad) {
+    if (quad->texture_index == -1) {
+        SDL_BindGPUGraphicsPipeline(canvas_pass, solid_pipeline);
+    } else {
+        const _Texture* texture = &textures[quad->texture_index];
+
+        switch (texture->palette_type) {
+        case PALETTE_NONE:
+            SDL_BindGPUGraphicsPipeline(canvas_pass, direct_pipeline);
+
+            SDL_BindGPUFragmentSamplers(
+                canvas_pass,
+                0,
+                (SDL_GPUTextureSamplerBinding[]) {
+                    {
+                        .texture = texture->handle,
+                        .sampler = sampler,
+                    },
+                },
+                1
+            );
+
+            break;
+
+        case PALETTE_4:
+            SDL_BindGPUGraphicsPipeline(canvas_pass, palette_4_pipeline);
+
+            SDL_BindGPUFragmentSamplers(
+                canvas_pass,
+                0,
+                (SDL_GPUTextureSamplerBinding[]) {
+                    {
+                        .texture = texture->handle,
+                        .sampler = sampler,
+                    },
+                    {
+                        .texture = palettes[quad->palette_index],
+                        .sampler = sampler,
+                    },
+                },
+                2
+            );
+
+            break;
+
+        case PALETTE_8:
+            SDL_BindGPUGraphicsPipeline(canvas_pass, palette_8_pipeline);
+
+            SDL_BindGPUFragmentSamplers(
+                canvas_pass,
+                0,
+                (SDL_GPUTextureSamplerBinding[]) {
+                    {
+                        .texture = texture->handle,
+                        .sampler = sampler,
+                    },
+                    {
+                        .texture = palettes[quad->palette_index],
+                        .sampler = sampler,
+                    },
+                },
+                2
+            );
+
+            break;
+        }
+    }
+}
+
 static void draw_quads_to_canvas(SDL_GPUCommandBuffer* command_buffer) {
     SDL_GPURenderPass* canvas_pass = SDL_BeginGPURenderPass(
         command_buffer,
@@ -990,72 +1060,7 @@ static void draw_quads_to_canvas(SDL_GPUCommandBuffer* command_buffer) {
     for (int i = 0; i < arrlen(quads); i++) {
         const _Quad* quad = &quads[i];
 
-        if (quad->texture_index == -1) {
-            SDL_BindGPUGraphicsPipeline(canvas_pass, solid_pipeline);
-        } else {
-            const _Texture* texture = &textures[quad->texture_index];
-
-            switch (texture->palette_type) {
-            case PALETTE_NONE:
-                SDL_BindGPUGraphicsPipeline(canvas_pass, direct_pipeline);
-
-                SDL_BindGPUFragmentSamplers(
-                    canvas_pass,
-                    0,
-                    (SDL_GPUTextureSamplerBinding[]) {
-                        {
-                            .texture = texture->handle,
-                            .sampler = sampler,
-                        },
-                    },
-                    1
-                );
-
-                break;
-
-            case PALETTE_4:
-                SDL_BindGPUGraphicsPipeline(canvas_pass, palette_4_pipeline);
-
-                SDL_BindGPUFragmentSamplers(
-                    canvas_pass,
-                    0,
-                    (SDL_GPUTextureSamplerBinding[]) {
-                        {
-                            .texture = texture->handle,
-                            .sampler = sampler,
-                        },
-                        {
-                            .texture = palettes[quad->palette_index],
-                            .sampler = sampler,
-                        },
-                    },
-                    2
-                );
-
-                break;
-
-            case PALETTE_8:
-                SDL_BindGPUGraphicsPipeline(canvas_pass, palette_8_pipeline);
-
-                SDL_BindGPUFragmentSamplers(
-                    canvas_pass,
-                    0,
-                    (SDL_GPUTextureSamplerBinding[]) {
-                        {
-                            .texture = texture->handle,
-                            .sampler = sampler,
-                        },
-                        {
-                            .texture = palettes[quad->palette_index],
-                            .sampler = sampler,
-                        },
-                    },
-                    2
-                );
-
-                break;
-            }
-        }
+        bind_quad_pipeline(canvas_pass, quad);
 
         SDL_DrawGPUIndexedPrimitives(canvas_pass, 6, 1, i * 6, 0, 0);
     }
