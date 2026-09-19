@@ -1,0 +1,128 @@
+/**
+ * @file pass_patterns_2step_2.c
+ * COM Passive: pattern skeletons shared by every character
+ *
+ * The two-step patterns. Part 2 of 2, in name order.
+ *
+ * A passive pattern script is a switch on the step counter with one engine call
+ * per step, and the same step sequences recur across characters. Each skeleton
+ * here is exactly the body its call sites used to hold, with the arguments of
+ * its calls taken as parameters and written out in full at each call site.
+ */
+
+#include "sf33rd/Source/Game/com/passive/pass_patterns.h"
+#include "common.h"
+#include "sf33rd/Source/Game/com/com_sub.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
+
+void pattern_wait_get_up_command_attack_2(PLW* wk, const Command_Attack_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Wait_Get_Up(wk, 0, -1);
+        break;
+
+    case 1:
+        Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_wait_get_up_jump_attack_term(PLW* wk, const Jump_Term_Args* a) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Wait_Get_Up(wk, 0, -1);
+        break;
+
+    case 1:
+        Jump_Attack_Term(wk, a);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_wait_get_up_lever_attack(PLW* wk, u16 lever_data, u16 lever, u16 lever_data_b) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Wait_Get_Up(wk, lever_data, -1);
+        break;
+
+    case 1:
+        Lever_Attack(wk, 8, lever, lever_data_b);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_wait_get_up_lever_attack_2(PLW* wk, u16 lever, u16 lever_data) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Wait_Get_Up(wk, 0, -1);
+        break;
+
+    case 1:
+        Lever_Attack(wk, 8, lever, lever_data);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_wait_get_up_normal_attack(PLW* wk, u16 lever_data, u16 lever_data_b) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Wait_Get_Up(wk, lever_data, -1);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 8, lever_data_b);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_wait_j_command_attack(PLW* wk, s16 time, const Command_Attack_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Wait(wk, time);
+        break;
+
+    case 1:
+        J_Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_walk_com_random_select(PLW* wk, s16 time, const Branch_Menu_Args* p, s16 rnd_type) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Walk(wk, 1, time, -1);
+        break;
+
+    case 1:
+        Com_Random_Select(wk, p, rnd_type);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
