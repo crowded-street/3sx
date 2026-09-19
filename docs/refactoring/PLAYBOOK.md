@@ -2788,3 +2788,27 @@ twin - `ppgCheckTextureDataBe` and `ppgCheckPaletteDataBe`, which end with the s
 free block over a different type. Extracting both cost the file a band, **9.24 -> 9.09**,
 because the two helpers are twins as well. Extracting the texture side alone - the one with
 two tables to give back, so the bodies are not the same length - paid: **9.31**.
+
+### A fold that removes simple functions can push the file mean over its threshold
+
+*Added 2026-09-19, measured on `opening_scenes.c`.*
+
+`file_mean_cyclomatic_complexity_warning` is a **mean over the functions in the file**, so
+the count of functions is a denominator, and a fold that deletes several simple ones raises
+it. Scene 108's four `update_op_108_scene_NN_transition` functions are identical apart
+from two scene indices - a textbook Recipe V family, four members, forty lines removed -
+and folding them took the file from **9.09 to 8.54**: no duplication finding changed, and
+*Overall Code Complexity* came back, because four functions of cc 2 had been holding the
+mean down.
+
+The fold was reverted. Two things follow, and they are the same rule seen from both sides:
+
+- **Before folding a family of simple functions, check the file's mean.** A file already
+  near 4 cannot afford to lose its cheap functions. The fold is still right when the file
+  has room; it was right for the twenty-four scene steps in the same campaign, which
+  removed no function at all - it replaced repeated *blocks* with calls, so the denominator
+  grew by one instead of shrinking by four.
+- **The converse is not a licence.** Adding functions that do nothing but hold a name, to
+  pull a mean down, is the denominator trick in the other direction, and it was refused
+  earlier on `PPGFile_chunks.c` for that reason. Extract what deserves a name; do not
+  manufacture names to move an average.
