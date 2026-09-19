@@ -24,6 +24,78 @@ s32 plTIM2GetMipmapTextureNum(void* lpbas) {
     return mip_num;
 }
 
+/* The pixel-format layouts the two context setters share, each exactly the
+ * run of assignments that stood at both of its call sites. */
+
+/* the 16-bit RGBA5551 layout */
+static void set_tim2_pixelformat_16bit(plContext* dst) {
+    dst->pixelformat.rl = 5;
+    dst->pixelformat.rs = 0xA;
+    dst->pixelformat.rm = 0x1F;
+    dst->pixelformat.gl = 5;
+    dst->pixelformat.gs = 5;
+    dst->pixelformat.gm = 0x1F;
+    dst->pixelformat.bl = 5;
+    dst->pixelformat.bs = 0;
+    dst->pixelformat.bm = 0x1F;
+    dst->pixelformat.al = 1;
+    dst->pixelformat.as = 0xF;
+    dst->pixelformat.am = 1;
+    dst->pixelformat.rs = 0;
+    dst->pixelformat.bs = 0xA;
+}
+
+/* the 24-bit RGB888 layout */
+static void set_tim2_pixelformat_24bit(plContext* dst) {
+    dst->pixelformat.rl = 8;
+    dst->pixelformat.rs = 0x10;
+    dst->pixelformat.rm = 0xFF;
+    dst->pixelformat.gl = 8;
+    dst->pixelformat.gs = 8;
+    dst->pixelformat.gm = 0xFF;
+    dst->pixelformat.bl = 8;
+    dst->pixelformat.bs = 0;
+    dst->pixelformat.bm = 0xFF;
+    dst->pixelformat.al = 0;
+    dst->pixelformat.as = 0;
+    dst->pixelformat.am = 0;
+    dst->pixelformat.rs = 0;
+    dst->pixelformat.bs = 0x10;
+}
+
+/* the 32-bit RGBA8888 layout */
+static void set_tim2_pixelformat_32bit(plContext* dst) {
+    dst->pixelformat.rl = 8;
+    dst->pixelformat.rs = 0x10;
+    dst->pixelformat.rm = 0xFF;
+    dst->pixelformat.gl = 8;
+    dst->pixelformat.gs = 8;
+    dst->pixelformat.gm = 0xFF;
+    dst->pixelformat.bl = 8;
+    dst->pixelformat.bs = 0;
+    dst->pixelformat.bm = 0xFF;
+    dst->pixelformat.al = 8;
+    dst->pixelformat.as = 0x18;
+    dst->pixelformat.am = 0xFF;
+    dst->pixelformat.rs = 0;
+    dst->pixelformat.bs = 0x10;
+}
+
+/* every channel zeroed, for the two indexed formats */
+static void clear_tim2_pixelformat(plContext* dst) {
+    dst->pixelformat.rs = 0;
+    dst->pixelformat.rl = 0;
+    dst->pixelformat.rm = 0;
+    dst->pixelformat.gs = 0;
+    dst->pixelformat.gl = 0;
+    dst->pixelformat.gm = 0;
+    dst->pixelformat.bs = 0;
+    dst->pixelformat.bl = 0;
+    dst->pixelformat.bm = 0;
+    dst->pixelformat.as = 0;
+    dst->pixelformat.al = 0;
+    dst->pixelformat.am = 0;
+}
 s32 plTIM2SetContextFromImage(plContext* dst, void* lpbas) {
     u8* lpData;
     u8* lpTim2FileHead;
@@ -58,93 +130,32 @@ s32 plTIM2SetContextFromImage(plContext* dst, void* lpbas) {
             dst->desc = dst->desc | 0x14;
             dst->bitdepth = 0;
             dst->pitch = dst->width >> 1;
-            dst->pixelformat.rs = 0;
-            dst->pixelformat.rl = 0;
-            dst->pixelformat.rm = 0;
-            dst->pixelformat.gs = 0;
-            dst->pixelformat.gl = 0;
-            dst->pixelformat.gm = 0;
-            dst->pixelformat.bs = 0;
-            dst->pixelformat.bl = 0;
-            dst->pixelformat.bm = 0;
-            dst->pixelformat.as = 0;
-            dst->pixelformat.al = 0;
-            dst->pixelformat.am = 0;
+            clear_tim2_pixelformat(dst);
             break;
 
         case 5:
             dst->desc = dst->desc | 4;
             dst->bitdepth = 1;
             dst->pitch = dst->bitdepth * dst->width;
-            dst->pixelformat.rs = 0;
-            dst->pixelformat.rl = 0;
-            dst->pixelformat.rm = 0;
-            dst->pixelformat.gs = 0;
-            dst->pixelformat.gl = 0;
-            dst->pixelformat.gm = 0;
-            dst->pixelformat.bs = 0;
-            dst->pixelformat.bl = 0;
-            dst->pixelformat.bm = 0;
-            dst->pixelformat.as = 0;
-            dst->pixelformat.al = 0;
-            dst->pixelformat.am = 0;
+            clear_tim2_pixelformat(dst);
             break;
 
         case 1:
             dst->bitdepth = 2;
             dst->pitch = dst->bitdepth * dst->width;
-            dst->pixelformat.rl = 5;
-            dst->pixelformat.rs = 0xA;
-            dst->pixelformat.rm = 0x1F;
-            dst->pixelformat.gl = 5;
-            dst->pixelformat.gs = 5;
-            dst->pixelformat.gm = 0x1F;
-            dst->pixelformat.bl = 5;
-            dst->pixelformat.bs = 0;
-            dst->pixelformat.bm = 0x1F;
-            dst->pixelformat.al = 1;
-            dst->pixelformat.as = 0xF;
-            dst->pixelformat.am = 1;
-            dst->pixelformat.rs = 0;
-            dst->pixelformat.bs = 0xA;
+            set_tim2_pixelformat_16bit(dst);
             break;
 
         case 2:
             dst->bitdepth = 3;
             dst->pitch = dst->bitdepth * dst->width;
-            dst->pixelformat.rl = 8;
-            dst->pixelformat.rs = 0x10;
-            dst->pixelformat.rm = 0xFF;
-            dst->pixelformat.gl = 8;
-            dst->pixelformat.gs = 8;
-            dst->pixelformat.gm = 0xFF;
-            dst->pixelformat.bl = 8;
-            dst->pixelformat.bs = 0;
-            dst->pixelformat.bm = 0xFF;
-            dst->pixelformat.al = 0;
-            dst->pixelformat.as = 0;
-            dst->pixelformat.am = 0;
-            dst->pixelformat.rs = 0;
-            dst->pixelformat.bs = 0x10;
+            set_tim2_pixelformat_24bit(dst);
             break;
 
         case 3:
             dst->bitdepth = 4;
             dst->pitch = dst->bitdepth * dst->width;
-            dst->pixelformat.rl = 8;
-            dst->pixelformat.rs = 0x10;
-            dst->pixelformat.rm = 0xFF;
-            dst->pixelformat.gl = 8;
-            dst->pixelformat.gs = 8;
-            dst->pixelformat.gm = 0xFF;
-            dst->pixelformat.bl = 8;
-            dst->pixelformat.bs = 0;
-            dst->pixelformat.bm = 0xFF;
-            dst->pixelformat.al = 8;
-            dst->pixelformat.as = 0x18;
-            dst->pixelformat.am = 0xFF;
-            dst->pixelformat.rs = 0;
-            dst->pixelformat.bs = 0x10;
+            set_tim2_pixelformat_32bit(dst);
             break;
         }
 
@@ -179,56 +190,17 @@ s32 plTIM2SetPaletteContextFromImage(plContext* dst, void* lpbas) {
     switch (lpTim2PictureHead[0x12]) {
     case 1:
         dst->bitdepth = 2;
-        dst->pixelformat.rl = 5;
-        dst->pixelformat.rs = 0xA;
-        dst->pixelformat.rm = 0x1F;
-        dst->pixelformat.gl = 5;
-        dst->pixelformat.gs = 5;
-        dst->pixelformat.gm = 0x1F;
-        dst->pixelformat.bl = 5;
-        dst->pixelformat.bs = 0;
-        dst->pixelformat.bm = 0x1F;
-        dst->pixelformat.al = 1;
-        dst->pixelformat.as = 0xF;
-        dst->pixelformat.am = 1;
-        dst->pixelformat.rs = 0;
-        dst->pixelformat.bs = 0xA;
+        set_tim2_pixelformat_16bit(dst);
         break;
 
     case 2:
         dst->bitdepth = 3;
-        dst->pixelformat.rl = 8;
-        dst->pixelformat.rs = 0x10;
-        dst->pixelformat.rm = 0xFF;
-        dst->pixelformat.gl = 8;
-        dst->pixelformat.gs = 8;
-        dst->pixelformat.gm = 0xFF;
-        dst->pixelformat.bl = 8;
-        dst->pixelformat.bs = 0;
-        dst->pixelformat.bm = 0xFF;
-        dst->pixelformat.al = 0;
-        dst->pixelformat.as = 0;
-        dst->pixelformat.am = 0;
-        dst->pixelformat.rs = 0;
-        dst->pixelformat.bs = 0x10;
+        set_tim2_pixelformat_24bit(dst);
         break;
 
     case 3:
         dst->bitdepth = 4;
-        dst->pixelformat.rl = 8;
-        dst->pixelformat.rs = 0x10;
-        dst->pixelformat.rm = 0xFF;
-        dst->pixelformat.gl = 8;
-        dst->pixelformat.gs = 8;
-        dst->pixelformat.gm = 0xFF;
-        dst->pixelformat.bl = 8;
-        dst->pixelformat.bs = 0;
-        dst->pixelformat.bm = 0xFF;
-        dst->pixelformat.al = 8;
-        dst->pixelformat.as = 0x18;
-        dst->pixelformat.am = 0xFF;
-        dst->pixelformat.rs = 0;
-        dst->pixelformat.bs = 0x10;
+        set_tim2_pixelformat_32bit(dst);
         break;
 
     default:
