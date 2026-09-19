@@ -223,6 +223,16 @@ static void run_character_select() {
     }
 }
 
+/* The two front-end states the runner waits for, each copied character for
+ * character from the test it stood in. */
+static bool menu_is_ready(const struct _TASK* menu_task) {
+    return menu_task->r_no[0] == 0 && menu_task->r_no[1] == 1 && menu_task->r_no[2] == 3;
+}
+
+static bool character_select_reached() {
+    return G_No[1] == 1 && G_No[2] == 2;
+}
+
 void TestRunner_Prologue() {
     SDL_zeroa(input_buffers);
 
@@ -230,7 +240,7 @@ void TestRunner_Prologue() {
     case PHASE_TITLE:
         const struct _TASK* menu_task = &task[TASK_MENU];
 
-        if (menu_task->r_no[0] == 0 && menu_task->r_no[1] == 1 && menu_task->r_no[2] == 3) {
+        if (menu_is_ready(menu_task)) {
             phase = PHASE_MENU;
             break;
         }
@@ -239,7 +249,7 @@ void TestRunner_Prologue() {
         break;
 
     case PHASE_MENU:
-        if (G_No[1] == 1 && G_No[2] == 2) {
+        if (character_select_reached()) {
             // Even though we move cursor manually later, setting Last_My_char2 is required
             // for Last_Super_Arts to take effect
             Last_My_char2[0] = game.characters[0];
