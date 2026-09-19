@@ -881,6 +881,92 @@ u32 flPS2GetTextureSize(u32 format, s32 dw, s32 dh, s32 bnum) {
     return tex_size;
 }
 
+/* One mipmap level written into the texture's own memory, and how many bytes it
+ * takes there. The paletted formats copy straight across; the direct-colour
+ * ones convert through the level's context. The size is left uninitialised for
+ * a format the hardware has none for, which is what the switch this replaces
+ * did. */
+static s32 convert_texture_level(plContext* lpcontext, plContext* tcon, FLTexture* lpflTexture, u32 type) {
+    s32 tex_size;
+
+    switch (lpflTexture->format) {
+    default:
+        flLogOut("Not supported texture bit depth @flPS2ConvertTextureFromContext");
+        break;
+
+    case SCE_GS_PSMT4:
+        tex_size = (tcon->width * tcon->height) >> 1;
+        flMemcpy(tcon->ptr, lpcontext->ptr, lpflTexture->size);
+        break;
+
+    case SCE_GS_PSMT8:
+        tex_size = tcon->width * tcon->height;
+        flMemcpy(tcon->ptr, lpcontext->ptr, lpflTexture->size);
+        break;
+
+    case SCE_GS_PSMCT16:
+        tex_size = tcon->width * tcon->height * 2;
+                tcon->pixelformat.rl = 5;
+        tcon->pixelformat.rs = 0xA;
+        tcon->pixelformat.rm = 0x1F;
+        tcon->pixelformat.gl = 5;
+        tcon->pixelformat.gs = 5;
+        tcon->pixelformat.gm = 0x1F;
+        tcon->pixelformat.bl = 5;
+        tcon->pixelformat.bs = 0;
+        tcon->pixelformat.bm = 0x1F;
+        tcon->pixelformat.al = 1;
+        tcon->pixelformat.as = 0xF;
+        tcon->pixelformat.am = 1;
+        tcon->pixelformat.rs = 0;
+        tcon->pixelformat.bs = 0xA;
+        tcon->pixelformat.gl = 5;
+        tcon->pixelformat.gm = 0x1F;
+        flPS2ConvertContext(lpcontext, tcon, 0, type);
+        break;
+
+    case SCE_GS_PSMCT24:
+        tex_size = tcon->width * tcon->height * 4;
+                tcon->pixelformat.rl = 8;
+        tcon->pixelformat.rs = 0x10;
+        tcon->pixelformat.rm = 0xFF;
+        tcon->pixelformat.gl = 8;
+        tcon->pixelformat.gs = 8;
+        tcon->pixelformat.gm = 0xFF;
+        tcon->pixelformat.bl = 8;
+        tcon->pixelformat.bs = 0;
+        tcon->pixelformat.bm = 0xFF;
+        tcon->pixelformat.al = 0;
+        tcon->pixelformat.as = 0;
+        tcon->pixelformat.am = 0;
+        tcon->pixelformat.rs = 0;
+        tcon->pixelformat.bs = 0x10;
+        flPS2ConvertContext(lpcontext, tcon, 0, type);
+        break;
+
+    case SCE_GS_PSMCT32:
+        tex_size = tcon->width * tcon->height * 4;
+                tcon->pixelformat.rl = 8;
+        tcon->pixelformat.rs = 0x10;
+        tcon->pixelformat.rm = 0xFF;
+        tcon->pixelformat.gl = 8;
+        tcon->pixelformat.gs = 8;
+        tcon->pixelformat.gm = 0xFF;
+        tcon->pixelformat.bl = 8;
+        tcon->pixelformat.bs = 0;
+        tcon->pixelformat.bm = 0xFF;
+        tcon->pixelformat.al = 8;
+        tcon->pixelformat.as = 0x18;
+        tcon->pixelformat.am = 0xFF;
+        tcon->pixelformat.rs = 0;
+        tcon->pixelformat.bs = 0x10;
+        flPS2ConvertContext(lpcontext, tcon, 0, type);
+        break;
+    }
+
+    return tex_size;
+}
+
 s32 flPS2ConvertTextureFromContext(plContext* lpcontext, FLTexture* lpflTexture, u32 type) {
     s32 lp0;
     s32 dw;
@@ -900,86 +986,9 @@ s32 flPS2ConvertTextureFromContext(plContext* lpcontext, FLTexture* lpflTexture,
         tcon.width = dw;
         tcon.height = dh;
         tcon.pitch = tcon.width * tcon.bitdepth;
+        tcon.ptr = dst_ptr;
 
-        switch (lpflTexture->format) {
-        default:
-            flLogOut("Not supported texture bit depth @flPS2ConvertTextureFromContext");
-            break;
-
-        case SCE_GS_PSMT4:
-            tex_size = (dw * dh) >> 1;
-            flMemcpy(dst_ptr, lpcontext->ptr, lpflTexture->size);
-
-            break;
-
-        case SCE_GS_PSMT8:
-            tex_size = dw * dh;
-            flMemcpy(dst_ptr, lpcontext->ptr, lpflTexture->size);
-
-            break;
-
-        case SCE_GS_PSMCT16:
-            tex_size = dw * dh * 2;
-            tcon.ptr = dst_ptr;
-            tcon.pixelformat.rl = 5;
-            tcon.pixelformat.rs = 0xA;
-            tcon.pixelformat.rm = 0x1F;
-            tcon.pixelformat.gl = 5;
-            tcon.pixelformat.gs = 5;
-            tcon.pixelformat.gm = 0x1F;
-            tcon.pixelformat.bl = 5;
-            tcon.pixelformat.bs = 0;
-            tcon.pixelformat.bm = 0x1F;
-            tcon.pixelformat.al = 1;
-            tcon.pixelformat.as = 0xF;
-            tcon.pixelformat.am = 1;
-            tcon.pixelformat.rs = 0;
-            tcon.pixelformat.bs = 0xA;
-            tcon.pixelformat.gl = 5;
-            tcon.pixelformat.gm = 0x1F;
-            flPS2ConvertContext(lpcontext, &tcon, 0, type);
-            break;
-
-        case SCE_GS_PSMCT24:
-            tex_size = dw * dh * 4;
-            tcon.ptr = dst_ptr;
-            tcon.pixelformat.rl = 8;
-            tcon.pixelformat.rs = 0x10;
-            tcon.pixelformat.rm = 0xFF;
-            tcon.pixelformat.gl = 8;
-            tcon.pixelformat.gs = 8;
-            tcon.pixelformat.gm = 0xFF;
-            tcon.pixelformat.bl = 8;
-            tcon.pixelformat.bs = 0;
-            tcon.pixelformat.bm = 0xFF;
-            tcon.pixelformat.al = 0;
-            tcon.pixelformat.as = 0;
-            tcon.pixelformat.am = 0;
-            tcon.pixelformat.rs = 0;
-            tcon.pixelformat.bs = 0x10;
-            flPS2ConvertContext(lpcontext, &tcon, 0, type);
-            break;
-
-        case SCE_GS_PSMCT32:
-            tex_size = dw * dh * 4;
-            tcon.ptr = dst_ptr;
-            tcon.pixelformat.rl = 8;
-            tcon.pixelformat.rs = 0x10;
-            tcon.pixelformat.rm = 0xFF;
-            tcon.pixelformat.gl = 8;
-            tcon.pixelformat.gs = 8;
-            tcon.pixelformat.gm = 0xFF;
-            tcon.pixelformat.bl = 8;
-            tcon.pixelformat.bs = 0;
-            tcon.pixelformat.bm = 0xFF;
-            tcon.pixelformat.al = 8;
-            tcon.pixelformat.as = 0x18;
-            tcon.pixelformat.am = 0xFF;
-            tcon.pixelformat.rs = 0;
-            tcon.pixelformat.bs = 0x10;
-            flPS2ConvertContext(lpcontext, &tcon, 0, type);
-            break;
-        }
+        tex_size = convert_texture_level(lpcontext, &tcon, lpflTexture, type);
 
         dst_ptr = &dst_ptr[tex_size];
         dw >>= 1;
