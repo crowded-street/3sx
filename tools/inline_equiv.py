@@ -180,6 +180,37 @@ def inline(body, helpers, depth=0):
     return body
 
 
+ARM = re.compile(r'\n\n(?=    (?:case [^:]+|default):)')
+
+
+def arms(name, fs, seen=None):
+    """{label: statements} for a function whose body is one switch.
+
+    Recipe X moves later arms into a helper reached through `default`, so the
+    comparison that matters is arm by arm with the chain followed. A `default`
+    whose whole body is a call to another switch on the same expression is
+    replaced by that switch's arms.
+    """
+    seen = (seen or set()) | {name}
+    params, body = fs[name]
+    m = re.match(r'\s*\{\s*switch \(([^\n]*)\) \{(.*)\}\s*\}\s*$', body, re.S)
+    if not m:
+        return {'body': norm(body)}
+    out = {}
+    for part in ARM.split(m.group(2).strip('\n')):
+        label = re.match(r'\s*(case ([^:]+)|default):', part)
+        if not label:
+            raise ValueError('unparsed arm in %s: %r' % (name, part[:60]))
+        key = (label.group(2) or 'default').strip()
+        stmt = norm(part[label.end():])
+        call = re.match(r'^(\w+)\(([^;]*)\); break;$', stmt)
+        if key == 'default' and call and call.group(1) in fs and call.group(1) not in seen:
+            out.update(arms(call.group(1), fs, seen))
+            continue
+        out[key] = stmt
+    return out
+
+
 def trace(name, fs, locals_, seen=None):
     """The ordered (callee, arguments) a function runs, helpers expanded.
 
@@ -224,6 +255,8 @@ def main():
     ap.add_argument('--base', default='HEAD')
     ap.add_argument('--helper', action='append', default=[],
                     help='a helper this change created; repeat for each')
+    ap.add_argument('--switch', action='store_true',
+                    help='compare switch arms, following a Recipe X default chain')
     ap.add_argument('--trace', action='store_true',
                     help='compare ordered call traces instead of text')
     ap.add_argument('--local', action='append', default=[],
@@ -271,6 +304,16 @@ def main():
             bad += 1
             continue
         checked += 1
+        if args.switch:
+            before, after = arms(name, old), arms(name, new)
+            if before != after:
+                bad += 1
+                print('DIFFERS %s (switch arms)' % name)
+                for key in sorted(set(before) | set(after)):
+                    if before.get(key) != after.get(key):
+                        print('   arm %s\n     before: %s\n     after:  %s'
+                              % (key, before.get(key), after.get(key)))
+            continue
         if args.trace:
             locals_ = dict(x.split('=', 1) for x in args.local)
             if trace(name, old, locals_) != trace(name, new, locals_):
