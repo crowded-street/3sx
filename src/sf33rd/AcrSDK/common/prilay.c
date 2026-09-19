@@ -70,12 +70,39 @@ void* plCalcAddress(s32 x, s32 y, plContext* lpcontext) {
 
 /* A pixel into a paletted or direct-index surface: one index per bit depth,
  * and for the 4-bit case the half-byte the x coordinate selects. */
-static void write_indexed_pixel(plContext* dst, Pixel* ptr, u8* lp) {
+/* The 4-bit case: the x coordinate picks which half of the byte the index
+ * goes in, unless the surface is flagged as whole-byte. */
+static void write_4bit_index(plContext* dst, Pixel* ptr, u8* lp) {
     s32 r;
     u32 color;
 
     s32 unused_s3;
 
+    if (dst->desc & 0x40) {
+        lp[0] = ptr->c;
+    } else {
+        color = ptr->c;
+        r = lp[0];
+
+        if (dst->desc & 0x10) {
+            unused_s3 = 1;
+        } else {
+            unused_s3 = 0;
+        }
+
+        if (((ptr->x & 1) ^ unused_s3) != 0) {
+            color &= 0xF;
+            r &= 0xF0;
+        } else {
+            color = (color & 0xF) * 0x10;
+            r &= 0xF;
+        }
+
+        lp[0] = r | color;
+    }
+}
+
+static void write_indexed_pixel(plContext* dst, Pixel* ptr, u8* lp) {
     switch (dst->bitdepth) {
     case 4:
         ((u32*)lp)[0] = ptr->c;
@@ -90,28 +117,7 @@ static void write_indexed_pixel(plContext* dst, Pixel* ptr, u8* lp) {
         break;
 
     case 0:
-        if (dst->desc & 0x40) {
-            lp[0] = ptr->c;
-        } else {
-            color = ptr->c;
-            r = lp[0];
-
-            if (dst->desc & 0x10) {
-                unused_s3 = 1;
-            } else {
-                unused_s3 = 0;
-            }
-
-            if (((ptr->x & 1) ^ unused_s3) != 0) {
-                color &= 0xF;
-                r &= 0xF0;
-            } else {
-                color = (color & 0xF) * 0x10;
-                r &= 0xF;
-            }
-
-            lp[0] = r | color;
-        }
+        write_4bit_index(dst, ptr, lp);
 
         break;
     }
@@ -181,22 +187,32 @@ s32 plDrawPixel_3(plContext* dst, s32 x, s32 y, u32 color) {
 
 /* The stored index at this address: one width per bit depth, and for the
  * 4-bit case the half-byte the x coordinate selects. */
+/* The 4-bit case: the x coordinate picks which half of the byte the index
+ * comes from, unless the surface is flagged as whole-byte. */
+static u32 read_4bit_index(plContext* lpcontext, u8* lp, s32 x) {
+    u32 color;
+
+    if (lpcontext->desc & 0x40) {
+        color = lp[0];
+    } else {
+        color = lp[0];
+
+        if (((x & 1) ^ ((lpcontext->desc & 0x10) != 0 ? 1 : 0)) != 0) {
+            color &= 0xF;
+        } else {
+            color = (color >> 4) & 0xF;
+        }
+    }
+
+    return color;
+}
+
 static u32 read_indexed_color(plContext* lpcontext, u8* lp, s32 x) {
     u32 color;
 
     switch (lpcontext->bitdepth) {
     case 0:
-        if (lpcontext->desc & 0x40) {
-            color = lp[0];
-        } else {
-            color = lp[0];
-
-            if (((x & 1) ^ ((lpcontext->desc & 0x10) != 0 ? 1 : 0)) != 0) {
-                color &= 0xF;
-            } else {
-                color = (color >> 4) & 0xF;
-            }
-        }
+        color = read_4bit_index(lpcontext, lp, x);
 
         break;
 
