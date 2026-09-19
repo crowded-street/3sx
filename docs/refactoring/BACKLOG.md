@@ -32,9 +32,21 @@ As of 2026-09-19 **no first-party file scores below 4.0**. The last two out were
 `Game/com/ck_pass.c` (3.75 -> 8.03, split six ways) and `Game/opening/opening.c`
 (3.97 -> 9.68, split four ways).
 
-The lowest scores in the repository are now `Game/com/com_pl.c` at 4.77 and `Game/game.c`
-at 4.79, neither of which was ever a task file, followed by `Common/PPGFile.c`'s chunk half
-at 6.99. Those three are the obvious next targets.
+Nothing scores below 5.0 either. The worst files were swept on 2026-09-19:
+
+| File | Before | After |
+| --- | --- | --- |
+| `Game/com/com_pl.c` | 4.77 | **8.88**, split three ways; group mean 8.47 |
+| `Game/game.c` | 4.79 | **9.04**, split four ways; group mean 8.35 |
+| `AcrSDK/ps2/flps2etc.c` | 5.17 | **6.94** |
+| `AcrSDK/ps2/flps2vram.c` | 4.82 | **5.25** |
+
+The lowest in the repository is now `AcrSDK/ps2/flps2vram.c` at 5.25, and what holds it
+there is one function: `flPS2LockTexture` at **367 lines and cc 29**, an outer switch on
+the lock mode with a format switch inside each of its four arms. Splitting it is the next
+piece of work anyone picks up. After that: `platform/netplay/game_state.c` (6.30),
+`Game/opening/opening_scenes_late.c` (6.77) and `platform/video/sdl_gpu/sdl_gpu_renderer.c`
+(6.82).
 
 ## Track A - available now
 

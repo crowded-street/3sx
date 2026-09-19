@@ -1,16 +1,16 @@
 {
  "measured": "2026-09-19",
- "note": "Second sweep of 2026-09-19, after the ck_pass, opening, PPGFile and Game/com/active work. Same exclusions as codehealth-baseline.json.",
- "total_candidates": 796,
- "scored": 652,
+ "note": "Third sweep of 2026-09-19, after the worst-files pass over com_pl.c, game.c, flps2etc.c and flps2vram.c. Same exclusions as codehealth-baseline.json.",
+ "total_candidates": 801,
+ "scored": 657,
  "unscorable": 144,
  "bands": {
   "red": 0,
-  "yellow": 124,
-  "green": 84,
+  "yellow": 128,
+  "green": 85,
   "optimal": 444
  },
- "mean": 9.56,
+ "mean": 9.57,
  "baseline_bands": {
   "red": 19,
   "yellow": 207,
@@ -19,20 +19,8 @@
  },
  "scores": [
   {
-   "path": "src/sf33rd/Source/Game/com/com_pl.c",
-   "score": 4.77
-  },
-  {
-   "path": "src/sf33rd/Source/Game/game.c",
-   "score": 4.79
-  },
-  {
    "path": "src/sf33rd/AcrSDK/ps2/flps2vram.c",
-   "score": 4.82
-  },
-  {
-   "path": "src/sf33rd/AcrSDK/ps2/flps2etc.c",
-   "score": 5.17
+   "score": 5.25
   },
   {
    "path": "src/platform/netplay/game_state.c",
@@ -47,6 +35,10 @@
    "score": 6.82
   },
   {
+   "path": "src/sf33rd/AcrSDK/ps2/flps2etc.c",
+   "score": 6.94
+  },
+  {
    "path": "src/sf33rd/Source/Common/PPGFile_chunks.c",
    "score": 6.99
   },
@@ -57,6 +49,10 @@
   {
    "path": "src/sf33rd/AcrSDK/common/pltim2.c",
    "score": 7.21
+  },
+  {
+   "path": "src/sf33rd/Source/Game/game_round.c",
+   "score": 7.23
   },
   {
    "path": "src/platform/video/opengl/glad/glad.c",
@@ -223,8 +219,16 @@
    "score": 8.03
   },
   {
+   "path": "src/sf33rd/Source/Game/com/com_pl_damage.c",
+   "score": 8.13
+  },
+  {
    "path": "src/sf33rd/Source/Game/io/pulpul.c",
    "score": 8.22
+  },
+  {
+   "path": "src/sf33rd/Source/Game/game_result.c",
+   "score": 8.25
   },
   {
    "path": "src/core/renderer.c",
@@ -304,6 +308,10 @@
   },
   {
    "path": "src/port/sound/spu.c",
+   "score": 8.41
+  },
+  {
+   "path": "src/sf33rd/Source/Game/com/com_pl_flip.c",
    "score": 8.41
   },
   {
@@ -499,7 +507,15 @@
    "score": 8.87
   },
   {
+   "path": "src/sf33rd/Source/Game/com/com_pl.c",
+   "score": 8.88
+  },
+  {
    "path": "src/port/sound/adx_decoder.c",
+   "score": 8.89
+  },
+  {
+   "path": "src/sf33rd/Source/Game/game_demo.c",
    "score": 8.89
   },
   {
@@ -533,6 +549,10 @@
   {
    "path": "src/test/replay_game.c",
    "score": 9.02
+  },
+  {
+   "path": "src/sf33rd/Source/Game/game.c",
+   "score": 9.04
   },
   {
    "path": "src/sf33rd/Source/Game/engine/plpat00.c",
