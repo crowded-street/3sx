@@ -1,7 +1,7 @@
 # Red Band Backlog
 
 The nineteen files that scored below 4.0 in the 2026-09-01 sweep, ranked worst first at
-that time. **Two are still there.**
+that time. **One is still there.**
 
 See [`README.md`](README.md) for the campaign rules and [`PLAYBOOK.md`](PLAYBOOK.md)
 for the allowed transformations.
@@ -17,7 +17,7 @@ for the allowed transformations.
 
 | Band | Score | 2026-09-01 | 2026-09-19 |
 | --- | --- | --- | --- |
-| **Red** - severe debt | 1.0 - 3.9 | 19 | **2** |
+| **Red** - severe debt | 1.0 - 3.9 | 19 | **1** |
 | **Yellow** - problematic debt | 4.0 - 8.9 | 207 | 122 |
 | Green | 9.0 - 9.9 | 158 | 84 |
 | Optimal | 10.0 | 98 | **424** |
@@ -30,7 +30,6 @@ scorable first-party file is **9.51**.
 
 | File | Score | Risk | Why it is still here |
 | --- | --- | --- | --- |
-| `Game/com/ck_pass.c` | **3.75** | CRITICAL | Never started. 3126 lines, 201 functions |
 | `Game/opening/opening.c` | **3.97** | LOW | Partly worked; Lines of Code, Overall Code Complexity and Complex Method remain |
 
 Just out of it: `Common/PPGFile.c` at **4.09**, `Game/com/com_pl.c` at 4.77 and
@@ -76,7 +75,7 @@ manual playtesting instead of waiting on statcheck.
 | [R12](tasks/R12-appear.md) | `Game/animation/appear.c` | **9.38** | 2040 | 13 | HIGH | `Appear_29000` (cc 23) |
 | ~~[R13](tasks/R13-win_pl.md)~~ | `Game/animation/win_pl.c` | **10.00** | 1629 | 18 | HIGH | `Win_10000` (cc 19) |
 | ~~[R15](tasks/R15-plpdm.md)~~ | `Game/engine/plpdm.c` | **10.00** | 1699 | 17 | CRITICAL | `subtract_dm_vital` (cc 30) |
-| [R16](tasks/R16-ck_pass.md) | `Game/com/ck_pass.c` | **3.75** | 3126 | 5 | CRITICAL | `KEN_vs` (cc 41) |
+| ~~[R16](tasks/R16-ck_pass.md)~~ | `Game/com/ck_pass.c` | **8.03** | 3126 | 5 | CRITICAL | `KEN_vs` (cc 41) |
 | [R18](tasks/R18-charset.md) | `Game/engine/charset.c` | **9.68** | 2880 | 14 | CRITICAL | `check_cgd_patdat` (cc 43) |
 | [R19](tasks/R19-manage.md) | `Game/engine/manage.c` | **9.92** | 2518 | 30 | CRITICAL | `Game_Manage_12_4` (cc 32) |
 
@@ -130,7 +129,7 @@ point. **Campaign start** preserves the original 2026-09-01 sweep.
 | R13 | 3.56 | 3.56 | **10.00** | Done. |
 | R14 | 3.62 | 3.62 | **9.09** | Plateau. Split into `bg_textures.c` (10.00); the whole stage folder went with it. |
 | R15 | 3.68 | 3.68 | **10.00** | Done. `plpdm.c`, `plpdm_states.c` and `plpdm_states_late.c` are all at 10.00. The last two were the campaign's most stubborn plateau until the runs the damage states share were taken instead of their arms - see *Against a twin family, share what they agree on* in `PLAYBOOK.md`. |
-| R16 | 3.75 | 3.75 | **3.75** | **Not started. The worst file in the repository.** 3126 lines, 201 functions; Number of Functions in a Single Module, Bumpy Road Ahead and Complex Method. |
+| R16 | 3.75 | 3.75 | **8.03** | Plateau. Split six ways: `ck_pass_checks.c` (**10.00**), `ck_pass_units_a.c` (**10.00**), `_b.c` (9.38), `_c.c` (**10.00**), `_d.c` (**10.00**). Group mean 9.57. What stops `ck_pass.c` is Code Duplication between `KEN_vs`, `HUGO_vs` and `GILL_vs` and their area helpers: the three are near-misses, not duplicates - Hugo discards the jump check's answer and has no personal action, Gill adds a squat check - so merging any two is Recipe D's forbidden case. |
 | R17 | 3.86 | 3.86 | **10.00** | Done. Split into `entry_break_in.c`. |
 | R18 | 3.92 | 3.92 | **9.68** | Plateau. Split twice, into `charset_commands.c` (10.00) and `charset_position.c` (10.00). What stops the original is `set_char_move_init2`'s five arguments. Recipe A would clear it, and the obstacle is scope rather than any one file: **155** call sites, 111 of them in the effect folder and 13 in animation. |
 | R19 | 3.92 | 3.92 | **9.92** | Plateau. Split into `manage_bonus.c` (10.00) and `manage_result.c` (9.38). `Game_Manage_7_3`'s dead condition is the last finding and the catalogue forbids deleting it. |
