@@ -271,6 +271,12 @@ def fold(path, protos, min_members=3, max_params=3):
 
 ARM_SPLIT = re.compile(r'\n\n(?=    (?:case \d+|default):)')
 
+# The decompilation is not consistent about the blank line before an arm, and a
+# checker that silently glues two arms together is worse than no checker. This
+# one tolerates either spelling and is used only for verification; the strict
+# form above is what generated code is written with.
+ARM_SPLIT_LOOSE = re.compile(r'\n\n?(?=    (?:case \d+|default):)')
+
 
 def arms_of(full):
     m = re.match(r'(?:static )?void \w+\(\s*PLW\* wk[^{;]*\)\s*\{\n    '
@@ -352,7 +358,7 @@ def step_map(src, name, bodies, seen=None):
     if not m:
         return {'body': norm(full)}
     out = {}
-    for part in ARM_SPLIT.split(m.group(1).strip('\n')):
+    for part in ARM_SPLIT_LOOSE.split(m.group(1).strip('\n')):
         label = re.match(r'\s*(case (\d+)|default):', part)
         if not label:
             raise ValueError('unparsed arm in %s: %r' % (name, part[:60]))
@@ -532,7 +538,7 @@ def dedup_shared(folder):
                 end += 1
             src = src[:a] + src[end:]
         open(path, 'w').write(src)
-    for path in glob.glob(os.path.join(folder, 'pass*.c')) + glob.glob(os.path.join(folder, 'pass*.h')):
+    for path in glob.glob(os.path.join(folder, '*.c')) + glob.glob(os.path.join(folder, '*.h')):
         src = open(path).read()
         new = src
         for old, keeper in renames.items():

@@ -58,7 +58,6 @@ void active_pattern_j_command_attack(PLW* wk, const Command_Attack_Args* p);
 void active_pattern_j_command_attack_2(PLW* wk, const Command_Attack_Args* p, const Command_Attack_Args* p_b);
 void active_pattern_jump_attack(PLW* wk, const Jump_Attack_Args* a);
 void active_pattern_jump_attack_term(PLW* wk, const Jump_Term_Args* a);
-void active_pattern_jump_attack_term_2(PLW* wk, const Jump_Term_Args* a);
 void active_pattern_jump_attack_term_j_command_attack(PLW* wk, const Jump_Term_Args* a, const Command_Attack_Args* p);
 void active_pattern_jump_attack_term_normal_attack(PLW* wk, const Jump_Term_Args* a, u16 lever_data);
 void active_pattern_jump_attack_term_normal_attack_command_attack(

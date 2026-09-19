@@ -123,17 +123,6 @@ void active_pattern_jump_attack_term(PLW* wk, const Jump_Term_Args* a) {
     }
 }
 
-void active_pattern_jump_attack_term_2(PLW* wk, const Jump_Term_Args* a) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump_Attack_Term(wk, a);
-        break;
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
 void active_pattern_jump_command_attack_term(PLW* wk, const JCA_Term_Args* a) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:

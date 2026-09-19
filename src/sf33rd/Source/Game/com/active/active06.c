@@ -216,7 +216,7 @@ void Pattern06_0038(PLW* wk) {
 }
 
 void Pattern06_0039(PLW* wk) {
-    active_pattern_jump_attack_term_2(wk, &(Jump_Term_Args){-0x7F68, -0x7FC0, 9, 0x200, 0, -0x7F68, -1, 0x400});
+    active_pattern_jump_attack_term(wk, &(Jump_Term_Args){-0x7F68, -0x7FC0, 9, 0x200, 0, -0x7F68, -1, 0x400});
 }
 
 void Pattern06_0040(PLW* wk) {
