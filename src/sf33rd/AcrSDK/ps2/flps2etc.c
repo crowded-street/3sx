@@ -484,6 +484,27 @@ u32 flCreateTextureFromBMP(const char* bmp_file, u32 flag) {
     return flCreateTextureFromBMP_mem(file_ptr, flag);
 }
 
+static void copy_bmp_24bpp(u8* dst, const u8* keep, const plContext* context) {
+    s32 x;
+    s32 y;
+    const u8* src;
+    u8 r;
+    u8 g;
+    u8 b;
+
+    for (y = 0; y < context->height; y++) {
+        for (x = 0; x < context->width; x++) {
+            src = keep + x * context->bitdepth + (context->height - 1 - y) * context->pitch;
+            b = *src++;
+            g = *src++;
+            r = *src++;
+            *dst++ = r;
+            *dst++ = g;
+            *dst++ = b;
+        }
+    }
+}
+
 u32 flCreateTextureFromBMP_mem(void* mem, u32 flag) {
     s32 x;
     s32 y;
@@ -516,17 +537,7 @@ u32 flCreateTextureFromBMP_mem(void* mem, u32 flag) {
 
     switch (context.bitdepth) {
     case 3:
-        for (y = 0; y < context.height; y++) {
-            for (x = 0; x < context.width; x++) {
-                src = keep + x * context.bitdepth + (context.height - 1 - y) * context.pitch;
-                b = *src++;
-                g = *src++;
-                r = *src++;
-                *dst++ = r;
-                *dst++ = g;
-                *dst++ = b;
-            }
-        }
+        copy_bmp_24bpp(dst, keep, &context);
 
         break;
 
