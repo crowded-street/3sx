@@ -470,28 +470,44 @@ static void ppgCopyDotBlock16(u16* dstRam, const u16* srcRam, s32 side, s32 adva
     }
 }
 
-void ppgRenewDotDataSeqs(Texture* tch, const PPGDotDataArgs* a) {
+/* Where a dot-data write lands: the texture, which falls back to the current
+ * one, and the index inside it. -1 when there is nowhere to write - the texture
+ * holds no data, the global index is outside the chunk, or the slot has no
+ * handle - and otherwise the slot is marked dirty on the way out, which is what
+ * the caller did the moment it had passed all four tests. */
+static s32 ppgDotDataTarget(Texture** tchp, const PPGDotDataArgs* a) {
+    Texture* tch = *tchp;
     s32 ix;
 
     if (tch == NULL) {
         tch = ppg_w.cur->tex;
+        *tchp = tch;
     }
 
     if (!(tch->be != 0)) {
-        return;
+        return -1;
     }
 
     ix = a->gix - tch->ixNum1st;
 
     if ((ix < 0) || (ix >= tch->total)) {
-        return;
+        return -1;
     }
 
     if (!(tch->handle[ix].b16[0] != 0)) {
-        return;
+        return -1;
     }
 
     tch->handle[ix].b16[1] |= 0x2000;
+    return ix;
+}
+
+void ppgRenewDotDataSeqs(Texture* tch, const PPGDotDataArgs* a) {
+    s32 ix = ppgDotDataTarget(&tch, a);
+
+    if (ix < 0) {
+        return;
+    }
 
     switch (a->size) {
     case 0x40:
