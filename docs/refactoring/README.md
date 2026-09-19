@@ -16,17 +16,17 @@ Measured across every first-party `.c` and `.cpp` file. Vendored code (`src/imgu
 
 | Band | Score | 2026-09-01 | 2026-09-19 |
 | --- | --- | --- | --- |
-| **Red** - severe debt | 1.0 - 3.9 | **19** | **2** |
-| **Yellow** - problematic debt | 4.0 - 8.9 | **207** | 122 |
+| **Red** - severe debt | 1.0 - 3.9 | **19** | **0** |
+| **Yellow** - problematic debt | 4.0 - 8.9 | **207** | 124 |
 | Green | 9.0 - 9.9 | 158 | 84 |
-| Optimal | 10.0 | 98 | **424** |
-| **Total scored** | | **482** | **632** |
+| Optimal | 10.0 | 98 | **444** |
+| **Total scored** | | **482** | **652** |
 
 The file count rises because the campaign splits files. Mean Code Health across every
 scorable first-party file is now **9.51**.
 
-The two files still in the Red band are `Game/com/ck_pass.c` (3.75, never started) and
-`Game/opening/opening.c` (3.97). The full sweeps are
+**The Red band is empty**: no first-party file scores below 4.0. The last two out were
+`Game/com/ck_pass.c` and `Game/opening/opening.c`, both on 2026-09-19. The full sweeps are
 [`codehealth-baseline.json`](codehealth-baseline.json), which preserves the 2026-09-01
 numbers and is never updated, and [`codehealth-current.json`](codehealth-current.json).
 [`BACKLOG.md`](BACKLOG.md) carries the per-task status; **the task files themselves are

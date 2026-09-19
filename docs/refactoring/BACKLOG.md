@@ -1,7 +1,7 @@
 # Red Band Backlog
 
 The nineteen files that scored below 4.0 in the 2026-09-01 sweep, ranked worst first at
-that time. **One is still there.**
+that time. **None of them is still there.**
 
 See [`README.md`](README.md) for the campaign rules and [`PLAYBOOK.md`](PLAYBOOK.md)
 for the allowed transformations.
@@ -10,30 +10,31 @@ for the allowed transformations.
 > **Scores here are refreshed from a full sweep; the task files are not.**
 > If a task file's stated baseline does not match what you measure, the task file is
 > stale - check this page before stopping and reporting a mismatch. The current numbers
-> below come from `codehealth-current.json`, swept 2026-09-19 at `188af653`.
+> below come from `codehealth-current.json`, swept 2026-09-19.
 > `codehealth-baseline.json` preserves the original 2026-09-01 sweep and is not updated.
 
 ## Where the whole repository stands
 
 | Band | Score | 2026-09-01 | 2026-09-19 |
 | --- | --- | --- | --- |
-| **Red** - severe debt | 1.0 - 3.9 | 19 | **1** |
-| **Yellow** - problematic debt | 4.0 - 8.9 | 207 | 122 |
+| **Red** - severe debt | 1.0 - 3.9 | 19 | **0** |
+| **Yellow** - problematic debt | 4.0 - 8.9 | 207 | 124 |
 | Green | 9.0 - 9.9 | 158 | 84 |
-| Optimal | 10.0 | 98 | **424** |
-| Total scored | | 482 | 632 |
+| Optimal | 10.0 | 98 | **444** |
+| Total scored | | 482 | 652 |
 
 The file count rises because the campaign splits files. Mean Code Health across every
 scorable first-party file is **9.51**.
 
-## Still in the Red band
+## The Red band is empty
 
-| File | Score | Risk | Why it is still here |
-| --- | --- | --- | --- |
-| `Game/opening/opening.c` | **3.97** | LOW | Partly worked; Lines of Code, Overall Code Complexity and Complex Method remain |
+As of 2026-09-19 **no first-party file scores below 4.0**. The last two out were
+`Game/com/ck_pass.c` (3.75 -> 8.03, split six ways) and `Game/opening/opening.c`
+(3.97 -> 9.68, split four ways).
 
-Just out of it: `Common/PPGFile.c` at **4.09**, `Game/com/com_pl.c` at 4.77 and
-`Game/game.c` at 4.79 - none of which were ever task files.
+The lowest scores in the repository are now `Game/com/com_pl.c` at 4.77 and `Game/game.c`
+at 4.79, neither of which was ever a task file, followed by `Common/PPGFile.c`'s chunk half
+at 6.99. Those three are the obvious next targets.
 
 ## Track A - available now
 
@@ -48,8 +49,8 @@ function is usually long gone.
 | --- | --- | --- | --- | --- | --- | --- |
 | ~~[R04](tasks/R04-menu.md)~~ | `Game/menu/menu.c` | **10.00** | 5374 | 58 | LOW | `Extra_Option` (cc 28) |
 | ~~[R06](tasks/R06-mtrans.md)~~ | `Game/rendering/mtrans.c` | **7.55** | 2224 | 10 | MEDIUM | plateau 2026-09-18 - split into `mtrans_seqs.c` (10.00) and `mtrans_pool.c` (9.38) |
-| [R10](tasks/R10-opening.md) | `Game/opening/opening.c` | **3.97** | 2997 | 17 | LOW | `TITLE_Move` (cc 11) |
-| [R11](tasks/R11-PPGFile.md) | `Common/PPGFile.c` | **4.09** | 1511 | 11 | MEDIUM | `ppgRenewDotDataSeqs` (cc -) |
+| ~~[R10](tasks/R10-opening.md)~~ | `Game/opening/opening.c` | **9.68** | 2997 | 17 | LOW | `TITLE_Move` (cc 11) |
+| ~~[R11](tasks/R11-PPGFile.md)~~ | `Common/PPGFile.c` | **8.57** | 1511 | 11 | MEDIUM | `ppgRenewDotDataSeqs` (cc -) |
 | ~~[R14](tasks/R14-bg.md)~~ | `Game/stage/bg.c` | **9.09** | 1430 | 11 | MEDIUM | plateau 2026-09-18 - split into `bg_textures.c` (10.00); the whole stage folder went with it, see the task report |
 | ~~[R17](tasks/R17-entry.md)~~ | `Game/screen/entry.c` | **10.00** | 1480 | 19 | LOW | done 2026-09-18 - left the Red band; split into `entry_break_in.c` |
 
@@ -97,12 +98,11 @@ Recorded here so a later agent can see what has already been swept.
 | Folder | Files | Before | After | Notes |
 | --- | --- | --- | --- | --- |
 | `Game/ui` | 9 | 4.06 - 9.92 | 8.47 - 10.00 | `sc_sub.c` split four ways; *Recipe A clears one finding, not fifteen* |
-| `Game/com/passive` | 20 -> 76 | 4.90 - 7.55 | mean **8.79**, 18 at 10.00 | 3488 CPU pattern scripts folded onto 201 shared skeletons; see *Where `Game/com/passive` stopped* in `PLAYBOOK.md` |
+| `Game/com/passive` | 20 -> 77 | 4.90 - 7.55 | mean **9.03**, 30 at 10.00 | 3488 CPU pattern scripts folded onto shared skeletons; see *Where `Game/com/passive` stopped* in `PLAYBOOK.md` |
+| `Game/com/active` | 20 -> 27 | 5.04 - 8.03 | mean **8.64**, 4 at 10.00 | 1621 scripts, the same shape under another name; folded folder-wide first, which is the order the passive folder's notes recommend |
 
-**`Game/com/active` is the obvious next one.** It is the same shape as `passive` - twenty
-files of `PatternNN_dddd` scripts switching on the same `CP_Index[wk->wu.id][0]` step
-counter, 29,006 lines - and it currently runs from **5.04** (`active14.c`) to 8.81.
-`tools/passive_fold.py` should reach it with its name patterns widened.
+Both COM script folders are now done. `tools/passive_fold.py --family {passive,active}`
+carries the transformations and the equivalence check for either.
 
 ## Progress
 
@@ -123,8 +123,8 @@ point. **Campaign start** preserves the original 2026-09-01 sweep.
 | R07 | 2.58 | 2.58 | **8.54** | In progress. Code Duplication is the only finding left. |
 | R08 | 2.64 | 2.64 | **10.00** | Done. |
 | R09 | 2.74 | 2.74 | **10.00** | Done. Split into `pls00_normal_states.c` (now **8.03**) and `pls00_damage_states.c` (10.00); the original is at 10.00. The normal-states file plateaus on a Code Duplication web between the `nm_*` state machines themselves, which no shared run reaches. |
-| R10 | 3.09 | 3.09 | **3.97** | In progress, **still Red**. Lines of Code in a Single File, Overall Code Complexity and Complex Method all open. |
-| R11 | 3.49 | 3.49 | **4.09** | In progress. Just out of the Red band; Lines of Code, Brain Method and Bumpy Road Ahead open. |
+| R10 | 3.09 | 3.09 | **9.68** | Plateau. Split four ways into `opening_scenes.c` (7.42), `opening_bg0.c` (7.54) and `opening_bg1.c` (8.28), then the scenes again into `opening_scenes_late.c` (6.77). What stops the scene files is that the nineteen `op_1NN_move` state machines are near-copies of one another, so chaining one pays and chaining the next costs - `op_103_move` measured 6.91 -> 7.42 and `op_107_move` 7.42 -> 6.50. |
+| R11 | 3.49 | 3.49 | **8.57** | In progress. Split four ways into `PPGFile_quads.c` (7.86), `PPGFile_chunks.c` (6.99) and `PPGFile_context.c` (9.44); Recipe A cleared ten Excess Argument findings and Brain Method with them. `PPGFile_chunks.c` still carries seven Bumpy Roads and is where the remaining work is. |
 | R12 | 3.56 | 3.56 | **9.38** | Plateau. Split into `appear_late.c`, now also 9.38. Overall Code Complexity is the only finding left in either. |
 | R13 | 3.56 | 3.56 | **10.00** | Done. |
 | R14 | 3.62 | 3.62 | **9.09** | Plateau. Split into `bg_textures.c` (10.00); the whole stage folder went with it. |
