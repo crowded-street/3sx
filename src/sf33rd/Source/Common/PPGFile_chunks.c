@@ -722,14 +722,37 @@ s32 ppgSetupTexChunk_2nd(Texture* tch, s32 ixNum) {
     return tch->accnum;
 }
 
+/* The texture's pixels, ready for a handle to be created over them: pulled into
+ * a decompression buffer, decompressed into it and byte-swapped. The compressed
+ * run starts past the transparent-run table, whose length the header gives. The
+ * caller pushes the buffer back once the handle is made. Written alongside
+ * ppgPreparePaletteData, which does the same for a palette chunk. */
+static void* ppgPrepareTextureData(PPGFileHeader* ppg, s32 mltSize, s32 bitdepth) {
+    s32 koCmpr = ppg->compress & 3;
+    s32 cmpSize = (u16)SDL_Swap16BE(ppg->transNums) * 3 + 0x10;
+    void* cmpAdrs = (u8*)ppg + cmpSize;
+    void* mltAdrs;
+
+    cmpSize = SDL_Swap32BE(ppg->fileSize) - cmpSize;
+    mltAdrs = ppgPullDecBuff(mltSize);
+
+    if (mltAdrs == NULL) {
+        flLogOut("ppgSetupTexChunk_3rd: Failed to allocate texture data buffer");
+    }
+
+    if (mltSize != ppgDecompress(koCmpr, &(PPGDecompressArgs){cmpAdrs, cmpSize, mltAdrs, mltSize})) {
+        flLogOut("ppgSetupTexChunk_3rd: Failed to acquire sprite texture handle");
+    }
+
+    ppgChangeDataEndian(mltAdrs, &(PPGEndianArgs){mltSize, ppg->pixel & 4, ppg->formARGB == 0x8888, bitdepth});
+    return mltAdrs;
+}
+
 s32 ppgSetupTexChunk_3rd(Texture* tch, s32 ixNum, u32 attribute) {
     plContext bits;
     PPGFileHeader* ppg;
     TextureHandle* hnof;
-    s32 koCmpr;
-    s32 cmpSize;
     s32 mltSize;
-    void* cmpAdrs;
     void* mltAdrs;
 
     if (tch == NULL) {
@@ -752,22 +775,8 @@ s32 ppgSetupTexChunk_3rd(Texture* tch, s32 ixNum, u32 attribute) {
 
     ppg = (PPGFileHeader*)(tch->srcAdrs + (tch->offset[hnof->b16[1] & 0xFFF]));
     ppgSetupContextFromPPG(ppg, &bits);
-    koCmpr = ppg->compress & 3;
-    cmpSize = (u16)SDL_Swap16BE(ppg->transNums) * 3 + 0x10;
-    cmpAdrs = (u8*)ppg + cmpSize;
-    cmpSize = SDL_Swap32BE(ppg->fileSize) - cmpSize;
     mltSize = bits.height * bits.pitch;
-    mltAdrs = ppgPullDecBuff(mltSize);
-
-    if (mltAdrs == NULL) {
-        flLogOut("ppgSetupTexChunk_3rd: Failed to allocate texture data buffer");
-    }
-
-    if (mltSize != ppgDecompress(koCmpr, &(PPGDecompressArgs){cmpAdrs, cmpSize, mltAdrs, mltSize})) {
-        flLogOut("ppgSetupTexChunk_3rd: Failed to acquire sprite texture handle");
-    }
-
-    ppgChangeDataEndian(mltAdrs, &(PPGEndianArgs){mltSize, ppg->pixel & 4, ppg->formARGB == 0x8888, bits.bitdepth});
+    mltAdrs = ppgPrepareTextureData(ppg, mltSize, bits.bitdepth);
     bits.ptr = mltAdrs;
     hnof->b16[0] = flCreateTextureHandle(&bits, attribute);
     ppgPushDecBuff(mltAdrs);
