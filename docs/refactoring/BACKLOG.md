@@ -19,13 +19,13 @@ for the allowed transformations.
 | Band | Score | 2026-09-01 | 2026-09-19 |
 | --- | --- | --- | --- |
 | **Red** - severe debt | 1.0 - 3.9 | 19 | **0** |
-| **Yellow** - problematic debt | 4.0 - 8.9 | 207 | 104 |
+| **Yellow** - problematic debt | 4.0 - 8.9 | 207 | 99 |
 | Green | 9.0 - 9.9 | 158 | 87 |
-| Optimal | 10.0 | 98 | **463** |
-| Total scored | | 482 | 654 |
+| Optimal | 10.0 | 98 | **470** |
+| Total scored | | 482 | 656 |
 
 The file count rises because the campaign splits files. Mean Code Health across every
-scorable first-party file is **9.63**.
+scorable first-party file is **9.64**.
 
 ## The Red band is empty
 
@@ -101,7 +101,7 @@ At the 2026-09-01 start: **19 files**, 46,865 lines of code, **330** complex met
 `stage/bg.c` (cyclomatic 109, nesting 9).
 
 At 2026-09-19: **none** of the nineteen is still below 4.0, eight are at 10.00, and
-`scr_trans`'s file is at 9.09. Mean Code Health across the repository is 9.63.
+`scr_trans`'s file is at 9.09. Mean Code Health across the repository is 9.64.
 
 ## Folder campaigns
 
@@ -111,9 +111,9 @@ Recorded here so a later agent can see what has already been swept.
 | Folder | Files | Before | After | Notes |
 | --- | --- | --- | --- | --- |
 | `Game/ui` | 9 | 4.06 - 9.92 | 8.47 - 10.00 | `sc_sub.c` split four ways; *Recipe A clears one finding, not fifteen* |
-| `Game/com/passive` | 20 -> 77 | 4.90 - 7.55 | mean **9.03**, 30 at 10.00 | 3488 CPU pattern scripts folded onto shared skeletons; see *Where `Game/com/passive` stopped* in `PLAYBOOK.md` |
-| `Game/com/active` | 20 -> 22 | 5.04 - 8.03 | mean **9.27**, 10 at 10.00 | 1621 scripts, the same shape under another name; folded folder-wide first, then again across both folders at once |
-| `Game/com/patterns` | 0 -> 12 | - | mean **7.84**, 1 at 10.00 | the shared skeleton module the two script folders used to hold twice; 474 skeletons, 502 call sites |
+| `Game/com/passive` | 20 -> 67 | 4.90 - 7.55 | mean **9.65**, 47 at 10.00 | 3488 CPU pattern scripts folded onto shared skeletons; see *Where `Game/com/passive` stopped* in `PLAYBOOK.md` |
+| `Game/com/active` | 20 -> 22 | 5.04 - 8.03 | mean **9.33**, 11 at 10.00 | 1621 scripts, the same shape under another name; folded folder-wide first, then again across both folders at once |
+| `Game/com/patterns` | 0 -> 14 | - | mean **8.02**, 2 at 10.00 | the shared skeleton module the two script folders used to hold twice |
 
 Both COM script folders are done, and since 2026-09-19 they share one skeleton module in
 `Game/com/patterns`. `tools/passive_fold.py --family {passive,active,com}` carries the
