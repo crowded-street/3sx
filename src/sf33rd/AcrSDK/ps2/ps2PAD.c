@@ -458,11 +458,43 @@ static void set_pad_kind(s32 i) {
     }
 }
 
-void PADReadSub(s32 i) {
-    s32 pstate;
+/* The first pass over a newly connected pad: its button and vibration
+ * profiles, its kind, and whether it can rumble. Returns 0 where the block
+ * returned from PADReadSub. */
+static s32 identify_pad(s32 i) {
     s32 len;
     u8 bprofile[4];
     u8 vprofile[4];
+
+    len = scePad2GetButtonProfile(ps2slot[i].socket_id, bprofile);
+
+    if (len < 0) {
+        return 0;
+    }
+
+    ps2slot[i].bprofile = (bprofile[3] << 24) | (bprofile[2] << 16) | (bprofile[1] << 8) | bprofile[0];
+
+    if (sceVibGetProfile(ps2slot[i].socket_id, vprofile) >= 0) {
+        ps2slot[i].vprofile = vprofile[0];
+    }
+
+    set_pad_id_from_profile(i);
+
+    set_pad_kind(i);
+
+    if (!(ps2slot[i].vprofile & 3)) {
+        ps2slot[i].vib = 0;
+    } else {
+        ps2slot[i].vib = 1;
+    }
+
+    ps2slot[i].phase += 1;
+
+    return 1;
+}
+
+void PADReadSub(s32 i) {
+    s32 pstate;
 
     ps2pad_state[i] = ps2pad_backup[i];
     pstate = scePad2GetState(ps2slot[i].socket_id);
@@ -484,29 +516,9 @@ void PADReadSub(s32 i) {
     }
 
     if (ps2slot[i].phase == 0) {
-        len = scePad2GetButtonProfile(ps2slot[i].socket_id, bprofile);
-
-        if (len < 0) {
+        if (identify_pad(i) == 0) {
             return;
         }
-
-        ps2slot[i].bprofile = (bprofile[3] << 24) | (bprofile[2] << 16) | (bprofile[1] << 8) | bprofile[0];
-
-        if (sceVibGetProfile(ps2slot[i].socket_id, vprofile) >= 0) {
-            ps2slot[i].vprofile = vprofile[0];
-        }
-
-        set_pad_id_from_profile(i);
-
-        set_pad_kind(i);
-
-        if (!(ps2slot[i].vprofile & 3)) {
-            ps2slot[i].vib = 0;
-        } else {
-            ps2slot[i].vib = 1;
-        }
-
-        ps2slot[i].phase += 1;
     } else {
         if (read_pad_report(i) == 0) {
             return;
