@@ -451,6 +451,37 @@ static void game06_return_to_attract(void) {
     System_all_clear_Level_B();
 }
 
+/* game06_state from its fourth step on, reached from the first three's default.
+ * The case labels are the original ones and the switch is on the same
+ * expression, so a state that used to match here still matches here and one
+ * that matches nothing still does nothing. */
+static void game06_state_from_step_3(void) {
+    switch (G_No[2]) {
+    case 3:
+        if (--G_Timer == 0) {
+            G_No[2] += 1;
+            Clear_Disp_Ranking(0);
+            Clear_Disp_Ranking(1);
+            Switch_Screen_Init(1);
+        }
+
+        break;
+
+    case 4:
+        game06_switch_screen_done();
+
+        break;
+
+    case 5:
+        game06_save_settings();
+        break;
+
+    case 6:
+        game06_return_to_attract();
+        break;
+    }
+}
+
 static void game06_state(void) {
     switch (G_No[2]) {
     case 0:
@@ -478,27 +509,8 @@ static void game06_state(void) {
 
         break;
 
-    case 3:
-        if (--G_Timer == 0) {
-            G_No[2] += 1;
-            Clear_Disp_Ranking(0);
-            Clear_Disp_Ranking(1);
-            Switch_Screen_Init(1);
-        }
-
-        break;
-
-    case 4:
-        game06_switch_screen_done();
-
-        break;
-
-    case 5:
-        game06_save_settings();
-        break;
-
-    case 6:
-        game06_return_to_attract();
+    default:
+        game06_state_from_step_3();
         break;
     }
 }
