@@ -114,8 +114,16 @@ static void release_one_palette_handle(Palette* pch, s32 i) {
     pch->handle[i] = 0;
 }
 
-s32 ppgReleasePaletteHandle(Palette* pch, s32 ixNum) {
+/* Every slot, which is what a negative index asks for. */
+static void release_all_palette_handles(Palette* pch) {
     s32 i;
+
+    for (i = 0; i < pch->total; i++) {
+        release_one_palette_handle(pch, i);
+    }
+}
+
+s32 ppgReleasePaletteHandle(Palette* pch, s32 ixNum) {
     s32 ix;
 
     if (pch == NULL) {
@@ -131,10 +139,7 @@ s32 ppgReleasePaletteHandle(Palette* pch, s32 ixNum) {
     }
 
     if (ixNum < 0) {
-        for (i = 0; i < pch->total; i++) {
-            release_one_palette_handle(pch, i);
-        }
-
+        release_all_palette_handles(pch);
     } else {
         ix = ixNum - pch->ixNum1st;
 
@@ -166,8 +171,16 @@ static void release_one_texture_handle(Texture* tch, s32 i) {
     }
 }
 
-s32 ppgReleaseTextureHandle(Texture* tch, s32 ixNum) {
+/* Every slot, which is what a negative index asks for. */
+static void release_all_texture_handles(Texture* tch) {
     s32 i;
+
+    for (i = 0; i < tch->total; i++) {
+        release_one_texture_handle(tch, i);
+    }
+}
+
+s32 ppgReleaseTextureHandle(Texture* tch, s32 ixNum) {
     s32 ix;
 
     if (tch == NULL) {
@@ -183,9 +196,7 @@ s32 ppgReleaseTextureHandle(Texture* tch, s32 ixNum) {
     }
 
     if (ixNum < 0) {
-        for (i = 0; i < tch->total; i++) {
-            release_one_texture_handle(tch, i);
-        }
+        release_all_texture_handles(tch);
     } else {
         ix = ixNum - tch->ixNum1st;
 
