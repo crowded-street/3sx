@@ -914,3 +914,27 @@ void pattern_approach_walk_wait_get_up_sa_term_com_random_select(
         break;
     }
 }
+
+void pattern_approach_walk_wait_get_up_normal_attack_5(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, 0x71, 2);
+        break;
+
+    case 1:
+        Wait_Get_Up(wk, 3, -1);
+        break;
+
+    case 2:
+        Normal_Attack(wk, 9, 0x12);
+        break;
+
+    case 3:
+        Normal_Attack(wk, 0xB, 0x202);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}

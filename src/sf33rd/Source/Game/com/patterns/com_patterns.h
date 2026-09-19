@@ -319,6 +319,7 @@ void pattern_approach_walk_wait_get_up_normal_attack(PLW* wk, s16 target_pos, u1
 void pattern_approach_walk_wait_get_up_normal_attack_2(PLW* wk);
 void pattern_approach_walk_wait_get_up_normal_attack_3(PLW* wk, u16 lever_data);
 void pattern_approach_walk_wait_get_up_normal_attack_4(PLW* wk, s16 target_pos, s16 reaction);
+void pattern_approach_walk_wait_get_up_normal_attack_5(PLW* wk);
 void pattern_approach_walk_wait_get_up_sa_term(
     PLW* wk, s16 target_pos, const SA_Term_Args* p, const Command_Attack_Args* p_b
 );
