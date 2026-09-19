@@ -332,6 +332,21 @@ void PADPortOpen(s32 port, s32 slot, PS2Slot* adrs) {
     adrs->slot = slot;
 }
 
+/* Everything the two unusable pad states put back to nothing. They differ only
+ * in the slot state they leave behind. */
+static void clear_pad_slot(s32 i, s32 new_state) {
+    ps2slot[i].state = new_state;
+    ps2slot[i].phase = 0;
+    ps2slot[i].kind = 0;
+    ps2slot[i].vib = 0;
+    ps2slot[i].bprofile = 0;
+    ps2slot[i].vprofile = 0;
+    ps2pad_state[i] = ps2pad_clear;
+    tarpad_root[i].kind = 0;
+    tarpad_root[i].anstate = 0;
+    tarpad_root[i].state = ps2slot[i].state;
+}
+
 void PADReadSub(s32 i) {
     s32 lp0;
     s32 pstate;
@@ -349,31 +364,13 @@ void PADReadSub(s32 i) {
         break;
 
     case scePad2StateNoLink:
-        ps2slot[i].state = 1;
-        ps2slot[i].phase = 0;
-        ps2slot[i].kind = 0;
-        ps2slot[i].vib = 0;
-        ps2slot[i].bprofile = 0;
-        ps2slot[i].vprofile = 0;
-        ps2pad_state[i] = ps2pad_clear;
-        tarpad_root[i].kind = 0;
-        tarpad_root[i].anstate = 0;
-        tarpad_root[i].state = ps2slot[i].state;
+        clear_pad_slot(i, 1);
         return;
 
     case scePad2StateExecCmd:
     case scePad2StateError:
     default:
-        ps2slot[i].state = 2;
-        ps2slot[i].phase = 0;
-        ps2slot[i].kind = 0;
-        ps2slot[i].vib = 0;
-        ps2slot[i].bprofile = 0;
-        ps2slot[i].vprofile = 0;
-        ps2pad_state[i] = ps2pad_clear;
-        tarpad_root[i].kind = 0;
-        tarpad_root[i].anstate = 0;
-        tarpad_root[i].state = ps2slot[i].state;
+        clear_pad_slot(i, 2);
         return;
     }
 
