@@ -295,8 +295,14 @@ error_handler:
     flLogOut("ppgSetupPalChunkDir: Failed to acquire palette handle");
 }
 
+/* A depth of 0 or 1 byte has nothing to swap, and dendL says the data was read
+ * in the target order already. */
+static s32 ppgDataAlreadyInOrder(const PPGEndianArgs* a) {
+    return (a->depth == 1) || (a->depth == 0) || (a->dendL != 0);
+}
+
 void ppgChangeDataEndian(u8* adrs, const PPGEndianArgs* a) {
-    if ((a->depth == 1) || (a->depth == 0) || (a->dendL != 0)) {
+    if (ppgDataAlreadyInOrder(a)) {
         return;
     }
 
