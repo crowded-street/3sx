@@ -526,11 +526,23 @@ void ppgMakeConvTableTexDC() {
     }
 }
 
-s32 ppgRenewTexChunkSeqs(Texture* tch) {
+/* One texture whose dot data has been marked dirty: the mark is cleared, the
+ * handle locked, its own srcSize-byte run copied in, and the handle unlocked. */
+static void ppgRenewOneTexChunk(Texture* tch, s32 i) {
     plContext bits;
-    s32 i;
     s32* srcRam;
     s32* dstRam;
+
+    tch->handle[i].b16[1] &= 0xDFFF;
+    flLockTexture(NULL, tch->handle[i].b16[0], &bits, 3);
+    dstRam = bits.ptr;
+    srcRam = (s32*)(tch->srcAdrs + tch->srcSize * i);
+    SDL_memmove(dstRam, srcRam, tch->srcSize);
+    flUnlockTexture(tch->handle[i].b16[0]);
+}
+
+s32 ppgRenewTexChunkSeqs(Texture* tch) {
+    s32 i;
 
     if (tch == NULL) {
         tch = ppg_w.cur->tex;
@@ -546,12 +558,7 @@ s32 ppgRenewTexChunkSeqs(Texture* tch) {
 
     for (i = 0; i < tch->total; i++) {
         if (tch->handle[i].b16[1] & 0x2000) {
-            tch->handle[i].b16[1] &= 0xDFFF;
-            flLockTexture(NULL, tch->handle[i].b16[0], &bits, 3);
-            dstRam = bits.ptr;
-            srcRam = (s32*)(tch->srcAdrs + tch->srcSize * i);
-            SDL_memmove(dstRam, srcRam, tch->srcSize);
-            flUnlockTexture(tch->handle[i].b16[0]);
+            ppgRenewOneTexChunk(tch, i);
         }
     }
 
