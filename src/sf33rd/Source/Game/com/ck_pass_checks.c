@@ -15,6 +15,55 @@
 
 /* The opponent is mid-dash: the run routine has started and is past its first
  * step. Named so Check_Dash reads as the question it asks. */
+/* Option 8 means answer only as a counter, and a counter is not available
+ * while this side is already attacking. */
+static s32 counter_barred_while_attacking(PLW* wk, const SP_Tech_Args* p) {
+    return p->Option == 8 && Attack_Flag[wk->wu.id] != 0;
+}
+
+/* Technique 23 is answered whichever way the opponent is facing; everything
+ * else is ruled out when the facing check says so. */
+static s32 facing_rules_this_out(PLW* wk, WORK* em, const SP_Tech_Args* p) {
+    return p->VS_Technique != 23 && Check_Attack_Direction(wk, em);
+}
+
+/* The opponent's move is the kind and the id being watched for. */
+static s32 is_the_watched_technique(WORK* em, const SP_Tech_Args* p, u8 xx) {
+    return xx == p->Kind_of_Tech && (em->sp_tech_id == p->SP_Tech_ID);
+}
+
+/* Option2 carries no strength filter, so any strength matches. */
+static s32 option2_has_no_strength_filter(const SP_Tech_Args* p) {
+    return (p->Option2 == -1 || !(p->Option2 & 8));
+}
+
+/* The opponent is not in the pattern status and waza kind this limited attack
+ * is waiting for. */
+static s32 not_the_watched_attack(WORK* em, const Limited_Attack_Args* p) {
+    return (em->pat_status != p->PL_Status) || em->kind_of_waza != p->Status_00;
+}
+
+/* The same question for the jump form, which still takes its two values
+ * separately. */
+static s32 not_the_watched_jump_attack(WORK* em, u8 PL_Status, s8 Status_00) {
+    return (em->pat_status != PL_Status) || (em->kind_of_waza != Status_00);
+}
+
+/* The opponent is in neither of the two squat statuses being watched. */
+static s32 not_in_either_squat_status(WORK* em, const VS_Squat_Args* p) {
+    return em->pat_status != p->Status_00 && em->pat_status != p->Status_01;
+}
+
+/* The opponent is low and still rising, so there is nothing to answer yet. */
+static s32 rising_from_low(PLW* em) {
+    return (em->wu.xyz[1].disp.pos < 32) && (em->wu.mvxy.a[1].real.h > 0);
+}
+
+/* The opponent is in the dizzy routine. */
+static s32 enemy_is_fainting(PLW* enemy) {
+    return (enemy->wu.routine_no[1] == 1) && (enemy->wu.routine_no[2] == 25);
+}
+
 static s32 enemy_is_dashing(const WORK* em) {
     return (em->routine_no[1] == 0) && (em->routine_no[2] == 5) && (em->routine_no[3] != 0);
 }
@@ -35,7 +84,7 @@ static s32 not_a_cross_chop_stance(const WORK* em) {
  * strength filter in Option2 rules it out, and what to set if it does not. The
  * block is Check_Special_Technique's own, unchanged. */
 static s32 answer_matched_technique(PLW* wk, WORK* em, const SP_Tech_Args* p) {
-    if ((p->Option2 == -1 || !(p->Option2 & 8))) {
+    if (option2_has_no_strength_filter(p)) {
         if (p->Option2 == (em->kind_of_waza & 6)) {
             Last_Attack_Counter[(wk->wu.id)] = Attack_Counter[(wk->wu.id)];
             return 0;
@@ -60,11 +109,11 @@ static s32 answer_matched_technique(PLW* wk, WORK* em, const SP_Tech_Args* p) {
 s32 Check_Special_Technique(PLW* wk, WORK* em, const SP_Tech_Args* p) {
     u8 xx;
 
-    if (p->Option == 8 && Attack_Flag[wk->wu.id] != 0) {
+    if (counter_barred_while_attacking(wk, p)) {
         return 0;
     }
 
-    if (p->VS_Technique != 23 && Check_Attack_Direction(wk, em)) {
+    if (facing_rules_this_out(wk, em, p)) {
         return 0;
     }
 
@@ -74,7 +123,7 @@ s32 Check_Special_Technique(PLW* wk, WORK* em, const SP_Tech_Args* p) {
 
     xx = em->kind_of_waza & 0xF8;
 
-    if (xx == p->Kind_of_Tech && (em->sp_tech_id == p->SP_Tech_ID)) {
+    if (is_the_watched_technique(em, p, xx)) {
         return answer_matched_technique(wk, em, p);
     }
 
@@ -131,7 +180,7 @@ s32 Check_VS_Jump(PLW* wk, PLW* em, s16 Height) {
         return 0;
     }
 
-    if ((em->wu.xyz[1].disp.pos < 32) && (em->wu.mvxy.a[1].real.h > 0)) {
+    if (rising_from_low(em)) {
         return 0;
     }
 
@@ -235,7 +284,7 @@ s32 Check_Limited_Attack(PLW* wk, WORK* em, const Limited_Attack_Args* p) {
         return 0;
     }
 
-    if ((em->pat_status != p->PL_Status) || em->kind_of_waza != p->Status_00) {
+    if (not_the_watched_attack(em, p)) {
         return 0;
     }
 
@@ -255,7 +304,7 @@ s32 Check_Limited_Attack(PLW* wk, WORK* em, const Limited_Attack_Args* p) {
 }
 
 s32 Check_Limited_Jump_Attack(PLW* wk, WORK* em, u8 PL_Status, s8 Status_00) {
-    if ((em->pat_status != PL_Status) || (em->kind_of_waza != Status_00)) {
+    if (not_the_watched_jump_attack(em, PL_Status, Status_00)) {
         return 0;
     }
 
@@ -302,7 +351,7 @@ s32 Check_VS_Squat(PLW* wk, WORK* em, const VS_Squat_Args* p) {
         return Squat_Timer[wk->wu.id] = 0;
     }
 
-    if (em->pat_status != p->Status_00 && em->pat_status != p->Status_01) {
+    if (not_in_either_squat_status(em, p)) {
         return Squat_Timer[wk->wu.id] = 0;
     }
 
@@ -414,7 +463,7 @@ s32 Check_Faint(PLW* wk, PLW* enemy, s16 VS_Technique) {
     Counter_Attack[wk->wu.id] = 1;
     VS_Tech[wk->wu.id] = VS_Technique;
 
-    if ((enemy->wu.routine_no[1] == 1) && (enemy->wu.routine_no[2] == 25)) {
+    if (enemy_is_fainting(enemy)) {
         return 1;
     }
 
