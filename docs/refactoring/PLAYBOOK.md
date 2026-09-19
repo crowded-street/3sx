@@ -2720,3 +2720,35 @@ which **343 are still one of a kind**, and only **9 families / 18 scripts** come
 or fewer varying slots with a callee among them. The refusal was right, and it is now
 priced. What defeats it is that two scripts of the same step count rarely share a *signature
 sequence*: the engine calls take different argument shapes, so the combinations rarely repeat.
+
+### Two more levers priced against `Game/com/active`, and both refused
+
+*Added 2026-09-19, re-testing the folder's plateau rather than taking it on the record.*
+
+The folder's eleven sub-10.00 files were re-scored directly (`active07.c` 8.03,
+`active08.c` 8.03, `active14_2.c` 8.03, `active14.c` 8.28, `active04.c` 8.54,
+`active17.c` 8.81) and the plateau holds. **Code Duplication is the only finding left in
+any of them** - `active07.c` flags 25 of its 76 scripts, in nested groups that reach 25
+members. Two further levers were measured against it:
+
+- **A step table for a uniform-callee script.** A script whose every arm calls the *same*
+  engine function with the same signature needs no switch at all: the arguments become a
+  `static const` array and a shared helper indexes it by `CP_Index[wk->wu.id][0]`, falling
+  through to `End_Pattern`. That removes the flagged shape outright rather than folding it.
+  Its reach was counted over all 525 residual scripts in both folders plus the patterns
+  module: **35**, of which the largest family is 9 `Normal_Attack` scripts and 16 callees
+  have exactly one script each. 490 of the 525 are mixed-callee. Spread over ninety files
+  that is under one script per file, and no file loses a duplication group. Refused on
+  reach, alongside Recipe F's measured 18 of 502 - and for the same underlying reason: what
+  repeats in the residue is the *switch*, never the sequence of calls inside it.
+- **Splitting a character file to spread its duplication groups.** Measured on
+  `active07.c`, cut at function 38 of 76: the halves score **8.03** and **9.09**, a mean of
+  8.56 against 8.03 whole. It pays, and it is refused anyway, on the same ground as the two
+  skeleton regroupings above: the cut has no organising principle. Both halves are Ibuki's
+  scripts, numbered consecutively, and nothing but the metric decides where 38 falls. A file
+  boundary drawn to spread a smell is not a file boundary.
+
+The floor is unchanged and it is the one already recorded: a residual script is a switch
+over a step counter whose arms call different engine functions in a different order, and no
+legal recipe takes a branch out of a switch that is already the smallest form of what it
+does.
