@@ -345,34 +345,17 @@ u32 flCreateTextureFromTim2(const char* tim2_file, u32 flag) {
     return flCreateTextureFromTim2_mem(file_ptr, flag);
 }
 
-u32 flCreateTextureFromTim2_mem(void* mem, u32 flag) {
-    u8* dst;
+/* The mipmap chain of a TIM2 image. The same shape as the APX chain above, but
+ * not the same text: it reads a different pixel address and advances the
+ * destination with `+=` rather than a subscript, which is two differences and
+ * so not one family. */
+static void copy_tim2_mipmaps(void* mem, const plContext* context, s32 mip_num, const FLTexture* lpflTexture) {
+    u8* dst = flPS2GetSystemBuffAdrs(lpflTexture->mem_handle);
+    s32 dw = lpflTexture->width;
+    s32 dh = lpflTexture->height;
     u8* src;
-    plContext context[7];
-    plContext pal_context;
-    u32 th = 0;
-    u32 ph = 0;
-    FLTexture* lpflTexture;
-    FLTexture* lpflPalette;
-    s32 mip_num;
     s32 lp0;
-    s32 dw;
-    s32 dh;
     s32 tex_size;
-
-    th = flPS2GetTextureHandle();
-    lpflTexture = &flTexture[LO_16_BITS(th) - 1];
-    mip_num = plTIM2GetMipmapTextureNum(mem);
-
-    if (plTIM2SetContextFromImage(context, mem) == 0) {
-        return 0;
-    }
-
-    flPS2GetTextureInfoFromContext(context, mip_num + 1, th, flag);
-    lpflTexture->mem_handle = flPS2GetSystemMemoryHandle(lpflTexture->size, 2);
-    dst = flPS2GetSystemBuffAdrs(lpflTexture->mem_handle);
-    dw = lpflTexture->width;
-    dh = lpflTexture->height;
 
     for (lp0 = 0; lp0 <= mip_num; lp0++) {
         switch (context[lp0].bitdepth) {
@@ -414,6 +397,30 @@ u32 flCreateTextureFromTim2_mem(void* mem, u32 flag) {
         dh >>= 1;
         dst += tex_size;
     }
+}
+
+u32 flCreateTextureFromTim2_mem(void* mem, u32 flag) {
+    u8* dst;
+    u8* src;
+    plContext context[7];
+    plContext pal_context;
+    u32 th = 0;
+    u32 ph = 0;
+    FLTexture* lpflTexture;
+    FLTexture* lpflPalette;
+    s32 mip_num;
+
+    th = flPS2GetTextureHandle();
+    lpflTexture = &flTexture[LO_16_BITS(th) - 1];
+    mip_num = plTIM2GetMipmapTextureNum(mem);
+
+    if (plTIM2SetContextFromImage(context, mem) == 0) {
+        return 0;
+    }
+
+    flPS2GetTextureInfoFromContext(context, mip_num + 1, th, flag);
+    lpflTexture->mem_handle = flPS2GetSystemMemoryHandle(lpflTexture->size, 2);
+    copy_tim2_mipmaps(mem, context, mip_num, lpflTexture);
 
     flPS2CreateTextureHandle(th, flag);
 
