@@ -308,32 +308,44 @@ static void set_quad_corner_st(Vertex* pos, s32 flip) {
     }
 }
 
+/* What a transparent-run quad draws with: the texture handle, the handle word
+ * the chunk offset and the CI flag live in, and the palette table behind it.
+ * 0 when there is nothing to draw - no texture handle, or a CI texture whose
+ * palette table is missing. The palette pointer is left alone for a texture
+ * that is not CI, which is what the caller's own declaration did. */
+typedef struct {
+    u16 texhan;
+    u16 ix_ofs;
+    u16* phan;
+} TransQuadHandles;
+
+static s32 resolve_trans_quad_handles(const PPGDataList* tb, s32 tix, TransQuadHandles* h) {
+    h->texhan = tb->tex->handle[tix - tb->tex->ixNum1st].b16[0];
+    h->ix_ofs = tb->tex->handle[tix - tb->tex->ixNum1st].b16[1];
+
+    if (h->texhan == 0) {
+        return 0;
+    }
+
+    if (h->ix_ofs & 0x4000) {
+        h->phan = tb->pal->handle;
+
+        if (h->phan == NULL) {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
 s32 ppgWriteQuadUseTrans(Vertex* pos, const PPGQuadTransArgs* a) {
     /* The original took this by value and advanced it; the copy keeps
      * that local, which is what a by-value parameter was. */
     PPGDataList* tb = a->tb;
 
-    Vertex qvtx[4];
-    s32 i;
-    u32 sx;
-    u32 sy;
-    u32 ppgw;
-    u16* phan;
-    u16 palhan;
-    u16 texhan;
-    u8* tran;
-    u8 cofsXY;
-    u8 xs;
-    u8 ys;
+    TransQuadHandles h;
+    u16 palhan = 0;
     u16 transTotal;
-    u16 iPoint;
-    u16 ix_ofs;
-    f32 pxs;
-    f32 pys;
-    f32 sadd;
-    f32 tadd;
-    f32 ppgwf;
-    f32 ppghf;
     PPGFileHeader* ppg;
 
     if (quad_is_offscreen(pos)) {
@@ -348,34 +360,21 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, const PPGQuadTransArgs* a) {
         return ppgWriteQuadWithST_A2(pos, a->col);
     }
 
-    texhan = tb->tex->handle[a->tix - tb->tex->ixNum1st].b16[0];
-    ix_ofs = tb->tex->handle[a->tix - tb->tex->ixNum1st].b16[1];
-
-    if (texhan == 0) {
+    if (!resolve_trans_quad_handles(tb, a->tix, &h)) {
         return 0;
     }
 
-    palhan = 0;
-
-    if (ix_ofs & 0x4000) {
-        phan = tb->pal->handle;
-
-        if (phan == NULL) {
-            return 0;
-        }
-    }
-
-    ppg = transparent_run_header(tb->tex, ix_ofs, &transTotal);
+    ppg = transparent_run_header(tb->tex, h.ix_ofs, &transTotal);
 
     if ((ppg != NULL) && (transTotal != 0)) {
-        return write_transparent_runs(pos, a, &(PPGTransRun){ ppg, transTotal, ix_ofs, phan, texhan });
+        return write_transparent_runs(pos, a, &(PPGTransRun){ ppg, transTotal, h.ix_ofs, h.phan, h.texhan });
     }
 
-    if (ix_ofs & 0x4000) {
-        palhan = resolve_palette_handle(phan, a->cix);
+    if (h.ix_ofs & 0x4000) {
+        palhan = resolve_palette_handle(h.phan, a->cix);
     }
 
     set_quad_corner_st(pos, a->flip);
-    ppgWriteQuadOnly2(pos, a->col, texhan | (palhan << 0x10));
+    ppgWriteQuadOnly2(pos, a->col, h.texhan | (palhan << 0x10));
     return 1;
 }
