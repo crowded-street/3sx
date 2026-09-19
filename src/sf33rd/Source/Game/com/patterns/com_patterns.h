@@ -386,6 +386,7 @@ void pattern_em_term_sa_term_j_command_attack(
 void pattern_em_term_sa_term_normal_attack(PLW* wk, const SA_Term_Args* p, s16 reaction, s16 reaction_b);
 void pattern_em_term_search_back_term_command_attack(PLW* wk, const Command_Attack_Args* p);
 void pattern_em_term_short_range_attack(PLW* wk, const Short_Range_Args* p);
+void pattern_end_immediately(PLW* wk);
 void pattern_etc_term_branch_unit_area(PLW* wk, u32 next_action, u16 next_menu, const Branch_Menu_Args* p);
 void pattern_etc_term_check_sa_branch_unit_area(
     PLW* wk, const ETC_Term_Step* etc_term, s16 next_menu, const Branch_Menu_Args* p
@@ -486,6 +487,7 @@ void pattern_lever_attack_normal_attack_j_command_attack(
 );
 void pattern_lever_attack_sp(PLW* wk);
 void pattern_lever_attack_sp_com_random_select(PLW* wk, const Branch_Menu_Args* p);
+void pattern_lever_off_shell_term_next_be_flip(PLW* wk);
 void pattern_lever_on_em_term_check_store_lever(PLW* wk, u16 tech_number);
 void pattern_lever_on_em_term_check_store_lever_2(PLW* wk, const Command_Attack_Args* p);
 void pattern_lever_on_em_term_j_command_attack(
@@ -640,6 +642,13 @@ void pattern_search_back_term_walk_em_term(PLW* wk, const Command_Attack_Args* p
 void pattern_search_back_term_walk_normal_attack(PLW* wk, s16 next_menu, u16 lever_data);
 void pattern_search_back_term_walk_wait_get_up(PLW* wk, s16 move_value, s16 next_menu, s16 time);
 void pattern_search_back_term_walk_wait_get_up_2(PLW* wk, s16 move_value, s16 next_menu, s16 time);
+void pattern_shell_term_command_attack(PLW* wk, const Command_Attack_Args* p);
+void pattern_shell_term_jump(PLW* wk, const Shell_Term_Params* p, s16 time);
+void pattern_shell_term_jump_attack_term(PLW* wk, const Shell_Term_Params* p, const Jump_Term_Args* a);
+void pattern_shell_term_jump_attack_term_j_command_attack(PLW* wk);
+void pattern_shell_term_jump_attack_term_normal_attack(PLW* wk, const Jump_Term_Args* a, u16 lever_data);
+void pattern_shell_term_jump_attack_term_normal_attack_2(PLW* wk, const Command_Attack_Args* p);
+void pattern_shell_term_jump_attack_term_normal_attack_3(PLW* wk, const Jump_Term_Args* a, u16 lever_data);
 void pattern_short_range_attack(PLW* wk);
 void pattern_turn_over_on_jump_attack_term(PLW* wk);
 void pattern_vs_jump_guard(PLW* wk);

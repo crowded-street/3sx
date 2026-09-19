@@ -926,3 +926,51 @@ void pattern_check_store_lever_command_attack(
         break;
     }
 }
+
+void pattern_shell_term_jump(PLW* wk, const Shell_Term_Params* p, s16 time) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        SHELL_Term(wk, p);
+        break;
+
+    case 1:
+        Jump(wk, time);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_shell_term_jump_attack_term(PLW* wk, const Shell_Term_Params* p, const Jump_Term_Args* a) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        SHELL_Term(wk, p);
+        break;
+
+    case 1:
+        Jump_Attack_Term(wk, a);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_shell_term_command_attack(PLW* wk, const Command_Attack_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        SHELL_Term(wk, &(Shell_Term_Params){3, 2, 1, -1, -1});
+        break;
+
+    case 1:
+        Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}

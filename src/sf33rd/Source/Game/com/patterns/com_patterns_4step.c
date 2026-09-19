@@ -938,3 +938,51 @@ void pattern_approach_walk_wait_get_up_normal_attack_5(PLW* wk) {
         break;
     }
 }
+
+void pattern_shell_term_jump_attack_term_normal_attack_2(PLW* wk, const Command_Attack_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        SHELL_Term(wk, &(Shell_Term_Params){0, 2, 1, -1, -1});
+        break;
+
+    case 1:
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA8, -0x7FD0, 9, 0x200, 0, -0x7FB0, -1, 0x200});
+        break;
+
+    case 2:
+        Normal_Attack(wk, 0xB, 0x20);
+        break;
+
+    case 3:
+        J_Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_shell_term_jump_attack_term_normal_attack_3(PLW* wk, const Jump_Term_Args* a, u16 lever_data) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        SHELL_Term(wk, &(Shell_Term_Params){0, 2, 1, -1, -1});
+        break;
+
+    case 1:
+        Jump_Attack_Term(wk, a);
+        break;
+
+    case 2:
+        Normal_Attack(wk, 0xB, 0x20);
+        break;
+
+    case 3:
+        Normal_Attack(wk, 8, lever_data);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}

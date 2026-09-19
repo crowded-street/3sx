@@ -181,3 +181,10 @@ void pattern_wait_get_up_lever_attack_2(PLW* wk, u16 lever, u16 lever_data) {
 void pattern_walk(PLW* wk, s16 unused) {
     active_pattern_walk(wk, 1, 0x20, unused);
 }
+
+void pattern_end_immediately(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    default:
+        End_Pattern(wk);
+    }
+}

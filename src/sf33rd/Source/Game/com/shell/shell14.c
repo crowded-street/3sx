@@ -20,115 +20,43 @@ void Shell14_0000(PLW* wk) {
 }
 
 void Shell14_0001(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        SHELL_Term(wk, &(Shell_Term_Params){1, 2, 1, -1, -1});
-        break;
-
-    case 1:
-        Jump(wk, 2);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_shell_term_jump(wk, &(Shell_Term_Params){1, 2, 1, -1, -1}, 2);
 }
 
 void Shell14_0002(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        SHELL_Term(wk, &(Shell_Term_Params){0, 2, 1, -1, -1});
-        break;
-
-    case 1:
-        Jump(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_shell_term_jump(wk, &(Shell_Term_Params){0, 2, 1, -1, -1}, 0);
 }
 
 void Shell14_0003(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        SHELL_Term(wk, &(Shell_Term_Params){0, 2, 1, -1, -1});
-        break;
-
-    case 1:
-        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA8, -0x7FD0, 9, 0x200, 0, -0x7FB0, -1, 0x200});
-        break;
-
-    case 2:
-        Normal_Attack(wk, 0xB, 0x20);
-        break;
-
-    case 3:
-        Normal_Attack(wk, 8, 0x202);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_shell_term_jump_attack_term_normal_attack_3(
+        wk,
+        &(Jump_Term_Args){-0x7FA8, -0x7FD0, 9, 0x200, 0, -0x7FB0, -1, 0x200},
+        0x202
+    );
 }
 
 void Shell14_0004(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        SHELL_Term(wk, &(Shell_Term_Params){0, 2, 1, -1, -1});
-        break;
-
-    case 1:
-        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA8, -0x7FD0, 0xB, 0x200, 0, -0x7FB0, -1, 0x20});
-        break;
-
-    case 2:
-        Normal_Attack(wk, 8, 0x202);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_shell_term_jump_attack_term_normal_attack(
+        wk,
+        &(Jump_Term_Args){-0x7FA8, -0x7FD0, 0xB, 0x200, 0, -0x7FB0, -1, 0x20},
+        0x202
+    );
 }
 
 void Shell14_0005(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        SHELL_Term(wk, &(Shell_Term_Params){0, 2, 1, -1, -1});
-        break;
-
-    case 1:
-        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA8, -0x7FC0, 0xB, 0x200, 0, -0x7FB0, -1, 0x400});
-        break;
-
-    case 2:
-        Normal_Attack(wk, 8, 0x202);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_shell_term_jump_attack_term_normal_attack(
+        wk,
+        &(Jump_Term_Args){-0x7FA8, -0x7FC0, 0xB, 0x200, 0, -0x7FB0, -1, 0x400},
+        0x202
+    );
 }
 
 void Shell14_0006(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        SHELL_Term(wk, &(Shell_Term_Params){1, 2, 1, -1, -1});
-        break;
-
-    case 1:
-        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, 0x30, 8, 0x400, 2, -1, -1, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_shell_term_jump_attack_term(
+        wk,
+        &(Shell_Term_Params){1, 2, 1, -1, -1},
+        &(Jump_Term_Args){-1, 0x30, 8, 0x400, 2, -1, -1, -1}
+    );
 }
 
 void Shell14_0007(PLW* wk) {
@@ -136,43 +64,15 @@ void Shell14_0007(PLW* wk) {
 }
 
 void Shell14_0008(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        SHELL_Term(wk, &(Shell_Term_Params){0, 2, 1, -1, -1});
-        break;
-
-    case 1:
-        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA8, -0x7FD0, 0xB, 0x20, 0, -0x7FB0, -1, 0x200});
-        break;
-
-    case 2:
-        Normal_Attack(wk, 8, 0x202);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_shell_term_jump_attack_term_normal_attack(
+        wk,
+        &(Jump_Term_Args){-0x7FA8, -0x7FD0, 0xB, 0x20, 0, -0x7FB0, -1, 0x200},
+        0x202
+    );
 }
 
 void Shell14_0009(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_Off(wk);
-        break;
-
-    case 1:
-        SHELL_Term(wk, &(Shell_Term_Params){2, 2, 1, -1, -1});
-        break;
-
-    case 2:
-        Next_Be_Flip(wk, 8);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_lever_off_shell_term_next_be_flip(wk);
 }
 
 void Shell14_0010(PLW* wk) {
