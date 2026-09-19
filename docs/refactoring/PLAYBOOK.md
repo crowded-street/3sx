@@ -2666,3 +2666,57 @@ is parameterising two or more differences, which is Recipe D's forbidden case an
 refused. Past them, the patterns module's floor is the arithmetic of a switch: a skeleton's
 complexity is its step count plus two, and no legal recipe takes a branch out of a switch
 that is already the smallest form of what it does.
+
+### The last legal lever: bundle a call's arguments rather than reach for a per-skeleton struct
+
+*Added 2026-09-19, after the cross-folder pass, and it narrows - not overturns -
+*When a fifth value varies, specialise - do not reach for a parameter object*.*
+
+That note refused a parameter object on a **big family**, where specialising into several
+skeletons was the cheaper alternative and a struct type per skeleton would have meant 69 new
+declarations. In the residual tail there is no such alternative: 35 families of two to six
+members vary in four to seven values *and will not specialise*, because every member differs
+in every slot. For them the choice is a parameter object or nothing.
+
+The two forms are not equally good, and the difference is measurable:
+
+| Form | Reach | New types | `Game/com/active` |
+| --- | --- | --- | --- |
+| A struct per skeleton, holding whatever that family happens to vary | 93 members, 30 active | **34** | 9.27 -> 9.38 |
+| A struct per **engine call**, holding that call's own arguments | 35 members, 11 active | **7** | 9.27 -> **9.33** |
+
+The second was taken. Each type is named for one engine call and its field order is that
+call's parameter order, so it reads as `Command_Attack_Args` and the rest of the engine's
+own argument structs already do:
+
+```c
+pattern_search_back_term_jump_attack_term(
+    wk,
+    &(Search_Back_Term_Step){ 0x60, 2, 0x10 },
+    &(Jump_Term_Args){-1, -0x7FB8, 8, 0x400, 1, -0x7F90, -1, 0x200});
+```
+
+The first was refused for a third of a point: thirty-four grab-bag types, each used two or
+three times, each carrying an unrelated set of values because one family happened to vary
+in them. That is the declaration-per-skeleton cost the original note was written about.
+
+**A struct parameter is invisible to the equivalence checker until you fix it.** A skeleton
+reads `p->Reaction` where the call site wrote `&(Normal_Attack_Step){ 8, 0x10 }`, and
+`step_map` substituted parameter names textually, so all 35 folds came back as DIFFERS.
+Resolving a field back through the compound literal is what makes the fold checkable, and
+the check was confirmed by planting the mistake it exists to catch - `{ 0x60, 0x10, 2 }`
+for `{ 0x60, 2, 0x10 }`, which it reports as a differing step. **Do not fold through a
+struct until the checker can see through it**; a transposed field is exactly the error a
+by-position literal invites, and nothing else in the loop would find it.
+
+### Recipe F reaches 18 of 502, measured
+
+*Added 2026-09-19.*
+
+The passive folder refused Recipe F on one file's measurement (8.03 to 8.03) and on risk.
+With both folders folded and the residue at 502 scripts, the reach was measured directly:
+abstracting the callees as well as the arguments gives 403 families for 502 scripts, of
+which **343 are still one of a kind**, and only **9 families / 18 scripts** come in at three
+or fewer varying slots with a callee among them. The refusal was right, and it is now
+priced. What defeats it is that two scripts of the same step count rarely share a *signature
+sequence*: the engine calls take different argument shapes, so the combinations rarely repeat.
