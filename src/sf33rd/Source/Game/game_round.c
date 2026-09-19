@@ -336,6 +336,49 @@ void Game05() {
 }
 
 /* The end-of-match states: game over, the ranking display, and the switch to the next screen. */
+/* The screen-switch step of the post-game-over flow: clear the loser down, and
+ * either take a break request back to the character select or write the
+ * ranking out and move on to the save. The one `break` inside ended the arm,
+ * and nothing runs after the switch, so it is a `return` here. */
+static void game06_switch_screen_done(void) {
+    s16 xx;
+
+    if (Switch_Screen(1) != 0) {
+        Cover_Timer = 24;
+        Forbid_Break = 0;
+        Clear_Flash_No();
+        Clear_Personal_Data(LOSER);
+        grade_check_work_1st_init(LOSER, 0);
+        grade_check_work_1st_init(LOSER, 1);
+
+        if (Request_Break[0] != 0 || Request_Break[1] != 0) {
+            Request_Break_Sub(0);
+            Request_Break_Sub(1);
+            G_No[1] = 1;
+            G_No[2] = 0;
+            G_No[3] = 0;
+            E_No[0] = 2;
+            E_No[1] = 0;
+            E_No[2] = 0;
+            E_No[3] = 0;
+            return;
+        }
+
+        for (xx = 0; xx < 20; xx++) {
+            save_w[Present_Mode].Ranking[xx] = Ranking_Data[xx];
+        }
+
+        G_No[2] = 5;
+        G_No[3] = 0;
+        G_Timer = 4;
+        Pause_ID = Player_id;
+        System_all_clear_Level_B();
+        Forbid_Reset = 1;
+        Copy_Check_w();
+        cpExitTask(TASK_SAVER);
+    }
+}
+
 static void game06_state(void) {
     s16 xx;
 
@@ -391,40 +434,7 @@ static void game06_state(void) {
         break;
 
     case 4:
-        if (Switch_Screen(1) != 0) {
-            Cover_Timer = 24;
-            Forbid_Break = 0;
-            Clear_Flash_No();
-            Clear_Personal_Data(LOSER);
-            grade_check_work_1st_init(LOSER, 0);
-            grade_check_work_1st_init(LOSER, 1);
-
-            if (Request_Break[0] != 0 || Request_Break[1] != 0) {
-                Request_Break_Sub(0);
-                Request_Break_Sub(1);
-                G_No[1] = 1;
-                G_No[2] = 0;
-                G_No[3] = 0;
-                E_No[0] = 2;
-                E_No[1] = 0;
-                E_No[2] = 0;
-                E_No[3] = 0;
-                break;
-            }
-
-            for (xx = 0; xx < 20; xx++) {
-                save_w[Present_Mode].Ranking[xx] = Ranking_Data[xx];
-            }
-
-            G_No[2] = 5;
-            G_No[3] = 0;
-            G_Timer = 4;
-            Pause_ID = Player_id;
-            System_all_clear_Level_B();
-            Forbid_Reset = 1;
-            Copy_Check_w();
-            cpExitTask(TASK_SAVER);
-        }
+        game06_switch_screen_done();
 
         break;
 
