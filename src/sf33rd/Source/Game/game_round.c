@@ -217,30 +217,36 @@ void Game03() {
 }
 
 /* The between-rounds states. */
-static void game04_state(void) {
+/* What follows the loser scene: the replay mode hands over to the menu, every
+ * other mode sets up the continue screen. */
+static void game04_loser_scene_done(void) {
     s16 i;
 
+    if (Mode_Type == 5) {
+        G_No[2] = 5;
+        cpReadyTask(TASK_MENU, Menu_Task);
+        task[TASK_MENU].r_no[0] = 8;
+    } else {
+        G_No[1] = 7;
+        G_No[2] = 0;
+        G_No[3] = 0;
+        E_No[0] = 7;
+        Cont_No[0] = 0;
+        E_Number[LOSER][0] = 1;
+
+        for (i = 1; i < 4; i++) {
+            E_No[i] = 0;
+            Cont_No[i] = 0;
+            E_Number[LOSER][i] = 0;
+        }
+    }
+}
+
+static void game04_state(void) {
     switch (G_No[2]) {
     case 0:
         if (Loser_Scene() != 0) {
-            if (Mode_Type == 5) {
-                G_No[2] = 5;
-                cpReadyTask(TASK_MENU, Menu_Task);
-                task[TASK_MENU].r_no[0] = 8;
-            } else {
-                G_No[1] = 7;
-                G_No[2] = 0;
-                G_No[3] = 0;
-                E_No[0] = 7;
-                Cont_No[0] = 0;
-                E_Number[LOSER][0] = 1;
-
-                for (i = 1; i < 4; i++) {
-                    E_No[i] = 0;
-                    Cont_No[i] = 0;
-                    E_Number[LOSER][i] = 0;
-                }
-            }
+            game04_loser_scene_done();
         }
 
         break;
