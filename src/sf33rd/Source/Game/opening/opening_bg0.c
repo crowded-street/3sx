@@ -82,6 +82,125 @@ void op_bg0_0000(s16 /* unused */) {
     op_scrn_pos_set2(0);
 }
 
+/* Which pair of background blocks this opening scene starts with. Every arm
+ * lays blocks down and nothing else, so the whole choice moves out of the
+ * scene's step 0; no case label is renumbered and no arm changes. */
+static void op_bg0_lay_blocks(s16 r_index) {
+    switch (r_index) {
+    case 0x1:
+        oh_bg_blk_w_rows(0x30, 0x31, 0, 1);
+        break;
+
+    case 0x3:
+        oh_bg_blk_wv(op_w.bgw, &(Op_Bg_Blk_Args){0x45, 1, 0, 1});
+        oh_bg_blk_wv(op_w.bgw, &(Op_Bg_Blk_Args){0x46, 2, 0, 1});
+        op_w.bgw[0].map[1][0].col.full = -0x01000000;
+        op_w.bgw[0].map[2][0].col.full = -0x01000000;
+        break;
+
+    case 0x4:
+    case 0x16:
+    case 0x21:
+        oh_bg_blk_wh(op_w.bgw, &(Op_Bg_Blk_Args){0x35, 1, 0, 1});
+        oh_bg_blk_wh(op_w.bgw, &(Op_Bg_Blk_Args){0x34, 2, 0, 1});
+        break;
+
+    case 0x7:
+        oh_bg_blk_w_rows(0x3F, 0x40, 0, 1);
+        break;
+
+    case 0x9:
+    case 0x48:
+        oh_bg_blk_w_rows(0x36, 0x37, 0, 1);
+        break;
+
+    case 0xB:
+    case 0x1E:
+        oh_bg_blk_wh(op_w.bgw, &(Op_Bg_Blk_Args){0x33, 1, 0, 1});
+        oh_bg_blk_wh(op_w.bgw, &(Op_Bg_Blk_Args){0x32, 2, 0, 1});
+        break;
+
+    case 0xC:
+        oh_bg_blk_w_rows(0x43, 0x44, 0, 1);
+        break;
+
+    case 0xF:
+        oh_bg_blk_wh(op_w.bgw, &(Op_Bg_Blk_Args){0x3C, 2, 0, 1});
+        oh_bg_blk_wh(op_w.bgw, &(Op_Bg_Blk_Args){0x3D, 1, 0, 1});
+        break;
+
+    case 0x12:
+        oh_bg_blk_wv(op_w.bgw, &(Op_Bg_Blk_Args){0x32, 1, 0, 1});
+        oh_bg_blk_wv(op_w.bgw, &(Op_Bg_Blk_Args){0x33, 2, 0, 1});
+        break;
+
+    case 0x13:
+        oh_bg_blk_w_rows(0x47, 0x48, 0, 1);
+        break;
+
+    case 0x15:
+        oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x38, 1, 0, 1});
+        op_w.bgw[0].map[2][0].g_no = 0;
+        break;
+
+    case 0x1F:
+        oh_bg_blk_w_rows(0x49, 0x4A, 0, 1);
+        break;
+
+    case 0x20:
+        oh_bg_blk_w_rows(0x4B, 0x4C, 0, 1);
+        break;
+
+    case 0x23:
+        oh_bg_blk_w_rows(0x59, 0x5A, 0, 1);
+        break;
+
+    case 0x24:
+        oh_bg_blk_w_rows(0x22, 0x23, 0, 1);
+        break;
+
+    case 0x26:
+    case 0x27:
+        oh_bg_blk_w_rows(0x3D, 0x3E, 0, 1);
+        break;
+
+    case 0x37:
+    case 0x38:
+        oh_bg_blk_w_rows(0x4D, 0x4E, 0, 1);
+        break;
+
+    case 0x3C:
+    case 0x3E:
+    case 0x50:
+    case 0x52:
+        oh_bg_blk_w_rows(0x57, 0x58, 0, 1);
+        break;
+
+    case 0x41:
+        oh_bg_blk_w_rows(0x4F, 0x50, 0, 1);
+        break;
+
+    case 0x42:
+        oh_bg_blk_w_rows(0x51, 0x52, 0, 1);
+        break;
+
+    case 0x49:
+        oh_bg_blk_w_rows(0x53, 0x54, 0, 1);
+        break;
+
+    case 0x4B:
+        op_w.bgw[0].map[1][0].g_no = 0;
+        op_w.bgw[0].map[2][0].g_no = 0;
+        oh_bg_blk_whv(op_w.bgw, &(Op_Bg_Blk_Args){0x53, 2, 0, 1});
+        oh_bg_blk_whv(op_w.bgw, &(Op_Bg_Blk_Args){0x54, 1, 0, 1});
+        break;
+
+    case 0x4C:
+        oh_bg_blk_w_rows(0x55, 0x56, 0, 1);
+        break;
+    }
+}
+
 void op_bg0_0001(s16 r_index) {
     switch (opw_ptr->r_no_0) {
     case 0:
@@ -92,119 +211,7 @@ void op_bg0_0001(s16 r_index) {
         bgw_ptr->wxy[0].cal = 0x2000000;
         bgw_ptr->xy[1].cal = 0;
 
-        switch (r_index) {
-        case 0x1:
-            oh_bg_blk_w_rows(0x30, 0x31, 0, 1);
-            break;
-
-        case 0x3:
-            oh_bg_blk_wv(op_w.bgw, &(Op_Bg_Blk_Args){0x45, 1, 0, 1});
-            oh_bg_blk_wv(op_w.bgw, &(Op_Bg_Blk_Args){0x46, 2, 0, 1});
-            op_w.bgw[0].map[1][0].col.full = -0x01000000;
-            op_w.bgw[0].map[2][0].col.full = -0x01000000;
-            break;
-
-        case 0x4:
-        case 0x16:
-        case 0x21:
-            oh_bg_blk_wh(op_w.bgw, &(Op_Bg_Blk_Args){0x35, 1, 0, 1});
-            oh_bg_blk_wh(op_w.bgw, &(Op_Bg_Blk_Args){0x34, 2, 0, 1});
-            break;
-
-        case 0x7:
-            oh_bg_blk_w_rows(0x3F, 0x40, 0, 1);
-            break;
-
-        case 0x9:
-        case 0x48:
-            oh_bg_blk_w_rows(0x36, 0x37, 0, 1);
-            break;
-
-        case 0xB:
-        case 0x1E:
-            oh_bg_blk_wh(op_w.bgw, &(Op_Bg_Blk_Args){0x33, 1, 0, 1});
-            oh_bg_blk_wh(op_w.bgw, &(Op_Bg_Blk_Args){0x32, 2, 0, 1});
-            break;
-
-        case 0xC:
-            oh_bg_blk_w_rows(0x43, 0x44, 0, 1);
-            break;
-
-        case 0xF:
-            oh_bg_blk_wh(op_w.bgw, &(Op_Bg_Blk_Args){0x3C, 2, 0, 1});
-            oh_bg_blk_wh(op_w.bgw, &(Op_Bg_Blk_Args){0x3D, 1, 0, 1});
-            break;
-
-        case 0x12:
-            oh_bg_blk_wv(op_w.bgw, &(Op_Bg_Blk_Args){0x32, 1, 0, 1});
-            oh_bg_blk_wv(op_w.bgw, &(Op_Bg_Blk_Args){0x33, 2, 0, 1});
-            break;
-
-        case 0x13:
-            oh_bg_blk_w_rows(0x47, 0x48, 0, 1);
-            break;
-
-        case 0x15:
-            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x38, 1, 0, 1});
-            op_w.bgw[0].map[2][0].g_no = 0;
-            break;
-
-        case 0x1F:
-            oh_bg_blk_w_rows(0x49, 0x4A, 0, 1);
-            break;
-
-        case 0x20:
-            oh_bg_blk_w_rows(0x4B, 0x4C, 0, 1);
-            break;
-
-        case 0x23:
-            oh_bg_blk_w_rows(0x59, 0x5A, 0, 1);
-            break;
-
-        case 0x24:
-            oh_bg_blk_w_rows(0x22, 0x23, 0, 1);
-            break;
-
-        case 0x26:
-        case 0x27:
-            oh_bg_blk_w_rows(0x3D, 0x3E, 0, 1);
-            break;
-
-        case 0x37:
-        case 0x38:
-            oh_bg_blk_w_rows(0x4D, 0x4E, 0, 1);
-            break;
-
-        case 0x3C:
-        case 0x3E:
-        case 0x50:
-        case 0x52:
-            oh_bg_blk_w_rows(0x57, 0x58, 0, 1);
-            break;
-
-        case 0x41:
-            oh_bg_blk_w_rows(0x4F, 0x50, 0, 1);
-            break;
-
-        case 0x42:
-            oh_bg_blk_w_rows(0x51, 0x52, 0, 1);
-            break;
-
-        case 0x49:
-            oh_bg_blk_w_rows(0x53, 0x54, 0, 1);
-            break;
-
-        case 0x4B:
-            op_w.bgw[0].map[1][0].g_no = 0;
-            op_w.bgw[0].map[2][0].g_no = 0;
-            oh_bg_blk_whv(op_w.bgw, &(Op_Bg_Blk_Args){0x53, 2, 0, 1});
-            oh_bg_blk_whv(op_w.bgw, &(Op_Bg_Blk_Args){0x54, 1, 0, 1});
-            break;
-
-        case 0x4C:
-            oh_bg_blk_w_rows(0x55, 0x56, 0, 1);
-            break;
-        }
+        op_bg0_lay_blocks(r_index);
 
         /* fallthrough */
 
