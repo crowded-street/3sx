@@ -246,7 +246,16 @@ def trace(name, fs, locals_, seen=None):
 
 
 def norm(text):
-    return re.sub(r'\s+', ' ', text).strip()
+    """Whitespace-insensitive form.
+
+    Runs of whitespace collapse to one space, and a space just inside a bracket
+    goes entirely - re-wrapping a call across lines adds exactly those, and
+    without this a pure re-indent reads as a change. Whitespace is never
+    semantic in C outside a string literal, and this comparison is already lossy
+    inside one.
+    """
+    text = re.sub(r'\s+', ' ', text).strip()
+    return re.sub(r'([(\[]) | ([)\]])', lambda m: m.group(1) or m.group(2), text)
 
 
 def main():
