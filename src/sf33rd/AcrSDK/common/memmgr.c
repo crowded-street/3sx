@@ -71,6 +71,19 @@ u32 plmemRegisterAlign(MEM_MGR* memmgr, s32 len, s32 align) {
     return han + 1;
 }
 
+/* Claim a pulled handle for a block at `ptr` and hand it back as the caller's
+ * return value. The four places plmemRegisterS finds room differ only in the
+ * address they found. */
+static u32 plmem_claim_block(MEM_MGR* memmgr, u32 han, s32 len, u8* ptr) {
+    memmgr->block[han].id = 0;
+    memmgr->block[han].len = len;
+    memmgr->block[han].align = memmgr->memalign;
+    memmgr->block[han].ptr = ptr;
+    memmgr->used_size += len;
+    plmemAppendBlockList(memmgr, han);
+    return han + 1;
+}
+
 u32 plmemRegisterS(MEM_MGR* memmgr, s32 len) {
     u32 han;
     size_t len2;
@@ -99,13 +112,7 @@ u32 plmemRegisterS(MEM_MGR* memmgr, s32 len) {
             len2 = next_block->ptr - data_ptr;
 
             if (size <= len2) {
-                memmgr->block[han].id = 0;
-                memmgr->block[han].len = len;
-                memmgr->block[han].align = memmgr->memalign;
-                memmgr->block[han].ptr = data_ptr;
-                memmgr->used_size += len;
-                plmemAppendBlockList(memmgr, han);
-                return han + 1;
+                return plmem_claim_block(memmgr, han, len, data_ptr);
             }
 
             now_block = next_block;
@@ -115,13 +122,7 @@ u32 plmemRegisterS(MEM_MGR* memmgr, s32 len) {
         len2 = memmgr->memnow - data_ptr;
 
         if (size <= len2) {
-            memmgr->block[han].id = 0;
-            memmgr->block[han].len = len;
-            memmgr->block[han].align = memmgr->memalign;
-            memmgr->block[han].ptr = data_ptr;
-            memmgr->used_size += len;
-            plmemAppendBlockList(memmgr, han);
-            return han + 1;
+            return plmem_claim_block(memmgr, han, len, data_ptr);
         }
     } else {
         while (now_block->next != MEM_NULL_HANDLE) {
@@ -130,13 +131,7 @@ u32 plmemRegisterS(MEM_MGR* memmgr, s32 len) {
             len2 = now_block->ptr - data_ptr;
 
             if (size <= len2) {
-                memmgr->block[han].id = 0;
-                memmgr->block[han].len = len;
-                memmgr->block[han].align = memmgr->memalign;
-                memmgr->block[han].ptr = now_block->ptr - size;
-                memmgr->used_size += len;
-                plmemAppendBlockList(memmgr, han);
-                return han + 1;
+                return plmem_claim_block(memmgr, han, len, now_block->ptr - size);
             }
 
             now_block = next_block;
@@ -145,13 +140,7 @@ u32 plmemRegisterS(MEM_MGR* memmgr, s32 len) {
         len2 = now_block->ptr - memmgr->memnow;
 
         if (size <= len2) {
-            memmgr->block[han].id = 0;
-            memmgr->block[han].len = len;
-            memmgr->block[han].align = memmgr->memalign;
-            memmgr->block[han].ptr = now_block->ptr - size;
-            memmgr->used_size += len;
-            plmemAppendBlockList(memmgr, han);
-            return han + 1;
+            return plmem_claim_block(memmgr, han, len, now_block->ptr - size);
         }
     }
 
