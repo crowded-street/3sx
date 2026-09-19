@@ -459,29 +459,48 @@ static void set_lock_context_format(plContext* lpcontext, u32 format) {
  * This is the arm's own switch, moved out whole. */
 /* The direct-colour half of the lock conversion, reached through the default
  * arm of the paletted half. No case label is renumbered. */
+/* The two ways this file dresses a context for a direct-colour convert: the
+ * layout as it stands, and the same layout with red and blue swapped back. */
+
+static void setup_rgb888_context(plContext* c) {
+    c->bitdepth = 3;
+    set_pixelformat_rgb888(c);
+    c->pitch = c->width * c->bitdepth;
+}
+
+static void setup_bgr888_context(plContext* c) {
+    c->bitdepth = 3;
+    set_pixelformat_rgb888(c);
+    c->pixelformat.rs = 0;
+    c->pixelformat.bs = 0x10;
+    c->pitch = c->width * c->bitdepth;
+}
+
+static void setup_rgba8888_context(plContext* c) {
+    c->bitdepth = 4;
+    set_pixelformat_rgba8888(c);
+    c->pitch = c->width * c->bitdepth;
+}
+
+static void setup_bgra8888_context(plContext* c) {
+    c->bitdepth = 4;
+    set_pixelformat_rgba8888(c);
+    c->pixelformat.rs = 0;
+    c->pixelformat.bs = 0x10;
+    c->pitch = c->width * c->bitdepth;
+}
+
 static void lock_convert_direct_formats(const FlLockArgs* a, plContext* src, u8* buff_ptr, u8* buff_ptr1) {
     switch (a->lpflTexture->format) {
     case 1:
-        a->lpcontext->bitdepth = 3;
-        set_pixelformat_rgb888(a->lpcontext);
-        a->lpcontext->pitch = a->lpcontext->width * a->lpcontext->bitdepth;
-        src->bitdepth = 3;
-        set_pixelformat_rgb888(src);
-        src->pixelformat.rs = 0;
-        src->pixelformat.bs = 0x10;
-        src->pitch = src->width * src->bitdepth;
+        setup_rgb888_context(a->lpcontext);
+        setup_bgr888_context(src);
         plConvertContext(a->lpcontext, src);
         break;
 
     case 0:
-        a->lpcontext->bitdepth = 4;
-        set_pixelformat_rgba8888(a->lpcontext);
-        a->lpcontext->pitch = a->lpcontext->width * a->lpcontext->bitdepth;
-        src->bitdepth = 4;
-        set_pixelformat_rgba8888(src);
-        src->pixelformat.rs = 0;
-        src->pixelformat.bs = 0x10;
-        src->pitch = src->width * src->bitdepth;
+        setup_rgba8888_context(a->lpcontext);
+        setup_bgra8888_context(src);
         plConvertContext(a->lpcontext, src);
         break;
     }
@@ -632,26 +651,14 @@ s32 flUnlockPalette(u32 th) {
 static void unlock_convert_direct_formats(FLTexture* lpflTexture, plContext* src, plContext* dst) {
     switch (lpflTexture->format) {
     case 1:
-        src->bitdepth = 3;
-        set_pixelformat_rgb888(src);
-        src->pitch = src->width * src->bitdepth;
-        dst->bitdepth = 3;
-        set_pixelformat_rgb888(dst);
-        dst->pixelformat.rs = 0;
-        dst->pixelformat.bs = 0x10;
-        dst->pitch = dst->width * dst->bitdepth;
+        setup_rgb888_context(src);
+        setup_bgr888_context(dst);
         plConvertContext(dst, src);
         break;
 
     case 0:
-        src->bitdepth = 4;
-        set_pixelformat_rgba8888(src);
-        src->pitch = src->width * src->bitdepth;
-        dst->bitdepth = 4;
-        set_pixelformat_rgba8888(dst);
-        dst->pixelformat.rs = 0;
-        dst->pixelformat.bs = 0x10;
-        dst->pitch = dst->width * dst->bitdepth;
+        setup_rgba8888_context(src);
+        setup_bgra8888_context(dst);
         plConvertContext(dst, src);
         break;
     }
