@@ -165,6 +165,48 @@ static Uint8* read_cg_zoom_fields(SDL_IOStream* rom, Uint8* p) {
     return p;
 }
 
+/* A command entry: the code, its three arguments, and whatever padding the
+ * script's cgd_type puts after them. Returns the write pointer where it
+ * stopped. */
+static Uint8* read_command_entry(SDL_IOStream* rom, Uint8* p, Uint16 code, Sint16 cgd_type) {
+    *(Uint16*)p = code;
+    p += 2;
+
+    for (int i = 0; i < 3; i++) {
+        SDL_ReadS16BE(rom, p); // koc ... pat
+        p += 2;
+    }
+
+    const int left_to_move = SDL_max(cgd_type * 4 - 8, 0);
+    p += left_to_move;
+    SDL_SeekIO(rom, left_to_move, SDL_IO_SEEK_CUR);
+
+    return p;
+}
+
+/* A CG entry's fixed head: the counter and type the code packs together, the
+ * sound and outline indices, and the CG number remapped for this character.
+ * Returns the write pointer where it stopped. */
+static Uint8* read_cg_header(SDL_IOStream* rom, Uint8* p, Uint16 code, Character character) {
+    const Uint8 cg_ctr = code >> 8;
+    const Uint8 cg_type = code & 0xFF;
+    *p++ = cg_type;
+    *p++ = cg_ctr;
+
+    for (int i = 0; i < 2; i++) {
+        SDL_ReadU16BE(rom, p); // cg_se ... cg_olc_ix
+        p += 2;
+    }
+
+    Uint16 cg_number = 0;
+    SDL_ReadU16BE(rom, &cg_number);
+    cg_number = remap_cg_number(cg_number, character);
+    *(Uint16*)p = cg_number;
+    p += 2;
+
+    return p;
+}
+
 static void read_script(SDL_IOStream* rom, Uint8* p, const Uint8* end, Character character) {
     // Read script header
     Sint16 cgd_type = 0;
@@ -183,33 +225,9 @@ static void read_script(SDL_IOStream* rom, Uint8* p, const Uint8* end, Character
         SDL_ReadU16BE(rom, &code);
 
         if (code < 0x100) {
-            *(Uint16*)p = code;
-            p += 2;
-
-            for (int i = 0; i < 3; i++) {
-                SDL_ReadS16BE(rom, p); // koc ... pat
-                p += 2;
-            }
-
-            const int left_to_move = SDL_max(cgd_type * 4 - 8, 0);
-            p += left_to_move;
-            SDL_SeekIO(rom, left_to_move, SDL_IO_SEEK_CUR);
+            p = read_command_entry(rom, p, code, cgd_type);
         } else {
-            const Uint8 cg_ctr = code >> 8;
-            const Uint8 cg_type = code & 0xFF;
-            *p++ = cg_type;
-            *p++ = cg_ctr;
-
-            for (int i = 0; i < 2; i++) {
-                SDL_ReadU16BE(rom, p); // cg_se ... cg_olc_ix
-                p += 2;
-            }
-
-            Uint16 cg_number = 0;
-            SDL_ReadU16BE(rom, &cg_number);
-            cg_number = remap_cg_number(cg_number, character);
-            *(Uint16*)p = cg_number;
-            p += 2;
+            p = read_cg_header(rom, p, code, character);
 
             if (cgd_type >= 4) {
                 p = read_cg_hit_fields(rom, p);
