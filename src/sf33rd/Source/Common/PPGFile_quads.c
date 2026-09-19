@@ -1,0 +1,305 @@
+/**
+ * @file PPGFile_quads.c
+ * Writing a textured quad into the display list.
+ */
+
+#include "sf33rd/Source/Common/PPGFile.h"
+#include "common.h"
+#include "sf33rd/AcrSDK/common/plcommon.h"
+#include "sf33rd/AcrSDK/ps2/flps2render.h"
+#include "sf33rd/AcrSDK/ps2/flps2vram.h"
+#include "sf33rd/AcrSDK/ps2/foundaps2.h"
+#include "sf33rd/Source/Common/MemMan.h"
+#include "sf33rd/Source/Compress/Lz77/Lz77Dec.h"
+#include "sf33rd/Source/Compress/zlibApp.h"
+#include "structs.h"
+#include "core/renderer.h"
+#include <SDL3/SDL.h>
+#include "sf33rd/Source/Common/PPGFile_internal.h"
+
+
+s32 ppgWriteQuadWithST_A(Vertex* pos, u32 col) {
+    ppgWriteQuadOnly(pos, col, ppg_w.hanTex | (ppg_w.hanPal << 0x10));
+    return 1;
+}
+
+s32 ppgWriteQuadWithST_A2(Vertex* pos, u32 col) {
+    ppgWriteQuadOnly2(pos, col, ppg_w.hanTex | (ppg_w.hanPal << 0x10));
+    return 1;
+}
+
+void ppgWriteQuadOnly(Vertex* pos, u32 col, u32 texCode) {
+    Sprite prm;
+    s32 i;
+
+    flSetRenderState(FLRENDER_TEXSTAGE0, texCode);
+
+    for (i = 0; i < 4; i++) {
+        prm.v[i].x = pos[i].x;
+        prm.v[i].y = pos[i].y;
+        prm.v[i].z = pos[i].z;
+        prm.t[i].s = pos[i].s;
+        prm.t[i].t = pos[i].t;
+    }
+
+    Renderer_DrawTexturedQuad(&prm, col);
+}
+
+void ppgWriteQuadOnly2(Vertex* pos, u32 col, u32 texCode) {
+    Sprite prm;
+
+    flSetRenderState(FLRENDER_TEXSTAGE0, texCode);
+
+    prm.v[0].x = pos[0].x;
+    prm.v[0].y = pos[0].y;
+    prm.v[0].z = pos[0].z;
+    prm.t[0].s = pos[0].s;
+    prm.t[0].t = pos[0].t;
+    prm.v[3].x = pos[3].x;
+    prm.v[3].y = pos[3].y;
+    prm.v[3].z = pos[3].z;
+    prm.t[3].s = pos[3].s;
+    prm.t[3].t = pos[3].t;
+
+    Renderer_DrawSprite(&prm, col);
+}
+
+s32 ppgWriteQuadWithST_B(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix) {
+    u16 texhan;
+    u16 palhan = 0;
+
+    if (tb == NULL) {
+        tb = ppg_w.cur;
+
+        if (tb == NULL) {
+            return ppgWriteQuadWithST_A(pos, col);
+        }
+    }
+
+    if (tix < 0) {
+        texhan = ppg_w.hanTex;
+    } else {
+        texhan = tb->tex->handle[tix - tb->tex->ixNum1st].b16[0];
+
+        if (texhan == 0) {
+            return 0;
+        }
+    }
+
+    if (tb->tex->handle[tix - tb->tex->ixNum1st].b16[1] & 0x4000) {
+        if (cix < 0) {
+            palhan = ppg_w.hanPal;
+        } else {
+            palhan = tb->pal->handle[cix];
+        }
+    }
+
+    ppgWriteQuadOnly(pos, col, texhan | (palhan << 0x10));
+    return 1;
+}
+
+s32 ppgWriteQuadWithST_B2(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix) {
+    u16 texhan;
+    u16 palhan = 0;
+
+    if (tb == NULL) {
+        tb = ppg_w.cur;
+
+        if (tb == NULL) {
+            return ppgWriteQuadWithST_A2(pos, col);
+        }
+    }
+
+    if (tix < 0) {
+        texhan = ppg_w.hanTex;
+    } else {
+        texhan = tb->tex->handle[tix - tb->tex->ixNum1st].b16[0];
+
+        if (texhan == 0) {
+            return 0;
+        }
+    }
+
+    if (tb->tex->handle[tix - tb->tex->ixNum1st].b16[1] & 0x4000) {
+        if (cix < 0) {
+            palhan = ppg_w.hanPal;
+        } else {
+            palhan = tb->pal->handle[cix];
+        }
+    }
+
+    ppgWriteQuadOnly2(pos, col, texhan | (palhan << 16));
+    return 1;
+}
+
+s32 ppgWriteQuadUseTrans(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix, s32 flip, s32 pal) {
+    Vertex qvtx[4];
+    s32 i;
+    u32 sx;
+    u32 sy;
+    u32 ppgw;
+    u16* phan;
+    u16 palhan;
+    u16 texhan;
+    u8* tran;
+    u8 cofsXY;
+    u8 xs;
+    u8 ys;
+    u16 transTotal;
+    u16 iPoint;
+    u16 ix_ofs;
+    f32 pxs;
+    f32 pys;
+    f32 sadd;
+    f32 tadd;
+    f32 ppgwf;
+    f32 ppghf;
+    PPGFileHeader* ppg;
+
+    if ((pos[0].x >= 384.0f) || (pos[3].x < 0.0f) || (pos[0].y >= 224.0f) || (pos[3].y < 0.0f)) {
+        return 0;
+    }
+
+    if (tb == NULL) {
+        tb = ppg_w.cur;
+    }
+
+    if (tb == NULL) {
+        return ppgWriteQuadWithST_A2(pos, col);
+    }
+
+    texhan = tb->tex->handle[tix - tb->tex->ixNum1st].b16[0];
+    ix_ofs = tb->tex->handle[tix - tb->tex->ixNum1st].b16[1];
+
+    if (texhan == 0) {
+        return 0;
+    }
+
+    palhan = 0;
+
+    if (ix_ofs & 0x4000) {
+        phan = tb->pal->handle;
+
+        if (phan == NULL) {
+            return 0;
+        }
+    }
+
+    if (tb->tex->srcAdrs != NULL) {
+        ppg = (PPGFileHeader*)(tb->tex->srcAdrs + tb->tex->offset[ix_ofs & 0xFFF]);
+        transTotal = ((ppg->transNums >> 8) & 0xFF) | ((ppg->transNums & 0xFF) << 8);
+
+        if (transTotal != 0) {
+            tran = (u8*)&ppg[1];
+            ppgwf = ppg->width;
+            ppgw = ppg->width;
+            ppghf = ppg->height;
+            pxs = pos[3].x - pos[0].x;
+            pys = pos[3].y - pos[0].y;
+            sadd = 0.5f / pxs;
+            tadd = 0.5f / pys;
+
+            if (sadd >= (1.0f / (16.0f * ppgwf))) {
+                sadd = 1.0f / (16.0f * ppgwf);
+            }
+
+            if (tadd >= (1.0f / (16.0f * ppghf))) {
+                tadd = 1.0f / (16.0f * ppghf);
+            }
+
+            sadd = 0;
+            tadd = 0;
+
+            qvtx[0].z = pos[0].z;
+            qvtx[3].z = pos[3].z;
+
+            for (i = 0; i < transTotal; i++) {
+                if (ix_ofs & 0x4000) {
+                    palhan = phan[*tran + pal];
+                }
+
+                tran++;
+                iPoint = *tran++;
+                cofsXY = *tran++;
+                xs = (cofsXY >> 4) + 1;
+                ys = (cofsXY & 0xF) + 1;
+                sx = iPoint % ppgw;
+                sy = iPoint / ppgw;
+
+                if (flip & 1) {
+                    qvtx[3].x = pos->x + (pxs * (ppgw - sx) / ppgwf);
+                    qvtx[0].x = pos->x + (pxs * (ppgw - (sx + xs)) / ppgwf);
+                } else {
+                    qvtx[0].x = pos->x + (sx * pxs / ppgwf);
+                    qvtx[3].x = pos->x + (pxs * (sx + xs) / ppgwf);
+                }
+
+                if (flip & 2) {
+                    qvtx[3].y = pos->y + (pys * (ppgw - sy) / ppghf);
+                    qvtx[0].y = pos->y + (pys * (ppgw - (sy + ys)) / ppghf);
+                } else {
+                    qvtx[0].y = pos->y + (sy * pys / ppghf);
+                    qvtx[3].y = pos->y + (pys * (sy + ys) / ppghf);
+                }
+
+                if (!((qvtx[0].x < 384.0f) && (qvtx[3].x >= 0.0f) && (qvtx[0].y < 224.0f) &&
+                      (qvtx[3].y >= 0.0f))) {
+                    continue;
+                }
+
+                if (flip & 1) {
+                    qvtx[3].s = (sx / ppgwf) - sadd;
+                    qvtx[0].s = ((sx + xs) / ppgwf) - sadd;
+                } else {
+                    qvtx[0].s = sadd + (sx / ppgwf);
+                    qvtx[3].s = sadd + ((sx + xs) / ppgwf);
+                }
+
+                if (flip & 2) {
+                    qvtx[3].t = (sy / ppghf) - tadd;
+                    qvtx[0].t = ((sy + ys) / ppghf) - tadd;
+                } else {
+                    qvtx[0].t = tadd + (sy / ppghf);
+                    qvtx[3].t = tadd + ((sy + ys) / ppghf);
+                }
+
+                ppgWriteQuadOnly2(qvtx, col, texhan | (palhan << 0x10));
+            }
+
+            return 1;
+        }
+    }
+
+    if (ix_ofs & 0x4000) {
+        if (cix < 0) {
+            palhan = ppg_w.hanPal;
+        } else {
+            palhan = phan[cix];
+        }
+    }
+
+    switch (flip) {
+    case 0:
+        pos[0].s = pos[0].t = 0.0f;
+        pos[3].s = pos[3].t = 1.0f;
+        break;
+
+    case 1:
+        pos[3].s = pos[0].t = 0.0f;
+        pos[0].s = pos[3].t = 1.0f;
+        break;
+
+    case 2:
+        pos[0].s = pos[3].t = 0.0f;
+        pos[3].s = pos[0].t = 1.0f;
+        break;
+
+    default:
+        pos[0].s = pos[0].t = 1.0f;
+        pos[3].s = pos[3].t = 0.0f;
+        break;
+    }
+
+    ppgWriteQuadOnly2(pos, col, texhan | (palhan << 0x10));
+    return 1;
+}
