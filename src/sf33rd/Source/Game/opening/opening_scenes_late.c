@@ -61,6 +61,17 @@ static bool opening_cue_step(bool cue, s16 next, s16 bg) {
     return false;
 }
 
+/* The same step, for the steps that also turn the scene's objects on or off.
+ * The assignment is the one the arm made, in the place it made it. */
+static bool opening_cue_step_disp(bool cue, s16 next, s16 bg, s16 disp) {
+    if (opening_cue_step(cue, next, bg)) {
+        op_obj_disp = disp;
+        return true;
+    }
+
+    return false;
+}
+
 const s16 op_109_sound[5] = { 0, 3, 5, 7, 11 };
 
 static bool op_109_sound_ready() {
@@ -80,9 +91,7 @@ void op_109_move() {
         break;
 
     case 1:
-        if (opening_cue_step(op_109_sound_ready(), 55, 54)) {
-            op_obj_disp = 1;
-        }
+        opening_cue_step_disp(op_109_sound_ready(), 55, 54, 1);
 
         break;
 
@@ -105,9 +114,7 @@ void op_109_move() {
         break;
 
     case 4:
-        if (opening_cue_step(gSeqStatus[0] >= op_109_sound[op_w.r_no_2], 58, 57)) {
-            op_obj_disp = 1;
-        }
+        opening_cue_step_disp(gSeqStatus[0] >= op_109_sound[op_w.r_no_2], 58, 57, 1);
 
         break;
 
@@ -136,9 +143,7 @@ void op_110_move() {
         break;
 
     case 1:
-        if (opening_cue_step(op_110_sound_ready(), 60, 59)) {
-            op_obj_disp = 1;
-        }
+        opening_cue_step_disp(op_110_sound_ready(), 60, 59, 1);
 
         break;
 
@@ -151,9 +156,7 @@ void op_110_move() {
         break;
 
     case 3:
-        if (opening_cue_step(gSeqStatus[0] >= op_110_sound[op_w.r_no_2], 62, 61)) {
-            op_obj_disp = 1;
-        }
+        opening_cue_step_disp(gSeqStatus[0] >= op_110_sound[op_w.r_no_2], 62, 61, 1);
 
         break;
 
@@ -166,9 +169,7 @@ void op_110_move() {
         break;
 
     case 5:
-        if (opening_cue_step(gSeqStatus[0] >= op_110_sound[op_w.r_no_2], 64, 63)) {
-            op_obj_disp = 1;
-        }
+        opening_cue_step_disp(gSeqStatus[0] >= op_110_sound[op_w.r_no_2], 64, 63, 1);
 
         break;
 
@@ -232,6 +233,16 @@ static bool op_112_timed_step(s16 next, s16 bg) {
     return opening_cue_step(op_w.mv_ctr >= op_112_sound[op_w.r_no_2], next, bg);
 }
 
+/* The frame-timed step, for the steps that also turn the objects on or off. */
+static bool op_112_timed_step_disp(s16 next, s16 bg, s16 disp) {
+    if (op_112_timed_step(next, bg)) {
+        op_obj_disp = disp;
+        return true;
+    }
+
+    return false;
+}
+
 static void start_op_112_timed_sequence(void) {
     if (opening_cue_step(op_112_sound_ready(), 71, 70)) {
         op_w.mv_ctr = 0;
@@ -280,9 +291,7 @@ void op_112_move() {
         break;
 
     case 4:
-        if (op_112_timed_step(74, 73)) {
-            op_obj_disp = 1;
-        }
+        op_112_timed_step_disp(74, 73, 1);
 
         break;
 
@@ -299,9 +308,7 @@ void op_112_move() {
         break;
 
     case 7:
-        if (op_112_timed_step(77, 76)) {
-            op_obj_disp = 1;
-        }
+        op_112_timed_step_disp(77, 76, 1);
 
         break;
 
@@ -336,9 +343,7 @@ void op_113_move() {
         break;
 
     case 1:
-        if (opening_cue_step(op_113_sound_ready(), 80, 79)) {
-            op_obj_disp = 1;
-        }
+        opening_cue_step_disp(op_113_sound_ready(), 80, 79, 1);
 
         break;
 
@@ -357,9 +362,7 @@ void op_113_move() {
         break;
 
     case 3:
-        if (opening_cue_step(gSeqStatus[0] >= op_113_sound[op_w.r_no_2], 82, 81)) {
-            op_obj_disp = 1;
-        }
+        opening_cue_step_disp(gSeqStatus[0] >= op_113_sound[op_w.r_no_2], 82, 81, 1);
 
         break;
 
@@ -387,9 +390,7 @@ void op_114_move() {
         break;
 
     case 1:
-        if (opening_cue_step(op_114_sound_ready(), 84, 83)) {
-            op_obj_disp = 1;
-        }
+        opening_cue_step_disp(op_114_sound_ready(), 84, 83, 1);
 
         break;
 
@@ -402,9 +403,7 @@ void op_114_move() {
         break;
 
     case 3:
-        if (opening_cue_step(gSeqStatus[0] >= op_114_sound[op_w.r_no_2], 86, 85)) {
-            op_obj_disp = 1;
-        }
+        opening_cue_step_disp(gSeqStatus[0] >= op_114_sound[op_w.r_no_2], 86, 85, 1);
 
         break;
 
@@ -423,9 +422,7 @@ void op_114_move() {
         break;
 
     case 5:
-        if (opening_cue_step(gSeqStatus[0] >= op_114_sound[op_w.r_no_2], 88, 87)) {
-            op_obj_disp = 1;
-        }
+        opening_cue_step_disp(gSeqStatus[0] >= op_114_sound[op_w.r_no_2], 88, 87, 1);
 
         break;
 
