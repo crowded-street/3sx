@@ -347,13 +347,72 @@ static void clear_pad_slot(s32 i, s32 new_state) {
     tarpad_root[i].state = ps2slot[i].state;
 }
 
+/* Every later pass: the button report, the sticks and pressures for the kinds
+ * that have them, and the vibration timer. Returns 0 where the block returned
+ * from PADReadSub. */
+static s32 read_pad_report(s32 i) {
+    s32 len;
+    u8 rdata[32];
+
+    if ((len = scePad2Read(ps2slot[i].socket_id, (scePad2ButtonState*)rdata)) < 0) {
+        return 0;
+    }
+
+    ps2slot[i].state = 1;
+    ps2pad_state[i].pad_buffer[0] = 0;
+    ps2pad_state[i].pad_buffer[1] = 0;
+    ps2pad_state[i].ix.sw = rdata[0] << 8 | rdata[1];
+
+    switch (ps2slot[i].pad_id) {
+    case 0:
+        break;
+
+    case 1:
+        ps2pad_state[i].ix.pos.stick.r_ax = ((scePad2ButtonState*)rdata)->rJoyH;
+        ps2pad_state[i].ix.pos.stick.r_ay = ((scePad2ButtonState*)rdata)->rJoyV;
+        ps2pad_state[i].ix.pos.stick.l_ax = ((scePad2ButtonState*)rdata)->lJoyH;
+        ps2pad_state[i].ix.pos.stick.l_ay = ((scePad2ButtonState*)rdata)->lJoyV;
+        break;
+
+    case 2:
+        ps2pad_state[i].ix.pos.stick.r_ax = ((scePad2ButtonState*)rdata)->rJoyH;
+        ps2pad_state[i].ix.pos.stick.r_ay = ((scePad2ButtonState*)rdata)->rJoyV;
+        ps2pad_state[i].ix.pos.stick.l_ax = ((scePad2ButtonState*)rdata)->lJoyH;
+        ps2pad_state[i].ix.pos.stick.l_ay = ((scePad2ButtonState*)rdata)->lJoyV;
+        ps2pad_state[i].ix.depth[0] = ((scePad2ButtonState*)rdata)->rightP;
+        ps2pad_state[i].ix.depth[1] = ((scePad2ButtonState*)rdata)->leftP;
+        ps2pad_state[i].ix.depth[2] = ((scePad2ButtonState*)rdata)->upP;
+        ps2pad_state[i].ix.depth[3] = ((scePad2ButtonState*)rdata)->downP;
+        ps2pad_state[i].ix.depth[4] = ((scePad2ButtonState*)rdata)->triangleP;
+        ps2pad_state[i].ix.depth[5] = ((scePad2ButtonState*)rdata)->circleP;
+        ps2pad_state[i].ix.depth[6] = ((scePad2ButtonState*)rdata)->crossP;
+        ps2pad_state[i].ix.depth[7] = ((scePad2ButtonState*)rdata)->squareP;
+        ps2pad_state[i].ix.depth[8] = ((scePad2ButtonState*)rdata)->l1P;
+        ps2pad_state[i].ix.depth[9] = ((scePad2ButtonState*)rdata)->r1P;
+        ps2pad_state[i].ix.depth[10] = ((scePad2ButtonState*)rdata)->l2P;
+        ps2pad_state[i].ix.depth[11] = ((scePad2ButtonState*)rdata)->r2P;
+        break;
+
+    default:
+        ps2pad_state[i] = ps2pad_clear;
+        break;
+    }
+
+    if (ps2slot[i].vib_timer != 0) {
+        if (--ps2slot[i].vib_timer == 0) {
+            flPADShockSet(i, 0, 0);
+        }
+    }
+
+    return 1;
+}
+
 void PADReadSub(s32 i) {
     s32 lp0;
     s32 pstate;
     s32 len;
     u8 bprofile[4];
     u8 vprofile[4];
-    u8 rdata[32];
 
     ps2pad_state[i] = ps2pad_backup[i];
     pstate = scePad2GetState(ps2slot[i].socket_id);
@@ -440,54 +499,8 @@ void PADReadSub(s32 i) {
 
         ps2slot[i].phase += 1;
     } else {
-        if ((len = scePad2Read(ps2slot[i].socket_id, (scePad2ButtonState*)rdata)) < 0) {
+        if (read_pad_report(i) == 0) {
             return;
-        }
-
-        ps2slot[i].state = 1;
-        ps2pad_state[i].pad_buffer[0] = 0;
-        ps2pad_state[i].pad_buffer[1] = 0;
-        ps2pad_state[i].ix.sw = rdata[0] << 8 | rdata[1];
-
-        switch (ps2slot[i].pad_id) {
-        case 0:
-            break;
-
-        case 1:
-            ps2pad_state[i].ix.pos.stick.r_ax = ((scePad2ButtonState*)rdata)->rJoyH;
-            ps2pad_state[i].ix.pos.stick.r_ay = ((scePad2ButtonState*)rdata)->rJoyV;
-            ps2pad_state[i].ix.pos.stick.l_ax = ((scePad2ButtonState*)rdata)->lJoyH;
-            ps2pad_state[i].ix.pos.stick.l_ay = ((scePad2ButtonState*)rdata)->lJoyV;
-            break;
-
-        case 2:
-            ps2pad_state[i].ix.pos.stick.r_ax = ((scePad2ButtonState*)rdata)->rJoyH;
-            ps2pad_state[i].ix.pos.stick.r_ay = ((scePad2ButtonState*)rdata)->rJoyV;
-            ps2pad_state[i].ix.pos.stick.l_ax = ((scePad2ButtonState*)rdata)->lJoyH;
-            ps2pad_state[i].ix.pos.stick.l_ay = ((scePad2ButtonState*)rdata)->lJoyV;
-            ps2pad_state[i].ix.depth[0] = ((scePad2ButtonState*)rdata)->rightP;
-            ps2pad_state[i].ix.depth[1] = ((scePad2ButtonState*)rdata)->leftP;
-            ps2pad_state[i].ix.depth[2] = ((scePad2ButtonState*)rdata)->upP;
-            ps2pad_state[i].ix.depth[3] = ((scePad2ButtonState*)rdata)->downP;
-            ps2pad_state[i].ix.depth[4] = ((scePad2ButtonState*)rdata)->triangleP;
-            ps2pad_state[i].ix.depth[5] = ((scePad2ButtonState*)rdata)->circleP;
-            ps2pad_state[i].ix.depth[6] = ((scePad2ButtonState*)rdata)->crossP;
-            ps2pad_state[i].ix.depth[7] = ((scePad2ButtonState*)rdata)->squareP;
-            ps2pad_state[i].ix.depth[8] = ((scePad2ButtonState*)rdata)->l1P;
-            ps2pad_state[i].ix.depth[9] = ((scePad2ButtonState*)rdata)->r1P;
-            ps2pad_state[i].ix.depth[10] = ((scePad2ButtonState*)rdata)->l2P;
-            ps2pad_state[i].ix.depth[11] = ((scePad2ButtonState*)rdata)->r2P;
-            break;
-
-        default:
-            ps2pad_state[i] = ps2pad_clear;
-            break;
-        }
-
-        if (ps2slot[i].vib_timer != 0) {
-            if (--ps2slot[i].vib_timer == 0) {
-                flPADShockSet(i, 0, 0);
-            }
         }
     }
 
