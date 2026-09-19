@@ -523,6 +523,196 @@ static void SDLGPURenderer_DrawSolidQuad(const Quad* quad, Uint32 color) {
     _quad->palette_index = -1;
 }
 
+// The sections of the one-time set-up below, each exactly the block that stood
+// under its comment in SDLGPURenderer_Init. The two buffer sizes stay declared
+// there, because the upload at the end of it reads them as well.
+
+static void init_canvas(void) {
+    canvas_texture = SDL_CreateGPUTexture(
+        device,
+        &(SDL_GPUTextureCreateInfo) {
+            .type = SDL_GPU_TEXTURETYPE_2D,
+            .format = CANVAS_TEXTURE_FORMAT,
+            .usage = SDL_GPU_TEXTUREUSAGE_COLOR_TARGET | SDL_GPU_TEXTUREUSAGE_SAMPLER,
+            .width = CANVAS_WIDTH,
+            .height = CANVAS_HEIGHT,
+            .layer_count_or_depth = 1,
+            .num_levels = 1,
+        }
+    );
+
+    depth_texture = SDL_CreateGPUTexture(
+        device,
+        &(SDL_GPUTextureCreateInfo) {
+            .type = SDL_GPU_TEXTURETYPE_2D,
+            .format = depth_texture_format,
+            .usage = SDL_GPU_TEXTUREUSAGE_DEPTH_STENCIL_TARGET,
+            .width = CANVAS_WIDTH,
+            .height = CANVAS_HEIGHT,
+            .layer_count_or_depth = 1,
+            .num_levels = 1,
+        }
+    );
+}
+
+static void init_vertex_buffer(void) {
+    const Uint32 vertex_buffer_max_size = QUADS_MAX * 4 * sizeof(_Vertex);
+
+    vertex_buffer = SDL_CreateGPUBuffer(
+        device,
+        &(SDL_GPUBufferCreateInfo) {
+            .usage = SDL_GPU_BUFFERUSAGE_VERTEX,
+            .size = vertex_buffer_max_size,
+        }
+    );
+
+    vertex_transfer_buffer = SDL_CreateGPUTransferBuffer(
+        device,
+        &(SDL_GPUTransferBufferCreateInfo) {
+            .usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
+            .size = vertex_buffer_max_size,
+        }
+    );
+}
+
+static SDL_GPUTransferBuffer* init_index_buffer(Uint32 index_buffer_size) {
+    index_buffer = SDL_CreateGPUBuffer(
+        device,
+        &(SDL_GPUBufferCreateInfo) {
+            .usage = SDL_GPU_BUFFERUSAGE_INDEX,
+            .size = index_buffer_size,
+        }
+    );
+
+    SDL_GPUTransferBuffer* index_transfer_buffer = SDL_CreateGPUTransferBuffer(
+        device,
+        &(SDL_GPUTransferBufferCreateInfo) {
+            .usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
+            .size = index_buffer_size,
+        }
+    );
+
+    Uint16* index_transfer_ptr = SDL_MapGPUTransferBuffer(device, index_transfer_buffer, false);
+
+    for (int i = 0; i < QUADS_MAX; i++) {
+        index_transfer_ptr[i * 6 + 0] = i * 4 + 0;
+        index_transfer_ptr[i * 6 + 1] = i * 4 + 1;
+        index_transfer_ptr[i * 6 + 2] = i * 4 + 2;
+        index_transfer_ptr[i * 6 + 3] = i * 4 + 2;
+        index_transfer_ptr[i * 6 + 4] = i * 4 + 1;
+        index_transfer_ptr[i * 6 + 5] = i * 4 + 3;
+    }
+
+    SDL_UnmapGPUTransferBuffer(device, index_transfer_buffer);
+
+    return index_transfer_buffer;
+}
+
+static SDL_GPUTransferBuffer* init_screen_quad(Uint32 screen_vertex_buffer_size) {
+    screen_vertex_buffer = SDL_CreateGPUBuffer(
+        device,
+        &(SDL_GPUBufferCreateInfo) {
+            .usage = SDL_GPU_BUFFERUSAGE_VERTEX,
+            .size = screen_vertex_buffer_size,
+        }
+    );
+
+    SDL_GPUTransferBuffer* screen_vertex_transfer_buffer = SDL_CreateGPUTransferBuffer(
+        device,
+        &(SDL_GPUTransferBufferCreateInfo) {
+            .usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
+            .size = screen_vertex_buffer_size,
+        }
+    );
+
+    _Vertex screen_vertices[4] = {
+        {
+            .position = { .x = -1.0f, .y = 1.0f, .z = 0.0f },
+            .tex_coord = { .s = 0.0f, .t = 0.0f },
+        },
+        {
+            .position = { .x = 1.0f, .y = 1.0f, .z = 0.0f },
+            .tex_coord = { .s = 1.0f, .t = 0.0f },
+        },
+        {
+            .position = { .x = -1.0f, .y = -1.0f, .z = 0.0f },
+            .tex_coord = { .s = 0.0f, .t = 1.0f },
+        },
+        {
+            .position = { .x = 1.0f, .y = -1.0f, .z = 0.0f },
+            .tex_coord = { .s = 1.0f, .t = 1.0f },
+        },
+    };
+
+    for (int i = 0; i < 4; i++) {
+        screen_vertices[i].color = (_Color) { .r = 1.0f, .g = 1.0f, .b = 1.0f, .a = 1.0f };
+    }
+
+    _Vertex* screen_vertex_transfer_ptr = SDL_MapGPUTransferBuffer(device, screen_vertex_transfer_buffer, false);
+
+    SDL_memcpy(screen_vertex_transfer_ptr, screen_vertices, sizeof(screen_vertices));
+    SDL_UnmapGPUTransferBuffer(device, screen_vertex_transfer_buffer);
+
+    return screen_vertex_transfer_buffer;
+}
+
+static void init_sampler(void) {
+    sampler = SDL_CreateGPUSampler(
+        device,
+        &(SDL_GPUSamplerCreateInfo) {
+            .min_filter = SDL_GPU_FILTER_NEAREST,
+            .mag_filter = SDL_GPU_FILTER_NEAREST,
+            .mipmap_mode = SDL_GPU_SAMPLERMIPMAPMODE_NEAREST,
+            .address_mode_u = SDL_GPU_SAMPLERADDRESSMODE_CLAMP_TO_EDGE,
+            .address_mode_v = SDL_GPU_SAMPLERADDRESSMODE_CLAMP_TO_EDGE,
+            .address_mode_w = SDL_GPU_SAMPLERADDRESSMODE_CLAMP_TO_EDGE,
+        }
+    );
+}
+
+static void upload_initial_data(
+    SDL_GPUTransferBuffer* index_transfer_buffer,
+    Uint32 index_buffer_size,
+    SDL_GPUTransferBuffer* screen_vertex_transfer_buffer,
+    Uint32 screen_vertex_buffer_size
+) {
+    SDL_GPUCommandBuffer* upload_cmd_buf = SDL_AcquireGPUCommandBuffer(device);
+    SDL_GPUCopyPass* copy_pass = SDL_BeginGPUCopyPass(upload_cmd_buf);
+
+    SDL_UploadToGPUBuffer(
+        copy_pass,
+        &(SDL_GPUTransferBufferLocation) {
+            .transfer_buffer = index_transfer_buffer,
+            .offset = 0,
+        },
+        &(SDL_GPUBufferRegion) {
+            .buffer = index_buffer,
+            .offset = 0,
+            .size = index_buffer_size,
+        },
+        false
+    );
+
+    SDL_UploadToGPUBuffer(
+        copy_pass,
+        &(SDL_GPUTransferBufferLocation) {
+            .transfer_buffer = screen_vertex_transfer_buffer,
+            .offset = 0,
+        },
+        &(SDL_GPUBufferRegion) {
+            .buffer = screen_vertex_buffer,
+            .offset = 0,
+            .size = screen_vertex_buffer_size,
+        },
+        false
+    );
+
+    SDL_EndGPUCopyPass(copy_pass);
+    SDL_SubmitGPUCommandBuffer(upload_cmd_buf);
+    SDL_ReleaseGPUTransferBuffer(device, index_transfer_buffer);
+    SDL_ReleaseGPUTransferBuffer(device, screen_vertex_transfer_buffer);
+}
+
 static SDL_Window* SDLGPURenderer_Init(const SDLRenderBackendInitInfo* init_info) {
     // Init window and GPU device
 
@@ -609,184 +799,33 @@ static SDL_Window* SDLGPURenderer_Init(const SDLRenderBackendInitInfo* init_info
 
     // Init canvas
 
-    canvas_texture = SDL_CreateGPUTexture(
-        device,
-        &(SDL_GPUTextureCreateInfo) {
-            .type = SDL_GPU_TEXTURETYPE_2D,
-            .format = CANVAS_TEXTURE_FORMAT,
-            .usage = SDL_GPU_TEXTUREUSAGE_COLOR_TARGET | SDL_GPU_TEXTUREUSAGE_SAMPLER,
-            .width = CANVAS_WIDTH,
-            .height = CANVAS_HEIGHT,
-            .layer_count_or_depth = 1,
-            .num_levels = 1,
-        }
-    );
-
-    depth_texture = SDL_CreateGPUTexture(
-        device,
-        &(SDL_GPUTextureCreateInfo) {
-            .type = SDL_GPU_TEXTURETYPE_2D,
-            .format = depth_texture_format,
-            .usage = SDL_GPU_TEXTUREUSAGE_DEPTH_STENCIL_TARGET,
-            .width = CANVAS_WIDTH,
-            .height = CANVAS_HEIGHT,
-            .layer_count_or_depth = 1,
-            .num_levels = 1,
-        }
-    );
+    init_canvas();
 
     // Init vertex buffer
 
-    const Uint32 vertex_buffer_max_size = QUADS_MAX * 4 * sizeof(_Vertex);
-
-    vertex_buffer = SDL_CreateGPUBuffer(
-        device,
-        &(SDL_GPUBufferCreateInfo) {
-            .usage = SDL_GPU_BUFFERUSAGE_VERTEX,
-            .size = vertex_buffer_max_size,
-        }
-    );
-
-    vertex_transfer_buffer = SDL_CreateGPUTransferBuffer(
-        device,
-        &(SDL_GPUTransferBufferCreateInfo) {
-            .usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
-            .size = vertex_buffer_max_size,
-        }
-    );
+    init_vertex_buffer();
 
     // Init index buffer
 
     const Uint32 index_buffer_size = sizeof(Uint16) * 6 * QUADS_MAX;
 
-    index_buffer = SDL_CreateGPUBuffer(
-        device,
-        &(SDL_GPUBufferCreateInfo) {
-            .usage = SDL_GPU_BUFFERUSAGE_INDEX,
-            .size = index_buffer_size,
-        }
-    );
-
-    SDL_GPUTransferBuffer* index_transfer_buffer = SDL_CreateGPUTransferBuffer(
-        device,
-        &(SDL_GPUTransferBufferCreateInfo) {
-            .usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
-            .size = index_buffer_size,
-        }
-    );
-
-    Uint16* index_transfer_ptr = SDL_MapGPUTransferBuffer(device, index_transfer_buffer, false);
-
-    for (int i = 0; i < QUADS_MAX; i++) {
-        index_transfer_ptr[i * 6 + 0] = i * 4 + 0;
-        index_transfer_ptr[i * 6 + 1] = i * 4 + 1;
-        index_transfer_ptr[i * 6 + 2] = i * 4 + 2;
-        index_transfer_ptr[i * 6 + 3] = i * 4 + 2;
-        index_transfer_ptr[i * 6 + 4] = i * 4 + 1;
-        index_transfer_ptr[i * 6 + 5] = i * 4 + 3;
-    }
-
-    SDL_UnmapGPUTransferBuffer(device, index_transfer_buffer);
+    SDL_GPUTransferBuffer* index_transfer_buffer = init_index_buffer(index_buffer_size);
 
     // Init screen quad
 
     const Uint32 screen_vertex_buffer_size = 4 * sizeof(_Vertex);
 
-    screen_vertex_buffer = SDL_CreateGPUBuffer(
-        device,
-        &(SDL_GPUBufferCreateInfo) {
-            .usage = SDL_GPU_BUFFERUSAGE_VERTEX,
-            .size = screen_vertex_buffer_size,
-        }
-    );
-
-    SDL_GPUTransferBuffer* screen_vertex_transfer_buffer = SDL_CreateGPUTransferBuffer(
-        device,
-        &(SDL_GPUTransferBufferCreateInfo) {
-            .usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
-            .size = screen_vertex_buffer_size,
-        }
-    );
-
-    _Vertex screen_vertices[4] = {
-        {
-            .position = { .x = -1.0f, .y = 1.0f, .z = 0.0f },
-            .tex_coord = { .s = 0.0f, .t = 0.0f },
-        },
-        {
-            .position = { .x = 1.0f, .y = 1.0f, .z = 0.0f },
-            .tex_coord = { .s = 1.0f, .t = 0.0f },
-        },
-        {
-            .position = { .x = -1.0f, .y = -1.0f, .z = 0.0f },
-            .tex_coord = { .s = 0.0f, .t = 1.0f },
-        },
-        {
-            .position = { .x = 1.0f, .y = -1.0f, .z = 0.0f },
-            .tex_coord = { .s = 1.0f, .t = 1.0f },
-        },
-    };
-
-    for (int i = 0; i < 4; i++) {
-        screen_vertices[i].color = (_Color) { .r = 1.0f, .g = 1.0f, .b = 1.0f, .a = 1.0f };
-    }
-
-    _Vertex* screen_vertex_transfer_ptr = SDL_MapGPUTransferBuffer(device, screen_vertex_transfer_buffer, false);
-
-    SDL_memcpy(screen_vertex_transfer_ptr, screen_vertices, sizeof(screen_vertices));
-    SDL_UnmapGPUTransferBuffer(device, screen_vertex_transfer_buffer);
+    SDL_GPUTransferBuffer* screen_vertex_transfer_buffer = init_screen_quad(screen_vertex_buffer_size);
 
     // Init sampler
 
-    sampler = SDL_CreateGPUSampler(
-        device,
-        &(SDL_GPUSamplerCreateInfo) {
-            .min_filter = SDL_GPU_FILTER_NEAREST,
-            .mag_filter = SDL_GPU_FILTER_NEAREST,
-            .mipmap_mode = SDL_GPU_SAMPLERMIPMAPMODE_NEAREST,
-            .address_mode_u = SDL_GPU_SAMPLERADDRESSMODE_CLAMP_TO_EDGE,
-            .address_mode_v = SDL_GPU_SAMPLERADDRESSMODE_CLAMP_TO_EDGE,
-            .address_mode_w = SDL_GPU_SAMPLERADDRESSMODE_CLAMP_TO_EDGE,
-        }
-    );
+    init_sampler();
 
     // Upload up-front data
 
-    SDL_GPUCommandBuffer* upload_cmd_buf = SDL_AcquireGPUCommandBuffer(device);
-    SDL_GPUCopyPass* copy_pass = SDL_BeginGPUCopyPass(upload_cmd_buf);
-
-    SDL_UploadToGPUBuffer(
-        copy_pass,
-        &(SDL_GPUTransferBufferLocation) {
-            .transfer_buffer = index_transfer_buffer,
-            .offset = 0,
-        },
-        &(SDL_GPUBufferRegion) {
-            .buffer = index_buffer,
-            .offset = 0,
-            .size = index_buffer_size,
-        },
-        false
+    upload_initial_data(
+        index_transfer_buffer, index_buffer_size, screen_vertex_transfer_buffer, screen_vertex_buffer_size
     );
-
-    SDL_UploadToGPUBuffer(
-        copy_pass,
-        &(SDL_GPUTransferBufferLocation) {
-            .transfer_buffer = screen_vertex_transfer_buffer,
-            .offset = 0,
-        },
-        &(SDL_GPUBufferRegion) {
-            .buffer = screen_vertex_buffer,
-            .offset = 0,
-            .size = screen_vertex_buffer_size,
-        },
-        false
-    );
-
-    SDL_EndGPUCopyPass(copy_pass);
-    SDL_SubmitGPUCommandBuffer(upload_cmd_buf);
-    SDL_ReleaseGPUTransferBuffer(device, index_transfer_buffer);
-    SDL_ReleaseGPUTransferBuffer(device, screen_vertex_transfer_buffer);
 
 #if DEBUG && IMGUI
     ImGuiW_Init(
