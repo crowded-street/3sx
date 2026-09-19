@@ -15,6 +15,54 @@
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 
+void pattern_approach_walk_normal_attack_4(PLW* wk, s16 target_pos, s16 reaction, u16 lever_data) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, target_pos, 2);
+        break;
+
+    case 1:
+        Normal_Attack(wk, reaction, lever_data);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_em_term_adjust_attack_2(PLW* wk, const EM_Term_Params* p, u16 lever_data) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        EM_Term(wk, p);
+        break;
+
+    case 1:
+        Adjust_Attack(wk, 8, lever_data);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_etc_term_provoke_2(PLW* wk, s16 exit_no, u32 next_action, u16 next_menu) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        ETC_Term(wk, exit_no, next_action, next_menu);
+        break;
+
+    case 1:
+        Provoke(wk, -1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
 void active_pattern_adjust_attack_3(PLW* wk, u16 lever_data) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -130,19 +178,7 @@ void active_pattern_adjust_attack_normal_attack(PLW* wk, s16 reaction, u16 lever
 }
 
 void active_pattern_approach_walk_com_random_select(PLW* wk, s16 target_pos, const Branch_Menu_Args* p) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, target_pos, 2);
-        break;
-
-    case 1:
-        Com_Random_Select(wk, p, 1);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_com_random_select(wk, target_pos, p, 1);
 }
 
 void active_pattern_approach_walk_com_random_select_2(PLW* wk, s16 target_pos, s16 option, const Branch_Menu_Args* p) {
@@ -178,19 +214,7 @@ void active_pattern_approach_walk_command_attack(PLW* wk, s16 target_pos, const 
 }
 
 void active_pattern_approach_walk_normal_attack(PLW* wk, s16 target_pos, u16 lever_data) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, target_pos, 2);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 8, lever_data);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_normal_attack_4(wk, target_pos, 8, lever_data);
 }
 
 void active_pattern_check_sa_command_attack(PLW* wk, s16 next_action, s16 next_menu, const Command_Attack_Args* p) {
@@ -342,19 +366,7 @@ void active_pattern_command_attack_push_shot(PLW* wk, const Command_Attack_Args*
 }
 
 void active_pattern_em_term_adjust_attack(PLW* wk, const EM_Term_Params* p) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        EM_Term(wk, p);
-        break;
-
-    case 1:
-        Adjust_Attack(wk, 8, 0x10);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_em_term_adjust_attack_2(wk, p, 0x10);
 }
 
 void active_pattern_em_term_command_attack(PLW* wk, const EM_Term_Params* p, const Command_Attack_Args* p_b) {
@@ -454,19 +466,7 @@ void active_pattern_etc_term_j_command_attack(PLW* wk, u16 next_menu, const Comm
 }
 
 void active_pattern_etc_term_provoke(PLW* wk, u32 next_action, u16 next_menu) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        ETC_Term(wk, 5, next_action, next_menu);
-        break;
-
-    case 1:
-        Provoke(wk, -1);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_etc_term_provoke_2(wk, 5, next_action, next_menu);
 }
 
 void active_pattern_hi_jump_attack_term_com_random_select(PLW* wk) {
@@ -824,19 +824,7 @@ void pattern_approach_walk_look(PLW* wk, s16 option) {
 }
 
 void pattern_approach_walk_normal_attack_2(PLW* wk, s16 reaction, u16 lever_data) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0x47, 2);
-        break;
-
-    case 1:
-        Normal_Attack(wk, reaction, lever_data);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_normal_attack_4(wk, 0x47, reaction, lever_data);
 }
 
 void pattern_approach_walk_sa_term(PLW* wk, s16 target_pos, const SA_Term_Args* p) {

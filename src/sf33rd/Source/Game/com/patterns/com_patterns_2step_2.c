@@ -16,19 +16,7 @@
 #include "sf33rd/Source/Game/engine/workuser.h"
 
 void pattern_em_term_adjust_attack(PLW* wk, const EM_Term_Params* p) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        EM_Term(wk, p);
-        break;
-
-    case 1:
-        Adjust_Attack(wk, 8, 0x20);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_em_term_adjust_attack_2(wk, p, 0x20);
 }
 
 void pattern_em_term_branch_unit_area(PLW* wk, const EM_Term_Params* p, const Branch_Menu_Args* p_b) {
@@ -144,19 +132,7 @@ void pattern_etc_term_normal_attack(PLW* wk) {
 }
 
 void pattern_etc_term_provoke(PLW* wk, s16 exit_no, u16 next_menu) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        ETC_Term(wk, exit_no, 6, next_menu);
-        break;
-
-    case 1:
-        Provoke(wk, -1);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_etc_term_provoke_2(wk, exit_no, 6, next_menu);
 }
 
 void pattern_hi_jump_attack_term_command_attack(PLW* wk, const Hi_Jump_Term_Args* a, const Command_Attack_Args* p) {

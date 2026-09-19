@@ -15,6 +15,30 @@
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 
+void pattern_j_command_attack(PLW* wk, const Command_Attack_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        J_Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_command_attack_3(PLW* wk, const Command_Attack_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
 void active_pattern_approach_walk(PLW* wk, s16 target_pos) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -112,27 +136,11 @@ void active_pattern_j_command_attack(PLW* wk, const Command_Attack_Args* p) {
 }
 
 void active_pattern_j_command_attack_from_step_6(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 6:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1e, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1e, 8, -1});
 }
 
 void active_pattern_j_command_attack_from_step_6_2(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 6:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1e, 10, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1e, 10, -1});
 }
 
 void active_pattern_jump_attack(PLW* wk, const Jump_Attack_Args* a) {
@@ -316,27 +324,11 @@ void pattern_com_random_select_from_step_6(PLW* wk) {
 }
 
 void pattern_command_attack_from_step_6(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 6:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_command_attack_3(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
 }
 
 void pattern_command_attack_from_step_6_2(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 6:
-        Command_Attack(wk, &(Command_Attack_Args){8, 1, 10, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_command_attack_3(wk, &(Command_Attack_Args){8, 1, 10, -1});
 }
 
 void pattern_forced_guard(PLW* wk, s16 guard_type) {
@@ -364,15 +356,7 @@ void pattern_hi_jump(PLW* wk, s16 pl_number) {
 }
 
 void pattern_j_command_attack_from_step_6(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 6:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
 }
 
 void pattern_jump(PLW* wk, s16 time) {

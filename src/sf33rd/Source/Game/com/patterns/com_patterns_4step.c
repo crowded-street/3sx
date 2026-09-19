@@ -15,6 +15,32 @@
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 
+void pattern_approach_walk_jump_attack_term_normal_attack_5(
+    PLW* wk, s16 option, s16 reaction, const Command_Attack_Args* p
+) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, 0xBF, option);
+        break;
+
+    case 1:
+        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA8, -0x7FC8, 0xB, 0x400, 0, -0x7F80, -1, 0x400});
+        break;
+
+    case 2:
+        Normal_Attack(wk, reaction, 0x202);
+        break;
+
+    case 3:
+        Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
 void active_pattern_adjust_attack_command_attack_2(PLW* wk, const Command_Attack_Args* p) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -64,27 +90,7 @@ void active_pattern_adjust_attack_lever_attack(PLW* wk) {
 }
 
 void active_pattern_approach_walk_jump_attack_term_normal_attack(PLW* wk, s16 option) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0xBF, option);
-        break;
-
-    case 1:
-        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA8, -0x7FC8, 0xB, 0x400, 0, -0x7F80, -1, 0x400});
-        break;
-
-    case 2:
-        Normal_Attack(wk, 0xB, 0x202);
-        break;
-
-    case 3:
-        Command_Attack(wk, &(Command_Attack_Args){0xC, 0x1F, 0xA, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_jump_attack_term_normal_attack_5(wk, option, 0xB, &(Command_Attack_Args){0xC, 0x1F, 0xA, -1});
 }
 
 void active_pattern_approach_walk_normal_attack_sa_term(
@@ -632,27 +638,7 @@ void pattern_approach_walk_em_term_sa_term_5(PLW* wk, s16 target_pos, const SA_T
 }
 
 void pattern_approach_walk_jump_attack_term_normal_attack_2(PLW* wk, s16 option, const Command_Attack_Args* p) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, 0xBF, option);
-        break;
-
-    case 1:
-        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA8, -0x7FC8, 0xB, 0x400, 0, -0x7F80, -1, 0x400});
-        break;
-
-    case 2:
-        Normal_Attack(wk, 0xC, 0x202);
-        break;
-
-    case 3:
-        Command_Attack(wk, p);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    pattern_approach_walk_jump_attack_term_normal_attack_5(wk, option, 0xC, p);
 }
 
 void pattern_approach_walk_lever_attack_sa_term(PLW* wk, s16 target_pos, u16 lever, const SA_Term_Args* p) {

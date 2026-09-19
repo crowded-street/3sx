@@ -262,6 +262,9 @@ void pattern_approach_walk_jump_attack_term_normal_attack(
 void pattern_approach_walk_jump_attack_term_normal_attack_2(PLW* wk, s16 option, const Command_Attack_Args* p);
 void pattern_approach_walk_jump_attack_term_normal_attack_3(PLW* wk, const SA_Term_Args* p);
 void pattern_approach_walk_jump_attack_term_normal_attack_4(PLW* wk, const Command_Attack_Args* p);
+void pattern_approach_walk_jump_attack_term_normal_attack_5(
+    PLW* wk, s16 option, s16 reaction, const Command_Attack_Args* p
+);
 void pattern_approach_walk_lever_attack(PLW* wk, s16 target_pos, u16 lever, u16 lever_data);
 void pattern_approach_walk_lever_attack_2(PLW* wk, s16 target_pos, u16 lever_data);
 void pattern_approach_walk_lever_attack_sa_term(PLW* wk, s16 target_pos, u16 lever, const SA_Term_Args* p);
@@ -270,6 +273,7 @@ void pattern_approach_walk_look(PLW* wk, s16 option);
 void pattern_approach_walk_normal_attack(PLW* wk, s16 target_pos);
 void pattern_approach_walk_normal_attack_2(PLW* wk, s16 reaction, u16 lever_data);
 void pattern_approach_walk_normal_attack_3(PLW* wk, s16 target_pos, s16 reaction, u16 lever_data);
+void pattern_approach_walk_normal_attack_4(PLW* wk, s16 target_pos, s16 reaction, u16 lever_data);
 void pattern_approach_walk_normal_attack_branch_unit_area(PLW* wk, s16 target_pos, const Branch_Menu_Args* p);
 void pattern_approach_walk_normal_attack_command_attack(
     PLW* wk, s16 reaction, u16 lever_data, const Command_Attack_Args* p
@@ -315,6 +319,7 @@ void pattern_check_sa_full_em_term_command_attack(PLW* wk);
 void pattern_com_random_select_from_step_6(PLW* wk);
 void pattern_command_attack(PLW* wk, const Command_Attack_Args* p);
 void pattern_command_attack_2(PLW* wk, const Command_Attack_Args* p);
+void pattern_command_attack_3(PLW* wk, const Command_Attack_Args* p);
 void pattern_command_attack_approach_walk_em_term(PLW* wk, const EM_Term_Params* p);
 void pattern_command_attack_approach_walk_em_term_2(PLW* wk, u16 lever);
 void pattern_command_attack_branch_unit_area(PLW* wk, const Command_Attack_Args* p, const Branch_Menu_Args* p_b);
@@ -327,6 +332,7 @@ void pattern_command_attack_from_step_6(PLW* wk);
 void pattern_command_attack_from_step_6_2(PLW* wk);
 void pattern_command_attack_normal_attack(PLW* wk, const Command_Attack_Args* p);
 void pattern_em_term_adjust_attack(PLW* wk, const EM_Term_Params* p);
+void pattern_em_term_adjust_attack_2(PLW* wk, const EM_Term_Params* p, u16 lever_data);
 void pattern_em_term_branch_unit_area(PLW* wk, const EM_Term_Params* p, const Branch_Menu_Args* p_b);
 void pattern_em_term_com_random_select(PLW* wk, const EM_Term_Params* p, const Branch_Menu_Args* p_b);
 void pattern_em_term_command_attack_wait(PLW* wk, const Command_Attack_Args* p, const SA_Term_Args* p_b);
@@ -367,6 +373,7 @@ void pattern_etc_term_branch_unit_area(PLW* wk, u32 next_action, u16 next_menu, 
 void pattern_etc_term_normal_attack(PLW* wk);
 void pattern_etc_term_normal_attack_lever_attack(PLW* wk, u16 next_menu, u16 lever, u16 lever_data);
 void pattern_etc_term_provoke(PLW* wk, s16 exit_no, u16 next_menu);
+void pattern_etc_term_provoke_2(PLW* wk, s16 exit_no, u32 next_action, u16 next_menu);
 void pattern_etc_term_provoke_next_another_menu(PLW* wk, u16 next_menu, u16 next_menu_b);
 void pattern_forced_guard(PLW* wk, s16 guard_type);
 void pattern_hi_jump(PLW* wk, s16 pl_number);
@@ -389,6 +396,7 @@ void pattern_hi_jump_attack_term_normal_attack_j_command_attack(
 );
 void pattern_hi_jump_attack_term_normal_attack_lever_attack(PLW* wk, const Hi_Jump_Term_Args* a, u16 lever_data);
 void pattern_hi_jump_attack_term_normal_attack_lever_attack_2(PLW* wk, const Hi_Jump_Term_Args* a, s16 reaction);
+void pattern_j_command_attack(PLW* wk, const Command_Attack_Args* p);
 void pattern_j_command_attack_from_step_6(PLW* wk);
 void pattern_jump(PLW* wk, s16 time);
 void pattern_jump_attack_term_com_random_select(PLW* wk, const Jump_Term_Args* a, const Branch_Menu_Args* p);
