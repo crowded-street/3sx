@@ -463,7 +463,7 @@ SHARED_DOC = """/**
 
 def reshard(folder, max_lines=900):
     """Redistribute the shared skeletons into files by how many steps they run."""
-    existing = shared_files(folder)
+    existing = shared_files(folder) or [os.path.join(folder, FAMILY['shared'] + '.c')]
     includes = re.search(r'(#include[^\n]*\n)+', open(existing[0]).read()).group(0)
     buckets = collections.defaultdict(list)
     for path in existing:
