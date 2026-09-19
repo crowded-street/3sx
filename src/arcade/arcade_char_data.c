@@ -132,6 +132,39 @@ static int read_script_offsets(SDL_IOStream* rom, Location location, Uint32* off
 
 /* One script: its header, then every entry until the next script's data begins.
  * The entry layout grows with the script's cgd_type. */
+/* The extra fields a cgd_type 4 or 6 entry carries, and the ones only a
+ * cgd_type 6 entry carries. Each returns the write pointer where it stopped. */
+static Uint8* read_cg_hit_fields(SDL_IOStream* rom, Uint8* p) {
+    Sint16 cg_att_ix = 0;
+    Uint16 cg_hit_ix = 0;
+    SDL_ReadS16BE(rom, &cg_att_ix);
+    SDL_ReadU16BE(rom, &cg_hit_ix);
+
+    *(Uint16*)p = cg_hit_ix;
+    p += 2;
+    *(Sint16*)p = cg_att_ix;
+    p += 2;
+
+    for (int i = 0; i < 4; i++) {
+        SDL_ReadU8(rom, p); // cg_extdat ... cg_eftype
+        p += 1;
+    }
+    return p;
+}
+
+static Uint8* read_cg_zoom_fields(SDL_IOStream* rom, Uint8* p) {
+    for (int i = 0; i < 3; i++) {
+        SDL_ReadU16BE(rom, p); // cg_zoom ... cg_add_xy
+        p += 2;
+    }
+
+    for (int i = 0; i < 2; i++) {
+        SDL_ReadU8(rom, p); // cg_next_ix ... cg_status
+        p += 1;
+    }
+    return p;
+}
+
 static void read_script(SDL_IOStream* rom, Uint8* p, const Uint8* end, Character character) {
     // Read script header
     Sint16 cgd_type = 0;
@@ -179,32 +212,11 @@ static void read_script(SDL_IOStream* rom, Uint8* p, const Uint8* end, Character
             p += 2;
 
             if (cgd_type >= 4) {
-                Sint16 cg_att_ix = 0;
-                Uint16 cg_hit_ix = 0;
-                SDL_ReadS16BE(rom, &cg_att_ix);
-                SDL_ReadU16BE(rom, &cg_hit_ix);
-
-                *(Uint16*)p = cg_hit_ix;
-                p += 2;
-                *(Sint16*)p = cg_att_ix;
-                p += 2;
-
-                for (int i = 0; i < 4; i++) {
-                    SDL_ReadU8(rom, p); // cg_extdat ... cg_eftype
-                    p += 1;
-                }
+                p = read_cg_hit_fields(rom, p);
             }
 
             if (cgd_type == 6) {
-                for (int i = 0; i < 3; i++) {
-                    SDL_ReadU16BE(rom, p); // cg_zoom ... cg_add_xy
-                    p += 2;
-                }
-
-                for (int i = 0; i < 2; i++) {
-                    SDL_ReadU8(rom, p); // cg_next_ix ... cg_status
-                    p += 1;
-                }
+                p = read_cg_zoom_fields(rom, p);
             }
         }
     }
