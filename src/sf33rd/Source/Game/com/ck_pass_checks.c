@@ -31,6 +31,32 @@ static s32 not_a_cross_chop_stance(const WORK* em) {
     return (em->pat_status != 22) && (em->pat_status != 20) && (em->pat_status != 26) && (em->pat_status != 28);
 }
 
+/* The opponent's move is the one being watched for. What is left is whether the
+ * strength filter in Option2 rules it out, and what to set if it does not. The
+ * block is Check_Special_Technique's own, unchanged. */
+static s32 answer_matched_technique(PLW* wk, WORK* em, const SP_Tech_Args* p) {
+    if ((p->Option2 == -1 || !(p->Option2 & 8))) {
+        if (p->Option2 == (em->kind_of_waza & 6)) {
+            Last_Attack_Counter[(wk->wu.id)] = Attack_Counter[(wk->wu.id)];
+            return 0;
+        }
+    } else if (!((p->Option2 & 6) & (em->kind_of_waza & 6))) {
+        return 0;
+    }
+
+    if (p->Option == 8) {
+        Counter_Attack[(wk->wu.id)] = 1;
+    }
+
+    if (p->Option == 1) {
+        Counter_Attack[(wk->wu.id)] = 1;
+    }
+
+    VS_Tech[wk->wu.id] = p->VS_Technique;
+
+    return PASSIVE_X = 1;
+}
+
 s32 Check_Special_Technique(PLW* wk, WORK* em, const SP_Tech_Args* p) {
     u8 xx;
 
@@ -49,26 +75,7 @@ s32 Check_Special_Technique(PLW* wk, WORK* em, const SP_Tech_Args* p) {
     xx = em->kind_of_waza & 0xF8;
 
     if (xx == p->Kind_of_Tech && (em->sp_tech_id == p->SP_Tech_ID)) {
-        if ((p->Option2 == -1 || !(p->Option2 & 8))) {
-            if (p->Option2 == (em->kind_of_waza & 6)) {
-                Last_Attack_Counter[(wk->wu.id)] = Attack_Counter[(wk->wu.id)];
-                return 0;
-            }
-        } else if (!((p->Option2 & 6) & (em->kind_of_waza & 6))) {
-            return 0;
-        }
-
-        if (p->Option == 8) {
-            Counter_Attack[(wk->wu.id)] = 1;
-        }
-
-        if (p->Option == 1) {
-            Counter_Attack[(wk->wu.id)] = 1;
-        }
-
-        VS_Tech[wk->wu.id] = p->VS_Technique;
-
-        return PASSIVE_X = 1;
+        return answer_matched_technique(wk, em, p);
     }
 
     return 0;
