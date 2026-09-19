@@ -1153,39 +1153,8 @@ static void draw_quads_to_canvas(SDL_GPUCommandBuffer* command_buffer) {
     SDL_EndGPURenderPass(canvas_pass);
 }
 
-static void draw_canvas_to_screen(
-    SDL_GPUCommandBuffer* command_buffer, SDL_GPUTexture* swapchain_texture, SDL_Rect viewport
-) {
-    SDL_GPURenderPass* screen_pass = SDL_BeginGPURenderPass(
-        command_buffer,
-        &(SDL_GPUColorTargetInfo) {
-            .clear_color = { 0, 0, 0, 1 },
-            .load_op = SDL_GPU_LOADOP_CLEAR,
-            .store_op = SDL_GPU_STOREOP_STORE,
-            .texture = swapchain_texture,
-        },
-        1,
-        NULL
-    );
-
-    SDL_SetGPUViewport(
-        screen_pass,
-        &(SDL_GPUViewport) {
-            .x = viewport.x,
-            .y = viewport.y,
-            .w = viewport.w,
-            .h = viewport.h,
-            .min_depth = 0,
-            .max_depth = 1,
-        }
-    );
-
-    if (scanline_intensity > 0) {
-        SDL_BindGPUGraphicsPipeline(screen_pass, scanline_pipeline);
-    } else {
-        SDL_BindGPUGraphicsPipeline(screen_pass, screen_pipeline);
-    }
-
+// The screen quad, its indices, and the canvas it samples.
+static void bind_screen_pass_buffers(SDL_GPURenderPass* screen_pass) {
     SDL_BindGPUVertexBuffers(
         screen_pass,
         0,
@@ -1220,6 +1189,42 @@ static void draw_canvas_to_screen(
         },
         1
     );
+}
+
+static void draw_canvas_to_screen(
+    SDL_GPUCommandBuffer* command_buffer, SDL_GPUTexture* swapchain_texture, SDL_Rect viewport
+) {
+    SDL_GPURenderPass* screen_pass = SDL_BeginGPURenderPass(
+        command_buffer,
+        &(SDL_GPUColorTargetInfo) {
+            .clear_color = { 0, 0, 0, 1 },
+            .load_op = SDL_GPU_LOADOP_CLEAR,
+            .store_op = SDL_GPU_STOREOP_STORE,
+            .texture = swapchain_texture,
+        },
+        1,
+        NULL
+    );
+
+    SDL_SetGPUViewport(
+        screen_pass,
+        &(SDL_GPUViewport) {
+            .x = viewport.x,
+            .y = viewport.y,
+            .w = viewport.w,
+            .h = viewport.h,
+            .min_depth = 0,
+            .max_depth = 1,
+        }
+    );
+
+    if (scanline_intensity > 0) {
+        SDL_BindGPUGraphicsPipeline(screen_pass, scanline_pipeline);
+    } else {
+        SDL_BindGPUGraphicsPipeline(screen_pass, screen_pipeline);
+    }
+
+    bind_screen_pass_buffers(screen_pass);
 
     SDL_PushGPUFragmentUniformData(
         command_buffer,
