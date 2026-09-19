@@ -412,18 +412,20 @@ static int dropLowestPriorityVoices(CSE_REQP* reqp, int count) {
     struct VWork* v;
     int ret = 1;
 
-    if (count >= reqp->limit) {
-        for (int i = 0; i < count + 1 - reqp->limit; i++) {
-            v = getLowestPrioWk(reqp);
-            if (v) {
-                if ((reqp->flags & 1) && reqp->prio < v->id.prio) {
-                    ret = 0;
-                    break;
-                }
+    if (count < reqp->limit) {
+        return ret;
+    }
 
-                SPU_VoiceStop(v->voice_num);
-                ret = 1;
+    for (int i = 0; i < count + 1 - reqp->limit; i++) {
+        v = getLowestPrioWk(reqp);
+        if (v) {
+            if ((reqp->flags & 1) && reqp->prio < v->id.prio) {
+                ret = 0;
+                break;
             }
+
+            SPU_VoiceStop(v->voice_num);
+            ret = 1;
         }
     }
 
