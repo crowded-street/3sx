@@ -133,6 +133,20 @@ void Setup_Bullet_Counter(PLW* wk);
 void Pattern_Insurance(PLW* wk, s16 Kind_Of_Insurance, s16 Forced_Number);
 
 const u16 Correct_Lv_Data[16] = { 0, 1, 2, 2, 4, 5, 6, 5, 8, 9, 10, 9, 8, 5, 10, 0 };
+/* The guard is in its middle frames with nothing queued behind it, so there is
+ * nothing to exit into yet. */
+static s32 guard_is_mid_sequence(PLW* wk) {
+    return wk->wu.routine_no[2] >= 4 && wk->wu.routine_no[2] < 8 && wk->wu.cmwk[0xE] == 0 &&
+           Attack_Flag[wk->wu.id] == 0;
+}
+
+/* Being hit while running a script that is neither of the two the damage answer
+ * leaves alone, and not already guarding. */
+static s32 damage_interrupts_this_script(PLW* wk) {
+    return wk->wu.routine_no[1] == 1 && CP_No[wk->wu.id][0] != 7 && CP_No[wk->wu.id][0] != 9 &&
+           Guard_Flag[wk->wu.id] == 0;
+}
+
 u16 cpu_algorithm(PLW* wk) {
     u16 sw = CPU_Sub(wk);
 
@@ -586,8 +600,7 @@ static s32 Ck_Exit_Guard_Sub(PLW* wk, WORK* em) {
             return 1;
         }
 
-        if (wk->wu.routine_no[2] >= 4 && wk->wu.routine_no[2] < 8 && wk->wu.cmwk[0xE] == 0 &&
-            Attack_Flag[wk->wu.id] == 0) {
+        if (guard_is_mid_sequence(wk)) {
             return 0;
         }
 
@@ -710,8 +723,7 @@ static s32 Check_Damage(PLW* wk) {
         return 0;
     }
 
-    if (wk->wu.routine_no[1] == 1 && CP_No[wk->wu.id][0] != 7 && CP_No[wk->wu.id][0] != 9 &&
-        Guard_Flag[wk->wu.id] == 0) {
+    if (damage_interrupts_this_script(wk)) {
         CP_No[wk->wu.id][0] = 10;
         CP_No[wk->wu.id][1] = 0;
         CP_No[wk->wu.id][2] = 0;
