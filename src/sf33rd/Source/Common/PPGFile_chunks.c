@@ -128,15 +128,47 @@ static void ppgCreatePaletteHandles(Palette* pch, plContext* bits, s32 col_items
     }
 }
 
+/* The palette data, ready for handles to be created over it: a decompression
+ * area when the chunk is compressed and the chunk's own bytes when it is not,
+ * decompressed into it, and byte-swapped. Everything it needs but the size and
+ * the bit depth comes off the PPL header, which the caller has not written to.
+ * The caller pushes the decompression area back once the handles are made. */
+static void* ppgPreparePaletteData(PPLFileHeader* ppl, s32 mltSize, s32 bitdepth) {
+    s32 koCmpr = ppl->compress & 3;
+    s32 cmpSize = SDL_Swap32BE(ppl->fileSize) - sizeof(PPLFileHeader);
+    void* cmpAdrs = ppl + 1;
+    void* mltAdrs;
+
+    if (koCmpr != 0) {
+        mltAdrs = ppgPullDecBuff(mltSize);
+    } else {
+        mltAdrs = cmpAdrs;
+    }
+
+    if (mltAdrs == NULL) {
+        flLogOut("ppgSetupPalChunk: Failed to allocate palette data decompression area");
+    }
+
+    if (mltSize != ppgDecompress(koCmpr, &(PPGDecompressArgs){cmpAdrs, cmpSize, mltAdrs, mltSize})) {
+        flLogOut("ppgSetupPalChunk: Failed to decompress the palette data");
+    }
+
+    ppgChangeDataEndian(mltAdrs, &(PPGEndianArgs){mltSize, ppl->c_mode & 4, ppl->formARGB == 0x8888, bitdepth});
+
+    if (koCmpr == 0) {
+        ppl->c_mode |= 4;
+    }
+
+    return mltAdrs;
+}
+
 s32 ppgSetupPalChunk(Palette* pch, const PPGPalChunkArgs* a) {
     PPLFileHeader* ppl;
     plContext bits;
     s32 i;
     s32 col_items;
     s32 koCmpr;
-    s32 cmpSize;
     s32 mltSize;
-    void* cmpAdrs;
     void* mltAdrs;
 
     if (pch == NULL) {
@@ -161,8 +193,6 @@ s32 ppgSetupPalChunk(Palette* pch, const PPGPalChunkArgs* a) {
         return -1;
     }
 
-    cmpSize = SDL_Swap32BE(ppl->fileSize) - sizeof(PPLFileHeader);
-    cmpAdrs = ppl + 1;
     pch->c_mode = ppl->c_mode & 3;
     pch->total = SDL_Swap16BE(ppl->palettes);
     col_items = pplColorModeWidth[pch->c_mode] + 1;
@@ -179,27 +209,7 @@ s32 ppgSetupPalChunk(Palette* pch, const PPGPalChunkArgs* a) {
     }
 
     mltSize = bits.bitdepth * (pch->total * col_items);
-
-    if (koCmpr != 0) {
-        mltAdrs = ppgPullDecBuff(mltSize);
-    } else {
-        mltAdrs = cmpAdrs;
-    }
-
-    if (mltAdrs == NULL) {
-        flLogOut("ppgSetupPalChunk: Failed to allocate palette data decompression area");
-    }
-
-    if (mltSize != ppgDecompress(koCmpr, &(PPGDecompressArgs){cmpAdrs, cmpSize, mltAdrs, mltSize})) {
-        flLogOut("ppgSetupPalChunk: Failed to decompress the palette data");
-    }
-
-    ppgChangeDataEndian(mltAdrs, &(PPGEndianArgs){mltSize, ppl->c_mode & 4, ppl->formARGB == 0x8888, bits.bitdepth});
-
-    if (koCmpr == 0) {
-        ppl->c_mode |= 4;
-    }
-
+    mltAdrs = ppgPreparePaletteData(ppl, mltSize, bits.bitdepth);
     bits.ptr = mltAdrs;
     ppgCreatePaletteHandles(pch, &bits, col_items);
 
