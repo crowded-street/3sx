@@ -391,27 +391,70 @@ static void game06_switch_screen_done(void) {
     }
 }
 
-static void game06_state(void) {
+/* The three long arms of game06_state, each exactly the body that stood under
+ * its case label. */
+static void game06_begin_game_over(void) {
     s16 xx;
 
+    G_No[2] += 1;
+    Game_pause = 0;
+    Stock_Com_Color[Player_id] = -1;
+    Stock_Com_Arts[Player_id] = -1;
+    Last_Player_id = -1;
+    Control_Time = 481;
+    E_No[0] = 8;
+    E_No[1] = 0;
+    E_No[2] = 0;
+    E_No[3] = 0;
+
+    for (xx = 0; xx < 4; xx++) {
+        GO_No[xx] = 0;
+    }
+
+    make_texcash_work(13);
+}
+
+static void game06_save_settings(void) {
+    if (G_No[3] == 0) {
+        FadeOut(1, 0xFF, 8);
+
+        if (--G_Timer == 0) {
+            G_No[3] = 1;
+            SaveInit(SAVE_FILE_SETTINGS, SAVE_MODE_SAVE);
+        }
+    } else if (SaveMove() <= 0) {
+        Forbid_Reset = 0;
+        G_No[2] = 6;
+    }
+
+}
+
+static void game06_return_to_attract(void) {
+    Switch_Screen(1);
+    G_No[0] = 1;
+    G_No[1] = 0x63;
+    G_No[2] = 0;
+    G_No[3] = 0;
+    E_No[0] = 0;
+    E_No[1] = 0x63;
+    E_No[2] = 0;
+    E_No[3] = 0;
+    D_No[0] = 0;
+    D_No[1] = 0;
+    D_No[2] = 0;
+    D_No[3] = 0;
+    Get_Demo_Index = 0;
+    Combo_Demo_Flag = 0;
+    cpReadyTask(TASK_ENTRY, Entry_Task);
+    Purge_mmtm_area(5);
+    Make_texcash_of_list(5);
+    System_all_clear_Level_B();
+}
+
+static void game06_state(void) {
     switch (G_No[2]) {
     case 0:
-        G_No[2] += 1;
-        Game_pause = 0;
-        Stock_Com_Color[Player_id] = -1;
-        Stock_Com_Arts[Player_id] = -1;
-        Last_Player_id = -1;
-        Control_Time = 481;
-        E_No[0] = 8;
-        E_No[1] = 0;
-        E_No[2] = 0;
-        E_No[3] = 0;
-
-        for (xx = 0; xx < 4; xx++) {
-            GO_No[xx] = 0;
-        }
-
-        make_texcash_work(13);
+        game06_begin_game_over();
         break;
 
     case 1:
@@ -451,40 +494,11 @@ static void game06_state(void) {
         break;
 
     case 5:
-        if (G_No[3] == 0) {
-            FadeOut(1, 0xFF, 8);
-
-            if (--G_Timer == 0) {
-                G_No[3] = 1;
-                SaveInit(SAVE_FILE_SETTINGS, SAVE_MODE_SAVE);
-            }
-        } else if (SaveMove() <= 0) {
-            Forbid_Reset = 0;
-            G_No[2] = 6;
-        }
-
+        game06_save_settings();
         break;
 
     case 6:
-        Switch_Screen(1);
-        G_No[0] = 1;
-        G_No[1] = 0x63;
-        G_No[2] = 0;
-        G_No[3] = 0;
-        E_No[0] = 0;
-        E_No[1] = 0x63;
-        E_No[2] = 0;
-        E_No[3] = 0;
-        D_No[0] = 0;
-        D_No[1] = 0;
-        D_No[2] = 0;
-        D_No[3] = 0;
-        Get_Demo_Index = 0;
-        Combo_Demo_Flag = 0;
-        cpReadyTask(TASK_ENTRY, Entry_Task);
-        Purge_mmtm_area(5);
-        Make_texcash_of_list(5);
-        System_all_clear_Level_B();
+        game06_return_to_attract();
         break;
     }
 }
