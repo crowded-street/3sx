@@ -873,6 +873,100 @@ def generalise(folder, protos):
 
 
 # --------------------------------------------------------------------------
+# Recipe W - a forwarding skeleton is one call site, not a definition
+# --------------------------------------------------------------------------
+
+def forwarders(folder):
+    """{name: (params, callee, args)} for every skeleton that only calls another."""
+    out = {}
+    for path in shared_files(folder):
+        src = open(path).read()
+        for name, a, b, is_static in functions(src):
+            full = src[a:b]
+            sig = full[:full.index('{')]
+            body = full[full.index('{'):]
+            m = re.match(r'\s*\{\s*(\w+)\((.*?)\);\s*\}\s*$', body, re.S)
+            if not m:
+                continue
+            params = [(re.search(r'(\w+)\s*$', x) or re.search(r'\(\*(\w+)\)', x)).group(1)
+                      for x in split_args(sig[sig.index('(') + 1:sig.rindex(')')])]
+            args = split_args(m.group(2))
+            if not args or args[0] != 'wk' or params[0] != 'wk':
+                continue
+            out[name] = (params, m.group(1), [re.sub(r'\s+', ' ', x) for x in args], path, a, b)
+    return out
+
+
+def inline_forwarders(folder, extra_paths=()):
+    """Replace each call to a forwarding skeleton with the call it forwards to."""
+    fwd = forwarders(folder)
+    # A forwarder that forwards to another forwarder resolves one hop at a time;
+    # take only those whose target is a real definition, and repeat.
+    fwd = {k: v for k, v in fwd.items() if v[1] not in fwd}
+    if not fwd:
+        return 0, 0
+
+    call_re = re.compile(r'\b(%s)\(' % '|'.join(map(re.escape, sorted(fwd))))
+    touched = 0
+    for path in sorted(set(list(extra_paths) + shared_files(folder))):
+        src = open(path).read()
+        out, i, n = [], 0, 0
+        while True:
+            m = call_re.search(src, i)
+            if not m:
+                out.append(src[i:])
+                break
+            depth, j = 1, m.end()
+            while depth:
+                if src[j] in '([{':
+                    depth += 1
+                elif src[j] in ')]}':
+                    depth -= 1
+                j += 1
+            here = split_args(src[m.end():j - 1])
+            params, callee, args, _, _, _ = fwd[m.group(1)]
+            # A definition, not a call: anchored at column zero, the name is
+            # preceded on its line by a return type and nothing else.
+            line = src[:m.start()].rsplit('\n', 1)[-1]
+            if re.match(r'^(static )?[A-Za-z_][\w \*]*$', line):
+                out.append(src[i:j])
+                i = j
+                continue
+            if len(here) != len(params):
+                out.append(src[i:j])
+                i = j
+                continue
+            bind = dict(zip(params, [re.sub(r'\s+', ' ', x) for x in here]))
+            new_args = [bind.get(x, x) for x in args]
+            indent = ' ' * (len(line) - len(line.lstrip()) if not line.strip() else len(line))
+            text = call(indent, callee, new_args)[len(indent):].rstrip(';')
+            out.append(src[i:m.start()])
+            out.append(text)
+            i = j
+            n += 1
+        if n:
+            open(path, 'w').write(''.join(out))
+            touched += n
+
+    # the definitions themselves are now unreferenced
+    gone = 0
+    by_path = collections.defaultdict(list)
+    for name, (_, _, _, path, a, b) in fwd.items():
+        by_path[path].append((a, b))
+    for path, spans in by_path.items():
+        src = open(path).read()
+        for a, b in sorted(spans, reverse=True):
+            end = b
+            while src[end:end + 1] == '\n':
+                end += 1
+            src = src[:a] + src[end:]
+            gone += 1
+        open(path, 'w').write(src)
+    rewrite_shared_header(folder)
+    return gone, touched
+
+
+# --------------------------------------------------------------------------
 # Recipe F - one skeleton, the differing call passed in
 # --------------------------------------------------------------------------
 
@@ -1144,7 +1238,7 @@ def split(path, max_funcs=90, max_lines=900):
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('command', choices=['fold', 'gfold', 'dedup', 'reshard', 'ffold', 'xsplit', 'split', 'verify', 'families', 'generalise'])
+    ap.add_argument('command', choices=['fold', 'gfold', 'dedup', 'reshard', 'ffold', 'xsplit', 'split', 'verify', 'families', 'generalise', 'inline'])
     ap.add_argument('files', nargs='+')
     ap.add_argument('--base', default='HEAD')
     ap.add_argument('--shared-dir', default=None,
@@ -1177,6 +1271,11 @@ def main():
         d = dedup_shared(folder)
         print('%d skeletons promoted to the shared files, %d copies removed, '
               '%d shared duplicates collapsed' % (h, e, d))
+        return
+    if args.command == 'inline':
+        folder = shared_dir(args.files)
+        g, t = inline_forwarders(folder, [f for f in args.files if os.path.dirname(f) != folder])
+        print('%d forwarding skeletons removed, %d call sites rewritten' % (g, t))
         return
     if args.command == 'generalise':
         n = generalise(shared_dir(args.files), protos)
