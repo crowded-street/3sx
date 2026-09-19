@@ -176,6 +176,53 @@ void TestRunner_Destroy() {
     ReplayGame_Destroy(&game);
 }
 
+/* The character select, which is a phase machine of its own: put the cursors
+ * where the recorded match had them, take the colours, then the stage. */
+static void run_character_select() {
+    switch (char_select_phase) {
+    case 0:
+        set_cursor(game.characters[0], 0);
+        set_cursor(game.characters[1], 1);
+        tap_button(SWK_START, 1);
+        wait_timer = 20;
+        char_select_phase = 1;
+        break;
+
+    case 1:
+        wait_timer -= 1;
+
+        if (wait_timer <= 0) {
+            // We must set New_Challenger manually so that the game selects the correct stage.
+            // If we set this var earlier it would be overwritten
+            New_Challenger = game.new_challenger;
+            Champion = New_Challenger ^ 1;
+            char_select_phase = 2;
+        }
+
+        break;
+
+    case 2:
+        tap_button(color_to_keys[game.colors[0]], 0);
+        tap_button(color_to_keys[game.colors[1]], 1);
+        wait_timer = 45;
+        char_select_phase = 3;
+        break;
+
+    case 3:
+        wait_timer -= 1;
+
+        if (wait_timer <= 0) {
+            // Stage selection happens before per-frame synchronization begins.
+            VS_Stage = game.stage;
+            tap_button(SWK_SOUTH, 0);
+            tap_button(SWK_SOUTH, 1);
+            phase = PHASE_GAME_TRANSITION;
+        }
+
+        break;
+    }
+}
+
 void TestRunner_Prologue() {
     SDL_zeroa(input_buffers);
 
@@ -217,49 +264,7 @@ void TestRunner_Prologue() {
         break;
 
     case PHASE_CHARACTER_SELECT:
-        switch (char_select_phase) {
-        case 0:
-            set_cursor(game.characters[0], 0);
-            set_cursor(game.characters[1], 1);
-            tap_button(SWK_START, 1);
-            wait_timer = 20;
-            char_select_phase = 1;
-            break;
-
-        case 1:
-            wait_timer -= 1;
-
-            if (wait_timer <= 0) {
-                // We must set New_Challenger manually so that the game selects the correct stage.
-                // If we set this var earlier it would be overwritten
-                New_Challenger = game.new_challenger;
-                Champion = New_Challenger ^ 1;
-                char_select_phase = 2;
-            }
-
-            break;
-
-        case 2:
-            tap_button(color_to_keys[game.colors[0]], 0);
-            tap_button(color_to_keys[game.colors[1]], 1);
-            wait_timer = 45;
-            char_select_phase = 3;
-            break;
-
-        case 3:
-            wait_timer -= 1;
-
-            if (wait_timer <= 0) {
-                // Stage selection happens before per-frame synchronization begins.
-                VS_Stage = game.stage;
-                tap_button(SWK_SOUTH, 0);
-                tap_button(SWK_SOUTH, 1);
-                phase = PHASE_GAME_TRANSITION;
-            }
-
-            break;
-        }
-
+        run_character_select();
         break;
 
     case PHASE_GAME_TRANSITION:
