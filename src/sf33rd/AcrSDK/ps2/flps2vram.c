@@ -335,6 +335,17 @@ static s32 handle_is_invalid(u32 handle, u32 max, const FLTexture* entry) {
     return (handle == 0) || (handle > max) || (entry->be_flag == 0);
 }
 
+/* Give a released entry's system memory back and clear it. The texture and
+ * palette releases end the same way, differing only in which entry. */
+static s32 release_handle_entry(FLTexture* entry) {
+    if (entry->mem_handle != 0) {
+        flPS2ReleaseSystemMemory(entry->mem_handle);
+    }
+
+    SDL_zerop(entry);
+    return 1;
+}
+
 s32 flReleaseTextureHandle(u32 texture_handle) {
     FLTexture* lpflTexture = &flTexture[texture_handle - 1];
 
@@ -344,12 +355,7 @@ s32 flReleaseTextureHandle(u32 texture_handle) {
 
     Renderer_DestroyTexture(texture_handle);
 
-    if (lpflTexture->mem_handle != 0) {
-        flPS2ReleaseSystemMemory(lpflTexture->mem_handle);
-    }
-
-    SDL_zerop(lpflTexture);
-    return 1;
+    return release_handle_entry(lpflTexture);
 }
 
 s32 flReleasePaletteHandle(u32 palette_handle) {
@@ -361,12 +367,7 @@ s32 flReleasePaletteHandle(u32 palette_handle) {
 
     Renderer_DestroyPalette(palette_handle);
 
-    if (lpflPalette->mem_handle != 0) {
-        flPS2ReleaseSystemMemory(lpflPalette->mem_handle);
-    }
-
-    SDL_zerop(lpflPalette);
-    return 1;
+    return release_handle_entry(lpflPalette);
 }
 
 s32 flLockTexture(Rect* lprect, u32 th, plContext* lpcontext, u32 flag) {
