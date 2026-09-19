@@ -167,13 +167,19 @@ static const char* get_shader_entrypoint(SDL_GPUShaderFormat format) {
     }
 }
 
-static SDL_GPUShader* create_shader(
-    const char* filename, SDL_GPUDevice* device, SDL_GPUShaderStage stage, Uint32 num_samplers,
-    Uint32 num_uniform_buffers
-) {
+/* The five values create_shader took, in its own parameter order. */
+typedef struct _ShaderRequest {
+    const char* filename;
+    SDL_GPUDevice* device;
+    SDL_GPUShaderStage stage;
+    Uint32 num_samplers;
+    Uint32 num_uniform_buffers;
+} _ShaderRequest;
+
+static SDL_GPUShader* create_shader(const _ShaderRequest* req) {
     const char* base_path = SDL_GetBasePath();
     char* full_path = NULL;
-    SDL_asprintf(&full_path, "%s/shaders/sdlgpu/%s/%s", base_path, shader_format_path, filename);
+    SDL_asprintf(&full_path, "%s/shaders/sdlgpu/%s/%s", base_path, shader_format_path, req->filename);
 
     size_t code_size = 0;
     const Uint8* code = SDL_LoadFile(full_path, &code_size);
@@ -187,17 +193,17 @@ static SDL_GPUShader* create_shader(
     SDL_free(full_path);
 
     SDL_GPUShader* shader = SDL_CreateGPUShader(
-        device,
+        req->device,
         &(SDL_GPUShaderCreateInfo) {
             .code = code,
             .code_size = code_size,
             .entrypoint = shader_entrypoint,
             .format = shader_format,
-            .stage = stage,
-            .num_samplers = num_samplers,
+            .stage = req->stage,
+            .num_samplers = req->num_samplers,
             .num_storage_textures = 0,
             .num_storage_buffers = 0,
-            .num_uniform_buffers = num_uniform_buffers,
+            .num_uniform_buffers = req->num_uniform_buffers,
         }
     );
 
@@ -765,16 +771,19 @@ static SDL_Window* SDLGPURenderer_Init(const SDLRenderBackendInitInfo* init_info
 
     SDL_Log("Using SDL GPU driver %s with shaders from %s", SDL_GetGPUDeviceDriver(device), shader_format_path);
 
-    SDL_GPUShader* vertex_shader = create_shader("vert", device, SDL_GPU_SHADERSTAGE_VERTEX, 0, 0);
-    SDL_GPUShader* solid_fragment_shader = create_shader("solid.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 0, 0);
-    SDL_GPUShader* direct_fragment_shader = create_shader("direct.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 1, 0);
+    SDL_GPUShader* vertex_shader = create_shader(&(_ShaderRequest){ "vert", device, SDL_GPU_SHADERSTAGE_VERTEX, 0, 0 });
+    SDL_GPUShader* solid_fragment_shader =
+        create_shader(&(_ShaderRequest){ "solid.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 0, 0 });
+    SDL_GPUShader* direct_fragment_shader =
+        create_shader(&(_ShaderRequest){ "direct.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 1, 0 });
     SDL_GPUShader* palette_4_fragment_shader =
-        create_shader("palette4.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 2, 0);
+        create_shader(&(_ShaderRequest){ "palette4.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 2, 0 });
     SDL_GPUShader* palette_8_fragment_shader =
-        create_shader("palette8.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 2, 0);
-    SDL_GPUShader* screen_fragment_shader = create_shader("screen.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 1, 0);
+        create_shader(&(_ShaderRequest){ "palette8.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 2, 0 });
+    SDL_GPUShader* screen_fragment_shader =
+        create_shader(&(_ShaderRequest){ "screen.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 1, 0 });
     SDL_GPUShader* scanline_fragment_shader =
-        create_shader("scanlines.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 1, 1);
+        create_shader(&(_ShaderRequest){ "scanlines.frag", device, SDL_GPU_SHADERSTAGE_FRAGMENT, 1, 1 });
 
     const SDL_GPUTextureFormat swapchain_texture_format = SDL_GetGPUSwapchainTextureFormat(device, window);
 
