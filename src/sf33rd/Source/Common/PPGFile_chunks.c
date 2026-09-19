@@ -528,10 +528,49 @@ s32 ppgRenewTexChunkSeqs(Texture* tch) {
     return 1;
 }
 
-s32 ppgSetupTexChunk_1st(Texture* tch, const PPGTexChunk1stArgs* a) {
+/* The chunk list is walked twice: once to count the pTEX chunks, so the offset
+ * table can be sized, and once to write their offsets into it. Both walks
+ * accumulate into tch, which is what they were doing in place. */
+static void ppgCountTexChunks(Texture* tch) {
     PPGFileHeader* ppg;
+    s32 ofs = 0;
+
+    while (1) {
+        ppg = (PPGFileHeader*)(tch->srcAdrs + ofs);
+
+        if (MAGIC_TO_INT("pEND") != SDL_Swap32BE(ppg->magic)) {
+            if (MAGIC_TO_INT("pTEX") == SDL_Swap32BE(ppg->magic)) {
+                tch->textures += 1;
+            }
+
+            ofs += ALIGN_UP(SDL_Swap32BE(ppg->fileSize), 4);
+        } else {
+            break;
+        }
+    }
+}
+
+static void ppgRecordTexChunkOffsets(Texture* tch) {
+    PPGFileHeader* ppg;
+    s32 ofs = 0;
+
+    while (1) {
+        ppg = (PPGFileHeader*)(tch->srcAdrs + ofs);
+
+        if (MAGIC_TO_INT("pEND") != SDL_Swap32BE(ppg->magic)) {
+            if (MAGIC_TO_INT("pTEX") == SDL_Swap32BE(ppg->magic)) {
+                tch->offset[tch->accnum++] = ofs;
+            }
+
+            ofs += ALIGN_UP(SDL_Swap32BE(ppg->fileSize), 4);
+        } else {
+            break;
+        }
+    }
+}
+
+s32 ppgSetupTexChunk_1st(Texture* tch, const PPGTexChunk1stArgs* a) {
     s32 i;
-    s32 ofs;
 
     if (tch == NULL) {
         tch = ppg_w.cur->tex;
@@ -563,21 +602,7 @@ s32 ppgSetupTexChunk_1st(Texture* tch, const PPGTexChunk1stArgs* a) {
         tch->handle[i].b16[1] = 0x8000;
     }
 
-    ofs = 0;
-
-    while (1) {
-        ppg = (PPGFileHeader*)(tch->srcAdrs + ofs);
-
-        if (MAGIC_TO_INT("pEND") != SDL_Swap32BE(ppg->magic)) {
-            if (MAGIC_TO_INT("pTEX") == SDL_Swap32BE(ppg->magic)) {
-                tch->textures += 1;
-            }
-
-            ofs += ALIGN_UP(SDL_Swap32BE(ppg->fileSize), 4);
-        } else {
-            break;
-        }
-    }
+    ppgCountTexChunks(tch);
 
     if (tch->textures == 0) {
         flLogOut("ppgSetupTexChunk_1st: Texture data was not found");
@@ -589,21 +614,7 @@ s32 ppgSetupTexChunk_1st(Texture* tch, const PPGTexChunk1stArgs* a) {
         flLogOut("ppgSetupTexChunk_1st: Failed to allocate memory for the texture offset table");
     }
 
-    ofs = 0;
-
-    while (1) {
-        ppg = (PPGFileHeader*)(tch->srcAdrs + ofs);
-
-        if (MAGIC_TO_INT("pEND") != SDL_Swap32BE(ppg->magic)) {
-            if (MAGIC_TO_INT("pTEX") == SDL_Swap32BE(ppg->magic)) {
-                tch->offset[tch->accnum++] = ofs;
-            }
-
-            ofs += ALIGN_UP(SDL_Swap32BE(ppg->fileSize), 4);
-        } else {
-            break;
-        }
-    }
+    ppgRecordTexChunkOffsets(tch);
 
     tch->accnum = 0;
     tch->be = 1;
