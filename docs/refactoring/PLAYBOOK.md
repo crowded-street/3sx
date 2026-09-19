@@ -1196,6 +1196,8 @@ Recipe X both refuse to merge.
 | `pls03.c` | 8.92 | *was 8.08.* Recipe T twice, Recipe E on the leap and catch tests, then two shared runs for the mean. `decode_wst_data`'s twelve encodings and `waza_select`'s eleven case labels are what remain, and neither loses a branch without renumbering states |
 | `cmd_main_checks.c` | 7.50 | The hardest file left. Its mean is 4.34 over 64 functions and needs **thirteen** more, which is far more than the duplicate web can absorb - every arm lifted joins one of three families. Sharing the runs was tried too (`load_waza_command_header`, `command_terminator_reached`) and measured flat, because the findings here are five Bumpy Roads and three Complex Methods rather than the mean alone |
 | `pls00_normal_states.c` | 8.03 | *was 7.55.* Five shared runs - the two end-of-animation markers, the entry-frame guard, and the two jump hand-overs - cleared Overall Code Complexity. What is left is a Code Duplication web between the state machines themselves, which no run reaches: sharing the two arms `jumping_cg_type_low_pat` and `jumping_cg_type_high_pat` agree on (Recipe X's variant) measured flat, and the gate chains differ in their members and their order |
+| `Game/com/shell` | **10.00** x10 | *was 8.28-8.81.* The third COM script folder, never folded. `xfold` put 32 scripts onto skeletons earlier folds had already made, and `gfold --min-members 2` took the other 84 onto nine new ones. See *A third script folder, and the fold that reaches an existing skeleton* |
+| `Game/com/patterns` | 8.02 mean | the shared skeleton module, 14 files. Two findings, both intrinsic to the idiom and both priced mechanically - see *Where `Game/com/patterns` stops, against the published thresholds* |
 | `plpnm.c` | 7.52 | what is left of the 28-function group are state machines differing in two or more values; the two parry states keep Duff-style `case` arms that cannot be split |
 | `pls03_super_arts.c` | 9.92 | *was 7.61.* Recipe C on the full-gauge guards and the EX strength launch, Recipe D on the super-art launch tail, Recipe F on the EX strength scan, and the airborne EX guard chain the table had previously recorded at -0.23. `try_grounded_dc_strengths`' Bumpy Road is what remains, and the direct-cancel side is a grounded/airborne mirror **at every level**: lifting its match body makes three twin pairs at once - the two `fire_*_dc`, the two `try_*_dc_strengths` and the two `try_*_dc` - and measures 9.92 -> 9.09. Breaking the outermost pair first with Recipe P on the button-group test does not change that |
 | `manage.c` | 9.92 | `Game_Manage_7_3`'s two identical test arms; clearing the bump means deleting the dead condition, which the catalogue forbids |
@@ -2877,3 +2879,82 @@ said it would, because the extracted helper twins with the airborne one.
 seconds - then read the note for *which functions* it names and diff those yourself. A
 note that names a mechanism ("every seam runs through X") is a claim to check, not a
 finding to inherit.
+
+### A third script folder, and the fold that reaches an existing skeleton
+
+*Added 2026-09-20, measured on `Game/com/shell`.*
+
+`Game/com/shell` is the third folder of COM pattern scripts and had been missed by every
+earlier pass. A shell script is spelled `Shell00_0001` behind a dispatcher called
+`Shell00`, and its body is the same switch on `CP_Index[wk->wu.id][0]` with one engine
+call per step that `passive` and `active` are made of - so `passive_fold.py` reaches it
+with nothing but a new `FAMILY` entry, and its skeletons belong in the same shared module.
+
+Ten files, 117 scripts, **8.28-8.81 before, all ten at 10.00 after**, in two commits.
+
+The first of those needed a new command, and it is the transferable part. **`gfold` only
+ever groups the scripts it is handed against each other**, so a script that is one of a
+kind in its own folder stays inline even when the body it holds is, character for
+character, a skeleton some other folder's fold already produced. `xfold` is that case: it
+matches a script against the *existing* shared skeletons and rewrites it as one call.
+
+The test is the one `generalise` already applies between two skeletons - the script and
+the skeleton reduce to the same shape with every call argument blanked, every slot the
+skeleton did not parameterise holds the same value in both, and each parameter is given
+one value - so the safety argument is Recipe V's, unchanged, and no skeleton is created,
+renamed or edited. It reached **32 of 117** on the first pass.
+
+The lesson generalises past this folder: after any folder-wide fold, the residue is worth
+re-testing against the skeletons *other* folders have since contributed. The 442 skeletons
+that existed when the shell folder was first looked at were built by the passive and
+active passes, and a quarter of the shell folder was already sitting in them.
+
+### Where `Game/com/patterns` stops, against the published thresholds
+
+*Added 2026-09-20. The first plateau in this campaign priced against CodeScene's own
+numbers rather than against a series of experiments.*
+
+`rules_config_list_thresholds` for C is worth calling before arguing about a file mean.
+The two that decide this folder:
+
+    file_mean_cyclomatic_complexity_warning        4
+    function_duplication_min_lines_of_code_for_check   10
+    function_duplication_min_similarity_percentage     75
+
+The shared skeleton module is 14 files and 503 generated skeletons, at a mean of 8.02.
+Every file carries **Code Duplication**, and the nine holding skeletons of three steps or
+more also carry **Overall Code Complexity**. Both were priced:
+
+- **Overall Code Complexity.** A skeleton's cyclomatic complexity is its switch arms plus
+  one, so a file of three-step skeletons sits at exactly 5 and must reach 4. The only
+  legal way to take a branch out is Recipe X's shared-tail variant, and the skeletons are
+  full of them: 128 agree, character for character, on every arm from some step onwards.
+  `passive_fold.py tailsplit` applies it - 22 shared tails, 105 skeletons split - and it
+  is a real reduction, folder mean cyclomatic complexity **4.69 -> 4.40**. It is still
+  above 4, and **every one of the 14 scores is unchanged**, so it reverts under rule 2.
+  The arithmetic says why no variation of it can work: the folder's *own* mean is above
+  the threshold, so no arrangement of these functions into files puts them all under it.
+- **Code Duplication.** Recipe F, run over all 14 files, folds 57 skeletons onto 25 shared
+  ones and moves the mean **8.02 -> 8.02**. That is the passive folder's refusal
+  re-measured where it should have been measured - on the skeleton files themselves rather
+  than on a character file before the folder-wide work - and it now rests on a measurement
+  rather than on a risk judgement.
+
+**Two things that would move the number and are refused.** Both are worth writing down,
+because each is a way of making CodeScene stop *looking* rather than making the code
+better, and rule 2's "splitting finer removes nothing" is the same objection:
+
+- **Re-bucketing the files to balance the mean.** The by-step-count grouping is recorded
+  above as "the one grouping that can put any file under the file mean threshold at all".
+  That is not right, and the correction matters: grouping by step count puts the *low*-step
+  files under the threshold and guarantees the high-step files sit at the maximum their
+  contents allow. A balanced mixture would lower several means at once. It also changes not
+  one line of code, and the duplicate pairs it separates are duplicates still.
+- **Reformatting an arm onto one line.** A one-step skeleton is eleven lines and a
+  duplication check begins at ten. Written `case 0: Foo(wk, p); break;` - which is the
+  spelling Recipe X's own example uses - it falls under the threshold and is no longer
+  compared against anything. The duplication is not gone; it is unmeasured.
+
+So the folder is recorded at **8.02** with its two findings intact, and the reason is the
+first line of this catalogue: what remains is the shape of the idiom, and the idiom is
+already the smallest form of what it does.
