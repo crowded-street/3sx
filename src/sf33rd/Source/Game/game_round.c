@@ -268,6 +268,38 @@ void Game04() {
 }
 
 /* The continue states. */
+/* Once the continue screen has switched away: reload the stage's textures and
+ * go to the next fight, or to the bonus stage. */
+static void game05_screen_switched(void) {
+        Cover_Timer = 24;
+        Purge_texcash_of_list(3);
+        Make_texcash_of_list(3);
+
+        if (Bonus_Type == 0) {
+            Game01_Sub();
+        }
+
+        BGM_Stop();
+
+        if (Bonus_Type == 0) {
+            G_No[1] = 2;
+            G_No[2] = 0;
+            E_No[0] = 4;
+            E_No[1] = 0;
+            E_No[2] = 0;
+            E_No[3] = 0;
+            Bonus_Game_Flag = 0;
+        } else {
+            G_No[1] = 9;
+            G_No[2] = 0;
+            G_No[3] = 0;
+            E_No[0] = 4;
+            E_No[1] = 0;
+            E_No[2] = 0;
+            E_No[3] = 0;
+        }
+}
+
 static void game05_state(void) {
     switch (G_No[2]) {
     case 0:
@@ -298,33 +330,7 @@ static void game05_state(void) {
         Next_CPU();
 
         if (Switch_Screen(0) != 0) {
-            Cover_Timer = 24;
-            Purge_texcash_of_list(3);
-            Make_texcash_of_list(3);
-
-            if (Bonus_Type == 0) {
-                Game01_Sub();
-            }
-
-            BGM_Stop();
-
-            if (Bonus_Type == 0) {
-                G_No[1] = 2;
-                G_No[2] = 0;
-                E_No[0] = 4;
-                E_No[1] = 0;
-                E_No[2] = 0;
-                E_No[3] = 0;
-                Bonus_Game_Flag = 0;
-            } else {
-                G_No[1] = 9;
-                G_No[2] = 0;
-                G_No[3] = 0;
-                E_No[0] = 4;
-                E_No[1] = 0;
-                E_No[2] = 0;
-                E_No[3] = 0;
-            }
+            game05_screen_switched();
         }
 
         break;
