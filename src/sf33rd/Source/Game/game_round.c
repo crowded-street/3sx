@@ -548,32 +548,12 @@ s16 Disp_Rank_Sub(s16 PL_id) {
     return -1;
 }
 
-s32 Disp_Ranking() {
+/* The ranking display from its third step on, reached from the first two's
+ * default. The case labels are the original ones and the switch is on the same
+ * expression; the group carries the `return 1` that ends the display, so it
+ * hands back the same verdict Disp_Ranking does. */
+static s32 disp_ranking_from_step_2(void) {
     switch (G_No[3]) {
-    case 0:
-        G_No[3] += 1;
-        Switch_Screen_Init(1);
-        BGM_Request(57);
-        break;
-
-    case 1:
-        if (Switch_Screen(1) != 0) {
-            Cover_Timer = 24;
-            G_No[3] += 1;
-            D_No[0] = 1;
-            D_No[1] = 0;
-            D_No[2] = 0;
-            D_No[3] = 0;
-            Clear_Personal_Data(0);
-            grade_check_work_1st_init(0, 0);
-            grade_check_work_1st_init(0, 1);
-            Clear_Personal_Data(1);
-            grade_check_work_1st_init(1, 0);
-            grade_check_work_1st_init(1, 1);
-        }
-
-        break;
-
     case 2:
         Switch_Screen(1);
         Ranking();
@@ -602,6 +582,39 @@ s32 Disp_Ranking() {
         }
 
         break;
+    }
+
+    return 0;
+}
+
+s32 Disp_Ranking() {
+    switch (G_No[3]) {
+    case 0:
+        G_No[3] += 1;
+        Switch_Screen_Init(1);
+        BGM_Request(57);
+        break;
+
+    case 1:
+        if (Switch_Screen(1) != 0) {
+            Cover_Timer = 24;
+            G_No[3] += 1;
+            D_No[0] = 1;
+            D_No[1] = 0;
+            D_No[2] = 0;
+            D_No[3] = 0;
+            Clear_Personal_Data(0);
+            grade_check_work_1st_init(0, 0);
+            grade_check_work_1st_init(0, 1);
+            Clear_Personal_Data(1);
+            grade_check_work_1st_init(1, 0);
+            grade_check_work_1st_init(1, 1);
+        }
+
+        break;
+
+    default:
+        return disp_ranking_from_step_2();
     }
 
     return 0;
