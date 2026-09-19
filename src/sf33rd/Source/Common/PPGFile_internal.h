@@ -41,6 +41,16 @@ s32 ppgCheckPaletteDataBe(Palette* pch);
 void ppgWriteQuadOnly(Vertex* pos, u32 col, u32 texCode);
 void ppgWriteQuadOnly2(Vertex* pos, u32 col, u32 texCode);
 void ppgChangeDataEndian(u8* adrs, const PPGEndianArgs* a);
+
+/* Defined in PPGFile_chunks.c and, since the split, called from the palette
+ * side too. It had no declaration because both callers used to sit below it. */
+ssize_t ppgDecompress(s32 koCmpr, const PPGDecompressArgs* a);
+
+/* The num'th chunk of the given magic in a PPG, PPL or PPX chunk list, or NULL
+ * when the list ends at pEND first. Every chunk header begins `u32 magic` then
+ * `u32 fileSize`, which is all the scan reads. Shared since the palette side
+ * moved to PPGFile_palettes.c. */
+void* ppgFindChunk(u8* adrs, u32 magic, s32 num);
 void ppgSetupContextFromPPL(PPLFileHeader* ppl, plContext* bits);
 void ppgSetupContextFromPPG(PPGFileHeader* ppg, plContext* bits);
 
