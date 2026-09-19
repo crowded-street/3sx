@@ -111,10 +111,15 @@ Recorded here so a later agent can see what has already been swept.
 | --- | --- | --- | --- | --- |
 | `Game/ui` | 9 | 4.06 - 9.92 | 8.47 - 10.00 | `sc_sub.c` split four ways; *Recipe A clears one finding, not fifteen* |
 | `Game/com/passive` | 20 -> 77 | 4.90 - 7.55 | mean **9.03**, 30 at 10.00 | 3488 CPU pattern scripts folded onto shared skeletons; see *Where `Game/com/passive` stopped* in `PLAYBOOK.md` |
-| `Game/com/active` | 20 -> 27 | 5.04 - 8.03 | mean **8.64**, 4 at 10.00 | 1621 scripts, the same shape under another name; folded folder-wide first, which is the order the passive folder's notes recommend |
+| `Game/com/active` | 20 -> 22 | 5.04 - 8.03 | mean **9.27**, 10 at 10.00 | 1621 scripts, the same shape under another name; folded folder-wide first, then again across both folders at once |
+| `Game/com/patterns` | 0 -> 12 | - | mean **7.84**, 1 at 10.00 | the shared skeleton module the two script folders used to hold twice; 474 skeletons, 502 call sites |
 
-Both COM script folders are now done. `tools/passive_fold.py --family {passive,active}`
-carries the transformations and the equivalence check for either.
+Both COM script folders are done, and since 2026-09-19 they share one skeleton module in
+`Game/com/patterns`. `tools/passive_fold.py --family {passive,active,com}` carries the
+transformations and the equivalence check; `--family com` works on both folders at once
+against the shared module, which is what took the active folder past 8.64. See *Where
+`Game/com/active` stopped the second time* in `PLAYBOOK.md` for the sequence, the four
+refusals, and where the floor is.
 
 ## Progress
 
