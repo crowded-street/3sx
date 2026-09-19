@@ -550,10 +550,10 @@ s32 ppgRenewTexChunkSeqs(Texture* tch) {
 
     if (tch == NULL) {
         tch = ppg_w.cur->tex;
+    }
 
-        if (tch == NULL) {
-            return 0;
-        }
+    if (tch == NULL) {
+        return 0;
     }
 
     if (tch->be == 0) {
