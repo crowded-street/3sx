@@ -179,6 +179,22 @@ static void game03_state_from_step_2(void) {
     }
 }
 
+/* Once the winner screen has switched away: hand the screen to the menu task
+ * and put both cursors back to the top. */
+static void game03_open_result_menu(void) {
+    G_No[2] += 1;
+    E_No[0] = 1;
+    E_No[1] = 2;
+    E_No[2] = 2;
+    E_No[3] = 0;
+    Request_E_No = 0;
+    cpReadyTask(TASK_MENU, Menu_Task);
+    task[TASK_MENU].r_no[1] = 16;
+    Cursor_Y_Pos[0][0] = 0;
+    Cursor_Y_Pos[1][0] = 0;
+    G_Timer = 4;
+}
+
 static void game03_state(void) {
     switch (G_No[2]) {
     case 0:
@@ -195,17 +211,7 @@ static void game03_state(void) {
             break;
         }
 
-        G_No[2] += 1;
-        E_No[0] = 1;
-        E_No[1] = 2;
-        E_No[2] = 2;
-        E_No[3] = 0;
-        Request_E_No = 0;
-        cpReadyTask(TASK_MENU, Menu_Task);
-        task[TASK_MENU].r_no[1] = 16;
-        Cursor_Y_Pos[0][0] = 0;
-        Cursor_Y_Pos[1][0] = 0;
-        G_Timer = 4;
+        game03_open_result_menu();
         break;
 
     default:
