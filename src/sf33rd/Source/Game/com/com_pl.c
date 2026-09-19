@@ -930,6 +930,34 @@ void Com_Wait_Lie(PLW* wk) {
     Exit_Damage_Sub(wk);
 }
 
+/* One step of the technique's command script: which of the two command types
+ * the current entry is, and what each does to the step index. The switch is
+ * Command_Attack_SP's own. */
+static void run_tech_command(PLW* wk, s16 Tech_Number, s16 Power_Level) {
+    switch (Tech_Address[wk->wu.id][Tech_Index[wk->wu.id]]) {
+    default:
+    case 1:
+    case 10:
+        if (Command_Type_00(wk, Power_Level & 0xF, Tech_Number, -1) == -1) {
+            CP_Index[wk->wu.id][1] = 99;
+        }
+
+        break;
+
+    case 2:
+        if (Command_Type_01(wk, Power_Level & 0xF, -1)) {
+            CP_Index[wk->wu.id][1]++;
+        }
+
+        break;
+    }
+}
+
+/* The attack ran to the end and left the character idle and unalarmed. */
+static s32 attack_finished_cleanly(PLW* wk) {
+    return wk->wu.routine_no[1] == 0 && plw[wk->wu.id].caution_flag == 0;
+}
+
 s32 Command_Attack_SP(PLW* wk, s8 Pl_Number, s16 Tech_Number, s16 Power_Level) {
     switch (CP_Index[wk->wu.id][1]) {
     case 0:
@@ -943,23 +971,7 @@ s32 Command_Attack_SP(PLW* wk, s8 Pl_Number, s16 Tech_Number, s16 Power_Level) {
         break;
 
     case 1:
-        switch (Tech_Address[wk->wu.id][Tech_Index[wk->wu.id]]) {
-        default:
-        case 1:
-        case 10:
-            if (Command_Type_00(wk, Power_Level & 0xF, Tech_Number, -1) == -1) {
-                CP_Index[wk->wu.id][1] = 99;
-            }
-
-            break;
-
-        case 2:
-            if (Command_Type_01(wk, Power_Level & 0xF, -1)) {
-                CP_Index[wk->wu.id][1]++;
-            }
-
-            break;
-        }
+        run_tech_command(wk, Tech_Number, Power_Level);
 
         if (CP_Index[wk->wu.id][1] == 2) {
             return 1;
@@ -978,7 +990,7 @@ s32 Command_Attack_SP(PLW* wk, s8 Pl_Number, s16 Tech_Number, s16 Power_Level) {
     default:
         Rapid_Sub(wk);
 
-        if (wk->wu.routine_no[1] == 0 && plw[wk->wu.id].caution_flag == 0) {
+        if (attack_finished_cleanly(wk)) {
             return 1;
         }
     }
