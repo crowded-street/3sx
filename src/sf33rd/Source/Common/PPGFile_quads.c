@@ -227,6 +227,31 @@ s32 ppgWriteQuadWithST_B2(Vertex* pos, const PPGQuadArgs* a) {
     return ppgWriteQuadWithST_Bx(pos, a, ppgWriteQuadWithST_A2, ppgWriteQuadOnly2);
 }
 
+/* The chunk header this texture index reads from, and how many transparent runs
+ * it lists, byte-swapped. NULL when the texture has no chunk data behind it, in
+ * which case the run count is not written. */
+static PPGFileHeader* transparent_run_header(const Texture* tex, u16 ix_ofs, u16* transTotal) {
+    PPGFileHeader* ppg;
+
+    if (tex->srcAdrs == NULL) {
+        return NULL;
+    }
+
+    ppg = (PPGFileHeader*)(tex->srcAdrs + tex->offset[ix_ofs & 0xFFF]);
+    *transTotal = ((ppg->transNums >> 8) & 0xFF) | ((ppg->transNums & 0xFF) << 8);
+    return ppg;
+}
+
+/* The palette handle a quad draws with: the one the caller asked for by index,
+ * or the current one when it asked for none. */
+static u16 resolve_palette_handle(const u16* phan, s32 cix) {
+    if (cix < 0) {
+        return ppg_w.hanPal;
+    }
+
+    return phan[cix];
+}
+
 /* The two corners the sprite is drawn from, in the order the flip asks for.
  * Only corners 0 and 3 carry texture coordinates for a sprite. */
 static void set_quad_corner_st(Vertex* pos, s32 flip) {
@@ -310,21 +335,14 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, const PPGQuadTransArgs* a) {
         }
     }
 
-    if (tb->tex->srcAdrs != NULL) {
-        ppg = (PPGFileHeader*)(tb->tex->srcAdrs + tb->tex->offset[ix_ofs & 0xFFF]);
-        transTotal = ((ppg->transNums >> 8) & 0xFF) | ((ppg->transNums & 0xFF) << 8);
+    ppg = transparent_run_header(tb->tex, ix_ofs, &transTotal);
 
-        if (transTotal != 0) {
-            return write_transparent_runs(pos, a, &(PPGTransRun){ ppg, transTotal, ix_ofs, phan, texhan });
-        }
+    if ((ppg != NULL) && (transTotal != 0)) {
+        return write_transparent_runs(pos, a, &(PPGTransRun){ ppg, transTotal, ix_ofs, phan, texhan });
     }
 
     if (ix_ofs & 0x4000) {
-        if (a->cix < 0) {
-            palhan = ppg_w.hanPal;
-        } else {
-            palhan = phan[a->cix];
-        }
+        palhan = resolve_palette_handle(phan, a->cix);
     }
 
     set_quad_corner_st(pos, a->flip);
