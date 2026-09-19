@@ -79,50 +79,33 @@ static void finish() {
     exit(0);
 }
 
+/* One bit of the recorded lever/button word mapped onto its SWK flag. The ten
+ * copies differ in the mask and the flag, and each writes both out in full at
+ * its own call site; the helper does the one `&` and the one `|=` that stood
+ * there. */
+static Uint16 add_flag_if_set(Uint16 sw_lvbt_buff, Uint16 mask, Uint16 flag, Uint16 buff) {
+    if (sw_lvbt_buff & mask) {
+        buff |= flag;
+    }
+
+    return buff;
+}
+
 static Uint16 read_input_buff(SDL_IOStream* io, int player) {
     const Sint64 sw_lvbt_offset = (player == 0) ? WCP_OFFSET : WCP_OFFSET + 0x406;
     const Uint16 sw_lvbt_buff = read_u16(io, sw_lvbt_offset);
     Uint16 buff = 0;
 
-    if (sw_lvbt_buff & (1 << 0)) {
-        buff |= SWK_UP;
-    }
-
-    if (sw_lvbt_buff & (1 << 1)) {
-        buff |= SWK_DOWN;
-    }
-
-    if (sw_lvbt_buff & (1 << 2)) {
-        buff |= SWK_LEFT;
-    }
-
-    if (sw_lvbt_buff & (1 << 3)) {
-        buff |= SWK_RIGHT;
-    }
-
-    if (sw_lvbt_buff & (1 << 4)) {
-        buff |= SWK_WEST;
-    }
-
-    if (sw_lvbt_buff & (1 << 5)) {
-        buff |= SWK_NORTH;
-    }
-
-    if (sw_lvbt_buff & (1 << 6)) {
-        buff |= SWK_RIGHT_SHOULDER;
-    }
-
-    if (sw_lvbt_buff & (1 << 8)) {
-        buff |= SWK_SOUTH;
-    }
-
-    if (sw_lvbt_buff & (1 << 9)) {
-        buff |= SWK_EAST;
-    }
-
-    if (sw_lvbt_buff & (1 << 10)) {
-        buff |= SWK_RIGHT_TRIGGER;
-    }
+    buff = add_flag_if_set(sw_lvbt_buff, (1 << 0), SWK_UP, buff);
+    buff = add_flag_if_set(sw_lvbt_buff, (1 << 1), SWK_DOWN, buff);
+    buff = add_flag_if_set(sw_lvbt_buff, (1 << 2), SWK_LEFT, buff);
+    buff = add_flag_if_set(sw_lvbt_buff, (1 << 3), SWK_RIGHT, buff);
+    buff = add_flag_if_set(sw_lvbt_buff, (1 << 4), SWK_WEST, buff);
+    buff = add_flag_if_set(sw_lvbt_buff, (1 << 5), SWK_NORTH, buff);
+    buff = add_flag_if_set(sw_lvbt_buff, (1 << 6), SWK_RIGHT_SHOULDER, buff);
+    buff = add_flag_if_set(sw_lvbt_buff, (1 << 8), SWK_SOUTH, buff);
+    buff = add_flag_if_set(sw_lvbt_buff, (1 << 9), SWK_EAST, buff);
+    buff = add_flag_if_set(sw_lvbt_buff, (1 << 10), SWK_RIGHT_TRIGGER, buff);
 
     return buff;
 }
