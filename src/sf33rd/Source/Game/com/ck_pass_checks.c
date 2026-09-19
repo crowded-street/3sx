@@ -86,21 +86,33 @@ s32 Check_Attack_Direction(PLW* wk, WORK* em) {
     return 0;
 }
 
-s32 Check_VS_Jump(PLW* wk, PLW* em, s16 Height) {
+/* The four reasons not to answer a jump at all: the opponent is not airborne,
+ * the move is the one this never answers, the per-area cooldown is still
+ * running - which is also where it ticks down - or they are already falling
+ * below the height being watched. */
+static s32 jump_answer_is_blocked(PLW* wk, PLW* em, s16 Height) {
     if (em->wu.routine_no[1] == 1) {
-        return 0;
+        return 1;
     }
 
     if (em->wu.sp_tech_id == 33) {
-        return 0;
+        return 1;
     }
 
     if (Jump_Pass_Timer[wk->wu.id][Area_Number[wk->wu.id]]) {
         Jump_Pass_Timer[wk->wu.id][Area_Number[wk->wu.id]]--;
-        return 0;
+        return 1;
     }
 
     if ((em->wu.mvxy.a[1].real.h) < 0 && (em->wu.xyz[1].disp.pos <= Height)) {
+        return 1;
+    }
+
+    return 0;
+}
+
+s32 Check_VS_Jump(PLW* wk, PLW* em, s16 Height) {
+    if (jump_answer_is_blocked(wk, em, Height)) {
         return 0;
     }
 

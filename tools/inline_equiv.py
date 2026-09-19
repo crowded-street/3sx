@@ -134,7 +134,7 @@ def unladder(body, ladders):
     to compare the arm against what it was.
     """
     for name, (params, hbody) in ladders.items():
-        pattern = re.compile(r'if \(%s\(([^;]*?)\)\) \{\s*(break|return 1);\s*\}' % re.escape(name))
+        pattern = re.compile(r'if \(%s\(([^;]*?)\)\) \{\s*(break|return 0|return 1);\s*\}' % re.escape(name))
         while True:
             m = pattern.search(body)
             if not m:
