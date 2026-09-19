@@ -11,6 +11,18 @@
 
 void (*const Pattern08_Tbl[71])();
 
+static void pattern08_0034_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Look(wk, 0);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
 void Computer08(PLW* wk) {
     Pattern08_Tbl[(s16)Pattern_Index[wk->wu.id]](wk);
 }
@@ -445,12 +457,8 @@ void Pattern08_0034(PLW* wk) {
         Lever_Off(wk);
         break;
 
-    case 6:
-        Look(wk, 0);
-        break;
-
     default:
-        End_Pattern(wk);
+        pattern08_0034_from_step_6(wk);
         break;
     }
 }

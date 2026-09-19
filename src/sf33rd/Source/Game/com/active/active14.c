@@ -11,6 +11,194 @@
 
 void (*const Pattern14_Tbl[151])();
 
+static void pattern14_0026_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        SA_Term(wk, &(SA_Term_Args){0x2f, 0xffff, 0x31, 0x7f});
+        break;
+
+    case 7:
+        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1e, 10, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+static void pattern14_0033_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1e, 8, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+static void pattern14_0037_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1e, 8, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+static void pattern14_0052_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Lever_On(wk, 0, 0);
+        break;
+
+    case 7:
+        Wait(wk, 1);
+        break;
+
+    case 8:
+        Only_Shot(wk, 0x100);
+        break;
+
+    case 9:
+        Wait(wk, 1);
+        break;
+
+    case 10:
+        Only_Shot(wk, 0x40);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+static void pattern14_0059_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        SA_Term(wk, &(SA_Term_Args){0x2f, 0x30, 0x31, 0x7f});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+static void pattern14_0063_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Wait(wk, 1);
+        break;
+
+    case 7:
+        SA_Term(wk, &(SA_Term_Args){0x2f, 0x30, 0x31, 0x7f});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+static void pattern14_0064_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Command_Attack(wk, &(Command_Attack_Args){0xc, 0x1f, 10, -1});
+        break;
+
+    case 7:
+        Wait(wk, 1);
+        break;
+
+    case 8:
+        SA_Term(wk, &(SA_Term_Args){0x2f, 0x30, 0x31, 0x7f});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+static void pattern14_0084_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Normal_Attack(wk, 9, 0x102);
+        break;
+
+    case 7:
+        Normal_Attack(wk, 8, 0x400);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+static void pattern14_0087_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Wait(wk, 2);
+        break;
+
+    case 7:
+        Normal_Attack(wk, 8, 0x402);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+static void pattern14_0091_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Approach_Walk(wk, 0x10, 2);
+        break;
+
+    case 7:
+        Lever_Attack(wk, 8, 1, 0x110);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+static void pattern14_0137_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1e, 10, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+static void pattern14_0138_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1e, 10, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
 void Computer14(PLW* wk) {
     Pattern14_Tbl[(s16)Pattern_Index[wk->wu.id]](wk);
 }
@@ -169,16 +357,8 @@ void Pattern14_0026(PLW* wk) {
         Wait(wk, 5);
         break;
 
-    case 6:
-        SA_Term(wk, &(SA_Term_Args){0x2f, 0xffff, 0x31, 0x7f});
-        break;
-
-    case 7:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1e, 10, -1});
-        break;
-
     default:
-        End_Pattern(wk);
+        pattern14_0026_from_step_6(wk);
         break;
     }
 }
@@ -345,12 +525,8 @@ void Pattern14_0033(PLW* wk) {
         Wait(wk, 3);
         break;
 
-    case 6:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1e, 8, -1});
-        break;
-
     default:
-        End_Pattern(wk);
+        pattern14_0033_from_step_6(wk);
         break;
     }
 }
@@ -461,12 +637,8 @@ void Pattern14_0037(PLW* wk) {
         Wait(wk, 3);
         break;
 
-    case 6:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1e, 8, -1});
-        break;
-
     default:
-        End_Pattern(wk);
+        pattern14_0037_from_step_6(wk);
         break;
     }
 }
@@ -609,28 +781,8 @@ void Pattern14_0052(PLW* wk) {
         Wait(wk, 1);
         break;
 
-    case 6:
-        Lever_On(wk, 0, 0);
-        break;
-
-    case 7:
-        Wait(wk, 1);
-        break;
-
-    case 8:
-        Only_Shot(wk, 0x100);
-        break;
-
-    case 9:
-        Wait(wk, 1);
-        break;
-
-    case 10:
-        Only_Shot(wk, 0x40);
-        break;
-
     default:
-        End_Pattern(wk);
+        pattern14_0052_from_step_6(wk);
         break;
     }
 }
@@ -730,12 +882,8 @@ void Pattern14_0059(PLW* wk) {
         Wait(wk, 1);
         break;
 
-    case 6:
-        SA_Term(wk, &(SA_Term_Args){0x2f, 0x30, 0x31, 0x7f});
-        break;
-
     default:
-        End_Pattern(wk);
+        pattern14_0059_from_step_6(wk);
         break;
     }
 }
@@ -854,16 +1002,8 @@ void Pattern14_0063(PLW* wk) {
         Command_Attack(wk, &(Command_Attack_Args){0xc, 0x1f, 10, -1});
         break;
 
-    case 6:
-        Wait(wk, 1);
-        break;
-
-    case 7:
-        SA_Term(wk, &(SA_Term_Args){0x2f, 0x30, 0x31, 0x7f});
-        break;
-
     default:
-        End_Pattern(wk);
+        pattern14_0063_from_step_6(wk);
         break;
     }
 }
@@ -894,20 +1034,8 @@ void Pattern14_0064(PLW* wk) {
         Normal_Attack(wk, 0xc, 0x202);
         break;
 
-    case 6:
-        Command_Attack(wk, &(Command_Attack_Args){0xc, 0x1f, 10, -1});
-        break;
-
-    case 7:
-        Wait(wk, 1);
-        break;
-
-    case 8:
-        SA_Term(wk, &(SA_Term_Args){0x2f, 0x30, 0x31, 0x7f});
-        break;
-
     default:
-        End_Pattern(wk);
+        pattern14_0064_from_step_6(wk);
         break;
     }
 }
@@ -1182,16 +1310,8 @@ void Pattern14_0084(PLW* wk) {
         J_Command_Attack(wk, &(Command_Attack_Args){8, 0x20, 8, -1});
         break;
 
-    case 6:
-        Normal_Attack(wk, 9, 0x102);
-        break;
-
-    case 7:
-        Normal_Attack(wk, 8, 0x400);
-        break;
-
     default:
-        End_Pattern(wk);
+        pattern14_0084_from_step_6(wk);
         break;
     }
 }
@@ -1270,16 +1390,8 @@ void Pattern14_0087(PLW* wk) {
         Lever_On(wk, 1, 2);
         break;
 
-    case 6:
-        Wait(wk, 2);
-        break;
-
-    case 7:
-        Normal_Attack(wk, 8, 0x402);
-        break;
-
     default:
-        End_Pattern(wk);
+        pattern14_0087_from_step_6(wk);
         break;
     }
 }
@@ -1390,16 +1502,8 @@ void Pattern14_0091(PLW* wk) {
         SA_Term(wk, &(SA_Term_Args){0x34, 0x34, 0x34, 0x7f});
         break;
 
-    case 6:
-        Approach_Walk(wk, 0x10, 2);
-        break;
-
-    case 7:
-        Lever_Attack(wk, 8, 1, 0x110);
-        break;
-
     default:
-        End_Pattern(wk);
+        pattern14_0091_from_step_6(wk);
         break;
     }
 }
@@ -1686,12 +1790,8 @@ void Pattern14_0137(PLW* wk) {
         SA_Term(wk, &(SA_Term_Args){0x2f, -1, 0x31, 0x7f});
         break;
 
-    case 6:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1e, 10, -1});
-        break;
-
     default:
-        End_Pattern(wk);
+        pattern14_0137_from_step_6(wk);
         break;
     }
 }
@@ -1722,12 +1822,8 @@ void Pattern14_0138(PLW* wk) {
         SA_Term(wk, &(SA_Term_Args){0x2f, -1, 0x31, 0x7f});
         break;
 
-    case 6:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1e, 10, -1});
-        break;
-
     default:
-        End_Pattern(wk);
+        pattern14_0138_from_step_6(wk);
         break;
     }
 }

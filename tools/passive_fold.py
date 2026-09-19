@@ -312,8 +312,12 @@ def apply(path, src, edits, helpers):
     out = src
     for a, b, text in edits:
         out = out[:a] + text + out[b:]
-    anchor = min(i for i in (out.find('static void pattern'), out.find('static void passive'),
-                             out.find('void Passive')) if i >= 0)
+    candidates = [out.find('static void ' + FAMILY['prefix'] + 'pattern'),
+                  out.find('static void ' + FAMILY['dispatcher'].lower()),
+                  out.find('void %s(PLW* wk)' % re.search(r'void (%s\d+)\(' % FAMILY['dispatcher'],
+                                                          out).group(1)),
+                  out.find('void %s' % FAMILY['script'])]
+    anchor = min(i for i in candidates if i >= 0)
     out = out[:anchor] + '\n'.join(helpers) + '\n' + out[anchor:]
     open(path, 'w').write(out)
     return len(helpers), len(edits)

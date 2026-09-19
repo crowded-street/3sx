@@ -11,6 +11,18 @@
 
 void (*const Pattern10_Tbl[70])();
 
+static void pattern10_0041_from_step_6(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        Command_Attack(wk, &(Command_Attack_Args){0xe, 0x1e, 8, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
 void Computer10(PLW* wk) {
     Pattern10_Tbl[(s16)Pattern_Index[wk->wu.id]](wk);
 }
@@ -361,12 +373,8 @@ void Pattern10_0041(PLW* wk) {
         Wait(wk, 0xe);
         break;
 
-    case 6:
-        Command_Attack(wk, &(Command_Attack_Args){0xe, 0x1e, 8, -1});
-        break;
-
     default:
-        End_Pattern(wk);
+        pattern10_0041_from_step_6(wk);
         break;
     }
 }
