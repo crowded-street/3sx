@@ -227,6 +227,32 @@ s32 ppgWriteQuadWithST_B2(Vertex* pos, const PPGQuadArgs* a) {
     return ppgWriteQuadWithST_Bx(pos, a, ppgWriteQuadWithST_A2, ppgWriteQuadOnly2);
 }
 
+/* The two corners the sprite is drawn from, in the order the flip asks for.
+ * Only corners 0 and 3 carry texture coordinates for a sprite. */
+static void set_quad_corner_st(Vertex* pos, s32 flip) {
+    switch (flip) {
+    case 0:
+        pos[0].s = pos[0].t = 0.0f;
+        pos[3].s = pos[3].t = 1.0f;
+        break;
+
+    case 1:
+        pos[3].s = pos[0].t = 0.0f;
+        pos[0].s = pos[3].t = 1.0f;
+        break;
+
+    case 2:
+        pos[0].s = pos[3].t = 0.0f;
+        pos[3].s = pos[0].t = 1.0f;
+        break;
+
+    default:
+        pos[0].s = pos[0].t = 1.0f;
+        pos[3].s = pos[3].t = 0.0f;
+        break;
+    }
+}
+
 s32 ppgWriteQuadUseTrans(Vertex* pos, const PPGQuadTransArgs* a) {
     /* The original took this by value and advanced it; the copy keeps
      * that local, which is what a by-value parameter was. */
@@ -301,28 +327,7 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, const PPGQuadTransArgs* a) {
         }
     }
 
-    switch (a->flip) {
-    case 0:
-        pos[0].s = pos[0].t = 0.0f;
-        pos[3].s = pos[3].t = 1.0f;
-        break;
-
-    case 1:
-        pos[3].s = pos[0].t = 0.0f;
-        pos[0].s = pos[3].t = 1.0f;
-        break;
-
-    case 2:
-        pos[0].s = pos[3].t = 0.0f;
-        pos[3].s = pos[0].t = 1.0f;
-        break;
-
-    default:
-        pos[0].s = pos[0].t = 1.0f;
-        pos[3].s = pos[3].t = 0.0f;
-        break;
-    }
-
+    set_quad_corner_st(pos, a->flip);
     ppgWriteQuadOnly2(pos, a->col, texhan | (palhan << 0x10));
     return 1;
 }
