@@ -211,15 +211,22 @@ static SDL_GPUShader* create_shader(const _ShaderRequest* req) {
     return shader;
 }
 
-static SDL_GPUGraphicsPipeline* create_pipeline(
-    SDL_GPUDevice* device, SDL_GPUShader* vertex_shader, SDL_GPUShader* fragment_shader,
-    SDL_GPUTextureFormat target_texture_format, bool enable_depth, bool enable_blend
-) {
+/* The six values create_pipeline took, in its own parameter order. */
+typedef struct _PipelineRequest {
+    SDL_GPUDevice* device;
+    SDL_GPUShader* vertex_shader;
+    SDL_GPUShader* fragment_shader;
+    SDL_GPUTextureFormat target_texture_format;
+    bool enable_depth;
+    bool enable_blend;
+} _PipelineRequest;
+
+static SDL_GPUGraphicsPipeline* create_pipeline(const _PipelineRequest* req) {
     return SDL_CreateGPUGraphicsPipeline(
-        device,
+        req->device,
         &(SDL_GPUGraphicsPipelineCreateInfo) {
-            .vertex_shader = vertex_shader,
-            .fragment_shader = fragment_shader,
+            .vertex_shader = req->vertex_shader,
+            .fragment_shader = req->fragment_shader,
             .vertex_input_state = {
                 .vertex_buffer_descriptions = (SDL_GPUVertexBufferDescription[]) {{
                     .slot = 0,
@@ -252,15 +259,15 @@ static SDL_GPUGraphicsPipeline* create_pipeline(
             .primitive_type = SDL_GPU_PRIMITIVETYPE_TRIANGLELIST,
             .depth_stencil_state = {
                 .compare_op = SDL_GPU_COMPAREOP_LESS_OR_EQUAL,
-                .enable_depth_test = enable_depth,
-                .enable_depth_write = enable_depth,
+                .enable_depth_test = req->enable_depth,
+                .enable_depth_write = req->enable_depth,
             },
             // .rasterizer_state = {
             //     .fill_mode = SDL_GPU_FILLMODE_LINE,
             // },
             .target_info = {
                 .color_target_descriptions = (SDL_GPUColorTargetDescription[]) {{
-                    .format = target_texture_format,
+                    .format = req->target_texture_format,
                     .blend_state = {
                         .src_color_blendfactor = SDL_GPU_BLENDFACTOR_SRC_ALPHA,
                         .dst_color_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
@@ -268,12 +275,12 @@ static SDL_GPUGraphicsPipeline* create_pipeline(
                         .src_alpha_blendfactor = SDL_GPU_BLENDFACTOR_SRC_ALPHA,
                         .dst_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
                         .alpha_blend_op = SDL_GPU_BLENDOP_ADD,
-                        .enable_blend = enable_blend,
+                        .enable_blend = req->enable_blend,
                     }
                 }},
                 .num_color_targets = 1,
                 .depth_stencil_format = depth_texture_format,
-                .has_depth_stencil_target = enable_depth,
+                .has_depth_stencil_target = req->enable_depth,
             }
         }
     );
@@ -787,16 +794,24 @@ static SDL_Window* SDLGPURenderer_Init(const SDLRenderBackendInitInfo* init_info
 
     const SDL_GPUTextureFormat swapchain_texture_format = SDL_GetGPUSwapchainTextureFormat(device, window);
 
-    solid_pipeline = create_pipeline(device, vertex_shader, solid_fragment_shader, CANVAS_TEXTURE_FORMAT, true, true);
-    direct_pipeline = create_pipeline(device, vertex_shader, direct_fragment_shader, CANVAS_TEXTURE_FORMAT, true, true);
-    palette_4_pipeline =
-        create_pipeline(device, vertex_shader, palette_4_fragment_shader, CANVAS_TEXTURE_FORMAT, true, true);
-    palette_8_pipeline =
-        create_pipeline(device, vertex_shader, palette_8_fragment_shader, CANVAS_TEXTURE_FORMAT, true, true);
-    screen_pipeline =
-        create_pipeline(device, vertex_shader, screen_fragment_shader, swapchain_texture_format, false, false);
-    scanline_pipeline =
-        create_pipeline(device, vertex_shader, scanline_fragment_shader, swapchain_texture_format, false, false);
+    solid_pipeline = create_pipeline(
+        &(_PipelineRequest){ device, vertex_shader, solid_fragment_shader, CANVAS_TEXTURE_FORMAT, true, true }
+    );
+    direct_pipeline = create_pipeline(
+        &(_PipelineRequest){ device, vertex_shader, direct_fragment_shader, CANVAS_TEXTURE_FORMAT, true, true }
+    );
+    palette_4_pipeline = create_pipeline(
+        &(_PipelineRequest){ device, vertex_shader, palette_4_fragment_shader, CANVAS_TEXTURE_FORMAT, true, true }
+    );
+    palette_8_pipeline = create_pipeline(
+        &(_PipelineRequest){ device, vertex_shader, palette_8_fragment_shader, CANVAS_TEXTURE_FORMAT, true, true }
+    );
+    screen_pipeline = create_pipeline(
+        &(_PipelineRequest){ device, vertex_shader, screen_fragment_shader, swapchain_texture_format, false, false }
+    );
+    scanline_pipeline = create_pipeline(
+        &(_PipelineRequest){ device, vertex_shader, scanline_fragment_shader, swapchain_texture_format, false, false }
+    );
 
     SDL_ReleaseGPUShader(device, vertex_shader);
     SDL_ReleaseGPUShader(device, solid_fragment_shader);
