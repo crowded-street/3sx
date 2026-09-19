@@ -406,38 +406,59 @@ static struct VWork* getLowestPrioWk(CSE_REQP* reqp) {
     return lowest;
 }
 
-static int doSeDrop(CSE_REQP* reqp) {
-    int count = getCategoryVoiceNum(reqp);
-    u32 cond = makeConditions(reqp);
+/* Over the category limit: stop the lowest-priority voices until there is
+ * room, unless one of them outranks the request. */
+static int dropLowestPriorityVoices(CSE_REQP* reqp, int count) {
     struct VWork* v;
     int ret = 1;
 
-    if (reqp->limit) {
-        if (count >= reqp->limit) {
-            for (int i = 0; i < count + 1 - reqp->limit; i++) {
-                v = getLowestPrioWk(reqp);
-                if (v) {
-                    if ((reqp->flags & 1) && reqp->prio < v->id.prio) {
-                        ret = 0;
-                        break;
-                    }
-
-                    SPU_VoiceStop(v->voice_num);
-                    ret = 1;
-                }
-            }
-        }
-    } else if (reqp->flags & 1) {
-        list_for_each (v, &active_voices, list) {
-            if (checkConditions(&v->id, reqp, cond)) {
-                if (reqp->prio < v->id.prio) {
+    if (count >= reqp->limit) {
+        for (int i = 0; i < count + 1 - reqp->limit; i++) {
+            v = getLowestPrioWk(reqp);
+            if (v) {
+                if ((reqp->flags & 1) && reqp->prio < v->id.prio) {
                     ret = 0;
-                    continue;
+                    break;
                 }
 
-                SPU_VoiceKeyOff(v->voice_num);
+                SPU_VoiceStop(v->voice_num);
+                ret = 1;
             }
         }
+    }
+
+    return ret;
+}
+
+/* No limit, but the request asks to displace: key off every matching voice
+ * the request outranks. */
+static int keyOffMatchingVoices(CSE_REQP* reqp, u32 cond) {
+    struct VWork* v;
+    int ret = 1;
+
+    list_for_each (v, &active_voices, list) {
+        if (checkConditions(&v->id, reqp, cond)) {
+            if (reqp->prio < v->id.prio) {
+                ret = 0;
+                continue;
+            }
+
+            SPU_VoiceKeyOff(v->voice_num);
+        }
+    }
+
+    return ret;
+}
+
+static int doSeDrop(CSE_REQP* reqp) {
+    int count = getCategoryVoiceNum(reqp);
+    u32 cond = makeConditions(reqp);
+    int ret = 1;
+
+    if (reqp->limit) {
+        ret = dropLowestPriorityVoices(reqp, count);
+    } else if (reqp->flags & 1) {
+        ret = keyOffMatchingVoices(reqp, cond);
     } else {
         ret = 1;
     }
