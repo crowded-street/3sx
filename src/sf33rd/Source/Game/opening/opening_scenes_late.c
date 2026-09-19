@@ -51,7 +51,7 @@ void advance_opening_step(s16 index) {
  * every step's own values are written out there in full.
  *
  * Returns whether the scene advanced. */
-static bool opening_cue_step(bool cue, s16 next, s16 bg) {
+bool opening_cue_step(bool cue, s16 next, s16 bg) {
     if (cue) {
         advance_opening_step(next);
         return true;
@@ -63,7 +63,7 @@ static bool opening_cue_step(bool cue, s16 next, s16 bg) {
 
 /* The same step, for the steps that also turn the scene's objects on or off.
  * The assignment is the one the arm made, in the place it made it. */
-static bool opening_cue_step_disp(bool cue, s16 next, s16 bg, s16 disp) {
+bool opening_cue_step_disp(bool cue, s16 next, s16 bg, s16 disp) {
     if (opening_cue_step(cue, next, bg)) {
         op_obj_disp = disp;
         return true;
@@ -75,7 +75,7 @@ static bool opening_cue_step_disp(bool cue, s16 next, s16 bg, s16 disp) {
 /* The steps that turn the scene's objects off and start an effect as they
  * advance. Every one of them turns the objects off, so the flag is not a
  * parameter here - the effect is. */
-static void opening_cue_step_effect(bool cue, s16 next, s16 bg, s16 effect) {
+void opening_cue_step_effect(bool cue, s16 next, s16 bg, s16 effect) {
     if (opening_cue_step_disp(cue, next, bg, 0)) {
         effect_48_init(effect);
     }
