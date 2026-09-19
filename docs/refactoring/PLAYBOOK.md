@@ -1196,6 +1196,10 @@ Recipe X both refuse to merge.
 | `pls03.c` | 8.92 | *was 8.08.* Recipe T twice, Recipe E on the leap and catch tests, then two shared runs for the mean. `decode_wst_data`'s twelve encodings and `waza_select`'s eleven case labels are what remain, and neither loses a branch without renumbering states |
 | `cmd_main_checks.c` | 7.50 | The hardest file left. Its mean is 4.34 over 64 functions and needs **thirteen** more, which is far more than the duplicate web can absorb - every arm lifted joins one of three families. Sharing the runs was tried too (`load_waza_command_header`, `command_terminator_reached`) and measured flat, because the findings here are five Bumpy Roads and three Complex Methods rather than the mean alone |
 | `pls00_normal_states.c` | 8.03 | *was 7.55.* Five shared runs - the two end-of-animation markers, the entry-frame guard, and the two jump hand-overs - cleared Overall Code Complexity. What is left is a Code Duplication web between the state machines themselves, which no run reaches: sharing the two arms `jumping_cg_type_low_pat` and `jumping_cg_type_high_pat` agree on (Recipe X's variant) measured flat, and the gate chains differ in their members and their order |
+| `sdl_gpu_renderer.c` | **10.00** | *was 6.82.* Recipe E eight times and two parameter objects, in that order: the frame's phases, the per-quad pipeline choice, the six set-up sections, `create_shader` and `create_pipeline`'s argument lists, the three remaining set-up blocks, the screen pass's bindings |
+| `flps2etc.c` | 9.84 | *was 6.94.* Recipes E, G and P over the four image loaders. What remains is the two PIC row decoders at two bumps each: the third arm of each run-length form advances **both** the source and the destination inside its loop, so lifting it is a block writing two outer locals, which Recipe E refuses |
+| `pltim2.c` | 9.38 | *was 7.21.* Recipe P on the header checks, Recipe D on the pixel-format blocks the two context setters share, Recipe E and Recipe X on the rest. The four format helpers are one Code Duplication group, and folding them onto one parameter object measures **8.77 -> 8.77** - it clears the duplication and brings Overall Code Complexity straight back, because three of the functions it removes are cc 1. See *A fold that removes simple functions can push the file mean over its threshold*, measured again |
+| `ps2PAD.c` | 9.29 | *was 7.01.* Recipes D and E over the read path. `PADRead_for_PS2` cannot leave Complex Method: seven of its eleven branches are the six grouped `case` labels of the pad-kind switch plus its `default`, all running one arm, and collapsing them is renumbering. `flPADShockSet`'s two arms each write three locals - `profile`, `vib_data_size` and `vib_data` - so Recipe E refuses them too |
 | `Game/com/shell` | **10.00** x10 | *was 8.28-8.81.* The third COM script folder, never folded. `xfold` put 32 scripts onto skeletons earlier folds had already made, and `gfold --min-members 2` took the other 84 onto nine new ones. See *A third script folder, and the fold that reaches an existing skeleton* |
 | `Game/com/patterns` | 8.02 mean | the shared skeleton module, 14 files. Two findings, both intrinsic to the idiom and both priced mechanically - see *Where `Game/com/patterns` stops, against the published thresholds* |
 | `plpnm.c` | 7.52 | what is left of the 28-function group are state machines differing in two or more values; the two parry states keep Duff-style `case` arms that cannot be split |
@@ -2958,3 +2962,116 @@ better, and rule 2's "splitting finer removes nothing" is the same objection:
 So the folder is recorded at **8.02** with its two findings intact, and the reason is the
 first line of this catalogue: what remains is the shape of the idiom, and the idiom is
 already the smallest form of what it does.
+
+### Price each cut on its own, not one against both
+
+*Added 2026-09-20, measured on `flps2etc.c`.*
+
+*Between two twin arms, extract from one of them only* gives the rule as
+"extract both only if that clears the parent's findings; otherwise extract one".
+Two files this pass satisfied that condition and still measured negative, which
+means the condition is not the whole test.
+
+`flCreateTextureFromTim2_mem` is the APX loader's twin - a mipmap chain, then a
+palette. Doing to it what the previous commit did to APX clears **every** finding
+on it, Complex Method, Large Method and Bumpy Road, and measures 8.45 -> **8.34**.
+Taken apart:
+
+| What was extracted | Score |
+| --- | --- |
+| nothing | 8.45 |
+| the mipmap chain only | **8.88** |
+| the mipmap chain and the palette | 8.34 |
+
+Only one of the two cuts makes a twin. `copy_tim2_mipmaps` is free, because it
+and `copy_apx_mipmaps` differ in the pixel address they read *and* in how they
+advance the destination - `dst += tex_size` against `dst = &dst[tex_size]` - and
+two differences is enough to keep them under the 75% similarity threshold. The
+palettes are near-identical and pair immediately.
+
+`flCreateTextureFromBMP_mem` says the same thing from the other side: its two
+arms measure 8.95 either way alone and 8.67 together, and there the both-arms
+version is *strictly better structurally* - it is the only one that takes the
+parent under cc 9 - and still loses.
+
+So the question is not how many cuts clear the parent. It is **which cut makes
+the twin**, and the only way to know is to apply them one at a time and measure.
+Three runs of `tools/ch.py --review` cost seconds; guessing costs a revert.
+
+### What the equivalence checker cannot see, and what to do instead
+
+*Added 2026-09-20, after `tools/inline_equiv.py` reported DIFFERS six times in
+one session and was right once.*
+
+`inline_equiv.py` is the only check in this campaign that catches a
+transposition, so a DIFFERS has to be read rather than obeyed. Four shapes make
+it report a difference that is not one, and one of them is a real trap:
+
+- **A parameter named after a field the helper writes.** `clear_pad_slot(s32 i,
+  s32 state)` writing `ps2slot[i].state = state` re-expands to
+  `ps2slot[i].1 = 1`, because the substitution is textual. This is the trap:
+  the tool is not merely noisy here, it is **blind** - it would miss a genuine
+  transposition in the same function. Rename the parameter (`new_state`) and the
+  check works. **Never give a helper parameter the name of a field it writes.**
+- **A value-returning helper used inside an `if`.** The tool substitutes a body
+  for a call statement, which cannot be done for `if (helper(i) == 0)`. This is
+  every Recipe C 0/1 helper. Check it by enumerating the block's exits instead:
+  every `return` in the original maps to one value, falling off the end maps to
+  the other, and the caller branches. That enumeration *is* the proof.
+- **A declaration that moved.** An extraction that takes `s32 lp0` or
+  `u8 rdata[32]` with it leaves the tool comparing bodies that differ by a
+  declaration. Re-inline by hand with the declaration put back.
+- **A by-address parameter.** Substituting `s16* axis` with `&stick[0].x` yields
+  `*&stick[0].x`, the same lvalue and not the same text. Cancel the pair.
+
+The hand re-inlining is fifteen lines of Python each time and it is worth
+writing: a `difflib` opcode dump over the whitespace-normalised bodies says
+*identical* or names the difference, which is the answer the tool was asked for.
+
+### Two ways refactor_guard can pass on code that is wrong
+
+*Added 2026-09-20; both hit in one session.*
+
+- **An unexpanded glob.** `G="src/.../*.c"; refactor_guard.py --combined $G`
+  passes the literal pattern, no file matches, and the tool reports
+  `OK combined group (0 literals unchanged)` and exits 0. A clean result on an
+  empty group looks exactly like a clean result on the real one. If the output
+  does not name the files, it did not read them.
+- **Syntax.** Halfway through `create_pipeline`'s parameter object the file had
+  a correct literal fingerprint, a correct call fingerprint, and four
+  assignments missing their `=`. Both guards said PASS. They answer one question
+  each and neither is "does this compile", which is why the build comes first in
+  the verification sequence rather than last.
+
+### A Recipe T header and its `.c` are checked separately
+
+*Added 2026-09-20, measured on `ps2PAD.c`.*
+
+Recipe T says to name a table's row type in a header so the `.c` gains no
+literal. Run the guard on the pair with `--combined` and that careful separation
+is undone: the header's added `2` lands in the same multiset as the copies the
+`.c` removed, and the tool reports **FAIL - a constant was substituted**.
+
+The two diffs are meant to be different shapes. The `.c` is a deduplication
+WARN - counts only dropped, every value still present. The header is the legal
+"literals added, none removed". Check them one file at a time; `--combined` is
+for a Recipe S split, where whole functions move between files in the group.
+
+### Recipe G may invert a condition. Recipe P may not
+
+*Added 2026-09-20, measured on `flps2etc.c` and `pltim2.c`.*
+
+Two recipes move a condition and only one of them may turn it round, which is
+easy to get backwards because the nicer name usually lies on the inverted side.
+
+Recipe P copies the expression character for character, so a guard written
+`bitdepth != 3 && bitdepth != 4` becomes `is_unsupported_bitdepth`, not
+`!is_direct_colour_bitdepth`. De Morgan gives the same answer and both operands
+there are pure reads, so the inversion would have been safe - and it is still
+not what the recipe permits. The rule is worth more than the name, because its
+value is that the safety argument never depends on the agent's reasoning.
+
+Recipe G is the opposite: inverting the outermost condition and returning early
+*is* the recipe. `decode_pic_alpha_row`'s whole body sat inside
+`if (context->bitdepth != 3)`, and `if (context->bitdepth == 3) return lpsrc;`
+reproduces the fall-through exactly. **9.24 -> 9.84** on its own.
