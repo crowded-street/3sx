@@ -142,18 +142,9 @@ void TITLE_Init() {
     op_w.r_no_0 = 0;
 }
 
-s16 TITLE_Move(u16 type) {
-    ppgSetupCurrentDataList(&ppgTitleList);
-
-    if (type == 1) {
-        Put_char(title[type], 601, 9, 192, 96, 1.0f, 1.0f);
-        return 0;
-    }
-
-    if (type != 0) {
-        return 0;
-    }
-
+/* The title screen's own three-step sequence: zoom in, hold, then frame down.
+ * Anything past it holds the zoom where the sequence left it. */
+static void advance_title_frame(void) {
     switch (op_w.r_no_0) {
     case 0:
         op_w.r_no_0 += 1;
@@ -189,6 +180,21 @@ s16 TITLE_Move(u16 type) {
         Zoom_Value_Set(0x40);
         break;
     }
+}
+
+s16 TITLE_Move(u16 type) {
+    ppgSetupCurrentDataList(&ppgTitleList);
+
+    if (type == 1) {
+        Put_char(title[type], 601, 9, 192, 96, 1.0f, 1.0f);
+        return 0;
+    }
+
+    if (type != 0) {
+        return 0;
+    }
+
+    advance_title_frame();
 
     Put_char(title[type], 601, 9, 192, 96, scr_sc, scr_sc);
     return 0;
