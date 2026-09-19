@@ -208,6 +208,22 @@ s32 ppgReleaseTextureHandle(Texture* tch, s32 ixNum) {
     return ppgCheckTextureDataBe(tch);
 }
 
+/* Nothing holds a handle any more, so the chunk's own tables go back and the
+ * texture stops being in use. */
+static void free_texture_tables(Texture* tch) {
+    if (tch->handle != NULL) {
+        ppgFree(tch->handle);
+    }
+
+    if (tch->offset != NULL) {
+        ppgFree(tch->offset);
+    }
+
+    tch->handle = NULL;
+    tch->offset = NULL;
+    tch->be = 0;
+}
+
 s32 ppgCheckTextureDataBe(Texture* tch) {
     s32 i;
 
@@ -222,17 +238,7 @@ s32 ppgCheckTextureDataBe(Texture* tch) {
     }
 
     if (i == tch->total) {
-        if (tch->handle != NULL) {
-            ppgFree(tch->handle);
-        }
-
-        if (tch->offset != NULL) {
-            ppgFree(tch->offset);
-        }
-
-        tch->handle = NULL;
-        tch->offset = NULL;
-        tch->be = 0;
+        free_texture_tables(tch);
     }
 
     return tch->be;
