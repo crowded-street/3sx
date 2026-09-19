@@ -9,31 +9,40 @@ and judged by an **external metric** (CodeScene Code Health) rather than by tast
 
 ---
 
-## Baseline
+## Baseline, and where it stands now
 
-Measured with the CodeScene MCP server (cs-mcp 1.4.7) across every first-party `.c` and
-`.cpp` file. Vendored code (`src/imgui`, `src/stb`, `src/argparse`) and generated tables
-(`src/bin2obj`) are excluded.
+Measured across every first-party `.c` and `.cpp` file. Vendored code (`src/imgui`,
+`src/stb`, `src/argparse`) and generated tables (`src/bin2obj`) are excluded.
 
-| Band | Score | Files | Share |
+| Band | Score | 2026-09-01 | 2026-09-19 |
 | --- | --- | --- | --- |
-| **Red** - severe debt | 1.0 - 3.9 | **19** | 3.9% |
-| **Yellow** - problematic debt | 4.0 - 8.9 | **207** | 42.9% |
-| Green | 9.0 - 9.9 | 158 | 32.8% |
-| Optimal | 10.0 | 98 | 20.3% |
-| **Total scored** | | **482** | |
+| **Red** - severe debt | 1.0 - 3.9 | **19** | **2** |
+| **Yellow** - problematic debt | 4.0 - 8.9 | **207** | 122 |
+| Green | 9.0 - 9.9 | 158 | 84 |
+| Optimal | 10.0 | 98 | **424** |
+| **Total scored** | | **482** | **632** |
 
-A further **142 files** could not be scored. All of them are pure `const` data tables with
-zero function definitions - 54,551 lines of static arrays. They are **out of scope** and
-must not be touched.
+The file count rises because the campaign splits files. Mean Code Health across every
+scorable first-party file is now **9.51**.
 
-The debt is concentrated: **19 files carry the severe debt**, and they are almost all in
-`src/sf33rd/Source/Game/`. Across those 19 files CodeScene finds **330 complex methods**,
-**267 bumpy roads**, and **95 deeply-nested functions**.
+The two files still in the Red band are `Game/com/ck_pass.c` (3.75, never started) and
+`Game/opening/opening.c` (3.97). The full sweeps are
+[`codehealth-baseline.json`](codehealth-baseline.json), which preserves the 2026-09-01
+numbers and is never updated, and [`codehealth-current.json`](codehealth-current.json).
+[`BACKLOG.md`](BACKLOG.md) carries the per-task status; **the task files themselves are
+not refreshed**, so a stated baseline that does not match what you measure means the task
+file is stale rather than that something is wrong.
 
-Every one of the 19 Red files trips both *Bumpy Road Ahead* and *Complex Method*; 18 of 19
-trip *Deep, Nested Complexity*. The campaign therefore leans almost entirely on three
-recipes: **extract function**, **guard clauses**, and **named predicates**.
+A further **144 files** cannot be scored. All of them are pure `const` data tables with
+zero function definitions - tens of thousands of lines of static arrays. They are **out of
+scope** and must not be touched.
+
+At the start the debt was concentrated: 19 files, almost all in
+`src/sf33rd/Source/Game/`, carrying **330 complex methods**, **267 bumpy roads** and
+**95 deeply-nested functions**. Every one of the 19 tripped both *Bumpy Road Ahead* and
+*Complex Method*; 18 of 19 tripped *Deep, Nested Complexity*. The campaign therefore
+leaned at first on three recipes: **extract function**, **guard clauses** and **named
+predicates**.
 
 Those three clear the Red band. Carrying a file the rest of the way to 10.00 needs the
 four added on 2026-09-15 - **extract common part**, **split dispatch**, **parameter

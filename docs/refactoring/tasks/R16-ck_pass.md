@@ -10,7 +10,7 @@
 | Git churn | 5 commits |
 | Risk tier | **CRITICAL** - CPU-opponent logic driving gameplay state. |
 | Track | **B** (manual playtesting required - see note) |
-| Recipes needed | P, E |
+| Recipes needed | A, P, G, E, X, then D/V/C and S |
 | Suitable for | strongest available agent |
 
 Recipe P is a copy-paste transformation and is safe for a small model. Recipe E needs
@@ -37,26 +37,38 @@ to a smaller model, restrict it to the Recipe P steps and leave the rest.
 
 ## 2. Record the baseline before touching anything
 
-Call both CodeScene MCP tools and keep the output for your report:
+Call both CodeScene MCP tools with an absolute path to your own checkout, and keep the
+output for your report:
 
 ```
-code_health_review(file_path="E:/SynologyDrive/research/_agentic_refactoring/Street Fighter/git_win10/3sx/src/sf33rd/Source/Game/com/ck_pass.c")
-code_health_score(file_path="E:/SynologyDrive/research/_agentic_refactoring/Street Fighter/git_win10/3sx/src/sf33rd/Source/Game/com/ck_pass.c")
+code_health_review(file_path="<repo>/src/sf33rd/Source/Game/com/ck_pass.c")
+code_health_score(file_path="<repo>/src/sf33rd/Source/Game/com/ck_pass.c")
 ```
 
-The score must read 3.75. If it does not, this file changed after the task
-was written - stop and report that instead of proceeding.
+`cs review --output-format json <path>` on the CodeScene CLI gives the same thing without
+the MCP round trip, and is fast enough to run on every commit.
+
+The score read **3.75** on 2026-09-19 and the file is untouched since the campaign began.
+If it does not, check [`../BACKLOG.md`](../BACKLOG.md) - that page is refreshed from full
+sweeps and this task file is not - before stopping and reporting a mismatch.
 
 ## 3. What CodeScene flags here
 
-| Smell | Severity (1-3) |
-| --- | --- |
-| Bumpy Road Ahead | 3 |
-| Number of Functions in a Single Module | 2 |
-| Complex Method | 2 |
-| Complex Conditional | 2 |
-| Code Duplication | 2 |
-| Excess Number of Function Arguments | 2 |
+Re-measured 2026-09-19; unchanged from the original sweep.
+
+| Smell | Severity (1-3) | Where |
+| --- | --- | --- |
+| Bumpy Road Ahead | 3 | `KEN_vs` (8 bumps), `HUGO_vs` (7), `GILL_vs` (7) |
+| Number of Functions in a Single Module | 2 | 201 functions |
+| Complex Method | 2 | `KEN_vs` (cc 41), `GILL_vs` (37), `HUGO_vs` (33), `Check_Special_Technique` (14), `Check_After_Attack` (12), `Check_Limited_Attack` (12) |
+| Large Method | 2 | `KEN_vs` (125 lines), `GILL_vs` (115), `HUGO_vs` (103) |
+| Complex Conditional | 2 | `Check_After_Attack:864` (4), `Check_F_Cross_Chop:891` (3), `Check_Dash:609` (2) |
+| Code Duplication | 2 | the `*_vs` family and the `VS_*_AS` family |
+| Excess Number of Function Arguments | 2 | `Check_Special_Technique` (7), `Check_Specific_Term` (6), `Check_Limited_Attack` (6), `Check_VS_Squat` (5) |
+
+The two duplication families matter for ordering: **fix the family before extracting from
+any one of its members**, or the split multiplies the duplication instead of reducing it.
+See *Never apply the same split across an already-duplicated family* in the playbook.
 
 **Code Duplication** is flagged. When two blocks are identical, extract one shared helper
 rather than editing both copies.

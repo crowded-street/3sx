@@ -97,10 +97,16 @@ Route on that, not on file size:
 | Recipe | What the agent must reason about | Needs |
 | --- | --- | --- |
 | **P** - named predicate | Nothing. Copy an expression into a function, character for character. | Any agent |
+| **A** - parameter object | Nothing, but hundreds of call sites must be rewritten without a transposition. **Script it.** | Any agent + a script |
 | **G** - guard clauses | What the function returns when it falls through. Local, but real. | Mid capability |
+| **X** - split dispatch | Which arms group, and that no `default` is gained or lost. | Mid capability |
+| **C** / **V** / **W** - shared run, verbatim values, shared call site | Whether the instances really are one family, character for character. | Mid capability |
+| **T** / **B** / **N** - table scan, buffer loop, index range | The same, on an idiom rather than a block. | Mid capability |
 | **E** - extract function | Which variables cross the boundary, and which are written. Data flow. | Strongest agent |
 | **D** - deduplicate | Whether two blocks are truly identical. **Trips the guard by design.** | Strongest + human review |
 | **S** - split file | Module boundaries, linkage, what stays `static`. | Strongest + human review |
+| **F** - action parameter | Reroutes a call through a pointer. The one genuinely high-risk recipe. | Strongest + replay verification |
+| **R** - resolve a goto chain | Control flow, in the places the decompiler left worst. | Strongest + human review |
 
 A useful rule: **Recipe P is safe to hand to the smallest model you have.** It is a
 copy-paste transformation with a mechanical checker behind it. Recipe E is where a weaker
@@ -110,12 +116,21 @@ model will silently drop a variable, and where the build may still succeed.
 
 Do not treat this as settled - calibrate first (next section).
 
-- **Claude Code / Sonnet** - Recipe E and S. The tasks needing judgement: R14 `bg.c`
-  (`scr_trans`, cyclomatic 109, nesting 9) is the hardest single unit in the campaign.
-- **Codex** - Recipe G and E on mid-difficulty Track A files: R06 `mtrans.c`, R11 `PPGFile.c`.
-- **OpenCode / smaller model** - Recipe P only, across any Track A file. There are
-  plenty of complex-conditional findings to work through, and each one is independently
-  verifiable.
+**Updated 2026-09-19.** The original split named R14 `bg.c`, R06 `mtrans.c` and R11
+`PPGFile.c`; the first two are at their plateaus and `PPGFile.c` is out of the Red band.
+The work that is actually open:
+
+- **Claude Code / Opus** - R16 `ck_pass.c`, the last unstarted Red file and the worst in
+  the repository, and the `Game/com/active` folder, which is the same shape as the
+  `passive` folder just finished and should be driven by a widened
+  `tools/passive_fold.py`. Both need the judgement calls - which family, which cut - and
+  both are CPU AI, where replay verification cannot help and a mechanical equivalence
+  check has to stand in for it.
+- **Codex** - R10 `opening.c` (still Red) and R11 `PPGFile.c`, both Track A, both
+  ordinary Recipe G and E work.
+- **OpenCode / smaller model** - Recipe P and Recipe A across any Track A file. Recipe A
+  in particular is mechanical once scripted and there are still Excess Argument findings
+  outstanding - R18 `charset.c` is blocked on exactly one, with 155 call sites.
 
 ---
 

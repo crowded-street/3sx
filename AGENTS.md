@@ -116,7 +116,9 @@ If you were given a task ID like `R04`, your instructions are in
 2. [`docs/refactoring/PLAYBOOK.md`](docs/refactoring/PLAYBOOK.md) - the closed catalogue of allowed changes
 3. [`docs/refactoring/README.md`](docs/refactoring/README.md) - campaign rules
 
-You may apply **only** the five recipes in the playbook. Anything else is out of scope.
+You may apply **only** the recipes in the playbook - there are fifteen of them now,
+E G P D V C T B N F W X A S R, and the list grows when the project owner authorises an
+addition. Anything not in it is out of scope.
 
 ## Hard prohibitions
 
