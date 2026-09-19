@@ -307,50 +307,50 @@ static const void* read_u16_array(SDL_IOStream* rom, Location location) {
  * they sit in the ROM, then give every run of adjacent ones a single
  * allocation. */
 static void sort_sections_by_offset(CharDataSection* sections, const Location* section_locations) {
-for (int i = 1; i < CHAR_DATA_SECTION_COUNT; i++) {
-    const CharDataSection section = sections[i];
-    int j = i;
+    for (int i = 1; i < CHAR_DATA_SECTION_COUNT; i++) {
+        const CharDataSection section = sections[i];
+        int j = i;
 
-    while (j > 0 && section_locations[sections[j - 1]].offset > section_locations[section].offset) {
-        sections[j] = sections[j - 1];
-        j--;
-    }
+        while (j > 0 && section_locations[sections[j - 1]].offset > section_locations[section].offset) {
+            sections[j] = sections[j - 1];
+            j--;
+        }
 
-    sections[j] = section;
+        sections[j] = section;
 }
 }
 
 static void merge_adjacent_runs(CharDataImage* image, CharDataSection* sections, const Location* section_locations) {
-for (int run_start = 0; run_start < CHAR_DATA_SECTION_COUNT;) {
-    int run_end = run_start;
+    for (int run_start = 0; run_start < CHAR_DATA_SECTION_COUNT;) {
+        int run_end = run_start;
 
-    while (run_end + 1 < CHAR_DATA_SECTION_COUNT) {
-        const Location current = section_locations[sections[run_end]];
-        const Location next = section_locations[sections[run_end + 1]];
+        while (run_end + 1 < CHAR_DATA_SECTION_COUNT) {
+            const Location current = section_locations[sections[run_end]];
+            const Location next = section_locations[sections[run_end + 1]];
 
-        if (current.offset + current.size != next.offset) {
-            break;
+            if (current.offset + current.size != next.offset) {
+                break;
+            }
+
+            run_end++;
         }
 
-        run_end++;
-    }
+        if (run_end > run_start) {
+            const Uint32 base_offset = section_locations[sections[run_start]].offset;
+            const Location last = section_locations[sections[run_end]];
+            Uint8* allocation = SDL_malloc(last.offset + last.size - base_offset);
 
-    if (run_end > run_start) {
-        const Uint32 base_offset = section_locations[sections[run_start]].offset;
-        const Location last = section_locations[sections[run_end]];
-        Uint8* allocation = SDL_malloc(last.offset + last.size - base_offset);
-
-        for (int i = run_start; i <= run_end; i++) {
-            const CharDataSection section = sections[i];
-            CharDataSpan* span = &image->spans[section];
-            Uint8* destination = allocation + section_locations[section].offset - base_offset;
-            SDL_memcpy(destination, span->data, span->size);
-            SDL_free(span->data);
-            span->data = destination;
+            for (int i = run_start; i <= run_end; i++) {
+                const CharDataSection section = sections[i];
+                CharDataSpan* span = &image->spans[section];
+                Uint8* destination = allocation + section_locations[section].offset - base_offset;
+                SDL_memcpy(destination, span->data, span->size);
+                SDL_free(span->data);
+                span->data = destination;
+            }
         }
-    }
 
-    run_start = run_end + 1;
+        run_start = run_end + 1;
 }
 }
 
