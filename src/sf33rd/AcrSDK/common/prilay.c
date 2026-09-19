@@ -62,15 +62,93 @@ void* plCalcAddress(s32 x, s32 y, plContext* lpcontext) {
     return (s8*)lpcontext->ptr + (lpcontext->pitch * y) + (x * lpcontext->bitdepth);
 }
 
-s32 plDrawPixel(plContext* dst, Pixel* ptr) {
-    u8* lp;
+/* A pixel into a paletted or direct-index surface: one index per bit depth,
+ * and for the 4-bit case the half-byte the x coordinate selects. */
+static void write_indexed_pixel(plContext* dst, Pixel* ptr, u8* lp) {
+    s32 r;
+    u32 color;
+
+    s32 unused_s3;
+
+    switch (dst->bitdepth) {
+    case 4:
+        ((u32*)lp)[0] = ptr->c;
+        break;
+
+    case 2:
+        ((u16*)lp)[0] = ptr->c;
+        break;
+
+    case 1:
+        lp[0] = ptr->c;
+        break;
+
+    case 0:
+        if (dst->desc & 0x40) {
+            lp[0] = ptr->c;
+        } else {
+            color = ptr->c;
+            r = lp[0];
+
+            if (dst->desc & 0x10) {
+                unused_s3 = 1;
+            } else {
+                unused_s3 = 0;
+            }
+
+            if (((ptr->x & 1) ^ unused_s3) != 0) {
+                color &= 0xF;
+                r &= 0xF0;
+            } else {
+                color = (color & 0xF) * 0x10;
+                r &= 0xF;
+            }
+
+            lp[0] = r | color;
+        }
+
+        break;
+    }
+}
+
+/* A pixel into a packed-colour surface: the four channels scaled and shifted
+ * into the destination format, then written at its width. */
+static void write_packed_pixel(plContext* dst, Pixel* ptr, u8* lp) {
     s32 r;
     s32 g;
     s32 b;
     s32 a;
     u32 color;
 
-    s32 unused_s3;
+    a = (ptr->c >> 24) & 0xFF;
+    r = (ptr->c >> 16) & 0xFF;
+    g = (ptr->c >> 8) & 0xFF;
+    b = ptr->c & 0xFF;
+
+    color = (r * dst->pixelformat.rm / 255 << dst->pixelformat.rs) |
+            (g * dst->pixelformat.gm / 255 << dst->pixelformat.gs) |
+            (b * dst->pixelformat.bm / 255 << dst->pixelformat.bs) |
+            (a * dst->pixelformat.am / 255 << dst->pixelformat.as);
+
+    switch (dst->bitdepth) {
+    case 2:
+        ((u16*)lp)[0] = color;
+        break;
+
+    case 3:
+        lp[0] = color & 0xFF;
+        lp[1] = (color >> 8) & 0xFF;
+        lp[2] = (color >> 16) & 0xFF;
+        break;
+
+    case 4:
+        ((u32*)lp)[0] = color;
+        break;
+    }
+}
+
+s32 plDrawPixel(plContext* dst, Pixel* ptr) {
+    u8* lp;
 
     lp = plCalcAddress(ptr->x, ptr->y, dst);
 
@@ -79,71 +157,9 @@ s32 plDrawPixel(plContext* dst, Pixel* ptr) {
     }
 
     if (dst->desc & 4) {
-        switch (dst->bitdepth) {
-        case 4:
-            ((u32*)lp)[0] = ptr->c;
-            break;
-
-        case 2:
-            ((u16*)lp)[0] = ptr->c;
-            break;
-
-        case 1:
-            lp[0] = ptr->c;
-            break;
-
-        case 0:
-            if (dst->desc & 0x40) {
-                lp[0] = ptr->c;
-            } else {
-                color = ptr->c;
-                r = lp[0];
-
-                if (dst->desc & 0x10) {
-                    unused_s3 = 1;
-                } else {
-                    unused_s3 = 0;
-                }
-
-                if (((ptr->x & 1) ^ unused_s3) != 0) {
-                    color &= 0xF;
-                    r &= 0xF0;
-                } else {
-                    color = (color & 0xF) * 0x10;
-                    r &= 0xF;
-                }
-
-                lp[0] = r | color;
-            }
-
-            break;
-        }
+        write_indexed_pixel(dst, ptr, lp);
     } else {
-        a = (ptr->c >> 24) & 0xFF;
-        r = (ptr->c >> 16) & 0xFF;
-        g = (ptr->c >> 8) & 0xFF;
-        b = ptr->c & 0xFF;
-
-        color = (r * dst->pixelformat.rm / 255 << dst->pixelformat.rs) |
-                (g * dst->pixelformat.gm / 255 << dst->pixelformat.gs) |
-                (b * dst->pixelformat.bm / 255 << dst->pixelformat.bs) |
-                (a * dst->pixelformat.am / 255 << dst->pixelformat.as);
-
-        switch (dst->bitdepth) {
-        case 2:
-            ((u16*)lp)[0] = color;
-            break;
-
-        case 3:
-            lp[0] = color & 0xFF;
-            lp[1] = (color >> 8) & 0xFF;
-            lp[2] = (color >> 16) & 0xFF;
-            break;
-
-        case 4:
-            ((u32*)lp)[0] = color;
-            break;
-        }
+        write_packed_pixel(dst, ptr, lp);
     }
 
     return 1;
