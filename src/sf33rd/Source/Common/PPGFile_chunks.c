@@ -225,11 +225,27 @@ static void ppgReleaseFailedPaletteHandles(Palette* pch) {
     }
 }
 
-s32 ppgSetupPalChunkDir(Palette* pch, const PPGPalChunkDirArgs* a) {
-    /* The original took this by value and advanced it; the copy keeps
-     * that local, which is what a by-value parameter was. */
-    u8* adrs = a->adrs;
+/* One handle per palette in a directory-loaded chunk, each over the next
+ * srcSize bytes. Returns 0 at the first handle the renderer refuses, which is
+ * what the goto into error_handler used to carry. */
+static s32 ppgCreateDirPaletteHandles(Palette* pch, plContext* bits, u8* adrs) {
+    s32 i;
 
+    for (i = 0; i < pch->total; i++) {
+        bits->ptr = adrs;
+        pch->handle[i] = flCreatePaletteHandle(bits, 0);
+
+        if (pch->handle[i] == 0) {
+            return 0;
+        }
+
+        adrs = &adrs[pch->srcSize];
+    }
+
+    return 1;
+}
+
+s32 ppgSetupPalChunkDir(Palette* pch, const PPGPalChunkDirArgs* a) {
     plContext bits;
     s32 i;
 
@@ -256,7 +272,7 @@ s32 ppgSetupPalChunkDir(Palette* pch, const PPGPalChunkDirArgs* a) {
         }
 
         ppgChangeDataEndian(
-            adrs,
+            a->adrs,
             &(PPGEndianArgs){ pch->total * (bits.pitch * bits.height),
                               a->ppl->c_mode & 4,
                               a->ppl->formARGB == 0x8888,
@@ -265,15 +281,8 @@ s32 ppgSetupPalChunkDir(Palette* pch, const PPGPalChunkDirArgs* a) {
 
         a->ppl->c_mode |= 4;
 
-        for (i = 0; i < pch->total; i++) {
-            bits.ptr = adrs;
-            pch->handle[i] = flCreatePaletteHandle(&bits, 0);
-
-            if (pch->handle[i] == 0) {
-                goto error_handler;
-            }
-
-            adrs = &adrs[pch->srcSize];
+        if (!ppgCreateDirPaletteHandles(pch, &bits, a->adrs)) {
+            goto error_handler;
         }
 
         pch->be = 1;
