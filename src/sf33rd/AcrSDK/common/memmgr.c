@@ -198,6 +198,15 @@ s32 plmemRelease(MEM_MGR* memmgr, u32 handle) {
     return 1;
 }
 
+/* Move a block to the address the compaction wants it at, if it is not there
+ * already. The four places plmemCompact does this differ only in which block. */
+static void plmem_move_block(MEM_BLOCK* block, u8* data_ptr) {
+    if (data_ptr != block->ptr) {
+        plMemmove(data_ptr, block->ptr, block->len);
+        block->ptr = data_ptr;
+    }
+}
+
 void* plmemCompact(MEM_MGR* memmgr) {
     MEM_BLOCK* now_block;
     MEM_BLOCK* next_block;
@@ -213,19 +222,13 @@ void* plmemCompact(MEM_MGR* memmgr) {
     if (memmgr->direction != 0) {
         data_ptr = (u8*)ALIGN(memmgr->memptr, 0, memmgr->memalign);
 
-        if (data_ptr != now_block->ptr) {
-            plMemmove(data_ptr, now_block->ptr, now_block->len);
-            now_block->ptr = data_ptr;
-        }
+        plmem_move_block(now_block, data_ptr);
 
         while (now_block->next != MEM_NULL_HANDLE) {
             next_block = memmgr->block + now_block->next;
             data_ptr = (u8*)ALIGN(now_block->ptr, now_block->len, memmgr->memalign);
 
-            if (data_ptr != next_block->ptr) {
-                plMemmove(data_ptr, next_block->ptr, next_block->len);
-                next_block->ptr = data_ptr;
-            }
+            plmem_move_block(next_block, data_ptr);
 
             now_block = next_block;
         }
@@ -234,19 +237,13 @@ void* plmemCompact(MEM_MGR* memmgr) {
     } else {
         data_ptr = (u8*)ALIGN_DOWN(memmgr->memptr, now_block->len, memmgr->memalign);
 
-        if (data_ptr != now_block->ptr) {
-            plMemmove(data_ptr, now_block->ptr, now_block->len);
-            now_block->ptr = data_ptr;
-        }
+        plmem_move_block(now_block, data_ptr);
 
         while (now_block->next != MEM_NULL_HANDLE) {
             next_block = memmgr->block + now_block->next;
             data_ptr = (u8*)ALIGN_DOWN(now_block->ptr, next_block->len, memmgr->memalign);
 
-            if (data_ptr != next_block->ptr) {
-                plMemmove(data_ptr, next_block->ptr, next_block->len);
-                next_block->ptr = data_ptr;
-            }
+            plmem_move_block(next_block, data_ptr);
 
             now_block = next_block;
         }
