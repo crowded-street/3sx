@@ -2847,3 +2847,33 @@ shorter; Recipe V removes the lines outright. Chaining first spreads the repetit
 more functions, which is why the earlier attempt measured worse each time it was tried
 again. So: **when a long switch's arms repeat a shape, fold the shape first and chain only
 what is left.** A chain measured before the fold has been measured on the wrong code.
+
+### Three ways a recorded plateau can be wrong, all found in one pass
+
+*Added 2026-09-19, after re-testing four plateaus and overturning three of them.*
+
+A plateau note is a claim about what was measured, and it is worth reading as narrowly as
+it was written. Three failed that reading on the same day:
+
+- **A `static` function is not file-scope state.** `mtrans.c` was recorded as having "no
+  legal cut left - every seam runs through a shared `static`". Every `static` in it is a
+  *function*; the only file-scope variables are two `const` tables that nothing outside
+  the file reads. A seam that needs functions declared is the cut PPGFile already took:
+  an internal header, nothing widened past the file pair. Splitting the buffer pool out
+  cleared the size finding, **7.55 -> 8.03**, and the new file came in at 8.28.
+- **A refusal covers the functions it names.** `ck_pass.c` was recorded as stopped on
+  `KEN_vs`, `HUGO_vs` and `GILL_vs` being near-misses, which re-diffing confirms. Three
+  *area helpers* below them differ in exactly one callee each - textbook Recipe F - and
+  had simply never been diffed. **8.03 -> 8.28.**
+- **A measurement taken before a fold is a measurement of different code.** See *Fold the
+  repeated block before you judge a switch too long to chain*, above: the opening folder's
+  "chaining costs" was measured on scenes whose arms were still eight lines each.
+
+The fourth held: `pls03_super_arts.c`'s direct-cancel side was re-tested by extracting the
+grounded arm's body, and it cost the file a band (**9.92 -> 9.09**) exactly as the note
+said it would, because the extracted helper twins with the airborne one.
+
+**What to do with a plateau note.** Re-measure the file first - the score alone takes
+seconds - then read the note for *which functions* it names and diff those yourself. A
+note that names a mechanism ("every seam runs through X") is a claim to check, not a
+finding to inherit.
