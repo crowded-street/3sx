@@ -226,19 +226,7 @@ void scfont_sqput_face(const ScFontFace* c, u16 priority) {
     njDrawSprite(scrscrntex, 4, page, 1);
 }
 
-void player_face() {
-    u8 grade_tmp;
-
-    if (omop_cockpit == 0) {
-        return;
-    }
-
-    if (No_Trans) {
-        return;
-    }
-
-    face_base_put();
-    ppgSetupCurrentDataList(&ppgScrListFace);
+static void put_player_faces() {
     scfont_sqput_face(
         &(ScFontFace){ 0,
                        3,
@@ -276,12 +264,10 @@ void player_face() {
             TopHUDPriority
         );
     }
+}
 
-    ppgSetupCurrentDataList(&ppgScrList);
-    scfont_put(&(ScFontCell){ 5, 3, 1, 0, 0, 19 }, TopHUDPriority);
-    scfont_put(&(ScFontCell){ 5, 4, 1, 0, 0, 20 }, TopHUDPriority);
-    scfont_put(&(ScFontCell){ 42, 3, 129, 0, 0, 19 }, TopHUDPriority);
-    scfont_put(&(ScFontCell){ 42, 4, 129, 0, 0, 20 }, TopHUDPriority);
+static void put_champion_grade() {
+    u8 grade_tmp;
 
     if (Play_Type == 0) {
         return;
@@ -318,6 +304,26 @@ void player_face() {
             TopHUDPriority
         );
     }
+}
+
+void player_face() {
+    if (omop_cockpit == 0) {
+        return;
+    }
+
+    if (No_Trans) {
+        return;
+    }
+
+    face_base_put();
+    ppgSetupCurrentDataList(&ppgScrListFace);
+    put_player_faces();
+    ppgSetupCurrentDataList(&ppgScrList);
+    scfont_put(&(ScFontCell){ 5, 3, 1, 0, 0, 19 }, TopHUDPriority);
+    scfont_put(&(ScFontCell){ 5, 4, 1, 0, 0, 20 }, TopHUDPriority);
+    scfont_put(&(ScFontCell){ 42, 3, 129, 0, 0, 19 }, TopHUDPriority);
+    scfont_put(&(ScFontCell){ 42, 4, 129, 0, 0, 20 }, TopHUDPriority);
+    put_champion_grade();
 }
 
 void face_base_put() {
