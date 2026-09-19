@@ -65,32 +65,6 @@ void pattern_normal_attack_sa_term_normal_attack_2(PLW* wk, const SA_Term_Args* 
     }
 }
 
-void pattern_pierce_on_command_attack_2(
-    PLW* wk, const Command_Attack_Args* p, const Command_Attack_Args* p_b, const Command_Attack_Args* p_b_b
-) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Pierce_On(wk);
-        break;
-
-    case 1:
-        Command_Attack(wk, p);
-        break;
-
-    case 2:
-        Command_Attack(wk, p_b);
-        break;
-
-    case 3:
-        Command_Attack(wk, p_b_b);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
 void pattern_pierce_on_command_attack_approach_walk(PLW* wk, s16 target_pos, const Command_Attack_Args* p) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:

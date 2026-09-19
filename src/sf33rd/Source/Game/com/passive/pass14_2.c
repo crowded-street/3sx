@@ -200,11 +200,11 @@ void Passive14_0078(PLW* wk) {
 }
 
 void Passive14_0079(PLW* wk) {
-    pattern_command_attack_2(wk, &(Command_Attack_Args){8, 0, -1, -1});
+    active_pattern_command_attack(wk, &(Command_Attack_Args){8, 0, -1, -1});
 }
 
 void Passive14_0080(PLW* wk) {
-    pattern_command_attack(wk, &(Command_Attack_Args){8, 0, -1, -1}, &(Command_Attack_Args){8, 0, -1, -1});
+    active_pattern_command_attack_2(wk, &(Command_Attack_Args){8, 0, -1, -1}, &(Command_Attack_Args){8, 0, -1, -1});
 }
 
 void Passive14_0081(PLW* wk) {

@@ -16,31 +16,31 @@ void Passive10_0050(PLW* wk) {
 }
 
 void Passive10_0051(PLW* wk) {
-    pattern_normal_attack(wk, 8, 0x220);
+    active_pattern_normal_attack(wk, 8, 0x220);
 }
 
 void Passive10_0052(PLW* wk) {
-    pattern_normal_attack(wk, 8, 0x202);
+    active_pattern_normal_attack(wk, 8, 0x202);
 }
 
 void Passive10_0053(PLW* wk) {
-    pattern_jump_attack_term(wk, &(Jump_Term_Args){-0x7FA0, -1, 8, 0x8400, 2, -0x7FA0, -1, -0x7C00});
+    active_pattern_jump_attack_term(wk, &(Jump_Term_Args){-0x7FA0, -1, 8, 0x8400, 2, -0x7FA0, -1, -0x7C00});
 }
 
 void Passive10_0054(PLW* wk) {
-    pattern_hi_jump_attack_term(wk, &(Hi_Jump_Term_Args){-0x7FA0, -1, 8, 0x8400, 2, -0x7FA0, -1, 0x8400});
+    active_pattern_hi_jump_attack_term(wk, &(Hi_Jump_Term_Args){-0x7FA0, -1, 8, 0x8400, 2, -0x7FA0, -1, 0x8400});
 }
 
 void Passive10_0055(PLW* wk) {
-    pattern_command_attack_2(wk, &(Command_Attack_Args){8, 0x1e, 8, -1});
+    active_pattern_command_attack(wk, &(Command_Attack_Args){8, 0x1e, 8, -1});
 }
 
 void Passive10_0056(PLW* wk) {
-    pattern_jump_attack_term(wk, &(Jump_Term_Args){-0x7FA0, -0x7FD0, 8, 0x40, 0, -0x7FA0, -1, 0x40});
+    active_pattern_jump_attack_term(wk, &(Jump_Term_Args){-0x7FA0, -0x7FD0, 8, 0x40, 0, -0x7FA0, -1, 0x40});
 }
 
 void Passive10_0057(PLW* wk) {
-    pattern_jump_attack_term(wk, &(Jump_Term_Args){-0x7FA0, -0x7FD0, 8, 0x20, 0, -0x7FA0, -1, 0x40});
+    active_pattern_jump_attack_term(wk, &(Jump_Term_Args){-0x7FA0, -0x7FD0, 8, 0x20, 0, -0x7FA0, -1, 0x40});
 }
 
 void Passive10_0058(PLW* wk) {
@@ -60,11 +60,11 @@ void Passive10_0061(PLW* wk) {
 }
 
 void Passive10_0062(PLW* wk) {
-    pattern_approach_walk_normal_attack(wk, 0x37, 0x110);
+    active_pattern_approach_walk_normal_attack(wk, 0x37, 0x110);
 }
 
 void Passive10_0063(PLW* wk) {
-    pattern_normal_attack_command_attack(wk, 0xc, 0x20, &(Command_Attack_Args){8, 0x1e, 9, -1});
+    active_pattern_normal_attack_command_attack(wk, 0xc, 0x20, &(Command_Attack_Args){8, 0x1e, 9, -1});
 }
 
 void Passive10_0064(PLW* wk) {
@@ -80,11 +80,11 @@ void Passive10_0066(PLW* wk) {
 }
 
 void Passive10_0067(PLW* wk) {
-    pattern_command_attack_2(wk, &(Command_Attack_Args){8, 0x1e, 10, -1});
+    active_pattern_command_attack(wk, &(Command_Attack_Args){8, 0x1e, 10, -1});
 }
 
 void Passive10_0068(PLW* wk) {
-    pattern_jump_attack_term(wk, &(Jump_Term_Args){-0x7FA0, -0x7FD0, 8, 0x40, 0, -0x7FA0, -1, 0x40});
+    active_pattern_jump_attack_term(wk, &(Jump_Term_Args){-0x7FA0, -0x7FD0, 8, 0x40, 0, -0x7FA0, -1, 0x40});
 }
 
 void Passive10_0069(PLW* wk) {
@@ -104,7 +104,7 @@ void Passive10_0069(PLW* wk) {
 }
 
 void Passive10_0070(PLW* wk) {
-    pattern_pierce_on_command_attack(
+    active_pattern_pierce_on_command_attack(
         wk,
         &(Command_Attack_Args){8, 0, 0xb, -1},
         &(Command_Attack_Args){8, 0x1e, 8, -1}
@@ -132,7 +132,7 @@ void Passive10_0071(PLW* wk) {
 }
 
 void Passive10_0072(PLW* wk) {
-    pattern_pierce_on_command_attack(
+    active_pattern_pierce_on_command_attack(
         wk,
         &(Command_Attack_Args){0xc, 0, 0xb, -1},
         &(Command_Attack_Args){8, 0x1e, 8, -1}
@@ -481,15 +481,15 @@ void Passive10_0088(PLW* wk) {
 }
 
 void Passive10_0089(PLW* wk) {
-    pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1f, 8, -1});
+    active_pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1f, 8, -1});
 }
 
 void Passive10_0090(PLW* wk) {
-    pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1f, 9, -1});
+    active_pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1f, 9, -1});
 }
 
 void Passive10_0091(PLW* wk) {
-    pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1f, 10, -1});
+    active_pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1f, 10, -1});
 }
 
 void Passive10_0092(PLW* wk) {
@@ -505,7 +505,7 @@ void Passive10_0093(PLW* wk) {
 }
 
 void Passive10_0094(PLW* wk) {
-    pattern_branch_unit_area(wk, &(Branch_Menu_Args){6, 0x59, 0x5a, 0x5b, 1});
+    active_pattern_branch_unit_area(wk, &(Branch_Menu_Args){6, 0x59, 0x5a, 0x5b, 1});
 }
 
 void Passive10_0095(PLW* wk) {

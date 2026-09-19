@@ -57,28 +57,6 @@ void pattern_approach_walk_normal_attack_j_command_attack_2(PLW* wk, s16 target_
     }
 }
 
-void pattern_approach_walk_sa_term_j_command_attack(
-    PLW* wk, s16 target_pos, const SA_Term_Args* p, const Command_Attack_Args* p_b
-) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, target_pos, 2);
-        break;
-
-    case 1:
-        SA_Term(wk, p);
-        break;
-
-    case 2:
-        J_Command_Attack(wk, p_b);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
 void pattern_approach_walk_wait_get_up_command_attack(
     PLW* wk, s16 target_pos, s16 option, const Command_Attack_Args* p
 ) {
@@ -533,28 +511,6 @@ void pattern_jump_attack_term_normal_attack_4(PLW* wk, const Jump_Term_Args* a, 
     }
 }
 
-void pattern_jump_attack_term_normal_attack_command_attack(
-    PLW* wk, const Jump_Term_Args* a, u16 lever_data, const Command_Attack_Args* p
-) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump_Attack_Term(wk, a);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 9, lever_data);
-        break;
-
-    case 2:
-        Command_Attack(wk, p);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
 void pattern_jump_attack_term_normal_attack_command_attack_2(
     PLW* wk, const Jump_Term_Args* a, const Command_Attack_Args* p
 ) {
@@ -569,28 +525,6 @@ void pattern_jump_attack_term_normal_attack_command_attack_2(
 
     case 2:
         Command_Attack(wk, p);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
-void pattern_jump_attack_term_normal_attack_j_command_attack(
-    PLW* wk, const Jump_Term_Args* a, u16 lever_data, const Command_Attack_Args* p
-) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump_Attack_Term(wk, a);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 0xB, lever_data);
-        break;
-
-    case 2:
-        J_Command_Attack(wk, p);
         break;
 
     default:
@@ -755,26 +689,6 @@ void pattern_normal_attack_5(PLW* wk, s16 reaction, s16 reaction_b, u16 lever_da
 
     case 2:
         Normal_Attack(wk, 8, 0x400);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
-void pattern_normal_attack_7(PLW* wk, u16 lever_data, u16 lever_data_b, u16 lever_data_b_b) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, 8, lever_data);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 8, lever_data_b);
-        break;
-
-    case 2:
-        Normal_Attack(wk, 8, lever_data_b_b);
         break;
 
     default:

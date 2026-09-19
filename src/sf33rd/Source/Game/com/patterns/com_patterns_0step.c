@@ -23,10 +23,3 @@ void active_pattern_(PLW* wk) {
     }
 }
 
-void pattern_end_immediately(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}

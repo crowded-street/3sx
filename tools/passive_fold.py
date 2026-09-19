@@ -522,7 +522,7 @@ def reshard(folder, max_lines=900):
     return made
 
 
-def dedup_shared(folder):
+def dedup_shared(folder, extra_paths=()):
     """Collapse shared skeletons that are byte-identical to one another."""
     paths = shared_files(folder)
     groups = collections.defaultdict(list)
@@ -550,7 +550,8 @@ def dedup_shared(folder):
                 end += 1
             src = src[:a] + src[end:]
         open(path, 'w').write(src)
-    for path in glob.glob(os.path.join(folder, '*.c')) + glob.glob(os.path.join(folder, '*.h')):
+    for path in (glob.glob(os.path.join(folder, '*.c')) + glob.glob(os.path.join(folder, '*.h'))
+                 + list(extra_paths)):
         src = open(path).read()
         new = src
         for old, keeper in renames.items():

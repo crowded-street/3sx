@@ -75,11 +75,11 @@ void Passive18(PLW* wk) {
 }
 
 void Passive18_0000(PLW* wk) {
-    pattern_normal_attack(wk, 0xD, M_Lv[wk->wu.id]);
+    active_pattern_normal_attack(wk, 0xD, M_Lv[wk->wu.id]);
 }
 
 void Passive18_0001(PLW* wk) {
-    pattern_lever_off_look(wk);
+    active_pattern_lever_off_look(wk);
 }
 
 void Passive18_0002(PLW* wk) {
@@ -103,11 +103,11 @@ void Passive18_0006(PLW* wk) {
 }
 
 void Passive18_0007(PLW* wk) {
-    pattern_approach_walk_command_attack(wk, 0x6F, &(Command_Attack_Args){8, 0x1C, 10, -1});
+    active_pattern_approach_walk_command_attack(wk, 0x6F, &(Command_Attack_Args){8, 0x1C, 10, -1});
 }
 
 void Passive18_0008(PLW* wk) {
-    pattern_pierce_on_command_attack(
+    active_pattern_pierce_on_command_attack(
         wk,
         &(Command_Attack_Args){0xC, 0, 0xB, -1},
         &(Command_Attack_Args){8, 0x1C, 9, -1}
@@ -115,7 +115,7 @@ void Passive18_0008(PLW* wk) {
 }
 
 void Passive18_0009(PLW* wk) {
-    pattern_branch_unit_area(wk, &(Branch_Menu_Args){6, 0x59, 0x5A, 0x5B, 1});
+    active_pattern_branch_unit_area(wk, &(Branch_Menu_Args){6, 0x59, 0x5A, 0x5B, 1});
 }
 
 void Passive18_0010(PLW* wk) {
@@ -123,11 +123,11 @@ void Passive18_0010(PLW* wk) {
 }
 
 void Passive18_0011(PLW* wk) {
-    pattern_jump_attack_term(wk, &(Jump_Term_Args){-1, -0x7FB0, 0xB, 0x20, 2, -0x7FA0, -1, 0x20});
+    active_pattern_jump_attack_term(wk, &(Jump_Term_Args){-1, -0x7FB0, 0xB, 0x20, 2, -0x7FA0, -1, 0x20});
 }
 
 void Passive18_0012(PLW* wk) {
-    pattern_normal_attack(wk, 8, 0x400);
+    active_pattern_normal_attack(wk, 8, 0x400);
 }
 
 void Passive18_0013(PLW* wk) {
@@ -239,11 +239,11 @@ void Passive18_0027(PLW* wk) {
 }
 
 void Passive18_0028(PLW* wk) {
-    pattern_jump_attack(wk, &(Jump_Attack_Args){8, 10, 0x400, 1});
+    active_pattern_jump_attack(wk, &(Jump_Attack_Args){8, 10, 0x400, 1});
 }
 
 void Passive18_0029(PLW* wk) {
-    pattern_normal_attack_7(wk, 0x10, 0x10, 0x10);
+    active_pattern_normal_attack_6(wk, 0x10, 0x10, 0x10);
 }
 
 void Passive18_0030(PLW* wk) {
@@ -260,11 +260,11 @@ void Passive18_0031(PLW* wk) {
 }
 
 void Passive18_0032(PLW* wk) {
-    pattern_sa_term_command_attack(wk, &(SA_Term_Args){0x2E, 0x2F, 0xFFFF, 0}, &(Command_Attack_Args){8, 0x1C, 10, -1});
+    active_pattern_sa_term_command_attack(wk, &(SA_Term_Args){0x2E, 0x2F, 0xFFFF, 0}, &(Command_Attack_Args){8, 0x1C, 10, -1});
 }
 
 void Passive18_0033(PLW* wk) {
-    pattern_com_random_select(wk, &(Branch_Menu_Args){6, 0x9D, 0x9E, 0x9F, 0x9F}, 1);
+    active_pattern_com_random_select(wk, &(Branch_Menu_Args){6, 0x9D, 0x9E, 0x9F, 0x9F}, 1);
 }
 
 void Passive18_0034(PLW* wk) {

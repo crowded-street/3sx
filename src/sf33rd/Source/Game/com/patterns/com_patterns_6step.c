@@ -437,34 +437,3 @@ void pattern_search_back_term_pierce_on_keep_away_5(PLW* wk, s16 target_pos) {
     }
 }
 
-void pattern_search_back_term_walk_wait(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Search_Back_Term(wk, 0x30, 2, 0xF);
-        break;
-
-    case 1:
-        Walk(wk, 1, 0x20, 0);
-        break;
-
-    case 2:
-        Wait(wk, 3);
-        break;
-
-    case 3:
-        Walk(wk, 0, 0x30, 0);
-        break;
-
-    case 4:
-        Wait(wk, 9);
-        break;
-
-    case 5:
-        Walk(wk, 0, 0x20, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}

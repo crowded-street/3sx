@@ -611,32 +611,6 @@ void pattern_approach_walk_normal_attack_sa_term_3(
     }
 }
 
-void pattern_approach_walk_normal_attack_sa_term_4(
-    PLW* wk, s16 target_pos, const SA_Term_Args* p, const Command_Attack_Args* p_b
-) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Approach_Walk(wk, target_pos, 2);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 0xC, 0x40);
-        break;
-
-    case 2:
-        SA_Term(wk, p);
-        break;
-
-    case 3:
-        J_Command_Attack(wk, p_b);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
 void pattern_approach_walk_wait_get_up_sa_term(
     PLW* wk, s16 target_pos, const SA_Term_Args* p, const Command_Attack_Args* p_b
 ) {

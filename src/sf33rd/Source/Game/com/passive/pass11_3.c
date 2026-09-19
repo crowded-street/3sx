@@ -12,7 +12,7 @@
 #include "sf33rd/Source/Game/engine/workuser.h"
 
 void Passive11_0123(PLW* wk) {
-    pattern_em_term_normal_attack_2(wk, &(EM_Term_Params){-1, -0x7FD0, 6, 1, -1}, 8, 0x202);
+    active_pattern_em_term_normal_attack(wk, &(EM_Term_Params){-1, -0x7FD0, 6, 1, -1}, 8, 0x202);
 }
 
 void Passive11_0124(PLW* wk) {
@@ -28,7 +28,7 @@ void Passive11_0126(PLW* wk) {
 }
 
 void Passive11_0127(PLW* wk) {
-    pattern_jump_command_attack_term(wk, &(JCA_Term_Args){8, 0x1E, 10, 0x700, -1, 0x30, 2, -1, -1, 0xFFFF});
+    active_pattern_jump_command_attack_term(wk, &(JCA_Term_Args){8, 0x1E, 10, 0x700, -1, 0x30, 2, -1, -1, 0xFFFF});
 }
 
 void Passive11_0128(PLW* wk) {
@@ -40,7 +40,7 @@ void Passive11_0128(PLW* wk) {
 }
 
 void Passive11_0129(PLW* wk) {
-    pattern_hi_jump_command_attack_term(wk, &(JCA_Term_Args){8, 0x1E, 10, -1, -1, 0x30, 2, -1, -1, 0xFFFF});
+    active_pattern_hi_jump_command_attack_term(wk, &(JCA_Term_Args){8, 0x1E, 10, -1, -1, 0x30, 2, -1, -1, 0xFFFF});
 }
 
 void Passive11_0130(PLW* wk) {
@@ -61,7 +61,7 @@ void Passive11_0131(PLW* wk) {
 }
 
 void Passive11_0132(PLW* wk) {
-    pattern_jump_attack_term_normal_attack_j_command_attack(
+    active_pattern_jump_attack_term_normal_attack_j_command_attack(
         wk,
         &(Jump_Term_Args){-0x7FA8, -0x7FC0, 0xB, 0x200, 0, -0x7FB0, -1, 0x40},
         0x400,
@@ -78,7 +78,7 @@ void Passive11_0133(PLW* wk) {
 }
 
 void Passive11_0134(PLW* wk) {
-    pattern_jump_attack_term_normal_attack_command_attack(
+    active_pattern_jump_attack_term_normal_attack_command_attack_2(
         wk,
         &(Jump_Term_Args){-0x7FA8, -0x7FC0, 9, 0x20, 0, -0x7FB0, -1, 0x200},
         0x40,
@@ -87,14 +87,14 @@ void Passive11_0134(PLW* wk) {
 }
 
 void Passive11_0135(PLW* wk) {
-    pattern_hi_jump_command_attack_term(
+    active_pattern_hi_jump_command_attack_term(
         wk,
         &(JCA_Term_Args){8, 0x1E, 0xA, 0x700, -1, 0x30, 2, -1, -1, 0xFFFF}
     );
 }
 
 void Passive11_0136(PLW* wk) {
-    pattern_jump_command_attack_term(wk, &(JCA_Term_Args){8, 0x1E, 0xA, -1, -1, 0x30, 0, -1, -1, 0xFFFF});
+    active_pattern_jump_command_attack_term(wk, &(JCA_Term_Args){8, 0x1E, 0xA, -1, -1, 0x30, 0, -1, -1, 0xFFFF});
 }
 
 void Passive11_0137(PLW* wk) {
@@ -118,11 +118,11 @@ void Passive11_0137(PLW* wk) {
 }
 
 void Passive11_0138(PLW* wk) {
-    pattern_hi_jump_command_attack_term(wk, &(JCA_Term_Args){8, 0x1E, 0xA, -1, -1, 0x30, 0, -1, -1, 0xFFFF});
+    active_pattern_hi_jump_command_attack_term(wk, &(JCA_Term_Args){8, 0x1E, 0xA, -1, -1, 0x30, 0, -1, -1, 0xFFFF});
 }
 
 void Passive11_0139(PLW* wk) {
-    pattern_jump_attack_term(wk, &(Jump_Term_Args){-0x7FA0, -1, 8, 0x200, 1, -1, -1, -1});
+    active_pattern_jump_attack_term(wk, &(Jump_Term_Args){-0x7FA0, -1, 8, 0x200, 1, -1, -1, -1});
 }
 
 void Passive11_0140(PLW* wk) {
@@ -194,11 +194,11 @@ void Passive11_0146(PLW* wk) {
 }
 
 void Passive11_0147(PLW* wk) {
-    pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1C, 0xA, -1});
+    active_pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1C, 0xA, -1});
 }
 
 void Passive11_0148(PLW* wk) {
-    pattern_command_attack_2(wk, &(Command_Attack_Args){8, 0x1D, 0xA, -1});
+    active_pattern_command_attack(wk, &(Command_Attack_Args){8, 0x1D, 0xA, -1});
 }
 
 void Passive11_0149(PLW* wk) {
@@ -298,7 +298,7 @@ void Passive11_0158(PLW* wk) {
 }
 
 void Passive11_0159(PLW* wk) {
-    pattern_approach_walk_normal_attack_sa_term_4(
+    active_pattern_approach_walk_normal_attack_sa_term(
         wk,
         0x47,
         &(SA_Term_Args){0x30, 0x31, 0x32, 0x7F},
@@ -339,7 +339,7 @@ void Passive11_0161(PLW* wk) {
 }
 
 void Passive11_0162(PLW* wk) {
-    pattern_normal_attack_j_command_attack_2(wk, 9, 0x10, &(Command_Attack_Args){8, 0x1C, 0xA, -1});
+    active_pattern_normal_attack_j_command_attack(wk, 9, 0x10, &(Command_Attack_Args){8, 0x1C, 0xA, -1});
 }
 
 void Passive11_0163(PLW* wk) {
@@ -382,7 +382,7 @@ void Passive11_0166(PLW* wk) {
 }
 
 void Passive11_0167(PLW* wk) {
-    pattern_jump_attack_term_normal_attack_command_attack(
+    active_pattern_jump_attack_term_normal_attack_command_attack_2(
         wk,
         &(Jump_Term_Args){-0x7FA0, -0x7FC0, 9, 0x400, 0, -0x7FB0, -1, 0x200},
         0x402,
