@@ -51,35 +51,53 @@ ssize_t ppgDecompress(s32 koCmpr, const PPGDecompressArgs* a) {
     return rnum;
 }
 
+/* Every chunk header in a PPG, PPL or PPX list begins with the same two fields -
+ * PPGFileHeader, PPLFileHeader and PPXFileHeader all declare `u32 magic` then
+ * `u32 fileSize` - and the scan that finds the num'th chunk of a given magic
+ * reads nothing else. It is written once here and each caller casts the result
+ * back to its own header type. NULL where the scan used to fall out on pEND. */
+typedef struct {
+    u32 magic;
+    u32 fileSize;
+} PPChunkHeader;
+
+static void* ppgFindChunk(u8* adrs, u32 magic, s32 num) {
+    const PPChunkHeader* chunk;
+    u32 ofs = 0;
+
+    while (1) {
+        chunk = (const PPChunkHeader*)(adrs + ofs);
+
+        if (MAGIC_TO_INT("pEND") == SDL_Swap32BE(chunk->magic)) {
+            return NULL;
+        }
+
+        if (magic != SDL_Swap32BE(chunk->magic)) {
+            ofs += ALIGN_UP(SDL_Swap32BE(chunk->fileSize), 4);
+            continue;
+        }
+
+        if (num > 0) {
+            num -= 1;
+            ofs += ALIGN_UP(SDL_Swap32BE(chunk->fileSize), 4);
+            continue;
+        }
+
+        return (void*)(adrs + ofs);
+    }
+}
+
 s32 ppgSetupCmpChunk(u8* srcAdrs, s32 num, u8* dstAdrs) {
     PPXFileHeader* ppx;
     void* cmpAdrs;
     s32 cmpSize;
     s32 mltSize;
     s32 koCmpr;
-    s32 ofs;
 
-    ofs = 0;
+    ppx = ppgFindChunk(srcAdrs, MAGIC_TO_INT("pCMP"), num);
 
-    while (1) {
-        ppx = (PPXFileHeader*)(srcAdrs + ofs);
-
-        if (MAGIC_TO_INT("pEND") == SDL_Swap32BE(ppx->magic)) {
-            return -1;
-        }
-
-        if (MAGIC_TO_INT("pCMP") != SDL_Swap32BE(ppx->magic)) {
-            ofs += ALIGN_UP(SDL_Swap32BE(ppx->fileSize), 4);
-            continue;
-        }
-
-        if (num > 0) {
-            num -= 1;
-            ofs += ALIGN_UP(SDL_Swap32BE(ppx->fileSize), 4);
-            continue;
-        }
-
-        break;
+    if (ppx == NULL) {
+        return -1;
     }
 
     mltSize = SDL_Swap32BE(ppx->expSize);
@@ -95,10 +113,6 @@ s32 ppgSetupCmpChunk(u8* srcAdrs, s32 num, u8* dstAdrs) {
 }
 
 s32 ppgSetupPalChunk(Palette* pch, const PPGPalChunkArgs* a) {
-    /* The original took this by value and advanced it; the copy keeps
-     * that local, which is what a by-value parameter was. */
-    s32 num = a->num;
-
     PPLFileHeader* ppl;
     plContext bits;
     s32 i;
@@ -108,7 +122,6 @@ s32 ppgSetupPalChunk(Palette* pch, const PPGPalChunkArgs* a) {
     s32 mltSize;
     void* cmpAdrs;
     void* mltAdrs;
-    u32 ofs = 0;
 
     if (pch == NULL) {
         pch = ppg_w.cur->pal;
@@ -126,25 +139,10 @@ s32 ppgSetupPalChunk(Palette* pch, const PPGPalChunkArgs* a) {
     mltAdrs = NULL;
     koCmpr = 0;
 
-    while (1) {
-        ppl = (PPLFileHeader*)(a->adrs + ofs);
+    ppl = ppgFindChunk(a->adrs, MAGIC_TO_INT("pPAL"), a->num);
 
-        if (MAGIC_TO_INT("pEND") == SDL_Swap32BE(ppl->magic)) {
-            return -1;
-        }
-
-        if (MAGIC_TO_INT("pPAL") != SDL_Swap32BE(ppl->magic)) {
-            ofs += ALIGN_UP(SDL_Swap32BE(ppl->fileSize), 4);
-            continue;
-        }
-
-        if (num > 0) {
-            num -= 1;
-            ofs += ALIGN_UP(SDL_Swap32BE(ppl->fileSize), 4);
-            continue;
-        }
-
-        break;
+    if (ppl == NULL) {
+        return -1;
     }
 
     cmpSize = SDL_Swap32BE(ppl->fileSize) - sizeof(PPLFileHeader);
