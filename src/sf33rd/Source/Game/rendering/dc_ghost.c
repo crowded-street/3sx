@@ -150,7 +150,7 @@ void njDrawTexture(ColoredVertex* polygon, s32 /* unused */, s32 tex, s32 /* unu
         vtx[i] = ((_Polygon*)polygon)[i].v;
     }
 
-    ppgWriteQuadWithST_B(vtx, polygon[0].col, NULL, tex, -1);
+    ppgWriteQuadWithST_B(vtx, &(PPGQuadArgs){polygon[0].col, NULL, tex, -1});
 }
 
 static s32 sprite_is_off_screen(const ColoredVertex* polygon) {
@@ -167,7 +167,7 @@ void njDrawSprite(ColoredVertex* polygon, s32 /* unused */, s32 tex, s32 /* unus
     vtx[0] = ((_Polygon*)polygon)[0].v;
     vtx[3] = ((_Polygon*)polygon)[3].v;
 
-    ppgWriteQuadWithST_B2(vtx, polygon[0].col, 0, tex, -1);
+    ppgWriteQuadWithST_B2(vtx, &(PPGQuadArgs){polygon[0].col, 0, tex, -1});
 }
 
 void njdp2d_init() {
@@ -288,6 +288,6 @@ void njSetPaletteData(s32 offset, s32 count, void* data) {
 }
 
 s32 njReLoadTexturePartNumG(u32 gix, s8* srcAdrs, u32 ofs, u32 size) {
-    ppgRenewDotDataSeqs(0, gix, (u32*)srcAdrs, ofs, size);
+    ppgRenewDotDataSeqs(0, &(PPGDotDataArgs){gix, (u32*)srcAdrs, ofs, size});
     return 1;
 }

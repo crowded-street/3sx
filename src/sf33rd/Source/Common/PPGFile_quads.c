@@ -64,7 +64,11 @@ void ppgWriteQuadOnly2(Vertex* pos, u32 col, u32 texCode) {
     Renderer_DrawSprite(&prm, col);
 }
 
-s32 ppgWriteQuadWithST_B(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix) {
+s32 ppgWriteQuadWithST_B(Vertex* pos, const PPGQuadArgs* a) {
+    /* The original took this by value and advanced it; the copy keeps
+     * that local, which is what a by-value parameter was. */
+    PPGDataList* tb = a->tb;
+
     u16 texhan;
     u16 palhan = 0;
 
@@ -72,33 +76,37 @@ s32 ppgWriteQuadWithST_B(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix
         tb = ppg_w.cur;
 
         if (tb == NULL) {
-            return ppgWriteQuadWithST_A(pos, col);
+            return ppgWriteQuadWithST_A(pos, a->col);
         }
     }
 
-    if (tix < 0) {
+    if (a->tix < 0) {
         texhan = ppg_w.hanTex;
     } else {
-        texhan = tb->tex->handle[tix - tb->tex->ixNum1st].b16[0];
+        texhan = tb->tex->handle[a->tix - tb->tex->ixNum1st].b16[0];
 
         if (texhan == 0) {
             return 0;
         }
     }
 
-    if (tb->tex->handle[tix - tb->tex->ixNum1st].b16[1] & 0x4000) {
-        if (cix < 0) {
+    if (tb->tex->handle[a->tix - tb->tex->ixNum1st].b16[1] & 0x4000) {
+        if (a->cix < 0) {
             palhan = ppg_w.hanPal;
         } else {
-            palhan = tb->pal->handle[cix];
+            palhan = tb->pal->handle[a->cix];
         }
     }
 
-    ppgWriteQuadOnly(pos, col, texhan | (palhan << 0x10));
+    ppgWriteQuadOnly(pos, a->col, texhan | (palhan << 0x10));
     return 1;
 }
 
-s32 ppgWriteQuadWithST_B2(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix) {
+s32 ppgWriteQuadWithST_B2(Vertex* pos, const PPGQuadArgs* a) {
+    /* The original took this by value and advanced it; the copy keeps
+     * that local, which is what a by-value parameter was. */
+    PPGDataList* tb = a->tb;
+
     u16 texhan;
     u16 palhan = 0;
 
@@ -106,33 +114,37 @@ s32 ppgWriteQuadWithST_B2(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 ci
         tb = ppg_w.cur;
 
         if (tb == NULL) {
-            return ppgWriteQuadWithST_A2(pos, col);
+            return ppgWriteQuadWithST_A2(pos, a->col);
         }
     }
 
-    if (tix < 0) {
+    if (a->tix < 0) {
         texhan = ppg_w.hanTex;
     } else {
-        texhan = tb->tex->handle[tix - tb->tex->ixNum1st].b16[0];
+        texhan = tb->tex->handle[a->tix - tb->tex->ixNum1st].b16[0];
 
         if (texhan == 0) {
             return 0;
         }
     }
 
-    if (tb->tex->handle[tix - tb->tex->ixNum1st].b16[1] & 0x4000) {
-        if (cix < 0) {
+    if (tb->tex->handle[a->tix - tb->tex->ixNum1st].b16[1] & 0x4000) {
+        if (a->cix < 0) {
             palhan = ppg_w.hanPal;
         } else {
-            palhan = tb->pal->handle[cix];
+            palhan = tb->pal->handle[a->cix];
         }
     }
 
-    ppgWriteQuadOnly2(pos, col, texhan | (palhan << 16));
+    ppgWriteQuadOnly2(pos, a->col, texhan | (palhan << 16));
     return 1;
 }
 
-s32 ppgWriteQuadUseTrans(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix, s32 flip, s32 pal) {
+s32 ppgWriteQuadUseTrans(Vertex* pos, const PPGQuadTransArgs* a) {
+    /* The original took this by value and advanced it; the copy keeps
+     * that local, which is what a by-value parameter was. */
+    PPGDataList* tb = a->tb;
+
     Vertex qvtx[4];
     s32 i;
     u32 sx;
@@ -165,11 +177,11 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix
     }
 
     if (tb == NULL) {
-        return ppgWriteQuadWithST_A2(pos, col);
+        return ppgWriteQuadWithST_A2(pos, a->col);
     }
 
-    texhan = tb->tex->handle[tix - tb->tex->ixNum1st].b16[0];
-    ix_ofs = tb->tex->handle[tix - tb->tex->ixNum1st].b16[1];
+    texhan = tb->tex->handle[a->tix - tb->tex->ixNum1st].b16[0];
+    ix_ofs = tb->tex->handle[a->tix - tb->tex->ixNum1st].b16[1];
 
     if (texhan == 0) {
         return 0;
@@ -215,7 +227,7 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix
 
             for (i = 0; i < transTotal; i++) {
                 if (ix_ofs & 0x4000) {
-                    palhan = phan[*tran + pal];
+                    palhan = phan[*tran + a->pal];
                 }
 
                 tran++;
@@ -226,7 +238,7 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix
                 sx = iPoint % ppgw;
                 sy = iPoint / ppgw;
 
-                if (flip & 1) {
+                if (a->flip & 1) {
                     qvtx[3].x = pos->x + (pxs * (ppgw - sx) / ppgwf);
                     qvtx[0].x = pos->x + (pxs * (ppgw - (sx + xs)) / ppgwf);
                 } else {
@@ -234,7 +246,7 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix
                     qvtx[3].x = pos->x + (pxs * (sx + xs) / ppgwf);
                 }
 
-                if (flip & 2) {
+                if (a->flip & 2) {
                     qvtx[3].y = pos->y + (pys * (ppgw - sy) / ppghf);
                     qvtx[0].y = pos->y + (pys * (ppgw - (sy + ys)) / ppghf);
                 } else {
@@ -247,7 +259,7 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix
                     continue;
                 }
 
-                if (flip & 1) {
+                if (a->flip & 1) {
                     qvtx[3].s = (sx / ppgwf) - sadd;
                     qvtx[0].s = ((sx + xs) / ppgwf) - sadd;
                 } else {
@@ -255,7 +267,7 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix
                     qvtx[3].s = sadd + ((sx + xs) / ppgwf);
                 }
 
-                if (flip & 2) {
+                if (a->flip & 2) {
                     qvtx[3].t = (sy / ppghf) - tadd;
                     qvtx[0].t = ((sy + ys) / ppghf) - tadd;
                 } else {
@@ -263,7 +275,7 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix
                     qvtx[3].t = tadd + ((sy + ys) / ppghf);
                 }
 
-                ppgWriteQuadOnly2(qvtx, col, texhan | (palhan << 0x10));
+                ppgWriteQuadOnly2(qvtx, a->col, texhan | (palhan << 0x10));
             }
 
             return 1;
@@ -271,14 +283,14 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix
     }
 
     if (ix_ofs & 0x4000) {
-        if (cix < 0) {
+        if (a->cix < 0) {
             palhan = ppg_w.hanPal;
         } else {
-            palhan = phan[cix];
+            palhan = phan[a->cix];
         }
     }
 
-    switch (flip) {
+    switch (a->flip) {
     case 0:
         pos[0].s = pos[0].t = 0.0f;
         pos[3].s = pos[3].t = 1.0f;
@@ -300,6 +312,6 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix
         break;
     }
 
-    ppgWriteQuadOnly2(pos, col, texhan | (palhan << 0x10));
+    ppgWriteQuadOnly2(pos, a->col, texhan | (palhan << 0x10));
     return 1;
 }

@@ -214,11 +214,11 @@ void Scrscreen_Init() {
         flLogOut("Couldn't load scrscrn.ppg\n");
     }
 
-    ppgSetupPalChunk(&ppgScrPalOpt, loadAdrs, loadSize, 0, 3, 1);
-    ppgSetupPalChunk(&ppgScrPalShot, loadAdrs, loadSize, 0, 2, 1);
-    ppgSetupPalChunk(&ppgScrPalFace, loadAdrs, loadSize, 0, 1, 1);
-    ppgSetupPalChunk(NULL, loadAdrs, loadSize, 0, 0, 1);
-    ppgSetupTexChunk_1st(NULL, loadAdrs, loadSize, 0, 6, 0, 0);
+    ppgSetupPalChunk(&ppgScrPalOpt, &(PPGPalChunkArgs){loadAdrs, loadSize, 0, 3, 1});
+    ppgSetupPalChunk(&ppgScrPalShot, &(PPGPalChunkArgs){loadAdrs, loadSize, 0, 2, 1});
+    ppgSetupPalChunk(&ppgScrPalFace, &(PPGPalChunkArgs){loadAdrs, loadSize, 0, 1, 1});
+    ppgSetupPalChunk(NULL, &(PPGPalChunkArgs){loadAdrs, loadSize, 0, 0, 1});
+    ppgSetupTexChunk_1st(NULL, &(PPGTexChunk1stArgs){loadAdrs, loadSize, 0, 6, 0, 0});
 
     for (i = 0; i < 3; i++) {
         ppgSetupTexChunk_2nd(NULL, i);

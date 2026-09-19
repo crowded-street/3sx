@@ -593,7 +593,7 @@ void palCreateGhost() {
         adrs[i] = 0;
     }
 
-    ppgSetupPalChunkDir(&col3rd_w.palDC, &ppl, adrs, 0, 1);
+    ppgSetupPalChunkDir(&col3rd_w.palDC, &(PPGPalChunkDirArgs){&ppl, adrs, 0, 1});
     Push_ramcnt_key(key);
 
     ppl.palettes = 2;
@@ -605,7 +605,7 @@ void palCreateGhost() {
         adrs[i] = 0;
     }
 
-    ppgSetupPalChunkDir(&col3rd_w.palCP3, &ppl, adrs, 0, 1);
+    ppgSetupPalChunkDir(&col3rd_w.palCP3, &(PPGPalChunkDirArgs){&ppl, adrs, 0, 1});
     Push_ramcnt_key(key);
 }
 

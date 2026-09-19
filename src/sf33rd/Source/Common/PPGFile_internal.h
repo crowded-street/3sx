@@ -40,7 +40,7 @@ extern s16* dctex_linear;
 s32 ppgCheckPaletteDataBe(Palette* pch);
 void ppgWriteQuadOnly(Vertex* pos, u32 col, u32 texCode);
 void ppgWriteQuadOnly2(Vertex* pos, u32 col, u32 texCode);
-void ppgChangeDataEndian(u8* adrs, s32 size, s32 dendL, s32 col4, s32 depth);
+void ppgChangeDataEndian(u8* adrs, const PPGEndianArgs* a);
 void ppgSetupContextFromPPL(PPLFileHeader* ppl, plContext* bits);
 void ppgSetupContextFromPPG(PPGFileHeader* ppg, plContext* bits);
 

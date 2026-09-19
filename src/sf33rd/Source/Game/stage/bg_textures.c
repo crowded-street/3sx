@@ -236,8 +236,8 @@ static void load_ake_stage_textures() {
         akeSize = Get_size_data_ramcnt_key(akeKey);
         akeAdrs = Get_ramcnt_pointer(akeKey);
         ppgSetupCurrentDataList(&ppgAkeList);
-        ppgSetupPalChunk(NULL, akeAdrs, akeSize, 0, 0, 1);
-        ppgSetupTexChunk_1st(NULL, akeAdrs, akeSize, 0, 3, 0, 0);
+        ppgSetupPalChunk(NULL, &(PPGPalChunkArgs){akeAdrs, akeSize, 0, 0, 1});
+        ppgSetupTexChunk_1st(NULL, &(PPGTexChunk1stArgs){akeAdrs, akeSize, 0, 3, 0, 0});
 
         for (i = 0; i < 3; i++) {
             ppgSetupTexChunk_2nd(NULL, i);
@@ -253,8 +253,8 @@ static void load_stage07_textures(void* loadAdrs, u32 loadSize, u16 accnum) {
 
     if (bg_w.stage == 7) {
         ppgSetupCurrentDataList(&ppgAkaneList);
-        ppgSetupPalChunk(NULL, loadAdrs, loadSize, 0, 0, 1);
-        ppgSetupTexChunk_1st(NULL, loadAdrs, loadSize, 0, 3, 0, 0);
+        ppgSetupPalChunk(NULL, &(PPGPalChunkArgs){loadAdrs, loadSize, 0, 0, 1});
+        ppgSetupTexChunk_1st(NULL, &(PPGTexChunk1stArgs){loadAdrs, loadSize, 0, 3, 0, 0});
         ppgSetupTexChunk_1st_Accnum(0, accnum);
 
         for (i = 0; i < 3; i++) {
@@ -271,7 +271,7 @@ static u16 load_rewrite_textures(const TextureSource* source, s32 ixNum1st, u8 x
 
     if (x) {
         ppgSetupCurrentDataList(&ppgRwBgList);
-        ppgSetupTexChunk_1st(NULL, source->adrs, source->size, ixNum1st, x, 0, 0);
+        ppgSetupTexChunk_1st(NULL, &(PPGTexChunk1stArgs){source->adrs, source->size, ixNum1st, x, 0, 0});
         ppgSetupTexChunk_1st_Accnum(0, accnum);
 
         for (i = 0; i < x; i++) {
@@ -302,7 +302,7 @@ static u16 load_stage_screen_textures(const TextureSource* source, u8 stg, u32 t
 
     mask = 0x80000000;
     ppgSetupCurrentDataList(&ppgBgList[stg]);
-    ppgSetupTexChunk_1st(NULL, source->adrs, source->size, (stg * 64) + 0x84, 32, 0, 0);
+    ppgSetupTexChunk_1st(NULL, &(PPGTexChunk1stArgs){source->adrs, source->size, (stg * 64) + 0x84, 32, 0, 0});
     ppgSetupTexChunk_1st_Accnum(0, accnum);
 
     for (i = 0; i < 32; i++, assign2 = mask >>= 1) {
@@ -437,7 +437,7 @@ void Bg_Texture_Load2(u8 type) {
 
     loadSize = Get_size_data_ramcnt_key(key);
     loadAdrs = Get_ramcnt_pointer(key);
-    ppgSetupTexChunk_1st(0, loadAdrs, loadSize, 0x84, 0x20, 0, 0);
+    ppgSetupTexChunk_1st(0, &(PPGTexChunk1stArgs){loadAdrs, loadSize, 0x84, 0x20, 0, 0});
     pmask = 0xFF000000;
     shift = 24;
     tgbix = bgtex_etc_gbix[type];
@@ -463,8 +463,8 @@ static void setup_ending_type14(void* loadAdrs, u32 loadSize, u16 accnum) {
     }
 
     ppgSetupCurrentDataList(&ppgAkeList);
-    ppgSetupPalChunk(NULL, loadAdrs, loadSize, 0, 0, 1);
-    ppgSetupTexChunk_1st(NULL, loadAdrs, loadSize, 0x1A0, 0x18, 0, 0);
+    ppgSetupPalChunk(NULL, &(PPGPalChunkArgs){loadAdrs, loadSize, 0, 0, 1});
+    ppgSetupTexChunk_1st(NULL, &(PPGTexChunk1stArgs){loadAdrs, loadSize, 0x1A0, 0x18, 0, 0});
     ppgSetupTexChunk_1st_Accnum(0, accnum);
 
     for (i = 0; i < 0x18; i++) {
@@ -484,7 +484,7 @@ static u16 load_ending_screen_textures(s16 type, const TextureSource* source, u8
     tgbix[1] = bgtex_ending_gbix[type][(j * 2) + 1];
     mask = 0x80000000;
     ppgSetupCurrentDataList(&ppgBgList[j]);
-    ppgSetupTexChunk_1st(NULL, source->adrs, source->size, (j * 64) + 100, 64, 0, 0);
+    ppgSetupTexChunk_1st(NULL, &(PPGTexChunk1stArgs){source->adrs, source->size, (j * 64) + 100, 64, 0, 0});
     ppgSetupTexChunk_1st_Accnum(0, accnum);
 
     for (k = 0; k < 2; k++) {
@@ -553,8 +553,8 @@ void Bg_Texture_Load_Ending(s16 type) {
     case 19:
         tokusyu_stage = 7;
         ppgSetupCurrentDataList(&ppgAkeList);
-        ppgSetupPalChunk(NULL, loadAdrs, loadSize, 0, 0, 1);
-        ppgSetupTexChunk_1st(NULL, loadAdrs, loadSize, 0xE4, 1, 0, 0);
+        ppgSetupPalChunk(NULL, &(PPGPalChunkArgs){loadAdrs, loadSize, 0, 0, 1});
+        ppgSetupTexChunk_1st(NULL, &(PPGTexChunk1stArgs){loadAdrs, loadSize, 0xE4, 1, 0, 0});
         ppgSetupTexChunk_1st_Accnum(0, accnum);
         accnum = ppgSetupTexChunk_2nd(NULL, 0xE4);
         ppgSetupTexChunk_3rd(NULL, 0xE4, 1);

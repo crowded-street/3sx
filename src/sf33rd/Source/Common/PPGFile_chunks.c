@@ -18,7 +18,7 @@
 #include "sf33rd/Source/Common/PPGFile_internal.h"
 
 
-ssize_t ppgDecompress(s32 koCmpr, void* srcAdrs, s32 srcSize, void* dstAdrs, s32 dstSize) {
+ssize_t ppgDecompress(s32 koCmpr, const PPGDecompressArgs* a) {
     u8* src;
     u8* dst;
     s32 i;
@@ -26,25 +26,25 @@ ssize_t ppgDecompress(s32 koCmpr, void* srcAdrs, s32 srcSize, void* dstAdrs, s32
 
     switch (koCmpr) {
     default:
-        if (srcAdrs != dstAdrs) {
-            src = srcAdrs;
-            dst = dstAdrs;
+        if (a->srcAdrs != a->dstAdrs) {
+            src = a->srcAdrs;
+            dst = a->dstAdrs;
 
-            for (i = 0; i < dstSize; i++) {
+            for (i = 0; i < a->dstSize; i++) {
                 *dst++ = *src++;
             }
         }
 
-        rnum = srcSize;
+        rnum = a->srcSize;
         break;
 
     case 1:
-        rnum = decLZ77withSizeCheck(srcAdrs, dstAdrs, dstSize);
-        rnum *= dstSize;
+        rnum = decLZ77withSizeCheck(a->srcAdrs, a->dstAdrs, a->dstSize);
+        rnum *= a->dstSize;
         break;
 
     case 2:
-        rnum = zlib_Decompress(srcAdrs, srcSize, dstAdrs, dstSize);
+        rnum = zlib_Decompress(a->srcAdrs, a->srcSize, a->dstAdrs, a->dstSize);
         break;
     }
 
@@ -87,14 +87,18 @@ s32 ppgSetupCmpChunk(u8* srcAdrs, s32 num, u8* dstAdrs) {
     cmpAdrs = ppx + 1;
     koCmpr = ppx->compress & 3;
 
-    if (mltSize != ppgDecompress(koCmpr, cmpAdrs, cmpSize, dstAdrs, mltSize)) {
+    if (mltSize != ppgDecompress(koCmpr, &(PPGDecompressArgs){cmpAdrs, cmpSize, dstAdrs, mltSize})) {
         flLogOut("ppgSetupCmpChunk: Failed to decompress data");
     }
 
     return 1;
 }
 
-s32 ppgSetupPalChunk(Palette* pch, u8* adrs, s32 size, s32 ixNum1st, s32 num, s32 /* unused */) {
+s32 ppgSetupPalChunk(Palette* pch, const PPGPalChunkArgs* a) {
+    /* The original took this by value and advanced it; the copy keeps
+     * that local, which is what a by-value parameter was. */
+    s32 num = a->num;
+
     PPLFileHeader* ppl;
     plContext bits;
     s32 i;
@@ -115,15 +119,15 @@ s32 ppgSetupPalChunk(Palette* pch, u8* adrs, s32 size, s32 ixNum1st, s32 num, s3
     }
 
     pch->be = 0;
-    pch->ixNum1st = ixNum1st;
-    pch->srcAdrs = adrs;
-    pch->srcSize = size;
+    pch->ixNum1st = a->ixNum1st;
+    pch->srcAdrs = a->adrs;
+    pch->srcSize = a->size;
     pch->handle = NULL;
     mltAdrs = NULL;
     koCmpr = 0;
 
     while (1) {
-        ppl = (PPLFileHeader*)(adrs + ofs);
+        ppl = (PPLFileHeader*)(a->adrs + ofs);
 
         if (MAGIC_TO_INT("pEND") == SDL_Swap32BE(ppl->magic)) {
             return -1;
@@ -172,11 +176,11 @@ s32 ppgSetupPalChunk(Palette* pch, u8* adrs, s32 size, s32 ixNum1st, s32 num, s3
         flLogOut("ppgSetupPalChunk: Failed to allocate palette data decompression area");
     }
 
-    if (mltSize != ppgDecompress(koCmpr, cmpAdrs, cmpSize, mltAdrs, mltSize)) {
+    if (mltSize != ppgDecompress(koCmpr, &(PPGDecompressArgs){cmpAdrs, cmpSize, mltAdrs, mltSize})) {
         flLogOut("ppgSetupPalChunk: Failed to decompress the palette data");
     }
 
-    ppgChangeDataEndian(mltAdrs, mltSize, ppl->c_mode & 4, ppl->formARGB == 0x8888, bits.bitdepth);
+    ppgChangeDataEndian(mltAdrs, &(PPGEndianArgs){mltSize, ppl->c_mode & 4, ppl->formARGB == 0x8888, bits.bitdepth});
 
     if (koCmpr == 0) {
         ppl->c_mode |= 4;
@@ -216,7 +220,11 @@ static void ppgReleaseFailedPaletteHandles(Palette* pch) {
     }
 }
 
-s32 ppgSetupPalChunkDir(Palette* pch, PPLFileHeader* ppl, u8* adrs, s32 ixNum1st, s32 /* unused */) {
+s32 ppgSetupPalChunkDir(Palette* pch, const PPGPalChunkDirArgs* a) {
+    /* The original took this by value and advanced it; the copy keeps
+     * that local, which is what a by-value parameter was. */
+    u8* adrs = a->adrs;
+
     plContext bits;
     s32 i;
 
@@ -229,12 +237,12 @@ s32 ppgSetupPalChunkDir(Palette* pch, PPLFileHeader* ppl, u8* adrs, s32 ixNum1st
     }
 
     pch->be = 0;
-    pch->ixNum1st = ixNum1st;
+    pch->ixNum1st = a->ixNum1st;
     pch->srcAdrs = NULL;
-    pch->c_mode = ppl->c_mode & 3;
-    ppgSetupContextFromPPL(ppl, &bits);
+    pch->c_mode = a->ppl->c_mode & 3;
+    ppgSetupContextFromPPL(a->ppl, &bits);
     pch->srcSize = bits.pitch * bits.height;
-    pch->total = SDL_Swap16BE(ppl->palettes);
+    pch->total = SDL_Swap16BE(a->ppl->palettes);
     pch->handle = ppgMallocF(pch->total * 2);
 
     if (pch->handle != NULL) {
@@ -243,10 +251,14 @@ s32 ppgSetupPalChunkDir(Palette* pch, PPLFileHeader* ppl, u8* adrs, s32 ixNum1st
         }
 
         ppgChangeDataEndian(
-            adrs, pch->total * (bits.pitch * bits.height), ppl->c_mode & 4, ppl->formARGB == 0x8888, bits.bitdepth
+            adrs,
+            &(PPGEndianArgs){ pch->total * (bits.pitch * bits.height),
+                              a->ppl->c_mode & 4,
+                              a->ppl->formARGB == 0x8888,
+                              bits.bitdepth }
         );
 
-        ppl->c_mode |= 4;
+        a->ppl->c_mode |= 4;
 
         for (i = 0; i < pch->total; i++) {
             bits.ptr = adrs;
@@ -269,27 +281,31 @@ error_handler:
     flLogOut("ppgSetupPalChunkDir: Failed to acquire palette handle");
 }
 
-void ppgChangeDataEndian(u8* adrs, s32 size, s32 dendL, s32 col4, s32 depth) {
-    if ((depth == 1) || (depth == 0) || (dendL != 0)) {
+void ppgChangeDataEndian(u8* adrs, const PPGEndianArgs* a) {
+    if ((a->depth == 1) || (a->depth == 0) || (a->dendL != 0)) {
         return;
     }
 
-    if (col4 != 0) {
+    if (a->col4 != 0) {
         u32* c4 = adrs;
 
-        for (int i = 0; i < size / 4; i++) {
+        for (int i = 0; i < a->size / 4; i++) {
             c4[i] = SDL_Swap32BE(c4[i]);
         }
     } else {
         u16* c2 = adrs;
 
-        for (int i = 0; i < size / 2; i++) {
+        for (int i = 0; i < a->size / 2; i++) {
             c2[i] = SDL_Swap16BE(c2[i]);
         }
     }
 }
 
-s32 ppgSetupTexChunkSeqs(Texture* tch, PPGFileHeader* ppg, u8* adrs, s32 ixNum1st, s32 ixNums, u32 attribute) {
+s32 ppgSetupTexChunkSeqs(Texture* tch, const PPGTexSeqsArgs* a) {
+    /* The original took this by value and advanced it; the copy keeps
+     * that local, which is what a by-value parameter was. */
+    u8* adrs = a->adrs;
+
     plContext bits;
     s32 i;
     s32 ci_flag = 0;
@@ -303,10 +319,10 @@ s32 ppgSetupTexChunkSeqs(Texture* tch, PPGFileHeader* ppg, u8* adrs, s32 ixNum1s
     }
 
     tch->be = 0;
-    tch->textures = ixNums;
-    tch->accnum = ixNums;
-    tch->ixNum1st = ixNum1st;
-    tch->total = ixNums;
+    tch->textures = a->ixNums;
+    tch->accnum = a->ixNums;
+    tch->ixNum1st = a->ixNum1st;
+    tch->total = a->ixNums;
     tch->flags = 0x80;
     tch->arCnt = 0;
     tch->arInit = 0;
@@ -314,22 +330,22 @@ s32 ppgSetupTexChunkSeqs(Texture* tch, PPGFileHeader* ppg, u8* adrs, s32 ixNum1s
     tch->offset = NULL;
     tch->srcAdrs = NULL;
     tch->srcSize = 0;
-    tch->handle = ppgMallocF(ixNums * 4);
+    tch->handle = ppgMallocF(a->ixNums * 4);
 
     if (tch->handle == NULL) {
         flLogOut("ppgSetupTexChunkSeqs: Failed to allocate memory for texture handle");
     }
 
-    for (i = 0; i < ixNums; i++) {
+    for (i = 0; i < a->ixNums; i++) {
         tch->handle[i].b16[0] = 0;
         tch->handle[i].b16[1] = 0x8000;
     }
 
-    ppgSetupContextFromPPG(ppg, &bits);
+    ppgSetupContextFromPPG(a->ppg, &bits);
     tch->srcAdrs = adrs;
     tch->srcSize = bits.pitch * bits.height;
 
-    for (i = 0; i < tch->srcSize * ixNums; i++) {
+    for (i = 0; i < tch->srcSize * a->ixNums; i++) {
         adrs[i] = 0;
     }
 
@@ -337,10 +353,10 @@ s32 ppgSetupTexChunkSeqs(Texture* tch, PPGFileHeader* ppg, u8* adrs, s32 ixNum1s
         ci_flag = 0x4000;
     }
 
-    for (i = 0; i < ixNums; i++) {
+    for (i = 0; i < a->ixNums; i++) {
         bits.ptr = adrs;
         tch->handle[i].b16[1] = ci_flag;
-        tch->handle[i].b16[0] = flCreateTextureHandle(&bits, attribute);
+        tch->handle[i].b16[0] = flCreateTextureHandle(&bits, a->attribute);
 
         if (tch->handle[i].b16[0] == 0) {
             goto error_handler;
@@ -353,7 +369,7 @@ s32 ppgSetupTexChunkSeqs(Texture* tch, PPGFileHeader* ppg, u8* adrs, s32 ixNum1s
     return 1;
 
 error_handler:
-    for (i = 0; i < ixNums; i++) {
+    for (i = 0; i < a->ixNums; i++) {
         if (tch->handle[i].b16[0]) {
             flReleaseTextureHandle(tch->handle[i].b16[0]);
         }
@@ -364,7 +380,7 @@ error_handler:
     flLogOut("ppgSetupTexChunkSeqs: Failed to acquire sprite texture handle");
 }
 
-void ppgRenewDotDataSeqs(Texture* tch, u32 gix, u32* srcRam, u32 code, u32 size) {
+void ppgRenewDotDataSeqs(Texture* tch, const PPGDotDataArgs* a) {
     s32 ix;
     s32 i;
     s32 j;
@@ -382,7 +398,7 @@ void ppgRenewDotDataSeqs(Texture* tch, u32 gix, u32* srcRam, u32 code, u32 size)
         return;
     }
 
-    ix = gix - tch->ixNum1st;
+    ix = a->gix - tch->ixNum1st;
 
     if ((ix < 0) || (ix >= tch->total)) {
         return;
@@ -394,10 +410,10 @@ void ppgRenewDotDataSeqs(Texture* tch, u32 gix, u32* srcRam, u32 code, u32 size)
 
     tch->handle[ix].b16[1] |= 0x2000;
 
-    switch (size) {
+    switch (a->size) {
     case 0x40:
-        srcRam8 = (u8*)srcRam;
-        dstRam8 = (u8*)(tch->srcAdrs + tch->srcSize * ix + CODE_0(code));
+        srcRam8 = (u8*)a->srcRam;
+        dstRam8 = (u8*)(tch->srcAdrs + tch->srcSize * ix + CODE_0(a->code));
 
         for (i = 0; i < 8; i++) {
             for (j = 0; j < 8; j++) {
@@ -410,8 +426,8 @@ void ppgRenewDotDataSeqs(Texture* tch, u32 gix, u32* srcRam, u32 code, u32 size)
         break;
 
     case 0x100:
-        srcRam8 = (u8*)srcRam;
-        dstRam8 = (u8*)(tch->srcAdrs + tch->srcSize * ix + CODE_0(code));
+        srcRam8 = (u8*)a->srcRam;
+        dstRam8 = (u8*)(tch->srcAdrs + tch->srcSize * ix + CODE_0(a->code));
 
         for (i = 0; i < 0x10; i++) {
             for (j = 0; j < 0x10; j++) {
@@ -424,8 +440,8 @@ void ppgRenewDotDataSeqs(Texture* tch, u32 gix, u32* srcRam, u32 code, u32 size)
         break;
 
     case 0x400:
-        srcRam8 = (u8*)srcRam;
-        dstRam8 = (u8*)(tch->srcAdrs + tch->srcSize * ix + CODE_1(code));
+        srcRam8 = (u8*)a->srcRam;
+        dstRam8 = (u8*)(tch->srcAdrs + tch->srcSize * ix + CODE_1(a->code));
         tix = (u16*)dctex_linear;
 
         for (i = 0; i < 0x20; i++) {
@@ -439,8 +455,8 @@ void ppgRenewDotDataSeqs(Texture* tch, u32 gix, u32* srcRam, u32 code, u32 size)
         break;
 
     case 0x80:
-        srcRam16 = (u16*)srcRam;
-        dstRam16 = (u16*)(tch->srcAdrs + tch->srcSize * ix + (CODE_0(code)) * 2);
+        srcRam16 = (u16*)a->srcRam;
+        dstRam16 = (u16*)(tch->srcAdrs + tch->srcSize * ix + (CODE_0(a->code)) * 2);
 
         for (i = 0; i < 8; i++) {
             for (j = 0; j < 8; j++) {
@@ -453,8 +469,8 @@ void ppgRenewDotDataSeqs(Texture* tch, u32 gix, u32* srcRam, u32 code, u32 size)
         break;
 
     case 0x200:
-        srcRam16 = (u16*)srcRam;
-        dstRam16 = (u16*)(tch->srcAdrs + tch->srcSize * ix + (CODE_0(code)) * 2);
+        srcRam16 = (u16*)a->srcRam;
+        dstRam16 = (u16*)(tch->srcAdrs + tch->srcSize * ix + (CODE_0(a->code)) * 2);
 
         for (i = 0; i < 0x10; i++) {
             for (j = 0; j < 0x10; j++) {
@@ -467,8 +483,8 @@ void ppgRenewDotDataSeqs(Texture* tch, u32 gix, u32* srcRam, u32 code, u32 size)
         break;
 
     case 0x800:
-        srcRam16 = (u16*)srcRam;
-        dstRam16 = (u16*)(tch->srcAdrs + tch->srcSize * ix + (CODE_1(code)) * 2);
+        srcRam16 = (u16*)a->srcRam;
+        dstRam16 = (u16*)(tch->srcAdrs + tch->srcSize * ix + (CODE_1(a->code)) * 2);
         tix = (u16*)dctex_linear;
 
         for (i = 0; i < 0x20; i++) {
@@ -541,7 +557,7 @@ s32 ppgRenewTexChunkSeqs(Texture* tch) {
     return 1;
 }
 
-s32 ppgSetupTexChunk_1st(Texture* tch, u8* adrs, ssize_t size, s32 ixNum1st, s32 ixNums, s32 ar, s32 arcnt) {
+s32 ppgSetupTexChunk_1st(Texture* tch, const PPGTexChunk1stArgs* a) {
     PPGFileHeader* ppg;
     s32 i;
     s32 ofs;
@@ -557,21 +573,21 @@ s32 ppgSetupTexChunk_1st(Texture* tch, u8* adrs, ssize_t size, s32 ixNum1st, s32
     tch->be = 0;
     tch->textures = 0;
     tch->accnum = 0;
-    tch->ixNum1st = ixNum1st;
-    tch->total = ixNums;
-    tch->flags = ar != 0;
+    tch->ixNum1st = a->ixNum1st;
+    tch->total = a->ixNums;
+    tch->flags = a->ar != 0;
     tch->arCnt = 0;
-    tch->arInit = arcnt;
+    tch->arInit = a->arcnt;
     tch->offset = NULL;
-    tch->srcAdrs = adrs;
-    tch->srcSize = size;
-    tch->handle = (TextureHandle*)ppgMallocF(ixNums * sizeof(TextureHandle));
+    tch->srcAdrs = a->adrs;
+    tch->srcSize = a->size;
+    tch->handle = (TextureHandle*)ppgMallocF(a->ixNums * sizeof(TextureHandle));
 
     if (tch->handle == NULL) {
         flLogOut("ppgSetupTexChunk_1st: Failed to allocate memory for texture handle");
     }
 
-    for (i = 0; i < ixNums; i++) {
+    for (i = 0; i < a->ixNums; i++) {
         tch->handle[i].b16[0] = 0;
         tch->handle[i].b16[1] = 0x8000;
     }
@@ -701,11 +717,11 @@ s32 ppgSetupTexChunk_3rd(Texture* tch, s32 ixNum, u32 attribute) {
         flLogOut("ppgSetupTexChunk_3rd: Failed to allocate texture data buffer");
     }
 
-    if (mltSize != ppgDecompress(koCmpr, cmpAdrs, cmpSize, mltAdrs, mltSize)) {
+    if (mltSize != ppgDecompress(koCmpr, &(PPGDecompressArgs){cmpAdrs, cmpSize, mltAdrs, mltSize})) {
         flLogOut("ppgSetupTexChunk_3rd: Failed to acquire sprite texture handle");
     }
 
-    ppgChangeDataEndian(mltAdrs, mltSize, ppg->pixel & 4, ppg->formARGB == 0x8888, bits.bitdepth);
+    ppgChangeDataEndian(mltAdrs, &(PPGEndianArgs){mltSize, ppg->pixel & 4, ppg->formARGB == 0x8888, bits.bitdepth});
     bits.ptr = mltAdrs;
     hnof->b16[0] = flCreateTextureHandle(&bits, attribute);
     ppgPushDecBuff(mltAdrs);

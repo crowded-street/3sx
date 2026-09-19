@@ -109,7 +109,7 @@ void mlt_obj_trans_init(MultiTexture* mt, s32 mode, u8* adrs) {
     }
 
     mt->texList.tex->be = 0;
-    ppgSetupTexChunkSeqs(&mt->tex, &ppg, adrs, mt->mltgidx16, mt->mltnum, mt->attribute);
+    ppgSetupTexChunkSeqs(&mt->tex, &(PPGTexSeqsArgs){&ppg, adrs, mt->mltgidx16, mt->mltnum, mt->attribute});
 
     if (!(mode & 0x20)) {
         mc = mt->mltcsh16;

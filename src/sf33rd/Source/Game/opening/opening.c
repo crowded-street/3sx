@@ -133,7 +133,7 @@ void TITLE_Init() {
         while (1) {}
     }
 
-    ppgSetupTexChunk_1st(NULL, loadAdrs, loadSize, 601, 1, 0, 0);
+    ppgSetupTexChunk_1st(NULL, &(PPGTexChunk1stArgs){loadAdrs, loadSize, 601, 1, 0, 0});
     ppgSetupTexChunk_2nd(NULL, 601);
     ppgSetupTexChunk_3rd(NULL, 601, 1);
     Push_ramcnt_key(key);
@@ -212,7 +212,7 @@ void OPBG_Init() {
 
     loadSize = Get_size_data_ramcnt_key(key);
     loadAdrs = Get_ramcnt_pointer(key);
-    ppgSetupTexChunk_1st(NULL, loadAdrs, loadSize, 602, 91, 0, 0);
+    ppgSetupTexChunk_1st(NULL, &(PPGTexChunk1stArgs){loadAdrs, loadSize, 602, 91, 0, 0});
 
     for (i = 0; i < ppgOpnBgTex.textures; i++) {
         ppgSetupTexChunk_2nd(NULL, i + 602);

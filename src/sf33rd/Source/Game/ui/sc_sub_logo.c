@@ -49,7 +49,7 @@ static void draw_sf3_logo_open(Vertex* pos, u8 step) {
         pos[1].t = TO_UV_256((i + 192) - step);
         pos[2].s = TO_UV_256(176 - i);
         pos[3].s = TO_UV_256((176 - i) + step);
-        ppgWriteQuadWithST_B(pos, -1, NULL, 0, -1);
+        ppgWriteQuadWithST_B(pos, &(PPGQuadArgs){-1, NULL, 0, -1});
     }
 
     pos[0].y = pos[1].y = 80.0f;
@@ -66,7 +66,7 @@ static void draw_sf3_logo_open(Vertex* pos, u8 step) {
         pos[1].s = TO_UV_256(pos[1].x);
         pos[2].s = TO_UV_256(pos[2].x);
         pos[3].s = TO_UV_256(pos[3].x);
-        ppgWriteQuadWithST_B(pos, -1, NULL, 0, -1);
+        ppgWriteQuadWithST_B(pos, &(PPGQuadArgs){-1, NULL, 0, -1});
     }
 
     pos[0].y = pos[1].y = 80.0f;
@@ -83,7 +83,7 @@ static void draw_sf3_logo_open(Vertex* pos, u8 step) {
         pos[1].s = TO_UV_256(pos[1].x);
         pos[2].t = TO_UV_256(240 - i);
         pos[3].t = TO_UV_256((240 - i) - step);
-        ppgWriteQuadWithST_B(pos, -1, NULL, 0, -1);
+        ppgWriteQuadWithST_B(pos, &(PPGQuadArgs){-1, NULL, 0, -1});
     }
 }
 
@@ -105,7 +105,7 @@ static void draw_sf3_logo_close(Vertex* pos, u8 step) {
         pos[1].t = TO_UV_256(i + 192);
         pos[2].s = TO_UV_256((168 - i) + step);
         pos[3].s = TO_UV_256(176 - i);
-        ppgWriteQuadWithST_B(pos, -1, NULL, 0, -1);
+        ppgWriteQuadWithST_B(pos, &(PPGQuadArgs){-1, NULL, 0, -1});
     }
 
     pos[0].y = pos[1].y = 80.0f;
@@ -122,7 +122,7 @@ static void draw_sf3_logo_close(Vertex* pos, u8 step) {
         pos[1].s = TO_UV_256(pos[1].x);
         pos[2].s = TO_UV_256(pos[2].x);
         pos[3].s = TO_UV_256(pos[3].x);
-        ppgWriteQuadWithST_B(pos, -1, NULL, 0, -1);
+        ppgWriteQuadWithST_B(pos, &(PPGQuadArgs){-1, NULL, 0, -1});
     }
 
     pos[0].y = pos[1].y = 80.0f;
@@ -139,7 +139,7 @@ static void draw_sf3_logo_close(Vertex* pos, u8 step) {
         pos[1].s = TO_UV_256(pos[1].x);
         pos[2].t = TO_UV_256(240 - i - step);
         pos[3].t = TO_UV_256(232 - i);
-        ppgWriteQuadWithST_B(pos, -1, NULL, 0, -1);
+        ppgWriteQuadWithST_B(pos, &(PPGQuadArgs){-1, NULL, 0, -1});
     }
 }
 

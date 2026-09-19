@@ -210,8 +210,8 @@ void CAPLOGO_Init() {
         while (1) {}
     }
 
-    ppgSetupPalChunk(NULL, loadAdrs, loadSize, 0, 0, 1);
-    ppgSetupTexChunk_1st(NULL, loadAdrs, loadSize, 600, 1, 0, 0);
+    ppgSetupPalChunk(NULL, &(PPGPalChunkArgs){loadAdrs, loadSize, 0, 0, 1});
+    ppgSetupTexChunk_1st(NULL, &(PPGTexChunk1stArgs){loadAdrs, loadSize, 600, 1, 0, 0});
     ppgSetupTexChunk_2nd(NULL, 600);
     ppgSetupTexChunk_3rd(NULL, 600, 1);
     Push_ramcnt_key(key);
@@ -286,9 +286,9 @@ void Warning_Init() {
         while (1) {}
     }
 
-    ppgSetupPalChunk(&ppgWarPal, loadAdrs, loadSize, 0, 0, 1);
-    ppgSetupPalChunk(&ppgAdxPal, loadAdrs, loadSize, 0, 1, 1);
-    ppgSetupTexChunk_1st(0, loadAdrs, loadSize, 590, 4, 0, 0);
+    ppgSetupPalChunk(&ppgWarPal, &(PPGPalChunkArgs){loadAdrs, loadSize, 0, 0, 1});
+    ppgSetupPalChunk(&ppgAdxPal, &(PPGPalChunkArgs){loadAdrs, loadSize, 0, 1, 1});
+    ppgSetupTexChunk_1st(0, &(PPGTexChunk1stArgs){loadAdrs, loadSize, 590, 4, 0, 0});
 
     for (i = 0; i < ppgWarTex.textures; i++) {
         ppgSetupTexChunk_2nd(0, i + 590);

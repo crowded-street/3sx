@@ -788,7 +788,7 @@ void bgDrawOneChip(const ChipRect* rect, s32 gbix, u32 vtxCol, s32 ofsPal) {
             return;
         }
 
-        ppgWriteQuadUseTrans(scrDrawPos, vtxCol, 0, gbix, 0, 0, ofsPal);
+        ppgWriteQuadUseTrans(scrDrawPos, &(PPGQuadTransArgs){vtxCol, 0, gbix, 0, 0, ofsPal});
     }
 }
 
@@ -805,7 +805,7 @@ void bgAkebonoDraw() {
     scrDrawPos[3].t = 0.875f;
 
     for (i = 0; i < 3; i++) {
-        ppgWriteQuadUseTrans(scrDrawPos, 0xFFFFFFFF, NULL, i, i, 0, 0);
+        ppgWriteQuadUseTrans(scrDrawPos, &(PPGQuadTransArgs){0xFFFFFFFF, NULL, i, i, 0, 0});
         scrDrawPos->x += 128.0f;
         scrDrawPos[3].x += 128.0f;
     }
