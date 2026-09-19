@@ -2430,19 +2430,23 @@ passing silently:
 
 *Added 2026-09-18.*
 
-Twenty character files, 3488 pattern scripts, **4.90-7.55 before, 76 files at a mean of
-8.79 after**, eighteen of them at 10.00 and the lowest three at 7.55. The sequence was Recipe V per file, Recipe X on
+Twenty character files, 3488 pattern scripts, **4.90-7.55 before, 77 files at a mean of
+9.03 after**, thirty of them at 10.00 and the lowest four at 7.55. (The figure was 8.79
+over 76 files until the identical-body pass below found 130 more.) The sequence was Recipe V per file, Recipe X on
 the dispatches over the complexity threshold, Recipe S to get under the function-count
 threshold, then Recipe V folder-wide, Recipe D on what that exposed, and Recipe S again on
 the shared skeletons.
 
 What is left, and why no recipe in the catalogue reaches it:
 
-- **678 pattern scripts are one of a kind.** A script that is a switch on the step counter
-  with one call per step is more than 75% skeleton, so CodeScene pairs any two of them, and
-  a file's score tracks how many of its functions are in such a pair almost exactly: 0 is
-  10.00, 3-4 is 9.38, 5-6 is 9.09, 10-12 is 8.28, 13 or more is 8.03. Merging two of them
-  would be parameterising two or more differences, which is Recipe D's forbidden near-miss.
+- **548 pattern scripts are left unfolded**, of which 282 are one of a kind and **176 are
+  in families of exactly two** that Recipe V's three-instance rule refuses. A script that is
+  a switch on the step counter with one call per step is more than 75% skeleton, so
+  CodeScene pairs any two of them, and a file's score tracks how many of its functions are
+  in such a pair almost exactly: 0 is 10.00, 3-4 is 9.38, 5-6 is 9.09, 10-12 is 8.28, 13 or
+  more is 8.03. Merging two one-of-a-kind scripts would be parameterising two or more
+  differences, which is Recipe D's forbidden near-miss; merging the pairs is the open
+  question, and here it is worth 176 functions.
 - **A file of three-arm skeletons has a mean of five however it is cut.** A skeleton's
   cyclomatic complexity is its step count plus two, so `pass_patterns_3step.c` and
   `pass_patterns_4step.c` sit at 7.55 on Overall Code Complexity and no legal recipe takes
@@ -2461,7 +2465,7 @@ one thing the equivalence checker cannot tell you.
 Three things were measured and **refused**:
 
 - **Recipe F.** The families whose step sequence matches but whose engine call does not
-  cover 60 of the 678, in 13 skeletons. Measured on one file before the folder-wide work it
+  cover 60 of the residual, in 13 skeletons. Measured on one file before the folder-wide work it
   moved the score not at all - 8.03 to 8.03, duplication 24 to 18. Recipe F is the
   catalogue's one genuinely high-risk recipe, it reroutes a call through a pointer, and
   replay verification cannot reach CPU AI. 60 functions is not worth that. The measurement
@@ -2571,9 +2575,14 @@ then Recipe S, then the identical-body pass. Going widest-first folded 1233 of 1
 scripts in one commit and left no per-character skeletons to clean up afterwards - the
 passive folder needed a 229-copy Recipe D pass for exactly that reason.
 
-What stops it is what stops the passive folder. 272 scripts are left unfolded: 175 are one
-of a kind, and 98 are in families of exactly **two**, which Recipe V's three-instance rule
-refuses and which are the open question this playbook has been carrying since 2026-09-17.
-Past that, a file of three-arm skeletons has a mean of five however it is cut, and the
-character files are already under both size thresholds, so splitting them further would
-only separate duplication pairs without removing them.
+What stops it is what stops the passive folder. 272 scripts are left unfolded: **173 are
+one of a kind**, 74 are in families of exactly **two** - which Recipe V's three-instance
+rule refuses, and which is the open question this playbook has been carrying since
+2026-09-17 - and 25 are in families of three or more whose surplus varying values will not
+specialise into sub-groups of three. Past that, a file of three-arm skeletons has a mean of
+five however it is cut, and the character files are already under both size thresholds, so
+splitting them further would only separate duplication pairs without removing them.
+
+**That 74 is the number to put to the owner.** It is the first time the two-instance
+question has had a price attached on this scale: answering it would reach a further 27% of
+what is left here, and the equivalent share of the passive folder.
