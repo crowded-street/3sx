@@ -173,13 +173,96 @@ s32 plDrawPixel_3(plContext* dst, s32 x, s32 y, u32 color) {
     return plDrawPixel(dst, &pixel);
 }
 
-u32 plGetColor(s32 x, s32 y, plContext* lpcontext) {
-    u8* lp;
+/* The stored index at this address: one width per bit depth, and for the
+ * 4-bit case the half-byte the x coordinate selects. */
+static u32 read_indexed_color(plContext* lpcontext, u8* lp, s32 x) {
+    u32 color;
+
+    switch (lpcontext->bitdepth) {
+    case 0:
+        if (lpcontext->desc & 0x40) {
+            color = lp[0];
+        } else {
+            color = lp[0];
+
+            if (((x & 1) ^ ((lpcontext->desc & 0x10) != 0 ? 1 : 0)) != 0) {
+                color &= 0xF;
+            } else {
+                color = (color >> 4) & 0xF;
+            }
+        }
+
+        break;
+
+    case 1:
+        color = lp[0];
+        break;
+
+    case 2:
+        color = ((u16*)lp)[0];
+        break;
+
+    case 4:
+        color = ((u32*)lp)[0];
+        break;
+    }
+
+
+    return color;
+}
+
+/* The packed colour at this address, unpacked to 8 bits a channel through
+ * the surface's own masks and shifts. */
+static u32 read_packed_color(plContext* lpcontext, u8* lp) {
     u32 color;
     s32 r;
     s32 g;
     s32 b;
     s32 a;
+
+switch (lpcontext->bitdepth) {
+case 2:
+    color = ((u16*)lp)[0];
+    break;
+
+case 3:
+    color = (lp[2] << 0x10) | (lp[1] << 8) | lp[0];
+    break;
+
+case 4:
+    color = ((u32*)lp)[0];
+    break;
+}
+
+if (lpcontext->pixelformat.al != 0) {
+    a = ((lpcontext->pixelformat.am & (color >> lpcontext->pixelformat.as)) * 0xFF) / lpcontext->pixelformat.am;
+} else {
+    a = 0xFF;
+}
+
+if (lpcontext->pixelformat.rl != 0) {
+    r = ((lpcontext->pixelformat.rm & (color >> lpcontext->pixelformat.rs)) * 0xFF) / lpcontext->pixelformat.rm;
+} else {
+    r = 0;
+}
+
+if (lpcontext->pixelformat.gl != 0) {
+    g = ((lpcontext->pixelformat.gm & (color >> lpcontext->pixelformat.gs)) * 0xFF) / lpcontext->pixelformat.gm;
+} else {
+    g = 0;
+}
+
+if (lpcontext->pixelformat.bl != 0) {
+    b = ((lpcontext->pixelformat.bm & (color >> lpcontext->pixelformat.bs)) * 0xFF) / lpcontext->pixelformat.bm;
+} else {
+    b = 0;
+}
+
+return a << 24 | r << 16 | g << 8 | b;
+}
+
+u32 plGetColor(s32 x, s32 y, plContext* lpcontext) {
+    u8* lp;
 
     lp = plCalcAddress(x, y, lpcontext);
 
@@ -188,77 +271,10 @@ u32 plGetColor(s32 x, s32 y, plContext* lpcontext) {
     }
 
     if (lpcontext->desc & 4) {
-        switch (lpcontext->bitdepth) {
-        case 0:
-            if (lpcontext->desc & 0x40) {
-                color = lp[0];
-            } else {
-                color = lp[0];
-
-                if (((x & 1) ^ ((lpcontext->desc & 0x10) != 0 ? 1 : 0)) != 0) {
-                    color &= 0xF;
-                } else {
-                    color = (color >> 4) & 0xF;
-                }
-            }
-
-            break;
-
-        case 1:
-            color = lp[0];
-            break;
-
-        case 2:
-            color = ((u16*)lp)[0];
-            break;
-
-        case 4:
-            color = ((u32*)lp)[0];
-            break;
-        }
-
-        return color;
+        return read_indexed_color(lpcontext, lp, x);
     }
 
-    switch (lpcontext->bitdepth) {
-    case 2:
-        color = ((u16*)lp)[0];
-        break;
-
-    case 3:
-        color = (lp[2] << 0x10) | (lp[1] << 8) | lp[0];
-        break;
-
-    case 4:
-        color = ((u32*)lp)[0];
-        break;
-    }
-
-    if (lpcontext->pixelformat.al != 0) {
-        a = ((lpcontext->pixelformat.am & (color >> lpcontext->pixelformat.as)) * 0xFF) / lpcontext->pixelformat.am;
-    } else {
-        a = 0xFF;
-    }
-
-    if (lpcontext->pixelformat.rl != 0) {
-        r = ((lpcontext->pixelformat.rm & (color >> lpcontext->pixelformat.rs)) * 0xFF) / lpcontext->pixelformat.rm;
-    } else {
-        r = 0;
-    }
-
-    if (lpcontext->pixelformat.gl != 0) {
-        g = ((lpcontext->pixelformat.gm & (color >> lpcontext->pixelformat.gs)) * 0xFF) / lpcontext->pixelformat.gm;
-    } else {
-        g = 0;
-    }
-
-    if (lpcontext->pixelformat.bl != 0) {
-        b = ((lpcontext->pixelformat.bm & (color >> lpcontext->pixelformat.bs)) * 0xFF) / lpcontext->pixelformat.bm;
-    } else {
-        b = 0;
-    }
-
-    return a << 24 | r << 16 | g << 8 | b;
+    return read_packed_color(lpcontext, lp);
 }
 
 s32 plConvertContext(plContext* dst, plContext* src) {
