@@ -377,6 +377,41 @@ static void update_op_107_effect_sequence(void) {
     op_bg_move(33);
 }
 
+/* Scene 107 runs twelve steps; its tail is reached through the default arm.
+ * Step 6 ended in `return` rather than `break`, which is the same here and
+ * stays as it was. */
+static void op_107_move_late() {
+    switch (op_w.r_no_2) {
+    case 6:
+        opening_cue_step(gSeqStatus[0] >= op_107_sound[op_w.r_no_2], 35, 34);
+        return;
+
+    case 7:
+        opening_cue_step_effect(gSeqStatus[0] >= op_107_sound[op_w.r_no_2], 36, 35, 14);
+        break;
+
+    case 8:
+        opening_cue_step_disp(gSeqStatus[0] >= op_107_sound[op_w.r_no_2], 37, 36, 1);
+        break;
+
+    case 9:
+        opening_cue_step(gSeqStatus[0] >= op_107_sound[op_w.r_no_2], 38, 37);
+        break;
+
+    case 10:
+        opening_cue_step(gSeqStatus[0] >= op_107_sound[op_w.r_no_2], 39, 38);
+        break;
+
+    case 11:
+        opening_cue_step(gSeqStatus[0] >= op_107_sound[op_w.r_no_2], 40, 39);
+        break;
+
+    default:
+        op_bg_move(40);
+        break;
+    }
+}
+
 void op_107_move() {
     switch (op_w.r_no_2) {
     case 0:
@@ -412,32 +447,8 @@ void op_107_move() {
         update_op_107_effect_sequence();
         break;
 
-    case 6:
-        opening_cue_step(gSeqStatus[0] >= op_107_sound[op_w.r_no_2], 35, 34);
-        return;
-
-    case 7:
-        opening_cue_step_effect(gSeqStatus[0] >= op_107_sound[op_w.r_no_2], 36, 35, 14);
-        break;
-
-    case 8:
-        opening_cue_step_disp(gSeqStatus[0] >= op_107_sound[op_w.r_no_2], 37, 36, 1);
-        break;
-
-    case 9:
-        opening_cue_step(gSeqStatus[0] >= op_107_sound[op_w.r_no_2], 38, 37);
-        break;
-
-    case 10:
-        opening_cue_step(gSeqStatus[0] >= op_107_sound[op_w.r_no_2], 39, 38);
-        break;
-
-    case 11:
-        opening_cue_step(gSeqStatus[0] >= op_107_sound[op_w.r_no_2], 40, 39);
-        break;
-
     default:
-        op_bg_move(40);
+        op_107_move_late();
         break;
     }
 }
