@@ -285,6 +285,57 @@ static const void* read_u16_array(SDL_IOStream* rom, Location location) {
     return result;
 }
 
+/* The two passes that make a coalesced image: order the sections by where
+ * they sit in the ROM, then give every run of adjacent ones a single
+ * allocation. */
+static void sort_sections_by_offset(CharDataSection* sections, const Location* section_locations) {
+for (int i = 1; i < CHAR_DATA_SECTION_COUNT; i++) {
+    const CharDataSection section = sections[i];
+    int j = i;
+
+    while (j > 0 && section_locations[sections[j - 1]].offset > section_locations[section].offset) {
+        sections[j] = sections[j - 1];
+        j--;
+    }
+
+    sections[j] = section;
+}
+}
+
+static void merge_adjacent_runs(CharDataImage* image, CharDataSection* sections, const Location* section_locations) {
+for (int run_start = 0; run_start < CHAR_DATA_SECTION_COUNT;) {
+    int run_end = run_start;
+
+    while (run_end + 1 < CHAR_DATA_SECTION_COUNT) {
+        const Location current = section_locations[sections[run_end]];
+        const Location next = section_locations[sections[run_end + 1]];
+
+        if (current.offset + current.size != next.offset) {
+            break;
+        }
+
+        run_end++;
+    }
+
+    if (run_end > run_start) {
+        const Uint32 base_offset = section_locations[sections[run_start]].offset;
+        const Location last = section_locations[sections[run_end]];
+        Uint8* allocation = SDL_malloc(last.offset + last.size - base_offset);
+
+        for (int i = run_start; i <= run_end; i++) {
+            const CharDataSection section = sections[i];
+            CharDataSpan* span = &image->spans[section];
+            Uint8* destination = allocation + section_locations[section].offset - base_offset;
+            SDL_memcpy(destination, span->data, span->size);
+            SDL_free(span->data);
+            span->data = destination;
+        }
+    }
+
+    run_start = run_end + 1;
+}
+}
+
 static void coalesce_adjacent_sections(CharDataImage* image, const LocationData* locations) {
     const Location* section_locations = (const Location*)locations;
     CharDataSection sections[CHAR_DATA_SECTION_COUNT];
@@ -293,49 +344,9 @@ static void coalesce_adjacent_sections(CharDataImage* image, const LocationData*
         sections[i] = i;
     }
 
-    for (int i = 1; i < CHAR_DATA_SECTION_COUNT; i++) {
-        const CharDataSection section = sections[i];
-        int j = i;
+    sort_sections_by_offset(sections, section_locations);
 
-        while (j > 0 && section_locations[sections[j - 1]].offset > section_locations[section].offset) {
-            sections[j] = sections[j - 1];
-            j--;
-        }
-
-        sections[j] = section;
-    }
-
-    for (int run_start = 0; run_start < CHAR_DATA_SECTION_COUNT;) {
-        int run_end = run_start;
-
-        while (run_end + 1 < CHAR_DATA_SECTION_COUNT) {
-            const Location current = section_locations[sections[run_end]];
-            const Location next = section_locations[sections[run_end + 1]];
-
-            if (current.offset + current.size != next.offset) {
-                break;
-            }
-
-            run_end++;
-        }
-
-        if (run_end > run_start) {
-            const Uint32 base_offset = section_locations[sections[run_start]].offset;
-            const Location last = section_locations[sections[run_end]];
-            Uint8* allocation = SDL_malloc(last.offset + last.size - base_offset);
-
-            for (int i = run_start; i <= run_end; i++) {
-                const CharDataSection section = sections[i];
-                CharDataSpan* span = &image->spans[section];
-                Uint8* destination = allocation + section_locations[section].offset - base_offset;
-                SDL_memcpy(destination, span->data, span->size);
-                SDL_free(span->data);
-                span->data = destination;
-            }
-        }
-
-        run_start = run_end + 1;
-    }
+    merge_adjacent_runs(image, sections, section_locations);
 }
 
 static void update_table_pointers(CharDataImage* image) {
