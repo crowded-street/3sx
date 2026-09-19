@@ -826,17 +826,11 @@ static void SDLGPURenderer_Quit() {
     SDL_DestroyWindow(window);
 }
 
-static void SDLGPURenderer_RenderFrame(SDL_Rect viewport) {
-    SDL_GPUCommandBuffer* command_buffer = SDL_AcquireGPUCommandBuffer(device);
+// Each phase of a frame, exactly as it stood inline: the pending textures are
+// created and handed back, the quad vertices mapped, the frame uploaded, and the
+// two render passes drawn.
 
-    // Delete stale textures
-
-    for (int i = 0; i < arrlen(textures_to_delete); i++) {
-        SDL_ReleaseGPUTexture(device, textures_to_delete[i]);
-    }
-
-    // Prepare texture and vertex data
-
+static _TextureUploadInfo* create_pending_textures(void) {
     _TextureUploadInfo* texture_uploads = NULL;
 
     for (int i = 0; i < arrlen(textures_to_create); i++) {
@@ -885,6 +879,10 @@ static void SDLGPURenderer_RenderFrame(SDL_Rect viewport) {
         }
     }
 
+    return texture_uploads;
+}
+
+static void map_quad_vertices(void) {
     if (arrlen(quads) > 0) {
         _Vertex* vertex_transfer_ptr = SDL_MapGPUTransferBuffer(device, vertex_transfer_buffer, false);
 
@@ -903,9 +901,9 @@ static void SDLGPURenderer_RenderFrame(SDL_Rect viewport) {
 
         SDL_UnmapGPUTransferBuffer(device, vertex_transfer_buffer);
     }
+}
 
-    // Upload
-
+static void upload_pending_data(SDL_GPUCommandBuffer* command_buffer, _TextureUploadInfo* texture_uploads) {
     SDL_GPUCopyPass* copy_pass = SDL_BeginGPUCopyPass(command_buffer);
 
     for (int i = 0; i < arrlen(texture_uploads); i++) {
@@ -944,6 +942,237 @@ static void SDLGPURenderer_RenderFrame(SDL_Rect viewport) {
     }
 
     SDL_EndGPUCopyPass(copy_pass);
+}
+
+static void draw_quads_to_canvas(SDL_GPUCommandBuffer* command_buffer) {
+    SDL_GPURenderPass* canvas_pass = SDL_BeginGPURenderPass(
+        command_buffer,
+        &(SDL_GPUColorTargetInfo) {
+            .clear_color = { 0, 0, 0, 1 },
+            .load_op = SDL_GPU_LOADOP_CLEAR,
+            .store_op = SDL_GPU_STOREOP_STORE,
+            .texture = canvas_texture,
+        },
+        1,
+        &(SDL_GPUDepthStencilTargetInfo) {
+            .texture = depth_texture,
+            .clear_depth = 1.0f,
+            .load_op = SDL_GPU_LOADOP_CLEAR,
+            .store_op = SDL_GPU_STOREOP_DONT_CARE,
+            .stencil_load_op = SDL_GPU_LOADOP_DONT_CARE,
+            .stencil_store_op = SDL_GPU_STOREOP_DONT_CARE,
+        }
+    );
+
+    SDL_BindGPUVertexBuffers(
+        canvas_pass,
+        0,
+        (SDL_GPUBufferBinding[]) {
+            {
+                .buffer = vertex_buffer,
+                .offset = 0,
+            },
+        },
+        1
+    );
+
+    SDL_BindGPUIndexBuffer(
+        canvas_pass,
+        (SDL_GPUBufferBinding[]) {
+            {
+                .buffer = index_buffer,
+                .offset = 0,
+            },
+        },
+        SDL_GPU_INDEXELEMENTSIZE_16BIT
+    );
+
+    for (int i = 0; i < arrlen(quads); i++) {
+        const _Quad* quad = &quads[i];
+
+        if (quad->texture_index == -1) {
+            SDL_BindGPUGraphicsPipeline(canvas_pass, solid_pipeline);
+        } else {
+            const _Texture* texture = &textures[quad->texture_index];
+
+            switch (texture->palette_type) {
+            case PALETTE_NONE:
+                SDL_BindGPUGraphicsPipeline(canvas_pass, direct_pipeline);
+
+                SDL_BindGPUFragmentSamplers(
+                    canvas_pass,
+                    0,
+                    (SDL_GPUTextureSamplerBinding[]) {
+                        {
+                            .texture = texture->handle,
+                            .sampler = sampler,
+                        },
+                    },
+                    1
+                );
+
+                break;
+
+            case PALETTE_4:
+                SDL_BindGPUGraphicsPipeline(canvas_pass, palette_4_pipeline);
+
+                SDL_BindGPUFragmentSamplers(
+                    canvas_pass,
+                    0,
+                    (SDL_GPUTextureSamplerBinding[]) {
+                        {
+                            .texture = texture->handle,
+                            .sampler = sampler,
+                        },
+                        {
+                            .texture = palettes[quad->palette_index],
+                            .sampler = sampler,
+                        },
+                    },
+                    2
+                );
+
+                break;
+
+            case PALETTE_8:
+                SDL_BindGPUGraphicsPipeline(canvas_pass, palette_8_pipeline);
+
+                SDL_BindGPUFragmentSamplers(
+                    canvas_pass,
+                    0,
+                    (SDL_GPUTextureSamplerBinding[]) {
+                        {
+                            .texture = texture->handle,
+                            .sampler = sampler,
+                        },
+                        {
+                            .texture = palettes[quad->palette_index],
+                            .sampler = sampler,
+                        },
+                    },
+                    2
+                );
+
+                break;
+            }
+        }
+
+        SDL_DrawGPUIndexedPrimitives(canvas_pass, 6, 1, i * 6, 0, 0);
+    }
+
+    SDL_EndGPURenderPass(canvas_pass);
+}
+
+static void draw_canvas_to_screen(
+    SDL_GPUCommandBuffer* command_buffer, SDL_GPUTexture* swapchain_texture, SDL_Rect viewport
+) {
+    SDL_GPURenderPass* screen_pass = SDL_BeginGPURenderPass(
+        command_buffer,
+        &(SDL_GPUColorTargetInfo) {
+            .clear_color = { 0, 0, 0, 1 },
+            .load_op = SDL_GPU_LOADOP_CLEAR,
+            .store_op = SDL_GPU_STOREOP_STORE,
+            .texture = swapchain_texture,
+        },
+        1,
+        NULL
+    );
+
+    SDL_SetGPUViewport(
+        screen_pass,
+        &(SDL_GPUViewport) {
+            .x = viewport.x,
+            .y = viewport.y,
+            .w = viewport.w,
+            .h = viewport.h,
+            .min_depth = 0,
+            .max_depth = 1,
+        }
+    );
+
+    if (scanline_intensity > 0) {
+        SDL_BindGPUGraphicsPipeline(screen_pass, scanline_pipeline);
+    } else {
+        SDL_BindGPUGraphicsPipeline(screen_pass, screen_pipeline);
+    }
+
+    SDL_BindGPUVertexBuffers(
+        screen_pass,
+        0,
+        (SDL_GPUBufferBinding[]) {
+            {
+                .buffer = screen_vertex_buffer,
+                .offset = 0,
+            },
+        },
+        1
+    );
+
+    SDL_BindGPUIndexBuffer(
+        screen_pass,
+        (SDL_GPUBufferBinding[]) {
+            {
+                .buffer = index_buffer,
+                .offset = 0,
+            },
+        },
+        SDL_GPU_INDEXELEMENTSIZE_16BIT
+    );
+
+    SDL_BindGPUFragmentSamplers(
+        screen_pass,
+        0,
+        (SDL_GPUTextureSamplerBinding[]) {
+            {
+                .texture = canvas_texture,
+                .sampler = sampler,
+            },
+        },
+        1
+    );
+
+    SDL_PushGPUFragmentUniformData(
+        command_buffer,
+        0,
+        &((const _ScanlineUniforms) {
+            .scanline_intensity = scanline_intensity,
+        }),
+        sizeof(_ScanlineUniforms)
+    );
+
+    SDL_DrawGPUIndexedPrimitives(screen_pass, 6, 1, 0, 0, 0);
+
+#if DEBUG && IMGUI
+    ImGuiW_RenderDrawData(command_buffer, screen_pass);
+#endif
+
+    SDL_EndGPURenderPass(screen_pass);
+}
+
+static void release_texture_uploads(_TextureUploadInfo* texture_uploads) {
+    for (int i = 0; i < arrlen(texture_uploads); i++) {
+        SDL_ReleaseGPUTransferBuffer(device, texture_uploads[i].transfer_buffer);
+    }
+}
+
+static void SDLGPURenderer_RenderFrame(SDL_Rect viewport) {
+    SDL_GPUCommandBuffer* command_buffer = SDL_AcquireGPUCommandBuffer(device);
+
+    // Delete stale textures
+
+    for (int i = 0; i < arrlen(textures_to_delete); i++) {
+        SDL_ReleaseGPUTexture(device, textures_to_delete[i]);
+    }
+
+    // Prepare texture and vertex data
+
+    _TextureUploadInfo* texture_uploads = create_pending_textures();
+
+    map_quad_vertices();
+
+    // Upload
+
+    upload_pending_data(command_buffer, texture_uploads);
 
     // Render
 
@@ -955,213 +1184,16 @@ static void SDLGPURenderer_RenderFrame(SDL_Rect viewport) {
         ImGuiW_PrepareDrawData(command_buffer);
 #endif
 
-        SDL_GPURenderPass* canvas_pass = SDL_BeginGPURenderPass(
-            command_buffer,
-            &(SDL_GPUColorTargetInfo) {
-                .clear_color = { 0, 0, 0, 1 },
-                .load_op = SDL_GPU_LOADOP_CLEAR,
-                .store_op = SDL_GPU_STOREOP_STORE,
-                .texture = canvas_texture,
-            },
-            1,
-            &(SDL_GPUDepthStencilTargetInfo) {
-                .texture = depth_texture,
-                .clear_depth = 1.0f,
-                .load_op = SDL_GPU_LOADOP_CLEAR,
-                .store_op = SDL_GPU_STOREOP_DONT_CARE,
-                .stencil_load_op = SDL_GPU_LOADOP_DONT_CARE,
-                .stencil_store_op = SDL_GPU_STOREOP_DONT_CARE,
-            }
-        );
+        draw_quads_to_canvas(command_buffer);
 
-        SDL_BindGPUVertexBuffers(
-            canvas_pass,
-            0,
-            (SDL_GPUBufferBinding[]) {
-                {
-                    .buffer = vertex_buffer,
-                    .offset = 0,
-                },
-            },
-            1
-        );
-
-        SDL_BindGPUIndexBuffer(
-            canvas_pass,
-            (SDL_GPUBufferBinding[]) {
-                {
-                    .buffer = index_buffer,
-                    .offset = 0,
-                },
-            },
-            SDL_GPU_INDEXELEMENTSIZE_16BIT
-        );
-
-        for (int i = 0; i < arrlen(quads); i++) {
-            const _Quad* quad = &quads[i];
-
-            if (quad->texture_index == -1) {
-                SDL_BindGPUGraphicsPipeline(canvas_pass, solid_pipeline);
-            } else {
-                const _Texture* texture = &textures[quad->texture_index];
-
-                switch (texture->palette_type) {
-                case PALETTE_NONE:
-                    SDL_BindGPUGraphicsPipeline(canvas_pass, direct_pipeline);
-
-                    SDL_BindGPUFragmentSamplers(
-                        canvas_pass,
-                        0,
-                        (SDL_GPUTextureSamplerBinding[]) {
-                            {
-                                .texture = texture->handle,
-                                .sampler = sampler,
-                            },
-                        },
-                        1
-                    );
-
-                    break;
-
-                case PALETTE_4:
-                    SDL_BindGPUGraphicsPipeline(canvas_pass, palette_4_pipeline);
-
-                    SDL_BindGPUFragmentSamplers(
-                        canvas_pass,
-                        0,
-                        (SDL_GPUTextureSamplerBinding[]) {
-                            {
-                                .texture = texture->handle,
-                                .sampler = sampler,
-                            },
-                            {
-                                .texture = palettes[quad->palette_index],
-                                .sampler = sampler,
-                            },
-                        },
-                        2
-                    );
-
-                    break;
-
-                case PALETTE_8:
-                    SDL_BindGPUGraphicsPipeline(canvas_pass, palette_8_pipeline);
-
-                    SDL_BindGPUFragmentSamplers(
-                        canvas_pass,
-                        0,
-                        (SDL_GPUTextureSamplerBinding[]) {
-                            {
-                                .texture = texture->handle,
-                                .sampler = sampler,
-                            },
-                            {
-                                .texture = palettes[quad->palette_index],
-                                .sampler = sampler,
-                            },
-                        },
-                        2
-                    );
-
-                    break;
-                }
-            }
-
-            SDL_DrawGPUIndexedPrimitives(canvas_pass, 6, 1, i * 6, 0, 0);
-        }
-
-        SDL_EndGPURenderPass(canvas_pass);
-
-        SDL_GPURenderPass* screen_pass = SDL_BeginGPURenderPass(
-            command_buffer,
-            &(SDL_GPUColorTargetInfo) {
-                .clear_color = { 0, 0, 0, 1 },
-                .load_op = SDL_GPU_LOADOP_CLEAR,
-                .store_op = SDL_GPU_STOREOP_STORE,
-                .texture = swapchain_texture,
-            },
-            1,
-            NULL
-        );
-
-        SDL_SetGPUViewport(
-            screen_pass,
-            &(SDL_GPUViewport) {
-                .x = viewport.x,
-                .y = viewport.y,
-                .w = viewport.w,
-                .h = viewport.h,
-                .min_depth = 0,
-                .max_depth = 1,
-            }
-        );
-
-        if (scanline_intensity > 0) {
-            SDL_BindGPUGraphicsPipeline(screen_pass, scanline_pipeline);
-        } else {
-            SDL_BindGPUGraphicsPipeline(screen_pass, screen_pipeline);
-        }
-
-        SDL_BindGPUVertexBuffers(
-            screen_pass,
-            0,
-            (SDL_GPUBufferBinding[]) {
-                {
-                    .buffer = screen_vertex_buffer,
-                    .offset = 0,
-                },
-            },
-            1
-        );
-
-        SDL_BindGPUIndexBuffer(
-            screen_pass,
-            (SDL_GPUBufferBinding[]) {
-                {
-                    .buffer = index_buffer,
-                    .offset = 0,
-                },
-            },
-            SDL_GPU_INDEXELEMENTSIZE_16BIT
-        );
-
-        SDL_BindGPUFragmentSamplers(
-            screen_pass,
-            0,
-            (SDL_GPUTextureSamplerBinding[]) {
-                {
-                    .texture = canvas_texture,
-                    .sampler = sampler,
-                },
-            },
-            1
-        );
-
-        SDL_PushGPUFragmentUniformData(
-            command_buffer,
-            0,
-            &((const _ScanlineUniforms) {
-                .scanline_intensity = scanline_intensity,
-            }),
-            sizeof(_ScanlineUniforms)
-        );
-
-        SDL_DrawGPUIndexedPrimitives(screen_pass, 6, 1, 0, 0, 0);
-
-#if DEBUG && IMGUI
-        ImGuiW_RenderDrawData(command_buffer, screen_pass);
-#endif
-
-        SDL_EndGPURenderPass(screen_pass);
+        draw_canvas_to_screen(command_buffer, swapchain_texture, viewport);
     }
 
     SDL_SubmitGPUCommandBuffer(command_buffer);
 
     // Cleanup
 
-    for (int i = 0; i < arrlen(texture_uploads); i++) {
-        SDL_ReleaseGPUTransferBuffer(device, texture_uploads[i].transfer_buffer);
-    }
+    release_texture_uploads(texture_uploads);
 
     arrfree(texture_uploads);
     arrsetlen(quads, 0);
