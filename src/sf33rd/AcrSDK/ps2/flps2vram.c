@@ -34,6 +34,57 @@ typedef struct {
 s32 flPS2LockTexture(const FlLockArgs* a);
 s32 flPS2UnlockTexture(FLTexture*);
 
+/* The three pixel layouts this file sets, each exactly the run of assignments
+ * that stood at every one of its call sites. */
+
+/* the 16-bit RGBA5551 layout */
+static void set_pixelformat_rgba5551(plContext* c) {
+    c->pixelformat.rl = 5;
+    c->pixelformat.rs = 0xA;
+    c->pixelformat.rm = 0x1F;
+    c->pixelformat.gl = 5;
+    c->pixelformat.gs = 5;
+    c->pixelformat.gm = 0x1F;
+    c->pixelformat.bl = 5;
+    c->pixelformat.bs = 0;
+    c->pixelformat.bm = 0x1F;
+    c->pixelformat.al = 1;
+    c->pixelformat.as = 0xF;
+    c->pixelformat.am = 1;
+}
+
+/* the 24-bit RGB888 layout */
+static void set_pixelformat_rgb888(plContext* c) {
+    c->pixelformat.rl = 8;
+    c->pixelformat.rs = 0x10;
+    c->pixelformat.rm = 0xFF;
+    c->pixelformat.gl = 8;
+    c->pixelformat.gs = 8;
+    c->pixelformat.gm = 0xFF;
+    c->pixelformat.bl = 8;
+    c->pixelformat.bs = 0;
+    c->pixelformat.bm = 0xFF;
+    c->pixelformat.al = 0;
+    c->pixelformat.as = 0;
+    c->pixelformat.am = 0;
+}
+
+/* the 32-bit RGBA8888 layout */
+static void set_pixelformat_rgba8888(plContext* c) {
+    c->pixelformat.rl = 8;
+    c->pixelformat.rs = 0x10;
+    c->pixelformat.rm = 0xFF;
+    c->pixelformat.gl = 8;
+    c->pixelformat.gs = 8;
+    c->pixelformat.gm = 0xFF;
+    c->pixelformat.bl = 8;
+    c->pixelformat.bs = 0;
+    c->pixelformat.bm = 0xFF;
+    c->pixelformat.al = 8;
+    c->pixelformat.as = 0x18;
+    c->pixelformat.am = 0xFF;
+}
+
 u32 flCreateTextureHandle(plContext* bits, u32 flag) {
     FLTexture* lpflTexture;
     u32 th = flPS2GetTextureHandle();
@@ -375,18 +426,7 @@ static void set_lock_context_format(plContext* lpcontext, u32 format) {
 
     case 2:
         lpcontext->bitdepth = 2;
-        lpcontext->pixelformat.rl = 5;
-        lpcontext->pixelformat.rs = 0xA;
-        lpcontext->pixelformat.rm = 0x1F;
-        lpcontext->pixelformat.gl = 5;
-        lpcontext->pixelformat.gs = 5;
-        lpcontext->pixelformat.gm = 0x1F;
-        lpcontext->pixelformat.bl = 5;
-        lpcontext->pixelformat.bs = 0;
-        lpcontext->pixelformat.bm = 0x1F;
-        lpcontext->pixelformat.al = 1;
-        lpcontext->pixelformat.as = 0xF;
-        lpcontext->pixelformat.am = 1;
+        set_pixelformat_rgba5551(lpcontext);
         lpcontext->pixelformat.rs = 0;
         lpcontext->pixelformat.bs = 0xA;
         lpcontext->pixelformat.gl = 5;
@@ -396,18 +436,7 @@ static void set_lock_context_format(plContext* lpcontext, u32 format) {
 
     case 1:
         lpcontext->bitdepth = 3;
-        lpcontext->pixelformat.rl = 8;
-        lpcontext->pixelformat.rs = 0x10;
-        lpcontext->pixelformat.rm = 0xFF;
-        lpcontext->pixelformat.gl = 8;
-        lpcontext->pixelformat.gs = 8;
-        lpcontext->pixelformat.gm = 0xFF;
-        lpcontext->pixelformat.bl = 8;
-        lpcontext->pixelformat.bs = 0;
-        lpcontext->pixelformat.bm = 0xFF;
-        lpcontext->pixelformat.al = 0;
-        lpcontext->pixelformat.as = 0;
-        lpcontext->pixelformat.am = 0;
+        set_pixelformat_rgb888(lpcontext);
         lpcontext->pixelformat.rs = 0;
         lpcontext->pixelformat.bs = 0x10;
         lpcontext->pitch = lpcontext->width * lpcontext->bitdepth;
@@ -415,18 +444,7 @@ static void set_lock_context_format(plContext* lpcontext, u32 format) {
 
     case 0:
         lpcontext->bitdepth = 4;
-        lpcontext->pixelformat.rl = 8;
-        lpcontext->pixelformat.rs = 0x10;
-        lpcontext->pixelformat.rm = 0xFF;
-        lpcontext->pixelformat.gl = 8;
-        lpcontext->pixelformat.gs = 8;
-        lpcontext->pixelformat.gm = 0xFF;
-        lpcontext->pixelformat.bl = 8;
-        lpcontext->pixelformat.bs = 0;
-        lpcontext->pixelformat.bm = 0xFF;
-        lpcontext->pixelformat.al = 8;
-        lpcontext->pixelformat.as = 0x18;
-        lpcontext->pixelformat.am = 0xFF;
+        set_pixelformat_rgba8888(lpcontext);
         lpcontext->pixelformat.rs = 0;
         lpcontext->pixelformat.bs = 0x10;
         lpcontext->pitch = lpcontext->width * lpcontext->bitdepth;
@@ -444,32 +462,10 @@ static void lock_convert_direct_formats(const FlLockArgs* a, plContext* src, u8*
     switch (a->lpflTexture->format) {
     case 1:
         a->lpcontext->bitdepth = 3;
-        a->lpcontext->pixelformat.rl = 8;
-        a->lpcontext->pixelformat.rs = 0x10;
-        a->lpcontext->pixelformat.rm = 0xFF;
-        a->lpcontext->pixelformat.gl = 8;
-        a->lpcontext->pixelformat.gs = 8;
-        a->lpcontext->pixelformat.gm = 0xFF;
-        a->lpcontext->pixelformat.bl = 8;
-        a->lpcontext->pixelformat.bs = 0;
-        a->lpcontext->pixelformat.bm = 0xFF;
-        a->lpcontext->pixelformat.al = 0;
-        a->lpcontext->pixelformat.as = 0;
-        a->lpcontext->pixelformat.am = 0;
+        set_pixelformat_rgb888(a->lpcontext);
         a->lpcontext->pitch = a->lpcontext->width * a->lpcontext->bitdepth;
         src->bitdepth = 3;
-        src->pixelformat.rl = 8;
-        src->pixelformat.rs = 0x10;
-        src->pixelformat.rm = 0xFF;
-        src->pixelformat.gl = 8;
-        src->pixelformat.gs = 8;
-        src->pixelformat.gm = 0xFF;
-        src->pixelformat.bl = 8;
-        src->pixelformat.bs = 0;
-        src->pixelformat.bm = 0xFF;
-        src->pixelformat.al = 0;
-        src->pixelformat.as = 0;
-        src->pixelformat.am = 0;
+        set_pixelformat_rgb888(src);
         src->pixelformat.rs = 0;
         src->pixelformat.bs = 0x10;
         src->pitch = src->width * src->bitdepth;
@@ -478,32 +474,10 @@ static void lock_convert_direct_formats(const FlLockArgs* a, plContext* src, u8*
 
     case 0:
         a->lpcontext->bitdepth = 4;
-        a->lpcontext->pixelformat.rl = 8;
-        a->lpcontext->pixelformat.rs = 0x10;
-        a->lpcontext->pixelformat.rm = 0xFF;
-        a->lpcontext->pixelformat.gl = 8;
-        a->lpcontext->pixelformat.gs = 8;
-        a->lpcontext->pixelformat.gm = 0xFF;
-        a->lpcontext->pixelformat.bl = 8;
-        a->lpcontext->pixelformat.bs = 0;
-        a->lpcontext->pixelformat.bm = 0xFF;
-        a->lpcontext->pixelformat.al = 8;
-        a->lpcontext->pixelformat.as = 0x18;
-        a->lpcontext->pixelformat.am = 0xFF;
+        set_pixelformat_rgba8888(a->lpcontext);
         a->lpcontext->pitch = a->lpcontext->width * a->lpcontext->bitdepth;
         src->bitdepth = 4;
-        src->pixelformat.rl = 8;
-        src->pixelformat.rs = 0x10;
-        src->pixelformat.rm = 0xFF;
-        src->pixelformat.gl = 8;
-        src->pixelformat.gs = 8;
-        src->pixelformat.gm = 0xFF;
-        src->pixelformat.bl = 8;
-        src->pixelformat.bs = 0;
-        src->pixelformat.bm = 0xFF;
-        src->pixelformat.al = 8;
-        src->pixelformat.as = 0x18;
-        src->pixelformat.am = 0xFF;
+        set_pixelformat_rgba8888(src);
         src->pixelformat.rs = 0;
         src->pixelformat.bs = 0x10;
         src->pitch = src->width * src->bitdepth;
@@ -528,32 +502,10 @@ static void lock_convert_by_format(const FlLockArgs* a, plContext* src, u8* buff
 
     case 2:
         a->lpcontext->bitdepth = 2;
-        a->lpcontext->pixelformat.rl = 5;
-        a->lpcontext->pixelformat.rs = 0xA;
-        a->lpcontext->pixelformat.rm = 0x1F;
-        a->lpcontext->pixelformat.gl = 5;
-        a->lpcontext->pixelformat.gs = 5;
-        a->lpcontext->pixelformat.gm = 0x1F;
-        a->lpcontext->pixelformat.bl = 5;
-        a->lpcontext->pixelformat.bs = 0;
-        a->lpcontext->pixelformat.bm = 0x1F;
-        a->lpcontext->pixelformat.al = 1;
-        a->lpcontext->pixelformat.as = 0xF;
-        a->lpcontext->pixelformat.am = 1;
+        set_pixelformat_rgba5551(a->lpcontext);
         a->lpcontext->pitch = a->lpcontext->width * a->lpcontext->bitdepth;
         src->bitdepth = 2;
-        src->pixelformat.rl = 5;
-        src->pixelformat.rs = 0xA;
-        src->pixelformat.rm = 0x1F;
-        src->pixelformat.gl = 5;
-        src->pixelformat.gs = 5;
-        src->pixelformat.gm = 0x1F;
-        src->pixelformat.bl = 5;
-        src->pixelformat.bs = 0;
-        src->pixelformat.bm = 0x1F;
-        src->pixelformat.al = 1;
-        src->pixelformat.as = 0xF;
-        src->pixelformat.am = 1;
+        set_pixelformat_rgba5551(src);
         src->pixelformat.rs = 0;
         src->pixelformat.bs = 0xA;
         src->pixelformat.gl = 5;
@@ -680,32 +632,10 @@ static void unlock_convert_direct_formats(FLTexture* lpflTexture, plContext* src
     switch (lpflTexture->format) {
     case 1:
         src->bitdepth = 3;
-        src->pixelformat.rl = 8;
-        src->pixelformat.rs = 0x10;
-        src->pixelformat.rm = 0xFF;
-        src->pixelformat.gl = 8;
-        src->pixelformat.gs = 8;
-        src->pixelformat.gm = 0xFF;
-        src->pixelformat.bl = 8;
-        src->pixelformat.bs = 0;
-        src->pixelformat.bm = 0xFF;
-        src->pixelformat.al = 0;
-        src->pixelformat.as = 0;
-        src->pixelformat.am = 0;
+        set_pixelformat_rgb888(src);
         src->pitch = src->width * src->bitdepth;
         dst->bitdepth = 3;
-        dst->pixelformat.rl = 8;
-        dst->pixelformat.rs = 0x10;
-        dst->pixelformat.rm = 0xFF;
-        dst->pixelformat.gl = 8;
-        dst->pixelformat.gs = 8;
-        dst->pixelformat.gm = 0xFF;
-        dst->pixelformat.bl = 8;
-        dst->pixelformat.bs = 0;
-        dst->pixelformat.bm = 0xFF;
-        dst->pixelformat.al = 0;
-        dst->pixelformat.as = 0;
-        dst->pixelformat.am = 0;
+        set_pixelformat_rgb888(dst);
         dst->pixelformat.rs = 0;
         dst->pixelformat.bs = 0x10;
         dst->pitch = dst->width * dst->bitdepth;
@@ -714,32 +644,10 @@ static void unlock_convert_direct_formats(FLTexture* lpflTexture, plContext* src
 
     case 0:
         src->bitdepth = 4;
-        src->pixelformat.rl = 8;
-        src->pixelformat.rs = 0x10;
-        src->pixelformat.rm = 0xFF;
-        src->pixelformat.gl = 8;
-        src->pixelformat.gs = 8;
-        src->pixelformat.gm = 0xFF;
-        src->pixelformat.bl = 8;
-        src->pixelformat.bs = 0;
-        src->pixelformat.bm = 0xFF;
-        src->pixelformat.al = 8;
-        src->pixelformat.as = 0x18;
-        src->pixelformat.am = 0xFF;
+        set_pixelformat_rgba8888(src);
         src->pitch = src->width * src->bitdepth;
         dst->bitdepth = 4;
-        dst->pixelformat.rl = 8;
-        dst->pixelformat.rs = 0x10;
-        dst->pixelformat.rm = 0xFF;
-        dst->pixelformat.gl = 8;
-        dst->pixelformat.gs = 8;
-        dst->pixelformat.gm = 0xFF;
-        dst->pixelformat.bl = 8;
-        dst->pixelformat.bs = 0;
-        dst->pixelformat.bm = 0xFF;
-        dst->pixelformat.al = 8;
-        dst->pixelformat.as = 0x18;
-        dst->pixelformat.am = 0xFF;
+        set_pixelformat_rgba8888(dst);
         dst->pixelformat.rs = 0;
         dst->pixelformat.bs = 0x10;
         dst->pitch = dst->width * dst->bitdepth;
@@ -757,32 +665,10 @@ static void unlock_convert_by_format(FLTexture* lpflTexture, plContext* src, plC
 
     case 2:
         src->bitdepth = 2;
-        src->pixelformat.rl = 5;
-        src->pixelformat.rs = 0xA;
-        src->pixelformat.rm = 0x1F;
-        src->pixelformat.gl = 5;
-        src->pixelformat.gs = 5;
-        src->pixelformat.gm = 0x1F;
-        src->pixelformat.bl = 5;
-        src->pixelformat.bs = 0;
-        src->pixelformat.bm = 0x1F;
-        src->pixelformat.al = 1;
-        src->pixelformat.as = 0xF;
-        src->pixelformat.am = 1;
+        set_pixelformat_rgba5551(src);
         src->pitch = src->width * src->bitdepth;
         dst->bitdepth = 2;
-        dst->pixelformat.rl = 5;
-        dst->pixelformat.rs = 0xA;
-        dst->pixelformat.rm = 0x1F;
-        dst->pixelformat.gl = 5;
-        dst->pixelformat.gs = 5;
-        dst->pixelformat.gm = 0x1F;
-        dst->pixelformat.bl = 5;
-        dst->pixelformat.bs = 0;
-        dst->pixelformat.bm = 0x1F;
-        dst->pixelformat.al = 1;
-        dst->pixelformat.as = 0xF;
-        dst->pixelformat.am = 1;
+        set_pixelformat_rgba5551(dst);
         dst->pixelformat.rs = 0;
         dst->pixelformat.bs = 0xA;
         dst->pixelformat.gl = 5;
@@ -906,18 +792,7 @@ static s32 convert_texture_level(plContext* lpcontext, plContext* tcon, FLTextur
 
     case SCE_GS_PSMCT16:
         tex_size = tcon->width * tcon->height * 2;
-                tcon->pixelformat.rl = 5;
-        tcon->pixelformat.rs = 0xA;
-        tcon->pixelformat.rm = 0x1F;
-        tcon->pixelformat.gl = 5;
-        tcon->pixelformat.gs = 5;
-        tcon->pixelformat.gm = 0x1F;
-        tcon->pixelformat.bl = 5;
-        tcon->pixelformat.bs = 0;
-        tcon->pixelformat.bm = 0x1F;
-        tcon->pixelformat.al = 1;
-        tcon->pixelformat.as = 0xF;
-        tcon->pixelformat.am = 1;
+                set_pixelformat_rgba5551(tcon);
         tcon->pixelformat.rs = 0;
         tcon->pixelformat.bs = 0xA;
         tcon->pixelformat.gl = 5;
@@ -927,18 +802,7 @@ static s32 convert_texture_level(plContext* lpcontext, plContext* tcon, FLTextur
 
     case SCE_GS_PSMCT24:
         tex_size = tcon->width * tcon->height * 4;
-                tcon->pixelformat.rl = 8;
-        tcon->pixelformat.rs = 0x10;
-        tcon->pixelformat.rm = 0xFF;
-        tcon->pixelformat.gl = 8;
-        tcon->pixelformat.gs = 8;
-        tcon->pixelformat.gm = 0xFF;
-        tcon->pixelformat.bl = 8;
-        tcon->pixelformat.bs = 0;
-        tcon->pixelformat.bm = 0xFF;
-        tcon->pixelformat.al = 0;
-        tcon->pixelformat.as = 0;
-        tcon->pixelformat.am = 0;
+                set_pixelformat_rgb888(tcon);
         tcon->pixelformat.rs = 0;
         tcon->pixelformat.bs = 0x10;
         flPS2ConvertContext(lpcontext, tcon, 0, type);
@@ -946,18 +810,7 @@ static s32 convert_texture_level(plContext* lpcontext, plContext* tcon, FLTextur
 
     case SCE_GS_PSMCT32:
         tex_size = tcon->width * tcon->height * 4;
-                tcon->pixelformat.rl = 8;
-        tcon->pixelformat.rs = 0x10;
-        tcon->pixelformat.rm = 0xFF;
-        tcon->pixelformat.gl = 8;
-        tcon->pixelformat.gs = 8;
-        tcon->pixelformat.gm = 0xFF;
-        tcon->pixelformat.bl = 8;
-        tcon->pixelformat.bs = 0;
-        tcon->pixelformat.bm = 0xFF;
-        tcon->pixelformat.al = 8;
-        tcon->pixelformat.as = 0x18;
-        tcon->pixelformat.am = 0xFF;
+                set_pixelformat_rgba8888(tcon);
         tcon->pixelformat.rs = 0;
         tcon->pixelformat.bs = 0x10;
         flPS2ConvertContext(lpcontext, tcon, 0, type);
