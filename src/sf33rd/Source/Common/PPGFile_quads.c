@@ -30,6 +30,106 @@ static s32 quad_is_onscreen(const Vertex* v) {
     return ((v[0].x < 384.0f) && (v[3].x >= 0.0f) && (v[0].y < 224.0f) && (v[3].y >= 0.0f));
 }
 
+/* The transparent-run path: a PPG whose header lists sub-quads draws each of
+ * them instead of one quad. The block is ppgWriteQuadUseTrans's own, lifted
+ * whole; it always answers 1, which is what the `return 1` at its end was. */
+static s32 write_transparent_runs(Vertex* pos, const PPGQuadTransArgs* a, const PPGTransRun* run) {
+    Vertex qvtx[4];
+    s32 i;
+    u32 sx;
+    u32 sy;
+    u32 ppgw;
+    u16 palhan;
+    u8* tran;
+    u8 cofsXY;
+    u8 xs;
+    u8 ys;
+    u16 iPoint;
+    f32 pxs;
+    f32 pys;
+    f32 sadd;
+    f32 tadd;
+    f32 ppgwf;
+    f32 ppghf;
+
+    tran = (u8*)&run->ppg[1];
+    ppgwf = run->ppg->width;
+    ppgw = run->ppg->width;
+    ppghf = run->ppg->height;
+    pxs = pos[3].x - pos[0].x;
+    pys = pos[3].y - pos[0].y;
+    sadd = 0.5f / pxs;
+    tadd = 0.5f / pys;
+
+    if (sadd >= (1.0f / (16.0f * ppgwf))) {
+        sadd = 1.0f / (16.0f * ppgwf);
+    }
+
+    if (tadd >= (1.0f / (16.0f * ppghf))) {
+        tadd = 1.0f / (16.0f * ppghf);
+    }
+
+    sadd = 0;
+    tadd = 0;
+
+    qvtx[0].z = pos[0].z;
+    qvtx[3].z = pos[3].z;
+
+    for (i = 0; i < run->transTotal; i++) {
+        if (run->ix_ofs & 0x4000) {
+            palhan = run->phan[*tran + a->pal];
+        }
+
+        tran++;
+        iPoint = *tran++;
+        cofsXY = *tran++;
+        xs = (cofsXY >> 4) + 1;
+        ys = (cofsXY & 0xF) + 1;
+        sx = iPoint % ppgw;
+        sy = iPoint / ppgw;
+
+        if (a->flip & 1) {
+            qvtx[3].x = pos->x + (pxs * (ppgw - sx) / ppgwf);
+            qvtx[0].x = pos->x + (pxs * (ppgw - (sx + xs)) / ppgwf);
+        } else {
+            qvtx[0].x = pos->x + (sx * pxs / ppgwf);
+            qvtx[3].x = pos->x + (pxs * (sx + xs) / ppgwf);
+        }
+
+        if (a->flip & 2) {
+            qvtx[3].y = pos->y + (pys * (ppgw - sy) / ppghf);
+            qvtx[0].y = pos->y + (pys * (ppgw - (sy + ys)) / ppghf);
+        } else {
+            qvtx[0].y = pos->y + (sy * pys / ppghf);
+            qvtx[3].y = pos->y + (pys * (sy + ys) / ppghf);
+        }
+
+        if (!quad_is_onscreen(qvtx)) {
+            continue;
+        }
+
+        if (a->flip & 1) {
+            qvtx[3].s = (sx / ppgwf) - sadd;
+            qvtx[0].s = ((sx + xs) / ppgwf) - sadd;
+        } else {
+            qvtx[0].s = sadd + (sx / ppgwf);
+            qvtx[3].s = sadd + ((sx + xs) / ppgwf);
+        }
+
+        if (a->flip & 2) {
+            qvtx[3].t = (sy / ppghf) - tadd;
+            qvtx[0].t = ((sy + ys) / ppghf) - tadd;
+        } else {
+            qvtx[0].t = tadd + (sy / ppghf);
+            qvtx[3].t = tadd + ((sy + ys) / ppghf);
+        }
+
+        ppgWriteQuadOnly2(qvtx, a->col, run->texhan | (palhan << 0x10));
+    }
+
+    return 1;
+}
+
 s32 ppgWriteQuadWithST_A(Vertex* pos, u32 col) {
     ppgWriteQuadOnly(pos, col, ppg_w.hanTex | (ppg_w.hanPal << 0x10));
     return 1;
@@ -214,82 +314,7 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, const PPGQuadTransArgs* a) {
         transTotal = ((ppg->transNums >> 8) & 0xFF) | ((ppg->transNums & 0xFF) << 8);
 
         if (transTotal != 0) {
-            tran = (u8*)&ppg[1];
-            ppgwf = ppg->width;
-            ppgw = ppg->width;
-            ppghf = ppg->height;
-            pxs = pos[3].x - pos[0].x;
-            pys = pos[3].y - pos[0].y;
-            sadd = 0.5f / pxs;
-            tadd = 0.5f / pys;
-
-            if (sadd >= (1.0f / (16.0f * ppgwf))) {
-                sadd = 1.0f / (16.0f * ppgwf);
-            }
-
-            if (tadd >= (1.0f / (16.0f * ppghf))) {
-                tadd = 1.0f / (16.0f * ppghf);
-            }
-
-            sadd = 0;
-            tadd = 0;
-
-            qvtx[0].z = pos[0].z;
-            qvtx[3].z = pos[3].z;
-
-            for (i = 0; i < transTotal; i++) {
-                if (ix_ofs & 0x4000) {
-                    palhan = phan[*tran + a->pal];
-                }
-
-                tran++;
-                iPoint = *tran++;
-                cofsXY = *tran++;
-                xs = (cofsXY >> 4) + 1;
-                ys = (cofsXY & 0xF) + 1;
-                sx = iPoint % ppgw;
-                sy = iPoint / ppgw;
-
-                if (a->flip & 1) {
-                    qvtx[3].x = pos->x + (pxs * (ppgw - sx) / ppgwf);
-                    qvtx[0].x = pos->x + (pxs * (ppgw - (sx + xs)) / ppgwf);
-                } else {
-                    qvtx[0].x = pos->x + (sx * pxs / ppgwf);
-                    qvtx[3].x = pos->x + (pxs * (sx + xs) / ppgwf);
-                }
-
-                if (a->flip & 2) {
-                    qvtx[3].y = pos->y + (pys * (ppgw - sy) / ppghf);
-                    qvtx[0].y = pos->y + (pys * (ppgw - (sy + ys)) / ppghf);
-                } else {
-                    qvtx[0].y = pos->y + (sy * pys / ppghf);
-                    qvtx[3].y = pos->y + (pys * (sy + ys) / ppghf);
-                }
-
-                if (!quad_is_onscreen(qvtx)) {
-                    continue;
-                }
-
-                if (a->flip & 1) {
-                    qvtx[3].s = (sx / ppgwf) - sadd;
-                    qvtx[0].s = ((sx + xs) / ppgwf) - sadd;
-                } else {
-                    qvtx[0].s = sadd + (sx / ppgwf);
-                    qvtx[3].s = sadd + ((sx + xs) / ppgwf);
-                }
-
-                if (a->flip & 2) {
-                    qvtx[3].t = (sy / ppghf) - tadd;
-                    qvtx[0].t = ((sy + ys) / ppghf) - tadd;
-                } else {
-                    qvtx[0].t = tadd + (sy / ppghf);
-                    qvtx[3].t = tadd + ((sy + ys) / ppghf);
-                }
-
-                ppgWriteQuadOnly2(qvtx, a->col, texhan | (palhan << 0x10));
-            }
-
-            return 1;
+            return write_transparent_runs(pos, a, &(PPGTransRun){ ppg, transTotal, ix_ofs, phan, texhan });
         }
     }
 

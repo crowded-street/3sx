@@ -49,4 +49,14 @@ void* ppgMallocF(s32 size);
 void* ppgPullDecBuff(s32 size);
 void ppgPushDecBuff(void* adrs);
 
+/* What the transparent-run path needs from the quad it is drawing for: the PPG
+ * header, how many runs it lists, and the handles resolved from the data list. */
+typedef struct {
+    PPGFileHeader* ppg;
+    u16 transTotal;
+    u16 ix_ofs;
+    u16* phan;
+    u16 texhan;
+} PPGTransRun;
+
 #endif
