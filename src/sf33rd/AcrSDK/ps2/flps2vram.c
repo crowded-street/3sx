@@ -55,51 +55,49 @@ u32 flCreateTextureHandle(plContext* bits, u32 flag) {
     return th;
 }
 
-s32 flPS2GetTextureInfoFromContext(plContext* bits, s32 bnum, u32 th, u32 flag) {
-    FLTexture* lpflTexture;
+/* A mipmap chain is valid when every level after the first is half the size of
+ * the one before it, and when there are no more than seven of them. Returns 0
+ * where the caller used to return 0, having logged and asserted the same way. */
+static s32 mipmap_levels_are_valid(plContext* bits, s32 bnum) {
+    plContext* lpcon;
     s32 lp0;
     s32 dw;
     s32 dh;
-    plContext* lpcon;
 
-    lpflTexture = &flTexture[LO_16_BITS(th) - 1];
+    if (bnum <= 1) {
+        return 1;
+    }
 
-    if (bnum > 1) {
-        if (bnum > 7) {
+    if (bnum > 7) {
+        flLogOut("Not supported mipmap texture @flPS2GetTextureInfoFromContext");
+        assert(0);
+        return 0;
+    }
+
+    lpcon = bits + 1;
+    dw = bits->width;
+    dh = bits->height;
+
+    for (lp0 = 1; lp0 < bnum; lp0++) {
+        dw >>= 1;
+        dh >>= 1;
+
+        if ((lpcon->width != dw) || (lpcon->height != dh)) {
             flLogOut("Not supported mipmap texture @flPS2GetTextureInfoFromContext");
             assert(0);
             return 0;
         }
 
-        lpcon = bits + 1;
-        dw = bits->width;
-        dh = bits->height;
-
-        for (lp0 = 1; lp0 < bnum; lp0++) {
-            dw >>= 1;
-            dh >>= 1;
-
-            if ((lpcon->width != dw) || (lpcon->height != dh)) {
-                flLogOut("Not supported mipmap texture @flPS2GetTextureInfoFromContext");
-                assert(0);
-                return 0;
-            }
-
-            lpcon += 1;
-        }
+        lpcon += 1;
     }
 
-    lpflTexture->be_flag = 1;
-    lpflTexture->flag = flag;
-    lpflTexture->desc = bits->desc;
-    lpflTexture->width = bits->width;
-    lpflTexture->height = bits->height;
-    lpflTexture->mem_handle = 0;
-    lpflTexture->lock_ptr = 0;
-    lpflTexture->lock_flag = 0;
-    lpflTexture->tex_num = bnum;
+    return 1;
+}
 
-    switch (bits->bitdepth) {
+/* The GS pixel format for a context's bit depth. Returns 0 for a depth the
+ * hardware has no format for, which is where the caller returned 0. */
+static s32 set_texture_format(FLTexture* lpflTexture, s32 bitdepth) {
+    switch (bitdepth) {
     default:
         flLogOut("Not supported texture bit depth @flPS2GetTextureInfoFromContext");
         assert(0);
@@ -129,6 +127,32 @@ s32 flPS2GetTextureInfoFromContext(plContext* bits, s32 bnum, u32 th, u32 flag) 
         lpflTexture->format = SCE_GS_PSMCT32;
         lpflTexture->bitdepth = 4;
         break;
+    }
+
+    return 1;
+}
+
+s32 flPS2GetTextureInfoFromContext(plContext* bits, s32 bnum, u32 th, u32 flag) {
+    FLTexture* lpflTexture;
+
+    lpflTexture = &flTexture[LO_16_BITS(th) - 1];
+
+    if (!mipmap_levels_are_valid(bits, bnum)) {
+        return 0;
+    }
+
+    lpflTexture->be_flag = 1;
+    lpflTexture->flag = flag;
+    lpflTexture->desc = bits->desc;
+    lpflTexture->width = bits->width;
+    lpflTexture->height = bits->height;
+    lpflTexture->mem_handle = 0;
+    lpflTexture->lock_ptr = 0;
+    lpflTexture->lock_flag = 0;
+    lpflTexture->tex_num = bnum;
+
+    if (!set_texture_format(lpflTexture, bits->bitdepth)) {
+        return 0;
     }
 
     lpflTexture->size =
