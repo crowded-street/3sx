@@ -230,8 +230,25 @@ static void read_ps2_sticks(s32 i) {
     }
 }
 
-static s32 PADRead_for_PS2(s32 i) {
+/* The two things every read starts with: last frame's pressures cleared, and
+ * this frame's depths halved into the working copy the button scan reads. */
+static void clear_button_pressures(s32 i) {
     s32 j;
+
+    for (j = 0; j < 16; j++) {
+        tarpad_root[i].anshot.pow[j] = 0;
+    }
+}
+
+static void halve_button_depths(s32 i, u8* kan) {
+    s32 j;
+
+    for (j = 0; j < 12; j++) {
+        kan[j] = ps2pad_state[i].ix.depth[j] / 2;
+    }
+}
+
+static s32 PADRead_for_PS2(s32 i) {
     u8 kan[12];
 
     if (ps2slot[i].state == 0) {
@@ -244,13 +261,9 @@ static s32 PADRead_for_PS2(s32 i) {
         tarpad_root[i].kind = 0x8000;
     }
 
-    for (j = 0; j < 16; j++) {
-        tarpad_root[i].anshot.pow[j] = 0;
-    }
+    clear_button_pressures(i);
 
-    for (j = 0; j < 12; j++) {
-        kan[j] = ps2pad_state[i].ix.depth[j] / 2;
-    }
+    halve_button_depths(i, kan);
 
     ps2pad_state[i].ix.sw = ~ps2pad_state[i].ix.sw;
 
