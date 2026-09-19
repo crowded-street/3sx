@@ -484,6 +484,12 @@ u32 flCreateTextureFromBMP(const char* bmp_file, u32 flag) {
     return flCreateTextureFromBMP_mem(file_ptr, flag);
 }
 
+/* Neither of the two bit depths the direct-colour loaders accept. The test is
+ * the one that stood at the call site, copied rather than inverted. */
+static bool is_unsupported_bitdepth(const plContext* context) {
+    return context->bitdepth != 3 && context->bitdepth != 4;
+}
+
 static void copy_bmp_24bpp(u8* dst, const u8* keep, const plContext* context) {
     s32 x;
     s32 y;
@@ -526,7 +532,7 @@ u32 flCreateTextureFromBMP_mem(void* mem, u32 flag) {
         return 0;
     }
 
-    if (context.bitdepth != 3 && context.bitdepth != 4) {
+    if (is_unsupported_bitdepth(&context)) {
         return 0;
     }
 
