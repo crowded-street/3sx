@@ -713,6 +713,24 @@ static void run_dash_release_states() {
     }
 }
 
+/* check_10's arming step. The one `break` inside it ended the arm, and nothing
+ * runs after the switch, so it is a `return` here. */
+static void arm_check_10_window() {
+    if (lever_held_and_move_allowed()) {
+        if (chk_pl->sw_lever == waza_ptr->w_lvr) {
+            waza_ptr->shot_ok++;
+            open_waza_window();
+            waza_ptr->free3 = wcp[cmd_id].reset[waza_type[cmd_id]] + 10;
+            waza_ptr->w_int = 6;
+
+            clear_lower_priority_waza_flags();
+        } else {
+            waza_ptr->shot_ok = 0;
+            return;
+        }
+    }
+}
+
 void check_10() { // 🟢
     switch (waza_ptr->shot_ok) {
     case 0:
@@ -722,19 +740,7 @@ void check_10() { // 🟢
         break;
 
     case 1:
-        if (lever_held_and_move_allowed()) {
-            if (chk_pl->sw_lever == waza_ptr->w_lvr) {
-                waza_ptr->shot_ok++;
-                open_waza_window();
-                waza_ptr->free3 = wcp[cmd_id].reset[waza_type[cmd_id]] + 10;
-                waza_ptr->w_int = 6;
-
-                clear_lower_priority_waza_flags();
-            } else {
-                waza_ptr->shot_ok = 0;
-                break;
-            }
-        }
+        arm_check_10_window();
 
         break;
 
