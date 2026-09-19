@@ -196,6 +196,24 @@ s32 Check_Dash(PLW* wk, WORK* em, s16 VS_Technique) {
     return 0;
 }
 
+/* Three opponents are allowed a longer limit on technique 7. The block is the
+ * one Check_Limited_Attack ran inline; it takes the limit and gives it back. */
+static s16 limit_for_this_opponent(WORK* em, const Limited_Attack_Args* p, s16 Limit_Number) {
+    if ((((PLW*)em)->player_number == 17) && (p->VS_Technique == 7)) {
+        Limit_Number += 1;
+    }
+
+    if ((((PLW*)em)->player_number == 10) && (p->VS_Technique == 7)) {
+        Limit_Number += 1;
+    }
+
+    if ((((PLW*)em)->player_number == 3) && (p->VS_Technique == 7)) {
+        Limit_Number += 2;
+    }
+
+    return Limit_Number;
+}
+
 s32 Check_Limited_Attack(PLW* wk, WORK* em, const Limited_Attack_Args* p) {
     s16 xx;
     /* The original took this by value and adjusted it per opponent; the copy
@@ -216,17 +234,7 @@ s32 Check_Limited_Attack(PLW* wk, WORK* em, const Limited_Attack_Args* p) {
 
     xx = (em->cg_ix / em->cgd_type);
 
-    if ((((PLW*)em)->player_number == 17) && (p->VS_Technique == 7)) {
-        Limit_Number += 1;
-    }
-
-    if ((((PLW*)em)->player_number == 10) && (p->VS_Technique == 7)) {
-        Limit_Number += 1;
-    }
-
-    if ((((PLW*)em)->player_number == 3) && (p->VS_Technique == 7)) {
-        Limit_Number += 2;
-    }
+    Limit_Number = limit_for_this_opponent(em, p, Limit_Number);
 
     if (xx > Limit_Number) {
         return 0;
