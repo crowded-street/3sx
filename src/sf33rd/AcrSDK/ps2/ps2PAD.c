@@ -204,31 +204,29 @@ static u32 read_ps2_buttons(s32 i, u8* kan) {
     return io;
 }
 
+/* The lower clamp both sticks apply to both axes. The four copies differ only
+ * in which axis they clamp. */
+static void clamp_stick_axis(s16* axis) {
+    if (*axis < -0x7F) {
+        *axis = -0x7F;
+    }
+}
+
 static void read_ps2_sticks(s32 i) {
     if (tarpad_root[i].anstate & 0x20) {
         tarpad_root[i].stick[0].x = ps2pad_state[i].pad_buffer[6] - 0x80;
         tarpad_root[i].stick[0].y = ps2pad_state[i].pad_buffer[7] - 0x80;
 
-        if (tarpad_root[i].stick[0].x < -0x7F) {
-            tarpad_root[i].stick[0].x = -0x7F;
-        }
-
-        if (tarpad_root[i].stick[0].y < -0x7F) {
-            tarpad_root[i].stick[0].y = -0x7F;
-        }
+        clamp_stick_axis(&tarpad_root[i].stick[0].x);
+        clamp_stick_axis(&tarpad_root[i].stick[0].y);
     }
 
     if (tarpad_root[i].anstate & 0x40) {
         tarpad_root[i].stick[1].x = ps2pad_state[i].pad_buffer[4] - 0x80;
         tarpad_root[i].stick[1].y = ps2pad_state[i].pad_buffer[5] - 0x80;
 
-        if (tarpad_root[i].stick[1].x < -0x7F) {
-            tarpad_root[i].stick[1].x = -0x7F;
-        }
-
-        if (tarpad_root[i].stick[1].y < -0x7F) {
-            tarpad_root[i].stick[1].y = -0x7F;
-        }
+        clamp_stick_axis(&tarpad_root[i].stick[1].x);
+        clamp_stick_axis(&tarpad_root[i].stick[1].y);
     }
 }
 
