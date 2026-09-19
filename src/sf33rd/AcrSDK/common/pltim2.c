@@ -351,17 +351,41 @@ u8* GetTim2PictureHead(u8* lpFile, s32 no) {
     return lpPict;
 }
 
+/* The sub-header of each mipmap level after the first, and the size of the
+ * levels before the one being asked for. */
+static void read_tim2_mipmap_subheads(u8** lpTim2MipmapSubHead, u8* lpTim2PictureHead, u8* lpData) {
+    s32 lp0;
+
+    for (lp0 = 0; lp0 < lpTim2PictureHead[0x11] - 1; lp0++) {
+        lpTim2MipmapSubHead[lp0] = (u8*)((uintptr_t)lpData + (lp0 << 2) + 0x10);
+    }
+}
+
+static s32 tim2_mipmap_offset(u8* lpTim2FileHead, u8** lpTim2MipmapSubHead, s32 Mipmap) {
+    s32 image_size;
+    s32 lp0;
+    u32 pixel_size;
+
+    image_size = 0;
+
+    for (lp0 = 0; lp0 < Mipmap; lp0++) {
+        pixel_size = ((u32*)(lpTim2MipmapSubHead[lp0]))[0];
+        pixel_size = InputTim2AlignRegulation(lpTim2FileHead, pixel_size);
+        image_size += pixel_size;
+    }
+
+    return image_size;
+}
+
 u8* GetTim2PictureData(u8* lpFile, s32 /* unused */, s32 Mipmap) {
     s32 header_size;
     s32 mipmap_header_size;
-    s32 lp0;
     s32 image_size;
     u8* lpData;
     u8* lpImage;
     u8* lpTim2FileHead;
     u8* lpTim2PictureHead;
     u8* lpTim2MipmapSubHead[7];
-    u32 pixel_size;
 
     lpTim2FileHead = lpFile;
     lpData = GetTim2PictureHead(lpFile, 0);
@@ -370,9 +394,7 @@ u8* GetTim2PictureData(u8* lpFile, s32 /* unused */, s32 Mipmap) {
     lpData += header_size;
 
     if (lpTim2PictureHead[0x11] > 1) {
-        for (lp0 = 0; lp0 < lpTim2PictureHead[0x11] - 1; lp0++) {
-            lpTim2MipmapSubHead[lp0] = (u8*)((uintptr_t)lpData + (lp0 << 2) + 0x10);
-        }
+        read_tim2_mipmap_subheads(lpTim2MipmapSubHead, lpTim2PictureHead, lpData);
 
         if (lpTim2PictureHead[0x11] < 5) {
             mipmap_header_size = 0x20;
@@ -387,13 +409,7 @@ u8* GetTim2PictureData(u8* lpFile, s32 /* unused */, s32 Mipmap) {
     lpData = lpTim2PictureHead + InputTim2AlignRegulation(lpTim2FileHead, header_size);
 
     if (lpTim2PictureHead[0x11] > 1) {
-        image_size = 0;
-
-        for (lp0 = 0; lp0 < Mipmap; lp0++) {
-            pixel_size = ((u32*)(lpTim2MipmapSubHead[lp0]))[0];
-            pixel_size = InputTim2AlignRegulation(lpTim2FileHead, pixel_size);
-            image_size += pixel_size;
-        }
+        image_size = tim2_mipmap_offset(lpTim2FileHead, lpTim2MipmapSubHead, Mipmap);
 
         lpImage = lpData + image_size;
     } else {
