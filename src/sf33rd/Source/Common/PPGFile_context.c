@@ -125,6 +125,43 @@ static void set_context_pixel_depth(PPGFileHeader* ppg, plContext* bits) {
 
 /* The colour layout the chunk's pixels are in. Anything the reader does not
  * know leaves the format zeroed. */
+/* The two 32-bit-capable layouts: the one the renderer knows and the zeroed
+ * format anything else gets. Reached through the default arm of the layouts
+ * below, which is what keeps either function readable. */
+static void set_context_pixel_format_wide(PPGFileHeader* ppg, plContext* bits) {
+    switch (SDL_Swap16BE(ppg->formARGB)) {
+    case 0x8888:
+        bits->pixelformat.rl = 8;
+        bits->pixelformat.rs = 0x10;
+        bits->pixelformat.rm = 0xFF;
+        bits->pixelformat.gl = 8;
+        bits->pixelformat.gs = 8;
+        bits->pixelformat.gm = 0xFF;
+        bits->pixelformat.bl = 8;
+        bits->pixelformat.bs = 0;
+        bits->pixelformat.bm = 0xFF;
+        bits->pixelformat.al = 8;
+        bits->pixelformat.as = 0x18;
+        bits->pixelformat.am = 0xFF;
+        break;
+
+    default:
+        bits->pixelformat.rl = 0;
+        bits->pixelformat.rs = 0;
+        bits->pixelformat.rm = 0;
+        bits->pixelformat.gl = 0;
+        bits->pixelformat.gs = 0;
+        bits->pixelformat.gm = 0;
+        bits->pixelformat.bl = 0;
+        bits->pixelformat.bs = 0;
+        bits->pixelformat.bm = 0;
+        bits->pixelformat.al = 0;
+        bits->pixelformat.as = 0;
+        bits->pixelformat.am = 0;
+        break;
+    }
+}
+
 static void set_context_pixel_format(PPGFileHeader* ppg, plContext* bits) {
     switch (SDL_Swap16BE(ppg->formARGB)) {
     case 0x1555:
@@ -172,34 +209,8 @@ static void set_context_pixel_format(PPGFileHeader* ppg, plContext* bits) {
         bits->pixelformat.am = 0xF;
         break;
 
-    case 0x8888:
-        bits->pixelformat.rl = 8;
-        bits->pixelformat.rs = 0x10;
-        bits->pixelformat.rm = 0xFF;
-        bits->pixelformat.gl = 8;
-        bits->pixelformat.gs = 8;
-        bits->pixelformat.gm = 0xFF;
-        bits->pixelformat.bl = 8;
-        bits->pixelformat.bs = 0;
-        bits->pixelformat.bm = 0xFF;
-        bits->pixelformat.al = 8;
-        bits->pixelformat.as = 0x18;
-        bits->pixelformat.am = 0xFF;
-        break;
-
     default:
-        bits->pixelformat.rl = 0;
-        bits->pixelformat.rs = 0;
-        bits->pixelformat.rm = 0;
-        bits->pixelformat.gl = 0;
-        bits->pixelformat.gs = 0;
-        bits->pixelformat.gm = 0;
-        bits->pixelformat.bl = 0;
-        bits->pixelformat.bs = 0;
-        bits->pixelformat.bm = 0;
-        bits->pixelformat.al = 0;
-        bits->pixelformat.as = 0;
-        bits->pixelformat.am = 0;
+        set_context_pixel_format_wide(ppg, bits);
         break;
     }
 }
