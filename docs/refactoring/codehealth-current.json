@@ -1,13 +1,13 @@
 {
   "measured": "2026-09-19",
-  "note": "Fifth sweep of 2026-09-19, after the Game/com/active second pass completed: one shared skeleton module in Game/com/patterns, Recipe V at two instances across both COM script folders, and the per-call argument structs. Same exclusions as codehealth-baseline.json.",
-  "total_candidates": 800,
-  "scored": 656,
+  "note": "Sixth sweep of 2026-09-19, after the Game/com/active second pass and the two Game/ui regressions this branch had introduced were cleared. Same exclusions as codehealth-baseline.json.",
+  "total_candidates": 801,
+  "scored": 657,
   "unscorable": 144,
   "bands": {
     "red": 0,
-    "yellow": 99,
-    "green": 87,
+    "yellow": 97,
+    "green": 90,
     "optimal": 470
   },
   "mean": 9.64,
@@ -133,10 +133,6 @@
     {
       "path": "src/test/test_runner.c",
       "score": 7.92
-    },
-    {
-      "path": "src/sf33rd/Source/Game/ui/sc_sub.c",
-      "score": 7.96
     },
     {
       "path": "src/sf33rd/Source/Game/com/active/active07.c",
@@ -303,10 +299,6 @@
       "score": 8.59
     },
     {
-      "path": "src/sf33rd/Source/Game/ui/sc_sub_logo.c",
-      "score": 8.6
-    },
-    {
       "path": "src/sf33rd/Source/Game/system/sys_sub.c",
       "score": 8.66
     },
@@ -428,6 +420,14 @@
     },
     {
       "path": "src/sf33rd/Source/Game/io/gd3rd.c",
+      "score": 9.02
+    },
+    {
+      "path": "src/sf33rd/Source/Game/ui/sc_sub.c",
+      "score": 9.02
+    },
+    {
+      "path": "src/sf33rd/Source/Game/ui/sc_sub_logo.c",
       "score": 9.02
     },
     {
@@ -644,6 +644,10 @@
     },
     {
       "path": "src/sf33rd/Source/Game/system/sys_sub_em.c",
+      "score": 9.38
+    },
+    {
+      "path": "src/sf33rd/Source/Game/ui/sc_sub_gauges.c",
       "score": 9.38
     },
     {
