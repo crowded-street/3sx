@@ -158,6 +158,18 @@ void ps2PADWorkClear() {
     SDL_zero(ps2pad_clear);
 }
 
+/* The analog reading for one button, gated on the stick group the pad reports.
+ * The three arms of the switch below differ only in which group they test. */
+static void apply_analog_button(s32 i, s32 j, u8* kan, s32 anstate_mask) {
+    if (tarpad_root[i].anstate & anstate_mask) {
+        if (kan[ps2pad_an_rm_map[j]] < ps2pad_config[i].abut_on) {
+            tarpad_root[i].anshot.pow[j] = 0;
+        } else {
+            tarpad_root[i].anshot.pow[j] = kan[ps2pad_an_rm_map[j]];
+        }
+    }
+}
+
 static s32 PADRead_for_PS2(s32 i) {
     s32 j;
     u32 io;
@@ -200,35 +212,17 @@ static s32 PADRead_for_PS2(s32 i) {
 
             switch (ps2pad_hard_to_soft[i][j][1]) {
             case 1:
-                if (tarpad_root[i].anstate & 0x10) {
-                    if (kan[ps2pad_an_rm_map[j]] < ps2pad_config[i].abut_on) {
-                        tarpad_root[i].anshot.pow[j] = 0;
-                    } else {
-                        tarpad_root[i].anshot.pow[j] = kan[ps2pad_an_rm_map[j]];
-                    }
-                }
+                apply_analog_button(i, j, kan, 0x10);
 
                 break;
 
             case 2:
-                if (tarpad_root[i].anstate & 1) {
-                    if (kan[ps2pad_an_rm_map[j]] < ps2pad_config[i].abut_on) {
-                        tarpad_root[i].anshot.pow[j] = 0;
-                    } else {
-                        tarpad_root[i].anshot.pow[j] = kan[ps2pad_an_rm_map[j]];
-                    }
-                }
+                apply_analog_button(i, j, kan, 1);
 
                 break;
 
             case 3:
-                if (tarpad_root[i].anstate & 2) {
-                    if (kan[ps2pad_an_rm_map[j]] < ps2pad_config[i].abut_on) {
-                        tarpad_root[i].anshot.pow[j] = 0;
-                    } else {
-                        tarpad_root[i].anshot.pow[j] = kan[ps2pad_an_rm_map[j]];
-                    }
-                }
+                apply_analog_button(i, j, kan, 2);
 
                 break;
             }
