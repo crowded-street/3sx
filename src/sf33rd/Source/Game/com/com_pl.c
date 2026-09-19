@@ -754,9 +754,28 @@ void Com_Flip(PLW* wk) {
     Flip_Jmp_Tbl[CP_No[wk->wu.id][1]](wk);
 }
 
-void Com_Caught(PLW* wk) {
+/* Escaping the one throw that is mashed out of: twelve frames to react, and a
+ * random escape window whose level the demo and the weaker side override. The
+ * block is Com_Caught's own. */
+static void setup_rapid_escape_timers(PLW* wk) {
     s16 Rnd;
     s16 Lv;
+
+    Timer_00[wk->wu.id] = 12;
+    Lv = Setup_Lv08(0);
+
+    if (Break_Into_CPU == 2) {
+        Lv = 7;
+    }
+
+    if (Demo_Flag == 0 && Weak_PL == wk->wu.id) {
+        Lv = 0;
+    }
+
+    Timer_01[wk->wu.id] = Rapid_Exit_Data[emLevelRemake(Lv, 8, 0)][(Rnd = random_16_com() & 7)];
+}
+
+void Com_Caught(PLW* wk) {
     WORK* em = (WORK*)wk->wu.target_adrs;
 
     switch (CP_No[wk->wu.id][1]) {
@@ -765,18 +784,7 @@ void Com_Caught(PLW* wk) {
         CP_No[wk->wu.id][2] = 0;
 
         if (em->sp_tech_id == 1) {
-            Timer_00[wk->wu.id] = 12;
-            Lv = Setup_Lv08(0);
-
-            if (Break_Into_CPU == 2) {
-                Lv = 7;
-            }
-
-            if (Demo_Flag == 0 && Weak_PL == wk->wu.id) {
-                Lv = 0;
-            }
-
-            Timer_01[wk->wu.id] = Rapid_Exit_Data[emLevelRemake(Lv, 8, 0)][(Rnd = random_16_com() & 7)];
+            setup_rapid_escape_timers(wk);
             break;
         }
 
@@ -998,10 +1006,10 @@ void Clear_Com_Flag(PLW* wk) {
     Last_Eftype[wk->wu.id] = 0;
 }
 
-void Check_At_Count(PLW* wk) {
-    WORK* em = (WORK*)wk->wu.target_adrs;
-    s16 ix;
-
+/* The rolling record of the last four attacks: an attack that has just started
+ * is counted and remembered, and the flag is cleared when it ends. The block is
+ * Check_At_Count's own. */
+static void record_attack_in_counter(PLW* wk, WORK* em) {
     if (Attack_Count_No0[wk->wu.id] == 0) {
         if (Attack_Flag[wk->wu.id]) {
             Attack_Counter[wk->wu.id]++;
@@ -1014,6 +1022,13 @@ void Check_At_Count(PLW* wk) {
     } else if (Attack_Flag[wk->wu.id] == 0) {
         Attack_Count_No0[wk->wu.id] = 0;
     }
+}
+
+void Check_At_Count(PLW* wk) {
+    WORK* em = (WORK*)wk->wu.target_adrs;
+    s16 ix;
+
+    record_attack_in_counter(wk, em);
 
     if (Attack_Flag[wk->wu.id]) {
         Reset_Timer[wk->wu.id] = 120;
