@@ -55,12 +55,14 @@ SWITCH_HEAD = 'switch (CP_Index[wk->wu.id][0]) {'
 # The COM script folders share one shape under two names: Game/com/passive
 # spells a script Passive14_0122 and Game/com/active spells it Pattern14_0122,
 # behind dispatchers called Passive14 and Computer14. FAMILY carries which.
-FAMILY = {'script': 'Passive', 'dispatcher': 'Passive', 'shared': 'pass_patterns'}
+FAMILY = {'script': 'Passive', 'dispatcher': 'Passive', 'shared': 'pass_patterns',
+          'prefix': '', 'what': 'passive', 'folder': 'passive'}
 
 
 def set_family(name):
     if name == 'active':
-        FAMILY.update(script='Pattern', dispatcher='Computer', shared='active_patterns')
+        FAMILY.update(script='Pattern', dispatcher='Computer', shared='active_patterns',
+                      prefix='active_', what='active', folder='active')
 
 
 # --------------------------------------------------------------------------
@@ -230,7 +232,7 @@ def fold(path, protos, min_members=3, max_params=3):
             if not callees or callees[-1] != callee:
                 callees.append(callee)
         steps = [snake(c) for c in callees if c != 'End_Pattern']
-        base = 'pattern_' + '_'.join(steps[:3])
+        base = FAMILY['prefix'] + 'pattern_' + '_'.join(steps[:3])
         name, n = base, 2
         while name in used:
             name, n = '%s_%d' % (base, n), n + 1
@@ -378,18 +380,17 @@ def collect(srcs):
 # --------------------------------------------------------------------------
 
 SHARED_C = """/**
- * @file pass_patterns.c
- * COM Passive: pattern skeletons shared by every character
+ * @file %(shared)s.c
+ * COM %(What)s: pattern skeletons shared by every character
  *
- * A passive pattern script is a switch on the step counter with one engine
- * call per step, and the same step sequences recur across characters: Ryu and
- * Ken both have patterns that are a walk, then a normal attack, and so does
- * everyone else. The skeletons here are what those patterns have in common.
- * Each one is exactly the body its call sites used to hold, with the arguments
- * of its calls taken as parameters and written out in full at each call site.
+ * %(Article)s %(what)s pattern script is a switch on the step counter with one engine
+ * call per step, and the same step sequences recur across characters. The
+ * skeletons here are what those patterns have in common. Each one is exactly
+ * the body its call sites used to hold, with the arguments of its calls taken
+ * as parameters and written out in full at each call site.
  */
 
-#include "sf33rd/Source/Game/com/passive/pass_patterns.h"
+#include "sf33rd/Source/Game/com/%(folder)s/%(shared)s.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
@@ -397,12 +398,12 @@ SHARED_C = """/**
 """
 
 SHARED_H = """/*
- * Pattern skeletons shared by every character's passive scripts.
- * See pass_patterns_1step.c and its siblings.
+ * Pattern skeletons shared by every character's %(what)s scripts.
+ * See %(shared)s_1step.c and its siblings.
  */
 
-#ifndef PASS_PATTERNS_H
-#define PASS_PATTERNS_H
+#ifndef %(GUARD)s
+#define %(GUARD)s
 
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "structs.h"
@@ -609,7 +610,7 @@ def gfold(paths, protos, min_members=3, max_params=3, shared=None):
             if not callees or callees[-1] != callee:
                 callees.append(callee)
         steps = [snake(c) for c in callees if c != 'End_Pattern']
-        base = 'pattern_' + '_'.join(steps[:3])
+        base = FAMILY['prefix'] + 'pattern_' + '_'.join(steps[:3])
         name, n = base, 2
         while name in used:
             name, n = '%s_%d' % (base, n), n + 1
@@ -634,10 +635,13 @@ def gfold(paths, protos, min_members=3, max_params=3, shared=None):
             open(dest, 'a').write('\n' + text)
         rewrite_shared_header(folder)
     else:
+        fmt = {'shared': FAMILY['shared'], 'what': FAMILY['what'], 'folder': FAMILY['folder'],
+               'What': FAMILY['what'].capitalize(), 'GUARD': FAMILY['shared'].upper() + '_H',
+               'Article': 'An' if FAMILY['what'][0] in 'aeiou' else 'A'}
         open(os.path.join(folder, FAMILY['shared'] + '.c'), 'w').write(
-            SHARED_C + '\n'.join(t for t, _ in helpers))
+            SHARED_C % fmt + '\n'.join(t for t, _ in helpers))
         open(os.path.join(folder, FAMILY['shared'] + '.h'), 'w').write(
-            SHARED_H + '\n'.join(rewrap(d) for d in decls) + '\n\n#endif\n')
+            SHARED_H % fmt + '\n'.join(rewrap(d) for d in decls) + '\n\n#endif\n')
 
     total = 0
     for path, es in edits.items():
@@ -646,8 +650,8 @@ def gfold(paths, protos, min_members=3, max_params=3, shared=None):
             src = src[:a] + text + src[b:]
         if FAMILY['shared'] + '.h' not in src:
             src = src.replace('#include "common.h"',
-                              '#include "sf33rd/Source/Game/com/passive/pass_patterns.h"\n'
-                              '#include "common.h"', 1)
+                              '#include "sf33rd/Source/Game/com/%s/%s.h"\n#include "common.h"'
+                              % (FAMILY['folder'], FAMILY['shared']), 1)
         open(path, 'w').write(src)
         total += len(es)
     return len(helpers), total
@@ -742,8 +746,8 @@ def dedup(paths, shared_paths, header):
             src = re.sub(r'\b%s\b' % old, new, src)
         if FAMILY['shared'] + '.h' not in src:
             src = src.replace('#include "common.h"',
-                              '#include "sf33rd/Source/Game/com/passive/pass_patterns.h"\n'
-                              '#include "common.h"', 1)
+                              '#include "sf33rd/Source/Game/com/%s/%s.h"\n#include "common.h"'
+                              % (FAMILY['folder'], FAMILY['shared']), 1)
         open(path, 'w').write(rewrap(src))
         touched += len(removals[path])
 
