@@ -13,6 +13,24 @@
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/com/ck_pass_internal.h"
 
+/* The opponent is mid-dash: the run routine has started and is past its first
+ * step. Named so Check_Dash reads as the question it asks. */
+static s32 enemy_is_dashing(const WORK* em) {
+    return (em->routine_no[1] == 0) && (em->routine_no[2] == 5) && (em->routine_no[3] != 0);
+}
+
+/* None of the waza-kind bits that mark an attack worth answering are set. The
+ * masks are the original ones, in the original order. */
+static s32 waza_kind_is_unmarked(const WORK* em) {
+    return !(em->kind_of_waza & 32) && !(em->kind_of_waza & 48) && !(em->kind_of_waza & 40) &&
+           !(em->kind_of_waza & 56) && !(em->kind_of_waza & 8);
+}
+
+/* The opponent is in none of the four stances a forward cross chop answers. */
+static s32 not_a_cross_chop_stance(const WORK* em) {
+    return (em->pat_status != 22) && (em->pat_status != 20) && (em->pat_status != 26) && (em->pat_status != 28);
+}
+
 s32 Check_Special_Technique(PLW* wk, WORK* em, const SP_Tech_Args* p) {
     u8 xx;
 
@@ -157,7 +175,7 @@ s32 Check_Specific_Term(PLW* wk, WORK* em, const Specific_Term_Args* p) {
 }
 
 s32 Check_Dash(PLW* wk, WORK* em, s16 VS_Technique) {
-    if ((em->routine_no[1] == 0) && (em->routine_no[2] == 5) && (em->routine_no[3] != 0)) {
+    if (enemy_is_dashing(em)) {
         VS_Tech[wk->wu.id] = VS_Technique;
 
         return PASSIVE_X = 1;
@@ -415,8 +433,7 @@ s32 Check_After_Attack(PLW* wk, WORK* em, s16 VS_Technique) {
 
     Last_Attack_Counter[wk->wu.id] = Attack_Counter[wk->wu.id];
 
-    if (!(em->kind_of_waza & 32) && !(em->kind_of_waza & 48) && !(em->kind_of_waza & 40) && !(em->kind_of_waza & 56) &&
-        !(em->kind_of_waza & 8)) {
+    if (waza_kind_is_unmarked(em)) {
         xx = em->kind_of_waza & 6;
 
         if (xx == 0) {
@@ -442,7 +459,7 @@ s32 Check_F_Cross_Chop(PLW* wk, WORK* em, s16 VS_Technique) {
         return 0;
     }
 
-    if ((em->pat_status != 22) && (em->pat_status != 20) && (em->pat_status != 26) && (em->pat_status != 28)) {
+    if (not_a_cross_chop_stance(em)) {
         return 0;
     }
 
