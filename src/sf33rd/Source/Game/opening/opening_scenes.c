@@ -254,6 +254,29 @@ static bool op_104_sound_ready() {
     return (gSeqStatus[0] >= op_104_sound[op_w.r_no_2]) && (gSeqStatus[0] != 0x68);
 }
 
+/* Scene 104's tail, reached through the default arm; its last step and the
+ * out-of-range default share an arm and stay together. */
+static void op_104_move_late() {
+    switch (op_w.r_no_2) {
+    case 4:
+        opening_cue_step_effect(gSeqStatus[0] >= op_104_sound[op_w.r_no_2], 21, 20, 11);
+        break;
+
+    case 5:
+        opening_cue_step_disp(gSeqStatus[0] >= op_104_sound[op_w.r_no_2], 22, 21, 1);
+        break;
+
+    case 6:
+        opening_cue_step(gSeqStatus[0] >= op_104_sound[op_w.r_no_2], 23, 22);
+        break;
+
+    case 7:
+    default:
+        op_bg_move(23);
+        break;
+    }
+}
+
 void op_104_move() {
     switch (op_w.r_no_2) {
     case 0:
@@ -280,21 +303,8 @@ void op_104_move() {
         opening_cue_step_disp(gSeqStatus[0] >= op_104_sound[op_w.r_no_2], 20, 19, 1);
         break;
 
-    case 4:
-        opening_cue_step_effect(gSeqStatus[0] >= op_104_sound[op_w.r_no_2], 21, 20, 11);
-        break;
-
-    case 5:
-        opening_cue_step_disp(gSeqStatus[0] >= op_104_sound[op_w.r_no_2], 22, 21, 1);
-        break;
-
-    case 6:
-        opening_cue_step(gSeqStatus[0] >= op_104_sound[op_w.r_no_2], 23, 22);
-        break;
-
-    case 7:
     default:
-        op_bg_move(23);
+        op_104_move_late();
         break;
     }
 }
