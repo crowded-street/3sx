@@ -135,10 +135,6 @@ void active_pattern_j_command_attack_from_step_6_2(PLW* wk) {
     }
 }
 
-void active_pattern_jump(PLW* wk) {
-    pattern_jump(wk, 0);
-}
-
 void active_pattern_jump_attack(PLW* wk, const Jump_Attack_Args* a) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -245,10 +241,6 @@ void active_pattern_oro_jca_term(PLW* wk, const ORO_JCA_Term_Args* a) {
         End_Pattern(wk);
         break;
     }
-}
-
-void active_pattern_provoke(PLW* wk) {
-    pattern_provoke(wk, -1);
 }
 
 void active_pattern_rapid_command_attack(PLW* wk, const Rapid_Command_Args* p) {
@@ -407,8 +399,16 @@ void pattern_keep_status(PLW* wk, s16 option_data) {
     }
 }
 
-void pattern_lever_attack(PLW* wk, u16 lever, u16 lever_data) {
-    active_pattern_lever_attack(wk, 8, lever, lever_data);
+void pattern_lever_attack_sp(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Lever_Attack_SP(wk, &(Lever_Attack_SP_Args){8, 0, 0x400, 0x12});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
 }
 
 void pattern_look(PLW* wk) {
@@ -427,6 +427,18 @@ void pattern_normal_attack_from_step_6(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 6:
         Normal_Attack(wk, 8, 0x200);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void pattern_oro_hjca_term(PLW* wk, const ORO_JCA_Term_Args* a) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        ORO_HJCA_Term(wk, a);
         break;
 
     default:
@@ -499,50 +511,6 @@ void pattern_wait_get_up(PLW* wk, u16 lever_data, s16 option) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
         Wait_Get_Up(wk, lever_data, option);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
-void pattern_wait_get_up_2(PLW* wk, u16 lever_data) {
-    pattern_wait_get_up(wk, lever_data, -1);
-}
-
-void pattern_walk(PLW* wk, s16 unused) {
-    active_pattern_walk(wk, 1, 0x20, unused);
-}
-
-void pattern_oro_hjca_term(PLW* wk, const ORO_JCA_Term_Args* a) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        ORO_HJCA_Term(wk, a);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
-
-void pattern_sa_term(PLW* wk, const SA_Term_Args* p) {
-    active_pattern_sa_term(wk, p);
-}
-
-void pattern_command_attack(PLW* wk, const Command_Attack_Args* p) {
-    active_pattern_command_attack(wk, p);
-}
-
-void pattern_normal_attack(PLW* wk, s16 reaction, u16 lever_data) {
-    active_pattern_normal_attack(wk, reaction, lever_data);
-}
-
-void pattern_lever_attack_sp(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_Attack_SP(wk, &(Lever_Attack_SP_Args){8, 0, 0x400, 0x12});
         break;
 
     default:
