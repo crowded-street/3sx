@@ -187,12 +187,18 @@ void Game0_2() {
     }
 }
 
+/* The attract demo does not cut in during the ranking screen, nor once the
+ * result has reached its third step. */
+static s32 back_demo_is_barred(void) {
+    return G_No[1] == 12 || (G_No[2] == 2 && G_No[3] >= 2);
+}
+
 void Check_Back_Demo() {
     if (++G_Timer < 1800) {
         return;
     }
 
-    if (G_No[1] == 12 || (G_No[2] == 2 && G_No[3] >= 2)) {
+    if (back_demo_is_barred()) {
         return;
     }
 

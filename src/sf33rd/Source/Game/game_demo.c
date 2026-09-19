@@ -267,10 +267,16 @@ void Next_Title_Sub() {
     cpReadyTask(TASK_ENTRY, Entry_Task);
 }
 
+/* The match clock does not run before the battle is allowed, while a demo has
+ * stopped it, or during the bonus stage. */
+static s32 clock_is_held(void) {
+    return (Allow_a_battle_f == 0) || (Demo_Time_Stop != 0) || (Bonus_Game_Flag != 0);
+}
+
 void Time_Control() {
     count_cont_main();
 
-    if ((Allow_a_battle_f == 0) || (Demo_Time_Stop != 0) || (Bonus_Game_Flag != 0)) {
+    if (clock_is_held()) {
         return;
     }
 
