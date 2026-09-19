@@ -72,6 +72,15 @@ static bool opening_cue_step_disp(bool cue, s16 next, s16 bg, s16 disp) {
     return false;
 }
 
+/* The steps that turn the scene's objects off and start an effect as they
+ * advance. Every one of them turns the objects off, so the flag is not a
+ * parameter here - the effect is. */
+static void opening_cue_step_effect(bool cue, s16 next, s16 bg, s16 effect) {
+    if (opening_cue_step_disp(cue, next, bg, 0)) {
+        effect_48_init(effect);
+    }
+}
+
 const s16 op_109_sound[5] = { 0, 3, 5, 7, 11 };
 
 static bool op_109_sound_ready() {
@@ -148,11 +157,7 @@ void op_110_move() {
         break;
 
     case 2:
-        if (opening_cue_step(gSeqStatus[0] >= op_110_sound[op_w.r_no_2], 61, 60)) {
-            op_obj_disp = 0;
-            effect_48_init(3);
-        }
-
+        opening_cue_step_effect(gSeqStatus[0] >= op_110_sound[op_w.r_no_2], 61, 60, 3);
         break;
 
     case 3:
@@ -161,11 +166,7 @@ void op_110_move() {
         break;
 
     case 4:
-        if (opening_cue_step(gSeqStatus[0] >= op_110_sound[op_w.r_no_2], 63, 62)) {
-            op_obj_disp = 0;
-            effect_48_init(4);
-        }
-
+        opening_cue_step_effect(gSeqStatus[0] >= op_110_sound[op_w.r_no_2], 63, 62, 4);
         break;
 
     case 5:
@@ -395,11 +396,7 @@ void op_114_move() {
         break;
 
     case 2:
-        if (opening_cue_step(gSeqStatus[0] >= op_114_sound[op_w.r_no_2], 85, 84)) {
-            op_obj_disp = 0;
-            effect_48_init(6);
-        }
-
+        opening_cue_step_effect(gSeqStatus[0] >= op_114_sound[op_w.r_no_2], 85, 84, 6);
         break;
 
     case 3:
