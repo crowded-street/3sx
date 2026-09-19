@@ -63,14 +63,14 @@ static s32 VS_Jump_Cross_Chop(PLW* wk, WORK* em, s16* xx) {
 }
 
 static s32 VS_Jump_Anti_Air_2b(PLW* wk, WORK* em, s16* xx) {
-    if (Check_Special_Technique(wk, em, 0, 0, 0x2b, -1, -1) != 0) {
+    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){0, 0, 0x2b, -1, -1}) != 0) {
         return *xx = 2;
     }
     return 0;
 }
 
 static s32 VS_Jump_Anti_Air_2A(PLW* wk, WORK* em, s16* xx) {
-    if (Check_Special_Technique(wk, em, 0, 0, 0x2A, -1, -1) != 0) {
+    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){0, 0, 0x2A, -1, -1}) != 0) {
         return *xx = 2;
     }
     if (Check_Limited_Jump_Attack(wk, em, 0x14, 4) != 0) {
@@ -89,7 +89,7 @@ static s32 VS_Jump_Limited_Attack(PLW* wk, WORK* em, s16* xx) {
 }
 
 static s32 VS_Jump_Anti_Air_2C(PLW* wk, WORK* em, s16* xx) {
-    if (Check_Special_Technique(wk, em, 0xF, 8, 0x2C, 1, -1) != 0) {
+    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){0xF, 8, 0x2C, 1, -1}) != 0) {
         return *xx = 3;
     }
     return 0;
@@ -321,7 +321,7 @@ void ETC_Term(PLW* wk, s16 Exit_No, u32 Next_Action, u16 Next_Menu) {
 }
 
 s32 ETC_Term_0000(PLW* wk, WORK* em) {
-    if (Check_VS_Squat(wk, em, 0x1D, 0x21, 0x20) != 0) {
+    if (Check_VS_Squat(wk, em, &(VS_Squat_Args){0x1D, 0x21, 0x20}) != 0) {
         return 1;
     }
     return 0;

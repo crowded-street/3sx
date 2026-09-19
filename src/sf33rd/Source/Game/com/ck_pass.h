@@ -16,23 +16,55 @@ extern s32 (*const Passive_D_tbl[20])();
 
 extern s8 PASSIVE_X;
 
+/* The check a passive script runs against one of the opponent's special moves.
+ * The field order is the parameter order Check_Special_Technique took. */
+typedef struct {
+    s16 VS_Technique;
+    u8 Kind_of_Tech;
+    u8 SP_Tech_ID;
+    s16 Option;
+    s16 Option2;
+} SP_Tech_Args;
+
+/* The field order is the parameter order Check_Specific_Term took. */
+typedef struct {
+    s16 VS_Technique;
+    u8 Status_00;
+    u8 Status_01;
+    u8 Status_02;
+} Specific_Term_Args;
+
+/* The field order is the parameter order Check_Limited_Attack took. */
+typedef struct {
+    s16 VS_Technique;
+    u8 PL_Status;
+    s8 Status_00;
+    s16 Limit_Number;
+} Limited_Attack_Args;
+
+/* The field order is the parameter order Check_VS_Squat took. */
+typedef struct {
+    s16 VS_Technique;
+    u8 Status_00;
+    u8 Status_01;
+} VS_Squat_Args;
+
 s32 Ck_Passive_Term(PLW* wk);
 void KEN_vs(PLW* wk);
 void HUGO_vs(PLW* wk);
 void GILL_vs(PLW* wk);
-s32 Check_Special_Technique(PLW* wk, WORK* em, s16 VS_Technique, u8 Kind_of_Tech, u8 SP_Tech_ID, s16 Option,
-                            s16 Option2);
+s32 Check_Special_Technique(PLW* wk, WORK* em, const SP_Tech_Args* p);
 s32 Check_Attack_Direction(PLW* wk, WORK* em);
 s32 Check_VS_Jump(PLW* wk, PLW* em, s16 Height);
 s32 Check_Rolling(PLW* wk, WORK* em);
 s32 Check_Personal_Action(PLW* wk, WORK* em);
-s32 Check_Specific_Term(PLW* wk, WORK* em, s16 VS_Technique, u8 Status_00, u8 Status_01, u8 Status_02);
+s32 Check_Specific_Term(PLW* wk, WORK* em, const Specific_Term_Args* p);
 s32 Check_Dash(PLW* wk, WORK* em, s16 VS_Technique);
-s32 Check_Limited_Attack(PLW* wk, WORK* em, s16 VS_Technique, u8 PL_Status, s8 Status_00, s16 Limit_Number);
+s32 Check_Limited_Attack(PLW* wk, WORK* em, const Limited_Attack_Args* p);
 s32 Check_Limited_Jump_Attack(PLW* wk, WORK* em, u8 PL_Status, s8 Status_00);
 s32 Check_Stand(PLW* wk, WORK* em, s16 VS_Technique);
 s32 Setup_Next_Stand_Timer(PLW* wk);
-s32 Check_VS_Squat(PLW* wk, WORK* em, s16 VS_Technique, u8 Status_00, u8 Status_01);
+s32 Check_VS_Squat(PLW* wk, WORK* em, const VS_Squat_Args* p);
 s32 Setup_Next_Squat_Timer(PLW* wk);
 s32 Check_Thrown(PLW* wk, WORK* em);
 s32 Check_Catch(PLW* wk, WORK* em, s16 VS_Technique);
