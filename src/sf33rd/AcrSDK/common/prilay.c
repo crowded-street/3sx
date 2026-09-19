@@ -46,8 +46,14 @@ void plMemmove(void* dst, void* src, s32 size) {
     }
 }
 
+/* Outside the surface on any of the four edges. The test is the one that stood
+ * in plCalcAddress, copied rather than inverted. */
+static s32 is_outside_surface(s32 x, s32 y, plContext* lpcontext) {
+    return (x < 0) || (y < 0) || (x >= lpcontext->width) || (y >= lpcontext->height);
+}
+
 void* plCalcAddress(s32 x, s32 y, plContext* lpcontext) {
-    if ((x < 0) || (y < 0) || (x >= lpcontext->width) || (y >= lpcontext->height)) {
+    if (is_outside_surface(x, y, lpcontext)) {
         return NULL;
     }
 
