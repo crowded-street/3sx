@@ -306,6 +306,34 @@ void ppgChangeDataEndian(u8* adrs, const PPGEndianArgs* a) {
     }
 }
 
+/* One texture handle per index, each over the next srcSize bytes of the data the
+ * caller has just pointed tch->srcAdrs at. The CI flag is decided once, from the
+ * context, and is read nowhere else. Returns 0 at the first handle the renderer
+ * refuses, which is what the goto into error_handler used to carry. */
+static s32 ppgCreateSeqTextureHandles(Texture* tch, plContext* bits, const PPGTexSeqsArgs* a) {
+    u8* adrs = tch->srcAdrs;
+    s32 ci_flag = 0;
+    s32 i;
+
+    if (bits->bitdepth < 2) {
+        ci_flag = 0x4000;
+    }
+
+    for (i = 0; i < a->ixNums; i++) {
+        bits->ptr = adrs;
+        tch->handle[i].b16[1] = ci_flag;
+        tch->handle[i].b16[0] = flCreateTextureHandle(bits, a->attribute);
+
+        if (tch->handle[i].b16[0] == 0) {
+            return 0;
+        }
+
+        adrs += tch->srcSize;
+    }
+
+    return 1;
+}
+
 s32 ppgSetupTexChunkSeqs(Texture* tch, const PPGTexSeqsArgs* a) {
     /* The original took this by value and advanced it; the copy keeps
      * that local, which is what a by-value parameter was. */
@@ -313,7 +341,6 @@ s32 ppgSetupTexChunkSeqs(Texture* tch, const PPGTexSeqsArgs* a) {
 
     plContext bits;
     s32 i;
-    s32 ci_flag = 0;
 
     if (tch == NULL) {
         tch = ppg_w.cur->tex;
@@ -354,20 +381,8 @@ s32 ppgSetupTexChunkSeqs(Texture* tch, const PPGTexSeqsArgs* a) {
         adrs[i] = 0;
     }
 
-    if (bits.bitdepth < 2) {
-        ci_flag = 0x4000;
-    }
-
-    for (i = 0; i < a->ixNums; i++) {
-        bits.ptr = adrs;
-        tch->handle[i].b16[1] = ci_flag;
-        tch->handle[i].b16[0] = flCreateTextureHandle(&bits, a->attribute);
-
-        if (tch->handle[i].b16[0] == 0) {
-            goto error_handler;
-        }
-
-        adrs += tch->srcSize;
+    if (!ppgCreateSeqTextureHandles(tch, &bits, a)) {
+        goto error_handler;
     }
 
     tch->be = 1;
