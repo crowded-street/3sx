@@ -390,6 +390,23 @@ static bool op_114_sound_ready() {
     return (gSeqStatus[0] >= op_114_sound[op_w.r_no_2]) && (gSeqStatus[0] != 0x72);
 }
 
+/* The one step of scene 114 that does not fit the shared shape: it zooms
+ * between advancing the step counter and clearing the work, so the order is
+ * kept by leaving the block whole rather than calling advance_opening_step. */
+static void start_op_114_zoom_step(void) {
+    if (gSeqStatus[0] >= op_114_sound[op_w.r_no_2]) {
+        op_w.r_no_2 += 1;
+        Zoom_Value_Set(64);
+        op_work_clear();
+        op_w.index = 87;
+        op_obj_disp = 0;
+        effect_48_init(7);
+        return;
+    }
+
+    op_bg_move(86);
+}
+
 void op_114_move() {
     switch (op_w.r_no_2) {
     case 0:
@@ -416,17 +433,7 @@ void op_114_move() {
         break;
 
     case 4:
-        if (gSeqStatus[0] >= op_114_sound[op_w.r_no_2]) {
-            op_w.r_no_2 += 1;
-            Zoom_Value_Set(64);
-            op_work_clear();
-            op_w.index = 87;
-            op_obj_disp = 0;
-            effect_48_init(7);
-            return;
-        }
-
-        op_bg_move(86);
+        start_op_114_zoom_step();
         break;
 
     case 5:
