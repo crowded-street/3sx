@@ -101,10 +101,22 @@ void ppgSetupCurrentPaletteNumber(Palette* pal, s32 num) {
     }
 }
 
+/* One palette slot given back: the handle released if it holds one, and the
+ * slot cleared either way. Both arms of the release did this, over all slots or
+ * over one. */
+static void release_one_palette_handle(Palette* pch, s32 i) {
+    u16 han = pch->handle[i];
+
+    if (han) {
+        flReleasePaletteHandle(han);
+    }
+
+    pch->handle[i] = 0;
+}
+
 s32 ppgReleasePaletteHandle(Palette* pch, s32 ixNum) {
     s32 i;
     s32 ix;
-    u16 han;
 
     if (pch == NULL) {
         pch = ppg_w.cur->pal;
@@ -120,26 +132,14 @@ s32 ppgReleasePaletteHandle(Palette* pch, s32 ixNum) {
 
     if (ixNum < 0) {
         for (i = 0; i < pch->total; i++) {
-            han = pch->handle[i];
-
-            if (han) {
-                flReleasePaletteHandle(han);
-            }
-
-            pch->handle[i] = 0;
+            release_one_palette_handle(pch, i);
         }
 
     } else {
         ix = ixNum - pch->ixNum1st;
 
         if ((ix >= 0) && (ix < pch->total)) {
-            han = pch->handle[ix];
-
-            if (han) {
-                flReleasePaletteHandle(han);
-            }
-
-            pch->handle[ix] = 0;
+            release_one_palette_handle(pch, ix);
         }
     }
 
@@ -150,10 +150,25 @@ static bool ppgTextureIndexIsInRange(s32 ix, const Texture* tch) {
     return (ix >= 0) && (ix < tch->total);
 }
 
+/* The same for a texture slot, which also clears the handle word when the
+ * chunk is a sequential one. */
+static void release_one_texture_handle(Texture* tch, s32 i) {
+    u16 han = tch->handle[i].b16[0];
+
+    if (han) {
+        flReleaseTextureHandle(han);
+    }
+
+    tch->handle[i].b16[0] = 0;
+
+    if (tch->flags & 0x80) {
+        tch->handle[i].b16[1] = 0;
+    }
+}
+
 s32 ppgReleaseTextureHandle(Texture* tch, s32 ixNum) {
     s32 i;
     s32 ix;
-    u16 han;
 
     if (tch == NULL) {
         tch = ppg_w.cur->tex;
@@ -169,33 +184,13 @@ s32 ppgReleaseTextureHandle(Texture* tch, s32 ixNum) {
 
     if (ixNum < 0) {
         for (i = 0; i < tch->total; i++) {
-            han = tch->handle[i].b16[0];
-
-            if (han) {
-                flReleaseTextureHandle(han);
-            }
-
-            tch->handle[i].b16[0] = 0;
-
-            if (tch->flags & 0x80) {
-                tch->handle[i].b16[1] = 0;
-            }
+            release_one_texture_handle(tch, i);
         }
     } else {
         ix = ixNum - tch->ixNum1st;
 
         if (ppgTextureIndexIsInRange(ix, tch)) {
-            han = tch->handle[ix].b16[0];
-
-            if (han) {
-                flReleaseTextureHandle(han);
-            }
-
-            tch->handle[ix].b16[0] = 0;
-
-            if (tch->flags & 0x80) {
-                tch->handle[ix].b16[1] = 0;
-            }
+            release_one_texture_handle(tch, ix);
         }
     }
 
