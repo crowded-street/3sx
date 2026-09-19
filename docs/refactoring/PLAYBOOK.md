@@ -2752,3 +2752,39 @@ The floor is unchanged and it is the one already recorded: a residual script is 
 over a step counter whose arms call different engine functions in a different order, and no
 legal recipe takes a branch out of a switch that is already the smallest form of what it
 does.
+
+### The duplication check ignores constants, so do not give each case its own setter
+
+*Added 2026-09-19, measured twice in the PPGFile family.*
+
+CodeScene's Code Duplication check compares the *shape* of two functions, not their
+values: `function_duplication_min_similarity_percentage` is 75 and two bodies that differ
+only in their literals are 100% alike to it. Two consequences, both measured:
+
+- **A per-case setter family costs more than the switch it replaces.** The PPG and PPL
+  header readers each hold a switch over the colour format, and four of the five layouts
+  are written out identically in both. Giving each layout its own setter - five helpers,
+  each twelve assignments differing only in constants - deduplicated 48 lines and took
+  `PPGFile_context.c` from **9.44 to 8.81**: the five helpers became a duplication family,
+  and so did the two switches, which were now `case X: set_pixelformat_X(bits);` twice
+  over. Splitting the reader's two switches apart instead, bodies untouched, gave **9.58**,
+  and chaining the wide formats through the default arm finished at **10.00**.
+- **The same applies to a helper pair that differs only in its element type.** A dot-block
+  copier for `u8` and one for `u16` are one shape twice. They are still worth extracting -
+  they cleared a Complex Method and six bumps - but expect the pair to be flagged and do
+  not try to "fix" it by merging the two behind a width flag.
+
+The rule that falls out: **extract what differs in structure, and leave what differs only
+in values inside the switch that chooses between them.** A switch arm is the cheapest
+place a constant can live.
+
+### A twin pair of files makes the one-sided extraction rule a file-level rule
+
+*Added 2026-09-19.*
+
+*Between two twin arms, extract from one of them only* was written about two arms of one
+function. `PPGFile.c` shows the same effect between two *functions* that are each other's
+twin - `ppgCheckTextureDataBe` and `ppgCheckPaletteDataBe`, which end with the same nested
+free block over a different type. Extracting both cost the file a band, **9.24 -> 9.09**,
+because the two helpers are twins as well. Extracting the texture side alone - the one with
+two tables to give back, so the bodies are not the same length - paid: **9.31**.
