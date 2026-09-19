@@ -218,37 +218,16 @@ u32 flCreateTextureFromApx(const char* apx_file, u32 flag) {
     return flCreateTextureFromApx_mem(file_ptr, flag);
 }
 
-u32 flCreateTextureFromApx_mem(void* mem, u32 flag) {
-    u8* dst;
+/* The mipmap chain of an APX image, one level per pass, each half the size of
+ * the one above it. The destination and the starting dimensions are read from
+ * the texture the caller has already set up. */
+static void copy_apx_mipmaps(void* mem, const plContext* context, s32 mip_num, const FLTexture* lpflTexture) {
+    u8* dst = flPS2GetSystemBuffAdrs(lpflTexture->mem_handle);
+    s32 dw = lpflTexture->width;
+    s32 dh = lpflTexture->height;
     u8* src;
-    plContext context[7];
-    plContext pal_context;
-    plContext tmp_context;
-    u32 th;
-    u32 ph;
-    FLTexture* lpflTexture;
-    FLTexture* lpflPalette;
-    s32 mip_num;
     s32 lp0;
-    s32 dw;
-    s32 dh;
     s32 tex_size;
-
-    th = 0;
-    ph = 0;
-    th = flPS2GetTextureHandle();
-    lpflTexture = &flTexture[LO_16_BITS(th) - 1];
-    mip_num = plAPXGetMipmapTextureNum(mem) - 1;
-
-    if (plAPXSetContextFromImage(&context[0], mem) == 0) {
-        return 0;
-    }
-
-    flPS2GetTextureInfoFromContext(&context[0], mip_num + 1, th, flag);
-    lpflTexture->mem_handle = flPS2GetSystemMemoryHandle(lpflTexture->size, 2);
-    dst = flPS2GetSystemBuffAdrs(lpflTexture->mem_handle);
-    dw = lpflTexture->width;
-    dh = lpflTexture->height;
 
     for (lp0 = 0; lp0 <= mip_num; lp0++) {
         switch (context[lp0].bitdepth) {
@@ -288,32 +267,68 @@ u32 flCreateTextureFromApx_mem(void* mem, u32 flag) {
         dh >>= 1;
         dst = &dst[tex_size];
     }
+}
+
+/* The palette an APX image carries, for the two formats that have one. Returns
+ * the palette handle, which is the one value the block left behind. */
+static u32 create_apx_palette(void* mem, const FLTexture* lpflTexture, u32 flag) {
+    plContext pal_context;
+    plContext tmp_context;
+    FLTexture* lpflPalette;
+    u8* dst;
+    u8* src;
+    u32 ph;
+
+    ph = flPS2GetPaletteHandle();
+    lpflPalette = &flPalette[HI_16_BITS(ph) - 1];
+    plAPXSetPaletteContextFromImage(&pal_context, mem);
+    flPS2GetPaletteInfoFromContext(&pal_context, ph, flag);
+    lpflPalette->mem_handle = flPS2GetSystemMemoryHandle(lpflPalette->size, 2);
+    dst = flPS2GetSystemBuffAdrs(lpflPalette->mem_handle);
+    src = plAPXGetPaletteAddressFromImage(mem, 0);
+
+    if (lpflTexture->format == 0x13) {
+        tmp_context = pal_context;
+        pal_context.ptr = src;
+        tmp_context.ptr = dst;
+        flPS2ConvertContext(&pal_context, &tmp_context, 0, 1);
+    } else {
+        flMemcpy(dst, src, lpflPalette->size);
+
+        if (pal_context.bitdepth == 4) {
+            flPS2ConvertAlpha(dst, lpflPalette->width, lpflPalette->height);
+        }
+    }
+
+    flPS2CreatePaletteHandle(ph, flag);
+    return ph;
+}
+
+u32 flCreateTextureFromApx_mem(void* mem, u32 flag) {
+    plContext context[7];
+    u32 th;
+    u32 ph;
+    FLTexture* lpflTexture;
+    s32 mip_num;
+
+    th = 0;
+    ph = 0;
+    th = flPS2GetTextureHandle();
+    lpflTexture = &flTexture[LO_16_BITS(th) - 1];
+    mip_num = plAPXGetMipmapTextureNum(mem) - 1;
+
+    if (plAPXSetContextFromImage(&context[0], mem) == 0) {
+        return 0;
+    }
+
+    flPS2GetTextureInfoFromContext(&context[0], mip_num + 1, th, flag);
+    lpflTexture->mem_handle = flPS2GetSystemMemoryHandle(lpflTexture->size, 2);
+    copy_apx_mipmaps(mem, context, mip_num, lpflTexture);
 
     flPS2CreateTextureHandle(th, flag);
 
     if ((lpflTexture->format == 0x14) || (lpflTexture->format == 0x13)) {
-        ph = flPS2GetPaletteHandle();
-        lpflPalette = &flPalette[HI_16_BITS(ph) - 1];
-        plAPXSetPaletteContextFromImage(&pal_context, mem);
-        flPS2GetPaletteInfoFromContext(&pal_context, ph, flag);
-        lpflPalette->mem_handle = flPS2GetSystemMemoryHandle(lpflPalette->size, 2);
-        dst = flPS2GetSystemBuffAdrs(lpflPalette->mem_handle);
-        src = plAPXGetPaletteAddressFromImage(mem, 0);
-
-        if (lpflTexture->format == 0x13) {
-            tmp_context = pal_context;
-            pal_context.ptr = src;
-            tmp_context.ptr = dst;
-            flPS2ConvertContext(&pal_context, &tmp_context, 0, 1);
-        } else {
-            flMemcpy(dst, src, lpflPalette->size);
-
-            if (pal_context.bitdepth == 4) {
-                flPS2ConvertAlpha(dst, lpflPalette->width, lpflPalette->height);
-            }
-        }
-
-        flPS2CreatePaletteHandle(ph, flag);
+        ph = create_apx_palette(mem, lpflTexture, flag);
     }
 
     return th | ph;
