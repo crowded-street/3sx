@@ -2604,3 +2604,65 @@ splitting them further would only separate duplication pairs without removing th
 **That 74 is the number to put to the owner.** It is the first time the two-instance
 question has had a price attached on this scale: answering it would reach a further 27% of
 what is left here, and the equivalent share of the passive folder.
+
+### Where `Game/com/active` stopped the second time, and the four refusals
+
+*Added 2026-09-19, after the folder was asked to go past its 8.64 plateau.*
+
+The plateau recorded above held for one reason: **a family was looked for inside one
+folder at a time.** `Game/com/active` and `Game/com/passive` are the same shape under two
+names, and each had been given its own shared skeleton module - forty of whose skeletons
+stood byte-identical to one another across the two. A script that is one of a kind among
+its own character files very often has partners in the other folder.
+
+The sequence that moved it, each step verified by `passive_fold.py verify --family com`
+re-expanding all 5109 pattern functions:
+
+1. **Recipe V at two instances**, active folder only - 72 scripts onto 36 skeletons.
+   8.64 -> 8.91.
+2. **Recipe S**, `active_patterns_*.c` and `pass_patterns_*.c` move to
+   `Game/com/patterns/com_patterns_*.c`, resharded by step count. No rename, no body change.
+3. **Recipe D**, the forty skeletons both modules held collapse to one definition each.
+4. **Recipe V across both folders at once** - 246 scripts onto 120 skeletons. The active
+   character files go to **9.27**.
+5. **Recipe V between skeletons**: 38 of gfold's specialisations are another skeleton with
+   literals baked in. 506 lines go; the patterns module goes 7.76 -> 7.84.
+
+    Game/com/active    22 files, mean 8.64 -> 9.27, at 10.00: 4 -> 10
+    Game/com/patterns  12 files, mean 7.84 (the debt both folders now share once)
+    Game/com/passive   67 files, mean 9.56
+
+**What a character file's score tracks is the number of functions CodeScene flags**, not
+the number of residual switches: 0 flagged is 10.00, 5-6 is 9.09, 7-8 is 8.81, 9 is 8.54,
+12 is 8.28, and 18 or more is 8.03. `active16.c` holds seven residual switches and scores
+10.00 because no two of them are 75% alike; `active00.c` holds five and scores 9.09
+because two pairs are.
+
+Four things were measured and **refused**:
+
+- **Inlining the forwarding skeletons.** Step 5 leaves the specialisation as a one-line
+  forwarder. Removing it and writing what it forwarded out at each call site - 38
+  skeletons, 406 call sites - moved the score *not at all*, and the guard's fingerprint
+  says why it should not: 184 new copies of `8` and 94 of `1`, spread over the call sites.
+  A named specialisation holding one literal beats 406 call sites holding it each.
+  `passive_fold.py inline` is kept for a family whose forwarder is genuinely empty.
+- **Extracting a shared tail (Recipe X for sharing, not for complexity).** 133 shared
+  arm-suffixes cover 424 of the 492 residual scripts, which looks like the last big
+  family. It is not: a script whose tail moves out still holds a switch, and
+  `function_duplication_min_lines_of_code_for_check` is **10** - exactly the size of a
+  one-arm switch with a default. Measured on `active07.c`: 26 tails extracted, 8.03 ->
+  8.03, and the heads alone in a file of their own also score 8.03.
+- **Regrouping the shared skeletons alphabetically**, which mixes step counts and so could
+  in principle bring every file under `file_mean_cyclomatic_complexity_warning` (4) -
+  the global mean over the 474 skeletons is 3.86. Measured **7.59** against 7.84 for the
+  by-step-count grouping.
+- **Regrouping them balanced by cyclomatic complexity**, dealing the skeletons round-robin
+  from most arms to fewest. **7.55**. This one deserved refusing on its own terms as well:
+  a file boundary chosen to average a metric is not an organising principle.
+
+**What is left.** 170 active scripts and 332 passive ones are unfolded, and after the
+cross-folder pass they are one of a kind *in both folders together*. Merging two of those
+is parameterising two or more differences, which is Recipe D's forbidden case and stays
+refused. Past them, the patterns module's floor is the arithmetic of a switch: a skeleton's
+complexity is its step count plus two, and no legal recipe takes a branch out of a switch
+that is already the smallest form of what it does.
