@@ -311,22 +311,28 @@ static void game05_screen_switched(void) {
         }
 }
 
+/* The start of the continue states: clear the screen-control counters, and pick
+ * the bonus-stage entry if one is due. */
+static void game05_begin_continue(void) {
+    G_No[2] += 1;
+    SC_No[0] = 0;
+    SC_No[1] = 0;
+    SC_No[2] = 0;
+    SC_No[3] = 0;
+
+    if (Check_Bonus_Stage()) {
+        SC_No[0] = 6;
+    }
+
+    Stop_Combo = 0;
+    init_slow_flag();
+    pulpul_stop();
+}
+
 static void game05_state(void) {
     switch (G_No[2]) {
     case 0:
-        G_No[2] += 1;
-        SC_No[0] = 0;
-        SC_No[1] = 0;
-        SC_No[2] = 0;
-        SC_No[3] = 0;
-
-        if (Check_Bonus_Stage()) {
-            SC_No[0] = 6;
-        }
-
-        Stop_Combo = 0;
-        init_slow_flag();
-        pulpul_stop();
+        game05_begin_continue();
         break;
 
     case 1:
