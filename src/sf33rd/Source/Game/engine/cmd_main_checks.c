@@ -995,22 +995,10 @@ void check_16() { // 🟢
     }
 }
 
-void check_18() { // 🟢
-    u16 sw_lever;
-
-    waza_ptr->w_int--;
-
-    if (waza_ptr->w_int < 0) {
-        waza_ptr->w_type = 0;
-        return;
-    }
-
-    sw_lever = chk_pl->sw_lever & 0xF;
-
-    if (dead_lvr_check()) {
-        return;
-    }
-
+/* The three lever forms check_18 accepts - a charged lever matching its
+ * direction on a change, a neutral lever, or a lever sharing a bit with the
+ * wanted one - each of which restarts the window. */
+static void open_charged_lever_window(u16 sw_lever) {
     if (waza_ptr->w_lvr & 0x8000) {
         if ((chk_pl->old_lvbt & 0xF) != (chk_pl->new_lvbt & 0xF)) {
             sw_work = waza_ptr->w_lvr & 0xF;
@@ -1029,6 +1017,25 @@ void check_18() { // 🟢
         waza_ptr->w_int = waza_ptr->free1;
         open_waza_window();
     }
+}
+
+void check_18() { // 🟢
+    u16 sw_lever;
+
+    waza_ptr->w_int--;
+
+    if (waza_ptr->w_int < 0) {
+        waza_ptr->w_type = 0;
+        return;
+    }
+
+    sw_lever = chk_pl->sw_lever & 0xF;
+
+    if (dead_lvr_check()) {
+        return;
+    }
+
+    open_charged_lever_window(sw_lever);
 }
 
 void check_19() { // 🟢
