@@ -407,8 +407,18 @@ static s32 read_pad_report(s32 i) {
     return 1;
 }
 
-void PADReadSub(s32 i) {
+/* The hardware-to-soft button map for a pad kind. The three arms below differ
+ * only in which map they copy from. */
+static void copy_hard_to_soft_map(s32 i, PadButtonMapRow* map) {
     s32 lp0;
+
+    for (lp0 = 0; lp0 < 16; lp0++) {
+        ps2pad_hard_to_soft[i][lp0][0] = map[lp0][0];
+        ps2pad_hard_to_soft[i][lp0][1] = map[lp0][1];
+    }
+}
+
+void PADReadSub(s32 i) {
     s32 pstate;
     s32 len;
     u8 bprofile[4];
@@ -461,10 +471,7 @@ void PADReadSub(s32 i) {
             tarpad_root[i].kind = 1;
             tarpad_root[i].anstate = 0;
 
-            for (lp0 = 0; lp0 < 16; lp0++) {
-                ps2pad_hard_to_soft[i][lp0][0] = ps2pad_hard_to_soft_dg[lp0][0];
-                ps2pad_hard_to_soft[i][lp0][1] = ps2pad_hard_to_soft_dg[lp0][1];
-            }
+            copy_hard_to_soft_map(i, ps2pad_hard_to_soft_dg);
 
             break;
 
@@ -472,10 +479,7 @@ void PADReadSub(s32 i) {
             tarpad_root[i].kind = 1;
             tarpad_root[i].anstate = 0x60;
 
-            for (lp0 = 0; lp0 < 16; lp0++) {
-                ps2pad_hard_to_soft[i][lp0][0] = ps2pad_hard_to_soft_ds2[lp0][0];
-                ps2pad_hard_to_soft[i][lp0][1] = ps2pad_hard_to_soft_ds2[lp0][1];
-            }
+            copy_hard_to_soft_map(i, ps2pad_hard_to_soft_ds2);
 
             break;
 
@@ -483,10 +487,7 @@ void PADReadSub(s32 i) {
             tarpad_root[i].kind = 1;
             tarpad_root[i].anstate = 0x73;
 
-            for (lp0 = 0; lp0 < 16; lp0++) {
-                ps2pad_hard_to_soft[i][lp0][0] = ps2pad_hard_to_soft_ds2[lp0][0];
-                ps2pad_hard_to_soft[i][lp0][1] = ps2pad_hard_to_soft_ds2[lp0][1];
-            }
+            copy_hard_to_soft_map(i, ps2pad_hard_to_soft_ds2);
 
             break;
         }

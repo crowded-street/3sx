@@ -4,6 +4,11 @@
 #include "sf33rd/AcrSDK/common/pad.h"
 #include "types.h"
 
+/* One row of a hardware-to-soft button map: the hardware bit, and which analog
+ * group reads its pressure. Named here rather than written out as `u32 (*)[2]`
+ * at the use site, so the .c gains no literal - see Recipe T. */
+typedef u32 PadButtonMapRow[2];
+
 typedef struct {
     u8 state;
     u8 anstate;
