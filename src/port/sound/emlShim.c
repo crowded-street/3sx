@@ -259,6 +259,28 @@ static struct VWork* allocVoice() {
     return voice;
 }
 
+/* The four identity bits of the condition mask. Split out of makeConditions so
+ * neither half carries the whole flag ladder. */
+static u32 addIdConditions(u32 flags, u32 cond) {
+    if (flags & 0x20) {
+        cond |= MATCH_ID1;
+    }
+
+    if (flags & 0x40) {
+        cond |= MATCH_ID2;
+    }
+
+    if (flags & 0x80) {
+        cond |= MATCH_GUID;
+    }
+
+    if (flags & 4) {
+        cond |= MATCH_BANK;
+    }
+
+    return cond;
+}
+
 static u32 makeConditions(CSE_REQP* rq) {
     u32 flags = rq->flags;
     u32 cond = 0;
@@ -277,23 +299,7 @@ static u32 makeConditions(CSE_REQP* rq) {
         cond |= MATCH_NOTE;
     }
 
-    if (flags & 0x20) {
-        cond |= MATCH_ID1;
-    }
-
-    if (flags & 0x40) {
-        cond |= MATCH_ID2;
-    }
-
-    if (flags & 0x80) {
-        cond |= MATCH_GUID;
-    }
-
-    if (flags & 4) {
-        cond |= MATCH_BANK;
-    }
-
-    return cond;
+    return addIdConditions(flags, cond);
 }
 
 static int checkConditions(struct VId* id, CSE_REQP* match, u32 cond) {
