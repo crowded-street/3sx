@@ -1044,27 +1044,29 @@ static void write_converted_pixel(s32 bitdepth, u8* dst, u32 color, const Conver
  * zero; inward, 0x80 becomes full and anything else doubles. Only a 32-bit
  * source carries alpha, which is why the caller asks only then. */
 static u32 convert_alpha(u32 a, u32 direction) {
-    if (direction == 0) {
-        if (a == 0xFF) {
-            return 0x80;
+    if (direction != 0) {
+        if (a == 0x80) {
+            return 0xFF;
         }
 
-        if (a != 0) {
-            a >>= 1;
-
-            if (a == 0) {
-                a = 1;
-            }
-        }
-
-        return a;
+        return a * 2;
     }
 
-    if (a == 0x80) {
-        return 0xFF;
+    if (a == 0xFF) {
+        return 0x80;
     }
 
-    return a * 2;
+    if (a == 0) {
+        return 0;
+    }
+
+    a >>= 1;
+
+    if (a == 0) {
+        return 1;
+    }
+
+    return a;
 }
 
 s32 flPS2ConvertContext(plContext* lpSrc, plContext* lpDst, u32 direction, u32 type) {
