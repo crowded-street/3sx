@@ -1,16 +1,16 @@
 {
   "measured": "2026-09-19",
-  "note": "Sixth sweep of 2026-09-19, after the Game/com/active second pass and the two Game/ui regressions this branch had introduced were cleared. Same exclusions as codehealth-baseline.json.",
-  "total_candidates": 801,
-  "scored": 657,
+  "note": "Seventh sweep of 2026-09-19, after the PPGFile family, the Game/opening folder, mtrans.c's split and flps2vram.c. Seven files that the sweep run could not reach (the CodeScene CLI dropped a chunk while a build was running) were scored individually and patched in; flps2vram.c carries its post-commit score. Same exclusions as codehealth-baseline.json.",
+  "total_candidates": 803,
+  "scored": 659,
   "unscorable": 144,
   "bands": {
     "red": 0,
-    "yellow": 97,
-    "green": 90,
-    "optimal": 470
+    "yellow": 93,
+    "green": 91,
+    "optimal": 475
   },
-  "mean": 9.64,
+  "mean": 9.66,
   "baseline_bands": {
     "red": 19,
     "yellow": 207,
@@ -19,16 +19,8 @@
   },
   "scores": [
     {
-      "path": "src/sf33rd/AcrSDK/ps2/flps2vram.c",
-      "score": 5.25
-    },
-    {
       "path": "src/platform/netplay/game_state.c",
       "score": 6.3
-    },
-    {
-      "path": "src/sf33rd/Source/Game/opening/opening_scenes_late.c",
-      "score": 6.77
     },
     {
       "path": "src/platform/video/sdl_gpu/sdl_gpu_renderer.c",
@@ -37,10 +29,6 @@
     {
       "path": "src/sf33rd/AcrSDK/ps2/flps2etc.c",
       "score": 6.94
-    },
-    {
-      "path": "src/sf33rd/Source/Common/PPGFile_chunks.c",
-      "score": 6.99
     },
     {
       "path": "src/sf33rd/AcrSDK/ps2/ps2PAD.c",
@@ -59,12 +47,12 @@
       "score": 7.3
     },
     {
-      "path": "src/arcade/arcade_char_data.c",
-      "score": 7.37
+      "path": "src/sf33rd/AcrSDK/ps2/flps2vram.c",
+      "score": 7.36
     },
     {
-      "path": "src/sf33rd/Source/Game/opening/opening_scenes.c",
-      "score": 7.42
+      "path": "src/arcade/arcade_char_data.c",
+      "score": 7.37
     },
     {
       "path": "src/port/sound/emlShim.c",
@@ -73,10 +61,6 @@
     {
       "path": "src/sf33rd/Source/Game/engine/cmd_main_checks.c",
       "score": 7.5
-    },
-    {
-      "path": "src/sf33rd/Source/Game/opening/opening_bg0.c",
-      "score": 7.54
     },
     {
       "path": "src/sf33rd/Source/Game/com/patterns/com_patterns_3step.c",
@@ -111,10 +95,6 @@
       "score": 7.55
     },
     {
-      "path": "src/sf33rd/Source/Game/rendering/mtrans.c",
-      "score": 7.55
-    },
-    {
       "path": "src/sf33rd/AcrSDK/common/memmgr.c",
       "score": 7.58
     },
@@ -125,10 +105,6 @@
     {
       "path": "src/sf33rd/Source/Game/com/patterns/com_patterns_5step_2.c",
       "score": 7.78
-    },
-    {
-      "path": "src/sf33rd/Source/Common/PPGFile_quads.c",
-      "score": 7.86
     },
     {
       "path": "src/test/test_runner.c",
@@ -144,10 +120,6 @@
     },
     {
       "path": "src/sf33rd/Source/Game/com/active/active14_2.c",
-      "score": 8.03
-    },
-    {
-      "path": "src/sf33rd/Source/Game/com/ck_pass.c",
       "score": 8.03
     },
     {
@@ -183,6 +155,14 @@
       "score": 8.03
     },
     {
+      "path": "src/sf33rd/Source/Game/rendering/mtrans.c",
+      "score": 8.03
+    },
+    {
+      "path": "src/sf33rd/Source/Game/opening/opening_bg0.c",
+      "score": 8.12
+    },
+    {
       "path": "src/sf33rd/Source/Game/com/com_pl_damage.c",
       "score": 8.13
     },
@@ -203,6 +183,10 @@
       "score": 8.28
     },
     {
+      "path": "src/sf33rd/Source/Game/com/ck_pass.c",
+      "score": 8.28
+    },
+    {
       "path": "src/sf33rd/Source/Game/com/passive/pass06.c",
       "score": 8.28
     },
@@ -216,6 +200,10 @@
     },
     {
       "path": "src/sf33rd/Source/Game/opening/opening_bg1.c",
+      "score": 8.28
+    },
+    {
+      "path": "src/sf33rd/Source/Game/rendering/mtrans_buffers.c",
       "score": 8.28
     },
     {
@@ -289,10 +277,6 @@
     {
       "path": "src/sf33rd/Source/Game/ui/sc_sub_combo.c",
       "score": 8.56
-    },
-    {
-      "path": "src/sf33rd/Source/Common/PPGFile.c",
-      "score": 8.57
     },
     {
       "path": "src/sf33rd/Source/Game/menu/netplay_menu.c",
@@ -519,6 +503,14 @@
       "score": 9.09
     },
     {
+      "path": "src/sf33rd/Source/Game/opening/opening_scenes.c",
+      "score": 9.09
+    },
+    {
+      "path": "src/sf33rd/Source/Game/opening/opening_scenes_late.c",
+      "score": 9.09
+    },
+    {
       "path": "src/sf33rd/Source/Game/stage/bg.c",
       "score": 9.09
     },
@@ -536,6 +528,10 @@
     },
     {
       "path": "src/port/sound/adx.c",
+      "score": 9.31
+    },
+    {
+      "path": "src/sf33rd/Source/Common/PPGFile.c",
       "score": 9.31
     },
     {
@@ -659,10 +655,6 @@
       "score": 9.42
     },
     {
-      "path": "src/sf33rd/Source/Common/PPGFile_context.c",
-      "score": 9.44
-    },
-    {
       "path": "src/port/sdl/netplay_screen.c",
       "score": 9.47
     },
@@ -728,10 +720,6 @@
     },
     {
       "path": "src/sf33rd/Source/Game/engine/charset.c",
-      "score": 9.68
-    },
-    {
-      "path": "src/sf33rd/Source/Game/opening/opening.c",
       "score": 9.68
     },
     {
@@ -864,6 +852,22 @@
     },
     {
       "path": "src/sf33rd/AcrSDK/ps2/foundaps2.c",
+      "score": 10.0
+    },
+    {
+      "path": "src/sf33rd/Source/Common/PPGFile_chunks.c",
+      "score": 10.0
+    },
+    {
+      "path": "src/sf33rd/Source/Common/PPGFile_context.c",
+      "score": 10.0
+    },
+    {
+      "path": "src/sf33rd/Source/Common/PPGFile_palettes.c",
+      "score": 10.0
+    },
+    {
+      "path": "src/sf33rd/Source/Common/PPGFile_quads.c",
       "score": 10.0
     },
     {
@@ -2416,6 +2420,10 @@
     },
     {
       "path": "src/sf33rd/Source/Game/opening/op_sub.c",
+      "score": 10.0
+    },
+    {
+      "path": "src/sf33rd/Source/Game/opening/opening.c",
       "score": 10.0
     },
     {

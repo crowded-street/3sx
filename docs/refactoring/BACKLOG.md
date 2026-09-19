@@ -10,8 +10,9 @@ for the allowed transformations.
 > **Scores here are refreshed from a full sweep; the task files are not.**
 > If a task file's stated baseline does not match what you measure, the task file is
 > stale - check this page before stopping and reporting a mismatch. The current numbers
-> below come from `codehealth-current.json`, swept 2026-09-19 (fourth sweep of that day,
-> after the `Game/com/active` second pass).
+> below come from `codehealth-current.json`, swept 2026-09-19 (seventh sweep of that day,
+> after the PPGFile family, the `Game/opening` folder, `mtrans.c`'s split and
+> `flps2vram.c`).
 > `codehealth-baseline.json` preserves the original 2026-09-01 sweep and is not updated.
 
 ## Where the whole repository stands
@@ -19,10 +20,10 @@ for the allowed transformations.
 | Band | Score | 2026-09-01 | 2026-09-19 |
 | --- | --- | --- | --- |
 | **Red** - severe debt | 1.0 - 3.9 | 19 | **0** |
-| **Yellow** - problematic debt | 4.0 - 8.9 | 207 | 97 |
-| Green | 9.0 - 9.9 | 158 | 90 |
-| Optimal | 10.0 | 98 | **470** |
-| Total scored | | 482 | 657 |
+| **Yellow** - problematic debt | 4.0 - 8.9 | 207 | 93 |
+| Green | 9.0 - 9.9 | 158 | 91 |
+| Optimal | 10.0 | 98 | **475** |
+| Total scored | | 482 | 659 |
 
 The file count rises because the campaign splits files. Mean Code Health across every
 scorable first-party file is **9.64**.
@@ -42,12 +43,16 @@ Nothing scores below 5.0 either. The worst files were swept on 2026-09-19:
 | `AcrSDK/ps2/flps2etc.c` | 5.17 | **6.94** |
 | `AcrSDK/ps2/flps2vram.c` | 4.82 | **5.25** |
 
-The lowest in the repository is now `AcrSDK/ps2/flps2vram.c` at 5.25, and what holds it
-there is one function: `flPS2LockTexture` at **367 lines and cc 29**, an outer switch on
-the lock mode with a format switch inside each of its four arms. Splitting it is the next
-piece of work anyone picks up. After that: `platform/netplay/game_state.c` (6.30),
-`Game/opening/opening_scenes_late.c` (6.77) and `platform/video/sdl_gpu/sdl_gpu_renderer.c`
-(6.82).
+`AcrSDK/ps2/flps2vram.c` was the lowest at 5.25 and is now **7.36**: the format switch
+three lock modes shared was written once, the lock and unlock conversions moved out of
+their loops and chained, and the pixel loop gave up its alpha fix-up and its two width
+switches. What is left there is the texture/palette twin pairs - `flPS2GetTextureHandle`
+against `flPS2GetPaletteHandle` and two more like them - which differ in their type and
+so are Recipe D's forbidden case.
+
+The lowest in the repository is now `platform/netplay/game_state.c` (6.30), then
+`platform/video/sdl_gpu/sdl_gpu_renderer.c` (6.82), `AcrSDK/ps2/flps2etc.c` (6.94) and
+`AcrSDK/ps2/ps2PAD.c` (7.01).
 
 ## Track A - available now
 
@@ -61,9 +66,9 @@ function is usually long gone.
 | Task | File | Score | LOC | Churn | Risk | Worst function |
 | --- | --- | --- | --- | --- | --- | --- |
 | ~~[R04](tasks/R04-menu.md)~~ | `Game/menu/menu.c` | **10.00** | 5374 | 58 | LOW | `Extra_Option` (cc 28) |
-| ~~[R06](tasks/R06-mtrans.md)~~ | `Game/rendering/mtrans.c` | **7.55** | 2224 | 10 | MEDIUM | plateau 2026-09-18 - split into `mtrans_seqs.c` (10.00) and `mtrans_pool.c` (9.38) |
+| ~~[R06](tasks/R06-mtrans.md)~~ | `Game/rendering/mtrans.c` | **8.03** | 2224 | 10 | MEDIUM | split again 2026-09-19 into `mtrans_buffers.c` (8.28); the file's size finding is cleared |
 | ~~[R10](tasks/R10-opening.md)~~ | `Game/opening/opening.c` | **10.00** | 2997 | 17 | LOW | none - `TITLE_Move`'s sequence moved out 2026-09-19 |
-| ~~[R11](tasks/R11-PPGFile.md)~~ | `Common/PPGFile.c` | **8.57** | 1511 | 11 | MEDIUM | `ppgRenewDotDataSeqs` (cc -) |
+| ~~[R11](tasks/R11-PPGFile.md)~~ | `Common/PPGFile.c` | **9.31** | 1511 | 11 | MEDIUM | the palette/texture twin pair; every other file in the family is at 10.00 |
 | ~~[R14](tasks/R14-bg.md)~~ | `Game/stage/bg.c` | **9.09** | 1430 | 11 | MEDIUM | plateau 2026-09-18 - split into `bg_textures.c` (10.00); the whole stage folder went with it, see the task report |
 | ~~[R17](tasks/R17-entry.md)~~ | `Game/screen/entry.c` | **10.00** | 1480 | 19 | LOW | done 2026-09-18 - left the Red band; split into `entry_break_in.c` |
 
@@ -137,7 +142,7 @@ point. **Campaign start** preserves the original 2026-09-01 sweep.
 | R03 | 1.82 | 1.82 | **8.92** | Plateau. Split into `pls03_super_arts.c`, now **9.92**. `decode_wst_data`'s twelve command encodings and `waza_select`'s eleven case labels are what stop the original; neither loses a branch without renumbering a state. The super-arts file stops on its direct-cancel side, which mirrors grounded against airborne at every level. |
 | R04 | **1.97** | 2.25 | **10.00** | Done. Split into `extra_option.c`, `direction_menu.c`, `menu_selection.c`, `blocking_training.c` and more; `netplay_menu.c` is the lowest of the family at 8.59. |
 | R05 | 2.31 | 2.31 | **9.39** | Plateau. Split into `cmd_main_checks.c`, now **7.50** and the hardest file left in the folder: its mean needs thirteen more functions against a duplicate web that charges for every one. `cmd_main.c` itself stops on the two `latch_sw_lvbt_bit_*` functions, whose cc 11 is almost entirely `case` labels. |
-| R06 | 2.57 | 5.24 | **7.55** | Plateau. Split into `mtrans_seqs.c` (**10.00**) and `mtrans_pool.c` (9.38). Recipe A cleared all seventeen Excess Argument findings, a new **Recipe W** collapsed eighteen copies of the chip-queue call, and Recipe F merged the three extended dispatchers into one body. What stops it is Lines of Code at 1205 with no legal cut left - every seam runs through a shared `static` - and a 16/32 near-miss web the catalogue cannot merge |
+| R06 | 2.57 | 5.24 | **8.03** | Plateau. Split into `mtrans_seqs.c` (**10.00**), `mtrans_pool.c` (9.38) and, on 2026-09-19, `mtrans_buffers.c` (8.28). The size finding that stopped it is gone: "every seam runs through a shared static" was read as covering the buffer pool, and the statics there are *functions*, so an internal header cuts it the way PPGFile was cut. What is left is the 16/32 twin web, which travelled into the new file with the pool. |
 | R07 | 2.58 | 2.58 | **8.54** | Plateau, re-tested 2026-09-19. Code Duplication is the only finding, and it is five groups of exactly **two**. Four are near-misses the catalogue refuses: `eff09_0000`/`eff09_8000` and the two `advance_*` functions differ in their conditions and their callees, and `initialize_eff09_4000`/`_11000` differ in the *operators* of their mirrored branch. The fifth, `adjust_sean_ball_left`/`_right`, differs in nothing but literals - a mask, a counter index, two limits and a column - and is blocked only by Recipe V's three-instance rule. It is the same open question `Game/ending` left: no third instance exists anywhere in the tree (`grep` finds the skeleton four times, all in this file). |
 | R08 | 2.64 | 2.64 | **10.00** | Done. |
 | R09 | 2.74 | 2.74 | **10.00** | Done. Split into `pls00_normal_states.c` (now **8.03**) and `pls00_damage_states.c` (10.00); the original is at 10.00. The normal-states file plateaus on a Code Duplication web between the `nm_*` state machines themselves, which no shared run reaches. |
@@ -147,7 +152,7 @@ point. **Campaign start** preserves the original 2026-09-01 sweep.
 | R13 | 3.56 | 3.56 | **10.00** | Done. |
 | R14 | 3.62 | 3.62 | **9.09** | Plateau. Split into `bg_textures.c` (10.00); the whole stage folder went with it. |
 | R15 | 3.68 | 3.68 | **10.00** | Done. `plpdm.c`, `plpdm_states.c` and `plpdm_states_late.c` are all at 10.00. The last two were the campaign's most stubborn plateau until the runs the damage states share were taken instead of their arms - see *Against a twin family, share what they agree on* in `PLAYBOOK.md`. |
-| R16 | 3.75 | 3.75 | **8.03** | Plateau. Split six ways: `ck_pass_checks.c` (**10.00**), `ck_pass_units_a.c` (**10.00**), `_b.c` (9.38), `_c.c` (**10.00**), `_d.c` (**10.00**). Group mean 9.57. What stops `ck_pass.c` is Code Duplication between `KEN_vs`, `HUGO_vs` and `GILL_vs` and their area helpers: the three are near-misses, not duplicates - Hugo discards the jump check's answer and has no personal action, Gill adds a squat check - so merging any two is Recipe D's forbidden case. |
+| R16 | 3.75 | 3.75 | **8.28** | Plateau. Split six ways: `ck_pass_checks.c` (**10.00**), `ck_pass_units_a.c` (**10.00**), `_b.c` (9.38), `_c.c` (**10.00**), `_d.c` (**10.00**). What stops `ck_pass.c` is `KEN_vs`, `HUGO_vs` and `GILL_vs`: re-diffed 2026-09-19 and the refusal holds - Hugo discards the jump check's answer and has no personal action, Gill adds a squat check. Below them, three *area helper* pairs were exact Recipe F cases and were folded on 2026-09-19, 8.03 -> 8.28; the earlier note had read the `*_vs` refusal as covering the whole file. |
 | R17 | 3.86 | 3.86 | **10.00** | Done. Split into `entry_break_in.c`. |
 | R18 | 3.92 | 3.92 | **9.68** | Plateau. Split twice, into `charset_commands.c` (10.00) and `charset_position.c` (10.00). What stops the original is `set_char_move_init2`'s five arguments. Recipe A would clear it, and the obstacle is scope rather than any one file: **155** call sites, 111 of them in the effect folder and 13 in animation. |
 | R19 | 3.92 | 3.92 | **9.92** | Plateau. Split into `manage_bonus.c` (10.00) and `manage_result.c` (9.38). `Game_Manage_7_3`'s dead condition is the last finding and the catalogue forbids deleting it. |
