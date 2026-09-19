@@ -16,19 +16,7 @@ void Computer11(PLW* wk) {
 }
 
 void Pattern11_0000(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_Off(wk);
-        break;
-
-    case 1:
-        Look(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_lever_off_look(wk);
 }
 
 void Pattern11_0001(PLW* wk) {
@@ -108,15 +96,7 @@ void Pattern11_0019(PLW* wk) {
 }
 
 void Pattern11_0020(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack_SP(wk, 8, 0x200, 0x12);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_normal_attack_sp(wk);
 }
 
 void Pattern11_0021(PLW* wk) {
@@ -136,15 +116,7 @@ void Pattern11_0024(PLW* wk) {
 }
 
 void Pattern11_0025(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_jump(wk);
 }
 
 void Pattern11_0026(PLW* wk) {
@@ -655,15 +627,7 @@ void Pattern11_0074(PLW* wk) {
 }
 
 void Pattern11_0075(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Provoke(wk, -1);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_provoke(wk);
 }
 
 void Pattern11_0076(PLW* wk) {
@@ -691,19 +655,7 @@ void Pattern11_0079(PLW* wk) {
 }
 
 void Pattern11_0080(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_On(wk, 1, 2);
-        break;
-
-    case 1:
-        Look(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_lever_on_look(wk);
 }
 
 void Pattern11_0081(PLW* wk) {

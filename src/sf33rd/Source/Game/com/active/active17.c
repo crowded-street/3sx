@@ -16,19 +16,7 @@ void Computer17(PLW* wk) {
 }
 
 void Pattern17_0000(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_Off(wk);
-        break;
-
-    case 1:
-        Look(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_lever_off_look(wk);
 }
 
 void Pattern17_0001(PLW* wk) {
@@ -136,31 +124,11 @@ void Pattern17_0025(PLW* wk) {
 }
 
 void Pattern17_0026(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0, 0xB, -1});
-        break;
-
-    case 1:
-        Look(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_command_attack_look(wk);
 }
 
 void Pattern17_0027(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_jump(wk);
 }
 
 void Pattern17_0028(PLW* wk) {
@@ -208,23 +176,7 @@ void Pattern17_0037(PLW* wk) {
 }
 
 void Pattern17_0038(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Adjust_Attack(wk, 0xB, 0x20);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 0xA, 0x202);
-        break;
-
-    case 2:
-        Lever_Attack(wk, 8, 0, 0x40);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_adjust_attack_normal_attack_lever_attack(wk);
 }
 
 void Pattern17_0039(PLW* wk) {
@@ -260,91 +212,15 @@ void Pattern17_0042(PLW* wk) {
 }
 
 void Pattern17_0043(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Search_Back_Term(wk, 0x30, 2, 0xF);
-        break;
-
-    case 1:
-        Walk(wk, 1, 0x20, 0);
-        break;
-
-    case 2:
-        Wait(wk, 3);
-        break;
-
-    case 3:
-        Walk(wk, 0, 0x30, 0);
-        break;
-
-    case 4:
-        Wait(wk, 9);
-        break;
-
-    case 5:
-        Walk(wk, 0, 0x20, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_search_back_term_walk_wait(wk);
 }
 
 void Pattern17_0044(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Search_Back_Term(wk, 0x20, 2, 0x1B);
-        break;
-
-    case 1:
-        Walk(wk, 1, 0x18, 0);
-        break;
-
-    case 2:
-        Wait(wk, 8);
-        break;
-
-    case 3:
-        Search_Back_Term(wk, 0x30, 2, 0x1B);
-        break;
-
-    case 4:
-        Walk(wk, 1, 0x20, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_search_back_term_walk_wait_2(wk);
 }
 
 void Pattern17_0045(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Walk(wk, 0, 0x20, 0);
-        break;
-
-    case 1:
-        Search_Back_Term(wk, 0x30, 2, 6);
-        break;
-
-    case 2:
-        Walk(wk, 1, 0x28, 0);
-        break;
-
-    case 3:
-        Wait(wk, 8);
-        break;
-
-    case 4:
-        Walk(wk, 0, 0x20, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_walk_search_back_term_walk(wk);
 }
 
 void Pattern17_0046(PLW* wk) {
@@ -432,19 +308,7 @@ void Pattern17_0054(PLW* wk) {
 }
 
 void Pattern17_0055(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_Off(wk);
-        break;
-
-    case 1:
-        Look(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_lever_off_look(wk);
 }
 
 void Pattern17_0056(PLW* wk) {

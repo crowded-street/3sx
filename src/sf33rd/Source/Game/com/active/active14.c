@@ -17,19 +17,7 @@ void Computer14(PLW* wk) {
 }
 
 void Pattern14_0000(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_Off(wk);
-        break;
-
-    case 1:
-        Look(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_lever_off_look(wk);
 }
 
 void Pattern14_0001(PLW* wk) {

@@ -16,19 +16,7 @@ void Computer07(PLW* wk) {
 }
 
 void Pattern07_0000(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_Off(wk);
-        break;
-
-    case 1:
-        Look(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_lever_off_look(wk);
 }
 
 void Pattern07_0001(PLW* wk) {
@@ -661,11 +649,7 @@ void Pattern07_0045(PLW* wk) {
 }
 
 void Pattern07_0046(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_(wk);
 }
 
 void Pattern07_0047(PLW* wk) {
@@ -720,15 +704,7 @@ void Pattern07_0049(PLW* wk) {
 }
 
 void Pattern07_0050(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Hi_Jump_Attack(wk, &(Jump_Attack_Args){8, 0xA, 0x400, 2});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_hi_jump_attack(wk);
 }
 
 void Pattern07_0051(PLW* wk) {

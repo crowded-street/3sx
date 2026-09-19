@@ -16,19 +16,7 @@ void Computer04(PLW* wk) {
 }
 
 void Pattern04_0000(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_Off(wk);
-        break;
-
-    case 1:
-        Look(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_lever_off_look(wk);
 }
 
 void Pattern04_0001(PLW* wk) {
@@ -160,35 +148,11 @@ void Pattern04_0025(PLW* wk) {
 }
 
 void Pattern04_0026(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0, 0xB, -1});
-        break;
-
-    case 1:
-        Lever_Off(wk);
-        break;
-
-    case 2:
-        Look(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_command_attack_lever_off_look(wk);
 }
 
 void Pattern04_0027(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_jump(wk);
 }
 
 void Pattern04_0028(PLW* wk) {
@@ -415,15 +379,7 @@ void Pattern04_0049(PLW* wk) {
 }
 
 void Pattern04_0050(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Hi_Jump_Attack(wk, &(Jump_Attack_Args){8, 0xA, 0x400, 2});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_hi_jump_attack(wk);
 }
 
 void Pattern04_0051(PLW* wk) {

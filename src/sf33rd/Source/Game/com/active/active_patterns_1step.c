@@ -218,3 +218,51 @@ void active_pattern_walk(PLW* wk, u16 lever, s16 time, s16 unused) {
         break;
     }
 }
+
+void active_pattern_jump(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Jump(wk, 0);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_hi_jump_attack(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Hi_Jump_Attack(wk, &(Jump_Attack_Args){8, 0xA, 0x400, 2});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_provoke(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Provoke(wk, -1);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_normal_attack_sp(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Normal_Attack_SP(wk, 8, 0x200, 0x12);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}

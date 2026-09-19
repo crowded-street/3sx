@@ -16,19 +16,7 @@ void Computer13(PLW* wk) {
 }
 
 void Pattern13_0000(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Lever_Off(wk);
-        break;
-
-    case 1:
-        Look(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_lever_off_look(wk);
 }
 
 void Pattern13_0001(PLW* wk) {
@@ -152,27 +140,7 @@ void Pattern13_0021(PLW* wk) {
 }
 
 void Pattern13_0022(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Pierce_On(wk);
-        break;
-
-    case 1:
-        Search_Back_Term(wk, 0x60, 2, 0x12);
-        break;
-
-    case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 1, 0xB, -1});
-        break;
-
-    case 3:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 0xA, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_pierce_on_search_back_term_command_attack(wk);
 }
 
 void Pattern13_0023(PLW* wk) {
@@ -188,19 +156,7 @@ void Pattern13_0025(PLW* wk) {
 }
 
 void Pattern13_0026(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0, 0xB, -1});
-        break;
-
-    case 1:
-        Look(wk, 0);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_command_attack_look(wk);
 }
 
 void Pattern13_0027(PLW* wk) {

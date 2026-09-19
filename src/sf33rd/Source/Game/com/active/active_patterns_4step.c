@@ -112,3 +112,99 @@ void active_pattern_lever_on_normal_attack_command_attack(
         break;
     }
 }
+
+void active_pattern_pierce_on_search_back_term_command_attack(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Pierce_On(wk);
+        break;
+
+    case 1:
+        Search_Back_Term(wk, 0x60, 2, 0x12);
+        break;
+
+    case 2:
+        Command_Attack(wk, &(Command_Attack_Args){8, 1, 0xB, -1});
+        break;
+
+    case 3:
+        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 0xA, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_adjust_attack_lever_attack(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Adjust_Attack(wk, 9, 0x100);
+        break;
+
+    case 1:
+        Adjust_Attack(wk, 0xC, 0x100);
+        break;
+
+    case 2:
+        Adjust_Attack(wk, 0xC, 0x202);
+        break;
+
+    case 3:
+        Lever_Attack(wk, 8, 0, 0x200);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_search_back_term_pierce_on_command_attack_3(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Search_Back_Term(wk, 0x70, 2, 0);
+        break;
+
+    case 1:
+        Pierce_On(wk);
+        break;
+
+    case 2:
+        Command_Attack(wk, &(Command_Attack_Args){8, 1, 0xB, -1});
+        break;
+
+    case 3:
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-0x7FA0, -1, 8, 0x8400, 0, -0x7FA0, -1, 0x8400});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_approach_walk_pierce_on_command_attack(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, 0x58, 2);
+        break;
+
+    case 1:
+        Pierce_On(wk);
+        break;
+
+    case 2:
+        Command_Attack(wk, &(Command_Attack_Args){0xB, 0x21, 0xA, -1});
+        break;
+
+    case 3:
+        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 0xA, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}

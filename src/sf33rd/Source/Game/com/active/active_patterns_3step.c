@@ -424,3 +424,83 @@ void active_pattern_walk_2(PLW* wk, s16 time, s16 time_b, s16 time_b_b) {
         break;
     }
 }
+
+void active_pattern_adjust_attack_normal_attack_lever_attack(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Adjust_Attack(wk, 0xB, 0x20);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 0xA, 0x202);
+        break;
+
+    case 2:
+        Lever_Attack(wk, 8, 0, 0x40);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_command_attack_lever_off_look(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Command_Attack(wk, &(Command_Attack_Args){8, 0, 0xB, -1});
+        break;
+
+    case 1:
+        Lever_Off(wk);
+        break;
+
+    case 2:
+        Look(wk, 0);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_jump_lever_off_look(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Jump(wk, 1);
+        break;
+
+    case 1:
+        Lever_Off(wk);
+        break;
+
+    case 2:
+        Look(wk, 0);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_adjust_attack_normal_attack_branch_unit_area(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Adjust_Attack(wk, 0xB, 0x20);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 0xA, 0x202);
+        break;
+
+    case 2:
+        Branch_Unit_Area(wk, &(Branch_Menu_Args){2, 0x31, 0x32, 0x33, 1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}

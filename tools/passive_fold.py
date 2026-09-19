@@ -569,11 +569,16 @@ def gfold(paths, protos, min_members=3, max_params=3, shared=None):
     helpers, decls, edits = [], [], collections.defaultdict(list)
     work = []
     for sk, members in sorted(fams.items(), key=lambda kv: (-len(kv[1]), kv[1][0][1])):
-        if len(members) < min_members:
-            continue
         slots0 = members[0][4]
+        identical = not any(len({m[4][i][0] for m in members}) > 1 for i in range(len(slots0)))
+        if len(members) < (2 if identical else min_members):
+            continue
         vary = [i for i in range(len(slots0)) if len({m[4][i][0] for m in members}) > 1]
         if not vary:
+            # Nothing varies: these scripts are byte-identical. That is Recipe D
+            # rather than Recipe V, so two instances are enough and the skeleton
+            # takes no parameters beyond wk.
+            work.append((sk, members, []))
             continue
         if len(vary) <= max_params:
             work.append((sk, members, vary))
