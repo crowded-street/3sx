@@ -225,37 +225,23 @@ static bool op_112_sound_ready() {
 }
 
 static void start_op_112_timed_sequence(void) {
-    if (op_112_sound_ready()) {
-        advance_opening_step(71);
+    if (opening_cue_step(op_112_sound_ready(), 71, 70)) {
         op_w.mv_ctr = 0;
-        return;
     }
-
-    op_bg_move(70);
 }
 
 static void update_op_112_scene_71_transition(void) {
     op_w.mv_ctr += 1;
-
-    if (op_w.mv_ctr >= op_112_sound[op_w.r_no_2]) {
-        advance_opening_step(72);
-        return;
-    }
-
-    op_bg_move(71);
+    opening_cue_step(op_w.mv_ctr >= op_112_sound[op_w.r_no_2], 72, 71);
 }
 
 static void update_op_112_scene_72_transition(void) {
     op_w.mv_ctr += 1;
 
-    if (op_w.mv_ctr >= op_112_sound[op_w.r_no_2]) {
-        advance_opening_step(73);
+    if (opening_cue_step(op_w.mv_ctr >= op_112_sound[op_w.r_no_2], 73, 72)) {
         op_obj_disp = 0;
         effect_48_init(18);
-        return;
     }
-
-    op_bg_move(72);
 }
 
 void op_112_move() {
