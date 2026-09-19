@@ -170,9 +170,70 @@ static void apply_analog_button(s32 i, s32 j, u8* kan, s32 anstate_mask) {
     }
 }
 
-static s32 PADRead_for_PS2(s32 i) {
+/* The button word and the analog pressure for every button, and then the two
+ * sticks. Both are exactly the blocks that stood in the pad-kind arm below. */
+static u32 read_ps2_buttons(s32 i, u8* kan) {
     s32 j;
     u32 io;
+
+    io = 0;
+
+    for (j = 0; j < 16; j++) {
+        if (ps2pad_state[i].ix.sw & ps2pad_hard_to_soft[i][j][0]) {
+            io |= flpad_io_map[j];
+            tarpad_root[i].anshot.pow[j] = 0x7F;
+        }
+
+        switch (ps2pad_hard_to_soft[i][j][1]) {
+        case 1:
+            apply_analog_button(i, j, kan, 0x10);
+
+            break;
+
+        case 2:
+            apply_analog_button(i, j, kan, 1);
+
+            break;
+
+        case 3:
+            apply_analog_button(i, j, kan, 2);
+
+            break;
+        }
+    }
+    return io;
+}
+
+static void read_ps2_sticks(s32 i) {
+    if (tarpad_root[i].anstate & 0x20) {
+        tarpad_root[i].stick[0].x = ps2pad_state[i].pad_buffer[6] - 0x80;
+        tarpad_root[i].stick[0].y = ps2pad_state[i].pad_buffer[7] - 0x80;
+
+        if (tarpad_root[i].stick[0].x < -0x7F) {
+            tarpad_root[i].stick[0].x = -0x7F;
+        }
+
+        if (tarpad_root[i].stick[0].y < -0x7F) {
+            tarpad_root[i].stick[0].y = -0x7F;
+        }
+    }
+
+    if (tarpad_root[i].anstate & 0x40) {
+        tarpad_root[i].stick[1].x = ps2pad_state[i].pad_buffer[4] - 0x80;
+        tarpad_root[i].stick[1].y = ps2pad_state[i].pad_buffer[5] - 0x80;
+
+        if (tarpad_root[i].stick[1].x < -0x7F) {
+            tarpad_root[i].stick[1].x = -0x7F;
+        }
+
+        if (tarpad_root[i].stick[1].y < -0x7F) {
+            tarpad_root[i].stick[1].y = -0x7F;
+        }
+    }
+}
+
+static s32 PADRead_for_PS2(s32 i) {
+    s32 j;
     u8 kan[12];
 
     if (ps2slot[i].state == 0) {
@@ -202,59 +263,9 @@ static s32 PADRead_for_PS2(s32 i) {
     case 8:
     case 16:
     case 32:
-        io = 0;
+        tarpad_root[i].sw = read_ps2_buttons(i, kan);
 
-        for (j = 0; j < 16; j++) {
-            if (ps2pad_state[i].ix.sw & ps2pad_hard_to_soft[i][j][0]) {
-                io |= flpad_io_map[j];
-                tarpad_root[i].anshot.pow[j] = 0x7F;
-            }
-
-            switch (ps2pad_hard_to_soft[i][j][1]) {
-            case 1:
-                apply_analog_button(i, j, kan, 0x10);
-
-                break;
-
-            case 2:
-                apply_analog_button(i, j, kan, 1);
-
-                break;
-
-            case 3:
-                apply_analog_button(i, j, kan, 2);
-
-                break;
-            }
-        }
-
-        tarpad_root[i].sw = io;
-
-        if (tarpad_root[i].anstate & 0x20) {
-            tarpad_root[i].stick[0].x = ps2pad_state[i].pad_buffer[6] - 0x80;
-            tarpad_root[i].stick[0].y = ps2pad_state[i].pad_buffer[7] - 0x80;
-
-            if (tarpad_root[i].stick[0].x < -0x7F) {
-                tarpad_root[i].stick[0].x = -0x7F;
-            }
-
-            if (tarpad_root[i].stick[0].y < -0x7F) {
-                tarpad_root[i].stick[0].y = -0x7F;
-            }
-        }
-
-        if (tarpad_root[i].anstate & 0x40) {
-            tarpad_root[i].stick[1].x = ps2pad_state[i].pad_buffer[4] - 0x80;
-            tarpad_root[i].stick[1].y = ps2pad_state[i].pad_buffer[5] - 0x80;
-
-            if (tarpad_root[i].stick[1].x < -0x7F) {
-                tarpad_root[i].stick[1].x = -0x7F;
-            }
-
-            if (tarpad_root[i].stick[1].y < -0x7F) {
-                tarpad_root[i].stick[1].y = -0x7F;
-            }
-        }
+        read_ps2_sticks(i);
 
         ps2pad_backup[i] = ps2pad_state[i];
         ps2pad_backup[i].ix.sw = ~ps2pad_backup[i].ix.sw;
