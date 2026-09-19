@@ -69,10 +69,19 @@ void op_bg0_0015(s16 /* unused */);
 void op_bg0_0016(s16 /* unused */);
 void op_bg1_0003(s16 r_index);
 void op_scrn_pos_set2(s16 bg_no);
-void oh_bg_blk_w(OPBW* opbw, s32 blk_no, s16 mapx, s16 mapy, s32 trans);
-void oh_bg_blk_wh(OPBW* opbw, s32 blk_no, s16 mapx, s16 mapy, s32 trans);
-void oh_bg_blk_wv(OPBW* opbw, s32 blk_no, s16 mapx, s16 mapy, s32 trans);
-void oh_bg_blk_whv(OPBW* opbw, s32 blk_no, s16 mapx, s16 mapy, s32 trans);
+/* Where an opening background block goes and how it is drawn. The field order
+ * is the parameter order the oh_bg_blk_* family took. */
+typedef struct {
+    s32 blk_no;
+    s16 mapx;
+    s16 mapy;
+    s32 trans;
+} Op_Bg_Blk_Args;
+
+void oh_bg_blk_w(OPBW* opbw, const Op_Bg_Blk_Args* b);
+void oh_bg_blk_wh(OPBW* opbw, const Op_Bg_Blk_Args* b);
+void oh_bg_blk_wv(OPBW* opbw, const Op_Bg_Blk_Args* b);
+void oh_bg_blk_whv(OPBW* opbw, const Op_Bg_Blk_Args* b);
 void op_bg1_0000(s16 /* unused */);
 void op_bg1_0001(s16 r_index);
 void op_bg1_0002(s16 r_index);

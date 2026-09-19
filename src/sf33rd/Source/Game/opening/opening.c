@@ -339,40 +339,40 @@ void oh_reload_tex(OPBW* opbw, s32 blk_no, s16 mapx, s16 mapy) {
     }
 }
 
-void oh_bg_blk_w(OPBW* opbw, s32 blk_no, s16 mapx, s16 mapy, s32 trans) {
-    oh_reload_tex(opbw, blk_no, mapx, mapy);
-    opbw->map[mapx][mapy].g_no = blk_no + 0x259;
-    opbw->map[mapx][mapy].hv = 0;
-    opbw->map[mapx][mapy].trans = trans;
-    opbw->blk_no = blk_no;
-    opbw->map[mapx][mapy].col.full = 0xFFFFFFFF;
+void oh_bg_blk_w(OPBW* opbw, const Op_Bg_Blk_Args* b) {
+    oh_reload_tex(opbw, b->blk_no, b->mapx, b->mapy);
+    opbw->map[b->mapx][b->mapy].g_no = b->blk_no + 0x259;
+    opbw->map[b->mapx][b->mapy].hv = 0;
+    opbw->map[b->mapx][b->mapy].trans = b->trans;
+    opbw->blk_no = b->blk_no;
+    opbw->map[b->mapx][b->mapy].col.full = 0xFFFFFFFF;
 }
 
-void oh_bg_blk_wh(OPBW* opbw, s32 blk_no, s16 mapx, s16 mapy, s32 trans) {
-    oh_reload_tex(opbw, blk_no, mapx, mapy);
-    opbw->map[mapx][mapy].g_no = blk_no + 0x259;
-    opbw->map[mapx][mapy].hv = 1;
-    opbw->map[mapx][mapy].trans = trans;
-    opbw->blk_no = blk_no;
-    opbw->map[mapx][mapy].col.full = 0xFFFFFFFF;
+void oh_bg_blk_wh(OPBW* opbw, const Op_Bg_Blk_Args* b) {
+    oh_reload_tex(opbw, b->blk_no, b->mapx, b->mapy);
+    opbw->map[b->mapx][b->mapy].g_no = b->blk_no + 0x259;
+    opbw->map[b->mapx][b->mapy].hv = 1;
+    opbw->map[b->mapx][b->mapy].trans = b->trans;
+    opbw->blk_no = b->blk_no;
+    opbw->map[b->mapx][b->mapy].col.full = 0xFFFFFFFF;
 }
 
-void oh_bg_blk_wv(OPBW* opbw, s32 blk_no, s16 mapx, s16 mapy, s32 trans) {
-    oh_reload_tex(opbw, blk_no, mapx, mapy);
-    opbw->map[mapx][mapy].g_no = blk_no + 0x259;
-    opbw->map[mapx][mapy].hv = 2;
-    opbw->map[mapx][mapy].trans = trans;
-    opbw->blk_no = blk_no;
-    opbw->map[mapx][mapy].col.full = 0xFFFFFFFF;
+void oh_bg_blk_wv(OPBW* opbw, const Op_Bg_Blk_Args* b) {
+    oh_reload_tex(opbw, b->blk_no, b->mapx, b->mapy);
+    opbw->map[b->mapx][b->mapy].g_no = b->blk_no + 0x259;
+    opbw->map[b->mapx][b->mapy].hv = 2;
+    opbw->map[b->mapx][b->mapy].trans = b->trans;
+    opbw->blk_no = b->blk_no;
+    opbw->map[b->mapx][b->mapy].col.full = 0xFFFFFFFF;
 }
 
-void oh_bg_blk_whv(OPBW* opbw, s32 blk_no, s16 mapx, s16 mapy, s32 trans) {
-    oh_reload_tex(opbw, blk_no, mapx, mapy);
-    opbw->map[mapx][mapy].g_no = blk_no + 0x259;
-    opbw->map[mapx][mapy].hv = 3;
-    opbw->map[mapx][mapy].trans = trans;
-    opbw->blk_no = blk_no;
-    opbw->map[mapx][mapy].col.full = 0xFFFFFFFF;
+void oh_bg_blk_whv(OPBW* opbw, const Op_Bg_Blk_Args* b) {
+    oh_reload_tex(opbw, b->blk_no, b->mapx, b->mapy);
+    opbw->map[b->mapx][b->mapy].g_no = b->blk_no + 0x259;
+    opbw->map[b->mapx][b->mapy].hv = 3;
+    opbw->map[b->mapx][b->mapy].trans = b->trans;
+    opbw->blk_no = b->blk_no;
+    opbw->map[b->mapx][b->mapy].col.full = 0xFFFFFFFF;
 }
 
 void opening_init() {
@@ -1947,13 +1947,13 @@ void op_bg0_0001(s16 r_index) {
 
         switch (r_index) {
         case 0x1:
-            oh_bg_blk_w(op_w.bgw, 0x30, 1, 0, 1);
-            oh_bg_blk_w(op_w.bgw, 0x31, 2, 0, 1);
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x30, 1, 0, 1});
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x31, 2, 0, 1});
             break;
 
         case 0x3:
-            oh_bg_blk_wv(op_w.bgw, 0x45, 1, 0, 1);
-            oh_bg_blk_wv(op_w.bgw, 0x46, 2, 0, 1);
+            oh_bg_blk_wv(op_w.bgw, &(Op_Bg_Blk_Args){0x45, 1, 0, 1});
+            oh_bg_blk_wv(op_w.bgw, &(Op_Bg_Blk_Args){0x46, 2, 0, 1});
             op_w.bgw[0].map[1][0].col.full = -0x01000000;
             op_w.bgw[0].map[2][0].col.full = -0x01000000;
             break;
@@ -1961,117 +1961,117 @@ void op_bg0_0001(s16 r_index) {
         case 0x4:
         case 0x16:
         case 0x21:
-            oh_bg_blk_wh(op_w.bgw, 0x35, 1, 0, 1);
-            oh_bg_blk_wh(op_w.bgw, 0x34, 2, 0, 1);
+            oh_bg_blk_wh(op_w.bgw, &(Op_Bg_Blk_Args){0x35, 1, 0, 1});
+            oh_bg_blk_wh(op_w.bgw, &(Op_Bg_Blk_Args){0x34, 2, 0, 1});
             break;
 
         case 0x7:
-            oh_bg_blk_w(op_w.bgw, 0x3F, 1, 0, 1);
-            oh_bg_blk_w(op_w.bgw, 0x40, 2, 0, 1);
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x3F, 1, 0, 1});
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x40, 2, 0, 1});
             break;
 
         case 0x9:
         case 0x48:
-            oh_bg_blk_w(op_w.bgw, 0x36, 1, 0, 1);
-            oh_bg_blk_w(op_w.bgw, 0x37, 2, 0, 1);
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x36, 1, 0, 1});
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x37, 2, 0, 1});
             break;
 
         case 0xB:
         case 0x1E:
-            oh_bg_blk_wh(op_w.bgw, 0x33, 1, 0, 1);
-            oh_bg_blk_wh(op_w.bgw, 0x32, 2, 0, 1);
+            oh_bg_blk_wh(op_w.bgw, &(Op_Bg_Blk_Args){0x33, 1, 0, 1});
+            oh_bg_blk_wh(op_w.bgw, &(Op_Bg_Blk_Args){0x32, 2, 0, 1});
             break;
 
         case 0xC:
-            oh_bg_blk_w(op_w.bgw, 0x43, 1, 0, 1);
-            oh_bg_blk_w(op_w.bgw, 0x44, 2, 0, 1);
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x43, 1, 0, 1});
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x44, 2, 0, 1});
             break;
 
         case 0xF:
-            oh_bg_blk_wh(op_w.bgw, 0x3C, 2, 0, 1);
-            oh_bg_blk_wh(op_w.bgw, 0x3D, 1, 0, 1);
+            oh_bg_blk_wh(op_w.bgw, &(Op_Bg_Blk_Args){0x3C, 2, 0, 1});
+            oh_bg_blk_wh(op_w.bgw, &(Op_Bg_Blk_Args){0x3D, 1, 0, 1});
             break;
 
         case 0x12:
-            oh_bg_blk_wv(op_w.bgw, 0x32, 1, 0, 1);
-            oh_bg_blk_wv(op_w.bgw, 0x33, 2, 0, 1);
+            oh_bg_blk_wv(op_w.bgw, &(Op_Bg_Blk_Args){0x32, 1, 0, 1});
+            oh_bg_blk_wv(op_w.bgw, &(Op_Bg_Blk_Args){0x33, 2, 0, 1});
             break;
 
         case 0x13:
-            oh_bg_blk_w(op_w.bgw, 0x47, 1, 0, 1);
-            oh_bg_blk_w(op_w.bgw, 0x48, 2, 0, 1);
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x47, 1, 0, 1});
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x48, 2, 0, 1});
             break;
 
         case 0x15:
-            oh_bg_blk_w(op_w.bgw, 0x38, 1, 0, 1);
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x38, 1, 0, 1});
             op_w.bgw[0].map[2][0].g_no = 0;
             break;
 
         case 0x1F:
-            oh_bg_blk_w(op_w.bgw, 0x49, 1, 0, 1);
-            oh_bg_blk_w(op_w.bgw, 0x4A, 2, 0, 1);
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x49, 1, 0, 1});
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x4A, 2, 0, 1});
             break;
 
         case 0x20:
-            oh_bg_blk_w(op_w.bgw, 0x4B, 1, 0, 1);
-            oh_bg_blk_w(op_w.bgw, 0x4C, 2, 0, 1);
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x4B, 1, 0, 1});
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x4C, 2, 0, 1});
             break;
 
         case 0x23:
-            oh_bg_blk_w(op_w.bgw, 0x59, 1, 0, 1);
-            oh_bg_blk_w(op_w.bgw, 0x5A, 2, 0, 1);
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x59, 1, 0, 1});
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x5A, 2, 0, 1});
             break;
 
         case 0x24:
-            oh_bg_blk_w(op_w.bgw, 0x22, 1, 0, 1);
-            oh_bg_blk_w(op_w.bgw, 0x23, 2, 0, 1);
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x22, 1, 0, 1});
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x23, 2, 0, 1});
             break;
 
         case 0x26:
         case 0x27:
-            oh_bg_blk_w(op_w.bgw, 0x3D, 1, 0, 1);
-            oh_bg_blk_w(op_w.bgw, 0x3E, 2, 0, 1);
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x3D, 1, 0, 1});
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x3E, 2, 0, 1});
             break;
 
         case 0x37:
         case 0x38:
-            oh_bg_blk_w(op_w.bgw, 0x4D, 1, 0, 1);
-            oh_bg_blk_w(op_w.bgw, 0x4E, 2, 0, 1);
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x4D, 1, 0, 1});
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x4E, 2, 0, 1});
             break;
 
         case 0x3C:
         case 0x3E:
         case 0x50:
         case 0x52:
-            oh_bg_blk_w(op_w.bgw, 0x57, 1, 0, 1);
-            oh_bg_blk_w(op_w.bgw, 0x58, 2, 0, 1);
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x57, 1, 0, 1});
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x58, 2, 0, 1});
             break;
 
         case 0x41:
-            oh_bg_blk_w(op_w.bgw, 0x4F, 1, 0, 1);
-            oh_bg_blk_w(op_w.bgw, 0x50, 2, 0, 1);
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x4F, 1, 0, 1});
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x50, 2, 0, 1});
             break;
 
         case 0x42:
-            oh_bg_blk_w(op_w.bgw, 0x51, 1, 0, 1);
-            oh_bg_blk_w(op_w.bgw, 0x52, 2, 0, 1);
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x51, 1, 0, 1});
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x52, 2, 0, 1});
             break;
 
         case 0x49:
-            oh_bg_blk_w(op_w.bgw, 0x53, 1, 0, 1);
-            oh_bg_blk_w(op_w.bgw, 0x54, 2, 0, 1);
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x53, 1, 0, 1});
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x54, 2, 0, 1});
             break;
 
         case 0x4B:
             op_w.bgw[0].map[1][0].g_no = 0;
             op_w.bgw[0].map[2][0].g_no = 0;
-            oh_bg_blk_whv(op_w.bgw, 0x53, 2, 0, 1);
-            oh_bg_blk_whv(op_w.bgw, 0x54, 1, 0, 1);
+            oh_bg_blk_whv(op_w.bgw, &(Op_Bg_Blk_Args){0x53, 2, 0, 1});
+            oh_bg_blk_whv(op_w.bgw, &(Op_Bg_Blk_Args){0x54, 1, 0, 1});
             break;
 
         case 0x4C:
-            oh_bg_blk_w(op_w.bgw, 0x55, 1, 0, 1);
-            oh_bg_blk_w(op_w.bgw, 0x56, 2, 0, 1);
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x55, 1, 0, 1});
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x56, 2, 0, 1});
             break;
         }
 
@@ -2151,33 +2151,33 @@ void op_bg0_0003(s16 r_index) {
 
         switch (r_index) {
         case 0x2A:
-            oh_bg_blk_w(op_w.bgw, 0x24, 1, 0, 1);
-            oh_bg_blk_w(op_w.bgw, 0x25, 2, 0, 1);
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x24, 1, 0, 1});
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x25, 2, 0, 1});
             break;
 
         case 0x2C:
-            oh_bg_blk_w(op_w.bgw, 0x26, 1, 0, 1);
-            oh_bg_blk_w(op_w.bgw, 0x27, 2, 0, 1);
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x26, 1, 0, 1});
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x27, 2, 0, 1});
             break;
 
         case 0x2E:
-            oh_bg_blk_w(op_w.bgw, 0x28, 1, 0, 1);
-            oh_bg_blk_w(op_w.bgw, 0x29, 2, 0, 1);
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x28, 1, 0, 1});
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x29, 2, 0, 1});
             break;
 
         case 0x30:
-            oh_bg_blk_w(op_w.bgw, 0x2A, 1, 0, 1);
-            oh_bg_blk_w(op_w.bgw, 0x2B, 2, 0, 1);
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x2A, 1, 0, 1});
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x2B, 2, 0, 1});
             break;
 
         case 0x32:
-            oh_bg_blk_w(op_w.bgw, 0x2C, 1, 0, 1);
-            oh_bg_blk_w(op_w.bgw, 0x2D, 2, 0, 1);
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x2C, 1, 0, 1});
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x2D, 2, 0, 1});
             break;
 
         case 0x34:
-            oh_bg_blk_w(op_w.bgw, 0x2E, 1, 0, 1);
-            oh_bg_blk_w(op_w.bgw, 0x2F, 2, 0, 1);
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x2E, 1, 0, 1});
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x2F, 2, 0, 1});
             break;
         }
 
@@ -2274,8 +2274,8 @@ void op_bg0_0005(s16 /* unused */) {
         Bg_On_W(1);
         bgw_ptr->wxy[0].cal = 0x2000000;
         bgw_ptr->xy[1].cal = 0;
-        oh_bg_blk_w(op_w.bgw, 5, 1, 0, 0);
-        oh_bg_blk_w(op_w.bgw, 6, 2, 0, 0);
+        oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){5, 1, 0, 0});
+        oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){6, 2, 0, 0});
         Zoom_Value_Set(0x40);
         bgw_ptr->frame_deff = 12;
         Frame_Up(0xC0, 0xE0, bgw_ptr->frame_deff);
@@ -2321,9 +2321,9 @@ void op_bg0_0006(s16 /* unused */) {
         Bg_On_W(1);
         bgw_ptr->wxy[0].cal = 0xC00000;
         bgw_ptr->xy[1].cal = 0;
-        oh_bg_blk_w(op_w.bgw, 0xD, 0, 0, 0);
-        oh_bg_blk_w(op_w.bgw, 0xE, 1, 0, 0);
-        oh_bg_blk_w(op_w.bgw, 0xF, 2, 0, 0);
+        oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0xD, 0, 0, 0});
+        oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0xE, 1, 0, 0});
+        oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0xF, 2, 0, 0});
         break;
 
     case 1:
@@ -2348,8 +2348,8 @@ void op_bg0_0007(s16 /* unused */) {
         Bg_On_W(1);
         bgw_ptr->wxy[0].cal = 0x1D00000;
         bgw_ptr->xy[1].cal = 0xFFF00000;
-        oh_bg_blk_w(op_w.bgw, 0x16, 1, 0, 0);
-        oh_bg_blk_w(op_w.bgw, 0x17, 2, 0, 0);
+        oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x16, 1, 0, 0});
+        oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x17, 2, 0, 0});
         break;
 
     case 1:
@@ -2380,8 +2380,8 @@ void op_bg0_0008(s16 /* unused */) {
         Bg_On_W(1);
         bgw_ptr->wxy[0].cal = 0x2300000;
         bgw_ptr->xy[1].cal = 0xFFF00000;
-        oh_bg_blk_w(op_w.bgw, 0x18, 1, 0, 0);
-        oh_bg_blk_w(op_w.bgw, 0x19, 2, 0, 0);
+        oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x18, 1, 0, 0});
+        oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x19, 2, 0, 0});
         /* fallthrough */
 
     case 1:
@@ -2414,8 +2414,8 @@ void op_bg0_0010(s16 /* unused */) {
         Zoom_Value_Set(0x40);
         bgw_ptr->wxy[0].cal = 0x2000000;
         bgw_ptr->xy[1].cal = 0;
-        oh_bg_blk_w(op_w.bgw, 0x12, 1, 0, 0);
-        oh_bg_blk_w(op_w.bgw, 0x13, 2, 0, 0);
+        oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x12, 1, 0, 0});
+        oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x13, 2, 0, 0});
         break;
 
     case 1:
@@ -2441,8 +2441,8 @@ void op_bg0_0011(s16 /* unused */) {
         Zoom_Value_Set(0x40);
         bgw_ptr->wxy[0].cal = 0x2000000;
         bgw_ptr->xy[1].cal = 0;
-        oh_bg_blk_w(op_w.bgw, 0x14, 1, 0, 0);
-        oh_bg_blk_w(op_w.bgw, 0x15, 2, 0, 0);
+        oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x14, 1, 0, 0});
+        oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x15, 2, 0, 0});
         break;
 
     case 1:
@@ -2479,10 +2479,10 @@ void op_bg0_0012(s16 /* unused */) {
         Zoom_Value_Set(0x40);
         bgw_ptr->wxy[0].cal = 0x2000000;
         bgw_ptr->xy[1].cal = 0x1000000;
-        oh_bg_blk_w(op_w.bgw, 0x1E, 1, 1, 0);
-        oh_bg_blk_w(op_w.bgw, 0x1F, 2, 1, 0);
-        oh_bg_blk_w(op_w.bgw, 0x20, 1, 0, 0);
-        oh_bg_blk_w(op_w.bgw, 0x21, 2, 0, 0);
+        oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x1E, 1, 1, 0});
+        oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x1F, 2, 1, 0});
+        oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x20, 1, 0, 0});
+        oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x21, 2, 0, 0});
         break;
 
     case 1:
@@ -2506,10 +2506,10 @@ void op_bg0_0013(s16 /* unused */) {
         bgw_ptr->frame_deff = 0;
         bgw_ptr->wxy[0].cal = 0x2000000;
         bgw_ptr->xy[1].cal = 0x600000;
-        oh_bg_blk_w(op_w.bgw, 0x1A, 1, 1, 0);
-        oh_bg_blk_w(op_w.bgw, 0x1B, 2, 1, 0);
-        oh_bg_blk_w(op_w.bgw, 0x1C, 1, 0, 0);
-        oh_bg_blk_w(op_w.bgw, 0x1D, 2, 0, 0);
+        oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x1A, 1, 1, 0});
+        oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x1B, 2, 1, 0});
+        oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x1C, 1, 0, 0});
+        oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x1D, 2, 0, 0});
         break;
 
     case 1:
@@ -2559,13 +2559,13 @@ void op_bg0_0015(s16 r_index) {
 
         switch (r_index) {
         case 8:
-            oh_bg_blk_w(op_w.bgw, 0x41, 1, 0, 1);
-            oh_bg_blk_w(op_w.bgw, 0x42, 2, 0, 1);
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x41, 1, 0, 1});
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x42, 2, 0, 1});
             break;
 
         case 14:
-            oh_bg_blk_w(op_w.bgw, 0x45, 1, 0, 1);
-            oh_bg_blk_w(op_w.bgw, 0x46, 2, 0, 1);
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x45, 1, 0, 1});
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x46, 2, 0, 1});
             break;
         }
 
@@ -2680,13 +2680,13 @@ void op_bg1_0001(s16 r_index) {
 
         switch (r_index) {
         case 0x37:
-            oh_bg_blk_w(&op_w.bgw[1], 1, 1, 0, 0);
-            oh_bg_blk_w(&op_w.bgw[1], 2, 2, 0, 0);
+            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args){1, 1, 0, 0});
+            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args){2, 2, 0, 0});
             break;
 
         case 0x38:
-            oh_bg_blk_w(&op_w.bgw[1], 3, 1, 0, 0);
-            oh_bg_blk_w(&op_w.bgw[1], 4, 2, 0, 0);
+            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args){3, 1, 0, 0});
+            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args){4, 2, 0, 0});
             break;
         }
 
@@ -2707,9 +2707,9 @@ void op_bg1_0002(s16 r_index) {
         case 0x3C:
             bgw_ptr->wxy[0].cal = 0x01000000;
             bgw_ptr->xy[1].cal = 0;
-            oh_bg_blk_w(&op_w.bgw[1], 7, 0, 0, 0);
-            oh_bg_blk_w(&op_w.bgw[1], 8, 1, 0, 0);
-            oh_bg_blk_w(&op_w.bgw[1], 9, 2, 0, 0);
+            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args){7, 0, 0, 0});
+            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args){8, 1, 0, 0});
+            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args){9, 2, 0, 0});
             op_bg_mvxy[bgw_ptr->fam_no].a[0].sp = 0xC0000;
             op_bg_mvxy[bgw_ptr->fam_no].d[0].sp = 0;
             bgw_ptr->r_limit = 0x1E0;
@@ -2746,8 +2746,8 @@ void op_bg1_0003(s16 r_index) {
         case 83:
             bgw_ptr->wxy[0].cal = 0x2200000;
             bgw_ptr->xy[1].cal = 0;
-            oh_bg_blk_w(op_w.bgw, 0x10, 1, 0, 0);
-            oh_bg_blk_w(op_w.bgw, 0x11, 2, 0, 0);
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x10, 1, 0, 0});
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x11, 2, 0, 0});
             op_bg_mvxy[bgw_ptr->fam_no].a[0].sp = 0x80000;
             op_bg_mvxy[bgw_ptr->fam_no].d[0].sp = -0x8000;
             bgw_ptr->r_limit = 0x200;
@@ -2756,9 +2756,9 @@ void op_bg1_0003(s16 r_index) {
         case 62:
             bgw_ptr->wxy[0].cal = 0x1E00000; // low = 0, pos = 480
             bgw_ptr->xy[1].cal = 0;
-            oh_bg_blk_w(&op_w.bgw[1], 0xA, 0, 0, 0);
-            oh_bg_blk_w(&op_w.bgw[1], 0xB, 1, 0, 0);
-            oh_bg_blk_w(&op_w.bgw[1], 0xC, 2, 0, 0);
+            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args){0xA, 0, 0, 0});
+            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args){0xB, 1, 0, 0});
+            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args){0xC, 2, 0, 0});
             op_bg_mvxy[bgw_ptr->fam_no].a[0].sp = 0xFFF80000;
             op_bg_mvxy[bgw_ptr->fam_no].d[0].sp = 0;
             break;
