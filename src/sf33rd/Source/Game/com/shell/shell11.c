@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/com/shell/shell11.h"
+#include "sf33rd/Source/Game/com/patterns/com_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
@@ -15,11 +16,7 @@ void Shell11(PLW* wk) {
 }
 
 void Shell11_0000(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_(wk);
 }
 
 void Shell11_0001(PLW* wk) {
@@ -135,15 +132,7 @@ void Shell11_0006(PLW* wk) {
 }
 
 void Shell11_0007(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_command_attack(wk, &(Command_Attack_Args){8, 0x1D, 8, -1});
 }
 
 void Shell11_0008(PLW* wk) {
@@ -187,47 +176,19 @@ void Shell11_0009(PLW* wk) {
 }
 
 void Shell11_0010(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_(wk);
 }
 
 void Shell11_0011(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1D, 0xA, 0x70});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_command_attack(wk, &(Command_Attack_Args){8, 0x1D, 0xA, 0x70});
 }
 
 void Shell11_0012(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x1E, 0xA, -1, -1, 0x30, 0, -1, -1, 0xFFFF});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_jump_command_attack_term(wk, &(JCA_Term_Args){8, 0x1E, 0xA, -1, -1, 0x30, 0, -1, -1, 0xFFFF});
 }
 
 void Shell11_0013(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x1E, 0xA, 0x700, -1, 0x30, 0, -1, -1, 0xFFFF});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_jump_command_attack_term(wk, &(JCA_Term_Args){8, 0x1E, 0xA, 0x700, -1, 0x30, 0, -1, -1, 0xFFFF});
 }
 
 void (*const Shell11_Tbl[14])(PLW*) = { Shell11_0000, Shell11_0001, Shell11_0002, Shell11_0003, Shell11_0004,

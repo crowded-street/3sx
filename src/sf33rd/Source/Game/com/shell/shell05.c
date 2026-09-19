@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/com/shell/shell05.h"
+#include "sf33rd/Source/Game/com/patterns/com_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
@@ -15,11 +16,7 @@ void Shell05(PLW* wk) {
 }
 
 void Shell05_0000(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_(wk);
 }
 
 void Shell05_0001(PLW* wk) {
@@ -135,15 +132,7 @@ void Shell05_0006(PLW* wk) {
 }
 
 void Shell05_0007(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, 0x50, 8, 0x202, 2, -0x7F80, -1, 0x20});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_jump_attack_term(wk, &(Jump_Term_Args){-1, 0x50, 8, 0x202, 2, -0x7F80, -1, 0x20});
 }
 
 void Shell05_0008(PLW* wk) {
@@ -187,11 +176,7 @@ void Shell05_0009(PLW* wk) {
 }
 
 void Shell05_0010(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_(wk);
 }
 
 void (*const Shell05_Tbl[11])(PLW*) = { Shell05_0000, Shell05_0001, Shell05_0002, Shell05_0003,

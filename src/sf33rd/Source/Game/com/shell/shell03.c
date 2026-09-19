@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/com/shell/shell03.h"
+#include "sf33rd/Source/Game/com/patterns/com_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
@@ -15,11 +16,7 @@ void Shell03(PLW* wk) {
 }
 
 void Shell03_0000(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_(wk);
 }
 
 void Shell03_0001(PLW* wk) {
@@ -135,15 +132,7 @@ void Shell03_0006(PLW* wk) {
 }
 
 void Shell03_0007(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 0xA, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_command_attack(wk, &(Command_Attack_Args){8, 0x1F, 0xA, -1});
 }
 
 void Shell03_0008(PLW* wk) {
@@ -187,11 +176,7 @@ void Shell03_0009(PLW* wk) {
 }
 
 void Shell03_0010(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_(wk);
 }
 
 void (*const Shell03_Tbl[11])(PLW*) = { Shell03_0000, Shell03_0001, Shell03_0002, Shell03_0003,

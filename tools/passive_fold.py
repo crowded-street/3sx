@@ -63,6 +63,12 @@ def set_family(name):
     if name == 'active':
         FAMILY.update(script='Pattern', dispatcher='Computer', shared='active_patterns',
                       prefix='active_', what='active', folder='active')
+    elif name == 'shell':
+        # The third COM script folder. A shell script is spelled Shell00_0001
+        # behind a dispatcher called Shell00, and its body is the same switch on
+        # the step counter, so it shares the skeleton module the other two use.
+        FAMILY.update(script='Shell', dispatcher='Shell', shared='com_patterns',
+                      prefix='', what='COM', folder='patterns')
     elif name == 'com':
         # Both folders at once, against one shared module. The script name
         # pattern is a group so it matches either spelling; the skeletons it
@@ -1179,6 +1185,93 @@ def abfold(paths, protos, min_members=2, max_params=3):
 
 
 # --------------------------------------------------------------------------
+# Recipe V, onto a skeleton that already exists
+# --------------------------------------------------------------------------
+
+def xfold(paths, protos, folder):
+    """Fold scripts onto the shared skeletons the campaign has already made.
+
+    gfold only ever groups the scripts it is given against each other, so a
+    script that is one of a kind in its own folder stays inline even when the
+    body it holds is, character for character, a skeleton that another folder's
+    fold already produced. This finds those.
+
+    The test is the one `generalise` applies between two skeletons: the script
+    and the skeleton reduce to the same shape with every call argument blanked,
+    every slot the skeleton did *not* take as a parameter holds the same value
+    in both, and each parameter is given one value by the script. The script
+    then becomes a single call with those values written out in full, in the
+    skeleton's own parameter order, at the one call site that remains - which is
+    Recipe V's safety argument unchanged.
+    """
+    skels = []
+    for path in shared_files(folder):
+        src = open(path).read()
+        for name, a, b, is_static in functions(src):
+            full = src[a:b]
+            if is_static or SWITCH_HEAD not in full:
+                continue
+            sk, slots = skeletonize(full[full.index('{'):], protos)
+            sig = full[:full.index('{')]
+            params = [(re.search(r'(\w+)\s*$', x) or re.search(r'\(\*(\w+)\)', x)).group(1)
+                      for x in split_args(sig[sig.index('(') + 1:sig.rindex(')')])][1:]
+            skels.append({'name': name, 'sk': sk, 'params': params,
+                          'vals': [v for v, _, _ in slots]})
+    by_shape = collections.defaultdict(list)
+    for r in skels:
+        by_shape[r['sk']].append(r)
+    # The most specialised match first: fewest values to write out at the call
+    # site, and the name as the tie-break so the choice is deterministic.
+    for group in by_shape.values():
+        group.sort(key=lambda r: (len(r['params']), r['name']))
+
+    edits = collections.defaultdict(list)
+    for path in paths:
+        src = open(path).read()
+        for name, a, b, is_static in functions(src):
+            full = src[a:b]
+            if is_static or not re.match(r'^%s\d+_\d+$' % FAMILY['script'], name) \
+                    or SWITCH_HEAD not in full:
+                continue
+            sk, slots = skeletonize(full[full.index('{'):], protos)
+            vals = [v for v, _, _ in slots]
+            for cand in by_shape.get(sk, []):
+                pset = set(cand['params'])
+                bound, ok = {}, True
+                for i, v in enumerate(cand['vals']):
+                    if v in pset:
+                        # one parameter, one value: a parameter standing in two
+                        # slots must be given the same value by both of them.
+                        if bound.setdefault(v, vals[i]) != vals[i]:
+                            ok = False
+                            break
+                    elif v != vals[i]:
+                        ok = False
+                        break
+                if not ok or set(bound) != pset:
+                    continue
+                args = ['wk'] + [bound[p] for p in cand['params']]
+                edits[path].append((a, b, 'void %s(PLW* wk) {\n%s\n}'
+                                    % (name, call('    ', cand['name'], args))))
+                break
+
+    if not edits:
+        return 0, 0
+    total = 0
+    for path, es in edits.items():
+        src = open(path).read()
+        for a, b, text in sorted(es, key=lambda e: -e[0]):
+            src = src[:a] + text + src[b:]
+        if FAMILY['shared'] + '.h' not in src:
+            src = src.replace('#include "common.h"',
+                              '#include "sf33rd/Source/Game/com/%s/%s.h"\n#include "common.h"'
+                              % (FAMILY['folder'], FAMILY['shared']), 1)
+        open(path, 'w').write(src)
+        total += len(es)
+    return len(edits), total
+
+
+# --------------------------------------------------------------------------
 # Recipe F - one skeleton, the differing call passed in
 # --------------------------------------------------------------------------
 
@@ -1450,15 +1543,17 @@ def split(path, max_funcs=90, max_lines=900):
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('command', choices=['fold', 'gfold', 'dedup', 'reshard', 'ffold', 'xsplit', 'split', 'verify', 'families', 'generalise', 'inline', 'abfold'])
+    ap.add_argument('command', choices=['fold', 'gfold', 'dedup', 'reshard', 'ffold', 'xsplit', 'split', 'verify', 'families', 'generalise', 'inline', 'abfold',
+                                             'xfold'])
     ap.add_argument('files', nargs='+')
     ap.add_argument('--base', default='HEAD')
     ap.add_argument('--shared-dir', default=None,
                     help='folder holding the shared skeleton files, when it is not '
                          'the folder the scripts are in')
-    ap.add_argument('--family', default='passive', choices=['passive', 'active', 'com'],
+    ap.add_argument('--family', default='passive', choices=['passive', 'active', 'com', 'shell'],
                     help='which COM script folder: passive spells a script '
-                         'Passive14_0122, active spells it Pattern14_0122')
+                         'Passive14_0122, active spells it Pattern14_0122, shell '
+                         'spells it Shell00_0001')
     ap.add_argument('--min-members', type=int, default=3)
     ap.add_argument('--max-params', type=int, default=3)
     ap.add_argument('--max-cases', type=int, default=6)
@@ -1496,6 +1591,10 @@ def main():
     if args.command == 'abfold':
         t, h, e = abfold(args.files, protos, args.min_members, args.max_params)
         print('%d step structs, %d shared skeletons, %d pattern functions folded' % (t, h, e))
+        return
+    if args.command == 'xfold':
+        f, t = xfold(args.files, protos, shared_dir(args.files))
+        print('%d files touched, %d pattern functions folded onto existing skeletons' % (f, t))
         return
     if args.command == 'gfold':
         h, e = gfold(args.files, protos, args.min_members, args.max_params)

@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/com/shell/shell01.h"
+#include "sf33rd/Source/Game/com/patterns/com_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
@@ -15,11 +16,7 @@ void Shell01(PLW* wk) {
 }
 
 void Shell01_0000(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_(wk);
 }
 
 void Shell01_0001(PLW* wk) {

@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/com/shell/shell13.h"
+#include "sf33rd/Source/Game/com/patterns/com_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
@@ -15,11 +16,7 @@ void Shell13(PLW* wk) {
 }
 
 void Shell13_0000(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_(wk);
 }
 
 void Shell13_0001(PLW* wk) {
@@ -135,15 +132,7 @@ void Shell13_0006(PLW* wk) {
 }
 
 void Shell13_0007(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_command_attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
 }
 
 void Shell13_0008(PLW* wk) {
@@ -187,23 +176,11 @@ void Shell13_0009(PLW* wk) {
 }
 
 void Shell13_0010(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_(wk);
 }
 
 void Shell13_0011(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 8, 0x70});
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_command_attack(wk, &(Command_Attack_Args){8, 0x1E, 8, 0x70});
 }
 
 void (*const Shell13_Tbl[12])(PLW*) = { Shell13_0000, Shell13_0001, Shell13_0002, Shell13_0003,

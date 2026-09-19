@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/com/shell/shell12.h"
+#include "sf33rd/Source/Game/com/patterns/com_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
@@ -15,11 +16,7 @@ void Shell12(PLW* wk) {
 }
 
 void Shell12_0000(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_(wk);
 }
 
 void Shell12_0001(PLW* wk) {
@@ -191,11 +188,7 @@ void Shell12_0009(PLW* wk) {
 }
 
 void Shell12_0010(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    active_pattern_(wk);
 }
 
 void (*const Shell12_Tbl[11])(PLW*) = { Shell12_0000, Shell12_0001, Shell12_0002, Shell12_0003,
