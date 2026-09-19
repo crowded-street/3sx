@@ -335,6 +335,17 @@ void ppgChangeDataEndian(u8* adrs, const PPGEndianArgs* a) {
     }
 }
 
+/* Whatever handles were acquired before one was refused. */
+static void ppgReleaseSeqTextureHandles(Texture* tch, s32 ixNums) {
+    s32 i;
+
+    for (i = 0; i < ixNums; i++) {
+        if (tch->handle[i].b16[0]) {
+            flReleaseTextureHandle(tch->handle[i].b16[0]);
+        }
+    }
+}
+
 /* One texture handle per index, each over the next srcSize bytes of the data the
  * caller has just pointed tch->srcAdrs at. The CI flag is decided once, from the
  * context, and is read nowhere else. Returns 0 at the first handle the renderer
@@ -418,12 +429,7 @@ s32 ppgSetupTexChunkSeqs(Texture* tch, const PPGTexSeqsArgs* a) {
     return 1;
 
 error_handler:
-    for (i = 0; i < a->ixNums; i++) {
-        if (tch->handle[i].b16[0]) {
-            flReleaseTextureHandle(tch->handle[i].b16[0]);
-        }
-    }
-
+    ppgReleaseSeqTextureHandles(tch, a->ixNums);
     ppgFree(tch->handle);
     tch->handle = NULL;
     flLogOut("ppgSetupTexChunkSeqs: Failed to acquire sprite texture handle");
