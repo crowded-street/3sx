@@ -31,6 +31,9 @@ EXCLUDE_PREFIXES = (
     "src/stb/",
     "src/argparse/",
     "src/bin2obj/",
+    # Written by glad 0.1.36 from the GL spec; regenerating it would discard
+    # anything this campaign did to it. Its banner says so in its first line.
+    "src/platform/video/opengl/glad/",
 )
 
 SCORE_RE = re.compile(r"Code Health score:\s*([0-9.]+)")
