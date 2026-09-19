@@ -335,6 +335,17 @@ void ppgChangeDataEndian(u8* adrs, const PPGEndianArgs* a) {
     }
 }
 
+/* No handle yet, and the slot marked as never having had one. Both chunk
+ * setups blank their table this way before they start filling it. */
+static void ppgBlankTextureHandles(Texture* tch, s32 ixNums) {
+    s32 i;
+
+    for (i = 0; i < ixNums; i++) {
+        tch->handle[i].b16[0] = 0;
+        tch->handle[i].b16[1] = 0x8000;
+    }
+}
+
 /* Whatever handles were acquired before one was refused. */
 static void ppgReleaseSeqTextureHandles(Texture* tch, s32 ixNums) {
     s32 i;
@@ -408,10 +419,7 @@ s32 ppgSetupTexChunkSeqs(Texture* tch, const PPGTexSeqsArgs* a) {
         flLogOut("ppgSetupTexChunkSeqs: Failed to allocate memory for texture handle");
     }
 
-    for (i = 0; i < a->ixNums; i++) {
-        tch->handle[i].b16[0] = 0;
-        tch->handle[i].b16[1] = 0x8000;
-    }
+    ppgBlankTextureHandles(tch, a->ixNums);
 
     ppgSetupContextFromPPG(a->ppg, &bits);
     tch->srcAdrs = adrs;
@@ -634,8 +642,6 @@ static void ppgWalkTexChunks(Texture* tch, void (*at_tex)(Texture*, s32)) {
 }
 
 s32 ppgSetupTexChunk_1st(Texture* tch, const PPGTexChunk1stArgs* a) {
-    s32 i;
-
     if (tch == NULL) {
         tch = ppg_w.cur->tex;
     }
@@ -661,10 +667,7 @@ s32 ppgSetupTexChunk_1st(Texture* tch, const PPGTexChunk1stArgs* a) {
         flLogOut("ppgSetupTexChunk_1st: Failed to allocate memory for texture handle");
     }
 
-    for (i = 0; i < a->ixNums; i++) {
-        tch->handle[i].b16[0] = 0;
-        tch->handle[i].b16[1] = 0x8000;
-    }
+    ppgBlankTextureHandles(tch, a->ixNums);
 
     ppgWalkTexChunks(tch, ppgCountOneTexChunk);
 
