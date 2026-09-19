@@ -72,6 +72,21 @@
 #include "sf33rd/Source/Game/com/com_pl_internal.h"
 
 
+/* The level a forced break-in and the weaker side override. Four of the damage
+ * states picked a level and then adjusted it these two ways; the adjustment is
+ * the same block every time apart from the level a break-in forces. */
+static u8 level_after_demo_overrides(PLW* wk, u8 Lv, u8 forced) {
+    if (Break_Into_CPU == 2) {
+        Lv = forced;
+    }
+
+    if (Demo_Flag == 0 && Weak_PL == wk->wu.id) {
+        Lv = 0;
+    }
+
+    return Lv;
+}
+
 void Damage_1st(PLW* wk) {
     u8 Lv;
     u8 Rnd;
@@ -96,13 +111,7 @@ void Damage_1st(PLW* wk) {
         CP_No[wk->wu.id][2]++;
         Lv = Setup_Lv08(0);
 
-        if (Break_Into_CPU == 2) {
-            Lv = 7;
-        }
-
-        if (Demo_Flag == 0 && Weak_PL == wk->wu.id) {
-            Lv = 0;
-        }
+        Lv = level_after_demo_overrides(wk, Lv, 7);
 
         Rnd = random_32_com();
         xx = Setup_EM_Rank_Index(wk);
@@ -122,13 +131,7 @@ void Damage_1st(PLW* wk) {
 
         Lv = Setup_Lv04(0);
 
-        if (Break_Into_CPU == 2) {
-            Lv = 3;
-        }
-
-        if (Demo_Flag == 0 && Weak_PL == wk->wu.id) {
-            Lv = 0;
-        }
+        Lv = level_after_demo_overrides(wk, Lv, 3);
 
         Rnd = random_32_com();
         CP_No[wk->wu.id][1] = Get_Up_Data[wk->player_number][emLevelRemake(Lv, 4, 0)][Rnd] + 1;
@@ -144,13 +147,7 @@ void Damage_1st(PLW* wk) {
 
         Lv = Setup_Lv10(0);
 
-        if (Break_Into_CPU == 2) {
-            Lv = 10;
-        }
-
-        if (Demo_Flag == 0 && Weak_PL == wk->wu.id) {
-            Lv = 0;
-        }
+        Lv = level_after_demo_overrides(wk, Lv, 10);
 
         Rnd = random_16_com();
         Lv += CC_Value[0];
@@ -264,13 +261,7 @@ void Damage_6th(PLW* wk) {
             CP_Index[wk->wu.id][1] = 0;
             Lv = Setup_Lv04(0);
 
-            if (Break_Into_CPU == 2) {
-                Lv = 3;
-            }
-
-            if (Demo_Flag == 0 && Weak_PL == wk->wu.id) {
-                Lv = 0;
-            }
+            Lv = level_after_demo_overrides(wk, Lv, 3);
 
             Lv = emLevelRemake(Lv, 4, 0);
             Rnd = random_32_com() & 3;
