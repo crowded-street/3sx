@@ -541,10 +541,108 @@ u32 flCreateTextureFromPIC(const char* pic_file, u32 flag) {
     return flCreateTextureFromPIC_mem(file_ptr, flag);
 }
 
+/* One row of the PIC run-length stream, decoded into the destination it is
+ * given. Each returns the source pointer where it stopped, which is the one
+ * value the block carried back out of its braces. */
+static u8* decode_pic_rgb_row(u8* lpdst, u8* lpsrc, const plContext* context) {
+    s32 cx;
+    s32 ax;
+
+    s32 x = 0;
+
+    while (x < context->width) {
+        ax = *lpsrc++;
+
+        if (ax == 0x80) {
+            cx = (lpsrc[0] << 8) | lpsrc[1];
+            lpsrc += 2;
+            x += cx;
+
+            while (cx-- != 0) {
+                lpdst[0] = lpsrc[0];
+                lpdst[1] = lpsrc[1];
+                lpdst[2] = lpsrc[2];
+                lpdst += context->bitdepth;
+            }
+
+            lpsrc += 3;
+        } else if (ax > 0x80) {
+            cx = ax - 0x7F;
+            x += cx;
+
+            while (cx-- != 0) {
+                lpdst[0] = lpsrc[0];
+                lpdst[1] = lpsrc[1];
+                lpdst[2] = lpsrc[2];
+                lpdst += context->bitdepth;
+            }
+
+            lpsrc += 3;
+        } else {
+            cx = ax + 1;
+            x += cx;
+
+            while (cx-- != 0) {
+                lpdst[0] = lpsrc[0];
+                lpdst[1] = lpsrc[1];
+                lpdst[2] = lpsrc[2];
+                lpdst += context->bitdepth;
+                lpsrc += 3;
+            }
+        }
+    }
+
+    return lpsrc;
+}
+
+static u8* decode_pic_alpha_row(u8* lpdst, u8* lpsrc, const plContext* context) {
+    s32 cx;
+    s32 ax;
+
+    if (context->bitdepth != 3) {
+        s32 x = 0;
+
+        while (x < context->width) {
+            ax = *lpsrc++;
+
+            if (ax == 0x80) {
+                cx = (lpsrc[0] << 8) | lpsrc[1];
+                lpsrc += 2;
+                x += cx;
+
+                while (cx-- != 0) {
+                    lpdst[0] = lpsrc[0];
+                    lpdst += 4;
+                }
+
+                lpsrc += 1;
+            } else if (ax > 0x80) {
+                cx = ax - 0x7F;
+                x += cx;
+
+                while (cx-- != 0) {
+                    lpdst[0] = lpsrc[0];
+                    lpdst += 4;
+                }
+
+                lpsrc += 1;
+            } else {
+                cx = ax + 1;
+                x += cx;
+
+                while (cx-- != 0) {
+                    *lpdst = *lpsrc++;
+                    lpdst += 4;
+                }
+            }
+        }
+    }
+
+    return lpsrc;
+}
+
 u32 flCreateTextureFromPIC_mem(void* mem, u32 flag) {
-    s32 x;
     s32 y;
-    u8* lpdst;
     u8* dst;
     u8* lpsrc;
     plContext context;
@@ -565,100 +663,8 @@ u32 flCreateTextureFromPIC_mem(void* mem, u32 flag) {
     lpsrc = plPICGetPixelAddressFromImage(mem);
 
     for (y = 0; y < context.height; y++) {
-        {
-            s32 cx;
-            s32 ax;
-
-            lpdst = dst + (y * context.pitch);
-            x = 0;
-
-            while (x < context.width) {
-                ax = *lpsrc++;
-
-                if (ax == 0x80) {
-                    cx = (lpsrc[0] << 8) | lpsrc[1];
-                    lpsrc += 2;
-                    x += cx;
-
-                    while (cx-- != 0) {
-                        lpdst[0] = lpsrc[0];
-                        lpdst[1] = lpsrc[1];
-                        lpdst[2] = lpsrc[2];
-                        lpdst += context.bitdepth;
-                    }
-
-                    lpsrc += 3;
-                } else if (ax > 0x80) {
-                    cx = ax - 0x7F;
-                    x += cx;
-
-                    while (cx-- != 0) {
-                        lpdst[0] = lpsrc[0];
-                        lpdst[1] = lpsrc[1];
-                        lpdst[2] = lpsrc[2];
-                        lpdst += context.bitdepth;
-                    }
-
-                    lpsrc += 3;
-                } else {
-                    cx = ax + 1;
-                    x += cx;
-
-                    while (cx-- != 0) {
-                        lpdst[0] = lpsrc[0];
-                        lpdst[1] = lpsrc[1];
-                        lpdst[2] = lpsrc[2];
-                        lpdst += context.bitdepth;
-                        lpsrc += 3;
-                    }
-                }
-            }
-        }
-
-        {
-            s32 cx;
-            s32 ax;
-
-            if (context.bitdepth != 3) {
-                lpdst = dst + (y * context.pitch) + 3;
-                x = 0;
-
-                while (x < context.width) {
-                    ax = *lpsrc++;
-
-                    if (ax == 0x80) {
-                        cx = (lpsrc[0] << 8) | lpsrc[1];
-                        lpsrc += 2;
-                        x += cx;
-
-                        while (cx-- != 0) {
-                            lpdst[0] = lpsrc[0];
-                            lpdst += 4;
-                        }
-
-                        lpsrc += 1;
-                    } else if (ax > 0x80) {
-                        cx = ax - 0x7F;
-                        x += cx;
-
-                        while (cx-- != 0) {
-                            lpdst[0] = lpsrc[0];
-                            lpdst += 4;
-                        }
-
-                        lpsrc += 1;
-                    } else {
-                        cx = ax + 1;
-                        x += cx;
-
-                        while (cx-- != 0) {
-                            *lpdst = *lpsrc++;
-                            lpdst += 4;
-                        }
-                    }
-                }
-            }
-        }
+        lpsrc = decode_pic_rgb_row(dst + (y * context.pitch), lpsrc, &context);
+        lpsrc = decode_pic_alpha_row(dst + (y * context.pitch) + 3, lpsrc, &context);
     }
 
     if (context.bitdepth == 4) {
