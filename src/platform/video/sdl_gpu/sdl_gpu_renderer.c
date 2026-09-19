@@ -726,16 +726,17 @@ static void upload_initial_data(
     SDL_ReleaseGPUTransferBuffer(device, screen_vertex_transfer_buffer);
 }
 
-static SDL_Window* SDLGPURenderer_Init(const SDLRenderBackendInitInfo* init_info) {
-    // Init window and GPU device
-
+// The window and the GPU device. Each failure path tears down what it had already
+// made and gives back 0, where it used to give back the NULL window that
+// SDLGPURenderer_Init returns on its behalf.
+static bool init_window_and_device(const SDLRenderBackendInitInfo* init_info) {
     window = SDL_CreateWindow(
         init_info->app_name, init_info->window_width, init_info->window_height, init_info->window_flags
     );
 
     if (window == NULL) {
         SDL_Log("Failed to create window: %s", SDL_GetError());
-        return NULL;
+        return false;
     }
 
     device = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_MSL, false, NULL);
@@ -743,7 +744,7 @@ static SDL_Window* SDLGPURenderer_Init(const SDLRenderBackendInitInfo* init_info
     if (device == NULL) {
         SDL_Log("Failed to create GPU device: %s", SDL_GetError());
         SDL_DestroyWindow(window);
-        return NULL;
+        return false;
     }
 
     SDL_ClaimWindowForGPUDevice(device, window);
@@ -761,22 +762,43 @@ static SDL_Window* SDLGPURenderer_Init(const SDLRenderBackendInitInfo* init_info
         SDL_ReleaseWindowFromGPUDevice(device, window);
         SDL_DestroyGPUDevice(device);
         SDL_DestroyWindow(window);
-        return NULL;
+        return false;
     }
 
-    // Init common variables
+    return true;
+}
 
+// The quad pool, the depth format this device can take, and the scanline
+// strength the configuration asks for.
+static void init_common_variables(void) {
     arrsetcap(quads, QUADS_MAX);
     depth_texture_format = get_supported_depth_format(device);
     scanline_intensity = SDL_clamp((float)Config_GetInt(CFG_KEY_SCANLINES), 0.0f, 100.0f) / 100.0f;
+}
 
-    // Init shaders
-
+// Which shader language this device speaks, and where its shaders are read from.
+static void init_shader_format(void) {
     shader_format = get_shader_format(device);
     shader_format_path = get_shader_format_path(shader_format);
     shader_entrypoint = get_shader_entrypoint(shader_format);
 
     SDL_Log("Using SDL GPU driver %s with shaders from %s", SDL_GetGPUDeviceDriver(device), shader_format_path);
+}
+
+static SDL_Window* SDLGPURenderer_Init(const SDLRenderBackendInitInfo* init_info) {
+    // Init window and GPU device
+
+    if (!init_window_and_device(init_info)) {
+        return NULL;
+    }
+
+    // Init common variables
+
+    init_common_variables();
+
+    // Init shaders
+
+    init_shader_format();
 
     SDL_GPUShader* vertex_shader = create_shader(&(_ShaderRequest){ "vert", device, SDL_GPU_SHADERSTAGE_VERTEX, 0, 0 });
     SDL_GPUShader* solid_fragment_shader =
