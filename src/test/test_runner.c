@@ -227,6 +227,48 @@ static bool character_select_reached() {
     return G_No[1] == 1 && G_No[2] == 2;
 }
 
+/* The runner's later phases, reached from the earlier ones' default. The case
+ * labels are the original ones and the switch is on the same expression; the
+ * fallthrough from PHASE_GAME_TRANSITION into PHASE_GAME is inside the group,
+ * which is why the cut is here and not one arm later. */
+static void run_later_phases() {
+    switch (phase) {
+    case PHASE_CHARACTER_SELECT:
+        run_character_select();
+        break;
+
+    case PHASE_GAME_TRANSITION:
+        if (G_No[1] != 2) {
+            // This skips the VS animation
+            mash_button(SWK_ATTACKS, 0);
+            break;
+        }
+
+        SDL_IOStream* initial_frame = RamArchive_GetFrame(&game.archive, comparison_index - 1);
+        sync_values(initial_frame);
+        SDL_CloseIO(initial_frame);
+        phase = PHASE_GAME;
+        /* fallthrough */
+
+    case PHASE_GAME:
+        frame_io = RamArchive_GetFrame(&game.archive, comparison_index);
+
+        if ((frame_io == NULL) || game_ended()) {
+            finish();
+        }
+
+        input_buffers[0] = read_input_buff(frame_io, 0);
+        input_buffers[1] = read_input_buff(frame_io, 1);
+
+        if (inter_round_skip_needed()) {
+            tap_button(SWK_ATTACKS, 0);
+            tap_button(SWK_ATTACKS, 1);
+        }
+
+        break;
+    }
+}
+
 void TestRunner_Prologue() {
     SDL_zeroa(input_buffers);
 
@@ -267,38 +309,8 @@ void TestRunner_Prologue() {
 
         break;
 
-    case PHASE_CHARACTER_SELECT:
-        run_character_select();
-        break;
-
-    case PHASE_GAME_TRANSITION:
-        if (G_No[1] != 2) {
-            // This skips the VS animation
-            mash_button(SWK_ATTACKS, 0);
-            break;
-        }
-
-        SDL_IOStream* initial_frame = RamArchive_GetFrame(&game.archive, comparison_index - 1);
-        sync_values(initial_frame);
-        SDL_CloseIO(initial_frame);
-        phase = PHASE_GAME;
-        /* fallthrough */
-
-    case PHASE_GAME:
-        frame_io = RamArchive_GetFrame(&game.archive, comparison_index);
-
-        if ((frame_io == NULL) || game_ended()) {
-            finish();
-        }
-
-        input_buffers[0] = read_input_buff(frame_io, 0);
-        input_buffers[1] = read_input_buff(frame_io, 1);
-
-        if (inter_round_skip_needed()) {
-            tap_button(SWK_ATTACKS, 0);
-            tap_button(SWK_ATTACKS, 1);
-        }
-
+    default:
+        run_later_phases();
         break;
     }
 
