@@ -272,14 +272,28 @@ u8* plTIM2GetPaletteAddressFromImage(void* lpbas) {
     return lpData;
 }
 
+/* The three tests CheckTIM2FileHeader makes, each copied character for
+ * character from the condition it stood in. */
+static s32 is_not_tim2_magic(u8* lpTim2FileHead) {
+    return (lpTim2FileHead[0] != 'T') || (lpTim2FileHead[1] != 'I') || (lpTim2FileHead[2] != 'M') ||
+           (lpTim2FileHead[3] != '2');
+}
+
+static s32 is_clt2_magic(u8* lpTim2FileHead) {
+    return (lpTim2FileHead[0] == 'C') && (lpTim2FileHead[1] == 'L') && (lpTim2FileHead[2] == 'T') &&
+           (lpTim2FileHead[3] == '2');
+}
+
+static s32 is_unsupported_tim2_version(u8 FormatVersion, u8 FormatId) {
+    return (FormatVersion != 3) && ((FormatVersion != 4) || ((FormatId != 0) && (FormatId != 1)));
+}
+
 s32 CheckTIM2FileHeader(u8* lpTim2FileHead) {
     u8 FormatVersion;
     u8 FormatId;
 
-    if ((lpTim2FileHead[0] != 'T') || (lpTim2FileHead[1] != 'I') || (lpTim2FileHead[2] != 'M') ||
-        (lpTim2FileHead[3] != '2')) {
-        if ((lpTim2FileHead[0] == 'C') && (lpTim2FileHead[1] == 'L') && (lpTim2FileHead[2] == 'T') &&
-            (lpTim2FileHead[3] == '2')) {
+    if (is_not_tim2_magic(lpTim2FileHead)) {
+        if (is_clt2_magic(lpTim2FileHead)) {
             return 0;
         }
         return 0;
@@ -288,7 +302,7 @@ s32 CheckTIM2FileHeader(u8* lpTim2FileHead) {
     FormatVersion = lpTim2FileHead[4];
     FormatId = lpTim2FileHead[5];
 
-    if ((FormatVersion != 3) && ((FormatVersion != 4) || ((FormatId != 0) && (FormatId != 1)))) {
+    if (is_unsupported_tim2_version(FormatVersion, FormatId)) {
         return 0;
     }
 
