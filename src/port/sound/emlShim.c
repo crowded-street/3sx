@@ -386,6 +386,12 @@ static int getCategoryVoiceNum(CSE_REQP* reqp) {
     return count;
 }
 
+/* Same priority, and the one already chosen was started first. Copied
+ * character for character from the test it stood in. */
+static int samePrioAndOlder(struct VWork* i, struct VWork* lowest) {
+    return i->id.prio == lowest->id.prio && lowest->tick < i->tick;
+}
+
 static struct VWork* getLowestPrioWk(CSE_REQP* reqp) {
     u32 cond = makeConditions(reqp);
     struct VWork* lowest = NULL;
@@ -403,7 +409,7 @@ static struct VWork* getLowestPrioWk(CSE_REQP* reqp) {
                 continue;
             }
 
-            if (i->id.prio == lowest->id.prio && lowest->tick < i->tick) {
+            if (samePrioAndOlder(i, lowest)) {
                 lowest = i;
                 continue;
             }
