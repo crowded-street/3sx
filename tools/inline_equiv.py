@@ -67,6 +67,39 @@ def functions(src):
     return out
 
 
+def unpredicate(body, predicates):
+    """Put a Recipe P named predicate back where it was.
+
+    The helper is `{ return EXPR; }` and the call sites are whole expressions,
+    so the reconstruction is EXPR verbatim - no added parentheses, because the
+    original had none and the comparison is textual.
+    """
+    shape = re.compile(r'^\s*\{\s*return (?P<expr>.*);\s*\}\s*$', re.S)
+    for name, (params, hbody) in predicates.items():
+        m = shape.match(hbody)
+        if not m:
+            raise ValueError('%s is not a single-expression predicate' % name)
+        call = re.compile(r'\b%s\(' % re.escape(name))
+        while True:
+            hit = call.search(body)
+            if not hit:
+                break
+            d, k = 1, hit.end()
+            while d:
+                if body[k] in '([{':
+                    d += 1
+                elif body[k] in ')]}':
+                    d -= 1
+                k += 1
+            subs = dict(zip(params, split_args(body[hit.end():k - 1])))
+            expr = m.group('expr')
+            if subs:
+                expr = re.sub(r'\b(%s)\b' % '|'.join(map(re.escape, subs)),
+                              lambda mm: subs[mm.group(1)], expr)
+            body = body[:hit.start()] + expr + body[k:]
+    return body
+
+
 def unchoice(body, choices):
     """Put back a helper that only chose between two other 1/0 answers.
 
@@ -157,6 +190,8 @@ def main():
     ap.add_argument('--base', default='HEAD')
     ap.add_argument('--helper', action='append', default=[],
                     help='a helper this change created; repeat for each')
+    ap.add_argument('--predicate', action='append', default=[],
+                    help='a Recipe P named predicate; repeat for each')
     ap.add_argument('--choice', action='append', default=[],
                     help='a helper that only picks between two 1/0 answers; repeat for each')
     ap.add_argument('--ladder', action='append', default=[],
@@ -177,21 +212,24 @@ def main():
     helpers = {h: new[h] for h in args.helper if h in new}
     ladders = {h: new[h] for h in args.ladder if h in new}
     choices = {h: new[h] for h in args.choice if h in new}
-    missing = [h for h in args.helper + args.ladder + args.choice if h not in new]
+    predicates = {h: new[h] for h in args.predicate if h in new}
+    missing = [h for h in args.helper + args.ladder + args.choice + args.predicate
+               if h not in new]
     if missing:
         print('no such helper: %s' % ', '.join(missing))
         return 1
 
     bad, checked = 0, 0
     for name, (_, body) in sorted(old.items()):
-        if name in helpers or name in ladders or name in choices:
+        if name in helpers or name in ladders or name in choices or name in predicates:
             continue
         if name not in new:
             print('MISSING %s' % name)
             bad += 1
             continue
         checked += 1
-        before, after = norm(body), norm(inline(unladder(unchoice(new[name][1], choices), ladders), helpers))
+        before, after = norm(body), norm(inline(unladder(unchoice(unpredicate(new[name][1], predicates), choices),
+                                            ladders), helpers))
         if before != after:
             bad += 1
             print('DIFFERS %s\n   before: %s\n   after:  %s' % (name, before[:300], after[:300]))
