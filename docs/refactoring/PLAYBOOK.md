@@ -2812,3 +2812,38 @@ The fold was reverted. Two things follow, and they are the same rule seen from b
   pull a mean down, is the denominator trick in the other direction, and it was refused
   earlier on `PPGFile_chunks.c` for that reason. Extract what deserves a name; do not
   manufacture names to move an average.
+
+### Fold the repeated block before you judge a switch too long to chain
+
+*Added 2026-09-19, and it overturns a recorded plateau.*
+
+`Game/opening` was recorded as stopped because "chaining one scene pays and chaining the
+next costs" - `op_103_move` measured 6.91 -> 7.42 and `op_107_move` 7.42 -> 6.50. That was
+true of the scenes *as they were then*, and it was the wrong conclusion, because the thing
+being chained was the wrong thing.
+
+Every scene step was the same eight lines:
+
+```c
+    case 3:
+        if (gSeqStatus[0] >= op_110_sound[op_w.r_no_2]) {
+            advance_opening_step(62);
+            op_obj_disp = 1;
+            return;
+        }
+
+        op_bg_move(61);
+        break;
+```
+
+Fifty of those across the two scene files, differing in the cue, two scene indices and
+whatever else the step starts. Folded onto `opening_cue_step` and two variants - Recipe V,
+with every varying value written out at its call site - each arm becomes one line, and the
+switches that were "too long to chain" became short enough that chaining them paid:
+6.77 -> 9.09 and 7.42 -> 9.09 for the two files.
+
+**The order matters.** Recipe X moves *lines* between functions and cannot make a scene
+shorter; Recipe V removes the lines outright. Chaining first spreads the repetition over
+more functions, which is why the earlier attempt measured worse each time it was tried
+again. So: **when a long switch's arms repeat a shape, fold the shape first and chain only
+what is left.** A chain measured before the fold has been measured on the wrong code.
