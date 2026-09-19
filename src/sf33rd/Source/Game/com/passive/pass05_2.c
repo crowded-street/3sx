@@ -6,7 +6,7 @@
 
 #include "sf33rd/Source/Game/com/passive/pass05.h"
 #include "sf33rd/Source/Game/com/passive/pass05_internal.h"
-#include "sf33rd/Source/Game/com/passive/pass_patterns.h"
+#include "sf33rd/Source/Game/com/patterns/com_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"

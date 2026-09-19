@@ -56,13 +56,24 @@ SWITCH_HEAD = 'switch (CP_Index[wk->wu.id][0]) {'
 # spells a script Passive14_0122 and Game/com/active spells it Pattern14_0122,
 # behind dispatchers called Passive14 and Computer14. FAMILY carries which.
 FAMILY = {'script': 'Passive', 'dispatcher': 'Passive', 'shared': 'pass_patterns',
-          'prefix': '', 'what': 'passive', 'folder': 'passive'}
+          'prefix': '', 'what': 'passive', 'folder': 'passive', 'shared_dir': None}
 
 
 def set_family(name):
     if name == 'active':
         FAMILY.update(script='Pattern', dispatcher='Computer', shared='active_patterns',
                       prefix='active_', what='active', folder='active')
+    elif name == 'com':
+        # Both folders at once, against one shared module. The script name
+        # pattern is a group so it matches either spelling; the skeletons it
+        # makes are named without a folder prefix, as the passive ones were.
+        FAMILY.update(script='(?:Passive|Pattern)', dispatcher='(?:Passive|Computer)',
+                      shared='com_patterns', prefix='', what='COM', folder='patterns')
+
+
+def shared_dir(paths):
+    """Where the shared skeleton files live: an override, else beside the scripts."""
+    return FAMILY['shared_dir'] or os.path.dirname(paths[0])
 
 
 # --------------------------------------------------------------------------
@@ -459,11 +470,11 @@ def rewrite_shared_header(folder):
 
 SHARED_DOC = """/**
  * @file %(name)s
- * COM Passive: pattern skeletons shared by every character
+ * COM: pattern skeletons shared by every character
  *
  * %(what)s
  *
- * A passive pattern script is a switch on the step counter with one engine call
+ * A COM pattern script is a switch on the step counter with one engine call
  * per step, and the same step sequences recur across characters. Each skeleton
  * here is exactly the body its call sites used to hold, with the arguments of
  * its calls taken as parameters and written out in full at each call site.
@@ -563,7 +574,7 @@ def gfold(paths, protos, min_members=3, max_params=3, shared=None):
             sk, slots = skeletonize(full[full.index('{'):], protos)
             fams[sk].append((path, name, a, b, slots))
 
-    folder = os.path.dirname(paths[0])
+    folder = shared_dir(paths)
     used = set()
     for path in shared_files(folder):
         used |= {n for n, a, b, st in functions(open(path).read())}
@@ -1062,7 +1073,10 @@ def main():
     ap.add_argument('command', choices=['fold', 'gfold', 'dedup', 'reshard', 'ffold', 'xsplit', 'split', 'verify', 'families'])
     ap.add_argument('files', nargs='+')
     ap.add_argument('--base', default='HEAD')
-    ap.add_argument('--family', default='passive', choices=['passive', 'active'],
+    ap.add_argument('--shared-dir', default=None,
+                    help='folder holding the shared skeleton files, when it is not '
+                         'the folder the scripts are in')
+    ap.add_argument('--family', default='passive', choices=['passive', 'active', 'com'],
                     help='which COM script folder: passive spells a script '
                          'Passive14_0122, active spells it Pattern14_0122')
     ap.add_argument('--min-members', type=int, default=3)
@@ -1072,17 +1086,18 @@ def main():
     ap.add_argument('--max-lines', type=int, default=900)
     args = ap.parse_args()
     set_family(args.family)
+    FAMILY['shared_dir'] = args.shared_dir
 
     if args.command == 'verify':
         sys.exit(1 if verify(args.base, args.files) else 0)
 
     protos = load_prototypes()
     if args.command == 'reshard':
-        made = reshard(os.path.dirname(args.files[0]), args.max_lines)
+        made = reshard(shared_dir(args.files), args.max_lines)
         print('shared skeletons in %d files: %s' % (len(made), ', '.join(made)))
         return
     if args.command == 'dedup':
-        folder = os.path.dirname(args.files[0])
+        folder = shared_dir(args.files)
         sharedp = sorted(glob.glob(os.path.join(folder, FAMILY['shared'] + '_*.c')))
         h, e = dedup(args.files, sharedp, os.path.join(folder, FAMILY['shared'] + '.h'))
         d = dedup_shared(folder)

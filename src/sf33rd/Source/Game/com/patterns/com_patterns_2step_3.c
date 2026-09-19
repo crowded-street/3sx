@@ -1,35 +1,19 @@
 /**
- * @file pass_patterns_2step_2.c
- * COM Passive: pattern skeletons shared by every character
+ * @file com_patterns_2step_3.c
+ * COM: pattern skeletons shared by every character
  *
- * The two-step patterns. Part 2 of 2, in name order.
+ * The two-step patterns. Part 3 of 3, in name order.
  *
- * A passive pattern script is a switch on the step counter with one engine call
+ * A COM pattern script is a switch on the step counter with one engine call
  * per step, and the same step sequences recur across characters. Each skeleton
  * here is exactly the body its call sites used to hold, with the arguments of
  * its calls taken as parameters and written out in full at each call site.
  */
 
-#include "sf33rd/Source/Game/com/passive/pass_patterns.h"
+#include "sf33rd/Source/Game/com/patterns/com_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
-
-void pattern_wait_attack_complete_normal_attack(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Wait_Attack_Complete(wk, 3, 1);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 8, 0x402);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
-}
 
 void pattern_wait_branch_unit_area(PLW* wk, s16 time, const Branch_Menu_Args* p) {
     switch (CP_Index[wk->wu.id][0]) {

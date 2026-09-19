@@ -1,19 +1,181 @@
 /**
- * @file pass_patterns_6step.c
- * COM Passive: pattern skeletons shared by every character
+ * @file com_patterns_6step.c
+ * COM: pattern skeletons shared by every character
  *
  * The six-step patterns.
  *
- * A passive pattern script is a switch on the step counter with one engine call
+ * A COM pattern script is a switch on the step counter with one engine call
  * per step, and the same step sequences recur across characters. Each skeleton
  * here is exactly the body its call sites used to hold, with the arguments of
  * its calls taken as parameters and written out in full at each call site.
  */
 
-#include "sf33rd/Source/Game/com/passive/pass_patterns.h"
+#include "sf33rd/Source/Game/com/patterns/com_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
+
+void active_pattern_approach_walk_jump_attack_term_normal_attack_2(PLW* wk, s16 option) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Approach_Walk(wk, 0xbf, option);
+        break;
+
+    case 1:
+        Jump_Attack_Term(wk, &(Jump_Term_Args){0x8058, 0x8038, 0xb, 0x400, 0, 0x8080, -1, 0x400});
+        break;
+
+    case 2:
+        Normal_Attack(wk, 0xb, 0x202);
+        break;
+
+    case 3:
+        Command_Attack(wk, &(Command_Attack_Args){0xc, 0x1f, 10, -1});
+        break;
+
+    case 4:
+        Wait(wk, 1);
+        break;
+
+    case 5:
+        SA_Term(wk, &(SA_Term_Args){0x2f, 0x30, 0x31, 0x7f});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_normal_attack_pierce_on_j_command_attack(PLW* wk, u16 lever_data) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Normal_Attack(wk, 9, lever_data);
+        break;
+
+    case 1:
+        Normal_Attack(wk, 0xc, 0x202);
+        break;
+
+    case 2:
+        Pierce_On(wk);
+        break;
+
+    case 3:
+        J_Command_Attack(wk, &(Command_Attack_Args){0xb, 0x20, 8, -1});
+        break;
+
+    case 4:
+        Wait(wk, 5);
+        break;
+
+    case 5:
+        SA_Term(wk, &(SA_Term_Args){0x2f, -1, 0x31, 0x7f});
+        break;
+
+    default:
+        active_pattern_j_command_attack_from_step_6_2(wk);
+        break;
+    }
+}
+
+void active_pattern_normal_attack_pierce_on_j_command_attack_2(PLW* wk, s16 reaction, u16 lever_data) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Normal_Attack(wk, 9, 0x200);
+        break;
+
+    case 1:
+        Normal_Attack(wk, reaction, lever_data);
+        break;
+
+    case 2:
+        Pierce_On(wk);
+        break;
+
+    case 3:
+        J_Command_Attack(wk, &(Command_Attack_Args){0xb, 0x20, 9, -1});
+        break;
+
+    case 4:
+        Wait(wk, 3);
+        break;
+
+    case 5:
+        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1e, 9, -1});
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_pierce_on_command_attack_wait(
+    PLW* wk, const Command_Attack_Args* p, const Command_Attack_Args* p_b, const Command_Attack_Args* p_b_b
+) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Pierce_On(wk);
+        break;
+
+    case 1:
+        Command_Attack(wk, p);
+        break;
+
+    case 2:
+        Wait(wk, 0xe);
+        break;
+
+    case 3:
+        Command_Attack(wk, p_b);
+        break;
+
+    case 4:
+        Wait(wk, 0xe);
+        break;
+
+    case 5:
+        Command_Attack(wk, p_b_b);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+
+void active_pattern_search_back_term_walk_wait(PLW* wk) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 0:
+        Search_Back_Term(wk, 0x30, 2, 0xF);
+        break;
+
+    case 1:
+        Walk(wk, 1, 0x20, 0);
+        break;
+
+    case 2:
+        Wait(wk, 3);
+        break;
+
+    case 3:
+        Walk(wk, 0, 0x30, 0);
+        break;
+
+    case 4:
+        Wait(wk, 9);
+        break;
+
+    case 5:
+        Walk(wk, 0, 0x20, 0);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
 
 void pattern_approach_walk_em_term_normal_attack_4(
     PLW* wk, s16 target_pos, const Command_Attack_Args* p, const SA_Term_Args* p_b

@@ -4,7 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/com/active/active05.h"
-#include "sf33rd/Source/Game/com/active/active_patterns.h"
+#include "sf33rd/Source/Game/com/patterns/com_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
