@@ -469,6 +469,28 @@ static s16 Check_Hamari(PLW* wk) {
     return VS_Tech[wk->wu.id] = 32;
 }
 
+/* The frame the shell guard ends on: the reasons the guard is dropped, and the
+ * timer that holds it for one more frame otherwise. */
+static void End_Guard_VS_Shell(PLW* wk, WORK_Other* tmw) {
+    if (wk->player_number != 18) {
+        if (wk->wu.routine_no[1] != 1) {
+            Exit_Damage_Sub(wk);
+        }
+    } else if (Check_No12_Shell_Guard(wk, tmw) != 0) {
+        Exit_Damage_Sub(wk);
+    }
+
+    if (tmw->wu.routine_no[0] == 2) {
+        Exit_Damage_Sub(wk);
+    }
+
+    if (tmw->wu.id != 13) {
+        Exit_Damage_Sub(wk);
+    }
+
+    Timer_00[wk->wu.id] = 1;
+}
+
 void Com_Guard_VS_Shell(PLW* wk) {
     WORK_Other* tmw;
 
@@ -485,23 +507,7 @@ void Com_Guard_VS_Shell(PLW* wk) {
     Check_Guard_Type(wk, &tmw->wu);
 
     if (Timer_00[wk->wu.id] == 0) {
-        if (wk->player_number != 18) {
-            if (wk->wu.routine_no[1] != 1) {
-                Exit_Damage_Sub(wk);
-            }
-        } else if (Check_No12_Shell_Guard(wk, tmw) != 0) {
-            Exit_Damage_Sub(wk);
-        }
-
-        if (tmw->wu.routine_no[0] == 2) {
-            Exit_Damage_Sub(wk);
-        }
-
-        if (tmw->wu.id != 13) {
-            Exit_Damage_Sub(wk);
-        }
-
-        Timer_00[wk->wu.id] = 1;
+        End_Guard_VS_Shell(wk, tmw);
         return;
     }
 
