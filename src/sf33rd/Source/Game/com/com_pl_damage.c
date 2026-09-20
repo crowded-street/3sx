@@ -275,6 +275,17 @@ static void pick_get_up_action(PLW* wk) {
     }
 }
 
+static void Damage_6th_Wait_Recovery(PLW* wk) {
+    if (wk->wu.routine_no[1] != 1) {
+        Exit_Damage_Sub(wk);
+        return;
+    }
+
+    if (wk->wu.cg_type == 12) {
+        pick_get_up_action(wk);
+    }
+}
+
 void Damage_6th(PLW* wk) {
 
     if (wk->wu.routine_no[3] == 0) {
@@ -294,16 +305,7 @@ void Damage_6th(PLW* wk) {
 
     switch (CP_No[wk->wu.id][2]) {
     case 0:
-        if (wk->wu.routine_no[1] != 1) {
-            Exit_Damage_Sub(wk);
-            break;
-        }
-
-        if (wk->wu.cg_type == 12) {
-            pick_get_up_action(wk);
-        }
-
-
+        Damage_6th_Wait_Recovery(wk);
         break;
 
     case 1:
