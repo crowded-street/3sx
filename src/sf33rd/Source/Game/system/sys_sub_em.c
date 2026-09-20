@@ -55,6 +55,21 @@ void Initialize_EM_Candidate(s16 PL_id) {
     }
 }
 
+/* The last two reasons a character is not offered: it is this character's
+ * mid-boss, or the player has already broken it. Reached only when none of the
+ * earlier tests fired, which is what falling through to them meant. */
+static s32 candidate_is_excluded_late(s16 PL_id, s16 ix) {
+    if (ix == Middle_Class_Boss_Data[My_char[PL_id]]) {
+        return 1;
+    }
+
+    if (Break_Com[PL_id][ix]) {
+        return 1;
+    }
+
+    return 0;
+}
+
 static s32 candidate_is_excluded(s16 PL_id, s16 ix) {
     if (My_char[PL_id] == 0 && ix == 1) {
         return 1;
@@ -68,15 +83,7 @@ static s32 candidate_is_excluded(s16 PL_id, s16 ix) {
         return 1;
     }
 
-    if (ix == Middle_Class_Boss_Data[My_char[PL_id]]) {
-        return 1;
-    }
-
-    if (Break_Com[PL_id][ix]) {
-        return 1;
-    }
-
-    return 0;
+    return candidate_is_excluded_late(PL_id, ix);
 }
 
 void Setup_Candidate_Buff(s16 PL_id) {
