@@ -87,80 +87,90 @@ static u8 level_after_demo_overrides(PLW* wk, u8 Lv, u8 forced) {
     return Lv;
 }
 
-void Damage_1st(PLW* wk) {
+static void Damage_1st_Receive_Select(PLW* wk) {
     u8 Lv;
     u8 Rnd;
     u8 xx;
+
+    if (wk->py->flag) {
+        CP_No[wk->wu.id][1] = 9;
+        return;
+    }
+
+    if (PL_Blow_Off_Data[wk->wu.routine_no[2]] == 0) {
+        CP_No[wk->wu.id][1] = 1;
+        return;
+    }
+
+    CP_No[wk->wu.id][2]++;
+    Lv = Setup_Lv08(0);
+
+    Lv = level_after_demo_overrides(wk, Lv, 7);
+
+    Rnd = random_32_com();
+    xx = Setup_EM_Rank_Index(wk);
+
+    if (Receive_Data[xx][emLevelRemake(Lv, 8, 0)] > Rnd) {
+        Receive_Flag[wk->wu.id] = 1;
+        return;
+    }
+}
+
+static void Damage_1st_Get_Up_Select(PLW* wk) {
+    u8 Lv;
+    u8 Rnd;
     WORK* em;
 
+    if (wk->wu.routine_no[3] == 0) {
+        CP_No[wk->wu.id][2] = 0;
+        return;
+    }
+
+    Lv = Setup_Lv04(0);
+
+    Lv = level_after_demo_overrides(wk, Lv, 3);
+
+    Rnd = random_32_com();
+    CP_No[wk->wu.id][1] = Get_Up_Data[wk->player_number][emLevelRemake(Lv, 4, 0)][Rnd] + 1;
+    CP_No[wk->wu.id][2] = 0;
+
+    if (Get_Up_Action_Check_Data[wk->player_number][CP_No[wk->wu.id][1] - 1][Area_Number[wk->wu.id]] == -1) {
+        CP_No[wk->wu.id][1] = Get_Up_Action_Check_Data[wk->player_number][CP_No[wk->wu.id][1]][4];
+    }
+
+    if (CP_No[wk->wu.id][1] != 0) {
+        return;
+    }
+
+    Lv = Setup_Lv10(0);
+
+    Lv = level_after_demo_overrides(wk, Lv, 10);
+
+    Rnd = random_16_com();
+    Lv += CC_Value[0];
+    Lv = emLevelRemake(Lv, 11, 1);
+    em = (WORK*)wk->wu.target_adrs;
+
+    if (EM_Rank != 0) {
+        Guard_Type[wk->wu.id] = Guard_Data[17][Lv][Rnd];
+    } else {
+        Guard_Type[wk->wu.id] = Guard_Data[wk->player_number][Lv][Rnd];
+    }
+
+    Check_Guard_Type(wk, em);
+}
+
+void Damage_1st(PLW* wk) {
     Lever_Buff[wk->wu.id] = Setup_Guard_Lever(wk, 1);
     Lever_Buff[wk->wu.id] |= 2;
 
     switch (CP_No[wk->wu.id][2]) {
     case 0:
-        if (wk->py->flag) {
-            CP_No[wk->wu.id][1] = 9;
-            break;
-        }
-
-        if (PL_Blow_Off_Data[wk->wu.routine_no[2]] == 0) {
-            CP_No[wk->wu.id][1] = 1;
-            break;
-        }
-
-        CP_No[wk->wu.id][2]++;
-        Lv = Setup_Lv08(0);
-
-        Lv = level_after_demo_overrides(wk, Lv, 7);
-
-        Rnd = random_32_com();
-        xx = Setup_EM_Rank_Index(wk);
-
-        if (Receive_Data[xx][emLevelRemake(Lv, 8, 0)] > Rnd) {
-            Receive_Flag[wk->wu.id] = 1;
-            break;
-        }
-
+        Damage_1st_Receive_Select(wk);
         break;
 
     case 1:
-        if (wk->wu.routine_no[3] == 0) {
-            CP_No[wk->wu.id][2] = 0;
-            break;
-        }
-
-        Lv = Setup_Lv04(0);
-
-        Lv = level_after_demo_overrides(wk, Lv, 3);
-
-        Rnd = random_32_com();
-        CP_No[wk->wu.id][1] = Get_Up_Data[wk->player_number][emLevelRemake(Lv, 4, 0)][Rnd] + 1;
-        CP_No[wk->wu.id][2] = 0;
-
-        if (Get_Up_Action_Check_Data[wk->player_number][CP_No[wk->wu.id][1] - 1][Area_Number[wk->wu.id]] == -1) {
-            CP_No[wk->wu.id][1] = Get_Up_Action_Check_Data[wk->player_number][CP_No[wk->wu.id][1]][4];
-        }
-
-        if (CP_No[wk->wu.id][1] != 0) {
-            break;
-        }
-
-        Lv = Setup_Lv10(0);
-
-        Lv = level_after_demo_overrides(wk, Lv, 10);
-
-        Rnd = random_16_com();
-        Lv += CC_Value[0];
-        Lv = emLevelRemake(Lv, 11, 1);
-        em = (WORK*)wk->wu.target_adrs;
-
-        if (EM_Rank != 0) {
-            Guard_Type[wk->wu.id] = Guard_Data[17][Lv][Rnd];
-        } else {
-            Guard_Type[wk->wu.id] = Guard_Data[wk->player_number][Lv][Rnd];
-        }
-
-        Check_Guard_Type(wk, em);
+        Damage_1st_Get_Up_Select(wk);
         break;
     }
 }
