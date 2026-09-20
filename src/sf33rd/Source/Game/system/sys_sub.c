@@ -1133,7 +1133,9 @@ void Copy_Key_Disp_Work() {
     Convert_Buff[1][1][8] = save_w[1].Pad_Infor[1].Vibration;
 }
 
-s32 Check_Extra_Setting() {
+/* The part of each extra-option page past the one the player can reach is
+ * taken from the live settings before the comparison. */
+static void copy_hidden_extra_options() {
     s16 ix;
     s16 page;
 
@@ -1142,6 +1144,13 @@ s32 Check_Extra_Setting() {
             save_w[1].extra_option.contents[page][ix] = save_w[0].extra_option.contents[page][ix];
         }
     }
+}
+
+s32 Check_Extra_Setting() {
+    s16 ix;
+    s16 page;
+
+    copy_hidden_extra_options();
 
     for (page = 0; page < 4; page++) {
         for (ix = 0; ix < 4; ix++) {
