@@ -231,43 +231,40 @@ s32 FadeIn(u8 type, u8 step, u8 priority) {
     return 0;
 }
 
-void ToneDown(u8 tone, u8 priority) {
-    PAL_CURSOR tone_pc;
-    PAL_CURSOR_P tone_p[4];
-    PAL_CURSOR_COL tone_col[4];
+/* The run ToneDown and overwrite_panel share, from the blending mode to the
+ * draw. Only the colour differs inside it; overwrite_panel's own
+ * ppgSetupCurrentDataList stays at its call site. */
+static void draw_full_screen_quad(u32 color, u8 priority) {
+    PAL_CURSOR quad_pc;
+    PAL_CURSOR_P quad_p[4];
+    PAL_CURSOR_COL quad_col[4];
 
+    njColorBlendingMode(0, 1);
+    quad_pc.p = quad_p;
+    quad_pc.col = quad_col;
+    quad_pc.num = 4;
+
+    fill_fade_quad(quad_p, quad_col, color);
+
+    njDrawPolygon2D(&quad_pc, 4, PrioBase[priority], 0x60);
+}
+
+void ToneDown(u8 tone, u8 priority) {
     if (No_Trans) {
         return;
     }
 
-    njColorBlendingMode(0, 1);
-    tone_pc.p = tone_p;
-    tone_pc.col = tone_col;
-    tone_pc.num = 4;
-
-    fill_fade_quad(tone_p, tone_col, tone << 24);
-
-    njDrawPolygon2D(&tone_pc, 4, PrioBase[priority], 0x60);
+    draw_full_screen_quad(tone << 24, priority);
 }
 
 void overwrite_panel(u32 color, u8 priority) {
-    PAL_CURSOR panel_pc;
-    PAL_CURSOR_P panel_p[4];
-    PAL_CURSOR_COL panel_col[4];
-
     if (No_Trans) {
         return;
     }
 
     ppgSetupCurrentDataList(&ppgScrList);
-    njColorBlendingMode(0, 1);
-    panel_pc.p = panel_p;
-    panel_pc.col = panel_col;
-    panel_pc.num = 4;
 
-    fill_fade_quad(panel_p, panel_col, color);
-
-    njDrawPolygon2D(&panel_pc, 4, PrioBase[priority], 0x60);
+    draw_full_screen_quad(color, priority);
 }
 
 void fade_cont_init() {
