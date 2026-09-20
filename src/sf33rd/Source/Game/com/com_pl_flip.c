@@ -271,21 +271,8 @@ s32 SetShellFlipLever(PLW* wk) {
     return 1;
 }
 
-static s32 Check_Shell_Flip(PLW* wk) {
-    WORK* shell;
-    s32 Rnd;
-    s32 Lv;
-    s32 xx;
-    s32 res;
-
-    res = 0;
-    Flip_Counter[wk->wu.id]++;
-
-    if (Timer_01[wk->wu.id] != 8) {
-        return 0;
-    }
-
-    shell = (WORK*)wk->wu.dmg_adrs;
+static s32 Shell_Flip_Target_Rejected(WORK* shell) {
+    s32 res = 0;
 
     if (shell == NULL) {
         res = 1;
@@ -294,6 +281,36 @@ static s32 Check_Shell_Flip(PLW* wk) {
     } else {
         res = 1;
     }
+
+    return res;
+}
+
+static s32 Shell_Flip_Delay_Result(PLW* wk, s32 xx) {
+    xx -= 8;
+
+    if (xx > 0) {
+        Timer_00[wk->wu.id] = xx;
+        return 3;
+    }
+
+    return 0;
+}
+
+static s32 Check_Shell_Flip(PLW* wk) {
+    WORK* shell;
+    s32 Rnd;
+    s32 Lv;
+    s32 xx;
+    s32 res;
+
+    Flip_Counter[wk->wu.id]++;
+
+    if (Timer_01[wk->wu.id] != 8) {
+        return 0;
+    }
+
+    shell = (WORK*)wk->wu.dmg_adrs;
+    res = Shell_Flip_Target_Rejected(shell);
 
     if (res || shell->vital_new < 256) {
         if ((xx = Check_Shell_Another_in_Flip(wk)) == 0) {
@@ -326,12 +343,7 @@ static s32 Check_Shell_Flip(PLW* wk) {
             return 1;
         }
 
-        xx -= 8;
-
-        if (xx > 0) {
-            Timer_00[wk->wu.id] = xx;
-            return 3;
-        }
+        return Shell_Flip_Delay_Result(wk, xx);
     }
 
     return 0;
