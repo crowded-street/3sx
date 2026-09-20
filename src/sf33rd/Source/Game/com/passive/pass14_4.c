@@ -219,7 +219,9 @@ void Passive14_0171(PLW* wk) {
     pattern_approach_walk_jump_attack_term_normal_attack_3(wk, &(SA_Term_Args) { 0x34, 0x34, 0x34, 0x7F });
 }
 
-void Passive14_0172(PLW* wk) {
+/* Passive14_0172 and Passive14_0178 are the same four-step script, literal for
+ * literal. */
+static void run_passive14_jump_attack_term_script(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
         Jump_Attack_Term(wk, &(Jump_Term_Args) { -0x7FA8, -0x7FC8, 9, 0x400, 0, -0x7F80, -1, 0x400 });
@@ -241,6 +243,10 @@ void Passive14_0172(PLW* wk) {
         End_Pattern(wk);
         break;
     }
+}
+
+void Passive14_0172(PLW* wk) {
+    run_passive14_jump_attack_term_script(wk);
 }
 
 void Passive14_0173(PLW* wk) {
@@ -329,27 +335,7 @@ void Passive14_0177(PLW* wk) {
 }
 
 void Passive14_0178(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump_Attack_Term(wk, &(Jump_Term_Args) { -0x7FA8, -0x7FC8, 9, 0x400, 0, -0x7F80, -1, 0x400 });
-        break;
-
-    case 1:
-        Normal_Attack(wk, 9, 0x220);
-        break;
-
-    case 2:
-        Normal_Attack(wk, 0xC, 0x202);
-        break;
-
-    case 3:
-        Command_Attack(wk, &(Command_Attack_Args) { 0xC, 0x1F, 10, -1 });
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    run_passive14_jump_attack_term_script(wk);
 }
 
 void Passive14_0179(PLW* wk) {
