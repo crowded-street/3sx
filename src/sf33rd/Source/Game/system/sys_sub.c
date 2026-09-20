@@ -308,6 +308,15 @@ void Score_Sub() {
     }
 }
 
+/* Which screen column a side's win record is drawn in. */
+static s16 win_record_column(s16 PL_id) {
+    if (PL_id == 0) {
+        return 5;
+    }
+
+    return 43;
+}
+
 static void disp_arcade_win_record() {
     s16 PL_id;
     s16 zz;
@@ -328,12 +337,7 @@ static void disp_arcade_win_record() {
         return;
     } else {
         PL_id = Player_id;
-
-        if (Player_id == 0) {
-            zz = 5;
-        } else {
-            zz = 43;
-        }
+        zz = win_record_column(Player_id);
     }
 
     Disp_Win_Record_Sub(Win_Record[PL_id], zz);
