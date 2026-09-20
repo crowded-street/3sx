@@ -15,7 +15,7 @@ Measured across every first-party `.c` and `.cpp` file. Vendored code (`src/imgu
 `src/stb`, `src/argparse`) and generated tables (`src/bin2obj`) are excluded.
 
 | Band | Score | 2026-09-01 | 2026-09-19 | 2026-09-20 am | 2026-09-20 pm | 2026-09-20 eve |
-| --- | --- | --- | --- | --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- | --- |
 | **Red** - severe debt | 1.0 - 3.9 | **19** | **0** | **0** | **0** | **0** |
 | **Yellow** - problematic debt | 4.0 - 8.9 | **207** | 93 | 62 | 46 | **29** |
 | Green | 9.0 - 9.9 | 158 | 91 | 101 | 83 | 80 |
