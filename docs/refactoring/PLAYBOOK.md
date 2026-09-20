@@ -3336,6 +3336,18 @@ first-frame or setup blocks. Below `function_duplication_min_lines_of_code_for_c
 they are never compared against each other, so a family of four `begin_appear_*` helpers
 costs no Code Duplication finding. Above it, it would.
 
+**And that is exactly where the arithmetic can run out.** `appear_late.c` needs *nine*
+steps by the formula above, and the only branch-free blocks it has are nine near-identical
+entry setups - `routine_no[3]++`, a display flag, a `set_char_move_init` and
+`bg_app_stop`. Lifting six of them brought **Code Duplication** on as a group of six and
+measured **9.38 -> 8.54**; lifting three of them paired with nothing and measured **9.38**,
+because three is not nine. There is no subset that is both large enough to move the mean
+and varied enough not to pair.
+
+So run the count *and* look at what the blocks are before starting. Where a file needs
+many steps and its only spare blocks are one idiom repeated, Overall Code Complexity is a
+plateau, and the honest record is the two measurements.
+
 ### A fold that shortens its call sites can win by not being looked at
 
 *Added 2026-09-20, measured on `flps2vram.c` and reverted.*
