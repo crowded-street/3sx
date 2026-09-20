@@ -17,13 +17,20 @@ Measured across every first-party `.c` and `.cpp` file. Vendored code (`src/imgu
 | Band | Score | 2026-09-01 | 2026-09-19 | 2026-09-20 |
 | --- | --- | --- | --- | --- |
 | **Red** - severe debt | 1.0 - 3.9 | **19** | **0** | **0** |
-| **Yellow** - problematic debt | 4.0 - 8.9 | **207** | 124 | 62 |
-| Green | 9.0 - 9.9 | 158 | 84 | 101 |
-| Optimal | 10.0 | 98 | 444 | **496** |
-| **Total scored** | | **482** | 652 | **659** |
+| **Yellow** - problematic debt | 4.0 - 8.9 | **207** | 93 | 62 |
+| Green | 9.0 - 9.9 | 158 | 91 | 101 |
+| Optimal | 10.0 | 98 | 475 | **496** |
+| **Total scored** | | **482** | 659 | **659** |
+| Mean | | | 9.66 | **9.75** |
 
-The file count rises because the campaign splits files. Mean Code Health across every
-scorable first-party file is now **9.75**.
+The file count rises because the campaign splits files.
+
+> The 2026-09-19 column previously read 124 / 84 / 444 over 652 files at a mean of 9.51.
+> Those were the figures of an *earlier* sweep that day, left in place while
+> `codehealth-current.json` beside it was refreshed to the seventh and final sweep. The
+> column now matches the committed sweep it sits next to. **Take the numbers from the
+> JSON, not from this table** - the JSON is written by `codehealth_sweep.py` and the table
+> is typed by hand.
 
 **The worst file in the repository scores 7.55.** The nine lowest are all in
 `Game/com/patterns`, the shared skeleton module, and they are priced against CodeScene's
