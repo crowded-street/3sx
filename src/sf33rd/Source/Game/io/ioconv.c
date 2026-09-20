@@ -21,11 +21,23 @@ u32 ioconv_table[24][2] = { { 0x1, 0x1 },       { 0x2, 0x2 },       { 0x4, 0x4 }
                             { 0x0, 0x10000 },   { 0x0, 0x20000 },   { 0x0, 0x40000 },   { 0x0, 0x80000 },
                             { 0x0, 0x100000 },  { 0x0, 0x200000 },  { 0x0, 0x400000 },  { 0x0, 0x800000 } };
 
+/* One range of the switch conversion table, folded into this pad's word. The
+ * three scans differ only in the range they walk, and each names its own at its
+ * call site. */
+static void scan_ioconv_range(u32 currSw, s32 i, s32 first, s32 limit) {
+    s32 j;
+
+    for (j = first; j < limit; j++) {
+        if (currSw & ioconv_table[j][1]) {
+            io_w.sw[i] |= ioconv_table[j][0];
+        }
+    }
+}
+
 void keyConvert() {
     IOPad* pad;
     u32 currSw;
     s32 i;
-    s32 j;
     s32 repeat_on = 0;
 
 #if DEBUG
@@ -93,27 +105,15 @@ void keyConvert() {
         io_w.sw[i] = 0;
         currSw = pad->sw;
 
-        for (j = 0; j < 4; j++) {
-            if (currSw & ioconv_table[j][1]) {
-                io_w.sw[i] |= ioconv_table[j][0];
-            }
-        }
+        scan_ioconv_range(currSw, i, 0, 4);
 
-        for (j = 12; j < 16; j++) {
-            if (currSw & ioconv_table[j][1]) {
-                io_w.sw[i] |= ioconv_table[j][0];
-            }
-        }
+        scan_ioconv_range(currSw, i, 12, 16);
 
         if (repeat_on) {
             currSw = pad->sw_repeat;
         }
 
-        for (j = 4; j < 12; j++) {
-            if (currSw & ioconv_table[j][1]) {
-                io_w.sw[i] |= ioconv_table[j][0];
-            }
-        }
+        scan_ioconv_range(currSw, i, 4, 12);
     }
 
     p1sw_buff = io_w.sw[0];
