@@ -108,31 +108,93 @@ At the 2026-09-01 start: **19 files**, 46,865 lines of code, **330** complex met
 At 2026-09-19: **none** of the nineteen is still below 4.0, eight are at 10.00, and
 `scr_trans`'s file is at 9.09. Mean Code Health across the repository is 9.64.
 
-## The yellow band, file by file - audited 2026-09-20
+## The yellow band, file by file - re-audited 2026-09-20 evening
 
-Forty-six files score below 9.0. Every one of them was opened and its findings read in
-the 2026-09-20 afternoon pass, so "make it all green" has an answer rather than a backlog:
-**twenty-eight of the forty-six are the two CPU script folders and the skeleton module
-they share**, and the rest are individually recorded refusals.
+The audit earlier the same day found forty-six files below 9.0 and called most of them
+refusals. **Nine of those rows were wrong**, and working through them took the band from
+forty-six files to twenty-six and the repository mean from 9.80 to 9.87. They are listed
+here with what actually unblocked them, because the pattern in the mistakes is more useful
+than the individual entries.
 
-| Group | Files | Why it stops |
-| --- | --- | --- |
-| `Game/com/patterns` | 14 | Priced against CodeScene's published thresholds rather than against experiments - see *Where `Game/com/patterns` stops* in the playbook. A skeleton's cyclomatic complexity is its arm count plus one, so the folder's own mean cannot go under the file-mean threshold whatever arrangement the files take |
-| `Game/com/active`, `Game/com/passive` | 14 | Fully folded. `passive_fold.py families --family com --min-members 2` over both folders reports **no family left**, and the duplication CodeScene still sees is between scripts whose engine calls differ in their arguments - the case the fold already took where it could |
-| `plpnm.c`, `pls00_normal_states.c`, `opening_bg0.c`, `opening_bg1.c`, `bg_zoom.c`, `eff09.c`, `ck_pass.c`, `pls03.c` | 8 | Sibling state machines that differ in more than one value, or only in their state numbering. Recipe D's forbidden near-miss, re-diffed rather than inherited |
-| `mtrans.c`, `mtrans_buffers.c`, `flps2vram.c` | 3 | The 16/32 twin web, which differs in a pointer type - a type change |
-| `Lz77Dec.c` | 1 | Every block advances `src`, `dst` and `size` at once. Recipe E refuses a block that writes more than one outer local, and there is no Excess Number of Function Arguments finding here to license Recipe A's parameter object |
-| `memmgr.c` | 1 | The two gap scans and the two neighbour walks are twins; cutting one pays, cutting both costs more than it gives (8.88 against 8.15) |
-| `caldir.c` | 1 | The x/y twins differ in five field names each. Recipe A would clear the argument finding at the cost of 58 call sites across twenty files, which is a scope decision rather than a file one |
-| `keymap.c` | 1 | `get_button_name` is a name table written as a switch. Every legal split of it reproduces its own shape as a duplicate - measured at 8.92 -> 8.54 |
-| `end_05.c`, `end_14.c` | 2 | Near-misses. `end_500_0006` against `end_501_0010` comes closest and still fails the byte-identical test: one writes `Request_Fade(1) != 0` and the other `Request_Fade(3)` |
+| File | Then | Now | What the earlier row missed |
+| --- | --- | --- | --- |
+| `mtrans.c` | 8.03 | **10.00** | "No further legal cut exists", on a call-graph pass showing every seam running through a `static`. The seam was real; the Recipe S exception of 2026-09-18 covers it, because every static on that seam is one this campaign created. Split to `mtrans_tiles.c`, which then folded to 10.00 as well |
+| `Lz77Dec.c` | 8.81 | **10.00** | "Every block advances `src`, `dst` and `size` at once." Two of the three do cross as pointers to the caller's pointers; the third does not cross at all, because every arm ended in the same `size -= loop` and the helper can return `loop` instead |
+| `memmgr.c` | 8.88 | **10.00** | The twins are real and cutting both does cost more than it gives - 9.84 against 9.31, measured again. What the row missed is that cutting *one* pays, twice over, and that the block-list scan itself folds on a comparison predicate |
+| `pls03.c` | 8.92 | **10.00** | Recipe X, four ways on the wst dispatch and twice on the table selector. Nothing blocked it; it had not been tried |
+| `keymap.c` | 8.92 | **10.00** | "Every legal split reproduces its own shape as a duplicate - measured at 8.92 -> 8.54." True of every *split*. The switch is a name table, and writing it as one is Recipe L, added to the playbook this session |
+| `caldir.c` | 8.81 | 9.68 | The x/y twins do differ in five field names each, and C has no pointer-to-member - but the fields can travel as pointers into the caller's own struct. The argument finding on the two six-parameter entry points stands, at 62 call sites across 30 files |
+| `flps2vram.c` | 8.54 | **10.00** | The 16/32 pointer-type twin is one group of three. The other three groups - handle allocation, unlock, direct-colour conversion - differ only in values and calls |
+| `end_05.c` | 8.81 | **10.00** | The `Request_Fade(1) != 0` against `Request_Fade(3)` difference is real and does disqualify Recipe V. It does not disqualify Recipe F: each scene keeps its own expression in its own one-line function |
+| `end_14.c` | 8.28 | 9.38 | Two pairs that differ in a statement rather than a value, which is Recipe F's case and not Recipe D's |
 
-**The one that moved.** `end_18.c`'s pair was the open question the `Game/ending` note
-left for the owner - one skeleton, byte-identical apart from an effect id and a message
-index, two instances. Recipe V's amendment settles it on the verification rather than the
-count, and the file went **9.38 -> 10.00**. The same test was then applied to every other
-two-instance pair in the band and refused all of them, which is the evidence that the
-licence is narrow.
+Also cleared from the band this session: `bg_sub.c` 9.09 -> 10.00 (the mirrored scroll pair
+turned out to differ only in subscripts, which are literals - correcting a refusal recorded
+on the strength of a buggy ad-hoc extractor), `ck_pass_units_b.c` 9.38 -> 10.00,
+`opening_bg1.c` 8.28 -> 9.38, `mtrans_buffers.c` and `ck_pass.c` 8.28 -> 8.54,
+`eff09.c` 8.54 -> 8.81, `active17.c` and `pass08_4.c` 8.81 -> 9.09.
+
+**The lesson in the mistakes.** Every wrong row was wrong in one of two ways. Either it
+recorded a plateau from before a rule changed - `mtrans.c` and the Recipe S exception -
+or it generalised from one failed shape to the whole file: "the twins cannot fold" when
+three other groups in the same file could, "every split reproduces its shape" when the
+answer was not a split. A refusal is only as wide as the thing that was actually tried,
+and it expires when the catalogue grows.
+
+### What is left, and why it is structural
+
+Twenty-six files remain below 9.0. Twenty-five of them are the CPU script family, and they
+stop for one reason, which is now measured rather than argued.
+
+**Every one-step skeleton is the same ten lines.** `com_patterns_1step.c` holds 44
+functions; CodeScene puts **39 of them in a single mutual-duplication clique**. The shape
+is always
+
+```c
+void pattern_x(PLW* wk, const Command_Attack_Args* p) {
+    switch (CP_Index[wk->wu.id][0]) {
+    case 6:
+        J_Command_Attack(wk, p);
+        break;
+
+    default:
+        End_Pattern(wk);
+        break;
+    }
+}
+```
+
+and the members differ in exactly two places: the `case` label, and the engine call. The
+label is a literal and cannot be parameterised. The calls do not share a signature, so no
+one function pointer reaches them. Folding any subset produces a helper that is itself a
+member of the remaining clique - the "which cut makes the twin" rule, at the scale of a
+whole file.
+
+The same count holds across the family: `com_patterns_2step.c` 54 of 63,
+`com_patterns_4step.c` 38 of 41, `com_patterns_6step.c` 19 of 24, `active08.c` 19,
+`pass14.c` 18, `pass09_2.c` 15. These are not several files with duplication; they are one
+shape written several hundred times, which is what a pattern script *is*.
+
+The skeleton is exactly ten lines of code, and CodeScene's duplication check has a
+ten-line floor. Nine lines would drop the whole family out of the finding, and
+`AllowShortCaseLabelsOnASingleLine` would get there. That is gaming the measurement rather
+than improving the code, and it is not done.
+
+The individual folds that *are* legal in this family were taken: `com_patterns_3step.c`,
+`active07.c`, `active14_2.c`, `active17.c`, `pass08_4.c`, `pass14_4.c` and
+`pls00_normal_states.c` all lost their qualifying groups this session, mostly through
+Recipe A with named-member parameter objects. They moved the duplication counts and, where
+the clique still dominates, not the score - kept under rule 2's complexity clause.
+
+**Overall Code Complexity on the four-, five- and six-step files** has the same shape of
+answer. A skeleton's cyclomatic complexity is its arm count plus one, so the file mean is
+pinned at roughly the step count. Recipe X would divide it, and `bg_zoom.c` already priced
+that: one split pays, and the full set of six measures 8.54 -> 8.28, because the split
+halves are themselves twins.
+
+The twenty-sixth file is `opening_bg0.c` at 8.12, and it is a genuine measured refusal:
+lifting `op_bg0_0003`'s inner block clears one Complex Method and creates a duplicate pair
+with the existing `op_bg0_lay_blocks` chain, 8.12 -> 8.03. Reverted.
 
 ## The platform, SDK and shim sweep - 2026-09-20
 
