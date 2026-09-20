@@ -3300,6 +3300,42 @@ literals, so they qualify; but their skeleton already takes three lever argument
 shared version needs five or six parameters. Code Duplication comes off and Excess Number
 of Function Arguments goes on.
 
+### Overall Code Complexity is a file mean, so its unit of work is a group
+
+*Added 2026-09-20, measured on `appear.c`, `effa9.c`, `demo02.c` and
+`sc_sub_combo.c`.*
+
+Every other finding in this catalogue belongs to a function, and rule 2 - keep a flat
+step only if the targeted function left a category or lost complexity - reads naturally
+against it. **Overall Code Complexity does not.** It is the mean cyclomatic complexity
+across the file's functions, so no single extraction clears it unless the file was
+already on the edge, and a run of perfectly good steps will each measure flat.
+
+Read literally, rule 2 reverts all of them and the finding never goes.
+
+**Work out how many steps it needs before starting.** Extracting a block of *b* branches
+into a helper of cc *b+1* moves the file's total by **+1** and its function count by
+**+1**, whatever *b* is - including *b* = 0, a block with no branches at all. So from a
+file of *n* functions totalling *T*:
+
+    (T + k) / (n + k) < 4      →      k > (T - 4n) / 3
+
+`appear.c` was 53 functions totalling 222, so *k* = 4 and four branch-free extractions
+did it: 9.38 -> 9.38 -> 9.38 -> 9.38 -> **10.00**. `effa9.c` needed two, `demo02.c` two,
+`sc_sub_combo.c` two.
+
+**Commit them one function at a time anyway**, and say in each message which step of how
+many it is and that the mean crosses on the last. The one-function rule is about being
+able to revert a single behaviour, and that reason is untouched by the arithmetic. What
+changes is only how rule 2 is read: **the flat steps are kept because the group clears a
+finding, and the group is measured before the first of them is committed.** If the group
+does not clear it, revert all of them.
+
+**Pick blocks that stay under ten lines** where the file has several similar
+first-frame or setup blocks. Below `function_duplication_min_lines_of_code_for_check`
+they are never compared against each other, so a family of four `begin_appear_*` helpers
+costs no Code Duplication finding. Above it, it would.
+
 ### A fold that shortens its call sites can win by not being looked at
 
 *Added 2026-09-20, measured on `flps2vram.c` and reverted.*
