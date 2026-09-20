@@ -274,28 +274,50 @@ void Pattern07_0018(PLW* wk) {
     }
 }
 
-void Pattern07_0019(PLW* wk) {
+/* The two Normal_Attack steps this script runs, named rather than indexed so no
+ * subscript integers enter a file whose scripts never wrote them. */
+typedef struct {
+    Normal_Attack_Step first;
+    Normal_Attack_Step second;
+} Pattern07_Normal_Attacks;
+
+/* Pattern07_0019 and Pattern07_0021 are the same four steps: a jump attack
+ * term, two Normal_Attacks and a jumping command attack. Four of their
+ * twenty-one literals differ, spread across three of the four calls, so each
+ * call's values travel as its own parameter object. */
+static void run_pattern07_jump_attack_term_2normal_j_command(
+    PLW* wk, const Jump_Term_Args* a, const Pattern07_Normal_Attacks* n, const Command_Attack_Args* p
+) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack_Term(wk, &(Jump_Term_Args) { -0x7F9C, -0x7FC0, 8, 0x100, 0, -0x7F90, -1, 0x200 });
+        Jump_Attack_Term(wk, a);
         break;
 
     case 1:
-        Normal_Attack(wk, 9, 0x102);
+        Normal_Attack(wk, n->first.Reaction, n->first.Lever_Data);
         break;
 
     case 2:
-        Normal_Attack(wk, 9, 0x100);
+        Normal_Attack(wk, n->second.Reaction, n->second.Lever_Data);
         break;
 
     case 3:
-        J_Command_Attack(wk, &(Command_Attack_Args) { 8, 0x20, 9, -1 });
+        J_Command_Attack(wk, p);
         break;
 
     default:
         End_Pattern(wk);
         break;
     }
+}
+
+void Pattern07_0019(PLW* wk) {
+    run_pattern07_jump_attack_term_2normal_j_command(
+        wk,
+        &(Jump_Term_Args) { -0x7F9C, -0x7FC0, 8, 0x100, 0, -0x7F90, -1, 0x200 },
+        &(Pattern07_Normal_Attacks) { { 9, 0x102 }, { 9, 0x100 } },
+        &(Command_Attack_Args) { 8, 0x20, 9, -1 }
+    );
 }
 
 void Pattern07_0020(PLW* wk) {
@@ -305,27 +327,12 @@ void Pattern07_0020(PLW* wk) {
 }
 
 void Pattern07_0021(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump_Attack_Term(wk, &(Jump_Term_Args) { -0x7F9C, -0x7FC0, 8, 0x20, 0, -0x7F90, -1, 0x200 });
-        break;
-
-    case 1:
-        Normal_Attack(wk, 8, 0x102);
-        break;
-
-    case 2:
-        Normal_Attack(wk, 9, 0x400);
-        break;
-
-    case 3:
-        J_Command_Attack(wk, &(Command_Attack_Args) { 8, 0x1C, 9, -1 });
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    run_pattern07_jump_attack_term_2normal_j_command(
+        wk,
+        &(Jump_Term_Args) { -0x7F9C, -0x7FC0, 8, 0x20, 0, -0x7F90, -1, 0x200 },
+        &(Pattern07_Normal_Attacks) { { 8, 0x102 }, { 9, 0x400 } },
+        &(Command_Attack_Args) { 8, 0x1C, 9, -1 }
+    );
 }
 
 void Pattern07_0022(PLW* wk) {
