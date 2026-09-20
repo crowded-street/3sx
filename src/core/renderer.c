@@ -100,27 +100,35 @@ void Renderer_SetTexture(unsigned int th) {
 #endif
 }
 
-void Renderer_DrawTexturedQuad(const Sprite* sprite, unsigned int color) {
+/* The two sprite draws, the same dispatch as the handle ones. */
 #if CRS_VIDEO_DRIVER_SDL_GENERIC
+static void renderer_sprite_op(const Sprite* sprite, Uint32 color, void (*op)(const Sprite*, Uint32)) {
     if (skip_rendering()) {
         return;
     }
 
-    SDLGenericRenderer_DrawTexturedQuad(sprite, color);
+    op(sprite, color);
+}
 #elif CRS_VIDEO_DRIVER_PSP
-    PSPRenderer_DrawTexturedQuad(sprite, color);
+static void renderer_sprite_op(const Sprite* sprite, unsigned int color,
+                               void (*op)(const Sprite*, unsigned int)) {
+    op(sprite, color);
+}
+#endif
+
+void Renderer_DrawTexturedQuad(const Sprite* sprite, unsigned int color) {
+#if CRS_VIDEO_DRIVER_SDL_GENERIC
+    renderer_sprite_op(sprite, color, SDLGenericRenderer_DrawTexturedQuad);
+#elif CRS_VIDEO_DRIVER_PSP
+    renderer_sprite_op(sprite, color, PSPRenderer_DrawTexturedQuad);
 #endif
 }
 
 void Renderer_DrawSprite(const Sprite* sprite, unsigned int color) {
 #if CRS_VIDEO_DRIVER_SDL_GENERIC
-    if (skip_rendering()) {
-        return;
-    }
-
-    SDLGenericRenderer_DrawSprite(sprite, color);
+    renderer_sprite_op(sprite, color, SDLGenericRenderer_DrawSprite);
 #elif CRS_VIDEO_DRIVER_PSP
-    PSPRenderer_DrawSprite(sprite, color);
+    renderer_sprite_op(sprite, color, PSPRenderer_DrawSprite);
 #endif
 }
 
