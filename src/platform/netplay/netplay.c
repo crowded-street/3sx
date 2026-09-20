@@ -695,6 +695,25 @@ static void process_session() {
     }
 }
 
+/* One advance event: the frame runs, and drawing is suppressed while the
+ * session is rolling back. Returns 1 for a rolled-back frame, which is what
+ * the arm added to the caller's counter - nothing between the two reads that
+ * counter, so returning it rather than adding it in place is the same
+ * program. */
+static int advance_game_event(const GekkoGameEvent* event, bool drawing_allowed) {
+    const bool rolling_back = event->data.adv.rolling_back;
+    advance_game(event, drawing_allowed && !rolling_back);
+
+    if (Stress_IsRunning() && !rolling_back) {
+#if DEBUG
+        record_stress_state(event->data.adv.frame);
+#endif
+        Stress_OnFrameAdvanced();
+    }
+
+    return rolling_back ? 1 : 0;
+}
+
 static void process_events(bool drawing_allowed) {
     int game_event_count = 0;
     GekkoGameEvent** game_events = gekko_update_session(session, &game_event_count);
@@ -709,16 +728,7 @@ static void process_events(bool drawing_allowed) {
             break;
 
         case GekkoAdvanceEvent:
-            const bool rolling_back = event->data.adv.rolling_back;
-            advance_game(event, drawing_allowed && !rolling_back);
-            frames_rolled_back += rolling_back ? 1 : 0;
-
-            if (Stress_IsRunning() && !rolling_back) {
-#if DEBUG
-                record_stress_state(event->data.adv.frame);
-#endif
-                Stress_OnFrameAdvanced();
-            }
+            frames_rolled_back += advance_game_event(event, drawing_allowed);
             break;
 
         case GekkoSaveEvent:
