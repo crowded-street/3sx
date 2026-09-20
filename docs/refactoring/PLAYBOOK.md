@@ -1027,6 +1027,101 @@ variant does not apply: the values that used to reach it would now reach the hel
 
 ---
 
+## Recipe L - Lookup Table
+
+**Use when:** CodeScene reports *Complex Method* on a function that is a `switch` whose
+every arm is a single `return <constant>;`. Recipe X can split such a switch in two, but it
+only halves a number that need not exist at all: a switch like this is a lookup table
+written as control flow, and the complexity is entirely the arms.
+
+**The conditions, all four:**
+
+1. Every arm is exactly one `return` of a compile-time constant - a literal, a string
+   literal, or an enumerator. No side effects, no calls, no fallthrough between arms.
+2. The controlling expression is a plain enum or integer value, not an expression with its
+   own effects.
+3. The switch has a `default:`, and it too returns a constant.
+4. The enum has a count macro or a last enumerator that bounds it. Without one there is no
+   bound to check and the recipe does not apply.
+
+**How:**
+
+1. Write a `static const` array of the arm type, sized by the count macro, using
+   **designated initialisers keyed by the case labels**. One entry per arm, in the order the
+   arms were written.
+2. Replace the function body with a range guard returning the old `default:` constant, a
+   second guard for a hole in the table returning the same, and the table lookup.
+
+**Before:**
+
+```c
+static const char *name_of(Button b) {
+    switch (b) {
+    case BUTTON_UP:    return "up";
+    case BUTTON_DOWN:  return "down";
+    /* ... fourteen more ... */
+    default:           return "";
+    }
+}
+```
+
+**After:**
+
+```c
+/* The names, one per enumerator, keyed by the enumerator itself. */
+static const char *const button_names[BUTTON_COUNT] = {
+    [BUTTON_UP] = "up",
+    [BUTTON_DOWN] = "down",
+    /* ... fourteen more ... */
+};
+
+/* The empty string stands for every button the table does not name, which is what
+ * the switch's default arm did: out of range, and the hole an enumerator added
+ * without a name would leave. */
+static const char *name_of(Button b) {
+    if (b < 0 || b >= BUTTON_COUNT) {
+        return "";
+    }
+
+    if (button_names[b] == NULL) {
+        return "";
+    }
+
+    return button_names[b];
+}
+```
+
+**Why the designators matter.** Keying each entry by its case label is what makes the
+transformation checkable: the table is the same set of label-to-constant pairs the switch
+held, readable side by side against the original, and nothing depends on the enum being
+dense, zero-based, or listed in order. A positional array would depend on all three, and
+would go wrong silently the first time an enumerator was inserted.
+
+**Why the second guard.** A `switch` sends *every* unlisted value to `default:`, including
+enumerators someone adds later. The table sends them to a zero entry instead. The
+`== NULL` test - or `== 0` for an integer table whose real values are all non-zero - is
+what keeps that case returning what `default:` returned. Where a table's legitimate values
+include the zero it would use as its hole, the recipe does not apply; use Recipe X.
+
+**Keep the two guards separate.** Folding them into one `||` chain of three tests trades
+*Complex Method* for *Complex Conditional*, measured on `keymap.c`: the one-condition form
+scored 9.68 and the two-guard form 10.00.
+
+**What it is worth.** `keymap.c`'s `get_button_name` went cc 18 -> 4 and the file 8.92 ->
+10.00, clearing *Complex Method* and *Overall Code Complexity* together - the second
+because a file's mean complexity falls a long way when its largest function stops being a
+switch.
+
+**The forbidden list bars touching a `const` data table.** Recipe L *creates* one, out of
+the arms of a switch that is already in front of you. It gives no licence to read from,
+reorder, index into, or edit a table that was already there.
+
+`refactor_guard.py` sees no constant change: the arms' constants all survive as table
+values. The bound and the `0` of the range guard are additions, which the guard reports and
+allows.
+
+---
+
 ## Recipe A - Parameter Object
 
 **Use when:** CodeScene reports *Excess Number of Function Arguments* (more than four for
