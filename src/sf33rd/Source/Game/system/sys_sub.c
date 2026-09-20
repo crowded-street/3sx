@@ -82,6 +82,19 @@ s32 Switch_Screen_Revival(u8 Wipe_Type) {
     return 0;
 }
 
+/* One button's contribution to the converted pad word: where the switch is
+ * held, the shot slot it is bound to names a Convert_Data row. Eight buttons
+ * differ in two values, the switch mask and the slot, both written out at the
+ * call site. The slot read is a plain load from a global and cannot trap, so
+ * evaluating it whether or not the bit is set is the same program. */
+static u16 add_shot_mapping(u16 answer, u16 sw, u16 mask, u8 shot) {
+    if (sw & mask) {
+        answer |= Convert_Data[shot];
+    }
+
+    return answer;
+}
+
 u16 Convert_User_Setting(s16 PL_id) {
     u16 sw;
     u16 answer;
@@ -94,37 +107,14 @@ u16 Convert_User_Setting(s16 PL_id) {
 
     answer = sw & (SWK_DIRECTIONS | SWK_START);
 
-    if (sw & SWK_WEST) {
-        answer |= Convert_Data[save_w[Present_Mode].Pad_Infor[PL_id].Shot[0]];
-    }
-
-    if (sw & SWK_NORTH) {
-        answer |= Convert_Data[save_w[Present_Mode].Pad_Infor[PL_id].Shot[1]];
-    }
-
-    if (sw & SWK_RIGHT_SHOULDER) {
-        answer |= Convert_Data[save_w[Present_Mode].Pad_Infor[PL_id].Shot[2]];
-    }
-
-    if (sw & SWK_LEFT_SHOULDER) {
-        answer |= Convert_Data[save_w[Present_Mode].Pad_Infor[PL_id].Shot[3]];
-    }
-
-    if (sw & SWK_SOUTH) {
-        answer |= Convert_Data[save_w[Present_Mode].Pad_Infor[PL_id].Shot[4]];
-    }
-
-    if (sw & SWK_EAST) {
-        answer |= Convert_Data[save_w[Present_Mode].Pad_Infor[PL_id].Shot[5]];
-    }
-
-    if (sw & SWK_RIGHT_TRIGGER) {
-        answer |= Convert_Data[save_w[Present_Mode].Pad_Infor[PL_id].Shot[6]];
-    }
-
-    if (sw & SWK_LEFT_TRIGGER) {
-        answer |= Convert_Data[save_w[Present_Mode].Pad_Infor[PL_id].Shot[7]];
-    }
+    answer = add_shot_mapping(answer, sw, SWK_WEST, save_w[Present_Mode].Pad_Infor[PL_id].Shot[0]);
+    answer = add_shot_mapping(answer, sw, SWK_NORTH, save_w[Present_Mode].Pad_Infor[PL_id].Shot[1]);
+    answer = add_shot_mapping(answer, sw, SWK_RIGHT_SHOULDER, save_w[Present_Mode].Pad_Infor[PL_id].Shot[2]);
+    answer = add_shot_mapping(answer, sw, SWK_LEFT_SHOULDER, save_w[Present_Mode].Pad_Infor[PL_id].Shot[3]);
+    answer = add_shot_mapping(answer, sw, SWK_SOUTH, save_w[Present_Mode].Pad_Infor[PL_id].Shot[4]);
+    answer = add_shot_mapping(answer, sw, SWK_EAST, save_w[Present_Mode].Pad_Infor[PL_id].Shot[5]);
+    answer = add_shot_mapping(answer, sw, SWK_RIGHT_TRIGGER, save_w[Present_Mode].Pad_Infor[PL_id].Shot[6]);
+    answer = add_shot_mapping(answer, sw, SWK_LEFT_TRIGGER, save_w[Present_Mode].Pad_Infor[PL_id].Shot[7]);
 
     return answer;
 }
