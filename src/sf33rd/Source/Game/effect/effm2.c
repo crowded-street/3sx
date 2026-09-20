@@ -110,6 +110,29 @@ void effm2_move(WORK_Other* ewk) {
     }
 }
 
+/* Where the cat starts and how fast it sets off: the far edge of the screen on
+ * the owner's side, running if the owner is past the middle and walking
+ * otherwise. */
+static void place_cat_beside_owner(WORK_Other* ewk, WORK* oya_ptr) {
+    if (oya_ptr->rl_flag) {
+        ewk->wu.xyz[0].disp.pos = bg_w.bgw[1].wxy[0].disp.pos - bg_w.pos_offset - 48;
+
+        if (oya_ptr->xyz[0].disp.pos > bg_w.bgw[1].wxy[0].disp.pos) {
+            cat_run_set2(ewk);
+        } else {
+            cat_walk_set(ewk);
+        }
+    } else {
+        ewk->wu.xyz[0].disp.pos = bg_w.bgw[1].wxy[0].disp.pos + bg_w.pos_offset + 48;
+
+        if (oya_ptr->xyz[0].disp.pos < bg_w.bgw[1].wxy[0].disp.pos) {
+            cat_run_set2(ewk);
+        } else {
+            cat_walk_set(ewk);
+        }
+    }
+}
+
 void effm2_move2(WORK_Other* ewk) {
     WORK* oya_ptr = (WORK*)ewk->my_master;
     s16 dis_w;
@@ -125,23 +148,7 @@ void effm2_move2(WORK_Other* ewk) {
         ewk->wu.kage_prio = 71;
         ewk->wu.kage_char = 3;
 
-        if (oya_ptr->rl_flag) {
-            ewk->wu.xyz[0].disp.pos = bg_w.bgw[1].wxy[0].disp.pos - bg_w.pos_offset - 48;
-
-            if (oya_ptr->xyz[0].disp.pos > bg_w.bgw[1].wxy[0].disp.pos) {
-                cat_run_set2(ewk);
-            } else {
-                cat_walk_set(ewk);
-            }
-        } else {
-            ewk->wu.xyz[0].disp.pos = bg_w.bgw[1].wxy[0].disp.pos + bg_w.pos_offset + 48;
-
-            if (oya_ptr->xyz[0].disp.pos < bg_w.bgw[1].wxy[0].disp.pos) {
-                cat_run_set2(ewk);
-            } else {
-                cat_walk_set(ewk);
-            }
-        }
+        place_cat_beside_owner(ewk, oya_ptr);
 
         ewk->wu.xyz[1].disp.pos = 7;
         ewk->wu.my_priority = ewk->wu.position_z = 70;
