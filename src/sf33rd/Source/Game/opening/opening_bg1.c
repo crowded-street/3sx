@@ -4,7 +4,6 @@
  * The second and third opening background layers.
  */
 
-#include "sf33rd/Source/Game/opening/opening.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "sf33rd/Source/Common/MemMan.h"
@@ -19,6 +18,7 @@
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/io/gd3rd.h"
 #include "sf33rd/Source/Game/opening/op_sub.h"
+#include "sf33rd/Source/Game/opening/opening.h"
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/rendering/color3rd.h"
 #include "sf33rd/Source/Game/rendering/dc_ghost.h"
@@ -33,7 +33,6 @@
 #include "sf33rd/Source/Game/system/sys_sub2.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/ui/sc_sub.h"
-
 
 void op_bg1_move(s16 r_index) {
     opw_ptr = &op_w.bgw[1];
@@ -86,13 +85,13 @@ void op_bg1_0001(s16 r_index) {
 
         switch (r_index) {
         case 0x37:
-            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args){1, 1, 0, 0});
-            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args){2, 2, 0, 0});
+            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args) { 1, 1, 0, 0 });
+            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args) { 2, 2, 0, 0 });
             break;
 
         case 0x38:
-            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args){3, 1, 0, 0});
-            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args){4, 2, 0, 0});
+            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args) { 3, 1, 0, 0 });
+            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args) { 4, 2, 0, 0 });
             break;
         }
 
@@ -113,9 +112,9 @@ void op_bg1_0002(s16 r_index) {
         case 0x3C:
             bgw_ptr->wxy[0].cal = 0x01000000;
             bgw_ptr->xy[1].cal = 0;
-            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args){7, 0, 0, 0});
-            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args){8, 1, 0, 0});
-            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args){9, 2, 0, 0});
+            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args) { 7, 0, 0, 0 });
+            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args) { 8, 1, 0, 0 });
+            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args) { 9, 2, 0, 0 });
             op_bg_mvxy[bgw_ptr->fam_no].a[0].sp = 0xC0000;
             op_bg_mvxy[bgw_ptr->fam_no].d[0].sp = 0;
             bgw_ptr->r_limit = 0x1E0;
@@ -152,8 +151,8 @@ void op_bg1_0003(s16 r_index) {
         case 83:
             bgw_ptr->wxy[0].cal = 0x2200000;
             bgw_ptr->xy[1].cal = 0;
-            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x10, 1, 0, 0});
-            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args){0x11, 2, 0, 0});
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args) { 0x10, 1, 0, 0 });
+            oh_bg_blk_w(op_w.bgw, &(Op_Bg_Blk_Args) { 0x11, 2, 0, 0 });
             op_bg_mvxy[bgw_ptr->fam_no].a[0].sp = 0x80000;
             op_bg_mvxy[bgw_ptr->fam_no].d[0].sp = -0x8000;
             bgw_ptr->r_limit = 0x200;
@@ -162,9 +161,9 @@ void op_bg1_0003(s16 r_index) {
         case 62:
             bgw_ptr->wxy[0].cal = 0x1E00000; // low = 0, pos = 480
             bgw_ptr->xy[1].cal = 0;
-            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args){0xA, 0, 0, 0});
-            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args){0xB, 1, 0, 0});
-            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args){0xC, 2, 0, 0});
+            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args) { 0xA, 0, 0, 0 });
+            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args) { 0xB, 1, 0, 0 });
+            oh_bg_blk_w(&op_w.bgw[1], &(Op_Bg_Blk_Args) { 0xC, 2, 0, 0 });
             op_bg_mvxy[bgw_ptr->fam_no].a[0].sp = 0xFFF80000;
             op_bg_mvxy[bgw_ptr->fam_no].d[0].sp = 0;
             break;
