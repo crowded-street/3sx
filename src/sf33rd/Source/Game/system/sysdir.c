@@ -196,6 +196,18 @@ static void set_dip2_if_unset(const SystemDir* sysdir_data, s32 a, s32 b, u32 fl
     }
 }
 
+/* Both players run the same system direction, so the second player's copy is
+ * the first player's. */
+static void copy_system_direction_to_player_two() {
+    omop_spmv_ng_table[1] = omop_spmv_ng_table[0];
+    omop_spmv_ng_table2[1] = omop_spmv_ng_table2[0];
+    omop_b_block_ix[1] = omop_b_block_ix[0];
+    omop_r_block_ix[1] = omop_r_block_ix[0];
+    omop_guard_distance_ix[1] = omop_guard_distance_ix[0];
+    omop_use_ex_gauge_ix[1] = omop_use_ex_gauge_ix[0];
+    omop_otedama_ix[1] = omop_otedama_ix[0];
+}
+
 void get_system_direction_parameter(SystemDir* sysdir_data) {
     if (sysdir_data->contents[0][0] == 0) { // Ground parry disabled
         omop_spmv_ng_table[0] |= (DIP_UNKNOWN_8 | DIP_UNKNOWN_9);
@@ -309,11 +321,5 @@ void get_system_direction_parameter(SystemDir* sysdir_data) {
 
     set_dip2_if_unset(sysdir_data, 9, 3, DIP2_WHIFFED_NORMALS_BUILD_SA_GAUGE_DISABLED);
 
-    omop_spmv_ng_table[1] = omop_spmv_ng_table[0];
-    omop_spmv_ng_table2[1] = omop_spmv_ng_table2[0];
-    omop_b_block_ix[1] = omop_b_block_ix[0];
-    omop_r_block_ix[1] = omop_r_block_ix[0];
-    omop_guard_distance_ix[1] = omop_guard_distance_ix[0];
-    omop_use_ex_gauge_ix[1] = omop_use_ex_gauge_ix[0];
-    omop_otedama_ix[1] = omop_otedama_ix[0];
+    copy_system_direction_to_player_two();
 }
