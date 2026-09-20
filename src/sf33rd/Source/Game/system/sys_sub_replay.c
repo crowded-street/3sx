@@ -241,27 +241,25 @@ void Setup_Replay_Buff(s16 PL_id, u16 sw_buff) {
     Condense_Buff[PL_id] = sw_buff;
 }
 
-void Replay(s16 PL_id) {
+/* The end of a replay: the status both sides carry, the menu the replay mode
+ * returns to, and the demo timer's stop. */
+static void end_replay_playback() {
+    Replay_Status[0] = 2;
+    Replay_Status[1] = 2;
+
+    if (Mode_Type == MODE_REPLAY) {
+        cpExitTask(TASK_PAUSE);
+        cpReadyTask(TASK_MENU, Menu_Task);
+        task[TASK_MENU].r_no[0] = 13;
+    }
+
+    Demo_Time_Stop = 1;
+}
+
+/* The next condensed input word, and the frame count it is held for. */
+static void pull_replay_input(s16 PL_id) {
     u16 sw;
     u16 buff;
-
-    if (&Replay_w.io_unit.key_buff[PL_id][7198] < Demo_Ptr[PL_id]) {
-        Replay_Status[0] = 2;
-        Replay_Status[1] = 2;
-
-        if (Mode_Type == MODE_REPLAY) {
-            cpExitTask(TASK_PAUSE);
-            cpReadyTask(TASK_MENU, Menu_Task);
-            task[TASK_MENU].r_no[0] = 13;
-        }
-
-        Demo_Time_Stop = 1;
-        return;
-    }
-
-    if (Game_pause == 0x81) {
-        return;
-    }
 
     if (Demo_Timer[PL_id] == 0) {
         sw = *Demo_Ptr[PL_id];
@@ -273,7 +271,11 @@ void Replay(s16 PL_id) {
         buff >>= 12;
         Demo_Timer[PL_id] = buff + 1;
     }
+}
 
+/* Handing that input to the side it belongs to, or nothing where the side is
+ * not under replay control. */
+static void apply_replay_input(s16 PL_id) {
     if (plw[PL_id].wu.operator == 0) {
         if (PL_id) {
             p2sw_0 = 0;
@@ -285,6 +287,22 @@ void Replay(s16 PL_id) {
     } else {
         p1sw_0 = Condense_Buff[PL_id];
     }
+}
+
+void Replay(s16 PL_id) {
+
+    if (&Replay_w.io_unit.key_buff[PL_id][7198] < Demo_Ptr[PL_id]) {
+        end_replay_playback();
+        return;
+    }
+
+    if (Game_pause == 0x81) {
+        return;
+    }
+
+    pull_replay_input(PL_id);
+
+    apply_replay_input(PL_id);
 
     Demo_Timer[PL_id]--;
 }
