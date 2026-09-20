@@ -505,14 +505,16 @@ void Pattern17_0074(PLW* wk) {
     }
 }
 
-void Pattern17_0075(PLW* wk) {
+/* Pattern17_0075 and Pattern17_0082 are the same six-step script; only the
+ * lever the hi-jump term watches and the fifth step lever data differ. */
+static void run_pattern17_hi_jump_pierce(PLW* wk, u16 jump_lever, u16 lever_data_b) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
         Pierce_On(wk);
         break;
 
     case 1:
-        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args) { -1, 0x40, 8, 0x40, 0, -0x7FA0, -1, 0x200 });
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args) { -1, 0x40, 8, jump_lever, 0, -0x7FA0, -1, 0x200 });
         break;
 
     case 2:
@@ -524,7 +526,7 @@ void Pattern17_0075(PLW* wk) {
         break;
 
     case 4:
-        Normal_Attack(wk, 8, 0x12);
+        Normal_Attack(wk, 8, lever_data_b);
         break;
 
     case 5:
@@ -535,6 +537,10 @@ void Pattern17_0075(PLW* wk) {
         End_Pattern(wk);
         break;
     }
+}
+
+void Pattern17_0075(PLW* wk) {
+    run_pattern17_hi_jump_pierce(wk, 0x40, 0x12);
 }
 
 void Pattern17_0076(PLW* wk) {
@@ -567,32 +573,8 @@ void Pattern17_0081(PLW* wk) {
     active_pattern_lever_on_normal_attack_command_attack(wk, 0x102, 0x202, &(Command_Attack_Args) { 8, 0x1D, 9, -1 });
 }
 
-void Pattern17_0082(PLW* wk)
-
-{
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Pierce_On(wk);
-        break;
-    case 1:
-        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args) { -1, 0x40, 8, 0x400, 0, -0x7FA0, -1, 0x200 });
-        break;
-    case 2:
-        Lever_On(wk, 1, 0xffff);
-        break;
-    case 3:
-        Normal_Attack(wk, 8, 0x12);
-        break;
-    case 4:
-        Normal_Attack(wk, 8, 0x22);
-        break;
-    case 5:
-        Command_Attack(wk, &(Command_Attack_Args) { 8, 0x1c, 8, -1 });
-        break;
-    default:
-        End_Pattern(wk);
-        break;
-    }
+void Pattern17_0082(PLW* wk) {
+    run_pattern17_hi_jump_pierce(wk, 0x400, 0x22);
 }
 
 void (*const Pattern17_Tbl[83])(PLW*) = {
