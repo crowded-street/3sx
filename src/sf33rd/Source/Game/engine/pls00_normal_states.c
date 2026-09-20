@@ -6,7 +6,6 @@
  * pls00.c, which still owns the dispatch tables.
  */
 
-#include "sf33rd/Source/Game/engine/pls00.h"
 #include "arcade/arcade_balance.h"
 #include "common.h"
 #include "constants.h"
@@ -15,10 +14,11 @@
 #include "sf33rd/Source/Game/engine/charset.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/plpdm.h"
+#include "sf33rd/Source/Game/engine/pls00.h"
+#include "sf33rd/Source/Game/engine/pls00_internal.h"
 #include "sf33rd/Source/Game/engine/pls01.h"
 #include "sf33rd/Source/Game/engine/pls03.h"
 #include "sf33rd/Source/Game/system/sysdir.h"
-#include "sf33rd/Source/Game/engine/pls00_internal.h"
 
 /* The end-of-animation marker sends the state back to standing. Three states
  * wrote this out; the 0/1 protocol is Recipe C's for a run that ends in a
@@ -312,24 +312,30 @@ void nm_13000(PLW* wk) { // 🔵
 
 /* Which of the three landing states this jump goes to, taken from the
  * direction the lever settled on. */
-static void enter_jump_from_16000(PLW* wk) {
+/* Both jump entries pick a routine from the direction check the same way; only
+ * the three routine numbers the arms name differ. */
+static void enter_jump_routine(PLW* wk, s16 forward, s16 backward, s16 neutral) {
     check_jump_rl_dir(wk);
 
     switch (wk->jpdir) {
     case JUMP_DIR_FORWARD:
-        wk->wu.routine_no[2] = 21;
+        wk->wu.routine_no[2] = forward;
         break;
 
     case JUMP_DIR_BACKWARD:
-        wk->wu.routine_no[2] = 23;
+        wk->wu.routine_no[2] = backward;
         break;
 
     default:
-        wk->wu.routine_no[2] = 22;
+        wk->wu.routine_no[2] = neutral;
         break;
     }
 
     wk->wu.routine_no[3] = 0;
+}
+
+static void enter_jump_from_16000(PLW* wk) {
+    enter_jump_routine(wk, 21, 23, 22);
 }
 
 void nm_16000(PLW* wk) { // 🟢
@@ -365,23 +371,7 @@ void nm_16000(PLW* wk) { // 🟢
 
 /* The same choice from 17000, which lands in its own three states. */
 static void enter_jump_from_17000(PLW* wk) {
-    check_jump_rl_dir(wk);
-
-    switch (wk->jpdir) {
-    case JUMP_DIR_FORWARD:
-        wk->wu.routine_no[2] = 24;
-        break;
-
-    case JUMP_DIR_BACKWARD:
-        wk->wu.routine_no[2] = 26;
-        break;
-
-    default:
-        wk->wu.routine_no[2] = 25;
-        break;
-    }
-
-    wk->wu.routine_no[3] = 0;
+    enter_jump_routine(wk, 24, 26, 25);
 }
 
 void nm_17000(PLW* wk) { // 🟢 The only difference is DIP switch handling
@@ -519,7 +509,6 @@ static void enter_jump_defense_state(PLW* wk) {
     reset_guard_for_new_state(wk);
     handle_jump_defense_state(wk);
 }
-
 
 static bool run_forward_jump_checks(PLW* wk) {
     if (run_early_attack_checks(wk)) {
@@ -997,4 +986,3 @@ void nm_57000(PLW* wk) { // 🟢
         jumping_cg_type_check(wk);
     }
 }
-
