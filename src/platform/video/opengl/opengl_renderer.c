@@ -451,6 +451,48 @@ static void OpenGLRenderer_DrawSolidQuad(const Quad* quad, unsigned int color) {
     SDL_zero(_quad->texture_spec);
 }
 
+/* The vertex array, the dynamic vertex buffer and the fixed index buffer that
+ * turns each quad into two triangles. */
+static void configure_vertex_buffers() {
+    glGenVertexArrays(1, &vertex_array);
+    glGenBuffers(1, &vertex_buffer);
+    GLuint element_buffer;
+    glGenBuffers(1, &element_buffer);
+
+    glBindVertexArray(vertex_array);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+    glBufferData(GL_ARRAY_BUFFER, QUADS_MAX * 4 * sizeof(GLVertex), NULL, GL_DYNAMIC_DRAW);
+
+    // Pre-compute indices
+    GLuint indices[QUADS_MAX * 6];
+
+    for (int i = 0; i < QUADS_MAX; i++) {
+        indices[i * 6 + 0] = i * 4 + 0;
+        indices[i * 6 + 1] = i * 4 + 1;
+        indices[i * 6 + 2] = i * 4 + 2;
+        indices[i * 6 + 3] = i * 4 + 2;
+        indices[i * 6 + 4] = i * 4 + 1;
+        indices[i * 6 + 5] = i * 4 + 3;
+    }
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_buffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    // aPos
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLVertex), (GLvoid*)offsetof(GLVertex, position));
+    glEnableVertexAttribArray(0);
+    // aTexCoord
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GLVertex), (GLvoid*)offsetof(GLVertex, tex_coord));
+    glEnableVertexAttribArray(1);
+    // aColor
+    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(GLVertex), (GLvoid*)offsetof(GLVertex, color));
+    glEnableVertexAttribArray(2);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
 /* Tearing the context and window down when a shader will not build. The four
  * shader checks wrote the same five lines; the return stays at each call
  * site. */
@@ -573,43 +615,7 @@ static SDL_Window* OpenGLRenderer_Init(const SDLRenderBackendInitInfo* init_info
 
     // Setup vertex data and buffers
 
-    glGenVertexArrays(1, &vertex_array);
-    glGenBuffers(1, &vertex_buffer);
-    GLuint element_buffer;
-    glGenBuffers(1, &element_buffer);
-
-    glBindVertexArray(vertex_array);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-    glBufferData(GL_ARRAY_BUFFER, QUADS_MAX * 4 * sizeof(GLVertex), NULL, GL_DYNAMIC_DRAW);
-
-    // Pre-compute indices
-    GLuint indices[QUADS_MAX * 6];
-
-    for (int i = 0; i < QUADS_MAX; i++) {
-        indices[i * 6 + 0] = i * 4 + 0;
-        indices[i * 6 + 1] = i * 4 + 1;
-        indices[i * 6 + 2] = i * 4 + 2;
-        indices[i * 6 + 3] = i * 4 + 2;
-        indices[i * 6 + 4] = i * 4 + 1;
-        indices[i * 6 + 5] = i * 4 + 3;
-    }
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_buffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    // aPos
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLVertex), (GLvoid*)offsetof(GLVertex, position));
-    glEnableVertexAttribArray(0);
-    // aTexCoord
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GLVertex), (GLvoid*)offsetof(GLVertex, tex_coord));
-    glEnableVertexAttribArray(1);
-    // aColor
-    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(GLVertex), (GLvoid*)offsetof(GLVertex, color));
-    glEnableVertexAttribArray(2);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+    configure_vertex_buffers();
 
     // Misc
 
