@@ -216,20 +216,28 @@ s32 flPS2CreateTextureHandle(u32 th, u32 flag) {
     return 1;
 }
 
-u32 flPS2GetTextureHandle() {
+/* The first free slot in a handle table. The texture and palette tables differ
+ * in where they live, how many slots they have, and what they say when they are
+ * full; how a slot index becomes a handle differs too, so that stays at the call
+ * site. */
+static s32 find_free_fl_slot(const FLTexture* table, s32 max, const char* full_message) {
     s32 i;
 
-    for (i = 0; i < FL_TEXTURE_MAX; i++) {
-        if (!flTexture[i].be_flag) {
+    for (i = 0; i < max; i++) {
+        if (!table[i].be_flag) {
             break;
         }
     }
 
-    if (i == FL_TEXTURE_MAX) {
-        fatal_error("ERROR flPS2GetTextureHandle flps2vram.c");
+    if (i == max) {
+        fatal_error(full_message);
     }
 
-    return i + 1;
+    return i;
+}
+
+u32 flPS2GetTextureHandle() {
+    return find_free_fl_slot(flTexture, FL_TEXTURE_MAX, "ERROR flPS2GetTextureHandle flps2vram.c") + 1;
 }
 
 u32 flCreatePaletteHandle(plContext* lpcontext, u32 flag) {
@@ -313,19 +321,7 @@ s32 flPS2CreatePaletteHandle(u32 ph, u32 flag) {
 }
 
 u32 flPS2GetPaletteHandle() {
-    s32 i;
-
-    for (i = 0; i < FL_PALETTE_MAX; i++) {
-        if (!flPalette[i].be_flag) {
-            break;
-        }
-    }
-
-    if (i == FL_PALETTE_MAX) {
-        fatal_error("ERROR flPS2GetPaletteHandle flps2vram.c");
-    }
-
-    return (i + 1) << 16;
+    return (find_free_fl_slot(flPalette, FL_PALETTE_MAX, "ERROR flPS2GetPaletteHandle flps2vram.c") + 1) << 16;
 }
 
 /* A handle that was never taken, is past the end of its table, or names an
