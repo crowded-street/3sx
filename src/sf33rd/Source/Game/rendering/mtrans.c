@@ -363,17 +363,55 @@ typedef struct {
     void (*store_tiles)(const TransRun* run);
 } TransVariant;
 
-static void mlt_obj_trans_common(MultiTexture* mt, WORK* wk, s32 base_y, const TransVariant* variant) {
+/* What a transfer pass resolves before it can queue anything: the texture table
+ * and tile map the work's current pattern points at, how many entries it has,
+ * the flip word and palette offset, and the group they came from. */
+typedef struct {
     u32* textbl;
-    u16* trsbas;
     TileMapEntry* trsptr;
-    s32 flip;
     s32 count;
+    s32 flip;
     s32 palo;
-    s32 n;
-    s32 i;
-    f32 x;
-    f32 y;
+    s32 group;
+} TransSetup;
+
+/* Open a transfer: resolve the work's pattern into a tile run and set the
+ * brightness and matrix. Returns 0 where the group table says there is nothing
+ * to draw, which is the early return both passes wrote. */
+static s32 begin_obj_trans(WORK* wk, s32 base_y, TransSetup* out) {
+    u16* trsbas;
+    s32 n = wk->cg_number;
+    s32 i = obj_group_table[n];
+
+    if (i == 0) {
+        return 0;
+    }
+
+    require_valid_trans_group(i);
+
+    n -= texgrpdat[i].num_of_1st;
+    trsbas = (u16*)(texgrplds[i].trans_table + ((u32*)texgrplds[i].trans_table)[n]);
+    out->textbl = (u32*)texgrplds[i].texture_table;
+    out->count = *trsbas;
+    trsbas++;
+    out->trsptr = (TileMapEntry*)trsbas;
+    out->flip = flptbl[wk->cg_flip ^ wk->rl_flag];
+    out->palo = wk->colcd;
+    out->group = i;
+
+    setup_bright_and_matrix(wk, base_y);
+
+    return 1;
+}
+
+/* Close a transfer. */
+static void end_obj_trans(MultiTexture* mt, WORK* wk) {
+    seqs_w.up[mt->id] = 1;
+    appRenewTempPriority(wk->position_z);
+}
+
+static void mlt_obj_trans_common(MultiTexture* mt, WORK* wk, s32 base_y, const TransVariant* variant) {
+    TransSetup ts;
     PatternCode cc;
 
     ppgSetupCurrentDataList(&mt->texList);
@@ -383,31 +421,14 @@ static void mlt_obj_trans_common(MultiTexture* mt, WORK* wk, s32 base_y, const T
         return;
     }
 
-    n = wk->cg_number;
-    i = obj_group_table[n];
-
-    if (i == 0) {
+    if (begin_obj_trans(wk, base_y, &ts) == 0) {
         return;
     }
 
-    require_valid_trans_group(i);
+    cc.parts.group = ts.group;
+    variant->store_tiles(&(TransRun) { mt, wk, ts.textbl, ts.trsptr, ts.count, ts.flip, ts.palo, 0.0f, 0.0f, cc });
 
-    n -= texgrpdat[i].num_of_1st;
-    trsbas = (u16*)(texgrplds[i].trans_table + ((u32*)texgrplds[i].trans_table)[n]);
-    textbl = (u32*)texgrplds[i].texture_table;
-    count = *trsbas;
-    trsbas++;
-    trsptr = (TileMapEntry*)trsbas;
-    x = y = 0.0f;
-    flip = flptbl[wk->cg_flip ^ wk->rl_flag];
-    palo = wk->colcd;
-
-    setup_bright_and_matrix(wk, base_y);
-    cc.parts.group = i;
-    variant->store_tiles(&(TransRun) { mt, wk, textbl, trsptr, count, flip, palo, x, y, cc });
-
-    seqs_w.up[mt->id] = 1;
-    appRenewTempPriority(wk->position_z);
+    end_obj_trans(mt, wk);
 }
 
 void mlt_obj_trans(MultiTexture* mt, WORK* wk, s32 base_y) {
@@ -542,14 +563,7 @@ f32 advance_trans_y(f32 y, s32 flip, TileMapEntry* trsptr) {
 }
 
 void mlt_obj_trans_rgb(MultiTexture* mt, WORK* wk, s32 base_y) {
-    u32* textbl;
-    u16* trsbas;
-    TileMapEntry* trsptr;
-    s32 flip;
-    s32 palo;
-    s32 count;
-    s32 n;
-    s32 i;
+    TransSetup ts;
 
     ppgSetupCurrentDataList(&mt->texList);
 
@@ -558,29 +572,13 @@ void mlt_obj_trans_rgb(MultiTexture* mt, WORK* wk, s32 base_y) {
         return;
     }
 
-    n = wk->cg_number;
-    i = obj_group_table[n];
-
-    if (i == 0) {
+    if (begin_obj_trans(wk, base_y, &ts) == 0) {
         return;
     }
 
-    require_valid_trans_group(i);
+    store_trans_rgb_tiles(&(RgbTileRun) { mt, wk, ts.textbl, ts.trsptr, ts.count, ts.flip, ts.palo, ts.group });
 
-    n -= texgrpdat[i].num_of_1st;
-    trsbas = (u16*)(texgrplds[i].trans_table + ((u32*)texgrplds[i].trans_table)[n]);
-    textbl = (u32*)texgrplds[i].texture_table;
-    count = *trsbas;
-    trsbas++;
-    trsptr = (TileMapEntry*)trsbas;
-    flip = flptbl[wk->cg_flip ^ wk->rl_flag];
-    palo = wk->colcd;
-
-    setup_bright_and_matrix(wk, base_y);
-    store_trans_rgb_tiles(&(RgbTileRun) { mt, wk, textbl, trsptr, count, flip, palo, i });
-
-    seqs_w.up[mt->id] = 1;
-    appRenewTempPriority(wk->position_z);
+    end_obj_trans(mt, wk);
 }
 
 void mlt_obj_matrix(WORK* wk, s32 base_y) {
