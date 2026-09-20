@@ -360,7 +360,7 @@ static void merge_adjacent_runs(CharDataImage* image, CharDataSection* sections,
         }
 
         run_start = run_end + 1;
-}
+    }
 }
 
 static void coalesce_adjacent_sections(CharDataImage* image, const LocationData* locations) {
