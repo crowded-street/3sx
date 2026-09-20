@@ -838,16 +838,21 @@ void Appear_12000(PLW* wk) {
     }
 }
 
+/* The first frame of the drop-in entry. */
+static void begin_appear_13000(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    wk->wu.disp_flag = 1;
+    bg_app_stop = 1;
+    set_char_move_init2(&wk->wu, 9, 0x3D, 4, 0);
+    wk->wu.mvxy.a[1].sp = 0x78000;
+    wk->wu.mvxy.d[1].sp = -0x3000;
+    wk->wu.kage_flag = 0;
+}
+
 void Appear_13000(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.disp_flag = 1;
-        bg_app_stop = 1;
-        set_char_move_init2(&wk->wu, 9, 0x3D, 4, 0);
-        wk->wu.mvxy.a[1].sp = 0x78000;
-        wk->wu.mvxy.d[1].sp = -0x3000;
-        wk->wu.kage_flag = 0;
+        begin_appear_13000(wk);
         break;
 
     case 1:
