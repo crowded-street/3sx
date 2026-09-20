@@ -136,6 +136,13 @@ target_compile_options(3sx PRIVATE
     -Wall
     -Werror
 
+    # The refactoring campaign builds parameter objects out of function
+    # arguments, and widening one later leaves every call site that wrote a
+    # positional initialiser short a member. C fills the rest with zeroes, so a
+    # widened struct can silently gain a null function pointer. -Wall does not
+    # cover this. The tree is clean under it.
+    -Wmissing-field-initializers
+
     -fno-strict-aliasing
 
     $<$<COMPILE_LANGUAGE:C>:${DISABLED_WARNINGS}>
