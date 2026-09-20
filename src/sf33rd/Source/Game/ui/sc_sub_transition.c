@@ -138,12 +138,24 @@ void FadeInit() {
     FadeLimit = 1;
 }
 
+/* The full-screen quad the fades, the tone-down and the panel all draw: the
+ * four corners from Fade_Pos_tbl and one colour on every vertex. The four
+ * differ in nothing but that colour. */
+static void fill_fade_quad(PAL_CURSOR_P* p, PAL_CURSOR_COL* col, u32 color) {
+    u8 i;
+
+    for (i = 0; i < 4; i++) {
+        p[i].x = Fade_Pos_tbl[i * 2];
+        p[i].y = Fade_Pos_tbl[i * 2 + 1];
+        col[i].color = color;
+    }
+}
+
 s32 FadeOut(u8 type, u8 step, u8 priority) {
     PAL_CURSOR fade_pc;
     PAL_CURSOR_P fade_p[4];
     PAL_CURSOR_COL fade_col[4];
     u32 Alpha;
-    u8 i;
     u8 flag;
 
     Alpha = 0xFF000000;
@@ -168,11 +180,7 @@ s32 FadeOut(u8 type, u8 step, u8 priority) {
         Alpha |= 0x00FFFFFF;
     }
 
-    for (i = 0; i < 4; i++) {
-        fade_p[i].x = Fade_Pos_tbl[i * 2];
-        fade_p[i].y = Fade_Pos_tbl[i * 2 + 1];
-        fade_col[i].color = Alpha;
-    }
+    fill_fade_quad(fade_p, fade_col, Alpha);
 
     njDrawPolygon2D(&fade_pc, 4, PrioBase[priority], 0x60);
 
@@ -189,7 +197,6 @@ s32 FadeIn(u8 type, u8 step, u8 priority) {
     PAL_CURSOR_P fade_p[4];
     PAL_CURSOR_COL fade_col[4];
     u32 Alpha;
-    u8 i;
     u8 flag;
 
     Alpha = 0;
@@ -210,11 +217,7 @@ s32 FadeIn(u8 type, u8 step, u8 priority) {
         Alpha |= 0x00FFFFFF;
     }
 
-    for (i = 0; i < 4; i++) {
-        fade_p[i].x = Fade_Pos_tbl[i * 2];
-        fade_p[i].y = Fade_Pos_tbl[i * 2 + 1];
-        fade_col[i].color = Alpha;
-    }
+    fill_fade_quad(fade_p, fade_col, Alpha);
 
     if (!No_Trans) {
         njDrawPolygon2D(&fade_pc, 4, PrioBase[priority], 0x60);
@@ -232,7 +235,6 @@ void ToneDown(u8 tone, u8 priority) {
     PAL_CURSOR tone_pc;
     PAL_CURSOR_P tone_p[4];
     PAL_CURSOR_COL tone_col[4];
-    u8 i;
 
     if (No_Trans) {
         return;
@@ -243,11 +245,7 @@ void ToneDown(u8 tone, u8 priority) {
     tone_pc.col = tone_col;
     tone_pc.num = 4;
 
-    for (i = 0; i < 4; i++) {
-        tone_p[i].x = Fade_Pos_tbl[i * 2];
-        tone_p[i].y = Fade_Pos_tbl[i * 2 + 1];
-        tone_col[i].color = tone << 24;
-    }
+    fill_fade_quad(tone_p, tone_col, tone << 24);
 
     njDrawPolygon2D(&tone_pc, 4, PrioBase[priority], 0x60);
 }
@@ -256,7 +254,6 @@ void overwrite_panel(u32 color, u8 priority) {
     PAL_CURSOR panel_pc;
     PAL_CURSOR_P panel_p[4];
     PAL_CURSOR_COL panel_col[4];
-    u8 i;
 
     if (No_Trans) {
         return;
@@ -268,11 +265,7 @@ void overwrite_panel(u32 color, u8 priority) {
     panel_pc.col = panel_col;
     panel_pc.num = 4;
 
-    for (i = 0; i < 4; i++) {
-        panel_p[i].x = Fade_Pos_tbl[i * 2];
-        panel_p[i].y = Fade_Pos_tbl[(i * 2) + 1];
-        panel_col[i].color = color;
-    }
+    fill_fade_quad(panel_p, panel_col, color);
 
     njDrawPolygon2D(&panel_pc, 4, PrioBase[priority], 0x60);
 }
