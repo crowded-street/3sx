@@ -10,9 +10,9 @@
  * its calls taken as parameters and written out in full at each call site.
  */
 
-#include "sf33rd/Source/Game/com/patterns/com_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
+#include "sf33rd/Source/Game/com/patterns/com_patterns.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 
 void active_pattern_adjust_attack(PLW* wk, u16 lever_data, u16 lever_data_b, u16 lever_data_b_b) {
@@ -66,7 +66,7 @@ void active_pattern_adjust_attack_normal_attack_branch_unit_area(PLW* wk) {
         break;
 
     case 2:
-        Branch_Unit_Area(wk, &(Branch_Menu_Args){2, 0x31, 0x32, 0x33, 1});
+        Branch_Unit_Area(wk, &(Branch_Menu_Args) { 2, 0x31, 0x32, 0x33, 1 });
         break;
 
     default:
@@ -88,7 +88,7 @@ void active_pattern_adjust_attack_normal_attack_command_attack(
         break;
 
     case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1F, 0xA, -1});
+        Command_Attack(wk, &(Command_Attack_Args) { 8, 0x1F, 0xA, -1 });
         break;
 
     default:
@@ -124,7 +124,7 @@ void active_pattern_approach_walk_jump_command_attack_term_com_random_select(PLW
         break;
 
     case 1:
-        Jump_Command_Attack_Term(wk, &(JCA_Term_Args){8, 0x2F, 0xA, -1, -0x7F60, 0x50, 0, -0x7F80, -1, 0x400});
+        Jump_Command_Attack_Term(wk, &(JCA_Term_Args) { 8, 0x2F, 0xA, -1, -0x7F60, 0x50, 0, -0x7F80, -1, 0x400 });
         break;
 
     case 2:
@@ -148,7 +148,7 @@ void active_pattern_approach_walk_look_com_random_select(PLW* wk, s16 target_pos
         break;
 
     case 2:
-        Com_Random_Select(wk, &(Branch_Menu_Args){2, 0x4C, 0x4D, 0x4E, 0x4F}, 0);
+        Com_Random_Select(wk, &(Branch_Menu_Args) { 2, 0x4C, 0x4D, 0x4E, 0x4F }, 0);
         break;
 
     default:
@@ -170,7 +170,7 @@ void active_pattern_approach_walk_normal_attack_j_command_attack(
         break;
 
     case 2:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 0xA, -1});
+        J_Command_Attack(wk, &(Command_Attack_Args) { 8, 0x1C, 0xA, -1 });
         break;
 
     default:
@@ -204,7 +204,7 @@ void active_pattern_approach_walk_sa_term_j_command_attack(
 void active_pattern_command_attack_lever_off_look(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0, 0xB, -1});
+        Command_Attack(wk, &(Command_Attack_Args) { 8, 0, 0xB, -1 });
         break;
 
     case 1:
@@ -270,7 +270,7 @@ void active_pattern_jump_attack_term_sa_term_command_attack(
 ) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA8, -0x7FC0, 0xB, 0x200, 0, -1, -1, -1});
+        Jump_Attack_Term(wk, &(Jump_Term_Args) { -0x7FA8, -0x7FC0, 0xB, 0x200, 0, -1, -1, -1 });
         break;
 
     case 1:
@@ -307,84 +307,52 @@ void active_pattern_jump_lever_off_look(PLW* wk) {
     }
 }
 
-void active_pattern_normal_attack_5(PLW* wk, u16 lever_data, u16 lever_data_b, u16 lever_data_b_b) {
+/* The four active_pattern_normal_attack_5..8 skeletons are the same switch;
+ * only the three reactions differ. The steps arrive as a table of the
+ * Normal_Attack_Step parameter object com_pattern_args.h already defines, which
+ * keeps the helper at two parameters. */
+static void run_normal_attack_3step(PLW* wk, const Normal_Attack_Step* steps) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Normal_Attack(wk, 9, lever_data);
+        Normal_Attack(wk, steps[0].Reaction, steps[0].Lever_Data);
         break;
 
     case 1:
-        Normal_Attack(wk, 9, lever_data_b);
+        Normal_Attack(wk, steps[1].Reaction, steps[1].Lever_Data);
         break;
 
     case 2:
-        Normal_Attack(wk, 8, lever_data_b_b);
+        Normal_Attack(wk, steps[2].Reaction, steps[2].Lever_Data);
         break;
 
     default:
         End_Pattern(wk);
         break;
     }
+}
+
+void active_pattern_normal_attack_5(PLW* wk, u16 lever_data, u16 lever_data_b, u16 lever_data_b_b) {
+    run_normal_attack_3step(
+        wk, (Normal_Attack_Step[]) { { 9, lever_data }, { 9, lever_data_b }, { 8, lever_data_b_b } }
+    );
 }
 
 void active_pattern_normal_attack_6(PLW* wk, u16 lever_data, u16 lever_data_b, u16 lever_data_b_b) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, 8, lever_data);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 8, lever_data_b);
-        break;
-
-    case 2:
-        Normal_Attack(wk, 8, lever_data_b_b);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    run_normal_attack_3step(
+        wk, (Normal_Attack_Step[]) { { 8, lever_data }, { 8, lever_data_b }, { 8, lever_data_b_b } }
+    );
 }
 
 void active_pattern_normal_attack_7(PLW* wk, u16 lever_data, u16 lever_data_b, u16 lever_data_b_b) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, 9, lever_data);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 9, lever_data_b);
-        break;
-
-    case 2:
-        Normal_Attack(wk, 9, lever_data_b_b);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    run_normal_attack_3step(
+        wk, (Normal_Attack_Step[]) { { 9, lever_data }, { 9, lever_data_b }, { 9, lever_data_b_b } }
+    );
 }
 
 void active_pattern_normal_attack_8(PLW* wk, u16 lever_data, u16 lever_data_b, u16 lever_data_b_b) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, 9, lever_data);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 8, lever_data_b);
-        break;
-
-    case 2:
-        Normal_Attack(wk, 8, lever_data_b_b);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    run_normal_attack_3step(
+        wk, (Normal_Attack_Step[]) { { 9, lever_data }, { 8, lever_data_b }, { 8, lever_data_b_b } }
+    );
 }
 
 void active_pattern_normal_attack_command_attack_2(
@@ -562,7 +530,7 @@ void active_pattern_search_back_term_pierce_on_command_attack(PLW* wk, s16 move_
         break;
 
     case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 1, 0xB, -1});
+        Command_Attack(wk, &(Command_Attack_Args) { 8, 1, 0xB, -1 });
         break;
 
     default:
@@ -584,7 +552,7 @@ void active_pattern_search_back_term_pierce_on_command_attack_4(
         break;
 
     case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 1, 0xA, -1});
+        Command_Attack(wk, &(Command_Attack_Args) { 8, 1, 0xA, -1 });
         break;
 
     default:
@@ -600,7 +568,7 @@ void active_pattern_turn_over_on_jump_attack_term_com_random_select(PLW* wk, con
         break;
 
     case 1:
-        Jump_Attack_Term(wk, &(Jump_Term_Args){-1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40});
+        Jump_Attack_Term(wk, &(Jump_Term_Args) { -1, 0x49, 9, 0x202, 0, -0x7F80, -1, 0x40 });
         break;
 
     case 2:
@@ -684,7 +652,7 @@ void pattern_approach_walk_em_term_com_random_select(PLW* wk, s16 target_pos, co
         break;
 
     case 1:
-        EM_Term(wk, &(EM_Term_Params){-1, -0x7FF8, 6, 1, -1});
+        EM_Term(wk, &(EM_Term_Params) { -1, -0x7FF8, 6, 1, -1 });
         break;
 
     case 2:
@@ -812,7 +780,7 @@ void pattern_approach_walk_etc_term_com_random_select(PLW* wk) {
         break;
 
     case 2:
-        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x9D, 0x9E, 0x9F, 0x9F}, 1);
+        Com_Random_Select(wk, &(Branch_Menu_Args) { 6, 0x9D, 0x9E, 0x9F, 0x9F }, 1);
         break;
 
     default:
@@ -926,7 +894,8 @@ void pattern_wait_get_up_normal_attack_3(
 }
 
 void pattern_normal_attack_7(
-    PLW* wk, const Normal_Attack_Step* normal_attack, const Normal_Attack_Step* normal_attack_b, const Normal_Attack_Step* normal_attack_b_b
+    PLW* wk, const Normal_Attack_Step* normal_attack, const Normal_Attack_Step* normal_attack_b,
+    const Normal_Attack_Step* normal_attack_b_b
 ) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -992,7 +961,8 @@ void pattern_approach_walk_normal_attack_j_command_attack_3(
 }
 
 void pattern_etc_term_normal_attack_com_random_select(
-    PLW* wk, const ETC_Term_Step* etc_term, const Normal_Attack_Step* normal_attack, const Com_Random_Select_Step* com_random_select
+    PLW* wk, const ETC_Term_Step* etc_term, const Normal_Attack_Step* normal_attack,
+    const Com_Random_Select_Step* com_random_select
 ) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -1014,7 +984,8 @@ void pattern_etc_term_normal_attack_com_random_select(
 }
 
 void pattern_normal_attack_command_attack_com_random_select(
-    PLW* wk, const Normal_Attack_Step* normal_attack, const Command_Attack_Args* p, const Com_Random_Select_Step* com_random_select
+    PLW* wk, const Normal_Attack_Step* normal_attack, const Command_Attack_Args* p,
+    const Com_Random_Select_Step* com_random_select
 ) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
@@ -1126,7 +1097,7 @@ void pattern_etc_term_check_sa_branch_unit_area(
 void pattern_shell_term_jump_attack_term_normal_attack(PLW* wk, const Jump_Term_Args* a, u16 lever_data) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        SHELL_Term(wk, &(Shell_Term_Params){0, 2, 1, -1, -1});
+        SHELL_Term(wk, &(Shell_Term_Params) { 0, 2, 1, -1, -1 });
         break;
 
     case 1:
@@ -1150,7 +1121,7 @@ void pattern_lever_off_shell_term_next_be_flip(PLW* wk) {
         break;
 
     case 1:
-        SHELL_Term(wk, &(Shell_Term_Params){2, 2, 1, -1, -1});
+        SHELL_Term(wk, &(Shell_Term_Params) { 2, 2, 1, -1, -1 });
         break;
 
     case 2:
@@ -1166,15 +1137,15 @@ void pattern_lever_off_shell_term_next_be_flip(PLW* wk) {
 void pattern_shell_term_jump_attack_term_j_command_attack(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        SHELL_Term(wk, &(Shell_Term_Params){0, 2, 1, -1, -1});
+        SHELL_Term(wk, &(Shell_Term_Params) { 0, 2, 1, -1, -1 });
         break;
 
     case 1:
-        Jump_Attack_Term(wk, &(Jump_Term_Args){-0x7FA8, -0x7FC0, 0xB, 0x200, 0, -0x7FB0, -1, 0x400});
+        Jump_Attack_Term(wk, &(Jump_Term_Args) { -0x7FA8, -0x7FC0, 0xB, 0x200, 0, -0x7FB0, -1, 0x400 });
         break;
 
     case 2:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 0xA, -1});
+        J_Command_Attack(wk, &(Command_Attack_Args) { 8, 0x1C, 0xA, -1 });
         break;
 
     default:
