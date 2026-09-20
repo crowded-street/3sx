@@ -143,6 +143,28 @@ bool ADXDecoder_Init(ADXDecoder* decoder, SDL_IOStream* file) {
     return true;
 }
 
+/* Every channel's scale for one block. */
+static void read_block_scales(ADXDecoder* decoder, Uint16* scale, Uint32 frame_start) {
+    for (int i = 0; i < decoder->header.channel_count; i++) {
+        SDL_SeekIO(decoder->file, frame_start + ADX_BLOCK_SIZE * i, SDL_IO_SEEK_SET);
+        SDL_ReadU16BE(decoder->file, &scale[i]);
+    }
+}
+
+/* One sample's error nibble, sign-extended. */
+static Sint32 read_sample_error(ADXDecoder* decoder, Uint32 byte_offset, Uint32 sample_offset) {
+    Uint8 byte;
+    SDL_SeekIO(decoder->file, byte_offset, SDL_IO_SEEK_SET);
+    SDL_ReadU8(decoder->file, &byte);
+    Sint32 sample_error = (sample_offset & 1) ? (byte & 0xF) : (byte >> 4);
+
+    if (sample_error & 0b1000) { // Sign extension
+        sample_error |= ~0b1111;
+    }
+
+    return sample_error;
+}
+
 Uint32 ADXDecoder_Decode(ADXDecoder* decoder, Sint16* buffer, Uint32 samples_needed) {
     Uint32 samples_read = 0;
     Uint16 scale[ADX_CHANNELS_MAX];
@@ -157,10 +179,7 @@ Uint32 ADXDecoder_Decode(ADXDecoder* decoder, Sint16* buffer, Uint32 samples_nee
             decoder->header.data_offset +
             decoder->sample_index / ADX_SAMPLES_PER_BLOCK * ADX_BLOCK_SIZE * decoder->header.channel_count;
 
-        for (int i = 0; i < decoder->header.channel_count; i++) {
-            SDL_SeekIO(decoder->file, frame_start + ADX_BLOCK_SIZE * i, SDL_IO_SEEK_SET);
-            SDL_ReadU16BE(decoder->file, &scale[i]);
-        }
+        read_block_scales(decoder, scale, frame_start);
 
         const Uint32 sample_end_offset = sample_offset + samples_to_read;
 
@@ -173,14 +192,7 @@ Uint32 ADXDecoder_Decode(ADXDecoder* decoder, Sint16* buffer, Uint32 samples_nee
                 const Uint32 byte_offset =
                     frame_start + ADX_BLOCK_SIZE * i + 2 + sample_offset / (8 / ADX_SAMPLE_BITDEPTH);
 
-                Uint8 byte;
-                SDL_SeekIO(decoder->file, byte_offset, SDL_IO_SEEK_SET);
-                SDL_ReadU8(decoder->file, &byte);
-                Sint32 sample_error = (sample_offset & 1) ? (byte & 0xF) : (byte >> 4);
-
-                if (sample_error & 0b1000) { // Sign extension
-                    sample_error |= ~0b1111;
-                }
+                Sint32 sample_error = read_sample_error(decoder, byte_offset, sample_offset);
 
                 sample_error *= scale[i];
                 Sint32 sample = sample_error + sample_prediction;
