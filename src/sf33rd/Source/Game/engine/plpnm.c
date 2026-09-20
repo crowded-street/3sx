@@ -3,6 +3,7 @@
  * Player Normal Move and State Controller
  */
 
+#include "arcade/arcade_balance.h"
 #include "common.h"
 #include "sf33rd/Source/Game/animation/appear.h"
 #include "sf33rd/Source/Game/animation/lose_pl.h"
@@ -18,7 +19,6 @@
 #include "sf33rd/Source/Game/engine/pls02.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/io/pulpul.h"
-#include "arcade/arcade_balance.h"
 
 void Player_normal(PLW* wk);
 void setup_normal_process_flags(PLW* wk);
@@ -265,13 +265,15 @@ void Normal_05000(PLW* wk) { // 🟢
     jumping_guard_type_check(wk);
 }
 
-void nm_05_0000(PLW* wk) { // 🟢
+/* The state nm_05_0000 and nm_06_0100 share: one skeleton, byte for byte apart
+ * from the pattern index and the movement row. */
+static void run_nm_dash_state(PLW* wk, s16 index, s16 mvxy_row) {
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
         wk->wu.rl_flag = wk->wu.rl_waza;
-        set_char_move_init(&wk->wu, 0, 4);
-        setup_mvxy_data(&wk->wu, 2);
+        set_char_move_init(&wk->wu, 0, index);
+        setup_mvxy_data(&wk->wu, mvxy_row);
         /* fallthrough */
 
     case 1:
@@ -292,6 +294,10 @@ void nm_05_0000(PLW* wk) { // 🟢
         char_move(&wk->wu);
         break;
     }
+}
+
+void nm_05_0000(PLW* wk) { // 🟢
+    run_nm_dash_state(wk, 4, 2);
 }
 
 void nm_05_0100(PLW* wk) { // 🟢
@@ -354,32 +360,7 @@ void nm_06_0000(PLW* wk) { // 🟢
 }
 
 void nm_06_0100(PLW* wk) { // 🟢
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        set_char_move_init(&wk->wu, 0, 5);
-        setup_mvxy_data(&wk->wu, 3);
-        /* fallthrough */
-
-    case 1:
-        if (wk->wu.cg_type == 1) {
-            add_mvxy_speed(&wk->wu);
-            wk->wu.routine_no[3]++;
-            break;
-        }
-
-        char_move(&wk->wu);
-        break;
-
-    case 2:
-        jumping_union_process(&wk->wu, 3);
-        break;
-
-    case 3:
-        char_move(&wk->wu);
-        break;
-    }
+    run_nm_dash_state(wk, 5, 3);
 }
 
 void nm_06_0200(PLW* wk) { // 🟢
