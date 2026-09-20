@@ -422,51 +422,71 @@ static s32 vibration_is_off(const PULPARA* prm, u8 profile) {
     return (prm->power == 0) || (prm->unit == 0) || (profile == 0);
 }
 
+/* The packet a silent unit takes, and the packet a vibrating one takes. Each
+ * fills the caller's buffer and returns its length, the one value it produces;
+ * the profile the second arm narrows is narrowed at the call site, because the
+ * caller sends it on afterwards. */
+static s32 fill_vib_off_data(u8* vib_data, u8 profile) {
+    s32 vib_data_size;
+
+    switch (profile) {
+    case 1:
+    case 2:
+        vib_data_size = 1;
+        vib_data[0] = 0;
+        break;
+
+    default:
+        vib_data_size = 2;
+        vib_data[0] = 0;
+        vib_data[1] = 0;
+        break;
+    }
+
+    return vib_data_size;
+}
+
+static s32 fill_vib_on_data(u8* vib_data, u8 profile, const PULPARA* prm) {
+    s32 vib_data_size;
+    u16 big;
+
+    big = prm->freq + pulpul_level[prm->power];
+
+    switch (profile) {
+    case 1:
+        vib_data_size = 1;
+        vib_data[0] = 1;
+        break;
+
+    case 2:
+        vib_data_size = 1;
+        vib_data[0] = big;
+        break;
+
+    default:
+        vib_data_size = 2;
+        vib_data[0] = (((big * 2) & 0xFE) | 1);
+        vib_data[1] = (big >> 7) & 1;
+        break;
+    }
+
+    return vib_data_size;
+}
+
 s32 vibParamTrans(s32 id, PULPARA* prm) {
     s32 vib_data_size;
     s32 rnum;
-    u16 big;
     u8 vib_data[2];
     u8 profile;
 
     profile = ps2slot[id].vprofile & 3;
     if (vibration_is_off(prm, profile)) {
-        switch (profile) {
-        case 1:
-        case 2:
-            vib_data_size = 1;
-            vib_data[0] = 0;
-            break;
-
-        default:
-            vib_data_size = 2;
-            vib_data[0] = 0;
-            vib_data[1] = 0;
-            break;
-        }
+        vib_data_size = fill_vib_off_data(vib_data, profile);
 
         profile = 3;
     } else {
-
-        big = prm->freq + pulpul_level[prm->power];
-
-        switch (profile &= prm->unit) {
-        case 1:
-            vib_data_size = 1;
-            vib_data[0] = 1;
-            break;
-
-        case 2:
-            vib_data_size = 1;
-            vib_data[0] = big;
-            break;
-
-        default:
-            vib_data_size = 2;
-            vib_data[0] = (((big * 2) & 0xFE) | 1);
-            vib_data[1] = (big >> 7) & 1;
-            break;
-        }
+        profile &= prm->unit;
+        vib_data_size = fill_vib_on_data(vib_data, profile, prm);
     }
 
     rnum = sceVibSetActParam(ps2slot[id].socket_id, 1, &profile, vib_data_size, vib_data);
