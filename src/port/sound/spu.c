@@ -166,6 +166,30 @@ static void SPU_VoiceRunADSR(struct SPU_Voice* v) {
     }
 }
 
+/* At a block boundary: follow the loop point if the block says to, stop the
+ * voice if it says that too, and remember a new loop start. */
+static void spu_advance_block(struct SPU_Voice* v, u16 header) {
+    if (header & 0x100) {
+        v->nax = v->lsa;
+        v->endx = true;
+
+        if ((header & 0x200) == 0) {
+            if (!v->noise) {
+                v->envx = 0;
+                v->adsr_phase = ADSR_PHASE_STOPPED;
+                v->run = false;
+            }
+        }
+    }
+
+    header = ram[v->nax & ~0x7];
+    if (header & 0x400) {
+        v->lsa = v->nax;
+    }
+
+    v->nax = (v->nax + 1) & 0xfffff;
+}
+
 static void SPU_VoiceDecode(struct SPU_Voice* v) {
     u32 data;
     u16 header, filter, shift;
@@ -205,25 +229,7 @@ static void SPU_VoiceDecode(struct SPU_Voice* v) {
     v->nax = (v->nax + 1) & 0xfffff;
 
     if ((v->nax & 0x7) == 0) {
-        if (header & 0x100) {
-            v->nax = v->lsa;
-            v->endx = true;
-
-            if ((header & 0x200) == 0) {
-                if (!v->noise) {
-                    v->envx = 0;
-                    v->adsr_phase = ADSR_PHASE_STOPPED;
-                    v->run = false;
-                }
-            }
-        }
-
-        header = ram[v->nax & ~0x7];
-        if (header & 0x400) {
-            v->lsa = v->nax;
-        }
-
-        v->nax = (v->nax + 1) & 0xfffff;
+        spu_advance_block(v, header);
     }
 }
 
