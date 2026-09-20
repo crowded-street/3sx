@@ -41,6 +41,13 @@ static void send_data(GekkoNetAddress* addr, const char* data, int length) {
     }
 }
 
+/* Another datagram to hand back this frame: room in the result array, a read
+ * that succeeded, and something actually read. Copied operand for operand so
+ * the receive is still only attempted while there is room for its result. */
+static bool next_datagram_ready(NET_Datagram** dgram) {
+    return result_count < MAX_NETWORK_RESULTS && NET_ReceiveDatagram(adapter_sock, dgram) && *dgram;
+}
+
 static GekkoNetResult** receive_data(int* length) {
     result_count = 0;
 
@@ -51,7 +58,7 @@ static GekkoNetResult** receive_data(int* length) {
 
     NET_Datagram* dgram = NULL;
 
-    while (result_count < MAX_NETWORK_RESULTS && NET_ReceiveDatagram(adapter_sock, &dgram) && dgram) {
+    while (next_datagram_ready(&dgram)) {
         const char* ip_str = NET_GetAddressString(dgram->addr);
         char addr_str[64];
 
