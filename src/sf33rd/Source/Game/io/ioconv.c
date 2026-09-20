@@ -48,6 +48,23 @@ static void merge_analog_direction(IOPad* pad, s32 i, s32 shift) {
     }
 }
 
+/* The three tests that decide whether the turbo repeat rate applies, each
+ * copied character for character from the condition it stood in. The first sits
+ * inside the same `#if DEBUG` as its only caller. */
+#if DEBUG
+static bool debug_turbo_active() {
+    return debug_config.turbo_buttons && mpp_w.inGame && (Game_pause == 0);
+}
+#endif
+
+static bool turbo_option_active() {
+    return (save_w[Present_Mode].extra_option.contents[0][4]) && mpp_w.inGame && (Game_pause == 0);
+}
+
+static bool menu_task_blocks_turbo() {
+    return (task[TASK_MENU].condition == 1) && (task[TASK_MENU].r_no[0] != 10);
+}
+
 void keyConvert() {
     IOPad* pad;
     u32 currSw;
@@ -55,15 +72,15 @@ void keyConvert() {
     s32 repeat_on = 0;
 
 #if DEBUG
-    if (debug_config.turbo_buttons && mpp_w.inGame && (Game_pause == 0)) {
+    if (debug_turbo_active()) {
         repeat_on = 1;
     }
 #endif
 
-    if ((save_w[Present_Mode].extra_option.contents[0][4]) && mpp_w.inGame && (Game_pause == 0)) {
+    if (turbo_option_active()) {
         repeat_on = 1;
 
-        if ((task[TASK_MENU].condition == 1) && (task[TASK_MENU].r_no[0] != 10)) {
+        if (menu_task_blocks_turbo()) {
             repeat_on = 0;
         }
     }
