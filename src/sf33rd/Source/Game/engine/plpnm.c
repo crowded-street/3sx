@@ -996,19 +996,47 @@ void Normal_54000(PLW* wk) { // 🟢
     }
 }
 
-void Normal_55000(PLW* wk) { // 🟢
+/* What each extra-jump state does before its switch, and what it does on the
+ * first frame. 58000 clears nothing before, which is what the empty function
+ * says; a flag would have put a branch in the helper that none of the three
+ * has. */
+static void clear_bs2_on_car(PLW* wk) {
+    wk->bs2_on_car = 0;
+}
+
+static void keep_bs2_on_car(PLW* wk) {}
+
+static void begin_nm_55000(PLW* wk) {
+    wk->extra_jump = 1;
+    set_char_move_init(&wk->wu, 0, 18);
+    setup_mvxy_data(&wk->wu, 7);
+    make_nm55_init_sp(wk);
+    add_mvxy_speed(&wk->wu);
+}
+
+static void begin_nm_56000(PLW* wk) {
+    nm56_char_select(wk);
+    add_mvxy_speed(&wk->wu);
+    wk->bs2_on_car = 0;
+}
+
+static void begin_nm_58000(PLW* wk) {
+    set_char_move_init(&wk->wu, 0, 18);
+    setup_mvxy_data(&wk->wu, 7);
+}
+
+/* The extra-jump state Normal_55000, Normal_56000 and Normal_58000 share: raise
+ * the z while mirrored, step the routine through its own opening, then the jump
+ * union and the move. */
+static void run_nm_extra_jump_state(PLW* wk, void (*prepare)(PLW* wk), void (*begin)(PLW* wk)) {
     raise_z_when_mirrored(wk);
 
-    wk->bs2_on_car = 0;
+    prepare(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
-        wk->extra_jump = 1;
-        set_char_move_init(&wk->wu, 0, 18);
-        setup_mvxy_data(&wk->wu, 7);
-        make_nm55_init_sp(wk);
-        add_mvxy_speed(&wk->wu);
+        begin(wk);
         break;
 
     case 1:
@@ -1019,6 +1047,10 @@ void Normal_55000(PLW* wk) { // 🟢
         char_move(&wk->wu);
         break;
     }
+}
+
+void Normal_55000(PLW* wk) { // 🟢
+    run_nm_extra_jump_state(wk, clear_bs2_on_car, begin_nm_55000);
 }
 
 void make_nm55_init_sp(PLW* wk) { // 🟢
@@ -1052,26 +1084,7 @@ void make_nm55_init_sp(PLW* wk) { // 🟢
 }
 
 void Normal_56000(PLW* wk) { // 🟢
-    raise_z_when_mirrored(wk);
-
-    wk->bs2_on_car = 0;
-
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        nm56_char_select(wk);
-        add_mvxy_speed(&wk->wu);
-        wk->bs2_on_car = 0;
-        break;
-
-    case 1:
-        jumping_union_process(&wk->wu, 2);
-        break;
-
-    case 2:
-        char_move(&wk->wu);
-        break;
-    }
+    run_nm_extra_jump_state(wk, clear_bs2_on_car, begin_nm_56000);
 }
 
 void nm56_char_select(PLW* wk) { // 🟢
@@ -1151,23 +1164,7 @@ void nm57_dir_select(PLW* wk) { // 🟢
 }
 
 void Normal_58000(PLW* wk) { // 🟢
-    raise_z_when_mirrored(wk);
-
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        set_char_move_init(&wk->wu, 0, 18);
-        setup_mvxy_data(&wk->wu, 7);
-        break;
-
-    case 1:
-        jumping_union_process(&wk->wu, 2);
-        break;
-
-    case 2:
-        char_move(&wk->wu);
-        break;
-    }
+    run_nm_extra_jump_state(wk, keep_bs2_on_car, begin_nm_58000);
 }
 
 const s16 nmPB_data[5][3] = { { 38, 23, 1 }, { 39, 23, 1 }, { 40, 24, 1 }, { 41, 25, 0 }, { 42, 25, 0 } };
