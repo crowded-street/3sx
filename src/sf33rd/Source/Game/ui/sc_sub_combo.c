@@ -115,8 +115,9 @@ void combo_message_set(const ComboMessage* m) {
     }
 }
 
-void combo_pts_set(const ComboPoints* p, s8 digit) {
-    u8 pl = p->pl;
+/* Player one's side: the digits run rightwards from x, then the tail of the
+ * "HITS" caption as far as the count reaches. */
+static void combo_pts_set_left(const ComboPoints* p, s8 digit) {
     u8 x = p->x;
     u8 num = p->num;
     s8* pts = p->pts;
@@ -126,7 +127,77 @@ void combo_pts_set(const ComboPoints* p, s8 digit) {
 
     s8 assign1;
     u8 assign2;
+
+    for (i = digit, assign1 = j = 1; i >= 0; i--, j++, assign2 = x += 1) {
+        score8x16_put(&(ScoreChar){ x, 10, 8, pts[i] }, 2);
+
+        if (num - j == 0) {
+            return;
+        }
+    }
+
+    if (num < digit + 1) {
+        return;
+    }
+
+    score8x16_put(&(ScoreChar){ x, 10, 8, 0 }, 2);
+
+    if (num < digit + 2) {
+        return;
+    }
+
+    score8x16_put(&(ScoreChar){ x + 1, 10, 8, 0 }, 2);
+
+    if (num < digit + 3) {
+        return;
+    }
+
+    scfont_put(&(ScFontCell){ x + 2, 11, 8, 0, 6, 13 }, 2);
+
+    if (num < digit + 4) {
+        return;
+    }
+
+    scfont_put(&(ScFontCell){ x + 3, 11, 8, 0, 7, 13 }, 2);
+}
+
+/* Player two's side: the caption first, then the digits running leftwards. */
+static void combo_pts_set_right(const ComboPoints* p, s8 digit) {
+    u8 x = p->x;
+    u8 num = p->num;
+    s8* pts = p->pts;
+
+    s8 i;
+
     u8 assign3;
+
+    scfont_put(&(ScFontCell){ x, 11, 8, 0, 7, 13 }, 2);
+
+    if (num > 1) {
+        scfont_put(&(ScFontCell){ x - 1, 11, 8, 0, 6, 13 }, 2);
+    }
+
+    if (num > 2) {
+        score8x16_put(&(ScoreChar){ x - 2, 10, 8, 0 }, 2);
+    }
+
+    if (num > 3) {
+        score8x16_put(&(ScoreChar){ x - 3, 10, 8, 0 }, 2);
+    }
+
+    if (num > 4) {
+        for (i = 0; i <= digit; i++, assign3 = x -= 1) {
+            score8x16_put(&(ScoreChar){ x - 4, 10, 8, pts[i] }, 2);
+
+            if (num - i == 0) {
+                break;
+            }
+        }
+    }
+}
+
+void combo_pts_set(const ComboPoints* p, s8 digit) {
+    u8 pl = p->pl;
 
     if (No_Trans) {
         return;
@@ -135,62 +206,9 @@ void combo_pts_set(const ComboPoints* p, s8 digit) {
     ppgSetupCurrentDataList(&ppgScrList);
 
     if (pl == 0) {
-        for (i = digit, assign1 = j = 1; i >= 0; i--, j++, assign2 = x += 1) {
-            score8x16_put(&(ScoreChar){ x, 10, 8, pts[i] }, 2);
-
-            if (num - j == 0) {
-                return;
-            }
-        }
-
-        if (num < digit + 1) {
-            return;
-        }
-
-        score8x16_put(&(ScoreChar){ x, 10, 8, 0 }, 2);
-
-        if (num < digit + 2) {
-            return;
-        }
-
-        score8x16_put(&(ScoreChar){ x + 1, 10, 8, 0 }, 2);
-
-        if (num < digit + 3) {
-            return;
-        }
-
-        scfont_put(&(ScFontCell){ x + 2, 11, 8, 0, 6, 13 }, 2);
-
-        if (num < digit + 4) {
-            return;
-        }
-
-        scfont_put(&(ScFontCell){ x + 3, 11, 8, 0, 7, 13 }, 2);
-
+        combo_pts_set_left(p, digit);
     } else {
-        scfont_put(&(ScFontCell){ x, 11, 8, 0, 7, 13 }, 2);
-
-        if (num > 1) {
-            scfont_put(&(ScFontCell){ x - 1, 11, 8, 0, 6, 13 }, 2);
-        }
-
-        if (num > 2) {
-            score8x16_put(&(ScoreChar){ x - 2, 10, 8, 0 }, 2);
-        }
-
-        if (num > 3) {
-            score8x16_put(&(ScoreChar){ x - 3, 10, 8, 0 }, 2);
-        }
-
-        if (num > 4) {
-            for (i = 0; i <= digit; i++, assign3 = x -= 1) {
-                score8x16_put(&(ScoreChar){ x - 4, 10, 8, pts[i] }, 2);
-
-                if (num - i == 0) {
-                    break;
-                }
-            }
-        }
+        combo_pts_set_right(p, digit);
     }
 }
 
