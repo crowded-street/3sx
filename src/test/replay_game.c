@@ -14,6 +14,12 @@ static void adjust_character_numbers(ReplayGame* game) {
     }
 }
 
+/* The three scene numbers a match's first frame carries. Copied operand for
+ * operand. */
+static bool is_game_start_frame(Uint16 g_no_1, Uint16 g_no_2, Uint16 g_no_3) {
+    return (g_no_1 == 2) && (g_no_2 == 0) && (g_no_3 == 0);
+}
+
 /* The frame the game starts on carries the whole match setup: the characters,
  * their supers and colours, the stage, and which side the CPU is on. */
 static void read_game_start_state(ReplayGame* game, SDL_IOStream* io, int frame_num) {
@@ -61,7 +67,7 @@ bool ReplayGame_Init(ReplayGame* game, const char* ram_archive_path) {
         const Uint16 g_no_1 = read_u16(io, G_NO_OFFSET + 2);
         const Uint16 g_no_2 = read_u16(io, G_NO_OFFSET + 4);
         const Uint16 g_no_3 = read_u16(io, G_NO_OFFSET + 6);
-        const bool game_just_started = (g_no_1 == 2) && (g_no_2 == 0) && (g_no_3 == 0);
+        const bool game_just_started = is_game_start_frame(g_no_1, g_no_2, g_no_3);
 
         if (game_just_started) {
             read_game_start_state(game, io, frame_num);
