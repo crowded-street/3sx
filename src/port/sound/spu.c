@@ -124,6 +124,23 @@ static bool adsr_target_reached(const struct AdsrParamCache* pc, const struct SP
     return (!pc->decr && v->envx >= pc->target) || ((pc->decr && v->envx <= pc->target));
 }
 
+/* Move the envelope on when it has passed its target, and stop the voice when
+ * it runs off the end. Sustain holds where it is. */
+static void adsr_advance_phase(const struct AdsrParamCache* pc, struct SPU_Voice* v) {
+    if (v->adsr_phase == ADSR_PHASE_SUSTAIN) {
+        return;
+    }
+
+    if (adsr_target_reached(pc, v)) {
+        v->adsr_phase++;
+        SPU_VoiceCacheADSR(v);
+    }
+
+    if (v->adsr_phase > ADSR_PHASE_RELEASE) {
+        v->run = false;
+    }
+}
+
 static void SPU_VoiceRunADSR(struct SPU_Voice* v) {
     struct AdsrParamCache* pc = &v->adsr_param;
     u32 counter_inc = 0x8000 >> max(0, pc->shift - 11);
@@ -152,18 +169,7 @@ static void SPU_VoiceRunADSR(struct SPU_Voice* v) {
         v->envx = clamp(v->envx + level_inc, 0, INT16_MAX);
     }
 
-    if (v->adsr_phase == ADSR_PHASE_SUSTAIN) {
-        return;
-    }
-
-    if (adsr_target_reached(pc, v)) {
-        v->adsr_phase++;
-        SPU_VoiceCacheADSR(v);
-    }
-
-    if (v->adsr_phase > ADSR_PHASE_RELEASE) {
-        v->run = false;
-    }
+    adsr_advance_phase(pc, v);
 }
 
 /* At a block boundary: follow the loop point if the block says to, stop the
