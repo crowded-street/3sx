@@ -812,36 +812,39 @@ s16 cal_move_quantity3(WORK* wk, s16 tm) {
     return ps.ry.h;
 }
 
-void cmsd_all_x_speed_data(MotionState* cc) {
-    switch (cc->swx) {
+/* The three speed curves an axis can follow, in the order its switch named
+ * them. */
+typedef struct {
+    void (*curve_1)(MotionState* cc);
+    void (*curve_2)(MotionState* cc);
+    void (*curve_default)(MotionState* cc);
+} Cmsd_Speed_Curves;
+
+/* The x and y dispatches are the same three-arm switch. They differ in which
+ * switch field they read and which three functions the arms call, so the field
+ * arrives as a value and the functions as one parameter object. */
+static void cmsd_all_speed_data(MotionState* cc, s8 sw, const Cmsd_Speed_Curves* curves) {
+    switch (sw) {
     case 1:
-        cmsd_swx_1(cc);
+        curves->curve_1(cc);
         break;
 
     case 2:
-        cmsd_swx_2(cc);
+        curves->curve_2(cc);
         break;
 
     default:
-        cmsd_swx_0(cc);
+        curves->curve_default(cc);
         break;
     }
 }
 
+void cmsd_all_x_speed_data(MotionState* cc) {
+    cmsd_all_speed_data(cc, cc->swx, &(Cmsd_Speed_Curves) { cmsd_swx_1, cmsd_swx_2, cmsd_swx_0 });
+}
+
 void cmsd_all_y_speed_data(MotionState* cc) {
-    switch (cc->swy) {
-    case 1:
-        cmsd_swy_1(cc);
-        break;
-
-    case 2:
-        cmsd_swy_2(cc);
-        break;
-
-    default:
-        cmsd_swy_0(cc);
-        break;
-    }
+    cmsd_all_speed_data(cc, cc->swy, &(Cmsd_Speed_Curves) { cmsd_swy_1, cmsd_swy_2, cmsd_swy_0 });
 }
 
 void cmsd_swx_0(MotionState* cc) {
