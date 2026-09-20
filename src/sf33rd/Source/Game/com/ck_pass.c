@@ -329,7 +329,11 @@ static void ken_vs_from_area_4(PLW* wk, WORK* em) {
     }
 }
 
-void KEN_vs(PLW* wk) {
+/* KEN_vs, HUGO_vs and GILL_vs are the same option list: dash in each of the
+ * four near areas, and hand anything further out to the character's own area-4
+ * handler. Only that handler differs, so it comes in as an action - all three
+ * already have the same signature. */
+static void dash_in_near_areas(PLW* wk, void (*from_area_4)(PLW* wk, WORK* em)) {
     WORK* em = (WORK*)wk->wu.target_adrs;
 
     switch (Passive_Mode + Area_Number[wk->wu.id]) {
@@ -350,9 +354,13 @@ void KEN_vs(PLW* wk) {
         break;
 
     default:
-        ken_vs_from_area_4(wk, em);
+        from_area_4(wk, em);
         break;
     }
+}
+
+void KEN_vs(PLW* wk) {
+    dash_in_near_areas(wk, ken_vs_from_area_4);
 }
 
 static void hugo_vs_from_area_6(PLW* wk, WORK* em) {
@@ -405,29 +413,7 @@ static void hugo_vs_from_area_4(PLW* wk, WORK* em) {
 }
 
 void HUGO_vs(PLW* wk) {
-    WORK* em = (WORK*)wk->wu.target_adrs;
-
-    switch (Passive_Mode + Area_Number[wk->wu.id]) {
-    case 0:
-        Check_Dash(wk, em, 1);
-        break;
-
-    case 1:
-        Check_Dash(wk, em, 1);
-        break;
-
-    case 2:
-        Check_Dash(wk, em, 1);
-        break;
-
-    case 3:
-        Check_Dash(wk, em, 1);
-        break;
-
-    default:
-        hugo_vs_from_area_4(wk, em);
-        break;
-    }
+    dash_in_near_areas(wk, hugo_vs_from_area_4);
 }
 
 static void gill_vs_from_area_6(PLW* wk, WORK* em) {
@@ -483,29 +469,7 @@ static void gill_vs_from_area_4(PLW* wk, WORK* em) {
 }
 
 void GILL_vs(PLW* wk) {
-    WORK* em = (WORK*)wk->wu.target_adrs;
-
-    switch (Passive_Mode + Area_Number[wk->wu.id]) {
-    case 0:
-        Check_Dash(wk, em, 1);
-        break;
-
-    case 1:
-        Check_Dash(wk, em, 1);
-        break;
-
-    case 2:
-        Check_Dash(wk, em, 1);
-        break;
-
-    case 3:
-        Check_Dash(wk, em, 1);
-        break;
-
-    default:
-        gill_vs_from_area_4(wk, em);
-        break;
-    }
+    dash_in_near_areas(wk, gill_vs_from_area_4);
 }
 
 static s32 Check_PL_Unit_AS(PLW* wk) {
