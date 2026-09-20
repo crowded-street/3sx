@@ -148,19 +148,21 @@ static void place_tenguiwa_set(PLW* wk, const TenguiwaSet* set) {
 
         num = tmw->type - 24;
 
-        if (num < 36) {
-            tmw->old_pos[0] = set->pos[j][0];
-            tmw->old_pos[1] = set->pos[j][1];
-            tmw->old_pos[2] = set->pos[j][2];
-            tmw->scr_mv_x = set->pos[j][3];
-            tmw->scr_mv_y = set->pos[j][4];
-            tmw->direction = set->pos[j][5];
+        if (!(num < 36)) {
+            continue;
+        }
 
-            j++;
+        tmw->old_pos[0] = set->pos[j][0];
+        tmw->old_pos[1] = set->pos[j][1];
+        tmw->old_pos[2] = set->pos[j][2];
+        tmw->scr_mv_x = set->pos[j][3];
+        tmw->scr_mv_y = set->pos[j][4];
+        tmw->direction = set->pos[j][5];
 
-            if (j > set->last_slot) {
-                break;
-            }
+        j++;
+
+        if (j > set->last_slot) {
+            break;
         }
     }
 }
