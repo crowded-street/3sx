@@ -44,6 +44,43 @@ static bool negative_stress_counts(const NetplayArgs* netplay) {
 static bool p2p_local_player_invalid(const NetplayArgs* netplay) {
     return netplay->p2p_local_player != 1 && netplay->p2p_local_player != 2;
 }
+
+/* The three things a stress session insists on. */
+static void verify_stress_options(const NetplayArgs* netplay, bool p2p_specified, bool matchmaking_specified) {
+    if (stress_combined_with_network(netplay, p2p_specified, matchmaking_specified)) {
+        error_out("A stress session is local, so it can't be combined with P2P or matchmaking.");
+    }
+
+    if (stress_options_without_stress(netplay)) {
+        error_out("Stress options require --stress.");
+    }
+
+    if (negative_stress_counts(netplay)) {
+        error_out("Stress frame counts can't be negative.");
+    }
+}
+
+/* What a P2P session needs beside being asked for. */
+static void verify_p2p(const NetplayArgs* netplay) {
+    if (p2p_local_player_invalid(netplay)) {
+        error_out("Local player must be 1 or 2.");
+    }
+
+    if (netplay->p2p_remote_ip == NULL) {
+        error_out("You must specify --p2p-remote-ip.");
+    }
+}
+
+/* What a matchmaking session needs beside being asked for. */
+static void verify_matchmaking(const NetplayArgs* netplay) {
+    if (netplay->matchmaking_ip == NULL) {
+        error_out("You must specify --matchmaking-ip.");
+    }
+
+    if (netplay->matchmaking_port == 0) {
+        error_out("You must specify --matchmaking-port.");
+    }
+}
 #endif
 
 static void verify_configuration(const Args* args) {
@@ -56,36 +93,14 @@ static void verify_configuration(const Args* args) {
         error_out("Can't specify P2P and matchmaking at the same time.");
     }
 
-    if (stress_combined_with_network(netplay, p2p_specified, matchmaking_specified)) {
-        error_out("A stress session is local, so it can't be combined with P2P or matchmaking.");
-    }
-
-    if (stress_options_without_stress(netplay)) {
-        error_out("Stress options require --stress.");
-    }
-
-    if (negative_stress_counts(netplay)) {
-        error_out("Stress frame counts can't be negative.");
-    }
+    verify_stress_options(netplay, p2p_specified, matchmaking_specified);
 
     if (p2p_specified) {
-        if (p2p_local_player_invalid(netplay)) {
-            error_out("Local player must be 1 or 2.");
-        }
-
-        if (netplay->p2p_remote_ip == NULL) {
-            error_out("You must specify --p2p-remote-ip.");
-        }
+        verify_p2p(netplay);
     }
 
     if (matchmaking_specified) {
-        if (netplay->matchmaking_ip == NULL) {
-            error_out("You must specify --matchmaking-ip.");
-        }
-
-        if (netplay->matchmaking_port == 0) {
-            error_out("You must specify --matchmaking-port.");
-        }
+        verify_matchmaking(netplay);
     }
 #endif
 
