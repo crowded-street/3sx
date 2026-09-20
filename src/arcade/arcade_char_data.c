@@ -320,20 +320,29 @@ static void sort_sections_by_offset(CharDataSection* sections, const Location* s
 }
 }
 
+/* How far the run of sections that sit end to end in the ROM reaches from
+ * run_start. Returns the last index in it, which is the one value the scan
+ * produced. */
+static int last_adjacent_section(const CharDataSection* sections, const Location* section_locations, int run_start) {
+    int run_end = run_start;
+
+    while (run_end + 1 < CHAR_DATA_SECTION_COUNT) {
+        const Location current = section_locations[sections[run_end]];
+        const Location next = section_locations[sections[run_end + 1]];
+
+        if (current.offset + current.size != next.offset) {
+            break;
+        }
+
+        run_end++;
+    }
+
+    return run_end;
+}
+
 static void merge_adjacent_runs(CharDataImage* image, CharDataSection* sections, const Location* section_locations) {
     for (int run_start = 0; run_start < CHAR_DATA_SECTION_COUNT;) {
-        int run_end = run_start;
-
-        while (run_end + 1 < CHAR_DATA_SECTION_COUNT) {
-            const Location current = section_locations[sections[run_end]];
-            const Location next = section_locations[sections[run_end + 1]];
-
-            if (current.offset + current.size != next.offset) {
-                break;
-            }
-
-            run_end++;
-        }
+        const int run_end = last_adjacent_section(sections, section_locations, run_start);
 
         if (run_end > run_start) {
             const Uint32 base_offset = section_locations[sections[run_start]].offset;
