@@ -14,31 +14,13 @@
 #include "sf33rd/Source/Game/sound/sound3rd.h"
 #include "sf33rd/Source/Game/system/sys_sub.h"
 
-s16 Title() {
+/* The title's later steps, reached from Title's new default. The case labels
+ * are the original ones and the original default - the release and the exit
+ * flag - is the default here. */
+static s16 title_late_step() {
     s16 xx = 0;
 
-    njSetBackColor(0, 0, 0);
-
     switch (D_No[1]) {
-    case 0:
-        if (Check_LDREQ_Clear() != 0) {
-            Standby_BGM(0x34);
-            D_No[1] += 1;
-            D_Timer = 20;
-        }
-
-        break;
-
-    case 1:
-        if (D_Timer != 0) {
-            D_Timer -= 1;
-        } else if (opening_demo()) {
-            D_No[1] += 1;
-            D_Timer = 40;
-        }
-
-        break;
-
     case 2:
         opening_demo();
 
@@ -73,6 +55,39 @@ s16 Title() {
             xx = 1;
         }
 
+        break;
+    }
+
+    return xx;
+}
+
+s16 Title() {
+    s16 xx = 0;
+
+    njSetBackColor(0, 0, 0);
+
+    switch (D_No[1]) {
+    case 0:
+        if (Check_LDREQ_Clear() != 0) {
+            Standby_BGM(0x34);
+            D_No[1] += 1;
+            D_Timer = 20;
+        }
+
+        break;
+
+    case 1:
+        if (D_Timer != 0) {
+            D_Timer -= 1;
+        } else if (opening_demo()) {
+            D_No[1] += 1;
+            D_Timer = 40;
+        }
+
+        break;
+
+    default:
+        xx = title_late_step();
         break;
     }
 
