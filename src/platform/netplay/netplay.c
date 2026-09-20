@@ -615,28 +615,11 @@ static void add_local_inputs() {
     }
 }
 
-/* One session event from Gekko. */
-static void handle_session_event(const GekkoSessionEvent* event) {
+/* The events that report rather than change the session, reached from
+ * handle_session_event's new default. Every case label is the original one and
+ * between them the two switches still name every GekkoSessionEvent type. */
+static void handle_session_report(const GekkoSessionEvent* event) {
     switch (event->type) {
-    case GekkoPlayerSyncing:
-        SDL_Log("🔴 player syncing");
-        // FIXME: Show status to the player
-        break;
-
-    case GekkoPlayerConnected:
-        SDL_Log("🔴 player connected");
-        break;
-
-    case GekkoPlayerDisconnected:
-        SDL_Log("🔴 player disconnected");
-        handle_disconnection();
-        break;
-
-    case GekkoSessionStarted:
-        SDL_Log("🔴 session started");
-        session_state = NETPLAY_SESSION_RUNNING;
-        break;
-
     case GekkoDesyncDetected:
         const int frame = event->data.desynced.frame;
         SDL_Log(
@@ -660,6 +643,37 @@ static void handle_session_event(const GekkoSessionEvent* event) {
     case GekkoSpectatorUnpaused:
     case GekkoReplayFinished:
         // Do nothing
+        break;
+
+    default:
+        break;
+    }
+}
+
+/* One session event from Gekko. */
+static void handle_session_event(const GekkoSessionEvent* event) {
+    switch (event->type) {
+    case GekkoPlayerSyncing:
+        SDL_Log("🔴 player syncing");
+        // FIXME: Show status to the player
+        break;
+
+    case GekkoPlayerConnected:
+        SDL_Log("🔴 player connected");
+        break;
+
+    case GekkoPlayerDisconnected:
+        SDL_Log("🔴 player disconnected");
+        handle_disconnection();
+        break;
+
+    case GekkoSessionStarted:
+        SDL_Log("🔴 session started");
+        session_state = NETPLAY_SESSION_RUNNING;
+        break;
+
+    default:
+        handle_session_report(event);
         break;
     }
 }
