@@ -82,7 +82,7 @@ s32 PlaySe(CSE_REQP* pReqp, u16 bank, u16 prog) {
     NumSplit = GetNumSplit(pHEAD, prog);
 
     for (i = 0; i < NumSplit; i++) {
-        result = GetPhdParam(&PhdPAddr, pHEAD, prog, pReqp->note, i);
+        result = GetPhdParam(&PhdPAddr, pHEAD, &(CSE_PHDLOOKUP){ prog, pReqp->note, i });
 
         if (result >= 0) {
             CalcPhdParam(&phdp, &PhdPAddr, pReqp->note, mlMemMapGetBankAddr(bank));

@@ -62,7 +62,7 @@ s32 GetNumSplit(_ps2_head_chunk* pHEAD, u8 prog) {
     return pPPRM->nSplit;
 }
 
-s32 GetPhdParam(CSE_PHDPADDR* pHDPA, _ps2_head_chunk* pHEAD, u8 prog, u8 note, u8 index) {
+s32 GetPhdParam(CSE_PHDPADDR* pHDPA, _ps2_head_chunk* pHEAD, const CSE_PHDLOOKUP* a) {
     _ps2_prog_chunk* pPROG;
     _ps2_smpl_chunk* pSMPL;
     _ps2_vagi_chunk* pVAGI;
@@ -91,12 +91,12 @@ s32 GetPhdParam(CSE_PHDPADDR* pHDPA, _ps2_head_chunk* pHEAD, u8 prog, u8 note, u
         return -4;
     }
 
-    pPPRM = (_ps2_prog_param*)((uintptr_t)pPROG + pPROG->progParamOffset[prog]);
-    pSBLK = &pPPRM->splitBlock[index];
+    pPPRM = (_ps2_prog_param*)((uintptr_t)pPROG + pPROG->progParamOffset[a->prog]);
+    pSBLK = &pPPRM->splitBlock[a->index];
     pSPRM = &pSMPL->smplParam[pSBLK->sampleIndex];
     pVPRM = &pVAGI->vagiParam[pSPRM->vagiIndex];
 
-    if (!(pSBLK->lowKey > note) && !(note > pSBLK->highKey)) {
+    if (!(pSBLK->lowKey > a->note) && !(a->note > pSBLK->highKey)) {
         pHDPA->pPprm = pPPRM;
         pHDPA->pSblk = pSBLK;
         pHDPA->pSprm = pSPRM;
