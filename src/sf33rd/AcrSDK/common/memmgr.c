@@ -84,6 +84,36 @@ static u32 plmem_claim_block(MEM_MGR* memmgr, u32 han, s32 len, u8* ptr) {
     return han + 1;
 }
 
+/* Scanning up the block list for the first gap that fits. Returns the address
+ * to claim, or NULL where the list ran out - an address the allocator hands
+ * back is never NULL. The claim itself stays at the call site, where it ran. */
+static u8* plmem_find_gap_upward(MEM_MGR* memmgr, u32 size, MEM_BLOCK* now_block) {
+    size_t len2;
+    MEM_BLOCK* next_block;
+    u8* data_ptr;
+
+    while (now_block->next != MEM_NULL_HANDLE) {
+        next_block = &memmgr->block[now_block->next];
+        data_ptr = (u8*)ALIGN(now_block->ptr, now_block->len, memmgr->memalign);
+        len2 = next_block->ptr - data_ptr;
+
+        if (size <= len2) {
+            return data_ptr;
+        }
+
+        now_block = next_block;
+    }
+
+    data_ptr = (u8*)ALIGN(now_block->ptr, now_block->len, memmgr->memalign);
+    len2 = memmgr->memnow - data_ptr;
+
+    if (size <= len2) {
+        return data_ptr;
+    }
+
+    return NULL;
+}
+
 u32 plmemRegisterS(MEM_MGR* memmgr, s32 len) {
     u32 han;
     size_t len2;
@@ -106,22 +136,9 @@ u32 plmemRegisterS(MEM_MGR* memmgr, s32 len) {
     now_block = memmgr->block + memmgr->blocklist;
 
     if (memmgr->direction != 0) {
-        while (now_block->next != MEM_NULL_HANDLE) {
-            next_block = &memmgr->block[now_block->next];
-            data_ptr = (u8*)ALIGN(now_block->ptr, now_block->len, memmgr->memalign);
-            len2 = next_block->ptr - data_ptr;
+        data_ptr = plmem_find_gap_upward(memmgr, size, now_block);
 
-            if (size <= len2) {
-                return plmem_claim_block(memmgr, han, len, data_ptr);
-            }
-
-            now_block = next_block;
-        }
-
-        data_ptr = (u8*)ALIGN(now_block->ptr, now_block->len, memmgr->memalign);
-        len2 = memmgr->memnow - data_ptr;
-
-        if (size <= len2) {
+        if (data_ptr != NULL) {
             return plmem_claim_block(memmgr, han, len, data_ptr);
         }
     } else {
