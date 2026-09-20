@@ -328,24 +328,33 @@ static s32 shell_counts_for_special(const WORK_Other* tmw) {
            (tmw->wu.original_vitality == 46);
 }
 
+/* Any un-reflected shell of this player carrying the wanted vitality. Only the
+ * first arm is lifted; the second is Twelve's and reads a different test. */
+static s32 shell_matching_vitality_live(PLW* wk, s16 wix) {
+    WORK_Other* tmw;
+    s16 i;
+
+    for (i = 0; i < 8; i++) {
+        if (wk->wu.shell_ix[i] == -1) {
+            break;
+        }
+
+        tmw = (WORK_Other*)frw[wk->wu.shell_ix[i]];
+
+        if ((!tmw->refrected) && (tmw->wu.original_vitality == wix)) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 s32 shell_live_check(PLW* wk, s16 wix) {
     WORK_Other* tmw;
     s16 i;
 
     if (wk->player_number != 0xE) {
-        for (i = 0; i < 8; i++) {
-            if (wk->wu.shell_ix[i] == -1) {
-                break;
-            }
-
-            tmw = (WORK_Other*)frw[wk->wu.shell_ix[i]];
-
-            if ((!tmw->refrected) && (tmw->wu.original_vitality == wix)) {
-                return 1;
-            }
-        }
-
-        return 0;
+        return shell_matching_vitality_live(wk, wix);
     }
 
     for (i = 0; i < 8; i++) {
