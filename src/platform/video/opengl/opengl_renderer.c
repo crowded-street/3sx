@@ -451,6 +451,29 @@ static void OpenGLRenderer_DrawSolidQuad(const Quad* quad, unsigned int color) {
     SDL_zero(_quad->texture_spec);
 }
 
+/* The offscreen canvas: a colour texture, a depth texture and the framebuffer
+ * they hang off. */
+static void configure_canvas() {
+    glGenTextures(1, &canvas_color_tex);
+    glBindTexture(GL_TEXTURE_2D, canvas_color_tex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 384, 224, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
+    glGenTextures(1, &canvas_depth_tex);
+    glBindTexture(GL_TEXTURE_2D, canvas_depth_tex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 384, 224, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+
+    glGenFramebuffers(1, &canvas_fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, canvas_fbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, canvas_color_tex, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, canvas_depth_tex, 0);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 static SDL_Window* OpenGLRenderer_Init(const SDLRenderBackendInitInfo* init_info) {
     // Init window
 
@@ -495,24 +518,7 @@ static SDL_Window* OpenGLRenderer_Init(const SDLRenderBackendInitInfo* init_info
 
     // Configure canvas
 
-    glGenTextures(1, &canvas_color_tex);
-    glBindTexture(GL_TEXTURE_2D, canvas_color_tex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 384, 224, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-
-    glGenTextures(1, &canvas_depth_tex);
-    glBindTexture(GL_TEXTURE_2D, canvas_depth_tex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 384, 224, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-
-    glGenFramebuffers(1, &canvas_fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, canvas_fbo);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, canvas_color_tex, 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, canvas_depth_tex, 0);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    configure_canvas();
 
     // Configure shaders
 
