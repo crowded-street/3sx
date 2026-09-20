@@ -239,7 +239,8 @@ static void read_into_request(ReadRequest* request, size_t max_read) {
     }
 }
 
-void AFS_RunServer() {
+/* How many reads are in flight this frame, and one chunk for each of them. */
+static int count_running_requests() {
     int running_requests = 0;
 
     for (int i = 0; i < arrlen(requests); i++) {
@@ -248,12 +249,10 @@ void AFS_RunServer() {
         }
     }
 
-    if (running_requests <= 0) {
-        return;
-    }
+    return running_requests;
+}
 
-    const size_t max_read_per_request = _read_chunk_size / running_requests;
-
+static void run_pending_requests(size_t max_read_per_request) {
     for (int i = 0; i < arrlen(requests); i++) {
         ReadRequest* request = &requests[i];
 
@@ -263,6 +262,18 @@ void AFS_RunServer() {
 
         read_into_request(request, max_read_per_request);
     }
+}
+
+void AFS_RunServer() {
+    const int running_requests = count_running_requests();
+
+    if (running_requests <= 0) {
+        return;
+    }
+
+    const size_t max_read_per_request = _read_chunk_size / running_requests;
+
+    run_pending_requests(max_read_per_request);
 }
 
 AFSHandle AFS_Open(size_t file_num) {
