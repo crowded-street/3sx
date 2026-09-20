@@ -132,26 +132,65 @@ void end_1100_common() {
     }
 }
 
-void end_1100_3() {
+/* What separates the two end_11 scenes: which background layer they switch,
+ * which effects they spawn, and which layer drifts and how far. Each is a
+ * statement rather than a value - the two drifts write the same distance with
+ * opposite signs and on different layers - so each scene keeps its own. */
+static void open_end_1100_3_layer(void) {
+    Bg_Off_W(1);
+}
+
+static void open_end_1101_3_layer(void) {
+    Bg_On_W(4);
+}
+
+static void spawn_end_1100_3_effects(void) {
+    effect_E6_init(2);
+    effect_E6_init(0x83);
+}
+
+static void spawn_end_1101_3_effects(void) {}
+
+static void drift_end_1100_3(void) {
+    bg_w.bgw[0].xy[1].cal += 0xFFFD0000;
+}
+
+static void drift_end_1101_3(void) {
+    bg_w.bgw[2].xy[1].cal += -0x30000;
+}
+
+typedef struct {
+    void (*open_layer)(void);
+    void (*spawn_effects)(void);
+    void (*drift)(void);
+} End11SceneOps;
+
+/* The scene end_1100_3 and end_1101_3 share: switch a background layer, place
+ * this ending's background from end_11_pos, spawn whatever the scene spawns,
+ * then drift once and hold. */
+static void run_end_11_scene(const End11SceneOps* ops) {
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
-        Bg_Off_W(1);
+        ops->open_layer();
         bgw_ptr->xy[0].disp.pos = end_11_pos[end_w.r_no_2][0];
         bgw_ptr->xy[1].disp.pos = end_11_pos[end_w.r_no_2][1];
         bgw_ptr->abs_x = 512;
         bgw_ptr->abs_y = 0;
-        effect_E6_init(2);
-        effect_E6_init(0x83);
+        ops->spawn_effects();
         break;
 
     case 1:
-        bg_w.bgw[0].xy[1].cal += 0xFFFD0000;
+        ops->drift();
         break;
 
     case 2:
         break;
     }
+}
+
+void end_1100_3() {
+    run_end_11_scene(&(End11SceneOps) { open_end_1100_3_layer, spawn_end_1100_3_effects, drift_end_1100_3 });
 }
 
 void end_1100_6() {
@@ -241,21 +280,5 @@ void end_1102_move() {
 }
 
 void end_1101_3() {
-    switch (bgw_ptr->r_no_1) {
-    case 0:
-        bgw_ptr->r_no_1++;
-        Bg_On_W(4);
-        bgw_ptr->xy[0].disp.pos = end_11_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_11_pos[end_w.r_no_2][1];
-        bgw_ptr->abs_x = 512;
-        bgw_ptr->abs_y = 0;
-        break;
-
-    case 1:
-        bg_w.bgw[2].xy[1].cal += -0x30000;
-        break;
-
-    case 2:
-        break;
-    }
+    run_end_11_scene(&(End11SceneOps) { open_end_1101_3_layer, spawn_end_1101_3_effects, drift_end_1101_3 });
 }
