@@ -199,6 +199,18 @@ void Damage_3rd(PLW* /* unused */) {}
 
 void Damage_4th(PLW* /* unused */) {}
 
+static void Damage_5th_Wait_Recovery(PLW* wk) {
+    if (wk->wu.routine_no[1] != 1) {
+        Exit_Damage_Sub(wk);
+        return;
+    }
+
+    if (wk->wu.cg_type == 9) {
+        CP_No[wk->wu.id][2]++;
+        CP_Index[wk->wu.id][1] = 0;
+    }
+}
+
 void Damage_5th(PLW* wk) {
     if (wk->wu.routine_no[3] == 0) {
         CP_No[wk->wu.id][1] = 0;
@@ -208,16 +220,7 @@ void Damage_5th(PLW* wk) {
 
     switch (CP_No[wk->wu.id][2]) {
     case 0:
-        if (wk->wu.routine_no[1] != 1) {
-            Exit_Damage_Sub(wk);
-            break;
-        }
-
-        if (wk->wu.cg_type == 9) {
-            CP_No[wk->wu.id][2]++;
-            CP_Index[wk->wu.id][1] = 0;
-        }
-
+        Damage_5th_Wait_Recovery(wk);
         break;
 
     case 1:
