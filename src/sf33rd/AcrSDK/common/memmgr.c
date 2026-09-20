@@ -236,6 +236,30 @@ static void plmem_move_block(MEM_BLOCK* block, u8* data_ptr) {
     }
 }
 
+/* The downward pass of the compaction, lifted out so plmemCompact is a choice
+ * between two passes rather than the passes themselves. Its upward twin is left
+ * where it stands on purpose: extracting both makes them a duplicate pair that
+ * costs more than the bump it removes. */
+static u8* plmem_compact_downward(MEM_MGR* memmgr, MEM_BLOCK* now_block) {
+    MEM_BLOCK* next_block;
+    u8* data_ptr;
+
+    data_ptr = (u8*)ALIGN_DOWN(memmgr->memptr, now_block->len, memmgr->memalign);
+
+    plmem_move_block(now_block, data_ptr);
+
+    while (now_block->next != MEM_NULL_HANDLE) {
+        next_block = memmgr->block + now_block->next;
+        data_ptr = (u8*)ALIGN_DOWN(now_block->ptr, next_block->len, memmgr->memalign);
+
+        plmem_move_block(next_block, data_ptr);
+
+        now_block = next_block;
+    }
+
+    return now_block->ptr;
+}
+
 void* plmemCompact(MEM_MGR* memmgr) {
     MEM_BLOCK* now_block;
     MEM_BLOCK* next_block;
@@ -264,20 +288,7 @@ void* plmemCompact(MEM_MGR* memmgr) {
 
         memmgr->memnow = (u8*)ALIGN(now_block->ptr, now_block->len, memmgr->memalign);
     } else {
-        data_ptr = (u8*)ALIGN_DOWN(memmgr->memptr, now_block->len, memmgr->memalign);
-
-        plmem_move_block(now_block, data_ptr);
-
-        while (now_block->next != MEM_NULL_HANDLE) {
-            next_block = memmgr->block + now_block->next;
-            data_ptr = (u8*)ALIGN_DOWN(now_block->ptr, next_block->len, memmgr->memalign);
-
-            plmem_move_block(next_block, data_ptr);
-
-            now_block = next_block;
-        }
-
-        memmgr->memnow = now_block->ptr;
+        memmgr->memnow = plmem_compact_downward(memmgr, now_block);
     }
 
     return memmgr->memnow;
