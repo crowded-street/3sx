@@ -158,11 +158,75 @@ void store_cached_trans_ext_tiles(const TransRun* run, s32 group) {
     store_cached_trans_ext_run(run, group, cached_ext_attrs);
 }
 
-void store_new_trans_ext_tiles(const TransRun* run, s32 group, PatternInstance* cp) {
+/* One tile about to be made resident, and the bank it is going into: where the
+ * tile comes from, how big it is, the palette it expands through, and the group
+ * index and code split of its bank. */
+typedef struct {
+    const TEX* texptr;
+    s32 size;
+    s32 code;
+    s32 palt;
+    s32 gidx;
+    s32 code_shift;
+    s32 code_mask;
+} TransTileLoad;
+
+/* Paletted tiles go into the buffer as they are. */
+static void make_resident_paletted(const TransRun* run, const TransTileLoad* ld) {
+    lz_ext_p6_fx(&((u8*)ld->texptr)[1], run->mt->mltbuf, ld->size);
+    njReLoadTexturePartNumG(
+        ld->gidx + (ld->code >> ld->code_shift), (s8*)run->mt->mltbuf, ld->code & ld->code_mask, ld->size
+    );
+}
+
+/* True-colour tiles expand through the colour RAM and occupy twice the bytes. */
+static void make_resident_true_color(const TransRun* run, const TransTileLoad* ld) {
+    lz_ext_p6_cx(&((u8*)ld->texptr)[1], (u16*)run->mt->mltbuf, ld->size, (u16*)(ColorRAM[ld->palt]));
+    njReLoadTexturePartNumG(
+        ld->gidx + (ld->code >> ld->code_shift), (s8*)run->mt->mltbuf, ld->code & ld->code_mask, ld->size * 2
+    );
+}
+
+static TransTileAttrs new_ext_attrs(const TransRun* run, const TileMapEntry* trsptr) {
+    s32 attr = (trsptr->attr ^ run->flip) & 0xC000;
+
+    return (TransTileAttrs) { 0, run->palo | attr, run->palo | (attr | 0x2000) };
+}
+
+static TransTileAttrs new_cp3_ext_attrs(const TransRun* run, const TileMapEntry* trsptr) {
+    s32 attr = trsptr->attr;
+    s32 palt = (attr & 0x1FF) + run->palo;
+
+    attr = (attr ^ run->flip) & 0xC000;
+
+    return (TransTileAttrs) { 0, attr | palt, (attr | 0x2000) | palt };
+}
+
+static TransTileAttrs new_rgb_ext_attrs(const TransRun* run, const TileMapEntry* trsptr) {
+    s32 attr = trsptr->attr;
+    s32 palt = (attr & 0x1FF) + run->palo;
+
+    attr = (attr ^ run->flip) & 0xC000;
+
+    return (TransTileAttrs) { palt, attr, attr | 0x2000 };
+}
+
+/* What separates the three new extended passes: how a tile map entry becomes a
+ * palette and two attribute words, and how a tile that missed its cache is made
+ * resident. */
+typedef struct {
+    TransTileAttrs (*attrs_of)(const TransRun* run, const TileMapEntry* trsptr);
+    void (*make_resident)(const TransRun* run, const TransTileLoad* ld);
+} TransNewExtOps;
+
+/* The three new extended passes walk the same tile run, look every tile up in
+ * the same two extended caches, and queue the same chips. */
+static void store_new_trans_ext_run(const TransRun* run, s32 group, PatternInstance* cp, const TransNewExtOps* ops) {
     TileMapEntry* trsptr = run->trsptr;
     s32 count = run->count;
     f32 x = run->x, y = run->y;
     PatternCode cc = run->cc;
+    TransTileAttrs at;
     TEX* texptr;
     s32 rnum;
     s32 size;
@@ -170,9 +234,6 @@ void store_new_trans_ext_tiles(const TransRun* run, s32 group, PatternInstance* 
     s32 wh;
     s32 dw;
     s32 dh;
-
-    (void)dw;
-    (void)dh;
 
     cc.parts.group = group;
 
@@ -185,36 +246,34 @@ void store_new_trans_ext_tiles(const TransRun* run, s32 group, PatternInstance* 
         dh = (texptr->wh & 0x1C) * 2;
         wh = (texptr->wh & 3) + 1;
         size = (wh * wh) << 6;
+        at = ops->attrs_of(run, trsptr);
         cc.parts.offset = trsptr->code;
 
         switch (wh) {
         case 1:
         case 2:
-            if (get_mltbuf16_ext_2(&(MltbufExtLookup) { run->mt, cc.code, 0, &code, cp }) != 0) {
-                lz_ext_p6_fx(&((u8*)texptr)[1], run->mt->mltbuf, size);
-                njReLoadTexturePartNumG(run->mt->mltgidx16 + (code >> 8), (s8*)run->mt->mltbuf, code & 0xFF, size);
+            if (get_mltbuf16_ext_2(&(MltbufExtLookup) { run->mt, cc.code, at.palt, &code, cp }) != 0) {
+                ops->make_resident(run, &(TransTileLoad) { texptr, size, code, at.palt, run->mt->mltgidx16, 8, 0xFF });
             }
 
             rnum = store_trans_chip(
                 &(ChipPlacement) { x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
                 run->mt->mltgidx16,
                 code,
-                run->palo | ((trsptr->attr ^ run->flip) & 0xC000)
+                at.attr_16
             );
-
             break;
 
         case 4:
-            if (get_mltbuf32_ext_2(&(MltbufExtLookup) { run->mt, cc.code, 0, &code, cp }) != 0) {
-                lz_ext_p6_fx(&((u8*)texptr)[1], run->mt->mltbuf, size);
-                njReLoadTexturePartNumG(run->mt->mltgidx32 + (code >> 6), (s8*)run->mt->mltbuf, code & 0x3F, size);
+            if (get_mltbuf32_ext_2(&(MltbufExtLookup) { run->mt, cc.code, at.palt, &code, cp }) != 0) {
+                ops->make_resident(run, &(TransTileLoad) { texptr, size, code, at.palt, run->mt->mltgidx32, 6, 0x3F });
             }
 
             rnum = store_trans_chip(
                 &(ChipPlacement) { x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
                 run->mt->mltgidx32,
                 code,
-                run->palo | (((trsptr->attr ^ run->flip) & 0xC000) | 0x2000)
+                at.attr_32
             );
             break;
         }
@@ -225,6 +284,10 @@ void store_new_trans_ext_tiles(const TransRun* run, s32 group, PatternInstance* 
 
         trsptr++;
     }
+}
+
+void store_new_trans_ext_tiles(const TransRun* run, s32 group, PatternInstance* cp) {
+    store_new_trans_ext_run(run, group, cp, &(TransNewExtOps) { new_ext_attrs, make_resident_paletted });
 }
 
 void store_trans_tiles(const TransRun* run) {
@@ -297,78 +360,7 @@ void store_cached_trans_cp3_ext_tiles(const TransRun* run, s32 group) {
 }
 
 void store_new_trans_cp3_ext_tiles(const TransRun* run, s32 group, PatternInstance* cp) {
-    TileMapEntry* trsptr = run->trsptr;
-    s32 count = run->count;
-    f32 x = run->x, y = run->y;
-    PatternCode cc = run->cc;
-    TEX* texptr;
-    s32 rnum;
-    s32 size;
-    s32 code;
-    s32 wh;
-    s32 dw;
-    s32 dh;
-    s32 attr;
-    s32 palt;
-
-    (void)dw;
-    (void)dh;
-
-    cc.parts.group = group;
-
-    while (count--) {
-        x = advance_trans_x(x, run->flip, trsptr);
-        y = advance_trans_y(y, run->flip, trsptr);
-
-        texptr = (TEX*)((uintptr_t)run->textbl + ((u32*)run->textbl)[trsptr->code]);
-        dw = (texptr->wh & 0xE0) >> 2;
-        dh = (texptr->wh & 0x1C) * 2;
-        wh = (texptr->wh & 3) + 1;
-        size = (wh * wh) << 6;
-        attr = trsptr->attr;
-        palt = (attr & 0x1FF) + run->palo;
-        attr = (attr ^ run->flip) & 0xC000;
-        cc.parts.offset = trsptr->code;
-
-        switch (wh) {
-        case 1:
-        case 2:
-            if (get_mltbuf16_ext_2(&(MltbufExtLookup) { run->mt, cc.code, 0, &code, cp }) != 0) {
-                lz_ext_p6_fx(&((u8*)texptr)[1], run->mt->mltbuf, size);
-                njReLoadTexturePartNumG(run->mt->mltgidx16 + (code >> 8), (s8*)run->mt->mltbuf, code & 0xFF, size);
-            }
-
-            rnum = store_trans_chip(
-                &(ChipPlacement) { x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
-                run->mt->mltgidx16,
-                code,
-                attr | palt
-            );
-
-            break;
-
-        case 4:
-            if (get_mltbuf32_ext_2(&(MltbufExtLookup) { run->mt, cc.code, 0, &code, cp }) != 0) {
-                lz_ext_p6_fx(&((u8*)texptr)[1], run->mt->mltbuf, size);
-                njReLoadTexturePartNumG(run->mt->mltgidx32 + (code >> 6), (s8*)run->mt->mltbuf, code & 0x3F, size);
-            }
-
-            rnum = store_trans_chip(
-                &(ChipPlacement) { x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
-                run->mt->mltgidx32,
-                code,
-                (attr | 0x2000) | palt
-            );
-
-            break;
-        }
-
-        if (rnum == 0) {
-            break;
-        }
-
-        trsptr++;
-    }
+    store_new_trans_ext_run(run, group, cp, &(TransNewExtOps) { new_cp3_ext_attrs, make_resident_paletted });
 }
 
 void store_trans_cp3_tiles(const TransRun* run) {
@@ -446,73 +438,7 @@ void store_cached_trans_rgb_ext_tiles(const TransRun* run, s32 group) {
 }
 
 void store_new_trans_rgb_ext_tiles(const TransRun* run, s32 group, PatternInstance* cp) {
-    TileMapEntry* trsptr = run->trsptr;
-    s32 count = run->count;
-    f32 x = run->x, y = run->y;
-    PatternCode cc = run->cc;
-    TEX* texptr;
-    s32 rnum;
-    s32 size;
-    s32 code;
-    s32 attr;
-    s32 palt;
-    s32 wh;
-    s32 dw;
-    s32 dh;
-
-    cc.parts.group = group;
-
-    while (count--) {
-        x = advance_trans_x(x, run->flip, trsptr);
-        y = advance_trans_y(y, run->flip, trsptr);
-
-        texptr = (TEX*)((uintptr_t)run->textbl + ((u32*)run->textbl)[trsptr->code]);
-        dw = (texptr->wh & 0xE0) >> 2;
-        dh = (texptr->wh & 0x1C) * 2;
-        wh = (texptr->wh & 3) + 1;
-        size = (wh * wh) << 6;
-        attr = trsptr->attr;
-        palt = (attr & 0x1FF) + run->palo;
-        attr = (attr ^ run->flip) & 0xC000;
-        cc.parts.offset = trsptr->code;
-
-        switch (wh) {
-        case 1:
-        case 2:
-            if (get_mltbuf16_ext_2(&(MltbufExtLookup) { run->mt, cc.code, palt, &code, cp }) != 0) {
-                lz_ext_p6_cx(&((u8*)texptr)[1], (u16*)run->mt->mltbuf, size, (u16*)(ColorRAM[palt]));
-                njReLoadTexturePartNumG(run->mt->mltgidx16 + (code >> 8), (s8*)run->mt->mltbuf, code & 0xFF, size * 2);
-            }
-
-            rnum = store_trans_chip(
-                &(ChipPlacement) { x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
-                run->mt->mltgidx16,
-                code,
-                attr
-            );
-            break;
-
-        case 4:
-            if (get_mltbuf32_ext_2(&(MltbufExtLookup) { run->mt, cc.code, palt, &code, cp }) != 0) {
-                lz_ext_p6_cx(&((u8*)texptr)[1], (u16*)run->mt->mltbuf, size, (u16*)(ColorRAM[palt]));
-                njReLoadTexturePartNumG(run->mt->mltgidx32 + (code >> 6), (s8*)run->mt->mltbuf, code & 0x3F, size * 2);
-            }
-
-            rnum = store_trans_chip(
-                &(ChipPlacement) { x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
-                run->mt->mltgidx32,
-                code,
-                attr | 0x2000
-            );
-            break;
-        }
-
-        if (rnum == 0) {
-            break;
-        }
-
-        trsptr++;
-    }
+    store_new_trans_ext_run(run, group, cp, &(TransNewExtOps) { new_rgb_ext_attrs, make_resident_true_color });
 }
 
 // One true-colour tile to make resident: where it comes from, how big it is,
