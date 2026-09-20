@@ -89,6 +89,13 @@ void Game07() {
     BG_move();
 }
 
+/* The ending has finished playing and the fade has been accepted. Copied
+ * character for character from the test it stood in - both operands call, and
+ * the `&&` still short-circuits here exactly as it did there. */
+static s32 ending_finished_and_faded() {
+    return Ending_main(End_PL) && (Request_Fade(9) != 0);
+}
+
 void Game08() {
     BG_Draw_System();
 
@@ -108,7 +115,7 @@ void Game08() {
         break;
 
     case 1:
-        if (Ending_main(End_PL) && (Request_Fade(9) != 0)) {
+        if (ending_finished_and_faded()) {
             G_No[2] += 1;
         }
 
