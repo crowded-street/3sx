@@ -209,6 +209,26 @@ void Normal_02000(PLW* wk) { // 🟢
     run_facing_normal_state(wk, 1);
 }
 
+/* The moving normal states: start the pattern, load a movement row and apply
+ * it, then cal/add/move every frame after. Three states differ in two values,
+ * the pattern index and the movement row, both written out at the call site. */
+static void run_moving_normal_state(PLW* wk, s16 index, s16 mvxy_row) {
+    switch (wk->wu.routine_no[3]) {
+    case 0:
+        wk->wu.routine_no[3]++;
+        set_char_move_init(&wk->wu, 0, index);
+        setup_mvxy_data(&wk->wu, mvxy_row);
+        add_mvxy_speed(&wk->wu);
+        break;
+
+    case 1:
+        cal_mvxy_speed(&wk->wu);
+        add_mvxy_speed(&wk->wu);
+        char_move(&wk->wu);
+        break;
+    }
+}
+
 void Normal_03000(PLW* wk) { // 🟢
     lower_z_when_mirrored(wk);
 
@@ -233,20 +253,7 @@ void Normal_03000(PLW* wk) { // 🟢
 void Normal_04000(PLW* wk) { // 🟢
     raise_z_when_mirrored(wk);
 
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        set_char_move_init(&wk->wu, 0, 3);
-        setup_mvxy_data(&wk->wu, 1);
-        add_mvxy_speed(&wk->wu);
-        break;
-
-    case 1:
-        cal_mvxy_speed(&wk->wu);
-        add_mvxy_speed(&wk->wu);
-        char_move(&wk->wu);
-        break;
-    }
+    run_moving_normal_state(wk, 3, 1);
 }
 
 void Normal_05000(PLW* wk) { // 🟢
@@ -448,39 +455,13 @@ void Normal_10000(PLW* wk) { // 🟢
 void Normal_11000(PLW* wk) { // 🔵
     lower_z_when_mirrored(wk);
 
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        set_char_move_init(&wk->wu, 0, 9);
-        setup_mvxy_data(&wk->wu, 4);
-        add_mvxy_speed(&wk->wu);
-        break;
-
-    case 1:
-        cal_mvxy_speed(&wk->wu);
-        add_mvxy_speed(&wk->wu);
-        char_move(&wk->wu);
-        break;
-    }
+    run_moving_normal_state(wk, 9, 4);
 }
 
 void Normal_12000(PLW* wk) { // 🔵
     raise_z_when_mirrored(wk);
 
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        set_char_move_init(&wk->wu, 0, 10);
-        setup_mvxy_data(&wk->wu, 5);
-        add_mvxy_speed(&wk->wu);
-        break;
-
-    case 1:
-        cal_mvxy_speed(&wk->wu);
-        add_mvxy_speed(&wk->wu);
-        char_move(&wk->wu);
-        break;
-    }
+    run_moving_normal_state(wk, 10, 5);
 }
 
 void Normal_13000(PLW* wk) { // 🔵
