@@ -42,18 +42,8 @@ void Init_Task(struct _TASK* task_ptr) {
     Main_Jmp_Tbl[task_ptr->r_no[0]](task_ptr);
 }
 
-void Init_Task_1st(struct _TASK* task_ptr) {
-    s16 ix;
-
-    task_ptr->r_no[0] = 1;
-    task_ptr->r_no[1] = 0;
-    init_texcash_1st();
-    Init_texgrplds_work();
-    Init_load_on_memory_data();
-    Pause_Family_On();
-    Bg_TexInit();
-    Scrscreen_Init();
-    effect_work_init();
+/* The play flags a cold boot starts from, and the six save slots' defaults. */
+static void init_game_flags() {
     Max_vitality = 160;
     reset_NG_flag = 0;
     Break_Into = 0;
@@ -78,17 +68,10 @@ void Init_Task_1st(struct _TASK* task_ptr) {
     Replay_Status[1] = 0;
     Play_Game = 0;
     Present_Mode = 1;
+}
 
-    for (ix = 0; ix < 4; ix++) {
-        G_No[ix] = 0;
-        E_No[ix] = 0;
-        S_No[ix] = 0;
-        Unsubstantial_BG[ix] = 0;
-    }
-
-    init_pulpul_work();
-    Init_Load_Request_Queue();
-    Game_Data_Init();
+static void init_save_slots() {
+    s16 ix;
 
     for (ix = 0; ix < 6; ix++) {
         system_dir[ix] = Dir_Default_Data;
@@ -108,6 +91,34 @@ void Init_Task_1st(struct _TASK* task_ptr) {
         permission_player[ix].cursor_infor[1].first_x = 5;
         permission_player[ix].cursor_infor[1].first_y = 2;
     }
+}
+
+void Init_Task_1st(struct _TASK* task_ptr) {
+    s16 ix;
+
+    task_ptr->r_no[0] = 1;
+    task_ptr->r_no[1] = 0;
+    init_texcash_1st();
+    Init_texgrplds_work();
+    Init_load_on_memory_data();
+    Pause_Family_On();
+    Bg_TexInit();
+    Scrscreen_Init();
+    effect_work_init();
+    init_game_flags();
+
+    for (ix = 0; ix < 4; ix++) {
+        G_No[ix] = 0;
+        E_No[ix] = 0;
+        S_No[ix] = 0;
+        Unsubstantial_BG[ix] = 0;
+    }
+
+    init_pulpul_work();
+    Init_Load_Request_Queue();
+    Game_Data_Init();
+
+    init_save_slots();
 
     Copy_Check_w();
     Direction_Working[2] = 1;
