@@ -241,6 +241,34 @@ not already do.
   `Setup_PL_Color`, `id_0 == id_1` compares two `s8` locals. If the operand calls a
   function, reads volatile state, or could trap, leave the family alone.
 
+**Amended 2026-09-20: a named constant is a varying literal, and a computed mask
+travels whole.** Measured on `test_runner.c`, whose two input mappers are bit
+tables written as code - ten copies of `if (w & (1 << 0)) buff |= SWK_UP;` and
+sixteen of `state.south = (input & SWK_SOUTH) ? true : false;`.
+
+Two readings, both deliberate, and both narrower than they look:
+
+- **`SWK_UP` is a literal with a name.** Recipe V says "only literals vary", and
+  the rule's purpose is that a varying *expression* could be evaluated
+  differently at the call site than it was inline. A named constant cannot: it is
+  written out verbatim at its own call site and the helper does nothing with it
+  but the operation that was there. What stays excluded is what always was - an
+  expression that reads state, calls something, or could trap.
+- **Pass the mask, not the bit.** `add_flag_if_set(w, (1 << 0), SWK_UP, buff)`
+  keeps `(1 << 0)` exactly as it stood, so the helper performs the single `&` the
+  block performed and computes nothing from a parameter. Passing `0` and shifting
+  inside measures identically and needs Recipe N's narrow licence instead;
+  prefer the form that does not.
+
+**A varying struct field travels as its address**, for the same reason: C has no
+way to pass a member name, `&state.south` is written out in full at its own call
+site, and the helper does the one assignment that stood there. Two different
+field *types* are two skeletons and need two helpers - `bool*` and `Sint16*`
+cannot share one without a type change.
+
+`apply_input_buffer` went cc 17 to 1 and `read_input_buff` cc 12 to 2; the file
+went **7.92 -> 10.00** across the session.
+
 **Where the skeleton ends inside control flow**, the helper returns `0` or `1` and each
 caller branches on it, exactly as Recipe C prescribes. Return nothing else - a verdict
 wider than a yes/no is the helper deciding something, which this recipe does not allow.
@@ -1196,6 +1224,15 @@ Recipe X both refuse to merge.
 | `pls03.c` | 8.92 | *was 8.08.* Recipe T twice, Recipe E on the leap and catch tests, then two shared runs for the mean. `decode_wst_data`'s twelve encodings and `waza_select`'s eleven case labels are what remain, and neither loses a branch without renumbering states |
 | `cmd_main_checks.c` | 7.50 | The hardest file left. Its mean is 4.34 over 64 functions and needs **thirteen** more, which is far more than the duplicate web can absorb - every arm lifted joins one of three families. Sharing the runs was tried too (`load_waza_command_header`, `command_terminator_reached`) and measured flat, because the findings here are five Bumpy Roads and three Complex Methods rather than the mean alone |
 | `pls00_normal_states.c` | 8.03 | *was 7.55.* Five shared runs - the two end-of-animation markers, the entry-frame guard, and the two jump hand-overs - cleared Overall Code Complexity. What is left is a Code Duplication web between the state machines themselves, which no run reaches: sharing the two arms `jumping_cg_type_low_pat` and `jumping_cg_type_high_pat` agree on (Recipe X's variant) measured flat, and the gate chains differ in their members and their order |
+| `game_state.c`, `game_state_load.c` | **10.00** each | *both were 7.26.* 569 `GS_SAVE`/`GS_LOAD` lines in one function apiece, split thirteen ways on the module comments the tail already carried and on changes of subject in the head. The cuts are positional and the commit says so. Verified past the usual three: the member sequence extracted as a list is identical in order on both sides and between them, and `replay_verify.sh` ran 16 seeds x 2400 frames identical - the stress harness saves and restores this state every frame, so it exercises these two functions directly |
+| `game_round.c` | **10.00** | *was 7.23.* Ten commits of Recipes E and X over the post-match and game-over flow. The last two are a deliberate pair: with Overall Code Complexity the only finding left and the file mean just over 4, a probe said **two** more low-complexity functions would clear it, so the first of the two measures flat and says in its message that the second carries it |
+| `test_runner.c` | **10.00** | *was 7.92.* Recipe E, Recipe P, then Recipe V twice on the two input bit maps - see the Recipe V amendment above - and Recipe X on the phase dispatch, cut where it is because `PHASE_GAME_TRANSITION` falls through into `PHASE_GAME` |
+| `arcade_char_data.c` | 9.53 | *was 7.37.* Recipe E over the ROM parser. `read_script` cannot leave Complex Method: three of its ten branches are the `||`s inside an `SDL_assert`, and Recipe P cannot reach them - see *Recipe P cannot name a condition inside an assertion* |
+| `cmd_main_checks.c` | 9.16 | *was 7.50, and was recorded as a plateau.* Overturned twice over - see *A plateau note covers the functions it names* and *Retry a rejected extraction - including one refused on duplication*. What remains is the `check_10`/`check_12` near-twin pair, re-priced and still costing 0.73 to break |
+| `flps2vram.c` | 8.54 | *was 7.36.* Recipe C on the three pixel layouts, then Recipe D on the context set-ups that fold made visible. What remains is four mirrored texture/palette pairs differing in two to four values each, and the three layout helpers, whose fold costs |
+| `emlShim.c` | 8.94 | *was 7.46.* `checkConditions` is the last finding at cc 17, and Recipe X does not reach it at any chain depth: splitting its eight-arm ladder measures 8.87 at four arms a level, 8.92 at three and 8.81 at two, all below the 8.94 it starts from, because the halves stay over the threshold until the chain is deep enough to be a duplication group |
+| `memmgr.c` | 8.64 | *was 7.58.* Recipe D twice and Recipe A once. `plmemAppendBlockList` is what remains: its two direction branches are twins differing in `<` against `>`, and each writes **three** outer locals - `now_han`, `next_han` and `now_block` - so Recipe E refuses them and there is no single result to return |
+| `prilay.c` | **10.00** | *was 7.60.* Recipe E on both pixel paths, Recipe P on the bounds test, then Recipe E on the two 4-bit cases. The last step is the one worth copying: both halves of a mirrored pair were extracted and it measured **+0.76 with no twin penalty**, because a writer that composes a byte and a reader that selects a nibble are not similar enough to pair |
 | `sdl_gpu_renderer.c` | **10.00** | *was 6.82.* Recipe E eight times and two parameter objects, in that order: the frame's phases, the per-quad pipeline choice, the six set-up sections, `create_shader` and `create_pipeline`'s argument lists, the three remaining set-up blocks, the screen pass's bindings |
 | `flps2etc.c` | 9.84 | *was 6.94.* Recipes E, G and P over the four image loaders. What remains is the two PIC row decoders at two bumps each: the third arm of each run-length form advances **both** the source and the destination inside its loop, so lifting it is a block writing two outer locals, which Recipe E refuses |
 | `pltim2.c` | 9.38 | *was 7.21.* Recipe P on the header checks, Recipe D on the pixel-format blocks the two context setters share, Recipe E and Recipe X on the rest. The four format helpers are one Code Duplication group, and folding them onto one parameter object measures **8.77 -> 8.77** - it clears the duplication and brings Overall Code Complexity straight back, because three of the functions it removes are cc 1. See *A fold that removes simple functions can push the file mean over its threshold*, measured again |
@@ -3075,3 +3112,99 @@ Recipe G is the opposite: inverting the outermost condition and returning early
 *is* the recipe. `decode_pic_alpha_row`'s whole body sat inside
 `if (context->bitdepth != 3)`, and `if (context->bitdepth == 3) return lpsrc;`
 reproduces the fall-through exactly. **9.24 -> 9.84** on its own.
+
+### A plateau note covers the functions it names
+
+*Added 2026-09-20, measured on `cmd_main_checks.c`.*
+
+*Three ways a recorded plateau can be wrong* lists three. Here is a fourth, and
+it is the cheapest one to check.
+
+`cmd_main_checks.c` was recorded at 7.50 as "the hardest file left", with the
+reason spelled out: the mean needs thirteen more functions, sharing the runs was
+tried on `load_waza_command_header` and `command_terminator_reached`, and "every
+arm lifted joins one of three families". All of that is true **of the `check_*`
+dispatchers the note names**.
+
+The file's worst function was `run_dash_release_states`, at cc 13, and the note
+does not mention it. Its three states split at the default with both halves at
+cc 7: **7.50 -> 7.77**, on the first thing tried.
+
+So before inheriting a plateau, list the file's flagged functions and check them
+against the ones the note discusses. A note is a record of what somebody looked
+at, not a proof about what they did not.
+
+### Retry a rejected extraction - including one refused on duplication
+
+*Added 2026-09-20, measured on `cmd_main_checks.c` and `ps2PAD.c`.*
+
+*Retry a rejected extraction once the file has improved* is written about
+complexity: a helper that arrived carrying findings of its own may stop doing so
+once those have been lifted out separately. `ps2PAD.c`'s `identify_pad` is that
+case exactly - refused at 8.13 against 8.37, taken four commits later at 9.19 to
+9.24 once its three bumps had gone.
+
+The same rule applies to an extraction refused on a **duplication** measurement,
+and that is less obvious, because nothing about the two helpers changes.
+`check_19`'s lever chain was priced alongside `check_18`'s and measured **8.22
+against 8.74** - the pair they made cost more than the complexity they removed.
+Re-priced after `check_1` and `check_10` had been through, the identical cut
+measures **8.88 -> 9.16** and clears Complex Method from the file.
+
+The helpers are the same. The file is not. **CodeScene's duplication findings are
+relative to the rest of the file**, so a pair that costs half a point next to
+four other flagged functions costs nothing next to one. Re-price a duplication
+refusal whenever the file's finding count drops, not only when the targeted
+function changes.
+
+### Recipe P cannot name a condition inside an assertion
+
+*Added 2026-09-20, measured on `arcade_char_data.c`.*
+
+CodeScene counts the branches of a condition the compiler discards. `read_script`
+sits at cc 10 with three of those branches inside
+
+    SDL_assert(cgd_type == 1 || cgd_type == 2 || cgd_type == 4 || cgd_type == 6);
+
+and naming that condition measures **9.53 -> 9.84**. It also does not build. In
+this configuration `SDL_assert` expands to nothing, so the predicate is never
+referenced and clang rejects it under
+`-Werror=-Wunneeded-internal-declaration` - in Debug and Release alike.
+
+There is no legal way out: the branches are real to the metric and unreachable to
+the catalogue. Where a function's residual complexity is an assertion, say so and
+stop.
+
+### Which side of the mean the file starts on decides whether a fold pays
+
+*Added 2026-09-20, from the same fold measured twice.*
+
+*A fold that removes simple functions can push the file mean over its threshold*
+was measured on `pltim2.c`: collapsing four pixel-layout helpers onto one
+parameter object cleared Code Duplication and brought Overall Code Complexity
+straight back, 8.77 to 8.77.
+
+`flps2vram.c` has the same three layouts, eighteen copies of them, and folding
+them there measures **7.36 -> 7.78** with no such trade. The difference is not
+the code, it is the starting point: `pltim2.c` was **under** the file-mean
+threshold of 4 and removing three cc-1 functions pushed it over, while
+`flps2vram.c` was already over it and three cc-1 functions pulled it down.
+
+So the rule has a sign. Before folding simple helpers away, ask which side of the
+mean the file is on; before extracting simple helpers, ask the same. It is the
+one transformation whose effect on Overall Code Complexity reverses depending on
+where the file already stands.
+
+### A lifted block keeps the indentation of the construct it sat in
+
+*Added 2026-09-20, after shipping it wrong.*
+
+A scripted Recipe E that dedents by four is right for a block that sat inside one
+`if`, and wrong for a block that sat inside a `switch` arm, a nested brace, or
+nothing at all. Two helpers in `arcade_char_data.c` went in with their entire
+bodies at column zero and had to be fixed in a follow-up commit.
+
+The reason it survived the gate is worth the note: **the build, `refactor_guard.py`
+and `inline_equiv.py` all normalise whitespace**, so none of the three can see
+it. Print the function you just made and read it.
+
