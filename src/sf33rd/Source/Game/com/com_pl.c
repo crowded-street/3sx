@@ -781,6 +781,21 @@ static void setup_rapid_escape_timers(PLW* wk) {
     Timer_01[wk->wu.id] = Rapid_Exit_Data[emLevelRemake(Lv, 8, 0)][(Rnd = random_16_com() & 7)];
 }
 
+/* Waiting out a throw: freed, damaged, or mashing to escape. */
+static void Wait_Caught_Release(PLW* wk) {
+    if (wk->wu.routine_no[1] != 3) {
+        if (wk->wu.routine_no[1] == 0) {
+            Next_Be_Free(wk);
+            return;
+        }
+
+        Check_Damage(wk);
+        return;
+    }
+
+    Lever_Buff[wk->wu.id] = Com_Rapid_Sub(wk, 0xFF0, &CP_No[wk->wu.id][2]);
+}
+
 void Com_Caught(PLW* wk) {
     WORK* em = (WORK*)wk->wu.target_adrs;
 
@@ -799,17 +814,7 @@ void Com_Caught(PLW* wk) {
         break;
 
     case 1:
-        if (wk->wu.routine_no[1] != 3) {
-            if (wk->wu.routine_no[1] == 0) {
-                Next_Be_Free(wk);
-                break;
-            }
-
-            Check_Damage(wk);
-            break;
-        }
-
-        Lever_Buff[wk->wu.id] = Com_Rapid_Sub(wk, 0xFF0, &CP_No[wk->wu.id][2]);
+        Wait_Caught_Release(wk);
         break;
     }
 }
