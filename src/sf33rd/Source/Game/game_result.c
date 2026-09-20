@@ -410,6 +410,33 @@ static void game11_screen_switched() {
     }
 }
 
+/* Game11 from its fourth step on, reached from the first three's default. The
+ * case labels are the original ones and the switch is on the same expression,
+ * and neither switch carries a `default`. */
+static void game11_from_step_3() {
+    switch (G_No[2]) {
+    case 3:
+        G_No[2] += 1;
+        SC_No[0] = 0;
+        SC_No[1] = 0;
+        SC_No[2] = 0;
+        SC_No[3] = 0;
+        Stop_Combo = 0;
+        Bonus_Type = 0;
+        init_slow_flag();
+        Switch_Screen_Init(0);
+        break;
+
+    case 4:
+        if (Switch_Screen(0) != 0) {
+            G_No[2] = 1;
+            Cover_Timer = 24;
+        }
+
+        break;
+    }
+}
+
 void Game11() {
     BG_Draw_System();
     Basic_Sub();
@@ -445,24 +472,8 @@ void Game11() {
 
         break;
 
-    case 3:
-        G_No[2] += 1;
-        SC_No[0] = 0;
-        SC_No[1] = 0;
-        SC_No[2] = 0;
-        SC_No[3] = 0;
-        Stop_Combo = 0;
-        Bonus_Type = 0;
-        init_slow_flag();
-        Switch_Screen_Init(0);
-        break;
-
-    case 4:
-        if (Switch_Screen(0) != 0) {
-            G_No[2] = 1;
-            Cover_Timer = 24;
-        }
-
+    default:
+        game11_from_step_3();
         break;
     }
 
