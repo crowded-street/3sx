@@ -213,6 +213,60 @@ static void compare_main_values(SDL_IOStream* io) {
     }
 }
 
+/* One player's side of the frame comparison. */
+static void compare_player_values(SDL_IOStream* io, int i) {
+    const Sint64 plw_offset = calc_plw_offset(i);
+
+    // const u32 curr_rca_cps3 = read_u32(io, plw_offset + WORK_CURR_RCA_OFFSET);
+    // printf("%llu curr_rca: 0x%x\n", frame, curr_rca_cps3);
+
+    const u8 caution_flag_3sx = plw[i].caution_flag;
+    const u8 caution_flag_cps3 = read_u8(io, plw_offset + PLW_CAUTION_FLAG_OFFSET);
+    assert_equals(caution_flag_3sx, caution_flag_cps3);
+
+    const s8 cat_break_ok_timer_3sx = plw[i].cat_break_ok_timer;
+    const u8 cat_break_ok_timer_cps3 = read_u8(io, plw_offset + PLW_CAT_BREAK_OK_TIMER_OFFSET);
+    assert_equals(cat_break_ok_timer_3sx, cat_break_ok_timer_cps3);
+
+    const s8 cat_break_reserve_3sx = plw[i].cat_break_reserve;
+    const u8 cat_break_reserve_cps3 = read_u8(io, plw_offset + PLW_CAT_BREAK_RESERVE_OFFSET);
+    assert_equals(cat_break_reserve_3sx, cat_break_reserve_cps3);
+
+    const s8 hazusenai_flag_3sx = plw[i].hazusenai_flag;
+    const u8 hazusenai_flag_cps3 = read_u8(io, plw_offset + PLW_HAZUSENAI_FLAG_OFFSET);
+    assert_equals(hazusenai_flag_3sx, hazusenai_flag_cps3);
+
+    const u8 do_not_move_3sx = plw[i].do_not_move;
+    const u8 do_not_move_cps3 = read_u8(io, plw_offset + PLW_DO_NOT_MOVE_OFFSET);
+    assert_equals(do_not_move_3sx, do_not_move_cps3);
+
+    for (int j = 0; j < 8; j++) {
+        const s16 routine_no_3sx = plw[i].wu.routine_no[j];
+        const s16 routine_no_cps3 = read_s16(io, plw_offset + WORK_ROUTINE_NO_OFFSET + j * 2);
+        assert_equals(routine_no_3sx, routine_no_cps3);
+    }
+
+    const s16 dm_stop_3sx = plw[i].wu.dm_stop;
+    const s16 dm_stop_cps3 = read_s16(io, plw_offset + WORK_DM_STOP_OFFSET);
+    assert_equals(dm_stop_3sx, dm_stop_cps3);
+
+    const s16 hit_stop_3sx = plw[i].wu.hit_stop;
+    const s16 hit_stop_cps3 = read_s16(io, plw_offset + WORK_HIT_STOP_OFFSET);
+    assert_equals(hit_stop_3sx, hit_stop_cps3);
+
+    const u8 sa_stop_flag_3sx = plw[i].sa_stop_flag;
+    const u8 sa_stop_flag_cps3 = read_u8(io, plw_offset + PLW_SA_STOP_FLAG_OFFSET);
+    assert_equals(sa_stop_flag_3sx, sa_stop_flag_cps3);
+
+    // const u16 cg_ix_cps3 = read_u16(io, plw_offset + WORK_CG_IX_OFFSET);
+    // const u16 cg_ix_3sx = plw[i].wu.cg_ix;
+    // assert_equals(cg_ix_3sx, cg_ix_cps3);
+
+    const u16 cg_add_xy_cps3 = read_u16(io, plw_offset + WORK_CG_ADD_XY_OFFSET);
+    const u16 cg_add_xy_3sx = plw[i].wu.cg_add_xy;
+    assert_equals(cg_add_xy_3sx, cg_add_xy_cps3);
+}
+
 static void compare_service_values(SDL_IOStream* io, bool compare_characters, Uint64 frame) {
     const u16 game_timer_cps3 = read_game_timer(io);
     assert_equals(Game_timer, game_timer_cps3);
@@ -254,56 +308,7 @@ static void compare_service_values(SDL_IOStream* io, bool compare_characters, Ui
     }
 
     for (int i = 0; i < 2; i++) {
-        const Sint64 plw_offset = calc_plw_offset(i);
-
-        // const u32 curr_rca_cps3 = read_u32(io, plw_offset + WORK_CURR_RCA_OFFSET);
-        // printf("%llu curr_rca: 0x%x\n", frame, curr_rca_cps3);
-
-        const u8 caution_flag_3sx = plw[i].caution_flag;
-        const u8 caution_flag_cps3 = read_u8(io, plw_offset + PLW_CAUTION_FLAG_OFFSET);
-        assert_equals(caution_flag_3sx, caution_flag_cps3);
-
-        const s8 cat_break_ok_timer_3sx = plw[i].cat_break_ok_timer;
-        const u8 cat_break_ok_timer_cps3 = read_u8(io, plw_offset + PLW_CAT_BREAK_OK_TIMER_OFFSET);
-        assert_equals(cat_break_ok_timer_3sx, cat_break_ok_timer_cps3);
-
-        const s8 cat_break_reserve_3sx = plw[i].cat_break_reserve;
-        const u8 cat_break_reserve_cps3 = read_u8(io, plw_offset + PLW_CAT_BREAK_RESERVE_OFFSET);
-        assert_equals(cat_break_reserve_3sx, cat_break_reserve_cps3);
-
-        const s8 hazusenai_flag_3sx = plw[i].hazusenai_flag;
-        const u8 hazusenai_flag_cps3 = read_u8(io, plw_offset + PLW_HAZUSENAI_FLAG_OFFSET);
-        assert_equals(hazusenai_flag_3sx, hazusenai_flag_cps3);
-
-        const u8 do_not_move_3sx = plw[i].do_not_move;
-        const u8 do_not_move_cps3 = read_u8(io, plw_offset + PLW_DO_NOT_MOVE_OFFSET);
-        assert_equals(do_not_move_3sx, do_not_move_cps3);
-
-        for (int j = 0; j < 8; j++) {
-            const s16 routine_no_3sx = plw[i].wu.routine_no[j];
-            const s16 routine_no_cps3 = read_s16(io, plw_offset + WORK_ROUTINE_NO_OFFSET + j * 2);
-            assert_equals(routine_no_3sx, routine_no_cps3);
-        }
-
-        const s16 dm_stop_3sx = plw[i].wu.dm_stop;
-        const s16 dm_stop_cps3 = read_s16(io, plw_offset + WORK_DM_STOP_OFFSET);
-        assert_equals(dm_stop_3sx, dm_stop_cps3);
-
-        const s16 hit_stop_3sx = plw[i].wu.hit_stop;
-        const s16 hit_stop_cps3 = read_s16(io, plw_offset + WORK_HIT_STOP_OFFSET);
-        assert_equals(hit_stop_3sx, hit_stop_cps3);
-
-        const u8 sa_stop_flag_3sx = plw[i].sa_stop_flag;
-        const u8 sa_stop_flag_cps3 = read_u8(io, plw_offset + PLW_SA_STOP_FLAG_OFFSET);
-        assert_equals(sa_stop_flag_3sx, sa_stop_flag_cps3);
-
-        // const u16 cg_ix_cps3 = read_u16(io, plw_offset + WORK_CG_IX_OFFSET);
-        // const u16 cg_ix_3sx = plw[i].wu.cg_ix;
-        // assert_equals(cg_ix_3sx, cg_ix_cps3);
-
-        const u16 cg_add_xy_cps3 = read_u16(io, plw_offset + WORK_CG_ADD_XY_OFFSET);
-        const u16 cg_add_xy_3sx = plw[i].wu.cg_add_xy;
-        assert_equals(cg_add_xy_3sx, cg_add_xy_cps3);
+        compare_player_values(io, i);
     }
 }
 
