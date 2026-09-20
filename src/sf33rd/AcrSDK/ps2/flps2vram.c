@@ -381,7 +381,7 @@ s32 flLockTexture(Rect* lprect, u32 th, plContext* lpcontext, u32 flag) {
         return 0;
     }
 
-    return flPS2LockTexture(&(FlLockArgs){ lprect, lpflTexture, lpcontext, flag, 0 });
+    return flPS2LockTexture(&(FlLockArgs) { lprect, lpflTexture, lpcontext, flag, 0 });
 }
 
 s32 flLockPalette(Rect* lprect, u32 th, plContext* lpcontext, u32 flag) {
@@ -395,7 +395,7 @@ s32 flLockPalette(Rect* lprect, u32 th, plContext* lpcontext, u32 flag) {
         return 0;
     }
 
-    if (flPS2LockTexture(&(FlLockArgs){ lprect, lpflPalette, lpcontext, flag, 1 }) == 0) {
+    if (flPS2LockTexture(&(FlLockArgs) { lprect, lpflPalette, lpcontext, flag, 1 }) == 0) {
         return 0;
     }
 
@@ -800,7 +800,7 @@ static s32 convert_texture_level(plContext* lpcontext, plContext* tcon, FLTextur
 
     case SCE_GS_PSMCT16:
         tex_size = tcon->width * tcon->height * 2;
-                set_pixelformat_rgba5551(tcon);
+        set_pixelformat_rgba5551(tcon);
         tcon->pixelformat.rs = 0;
         tcon->pixelformat.bs = 0xA;
         tcon->pixelformat.gl = 5;
@@ -810,7 +810,7 @@ static s32 convert_texture_level(plContext* lpcontext, plContext* tcon, FLTextur
 
     case SCE_GS_PSMCT24:
         tex_size = tcon->width * tcon->height * 4;
-                set_pixelformat_rgb888(tcon);
+        set_pixelformat_rgb888(tcon);
         tcon->pixelformat.rs = 0;
         tcon->pixelformat.bs = 0x10;
         flPS2ConvertContext(lpcontext, tcon, 0, type);
@@ -818,7 +818,7 @@ static s32 convert_texture_level(plContext* lpcontext, plContext* tcon, FLTextur
 
     case SCE_GS_PSMCT32:
         tex_size = tcon->width * tcon->height * 4;
-                set_pixelformat_rgba8888(tcon);
+        set_pixelformat_rgba8888(tcon);
         tcon->pixelformat.rs = 0;
         tcon->pixelformat.bs = 0x10;
         flPS2ConvertContext(lpcontext, tcon, 0, type);
@@ -992,7 +992,7 @@ s32 flPS2ConvertContext(plContext* lpSrc, plContext* lpDst, u32 direction, u32 t
                      (((lpDst->pixelformat.rm & (r >> (8 - lpDst->pixelformat.rl))) << lpDst->pixelformat.rs) |
                       ((lpDst->pixelformat.gm & (g >> (8 - lpDst->pixelformat.gl))) << lpDst->pixelformat.gs)));
 
-            write_converted_pixel(lpSrc->bitdepth, dst, color, &(ConvertedRGB){ r, g, b });
+            write_converted_pixel(lpSrc->bitdepth, dst, color, &(ConvertedRGB) { r, g, b });
 
             wk0 += 1;
         }
