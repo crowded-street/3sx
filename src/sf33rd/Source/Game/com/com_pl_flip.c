@@ -285,6 +285,14 @@ static s32 Shell_Flip_Target_Rejected(WORK* shell) {
     return res;
 }
 
+static s32 Shell_Flip_None_Result(s32 res) {
+    if (res) {
+        return -1;
+    }
+
+    return 0;
+}
+
 static s32 Shell_Flip_Needs_Another(s32 res, WORK* shell) {
     return res || shell->vital_new < 256;
 }
@@ -318,11 +326,7 @@ static s32 Check_Shell_Flip(PLW* wk) {
 
     if (Shell_Flip_Needs_Another(res, shell)) {
         if ((xx = Check_Shell_Another_in_Flip(wk)) == 0) {
-            if (res) {
-                return -1;
-            }
-
-            return 0;
+            return Shell_Flip_None_Result(res);
         }
 
         if (xx > 16) {
