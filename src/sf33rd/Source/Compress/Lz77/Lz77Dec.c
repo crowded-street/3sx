@@ -55,6 +55,22 @@ static u8* copy_from_dictionary_stepped(u8* dst, const u8* dic, u8 step, s32 loo
     return dst;
 }
 
+/* A straight literal run: loop bytes copied out of the stream. The two literal
+ * opcodes wrote this loop out twice; it advances src the way fill_bytes and
+ * fill_ramp return dst. */
+static u8* lz77_copy_literals(u8** srcp, u8* dst, s32 loop) {
+    u8* src = *srcp;
+    s32 j;
+
+    for (j = 0; j < loop; j++) {
+        *dst++ = *src++;
+    }
+
+    *srcp = src;
+
+    return dst;
+}
+
 /* The literal and fill opcodes: the six ways a run is written out rather than
  * copied from the dictionary. Returns how many output bytes the opcode
  * produced, which is what the caller takes off the remaining size. An opcode
@@ -64,7 +80,6 @@ static s32 lz77_write_run(u8** srcp, u8** dstp, u16 offset) {
     u8* src = *srcp;
     u8* dst = *dstp;
     s32 loop = 0;
-    s32 j;
     u8 num;
     u8 step;
 
@@ -74,9 +89,7 @@ static s32 lz77_write_run(u8** srcp, u8** dstp, u16 offset) {
 
         loop = whole_loop_if_zero(loop, 0x100);
 
-        for (j = 0; j < loop; j++) {
-            *dst++ = *src++;
-        }
+        dst = lz77_copy_literals(&src, dst, loop);
 
         break;
 
@@ -86,9 +99,7 @@ static s32 lz77_write_run(u8** srcp, u8** dstp, u16 offset) {
 
         loop = whole_loop_if_zero(loop, 0x10000);
 
-        for (j = 0; j < loop; j++) {
-            *dst++ = *src++;
-        }
+        dst = lz77_copy_literals(&src, dst, loop);
 
         break;
 
