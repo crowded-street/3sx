@@ -248,6 +248,34 @@ static void halve_button_depths(s32 i, u8* kan) {
     }
 }
 
+/* What this frame's reading leaves in the pad: the buttons and sticks a pad
+ * kind the driver knows reports, or zeroes for anything else. */
+static void store_ps2_pad_state(s32 i, u8* kan) {
+switch (tarpad_root[i].kind) {
+case 1:
+case 2:
+case 4:
+case 8:
+case 16:
+case 32:
+    tarpad_root[i].sw = read_ps2_buttons(i, kan);
+
+    read_ps2_sticks(i);
+
+    ps2pad_backup[i] = ps2pad_state[i];
+    ps2pad_backup[i].ix.sw = ~ps2pad_backup[i].ix.sw;
+    break;
+
+default:
+    tarpad_root[i].sw = 0;
+    tarpad_root[i].stick[0].x = 0;
+    tarpad_root[i].stick[0].y = 0;
+    tarpad_root[i].stick[1].x = 0;
+    tarpad_root[i].stick[1].y = 0;
+    break;
+}
+}
+
 static s32 PADRead_for_PS2(s32 i) {
     u8 kan[12];
 
@@ -267,29 +295,7 @@ static s32 PADRead_for_PS2(s32 i) {
 
     ps2pad_state[i].ix.sw = ~ps2pad_state[i].ix.sw;
 
-    switch (tarpad_root[i].kind) {
-    case 1:
-    case 2:
-    case 4:
-    case 8:
-    case 16:
-    case 32:
-        tarpad_root[i].sw = read_ps2_buttons(i, kan);
-
-        read_ps2_sticks(i);
-
-        ps2pad_backup[i] = ps2pad_state[i];
-        ps2pad_backup[i].ix.sw = ~ps2pad_backup[i].ix.sw;
-        break;
-
-    default:
-        tarpad_root[i].sw = 0;
-        tarpad_root[i].stick[0].x = 0;
-        tarpad_root[i].stick[0].y = 0;
-        tarpad_root[i].stick[1].x = 0;
-        tarpad_root[i].stick[1].y = 0;
-        break;
-    }
+    store_ps2_pad_state(i, kan);
 
     return 1;
 }
