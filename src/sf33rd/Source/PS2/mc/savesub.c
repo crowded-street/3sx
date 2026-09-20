@@ -308,6 +308,31 @@ void SaveInit(SaveFileType file_type, SaveMode save_mode) {
     operation.mode = save_mode;
 }
 
+/* Write the save, keeping the previous one as a backup first. Returns whether
+ * the write happened, which is the one value the block produced. */
+static bool save_with_backup(const char* path, const char* backup_path, const void* buffer, Uint64 size) {
+    bool success = false;
+
+    const bool saves_dir_exists = create_saves_dir(operation.storage);
+
+    if (saves_dir_exists) {
+        bool backup_success = false;
+        const bool save_file_exists = SDL_GetStoragePathInfo(operation.storage, path, NULL);
+
+        if (save_file_exists) {
+            backup_success = SDL_CopyStorageFile(operation.storage, path, backup_path);
+        } else {
+            backup_success = true; // Nothing to backup
+        }
+
+        if (backup_success) {
+            success = SDL_WriteStorageFile(operation.storage, path, buffer, size);
+        }
+    }
+
+    return success;
+}
+
 s32 SaveMove() {
     switch (operation.state) {
     case SAVE_STATE_IDLE:
@@ -364,22 +389,7 @@ s32 SaveMove() {
             io = SDL_IOFromMem(buffer, format->size);
             info->serialize_handler(io);
 
-            const bool saves_dir_exists = create_saves_dir(operation.storage);
-
-            if (saves_dir_exists) {
-                bool backup_success = false;
-                const bool save_file_exists = SDL_GetStoragePathInfo(operation.storage, path, NULL);
-
-                if (save_file_exists) {
-                    backup_success = SDL_CopyStorageFile(operation.storage, path, backup_path);
-                } else {
-                    backup_success = true; // Nothing to backup
-                }
-
-                if (backup_success) {
-                    success = SDL_WriteStorageFile(operation.storage, path, buffer, format->size);
-                }
-            }
+            success = save_with_backup(path, backup_path, buffer, format->size);
 
             break;
         }
