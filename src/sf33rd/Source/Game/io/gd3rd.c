@@ -122,22 +122,22 @@ bool fsFileReadSync(void* buff) {
     return fsCheckFileReaded() == FS_READ_IDLE;
 }
 
-s32 load_it_use_any_key2(u16 fnum, void** adrs, s16* key, u8 kokey, u8 group) {
+s32 load_it_use_any_key2(const LoadAnyKeyArgs* a) {
     u32 size;
 
-    if (fnum >= AFS_GetFileCount()) {
-        flLogOut("ファイルナンバーに異常があります。ファイル番号：%d\n", fnum);
+    if (a->fnum >= AFS_GetFileCount()) {
+        flLogOut("ファイルナンバーに異常があります。ファイル番号：%d\n", a->fnum);
         while (1) {}
     }
 
-    size = fsGetFileSize(fnum);
-    *key = Pull_ramcnt_key(size, kokey, group, 0);
-    *adrs = Get_ramcnt_pointer(*key);
+    size = fsGetFileSize(a->fnum);
+    *a->key = Pull_ramcnt_key(size, a->kokey, a->group, 0);
+    *a->adrs = Get_ramcnt_pointer(*a->key);
 
-    if (load_it_use_this_key(fnum, *key)) {
+    if (load_it_use_this_key(a->fnum, *a->key)) {
         return size;
     } else {
-        Push_ramcnt_key(*key);
+        Push_ramcnt_key(*a->key);
         return 0;
     }
 }
@@ -147,7 +147,7 @@ s16 load_it_use_any_key(u16 fnum, u8 kokey, u8 group) {
     void* adrs;
     s16 key;
 
-    err = load_it_use_any_key2(fnum, &adrs, &key, kokey, group);
+    err = load_it_use_any_key2(&(LoadAnyKeyArgs){ fnum, &adrs, &key, kokey, group });
 
     if (err != 0) {
         return key;

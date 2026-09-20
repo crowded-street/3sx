@@ -207,7 +207,7 @@ void Scrscreen_Init() {
     ppgScrListShot.pal = &ppgScrPalShot;
     ppgScrListOpt.pal = &ppgScrPalOpt;
     ppgSetupCurrentDataList(&ppgScrList);
-    loadSize = load_it_use_any_key2(10, &loadAdrs, &key, 2, 0); // scrscrn.ppg
+    loadSize = load_it_use_any_key2(&(LoadAnyKeyArgs){ 10, &loadAdrs, &key, 2, 0 }); // scrscrn.ppg
 
     if (loadSize == 0) {
         flLogOut("Couldn't load scrscrn.ppg\n");

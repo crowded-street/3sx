@@ -523,7 +523,7 @@ void Bg_Texture_Load_Ending(s16 type) {
         scr_bcm[i] = ending_map_tbl[type][i];
     }
 
-    loadSize = load_it_use_any_key2(bgtex_ending_file[type], &loadAdrs, &key1, 2, 0);
+    loadSize = load_it_use_any_key2(&(LoadAnyKeyArgs){ bgtex_ending_file[type], &loadAdrs, &key1, 2, 0 });
     pmask = 0xFF000000;
     shift = 0x18;
 

@@ -125,7 +125,7 @@ void TITLE_Init() {
     ppgTitleList.tex = &ppgTitleTex;
     ppgTitleList.pal = NULL;
     ppgSetupCurrentDataList(&ppgTitleList);
-    loadSize = load_it_use_any_key2(78, &loadAdrs, &key, 2, 1); // TitleTM.ppg
+    loadSize = load_it_use_any_key2(&(LoadAnyKeyArgs){ 78, &loadAdrs, &key, 2, 1 }); // TitleTM.ppg
 
     if (loadSize == 0) {
         // Main title texture could not be loaded.

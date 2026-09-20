@@ -236,7 +236,7 @@ void CAPLOGO_Init() {
     ppgCapLogoList.tex = &ppgCapLogoTex;
     ppgCapLogoList.pal = &ppgCapLogoPal;
     ppgSetupCurrentDataList(&ppgCapLogoList);
-    loadSize = load_it_use_any_key2(75, &loadAdrs, &key, 2, 1); // CapLogo.ppg
+    loadSize = load_it_use_any_key2(&(LoadAnyKeyArgs){ 75, &loadAdrs, &key, 2, 1 }); // CapLogo.ppg
 
     if (loadSize == 0) {
         flLogOut("カプロゴのテクスチャが読み込めませんでした。\n");
@@ -315,7 +315,7 @@ void Warning_Init() {
     ppgAdxList.tex = &ppgWarTex;
     ppgAdxList.pal = &ppgAdxPal;
     ppgSetupCurrentDataList(&ppgWarList);
-    loadSize = load_it_use_any_key2(12, &loadAdrs, &key, 2, 1); // Warning.ppg
+    loadSize = load_it_use_any_key2(&(LoadAnyKeyArgs){ 12, &loadAdrs, &key, 2, 1 }); // Warning.ppg
 
     if (loadSize == 0) {
         flLogOut("警告文のテクスチャが読み込めませんでした。\n");
