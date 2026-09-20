@@ -3272,6 +3272,119 @@ not enough.
 failure rather than a warning, which is the good news: the gate catches it, as
 long as the gate is run on both configurations.
 
+### Recipe G's early exit inside a loop is `continue`
+
+*Added 2026-09-20, measured on `plpat09.c`.*
+
+Recipe G is written about a function: invert the outermost condition and return
+early. The same shape occurs one level in, where a loop body is a single `if`
+whose whole contents are the iteration's work and whose failure falls through to
+the next iteration. There the early exit is `continue`, and it is the same
+transformation with the same safety argument - the fall-through the guard
+reproduces is the end of the loop body rather than the end of the function.
+
+`place_tenguiwa_set`'s rock loop is the case: `if (num < 36) { ... }` wrapped
+seven statements and a `break`, and
+
+    if (!(num < 36)) {
+        continue;
+    }
+
+measured **9.92 -> 10.00** on its own. Note the negation: the condition is
+wrapped whole rather than rewritten as `num >= 36`, so no comparison operator
+changes and the rule against touching them is not tested.
+
+**It is not free, and it is not always right.** The same move on
+`Lz77Dec.c`'s decoder - three nested arms turned into two `continue` guards -
+cleared two of its four bumps and its nesting depth, and measured **flat at
+8.81 with cyclomatic complexity up by one**, because each `continue` is a branch
+the `else` was not. It reverted under rule 2. Measure it like any other step.
+
+### A Recipe X split must still name every enumerator
+
+*Added 2026-09-20, measured on `fistbump.c` - and caught by the Debug build,
+not by the Release one.*
+
+Splitting a `switch` over an `enum` leaves each half naming only some of the
+enumerators. Clang's `-Wswitch` objects to that, and this repository's Debug
+configuration turns it into an error:
+
+    error: enumeration values 'FISTBUMP_IDLE', 'FISTBUMP_CONNECTING', and
+    'FISTBUMP_SENDING_TOKEN' not handled in switch [-Werror,-Wswitch]
+
+Two things make this worth its own note. The first is that **the Release build
+compiled it cleanly**: the difference was the warning flags, not conditional
+compilation, so "build every configuration the file has code for" applies to a
+file with no `#if` in it at all. The second is the **cost of the fix**: a bare
+`default: break;` in the helper satisfies the compiler and is behaviour-neutral -
+a value matching nothing did nothing before - but it is one more branch, and on
+`fistbump.c` it put the helper back over the Complex Method threshold at cc 9
+and the file back from 9.68 to 9.20. Splitting once more cleared it.
+
+So there are two legal shapes, and which one to reach for is a measurement:
+
+- **No default anywhere**, where the parts *between them* name every enumerator.
+  That is the cheapest, and it is what `Fistbump_Run` ended up with.
+- **`default: break;` in the tail**, where they do not. Expect to pay a branch
+  for it, and be ready to split again.
+
+An `event->type` that is a `Uint32` rather than an enum raises none of this;
+`sdl_app.c`'s split needed no default at all.
+
+### An else-if prefix chain splits like a switch
+
+*Added 2026-09-20, measured on `fistbump.c`'s command parser.*
+
+Recipe X is written for a `switch`, and its safety argument is that case labels
+are mutually exclusive, so a value that used to match an arm in the first half
+still matches the same label in the second. A chain of `else if`s over disjoint
+prefixes has that property too - `strncmp(line, "SESSION ", 8) == 0` and
+`strncmp(line, "MATCH ", 6) == 0` cannot both hold - and the split is the same
+move, with the tail reached from the chain's new `else`:
+
+    } else if (strncmp(line, "TOKEN ", 6) == 0) {
+        Fistbump_HandleTOKEN(line);
+    } else {
+        Fistbump_ParseMatchCommand(line);
+    }
+
+`Fistbump_ParseCommand` went cc 9 -> 5 and the file **9.38 -> 9.68**.
+
+**The precondition is the exclusivity, and it has to be checked rather than
+assumed.** Prefixes where one is a prefix of another - `"MATCH "` and
+`"MATCHED "` - are not disjoint, and there the chain encodes an order that
+splitting would change. Read the arms before cutting.
+
+### A dispatch shim's entry points group by signature
+
+*Added 2026-09-20, measured on `core/renderer.c`.*
+
+A platform shim is often one dispatch written once per entry point: a guard, and
+the backend call this build has. Eleven of those in `renderer.c` differ only in
+the pair of backend names, which is exactly Recipe F's relaxed case - except
+that Recipe F requires the pointed-to functions to share a signature, and a
+shim's entry points do not all share one.
+
+**Group them by signature and fold each group.** Seven `void(unsigned int)`
+handle operations folded onto one helper (**8.28 -> 9.38**) and the two
+`(const Sprite*, unsigned int)` draws onto another; `DrawSprite2` takes a
+`Sprite2*` and `DrawSolidQuad` a `Quad*`, so each is alone and both stay as they
+are.
+
+**Define the helper once per configuration rather than once with casts.** The
+two backends here spell the handle differently - `Uint32` against
+`unsigned int` - and Recipe F forbids casting a function pointer to make two
+signatures fit. Writing
+
+    #if CRS_VIDEO_DRIVER_SDL_GENERIC
+    static void renderer_handle_op(Uint32 handle, void (*op)(Uint32)) { ... }
+    #elif CRS_VIDEO_DRIVER_PSP
+    static void renderer_handle_op(unsigned int handle, void (*op)(unsigned int)) { ... }
+    #endif
+
+costs a few lines, needs no cast, and puts each definition inside the same `#if`
+as the call sites that name it, so neither build carries an unreferenced static.
+
 ### Three gates, and what each one is blind to
 
 *Added 2026-09-20, after each of the three passed on something broken.*
