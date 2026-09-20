@@ -3330,6 +3330,36 @@ cleared two of its four bumps and its nesting depth, and measured **flat at
 8.81 with cyclomatic complexity up by one**, because each `continue` is a branch
 the `else` was not. It reverted under rule 2. Measure it like any other step.
 
+### Type-check the configuration your machine cannot build
+
+*Added 2026-09-20, measured on `core/renderer.c` and `psp_renderer.c`.*
+
+"Build every configuration the file has code for" is easy where both configurations
+build here. It is not the whole story for a file whose other branch targets a platform
+this machine has no toolchain for. `core/renderer.c` carries an
+`#elif CRS_VIDEO_DRIVER_PSP` arm that never compiles on a Mac or a PC, and a Recipe F
+fold has to change that arm as well as the one that does.
+
+**`clang -fsyntax-only` with the other configuration's macros forced gets most of the
+way there**, provided the branch's own includes are plain headers:
+
+    clang -fsyntax-only -Isrc -Isrc/sdk \
+          -DCRS_VIDEO_DRIVER_PSP=1 -DCRS_VIDEO_DRIVER_SDL_GENERIC=0 \
+          src/core/renderer.c
+
+That parses the PSP arm and type-checks every call in it against the real prototypes in
+`psp_renderer.h` - which is what a function-pointer fold most needs checking, because a
+signature mismatch there is the one way Recipe F goes wrong. Run it before committing a
+change that touches a branch you cannot build.
+
+**Where it does not reach, do not refactor.** `psp_renderer.c` is one `#if
+CRS_VIDEO_DRIVER_PSP` from its first line, and it includes `<libgraph.h>` and the rest
+of the PSP SDK, so neither the build nor `-fsyntax-only` can see it. Its
+`draw_textured_sprite_rect` takes ten arguments and is an obvious Recipe A, with two call
+sites both in the same file - and it stays as it is, because the campaign's first gate
+cannot be run on it. Record the finding and move on; that is what "stop and report" is
+for.
+
 ### A Recipe X split must still name every enumerator
 
 *Added 2026-09-20, measured on `fistbump.c` - and caught by the Debug build,
