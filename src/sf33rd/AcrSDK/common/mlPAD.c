@@ -111,6 +111,18 @@ static void clear_conf_depths(FLPAD* dst) {
     }
 }
 
+/* One mapped slot's analogue depth: a real slot keeps the deepest press that
+ * reaches it, and a slot past the switch range goes through the io map. */
+static void apply_conf_depth(FLPAD* dst, u8 slot, u8 depth) {
+    if (slot < 0x10) {
+        if (dst->anshot.pow[slot] < depth) {
+            dst->anshot.pow[slot] = depth;
+        }
+    } else if (slot > 0x18) {
+        padconf_setup_depth(dst->anshot.pow, depth, flpad_io_map[slot]);
+    }
+}
+
 /* The configured button map: each raw bit contributes its mapped bit, and each
  * mapped slot takes the deepest press that reaches it. Returns the mapped
  * switch word, the one value the loop produced. */
@@ -125,13 +137,7 @@ static u32 map_conf_buttons(FLPAD* dst, const u8* csh, const u8* depthflip, u32 
             conf_data2 |= flpad_io_map[csh[j]];
         }
 
-        if (csh[j] < 0x10) {
-            if (dst->anshot.pow[csh[j]] < depthflip[j]) {
-                dst->anshot.pow[csh[j]] = depthflip[j];
-            }
-        } else if (csh[j] > 0x18) {
-            padconf_setup_depth(dst->anshot.pow, depthflip[j], flpad_io_map[csh[j]]);
-        }
+        apply_conf_depth(dst, csh[j], depthflip[j]);
     }
 
     return conf_data2;
