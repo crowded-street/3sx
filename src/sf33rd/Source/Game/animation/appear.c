@@ -86,14 +86,21 @@ s32 home_visitor_check(PLW* wk) {
     return hv_type;
 }
 
+/* Player two's side of the entry data: mirrored x, flipped facing, and the
+ * other side's appear flag. Only this arm is lifted - the two differ in three
+ * places and are not one block. */
+static void appear_data_set_second(PLW* wk, APPEAR_DATA* dtbl) {
+    wk->wu.xyz[0].disp.pos = bg_w.bgw[1].pos_x_work - dtbl->hx;
+    wk->wu.xyz[1].disp.pos = dtbl->hy;
+    wk->wu.rl_flag = (s8)((dtbl->rl + 1) & 1);
+    wk->wu.routine_no[4] = dtbl->rno;
+    Appear_flag[0] = dtbl->ixod;
+    wk->wu.char_index = dtbl->char_index;
+}
+
 void appear_data_set(PLW* wk, APPEAR_DATA* dtbl) {
     if (wk->wu.id) {
-        wk->wu.xyz[0].disp.pos = bg_w.bgw[1].pos_x_work - dtbl->hx;
-        wk->wu.xyz[1].disp.pos = dtbl->hy;
-        wk->wu.rl_flag = (s8)((dtbl->rl + 1) & 1);
-        wk->wu.routine_no[4] = dtbl->rno;
-        Appear_flag[0] = dtbl->ixod;
-        wk->wu.char_index = dtbl->char_index;
+        appear_data_set_second(wk, dtbl);
 
     } else {
         wk->wu.xyz[0].disp.pos = bg_w.bgw[1].pos_x_work + dtbl->hx;
