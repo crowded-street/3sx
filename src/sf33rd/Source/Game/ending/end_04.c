@@ -202,13 +202,23 @@ static void end_04_slide_to_mark() {
     bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
 }
 
-void end_401_0000() {
+/* The effects each slide scene spawns as it opens. The 402 scene spawns none,
+ * which the empty function says outright. */
+static void spawn_end_401_0000_effects(void) {
+    effect_E6_init(0x5D);
+    effect_H1_init();
+}
+
+static void spawn_end_402_0000_effects(void) {}
+
+/* The slide scene end_401_0000 and end_402_0000 share: open, spawn whatever the
+ * scene spawns, set the slide speed, and slide to the mark. */
+static void run_end_04_slide_scene(void (*spawn_effects)(void), s32 speed_x) {
     switch (bgw_ptr->r_no_1) {
     case 0:
         end_04_open_scene();
-        effect_E6_init(0x5D);
-        effect_H1_init();
-        bgw_ptr->speed_x = 0xC000;
+        spawn_effects();
+        bgw_ptr->speed_x = speed_x;
         bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
         break;
 
@@ -219,6 +229,10 @@ void end_401_0000() {
     case 2:
         break;
     }
+}
+
+void end_401_0000() {
+    run_end_04_slide_scene(spawn_end_401_0000_effects, 0xC000);
 }
 
 void end_401_1000() {
@@ -356,20 +370,7 @@ void end_402_move() {
 }
 
 void end_402_0000() {
-    switch (bgw_ptr->r_no_1) {
-    case 0:
-        end_04_open_scene();
-        bgw_ptr->speed_x = 0x8000;
-        bgw_ptr->abs_x = bgw_ptr->xy[0].disp.pos;
-        break;
-
-    case 1:
-        end_04_slide_to_mark();
-        break;
-
-    case 2:
-        break;
-    }
+    run_end_04_slide_scene(spawn_end_402_0000_effects, 0x8000);
 }
 
 void end_402_1000() {
