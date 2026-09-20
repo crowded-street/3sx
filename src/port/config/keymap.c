@@ -29,43 +29,43 @@ static const SDL_Scancode default_keymap[KEYMAP_BUTTON_COUNT][KEYMAP_CODES_PER_B
 static SDL_Scancode keymap[KEYMAP_BUTTON_COUNT][KEYMAP_CODES_PER_BUTTON] = {};
 static bool initialized_buttons[KEYMAP_BUTTON_COUNT] = { false };
 
+/* The button names, one per enumerator, keyed by the enumerator itself - the
+ * same shape default_keymap above already uses. This was a sixteen-arm switch
+ * whose every arm returned a string literal; each case label is now a
+ * designator and each returned literal its value, so the mapping reads off the
+ * page the way the switch did. */
+static const char* const button_names[KEYMAP_BUTTON_COUNT] = {
+    [KEYMAP_BUTTON_UP] = "up",
+    [KEYMAP_BUTTON_DOWN] = "down",
+    [KEYMAP_BUTTON_LEFT] = "left",
+    [KEYMAP_BUTTON_RIGHT] = "right",
+    [KEYMAP_BUTTON_NORTH] = "north",
+    [KEYMAP_BUTTON_WEST] = "west",
+    [KEYMAP_BUTTON_SOUTH] = "south",
+    [KEYMAP_BUTTON_EAST] = "east",
+    [KEYMAP_BUTTON_LEFT_SHOULDER] = "left-shoulder",
+    [KEYMAP_BUTTON_RIGHT_SHOULDER] = "right-shoulder",
+    [KEYMAP_BUTTON_LEFT_TRIGGER] = "left-trigger",
+    [KEYMAP_BUTTON_RIGHT_TRIGGER] = "right-trigger",
+    [KEYMAP_BUTTON_LEFT_STICK] = "left-stick",
+    [KEYMAP_BUTTON_RIGHT_STICK] = "right-stick",
+    [KEYMAP_BUTTON_BACK] = "back",
+    [KEYMAP_BUTTON_START] = "start",
+};
+
+/* The empty string stands for every button the table does not name, which is
+ * what the switch's default arm did: out of range, and - were an enumerator
+ * ever added without a name - the hole it would leave in the table. */
 static const char* get_button_name(KeymapButton button) {
-    switch (button) {
-    case KEYMAP_BUTTON_UP:
-        return "up";
-    case KEYMAP_BUTTON_DOWN:
-        return "down";
-    case KEYMAP_BUTTON_LEFT:
-        return "left";
-    case KEYMAP_BUTTON_RIGHT:
-        return "right";
-    case KEYMAP_BUTTON_NORTH:
-        return "north";
-    case KEYMAP_BUTTON_WEST:
-        return "west";
-    case KEYMAP_BUTTON_SOUTH:
-        return "south";
-    case KEYMAP_BUTTON_EAST:
-        return "east";
-    case KEYMAP_BUTTON_LEFT_SHOULDER:
-        return "left-shoulder";
-    case KEYMAP_BUTTON_RIGHT_SHOULDER:
-        return "right-shoulder";
-    case KEYMAP_BUTTON_LEFT_TRIGGER:
-        return "left-trigger";
-    case KEYMAP_BUTTON_RIGHT_TRIGGER:
-        return "right-trigger";
-    case KEYMAP_BUTTON_LEFT_STICK:
-        return "left-stick";
-    case KEYMAP_BUTTON_RIGHT_STICK:
-        return "right-stick";
-    case KEYMAP_BUTTON_BACK:
-        return "back";
-    case KEYMAP_BUTTON_START:
-        return "start";
-    default:
+    if (button < 0 || button >= KEYMAP_BUTTON_COUNT) {
         return "";
     }
+
+    if (button_names[button] == NULL) {
+        return "";
+    }
+
+    return button_names[button];
 }
 
 static KeymapButton get_button(const char* name) {
