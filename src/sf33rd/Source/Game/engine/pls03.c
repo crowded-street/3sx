@@ -872,6 +872,29 @@ static const u16* select_waza_table(const PLW* wk, s16 kos, AsstblCharRows* arca
 /* Which waza table a step level reads. The switch used to sit inside
  * waza_select; its default returned 0 from that function, which here is a null
  * table the caller turns back into the same 0. */
+/* The upper half of the step-level table dispatch. Split off because one switch
+ * over eleven levels is one Complex Method; the lower half hands everything it
+ * does not name to this one, so an unknown level still reaches the same null. */
+static const u16* select_waza_table_for_high_step(PLW* wk, s16 kos, s16 sf) {
+    switch (sf) {
+    case 3:
+    case 6:
+    case 9:
+        return select_waza_table(wk, kos, asstbl_lv_3000_arcade, _asstbl_lv_3000);
+
+    case 4:
+    case 7:
+    case 10:
+        return select_waza_table(wk, kos, asstbl_lv_4000_arcade, _asstbl_lv_4000);
+
+    default:
+        return NULL;
+    }
+}
+
+/* Which waza table a step level reads. The switch used to sit inside
+ * waza_select; its default returned 0 from that function, which here is a null
+ * table the caller turns back into the same 0. */
 static const u16* select_waza_table_for_step(PLW* wk, s16 kos, s16 sf) {
     switch (sf) {
     case 0:
@@ -885,18 +908,8 @@ static const u16* select_waza_table_for_step(PLW* wk, s16 kos, s16 sf) {
     case 8:
         return select_waza_table(wk, kos, asstbl_lv_2000_arcade, _asstbl_lv_2000);
 
-    case 3:
-    case 6:
-    case 9:
-        return select_waza_table(wk, kos, asstbl_lv_3000_arcade, _asstbl_lv_3000);
-
-    case 4:
-    case 7:
-    case 10:
-        return select_waza_table(wk, kos, asstbl_lv_4000_arcade, _asstbl_lv_4000);
-
     default:
-        return NULL;
+        return select_waza_table_for_high_step(wk, kos, sf);
     }
 }
 
