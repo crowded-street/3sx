@@ -486,20 +486,36 @@ static void setup_bgra8888_context(plContext* c) {
     c->pitch = c->width * c->bitdepth;
 }
 
-static void lock_convert_direct_formats(const FlLockArgs* a, plContext* src, u8* buff_ptr, u8* buff_ptr1) {
-    switch (a->lpflTexture->format) {
+/* A direct-colour conversion, as the two sides of a lock see it. Both apply the
+ * same pair of setups - the rgb one to one context and the bgr one to the other -
+ * and then convert between them; they disagree only on which context is which
+ * and which way the conversion runs. */
+typedef struct {
+    plContext* rgb_side;
+    plContext* bgr_side;
+    plContext* convert_to;
+    plContext* convert_from;
+} DirectFormatConvert;
+
+static void convert_direct_formats(s32 format, const DirectFormatConvert* c) {
+    switch (format) {
     case 1:
-        setup_rgb888_context(a->lpcontext);
-        setup_bgr888_context(src);
-        plConvertContext(a->lpcontext, src);
+        setup_rgb888_context(c->rgb_side);
+        setup_bgr888_context(c->bgr_side);
+        plConvertContext(c->convert_to, c->convert_from);
         break;
 
     case 0:
-        setup_rgba8888_context(a->lpcontext);
-        setup_bgra8888_context(src);
-        plConvertContext(a->lpcontext, src);
+        setup_rgba8888_context(c->rgb_side);
+        setup_bgra8888_context(c->bgr_side);
+        plConvertContext(c->convert_to, c->convert_from);
         break;
     }
+}
+
+/* Locking reads the texture's bgr into the caller's context. */
+static void lock_convert_direct_formats(const FlLockArgs* a, plContext* src, u8* buff_ptr, u8* buff_ptr1) {
+    convert_direct_formats(a->lpflTexture->format, &(DirectFormatConvert) { a->lpcontext, src, a->lpcontext, src });
 }
 
 static void lock_convert_by_format(const FlLockArgs* a, plContext* src, u8* buff_ptr, u8* buff_ptr1) {
@@ -635,26 +651,9 @@ s32 flUnlockPalette(u32 th) {
     return unlock_fl_entry(flPalette, th, FL_PALETTE_MAX, Renderer_UnlockPalette);
 }
 
-/* Unlocking a read-write lock puts the buffer back the way the hardware wants
- * it: a straight copy for the paletted formats, and a conversion between the
- * two contexts the caller has just pointed at the lock buffer and the texture's
- * own memory for the rest. This is the arm's own switch, moved out whole; the
- * two buffers it copied between are the two contexts' own pointers. */
-/* The direct-colour half of the unlock conversion, reached the same way. */
+/* Unlocking writes it back the other way. */
 static void unlock_convert_direct_formats(FLTexture* lpflTexture, plContext* src, plContext* dst) {
-    switch (lpflTexture->format) {
-    case 1:
-        setup_rgb888_context(src);
-        setup_bgr888_context(dst);
-        plConvertContext(dst, src);
-        break;
-
-    case 0:
-        setup_rgba8888_context(src);
-        setup_bgra8888_context(dst);
-        plConvertContext(dst, src);
-        break;
-    }
+    convert_direct_formats(lpflTexture->format, &(DirectFormatConvert) { src, dst, dst, src });
 }
 
 static void unlock_convert_by_format(FLTexture* lpflTexture, plContext* src, plContext* dst) {
