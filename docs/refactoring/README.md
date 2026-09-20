@@ -17,13 +17,13 @@ Measured across every first-party `.c` and `.cpp` file. Vendored code (`src/imgu
 | Band | Score | 2026-09-01 | 2026-09-19 | 2026-09-20 |
 | --- | --- | --- | --- | --- |
 | **Red** - severe debt | 1.0 - 3.9 | **19** | **0** | **0** |
-| **Yellow** - problematic debt | 4.0 - 8.9 | **207** | 124 | 69 |
-| Green | 9.0 - 9.9 | 158 | 84 | 97 |
-| Optimal | 10.0 | 98 | 444 | **493** |
+| **Yellow** - problematic debt | 4.0 - 8.9 | **207** | 124 | 62 |
+| Green | 9.0 - 9.9 | 158 | 84 | 101 |
+| Optimal | 10.0 | 98 | 444 | **496** |
 | **Total scored** | | **482** | 652 | **659** |
 
 The file count rises because the campaign splits files. Mean Code Health across every
-scorable first-party file is now **9.74**.
+scorable first-party file is now **9.75**.
 
 **The worst file in the repository scores 7.55.** The nine lowest are all in
 `Game/com/patterns`, the shared skeleton module, and they are priced against CodeScene's
