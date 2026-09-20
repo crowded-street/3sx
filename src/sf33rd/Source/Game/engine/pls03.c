@@ -869,42 +869,41 @@ static const u16* select_waza_table(const PLW* wk, s16 kos, AsstblCharRows* arca
     return ps2[wk->player_number][kos];
 }
 
-s32 waza_select(PLW* wk, s16 kos, s16 sf) { // 🟢
-    const u16* wst;
-
+/* Which waza table a step level reads. The switch used to sit inside
+ * waza_select; its default returned 0 from that function, which here is a null
+ * table the caller turns back into the same 0. */
+static const u16* select_waza_table_for_step(PLW* wk, s16 kos, s16 sf) {
     switch (sf) {
     case 0:
-        wst = select_waza_table(wk, kos, asstbl_lv_0000_arcade, _asstbl_lv_0000);
-
-        break;
+        return select_waza_table(wk, kos, asstbl_lv_0000_arcade, _asstbl_lv_0000);
 
     case 1:
-        wst = select_waza_table(wk, kos, asstbl_lv_1000_arcade, _asstbl_lv_1000);
-
-        break;
+        return select_waza_table(wk, kos, asstbl_lv_1000_arcade, _asstbl_lv_1000);
 
     case 2:
     case 5:
     case 8:
-        wst = select_waza_table(wk, kos, asstbl_lv_2000_arcade, _asstbl_lv_2000);
-
-        break;
+        return select_waza_table(wk, kos, asstbl_lv_2000_arcade, _asstbl_lv_2000);
 
     case 3:
     case 6:
     case 9:
-        wst = select_waza_table(wk, kos, asstbl_lv_3000_arcade, _asstbl_lv_3000);
-
-        break;
+        return select_waza_table(wk, kos, asstbl_lv_3000_arcade, _asstbl_lv_3000);
 
     case 4:
     case 7:
     case 10:
-        wst = select_waza_table(wk, kos, asstbl_lv_4000_arcade, _asstbl_lv_4000);
-
-        break;
+        return select_waza_table(wk, kos, asstbl_lv_4000_arcade, _asstbl_lv_4000);
 
     default:
+        return NULL;
+    }
+}
+
+s32 waza_select(PLW* wk, s16 kos, s16 sf) { // 🟢
+    const u16* wst = select_waza_table_for_step(wk, kos, sf);
+
+    if (wst == NULL) {
         return 0;
     }
 
