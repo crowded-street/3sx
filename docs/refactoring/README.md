@@ -14,14 +14,14 @@ and judged by an **external metric** (CodeScene Code Health) rather than by tast
 Measured across every first-party `.c` and `.cpp` file. Vendored code (`src/imgui`,
 `src/stb`, `src/argparse`) and generated tables (`src/bin2obj`) are excluded.
 
-| Band | Score | 2026-09-01 | 2026-09-19 | 2026-09-20 am | 2026-09-20 pm |
-| --- | --- | --- | --- | --- | --- |
-| **Red** - severe debt | 1.0 - 3.9 | **19** | **0** | **0** | **0** |
-| **Yellow** - problematic debt | 4.0 - 8.9 | **207** | 93 | 62 | 46 |
-| Green | 9.0 - 9.9 | 158 | 91 | 101 | 83 |
-| Optimal | 10.0 | 98 | 475 | 496 | **530** |
-| **Total scored** | | **482** | 659 | 659 | **659** |
-| Mean | | | 9.66 | 9.75 | **9.80** |
+| Band | Score | 2026-09-01 | 2026-09-19 | 2026-09-20 am | 2026-09-20 pm | 2026-09-20 eve |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| **Red** - severe debt | 1.0 - 3.9 | **19** | **0** | **0** | **0** | **0** |
+| **Yellow** - problematic debt | 4.0 - 8.9 | **207** | 93 | 62 | 46 | **29** |
+| Green | 9.0 - 9.9 | 158 | 91 | 101 | 83 | 80 |
+| Optimal | 10.0 | 98 | 475 | 496 | 530 | **551** |
+| **Total scored** | | **482** | 659 | 659 | 659 | **660** |
+| Mean | | | 9.66 | 9.75 | 9.80 | **9.84** |
 
 The file count rises because the campaign splits files.
 
