@@ -181,34 +181,39 @@ void get_extra_option_parameter(_EXTRA_OPTION* omop_extra) {
     omop_dokidoki = 0;
 }
 
+/* A system-direction setting that disables something when it is left unset:
+ * the two DIP words have one of these each. The setting's two subscripts and
+ * the flag are written out in full at every call site. */
+static void set_dip_if_unset(const SystemDir* sysdir_data, s32 a, s32 b, u32 flag) {
+    if (sysdir_data->contents[a][b] == 0) {
+        omop_spmv_ng_table[0] |= flag;
+    }
+}
+
+static void set_dip2_if_unset(const SystemDir* sysdir_data, s32 a, s32 b, u32 flag) {
+    if (sysdir_data->contents[a][b] == 0) {
+        omop_spmv_ng_table2[0] |= flag;
+    }
+}
+
 void get_system_direction_parameter(SystemDir* sysdir_data) {
     if (sysdir_data->contents[0][0] == 0) { // Ground parry disabled
         omop_spmv_ng_table[0] |= (DIP_UNKNOWN_8 | DIP_UNKNOWN_9);
     }
 
-    if (sysdir_data->contents[0][1] == 0) {
-        omop_spmv_ng_table[0] |= DIP_ANTI_AIR_PARRY_DISABLED;
-    }
+    set_dip_if_unset(sysdir_data, 0, 1, DIP_ANTI_AIR_PARRY_DISABLED);
 
-    if (sysdir_data->contents[0][2] == 0) {
-        omop_spmv_ng_table[0] |= DIP_AIR_PARRY_DISABLED;
-    }
+    set_dip_if_unset(sysdir_data, 0, 2, DIP_AIR_PARRY_DISABLED);
 
     omop_b_block_ix[0] = sysdir_data->contents[0][3];
 
-    if (sysdir_data->contents[0][4] == 0) {
-        omop_spmv_ng_table[0] |= DIP_RED_PARRY_DISABLED;
-    }
+    set_dip_if_unset(sysdir_data, 0, 4, DIP_RED_PARRY_DISABLED);
 
     omop_r_block_ix[0] = sysdir_data->contents[0][5];
 
-    if (sysdir_data->contents[1][0] == 0) {
-        omop_spmv_ng_table[0] |= DIP_GUARD_DISABLED;
-    }
+    set_dip_if_unset(sysdir_data, 1, 0, DIP_GUARD_DISABLED);
 
-    if (sysdir_data->contents[1][1] == 0) {
-        omop_spmv_ng_table[0] |= DIP_ABSOLUTE_GUARD_DISABLED;
-    }
+    set_dip_if_unset(sysdir_data, 1, 1, DIP_ABSOLUTE_GUARD_DISABLED);
 
     omop_guard_distance_ix[0] = sysdir_data->contents[1][2];
 
@@ -216,61 +221,37 @@ void get_system_direction_parameter(SystemDir* sysdir_data) {
         omop_spmv_ng_table[0] |= DIP_CHIP_DAMAGE_ENABLED;
     }
 
-    if (sysdir_data->contents[1][4] == 0) {
-        omop_spmv_ng_table2[0] |= DIP2_CHIP_DAMAGE_KO_DISABLED;
-    }
+    set_dip2_if_unset(sysdir_data, 1, 4, DIP2_CHIP_DAMAGE_KO_DISABLED);
 
     if (save_w[Present_Mode].GuardCheck) {
         omop_spmv_ng_table[0] |= DIP_NEW_GUARD_JUDGMENT_ENABLED;
     }
 
-    if (sysdir_data->contents[2][0] == 0) {
-        omop_spmv_ng_table[0] |= DIP_FORWARD_DASH_DISABLED;
-    }
+    set_dip_if_unset(sysdir_data, 2, 0, DIP_FORWARD_DASH_DISABLED);
 
-    if (sysdir_data->contents[2][1] == 0) {
-        omop_spmv_ng_table[0] |= DIP_BACK_DASH_DISABLED;
-    }
+    set_dip_if_unset(sysdir_data, 2, 1, DIP_BACK_DASH_DISABLED);
 
-    if (sysdir_data->contents[2][2] == 0) {
-        omop_spmv_ng_table[0] |= DIP_JUMP_DISABLED;
-    }
+    set_dip_if_unset(sysdir_data, 2, 2, DIP_JUMP_DISABLED);
 
-    if (sysdir_data->contents[2][3] == 0) {
-        omop_spmv_ng_table[0] |= DIP_HIGH_JUMP_DISABLED;
-    }
+    set_dip_if_unset(sysdir_data, 2, 3, DIP_HIGH_JUMP_DISABLED);
 
-    if (sysdir_data->contents[2][4] == 0) {
-        omop_spmv_ng_table2[0] |= DIP2_QUICK_STAND_DISABLED;
-    }
+    set_dip2_if_unset(sysdir_data, 2, 4, DIP2_QUICK_STAND_DISABLED);
 
-    if (sysdir_data->contents[3][0] == 0) {
-        omop_spmv_ng_table2[0] |= DIP2_THROW_DISABLED;
-    }
+    set_dip2_if_unset(sysdir_data, 3, 0, DIP2_THROW_DISABLED);
 
-    if (sysdir_data->contents[3][1] == 0) {
-        omop_spmv_ng_table2[0] |= DIP2_THROW_BREAK_DISABLED;
-    }
+    set_dip2_if_unset(sysdir_data, 3, 1, DIP2_THROW_BREAK_DISABLED);
 
     if (sysdir_data->contents[3][2] != 0) {
         omop_spmv_ng_table2[0] |= DIP2_THROW_BREAK_LOCKOUT_ENABLED;
     }
 
-    if (sysdir_data->contents[4][0] == 0) {
-        omop_spmv_ng_table2[0] |= DIP2_UNIVERSAL_OVERHEAD_DISABLED;
-    }
+    set_dip2_if_unset(sysdir_data, 4, 0, DIP2_UNIVERSAL_OVERHEAD_DISABLED);
 
-    if (sysdir_data->contents[4][1] == 0) {
-        omop_spmv_ng_table2[0] |= DIP2_UNIVERSAL_OVERHEAD_DEFAULT_INPUT_ENABLED;
-    }
+    set_dip2_if_unset(sysdir_data, 4, 1, DIP2_UNIVERSAL_OVERHEAD_DEFAULT_INPUT_ENABLED);
 
-    if (sysdir_data->contents[4][2] == 0) {
-        omop_spmv_ng_table[0] |= DIP_TAUNT_DISABLED;
-    }
+    set_dip_if_unset(sysdir_data, 4, 2, DIP_TAUNT_DISABLED);
 
-    if (sysdir_data->contents[4][3] == 0) {
-        omop_spmv_ng_table[0] |= DIP_TAUNT_AFTER_KO_DISABLED;
-    }
+    set_dip_if_unset(sysdir_data, 4, 3, DIP_TAUNT_AFTER_KO_DISABLED);
 
     if (sysdir_data->contents[5][0] == 0) { // Super arts disabled
         omop_spmv_ng_table[0] |= (DIP_UNKNOWN_30 | DIP_UNKNOWN_31);
@@ -280,93 +261,53 @@ void get_system_direction_parameter(SystemDir* sysdir_data) {
         omop_spmv_ng_table[0] |= (DIP_GROUND_SPECIALS_DISABLED | DIP_AIR_SPECIALS_DISABLED);
     }
 
-    if (sysdir_data->contents[5][2] == 0) {
-        omop_spmv_ng_table2[0] |= DIP2_EX_MOVE_DISABLED;
-    }
+    set_dip2_if_unset(sysdir_data, 5, 2, DIP2_EX_MOVE_DISABLED);
 
     omop_use_ex_gauge_ix[0] = sysdir_data->contents[5][3];
 
-    if (sysdir_data->contents[6][0] == 0) {
-        omop_spmv_ng_table2[0] |= DIP2_TARGET_COMBO_DISABLED;
-    }
+    set_dip2_if_unset(sysdir_data, 6, 0, DIP2_TARGET_COMBO_DISABLED);
 
-    if (sysdir_data->contents[6][1] == 0) {
-        omop_spmv_ng_table2[0] |= DIP2_SPECIAL_MOVE_SUPER_ART_CANCEL_DISABLED;
-    }
+    set_dip2_if_unset(sysdir_data, 6, 1, DIP2_SPECIAL_MOVE_SUPER_ART_CANCEL_DISABLED);
 
-    if (sysdir_data->contents[6][2] == 0) {
-        omop_spmv_ng_table2[0] |= DIP2_SUPER_ART_CANCEL_DISABLED;
-    }
+    set_dip2_if_unset(sysdir_data, 6, 2, DIP2_SUPER_ART_CANCEL_DISABLED);
 
-    if (sysdir_data->contents[6][3] == 0) {
-        omop_spmv_ng_table[0] |= DIP_HIGH_JUMP_CANCEL_DISABLED;
-    }
+    set_dip_if_unset(sysdir_data, 6, 3, DIP_HIGH_JUMP_CANCEL_DISABLED);
 
     if (sysdir_data->contents[6][4] == 1) {
         omop_spmv_ng_table[0] |= DIP_HIGH_JUMP_2ND_IMPACT_STYLE_ENABLED;
     }
 
-    if (sysdir_data->contents[7][0] == 0) {
-        omop_spmv_ng_table[0] |= DIP_AIR_GUARD_DISABLED;
-    }
+    set_dip_if_unset(sysdir_data, 7, 0, DIP_AIR_GUARD_DISABLED);
 
-    if (sysdir_data->contents[7][1] == 0) {
-        omop_spmv_ng_table[0] |= DIP_AUTO_AIR_RECOVERY_DISABLED;
-    }
+    set_dip_if_unset(sysdir_data, 7, 1, DIP_AUTO_AIR_RECOVERY_DISABLED);
 
-    if (sysdir_data->contents[7][2] == 0) {
-        omop_spmv_ng_table[0] |= DIP_AIR_KNOCKDOWNS_DISABLED;
-    }
+    set_dip_if_unset(sysdir_data, 7, 2, DIP_AIR_KNOCKDOWNS_DISABLED);
 
-    if (sysdir_data->contents[7][3] == 0) {
-        omop_spmv_ng_table[0] |= DIP_EXTREME_CHIP_DAMAGE_DISABLED;
-    }
+    set_dip_if_unset(sysdir_data, 7, 3, DIP_EXTREME_CHIP_DAMAGE_DISABLED);
 
-    if (sysdir_data->contents[7][4] == 0) {
-        omop_spmv_ng_table2[0] |= DIP2_SA_GAUGE_MAX_START_DISABLED;
-    }
+    set_dip2_if_unset(sysdir_data, 7, 4, DIP2_SA_GAUGE_MAX_START_DISABLED);
 
-    if (sysdir_data->contents[7][5] == 0) {
-        omop_spmv_ng_table2[0] |= DIP2_SA_GAUGE_ROUND_RESET_DISABLED;
-    }
+    set_dip2_if_unset(sysdir_data, 7, 5, DIP2_SA_GAUGE_ROUND_RESET_DISABLED);
 
-    if (sysdir_data->contents[8][0] == 0) {
-        omop_spmv_ng_table2[0] |= DIP2_GROUND_CHAIN_COMBO_DISABLED;
-    }
+    set_dip2_if_unset(sysdir_data, 8, 0, DIP2_GROUND_CHAIN_COMBO_DISABLED);
 
-    if (sysdir_data->contents[8][1] == 0) {
-        omop_spmv_ng_table2[0] |= DIP2_AIR_CHAIN_COMBO_DISABLED;
-    }
+    set_dip2_if_unset(sysdir_data, 8, 1, DIP2_AIR_CHAIN_COMBO_DISABLED);
 
-    if (sysdir_data->contents[8][2] == 0) {
-        omop_spmv_ng_table2[0] |= DIP2_ALL_NORMALS_CANCELLABLE_DISABLED;
-    }
+    set_dip2_if_unset(sysdir_data, 8, 2, DIP2_ALL_NORMALS_CANCELLABLE_DISABLED);
 
-    if (sysdir_data->contents[8][3] == 0) {
-        omop_spmv_ng_table2[0] |= DIP2_ALL_MOVES_CANCELLABLE_BY_HIGH_JUMP_DISABLED;
-    }
+    set_dip2_if_unset(sysdir_data, 8, 3, DIP2_ALL_MOVES_CANCELLABLE_BY_HIGH_JUMP_DISABLED);
 
-    if (sysdir_data->contents[8][4] == 0) {
-        omop_spmv_ng_table2[0] |= DIP2_ALL_MOVES_CANCELLABLE_BY_DASH_DISABLED;
-    }
+    set_dip2_if_unset(sysdir_data, 8, 4, DIP2_ALL_MOVES_CANCELLABLE_BY_DASH_DISABLED);
 
-    if (sysdir_data->contents[8][5] == 0) {
-        omop_spmv_ng_table2[0] |= DIP2_SPECIAL_TO_SPECIAL_CANCEL_DISABLED;
-    }
+    set_dip2_if_unset(sysdir_data, 8, 5, DIP2_SPECIAL_TO_SPECIAL_CANCEL_DISABLED);
 
-    if (sysdir_data->contents[9][0] == 0) {
-        omop_spmv_ng_table[0] |= DIP2_ALL_SUPER_ARTS_AVAILABLE_DISABLED;
-    }
+    set_dip_if_unset(sysdir_data, 9, 0, DIP2_ALL_SUPER_ARTS_AVAILABLE_DISABLED);
 
-    if (sysdir_data->contents[9][1] == 0) {
-        omop_spmv_ng_table2[0] |= DIP2_SA_TO_SA_CANCEL_DISABLED;
-    }
+    set_dip2_if_unset(sysdir_data, 9, 1, DIP2_SA_TO_SA_CANCEL_DISABLED);
 
     omop_otedama_ix[0] = sysdir_data->contents[9][2];
 
-    if (sysdir_data->contents[9][3] == 0) {
-        omop_spmv_ng_table2[0] |= DIP2_WHIFFED_NORMALS_BUILD_SA_GAUGE_DISABLED;
-    }
+    set_dip2_if_unset(sysdir_data, 9, 3, DIP2_WHIFFED_NORMALS_BUILD_SA_GAUGE_DISABLED);
 
     omop_spmv_ng_table[1] = omop_spmv_ng_table[0];
     omop_spmv_ng_table2[1] = omop_spmv_ng_table2[0];
