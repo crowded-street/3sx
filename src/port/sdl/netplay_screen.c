@@ -20,9 +20,9 @@ static int match_found_hold = 0;
 
 bool display_netplay_text = false;
 
-/* The status text matchmaking shows at the top of the screen, and the hold
- * that keeps one message up for a few frames before the next. */
-static void render_matchmaking_status(FistbumpState fs) {
+/* Which message the status area is showing: an error replaces it at once, any
+ * other change waits out the hold. */
+static void advance_display_state(FistbumpState fs) {
     // Errors show immediately. Other state changes hold the current
     // message for MM_TEXT_HOLD_FRAMES before switching.
     if (fs == FISTBUMP_ERROR) {
@@ -36,6 +36,12 @@ static void render_matchmaking_status(FistbumpState fs) {
         display_state = fs;
         transition_hold = MM_TEXT_HOLD_FRAMES;
     }
+}
+
+/* The status text matchmaking shows at the top of the screen, and the hold
+ * that keeps one message up for a few frames before the next. */
+static void render_matchmaking_status(FistbumpState fs) {
+    advance_display_state(fs);
 
     switch (display_state) {
     case FISTBUMP_IDLE:
