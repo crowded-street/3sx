@@ -2,15 +2,9 @@
 
 #include <SDL3/SDL.h>
 
-bool ADXDecoder_Init(ADXDecoder* decoder, SDL_IOStream* file) {
-    ADXHeader* header = &decoder->header;
-
-    if (file == NULL) {
-        return false;
-    }
-
-    SDL_zerop(header);
-
+/* The copyright stamp that identifies the stream, and the data offset it
+ * implies. Returns false where the original returned false. */
+static bool read_adx_copyright(ADXHeader* header, SDL_IOStream* file) {
     Uint16 copyright_offset;
     SDL_SeekIO(file, 2, SDL_IO_SEEK_SET);
     SDL_ReadU16BE(file, &copyright_offset);
@@ -25,6 +19,12 @@ bool ADXDecoder_Init(ADXDecoder* decoder, SDL_IOStream* file) {
         return false;
     }
 
+    return true;
+}
+
+/* The fixed header fields, each of which the decoder requires a single value
+ * of, then the rate, sample count and version. */
+static bool read_adx_fixed_header(ADXHeader* header, SDL_IOStream* file) {
     SDL_SeekIO(file, 4, SDL_IO_SEEK_SET);
     SDL_ReadU8(file, &header->encoding);
 
@@ -55,7 +55,12 @@ bool ADXDecoder_Init(ADXDecoder* decoder, SDL_IOStream* file) {
     SDL_ReadU16BE(file, &header->highpass_frequency);
     SDL_ReadU8(file, &header->version);
     SDL_ReadU8(file, &header->flags);
+    return true;
+}
 
+/* The loop points, which the two header versions put in different places. The
+ * flag the switch produces is consumed here, where it was consumed before. */
+static bool read_adx_loop_header(ADXHeader* header, SDL_IOStream* file) {
     Uint32 loop_enabled = 0;
 
     switch (header->version) {
@@ -96,13 +101,41 @@ bool ADXDecoder_Init(ADXDecoder* decoder, SDL_IOStream* file) {
     }
 
     header->loop_enabled = (loop_enabled == 1);
+    return true;
+}
 
+/* The highpass filter's two fixed-point coefficients. */
+static void compute_adx_coefficients(ADXDecoder* decoder, const ADXHeader* header) {
     const double a =
         SDL_sqrt(2.0) - SDL_cos(2.0 * SDL_PI_D * ((double)header->highpass_frequency / header->sample_rate));
     const double b = SDL_sqrt(2.0) - 1.0;
     const double c = (a - SDL_sqrt((a + b) * (a - b))) / b;
     decoder->coefficients[0] = (Sint32)SDL_floor(c * 2.0 * 8192.0);
     decoder->coefficients[1] = (Sint32)SDL_floor(-(c * c) * 8192.0);
+}
+
+bool ADXDecoder_Init(ADXDecoder* decoder, SDL_IOStream* file) {
+    ADXHeader* header = &decoder->header;
+
+    if (file == NULL) {
+        return false;
+    }
+
+    SDL_zerop(header);
+
+    if (!read_adx_copyright(header, file)) {
+        return false;
+    }
+
+    if (!read_adx_fixed_header(header, file)) {
+        return false;
+    }
+
+    if (!read_adx_loop_header(header, file)) {
+        return false;
+    }
+
+    compute_adx_coefficients(decoder, header);
 
     decoder->sample_index = 0;
     SDL_zeroa(decoder->past_samples);
