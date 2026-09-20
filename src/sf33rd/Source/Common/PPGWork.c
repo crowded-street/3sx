@@ -82,8 +82,26 @@ static void purge_palette_if_loaded(Palette* pal) {
     }
 }
 
-void ppgPurgeFromVRAM(s32 type) {
+/* The two texture sets the purge walks rather than names one at a time. */
+static void purge_stage_bg_textures() {
     s32 i;
+
+    for (i = 0; i < 4; i++) {
+        purge_texture_if_loaded(&ppgBgTex[i]);
+    }
+}
+
+static void purge_multi_textures() {
+    s32 i;
+
+    for (i = 1; i < 24; i++) {
+        if ((mts_ok[i].be) && (mts[i].tex.be)) {
+            ppgPurgeTextureFromVRAM(&mts[i].tex);
+        }
+    }
+}
+
+void ppgPurgeFromVRAM(s32 type) {
 
     switch (type) {
     case 0:
@@ -117,9 +135,7 @@ void ppgPurgeFromVRAM(s32 type) {
         break;
 
     case 4:
-        for (i = 0; i < 4; i++) {
-            purge_texture_if_loaded(&ppgBgTex[i]);
-        }
+        purge_stage_bg_textures();
 
         purge_palette_if_loaded(&col3rd_w.palDC);
         purge_palette_if_loaded(&col3rd_w.palCP3);
@@ -131,11 +147,7 @@ void ppgPurgeFromVRAM(s32 type) {
         break;
 
     case 5:
-        for (i = 1; i < 24; i++) {
-            if ((mts_ok[i].be) && (mts[i].tex.be)) {
-                ppgPurgeTextureFromVRAM(&mts[i].tex);
-            }
-        }
+        purge_multi_textures();
 
         purge_palette_if_loaded(&col3rd_w.palDC);
         purge_palette_if_loaded(&col3rd_w.palCP3);
