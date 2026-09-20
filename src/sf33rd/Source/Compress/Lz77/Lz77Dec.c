@@ -185,9 +185,37 @@ static s32 lz77_copy_long_run(u8** srcp, u8** dstp, u16 offset) {
     return loop;
 }
 
-s32 decLZ77withSizeCheck(u8* src, u8* dst, s32 size) {
-    s32 loop;
+/* The short dictionary opcode: an eleven-bit back-reference with a four-bit
+ * length, both stored one less than they mean. Returns how many output bytes it
+ * produced, on the same terms as the other two. */
+static s32 lz77_copy_short_run(u8** srcp, u8** dstp, u16 offset) {
+    u8* src = *srcp;
+    u8* dst = *dstp;
     u8* dic;
+    s32 loop;
+
+    offset = (offset << 8) | *src++;
+    loop = offset & 0xF;
+
+    loop = whole_loop_if_zero(loop, 0x10);
+
+    offset = (offset >> 4) & 0x7FF;
+
+    if (offset == 0) {
+        offset = 0x800;
+    }
+
+    dic = dst - offset;
+
+    dst = copy_from_dictionary(dst, dic, loop);
+
+    *srcp = src;
+    *dstp = dst;
+
+    return loop;
+}
+
+s32 decLZ77withSizeCheck(u8* src, u8* dst, s32 size) {
     u16 offset;
 
     while (size > 0) {
@@ -200,22 +228,7 @@ s32 decLZ77withSizeCheck(u8* src, u8* dst, s32 size) {
                 size -= lz77_write_run(&src, &dst, offset);
             }
         } else {
-            offset = (offset << 8) | *src++;
-            loop = offset & 0xF;
-
-            loop = whole_loop_if_zero(loop, 0x10);
-
-            offset = (offset >> 4) & 0x7FF;
-
-            if (offset == 0) {
-                offset = 0x800;
-            }
-
-            dic = dst - offset;
-
-            dst = copy_from_dictionary(dst, dic, loop);
-
-            size -= loop;
+            size -= lz77_copy_short_run(&src, &dst, offset);
         }
     }
 
