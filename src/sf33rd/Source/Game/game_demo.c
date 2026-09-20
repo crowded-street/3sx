@@ -94,42 +94,11 @@ static void enter_demo_loop() {
     Reset_Bootrom = 0;
 }
 
-void Loop_Demo(struct _TASK* /* unused */) {
-    if (Ck_Coin()) {
-        Next_Title_Sub();
-        return;
-    }
-
-    switch (G_No[1]) {
-    case 0:
-        enter_demo_loop();
-        break;
-
-    case 1:
-        Basic_Sub();
-
-        if (CAPCOM_Logo() != 0) {
-            Loop_Demo_Sub();
-            Insert_Y = 23;
-            E_No[1] = 2;
-            E_Timer = 1;
-            return;
-        }
-
-        break;
-
-    case 2:
-        Basic_Sub();
-
-        if (Title()) {
-            Loop_Demo_Sub();
-            Insert_Y = 17;
-            D_No[0] = 1;
-            return;
-        }
-
-        break;
-
+/* The attract sequence's later stages, reached from the demo loop's new
+ * default. Every case keeps its original label, and the original default -
+ * the cover timer - is the default here. */
+static void run_demo_attract_stage(u8 stage) {
+    switch (stage) {
     case 3:
         if (Play_Demo() != 0) {
             Switch_Screen(1);
@@ -188,6 +157,48 @@ void Loop_Demo(struct _TASK* /* unused */) {
             Next_Demo_Loop();
         }
 
+        break;
+    }
+}
+
+void Loop_Demo(struct _TASK* /* unused */) {
+    if (Ck_Coin()) {
+        Next_Title_Sub();
+        return;
+    }
+
+    switch (G_No[1]) {
+    case 0:
+        enter_demo_loop();
+        break;
+
+    case 1:
+        Basic_Sub();
+
+        if (CAPCOM_Logo() != 0) {
+            Loop_Demo_Sub();
+            Insert_Y = 23;
+            E_No[1] = 2;
+            E_Timer = 1;
+            return;
+        }
+
+        break;
+
+    case 2:
+        Basic_Sub();
+
+        if (Title()) {
+            Loop_Demo_Sub();
+            Insert_Y = 17;
+            D_No[0] = 1;
+            return;
+        }
+
+        break;
+
+    default:
+        run_demo_attract_stage(G_No[1]);
         break;
     }
 }
