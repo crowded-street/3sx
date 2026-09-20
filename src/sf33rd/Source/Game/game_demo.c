@@ -70,6 +70,30 @@
 #include "sf33rd/Source/Game/game_internal.h"
 
 
+/* The demo loop's first frame: every counter and flag the attract sequence
+ * starts from. */
+static void enter_demo_loop() {
+    G_No[1] += 1;
+    G_No[2] = 0;
+    G_No[3] = 0;
+    D_No[0] = 0;
+    D_No[1] = 0;
+    D_No[2] = 0;
+    D_No[3] = 0;
+    E_No[1] = 99;
+    Demo_PL_Index = 0;
+    Demo_Stage_Index = 0;
+    Select_Demo_Index = 0;
+    Insert_Y = 23;
+    Demo_Flag = 0;
+    Play_Mode = 0;
+    Replay_Status[0] = 0;
+    Replay_Status[1] = 0;
+    Present_Mode = 0;
+    title_tex_flag = 0;
+    Reset_Bootrom = 0;
+}
+
 void Loop_Demo(struct _TASK* /* unused */) {
     if (Ck_Coin()) {
         Next_Title_Sub();
@@ -78,25 +102,7 @@ void Loop_Demo(struct _TASK* /* unused */) {
 
     switch (G_No[1]) {
     case 0:
-        G_No[1] += 1;
-        G_No[2] = 0;
-        G_No[3] = 0;
-        D_No[0] = 0;
-        D_No[1] = 0;
-        D_No[2] = 0;
-        D_No[3] = 0;
-        E_No[1] = 99;
-        Demo_PL_Index = 0;
-        Demo_Stage_Index = 0;
-        Select_Demo_Index = 0;
-        Insert_Y = 23;
-        Demo_Flag = 0;
-        Play_Mode = 0;
-        Replay_Status[0] = 0;
-        Replay_Status[1] = 0;
-        Present_Mode = 0;
-        title_tex_flag = 0;
-        Reset_Bootrom = 0;
+        enter_demo_loop();
         break;
 
     case 1:
