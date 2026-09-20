@@ -291,6 +291,36 @@ in families of exactly two: `gfold --min-members 2` folded **72 of them onto 36 
 `verify` reported 1621 pattern functions and 0 differing, and the folder's mean went to
 **8.91** with the files at 10.00 rising from four to nine.
 
+**Amended 2026-09-20: two is enough when `inline_equiv.py` checks the fold.**
+The 2026-09-19 amendment relaxed the three-instance rule where the fold was
+*generated* and *verified by re-expansion*, and said in its own words that "it is the
+verification, not the instance count, that makes the merge safe". The generator was
+`passive_fold.py`, because that is what the pattern folders had. `tools/inline_equiv.py`
+answers the same question for a fold written by hand: it substitutes the helper's body
+back into each call site and diffs the result against the original function, so a
+transposed argument, a renamed parameter or a dropped statement shows up as a differing
+function rather than as a judgement call.
+
+So a **two-instance** family may be folded when **all** of these hold, on top of every
+precondition above:
+
+- **The skeleton is byte-identical apart from the literals.** Not nearly - run a diff, do
+  not read it by eye. If a statement, an operator or a subscript differs anywhere, this is
+  Recipe D's refused near-miss and stays refused.
+- **Only literals vary**, under this recipe's existing reading of "literal": a number, a
+  named constant, or a struct field travelling as its address.
+- **`tools/inline_equiv.py --helper <name> <file>` reports 0 differ.** A DIFFERS is read
+  rather than obeyed - the four blind spots below apply - but it has to be resolved before
+  the fold lands, not after.
+- **The guard shows the deduplication WARN** with every value still present.
+
+What this does not relax: two blocks that differ in anything but their literals are still
+Recipe D's forbidden case, and no amount of checking makes them one idiom.
+
+Measured on `Game/ending`, which is where the question was raised: `end_18.c`'s pair
+differs in an effect id and a message index and nothing else, and folding it measures
+**9.38 -> 10.00**.
+
 **The original open question, left for the record.** Six files in `Game/ending`
 plateau at 9.38 with nothing left but a *two-instance* family of this exact shape - one
 skeleton, identical character for character, differing only in literals that would be
