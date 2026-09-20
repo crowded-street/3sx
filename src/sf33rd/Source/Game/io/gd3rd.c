@@ -321,21 +321,31 @@ static void Pop_Load_Request_Queue() {
     q_ldreq[i].type = LDREQ_INVALID;
 }
 
+/* Running the head of the queue for a frame, and throwing the whole queue
+ * away when a break has been asked for. */
+static void Step_Load_Request_Queue() {
+    if (q_ldreq[0].status != LDREQ_STATUS_FREE) {
+        ldreq_process[q_ldreq[0].type](&q_ldreq[0]);
+
+        if (q_ldreq[0].status == LDREQ_STATUS_FREE) {
+            Pop_Load_Request_Queue();
+        }
+    }
+}
+
+static void Abort_Load_Request_Queue() {
+    if (q_ldreq[0].status == LDREQ_STATUS_RUNNING) {
+        fsCansel();
+    }
+
+    Init_Load_Request_Queue();
+}
+
 void Check_LDREQ_Queue() {
     if (!ldreq_break) {
-        if (q_ldreq[0].status != LDREQ_STATUS_FREE) {
-            ldreq_process[q_ldreq[0].type](&q_ldreq[0]);
-
-            if (q_ldreq[0].status == LDREQ_STATUS_FREE) {
-                Pop_Load_Request_Queue();
-            }
-        }
+        Step_Load_Request_Queue();
     } else {
-        if (q_ldreq[0].status == LDREQ_STATUS_RUNNING) {
-            fsCansel();
-        }
-
-        Init_Load_Request_Queue();
+        Abort_Load_Request_Queue();
     }
 }
 
