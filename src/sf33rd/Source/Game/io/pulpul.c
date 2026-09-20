@@ -410,6 +410,12 @@ s32 pulpul_pdVibMxStart(PPWORK* wk, s32 arg1, s32 arg2, PULPARA* param) {
     return vibParamTrans(wk->id, &adrs);
 }
 
+/* Nothing to play: no power, no unit, or a pad with no vibration profile.
+ * Copied character for character from the test it stood in. */
+static s32 vibration_is_off(const PULPARA* prm, u8 profile) {
+    return (prm->power == 0) || (prm->unit == 0) || (profile == 0);
+}
+
 s32 vibParamTrans(s32 id, PULPARA* prm) {
     s32 vib_data_size;
     s32 rnum;
@@ -418,7 +424,7 @@ s32 vibParamTrans(s32 id, PULPARA* prm) {
     u8 profile;
 
     profile = ps2slot[id].vprofile & 3;
-    if ((prm->power == 0) || (prm->unit == 0) || (profile == 0)) {
+    if (vibration_is_off(prm, profile)) {
         switch (profile) {
         case 1:
         case 2:
