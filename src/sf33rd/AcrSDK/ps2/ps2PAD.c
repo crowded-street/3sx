@@ -512,10 +512,11 @@ static s32 identify_pad(s32 i) {
     return 1;
 }
 
-void PADReadSub(s32 i) {
+/* Whether the slot is usable this frame, and whether the pad answered. Each
+ * returns 0 where PADReadSub returned and 1 where it carried on. */
+static s32 pad_slot_stable(s32 i) {
     s32 pstate;
 
-    ps2pad_state[i] = ps2pad_backup[i];
     pstate = scePad2GetState(ps2slot[i].socket_id);
 
     switch (pstate) {
@@ -525,23 +526,41 @@ void PADReadSub(s32 i) {
 
     case scePad2StateNoLink:
         clear_pad_slot(i, 1);
-        return;
+        return 0;
 
     case scePad2StateExecCmd:
     case scePad2StateError:
     default:
         clear_pad_slot(i, 2);
-        return;
+        return 0;
     }
 
+    return 1;
+}
+
+static s32 pad_reported(s32 i) {
     if (ps2slot[i].phase == 0) {
         if (identify_pad(i) == 0) {
-            return;
+            return 0;
         }
     } else {
         if (read_pad_report(i) == 0) {
-            return;
+            return 0;
         }
+    }
+
+    return 1;
+}
+
+void PADReadSub(s32 i) {
+    ps2pad_state[i] = ps2pad_backup[i];
+
+    if (!pad_slot_stable(i)) {
+        return;
+    }
+
+    if (!pad_reported(i)) {
+        return;
     }
 
     tarpad_root[i].state = ps2slot[i].state;
