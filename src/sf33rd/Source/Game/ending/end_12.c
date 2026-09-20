@@ -126,21 +126,62 @@ static void end_12_open_scene() {
     bgw_ptr->xy[1].disp.pos = end_c_pos[end_w.r_no_2][1];
 }
 
-void end_C00_1000() {
+/* What the three C00 message scenes do and do not do around their message: only
+ * 1000 places the panel, each spawns its own effects, and 5000 leaves the colour
+ * limits alone. The empty functions say the "does not" cases outright. */
+static void place_end_C00_1000_panel(void) {
+    bgw_ptr->abs_x = 512;
+    bgw_ptr->abs_y = 0;
+}
+
+static void keep_end_C00_panel(void) {}
+
+static void spawn_end_C00_1000_effects(void) {
+    effect_E6_init(0x39);
+}
+
+static void spawn_end_C00_4000_effects(void) {
+    effect_E6_init(0x3B);
+}
+
+static void spawn_end_C00_5000_effects(void) {
+    effect_E6_init(0x3C);
+    effect_E6_init(0x99);
+}
+
+static void reset_end_C00_colour_limits(void) {
+    bgw_ptr->free = 0;
+    bgw_ptr->l_limit = 3;
+}
+
+static void keep_end_C00_colour_limits(void) {}
+
+typedef struct {
+    void (*place_panel)(void);
+    void (*spawn_effects)(void);
+    u16 message;
+    void (*set_colour_limits)(void);
+} End12SceneOps;
+
+/* The message scene end_C00_1000, end_C00_4000 and end_C00_5000 share. */
+static void run_end_12_message_scene(const End12SceneOps* ops) {
     switch (bgw_ptr->r_no_1) {
     case 0:
         end_12_open_scene();
-        bgw_ptr->abs_x = 512;
-        bgw_ptr->abs_y = 0;
-        effect_E6_init(0x39);
-        Rewrite_End_Message(2);
-        bgw_ptr->free = 0;
-        bgw_ptr->l_limit = 3;
+        ops->place_panel();
+        ops->spawn_effects();
+        Rewrite_End_Message(ops->message);
+        ops->set_colour_limits();
         break;
 
     case 1:
         break;
     }
+}
+
+void end_C00_1000() {
+    run_end_12_message_scene(&(End12SceneOps) {
+        place_end_C00_1000_panel, spawn_end_C00_1000_effects, 2, reset_end_C00_colour_limits });
 }
 
 void end_C00_2000() {
@@ -200,32 +241,13 @@ void end_C00_3000() {
 }
 
 void end_C00_4000() {
-    switch (bgw_ptr->r_no_1) {
-    case 0:
-        end_12_open_scene();
-        effect_E6_init(0x3B);
-        Rewrite_End_Message(4);
-        bgw_ptr->free = 0;
-        bgw_ptr->l_limit = 3;
-        break;
-
-    case 1:
-        break;
-    }
+    run_end_12_message_scene(&(End12SceneOps) {
+        keep_end_C00_panel, spawn_end_C00_4000_effects, 4, reset_end_C00_colour_limits });
 }
 
 void end_C00_5000() {
-    switch (bgw_ptr->r_no_1) {
-    case 0:
-        end_12_open_scene();
-        effect_E6_init(0x3C);
-        effect_E6_init(0x99);
-        Rewrite_End_Message(5);
-        break;
-
-    case 1:
-        break;
-    }
+    run_end_12_message_scene(&(End12SceneOps) {
+        keep_end_C00_panel, spawn_end_C00_5000_effects, 5, keep_end_C00_colour_limits });
 }
 
 void end_C00_6000() {
