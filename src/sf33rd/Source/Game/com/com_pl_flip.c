@@ -182,6 +182,23 @@ void Flip_2nd(PLW* wk) {
     }
 }
 
+static void Flip_Enter_Shell_Guard(PLW* wk) {
+    CP_No[wk->wu.id][0] = 9;
+    CP_No[wk->wu.id][1] = 0;
+    CP_No[wk->wu.id][2] = 0;
+    CP_No[wk->wu.id][3] = 0;
+    Timer_00[wk->wu.id] = 10;
+    Flip_Counter[wk->wu.id] = 255;
+    dash_flag_clear(wk->wu.id);
+    Lever_Buff[wk->wu.id] = Setup_Guard_Lever(wk, 1);
+
+    if (((WORK*)wk->wu.dmg_adrs)->att.guard & 0x10) {
+        return;
+    }
+
+    Lever_Buff[wk->wu.id] |= 2;
+}
+
 void Flip_3rd(PLW* wk) {
     s16 next_disposal;
 
@@ -205,20 +222,7 @@ void Flip_3rd(PLW* wk) {
         return;
 
     case 2:
-        CP_No[wk->wu.id][0] = 9;
-        CP_No[wk->wu.id][1] = 0;
-        CP_No[wk->wu.id][2] = 0;
-        CP_No[wk->wu.id][3] = 0;
-        Timer_00[wk->wu.id] = 10;
-        Flip_Counter[wk->wu.id] = 255;
-        dash_flag_clear(wk->wu.id);
-        Lever_Buff[wk->wu.id] = Setup_Guard_Lever(wk, 1);
-
-        if (((WORK*)wk->wu.dmg_adrs)->att.guard & 0x10) {
-            break;
-        }
-
-        Lever_Buff[wk->wu.id] |= 2;
+        Flip_Enter_Shell_Guard(wk);
         break;
 
     default:
